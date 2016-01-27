@@ -1,0 +1,63 @@
+<?php
+/**
+ * $URL: https://code.marketacumen.com/zesk/trunk/test/classes/database/query/insert/Database_Query_Insert_Select_test.inc $
+ * @package zesk
+ * @test_sandbox true
+ * @subpackage test
+ * @author Kent Davidson <kent@marketacumen.com>
+ * @copyright Copyright &copy; 2010, Market Acumen, Inc.
+ */
+class Database_Query_Insert_Select_Test extends Test_Unit {
+
+	function test_main() {
+		$db = Database::factory();
+		$testx = new Database_Query_Insert_Select($db);
+
+		$db = null;
+		$table = "test_table";
+		$testx->into($table);
+
+		echo $testx->__toString();
+
+		$mixed = null;
+		$value = null;
+		$success = false;
+		try {
+			$testx->what("*", $value);
+		} catch (Exception_Semantics $e) {
+			$success = true;
+		}
+		$this->assert($success);
+
+		$testx->what(array(
+			"A" => "B",
+			"*C" => "UTC_TIMESTAMP()",
+			"D" => "Table.Field"
+		));
+
+		$table = "from_table";
+		$alias = 'X';
+		$testx->from($table, $alias);
+
+		$sql = "INNER JOIN join_table J ON X.JID=J.ID";
+		$testx->join($sql);
+
+		$k = null;
+		$v = null;
+		$testx->where("X.Thing|>=", '20');
+
+		$order_by = null;
+		$testx->order_by("Created");
+
+		$group_by = null;
+		$testx->group_by($group_by);
+
+		$sql = strval($testx);
+		$sql = preg_replace('/\s+/', ' ', $sql);
+
+		$correct_sql = "INSERT INTO `test_table` ( `A`, `C`, `D` ) SELECT `B` AS `A`, UTC_TIMESTAMP() AS `C`, `Table`.`Field` AS `D` FROM `from_table` AS `X` INNER JOIN join_table J ON X.JID=J.ID WHERE `X`.`Thing` >= '20' ORDER BY Created";
+		$this->assert_equal($sql, $correct_sql);
+
+		echo basename(__FILE__) . ": success\n";
+	}
+}

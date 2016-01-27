@@ -1,0 +1,152 @@
+/* CSS Document */
+.row-0 {
+	background-color: #EFE;
+}
+.row-1 {
+	background-color: #EEF;
+}
+.buttonbar {
+	padding: 5px;
+	background-color: #888;
+	color: white;
+}
+.buttonbar a {
+	color: white;
+}
+.buttonbar input {
+	margin-right: 10px;
+}
+table {
+	font-size: 100%;
+}
+.input-table td {
+}
+th {
+	background-color: black;
+	color: white;
+}
+th a {
+	background-color: black;
+	color: white;
+}
+.input-label {
+	text-align: right;
+	font-weight: bold;
+	font-size: 1.1em;
+	background-color: #DDD;
+}
+.input-control {
+}
+
+
+.message {
+	display: block;
+	border: 2px solid black;
+	padding: 10px;
+	font-size: 1.8em;
+	font-weight: bold;
+	background-color: #0A0;
+	text-align: center;
+}
+.error {
+	color: #FF9933;
+	font-weight: bold;
+}
+.filename {
+	display: block;
+	padding-bottom: 0.5em;
+}
+.filter {
+	border: 1px solid black;
+	width: 100%;
+	background-color: #DDD;
+}
+.filter select,
+.filter input
+{
+	font-size: 12px;
+	border: 1px solid white;
+}
+.filter .widget {
+	padding: 3px;
+	white-space: nowrap;
+}
+.filter .label {
+	white-space: nowrap;
+	background-color: #DDD;
+	text-align: right;
+	padding: 3px 3px 3px 10px;
+	font-weight: bold;
+}
+.filter .filter-last {
+	width: 99%;
+}
+textarea {
+	font-family: Arial, Helvetica, sans-serif;
+	font-size: 1.2em;
+}
+.format-key th {
+	background-color: black;
+	color: white;
+	font-weight:bold;
+}
+.input-control textarea {
+	/*float: left;*/
+}
+.format-key {
+	border: 1px solid black;
+	float: left;
+	margin: 10px;
+	width: 350px;
+}
+.format-key td {
+	padding: 5px;
+	width: 50%;
+	background-color: #DDD;
+}
+.format-key .label {
+	width: 50%;
+	font-family: "Courier New", Courier, mono;
+	background-color: #BBB;
+}
+.sort-widget img {
+	padding-left: 5px;
+}
+.pager {
+	background-color: #DDD;
+	width: 100%;
+}
+.pager td {
+	padding: 2px;
+}
+
+.edit-section {
+	background-color: #666;
+}
+
+.edit-section h3 {
+	margin: 10px;
+	color: white;
+}
+
+div.toggle-arrow
+{
+	position: relative;
+}
+a.toggle-arrow img
+{
+	padding: 1px;
+	float: left;
+}
+div.toggle-arrow h2
+{
+	position: relative;
+	padding-left: 20px;
+	font-size: 1.2em;
+}
+.link-update-title {
+	border: 1px solid black;
+	font-size: 9px;
+	margin-left: 10px;
+	padding: 4px;
+}

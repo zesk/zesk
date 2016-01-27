@@ -1,0 +1,30 @@
+.box-round {
+	display: block;
+}
+.box-round .box-round-corner {
+	background: transparent url(/share/zesk/widgets/box/round/grey-corners.gif) no-repeat scroll 0;
+}
+.box-round .box-round-LT {
+	background-position: left top;
+}
+.box-round .box-round-RT {
+	padding: 5px 0 0;
+	background-position: right top;
+}
+.box-round .box-round-LB {
+	background-position: left bottom;
+}
+.box-round .box-round-RB {
+	padding: 0 0 5px;
+	background-position: right bottom;
+}
+.box-round .box-round-side {
+	background: transparent url(/share/zesk/widgets/box/round/grey-sides.gif) repeat-y scroll 0;
+}
+.box-round-side .box-round-L {
+	background-position: left;
+}
+.box-round .box-round-R {
+	background-position: right;
+}
+

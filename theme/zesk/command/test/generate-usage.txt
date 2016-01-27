@@ -1,0 +1,33 @@
+Generate Zesk unit tests from PHP source files automatically that can be run using the zesk test framework.
+	
+Creates a directory "test" beneath any found file with extension:
+	
+    .php .inc
+	
+And adds functions tests as
+	
+    filename_test.inc
+	
+And adds class tests as:
+	
+    class_name_test.inc
+	
+Static functions within a class are added as their own file as:
+	
+    Class_Name-static_function_name.phpt
+	
+A basic shell of a test is added, it is expected that use cases are added to the tests.
+	
+Tests differ from the PEAR testing strategy in that tests are run from the command line. Non-zero exit status indicates failure. 
+	
+$me [ --help ] [ --root dir|path ] [ --force ] [ --force-functions ] [ --force-classes ] [ --debug-parsing ] [ -v | --verbose ] [ -n | --dry-run ] dir0 dir1 ...
+	
+--help              This help
+--root dir          Define ZESK_SITE_ROOT as this directory, or include file to set it
+--force             Force creation of test files
+--force-functions   Force creation of function test files
+--force-classes     Force creation of class test files
+--debug-parsing     Output debugging information for PHP parser
+-v --verbose        Verbose output
+-n --dry-run        Dry run, do not change anything or create any directories or files
+	

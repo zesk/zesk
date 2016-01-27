@@ -1,0 +1,9 @@
+File-Format: both
+File-Format-Separator: --DOG--
+Subject: This is my dog
+From: support@conversionruler.com
+Reply-To: support@conversionruler.com
+
+This is a text email
+--DOG--
+This is an <strong>HTML</strong> message

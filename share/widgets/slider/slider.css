@@ -1,0 +1,40 @@
+/*slider*/
+.ui-slider {
+	/*resets*/margin: 0; padding: 0; border: 0; outline: 0; line-height: 1.3; text-decoration: none; font-size: 100%; list-style: none;
+	font-family: Verdana, Arial, sans-serif;
+	background: #ffffff;
+	border: 1px solid #d3d3d3;
+	height: .8em;
+	position: relative;
+}
+.ui-slider-handle {
+	/*resets*/margin: 0; padding: 0; border: 0; outline: 0; line-height: 1.3; text-decoration: none; font-size: 100%; list-style: none;
+	position: absolute;
+	z-index: 2;
+	top: -3px;
+	width: 1.2em;
+	height: 1.2em;
+	background: #ffffff url(images/ffffff_40x100_textures_02_glass_65.png) 0 50% repeat-x;
+	border: 1px solid #dddddd;
+}
+.ui-slider-handle:hover {
+	background: #dadada url(images/dadada_40x100_textures_02_glass_75.png) 0 50% repeat-x;
+	border: 1px solid #999999;
+}
+.ui-slider-handle-active, .ui-slider-handle-active:hover {
+	background: #dadada url(images/dadada_40x100_textures_02_glass_75.png) 0 50% repeat-x;
+	border: 1px solid #dddddd;
+}
+.ui-slider-range {
+	/*resets*/margin: 0; padding: 0; border: 0; outline: 0; line-height: 1.3; text-decoration: none; font-size: 100%; list-style: none;
+	height: .8em;
+	background: #dadada url(images/dadada_40x100_textures_02_glass_75.png) 0 50% repeat-x;
+	position: absolute;
+	border: 1px solid #d3d3d3;
+	border-left: 0;
+	border-right: 0;
+	top: -1px;
+	z-index: 1;
+}
+
+

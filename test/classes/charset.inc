@@ -1,0 +1,80 @@
+<?php
+/**
+ * $URL: https://code.marketacumen.com/zesk/trunk/test/classes/charset.inc $
+ * @package zesk
+ * @subpackage test
+ * @author Kent Davidson <kent@marketacumen.com>
+ * @copyright Copyright &copy; 2012, Market Acumen, Inc.
+ */
+class test_charset extends Test_Unit {
+
+	function test_supported() {
+		charset::$debug = true;
+
+		$charset = null;
+		$result = charset::supported($charset);
+		Application::instance()->development(true);
+		$this->assert(is_array($result));
+		foreach ($result as $charset) {
+			$this->assert(charset::supported($charset) === true);
+			$this->assert(charset::supported($charset . '-No') === false);
+			$result = charset::to_utf8("Hello, world", $charset);
+		}
+	}
+
+	function to_utf8() {
+		charset::$debug = true;
+
+		$every_char = "";
+		for($i = 32; $i <= 127; $i++) {
+			$every_char .= chr($i);
+		}
+
+		$all_charsets = charset::supported();
+
+		//echo text::lalign("SAMPLE", 20) . $every_char . "\n";
+		foreach ($all_charsets as $charset) {
+			$result = charset::to_utf8($every_char, $charset);
+			//echo text::lalign($charset, 20) . $result . "\n";
+			if (in_array($charset, array(
+				"CP037",
+				"CP1026",
+				"CP424",
+				"CP500",
+				"CP864",
+				"CP875",
+				"GSM0338",
+				"STDENC",
+				"SYMBOL",
+				"US-ASCII-QUOTES",
+				"ZDINGBAT"
+			))) {
+				$this->assert($result !== $every_char, "Failed for charset $charset");
+			} else {
+				$this->assert($result === $every_char, "Failed for charset $charset");
+			}
+		}
+
+		$tests = array(
+			array(
+				chr(0xC1) . chr(0xC2) . chr(0xC3) . chr(0xC4),
+				"CP424",
+				"ABCD"
+			),
+			array(
+				chr(0xE7),
+				"ISO-8859-10",
+				utf16::to_utf8(chr(0x01) . chr(0x2F))
+			)
+		);
+		foreach ($tests as $test) {
+			list($data, $charset, $expect) = $test;
+			$result = charset::to_utf8($data, $charset);
+			echo "$data\n";
+			echo "$charset\n";
+			echo "$result\n";
+			echo "-\n";
+			$this->assert($result === $expect, "$result === $expect");
+		}
+	}
+}

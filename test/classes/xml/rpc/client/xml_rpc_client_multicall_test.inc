@@ -1,0 +1,67 @@
+<?php
+class XML_RPC_Client_Multicall_Test extends Test_Unit {
+
+	private $url = null;
+
+	function _init() {
+		$this->url = $this->option('xmlrpc_test_url');
+		$this->assert(url::valid($this->url));
+	}
+
+	/**
+	 * @no_buffer
+	 */
+	function test_xmlrpc() {
+		$this->_init();
+		
+		$x = new XML_RPC_Client_Multicall($this->url);
+		$x->set_option('debug', true);
+		
+		$x->addCall("system.listmethods");
+		$x->addCall("capitalize", "a sentence needing capitalization");
+		$x->addCall("unknown_function", "will fault");
+		
+		$result = $x->query();
+		
+		$this->assert(is_array($result));
+		$this->assert(count($result) === 3);
+		
+		var_dump($result);
+		
+		$list_result = $result[0];
+		$this->assert_in_array($list_result, "capitalize");
+		$this->assert_in_array($list_result, "system.getcapabilities");
+		$this->assert_in_array($list_result, "system.listmethods");
+		$this->assert_in_array($list_result, "system.multicall");
+		
+		$cap_result = $result[1];
+		$this->assert_equal($cap_result, "A Sentence Needing Capitalization");
+		
+		$fault_result = $result[2];
+		$this->assert_equal($fault_result, array(
+			"faultCode" => -32601, 
+			"faultString" => "Server error. Requested method \"unknown_function\" does not exist."
+		));
+		$this->log($result);
+		
+		$x->clear();
+		
+		$x->isFault();
+		
+		$x->isPost();
+		
+		$x->url();
+		
+		$x->headers();
+		
+		$x->responseCode();
+		
+		$x->responseCodeType();
+		
+		$x->responseMessage();
+		
+		$x->responseProtocol();
+		
+		$x->hasHeaders();
+	}
+}

@@ -1,0 +1,32 @@
+.control-pager {
+	position: relative;
+	height: 2em;
+}
+.control-pager .pager-arrow,
+.control-pager .pager-state {
+	float: left;
+	position: relative;
+	top: 6px;
+}
+.control-pager .pager-arrow {
+	padding-left: 4px;
+}
+.control-pager .pager-state, 
+.control-pager .pager-block {
+	float: left;
+	padding-left: 10px;
+}
+.control-pager .pager-limits {
+	float: right;
+	right: 10px;
+}
+.control-pager .pager-limits label {
+	padding-right: 5px;
+	font-size: 12px;
+	float: left;
+}
+.control-pager .pager-limits select {
+	width: inherit;
+	margin-left: 0.4em;
+	display: inline;	
+}

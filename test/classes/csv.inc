@@ -1,0 +1,25 @@
+<?php
+class Test_CSV extends Test_Unit {
+
+	function __construct() {
+		Module::load('csv');
+		parent::__construct();
+	}
+	function test_quote() {
+		$x = null;
+		CSV_Reader::quote($x);
+	}
+
+	function test_quote_row() {
+		$x = array(
+			'',
+			'\'',
+			'a long line with many spaces',
+			'"Quotes"',
+			'""'
+		);
+		$newx = CSV::quote_row($x);
+		dump($newx);
+		$this->assert($newx === ',\',a long line with many spaces,"""Quotes""",""""""' . "\r\n");
+	}
+}

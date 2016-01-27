@@ -1,0 +1,11 @@
+<script src="zesk-test.js" type="text/javascript"></script>
+<script src="../zesk.js" type="text/javascript"></script>
+
+<script type="text/javascript">
+	var result = "foo{bar}u{bar}e{dee}".map({bar:"eat",dee:"dude",igno:"re-me"},true);
+	if (result != "fooeatueatedude") {
+		document.write("test failed: " + result);
+	} else {
+		document.write("test succeeded");
+	}
+</script>

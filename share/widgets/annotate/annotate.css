@@ -1,0 +1,45 @@
+table.annotation {
+	position: absolute;
+}
+table.annotation td {
+	text-align: center;
+	position: relative;
+}
+table.annotation td img {
+}
+/* ie */
+td.annotation-L img {
+	right: -1px;
+	position: relative;
+	z-index: 1000;
+}
+td.annotation-R {
+	position: relative;
+}
+td.annotation-R img {
+	left: -3px;
+	position: relative;
+	z-index: 1000;
+}
+td.annotation-T img {
+	bottom: -1px;
+	position: relative;
+	z-index: 1000;
+}
+td.annotation-B img {
+	top: -3px;
+	position: relative;
+	z-index: 1000;
+}
+td.annotation-text {
+	border-left: 1px solid #000;
+	border-top: 1px solid #000;
+	border-right: 3px solid #777;
+	border-bottom: 3px solid #777;
+	-moz-border-radius: 0.5em;
+	-webkit-border-radius: 0.5em;
+	display: block;
+	background-color: white;
+	padding: 10px;
+	font-size: 26px;
+}

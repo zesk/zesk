@@ -1,0 +1,24 @@
+table.annotation td img {
+	display: none;
+}
+/* ie */
+td.annotation-L {
+	background: url(/share/zesk/widgets/annotate/arrow-L.png) no-repeat right center;
+	width: 16px;
+}
+td.annotation-L img {
+	margin-right: -1px;
+	z-index: 1000;
+}
+td.annotation-R {
+	background: url(/share/zesk/widgets/annotate/arrow-R.png) no-repeat left center;
+	width: 16px;
+}
+td.annotation-T {
+	background: url(/share/zesk/widgets/annotate/arrow-T.png) no-repeat top center;
+	height: 16px;
+}
+td.annotation-B {
+	background: url(/share/zesk/widgets/annotate/arrow-B.png) no-repeat bottom center;
+	height: 16px;
+}
