@@ -10,11 +10,11 @@ Zesk is an application development platform which solves many problems found in 
 
 # Sections
 
-- [Naming Conventions](zesk-naming.html)
-- [Configuration File Format](router-file-format.html)
-- [Router File Format](router-file-format.html)
-- [Objects](objects.html)
-- [Modules](modules.html)
+- [Naming Conventions](zesk-naming.md)
+- [Configuration File Format](router-file-format.md)
+- [Router File Format](router-file-format.md)
+- [Objects](objects.md)
+- [Modules](modules.md)
 
 
  
