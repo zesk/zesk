@@ -3,4 +3,5 @@
 .project
 cache/
 vendor/
-config.codekit
+*-min.js
+*.codekit
