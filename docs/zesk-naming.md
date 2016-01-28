@@ -81,7 +81,7 @@ Will search the autoload path for:
 
     route/controller.inc
 
-Class names are [Upper-first CamelCase](naming-styles-definition.md), optionally separated by underscores for classes which are intended to be instantiated:
+Class names are [Upper-first CamelCase](naming-styles-definitions.md), optionally separated by underscores for classes which are intended to be instantiated:
 
     $u = new User();
 	$c = new Control_Image_Toggle();
@@ -106,7 +106,7 @@ Functions and methods within the system generally follow the PHP function syntax
     echo number::format_bytes(1512312);
     $result = Route::compare_weight($route1, $route2);
 
-Note that PHP itself uses two different naming methodologies for class methods and functions (class methods use first-lower [camelcase](glossary.md#camelcase)), while functions use [lower-case underscored](naming-style-definition.md) to separate words. Zesk uses the single convention [Lower Underscore](naming-styles-definition.md) for new methods added to classes. 
+Note that PHP itself uses two different naming methodologies for class methods and functions (class methods use first-lower [camelcase](glossary.md#camelcase)), while functions use [lower-case underscored](naming-style-definition.md) to separate words. Zesk uses the single convention [Lower Underscore](naming-styles-definitions.md) for new methods added to classes. 
 
 > PHP "magic" methods like `__toString`, `__callStatic`, obviously should be named using the PHP convention, as they will be 
 > inoperative using the Zesk method convention `__to_string`, '__call_static'
@@ -121,7 +121,7 @@ Classes which inherit from `Hookable` have hook functionality built in. To invok
 
     $x->hook('notify', $emails);
 
-Hook names within a class are [Lower Underscore](naming-styles-definition.md) and generally are message phrases, such a:
+Hook names within a class are [Lower Underscore](naming-styles-definitions.md) and generally are message phrases, such a:
 
     'controller_not_found'
     'output_alter'
@@ -134,5 +134,5 @@ The `Hookable` class invokes `hook_`_`message`_ first, then calls the class hier
 
 [configuration files]: configuration-file-format.md "Configuration File Format"
 [router files]: router-file-format.md "Router File Format"
-[Naming Styles Definitions]: naming-styles-definition.md "Naming Styles Definitions"
+[Naming Styles Definitions]: naming-styles-definitions.md "Naming Styles Definitions"
 [PHP Case Sensitivity]: php-case-sensitivity.md "PHP Case Sensitivity"
