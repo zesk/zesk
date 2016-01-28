@@ -1136,7 +1136,6 @@ class zesk {
 	 * @global "Cache::path"
 	 */
 	public static function cache_path($add = null) {
-		zesk::profiler();
 		return path(zesk::get("Cache::path", zesk::application_root("cache")), $add);
 	}
 	
