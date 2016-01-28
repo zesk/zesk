@@ -3,3 +3,4 @@
 .project
 cache/
 vendor/
+config.codekit
