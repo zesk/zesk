@@ -1,5 +1,18 @@
 <?php
+
+/**
+ * Main share controller
+ * 
+ * @author kent
+ * @see docs/share.md
+ */
 class Zesk_Controller_Share extends Controller {
+	/**
+	 *
+	 * {@inheritDoc}
+	 *
+	 * @see Controller::_action_default()
+	 */
 	function _action_default($action = null) {
 		$uri = str::unprefix($original_uri = $this->request->path(), "/");
 		if ($this->application->development() && $uri === "share/debug") {
@@ -7,7 +20,7 @@ class Zesk_Controller_Share extends Controller {
 			return;
 		}
 		list(, $uri) = pair($uri, "/", null, $uri);
-		$share_paths = zesk::share_path();
+		$share_paths = $this->application->share_path();
 		$file = null;
 		foreach ($share_paths as $name => $path) {
 			if (empty($name) || begins($uri, "$name/")) {
@@ -33,7 +46,7 @@ class Zesk_Controller_Share extends Controller {
 			}
 			return;
 		}
-
+		
 		// $this->response->header("X-Debug", "Mod - " . strtotime($mod) . " FMod - " . $fmod);
 		$request = $this->request;
 		if ($request->get("_ver")) {
@@ -47,9 +60,15 @@ class Zesk_Controller_Share extends Controller {
 			$this->build($original_uri, $file);
 		}
 	}
-
+	
+	/**
+	 * Copy file to destination so web server serves it directly next time
+	 *
+	 * @param string $path        	
+	 * @param string $file        	
+	 */
 	private function build($path, $file) {
-		$target = path(zesk::document_root(), $path);
+		$target = path($this->application->document_root(), $path);
 		dir::depend(dirname($target), 0775);
 		$status = copy($file, $target);
 		log::notice("Copied {file} to {target} - {status}", array(
@@ -58,6 +77,10 @@ class Zesk_Controller_Share extends Controller {
 			"status" => $status ? "true" : "false"
 		));
 	}
+	
+	/**
+	 * Output debug information during development
+	 */
 	private function share_debug() {
 		$content = "";
 		$content .= html::tag("h1", "Server") . html::tag("pre", php::dump($_SERVER));
@@ -65,7 +88,12 @@ class Zesk_Controller_Share extends Controller {
 		$content .= html::tag("h1", "Shares") . html::tag('pre', php::dump(zesk::share_path()));
 		return $content;
 	}
-
+	
+	/**
+	 *
+	 * @param string $path        	
+	 * @return string
+	 */
 	public static function realpath($path) {
 		$path = explode("/", trim($path, '/'));
 		array_shift($path);
@@ -76,11 +104,12 @@ class Zesk_Controller_Share extends Controller {
 		}
 		return null;
 	}
-
+	
+	/**
+	 * Clear the share build path upon cache clear
+	 */
 	public function hook_cache_clear() {
-		log::debug('{class}::hook_cache_clear', array(
-			'class' => __CLASS__
-		));
+		log::debug(__METHOD__);
 		if ($this->option_bool('build')) {
 			$share_dir = path(zesk::document_root(), 'share');
 			if (is_dir($share_dir)) {
@@ -94,7 +123,6 @@ class Zesk_Controller_Share extends Controller {
 					'class' => __CLASS__,
 					'share_dir' => $share_dir
 				));
-
 			}
 		}
 	}

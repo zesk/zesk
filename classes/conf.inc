@@ -11,7 +11,7 @@
  * @copyright Copyright &copy; 2011, Market Acumen, Inc.
  */
 class conf {
-
+	
 	/**
 	 * Load a global environment file which supports a variety of formats.
 	 *
@@ -23,14 +23,14 @@ class conf {
 	 *        	Typically, an array of options while loading true to overwite existing settings
 	 *        	with new ones, or array
 	 *        	containing options:
-	 *        	'overwrite' => boolean		Overwrite existing entries with these
+	 *        	'overwrite' => boolean Overwrite existing entries with these
 	 *        	'trim_key' => boolean Trim key whitespace
 	 *        	'trim_value' => boolean Trim value whitespace when unquoted
 	 *        	'autotype' => boolean Use hints to determine type when unquoted
-	 *
+	 *        	
 	 *        	Figures out if it's a boolean or integer, may add serialized value if needed
 	 *        	later.
-	 *
+	 *        	
 	 * @throws Exception_File_NotFound
 	 */
 	public static function load($file, $options = array()) {
@@ -41,7 +41,8 @@ class conf {
 		}
 		return self::parse(file::lines($file), $options);
 	}
-
+	private static $options_default_global = null;
+	
 	/**
 	 * Default options for configuration file loading
 	 *
@@ -54,23 +55,26 @@ class conf {
 	 * @return array
 	 */
 	private static function _options_default_global() {
-		$prefix = __CLASS__ . "::";
-		return arr::kunprefix(zesk::get(array(
-			$prefix . "overwrite" => false,
-			$prefix . "trim_key" => true,
-			$prefix . "separator" => '=',
-			$prefix . "trim_value" => true,
-			$prefix . "autotype" => true,
-			$prefix . "lower" => true,
-			$prefix . "multiline" => false,
-			$prefix . "unquote" => '\'\'""',
-			$prefix . "variables" => null
-		)), $prefix);
+		if (self::$options_default_global === null) {
+			$prefix = __CLASS__ . "::";
+			self::$options_default_global = arr::kunprefix(zesk::get(array(
+				$prefix . "overwrite" => false,
+				$prefix . "trim_key" => true,
+				$prefix . "separator" => '=',
+				$prefix . "trim_value" => true,
+				$prefix . "autotype" => true,
+				$prefix . "lower" => true,
+				$prefix . "multiline" => false,
+				$prefix . "unquote" => '\'\'""',
+				$prefix . "variables" => null
+			)), $prefix);
+		}
+		return self::$options_default_global;
 	}
 	
 	/**
-	 * 
-	 * @param array $options
+	 *
+	 * @param array $options        	
 	 */
 	public static function options_default(array $options = array()) {
 		$options += self::_options_default_global();
@@ -80,12 +84,12 @@ class conf {
 		$options['variables'] = array_change_key_case($options['variables']);
 		return $options;
 	}
-
+	
 	/**
 	 * The meat and potatoes of config file parsing.
 	 *
-	 * @param array $lines
-	 * @param array $options
+	 * @param array $lines        	
+	 * @param array $options        	
 	 * @return array loaded values
 	 */
 	public static function parse(array $lines, $options = array()) {
@@ -100,15 +104,15 @@ class conf {
 		 * @var array
 		 */
 		$options = to_array($options, array());
-
+		
 		$options = self::options_default($options);
 		$separator = $lower = $trim_key = $unquote = $trim_value = $autotype = $overwrite = $variables = $multiline = null;
 		extract($options, EXTR_IF_EXISTS);
-
+		
 		if ($multiline) {
 			$lines = self::join_lines($lines);
 		}
-
+		
 		$result = array();
 		foreach ($lines as $line) {
 			$parse_result = self::parse_line($line, array(
@@ -194,7 +198,6 @@ class conf {
 		zesk::add('conf::load_no_file', $no_file_paths);
 		return $result;
 	}
-
 	public static function globals($paths, $options = array()) {
 		if ($options === true) {
 			$options = array(
@@ -208,13 +211,13 @@ class conf {
 		zesk::set($result);
 		return $result;
 	}
-
+	
 	/**
 	 * Save changes to a configuration file
 	 *
-	 * @param unknown $path
-	 * @param array $edits
-	 * @param array $options
+	 * @param unknown $path        	
+	 * @param array $edits        	
+	 * @param array $options        	
 	 */
 	public static function edit($path, array $edits, array $options = array()) {
 		$options = self::options_default($options);
@@ -245,11 +248,11 @@ class conf {
 		}
 		file::put($path, implode("", $new_lines));
 	}
-
+	
 	/**
 	 * Allow multi-line settings by placing additional lines beginning with whitespace
 	 *
-	 * @param array $lines
+	 * @param array $lines        	
 	 */
 	private static function join_lines(array $lines) {
 		$result = array(
@@ -272,7 +275,7 @@ class conf {
 	private static function parse_line($line, array $options) {
 		$separator = $trim_key = $trim_value = $lower = null;
 		extract($options, EXTR_IF_EXISTS);
-
+		
 		$line = trim($line);
 		if (substr($line, 0, 1) == "#") {
 			return null;

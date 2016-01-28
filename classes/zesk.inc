@@ -585,7 +585,7 @@ class zesk {
 			self::$profiler = new stdClass();
 			self::$profiler->calls = array();
 			self::$profiler->times = array();
-			self::add_hook("exit", function () {
+			self::add_hook("</body>", function () {
 				echo "<pre>";
 				asort(zesk::$profiler->calls);
 				asort(zesk::$profiler->times);
@@ -1136,6 +1136,7 @@ class zesk {
 	 * @global "Cache::path"
 	 */
 	public static function cache_path($add = null) {
+		zesk::profiler();
 		return path(zesk::get("Cache::path", zesk::application_root("cache")), $add);
 	}
 	
@@ -1241,7 +1242,7 @@ class zesk {
 	 * Zesk's autoloader.
 	 * When a PHP class is encountered which can't be found, this function tries to find it and
 	 * include the file.
-	 * 
+	 *
 	 * @param string $class        	
 	 * @param boolean $no_exception
 	 *        	Do not throw an exception if class is not found
@@ -1719,7 +1720,7 @@ class zesk {
 	}
 	/**
 	 * Current process ID
-	 * 
+	 *
 	 * @return integer
 	 */
 	public static function pid() {
@@ -2471,12 +2472,12 @@ class zesk {
 	 */
 	public static function sort_weight_array(array $a, array $b) {
 		// Get weight a, convert to double
-		$aw = avalue($a, 'weight', 0);
-		$aw = doubleval(avalue(self::$weight_specials, $aw, $aw));
+		$aw = array_key_exists('weight', $a) ? $a['weight'] : 0;
+		$aw = doubleval(array_key_exists("$aw", self::$weight_specials) ? self::$weight_specials[$aw] : $aw);
 		
 		// Get weight b, convert to double
-		$bw = avalue($b, 'weight', 0);
-		$bw = doubleval(avalue(self::$weight_specials, $bw, $bw));
+		$bw = array_key_exists('weight', $b) ? $b['weight'] : 0;
+		$bw = doubleval(array_key_exists("$bw", self::$weight_specials) ? self::$weight_specials[$bw] : $bw);
 		
 		// a < b -> -1
 		// a > b -> 1
@@ -2610,6 +2611,7 @@ class zesk {
 	/**
 	 * Turn on database schema debugging
 	 *
+	 * @todo Move to Database
 	 * @param unknown $set        	
 	 */
 	public static function debug_schema($set = null) {
@@ -2680,6 +2682,8 @@ class zesk {
 
 /**
  * Shortcut for generating URLs - allows global manipulation of URLs in the system
+ *
+ * TODO - This isn't used much, should probably use it or lose it - KMD
  */
 function u($url, $options = null) {
 	$model = new Model_URL(zesk::href($url), $options);

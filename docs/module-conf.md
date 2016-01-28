@@ -1,73 +1,99 @@
 # Module Configuration File variables
 
-## `NAME` (string)
+Module configuration files can be a `.conf` file or a JSON file (ending with `.json`).
 
-The name of the module. Used in the user interface.
+Note that `.conf` files, when loaded, all top-level key names are converted to lower case, so:
 
-## `DESCRIPTION` (string)
+	NAME="Module"
+   
+and
 
-A short description about what your module does.
+    name="Module"
 
-## `AUTHOR` (string)
+Are equivalent.
 
-Name of the author to be displayed in the user interface.
+## `name` (string)
 
-## `AUTHOR_EMAIL` (string)
+The name of the module. Used in the user interface. Optional.
 
-Email address of the author.
+## `description` (string)
 
-## `COPYRIGHT` (string)
+A short description about what your module does. Optional.
 
-Copyright string displayed in the user interface.
+## `author` (string)
 
-## `LICENSE` (string|array)
+Name of the author to be displayed in the user interface. Optional.
+
+## `author_email` (string)
+
+Email address of the author. Optional.
+
+## `author_url` (string)
+
+Url of author's website. Optional.
+
+## `copyright` (string)
+
+Copyright string displayed in the user interface. Optional.
+
+## `license` (string|array)
 
 A semi-colon separated list, or a list array of license types available for this module.
 
 e.g.
 
-	LICENSE="mit"
-	LICENSE="lgpl-2.1"
-	LICENSE=[ "non-commercial-free", "commercial-paid" ]
+	license="mit"
+	license="lgpl-2.1"
+	license=[ "non-commercial-free", "commercial-paid" ]
 
 TODO: Need to figure out how this is really needed.
 
-## `URL_LICENSE` (string)
+## `url_license` (string)
 
-URL to the license file for this module or dependent libraries.
+URL to the license file for this module or dependent libraries. Optional.
 
-## `URL_PROJECT` (string)
+## `url_project` (string)
 
-URL to link to the project/module home page online. Used in the user interface.
+URL to link to the project/module home page online. Used in the user interface. Optional.
 
-## `VERSION` (string)
+## `version` (string)
 
 Version of this module. Optional.
 
-## `VERSION_DATA` (object)
+## `version_data` (object)
 
 JSON formatted object with the following fields:
 
 - `file` - The file to examine for version information, should be relative to the `$MODULE_PATH`
 - `pattern` - A regular expression pattern which captures as the first pattern the version number to be reported
+- `key` - If `file` is a JSON file, the path to retrieve the version by key, path segments separated by periods.
 
 For example:
 
-	VERSION_DATA={ "file": "${MODULE_PATH}/classes/markdown.inc", "pattern": "/\\$Revision: ([0-9]+) \\$/" }
+	version_data={ "file": "${MODULE_PATH}/classes/markdown.inc", "pattern": "/\\$Revision: ([0-9]+) \\$/" }
 
-## `SHARE_PATH` (path)
+Or
 
-When this module is loaded, a `zesk::share_path` directory is added automatically. As well, this is used for correctly creating a "local" share path for the application in the web root.
+	"version_data": {
+		"file": "vendor/thingy/package.json",
+		"key": "version"
+	}
+
+Generally, this is used to dynamically determine the version of the software when the URL to download is always bleeding-edge (e.g. new versions overwrite the old ones, etc.). 
+
+## `share_path` (path or list of paths)
+
+When this module is loaded, a `Application::share_path` directory is added automatically. (See [sharing](share.md)). As well, this is used for correctly creating a "local" share path for the application in the web root.
 
 # Update command settings
 
 The following fields are used by the [`update`](command-update) command to retrieve remote code libraries and automatically install most recent versions of code from the internet.
 
-## `DELETE_AFTER` (array of string)
+## `delete_after` (array of string)
 
-List of file patterns to delete from the `DESTINATION` after files are installed. 
+List of file patterns to delete from the `destination` after files are installed. 
 
-## `STRIP_COMPONENTS` (mixed)
+## `strip_components` (mixed)
 
 When decompressing or extracting an archive after downloading, remove this many directory components from the resulting file.
 
@@ -85,15 +111,42 @@ Will strip
 	
 From the target archive before copying to the destination directory. It uses the `glob` PHP function to determine which files match.
 
-## `URL` (string)
+## `url` (string)
 
-A URL of a dependency package to download as part of this module and place in the `DESTINATION` directory. Should be in `.zip`, or `.tar.gz`, or a raw file to download (such as a JavaScript file).
+A URL of a dependency package to download as part of this module and place in the `destination` directory. Should be in `.zip`, or `.tar.gz`, or a raw file to download (such as a JavaScript file).
 
-## `URLS` (array of string)
+## `urls` (array of string)
 
-List of URLs to download and place in the `DESTINATION` directory.
+List of URLs to download and place in the `destination` directory.
 
-## `URL_DOWNLOAD` (string)
+## `url_download` (string)
 
 URL of a page for this module where new versions of dependent libraries (downloads) are available.
 
+## `versions` (array of array) 
+
+Versions is the preferred method of specifying a module which needs to be downloaded. It's a structure with keys of `[version]` and values of a combination of `url`, `destination`, `urls` as values, e.g.
+
+	{
+		"name": "Chosen",
+		"versions": {
+			"1.4.1": {
+				"url": "https://github.com/harvesthq/chosen/releases/download/v{version}/chosen_v{version}.zip"
+			},
+			"1.4.2": {
+				"url": "https://github.com/harvesthq/chosen/releases/download/{version}/chosen_v{version}.zip"
+			}
+		},
+		"destination": "vendor/components/chosen",
+		"share_path": "vendor/components/chosen"
+	}
+
+Note in this example, the token `{version}` is replaced in every value with the key (e.g. either "1.4.1" or "1.4.2" above, depending on context).
+
+You can specify multiple files by using `urls` instead. The final version structure can contain the following keys:
+
+- `url` - The url to load
+- `urls` - One or more URLs to load in the format { "url to load": "destination path" }
+- `destination` - A unique destination path for this version
+- `strip_components` - A unique `strip_components` value for this version
+- ``

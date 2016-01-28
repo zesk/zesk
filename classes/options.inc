@@ -93,7 +93,7 @@ class Options implements ArrayAccess {
 		// Class hierarchy is given from child -> parent
 		foreach (zesk::class_hierarchy($class) as $subclass) {
 			// Child options override parent options
-			$opts = $opts + zesk::geta($subclass, array()) + zesk::geta($subclass . "::options");
+			$opts = $opts + zesk::geta($subclass, array());
 		}
 		return $opts;
 	}

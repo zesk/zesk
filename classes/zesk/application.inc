@@ -163,6 +163,12 @@ class Application extends \Hookable {
 	protected $theme_path = array();
 	
 	/**
+	 *
+	 * @var string
+	 */
+	protected $cache_path = null;
+	
+	/**
 	 * Top template
 	 *
 	 * @var Template
@@ -369,7 +375,13 @@ class Application extends \Hookable {
 		$this->load_maintenance();
 		$this->inherit_global_options();
 		$this->postconfigure();
+		$this->configure_paths();
 		$this->configured_was_run = true;
+	}
+	
+	private function configure_paths() {
+		$cache_path = $this->option("cache_path", zesk::get("Cache::path", zesk::application_root("cache")));
+		$this->cache_path = \dir::is_absolute($cache_path) ? $cache_path : zesk::application_root($cache_path);
 	}
 	
 	/**
@@ -705,6 +717,7 @@ class Application extends \Hookable {
 		try {
 			/* @var $request Request */
 			$request = $this->request = $this->hook("request");
+			// TODO Investigate creating response via Router instead of here
 			/* @var $response Response_HTML */
 			$response = $this->response = $this->hook("response", $request);
 			/* @var $router Router */
@@ -851,16 +864,6 @@ class Application extends \Hookable {
 	
 	/**
 	 * Hook for taking old .
-	 *
-	 *
-	 *
-	 *
-	 *
-	 *
-	 *
-	 *
-	 *
-	 *
 	 *
 	 *
 	 * php URLs and converting to router-based URLs
@@ -1320,6 +1323,50 @@ class Application extends \Hookable {
 	 */
 	public static function application_class($class = null) {
 		return zesk::application_class($class);
+	}
+	
+	/**
+	 * Get the cache path for the application
+	 *
+	 * @return string
+	 * @param unknown $add        	
+	 */
+	public function cache_path($add = null) {
+		return $this->cache_path;
+	}
+	/**
+	 * Your web root is the directory in the file system which contains our application and other
+	 * files.
+	 *
+	 * It may be served from an aliased or shared directory and as such may not appear at the web
+	 * server's root.
+	 *
+	 * To ensure all URLs are generated correctly, you can set $this->web_root_prefix(string) to set
+	 * a portion of the URL which is always prefixed to any generated url.
+	 *
+	 * @param string $set
+	 *        	Optionally set the web root
+	 * @throws Exception_Directory_NotFound
+	 * @return string The directory
+	 */
+	public function document_root($set = null, $prefix = null) {
+		return zesk::document_root($set, $prefix);
+	}
+	
+	/**
+	 * Your web root may be served from an aliased or shared directory and as such may not appear at
+	 * the web server's root.
+	 * To ensure all URLs are generated correctly, you can set zesk::web_root_prefix(string) to set
+	 * a portion of the URL which is always prefixed to any generated url.
+	 *
+	 * @param string $set
+	 *        	Optionally set the web root
+	 * @throws Exception_Directory_NotFound
+	 * @return string The directory
+	 * @todo should this be urlescpaed by web_root_prefix function to avoid & and + to be set?
+	 */
+	public static function document_root_prefix($set = null) {
+		return zesk::document_root_prefix($set);
 	}
 	
 	/**
