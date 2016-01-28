@@ -1,0 +1,1 @@
+{"version":3,"file":"/Users/kent/ma/zesk/modules/inplace/share/css/inplace.css","sources":["inplace.less"],"names":[],"mappings":"AAAA,KAAK;EACJ,oBAAA;;AAED,IAAI;EACH,SAAA;EACA,UAAA;EACA,eAAA","sourcesContent":["input.inplace {\n\tmargin: 0 !important;\n}\nform.inplace {\n\tmargin: 0;\n\tpadding: 0;\n\tdisplay: inline;\n}\n\n"]}

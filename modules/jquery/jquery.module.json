@@ -1,0 +1,12 @@
+{
+	"composer": {
+		"require": "components/jquery"
+	},
+	"name": "jQuery",
+	"version_data": { 
+		"file": "vendor/components/jquery/package.json", 
+		"key": "version"
+	},
+	"share_path": "vendor/components/jquery",
+	"url_license": "https://jquery.org/license/"
+}

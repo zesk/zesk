@@ -1,0 +1,59 @@
+From MAILER-DAEMON  Fri Dec 21 11:28:41 2007
+Return-Path: <>
+X-Original-To: marketruler@hornet.dreamhost.com
+Delivered-To: marketruler@hornet.dreamhost.com
+Received: from mail.tsga.com (web22.net [64.46.36.92])
+	by hornet.dreamhost.com (Postfix) with ESMTP id DDBA6CCEA2
+	for <marketruler@hornet.dreamhost.com>; Fri, 21 Dec 2007 11:28:40 -0800 (PST)
+Message-ID: <633338441157858750@mail.tsga.com>
+From: "System Administrator"@hornet.dreamhost.com
+To: marketruler@hornet.dreamhost.com
+Date: Fri, 21 Dec 2007 14:28:35 -0500
+Subject: Delivery Failure
+
+
+Could not deliver message to the following recipient(s):
+
+Failed Recipient: tjack1@verizon.net
+Reason: Remote host said: 550 5.1.1 unknown or illegal alias: tjack1@verizon.net
+
+   -- The header and top 20 lines of the message follows --
+
+Received: from judo.dreamhost.com [66.33.216.100] by mail.tsga.com with SMTP;
+   Fri, 21 Dec 2007 14:28:26 -0500
+Received: from smarty.dreamhost.com (smarty.dreamhost.com [208.113.175.8])
+	by judo.dreamhost.com (Postfix) with ESMTP id 7590D14CCFE
+	for <ben@bgccorp.com>; Fri, 21 Dec 2007 11:07:02 -0800 (PST)
+Received: from hornet.dreamhost.com (hornet.dreamhost.com [208.113.193.24])
+	by smarty.dreamhost.com (Postfix) with ESMTP id E254AEE230
+	for <ben@bgccorp.com>; Fri, 21 Dec 2007 11:07:01 -0800 (PST)
+Received: by hornet.dreamhost.com (Postfix, from userid 1569839)
+	id DCDC6CCF34; Fri, 21 Dec 2007 11:07:01 -0800 (PST)
+To: ben@bgccorp.com
+Subject: Mobile Password Safe Login
+From: Mobile Password Safe <iphone-help@mobilepasswordsafe.com>
+Message-Id: <20071221190701.DCDC6CCF34@hornet.dreamhost.com>
+Date: Fri, 21 Dec 2007 11:07:01 -0800 (PST)
+
+pw.ex.to
+
+Your private passwords can be found here:
+
+https://pw.ex.to/?aid=8e909e5fb6a90add668bd9fe790d47db
+
+Note that while this page contains all of your data, it is encrypted and inaccessible without your password.
+
+Learn more about our security practices:
+
+https://pw.ex.to/security.php
+
+Thank you for using our service.
+--
+Market Ruler
+110 W Front St. 3rd Floor
+Media, PA 19063
+iphone-help@mobilepasswordsafe.com
+610-565-5454
+
+
+

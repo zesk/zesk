@@ -1,0 +1,92 @@
+From MAILER-DAEMON  Mon Jan  7 13:01:15 2008
+Return-Path: <>
+X-Original-To: marketruler@hornet.dreamhost.com
+Delivered-To: marketruler@hornet.dreamhost.com
+Received: from smarty.dreamhost.com (smarty.dreamhost.com [208.113.175.8])
+	by hornet.dreamhost.com (Postfix) with ESMTP id 629BFCCEB2
+	for <marketruler@hornet.dreamhost.com>; Mon,  7 Jan 2008 13:01:15 -0800 (PST)
+Received: by smarty.dreamhost.com (Postfix)
+	id F2118EE252; Mon,  7 Jan 2008 13:01:11 -0800 (PST)
+Date: Mon,  7 Jan 2008 13:01:11 -0800 (PST)
+From: MAILER-DAEMON@smarty.dreamhost.com (Mail Delivery System)
+Subject: Undelivered Mail Returned to Sender
+To: marketruler@hornet.dreamhost.com
+MIME-Version: 1.0
+Content-Type: multipart/report; report-type=delivery-status;
+	boundary="70583EE307.1199739671/smarty.dreamhost.com"
+Message-Id: <20080107210111.F2118EE252@smarty.dreamhost.com>
+
+This is a MIME-encapsulated message.
+
+--70583EE307.1199739671/smarty.dreamhost.com
+Content-Description: Notification
+Content-Type: text/plain
+
+This is the Postfix program at host smarty.dreamhost.com.
+
+I'm sorry to have to inform you that your message could not be
+be delivered to one or more recipients. It's attached below.
+
+For further assistance, please send mail to <postmaster>
+
+If you do so, please include this problem report. You can
+delete your own text from the attached returned message.
+
+			The Postfix program
+
+<rudy11201@interia.eu>: host mx.poczta.interia.pl[80.48.65.10] said: 550 Konto
+    nie istnieje / No such user (in reply to RCPT TO command)
+
+--70583EE307.1199739671/smarty.dreamhost.com
+Content-Description: Delivery report
+Content-Type: message/delivery-status
+
+Reporting-MTA: dns; smarty.dreamhost.com
+X-Postfix-Queue-ID: 70583EE307
+X-Postfix-Sender: rfc822; marketruler@hornet.dreamhost.com
+Arrival-Date: Mon,  7 Jan 2008 13:01:01 -0800 (PST)
+
+Final-Recipient: rfc822; rudy11201@interia.eu
+Action: failed
+Status: 5.0.0
+Diagnostic-Code: X-Postfix; host mx.poczta.interia.pl[80.48.65.10] said: 550
+    Konto nie istnieje / No such user (in reply to RCPT TO command)
+
+--70583EE307.1199739671/smarty.dreamhost.com
+Content-Description: Undelivered Message
+Content-Type: message/rfc822
+
+Received: from hornet.dreamhost.com (hornet.dreamhost.com [208.113.193.24])
+	by smarty.dreamhost.com (Postfix) with ESMTP id 70583EE307
+	for <rudy11201@interia.eu>; Mon,  7 Jan 2008 13:01:01 -0800 (PST)
+Received: by hornet.dreamhost.com (Postfix, from userid 1569839)
+	id 545CACD1F1; Mon,  7 Jan 2008 13:01:01 -0800 (PST)
+To: rudy11201@interia.eu
+Subject: Mobile Password Safe Login
+From: Mobile Password Safe <iphone-help@mobilepasswordsafe.com>
+Message-Id: <20080107210101.545CACD1F1@hornet.dreamhost.com>
+Date: Mon,  7 Jan 2008 13:01:01 -0800 (PST)
+
+pw.ex.to
+
+Your private passwords can be found here:
+
+https://pw.ex.to/?aid=b7ce236f656fa0c3f9701c26e4865ef9
+
+Note that while this page contains all of your data, it is encrypted and inaccessible without your password.
+
+Learn more about our security practices:
+
+https://pw.ex.to/security.php
+
+Thank you for using our service.
+--
+Market Ruler
+110 W Front St. 3rd Floor
+Media, PA 19063
+iphone-help@mobilepasswordsafe.com
+610-565-5454
+
+
+
+--70583EE307.1199739671/smarty.dreamhost.com--

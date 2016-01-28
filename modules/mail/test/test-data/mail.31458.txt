@@ -1,0 +1,30 @@
+From MAILER-DAEMON  Thu Dec 20 06:01:24 2007
+Return-Path: <>
+X-Original-To: marketruler@hornet.dreamhost.com
+Delivered-To: marketruler@hornet.dreamhost.com
+Received: from smtpoutm.mac.com (smtpoutm.mac.com [17.148.16.78])
+	by hornet.dreamhost.com (Postfix) with ESMTP id 2E765CCEF6
+	for <marketruler@hornet.dreamhost.com>; Thu, 20 Dec 2007 06:01:24 -0800 (PST)
+Received: from mail112-e1000g351000 (mail112-e1000g351000 [10.150.72.112])
+	by smtpoutm.mac.com (Xserve/smtpout015/MantshX 4.0) with ESMTP id lBKE1OiO005856
+	for <marketruler@hornet.dreamhost.com>; Thu, 20 Dec 2007 06:01:24 -0800 (PST)
+Received: from process-daemon.ms112.mac.com by ms112.mac.com
+ (Sun Java System Messaging Server 6.2-8.04 (built Feb 28 2007))
+ id <0JTC00B01PFH8G00@ms112.mac.com> for marketruler@hornet.dreamhost.com; Thu,
+ 20 Dec 2007 06:01:24 -0800 (PST)
+Received: from ms112.mac.com
+ (Sun Java System Messaging Server 6.2-8.04 (built Feb 28 2007))
+ id <0JTC005CIPMB6B60@ms112.mac.com>; Thu, 20 Dec 2007 06:01:24 -0800 (PST)
+Date: Thu, 20 Dec 2007 06:01:24 -0800 (PST)
+From: dr.benz@mac.com
+Subject: .Mac Mail - Automatische Antwort
+In-reply-to: <20071220140118.7CD09CD033@hornet.dreamhost.com>
+To: marketruler@hornet.dreamhost.com
+Message-id: <0JTC005CLPMC6B60@ms112.mac.com>
+Auto-submitted: auto-replied
+MIME-version: 1.0
+Content-type: TEXT/PLAIN; CHARSET=UTF-8
+Content-transfer-encoding: 7BIT
+References: <20071220140118.7CD09CD033@hornet.dreamhost.com>
+
+I am currently away and not checking my email. I will respond as soon as I return.

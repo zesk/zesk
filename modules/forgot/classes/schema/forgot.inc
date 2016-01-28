@@ -1,0 +1,76 @@
+<?php
+/**
+ *
+ * @version $URL: https://code.marketacumen.com/zesk/trunk/modules/forgot/classes/schema/forgot.inc $
+ * @package zesk
+ * @subpackage forgot
+ * @author kent
+ * @copyright &copy; 2014 Market Acumen, Inc.
+ */
+class Schema_Forgot extends Database_Schema {
+	function schema() {
+		$result = array(
+			'{table}' => array(
+				'columns' => array(
+					'id' => array(
+						'type' => self::type_id,
+						'previous_name' => 'ID'
+					),
+					'user' => array(
+						'type' => 'object',
+						'class' => 'User',
+						'not null' => true,
+						'previous_name' => 'User'
+					),
+					'session' => array(
+						'type' => 'object',
+						'class' => 'Session',
+						'not null' => true,
+						'previous_name' => 'Session'
+					),
+					'code' => array(
+						'type' => 'varbinary',
+						'size' => 16,
+						'not null' => true,
+						'previous_name' => 'Code'
+					),
+					'new_password' => array(
+						'type' => 'varbinary',
+						'size' => 16,
+						'not null' => true
+					),
+					'created' => array(
+						'type' => 'timestamp',
+						'not null' => true,
+						'default' => 0,
+						'previous_name' => 'Created'
+					),
+					'updated' => array(
+						'type' => 'timestamp',
+						'not null' => false,
+						'default' => 0,
+						'previous_name' => 'Updated'
+					)
+				),
+				'indexes' => array(
+					'user' => array(
+						'user'
+					),
+					'session' => array(
+						'session'
+					)
+				),
+				'unique keys' => array(
+					'code' => array(
+						'code'
+					)
+				),
+				'primary keys' => array(
+					'id'
+				)
+			)
+		);
+		return $this->map($result);
+	}
+}
+

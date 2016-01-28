@@ -1,0 +1,56 @@
+#translate-main {
+	#translate-form {
+		display: block;
+		.actions {
+			margin-top: 10px;
+			.btn-info {
+				color: inherit;
+				background-color: inherit;
+				&:hover {
+					color: inherit;
+					background-color: inherit;
+				}
+			}
+		}
+	}
+	
+	.row.header {
+		padding-top: 10px;
+		clear: both;
+		font-weight: bold;
+	}
+	.row {
+		border: 1px solid rgba(0,0,0,0);
+		border-radius: 4px;
+		padding-top: 5px;
+		padding-bottom: 5px;
+		&.selected {
+			background-color: rgba(0,0,0,0.2);
+			border: 1px solid rgba(0,0,0,0.5);
+		}
+		.label.group {
+			margin-right: 5px;
+		}
+	}
+	.shortcut {
+		display: none;
+	}
+	span.hilite {
+		display: inline;
+		padding: 0;
+		margin: 0;
+		color: black;
+		font-weight: bold;
+		background-color: #FFFF66;
+	}
+	#translation {
+		word-break: break-word;
+	}
+	label.shortcuts {
+		font-size: 95%;
+		font-weight: normal;
+		input {
+			margin-right: 0.25em;
+		}
+	}
+}

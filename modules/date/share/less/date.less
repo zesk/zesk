@@ -1,0 +1,158 @@
+.control-date {
+	table.date-popup-table {
+		position: absolute;
+		z-index: 1000;
+		border: 1px solid black;
+		background-color: #000;
+		box-shadow: 5px 5px 10px #DDD;
+		opacity: 0.95;
+		-moz-opacity: 0.95;
+		-khtml-opacity: 0.95;
+		filter: alpha(opacity=95);
+
+		img {
+			border: none;
+		}
+
+		tr,td,table {
+			margin: 0;
+			padding: 0;
+			text-align: center;
+		}
+
+		tr.buttons {
+			background-color: #000;
+			td {
+				padding: 5px;
+				input {
+					margin-right: 5px;
+				}
+				.today {
+					float: left;
+				}
+
+				.cancel {
+					float: right;
+					margin-right: 2px;
+				}
+			}
+		}
+		tr.controls {
+			background-color: #DDD;
+			font-weight: bold;
+			td.arrow {
+				a {
+					display: block;
+				}
+				i {
+					background-image: url(../images/arrows.png);
+					background-repeat: no-repeat;
+					margin: 5px;
+					width: 16px;
+					display: block;
+					height: 14px;
+				}
+				i.last-year {
+					background-position: 0 0;
+				}
+				i.last-year.disabled {
+					background-position: -16px 0;
+				}
+				i.last-month {
+					background-position: -32px 0;
+				}
+				i.last-month.disabled {
+					background-position: -48px 0;
+				}
+				i.next-month {
+					background-position: -64px 0;
+				}
+				i.next-month.disabled {
+					background-position: -80px 0;
+				}
+				i.next-year {
+					background-position: -96px 0;
+				}
+				i.next-year.disabled {
+					background-position: -112px 0;
+				}
+			}
+			select {
+				font-size: 16px;
+			}
+		}
+		tr.weekday {
+			td {
+				width: 35px;
+				background-color: #444;
+				color: #FFF;
+			}
+		}
+		td.day {
+			width: 14%;
+			background-color: #FFF;
+			color: #000;
+			border: 1px solid #DDD;
+			&.other {
+				background-color: #FFF;
+				color: #999;
+			}
+			&.now {
+				background-color: #CCC;
+				color: #910;
+				font-weight: bold;
+			}
+			&.selected {
+				background-color: #000;
+				color: #FFF;
+			}
+			&.disabled {
+				color: #EEE;
+			}
+		}
+	}
+	/*
+	.date-day {
+	}
+	.date-popup-weekday,.date-popup-weekday td {
+	}
+
+	.date-popup-other,.date-popup-other a {
+	}
+
+	.date-popup-day,.date-popup-day a {
+		background-color: #CCC;
+		color: #000;
+	}
+
+	.date-popup-now,.date-popup-now a {
+	}
+
+	.date-popup-selected,.date-popup-selected a {
+	}
+
+	.time-popup-controls {
+		background-color: grey;
+	}
+
+	.time-popup-controls select {
+		vertical-align: middle;
+	}
+
+	.Control_Date_Clear {
+		width: auto;
+	}
+
+	.Control_Date-calendar {
+		position: relative;
+		z-index: 10000;
+	}
+
+	i.icon-date-calendar {
+		background-image: url(../images/date.png);
+		width: 16px;
+		height: 16px;
+		background-position: 0 0;
+	}
+	*/
+}

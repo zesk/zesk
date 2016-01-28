@@ -1,0 +1,38 @@
+From support@bluebottle.com  Sun Dec 23 22:20:20 2007
+Return-Path: <support@bluebottle.com>
+X-Original-To: marketruler@hornet.dreamhost.com
+Delivered-To: marketruler@hornet.dreamhost.com
+Received: from bb1.bluebottle.com (bb1.bluebottle.com [206.188.25.6])
+	by hornet.dreamhost.com (Postfix) with ESMTP id 98B81CCEE1
+	for <marketruler@hornet.dreamhost.com>; Sun, 23 Dec 2007 22:20:20 -0800 (PST)
+Received: from localhost.localdomain (localhost.localdomain [127.0.0.1])
+	by bb1.bluebottle.com (8.13.1/8.13.1) with ESMTP id lBO6KJc6001588
+	for <marketruler@hornet.dreamhost.com>; Sun, 23 Dec 2007 22:20:19 -0800
+DomainKey-Signature: a=rsa-sha1; s=mail; d=bluebottle.com; c=simple; q=dns;
+	h=from:to:subject:content-type:x-bluebottle-request:
+	x-bluebottle-address:x-bluebottle-subject;
+	b=B/tN8OKUYMg2XBwjg3a/RjfsPxRPSuo7JGVLz12LhMxutwKmvqGoLl7pYIf+ZFZIs
+	xXb9cr5P/Td6j0T/KpGYR59JICvGwpI3JoChBl1e7q52CxiI0OplmhISVwlKgJi
+Date: Sun, 23 Dec 2007 22:20:19 -0800
+Message-Id: <200712240620.lBO6KJc6001588@bb1.bluebottle.com>
+From: scrivens@bluebottle.com
+To: marketruler@hornet.dreamhost.com
+Subject: RE: Mobile Password Safe Login
+Content-Type: text/plain; charset=us-ascii
+X-Bluebottle-Request: <8992c220acea755305f222632aff4fe4>
+X-Bluebottle-Address: <scrivens@bluebottle.com>
+X-Bluebottle-Subject: Mobile Password Safe Login
+X-Trusted-Delivery: <1dc1adcb95be9f0706725b3b18f7e572>
+
+Your message was received at Mon, 24 Dec 2007 06:20:19 +0000:
+
+To: scrivens@bluebottle.com
+Subject: Mobile Password Safe Login
+
+This account is protected by Bluebottle.  Please click on the
+following link to have your address added to the recipient's allowed
+list and to ensure delivery of your email.
+
+http://www.bluebottle.com/verification/8992c220acea755305f222632aff4fe4
+
+Bluebottle is a trademark of Trusted Delivery Pty Ltd

@@ -1,0 +1,144 @@
+<?php
+/**
+ *
+ * @version $URL: https://code.marketacumen.com/zesk/trunk/modules/bootstrap/classes/module/bootstrap.inc $
+ */
+class Module_Bootstrap extends Module implements Module_Interface_Foot {
+	public function initialize() {
+		zesk::add_hook('Control_List::row_widget', array(
+			$this,
+			'_hook_list_row_widget'
+		));
+	}
+	public function _hook_list_row_widget(Control $self, Control_Row $row) {
+		$n_columns = $self->option('list_column_count', 12);
+		$children = $row->children();
+		$child_divisor = count($children) === 0 ? 1 : count($children);
+		$n_per = max(1, intval($n_columns / $child_divisor));
+		$autos = array();
+		$total = $n_columns;
+		foreach ($row->children() as $child) {
+			$list_column_width = $child->option('list_column_width');
+			if ($list_column_width === null) {
+				$child->set_option('list_column_width', $n_per);
+				$total -= $n_per;
+			} else if ($list_column_width === 'auto') {
+				$autos[] = $child;
+			} else if (is_numeric($list_column_width)) {
+				$total -= $list_column_width;
+			}
+		}
+		if (count($autos) > 0) {
+			$n_per = intval($total / count($autos));
+			foreach ($autos as $child) {
+				$child->set_option('list_column_width', $n_per);
+			}
+		}
+	}
+	public function hook_head(Request $request, Response_HTML $response, Template $template) {
+		// Lazy eval
+		if (zesk::getb('Module_Bootstrap::enabled', $request->getb('Module_Bootstrap::enabled', true))) {
+			if (!self::source_location()) {
+				$response->cdn_css("/share/bootstrap/css/bootstrap.css", array(
+					'share' => true
+				));
+			}
+			if (zesk::getb("Module_Bootstrap::responsive", true)) {
+				$response->meta("viewport", "width=device-width, initial-scale=1.0");
+			}
+			$response->meta(array(
+				'http-equiv' => 'X-UA-Compatible',
+				'content' => "IE=edge"
+			));
+			$response->meta(array(
+				'charset' => 'utf-8'
+			));
+			
+			$response->jquery();
+			$response->cdn_javascript(array(
+				"/share/bootstrap/js/bootstrap.js"
+			), array(
+				'share' => true
+			));
+		}
+	}
+	public function hook_foot(Request $request, Response_HTML $response, Template $template) {
+		if ($this->application->development()) {
+			echo $this->application->theme("bootstrap/responsive-size");
+		}
+	}
+	/**
+	 * Setting the source location for bootstrap means you want to build your own less files from
+	 * their source, very powerful.
+	 *
+	 * Set in your application configuration file, and upon update the files will be automatically
+	 * copied into your source tree, where they should be checked in
+	 * to the source as well.
+	 *
+	 * @param string $set        	
+	 * @return string
+	 */
+	public static function source_location($set = null) {
+		if ($set !== null) {
+			zesk::set('Module_Bootstrap::source_location', $set);
+			return $set;
+		}
+		return zesk::get('Module_Bootstrap::source_location');
+	}
+	
+	/**
+	 * map bootstrap file
+	 */
+	private function map_variables_file($source_location) {
+		$newfilename = $this->option('variables_less_override_name', '../variables.less');
+		$tr = array(
+			"@import \"variables.less\";\n@import \"mixins.less\";" => "@import \"variables.less\";\n@import \"$newfilename\";\n@import \"mixins.less\";"
+		);
+		$bootstrap_main = path($source_location, "bootstrap.less");
+		if (!is_file($bootstrap_main)) {
+			log::error("Module_Bootstrap expected file to exist for modification: {file} - no action taken", array(
+				"file" => $bootstrap_main
+			));
+			return false;
+		}
+		$parent = dirname($source_location);
+		if (is_file($import_file_path = path($source_location, $newfilename))) {
+			$old = file_get_contents($bootstrap_main);
+			$new = strtr($old, $tr);
+			if ($old === $new) {
+				log::warning("Module_Bootstrap tried to modify {file} for custom variables.less, but didn't change it?", array(
+					"file" => $bootstrap_main
+				));
+				return false;
+			}
+			file_put_contents($bootstrap_main, $new);
+			log::notice("Module_Bootstrap modified {file} for custom variables.less", array(
+				"file" => $bootstrap_main
+			));
+			return true;
+		} else {
+			log::warning("Module_Bootstrap - can not find import file {import_file_path}", compact('import_file_path'));
+		}
+		return false;
+	}
+	/**
+	 * After this module is updated
+	 */
+	public function hook_updated() {
+		$this->inherit_global_options();
+		$source_location = $this->option('source_location');
+		log::debug("{class}::hook_updated: source_location={source_location}", array(
+			'class' => get_class($this),
+			"source_location" => $source_location
+		));
+		if (is_dir($source_location) || is_dir(dirname($source_location))) {
+			$master = path(Module::path('bootstrap'), 'share/less');
+			if (!is_dir($master)) {
+				log::error("Bootstrap master directory moved from \"{master}\"- update Module_Bootstrap code", compact("master"));
+				return;
+			}
+			dir::copy($master, $source_location, true);
+			$this->map_variables_file($source_location);
+		}
+	}
+}

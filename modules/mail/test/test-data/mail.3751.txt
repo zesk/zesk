@@ -1,0 +1,99 @@
+From MAILER-DAEMON  Sat Jan  5 11:36:53 2008
+Return-Path: <>
+X-Original-To: marketruler@hornet.dreamhost.com
+Delivered-To: marketruler@hornet.dreamhost.com
+Received: from pants.dreamhost.com (pants.dreamhost.com [66.33.216.244])
+	by hornet.dreamhost.com (Postfix) with ESMTP id 2D436CCCCB
+	for <marketruler@hornet.dreamhost.com>; Sat,  5 Jan 2008 11:36:53 -0800 (PST)
+Received: by pants.dreamhost.com (Postfix)
+	id 02C8E14C00B; Sat,  5 Jan 2008 11:36:52 -0800 (PST)
+Date: Sat,  5 Jan 2008 11:36:52 -0800 (PST)
+From: MAILER-DAEMON@pants.dreamhost.com (Mail Delivery System)
+Subject: Undelivered Mail Returned to Sender
+To: marketruler@hornet.dreamhost.com
+MIME-Version: 1.0
+Content-Type: multipart/report; report-type=delivery-status;
+	boundary="6446114C004.1199561812/pants.dreamhost.com"
+Message-Id: <20080105193652.02C8E14C00B@pants.dreamhost.com>
+
+This is a MIME-encapsulated message.
+
+--6446114C004.1199561812/pants.dreamhost.com
+Content-Description: Notification
+Content-Type: text/plain
+
+This is the Postfix program at host pants.dreamhost.com.
+
+I'm sorry to have to inform you that your message could not be
+be delivered to one or more recipients. It's attached below.
+
+For further assistance, please send mail to <postmaster>
+
+If you do so, please include this problem report. You can
+delete your own text from the attached returned message.
+
+			The Postfix program
+
+<Aldoszarate50@yahoo.com>: host f.mx.mail.yahoo.com[209.191.88.247] said: 554
+    delivery error: dd This user doesn't have a yahoo.com account
+    (aldoszarate50@yahoo.com) [0] - mta300.mail.mud.yahoo.com (in reply to end
+    of DATA command)
+
+--6446114C004.1199561812/pants.dreamhost.com
+Content-Description: Delivery report
+Content-Type: message/delivery-status
+
+Reporting-MTA: dns; pants.dreamhost.com
+X-Postfix-Queue-ID: 6446114C004
+X-Postfix-Sender: rfc822; marketruler@hornet.dreamhost.com
+Arrival-Date: Sat,  5 Jan 2008 11:36:52 -0800 (PST)
+
+Final-Recipient: rfc822; Aldoszarate50@yahoo.com
+Action: failed
+Status: 5.0.0
+Diagnostic-Code: X-Postfix; host f.mx.mail.yahoo.com[209.191.88.247] said: 554
+    delivery error: dd This user doesn't have a yahoo.com account
+    (aldoszarate50@yahoo.com) [0] - mta300.mail.mud.yahoo.com (in reply to end
+    of DATA command)
+
+--6446114C004.1199561812/pants.dreamhost.com
+Content-Description: Undelivered Message
+Content-Type: message/rfc822
+
+Received: from smarty.dreamhost.com (smarty.dreamhost.com [208.113.175.8])
+	by pants.dreamhost.com (Postfix) with ESMTP id 6446114C004
+	for <Aldoszarate50@yahoo.com>; Sat,  5 Jan 2008 11:36:52 -0800 (PST)
+Received: from hornet.dreamhost.com (hornet.dreamhost.com [208.113.193.24])
+	by smarty.dreamhost.com (Postfix) with ESMTP id 52B79EE26F
+	for <Aldoszarate50@yahoo.com>; Sat,  5 Jan 2008 11:36:52 -0800 (PST)
+Received: by hornet.dreamhost.com (Postfix, from userid 1569839)
+	id 5033CCCEF6; Sat,  5 Jan 2008 11:36:52 -0800 (PST)
+To: Aldoszarate50@yahoo.com
+Subject: Mobile Password Safe Login
+From: Mobile Password Safe <iphone-help@mobilepasswordsafe.com>
+Message-Id: <20080105193652.5033CCCEF6@hornet.dreamhost.com>
+Date: Sat,  5 Jan 2008 11:36:52 -0800 (PST)
+
+pw.ex.to
+
+Your private passwords can be found here:
+
+https://pw.ex.to/?aid=df0c4de7305c2f6f986d152977b47e93
+
+Note that while this page contains all of your data, it is encrypted and inaccessible without your password.
+
+Learn more about our security practices:
+
+https://pw.ex.to/security.php
+
+Thank you for using our service.
+--
+Market Ruler
+110 W Front St. 3rd Floor
+Media, PA 19063
+iphone-help@mobilepasswordsafe.com
+610-565-5454
+
+
+
+--6446114C004.1199561812/pants.dreamhost.com--

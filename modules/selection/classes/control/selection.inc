@@ -1,0 +1,155 @@
+<?php
+class Control_Selection extends Control {
+
+	/**
+	 *
+	 * @var Selection_Type
+	 */
+	private $type = null;
+
+	/**
+	 * Get/set class associated with this selection
+	 *
+	 * @param string $set
+	 * @return string|Control_Selection
+	 */
+	public function selection_class($set = null) {
+		return ($set === null) ? $this->option('selection_class') : $this->set_option('selection_class', $set);
+	}
+	/**
+	 * Get/Set code used to find this selection
+	 *
+	 * @param string $set
+	 * @return string|Control_Selection
+	 */
+	public function selection_code($set = null) {
+		return ($set === null) ? $this->option('selection_code', $this->selection_class()) : $this->set_option('selection_code', $set);
+	}
+
+	/**
+	 *
+	 * @return Selection_Type
+	 */
+	protected function selection_type() {
+		if ($this->type) {
+			return $this->type;
+		}
+		return $this->type = Object::factory("Selection_Type", array(
+			"session" => $this->session(),
+			"user" => $this->user(),
+			"code" => $this->selection_code(),
+			"class" => $this->selection_class()
+		))->register();
+	}
+	protected function initialize() {
+		$class = $this->selection_class();
+		if (empty($class)) {
+			$current = $this;
+			while (($current = $current->parent()) !== null) {
+				$class = $current->object_class();
+				if ($class) {
+					$this->selection_class($class);
+					break;
+				}
+			}
+		}
+		if (empty($class)) {
+			throw new Exception_Semantics("{class} needs selection class set before usage", array(
+				"this" => $this,
+				"class" => get_class($this)
+			));
+		}
+		parent::initialize();
+	}
+	public function hook_control_list_row(Model $object, Template $t) {
+		if (!$object instanceof Object) {
+			return;
+		}
+		if ($object->member_boolean("selected")) {
+			$t->row_attributes = html::add_class($t->row_attributes, "selected");
+		} else {
+			$t->row_attributes = html::remove_class($t->row_attributes, "selected");
+		}
+	}
+	public function retrieve_queries() {
+		$top = $this->top();
+		if ($top instanceof Control_List) {
+			return array(
+				$top->query_total(),
+				$top->query()
+			);
+		}
+		log::error("{class}: Top widget is not a list: {instead}", array(
+			"class" => get_class($this),
+			"instead" => get_class($top)
+		));
+		return array(
+			null,
+			null
+		);
+	}
+	public function controller() {
+		$request = $this->request();
+		$response = $this->response();
+		if (!$this->application->development() && !$request->is_post()) {
+			$response->json(array(
+				"status" => false,
+				"message" => "Not a POST"
+			));
+			return;
+		}
+		$status = true;
+		$result = array();
+		$type = $this->selection_type();
+		switch ($action = $request->get("action")) {
+			case "none":
+				$message = __("Selection deleted.");
+				$type->items_clear();
+				break;
+			case "all":
+				$message = __("Selection expanded.");
+				list($query_total, $query_list) = $this->retrieve_queries();
+				if (!$query_total) {
+					$status = false;
+					$message = __("Unable to retrieve queries");
+				} else {
+					$type->items_all($query_total, $query_list);
+					$message = __("Saved current selection.");
+				}
+				break;
+			default :
+				$message = null; //__("Updated selection");
+				$add = $request->geta("add");
+				$remove = $request->geta("remove");
+				$type->items_update($add, $remove);
+				$result += array(
+					"added" => count($add),
+					"removed" => count($remove)
+				);
+				break;
+		}
+		$response->json($result + array(
+			"status" => $status,
+			"message" => $message,
+			"count" => $type->count()
+		));
+	}
+	public function theme_variables() {
+		$type = $this->selection_type();
+		return parent::theme_variables() + array(
+			'target' => $this->option('target', '.row'),
+			'container' => $this->option('container', '.list'),
+			'selection_type' => $type,
+			'count' => $type->count(),
+			'actions' => $this->option_array("actions", array())
+		);
+	}
+	protected function hook_query_list(Database_Query_Select $query) {
+		$type_id = $this->selection_type()->id();
+		$alias = $query->alias();
+		$id_column = Object::class_id_column($query->object_class());
+		$table = Object::class_table_name("Selection_Item");
+		$query->join("LEFT OUTER JOIN $table sel_item ON sel_item.type=$type_id AND sel_item.id=$alias.$id_column");
+		$query->what("*selected", "sel_item.add");
+	}
+}

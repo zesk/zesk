@@ -1,0 +1,93 @@
+From MAILER-DAEMON  Sat Dec 15 12:21:08 2007
+Return-Path: <>
+X-Original-To: marketruler@hornet.dreamhost.com
+Delivered-To: marketruler@hornet.dreamhost.com
+Received: from judo.dreamhost.com (judo.dreamhost.com [66.33.216.100])
+	by hornet.dreamhost.com (Postfix) with ESMTP id E7F41CCF98
+	for <marketruler@hornet.dreamhost.com>; Sat, 15 Dec 2007 12:21:08 -0800 (PST)
+Received: by judo.dreamhost.com (Postfix)
+	id B95C917C589; Sat, 15 Dec 2007 12:21:08 -0800 (PST)
+Date: Sat, 15 Dec 2007 12:21:08 -0800 (PST)
+From: MAILER-DAEMON@judo.dreamhost.com (Mail Delivery System)
+Subject: Undelivered Mail Returned to Sender
+To: marketruler@hornet.dreamhost.com
+MIME-Version: 1.0
+Content-Type: multipart/report; report-type=delivery-status;
+	boundary="84B7C17C584.1197750068/judo.dreamhost.com"
+Message-Id: <20071215202108.B95C917C589@judo.dreamhost.com>
+
+This is a MIME-encapsulated message.
+
+--84B7C17C584.1197750068/judo.dreamhost.com
+Content-Description: Notification
+Content-Type: text/plain
+
+This is the Postfix program at host judo.dreamhost.com.
+
+I'm sorry to have to inform you that your message could not be
+be delivered to one or more recipients. It's attached below.
+
+For further assistance, please send mail to <postmaster>
+
+If you do so, please include this problem report. You can
+delete your own text from the attached returned message.
+
+			The Postfix program
+
+<123@abcd.com>: [abcd.com]: Name or service not known
+
+--84B7C17C584.1197750068/judo.dreamhost.com
+Content-Description: Delivery report
+Content-Type: message/delivery-status
+
+Reporting-MTA: dns; judo.dreamhost.com
+X-Postfix-Queue-ID: 84B7C17C584
+X-Postfix-Sender: rfc822; marketruler@hornet.dreamhost.com
+Arrival-Date: Sat, 15 Dec 2007 12:21:05 -0800 (PST)
+
+Final-Recipient: rfc822; 123@abcd.com
+Action: failed
+Status: 5.0.0
+Diagnostic-Code: X-Postfix; [abcd.com]: Name or service not known
+
+--84B7C17C584.1197750068/judo.dreamhost.com
+Content-Description: Undelivered Message
+Content-Type: message/rfc822
+
+Received: from smarty.dreamhost.com (smarty.dreamhost.com [208.113.175.8])
+	by judo.dreamhost.com (Postfix) with ESMTP id 84B7C17C584
+	for <123@abcd.com>; Sat, 15 Dec 2007 12:21:05 -0800 (PST)
+Received: from hornet.dreamhost.com (hornet.dreamhost.com [208.113.193.24])
+	by smarty.dreamhost.com (Postfix) with ESMTP id 6BE4FEE26F
+	for <123@abcd.com>; Sat, 15 Dec 2007 12:21:04 -0800 (PST)
+Received: by hornet.dreamhost.com (Postfix, from userid 1569839)
+	id 69554CD00F; Sat, 15 Dec 2007 12:21:04 -0800 (PST)
+To: 123@abcd.com
+Subject: Mobile Password Safe Login
+From: Mobile Password Safe <iphone-help@mobilepasswordsafe.com>
+Message-Id: <20071215202104.69554CD00F@hornet.dreamhost.com>
+Date: Sat, 15 Dec 2007 12:21:04 -0800 (PST)
+
+pw.ex.to
+
+Your private passwords can be found here:
+
+https://pw.ex.to/?aid=c40b1d0dcadb632a532cbc53551e3e74
+
+Note that while this page contains all of your data, it is encrypted and inaccessible without your password.
+
+Learn more about our security practices:
+
+https://pw.ex.to/security.php
+
+Thank you for using our service.
+--
+Market Ruler
+110 W Front St. 3rd Floor
+Media, PA 19063
+iphone-help@mobilepasswordsafe.com
+610-565-5454
+
+
+
+--84B7C17C584.1197750068/judo.dreamhost.com--

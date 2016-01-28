@@ -1,0 +1,282 @@
+<?php
+/**
+ * Module to present context-sensitive help on web pages.
+ *
+ * Uses Help for help text storage and Help_User to mark entries
+ *
+ * Currently not internationalizable, but could easily be added.
+ *
+ * Only works on authenticated users; perhaps add a session marker to allow per-session
+ * help text for apps which is then copied into the user context.
+ *
+ * @author kent
+ *
+ */
+class Module_Help extends Module_JSLib {
+	private $authenticated = null;
+	protected $javascript_settings_inherit = array(
+		'show_count' => 3
+	);
+	
+	/**
+	 * Associated classes
+	 * 
+	 * @return array
+	 */
+	protected $classes = array(
+		'Help',
+		'Help_User'
+	);
+	public function initialize() {
+	}
+	/**
+	 * We inject our JavaScript on pages; it loads
+	 * 
+	 * @param Request $requset        	
+	 * @param Response_HTML $response        	
+	 */
+	public function hook_head(Request $request, Response_HTML $response, Template $template) {
+		if (!$this->option_bool("disabled")) {
+			try {
+				$this->authenticated = User::instance()->authenticated();
+				if ($this->authenticated) {
+					$response->cdn_javascript('/share/help/js/help.js', array(
+						'share' => true
+					));
+				}
+			} catch (Database_Exception $e) {
+				log::debug("Module_Help::hook_head threw exception {e}", array(
+					'e' => $e
+				));
+			}
+		}
+		parent::hook_head($request, $response, $template);
+	}
+	
+	/**
+	 * Registers all help text in the system
+	 */
+	public static function cron_cluster() {
+		$helps = Module::all_hook_array(__CLASS__, array(), array());
+		log::notice("Module_Help::cron found {count} help items", array(
+			"count" => count($helps)
+		));
+		foreach ($helps as $target => $settings) {
+			if ($settings === null) {
+				$item = Object::factory('Help')->find(array(
+					'target' => $target
+				));
+				if ($item) {
+					log::notice("Deleted help item for {target}", array(
+						'target' => $target
+					));
+					$item->delete();
+				}
+				continue;
+			}
+			$settings['target'] = $target;
+			$help = Object::factory('Help', $settings)->register();
+			/* @var $help Help */
+			if ($help->object_status() === Object::status_insert) {
+				log::notice("Registered help item for {target}", array(
+					'target' => $target
+				));
+			} else if (zesk::getb('Module_Help::cron_update')) {
+				$help->set_member($settings)->store();
+			}
+		}
+	}
+	
+	/**
+	 * Adds needed routes to our router
+	 * 
+	 * @todo Make these non-static calls
+	 * @param Router $router        	
+	 */
+	public function hook_routes(Router $router) {
+		$router->add_route('help/user-targets', array(
+			'method' => "Module_Help::user_targets",
+			'arguments' => array(
+				'{request}',
+				'{response}'
+			)
+		));
+		$router->add_route('help/user-reset', array(
+			'method' => "Module_Help::user_reset",
+			'arguments' => array(
+				'{request}',
+				'{response}'
+			)
+		));
+		$router->add_route('help/show', array(
+			'method' => "Module_Help::user_show",
+			'arguments' => array(
+				'{request}',
+				'{response}'
+			)
+		));
+		$router->add_route('help/dismiss', array(
+			'method' => "Module_Help::user_dismiss",
+			'arguments' => array(
+				'{request}',
+				'{response}'
+			)
+		));
+	}
+	
+	/**
+	 * List user targets
+	 *
+	 * @param Request $request        	
+	 * @param Response $response        	
+	 */
+	public static function user_targets(Request $request, Response $response) {
+		$user = self::_help_auth($request, $response);
+		$query = Object::class_query('Help')->link('Help_User', array(
+			'require' => false,
+			"alias" => "hu",
+			"on" => array(
+				'user' => $user
+			)
+		))->where(array(
+			"X.active" => true,
+			"hu.user" => null
+		));
+		$helps = $query->object_iterator();
+		$result = array();
+		$mappables = Module::all_hook_array(__CLASS__ . "_map", array(), array());
+		if (count($mappables) === 0) {
+			$mappables = array();
+		}
+		foreach ($helps as $id => $help) {
+			/* @var $help Help */
+			$result[$id] = map($help->members('target;title;content;placement'), $mappables);
+		}
+		$result[] = strval($query);
+		$response->json($result);
+	}
+	
+	/**
+	 * Require user authentication
+	 *
+	 * @param Request $request        	
+	 * @param Response $response        	
+	 *
+	 * @return User
+	 */
+	private static function _help_auth(Request $request, Response $response) {
+		$user = User::instance();
+		if (!$user->authenticated()) {
+			$response->status(Net_HTTP::Status_Unauthorized, "Requires user")->json(array(
+				'error' => __('Requires user')
+			));
+			return null;
+		}
+		return $user;
+	}
+	
+	/**
+	 * Require user authentication, and require POST (e.g.
+	 * this is help call which "updates" things)
+	 *
+	 * @param Request $request        	
+	 * @param Response $response        	
+	 * @return NULL|User
+	 */
+	private static function _help_update(Request $request, Response $response) {
+		$user = self::_help_auth($request, $response);
+		if (!$user) {
+			return null;
+		}
+		if (!Application::instance()->development() && !$request->is_post()) {
+			$response->status(Net_HTTP::Status_Method_Not_Allowed, "Requires POST")->json(array(
+				'error' => __('Requires POST data')
+			));
+			return null;
+		}
+		return $user;
+	}
+	
+	/**
+	 * Show help to a user and mark Help record
+	 *
+	 * @param Request $request        	
+	 * @param Response $response        	
+	 */
+	public static function user_show(Request $request, Response $response) {
+		if (($user = self::_help_update($request, $response)) === null) {
+			return;
+		}
+		$ids = $request->geta('id', array());
+		foreach ($ids as $id) {
+			Object::factory('Help', $id)->show();
+		}
+		$response->json(array(
+			'status' => true,
+			'message' => 'Marked'
+		));
+	}
+	
+	/**
+	 *
+	 * @param Request $request        	
+	 * @param Response $response        	
+	 */
+	public static function user_dismiss(Request $request, Response $response) {
+		if (($user = self::_help_update($request, $response)) === null) {
+			return;
+		}
+		$ids = $request->geta('id', array());
+		foreach ($ids as $id) {
+			$help = Object::factory('Help', $id)->fetch();
+			if ($help) {
+				Object::factory('Help_User', array(
+					'help' => $help,
+					'user' => $user,
+					'dismissed' => 'now'
+				))->register();
+				$result[$id] = true;
+			} else {
+				log::error("{class}::{method} Help {id} not found", array(
+					"class" => __CLASS__,
+					"method" => __METHOD__,
+					"id" => $id
+				));
+				$result[$id] = false;
+			}
+		}
+		$response->json($result);
+	}
+	
+	/**
+	 * Remote call to reset all help for a user
+	 *
+	 * @param Request $request        	
+	 * @param Response $response        	
+	 */
+	public static function user_reset(Request $request, Response $response) {
+		if (($user = self::_help_auth($request, $response)) === null) {
+			return;
+		}
+		$n = self::reset_user($user);
+		$response->json(array(
+			'status' => true,
+			'message' => __('Removed {n} {entries}', array(
+				'n' => $n,
+				'entries' => lang::plural(__('entry'), $n)
+			))
+		));
+	}
+	
+	/**
+	 * Internal function to reset a user's help
+	 *
+	 * @param User $user        	
+	 * @return number Number of affected records (number previous marked as "dismissed")
+	 */
+	public static function reset_user(User $user) {
+		$query = Object::class_query_delete('Help_User')->where('user', $user);
+		$query->execute();
+		return $query->affected_rows();
+	}
+}

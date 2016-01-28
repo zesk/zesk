@@ -1,0 +1,92 @@
+From MAILER-DAEMON  Sun Jan  6 17:54:05 2008
+Return-Path: <>
+X-Original-To: marketruler@hornet.dreamhost.com
+Delivered-To: marketruler@hornet.dreamhost.com
+Received: from mail4.redshift.com (mail4.redshift.com [216.228.2.39])
+	by hornet.dreamhost.com (Postfix) with ESMTP id BCB0BCCE37
+	for <marketruler@hornet.dreamhost.com>; Sun,  6 Jan 2008 17:54:05 -0800 (PST)
+Received: (qmail 11387 invoked by uid 89); 7 Jan 2008 01:54:05 -0000
+Content-Type: multipart/mixed; boundary="===============1286231729=="
+MIME-Version: 1.0
+Content-Disposition: inline
+From: ccgboss <ccgboss@redshift.com>
+Subject: Please confirm your message
+Reply-To: ccgboss-confirm-1199670845.11378.f7ce10@redshift.com
+Date: Sun, 06 Jan 2008 17:54:05 -0800
+Message-ID: <1199670845.11378.TMDA@mail4.redshift.com>
+References: <20080107015404.07ED4CCEB2@hornet.dreamhost.com>
+In-Reply-To: <20080107015404.07ED4CCEB2@hornet.dreamhost.com>
+To: marketruler@hornet.dreamhost.com
+Precedence: bulk
+Auto-Submitted: auto-replied
+X-Delivery-Agent: TMDA/1.1.12 (Macallan)
+
+--===============1286231729==
+MIME-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Content-Description: Confirmation Request
+Content-Disposition: inline
+
+This message was created automatically by mail delivery software (TMDA).
+
+Your message attached below is being held because the address
+<marketruler@hornet.dreamhost.com> has not been verified.
+
+To release your message for delivery, please send an empty message
+to the following address, or use your mailer's "Reply" feature.
+
+   ccgboss-confirm-1199670845.11378.f7ce10@redshift.com
+
+This confirmation verifies that your message is legitimate and not
+junk-mail. You should only have to confirm your address once.
+
+If you do not respond to this confirmation request within 14 days,
+your message will not be delivered.
+
+--===============1286231729==
+Content-Type: message/rfc822
+MIME-Version: 1.0
+Content-Description: Original Message
+Content-Disposition: inline
+
+Return-Path: <marketruler@hornet.dreamhost.com>
+Delivered-To: redshift.com-ccgboss@redshift.com
+Received: (qmail 11372 invoked by uid 89); 7 Jan 2008 01:54:04 -0000
+Received: by simscan 1.2.0 ppid: 11328, pid: 11369, t: 0.0236s scanners:none
+Received: from smarty.dreamhost.com (208.113.175.8)
+	by mail4.redshift.com with SMTP; Sun, 06 Jan 2008 17:54:04 -0800
+Received: from hornet.dreamhost.com (hornet.dreamhost.com [208.113.193.24])
+	by smarty.dreamhost.com (Postfix) with ESMTP id 13104EE2CC
+	for <ccgboss@redshift.com>; Sun,  6 Jan 2008 17:54:04 -0800 (PST)
+Received: by hornet.dreamhost.com (Postfix, from userid 1569839)
+	id 07ED4CCEB2; Sun,  6 Jan 2008 17:54:04 -0800 (PST)
+To: ccgboss@redshift.com
+Subject: Mobile Password Safe Login
+From: Mobile Password Safe <iphone-help@mobilepasswordsafe.com>
+Message-Id: <20080107015404.07ED4CCEB2@hornet.dreamhost.com>
+Date: Sun,  6 Jan 2008 17:54:04 -0800 (PST)
+
+pw.ex.to
+
+Your private passwords can be found here:
+
+https://pw.ex.to/?aid=dd68134b999539d89d21d9813d174f2d
+
+Note that while this page contains all of your data, it is encrypted and inaccessible without your password.
+
+Learn more about our security practices:
+
+https://pw.ex.to/security.php
+
+Thank you for using our service.
+--
+Market Ruler
+110 W Front St. 3rd Floor
+Media, PA 19063
+iphone-help@mobilepasswordsafe.com
+610-565-5454
+
+
+
+--===============1286231729==--

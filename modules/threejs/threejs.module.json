@@ -1,0 +1,8 @@
+{
+	"name": "ThreeJS",
+	"composer": {
+		"require": "components/three.js"
+	},
+	"share_path": "vendor/components/three.js",
+	"url_license": "https://raw2.github.com/mrdoob/three.js/master/LICENSE"
+}
