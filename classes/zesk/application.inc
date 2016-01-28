@@ -846,7 +846,7 @@ class Application extends \Hookable {
 			"data" => "",
 			"variables" => url::query_parse_url($path)
 		));
-		$this->response = Response::factory($this->request);
+		$this->response = Response::factory($this);
 		
 		ob_start();
 		$template = $this->_main_route($this->router->reset());
