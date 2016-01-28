@@ -1,9 +1,9 @@
 {
 	"url": "http://backbonejs.org/backbone.js",
 	"version_data": { 
-		"file": "${MODULE_PATH}/share/backbone.js", 
+		"file": "vendor/components/backbonejs/backbone.js", 
 		"pattern": "|//.*Backbone.js\\s+([0-9.]+)|" 
 	},
-	"destination": "vendor/backbonejs",
-	"share_path": "vendor/backbonejs"
+	"destination": "vendor/components/backbonejs",
+	"share_path": "vendor/components/backbonejs"
 }

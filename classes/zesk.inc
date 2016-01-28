@@ -191,7 +191,7 @@ class zesk {
 	 * @return integer version of this library
 	 */
 	public static function _version_string() {
-		return explode(' ', '$Id: zesk.inc 3565 2016-01-27 21:33:07Z kent $', 4);
+		return explode(' ', '$Id: zesk.inc 3575 2016-01-28 16:08:42Z kent $', 4);
 	}
 	
 	/**

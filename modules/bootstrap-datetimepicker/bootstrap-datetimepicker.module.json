@@ -5,8 +5,9 @@
 			"url": "https://github.com/Eonasdan/bootstrap-datetimepicker/archive/{version}.tar.gz"
 		}
 	},
-	"share_path": "$MODULE_PATH/share/build/",
+	"github": "Eonasdan/bootstrap-datetimepicker",
+	"share_path": "vendor/components/bootstrap-datetimepicker/build/",
 	"strip_components": 1,
-	"destination": "$MODULE_PATH/share",
+	"destination": "vendor/components/bootstrap-datetimepicker/",
 	"depends": [ "moment" ]
 }

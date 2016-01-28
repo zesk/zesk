@@ -1,9 +1,10 @@
 {
-	"urls": {
-		"http://code.highcharts.com/highcharts.js": "vendor/components/highcharts/",
-		"http://code.highcharts.com/highcharts.src.js": "vendor/components/highcharts/",
-		"http://code.highcharts.com/modules/exporting.js": "vendor/components/highcharts/"
-	},
+	"urls": [
+		"http://code.highcharts.com/highcharts.js",
+		"http://code.highcharts.com/highcharts.src.js",
+		"http://code.highcharts.com/modules/exporting.js"
+	],
+	"destination": "vendor/components/highcharts/",
 	"share_path": "vendor/components/highcharts/",
 	"name": "Highcharts",
 	"copyright": "Copyright &copy; 2012 Highsoft, LLC",

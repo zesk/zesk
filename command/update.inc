@@ -105,6 +105,8 @@ class Command_Update extends Command_Base {
 	
 	/**
 	 * Determine the array of module_name => module_data to update
+	 *
+	 * @return array
 	 */
 	private function modules_to_update() {
 		$module_options = array(
@@ -129,6 +131,14 @@ class Command_Update extends Command_Base {
 		));
 		return $modules;
 	}
+	
+	/**
+	 * Main comman entry point
+	 *
+	 * {@inheritDoc}
+	 *
+	 * @see Command::run()
+	 */
 	function run() {
 		$this->inherit_global_options();
 		
@@ -170,6 +180,14 @@ class Command_Update extends Command_Base {
 		}
 		return $result;
 	}
+	
+	/**
+	 * Update a single module
+	 *
+	 * @param string $module        	
+	 * @param array $module_data        	
+	 * @return array
+	 */
 	private function _update_module($module, array $module_data) {
 		$force = $this->option_bool('force');
 		$force_check = $this->option_bool('force-check');
@@ -188,11 +206,7 @@ class Command_Update extends Command_Base {
 			$this->log($module);
 			return true;
 		}
-		if ($this->option_bool('trial-run')) {
-			$this->log("### update $module");
-		} else {
-			$this->verbose_log("Updating $module");
-		}
+		$this->log("Updating $module");
 		if (arr::has($data, "composer")) {
 			return $this->composer_update($data);
 		}
@@ -274,9 +288,15 @@ class Command_Update extends Command_Base {
 					) + $data);
 					continue;
 				}
-				$this->exec("$composer_command require {require}", array(
-					"require" => $require
-				));
+				if ($this->option_bool("dry-run")) {
+					$this->log("Would run command: $composer_command require {require}", array(
+						"require" => $require
+					));
+				} else {
+					$this->exec("$composer_command require {require}", array(
+						"require" => $require
+					));
+				}
 			}
 		}
 	}

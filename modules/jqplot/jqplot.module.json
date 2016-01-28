@@ -6,6 +6,6 @@
 	"url_download": "http://www.jqplot.com/deploy/download/",
 	"url_license": "http://www.opensource.org/licenses/mit-license.php",
 	"strip_components": 1,
-	"destination": "vendor/jqplot",
-	"share_path": "vendor/jqplot"
+	"destination": "vendor/components/jqplot",
+	"share_path": "vendor/components/jqplot"
 }
