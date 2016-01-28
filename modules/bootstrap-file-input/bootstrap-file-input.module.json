@@ -1,0 +1,12 @@
+{
+	"name": "Bootstrap File Input, by Greg Pike",
+	"urls": {
+		"http://gregpike.net/demos/bootstrap-file-input/bootstrap.file-input.js": "vendor/bootstrap-file-input/"
+	},
+	"share_path": "vendor/bootstrap-file-input/",
+	"version_data": { 
+		"file": "${MODULE_PATH}/share/bootstrap.file-input.js", 
+		"pattern": "/Bootstrap v([0-9.]+)/" 
+	},
+	"license": "http://gregpike.net/demos/bootstrap-file-input/demo.html"
+}

@@ -1,0 +1,11 @@
+{
+	"name": "bxSlider",
+	"versions": {
+		"4.2.5": {
+			"url": "https://github.com/stevenwanderski/bxslider-4/archive/v4.2.5.tar.gz"
+		}
+	},
+	"destination": "vendor/bxslider",
+	"share_path": "vendor/bxslider",
+	"url_license": "http://sam.zoy.org/wtfpl/"
+}

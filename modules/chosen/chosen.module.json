@@ -1,0 +1,12 @@
+{
+	"name": "Chosen",
+	"versions": {
+		"1.4.1": {
+			"URL": "https://github.com/harvesthq/chosen/releases/download/v{version}/chosen_v{version}.zip"
+		},
+		"1.4.2": {
+			"URL": "https://github.com/harvesthq/chosen/releases/download/{version}/chosen_v{version}.zip"
+		}
+	},
+	"destination": "vendor/components/chosen"
+}

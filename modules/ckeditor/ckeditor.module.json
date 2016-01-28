@@ -1,0 +1,7 @@
+{
+	"name": "CKEditor",
+	"composer": {
+		"require": "ckeditor/ckeditor"
+	},
+	"share_path": "vendor/ckeditor/ckeditor"
+}

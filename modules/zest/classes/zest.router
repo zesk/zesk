@@ -1,0 +1,18 @@
+share/*
+	controller="{0}"
+test/*
+	method=Zest::run_test
+	arguments=[1]
+globals
+	prefix="<pre>"
+	method=Command_Globals::go
+control/*
+	method=Zest::widget_test
+	arguments=["{request}","{response}"]
+xmlrpc
+	method="Test_XMLRPC_Server::serve"
+({option controller}(/{option action}))
+	controller="{0}"
+	default controller="index"
+	default action="index"
+	weight="last"

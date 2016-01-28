@@ -1,0 +1,11 @@
+{
+	"name": "jQPlot",
+	"jqplot_version": "1.0.4r1121",
+	"url": "http://www.jqplot.com/deploy/download/jquery.jqplot.$jqplot_version.tar.gz",
+	"url_project": "http://www.jqplot.com/",
+	"url_download": "http://www.jqplot.com/deploy/download/",
+	"url_license": "http://www.opensource.org/licenses/mit-license.php",
+	"strip_components": 1,
+	"destination": "vendor/jqplot",
+	"share_path": "vendor/jqplot"
+}

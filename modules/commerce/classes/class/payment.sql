@@ -1,0 +1,26 @@
+-- Database: mysql
+CREATE TABLE `{table}` (
+	`id`					integer unsigned NOT NULL AUTO_INCREMENT PRIMARY KEY,
+	`owner`					integer unsigned DEFAULT NULL,
+	`account`				integer unsigned DEFAULT NULL,
+	`name`					varchar(64) DEFAULT NULL,
+	`description`			text,
+	`payment_type`			integer unsigned NOT NULL,
+	`owner_name`			varchar(64) NOT NULL DEFAULT '',
+	`account_number`		varchar(32) NOT NULL DEFAULT '',
+	`security_code`			varchar(8) DEFAULT NULL,
+	`contact_address`		integer unsigned DEFAULT NULL,
+	`expiration`			datetime NOT NULL DEFAULT '0000-00-00 00:00:00',
+	`created`				timestamp NOT NULL DEFAULT 0,
+	`modified`				timestamp NOT NULL DEFAULT 0,
+	`validated`				timestamp NOT NULL DEFAULT 0,
+	`is_valid`				tinyint unsigned NOT NULL DEFAULT 0,
+	`last_avs_code`			varchar(4) DEFAULT NULL,
+	`last_declined`			timestamp NOT NULL DEFAULT 0,
+	`email`					varchar(64) NOT NULL DEFAULT '',
+	`declined_notified`		timestamp NOT NULL DEFAULT 0,
+	`declined_notify_count`	tinyint unsigned DEFAULT NULL,
+	INDEX `payment_type` (`payment_type`),
+	INDEX `owner` (`owner`),
+	INDEX `account` (`account`)
+) ENGINE=InnoDB;

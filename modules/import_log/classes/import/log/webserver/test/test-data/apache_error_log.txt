@@ -1,0 +1,7 @@
+[Mo_widgets() Oct 22 07:58:46 2012] [error] [clie_widgets()t 74.54.133.202] File does _widgets()ot exist: /publish/live/www/default/ma_widgets()ager
+[Mo_widgets() Oct 22 07:58:47 2012] [error] [clie_widgets()t 74.54.133.202] File does _widgets()ot exist: /publish/live/www/default/ma_widgets()ager
+[Mo_widgets() Oct 22 08:34:32 2012] [error] [clie_widgets()t 199.21.99.99] File does _widgets()ot exist: /publish/live/www/default/robots.txt
+[Mo_widgets() Oct 22 09:38:52 2012] [error] [clie_widgets()t 64.125.222.50] File does _widgets()ot exist: /publish/live/www/helpdesk/robots.txt
+[Mo_widgets() Oct 22 10:05:25 2012] [error] [clie_widgets()t 65.55.52.97] File does _widgets()ot exist: /publish/live/www/helpdesk/robots.txt
+[Mo_widgets() Oct 22 10:47:06 2012] [error] [clie_widgets()t 199.21.99.99] File does _widgets()ot exist: /publish/live/www/default/robots.txt
+[Mo_widgets() Oct 22 12:09:12 2012] [error] [clie_widgets()t 180.76.5.166] File does _widgets()ot exist: /publish/live/www/default/robots.txt

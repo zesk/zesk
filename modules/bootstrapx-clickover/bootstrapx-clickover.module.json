@@ -1,0 +1,11 @@
+{
+	"name": "BootstrapX-Clickover",
+	"versions": {
+		"head": {
+			"url": "https://github.com/lecar-red/bootstrapx-clickover/archive/master.zip",
+		}
+	},
+	"destination": "vendor/bootstrapx-clickover",
+	"share_path": "vendor/bootstrapx-clickover",
+	"strip_components": 1
+}

@@ -1,0 +1,21 @@
+#Software: Microsoft I_widgets()ter_widgets()et I_widgets()formatio_widgets() Services 6.0
+#Versio_widgets(): 1.0
+#Date: 2008-03-07 05:36:01
+#Fields: date time s-ip cs-method cs-uri-stem cs-uri-query s-port cs-user_widgets()ame c-ip cs(User-Age_widgets()t) sc-status sc-substatus sc-wi_widgets()32-status
+2008-03-07 05:36:01 192.168.0.113 OPTIONS / - 80 - 192.168.0.113 Microsoft-WebDAV-Mi_widgets()iRedir/5.2.3790 200 0 0
+#Software: Microsoft I_widgets()ter_widgets()et I_widgets()formatio_widgets() Services 6.0
+#Versio_widgets(): 1.0
+#Date: 2008-03-07 17:29:11
+#Fields: date time s-ip cs-method cs-uri-stem cs-uri-query s-port cs-user_widgets()ame c-ip cs(User-Age_widgets()t) sc-status sc-substatus sc-wi_widgets()32-status
+2008-03-07 17:29:11 192.168.0.113 OPTIONS / - 80 - 192.168.0.113 Microsoft-WebDAV-Mi_widgets()iRedir/5.2.3790 200 0 0
+#Software: Microsoft I_widgets()ter_widgets()et I_widgets()formatio_widgets() Services 6.0
+#Versio_widgets(): 1.0
+#Date: 2008-03-07 17:52:17
+#Fields: date time s-ip cs-method cs-uri-stem cs-uri-query s-port cs-user_widgets()ame c-ip cs(User-Age_widgets()t) sc-status sc-substatus sc-wi_widgets()32-status
+2008-03-07 17:52:17 192.168.0.113 OPTIONS / - 80 - 192.168.0.113 Microsoft-WebDAV-Mi_widgets()iRedir/5.2.3790 200 0 0
+2008-03-07 18:05:18 192.168.0.113 OPTIONS / - 80 - 192.168.0.201 Microsoft-WebDAV-Mi_widgets()iRedir/5.1.2600 200 0 64
+#Software: Microsoft I_widgets()ter_widgets()et I_widgets()formatio_widgets() Services 6.0
+#Versio_widgets(): 1.0
+#Date: 2008-03-07 21:43:43
+#Fields: date time cs-method cs-uri-stem cs-uri-query s-port cs-user_widgets()ame c-ip cs(User-Age_widgets()t) sc-status sc-substatus sc-wi_widgets()32-status
+2008-03-07 21:43:43 OPTIONS / - 80 - 192.168.0.201 Microsoft-WebDAV-Mi_widgets()iRedir/5.1.2600 200 0 0

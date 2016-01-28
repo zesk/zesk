@@ -1,0 +1,12 @@
+{ 
+	"name": "Bootstrap DateTime Picker",
+	"versions": {
+		"4.17.37": {
+			"url": "https://github.com/Eonasdan/bootstrap-datetimepicker/archive/{version}.tar.gz"
+		}
+	},
+	"share_path": "$MODULE_PATH/share/build/",
+	"strip_components": 1,
+	"destination": "$MODULE_PATH/share",
+	"depends": [ "moment" ]
+}
