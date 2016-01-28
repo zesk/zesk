@@ -127,12 +127,15 @@ class Module_Bootstrap extends Module implements Module_Interface_Foot {
 	public function hook_updated() {
 		$this->inherit_global_options();
 		$source_location = $this->option('source_location');
+		if (!dir::is_absolute($source_location)) {
+			$source_location = $this->application->application_root($source_location);
+		}
 		log::debug("{class}::hook_updated: source_location={source_location}", array(
 			'class' => get_class($this),
 			"source_location" => $source_location
 		));
 		if (is_dir($source_location) || is_dir(dirname($source_location))) {
-			$master = path(Module::path('bootstrap'), 'share/less');
+			$master = path($this->application->application_root(), $this->option("share_path"), "less");
 			if (!is_dir($master)) {
 				log::error("Bootstrap master directory moved from \"{master}\"- update Module_Bootstrap code", compact("master"));
 				return;
