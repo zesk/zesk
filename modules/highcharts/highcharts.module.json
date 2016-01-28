@@ -1,0 +1,16 @@
+{
+	"urls": {
+		"http://code.highcharts.com/highcharts.js": "vendor/components/highcharts/",
+		"http://code.highcharts.com/highcharts.src.js": "vendor/components/highcharts/",
+		"http://code.highcharts.com/modules/exporting.js": "vendor/components/highcharts/"
+	},
+	"share_path": "vendor/components/highcharts/",
+	"name": "Highcharts",
+	"copyright": "Copyright &copy; 2012 Highsoft, LLC",
+	"url_license": "http://shop.highsoft.com/highcharts.html",
+	"license": [ "non-commercial-free", "commercial-paid" ],
+	"version_data": { 
+		"file": "vendor/components/highcharts/highcharts.src.js", 
+		"pattern": "/@license.*\\s+v([0-9.]+)/" 
+	}
+}

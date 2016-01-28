@@ -1,0 +1,13 @@
+{
+	"name": "jQuery Form",
+	"versions": {
+		"3.51": {
+			"url": "https://github.com/malsup/form/archive/3.51.tar.gz",
+		}
+	},
+	"github": "malsup/form",
+	"strip_components": 1,
+	"url_license": "https://github.com/malsup/form/blob/master/README.md",
+	"destination": "vendors/components/jquery-form/",
+	"share_path": "vendors/components/jquery-form/"
+}
