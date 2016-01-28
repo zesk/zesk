@@ -478,6 +478,11 @@ class Command_Update extends Command_Base {
 			if ($unpack_result) {
 				$new_hashes[$url] = $new_hash;
 			}
+		}
+		if (!$this->option_bool('skip-delete') && is_array($delete_after)) {
+			$this->_delete_files($destination, $delete_after);
+		}
+		if ($did_updates) {
 			try {
 				$module = avalue($data, 'module');
 				if ($module instanceof Module) {
@@ -489,11 +494,6 @@ class Command_Update extends Command_Base {
 			} catch (Exception_Class_NotFound $e) {
 				log::debug("Module_$name was not found ... skipping");
 			}
-		}
-		if (!$this->option_bool('skip-delete') && is_array($delete_after)) {
-			$this->_delete_files($destination, $delete_after);
-		}
-		if ($did_updates) {
 			$this->log("{name} updated to latest version.", array(
 				"name" => $name
 			));
