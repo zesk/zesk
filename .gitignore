@@ -2,3 +2,4 @@
 .cvsignore
 .project
 cache/
+vendor/
