@@ -15,7 +15,11 @@
   "autoload" : {
     "files" : [ "zesk.inc" ]
   },
-  "bin" : [ "bin/zesk" ],
+  "bin" : [ 
+	  "bin/zesk",
+	  "bin/zesk.sh", 
+	  "bin/zesk-command.php"
+  ],
   "license" : "MIT",
   "type" : "library",
   "homepage" : "http://zesk.com",

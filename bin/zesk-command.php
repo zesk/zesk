@@ -10,7 +10,7 @@
  * @author Kent Davidson <kent@marketacumen.com>
  * @copyright Copyright &copy; 2011, Market Acumen, Inc.
  */
-define('ZESK_ROOT', dirname(dirname(__FILE__)) . '/');
+define('ZESK_ROOT', dirname(dirname(__FILE__)) . '/' . (strpos(__FILE__, 'vendor/bin') !== false ? 'zesk/zesk/' : ''));
 
 require_once ZESK_ROOT . 'classes/kernel.inc';
 require_once ZESK_ROOT . 'classes/zesk/command.inc';
