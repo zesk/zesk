@@ -1,0 +1,27 @@
+#!/bin/bash
+if [ -z "$ZESK_ROOT" ]; then
+        ZESK_ROOT=`dirname $BASH_SOURCE`
+        ZESK_ROOT=`dirname $ZESK_ROOT`
+        export ZESK_ROOT
+fi
+
+alias z='zesk-command.php'
+alias zesk=z
+alias zesk-connect='zesk database-connect'
+alias zesk-install='zesk install'
+alias zesk-schema='zesk database-schema'
+
+#
+# File Converters
+#
+alias php-mo='z module php-mo php-mo'
+alias markdown='z module markdown markdown'
+
+#
+# Schema updates, show changes
+#
+zesk-schema-update() {
+	zesk-schema --update $1
+}
+
+export PATH=$PATH:$ZESK_ROOT/bin

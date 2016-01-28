@@ -1,0 +1,21 @@
+<?php
+class Control_FieldSet extends Control_Widgets {
+	protected $theme = "control/fieldset";
+	protected $options = array(
+		"nolabel" => true
+	);
+
+	public function initialize() {
+		$this->prefix .= html::tag('legend', $this->label);
+		$this->wrap('fieldset', $this->attributes(array(
+			"class" => "control-fieldset",
+			"id" => $this->id
+		), "fieldset"));
+		parent::initialize();
+	}
+
+// 	public function render() {
+// 		echo get_class($this) . '<br />' . html::tag('h2', $this->name()) . _backtrace();
+// 		return parent::render();
+// 	}
+}

@@ -1,0 +1,142 @@
+<?php
+/**
+ * $URL: https://code.marketacumen.com/zesk/trunk/classes/control/order.inc $
+ * @package zesk
+ * @subpackage widgets
+ * @author Kent Davidson <kent@marketacumen.com>
+ * @copyright Copyright &copy; 2008, Market Acumen, Inc.
+ * Created on Tue Jul 15 16:27:40 EDT 2008
+ */
+class Control_Order extends Control {
+	function __construct($options = false) {
+		parent::__construct($options);
+		$this->set_option("nowrap", "nowrap");
+		$this->set_option("ObjectListCheck", true);
+	}
+	protected function hook_query_list(Database_Query_Select $query) {
+		$query->what($this->column(), "X." . $this->column());
+		$query->order_by($this->column());
+	}
+	function submitted() {
+		return $this->request->get("move") !== null;
+	}
+	function validate() {
+		$verb = $this->request->get("move");
+		$ID = $this->request->get("ID");
+		if (!lists::contains("up;down;top;bottom", $verb) || $ID == "") {
+			return true;
+		}
+		if ($this->option_bool('debug')) {
+			$this->response->debug_redirect(true);
+		}
+		if (lists::contains("top;bottom", $verb)) {
+			$this->moveTopBottom($ID, $verb);
+		} else {
+			$this->moveUpDown($ID, $verb);
+		}
+		$uri = url::current_uri();
+		$newURL = url::query_remove($uri, "move;message", false);
+
+		$this->response->redirect($newURL);
+		return false;
+	}
+	function render() {
+		$ID = $this->object->id();
+
+		$u = url::query_format(url::query_remove(url::current_uri(), "move", false), array(
+			"ID" => $ID
+		));
+
+		$result = array();
+		$result[] = html::tag("a", array(
+			"href" => "$u&move=top"
+		), html::cdn_img("/share/zesk/images/order/move-top.gif", "Move to top"));
+		$result[] = html::tag("a", array(
+			"href" => "$u&move=up"
+		), html::cdn_img("/share/zesk/images/order/move-up.gif", "Move up"));
+		$result[] = html::tag("a", array(
+			"href" => "$u&move=down"
+		), html::cdn_img("/share/zesk/images/order/move-down.gif", "Move down"));
+		$result[] = html::tag("a", array(
+			"href" => "$u&move=bottom"
+		), html::cdn_img("/share/zesk/images/order/move-bottom.gif", "Move to bottom"));
+
+		$result = implode("&nbsp;", $result);
+
+		if ($this->option_bool('debug')) {
+			$result .= ' (' . $this->value() . ')';
+		}
+		return $result;
+	}
+	private function _where() {
+		return map($this->object->apply_map($this->option_array("where", array())), $this->request->variables());
+	}
+	private function moveTopBottom($ID, $verb) {
+		$table = $this->option("table", "no_table");
+		$col = $this->column();
+		if ($verb == "top") {
+			$func = "MIN";
+			$delta = -1;
+		} else {
+			$func = "MAX";
+			$delta = 1;
+		}
+		$db = $this->object->database();
+		$dbsql = $db->sql();
+		$sql = "SELECT $func(`$col`) AS N FROM `$table`" . $dbsql->where($this->_where());
+		$nextOrder = $db->query_one($sql, "N", 1);
+		$db->query("UPDATE `$table` SET `$col`=" . ($nextOrder + $delta) . " WHERE ID=$ID");
+	}
+
+	private function moveUpDown($ID, $verb) {
+		/* @var $object Object */
+		$table = $this->option("table", "no_table");
+		$col = $this->column();
+		if ($verb == "up") {
+			$sign = "+";
+			$cmp = "<=";
+			$icmp = ">=";
+			$order_by = "$col DESC";
+		} else {
+			$sign = "-";
+			$cmp = ">=";
+			$icmp = "<=";
+			$order_by = "$col ASC";
+		}
+
+		$where = $this->_where();
+		$where["ID"] = $ID;
+
+		$db = $this->object->database();
+
+		$sqlgen = $db->sql();
+		$sql = "SELECT `$col` AS N FROM `$table` " . $sqlgen->where($where);
+		$thisOrder = $db->query_one($sql, "N", false);
+		$nextObject = null;
+
+		if (is_numeric($thisOrder)) {
+			$where = $this->_where();
+			$where["ID|!="] = $ID;
+			$where["$col|$cmp"] = $thisOrder;
+			$sql = "SELECT `ID`,`$col` AS N FROM `$table` " . $sqlgen->where($where) . $sqlgen->order_by($order_by);
+			$nextObject = $db->query_one($sql);
+		}
+		if (!$nextObject) {
+			$this->moveTopBottom($ID, $verb == "up" ? "top" : "bottom");
+			return;
+		}
+		if (intval($nextObject["N"]) != intval($thisOrder)) {
+			$sql = "UPDATE `$table` SET `$col`=$thisOrder WHERE ID=" . $nextObject["ID"];
+			$db->query($sql);
+			$sql = "UPDATE `$table` SET `$col`=" . $nextObject["N"] . " WHERE ID=$ID";
+			$db->query($sql);
+			return;
+		}
+		$where = $this->_where();
+		$where['ID|!='] = $ID;
+		$where["$col|$icmp"] = $thisOrder;
+		$sql = "UPDATE `$table` SET `$col`=`$col`${sign}5 " . $sqlgen->where($where);
+
+		$db->query($sql);
+	}
+}

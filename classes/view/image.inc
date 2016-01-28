@@ -1,0 +1,236 @@
+<?php
+/**
+ * This needs to be simplified greatly.
+ * Too many options, needs to support most common case easily.
+ * Add setter/getters for relative path options, etc.
+ *
+ * $URL: https://code.marketacumen.com/zesk/trunk/classes/view/image.inc $
+ * @package zesk
+ * @subpackage widgets
+ * @author Kent Davidson <kent@marketacumen.com>
+ * @copyright Copyright &copy; 2009, Market Acumen, Inc.
+ */
+class View_Image extends View {
+	static $debug = false;
+
+	public function initialize() {
+		parent::initialize();
+		self::$debug = $this->option("debug");
+	}
+	static function debug($set = null) {
+		if (is_bool($set)) {
+			self::$debug = true;
+			return;
+		}
+		return self::$debug;
+	}
+
+	protected function source_directory() {
+		return $this->option('root_directory', zesk::document_root());
+	}
+
+	protected function cache_directory() {
+		return $this->option('cache_directory', path(zesk::document_root(), "/cache/images/"));
+	}
+
+	protected function cache_url_prefix() {
+		$prefix = $this->option('cache_url_prefix', null);
+		if ($prefix) {
+			return $prefix;
+		}
+		$cache = realpath($this->cache_directory());
+		$doc_root = realpath(zesk::document_root());
+		return str::unprefix($cache, $doc_root);
+	}
+
+	private function debug_log($message) {
+		if (self::$debug) {
+			log::debug($message);
+		}
+	}
+
+	private function scale_image($source) {
+		list($width, $height) = getimagesize($source);
+		extract($this->options, EXTR_IF_EXISTS);
+
+		/*
+		 * Deal with the file paths
+		 */
+		$source = realpath($source);
+		$this->debug_log("\$sourceFile = $source");
+		$this->debug_log("\$this->source_directory()  = " . $this->source_directory());
+
+		$cache = $this->cache_directory();
+		try {
+			dir::depend($cache, 0755);
+		} catch (Exception_Directory_Create $e) {
+			log::error($e);
+			return $this->missing_file();
+		}
+
+		log::notice("Cache directory is $cache");
+		$prefix = "";
+		if ($this->has_option('id')) {
+			$prefix = $this->option('id') . '-';
+		}
+		$target_filename = $prefix . file::base($source) . "-${width}x${height}." . file::extension($source);
+
+		$target_full_path = path($cache, $target_filename);
+		$scaled_result = path($this->cache_url_prefix(), $target_filename);
+
+		if (self::$debug) {
+			log::debug("\$scaled_result = {scaled_result}", compact("scaled_result"));
+		}
+		$this->set_option('scale_path', $target_full_path);
+		$this->hook('scale_path', $target_full_path);
+		log::notice("\$target_full_path is $target_full_path");
+		if (!$this->option_bool('always_generate') && file_exists($target_full_path)) {
+			list($this->width, $this->height) = getimagesize($target_full_path);
+			return $scaled_result;
+		}
+
+		if (Image_Library::singleton()->image_scale($source, $target_full_path, $this->options)) {
+			list($this->width, $this->height) = getimagesize($target_full_path);
+			$this->set_option("created_file", true);
+		}
+		return $scaled_result;
+	}
+
+	private static function missing_file() {
+
+	}
+	private static function relative_to_absolute_path($path) {
+		if ($path[0] === "/") {
+			return zesk::href($path);
+		}
+		$wd = path(str_replace("\\", "/", dirname($_SERVER['SCRIPT_FILENAME'])), $path);
+		return $wd;
+	}
+
+	private function missing_image_path() {
+		return $this->option("missing_image_path", cdn::url("/share/zesk/images/missing.gif"));
+
+	}
+	/**
+	 * Returns the representation of model as an <img /> tag.
+	 *
+	 * @return string
+	 */
+	function render() {
+		$object = $this->object;
+		$actualWidth = $object->get($this->option("WidthColumn", "Width"));
+		$actualHeight = $object->get($this->option("HeightColumn", "Height"));
+
+		$value = $object->apply_map($this->option("src", '{src}'));
+		//avalue($object, $this->column('src'));
+
+
+		if (empty($value)) {
+			$this->debug_log("Empty value for src...");
+			return "";
+		}
+
+		if ($this->option_bool("is_relative", true)) {
+			$file_path = self::relative_to_absolute_path($value);
+			$path = $file_path;
+		} else {
+			$file_path = $value;
+			$path = path($this->source_directory(), $file_path);
+		}
+
+		if (!file_exists($path) || is_dir($path)) {
+			$this->debug_log("Image path not found: $path");
+			return $this->output_image($object, $file_path, $this->missing_image_path(), "\n<!-- Not a file -->");
+		}
+		$ext = strtolower(file::extension($path, false));
+		if (!in_array($ext, array(
+			"jpg",
+			"jpeg",
+			"gif",
+			"png"
+		))) {
+			return $this->output_image($object, $file_path, $this->missing_image_path(), "\n<!-- NOT AN IMAGE? $ext -->");
+		}
+
+		$scale_value = $this->scale_image($path);
+		if (is_string($scale_value)) {
+			$value = $scale_value;
+		}
+		log::notice("Output image path is file_path=$file_path value=$value");
+		return $this->output_image($file_path, $value);
+	}
+
+	protected function output_image($file_path, $value, $extras = "") {
+		$attrs = array();
+
+		$attrs["width"] = $this->option_integer("ScaledWidth", $this->option_integer("Width"));
+		$attrs["height"] = $this->option_integer("ScaledHeight", $this->option_integer("Height"));
+		$attrs["border"] = $this->option_integer("Border", 0);
+		$attrs["align"] = $this->option("align", null);
+		$attrs["style"] = $this->option("style", null);
+		$attrs["class"] = $this->option("class", null);
+		$attrs["alt"] = $this->option("alt", "");
+		$attrs["title"] = $this->option("title", false);
+
+		$attrs = $this->object->apply_map($attrs);
+		if ($this->has_option('image_host')) {
+			$attrs["src"] = $this->option('image_host') . $file_path;
+		} else {
+			$attrs["src"] = $value;
+		}
+		$attrs["src"] = str_replace(" ", "%20", $attrs["src"]);
+		if ($this->has_option('query')) {
+			$attrs['src'] = url::query_format($attrs['src'], $this->option('query'));
+		}
+
+		$this->set_option("scale_src", $attrs['src']);
+
+		$result = html::tag("img", $attrs, null);
+
+		return $result . $extras;
+	}
+
+	public function didCreateFile() {
+		return $this->option_bool("created_file", true);
+	}
+
+	/**
+	 * Generate a widget with appropriate options and return it.
+	 *
+	 * @param string $src Path to image to scale
+	 * @param integer $width
+	 * @param integer $height
+	 * @param string $alt
+	 * @param array $extras
+	 * @return View_Image
+	 */
+	public static function scaled_widget($width = false, $height = false, $alt = "", $extras = false) {
+		if ($width) {
+			$extras['width'] = $width;
+		}
+		if ($height) {
+			$extras['height'] = $height;
+		}
+		if ($alt) {
+			$extras['alt'] = $alt;
+		}
+		$w = new View_Image($extras);
+		return $w;
+	}
+
+	public static function scaled($src, $width = false, $height = false, $alt = "", $extras = false) {
+		$w = self::scaled_widget($width, $height, $alt, $extras);
+		$x = new Model();
+		$x->src = $src;
+		return $w->execute($x);
+	}
+
+	public static function scaled_path($src, $width = false, $height = false, $alt = "", $extras = false) {
+		$w = self::scaled_widget($width, $height, $alt, $extras);
+		$x = new Model();
+		$x->src = $src;
+		$w->execute($x);
+		return $w->option("scale_src");
+	}
+
+}

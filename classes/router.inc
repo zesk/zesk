@@ -1,0 +1,571 @@
+<?php
+/**
+ * $URL: https://code.marketacumen.com/zesk/trunk/classes/router.inc $
+ * @package zesk
+ * @subpackage system
+ * @author kent
+ * @copyright Copyright &copy; 2009, Market Acumen, Inc.
+ *            Created on Fri Apr 02 16:35:13 EDT 2010 16:35:13
+ */
+
+/**
+ * Router
+ * Handles converting a URL Path to a method invokation, with a special case for Controller objects.
+ * Support for permissions, automatic variable conversion as well.
+ * Basic setup is pattern -> array of settings
+ * Pattern is a URL path, excluding / prefix	, with optional variables included, e.g.
+ * /foo/bar/dee
+ * You can specify optional sections using parenthesis ()
+ * The settings available are:
+ * controller				Controller to invoke, can include variable name
+ * controller prefixes		A list of controller prefixes to use, overrides the default Router prefixes
+ * controller options		Array of options to set on the controller upon creation
+ * action					The action to invoke in the controller
+ * arguments				The arguments to the action. If values are numeric, specifies the URL part to pass
+ * as an argument. Keys
+ * may be specified, but are ignored.
+ * For a template, it's:
+ * template					Template to load, may include variables names
+ * arguments				Name/value pairs passed to the template. If values are numeric, specifies the URL
+ * part to pass as an
+ * argument.
+ * For a method it's:
+ * method					Name of method to invoke. For class methods, specify array("ClassName" =>
+ * "method_name"), or
+ * ClassName::method_name
+ * arguments				The arguments to the action. For numeric values, specifies the URL part to pass as
+ * an argument.
+ * For all routes
+ * content type				Set the response content type to this
+ * status code				Set the response status code
+ * status message			Set the response status message
+ * redirect					After invokation, redirect to here
+ * The pattern syntax is:
+ * {variable-name}				An untyped variable, or string.
+ * {type variable-name}			Typed variable name. Type can be integer, double, string, array, list, comma-list, dash-list,  semicolon-list, option, or an object type.
+ * {type }						An unnamed variable, can be referenced by the URL path order
+ * e.g.
+ * You can also group parameters as option by specifying
+ * The following "magic" URI will invoke Controller_{Controller}::action_{action} with optional
+ * parameter:
+ *
+ * {controller}/{action}(/{ID:+})
+ */
+class Router extends Hookable {
+
+	/**
+	 *
+	 * @var Application
+	 */
+	public $application = null;
+
+	/**
+	 * Debugging is enabled
+	 *
+	 * @var boolean
+	 */
+	static $debug = false;
+
+	/**
+	 *
+	 * @var Router
+	 */
+	private static $singleton = null;
+
+	/**
+	 *
+	 * @var array of class => Route
+	 */
+	protected $reverse_routes = array();
+
+	/**
+	 *
+	 * @var array of Route
+	 */
+	protected $routes = array();
+
+	/**
+	 * @var array of Route
+	 */
+	protected $by_id = array();
+
+	/**
+	 *
+	 * @var string
+	 */
+	protected $prefix = "/";
+
+	/**
+	 * State variable - should be reset
+	 * @var Route
+	 */
+	public $route = null;
+
+	/**
+	 *
+	 * @var integer
+	 */
+	protected $default_route = 0;
+
+	/**
+	 *
+	 * @var array
+	 */
+	protected $controller_prefixes = array(
+		'Controller_'
+	);
+
+	/**
+	 *
+	 * @var array
+	 */
+	protected $aliases = array();
+
+	/**
+	 * Whether the routes have been sorted by weight yet
+	 *
+	 * @var boolean
+	 */
+	private $sorted = false;
+
+	/**
+	 * Index to ensure routes are sorted by added order.
+	 */
+	protected $weight_index = 0;
+
+	function __sleep() {
+		$result = array_merge(array(
+			'reverse_routes',
+			'routes',
+			'prefix',
+			'default_route',
+			'controller_prefixes',
+			"aliases",
+			"sorted"
+		), parent::__sleep());
+		return $result;
+	}
+
+	function __wakeup() {
+		$this->by_id = array();
+		$this->route = null;
+		foreach ($this->routes as $route) {
+			$route->router = $this;
+			$this->_add_route_id($route);
+		}
+		if (!$this->application) {
+			$this->application = Application::instance();
+		}
+	}
+
+	function __construct(Application $application, $options = null) {
+		parent::__construct($options);
+		$this->application = $application;
+		$this->hook("new");
+		zesk::add_hook('url', array(
+			$this,
+			'hook_url'
+		), 'first');
+		Module::all_hook("routes", $this);
+	}
+
+	public function hook_url(Model_URL $url) {
+		if ($url->_router) {
+			return;
+		}
+		$url->_router = true;
+		$url->url = $this->prefix . $url->url;
+	}
+
+	function add_default_route($route_options = null) {
+		$this->default_route = count($this->routes);
+		$this->add_route("({option controller}(/{option action}(/{integer ID})))", array(
+			"controller" => "{0}",
+			"default controller" => "home",
+			"action" => 1,
+			"default action" => "index",
+			"arguments" => array(
+				2
+			)
+		));
+	}
+
+	/**
+	 * Return singleton Router
+	 *
+	 * @return Router
+	 */
+	static function singleton() {
+		if (!self::$singleton instanceof Router) {
+			self::$singleton = new Router(Application::instance());
+		}
+		return self::$singleton;
+	}
+
+	/**
+	 * Returns the cache path for this router
+	 *
+	 * @return string
+	 */
+	private static function cache_path($cache_file = null) {
+		$app = zesk::application_class();
+		$cache_file = ($cache_file === null) ? zesk::get('Router::cache_file', "$app.cache") : $cache_file;
+		return zesk::cache_path(array(
+			"routers",
+			$cache_file
+		));
+	}
+
+	/**
+	 * Whether this router is cached; performance optimization
+	 *
+	 * @return Router or null if not cached
+	 */
+	static function cached($mtime = null) {
+		$path = self::cache_path();
+		if (!file_exists($path)) {
+			return null;
+		}
+		if (filemtime($path) < $mtime) {
+			return null;
+		}
+		if (filemtime($path) < filemtime(__FILE__)) {
+			return null;
+		}
+		self::$singleton = unserialize(file_get_contents($path));
+		return self::$singleton;
+	}
+
+	static function compare_weight(Route $a, Route $b) {
+		return $a->option_integer('weight') - $b->option_integer('weight');
+	}
+	private function _sort() {
+		usort($this->routes, "Route::compare_weight");
+	}
+
+	/**
+	 * Fetch a route by ID. ID is an attribute associated with each route, or the clean URL.
+	 *
+	 * @param string $id
+	 * @return Route
+	 */
+	function route($id) {
+		return avalue($this->by_id, strtolower($id));
+	}
+
+	function routes() {
+		if (!$this->sorted) {
+			$this->_sort();
+			$this->sorted = true;
+		}
+		return $this->routes;
+	}
+
+	/**
+	 * Cache this router, destroy old cache
+	 */
+	function cache() {
+		$path = $this->cache_path();
+		dir::create(dirname($path));
+		file_put_contents($path, serialize($this));
+		return $this;
+	}
+
+	function prefix($set = null) {
+		if ($set !== null) {
+			$this->prefix = $set;
+		}
+		return $this->prefix;
+	}
+
+	public function controller_prefixes($add = null) {
+		if ($add !== null) {
+			array_unshift($this->controller_prefixes, $add);
+		}
+		return $this->controller_prefixes;
+	}
+
+	public function add_alias($from, $to) {
+		$this->alias[$from] = $to;
+	}
+
+	public static function log($message, array $arguments = array(), $level = null) {
+		if (zesk::getb("Router::debug") || self::$debug) {
+			if ($level === null) {
+				$level = log::DEBUG;
+			}
+			log::send($message, $arguments, $level);
+		}
+	}
+
+	function reset() {
+		$this->route = null;
+		return $this;
+	}
+
+	function match(Request $request) {
+		$request->router = $this;
+		$path = strval($request->path());
+		if ($this->prefix) {
+			$path = str::unprefix($path, $this->prefix);
+		}
+		$path = avalue($this->aliases, $path, $path);
+		$routes = $this->routes(); /* @var $route Route */
+		foreach ($this->routes as $route) {
+			if ($route->match($path)) {
+				$this->log("Matched {path} to {route}", compact("path", "route"));
+				$this->route = $route;
+				return $route;
+			}
+		}
+		$this->log("No matches for {path}", compact("path"), log::WARNING);
+		return null;
+	}
+
+	/**
+	 * Route the URL and return the response
+	 *
+	 * @param Request $request
+	 * @return Response
+	 */
+	function execute(Application $app) {
+		$request = $app->request;
+		$request->router = $this;
+		if (!$this->route) {
+			if (!$this->match($request)) {
+				$this->route = avalue($this->routes, $this->default_route);
+				if (!$this->route) {
+					throw new Exception_NotFound("No route found");
+				}
+			}
+		}
+		if ($this->route->option_bool('disable log')) {
+			log::disable(true);
+		}
+		$this->route->execute($app);
+
+		return $this->route;
+	}
+
+	function url_replace($name, $value = null) {
+		if (!$this->route) {
+			return null;
+		}
+		return $this->prefix . $this->route->url_replace($name, $value);
+	}
+
+	public function add_route($path, array $options) {
+		if ($path === "<default>") {
+			$this->set_option($options);
+			return;
+		}
+		if ($path === "index") {
+			$this->default_route = count($this->routes);
+			$path = "";
+		}
+		if (!array_key_exists('weight', $options)) {
+			$options['weight'] = ($this->weight_index++) / 1000;
+		}
+		$this->routes[] = $this->_add_route_id($this->_register_route(Route::factory($this, $path, $options)));
+		$this->sorted = false;
+	}
+
+	private function _add_route_id(Route $route) {
+		$id = $route->option("id");
+		if (!$id) {
+			$id = $route->clean_pattern;
+		}
+		$this->by_id[strtolower($id)] = $route;
+		return $route;
+	}
+
+	function import($contents) {
+		$lines = explode("\n", $contents);
+		$paths = array();
+		$options = array();
+		$whites = to_list(" ;\t");
+		$tr = array(
+			'$zesk_root' => zesk::root(),
+			'$zesk_application_root' => zesk::application_root()
+		);
+		foreach ($lines as $lineno => $line) {
+			$firstc = substr($line, 0, 1);
+			$line = trim($line);
+			if (empty($line) || $line[0] === '#') {
+				continue;
+			}
+			if (in_array($firstc, $whites)) {
+				if (count($paths) === 0) {
+					log::warning("Line " . ($lineno + 1) . " of router has setting without path");
+				} else {
+					list($name, $value) = pair($line, "=", $line, null);
+					if ($value === null) {
+						log::warning("Line " . ($lineno + 1) . " of router has no value ($line)");
+					} else {
+						$trimvalue = trim($value);
+						if ($trimvalue === "null") {
+							$value = null;
+						} else if ($trimvalue === "true" || $trimvalue === "false") {
+							$value = to_bool($trimvalue);
+						} else if (str::begins($trimvalue, str_split("\"'{[", 1))) {
+							try {
+								$decoded = json::decode($value, null);
+								$value = $decoded;
+							} catch (Exception_Parse $e) {
+								zesk::hook("exception", $e);
+							}
+						}
+						if (is_string($value) || is_array($value)) {
+							$value = tr($value, $tr);
+						}
+						if (ends($name, "[]")) {
+							$options[strtolower(substr($name, 0, -2))][] = $value;
+						} else {
+							$options[strtolower($name)] = $value;
+						}
+					}
+				}
+			} else {
+				// Transition to new tag
+				if (count($options) === 0 || count($paths) === 0) {
+					$paths[] = unquote($line);
+				} else {
+					foreach ($paths as $path) {
+						$this->add_route($path, $options);
+					}
+					$options = array();
+					$paths = array(
+						unquote($line)
+					);
+				}
+			}
+		}
+		if (count($paths) > 0 && count($options) === 0) {
+			log::error("Router {path} has no valid options {options_string}", array(
+				"path" => $path,
+				"options" => $options,
+				"options_string" => json_encode($options)
+			));
+		} else {
+			foreach ($paths as $path) {
+				$this->add_route($path, $options);
+			}
+		}
+	}
+
+	private function _register_route(Route $route) {
+		$class_actions = $route->class_actions();
+		if (!$class_actions) {
+			return $route;
+		}
+		foreach ($class_actions as $class => $actions) {
+			foreach ($actions as $action) {
+				$this->reverse_routes[strtolower($class)][strtolower($action)][] = $route;
+			}
+		}
+		return $route;
+	}
+
+	private function _find_route(array $routes, $action = null, $object = null, $options = null) {
+		$options = to_array($options, array());
+		if ($this->route) {
+			$options += $this->route->option();
+		}
+		foreach ($routes as $route) {
+			assert($route instanceof Route);
+			$url = $route->get_route($action, $object, $options);
+			if ($url) {
+				if (array_key_exists('query', $options)) {
+					return url::query_append($url, $options['query']);
+				}
+				return $url;
+			}
+		}
+		return null;
+	}
+
+	/**
+	 * Retrieve a route to an object from the router. Uses current route's context to determine new route.
+	 *
+	 * @param string $action
+	 * @param mixed $object
+	 * @param array $options
+	 *  "query" => (string or array). Append query string to URL
+	 *  "inherit_current_route" => (boolean). Use variables from current route when generating this route.
+	 *
+	 * @return string|Ambigous <string, mixed, number>
+	 */
+	function get_route($action, $object = null, $options = null) {
+		if (is_string($options) && begins($options, "?")) {
+			$options = array(
+				'query' => url::query_parse($options)
+			);
+		}
+		$options = to_array($options);
+		if ($this->route && to_bool(avalue($options, 'inherit_current_route'))) {
+			$options += $this->route->arguments_named();
+		}
+		if (is_object($object)) {
+			$class = get_class($object);
+			$options += $object->hook_array("route_options", array(
+				$this,
+				$action
+			), array());
+		} else {
+			$class = $object;
+		}
+		$try_classes = array();
+		if (!empty($class)) {
+			$try_classes[] = $class;
+		}
+		$try_classes[] = "*";
+		foreach ($try_classes as $try_class) {
+			foreach (array(
+				$action,
+				"*"
+			) as $try_action) {
+				$try_class = strtolower($try_class);
+				$try_actions = avalue($this->reverse_routes, $try_class);
+				if (!is_array($try_actions)) {
+					continue;
+				}
+				$try_action = strtolower($try_action);
+				$try_routes = avalue($try_actions, $try_action);
+				if (!is_array($try_routes)) {
+					continue;
+				}
+				$url = $this->_find_route($try_routes, $action, $object, $options);
+				if ($url) {
+					$url = zesk::hook_array("Router::get_route_alter", array(
+						$action,
+						$object,
+						$options
+					), $url);
+					return $this->prefix . $url;
+				}
+			}
+		}
+		$url = $this->hook("get_route", $action, $object, $options);
+		if (empty($url)) {
+			log::warning("No reverse route for {class}->{action}", array(
+				"class" => $class,
+				"action" => $action
+			));
+			return null;
+		}
+		return url::query_append($this->prefix . $url, avalue($options, 'query', array()));
+	}
+
+	/**
+	 * Retrieve a list of all known controllers
+	 * @return array
+	 */
+	public function controllers(Application $app) {
+		$controllers = Controller::all();
+		$result = array();
+		foreach ($controllers as $controller => $settings) {
+			$result[$controller] = zesk::factory($controller, $app);
+		}
+		return $result;
+	}
+}

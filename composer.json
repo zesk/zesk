@@ -1,0 +1,39 @@
+{
+	"name": "zesk/zesk",
+	"type": "library",
+	"deccription": "The Zesk Application Framework",
+	"keywords": [
+		"zesk",
+		"application",
+		"framework"
+	],
+	"license": "MIT",
+	"homepage": "http://zesk.com",
+	"authors": [
+		{
+			"name": "Kent Davidson"
+		}
+	],
+	"require": {
+		"php": ">=5.0.0",
+	},
+	"require-dev": {
+	},
+	"bin": {
+		"bin/zesk"
+	},
+	"autoload": {
+		"files": [
+			"zesk.inc"
+		]
+	},
+	"scripts": {
+		"post-install-cmd": [
+			"bin/zesk update"
+		],
+		"post-update-cmd": [
+			"bin/zesk update"
+		]
+	}
+		
+}

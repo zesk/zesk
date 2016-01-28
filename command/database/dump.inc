@@ -1,0 +1,120 @@
+<?php
+/**
+ * Connect to the database for this application.
+ * Optionally set a non-default database by adding --db-connect=alt_db_name
+ * @category Database
+ * @global boolean debug.db-connect Set this global to true to show command that would be executed (--set
+ * debug.db-connect=1)
+ * @global boolean db-connect Set this global to alternate database
+ */
+
+/**
+ * Dump the database to stdout
+ *
+ * @param boolean $echo
+ *        	Echo command that would be run instead of running it
+ * @param string $db
+ *        	The database name to dump
+ */
+class Command_Database_Dump extends Command_Base {
+	protected $option_types = array(
+		"name" => "string",
+		"echo" => "boolean",
+		"file" => "boolean",
+		"dir" => "string",
+		"db" => "string"
+	);
+	private function map_db_scheme($scheme) {
+		switch ($scheme) {
+			case "mysql":
+			case "mysqli":
+				return "mysqldump";
+			default :
+				throw new Exception_NotFound($scheme);
+		}
+		return null;
+	}
+	function run() {
+		$dbname = $this->option('name');
+		$db = Database::instance($dbname);
+		if (!$db) {
+			$this->error("No such database for \"$dbname\"\n");
+			return false;
+		}
+		$url = $db->url();
+		$parts = $db->url_parse($url);
+		$scheme = $host = $user = $pass = $path = $port = null;
+		extract($parts, EXTR_IF_EXISTS);
+		$args = array();
+		if ($host) {
+			$args[] = "-h";
+			$args[] = $host;
+		}
+		if ($user) {
+			$args[] = "-u";
+			$args[] = $user;
+		}
+		if ($pass) {
+			$args[] = "-p$pass";
+		}
+		$path = substr($path, 1);
+		$args[] = $path;
+
+		try {
+			$command = self::map_db_scheme($scheme);
+		} catch (Exception $e) {
+			$url = url::remove_password($url);
+			$this->usage("No command-line shell command found for database type $scheme (URL: $url)");
+		}
+		$full_command_path = zesk::which($command);
+		if (!$full_command_path) {
+			$this->error("Unable to find shell $command in system path:" . implode(", ", zesk::command_path()) . "\n");
+			return false;
+		}
+
+		$suffix = "";
+		$where = "";
+		if ($this->option_bool('file') || $this->has_option('dir')) {
+			$app_root = zesk::application_root();
+			$map = array(
+				'database_name' => $path,
+				"database_host" => $host,
+				"database_port" => $port,
+				"database_user" => $user,
+				"zesk_application_root" => $app_root
+			);
+			$dir = $this->option("dir", "sql-dumps");
+			$where = map(zesk::get("database_dump_file", path($dir, "{database_name}-{YYYY}-{MM}-{DD}_{hh}-{mm}.sql")), $map);
+			$where = Timestamp::now()->format($where);
+			$suffix = "";
+			$compress = zesk::getb("database_dump_compress", true);
+			if ($compress || file::extension($where) === "gz") {
+				if (!$compress) {
+					log::warning("database_dump_file has .gz extension, so ignoring database_dump_compress flag");
+				} else {
+					$where .= ".gz";
+				}
+				$suffix .= " | gzip";
+			}
+			$where = dir::make_absolute($app_root, $where);
+			$suffix .= " > $where";
+		}
+
+		$command_line = $full_command_path . implode("", arr::prefix($args, " ")) . $suffix;
+		if ($this->option_bool('echo')) {
+			echo $command_line . "\n";
+			return true;
+		}
+		if ($where) {
+			echo "Outputting to $where ... ";
+			exec($command_line);
+			echo "done.\n";
+		} else {
+			zesk::php_has('pcntl', true);
+			$func = "pcntl_exec";
+			$func($full_command_path, $args);
+		}
+		return true;
+	}
+}
+

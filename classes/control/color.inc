@@ -1,0 +1,31 @@
+<?php
+/**
+ * $URL: https://code.marketacumen.com/zesk/trunk/classes/control/color.inc $
+ * @package zesk
+ * @subpackage default
+ * @author Kent Davidson <kent@marketacumen.com>
+ * @copyright Copyright &copy; 2008, Market Acumen, Inc.
+ */
+class Control_Color extends Control_Text {
+	protected $theme = "control/color";
+	function initialize() {
+		$this->set_option("show_size", 7, false);
+		parent::initialize();
+	}
+	function validate() {
+		$this->set_option("id", $this->name());
+
+		$name = $this->column();
+		$color = $this->value();
+		if (begins($color, "#")) {
+			$color = substr($color, 1);
+			$this->value($color);
+		}
+		return parent::validate();
+	}
+
+	public function targets(array $set = null) {
+		return $set === null ? $this->option_array('targets', array()) : $this->set_option('targets', $set);
+	}
+}
+

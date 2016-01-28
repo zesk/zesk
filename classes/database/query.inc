@@ -1,0 +1,106 @@
+<?php
+/**
+ * $URL: https://code.marketacumen.com/zesk/trunk/classes/database/query.inc $
+ * @package zesk
+ * @subpackage database
+ * @author kent
+ * @copyright Copyright &copy; 2010, Market Acumen, Inc.
+ */
+class Database_Query {
+	/**
+	 * Type of query
+	 *
+	 * @var string
+	 */
+	protected $type;
+
+	/**
+	 * Database
+	 *
+	 * @var Database
+	 */
+	protected $db;
+
+	/**
+	 * Database code
+	 *
+	 * @var string
+	 */
+	protected $dbname;
+
+	/**
+	 * Object class used when iterating
+	 *
+	 * @var string
+	 */
+	protected $class;
+
+	/**
+	 * Create a new query
+	 *
+	 * @param string $type
+	 * @param Database $db
+	 */
+	function __construct($type = "SELECT", Database $db = null) {
+		$this->type = strtoupper($type);
+		$this->db = $db instanceof Database ? $db : Database::instance();
+		$this->dbname = $this->db->code_name();
+		$this->class = null;
+	}
+
+	function __sleep() {
+		return array(
+			"type",
+			"dbname",
+			"class"
+		);
+	}
+
+	function __wakeup() {
+		$this->db = Database::instance($this->dbname);
+	}
+
+	/**
+	 *
+	 * @return Database_Query_Select_Base
+	 */
+	public function duplicate() {
+		return clone $this;
+	}
+
+	/**
+	 *
+	 * @return Database
+	 */
+	function database() {
+		return $this->db;
+	}
+
+	/**
+	 *
+	 * @return Database_SQL
+	 */
+	function sql() {
+		return $this->db->sql();
+	}
+	/**
+	 *
+	 * @return Database_Parser
+	 */
+	function parser() {
+		return $this->db->parser();
+	}
+	/**
+	 * Set or get a class associated with this query
+	 *
+	 * @param string $class
+	 * @return Database_Query string
+	 */
+	function object_class($class = null) {
+		if ($class !== null) {
+			$this->class = $class;
+			return $this;
+		}
+		return $this->class;
+	}
+}

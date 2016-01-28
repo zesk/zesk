@@ -1,0 +1,477 @@
+<?php
+
+/**
+ * Automatically keep a series of files and directories in sync between users, with security checks for superusers, and simplify version control of
+ * remote systems.
+ *
+ * Basically, if you deploy software to remote systems, this lets you keep your configuration files in a source repository
+ *
+ * @alias sync
+ * @author kent
+ *
+ */
+class Command_Configure extends Command_Base {
+
+	protected $option_types = array(
+		"non-interactive" => "boolean",
+		"environment-file" => "string",
+		"host-setting-name" => "string"
+	);
+
+	/**
+	 * Whether the configuration should be saved
+	 *
+	 * @var boolean
+	 */
+	private $changed = null;
+
+	/**
+	 * Whether anything was skipped (out of sync)
+	 *
+	 * @var integer
+	 */
+	private $incomplete = 0;
+
+	/**
+	 * @var string
+	 */
+	private $host_path = null;
+
+	/**
+	 * @var string
+	 */
+	private $uname = null;
+
+	/**
+	 * @var string
+	 */
+	private $low_uname = null;
+
+	/**
+	 * @var string
+	 */
+	private $username = null;
+
+	/**
+	 * List of know host configurations
+	 *
+	 * @var array
+	 */
+	private $possible_host_configurations = array();
+
+	/**
+	 * Map from uname => host configurations
+	 *
+	 * @var array
+	 */
+	private $alias_file = null;
+
+	/**
+	 * List of host configurations
+	 *
+	 * @var array
+	 */
+	private $host_configurations = array();
+
+	/**
+	 * List of host paths for this host
+	 *
+	 * @var array
+	 */
+	private $host_paths = array();
+
+	/**
+	 * Variables to map when copying files around, etc.
+	 *
+	 * @var array
+	 */
+	private $variable_map = array();
+
+	protected function run() {
+		$this->completion_function();
+
+		$this->configure("configure", true);
+
+		$this->uname = system::uname();
+		$this->low_uname = strtolower($this->uname);
+		$this->username = avalue($_SERVER, 'USER');
+
+		$this->variable_map['uname'] = $this->uname;
+		$this->variable_map['low_uname'] = $this->low_uname;
+		$this->variable_map['user'] = $this->username;
+		$this->variable_map['zesk_application_root'] = zesk::application_root();
+		$this->variable_map['zesk_root'] = zesk::root();
+
+		$this->log("Configuration synchronization for: {uname}, user: {user}", $this->variable_map);
+		$this->determine_environment_file();
+		if (!$this->determine_host_path_setting_name()) {
+			return 1;
+		}
+		$this->determine_host_name();
+
+		$this->save_configuration_changes();
+
+		$this->incomplete = 0;
+		if (!$this->configure_user()) {
+			return 99;
+		}
+		$this->verbose_log("Success");
+		return 0;
+	}
+
+	private function determine_environment_file() {
+		$value = $this->environment_file;
+		$times = 0;
+		$this->completions = dir::ls("/etc/", "/(.conf|.sh)$/", true);
+		while (empty($value) || !is_file($value)) {
+			if ($times > 2) {
+				echo __("System settings file is a BASH and Zesk conf::load parsable file which contains\na global which points to this hosts configuration directory.\n\n");
+			}
+			$value = trim($this->prompt(__("Path to system settings file: ")));
+			++$times;
+			$this->changed = true;
+		}
+		$this->variable_map['environment_file'] = $this->environment_file;
+		return $this->environment_file = $value;
+	}
+
+	private function determine_host_path_setting_name() {
+		$value = $this->host_setting_name;
+		$times = 0;
+		$output = false;
+		while (is_array($dirs = $this->load_dirs($output)) && !array_key_exists($value, $dirs)) {
+			if (count($dirs) === 0) {
+				echo __("No possible directory settings in {environment_file}, please edit and add variable which points to a local directory with host information", $this->option());
+			}
+			if ($times > 2) {
+				echo __("The system setting will point to a directory of host configurations to keep in sync.\n\n");
+			}
+			$this->completions = array_keys($dirs);
+			$value = trim($this->prompt(__("Name of system setting: ")));
+			$this->changed = true;
+			$output = true;
+		}
+		$this->host_setting_name = $value;
+		$this->host_path = $dirs[$value];
+		$this->variable_map['host_path'] = $this->host_path;
+		if (!is_dir($this->host_path)) {
+			$this->error("Host path does not exist? {host_path}", array(
+				"host_path" => $this->host_path
+			));
+			return null;
+		}
+		return $value;
+	}
+
+	private function load_dirs($output = false) {
+		$env = conf::load($this->environment_file);
+		$this->variable_map += $env;
+		$dirs = array();
+		foreach ($env as $name => $value) {
+			if (is_dir($value)) {
+				$dirs[$name] = $value;
+			} else {
+				$possibilities[] = $name;
+			}
+		}
+		if ($output) {
+			$this->log(__("Non-directory settings: {possibilities}", array(
+				"possibilities" => implode(" ", $possibilities)
+			)));
+			$this->log(__("Available settings: {dirs}", array(
+				"dirs" => implode(" ", array_keys($dirs))
+			)));
+		}
+		return $dirs;
+	}
+
+	private function determine_host_name() {
+		$this->possible_host_configurations = arr::unsuffix(dir::ls($this->host_path), "/", true);
+		$this->alias_file = path($this->host_path, "aliases.conf");
+		$__ = array(
+			"alias_file" => $this->alias_file
+		);
+		$this->verbose_log("Alias file is {alias_file}", $__);
+		$uname = $this->uname;
+		if (!is_file($this->alias_file)) {
+			self::file_put_contents_inherit($this->alias_file, "$uname=[]");
+			$this->verbose_log("Created empty {alias_file}", $__);
+		}
+		$aliases = array();
+		while (!is_array($host_configs = avalue($aliases = conf::load($this->alias_file), $this->low_uname)) || count(array_diff($host_configs, $this->possible_host_configurations)) !== 0) {
+			$configs = $this->determine_host_configurations();
+			if ($this->prompt_yes_no(__("Save changes to {alias_file} for {uname}? ", $__ + $this->variable_map))) {
+				conf::edit($this->alias_file, array(
+					$uname => $configs
+				));
+				$this->log("Changed {alias_file}", array(
+					"alias_file" => $this->alias_file
+				));
+			}
+		}
+		$this->host_configurations = $host_configs;
+		return $host_configs;
+	}
+
+	private function determine_host_configurations() {
+		$this->completions = $possible_host_configurations = $this->possible_host_configurations;
+		do {
+			$message = __("Host configurations: {configs}", array(
+				"configs" => implode(" ", $possible_host_configurations)
+			)) . "\n\n";
+			$message .= __("Enter a list of configurations separated by space") . "\n";
+			$host_configurations = $this->prompt("$message\n> ");
+			$host_configurations = explode(" ", preg_replace("/\s+/", " ", trim($host_configurations)));
+		} while (count(array_diff($host_configurations, $possible_host_configurations)) !== 0);
+		$this->log("Will add host configuration for host {host}: {host_configurations}", array(
+			"host" => $this->host,
+			"host_configurations" => implode(" ", $host_configurations)
+		));
+		return $host_configurations;
+	}
+
+	private function save_configuration_changes() {
+		if ($this->changed) {
+			$__ = array(
+				"config" => $this->config
+			);
+			if ($this->prompt_yes_no(__("Save changes to {config}? ", $__))) {
+				conf::edit($this->config, arr::kprefix($this->options_include("environment_file;host_setting_name"), __CLASS__ . "::"));
+				$this->log("Wrote {config}", $__);
+			}
+		}
+	}
+	private function configure_user() {
+		$username = $this->username;
+		$paths = array();
+		foreach ($this->host_configurations as $host) {
+			$paths[] = path($this->host_path, $host);
+		}
+		$this->verbose_log(__("Configuration paths:\n\t{paths}", array(
+			"paths" => implode("\n\t", $paths)
+		)));
+		$this->host_paths = $paths;
+
+		$files = zesk::find_files($paths, "users/$username/configure");
+		$this->log(__("Configuration files:\n\t{files}", array(
+			"files" => implode("\n\t", $files)
+		)));
+		foreach ($files as $file) {
+			$this->variable_map['current_host_path'] = dirname(dirname(dirname($file)));
+			$this->verbose_log("Processing file {file}", compact("file"));
+			$contents = file::contents($file);
+			$contents = text::remove_line_comments($contents, "#", false);
+			$lines = arr::trim_clean(explode("\n", $contents));
+			foreach ($lines as $line) {
+				$line = preg_replace("/\s+/", " ", $line);
+				list($command, $raw_arguments) = pair($line, " ", $line, null);
+				$command = zesk::clean_function($command);
+				$raw_arguments = preg_replace("/\s+/", " ", trim($raw_arguments));
+				$arguments = map($raw_arguments, $this->variable_map);
+				$method = "_command_$command";
+				if (method_exists($this, $method)) {
+					$this->verbose_log("Running command {command} {raw_arguments} => {arguments}", compact("command", "raw_arguments", "arguments"));
+					$result = call_user_func_array(array(
+						$this,
+						$method
+					), explode(" ", $arguments));
+					if (is_bool($result) && $result === false) {
+						$this->error("Command failed ... aborting.");
+						return false;
+					}
+				} else {
+					$this->error("Unknown command {command} ({raw_arguments})", compact("command", "raw_arguments"));
+				}
+			}
+		}
+		return true;
+	}
+
+	private function _command_file_catenate($source, $destination) {
+		$sources = zesk::find_files($this->host_paths, $source);
+		$__ = array(
+			"source" => $source,
+			"host_paths" => $this->host_paths
+		);
+		if (count($sources) === 0) {
+			$this->verbose_log("No file {source} found in {host_paths}", $__);
+			$this->completions = arr::suffix($this->host_paths, "/" . str::unprefix($source, "/"));
+			$__ = array(
+				"source" => $source,
+				"completions" => implode(" ", $this->completions)
+			);
+			$conf = trim($this->prompt(__("Create {source}? ({completions})", $__)));
+			if (in_array($conf, $this->completions)) {
+				$__['conf'] = $conf;
+				$this->changed++;
+				$this->log("Writing {conf} with empty file for {source}", $__);
+				self::file_put_contents_inherit($conf, "");
+				try {
+					file::copy_uid_gid(dirname($conf), $conf);
+				} catch (Exception $e) {
+
+				}
+			}
+			return true;
+		} else {
+			$this->verbose_log("Found files {sources}", array(
+				"sources" => implode(" ", $sources)
+			));
+		}
+		$content = "";
+		foreach ($sources as $file) {
+			$content .= trim(map(file::contents($file), $this->variable_map)) . "\n";
+		}
+		if (trim(file::contents($destination)) === trim($content)) {
+			return true;
+		}
+		$temp_file = file::temporary("temp");
+		file_put_contents($temp_file, $content);
+		switch ($this->_files_differ_helper($temp_file, $destination, $source)) {
+			case "source":
+				return self::file_put_contents_inherit($destination, $content);
+			case "destination":
+				$default_source = path(last($this->host_paths), $source);
+				$this->verbose_log("Copy {source} to {default_source}", compact("source", "default_source"));
+				return self::copy_file_inherit($destination, $default_source);
+		}
+		return null;
+	}
+
+	private static function copy_file_inherit($source, $destination) {
+		if (!copy($source, $destination)) {
+			return false;
+		}
+		try {
+			file::copy_uid_gid(dirname($destination), $destination);
+		} catch (Exception $e) {
+
+		}
+		return true;
+	}
+
+	private static function file_put_contents_inherit($destination, $content) {
+		if (!file_put_contents($destination, $content)) {
+			return false;
+		}
+		try {
+			file::copy_uid_gid(dirname($destination), $destination);
+		} catch (Exception $e) {
+
+		}
+		return true;
+	}
+
+	private function _command_file($source, $destination) {
+		try {
+			zesk::exec("diff -w {0} {1}", $source, $destination);
+			return true;
+		} catch (Exception_Command $e) {
+			// Not the same
+		}
+		switch ($this->_files_differ_helper($source, $destination)) {
+			case "source":
+				return self::copy_file_inherit($source, $destination);
+			case "destination":
+				return self::copy_file_inherit($destination, $source);
+		}
+		$__ = compact("source", "destination");
+		if (!file_exists($source)) {
+			$this->verbose_log(is_dir(dirname($source)) ? "Source {source} does not exist" : "Source {source} does not exist, nor does its parent directory", $__);
+		}
+		if (!file_exists($destination)) {
+			$this->verbose_log(is_dir(dirname($destination)) ? "Destination {destination} does not exist" : "Destination {destination} does not exist, nor does its parent directory", $__);
+		}
+		return null;
+	}
+
+	private function _files_differ_helper($source, $destination, $source_name = null, $destination_name = null) {
+		if ($source_name === null) {
+			$source_name = $source;
+		}
+		if ($destination_name === null) {
+			$destination_name = $destination;
+		}
+		$this->log("Files differ: < $source_name > $destination_name");
+		try {
+			zesk::execute_array("diff {0} {1}", array(
+				$source,
+				$destination
+			), true);
+		} catch (Exception $e) {
+
+		}
+		$this->completions = array(
+			"source",
+			"<",
+			"destination",
+			"skip"
+		);
+		switch (trim($this->prompt("Which is right?\n< source, > destination, or skip? (<,source,>,destination,skip) "))) {
+			case "<":
+			case "source":
+				$this->log("Copying {source_name} to {destination_name}", compact("source_name", "destination_name"));
+				$this->changed = true;
+				return "source";
+			case ">":
+			case "destination":
+				$this->log("Copying {destination_name} to {source_name}", compact("source_name", "destination_name"));
+				$this->changed = true;
+				return "destination";
+			default:
+				$this->log("skipping ...");
+				$this->incomplete++;
+				return null;
+		}
+	}
+
+	private function _command_subversion($repo, $target) {
+		$__ = compact("repo", "target");
+		try {
+			if (!is_dir($target)) {
+				if (!$this->prompt_yes_no(__("Create subversion directory {target} for {repo}", $__))) {
+					return false;
+				}
+				if (!dir::create($target)) {
+					$this->error(__("Unable to create {target}", $__));
+					return false;
+				}
+				$this->verbose_log("Created {target}", $__);
+			}
+			$config_dir = zesk::home_path(".subversion");
+			$this->verbose_log("Subversion configuration path is {config_dir}", compact("config_dir"));
+			if (!is_dir(path($target, ".svn"))) {
+				if (!$this->prompt_yes_no(__("Checkout subversion {repo} to {target}", $__))) {
+					return false;
+				}
+				zesk::execute_array("svn --non-interactive --config-dir {0} co {1} {2}", array(
+					$config_dir,
+					$repo,
+					$target
+				), true);
+				$this->changed = true;
+				return true;
+			} else {
+				$results = zesk::execute_array("svn --non-interactive --config-dir {0} status --show-updates {1}", array(
+					$config_dir,
+					$target
+				));
+				if (count($results) > 1) {
+					$this->log($results);
+					if (!$this->prompt_yes_no(__("Update subversion {target} from {repo}", $__))) {
+						return false;
+					}
+					zesk::execute_array("svn --non-interactive --config-dir {0} up --force {1}", array(
+						$config_dir,
+						$target
+					), true);
+				}
+			}
+			$this->changed = true;
+			return true;
+		} catch (Exception $e) {
+			$this->error("Command failed: {e}", compact("e"));
+			return false;
+		}
+	}
+}

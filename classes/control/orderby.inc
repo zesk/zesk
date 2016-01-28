@@ -1,0 +1,127 @@
+<?php
+
+class Control_OrderBy extends Control {
+
+	const default_order_variable = 'o';
+
+	private $active = null;
+
+	private $sort_number;
+	private $sort_order;
+
+	private $url = null;
+
+	function list_order_by($set = null) {
+		return $set === null ? $this->option('list_order_by') : $this->set_option('list_order_by', $set);
+	}
+
+	function list_order_by_reverse($set = null) {
+		if ($set === null) {
+			$result = $this->option('list_order_by_reverse', null);
+			if ($result !== null) {
+				return $result;
+			}
+			$list_order_by = to_list($this->list_order_by());
+			$reverse_order_by = array();
+			foreach ($list_order_by as $token) {
+				$lowtoken = strtolower($token);
+				if (ends($lowtoken, " desc")) {
+					$reverse_order_by[] = substr($token, 0, -5);
+				} else if (ends($lowtoken, " asc")) {
+					$reverse_order_by[] = substr($token, 0, -4) . " DESC";
+				} else {
+					$reverse_order_by[] = "$token DESC";
+				}
+			}
+			return $reverse_order_by;
+		}
+		return $this->set_option('list_order_by_reverse', $set);
+	}
+
+	function list_order_column($set = null) {
+		return $set === null ? $this->option('list_order_column', $this->column()) : $this->set_option('list_order_column', $set);
+	}
+
+	function list_order_variable($set = null) {
+		return $set === null ? $this->option('list_order_variable', $this->parent ? $this->parent->option('list_order_variable', self::default_order_variable) : self::default_order_variable) : $this->set_option('list_order_variable', $set);
+	}
+
+	function hook_header(Control_Header $header) {
+		$col = $this->list_order_column();
+		$header->add_ordering($col, $this->list_order_by());
+		$header->add_ordering("-$col", $this->list_order_by_reverse());
+	}
+
+	function initialize() {
+		parent::initialize();
+		$cur_sort_names = arr::clean($this->request->geta($this->list_order_variable(), array(), ";"));
+		$k = $this->list_order_column();
+		$order_var = $this->list_order_variable();
+		$new_order = array();
+		$new_key = null;
+		$sort_index = null;
+		$multisort = $this->option_bool("multisort");
+		$remove_order = array();
+		$selected = false;
+		$ascending = true;
+		foreach ($cur_sort_names as $i => $cur_sort_name) {
+			if ($cur_sort_name === $k) {
+				$sort_index = $i;
+				$sort_order = "sort-asc";
+				$selected = true;
+				$alt = "Sort ascending";
+				$ascending = true;
+				$new_key = "-" . $k;
+				$new_order[] = $new_key;
+			} else if ($cur_sort_name === "-$k") {
+				$sort_index = $i;
+				$selected = true;
+				$sort_order = "sort-desc";
+				$alt = "Sort descending";
+				$ascending = false;
+				$new_key = $k;
+				$new_order[] = $new_key;
+			} else if ($cur_sort_name) {
+				$remove_order[] = $cur_sort_name;
+				$new_order[] = $cur_sort_name;
+			}
+		}
+		if ($new_key === null) {
+			if ($this->option_bool("list_order_default_ascending")) {
+				$alt = "Sort ascending";
+				$sort_order = "sort-none";
+				$ascending = true;
+				$new_key = $k;
+			} else {
+				$alt = "Sort descending";
+				$ascending = false;
+				$sort_order = "sort-none";
+				$new_key = "-$k";
+			}
+			$new_order[] = $new_key;
+		}
+		if ($multisort) {
+			$new_key = implode(";", $new_order);
+			$remove_order = implode(";", $remove_order);
+			$remove_url = url::query_format($this->option("URI", url::current_uri()), array(
+				$order_var => $remove_order
+			));
+			$sort_number = ($sort_index !== null) ? html::tag("div", array(
+				"class" => "list-order-index"
+			), html::a($remove_url, $sort_index + 1)) : "";
+		} else {
+			$sort_number = null;
+		}
+		$this->theme_variables['url'] = url::query_format($this->option("URI", url::current_uri()), array(
+			$order_var => $new_key
+		));
+
+		$this->theme_variables['ascending'] = $ascending;
+		$this->theme_variables['selected'] = $selected;
+		$this->theme_variables['sort_order'] = $sort_order;
+		$this->theme_variables['alt'] = $alt;
+		$this->theme_variables['sort_number'] = $sort_number;
+		$this->theme_variables['sort_order'] = $sort_order;
+	}
+
+}
