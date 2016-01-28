@@ -1,8 +1,8 @@
 # Zesk License Agreement
 
-This license is a legal agreement between you and the Market Acumen, Inc. for the use of Zesk (the "Software"). By obtaining the Software you agree to comply with the terms and conditions of this license.
+This license is a legal agreement between you and Market Acumen, Inc. for the use of Zesk (the "Software"). By obtaining the Software you agree to comply with the terms and conditions of this license.
 
-## Copyright &copy; 2007-2015 Market Acumen, Inc.
+## Copyright &copy; 2007-2016 Market Acumen, Inc.
 
 All rights reserved.
 
