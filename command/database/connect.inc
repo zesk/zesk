@@ -19,7 +19,7 @@ class Command_Database_Connect extends Command {
 	protected $option_help = array(
 		'name' => 'Database code name to connect to',
 		'echo' => 'Output the connection command instead of running it',
-		'list' => 'Output the list of',
+		'list' => 'Output the database URLs',
 		'force' => 'Force command execution even on failure'
 	);
 	function run() {
