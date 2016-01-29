@@ -9,7 +9,6 @@
  * Created on Mon,Aug 1, 11 at 5:21 PM
  */
 abstract class Command_Iterator_File extends Command_Base {
-
 	protected $extensions = array(
 		"php",
 		"phpt",
@@ -18,11 +17,29 @@ abstract class Command_Iterator_File extends Command_Base {
 		"php4",
 		"php5"
 	);
-
+	
+	/**
+	 *
+	 * @var boolean
+	 */
 	protected $include_hidden = false;
-
+	
+	/**
+	 *
+	 * @var boolean
+	 */
 	protected $show_skipped = false;
-
+	
+	/**
+	 *
+	 * @var boolean
+	 */
+	protected $dry_run = false;
+	
+	/**
+	 * (non-PHPdoc)
+	 * @see Command_Base::initialize()
+	 */
 	function initialize() {
 		$this->option_types += array(
 			"no-recurse" => 'boolean',
@@ -33,7 +50,11 @@ abstract class Command_Iterator_File extends Command_Base {
 		);
 		parent::initialize();
 	}
-
+	
+	/**
+	 * (non-PHPdoc)
+	 * @see Command::run()
+	 */
 	function run() {
 		if ($this->option_bool('help')) {
 			$this->usage();
@@ -45,6 +66,7 @@ abstract class Command_Iterator_File extends Command_Base {
 		}
 		$this->include_hidden = $this->option_bool('include-hidden');
 		$this->show_skipped = $this->option_bool('show-skipped');
+		$this->dry_run = $this->option_bool('dry-run');
 		$this->start();
 		$extras = $this->arguments_remaining(true);
 		if ($extras) {
@@ -62,13 +84,27 @@ abstract class Command_Iterator_File extends Command_Base {
 		}
 		$this->finish();
 	}
-
+	
+	/**
+	 * 
+	 */
 	abstract protected function start();
-
+	
+	/**
+	 * 
+	 * @param SplFileInfo $file
+	 */
 	abstract protected function process_file(SplFileInfo $file);
-
+	
+	/**
+	 * 
+	 */
 	abstract protected function finish();
-
+	
+	/**
+	 * 
+	 * @param string $dir
+	 */
 	private function recurse_directory($dir) {
 		$iterator = new DirectoryIterator($dir);
 		foreach ($iterator as $fileinfo) {
