@@ -488,7 +488,8 @@ class Widget extends Hookable {
 		}
 		return $options + self::default_options($class);
 	}
-	public function wiget_factory($class, $options = null) {
+	
+	public function widget_factory($class, $options = null) {
 		$args = func_get_args();
 		$args[0] = $this->application;
 		$widget = zesk::factory_array($class, $args);
@@ -506,9 +507,9 @@ class Widget extends Hookable {
 	 * @return Widget
 	 * @deprecated 2016-01-27 Use $this->widget_factory instead
 	 */
-	public static function factory($class, $options = null) {
+	public static function factory($class, $options = null, Application $application = null) {
 		$args = func_get_args();
-		$args[0] = Application::instance();
+		$args[0] = $application ? $application : Application::instance();
 		$widget = zesk::factory_array($class, $args);
 		if (!$widget instanceof Widget) {
 			throw new Exception_Semantics("$class is not a Widget");
