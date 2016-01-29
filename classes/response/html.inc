@@ -829,7 +829,7 @@ class Response_HTML extends Response_Text {
 				"media" => $media
 			),
 			'content' => "",
-			'suffix' => zesk::development() ? "<!--\n" . implode("\n", array_keys($cached)) . "\n-->" : ""
+			'suffix' => $this->application->development() ? "<!--\n" . implode("\n", array_keys($cached)) . "\n-->" : ""
 		);
 	}
 
@@ -848,7 +848,7 @@ class Response_HTML extends Response_Text {
 				'type' => 'text/javascript'
 			),
 			'content' => "",
-			'suffix' => zesk::development() ? "<!--\n" . implode("\n", array_keys($cached)) . "\n-->" : ""
+			'suffix' => $this->application->development() ? "<!--\n" . implode("\n", array_keys($cached)) . "\n-->" : ""
 		);
 	}
 

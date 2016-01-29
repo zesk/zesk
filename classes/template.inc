@@ -720,6 +720,15 @@ class Template {
 	}
 	
 	/**
+	 * Start to deprecate Widget::factory
+	 * 
+	 * @param string $class
+	 * @param array $options
+	 */
+	final function widget_factory($class, $options = null) {
+		return Widget::factory($class, $options, $this->application);
+	}
+	/**
 	 * Determine if theme exists
 	 *
 	 * 2016-01-12 Moving away from globals. Use in templates instead of zesk::theme or theme, both
