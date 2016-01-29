@@ -9,7 +9,7 @@ class Controller_Search extends Controller_Template {
 		foreach ($this->option_list('search_classes') as $class) {
 			try {
 				if (class_exists($class)) {
-					$object = Widget::factory($class);
+					$object = $this->widget_factory($class);
 					$method = "controller_search";
 					if (method_exists($object, $method)) {
 						$result = call_user_func(array(

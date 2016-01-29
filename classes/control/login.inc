@@ -41,18 +41,18 @@ class Control_Login extends Control_Edit {
 	 * @see Control_Edit::_widgets()
 	 */
 	protected function initialize() {
-		$f = Widget::factory("Control_Text")->names("login", $this->option("label_login", __("Email")))->required(true);
+		$f = $this->widget_factory("Control_Text")->names("login", $this->option("label_login", __("Email")))->required(true);
 
 		$this->child($f);
 
 		if (!$this->option("no_password")) {
-			$f = Widget::factory("Control_Password")->names("login_password", $this->option("label_password", __("Password")))->required(true);
+			$f = $this->widget_factory("Control_Password")->names("login_password", $this->option("label_password", __("Password")))->required(true);
 			$f->set_option("encrypted_column", "login_password_hash");
 
 			$this->child($f);
 		}
 
-		$f = Widget::factory('Control_Button')->names('login_button', false)->set_option('button_label', __("Login"))->add_class('btn-primary');
+		$f = $this->widget_factory('Control_Button')->names('login_button', false)->set_option('button_label', __("Login"))->add_class('btn-primary');
 		$this->child($f);
 
 		parent::initialize();

@@ -42,7 +42,7 @@ class Zest extends Application {
 	}
 	public static function widget_test(Request $request, Response $response) {
 		$path = str_replace("/", "_", ltrim($request->path(), "/"));
-		return Widget::factory("Control_Form")->child(Widget::factory($path, $request, $response))->execute();
+		return Widget::factory("Control_Form", null, $this)->child(Widget::factory($path, null, $this))->execute();
 	}
 	public static function run_test($string) {
 		$test = new Command_Test(array(

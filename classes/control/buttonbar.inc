@@ -17,7 +17,7 @@ class Control_ButtonBar extends Control {
 		$cancel_label = $this->option('label_cancel', __('Cancel'));
 
 		if ($ok_label) {
-			$w = Widget::factory('Control_Button')->names('OK')->set_option('label_button', $ok_label);
+			$w = $this->widget_factory('Control_Button')->names('OK')->set_option('label_button', $ok_label);
 			$w->class = "btn primary";
 			$w->type = "cancel";
 			$onclick = $this->option('ok_onclick', null);
@@ -28,7 +28,7 @@ class Control_ButtonBar extends Control {
 			$this->child($w);
 		}
 		if ($cancel_label) {
-			$w = Widget::factory('Control_Button')->names('Cancel')->set_option('label_button', $cancel_label);
+			$w = $this->widget_factory('Control_Button')->names('Cancel')->set_option('label_button', $cancel_label);
 			$w->class = "btn";
 			$w->type = "cancel";
 			$onclick = $this->option('cancel_onclick', null);

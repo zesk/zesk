@@ -356,7 +356,7 @@ abstract class Controller_Object extends Controller_Template_Login {
 		foreach ($controls as $control => $actual_action) {
 			try {
 				$this->tried_widgets[] = $control;
-				$widget = Widget::factory($control, $this->control_options, $this->application);
+				$widget = $this->widget_factory($control, $this->control_options);
 				$this->actual_action = $actual_action;
 				$this->permission_actions = $widget->option('permission_actions', $actual_action);
 				$this->widget = $widget;

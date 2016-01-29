@@ -2,7 +2,7 @@
 class Controller_Image_Picker extends Controller_Object {
 	protected $class = "Content_Image";
 	function _action_default($action = null, $object = null, $options = array()) {
-		$control = Widget::factory('Control_Picker_Content_Image')->names('image');
+		$control = $this->widget_factory('Control_Picker_Content_Image')->names('image');
 		$this->control($control, $object);
 	}
 	function upload_theme_map(array $set = null) {

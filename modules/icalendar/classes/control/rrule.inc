@@ -5,39 +5,39 @@ class Control_RRule extends Control {
 	protected function initialize() {
 		$name = $this->name();
 		$ww = array();
-
-		$w = Widget::factory("Control_Select")->names($name . '_repeat', __('Repeat'))->control_options(self::repeat_options())->noname(__('None'));
+		
+		$w = $this->widget_factory("Control_Select")->names($name . '_repeat', __('Repeat'))->control_options(self::repeat_options())->noname(__('None'));
 		$this->child($w);
 		$ww['repeat'] = $w;
-
-		$w = Widget::factory('Control_Integer')->names($name . '_interval', __('Interval'));
+		
+		$w = $this->widget_factory('Control_Integer')->names($name . '_interval', __('Interval'));
 		$this->child($w);
 		$ww['interval'] = $w;
-
-		$w = Widget::factory('Control_Pills')->names($name . '_weekday')->control_options($this->weekday_options())->multiple(true)->one_or_more(true);
+		
+		$w = $this->widget_factory('Control_Pills')->names($name . '_weekday')->control_options($this->weekday_options())->multiple(true)->one_or_more(true);
 		$this->child($w);
 		$ww['weekday'] = $w;
-
-		$w = Widget::factory('Control_Pills')->names($name . '_monthday')->control_options($this->monthday_options())->multiple(true)->one_or_more(true);
+		
+		$w = $this->widget_factory('Control_Pills')->names($name . '_monthday')->control_options($this->monthday_options())->multiple(true)->one_or_more(true);
 		$this->child($w);
 		$ww['monthday'] = $w;
-
-		$w = Widget::factory('Control_Pills')->names($name . '_yearly')->control_options($this->monthly_options())->multiple(true)->one_or_more(true);
+		
+		$w = $this->widget_factory('Control_Pills')->names($name . '_yearly')->control_options($this->monthly_options())->multiple(true)->one_or_more(true);
 		$this->child($w);
 		$ww['month'] = $w;
-
-		$w = Widget::factory('Control_Select')->names($name . '_on_which')->control_options($this->which_day_options())->noname("");
+		
+		$w = $this->widget_factory('Control_Select')->names($name . '_on_which')->control_options($this->which_day_options())->noname("");
 		$this->child($w);
 		$ww['onwhich'] = $w;
-
-		$w = Widget::factory('Control_Select')->names($name . '_on_day')->control_options($this->day_choice_options())->noname("");
+		
+		$w = $this->widget_factory('Control_Select')->names($name . '_on_day')->control_options($this->day_choice_options())->noname("");
 		$this->child($w);
 		$ww['onday'] = $w;
-
-		$w = Widget::factory("Control_Date")->names($name . '_enddate', __('End Date'))->set_option('inline', true);
+		
+		$w = $this->widget_factory("Control_Date")->names($name . '_enddate', __('End Date'))->set_option('inline', true);
 		$this->child($w);
 		$ww['enddate'] = $w;
-
+		
 		$this->child_widgets = $ww;
 		parent::initialize();
 	}
@@ -65,7 +65,7 @@ class Control_RRule extends Control {
 	}
 	function monthday_options() {
 		$result = array();
-		for($i = 1; $i <= 31; $i++) {
+		for ($i = 1; $i <= 31; $i++) {
 			$result[$i] = $i;
 		}
 		return $result;

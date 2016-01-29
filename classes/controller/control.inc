@@ -43,7 +43,7 @@ class Controller_Control extends Controller {
 		}
 
 		$result = array(
-			"content" => Widget::factory($control, $this->request, $this->response)->names($name, null, $input)->json(true)->execute()
+			"content" => $this->widget_factory($control, $this->request, $this->response)->names($name, null, $input)->json(true)->execute()
 		);
 		$result += $this->response->to_json();
 		return $this->json($result);

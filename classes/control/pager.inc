@@ -54,7 +54,7 @@ class Control_Pager extends Control {
 		$options['onchange'] = $onchange;
 		$options['default'] = $this->request->geti('limit', $this->limit_default());
 
-		return Widget::factory("Control_Select")->names('limit')->required(true)->set_option($options);
+		return $this->widget_factory("Control_Select")->names('limit')->required(true)->set_option($options);
 	}
 	protected function initialize() {
 		$this->set_option('max_limit', $this->_maximum_limit());

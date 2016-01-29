@@ -33,8 +33,8 @@ abstract class Control_List_InPlace extends Control_List {
 		$this->wrap('div', '.control-list-inplace');
 	}
 	protected function hook_widgets() {
-		$widgets[] = $w = Widget::factory('Control_Hidden')->names('id', __('ID'), 'id[]')->id(false)->add_class('selection-id');
-		$widgets[] = $w = Widget::factory('View_Text')->names('name');
+		$widgets[] = $w = $this->widget_factory('Control_Hidden')->names('id', __('ID'), 'id[]')->id(false)->add_class('selection-id');
+		$widgets[] = $w = $this->widget_factory('View_Text')->names('name');
 
 		return $widgets;
 	}

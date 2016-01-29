@@ -317,5 +317,12 @@ class Controller extends Hookable {
 	public function get_route_map($action = null, $object = null, $options = null) {
 		return array();
 	}
+	
+	/**
+	 * Create a widget
+	 */
+	public function widget_factory($class, $options = null) {
+		return Widget::factory($class, $options, $this->application);
+	}
 }
 

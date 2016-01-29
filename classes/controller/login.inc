@@ -5,7 +5,7 @@ class Controller_Login extends Controller_Template {
 	}
 	function action_login() {
 		$this->hook('login');
-		$w = Widget::factory('Control_Login', null, $this->application);
+		$w = $this->widget_factory('Control_Login');
 		return $w->execute();
 	}
 	function action_logout() {

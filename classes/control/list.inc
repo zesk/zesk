@@ -295,15 +295,15 @@ class Control_List extends Control_Widgets_Filter {
 		}
 	}
 	private function initialize_header_widgets() {
-		$this->header_widget = $header_widget = Widget::factory('Control_Header')->names($this->name() . '-header');
+		$this->header_widget = $header_widget = $this->widget_factory('Control_Header')->names($this->name() . '-header');
 		$this->header_widgets = array();
 		$included = to_list("list_order_column;show_size;list_order_variable;list_order_by;multisort;list_order_default_ascending;list_order_position;html;list_column_width;widget_save_result;context_class");
 		foreach ($this->row_widgets as $widget) {
 			/* @var $widget Widget */
 			if ($widget->has_option("list_order_by", true)) {
-				$w = $this->header_widgets[$widget->name()] = Widget::factory("Control_OrderBy", $widget->options_include($included))->names("" . $widget->name(), $widget->label());
+				$w = $this->header_widgets[$widget->name()] = $this->widget_factory("Control_OrderBy", $widget->options_include($included))->names("" . $widget->name(), $widget->label());
 			} else {
-				$w = $this->header_widgets[$widget->name()] = Widget::factory('View_Text', $widget->options_include($included))->names($widget->name())->set_option("value", $widget->option("label_header", $widget->label()));
+				$w = $this->header_widgets[$widget->name()] = $this->widget_factory('View_Text', $widget->options_include($included))->names($widget->name())->set_option("value", $widget->option("label_header", $widget->label()));
 			}
 			$header_widget->child($w);
 		}

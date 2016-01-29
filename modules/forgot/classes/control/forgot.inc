@@ -66,14 +66,14 @@ class Control_Forgot extends Control_Edit {
 
 		$ww = array();
 
-		$ww[] = $w = Widget::factory('Control_Text')->names('login', __($this->option("label_login", "Login")));
+		$ww[] = $w = $this->widget_factory('Control_Text')->names('login', __($this->option("label_login", "Login")));
 		$w->default_value($this->request->get('login'));
 
-		$ww[] = $w = Widget::factory('Control_Password')->names('login_password', $this->option("label_password", __("New Password")));
+		$ww[] = $w = $this->widget_factory('Control_Password')->names('login_password', $this->option("label_password", __("New Password")));
 		$w->set_option('encrypted_column', 'new_password');
 		$w->set_option('confirm', true);
 
-		$ww[] = $w = Widget::factory('Control_Button')->names('forgot', $this->option("label_button", __("Send me an email")))->add_class('btn-primary')->nolabel(true);
+		$ww[] = $w = $this->widget_factory('Control_Button')->names('forgot', $this->option("label_button", __("Send me an email")))->add_class('btn-primary')->nolabel(true);
 
 		return $ww;
 	}

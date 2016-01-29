@@ -369,7 +369,6 @@ class Widget extends Hookable {
 	 * Set many children:
 	 * <code>
 	 * $widget->child(array("LoginEmail" => $login_email, "LoginPassword" =>
-	 * Widget::factory('Control_Password')));
 	 * </code>
 	 *
 	 *

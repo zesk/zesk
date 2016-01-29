@@ -9,13 +9,13 @@ class Control_Contact_Address extends Control_Edit {
 	protected function hook_widgets() {
 		$ww = array();
 
-		$ww[] = $w = Widget::factory('Control_Text')->names('street', __('Contact_Address:=Street Line 1'));
-		$ww[] = $w = Widget::factory('Control_Text')->names('additional', __('Contact_Address:=Street Line 2'));
-		$ww[] = $w = Widget::factory('Control_Text')->names('city', __('Contact_Address:=City'));
-		$ww[] = $w = Widget::factory('Control_Text')->names('province', __('Contact_Address:=State'));
-		$ww[] = $w = Widget::factory('Control_Text')->names('postal_code', __('Contact_Address:=Zip Code'));
-		$ww[] = $w = Widget::factory('Control_County')->names('county', __('Contact_Address:=County'));
-		$ww[] = $w = Widget::factory('Control_Country')->names('country', __('Contact_Address:=Country'));
+		$ww[] = $w = $this->widget_factory('Control_Text')->names('street', __('Contact_Address:=Street Line 1'));
+		$ww[] = $w = $this->widget_factory('Control_Text')->names('additional', __('Contact_Address:=Street Line 2'));
+		$ww[] = $w = $this->widget_factory('Control_Text')->names('city', __('Contact_Address:=City'));
+		$ww[] = $w = $this->widget_factory('Control_Text')->names('province', __('Contact_Address:=State'));
+		$ww[] = $w = $this->widget_factory('Control_Text')->names('postal_code', __('Contact_Address:=Zip Code'));
+		$ww[] = $w = $this->widget_factory('Control_County')->names('county', __('Contact_Address:=County'));
+		$ww[] = $w = $this->widget_factory('Control_Country')->names('country', __('Contact_Address:=Country'));
 
 		return $ww;
 	}

@@ -13,7 +13,7 @@ class Control_Contact_Email_List extends Control_Object_Edit {
 	}
 	
 	function listWidgetList() {
-		$spec = Widget::factory('Control_Email_Edit')->widgets();
+		$spec = $this->widget_factory('Control_Email_Edit')->widgets();
 		foreach ($spec as $v) {
 			$v->setInputName($v->name() . "[{ID}]");
 		}

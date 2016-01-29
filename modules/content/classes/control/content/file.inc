@@ -10,7 +10,7 @@ class Control_Content_File extends Control_Widgets {
 	}
 	function initialize() {
 		$prefix = $this->name() . "_";
-		$this->_file_widget = $w = Widget::factory("Control_File");
+		$this->_file_widget = $w = $this->widget_factory("Control_File");
 		$w->set_option(array(
 			'hash_file' => true
 		) + $this->options);
@@ -19,7 +19,7 @@ class Control_Content_File extends Control_Widgets {
 
 		$this->child($w);
 
-		$w = Widget::factory("Control_Text")->names($prefix . "desc", __("Description"))->textarea(true);
+		$w = $this->widget_factory("Control_Text")->names($prefix . "desc", __("Description"))->textarea(true);
 		$this->child($w);
 		$this->upload(true);
 
