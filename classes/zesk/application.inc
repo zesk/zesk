@@ -369,8 +369,8 @@ class Application extends \Hookable {
 	}
 	private function _configured() {
 		// Now run all configurations: System, Modules, then Application
-		zesk::hook('configured'); // System level
-		\Module::all_hook('configured'); // Module level
+		zesk::hook('configured', $this); // System level
+		$this->module->all_hook("configured");
 		$this->hook('configured'); // Application level
 		$this->load_maintenance();
 		$this->inherit_global_options();

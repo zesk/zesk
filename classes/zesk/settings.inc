@@ -14,25 +14,28 @@
  * @see Class_Zesk_Settings
  */
 class Zesk_Settings extends Object implements Interface_Data {
-
+	
 	/**
 	 * Is the database down?
+	 *
 	 * @var boolean
 	 */
 	private static $db_down = false;
-
+	
 	/**
 	 * Reason why the database is down
+	 *
 	 * @var Exception
 	 */
 	private static $db_down_why = null;
-
+	
 	/**
 	 * List of global changes to settings to be saved
+	 *
 	 * @var string
 	 */
 	static $changes = array();
-
+	
 	/**
 	 * Retrieve the Settings singleton.
 	 *
@@ -52,7 +55,7 @@ class Zesk_Settings extends Object implements Interface_Data {
 		}
 		return $instance;
 	}
-
+	
 	/**
 	 * Hook Object::hooks
 	 */
@@ -60,7 +63,7 @@ class Zesk_Settings extends Object implements Interface_Data {
 		zesk::add_hook('configured', 'Settings::configured', 'first');
 		zesk::add_hook('exit', 'Settings::flush_instance');
 	}
-
+	
 	/**
 	 * Cache for the settings
 	 *
@@ -69,11 +72,11 @@ class Zesk_Settings extends Object implements Interface_Data {
 	public static function _cache() {
 		return Cache::register(__CLASS__)->expire_after(60);
 	}
-
+	
 	/**
 	 * configured Hook
 	 */
-	public static function configured() {
+	public static function configured(Application $application) {
 		// If no databases registered, don't bother loading.
 		if (count(Database::register()) === 0) {
 			return;
@@ -91,7 +94,9 @@ class Zesk_Settings extends Object implements Interface_Data {
 						$globals[$name] = $value = unserialize($value);
 					}
 				}
-				$cache->globals = $globals;
+				$cache->globals = $application->hook_array("filter_settings", array(
+					$globals
+				), $globals);
 			} else {
 				//log::debug("Settings::configured() has globals {globals}", array("globals" => $cache->globals));
 			}
@@ -115,7 +120,7 @@ class Zesk_Settings extends Object implements Interface_Data {
 			// Ignore for now
 		}
 	}
-
+	
 	/**
 	 * Hook shutdown - save all settings to database
 	 */
@@ -133,7 +138,7 @@ class Zesk_Settings extends Object implements Interface_Data {
 		self::$db_down = false;
 		self::instance()->flush();
 	}
-
+	
 	/**
 	 * Internal function to write all settings to the database
 	 */
@@ -152,17 +157,18 @@ class Zesk_Settings extends Object implements Interface_Data {
 		self::_cache()->delete();
 		self::$changes = array();
 	}
-
+	
 	/**
 	 * Override get to retrieve from global state
 	 *
-	 * @param $name Setting to retrieve
+	 * @param $name Setting
+	 *        	to retrieve
 	 * @return mixed
 	 */
 	public function __get($name) {
 		return zesk::get($name);
 	}
-
+	
 	/**
 	 * Same as __get with a default
 	 *
@@ -171,18 +177,20 @@ class Zesk_Settings extends Object implements Interface_Data {
 	public function get($name = null, $default = null) {
 		return zesk::get($name, $default);
 	}
-
+	
 	/**
 	 * Global to save
+	 *
 	 * @see Object::__set($member, $value)
 	 */
 	public function __set($name, $value) {
 		self::$changes[_zesk_global_key($name)] = $value;
 		zesk::set($name, $value);
 	}
-
+	
 	/**
 	 * Global to save
+	 *
 	 * @see Object::set($member, $value)
 	 * @return Settings
 	 */
@@ -190,8 +198,9 @@ class Zesk_Settings extends Object implements Interface_Data {
 		$this->__set($name, $value);
 		return $this;
 	}
-
+	
 	/**
+	 *
 	 * @see Interface_Data::data()
 	 */
 	public function data($name, $value = null) {
@@ -206,9 +215,10 @@ class Zesk_Settings extends Object implements Interface_Data {
 		$this->flush();
 		return $this;
 	}
-
+	
 	/**
 	 * (non-PHPdoc)
+	 *
 	 * @see Interface_Data::delete_data()
 	 */
 	public function delete_data($name) {

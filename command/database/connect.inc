@@ -12,15 +12,31 @@ class Command_Database_Connect extends Command {
 	protected $option_types = array(
 		'name' => 'string',
 		'echo' => 'boolean',
+		'list' => 'boolean',
+		'show-passwords' => 'boolean',
 		'force' => 'boolean'
 	);
 	protected $option_help = array(
 		'name' => 'Database code name to connect to',
 		'echo' => 'Output the connection command instead of running it',
+		'list' => 'Output the list of',
 		'force' => 'Force command execution even on failure'
 	);
 	function run() {
-		$db = Database::factory($this->option('name'));
+		$name = $this->option('name');
+		if ($this->option_bool("list")) {
+			$db = Database::register();
+			if ($name) {
+				if (array_key_exists($name, $db)) {
+					echo $db[$name] . "\n";	
+				} else {
+					$this->error("{name} not found", compact("name"));
+				}
+			}
+			echo text::format_pairs($db);
+			return 0;
+		}
+		$db = Database::factory($name);
 		list($command, $args) = $db->shell_command($this->options);
 
 		if (zesk::getb('debug.db-connect')) {
@@ -37,5 +53,6 @@ class Command_Database_Connect extends Command {
 			$method = 'pcntl_exec';
 			$method($full_command_path, $args);
 		}
+		return 0;
 	}
 }

@@ -1045,6 +1045,11 @@ abstract class Command extends Hookable {
 		$result = $this->hook_array("run_after", array(
 			$result
 		), $result);
+		if ($result === true) {
+			$result = 0;
+		} else if ($result === false) {
+			$result = -1;
+		}
 		assert(count(self::$commands) > 0);
 		array_pop(self::$commands);
 		return $result;

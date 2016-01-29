@@ -130,7 +130,10 @@ class Locale {
 	 * Hook "configured"
 	 */
 	public static function configured() {
-		self::current(zesk::get("Locale::default"));
+		$default = zesk::get("Locale::default");
+		if ($default) {
+			self::current($default);
+		}
 		$auto = \zesk::get1('zesk\Locale::auto;Locale::auto;lang::auto', false);
 		if (is_bool($auto) || $auto === self::language() || $auto === self::current()) {
 			self::$auto = $auto;
