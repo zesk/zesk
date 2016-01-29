@@ -8,32 +8,39 @@
  * @global boolean db-connect Set this global to alternate database
  * @aliases db-connect connect conn
  */
-class Command_Database_Connect extends Command {
+class Command_Database_Connect extends Command_Base {
 	protected $option_types = array(
 		'name' => 'string',
 		'echo' => 'boolean',
-		'list' => 'boolean',
+		'db-url' => 'boolean',
 		'show-passwords' => 'boolean',
-		'force' => 'boolean'
+		'force' => 'boolean',
+		'db-name' => 'boolean'
 	);
 	protected $option_help = array(
 		'name' => 'Database code name to connect to',
 		'echo' => 'Output the connection command instead of running it',
-		'list' => 'Output the database URLs',
+		'db-url' => 'Output the database URL or URLs',
+		'db-name' => 'Output the database name or names',
 		'force' => 'Force command execution even on failure'
 	);
 	function run() {
 		$name = $this->option('name');
-		if ($this->option_bool("list")) {
+		if ($this->option_bool("db-name") || $this->option_bool('db-url')) {
 			$db = Database::register();
 			if (!$this->option_bool("show-passwords")) {
 				foreach ($db as $name => $url) {
 					$db[$name] = url::remove_password($url);
 				}
 			}
+			if ($this->option_bool("db-name")) {
+				foreach ($db as $name => $url) {
+					$db[$name] = Database::url_parse($url, "name");
+				}
+			}
 			if ($name) {
 				if (array_key_exists($name, $db)) {
-					echo $db[$name] . "\n";	
+					echo $db[$name] . "\n";
 				} else {
 					$this->error("{name} not found", compact("name"));
 					return -1;
@@ -44,7 +51,7 @@ class Command_Database_Connect extends Command {
 		}
 		$db = Database::factory($name);
 		list($command, $args) = $db->shell_command($this->options);
-
+		
 		if (zesk::getb('debug.db-connect')) {
 			echo "$command " . implode(" ", $args) . "\n";
 		}
