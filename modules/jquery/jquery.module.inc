@@ -1,5 +1,5 @@
 <?php
 
-Module::register_paths();
+$application->module->register_paths();
 
-zesk::share_path(dirname(__FILE__) . '/share-tools', 'jquery-tools');
+$application->share_path(dirname(__FILE__) . '/share-tools', 'jquery-tools');
