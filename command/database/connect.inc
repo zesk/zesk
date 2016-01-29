@@ -26,11 +26,17 @@ class Command_Database_Connect extends Command {
 		$name = $this->option('name');
 		if ($this->option_bool("list")) {
 			$db = Database::register();
+			if (!$this->option_bool("show-passwords")) {
+				foreach ($db as $name => $url) {
+					$db[$name] = url::remove_password($url);
+				}
+			}
 			if ($name) {
 				if (array_key_exists($name, $db)) {
 					echo $db[$name] . "\n";	
 				} else {
 					$this->error("{name} not found", compact("name"));
+					return -1;
 				}
 			}
 			echo text::format_pairs($db);
