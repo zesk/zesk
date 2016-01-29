@@ -15,40 +15,30 @@ class Command_Database_Connect extends Command_Base {
 		'db-url' => 'boolean',
 		'show-passwords' => 'boolean',
 		'force' => 'boolean',
+		'test' => 'boolean',
 		'db-name' => 'boolean'
 	);
 	protected $option_help = array(
 		'name' => 'Database code name to connect to',
 		'echo' => 'Output the connection command instead of running it',
 		'db-url' => 'Output the database URL or URLs',
-		'db-name' => 'Output the database name or names',
-		'force' => 'Force command execution even on failure'
+		'force' => 'Force command execution even on failure',
+		'test' => 'Test to make sure all connections work',
+		'db-name' => 'Output the database name or names'
 	);
 	function run() {
-		$name = $this->option('name');
 		if ($this->option_bool("db-name") || $this->option_bool('db-url')) {
-			$db = Database::register();
-			if (!$this->option_bool("show-passwords")) {
-				foreach ($db as $name => $url) {
-					$db[$name] = url::remove_password($url);
-				}
-			}
-			if ($this->option_bool("db-name")) {
-				foreach ($db as $name => $url) {
-					$db[$name] = Database::url_parse($url, "name");
-				}
-			}
-			if ($name) {
-				if (array_key_exists($name, $db)) {
-					echo $db[$name] . "\n";
-				} else {
-					$this->error("{name} not found", compact("name"));
-					return -1;
-				}
-			}
-			echo text::format_pairs($db);
-			return 0;
+			return $this->handle_info();
 		}
+		if ($this->option_bool("test")) {
+			return $this->handle_test();
+		}
+		
+		if ($this->option_bool("grants")) {
+			return $this->handle_grants();
+		}
+		
+		$name = $this->option('name');
 		$db = Database::factory($name);
 		list($command, $args) = $db->shell_command($this->options);
 		
@@ -66,6 +56,55 @@ class Command_Database_Connect extends Command_Base {
 			$method = 'pcntl_exec';
 			$method($full_command_path, $args);
 		}
+		return 0;
+	}
+	private function handle_info() {
+		$name = $this->option('name');
+		$db = Database::register();
+		if (!$this->option_bool("show-passwords")) {
+			foreach ($db as $key => $url) {
+				$db[$key] = url::remove_password($url);
+			}
+		}
+		if ($this->option_bool("db-name")) {
+			foreach ($db as $key => $url) {
+				$db[$key] = Database::url_parse($url, "name");
+			}
+		}
+		if ($name) {
+			if (array_key_exists($name, $db)) {
+				echo $db[$name] . "\n";
+				return 0;
+			} else {
+				$this->error("{name} not found", compact("name"));
+				return -1;
+			}
+		}
+		echo text::format_pairs($db);
+		return 0;
+	}
+	private function handle_test() {
+		$db = Database::register();
+		foreach ($db as $name => $url) {
+			try {
+				Database::instance($name);
+				$db[$name] = true;
+			} catch (Exception $e) {
+				$db[$name] = false;
+			}
+		}
+		echo text::format_pairs($db);
+		return 0;
+	}
+	
+	/**
+	 * TODO
+	 */
+	private function handle_grants() {
+		$db = Database::register();
+		foreach ($db as $name => $url) {
+		}
+		echo text::format_pairs($db);
 		return 0;
 	}
 }

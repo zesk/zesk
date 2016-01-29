@@ -661,7 +661,10 @@ class Locale {
 		// 		if (self::language($locale) === self::language(ZESK_LOCALE_DEFAULT)) {
 		// 			return;
 		// 		}
-		$path = \zesk::get1('zesk\Locale::auto_path;Locale::auto_path;lang::auto_path', last(self::$paths));
+		$path = \zesk::get1('zesk\Locale::auto_path;Locale::auto_path;lang::auto_path');
+		if (!$path) {
+			return;
+		}
 		$formats = \arr::change_value_case(\to_list(\zesk::get1('zesk\Locale::formats;Locale::formats')));
 		$do_csv = in_array("csv", $formats);
 		

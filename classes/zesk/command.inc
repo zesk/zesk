@@ -332,7 +332,6 @@ class Zesk_Command {
 			$this->usage("Zesk not initialized correctly.\n\n    $arg\n\nmust contain reference to:\n\n    require_once '" . ZESK_ROOT . "zesk.inc';\n\n");
 		}
 		$this->zesk_loaded = true;
-		Module::internal('Log_Echo');
 		zesk::autoload_path(zesk::root('command'), array(
 			"class_prefix" => "command"
 		));

@@ -550,12 +550,14 @@ abstract class Command extends Hookable {
 		$newline = to_bool(avalue($arguments, "newline", true));
 		if (is_array($message)) {
 			$message = text::format_pairs($message);
+		} else {
+			$message = strval($message);
 		}
 		$message = map($message, $arguments);
-		// if ($newline && $message && $message[strlen($message) - 1] !== "\n") {
-		// $message .= "\n";
-		// }
-		log::notice($message);
+		if ($newline && $message && $message[strlen($message) - 1] !== "\n") {
+			$message .= "\n";
+		}
+		echo $message;
 	}
 	
 	/**
@@ -567,12 +569,12 @@ abstract class Command extends Hookable {
 		if (!$message) {
 			return;
 		}
-		log::error($message, $arguments);
 		if ($message instanceof Exception) {
 			$message = $message->__toString();
 		} else {
 			$message = map($message, $arguments);
 		}
+		fprintf(STDERR, "$message\n");
 		$this->errors[] = $message;
 	}
 	
@@ -583,7 +585,7 @@ abstract class Command extends Hookable {
 	 */
 	protected function debug_log($message, array $arguments = array()) {
 		if ($this->option_bool('debug') || $this->debug) {
-			log::debug($message, $arguments);
+			$this->log($message, $arguments);
 		}
 	}
 	
@@ -596,7 +598,7 @@ abstract class Command extends Hookable {
 	 */
 	function verbose_log($message, array $arguments = array(), $level = log::NOTICE) {
 		if ($this->option_bool('verbose')) {
-			log::send($message, $arguments, $level);
+			$this->log($message, $arguments);
 		}
 	}
 	
