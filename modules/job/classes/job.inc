@@ -30,7 +30,7 @@ class Job extends Object implements Process_Interruptable {
 	 *
 	 * @var Application
 	 */
-	private $application = null;
+	public $application = null;
 
 	/**
 	 * Hook should be a function like:
