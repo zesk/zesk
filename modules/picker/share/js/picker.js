@@ -129,7 +129,7 @@
 					var $this = $(this);
 					$this.addClass($this.hasClass('selected') ? 'selected-over' : 'unselected-over');
 				});
-				$results.on("mouseout.picker").on("mouseout.picker", function () {
+				$results.off("mouseout.picker").on("mouseout.picker", function () {
 					$(this).removeClass('selected-over unselected-over');
 				});
 				if (this.loaded) {
