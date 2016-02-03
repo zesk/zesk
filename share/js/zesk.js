@@ -1,5 +1,5 @@
 /*
- * $Id: zesk.js 3430 2015-10-26 17:01:59Z kent $
+ * $Id: zesk.js 3612 2016-02-02 23:38:16Z kent $
  *
  * Copyright (C) 2007 Market Acumen, Inc. All rights reserved
  */
@@ -51,25 +51,25 @@
 	X.avalue = avalue;
 
 	function is_bool(a) {
-		return typeof a === 'boolean';
+		return gettype(a) === 'boolean';
 	}
 	function is_numeric(a) {
-		return typeof a === "number";
+		return gettype(a) === "number";
 	}
 	function is_string(a) {
-		return typeof a === "string";
+		return gettype(a) === "string";
 	}
 	function is_array(a) {
-		return Object.prototype.toString.call(a) === '[object Array]';
+		return gettype(a) === 'array';
 	}
 	function is_object(a) {
-		return typeof a === "object" && !X.is_array(a);
+		return gettype(a) === 'object';
 	}
 	function is_integer(a) {
-		return typeof a === "number" && parseInt(a, 10) === a;
+		return is_numeric(a) && parseInt(a, 10) === a;
 	}
 	function is_function(a) {
-		return typeof a === "function";
+		return gettype(a) === "function";
 	}
 	function flip(object) {
 		var i, result = {};
