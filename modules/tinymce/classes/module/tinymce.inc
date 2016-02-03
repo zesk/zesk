@@ -6,9 +6,12 @@ class Module_TinyMCE extends Module_JSLib implements Module_Interface_Routes {
 		)
 	);
 	protected $tinymce_options = array(
+		'menubar' => null,
+		'relative_urls' => null,
 		'selector' => 'textarea',
 		'statusbar' => true,
 		'toolbar' => null,
+		'height' => null,
 		'plugins' => array(
 			"advlist",
 			"autolink",
@@ -30,26 +33,26 @@ class Module_TinyMCE extends Module_JSLib implements Module_Interface_Routes {
 			"paste"
 		)
 	);
-
+	
 	/**
 	 * Insertion menu
 	 *
 	 * @var array
 	 */
 	private $insertion_menus = array();
-
+	
 	/**
 	 *
 	 * @var string
 	 */
 	protected $tinymce_toolbar = "insertfile undo redo | styleselect | bold italic | alignleft aligncenter alignright alignjustify | bullist numlist outdent indent | link image";
-
+	
 	/**
 	 *
 	 * @var array
 	 */
 	private $setup_js = array();
-
+	
 	/**
 	 * Spelling dictionaries
 	 *
@@ -65,7 +68,6 @@ class Module_TinyMCE extends Module_JSLib implements Module_Interface_Routes {
 		$this->update_options();
 		return parent::hook_head($request, $response, $template);
 	}
-
 	public function hook_routes(Router $router) {
 		$router->add_route('tinymce/spellchecker', array(
 			'method' => array(
@@ -78,7 +80,6 @@ class Module_TinyMCE extends Module_JSLib implements Module_Interface_Routes {
 			)
 		));
 	}
-
 	public function action_spellchecker(Request $request, Response $response) {
 		$params = $request->geta('params');
 		if (!is_array($params)) {
@@ -95,7 +96,7 @@ class Module_TinyMCE extends Module_JSLib implements Module_Interface_Routes {
 			));
 			return;
 		}
-
+		
 		if (!array_key_exists($lang, $this->spellers)) {
 			$this->spellers[$lang] = pspell_new($lang);
 		}
@@ -119,9 +120,9 @@ class Module_TinyMCE extends Module_JSLib implements Module_Interface_Routes {
 	/**
 	 */
 	protected function hook_configured() {
-		$this->tinymce_options = $this->option() + $this->tinymce_options;
+		$this->tinymce_options = $this->options_include(array_keys($this->tinymce_options)) + $this->tinymce_options;
 	}
-
+	
 	/**
 	 */
 	public function hook_ready() {
@@ -159,13 +160,15 @@ class Module_TinyMCE extends Module_JSLib implements Module_Interface_Routes {
 	 * @return string
 	 */
 	public function jquery_ready() {
-		return 'tinymce.init(' . json::encodex($this->tinymce_options) . ');';
+		$debug = "";
+		//$debug = "/* " . _backtrace() . "*/";
+		return $debug . 'tinymce.init(' . json::encodex(arr::clean($this->tinymce_options, null)) . ');';
 	}
-
+	
 	/**
 	 *
-	 * @param array $set
-	 * @param string $append
+	 * @param array $set        	
+	 * @param string $append        	
 	 * @return Module_TinyMCE multitype:string NULL multitype:string
 	 */
 	public function tinymce_options(array $set = null, $append = true) {
@@ -221,6 +224,6 @@ class Module_TinyMCE extends Module_JSLib implements Module_Interface_Routes {
 		}
 		$this->tinymce_options['*setup'] = 'function (editor) {' . implode("\n", $js) . "}";
 		$this->tinymce_options['toolbar'] = $this->tinymce_toolbar;
-		$this->jquery_ready[] = $this->jquery_ready();
+		$this->hook_ready();
 	}
 }
