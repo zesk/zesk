@@ -1071,9 +1071,6 @@ function parse_time($ts) {
 	}
 	$x = @strtotime($ts);
 	if ($x < 0 || $x === false) {
-		if (zesk::development()) {
-			error_log("Can't parse $ts: " . _backtrace(false));
-		}
 		return null;
 	}
 	return $x;
