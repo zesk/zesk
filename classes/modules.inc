@@ -674,6 +674,7 @@ class Modules {
 	 */
 	public final function all_hook_array($hook, array $arguments, $default = null, $hook_callback = null, $result_callback = null) {
 		$result = array();
+		// Static version of the hook, deprecated TODO
 		$result = zesk::all_hook_array("Module::$hook", $arguments, $default, $hook_callback, $result_callback);
 		foreach ($this->modules as $name => $data) {
 			if (!array_key_exists('module', $data)) {
