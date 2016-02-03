@@ -276,6 +276,10 @@ class Command_Update extends Command_Base {
 		$composer = null;
 		extract($data, EXTR_IF_EXISTS);
 		
+		if (!is_array($composer)) {
+			log::error("Composer value is not an array: {composer}\ndata: {data}", compact("composer", "data"));
+			return;
+		}
 		$composer_command = $this->composer_command();
 		if (arr::has($composer, "require")) {
 			$requires = to_list($composer['require']);
