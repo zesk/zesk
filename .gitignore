@@ -6,3 +6,4 @@ cache/
 vendor/
 *-min.js
 *.codekit
+share/js/zesk.min.js
