@@ -7,19 +7,20 @@
  * @author kent
  */
 class Command_Cron extends Command_Base {
-
 	protected $help = "Run zesk cron hooks";
-
 	protected $option_types = array(
 		'list' => 'boolean'
 	);
 	protected $option_help = array(
 		'list' => 'List cron functions which would be run'
 	);
-
 	function run() {
 		/* @var $cron Module_Cron */
-		$cron = Module::object("cron");
+		$cron = $this->application->module->object("cron");
+		if (!$cron) {
+			$this->error("Cron module is not enabled");
+			return 1;
+		}
 		if ($this->option_bool('list')) {
 			$list_status = $cron->list_status();
 			echo text::format_pairs($list_status);
@@ -33,5 +34,4 @@ class Command_Cron extends Command_Base {
 		}
 		return 0;
 	}
-
 }
