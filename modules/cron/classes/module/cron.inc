@@ -95,7 +95,7 @@ class Module_Cron extends Module {
 	}
 	/**
 	 * Hook Module::settings
-	 * 
+	 *
 	 * @return array
 	 */
 	public function hook_settings() {
@@ -126,7 +126,7 @@ class Module_Cron extends Module {
 	/**
 	 * Hook Module::routes
 	 * Add desired routes to Router $router
-	 * 
+	 *
 	 * @param Router $router
 	 *        	Current router
 	 *        	
@@ -220,7 +220,7 @@ class Module_Cron extends Module {
 			$status = $now->difference($last_run, "second") > 0;
 			$cron_hooks = self::_cron_hooks($method);
 			$hooks = zesk::find_all_hooks($cron_hooks);
-			$hooks = array_merge($hooks, Module::all_hook_list($method));
+			$hooks = array_merge($hooks, $this->application->module->all_hook_list($method));
 			foreach ($hooks as $hook) {
 				$results[zesk::callable_string($hook)] = $status;
 			}
@@ -228,7 +228,7 @@ class Module_Cron extends Module {
 				$last_unit_run = self::_last_cron_run($state, $unit);
 				$status = $now->difference($last_unit_run, $unit) > 0;
 				$unit_hooks = arr::suffix($cron_hooks, "_$unit");
-				$hooks = Module::all_hook_list($method . "_${unit}");
+				$hooks = $this->application->module->all_hook_list($method . "_${unit}");
 				$hooks = array_merge($hooks, zesk::find_all_hooks($unit_hooks));
 				foreach ($hooks as $hook) {
 					$results[zesk::callable_string($hook)] = $status;
@@ -270,6 +270,9 @@ class Module_Cron extends Module {
 			$this,
 			"_hook_callback"
 		);
+		$cron_arguments = array(
+			$this->application
+		);
 		foreach ($scopes as $method => $settings) {
 			$state = $settings['state'];
 			/* @var $state Interface_Data */
@@ -280,17 +283,12 @@ class Module_Cron extends Module {
 				if ($now->difference($last_run, "second")) {
 					self::_cron_ran($state, null, $now);
 					try {
-						zesk::all_hook_array($cron_hooks, array(), null, $callback);
+						zesk::all_hook_array($cron_hooks, $cron_arguments, null, $callback);
 					} catch (Exception $e) {
 						$this->_exception($e, $cron_hooks);
 					}
 					try {
-						zesk::all_hook_array($cron_hooks, array(), null, $callback);
-					} catch (Exception $e) {
-						$this->_exception($e, $cron_hooks);
-					}
-					try {
-						Module::all_hook_array($method, array(), null, $callback);
+						$this->application->module->all_hook_array($method, array(), null, $callback);
 					} catch (Exception $e) {
 						$this->_exception($e, "Module::$method");
 					}
@@ -305,13 +303,13 @@ class Module_Cron extends Module {
 						self::_cron_ran($state, $unit, $now);
 						$unit_hooks = $method . "_$unit";
 						try {
-							Module::all_hook_array($method . "_$unit", array(), null, $callback);
+							$unit_hooks = arr::suffix($cron_hooks, "_$unit");
+							zesk::all_hook_array($unit_hooks, $cron_arguments, null, $callback);
 						} catch (Exception $e) {
 							$this->_exception($e, $unit_hooks);
 						}
 						try {
-							$unit_hooks = arr::suffix($cron_hooks, "_$unit");
-							zesk::all_hook_array($unit_hooks, array(), null, $callback);
+							$this->application->module->all_hook_array($method . "_$unit", array(), null, $callback);
 						} catch (Exception $e) {
 							$this->_exception($e, $unit_hooks);
 						}
@@ -324,7 +322,7 @@ class Module_Cron extends Module {
 	
 	/**
 	 * Run cron from a JavaScript request
-	 * 
+	 *
 	 * @return string
 	 */
 	public function run_js() {
@@ -342,7 +340,7 @@ class Module_Cron extends Module {
 	
 	/**
 	 * Is cron running?
-	 * 
+	 *
 	 * @return boolean
 	 */
 	public static function running() {
@@ -351,7 +349,7 @@ class Module_Cron extends Module {
 	
 	/**
 	 * Run cron
-	 * 
+	 *
 	 * @return boolean
 	 */
 	public function run() {
