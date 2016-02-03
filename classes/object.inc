@@ -12,14 +12,16 @@
  * generally stored in a database.
  *
  * Subclasses may specify model settings as protected variables as described below, but this method
- * is deprecated in favor of defining a distinct Class_Object subclass to define members and structure.
+ * is deprecated in favor of defining a distinct Class_Object subclass to define members and
+ * structure.
  *
  * @see Class_Object
  */
 abstract class Object extends Model {
 	/**
 	 * Boolean value which affects Object::is_new() and Object::register() which will not depend
-	 * on the auto_column's presence to determine if an Object is new or not. Will actually check
+	 * on the auto_column's presence to determine if an Object is new or not.
+	 * Will actually check
 	 * the database. Allows you to have objects which normally would be created via auto-increment
 	 * but instead allows you to create them specifically by ID. Usually used temporarily.
 	 *
@@ -29,17 +31,19 @@ abstract class Object extends Model {
 	 * @var string
 	 */
 	const option_ignore_auto_column = "ignore_auto_column";
-
+	
 	/**
 	 * Previous call resulted in a new object retrieved from the database which exists
+	 * 
 	 * @see Object::register
 	 * @see Object::fetch_if_exists
 	 * @var string
 	 */
 	const status_exists = "exists";
-
+	
 	/**
 	 * Previous call resulted in the saving of the existing object in the database
+	 * 
 	 * @see Object::register
 	 * @see Object::fetch_if_exists
 	 * @var string
@@ -47,18 +51,27 @@ abstract class Object extends Model {
 	const status_insert = "insert";
 	/**
 	 * Previous call failed or has an unknown result
+	 * 
 	 * @see Object::register
 	 * @see Object::fetch_if_exists
 	 * @var string
 	 */
 	const status_unknown = "failed";
-
+	
 	/**
 	 * Object debugging
 	 *
 	 * @var boolean
 	 */
 	static $debug = false;
+	
+	/**
+	 * Global state
+	 *
+	 * @var Application
+	 */
+	public $application = null;
+	
 	/**
 	 * Initialize this value to an alternate object class name if you want more than one object to
 	 * be represented by the same table or class configuration.
@@ -73,25 +86,25 @@ abstract class Object extends Model {
 	 * @var Class_Object
 	 */
 	protected $class = null;
-
+	
 	/**
 	 * The leaf polymorphic class goes here
 	 *
 	 * @var string
 	 */
 	protected $polymorphic_leaf = null;
-
+	
 	/**
 	 * Database name where this object resides.
 	 * If not specified, the default database.
 	 * <code>
-	 * protected	$database = "tracker";
+	 * protected $database = "tracker";
 	 * </code>
 	 *
 	 * @var string
 	 */
 	protected $database_name = null;
-
+	
 	/**
 	 * Database object
 	 * If not specified, the default database.
@@ -99,78 +112,78 @@ abstract class Object extends Model {
 	 * @var Database
 	 */
 	private $database = null;
-
+	
 	/**
 	 * Database table name
 	 * <code>
-	 * protected	$table = "TArticleComment";
+	 * protected $table = "TArticleComment";
 	 * </code>
 	 *
 	 * @var string
 	 */
 	protected $table = null;
-
+	
 	/**
 	 * When is_new requires a database query, cache it here
 	 *
 	 * @var boolean
 	 */
 	private $is_new_cached = null;
-
+	
 	/**
 	 * When storing, set to true to avoid loops
 	 *
 	 * @var boolean
 	 */
 	protected $storing = false;
-
+	
 	/**
 	 * Members of this object
 	 *
 	 * @var array
 	 */
 	protected $members = array();
-
+	
 	/**
 	 * List of things to do when storing
 	 *
 	 * @var array
 	 */
 	private $store_queue = array();
-
+	
 	/**
 	 * Does this object need to be loaded from the database?
 	 *
 	 * @var boolean
 	 */
 	private $need_load = true;
-
+	
 	/**
 	 * Array of columns which I can store
 	 */
 	private $store_columns;
-
+	
 	/**
 	 * Result of register call
 	 *
 	 * @var string
 	 */
 	private $status = null;
-
+	
 	/**
 	 * When members is loaded, this is a copy to determine if changes have occurred.
 	 *
 	 * @var array
 	 */
 	private $original;
-
+	
 	/**
 	 * Cache stack
 	 *
 	 * @var array
 	 */
 	private $cache_stack = null;
-
+	
 	/**
 	 * Retrieve user-configurable settings for this object
 	 *
@@ -211,22 +224,25 @@ abstract class Object extends Model {
 		}
 		return $object->_polymorphic();
 	}
-
+	
 	/**
 	 * Create a new object
 	 *
-	 * @param mixed $mixed Initializing value; either an id or an array of member names => values.
-	 * @param array $options List of Options to set before initialization
+	 * @param mixed $mixed
+	 *        	Initializing value; either an id or an array of member names => values.
+	 * @param array $options
+	 *        	List of Options to set before initialization
 	 */
 	function __construct($mixed = null, $options = false) {
 		parent::__construct(null, $options);
+		$this->application = Application::instance();
 		$this->inherit_global_options();
 		$this->initialize_specification();
 		$this->members = $this->class->column_defaults;
 		$this->initialize($mixed, $this->option('initialize'));
 		$this->set_option('initialize');
 	}
-
+	
 	/**
 	 * Sleep functionality
 	 */
@@ -235,7 +251,7 @@ abstract class Object extends Model {
 			"members"
 		), parent::__sleep());
 	}
-
+	
 	/**
 	 * Not sure why we're doing this; perhaps to force cyclical structures from being destroyed,
 	 * clean up memory references? KMD
@@ -252,30 +268,31 @@ abstract class Object extends Model {
 	 * Wakeup functionality
 	 */
 	public function __wakeup() {
+		$this->application = Application::instance();
 		$this->initialize_specification();
 		$this->initialize($this->members, 'raw');
 	}
-
+	
 	/**
 	 * Retrieve an option from the class
 	 *
-	 * @param string $name
-	 * @param mixed $default
+	 * @param string $name        	
+	 * @param mixed $default        	
 	 * @return mixed
 	 */
 	public function class_option($name, $default = null) {
 		return $this->class->option($name, $default);
 	}
-
+	
 	/**
-	 * Retrieve the Class_Object associated with this object. Often matches "Class_" . get_class($this), but not always.
+	 * Retrieve the Class_Object associated with this object.
+	 * Often matches "Class_" . get_class($this), but not always.
 	 *
 	 * @return Class_Object
 	 */
 	public function class_object() {
 		return $this->class;
 	}
-
 	function variables() {
 		return $this->members() + array(
 			"Class_Object::name" => $class_name = __($this->class->name),
@@ -286,7 +303,7 @@ abstract class Object extends Model {
 			"Object::class" => get_class($this)
 		);
 	}
-
+	
 	/**
 	 *
 	 * @param $mixed mixed
@@ -298,7 +315,7 @@ abstract class Object extends Model {
 	public function get($mixed = null, $default = null) {
 		return $this->has($mixed) ? $this->__get($mixed) : $default;
 	}
-
+	
 	/**
 	 *
 	 * @param $mixed mixed
@@ -317,7 +334,7 @@ abstract class Object extends Model {
 		}
 		return $this;
 	}
-
+	
 	/**
 	 * Retrieve object instance based on class name
 	 *
@@ -347,7 +364,7 @@ abstract class Object extends Model {
 		}
 		return null;
 	}
-
+	
 	/**
 	 * Retrieve a blank object.
 	 * Useful for retrieving class specification information
@@ -359,7 +376,7 @@ abstract class Object extends Model {
 	public static function cached($class) {
 		return self::cache_class($class, "object");
 	}
-
+	
 	/**
 	 * Retrieve a list of class dependencies for this object
 	 */
@@ -378,10 +395,10 @@ abstract class Object extends Model {
 				$result['requires'][] = $link_class;
 			}
 		}
-
+		
 		return $result;
 	}
-
+	
 	/**
 	 * Initialize per-object settings
 	 */
@@ -407,19 +424,19 @@ abstract class Object extends Model {
 		$this->store_queue = array();
 		$this->original = array();
 	}
-
+	
 	/**
 	 * Clean a code name to be without spaces or special characters
 	 *
 	 * @see self::clean_code_name
-	 * @param string $name
+	 * @param string $name        	
 	 */
 	static public function clean_code_name($name) {
 		$codename = preg_replace('|[\s/]+|', "-", strtolower(trim($name)));
 		$codename = preg_replace("/[^-A-Za-z0-9]/", "", $codename);
 		return $codename;
 	}
-
+	
 	/**
 	 * Retrieve a cache attached to this object only
 	 *
@@ -439,7 +456,7 @@ abstract class Object extends Model {
 		}
 		return $cache;
 	}
-
+	
 	/**
 	 *
 	 * @return Database_Schema
@@ -447,14 +464,15 @@ abstract class Object extends Model {
 	final public function database_schema() {
 		return $this->class->database_schema($this);
 	}
-
+	
 	/**
+	 *
 	 * @return Database_Schema
 	 */
 	function schema() {
 		return $this->class->schema($this);
 	}
-
+	
 	/**
 	 * Are the fields in this object determined dynamically?
 	 *
@@ -463,7 +481,7 @@ abstract class Object extends Model {
 	public function dynamic_columns() {
 		return $this->class->dynamic_columns;
 	}
-
+	
 	/**
 	 * Call when the schema of an object has changed and needs to be refreshed
 	 */
@@ -472,11 +490,11 @@ abstract class Object extends Model {
 			$this->class->init_columns();
 		}
 	}
-
+	
 	/**
 	 * Load a cached version of this class
 	 *
-	 * @param string $class
+	 * @param string $class        	
 	 * @param string $component
 	 *        	Optional component to return (usually "table", "dbname", "object", "class"
 	 * @return Class_Object|mixed
@@ -484,18 +502,18 @@ abstract class Object extends Model {
 	static function cache_class($class, $component = "") {
 		return Class_Object::cache($class, $component);
 	}
-
+	
 	/**
 	 * Retrieve a cached object instance.
 	 * Do not edit, please.
 	 *
-	 * @param $class string
+	 * @param $class string        	
 	 * @return Object
 	 */
 	public static function cache_object($class) {
 		return self::cache_class($class, "object");
 	}
-
+	
 	/**
 	 * Cache object data
 	 */
@@ -511,7 +529,7 @@ abstract class Object extends Model {
 			return $this;
 		}
 	}
-
+	
 	/**
 	 * Cache object data
 	 */
@@ -539,11 +557,11 @@ abstract class Object extends Model {
 		$key = array_pop($this->cache_stack);
 		return $this->cache($key, $content);
 	}
-
+	
 	/**
 	 * Retrieve the table for an object by class name
 	 *
-	 * @param $class string
+	 * @param $class string        	
 	 * @param $mixed mixed
 	 *        	Initialize the object with this (for dynamic tables)
 	 * @param $options mixed
@@ -557,11 +575,11 @@ abstract class Object extends Model {
 		}
 		return self::cache_class($class, "table");
 	}
-
+	
 	/**
 	 * Retrieve the id column for an object by class name
 	 *
-	 * @param $class string
+	 * @param $class string        	
 	 * @param $mixed mixed
 	 *        	Initialize the object with this (for dynamic tables)
 	 * @param $options mixed
@@ -572,11 +590,11 @@ abstract class Object extends Model {
 		$object = self::cache_class($class, "object");
 		return $object->id_column();
 	}
-
+	
 	/**
 	 * Retrieve the id column for an object by class name
 	 *
-	 * @param $class string
+	 * @param $class string        	
 	 * @param $mixed mixed
 	 *        	Initialize the object with this (for dynamic tables)
 	 * @param $options mixed
@@ -587,11 +605,11 @@ abstract class Object extends Model {
 		$object = self::cache_class($class, "object");
 		return $object->primary_keys();
 	}
-
+	
 	/**
 	 * Retrieve the columns for a class
 	 *
-	 * @param $class string
+	 * @param $class string        	
 	 * @param $mixed mixed
 	 *        	Initialize the object with this (for dynamic tables)
 	 * @param $options mixed
@@ -606,22 +624,22 @@ abstract class Object extends Model {
 		$object = self::cache_class($class, "object");
 		return $object->columns();
 	}
-
+	
 	/**
 	 * Retrieve the database associated with a class
 	 *
-	 * @param string $class
+	 * @param string $class        	
 	 */
 	public static function class_database($class) {
 		/* @var $class Class_Object */
 		$class = self::cache_class($class, "class");
 		return $class->database();
 	}
-
+	
 	/**
 	 * Retrieve the query object for an object by class name
 	 *
-	 * @param $class string
+	 * @param $class string        	
 	 * @return Database_Query_Select
 	 */
 	public static function class_query($class, $alias = null) {
@@ -629,11 +647,11 @@ abstract class Object extends Model {
 		$object = self::cache_class($class, "object");
 		return $object->query($alias);
 	}
-
+	
 	/**
 	 * Retrieve the query object for an object by class name
 	 *
-	 * @param $class string
+	 * @param $class string        	
 	 * @return Database_Query_Insert
 	 */
 	public static function class_query_insert($class) {
@@ -641,11 +659,11 @@ abstract class Object extends Model {
 		$object = self::cache_class($class, "object");
 		return $object->query_insert();
 	}
-
+	
 	/**
 	 * Retrieve the query object for an object by class name
 	 *
-	 * @param $class string
+	 * @param $class string        	
 	 * @return Database_Query_Insert_Select
 	 */
 	public static function class_query_insert_select($class) {
@@ -653,11 +671,11 @@ abstract class Object extends Model {
 		$object = self::cache_class($class, "object");
 		return $object->query_insert_select();
 	}
-
+	
 	/**
 	 * Retrieve the query object for an object by class name
 	 *
-	 * @param $class string
+	 * @param $class string        	
 	 * @return Database_Query_Update
 	 */
 	public static function class_query_update($class, $alias = null) {
@@ -665,11 +683,11 @@ abstract class Object extends Model {
 		$object = self::cache_class($class, "object");
 		return $object->query_update($alias);
 	}
-
+	
 	/**
 	 * Retrieve the query object for an object by class name
 	 *
-	 * @param $class string
+	 * @param $class string        	
 	 * @return Database_Query_Delete
 	 */
 	public static function class_query_delete($class) {
@@ -677,7 +695,7 @@ abstract class Object extends Model {
 		$object = self::cache_class($class, "object");
 		return $object->query_delete();
 	}
-
+	
 	/**
 	 *
 	 * @return Database
@@ -688,7 +706,7 @@ abstract class Object extends Model {
 		}
 		return $this->database = Database::factory($this->database_name);
 	}
-
+	
 	/**
 	 *
 	 * @return Database_SQL
@@ -696,11 +714,11 @@ abstract class Object extends Model {
 	function sql() {
 		return $this->database()->sql();
 	}
-
+	
 	/**
 	 * Determine if a class table exists
 	 *
-	 * @param $class string
+	 * @param $class string        	
 	 * @return boolean
 	 */
 	public static function class_table_exists($class) {
@@ -713,7 +731,7 @@ abstract class Object extends Model {
 	public function table_exists() {
 		return $this->database()->table_exists($this->table());
 	}
-
+	
 	/**
 	 * Default implementation of the object name
 	 */
@@ -727,7 +745,7 @@ abstract class Object extends Model {
 	public final function name_column() {
 		return $this->class->name_column;
 	}
-
+	
 	/**
 	 *
 	 * @return string or null
@@ -739,7 +757,7 @@ abstract class Object extends Model {
 		}
 		return false;
 	}
-
+	
 	/**
 	 *
 	 * @return multitype:
@@ -750,7 +768,7 @@ abstract class Object extends Model {
 	public final function duplicate_keys() {
 		return $this->class->duplicate_keys;
 	}
-
+	
 	/**
 	 * Returns valid member names for this database table
 	 *
@@ -761,7 +779,7 @@ abstract class Object extends Model {
 	function member_names() {
 		return $this->class->member_names();
 	}
-
+	
 	/**
 	 * Return just database columns for this object
 	 *
@@ -770,7 +788,7 @@ abstract class Object extends Model {
 	function columns() {
 		return array_keys($this->class->column_types);
 	}
-
+	
 	/**
 	 * Name of this object's class (where is this used?)
 	 *
@@ -801,7 +819,7 @@ abstract class Object extends Model {
 	function class_code_name() {
 		return $this->class->code_name;
 	}
-
+	
 	/**
 	 *
 	 * @return boolean
@@ -809,7 +827,7 @@ abstract class Object extends Model {
 	function utc_timestamps() {
 		return $this->class->utc_timestamps;
 	}
-
+	
 	/**
 	 * Select the current database if needed
 	 */
@@ -820,7 +838,7 @@ abstract class Object extends Model {
 		}
 		return $db->select_database();
 	}
-
+	
 	/**
 	 * Ensure this object is loaded from database if needed
 	 */
@@ -830,13 +848,13 @@ abstract class Object extends Model {
 		}
 		$this->need_load = false;
 	}
-
+	
 	/**
 	 * Object initialization; when creating an object this should be called using two methods: An
 	 * integer ID for this
 	 * object, or an array of populated values
 	 *
-	 * @param $mixed mixed
+	 * @param $mixed mixed        	
 	 * @return Object
 	 */
 	function initialize($mixed, $initialize = false) {
@@ -873,7 +891,7 @@ abstract class Object extends Model {
 		$this->hook("initialized");
 		return $this;
 	}
-
+	
 	/**
 	 * Is this a new object, or not?
 	 *
@@ -899,7 +917,7 @@ abstract class Object extends Model {
 				'tables' => $this->table(),
 				'where' => $where
 			));
-
+			
 			$this->is_new_cached = !to_bool($this->database()->query_integer($sql, "X"));
 			return $this->is_new_cached;
 		}
@@ -955,7 +973,7 @@ abstract class Object extends Model {
 		if ($set === null) {
 			return $this->members($pk);
 		}
-
+		
 		/**
 		 * Passing a string or list of values to load
 		 */
@@ -995,14 +1013,14 @@ abstract class Object extends Model {
 			$this->set($set);
 			return $this;
 		}
-
+		
 		throw new Exception_Semantics("{class}::id(\"{value}\" {type}) unknown parameter: ", array(
 			"class" => get_class($this),
 			"value" => _dump($set),
 			"type" => type($set)
 		));
 	}
-
+	
 	/**
 	 * Returns name of the database used by this object
 	 *
@@ -1012,11 +1030,11 @@ abstract class Object extends Model {
 	function database_name() {
 		return $this->database_name;
 	}
-
+	
 	/**
 	 * Retrieve a query for the current object
 	 *
-	 * @param $alias string
+	 * @param $alias string        	
 	 * @return Database_Query_Select
 	 */
 	function query($alias = null) {
@@ -1027,7 +1045,7 @@ abstract class Object extends Model {
 		}
 		return $query->from($this->table(), $alias)->what(null, $db->sql()->column_alias("*", $alias));
 	}
-
+	
 	/**
 	 * Create an insert query for this object
 	 *
@@ -1038,7 +1056,7 @@ abstract class Object extends Model {
 		$query->object_class(get_class($this));
 		return $query->into($this->table())->valid_columns($this->columns());
 	}
-
+	
 	/**
 	 * Create an insert -> select query for this object
 	 *
@@ -1050,7 +1068,7 @@ abstract class Object extends Model {
 		$query->from($this->table(), $alias);
 		return $query->into($this->table());
 	}
-
+	
 	/**
 	 * Create an update query for this object
 	 *
@@ -1060,7 +1078,7 @@ abstract class Object extends Model {
 		$query = new Database_Query_Update($this->database());
 		return $query->object_class(get_class($this))->table($this->table(), $alias)->valid_columns($this->columns(), $alias);
 	}
-
+	
 	/**
 	 * Create an delete query for this object
 	 *
@@ -1072,11 +1090,11 @@ abstract class Object extends Model {
 		$query->object_class(get_class($this));
 		return $query;
 	}
-
+	
 	/**
 	 * Retrieve an iterator for the current object
 	 *
-	 * @param $alias string
+	 * @param $alias string        	
 	 * @return Object_Iterator
 	 */
 	function iterator(Database_Query_Select $query, $options = null) {
@@ -1086,7 +1104,7 @@ abstract class Object extends Model {
 		$iterator = new Object_Iterator(get_class($this), $query, $this->inherit_options() + $options);
 		return $iterator;
 	}
-
+	
 	/**
 	 * Iterate on an object's member
 	 *
@@ -1118,7 +1136,7 @@ abstract class Object extends Model {
 		}
 		return $iterator;
 	}
-
+	
 	/**
 	 * Create a query for an object's member
 	 *
@@ -1131,10 +1149,10 @@ abstract class Object extends Model {
 	public function member_query($member, &$object = null) {
 		return $this->class->member_query($this, $member, $object);
 	}
-
+	
 	/**
 	 *
-	 * @param unknown $member
+	 * @param unknown $member        	
 	 */
 	private function member_foreign_list($member) {
 		if ($this->is_new()) {
@@ -1197,7 +1215,6 @@ abstract class Object extends Model {
 		// should not be inherited.
 		return $this->options_exclude("class_object");
 	}
-
 	protected function original($member = null, $default = null) {
 		if ($member === null) {
 			return $this->original;
@@ -1208,21 +1225,24 @@ abstract class Object extends Model {
 		$this->members = $save;
 		return $result;
 	}
-
+	
 	/**
 	 * Override in subclasses to get special behavior
 	 *
-	 * @param string $member Name of the member we are fetching
-	 *
-	 * @param string $class Class of member
-	 * @param string $data Current data stored in member
-	 * @param array $options Options to create when creating object
+	 * @param string $member
+	 *        	Name of the member we are fetching
+	 *        	
+	 * @param string $class
+	 *        	Class of member
+	 * @param string $data
+	 *        	Current data stored in member
+	 * @param array $options
+	 *        	Options to create when creating object
 	 * @return Object|null
 	 */
 	protected function member_object_factory($member, $class, $data, $options = false) {
 		return Object::factory($class, $data, $options)->fetch();
 	}
-
 	final protected function member_object($member, $options = false) {
 		$this->refresh();
 		$data = aevalue($this->members, $member);
@@ -1394,7 +1414,7 @@ abstract class Object extends Model {
 		}
 		return false;
 	}
-
+	
 	/**
 	 * Retrieve a member as a boolean value
 	 *
@@ -1408,7 +1428,7 @@ abstract class Object extends Model {
 		$this->refresh();
 		return to_bool(avalue($this->members, $member), $def);
 	}
-
+	
 	/**
 	 * Retrieve a member as a timestamp value
 	 *
@@ -1426,7 +1446,7 @@ abstract class Object extends Model {
 		}
 		return Timestamp::factory($value);
 	}
-
+	
 	/**
 	 * Retrieve a member as an integer
 	 *
@@ -1447,7 +1467,7 @@ abstract class Object extends Model {
 		}
 		return $def;
 	}
-
+	
 	/**
 	 * Retrieve a member of this object
 	 *
@@ -1461,13 +1481,13 @@ abstract class Object extends Model {
 		$this->refresh();
 		return avalue($this->members, $member, $def);
 	}
-
+	
 	/**
 	 * Getter/setter for serialized array attached to an object
 	 *
-	 * @param string $member
-	 * @param string $mixed
-	 * @param string $value
+	 * @param string $member        	
+	 * @param string $mixed        	
+	 * @param string $value        	
 	 * @return Object|mixed
 	 */
 	public function member_data($member, $mixed = null, $value = null) {
@@ -1489,7 +1509,7 @@ abstract class Object extends Model {
 		}
 		return $this->member($member);
 	}
-
+	
 	/**
 	 * Have any of the members given changed in this object?
 	 *
@@ -1511,20 +1531,21 @@ abstract class Object extends Model {
 		}
 		return false;
 	}
-
+	
 	/**
 	 * Did anything change in this object? If no parameters are passed, determines if any
 	 * database member has changed.
 	 *
 	 * Does not include changes to Object members other than ID changes.
 	 *
-	 * @param list $members List of members to test for changes
+	 * @param list $members
+	 *        	List of members to test for changes
 	 * @return boolean
 	 */
 	function changed($members = null) {
 		return $this->members_changed($members === null ? $this->columns() : $members);
 	}
-
+	
 	/**
 	 * Retrieve the changes to this object as an array of member => array("old value", "new value")
 	 *
@@ -1557,13 +1578,13 @@ abstract class Object extends Model {
 		$temp_data = arr::filter($this->members, $mixed);
 		return $temp_data;
 	}
-
+	
 	/**
 	 * Returns true if the member is empty
 	 * For multiple members, returns true if ANY member is empty
 	 * For multiple members, returns false if no members are passed in
 	 *
-	 * @param mixed $member
+	 * @param mixed $member        	
 	 * @return boolean
 	 */
 	function member_is_empty($member) {
@@ -1578,29 +1599,29 @@ abstract class Object extends Model {
 		$d = $this->member($member, null);
 		return empty($d);
 	}
-
+	
 	/**
 	 * Complex setter
 	 *
 	 * Delete a value from the data:
 	 *
-	 *     $object->set_member_serial("data", "name", null);
+	 * $object->set_member_serial("data", "name", null);
 	 *
 	 * Set a value to the data (must serialize properly within Zesk)
 	 *
-	 *     $object->set_member_serial("data", "name", $value);
+	 * $object->set_member_serial("data", "name", $value);
 	 *
 	 * Overwrite multiple data elemets:
 	 *
-	 *     $object->set_member_serial("data", array("name1" => $value1, "name2" => $value2));
+	 * $object->set_member_serial("data", array("name1" => $value1, "name2" => $value2));
 	 *
 	 * Set multiple data elemets only if they are not set already:
 	 *
-	 *     $object->set_member_serial("data", array("name1" => $value1, "name2" => $value2), false);
+	 * $object->set_member_serial("data", array("name1" => $value1, "name2" => $value2), false);
 	 *
-	 * @param string $member
-	 * @param mixed $mixed
-	 * @param mixed $value
+	 * @param string $member        	
+	 * @param mixed $mixed        	
+	 * @param mixed $value        	
 	 */
 	public function set_member_serial($member, $mixed = null, $value = null) {
 		assert(array_key_exists($member, $this->class->members_of_type(Class_Object::type_serialize)));
@@ -1626,13 +1647,13 @@ abstract class Object extends Model {
 		$this->__set($member, $data);
 		return $this;
 	}
-
+	
 	/**
 	 * Set a member to a value
 	 *
-	 * @param string $member
-	 * @param mixed $v
-	 * @param boolean $overwrite
+	 * @param string $member        	
+	 * @param mixed $v        	
+	 * @param boolean $overwrite        	
 	 * @return $this
 	 */
 	function set_member($member, $v = null, $overwrite = true) {
@@ -1649,7 +1670,6 @@ abstract class Object extends Model {
 		}
 		return $this;
 	}
-
 	function member_remove($member) {
 		$member = to_list($member);
 		if (!is_array($member)) {
@@ -1659,12 +1679,12 @@ abstract class Object extends Model {
 			unset($this->members[$m]);
 		}
 	}
-
+	
 	/**
 	 * Change the status of the store column structure
 	 *
-	 * @param string $member
-	 * @param null|boolean $store
+	 * @param string $member        	
+	 * @param null|boolean $store        	
 	 */
 	private function _store_member($member, $store = null) {
 		if (!array_key_exists($member, $this->store_columns)) {
@@ -1682,7 +1702,6 @@ abstract class Object extends Model {
 			return $this;
 		}
 	}
-
 	private function _filter_store_members(array $members) {
 		foreach ($members as $member => $value) {
 			if (!avalue($this->store_columns, $member)) {
@@ -1694,16 +1713,19 @@ abstract class Object extends Model {
 	/**
 	 * Enable or disable the storing of particular members of this object.
 	 *
-	 *  You can do:
+	 * You can do:
 	 *
-	 *  $this->store_member("a;b;c") to retrieve the values back as array("a" => true, "b" => false, "c" => true)
+	 * $this->store_member("a;b;c") to retrieve the values back as array("a" => true, "b" => false,
+	 * "c" => true)
 	 *
-	 *  or
+	 * or
 	 *
-	 *  $this->store_member("a;b;c", true) to set members a,b,c to be stored.
+	 * $this->store_member("a;b;c", true) to set members a,b,c to be stored.
 	 *
-	 * @param mixed $member member name, list of member names, or array of member names
-	 * @param boolean|null $store true or false to set the value, null to retrieve the values
+	 * @param mixed $member
+	 *        	member name, list of member names, or array of member names
+	 * @param boolean|null $store
+	 *        	true or false to set the value, null to retrieve the values
 	 */
 	function store_member($member = null, $store = null) {
 		if ($member === null) {
@@ -1721,15 +1743,14 @@ abstract class Object extends Model {
 			$this->_store_member($m, $store);
 		}
 		return $this;
-
 	}
-
+	
 	/**
 	 * Does this object define the member given?
 	 *
 	 * @todo concept of member here differs from other senses? OK? Not OK?
 	 * @see Object::member_empty
-	 * @param string $member
+	 * @param string $member        	
 	 * @return boolean
 	 */
 	function has_member($member) {
@@ -1739,16 +1760,16 @@ abstract class Object extends Model {
 		$patterns = array();
 		$patterns[] = "";
 		$limit = min($this->option("dupliate_rename_limit", 100), 1000);
-		for($i = 1; $i < $limit; $i++) {
+		for ($i = 1; $i < $limit; $i++) {
 			$patterns[] = " $i";
 		}
 		return $patterns;
 	}
-
+	
 	/**
 	 * Rename a copy
 	 *
-	 * @param unknown_type $base_name
+	 * @param unknown_type $base_name        	
 	 */
 	protected function duplicate_rename($column, Database_Query_Select $select, $rename_pattern = null) {
 		$name = $this->get($column);
@@ -1818,7 +1839,7 @@ abstract class Object extends Model {
 		$generator = $this->sql();
 		return $this->utc_timestamps() ? $generator->now_utc() : $generator->now();
 	}
-
+	
 	/*
 	 * Insert SQL
 	 */
@@ -1826,7 +1847,7 @@ abstract class Object extends Model {
 		$member = $this->pre_insert();
 		return $this->database()->insert($this->table(), $member);
 	}
-
+	
 	/**
 	 * Prepare the internal data structure for output to the database
 	 *
@@ -1883,7 +1904,6 @@ abstract class Object extends Model {
 		}
 		return $result;
 	}
-
 	private function update() {
 		if ($this->option_bool("disable_database") || $this->option_bool("disable_database_update")) {
 			return false;
@@ -1955,7 +1975,6 @@ abstract class Object extends Model {
 		$this->object_status(self::status_unknown);
 		return null;
 	}
-
 	function exists($where = false) {
 		if (is_string($where) && !empty($where)) {
 			if ($this->has_member($where)) {
@@ -1987,7 +2006,7 @@ abstract class Object extends Model {
 		if (!$duplicate_keys) {
 			return false;
 		}
-
+		
 		$members = $this->members($duplicate_keys);
 		$query = $this->query("X")->where($members)->what("*n", "COUNT(*)");
 		if (!$this->is_new()) {
@@ -2061,11 +2080,11 @@ abstract class Object extends Model {
 		}
 		return $this;
 	}
-
+	
 	/**
 	 * Is this deleted?
 	 *
-	 * @param unknown $data
+	 * @param unknown $data        	
 	 */
 	private function _deleted(array $data) {
 		$col = $this->class->column_deleted;
@@ -2077,7 +2096,7 @@ abstract class Object extends Model {
 		}
 		return to_bool($data[$this->column_deleted]);
 	}
-
+	
 	/**
 	 * Is this object polymorphic (multiple classes handling a single table)
 	 *
@@ -2092,9 +2111,10 @@ abstract class Object extends Model {
 		$this->polymorphic_leaf = $set;
 		return $this;
 	}
-
+	
 	/**
-	 * Convert to true form. Override in subclasses to get custom polymorphic behavior.
+	 * Convert to true form.
+	 * Override in subclasses to get custom polymorphic behavior.
 	 *
 	 * @return Object
 	 */
@@ -2117,7 +2137,6 @@ abstract class Object extends Model {
 			return $this;
 		}
 	}
-
 	private function can_fetch() {
 		foreach ($this->class->primary_keys as $pk) {
 			$v = avalue($this->members, $pk);
@@ -2169,7 +2188,7 @@ abstract class Object extends Model {
 	function store_errors() {
 		return $this->option_array("store_error", array());
 	}
-
+	
 	/**
 	 * Retrieve the error string for the error when a duplicate is found in the database when
 	 * storing
@@ -2195,8 +2214,9 @@ abstract class Object extends Model {
 		}
 		$this->store_queue = array();
 	}
-
+	
 	/**
+	 *
 	 * @see Model::store()
 	 */
 	function store() {
@@ -2206,7 +2226,7 @@ abstract class Object extends Model {
 		if ($this->storing) {
 			return $this;
 		}
-
+		
 		try {
 			$this->storing = true;
 			/*
@@ -2246,7 +2266,7 @@ abstract class Object extends Model {
 			throw $e;
 		}
 	}
-
+	
 	/**
 	 * Store any objects which are members, first
 	 */
@@ -2268,9 +2288,7 @@ abstract class Object extends Model {
 				}
 			}
 		}
-
 	}
-
 	protected function pre_register() {
 		foreach ($this->class->has_one as $member => $class) {
 			if ($class[0] === '*') {
@@ -2283,12 +2301,13 @@ abstract class Object extends Model {
 			}
 		}
 	}
-
+	
 	/**
 	 * Register an object based on its "find_keys"
 	 * Register means "create it if it doesn't exist, find it if it does"
 	 *
-	 * @return integer The ID of the registered object. Also the status is set to what happened, see self::status_foo definitions either "insert", or "exists".
+	 * @return integer The ID of the registered object. Also the status is set to what happened, see
+	 *         self::status_foo definitions either "insert", or "exists".
 	 * @see Object::status_exists
 	 * @see Object::status_insert
 	 * @see Object::status_unknown
@@ -2323,11 +2342,11 @@ abstract class Object extends Model {
 		}
 		return $this->object_status(self::status_exists);
 	}
-
+	
 	/**
 	 * Set/get result of object operation
 	 *
-	 * @param string $set
+	 * @param string $set        	
 	 * @return string|$this
 	 */
 	function object_status($set = null) {
@@ -2337,27 +2356,27 @@ abstract class Object extends Model {
 		}
 		return $this->status;
 	}
-
+	
 	/**
+	 *
 	 * @return boolean
 	 */
 	function status_exists() {
 		return $this->status === self::status_exists;
 	}
 	/**
+	 *
 	 * @return boolean
 	 */
 	function status_created() {
 		return $this->status === self::status_insert;
 	}
-
 	private function _column_deleted_value() {
 		return array(
 			$this->class->column_deleted => true
 		);
 		// TODO: Support dates
 	}
-
 	public static function clean_database_object_members($class, $mixed) {
 		/* @var $class_object Class_Object */
 		$class_object = Object::cache_class($class, "class");
@@ -2401,19 +2420,14 @@ abstract class Object extends Model {
 			Object::class_delete(__CLASS__)->where($this_id_column, array_values($ids));
 		}
 	}
-
 	protected function delete_unlinked_column($column, $class) {
-		$unlinked = $this->query()
-			->link($class, array(
+		$unlinked = $this->query()->link($class, array(
 			"alias" => "Link",
 			"require" => false
-		))
-			->where("Link.ID", null)
-			->what($column, $column)
-			->to_array(null, $column);
+		))->where("Link.ID", null)->what($column, $column)->to_array(null, $column);
 		return $this->query_delete()->where($column, $unlinked)->execute();
 	}
-
+	
 	/**
 	 * For each of the "has_one" - if the target object does not exist, the delete this row
 	 *
@@ -2429,7 +2443,7 @@ abstract class Object extends Model {
 		}
 		return $result;
 	}
-
+	
 	/**
 	 * Convert to string
 	 */
@@ -2444,7 +2458,7 @@ abstract class Object extends Model {
 		}
 		return php::dump($id);
 	}
-
+	
 	/**
 	 * Delete an object from the database
 	 */
@@ -2454,7 +2468,7 @@ abstract class Object extends Model {
 		}
 		$cache = $this->object_cache();
 		$cache->delete();
-
+		
 		if (zesk::getb("Object::disable_database")) {
 			return false;
 		}
@@ -2480,7 +2494,7 @@ abstract class Object extends Model {
 		}
 		return str_replace("_", "/", strtolower($name));
 	}
-
+	
 	/**
 	 * Given a theme name, return the full template file path
 	 *
@@ -2494,7 +2508,7 @@ abstract class Object extends Model {
 	 *
 	 * In the theme path. If the theme_name begins with a slash or a period, no conversion is done.
 	 *
-	 * @param string $theme_name
+	 * @param string $theme_name        	
 	 * @return string
 	 */
 	private function _theme_paths($theme_names) {
@@ -2524,22 +2538,22 @@ abstract class Object extends Model {
 		}
 		return self::_clean_theme_name($result);
 	}
-
+	
 	/**
 	 * Generate variables for theme and create template
 	 *
-	 * @param unknown $theme_path
-	 * @param unknown $options
+	 * @param unknown $theme_path        	
+	 * @param unknown $options        	
 	 * @return string
 	 * @todo remove deprecated values
 	 */
 	private function _theme(array $theme_path, array $variables = array()) {
 		$variables += array(
-			'Object' => $this,  // Deprecated variable name
+			'Object' => $this, // Deprecated variable name
 			'object' => $this,
 			strtolower(get_class($this)) => $this
 		);
-		$application = Application::instance();
+		$application = $this->application;
 		foreach ($theme_path as $try_theme) {
 			if ($application->theme_exists($try_theme)) {
 				return $application->theme($try_theme, $variables);
@@ -2551,11 +2565,11 @@ abstract class Object extends Model {
 		));
 		return null;
 	}
-
+	
 	/**
 	 * Return a Template for the theme related to this object
 	 *
-	 * @param string $theme_name
+	 * @param string $theme_name        	
 	 * @param array $options
 	 *        	Variables to be passed to the template
 	 * @return Template
@@ -2563,33 +2577,32 @@ abstract class Object extends Model {
 	function theme($theme_name = null, array $variables = array()) {
 		zesk::obsolete();
 	}
-
+	
 	/**
 	 *
-	 * @param unknown $theme_name
-	 * @param unknown $options
-	 * @param unknown $default
+	 * @param unknown $theme_name        	
+	 * @param unknown $options        	
+	 * @param unknown $default        	
 	 */
 	function render($theme_name = null, $variables = null, $default = "") {
 		$variables = is_string($variables) ? array(
 			'content' => $variables
 		) : (array) $variables;
 		$variables += array(
-			'Object' => $this,  // Deprecated variable name
+			'Object' => $this, // Deprecated variable name
 			'object' => $this,
 			strtolower(get_class($this)) => $this
 		);
-		$application = Application::instance();
-		return $application->theme($this->_theme_paths($theme_name), $variables, array(
+		return $this->application->theme($this->_theme_paths($theme_name), $variables, array(
 			"default" => $default,
 			"first" => true
 		));
 	}
-
+	
 	/**
 	 * Convert a variable to an ID
 	 *
-	 * @param $mixed mixed
+	 * @param $mixed mixed        	
 	 * @return integer or null if can't be converted to integer
 	 */
 	public static function mixed_to_id($mixed) {
@@ -2598,21 +2611,21 @@ abstract class Object extends Model {
 		}
 		return to_integer($mixed, null);
 	}
-
+	
 	/**
 	 * Given a class $class, determine the default path to another class
 	 *
-	 * @param $class string
+	 * @param $class string        	
 	 * @return string
 	 */
 	public function link_default_path_to($class) {
 		return $this->class->link_default_path_to($class);
 	}
-
+	
 	/**
 	 * Walk path to $class while updating the query
 	 *
-	 * @param $class mixed
+	 * @param $class mixed        	
 	 * @param $mixed array
 	 *        	An array of link settings, or a string indicating the path to link to
 	 *        	The settings in the array are:
@@ -2624,11 +2637,11 @@ abstract class Object extends Model {
 	public function link_walk(Database_Query_Select $query, $mixed = null) {
 		return $this->class->link_walk($this, $query, $mixed);
 	}
-
+	
 	/**
 	 * Convert an object into a notation transportable via JSON
 	 *
-	 * @param array $options
+	 * @param array $options        	
 	 * @return array
 	 */
 	public function json(array $options = array()) {
@@ -2657,11 +2670,11 @@ abstract class Object extends Model {
 		}
 		return $object + $members;
 	}
-
+	
 	/**
 	 * Load object
 	 *
-	 * @param Widget $source
+	 * @param Widget $source        	
 	 * @return $this
 	 */
 	protected function hook_control_loaded(Widget $source) {
@@ -2675,11 +2688,11 @@ abstract class Object extends Model {
 		}
 		return $this;
 	}
-
+	
 	/**
 	 * Hook to return a message when a control cancels editing
 	 *
-	 * @param Control $control
+	 * @param Control $control        	
 	 * @return string
 	 */
 	protected function hook_control_message_cancel(Control $control) {
@@ -2687,11 +2700,11 @@ abstract class Object extends Model {
 		$cancelNewMessage = $control->option("cancel_new_message", __("{class_name-context-subject-singular} was not created."));
 		return $this->is_new() ? $cancelNewMessage : $cancelMessage;
 	}
-
+	
 	/**
 	 * Hook to return message
 	 *
-	 * @param Control $control
+	 * @param Control $control        	
 	 * @return Ambigous <Model, Model, mixed, Hookable, string, array, number>
 	 */
 	protected function hook_control_message_store(Control $control) {
@@ -2703,11 +2716,11 @@ abstract class Object extends Model {
 		}
 		return $store_message;
 	}
-
+	
 	/**
 	 * Hook to return message related to store errors
 	 *
-	 * @param Control $control
+	 * @param Control $control        	
 	 * @return string
 	 */
 	protected function hook_control_message_store_error(Control $control) {
@@ -2716,11 +2729,11 @@ abstract class Object extends Model {
 		$message = $this->option("store_error", $message);
 		return $message;
 	}
-
+	
 	/**
 	 * Utility function for retrieving permissions
 	 *
-	 * @param string $class
+	 * @param string $class        	
 	 * @return array
 	 */
 	static function default_permissions($class) {
@@ -2776,8 +2789,9 @@ abstract class Object extends Model {
 			)
 		);
 	}
-
+	
 	/**
+	 *
 	 * @see debug::_dump
 	 * @return string
 	 */
@@ -2788,13 +2802,13 @@ abstract class Object extends Model {
 		$rows['members'] = $this->members;
 		return get_class($this) . " {\n" . text::indent(text::format_pairs($rows)) . "\n}\n";
 	}
-
+	
 	/**
 	 * Was deprecated 2012 - why? Where will this go?
 	 *
 	 * Replaced by ->variables()
 	 *
-	 * @param string $string
+	 * @param string $string        	
 	 * @return array string
 	 */
 	public function words($string = null) {
@@ -2808,42 +2822,45 @@ abstract class Object extends Model {
 		$spec['class_name-context-title'] = str::capitalize($spec['class_name-context-object']);
 		$spec["class_name-context-subject-indefinite-article"] = zesk\Locale::indefinite_article($name, true);
 		$spec['class_name-plural'] = zesk\Locale::plural($name, $this->locale);
-
+		
 		$name = $this->display_name();
 		$spec['display_name'] = $name;
-
+		
 		if ($string === null) {
 			return $spec;
 		}
 		$result = $this->apply_map(map($string, $spec));
 		return $result;
 	}
-
+	
 	/**
+	 *
 	 * @deprecated 2015-04-15
 	 * @see Object::status_exists
 	 * @var string
 	 */
 	const REGISTER_Exists = self::status_exists;
 	/**
+	 *
 	 * @deprecated 2015-04-15
 	 * @see self::status_insert
 	 * @var string
 	 */
 	const REGISTER_Insert = self::status_insert;
 	/**
+	 *
 	 * @deprecated 2015-04-15
 	 * @see self::status_unknown
 	 * @var string
 	 */
 	const REGISTER_Failed = self::status_unknown;
-
+	
 	/**
 	 * Returns true if the member is empty
 	 * For multiple members, returns true if ANY member is empty
 	 * For multiple members, returns false if no members are passed in
 	 *
-	 * @param mixed $member
+	 * @param mixed $member        	
 	 * @return boolean
 	 * @deprecated 2013-01-01
 	 */
@@ -2851,12 +2868,12 @@ abstract class Object extends Model {
 		zesk::deprecated();
 		return $this->member_is_empty($member);
 	}
-
+	
 	/**
 	 *
 	 * @deprecated 2012-04-19
-	 * @param unknown_type $codename
-	 * @param unknown_type $name
+	 * @param unknown_type $codename        	
+	 * @param unknown_type $name        	
 	 */
 	protected function cleanCodeName($codename = "CodeName", $name = "Name") {
 		zesk::deprecated();
@@ -2867,12 +2884,12 @@ abstract class Object extends Model {
 		}
 		return false;
 	}
-
+	
 	/**
 	 * Does this object define the member given?
 	 *
 	 * @see Object::member_empty
-	 * @param string $member
+	 * @param string $member        	
 	 * @return boolean
 	 * @deprecated 2014-01-01
 	 */
@@ -2880,7 +2897,7 @@ abstract class Object extends Model {
 		zesk::deprecated();
 		return array_key_exists($member, $this->class->column_types) || array_key_exists($member, $this->class->has_many);
 	}
-
+	
 	/**
 	 *
 	 * @deprecated 2013-10-23
@@ -2889,7 +2906,7 @@ abstract class Object extends Model {
 		zesk::deprecated();
 		return $this->columns();
 	}
-
+	
 	/**
 	 *
 	 * @deprecated 2013-10-23
@@ -2898,17 +2915,17 @@ abstract class Object extends Model {
 		zesk::deprecated();
 		return $this->columns();
 	}
-
+	
 	/**
 	 *
 	 * @deprecated 2013-10-23
-	 * @param unknown $string
+	 * @param unknown $string        	
 	 */
 	public function objectMap($string = null) {
 		zesk::deprecated();
 		return $this->words($string);
 	}
-
+	
 	/**
 	 *
 	 * @see Object::database_name()
@@ -2918,7 +2935,7 @@ abstract class Object extends Model {
 		zesk::deprecated();
 		return $this->database_name();
 	}
-
+	
 	/**
 	 *
 	 * @deprecated 2013-10-23
@@ -2928,7 +2945,7 @@ abstract class Object extends Model {
 		zesk::deprecated();
 		return $this->database();
 	}
-
+	
 	/**
 	 *
 	 * @deprecated 2013-10-23
@@ -2938,11 +2955,11 @@ abstract class Object extends Model {
 		zesk::deprecated();
 		return $this->class_name();
 	}
-
+	
 	/**
 	 *
 	 * @deprecated 2014-02-11 use set_member
-	 * @param string $member
+	 * @param string $member        	
 	 * @param mixed $v
 	 *        	Value
 	 * @param boolean $overwrite
@@ -2952,7 +2969,7 @@ abstract class Object extends Model {
 		zesk::deprecated();
 		return $this->set_member($member, $v, $overwrite);
 	}
-
+	
 	/**
 	 * Retrieve a member as an integer
 	 *
@@ -2967,7 +2984,7 @@ abstract class Object extends Model {
 		zesk::deprecated();
 		return $this->member_integer($member, $def);
 	}
-
+	
 	/**
 	 * Retrieve a member as a boolean value
 	 *
@@ -2981,11 +2998,11 @@ abstract class Object extends Model {
 	function memberBoolean($member, $def = null) {
 		return $this->member_boolean($member, $def);
 	}
-
+	
 	/**
 	 * Set/get result of register call
 	 *
-	 * @param string $set
+	 * @param string $set        	
 	 * @return string this
 	 * @deprecated 2015-04-15
 	 * @see Object::object_status
@@ -2997,11 +3014,10 @@ abstract class Object extends Model {
 		}
 		return $this->status;
 	}
-
 	protected function hook_router_argument(Route $route, $arg) {
 		return $this->id($arg)->fetch();
 	}
-
+	
 	/**
 	 * Retrieve a cache attached to this object only
 	 *
@@ -3015,13 +3031,13 @@ abstract class Object extends Model {
 		zesk::deprecated();
 		return $this->object_cache($cache_id);
 	}
-
+	
 	/**
 	 * Output a template for the theme related to this object
 	 *
-	 * @param unknown $theme_name
-	 * @param unknown $options
-	 * @param unknown $default
+	 * @param unknown $theme_name        	
+	 * @param unknown $options        	
+	 * @param unknown $default        	
 	 * @deprecated use render
 	 * @see Object::render
 	 */
