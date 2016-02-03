@@ -67,7 +67,6 @@ return;
 <table role="presentation" class="table table-striped">
 	<tbody class="files" data-toggle="modal-gallery" data-target="#modal-gallery"></tbody>
 </table>
-</form>
 <script id="template-upload" type="text/x-tmpl">
 {% for (var i=0, file; file=o.files[i]; i++) { %}
     <tr class="template-upload fade">
