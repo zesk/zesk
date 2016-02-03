@@ -16,118 +16,132 @@
  * @subpackage system
  */
 class Response extends Hookable {
-
 	const content_type_json = "application/json";
 	const content_type_html = "text/html";
-
 	const cache_scheme = 1;
 	const cache_query = 2;
 	const cache_path = 3;
 	
 	/**
 	 * Application associated with this response
-	 * 
+	 *
 	 * @var Application
 	 */
 	public $application = null;
 	
 	/**
 	 * Request associated with this response
+	 * 
 	 * @var Request
 	 */
 	public $request = null;
-
+	
 	/**
 	 * Content to return (if small enough)
+	 * 
 	 * @var string
 	 */
 	public $content = null;
-
+	
 	/**
 	 * File to return (for big stuff)
+	 * 
 	 * @var string
 	 */
 	protected $content_file = null;
-
+	
 	/**
 	 * Status code
+	 * 
 	 * @var integer
 	 */
 	public $status_code = Net_HTTP::Status_OK;
-
+	
 	/**
 	 * Status message
+	 * 
 	 * @var string
 	 */
 	public $status_message = "OK";
-
+	
 	/**
 	 * Content-Type header
+	 * 
 	 * @var string
 	 */
 	public $content_type = null;
-
+	
 	/**
 	 * Content-Type header
+	 * 
 	 * @var string
 	 */
 	public $charset = null;
-
+	
 	/**
 	 * Headers.
 	 * Key is always properly cased header. Values may be multi-array or string.
+	 * 
 	 * @var array
 	 */
 	protected $headers = array();
-
+	
 	/**
 	 * Name/value data passed back to client if response type supports it.
 	 *
 	 * @var array
 	 */
 	protected $response_data = array();
-
+	
 	/**
 	 * Map of low-header to properly cased headers
+	 * 
 	 * @var array
 	 */
 	protected $headers_cased = array(
 		'p3p' => "P3P",
 		'content-disposition' => "Content-Disposition"
 	);
-
+	
 	/**
 	 * Flag to indicate that this object is currently rendering.
 	 * Avoids infinite loops.
+	 * 
 	 * @var boolean
 	 */
 	private $rendering = false;
-
+	
 	/**
 	 * Cache responses to the request
 	 *
 	 * @var unknown
 	 */
 	private $cache_settings = null;
-
+	
 	/**
 	 * Singleton instance of the Response
+	 * 
 	 * @var Response
 	 */
 	static $instance = null;
-
+	
 	/**
 	 * Retrieve global Response instance
-	 * @param string $mixed URL of Response. If not specified takes from url::current. If Response, then sets Response
-	 *        instance to $mixed
-	 * @param array $Response server Response name/value pairs. If not specified, uses $_Response
-	 * @param boolean $is_post Whether this is a POST operation or not. If not specified, uses self::_is_post
+	 * 
+	 * @param string $mixed
+	 *        	URL of Response. If not specified takes from url::current. If Response, then sets
+	 *        	Response
+	 *        	instance to $mixed
+	 * @param array $Response
+	 *        	server Response name/value pairs. If not specified, uses $_Response
+	 * @param boolean $is_post
+	 *        	Whether this is a POST operation or not. If not specified, uses self::_is_post
 	 * @return Response
 	 */
-	public static function instance( $application, $content_type = null) {
+	public static function instance($application = null, $content_type = null) {
 		if (!$application instanceof Application) {
-			dump(type($application));
-			backtrace();
+			zesk::deprecated();
+			$application = Application::instance();
 		}
 		if ($application->response) {
 			return $application->response;
@@ -135,8 +149,6 @@ class Response extends Hookable {
 		$application->response = self::factory($application, $content_type);
 		return $application->response;
 	}
-	
-	
 	public static function factory(Application $application, $options = null) {
 		$content_type = zesk::get("Response::content_type", self::content_type_html);
 		if (is_string($options)) {
@@ -194,11 +206,11 @@ class Response extends Hookable {
 		$session->redirect_message = $messages;
 		return $this;
 	}
-
+	
 	/**
 	 * Set up redirect debugging
 	 *
-	 * @param mixed $set
+	 * @param mixed $set        	
 	 * @return self|boolean
 	 */
 	public function debug_redirect($set = null) {
@@ -207,18 +219,19 @@ class Response extends Hookable {
 		}
 		return $this->set_option('debug_redirect', to_bool($set));
 	}
-
 	private function _header($string) {
 		if ($this->cache_settings) {
 			$this->cache_settings['headers'][] = $string;
 		}
 		header($string);
 	}
-
+	
 	/**
 	 * Redirect to a URL, optionally adding a message to the resulting URL
-	 * @param string $u URL to redirect to.
-	 * @param unknown_type $message
+	 * 
+	 * @param string $u
+	 *        	URL to redirect to.
+	 * @param unknown_type $message        	
 	 * @see Response::redirect_default
 	 */
 	public function redirect($url, $message = null) {
@@ -266,7 +279,7 @@ class Response extends Hookable {
 	}
 	private function response_headers() {
 		static $called = false;
-
+		
 		$this->hook('headers');
 		if ($called) {
 			throw new Exception_Semantics("Response headers called twice! {previous}", array(
@@ -336,7 +349,7 @@ class Response extends Hookable {
 		$this->content_file = $file;
 		return $this;
 	}
-
+	
 	/**
 	 * TODO Move this to Response
 	 */
@@ -355,7 +368,6 @@ class Response extends Hookable {
 		$this->header("Expires", "-1");
 		return $this;
 	}
-
 	final public function download($file, $name = null, $type = null) {
 		ignore_user_abort(1);
 		ini_set("max_execution_time", 5000 /* seconds */);
@@ -375,7 +387,7 @@ class Response extends Hookable {
 		}
 		return $this->content_type;
 	}
-
+	
 	/**
 	 * Return "extra" json data, only passed back to client on request types which support it.
 	 *
@@ -383,12 +395,14 @@ class Response extends Hookable {
 	 *
 	 * <code>
 	 * $current_data = $response->response_data();
-	 * $response->response_data(array("message" => "Hello, world!")); // Adds to current response data
-	 * $response->response_data(array("message" => "Hello, world!"), false); // Replaces current response data
+	 * $response->response_data(array("message" => "Hello, world!")); // Adds to current response
+	 * data
+	 * $response->response_data(array("message" => "Hello, world!"), false); // Replaces current
+	 * response data
 	 * </code>
 	 *
-	 * @param array $extras
-	 * @param string $add
+	 * @param array $extras        	
+	 * @param string $add        	
 	 * @return array|Response
 	 */
 	final public function response_data(array $data = null, $add = true) {
@@ -398,11 +412,11 @@ class Response extends Hookable {
 		$this->response_data = $add ? $data + $this->response_data : $data;
 		return $this;
 	}
-
+	
 	/**
 	 * Return JSON data
 	 *
-	 * @param string $set
+	 * @param string $set        	
 	 * @return Response|boolean
 	 */
 	final public function json($set = null) {
@@ -424,11 +438,14 @@ class Response extends Hookable {
 		}
 		return $this->content_type === self::content_type_json;
 	}
-
+	
 	/**
 	 * Set a date header
-	 * @param string $name Header to set (Expires, Date, Last-Modified, etc.)
-	 * @param mixed $value Timestamp or integer
+	 * 
+	 * @param string $name
+	 *        	Header to set (Expires, Date, Last-Modified, etc.)
+	 * @param mixed $value
+	 *        	Timestamp or integer
 	 */
 	final public function header_date($name, $value) {
 		if ($value instanceof Timestamp) {
@@ -436,12 +453,16 @@ class Response extends Hookable {
 		}
 		return $this->header($name, gmdate('D, d M Y H:i:s \G\M\T', $value));
 	}
-
+	
 	/**
 	 * Setter/Getter for headers
-	 * @param string $name Name of header to get/set
-	 * @param string $value Value of header to set
-	 * @return mixed All headers if name is null, header value if name is set, $this if name and value are set
+	 * 
+	 * @param string $name
+	 *        	Name of header to get/set
+	 * @param string $value
+	 *        	Value of header to set
+	 * @return mixed All headers if name is null, header value if name is set, $this if name and
+	 *         value are set
 	 */
 	final public function header($name = null, $value = null) {
 		if ($name === null) {
@@ -469,16 +490,16 @@ class Response extends Hookable {
 		$this->headers[$name] = $value;
 		return $this;
 	}
-
 	private function _render_content() {
 		if ($this->content_type === self::content_type_json && is_array($this->content)) {
 			$this->content = json::encode($this->content);
 		}
 		return $this->content;
 	}
-
+	
 	/**
 	 * Return response
+	 * 
 	 * @return string
 	 */
 	final function render() {
@@ -501,9 +522,10 @@ class Response extends Hookable {
 		$this->rendering = false;
 		return $result;
 	}
-
+	
 	/**
 	 * Echo response
+	 * 
 	 * @return void
 	 */
 	final function output(array $options = array()) {
@@ -538,19 +560,18 @@ class Response extends Hookable {
 		$this->hook("outputted");
 		$this->rendering = false;
 	}
-
 	public function to_json() {
 		return $this->response_data;
 	}
-
+	
 	/**
 	 * Cache settings for this request
 	 *
 	 * "seconds" - For how many seconds
 	 * "parts" - Url parts to match
 	 *
-	 * @param array $options
-	 * @param boolean $append
+	 * @param array $options        	
+	 * @param boolean $append        	
 	 * @return array|Response
 	 */
 	public function cache(array $options = null, $append = true) {
@@ -563,7 +584,6 @@ class Response extends Hookable {
 		$this->cache_settings = $append ? $options + $this->cache_settings : $options;
 		return $this;
 	}
-
 	public function cache_forever() {
 		return $this->cache(array(
 			"seconds" => 1576800000
@@ -575,9 +595,10 @@ class Response extends Hookable {
 			"level" => $level
 		));
 	}
-
+	
 	/**
 	 * Ordered from most specific to least specific
+	 * 
 	 * @var string
 	 */
 	private static $cache_pattern = array(
@@ -585,10 +606,11 @@ class Response extends Hookable {
 		self::cache_query => "any/{host}_{port}{path}/{query}",
 		self::cache_path => "any/{host}_{port}{path}"
 	);
-
+	
 	/**
 	 * Convert URL into standard parts with defaults
-	 * @param string $url
+	 * 
+	 * @param string $url        	
 	 * @return array
 	 */
 	private static function _cache_parts($url) {
@@ -602,11 +624,12 @@ class Response extends Hookable {
 		);
 		return $parts;
 	}
-
+	
 	/**
 	 * Is content type?
 	 *
-	 * @param mixed $mixed String or list
+	 * @param mixed $mixed
+	 *        	String or list
 	 * @return boolean
 	 */
 	public function is_content_type($mixed) {
@@ -620,14 +643,15 @@ class Response extends Hookable {
 	/**
 	 * Save this response's content, if the page requested to be cached
 	 *
-	 * @param string $content Contents to save
+	 * @param string $content
+	 *        	Contents to save
 	 * @return boolean
 	 */
 	public function cache_save($content) {
 		if ($this->cache_settings === null) {
 			return false;
 		}
-
+		
 		$parts = self::_cache_parts($this->request->url());
 		$level = self::cache_scheme;
 		$seconds = $expires = null;
@@ -645,7 +669,6 @@ class Response extends Hookable {
 		}
 		return true;
 	}
-
 	public static function cached($url) {
 		$parts = self::_cache_parts($url);
 		foreach (self::$cache_pattern as $level => $id) {
