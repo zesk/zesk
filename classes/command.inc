@@ -1038,7 +1038,7 @@ abstract class Command extends Hookable {
 				"backtrace" => $e->getTraceAsString()
 			));
 			zesk::hook("exception", $e);
-			if ($this->option_bool('debug', zesk::development())) {
+			if ($this->option_bool('debug', $this->application->development())) {
 				$this->error($e->getTraceAsString());
 			}
 			$code = intval($e->getCode());

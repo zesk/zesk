@@ -19,7 +19,6 @@ if (!defined('ZESK_ROOT')) {
 }
 
 require_once ZESK_ROOT . 'zesk.inc';
-
 function gzip_error_404($message = "Resource not found.") {
 	header("HTTP/1.0 404 Not Found");
 	echo '<!DOCTYPE HTML PUBLIC "-//IETF//DTD HTML 2.0//EN"><html><head><title>404 Not Found</title></head><body><h1>Not Found</h1>
@@ -103,7 +102,7 @@ header("Expires: " . date('D, d M Y H:i:s \G\M\T', $mtime)); /* 1 year */
 header("Cache-Control: max-age=$max_age");
 header("Etag: \"$etag\"");
 $qs = url::query_parse(avalue($_SERVER, 'REQUEST_URI', ''));
-if ($content_type === "text/javascript" && to_bool(avalue($qs, 'jsmin', true), true) && !zesk::development()) {
+if ($content_type === "text/javascript" && to_bool(avalue($qs, 'jsmin', true), true)) {
 	Module::load('jsmin');
 	echo JSMin::minify(file_get_contents($filename));
 } else {

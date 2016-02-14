@@ -26,7 +26,7 @@
 		$('[data-url],[data-ajax]', context).off("click.url_zesk_ajax").on("click.url_zesk_ajax", function (e) {
 			var $this = $(this), data = $this.data();
 			if ($this.is('input[type=checkbox]')) {
-				data.value = $this.prop('checked');
+				data.value = $this.prop('checked') ? true : false;
 			} else {
 				e.stopPropagation();
 				e.preventDefault();

@@ -378,7 +378,6 @@ class Application extends \Hookable {
 		$this->configure_paths();
 		$this->configured_was_run = true;
 	}
-	
 	private function configure_paths() {
 		$cache_path = $this->option("cache_path", zesk::get("Cache::path", zesk::application_root("cache")));
 		$this->cache_path = \dir::is_absolute($cache_path) ? $cache_path : zesk::application_root($cache_path);
@@ -440,7 +439,7 @@ class Application extends \Hookable {
 	}
 	final private function load_maintenance() {
 		if (self::maintenance()) {
-			zesk::set(conf::load(zesk::application_root('etc/maintenance.conf')));
+			zesk::set(conf::load($this->maintenance_file()));
 		}
 	}
 	/**
@@ -458,10 +457,11 @@ class Application extends \Hookable {
 			$set
 		), true);
 		if (!$result) {
-			log::error("Unable to set application {public} maintenance mode to {value}", array(
+			log::error("Unable to set application {application_class} maintenance mode to {value}", array(
 				"application_class" => get_class($this),
 				"value" => $set ? "true" : "false"
 			));
+			return null;
 		}
 		if ($set) {
 			$context = array(
@@ -866,6 +866,7 @@ class Application extends \Hookable {
 	 * Hook for taking old .
 	 *
 	 *
+	 *
 	 * php URLs and converting to router-based URLs
 	 *
 	 * @param Model_URL $state        	
@@ -926,7 +927,7 @@ class Application extends \Hookable {
 				$router = zesk::singleton('Router');
 				$url = $router->get_route("schema_synchronize", $application);
 				$message = $url ? __("The database schema is out of sync, please <a href=\"{url}\">update it immediately.</a>") : __("The database schema is out of sync, please update it immediately.");
-				Response::instance()->redirect_message($message, array(
+				Response::instance($application)->redirect_message($message, array(
 					"url" => $url
 				));
 			}
