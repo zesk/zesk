@@ -56,8 +56,9 @@ class Module_Help extends Module_JSLib {
 	/**
 	 * Registers all help text in the system
 	 */
-	public static function cron_cluster(Application $application) {
-		$helps = Module::all_hook_array(__CLASS__, array(), array());
+	public function hook_cron_cluster() {
+		$application = $this->application;
+		$helps = $application->module->all_hook_array(__CLASS__, array(), array());
 		log::notice("Module_Help::cron found {count} help items", array(
 			"count" => count($helps)
 		));
@@ -81,7 +82,7 @@ class Module_Help extends Module_JSLib {
 				log::notice("Registered help item for {target}", array(
 					'target' => $target
 				));
-			} else if (zesk::getb('Module_Help::cron_update')) {
+			} else if ($this->option_bool('Module_Help::cron_update')) {
 				$help->set_member($settings)->store();
 			}
 		}
