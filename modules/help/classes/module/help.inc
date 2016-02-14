@@ -56,14 +56,15 @@ class Module_Help extends Module_JSLib {
 	/**
 	 * Registers all help text in the system
 	 */
-	public static function cron_cluster() {
-		$helps = Module::all_hook_array(__CLASS__, array(), array());
+	public function hook_cron_cluster() {
+		$application = $this->application;
+		$helps = $application->module->all_hook_array(__CLASS__, array(), array());
 		log::notice("Module_Help::cron found {count} help items", array(
 			"count" => count($helps)
 		));
 		foreach ($helps as $target => $settings) {
 			if ($settings === null) {
-				$item = Object::factory('Help')->find(array(
+				$item = $application->object_factory('Help')->find(array(
 					'target' => $target
 				));
 				if ($item) {
@@ -75,13 +76,13 @@ class Module_Help extends Module_JSLib {
 				continue;
 			}
 			$settings['target'] = $target;
-			$help = Object::factory('Help', $settings)->register();
+			$help = $application->object_factory('Help', $settings)->register();
 			/* @var $help Help */
 			if ($help->object_status() === Object::status_insert) {
 				log::notice("Registered help item for {target}", array(
 					'target' => $target
 				));
-			} else if (zesk::getb('Module_Help::cron_update')) {
+			} else if ($this->option_bool('Module_Help::cron_update')) {
 				$help->set_member($settings)->store();
 			}
 		}
