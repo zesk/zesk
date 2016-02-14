@@ -7,7 +7,7 @@
  * @copyright Copyright &copy; 2009, Market Acumen, Inc.
  * Created on Fri Apr 02 21:04:09 EDT 2010 21:04:09
  */
-class Controller extends Hookable {
+class Controller extends Hookable implements Interface_Theme {
 	/**
 	 * Method to use as default action in this Controller.
 	 * Must be a valid method name.
@@ -84,7 +84,7 @@ class Controller extends Hookable {
 	 * @param array $options Rendering options and behaviors
 	 * @return string
 	 */
-	public function theme($types, array $arguments = array(), array $options = array()) {
+	public function theme($types, $arguments = array(), array $options = array()) {
 		return $this->application->theme($types, $arguments, $options);
 	}
 	protected function hook_classes() {
@@ -320,9 +320,20 @@ class Controller extends Hookable {
 	
 	/**
 	 * Create a widget
+	 * 
+	 * @return Widget
 	 */
-	public function widget_factory($class, $options = null) {
-		return Widget::factory($class, $options, $this->application);
+	public function widget_factory($class, array $options = array()) {
+		return $this->application->widget_factory($class, $options);
+	}
+	
+	/**
+	 * Create an object
+	 * 
+	 * @return Object
+	 */
+	public function object_factory($class, $mixed = null, array $options = array()) {
+		return $this->application->object_factory($class, $mixed, $options);
 	}
 }
 

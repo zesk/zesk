@@ -6,21 +6,20 @@
  * @author Kent Davidson <kent@marketacumen.com>
  * @copyright Copyright &copy; 2005, Market Acumen, Inc.
  */
-
 class World_Bootstrap_Language extends Options {
-
+	
 	/**
 	 *
 	 * @var array
 	 */
 	private $include_country = null;
-
+	
 	/**
 	 *
 	 * @var array
 	 */
 	private $include_language = null;
-
+	
 	/**
 	 *
 	 * @param array $options
@@ -29,13 +28,12 @@ class World_Bootstrap_Language extends Options {
 	public static function factory(array $options = array()) {
 		return zesk::factory(__CLASS__, $options);
 	}
-
+	
 	/**
 	 * @global Module_World::include_language List of language codes to include
 	 *
 	 * @param mixed $options
 	 */
-
 	public function __construct($options) {
 		parent::__construct($options);
 		$this->inherit_global_options("Module_World");
@@ -44,7 +42,6 @@ class World_Bootstrap_Language extends Options {
 			$this->include_language = array_change_key_case(arr::flip_assign(to_list($include_language), true));
 		}
 	}
-
 	private function is_included(Language $language) {
 		if ($this->include_language) {
 			$name = strtolower($language->code);
@@ -52,15 +49,14 @@ class World_Bootstrap_Language extends Options {
 		}
 		return true;
 	}
-
-	public function bootstrap() {
-		$x = Object::factory(str::unprefix(__CLASS__, "World_Bootstrap_"));
+	public function bootstrap(Application $application) {
+		$x = $application->object_factory(str::unprefix(__CLASS__, "World_Bootstrap_"));
 		if ($this->option_bool("drop")) {
 			$x->database()->query('TRUNCATE ' . $x->table());
 		}
 		$englishCodes = self::_language_codes_en();
 		foreach ($englishCodes as $code => $name) {
-			$x = new Language(array(
+			$x = $application->object_factory("Language", array(
 				'code' => strtoupper($code),
 				'name' => $name
 			));
@@ -70,7 +66,6 @@ class World_Bootstrap_Language extends Options {
 			}
 		}
 	}
-
 	static private function _language_codes_en() {
 		return array(
 			'aa' => "Afar",

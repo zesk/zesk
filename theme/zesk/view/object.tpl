@@ -21,7 +21,7 @@ if (!empty($value)) {
 		$col_object = $value;
 	} else if (is_numeric($value) && intval($value) !== 0) {
 		try {
-			$col_object = Object::factory($this->object_class, $value)->fetch();
+			$col_object = $this->application->object_factory($this->object_class, $value)->fetch();
 		} catch (Exception $e) {
 			$col_object = null;
 		}

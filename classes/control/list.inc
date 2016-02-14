@@ -341,6 +341,8 @@ class Control_List extends Control_Widgets_Filter {
 			'total' => $this->cache_total,
 			'render_header_widgets' => $this->option_bool('render_header_widgets', true),
 			'header_widgets' => $this->header_widgets,
+			'row_widget' => $this->row_widget,
+			'row_widgets' => $this->row_widgets,
 			'widgets' => $this->row_widgets,
 			'hide_new_button' => $this->option_bool('hide_new_button'),
 			'list_object_name' => __($class_object->name),

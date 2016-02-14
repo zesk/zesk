@@ -30,7 +30,7 @@ class Command_Class_New extends Command {
 		foreach ($names as $class) {
 			$class = zesk::clean_function($class);
 			try {
-				$object = Object::factory($class);
+				$object = $this->application->object_factory($class);
 				$this->error("Class $class already exists");
 				continue;
 			} catch (Exception_Class_NotFound $e) {

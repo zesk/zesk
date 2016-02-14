@@ -1,7 +1,7 @@
 <?php
 class Controller_Forgot extends Controller_Template {
 	function action_index() {
-		$this->control(Control::factory("Control_Forgot"));
+		$this->control($this->widget_factory("Control_Forgot"));
 	}
 	function action_unknown() {
 		$this->template->content = $this->application->theme('forgot/unknown');
@@ -11,7 +11,7 @@ class Controller_Forgot extends Controller_Template {
 	}
 	function action_validate($hash) {
 		/* @var $forgot Forgot */
-		$forgot = Object::factory('Forgot', array(
+		$forgot = $this->object_factory('Forgot', array(
 			"code" => $hash
 		))->find();
 		if (!$forgot) {

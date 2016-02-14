@@ -107,7 +107,7 @@ class Object_Iterator extends Database_Result_Iterator implements Iterator {
 		parent::next();
 		if ($this->_valid) {
 			// We do create, then fetch to support polymorphism - if Object supports factory polymorphism, then shorten this to single factory call
-			$this->object = Object::factory($this->class, $this->_row, array(
+			$this->object = $this->query->object_factory($this->class, $this->_row, array(
 				'initialize' => true
 			) + $this->class_options);
 			$this->id = $this->object->id();

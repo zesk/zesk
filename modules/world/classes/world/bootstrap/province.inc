@@ -53,8 +53,8 @@ class World_Bootstrap_Province extends Options {
 		return true;
 	}
 
-	public function bootstrap() {
-		$x = Object::factory(str::unprefix(__CLASS__, "World_Bootstrap_"));
+	public function bootstrap(Application $application) {
+		$x = $application->object_factory(str::unprefix(__CLASS__, "World_Bootstrap_"));
 		if ($this->option_bool("drop")) {
 			$x->database()->query('TRUNCATE ' . $x->table());
 		}
@@ -64,7 +64,7 @@ class World_Bootstrap_Province extends Options {
 			"CA" => self::_province_ca()
 		);
 		foreach ($countries as $country_code => $map) {
-			$country = Object::factory('Country', array(
+			$country = $application->object_factory('Country', array(
 				'code' => $country_code
 			))->find();
 			if (!$country) {
@@ -72,7 +72,7 @@ class World_Bootstrap_Province extends Options {
 			}
 			if ($this->is_included($country)) {
 				foreach ($map as $name => $code) {
-					Object::factory("Province", array(
+					$application->object_factory("Province", array(
 						"country" => $country,
 						"code" => strtoupper($code),
 						"name" => $name

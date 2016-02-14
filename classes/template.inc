@@ -29,7 +29,7 @@
  * @see Application::theme_paths
  * @author kent
  */
-class Template {
+class Template implements Interface_Theme {
 	/**
 	 *
 	 * @var Application
@@ -126,14 +126,14 @@ class Template {
 	 *
 	 * @var boolean
 	 */
-	static private $profile = false;
+	private static $profile = false;
 	
 	/**
 	 * Whether to wrap all non-empty templates with HTML comments (caution!)
 	 *
 	 * @var boolean
 	 */
-	static private $wrap = false;
+	private static $wrap = false;
 	
 	/**
 	 * Construct a new template
@@ -152,7 +152,7 @@ class Template {
 			$this->_vars = $variables->variables() + $this->_vars;
 		} else if (is_array($variables)) {
 			foreach ($variables as $k => $v) {
-				if ($k[0] === '_') {
+				if (substr($k, 0, 1) === '_') {
 					continue;
 				}
 				$this->__set($k, $v);
@@ -164,7 +164,7 @@ class Template {
 			$this->_original_path = $path;
 			$this->path($path);
 		}
-		if (zesk::getb("Template::profile")) {
+		if (self::$profile) {
 			arr::increment(self::$_stats['counts'], $this->_path);
 		}
 	}
@@ -620,7 +620,7 @@ class Template {
 		if (!zesk::getb('Template::profile')) {
 			return '';
 		}
-		return $this->theme('template/profile', self::$_stats);
+		echo Application::instance()->theme('template/profile', self::$_stats);
 	}
 	
 	/*

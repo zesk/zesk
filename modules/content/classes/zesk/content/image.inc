@@ -74,7 +74,7 @@ class Zesk_Content_Image extends Object {
 		$add = array();
 		if ($get_data) {
 			$add = array(
-				'data' => Object::factory('Content_Data')->initialize(arr::kunprefix($result, "data_", true), true)
+				'data' => $this->object_factory('Content_Data')->initialize(arr::kunprefix($result, "data_", true), true)
 			);
 		}
 		return $add + arr::kunprefix($result, "image_", true);

@@ -5,7 +5,7 @@ if (!$image instanceof Content_Image) {
 	$id = $this->id;
 	if (is_numeric($id) && !empty($id)) {
 		try {
-			$image = Object::factory('Content_Image', $id)->fetch();
+			$image = $this->application->object_factory('Content_Image', $id)->fetch();
 		} catch (Exception_Object_NotFound $e) {
 			$image = null;
 		}

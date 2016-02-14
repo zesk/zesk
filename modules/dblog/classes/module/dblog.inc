@@ -77,7 +77,7 @@ class Module_DBLog extends Module_Log {
 		}
 		$fields['arguments'] = $args;
 		try {
-			Object::factory("DBLog")->set($fields)->store();
+			$this->application->object_factory("DBLog")->set($fields)->store();
 		} catch (Database_Exception_Table_NotFound $e) {
 			// Oopsie. Update the schema.
 		}

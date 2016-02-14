@@ -48,7 +48,6 @@ foreach ($this->children as $child) {
 	} else {
 		$hidden .= $content;
 	}
-
 }
 if ($this->theme_widgets) {
 	echo map($this->theme($this->theme_widgets), arr::flatten(arr::kprefix($results, 'widget.') + arr::kprefix($this->variables, 'template.') + arr::kprefix($this->object->variables(), 'object.')));

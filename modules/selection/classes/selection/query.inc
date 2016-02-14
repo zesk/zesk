@@ -8,7 +8,7 @@
 class Selection_Query extends Object {
 	public static function instance(Selection_Type $type, Database_Query_Select $total, Database_Query_Select $list) {
 		$code = md5(serialize($list));
-		$object = Object::factory(__CLASS__, array(
+		$object = $type->application->object_factory(__CLASS__, array(
 			"type" => $type,
 			"code" => $code
 		));

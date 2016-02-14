@@ -34,7 +34,7 @@ class Control_Selection extends Control {
 		if ($this->type) {
 			return $this->type;
 		}
-		return $this->type = Object::factory("Selection_Type", array(
+		return $this->type = $this->object_factory("Selection_Type", array(
 			"session" => $this->session(),
 			"user" => $this->user(),
 			"code" => $this->selection_code(),

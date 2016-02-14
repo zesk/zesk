@@ -15,16 +15,14 @@ class Control_Content_Image extends Control {
 			"image/png"
 		));
 	}
-
 	protected function model() {
 		return new Content_Image();
 	}
-
 	protected function normalize() {
 		$value = $this->value();
 		if (is_numeric($value)) {
 			try {
-				$value = Object::factory('Content_Image', $value)->fetch();
+				$value = $this->object_factory('Content_Image', $value)->fetch();
 			} catch (Exception_Object_NotFound $e) {
 				return null;
 			}
@@ -36,16 +34,14 @@ class Control_Content_Image extends Control {
 		}
 		return $value;
 	}
-
 	protected function load() {
 		parent::load();
 		$this->value($this->normalize());
 	}
-
 	protected function defaults() {
 		$this->value($this->normalize());
 	}
-
+	
 	/**
 	 * (non-PHPdoc)
 	 * @see Widget::validate()
@@ -67,7 +63,7 @@ class Control_Content_Image extends Control {
 		}
 		$name = $type = $size = $tmp_name = null;
 		extract($data, EXTR_IF_EXISTS);
-
+		
 		$allowed = $this->allowed_mime_types();
 		if (!in_array($type, $allowed)) {
 			$type = mime::from_filename($name);
@@ -78,7 +74,7 @@ class Control_Content_Image extends Control {
 		}
 		return true;
 	}
-
+	
 	/**
 	 * (non-PHPdoc)
 	 * @see Widget::submit()
@@ -91,9 +87,9 @@ class Control_Content_Image extends Control {
 			}
 			$name = $type = $size = $tmp_name = null;
 			extract($data, EXTR_IF_EXISTS);
-
+			
 			$image = Content_Image::register_from_file($tmp_name, array(
-				'path' => $name
+				'path' => file::name_clean($name)
 			));
 			$this->value($image->id());
 		} catch (Exception_Upload $e) {
@@ -102,10 +98,9 @@ class Control_Content_Image extends Control {
 				$e
 			));
 		}
-
+		
 		return parent::submit();
 	}
-
 	public function theme_variables() {
 		return array(
 			'width' => $this->option_integer('width', 200),

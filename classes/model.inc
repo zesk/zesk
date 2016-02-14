@@ -14,10 +14,15 @@
  * @author kent
  */
 class Model extends Hookable implements ArrayAccess {
-
 	protected $_inited = false;
-
-	function __construct($mixed = null, $options = null) {
+	
+	/**
+	 * 
+	 * @var Application
+	 */
+	public $application = null;
+	function __construct($mixed = null, $options = null, Application $application = null) {
+		$this->application = $application ? $application : Application::instance();
 		if (is_array($mixed)) {
 			foreach ($mixed as $k => $v) {
 				$this->set($k, $v);
@@ -25,7 +30,7 @@ class Model extends Hookable implements ArrayAccess {
 		}
 		parent::__construct($options);
 	}
-
+	
 	/**
 	 *
 	 * @param string $class
@@ -33,8 +38,8 @@ class Model extends Hookable implements ArrayAccess {
 	 * @throws Exception_Semantics
 	 * @return Model
 	 */
-	public static function factory($class, $value = null) {
-		$object = zesk::factory($class);
+	public static function factory($class, $value = null, $options = null, Application $application = null) {
+		$object = zesk::factory($class, $value, $options, $application);
 		if (!$object instanceof Model) {
 			throw new Exception_Semantics("Class $class is not of type Model");
 		}
@@ -47,7 +52,6 @@ class Model extends Hookable implements ArrayAccess {
 		}
 		return $object;
 	}
-
 	function is_new() {
 		return $this->inited();
 	}
@@ -65,7 +69,7 @@ class Model extends Hookable implements ArrayAccess {
 		}
 		return $result;
 	}
-
+	
 	/**
 	 * Convert values in this object with map
 	 */
@@ -73,7 +77,7 @@ class Model extends Hookable implements ArrayAccess {
 		$this->set(map($this->variables(), $map));
 		return $this;
 	}
-
+	
 	/**
 	 * Convert other values using this Model as the map
 	 */
@@ -86,7 +90,7 @@ class Model extends Hookable implements ArrayAccess {
 		}
 		return map($mixed, $this->variables());
 	}
-
+	
 	/**
 	 * ArrayAccess offsetExists
 	 * @param mixed $offset
@@ -95,7 +99,7 @@ class Model extends Hookable implements ArrayAccess {
 	public function offsetExists($offset) {
 		return $this->__isset($offset);
 	}
-
+	
 	/**
 	 * ArrayAccess offsetGet
 	 * @param mixed $offset
@@ -104,7 +108,7 @@ class Model extends Hookable implements ArrayAccess {
 	public function offsetGet($offset) {
 		return $this->__get($offset);
 	}
-
+	
 	/**
 	 * ArrayAccess offsetSet
 	 * @param mixed $offset
@@ -114,7 +118,7 @@ class Model extends Hookable implements ArrayAccess {
 	public function offsetSet($offset, $value) {
 		$this->__set($offset, $value);
 	}
-
+	
 	/**
 	 * ArrayAccess offsetUnset
 	 * @param mixed $offset
@@ -123,7 +127,7 @@ class Model extends Hookable implements ArrayAccess {
 	public function offsetUnset($offset) {
 		$this->__unset($offset);
 	}
-
+	
 	/**
 	 *
 	 * @return boolean
@@ -131,7 +135,7 @@ class Model extends Hookable implements ArrayAccess {
 	public function store() {
 		return $this;
 	}
-
+	
 	/**
 	 *
 	 * @param mixed $mixed Settings to retrieve a model from somewhere
@@ -140,7 +144,7 @@ class Model extends Hookable implements ArrayAccess {
 	function fetch($mixed = null) {
 		return $this;
 	}
-
+	
 	/**
 	 *
 	 * @param mixed $mixed Model value to retrieve
@@ -162,7 +166,6 @@ class Model extends Hookable implements ArrayAccess {
 		}
 		return $this->__get($mixed);
 	}
-
 	public function has($mixed = null) {
 		if (is_array($mixed)) {
 			foreach ($mixed as $k) {
@@ -177,7 +180,7 @@ class Model extends Hookable implements ArrayAccess {
 		}
 		return false;
 	}
-
+	
 	/**
 	 * Returns true if model has been initialized with valid values
 	 *
@@ -186,7 +189,7 @@ class Model extends Hookable implements ArrayAccess {
 	public function inited() {
 		return $this->_inited;
 	}
-
+	
 	/**
 	 *
 	 * @param mixed $mixed Model value to set
@@ -210,11 +213,10 @@ class Model extends Hookable implements ArrayAccess {
 		}
 		return $this;
 	}
-
 	public function __toString() {
 		return php::dump($this->options);
 	}
-
+	
 	/*
 	 * Only place to access ->$name is here
 	 */
@@ -224,20 +226,16 @@ class Model extends Hookable implements ArrayAccess {
 		}
 		return null;
 	}
-
 	public function __set($name, $value) {
 		$this->$name = $value;
 		$this->_inited = true;
 	}
-
 	public function __unset($name) {
 		unset($this->$name);
 	}
-
 	public function __isset($name) {
 		return isset($this->$name);
 	}
-
 	public function json(array $options = array()) {
 		return json::encode($this->variables());
 	}

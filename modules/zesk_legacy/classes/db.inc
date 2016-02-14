@@ -7,6 +7,8 @@
  * @copyright Copyright &copy; 2010, Market Acumen, Inc.
  */
 
+zesk::deprecated();
+
 /**
  * @deprecated Database instead
  * @author kent

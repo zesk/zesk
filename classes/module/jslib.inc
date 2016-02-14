@@ -6,13 +6,10 @@
  * @author kent
  */
 abstract class Module_JSLib extends Module {
-
 	protected $css_paths = array();
-
 	protected $javascript_paths = array();
-
 	protected $javascript_settings = array();
-
+	
 	/*
 	 * An array of key => value pairs which are set as globals for this module
 	 * and taken from zesk globals.
@@ -31,19 +28,33 @@ abstract class Module_JSLib extends Module {
 	 * @var array
 	 */
 	protected $javascript_settings_inherit = array();
-
+	
+	/**
+	 * jQuery ready code
+	 * 
+	 * @var array
+	 */
 	protected $jquery_ready = array();
-
+	
+	/**
+	 * Where the jQuery code should run (higher numbers are later)
+	 * @var integer
+	 */
 	protected $jquery_ready_weight = -1000;
-
+	
+	/**
+	 * HTML Page head
+	 * 
+	 * @param Request $request
+	 * @param Response_HTML $response
+	 * @param Template $template
+	 */
 	public function hook_head(Request $request, Response_HTML $response, Template $template) {
-		$conf = get_class($this) . "::disabled";
-		if (!zesk::getb($conf, false)) {
+		if (!$this->option_bool("disabled")) {
 			if ($this->javascript_settings_inherit) {
-				$prefix = get_class($this) . '::';
 				foreach ($this->javascript_settings_inherit as $key => $value) {
-					if (zesk::has($prefix . $key)) {
-						$global = zesk::get($prefix . $key);
+					if ($this->has_option($key)) {
+						$global = $this->option($key);
 						if ($global !== $value) {
 							$this->javascript_settings[$key] = $global;
 						}
@@ -71,13 +82,12 @@ abstract class Module_JSLib extends Module {
 					$response->cdn_javascript($key, $value + array(
 						'share' => true
 					));
-
 				}
 			}
 			$this->ready($response);
 		}
 	}
-
+	
 	/**
 	 * Able to call this from theme templates for AJAX calls
 	 *

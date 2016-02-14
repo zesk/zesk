@@ -18,7 +18,7 @@ class Test_Object extends Test_Unit {
 			$object = Object::cache_object($class);
 			$table = $object->table();
 			if (!$object->database()->table_exists($table)) {
-				$this->test_table_sql($table, Object::factory($class)->schema());
+				$this->test_table_sql($table, $this->application->object_factory($class)->schema());
 			}
 		}
 	}

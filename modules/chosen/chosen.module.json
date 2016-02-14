@@ -8,5 +8,6 @@
 			"URL": "https://github.com/harvesthq/chosen/releases/download/{version}/chosen_v{version}.zip"
 		}
 	},
-	"destination": "vendor/components/chosen"
+	"destination": "vendor/components/chosen",
+	"share_path":  "vendor/components/chosen"
 }

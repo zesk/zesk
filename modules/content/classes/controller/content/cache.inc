@@ -64,7 +64,7 @@ class Controller_Content_Cache extends Controller_Cache {
 	protected function action_image($id, $styles = null, $file = null) {
 		try {
 			/* @var $image Content_Image */
-			$image = Object::factory('Content_Image', $id)->fetch();
+			$image = $this->object_factory('Content_Image', $id)->fetch();
 			$image_file = basename($image->path());
 			$commands = $this->parse_commands($image, $styles);
 			if ($file === null || $file !== $image_file || empty($styles) || $commands === null) {

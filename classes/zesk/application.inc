@@ -31,7 +31,7 @@ use \Template_Stack as Template_Stack;
  * @author kent
  *        
  */
-class Application extends \Hookable {
+class Application extends \Hookable implements \Interface_Theme {
 	
 	/**
 	 *
@@ -574,7 +574,7 @@ class Application extends \Hookable {
 			$result = array();
 			$result['class'] = $lowclass;
 			try {
-				$result['object'] = $object = Object::factory($class);
+				$result['object'] = $object = $this->object_factory($class);
 				$result['database'] = $object->database_name();
 				$result['table'] = $object->table();
 			} catch (\Exception $e) {
@@ -867,6 +867,7 @@ class Application extends \Hookable {
 	 *
 	 *
 	 *
+	 *
 	 * php URLs and converting to router-based URLs
 	 *
 	 * @param Model_URL $state        	
@@ -941,7 +942,7 @@ class Application extends \Hookable {
 	 */
 	public function schema_synchronize(\Database $db = null, array $classes = null, array $options = array()) {
 		if (!$db) {
-			$db = Database::factory();
+			$db = $this->database_factory();
 		}
 		if ($classes === null) {
 			$classes = $this->classes();
@@ -962,7 +963,7 @@ class Application extends \Hookable {
 			log::debug("Parsing $class");
 			$objects_by_class[$lowclass] = true;
 			try {
-				$object = Object::factory($class);
+				$object = $this->object_factory($class);
 				$object_db_name = $object->database()->code_name();
 				$updates = Database_Schema::update_object($object);
 			} catch (Exception $e) {
@@ -1099,7 +1100,10 @@ class Application extends \Hookable {
 	}
 	
 	/**
-	 * Add or retrieve the share path for this application
+	 * Add or retrieve the share path for this application - used to serve
+	 * shared content via Controller_Share as well as populate automatically with files within the
+	 * system.
+	 * By default, it's /share/
 	 *
 	 * @todo Deprecate zesk::share_path
 	 * @param unknown $add        	
@@ -1108,6 +1112,17 @@ class Application extends \Hookable {
 	 */
 	public function share_path($add = null, $name = null) {
 		return zesk::share_path($add, $name);
+	}
+	
+	/**
+	 * Add or retrieve the data path for this application
+	 *
+	 * @todo Deprecate zesk::data_path
+	 * @param string $add Value to set        	
+	 * @return string Current data_path value
+	 */
+	public function data_path($add = null) {
+		return zesk::data_path($add);
 	}
 	
 	/**
@@ -1382,6 +1397,39 @@ class Application extends \Hookable {
 			zesk::set('development', $set);
 		}
 		return zesk::getb('development');
+	}
+	
+	/**
+	 * Retrieve the database for this application. This call is meant to deprecate the global Database::factory eventually.
+	 * 
+	 * @param string $mixed Name or URL
+	 * @param array $options Options for the database
+	 * @return Database
+	 */
+	public function database_factory($mixed = null, array $options = array()) {
+		return \Database::factory($mixed, $options);
+	}
+	/**
+	 * Create a widget
+	 * 
+	 * @param string $class
+	 * @param array $options
+	 * @return Widget
+	 */
+	public function widget_factory($class, array $options = array()) {
+		return \Widget::factory($class, $options, $this);
+	}
+	
+	/**
+	 * Create a widget
+	 * 
+	 * @param string $class
+	 * @param array $options
+	 * @todo Pass application as part of creation call
+	 * @return Object
+	 */
+	public function object_factory($class, $mixed = null, array $options = array()) {
+		return \Object::factory($class, $mixed, $options, $this);
 	}
 }
 

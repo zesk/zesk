@@ -80,7 +80,7 @@ abstract class Database_Query_Select_Base extends Database_Query {
 			return null;
 		}
 		$options['from_database'] = true;
-		return Object::factory($this->object_class($class), $columns, $options);
+		return $this->object_factory($this->object_class($class), $columns, $options);
 	}
 
 	/**
@@ -96,7 +96,7 @@ abstract class Database_Query_Select_Base extends Database_Query {
 		if ($result === null) {
 			return $result;
 		}
-		$object = Object::factory($this->object_class($class), null, $options);
+		$object = $this->object_factory($this->object_class($class), null, $options);
 		$object->initialize($result, true);
 		return $object;
 	}

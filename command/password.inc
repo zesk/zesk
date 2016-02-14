@@ -23,7 +23,7 @@ class Command_Password extends Command_Base {
 
 	function _option_list() {
 		/* @var $user User */
-		$user = Object::factory('User');
+		$user = $this->application->object_factory('User');
 		$col = $user->column_login();
 		$iterator = $user->query()
 			->what($col)

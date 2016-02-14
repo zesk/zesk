@@ -28,7 +28,7 @@ class Control_Select_Object extends Control_Select {
 		if (empty($class)) {
 			return parent::model();
 		}
-		return Object::factory($this->class);
+		return $this->application->object_factory($this->class);
 	}
 
 	protected function initialize() {

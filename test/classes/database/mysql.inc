@@ -2,7 +2,7 @@
 class Database_MySQL_Test extends Test_Unit {
 
 	function test_types_compatible() {
-		$mysql = Database::factory("mysql://root@localhost/mysql", array(
+		$mysql = $this->application->database_factory("mysql://root@localhost/mysql", array(
 			'connect' => false
 		));
 		/* @var $mysql Database_MySQL */
@@ -18,7 +18,7 @@ class Database_MySQL_Test extends Test_Unit {
 		$this->assert(begins($url, 'mysql:'));
 		/* @var $db Database_MySQL */
 
-		$db = Database::factory($url);
+		$db = $this->application->database_factory($url);
 
 		$this->assert($db->type() === "mysql");
 		return $db;
@@ -333,7 +333,7 @@ EOF;
 		$db->parse_create_table($sql);
 
 		$url = zesk::get('DB_URL');
-		Database_MySQL::factory($url);
+		$this->application->database_factory($url);
 
 		$url = $db->url();
 
@@ -396,10 +396,10 @@ EOF;
 	function test_schema0() {
 		$db_url = zesk::get('DB_URL');
 
-		$updates = Database_Schema::updateObject(Object::factory('DBSchemaTest_columns_0'));
+		$updates = Database_Schema::updateObject($this->application->object_factory('DBSchemaTest_columns_0'));
 		dump($updates);
 		//TODO - not sure what this is testing but perhaps the SQL caused errors previously?
-		$updates = Database_Schema::updateObject(Object::factory('DBSchemaTest_columns_1'));
+		$updates = Database_Schema::updateObject($this->application->object_factory('DBSchemaTest_columns_1'));
 		dump($updates);
 		//TODO - not sure what this is testing but perhaps the SQL caused errors previously?
 	}

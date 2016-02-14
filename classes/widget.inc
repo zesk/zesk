@@ -229,7 +229,7 @@ class Widget extends Hookable {
 			}
 		} else {
 			$this->application = Application::instance();
-			$this->request = Request::instance($this->application);
+			$this->request = Request::instance();
 			$this->response = Response::instance($this->application);
 		}
 		if (!is_array($options)) {
@@ -486,6 +486,17 @@ class Widget extends Hookable {
 			$options = array();
 		}
 		return $options + self::default_options($class);
+	}
+	
+	/**
+	 * Create an object in the application context
+	 * 
+	 * @param string $class
+	 * @param mixed $mixed
+	 * @param array $options
+	 */
+	public function object_factory($class, $mixed = null, array $options = array()) {
+		return $this->application->object_factory($class, $mixed, $options);
 	}
 	
 	public function widget_factory($class, $options = null) {
@@ -1639,6 +1650,7 @@ class Widget extends Hookable {
 		}
 		$widget = $this->_exec_ready()->_exec_submit();
 		$content = $widget ? $widget->_exec_render() : null;
+		
 		$object = $this->object;
 		return $content;
 	}

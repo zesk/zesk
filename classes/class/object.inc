@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Class abstraction for objects
  *
@@ -1135,7 +1136,7 @@ class Class_Object extends Hookable {
 		if ($this->inherit_options) {
 			$object = Object::cached($class);
 		} else {
-			$object = Object::factory($class, null, $object->inherit_options());
+			$object = $object->object_factory($class, null, $object->inherit_options());
 		}
 		if (!$object instanceof Object) {
 			throw new Exception_Semantics("{class} is not an instance of Object", compact("class"));

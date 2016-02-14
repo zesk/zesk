@@ -103,4 +103,17 @@ class Database_Query {
 		}
 		return $this->class;
 	}
+	
+
+	/**
+	 * Create objects in the current application context
+	 * 
+	 * @param string $class
+	 * @param mixed $mixed
+	 * @param array $options
+	 * @return Object
+	 */
+	function object_factory($class, $mixed = null, $options = null) {
+		return $this->db->application->object_factory($class, $mixed, $options);
+	}
 }

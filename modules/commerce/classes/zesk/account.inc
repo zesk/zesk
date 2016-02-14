@@ -19,7 +19,7 @@ class Zesk_Account extends Object {
 		$user = User::instance();
 		$singleton = zesk::hook_array('Account::instance', array($user), $user->Account);
 		if (is_numeric($singleton)) {
-			$singleton = Object::factory("Account")->fetch($singleton);
+			$singleton = $user->object_factory("Account")->fetch($singleton);
 		}
 		return $singleton;
 	}

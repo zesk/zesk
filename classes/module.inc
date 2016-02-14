@@ -19,28 +19,28 @@ abstract class Module extends Hookable {
 	 * @var Application
 	 */
 	protected $application = null;
-
+	
 	/**
 	 * Module code name
 	 *
 	 * @var string
 	 */
 	protected $codename = null;
-
+	
 	/**
 	 * Path to this module
 	 *
 	 * @var string
 	 */
 	protected $path = null;
-
+	
 	/**
 	 * List of associated classes
 	 *
 	 * @var array
 	 */
 	protected $classes = array();
-
+	
 	/**
 	 * Create Module
 	 *
@@ -51,27 +51,31 @@ abstract class Module extends Hookable {
 		$this->application = $application;
 		$this->inherit_global_options();
 		$this->path = avalue($module_data, 'path');
+		if (!$this->codename) {
+			// Code name used in JavaScript settings
+			$this->codename = strtolower(str::unprefix(get_class($this), "Module_"));
+		}
 	}
-
+	
 	/**
 	 * Override in subclasses - called upon load
 	 */
 	public function initialize() {
 	}
-
+	
 	/**
 	 * Override in subclasses - called upon Application::classes
 	 */
 	public function classes() {
 		return $this->classes;
 	}
-
+	
 	/*
 	 * public function hook_head(Request $request, Response_HTML $response, Template $template) {
 	 *
 	 * }
 	 */
-
+	
 	/**
 	 * Run hooks across all modules loaded
 	 * @deprecated 2016-01-13
@@ -85,7 +89,7 @@ abstract class Module extends Hookable {
 		array_shift($arguments);
 		return Application::instance()->module->all_hook_array($hook, $arguments);
 	}
-
+	
 	/**
 	 * Retrieve
 	 * Used for filters where a specific result should be returned by each function
@@ -99,7 +103,7 @@ abstract class Module extends Hookable {
 	public final static function all_modules() {
 		return Application::instance()->module->all_modules();
 	}
-
+	
 	/**
 	 * Partner to hook_all - runs with an arguments array command and a default return value
 	 * Used for filters where a specific result should be returned by each function
@@ -113,7 +117,7 @@ abstract class Module extends Hookable {
 	public final static function all_hook_array($hook, array $arguments, $default = null, $hook_callback = null, $result_callback = null) {
 		return Application::instance()->module->all_hook_array($hook, $arguments, $default, $hook_callback, $result_callback);
 	}
-
+	
 	/**
 	 * List all hooks which would be called by all modules.
 	 *
@@ -126,7 +130,7 @@ abstract class Module extends Hookable {
 	public final static function all_hook_list($hook) {
 		return Application::instance()->module->all_hook_list($hook);
 	}
-
+	
 	/**
 	 * Is a module loaded?
 	 *
@@ -138,7 +142,7 @@ abstract class Module extends Hookable {
 	public final static function exists($mixed = null) {
 		return Application::instance()->module->exists($mixed);
 	}
-
+	
 	/**
 	 * List available modules
 	 * @deprecated 2016-01-13
@@ -146,7 +150,7 @@ abstract class Module extends Hookable {
 	public final static function available() {
 		return Application::instance()->module->available();
 	}
-
+	
 	/**
 	 * What modules are loaded?
 	 *
@@ -159,7 +163,7 @@ abstract class Module extends Hookable {
 	public final static function loaded($mixed = null) {
 		return Application::instance()->module->loaded($mixed);
 	}
-
+	
 	/**
 	 * Dynamically determine the module version
 	 *
@@ -170,7 +174,7 @@ abstract class Module extends Hookable {
 	public final static function version($mixed = null) {
 		return Application::instance()->module->version($mixed);
 	}
-
+	
 	/**
 	 * Retrieve information about a loaded module
 	 *
@@ -183,7 +187,7 @@ abstract class Module extends Hookable {
 	public final static function data($module, $option, $default = null) {
 		return Application::instance()->module->data($module, $option, $default);
 	}
-
+	
 	/**
 	 * Get full path to module
 	 *
@@ -196,7 +200,7 @@ abstract class Module extends Hookable {
 	public final static function path($module, $default = null) {
 		return self::data($module, "path", $default);
 	}
-
+	
 	/**
 	 * Get Module
 	 *
@@ -209,7 +213,7 @@ abstract class Module extends Hookable {
 	public final static function object($module, $default = null) {
 		return self::data($module, "module", $default);
 	}
-
+	
 	/**
 	 * Clean a class name
 	 *
@@ -220,7 +224,7 @@ abstract class Module extends Hookable {
 	private static function clean_class($name) {
 		return trim(preg_replace('/-_+/', '_', preg_replace('/[^a-z0-9]/i', '_', $name)), "_");
 	}
-
+	
 	/**
 	 * Load an internal module - differs in that it uses autoload path to find Module_$name and
 	 * registers it first.
@@ -239,7 +243,7 @@ abstract class Module extends Hookable {
 			'internal' => true
 		));
 	}
-
+	
 	/**
 	 * @deprecated 2016-01-13
 	 * @param unknown $mixed
@@ -248,7 +252,7 @@ abstract class Module extends Hookable {
 	public static final function load($mixed = null, array $options = array()) {
 		return Application::instance()->module->load($mixed, $options);
 	}
-
+	
 	/**
 	 * During module registration, register system paths automatically.
 	 * Either a specified path
@@ -268,7 +272,7 @@ abstract class Module extends Hookable {
 	public final static function register_paths($module_path = null, $module = null) {
 		return Application::instance()->module->register_paths($module_path, $module);
 	}
-
+	
 	/**
 	 * Clean a module name
 	 *
@@ -280,5 +284,4 @@ abstract class Module extends Hookable {
 	public static function clean_name($module) {
 		return Modules::clean_name($module);
 	}
-
 }

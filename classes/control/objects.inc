@@ -27,7 +27,7 @@ class Control_Objects extends Control_Text {
 		$objects = array();
 		foreach ($value as $id) {
 			try {
-				$objects[$id] = $objects = Object::factory($this->class, $id)->fetch();
+				$objects[$id] = $objects = $this->application->object_factory($this->class, $id)->fetch();
 			} catch (Exception $e) {
 				zesk::hook("exception", $e);
 				return false;

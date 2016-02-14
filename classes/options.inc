@@ -29,13 +29,13 @@
  * @subpackage system
  */
 class Options implements ArrayAccess {
-
+	
 	/**
 	 * Character used for space
 	 * @var string
 	 */
 	const option_space = "_";
-
+	
 	/**
 	 * An associative array of lower-case strings pointing to mixed values. $options should
 	 * always be serializable so it should only contain primitive scalar types.
@@ -45,7 +45,7 @@ class Options implements ArrayAccess {
 	 * @var array
 	 */
 	protected $options = array();
-
+	
 	/**
 	 * Create a Options object.
 	 *
@@ -62,7 +62,7 @@ class Options implements ArrayAccess {
 			$this->options = $options->options + self::_option_key($this->options);
 		}
 	}
-
+	
 	/**
 	 * @ignore
 	 */
@@ -71,18 +71,17 @@ class Options implements ArrayAccess {
 			"options"
 		);
 	}
-
+	
 	/**
 	 * Load default options for an object. Leaf-class options override parent options.
 	 *
 	 * For class Control_Thing_Example, loads globals from:
 	 *
-	 * zesk::geta("Control_Thing_Example::options");
-	 * zesk::geta("Control_Thing::options");
-	 * zesk::geta("Control::options");
-	 * zesk::geta("Options::options");
+	 * zesk::geta("Control_Thing_Example::name1");
+	 * zesk::geta("Control_Thing::name1");
+	 * zesk::geta("Control::name1");
+	 * zesk::geta("Options::name1");
 	 *
-	 * @todo possible issue with ::options being its own options as well
 	 * @todo arr::kunprefix here is slow, restructure globals to be hierarchical or figure out another way
 	 * @param string $class
 	 * @return array
@@ -97,7 +96,7 @@ class Options implements ArrayAccess {
 		}
 		return $opts;
 	}
-
+	
 	/**
 	 * Load options for this object based on globals loaded
 	 *
@@ -112,7 +111,7 @@ class Options implements ArrayAccess {
 		$this->options = $this->options + $options;
 		return $this;
 	}
-
+	
 	/**
 	 * options_exclude
 	 *
@@ -136,7 +135,7 @@ class Options implements ArrayAccess {
 		}
 		return $arr;
 	}
-
+	
 	/**
 	 * options_include
 	 *
@@ -155,26 +154,26 @@ class Options implements ArrayAccess {
 		}
 		return $result;
 	}
-
+	
 	/**x
 	 * @return array A list of all of the keys in this Options object.
 	 */
 	function option_keys() {
 		return array_keys($this->options);
 	}
-
+	
 	/**
 	 * Checks an option to see if it is set and optionally if it has a non-empty value.
 	 *
 	 * @param string $name The name of the option key to check
-	 * @param bool $checkEmpty True if you want to ensure that the value is non-empty (e.g. not null, 0, "0", "", array(), or false)
+	 * @param bool $check_empty True if you want to ensure that the value is non-empty (e.g. not null, 0, "0", "", array(), or false)
 	 * @see empty()
 	 * @return bool
 	 */
-	function has_option($name, $checkEmpty = false) {
+	function has_option($name, $check_empty = false) {
 		if (is_array($name)) {
 			foreach ($name as $k) {
-				if ($this->has_option($k, $checkEmpty)) {
+				if ($this->has_option($k, $check_empty)) {
 					return true;
 				}
 			}
@@ -184,12 +183,12 @@ class Options implements ArrayAccess {
 		if (!array_key_exists($name, $this->options)) {
 			return false;
 		}
-		if (!$checkEmpty) {
+		if (!$check_empty) {
 			return true;
 		}
 		return !empty($this->options[$name]);
 	}
-
+	
 	/**
 	 * Set an option for this object, or remove it.
 	 *
@@ -238,7 +237,7 @@ class Options implements ArrayAccess {
 		}
 		return $this;
 	}
-
+	
 	/**
 	 * Converts a non-array option into an array, and appends a value to the end.
 	 *
@@ -259,7 +258,7 @@ class Options implements ArrayAccess {
 		$this->options[$name][] = $value;
 		return $this;
 	}
-
+	
 	/**
 	 * Appends a variable to a option which is an array
 	 *
@@ -273,7 +272,7 @@ class Options implements ArrayAccess {
 		$this->options[self::_option_key($name)][$key] = $value;
 		return $this;
 	}
-
+	
 	/**
 	 * Get an option, or multiple options for this object.
 	 *
@@ -360,7 +359,7 @@ class Options implements ArrayAccess {
 		}
 		return $default;
 	}
-
+	
 	/**
 	 * Returns first option found
 	 *
@@ -379,98 +378,7 @@ class Options implements ArrayAccess {
 		}
 		return $default;
 	}
-
-	/**
-	 * Synonym for option
-	 *
-	 * @param mixed $name An option to get, or an array of option => default values
-	 * @param mixed $default The default value to return of the option is not found
-	 * @return mixed The retrieved option
-	 * @deprecated use option
-	 */
-	function o($name, $default = null) {
-		zesk::deprecated();
-		return $this->option($name, $default);
-	}
-
-	/**
-	 * Synonym for option_first
-	 *
-	 * @param mixed $name An option to get, or an array of option => default values
-	 * @param mixed $default The default value to return of the option is not found
-	 * @return mixed The retrieved option
-	 * @deprecated use first_option
-	 */
-	function o1($name, $default = null) {
-		zesk::deprecated();
-		return $this->first_option($name, $default);
-	}
-
-	/**
-	 * Synonym for option_integer
-	 *
-	 * @param mixed $name An option to get, or an array of option => default values
-	 * @param mixed $default The default value to return of the option is not found
-	 * @return mixed The retrieved option
-	 * @deprecated use option_integer
-	 */
-	function oi($name, $default = null) {
-		zesk::deprecated();
-		return $this->option_integer($name, $default);
-	}
-
-	/**
-	 * Synonym for option_double
-	 *
-	 * @param mixed $name An option to get, or an array of option => default values
-	 * @param mixed $default The default value to return of the option is not found
-	 * @return mixed The retrieved option
-	 * @deprecated use option_double
-	 */
-	function on($name, $default = null) {
-		zesk::deprecated();
-		return $this->option_double($name, $default);
-	}
-
-	/**
-	 * Synonym for option_bool
-	 *
-	 * @param mixed $name An option to get, or an array of option => default values
-	 * @param mixed $default The default value to return of the option is not found
-	 * @return mixed The retrieved option
-	 * @deprecated use option_bool
-	 */
-	function ob($name, $default = false) {
-		zesk::deprecated();
-		return $this->option_bool($name, $default);
-	}
-
-	/**
-	 * Synonym for option_array
-	 *
-	 * @param mixed $name An option to get, or an array of option => default values
-	 * @param mixed $default The default value to return of the option is not found
-	 * @return mixed The retrieved option
-	 * @deprecated use option_array
-	 */
-	function oa($name, $default = array()) {
-		zesk::deprecated();
-		return $this->option_array($name, $default);
-	}
-
-	/**
-	 * Synonym for option_list
-	 *
-	 * @param mixed $name An option to get, or an array of option => default values
-	 * @param mixed $default The default value to return of the option is not found
-	 * @return mixed The retrieved option
-	 * @deprecated use option_list
-	 */
-	function ol($name, $default = null, $delimiter = ";") {
-		zesk::deprecated();
-		return $this->option_list($name, $default, $delimiter);
-	}
-
+	
 	/**
 	 * Generate an option key from an option name
 	 * @param string $name
@@ -490,21 +398,7 @@ class Options implements ArrayAccess {
 			" " => self::option_space
 		)));
 	}
-
-	/**
-	 * Synonym for set_option
-	 *
-	 * @param mixed $name An option to set
-	 * @param mixed $value The value to set the option to
-	 * @param boolean $override Overwrite the values if they exist
-	 * @return mixed The retrieved option
-	 * @@deprecated use set_option
-	 */
-	function oset($name, $value = null, $override = true) {
-		zesk::deprecated();
-		return $this->set_option($name, $value, $override);
-	}
-
+	
 	/**
 	 * Get an option as a boolean.
 	 *
@@ -513,7 +407,7 @@ class Options implements ArrayAccess {
 	function option_bool($name, $default = false) {
 		return to_bool(avalue($this->options, self::_option_key($name), $default), $default);
 	}
-
+	
 	/**
 	 * Get an option as an integer value.
 	 *
@@ -525,7 +419,7 @@ class Options implements ArrayAccess {
 	function option_integer($name, $default = null) {
 		return to_integer(avalue($this->options, self::_option_key($name)), $default);
 	}
-
+	
 	/**
 	 * Get an option as a numeric (floating-point or integer) value.
 	 *
@@ -541,7 +435,7 @@ class Options implements ArrayAccess {
 		}
 		return $default;
 	}
-
+	
 	/**
 	 * Get an option as an array.
 	 *
@@ -557,7 +451,7 @@ class Options implements ArrayAccess {
 		}
 		return $default;
 	}
-
+	
 	/**
 	 * Get an option as a tree-path
 	 * @param string $name Option to retrieve as an array value.
@@ -570,6 +464,9 @@ class Options implements ArrayAccess {
 		$node = $this->options;
 		foreach ($path as $p) {
 			$p = self::_option_key($p);
+			if (!is_array($node)) {
+				return $default;
+			}
 			if (array_key_exists($p, $node)) {
 				$node = $node[$p];
 			} else {
@@ -578,7 +475,7 @@ class Options implements ArrayAccess {
 		}
 		return $node;
 	}
-
+	
 	/**
 	 * Set an option as a tree-path
 	 *
@@ -589,10 +486,10 @@ class Options implements ArrayAccess {
 	 */
 	function set_option_path($path, $value = null, $separator = ".") {
 		$path = self::_option_key($path);
-		arr::path_set($this->options, $path, $value, $separator);
+		apath_set($this->options, $path, $value, $separator);
 		return $this;
 	}
-
+	
 	/**
 	 * Get an option as a date formatted as "YYYY-MM-DD".
 	 *
@@ -608,7 +505,7 @@ class Options implements ArrayAccess {
 		}
 		return $default;
 	}
-
+	
 	/**
 	 * Get an option as a zero-indexed array, or list array("Bob","Rajiv","Franz")
 	 *
@@ -625,7 +522,7 @@ class Options implements ArrayAccess {
 		}
 		return to_list($this->options[$name], $default, $delimiter);
 	}
-
+	
 	/**
 	 * Getter/setter interface to make access easy from subclasses
 	 *
@@ -645,7 +542,7 @@ class Options implements ArrayAccess {
 	function __get($key) {
 		return avalue($this->options, self::_option_key($key));
 	}
-
+	
 	/**
 	 * Handle options like members
 	 *
@@ -656,7 +553,7 @@ class Options implements ArrayAccess {
 		$this->options[self::_option_key($key)] = $value;
 		return $this;
 	}
-
+	
 	/**
 	 * Convert to string
 	 *
@@ -665,7 +562,7 @@ class Options implements ArrayAccess {
 	function __toString() {
 		return get_class($this);
 	}
-
+	
 	/**
 	 * @see ArrayAccess::offsetExists
 	 * @param offset
@@ -673,7 +570,7 @@ class Options implements ArrayAccess {
 	public function offsetExists($offset) {
 		return array_key_exists(self::_option_key($offset), $this->options);
 	}
-
+	
 	/**
 	 * @see ArrayAccess::offsetGet
 	 * @param offset
@@ -681,7 +578,7 @@ class Options implements ArrayAccess {
 	public function offsetGet($offset) {
 		return avalue($this->options, self::_option_key($offset));
 	}
-
+	
 	/**
 	 * @see ArrayAccess::offsetSet
 	 * @param offset
@@ -690,7 +587,7 @@ class Options implements ArrayAccess {
 	public function offsetSet($offset, $value) {
 		$this->options[self::_option_key($offset)] = $value;
 	}
-
+	
 	/**
 	 * @see ArrayAccess::offsetUnset
 	 * @param offset
@@ -698,5 +595,4 @@ class Options implements ArrayAccess {
 	public function offsetUnset($offset) {
 		unset($this->options[self::_option_key]);
 	}
-
 }

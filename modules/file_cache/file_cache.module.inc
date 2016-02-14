@@ -1,4 +1,8 @@
 <?php
+if (false) {
+	/* @var $application Application */
+	$application = Application::instance();
+}
 
-Module::register_paths();
+$application->module->register_paths();
 

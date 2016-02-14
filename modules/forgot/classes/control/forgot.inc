@@ -87,7 +87,7 @@ class Control_Forgot extends Control_Edit {
 			return false;
 		}
 		/* @var $user User */
-		$this->auth_user = Object::factory("User")->login($this->object->login)->find();
+		$this->auth_user = $this->object_factory("User")->login($this->object->login)->find();
 		if ($this->option_bool('not_found_error', true) && !$this->auth_user) {
 			$this->error(__("Control_Forgot:=Not able to find that user."), 'login');
 			return false;

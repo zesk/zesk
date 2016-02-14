@@ -29,7 +29,7 @@ if (!$format) {
 
 /* @var $timestamp Timestamp */
 $map = array();
-$map["delta"] = lang::now_string($timestamp->integer(), $this->get('relative_min_unit', 'second'), $this->zero_string);
+$map["delta"] = zesk\Locale::now_string($timestamp, $this->get('relative_min_unit', 'second'), $this->zero_string);
 $format = map($format, $map);
 
 $result = $timestamp->format($format, $this->locale);

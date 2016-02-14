@@ -56,14 +56,14 @@ class Module_Help extends Module_JSLib {
 	/**
 	 * Registers all help text in the system
 	 */
-	public static function cron_cluster() {
+	public static function cron_cluster(Application $application) {
 		$helps = Module::all_hook_array(__CLASS__, array(), array());
 		log::notice("Module_Help::cron found {count} help items", array(
 			"count" => count($helps)
 		));
 		foreach ($helps as $target => $settings) {
 			if ($settings === null) {
-				$item = Object::factory('Help')->find(array(
+				$item = $application->object_factory('Help')->find(array(
 					'target' => $target
 				));
 				if ($item) {
@@ -75,7 +75,7 @@ class Module_Help extends Module_JSLib {
 				continue;
 			}
 			$settings['target'] = $target;
-			$help = Object::factory('Help', $settings)->register();
+			$help = $application->object_factory('Help', $settings)->register();
 			/* @var $help Help */
 			if ($help->object_status() === Object::status_insert) {
 				log::notice("Registered help item for {target}", array(
@@ -97,6 +97,7 @@ class Module_Help extends Module_JSLib {
 		$router->add_route('help/user-targets', array(
 			'method' => "Module_Help::user_targets",
 			'arguments' => array(
+				'{application}',
 				'{request}',
 				'{response}'
 			)
@@ -104,6 +105,7 @@ class Module_Help extends Module_JSLib {
 		$router->add_route('help/user-reset', array(
 			'method' => "Module_Help::user_reset",
 			'arguments' => array(
+				'{application}',
 				'{request}',
 				'{response}'
 			)
@@ -111,6 +113,7 @@ class Module_Help extends Module_JSLib {
 		$router->add_route('help/show', array(
 			'method' => "Module_Help::user_show",
 			'arguments' => array(
+				'{application}',
 				'{request}',
 				'{response}'
 			)
@@ -118,6 +121,7 @@ class Module_Help extends Module_JSLib {
 		$router->add_route('help/dismiss', array(
 			'method' => "Module_Help::user_dismiss",
 			'arguments' => array(
+				'{application}',
 				'{request}',
 				'{response}'
 			)
@@ -130,8 +134,8 @@ class Module_Help extends Module_JSLib {
 	 * @param Request $request        	
 	 * @param Response $response        	
 	 */
-	public static function user_targets(Request $request, Response $response) {
-		$user = self::_help_auth($request, $response);
+	public static function user_targets(Application $application, Request $request, Response $response) {
+		$user = self::_help_auth($application, $request, $response);
 		$query = Object::class_query('Help')->link('Help_User', array(
 			'require' => false,
 			"alias" => "hu",
@@ -144,7 +148,7 @@ class Module_Help extends Module_JSLib {
 		));
 		$helps = $query->object_iterator();
 		$result = array();
-		$mappables = Module::all_hook_array(__CLASS__ . "_map", array(), array());
+		$mappables = $application->module->all_hook_array(__CLASS__ . "_map", array(), array());
 		if (count($mappables) === 0) {
 			$mappables = array();
 		}
@@ -164,7 +168,7 @@ class Module_Help extends Module_JSLib {
 	 *
 	 * @return User
 	 */
-	private static function _help_auth(Request $request, Response $response) {
+	private static function _help_auth(Application $application, Request $request, Response $response) {
 		$user = User::instance();
 		if (!$user->authenticated()) {
 			$response->status(Net_HTTP::Status_Unauthorized, "Requires user")->json(array(
@@ -183,12 +187,12 @@ class Module_Help extends Module_JSLib {
 	 * @param Response $response        	
 	 * @return NULL|User
 	 */
-	private static function _help_update(Request $request, Response $response) {
-		$user = self::_help_auth($request, $response);
+	private static function _help_update(Application $application, Request $request, Response $response) {
+		$user = self::_help_auth($application, $request, $response);
 		if (!$user) {
 			return null;
 		}
-		if (!Application::instance()->development() && !$request->is_post()) {
+		if (!$application->development() && !$request->is_post()) {
 			$response->status(Net_HTTP::Status_Method_Not_Allowed, "Requires POST")->json(array(
 				'error' => __('Requires POST data')
 			));
@@ -203,13 +207,13 @@ class Module_Help extends Module_JSLib {
 	 * @param Request $request        	
 	 * @param Response $response        	
 	 */
-	public static function user_show(Request $request, Response $response) {
-		if (($user = self::_help_update($request, $response)) === null) {
+	public static function user_show(Application $application, Request $request, Response $response) {
+		if (($user = self::_help_update($application, $request, $response)) === null) {
 			return;
 		}
 		$ids = $request->geta('id', array());
 		foreach ($ids as $id) {
-			Object::factory('Help', $id)->show();
+			$application->object_factory('Help', $id)->show();
 		}
 		$response->json(array(
 			'status' => true,
@@ -222,15 +226,15 @@ class Module_Help extends Module_JSLib {
 	 * @param Request $request        	
 	 * @param Response $response        	
 	 */
-	public static function user_dismiss(Request $request, Response $response) {
-		if (($user = self::_help_update($request, $response)) === null) {
+	public static function user_dismiss(Application $application, Request $request, Response $response) {
+		if (($user = self::_help_update($application, $request, $response)) === null) {
 			return;
 		}
 		$ids = $request->geta('id', array());
 		foreach ($ids as $id) {
-			$help = Object::factory('Help', $id)->fetch();
+			$help = $application->object_factory('Help', $id)->fetch();
 			if ($help) {
-				Object::factory('Help_User', array(
+				$application->object_factory('Help_User', array(
 					'help' => $help,
 					'user' => $user,
 					'dismissed' => 'now'
@@ -254,8 +258,8 @@ class Module_Help extends Module_JSLib {
 	 * @param Request $request        	
 	 * @param Response $response        	
 	 */
-	public static function user_reset(Request $request, Response $response) {
-		if (($user = self::_help_auth($request, $response)) === null) {
+	public static function user_reset(Application $application, Request $request, Response $response) {
+		if (($user = self::_help_auth($application, $request, $response)) === null) {
 			return;
 		}
 		$n = self::reset_user($user);

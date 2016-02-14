@@ -22,7 +22,7 @@ abstract class Zesk_Content_Group extends Object {
 	}
 
 	public function group_object($mixed = null, $options = null) {
-		return Object::factory($this->group_class, $mixed, $options);
+		return $this->object_factory($this->group_class, $mixed, $options);
 	}
 
 	protected function order_methods() {

@@ -76,7 +76,7 @@ class Module_Cron extends Module {
 	 */
 	public function _hook_callback($method, $arguments) {
 		$method = zesk::callable_string($method);
-		log::notice("zesk eval '$method()'");
+		log::notice("zesk eval '$method(Application::instance())'");
 		$this->methods[] = $method;
 	}
 	public function lock_name($set = null) {

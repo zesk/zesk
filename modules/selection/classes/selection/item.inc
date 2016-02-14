@@ -19,7 +19,7 @@ class Selection_Item extends Object {
 
 	public function item($class) {
 		try {
-			return Object::factory($class, $this->id)->fetch();
+			return $this->object_factory($class, $this->id)->fetch();
 		} catch (Exception_Object_NotFound $e) {
 			return null;
 		}

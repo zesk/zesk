@@ -1,3 +1,4 @@
+
 <?php
 /**
  * $URL: https://code.marketacumen.com/zesk/trunk/classes/control/edit.inc $
@@ -167,7 +168,7 @@ class Control_Edit extends Control {
 	 * @see Widget::model()
 	 */
 	function model() {
-		return Object::factory($this->_class());
+		return $this->object_factory($this->_class());
 	}
 
 	/**

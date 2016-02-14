@@ -67,7 +67,7 @@ class Test_Session implements Session_Interface {
 		return $this->__get(self::global_session_user_id());
 	}
 	public function user() {
-		return Object::factory("User")->fetch($this->user_id());
+		return Application::instance()->object_factory("User")->fetch($this->user_id());
 	}
 	public function authenticate($id, $ip = false) {
 		$this->__set(self::global_session_user_id(), Object::mixed_to_id($id));

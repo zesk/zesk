@@ -203,7 +203,7 @@ abstract class Object extends Model {
 	 *        	Additional options for object
 	 * @return Object
 	 */
-	public static function factory($class, $mixed = null, $options = false) {
+	public static function factory($class, $mixed = null, $options = false, Application $application = null) {
 		if (!is_string($class)) {
 			throw new Exception_Semantics("$class is not a class name");
 		}
@@ -216,13 +216,29 @@ abstract class Object extends Model {
 				"class" => $class
 			));
 		}
-		$object = new $class($mixed, $options);
+		$object = new $class($mixed, $options, $application);
 		if (!$object instanceof Object) {
-			throw new Exception_Semantics("Object::factory({class}) is not a subclass of Object", array(
+			throw new Exception_Semantics("{method}({class}) is not a subclass of Object", array(
+				"method" => __METHOD__,
 				"class" => $class
 			));
 		}
 		return $object->_polymorphic();
+	}
+	
+	/**
+	 * Create an object in the context of the current object
+	 * 
+	 * @param $class string
+	 *        	Object class to create
+	 * @param $mixed mixed
+	 *        	ID or array to intialize object
+	 * @param $options array
+	 *        	Additional options for object
+	 * @return Object
+	 */
+	public function object_factory($class, $mixed = null, $options = null) {
+		return Object::factory($class, $mixed, $options, $this->application);
 	}
 	
 	/**
@@ -233,9 +249,9 @@ abstract class Object extends Model {
 	 * @param array $options
 	 *        	List of Options to set before initialization
 	 */
-	function __construct($mixed = null, $options = false) {
+	function __construct($mixed = null, $options = false, Application $application = null) {
 		parent::__construct(null, $options);
-		$this->application = Application::instance();
+		$this->application = $application === null ? Application::instance() : $application;
 		$this->inherit_global_options();
 		$this->initialize_specification();
 		$this->members = $this->class->column_defaults;
@@ -570,7 +586,7 @@ abstract class Object extends Model {
 	 */
 	public static function class_table_name($class, $mixed = null, $options = null) {
 		if ($mixed !== null || $options !== null) {
-			$object = self::factory($class, $mixed, $options);
+			$object = Object::factory($class, $mixed, $options);
 			return $object->table();
 		}
 		return self::cache_class($class, "table");
@@ -618,7 +634,7 @@ abstract class Object extends Model {
 	 */
 	public static function class_table_columns($class, $mixed = null, $options = null) {
 		if ($mixed !== null || $options !== null) {
-			$object = self::factory($class, $mixed, $options);
+			$object = Object::factory($class, $mixed, $options);
 			return $object->columns();
 		}
 		$object = self::cache_class($class, "object");
@@ -704,7 +720,7 @@ abstract class Object extends Model {
 		if ($this->database instanceof Database) {
 			return $this->database;
 		}
-		return $this->database = Database::factory($this->database_name);
+		return $this->database = $this->application->database_factory($this->database_name);
 	}
 	
 	/**
@@ -1241,7 +1257,7 @@ abstract class Object extends Model {
 	 * @return Object|null
 	 */
 	protected function member_object_factory($member, $class, $data, $options = false) {
-		return Object::factory($class, $data, $options)->fetch();
+		return $this->object_factory($class, $data, $options)->fetch();
 	}
 	final protected function member_object($member, $options = false) {
 		$this->refresh();
@@ -1369,7 +1385,7 @@ abstract class Object extends Model {
 					$this->member_foreign_delete($member);
 					return;
 				}
-				$value = Object::factory($this->class->has_many[$member]['class'], $value);
+				$value = $this->object_factory($this->class->has_many[$member]['class'], $value);
 			}
 			$this->member_foreign_add($member, $value);
 			return;
@@ -1392,7 +1408,7 @@ abstract class Object extends Model {
 						));
 					}
 				}
-				$object = Object::factory($class);
+				$object = $this->object_factory($class);
 				if ($object->member_find($value)) {
 					$this->set_member($member, $object);
 					return;
@@ -1817,7 +1833,7 @@ abstract class Object extends Model {
 		log::debug("member_names={names}", array(
 			"names" => $member_names
 		));
-		$new_object = Object::factory(get_class($this), $this->members($member_names), array_merge($this->inherit_options(), $options->option()));
+		$new_object = $this->object_factory(get_class($this), $this->members($member_names), array_merge($this->inherit_options(), $options->option()));
 		$options->process_duplicate($new_object);
 		return $new_object;
 	}
@@ -2127,7 +2143,7 @@ abstract class Object extends Model {
 			return $this;
 		}
 		try {
-			$result = Object::factory($this->polymorphic_leaf, $this->members, array(
+			$result = $this->object_factory($this->polymorphic_leaf, $this->members, array(
 				'initialize' => 'internal',
 				'class_object' => $this->class->polymorphic_inherit_class ? $this->class : null
 			) + $this->options);
@@ -2421,10 +2437,14 @@ abstract class Object extends Model {
 		}
 	}
 	protected function delete_unlinked_column($column, $class) {
-		$unlinked = $this->query()->link($class, array(
+		$unlinked = $this->query()
+			->link($class, array(
 			"alias" => "Link",
 			"require" => false
-		))->where("Link.ID", null)->what($column, $column)->to_array(null, $column);
+		))
+			->where("Link.ID", null)
+			->what($column, $column)
+			->to_array(null, $column);
 		return $this->query_delete()->where($column, $unlinked)->execute();
 	}
 	

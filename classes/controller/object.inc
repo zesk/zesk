@@ -177,7 +177,7 @@ abstract class Controller_Object extends Controller_Template_Login {
 	private function _action_default_arguments($action = null, $id = null) {
 		$args = func_get_args();
 		if (!empty($id)) {
-			$object = $this->object_factory($id);
+			$object = $this->controller_object_factory($id);
 			if ($object) {
 				$args[1] = $object;
 			}
@@ -218,7 +218,7 @@ abstract class Controller_Object extends Controller_Template_Login {
 			);
 		}
 		return array(
-			$this->object_factory($parameter)
+			$this->controller_object_factory($parameter)
 		);
 	}
 
@@ -375,8 +375,8 @@ abstract class Controller_Object extends Controller_Template_Login {
 	 * @param string $options
 	 * @return Object
 	 */
-	protected function object_factory($mixed = null, $options = null) {
-		return Object::factory($this->class, $mixed, $options)->fetch();
+	protected function controller_object_factory($mixed = null, $options = null) {
+		return $this->object_factory($this->class, $mixed, $options)->fetch();
 	}
 
 	function _action_default($action = null, $object = null, $options = array()) {
@@ -437,7 +437,7 @@ abstract class Controller_Object extends Controller_Template_Login {
 				return;
 			}
 			if (is_numeric($object)) {
-				$object = $this->object_factory($object);
+				$object = $this->controller_object_factory($object);
 				if ($object) {
 					// Backwards compatibility: TODO is this needed anymore - corrupts truth of Request object
 					$this->request->set($object->id_column(), $object);

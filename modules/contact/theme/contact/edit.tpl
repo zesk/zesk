@@ -1,4 +1,6 @@
 <?php
+die(__FILE__ . ":" . __LINE__ . " Needs to be rewritten");
+
 $request = $this->request;
 
 $contact = $this->contact;

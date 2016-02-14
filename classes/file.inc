@@ -98,7 +98,7 @@ class file {
 	 * @return string Cleaned filename
 	 */
 	public static function path_check($x) {
-		if (preg_match('|[^-/A-Za-z0-9_. ()@&]|', $x)) {
+		if (preg_match('|[^-~/A-Za-z0-9_. ()@&]|', $x)) {
 			return false;
 		}
 		if (arr::strstr($x, array(

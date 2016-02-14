@@ -18,6 +18,12 @@ abstract class Database extends Hookable {
 	const feature_max_blob_size = "max_blob_size";
 
 	/**
+	 * 
+	 * @var Application
+	 */
+	public $application = null;
+	
+	/**
 	 * Debug database connections
 	 *
 	 * @var boolean
@@ -225,6 +231,8 @@ abstract class Database extends Hookable {
 	 */
 	public function __construct($url) {
 		$this->inherit_global_options();
+		// TODO Pass this in __construct and propagate
+		$this->application = Application::instance();
 		zesk::hooks(__CLASS__);
 		$this->_init_url($url);
 	}

@@ -28,7 +28,7 @@ class Command_Install extends Command_Base {
 		$errors = array();
 		while (count($classes) > 0) {
 			$class = array_shift($classes);
-			$objects_by_class[$class] = $object = Object::factory($class);
+			$objects_by_class[$class] = $object = $this->application->object_factory($class);
 			if (!$object instanceof Object) {
 				log::error("{class} is not instance of Object", array(
 					"class" => $class

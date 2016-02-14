@@ -40,8 +40,8 @@ class World_Bootstrap_Country extends Options {
 		}
 	}
 
-	public function bootstrap() {
-		$x = Object::factory(str::unprefix(__CLASS__, "World_Bootstrap_"));
+	public function bootstrap(Application $application) {
+		$x = $application->object_factory(str::unprefix(__CLASS__, "World_Bootstrap_"));
 		if ($this->option_bool("drop")) {
 			$x->database()->query('TRUNCATE ' . $x->table());
 		}

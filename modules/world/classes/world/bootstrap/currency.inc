@@ -54,15 +54,15 @@ class World_Bootstrap_Currency extends Options {
 		}
 	}
 
-	public function bootstrap() {
-		$x = Object::factory(str::unprefix(__CLASS__, "World_Bootstrap_"));
+	public function bootstrap(Application $application) {
+		$x = $application->object_factory(str::unprefix(__CLASS__, "World_Bootstrap_"));
 
 		if ($this->option_bool("drop")) {
 			$x->database()->query('TRUNCATE ' . $x->table());
 		}
 		$codes = self::_codes();
 		foreach ($codes as $row) {
-			$this->process_row($row);
+			$this->process_row($application, $row);
 		}
 	}
 
@@ -80,13 +80,13 @@ class World_Bootstrap_Currency extends Options {
 		return true;
 	}
 
-	private function process_row(array $row) {
+	private function process_row(Application $application, array $row) {
 		list($country_name, $name, $codeName, $code_number, $symbol, $fractional_string) = $row;
 
 		$name = $row[0];
 		$code = strtolower(substr($codeName, 0, 2));
 
-		$country = Object::factory('Country', array(
+		$country = $application->object_factory('Country', array(
 			'code' => $code,
 			'name' => $name
 		));

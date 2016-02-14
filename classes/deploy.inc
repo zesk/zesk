@@ -160,6 +160,7 @@ class Deploy extends Hookable {
 		} catch (Exception $e) {
 			zesk::hook("exception", $e);
 			$status = false;
+			$result = null;
 		}
 		$content = ob_end_clean();
 		return array(

@@ -95,7 +95,7 @@ class Control_Object_Delete extends Control_Object {
 	}
 
 	function model() {
-		return Object::factory($this->class, $this->object_data, $this->object_options);
+		return $this->application->object_factory($this->class, $this->object_data, $this->object_options);
 	}
 
 	function load() {

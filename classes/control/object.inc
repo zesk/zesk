@@ -41,7 +41,7 @@ class Control_Object extends Control_Widgets {
 		if (!$this->user_can($this->class . "::create")) {
 			throw new Exception_Permission($this->class . "::create");
 		}
-		return Object::factory($this->class, null, $this->object_options);
+		return $this->application->object_factory($this->class, null, $this->object_options);
 	}
 
 	/**
