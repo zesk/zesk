@@ -1635,7 +1635,7 @@ class arr {
 	}
 
 	/**
-	 * Filter an array by on or more values
+	 * Filter an array by one or more values
 	 *
 	 * @param array $array
 	 * @param mixed $value
