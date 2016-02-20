@@ -688,7 +688,7 @@ class Class_Object extends Hookable {
 			$this->database_name = $this->database = Object::cache_object($this->database_group)->database_name();
 		} else {
 			if (empty($this->database)) {
-				$this->database = zesk::get1(arr::suffix(zesk::class_hierarchy($this_class), "::database"));
+				$this->database = $this->option("database", $object->option("database"));
 			}
 			if (empty($this->database_name)) {
 				$this->database_name = $this->database;
