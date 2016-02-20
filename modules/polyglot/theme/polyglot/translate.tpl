@@ -18,6 +18,7 @@ $object->locale = zesk\Locale::current();
 $object->status = $this->request->get("s", PolyGlot_Token::status_todo);
 
 $locale_options = to_array($this->locale_options);
+asort($locale_options, SORT_LOCALE_STRING);
 $widget = Widget::factory("Control_Select", null, $this->application)->names("locale", __("Locale"))->control_options($locale_options)->hide_single(false)->default_value(first(array_keys($locale_options)));
 $widget->required(true);
 
