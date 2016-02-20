@@ -45,6 +45,9 @@ class Database_MySQL_Improved extends Database_MySQL {
 	);
 	final protected function _mysql_connect($server, $user, $password, $database, $port) {
 		$conn = mysqli_init(); //@new mysqli($server, $user, $password, $database, $port);
+		if ($this->option_bool("infile")) {
+			mysqli_options($conn, MYSQLI_OPT_LOCAL_INFILE, true);
+		}
 		mysqli_options($conn, MYSQLI_OPT_CONNECT_TIMEOUT, $this->option_integer('connect_timeout', 5));
 		$flags = $this->option("connect_flags", 0);
 		if (is_numeric($flags)) {
