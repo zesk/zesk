@@ -252,7 +252,7 @@ abstract class Command extends Hookable {
 	 * Load global values which affect the operation of this command
 	 */
 	protected function hook_construct() {
-		$this->debug = zesk::get('Command::debug', $this->debug);
+		$this->debug = $this->option('debug', $this->debug);
 	}
 	
 	/**
