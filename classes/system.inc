@@ -18,24 +18,76 @@ class system {
 	public static function host_id() {
 		return zesk::get('HOST', aevalue($_ENV, 'HOST', aevalue($_SERVER, 'HOST', 'localhost')));
 	}
-
 	public static function uname() {
-		$result = zesk::get('uname');
-		if ($result) {
-			return $result;
+		$name = zesk::get('uname');
+		if ($name) {
+			return $name;
 		}
-		$result = php_uname('n');
-		zesk::set('uname', $result);
-		return $result;
+		$name = zesk::hook_array("uname", array(), php_uname('n'));
+		zesk::set('uname', $name);
+		return $name;
 	}
+	
+	/**
+	 * Get current process ID
+	 * 
+	 * @return integer
+	 */
 	public static function process_id() {
 		return zesk::pid();
 	}
-
+	
+	/**
+	 * Load IP addresses for this sytem
+	 * 
+	 * @return array of interface => $ip
+	 */
+	public static function ip_addresses() {
+		$ifconfig = system::ifconfig("inet;ether");
+		$ips = array();
+		foreach ($ifconfig as $interface => $values) {
+			if (array_key_exists('inet', $values)) {
+				$ip = avalue(array_keys($values['inet']), 0);
+				if (IPv4::valid($ip)) {
+					$ips[$interface] = $ip;
+				}
+			}
+		}
+		return $ips;
+	}
+	
+	/**
+	 * Load MAC addresses for this sytem
+	 * 
+	 * @return array of interface => $ip
+	 */
+	public static function mac_addresses() {
+		$ifconfig = system::ifconfig("inet;ether");
+		$macs = array();
+		foreach ($ifconfig as $interface => $values) {
+			if (array_key_exists('ether', $values)) {
+				$mac = avalue(array_keys($values['ether']), 0);
+				$macs[$interface] = $mac;
+			}
+		}
+		return $macs;
+	}
+	
+	/**
+	 * Run ifconfig configuration utility and parse results
+	 * 
+	 * @param string $filter
+	 * @return array
+	 */
 	public static function ifconfig($filter = null) {
 		$result = array();
 		try {
-			$command = zesk::execute("ifconfig");
+			$cache = Cache::register(__METHOD__)->expire_after(60);
+			if ($cache->command) {
+				$command = $cache->command;
+			} else {
+				$command = $cache->command = zesk::execute("ifconfig");
+			}
 			$interface = null;
 			$flags = null;
 			foreach ($command as $line) {
@@ -82,7 +134,7 @@ class system {
 		}
 		return $result;
 	}
-
+	
 	/**
 	 * Determine system current load averages using /proc/loadavg or system call to uptime
 	 *
@@ -109,7 +161,7 @@ class system {
 		);
 		return $loads;
 	}
-
+	
 	/**
 	 * Retrieve volume information in a parsed manner from system call to "df"
 	 *
@@ -158,7 +210,7 @@ class system {
 		}
 		return $result;
 	}
-
+	
 	/**
 	 * When outputting to terminal windows which support them, this generates a growl message on the
 	 * host
@@ -173,7 +225,7 @@ class system {
 	public static function growl($message) {
 		return chr(033) . "]9;'$message'" . chr(007);
 	}
-
+	
 	/**
 	 * Based on http://www.novell.com/coolsolutions/feature/11251.html
 	 *
@@ -234,12 +286,14 @@ class system {
 			"release" => $relname
 		);
 	}
-
 	public static function memory_limit() {
-		return number::parse_bytes(ini_get('memory_limit'));
+		$limit = ini_get('memory_limit');
+		if (intval($limit) < 0) {
+			return intval(0xFFFFFFFF);
+		}
+		return number::parse_bytes($limit);
 	}
-
-
+	
 	/**
 	 * @todo Move to an implementation-specific location
 	 * @deprecated 2014-01-01
@@ -274,7 +328,7 @@ class system {
 			}
 		}
 	}
-
+	
 	/**
 	 * Retrieve daemontools service status. Move to daemontools module, probably.
 	 *
@@ -306,7 +360,7 @@ class system {
 		}
 		return $result;
 	}
-
+	
 	/**
 	 * Retrieve an ID used for a daemon which may be running in a different installation than the original
 	 *
@@ -319,9 +373,9 @@ class system {
 		$path = substr(md5(__FILE__), 0, 8);
 		if (strpos(__FILE__, "test") !== false)
 			return "$host-$path-test";
-			return "$host-$path";
+		return "$host-$path";
 	}
-
+	
 	/**
 	 * Retrieve an ID used for a daemon which may be running in a different installation than the original
 	 *
