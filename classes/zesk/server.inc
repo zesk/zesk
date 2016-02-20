@@ -13,30 +13,76 @@
  *
  * @see Class_Server
  * @see Server_Data
- * @package zesk
- * @subpackage file
- *
- * @see Lock
+ * @property id $id
+ * @property string $name
+ * @property string $name_internal
+ * @property string $name_external
+ * @property ip4 $ip4_internal
+ * @property ip4 $ip4_external
+ * @property integer $free_disk
+ * @property double $load
+ * @property Timestamp $alive
  */
 abstract class Zesk_Server extends Object implements Interface_Data {
-
 	/**
-	 * Run once per minute per cluster
+	 * 
+	 * @var string
 	 */
-	public static function cron_cluster_minute() {
-		$server = new Server();
+	const option_alive_update_seconds = "alive_update_seconds";
+	
+	/**
+	 * Number of seconds after which the server status should be updated
+	 * 
+	 * @var integer
+	 */
+	const default_alive_update_seconds = 30;
+	
+	/**
+	 * 
+	 * @var string
+	 */
+	const option_timeout_seconds = "timeout_seconds";
+	
+	/**
+	 * 
+	 * @var unknown
+	 */
+	const default_timeout_seconds = 180;
+	
+	/**
+	 * 
+	 * @var Server
+	 */
+	private static $singleton = null;
+	
+	/**
+	 * Run once per minute per cluster. Delete servers who are not alive after `option_timeout_seconds` old.
+	 */
+	public static function cron_cluster_minute(Application $application) {
+		$server = $application->object_factory("Server");
+		/* @var $server Server */
 		$server->bury_dead_servers();
 	}
-
+	
+	/**
+	 * Once a minute, update the state
+	 * 
+	 * @param Application $application
+	 */
+	public static function cron_minute(Application $application) {
+		$server = self::singleton();
+		$server->update_state();
+	}
+	
 	/**
 	 * Run intermittently once per cluster to clean away dead Server records
 	 */
 	public function bury_dead_servers() {
 		if (($lock = Lock::get_lock(__CLASS__ . '::bury_dead_servers')) !== null) {
-			$query = Object::class_query('Server');
+			$query = $this->query();
 			$pushed = $this->push_utc();
-
-			$dead_to_me = Timestamp::now()->add_unit("second", -abs(zesk::geti('Server::timeout_seconds', 180)));
+			
+			$dead_to_me = Timestamp::now('UTC')->add_unit("second", -abs($this->option_integer('timeout_seconds', self::default_timeout_seconds)));
 			$iterator = $query->where(array(
 				'alive|<=' => $dead_to_me
 			))->object_iterator();
@@ -50,15 +96,20 @@ abstract class Zesk_Server extends Object implements Interface_Data {
 			$lock->release();
 		}
 	}
+	
+	/**
+	 * Retrieve the default host name
+	 * 
+	 * @throws Exception_Parameter
+	 */
 	private static function host_default() {
 		$host = system::uname();
 		if (empty($host)) {
-			throw new Exception_Parameter("No HOST defined");
+			throw new Exception_Parameter("No UNAME or HOST defined");
 		}
 		return $host;
 	}
-	private static $singleton = null;
-
+	
 	/**
 	 * Create a singleton for this server.
 	 *
@@ -78,71 +129,64 @@ abstract class Zesk_Server extends Object implements Interface_Data {
 		if ($server instanceof Server) {
 			return $server;
 		}
-		$server = new Server();
-		if (empty($host)) {
-			$host = self::host_default();
+		$server = Application::instance()->object_factory("Server");
+		return self::$singleton = $cache->server = $server->_retrieve_singleton();
+	}
+	protected function refresh_names() {
+	}
+	
+	/**
+	 * Register and load this
+	 * @param unknown $host
+	 */
+	protected function _retrieve_singleton() {
+		$this->name = self::host_default();
+		if ($this->find()) {
+			$now = Timestamp::now();
+			if ($now->difference($this->alive) > $this->option(self::option_alive_update_seconds, self::default_alive_update_seconds)) {
+				$this->update_state();
+			}
+			return $this;
 		}
-		$server->name = str::left($host, '.', $host);
-		$lock = "Server_singleton";
-		$server_db = Object::cache_object('Server')->database();
-		if (!$server_db->get_lock($lock, 5)) {
-			throw new Exception("Can not get Server_singleton lock for $host - too many servers registering at once?");
+		log::debug(__METHOD__);
+		$this->hook("initialize_names");
+		$this->_initialize_names_defaults();
+		try {
+			return $this->store();
+		} catch (Exception_Object_Duplicate $dup) {
+			$this->find();
 		}
-		if ($server->find()) {
-			$server->updateState();
-			$server_db->release_lock($lock);
-		} else {
-			$server->updatenames($host);
-			$result = $server->store();
-			$server_db->release_lock($lock);
-			if (!$result) {
-				return null;
+		return $this;
+	}
+	/**
+	 * 
+	 * @param unknown $host
+	 */
+	private function _initialize_names_defaults() {
+		$host = self::host_default();
+		if (!isset($this->name)) {
+			$this->name = $host;
+		}
+		if (!isset($this->name_internal)) {
+			$this->name_internal = $host;
+		}
+		if (!isset($this->name_external)) {
+			$this->name_external = $host;
+		}
+		if (!isset($this->ip4_internal)) {
+			$ips = system::ip_addresses();
+			if (count($ips) === 1) {
+				$this->ip4_internal = first($ips);
 			}
 		}
-		$cache->server = $server;
-		return self::$singleton = $server;
 	}
-
-	public function updatenames($host = null) {
-		if ($host === null) {
-			$host = self::host_default();
-		}
-		// 		$ip_map = cluster::hosts(array(
-		// 			$host,
-		// 			"WEB_SERVER",
-		// 			"LAN"
-		// 		));
-		// 		if (count($ip_map) !== 0) {
-		// 			$ip = key($ip_map);
-		// 			$this->ip4_internal = $ip;
-		// 			$this->name_internal = $ip_map[$ip];
-		// 		} else {
-		$ifconfig = system::ifconfig("inet;ether");
-		$ip = "127.0.0.1";
-		foreach ($ifconfig as $interface => $values) {
-			$ip = avalue(array_keys($values['inet']), 0);
-			break;
-		}
-		$this->ip4_internal = $ip;
-		$this->name_internal = $host;
-		$this->name_external = $host;
-
-		// 		}
-		// 		$ip_map = cluster::hosts(array(
-		// 			$host,
-		// 			"WEB_SERVER",
-		// 			"WAN"
-		// 		));
-		// 		if (count($ip_map) !== 0) {
-		// 			$ip = key($ip_map);
-		// 			$this->ip4_external = $ip;
-		// 			$this->name_external = $ip_map[$ip];
-		// 		} else {
-		// 			$this->ip4_external = "0.0.0.0";
-		// 			$this->name_external = $host;
-		// 		}
-	}
-	function updateState($path = null) {
+	
+	/**
+	 * Update server state 
+	 * 
+	 * @param unknown $path
+	 */
+	function update_state($path = null) {
 		if ($path === null) {
 			$path = zesk::get('FDISK_PRIMARY', "/"); // TODO Consider renaming this
 		}
@@ -152,23 +196,20 @@ abstract class Zesk_Server extends Object implements Interface_Data {
 		if ($info) {
 			$update['free_disk'] = $info['free'];
 		}
+		$pushed = $this->push_utc();
 		$update['load'] = avalue(system::load_averages(), 0, null);
 		$update['*alive'] = $this->sql()->now();
-		$pushed = $this->push_utc();
-		$this->query_update()->values($update)->where($this->members($this->primary_keys()))->execute();
+		$this->query_update()
+			->values($update)
+			->where($this->members($this->primary_keys()))
+			->execute();
 		$this->pop_utc($pushed);
+		return $this->fetch();
 	}
-
-	private function pop_utc(array $pushed) {
-		list($old_tz, $old_php_tz) = $pushed;
-		if ($old_tz !== 'UTC') {
-			$this->database()->query("SET time_zone='$old_tz'");
-		}
-		if ($old_php_tz !== 'UTC') {
-			date_default_timezone_set($old_php_tz);
-		}
-
-	}
+	
+	/**
+	 * Save the Database time zone state, temporarily.
+	 */
 	private function push_utc() {
 		$old_tz = $this->database()->query_one("SELECT @@time_zone as tz", "tz", "UTC");
 		$old_php_tz = date_default_timezone_get();
@@ -182,6 +223,19 @@ abstract class Zesk_Server extends Object implements Interface_Data {
 			$old_tz,
 			$old_php_tz
 		);
+	}
+	
+	/**
+	 * Restore the Database time zone state after the push_utc
+	 */
+	private function pop_utc(array $pushed) {
+		list($old_tz, $old_php_tz) = $pushed;
+		if ($old_tz !== 'UTC') {
+			$this->database()->query("SET time_zone='$old_tz'");
+		}
+		if ($old_php_tz !== 'UTC') {
+			date_default_timezone_set($old_php_tz);
+		}
 	}
 	/**
 	 * Set or delete the server data object
@@ -213,7 +267,7 @@ abstract class Zesk_Server extends Object implements Interface_Data {
 		));
 		return $data->store();
 	}
-
+	
 	/**
 	 * Get server data object
 	 *
@@ -231,7 +285,7 @@ abstract class Zesk_Server extends Object implements Interface_Data {
 		}
 		return null;
 	}
-
+	
 	/**
 	 * Retrieve or store per-server data
 	 *
@@ -261,14 +315,14 @@ abstract class Zesk_Server extends Object implements Interface_Data {
 		}
 		return $result;
 	}
-
+	
 	/**
 	 * Retrieve or store per-server data
 	 *
 	 * @see Interface_Data::delete_data
 	 * @param mixed $name
 	 * @param mixed $value
-	 * @return mixed
+	 * @return boolean
 	 */
 	function delete_data($name) {
 		return Object::class_query_delete("Server_Data")->where(array(
@@ -276,7 +330,7 @@ abstract class Zesk_Server extends Object implements Interface_Data {
 			"name" => $name
 		))->execute()->affected_rows() > 0;
 	}
-
+	
 	/**
 	 * Query all servers to find servers which match name = value
 	 *
