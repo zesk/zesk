@@ -19,9 +19,10 @@ CREATE TABLE `{table}` (
 	`load`	 			decimal(6,3) default '0',
 	`alive`				timestamp not null default 0,
 	primary key  (`id`),
-	index `name` (`name`),
+	unique `name` (`name`),
 	index `load` (`load`),
 	index `free_disk` (`free_disk`),
+	unique `ip4_internal` (`ip4_internal`),
 	index `alive` (`alive`)
 );
 
