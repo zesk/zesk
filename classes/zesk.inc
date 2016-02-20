@@ -191,7 +191,7 @@ class zesk {
 	 * @return integer version of this library
 	 */
 	public static function _version_string() {
-		return explode(' ', '$Id: zesk.inc 3579 2016-01-28 16:59:33Z kent $', 4);
+		return explode(' ', '$Id: zesk.inc 3658 2016-02-19 03:42:19Z kent $', 4);
 	}
 	
 	/**
@@ -1237,6 +1237,7 @@ class zesk {
 	public static function _autoloader($class) {
 		return self::autoloader($class);
 	}
+	
 	/**
 	 * Zesk's autoloader.
 	 * When a PHP class is encountered which can't be found, this function tries to find it and
