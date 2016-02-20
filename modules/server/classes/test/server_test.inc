@@ -4,24 +4,17 @@ class Server_Test extends Test_Unit {
 		Module::load('server');
 		$this->schema_synchronize("Server");
 	}
-
 	function test_Server() {
 		zesk::set('HOST', 'localhost');
-
+		
 		$mixed = null;
 		$options = false;
 		$testx = new Server($mixed, $options);
-
-		$host = null;
-		//TODO		Server::singleton($host);
-
-
-		$host = null;
-		$testx->updateNames($host);
-
+		
+		$testx = Server::singleton(__CLASS__);
+		
 		$path = "/";
 		$testx->ID = 1;
-		$testx->updateState($path);
-
+		$testx->update_state($path);
 	}
 }
