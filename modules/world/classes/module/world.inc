@@ -7,11 +7,9 @@
  * @copyright Copyright &copy; 2012, Market Acumen, Inc.
  */
 class Module_World extends Module_JSLib {
-
 	protected $javascript_paths = array(
 		'/share/world/js/module.world.js'
 	);
-
 	protected $classes = array(
 		'Currency',
 		'City',
@@ -20,7 +18,6 @@ class Module_World extends Module_JSLib {
 		'Language',
 		'Province'
 	);
-
 	public function hook_head(Request $request, Response_HTML $response, Template $template) {
 		$currency = $this->hook_array("currency", array(), null);
 		/* @var $currency Currency */
@@ -31,7 +28,7 @@ class Module_World extends Module_JSLib {
 		}
 		parent::hook_head($request, $response, $template);
 	}
-
+	
 	/*
 	 public static function cron_week() {
 	 $path = Module::path('address');
@@ -54,7 +51,6 @@ class Module_World extends Module_JSLib {
 	 }
 	 }
 	 */
-
 	function hook_schema_updated() {
 		$__ = array(
 			"method" => __METHOD__
@@ -66,15 +62,15 @@ class Module_World extends Module_JSLib {
 		log::debug("{method} begin", $__);
 		if ($bootstrap || $bootstrap_country) {
 			log::debug("{method} World_Bootstrap_Country", $__);
-			World_Bootstrap_Country::factory()->bootstrap();
+			World_Bootstrap_Country::factory()->bootstrap($this->application);
 		}
 		if ($bootstrap || $bootstrap_language) {
 			log::debug("{method} World_Bootstrap_Language", $__);
-			World_Bootstrap_Language::factory()->bootstrap();
+			World_Bootstrap_Language::factory()->bootstrap($this->application);
 		}
 		if ($bootstrap || $bootstrap_currency) {
 			log::debug("{method} World_Bootstrap_Currency", $__);
-			World_Bootstrap_Currency::factory()->bootstrap();
+			World_Bootstrap_Currency::factory()->bootstrap($this->application);
 		}
 		log::debug("{method} ended", $__);
 	}
