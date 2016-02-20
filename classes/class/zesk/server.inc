@@ -3,9 +3,14 @@
  * @copyright 2013 &copy; Market Acumen, Inc.
  * @author kent
  */
+
+/**
+ * @see Zesk_Server
+ * @author kent
+ * Class definition for Server
+ */
 class Class_Zesk_Server extends Class_Object {
 	public $id_column = "id";
-
 	public $find_keys = array(
 		"name"
 	);
@@ -23,7 +28,7 @@ class Class_Zesk_Server extends Class_Object {
 	public $has_many = array(
 		'data' => array(
 			'class' => 'Server_Data',
-			'foreign_key' => 'server',
+			'foreign_key' => 'server'
 		)
 	);
 }
