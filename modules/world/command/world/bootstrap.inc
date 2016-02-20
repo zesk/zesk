@@ -1,5 +1,4 @@
 <?php
-
 class Command_World_Bootstrap extends Command_Base {
 	protected $option_types = array(
 		'drop' => 'boolean',
@@ -9,7 +8,6 @@ class Command_World_Bootstrap extends Command_Base {
 		'language' => 'boolean',
 		'province' => 'boolean'
 	);
-
 	protected $option_help = array(
 		'drop' => 'Truncate all tables (may cause renumbering)',
 		'all' => 'Bootstrap all codes',
@@ -18,14 +16,12 @@ class Command_World_Bootstrap extends Command_Base {
 		'language' => 'Bootstrap language codes',
 		'province' => 'Bootstrap US/CA provinces'
 	);
-
 	private static $straps = array(
 		'country' => 'World_Bootstrap_Country',
 		'currency' => 'World_Bootstrap_Currency',
 		'language' => 'World_Bootstrap_Language',
 		'province' => 'World_Bootstrap_Province'
 	);
-
 	function run() {
 		$straps = array();
 		if ($this->option_bool('all')) {
@@ -47,8 +43,9 @@ class Command_World_Bootstrap extends Command_Base {
 		}
 		foreach ($straps as $strap) {
 			$class = self::$straps[$strap];
+			$object = Object::factory($class, $this->options);
 			$this->log("Bootstrapping $strap ...");
-			call_user_func($class . "::bootstrap", $this->options);
+			$object->boostrap($this->application);
 		}
 	}
 }
