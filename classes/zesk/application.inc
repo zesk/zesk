@@ -321,7 +321,7 @@ class Application extends \Hookable implements \Interface_Theme {
 		 */
 		$result = conf::globals($this->include_paths, $globals_options);
 		
-		$host_aliases = zesk::geta('host_aliases', array());
+		$host_aliases = zesk::geta("Application::host_aliases", zesk::geta('host_aliases', array()));
 		$host_config = avalue($host_aliases, $uname, $uname);
 		$host_config = strtolower($host_config) . ".conf";
 		if (!array_key_exists($host_config, $this->includes)) {
@@ -351,10 +351,6 @@ class Application extends \Hookable implements \Interface_Theme {
 		
 		\Module::internal($this->internal_modules);
 		\Module::load($this->modules);
-		$modules = zesk::getl('Application::modules');
-		if (count($modules) > 0) {
-			\Module::load($modules);
-		}
 		if (!$skip_configured_hook) {
 			$this->configured();
 		}
@@ -369,11 +365,18 @@ class Application extends \Hookable implements \Interface_Theme {
 	}
 	private function _configured() {
 		// Now run all configurations: System, Modules, then Application
+		$this->inherit_global_options();
+		$modules = $this->option_list('modules');
+		if (count($modules) > 0) {
+			\Module::load($modules);
+		}
+		
+		$this->load_maintenance();
+		
 		zesk::hook('configured', $this); // System level
 		$this->module->all_hook("configured");
 		$this->hook('configured'); // Application level
-		$this->load_maintenance();
-		$this->inherit_global_options();
+		
 		$this->postconfigure();
 		$this->configure_paths();
 		$this->configured_was_run = true;
@@ -1150,8 +1153,9 @@ class Application extends \Hookable implements \Interface_Theme {
 			);
 		}
 		$types = to_list($types);
+		$extension = avalue($options, "no_extension") ? null : ".tpl";
 		if (count($types) === 1) {
-			return $this->_theme_array($types[0], $arguments);
+			return $this->_theme_array($types[0], $arguments, null, $extension);
 		}
 		if (!is_array($types)) {
 			throw new \Exception_Parameter("Application::theme: \$types is " . gettype($types));
@@ -1161,7 +1165,7 @@ class Application extends \Hookable implements \Interface_Theme {
 		}
 		$type = array_shift($types);
 		$arguments['content_previous'] = null;
-		$content = $this->_theme_array($type, $arguments, null);
+		$content = $this->_theme_array($type, $arguments, null, $extension);
 		if ($content !== null) {
 			$arguments['content'] = $content;
 		}
@@ -1173,7 +1177,7 @@ class Application extends \Hookable implements \Interface_Theme {
 			}
 			$type = array_shift($types);
 			$content_previous = $content;
-			$content_next = $this->_theme_array($type, $arguments, $content);
+			$content_next = $this->_theme_array($type, $arguments, $content, $extension);
 			$content = $concatenate ? $content . $content_next : $content_next;
 			$arguments['content_previous'] = $content_previous;
 			$arguments['content'] = $content;
@@ -1212,8 +1216,8 @@ class Application extends \Hookable implements \Interface_Theme {
 	 *        	Default content
 	 * @return string
 	 */
-	private function _theme_array($type, array $args, $content = null) {
-		if ($this->development() && ends($type, ".tpl")) {
+	private function _theme_array($type, array $args, $content = null, $extension = ".tpl") {
+		if (!empty($extension) && $this->development() && ends($type, $extension)) {
 			throw new \Exception_Semantics("Theme called with .tpl suffix - not required {type}", compact("type"));
 		}
 		$type = strtolower($type);
@@ -1231,7 +1235,7 @@ class Application extends \Hookable implements \Interface_Theme {
 		} else {
 			$object = null;
 		}
-		$template_name = zesk::clean_path($type) . ".tpl";
+		$template_name = zesk::clean_path($type) . $extension;
 		$t = new Template($this, $template_name, $args);
 		if (!$t->exists()) {
 			return $content;
