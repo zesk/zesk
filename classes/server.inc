@@ -11,19 +11,10 @@
  * Server
  *
  * Represents a physical machine. Override this in your own tree to extend
- * columns and functionality.
+ * columns and functionality. Override Class_Server to add columns or modify defaults.
  *
  * @see Class_Server
- * @property id $id
- * @property string $name
- * @property string $name_internal
- * @property string $name_external
- * @property ip4 $ip4_internal
- * @property ip4 $ip4_external
- * @property integer $free_disk
- * @property double $load
- * @property Timestamp $alive
+ * @see Class_Zesk_Server
+ * @see Zesk_Server
  */
-class Server extends Zesk_Server {
-
-}
+class Server extends Zesk_Server {}
