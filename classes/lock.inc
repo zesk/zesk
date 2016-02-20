@@ -20,16 +20,24 @@
  * @property timestamp $used
  */
 class Lock extends Object {
-
 	private static $locks = array();
-
+	
 	/**
-	 * Run once per hour
+	 * Once per hour, cull locks which are old
 	 */
 	public static function cron_cluster_hour() {
 		self::delete_unused_locks();
 	}
-
+	
+	/**
+	 * Once a minute, release locks associated with processes which are dead, 
+	 * or are associated with a dead server (no longer exists)
+	 */
+	public static function cron_cluster_minute() {
+		self::delete_dead_pids();
+		self::delete_unlinked_locks();
+	}
+	
 	/**
 	 * Delete Locks which have not been used in the past 24 hours
 	 */
@@ -38,7 +46,9 @@ class Lock extends Object {
 			'used|<=' => Timestamp::now()->add_unit("day", -1),
 			"server" => null,
 			"pid" => null
-		))->execute()->affected_rows();
+		))
+			->execute()
+			->affected_rows();
 		if ($n_rows > 0) {
 			log::notice("Deleted {n_rows} {locks} which were unused in the past 24 hours.", array(
 				"n_rows" => $n_rows,
@@ -47,11 +57,31 @@ class Lock extends Object {
 		}
 		return $n_rows;
 	}
-
-	public static function cron_minute() {
-		self::delete_dead_pids();
+	
+	/**
+	 * Delete locks whose server doesn't link to a valid row in the Server table
+	 */
+	public static function delete_unlinked_locks() {
+		// Deleting unlinked locks
+		$n_rows = 0;
+		foreach (Object::class_query(__CLASS__)->link("Server", array(
+			"alias" => "S",
+			"require" => false
+		))
+			->where("S.ID", null)
+			->where("X.server|!=", null)
+			->object_iterator() as $lock) {
+			/* @var $lock Lock */
+			$server_id = $lock->member_integer("server");
+			$lock->release();
+			log::notice("Releasing lock #{id} {code} associated with defunct server # {server_id}", $lock->variables() + array(
+				"server_id" => $server_id
+			));
+			++$n_rows;
+		}
+		return $n_rows;
 	}
-
+	
 	/**
 	 * Delete Locks associated with this server which do not have a valid PID
 	 */
@@ -70,7 +100,7 @@ class Lock extends Object {
 			}
 		}
 	}
-
+	
 	/**
 	 * Get a lock or throw an Exception_Lock
 	 *
@@ -118,7 +148,7 @@ class Lock extends Object {
 		}
 		return $lock->_acquire(intval($timeout));
 	}
-
+	
 	/**
 	 * Release all locks from my server/process
 	 */
@@ -133,7 +163,6 @@ class Lock extends Object {
 			'server' => Server::singleton()
 		));
 	}
-
 	public static function server_delete(Server $server) {
 		$query = Object::class_query_delete(__CLASS__)->where('server', $server);
 		$query->execute();
@@ -168,7 +197,6 @@ class Lock extends Object {
 		}
 		return $lock->_is_locked();
 	}
-
 	private function _is_locked() {
 		// Each server is responsible for keeping locks clean.
 		// Allow a hook to enable inter-server connection, later
@@ -190,7 +218,7 @@ class Lock extends Object {
 		$this->release();
 		return false;
 	}
-
+	
 	/**
 	 * Release a lock I have
 	 * @return Lock
@@ -200,27 +228,60 @@ class Lock extends Object {
 			'pid' => null,
 			'server' => null,
 			'locked' => null
-		))->where($this->members('pid;server'))->execute();
+		))->where(array(
+			"id" => $this->id
+		))->execute();
 		log::debug("Released lock $this->code");
 		$this->pid = null;
 		$this->server = null;
 		return $this;
 	}
-
+	
+	/**
+	 * Register or create a lock
+	 * 
+	 * @param string $code
+	 */
+	private static function _create_lock($code) {
+		$lock = $lock = Object::factory(__CLASS__, array(
+			'code' => $code
+		));
+		try {
+			if (!$lock->find()) {
+				$lock->store();
+			}
+		} catch (Exception_Object_Duplicate $dup) {
+			$lock->find();
+		}
+		return self::$locks[strtolower($code)] = $lock;
+	}
+	
+	/**
+	 * Retrieve the cached version of a lock or register one
+	 * 
+	 * @param string $code
+	 * @return Lock
+	 */
 	private static function _get_lock($code) {
-		$low_code = strtolower($code);
 		/* @var $lock Lock */
-		$lock = avalue(self::$locks, $low_code);
+		$lock = avalue(self::$locks, strtolower($code));
 		if (!$lock) {
-			self::$locks[$low_code] = $lock = Object::factory(__CLASS__, array(
-				'code' => $code
-			))->register();
+			$lock = self::_create_lock($code);
 		} else if (!$lock->_is_mine()) {
-			$lock->fetch();
+			try {
+				$lock->fetch();
+			} catch (Exception_Object_NotFound $e) {
+				// Has since been deleted
+				$lock = self::_create_lock($code);
+			}
 		}
 		return $lock;
 	}
-
+	
+	/**
+	 * Acquire a lock with an optional where clause
+	 * @param array $where
+	 */
 	private function _acquire_where(array $where = array()) {
 		$update = Object::class_query_update(__CLASS__);
 		$sql = $update->sql();
@@ -229,16 +290,18 @@ class Lock extends Object {
 			'server' => Server::singleton(),
 			'*locked' => $sql->now(),
 			'*used' => $sql->now()
-		))->where(array(
+		))
+			->where(array(
 			'id' => $this->id
-		) + $where)->execute();
+		) + $where)
+			->execute();
 		if ($this->fetch()->_is_mine()) {
 			log::debug("Acquired lock $this->code");
 			return $this;
 		}
 		return null;
 	}
-
+	
 	/**
 	 * Acquire an inactive lock
 	 */
@@ -247,7 +310,7 @@ class Lock extends Object {
 			'pid' => null
 		));
 	}
-
+	
 	/**
 	 * Acquire a dead lock, requires that the pid and server don't change between now and acquisition
 	 */
@@ -271,7 +334,7 @@ class Lock extends Object {
 			$sleep = $timeout;
 		}
 		$sleep = intval($sleep * 1000000);
-//		log::notice("Trying to get lock $this->code");
+		//		log::notice("Trying to get lock $this->code");
 		$delete_attempt = false;
 		while (true) {
 			if (!$delete_attempt) {
@@ -299,7 +362,7 @@ class Lock extends Object {
 		}
 		return null;
 	}
-
+	
 	/**
 	 * Checks if the PID in this Lock is alive
 	 *
@@ -324,7 +387,7 @@ class Lock extends Object {
 	private function _is_my_pid() {
 		return zesk::pid() === $this->member_integer('pid');
 	}
-
+	
 	/**
 	 * Is this lock free?
 	 *
@@ -333,7 +396,7 @@ class Lock extends Object {
 	private function _is_free() {
 		return $this->member_is_empty('pid') && $this->member_is_empty('server');
 	}
-
+	
 	/**
 	 * Implies PID and server match
 	 *
