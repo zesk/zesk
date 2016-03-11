@@ -13,9 +13,19 @@ class Module_PolyGlot extends Module implements Module_Interface_Routes {
 		$options = array();
 		$locales = Object::class_query("Language")->what(array(
 			"code" => "code",
+			"dialect" => "dialect",
 			"name" => "name"
-		))->where("code", $list)->to_array("code", "name");
-		return __($locales);
+		))->where("code", $list)->to_array();
+		$results = array();
+		foreach ($locales as $locale) {
+			$code = $dialect = $name = null;
+			extract($locale, EXTR_IF_EXISTS);
+			if ($dialect) {
+				$code .= "_$dialect";
+			}
+			$results[$code] = $name;
+		}
+		return __($results);
 	}
 
 	public function hook_routes(Router $router) {
@@ -54,7 +64,8 @@ class Module_PolyGlot extends Module implements Module_Interface_Routes {
 				"basename" => basename($source_file)
 			));
 		}
-		$table = zesk\Locale::load($locale) + $table;
+		$existing = zesk\Locale::load($locale);
+		$table = $existing + $table;
 		$language = zesk\Locale::language($locale);
 		$dialect = zesk\Locale::dialect($locale);
 		$tokens = PolyGlot_Token::fetch_all($language, $dialect);
@@ -64,7 +75,7 @@ class Module_PolyGlot extends Module implements Module_Interface_Routes {
 				$object = $tokens[$original];
 				$table[$original] = $object;
 			} else {
-				$table[$original] = PolyGlot_Token::create($language, $dialect, $original, $translation);
+				$table[$original] = PolyGlot_Token::create($language, $dialect, $original, $translation, array_key_exists($original, $existing) ? PolyGlot_Token::status_done : PolyGlot_Token::status_todo);
 			}
 		}
 		return array_values($table);
