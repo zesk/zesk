@@ -7,8 +7,6 @@
 $variables = $this->variables;
 $results = array();
 $hidden = "";
-// echo "<h3>BEGIN widgets.tpl: ".get_class($widget)." : " . $name . " " . count($children) . "</h3>";
-// echo html::tag('code', _backtrace(10));
 foreach ($this->children as $child) {
 	$child = clone $child;
 	/* @var $child Widget */
@@ -22,7 +20,7 @@ foreach ($this->children as $child) {
 		$suffix = html::tags('div', '.help-block error', $child->errors());
 		$child->suffix($suffix, true);
 	}
-
+	
 	$child->object($this->object);
 	$content = $child->render();
 	$label = $results[$name . '.label'] = html::tag('label', array(
@@ -32,9 +30,12 @@ foreach ($this->children as $child) {
 	if ($child->option_bool('nolabel', $this->nolabel)) {
 		$label = "";
 	}
-	$cell = $results[$name . '.cell'] = empty($content) ? $content : html::tag($child->option('widget_tag', $this->get('widget_tag', 'div')), html::add_class(to_array($this->widget_attributes), $child->context_class()), $label . $content);
+	$widget_tag = $child->option('widget_tag', $this->get('widget_tag', 'div'));
+	$widget_attributes = html::add_class(to_array($this->widget_attributes), $child->context_class());
+	
+	$cell = $results[$name . '.cell'] = empty($content) ? $content : html::tag($widget_tag, $widget_attributes, $label . $content);
 	$results[$name] = $content;
-
+	
 	if ($child->is_visible()) {
 		if (!$this->theme_widgets) {
 			if ($this->debug) {
@@ -53,4 +54,3 @@ if ($this->theme_widgets) {
 	echo map($this->theme($this->theme_widgets), arr::flatten(arr::kprefix($results, 'widget.') + arr::kprefix($this->variables, 'template.') + arr::kprefix($this->object->variables(), 'object.')));
 }
 echo $hidden;
-//echo "<h3>END widgets.tpl: ".get_class($widget)."</h3>";
