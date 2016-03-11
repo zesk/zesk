@@ -184,14 +184,14 @@ abstract class Route extends Hookable {
 	 */
 	public static function factory(Router $router, $pattern, array $options) {
 		foreach (array(
-			"method" => "Method",
-			"controller" => "Controller",
-			"command" => "Command",
-			"theme" => "Theme",
-			"template" => "Theme"
-		) as $k => $suffix) {
+			"method" => "Route_Method",
+			"controller" => "Route_Controller",
+			"command" => "Route_Command",
+			"theme" => "Route_Theme",
+			"template" => "Route_Theme"
+		) as $k => $class) {
 			if (array_key_exists($k, $options)) {
-				return zesk::factory("Route_" . $suffix, $router, $pattern, $options);
+				return zesk::factory($class, $router, $pattern, $options);
 			}
 		}
 		return zesk::factory("Route_Content", $router, $pattern, $options);
@@ -668,19 +668,19 @@ abstract class Route extends Hookable {
 		return $result;
 	}
 	protected function get_route_map($action, $object = null, $options = null) {
-		$class = strtolower(is_object($object) ? get_class($object) : $object);
+		$classes = zesk::class_hierarchy($object, "Object");
 		$options = to_array($options, array());
 		$map = array(
-			"action" => $action,
-			"class" => $class
+			"action" => $action
 		) + $options;
-		if ($class) {
+		
+		if (count($classes) > 0) {
 			foreach ($this->types as $type) {
 				if (!is_array($type)) {
 					continue;
 				}
 				list($part_class, $part_name) = $type;
-				if (strtolower($part_class) === $class) {
+				if (in_array($part_class, $classes)) {
 					$map[$part_name] = $object instanceof Object ? $object->id() : avalue($options, $part_name, "");
 				} else {
 					$option = avalue($options, $part_name);
