@@ -91,7 +91,7 @@ abstract class Database_Query_Select_Base extends Database_Query {
 	 * @param unknown_type $default
 	 * @return unknown
 	 */
-	function object($class = null, $options = false) {
+	function object($class = null, array $options = array()) {
 		$result = $this->one(false, null);
 		if ($result === null) {
 			return $result;
