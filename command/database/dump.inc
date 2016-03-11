@@ -22,7 +22,18 @@ class Command_Database_Dump extends Command_Base {
 		"echo" => "boolean",
 		"file" => "boolean",
 		"dir" => "string",
-		"db" => "string"
+		"arg-prefix" => "string",
+		"arg-suffix" => "string",
+		"*" => "string"
+	);
+	protected $option_help = array(
+		"name" => "Database name to dump",
+		"echo" => "Output the shell command to do the dump instead of running it",
+		"file" => "Presence means write the output to a file instead of stdout",
+		"dir" => "Place the file in this directory",
+		"arg-prefix" => "Pass options to prefix command-line",
+		"arg-suffix" => "Pass options to suffix command-line",
+		"*" => "string"
 	);
 	private function map_db_scheme($scheme) {
 		switch ($scheme) {
@@ -46,6 +57,9 @@ class Command_Database_Dump extends Command_Base {
 		$scheme = $host = $user = $pass = $path = $port = null;
 		extract($parts, EXTR_IF_EXISTS);
 		$args = array();
+		if ($this->has_option("arg-prefix")) {
+			$args = array_merge($args, explode(" ", $this->option('arg-prefix')));
+		}
 		if ($host) {
 			$args[] = "-h";
 			$args[] = $host;
@@ -59,7 +73,7 @@ class Command_Database_Dump extends Command_Base {
 		}
 		$path = substr($path, 1);
 		$args[] = $path;
-
+		
 		try {
 			$command = self::map_db_scheme($scheme);
 		} catch (Exception $e) {
@@ -71,7 +85,7 @@ class Command_Database_Dump extends Command_Base {
 			$this->error("Unable to find shell $command in system path:" . implode(", ", zesk::command_path()) . "\n");
 			return false;
 		}
-
+		
 		$suffix = "";
 		$where = "";
 		if ($this->option_bool('file') || $this->has_option('dir')) {
@@ -99,7 +113,11 @@ class Command_Database_Dump extends Command_Base {
 			$where = dir::make_absolute($app_root, $where);
 			$suffix .= " > $where";
 		}
-
+		
+		if ($this->has_option("arg-suffix")) {
+			$args = array_merge($args, explode(" ", $this->option('arg-suffix')));
+		}
+		
 		$command_line = $full_command_path . implode("", arr::prefix($args, " ")) . $suffix;
 		if ($this->option_bool('echo')) {
 			echo $command_line . "\n";
