@@ -8,9 +8,7 @@
  * @author kent
  * @copyright &copy; 2014 Market Acumen, Inc.
  */
-
-class Module_Content extends Module {
-
+class Module_Content extends Module implements Module_Interface_Head {
 	private static $all_classes = array(
 		'Content_Article' => 'article',
 		'Content_Data' => 'data',
@@ -22,11 +20,14 @@ class Module_Content extends Module {
 		'Content_Menu' => 'menu',
 		'Content_Video' => 'video'
 	);
-
 	public $classes = array();
-
+	
+	/**
+	 * 
+	 * {@inheritDoc}
+	 * @see Module::initialize()
+	 */
 	public function initialize() {
-		parent::initialize();
 		if ($this->has_option("content_classes")) {
 			$types = arr::flip_multiple(self::$all_classes);
 			$this->classes = array_merge($this->classes, $types['data']);
@@ -45,13 +46,21 @@ class Module_Content extends Module {
 			$this->classes = array_keys(self::$all_classes);
 		}
 	}
-
-	public function hook_head(Request $request, Response_HTML $response) {
+	
+	/**
+	 * 
+	 * @param Request $request
+	 * @param Response_HTML $response
+	 */
+	public function hook_head(Request $request, Response_HTML $response, Template $template) {
 		$response->cdn_css("/share/content/css/content.css", array(
 			"share" => true
 		));
 	}
-
+	
+	/**
+	 * Register hooks
+	 */
 	public static function hooks() {
 		zesk::add_hook('Content_Image::stored', "Controller_Content_Cache::image_changed");
 	}
