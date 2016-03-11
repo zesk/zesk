@@ -4,7 +4,9 @@
 if (false) {
 	$response = $this->response;
 }
-$response->title($title = __('Search results for &ldquo;{query}&rdquo;', $this->variables));
+$response->title($title = __('Search results for &ldquo;{query}&rdquo;', array(
+	"query" => $this->query
+)));
 echo html::tag('h1', $title);
 echo html::div_open('.search-results');
 echo $this->theme($this->get('theme_search_form', 'search/form'));
