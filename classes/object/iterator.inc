@@ -17,31 +17,31 @@ class Object_Iterator extends Database_Result_Iterator implements Iterator {
 	 * @var array
 	 */
 	protected $class_options;
-
+	
 	/**
 	 * Current parent
 	 * @var Object
 	 */
 	private $parent = null;
-
+	
 	/**
 	 * Current parent
 	 * @var Object
 	 */
 	private $parent_member = null;
-
+	
 	/**
 	 * Current object
 	 * @var Object
 	 */
 	protected $object;
-
+	
 	/**
 	 * Current key
 	 * @var mixed
 	 */
 	protected $id;
-
+	
 	/**
 	 * Create an object iterator
 	 * @param string $class Class to iterate over
@@ -53,7 +53,6 @@ class Object_Iterator extends Database_Result_Iterator implements Iterator {
 		$options['initialize'] = true;
 		$this->class_options = $options;
 	}
-
 	public function set_parent(Object $parent, $member = null) {
 		$this->parent = $parent;
 		if ($member !== null) {
@@ -75,11 +74,11 @@ class Object_Iterator extends Database_Result_Iterator implements Iterator {
 	 * @see Database_Result_Iterator::key()
 	 */
 	public function key() {
-		return $this->id;
+		return is_array($this->id) ? json::encode($this->id) : $this->id;
 	}
-
+	
 	/* Maintain parent object to avoid cyclical store(), and for memory saving
- 	 *
+	 *
 	 * If at any point we do Object-system caching, we can remove this as instantiation will re-use an object.
 	 *
 	 * @todo Decide on object system caching or this method.
@@ -117,7 +116,7 @@ class Object_Iterator extends Database_Result_Iterator implements Iterator {
 			$this->object = null;
 		}
 	}
-
+	
 	/**
 	 * Convert to an array
 	 * @see Database_Result_Iterator::to_array()
