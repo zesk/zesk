@@ -6,17 +6,7 @@ if (false) {
 	/* @var $response Response_HTML */
 	$response = $this->response;
 }
-$response->cdn_javascript('/share/zesk/js/zesk.js', array(
-	'share' => true,
-	'weight' => 'first'
-));
-$response->cdn_javascript('/share/zesk/js/locale.js', array(
-	'share' => true,
-	'weight' => 0
-));
-$response->cdn_javascript('/share/job/job.js', array(
-	'share' => true
-));
+$object->render("scripts");
 
 $success = $this->success;
 if ($success) {
@@ -30,7 +20,8 @@ if ($job->dead()) {
 	)), 0);
 }
 ?>
-<div class="job-monitor panel-success" data-id="<?php echo $job->id(); ?>" <?php echo $success; ?>>
+<div class="job-monitor panel-success"
+	data-id="<?php echo $job->id(); ?>" <?php echo $success; ?>>
 	<div class="panel-heading">
 	<?php echo $job->name; ?>
 	</div>
@@ -40,7 +31,8 @@ if ($job->dead()) {
 			?>
 			<div class=" col-sm-3 col-md-4">
 				<div class="progress progress-striped">
-					<div class="progress-bar progress-bar-info active" role="progressbar" style=""></div>
+					<div class="progress-bar progress-bar-info active"
+						role="progressbar" style=""></div>
 					<span class="sr-only">Not started</span>
 				</div>
 			</div>
