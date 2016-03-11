@@ -10,22 +10,27 @@
  * @see Object
  */
 class Class_Object extends Hookable {
-
+	
 	/**
 	 * For ID columns
 	 *
-	 * @var unknown
+	 * @var string
 	 */
 	const type_id = "id";
-
+	
 	/**
 	 * Plain old text data in the database
 	 *
 	 * @var string
 	 */
 	const type_text = "text";
+	/**
+	 * Plain old text data in the database (varchar)
+	 *
+	 * @var string
+	 */
 	const type_string = "string";
-
+	
 	/**
 	 * This column serves as text data for polymorphic objects
 	 *
@@ -35,36 +40,60 @@ class Class_Object extends Hookable {
 	 * @var string
 	 */
 	const type_polymorph = "polymorph";
-
+	
 	/**
 	 * Refers to a system object (usually by ID)
 	 *
 	 * @var string
 	 */
 	const type_object = "object";
-
+	
 	/**
 	 * Upon initial save, set to current date
 	 *
 	 * @var string
 	 */
 	const type_created = "created";
-
+	
 	/**
 	 * Upon all saves, updates to current date
 	 *
 	 * @var string
 	 */
 	const type_modified = "modified";
-
+	
 	/**
 	 * String information called using serialize/unserialize
 	 *
 	 * @var string
 	 */
 	const type_serialize = "serialize";
+	
+	/**
+	 * Convert data to/from a JSON string in the database. Column should be a blob (not text)
+	 * @var string
+	 */
+	const type_json = "json";
+	
+	/**
+	 * Convert data to/from an integer
+	 * 
+	 * @var string
+	 */
 	const type_integer = "integer";
+	
+	/**
+	 * Database string (char)
+	 * 
+	 * @var string
+	 */
 	const type_character = "character";
+	
+	/**
+	 * Single-precision floating point number
+	 * 
+	 * @var string
+	 */
 	const type_real = "real";
 	const type_float = "float";
 	const type_double = "double";
@@ -81,21 +110,21 @@ class Class_Object extends Hookable {
 	const type_crc32 = "crc32";
 	const type_hex32 = "hex";
 	const type_hex = "hex";
-
+	
 	/**
 	 * PHP Class which created this (type Object)
 	 *
 	 * @var string
 	 */
 	public $class = null;
-
+	
 	/**
 	 * String name of the database to use
 	 *
 	 * @var string
 	 */
 	public $database_name = null;
-
+	
 	/**
 	 * Name of the Object which should share this database with.
 	 *
@@ -104,7 +133,7 @@ class Class_Object extends Hookable {
 	 * @var string
 	 */
 	protected $database_group = null;
-
+	
 	/**
 	 * Database name where this object resides.
 	 * If not specified, the default database.
@@ -115,7 +144,7 @@ class Class_Object extends Hookable {
 	 * @var Database
 	 */
 	private $database = null;
-
+	
 	/**
 	 * Database table name
 	 * <code>
@@ -125,7 +154,7 @@ class Class_Object extends Hookable {
 	 * @var string
 	 */
 	public $table = null;
-
+	
 	/**
 	 * English name of this object for possible display.
 	 * If not specified, class name.
@@ -137,7 +166,7 @@ class Class_Object extends Hookable {
 	 * @var string
 	 */
 	public $name = null;
-
+	
 	/**
 	 * Data structure implemented March 2014
 	 * Merges column_defaults, column_types, and Schema_classname into a single
@@ -153,14 +182,14 @@ class Class_Object extends Hookable {
 	 * @var array
 	 */
 	public $members = array();
-
+	
 	/**
 	 * Specify the base polymorphic class here
 	 *
 	 * @var string
 	 */
 	public $polymorphic = null;
-
+	
 	/**
 	 * Will an object's Class representation change depending on polymorphic state?
 	 *
@@ -175,7 +204,7 @@ class Class_Object extends Hookable {
 	 * @var boolean
 	 */
 	public $polymorphic_inherit_class = true;
-
+	
 	/**
 	 * Unique internal, programmer name for this object.
 	 * If not specified, class name.
@@ -187,7 +216,7 @@ class Class_Object extends Hookable {
 	 * @var string
 	 */
 	public $code_name = null;
-
+	
 	/**
 	 * <code>
 	 * protected $schema_file = 'MyObject.sql';
@@ -200,7 +229,7 @@ class Class_Object extends Hookable {
 	 * @var string
 	 */
 	public $schema_file = null;
-
+	
 	/**
 	 * List of columns in this object.
 	 * If not specified, automatically determined from database table.
@@ -216,7 +245,7 @@ class Class_Object extends Hookable {
 	 * @var array
 	 */
 	public $columns = array();
-
+	
 	/**
 	 * <code>
 	 * protected $column_types = array("column" => "type",...)
@@ -231,33 +260,33 @@ class Class_Object extends Hookable {
 	 * @var array
 	 */
 	public $column_types = array();
-
+	
 	/**
 	 * Whether to dynamically load the object columns from the database
 	 *
 	 * @var boolean
 	 */
 	public $load_database_columns = false;
-
+	
 	/**
 	 * Member defaults: fill in only defaults you want to set
 	 */
 	public $column_defaults = null;
-
+	
 	/**
 	 * Which column to use in a CRC checksum
 	 *
 	 * @var string
 	 */
 	public $crc_column = null;
-
+	
 	/**
 	 * The default column for displaying this object's name
 	 *
 	 * @var string
 	 */
 	public $name_column = null;
-
+	
 	/**
 	 * Name of the column which uniquely identifies this object in the table.
 	 * Default is "id"
@@ -265,14 +294,14 @@ class Class_Object extends Hookable {
 	 * @var string
 	 */
 	public $id_column = null;
-
+	
 	/**
 	 * Name of the columns which uniquely identifies this object in the table.
 	 *
 	 * @var array
 	 */
 	public $primary_keys = null;
-
+	
 	/**
 	 * Name of the column which is automatically incremented upon saves
 	 * Set to the blank string if no column exists.
@@ -280,35 +309,35 @@ class Class_Object extends Hookable {
 	 * @var string
 	 */
 	public $auto_column = null;
-
+	
 	/**
 	 * List of columns used by default to look up an object for a match
 	 *
 	 * @var array
 	 */
 	public $find_keys = null;
-
+	
 	/**
 	 * When finding, order results this way and retrieve the first item
 	 *
 	 * @var array
 	 */
 	public $find_order_by = null;
-
+	
 	/**
 	 * Add this to the where clause when searching for duplicates
 	 *
 	 * @var array
 	 */
 	public $duplicate_where = array();
-
+	
 	/**
 	 * List of columns which are used to determine if a duplicate exists in the database.
 	 *
 	 * @var array
 	 */
 	public $duplicate_keys = null;
-
+	
 	/**
 	 * Use UTC timestamps for Created and Modified columns.
 	 * Default value is set to boolean option "utc_timestamps", then
@@ -317,7 +346,7 @@ class Class_Object extends Hookable {
 	 * @var boolean
 	 */
 	public $utc_timestamps = null;
-
+	
 	/**
 	 * Whether this object has its columns determined programmatically.
 	 * Set by Object class, read-only by subclasses
@@ -325,23 +354,23 @@ class Class_Object extends Hookable {
 	 * @var boolean
 	 */
 	public $dynamic_columns = false;
-
+	
 	/**
-	 * Function to call to get a field.
+	 * Function to call to get a field as implemented in Object subclass (not Class_Object subclass!)
 	 * Method should be identical to __get prototype. (Allows reuse.)
 	 *
 	 * @var array
 	 */
 	public $getters = array();
-
+	
 	/**
-	 * Function to call to set a field.
+	 * Function to call to set a field as implemented in Object subclass (not Class_Object subclass!)
 	 * Method should be identical to __set prototype. (Allows reuse.)
 	 *
 	 * @var array
 	 */
 	public $setters = array();
-
+	
 	/**
 	 * Specify one-to-many or many-to-many relationships
 	 * <code>
@@ -380,7 +409,7 @@ class Class_Object extends Hookable {
 	 * @var array
 	 */
 	public $has_many = array();
-
+	
 	/**
 	 * <code>
 	 * protected	$has_one = array("column" => "class name",...)
@@ -413,14 +442,14 @@ class Class_Object extends Hookable {
 	 * @var array
 	 */
 	public $has_one = array();
-
+	
 	/**
 	 * $this->has_one flipped with identical columns as arrays
 	 *
 	 * @var array
 	 */
 	public $has_one_flip = array();
-
+	
 	/**
 	 * List of options in this object which should be passed to sub-objects
 	 * Can be an array or a semicolon separated list.
@@ -428,61 +457,61 @@ class Class_Object extends Hookable {
 	 * @var array
 	 */
 	public $inherit_options = null;
-
+	
 	/**
 	 * The deleted column to support soft deletions
 	 *
 	 * @var string
 	 */
 	public $column_deleted = null;
-
+	
 	/**
 	 * List of columns, which, when they change, will invalidate the cache for this object.
 	 *
 	 * @var array|string
 	 */
 	public $cache_column_names = null;
-
+	
 	/*
 	 *  Lookup list of class => member
 	 */
 	private $has_many_objects = array();
-
+	
 	/*
 	 *  Cached table columns
 	 */
 	private $table_columns = array();
-
+	
 	/**
 	 * Class cache
 	 *
 	 * @var array:Object_Class
 	 */
 	static $classes = array();
-
+	
 	/**
 	 * List of deferrable class linkages
 	 *
 	 * @var
 	 */
 	static $defer_class_links = array();
-
+	
 	/**
 	 * Class cache
 	 *
 	 * @var array:array
 	 */
 	static $class_cache = array();
-
+	
 	/**
 	 * Cache database columns here
 	 *
 	 * @var array:array
 	 */
 	static $column_cache = array();
-
+	
 	/**
-	 * If you modify the database structure dynamically, you should call this to force column
+	 * If you modify the database structure dynamically, you should call this to force column recomputation
 	 */
 	public static function dirty() {
 		self::$classes = array();
@@ -512,7 +541,7 @@ class Class_Object extends Hookable {
 		zesk::hooks($class);
 		return $instance;
 	}
-
+	
 	/**
 	 * Lazy link classes together with has_many functionality
 	 *
@@ -536,7 +565,7 @@ class Class_Object extends Hookable {
 			self::$defer_class_links[$lowclass][$member] = $many_spec;
 		}
 	}
-
+	
 	/**
 	 * When registering the object, add deferred
 	 * @param unknown $class
@@ -550,7 +579,6 @@ class Class_Object extends Hookable {
 			unset(self::$defer_class_links[$lowclass]);
 		}
 	}
-
 	protected function _add_many($member, array $many_spec) {
 		if (!array_key_exists('class', $many_spec)) {
 			throw new Exception_Semantics("many_spec for class {class} must contain key 'class' for member {member}", compact("class", "member"));
@@ -566,7 +594,7 @@ class Class_Object extends Hookable {
 		));
 		return $this;
 	}
-
+	
 	/**
 	 * Retrieve object or classes from cache
 	 *
@@ -599,7 +627,7 @@ class Class_Object extends Hookable {
 		$result = self::$class_cache[$lowclass];
 		return avalue($result, $component, $result);
 	}
-
+	
 	/**
 	 * Constructor
 	 *
@@ -710,21 +738,20 @@ class Class_Object extends Hookable {
 			$this->imply_column_types();
 		}
 	}
-
+	
 	/**
 	 * Configure a class prior to instantiation
 	 *
 	 * Only thing set is "$this->class"
 	 */
 	protected function configure(Object $object) {
-
 	}
 	/**
 	 * Overwrite this in subclasses to change stuff upon instantiation
 	 */
 	protected function initialize() {
 	}
-
+	
 	/**
 	 * Load columns from database
 	 *
@@ -749,7 +776,7 @@ class Class_Object extends Hookable {
 		}
 		return true;
 	}
-
+	
 	/**
 	 * Column cache
 	 *
@@ -773,7 +800,7 @@ class Class_Object extends Hookable {
 		}
 		$cache = $this->_column_cache();
 		$cache_key = $this->table;
-
+		
 		$columns = $cache->get($cache_key);
 		if (is_array($columns)) {
 			$this->columns = $columns;
@@ -806,7 +833,7 @@ class Class_Object extends Hookable {
 		}
 		return $return;
 	}
-
+	
 	/**
 	 * Given a class $class, determine the default path to the class
 	 *
@@ -844,7 +871,7 @@ class Class_Object extends Hookable {
 				$to_class = $object->member(substr($to_class, 1));
 			}
 			$to_object = Object::cache_object($to_class);
-
+			
 			if ($path === null) {
 				$alias = aevalue($mixed, 'alias', $segment);
 			} else {
@@ -899,17 +926,17 @@ class Class_Object extends Hookable {
 			$mixed['path_walked'][] = $segment;
 			$mixed['path'] = $path;
 			$mixed['previous_alias'] = $segment;
-
+			
 			return $to_object->link_walk($query, $mixed);
 		}
 		$has_alias = $query->find_alias($segment);
 		if ($has_alias) {
 			$to_object = Object::cache_object($has_alias);
-
+			
 			$mixed['path_walked'][] = $segment;
 			$mixed['path'] = $path;
 			$mixed['previous_alias'] = $segment;
-
+			
 			return $to_object->link_walk($query, $mixed);
 		}
 		throw new Exception_Semantics("No path $segment found in " . $this->class . "::link_walk");
@@ -954,10 +981,10 @@ class Class_Object extends Hookable {
 					'*' . $gen->column_alias($foreign_key, $alias) => $gen->column_alias($id_column, $link_alias)
 				);
 			}
-
+			
 			$query->join_object($join_type, $object, $alias, $on, $table);
 		}
-
+		
 		$this_alias = $alias;
 		if (!$this_object->is_new()) {
 			if (Object::$debug) {
@@ -970,7 +997,7 @@ class Class_Object extends Hookable {
 				log::notice(get_class($this_object) . " is  new");
 			}
 		}
-
+		
 		if (array_key_exists("order_by", $many_spec)) {
 			$query->order_by(arr::prefix(to_list($many_spec['order_by']), "$this_alias."));
 		}
@@ -997,7 +1024,7 @@ class Class_Object extends Hookable {
 		}
 		return $this->has_many($this, $member);
 	}
-
+	
 	/**
 	 * Returns valid member names for this database table
 	 *
@@ -1026,7 +1053,7 @@ class Class_Object extends Hookable {
 		$object = $many_spec['object'];
 		return $query;
 	}
-
+	
 	/**
 	 *
 	 * @param unknown $member
@@ -1073,7 +1100,7 @@ class Class_Object extends Hookable {
 			throw new Exception_Semantics(__CLASS__ . "::member_foreign_add($member) called on non-many member");
 		}
 		$many_spec = $this->has_many($this_object, $member);
-
+		
 		$class = $many_spec['class'];
 		if (!$link instanceof $class) {
 			throw new Exception_Semantics(get_class($link) . " is not an instanceof of $class");
@@ -1103,7 +1130,7 @@ class Class_Object extends Hookable {
 			);
 		}
 	}
-
+	
 	/**
 	 * Ensure our has_many structure has all fields, add implied/default fields here.
 	 *
@@ -1159,7 +1186,6 @@ class Class_Object extends Hookable {
 		$has_many['_inited'] = true;
 		return $has_many;
 	}
-
 	private function has_many_object_join($class, $join_column) {
 		$spec = $this->has_many_object($class);
 		if (!$spec) {
@@ -1171,7 +1197,7 @@ class Class_Object extends Hookable {
 			$join_column => $foreign_key
 		);
 	}
-
+	
 	/**
 	 * Retrieve the database for this object
 	 *
@@ -1183,7 +1209,7 @@ class Class_Object extends Hookable {
 		}
 		return $this->database = Database::factory($this->database_name);
 	}
-
+	
 	/**
 	 * Get the schema for this object
 	 *
@@ -1207,7 +1233,7 @@ class Class_Object extends Hookable {
 			return null;
 		}
 	}
-
+	
 	/**
 	 *
 	 * @return Database_Schema
@@ -1224,7 +1250,7 @@ class Class_Object extends Hookable {
 		}
 		return $this->_database_schema($result);
 	}
-
+	
 	/**
 	 * Override this in subclasses to provide an alternate schema
 	 *
@@ -1233,7 +1259,7 @@ class Class_Object extends Hookable {
 	public function schema(Object $object) {
 		return $this->_database_schema();
 	}
-
+	
 	/**
 	 * Member defaults
 	 *
@@ -1252,7 +1278,7 @@ class Class_Object extends Hookable {
 		}
 		return $this->column_defaults;
 	}
-
+	
 	/**
 	 * Take a database result and convert it into the internal data array
 	 *
@@ -1271,7 +1297,7 @@ class Class_Object extends Hookable {
 		}
 		return $data;
 	}
-
+	
 	/**
 	 * Take an external array and convert it into the internal data array
 	 *
@@ -1289,7 +1315,7 @@ class Class_Object extends Hookable {
 		}
 		return $data;
 	}
-
+	
 	/**
 	 * Take internal data and convert into a form consumable by database calls
 	 *
@@ -1309,7 +1335,7 @@ class Class_Object extends Hookable {
 		}
 		return $data;
 	}
-
+	
 	/**
 	 *
 	 * @param unknown $column
@@ -1325,12 +1351,12 @@ class Class_Object extends Hookable {
 			case self::type_modified:
 				$data[$column] = 'now';
 				break;
-			default:
+			default :
 				$data[$column] = null;
 				break;
 		}
 	}
-
+	
 	/**
 	 * Generate the desired zesk Object class name to instantiate this object
 	 *
@@ -1342,7 +1368,7 @@ class Class_Object extends Hookable {
 	protected function polymorphic_class_generate($value) {
 		return strtolower($this->polymorphic . "_" . $value);
 	}
-
+	
 	/**
 	 * Convert the existing Object class name to the preferred code used in the database
 	 *
@@ -1359,7 +1385,7 @@ class Class_Object extends Hookable {
 		), true);
 		return strtolower($class);
 	}
-
+	
 	/**
 	 * Convert member from database to internal format.
 	 * Result value is hints to calling function about additional properties to set in the object.
@@ -1413,6 +1439,17 @@ class Class_Object extends Hookable {
 			case self::type_serialize:
 				$data[$column] = empty($v) ? null : unserialize($v);
 				break;
+			case self::type_json:
+				try {
+					$data[$column] = empty($v) ? null : json::decode($v);
+				} catch (Exception_Parse $e) {
+					log::error("Unable to parse JSON in {class}->{column} {json}", array(
+						"class" => get_class($object),
+						"column" => $column,
+						"json" => $v
+					));
+				}
+				break;
 			case self::type_created:
 			case self::type_modified:
 			case self::type_timestamp:
@@ -1448,11 +1485,11 @@ class Class_Object extends Hookable {
 					$object->polymorphic($full_class);
 				}
 				break;
-			default:
+			default :
 				throw new Exception_Semantics("Invalid column type $type");
 		}
 	}
-
+	
 	/**
 	 * Convert member into to internal format.
 	 * Result value is hints to calling function about additional properties to set in the object.
@@ -1470,6 +1507,7 @@ class Class_Object extends Hookable {
 			case self::type_hex:
 			case self::type_hex32:
 			case self::type_serialize:
+			case self::type_json:
 				break;
 			case self::type_ip:
 			case self::type_ip4:
@@ -1477,12 +1515,12 @@ class Class_Object extends Hookable {
 					$data[$column] = ip::from_integer($data[$column]);
 				}
 				break;
-			default:
+			default :
 				$this->member_from_database($object, $column, $type, $data);
 				break;
 		}
 	}
-
+	
 	/**
 	 * Return the SQL version for now
 	 *
@@ -1493,7 +1531,7 @@ class Class_Object extends Hookable {
 		$generator = $object->database()->sql();
 		return $this->utc_timestamps ? $generator->now_utc() : $generator->now();
 	}
-
+	
 	/**
 	 * Retrieve members matching a given type
 	 *
@@ -1503,7 +1541,7 @@ class Class_Object extends Hookable {
 	public function members_of_type($type) {
 		return arr::filter_value($this->column_types, $type, true);
 	}
-
+	
 	/**
 	 * Convert a member into format suitable for the database
 	 *
@@ -1561,6 +1599,9 @@ class Class_Object extends Hookable {
 			case self::type_serialize:
 				$data[$column] = serialize($v);
 				break;
+			case self::type_json:
+				$data[$column] = json::encode($v);
+				break;
 			case self::type_created:
 				unset($data[$column]);
 				if ($insert) {
@@ -1617,11 +1658,11 @@ class Class_Object extends Hookable {
 				$data["*$column"] = $gen->function_ip2long($gen->quote_text($v));
 				unset($data[$column]);
 				break;
-			default:
+			default :
 				throw new Exception_Semantics("Invalid column type $type");
 		}
 	}
-
+	
 	/**
 	 * Guess column types
 	 *
@@ -1633,7 +1674,7 @@ class Class_Object extends Hookable {
 			$this->column_types[$name] = $data_type->native_type_to_data_type($sql_type);
 		}
 	}
-
+	
 	/**
 	 * Load defaults based on old _Spec array
 	 *
@@ -1662,5 +1703,4 @@ class Class_Object extends Hookable {
 			"codename" => $codename
 		);
 	}
-
 }
