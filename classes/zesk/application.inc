@@ -314,7 +314,8 @@ class Application extends \Hookable implements \Interface_Theme {
 		$uname = \system::uname();
 		$globals_options = array(
 			'files' => $this->includes,
-			'overwrite' => true
+			'overwrite' => true,
+			'lower' => false
 		);
 		/*
 		 * Load the globals from the configuration file using file list
@@ -368,7 +369,7 @@ class Application extends \Hookable implements \Interface_Theme {
 		$this->inherit_global_options();
 		$modules = $this->option_list('modules');
 		if (count($modules) > 0) {
-			\Module::load($modules);
+			$this->module->load($modules);
 		}
 		
 		$this->load_maintenance();
@@ -377,6 +378,7 @@ class Application extends \Hookable implements \Interface_Theme {
 		$this->module->all_hook("configured");
 		$this->hook('configured'); // Application level
 		
+
 		$this->postconfigure();
 		$this->configure_paths();
 		$this->configured_was_run = true;
@@ -417,6 +419,10 @@ class Application extends \Hookable implements \Interface_Theme {
 		$application->theme_path(zesk::theme_path_default());
 		return $application;
 	}
+	
+	/**
+	 * Clear application cache
+	 */
 	final public function cache_clear() {
 		foreach (array(
 			zesk::cache_path(),
@@ -434,7 +440,7 @@ class Application extends \Hookable implements \Interface_Theme {
 		log::notice("Running: {cache_clear_hooks}", array(
 			"cache_clear_hooks" => \Module::all_hook_list("cache_clear")
 		));
-		\Module::all_hook("cache_clear", $this);
+		$this->module->all_hook("cache_clear", $this);
 		$controllers = $this->controllers();
 		foreach ($controllers as $controller) {
 			$controller->hook('cache_clear');
