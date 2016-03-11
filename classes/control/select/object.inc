@@ -12,13 +12,13 @@ class Control_Select_Object extends Control_Select {
 	 *
 	 * @var string
 	 */
-
+	
 	/**
 	 *
 	 * @var Class_Object
 	 */
 	protected $class_object = null;
-
+	
 	/**
 	 * (non-PHPdoc)
 	 * @see Widget::model()
@@ -30,7 +30,6 @@ class Control_Select_Object extends Control_Select {
 		}
 		return $this->application->object_factory($this->class);
 	}
-
 	protected function initialize() {
 		if (empty($this->class)) {
 			// Do not use "class" option - is also attribute on HTML tags. Use object_class
@@ -42,7 +41,6 @@ class Control_Select_Object extends Control_Select {
 		}
 		parent::initialize();
 	}
-
 	protected function _where() {
 		$where = $this->option("where", "");
 		if (!is_array($where)) {
@@ -53,7 +51,6 @@ class Control_Select_Object extends Control_Select {
 		}
 		return $where;
 	}
-
 	function value($set = null) {
 		if ($set === "") {
 			$this->object->set($this->column(), null);
@@ -61,7 +58,6 @@ class Control_Select_Object extends Control_Select {
 		}
 		return parent::value($set);
 	}
-
 	protected function id_column() {
 		return $this->option('idcolumn', $this->class_object->id_column);
 	}
@@ -78,21 +74,20 @@ class Control_Select_Object extends Control_Select {
 		$db = $this->class_object->database();
 		$query = Object::class_query($this->class);
 		$prefix = $query->alias() . ".";
-
+		
 		$text_column = $this->text_columns();
 		$what = arr::prefix(arr::flip_copy($text_column), $prefix);
 		$query->what("id", $prefix . $this->class_object->id_column);
 		$query->what($what, true);
 		$query->order_by($this->option('order_by', $text_column));
 		$query->where($this->_where());
-
+		
 		if (!$this->has_option('format')) {
 			$this->set_option('format', implode(" ", arr::wrap(array_keys($what), '{', '}')));
 		}
 		$this->hook("options_query", $query);
 		return $this->hook("options_query_format", $query);
 	}
-
 	protected function hook_options_query_format(Database_Query_Select $query) {
 		$format = $this->option("format");
 		$rows = $query->to_array("id");
@@ -101,8 +96,16 @@ class Control_Select_Object extends Control_Select {
 		}
 		return $rows;
 	}
-	public function where($where = null) {
+	public function where($where = null, $append = false) {
 		if ($where !== null) {
+			if ($append) {
+				if (is_array($where)) {
+					$where = array(
+						$where
+					);
+				}
+				$where = $this->option_array("where", array()) + $where;
+			}
 			$this->set_option("where", $where);
 			return $this;
 		}
@@ -124,5 +127,4 @@ class Control_Select_Object extends Control_Select {
 		}
 		return $this->class;
 	}
-
 }
