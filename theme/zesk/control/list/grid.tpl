@@ -11,6 +11,8 @@ foreach ($this->widgets as $widget) {
 	}
 	$widget = clone $widget;
 	$width = $widget->option_integer("list_column_width", 2);
-	echo html::tag('div', css::add_class('.col-sm-' . $width, $widget->context_class()), strval($widget->execute($this->object, true)));
+	$attributes = css::add_class('.col-sm-' . $width, $widget->context_class());
+	$attributes = $this->object->apply_map($attributes); // TODO perhaps add a flag to avoid doing this when not needed??
+	echo html::tag('div', $attributes, strval($widget->execute($this->object, true)));
 }
 echo html::div_close();
