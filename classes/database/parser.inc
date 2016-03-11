@@ -1,14 +1,13 @@
 <?php
 abstract class Database_Parser extends Hookable {
-
 	const pattern_database_hint = '/--\s*Database:\s*(\w+)/i';
-
+	
 	/**
 	 *
 	 * @var Database
 	 */
 	protected $database;
-
+	
 	/**
 	 *
 	 * @return Database_SQL
@@ -16,7 +15,7 @@ abstract class Database_Parser extends Hookable {
 	final function sql() {
 		return $this->database->sql();
 	}
-
+	
 	/**
 	 * Create a new database parser
 	 *
@@ -27,7 +26,7 @@ abstract class Database_Parser extends Hookable {
 		$this->database = $database;
 		parent::__construct($options);
 	}
-
+	
 	/**
 	 * Parse SQL to determine type of command
 	 *
@@ -50,7 +49,7 @@ abstract class Database_Parser extends Hookable {
 		}
 		return ($field === null) ? $result : avalue($result, $field, $result);
 	}
-
+	
 	/**
 	 * Divide SQL commands into different distinct commands
 	 *
@@ -60,6 +59,10 @@ abstract class Database_Parser extends Hookable {
 	public function split_sql_commands($sql) {
 		$pattern = "/((?:(?:'[^']*')|[^;])*);/";
 		$sqls = array();
+		$map = array(
+			"\\'" => '*SLASH_SLASH_QUOTE*'
+		);
+		$sql = strtr($sql, $map);
 		foreach (preg::matches($pattern, "$sql;") as $match) {
 			$statement = trim($match[1]);
 			if (empty($statement)) {
@@ -67,6 +70,7 @@ abstract class Database_Parser extends Hookable {
 			}
 			$sqls[] = $statement;
 		}
+		$sqls = tr($sqls, array_flip($map));
 		return $sqls;
 	}
 	/**
@@ -86,7 +90,7 @@ abstract class Database_Parser extends Hookable {
 		}
 		return $db->parser();
 	}
-
+	
 	/**
 	 * Convert from SQL to Database_Table
 	 * @param string $sql
@@ -94,7 +98,7 @@ abstract class Database_Parser extends Hookable {
 	 */
 	abstract function create_table($sql);
 	abstract function create_index(Database_Table $table, $sql);
-
+	
 	/**
 	 * Convert an order-by clause into an array, parsing out any functions or other elements
 	 *
@@ -128,7 +132,7 @@ abstract class Database_Parser extends Hookable {
 		// Convert resulting array and replace removed tokens
 		return tr($order_by, $map);
 	}
-
+	
 	/**
 	 * Reverses an order by clause as passed into a Database_Query_Select
 	 *
