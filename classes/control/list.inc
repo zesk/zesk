@@ -474,5 +474,19 @@ class Control_List extends Control_Widgets_Filter {
 			'shown' => min($total, $force_limit)
 		);
 	}
+	
+	/**
+	 * Get/set/append list attributes 
+	 * 
+	 * @param array $set
+	 * @param string $append Merge the attributes with the existing attributes
+	 */
+	public function list_attributes(array $set = null, $append = true) {
+		if ($set) {
+			$this->list_attributes = $append ? $set + $this->list_attributes : $set;
+			return $this;
+		}
+		return $this->list_attributes;
+	}
 }
 
