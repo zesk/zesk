@@ -1,15 +1,21 @@
 <?php
-
 class Model_Settings extends Model {
-
 	protected $_changed = array();
-
 	protected $_accessor = array();
-
 	protected $_access_cache = array();
-
 	protected $ignore_variables = array();
-
+	
+	/**
+	 * Array of key => default
+	 * 
+	 * @var array $variables
+	 */
+	protected $variables = array();
+	
+	/**
+	 * 
+	 * @param mixed $mixed
+	 */
 	public function ignore_variable($mixed = null) {
 		if ($mixed === null) {
 			return $this->ignore_variables;
@@ -22,14 +28,12 @@ class Model_Settings extends Model {
 		}
 		return $this;
 	}
-
 	function __isset($key) {
 		return zesk::has($key, false);
 	}
 	protected function _internal_get($key) {
 		return array_key_exists($key, $this->_changed) ? $this->_changed[$key] : zesk::get($key);
 	}
-
 	private function _ignore_variable($key) {
 		return in_array($key, $this->ignore_variables);
 	}
@@ -48,9 +52,8 @@ class Model_Settings extends Model {
 		}
 		return $this;
 	}
-
 	function variables() {
-		return zesk::get();
+		return zesk::get($this->variables);
 	}
 	function __get($key) {
 		if (array_key_exists($key, $this->_accessor)) {
@@ -61,7 +64,6 @@ class Model_Settings extends Model {
 		}
 		return $this->_internal_get($key);
 	}
-
 	function __set($key, $value) {
 		if (array_key_exists($key, $this->_accessor)) {
 			call_user_func(array(
@@ -72,7 +74,6 @@ class Model_Settings extends Model {
 		}
 		return $this->_internal_set($key, $value);
 	}
-
 	function __unset($key) {
 		$old = zesk::get($key);
 		if ($old !== null) {
@@ -80,7 +81,6 @@ class Model_Settings extends Model {
 			zesk::set($key, null);
 		}
 	}
-
 	function store() {
 		$settings = Settings::instance();
 		foreach ($this->_changed as $key => $value) {
@@ -89,7 +89,6 @@ class Model_Settings extends Model {
 		$this->_changed = array();
 		return parent::store();
 	}
-
 	function access_class_member($name, $class, $set = null) {
 		if ($set === null) {
 			if (array_key_exists($name, $this->_access_cache)) {
