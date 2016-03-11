@@ -52,6 +52,10 @@
 		this.url = this.url || $this.data('modal-url');
 		this.target = this.target || $this.data('target');
 		this.target_replace = this.target_replace || $this.data('targetReplace');
+		this.target_action = $this.data('targetAction');
+		if (this.target_action === "replace") {
+			this.target_replace = true;
+		}
 		this.$target = $(this.target);
 
 		this.init();
