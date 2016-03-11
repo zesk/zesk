@@ -1,10 +1,9 @@
 {
 	"name": "Google API",
-	"versions": {
-		"1.1.6": {
-			"url": "https://github.com/google/google-api-php-client/archive/1.1.6.tar.gz"
-		}
+	"composer": {
+		"require": [
+			"google/apiclient"
+		]
 	},
-	"destination": "vendor/googleapi",
-	"strip_components": 1
+	"github": "google/google-api-php-client"
 }
