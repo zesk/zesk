@@ -92,7 +92,7 @@ class Module_jQPlot extends Module implements Module_Interface_Head {
 	 * @return string
 	 */
 	public function plugin_path() {
-		return $this->application->application_root('vendor/jqplot/plugins');
+		return $this->application->application_root('vendor/components/jqplot/plugins');
 	}
 	
 	/**
