@@ -187,6 +187,9 @@ class Response extends Hookable {
 	}
 	public function redirect_message($message = null) {
 		$session = Session::instance();
+		if (!$session) {
+			return array();
+		}
 		$messages = to_array($session->redirect_message);
 		if ($message === null) {
 			return $messages;
@@ -491,7 +494,7 @@ class Response extends Hookable {
 		return $this;
 	}
 	private function _render_content() {
-		if ($this->content_type === self::content_type_json && is_array($this->content)) {
+		if ($this->content_type === self::content_type_json && !is_string($this->content)) {
 			$this->content = json::encode($this->content);
 		}
 		return $this->content;
