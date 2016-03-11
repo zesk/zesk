@@ -1,12 +1,12 @@
 # Zesk Applications
 
-A Zesk Application is the primary container in which to deliver functionality.
+A Zesk Application is the primary container in which to deliver functionality. 
 
 `Application` objects are generally used as singleton objects within your program.
 
 To create an application, all your application need do is create a file with the extension `.application.inc`. (e.g. `awesome.application.inc`) and place that file in the root directory of your application.
 
-The main application entry point should load the minimum configuration option to run your application, typically loading configuration files and any external modules needed.
+The main application entry point should load the minimum configuration to run your application, typically loading configuration files and any external modules required at all times.
 
 As the location of the Zesk toolkit changes from development to live platforms, we recommend that your application dynamically locate the Zesk library using a technique shown in the file
 
@@ -117,7 +117,7 @@ Your application file solely handles setting up the context (configuration) for 
 
 ### Determining which files will configure an application
 
-Zesk application configuration was built to simplify the complexities of multiple environments where an application will run. Development, staging, and live configuration are inherently different, and particularly when development spans multiple members on different hardware.
+Zesk application configuration was built to simplify the complexities of multiple environments where an application will run. Development, staging, and live configuration are inherently different, and particularly when development spans multiple developers on different hardware.
 
 Configuration of your application should be easily customizable within all of these environments. As such, default configuration of Zesk applications will load [configuration files](/configuration-file-format), by default as follows:
 
@@ -136,13 +136,14 @@ The default values for `Application::configuration_file` are:
 1. If the constant `APPLICATION_NAME` is defined, APPLICATION_NAME.conf
 1. The unique name of the system. In short, the result `system::uname()`, converted to lowercase, and then concatenated with the ".conf" extension
 
-Both default values can be overridden by setting `zesk` globals to different values, or by passing in
+Both default values can be overridden by setting `zesk` globals to different values, or by passing in TODO
 
 So, how would you use this?
 
 #### Development
 
 Matt is a developer working on Mac OS X, his computer name is `basura` and he also works on a laptop named `kermit`. He creates the following files
+
 ## Application flow
 
 Most applications will require modifications to the base `Application` class, so all `Application` instances inherit from the class `Zesk_Application` which contains most of the actual application logic.
@@ -152,11 +153,14 @@ For web applications, you should create an `index.php` file with the following c
 	<?php
 	try {
 		require_once dirname(dirname(__FILE__)) . '/awesome.application.inc';
-		Application::instance()->index();
+		$application = Application::instance();
+		$application->index();
 	} catch (Exception $e) {
-		echo zesk::theme("page", zesk::theme(zesk::class_hierarchy($e), array(
+		$application = Application::instance();
+		echo $application->theme("page", zesk::theme(zesk::class_hierarchy($e), array(
 			"exception" => $e
 		)));
 		exit(1);
 	}
 	
+

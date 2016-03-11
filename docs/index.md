@@ -10,8 +10,12 @@ Zesk is an application development platform which solves many problems found in 
 
 # Sections
 
-- [Naming Conventions](zesk-naming.md)
+- [Application](application.md)
 - [Configuration File Format](router-file-format.md)
+- [Cron](cron.md)
+- [Globals](globals.md)
+- [Hooks](hooks.md)
+- [Naming Conventions](zesk-naming.md)
 - [Router File Format](router-file-format.md)
 - [Objects](objects.md)
 - [Modules](modules.md)

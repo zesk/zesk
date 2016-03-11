@@ -14,7 +14,7 @@ Like many calls in the system, you can pass in an array to get back an array:
 
 # $_ZESK Global Storage
 
-All globals in Zesk are stored in the global variable `$_ZESK` which is named similarly to the PHP superglobals `$_SERVER`, `$_REQUEST`, etc. but is **not** a superglobal.
+All globals in Zesk are stored in the global variable `$_ZESK` which is *named similarly* to the PHP superglobals `$_SERVER`, `$_REQUEST`, etc. but is **not** a superglobal.
 
 Global keys are normalized to support use in a variety of contexts, but the general rule is stray punctuation is converted to underscores, and keys are lowercase. So:
 
@@ -26,6 +26,24 @@ Global keys are normalized to support use in a variety of contexts, but the gene
 	_zesk_global_key($key)
 	
 Normalizes all keys before they are used to access the global `$_ZESK`.
+
+Also, the `$_ZESK` global structure is multi-dimensional and is accessed using a "path" with `::` as the delimiter to different levels.
+
+So, for example:
+
+	zesk::set("a::b::c::d", "hello");
+	
+Would result in the global `$_ZESK` to have the value:
+
+	array(
+		"a" => array(
+			"b" => array(
+				"c" => array(
+					d" => "hello"
+				)
+			)
+		)
+	)
 
 It is generally a bad practice to use the global `$_ZESK` unless absolutely required. Using `zesk::get()` and its variants is considered best practice.
 
@@ -44,7 +62,7 @@ Obviously, you can overwrite these by accessing the `$_ZESK` global, so we disco
 
 	Settings::instance()->set("name", $value);
 	
-Values are serialized to the database, so complex structures can be stored and re-animated as needed. (Also, use caution when storing large data as a global.) 
+Values are serialized to the database, so complex structures can be stored and re-animated as needed. (However, use caution when storing large data as a global.) 
 
 If an application supports `Settings` for application configuration, all settings are loaded at Application configuration time. The `Settings` are loaded into the global scope, so:
 
