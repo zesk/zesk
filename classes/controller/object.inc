@@ -376,7 +376,7 @@ abstract class Controller_Object extends Controller_Template_Login {
 	 * @return Object
 	 */
 	protected function controller_object_factory($mixed = null, $options = null) {
-		return $this->object_factory($this->class, $mixed, $options)->fetch();
+		return $this->object_factory($this->class, $mixed, to_array($options))->fetch();
 	}
 
 	function _action_default($action = null, $object = null, $options = array()) {
