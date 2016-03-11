@@ -428,12 +428,13 @@ class Modules {
 			}
 			$module_object->codename = $name;
 			$result = array(
-				'module' => $module_object,
 				'class' => $class
 			);
 			try {
 				$module_object->initialize();
-				return $result;
+				return $result + array(
+					'module' => $module_object
+				);
 			} catch (Exception $e) {
 				zesk::hook("exception", $e);
 				return $result + array(
@@ -701,7 +702,7 @@ class Modules {
 	public final function all_hook_list($hook) {
 		$result = zesk::find_all_hooks("Module::$hook");
 		foreach ($this->modules as $name => $data) {
-			$module = $data['module'];
+			$module = avalue($data, 'module');
 			/* @var $module Module */
 			if ($module) {
 				$result = array_merge($result, $module->hook_list($hook, true));
