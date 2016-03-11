@@ -7,7 +7,28 @@
  */
 abstract class Module_JSLib extends Module {
 	protected $css_paths = array();
+	
+	/**
+	 * Array of options to pass to ->cdn_javascript for each javascript_paths
+	 * 
+	 * @var array
+	 */
+	protected $javascript_options = array();
+	
+	/**
+	 * Array of strings of JS to load, or array of path (key) => $options to load
+	 * 
+	 * @var array
+	 */
 	protected $javascript_paths = array();
+	
+	/**
+	 * Settings which will be exposed in the client browser using the key
+	 * 
+	 * modules.name.setting1
+	 * 
+	 * @var array
+	 */
 	protected $javascript_settings = array();
 	
 	/*
@@ -75,11 +96,11 @@ abstract class Module_JSLib extends Module {
 			}
 			foreach ($this->javascript_paths as $key => $value) {
 				if (is_numeric($key) && is_string($value)) {
-					$response->cdn_javascript($value, array(
+					$response->cdn_javascript($value, $this->javascript_options + array(
 						'share' => true
 					));
 				} else if (is_string($key) && is_array($value)) {
-					$response->cdn_javascript($key, $value + array(
+					$response->cdn_javascript($key, $value + $this->javascript_options + array(
 						'share' => true
 					));
 				}
