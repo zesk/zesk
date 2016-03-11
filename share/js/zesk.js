@@ -1,5 +1,5 @@
 /*
- * $Id: zesk.js 3660 2016-02-19 20:30:10Z kent $
+ * $Id: zesk.js 3667 2016-03-02 19:16:28Z kent $
  *
  * Copyright (C) 2007 Market Acumen, Inc. All rights reserved
  */
@@ -422,7 +422,7 @@
 	    },
 	    script_loaded : function(src) {
 		    var scripts = zesk.scripts(), result = scripts[src] || scripts[zesk.script_src_normalize(src)] || false;
-		    zesk.log("zesk.script_loaded(" + src + ") = " + (result ? "true" : "false"));
+		    //zesk.log("zesk.script_loaded(" + src + ") = " + (result ? "true" : "false"));
 		    return result;
 	    },
 	    stylesheet_loaded : function(href, media) {
@@ -825,6 +825,7 @@
 		};
 	}
 
+	// TODO What's this for?
 	zesk.ajax_form = function() {
 		var $form = $(this), target = $form.attr('target'), $target = $('#' + target);
 		zesk.log($target.html());
