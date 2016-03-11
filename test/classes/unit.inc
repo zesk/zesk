@@ -298,7 +298,7 @@ class Test_Unit extends Options {
 							);
 						}
 						$this->begin_test($test, $settings, $arguments);
-						$this->log(__("- Iteration {0}: {1}", $loop + 1, substr(json_encode($arguments), 0, 80)));
+						$this->log(__("- $test iteration {0}: {1}", $loop + 1, substr(json_encode($arguments), 0, 80)));
 						call_user_func_array(array(
 							$this,
 							$test
