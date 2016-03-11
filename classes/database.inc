@@ -452,8 +452,8 @@ abstract class Database extends Hookable {
 		$scheme = url::scheme($url);
 		switch ($scheme) {
 			case "mysql":
-				$db = new Database_MySQL_Legacy($url);
-				break;
+// 				$db = new Database_MySQL_Legacy($url);
+// 				break;
 			case "mysqli":
 				$db = new Database_MySQL_Improved($url);
 				break;
