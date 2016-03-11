@@ -363,7 +363,7 @@ function to_list($mixed, $default = array(), $delimiter = ";") {
  * Converts a scalar to an array.
  * Returns default for values of null or false.
  *
- * @param mixed $mixed
+ * @param mixed $mixed If false or null, returns default value
  * @param mixed $default
  *        	Default value to return if can't easily convert to an array.
  * @return array
@@ -372,7 +372,8 @@ function to_array($mixed, $default = array()) {
 	if (is_array($mixed)) {
 		return $mixed;
 	}
-	if (is_scalar($mixed) && $mixed !== false && $mixed !== null) {
+	// is_scalar(null) === false
+	if (is_scalar($mixed) && $mixed !== false) {
 		return array(
 			$mixed
 		);
@@ -814,7 +815,7 @@ function _W($phrase) {
 		}
 		$phrase = substr($phrase, 0, $match_off) . $replace_value . substr($phrase, $match_off + $match_len);
 	}
-
+	
 	if (count($skip_s) === 0) {
 		return $phrase;
 	}
@@ -1197,16 +1198,17 @@ function apath_set(array &$array, $path, $value = null, $separator = ".") {
  * Convert a global name to a standard internal format.
  *
  * @param string $key
- * @return string
+ * @return array
  */
 function _zesk_global_key($key) {
-	return strtr(strtolower($key), array(
+	$key = explode(ZESK_GLOBAL_KEY_SEPARATOR, strtr($key, array(
 		"__" => ZESK_GLOBAL_KEY_SEPARATOR,
 		"." => "_",
-		"\\" => "\\",
 		"/" => "_",
 		"-" => "_",
 		" " => "_"
-	));
+	)));
+	$key[0] = strtolower($key[0]);
+	return $key;
 }
 
