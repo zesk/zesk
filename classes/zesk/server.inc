@@ -141,12 +141,16 @@ abstract class Zesk_Server extends Object implements Interface_Data {
 	 */
 	protected function _retrieve_singleton() {
 		$this->name = self::host_default();
-		if ($this->find()) {
-			$now = Timestamp::now();
-			if ($now->difference($this->alive) > $this->option(self::option_alive_update_seconds, self::default_alive_update_seconds)) {
-				$this->update_state();
+		try {
+			if ($this->find()) {
+				$now = Timestamp::now();
+				if ($now->difference($this->alive) > $this->option(self::option_alive_update_seconds, self::default_alive_update_seconds)) {
+					$this->update_state();
+				}
+				return $this;
 			}
-			return $this;
+		} catch (Database_Exception_Table_NotFound $e) {
+			return null;
 		}
 		log::debug(__METHOD__);
 		$this->hook("initialize_names");
