@@ -1,11 +1,8 @@
 <?php
-
 class Deploy extends Hookable {
-
 	protected $path = null;
-
 	protected $skipped = array();
-
+	
 	/**
 	 *
 	 * Run a deployment check, using path for deployment state
@@ -18,7 +15,7 @@ class Deploy extends Hookable {
 		$options = to_array($settings->deploy);
 		$deploy = new Deploy($path, $options);
 		if ($deploy->failed()) {
-			return null;
+			$deploy->reset(true);
 		}
 		if (($lock = Lock::get_lock('deploy')) !== null) {
 			$deploy->_maintenance();
@@ -31,17 +28,15 @@ class Deploy extends Hookable {
 		}
 		return $deploy;
 	}
-
 	public static function factory($path, $options = null) {
 		return new Deploy($path, $options);
 	}
-
 	public function reset($skip = false) {
 		if (!$this->failed()) {
 			return $this;
 		}
-		$last_tag = $this->option('last_tag');
-		$failed_tag = $this->option('failed_tag');
+		$last_tag = $this->option_path('last_tag');
+		$failed_tag = $this->option_path('failed_tag.name');
 		if (empty($last_tag) || empty($failed_tag)) {
 			log::error("Deploy::reset({skip}) Empty tags found last_tag={last_tag} failed_tag={failed_tag}", compact("last_tag", "failed_tag", "skip"));
 			return null;
@@ -54,13 +49,11 @@ class Deploy extends Hookable {
 	public function failed() {
 		return !$this->option_bool('status', true);
 	}
-
 	public function __construct($path, $options = null) {
 		$this->path = $path;
 		parent::__construct($options);
 		$this->hook('construct');
 	}
-
 	private static function _parse_tag($subpath) {
 		$tag = array();
 		$filename = $extension = null;
@@ -82,7 +75,6 @@ class Deploy extends Hookable {
 		$tag['name'] = $filename;
 		return $tag;
 	}
-
 	private function load_tags() {
 		$last_tag = $this->option('last_tag');
 		try {
@@ -105,9 +97,7 @@ class Deploy extends Hookable {
 		}
 		ksort($tags);
 		return $tags;
-
 	}
-
 	protected function _maintenance() {
 		$last_tag = $this->option('last_tag');
 		$tags = $this->load_tags();
@@ -126,6 +116,9 @@ class Deploy extends Hookable {
 		$results['status'] = true;
 		if (count($tags) > 0) {
 			log::notice('Last tag succeeded was {last_tag}', $this->options);
+			log::notice("Processing tags: {tags}", array(
+				"tags" => _dump($tags)
+			));
 			foreach ($tags as $name => $subpaths) {
 				foreach ($subpaths as $subpath => $tag) {
 					$extension = $tag['extension'];
@@ -136,6 +129,7 @@ class Deploy extends Hookable {
 						$results['failed_tag'] = $tag;
 						$results['failed_result'] = $result;
 						$results['status'] = false;
+						$this->set_option($results);
 						return $results;
 					} else {
 						$results['applied'][$subpath] = $result;
@@ -149,7 +143,6 @@ class Deploy extends Hookable {
 		$this->set_option($results);
 		return $this;
 	}
-
 	protected function hook_extension_inc(array $tag) {
 		$path = $tag['path'];
 		ob_start();
@@ -170,7 +163,6 @@ class Deploy extends Hookable {
 			'content' => $content
 		);
 	}
-
 	protected function hook_extension_tpl(array $tag) {
 		$path = $tag['path'];
 		$status = true;
@@ -187,7 +179,6 @@ class Deploy extends Hookable {
 			'status' => $status
 		);
 	}
-
 	protected function hook_extension_sql(array $tag) {
 		$path = $tag['path'];
 		$db = Database::instance();
