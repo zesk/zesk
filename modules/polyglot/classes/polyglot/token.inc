@@ -16,20 +16,18 @@ use zesk\Locale as Locale;
  * @property timestamp $updated
  */
 class PolyGlot_Token extends Object {
-
+	
 	/**
 	 *
 	 * @var zesk\Locale_Validate
 	 */
 	private $validator = null;
-
 	const status_todo = "todo";
 	const status_draft = "draft";
 	const status_dev = "dev";
 	const status_question = "question";
 	const status_done = "done";
 	const status_delete = "delete";
-
 	public function store() {
 		$this->md5 = md5($this->original);
 		if ($this->member_is_empty("user")) {
@@ -57,26 +55,30 @@ class PolyGlot_Token extends Object {
 		}
 		return $result;
 	}
-
-	public static function create($language, $dialect, $original, $translation) {
+	public static function create($language, $dialect, $original, $translation, $status = null) {
 		$token = Object::factory(__CLASS__, array(
 			"language" => $language,
 			"dialect" => $dialect,
 			"original" => $original,
 			"translation" => $translation
 		));
-		$token->status = self::status_todo;
+		$token->status = ($status === null) ? self::status_todo : $status;
 		return $token;
 	}
-
+	
+	/**
+	 * Fetch all locale strings for the dialect/language
+	 * 
+	 * @param string $language
+	 * @param string|null $dialect
+	 * @return rray
+	 */
 	public static function fetch_all($language, $dialect = null) {
 		$where = array(
-			"language" => $language
+			"language" => $language,
+			"dialect" => $dialect
 		);
 		$query = Object::class_query(__CLASS__);
-		if ($dialect) {
-			$where['dialect'] = $dialect;
-		}
 		$where = array(
 			array(
 				$where,
@@ -89,9 +91,12 @@ class PolyGlot_Token extends Object {
 		$query->distinct(true);
 		$query->what_object();
 		$query->order_by("updated ASC,original");
-		return $query->object_iterator()->to_array("original");
+		$result = $query->object_iterator()->to_array("original");
+		if ($dialect === null) {
+			return $result;
+		}
+		return $result + self::fetch_all($language, null);
 	}
-
 	public function to_json() {
 		$members = $this->members(array(
 			"id",
@@ -104,7 +109,7 @@ class PolyGlot_Token extends Object {
 		$members['user'] = $this->member_integer("user");
 		return $members;
 	}
-
+	
 	/**
 	 *
 	 * @param string $locale
@@ -116,7 +121,6 @@ class PolyGlot_Token extends Object {
 			"language" => Locale::language($locale)
 		));
 	}
-
 	public static function lang_status_filters() {
 		return __(array(
 			"todo" => "Need translation",
@@ -127,7 +131,6 @@ class PolyGlot_Token extends Object {
 			"done" => "Translated"
 		));
 	}
-
 	public static function htmlentities_all() {
 		$iterator = Object::class_query(__CLASS__)->what(array(
 			"id" => "id",
@@ -141,7 +144,7 @@ class PolyGlot_Token extends Object {
 			}
 		}
 	}
-
+	
 	/**
 	 *
 	 * @return zesk\Locale_Validate
@@ -152,7 +155,6 @@ class PolyGlot_Token extends Object {
 		}
 		return $this->validator;
 	}
-
 	public function validate() {
 		return $this->validator()->check_translation($this->original, $this->translation);
 	}
