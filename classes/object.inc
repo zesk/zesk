@@ -309,6 +309,13 @@ abstract class Object extends Model {
 	public function class_object() {
 		return $this->class;
 	}
+	
+	/**
+	 * All variables for this object (useful for translations, logging, and output)
+	 * 
+	 * {@inheritDoc}
+	 * @see Model::variables()
+	 */
 	function variables() {
 		return $this->members() + array(
 			"Class_Object::name" => $class_name = __($this->class->name),
@@ -552,6 +559,18 @@ abstract class Object extends Model {
 	public function cache_dirty($key = null) {
 		$this->hook('cache-dirty', $key);
 	}
+	
+	/**
+	 * Cache output start, returns "false" if cache hit so do not generate output, e.g.
+	 * 
+	 * if ($object->cache_output_begin("profile")) {
+	 * 		// Generate profile using $object
+	 * 		$object->cache_output_end();
+	 * }
+	 * 
+	 * @param mixed $key
+	 * @return boolean
+	 */
 	public function cache_output_begin($key = null) {
 		$data = $this->cache($key);
 		if ($data) {
@@ -565,6 +584,13 @@ abstract class Object extends Model {
 		$this->cache_stack[] = $key;
 		return true;
 	}
+	
+	/**
+	 * End caching, save output to cache
+	 * 
+	 * @return self
+	 * @throws Exception_Semantics
+	 */
 	public function cache_output_end() {
 		if ($this->cache_stack === null || count($this->cache_stack) === 0) {
 			throw new Exception_Semantics(get_class($this) . "::cache_output_end before cache_output_begin");
@@ -758,13 +784,20 @@ abstract class Object extends Model {
 		}
 		return $this->__get($name_col);
 	}
+	
+	/**
+	 * Retrieve the name column for this object (if any)
+	 * 
+	 * @return string|null
+	 */
 	public final function name_column() {
 		return $this->class->name_column;
 	}
 	
 	/**
-	 *
-	 * @return string or null
+	 * Retrieves the single find key for an object, if available. (Multi-key finds always return null)
+	 * 
+	 * @return string|null
 	 */
 	public final function find_key() {
 		$keys = $this->class->find_keys;
@@ -775,12 +808,19 @@ abstract class Object extends Model {
 	}
 	
 	/**
-	 *
-	 * @return multitype:
+	 * Retrieve list of member names used to find an object in the database
+	 * 
+	 * @return array:string
 	 */
 	public final function find_keys() {
 		return $this->class->find_keys;
 	}
+	
+	/**
+	 * Retrieve list of member names used to find a duplicate object in the database
+	 * 
+	 * @return array:string
+	 */
 	public final function duplicate_keys() {
 		return $this->class->duplicate_keys;
 	}
@@ -813,9 +853,21 @@ abstract class Object extends Model {
 	function class_name() {
 		return $this->class->name;
 	}
+	
+	/**
+	 * If there's an ID column, return the name of the column
+	 * 
+	 * @return string
+	 */
 	function id_column() {
 		return $this->class->id_column;
 	}
+	
+	/**
+	 * Does this object have all primary keys set to a value?
+	 * 
+	 * @return boolean
+	 */
 	function has_primary_keys() {
 		$pk = $this->class->primary_keys;
 		if (count($pk) === 0) {
@@ -829,15 +881,28 @@ abstract class Object extends Model {
 		}
 		return true;
 	}
+	
+	/**
+	 * List of primary keys for this object
+	 * 
+	 * @return array:string
+	 */
 	function primary_keys() {
 		return $this->class->primary_keys;
 	}
+	
+	/**
+	 * Class code name
+	 * 
+	 * @return string
+	 */
 	function class_code_name() {
 		return $this->class->code_name;
 	}
 	
 	/**
-	 *
+	 * Always use UTC timestamps when setting dates for this object
+	 * 
 	 * @return boolean
 	 */
 	function utc_timestamps() {
@@ -867,8 +932,7 @@ abstract class Object extends Model {
 	
 	/**
 	 * Object initialization; when creating an object this should be called using two methods: An
-	 * integer ID for this
-	 * object, or an array of populated values
+	 * integer ID for this object, or an array of populated values, or from the database itself
 	 *
 	 * @param $mixed mixed        	
 	 * @return Object
@@ -939,10 +1003,23 @@ abstract class Object extends Model {
 		}
 		return true; // Always new
 	}
+	
+	/**
+	 * Empty out this object's members and set to defaults
+	 * 
+	 * @return Object
+	 */
 	function clear() {
 		$this->members = $this->class->column_defaults;
 		$this->store_queue = array();
+		return $this;
 	}
+	
+	/**
+	 * Ouptut the display name for this object.
+	 * 
+	 * @return string
+	 */
 	function display_name() {
 		$name_column = $this->class->name_column;
 		if (!$name_column) {
@@ -950,10 +1027,19 @@ abstract class Object extends Model {
 		}
 		return $this->member($name_column);
 	}
+	
+	/**
+	 * Get/set the ID for this object
+	 * 
+	 * @param mixed $set
+	 * @return Object|mixed
+	 */
 	function id($set = null) {
 		if (!$this->class) {
-			log::fatal("Setting ID on unintiailized Object {class}", array(
-				"class" => get_class($this)
+			log::fatal("Calling {method} on uninitialized Object {class} {backtrace}", array(
+				"method" => __METHOD__,
+				"class" => get_class($this),
+				"backtrace" => _backtrace()
 			));
 		}
 		/**
@@ -1016,7 +1102,7 @@ abstract class Object extends Model {
 				if (array_key_exists($k, $set)) {
 					$this->set($k, $set);
 				} else {
-					$misisng[] = $k;
+					$missing[] = $k;
 				}
 			}
 			if (count($missing) > 0) {
@@ -1229,8 +1315,18 @@ abstract class Object extends Model {
 		}
 		// We do not want to inherit options by default. For example "class_object" is an option which affects polymorphic objects, which
 		// should not be inherited.
-		return $this->options_exclude("class_object");
+		// KMD: Removed this as it inherits "database" which is wrong. Err on the side of no inheritance unless class specifies it.
+		// return $this->options_exclude("class_object");
+		return array();
 	}
+	
+	/**
+	 * Retrieve the original value of an object's member prior to modifying in memory and before storing
+	 * 
+	 * @param string $member
+	 * @param mixed $default
+	 * @return mixed
+	 */
 	protected function original($member = null, $default = null) {
 		if ($member === null) {
 			return $this->original;
@@ -1243,7 +1339,9 @@ abstract class Object extends Model {
 	}
 	
 	/**
-	 * Override in subclasses to get special behavior
+	 * Whenever an object attached to this object is requested, this method is called.
+	 * 
+	 * Override in subclasses to get special behavior.
 	 *
 	 * @param string $member
 	 *        	Name of the member we are fetching
@@ -1259,11 +1357,24 @@ abstract class Object extends Model {
 	protected function member_object_factory($member, $class, $data, $options = false) {
 		return $this->object_factory($class, $data, $options)->fetch();
 	}
-	final protected function member_object($member, $options = false) {
+	
+	/**
+	 * Retrieve a member which is another Object
+	 * 
+	 * @param string $member
+	 * @param mixed $options
+	 */
+	final protected function member_object($member, array $options = array()) {
 		$this->refresh();
 		$data = aevalue($this->members, $member);
 		if (!$data) {
 			return null;
+		}
+		if (!array_key_exists($member, $this->class->has_one)) {
+			throw new Exception_Semantics("Accessing {class}::member_object but {member} is not in has_one", array(
+				"class" => get_class($this),
+				"member" => $member
+			));
 		}
 		$class = $this->class->has_one[$member];
 		if ($class[0] === '*') {
@@ -1276,7 +1387,7 @@ abstract class Object extends Model {
 			return null;
 		}
 		try {
-			$object = $this->member_object_factory($member, $class, $data, $options);
+			$object = $this->member_object_factory($member, $class, $data, $options + $this->inherit_options());
 		} catch (Exception_Object_NotFound $e) {
 			if ($this->option_bool("fix_member_objects")) {
 				zesk::hook("exception", $e);
@@ -1296,17 +1407,29 @@ abstract class Object extends Model {
 		}
 		if ($object) {
 			$this->members[$member] = $object;
-			return $this->members[$member];
+			return $object;
 		}
 		return null;
 	}
+	
+	/**
+	 * Does this object have a member value?
+	 * 
+	 * {@inheritDoc}
+	 * @see Model::has()
+	 */
 	function has($member = null) {
 		// Need to check $this->members to handle listing an object with additional query fields which may not be configured in the base object
 		// Prevents ->defaults() from nulling the value if it's in there
 		return $this->has_member($member) || array_key_exists($member, $this->members);
 	}
+	
+	/**
+	 * 
+	 * {@inheritDoc}
+	 * @see Model::__get()
+	 */
 	function __get($member) {
-		// KMD: - Should the getter override the has_many, has_one functionality? TBD
 		if (($method = avalue($this->class->getters, $member)) !== null) {
 			if (!method_exists($this, $method)) {
 				throw new Exception_Semantics("Object getter \"$method\" for " . get_class($this) . " does not exist");
@@ -1329,6 +1452,12 @@ abstract class Object extends Model {
 		}
 		return $this->member($member);
 	}
+	
+	/**
+	 * 
+	 * {@inheritDoc}
+	 * @see Model::__unset()
+	 */
 	function __unset($member) {
 		if (array_key_exists($member, $this->class->has_many)) {
 			$this->member_foreign_delete($member);
@@ -1337,6 +1466,11 @@ abstract class Object extends Model {
 		}
 		$this->set_member($member, null);
 	}
+	
+	/**
+	 * 
+	 * @param unknown $value
+	 */
 	function member_find($value) {
 		if (is_string($value)) {
 			$find_keys = $this->class->find_keys;
@@ -1356,9 +1490,21 @@ abstract class Object extends Model {
 		}
 		return false;
 	}
+	
+	/**
+	 * 
+	 * {@inheritDoc}
+	 * @see Model::__isset()
+	 */
 	public function __isset($member) {
 		return !$this->member_is_empty($member);
 	}
+	
+	/**
+	 * 
+	 * {@inheritDoc}
+	 * @see Model::__set()
+	 */
 	function __set($member, $value) {
 		if (($method = avalue($this->class->setters, $member)) !== null) {
 			if (!method_exists($this, $method)) {
@@ -1418,12 +1564,23 @@ abstract class Object extends Model {
 		$this->set_member($member, $value);
 		$this->_inited = true;
 	}
+	
+	/**
+	 * 
+	 * @param unknown $member
+	 */
 	function links($member) {
 		if (array_key_exists($member, $this->class->has_many)) {
 			return $this->member_foreign_list($member);
 		}
 		return null;
 	}
+	
+	/**
+	 * 
+	 * @param unknown $member
+	 * @param unknown $value
+	 */
 	function is_linked($member, $value) {
 		if (array_key_exists($member, $this->class->has_many)) {
 			return $this->member_foreign_exists($member, $value);
@@ -1969,8 +2126,8 @@ abstract class Object extends Model {
 		}
 		$result = (count($members) > 0) ? $this->database()->update($this->table(), $members, $where) : true;
 		if ($result) {
+			$this->hook('update', $members);
 			$this->original = $this->members + $this->original;
-			$this->hook('update');
 		} else {
 			$this->hook('update-failed');
 		}
@@ -2031,25 +2188,7 @@ abstract class Object extends Model {
 			$query->where($not_ids);
 		}
 		$result = to_bool($query->one_integer("n"));
-		// 		if ($result) {
-		// 			echo $query->__toString();
-		// 		}
 		return $result;
-		/*
-		 * Old way
-		 *
-		 $row = $this->exists();
-		 if (!$row) {
-		 return false;
-		 }
-		 $id = $this->id();
-		 if (is_array($id)) {
-		 return true;
-		 }
-		 if (strval($row[$this->class->id_column]) === strval($id)) {
-		 return $id;
-		 }
-		 return true; */
 	}
 	function fetch_by_key($value = false, $column = false) {
 		if (empty($column)) {
@@ -2554,7 +2693,8 @@ abstract class Object extends Model {
 			$result = array_merge($result, arr::prefix($theme_names, $class . "/"));
 		}
 		if ($this->has_option("theme_path_prefix")) {
-			$result = arr::prefix($result, $this->option("theme_path_prefix"));
+			$result_prefix = arr::prefix($result, $this->option("theme_path_prefix"));
+			$result = array_merge($result_prefix, $result);
 		}
 		return self::_clean_theme_name($result);
 	}
@@ -2569,7 +2709,7 @@ abstract class Object extends Model {
 	 */
 	private function _theme(array $theme_path, array $variables = array()) {
 		$variables += array(
-			'Object' => $this, // Deprecated variable name
+			'Object' => $this, // Deprecated variable name 2015-01
 			'object' => $this,
 			strtolower(get_class($this)) => $this
 		);
@@ -2587,7 +2727,7 @@ abstract class Object extends Model {
 	}
 	
 	/**
-	 * Return a Template for the theme related to this object
+	 * Temporarily deprecated until we can make this our renamed version of "render"
 	 *
 	 * @param string $theme_name        	
 	 * @param array $options
@@ -2751,7 +2891,9 @@ abstract class Object extends Model {
 	}
 	
 	/**
-	 * Utility function for retrieving permissions
+	 * Utility function for retrieving permissions.
+	 * 
+	 * Add static function permissions() to your subclass and call this to get useful permissions
 	 *
 	 * @param string $class        	
 	 * @return array
@@ -2852,6 +2994,17 @@ abstract class Object extends Model {
 		$result = $this->apply_map(map($string, $spec));
 		return $result;
 	}
+	protected function hook_router_argument(Route $route, $arg) {
+		return $this->id($arg)->fetch();
+	}
+	
+	/*==================================================================================================================================*/
+	/*==================================================================================================================================*/
+	/*==================================================================================================================================*/
+	/* DEPRECATED BELOW 
+	 /*==================================================================================================================================*/
+	/*==================================================================================================================================*/
+	/*==================================================================================================================================*/
 	
 	/**
 	 *
@@ -3033,9 +3186,6 @@ abstract class Object extends Model {
 			return $this;
 		}
 		return $this->status;
-	}
-	protected function hook_router_argument(Route $route, $arg) {
-		return $this->id($arg)->fetch();
 	}
 	
 	/**
