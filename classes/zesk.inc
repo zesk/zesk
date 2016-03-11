@@ -186,12 +186,19 @@ class zesk {
 	);
 	
 	/**
+	 * Cache normalize_global_key calls
+	 *
+	 * @var array
+	 */
+	private static $key_map = array();
+	
+	/**
 	 * Return the SVN version number of this library
 	 *
 	 * @return integer version of this library
 	 */
 	public static function _version_string() {
-		return explode(' ', '$Id: zesk.inc 3658 2016-02-19 03:42:19Z kent $', 4);
+		return explode(' ', '$Id: zesk.inc 3670 2016-03-03 02:48:17Z kent $', 4);
 	}
 	
 	/**
@@ -640,13 +647,6 @@ class zesk {
 	}
 	
 	/**
-	 * Cache normalize_global_key calls
-	 *
-	 * @var array
-	 */
-	private static $key_map = array();
-	
-	/**
 	 * Retrieve a global setting.
 	 * Includes environment values for this system.
 	 *
@@ -667,14 +667,29 @@ class zesk {
 			}
 			return $result;
 		}
-		if (array_key_exists($key, self::$key_map)) {
-			$normal_key = self::$key_map[$key];
-		} else {
-			self::$key_map[$key] = $normal_key = to_list(_zesk_global_key($key), array(), ZESK_GLOBAL_KEY_SEPARATOR);
-		}
-		return apath($_ZESK, $normal_key, $default, ZESK_GLOBAL_KEY_SEPARATOR);
+		return self::_get($key, $default);
 	}
 	
+	/**
+	 * Get a global value
+	 * 
+	 * @param string $key Global to fetch
+	 * @param mixed $default Default value if not found
+	 * @return mixed
+	 */
+	private static function _get($key, $default) {
+		global $_ZESK;
+		assert(is_scalar($key));
+		if (!is_scalar($key)) {
+			backtrace();
+		}
+		if (array_key_exists($key, self::$key_map)) {
+			$key_path = self::$key_map[$key];
+		} else {
+			self::$key_map[$key] = $key_path = _zesk_global_key($key);
+		}
+		return apath($_ZESK, $key_path, $default, ZESK_GLOBAL_KEY_SEPARATOR);
+	}
 	/**
 	 * Retrieve a global which should be a boolean.
 	 *
@@ -685,7 +700,7 @@ class zesk {
 	 * @return boolean in the global context, or $default if it's not set
 	 */
 	public static function getb($key, $default = false) {
-		return to_bool(self::get($key, $default), $default);
+		return to_bool(self::_get($key, $default), $default);
 	}
 	
 	/**
@@ -723,7 +738,7 @@ class zesk {
 	 * @return The integer in the global context, or $default if it's not set
 	 */
 	public static function geti($key, $default = null) {
-		return to_integer(self::get($key, null), $default);
+		return to_integer(self::_get($key, null), $default);
 	}
 	
 	/**
@@ -736,7 +751,7 @@ class zesk {
 	 * @return The boolean in the global context, or $default if it's not set
 	 */
 	public static function getl($key, $default = array(), $delimiter = ";") {
-		return to_list(self::get($key, $default), $default, $delimiter);
+		return to_list(self::_get($key, $default), $default, $delimiter);
 	}
 	
 	/**
@@ -752,7 +767,7 @@ class zesk {
 		if ($key === null) {
 			return $default;
 		}
-		return to_array(self::get($key, $default), $default);
+		return to_array(self::_get($key, $default), $default);
 	}
 	
 	/**
@@ -772,8 +787,8 @@ class zesk {
 	public static function get1($keys = null, $default = null, $skip_empty = true) {
 		$keys = to_list($keys, array());
 		foreach ($keys as $key) {
-			$key = _zesk_global_key($key);
-			$value = zesk::get($key, self::$global_key);
+			// Pass self::$global_key as default to discern empty values
+			$value = self::_get($key, self::$global_key);
 			if ($value === self::$global_key) {
 				continue;
 			}
@@ -2354,31 +2369,27 @@ class zesk {
 			}
 			return $result;
 		}
-		$key = _zesk_global_key($key);
+		$key_path = _zesk_global_key($key);
 		if ($overwrite === self::$global_key) {
-			apath_set($_ZESK, $key, $value, ZESK_GLOBAL_KEY_SEPARATOR);
-			$key = to_list($key, array(), ZESK_GLOBAL_KEY_SEPARATOR);
-			while (count($key) > 0) {
-				$locks[implode(ZESK_GLOBAL_KEY_SEPARATOR, $key)] = microtime(true);
-				array_pop($key);
-			}
+			apath_set($_ZESK, $key_path, $value, ZESK_GLOBAL_KEY_SEPARATOR);
+			apath_set($locks, $key_path, microtime());
 			return $value;
 		}
-		if (array_key_exists($key, $locks)) {
+		if (apath($locks, $key_path)) {
 			throw new Exception_Semantics("Can not overwrite internal global {key}", compact("key"));
 		}
-		if (!$overwrite && apath($_ZESK, $key, null, ZESK_GLOBAL_KEY_SEPARATOR)) {
-			return zesk::get($key);
+		if (!$overwrite && apath($_ZESK, $key_path, null, ZESK_GLOBAL_KEY_SEPARATOR)) {
+			return self::get($key);
 		}
 		if (self::$debug_set_already) {
-			$old_value = zesk::get($key);
+			$old_value = self::get($key);
 			if ($old_value === $value) {
 				log::warning("$key wrote same value again " . $value);
 			} else {
 				log::notice("$key overwrite old value {old_value} with new value {value}", compact("old_value", "value"));
 			}
 		}
-		apath_set($_ZESK, $key, $value, ZESK_GLOBAL_KEY_SEPARATOR);
+		apath_set($_ZESK, $key_path, $value, ZESK_GLOBAL_KEY_SEPARATOR);
 		return $value;
 	}
 	
@@ -2450,7 +2461,7 @@ class zesk {
 	static function normalize_global_keys(array $keys) {
 		$result = array();
 		foreach ($keys as $key => $value) {
-			$result[_zesk_global_key($key)] = $value;
+			$result[implode(ZESK_GLOBAL_KEY_SEPARATOR, _zesk_global_key($key))] = $value;
 		}
 		return $result;
 	}
