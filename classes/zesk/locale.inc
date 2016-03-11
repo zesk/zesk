@@ -538,7 +538,7 @@ class Locale {
 	 *        	Locale to use (e.g. "fr_FR" or "en_GB"
 	 * @return string
 	 */
-	public static function now_string($ts, $min_unit = false, $zero_string = false, $locale = null) {
+	public static function now_string($ts, $min_unit = null, $zero_string = null, $locale = null) {
 		if ($ts instanceof \Timestamp) {
 			$ts = $ts->unix_timestamp();
 		} else if (is_date($ts)) {
@@ -577,7 +577,7 @@ class Locale {
 	 *        	Locale to use (e.g. "en_US" or "fr_FR")
 	 * @return string
 	 */
-	public static function duration_string($delta, $min_unit = false, &$number = null, $locale = null) {
+	public static function duration_string($delta, $min_unit = null, &$number = null, $locale = null) {
 		if ($delta < 0) {
 			$delta = -$delta;
 		}
