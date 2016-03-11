@@ -52,61 +52,61 @@
  * {controller}/{action}(/{ID:+})
  */
 class Router extends Hookable {
-
+	
 	/**
 	 *
 	 * @var Application
 	 */
 	public $application = null;
-
+	
 	/**
 	 * Debugging is enabled
 	 *
 	 * @var boolean
 	 */
 	static $debug = false;
-
+	
 	/**
 	 *
 	 * @var Router
 	 */
 	private static $singleton = null;
-
+	
 	/**
 	 *
 	 * @var array of class => Route
 	 */
 	protected $reverse_routes = array();
-
+	
 	/**
 	 *
 	 * @var array of Route
 	 */
 	protected $routes = array();
-
+	
 	/**
 	 * @var array of Route
 	 */
 	protected $by_id = array();
-
+	
 	/**
 	 *
 	 * @var string
 	 */
 	protected $prefix = "/";
-
+	
 	/**
 	 * State variable - should be reset
 	 * @var Route
 	 */
 	public $route = null;
-
+	
 	/**
 	 *
 	 * @var integer
 	 */
 	protected $default_route = 0;
-
+	
 	/**
 	 *
 	 * @var array
@@ -114,25 +114,24 @@ class Router extends Hookable {
 	protected $controller_prefixes = array(
 		'Controller_'
 	);
-
+	
 	/**
 	 *
 	 * @var array
 	 */
 	protected $aliases = array();
-
+	
 	/**
 	 * Whether the routes have been sorted by weight yet
 	 *
 	 * @var boolean
 	 */
 	private $sorted = false;
-
+	
 	/**
 	 * Index to ensure routes are sorted by added order.
 	 */
 	protected $weight_index = 0;
-
 	function __sleep() {
 		$result = array_merge(array(
 			'reverse_routes',
@@ -145,7 +144,6 @@ class Router extends Hookable {
 		), parent::__sleep());
 		return $result;
 	}
-
 	function __wakeup() {
 		$this->by_id = array();
 		$this->route = null;
@@ -157,7 +155,6 @@ class Router extends Hookable {
 			$this->application = Application::instance();
 		}
 	}
-
 	function __construct(Application $application, $options = null) {
 		parent::__construct($options);
 		$this->application = $application;
@@ -168,7 +165,6 @@ class Router extends Hookable {
 		), 'first');
 		Module::all_hook("routes", $this);
 	}
-
 	public function hook_url(Model_URL $url) {
 		if ($url->_router) {
 			return;
@@ -176,7 +172,6 @@ class Router extends Hookable {
 		$url->_router = true;
 		$url->url = $this->prefix . $url->url;
 	}
-
 	function add_default_route($route_options = null) {
 		$this->default_route = count($this->routes);
 		$this->add_route("({option controller}(/{option action}(/{integer ID})))", array(
@@ -189,7 +184,7 @@ class Router extends Hookable {
 			)
 		));
 	}
-
+	
 	/**
 	 * Return singleton Router
 	 *
@@ -201,7 +196,7 @@ class Router extends Hookable {
 		}
 		return self::$singleton;
 	}
-
+	
 	/**
 	 * Returns the cache path for this router
 	 *
@@ -215,7 +210,7 @@ class Router extends Hookable {
 			$cache_file
 		));
 	}
-
+	
 	/**
 	 * Whether this router is cached; performance optimization
 	 *
@@ -235,14 +230,13 @@ class Router extends Hookable {
 		self::$singleton = unserialize(file_get_contents($path));
 		return self::$singleton;
 	}
-
 	static function compare_weight(Route $a, Route $b) {
 		return $a->option_integer('weight') - $b->option_integer('weight');
 	}
 	private function _sort() {
 		usort($this->routes, "Route::compare_weight");
 	}
-
+	
 	/**
 	 * Fetch a route by ID. ID is an attribute associated with each route, or the clean URL.
 	 *
@@ -252,7 +246,6 @@ class Router extends Hookable {
 	function route($id) {
 		return avalue($this->by_id, strtolower($id));
 	}
-
 	function routes() {
 		if (!$this->sorted) {
 			$this->_sort();
@@ -260,7 +253,7 @@ class Router extends Hookable {
 		}
 		return $this->routes;
 	}
-
+	
 	/**
 	 * Cache this router, destroy old cache
 	 */
@@ -270,25 +263,21 @@ class Router extends Hookable {
 		file_put_contents($path, serialize($this));
 		return $this;
 	}
-
 	function prefix($set = null) {
 		if ($set !== null) {
 			$this->prefix = $set;
 		}
 		return $this->prefix;
 	}
-
 	public function controller_prefixes($add = null) {
 		if ($add !== null) {
 			array_unshift($this->controller_prefixes, $add);
 		}
 		return $this->controller_prefixes;
 	}
-
 	public function add_alias($from, $to) {
 		$this->alias[$from] = $to;
 	}
-
 	public static function log($message, array $arguments = array(), $level = null) {
 		if (zesk::getb("Router::debug") || self::$debug) {
 			if ($level === null) {
@@ -297,12 +286,10 @@ class Router extends Hookable {
 			log::send($message, $arguments, $level);
 		}
 	}
-
 	function reset() {
 		$this->route = null;
 		return $this;
 	}
-
 	function match(Request $request) {
 		$request->router = $this;
 		$path = strval($request->path());
@@ -321,7 +308,7 @@ class Router extends Hookable {
 		$this->log("No matches for {path}", compact("path"), log::WARNING);
 		return null;
 	}
-
+	
 	/**
 	 * Route the URL and return the response
 	 *
@@ -343,17 +330,15 @@ class Router extends Hookable {
 			log::disable(true);
 		}
 		$this->route->execute($app);
-
+		
 		return $this->route;
 	}
-
 	function url_replace($name, $value = null) {
 		if (!$this->route) {
 			return null;
 		}
 		return $this->prefix . $this->route->url_replace($name, $value);
 	}
-
 	public function add_route($path, array $options) {
 		if ($path === "<default>") {
 			$this->set_option($options);
@@ -369,7 +354,6 @@ class Router extends Hookable {
 		$this->routes[] = $this->_add_route_id($this->_register_route(Route::factory($this, $path, $options)));
 		$this->sorted = false;
 	}
-
 	private function _add_route_id(Route $route) {
 		$id = $route->option("id");
 		if (!$id) {
@@ -378,7 +362,6 @@ class Router extends Hookable {
 		$this->by_id[strtolower($id)] = $route;
 		return $route;
 	}
-
 	function import($contents) {
 		$lines = explode("\n", $contents);
 		$paths = array();
@@ -452,7 +435,6 @@ class Router extends Hookable {
 			}
 		}
 	}
-
 	private function _register_route(Route $route) {
 		$class_actions = $route->class_actions();
 		if (!$class_actions) {
@@ -465,7 +447,6 @@ class Router extends Hookable {
 		}
 		return $route;
 	}
-
 	private function _find_route(array $routes, $action = null, $object = null, $options = null) {
 		$options = to_array($options, array());
 		if ($this->route) {
@@ -483,7 +464,7 @@ class Router extends Hookable {
 		}
 		return null;
 	}
-
+	
 	/**
 	 * Retrieve a route to an object from the router. Uses current route's context to determine new route.
 	 *
@@ -506,17 +487,15 @@ class Router extends Hookable {
 			$options += $this->route->arguments_named();
 		}
 		if (is_object($object)) {
-			$class = get_class($object);
+			$try_classes = zesk::class_hierarchy($object, "Object");
 			$options += $object->hook_array("route_options", array(
 				$this,
 				$action
 			), array());
 		} else {
-			$class = $object;
-		}
-		$try_classes = array();
-		if (!empty($class)) {
-			$try_classes[] = $class;
+			$try_classes = array(
+				$object
+			);
 		}
 		$try_classes[] = "*";
 		foreach ($try_classes as $try_class) {
@@ -547,15 +526,15 @@ class Router extends Hookable {
 		}
 		$url = $this->hook("get_route", $action, $object, $options);
 		if (empty($url)) {
-			log::warning("No reverse route for {class}->{action}", array(
-				"class" => $class,
+			log::warning("No reverse route for {classes}->{action}", array(
+				"classes" => $try_classes,
 				"action" => $action
 			));
 			return null;
 		}
 		return url::query_append($this->prefix . $url, avalue($options, 'query', array()));
 	}
-
+	
 	/**
 	 * Retrieve a list of all known controllers
 	 * @return array
