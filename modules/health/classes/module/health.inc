@@ -8,16 +8,12 @@
  *
  */
 class Module_Health extends Module {
-
 	protected $path = null;
-
 	protected $classes = array(
 		"Health_Event",
 		"Health_Events"
 	);
-
 	protected $disabled = false;
-
 	public function initialize() {
 		parent::initialize();
 		$this->disabled = $this->option_bool("disabled");
@@ -36,7 +32,6 @@ class Module_Health extends Module {
 			"caught_exception_handler"
 		));
 	}
-
 	private static $error_codes = array(
 		E_ERROR => "E_ERROR",
 		E_RECOVERABLE_ERROR => "E_RECOVERABLE_ERROR",
@@ -61,7 +56,6 @@ class Module_Health extends Module {
 		E_COMPILE_ERROR => true,
 		E_USER_ERROR => true
 	);
-
 	private function clean_backtrace(array $backtrace) {
 		foreach ($backtrace as $index => $stackframe) {
 			if (array_key_exists('args', $stackframe)) {
@@ -83,7 +77,6 @@ class Module_Health extends Module {
 		}
 		return $backtrace;
 	}
-
 	public function error_handler($errno, $errstr, $errfile, $errline, array $errcontext) {
 		if ($this->disabled) {
 			return;
@@ -106,15 +99,12 @@ class Module_Health extends Module {
 		}
 		return $this->option_bool("skip_php_handler", false);
 	}
-
 	public function caught_exception_handler($exception) {
 		$this->_exception_handler($exception, false);
 	}
-
 	public function exception_handler($exception) {
 		$this->_exception_handler($exception, true);
 	}
-
 	public function disabled($set = null) {
 		if ($set === null) {
 			return $this->disabled;
@@ -122,7 +112,6 @@ class Module_Health extends Module {
 		$this->disabled = to_bool($set);
 		return $this;
 	}
-
 	private function _exception_handler($exception, $fatal = true) {
 		if ($this->disabled) {
 			return;
@@ -143,7 +132,6 @@ class Module_Health extends Module {
 			"_REQUEST" => $_REQUEST
 		));
 	}
-
 	public function log(array $event) {
 		if ($this->disabled) {
 			return;
@@ -151,13 +139,14 @@ class Module_Health extends Module {
 		$event = $this->hook_array("log", array(
 			$event
 		), $event);
-		return Health_Event::event_log($event, $this->path);
+		$event_object = Health_Event::event_log($event, $this->path);
+		log::send($event['message'], $event, avalue($event, 'severity', log::ERROR));
+		return $event_object;
 	}
-
 	public static function daemon(Process_Interruptable $process) {
 		Module::object("health")->run_daemon($process);
 	}
-
+	
 	/**
 	 * Do not log errors while processing events. Unserialized resources, etc. will cause additional errors which we are OK to ignore
 	 *
@@ -174,15 +163,13 @@ class Module_Health extends Module {
 		}
 		$this->disabled(false);
 	}
-
 	public function hook_cron_cluster_hour() {
 		$purge_events_fatal_hours = $this->option_integer("purge_events_fatal_hours", -1);
 		$purge_events_non_fatal_hours = $this->option_integer("purge_events_non_fatal_hours", 24 * 7);
-
+		
 		self::purge_old_events('Health_Event', 'when', $purge_events_fatal_hours, $purge_events_non_fatal_hours);
 		self::purge_old_events('Health_Events', 'first', $purge_events_fatal_hours, $purge_events_non_fatal_hours);
 	}
-
 	private static function purge_old_events($class, $date_column, $fatal_hours, $non_fatal_hours) {
 		if ($fatal_hours > 0) {
 			self::purge_event_types($class, $date_column, array(
@@ -193,10 +180,8 @@ class Module_Health extends Module {
 			self::purge_event_types($class, $date_column, array(
 				"fatal" => false
 			), Timestamp::now()->add_unit("hour", -abs($non_fatal_hours)), "non-fatal");
-
 		}
 	}
-
 	private static function purge_event_types($class, $date_column, array $where, Timestamp $when, $description) {
 		$delete = Object::class_query_delete($class)->where($where + array(
 			"$date_column|<=" => $when
