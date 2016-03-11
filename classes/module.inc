@@ -21,6 +21,12 @@ abstract class Module extends Hookable {
 	protected $application = null;
 	
 	/**
+	 *
+	 * @var Application
+	 */
+	protected $application_class = null;
+	
+	/**
 	 * Module code name
 	 *
 	 * @var string
@@ -42,6 +48,17 @@ abstract class Module extends Hookable {
 	protected $classes = array();
 	
 	/**
+	 * @ignore
+	 */
+	function __sleep() {
+		return arr::include_exclude(array_keys(get_object_vars($this)), null, "application");
+	}
+	function __wakeup() {
+		$this->application = zesk::singleton($this->application_class);
+		$this->initialize();
+	}
+	
+	/**
 	 * Create Module
 	 *
 	 * @param string $options
@@ -49,6 +66,7 @@ abstract class Module extends Hookable {
 	public function __construct(Application $application, $options = null, array $module_data = array()) {
 		parent::__construct($options);
 		$this->application = $application;
+		$this->application_class = get_class($application);
 		$this->inherit_global_options();
 		$this->path = avalue($module_data, 'path');
 		if (!$this->codename) {
