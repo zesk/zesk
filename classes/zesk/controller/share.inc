@@ -7,6 +7,27 @@
  * @see docs/share.md
  */
 class Zesk_Controller_Share extends Controller {
+	
+	/**
+	 * 
+	 * @param unknown $path
+	 * @return string
+	 */
+	function path_to_file($path) {
+		$uri = str::unprefix($path, "/");
+		list(, $uri) = pair($uri, "/", null, $uri);
+		$share_paths = $this->application->share_path();
+		foreach ($share_paths as $name => $path) {
+			if (empty($name) || begins($uri, "$name/")) {
+				$file = path($path, str::unprefix($uri, "$name/"));
+				if (!is_dir($file) && file_exists($file)) {
+					return $file;
+				}
+			}
+		}
+		return null;
+	}
+	
 	/**
 	 *
 	 * {@inheritDoc}
@@ -19,18 +40,7 @@ class Zesk_Controller_Share extends Controller {
 			$this->response->content = self::share_debug();
 			return;
 		}
-		list(, $uri) = pair($uri, "/", null, $uri);
-		$share_paths = $this->application->share_path();
-		$file = null;
-		foreach ($share_paths as $name => $path) {
-			if (empty($name) || begins($uri, "$name/")) {
-				$file = path($path, str::unprefix($uri, "$name/"));
-				if (!is_dir($file) && file_exists($file)) {
-					break;
-				}
-				$file = null;
-			}
-		}
+		$file = $this->path_to_file($this->request->path());
 		if (!$file) {
 			$this->error_404();
 			return;
