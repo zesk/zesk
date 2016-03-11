@@ -37,13 +37,13 @@ class Module_Bootstrap extends Module implements Module_Interface_Foot {
 	}
 	public function hook_head(Request $request, Response_HTML $response, Template $template) {
 		// Lazy eval
-		if (zesk::getb('Module_Bootstrap::enabled', $request->getb('Module_Bootstrap::enabled', true))) {
+		if ($this->option_bool('enabled')) {
 			if (!self::source_location()) {
 				$response->cdn_css("/share/bootstrap/css/bootstrap.css", array(
 					'share' => true
 				));
 			}
-			if (zesk::getb("Module_Bootstrap::responsive", true)) {
+			if ($this->option_bool("responsive", true)) {
 				$response->meta("viewport", "width=device-width, initial-scale=1.0");
 			}
 			$response->meta(array(
@@ -56,7 +56,7 @@ class Module_Bootstrap extends Module implements Module_Interface_Foot {
 			
 			$response->jquery();
 			$response->cdn_javascript(array(
-				"/share/bootstrap/js/bootstrap.js"
+				$this->application->development() ? "/share/bootstrap/js/bootstrap.js" : "/share/bootstrap/js/bootstrap.min.js"
 			), array(
 				'share' => true
 			));
@@ -125,7 +125,6 @@ class Module_Bootstrap extends Module implements Module_Interface_Foot {
 	 * After this module is updated
 	 */
 	public function hook_updated() {
-		$this->inherit_global_options();
 		$source_location = $this->option('source_location');
 		if (!dir::is_absolute($source_location)) {
 			$source_location = $this->application->application_root($source_location);
