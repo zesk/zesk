@@ -64,13 +64,9 @@ class Lock extends Object {
 	public static function delete_unlinked_locks() {
 		// Deleting unlinked locks
 		$n_rows = 0;
-		foreach (Object::class_query(__CLASS__)->link("Server", array(
-			"alias" => "S",
-			"require" => false
-		))
-			->where("S.ID", null)
-			->where("X.server|!=", null)
-			->object_iterator() as $lock) {
+		$server_ids = Object::class_query("Server")->to_array(null, "id");
+		$iterator = Object::class_query(__CLASS__)->where("X.server|!=", $server_ids)->object_iterator();
+		foreach ($iterator as $lock) {
 			/* @var $lock Lock */
 			$server_id = $lock->member_integer("server");
 			$lock->release();
@@ -95,7 +91,7 @@ class Lock extends Object {
 		foreach ($iterator as $lock) {
 			if (!$lock->is_process_alive()) {
 				// Delete this way so hooks get called per dead server
-				log::warning("Releasing lock {name} (#{id}), associated with dead process, locked on {locked}", $lock->members());
+				log::warning("Releasing lock {code} (#{id}), associated with dead process, locked on {locked}", $lock->members());
 				$lock->release();
 			}
 		}
