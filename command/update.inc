@@ -49,7 +49,7 @@ class Command_Update extends Command_Base {
 				"module" => $module
 			));
 			try {
-				$data = Module::load($module, $module_options);
+				$data = $this->application->module->load($module, $module_options);
 			} catch (Exception_Directory_NotFound $e) {
 				log::error("No such module $module found.");
 				continue;
@@ -85,7 +85,7 @@ class Command_Update extends Command_Base {
 				));
 				foreach ($globbed as $glob) {
 					$module = str::unprefix(dirname($glob), rtrim($path, "/") . "/");
-					$data = Module::load($module, $module_options);
+					$data = $this->application->module->load($module, $module_options);
 					$debug['debug'] = _dump($data);
 					if (is_array($data) && array_key_exists('configuration_file', $data)) {
 						$modules[$module] = $data;
@@ -194,9 +194,9 @@ class Command_Update extends Command_Base {
 		$now = time();
 		$data = avalue($module_data, 'configuration');
 		if (!is_array($data)) {
-			$this->log(__("### module {name} does not have configuration information: {configuration_file}", $module_data + array(
+			log::debug("Module {name} does not have configuration information: {configuration_file}", $module_data + array(
 				'configuration_file' => '-not specified-'
-			)));
+			));
 			return true;
 		}
 		if (!arr::has_any($data, 'url;urls;versions;composer')) {
@@ -207,8 +207,10 @@ class Command_Update extends Command_Base {
 			return true;
 		}
 		$this->log("Updating $module");
+		$edits = array();
+		$composer_updates = false;
 		if (arr::has($data, "composer")) {
-			return $this->composer_update($data);
+			$composer_updates = $this->composer_update($data);
 		}
 		$state_data = zesk::geta('MODULE_' . $module);
 		if (!$force) {
@@ -225,7 +227,27 @@ class Command_Update extends Command_Base {
 			}
 		}
 		$edits = $this->fetch($this->app_data + $state_data + $module_data + $data);
-		$result = is_array($edits) ? true : false;
+		$did_updates = $composer_updates || count($edits) > 0 ? true : false;
+		if ($did_updates) {
+			try {
+				$module_object = $this->application->module->object($module);
+				if ($module_object instanceof Module) {
+					$this->log("Running " . get_class($module_object) . "::hook_updated");
+					$module_object->hook('updated');
+				}
+			} catch (ReflectionException $e) {
+				log::debug("Module_$module was not found ... skipping");
+			} catch (Exception_Class_NotFound $e) {
+				log::debug("Module_$module was not found ... skipping");
+			}
+			$this->log("{name} updated to latest version.", array(
+				"name" => $module
+			));
+		} else {
+			$this->log("{name} is up to date.", array(
+				"name" => $module
+			));
+		}
 		if ($this->config) {
 			$date = gmdate('Y-m-d H:i:s');
 			if ($edits === null) {
@@ -248,7 +270,7 @@ class Command_Update extends Command_Base {
 				'MODULE_' . $module => $edits
 			), self::update_configuration_options());
 		}
-		return $result;
+		return $did_updates;
 	}
 	private function composer_command() {
 		if ($this->has_option("composer_command")) {
@@ -273,7 +295,7 @@ class Command_Update extends Command_Base {
 	 * @param array $data        	
 	 */
 	private function composer_update(array $data) {
-		$composer = null;
+		$name = $composer = null;
 		extract($data, EXTR_IF_EXISTS);
 		
 		if (!is_array($composer)) {
@@ -282,6 +304,7 @@ class Command_Update extends Command_Base {
 		}
 		$composer_command = $this->composer_command();
 		if (arr::has($composer, "require")) {
+			$composer_version = zesk::geta("Module_$name::composer_version");
 			$requires = to_list($composer['require']);
 			$pwd = getcwd();
 			chdir($this->application->application_root());
@@ -292,17 +315,23 @@ class Command_Update extends Command_Base {
 					) + $data);
 					continue;
 				}
+				list($component, $version) = pair($require, ":", $require, null);
+				if (array_key_exists($component, $composer_version)) {
+					$require = $component . ":" . $composer_version[$component];
+				}
 				if ($this->option_bool("dry-run")) {
 					$this->log("Would run command: $composer_command require {require}", array(
 						"require" => $require
 					));
 				} else {
-					$this->exec("$composer_command require {require}", array(
+					$this->exec("$composer_command require -q {require} 2>&1", array(
 						"require" => $require
 					));
+					return true;
 				}
 			}
 		}
+		return false;
 	}
 	private static function update_configuration_options() {
 		$options = array(
@@ -336,6 +365,13 @@ class Command_Update extends Command_Base {
 		}
 		throw new Exception_System("Server {url} temporarily down or returning an error? {response_code}", compact("url", "response_code"));
 	}
+	
+	/**
+	 * 
+	 * @param array $data
+	 * @throws Exception_Semantics
+	 * @return array
+	 */
 	private function urls_to_fetch(array &$data) {
 		$path = $name = $versions = $url = $urls = $strip_components = $hashes = $source = $destination = $delete_after = null;
 		extract(array_change_key_case($data), EXTR_IF_EXISTS);
@@ -362,9 +398,7 @@ class Command_Update extends Command_Base {
 				$url
 			);
 		} else {
-			throw new Exception_Configuration($data['configuration_file'], "No URLS or URL set in module {name}", array(
-				"name" => $name
-			));
+			return array();
 		}
 		$urls = map($urls, $data);
 		$load_urls = array();
@@ -382,8 +416,10 @@ class Command_Update extends Command_Base {
 					);
 				}
 			} else if (!url::valid($value)) {
-				$this->error("$value is not a valid URL");
-				return false;
+				$this->error("{value} in  module {name} is not a valid URL", array(
+					'value' => $value,
+					'name' => $name
+				));
 			} else {
 				$load_urls[$value] = array(
 					'destination' => $destination,
@@ -393,6 +429,11 @@ class Command_Update extends Command_Base {
 		}
 		return $load_urls;
 	}
+	
+	/**
+	 * 
+	 * @param array $data
+	 */
 	private function fetch(array $data) {
 		// $source = $url = $destination = $strip_components = $description = $hashes = null;
 		$name = $hashes = $delete_after = null;
@@ -401,7 +442,8 @@ class Command_Update extends Command_Base {
 			$hashes = array();
 		}
 		$load_urls = $this->urls_to_fetch($data);
-		if ($load_urls === false) {
+		if (count($load_urls) === 0) {
+			$this->debug_log("No url, urls, or versions in module {name}", $data);
 			return null;
 		}
 		$dry_run = $this->option_bool('dry-run');
@@ -485,26 +527,6 @@ class Command_Update extends Command_Base {
 		}
 		if (!$this->option_bool('skip-delete') && is_array($delete_after)) {
 			$this->_delete_files($destination, $delete_after);
-		}
-		if ($did_updates) {
-			try {
-				$module = avalue($data, 'module');
-				if ($module instanceof Module) {
-					$this->log("Running " . get_class($module) . "::hook_updated");
-					$module->hook('updated');
-				}
-			} catch (ReflectionException $e) {
-				log::debug("Module_$name was not found ... skipping");
-			} catch (Exception_Class_NotFound $e) {
-				log::debug("Module_$name was not found ... skipping");
-			}
-			$this->log("{name} updated to latest version.", array(
-				"name" => $name
-			));
-		} else {
-			$this->log("{name} is up to date.", array(
-				"name" => $name
-			));
 		}
 		if (count($new_hashes) > 0) {
 			return array(
