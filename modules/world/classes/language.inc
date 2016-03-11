@@ -13,17 +13,40 @@
  * @author kent
  * @property id $id
  * @property string $code
- * @property Country $dialect
+ * @property string $dialect
  * @property string $name
  */
 class Language extends Object {
-
+	public function locale_string() {
+		if ($this->member_is_empty("dialect")) {
+			return strtolower($this->code);
+		}
+		return strtolower($this->code) . "_" . strtoupper($this->dialect);
+	}
 	public static function lang_name($code, $locale = null) {
-		$lang_en = Object::class_query(__CLASS__)->what("name", "name")->where("code", $code)->one("name");
+		list($language, $dialect) = pair($code, "_", $code, null);
+		if (empty($dialect)) {
+			$dialect = null;
+		}
+		$lang_en = Object::class_query(__CLASS__)->what("name", "name")->where(array(
+			"code" => $language,
+			"dialect" => $dialect
+		))->one("name");
 		if ($lang_en) {
 			return zesk\Locale::translate("Locale:=$lang_en", $locale);
 		}
 		return "[$code]";
+	}
+	public static function clean_table() {
+		$query = Object::class_query_update(__CLASS__);
+		$query->value("dialect", null)->where("dialect", "");
+		$query->execute();
+		if ($query->affected_rows() > 0) {
+			log::warning("{method} updated {n} non-NULL rows", array(
+				"method" => __METHOD__,
+				"n" => $query->affected_rows()
+			));
+		}
 	}
 }
 

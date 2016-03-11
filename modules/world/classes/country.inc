@@ -6,7 +6,6 @@
  */
 
 /**
- * @see Class_Country
  * @author kent
  * @see Class_Country
  * @property id $id
@@ -14,7 +13,6 @@
  * @property string $name
  */
 class Country extends Object {
-
 	public static function find_country($mixed) {
 		if (is_numeric($mixed)) {
 			$c = new Country($mixed);
@@ -29,7 +27,6 @@ class Country extends Object {
 		}
 		return null;
 	}
-
 	public static function country_codes($locale = null) {
 		$country_codes = array(
 			'ad' => 'Andorra',

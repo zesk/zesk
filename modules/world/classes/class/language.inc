@@ -8,20 +8,22 @@
 class Class_Language extends Class_Object {
 	public $id_column = 'id';
 	public $name_column = 'name';
-
 	public $name = "Language";
-
 	public $find_keys = array(
 		"code"
 	);
 	public $column_types = array(
 		"id" => self::type_id,
 		"code" => self::type_string,
-		"dialect" => self::type_object,
+		"dialect" => self::type_string,
 		"name" => self::type_string
 	);
-	public $has_one = array(
-		'dialect' => 'Country'
-	);
+/**
+ * @todo Make country ID two-letter code
+ * @var array 
+ */
+	// 	public $has_one = array()
+	// 		'dialect' => 'Country'
+	// 	;
 }
 
