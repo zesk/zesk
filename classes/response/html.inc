@@ -560,14 +560,8 @@ class Response_HTML extends Response_Text {
 			$this->links_sorted
 		), $this->links_sorted);
 		foreach ($this->links_sorted as $attrs) {
-			list($prefix, $suffix) = self::browser_conditionals(avalue($attrs, 'browser'));
-			$tag = array();
-			if ($prefix) {
-				$tag['prefix'] = $prefix;
-			}
-			if ($suffix) {
-				$tag['suffix'] = $suffix;
-			}
+			$tag = self::browser_conditionals(avalue($attrs, 'browser'));
+			
 			$root_dir = avalue($attrs, 'root_dir');
 			$cdn = avalue($attrs, 'cdn');
 			$share = avalue($attrs, 'share');
@@ -800,22 +794,35 @@ class Response_HTML extends Response_Text {
 	 * @param string $hook
 	 * @return string
 	 */
-	private function resource_cache(array $cached, $extension, $hook) {
-		$hash = md5(implode("|", array_keys($cached)));
+	private function resource_cache(array $cached, $extension, $hook, &$debug) {
+		$hash = md5(serialize($cached));
 		$href = "/cache/$extension/$hash.$extension";
 		$cache_path = path(zesk::document_root(), $href);
+		$debug = array();
+		foreach ($cached as $key => $value) {
+			if (!is_numeric($key)) {
+				$debug[] = $key;
+			}
+		}
 		if (!file_exists($cache_path)) {
 			dir::depend(dirname($cache_path), 0770);
 			$content = "";
 			$srcs = array();
-			foreach ($cached as $src => $file) {
-				$content .= "/* Source: $src */\n" . $this->process_cached_type($src, $file, $href, $extension) . "\n";
-				$srcs[] = $src;
+			foreach ($cached as $src => $mixed) {
+				if (is_numeric($src)) {
+					// $mixed is JavaScript code/insertion string
+					$content .= "$mixed\n";
+				} else {
+					// $mixed is filename 
+					$content .= "/* Source: $src */\n" . $this->process_cached_type($src, $mixed, $href, $extension) . "\n";
+					$srcs[] = $src;
+					$debug[] = $src;
+				}
 			}
-			$content .= "zesk.scripts_cached(" . json_encode($srcs) . ");";
 			$content = $this->hook($hook, $content);
 			file_put_contents($cache_path, $content);
 		}
+		$debug = implode("\n", $debug);
 		return $href;
 	}
 	
@@ -827,7 +834,8 @@ class Response_HTML extends Response_Text {
 	 * @return array
 	 */
 	private function resource_cache_css(array $cached, $media = "screen") {
-		$href = self::resource_cache($cached, "css", "compress_css");
+		$debug = "";
+		$href = self::resource_cache($cached, "css", "compress_css", $debug);
 		return array(
 			'name' => 'link',
 			'attributes' => array(
@@ -836,7 +844,7 @@ class Response_HTML extends Response_Text {
 				"media" => $media
 			),
 			'content' => "",
-			'suffix' => $this->application->development() ? "<!--\n" . implode("\n", array_keys($cached)) . "\n-->" : ""
+			'suffix' => $this->application->development() ? "<!--\n$debug\n-->" : ""
 		);
 	}
 	
@@ -847,7 +855,8 @@ class Response_HTML extends Response_Text {
 	 * @return multitype:string multitype:string
 	 */
 	private function resource_cache_scripts(array $cached) {
-		$href = self::resource_cache($cached, "js", "compress_script");
+		$debug = "";
+		$href = self::resource_cache($cached, "js", "compress_script", $debug);
 		return array(
 			'name' => 'script',
 			'attributes' => array(
@@ -855,7 +864,7 @@ class Response_HTML extends Response_Text {
 				'type' => 'text/javascript'
 			),
 			'content' => "",
-			'suffix' => $this->application->development() ? "<!--\n" . implode("\n", array_keys($cached)) . "\n-->" : ""
+			'suffix' => $this->application->development() ? "<!--\n$debug\n-->" : ""
 		);
 	}
 	
@@ -920,7 +929,7 @@ class Response_HTML extends Response_Text {
 		if ($cache_scripts === null) {
 			$cache_scripts = $this->option_bool("cache_scripts", false);
 		}
-		$cached = array();
+		$cached = $cached_append = array();
 		$result = array();
 		/* Output scripts */
 		foreach ($this->scripts as $attrs) {
@@ -928,6 +937,7 @@ class Response_HTML extends Response_Text {
 			if (array_key_exists('callback', $attrs)) {
 				$attrs['content'] = call_user_func($attrs['callback']);
 			}
+			$attrs += self::browser_conditionals(avalue($attrs, 'browser'));
 			if (array_key_exists('content', $attrs)) {
 				$script = array(
 					'name' => 'script',
@@ -948,7 +958,14 @@ class Response_HTML extends Response_Text {
 					if ($resource_path) {
 						$script_attributes['src'] = $resource_path;
 						if ($cache_scripts && $file_path) {
+							if (array_key_exists('javascript_before', $attrs)) {
+								$cached[] = $attrs['javascript_before'];
+							}
 							$cached[$resource_path] = $file_path;
+							$cached_append[] = "zesk.scripts_cached(" . json_encode($resource_path) . ");";
+							if (array_key_exists('javascript_after', $attrs)) {
+								$cached[] = $attrs['javascript_after'];
+							}
 							continue;
 						}
 					}
@@ -959,23 +976,40 @@ class Response_HTML extends Response_Text {
 					'content' => ''
 				);
 			}
-			list($prefix, $suffix) = self::browser_conditionals(avalue($attrs, 'browser'));
-			if ($prefix) {
-				$script['prefix'] = $prefix;
-			}
-			if ($suffix) {
-				$script['suffix'] = $suffix;
+			if (array_key_exists('javascript_before', $attrs)) {
+				$result[] = array(
+					"name" => 'script',
+					"type" => "text/javascript",
+					"content" => $attrs['javascript_before']
+				);
 			}
 			$result[] = $script;
+			if (array_key_exists('javascript_after', $attrs)) {
+				$result[] = array(
+					"name" => 'script',
+					"type" => "text/javascript",
+					"content" => $attrs['javascript_after']
+				);
+			}
 		}
 		if (count($cached) > 0) {
+			$cached = array_merge($cached, $cached_append);
 			$result = array_merge(array(
 				self::resource_cache_scripts($cached)
 			), $result);
 		}
 		return $result;
 	}
-	
+	private function find_weight($pattern, $method, $default = null) {
+		$weight = $default;
+		foreach ($this->scripts as $path => $attributes) {
+			if (strpos($path, $pattern) !== false) {
+				$this_weight = $attributes['weight'];
+				$weight = $weight === null ? $this_weight : $method($weight, $this_weight);
+			}
+		}
+		return $weight;
+	}
 	/**
 	 * Internal function to add script tag
 	 *
@@ -989,7 +1023,29 @@ class Response_HTML extends Response_Text {
 			return $this;
 		}
 		if (!array_key_exists('weight', $options)) {
-			$options['weight'] = count($this->scripts) * 10;
+			$last_weight = count($this->scripts) * 10;
+			$before = null;
+			if (array_key_exists('before', $options)) {
+				if (($before = $this->find_weight($options['before'], "min")) !== null) {
+					$options['weight'] = $before - 1;
+				}
+			}
+			if (array_key_exists('after', $options)) {
+				if (($after = $this->find_weight($options['after'], "max")) !== null) {
+					if ($before !== null) {
+						if ($after <= $before) {
+							throw new Exception_Semantics("{path} has a computed {before} weight which is greater than the after weight {after}", compact('path', 'before', 'after'));
+						} else {
+							$options['weight'] = $before - 1;
+						}
+					} else {
+						$options['weight'] = $after + 1;
+					}
+				}
+			}
+			if (!array_key_exists('weight', $options)) {
+				$options['weight'] = count($this->scripts) * 10;
+			}
 		}
 		$nocache = avalue($options, 'nocache', false);
 		$share = avalue($options, 'share', false);
@@ -1186,6 +1242,8 @@ class Response_HTML extends Response_Text {
 	 * Internal function to conditionally wrap script tags with browser conditions.
 	 *
 	 * Notice how some companies *need* to be special in this way.
+	 * 
+	 * Avoid this like the plague, if possible. Unfortunately, crappy browser software may require it.
 	 *
 	 * @param string $browser
 	 *        	Browser code
@@ -1216,10 +1274,13 @@ class Response_HTML extends Response_Text {
 				$prefix = "<!--[if IE 9]>";
 				$suffix = "<![endif]-->";
 				break;
+			default :
+				return array();
 		}
 		return array(
-			$prefix,
-			$suffix
+			'nocache' => true,
+			'prefix' => $prefix,
+			'suffix' => $suffix
 		);
 	}
 	
