@@ -184,7 +184,7 @@ class Zesk_Settings extends Object implements Interface_Data {
 	 * @see Object::__set($member, $value)
 	 */
 	public function __set($name, $value) {
-		self::$changes[_zesk_global_key($name)] = $value;
+		self::$changes[implode(ZESK_GLOBAL_KEY_SEPARATOR, _zesk_global_key($name))] = $value;
 		zesk::set($name, $value);
 	}
 	
