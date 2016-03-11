@@ -6,21 +6,21 @@
  * @author kent
  */
 class Module_Permission extends Module {
-
+	
 	/**
 	 * Permissions cache
 	 *
 	 * @var array
 	 */
 	private static $_permissions = null;
-
+	
 	/**
 	 * Role Permissions cache
 	 *
 	 * @var array of [rid][action] => boolean
 	 */
 	private static $_role_permissions = null;
-
+	
 	/**
 	 * Implement Module::classes
 	 *
@@ -37,7 +37,6 @@ class Module_Permission extends Module {
 			"user_can"
 		));
 	}
-
 	public function initialize() {
 		Class_Object::link_many("User", 'roles', array(
 			'table' => 'User_Role',
@@ -62,7 +61,14 @@ class Module_Permission extends Module {
 		if ($user->is_root) {
 			return true;
 		}
-		$a = strtolower($action);
+		if (!is_string($action)) {
+			throw new Exception_Semantics("{method} {type} {action} is not a string", array(
+				"method" => __METHOD__,
+				"action" => $action,
+				"type" => type($action)
+			));
+		}
+		$a = self::normalize_permission($action);
 		list($class, $permission) = pair($a, "::", strtolower(get_class($context)), $a);
 		$perms = self::_permissions();
 		$parent_classes = empty($class) ? array() : arr::change_value_case(zesk::class_hierarchy($class, "Model"));
@@ -148,7 +154,7 @@ class Module_Permission extends Module {
 		$user->_roles = Object::class_query("User_Role")->what("Role", "Role")->where("User", $user)->to_array(null, "Role", array());
 		return $user->_roles;
 	}
-
+	
 	/**
 	 * Refresh the permissions cache as often as needed
 	 */
@@ -167,7 +173,7 @@ class Module_Permission extends Module {
 			log::notice("Refreshed permissions cache");
 		}
 	}
-
+	
 	/**
 	 *
 	 * @return Cache
@@ -179,7 +185,7 @@ class Module_Permission extends Module {
 		}
 		return $cache;
 	}
-
+	
 	/**
 	 *
 	 * @return array
@@ -192,7 +198,7 @@ class Module_Permission extends Module {
 		$perms = $cache->__get(__CLASS__);
 		return is_array($perms) ? $perms : null;
 	}
-
+	
 	/**
 	 * Retrieve
 	 *
@@ -210,7 +216,25 @@ class Module_Permission extends Module {
 		self::_cache()->__set(__CLASS__, self::$_permissions);
 		return self::$_permissions;
 	}
-
+	public static function normalize_permission($mixed) {
+		if (is_bool($mixed) || $mixed === null || is_numeric($mixed)) {
+			return $mixed;
+		}
+		if (is_array($mixed)) {
+			$result = array();
+			foreach ($mixed as $index => $permission) {
+				$result[self::normalize_permission($index)] = self::normalize_permission($permission);
+			}
+			return $result;
+		}
+		return strtr(strtolower($mixed), array(
+			" " => "_",
+			"." => "_",
+			"/" => "_",
+			"-" => "_"
+		));
+	}
+	
 	/**
 	 *
 	 * @return array
@@ -239,12 +263,17 @@ class Module_Permission extends Module {
 		$paths = zesk::getl('Module_Permission::role_paths', zesk::application_root('etc/role'));
 		foreach ($roles as $rid => $code) {
 			$code = strtolower(zesk::clean_path($code));
-			$result['role'][$rid] = $config = zesk::normalize_global_keys(conf::load_inherit($code . ".role.conf", $paths, array()));
+			$filename = $code . ".role.conf";
+			$result['role'][$rid] = $config = self::normalize_permission(conf::load_inherit($filename, $paths, array()));
+			log::debug("Loading {filename} resulted in {n_config} permissions", array(
+				"filename" => $filename,
+				"n_config" => count($config)
+			));
 		}
 		$lock->release();
 		return $result;
 	}
-
+	
 	/**
 	 * Hook call to add up permissions and create the permissions structure from the hooks in the
 	 * system.
@@ -262,7 +291,7 @@ class Module_Permission extends Module {
 		if (!is_array($result)) {
 			return $state;
 		}
-		$method = _zesk_global_key($method);
+		$method = User::clean_permission($method);
 		$class = str::left($method, "::");
 		//$parents = zesk::class_hierarchy($class);
 		$class_perms = array();
@@ -285,14 +314,13 @@ class Module_Permission extends Module {
 					unset($v[$vk]);
 				}
 			}
-			$k = _zesk_global_key($k);
+			$k = User::clean_permission($k);
 			$v['name'] = $class . "::" . $k;
 			$class_perms[$k] = Permission::register_permission($v);
 		}
 		$state[strtolower($class)] = $class_perms; // + array("*class" => $class);
 		return $state;
 	}
-
 	protected function hook_cache_clear() {
 		Object::class_query_delete("Permission")->truncate(true)->execute();
 	}
