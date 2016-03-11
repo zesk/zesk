@@ -1,5 +1,10 @@
 <?php
 
+/**
+ * @see Session_Database
+ * @author kent
+ *
+ */
 class Class_Session_Database extends Class_Object {
 	/**
 	 * ID Column
