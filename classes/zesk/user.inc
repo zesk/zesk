@@ -15,14 +15,13 @@
  *
  */
 abstract class Zesk_User extends Object {
-
 	const global_instance = "User::instance";
 	/**
 	 *
 	 * @var Class_Zesk_User
 	 */
 	protected $class = null;
-
+	
 	/**
 	 * Session user ID
 	 *
@@ -40,16 +39,16 @@ abstract class Zesk_User extends Object {
 		}
 		return $session->user_id();
 	}
-
+	
 	/**
 	 * Session lock and validation information
 	 */
 	private function check_session() {
 		/*
 		 $logout_uri = zesk::get("Site.LogoutURI", "/logout.php");
-
+		 
 		 $session = Session::instance();
-
+		 
 		 TODO: Fix this, it's not working with new sessions
 		 *
 		 $user_ip = $session->get(zesk::get("SESSION_USER_IP", "UserIP"));
@@ -68,7 +67,7 @@ abstract class Zesk_User extends Object {
 		 }
 		 */
 	}
-
+	
 	/**
 	 * Current user
 	 *
@@ -92,7 +91,7 @@ abstract class Zesk_User extends Object {
 		self::set_instance($user);
 		return $user;
 	}
-
+	
 	/**
 	 * Set global user instance
 	 *
@@ -103,7 +102,7 @@ abstract class Zesk_User extends Object {
 		zesk::set(self::global_instance, $user);
 		return $user;
 	}
-
+	
 	/**
 	 * Retrieve the current logged in user ID
 	 *
@@ -113,7 +112,7 @@ abstract class Zesk_User extends Object {
 		$user = User::instance();
 		return $user->id();
 	}
-
+	
 	/**
 	 * Load user from session ID
 	 */
@@ -144,7 +143,7 @@ abstract class Zesk_User extends Object {
 		}
 		return false;
 	}
-
+	
 	/**
 	 * Retrieve the column used for logging in
 	 *
@@ -153,7 +152,7 @@ abstract class Zesk_User extends Object {
 	function column_login() {
 		return $this->class->column_login;
 	}
-
+	
 	/**
 	 * Retrieve the password column name
 	 *
@@ -162,7 +161,7 @@ abstract class Zesk_User extends Object {
 	function column_password() {
 		return $this->class->column_password;
 	}
-
+	
 	/**
 	 * Retrieve the email column name
 	 *
@@ -171,7 +170,7 @@ abstract class Zesk_User extends Object {
 	function column_email() {
 		return $this->class->column_email;
 	}
-
+	
 	/**
 	 * Get or set the login column value
 	 *
@@ -186,7 +185,7 @@ abstract class Zesk_User extends Object {
 		}
 		return $this->member($column);
 	}
-
+	
 	/**
 	 * Get or set the email column value
 	 *
@@ -206,7 +205,7 @@ abstract class Zesk_User extends Object {
 		}
 		return $this->member($column);
 	}
-
+	
 	/**
 	 * Override in subclasses to perform a final check before loading a user from the Session
 	 * @return boolean
@@ -214,7 +213,7 @@ abstract class Zesk_User extends Object {
 	function check_user() {
 		return true;
 	}
-
+	
 	/**
 	 * Return the user login name
 	 *
@@ -227,7 +226,7 @@ abstract class Zesk_User extends Object {
 			return __("No user.");
 		}
 	}
-
+	
 	/**
 	 * @deprecated 2014-02-07
 	 * @return integer|null
@@ -238,7 +237,7 @@ abstract class Zesk_User extends Object {
 		}
 		return null;
 	}
-
+	
 	/**
 	 * Get/set the password field
 	 *
@@ -252,7 +251,7 @@ abstract class Zesk_User extends Object {
 		}
 		return $this->member($column);
 	}
-
+	
 	/**
 	 * Check a username and password. Will not authenticate user until ->authenticated(true) is called.
 	 *
@@ -280,7 +279,7 @@ abstract class Zesk_User extends Object {
 		}
 		return false;
 	}
-
+	
 	/**
 	 * Get/set authentication status
 	 *
@@ -311,7 +310,7 @@ abstract class Zesk_User extends Object {
 		}
 		return $this;
 	}
-
+	
 	/**
 	 * Similar to $user->can(...) but instead throws an Exception_Permission on failure
 	 *
@@ -329,7 +328,14 @@ abstract class Zesk_User extends Object {
 		}
 		return $this;
 	}
-
+	public static final function clean_permission($string) {
+		return strtolower(strtr($string, array(
+			'.' => '_',
+			'-' => '_',
+			'__' => '::'
+		)));
+	}
+	
 	/**
 	 * The core of the permissions system
 	 *
@@ -369,16 +375,16 @@ abstract class Zesk_User extends Object {
 		if (!$context instanceof Model) {
 			$context = null;
 		}
-
+		
 		$result = false; // By default, don't allow anything
 		// Allow multiple actions
 		$is_or = is_string($actions) && strpos($actions, '|');
 		$actions = to_list($actions, array(), $is_or ? '|' : ';');
 		$default_result = zesk::getb("User::can", false);
 		foreach ($actions as $action) {
-			$action = _zesk_global_key($action);
+			$action = self::clean_permission($action);
 			if (is_string($context)) {
-				$context = _zesk_global_key($context);
+				$context = self::clean_permission($context);
 			}
 			$result = $this->hook_array("can", array(
 				$action,
@@ -406,7 +412,7 @@ abstract class Zesk_User extends Object {
 		}
 		return $result;
 	}
-
+	
 	/**
 	 * Check if a user can edit an object
 	 *
@@ -425,11 +431,10 @@ abstract class Zesk_User extends Object {
 	function can_view($object) {
 		return $this->can("view", $object);
 	}
-
 	function display_name() {
 		return $this->member($this->column_login());
 	}
-
+	
 	/**
 	 * Check if a user can delete an object
 	 *
@@ -439,7 +444,7 @@ abstract class Zesk_User extends Object {
 	function can_delete($object) {
 		return $this->can("delete", $object);
 	}
-
+	
 	/**
 	 * Get control for User objects. TODO move this elsewhere - doesn't belong here - too specific to User structure.
 	 *
@@ -472,7 +477,7 @@ abstract class Zesk_User extends Object {
 		$w->set_option($options);
 		return $w;
 	}
-
+	
 	/**
 	 * Implement Object::permissions
 	 *
@@ -486,7 +491,7 @@ abstract class Zesk_User extends Object {
 			)
 		);
 	}
-
+	
 	/**
 	 * Takes an array which can be formatted with theme("actions") and filters based on permissions.
 	 * Use the key "permission" in value to specify a permission to check. It can be a string, or an
