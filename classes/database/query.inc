@@ -13,28 +13,28 @@ class Database_Query {
 	 * @var string
 	 */
 	protected $type;
-
+	
 	/**
 	 * Database
 	 *
 	 * @var Database
 	 */
 	protected $db;
-
+	
 	/**
 	 * Database code
 	 *
 	 * @var string
 	 */
 	protected $dbname;
-
+	
 	/**
 	 * Object class used when iterating
 	 *
 	 * @var string
 	 */
 	protected $class;
-
+	
 	/**
 	 * Create a new query
 	 *
@@ -47,7 +47,6 @@ class Database_Query {
 		$this->dbname = $this->db->code_name();
 		$this->class = null;
 	}
-
 	function __sleep() {
 		return array(
 			"type",
@@ -55,11 +54,10 @@ class Database_Query {
 			"class"
 		);
 	}
-
 	function __wakeup() {
 		$this->db = Database::instance($this->dbname);
 	}
-
+	
 	/**
 	 *
 	 * @return Database_Query_Select_Base
@@ -67,7 +65,7 @@ class Database_Query {
 	public function duplicate() {
 		return clone $this;
 	}
-
+	
 	/**
 	 *
 	 * @return Database
@@ -75,7 +73,7 @@ class Database_Query {
 	function database() {
 		return $this->db;
 	}
-
+	
 	/**
 	 *
 	 * @return Database_SQL
@@ -104,7 +102,6 @@ class Database_Query {
 		return $this->class;
 	}
 	
-
 	/**
 	 * Create objects in the current application context
 	 * 
@@ -113,7 +110,7 @@ class Database_Query {
 	 * @param array $options
 	 * @return Object
 	 */
-	function object_factory($class, $mixed = null, $options = null) {
+	function object_factory($class, $mixed = null, array $options = array()) {
 		return $this->db->application->object_factory($class, $mixed, $options);
 	}
 }
