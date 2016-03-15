@@ -73,6 +73,15 @@ class Zesk_Settings extends Object implements Interface_Data {
 		return Cache::register(__CLASS__)->expire_after(60);
 	}
 	
+	private static function unserialize($value) {
+		try {
+			$value = unserialize($value);
+			return $value;
+		} catch (Exception_Class_NotFound $e) {
+			zesk::hook("exception", $e);
+			return null;
+		}
+	}
 	/**
 	 * configured Hook
 	 */
@@ -91,7 +100,7 @@ class Zesk_Settings extends Object implements Interface_Data {
 				$globals = array();
 				foreach (Object::class_query("Settings")->to_array("name", "value") as $name => $value) {
 					if (is_string($value)) {
-						$globals[$name] = $value = unserialize($value);
+						$globals[$name] = $value = self::unserialize($value);
 					}
 				}
 				$cache->globals = $application->hook_array("filter_settings", array(
