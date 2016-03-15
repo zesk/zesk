@@ -220,6 +220,9 @@ function backtrace($exit = true, $n = -1) {
 
 /**
  * Dumps a variable using print_r and surrounds with <pre> tag
+ * Optionally defined because "dump" is also defined by Drush
+ * 
+ * Probably should switch to a namespace version of this as well.
  *
  * @param mixed $x
  *        	Variable to dump
@@ -228,8 +231,10 @@ function backtrace($exit = true, $n = -1) {
  * @return echos to page
  * @see print_r
  */
-function dump() {
-	call_user_func_array('debug::output', func_get_args());
+if (!function_exists("dump")) {
+	function dump() {
+		call_user_func_array('debug::output', func_get_args());
+	}
 }
 
 /**
@@ -300,10 +305,11 @@ function to_bool($value, $default = false) {
 		return $default;
 	}
 	$value = strtolower($value);
-	if (strpos(";1;t;y;yes;on;enabled;true;", ";$value;") !== false) {
+	$find = ";$value;";
+	if (strpos(";1;t;y;yes;on;enabled;true;", $find) !== false) {
 		return true;
 	}
-	if (strpos(";0;f;n;no;off;disabled;false;null;;", ";$value;") !== false) {
+	if (strpos(";0;f;n;no;off;disabled;false;null;;", $find) !== false) {
 		return false;
 	}
 	return $default;
@@ -840,17 +846,18 @@ function _W($phrase) {
  *        	The default right value if delimiter is not found
  * @return A size 2 array containing the left and right portions of the pair
  */
-function pair($a, $delim = '.', $left = false, $right = false) {
+function pair($a, $delim = '.', $left = false, $right = false, $include_delimiter = null) {
 	if (is_array($a)) {
 		backtrace();
 	}
 	$n = strpos($a, $delim);
+	$delim_len = strlen($delim);
 	return ($n === false) ? array(
 		$left,
 		$right
 	) : array(
-		substr($a, 0, $n),
-		substr($a, $n + strlen($delim))
+		substr($a, 0, $n + ($include_delimiter === "left" ? $delim_len : 0)),
+		substr($a, $n + ($include_delimiter === "right" ? 0 : $delim_len))
 	);
 }
 
@@ -868,14 +875,15 @@ function pair($a, $delim = '.', $left = false, $right = false) {
  * @return A size 2 array containing the left and right portions of the pair
  * @see pair
  */
-function pairr($a, $delim = '.', $left = false, $right = false) {
+function pairr($a, $delim = '.', $left = false, $right = false, $include_delimiter = null) {
 	$n = strrpos($a, $delim);
+	$delim_len = strlen($delim);
 	return ($n === false) ? array(
 		$left,
 		$right
 	) : array(
-		substr($a, 0, $n),
-		substr($a, $n + strlen($delim))
+		substr($a, 0, $n + ($include_delimiter === "left" ? $delim_len : 0)),
+		substr($a, $n + ($include_delimiter === "right" ? 0 : $delim_len))
 	);
 }
 
