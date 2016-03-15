@@ -191,11 +191,11 @@ Second, the type of route will be created depending on the presence of one of th
 
 	content="content to output"
 
-`Route_Template`:
+`Route_Theme`:
 
-	template="page/template.tpl"
+	theme="page/body/welcome"
 
-Note that each route type has additional options which are optional which affect the default behavior of the route. But first ... 
+Note that each route type has additional optional options which affect the default behavior of the route. But first ... 
 	
 ## Route options for all types of routes
 
