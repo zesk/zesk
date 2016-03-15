@@ -16,24 +16,22 @@ Commands are run by one of three starting points:
 
 ### `zesk.sh`
 
-`zesk.sh` primarily searches from the current working directory up to the root to find a **zesk application file** which has the extension `.application.inc`, and then passes it as the first parameter to `zesk-command.php`, along with the other arguments passed to this shell script.
-
-If multiple files exist in same directory with the extension, it uses the first one alphabetically. (e.g. `aardvarks.application.inc` instead of `zebra.application.inc`)
-
-This command understands a single parameter `--search directory` which switches to a different directory to begin the search for a **zesk application file**. 
-
-The command also allows for the default extension to be modified with a shell global `zesk_root_files` which should be in the form:
-
-	export zesk_root_files='*.zeskapp'
-	zesk globals
+`zesk.sh` checks to see if php is within the the $PATH, then runs `zesk-command.php` with all command line argumentes passed through.
 
 ### `zesk-command.php`
+
+`zesk-command.php` processes the command line arguments to set up the initial state for the command, then searches from the current working directory up to the root to find a **zesk application file** which has the extension `.application.inc`, loads it, then processes additional arguments to the command.
+
+When finding the application.inc file, if multiple files exist in same directory with the extension, it uses the first one alphabetically. (e.g. `aardvarks.application.inc` instead of `zebra.application.inc`)
+
+This command understands a single parameter `--search directory` which switches to a different directory to begin the search for a **zesk application file**. 
 
 Runs your command in PHP. This command can take a variety of parameters, as follows:
 
     --set name[=value]   Set a zesk global
 	--unset name         Unset a zesk global
-	--cd                 Change to a directory
+	--cd                 Change to a directory (uses to find *.application.inc files if --search is not specified)
+	--search             Search this directory for *.application.inc files
 	--config file        Load a configuration file
 	--*variable_name*    Toggle a zesk global as a boolean
 	/path/to/file        Include a file (determined by slash)
@@ -52,6 +50,6 @@ The **Zesk Application File** configures the application and **Zesk**. The simpl
 	}
 	require_once ZESK_ROOT . 'zesk.inc';
 	zesk::autoload_path(zesk::application_root('classes'));
-	Application::configure();
+	Application::instance()->configure();
 
 Note that it defines `ZESK_ROOT`, includes `zesk.inc` and configures the application. All other application logic such as handling login or session management should be handled elsewhere.
