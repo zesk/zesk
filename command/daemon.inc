@@ -25,9 +25,10 @@ class Command_Daemon extends Command_Base implements Process_Interruptable {
 		"up" => "string",
 		"bounce" => "string",
 		"terminate-after" => "integer",
-		"alive-interval" => "integer"
+		"alive-interval" => "integer",
+		"terminate-wait" => "integer"
 	);
-
+	
 	/**
 	 *
 	 * @var array
@@ -45,64 +46,65 @@ class Command_Daemon extends Command_Base implements Process_Interruptable {
 		"up" => "Bring up a single method within a server",
 		"bounce" => "Restart a single method within a server",
 		"terminate-after" => "Quit after the number of seconds specified; often assists with processes which work for a while then seize up.",
+		"terminate-wait" => "Wait number of seconds after termination before re-launching.",
 		"alive-interval" => "Number of seconds after which to output a message, to prove server is alive."
 	);
-
+	
 	/**
 	 * FP to fifo: Read on server
 	 *
 	 * @var resource
 	 */
 	private $fifo_r = null;
-
+	
 	/**
 	 * FP to fifo: Write on client
 	 *
 	 * @var resource
 	 */
 	private $fifo_w = null;
-
+	
 	/**
 	 * Path to fifo
 	 *
 	 * @var string
 	 */
 	private $fifo_path = null;
-
+	
 	/**
 	 * Directory where run (PID, controller) files are found
 	 *
 	 * @var string
 	 */
 	protected $rundir = null;
-
+	
 	/**
 	 * Am I the parent?
 	 *
 	 * @var boolean
 	 */
 	private $parent = true;
-
+	
 	/**
 	 * Method of this daemon
 	 *
 	 * @var boolean
 	 */
 	private $method = true;
-
+	
 	/**
 	 *
 	 * @var boolean
 	 */
 	private $quitting = false;
-
+	
 	/**
 	 * log::debug for database file read/writes
 	 *
 	 * @var boolean
 	 */
 	private $db_debug = false;
-
+	
 	/**
 	 * Signal names to strings
 	 *
@@ -115,7 +117,7 @@ class Command_Daemon extends Command_Base implements Process_Interruptable {
 		SIGTERM => "SIGTERM",
 		SIGHUP => "SIGHUP"
 	);
-
+	
 	/**
 	 * Command MAIN
 	 *
@@ -131,7 +133,7 @@ class Command_Daemon extends Command_Base implements Process_Interruptable {
 		dir::depend($this->rundir, 0700);
 		zesk::php_has('pcntl', true);
 		$this->fifo_path = path($this->rundir, "daemon-controller");
-
+		
 		if ($this->option_bool('kill')) {
 			return $this->command_stop(SIGKILL);
 		}
@@ -153,10 +155,9 @@ class Command_Daemon extends Command_Base implements Process_Interruptable {
 		if ($this->has_option("bounce")) {
 			return $this->command_state($this->option("bounce"), "down", "up");
 		}
-
+		
 		return $this->command_run();
 	}
-
 	public function application(Application $set = null) {
 		if ($set) {
 			$this->application = $set;
@@ -164,7 +165,6 @@ class Command_Daemon extends Command_Base implements Process_Interruptable {
 		}
 		return $this->application;
 	}
-
 	protected function install_signals() {
 		if (function_exists("pcntl_signal")) {
 			$callback = array(
@@ -175,14 +175,14 @@ class Command_Daemon extends Command_Base implements Process_Interruptable {
 			pcntl_signal(SIGTERM, $callback);
 			pcntl_signal(SIGINT, $callback);
 			pcntl_signal(SIGALRM, $callback);
-
+			
 			register_shutdown_function(array(
 				__CLASS__,
 				"shutdown"
 			));
 		}
 	}
-
+	
 	/**
 	 * Send $signal to parent process, terminating all processes eventually.
 	 *
@@ -221,7 +221,7 @@ class Command_Daemon extends Command_Base implements Process_Interruptable {
 			}
 			return 0;
 		}
-
+		
 		$pid = $me['pid'];
 		log::notice("Sent {signal} to process {pid}", array(
 			"pid" => $pid,
@@ -234,7 +234,7 @@ class Command_Daemon extends Command_Base implements Process_Interruptable {
 		$daemons = zesk::find_all_hooks("Application::daemon;Module::daemon;Object::daemon");
 		return $daemons;
 	}
-
+	
 	/**
 	 * List all daemons to be run
 	 *
@@ -276,7 +276,7 @@ class Command_Daemon extends Command_Base implements Process_Interruptable {
 		}
 		return $this->_command_state($database, $name, $settings, $want);
 	}
-
+	
 	/**
 	 * Change state of a daemon process
 	 *
@@ -322,7 +322,7 @@ class Command_Daemon extends Command_Base implements Process_Interruptable {
 		}
 		return 0;
 	}
-
+	
 	/**
 	 *
 	 * @return number
@@ -427,7 +427,7 @@ class Command_Daemon extends Command_Base implements Process_Interruptable {
 		$instance = self::instance();
 		$instance->terminate();
 	}
-
+	
 	/**
 	 *
 	 * @param self $set
@@ -440,7 +440,7 @@ class Command_Daemon extends Command_Base implements Process_Interruptable {
 		}
 		return $instance;
 	}
-
+	
 	/**
 	 * The unix signal handler for multi-process systems
 	 *
@@ -475,7 +475,7 @@ class Command_Daemon extends Command_Base implements Process_Interruptable {
 						$x->terminate("Hangup signal received");
 					}
 					break;
-				default:
+				default :
 					break;
 			}
 		}
@@ -497,7 +497,7 @@ class Command_Daemon extends Command_Base implements Process_Interruptable {
 		fwrite($this->fifo_w, "$n\n$data");
 		fflush($this->fifo_w);
 	}
-
+	
 	/**
 	 * Read a message as server
 	 *
@@ -519,7 +519,7 @@ class Command_Daemon extends Command_Base implements Process_Interruptable {
 		$except = array();
 		$sec = intval($timeout);
 		$usec = ($timeout - $sec) * 1000000;
-
+		
 		declare(ticks = 1) {
 			// KMD: Safely ignore E_WARNING about interrupted system call here
 			set_error_handler(function () {
@@ -538,7 +538,6 @@ class Command_Daemon extends Command_Base implements Process_Interruptable {
 			return null;
 		}
 	}
-
 	private function fork() {
 		if ($this->option_bool('nofork')) {
 			return 0;
@@ -551,7 +550,7 @@ class Command_Daemon extends Command_Base implements Process_Interruptable {
 		}
 		return $pid;
 	}
-
+	
 	/**
 	 * Main loop for daemon
 	 *
@@ -568,7 +567,7 @@ class Command_Daemon extends Command_Base implements Process_Interruptable {
 			}
 			return 1;
 		}
-
+		
 		if ($this->option_bool('nohup')) {
 			$file = log::file();
 			if (!$file) {
@@ -599,11 +598,11 @@ class Command_Daemon extends Command_Base implements Process_Interruptable {
 		$this->_process_database($database);
 		log::notice("Daemon run successfully.");
 		self::instance($this);
-
+		
 		zesk::php_set("time_limit", zesk::get("Command_Daemon::time_limit", 0));
 		$daemons = $this->daemons();
 		log::debug("Daemons to run: " . implode(", ", $daemons));
-
+		
 		if (file_exists($this->fifo_path)) {
 			if (!unlink($this->fifo_path)) {
 				throw new Exception_File_Permission($this->fifo_path, "unlink('{filename}')");
@@ -612,7 +611,7 @@ class Command_Daemon extends Command_Base implements Process_Interruptable {
 		if (!posix_mkfifo($this->fifo_path, 0600)) {
 			throw new Exception_File_Permission($this->fifo_path, "mkfifo {filename}");
 		}
-
+		
 		$this->_fifo_read();
 		$timeout = $this->option_integer("child read timeout", 1);
 		self::install_signals();
@@ -635,7 +634,7 @@ class Command_Daemon extends Command_Base implements Process_Interruptable {
 				}
 			} while (!$this->done());
 		}
-
+		
 		return 0;
 	}
 	private function run_child($name) {
@@ -661,7 +660,7 @@ class Command_Daemon extends Command_Base implements Process_Interruptable {
 			exit(0);
 		}
 		zesk::hook('pcntl_fork-parent');
-
+		
 		log::debug("PARENT FORKED for process {name} me={pid} child={child}", array(
 			"name" => $name,
 			"pid" => zesk::pid(),
@@ -682,7 +681,7 @@ class Command_Daemon extends Command_Base implements Process_Interruptable {
 			'time' => microtime(true)
 		);
 	}
-
+	
 	/**
 	 * Read messages from FIFO and update the database, if needed
 	 *
@@ -737,7 +736,7 @@ class Command_Daemon extends Command_Base implements Process_Interruptable {
 		}
 		$this->_process_database($database);
 	}
-
+	
 	/**
 	 * Run all of our children
 	 */
@@ -809,7 +808,7 @@ class Command_Daemon extends Command_Base implements Process_Interruptable {
 	// 			log::error("Process {name} failed to exit pid {pid}", compact("name", "pid"));
 	// 		}
 	// 	}
-
+	
 
 	/**
 	 * Open write FIFO
@@ -828,7 +827,7 @@ class Command_Daemon extends Command_Base implements Process_Interruptable {
 			throw new Exception_File_Permission($this->fifo_path, "fopen('{filename}', 'w')");
 		}
 	}
-
+	
 	/**
 	 * Open read FIFO (used by parent process only)
 	 *
@@ -845,7 +844,7 @@ class Command_Daemon extends Command_Base implements Process_Interruptable {
 		stream_set_blocking($this->fifo_r, false);
 		stream_set_read_buffer($this->fifo_r, 0);
 	}
-
+	
 	/**
 	 * Close read FIFO
 	 */
@@ -864,7 +863,7 @@ class Command_Daemon extends Command_Base implements Process_Interruptable {
 			$this->fifo_w = null;
 		}
 	}
-
+	
 	/**
 	 * Close all FIFOs
 	 */
@@ -872,7 +871,7 @@ class Command_Daemon extends Command_Base implements Process_Interruptable {
 		$this->_fifo_read_close();
 		$this->_fifo_write_close();
 	}
-
+	
 	/**
 	 * Run child process, then exit
 	 */
@@ -901,14 +900,14 @@ class Command_Daemon extends Command_Base implements Process_Interruptable {
 		$this->_fifos_close();
 		exit();
 	}
-
+	
 	/**
 	 * Last time quitting values were called and checked
 	 *
 	 * @var double
 	 */
 	private $last_tick = null;
-
+	
 	/**
 	 * Getter for done state
 	 *
@@ -935,7 +934,7 @@ class Command_Daemon extends Command_Base implements Process_Interruptable {
 		}
 		return $this->quitting;
 	}
-
+	
 	/**
 	 * Kill/interrupt this process.
 	 * Harsher than ->done(true);
@@ -955,7 +954,6 @@ class Command_Daemon extends Command_Base implements Process_Interruptable {
 			}
 		}
 	}
-
 	private function shutdown_children(array $database) {
 		foreach ($database as $name => $settings) {
 			$pid = $status = null;
@@ -1009,7 +1007,7 @@ class Command_Daemon extends Command_Base implements Process_Interruptable {
 			}
 		}
 	}
-
+	
 	/**
 	 * Terminate this process.
 	 * Nice way to do it.
@@ -1037,10 +1035,13 @@ class Command_Daemon extends Command_Base implements Process_Interruptable {
 			log::notice("Daemon child terminating ...");
 			$this->send();
 			log::notice("Daemon child terminated ...");
+			if ($this->has_option("terminate-wait")) {
+				sleep($this->option_integer("terminate-wait", 1));
+			}
 			exit();
 		}
 	}
-
+	
 	/**
 	 * Take a nap.
 	 * I love naps.
@@ -1064,7 +1065,7 @@ class Command_Daemon extends Command_Base implements Process_Interruptable {
 			} while (!$this->done() && $timer->elapsed() < $seconds);
 		}
 	}
-
+	
 	/**
 	 * Logging tool for processes
 	 *
