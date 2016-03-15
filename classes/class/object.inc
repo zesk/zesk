@@ -519,6 +519,19 @@ class Class_Object extends Hookable {
 		self::$defer_class_links = array();
 		self::_column_cache()->erase()->delete();
 	}
+	
+	/**
+	 * Handle namespace objects intelligently and preserve namespace (\ group), prefixing class name (_ group)
+	 * 
+	 * @inline_test assertEqual(Class_Object::object_to_class('zesk\Dude'), 'zesk\Class_Dude');
+	 * @inline_test assertEqual(Class_Object::object_to_class('a\b\c\d\e\f\g\Dude'), 'a\b\c\d\e\f\g\Class_Dude');
+	 * @param unknown $classname
+	 */
+	public static function object_to_class($classname) {
+		list($namespace, $suffix) = pairr($classname, "\\", null, $classname, "left");
+		return $namespace . 'Class_' . $suffix;
+	}
+	
 	/**
 	 * Create a new class instance - should only be called from Object
 	 *
@@ -533,8 +546,9 @@ class Class_Object extends Hookable {
 		if (array_key_exists($lowclass, self::$classes)) {
 			return self::$classes[$lowclass];
 		}
+		$class_class = self::object_to_class($class);
 		try {
-			$instance = self::$classes[$lowclass] = zesk::factory('Class_' . $class, $object);
+			$instance = self::$classes[$lowclass] = zesk::factory($class_class, $object);
 		} catch (Exception_Class_NotFound $e) {
 			$instance = self::$classes[$lowclass] = zesk::factory('Class_Object_Legacy', $object);
 		}
@@ -639,6 +653,7 @@ class Class_Object extends Hookable {
 		$this_class = $object->class_object();
 		// Handle polymorphic classes - create correct Class and use correct base class
 		$this_class = $this->class = is_string($this_class) ? $this_class : get_class($object);
+		
 		$this->configure($object);
 		// In case configure changes it
 		$this_class = $this->class;
@@ -646,7 +661,7 @@ class Class_Object extends Hookable {
 			$this->dynamic_columns = true;
 		}
 		if (empty($this->code_name)) {
-			$this->code_name = $this_class;
+			$this->code_name = str::rright($this_class, "\\");
 		}
 		if (empty($this->name)) {
 			$this->name = $this_class;
