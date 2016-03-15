@@ -14,7 +14,17 @@
  */
 class debug {
 	const dump_spacer = "    ";
-
+	
+	/**
+	 * Set up PHP errors to output on web pages
+	 */
+	public static function php_errors_configure() {
+		error_reporting(E_ALL | E_STRICT);
+		ini_set('error_prepend_string', "\nPHP-ERROR " . str_repeat("=", 80) . "\n");
+		ini_set('error_append_string', "\n" . str_repeat("*", 80) . "\n");
+		ini_set('display_errors', true);
+	}
+	
 	/**
 	 * Returns the file which called this function. Useful for debugging.
 	 *
@@ -26,7 +36,7 @@ class debug {
 		$top = array_shift($bt);
 		return $top['file'];
 	}
-
+	
 	/**
 	 * Returns the name of the function or class/method which called the current code. Useful for
 	 * debugging.
@@ -40,7 +50,7 @@ class debug {
 	public static function calling_function($depth = 1) {
 		return zesk::calling_function($depth + 1);
 	}
-
+	
 	/**
 	 * Dumps a variable using print_r and surrounds with <pre> tag
 	 *
@@ -63,7 +73,7 @@ class debug {
 			echo nl2br($result . newline());
 		}
 	}
-
+	
 	/**
 	 * Returns what "dump" would print (doesn't echo)
 	 *
@@ -80,7 +90,7 @@ class debug {
 		}
 		return implode("\n", $result);
 	}
-
+	
 	/**
 	 * Internal dump function
 	 *
