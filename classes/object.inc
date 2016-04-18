@@ -2651,7 +2651,10 @@ abstract class Object extends Model {
 			}
 			return $name;
 		}
-		return str_replace("_", "/", strtolower($name));
+		return strtr(strtolower($name), array(
+			"_" => "/",
+			"\\" => "/"
+		));
 	}
 	
 	/**
@@ -3214,5 +3217,16 @@ abstract class Object extends Model {
 	function output($theme_name = null, $options = null, $default = "") {
 		zesk::deprecated();
 		return $this->render($theme_name, $options, $default);
+	}
+	
+	/**
+	 * Name/value pairs used to generate the schema for this object
+	 *
+	 * @return array
+	 */
+	public function schema_map() {
+		return $this->option_array("schema_map") + array(
+			'table' => $this->table()
+		);
 	}
 }
