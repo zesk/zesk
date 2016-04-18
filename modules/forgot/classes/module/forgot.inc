@@ -8,12 +8,22 @@
  * @author kent
  * @copyright &copy; 2014 Market Acumen, Inc.
  */
-class Module_Forgot extends Module implements Module_Interface_Routes {
 
+/**
+ * Forgotten password support
+ * 
+ * @author kent
+ */
+class Module_Forgot extends Module implements Module_Interface_Routes {
+	
+	/**
+	 * 
+	 * @var array
+	 */
 	protected $classes = array(
 		"Forgot"
 	);
-
+	
 	/**
 	 * Implements Module::routes
 	 *
