@@ -8,21 +8,20 @@
  * Created on Fri Apr 02 21:15:05 EDT 2010 21:15:05
  */
 abstract class Controller_Template extends Controller {
-
 	private $auto_render = true;
-
+	
 	/**
 	 * @var Template
 	 */
 	protected $template = null;
-
+	
 	/**
 	 * Template variables to pass
 	 *
 	 * @var array
 	 */
 	protected $variables = array();
-
+	
 	/**
 	 * Create a new Controller_Template
 	 *
@@ -37,7 +36,7 @@ abstract class Controller_Template extends Controller {
 		}
 		$this->auto_render = $this->option_bool('auto_render', $this->auto_render);
 	}
-
+	
 	/**
 	 * Get/set auto render value
 	 *
@@ -55,16 +54,17 @@ abstract class Controller_Template extends Controller {
 		}
 		return $this->auto_render;
 	}
-
+	
 	/**
 	 * (non-PHPdoc)
 	 * @see Controller::json()
 	 */
 	public function json($mixed = null) {
 		$this->auto_render(false);
+		$this->hook("json", $mixed);
 		return parent::json($mixed);
 	}
-
+	
 	/**
 	 * (non-PHPdoc)
 	 * @see Controller::error()
@@ -73,7 +73,7 @@ abstract class Controller_Template extends Controller {
 		$this->auto_render(false);
 		parent::error($code, $message);
 	}
-
+	
 	/**
 	 * (non-PHPdoc)
 	 * @see Controller::before()
@@ -91,7 +91,7 @@ abstract class Controller_Template extends Controller {
 			}
 		}
 	}
-
+	
 	/**
 	 *
 	 * @param string $template
@@ -121,10 +121,10 @@ abstract class Controller_Template extends Controller {
 			}
 			$this->template->push();
 		}
-
+		
 		return $this->template;
 	}
-
+	
 	/**
 	 *
 	 * @param Exception $e
@@ -134,7 +134,7 @@ abstract class Controller_Template extends Controller {
 			$this->template->pop();
 		}
 	}
-
+	
 	/**
 	 * (non-PHPdoc)
 	 * @see Controller::after()
@@ -159,7 +159,7 @@ abstract class Controller_Template extends Controller {
 			}
 		}
 	}
-
+	
 	/**
 	 * (non-PHPdoc)
 	 * @see Controller::variables()
@@ -169,7 +169,7 @@ abstract class Controller_Template extends Controller {
 			'template' => $this->template
 		) + parent::variables() + $this->variables;
 	}
-
+	
 	/**
 	 *
 	 * @param Control $control
@@ -189,8 +189,8 @@ abstract class Controller_Template extends Controller {
 			$this->json(array(
 				'title' => $title,
 				'status' => $status = $control->status(),
-				'result-deprecated' => $status,  // Deprecated
-				'result' => $status,  // Deprecated
+				'result-deprecated' => $status, // Deprecated
+				'result' => $status, // Deprecated
 				'content' => $content,
 				'message' => array_values($control->children_errors())
 			) + $this->response->to_json());
