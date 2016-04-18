@@ -60,7 +60,7 @@ class Database_Query_Select extends Database_Query_Select_Base {
 	 * @var array
 	 */
 	protected $join_objects = array();
-
+	
 	/**
 	 * List of locale-specific conditions for outputting to the user
 	 *
@@ -75,7 +75,6 @@ class Database_Query_Select extends Database_Query_Select_Base {
 	function __construct(Database $db = null) {
 		parent::__construct("SELECT", $db);
 	}
-
 	function __sleep() {
 		return array_merge(parent::__sleep(), array(
 			"what",
@@ -112,7 +111,7 @@ class Database_Query_Select extends Database_Query_Select_Base {
 	public static function factory(Database $db = null) {
 		return new Database_Query_Select($db);
 	}
-
+	
 	/**
 	 * Set as a distinct or non-distinct query
 	 *
@@ -125,7 +124,6 @@ class Database_Query_Select extends Database_Query_Select_Base {
 		}
 		return $this;
 	}
-
 	public function class_alias($class = null) {
 		if ($class === null || $this->class === $class) {
 			return $this->alias;
@@ -133,7 +131,6 @@ class Database_Query_Select extends Database_Query_Select_Base {
 		$result = avalue(arr::flip_multiple($this->join_objects), $class, array());
 		return last($result);
 	}
-
 	function alias($set = null) {
 		if ($set !== null) {
 			$this->alias = $set;
@@ -210,7 +207,7 @@ class Database_Query_Select extends Database_Query_Select_Base {
 		}
 		throw new Exception_Parameter("Unknown parameter passed to Database_Query_Select::what(" . gettype($mixed) . ")");
 	}
-
+	
 	/**
 	 * Select from what
 	 *
@@ -223,7 +220,7 @@ class Database_Query_Select extends Database_Query_Select_Base {
 		$this->alias = $alias;
 		return $this;
 	}
-
+	
 	/**
 	 * Join tables
 	 *
@@ -241,7 +238,7 @@ class Database_Query_Select extends Database_Query_Select_Base {
 		}
 		return $this;
 	}
-
+	
 	/**
 	 * Given a table alias, find the associated class
 	 *
@@ -254,7 +251,7 @@ class Database_Query_Select extends Database_Query_Select_Base {
 		}
 		return avalue($this->join_objects, $alias, null);
 	}
-
+	
 	/**
 	 * Join tables
 	 *
@@ -267,21 +264,43 @@ class Database_Query_Select extends Database_Query_Select_Base {
 		if ($class instanceof Object) {
 			$object = $class;
 			$class = get_class($class);
+		} else {
+			$object = Object::cache_object($class);
 		}
 		if (array_key_exists($alias, $this->join_objects)) {
 			throw new Exception_Semantics(__CLASS__ . "::join_object: Same alias $alias added twice");
 		}
 		$this->join_objects[$alias] = $class;
-
+		
+		$sql = $this->sql();
 		if ($table === null) {
-			$table = $object ? $object->table() : Object::class_table_name($class);
+			$table = $object->table();
 		}
 		if ($alias === null) {
 			$alias = $class;
 		}
-		return $this->join("$join_type JOIN " . $this->sql()->table_as($table, $alias) . " ON " . $this->sql()->where_clause($on, null));
+		if ($object->database_name() !== $this->database_name()) {
+			$cross_db_this = $this->database()->feature(Database::feature_cross_database_queries);
+			$cross_db_object = $object->database()->feature(Database::feature_cross_database_queries);
+			if ($cross_db_this !== true) {
+				throw new Exception_Semantics("Database {name} ({class}) does not support cross-database queries, join is not possible", array(
+					"name" => $this->database_name(),
+					"class" => $this->class
+				));
+			}
+			if ($cross_db_object !== true) {
+				throw new Exception_Semantics("Database {name} ({class}) does not support cross-database queries, join is not possible", array(
+					"name" => $object->database_name(),
+					"class" => get_class($object)
+				));
+			}
+			$table_as = $sql->database_table_as($object->database()->database_name(), $table, $alias);
+		} else {
+			$table_as = $sql->table_as($table, $alias);
+		}
+		return $this->join("$join_type JOIN $table_as ON " . $this->sql()->where_clause($on, null));
 	}
-
+	
 	/**
 	 * Link to another object
 	 *
@@ -315,10 +334,10 @@ class Database_Query_Select extends Database_Query_Select_Base {
 			$mixed['path'] = $path;
 		}
 		return $object->link_walk($this, $mixed);
-
+		
 		//		return Object::cache_object($class)->link($this, $mixed);
 	}
-
+	
 	/**
 	 * Add where clause. Pass in false for $k to reset where to nothing.
 	 *
@@ -341,7 +360,7 @@ class Database_Query_Select extends Database_Query_Select_Base {
 		}
 		return $this;
 	}
-
+	
 	/**
 	 * Set order by clause
 	 *
@@ -355,7 +374,7 @@ class Database_Query_Select extends Database_Query_Select_Base {
 		$this->order_by = $order_by;
 		return $this;
 	}
-
+	
 	/**
 	 * Set group by clause
 	 *
@@ -366,7 +385,7 @@ class Database_Query_Select extends Database_Query_Select_Base {
 		$this->group_by = $group_by;
 		return $this;
 	}
-
+	
 	/**
 	 * Set limit
 	 *
@@ -384,7 +403,7 @@ class Database_Query_Select extends Database_Query_Select_Base {
 		}
 		return $this;
 	}
-
+	
 	/**
 	 * Compile SQL statement
 	 *
@@ -402,7 +421,6 @@ class Database_Query_Select extends Database_Query_Select_Base {
 			'limit' => $this->limit
 		));
 	}
-
 	function condition($add = null, $id = null) {
 		if ($add !== null) {
 			if ($id === null) {
@@ -414,7 +432,7 @@ class Database_Query_Select extends Database_Query_Select_Base {
 		}
 		return $this->conditions;
 	}
-
+	
 	/**
 	 *
 	 * @return string
