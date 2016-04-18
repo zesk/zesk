@@ -10,4 +10,6 @@
 
 $tt = array();
 
+$tt['plural:=day'] = "days";
+
 return $tt;
