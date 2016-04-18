@@ -59,7 +59,7 @@ class json {
 				if (method_exists($mixed, "to_json")) {
 					$mixed = $mixed->to_json();
 				} else if (method_exists($mixed, "__toString")) {
-					$mixed = get_class($mixed) . ":" . strval($mixed);
+					$mixed = strval($mixed);
 				} else {
 					$mixed = get_class($mixed) . ":no-json-method";
 				}
