@@ -1,4 +1,3 @@
-
 <?php
 /**
  * $URL: https://code.marketacumen.com/zesk/trunk/classes/control/edit.inc $
