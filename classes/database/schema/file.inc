@@ -20,7 +20,7 @@ class Database_Schema_File extends Database_Schema {
 	 * @var string
 	 */
 	protected $sql_file_path = null;
-
+	
 	/**
 	 * Raw SQL in file
 	 *
@@ -33,14 +33,14 @@ class Database_Schema_File extends Database_Schema {
 	 * @var Database_Parser
 	 */
 	protected $parser = null;
-
+	
 	/**
 	 * SQL Aftrer map has been applied
 	 *
 	 * @var string
 	 */
 	protected $mapped_sql = null;
-
+	
 	/**
 	 * Create a schema file object for a given Class_Object, optionally specifying a string SQL
 	 * schema.
@@ -48,32 +48,32 @@ class Database_Schema_File extends Database_Schema {
 	 * @param Class_Object $object
 	 * @param string $sql
 	 */
-	function __construct(Class_Object $object, $sql = null) {
-		parent::__construct($object);
+	function __construct(Class_Object $class_object, Object $object = null, $sql = null) {
+		parent::__construct($class_object, $object);
 		if ($sql !== null) {
 			$this->sql = $sql;
-			$this->parser = Database_Parser::parse_factory($object->database(), $this->sql);
+			$this->parser = Database_Parser::parse_factory($class_object->database(), $this->sql);
 			log::debug("Parsing SQL {sql} using {parse_class} for class {class}", array(
 				"sql" => $sql,
 				"parse_class" => get_class($this->parser),
-				"class" => get_class($object)
+				"class" => get_class($class_object)
 			));
 		} else {
 			$path = $this->schema_path();
 			if ($path) {
 				$this->sql_file_path = $path;
 				$this->sql = file_get_contents($path);
-				$this->parser = Database_Parser::parse_factory($object->database(), $this->sql);
+				$this->parser = Database_Parser::parse_factory($class_object->database(), $this->sql);
 				log::debug("Parsing {path} using {parse_class} for class {class}", array(
 					"path" => $path,
 					"parse_class" => get_class($this->parser),
-					"class" => get_class($object)
+					"class" => get_class($class_object)
 				));
 			}
 		}
 		$this->mapped_sql = map($this->sql, $this->schema_map());
 	}
-
+	
 	/**
 	 * Does the file exist on disk?
 	 *
@@ -82,7 +82,7 @@ class Database_Schema_File extends Database_Schema {
 	public function exists() {
 		return $this->schema_path() !== null;
 	}
-
+	
 	/**
 	 * Does this schema have some SQL associated with it?
 	 *
@@ -91,7 +91,7 @@ class Database_Schema_File extends Database_Schema {
 	public function has_sql() {
 		return !empty($this->sql);
 	}
-
+	
 	/**
 	 * Handle finding the SQL file on disk using the autoload path.
 	 *
@@ -114,7 +114,7 @@ class Database_Schema_File extends Database_Schema {
 		}
 		return $result;
 	}
-
+	
 	/**
 	 * Search for the schema file
 	 *
@@ -122,7 +122,7 @@ class Database_Schema_File extends Database_Schema {
 	 */
 	private function _schema_path() {
 		$class_object = $this->class_object;
-
+		
 		foreach (zesk::class_hierarchy($class_object, "Class_Object") as $class_name) {
 			$schema_path = zesk::autoload_search($class_name, array(
 				'sql'
@@ -149,7 +149,7 @@ class Database_Schema_File extends Database_Schema {
 		}
 		return null;
 	}
-
+	
 	/**
 	 * Get file modification time of schema file
 	 *
@@ -162,7 +162,7 @@ class Database_Schema_File extends Database_Schema {
 		}
 		return null;
 	}
-
+	
 	/**
 	 * Retrieve a list of paths where schema files are stored
 	 *
@@ -182,7 +182,7 @@ class Database_Schema_File extends Database_Schema {
 		}
 		return $result;
 	}
-
+	
 	/**
 	 * Convert this schema object into the array-based schema
 	 *
@@ -245,7 +245,7 @@ class Database_Schema_File extends Database_Schema {
 				log::error("Unknown SQL statement ({statement}) found in file {file}: {sql}", $__);
 			}
 		}
-
+		
 		$schema = array();
 		foreach ($tables as $table) {
 			$table_spec = array();
