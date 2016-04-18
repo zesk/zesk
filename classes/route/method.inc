@@ -44,7 +44,7 @@ class Route_Method extends Route {
 			));
 		}
 	}
-
+	
 	/**
 	 * Use parent processing - honors objects {request} {response} etc.
 	 * - this doesn't
@@ -78,7 +78,7 @@ class Route_Method extends Route {
 	protected function _execute(Application $app) {
 		$method = $this->options['method'];
 		$arguments = $this->args;
-
+		
 		$construct_arguments = $this->option_arguments("construct arguments", array());
 		ob_start();
 		try {
@@ -103,8 +103,10 @@ class Route_Method extends Route {
 		if ($app->response->content !== null) {
 			return;
 		}
-		if ($this->option_bool('json')) {
-			$app->response->json($content);
+		if ($this->option_bool('json') || $this->option("content_type") === Response_HTML::content_type_json || $app->response->json()) {
+			if ($content !== null) {
+				$app->response->json($content);
+			}
 			return;
 		}
 		if (!$this->option_bool('no-buffer')) {
