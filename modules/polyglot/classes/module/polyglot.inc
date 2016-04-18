@@ -1,13 +1,28 @@
 <?php
+/**
+ * 
+ */
 use zesk\Locale as Locale;
 
+/**
+ * 
+ * @author kent
+ *
+ */
 class Module_PolyGlot extends Module implements Module_Interface_Routes {
-
+	
+	/**
+	 * 
+	 * @var array
+	 */
 	protected $classes = array(
 		"PolyGlot_Token",
 		"PolyGlot_Update"
 	);
-
+	
+	/**
+	 * @return array
+	 */
 	public function locale_options() {
 		$list = $this->hook_array("locale_options", array(), $this->option_array("locale_options"));
 		$options = array();
@@ -27,7 +42,13 @@ class Module_PolyGlot extends Module implements Module_Interface_Routes {
 		}
 		return __($results);
 	}
-
+	
+	/**
+	 * @see Module::hook_routes
+	 * 
+	 * {@inheritDoc}
+	 * @see Module_Interface_Routes::hook_routes()
+	 */
 	public function hook_routes(Router $router) {
 		$router->add_route("polyglot/update/{dialect}", array(
 			"controller" => "PolyGlot",
@@ -51,7 +72,14 @@ class Module_PolyGlot extends Module implements Module_Interface_Routes {
 			)
 		));
 	}
-
+	
+	/**
+	 * 
+	 * @param string $locale
+	 * @throws Exception_File_NotFound
+	 * @throws Exception_File_Format
+	 * @return array
+	 */
 	public function load_locale($locale = null) {
 		$user = User::instance();
 		$source_file = $this->option("source_file");
@@ -69,7 +97,7 @@ class Module_PolyGlot extends Module implements Module_Interface_Routes {
 		$language = zesk\Locale::language($locale);
 		$dialect = zesk\Locale::dialect($locale);
 		$tokens = PolyGlot_Token::fetch_all($language, $dialect);
-
+		
 		foreach ($table as $original => $translation) {
 			if (array_key_exists($original, $tokens)) {
 				$object = $tokens[$original];
@@ -80,5 +108,4 @@ class Module_PolyGlot extends Module implements Module_Interface_Routes {
 		}
 		return array_values($table);
 	}
-
 }
