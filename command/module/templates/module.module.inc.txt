@@ -1,5 +1,0 @@
-<?php
-
-Module::register_paths();
-
-zesk::register_class('{module_class}');

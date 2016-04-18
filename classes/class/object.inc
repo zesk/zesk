@@ -184,7 +184,7 @@ class Class_Object extends Hookable {
 	public $members = array();
 	
 	/**
-	 * Specify the base polymorphic class here
+	 * Specify the base polymorphic class here, or true if it uses a method
 	 *
 	 * @var string
 	 */
@@ -727,7 +727,7 @@ class Class_Object extends Hookable {
 				}
 			}
 		}
-		if (!empty($this->database_group)) {
+		if (!empty($this->database_group) && $this->database_group !== $this_class) {
 			$this->database_name = $this->database = Object::cache_object($this->database_group)->database_name();
 		} else {
 			if (empty($this->database)) {
@@ -1232,11 +1232,11 @@ class Class_Object extends Hookable {
 	 *        	Optional SQL
 	 * @return Database_Schema
 	 */
-	final private function _database_schema($sql = null) {
+	final private function _database_schema(Object $object = null, $sql = null) {
 		try {
-			return zesk::factory("Schema_" . $this->class, $this);
+			return zesk::factory("Schema_" . $this->class, $this, $object);
 		} catch (Exception_Class_NotFound $e) {
-			$schema = new Database_Schema_File($this, $sql);
+			$schema = new Database_Schema_File($this, $object, $sql);
 			if ($schema->exists() || $schema->has_sql()) {
 				return $schema;
 			}
@@ -1258,7 +1258,7 @@ class Class_Object extends Hookable {
 		if ($result instanceof Database_Schema) {
 			return $result;
 		} else if (is_array($result)) {
-			return $this->_database_schema(implode(";\n", $result));
+			return $this->_database_schema($object, implode(";\n", $result));
 		}
 		if ($result === null) {
 			return $result;
@@ -1272,7 +1272,7 @@ class Class_Object extends Hookable {
 	 * @return Database_Schema
 	 */
 	public function schema(Object $object) {
-		return $this->_database_schema();
+		return $this->_database_schema($object);
 	}
 	
 	/**
@@ -1716,6 +1716,19 @@ class Class_Object extends Hookable {
 			"table" => $table,
 			"name" => $codename,
 			"codename" => $codename
+		);
+	}
+	
+	/**
+	 * Name/value pairs used to generate the schema for this object
+	 * 
+	 * @return array
+	 */
+	public function schema_map() {
+		return $this->option_array("schema_map") + array(
+			'name' => $this->name,
+			'code_name' => $this->code_name,
+			'table' => $this->table
 		);
 	}
 }
