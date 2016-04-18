@@ -5,7 +5,7 @@
  *
  * @author kent
  */
-abstract class Module_JSLib extends Module {
+abstract class Module_JSLib extends Module implements Module_Interface_Head {
 	protected $css_paths = array();
 	
 	/**
@@ -31,7 +31,7 @@ abstract class Module_JSLib extends Module {
 	 */
 	protected $javascript_settings = array();
 	
-	/*
+	/**
 	 * An array of key => value pairs which are set as globals for this module
 	 * and taken from zesk globals.
 	 *
@@ -72,6 +72,7 @@ abstract class Module_JSLib extends Module {
 	 */
 	public function hook_head(Request $request, Response_HTML $response, Template $template) {
 		if (!$this->option_bool("disabled")) {
+			$this->javascript_settings['enabled'] = true;
 			if ($this->javascript_settings_inherit) {
 				foreach ($this->javascript_settings_inherit as $key => $value) {
 					if ($this->has_option($key)) {
@@ -79,6 +80,8 @@ abstract class Module_JSLib extends Module {
 						if ($global !== $value) {
 							$this->javascript_settings[$key] = $global;
 						}
+					} else {
+						$this->javascript_settings[$key] = $value;
 					}
 				}
 			}
