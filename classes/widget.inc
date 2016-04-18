@@ -263,6 +263,15 @@ class Widget extends Hookable {
 			"_" => "/"
 		)));
 	}
+	
+	/**
+	 * @param list|string $theme
+	 * @return Widget
+	 */
+	public function set_theme($theme) {
+		$this->theme = $theme;
+		return $this;
+	}
 	/**
 	 * Set/get title
 	 *
@@ -498,7 +507,6 @@ class Widget extends Hookable {
 	public function object_factory($class, $mixed = null, array $options = array()) {
 		return $this->application->object_factory($class, $mixed, $options);
 	}
-	
 	public function widget_factory($class, $options = null) {
 		$args = func_get_args();
 		$args[0] = $this->application;
@@ -1646,7 +1654,7 @@ class Widget extends Hookable {
 			return $this->exec_state;
 		}
 		if ($object !== null) {
-			$this->object = $object;
+			$this->object($object);
 		}
 		$widget = $this->_exec_ready()->_exec_submit();
 		$content = $widget ? $widget->_exec_render() : null;
@@ -1729,8 +1737,11 @@ class Widget extends Hookable {
 	 * @param string $set        	
 	 * @return Widget string
 	 */
-	function help($set = null) {
-		return $this->_getset_opt('help', $set);
+	function help($set = null, $append = false) {
+		if ($set !== null) {
+			return $this->set_option('help', ($append ? $this->option('help', '') : '') . $set);
+		}
+		return $this->option('help');
 	}
 	
 	/**
@@ -1956,9 +1967,15 @@ class Widget extends Hookable {
 				$this->children_initialize();
 			}
 		}
+		if ($this->has_option("theme_variables")) {
+			$this->theme_variables += $this->option_array("theme_variables");
+		}
 		$this->_initialize = true;
 	}
-	
+	public function set_theme_variables(array $set, $append = true) {
+		$this->theme_variables = $append ? $set : $set + $this->theme_variables;
+		return $this;
+	}
 	/**
 	 * Initialize all of my children, if any
 	 *
