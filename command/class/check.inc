@@ -61,7 +61,7 @@ class Command_Class_Check extends Command_Base {
 				continue;
 			}
 			$schema = $schema->map($schema->schema());
-			$table = avalue($schema, $class_object->table);
+			$table = avalue($schema, $object->table());
 			if (!$table) {
 				$this->error("{class} does not have table ({table}) associated with schema: {tables} {debug}", $error_args + array(
 					"tables" => array_keys($schema),
@@ -102,6 +102,7 @@ class Command_Class_Check extends Command_Base {
 				}
 			}
 		}
+		$this->log("Done");
 	}
 
 	static $guess_names = array(
