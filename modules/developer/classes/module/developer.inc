@@ -1,4 +1,11 @@
 <?php
+
+/**
+ * Add developer tools and expose items based on IP
+ * 
+ * @author kent
+ *
+ */
 class Module_Developer extends Module implements Module_Interface_Routes {
 	public static function test_ip(Application $application) {
 		$ips = zesk::geta('Module_Developer::ip_allow');
@@ -55,10 +62,20 @@ class Module_Developer extends Module implements Module_Interface_Routes {
 			$app->request->path("/developer/forbidden");
 		}
 	}
+	
+	/**
+	 * 
+	 */
 	public static function hooks() {
 		zesk::add_hook("Application::configured", __CLASS__ . '::test_ip');
 		zesk::add_hook("Application::router_prematch", __CLASS__ . '::router_prematch');
 	}
+	
+	/**
+	 * 
+	 * {@inheritDoc}
+	 * @see Module_Interface_Routes::hook_routes()
+	 */
 	public function hook_routes(Router $router) {
 		if (!$this->application->development()) {
 			return;
@@ -77,16 +94,16 @@ class Module_Developer extends Module implements Module_Interface_Routes {
 			) + $extras);
 		}
 		$router->add_route('debug', array(
-			'template' => 'system/debug.tpl'
+			'theme' => 'system/debug'
 		) + $extras);
 		$router->add_route('developer/forbidden', array(
-			'template' => 'developer/forbidden.tpl'
+			'theme' => 'developer/forbidden'
 		) + $extras);
 		$router->add_route('system-status', array(
-			'template' => 'system/status.tpl'
+			'theme' => 'system/status'
 		) + $extras);
 		$router->add_route('routes', array(
-			'template' => 'system/routes.tpl'
+			'theme' => 'system/routes'
 		) + $extras);
 		$router->add_route('ip', array(
 			'method' => 'ip::remote',
@@ -126,10 +143,20 @@ class Module_Developer extends Module implements Module_Interface_Routes {
 			)
 		) + $extras);
 	}
+	
+	/**
+	 * 
+	 * @param Response $response
+	 */
 	public function dump_session(Response $response) {
 		$session = Session::instance();
 		$response->json($session->get());
 	}
+	
+	/**
+	 * 
+	 * @param Request $request
+	 */
 	public function dump_router(Request $request) {
 		$router = $request->router;
 		/* @var $route Route */
@@ -139,6 +166,14 @@ class Module_Developer extends Module implements Module_Interface_Routes {
 			) + $route->option());
 		}
 	}
+	
+	/**
+	 * 
+	 * @param Application $app
+	 * @param Request $request
+	 * @param Response_HTML $response
+	 * @param unknown $arg
+	 */
 	public function schema(Application $app, Request $request, Response_HTML $response, $arg = null) {
 		Database_Schema::debug(true);
 		$db = null;
