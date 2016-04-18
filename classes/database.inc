@@ -16,6 +16,7 @@ abstract class Database extends Hookable {
 	const option_auto_table_names = 'auto_table_names';
 
 	const feature_max_blob_size = "max_blob_size";
+	const feature_cross_database_queries = "cross_database_queries";
 
 	/**
 	 * 
