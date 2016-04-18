@@ -2,7 +2,7 @@
 
 class Controller_Job extends Controller {
 
-	function action_monitor(Job $job) {
+	function action_monitor(zesk\Job $job) {
 		$result = array(
 			'id' => $job->id(),
 			'message' => $job->status
