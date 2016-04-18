@@ -16,10 +16,10 @@ CREATE TABLE `{table}` (
 	`latitude` decimal(10,6) null,
 	`longitude` decimal(10,6) null,
 	`geocoded` timestamp NULL,
-	`geocode_data` text,
+	`geocode_data` blob,
 	`created` timestamp not null default 0,
 	`modified` timestamp not null default 0,
-	`data` text,
+	`data` blob,
 	PRIMARY KEY  (`id`)
 );
 
