@@ -63,7 +63,7 @@ abstract class Module extends Hookable {
 	 *
 	 * @param string $options
 	 */
-	public function __construct(Application $application, $options = null, array $module_data = array()) {
+	public final function __construct(Application $application, $options = null, array $module_data = array()) {
 		parent::__construct($options);
 		$this->application = $application;
 		$this->application_class = get_class($application);
@@ -71,7 +71,7 @@ abstract class Module extends Hookable {
 		$this->path = avalue($module_data, 'path');
 		if (!$this->codename) {
 			// Code name used in JavaScript settings
-			$this->codename = strtolower(str::unprefix(get_class($this), "Module_"));
+			$this->codename = strtolower(str::unprefix(get_class($this), __CLASS__ . "_"));
 		}
 	}
 	
@@ -299,7 +299,7 @@ abstract class Module extends Hookable {
 	 * @param string $module
 	 * @return string
 	 */
-	public static function clean_name($module) {
+	public final static function clean_name($module) {
 		return Modules::clean_name($module);
 	}
 }
