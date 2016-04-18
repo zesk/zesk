@@ -28,7 +28,7 @@ class View_Box extends View {
 		);
 		$attrs = array_merge($attrs, $this->options_include("title;content;width;align;box_align;class;style;radius"));
 		$attrs['box_style'] = $style = $this->option("box_style", "metal");
-		$t = new Template($this->option("template", "widgets/box/$style/Box.tpl"), $attrs);
+		$t = new Template($this->application, $this->option("template", "widgets/box/$style/Box.tpl"), $attrs);
 		return $this->render_finish($t->render());
 	}
 
