@@ -1220,3 +1220,12 @@ function _zesk_global_key($key) {
 	return $key;
 }
 
+/**
+ * Normalize a zesk global key
+ * 
+ * @param string $key
+ * @return string
+ */
+function zesk_global_key_normalize($key) {
+	return implode(ZESK_GLOBAL_KEY_SEPARATOR, _zesk_global_key($key));
+}
