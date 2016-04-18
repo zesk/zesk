@@ -877,6 +877,8 @@ PRIVILEGES;";
 		switch ($feature) {
 			case self::feature_max_blob_size:
 				return to_integer($this->_variable('max_allowed_packet', $set === null ? null : intval($set)), null);
+			case self::feature_cross_database_queries:
+				return true;
 		}
 		throw new Exception_NotFound("Feature {feature} not available in database {name}", array(
 			"feature" => $feature,
