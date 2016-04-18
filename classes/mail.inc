@@ -474,10 +474,16 @@ class Mail extends Hookable {
 		# Common Headers
 		$headers = arr::filter($mail_options, "From;To;Reply-To;Return-Path;Cc;Bcc;Return-Receipt-To;Subject");
 		if (!array_key_exists("From", $headers)) {
-			throw new Exception("Need to have a From header");
+			throw new Zesk_Exception("Need to have a From header: {keys} {debug}", array(
+				"keys" => array_keys($headers),
+				"debug" => _dump($mail_options)
+			));
 		}
 		if (!array_key_exists("To", $headers)) {
-			throw new Exception("Need to have a To header");
+			throw new Zesk_Exception("Need to have a To header: {keys} <pre>{debug}</pre>", array(
+				"keys" => array_keys($headers),
+				"debug" => _dump($mail_options)
+					));
 		}
 		// KMD: 2015-11-05 Removed
 		//	 "Return-Receipt-To"
@@ -569,9 +575,9 @@ class Mail extends Hookable {
 	
 	/**
 	 * Render an email using a theme
- 	 *
- 	 * @todo Probably should split $theme_variables and $map_variables, eh? 2016-03-10
- 	 * 	 
+	 *
+	 * @todo Probably should split $theme_variables and $map_variables, eh? 2016-03-10
+	 * 	 
 	 * @param Application $application
 	 * @param unknown $theme
 	 * @param unknown $variables
