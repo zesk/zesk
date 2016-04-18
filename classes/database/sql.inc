@@ -1,12 +1,12 @@
 <?php
 abstract class Database_SQL extends Hookable {
-
+	
 	/**
 	 *
 	 * @var Database
 	 */
 	protected $database = null;
-
+	
 	/**
 	 *
 	 * @param Database $database
@@ -14,7 +14,7 @@ abstract class Database_SQL extends Hookable {
 	public function __construct(Database $database) {
 		$this->database = $database;
 	}
-
+	
 	/**
 	 * Return a SQL statement to alter a table by adding a column
 	 *
@@ -31,7 +31,7 @@ abstract class Database_SQL extends Hookable {
 		$sqlType = $c->sqlType();
 		return "ALTER TABLE $table ADD COLUMN $column $sqlType";
 	}
-
+	
 	/**
 	 * SQL to add an index to a table
 	 *
@@ -45,7 +45,7 @@ abstract class Database_SQL extends Hookable {
 	 * @return string|array
 	 */
 	abstract function alter_table_index_add(Database_Table $table, Database_Index $index);
-
+	
 	/**
 	 * Generate SQL to modify table attributes
 	 * @param Database_Table $table
@@ -53,7 +53,7 @@ abstract class Database_SQL extends Hookable {
 	 * @return string|array
 	 */
 	abstract function alter_table_attributes(Database_Table $table, array $attributes);
-
+	
 	/**
 	 * Return a SQL statement to change a table's column to another type
 	 *
@@ -68,7 +68,7 @@ abstract class Database_SQL extends Hookable {
 	 * @return string SQL statement to alter a table's definition
 	 */
 	abstract public function alter_table_change_column(Database_Table $table, Database_Column $old_column, Database_Column $new_column);
-
+	
 	/**
 	 * Return a SQL statement to remove a table's column
 	 *
@@ -83,7 +83,7 @@ abstract class Database_SQL extends Hookable {
 	public function alter_table_column_drop(Database_Table $table, $column) {
 		return "ALTER TABLE $table DROP COLUMN $column";
 	}
-
+	
 	/**
 	 * SQL to drop an index from a table
 	 *
@@ -93,9 +93,8 @@ abstract class Database_SQL extends Hookable {
 	 * @param string $indexType
 	 */
 	abstract public function alter_table_index_drop(Database_Table $table, Database_Index $index);
-
 	abstract function alter_table_type($table, $type);
-
+	
 	/*====================================================================================================================================*/
 	/**
 	 * Return a SQL statement to create a table from the Database_Table object
@@ -104,7 +103,7 @@ abstract class Database_SQL extends Hookable {
 	 * @return array SQL statements to "CREATE TABLE" and any related objects
 	 */
 	abstract public function create_table(Database_Table $dbTableObject);
-
+	
 	/*====================================================================================================================================*/
 	/**
 	 * Return a SQL statement to create a table from the Database_Table object
@@ -113,7 +112,7 @@ abstract class Database_SQL extends Hookable {
 	 * @return array SQL statement to "DROP TABLE" and any related objects
 	 */
 	abstract public function drop_table($mixed);
-
+	
 	/**
 	 * Return SQL for function acting on memberName, optionally referenced as alias
 	 *
@@ -122,7 +121,7 @@ abstract class Database_SQL extends Hookable {
 	 * @param string $alias
 	 */
 	abstract function sql_function($func, $memberName, $alias = "");
-
+	
 	/**
 	 * Remove comments from SQL
 	 *
@@ -130,7 +129,7 @@ abstract class Database_SQL extends Hookable {
 	 * @return string
 	 */
 	abstract public function remove_comments($sql);
-
+	
 	/**
 	 * Compatible
 	 *
@@ -140,9 +139,8 @@ abstract class Database_SQL extends Hookable {
 	public function function_ip2long($value) {
 		return ip2long($value);
 	}
-
 	abstract public function index_type($table, $index, $type, array $column_sizes);
-
+	
 	/**
 	 * Does a case-sensitive comparison (where comparison)
 	 *
@@ -155,7 +153,7 @@ abstract class Database_SQL extends Hookable {
 	 *        	What you're comparing. This will be quoted in the resulting expression.
 	 */
 	abstract public function function_compare_binary($column_name, $cmp, $string);
-
+	
 	/**
 	 * Does a case-sensitive comparison (where comparison)
 	 *
@@ -168,21 +166,21 @@ abstract class Database_SQL extends Hookable {
 	 *        	What you're comparing. This will be quoted in the resulting expression.
 	 */
 	abstract public function function_date_diff($date_a, $date_b);
-
+	
 	/**
 	 * The SQL function to generate the current time in the current time zone
 	 *
 	 * @return string A SQL command for this database
 	 */
 	abstract public function now();
-
+	
 	/**
 	 * The SQL function to generate the current time in the UTC time zone
 	 *
 	 * @return string A SQL command for this database
 	 */
 	abstract public function now_utc();
-
+	
 	/**
 	 * Enter description here...
 	 *
@@ -191,21 +189,21 @@ abstract class Database_SQL extends Hookable {
 	 * @param unknown_type $unit
 	 */
 	abstract public function function_date_add($target, $number, $unit = "second");
-
+	
 	/**
 	 * Absolute value of a number
 	 *
 	 * @param string $target
 	 */
 	abstract public function function_abs($target);
-
+	
 	/**
 	 * Absolute value of a number
 	 *
 	 * @param string $target
 	 */
 	abstract public function function_average($target);
-
+	
 	/**
 	 * Convert to/from Hex
 	 *
@@ -213,7 +211,7 @@ abstract class Database_SQL extends Hookable {
 	 */
 	abstract public function function_hex($target);
 	abstract public function function_unhex($target);
-
+	
 	/**
 	 * Enter description here...
 	 *
@@ -222,7 +220,7 @@ abstract class Database_SQL extends Hookable {
 	 * @param unknown_type $unit
 	 */
 	abstract public function function_date_subtract($target, $number, $unit = "second");
-
+	
 	/*
 	 * Platform SQL functions
 	 */
@@ -239,7 +237,22 @@ abstract class Database_SQL extends Hookable {
 		}
 		return $this->quote_table($table) . " AS " . $this->quote_table($name);
 	}
-
+	
+	/**
+	 * Enter description here...
+	 *
+	 * @param unknown_type $table
+	 * @param unknown_type $name
+	 * @return unknown
+	 */
+	function database_table_as($database, $table, $name = "") {
+		$result = $this->quote_table($database) . "." . $this->quote_table($table);
+		if (empty($name)) {
+			return $result;
+		}
+		return $result . " AS " . $this->quote_table($name);
+	}
+	
 	/**
 	 * Enter description here...
 	 *
@@ -257,7 +270,7 @@ abstract class Database_SQL extends Hookable {
 		$column = $column === '*' ? $column : $this->quote_column($column);
 		return empty($alias) ? $column : $this->quote_column($alias) . "." . $column;
 	}
-
+	
 	/**
 	 * Enter description here...
 	 *
@@ -275,7 +288,7 @@ abstract class Database_SQL extends Hookable {
 		$column = $this->quote_column($column);
 		return $column . (empty($alias) ? "" : " AS " . $this->quote_column($alias));
 	}
-
+	
 	/**
 	 *
 	 * @param array $tables
@@ -297,7 +310,7 @@ abstract class Database_SQL extends Hookable {
 	 * @param string $name
 	 */
 	abstract function quote_table($name);
-
+	
 	/**
 	 *
 	 * @return string
@@ -310,7 +323,7 @@ abstract class Database_SQL extends Hookable {
 	 * @param string|array $name
 	 */
 	abstract function quote_column($name);
-
+	
 	/**
 	 * Reverses, exactly, quote_column
 	 *
@@ -318,14 +331,14 @@ abstract class Database_SQL extends Hookable {
 	 * @return string
 	 */
 	abstract function unquote_column($name);
-
+	
 	/**
 	 *
 	 * @param string $name
 	 * @return string
 	 */
 	abstract function unquote_table($name);
-
+	
 	/**
 	 *
 	 * @param unknown $key
@@ -349,7 +362,7 @@ abstract class Database_SQL extends Hookable {
 			$conjunction === "AND" ? "OR" : "AND"
 		);
 	}
-
+	
 	/**
 	 * Prefix a where clause with the WHERE keyword, if there is one.
 	 * If not, return the blank string.
@@ -365,7 +378,7 @@ abstract class Database_SQL extends Hookable {
 		}
 		return " WHERE $sql ";
 	}
-
+	
 	/**
 	 * Where clause generation.
 	 * Does not include the "WHERE" string, just
@@ -426,7 +439,7 @@ abstract class Database_SQL extends Hookable {
 		}
 		return implode(" " . trim($conj) . " ", $result) . ($suffix ? " $suffix " : "");
 	}
-
+	
 	/**
 	 * Where clause generation
 	 *
@@ -439,7 +452,7 @@ abstract class Database_SQL extends Hookable {
 	public function where($where, $conj = null, $prefix = "") {
 		return $this->where_prefix($this->where_clause($where, $conj, $prefix));
 	}
-
+	
 	/**
 	 * Join clause
 	 *
@@ -452,7 +465,7 @@ abstract class Database_SQL extends Hookable {
 		}
 		return "\n" . implode("\n", $joins) . "\n";
 	}
-
+	
 	/**
 	 * Compute what clause
 	 *
@@ -480,7 +493,7 @@ abstract class Database_SQL extends Hookable {
 		$distinct = ($distinct ? "DISTINCT " : "");
 		return $distinct . strval($what);
 	}
-
+	
 	/**
 	 * Update SQL
 	 *
@@ -518,7 +531,7 @@ abstract class Database_SQL extends Hookable {
 		$sql .= implode(",\n\t", $iname) . "{values suffix}\t{where prefix}" . $this->where($where) . "{where suffix}{suffix}";
 		return trim(map($sql, $options));
 	}
-
+	
 	/**
 	 * Select query
 	 *
@@ -550,7 +563,7 @@ abstract class Database_SQL extends Hookable {
 		$sql = "SELECT " . $this->what($what, $distinct) . " FROM " . $sql_tables . $where . $this->group_by($group_by) . self::order_by($order_by) . $this->limit($offset, $limit);
 		return trim($sql);
 	}
-
+	
 	/**
 	 * Generic INSERT formatting code
 	 *
@@ -571,7 +584,7 @@ abstract class Database_SQL extends Hookable {
 		$sql = "$verb $low_priority INTO " . $this->quote_table($table) . " (\n\t`" . implode("`,\n\t`", $iname) . "`\n) VALUES (\n\t" . implode(",\n\t", $ivalue) . "\n)";
 		return $sql;
 	}
-
+	
 	/**
 	 * INSERT INTO table SELECT foo .
 	 *
@@ -589,7 +602,7 @@ abstract class Database_SQL extends Hookable {
 		$sql = "$verb $low_priority INTO " . $this->quote_table($table) . " (\n\t`" . implode("`,\n\t`", $iname) . "`\n) $select";
 		return $sql;
 	}
-
+	
 	/**
 	 * DELETE FROM table
 	 *
@@ -601,7 +614,7 @@ abstract class Database_SQL extends Hookable {
 		extract($options, EXTR_IF_EXISTS);
 		return "DELETE FROM " . $this->quote_table($table) . $this->where($where);
 	}
-
+	
 	/**
 	 * Convert pair to insert name/value pair
 	 *
@@ -625,7 +638,7 @@ abstract class Database_SQL extends Hookable {
 			$ivalue
 		);
 	}
-
+	
 	/**
 	 *
 	 * @param unknown $s
@@ -641,7 +654,7 @@ abstract class Database_SQL extends Hookable {
 		}
 		return " GROUP BY $s";
 	}
-
+	
 	/**
 	 * ORDER BY clause
 	 *
@@ -677,7 +690,7 @@ abstract class Database_SQL extends Hookable {
 		}
 		return " ORDER BY " . implode(", ", $r);
 	}
-
+	
 	/**
 	 * LIMIT clause.
 	 * For MySQL - others?
@@ -699,7 +712,7 @@ abstract class Database_SQL extends Hookable {
 			return " LIMIT $offset,$limit";
 		}
 	}
-
+	
 	/**
 	 * Convert name value pair to SQL, either as a comparison clause, or
 	 *
@@ -731,7 +744,7 @@ abstract class Database_SQL extends Hookable {
 			return $this->quote_column($k) . " $cmp " . $this->mixed_to_sql($v);
 		}
 	}
-
+	
 	/**
 	 * Convert a value to a SQL value
 	 *
