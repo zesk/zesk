@@ -241,6 +241,9 @@ class Control_List extends Control_Widgets_Filter {
 		$this->row_widget = $row_widget = new Control_Row();
 		$row_widget->names($this->name() . '_row');
 		$row_widget->children($this->row_widgets = $this->hook_array('widgets', array(), array()));
+		$row_widget->row_tag($this->row_tag);
+		$row_widget->row_attributes($this->row_attributes);
+		$row_widget->set_theme($this->theme_row);
 		$this->child($row_widget);
 
 		$this->hook("row_widget", $this->row_widget);
