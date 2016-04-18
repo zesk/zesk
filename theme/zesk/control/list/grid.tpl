@@ -1,5 +1,4 @@
 <?php
-echo html::div_open('.row .odd-' . $this->odd);
 foreach ($this->widgets as $widget) {
 	/* @var $widget Widget */
 	if (!$widget->is_visible()) {
@@ -15,4 +14,3 @@ foreach ($this->widgets as $widget) {
 	$attributes = $this->object->apply_map($attributes); // TODO perhaps add a flag to avoid doing this when not needed??
 	echo html::tag('div', $attributes, strval($widget->execute($this->object, true)));
 }
-echo html::div_close();
