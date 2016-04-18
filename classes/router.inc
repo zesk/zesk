@@ -163,7 +163,7 @@ class Router extends Hookable {
 			$this,
 			'hook_url'
 		), 'first');
-		Module::all_hook("routes", $this);
+		$application->module->all_hook("routes", $this);
 	}
 	public function hook_url(Model_URL $url) {
 		if ($url->_router) {
