@@ -1,5 +1,5 @@
 /*
- * $Id: zesk.js 3667 2016-03-02 19:16:28Z kent $
+ * $Id: zesk.js 3735 2016-03-23 22:02:52Z kent $
  *
  * Copyright (C) 2007 Market Acumen, Inc. All rights reserved
  */
@@ -8,15 +8,22 @@
 (function(exports, $) {
 	"use strict";
 	var zesk = exports.zesk || {
-		inited : false
-	}, hooks = {}, html, X = exports, d = X.document, L = X.location, _escape_map = {
-	    "&" : "&amp;",
-	    "<" : "&lt;",
-	    ">" : "&gt;",
-	    "\"" : "&quot;",
-	    "`" : "&#96;",
-	    "'" : "&#x27"
-	}, _escape_map_flip;
+		inited: false
+	};
+	var hooks = {};
+	var html;
+	var X = exports;
+	var d = X.document;
+	var L = X.location;
+	var _escape_map = {
+	    "&": "&amp;",
+	    "<": "&lt;",
+	    ">": "&gt;",
+	    "\"": "&quot;",
+	    "`": "&#96;",
+	    "'": "&#x27"
+	};
+	var _escape_map_flip;
 
 	if (zesk.inited) {
 		return;
@@ -87,25 +94,25 @@
 	X.html = html = {};
 	_escape_map_flip = flip(_escape_map);
 	$.extend(html, {
-	    specials : function(html) {
+	    specials: function(html) {
 		    return $("<textarea />").text(html).html();
 	    },
-	    escape : function(text) {
+	    escape: function(text) {
 		    return String(text).tr(_escape_map);
 	    },
-	    unescape : function(text) {
+	    unescape: function(text) {
 		    return String(text).tr(_escape_map_flip);
 	    },
-	    encode : function(text) {
+	    encode: function(text) {
 		    var result = document.createElement('a').appendChild(document.createTextNode(text)).parentNode.innerHTML;
 		    return result.str_replace('"', '&quot;');
 	    },
-	    decode : function(html) {
+	    decode: function(html) {
 		    var a = document.createElement('a');
 		    a.innerHTML = html;
 		    return a.textContent;
 	    },
-	    to_attributes : function(mixed) {
+	    to_attributes: function(mixed) {
 		    var obj = {};
 		    if (!is_string(mixed) || mixed.length === 0) {
 			    return arguments[1] || null;
@@ -127,7 +134,7 @@
 		    });
 		    return obj;
 	    },
-	    attributes : function(attributes) {
+	    attributes: function(attributes) {
 		    var a, r = [];
 		    if (!attributes) {
 			    return "";
@@ -146,7 +153,7 @@
 		    }
 		    return " " + r.join(" ");
 	    },
-	    tag : function(name, mixed) {
+	    tag: function(name, mixed) {
 		    var attributes, content, args = arguments;
 		    if (is_object(mixed)) {
 			    attributes = mixed;
@@ -161,7 +168,7 @@
 		    name = name.toLowerCase();
 		    return "<" + name + " " + html.attributes(attributes) + (content === null ? " />" : ">" + content + "</" + name + ">");
 	    },
-	    tags : function(name, mixed) {
+	    tags: function(name, mixed) {
 		    var attributes, content, args = arguments, result = "";
 		    if (is_object(mixed)) {
 			    attributes = mixed;
@@ -220,6 +227,7 @@
 	X.object_set_path = object_set_path;
 
 	function hook_path(hook) {
+		hook = String(hook).toLowerCase();
 		hook = to_list(hook, [], "::");
 		if (hook.length === 1) {
 			hook.push("*");
@@ -228,20 +236,20 @@
 	}
 
 	X.zesk = zesk = {
-	    d : d,
-	    settings : {}, // Place module data here!
-	    hooks : {}, // Module hooks go here - use add_hook and hook to use
-	    w : exports,
-	    url_parts : {
-	        path : L.pathname,
-	        host : L.host,
-	        query : L.search,
-	        scheme : L.protocol,
-	        url : document.URL,
-	        uri : L.pathname + L.search
+	    d: d,
+	    settings: {}, // Place module data here!
+	    hooks: hooks, // Module hooks go here - use add_hook and hook to use
+	    w: exports,
+	    url_parts: {
+	        path: L.pathname,
+	        host: L.host,
+	        query: L.search,
+	        scheme: L.protocol,
+	        url: document.URL,
+	        uri: L.pathname + L.search
 	    },
-	    page_scripts : null,
-	    query_get : function(v, def) {
+	    page_scripts: null,
+	    query_get: function(v, def) {
 		    def = def || null;
 		    var pair, i, u = d.URL.toString().right("?", null);
 		    if (!u) {
@@ -256,32 +264,32 @@
 		    }
 		    return def;
 	    },
-	    css : function(p) {
+	    css: function(p) {
 		    var css = d.createElement('link');
 		    css.rel = "stylesheet";
 		    css.href = p;
 		    css.media = arguments[1] || "all";
 		    d.getElementsByTagName('head')[0].appendChild(css);
 	    },
-	    log : function() {
+	    log: function() {
 		    if (exports.console && exports.console.log) {
 			    exports.console.log(arguments);
 		    }
 	    },
-	    add_hook : function(hook, fun) {
+	    add_hook: function(hook, fun) {
 		    var path = hook_path(hook), curr = object_path(hooks, path);
 		    if (curr) {
 			    curr.push(fun);
 		    } else {
-			    curr = [ fun ];
+			    curr = [fun];
 			    object_set_path(hooks, path, curr);
 		    }
 	    },
-	    has_hook : function(hook) {
+	    has_hook: function(hook) {
 		    var funcs = object_path(hooks, hook_path(hook), null);
 		    return funcs ? true : false;
 	    },
-	    hook : function(hook) {
+	    hook: function(hook) {
 		    var path = hook_path(hook), args = X.clone(arguments), funcs = object_path(hooks, path, null), results = [], i;
 		    if (!funcs) {
 			    return results;
@@ -297,21 +305,21 @@
 		    }
 		    return results;
 	    },
-	    get_path : function(path, def) {
+	    get_path: function(path, def) {
 		    return object_path(X.zesk.settings, path, def);
 	    },
-	    set_path : function(path, value) {
+	    set_path: function(path, value) {
 		    return object_set_path(X.zesk.settings, path, value);
 	    },
-	    get : function(n) {
+	    get: function(n) {
 		    var a = arguments;
 		    return avalue(X.zesk.settings, n, a.length > 1 ? a[1] : null);
 	    },
-	    getb : function(n) {
+	    getb: function(n) {
 		    var a = arguments, d = a.length > 1 ? a[1] : false;
 		    return to_bool(zesk.get(n, d));
 	    },
-	    set : function(n, v) {
+	    set: function(n, v) {
 		    var a = arguments, overwrite = a.length > 2 ? to_bool(a[2]) : true;
 		    if (!overwrite && typeof X.zesk.settings[n] !== 'undefined') {
 			    return X.zesk.settings[n];
@@ -319,7 +327,7 @@
 		    X.zesk.settings[n] = v;
 		    return v;
 	    },
-	    inherit : function(the_class, super_class, prototype) {
+	    inherit: function(the_class, super_class, prototype) {
 		    // http://stackoverflow.com/questions/1114024/constructors-in-javascript-objects
 		    var method, Construct = function() {
 		    };
@@ -353,7 +361,7 @@
 		 *            term_false Set to true to terminate when function returns
 		 *            a false-ish value as opposed to a true-ish value
 		 */
-	    each : function(x, fn, term_false) {
+	    each: function(x, fn, term_false) {
 		    var i, r;
 		    term_false = to_bool(term_false);
 		    if (is_array(x)) {
@@ -384,10 +392,10 @@
 			    return fn.call(x, 0, x);
 		    }
 	    },
-	    tpl : function(mixed, map) {
+	    tpl: function(mixed, map) {
 		    return $(mixed).html().map(map, false);
 	    },
-	    script_src_normalize : function(src) {
+	    script_src_normalize: function(src) {
 		    var matches, parts = zesk.url_parts;
 		    src = src.unprefix(parts.scheme + '://' + parts.host);
 		    if ((matches = src.match(/(.*)\?_ver=[0-9]+$/)) !== null) {
@@ -395,50 +403,51 @@
 		    }
 		    return src;
 	    },
-	    scripts_init : function() {
+	    scripts_init: function() {
 		    zesk.page_scripts = {};
 		    $('script[type="text/javascript"][src]').each(function() {
 			    zesk.script_add($(this).attr('src'));
 		    });
 
 	    },
-	    script_add : function(src) {
+	    script_add: function(src) {
 		    if (zesk.page_scripts === null) {
 			    zesk.scripts_init();
 		    }
 		    zesk.page_scripts[src] = true;
 		    zesk.page_scripts[zesk.script_src_normalize(src)] = true;
 	    },
-	    scripts : function() {
+	    scripts: function() {
 		    if (zesk.page_scripts === null) {
 			    zesk.scripts_init();
 		    }
 		    return zesk.page_scripts;
 	    },
-	    scripts_cached : function(srcs) {
+	    scripts_cached: function(srcs) {
 		    zesk.each(srcs, function() {
 			    zesk.script_add(this);
 		    });
 	    },
-	    script_loaded : function(src) {
+	    script_loaded: function(src) {
 		    var scripts = zesk.scripts(), result = scripts[src] || scripts[zesk.script_src_normalize(src)] || false;
-		    //zesk.log("zesk.script_loaded(" + src + ") = " + (result ? "true" : "false"));
+		    // zesk.log("zesk.script_loaded(" + src + ") = " + (result ? "true":
+		    // "false"));
 		    return result;
 	    },
-	    stylesheet_loaded : function(href, media) {
+	    stylesheet_loaded: function(href, media) {
 		    return $('link[rel="stylesheet"][href="' + href + '"][media="' + media + '"').length > 0;
 	    },
-	    message : function(message, options) {
+	    message: function(message, options) {
 		    options = is_string(options) ? {
-			    level : options
+			    level: options
 		    } : options;
 		    zesk.hook('message', message, options);
 		    zesk.log(message, options);
 	    },
-	    regexp_quote : function(str, delimiter) {
+	    regexp_quote: function(str, delimiter) {
 		    return String(str).replace(new RegExp('[.\\\\+*?\\[\\^\\]$(){}=!<>|:\\' + (delimiter || '') + '-]', 'g'), '\\$&');
 	    },
-	    handle_json : function(data) {
+	    handle_json: function(data) {
 		    var total = 0, success = function() {
 			    --total;
 			    if (total === 0) {
@@ -457,8 +466,8 @@
 			    success();
 		    };
 		    $.each({
-		        'head' : data.head_tags || [],
-		        'body' : data.body_tags || []
+		        'head': data.head_tags || [],
+		        'body': data.body_tags || []
 		    }, function(append) {
 			    var tags = this;
 			    $.each(tags, function() {
@@ -485,11 +494,11 @@
 					    total++;
 					    zesk.page_scripts[this] = this;
 					    $.ajax({
-					        url : this,
-					        dataType : 'script',
-					        success : success,
-					        error : error,
-					        async : false
+					        url: this,
+					        dataType: 'script',
+					        success: success,
+					        error: error,
+					        async: false
 					    });
 				    }
 			    });
@@ -564,7 +573,7 @@
 	X.each = zesk.each;
 
 	$.extend(Array.prototype, {
-	    contains : function(x) {
+	    contains: function(x) {
 		    for (var i = 0; i < this.length; i++) {
 			    if (this[i] === x) {
 				    return true;
@@ -572,40 +581,54 @@
 		    }
 		    return false;
 	    },
-	    remove : function(x) {
+	    remove: function(x) {
 		    var temp = this.slice(0);
 		    temp.splice(x, 1);
 		    return temp;
+	    },
+	    /**
+		 * Join elements of an array by wrapping each one with a prefix/suffix
+		 * 
+		 * @param string
+		 *            prefix
+		 * @param string
+		 *            suffix
+		 * @return string
+		 */
+	    join_wrap: function(prefix, suffix) {
+		    prefix = String(prefix) || "";
+		    suffix = String(suffix) || "";
+		    return prefix + this.join(suffix + prefix) + suffix;
 	    }
 	});
 
 	$.extend(String.prototype, {
-	    compare : function(a) {
+	    compare: function(a) {
 		    return (this < a) ? -1 : (this === a) ? 0 : 1;
 	    },
-	    left : function(delim, def) {
+	    left: function(delim, def) {
 		    var pos = this.indexOf(delim);
 		    return (pos < 0) ? avalue(arguments, 1, def || this) : this.substr(0, pos);
 	    },
-	    rleft : function(delim, def) {
+	    rleft: function(delim, def) {
 		    var pos = this.lastIndexOf(delim);
 		    return (pos < 0) ? avalue(arguments, 1, def || this) : this.substr(0, pos);
 	    },
-	    right : function(delim, def) {
+	    right: function(delim, def) {
 		    var pos = this.indexOf(delim);
 		    return (pos < 0) ? avalue(arguments, 1, def || this) : this.substr(pos + delim.length);
 	    },
-	    rright : function(delim, def) {
+	    rright: function(delim, def) {
 		    var pos = this.lastIndexOf(delim);
 		    return (pos < 0) ? avalue(arguments, 1, def || this) : this.substr(pos + delim.length);
 	    },
-	    ltrim : function() {
+	    ltrim: function() {
 		    return this.replace(/^\s+/, '');
 	    },
-	    rtrim : function() {
+	    rtrim: function() {
 		    return this.replace(/\s+$/, '');
 	    },
-	    trim : function() {
+	    trim: function() {
 		    return this.replace(/^\s+/, '').replace(/\s+$/, '');
 	    },
 	    /**
@@ -613,31 +636,31 @@
 		 * @param x
 		 *            String to look at
 		 */
-	    ends_with : function(x) {
+	    ends_with: function(x) {
 		    return this.ends(x);
 	    },
-	    ends : function(x) {
+	    ends: function(x) {
 		    var xn = x.length, n = this.length;
 		    if (xn > n) {
 			    return false;
 		    }
 		    return this.substring(n - xn, n) === x;
 	    },
-	    beginsi : function(string) {
+	    beginsi: function(string) {
 		    var len = string.length;
 		    if (len > this.length) {
 			    return false;
 		    }
 		    return this.substr(0, len).toLowerCase() === string.toLowerCase();
 	    },
-	    begins : function(string) {
+	    begins: function(string) {
 		    var len = string.length;
 		    if (len > this.length) {
 			    return false;
 		    }
 		    return this.substr(0, len) === string;
 	    },
-	    str_replace : function(s, r) {
+	    str_replace: function(s, r) {
 		    var str = this;
 		    var i;
 		    if (is_string(s)) {
@@ -661,14 +684,14 @@
 		    }
 		    return str;
 	    },
-	    tr : function(object) {
+	    tr: function(object) {
 		    var k, self = this;
 		    for (k in object) {
 			    self = self.str_replace(k, object[k]);
 		    }
 		    return self;
 	    },
-	    map : function(object, case_insensitive) {
+	    map: function(object, case_insensitive) {
 		    var k, suffix = "", self;
 		    case_insensitive = !!case_insensitive; // Convert to bool
 		    if (!is_object(object)) {
@@ -687,14 +710,14 @@
 		    }
 		    return self;
 	    },
-	    to_array : function() {
+	    to_array: function() {
 		    var i, r = [];
 		    for (i = 0; i < this.length; i++) {
 			    r.push(this.charAt(i));
 		    }
 		    return r;
 	    },
-	    unquote : function() {
+	    unquote: function() {
 		    var n = this.length;
 		    var q = arguments[0] || '""\'\'';
 		    var p = q.indexOf(this.substring(0, 1));
@@ -706,19 +729,19 @@
 		    }
 		    return this;
 	    },
-	    toCamelCase : function() {
+	    toCamelCase: function() {
 		    var result = "";
 		    zesk.each(this.split("_"), function() {
 			    result += this.substr(0, 1).toUpperCase() + this.substr(1).toLowerCase();
 		    });
 		    return result;
 	    },
-	    fromCamelCase : function() {
+	    fromCamelCase: function() {
 		    return this.replace(/[A-Z]/g, function(v) {
 			    return "_" + v.toLowerCase();
 		    });
 	    },
-	    unprefix : function(string, def) {
+	    unprefix: function(string, def) {
 		    if (this.begins(string)) {
 			    return this.substr(string.length);
 		    }
@@ -726,7 +749,7 @@
 	    }
 	});
 	$.extend(String.prototype, {
-		ends : String.prototype.ends_with
+		ends: String.prototype.ends_with
 	});
 
 	X.to_integer = function(x) {
@@ -774,10 +797,10 @@
 			return (x !== 0);
 		}
 		if (is_string(x)) {
-			if ([ 't', 'true', '1', 'enabled', 'y', 'yes' ].contains(x)) {
+			if (['t', 'true', '1', 'enabled', 'y', 'yes'].contains(x)) {
 				return true;
 			}
-			if ([ 'f', 'false', '0', 'disabled', 'n', 'no' ].contains(x)) {
+			if (['f', 'false', '0', 'disabled', 'n', 'no'].contains(x)) {
 				return false;
 			}
 		}
@@ -795,7 +818,7 @@
 		// this.constructor.super.call(this);
 	};
 	zesk.inherit(X.ZObject, null, {
-		clone : function() {
+		clone: function() {
 			return X.clone(this);
 		}
 	});
