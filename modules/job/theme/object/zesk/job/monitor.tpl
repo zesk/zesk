@@ -1,11 +1,14 @@
 <?php
-
-/* @var $job Job */
 if (false) {
-	$job = $this->job;
+	/* @var $object Job */
+	$object = $this->object;
+	
 	/* @var $response Response_HTML */
 	$response = $this->response;
 }
+/* @var $job Job */
+$job = $object;
+
 $object->render("scripts");
 
 $success = $this->success;

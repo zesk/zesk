@@ -10,7 +10,7 @@ $response->cdn_javascript('/share/zesk/js/zesk.js', array(
 ));
 $response->cdn_javascript('/share/zesk/js/locale.js', array(
 	'share' => true,
-	'weight' => 0
+	'weight' => -20
 ));
 $response->cdn_javascript('/share/job/job.js', array(
 	'share' => true
