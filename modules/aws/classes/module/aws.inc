@@ -19,6 +19,10 @@ class Module_AWS extends Module {
 	 * @see Module::initialize()
 	 */
 	public function initialize() {
+		parent::initialize();
+		if (!$this->is_ec2()) {
+			return;
+		}
 		if (!$this->option_bool("disable_server_integration")) {
 			zesk::add_hook("Server::initialize_names", array(
 				$this,
