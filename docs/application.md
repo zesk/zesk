@@ -68,7 +68,7 @@ This will allow you to have Zesk installed in different locations on your develo
 
 This uses the following selections, in order, to load the Zesk toolkit:
 
-1. an environment variable passed through the web server or the command-line environment with the name `ZESK_ROOT`. To configure Apache to pass environment variables, edit Apache's `envvars` file (usually found at `/etc/apache2/envvars`) adding a line `export ZESK_ROOT=/path/to/zesk` and in your site's `VirtualHost` declaration add a line with `PassEnv ZESK_ROOT`. (Configuring Apache to work with Zesk applications)[./apache]
+1. an environment variable passed through the web server or the command-line environment with the name `ZESK_ROOT`. To configure Apache to pass environment variables, edit Apache's `envvars` file (usually found at `/etc/apache2/envvars`) adding a line `export ZESK_ROOT=/path/to/zesk` and in your site's `VirtualHost` declaration add a line with `PassEnv ZESK_ROOT`. [Configuring Apache to work with Zesk applications](./apache.md)
 1. Place `zesk` directly next to your application folder, e.g. `/Users/matt/development/awesome/`, `/Users/matt/development/zesk/`
 1. Place the location of Zesk as the first line in a text file in the same directory as your application configuration file called `.zesk_root`
 1. Place the location of Zesk as the first line in a text file located at `$HOME/.zesk/root`
