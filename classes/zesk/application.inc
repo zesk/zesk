@@ -922,6 +922,7 @@ class Application extends \Hookable implements \Interface_Theme {
 	 */
 	private static function _schema_check() {
 		$application = zesk::singleton('Application');
+		/* @var $application Application */
 		$results = $application->schema_synchronize();
 		if (count($results) > 0) {
 			if (zesk::getb('Application::schema_sync')) {
@@ -1260,13 +1261,13 @@ class Application extends \Hookable implements \Interface_Theme {
 	 *        	List of themes
 	 * @return boolean If all exist, returns true, otherwise false
 	 */
-	public function theme_exists($types, $args = array()) {
+	public function theme_exists($types, array $args = array(), array $options = array()) {
 		if (empty($types)) {
 			return false;
 		}
 		$types = to_list($types);
 		foreach ($types as $type) {
-			if (!$this->_theme_exists($type, $args)) {
+			if (!$this->_theme_exists($type, $args, $options)) {
 				return false;
 			}
 		}
@@ -1274,13 +1275,13 @@ class Application extends \Hookable implements \Interface_Theme {
 	}
 	
 	/**
-	 * Returns similar result as _theme_array except just tests to see if any content would
-	 * be returned
+	 * Returns similar result as _theme_array except just tests to see if theme would
+	 * possibly generate content
 	 *
-	 * @param mixed $type        	
+	 * @param mixed $type 	
 	 * @return boolean
 	 */
-	private function _theme_exists($type, array $args) {
+	private function _theme_exists($type, array $args, array $options) {
 		$type = strtolower($type);
 		$object = avalue($args, "content");
 		if (is_object($object) && method_exists($object, "hook_theme")) {
@@ -1289,7 +1290,8 @@ class Application extends \Hookable implements \Interface_Theme {
 		if (zesk::has_hook("theme_${type}")) {
 			return true;
 		}
-		if ($this->template->would_exist(zesk::clean_path($type) . ".tpl")) {
+		$extension = to_bool(avalue($options, "no_extension")) ? "" : ".tpl";
+		if ($this->template->would_exist(zesk::clean_path($type) . $extension)) {
 			return true;
 		}
 		return false;
