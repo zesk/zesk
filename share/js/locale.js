@@ -1,7 +1,10 @@
-/* global zesk: false, to_string: false, avalue: false */
 ;(function (exports) {
 	"use strict";
 	var 
+	zesk = exports.zesk,
+	is_object = exports.is_object,
+	to_string = exports.to_string,
+	avalue = exports.avalue,
 	plural_en = function (s, count) {
 		count = parseInt(count, 10);
 		if (count === 1) {
@@ -9,7 +12,7 @@
 		}
 		var ess = Locale.translate('plural:=' + s.toLowerCase(), 'en', null);
 		if (ess) {
-			return ess;
+			return Locale.case_match_simple(ess, s);
 		}
 		var s1 = s.substring(s.length - 1);
 		switch (s1) {
@@ -131,7 +134,7 @@
 			return phrase;
 		}
 		phrase = Locale.translate(phrase);
-		if (!map instanceof Object) {
+		if (!is_object(map)) {
 			return phrase;
 		}
 		return phrase.map(map, true);
