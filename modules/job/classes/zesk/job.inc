@@ -13,6 +13,7 @@ use \Timer as Timer;
 use \Exception_Parameter as Exception_Parameter;
 use \Exception_Semantics as Exception_Semantics;
 use \Exception_Interrupt as Exception_Interrupt;
+use \Exception as Exception;
 
 /**
  * @see zesk\Class_Job
@@ -39,13 +40,13 @@ class Job extends Object implements Process_Interruptable {
 	 * @var Process_Interruptable
 	 */
 	private $interruptable = null;
-
+	
 	/**
 	 *
 	 * @var Application
 	 */
 	public $application = null;
-
+	
 	/**
 	 * 
 	 * @var unknown
@@ -83,14 +84,13 @@ class Job extends Object implements Process_Interruptable {
 		));
 		return $job->register();
 	}
-
 	public static function mock_run($id) {
 		/* @var $job Job */
 		$job = Object::factory(__CLASS__, $id)->fetch();
 		$interruptable = new Process_Interruptable_Mock();
 		return $job->execute($interruptable);
 	}
-
+	
 	/**
 	 * Determine how soon this job will be updated in the UI. Return milliseconds.
 	 *
@@ -105,7 +105,7 @@ class Job extends Object implements Process_Interruptable {
 		}
 		return min($mag * 100, 5000);
 	}
-
+	
 	/**
 	 * Does the job appear to be in a running state? (May not be)
 	 *
@@ -114,7 +114,7 @@ class Job extends Object implements Process_Interruptable {
 	public function is_running() {
 		return $this->completed ? false : $this->start ? true : false;
 	}
-
+	
 	/**
 	 * Support application context
 	 *
@@ -128,7 +128,7 @@ class Job extends Object implements Process_Interruptable {
 		}
 		return $this->application;
 	}
-
+	
 	/**
 	 * Start a job. Sets start to $when, completed to null.
 	 *
@@ -150,9 +150,10 @@ class Job extends Object implements Process_Interruptable {
 		}
 		$this->start = $when;
 		$this->completed = null;
+		$this->hook("start");
 		return $this->store();
 	}
-
+	
 	/**
 	 * Run jobs as part of a process
 	 *
@@ -162,7 +163,7 @@ class Job extends Object implements Process_Interruptable {
 	public static function execute_jobs(Process_Interruptable $process) {
 		$server = Server::singleton();
 		$pid = zesk::pid();
-
+		
 		if ($process->done()) {
 			return null;
 		}
@@ -170,7 +171,7 @@ class Job extends Object implements Process_Interruptable {
 			"pid" => $pid,
 			"server" => $server
 		);
-
+		
 		$jobs = 0;
 		/*
 		 * If any processes are held by this process, free them.
@@ -180,8 +181,15 @@ class Job extends Object implements Process_Interruptable {
 		Object::class_query_update(__CLASS__)->values(array(
 			"pid" => null,
 			"server" => null
-		))->where($server_pid);
+		))->where($server_pid)->execute();
+		/*
+		 * Find Server records with processes which no longer are running and free them up
+		 */
 		self::clean_dead_pids($server);
+		
+		/*
+		 * Now iterate through available Jobs
+		 */
 		$query = Object::class_query(__CLASS__)->what_object()->where(array(
 			"start|<=" => Timestamp::now(),
 			"pid" => null,
@@ -190,7 +198,6 @@ class Job extends Object implements Process_Interruptable {
 		));
 		$iterator = $query->object_iterator();
 		foreach ($iterator as $job) {
-
 			/* @var $job Job */
 			// Tag the Job as "ours" - this avoids race conditions between multiple servers
 			Object::class_query_update(__CLASS__)->values($server_pid)->where(array(
@@ -198,7 +205,10 @@ class Job extends Object implements Process_Interruptable {
 				"id" => $job->id()
 			))->execute();
 			// Race condition if we crash before this executes
-			if (!to_bool(Object::class_query(__CLASS__)->what("*X", "COUNT(id)")->where($server_pid)->where("id", $job->id())->one_integer("X"))) {
+			if (!to_bool(Object::class_query(__CLASS__)->what("*X", "COUNT(id)")
+				->where($server_pid)
+				->where("id", $job->id())
+				->one_integer("X"))) {
 				// Someone else grabbed it.
 				continue;
 			}
@@ -221,44 +231,62 @@ class Job extends Object implements Process_Interruptable {
 				"id" => $server
 			));
 		}
-
 	}
-
+	
+	/**
+	 * Find all process IDs on this server, and see if they are still alive. If they're not, mark them as dead and set the PID back to null.
+	 * 
+	 * @param Server $server
+	 */
 	private static function clean_dead_pids(Server $server) {
-		foreach (Object::class_query(__CLASS__)->what("pid", "pid")->what('id', 'id')->where(array(
+		foreach (Object::class_query(__CLASS__)->what("pid", "pid")
+			->what('id', 'id')
+			->where(array(
 			"pid|!=" => null,
 			"server" => $server
-		))->to_array("id", "pid") as $id => $pid) {
+		))
+			->to_array("id", "pid") as $id => $pid) {
 			if (!zesk::is_alive($pid)) {
 				log::debug("Removing stale PID {pid} from Job # {id}", compact("pid", "id"));
-				Object::class_query_update(__CLASS__)->value('pid', null)->value('*died', 'died+1')->where('id', $id)->execute();
+				Object::class_query_update(__CLASS__)->value('pid', null)
+					->value("server", null)
+					->value('*died', 'died+1')
+					->where('id', $id)
+					->execute();
 			}
 		}
 	}
-
 	public function execute(Process_Interruptable $process) {
 		$this->interruptable = $process;
-
+		
 		$timer = new Timer();
 		try {
+			$this->hook("execute_before");
 			$result = call_user_func_array($this->hook, array_merge(array(
 				$this
 			), to_array($this->hook_args)));
+			$this->hook("execute_after;execute_success");
 		} catch (Exception_Interrupt $e) {
+			$this->hook("execute_after;execute_interrupt", $e);
 			$process->terminate();
 			return;
+		} catch (Exception $e) {
+			$this->hook("execute_after;execute_exception", $e);
+			throw $e;
 		}
 		$elapsed = $timer->elapsed();
 		$values = array(
 			"*updated" => $this->sql()->now_utc(),
 			"*duration" => "duration+$elapsed"
 		);
-
+		
 		$this->interruptable = null;
-
-		$this->query_update()->values($values)->where("id", $this->id())->execute();
+		
+		$this->query_update()
+			->values($values)
+			->where("id", $this->id())
+			->execute();
 	}
-
 	function progress($status = null, $percent = null) {
 		if ($this->interruptable && $this->interruptable->done()) {
 			throw new Exception_Interrupt();
@@ -283,38 +311,37 @@ class Job extends Object implements Process_Interruptable {
 		}
 		return $this;
 	}
-
 	function completed($set = null) {
 		if (is_bool($set)) {
 			$this->completed = Timestamp::now();
 			$this->data("completed_status", $set);
+			$this->hook("completed");
 			return $this->store();
 		}
 		return !$this->member_is_empty("completed");
 	}
-
 	static function retry_attempts() {
 		return zesk::get("Job::retry_attempts", 100);
 	}
-
 	function dead() {
 		return $this->died > $this->option_integer("retry_attempts", self::retry_attempts());
 	}
-
 	function died() {
 		$this->died = $this->died + 1;
 		$this->completed(false);
 		return $this->store();
 	}
-
 	private function release() {
-		$this->query_update()->value(array(
+		$this->query_update()
+			->value(array(
 			"server" => null,
 			"pid" => null
-		))->where("id", $this->id())->execute();
+		))
+			->where("id", $this->id())
+			->execute();
 		return $this;
 	}
-
+	
 	/**
 	 * (non-PHPdoc)
 	 * @see Process_Interruptable::done()
@@ -322,7 +349,7 @@ class Job extends Object implements Process_Interruptable {
 	public function done() {
 		return $this->interruptable ? $this->interruptable->done() : true;
 	}
-
+	
 	/**
 	 * (non-PHPdoc)
 	 * @see Process_Interruptable::sleep()
@@ -330,7 +357,7 @@ class Job extends Object implements Process_Interruptable {
 	public function sleep($seconds = 1.0) {
 		return $this->interruptable ? $this->interruptable->sleep($seconds) : true;
 	}
-
+	
 	/**
 	 * (non-PHPdoc)
 	 * @see Process_Interruptable::terminate()
@@ -340,7 +367,7 @@ class Job extends Object implements Process_Interruptable {
 			$this->interruptable->terminate();
 		}
 	}
-
+	
 	/**
 	 * (non-PHPdoc)
 	 * @see Process_Interruptable::kill()
@@ -350,7 +377,7 @@ class Job extends Object implements Process_Interruptable {
 			$this->interruptable->kill();
 		}
 	}
-
+	
 	/**
 	 * (non-PHPdoc)
 	 * @see Process_Interruptable::log()
@@ -360,7 +387,7 @@ class Job extends Object implements Process_Interruptable {
 			$this->interruptable->log($message, $args, $level);
 		}
 	}
-
+	
 	/**
 	 * Getter/setter for content
 	 *
@@ -370,7 +397,6 @@ class Job extends Object implements Process_Interruptable {
 	public function content($set = null) {
 		return $this->data("content", $set);
 	}
-
 	public function data($mixed = null, $value = null) {
 		return $this->member_data("data", $mixed, $value);
 	}
