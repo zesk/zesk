@@ -7,9 +7,8 @@
  * @copyright Copyright &copy; 2008, Market Acumen, Inc.
  */
 abstract class Database_Schema extends Hookable {
-
 	const type_id = Class_Object::type_id;
-
+	
 	/**
 	 * Plain old text data in the database
 	 *
@@ -17,7 +16,7 @@ abstract class Database_Schema extends Hookable {
 	 */
 	const type_text = Class_Object::type_text;
 	const type_string = Class_Object::type_string;
-
+	
 	/**
 	 * This column serves as text data for polymorphic objects
 	 *
@@ -27,34 +26,33 @@ abstract class Database_Schema extends Hookable {
 	 * @var string
 	 */
 	const type_polymorph = Class_Object::type_polymorph;
-
+	
 	/**
 	 * Refers to a system object (usually by ID)
 	 *
 	 * @var string
 	 */
 	const type_object = Class_Object::type_object;
-
+	
 	/**
 	 * Upon initial save, set to current date
 	 *
 	 * @var string
 	 */
 	const type_created = Class_Object::type_created;
-
+	
 	/**
 	 * Upon all saves, updates to current date
 	 *
 	 * @var string
 	 */
 	const type_modified = Class_Object::type_modified;
-
+	
 	/**
 	 * String information called using serialize/unserialize
 	 * @var string
 	 */
 	const type_serialize = Class_Object::type_serialize;
-
 	const type_integer = Class_Object::type_integer;
 	const type_real = Class_Object::type_real;
 	const type_float = Class_Object::type_float;
@@ -68,7 +66,7 @@ abstract class Database_Schema extends Hookable {
 	const type_crc32 = Class_Object::type_crc32;
 	const type_hex32 = Class_Object::type_hex32;
 	const type_hex = Class_Object::type_hex;
-
+	
 	/**
 	 * Debugging information.
 	 * Lots to find problems with implementation or your SQL code.
@@ -76,46 +74,53 @@ abstract class Database_Schema extends Hookable {
 	 * @var boolean
 	 */
 	static $debug = false;
-
+	
 	/**
-	 * Object associated with this schema
+	 * Class object associated with this schema
 	 *
 	 * @var Class_Object
 	 */
 	protected $class_object = null;
-
+	
+	/**
+	 * Object associated with this schema
+	 *
+	 * @var Object
+	 */
+	protected $object = null;
+	
 	/**
 	 *
 	 * @var Database
 	 */
 	protected $db = null;
-
+	
 	/**
 	 * Create a new database schema
 	 *
 	 * @param Class_Object $class_object
 	 * @param string $options
 	 */
-	function __construct(Class_Object $class_object, $options = null) {
+	function __construct(Class_Object $class_object, Object $object = null, $options = null) {
 		parent::__construct($options);
 		$this->class_object = $class_object;
+		$this->object = $object;
 	}
-
+	
 	/**
 	 *
 	 * @return Database
 	 */
 	final function database() {
-		if (!$this->db) {
-			$dbname = $this->class_object->database_name;
-			$this->db = Database::instance($dbname);
-			if (!$this->db) {
-				throw new Exception_Semantics("No database $dbname found");
-			}
+		if ($this->db) {
+			return $this->db;
 		}
-		return $this->db;
+		if ($this->object) {
+			return $this->db = $this->object->database();
+		}
+		return $this->db = $this->class_object->database();
 	}
-
+	
 	/**
 	 * Default schema map - include variables in your schema definitions from configuration
 	 * settings.
@@ -123,13 +128,11 @@ abstract class Database_Schema extends Hookable {
 	 * @return multitype:string
 	 */
 	protected function schema_map() {
-		return array(
-			'name' => $name = $this->class_object->name,
-			'code_name' => $code_name = $this->class_object->code_name,
-			'table' => $this->class_object->table
-		) + to_array(zesk::class_get($code_name, "schema_map"));
+		$map = $this->object ? $this->object->schema_map() : array();
+		$map += $this->class_object->schema_map();
+		return $map;
 	}
-
+	
 	/**
 	 * Map using the schema map
 	 *
@@ -142,7 +145,7 @@ abstract class Database_Schema extends Hookable {
 		}
 		return map($mixed, $this->schema_map());
 	}
-
+	
 	/**
 	 *
 	 * @return string
@@ -150,14 +153,14 @@ abstract class Database_Schema extends Hookable {
 	final function primary_table() {
 		return $this->class_object->table();
 	}
-
+	
 	/**
 	 * Generate the array-syntax schema
 	 *
 	 * @return array
 	 */
 	abstract function schema();
-
+	
 	/**
 	 * Validate structure of array-syntax for index columns
 	 *
@@ -179,7 +182,7 @@ abstract class Database_Schema extends Hookable {
 		}
 		return true;
 	}
-
+	
 	/**
 	 * Convert an array-based table schema to a Database_Table object
 	 *
@@ -247,7 +250,7 @@ abstract class Database_Schema extends Hookable {
 		}
 		return $table;
 	}
-
+	
 	/**
 	 * Return an array of tables associated with this schema
 	 *
@@ -273,7 +276,7 @@ abstract class Database_Schema extends Hookable {
 					log::debug("Error with object " . $this->class_object->class);
 					throw $e;
 				}
-
+				
 				if (array_key_exists('on create', $table_schema)) {
 					$table->set_option_path('on.create', $table_schema['on create']);
 				}
@@ -281,7 +284,7 @@ abstract class Database_Schema extends Hookable {
 		}
 		return $tables;
 	}
-
+	
 	/**
 	 * Conver the whole 'ting into a string.
 	 *
@@ -290,7 +293,7 @@ abstract class Database_Schema extends Hookable {
 	 */
 	function __toString() {
 		$tables = $this->tables();
-
+		
 		$result = array();
 		foreach ($tables as $table) {
 			/* @var $table Database_Table */
@@ -316,7 +319,7 @@ abstract class Database_Schema extends Hookable {
 		}
 		return self::$debug;
 	}
-
+	
 	/**
 	 * Return an array of SQL to update an object's schema to its database
 	 *
@@ -341,7 +344,7 @@ abstract class Database_Schema extends Hookable {
 		}
 		return $schema->_update_object();
 	}
-
+	
 	/**
 	 * Internal function helper for update_object
 	 *
@@ -363,7 +366,7 @@ abstract class Database_Schema extends Hookable {
 		}
 		return $sql_results;
 	}
-
+	
 	/**
 	 * Given a list of objects, generate array of SQL statements to bring database up to date.
 	 *
@@ -381,7 +384,7 @@ abstract class Database_Schema extends Hookable {
 			$results[$class]['result'] = $object->database()->query($sqls);
 		}
 	}
-
+	
 	/**
 	 *
 	 * @deprecated 2014-02-05
@@ -408,10 +411,10 @@ abstract class Database_Schema extends Hookable {
 			echo "# $path: Need to add\n#\tstatic protected \$class = __CLASS__;\n";
 		}
 		$result = self::update_object($x, $dburl);
-
+		
 		return $result;
 	}
-
+	
 	/**
 	 * Given a database table definition, synchronize it with given definition
 	 *
@@ -442,7 +445,7 @@ abstract class Database_Schema extends Hookable {
 		$old_table = $db->database_table($name);
 		return self::update($db, $old_table, $table, $change_permanently);
 	}
-
+	
 	/**
 	 * The money
 	 *
@@ -455,12 +458,12 @@ abstract class Database_Schema extends Hookable {
 	 */
 	static function update(Database $db, Database_Table $db_table_old, Database_Table $db_table_new, $change_permanently = false) {
 		$generator = $db->sql();
-
+		
 		$table = $db_table_old->name();
 		if ($db_table_new->is_similar($db_table_old, self::$debug)) {
 			return array();
 		}
-
+		
 		if (self::$debug) {
 			log::debug("Database_Schema::update: \"{table}\" tables differ:\nDatabase: \n{dbOld}\nCode:\n{dbNew}", array(
 				'table' => $table,
@@ -468,16 +471,16 @@ abstract class Database_Schema extends Hookable {
 				'dbNew' => text::indent($db_table_new->source())
 			));
 		}
-
+		
 		$drops = array();
 		$changes = $db_table_new->sql_alter($db_table_old);
 		$adds = array();
 		$indexes_old = array();
 		$indexes_new = array();
-
+		
 		$columnsOld = $db_table_old->columns();
 		$columnsNew = $db_table_new->columns();
-
+		
 		$columns = array_unique(array_merge(array_keys($columnsNew), array_keys($columnsOld)));
 		$ignoreColumns = array();
 		/*
@@ -510,7 +513,7 @@ abstract class Database_Schema extends Hookable {
 				}
 			}
 		}
-
+		
 		$last_column = false;
 		foreach ($columns as $column) {
 			if (isset($ignoreColumns[$column])) {
@@ -549,10 +552,10 @@ abstract class Database_Schema extends Hookable {
 			}
 			$last_column = $column;
 		}
-
+		
 		$indexes_old = $db_table_old->indexes();
 		$indexes_new = $db_table_new->indexes();
-
+		
 		/* @var $indexOld Database_Index */
 		/* @var $indexNew Database_Index */
 		foreach ($indexes_old as $index_name => $index_old) {
@@ -571,7 +574,7 @@ abstract class Database_Schema extends Hookable {
 				$adds["index_" . $index_name] = $index_new->sql_index_add();
 			}
 		}
-
+		
 		/*
 		 * Now, do it!
 		 * Change tables we need. If any step fails, then do a drop/add below (this is added above, redundantly)
@@ -599,7 +602,7 @@ abstract class Database_Schema extends Hookable {
 				unset($drops[$column]);
 			}
 		}
-
+		
 		/*
 		 * Drop, then add to handle column names which may be identical, but types are different
 		 * Data loss will occur here!
@@ -634,28 +637,6 @@ abstract class Database_Schema extends Hookable {
 		), $sql_list);
 		return $sql_list;
 	}
-
-	/**
-	 *
-	 * @deprecated 2014-02-05
-	 * @param unknown $objects
-	 * @param string $url
-	 */
-	static function updateObjectsCommand($objects, $url = null) {
-		zesk::obsolete();
-	}
-
-	/**
-	 *
-	 * @param array $object_classes
-	 * @param string $db_url
-	 * @param string $fp
-	 * @param string $debug
-	 * @return string
-	 * @deprecated 2013
-	 */
-	static function update_objects(array $object_classes, $db_url = null, $fp = null, $debug = false) {
-		zesk::obsolete();
-	}
+	
 }
 
