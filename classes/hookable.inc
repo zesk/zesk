@@ -35,7 +35,7 @@ class Hookable extends Options {
 		$result = $this->hook_array($type, $args, $default);
 		return $result;
 	}
-
+	
 	/**
 	 * Invoke a hook on this object if it exists.
 	 *
@@ -71,7 +71,7 @@ class Hookable extends Options {
 		 */
 		$zesk_hook_args = $args;
 		array_unshift($zesk_hook_args, $this);
-
+		
 		/*
 		 * For each hook, call internal hook, then options-based hook, then zesk:: hook.
 		 */
@@ -93,7 +93,7 @@ class Hookable extends Options {
 		}
 		return ($result === null) ? $default : $result;
 	}
-
+	
 	/**
 	 * Does a hook exist for this object?
 	 *
@@ -105,7 +105,7 @@ class Hookable extends Options {
 		$hooks = $this->hook_list($types, $object_only);
 		return count($hooks) !== 0;
 	}
-
+	
 	/**
 	 * List functions to be invoked by a hook on this object if it exists.
 	 * Arguments passed as an array
@@ -129,13 +129,19 @@ class Hookable extends Options {
 				$result[] = $func;
 			}
 			if (!$object_only) {
-				$hooks = arr::suffix(zesk::class_hierarchy($this), "::$type");
-				$result = array_merge($result, zesk::find_all_hooks($hooks));
+				$hooks = arr::suffix(zesk::class_hierarchy($this, __CLASS__), "::$type");
+				if (zesk::has_hook($hooks)) {
+					foreach ($hooks as $hook) {
+						if (zesk::has_hook($hook)) {
+							$result[] = $hook;
+						}
+					}
+				}
 			}
 		}
 		return $result;
 	}
-
+	
 	/**
 	 * Combine hook results in a consistent manner when more than one hook applies to a call.
 	 *
@@ -162,6 +168,14 @@ class Hookable extends Options {
 		return self::combine_hook_results($previous_result, $new_result, $return_hint);
 	}
 	
+	/**
+	 * Combine hook results in chained/filter hooks in a predictable manner
+	 * 
+	 * @param mixed $previous_result
+	 * @param mixed $new_result
+	 * @param mixed $return_hint
+	 * @return mixed
+	 */
 	public static function combine_hook_results($previous_result, $new_result, $return_hint = null) {
 		if ($previous_result === null) {
 			return $new_result;
@@ -183,5 +197,4 @@ class Hookable extends Options {
 		// No way to combine
 		return $new_result;
 	}
-
 }
