@@ -204,7 +204,7 @@ abstract class Route extends Hookable {
 	 * @return string
 	 */
 	private static function clean_type($type) {
-		return preg_replace("/[^0-9A-Za-z_]/i", "_", $type);
+		return preg_replace('/[^\\\\0-9A-Za-z_]/i', "_", $type);
 	}
 	
 	/**
