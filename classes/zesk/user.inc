@@ -330,6 +330,7 @@ abstract class Zesk_User extends Object {
 	}
 	public static final function clean_permission($string) {
 		return strtolower(strtr($string, array(
+			' ' => '_',
 			'.' => '_',
 			'-' => '_',
 			'__' => '::'
