@@ -76,6 +76,14 @@ class Database_Query {
 	
 	/**
 	 *
+	 * @return string
+	 */
+	function database_name() {
+		return $this->db->code_name();
+	}
+	
+/**
+	 *
 	 * @return Database_SQL
 	 */
 	function sql() {
