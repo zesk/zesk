@@ -11,13 +11,13 @@
 
 /**
  * Forgotten password support
- * 
+ *
  * @author kent
  */
 class Module_Forgot extends Module implements Module_Interface_Routes {
 	
 	/**
-	 * 
+	 *
 	 * @var array
 	 */
 	protected $classes = array(
@@ -27,7 +27,7 @@ class Module_Forgot extends Module implements Module_Interface_Routes {
 	/**
 	 * Implements Module::routes
 	 *
-	 * @param Router $router
+	 * @param Router $router        	
 	 */
 	public function hook_routes(Router $router) {
 		$router->add_route("forgot(/{option action}(/{hash}))", array(
@@ -35,6 +35,7 @@ class Module_Forgot extends Module implements Module_Interface_Routes {
 			"arguments" => array(
 				2
 			),
+			"login" => false,
 			"id" => "forgot"
 		));
 	}
