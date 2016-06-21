@@ -25,7 +25,7 @@ class Control_IP_List extends Control {
 		$value = $this->value();
 		$iplist = arr::trim(explode(' ', preg_replace('/[\s, ]+/', ' ', $value)));
 		//		sort($iplist, SORT_NUMERIC);
-		$check_func = $allow_ip_masks ? "ip::is_mask" : "ip::valid";
+		$check_func = $allow_ip_masks ? "IPv4::is_mask" : "IPv4::valid";
 		foreach ($iplist as $k => $ip) {
 			if (empty($ip)) {
 				unset($iplist[$k]);
@@ -54,7 +54,7 @@ class Control_IP_List extends Control {
 			"id" => $col . "_ip_list",
 			"name" => $name
 		));
-		$ip = ip::remote();
+		$ip = IPv4::remote();
 		$this->response->cdn_javascript('/share/zesk/widgets/iplist/iplist.js');
 		$this->response->cdn_css('/share/zesk/widgets/iplist/iplist.css');
 
