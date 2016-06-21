@@ -1,4 +1,22 @@
 <?php
+if (false) {
+	/* @var $this Template */
+	
+	$application = $this->application;
+	/* @var $application Application */
+	
+	$session = $this->session;
+	/* @var $session Session */
+	
+	$request = $this->request;
+	/* @var $request Request */
+	
+	$response = $this->response;
+	/* @var $response Response_HTML */
+	
+	$object = $this->object;
+	/* @var $object Object */
+}
 
 $offset = $object->offset;
 $limit = $object->limit;
@@ -11,7 +29,7 @@ if (!$this->option_bool("always_show", false)) {
 }
 
 $last_index = ($limit < 0) ? $total : min($offset + $limit, $total);
-$uu = url::query_format(url::current_uri(), array(
+$uu = url::query_format($request->uri(), array(
 	"limit" => $limit
 ));
 
@@ -51,15 +69,15 @@ if ($this->option_bool("pager_use_table", zesk::getb("Control_Pager::pager_use_t
 		"width" => "1%"
 	);
 	$result = html::tag("form", array(
-		"method" => 'get', 
+		"method" => 'get',
 		'action' => $uri
 	), html::tag("table", array(
-		"border" => 0, 
-		"cellspacing" => 0, 
-		'cellpadding' => 5, 
+		"border" => 0,
+		"cellspacing" => 0,
+		'cellpadding' => 5,
 		'class' => 'pager'
 	), html::tag("tr", html::tag("td", $small_width, $p0) . html::tag("td", $small_width, $p1) . html::tag("td", $small_width, $p2) . html::tag("td", $small_width, $p3) . html::tag("td", ".spacer", "") . html::tag("td", array(
-		"nowrap" => 'nowrap', 
+		"nowrap" => 'nowrap',
 		'align' => 'center'
 	), $showing) . html::tag("td", array(
 		'width' => '99%'
@@ -69,7 +87,7 @@ if ($this->option_bool("pager_use_table", zesk::getb("Control_Pager::pager_use_t
 } else {
 	html::cdn_css("/share/zesk/widgets/pager/pager.css");
 	$result = html::tag("form", array(
-		"method" => 'get', 
+		"method" => 'get',
 		'action' => $uri
 	), html::tag("div", array(
 		"class" => 'pager'
