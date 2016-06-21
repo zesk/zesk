@@ -8,22 +8,18 @@
  * Created on Tue Jul 15 16:27:00 EDT 2008
  */
 class Control_Pager extends Control {
-
 	protected $traverse = true;
-
+	
 	/*
 	 * @var Control_Select
 	 */
 	protected $limit_widget = null;
-
 	protected $options = array(
 		'column' => 'pager'
 	);
-
 	function model() {
 		return new Model_List();
 	}
-
 	function preserve_hidden($name, $value = null) {
 		$variables = avalue($this->theme_variables, 'preserve_hidden');
 		if (!is_array($variables)) {
@@ -37,24 +33,27 @@ class Control_Pager extends Control {
 		$this->theme_variables['preserve_hidden'] = $variables;
 		return $this;
 	}
-
 	function limit_default() {
 		return $this->first_option("limit;pager_limit", zesk::get("pager_limit", 25));
 	}
 	private function _limit_widget() {
 		$pager_limit_list = $this->pager_limit_list();
-
+		
 		$pager_limit_list = arr::flip_copy($pager_limit_list);
-
+		
 		$ajax_id = $this->option('ajax_id');
 		$onchange = $ajax_id ? "pager_limit_change.call(this,'$ajax_id')" : "this.form.submit()";
-
+		
 		$options = array();
 		$options['options'] = $pager_limit_list;
 		$options['onchange'] = $onchange;
 		$options['default'] = $this->request->geti('limit', $this->limit_default());
-
-		return $this->widget_factory("Control_Select")->names('limit')->required(true)->set_option($options);
+		$options['skip_query_condition'] = true;
+		
+		return $this->widget_factory("Control_Select")
+			->names('limit')
+			->required(true)
+			->set_option($options);
 	}
 	protected function initialize() {
 		$this->set_option('max_limit', $this->_maximum_limit());
@@ -62,12 +61,10 @@ class Control_Pager extends Control {
 		$this->child($this->limit_widget);
 		parent::initialize();
 	}
-
 	protected function defaults() {
 		$this->children_defaults();
 		$this->object->set('offset', $this->request->geti("offset", 0));
 	}
-
 	private function _refresh() {
 		$object = $this->object;
 		$total = to_integer($object->total, -1);
@@ -105,29 +102,30 @@ class Control_Pager extends Control {
 		$this->object->total = $total;
 		$this->_refresh();
 	}
-	protected function hook_query(Database_Query_Select $query) {
+	protected function hook_query_list(Database_Query_Select $query) {
 		static $recurse = 0;
 		if ($recurse !== 0) {
 			backtrace();
 		}
 		$recurse = 1;
 		$query->limit($this->object->offset, $this->object->limit);
-		// 		foreach ($this->children as $child) {
-		// 			/* @var $child Widget */
-		// 			if ($child === $this->limit_widget) {
-		// 				continue;
-		// 			}
-		// 			$child->children_hook_array('query', array(
-		// 				$query
-		// 			));
-		// 		}
+		// KMD 2016-06-15 Why was this commented out?
+		foreach ($this->children as $child) {
+			/* @var $child Widget */
+			if ($child === $this->limit_widget) {
+				continue;
+			}
+			$child->children_hook_array('query_list', array(
+				$query
+			));
+		}
 		$recurse = 0;
 	}
 	public function hook_render() {
 		$this->_refresh();
 		$object = $this->object;
 		$pager_limit_list = $this->limit_widget->control_options();
-
+		
 		$ss = array();
 		$limit = intval($object->limit);
 		$total = $object->total;
@@ -158,7 +156,6 @@ class Control_Pager extends Control {
 			}
 		}
 		$this->limit_widget->control_options($ss);
-
 	}
 	function pager_limit_list($set = null) {
 		if ($set !== null) {
