@@ -77,7 +77,7 @@ class Timestamp extends Temporal {
 	/**
 	 * Construct a new Timestamp consisting of a Date and a Time
 	 *
-	 * @param mixed $value
+	 * @param mixed $value        	
 	 */
 	function __construct($value = null, DateTimeZone $timezone = null) {
 		$this->tz = $timezone === null ? self::timezone_local() : $timezone;
@@ -89,7 +89,6 @@ class Timestamp extends Temporal {
 	}
 	
 	/**
-	 *
 	 */
 	function __clone() {
 		if ($this->datetime) {
@@ -109,7 +108,7 @@ class Timestamp extends Temporal {
 	/**
 	 * Set/get time zone
 	 *
-	 * @param string $mixed
+	 * @param string $mixed        	
 	 * @return DateTimeZone|Timestamp
 	 */
 	function time_zone($mixed = null) {
@@ -128,7 +127,7 @@ class Timestamp extends Temporal {
 	 * Syntactic sugar, for example:
 	 * Timestamp::factory($value)->format("{MMM} {DDD}");
 	 *
-	 * @param mixed $value
+	 * @param mixed $value        	
 	 * @return Timestamp
 	 */
 	public static function factory($value = null, $timezone = null) {
@@ -163,7 +162,7 @@ class Timestamp extends Temporal {
 	/**
 	 * Set/get the date component of this Timestamp
 	 *
-	 * @param Date $date
+	 * @param Date $date        	
 	 * @return Date date portion of Timestamp
 	 */
 	function date(Date $date = null) {
@@ -177,7 +176,7 @@ class Timestamp extends Temporal {
 	/**
 	 * Set/get the time component of this Timestamp
 	 *
-	 * @param Time $time
+	 * @param Time $time        	
 	 * @return Time Timestamp
 	 */
 	function time(Time $time = null) {
@@ -292,8 +291,8 @@ class Timestamp extends Temporal {
 	/**
 	 * was fromLocaleString
 	 *
-	 * @param unknown_type $value
-	 * @param unknown_type $locale_format
+	 * @param unknown_type $value        	
+	 * @param unknown_type $locale_format        	
 	 * @throws Exception_Convert
 	 * @return boolean
 	 */
@@ -364,7 +363,7 @@ class Timestamp extends Temporal {
 	/**
 	 * Parse a date string
 	 *
-	 * @param unknown $value
+	 * @param unknown $value        	
 	 * @throws Exception_Convert
 	 * @return Timestamp
 	 */
@@ -389,7 +388,7 @@ class Timestamp extends Temporal {
 	/**
 	 * Get/Set year
 	 *
-	 * @param string $set
+	 * @param string $set        	
 	 * @return Timestamp number
 	 */
 	function year($set = null) {
@@ -403,7 +402,7 @@ class Timestamp extends Temporal {
 	/**
 	 * Set a 1-based quarter (1,2,3,4)
 	 *
-	 * @param integer $set
+	 * @param integer $set        	
 	 * @return Timestamp, number
 	 */
 	function quarter($set = null) {
@@ -425,7 +424,7 @@ class Timestamp extends Temporal {
 	/**
 	 * Get/Set month
 	 *
-	 * @param string $set
+	 * @param string $set        	
 	 * @return Timestamp number
 	 */
 	function month($set = null) {
@@ -444,7 +443,7 @@ class Timestamp extends Temporal {
 	/**
 	 * Get/Set day of month
 	 *
-	 * @param string $set
+	 * @param string $set        	
 	 * @return Timestamp number
 	 */
 	function day($set = null) {
@@ -469,16 +468,17 @@ class Timestamp extends Temporal {
 	/**
 	 * Set to the past weekday specified
 	 *
-	 * @param integer $set
+	 * @param integer $set        	
 	 * @return Timestamp
 	 */
 	function weekday_past($set) {
 		return $this->weekday($set)->add_unit("day", -7);
 	}
 	/**
-	 * Get/set weekday. Weekday, when set, is always the NEXT possible weekday, including today.
+	 * Get/set weekday.
+	 * Weekday, when set, is always the NEXT possible weekday, including today.
 	 *
-	 * @param string $set
+	 * @param string $set        	
 	 * @return number Timestamp
 	 */
 	function weekday($set = null) {
@@ -501,7 +501,7 @@ class Timestamp extends Temporal {
 	/**
 	 * Get/set yearday
 	 *
-	 * @param string $set
+	 * @param string $set        	
 	 * @return number Timestamp
 	 */
 	function yearday($set = null) {
@@ -515,7 +515,7 @@ class Timestamp extends Temporal {
 	/**
 	 * Get/set hour of day
 	 *
-	 * @param string $set
+	 * @param string $set        	
 	 * @return number Timestamp
 	 */
 	function hour($set = null) {
@@ -528,7 +528,7 @@ class Timestamp extends Temporal {
 	/**
 	 * Get/set minute of the day
 	 *
-	 * @param integer $set
+	 * @param integer $set        	
 	 * @return number Timestamp
 	 */
 	function minute($set = null) {
@@ -541,7 +541,7 @@ class Timestamp extends Temporal {
 	/**
 	 * Get/set second of the day
 	 *
-	 * @param integer $set
+	 * @param integer $set        	
 	 * @return number Timestamp
 	 */
 	function second($set = null) {
@@ -579,7 +579,7 @@ class Timestamp extends Temporal {
 	/**
 	 * Get/Set 12-hour
 	 *
-	 * @param string $set
+	 * @param string $set        	
 	 * @return Ambigous <Timestamp, unknown>
 	 */
 	function hour12($set = null) {
@@ -619,9 +619,9 @@ class Timestamp extends Temporal {
 	/**
 	 * Set the Year/Month/Date for this Timestamp
 	 *
-	 * @param integer $year
-	 * @param integer $month
-	 * @param integer $day
+	 * @param integer $year        	
+	 * @param integer $month        	
+	 * @param integer $day        	
 	 * @return Timestamp
 	 */
 	function ymd($year = null, $month = null, $day = null) {
@@ -632,9 +632,9 @@ class Timestamp extends Temporal {
 	/**
 	 * Set the Hour/Minute/Second for this Timestamp
 	 *
-	 * @param integer $hour
-	 * @param integer $minute
-	 * @param integer $second
+	 * @param integer $hour        	
+	 * @param integer $minute        	
+	 * @param integer $second        	
 	 * @return Timestamp
 	 */
 	function hms($hour = null, $minute = null, $second = null) {
@@ -645,12 +645,12 @@ class Timestamp extends Temporal {
 	/**
 	 * Set the Year/Month/Date/Hour/Minute/Second for this Timestamp
 	 *
-	 * @param integer $year
-	 * @param integer $month
-	 * @param integer $day
-	 * @param integer $hour
-	 * @param integer $minute
-	 * @param integer $second
+	 * @param integer $year        	
+	 * @param integer $month        	
+	 * @param integer $day        	
+	 * @param integer $hour        	
+	 * @param integer $minute        	
+	 * @param integer $second        	
 	 * @return Timestamp
 	 */
 	function ymdhms($year = null, $month = null, $day = null, $hour = null, $minute = null, $second = null) {
@@ -659,11 +659,11 @@ class Timestamp extends Temporal {
 	
 	/**
 	 * Compare two Timestamps, like strcmp
-	 * $this->compare($value) < 0		~= ($this < $value) => -
-	 * $this->compare($value) < 0		~= ($this > $value)		=> +
-	 * $this->compare($value) == 0		~= ($value == $this)	=> 0
+	 * $this->compare($value) < 0 ~= ($this < $value) => -
+	 * $this->compare($value) < 0 ~= ($this > $value) => +
+	 * $this->compare($value) == 0 ~= ($value == $this) => 0
 	 *
-	 * @param Timestamp $value
+	 * @param Timestamp $value        	
 	 * @return integer
 	 */
 	function compare(Timestamp $value) {
@@ -676,7 +676,7 @@ class Timestamp extends Temporal {
 	/**
 	 * Return the difference in seconds between two Timestamps
 	 *
-	 * @param Timestamp $value
+	 * @param Timestamp $value        	
 	 * @return integer
 	 */
 	function subtract(Timestamp $value) {
@@ -723,7 +723,7 @@ class Timestamp extends Temporal {
 	/**
 	 * Are these two timestamps identical?
 	 *
-	 * @param Timestamp $timestamp
+	 * @param Timestamp $timestamp        	
 	 * @return boolean
 	 */
 	function equals(Timestamp $timestamp) {
@@ -733,7 +733,7 @@ class Timestamp extends Temporal {
 	/**
 	 * Is passed in Timestamp before $this?
 	 *
-	 * @param Timestamp $model
+	 * @param Timestamp $model        	
 	 * @param boolean $equal
 	 *        	Return true if they are equal
 	 * @return boolean
@@ -750,7 +750,7 @@ class Timestamp extends Temporal {
 	/**
 	 * Is passed in Timestamp after $this?
 	 *
-	 * @param Timestamp $model
+	 * @param Timestamp $model        	
 	 * @param boolean $equal
 	 *        	Return true if they are equal
 	 * @return boolean
@@ -769,10 +769,13 @@ class Timestamp extends Temporal {
 	 * If both are empty, returns $this
 	 * If identical, returns $this
 	 *
-	 * @param Timestamp $model
+	 * @param Timestamp $model        	
 	 * @return Timestamp
 	 */
-	function later(Timestamp $model) {
+	function later(Timestamp $model = null) {
+		if ($model === null) {
+			return $this;
+		}
 		if ($model->is_empty()) {
 			return $this;
 		}
@@ -781,21 +784,31 @@ class Timestamp extends Temporal {
 		}
 		return $model->after($this) ? $model : $this;
 	}
+	
+	/**
+	 * Is this date before current time?
+	 *
+	 * @return boolean
+	 */
 	function is_past() {
 		if ($this->is_empty()) {
 			return false;
 		}
 		return ($this->unix_timestamp() < time());
 	}
+	
 	/**
 	 * Given another model and this, return the one which is earlier.
 	 * If both are empty, returns $this
 	 * If identical, returns $this
 	 *
-	 * @param Timestamp $model
+	 * @param Timestamp $model        	
 	 * @return Timestamp
 	 */
-	function earlier(Timestamp $model) {
+	function earlier(Timestamp $model = null) {
+		if ($model === null) {
+			return $this;
+		}
 		if ($model->is_empty()) {
 			return $this;
 		}
@@ -808,12 +821,12 @@ class Timestamp extends Temporal {
 	/**
 	 * Add units to dates
 	 *
-	 * @param integer $years
-	 * @param integer $months
-	 * @param integer $days
-	 * @param integer $hours
-	 * @param integer $minutes
-	 * @param integer $seconds
+	 * @param integer $years        	
+	 * @param integer $months        	
+	 * @param integer $days        	
+	 * @param integer $hours        	
+	 * @param integer $minutes        	
+	 * @param integer $seconds        	
 	 * @return Timestamp
 	 */
 	function add($years = 0, $months = 0, $days = 0, $hours = 0, $minutes = 0, $seconds = 0) {
@@ -832,9 +845,9 @@ class Timestamp extends Temporal {
 	/**
 	 * Utility for add
 	 *
-	 * @param number $number
-	 * @param string $code
-	 * @param boolean $time
+	 * @param number $number        	
+	 * @param string $code        	
+	 * @param boolean $time        	
 	 * @return Timestamp
 	 */
 	function _add_unit($number, $code, $time = false) {
@@ -858,7 +871,7 @@ class Timestamp extends Temporal {
 	 * e.g.
 	 * $a->difference($b) equivalent to ($a - $b)
 	 *
-	 * @param Timestamp $timestamp
+	 * @param Timestamp $timestamp        	
 	 * @param string $unit
 	 *        	millisecond, second, minute, hour, day, week, weekday, quarter
 	 * @param integer $precision
@@ -1099,12 +1112,12 @@ class Timestamp extends Temporal {
 	/**
 	 * Create a new Timestamp with explicit values
 	 *
-	 * @param integer $year
-	 * @param integer $month
-	 * @param integer $day
-	 * @param integer $hour
-	 * @param integer $minute
-	 * @param integer $second
+	 * @param integer $year        	
+	 * @param integer $month        	
+	 * @param integer $day        	
+	 * @param integer $hour        	
+	 * @param integer $minute        	
+	 * @param integer $second        	
 	 * @return Timestamp
 	 * @deprecated 2014-10 Improperly named singleton class
 	 * @see Timestamp::factory_ymdhms
@@ -1119,12 +1132,12 @@ class Timestamp extends Temporal {
 	/**
 	 * Create a new Timestamp with explicit values
 	 *
-	 * @param integer $year
-	 * @param integer $month
-	 * @param integer $day
-	 * @param integer $hour
-	 * @param integer $minute
-	 * @param integer $second
+	 * @param integer $year        	
+	 * @param integer $month        	
+	 * @param integer $day        	
+	 * @param integer $hour        	
+	 * @param integer $minute        	
+	 * @param integer $second        	
 	 * @return Timestamp
 	 */
 	public static function factory_ymdhms($year = null, $month = null, $day = null, $hour = null, $minute = null, $second = null) {
