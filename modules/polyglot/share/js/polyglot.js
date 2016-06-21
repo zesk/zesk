@@ -21,6 +21,7 @@
 	translate_one = $("#translate-one").html(),
 	translate_title = $("#translate-title").html(),
 	$search_progress = $("#search-progress"),
+	plural_prefix = "Locale::plural::",
 	lang_status = {
 		todo: __('Need translation'),
 		dev: __('Developer review'),
@@ -52,6 +53,10 @@
 		this.original = this.raw_original.right(":=", this.raw_original);
 		this.low_raw_original = this.raw_original.toLowerCase();
 		this.group = this.raw_original.left(":=", "");
+		if (this.raw_original.begins(plural_prefix)) {
+			this.group = "Noun plural";
+			this.original = this.raw_original.right(plural_prefix);
+		}
 		this.translation = members.translation;
 		this.low_translation = this.translation.toLowerCase();
 		this.set_status(members.status);
