@@ -1,12 +1,12 @@
 <?php
 class Control_Selection extends Control {
-
+	
 	/**
 	 *
 	 * @var Selection_Type
 	 */
 	private $type = null;
-
+	
 	/**
 	 * Get/set class associated with this selection
 	 *
@@ -25,7 +25,7 @@ class Control_Selection extends Control {
 	public function selection_code($set = null) {
 		return ($set === null) ? $this->option('selection_code', $this->selection_class()) : $this->set_option('selection_code', $set);
 	}
-
+	
 	/**
 	 *
 	 * @return Selection_Type
@@ -41,6 +41,12 @@ class Control_Selection extends Control {
 			"class" => $this->selection_class()
 		))->register();
 	}
+	
+	/**
+	 * 
+	 * {@inheritDoc}
+	 * @see Widget::initialize()
+	 */
 	protected function initialize() {
 		$class = $this->selection_class();
 		if (empty($class)) {
@@ -61,16 +67,30 @@ class Control_Selection extends Control {
 		}
 		parent::initialize();
 	}
-	public function hook_control_list_row(Model $object, Template $t) {
+	
+	/**
+	 * Update selected class attribute in list rows
+	 * 
+	 * @param Model $object
+	 * @param Control_Row $row
+	 * @param Template $t
+	 */
+	public function hook_control_list_row(Model $object, Control_Row $row, Template $t) {
 		if (!$object instanceof Object) {
 			return;
 		}
 		if ($object->member_boolean("selected")) {
-			$t->row_attributes = html::add_class($t->row_attributes, "selected");
+			$row->row_attributes(html::add_class($row->row_attributes(), "selected"));
 		} else {
-			$t->row_attributes = html::remove_class($t->row_attributes, "selected");
+			$row->row_attributes(html::remove_class($row->row_attributes(), "selected"));
 		}
 	}
+	
+	/**
+	 * Retrieve queries from the Control_List
+	 * 
+	 * @retrun array
+	 */
 	public function retrieve_queries() {
 		$top = $this->top();
 		if ($top instanceof Control_List) {
@@ -101,20 +121,33 @@ class Control_Selection extends Control {
 		$status = true;
 		$result = array();
 		$type = $this->selection_type();
+		$already_cleared = false;
 		switch ($action = $request->get("action")) {
 			case "none":
 				$message = __("Selection deleted.");
 				$type->items_clear();
+				$already_cleared = true;
 				break;
-			case "all":
+			case "add-all":
 				$message = __("Selection expanded.");
 				list($query_total, $query_list) = $this->retrieve_queries();
 				if (!$query_total) {
 					$status = false;
 					$message = __("Unable to retrieve queries");
 				} else {
-					$type->items_all($query_total, $query_list);
-					$message = __("Saved current selection.");
+					$type->items_all($query_total, $query_list, true);
+					$message = __("Added to current selection.");
+				}
+				break;
+			case "remove-all":
+				$message = __("Selection reduced.");
+				list($query_total, $query_list) = $this->retrieve_queries();
+				if (!$query_total) {
+					$status = false;
+					$message = __("Unable to retrieve queries");
+				} else {
+					$type->items_all($query_total, $query_list, false);
+					$message = __("Reduced current selection.");
 				}
 				break;
 			default :
@@ -128,10 +161,15 @@ class Control_Selection extends Control {
 				);
 				break;
 		}
+		// If the list has had everything removed from it, then just clear the list if it hasn't been cleared above already
+		$count = $type->count();
+		if ($count === 0 && !$already_cleared) {
+			$type->items_clear();
+		}
 		$response->json($result + array(
 			"status" => $status,
 			"message" => $message,
-			"count" => $type->count()
+			"count" => $count
 		));
 	}
 	public function theme_variables() {
@@ -145,6 +183,10 @@ class Control_Selection extends Control {
 		);
 	}
 	protected function hook_query_list(Database_Query_Select $query) {
+		if ($query->has_what("selected")) {
+			// TODO Why is this called twice while listing?
+			return;
+		}
 		$type_id = $this->selection_type()->id();
 		$alias = $query->alias();
 		$id_column = Object::class_id_column($query->object_class());

@@ -7,7 +7,18 @@ if (!$value instanceof Selection_Type) {
 	echo $this->empty_string;
 	return;
 }
-echo html::tag('ul', '.selection-type', html::tags('li', $value->description()));
+
+$tags = $value->description();
+$keys = array_keys($tags);
+$first_key = first($keys);
+$last_key = last($keys);
+$lines = array();
+foreach ($tags as $key => $line) {
+	$class = $key === $first_key ? ".first" : "";
+	$class = $key === $last_key ? ".last" : "";
+	$lines[] = html::tag('li', $class, $line);
+}
+echo html::tag('ul', '.selection-type', implode("\n", $lines));
 
 if ($this->show_editor) {
 	$href = url::add_ref('/selection/' . $value->id . '/list');

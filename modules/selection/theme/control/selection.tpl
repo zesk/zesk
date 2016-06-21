@@ -1,5 +1,4 @@
 <?php
-
 $this->response->cdn_javascript('/share/selection/selection.js');
 
 $name = $this->name;
@@ -7,29 +6,37 @@ $session = $this->session;
 /* @var $session Session_Interface */
 
 $plural_noun = lang::plural($this->label, 2);
+$singular_noun = $this->label;
 
-$page_format = "All {nouns} shown ({n} unselected)";
-$format = "{n} {nouns} selected";
+$format = "Control_Selection::selection_menu_title:={n} {nouns} selected";
+$zero_format = "Control_Selection::selection_menu_title_zero:=No {nouns} selected";
 
 echo html::tag_open('div', array(
 	'class' => 'control-selection-widget form-group',
 	'data-limit' => $this->limit,
 	'data-total' => $this->total,
 	'data-name' => $this->name,
-	'data-page-format' => __($page_format),
 	'data-format' => __($format),
+	'data-zero-format' => __($zero_format),
 	'data-noun' => $this->label,
 	'data-container' => $this->container,
 	'data-target' => $this->target,
 	'data-count' => $this->count
 ));
+$__ = array(
+	'noun' => $singular_noun,
+	'nouns' => $plural_noun,
+	'total' => $this->total,
+	'nouns_total' => zesk\Locale::plural($singular_noun, $this->total)
+);
 ?>
 <div class="btn-group control-selection-menu">
-	<button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">
+	<button type="button" class="btn btn-default dropdown-toggle"
+		data-toggle="dropdown">
 		<?php
 		echo html::span(array(
 			'class' => 'title'
-		), __('{n} {nouns} selected', array(
+		), __($this->count === 0 ? $zero_format : $format, array(
 			'n' => $this->count,
 			'nouns' => lang::plural($this->label, $this->count)
 		)));
@@ -44,23 +51,13 @@ echo html::tag_open('div', array(
 	echo html::tag('li', array(
 		'role' => 'presentation',
 		'class' => 'dropdown-header'
-	), __('Select {nouns} ...', array(
-		'nouns' => $plural_noun
-	)));
-
+	), __('Control_Selection::selection_menu_header:=Modify selection ...', $__));
+	
 	$plural_noun = lang::plural($this->label, 2);
 	foreach (array(
-		'none' => __('No {noun}', array(
-			'noun' => $plural_noun
-		)),
-		'page' => __($page_format, array(
-			'n' => $this->limit,
-			'nouns' => lang::plural($this->label, $this->total)
-		)),
-		'all' => __('All matching {nouns} ({n} total)', array(
-			'n' => $this->total,
-			'nouns' => lang::plural($this->label, $this->total)
-		))
+		'none' => __('Control_Selection::clear_selection:=Clear selection', $__),
+		'add-all' => __('Control_Selection::add_all:=Add {total} matching {nouns_total}', $__),
+		'remove-all' => __('Control_Selection::remove_all:=Remove {total} matching {nouns_total}', $__)
 	) as $k => $v) {
 		echo html::tag('li', html::tag('a', array(
 			'data-select-action' => $k
@@ -69,7 +66,7 @@ echo html::tag_open('div', array(
 	echo html::tag('li', array(
 		'role' => 'presentation',
 		'class' => 'dropdown-header'
-	), __('... or choose individual {nouns} below', array(
+	), __('... or select individual {nouns} below', array(
 		'nouns' => $plural_noun
 	)));
 	echo html::tag_close('ul');
@@ -79,13 +76,12 @@ echo html::tag_open('div', array(
 if (is_array($this->actions) && count($this->actions) > 0) {
 	?>
 <div class="btn-group control-selection-actions-menu">
-	<button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">
+	<button type="button" class="btn btn-default dropdown-toggle"
+		data-toggle="dropdown">
 		<?php
 	echo html::span(array(
 		'class' => 'control-selection-actions'
-	), __('{noun} actions', array(
-		'noun' => $this->label
-	)));
+	), __('Control_Selection::action_menu_title:={noun} actions', $__));
 	?>
 		<span class="caret"></span>
 	</button>

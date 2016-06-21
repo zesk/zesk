@@ -31,7 +31,8 @@ class Class_Selection_Type extends Class_Object {
 		),
 		'queries' => array(
 			"class" => "Selection_Query",
-			"foreign_key" => "type"
+			"foreign_key" => "type",
+			"order_by" => "order_index",
 		)
 	);
 }

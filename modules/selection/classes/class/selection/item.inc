@@ -1,5 +1,10 @@
 <?php
 
+/**
+ * @see Selection_Item
+ * @author kent
+ *
+ */
 class Class_Selection_Item extends Class_Object {
 
 	public $id_column = false;

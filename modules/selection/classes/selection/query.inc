@@ -6,8 +6,17 @@
  *
  */
 class Selection_Query extends Object {
+	
+	/**
+	 * Fetch or create a query
+	 * 
+	 * @param Selection_Type $type
+	 * @param Database_Query_Select $total
+	 * @param Database_Query_Select $list
+	 * @return self
+	 */
 	public static function instance(Selection_Type $type, Database_Query_Select $total, Database_Query_Select $list) {
-		$code = md5(serialize($list));
+		$code = md5(serialize(strval($list)));
 		$object = $type->application->object_factory(__CLASS__, array(
 			"type" => $type,
 			"code" => $code
@@ -22,7 +31,13 @@ class Selection_Query extends Object {
 		$object->query_list = $list;
 		return $object->store();
 	}
-
+	public function reorder() {
+		$this->order_index = $this->query("X")
+			->where("X.type", $this->type)
+			->what("*N", "MAX(X.order_index)")
+			->one_integer("N", 0) + 1;
+		return $this->store();
+	}
 	public function count() {
 		$query = $this->query_total;
 		if ($query instanceof Database_Query_Select) {
@@ -30,7 +45,6 @@ class Selection_Query extends Object {
 		}
 		return "unknown";
 	}
-
 	public static function copy_duplicate($old_type, $new_type) {
 		$map = array();
 		/* @var $query Selection_Query */

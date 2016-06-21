@@ -3,6 +3,6 @@ CREATE TABLE `{table}` (
 	`id`		integer unsigned NOT NULL,
 	`add`		tinyint NOT NULL DEFAULT '0',
 	`query`		integer unsigned NULL,
-	INDEX q (`query`),
-	INDEX tid (`type`,`id`)
+	UNIQUE tid (`type`,`id`),
+	INDEX q (`query`)
 );
