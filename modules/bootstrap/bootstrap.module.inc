@@ -8,10 +8,7 @@ if (false) {
 	$application = Application::instance();
 }
 $application->autoload_path(dirname(__FILE__) . '/classes');
-$application->theme_path(dirname(__FILE__) . '/theme'); // TODO
+$application->theme_path(dirname(__FILE__) . '/theme');
 
-
-if (is_dir(dirname(__FILE__) . '/share/dist')) {
-	$application->share_path(dirname(__FILE__) . '/share/dist', 'bootstrap');
-}
+$application->share_path(dirname(__FILE__) . '/share', 'bootstrap-x');
 
