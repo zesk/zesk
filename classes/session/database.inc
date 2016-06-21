@@ -151,7 +151,7 @@ class Session_Database extends Object implements Session_Interface {
 		$cookieExpire = self::global_cookie_expire();
 		$this->set_member("user", $user_id);
 		if ($ip === null) {
-			$ip = ip::remote();
+			$ip = IPv4::remote();
 		}
 		$this->set_member("ip", $ip);
 		$this->set_member("expires", Timestamp::now()->add_unit("second", $cookieExpire));
