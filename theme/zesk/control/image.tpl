@@ -1,7 +1,10 @@
 <?php
+$this->response->cdn_javascript('/share/zesk/js/zesk.js', array(
+	'weight' => 'first'
+));
 
-$this->response->cdn_javascript('/share/zesk/js/zesk.js', array('weight' => 'first'));
-
+/* @var $application Application */
+$application = $this->application;
 /* @var $object Model */
 $object = $this->object;
 /* @var $widget Widget */
@@ -17,7 +20,7 @@ $vi = new View_Image($this->options_include('image_host;is_relative;root_directo
 $vi_object['src'] = $image_src;
 $vi->set_option("src", $image_src);
 
-$path = $object->apply_map($this->option("dest_path", zesk::web_root() . $image_src));
+$path = $object->apply_map($this->option("dest_path", $application->document_root() . $image_src));
 $name = $this->name();
 
 if (file_exists($path) && !is_dir($path)) {
