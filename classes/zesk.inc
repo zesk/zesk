@@ -198,7 +198,7 @@ class zesk {
 	 * @return integer version of this library
 	 */
 	public static function _version_string() {
-		return explode(' ', '$Id: zesk.inc 3729 2016-03-19 14:03:02Z kent $', 4);
+		return explode(' ', '$Id: zesk.inc 3753 2016-04-29 17:50:20Z kent $', 4);
 	}
 	
 	/**
@@ -1473,7 +1473,7 @@ class zesk {
 			spl_autoload_register(array(
 				__CLASS__,
 				"_autoloader"
-			), false, true);
+			), false, defined("ZESK_NO_CONFLICT") ? false : true);
 		} else {
 			spl_autoload_register(array(
 				__CLASS__,
