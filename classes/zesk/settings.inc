@@ -37,23 +37,28 @@ class Zesk_Settings extends Object implements Interface_Data {
 	static $changes = array();
 	
 	/**
+	 * 
+	 * @var Settings
+	 */
+	private static $instance = null;
+	
+	/**
 	 * Retrieve the Settings singleton.
 	 *
 	 * @return NULL|Settings
 	 */
 	public static function instance() {
-		static $instance = null;
-		if ($instance) {
-			return $instance;
+		if (self::$instance) {
+			return self::$instance;
 		}
 		$class = zesk::get("Settings::instance_class", "Settings");
-		$instance = zesk::factory($class);
-		if (!$instance instanceof Settings) {
+		self::$instance = zesk::factory($class);
+		if (!self::$instance instanceof Settings) {
 			throw new Exception_Configuration("Settings::instance_class", "Must specify subclass of Settings, class is {class}", array(
 				"class" => $class
 			));
 		}
-		return $instance;
+		return self::$instance;
 	}
 	
 	/**
@@ -61,9 +66,19 @@ class Zesk_Settings extends Object implements Interface_Data {
 	 */
 	public static function hooks() {
 		zesk::add_hook('configured', 'Settings::configured', 'first');
+		zesk::add_hook('reset', 'Settings::reset');
 		zesk::add_hook('exit', 'Settings::flush_instance');
 	}
 	
+	/**
+	 * Reset settings
+	 */
+	public static function reset() {
+		self::$db_down = null;
+		self::$db_down_why = null;
+		self::$changes = array();
+		self::$instance = null;
+	}
 	/**
 	 * Cache for the settings
 	 *
@@ -72,7 +87,6 @@ class Zesk_Settings extends Object implements Interface_Data {
 	public static function _cache() {
 		return Cache::register(__CLASS__)->expire_after(60);
 	}
-	
 	private static function unserialize($value) {
 		try {
 			$value = unserialize($value);
