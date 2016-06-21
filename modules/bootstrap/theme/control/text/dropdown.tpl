@@ -1,5 +1,9 @@
 <?php
 
+/**
+ * Control_Text_Dropdown render template
+ * 
+ */
 /* @var $this Template */
 if (false) {
 	$response = $this->response;
@@ -13,9 +17,7 @@ if (false) {
 	$value = $this->value;
 	$variables = $this->variables;
 }
-$ia = arr::filter($variables, Widget::input_attribute_names());
-
-$ia += $widget->data_attributes();
+$ia = $this->geta("attributes");
 
 $ia['id'] = $id = $this->id;
 $ia["name"] = $name;
@@ -36,11 +38,11 @@ $button_label = $this->button_label;
 
 $side = $this->get("dropdown_alignment", "right");
 
-$addon = "";
+$html = "";
 
-$addon .= html::div_open('.input-group-btn');
+$html .= html::div_open('.input-group-btn');
 
-$addon .= html::tag('button', array(
+$html .= html::tag('button', array(
 	'type' => 'button',
 	'class' => 'btn btn-default dropdown-toggle',
 	'data-toggle' => 'dropdown',
@@ -48,7 +50,7 @@ $addon .= html::tag('button', array(
 	'aria-expanded' => 'false'
 ), $button_label . ' ' . html::span('.caret', ''));
 
-$addon .= html::tag_open('ul', array(
+$html .= html::tag_open('ul', array(
 	"class" => "dropdown-menu dropdown-menu-$side",
 	"role" => "menu"
 ));
@@ -76,7 +78,7 @@ if ($this->select_behavior_enabled && empty($dropdown_value)) {
 }
 foreach ($this->dropdown_menu as $code => $attributes) {
 	if ($attributes === '-') {
-		$addon .= html::tag('li', '.divider', '');
+		$html .= html::tag('li', '.divider', '');
 		continue;
 	}
 	if (is_string($attributes)) {
@@ -102,19 +104,19 @@ foreach ($this->dropdown_menu as $code => $attributes) {
 	if (to_bool(avalue($attributes, 'selected')) || $code === $dropdown_value) {
 		$li_attributes = html::add_class($li_attributes, "active");
 	}
-	$addon .= html::tag('li', $li_attributes, html::tag('a', $attributes, $link_html));
+	$html .= html::tag('li', $li_attributes, html::tag('a', $attributes, $link_html));
 }
-$addon .= html::tag_close('ul');
-$addon .= html::div_close(); // input-group-btn
+$html .= html::tag_close('ul');
+$html .= html::div_close(); // input-group-btn
 
 
 echo html::div_open('.input-group');
 if ($side === "left") {
-	echo $addon;
+	echo $html;
 }
 echo html::tag("input", $ia);
 if ($side !== "left") {
-	echo $addon;
+	echo $html;
 }
 echo html::div_close(); // input-group
 
