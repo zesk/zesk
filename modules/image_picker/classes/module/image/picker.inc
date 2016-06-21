@@ -8,7 +8,7 @@ class Module_Image_Picker extends Module_JSLib {
 	);
 	public function hook_routes(Router $router) {
 		$router->add_route('imagepicker', array(
-			'controller' => 'Image_Picker',
+			'controller' => 'Image_Picker'
 		));
 		$router->add_route('imagepicker/image/{Content_Image image}/delete', array(
 			'controller' => 'Image_Picker',
@@ -18,7 +18,7 @@ class Module_Image_Picker extends Module_JSLib {
 			)
 		));
 	}
-
+	
 	/**
 	 */
 	protected function hook_configured() {
@@ -27,8 +27,6 @@ class Module_Image_Picker extends Module_JSLib {
 			/* @var $module Module_TinyMCE */
 			$image_picker_button = array(
 				'title' => __('Upload Image'),
-
-				//				'text' => __('Images'),
 				'image' => '/share/image_picker/image/image-upload.png',
 				'*onclick' => 'function() { $.image_picker(editor); }'
 			);
