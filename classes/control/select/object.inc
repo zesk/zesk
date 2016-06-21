@@ -21,6 +21,7 @@ class Control_Select_Object extends Control_Select {
 	
 	/**
 	 * (non-PHPdoc)
+	 * 
 	 * @see Widget::model()
 	 */
 	protected function model() {
@@ -94,6 +95,9 @@ class Control_Select_Object extends Control_Select {
 		foreach ($rows as $key => $row) {
 			$rows[$key] = map($format, $row);
 		}
+		if ($this->option_bool("translate_after")) {
+			$rows = __($rows);
+		}
 		return $rows;
 	}
 	public function where($where = null, $append = false) {
@@ -112,9 +116,10 @@ class Control_Select_Object extends Control_Select {
 		return $this->option("where");
 	}
 	/**
+	 *
 	 * @deprecated 2015-01-12
 	 * @see Widget::object_class
-	 * @param string $set
+	 * @param string $set        	
 	 * @return Control_Select_Object|string
 	 */
 	public function _class($set = null) {
