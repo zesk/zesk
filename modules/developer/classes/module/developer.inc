@@ -10,7 +10,7 @@ class Module_Developer extends Module implements Module_Interface_Routes {
 	public static function test_ip(Application $application) {
 		$ips = zesk::geta('Module_Developer::ip_allow');
 		$development = false;
-		$ip = ip::remote();
+		$ip = IPv4::remote();
 		foreach ($ips as $mask) {
 			if ($ip === $mask) {
 				log::debug("{class}::{function}: {ip} === {mask}, development on", array(
@@ -22,7 +22,7 @@ class Module_Developer extends Module implements Module_Interface_Routes {
 				$development = true;
 				break;
 			}
-			if (ip::within_network($ip, $mask)) {
+			if (IPv4::within_network($ip, $mask)) {
 				log::debug("{class}::{function}: {ip} within network {mask}, development on", array(
 					"class" => __CLASS__,
 					"function" => __FUNCTION__,
@@ -42,9 +42,9 @@ class Module_Developer extends Module implements Module_Interface_Routes {
 		}
 	}
 	private static function ip_matches(array $ips) {
-		$ip = ip::remote();
+		$ip = IPv4::remote();
 		foreach ($ips as $mask) {
-			if ($ip === $mask || ip::within_network($ip, $mask)) {
+			if ($ip === $mask || IPv4::within_network($ip, $mask)) {
 				return true;
 			}
 		}
@@ -106,7 +106,7 @@ class Module_Developer extends Module implements Module_Interface_Routes {
 			'theme' => 'system/routes'
 		) + $extras);
 		$router->add_route('ip', array(
-			'method' => 'ip::remote',
+			'method' => 'IPv4::remote',
 			'json' => true
 		) + $extras);
 		$router->add_route('development', array(
