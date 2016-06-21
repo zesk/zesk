@@ -1,4 +1,16 @@
 <?php
+if (false) {
+	/* @var $this Template */
+	
+	$application = $this->application;
+	/* @var $application Application */
+	
+	$request = $this->request;
+	/* @var $request Request */
+	
+	$response = $this->response;
+	/* @var $response Response_HTML */
+}
 
 /**
  * @see Currency
