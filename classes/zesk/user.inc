@@ -9,10 +9,11 @@
  */
 
 /**
+ *
  * @see Class_Zesk_User
  *
  * @author kent
- *
+ *        
  */
 abstract class Zesk_User extends Object {
 	const global_instance = "User::instance";
@@ -95,7 +96,7 @@ abstract class Zesk_User extends Object {
 	/**
 	 * Set global user instance
 	 *
-	 * @param User $user
+	 * @param User $user        	
 	 * @return User
 	 */
 	static function set_instance(User $user) {
@@ -174,7 +175,7 @@ abstract class Zesk_User extends Object {
 	/**
 	 * Get or set the login column value
 	 *
-	 * @param string $set
+	 * @param string $set        	
 	 *
 	 * @return Zesk_User
 	 */
@@ -189,7 +190,7 @@ abstract class Zesk_User extends Object {
 	/**
 	 * Get or set the email column value
 	 *
-	 * @param string $set
+	 * @param string $set        	
 	 *
 	 * @return Zesk_User
 	 */
@@ -208,6 +209,7 @@ abstract class Zesk_User extends Object {
 	
 	/**
 	 * Override in subclasses to perform a final check before loading a user from the Session
+	 * 
 	 * @return boolean
 	 */
 	function check_user() {
@@ -228,6 +230,7 @@ abstract class Zesk_User extends Object {
 	}
 	
 	/**
+	 *
 	 * @deprecated 2014-02-07
 	 * @return integer|null
 	 */
@@ -241,7 +244,7 @@ abstract class Zesk_User extends Object {
 	/**
 	 * Get/set the password field
 	 *
-	 * @param string $set
+	 * @param string $set        	
 	 * @return string|User
 	 */
 	function password($set = null) {
@@ -253,12 +256,13 @@ abstract class Zesk_User extends Object {
 	}
 	
 	/**
-	 * Check a username and password. Will not authenticate user until ->authenticated(true) is called.
+	 * Check a username and password.
+	 * Will not authenticate user until ->authenticated(true) is called.
 	 *
-	 * @param string $username
-	 * @param string $password
-	 * @param string $use_hash
-	 * @param string $case_sensitive
+	 * @param string $username        	
+	 * @param string $password        	
+	 * @param string $use_hash        	
+	 * @param string $case_sensitive        	
 	 * @return boolean
 	 */
 	function authenticate($username, $password, $use_hash = true, $case_sensitive = true) {
@@ -283,7 +287,7 @@ abstract class Zesk_User extends Object {
 	/**
 	 * Get/set authentication status
 	 *
-	 * @param string $set
+	 * @param string $set        	
 	 * @return boolean Zesk_User
 	 */
 	function authenticated($set = null) {
@@ -303,8 +307,10 @@ abstract class Zesk_User extends Object {
 		$changed = false;
 		$session = Session::instance();
 		$session->authenticate($this->id(), $_SERVER['REMOTE_ADDR']);
+		User::set_instance($this);
 		$this->hook("authenticated", $session);
-		zesk::all_hook("Module::user_authenticated;Application::user_authenticated", $this, $session);
+		$this->application->hook("user_authenticated", $this, $session);
+		$this->application->module->all_hook("user_authenticated", $this, $session);
 		if ($changed) {
 			$this->store();
 		}
@@ -316,9 +322,9 @@ abstract class Zesk_User extends Object {
 	 *
 	 * Checks that user can perform action optionally on object
 	 *
-	 * @param string $action
-	 * @param Model $context
-	 * @param array $options
+	 * @param string $action        	
+	 * @param Model $context        	
+	 * @param array $options        	
 	 * @throws Exception_Permission
 	 * @return User
 	 */
@@ -349,20 +355,26 @@ abstract class Zesk_User extends Object {
 	 * $yes = $yes && $user->can("transfer", $checking, array("target" => $savings)));
 	 * </code>
 	 *
-	 * To test if ANY permission is allowed, use the | as separator for all permissions passed, like so:
+	 * To test if ANY permission is allowed, use the | as separator for all permissions passed, like
+	 * so:
 	 *
 	 * <code>
 	 * $user = User::instance();
 	 * if ($user->can("edit|view|delete", $other_user)) {
-	 * 		echo $menus; // User can edit, view, or delete
+	 * echo $menus; // User can edit, view, or delete
 	 * }
 	 * </code>
 	 *
-	 * Using the default list separator ";" means the meaning is ALL ACTIONS must be permitted to continue.
+	 * Using the default list separator ";" means the meaning is ALL ACTIONS must be permitted to
+	 * continue.
 	 *
-	 * @param mixed $action Can be an array of actions, all of which must pass, or a string of actions whose separator determines if the meaning is "AND" or "OR" for each permission.
-	 * @param mixed $context Object on which to act
-	 * @param mixed $object Extra optional settings, permission-specific
+	 * @param mixed $action
+	 *        	Can be an array of actions, all of which must pass, or a string of actions whose
+	 *        	separator determines if the meaning is "AND" or "OR" for each permission.
+	 * @param mixed $context
+	 *        	Object on which to act
+	 * @param mixed $object
+	 *        	Extra optional settings, permission-specific
 	 * @return boolean
 	 */
 	public function can($actions, $context = null, array $options = array()) {
@@ -417,7 +429,7 @@ abstract class Zesk_User extends Object {
 	/**
 	 * Check if a user can edit an object
 	 *
-	 * @param Object $object
+	 * @param Object $object        	
 	 * @return boolean
 	 */
 	function can_edit($object) {
@@ -426,7 +438,7 @@ abstract class Zesk_User extends Object {
 	/**
 	 * Check if a user can view an object
 	 *
-	 * @param Object $object
+	 * @param Object $object        	
 	 * @return boolean
 	 */
 	function can_view($object) {
@@ -439,7 +451,7 @@ abstract class Zesk_User extends Object {
 	/**
 	 * Check if a user can delete an object
 	 *
-	 * @param Object $object
+	 * @param Object $object        	
 	 * @return boolean
 	 */
 	function can_delete($object) {
@@ -447,12 +459,13 @@ abstract class Zesk_User extends Object {
 	}
 	
 	/**
-	 * Get control for User objects. TODO move this elsewhere - doesn't belong here - too specific to User structure.
+	 * Get control for User objects.
+	 * TODO move this elsewhere - doesn't belong here - too specific to User structure.
 	 *
-	 * @param string $name
-	 * @param string $label
-	 * @param string $required
-	 * @param string $active_only
+	 * @param string $name        	
+	 * @param string $label        	
+	 * @param string $required        	
+	 * @param string $active_only        	
 	 * @return Control_Select_Object
 	 */
 	static function control($name, $label, $required = false, $active_only = true) {
@@ -498,9 +511,11 @@ abstract class Zesk_User extends Object {
 	 * Use the key "permission" in value to specify a permission to check. It can be a string, or an
 	 * array of ($action, $context, $options) to check.
 	 *
-	 * @param array $actions
-	 * @param Model $context Default context to pass to "can" function
-	 * @param array $options Default options to pass to "can" function
+	 * @param array $actions        	
+	 * @param Model $context
+	 *        	Default context to pass to "can" function
+	 * @param array $options
+	 *        	Default options to pass to "can" function
 	 * @return array
 	 */
 	public function filter_actions(array $actions, Model $context = null, array $options = array()) {
