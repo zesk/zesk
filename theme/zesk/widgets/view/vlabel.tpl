@@ -1,9 +1,14 @@
 <?php
 
+/* @var $application Application */
+$application = $this->application;
+
 /* @var $request Request */
 $request = $this->request;
 /* @var $response Response */
 $response = $this->response;
+
+$cache_path = $application->cache_path("vlabels");
 
 $allowed_vlabel_fields = zesk::getl('vlabel_allowed_options', 'font-size;width;height;align;angle;title;text');
 
@@ -14,7 +19,7 @@ ksort($attributes);
 
 $cache_file = md5(serialize($attributes)) . ".png";
 
-$path = dir::create(zesk::cache_path("vlabels"), 0775);
+$path = dir::create($cache_path, 0775);
 if (!$path) {
 	$response->status_code = Net_HTTP::Status_Internal_Server_Error;
 	$response->status_message = "Permission";
