@@ -121,7 +121,7 @@ class Job extends Object implements Process_Interruptable {
 	 * {@inheritDoc}
 	 * @see Process_Interruptable::application()
 	 */
-	public function application(Application $set = null) {
+	public function application(\Application $set = null) {
 		if ($set) {
 			$this->application = $set;
 			return $this;
@@ -195,7 +195,7 @@ class Job extends Object implements Process_Interruptable {
 			"pid" => null,
 			"completed" => null,
 			'died|<=' => self::retry_attempts()
-		));
+		))->order_by("died,start");
 		$iterator = $query->object_iterator();
 		foreach ($iterator as $job) {
 			/* @var $job Job */
