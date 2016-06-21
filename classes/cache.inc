@@ -501,6 +501,7 @@ abstract class Cache implements ArrayAccess {
 	}
 
 	final static public function hooks() {
+		zesk::add_hook('reset', __CLASS__ . "::reset");
 		zesk::add_hook('exit', __CLASS__ . "::at_exit");
 	}
 
@@ -516,7 +517,15 @@ abstract class Cache implements ArrayAccess {
 		}
 	}
 
-	/**
+		/**
+	 * Cache shutdown function, called at end of request after all data has been sent to client
+	 * Flushes all Cache objects to save them to disk
+	 */
+	final static public function reset() {
+		self::$caches = array();
+	}
+
+/**
 	 * @param offset
 	 */
 	final public function offsetExists($offset) {
