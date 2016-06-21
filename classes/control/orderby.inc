@@ -87,7 +87,7 @@ class Control_OrderBy extends Control {
 			}
 		}
 		if ($new_key === null) {
-			if ($this->option_bool("list_order_default_ascending")) {
+			if ($this->option_bool("list_order_default_ascending", true)) {
 				$alt = "Sort ascending";
 				$sort_order = "sort-none";
 				$ascending = true;
