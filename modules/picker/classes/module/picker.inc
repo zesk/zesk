@@ -9,4 +9,7 @@ class Module_Picker extends Module_JSLib {
 		'/share/picker/css/picker.css'
 	);
 
+	function hook_cron() {
+		__("No matches found for search &ldquo;{q}&rdquo;.");
+	}
 }
