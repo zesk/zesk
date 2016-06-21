@@ -8,6 +8,12 @@
  * @copyright &copy; 2014 Market Acumen, Inc.
  */
 class Schema_Forgot extends Database_Schema {
+	/**
+	 * @todo if updated default value isn't 0000-00-00 00:00:00 then Forgot schema is always updated. Need to check.
+	 * 
+	 * {@inheritDoc}
+	 * @see Database_Schema::schema()
+	 */
 	function schema() {
 		$result = array(
 			'{table}' => array(
@@ -15,6 +21,11 @@ class Schema_Forgot extends Database_Schema {
 					'id' => array(
 						'type' => self::type_id,
 						'previous_name' => 'ID'
+					),
+					'login' => array(
+						'type' => 'string',
+						'not null' => false,
+						'size' => 128
 					),
 					'user' => array(
 						'type' => 'object',
@@ -42,13 +53,12 @@ class Schema_Forgot extends Database_Schema {
 					'created' => array(
 						'type' => 'timestamp',
 						'not null' => true,
-						'default' => 0,
+						'default' => 'CURRENT_TIMESTAMP',
 						'previous_name' => 'Created'
 					),
 					'updated' => array(
 						'type' => 'timestamp',
 						'not null' => false,
-						'default' => 0,
 						'previous_name' => 'Updated'
 					)
 				),
