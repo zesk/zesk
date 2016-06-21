@@ -12,7 +12,8 @@ class Controller_Login extends Controller_Template {
 		$this->hook('logout');
 		$session = Session::instance();
 		$session->deauthenticate();
-		$this->response->redirect_default(zesk::get('logout_url', '/'), __("You have logged out."));
+		$logout_url = $this->option("logout_url", zesk::get('logout_url', '/'));
+		$this->response->redirect_default($logout_url, __("You have logged out."));
 	}
 }
 
