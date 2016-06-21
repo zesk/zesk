@@ -67,10 +67,38 @@ class Control extends Widget {
 		'tr',
 		'ul'
 	);
-	protected function hook_query(Database_Query_Select $query) {
-		$debug = false;
+	
+	/**
+	 * Retrieve the key used to assign this condition to allow overwriting by subclasses
+	 *
+	 * @param Database_Query_Select $query
+	 * @return NULL|string
+	 */
+	protected function query_condition_key() {
+		$columns = $this->query_columns();
+		if (!$columns) {
+			return null;
+		}
+		return implode(";", $columns);
+	}
+	
+	/**
+	 * Retrieve the key used to assign this condition to allow overwriting by subclasses
+	 *  
+	 * @param Database_Query_Select $query
+	 * @return NULL|string
+	 */
+	protected function query_columns() {
 		$columns = to_list($this->option('query_column', $this->column()));
 		if (count($columns) === 0) {
+			return null;
+		}
+		return $columns;
+	}
+	protected function hook_query(Database_Query_Select $query) {
+		$debug = false;
+		$columns = $this->query_columns();
+		if (!$columns) {
 			return false;
 		}
 		$value = $this->value();
@@ -101,6 +129,9 @@ class Control extends Widget {
 		$query->where(array(
 			$where
 		));
+		if ($this->option_bool('skip_query_condition')) {
+			return false;
+		}
 		$query_condition_map = $this->option_array("query_condition_map");
 		$condition = avalue($query_condition_map, strval($value));
 		$column_name = $this->option('query_column_name', $this->label());
@@ -108,7 +139,7 @@ class Control extends Widget {
 			$condition = __("{column_name} is {value}", compact("column_name", "value"));
 		}
 		if ($condition) {
-			$query->condition($condition, implode(";", $columns));
+			$query->condition($condition, $this->query_condition_key());
 		}
 		return true;
 	}
