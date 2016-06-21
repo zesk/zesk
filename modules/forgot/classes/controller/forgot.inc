@@ -10,18 +10,29 @@ class Controller_Forgot extends Controller_Template {
 		$this->template->content = $this->application->theme('forgot/sent');
 	}
 	function action_validate($hash) {
+		if (!preg_match('/[0-9a-f]{32}/i', $hash)) {
+			$this->template->content = $this->application->theme('forgot/not-found', array(
+				"message_type" => "invalid-token",
+				"message" => "Validation key is not valid."
+			));
+			return;
+		}
 		/* @var $forgot Forgot */
 		$forgot = $this->object_factory('Forgot', array(
 			"code" => $hash
 		))->find();
 		if (!$forgot) {
-			$this->template->content = $this->application->theme('forgot/not-found');
+			$this->template->content = $this->application->theme('forgot/not-found', array(
+				"message_type" => "not-found",
+				"message" => __("Unable to find the validation token.")
+			));
 			return;
 		}
 		/* @var $user User */
 		$user = $forgot->user;
 		if (!$user instanceof User) {
 			$this->template->content = $this->application->theme('forgot/not-found', array(
+				"message_type" => "user-not-found",
 				"message" => "User not found."
 			));
 			return;
@@ -35,9 +46,9 @@ class Controller_Forgot extends Controller_Template {
 			$this->template->content = $this->application->theme("forgot/already");
 			return;
 		}
-
+		
 		$forgot->validated();
-
+		
 		$this->template->content = $this->application->theme("forgot/success");
 	}
 }
