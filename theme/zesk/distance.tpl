@@ -1,5 +1,4 @@
 <?php
-
 $units = $this->get('units', zesk::get('distance::units', 'km'));
 // By default, all units in kilometers
 
@@ -43,4 +42,13 @@ switch ($units) {
 		break;
 }
 
-echo html::span('.distance', $this->theme('vulgar-fraction', round($distance, 1)) . " " . __(lang::plural($units, $distance)));
+$map = array();
+$map['raw_number'] = round($distance, 1);
+$map['number'] = $this->theme('vulgar-fraction', round($distance, 1));
+$map['unit'] = $units;
+$map['units'] = __(zesk\Locale::plural($units, $distance));
+$map['distance'] = $map['number'] . ' ' . $map['units'];
+
+$format = $this->get("format", "{number} {units}");
+
+echo html::span('.distance', map($format, $map));
