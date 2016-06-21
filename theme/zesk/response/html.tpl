@@ -2,15 +2,17 @@
 
 /* @var $this Template */
 
+$application = $this->application;
+/* @var $application Application */
 $request = $this->request;
 /* @var $request Request */
 $response = $this->response;
 /* @var $response Response_HTML */
 if (!$request) {
-	$request = $this->request = Request::instance();
+	$request = $this->request = $application->request();
 }
 if (!$response) {
-	$response = $this->response = Response::instance();
+	$response = $this->response = $application->response();
 }
 
 gzip::start();
