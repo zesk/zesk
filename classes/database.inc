@@ -167,7 +167,7 @@ abstract class Database extends Hookable {
 	 *
 	 * @return array
 	 */
-	function column_attributes(Database_Table $table) {
+	function column_attributes(Database_Column $column) {
 		return array();
 	}
 
