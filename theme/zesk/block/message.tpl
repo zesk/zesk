@@ -1,9 +1,13 @@
 <?php
 
+/* @var $application Application */
+$application = $this->application;
+
 /* @var $response Response */
 $response = $this->response;
+
 if (!$response instanceof Response) {
-	$response = zesk::singleton("Response");
+	$response = $application->response();
 }
 $messages = $response->redirect_message();
 if (count($messages) > 0) {
