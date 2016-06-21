@@ -14,17 +14,19 @@ The keys in the JSON-encoded array are:
 
 ## Pattern Example
 
-    VERSION_DATA={ 
-	    "file": "${MODULE_PATH}/share/jquery.js", 
-		"pattern": "/jQuery[A-Za-z ]+v([0-9.]+)/" }
+    "version_data": { 
+	"file": "vendor/components/jquery/jquery.js", 
+	"pattern": "/jQuery[A-Za-z ]+v([0-9.]+)/" 
+    }
 
-The above example loads `modules/jquery/share/jquery.js` then searches for the pattern and returns the version number.
+The above example loads `vendor/components/jquery/jquery.js` then searches for the pattern and returns the version number.
 
 ## Key Example
 
-    VERSION_DATA={ 
-		"file": "${MODULE_PATH}/share/component.json", 
-		"key": "version" }
+    "version_data": { 
+        "file": "vendor/components/jquery/package.json", 
+	"key": "version"
+    }
 
 The above example loads the specified JSON file, parses it, and returns the version key.
 
