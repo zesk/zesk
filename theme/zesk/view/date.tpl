@@ -24,7 +24,7 @@ if ($is_empty) {
 
 $format = $this->format;
 if (!$format) {
-	$format = zesk::get('View_Date::format', "{MM}/{DD}/{YYYY} {hh}:{mm}");
+	$format = "{MM}/{DD}/{YYYY} {hh}:{mm}";
 }
 
 /* @var $timestamp Timestamp */
