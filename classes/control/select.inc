@@ -17,7 +17,6 @@
  */
 class Control_Select extends Control_Options {
 	const default_escape_values = true;
-
 	protected function initialize() {
 		parent::initialize();
 		if ($this->control_options === null) {
@@ -55,19 +54,17 @@ class Control_Select extends Control_Options {
 		}
 		return $n;
 	}
-
 	function control_options_count() {
 		return self::_control_options_count($this->control_options);
 	}
-
-// 	public function submitted() {
-// 		$name = $this->name();
-// 		if ($name && $this->request->has($name)) {
-// 			return true;
-// 		}
-// 		return false;
-// 	}
-
+	
+	// 	public function submitted() {
+	// 		$name = $this->name();
+	// 		if ($name && $this->request->has($name)) {
+	// 			return true;
+	// 		}
+	// 		return false;
+	// 	}
 	function is_visible() {
 		if (!parent::is_visible()) {
 			return false;
@@ -117,9 +114,9 @@ class Control_Select extends Control_Options {
 		}
 		return $this->validate_required();
 	}
-
 	protected function hook_query(Database_Query_Select $query) {
-		if (!parent::hook_query($query)) {
+		parent::hook_query($query);
+		if ($this->option_bool("skip_query_condition")) {
 			return false;
 		}
 		if (!$this->has_option("query_condition_map")) {
@@ -131,16 +128,14 @@ class Control_Select extends Control_Options {
 					"text_value" => $text_value
 				));
 				// Overwrite default condition set by parent
-				$query->condition($condition, $this->column());
+				$query->condition($condition, $this->query_condition_key());
 			}
 		}
 		return true;
 	}
-
 	public function escape_values($set = null) {
 		return $set !== null ? $this->set_option('escape_values', to_bool($set)) : $this->option_bool('escape_values', self::default_escape_values);
 	}
-
 	public function theme_variables() {
 		return array(
 			'escape_values' => $this->escape_values()
