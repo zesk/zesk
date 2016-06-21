@@ -460,11 +460,14 @@ class Mail extends Hookable {
 	/**
 	 * Send a text or HTML email, with optional attachments
 	 *
-	 * @param array $mail_options
-	 *        	Options for the mail, required: From, To
-	 * @return unknown
+	 * @param array $mail_options Options for the mail, required: From, To
+	 * @param array $attachments Array of arrays containing keys 
+	 *  - "file" The file name to attach (required)
+	 *  - "name" The name to use in the email for the attachment (uses basename otherwise)
+	 *  - "content_type" - The content type to use for this attachment (uses MIME detection otherwise)
+	 * @return Mail
 	 */
-	public static function mulitpart_send($mail_options, $attachments = null) {
+	public static function mulitpart_send(array $mail_options, $attachments = null) {
 		$eol = mail::mail_eol();
 		$mime_boundary = md5(microtime());
 		
@@ -599,6 +602,13 @@ class Mail extends Hookable {
 		$variables = to_array($variables);
 		return self::load(map(Template::instance($template, $variables), $variables));
 	}
+	
+	/**
+	 * Load and parse mail from a string
+	 * 
+	 * @param string $contents
+	 * @return array
+	 */
 	public static function load($contents) {
 		$lines = explode("\n", $contents);
 		$result = array();
@@ -658,6 +668,12 @@ class Mail extends Hookable {
 		// e.g. =?utf-8?q?Wordpress=20Plugin?=
 		return preg_match(self::rfc2047header, $header) !== 0;
 	}
+	
+	/**
+	 * 
+	 * @param string $header
+	 * @return array
+	 */
 	public static function header_charsets($header) {
 		$matches = null;
 		if (!preg_match_all(self::rfc2047header, $header, $matches, PREG_PATTERN_ORDER)) {
@@ -705,6 +721,7 @@ class Mail extends Hookable {
 		$newline = avalue($options, 'newline', "\r\n");
 		return avalue(explode($newline . $newline, $content, 2), 1, avalue($options, 'default', null));
 	}
+	
 	/**
 	 * Given an email, parse out the headers from the top.
 	 * A blank line indicates end of headers.
@@ -753,6 +770,10 @@ class Mail extends Hookable {
 		}
 		return $headers;
 	}
+	
+	/**
+	 * Dump a Mail object
+	 */
 	public function dump() {
 		return text::format_pairs($this->headers) . "\n\n" . $this->body;
 	}
