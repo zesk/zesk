@@ -8,6 +8,8 @@
  * @deprecated Move to specific module
  */
 
+use zesk\file as file;
+
 /**
  * Roles are defined in the system environment file /etc/environment.sh
  *
@@ -81,7 +83,7 @@ class cluster {
 	
 	public static function is_me($host_id) {
 		$my_name = system::host_id();
-		if (!ip::valid($host_id)) {
+		if (!IPv4::valid($host_id)) {
 			return ($host_id === $my_name) || ($host_id == "lan.$my_name");
 		}
 		$hosts = cluster::hosts($host_id);
