@@ -17,7 +17,7 @@ interface Process_Interruptable {
 	 *
 	 * @return Application
 	 */
-	function application(Application $set = null);
+	public function application(Application $set = null);
 
 	/**
 	 * Getter for done state
@@ -25,7 +25,7 @@ interface Process_Interruptable {
 	 * @param
 	 *        	boolean
 	 */
-	function done();
+	public function done();
 
 	/**
 	 * Kill/interrupt this process.
@@ -33,19 +33,19 @@ interface Process_Interruptable {
 	 *
 	 * @param string $interrupt
 	 */
-	function kill();
+	public function kill();
 
 	/**
 	 * Terminate this process.
 	 * Nice way to do it.
 	 */
-	function terminate();
+	public function terminate();
 
 	/**
 	 * Take a nap.
 	 * I love naps.
 	 */
-	function sleep($seconds = 1.0);
+	public function sleep($seconds = 1.0);
 
 	/**
 	 * Logging tool for processes
@@ -54,6 +54,6 @@ interface Process_Interruptable {
 	 * @param array $args
 	 * @param string $level
 	 */
-	function log($message, array $args = array(), $level = null);
+	public function log($message, array $args = array(), $level = null);
 }
 
