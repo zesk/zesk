@@ -289,8 +289,17 @@ class Template implements Interface_Theme {
 		if ($this->paths_cache instanceof Cache) {
 			return $this->paths_cache;
 		}
-		$this->paths_cache = Cache::register(get_class($this->application) . "-Template::paths");
-		return $this->paths_cache;
+		$this->paths_cache = $cache = Cache::register(get_class($this->application) . "-Template::paths");
+		$path = implode("|", $this->application->theme_path());
+		if ($cache->has("theme_path")) {
+			if ($cache->theme_path !== $path) {
+				$cache->erase();
+				$cache->theme_path = $path;
+			}
+		} else {
+			$cache->theme_path = $path;
+		}
+		return $cache;
 	}
 	
 	/**
@@ -583,10 +592,10 @@ class Template implements Interface_Theme {
 			zesk::hook("exception", $_template_exception);
 		}
 		$this->pop();
+		$contents = ob_get_clean();
 		if ($_template_exception) {
 			throw $_template_exception;
 		}
-		$contents = ob_get_clean();
 		if (self::$profile) {
 			arr::increment(self::$_stats['times'], $this->_path, microtime(true) - $__start);
 		}
