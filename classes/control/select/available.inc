@@ -1,5 +1,16 @@
 <?php
 class Control_Select_Available extends Control_Select {
+	/**
+	 * @var Control_List
+	 */
+	private $list_parent = false;
+	
+	/**
+	 * 
+	 * @param string $column_id
+	 * @param string $column_name
+	 * @return self|array
+	 */
 	public function what_columns($column_id = null, $column_name = null) {
 		if ($column_id === null) {
 			$column_id = $this->option("column_id");
@@ -17,9 +28,10 @@ class Control_Select_Available extends Control_Select {
 	}
 	
 	/**
-	 * @var Control_List
+	 * Find parent
+	 * 
+	 * @return Control_List
 	 */
-	private $list_parent = false;
 	private function _list_parent() {
 		if ($this->list_parent === false) {
 			$parent = $this;
@@ -34,9 +46,17 @@ class Control_Select_Available extends Control_Select {
 		$this->list_parent = $parent;
 		return $this->list_parent;
 	}
+	
+	/**
+	 * @return array
+	 */
 	protected function hook_options() {
 		return array();
 	}
+	
+	/**
+	 * Populate options after initialized
+	 */
 	protected function hook_initialized() {
 		$parent = $this->_list_parent();
 		/* @var $query Database_Query_Select */
