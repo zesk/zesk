@@ -787,6 +787,78 @@ class Response_HTML extends Response_Text {
 	}
 	
 	/**
+	 * Cache files in the resource paths tend to grow, particularly
+	 * @param string $extension
+	 */
+	public function clean_resource_caches($extension = null) {
+		$path = $this->resource_cache_path($extension);
+		$files = dir::list_recursive($path, array(
+			"rules_directory_walk" => array(
+				'#/cache/js#' => true,
+				'#/cache/css#' => true,
+				false
+			),
+			"add_path" => true
+		));
+		$expire_seconds = abs($this->option_integer("resource_cache_lifetime_seconds", 3600)); // 1 hour
+		$now = time();
+		$modified_after = $now - $expire_seconds;
+		$deleted = array();
+		foreach ($files as $file) {
+			if (!is_file($file)) {
+				continue;
+			}
+			$filemtime = filemtime($file);
+			if ($filemtime < $modified_after) {
+				log::debug("Deleting old file {file} modified on {when}, more than {delta} seconds ago", array(
+					"file" => $file,
+					"when" => date("Y-m-d H:i:s"),
+					"delta" => $now - $filemtime
+				));
+				@unlink($file);
+				$deleted[] = $file;
+			}
+		}
+		log::notice("Deleted {deleted} files from cache directory at {path} (Expire after {expire_seconds} seconds)", array(
+			"deleted" => count($deleted),
+			"path" => $path,
+			"expire_seconds" => $expire_seconds
+		));
+		return $deleted;
+	}
+	
+	/**
+	 * Return the href for our resource cache
+	 * 
+	 * @param string $extension
+	 * @param string $filename
+	 * @return string
+	 */
+	private function resource_cache_href($extension = null, $filename = null) {
+		$segments[] = "/cache";
+		if ($extension) {
+			$segments[] = $extension;
+			if ($filename) {
+				$segments[] = $filename;
+			}
+		}
+		return path($segments);
+	}
+	
+	/**
+	 * Return the absolute path of our resource cache
+	 * 
+	 * @param string $extension
+	 * @param string $filename
+	 * @return string
+	 */
+	private function resource_cache_path($extension = null, $filename = null) {
+		$href = $this->resource_cache_href($extension, $filename);
+		$cache_path = path($this->application->document_root(), $href);
+		return $cache_path;
+	}
+	
+	/**
 	 * Run JavaScript/CSS concatenation
 	 *
 	 * @param array $cached
@@ -795,15 +867,23 @@ class Response_HTML extends Response_Text {
 	 * @return string
 	 */
 	private function resource_cache(array $cached, $extension, $hook, &$debug) {
-		$hash = md5(serialize($cached));
-		$href = "/cache/$extension/$hash.$extension";
-		$cache_path = path(zesk::document_root(), $href);
 		$debug = array();
+		$hash = array();
 		foreach ($cached as $key => $value) {
-			if (!is_numeric($key)) {
+			if (is_numeric($key)) {
+				$hash[] = $value;
+			} else {
+				$hash[] = $key;
 				$debug[] = $key;
 			}
 		}
+		if ($this->option_bool("debug_resource_cache")) {
+			file_put_contents($this->application->application_root("/resource_cache-" . date("Y-m-d-H-i-s") . ".txt"), implode("\n", $hash));
+		}
+		$hash = md5(implode("|", $hash));
+		$cache_path = $this->resource_cache_path($extension);
+		$href = $this->resource_cache_href($extension, "$hash.$extension");
+		$cache_path = $this->resource_cache_path($extension, "$hash.$extension");
 		if (!file_exists($cache_path)) {
 			dir::depend(dirname($cache_path), 0770);
 			$content = "";
@@ -816,7 +896,6 @@ class Response_HTML extends Response_Text {
 					// $mixed is filename 
 					$content .= "/* Source: $src */\n" . $this->process_cached_type($src, $mixed, $href, $extension) . "\n";
 					$srcs[] = $src;
-					$debug[] = $src;
 				}
 			}
 			$content = $this->hook($hook, $content);
@@ -1379,6 +1458,7 @@ class Response_HTML extends Response_Text {
 			}
 		}
 		return arr::clean(parent::to_json() + array(
+			'elapsed' => microtime(true) - zesk::get('init'),
 			'scripts' => count($scripts) ? $scripts : null,
 			'stylesheets' => count($stylesheets) ? $stylesheets : null,
 			'head_tags' => count($head_tags) ? $head_tags : null,
