@@ -46,9 +46,7 @@ class lists {
 	 */
 	public static function remove($list, $item, $sep = ";") {
 		$is_arr = is_array($list);
-		if (!$is_arr) {
-			$a = explode($sep, $list);
-		}
+		$a = $is_arr ? $list : explode($sep, $list);
 		$item = to_list($item, array(), $sep);
 		foreach ($a as $k => $i) {
 			if (in_array($i, $item)) {
