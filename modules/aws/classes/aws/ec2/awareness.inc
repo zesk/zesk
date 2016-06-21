@@ -106,6 +106,26 @@ class AWS_EC2_Awareness extends Options {
 		$this->cache = Cache::register(__CLASS__)->expire_after($this->option("cache_expire_seconds", self::default_cache_expire_seconds));
 	}
 	
+	/**
+	 * @return string
+	 */
+	public function instance_id() {
+		return $this->get(self::setting_instance_id);
+	}
+	
+	/**
+	 * @return string
+	 */
+	public function local_ipv4() {
+		return $this->get(self::setting_local_ipv4);
+	}
+	
+	/**
+	 * @return string
+	 */
+	public function public_ipv4() {
+		return $this->get(self::setting_public_ipv4);
+	}
 	/*
 	 * As of 2013-07-19: <pre> ami-id ami-launch-index ami-manifest-path block-device-mapping/ hostname instance-action instance-id instance-type kernel-id local-hostname local-ipv4 mac metrics/ network/ placement/ profile public-ipv4 public-keys/ reservation-id security-groups </pre>
 	 */
