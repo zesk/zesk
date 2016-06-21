@@ -13,6 +13,7 @@ class Control_Role extends Control_Select_Object {
 		$this->options['where'] = array(
 			'X.is_default' => false
 		);
+		$this->options['translate_after'] = true;
 		parent::initialize();
 	}
 
