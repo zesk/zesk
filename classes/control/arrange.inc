@@ -9,6 +9,7 @@ class Control_Arrange extends Control_Select {
 	private $arrange_options_dirty = true;
 
 	protected function initialize() {
+		$this->set_option("skip_query_condition", true);
 		$this->_clean();
 		parent::initialize();
 	}
