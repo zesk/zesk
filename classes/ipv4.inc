@@ -238,7 +238,7 @@ class IPv4 {
 	 *
 	 * Usage:
 	 * <code>
-	 * if (ip::within_network($ip, "192.168.0.0/24")) {
+	 * if (IPv4::within_network($ip, "192.168.0.0/24")) {
 	 * echo "LANward bound!\n";
 	 * }
 	 * </code>
