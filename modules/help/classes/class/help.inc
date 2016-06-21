@@ -14,6 +14,8 @@ class Class_Help extends Class_Object {
 		'title' => self::type_string,
 		'placement' => self::type_string,
 		'content' => self::type_string,
+		'map' => self::type_serialize,
+		'content_wraps' => self::type_serialize,
 		'content_url' => self::type_string,
 		'require_user' => self::type_integer,
 		'active' => self::type_boolean,

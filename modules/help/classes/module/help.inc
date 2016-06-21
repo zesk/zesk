@@ -37,12 +37,14 @@ class Module_Help extends Module_JSLib {
 	 */
 	public function hook_head(Request $request, Response_HTML $response, Template $template) {
 		if (!$this->option_bool("disabled")) {
+			$response->cdn_javascript('/share/help/js/help.js', array(
+				'share' => true
+			));
+			$this->javascript_settings['active'] = false;
 			try {
 				$this->authenticated = User::instance()->authenticated();
 				if ($this->authenticated) {
-					$response->cdn_javascript('/share/help/js/help.js', array(
-						'share' => true
-					));
+					$this->javascript_settings['active'] = true;
 				}
 			} catch (Database_Exception $e) {
 				log::debug("Module_Help::hook_head threw exception {e}", array(
@@ -75,6 +77,13 @@ class Module_Help extends Module_JSLib {
 				}
 				continue;
 			}
+			$locale = zesk\Locale::current();
+			foreach (to_list("title", "content") as $translation_key) {
+				if (array_key_exists($translation_key, $settings)) {
+					// Will register with localization. Is there a more explicit way to do this?
+					zesk\Locale::translate($settings[$translation_key], $locale);
+				}
+			}
 			$settings['target'] = $target;
 			$help = $application->object_factory('Help', $settings)->register();
 			/* @var $help Help */
@@ -82,7 +91,7 @@ class Module_Help extends Module_JSLib {
 				log::notice("Registered help item for {target}", array(
 					'target' => $target
 				));
-			} else if ($this->option_bool('Module_Help::cron_update')) {
+			} else if ($this->option_bool('cron_update')) {
 				$help->set_member($settings)->store();
 			}
 		}
@@ -155,9 +164,29 @@ class Module_Help extends Module_JSLib {
 		}
 		foreach ($helps as $id => $help) {
 			/* @var $help Help */
-			$result[$id] = map($help->members('target;title;content;placement'), $mappables);
+			$additional_map = $help->map;
+			if (!is_array($additional_map)) {
+				$additional_map = array();
+			}
+			$help_map = $additional_map + $mappables;
+			
+			$help_entry = map($help->members('target;placement'), $help_map);
+			
+			$help_entry['title'] = __($help->title, $help_map);
+			
+			$content_wraps = $help->content_wraps;
+			$content = __($help->content, $help_map);
+			if (is_array($content_wraps)) {
+				$content = _W($content, $content_wraps);
+			}
+			
+			$help_entry['content'] = $content;
+			
+			$result[$id] = $help_entry;
 		}
-		$result[] = strval($query);
+		if ($application->development()) {
+			$result[] = strval($query);
+		}
 		$response->json($result);
 	}
 	

@@ -7,6 +7,8 @@ CREATE TABLE `{table}` (
 	`placement`		varchar(32) NOT NULL, 	
 	title			varchar(128) NOT NULL,
 	content			text NOT NULL DEFAULT '',
+	map				blob NULL,
+	content_wraps	blob NULL,
 	content_url		text NOT NULL DEFAULT '',
 	require_user	tinyint NOT NULL DEFAULT '0',
 	active			tinyint NOT NULL DEFAULT '0',

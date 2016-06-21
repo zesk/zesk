@@ -6,8 +6,10 @@
  * @property id $id
  * @property string $target
  * @property string $type
+ * @property array $map
  * @property string $title
  * @property string $content
+ * @property array $content_wraps
  * @property integer $require_user
  * @property boolean $active
  * @property Timestamp $created

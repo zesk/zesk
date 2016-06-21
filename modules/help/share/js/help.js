@@ -3,6 +3,10 @@
 	"use strict";
 	var 
 	shown = 0, 
+	__ = exports.__ || function (phrase, map) { 
+		map = map || {}; 
+		return phrase.map(map, true); 
+	},
 	helps = {},
 	show = function () {
 		var ids = [];
@@ -43,7 +47,7 @@
 			
 			$popover.addClass('help-popover');
 			$('.popover-title', $popover).before('<button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>');
-			$('.popover-content', $popover).after('<a type="button" class="close" data-dismiss="modal" aria-hidden="true">Dismiss</a>');
+			$('.popover-content', $popover).after('<a type="button" class="close" data-dismiss="modal" aria-hidden="true">' + __('Dismiss') + '</a>');
 			$('<a class="">' + + '</a>').appendTo($('.popover-content', $popover));
 			$('.close', $popover).on('click', function() {
 				shown = shown - 1;
