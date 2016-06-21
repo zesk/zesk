@@ -186,7 +186,11 @@ class Response extends Hookable {
 		Session::instance()->redirect_message = null;
 	}
 	public function redirect_message($message = null) {
-		$session = Session::instance();
+		try {
+			$session = Session::instance();
+		} catch (Exception $e) {
+			return array();
+		}
 		if (!$session) {
 			return array();
 		}
