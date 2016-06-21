@@ -1,11 +1,6 @@
 <?php
 /**
- *
- * @version $URL$
- * @package zesk
- * @subpackage forgot
- * @author kent
- * @copyright &copy; 2014 Market Acumen, Inc.
+ * @see Forgot
  */
 class Class_Forgot extends Class_Object {
 	public $id_column = "id";
@@ -15,6 +10,7 @@ class Class_Forgot extends Class_Object {
 	);
 	public $column_types = array(
 		"id" => self::type_id,
+		"login" => self::type_string,
 		"user" => self::type_object,
 		"session" => self::type_object,
 		"new_password" => self::type_hex,
