@@ -10,6 +10,6 @@ class View_IP extends View {
 
 	function render() {
 		$v = $this->value();
-		return empty($v) ? $this->empty_string() : ip::from_integer($v);
+		return empty($v) ? $this->empty_string() : IPv4::from_integer($v);
 	}
 }
