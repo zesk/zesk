@@ -105,6 +105,10 @@ abstract class Database_Schema extends Hookable {
 		parent::__construct($options);
 		$this->class_object = $class_object;
 		$this->object = $object;
+		
+		if (zesk::getb("Database_Schema::debug")) {
+			self::$debug = true;
+		}
 	}
 	
 	/**
@@ -235,9 +239,9 @@ abstract class Database_Schema extends Hookable {
 		if (is_array($primary_columns) && count($primary_columns) > 0) {
 			if (!($error = self::validate_index_column_specification($db, $primary_columns))) {
 				log::error("Invalid primary index column spec {error} in schema found in {table_name} in {context}: Invalid index name {index}", compact("error", "context", "table_name", "index"));
-				continue;
+			} else {
+				$table->index_add(new Database_Index($table, "primary", $primary_columns, Database_Index::Primary));
 			}
-			$table->index_add(new Database_Index($table, "primary", $primary_columns, Database_Index::Primary));
 		}
 		if (array_key_exists("on create", $table_schema)) {
 			if (is_array($table_schema['on create'])) {
@@ -360,6 +364,14 @@ abstract class Database_Schema extends Hookable {
 			try {
 				$actual_table = $db->database_table($table->name());
 				$sql_results = array_merge($sql_results, self::update($db, $actual_table, $table));
+				$results = $this->object->hook_array("schema_update_alter", array(
+					$this,
+					$actual_table,
+					$sql_results
+				), $sql_results);
+				if (is_array($results)) {
+					$sql_results = $results;
+				}
 			} catch (Database_Exception_Table_NotFound $e) {
 				$sql_results = array_merge($sql_results, $table->create_sql());
 			}
@@ -459,6 +471,9 @@ abstract class Database_Schema extends Hookable {
 	static function update(Database $db, Database_Table $db_table_old, Database_Table $db_table_new, $change_permanently = false) {
 		$generator = $db->sql();
 		
+		if (self::$debug) {
+			log::debug("Database_Schema::debug is enabled");
+		}
 		$table = $db_table_old->name();
 		if ($db_table_new->is_similar($db_table_old, self::$debug)) {
 			return array();
@@ -637,6 +652,5 @@ abstract class Database_Schema extends Hookable {
 		), $sql_list);
 		return $sql_list;
 	}
-	
 }
 
