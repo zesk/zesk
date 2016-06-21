@@ -143,7 +143,7 @@ class system {
 	public static function load_averages() {
 		$uptime_string = null;
 		if (file_exists("/proc/loadavg")) {
-			$uptime_string = explode(" ", file::contents("/proc/loadavg", ""));
+			$uptime_string = explode(" ", zesk\file::contents("/proc/loadavg", ""));
 		} else {
 			ob_start();
 			system("/usr/bin/uptime");
@@ -337,7 +337,7 @@ class system {
 	 */
 	public static function services_status() {
 		$path = path(zesk::get('MONITOR_SERVICES_PATH'), 'status/services');
-		$status = file::contents($path, null);
+		$status = zesk\file::contents($path, null);
 		if ($status === null) {
 			return $status;
 		}
