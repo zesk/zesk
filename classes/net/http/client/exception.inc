@@ -13,7 +13,7 @@
  * @author kent
  *
  */
-class Net_HTTP_Client_Exception extends Exception {
+class Net_HTTP_Client_Exception extends Zesk_Exception {
 	/**
 	 * Error code given by curl_errno
 	 *
