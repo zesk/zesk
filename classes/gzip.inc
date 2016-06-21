@@ -43,7 +43,7 @@ class gzip {
 			return $content;
 		}
 		header("Content-Encoding: gzip");
-		return gzencode($content, _G('gz_compress_level', 9));
+		return gzencode($content, zesk::geti('gzip::compress_level', 9));
 	}
 
 	public static function end() {
@@ -57,6 +57,7 @@ class gzip {
  * @deprecated
  */
 function gzip_handler_start() {
+	zesk::deprecated();
 	return gzip::start();
 }
 
@@ -64,6 +65,7 @@ function gzip_handler_start() {
  * @deprecated
  */
 function gzip_handler_end() {
+	zesk::deprecated();
 	return gzip::end();
 }
 
