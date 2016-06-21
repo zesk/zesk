@@ -7,6 +7,8 @@
 * @copyright Copyright &copy; 2006, Market Acumen, Inc.
 */
 
+use zesk\file as file;
+
 /**
  * Cache class is used to store files which need to remain persistent across web page requests
 * To use, do:
