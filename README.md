@@ -12,7 +12,7 @@ Zesk is a toolkit and a platform, and attempts to adhere to the DRY (Don't Repea
 
 Module integration is meant to be straightforward, seamless, and easy to manage.
 
-For more information, read the [docs](./docs).
+For more information, read the [docs](./docs/index.md).
 
 ## History 
 
