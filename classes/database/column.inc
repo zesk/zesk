@@ -15,11 +15,6 @@ class Database_Column extends Options {
 	protected $table;
 
 	/**
-	 * @var default value
-	 */
-	protected $default = null;
-
-	/**
 	 * Column name
 	 *
 	 * @var string
@@ -137,8 +132,8 @@ class Database_Column extends Options {
 				$that->is_increment()
 			);
 		}
-		$this_extras = $db->column_attributes($this->table);
-		$that_extras = $db->column_attributes($that->table);
+		$this_extras = $db->column_attributes($this);
+		$that_extras = $db->column_attributes($that);
 		foreach ($this_extras as $extra => $default) {
 			$this_value = $this->option($extra, $default);
 			$that_value = $that->option($extra, avalue($that_extras, $extra, $default));
@@ -174,15 +169,16 @@ class Database_Column extends Options {
 	}
 	public final function has_default_value($checkEmpty = false) {
 		if ($checkEmpty) {
-			return !empty($this->default);
+			$default = $this->default_value();
+			return !empty($default);
 		}
 		return array_key_exists('default', $this->options);
 	}
 	public final function default_value($set = null) {
 		if ($set === null) {
-			return $this->default;
+			return avalue($this->options, 'default');
 		}
-		$this->default = $set;
+		$this->options['default'] = $set;
 		return $this;
 	}
 	public final function binary($set = null) {
