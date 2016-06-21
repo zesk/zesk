@@ -53,7 +53,7 @@ class Module_DBLog extends Module_Log {
 			'message' => "",
 			"user" => $user,
 			"session" => Session::instance(false),
-			"ip" => ip::remote(),
+			"ip" => IPv4::remote(),
 			"pid" => zesk::pid(),
 			"level" => log::DEBUG,
 			"level_string" => "DEBUG",
