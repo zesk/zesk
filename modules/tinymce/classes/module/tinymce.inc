@@ -1,11 +1,10 @@
 <?php
 class Module_TinyMCE extends Module_JSLib implements Module_Interface_Routes {
 	protected $javascript_paths = array(
-		'/share/tinymce/tinymce.min.js' => array(
-			'nocache' => true
-		)
+		'/share/tinymce/tinymce.min.js' => array()
 	);
 	protected $tinymce_options = array(
+		'script_url' => '/share/tinymce/tinymce.min.js',
 		'menubar' => null,
 		'relative_urls' => null,
 		'selector' => 'textarea',
@@ -160,9 +159,13 @@ class Module_TinyMCE extends Module_JSLib implements Module_Interface_Routes {
 	 * @return string
 	 */
 	public function jquery_ready() {
-		$debug = "";
-		//$debug = "/* " . _backtrace() . "*/";
-		return $debug . 'tinymce.init(' . json::encodex(arr::clean($this->tinymce_options, null)) . ');';
+		$json = json::encodex(arr::clean($this->tinymce_options, null));
+		return $this->application->theme("tinymce/ready.js", array(
+			"json" => $json,
+			"base_url" => "/share/tinymce/"
+		), array(
+			"no_extension" => true
+		));
 	}
 	
 	/**
@@ -201,6 +204,9 @@ class Module_TinyMCE extends Module_JSLib implements Module_Interface_Routes {
 	}
 	private function update_options() {
 		$js = $this->setup_js;
+		
+		$js[] = "editor.on('change', function () { editor.save(); });";
+		
 		foreach ($this->insertion_menus as $code => $settings) {
 			$title = $settings['title'];
 			$menu = $settings['menu'];
@@ -224,6 +230,31 @@ class Module_TinyMCE extends Module_JSLib implements Module_Interface_Routes {
 		}
 		$this->tinymce_options['*setup'] = 'function (editor) {' . implode("\n", $js) . "}";
 		$this->tinymce_options['toolbar'] = $this->tinymce_toolbar;
+		
+		if ($this->has_option("language_url_path")) {
+			// Language file is specified relative to document root, currently. 
+			$language_url_path = $this->option("language_url_path");
+			$doc_root = $this->application->document_root();
+			$full_path = path($doc_root, $language_url_path);
+			if (!is_dir($full_path)) {
+				log::error("Directory {class}::language_url_path specifies {full_path} which is not a directory", array(
+					"class" => __CLASS__,
+					"full_path" => $full_path
+				));
+			} else {
+				$locale = zesk\Locale::current();
+				$language = zesk\Locale::language($locale);
+				foreach (array(
+					path($language_url_path, "$locale.js"),
+					path($language_url_path, "$language.js")
+				) as $uri) {
+					if (file_exists(path($doc_root, $uri))) {
+						$this->tinymce_options['language_url'] = $uri;
+						break;
+					}
+				}
+			}
+		}
 		$this->hook_ready();
 	}
 }
