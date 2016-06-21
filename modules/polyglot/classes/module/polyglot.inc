@@ -82,15 +82,26 @@ class Module_PolyGlot extends Module implements Module_Interface_Routes {
 	 */
 	public function load_locale($locale = null) {
 		$user = User::instance();
-		$source_file = $this->option("source_file");
-		if (!is_file($source_file)) {
-			throw new Exception_File_NotFound($source_file);
+		$source_files = $this->option_list("source_files");
+		$table = array();
+		foreach ($source_files as $source_file) {
+			if (!is_file($source_file)) {
+				continue;
+			}
+			$tt = zesk::load($source_file);
+			if (!is_array($tt)) {
+				throw new Exception_File_Format("Source file {basename} does not return the correct format", array(
+					"basename" => basename($source_file)
+				));
+			}
+			$table += $tt;
 		}
-		$table = zesk::load($source_file);
-		if (!is_array($table)) {
-			throw new Exception_File_Format("Source file {basename} does not return the correct format", array(
-				"basename" => basename($source_file)
-			));
+		if (count($table) === 0) {
+			foreach ($source_files as $source_file) {
+				if (!is_file($source_file)) {
+					throw new Exception_File_NotFound($source_file);
+				}
+			}
 		}
 		$existing = zesk\Locale::load($locale);
 		$table = $existing + $table;
