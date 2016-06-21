@@ -141,6 +141,9 @@ class Database_Query_Select extends Database_Query_Select_Base {
 	function columns() {
 		return arr::unprefix(array_keys($this->what), "*");
 	}
+	function has_what($column) {
+		return in_array($column, $this->columns());
+	}
 	/**
 	 * Initialize or append the what clause
 	 *
