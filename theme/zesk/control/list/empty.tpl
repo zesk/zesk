@@ -1,7 +1,16 @@
+<?php
+if (!$this->request) {
+	$request = $this->request = $this->application->request();
+}
+?>
 <div class="jumbotron">
-	<h1>No matches</h1>
-	<p>Try being less specific.</p>
-	<p>
-		<a class="btn btn-primary btn-lg" role="button" href="<?php echo $this->request->path(); ?>">Try again</a>
-	</p>
+<?php
+echo html::tag("h1", __("No matches"));
+echo html::tag("p", __("Try being less specific."));
+echo html::tag("p", html::tag("a", array(
+	"class" => "btn btn-primary btn-lg",
+	"role" => "button",
+	"href" => $request->path()
+), __("Try again")));
+?>
 </div>
