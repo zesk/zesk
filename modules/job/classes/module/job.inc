@@ -19,8 +19,11 @@ class Module_Job extends Module implements Module_Interface_Routes {
 	 * For testing, call this statically from zesk eval, a web request, or a debugger
 	 */
 	public static function fake_daemon() {
-		ini_set('max_execution_time', 5000);
-		$process = new Process_Interruptable_Mock();
+		$quit_after = 5000;
+		ini_set('max_execution_time', $quit_after);
+		$process = new Process_Interruptable_Mock(array(
+			"quit_after" => $quit_after
+		));
 		zesk\Job::execute_jobs($process);
 	}
 	
