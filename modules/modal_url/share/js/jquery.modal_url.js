@@ -37,10 +37,12 @@
 	error = function(jqXHR, textStatus, errorThrown) {
 		zesk.log(textStatus);
 		zesk.log(errorThrown);
-	}, defaults = {
+	};
+	var defaults = {
 		url : null,
 		refresh : false
-	}, Modal_URL = function(element, options) {
+	};
+	var Modal_URL = function(element, options) {
 		var self = this, $this = $(element);
 
 		this.$element = $this;
