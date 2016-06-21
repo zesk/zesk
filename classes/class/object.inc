@@ -186,7 +186,7 @@ class Class_Object extends Hookable {
 	/**
 	 * Specify the base polymorphic class here, or true if it uses a method
 	 *
-	 * @var string
+	 * @var mixed
 	 */
 	public $polymorphic = null;
 	
@@ -640,6 +640,29 @@ class Class_Object extends Hookable {
 		}
 		$result = self::$class_cache[$lowclass];
 		return avalue($result, $component, $result);
+	}
+	
+	/**
+	 * 
+	 * @param unknown $class
+	 */
+	public static function cache_dirty($class) {
+		if ($class instanceof Object) {
+			$class = get_class($class);
+		} else if ($class instanceof Class_Object) {
+			$class = $class->class;
+		} 
+		if (!is_string($class)) {
+			throw new Exception_Parameter("Invalid class passed to {method}: {value} ({type})", array(
+				"method" => __METHOD__,
+				"type" => type($class),
+				"value" => $class
+			));
+		}
+		$lowclass = strtolower($class);
+		if (array_key_exists($lowclass, self::$class_cache)) {
+			unset(self::$class_cache[$lowclass]);
+		}
 	}
 	
 	/**
@@ -1218,7 +1241,13 @@ class Class_Object extends Hookable {
 	 *
 	 * @return Database
 	 */
-	final public function database() {
+	final public function database(Database $set = null) {
+		if ($set !== null) {
+			$this->database = $set;
+			$this->database_name = $set->code_name();
+			self::cache_dirty($this);
+			return $this;
+		}
 		if ($this->database instanceof Database) {
 			return $this->database;
 		}
@@ -1479,7 +1508,7 @@ class Class_Object extends Hookable {
 				break;
 			case self::type_ip:
 			case self::type_ip4:
-				$data[$column] = $v === null ? null : ip::from_integer($v);
+				$data[$column] = $v === null ? null : IPv4::from_integer($v);
 				break;
 			case self::type_polymorph:
 				if ($v) {
@@ -1527,7 +1556,7 @@ class Class_Object extends Hookable {
 			case self::type_ip:
 			case self::type_ip4:
 				if (is_integer($data[$column])) {
-					$data[$column] = ip::from_integer($data[$column]);
+					$data[$column] = IPv4::from_integer($data[$column]);
 				}
 				break;
 			default :
