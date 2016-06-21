@@ -57,6 +57,7 @@ if ($minDate) {
 if ($maxDate) {
 	$options['maxDate'] = $maxDate->format($zformat);
 }
+$options['locale'] = $this->get("locale", zesk\Locale::language());
 // $options['icons'] = array(
 //	'today' => 'glyphicon glyphicon-home'
 // );
