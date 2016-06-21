@@ -127,13 +127,13 @@ define('MYSQL_PATTERN_TIP_ALTER', '/^--+\s*([+-])' . MYSQL_PATTERN_COLUMN_NAME .
  *
  */
 class Database_MySQL_Parser extends Database_Parser {
-
+	
 	/**
 	 *
 	 * @var Database_MySQL
 	 */
 	protected $database = null;
-
+	
 	/**
 	 * Parse DEFAULT and other options on a column
 	 *
@@ -148,13 +148,14 @@ class Database_MySQL_Parser extends Database_Parser {
 			'default \'([^\']*)\'',
 			'default (-?[0-9:]+)',
 			'default ([a-zA-Z_]+)',
+			'default current_timestamp',
 			'character set ([A-Za-z][-_A-Za-z0-9]*)',
 			'collate ([A-Za-z][-_A-Za-z0-9]*)',
 			'auto_increment',
 			'primary key',
 			'on update current_timestamp'
 		);
-
+		
 		$col_opt_matches = null;
 		$options = array();
 		$preg_pattern = '/' . implode('|', $patterns) . '/i';
@@ -176,15 +177,18 @@ class Database_MySQL_Parser extends Database_Parser {
 				case 'auto_increment':
 					$options['increment'] = true;
 					break;
+				case 'default current_timestamp':
+					$options['default'] = "CURRENT_TIMESTAMP";
+					break;
 				case 'on update current_timestamp':
 					$options['column_extras'] = 'ON UPDATE CURRENT_TIMESTAMP';
 					break;
 				case 'primary key':
 					$options['primary key'] = true;
 					break;
-				default:
+				default :
 					if (begins($type, "default ")) {
-						$default = $options['default'] = $data_type->native_type_default($sql_type, $value);
+						$options['default'] = $data_type->native_type_default($sql_type, $value);
 					}
 					if (begins($type, "character set ")) {
 						$options[Database_MySQL::attribute_character_set] = $value;
@@ -197,7 +201,7 @@ class Database_MySQL_Parser extends Database_Parser {
 		}
 		return $options;
 	}
-
+	
 	/**
 	 * Parse "int(11) unsigned AUTO_INCREMENT PRIMARY KEY NOT NULL," updating table.
 	 *
@@ -220,9 +224,9 @@ class Database_MySQL_Parser extends Database_Parser {
 			$column_name = unquote($col_match[2], '``');
 			$col_opt_matches = false;
 			$sql_type = $col_match[3];
-
+			
 			$options = $this->parse_column_options_sql($table, $sql_type, $col_match[6]);
-
+			
 			if (begins($sql_type, "varbinary")) {
 				$options['binary'] = true;
 			}
@@ -235,13 +239,23 @@ class Database_MySQL_Parser extends Database_Parser {
 			}
 			$options['type'] = $sql_type;
 			$options['sql_type'] = trim($sql_type);
-			$options += $this->database->column_attributes($table);
+			
+			if ($sql_type === "timestamp" && !isset($options['default'])) {
+				if (avalue($options, 'not null')) {
+					$options['default'] = "CURRENT_TIMESTAMP";
+				} else {
+					$options['default'] = null;
+				}
+			}
+			
 			$col = new Database_Column($table, $column_name, $options);
+			$options = $this->database->column_attributes($col);
+			$col->set_option($options, null, false);
 			$table->column_add($col);
 		}
 		return $sql;
 	}
-
+	
 	/**
 	 * Parse CREATE TABLE options
 	 *
@@ -263,7 +277,7 @@ class Database_MySQL_Parser extends Database_Parser {
 		}
 		return $table_options;
 	}
-
+	
 	/**
 	 * Given the inside of the create table command, parse and remove indexes and store in $indexes_state
 	 *
@@ -285,13 +299,13 @@ class Database_MySQL_Parser extends Database_Parser {
 			$index_name = unquote($index_match[3], '``');
 			$index_columns = unquote(arr::trim(explode(",", $index_match[4])), '``');
 			$index_structure = avalue($index_match, 5, null);
-
+			
 			$indexes_state[] = compact("index_type", "index_name", "index_columns", "index_structure");
 			$sql_columns = str_replace($index_match[0], "", $sql_columns);
 		}
 		return $sql_columns;
 	}
-
+	
 	/**
 	 * Process parsed indexes
 	 * @param Database_Table $table
@@ -312,7 +326,7 @@ class Database_MySQL_Parser extends Database_Parser {
 			}
 		}
 	}
-
+	
 	/**
 	 * Parse Tips
 	 *
@@ -328,7 +342,7 @@ class Database_MySQL_Parser extends Database_Parser {
 				$renamed_columns[$match[2]] = $match[1];
 			}
 		}
-
+		
 		$add_tips = array();
 		$remove_tips = array();
 		$tip_matches = null;
@@ -351,7 +365,7 @@ class Database_MySQL_Parser extends Database_Parser {
 			"remove" => $remove_tips
 		);
 	}
-
+	
 	/**
 	 * Allow renaming of columns and of tables using comments.
 	 *
@@ -369,7 +383,7 @@ class Database_MySQL_Parser extends Database_Parser {
 				log::notice($table->name() . " contains rename tip for non-existent new column: $previous_name => $column");
 			}
 		}
-
+		
 		$add_tips = avalue($tips, 'add', array());
 		foreach ($add_tips as $column => $add_sql) {
 			$col = $table->column($column);
@@ -384,11 +398,10 @@ class Database_MySQL_Parser extends Database_Parser {
 			$table->set_option("remove_sql", $remove_tips);
 		}
 	}
-
 	function create_index(Database_Table $table, $sql) {
 		return false;
 	}
-
+	
 	/**
 	 * The money
 	 *
@@ -398,33 +411,33 @@ class Database_MySQL_Parser extends Database_Parser {
 	function create_table($sql) {
 		$matches = false;
 		$source_sql = $sql;
-
+		
 		/*
 		 * Extract tips from SQL first, save them
 		 */
 		$tips = self::tips($sql);
 		$sql = $this->sql()->remove_comments($sql);
-
+		
 		/*
 		 * Parse table into name, columns, and options
 		 */
 		if (!preg_match(MYSQL_PATTERN_CREATE_TABLE, $sql, $matches)) {
 			throw new Exception_Parse(__("Unable to parse CREATE TABLE starting with: {0}", substr($sql, 0, 99)));
 		}
-
+		
 		$table = unquote($matches[1], "``");
-
+		
 		/*
 		 * Parse table options (end of table declaration)
 		 */
 		$table_options = self::create_table_options($matches[3]);
-
+		
 		// TODO: Need to handle DEFAULT CHARSET
 		$type = avalue($table_options, "engine", avalue($table_options, "type", $this->database->default_engine()));
 		$table = new Database_Table($this->database, $table, $type);
 		$table->source($source_sql);
 		$sql_columns = trim($matches[2]) . ",";
-
+		
 		/*
 		 * Extract indexes first
 		 */
@@ -434,14 +447,14 @@ class Database_MySQL_Parser extends Database_Parser {
 		 * Parse individual columns
 		 */
 		$sql_columns = self::parse_column_sql($table, $sql_columns);
-
+		
 		self::process_indexes($table, $indexes);
-
+		
 		/*
 		 * Apply tips to entire table
 		 */
 		self::apply_tips($table, $tips);
-
+		
 		return $table;
 	}
 }

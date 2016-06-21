@@ -1,14 +1,11 @@
 <?php
 class Database_MySQL_SQL extends Database_SQL {
-
 	public function alter_table_column_add(Database_Table $table, Database_Column $db_col_new) {
 		$newName = $db_col_new->name();
 		$newType = $this->database_column_native_type($db_col_new);
-
 		$after_column = $db_col_new->option('after_column', false);
-		return "ALTER IGNORE TABLE " . $this->quote_table($table) . " ADD COLUMN " . $this->quote_column($newName) . " $newType" . ($after_column ? " AFTER " . self::quote_column($after_column) : "");
+		return "ALTER TABLE " . $this->quote_table($table) . " ADD COLUMN " . $this->quote_column($newName) . " $newType" . ($after_column ? " AFTER " . self::quote_column($after_column) : "");
 	}
-
 	function alter_table_index_add(Database_Table $t, Database_Index $index) {
 		$name = $index->name();
 		$indexType = $index->type();
@@ -34,11 +31,10 @@ class Database_MySQL_SQL extends Database_SQL {
 					$name = " " . $this->quote_column($name);
 					$suffix = ($structure) ? " TYPE $structure" : "";
 				}
-				return "ALTER IGNORE TABLE " . $this->quote_table($table) . " ADD $indexType$name$suffix (" . implode(", ", $sqlIndexes) . ")";
+				return "ALTER TABLE " . $this->quote_table($table) . " ADD $indexType$name$suffix (" . implode(", ", $sqlIndexes) . ")";
 		}
 		throw new Exception_Invalid("Database_MySQL::sql_alter_table_index_add($table, $indexType, ...): Invalid index type $indexType");
 	}
-
 	function alter_table_attributes(Database_Table $table, array $attributes) {
 		$defaults = $this->database->table_attributes();
 		$attributes = $this->database->normalize_attributes($attributes);
@@ -48,7 +44,6 @@ class Database_MySQL_SQL extends Database_SQL {
 		}
 		return "ALTER TABLE " . $this->quote_table(strval($table)) . " " . implode(" ", $suffix);
 	}
-
 	function alter_table_change_column(Database_Table $dbtable, Database_Column $db_col_old, Database_Column $db_col_new) {
 		$table = $dbtable->name();
 		/*
@@ -66,37 +61,33 @@ class Database_MySQL_SQL extends Database_SQL {
 		// 				$increment = false;
 		// 			}
 		// 		}
-
+		
 
 		// OK to add primary key if no old primary key exists
 		$primary = $db_col_old->table()->primary() === null;
-
+		
 		// OK to add increment column if no old increment column exists
 		$increment = $db_col_old->is_increment() ? false : true;
-
-		if ($table === "User" && $db_col_new->name() === "id") {
-			// 			dump($db_col_old->table()->primary());
-			// 			echo "$table: OLD+: " . $db_col_old->is_increment() . "NEW+: " . $db_col_new->is_increment() . " Increment: $increment Primary: $primary\n";
-		}
+		
 		$newType = $this->database_column_native_type($db_col_new, $increment, $primary);
 		$previous_name = $db_col_old->name();
 		$newName = $db_col_new->name();
 		$suffix = $db_col_new->primary_key() ? " FIRST" : "";
-
-		$new_sql = "ALTER IGNORE TABLE " . $this->quote_table($table) . " CHANGE COLUMN " . $this->quote_column($previous_name) . " " . $this->quote_column($newName) . " $newType $suffix";
+		
+		$new_sql = "ALTER TABLE " . $this->quote_table($table) . " CHANGE COLUMN " . $this->quote_column($previous_name) . " " . $this->quote_column($newName) . " $newType $suffix";
 		$old_table = $db_col_old->table();
 		return $new_sql;
 	}
-
+	
 	/**
 	 * (non-PHPdoc)
 	 *
 	 * @see Database::sql_alter_table_column_drop()
 	 */
 	public function alter_table_column_drop(Database_Table $table, $dbColName) {
-		return "ALTER IGNORE TABLE " . $this->quote_table($table->name()) . " DROP COLUMN " . $this->quote_column($dbColName);
+		return "ALTER TABLE " . $this->quote_table($table->name()) . " DROP COLUMN " . $this->quote_column($dbColName);
 	}
-
+	
 	/**
 	 * (non-PHPdoc)
 	 *
@@ -114,11 +105,11 @@ class Database_MySQL_SQL extends Database_SQL {
 				return "ALTER TABLE $table_name DROP INDEX $name";
 			case Database_Index::Primary:
 				return "ALTER TABLE $table_name DROP PRIMARY KEY";
-			default:
+			default :
 				throw new Exception_Invalid("Database_MySQL::sql_alter_table_index_drop($table_name, $indexType, ...): Invalid index type $indexType");
 		}
 	}
-
+	
 	/**
 	 * SQL command to alter a table type
 	 *
@@ -132,14 +123,12 @@ class Database_MySQL_SQL extends Database_SQL {
 		}
 		return "ALTER TABLE " . $this->quote_table($table) . " ENGINE=$newType";
 	}
-
 	final function column_is_quoted($column) {
 		unquote($column, '``', $q);
 		return $q === '`';
 	}
-
+	
 	/*====================================================================================================================================*/
-
 	private function native_table_type(Database_Table $table) {
 		$engine = $table->option('engine', $this->database->default_engine());
 		if (!empty($engine)) {
@@ -147,7 +136,7 @@ class Database_MySQL_SQL extends Database_SQL {
 		}
 		return "";
 	}
-
+	
 	/**
 	 * MySQL update
 	 * @see Database_SQL::update()
@@ -181,18 +170,16 @@ class Database_MySQL_SQL extends Database_SQL {
 		}
 		return "$verb " . $this->quote_table($table) . $where;
 	}
-
 	public function remove_comments($sql) {
 		$sql = text::remove_line_comments($sql, "--");
 		$sql = text::remove_line_comments($sql, "#");
 		$sql = text::remove_range_comments($sql, "/*", "*/");
 		return $sql;
 	}
-
 	function function_ip2long($value) {
 		return "INET_ATON($value)";
 	}
-
+	
 	/**
 	 * Convert an array of column => size to proper SQL syntax, adding quoting as needed.
 	 *
@@ -227,7 +214,7 @@ class Database_MySQL_SQL extends Database_SQL {
 			case Database_Index::Primary:
 				$name = "";
 				break;
-			default:
+			default :
 				throw new Exception_Invalid("Database_MySQL::sql_index_type($table, $name, $type, ...): Invalid index type {name}", compact("name"));
 		}
 		if ($name) {
@@ -235,7 +222,6 @@ class Database_MySQL_SQL extends Database_SQL {
 		}
 		return "$type $name(" . implode(", ", $this->_sql_column_sizes_to_quoted_list($column_sizes)) . ")";
 	}
-
 	private function _sql_column_default($type, $default) {
 		$data_type = $this->database->data_type();
 		switch (strtolower($type)) {
@@ -244,9 +230,9 @@ class Database_MySQL_SQL extends Database_SQL {
 					return " DEFAULT $default";
 				}
 				if ($default === null) {
-					return " DEFAULT 0";
+					return " DEFAULT NULL"; // KMD 2016-05-09 Was DEFAULT 0
 				}
-			default:
+			default :
 				break;
 		}
 		if ($default === null) {
@@ -259,20 +245,20 @@ class Database_MySQL_SQL extends Database_SQL {
 			case "boolean":
 				$sql = str::from_bool($default);
 				break;
-			default:
+			default :
 				$sql = $default;
 				break;
 		}
 		return " DEFAULT " . $this->sql_format_string($sql);
 	}
-
+	
 	/*
 	 * String Comparison
 	 */
 	function function_compare_binary($column_name, $cmp, $string) {
 		return "$column_name $cmp BINARY " . $this->sql_format_string($string);
 	}
-
+	
 	/*
 	 * Date functions
 	 */
@@ -282,7 +268,6 @@ class Database_MySQL_SQL extends Database_SQL {
 	function now_utc() {
 		return "UTC_TIMESTAMP()";
 	}
-
 	function function_date_add($target, $number, $units = "second") {
 		$dbUnits = $this->_convert_units($number, $units);
 		return "DATE_ADD($target, INTERVAL $number $dbUnits)";
@@ -291,23 +276,19 @@ class Database_MySQL_SQL extends Database_SQL {
 		$dbUnits = $this->_convert_units($number, $units);
 		return "DATE_SUB($target, INTERVAL $number $dbUnits)";
 	}
-
 	public function function_abs($target) {
 		return "ABS($target)";
 	}
-
 	public function function_average($target) {
 		return "AVG($target)";
 	}
-
 	public function function_unhex($target) {
 		return "UNHEX($target)";
 	}
-
 	public function function_hex($target) {
 		return "HEX($target)";
 	}
-
+	
 	/**
 	 * Internal function
 	 *
@@ -336,7 +317,7 @@ class Database_MySQL_SQL extends Database_SQL {
 				return "MONTH";
 			case "year":
 				return "YEAR";
-			default:
+			default :
 				throw new Exception_Semantics("Database_MySQL::convertTimeUnit($number, $units): Unknown time unit.");
 		}
 	}
@@ -349,7 +330,7 @@ class Database_MySQL_SQL extends Database_SQL {
 	function sql_format_string($sql) {
 		return "'" . addslashes($sql) . "'";
 	}
-
+	
 	/*
 	 * Platform SQL Tools
 	 */
@@ -362,14 +343,14 @@ class Database_MySQL_SQL extends Database_SQL {
 	function sql_boolean($value) {
 		return to_bool(value) ? 1 : 0;
 	}
-
+	
 	/*
 	 * Password Type
 	 */
 	function sql_password($value) {
 		return "MD5(" . $this->sql_format_string($value) . ")";
 	}
-
+	
 	/*
 	 * Functions
 	 */
@@ -400,11 +381,11 @@ class Database_MySQL_SQL extends Database_SQL {
 				return $this->sql_table_as("HOUR($memberName)", $alias);
 			case "minute":
 				return $this->sql_table_as("MINUTE($memberName)", $alias);
-			default:
+			default :
 				return false;
 		}
 	}
-
+	
 	/**
 	 * Convert a Database_Column to a sql type for this database
 	 *
@@ -438,7 +419,7 @@ class Database_MySQL_SQL extends Database_SQL {
 			}
 		}
 		if ($dbCol->has_extras()) {
-			$sql .= $dbCol->extras();
+			$sql .= " " . $dbCol->extras();
 		}
 		return $sql;
 	}
@@ -451,10 +432,9 @@ class Database_MySQL_SQL extends Database_SQL {
 			"DROP TABLE IF EXISTS $table"
 		);
 	}
-
 	function create_table(Database_Table $table) {
 		$columns = $table->columns();
-
+		
 		$types = array();
 		foreach ($columns as $dbCol) {
 			if (!$dbCol->has_sql_type() && !$this->type_set_sql_type($dbCol)) {
@@ -494,7 +474,7 @@ class Database_MySQL_SQL extends Database_SQL {
 		$types = implode(",\n\t", $types);
 		$result = array();
 		$result[] = "CREATE TABLE " . $this->quote_table($table->name()) . " (\n\t$types\n) " . $this->native_table_type($table);
-
+		
 		return array_merge($result, $alters);
 	}
 	/**
@@ -517,7 +497,7 @@ class Database_MySQL_SQL extends Database_SQL {
 			"`" => "``"
 		)) . '`';
 	}
-
+	
 	/**
 	 * (non-PHPdoc)
 	 *
@@ -543,7 +523,7 @@ class Database_MySQL_SQL extends Database_SQL {
 			"``" => "`"
 		));
 	}
-
+	
 	/**
 	 *
 	 * @param string $table
@@ -563,10 +543,8 @@ class Database_MySQL_SQL extends Database_SQL {
 	public function function_date_diff($date_a, $date_b) {
 		return "TIMESTAMPDIFF(SECOND,$date_b,$date_a)";
 	}
-
 	public function hook_schema(array $sql_list) {
 		$alter_combine_prefixes = array(
-			"ALTER IGNORE TABLE ",
 			"ALTER TABLE  "
 		);
 		foreach ($alter_combine_prefixes as $alter_combine_prefix) {
