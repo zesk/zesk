@@ -67,8 +67,7 @@ class Zesk_Command {
 	 * @return Zesk_Command
 	 */
 	public static function instance() {
-		$class = __CLASS__;
-		return new $class();
+		return new self();
 	}
 
 	/**
