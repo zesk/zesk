@@ -15,7 +15,7 @@
  */
 class arr {
 	const TRIM_WHITESPACE = " \t\r\n\0\x0B";
-
+	
 	/**
 	 * Capitalize all values in an array
 	 *
@@ -90,7 +90,7 @@ class arr {
 		}
 		return $a;
 	}
-
+	
 	/**
 	 * Calls PHP trim() on each element of an array.
 	 * If $a is not an array, returns trim($a)
@@ -109,7 +109,7 @@ class arr {
 		}
 		return $a;
 	}
-
+	
 	/**
 	 * Trim array values, then remove ones which match the empty string.
 	 *
@@ -121,7 +121,7 @@ class arr {
 	static function trim_clean($arr, $charlist = self::TRIM_WHITESPACE, $value = "") {
 		return self::clean(self::trim($arr, $charlist), $value);
 	}
-
+	
 	/**
 	 * Calls PHP rtrim() on each element of an array.
 	 * If $a is not an array, returns rtrim($a)
@@ -140,7 +140,7 @@ class arr {
 		}
 		return $a;
 	}
-
+	
 	/**
 	 * Calls PHP ltrim() on each element of an array.
 	 * If $a is not an array, returns ltrim($a)
@@ -159,7 +159,7 @@ class arr {
 		}
 		return $a;
 	}
-
+	
 	/**
 	 * Calls PHP ltrim() on each key of an array.
 	 * If $a is not an array, returns ltrim($a)
@@ -179,7 +179,7 @@ class arr {
 		}
 		return $b;
 	}
-
+	
 	/**
 	 * Calls PHP trim() on each key of an array.
 	 * If $a is not an array, returns trim($a)
@@ -199,7 +199,7 @@ class arr {
 		}
 		return $b;
 	}
-
+	
 	/**
 	 * Prefix each value in an array with a string
 	 *
@@ -213,7 +213,7 @@ class arr {
 		}
 		return $arr;
 	}
-
+	
 	/**
 	 * Suffix each value in an array with a string
 	 *
@@ -227,7 +227,7 @@ class arr {
 		}
 		return $arr;
 	}
-
+	
 	/**
 	 * Wrap each value in an array with a string (prefix and suffix)
 	 *
@@ -242,7 +242,7 @@ class arr {
 		}
 		return $arr;
 	}
-
+	
 	/**
 	 * Prefix each key in an array with a string
 	 *
@@ -257,7 +257,7 @@ class arr {
 		}
 		return $result;
 	}
-
+	
 	/**
 	 * Suffix each key in an array with a string
 	 *
@@ -272,7 +272,7 @@ class arr {
 		}
 		return $result;
 	}
-
+	
 	/**
 	 * Wrap each key in an array with a string (prefix and suffix)
 	 *
@@ -288,7 +288,7 @@ class arr {
 		}
 		return $result;
 	}
-
+	
 	/**
 	 * Remove a string prefix from each value in an array.
 	 * Works recursivly on arrays in arrays.
@@ -314,7 +314,7 @@ class arr {
 		}
 		return $arr;
 	}
-
+	
 	/**
 	 * Remove a string suffix from each value in an array.
 	 * Works recursivly on arrays in arrays.
@@ -340,7 +340,7 @@ class arr {
 		}
 		return $arr;
 	}
-
+	
 	/**
 	 * Remove a string prefix and suffix from each value in an array.
 	 * Works recursivly on arrays in arrays.
@@ -368,7 +368,7 @@ class arr {
 		}
 		return $arr;
 	}
-
+	
 	/**
 	 * Remove a string prefix from each key in an array
 	 *
@@ -390,7 +390,7 @@ class arr {
 		}
 		return $result;
 	}
-
+	
 	/**
 	 * Remove a string suffix from each key in an array
 	 *
@@ -412,7 +412,7 @@ class arr {
 		}
 		return $result;
 	}
-
+	
 	/**
 	 * Remove keys from an array
 	 *
@@ -427,7 +427,7 @@ class arr {
 		}
 		return $arr;
 	}
-
+	
 	/**
 	 * Remove values from an array
 	 *
@@ -444,7 +444,7 @@ class arr {
 		}
 		return $arr;
 	}
-
+	
 	/**
 	 * Merges one or more arrays recursively and preserves all keys.
 	 * Note that this does not work the same the PHP function array_merge_recursive()!
@@ -459,7 +459,7 @@ class arr {
 	 */
 	public static function merge(array $a1) {
 		$result = array();
-		for($i = 0, $total = func_num_args(); $i < $total; $i++) {
+		for ($i = 0, $total = func_num_args(); $i < $total; $i++) {
 			foreach (func_get_arg($i) as $key => $val) {
 				if (isset($result[$key])) {
 					if (is_array($val)) {
@@ -480,7 +480,7 @@ class arr {
 		}
 		return $result;
 	}
-
+	
 	/**
 	 * Partner of path - sets an array path to a specific value
 	 *
@@ -493,7 +493,7 @@ class arr {
 	public static function path_set(array &$array, $path, $value, $separator = ".") {
 		return apath_set($array, $path, $value, $separator);
 	}
-
+	
 	/**
 	 * Gets a value from an array using a delimited separated path.
 	 * // Get the value of $array['foo']['bar']
@@ -512,7 +512,7 @@ class arr {
 	public static function path(array $array, $path, $default = null, $separator = ".") {
 		return apath($array, $path, $default, $separator);
 	}
-
+	
 	/**
 	 * Take a list of arrays and create a new array using values found in it.
 	 *
@@ -534,7 +534,7 @@ class arr {
 		}
 		return $result;
 	}
-
+	
 	/**
 	 * Convert array("col1","col2","col3"), array("zero", 1, false)) to
 	 * array("col1" => "zero", "col2" => 1, "col3" => false);
@@ -558,7 +558,7 @@ class arr {
 		}
 		return $result;
 	}
-
+	
 	/**
 	 * Convert key names in this array to new key names
 	 *
@@ -584,7 +584,7 @@ class arr {
 		}
 		return $new_array;
 	}
-
+	
 	/**
 	 * Convert values in this array to new values
 	 *
@@ -605,7 +605,7 @@ class arr {
 		}
 		return $array;
 	}
-
+	
 	/**
 	 * Kind of like UNIX "awk '{ print $index }'"
 	 * Null for index means return the whole list as an array
@@ -625,7 +625,7 @@ class arr {
 		}
 		return $array;
 	}
-
+	
 	/**
 	 * Convert a list of strings to a set of key pairs
 	 *
@@ -642,7 +642,7 @@ class arr {
 		}
 		return $result;
 	}
-
+	
 	/**
 	 * Returns whether an array is an associative array (true) or a simple list (false).
 	 *
@@ -659,7 +659,7 @@ class arr {
 		}
 		return false;
 	}
-
+	
 	/**
 	 * Returns whether an array is an associative array (false) or a simple list (true).
 	 *
@@ -672,7 +672,7 @@ class arr {
 		}
 		return !self::is_assoc($mixed);
 	}
-
+	
 	/**
 	 * Return true if an array has all keys specified
 	 *
@@ -691,7 +691,7 @@ class arr {
 		}
 		return true;
 	}
-
+	
 	/**
 	 * Return true if an array has all values specified
 	 *
@@ -710,7 +710,7 @@ class arr {
 		}
 		return true;
 	}
-
+	
 	/**
 	 * Return true if an array has any keys specified
 	 *
@@ -729,7 +729,7 @@ class arr {
 		}
 		return false;
 	}
-
+	
 	/**
 	 * Return true if an array has any keys specified
 	 *
@@ -748,7 +748,7 @@ class arr {
 		}
 		return false;
 	}
-
+	
 	/**
 	 * Finds the minimum numerical value in an array.
 	 * Note that no type conversion happens; if you want an integer, then call intval on the result
@@ -773,7 +773,7 @@ class arr {
 		}
 		return ($min === null) ? $default : $min;
 	}
-
+	
 	/**
 	 * Finds the maximum numerical value in an array.
 	 * Note that no type conversion happens; if you want an integer, then call intval on the result
@@ -798,7 +798,7 @@ class arr {
 		}
 		return ($max === null) ? $default : $max;
 	}
-
+	
 	/**
 	 * Like array_change_key_case, but for values.
 	 * Only converts string values, numbers, booleans and objects are left alone.
@@ -817,7 +817,7 @@ class arr {
 		}
 		return $r;
 	}
-
+	
 	/**
 	 * Include only certain entries in an array
 	 *
@@ -846,7 +846,7 @@ class arr {
 		}
 		return $r;
 	}
-
+	
 	/**
 	 * Extract certain key values which have a certain prefix from one array into a new array
 	 *
@@ -869,7 +869,7 @@ class arr {
 		}
 		return $r;
 	}
-
+	
 	/**
 	 * Includes or excludes array values from an array.
 	 *
@@ -903,14 +903,14 @@ class arr {
 				$exclude = array_change_key_case($exclude);
 			}
 			foreach ($a as $i => $action) {
-				if (isset($exclude[$action])) {
+				if (array_key_exists($action, $exclude)) {
 					unset($newa[$i]);
 				}
 			}
 		}
 		return $newa;
 	}
-
+	
 	/**
 	 * Includes or excludes array keys from an array.
 	 *
@@ -940,7 +940,7 @@ class arr {
 		if (!is_array($include) && !is_array($exclude)) {
 			return $a;
 		}
-
+		
 		$ak = array_keys($a);
 		if (is_array($exclude)) {
 			$exclude = array_flip($exclude);
@@ -977,7 +977,7 @@ class arr {
 		}
 		return $a;
 	}
-
+	
 	/**
 	 * Modifies an array value in the following manner, when adding a key multiple times:
 	 * <ol>
@@ -1031,7 +1031,7 @@ class arr {
 			}
 		}
 	}
-
+	
 	/**
 	 * Modifies an array value in the following manner, when adding a key multiple times:
 	 * <ol>
@@ -1085,7 +1085,7 @@ class arr {
 			}
 		}
 	}
-
+	
 	/**
 	 * Given an array with just values, converts it to an associative array with the keys and the
 	 * values identical (or
@@ -1121,7 +1121,7 @@ class arr {
 		}
 		return $result;
 	}
-
+	
 	/**
 	 * Flips array but when identical keys exist, keeps all duplicate values, so:
 	 *
@@ -1177,7 +1177,7 @@ class arr {
 		}
 		return $result;
 	}
-
+	
 	/**
 	 * Find a series of keys in an array and return the first found key.
 	 * If the found value is empty, return the default value.
@@ -1201,7 +1201,7 @@ class arr {
 		}
 		return false;
 	}
-
+	
 	/**
 	 * inserts values from $arr2 after (or before) $key in $arr1
 	 * if $key is not found, values from $arr2 are appended to the end of $arr1
@@ -1240,7 +1240,7 @@ class arr {
 		}
 		return $result;
 	}
-
+	
 	/**
 	 * Tests for a key in an array, if not available, sets to 1, otherwise increments
 	 *
@@ -1258,7 +1258,7 @@ class arr {
 		}
 		return $arr[$k] = $amount;
 	}
-
+	
 	/**
 	 * Given a string and an array of strings, find if string $needles exists in $haystack.
 	 * <em>Performs a
@@ -1278,7 +1278,7 @@ class arr {
 		}
 		return false;
 	}
-
+	
 	/**
 	 * Given a string and an array of strings, find if string $haystack exists in $needles.
 	 * <em>Case sensitive.</em>
@@ -1296,7 +1296,7 @@ class arr {
 		}
 		return false;
 	}
-
+	
 	/**
 	 * Given arrays and string inputs, find if any needles appear in haystack.
 	 * <em>Case sensitive.</em>
@@ -1325,7 +1325,7 @@ class arr {
 		}
 		return (strpos($haystack, $needles) !== false);
 	}
-
+	
 	/**
 	 * Given arrays and string inputs, find if any needles appear in haystack.
 	 * <em>Case sensitive.</em>
@@ -1350,7 +1350,7 @@ class arr {
 		}
 		return $result;
 	}
-
+	
 	/**
 	 * Given arrays and string inputs, find if any needles appear in haystack.
 	 * <em>Case insensitive.</em>
@@ -1375,7 +1375,7 @@ class arr {
 		}
 		return $result;
 	}
-
+	
 	/**
 	 * Run preg_quote on an array of values
 	 * @param mixed $string Array or string to preg_quote
@@ -1413,7 +1413,7 @@ class arr {
 		}
 		return $new;
 	}
-
+	
 	/**
 	 * Return the topmost element
 	 *
@@ -1426,7 +1426,7 @@ class arr {
 		}
 		return $array[count($array) - 1];
 	}
-
+	
 	/**
 	 * Collapse a keyed array containing arrays
 	 * e.g.
@@ -1456,7 +1456,7 @@ class arr {
 		}
 		return $array;
 	}
-
+	
 	/**
 	 * Convert all values in an array to integers
 	 * @param array $arr
@@ -1469,7 +1469,7 @@ class arr {
 		}
 		return $arr;
 	}
-
+	
 	/**
 	 * Replace string with another string in keys for this array
 	 * @param array $arr
@@ -1486,7 +1486,7 @@ class arr {
 		}
 		return $new;
 	}
-
+	
 	/**
 	 * Add up two vectors
 	 *
@@ -1501,7 +1501,7 @@ class arr {
 		$term += $add;
 		return $term;
 	}
-
+	
 	/**
 	 * Scale an array of numbers by a value.
 	 * Can be associative or a single value.
@@ -1525,7 +1525,7 @@ class arr {
 		}
 		return $target;
 	}
-
+	
 	/**
 	 * Add an array of numbers by a value.
 	 * Can be associative or a single value.
@@ -1549,7 +1549,7 @@ class arr {
 		}
 		return $target;
 	}
-
+	
 	/**
 	 * Join an array to a string, and wrap each value with a prefix and suffix.
 	 * Returns the empty string if array is empty.
@@ -1565,7 +1565,7 @@ class arr {
 		}
 		return $prefix . implode($suffix . $prefix, $array) . $suffix;
 	}
-
+	
 	/**
 	 * Join an array to a string, and prefix each value
 	 * Returns the empty string if array is empty.
@@ -1577,7 +1577,7 @@ class arr {
 	public static function join_prefix(array $array, $prefix) {
 		return self::join_wrap($array, $prefix);
 	}
-
+	
 	/**
 	 * Join an array to a string, and adds a suffix to each value
 	 * Returns the empty string if array is empty.
@@ -1589,7 +1589,7 @@ class arr {
 	public static function join_suffix(array $array, $suffix) {
 		return self::join_wrap($array, "", $suffix);
 	}
-
+	
 	/**
 	 * Convert all values within an array to scalar values
 	 *
@@ -1606,7 +1606,7 @@ class arr {
 		}
 		return $array;
 	}
-
+	
 	/**
 	 * Filter an array by on or more values
 	 *
@@ -1633,7 +1633,7 @@ class arr {
 		}
 		return $result;
 	}
-
+	
 	/**
 	 * Filter an array by one or more values
 	 *
@@ -1651,7 +1651,6 @@ class arr {
 		}
 		return $result;
 	}
-
 	public static function key_maximum_length(array $array) {
 		$len = 0;
 		foreach ($array as $key => $value) {
@@ -1659,7 +1658,6 @@ class arr {
 		}
 		return $len;
 	}
-
 	public static function key_minimum_length(array $array) {
 		$len = 0;
 		foreach ($array as $key => $value) {
@@ -1667,7 +1665,7 @@ class arr {
 		}
 		return $len;
 	}
-
+	
 	/**
 	 * Convert multi-dimensional arrays to a single-dimensino array, using separator to separate entities
 	 * @param array $array
