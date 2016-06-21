@@ -9,14 +9,14 @@
  */
 class Control_List extends Control_Widgets_Filter {
 	protected $theme = "control/list";
-
+	
 	/**
 	 * Class of the object we're listing.
 	 *
 	 * @var string
 	 */
 	protected $class = null;
-
+	
 	/**
 	 *
 	 * @var Class_Object
@@ -28,68 +28,68 @@ class Control_List extends Control_Widgets_Filter {
 	 * @var string
 	 */
 	protected $class_options = null;
-
+	
 	/**
 	 *
 	 * @var Control_Pager
 	 */
 	protected $pager = null;
-
+	
 	/**
 	 * Query
 	 *
 	 * @var Database_Query_Select
 	 */
 	protected $query = null;
-
+	
 	/**
 	 * Total query
 	 *
 	 * @var Database_Query_Select
 	 */
 	protected $query_total = null;
-
+	
 	/**
 	 * Theme when no content exists/filter is empty
 	 *
 	 * @var string
 	 */
 	protected $theme_empty = null;
-
+	
 	/**
 	 * Header theme
 	 *
 	 * @var string
 	 */
 	protected $theme_prefix = null;
-
+	
 	/**
 	 * Header theme
 	 *
 	 * @var string
 	 */
 	protected $theme_header = null;
-
+	
 	/**
 	 * Main list content, iterates and creates rows
 	 *
 	 * @var string
 	 */
 	protected $theme_content = null;
-
+	
 	/**
 	 * Row theme
 	 *
 	 * @var string
 	 */
 	protected $theme_row = null;
-
+	
 	/**
 	 *
 	 * @var string
 	 */
 	protected $theme_widgets = null;
-
+	
 	/**
 	 * Footer theme
 	 *
@@ -102,7 +102,7 @@ class Control_List extends Control_Widgets_Filter {
 	 * @var string
 	 */
 	protected $theme_suffix = null;
-
+	
 	/**
 	 * Row tag
 	 */
@@ -127,20 +127,20 @@ class Control_List extends Control_Widgets_Filter {
 	protected $row_attributes = array(
 		"class" => "row"
 	);
-
+	
 	/**
 	 *
 	 * @var array
 	 */
 	protected $widgets = array();
-
+	
 	/**
 	 * Cell tag
 	 *
 	 * @var array
 	 */
 	protected $widget_tag = "div";
-
+	
 	/**
 	 * Cell attributes
 	 *
@@ -149,27 +149,27 @@ class Control_List extends Control_Widgets_Filter {
 	protected $widget_attributes = array(
 		"class" => "cell"
 	);
-
+	
 	/**
 	 * Total of list, cached
 	 *
 	 * @var integer
 	 */
 	protected $cache_total = null;
-
+	
 	/**
 	 *
 	 * @var boolean
 	 */
 	protected $query_hooked = false;
-
+	
 	/**
 	 * Widget for row
 	 *
 	 * @var Control_Row
 	 */
 	protected $row_widget = null;
-
+	
 	/**
 	 * Widgets to execute per-output row
 	 * Deprecate this and place into row_widget, eventually
@@ -177,7 +177,7 @@ class Control_List extends Control_Widgets_Filter {
 	 * @var array
 	 */
 	protected $row_widgets = array();
-
+	
 	/**
 	 * Widgets to execute for header
 	 *
@@ -190,14 +190,14 @@ class Control_List extends Control_Widgets_Filter {
 	 * @var Control_Header
 	 */
 	protected $header_widget = null;
-
+	
 	/**
 	 * Widget which does a generic text search
 	 *
 	 * @var string
 	 */
 	protected $search_widget = null;
-
+	
 	/**
 	 * Text search query
 	 *
@@ -210,7 +210,7 @@ class Control_List extends Control_Widgets_Filter {
 	function model() {
 		return new Model_List();
 	}
-
+	
 	/**
 	 * Set/get title
 	 *
@@ -220,7 +220,7 @@ class Control_List extends Control_Widgets_Filter {
 	public function title($set = null) {
 		return $set === null ? $this->option('title') : $this->set_option('title', $set);
 	}
-
+	
 	/**
 	 *
 	 * @param string $set
@@ -235,9 +235,9 @@ class Control_List extends Control_Widgets_Filter {
 	protected function initialize() {
 		//$this->object = Object::cache_object($this->class);
 		$this->initialize_theme_paths();
-
+		
 		$this->class_object = Object::cache_class($this->class, "class");
-
+		
 		$this->row_widget = $row_widget = new Control_Row();
 		$row_widget->names($this->name() . '_row');
 		$row_widget->children($this->row_widgets = $this->hook_array('widgets', array(), array()));
@@ -245,20 +245,20 @@ class Control_List extends Control_Widgets_Filter {
 		$row_widget->row_attributes($this->row_attributes);
 		$row_widget->set_theme($this->theme_row);
 		$this->child($row_widget);
-
+		
 		$this->hook("row_widget", $this->row_widget);
-
+		
 		$this->initialize_header_widgets();
 		$this->initialize_query();
 		$this->initialize_filter();
-
+		
 		if ($this->show_pager()) {
 			$options = arr::kunprefix($this->options, "pager_", true);
 			$this->pager = new Control_Pager();
 			$this->child($this->pager);
 			$this->children_hook('pager', $this->pager);
 		}
-
+		
 		parent::initialize();
 	}
 	protected function initialize_query() {
@@ -277,7 +277,7 @@ class Control_List extends Control_Widgets_Filter {
 			$this->children_hook('pager', $this->pager);
 		}
 	}
-
+	
 	/**
 	 * Set up theme paths
 	 *
@@ -306,26 +306,27 @@ class Control_List extends Control_Widgets_Filter {
 			if ($widget->has_option("list_order_by", true)) {
 				$w = $this->header_widgets[$widget->name()] = $this->widget_factory("Control_OrderBy", $widget->options_include($included))->names("" . $widget->name(), $widget->label());
 			} else {
-				$w = $this->header_widgets[$widget->name()] = $this->widget_factory('View_Text', $widget->options_include($included))->names($widget->name())->set_option("value", $widget->option("label_header", $widget->label()));
+				$w = $this->header_widgets[$widget->name()] = $this->widget_factory('View_Text', $widget->options_include($included))
+					->names($widget->name())
+					->set_option("value", $widget->option("label_header", $widget->label()));
 			}
 			$header_widget->child($w);
 		}
 		$this->child($header_widget);
 		$this->hook("header_widget", $header_widget);
 	}
-
 	private function _prepare_queries() {
 		if (!$this->query_hooked) {
 			$this->children_hook("before_query;before_query_list", $this->query);
 			$this->children_hook("before_query;before_query_total", $this->query_total);
-
+			
 			$this->children_hook("query;query_list", $this->query);
 			$this->children_hook("query;query_total", $this->query_total);
-
+			
 			$this->children_hook("after_query;after_query_list", $this->query);
 			$this->children_hook("after_query;after_query_total", $this->query_total);
 			$this->query_hooked = true;
-
+			
 			$this->cache_total = $this->total();
 			$this->children_hook("total", $this->cache_total);
 			if ($this->has_option('force_limit')) {
@@ -352,6 +353,8 @@ class Control_List extends Control_Widgets_Filter {
 			'list_object_names' => lang::plural(__($class_object->name)),
 			'list_class' => $this->class,
 			'list_class_object' => $this->class_object,
+			'list_is_empty' => $this->cache_total === 0,
+			'empty_list_hide_header' => $this->option_bool("empty_list_hide_header"),
 			'pager' => $this->pager,
 			'theme_prefix' => $this->theme_prefix,
 			'theme_header' => $this->theme_header,
@@ -369,7 +372,7 @@ class Control_List extends Control_Widgets_Filter {
 			'theme_widgets' => $this->theme_widgets
 		) + parent::theme_variables() + $this->options;
 	}
-
+	
 	/**
 	 * Retrieve select query for list
 	 *
@@ -382,7 +385,7 @@ class Control_List extends Control_Widgets_Filter {
 		}
 		return $query;
 	}
-
+	
 	/**
 	 * Create the total query
 	 *
@@ -401,7 +404,7 @@ class Control_List extends Control_Widgets_Filter {
 		$what = $pk ? implode(",", arr::prefix($pk, "X.")) : "*";
 		return $what;
 	}
-
+	
 	/**
 	 * Return total elements in this query
 	 *
@@ -423,7 +426,7 @@ class Control_List extends Control_Widgets_Filter {
 		$this->_prepare_queries();
 		return $this->query;
 	}
-
+	
 	/**
 	 *
 	 * @return Database_Query_Select
@@ -432,7 +435,6 @@ class Control_List extends Control_Widgets_Filter {
 		$this->_prepare_queries();
 		return $this->query_total;
 	}
-
 	public function submitted() {
 		$name = $this->name();
 		if ($name && $this->request->has($name)) {
@@ -440,7 +442,6 @@ class Control_List extends Control_Widgets_Filter {
 		}
 		return $this->request->is_post();
 	}
-
 	public function hook_initialized() {
 		if ($this->search_query === null) {
 			return;
@@ -469,7 +470,10 @@ class Control_List extends Control_Widgets_Filter {
 		$this->ready();
 		$this->defaults();
 		$this->initialize_query();
-		$content = $this->force_limit($force_limit)->show_pager(false)->show_filter(false)->execute();
+		$content = $this->force_limit($force_limit)
+			->show_pager(false)
+			->show_filter(false)
+			->execute();
 		$total = $this->total();
 		return array(
 			'content' => $content,
