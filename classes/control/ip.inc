@@ -12,7 +12,7 @@ class Control_IP extends Control {
 
 	function validate() {
 		$value = $this->request->get($this->name());
-		if (ip::valid($value)) {
+		if (IPv4::valid($value)) {
 			$this->value(ip2long($value));
 			return true;
 		}
