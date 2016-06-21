@@ -13,7 +13,7 @@ abstract class Command_Base extends Command {
 	 *
 	 * @see Command::initialize()
 	 */
-	function initialize() {
+	protected function initialize() {
 		$this->inherit_global_options();
 		$this->option_types['log'] = 'string';
 		$this->option_types['log-level'] = 'string';
