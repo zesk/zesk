@@ -106,6 +106,13 @@ class Command_Daemon extends Command_Base implements Process_Interruptable {
 	private $db_debug = false;
 	
 	/**
+	 * Set to true in subclasses to skip Application configuration until ->go
+	 *
+	 * @var boolean
+	 */
+	public $has_configuration = false;
+	
+	/**
 	 * Signal names to strings
 	 *
 	 * @var array
