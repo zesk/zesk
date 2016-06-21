@@ -1,5 +1,8 @@
 <?php
 
-Module::register_paths();
+if (false) {
+	$application = app();
+}
+$application->module->register_paths();
 
-zesk::register_class('Module_Browser');
+
