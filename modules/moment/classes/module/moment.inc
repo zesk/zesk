@@ -1,11 +1,9 @@
 <?php
-
-class Module_Moment extends Module_JSLib {
+class Module_Moment extends Module_JSLib implements Module_Interface_Head {
 	protected $javascript_paths = array(
 		"/share/moment/moment.js",
 		"/share/moment/moment-with-locales.js"
 	);
-
 	public function initialize() {
 		if ($this->option_bool('timezone_support')) {
 			$this->javascript_paths[] = '/share/moment/moment-timezone.js';
@@ -13,5 +11,14 @@ class Module_Moment extends Module_JSLib {
 			$this->javascript_paths[] = '/share/moment/moment-timezone-with-data.js';
 		}
 		parent::initialize();
+	}
+	public function hook_head(Request $request, Response_HTML $response, Template $template) {
+		$locale = zesk\Locale::current();
+		$language = zesk\Locale::language($locale);
+		$this->jquery_ready[] = 'moment.locale(' . js::arguments(array(
+			$locale,
+			$language
+		)) . ');';
+		parent::hook_head($request, $response, $template);
 	}
 }
