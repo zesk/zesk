@@ -23,6 +23,7 @@ use \Object as Object;
 use \Exception as Exception;
 use \Database as Database;
 use \Template_Stack as Template_Stack;
+use \html as html;
 
 /**
  * Core web application object for Zesk.
@@ -188,6 +189,11 @@ class Application extends \Hookable implements \Interface_Theme {
 	 * @var boolean
 	 */
 	private $configured_was_run = false;
+	
+	/**
+	 * 
+	 * @param unknown $options
+	 */
 	public function __construct($options = null) {
 		parent::__construct($options);
 		$this->module = new Modules($this);
@@ -521,7 +527,7 @@ class Application extends \Hookable implements \Interface_Theme {
 	private function _classes($add = null) {
 		static $classes = null;
 		if (!is_array($classes)) {
-			$schema_file = \file::extension_change($this->file, ".classes");
+			$schema_file = file::extension_change($this->file, ".classes");
 			if (is_file($schema_file)) {
 				$classes = arr::trim_clean(explode("\n", \text::remove_line_comments(file_get_contents($schema_file), '#', false)));
 				$classes = arr::flip_copy($classes, true);
@@ -659,7 +665,7 @@ class Application extends \Hookable implements \Interface_Theme {
 	 * @return Router
 	 */
 	function hook_router() {
-		$router_file = \file::extension_change($this->file, 'router');
+		$router_file = file::extension_change($this->file, 'router');
 		$cache = zesk::getb("Router::cache");
 		if ($cache) {
 			$router = \Router::cached(filemtime($router_file));
@@ -679,6 +685,7 @@ class Application extends \Hookable implements \Interface_Theme {
 		} else {
 			$router->import(file_get_contents($router_file));
 		}
+		$this->hook("router_loaded", $router);
 		if ($cache) {
 			$router->cache();
 		}
@@ -781,7 +788,7 @@ class Application extends \Hookable implements \Interface_Theme {
 		$this->route = $router->match($this->request);
 		$this->_templates_initialize();
 		if (!$this->route) {
-			$this->hook("main-router_no_match");
+			$this->hook("router_no_match");
 			$this->response->status(\Net_HTTP::Status_File_Not_Found, "No route found");
 			$this->_main_exception(new \Exception_NotFound("The resource does not exist on this server: {url}", $this->request->variables()));
 			return null;
@@ -877,6 +884,7 @@ class Application extends \Hookable implements \Interface_Theme {
 	 *
 	 *
 	 *
+	 *
 	 * php URLs and converting to router-based URLs
 	 *
 	 * @param Model_URL $state        	
@@ -937,7 +945,7 @@ class Application extends \Hookable implements \Interface_Theme {
 				));
 				$router = zesk::singleton('Router');
 				$url = $router->get_route("schema_synchronize", $application);
-				$message = $url ? __("The database schema is out of sync, please <a href=\"{url}\">update it immediately.</a>") : __("The database schema is out of sync, please update it immediately.");
+				$message = $url ? _W(__("The database schema is out of sync, please [update it immediately.]"), html::a($url, '[]')) : __("The database schema is out of sync, please update it immediately.");
 				Response::instance($application)->redirect_message($message, array(
 					"url" => $url
 				));
@@ -1077,11 +1085,11 @@ class Application extends \Hookable implements \Interface_Theme {
 	 */
 	public function variables() {
 		$parameters['application'] = $this;
-		$parameters['request'] = $this->request;
+		$parameters['request'] = $request = $this->request;
 		$parameters['response'] = $this->response;
-		$parameters['router'] = $this->request->router;
+		$parameters['router'] = $request ? $this->request->router : null;
 		$parameters['route'] = $this->route;
-		$parameters['url'] = $this->request->url();
+		$parameters['url'] = $request ? $this->request->url() : null;
 		return $parameters;
 	}
 	
@@ -1128,7 +1136,8 @@ class Application extends \Hookable implements \Interface_Theme {
 	 * Add or retrieve the data path for this application
 	 *
 	 * @todo Deprecate zesk::data_path
-	 * @param string $add Value to set        	
+	 * @param string $add
+	 *        	Value to set
 	 * @return string Current data_path value
 	 */
 	public function data_path($add = null) {
@@ -1278,7 +1287,7 @@ class Application extends \Hookable implements \Interface_Theme {
 	 * Returns similar result as _theme_array except just tests to see if theme would
 	 * possibly generate content
 	 *
-	 * @param mixed $type 	
+	 * @param mixed $type        	
 	 * @return boolean
 	 */
 	private function _theme_exists($type, array $args, array $options) {
@@ -1412,10 +1421,13 @@ class Application extends \Hookable implements \Interface_Theme {
 	}
 	
 	/**
-	 * Retrieve the database for this application. This call is meant to deprecate the global Database::factory eventually.
-	 * 
-	 * @param string $mixed Name or URL
-	 * @param array $options Options for the database
+	 * Retrieve the database for this application.
+	 * This call is meant to deprecate the global Database::factory eventually.
+	 *
+	 * @param string $mixed
+	 *        	Name or URL
+	 * @param array $options
+	 *        	Options for the database
 	 * @return Database
 	 */
 	public function database_factory($mixed = null, array $options = array()) {
@@ -1423,9 +1435,9 @@ class Application extends \Hookable implements \Interface_Theme {
 	}
 	/**
 	 * Create a widget
-	 * 
-	 * @param string $class
-	 * @param array $options
+	 *
+	 * @param string $class        	
+	 * @param array $options        	
 	 * @return Widget
 	 */
 	public function widget_factory($class, array $options = array()) {
@@ -1434,9 +1446,9 @@ class Application extends \Hookable implements \Interface_Theme {
 	
 	/**
 	 * Create a widget
-	 * 
-	 * @param string $class
-	 * @param array $options
+	 *
+	 * @param string $class        	
+	 * @param array $options        	
 	 * @todo Pass application as part of creation call
 	 * @return Object
 	 */
