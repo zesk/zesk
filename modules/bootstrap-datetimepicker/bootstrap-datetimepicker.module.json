@@ -1,13 +1,10 @@
 { 
 	"name": "Bootstrap DateTime Picker",
-	"versions": {
-		"4.17.37": {
-			"url": "https://github.com/Eonasdan/bootstrap-datetimepicker/archive/{version}.tar.gz"
-		}
+	"composer": {
+		"require": "eonasdan/bootstrap-datetimepicker"
 	},
-	"github": "Eonasdan/bootstrap-datetimepicker",
-	"share_path": "vendor/components/bootstrap-datetimepicker/build/",
+	"github": "eonasdan/bootstrap-datetimepicker",
+	"share_path": "vendor/eonasdan/bootstrap-datetimepicker/build/",
 	"strip_components": 1,
-	"destination": "vendor/components/bootstrap-datetimepicker/",
 	"depends": [ "moment" ]
 }
