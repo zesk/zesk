@@ -246,6 +246,7 @@ class Widget extends Hookable {
 		$this->hierarchy = zesk::class_hierarchy($this, 'Widget');
 		if ($this->theme === null) {
 			$this->theme = arr::change_value_case(tr($this->hierarchy, array(
+				"\\" => "/",
 				"_" => "/"
 			)));
 		}
@@ -373,7 +374,7 @@ class Widget extends Hookable {
 	 * </code>
 	 * Set a child first in the list:
 	 * <code>
-	 * $widget->child($email_widget, zesk::f);
+	 * $widget->child($email_widget, "first");
 	 * </code>
 	 * Set many children:
 	 * <code>
@@ -1209,7 +1210,7 @@ class Widget extends Hookable {
 	 * @return Widget
 	 */
 	function error_required() {
-		$this->error($this->first_option("error_required;required_error", "{label} is a required field."));
+		$this->error($this->first_option("error_required;required_error", __("{label} is a required field.")));
 		return $this;
 	}
 	
@@ -2076,6 +2077,7 @@ class Widget extends Hookable {
 	 */
 	public function theme_variables() {
 		return array(
+			'application' => $this->application,
 			'widget' => $this,
 			'input_attributes' => $input_attributes = $this->input_attributes(),
 			'data_attributes' => $data_attributes = $this->data_attributes(),
@@ -2202,7 +2204,7 @@ class Widget extends Hookable {
 				$child->object = $child->traverse ? $this->object->get($child->column()) : $this->object;
 				if ($child->submit() === false && $child->required()) {
 					if (!$child->has_errors()) {
-						$child->error("{label} failed to submit.", $child->column());
+						$child->error(__("{label} failed to submit."), $child->column());
 					}
 					$result = false;
 				}
