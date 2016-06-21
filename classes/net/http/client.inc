@@ -12,26 +12,26 @@
  * @subpackage system
  */
 class Net_HTTP_Client extends Options {
-
+	
 	/*
 	 * Sample user agent for FireFox
 	 * @var string
 	 */
 	const user_agent_firefox = "Mozilla/5.0 (Macintosh; U; Intel Mac OS X 10.7; en-US; rv:1.9.0.4) Gecko/2009032609  Firefox/3.0.8";
-
+	
 	/*
 	 * Sample user agent for Microsoft Internet Explorer
 	 * @var string
 	 */
 	const user_agent_msie = "Mozilla/5.0 (compatible; MSIE 10.0; Windows NT 6.2; Trident/6.0; .NET4.0E; .NET4.0C; BRI/2)";
-
+	
 	/**
 	 * Sample user agent for Safari
 	 *
 	 * @var string
 	 */
 	const user_agent_safari = "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_8_5) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/34.0.1795.2 Safari/537.36";
-
+	
 	/**
 	 * Sample user agent for Chrome
 	 *
@@ -44,7 +44,7 @@ class Net_HTTP_Client extends Options {
 	 * @var string
 	 */
 	const user_agent_opera = "Opera/9.80 (Windows NT 6.1; MRA 8.0 (build 5784)) Presto/2.12.388 Version/12.16";
-
+	
 	/**
 	 * Sample user agents
 	 *
@@ -57,14 +57,14 @@ class Net_HTTP_Client extends Options {
 		self::user_agent_opera,
 		self::user_agent_safari
 	);
-
+	
 	/**
 	 * Cookies to send
 	 *
 	 * @var array:string
 	 */
 	private $request_cookie = array();
-
+	
 	/**
 	 *
 	 * @var array
@@ -75,51 +75,51 @@ class Net_HTTP_Client extends Options {
 	 * @var array
 	 */
 	private $skip_request_headers = array();
-
+	
 	/**
 	 * lowname => value
 	 *
 	 * @var arrau
 	 */
 	private $response_headers = array();
-
+	
 	/**
 	 *
 	 * @var string
 	 */
 	private $Content;
-
+	
 	/**
 	 * Redirected headers
 	 *
 	 * @var array
 	 */
 	protected $Redirects = array();
-
+	
 	/**
 	 *
 	 * @var string
 	 */
 	private $response_protocol;
-
+	
 	/**
 	 *
 	 * @var string
 	 */
 	private $response_code;
-
+	
 	/**
 	 *
 	 * @var string
 	 */
 	private $response_message;
-
+	
 	/**
 	 *
 	 * @var array
 	 */
 	private $response_cookies = array();
-
+	
 	/**
 	 * Connection timeout in milliseconds
 	 *
@@ -129,14 +129,14 @@ class Net_HTTP_Client extends Options {
 	private $method = Net_HTTP::Method_GET;
 	private $data = null;
 	private $data_file = null;
-
+	
 	/**
 	 * Curl retrieval timeout in milliseconds
 	 *
 	 * @var integer
 	 */
 	private $timeout = 5000;
-
+	
 	/**
 	 * Whether to recurse when redirected
 	 *
@@ -175,12 +175,12 @@ class Net_HTTP_Client extends Options {
 	 * Error connecting via SSL to remote site
 	 */
 	const Error_SSL_Connect = "Error_SSL_Connect";
-
+	
 	/**
 	 * Create a new Net_HTTP_Client
 	 *
-	 * @param string $url
-	 * @param string $options
+	 * @param string $url        	
+	 * @param string $options        	
 	 */
 	public function __construct($url = null, $options = false) {
 		parent::__construct($options);
@@ -190,7 +190,7 @@ class Net_HTTP_Client extends Options {
 		}
 		$this->user_agent(self::defaultUserAgent());
 	}
-
+	
 	/**
 	 * The default user agent
 	 *
@@ -199,14 +199,12 @@ class Net_HTTP_Client extends Options {
 	public static function defaultUserAgent() {
 		return "zesk/Net_HTTP_Client " . zesk::version();
 	}
-
 	private function _method($method, $set = null) {
 		if ($set === null) {
 			return $this->method === $method;
 		}
 		$this->method = $method;
 		return $this;
-
 	}
 	/**
 	 * Get/set POST method
@@ -216,7 +214,7 @@ class Net_HTTP_Client extends Options {
 	public function method_post($set = null) {
 		return $this->_method(Net_HTTP::Method_POST, $set);
 	}
-
+	
 	/**
 	 * Get/set PUT method
 	 *
@@ -225,7 +223,7 @@ class Net_HTTP_Client extends Options {
 	public function method_put($set = null) {
 		return $this->_method(Net_HTTP::Method_POST, $set);
 	}
-
+	
 	/**
 	 * Get/set POST method
 	 *
@@ -234,11 +232,11 @@ class Net_HTTP_Client extends Options {
 	public function method_head($set = null) {
 		return $this->_method(Net_HTTP::Method_HEAD, $set);
 	}
-
+	
 	/**
 	 * Get/set the data associated with this client
 	 *
-	 * @param string $set
+	 * @param string $set        	
 	 * @return string|Net_HTTP_Client
 	 */
 	public function data($set = null) {
@@ -248,11 +246,11 @@ class Net_HTTP_Client extends Options {
 		}
 		return $this->data;
 	}
-
+	
 	/**
 	 * Get/Set the URL associated with this HTTP client
 	 *
-	 * @param string $set
+	 * @param string $set        	
 	 */
 	public function url($set = null) {
 		if ($set && url::is($set)) {
@@ -261,10 +259,12 @@ class Net_HTTP_Client extends Options {
 		}
 		return $this->option("url");
 	}
-
+	
 	/**
 	 * Set the filename path where to store the data
-	 * @param string $set Optionally set the destination
+	 * 
+	 * @param string $set
+	 *        	Optionally set the destination
 	 */
 	public function destination($set = null) {
 		if ($set === null) {
@@ -303,12 +303,13 @@ class Net_HTTP_Client extends Options {
 	public function response_protocol() {
 		return $this->response_protocol;
 	}
-
+	
 	/**
 	 * Get or set request cookies
 	 *
-	 * @param array $set Set cookies to name/value pairs for request
-	 * @param boolean $append
+	 * @param array $set
+	 *        	Set cookies to name/value pairs for request
+	 * @param boolean $append        	
 	 */
 	public function request_cookie(array $set = null, $append = false) {
 		if ($set === null) {
@@ -317,9 +318,10 @@ class Net_HTTP_Client extends Options {
 		$this->request_cookie = $append ? $set + $this->request_cookie : $set;
 		return $this;
 	}
-
+	
 	/**
 	 * Format request cookies
+	 * 
 	 * @return string
 	 */
 	private function format_cookie() {
@@ -338,12 +340,12 @@ class Net_HTTP_Client extends Options {
 		}
 		return implode("; ", $result);
 	}
-
+	
 	/**
 	 * Retrieve a request header
 	 *
-	 * @param string $name
-	 * @param string $set
+	 * @param string $name        	
+	 * @param string $set        	
 	 * @return mixed|Net_HTTP_Client
 	 */
 	public function request_header($name = null, $set = null) {
@@ -363,19 +365,19 @@ class Net_HTTP_Client extends Options {
 		$this->request_headers[$lowname] = $set;
 		return $this;
 	}
-
+	
 	/**
 	 * When an HTTP header is handled by a curl option, add it here so it's not sent twice.
 	 *
 	 * Not sure how smart curl is, but probably better not to be redundant.
 	 *
-	 * @param string $name
+	 * @param string $name        	
 	 */
 	private function skip_request_header($name) {
 		$name = strtolower($name);
 		$this->skip_request_headers[$name] = $name;
 	}
-
+	
 	/**
 	 * Retrieve the response content type
 	 *
@@ -386,10 +388,11 @@ class Net_HTTP_Client extends Options {
 		$header = trim(str::left($header, ';', $header));
 		return $header;
 	}
-
+	
 	/**
 	 * Get/set the request timeout in miiliseconds
-	 * @param integer $milliseconds
+	 * 
+	 * @param integer $milliseconds        	
 	 * @return integer|Net_HTTP_Client
 	 */
 	public function timeout($milliseconds = null) {
@@ -402,7 +405,7 @@ class Net_HTTP_Client extends Options {
 	/**
 	 * Get/set the request timeout in miiliseconds
 	 *
-	 * @param integer $milliseconds
+	 * @param integer $milliseconds        	
 	 * @return integer|Net_HTTP_Client
 	 */
 	public function connect_timeout($milliseconds = null) {
@@ -412,11 +415,12 @@ class Net_HTTP_Client extends Options {
 		}
 		return $this->connect_timeout;
 	}
-
+	
 	/**
 	 * Get/set the method
 	 *
-	 * @param string $set Value to set the method to
+	 * @param string $set
+	 *        	Value to set the method to
 	 * @return string|Net_HTTP_Client
 	 */
 	public function method($set = null) {
@@ -426,7 +430,7 @@ class Net_HTTP_Client extends Options {
 		}
 		return $this->method;
 	}
-
+	
 	/**
 	 * Initialize our curl options before executing the curl object
 	 */
@@ -460,13 +464,13 @@ class Net_HTTP_Client extends Options {
 				$httpHeaders[] = 'Content-Length: ' . strlen($data);
 				$this->skip_request_header('content-length');
 				break;
-			default:
+			default :
 				$this->curl_opts[CURLOPT_CUSTOMREQUEST] = $this->method;
 				break;
 		}
 		return $httpHeaders;
 	}
-
+	
 	/**
 	 * Close our curl options after curl has completed
 	 */
@@ -479,7 +483,7 @@ class Net_HTTP_Client extends Options {
 			fclose($this->curl_opts[CURLOPT_WRITEHEADER]);
 		}
 	}
-
+	
 	/**
 	 * Set curl options related to timeouts and network activity
 	 */
@@ -500,7 +504,7 @@ class Net_HTTP_Client extends Options {
 			}
 		}
 	}
-
+	
 	/**
 	 * Set curl options related to If-Modified-Since
 	 */
@@ -511,16 +515,15 @@ class Net_HTTP_Client extends Options {
 			$this->skip_request_header("If-Modified-Since");
 		}
 	}
-
+	
 	/**
 	 * Set curl options related to User-Agent
 	 */
-
 	private function _curl_opts_useragent() {
 		$this->curl_opts[CURLOPT_USERAGENT] = $this->request_header(Net_HTTP::request_User_Agent);
 		$this->skip_request_header(Net_HTTP::request_User_Agent);
 	}
-
+	
 	/**
 	 * Set curl options related to the method
 	 */
@@ -546,7 +549,6 @@ class Net_HTTP_Client extends Options {
 			$this->curl_opts[CURLOPT_MAXREDIRS] = $this->option_integer("follow_location_maximum", 7);
 		}
 	}
-
 	private function _curl_opts_host() {
 		$parts = parse_url($this->url());
 		$host = avalue($parts, 'host');
@@ -558,20 +560,17 @@ class Net_HTTP_Client extends Options {
 		}
 		$this->request_header("Host", $host);
 	}
-
 	private function _curl_opts_cookie() {
 		if (count($this->request_cookie)) {
 			$this->request_header("Cookie", self::format_cookie());
 		}
 	}
-
 	private function _curl_opts_range() {
 		if (($range = $this->request_header("Range")) !== null) {
 			$this->curl_opts[CURLOPT_RANGE] = substr($range, 6);
 			$this->skip_request_header('Range');
 		}
 	}
-
 	private function _curl_opts_headers() {
 		foreach ($this->request_headers as $k => $values) {
 			if (!array_key_exists(strtolower($k), $this->skip_request_headers)) {
@@ -588,7 +587,6 @@ class Net_HTTP_Client extends Options {
 		}
 		$this->curl_opts[CURLOPT_HTTPHEADER] = $httpHeaders;
 	}
-
 	private function _curl_opts_destination() {
 		if ($this->destination) {
 			$dest_fp = fopen($this->destination, "w");
@@ -599,15 +597,13 @@ class Net_HTTP_Client extends Options {
 			$dest_headers_name = $this->destination . "-headers";
 			$dest_headers_fp = fopen($dest_headers_name, "w");
 			$this->curl_opts[CURLOPT_WRITEHEADER] = $dest_headers_fp;
-
+			
 			return $dest_headers_name;
 		}
 		return null;
 	}
-
 	private function _curl_opts_close_destination() {
 	}
-
 	private function _parse_headers($dest_headers_name = null) {
 		if ($dest_headers_name) {
 			$all_headers = file_get_contents($dest_headers_name);
@@ -627,9 +623,7 @@ class Net_HTTP_Client extends Options {
 		} else if ($this->want_headers()) {
 			$this->parseHeaders();
 		}
-
 	}
-
 	public function go() {
 		if (!function_exists("curl_init")) {
 			throw new Exception("Net_HTTP_Client::go(): CURL not integrated!");
@@ -638,7 +632,7 @@ class Net_HTTP_Client extends Options {
 		if (empty($url)) {
 			throw new Exception("Net_HTTP_Client::go called with no URL specified");
 		}
-
+		
 		$httpHeaders = $this->_method_open();
 		$this->_curl_opts_method();
 		$this->_curl_opts_timeouts();
@@ -649,7 +643,7 @@ class Net_HTTP_Client extends Options {
 		$this->_curl_opts_cookie();
 		$this->_curl_opts_headers();
 		$dest_headers_name = $this->_curl_opts_destination();
-
+		
 		if ($this->option("debug")) {
 			dump($url);
 			dump($httpHeaders);
@@ -663,9 +657,9 @@ class Net_HTTP_Client extends Options {
 		$this->_method_close($curl);
 		$errno = curl_errno($curl);
 		$error = curl_error($curl);
-
+		
 		$this->_parse_headers($dest_headers_name);
-
+		
 		if ($this->option_bool("debug") && $this->destination) {
 			if (file_exists($this->destination)) {
 				$command = Command::running();
@@ -674,9 +668,15 @@ class Net_HTTP_Client extends Options {
 				}
 			}
 		}
-
+		
 		curl_close($curl);
 		if ($errno !== 0) {
+			if ($errno === CURLE_COULDNT_RESOLVE_HOST) {
+				$host = url::parse($this->url(), "host");
+				throw new Exception_DomainLookup($host, "Retrieving URL {url}", array(
+					"url" => $this->url()
+				), $errno);
+			}
 			$errno_map = array(
 				CURLE_COULDNT_CONNECT => self::Error_Connection,
 				CURLE_COULDNT_RESOLVE_HOST => self::Error_Resolve_Host,
@@ -687,7 +687,6 @@ class Net_HTTP_Client extends Options {
 		}
 		return $this->Content;
 	}
-
 	public static function simpleGet($url) {
 		$parts = parse_url($url);
 		$protocol = avalue($parts, "scheme");
@@ -708,12 +707,10 @@ class Net_HTTP_Client extends Options {
 		$url = $this->option("URL");
 		return url::host($url);
 	}
-
 	static public function url_content_length($url) {
 		$headers = self::url_headers($url);
 		return to_integer(aevalue($headers, "Content-Length"));
 	}
-
 	static public function url_headers($url) {
 		$x = new Net_HTTP_Client($url);
 		$x->method_head(true);
@@ -827,7 +824,6 @@ class Net_HTTP_Client extends Options {
 		}
 		arr::append($this->response_cookies, $cookieName, new Net_HTTP_Client_Cookie($cookieName, $cookieValue, $domain, $path, $expires, $secure));
 	}
-
 	private function parseCookies() {
 		if (!isset($this->response_headers["set-cookie"])) {
 			return false;
@@ -890,11 +886,11 @@ class Net_HTTP_Client extends Options {
 		}
 		return true;
 	}
-
+	
 	/**
 	 * Getter/setter for recurse flag
 	 *
-	 * @param string $set
+	 * @param string $set        	
 	 * @return boolean|Net_HTTP_Client
 	 */
 	public function recurse($set = null) {
@@ -931,12 +927,12 @@ class Net_HTTP_Client extends Options {
 		}
 		return count($this->response_headers);
 	}
-
+	
 	/**
 	 * Getter only
 	 *
-	 * @param string $name
-	 * @param string $default
+	 * @param string $name        	
+	 * @param string $default        	
 	 */
 	public function response_header($name = null, $default = null) {
 		if ($name === null) {
@@ -947,7 +943,7 @@ class Net_HTTP_Client extends Options {
 	/**
 	 * Getter/setter for follow location
 	 *
-	 * @param string $set
+	 * @param string $set        	
 	 * @return Net_HTTP_Client|boolean
 	 */
 	public function follow_location($set = null) {
@@ -960,7 +956,7 @@ class Net_HTTP_Client extends Options {
 	/**
 	 * Getter/setter for User-Agent for request
 	 *
-	 * @param string $set
+	 * @param string $set        	
 	 * @return Net_HTTP_Client|string
 	 */
 	public function user_agent($set = null) {
@@ -970,7 +966,7 @@ class Net_HTTP_Client extends Options {
 		}
 		return $this->request_header(Net_HTTP::request_User_Agent);
 	}
-
+	
 	/**
 	 * Retrieve the filename of the file per the Content-Disposition header
 	 *
@@ -990,7 +986,7 @@ class Net_HTTP_Client extends Options {
 	/**
 	 * Get/Set that we want to retrieve the headers from the remote server
 	 *
-	 * @param string $set
+	 * @param string $set        	
 	 */
 	public function want_headers($set = null) {
 		if (is_bool($set)) {
@@ -1020,8 +1016,8 @@ class Net_HTTP_Client extends Options {
 	/**
 	 *
 	 * @deprecated 2015-09
-	 * @param unknown $name
-	 * @param string $default
+	 * @param unknown $name        	
+	 * @param string $default        	
 	 * @return string|Ambigous <mixed, array>
 	 */
 	public function getHeader($name, $default = false) {
@@ -1034,8 +1030,8 @@ class Net_HTTP_Client extends Options {
 	/**
 	 *
 	 * @deprecated 2015-09
-	 * @param string $name
-	 * @param string $set
+	 * @param string $name        	
+	 * @param string $set        	
 	 */
 	public function hasHeaders() {
 		zesk::deprecated();
@@ -1044,8 +1040,8 @@ class Net_HTTP_Client extends Options {
 	/**
 	 *
 	 * @deprecated 2015-09
-	 * @param string $name
-	 * @param string $set
+	 * @param string $name        	
+	 * @param string $set        	
 	 */
 	public function header($name = null, $set = null) {
 		zesk::deprecated();
@@ -1059,18 +1055,20 @@ class Net_HTTP_Client extends Options {
 		zesk::deprecated();
 		return $this->request_headers;
 	}
-
+	
 	/**
+	 *
 	 * @deprecated use url_content_length
-	 * @param unknown $url
+	 * @param unknown $url        	
 	 * @return mixed
 	 */
 	static public function urlContentLength($url) {
 		zesk::deprecated();
 		return self::url_content_length($url);
 	}
-
+	
 	/**
+	 *
 	 * @deprecated 2015-09
 	 * @return boolean
 	 */
@@ -1078,8 +1076,9 @@ class Net_HTTP_Client extends Options {
 		zesk::deprecated();
 		return $this->is_post();
 	}
-
+	
 	/**
+	 *
 	 * @deprecated 2015-09
 	 */
 	public function setHEAD() {
@@ -1087,13 +1086,13 @@ class Net_HTTP_Client extends Options {
 		$this->method = Net_HTTP::Method_HEAD;
 	}
 	/**
+	 *
 	 * @deprecated 2015-09
 	 */
 	public function isHEAD() {
 		zesk::deprecated();
 		return $this->method === Net_HTTP::Method_HEAD;
 	}
-
 }
 
 
