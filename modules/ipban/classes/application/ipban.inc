@@ -214,9 +214,9 @@ class Application_IPBan extends Application {
 	 */
 	private static function normalize_ips(array $ips, $purpose = null) {
 		foreach ($ips as $index => $ip) {
-			if (ip::is_mask($ip)) {
+			if (IPv4::is_mask($ip)) {
 				$ips[$index] = str::unsuffix($ip, "/32");
-			} else if (!ip::valid($ip)) {
+			} else if (!IPv4::valid($ip)) {
 				unset($ips[$index]);
 				log::debug("normalize_ips: Removed {ip} from {purpose}", compact("ip", "purpose"));
 			}
@@ -496,9 +496,9 @@ class Application_IPBan extends Application {
 
 		$now = Timestamp::now();
 		$ban_ips = IPBan::ban_since($this->last_check, $options);
-		$ban_ips += IPBan_IP::blacklist($this->last_check);
+		$ban_ips += IPBan_IPv4::blacklist($this->last_check);
 		$allow_ips = IPBan::allow_since($this->last_check, $options);
-		$allow_ips += IPBan_IP::whitelist($this->last_check) + $this->whitelist;
+		$allow_ips += IPBan_IPv4::whitelist($this->last_check) + $this->whitelist;
 
 		foreach ($ban_ips as $ip => $ip) {
 			if (array_key_exists($ip, $allow_ips)) {
@@ -525,7 +525,7 @@ class Application_IPBan extends Application {
 	 */
 	private static function remove_masked_ips($network, array $ips, $purpose = null) {
 		foreach ($ips as $key => $ip) {
-			if (ip::within_network($ip, $network)) {
+			if (IPv4::within_network($ip, $network)) {
 				log::debug("Removed {ip} from list - within {purpose} network {network}", compact("ip", "network", "purpose"));
 				unset($ips[$key]);
 			}
@@ -541,7 +541,7 @@ class Application_IPBan extends Application {
 	protected function filter_whitelist(array $ips) {
 		$ips = arr::flip_copy($ips, false);
 		foreach ($this->whitelist as $whiteip) {
-			if (ip::is_mask($whiteip)) {
+			if (IPv4::is_mask($whiteip)) {
 				$ips = self::remove_masked_ips($whiteip, $ips, "whitelist");
 			} else if (array_key_exists($whiteip, $ips)) {
 				unset($ips[$whiteip]);
@@ -645,7 +645,7 @@ class Application_IPBan extends Application {
 			}
 			$rules = avalue($this->ips, $ip);
 			if (!$rules) {
-				if (!ip::is_mask($ip) && !ip::valid($ip)) {
+				if (!IPv4::is_mask($ip) && !IPv4::valid($ip)) {
 					log::error("Strange IP address: {ip}", array(
 						"ip" => $ip
 					));
