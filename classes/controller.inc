@@ -98,7 +98,7 @@ class Controller extends Hookable implements Interface_Theme {
 	}
 	
 	/**
-	 * Possibly slow
+	 * Possibly very slow
 	 *
 	 * @return array
 	 */
