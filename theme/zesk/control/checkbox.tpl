@@ -27,11 +27,11 @@ $cont_name = $name . "_sv";
 if ($this->getb("refresh")) {
 	$attr["onclick"] = "this.form.$cont_name.value=1;this.form.submit();";
 }
-if ($widget->checked($object)) {
+if ($this->checked) {
 	$attr["checked"] = "checked";
 }
 
-$result = html::tag("input", $object->apply_map($attr), null);
+$result = $this->input_prefix . html::tag("input", $object ? $object->apply_map($attr) : $attr, null) . $this->input_suffix;
 if ($this->getb("refresh")) {
 	echo html::hidden($cont_name, '');
 }
