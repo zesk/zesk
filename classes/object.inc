@@ -250,13 +250,12 @@ abstract class Object extends Model {
 	 *        	List of Options to set before initialization
 	 */
 	function __construct($mixed = null, $options = false, Application $application = null) {
-		parent::__construct(null, $options);
-		$this->application = $application === null ? Application::instance() : $application;
+		parent::__construct(null, $options, $application);
 		$this->inherit_global_options();
 		$this->initialize_specification();
 		$this->members = $this->class->column_defaults;
 		$this->initialize($mixed, $this->option('initialize'));
-		$this->set_option('initialize');
+		$this->set_option('initialize', null);
 	}
 	
 	/**
@@ -742,7 +741,12 @@ abstract class Object extends Model {
 	 *
 	 * @return Database
 	 */
-	function database() {
+	function database(Database $set = null) {
+		if ($set !== null) {
+			$this->database = $set;
+			$this->database_name = $set->code_name();
+			return $this;
+		}
 		if ($this->database instanceof Database) {
 			return $this->database;
 		}
@@ -977,7 +981,11 @@ abstract class Object extends Model {
 	 *
 	 * @return boolean
 	 */
-	function is_new() {
+	function is_new($set = null) {
+		if ($set !== null) {
+			$this->is_new_cached = to_bool($set);
+			return $this;
+		}
 		if (is_bool($this->is_new_cached)) {
 			return $this->is_new_cached;
 		}
@@ -2288,6 +2296,10 @@ abstract class Object extends Model {
 			) + $this->options);
 			return $result;
 		} catch (Exception_Class_NotFound $e) {
+			log::error("Polymorphic conversion failed to class {polymorphic_leaf} from class {class}", array(
+				"polymorphic_leaf" => $this->polymorphic_leaf,
+				"class" => get_class($this)
+			));
 			zesk::hook("exception", $e);
 			return $this;
 		}
@@ -2543,7 +2555,7 @@ abstract class Object extends Model {
 		);
 		if (!$this_id_column) {
 			log::error("{class}:clean_database_object_members({members}) {class} does not have an ID column", $__);
-			continue;
+			return;
 		}
 		$ids = array();
 		foreach ($members as $member) {
