@@ -574,7 +574,7 @@ abstract class Command extends Hookable {
 		} else {
 			$message = map($message, $arguments);
 		}
-		fprintf(STDERR, "$message\n");
+		fwrite(STDERR, "$message\n");
 		$this->errors[] = $message;
 	}
 	
@@ -1080,7 +1080,7 @@ abstract class Command extends Hookable {
 				echo serialize($content);
 				return;
 			case "json":
-				echo json::encode($content);
+				echo json_encode($content, JSON_PRETTY_PRINT);
 				return;
 			case "text":
 				echo text::format_pairs($content);
