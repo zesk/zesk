@@ -38,7 +38,7 @@ class Whois_Server extends Object {
 	}
 	public static function find_server($tld) {
 		$foo = new Whois_Server();
-		if (ip::valid($tld)) {
+		if (IPv4::valid($tld)) {
 			$tld = "." . array_pop(explode(".", $tld)) . ".in-addr.arpa";
 			if ($foo->find(array(
 				"TLD" => $tld
