@@ -31,15 +31,35 @@ $options = $this->get(array(
 	"showTodayButton" => true
 ));
 $zformat = "{YYYY}-{MM}-{DD} {hh}:{mm}";
+
+$ts_now = Timestamp::now();
+$ts_mindate = null;
+$ts_maxdate = null;
+$ts_defaultdate = null;
+
 if ($this->data_future_only) {
-	$options['minDate'] = $minDate = Timestamp::now()->format($zformat);
+	$ts_mindate = $ts_now;
 } else if ($this->data_past_only) {
-	$options['maxDate'] = Timestamp::now()->format($zformat);
+	$ts_maxdate = $ts_now;
 }
 
 if ($inline) {
-	$options['defaultDate'] = Timestamp::factory(firstarg($this->default, $value))->format($zformat);
+	/* @var $ts_defaultdate Timestamp */
+	$ts_defaultdate = Timestamp::factory(firstarg($this->default, $value));
+	$ts_defaultdate = $ts_defaultdate->earlier($ts_maxdate);
+	$ts_defaultdate = $ts_defaultdate->later($ts_mindate);
 }
+
+foreach (array(
+	"minDate" => $ts_mindate,
+	"maxDate" => $ts_maxdate,
+	"defaultDate" => $ts_defaultdate
+) as $option_key => $ts) {
+	if ($ts) {
+		$options[$option_key] = $ts->format($zformat);
+	}
+}
+
 //	"format_time" => "formatTime",
 //	"format_date" => "formatDate",
 //	"allow_times" => "allowTimes",
@@ -50,6 +70,7 @@ foreach (array(
 		$options[$js_option] = $this->get($template_key);
 	}
 }
+$options['locale'] = zesk\Locale::language($this->get("locale", zesk\Locale::current()));
 $original_id = $id;
 if ($inline) {
 	$id = "$id-dtp";
