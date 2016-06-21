@@ -18,15 +18,15 @@ class Server_Configuration_Server extends XML_RPC_Server {
 	 */
 	function rpc_register_server($LocalName, $LocalIP, $PublicName = null, $PublicIP = null) {
 		if ($PublicIP === null) {
-			$PublicIP = ip::remote(null);
+			$PublicIP = IPv4::remote(null);
 		}
 		if ($PublicName === null && $PublicIP !== null) {
 			$PublicName = gethostbyname(implode(".",array_reverse(explode(".",$PublicIP))).".in-addr.arpa");
 		}
-		if (!ip::valid($LocalIP)) {
+		if (!IPv4::valid($LocalIP)) {
 			throw new Exception_Parameter("Local IP is not an IP address: $LocalIP");
 		}
-		if (!ip::valid($PublicIP)) {
+		if (!IPv4::valid($PublicIP)) {
 			throw new Exception_Parameter("Public IP is not an IP address: $PublicIP");
 		}
 		$fields = compact("PublicIP4", "PublicName", "LocalIP4", "LocalName");
