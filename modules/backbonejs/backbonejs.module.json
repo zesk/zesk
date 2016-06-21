@@ -1,9 +1,11 @@
 {
+	"url_license": "https://raw.githubusercontent.com/jashkenas/backbone/master/LICENSE",
 	"url": "http://backbonejs.org/backbone.js",
 	"version_data": { 
 		"file": "vendor/components/backbonejs/backbone.js", 
 		"pattern": "|//.*Backbone.js\\s+([0-9.]+)|" 
 	},
+	"requires": ["underscorejs"],
 	"destination": "vendor/components/backbonejs",
 	"share_path": "vendor/components/backbonejs"
 }
