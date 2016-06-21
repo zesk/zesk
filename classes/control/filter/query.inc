@@ -54,7 +54,7 @@ class Control_Filter_Query extends Control_Select {
 		$query->where(amap($value, $map));
 	}
 	protected function _filter_condition(Database_Query_Select $query, $value) {
-		$query->condition(map($value, $this->filter_map()));
+		$query->condition(map($value, $this->filter_map()), $this->query_condition_key());
 	}
 	protected function _filter_what(Database_Query_Select $query, $value) {
 		$map = $this->filter_map();
