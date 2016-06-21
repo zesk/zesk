@@ -1,9 +1,14 @@
 <?php
 /* @var $this Template */
 
-$request = $this->request;
+if (false) {
+	/* @var $request Application */
+	$application = $this->application;
+	/* @var $request Request */
+	$request = $this->request;
+}
 if (!$request instanceof Request) {
-	$request = zesk::singleton("Request");
+	$request = $application->request();
 }
 /* @var $object Object */
 $object = $this->object;
