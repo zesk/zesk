@@ -1,4 +1,8 @@
 (function (exports, $) {
+	var __ = exports.__ || function (phrase, map) {
+		map = map || {};
+		return phrase.right(":=").map(map);
+	};
 	exports.duration_update = function (id, datetime) {
 		var 
 		$input = $(id),
@@ -17,7 +21,7 @@
 			delta *= 60;
 			delta *= 1000;
 			end.setTime(datetime.getTime() + delta);
-			$this.text(text + ' (ends at ' + end.format(format) + ')');
+			$this.text(__('Control_Duration:={duration} (ends at {end_time})', { duration: text, end_time: end.format(format) }));
 		});
 	};
 }(window, window.jQuery));
