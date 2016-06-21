@@ -5,7 +5,7 @@ class Compiler_Less {
 	/**
 	 * Wrapper around lessc
 	 *
-	 * @var ILess_Parser
+	 * @var ILess\Parser
 	 */
 	private $iless = null;
 
@@ -16,16 +16,13 @@ class Compiler_Less {
 	private $vars = array();
 
 	public function __construct() {
-		$path = path(Module::path('iless'), 'library/Autoloader.php');
-		if (is_file($path)) {
-			require_once $path;
-		}
 		$cache_dir = zesk::application_root('cache/iless');
 		dir::depend($cache_dir);
-		$cache = new ILess_Cache_FileSystem($cache_dir);
+		$cache = new ILess\Cache\FileSystemCache($cache_dir);
 		//$cache = new ILess_Cache_None();
-		$this->iless = new ILess_Parser(array(
+		$this->iless = new ILess\Parser(array(
 			"compress" => false,
+			"strictMath" => false,
 			"source_map" => Application::instance()->development()
 		), $cache);
 	}

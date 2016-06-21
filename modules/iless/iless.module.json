@@ -1,7 +1,7 @@
 {
 	"name": "iLess",
 	"composer": {
-		"require": "mishal/iless:^1."
+		"require": "mishal/iless:^2."
 	},
 	"github": "mishal/iless",
 	"url_license": "https://raw.githubusercontent.com/mishal/iless/master/LICENSE",

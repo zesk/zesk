@@ -1,24 +1,8 @@
 <?php
-
 class Module_iLess extends Module {
-	private static function init() {
-		static $inited = false;
-		if ($inited) {
-			return;
-		}
-		$inited = true;
-		zesk::autoload_path(path(Module::path('iless'), 'library'), array(
-			'lower' => false,
-			'extensions' => array(
-				'php'
-			)
-		));
-	}
 	public static function compiler() {
-		self::init();
 		return new Compiler_Less();
 	}
-
 	public function style_name($set = null) {
 		return $set === null ? $this->set_option('style_name', $set) : $this->option('style_name', strtolower(zesk::application_class()));
 	}
@@ -34,7 +18,7 @@ class Module_iLess extends Module {
 	private function _full_css_path() {
 		return path(zesk::document_root(), $this->_css_path());
 	}
-
+	
 	/**
 	 * CSS changed, dirty compiled less file
 	 */
@@ -56,11 +40,10 @@ class Module_iLess extends Module {
 		$values = array();
 		foreach ($fonts as $font) {
 			$font = unquote(trim($font));
-			$values[] = new ILess_Node_Quoted("'$font'", $font);
+			$values[] = new ILess\Node\QuotedNode("'$font'", $font);
 		}
-		return new ILess_Variable('site_theme_font', new ILess_Node_Value($values));
+		return new ILess\Variable('site_theme_font', new ILess\Node\ValueNode($values));
 	}
-
 	private function _compile_css_theme(array $variables = array()) {
 		$doc_root = zesk::document_root();
 		$site_css = $this->_css_path();
@@ -68,7 +51,7 @@ class Module_iLess extends Module {
 		$source = $this->_less_path();
 		dir::depend(dirname($full_path));
 		$compiler = Module_iLess::compiler();
-
+		
 		$types = $variables + $this->hook_array("less_variables", array(), array());
 		$variables = array();
 		foreach ($types as $name => $settings) {
@@ -89,7 +72,7 @@ class Module_iLess extends Module {
 			"path" => $full_path
 		));
 	}
-
+	
 	/**
 	 * Get compiled CSS file
 	 *
@@ -110,8 +93,6 @@ class Module_iLess extends Module {
 		}
 		return $this->_css_path();
 	}
-
 	public static function dynamic_css(array $variables = array(), array $options = array()) {
-
 	}
 }
