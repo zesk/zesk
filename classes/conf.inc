@@ -1,4 +1,7 @@
 <?php
+
+use zesk\file as file;
+
 /**
  * Configuration files, somewhat compatible with BASH environment shells
  * Useful for setting options which you want to also access via BASH or compatible shell.
