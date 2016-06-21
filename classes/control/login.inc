@@ -10,7 +10,7 @@
 class Control_Login extends Control_Edit {
 	protected $class = "User";
 	protected $render_children = false;
-
+	
 	/**
 	 * User being authenticated
 	 *
@@ -25,7 +25,7 @@ class Control_Login extends Control_Edit {
 		'column' => 'login_button',
 		'class' => ''
 	);
-
+	
 	/**
 	 * Default model
 	 *
@@ -34,7 +34,7 @@ class Control_Login extends Control_Edit {
 	public function model() {
 		return new Model_Login();
 	}
-
+	
 	/**
 	 * (non-PHPdoc)
 	 *
@@ -42,22 +42,22 @@ class Control_Login extends Control_Edit {
 	 */
 	protected function initialize() {
 		$f = $this->widget_factory("Control_Text")->names("login", $this->option("label_login", __("Email")))->required(true);
-
+		
 		$this->child($f);
-
+		
 		if (!$this->option("no_password")) {
 			$f = $this->widget_factory("Control_Password")->names("login_password", $this->option("label_password", __("Password")))->required(true);
 			$f->set_option("encrypted_column", "login_password_hash");
-
+			
 			$this->child($f);
 		}
-
-		$f = $this->widget_factory('Control_Button')->names('login_button', false)->set_option('button_label', __("Login"))->add_class('btn-primary');
+		
+		$f = $this->widget_factory('Control_Button')->names('login_button', false)->set_option('button_label', __("Login"))->add_class('btn-primary btn-block');
 		$this->child($f);
-
+		
 		parent::initialize();
 	}
-
+	
 	/**
 	 * (non-PHPdoc)
 	 *
@@ -66,7 +66,7 @@ class Control_Login extends Control_Edit {
 	public function submitted() {
 		return $this->request->get("login_button", "") !== "";
 	}
-
+	
 	/**
 	 * (non-PHPdoc)
 	 *
@@ -76,7 +76,7 @@ class Control_Login extends Control_Edit {
 		if (!parent::validate()) {
 			return false;
 		}
-
+		
 		$object = $this->object;
 		$login = $object->login;
 		$user = new User();
@@ -92,7 +92,18 @@ class Control_Login extends Control_Edit {
 			}
 		}
 		/* @var $user User */
+		$failed = false;
 		if (!$user->authenticate($login, $object->login_password_hash, false, false)) {
+			$failed = true;
+			if ($this->hook_array("authenticate", array(
+				$user,
+				$login,
+				$object->login_password_hash
+			), false)) {
+				$failed = false;
+			}
+		}
+		if ($failed) {
 			log::warning("User login failed for user {login}", array(
 				"login" => $login,
 				"password_hash" => $object->login_password_hash
@@ -102,13 +113,15 @@ class Control_Login extends Control_Edit {
 			$user->hook("login_failed", $this);
 			return false;
 		}
-		if ($user->hook_array("login", array($this), true)) {
+		if ($user->hook_array("login", array(
+			$this
+		), true)) {
 			$this->user = $this->object->user = $user;
 			return true;
 		}
 		return false;
 	}
-
+	
 	/**
 	 * (non-PHPdoc)
 	 *
@@ -133,7 +146,7 @@ class Control_Login extends Control_Edit {
 		}
 		return true;
 	}
-
+	
 	/**
 	 * (non-PHPdoc)
 	 *
