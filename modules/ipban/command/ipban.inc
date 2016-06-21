@@ -54,7 +54,7 @@ class Command_IPBan extends Command_Base {
 			$complained = false;
 			do {
 				$ip = $this->get_arg("ip");
-				if (!ip::valid($ip)) {
+				if (!IPv4::valid($ip)) {
 					$this->error("Not an IP {ip}", compact("ip"));
 				} else if ($allow) {
 					try {

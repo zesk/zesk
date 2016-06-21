@@ -22,31 +22,31 @@ class IPBan_FS extends Options {
 	}
 
 	private function ip_path($ip) {
-		if (!ip::valid($ip) && !ip::is_mask($ip)) {
+		if (!IPv4::valid($ip) && !IPv4::is_mask($ip)) {
 			return null;
 		}
 		return path($this->fs_path, implode("/", explode(".", $ip)));
 	}
 
 	private function _ip_drop_allow($ip, $func) {
-		if (ip::valid($ip)) {
+		if (IPv4::valid($ip)) {
 			return $this->$func($ip);
 		}
-		if (!ip::is_mask($ip)) {
+		if (!IPv4::is_mask($ip)) {
 			return 0;
 		}
-		list($low_ip, $nbits) = ip::mask_to_integers($ip);
-		list($low, $high) = ip::network($ip);
+		list($low_ip, $nbits) = IPv4::mask_to_integers($ip);
+		list($low, $high) = IPv4::network($ip);
 		if ($nbits > 24) {
 			$n = 0;
 			for($i = $low; $i <= $high; $i++) {
-				$n += $this->$func(ip::from_integer($i));
+				$n += $this->$func(IPv4::from_integer($i));
 			}
 		} else {
 			$npops = $nbits <= 16 ? 2 : 1;
 			$delta = $nbits <= 16 ? 256 * 256 : 256;
 			for($i = $low; $i <= $high; $i += $delta) {
-				$ip = ip::from_integer($i);
+				$ip = IPv4::from_integer($i);
 				$ip = explode(".", $ip);
 				for($n = 0; $n < $npops; $n++) {
 					array_pop($ip);

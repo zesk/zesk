@@ -72,14 +72,14 @@ class IPBan extends Object {
 	 * @return NULL number
 	 */
 	public static function complain($ip, $severity, $message = "", array $arguments = array()) {
-		if (!ip::valid($ip)) {
+		if (!IPv4::valid($ip)) {
 			log::debug("Invalid IP {ip} passed to {class}::complain", array(
 				"class" => __CLASS__,
 				"ip" => $ip
 			));
 			return null;
 		}
-		$ipi = ip::to_integer($ip);
+		$ipi = IPv4::to_integer($ip);
 		$severity = intval($severity);
 		$count = max(avalue($arguments, 'count', 1), 1);
 		$complaints = Object::class_query(__CLASS__)->what("complaints", "complaints")->where("ip", $ipi)->one_integer("complaints");
@@ -92,7 +92,7 @@ class IPBan extends Object {
 		} else {
 			Object::factory(__CLASS__, array(
 				"ip" => $ip,
-				"server" => ip::server(),
+				"server" => IPv4::server(),
 				"severity" => intval($severity),
 				"complaints" => $count
 			))->store();
