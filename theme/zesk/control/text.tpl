@@ -41,8 +41,8 @@ if ($this->textarea) {
 	);
 	$input = html::tag("input", $ia);
 	if ($this->input_group_addon) {
-		$addon = html::span($this->get('input_group_class', '.input-group-addon'), $this->input_group_addon);
-		echo html::tag('div', '.input-group', $this->input_group_addon_left ? $addon . $input : $input . $addon);
+		$html = html::span($this->get('input_group_class', '.input-group-addon'), $this->input_group_addon);
+		echo html::tag('div', '.input-group', $this->input_group_addon_left ? $html . $input : $input . $html);
 	} else {
 		echo $input;
 	}
