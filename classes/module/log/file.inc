@@ -184,7 +184,7 @@ class Module_Log_File extends Module_Log {
 			$this->file_rollover = "";
 			return $this->fp;
 		}
-		if (!file::is_absolute($filename)) {
+		if (!zesk\file::is_absolute($filename)) {
 			$filename = $this->application->application_root($filename);
 		}
 		$this->file = $filename;
