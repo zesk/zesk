@@ -1,17 +1,25 @@
 <?php
 if (false) {
+	/* @var $this Template */
+	
+	$application = $this->application;
+	/* @var $application Application */
+	
+	$request = $this->request;
+	/* @var $request Request */
+	
+	$response = $this->response;
+	/* @var $response Response_HTML */
+
 	/* @var $route Route */
 	$route = $this->route;
-	
-	/* @var $response Response */
-	$response = $this->response;
 }
 
 // Setup
 zesk::hook("page.tpl", $this);
 
-if (!isset($response)) {
-	$response = $this->response = Response::instance($this->application);
+if (!$this->response) {
+	$response = $this->response = $application->response();
 }
 
 $wrap_html = $response->content_type === "text/html";
