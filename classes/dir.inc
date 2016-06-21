@@ -6,6 +6,7 @@
  * @author kent
  * @copyright Copyright &copy; 2013, Market Acumen, Inc.
  */
+use zesk\file as file;
 
 /**
  * Directory traversal and tools
