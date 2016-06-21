@@ -1,5 +1,4 @@
 <?php
-
 class Schema_Contact_Date extends Database_Schema {
 	function schema() {
 		return $this->map(array(
@@ -22,12 +21,12 @@ class Schema_Contact_Date extends Database_Schema {
 					'created' => array(
 						'not null' => true,
 						'type' => 'timestamp',
-						'default' => '0'
+						'default' => '0000-00-00 00:00:00'
 					),
 					'modified' => array(
 						'type' => 'timestamp',
 						'not null' => true,
-						'default' => '0'
+						'default' => '0000-00-00 00:00:00'
 					)
 				),
 				'primary keys' => array(
