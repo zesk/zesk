@@ -14,45 +14,40 @@
  */
 abstract class Database_MySQL extends Database {
 	protected $singleton_prefix = __CLASS__;
-
 	const attribute_default_charset = "default charset";
 	const attribute_character_set = "character set";
 	const attribute_collation = "collate";
 	const attribute_engine = "engine";
-
+	
 	// utf8 is the future
 	const default_character_set = "utf8";
-
 	const default_collation = "utf8_unicode_ci";
-
 	const default_engine = "MyISAM";
-
+	
 	/**
 	 * Current selected database
 	 *
 	 * @var string
 	 */
 	private $change_database = null;
-
+	
 	/*
 	 * Set to empty array to have it refreshed from the database
 	 *
 	 * @var string
 	 */
 	protected $default_settings = array();
-
 	private static $mysql_variables = array(
 		self::attribute_engine => "@@storage_engine",
 		self::attribute_character_set => "@@character_set_database",
 		self::attribute_collation => "@@collation_database"
 	);
-
 	private static $mysql_default_attributes = array(
 		self::attribute_engine => self::default_engine,
 		self::attribute_character_set => self::default_character_set,
 		self::attribute_collation => self::default_engine
 	);
-
+	
 	/**
 	 * Set default table type
 	 */
@@ -64,7 +59,6 @@ abstract class Database_MySQL extends Database {
 		$sql = text::remove_line_comments($sql, "--");
 		return $sql;
 	}
-
 	private function _default_setting($attribute) {
 		if ($this->has_option($attribute)) {
 			return $this->option($attribute);
@@ -76,7 +70,6 @@ abstract class Database_MySQL extends Database {
 		$this->set_option($attribute, $value = $this->query_one("select $variable", $variable, avalue(self::$mysql_default_attributes, $attribute, null)));
 		return $value;
 	}
-
 	public function default_engine() {
 		return $this->_default_setting(self::attribute_engine);
 	}
@@ -91,13 +84,30 @@ abstract class Database_MySQL extends Database {
 	 * array("attribute1" => "default_value1")
 	 * @return array
 	 */
-	function column_attributes(Database_Table $table) {
-		return array(
+	function column_attributes(Database_Column $column) {
+		$attributes = array();
+		if ($column->sql_type() === "timestamp") {
+			if ($column->not_null()) {
+				$attributes['default'] = 'CURRENT_TIMESTAMP';
+			} else {
+				$attributes['default'] = null;
+			}
+		}
+		$sql_type = $column->sql_type();
+		if (ends($sql_type, "blob") || ends($sql_type, "text")) {
+			if ($column->not_null()) {
+				$attributes['default'] = '';
+			} else {
+				$attributes['default'] = null;
+			}
+		}
+		$attributes['extra'] = null;
+		$table = $column->table();
+		return $attributes + array(
 			self::attribute_character_set => $table->option(self::attribute_character_set, $this->default_character_set()),
 			self::attribute_collation => $table->option(self::attribute_collation, $this->default_collation())
 		);
 	}
-
 	function normalize_attributes(array $attributes) {
 		$newattrs = array();
 		foreach ($attributes as $k => $v) {
@@ -118,7 +128,7 @@ abstract class Database_MySQL extends Database {
 			self::attribute_collation => $this->default_collation()
 		);
 	}
-
+	
 	/**
 	 *
 	 * @return Database_MySQL
@@ -152,7 +162,7 @@ abstract class Database_MySQL extends Database {
 		}
 		return $this->query($sql);
 	}
-
+	
 	/**
 	 * Retrieve the table's column definitions
 	 *
@@ -173,7 +183,7 @@ abstract class Database_MySQL extends Database {
 		}
 		return $columns;
 	}
-
+	
 	/**
 	 * Dump a database to $path using mysqldump
 	 *
@@ -185,12 +195,12 @@ abstract class Database_MySQL extends Database {
 	 */
 	function dump($filename, array $options = array()) {
 		$parts = $this->url_parts;
-
+		
 		$parts['port'] = avalue($parts, "port", 3306);
 		$database = $this->database_name();
-
+		
 		$tables = to_list(avalue($options, 'tables', array()));
-
+		
 		$cmd_options = array(
 			"--add-drop-table",
 			"-c",
@@ -212,7 +222,7 @@ abstract class Database_MySQL extends Database {
 		));
 		return file_exists($filename);
 	}
-
+	
 	/**
 	 * Restore a database from $path using mysql command-line tool
 	 *
@@ -225,10 +235,10 @@ abstract class Database_MySQL extends Database {
 			throw new Exception_File_NotFound($filename);
 		}
 		$parts = $this->url_parts;
-
+		
 		$parts['port'] = avalue($parts, "port", 3306);
 		$database = $this->database_name();
-
+		
 		$cmd_options = array(
 			"--host={host}",
 			"--port={port}",
@@ -243,36 +253,36 @@ abstract class Database_MySQL extends Database {
 		));
 		return file_exists($filename);
 	}
-
+	
 	/**
 	 *
 	 * @see Database::connect()
 	 */
 	final public function _connect() {
 		$parts = $this->url_parts;
-
+		
 		$server = avalue($parts, "host");
 		$port = avalue($parts, "port", null);
 		$user = avalue($parts, "user");
 		$password = avalue($parts, "pass");
 		$this->Database = $database = substr(avalue($parts, "path"), 1);
-
+		
 		if ($server === "localhost") {
 			$this->options["TablesCaseSensitive"] = !zesk::$is_windows;
 		}
 		if (!$port) {
 			$port = 3306;
 		}
-
+		
 		if (!$this->_mysql_connect($server, $user, $password, $database, $port)) {
 			return false;
 		}
-
+		
 		$this->set_option("Database", $this->Database);
 		$this->set_option("User", $user);
 		$this->set_option("Port", $port);
 		$this->set_option("Server", $server);
-
+		
 		$character_set = $this->option(self::attribute_character_set, self::default_character_set);
 		if ($character_set) {
 			$sql = "SET NAMES '$character_set'";
@@ -284,7 +294,7 @@ abstract class Database_MySQL extends Database {
 		}
 		return true;
 	}
-
+	
 	/**
 	 * Connection error
 	 *
@@ -306,7 +316,7 @@ abstract class Database_MySQL extends Database {
 		}
 		throw new $class($this->URL, $words['errno'], __("Database_MySQL:=Can not connect to {database}:{port} at {server} as {user} (MySQL Error: #{errno} {error})", $words));
 	}
-
+	
 	/**
 	 * Internal connection method
 	 *
@@ -318,7 +328,7 @@ abstract class Database_MySQL extends Database {
 	 * @return resource
 	 */
 	abstract protected function _mysql_connect($server, $user, $password, $database, $port);
-
+	
 	/**
 	 * Throw a MySQL Error
 	 *
@@ -358,7 +368,7 @@ abstract class Database_MySQL extends Database {
 		}
 		return false;
 	}
-
+	
 	/**
 	 * Create a database at URL
 	 *
@@ -366,16 +376,16 @@ abstract class Database_MySQL extends Database {
 	 */
 	function create_database($url) {
 		$parts = parse_url($url);
-
+		
 		$server = avalue($parts, "host");
 		$user = avalue($parts, "user");
 		$password = avalue($parts, "pass");
 		$database = substr(avalue($parts, "path"), 1);
-
+		
 		$query = "CREATE DATABASE IF NOT EXISTS $database;";
 		if (!$this->query($query))
 			return false;
-		$ip = ip::remote();
+		$ip = IPv4::remote();
 		$query = "GRANT ALL PRIVILEGES ON `$database`.* TO `$user`@`$ip` IDENTIFIED BY '" . addslashes($password) . "' WITH GRANT
 OPTION;";
 		if (!$this->logQuery($query))
@@ -394,7 +404,7 @@ PRIVILEGES;";
 			return false;
 		return true;
 	}
-
+	
 	/**
 	 * List tables
 	 *
@@ -427,7 +437,7 @@ PRIVILEGES;";
 		$this->free($result);
 		return $data;
 	}
-
+	
 	/**
 	 *
 	 * @param unknown $table
@@ -449,7 +459,7 @@ PRIVILEGES;";
 			"Updated" => $this->sql_format_datetime($arr['Update_time'])
 		));
 	}
-
+	
 	/**
 	 * (non-PHPdoc)
 	 *
@@ -463,14 +473,14 @@ PRIVILEGES;";
 		}
 		return null;
 	}
-
+	
 	/*
 	 * String Manipulation
 	 */
 	function sql_format_string($sql) {
 		return "'" . addslashes($sql) . "'";
 	}
-
+	
 	/**
 	 * (non-PHPdoc)
 	 *
@@ -487,20 +497,20 @@ PRIVILEGES;";
 		);
 		return avalue($map, $t0, $t0) === avalue($map, $t1, $t1);
 	}
-
+	
 	/*
 	 * Boolean Type
 	 */
 	function sql_parse_boolean($value) {
 		return $value ? "'true'" : "'false'";
 	}
-
+	
 	/**
 	 *
 	 * @return boolean
 	 */
 	abstract function has_innodb();
-
+	
 	/**
 	 * (non-PHPdoc)
 	 *
@@ -513,12 +523,12 @@ PRIVILEGES;";
 			case "memory":
 			case "heap":
 				return "HASH";
-			default:
+			default :
 			case "myisam":
 				return "BTREE";
 		}
 	}
-
+	
 	/**
 	 * Figure out how many rows a query will hit
 	 *
@@ -541,7 +551,7 @@ PRIVILEGES;";
 		$this->free($result);
 		return $n;
 	}
-
+	
 	/**
 	 * MySQL parse RENAME TABLE syntax
 	 *
@@ -565,7 +575,7 @@ PRIVILEGES;";
 		$result = $this->query_array("SHOW TABLES LIKE " . $this->quote_text($table));
 		return (count($result) !== 0);
 	}
-
+	
 	/**
 	 * (non-PHPdoc)
 	 *
@@ -592,13 +602,13 @@ PRIVILEGES;";
 		}
 		$path = substr($path, 1);
 		$args[] = $path;
-
+		
 		return array(
 			"mysql",
 			$args
 		);
 	}
-
+	
 	/**
 	 * MySQL locking
 	 *
@@ -612,7 +622,7 @@ PRIVILEGES;";
 		$result = $this->query_integer("SELECT GET_LOCK($name, $wait_seconds) AS X", "X", 0) === 1;
 		return $result;
 	}
-
+	
 	/**
 	 * MySQL Release lock
 	 *
@@ -632,7 +642,7 @@ PRIVILEGES;";
 		}
 		return true;
 	}
-
+	
 	/**
 	 * (non-PHPdoc)
 	 *
@@ -726,7 +736,7 @@ PRIVILEGES;";
 			"HOUR_MINUTE",
 			"HOUR_SECOND",
 			"IF",
-			"IGNORE",
+			// WL #7395			"IGNORE",
 			"IN",
 			"INDEX",
 			"INFILE",
@@ -886,7 +896,6 @@ PRIVILEGES;";
 " => $this->type()
 		));
 	}
-
 	public function bytes_used($table = null) {
 		if ($table !== null) {
 			if (!$this->table_exists($table)) {
