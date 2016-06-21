@@ -4,113 +4,132 @@
  * Automatically keep a series of files and directories in sync between users, with security checks for superusers, and simplify version control of
  * remote systems.
  *
- * Basically, if you deploy software to remote systems, this lets you keep your configuration files in a source repository
+ * Basically, if you deploy software to remote systems, this lets you keep your configuration files in a source repository and copy them into the
+ * appropriate locations without too much extra work
  *
  * @alias sync
  * @author kent
  *
  */
-class Command_Configure extends Command_Base {
+use zesk\file as file;
 
+class Command_Configure extends Command_Base {
 	protected $option_types = array(
 		"non-interactive" => "boolean",
 		"environment-file" => "string",
 		"host-setting-name" => "string"
 	);
-
+	
 	/**
 	 * Whether the configuration should be saved
 	 *
 	 * @var boolean
 	 */
 	private $changed = null;
-
+	
 	/**
 	 * Whether anything was skipped (out of sync)
 	 *
 	 * @var integer
 	 */
 	private $incomplete = 0;
-
+	
 	/**
 	 * @var string
 	 */
 	private $host_path = null;
-
+	
 	/**
 	 * @var string
 	 */
 	private $uname = null;
-
+	
 	/**
 	 * @var string
 	 */
 	private $low_uname = null;
-
+	
 	/**
 	 * @var string
 	 */
 	private $username = null;
-
+	
 	/**
-	 * List of know host configurations
+	 * List of known host configurations
 	 *
 	 * @var array
 	 */
 	private $possible_host_configurations = array();
-
+	
 	/**
 	 * Map from uname => host configurations
 	 *
 	 * @var array
 	 */
 	private $alias_file = null;
-
+	
 	/**
 	 * List of host configurations
 	 *
 	 * @var array
 	 */
 	private $host_configurations = array();
-
+	
 	/**
 	 * List of host paths for this host
 	 *
 	 * @var array
 	 */
 	private $host_paths = array();
-
+	
 	/**
 	 * Variables to map when copying files around, etc.
 	 *
 	 * @var array
 	 */
 	private $variable_map = array();
-
+	
+	/**
+	 * 
+	 * @var integer 
+	 */
+	protected $current_uid = null;
+	
+	/**
+	 * 
+	 * @var integer
+	 */
+	protected $current_gid = null;
+	
+	/**
+	 * 
+	 * {@inheritDoc}
+	 * @see Command::run()
+	 */
 	protected function run() {
 		$this->completion_function();
-
+		
 		$this->configure("configure", true);
-
+		
 		$this->uname = system::uname();
 		$this->low_uname = strtolower($this->uname);
 		$this->username = avalue($_SERVER, 'USER');
-
+		
 		$this->variable_map['uname'] = $this->uname;
 		$this->variable_map['low_uname'] = $this->low_uname;
 		$this->variable_map['user'] = $this->username;
 		$this->variable_map['zesk_application_root'] = zesk::application_root();
 		$this->variable_map['zesk_root'] = zesk::root();
-
+		
 		$this->log("Configuration synchronization for: {uname}, user: {user}", $this->variable_map);
 		$this->determine_environment_file();
 		if (!$this->determine_host_path_setting_name()) {
 			return 1;
 		}
 		$this->determine_host_name();
-
+		
 		$this->save_configuration_changes();
-
+		
 		$this->incomplete = 0;
 		if (!$this->configure_user()) {
 			return 99;
@@ -118,7 +137,6 @@ class Command_Configure extends Command_Base {
 		$this->verbose_log("Success");
 		return 0;
 	}
-
 	private function determine_environment_file() {
 		$value = $this->environment_file;
 		$times = 0;
@@ -134,7 +152,6 @@ class Command_Configure extends Command_Base {
 		$this->variable_map['environment_file'] = $this->environment_file;
 		return $this->environment_file = $value;
 	}
-
 	private function determine_host_path_setting_name() {
 		$value = $this->host_setting_name;
 		$times = 0;
@@ -162,13 +179,12 @@ class Command_Configure extends Command_Base {
 		}
 		return $value;
 	}
-
 	private function load_dirs($output = false) {
 		$env = conf::load($this->environment_file);
 		$this->variable_map += $env;
 		$dirs = array();
 		foreach ($env as $name => $value) {
-			if (is_dir($value)) {
+			if ((begins($value, "/") || begins($value, ".")) && is_dir($value)) {
 				$dirs[$name] = $value;
 			} else {
 				$possibilities[] = $name;
@@ -184,7 +200,6 @@ class Command_Configure extends Command_Base {
 		}
 		return $dirs;
 	}
-
 	private function determine_host_name() {
 		$this->possible_host_configurations = arr::unsuffix(dir::ls($this->host_path), "/", true);
 		$this->alias_file = path($this->host_path, "aliases.conf");
@@ -212,7 +227,6 @@ class Command_Configure extends Command_Base {
 		$this->host_configurations = $host_configs;
 		return $host_configs;
 	}
-
 	private function determine_host_configurations() {
 		$this->completions = $possible_host_configurations = $this->possible_host_configurations;
 		do {
@@ -229,7 +243,6 @@ class Command_Configure extends Command_Base {
 		));
 		return $host_configurations;
 	}
-
 	private function save_configuration_changes() {
 		if ($this->changed) {
 			$__ = array(
@@ -251,11 +264,13 @@ class Command_Configure extends Command_Base {
 			"paths" => implode("\n\t", $paths)
 		)));
 		$this->host_paths = $paths;
-
+		
 		$files = zesk::find_files($paths, "users/$username/configure");
 		$this->log(__("Configuration files:\n\t{files}", array(
 			"files" => implode("\n\t", $files)
 		)));
+		list($this->current_uid, $this->current_gid) = $this->current_uid_gid();
+		
 		foreach ($files as $file) {
 			$this->variable_map['current_host_path'] = dirname(dirname(dirname($file)));
 			$this->verbose_log("Processing file {file}", compact("file"));
@@ -267,10 +282,11 @@ class Command_Configure extends Command_Base {
 				list($command, $raw_arguments) = pair($line, " ", $line, null);
 				$command = zesk::clean_function($command);
 				$raw_arguments = preg_replace("/\s+/", " ", trim($raw_arguments));
-				$arguments = map($raw_arguments, $this->variable_map);
+				$arguments = map($raw_arguments, $this->variable_map, true);
 				$method = "_command_$command";
+				$__ = compact("command", "raw_arguments", "arguments");
 				if (method_exists($this, $method)) {
-					$this->verbose_log("Running command {command} {raw_arguments} => {arguments}", compact("command", "raw_arguments", "arguments"));
+					$this->verbose_log("Running command {command} {raw_arguments} => {arguments}", $__);
 					$result = call_user_func_array(array(
 						$this,
 						$method
@@ -278,15 +294,169 @@ class Command_Configure extends Command_Base {
 					if (is_bool($result) && $result === false) {
 						$this->error("Command failed ... aborting.");
 						return false;
+					} else {
+						$this->verbose_log("Command {command} was successful.", $__);
 					}
 				} else {
-					$this->error("Unknown command {command} ({raw_arguments})", compact("command", "raw_arguments"));
+					$this->error("Unknown command {command} ({raw_arguments})", $__);
 				}
 			}
 		}
 		return true;
 	}
-
+	private function current_uid_gid() {
+		return array(
+			intval(implode("\n", zesk::execute("id -u"))),
+			intval(implode("\n", zesk::execute("id -g")))
+		);
+	}
+	private function handle_owner_mode($target, $want_owner = null, $want_mode = null) {
+		$stats = file::stat($target, "");
+		$__['target'] = $target;
+		$__['want_owner'] = $want_owner;
+		$__['want_mode'] = $want_mode;
+		$__['old_mode'] = $old_mode = $stats['perms']['octal0'];
+		$__['old_user'] = $stats['owner']['owner'];
+		$__['old_group'] = $stats['owner']['group'];
+		if (!empty($want_owner)) {
+			$this->verbose_log("Want owner of {target} to be {want_owner} ...", $__);
+			list($want_user, $want_group) = pair($want_owner, ":", $want_owner, null);
+			$__['new_user'] = $want_user;
+			$__['new_group'] = $want_group;
+			$new_user = null;
+			$new_group = null;
+			if (!empty($want_user)) {
+				if (is_numeric($want_user)) {
+					if (intval($want_user) !== intval($stats['owner']['uid'])) {
+						$new_user = $want_user;
+					}
+				} else {
+					if (strval($want_user) !== strval($stats['owner']['owner'])) {
+						$new_user = $want_user;
+					}
+				}
+			}
+			if (!empty($want_group)) {
+				if (is_numeric($want_group)) {
+					if (intval($want_group) !== intval($stats['owner']['gid'])) {
+						$new_group = $want_group;
+					}
+				} else {
+					if (strval($want_group) !== strval($stats['owner']['group'])) {
+						$new_group = $want_group;
+					}
+				}
+			}
+		}
+		$output = false;
+		if ($new_user || $new_group) {
+			if ($this->current_uid !== 0) {
+				$this->error("Unable to change mode of {target}, run command as root:", $__);
+				echo "# chown $want_owner $target\n";
+			} else {
+				if (!$this->prompt_yes_no(__("Change owner of {target} to {want_owner} (old {old_user}:{old_group}) ?", $__))) {
+					return false;
+				}
+				if ($new_user) {
+					if (!chown($target, $new_user)) {
+						$this->error("Unable to chown {target} to {new_user} (old user {old_user})", $__);
+						return false;
+					}
+					$this->verbose_log("Changed owner of {target} to {new_user} (old user {old_user})", $__);
+				}
+				if ($new_group) {
+					if (!chgrp($target, $new_group)) {
+						$this->error("Unable to chgrp {target} to {new_group} (old group {old_group})", $__);
+						return false;
+					}
+					$this->verbose_log("Changed group of {target} to {new_group} (old group {old_group})", $__);
+				}
+			}
+		}
+		if (!empty($want_mode)) {
+			$this->verbose_log("Want mode of {target} to be {want_mode} ...", $__);
+			if ($old_mode !== $want_mode) {
+				if (!$this->prompt_yes_no(__("Change permissions of {target} to {want_mode} (old mode {old_mode})?", $__))) {
+					return false;
+				}
+				if (!chmod($target, $__['decimal_want_mode'] = octdec($want_mode))) {
+					$this->error("Unable to chmod {target} to {want_mode} (decimal: {decimal_want_mode})", $__);
+					return false;
+				}
+			}
+		}
+		return true;
+	}
+	
+	/**
+	 * 
+	 * @param unknown $target
+	 * @param unknown $owner
+	 * @param unknown $mode
+	 */
+	private function _command_mkdir($target, $owner = null, $mode = null) {
+		$__['target'] = $target;
+		if (!is_dir($target)) {
+			if (!$this->prompt_yes_no(__("Create directory {target}?", $__))) {
+				return false;
+			}
+			if (!mkdir($target, null, true)) {
+				$this->error("Unable to create directory {target}", $__);
+				return false;
+			}
+		}
+		return $this->handle_owner_mode($target, $owner, $mode);
+	}
+	
+	/**
+	 * 
+	 * @param unknown $symlink
+	 * @param unknown $file
+	 */
+	private function _command_symlink($symlink, $file) {
+		$__ = compact("symlink", "file");
+		if (!is_dir($file) && !is_file($file)) {
+			$this->error("Symlink {symlink} => {file}: File does not exist", $__);
+			return false;
+		}
+		$this->verbose_log("Symlink {symlink} => {file}", $__);
+		if (!is_link($symlink)) {
+			if (file_exists($symlink)) {
+				$bytes = filesize($symlink);
+				if (!$this->prompt_yes_no(__("Symlink to create \"{symlink}\" exists ({bytes} bytes), delete?", $__))) {
+					return false;
+				}
+				file::unlink($symlink);
+			} else if (is_dir($symlink)) {
+				if (!$this->prompt_yes_no(__("Symlink to create \"{symlink}\" is already a directory, delete?", $__))) {
+					return false;
+				}
+				dir::delete($symlink);
+			}
+			if (!$this->prompt_yes_no(__("Create symbolic link \n\t{symlink} => {file}\n?", $__))) {
+				return false;
+			}
+		} else {
+			if (($oldlink = readlink($symlink)) === $file) {
+				return true;
+			}
+			if (!$this->prompt_yes_no("Symlink {symlink} points to {oldfile}, update to point to correct {file}?", compact("old_file") + $__)) {
+				return false;
+			}
+			file::unlink($symlink);
+		}
+		if (!symlink($file, $symlink)) {
+			$this->error("Creating symlink {symlink} to {file} failed?", $__);
+			return false;
+		}
+		return true;
+	}
+	
+	/**
+	 * 
+	 * @param unknown $source
+	 * @param unknown $destination
+	 */
 	private function _command_file_catenate($source, $destination) {
 		$sources = zesk::find_files($this->host_paths, $source);
 		$__ = array(
@@ -309,7 +479,6 @@ class Command_Configure extends Command_Base {
 				try {
 					file::copy_uid_gid(dirname($conf), $conf);
 				} catch (Exception $e) {
-
 				}
 			}
 			return true;
@@ -337,7 +506,12 @@ class Command_Configure extends Command_Base {
 		}
 		return null;
 	}
-
+	
+	/**
+	 * 
+	 * @param unknown $source
+	 * @param unknown $destination
+	 */
 	private static function copy_file_inherit($source, $destination) {
 		if (!copy($source, $destination)) {
 			return false;
@@ -345,11 +519,15 @@ class Command_Configure extends Command_Base {
 		try {
 			file::copy_uid_gid(dirname($destination), $destination);
 		} catch (Exception $e) {
-
 		}
 		return true;
 	}
-
+	
+	/**
+	 * 
+	 * @param unknown $destination
+	 * @param unknown $content
+	 */
 	private static function file_put_contents_inherit($destination, $content) {
 		if (!file_put_contents($destination, $content)) {
 			return false;
@@ -357,23 +535,46 @@ class Command_Configure extends Command_Base {
 		try {
 			file::copy_uid_gid(dirname($destination), $destination);
 		} catch (Exception $e) {
-
 		}
 		return true;
 	}
-
-	private function _command_file($source, $destination) {
+	
+	/**
+	 * 
+	 * @param unknown $source
+	 * @param unknown $destination
+	 */
+	private function _command_file($source, $destination, $want_owner = null, $want_mode = null) {
+		$__ = compact("source", "destination", "want_owner", "want_mode");
+		if (is_link($destination)) {
+			if (!$this->prompt_yes_no(__("Target {destination} is a link, replace with {source} as a file?", $__))) {
+				return false;
+			}
+			file::unlink($destination);
+			if (!self::copy_file_inherit($source, $destination)) {
+				return false;
+			}
+			return $this->handle_owner_mode($destination, $want_owner, $want_mode);
+		}
 		try {
-			zesk::exec("diff -w {0} {1}", $source, $destination);
-			return true;
+			zesk::execute("diff -w {0} {1}", $source, $destination);
+			return $this->handle_owner_mode($destination, $want_owner, $want_mode);
 		} catch (Exception_Command $e) {
 			// Not the same
 		}
 		switch ($this->_files_differ_helper($source, $destination)) {
 			case "source":
-				return self::copy_file_inherit($source, $destination);
+				$result = self::copy_file_inherit($source, $destination);
+				if (!$result) {
+					return $result;
+				}
+				return $this->handle_owner_mode($destination, $want_owner, $want_mode);
 			case "destination":
-				return self::copy_file_inherit($destination, $source);
+				$result = self::copy_file_inherit($destination, $source);
+				if (!$result) {
+					return $result;
+				}
+				return $this->handle_owner_mode($destination, $want_owner, $want_mode);
 		}
 		$__ = compact("source", "destination");
 		if (!file_exists($source)) {
@@ -382,9 +583,17 @@ class Command_Configure extends Command_Base {
 		if (!file_exists($destination)) {
 			$this->verbose_log(is_dir(dirname($destination)) ? "Destination {destination} does not exist" : "Destination {destination} does not exist, nor does its parent directory", $__);
 		}
+		
 		return null;
 	}
-
+	
+	/**
+	 * 
+	 * @param unknown $source
+	 * @param unknown $destination
+	 * @param unknown $source_name
+	 * @param unknown $destination_name
+	 */
 	private function _files_differ_helper($source, $destination, $source_name = null, $destination_name = null) {
 		if ($source_name === null) {
 			$source_name = $source;
@@ -399,7 +608,6 @@ class Command_Configure extends Command_Base {
 				$destination
 			), true);
 		} catch (Exception $e) {
-
 		}
 		$this->completions = array(
 			"source",
@@ -418,13 +626,18 @@ class Command_Configure extends Command_Base {
 				$this->log("Copying {destination_name} to {source_name}", compact("source_name", "destination_name"));
 				$this->changed = true;
 				return "destination";
-			default:
+			default :
 				$this->log("skipping ...");
 				$this->incomplete++;
 				return null;
 		}
 	}
-
+	
+	/**
+	 * 
+	 * @param unknown $repo
+	 * @param unknown $target
+	 */
 	private function _command_subversion($repo, $target) {
 		$__ = compact("repo", "target");
 		try {
