@@ -90,7 +90,7 @@ class Module_PolyGlot extends Module implements Module_Interface_Routes {
 			}
 			$tt = zesk::load($source_file);
 			if (!is_array($tt)) {
-				throw new Exception_File_Format("Source file {basename} does not return the correct format", array(
+				throw new Exception_File_Format($source_file, "Source file {basename} does not return the correct format", array(
 					"basename" => basename($source_file)
 				));
 			}

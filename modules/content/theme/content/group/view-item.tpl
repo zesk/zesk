@@ -1,19 +1,40 @@
 <?php
+if (false) {
+	/* @var $this Template */
+	
+	$zesk = $this->zesk;
+	/* @var $zesk zesk\Kernel */
+	
+	$application = $this->application;
+	/* @var $application zesk\Application */
+	
+	$session = $this->session;
+	/* @var $session Session */
+	
+	$router = $this->router;
+	/* @var $request Router */
+	
+	$request = $this->request;
+	/* @var $request Request */
+	
+	$response = $this->response;
+	/* @var $response Response_HTML */
+	
+	$current_user = $this->current_user;
+	/* @var $current_user User */
+	
+	$object = $this->object;
+	/* @var $object Content_Group */
+}
 
-$group = $this->object;
-/* @var $group Content_Group */
+$group_object = $object->group_object();
 
-$group_object = $group->group_object();
+$query = $group_object->query()->where("Parent", $object)->limit(0, $object->DisplayCount);
 
-$query = $group_object->query()->where("Parent", $group)->limit(0, $group->DisplayCount);
+$object->hook("query_alter", $query);
 
-$group->hook("query_alter", $query);
-
-$template = zesk::get(get_class($group) . "::template", "view");
+$theme = $object->option("group_item_theme", "view");
 
 foreach ($query->object_iterator() as $object) {
-	
-	echo $object->output(array(
-		$template
-	));
+	echo $object->theme($theme);
 }

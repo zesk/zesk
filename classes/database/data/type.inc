@@ -1,5 +1,7 @@
 <?php
 
+use zesk\Timestamp as Timestamp;
+
 abstract class Database_Data_Type {
 
 	/**
@@ -271,7 +273,7 @@ abstract class Database_Data_Type {
 		$is_bin = $type->option_bool("binary");
 		$size = $type->option_integer("size");
 		if (!$type_name) {
-			throw new Exception_Semantics("Database_MySQL::type_set_sql_type(...): \"Type\" is not set! " . print_r($type, true));
+			throw new Exception_Semantics(__CLASS__ . "::type_set_sql_type(...): \"Type\" is not set! " . print_r($type, true));
 		}
 		switch (strtolower($type_name)) {
 			case Class_Object::type_id:
@@ -354,7 +356,7 @@ abstract class Database_Data_Type {
 				$type->set_option("sql_type", "varchar(32)");
 				return true;
 		}
-		throw new Exception_Unimplemented("Database_MySQL::type_set_sql_type($type_name) unknown");
+		throw new Exception_Unimplemented(__CLASS__ . "::type_set_sql_type($type_name) unknown");
 	}
 
 }

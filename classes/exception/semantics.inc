@@ -12,5 +12,5 @@
  * 
  * @author kent
  */
-class Exception_Semantics extends Zesk_Exception {
+class Exception_Semantics extends zesk\Exception {
 }

@@ -1,7 +1,28 @@
 <?php
-
-/* @var $response Response_HTML */
-$response = $this->response;
+if (false) {
+	/* @var $this Template */
+	
+	$zesk = $this->zesk;
+	/* @var $zesk zesk\Kernel */
+	
+	$application = $this->application;
+	/* @var $application TimeBank */
+	
+	$session = $this->session;
+	/* @var $session Session */
+	
+	$router = $this->router;
+	/* @var $request Router */
+	
+	$request = $this->request;
+	/* @var $request Request */
+	
+	$response = $this->response;
+	/* @var $response Response_HTML */
+	
+	$current_user = $this->current_user;
+	/* @var $current_user User */
+}
 
 /* @var $this Template */
 
@@ -30,8 +51,10 @@ $this->begin('body/exception.tpl');
 
 echo html::div('.redirect', html::tag('label', __('Redirect:')) . $this->content);
 
-if (zesk::get('response/redirect.tpl::debug_backtrace', $this->application->development())) {
-	echo html::div('.backtrace', $this->theme('exception/trace', array('content' => debug_backtrace(false))));
+if ($zesk->configuration->path_get('Response::redirect_show_backtrace', $this->application->development())) {
+	echo html::div('.backtrace', $this->theme('exception/trace', array(
+		'content' => debug_backtrace(false)
+	)));
 }
 echo $this->end();
 echo $this->end();

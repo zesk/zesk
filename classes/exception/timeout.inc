@@ -1,5 +1,5 @@
 <?php
 
-class Exception_Timeout extends Zesk_Exception {
+class Exception_Timeout extends zesk\Exception {
 
 }

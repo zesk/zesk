@@ -1,4 +1,5 @@
 <?php
+use zesk\file as file;
 
 /**
  * Global search and replace tool for code
@@ -35,7 +36,7 @@ class Command_Cannon extends Command_Base {
 	);
 	function run() {
 		$this->configure('cannon');
-
+		
 		$dir = $this->first_option("dir;directory");
 		if ($dir && !is_dir($dir)) {
 			$this->usage("$dir is not a directory");
@@ -44,7 +45,7 @@ class Command_Cannon extends Command_Base {
 		$backup = $this->option_bool('backup');
 		$duplicate = $this->option_bool('duplicate');
 		$show = $this->option_bool('show');
-
+		
 		$this->verbose_log("Verbose enabled.");
 		if ($this->option_bool('dry-run')) {
 			$this->verbose_log("Dry run - nothing will change.");
@@ -108,13 +109,20 @@ class Command_Cannon extends Command_Base {
 	}
 	private function _list_files($dir, array $extensions) {
 		$options = array();
-		$options['file_include_pattern'] = '#\.' . implode("|", $extensions) . '$#';
-		$options['file_exclude_pattern'] = '#.*/\.#';
-		$options['file_default'] = false;
-		$options['directory_default'] = false;
-		$options['directory_walk_exclude_pattern'] = '#.*/\.#';
+		$options['rules_file'] = array(
+			'#\.' . implode("|", $extensions) . '$#' => true,
+			'#.*/\.#' => true,
+			false
+		);
+		$options['rules_directory_walk'] = array(
+			'#.*/\.#' => false,
+			true
+		);
+		$options['rules_directory'] = array(
+			false
+		);
 		$options['add_path'] = true;
-
+		
 		return dir::list_recursive($dir, $options);
 	}
 	private function _replace_file($file, $search, $replace) {
@@ -134,7 +142,7 @@ class Command_Cannon extends Command_Base {
 		$replace_tr = array(
 			$rabbit => $replace
 		);
-
+		
 		$lines = explode("\n", strtr($contents, $search_tr));
 		foreach ($lines as $lineno => $line) {
 			if (strpos($line, $rabbit) === false) {

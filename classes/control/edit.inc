@@ -318,7 +318,8 @@ class Control_Edit extends Control {
 	 * @return void
 	 */
 	protected function initialize_theme_paths() {
-		$hierarchy = zesk::class_hierarchy($this, __CLASS__);
+		global $zesk;
+		$hierarchy = $zesk->classes->hierarchy($this, __CLASS__);
 		foreach ($hierarchy as $index => $class) {
 			$hierarchy[$index] = strtr(strtolower($class), "_", "/") . "/";
 		}

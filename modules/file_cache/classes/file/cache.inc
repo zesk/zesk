@@ -6,11 +6,13 @@ class File_Cache {
 	 * @return File_Cache
 	 */
 	public static function instance() {
+		global $zesk;
+		/* @var $zesk zesk\Kernel */
 		static $singleton = null;
 		if ($singleton instanceof Interface_File_Cache) {
 			return $singleton;
 		}
-		$singleton = zesk::factory(zesk::get("File_Cache::class", "File_Cache_Local"));
+		$singleton = $zesk->objects->factory($zesk->configuration->path_get("File_Cache::class", "File_Cache_Local"));
 		return $singleton;
 	}
 	/**

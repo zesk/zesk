@@ -1,6 +1,7 @@
 <?php
-
-Module::register_paths();
-
-zesk::register_class('Module_jQuery_Form');
+if (false) {
+	$zesk = zesk();
+	$application = app();
+}
+$application->module->register_paths();
 

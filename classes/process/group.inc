@@ -20,7 +20,7 @@ class Process_Group implements Process_Interruptable {
 	 * @var string
 	 */
 	public $name;
-
+	
 	/**
 	 * Current Process ID
 	 *
@@ -33,35 +33,35 @@ class Process_Group implements Process_Interruptable {
 	 * @var integer
 	 */
 	public $parent_pid;
-
+	
 	/**
 	 * Array of child process IDs
 	 *
 	 * @var integer
 	 */
 	public $pids;
-
+	
 	/**
 	 * Are we running?
 	 *
 	 * @var boolean
 	 */
 	public $running;
-
+	
 	/**
 	 * Are we trying to exit?
 	 *
 	 * @var boolean
 	 */
 	private $exiting;
-
+	
 	/**
 	 * The sleep interval, in milliseconds
 	 *
 	 * @var integer
 	 */
 	private $sleep_interval = 1;
-
+	
 	/**
 	 * Timer of how long process has been running
 	 *
@@ -89,7 +89,7 @@ class Process_Group implements Process_Interruptable {
 		$this->term_timeout = 10;
 		$this->process_count = 0;
 		$this->timer = new Timer();
-
+		
 		$this->install_signals();
 	}
 	public function processCount() {
@@ -108,14 +108,14 @@ class Process_Group implements Process_Interruptable {
 			pcntl_signal(SIGTERM, $callback);
 			pcntl_signal(SIGINT, $callback);
 			pcntl_signal(SIGALRM, $callback);
-
+			
 			register_shutdown_function(array(
 				"Process_Group",
 				"shutdown"
 			));
 		}
 	}
-
+	
 	/**
 	 * The unix signal handler for multi-process systems
 	 *
@@ -149,7 +149,7 @@ class Process_Group implements Process_Interruptable {
 				case SIGHUP:
 					$x->terminate("Hangup signal received");
 					break;
-				default:
+				default :
 					break;
 			}
 		}
@@ -160,7 +160,7 @@ class Process_Group implements Process_Interruptable {
 			$g->terminated();
 		}
 	}
-
+	
 	/**
 	 *
 	 * @deprecated use instance
@@ -168,7 +168,7 @@ class Process_Group implements Process_Interruptable {
 	static function master($name = false) {
 		return self::instance($name);
 	}
-
+	
 	/**
 	 * Process_Group
 	 *
@@ -204,7 +204,9 @@ class Process_Group implements Process_Interruptable {
 		return $this->parent_pid === null;
 	}
 	private function _processPIDPath() {
-		return path(zesk::get('Zesk::run_path'), $this->name . ".pid");
+		global $zesk;
+		/* @var $zesk zesk\Kernel */
+		return $zesk->paths->data($this->name . ".pid");
 	}
 	private function _writePIDFile() {
 		$pid_file = $this->_processPIDPath();
@@ -404,7 +406,7 @@ class Process_Group implements Process_Interruptable {
 	}
 	function run($nPids = 1, $exitTime = false, $runOne = false) {
 		$this->process_count = $nPids;
-
+		
 		$this->debug("Process_Group::run()");
 		if ($this->parent_pid) {
 			// Should never get here if no pcntl
@@ -482,13 +484,12 @@ class Process_Group implements Process_Interruptable {
 		$this->terminated();
 		return false;
 	}
-
+	
 	/**
 	 *
 	 * @var Application
 	 */
 	private $application = null;
-
 	public function application(Application $set = null) {
 		if ($set) {
 			$this->application = $set;

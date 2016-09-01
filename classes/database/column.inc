@@ -7,20 +7,20 @@
  * @subpackage database
  */
 class Database_Column extends Options {
-
+	
 	/**
 	 *
 	 * @var Database_Table
 	 */
 	protected $table;
-
+	
 	/**
 	 * Column name
 	 *
 	 * @var string
 	 */
 	protected $name = null;
-
+	
 	/**
 	 * @return Database_Table
 	 */
@@ -31,7 +31,6 @@ class Database_Column extends Options {
 		}
 		return $this->table;
 	}
-
 	function __construct(Database_Table $table, $name, $options = null) {
 		$this->table = $table;
 		if (is_string($options)) {
@@ -47,7 +46,6 @@ class Database_Column extends Options {
 		parent::__construct($options);
 		$this->name($name);
 	}
-
 	function is_text() {
 		$db = $this->table->database();
 		$data_type = $db->data_type();
@@ -65,7 +63,7 @@ class Database_Column extends Options {
 		$this->set_option('previous_name', $name);
 		return $this;
 	}
-
+	
 	/**
 	 * Get/set column name
 	 * @param string $set
@@ -78,7 +76,7 @@ class Database_Column extends Options {
 		}
 		return $this->name;
 	}
-
+	
 	/**
 	 * Detect differences between database columns
 	 *
@@ -86,7 +84,7 @@ class Database_Column extends Options {
 	 * @param Database_Column $that
 	 * @return array
 	 */
-	public final function differences(Database $db, Database_Column $that) {
+	public function differences(Database $db, Database_Column $that) {
 		$data_type = $db->data_type();
 		$name = $this->name();
 		$this_native_type = $this->option("sql_type", "this");
@@ -264,7 +262,7 @@ class Database_Column extends Options {
 				return $this->has_option("Unique", true);
 			case Database_Index::Primary:
 				return $this->primary_key();
-			default:
+			default :
 				return $this->has_option("Unique", true) || $this->has_option("Index", true) || $this->primary_key();
 		}
 	}
@@ -278,13 +276,11 @@ class Database_Column extends Options {
 			$this->set_option("column_extras", $set);
 		}
 	}
-
 	public function _debug_dump() {
 		$vars = get_object_vars($this);
 		$vars['table'] = $this->table->name();
 		return "Object:" . __CLASS__ . " (\n" . text::indent(_dump($vars, true)) . "\n)";
 	}
-
 	public function __toString() {
 		return $this->name;
 	}

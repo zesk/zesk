@@ -2,12 +2,11 @@
 
 namespace zesk;
 
-use \Object as Object;
-use \Class_Object as Class_Object;
 use \Object_Iterator as Object_Iterator;
 
 /**
  * @see Class_Tag
+ * @see Module_Tag
  * @property id $id
  * @property Tag_Label $tag_label
  * @property string $object_class
@@ -41,7 +40,7 @@ class Tag extends Object {
 	 * @param \Application $application
 	 */
 	public static function cull(\Application $application) {
-		$classes = Object::class_query(__CLASS__)->what("object_class")->distinct(true)->to_array(null, "object_class");
+		$classes = Object::class_query(__CLASS__)->what("object_class", "object_class")->distinct(true)->to_array(null, "object_class");
 		foreach ($classes as $class) {
 			/* @var $class_object Class_Object */
 			$class_object = Object::cache_class($class, "class");

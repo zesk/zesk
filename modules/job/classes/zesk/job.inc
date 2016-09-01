@@ -2,21 +2,16 @@
 
 namespace zesk;
 
-use \Object as Object;
 use \Process_Interruptable as Process_Interruptable;
 use \Process_Interruptable_Mock as Process_Interruptable_Mock;
-use \Timestamp as Timestamp;
-use \Server as Server;
 use \zesk as zesk;
-use \log as log;
-use \Timer as Timer;
+use zesk\Timestamp as Timestamp;
 use \Exception_Parameter as Exception_Parameter;
 use \Exception_Semantics as Exception_Semantics;
 use \Exception_Interrupt as Exception_Interrupt;
-use \Exception as Exception;
 
 /**
- * @see zesk\Class_Job
+ * @see Class_Job
  * @property id $id
  * @property User $user
  * @property string $name
@@ -36,6 +31,24 @@ use \Exception as Exception;
  * @property string $status
  */
 class Job extends Object implements Process_Interruptable {
+	/**
+	 * 
+	 * @var integer
+	 */
+	const priority_urgent = 255;
+	
+	/**
+	 *
+	 * @var integer
+	 */
+	const priority_important = 240;
+	
+	/**
+	 * 
+	 * @var integer
+	 */
+	const priority_normal = 0;
+	
 	/**
 	 * @var Process_Interruptable
 	 */
@@ -65,7 +78,7 @@ class Job extends Object implements Process_Interruptable {
 	 * @throws Exception_Semantics
 	 * @return Job
 	 */
-	public static function instance($name, $code, $hook, array $arguments = array()) {
+	public static function instance($name, $code, $hook, array $arguments = array(), $priority = self::priority_normal) {
 		if (!is_string($hook)) {
 			throw new Exception_Parameter("Hook must be a string: {hook}", array(
 				"hook" => _dump($hook)
@@ -76,19 +89,42 @@ class Job extends Object implements Process_Interruptable {
 				"hook" => _dump($hook)
 			));
 		}
-		$job = new Job(array(
+		$members = array(
 			"name" => $name,
 			"code" => $code,
 			"hook" => $hook,
+			"priority" => $priority,
 			"hook_args" => $arguments
-		));
-		return $job->register();
+		);
+		$job = new Job($members);
+		$job->find();
+		return $job->set_member($members)->store();
 	}
 	public static function mock_run($id) {
 		/* @var $job Job */
 		$job = Object::factory(__CLASS__, $id)->fetch();
 		$interruptable = new Process_Interruptable_Mock();
 		return $job->execute($interruptable);
+	}
+	
+	/**
+	 * Getter/setter for Priority
+	 * 
+	 * @param integer $set
+	 * @return integer|self
+	 */
+	public function priority($set = null) {
+		if ($set !== null) {
+			$this->priority = $set;
+			return $this;
+		}
+		return $this->priority;
+	}
+	/**
+	 * @return self
+	 */
+	public function priority_urgent() {
+		return $this->priority(self::priority_urgent);
 	}
 	
 	/**
@@ -187,45 +223,57 @@ class Job extends Object implements Process_Interruptable {
 		 */
 		self::clean_dead_pids($server);
 		
-		/*
-		 * Now iterate through available Jobs
-		 */
-		$query = Object::class_query(__CLASS__)->what_object()->where(array(
-			"start|<=" => Timestamp::now(),
-			"pid" => null,
-			"completed" => null,
-			'died|<=' => self::retry_attempts()
-		))->order_by("died,start");
-		$iterator = $query->object_iterator();
-		foreach ($iterator as $job) {
-			/* @var $job Job */
-			// Tag the Job as "ours" - this avoids race conditions between multiple servers
-			Object::class_query_update(__CLASS__)->values($server_pid)->where(array(
+		do {
+			/*
+			 * Now iterate through available Jobs, and re-sort each iteration in case stuff changes between jobs
+			 */
+			$query = Object::class_query(__CLASS__)->what_object()->where(array(
+				"start|<=" => Timestamp::now('UTC'),
 				"pid" => null,
-				"id" => $job->id()
-			))->execute();
-			// Race condition if we crash before this executes
-			if (!to_bool(Object::class_query(__CLASS__)->what("*X", "COUNT(id)")
-				->where($server_pid)
-				->where("id", $job->id())
-				->one_integer("X"))) {
-				// Someone else grabbed it.
-				continue;
+				"completed" => null,
+				'died|<=' => self::retry_attempts()
+			))->order_by("priority DESC,died,start");
+			log::debug($query->__toString());
+			$iterator = $query->object_iterator();
+			$found_job = false;
+			foreach ($iterator as $job) {
+				/* @var $job Job */
+				// Tag the Job as "ours" - this avoids race conditions between multiple servers
+				Object::class_query_update(__CLASS__)->values($server_pid)->where(array(
+					"pid" => null,
+					"id" => $job->id()
+				))->execute();
+				// Race condition if we crash before this executes
+				if (!to_bool(Object::class_query(__CLASS__)->what("*X", "COUNT(id)")
+					->where($server_pid)
+					->where("id", $job->id())
+					->one_integer("X"))) {
+					// Someone else grabbed it.
+					continue;
+				}
+				// We got it. Update our members so it reflects what's in the database
+				$job = Object::factory(__CLASS__, $job->id)->fetch();
+				if ($job) {
+					$found_job = true;
+					log::debug("Server ID # {id}: Running Job # {job_id} - {job_name}", array(
+						"id" => $server,
+						"job_id" => $job->id,
+						"job_name" => $job->name
+					));
+					$job->execute($process);
+					$job->release();
+					$jobs++;
+				}
+				self::clean_dead_pids($server);
+				if ($process->done()) {
+					return;
+				}
+				if ($found_job) {
+					break;
+				}
 			}
-			// We got it. Update our members so it reflects what's in the database
-			$job = Object::factory(__CLASS__, $job->id)->fetch();
-			if ($job) {
-				log::debug("Server ID # {id}: Running Job # {job_id} - {job_name}", array(
-					"id" => $server,
-					"job_id" => $job->id,
-					"job_name" => $job->name
-				));
-				$job->execute($process);
-				$job->release();
-				$jobs++;
-			}
-			self::clean_dead_pids($server);
-		}
+		} while (!$process->done() && $found_job === true);
+		
 		if ($jobs === 0) {
 			log::debug("Server ID # {id}: No jobs", array(
 				"id" => $server
@@ -270,7 +318,7 @@ class Job extends Object implements Process_Interruptable {
 			$this->hook("execute_after;execute_interrupt", $e);
 			$process->terminate();
 			return;
-		} catch (Exception $e) {
+		} catch (\Exception $e) {
 			$this->hook("execute_after;execute_exception", $e);
 			throw $e;
 		}
@@ -321,7 +369,9 @@ class Job extends Object implements Process_Interruptable {
 		return !$this->member_is_empty("completed");
 	}
 	static function retry_attempts() {
-		return zesk::get("Job::retry_attempts", 100);
+		global $zesk;
+		/* @var $zesk zesk\Kernel */
+		return $zesk->configuration->path_get("zesk\Job::retry_attempts", 100);
 	}
 	function dead() {
 		return $this->died > $this->option_integer("retry_attempts", self::retry_attempts());

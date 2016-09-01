@@ -2,11 +2,8 @@
 
 namespace zesk;
 
-use \arr as arr;
-use \Cache as Cache;
-use \Timestamp as Timestamp;
-
 /**
+ *
  * @see Class_Tag_Label
  * @see Tag
  * @author kent
@@ -22,6 +19,7 @@ use \Timestamp as Timestamp;
  */
 class Tag_Label extends \Object {
 	/**
+	 *
 	 * @return Cache
 	 */
 	private static function label_cache() {
@@ -29,8 +27,8 @@ class Tag_Label extends \Object {
 	}
 	
 	/**
-	 * 
-	 * @param unknown $code
+	 *
+	 * @param unknown $code        	
 	 * @return zesk\Tag_Label
 	 */
 	public static function label_find($code) {
@@ -40,8 +38,8 @@ class Tag_Label extends \Object {
 	}
 	/**
 	 *
-	 * @param string $name
-	 * @param array $attributes
+	 * @param string $name        	
+	 * @param array $attributes        	
 	 * @return zesk\Tag_Label
 	 */
 	public static function label_register($name = null, array $attributes = array()) {

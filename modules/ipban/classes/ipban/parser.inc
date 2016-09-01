@@ -1,4 +1,7 @@
 <?php
+
+use zesk\Timestamp as Timestamp;
+
 /**
  * @see Class_IPBan_Parser
  *

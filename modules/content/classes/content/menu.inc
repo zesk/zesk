@@ -6,10 +6,13 @@
  * @author Kent Davidson <kent@marketacumen.com>
  * @copyright Copyright &copy; 2008, Market Acumen, Inc.
  */
+
+/**
+ * @see Class_Content_Menu
+ * @author kent
+ *
+ */
 class Content_Menu extends Object {
-	protected $find_keys = array(
-		"CodeName"
-	);
 	
 	/**
 	 * Handles ContentObjects specification details; should probably subclass
@@ -25,13 +28,17 @@ class Content_Menu extends Object {
 		if ($this->CodeName === 'home') {
 			$this->IsHome = 'true';
 		}
-		$is_home = $this->memberBoolean('IsHome');
+		$is_home = $this->member_boolean('IsHome');
 		$result = parent::store();
 		if (!$result) {
 			return $result;
 		}
 		if ($is_home) {
-			$this->query_update()->value("IsHome", false)->where("IsHome", true)->where("ID|!=", $this->id())->execute();
+			$this->query_update()
+				->value("IsHome", false)
+				->where("IsHome", true)
+				->where("ID|!=", $this->id())
+				->execute();
 		}
 		$cc = $this->ContentObjects;
 		$result = $this->register_content();
@@ -43,11 +50,24 @@ class Content_Menu extends Object {
 		}
 		return parent::store();
 	}
+	/**
+	 * 
+	 * @var array
+	 */
+	private static $menus = null;
+	/**
+	 * 
+	 * @var array
+	 */
+	private static $menus_content = null;
+	
+	/**
+	 * 
+	 * @return array
+	 */
 	private function _menus() {
-		$result = zesk::get('menus');
-		
-		if (is_array($result)) {
-			return $result;
+		if (is_array(self::$menus)) {
+			return self::$menus;
 		}
 		
 		$first = true;
@@ -87,24 +107,45 @@ class Content_Menu extends Object {
 			}
 			$old_parent = $parent;
 		}
-		zesk::set("menus", $result);
-		zesk::set("menus_content", $menus_content);
-		//		zesk::set("menus_content", $menus_content);
-		//		dump($menus_content);
+		self::$menus = $result;
+		self::$menus_content = $menus_content;
 		return $result;
 	}
+	
+	/**
+	 * @return array
+	 */
 	private function _menus_content() {
 		$this->_menus();
-		return zesk::get('menus_content');
+		return self::$menus_content;
 	}
+	
+	/**
+	 * Return first menu
+	 * 
+	 * @return array
+	 */
 	function menu() {
 		$menus = $this->_menus();
 		return $menus[0];
 	}
+	
+	/**
+	 * 
+	 * @param mixed $x
+	 * @return array
+	 */
 	function menu_children($x) {
 		$menus = $this->_menus();
 		return avalue($menus, $x);
 	}
+	
+	/**
+	 * 
+	 * @param Request $request
+	 * @param unknown $x
+	 * @return boolean
+	 */
 	static function menu_selected(Request $request, $x) {
 		$uri = $request->path();
 		if ($x === "/") {
@@ -112,6 +153,14 @@ class Content_Menu extends Object {
 		}
 		return str::begins($uri, $x);
 	}
+	
+	/**
+	 * 
+	 * @param Request $request
+	 * @param unknown $top
+	 * @param unknown $sub
+	 * @return boolean
+	 */
 	static function menu_child_selected(Request $request, $top, $sub) {
 		$uri = $request->path();
 		$uri = trim($uri, "/");
@@ -137,6 +186,12 @@ class Content_Menu extends Object {
 			}
 		}
 	}
+	
+	/**
+	 * 
+	 * @param unknown $uri
+	 * @return mixed|array|NULL|unknown
+	 */
 	function menu_find($uri) {
 		$content = $this->_menus_content();
 		$uri = trim($uri, "/");
@@ -159,6 +214,13 @@ class Content_Menu extends Object {
 		}
 		return $max_menu;
 	}
+	
+	/**
+	 * 
+	 * @param unknown $uri
+	 * @param unknown $default
+	 * @return string
+	 */
 	function menu_content($uri, $default = null) {
 		$menu = $this->menu_find($uri);
 		if (!is_array($menu)) {
@@ -166,6 +228,13 @@ class Content_Menu extends Object {
 		}
 		return $this->layout($menu);
 	}
+	
+	/**
+	 * 
+	 * @param array $menu
+	 * @param array $options
+	 * @return string
+	 */
 	function layout(array $menu, array $options = array()) {
 		$objects_string = $menu['ContentObjects'];
 		$template = aevalue($menu, 'ContentTemplate', 'default');
@@ -186,6 +255,12 @@ class Content_Menu extends Object {
 		
 		return $content;
 	}
+	
+	/**
+	 * 
+	 * @param Content_Factory $set
+	 * @return Content_Menu|Content_Factory
+	 */
 	public function content_factory(Content_Factory $set = null) {
 		if ($set !== null) {
 			$this->factory = $set;
@@ -193,6 +268,11 @@ class Content_Menu extends Object {
 		}
 		return $this->factory;
 	}
+	
+	/**
+	 * 
+	 * @return boolean
+	 */
 	function register_content() {
 		$code = $this->ContentObjects;
 		if (empty($code)) {

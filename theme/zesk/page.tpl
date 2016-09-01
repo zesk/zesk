@@ -2,6 +2,9 @@
 if (false) {
 	/* @var $this Template */
 	
+	$zesk = $this->zesk;
+	/* @var $zesk zesk\Kernel */
+	
 	$application = $this->application;
 	/* @var $application Application */
 	
@@ -10,20 +13,20 @@ if (false) {
 	
 	$response = $this->response;
 	/* @var $response Response_HTML */
-
+	
 	/* @var $route Route */
 	$route = $this->route;
 }
 
 // Setup
-zesk::hook("page.tpl", $this);
+$zesk->hooks->call("page.tpl", $this);
 
 if (!$this->response) {
 	$response = $this->response = $application->response();
 }
 
 $wrap_html = $response->content_type === "text/html";
-$page_template = zesk::get('page template', 'response/html');
+$page_template = $zesk->configuration->path_get("Response_HTML::theme", 'response/html');
 if (isset($route) && $route instanceof Route) {
 	$wrap_html = $response->option_bool('wrap_html', $route->option_bool('wrap_html', $wrap_html));
 	$page_template = $route->option('page template', $page_template);
@@ -40,4 +43,4 @@ if ($wrap_html && $page_template) {
 	echo $this->content;
 }
 
-zesk::hook("page.tpl-exit", $this);
+$zesk->hooks->call("page.tpl-exit", $this);

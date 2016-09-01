@@ -21,7 +21,6 @@ class Module_Filter_Save extends Module_JSLib implements Module_Interface_Routes
 	 *
 	 * @var array
 	 */
-	
 	protected $javascript_paths = array(
 		'/share/filter_save/filter_save.js'
 	);
@@ -61,7 +60,7 @@ class Module_Filter_Save extends Module_JSLib implements Module_Interface_Routes
 	 * @see Module::initialize()
 	 */
 	function initialize() {
-		zesk::add_hook("Control_Filter_Selector::menu_content", array(
+		$this->application->hooks->add("Control_Filter_Selector::menu_content", array(
 			$this,
 			"menu_prefix"
 		));

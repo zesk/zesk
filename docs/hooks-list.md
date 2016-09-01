@@ -14,7 +14,7 @@ Called upon creation of a Hookable object in Zesk. Handy for modifying default v
 	
 ### Class-specific Version
 
-	zesk::add_hook("Project::construct", "track_project");
+	zesk\Hooks::add("Project::construct", "track_project");
 	
 	function notify_new_project(Project $project) {
 		// do something
@@ -36,7 +36,7 @@ Useful for reversing actions taken on "Hookable::construct".
 	
 #### Class-specific Version
 
-	zesk::add_hook("Project::construct", "notify_new_project");
+	zesk\Hooks::add("Project::construct", "notify_new_project");
 	
 	function notify_new_project(Project $project) {
 		// Send mail to someone

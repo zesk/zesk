@@ -1,4 +1,6 @@
 <?php
+use zesk\Timestamp as Timestamp;
+
 /**
  * @author kent
  * @see Class_Forgot
@@ -13,14 +15,28 @@
  * @see Schema_Forgot
  */
 class Forgot extends Object {
-	public static function cron_cluster_minute() {
-		$query = Object::class_query_delete("Forgot")->where("Created|<=", Timestamp::now()->add_unit("second", -abs(zesk::geti("Module_Forgot::expire_seconds", 3600))));
+	
+	/**
+	 * 
+	 * @param zesk\Application $application
+	 */
+	public static function cron_cluster_minute(zesk\Application $application) {
+		global $zesk;
+		/* @var $zesk zesk\Kernel */
+		$expire_seconds = -abs(to_integer($zesk->configuration->path_get("Module_Forgot::expire_seconds"), 3600));
+		$query = Object::class_query_delete("Forgot")->where("Created|<=", Timestamp::now()->add_unit("second", $expire_seconds));
 		$query->execute();
 		$affected_rows = $query->affected_rows();
 		if ($affected_rows > 0) {
-			log::notice("Forgot::cron_minute deleted {affected_rows} forgotten rows", compact("affected_rows"));
+			$zesk->logger->notice("Forgot::cron_minute deleted {affected_rows} forgotten rows", compact("affected_rows"));
 		}
 	}
+	
+	/**
+	 * 
+	 * @param Request $request
+	 * @return Mail
+	 */
 	public function notify(Request $request) {
 		$user = $this->user;
 		$variables = array(
@@ -44,6 +60,11 @@ class Forgot extends Object {
 		$mail_options = mail::load_theme($this->application, "forgot/notify", $variables);
 		return mail::mulitpart_send($mail_options);
 	}
+	
+	/**
+	 * 
+	 * @return Forgot
+	 */
 	public function validated() {
 		$user = $this->user;
 		$user->password($this->new_password)->store();

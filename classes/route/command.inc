@@ -30,7 +30,8 @@ class Route_Command extends Route {
 				"content" => $result
 			) + $theme_arguments);
 		} catch (Exception $e) {
-			zesk::hook("exception", $e);
+			global $zesk;
+			$zesk->hooks->call("exception", $e);
 			$content = theme($this->option("theme", "route/command/empty"), array(
 				"content" => $this->option("empty", ""),
 				"empty" => true

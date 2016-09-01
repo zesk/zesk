@@ -70,7 +70,7 @@ class Database_Parser_Test extends Test_Unit {
 	 * @data_provider data_provider_split_order_by
 	 */
 	function test_split_order_by($order_by, $expected_split, $expected_reverse) {
-		$parser = Database::instance()->parser();
+		$parser = $this->application->database_factory()->parser();
 
 		$actual = $parser->split_order_by($order_by);
 

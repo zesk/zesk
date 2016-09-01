@@ -45,7 +45,6 @@ class Zesk_Content_Image extends Object {
 		$image = new Content_Image($members);
 		return $register ? $image->register() : $image->store();
 	}
-
 	public function is_portrait() {
 		return $this->height > $this->width;
 	}
@@ -66,7 +65,7 @@ class Zesk_Content_Image extends Object {
 		if ($get_data) {
 			$query->what_object("Content_Data", null, "data_");
 		}
-
+		
 		$result = $query->one();
 		if (!$result) {
 			return array();
@@ -85,7 +84,7 @@ class Zesk_Content_Image extends Object {
 	public function sync() {
 		$this->_force_to_disk();
 	}
-
+	
 	/**
 	 * (non-PHPdoc)
 	 *
@@ -98,7 +97,7 @@ class Zesk_Content_Image extends Object {
 		}
 		return parent::store();
 	}
-
+	
 	/**
 	 * Does the file exist on the system? Useful if you are running in a cluster.
 	 *
@@ -110,23 +109,23 @@ class Zesk_Content_Image extends Object {
 		}
 		return file_exists($this->path());
 	}
-
+	
 	/**
 	 * Returns the path, minus the docroot
 	 */
 	function source() {
-		return str::unprefix($this->path(), zesk::document_root());
+		return str::unprefix($this->path(), $this->application->document_root());
 	}
-
+	
 	/**
 	 * Path to where image are stored
 	 *
 	 * @return string
 	 */
-	static function content_image_path() {
-		return zesk::get("Content_Image::path", path(zesk::document_root(), "cache/images"));
+	function content_image_path() {
+		return $this->option("path", path($this->application->document_root(), "cache/images"));
 	}
-
+	
 	/**
 	 * Given an internal path and a raw data file, fix the internal path extension to make it a
 	 * servable name
@@ -143,7 +142,6 @@ class Zesk_Content_Image extends Object {
 		$extension = self::determine_extension($rawfile);
 		return $extension ? file::extension_change($path, $extension) : $path;
 	}
-
 	function basename() {
 		return basename($this->path);
 	}
@@ -153,9 +151,9 @@ class Zesk_Content_Image extends Object {
 	 * @return string
 	 */
 	function path() {
-		return path(self::content_image_path(), $this->member("path"));
+		return path($this->content_image_path(), $this->member("path"));
 	}
-
+	
 	/**
 	 * Retrieve the file size of this image
 	 *
@@ -164,7 +162,7 @@ class Zesk_Content_Image extends Object {
 	function size() {
 		return $this->data->size();
 	}
-
+	
 	/**
 	 * @see Content_Image::determine_extension_simple
 	 * @param unknown $data
@@ -173,7 +171,7 @@ class Zesk_Content_Image extends Object {
 	static public function determine_extension_simple_data($data) {
 		$head = substr($data, 0, 12);
 		$head = trim(strtolower(preg_replace("/[^A-Za-z]/", "", $head)));
-
+		
 		if (substr($head, 0, 3) == "gif") {
 			return "gif";
 		}
@@ -186,7 +184,7 @@ class Zesk_Content_Image extends Object {
 		if (substr($head, 0, 3) == "cws") {
 			return "swf";
 		}
-
+		
 		return false;
 	}
 	/**
@@ -201,7 +199,7 @@ class Zesk_Content_Image extends Object {
 		}
 		return self::determine_extension_simple_data(file_get_contents($filename, null, null, 0, 12));
 	}
-
+	
 	/**
 	 * Determine file extension for file using exif
 	 *
@@ -215,7 +213,7 @@ class Zesk_Content_Image extends Object {
 		if (!function_exists("exif_imagetype")) {
 			return self::determine_extension_simple($filename);
 		}
-
+		
 		$t = exif_imagetype($filename);
 		if (!$t) {
 			return false;
@@ -233,14 +231,14 @@ class Zesk_Content_Image extends Object {
 		//			IMAGETYPE_JPC => "jpc",
 		//			IMAGETYPE_JP2 => "jp2",
 		//			IMAGETYPE_JPX => "jpx",
-
+		
 
 		if (isset($t2ext[$t])) {
 			return $t2ext[$t];
 		}
 		return false;
 	}
-
+	
 	/**
 	 * Copy file to disk where it should be
 	 *
@@ -266,7 +264,7 @@ class Zesk_Content_Image extends Object {
 		}
 		return true;
 	}
-
+	
 	/**
 	 * Update Width and Height
 	 *
@@ -301,11 +299,9 @@ class Zesk_Content_Image extends Object {
 		$this->_update_sizes();
 		return $this->store();
 	}
-
 	public function constrain_dimensions($width, $height) {
 		return Image_Library::constrain_dimensions($this->width, $this->height, $width, $height);
 	}
-
 	public static function correct_orientation($file) {
 		if (!function_exists('exif_read_data')) {
 			return null;

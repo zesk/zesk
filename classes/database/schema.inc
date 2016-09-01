@@ -102,15 +102,36 @@ abstract class Database_Schema extends Hookable {
 	 * @param string $options
 	 */
 	function __construct(Class_Object $class_object, Object $object = null, $options = null) {
+		global $zesk;
+		/* @var $zesk zesk\Kernel */
 		parent::__construct($options);
 		$this->class_object = $class_object;
 		$this->object = $object;
-		
-		if (zesk::getb("Database_Schema::debug")) {
+	}
+	
+	/**
+	 * 
+	 * @param zesk\Kernel $zesk
+	 */
+	public static function hooks(zesk\Kernel $zesk) {
+		$zesk->hooks->add("configured", __CLASS__ . "::configured");
+		$zesk->configuration->pave(__CLASS__);
+	}
+	
+	/**
+	 * 
+	 * @param zesk\Application $application
+	 */
+	public static function configured(zesk\Application $application) {
+		global $zesk;
+		/* @var $zesk zesk\Kernel */
+		if ($zesk->configuration->debug || $zesk->configuration->path_get(array(
+			__CLASS__,
+			"debug"
+		))) {
 			self::$debug = true;
 		}
 	}
-	
 	/**
 	 *
 	 * @return Database
@@ -198,6 +219,8 @@ abstract class Database_Schema extends Hookable {
 	 * @return Database_Table
 	 */
 	public static function schema_to_database_table(Database $db, $table_name, array $table_schema, $context = null) {
+		$logger = zesk()->logger;
+		
 		$table = new Database_Table($db, $table_name, avalue($table_schema, 'engine'));
 		$table->source(avalue($table_schema, 'source'));
 		if (!array_key_exists('columns', $table_schema)) {
@@ -205,29 +228,29 @@ abstract class Database_Schema extends Hookable {
 		}
 		foreach ($table_schema['columns'] as $column_name => $column_spec) {
 			if (!$db->valid_column_name($column_name)) {
-				log::error("Invalid index name in schema found in {table_name} in {context}: Invalid column name {index}", compact("context", "table_name", "column_name"));
+				$logger->error("Invalid index name in schema found in {table_name} in {context}: Invalid column name {index}", compact("context", "table_name", "column_name"));
 				continue;
 			}
 			$table->column_add(new Database_Column($table, $column_name, $column_spec));
 		}
 		foreach (avalue($table_schema, 'indexes', array()) as $index => $columns) {
 			if (!$db->valid_index_name($index)) {
-				log::error("Invalid index name in schema found in {table_name} in {context}: Invalid index name {index}", compact("context", "table_name", "index"));
+				$logger->error("Invalid index name in schema found in {table_name} in {context}: Invalid index name {index}", compact("context", "table_name", "index"));
 				continue;
 			}
 			if (!($error = self::validate_index_column_specification($db, $columns))) {
-				log::error("Invalid index column spec {error} in schema found in {table_name} in {context}: Invalid index name {index}", compact("error", "context", "table_name", "index"));
+				$logger->error("Invalid index column spec {error} in schema found in {table_name} in {context}: Invalid index name {index}", compact("error", "context", "table_name", "index"));
 				continue;
 			}
 			$table->index_add(new Database_Index($table, $index, $columns, Database_Index::Index));
 		}
 		foreach (avalue($table_schema, 'unique keys', array()) as $index => $columns) {
 			if (!$db->valid_index_name($index)) {
-				log::error("Invalid index name in schema found in {table_name} in {context}: Invalid index name {index}", compact("context", "table_name", "index"));
+				$logger->error("Invalid index name in schema found in {table_name} in {context}: Invalid index name {index}", compact("context", "table_name", "index"));
 				continue;
 			}
 			if (!($error = self::validate_index_column_specification($db, $columns))) {
-				log::error("Invalid index column spec {error} in schema found in {table_name} in {context}: Invalid index name {index}", compact("error", "context", "table_name", "index"));
+				$logger->error("Invalid index column spec {error} in schema found in {table_name} in {context}: Invalid index name {index}", compact("error", "context", "table_name", "index"));
 				continue;
 			}
 			$table->index_add(new Database_Index($table, $index, $columns, Database_Index::Unique));
@@ -238,7 +261,7 @@ abstract class Database_Schema extends Hookable {
 		$primary_columns = avalue($table_schema, 'primary keys', null);
 		if (is_array($primary_columns) && count($primary_columns) > 0) {
 			if (!($error = self::validate_index_column_specification($db, $primary_columns))) {
-				log::error("Invalid primary index column spec {error} in schema found in {table_name} in {context}: Invalid index name {index}", compact("error", "context", "table_name", "index"));
+				$logger->error("Invalid primary index column spec {error} in schema found in {table_name} in {context}: Invalid index name {index}", compact("error", "context", "table_name", "index"));
 			} else {
 				$table->index_add(new Database_Index($table, "primary", $primary_columns, Database_Index::Primary));
 			}
@@ -261,6 +284,7 @@ abstract class Database_Schema extends Hookable {
 	 * @return array of Database_Table
 	 */
 	function tables() {
+		$logger = zesk()->logger;
 		$schema = $this->schema();
 		$tables = array();
 		$db = $this->database();
@@ -270,14 +294,15 @@ abstract class Database_Schema extends Hookable {
 					throw new Exception_Syntax(get_class($this) . " should contain an array of table schemas\n" . var_export($table_schema));
 				}
 				if (self::$debug) {
-					log::debug("Database_Schema: " . $this->class_object->class . " \"$table_name\"");
+					$logger->debug("Database_Schema: " . $this->class_object->class . " \"$table_name\"");
 				}
 				/* @var $table Database_Table */
 				try {
 					$tables[$table_name] = $table = self::schema_to_database_table($db, $this->map($table_name), $table_schema);
 				} catch (Exception $e) {
-					zesk::hook("exception", $e);
-					log::debug("Error with object " . $this->class_object->class);
+					global $zesk;
+					$zesk->hooks->call("exception", $e);
+					$logger->debug("Error with object " . $this->class_object->class);
 					throw $e;
 				}
 				
@@ -332,7 +357,9 @@ abstract class Database_Schema extends Hookable {
 	 * @return multitype:
 	 */
 	static function update_object(Object $object) {
-		/* @var $db Database_MySQL */
+		$logger = zesk()->logger;
+		
+		/* @var $db Database */
 		$db = $object->database();
 		if (!$db) {
 			throw new Database_Exception(__("Can not connect to {0}", $db->safeURL()));
@@ -340,7 +367,7 @@ abstract class Database_Schema extends Hookable {
 		$object_class = get_class($object);
 		$schema = $object->database_schema();
 		if (!$schema instanceof Database_Schema) {
-			log::warning("{class} did not return a Database_Schema ({type})", array(
+			$logger->warning("{class} did not return a Database_Schema ({type})", array(
 				"class" => $object_class,
 				"type" => type($schema)
 			));
@@ -390,41 +417,11 @@ abstract class Database_Schema extends Hookable {
 		foreach ($object_classes as $class) {
 			$object = Object::factory($class);
 			$results[$class]['sql'] = $sqls = Database_Schema::update_object($object);
-			if (zesk::get('Database_Schema::debug')) {
-				log::debug($sqls);
+			if (self::$debug) {
+				zesk()->logger->debug($sqls);
 			}
 			$results[$class]['result'] = $object->database()->query($sqls);
 		}
-	}
-	
-	/**
-	 *
-	 * @deprecated 2014-02-05
-	 * @param unknown $path
-	 * @param string $dburl
-	 * @param string $object_class
-	 * @throws Database_Exception_Schema
-	 * @return multitype:
-	 */
-	static function updateObjectPath($path, $dburl = null, $object_class = null) {
-		zesk::deprecated();
-		if ($object_class === null) {
-			$object_class = file::base($path);
-		}
-		require_once $path;
-		if (!class_exists($object_class)) {
-			throw new Database_Exception_Schema("File path $path does not contain class $object_class");
-		}
-		$x = new $object_class();
-		if (!$x instanceof Object) {
-			throw new Database_Exception_Schema("$path: $object_class is not an Object subclass");
-		}
-		if (!$x->table()) {
-			echo "# $path: Need to add\n#\tstatic protected \$class = __CLASS__;\n";
-		}
-		$result = self::update_object($x, $dburl);
-		
-		return $result;
 	}
 	
 	/**
@@ -469,10 +466,12 @@ abstract class Database_Schema extends Hookable {
 	 * @return array
 	 */
 	static function update(Database $db, Database_Table $db_table_old, Database_Table $db_table_new, $change_permanently = false) {
+		$logger = zesk()->logger;
+		
 		$generator = $db->sql();
 		
 		if (self::$debug) {
-			log::debug("Database_Schema::debug is enabled");
+			$logger->debug("Database_Schema::debug is enabled");
 		}
 		$table = $db_table_old->name();
 		if ($db_table_new->is_similar($db_table_old, self::$debug)) {
@@ -480,7 +479,7 @@ abstract class Database_Schema extends Hookable {
 		}
 		
 		if (self::$debug) {
-			log::debug("Database_Schema::update: \"{table}\" tables differ:\nDatabase: \n{dbOld}\nCode:\n{dbNew}", array(
+			$logger->debug("Database_Schema::update: \"{table}\" tables differ:\nDatabase: \n{dbOld}\nCode:\n{dbNew}", array(
 				'table' => $table,
 				'dbOld' => text::indent($db_table_old->source()),
 				'dbNew' => text::indent($db_table_new->source())

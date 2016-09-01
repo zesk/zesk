@@ -1,5 +1,5 @@
 <?php
-class Exception_Command extends Zesk_Exception {
+class Exception_Command extends zesk\Exception {
 
 	public $command = null;
 

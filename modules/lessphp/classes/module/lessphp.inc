@@ -1,8 +1,8 @@
 <?php
 class Module_LessPHP extends Module {
-	public static function hooks() {
+	public static function hooks(zesk\Hooks $hook) {
 		$method = "links_preproccess";
-		zesk::add_hook("Response_HTML::$method", array(
+		$hook->add("Response_HTML::$method", array(
 			__CLASS__,
 			$method
 		));
@@ -18,7 +18,7 @@ class Module_LessPHP extends Module {
 		log::notice("Module_LessPHP: $src");
 		return $attributes;
 	}
-
+	
 	/**
 	 * Create a compiler
 	 *

@@ -8,4 +8,5 @@
  * @copyright  Copyright (C) 2013, {company}. All rights reserved.
  */
 
-Module::register_paths();
+app()->module->register_paths();
+

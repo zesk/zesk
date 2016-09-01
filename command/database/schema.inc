@@ -7,7 +7,10 @@
  * @aliases schema
  */
 class Command_Database_Schema extends Command_Base {
-
+	/**
+	 * 
+	 * @var array
+	 */
 	protected $option_types = array(
 		"check" => "boolean",
 		"url" => "string",
@@ -15,23 +18,37 @@ class Command_Database_Schema extends Command_Base {
 		"update" => "boolean",
 		"*" => "string"
 	);
-
+	
+	/**
+	 * 
+	 * @var array
+	 */
 	protected $results = array();
-
+	
+	/**
+	 * 
+	 * @return \zesk\multitype:
+	 */
 	public function results() {
 		return $this->results;
 	}
-
+	
+	/**
+	 * 
+	 */
 	protected function synchronize_before() {
 		self::_synchronize_suffix("update");
 	}
-
+	
+	/**
+	 * 
+	 */
 	protected function synchronize_after() {
 		if ($this->option_bool("update")) {
 			self::_synchronize_suffix("updated");
 		}
 	}
-
+	
 	/**
 	 * Invoke
 	 *
@@ -41,33 +58,42 @@ class Command_Database_Schema extends Command_Base {
 	 * Module::schema_updated
 	 * Module::schema_update
 	 *
-	 * @param string $suffix
+	 * @param string $suffix        	
 	 */
 	private function _synchronize_suffix($suffix) {
+		global $zesk;
+		/* @var $zesk zesk\Kernel */
 		$hook_type = "Object::schema_$suffix";
-		log::notice("Running all $suffix hooks {hooks}", array(
-			"hooks" => ($all = implode(", ", array_values(zesk::find_all_hooks($hook_type)))) ? $all : "- no hooks found"
+		$all_hooks = $zesk->hooks->find_all($hook_type);
+		
+		$zesk->logger->notice("Running all $suffix hooks {hooks}", array(
+			"hooks" => ($all = implode(", ", array_values($all_hooks))) ? $all : "- no hooks found"
 		));
-		zesk::all_hook($hook_type, $this);
-
+		$zesk->hooks->all_call($hook_type, $this);
+		
 		$hook_type = "schema_$suffix";
-		$all = Module::all_hook_list($hook_type);
-		log::notice("Running module $suffix hooks {hooks}", array(
+		$app = $this->application;
+		$all = $app->module->all_hook_list($hook_type);
+		$zesk->logger->notice("Running module $suffix hooks {hooks}", array(
 			"hooks" => $all ? $all : "- no hooks found"
 		));
-		Module::all_hook($hook_type, $this);
-
+		$app->module->all_hook($hook_type, $this);
+		
+		$app_hooks = $app->hook_list($hook_type);
+		$zesk->logger->notice("Running application $suffix hooks {hooks}", array(
+			"hooks" => $app_hooks ? $app_hooks : "- no hooks found"
+		));
+		$app->hook($hook_type, $this);
 	}
-
+	
+	/**
+	 * 
+	 * {@inheritDoc}
+	 * @see Command::run()
+	 */
 	protected function run() {
-		$application = Application::instance();
-
-		Database_Schema::$debug = $this->option_bool('debug') || zesk::get('debug') || zesk::getb('Database_Schema::debug');
-
-		if (Database_Schema::$debug) {
-			log::level(999);
-		}
-
+		$application = $this->application;
+		
 		$url = null;
 		if ($this->has_option("url")) {
 			$url = $this->option('url');
@@ -82,10 +108,10 @@ class Command_Database_Schema extends Command_Base {
 			$classes = $this->arguments_remaining(true);
 			$this->verbose_log("Running on classes {classes}", compact("classes"));
 		}
-
+		
 		$this->synchronize_before();
-
-		$database = Database::factory($url);
+		
+		$database = $application->database_factory($url);
 		$this->results = $results = $application->schema_synchronize($database, $classes, array(
 			"check" => $this->option_bool('check')
 		));

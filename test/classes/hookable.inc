@@ -10,9 +10,9 @@ class test_hookable extends Test_Unit {
 	public static $counter = 0;
 
 	function test_hook_series() {
-		zesk::add_hook('hookable_test_a::test', __CLASS__ . '::hook_test1');
-		zesk::add_hook('hookable_test_a::test', __CLASS__ . '::hook_test2');
-		zesk::add_hook('hookable_test_a::test', __CLASS__ . '::hook_test3');
+		zesk()->hooks->add('hookable_test_a::test', __CLASS__ . '::hook_test1');
+		zesk()->hooks->add('hookable_test_a::test', __CLASS__ . '::hook_test2');
+		zesk()->hooks->add('hookable_test_a::test', __CLASS__ . '::hook_test3');
 
 		$data = array(
 			'dude' => 'as in the'

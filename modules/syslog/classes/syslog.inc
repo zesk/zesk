@@ -44,11 +44,14 @@
  * 6 Informational: informational messages
  * 7 Debug: debug-level messages
  */
-
 if (!defined('ZESK_ROOT'))
 	die('ZESK_ROOT must be defined prior to including ' . __FILE__);
 
-
+/**
+ * 
+ * @author kent
+ * @todo comply with PSR\Logger interface
+ */
 class syslog {
 	const facility_kernel = 0;
 	const facility_user = 1;
@@ -74,7 +77,6 @@ class syslog {
 	const facility_local5 = 21;
 	const facility_local6 = 22;
 	const facility_local7 = 23;
-	
 	const severity_emergency = 0;
 	const severity_alert = 1;
 	const severity_critical = 2;
@@ -83,11 +85,8 @@ class syslog {
 	const severity_notice = 5;
 	const severity_info = 6;
 	const severity_debug = 7;
-	
 	private function __construct() {
-	
 	}
-	
 	static function send($message, $host = null, $facility = null, $severity = self::severity_error) {
 		$facility = ($facility === null) ? zesk::get('self::facility', self::facility_local0) : $facility;
 		$host = ($host === null) ? zesk::get('SYSLOG_HOSTS', "127.0.0.1") : $host;
@@ -112,35 +111,27 @@ class syslog {
 		
 		return $msg;
 	}
-	
 	public static function emergency($message, $host = null, $facility = null) {
 		self::send($message, $host, $facility, self::severity_emergency);
 	}
-	
 	public static function alert($message, $host = null, $facility = null) {
 		self::send($message, $host, $facility, self::severity_alert);
 	}
-	
 	public static function critical($message, $host = null, $facility = null) {
 		self::send($message, $host, $facility, self::severity_critical);
 	}
-	
 	public static function error($message, $host = null, $facility = null) {
 		self::send($message, $host, $facility, self::severity_error);
 	}
-	
 	public static function warning($message, $host = null, $facility = null) {
 		self::send($message, $host, $facility, self::severity_warning);
 	}
-	
 	public static function notice($message, $host = null, $facility = null) {
 		self::send($message, $host, $facility, self::severity_notice);
 	}
-	
 	public static function info($message, $host = null, $facility = null) {
 		self::send($message, $host, $facility, self::severity_info);
 	}
-	
 	public static function debug($message, $host = null, $facility = null) {
 		self::send($message, $host, $facility, self::severity_info);
 	}

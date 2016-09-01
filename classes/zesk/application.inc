@@ -36,6 +36,18 @@ class Application extends \Hookable implements \Interface_Theme {
 	
 	/**
 	 *
+	 * @var Kernel
+	 */
+	public $zesk = null;
+	
+	/**
+	 *
+	 * @var Hooks
+	 */
+	public $hooks = null;
+	
+	/**
+	 *
 	 * @var Application
 	 */
 	private static $singleton = null;
@@ -112,7 +124,7 @@ class Application extends \Hookable implements \Interface_Theme {
 	 *
 	 * @var array of string
 	 */
-	protected $hooks = array();
+	protected $register_hooks = array();
 	
 	/**
 	 * Array of starting list of Objects which are a part of this application
@@ -191,16 +203,26 @@ class Application extends \Hookable implements \Interface_Theme {
 	private $configured_was_run = false;
 	
 	/**
-	 * 
-	 * @param unknown $options
+	 *
+	 * @param unknown $options        	
 	 */
 	public function __construct($options = null) {
+		global $zesk;
+		/* @var $zesk zesk\Kernel */
+		$this->zesk = $zesk;
+		$this->hooks = $zesk->hooks;
+		
 		parent::__construct($options);
+		
 		$this->module = new Modules($this);
 		$this->template_stack = new Template_Stack();
 		$this->template = new Template($this);
 		$this->template_stack->push($this->template);
 	}
+	
+	/**
+	 * Clone application
+	 */
 	protected function __clone() {
 		if ($this->request) {
 			$this->request = clone $this->request;
@@ -221,50 +243,11 @@ class Application extends \Hookable implements \Interface_Theme {
 			$this->template_stack = clone $this->template_stack;
 		}
 	}
-	/**
-	 * Run preconfiguration setup
-	 */
-	protected function preconfigure(array $options) {
-		return $options;
-	}
-	
-	/**
-	 * Loads a bunch of configuration files, in the following order:
-	 * 1.
-	 * application.conf
-	 * 2. APPLICATION_NAME.conf
-	 * 3. uname.conf
-	 * Configuration files are simple bash-style NAME=VALUE files with a few features:
-	 * - You can use variables in values, like ${FOO} or $FOO; once loaded, the variable is replaced
-	 * and no longer part
-	 * of the value.
-	 * - Values are unquoted automatically, and assumed to be strings
-	 * - Unquoted values are coerced to an internal PHP type, if possible
-	 * - Loads from the list of ZESK_CONFIG_PATH global
-	 * - Loads the files defined in ZESK_CONFIG_FILE global
-	 * - If ZESK_CONFIG_PATH changes or INCLUDE changes in a configuration file load sequence, it
-	 * continues to load
-	 */
-	final public function configure(array $options = array()) {
-		if (self::$configuration_options !== null) {
-			log::warning("Reconfiguring application {class}", array(
-				"class" => get_class($this)
-			));
-		}
-		self::$configuration_options = $options + zesk::geta('Application::configure_options');
-		return $this->_configure(self::$configuration_options);
-	}
-	
-	/**
-	 * Run post configuration setup
-	 */
-	protected function postconfigure() {
-	}
 	
 	/**
 	 * Configure a file name to load (from path)
 	 *
-	 * @param mixed $includes        	
+	 * @param mixed $includes
 	 * @return Application
 	 */
 	final public function configure_include($includes) {
@@ -278,7 +261,7 @@ class Application extends \Hookable implements \Interface_Theme {
 	/**
 	 * Add a path to load configuration files from
 	 *
-	 * @param string $path        	
+	 * @param string $path
 	 * @return Application
 	 */
 	final public function configure_include_path($path) {
@@ -295,20 +278,53 @@ class Application extends \Hookable implements \Interface_Theme {
 		}
 		return $this;
 	}
-	private function _configure(array $options) {
-		$skip_configured_hook = avalue($options, 'skip_configured', false);
+	
+	/**
+	 * Loads a bunch of configuration files, in the following order:
+	 * 1. application.conf
+	 * 2. APPLICATION_NAME.conf
+	 * 3. uname.conf
+	 * Configuration files are simple bash-style NAME=VALUE files with a few features:
+	 * - You can use variables in values, like ${FOO} or $FOO; once loaded, the variable is replaced
+	 * and no longer part
+	 * of the value.
+	 * - Values are unquoted automatically, and assumed to be strings
+	 * - Unquoted values are coerced to an internal PHP type, if possible
+	 * - Loads from the list of ZESK_CONFIG_PATH global
+	 * - Loads the files defined in ZESK_CONFIG_FILE global
+	 * - If ZESK_CONFIG_PATH changes or INCLUDE changes in a configuration file load sequence, it
+	 * continues to load
+	 */
+	final public function configure(array $options = array()) {
+		global $zesk;
 		
-		// Load hooks
-		zesk::hooks("log;Cache;Database;Settings");
-		zesk::hooks($this->hooks);
-		
-		$this->hook('configure');
-		
-		$new_options = $this->preconfigure($options);
-		if (is_array($new_options)) {
-			$options = $new_options;
+		$zesk->configuration->pave("Application");
+		/* @var $zesk zesk\Kernel */
+		if (self::$configuration_options !== null) {
+			log::warning("Reconfiguring application {class}", array(
+				"class" => get_class($this)
+			));
 		}
-		
+		self::$configuration_options = $options + to_array($zesk->configuration->Application->configure_options);
+		$this->_configure(self::$configuration_options);
+		return $this;
+	}
+	
+	/**
+	 * Run preconfiguration setup
+	 */
+	protected function preconfigure(array $options) {
+		return $options;
+	}
+	
+	/**
+	 * Run post configuration setup
+	 */
+	protected function postconfigure() {
+	}
+	private function _configure_files(array $options) {
+		global $zesk;
+		/* @var $zesk Kernel */
 		if (count($this->includes) === 0 || array_key_exists('file', $options)) {
 			$this->configure_include(avalue($options, 'file', self::configuration_file()));
 		}
@@ -326,7 +342,8 @@ class Application extends \Hookable implements \Interface_Theme {
 		/*
 		 * Load the globals from the configuration file using file list
 		 */
-		$result = conf::globals($this->include_paths, $globals_options);
+		$dependencies = array();
+		$result = conf::globals($this->include_paths, $globals_options, $dependencies);
 		
 		$host_aliases = zesk::geta("Application::host_aliases", zesk::geta('host_aliases', array()));
 		$host_config = avalue($host_aliases, $uname, $uname);
@@ -337,7 +354,7 @@ class Application extends \Hookable implements \Interface_Theme {
 				"files" => array(
 					$host_config
 				)
-			) + $globals_options);
+			) + $globals_options, $dependencies);
 		}
 		while (zesk::has('include', true)) {
 			$new_includes = zesk::getl('include');
@@ -352,20 +369,59 @@ class Application extends \Hookable implements \Interface_Theme {
 			
 			$result += conf::globals($this->include_paths, array(
 				'files' => $new_includes
-			));
+			), $dependencies);
 		}
 		zesk::set('include');
 		
+		return $result;
+	}
+	/**
+	 * Complete configuration process
+	 *
+	 * @param array $options        	
+	 * @return number
+	 */
+	private function _configure(array $options) {
+		$skip_configured_hook = avalue($options, 'skip_configured', false);
+		
+		// Load hooks
+		$this->hooks->register_class("log;Cache;Database;Settings");
+		$this->hooks->register_class($this->register_hooks);
+		
+		$this->hook('configure');
+		
+		$new_options = $this->preconfigure($options);
+		if (is_array($new_options)) {
+			$options = $new_options;
+		}
+		
+		$profile = false;
+		if ($profile) {
+			$mtime = microtime(true);
+			// Old conf:: version
+			// 0.011868953704834
+			// 0.012212038040161
+		}
+		$result = $this->_configure_files($options);
+		if ($profile) {
+			zesk::profile_timer("_configure_files", microtime(true) - $mtime);
+		}
+		
+		// TODO Deprecate this, remove internal modules
 		\Module::internal($this->internal_modules);
-		\Module::load($this->modules);
+		
+		$this->module->load($this->modules);
+		
 		if (!$skip_configured_hook) {
 			$this->configured();
 		}
+		
 		return $result;
 	}
 	public function configured() {
 		if (!$this->configured_was_run) {
 			$this->_configured();
+			$this->configured_was_run = true;
 			return true;
 		}
 		return false;
@@ -380,14 +436,35 @@ class Application extends \Hookable implements \Interface_Theme {
 		
 		$this->load_maintenance();
 		
-		zesk::hook('configured', $this); // System level
-		$this->module->all_hook("configured");
-		$this->hook('configured'); // Application level
+		$hook_callback = $result_callback = null;
+		
+// 		global $last_microtime;
+// 		$last_microtime = microtime(true);
+// 		$result_callback = function ($callable, $previous_result, $current_result) {
+// 			global $last_microtime;
+// 			global $zesk;
+// 			/* @var $zesk zesk\Kernel */
+// 			$now = microtime(true);
+// 			$duration = $now - $last_microtime;
+// 				//zesk::profile_timer(zesk::callable_string($callable), $now - $last_microtime);
+// TODO: This results in all output stopping? WTF? Recursion?
+// 			$zesk->logger->debug("{callable} initialized in {duration} seconds\n", array(
+// 				"callable" => zesk::callable_string($callable),
+// 				"duration" => $duration
+// 			));
+// 			$last_microtime = $now;
+// 			return $current_result;
+// 		};
+		
+		$this->hooks->call_arguments('configured', array(
+			$this
+		), null, $hook_callback, $result_callback); // System level
+		$this->module->all_hook_array("configured", array(), null, $hook_callback, $result_callback); // Modules
+		$this->hook_array('configured', array(), null, $hook_callback, $result_callback); // Application level
 		
 
 		$this->postconfigure();
 		$this->configure_paths();
-		$this->configured_was_run = true;
 	}
 	private function configure_paths() {
 		$cache_path = $this->option("cache_path", zesk::get("Cache::path", zesk::application_root("cache")));
@@ -420,7 +497,6 @@ class Application extends \Hookable implements \Interface_Theme {
 		if (!$class) {
 			throw new \Exception_Configuration("Application::instance() zesk::application_class() is empty");
 		}
-		self::hooks();
 		$application = self::$singleton = zesk::factory($class, $options);
 		$application->theme_path(zesk::theme_path_default());
 		return $application;
@@ -525,6 +601,7 @@ class Application extends \Hookable implements \Interface_Theme {
 	 * @return array
 	 */
 	private function _classes($add = null) {
+		global $zesk;
 		static $classes = null;
 		if (!is_array($classes)) {
 			$schema_file = file::extension_change($this->file, ".classes");
@@ -560,7 +637,7 @@ class Application extends \Hookable implements \Interface_Theme {
 			}
 			$all_classes = array_merge($all_classes, arr::flip_copy($module_classes, true));
 		}
-		zesk::register_class(array_keys($all_classes));
+		$zesk->classes->register(array_keys($all_classes));
 		return $all_classes;
 	}
 	final public function classes($add = null) {
@@ -664,31 +741,31 @@ class Application extends \Hookable implements \Interface_Theme {
 	 *
 	 * @return Router
 	 */
-	function hook_router() {
+	protected function hook_router() {
 		$router_file = file::extension_change($this->file, 'router');
-		$cache = zesk::getb("Router::cache");
-		if ($cache) {
-			$router = \Router::cached(filemtime($router_file));
-			if ($router) {
-				zesk::hook('Router::cached', $router);
-				return $router;
+		$cache = $this->option("cache_router", null);
+		if (!is_bool($cache)) {
+			$cache = zesk::getb("Router::cache");
+		}
+		$router = $cache ? \Router::cached(filemtime($router_file)) : null;
+		if (!$router) {
+			$router = new \Router();
+			if (!is_file($router_file)) {
+				log::debug("No router file {router_file} to load - creating blank router", array(
+					array(
+						"router_file",
+						$router_file
+					)
+				));
+			} else {
+				$router->import(file_get_contents($router_file));
+				if ($cache) {
+					$router->cache();
+				}
 			}
 		}
-		$router = new \Router($this);
-		if (!is_file($router_file)) {
-			log::debug("No router file {router_file} to load - creating blank router", array(
-				array(
-					"router_file",
-					$router_file
-				)
-			));
-		} else {
-			$router->import(file_get_contents($router_file));
-		}
+		$this->module->all_hook("routes", $router);
 		$this->hook("router_loaded", $router);
-		if ($cache) {
-			$router->cache();
-		}
 		return $router;
 	}
 	
@@ -698,7 +775,7 @@ class Application extends \Hookable implements \Interface_Theme {
 	 * @param Exception $e        	
 	 */
 	final private function _main_exception(Exception $exception) {
-		$content = $this->theme(zesk::class_hierarchy($exception), array(
+		$content = $this->theme($this->zesk->classes->hierarchy($exception), array(
 			"exception" => $exception,
 			"content" => $exception
 		), array(
@@ -710,7 +787,7 @@ class Application extends \Hookable implements \Interface_Theme {
 			) + $this->template_variables);
 		}
 		$this->hook('main_exception', $exception);
-		zesk::hook("exception", $exception);
+		$this->hooks->call("exception", $exception);
 	}
 	final public function request() {
 		$this->router();
@@ -727,8 +804,7 @@ class Application extends \Hookable implements \Interface_Theme {
 	 */
 	final public function router() {
 		if ($this->router instanceof \Router) {
-			// KMD 2015-03-13 TODO Has side effects - why?
-			return $this->router; // ->reset();
+			return $this->router;
 		}
 		try {
 			/* @var $request Request */
@@ -927,6 +1003,8 @@ class Application extends \Hookable implements \Interface_Theme {
 	
 	/**
 	 * Internal function - check the schema and notify someone
+	 * 
+	 * @todo make this non-static and get router from application
 	 */
 	private static function _schema_check() {
 		$application = zesk::singleton('Application');
@@ -934,7 +1012,7 @@ class Application extends \Hookable implements \Interface_Theme {
 		$results = $application->schema_synchronize();
 		if (count($results) > 0) {
 			if (zesk::getb('Application::schema_sync')) {
-				$db = \Database::instance();
+				$db = $application->database_factory();
 				log::warning("The database schema was out of sync, updating: {sql}", array(
 					"sql" => implode(";\n", $results) . ";\n"
 				));
@@ -967,7 +1045,10 @@ class Application extends \Hookable implements \Interface_Theme {
 		} else {
 			$options['follow'] = avalue($options, 'follow', false);
 		}
-		log::debug($classes);
+		log::debug("{method}: Synchronizing classes: {classes}", array(
+			"method" => __METHOD__,
+			"classes" => $classes
+		));
 		$results = array();
 		$objects_by_class = array();
 		$other_updates = array();
@@ -1037,7 +1118,7 @@ class Application extends \Hookable implements \Interface_Theme {
 	 */
 	public function index() {
 		$final_map = array();
-		zesk::document_init();
+		
 		if (($content = Response::cached(url::current())) === null) {
 			ob_start();
 			$this->main();
@@ -1066,16 +1147,17 @@ class Application extends \Hookable implements \Interface_Theme {
 	 * Called once before a hook_all("Object::method");
 	 */
 	public static final function object_register_all_hooks() {
+		global $zesk;
 		$classes = Application::instance()->all_classes();
-		zesk::register_class(arr::collapse($classes, "class"));
+		$zesk->classes->register(arr::collapse($classes, "class"));
 	}
 	
 	/**
 	 * When zesk::all_hook is called, this is called first to collect all objects
 	 * in the system.
 	 */
-	public static function hooks() {
-		zesk::add_hook('Object::register_all_hooks', __CLASS__ . "::object_register_all_hooks");
+	public static function hooks(zesk\Kernel $zesk) {
+		$zesk->hooks->add('Object::register_all_hooks', __CLASS__ . "::object_register_all_hooks");
 	}
 	
 	/**
@@ -1168,6 +1250,7 @@ class Application extends \Hookable implements \Interface_Theme {
 				"content" => $arguments
 			);
 		}
+		$arguments['application'] = $this;
 		$types = to_list($types);
 		$extension = avalue($options, "no_extension") ? null : ".tpl";
 		if (count($types) === 1) {
@@ -1257,9 +1340,6 @@ class Application extends \Hookable implements \Interface_Theme {
 			return $content;
 		}
 		$content = $t->render();
-		$content = zesk::hook_array("theme_${type}_alter", array(
-			$content
-		), $content);
 		return $content;
 	}
 	
@@ -1296,7 +1376,7 @@ class Application extends \Hookable implements \Interface_Theme {
 		if (is_object($object) && method_exists($object, "hook_theme")) {
 			return true;
 		}
-		if (zesk::has_hook("theme_${type}")) {
+		if ($this->hooks->has("theme_${type}")) {
 			return true;
 		}
 		$extension = to_bool(avalue($options, "no_extension")) ? "" : ".tpl";
@@ -1335,7 +1415,10 @@ class Application extends \Hookable implements \Interface_Theme {
 	 * @return array This class name and parent classes
 	 */
 	public function register_class($class) {
-		return zesk::register_class($class);
+		global $zesk;
+		/* @var $zesk zesk\Kernel */
+		$zesk->hooks->register_class($class);
+		return $zesk->classes->register($class);
 	}
 	
 	/**
@@ -1359,7 +1442,13 @@ class Application extends \Hookable implements \Interface_Theme {
 	 * @return string
 	 */
 	public static function application_class($class = null) {
-		return zesk::application_class($class);
+		global $zesk;
+		/* @var $zesk zesk\Kernel */
+		if ($class) {
+			$zesk->application_class = $class;
+			return $class;
+		}
+		return $zesk->application_class;
 	}
 	
 	/**
@@ -1368,8 +1457,8 @@ class Application extends \Hookable implements \Interface_Theme {
 	 * @return string
 	 * @param unknown $add        	
 	 */
-	public function cache_path($add = null) {
-		return $this->cache_path;
+	public function cache_path($suffix = null) {
+		return path($this->cache_path, $suffix);
 	}
 	/**
 	 * Your web root is the directory in the file system which contains our application and other
@@ -1431,7 +1520,8 @@ class Application extends \Hookable implements \Interface_Theme {
 	 * @return Database
 	 */
 	public function database_factory($mixed = null, array $options = array()) {
-		return \Database::factory($mixed, $options);
+		// Call non-deprecated version, for now. Move this elsewhere?
+		return \Database::_factory($this, $mixed, $options);
 	}
 	/**
 	 * Create a widget
@@ -1454,6 +1544,33 @@ class Application extends \Hookable implements \Interface_Theme {
 	 */
 	public function object_factory($class, $mixed = null, array $options = array()) {
 		return \Object::factory($class, $mixed, $options, $this);
+	}
+	
+	/**
+	 * Access a class_object
+	 * @return Class_Object
+	 */
+	public function class_object($class) {
+		return Object::cache_class($class, "class");
+	}
+	
+	/**
+	 * @return \Database_Query_Select
+	 */
+	public function query_select($class, $alias = null) {
+		return Object::class_query($class, $alias);
+	}
+	/**
+	 * @return \Database_Query_Update
+	 */
+	public function query_update($class, $alias = null) {
+		return Object::class_query_update($class, $alias);
+	}
+	/**
+	 * @return \Database_Query_Insert
+	 */
+	public function query_insert($class) {
+		return Object::class_query_insert($class);
 	}
 }
 

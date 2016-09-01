@@ -11,7 +11,7 @@ interface Net_FileSystem {
 	function chmod($path, $mode = 0770);
 	function download($remote_path, $local_path);
 	function upload($local_path, $remote_path, $temporary = false);
-	function mtime($path, Timestamp $mtime);
+	function mtime($path, zesk\Timestamp $mtime);
 	function unlink($path);
 	function has_feature($feature);
 }

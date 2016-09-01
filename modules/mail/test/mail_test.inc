@@ -9,16 +9,15 @@
  */
 class Mail_Test extends Test_Unit {
 	function initialize() {
-		Module::load('mail');
-		$this->assert_module('mail');
-		$classes = Module_Mail::object_classes();
+		$module = $this->load_module('mail');
+		$classes = $module->classes();
 		Database_Schema::objects_synchronize($classes);
 		foreach ($classes as $class) {
 			// TODO MySQL specific
 			Object::cache_object($class)->database()->query("TRUNCATE " . Object::class_table_name($class));
 		}
 	}
-
+	
 	/**
 	 */
 	function test_files() {

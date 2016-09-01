@@ -3,7 +3,7 @@
 newline("\n");
 
 $application = Application::instance();
-$db = Database::instance();
+$db = $application->database_factory();
 
 $results = $application->schema_synchronize($db);
 echo html::tag('ul', html::tags('li', $results));

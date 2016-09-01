@@ -5,7 +5,7 @@
  */
 class Module_Bootstrap extends Module implements Module_Interface_Foot {
 	public function initialize() {
-		zesk::add_hook('Control_List::row_widget', array(
+		$this->application->hooks->add('Control_List::row_widget', array(
 			$this,
 			'_hook_list_row_widget'
 		));
@@ -79,11 +79,16 @@ class Module_Bootstrap extends Module implements Module_Interface_Foot {
 	 * @return string
 	 */
 	public static function source_location($set = null) {
+		global $zesk;
+		/* @var $zesk zesk\Kernel */
 		if ($set !== null) {
-			zesk::set('Module_Bootstrap::source_location', $set);
+			$zesk->configuration->pave(__CLASS__)->source_location = $set;
 			return $set;
 		}
-		return zesk::get('Module_Bootstrap::source_location');
+		return $zesk->configuration->path_get(array(
+			__CLASS__,
+			"source_location"
+		));
 	}
 	
 	/**
@@ -126,7 +131,14 @@ class Module_Bootstrap extends Module implements Module_Interface_Foot {
 	 */
 	public function hook_updated() {
 		$source_location = $this->option('source_location');
-		if (!dir::is_absolute($source_location)) {
+		if (!$source_location) {
+			log::notice("{method}: No {class}::source_location configuration option specified, using default bootstrap CSS/LESS files", array(
+				"method" => __METHOD__,
+				"class" => __CLASS__
+			));
+			return;
+		}
+		if (!!dir::is_absolute($source_location)) {
 			$source_location = $this->application->application_root($source_location);
 		}
 		log::debug("{class}::hook_updated: source_location={source_location}", array(

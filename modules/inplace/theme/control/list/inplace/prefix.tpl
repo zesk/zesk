@@ -1,5 +1,6 @@
 <?php
 
+
 /* @var $parent Widget */
 $parent = $this->widget->parent();
 /* @var $class_object Class_Object */
@@ -9,7 +10,7 @@ $name = __($class_object->name);
 $names = zesk\Locale::plural(__($class_object->name));
 $new_url_button = "";
 if (!$this->hide_new_button) {
-	$new_url = $this->request->get_route("new", $this->list_class);
+	$new_url = $this->router->get_route("new", $this->list_class);
 	if ($new_url && $this->current_user->can($this->list_class . "::new")) {
 		$new_url_button = html::tag("button", array(
 			"class" => "btn btn-warning",

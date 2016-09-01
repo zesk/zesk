@@ -1,4 +1,5 @@
 <?php
+use zesk\Timestamp as Timestamp;
 /**
  * IP Banning application
  *
@@ -10,99 +11,97 @@
  * @copyright (C) 2013 Market Acumen, Inc.
  */
 class Application_IPBan extends Application {
-
 	const snippet_match = '/var/db/ipban/ipban.inc';
-
 	const snippet = "if (file_exists('/var/db/ipban/ipban.inc')) {\n\trequire_once '/var/db/ipban/ipban.inc';\n}\n";
-
+	
 	/**
 	 * Debugging logging enabled
 	 *
 	 * @var boolean
 	 */
 	public $debug = false;
-
+	
 	/**
 	 *
 	 * @var Process_Interruptable
 	 */
 	protected $process = null;
-
+	
 	/**
 	 *
 	 * @var FIFO
 	 */
 	protected $fifo = null;
-
+	
 	/**
 	 * iptables command path
 	 *
 	 * @var string
 	 */
 	protected $iptables = null;
-
+	
 	/**
 	 * Name for Toxic IPs (from outside source)
 	 *
 	 * @var string
 	 */
 	const chain_toxic = 'zesk-ipban-toxic';
-
+	
 	/**
 	 * Name for dynamically updated IPs
 	 *
 	 * @var string
 	 */
 	const chain_ban = 'zesk-ipban';
-
+	
 	/**
 	 * Chains structure
 	 *
 	 * @var array
 	 */
 	protected $chains = array();
-
+	
 	/**
 	 * IP address => IP address
 	 *
 	 * @var array
 	 */
 	protected $whitelist = array();
-
+	
 	/**
 	 * Whitelist mod time
 	 *
 	 * @var integer
 	 */
 	protected $whitelist_file_mtime = null;
-
+	
 	/**
 	 * IP address => array($chain_path => $rule, $chain_path => $rule)
 	 *
 	 * @var unknown
 	 */
 	protected $ips = array();
-
+	
 	/**
 	 * Chains structure
 	 *
 	 * @var boolean
 	 */
 	protected $chains_dirty = true;
-
+	
 	/**
 	 * Last Database check
 	 *
 	 * @var string
 	 */
 	protected $last_check = null;
-
+	
 	/**
 	 *
 	 * @var IPBan_FS
 	 */
 	protected $ipban_fs = null;
-
+	
 	/**
 	 * Standard chain configuration
 	 *
@@ -132,14 +131,14 @@ class Application_IPBan extends Application {
 	protected $hooks = array(
 		'Settings'
 	);
-
 	protected $modules = array(
 		'ipban',
 		'parse_log',
 		'server',
+		'mysql',
 		'cron'
 	);
-
+	
 	/**
 	 * Application::preconfigure
 	 *
@@ -167,7 +166,6 @@ class Application_IPBan extends Application {
 		//$options['nohook'] = true;
 		return $options;
 	}
-
 	public function postconfigure() {
 		try {
 			$this->ipban_fs = new IPBan_FS();
@@ -189,7 +187,7 @@ class Application_IPBan extends Application {
 			));
 		}
 	}
-
+	
 	/**
 	 * Load an IP file
 	 *
@@ -205,7 +203,7 @@ class Application_IPBan extends Application {
 		$ips = self::normalize_ips($lines, $purpose);
 		return $ips;
 	}
-
+	
 	/**
 	 * Strip bad IPs and masks from the file
 	 *
@@ -223,7 +221,7 @@ class Application_IPBan extends Application {
 		}
 		return $ips;
 	}
-
+	
 	/**
 	 * File containing toxic IPs
 	 *
@@ -232,7 +230,7 @@ class Application_IPBan extends Application {
 	public function toxic_ip_path() {
 		return $this->option('toxic_ip_path', '/etc/ipban/toxic_ip');
 	}
-
+	
 	/**
 	 * File containing whitelist IPs (never ban)
 	 *
@@ -241,7 +239,7 @@ class Application_IPBan extends Application {
 	public function whitelist_ip_path() {
 		return $this->option('whitelist_ip_path', '/etc/ipban/whitelist');
 	}
-
+	
 	/**
 	 * File containing blacklist IPs (always ban)
 	 *
@@ -250,7 +248,7 @@ class Application_IPBan extends Application {
 	public function blacklist_ip_path() {
 		return $this->option('blacklist_ip_path', '/etc/ipban/blacklist');
 	}
-
+	
 	/**
 	 * hook_classes
 	 *
@@ -262,7 +260,7 @@ class Application_IPBan extends Application {
 		$classes[] = "Settings";
 		return $classes;
 	}
-
+	
 	/**
 	 * Implement Application::daemon()
 	 *
@@ -280,7 +278,7 @@ class Application_IPBan extends Application {
 		/* @var $application Application_IPBan */
 		return $application->daemon_loop($p);
 	}
-
+	
 	/**
 	 * Run cron on a daily basis
 	 */
@@ -289,7 +287,7 @@ class Application_IPBan extends Application {
 		$app = self::instance();
 		$app->sync_toxic_ips();
 	}
-
+	
 	/**
 	 * Run cron on a hourly basis
 	 */
@@ -298,7 +296,7 @@ class Application_IPBan extends Application {
 		$app = self::instance();
 		$app->check_instrumented_files();
 	}
-
+	
 	/**
 	 * Test Daemon
 	 *
@@ -311,7 +309,7 @@ class Application_IPBan extends Application {
 		));
 		return self::daemon($p);
 	}
-
+	
 	/**
 	 * Scan and make sure IPban is instrumented on files in the system.
 	 *
@@ -323,7 +321,7 @@ class Application_IPBan extends Application {
 	 */
 	public function check_instrumented_files() {
 		$files = $this->option_list("ipban_files");
-
+		
 		if (count($files) === 0) {
 			log::notice("No ipban_file specified for instrumentation.");
 		}
@@ -378,7 +376,6 @@ class Application_IPBan extends Application {
 			"updated" => $updated
 		));
 	}
-
 	public function sync_whitelist() {
 		$whitelist_file = $this->whitelist_ip_path();
 		if (!is_file($whitelist_file)) {
@@ -432,7 +429,6 @@ class Application_IPBan extends Application {
 		}
 		return 0;
 	}
-
 	private function initial_ban() {
 		$this->last_check = Timestamp::now();
 		$ips = IPBan::ban_since(null, $this->option());
@@ -455,18 +451,19 @@ class Application_IPBan extends Application {
 			throw new Exception_Configuration("user", "You must be root to run Application_IPBan");
 		}
 	}
-
+	
 	/**
 	 * Retrieve the FIFO to communicate with the server
 	 *
 	 * @return FIFO
 	 */
 	public static function fifo($create = false) {
-		$path = zesk::get('Application_IPBan::fifo_path', 'ipban.fifo');
-		$mode = zesk::get("Application_IPBan::fifo_mode", 0666);
+		$configuration = zesk()->configuration->pave("Application_IPBan");
+		$path = $configuration->get('fifo_path', 'ipban.fifo');
+		$mode = $configuration->get('fifo_mode', 0666);
 		return new FIFO($path, $create, $mode);
 	}
-
+	
 	/**
 	 * Receive messages from the FIFO
 	 */
@@ -483,7 +480,7 @@ class Application_IPBan extends Application {
 			"data" => serialize($result)
 		));
 	}
-
+	
 	/**
 	 * Receive updates from the database
 	 */
@@ -493,13 +490,13 @@ class Application_IPBan extends Application {
 		}
 		log::debug(__CLASS__ . "::handle_db");
 		$options = $this->option();
-
+		
 		$now = Timestamp::now();
 		$ban_ips = IPBan::ban_since($this->last_check, $options);
-		$ban_ips += IPBan_IPv4::blacklist($this->last_check);
+		$ban_ips += IPBan_IP::blacklist($this->last_check);
 		$allow_ips = IPBan::allow_since($this->last_check, $options);
-		$allow_ips += IPBan_IPv4::whitelist($this->last_check) + $this->whitelist;
-
+		$allow_ips += IPBan_IP::whitelist($this->last_check) + $this->whitelist;
+		
 		foreach ($ban_ips as $ip => $ip) {
 			if (array_key_exists($ip, $allow_ips)) {
 				unset($ban_ips[$ip]);
@@ -515,7 +512,7 @@ class Application_IPBan extends Application {
 		// 		var_dump("ban_ips", $ban_ips);
 		// 		var_dump("allow_ips", $allow_ips);
 	}
-
+	
 	/**
 	 * Support whitelisting entire networks
 	 *
@@ -532,7 +529,7 @@ class Application_IPBan extends Application {
 		}
 		return $ips;
 	}
-
+	
 	/**
 	 * Filter whitelist
 	 *
@@ -549,7 +546,7 @@ class Application_IPBan extends Application {
 		}
 		return array_values($ips);
 	}
-
+	
 	/**
 	 * Retrieve all IPs associated with a chain
 	 *
@@ -575,7 +572,7 @@ class Application_IPBan extends Application {
 		}
 		return $ips;
 	}
-
+	
 	/**
 	 * Does this chain exist?
 	 *
@@ -585,7 +582,7 @@ class Application_IPBan extends Application {
 	protected function has_chain($name) {
 		return array_key_exists($name, $this->chains);
 	}
-
+	
 	/**
 	 * Does the $from chain have a link to the $to chain?
 	 *
@@ -606,7 +603,7 @@ class Application_IPBan extends Application {
 		}
 		return false;
 	}
-
+	
 	/**
 	 * Initialize the chains, setup our internal chains
 	 */
@@ -656,7 +653,7 @@ class Application_IPBan extends Application {
 		}
 		return $found;
 	}
-
+	
 	/**
 	 * Does the named chain contain the IP address already?
 	 *
@@ -679,7 +676,7 @@ class Application_IPBan extends Application {
 		}
 		return false;
 	}
-
+	
 	/**
 	 * Add an IP to the blocked IP list specified by prefix
 	 *
@@ -693,7 +690,7 @@ class Application_IPBan extends Application {
 		//log::notice("DROPPING {ips}", array("ips" => $ips));
 		$this->clean();
 		$ips = $this->filter_whitelist($ips);
-
+		
 		if ($this->ipban_fs) {
 			$this->ipban_fs->drop_ip($ips);
 		}
@@ -714,11 +711,11 @@ class Application_IPBan extends Application {
 				$added = $added + 1;
 			}
 		}
-
+		
 		$this->chains_dirty = true;
 		return $added;
 	}
-
+	
 	/**
 	 * Remove IPs from named filter prefix (should be self::chain_FOO)
 	 *
@@ -735,7 +732,7 @@ class Application_IPBan extends Application {
 		if ($this->ipban_fs) {
 			$this->ipban_fs->allow_ip($ips);
 		}
-
+		
 		$found = $this->find_ips($ips);
 		if (count($found) === 0) {
 			log::debug("No entries found for ips: {ips}", array(
@@ -755,7 +752,7 @@ class Application_IPBan extends Application {
 		}
 		return count($found);
 	}
-
+	
 	/**
 	 * Synchronize the toxic IP list
 	 *
@@ -789,7 +786,7 @@ class Application_IPBan extends Application {
 		}
 		return "unchanged";
 	}
-
+	
 	/**
 	 * Synchronize an IP list with a chain pair
 	 *
@@ -800,15 +797,15 @@ class Application_IPBan extends Application {
 		$this->clean();
 		$this->remove_duplicates($prefix);
 		$this->clean();
-
+		
 		if ($this->ipban_fs) {
 			$this->ipban_fs->drop($ips);
 		}
 		$chain_ips = $this->chain_ips($prefix);
-
+		
 		$drop_ips = array();
 		$allow_ips = array();
-
+		
 		if ($this->debug) {
 			log::debug("IP list: {ips}", array(
 				"ips" => _dump($ips)
@@ -836,7 +833,7 @@ class Application_IPBan extends Application {
 		$this->allow_ip($prefix, $chain_ips);
 		$this->drop_ip($prefix, $drop_ips);
 	}
-
+	
 	/**
 	 * Remove duplicate IPs from list - this happens during development, so might as well keep it
 	 * robust
@@ -848,7 +845,7 @@ class Application_IPBan extends Application {
 			$suffix = $ip_column = null;
 			extract($settings, EXTR_IF_EXISTS);
 			$name = $prefix . $suffix;
-
+			
 			$rules = arr::path($this->chains, array(
 				$name,
 				"rules"
@@ -877,7 +874,7 @@ class Application_IPBan extends Application {
 			}
 		}
 	}
-
+	
 	/**
 	 * Clean the chains database from the iptables command
 	 */
@@ -889,7 +886,7 @@ class Application_IPBan extends Application {
 			$this->chains_dirty = false;
 		}
 	}
-
+	
 	/**
 	 * Is this an empty IP address (or all)
 	 *
@@ -899,7 +896,7 @@ class Application_IPBan extends Application {
 	private static function null_ip($ip) {
 		return begins($ip, '0.0.0.0') || empty($ip);
 	}
-
+	
 	/**
 	 * Compute index by IP address, ignoring null IPs
 	 *
@@ -921,7 +918,7 @@ class Application_IPBan extends Application {
 		}
 		return $ips;
 	}
-
+	
 	/**
 	 * Get chains and parse them from the command iptables --list -n -v
 	 *
@@ -931,7 +928,7 @@ class Application_IPBan extends Application {
 		$result = $this->iptables("--list -n -v");
 		return self::parse_list_chains($result);
 	}
-
+	
 	/**
 	 * Parse parenthesized chain line:
 	 *
@@ -966,7 +963,7 @@ class Application_IPBan extends Application {
 		));
 		return array();
 	}
-
+	
 	/**
 	 * Parse --list -n output from iptables
 	 *
@@ -1012,7 +1009,7 @@ class Application_IPBan extends Application {
 		}
 		return $chains;
 	}
-
+	
 	/**
 	 * Run iptables command and return output
 	 *

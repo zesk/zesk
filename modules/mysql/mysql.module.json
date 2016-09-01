@@ -1,0 +1,4 @@
+{
+	"name": "MySQL Database",
+	"description": "Database abstraction for MySQL using PHP mysqli APIs."
+}

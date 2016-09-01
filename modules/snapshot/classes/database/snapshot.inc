@@ -1,4 +1,5 @@
 <?php
+use zesk\Timestamp as Timestamp;
 
 /**
  * @see Class_Database_Snapshot
@@ -25,7 +26,7 @@ class Database_Snapshot extends Object {
 	 */
 	public static function backup(Database $db = null) {
 		if ($db === null) {
-			$db = Database::instance();
+			$db = app()->database_factory();
 		}
 		$now = Timestamp::now();
 		$date = $now->format('{YYYY}-{MM}-{DD}_{hh}-{mm}-{ss}');
@@ -58,7 +59,7 @@ class Database_Snapshot extends Object {
 
 	public static function restore_latest(Database $db = null) {
 		if ($db === null) {
-			$db = Database::instance();
+			$db = app()->database_factory();
 		}
 		$dbname = $db->database_name();
 
@@ -78,7 +79,7 @@ class Database_Snapshot extends Object {
 
 	public function restore(Database $db = null) {
 		if ($db === null) {
-			$db = Database::instance();
+			$db = $this->application->database_factory();
 		}
 		if ($db->database_name() !== $this->dbname) {
 			throw new Exception_Semantics("Restoring incorrect snapshot name {dbname} onto existing database name {db_database_name} - stopping", array(

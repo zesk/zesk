@@ -1,5 +1,7 @@
 <?php
 
+namespace zesk;
+
 $content = $this->content instanceof Timestamp ? $this->content : new Timestamp($this->content);
 
 $now = Timestamp::now();
@@ -15,7 +17,7 @@ $strings = array(
 foreach ($strings as $unit => $format) {
 	if (($n = $now->difference($content, $unit)) > 0) {
 		$map['n'] = $n;
-		$map['units'] = zesk\Locale::plural($unit, $n);
+		$map['units'] = Locale::plural($unit, $n);
 		$format = __($format, $map);
 		echo $content->format($format);
 		return;

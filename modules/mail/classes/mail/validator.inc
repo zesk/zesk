@@ -7,9 +7,11 @@
  * @copyright Copyright &copy; 2005, Market Acumen, Inc.
  */
 
+use zesk\Timestamp as Timestamp;
+
 /**
  *
- * @version $Id: validator.inc 3178 2015-05-06 18:57:29Z kent $
+ * @version $Id: validator.inc 3919 2016-07-13 05:39:51Z kent $
  * @package zesk
  * @subpackage mail
  * @todo Convert to regular zesk

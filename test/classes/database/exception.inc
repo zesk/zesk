@@ -1,27 +1,44 @@
 <?php
 class Test_Database_Exception extends Test_Unit {
-
+	function database() {
+		return $this->application->database_factory($this->option("database"));
+	}
+	/**
+	 * 
+	 */
 	function test_main() {
-		$message = null;
-		$code = null;
-		$stuff = null;
-		$others = null;
-		$x = new Database_Exception($message, $code, $stuff, $others);
+		for ($i = 0; $i < 100; $i++) {
+			$code = 4123 + $i;
+			$x = new Database_Exception("hello {dude}", array(
+				"dude" => "world!"
+			), $code, new Exception("previous"));
+			
+			$this->_test_exception($x, "hello world!", $code);
+		}
+	}
+	
+	/**
+	 * 
+	 * @param Database_Exception $x
+	 * @param unknown $expected_message
+	 * @param unknown $expected_code
+	 */
+	function _test_exception(Database_Exception $x, $expected_message = null, $expected_code = null) {
+		$message = $x->getMessage();
+		if ($expected_message !== null) {
+			$this->assert_equal($message, $expected_message);
+		}
+		$code = $x->getCode();
+		if ($expected_code !== null) {
+			$this->assert_equal($code, $expected_code);
+		}
 
-		$x->getMessage();
-
-		$x->getCode();
-
-		$x->getFile();
-
-		$x->getLine();
-
-		$x->getTrace();
-
-		$x->getTraceAsString();
-
-		$x->__toString();
-
-		echo basename(__FILE__) . ": success\n";
+		$this->assert_is_string($x->__toString());
+		
+		// I assume this is here to just make sure they do not explode/coverage, as these are all internal
+		$this->assert_true(is_file($x->getFile()));
+		$this->assert_integer($x->getLine());
+		$this->assert_is_array($x->getTrace());
+		$this->assert_is_string($x->getTraceAsString());
 	}
 }

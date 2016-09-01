@@ -26,8 +26,11 @@ class Cloud_EC2 extends AmazonEC2 implements Cloud {
 	);
 
 	function credentials_valid() {
+		global $zesk;
+		/* @var $zesk zesk\Kernel */
 		foreach (array_keys(Module_Cloud::CLOUD_EC2_GLOBALS) as $name => $default) {
-			if (zesk::get($name)) {
+			if ($zesk->configuration->has($name)) {
+				// Do what?
 			}
 		}
 	}

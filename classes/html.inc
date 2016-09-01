@@ -59,14 +59,21 @@ define('RE_TAG_NAME', '[' . RE_TAG_NAME_START_CHAR . ']' . '[' . RE_TAG_NAME_CHA
  * @author kent
  */
 class html {
-
+	
+	/**
+	 * List of tags which will have a hook called to alter the attributes before output
+	 * 
+	 * @var array
+	 */
+	private static $attributes_alter = array();
+	
 	/**
 	 * Loose definition of HTML attributes (for parsing bad code)
 	 *
 	 * @var string
 	 */
 	const RE_ATTRIBUTES = '(?:[^"\'\\>]|"[^"]*"|\'[^\']*\')*'; // Loose definition
-
+	
 
 	/**
 	 * Replacement character for start tags (for nesting)
@@ -74,21 +81,21 @@ class html {
 	 * @var string
 	 */
 	const RE_TAG_START_CHAR = "\xFE";
-
+	
 	/**
 	 * Replacement character for end tags (for nesting)
 	 *
 	 * @var string
 	 */
 	const RE_TAG_END_CHAR = "\xFF";
-
+	
 	/**
 	 * Tag name pattern without delimiters
 	 *
 	 * @var string
 	 */
 	const RE_TAG_NAME = RE_TAG_NAME;
-
+	
 	/**
 	 * Backwards compatibility with html::....
 	 * which moved to Response
@@ -108,7 +115,7 @@ class html {
 			), $arguments);
 		}
 	}
-
+	
 	/**
 	 *
 	 * @param unknown_type $uri
@@ -153,7 +160,7 @@ class html {
 	public static function img($src, $text = "", $attrs = false) {
 		return self::_img(zesk::href($src), $text, $attrs, path(zesk::document_root(), $src));
 	}
-
+	
 	/**
 	 * Output an `<a>` tag
 	 *
@@ -174,7 +181,6 @@ class html {
 		$attributes['href'] = $href;
 		return self::tag("a", $attributes, $text);
 	}
-
 	public static function a_condition($condition, $href, $mixed) {
 		if (is_array($mixed)) {
 			$attributes = $mixed;
@@ -251,7 +257,19 @@ class html {
 	static function clean_tag_name($tag) {
 		return strtolower(preg_replace('#[^' . RE_TAG_NAME_CHAR . ']#', '', $tag));
 	}
-
+	
+	/**
+	 * For speed, you must register your tag hook here in addition to zesk()->hooks->add
+	 * Use the name returned as the hook name
+	 * 
+	 * @param string $name
+	 */
+	static function tag_attributes_alter_hook_name($name) {
+		$name = self::clean_tag_name($name);
+		self::$attributes_alter[$name] = true;
+		return __CLASS__ . "::tag::$name";
+	}
+	
 	/**
 	 * Output an open/close tag
 	 * @param string $name
@@ -275,9 +293,19 @@ class html {
 		if (is_array($content)) {
 			backtrace();
 		}
+		if (array_key_exists($name, self::$attributes_alter)) {
+			global $zesk;
+			$result = $zesk->hooks->call_arguments(__METHOD__ . "::$name", array(
+				$attributes,
+				$content
+			), $attributes);
+			if (is_array($result)) {
+				$attributes = $result;
+			}
+		}
 		return "<$name" . self::attributes($attributes) . ($content === null ? " />" : ">$content</$name>");
 	}
-
+	
 	/**
 	 * self::tags('li', array('first item','second item', etc.)) or
 	 * self::tags('li', array('class' => 'highlight'), array('first item', 'second item'))
@@ -304,7 +332,6 @@ class html {
 		}
 		return implode("\n", $result) . "\n";
 	}
-
 	public static function input_attribute_names($types = null) {
 		if (empty($types)) {
 			$types = "core;events;input";
@@ -322,7 +349,6 @@ class html {
 		}
 		return explode(";", $attr_list);
 	}
-
 	static function filter_tag_attributes($tag, array $attributes) {
 		static $tag_types = array(
 			'input' => null,
@@ -341,7 +367,7 @@ class html {
 		}
 		return htmlspecialchars($mixed);
 	}
-
+	
 	/**
 	 * Preserve html entities e.g. foreign languages in strings,
 	 * particularly when embedded in HTML attributes.
@@ -429,23 +455,23 @@ class html {
 	private static function _html_tag_patterns() {
 		/* After replaced, how to match a tag */
 		$RE_TAG_START_CHAR_DEF = '<' . self::RE_TAG_START_CHAR . '(' . self::RE_ATTRIBUTES . ')\s*>';
-
+		
 		/* match a single, properly closed tag in the source */
 		$RE_HTML_TAG_SINGLE = '/<' . self::RE_TAG_START_CHAR . '(' . self::RE_ATTRIBUTES . ')\s*\/\s*>/si';
-
+		
 		/* match a start tag in the source */
 		$RE_HTML_TAG_START = '/' . $RE_TAG_START_CHAR_DEF . '/si';
-
+		
 		/* match a start/end tag in the source */
 		$RE_HTML_TAG_DOUBLE = '/' . $RE_TAG_START_CHAR_DEF . '([^' . self::RE_TAG_START_CHAR . self::RE_TAG_END_CHAR . ']*)' . self::RE_TAG_END_CHAR . '/si';
-
+		
 		return array(
 			$RE_HTML_TAG_SINGLE,
 			$RE_HTML_TAG_DOUBLE,
 			$RE_HTML_TAG_START
 		);
 	}
-
+	
 	/**
 	 * Extract HTML_Tags from some content.
 	 * Tags are returned in the order they are found in a document.
@@ -473,19 +499,19 @@ class html {
 			}
 			return $results;
 		}
-
+		
 		if (!is_string($contents)) {
 			return $contents;
 		}
-
+		
 		if (empty($contents)) {
 			return array();
 		}
-
+		
 		$tag = strtolower($tag);
 		$endTag = "</$tag>";
 		$endTagPattern = '/<\/\s*' . $tag . '\s*>/si';
-
+		
 		$results = array();
 		$rsearch = array(
 			self::RE_TAG_START_CHAR,
@@ -495,21 +521,21 @@ class html {
 			$tag,
 			$endTag
 		);
-
+		
 		$search = array();
 		$replace = array();
-
+		
 		$search[] = '/<\s*' . $tag . '(\s+' . self::RE_ATTRIBUTES . ')\s*>/si';
 		$replace[] = "<" . self::RE_TAG_START_CHAR . '\1>';
-
+		
 		$search[] = '/<\s*' . $tag . '\s*>/si';
 		$replace[] = "<" . self::RE_TAG_START_CHAR . '\1>';
-
+		
 		$search[] = $endTagPattern;
 		$replace[] = self::RE_TAG_END_CHAR;
-
+		
 		$contents = preg_replace($search, $replace, $contents);
-
+		
 		/*
 		 * Match patterns in order of probably valid order. This handles, in order: <tag /> <tag> ... </tag> <tag> (no
 		 * end tag)
@@ -523,27 +549,27 @@ class html {
 				foreach ($matches as $match) {
 					list($matched, $matched_offset) = array_shift($match);
 					list($attrs) = array_shift($match);
-
+					
 					$options = self::parse_attributes($attrs);
-
+					
 					if (count($match) !== 0) {
 						list($tag_contents) = array_shift($match);
 					} else {
 						$tag_contents = false;
 					}
-
+					
 					$results[] = new HTML_Tag($tag, $options, $tag_contents, str_replace($rsearch, $rreplace, $matched), $matched_offset);
-
+					
 					$token = "#@" . count($results) . "@#";
-
+					
 					$search[] = $matched;
 					$replace[] = $token;
-
+					
 					$rsearch[] = $token;
 					$rreplace[] = $matched;
 				}
 				$contents = str_replace($search, $replace, $contents);
-
+				
 				if (!$recursive) {
 					break;
 				}
@@ -565,12 +591,11 @@ class html {
 				$result->outer_html($outer_html);
 			}
 		}
-
+		
 		return $results;
 	}
-
 	private static $tag_stack = array();
-
+	
 	/**
 	 * Open a tag
 	 *
@@ -585,7 +610,7 @@ class html {
 		self::$tag_stack[] = $name;
 		return '<' . strtolower($name) . self::attributes(self::to_attributes($attributes)) . '>';
 	}
-
+	
 	/**
 	 * Close a tag. Must balance tag_open calls or an error is thrown.
 	 *
@@ -605,7 +630,7 @@ class html {
 		}
 		return '</' . $top_name . '>';
 	}
-
+	
 	/**
 	 * Common tag_open case
 	 *
@@ -615,7 +640,7 @@ class html {
 	public static function div_open($attributes = null) {
 		return self::tag_open('div', $attributes);
 	}
-
+	
 	/**
 	 * Like etag but for divs
 	 *
@@ -630,7 +655,7 @@ class html {
 			'etag'
 		), $args);
 	}
-
+	
 	/**
 	 * Like etag but for divs
 	 *
@@ -645,7 +670,7 @@ class html {
 			'etag'
 		), $args);
 	}
-
+	
 	/**
 	 * Common tag_close case
 	 *
@@ -670,7 +695,7 @@ class html {
 		}
 		return false;
 	}
-
+	
 	/**
 	 * Extract the first tag object of given type from HTML
 	 *
@@ -691,7 +716,7 @@ class html {
 		$htmlTag = array_shift($result);
 		return $htmlTag;
 	}
-
+	
 	/**
 	 * Given a string like:
 	 * a="bcd e f " goo="1423" e1231="agerd"
@@ -737,7 +762,7 @@ class html {
 		}
 		return $attr;
 	}
-
+	
 	//
 	//
 	// function self::parse_attributes($mixed)
@@ -766,7 +791,7 @@ class html {
 	public static function strlen($s) {
 		return strlen(self::strip($s));
 	}
-
+	
 	/**
 	 * Retrieve a substring of HTML while keeping the HTML valid.
 	 *
@@ -844,14 +869,14 @@ class html {
 		$matches = self::match_tags($string);
 		if (!$matches)
 			return false;
-
+		
 		$result = array();
 		foreach ($matches as $match) {
 			$result[$match[1]] = self::parse_attributes($match[2]);
 		}
 		return $result;
 	}
-
+	
 	/**
 	 * Remove any HTML tags from a string
 	 *
@@ -880,10 +905,10 @@ class html {
 		$matches = self::match_tags($string);
 		if (!$matches)
 			return $string;
-
+		
 		$include = to_list($include, $include);
 		$exclude = to_list($exclude, $exclude);
-
+		
 		$search = array();
 		$replace = array();
 		foreach ($matches as $match) {
@@ -919,10 +944,10 @@ class html {
 		$matches = self::match_tags($string);
 		if (!$matches)
 			return $string;
-
+		
 		$include = to_list($include, $include);
 		$exclude = to_list($exclude, $exclude);
-
+		
 		$search = array();
 		$replace = array();
 		foreach ($matches as $match) {
@@ -986,7 +1011,7 @@ class html {
 		}
 		return false;
 	}
-
+	
 	/**
 	 * Extract the first tag of given type from HTML
 	 *
@@ -1000,7 +1025,7 @@ class html {
 	public static function extract_tag($tag, $mixed) {
 		return self::extract_tag_contents($tag, $mixed);
 	}
-
+	
 	/**
 	 * Extract the body, ignoring extra body tags
 	 *
@@ -1094,37 +1119,37 @@ class html {
 		} else {
 			return false;
 		}
-
+		
 		if (empty($contents)) {
 			return false;
 		}
-
+		
 		if (is_array($tag)) {
 			foreach ($tag as $t) {
 				$contents = self::remove_tags($t, $contents, $delete);
 			}
 			return $contents;
 		}
-
+		
 		$tag = strtolower($tag);
 		// $endTag = self::tag_close($tag);
 		$endTagPattern = '/<\/\s*' . $tag . '\s*>/si';
-
+		
 		// $rsearch = array(self::RE_TAG_START_CHAR,self::RE_TAG_END_CHAR);
 		// $rreplace = array($tag, $endTag);
-
+		
 
 		$search = array();
 		$replace = array();
-
+		
 		$search[] = '/<\s*' . $tag . '(' . self::RE_ATTRIBUTES . ')\s*>/si';
 		$replace[] = "<" . self::RE_TAG_START_CHAR . '\1>';
-
+		
 		$search[] = $endTagPattern;
 		$replace[] = self::RE_TAG_END_CHAR;
-
+		
 		$contents = preg_replace($search, $replace, $contents);
-
+		
 		/*
 		 * Match patterns in order of probably valid order. This handles, in order: <tag /> <tag> ... </tag> <tag> (no
 		 * end tag)
@@ -1177,7 +1202,7 @@ class html {
 		}
 		return implode($delim, $r);
 	}
-
+	
 	/**
 	 * Count the number of words until the next tag
 	 *
@@ -1193,22 +1218,22 @@ class html {
 		if (!preg_match('/<(\/?' . self::RE_TAG_NAME . ")" . self::RE_ATTRIBUTES . '(\/?)>/', $string, $matches, PREG_OFFSET_CAPTURE)) {
 			return false;
 		}
-
+		
 		//		dump($matches);
 		list($tag, $offset) = array_shift($matches);
 		list($tagName) = array_shift($matches);
 		list($tagClose) = array_shift($matches);
-
+		
 		// 		dump($tag);
 		// 		dump($offset);
 		// 		dump($tagName);
 		// 		dump($tagClose);
-
+		
 
 		$tagName .= $tagClose;
-
+		
 		$nWords = text::count_words(substr($string, 0, $offset));
-
+		
 		return $offset + strlen($tag);
 	}
 	public static function trim_words($string, $wordCount) {
@@ -1402,7 +1427,7 @@ class html {
 		}
 		return strtr($text, $map);
 	}
-
+	
 	/**
 	 * Simplistic tool to make URLs absolute in HTML. Useful for formatting emails.
 	 *
@@ -1431,7 +1456,7 @@ class html {
 		}
 		return strtr($content, $map);
 	}
-
+	
 	/**
 	 * Handles conversion of HTML entities into text
 	 *
@@ -1447,7 +1472,7 @@ class html {
 		));
 		return html_entity_decode($html);
 	}
-
+	
 	/**
 	 *
 	 * @deprecated use tag_open

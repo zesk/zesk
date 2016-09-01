@@ -6,7 +6,6 @@
  * @author Kent Davidson <kent@marketacumen.com>
  * @copyright Copyright &copy; 2008, Market Acumen, Inc.
  */
-
 class Session_Mock implements Session_Interface {
 	protected $ID;
 	/**
@@ -15,22 +14,20 @@ class Session_Mock implements Session_Interface {
 	 * @var Cache
 	 */
 	protected $Cache;
-
 	function __construct() {
 		$this->ID = mt_rand(0, 0x7FFFFFFF);
 		$this->Cache = Cache::register("Session_Mock-" . $this->ID);
 	}
-
 	static public function instance($create = true) {
+		global $zesk;
+		/* @var $zesk zesk\Kernel */
+		if ($zesk->objects->session instanceof self) {
+			return $zesk->objects->session;
+		}
 		if (!$create) {
 			return null;
 		}
-		$x = zesk::get("Session_Mock");
-		if ($x instanceof Session_Mock)
-			return $x;
-		$x = new Session_Mock();
-		zesk::set("Session_Mock", $x);
-		return $x;
+		return $zesk->objects->session = new Session_Mock();
 	}
 	public function id() {
 		return $this->ID;
@@ -61,7 +58,7 @@ class Session_Mock implements Session_Interface {
 		return $this->Cache->filter($list);
 	}
 	private function global_session_user_id() {
-		return zesk::get("SESSION_USER_ID", "User");
+		return "user";
 	}
 	public function user_id() {
 		return $this->__get(self::global_session_user_id());
@@ -84,9 +81,6 @@ class Session_Mock implements Session_Interface {
 		return $this->Cache->filter();
 	}
 	public function delete() {
-		$path = $this->Cache->cache_file_path();
-		if (file_exists($path)) {
-			unlink($path);
-		}
+		$this->Cache->erase();
 	}
 }

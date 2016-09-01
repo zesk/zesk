@@ -12,25 +12,29 @@
 /**
  *
  * @author kent
- *
+ *        
  */
 class system {
 	public static function host_id() {
-		return zesk::get('HOST', aevalue($_ENV, 'HOST', aevalue($_SERVER, 'HOST', 'localhost')));
+		global $zesk;
+		/* @var $zesk zesk\Kernel */
+		return $zesk->configuration->get('HOST', aevalue($_ENV, 'HOST', aevalue($_SERVER, 'HOST', 'localhost')));
 	}
 	public static function uname() {
-		$name = zesk::get('uname');
+		global $zesk;
+		/* @var $zesk zesk\Kernel */
+		$name = $zesk->configuration->uname;
 		if ($name) {
 			return $name;
 		}
-		$name = zesk::hook_array("uname", array(), php_uname('n'));
-		zesk::set('uname', $name);
+		$name = $zesk->hooks->call_arguments("uname", array(), php_uname('n'));
+		$zesk->configuration->uname = $name;
 		return $name;
 	}
 	
 	/**
 	 * Get current process ID
-	 * 
+	 *
 	 * @return integer
 	 */
 	public static function process_id() {
@@ -39,7 +43,7 @@ class system {
 	
 	/**
 	 * Load IP addresses for this sytem
-	 * 
+	 *
 	 * @return array of interface => $ip
 	 */
 	public static function ip_addresses() {
@@ -58,7 +62,7 @@ class system {
 	
 	/**
 	 * Load MAC addresses for this sytem
-	 * 
+	 *
 	 * @return array of interface => $ip
 	 */
 	public static function mac_addresses() {
@@ -75,8 +79,8 @@ class system {
 	
 	/**
 	 * Run ifconfig configuration utility and parse results
-	 * 
-	 * @param string $filter
+	 *
+	 * @param string $filter        	
 	 * @return array
 	 */
 	public static function ifconfig($filter = null) {
@@ -138,7 +142,8 @@ class system {
 	/**
 	 * Determine system current load averages using /proc/loadavg or system call to uptime
 	 *
-	 * @return array:float Uptime averages for the past 1 minute, 5 minutes, and 15 minutes (typically)
+	 * @return array:float Uptime averages for the past 1 minute, 5 minutes, and 15 minutes
+	 *         (typically)
 	 */
 	public static function load_averages() {
 		$uptime_string = null;
@@ -165,7 +170,8 @@ class system {
 	/**
 	 * Retrieve volume information in a parsed manner from system call to "df"
 	 *
-	 * @param string $volume Request for a specific volume (passed to df)
+	 * @param string $volume
+	 *        	Request for a specific volume (passed to df)
 	 * @return array:array
 	 */
 	public static function volume_info($volume = "") {
@@ -219,7 +225,7 @@ class system {
 	 * Usage:
 	 * <code>echo system::growl("At 32, Mozart had three symphonies.");</code>
 	 *
-	 * @param string $message
+	 * @param string $message        	
 	 * @return string
 	 */
 	public static function growl($message) {
@@ -239,7 +245,7 @@ class system {
 	 *
 	 * @return array:array
 	 */
-	public static function distro() {
+	public static function distro($component = null) {
 		static $distro_tips = array(
 			"Novell SUSE" => "/etc/SUSE-release",
 			"Red Hat" => array(
@@ -280,116 +286,32 @@ class system {
 			}
 		}
 		$sysname = php_uname('s');
-		return array(
+		$result = array(
 			"brand" => avalue($sysnames, $sysname, $sysname),
 			"distro" => $sysname,
 			"release" => $relname
 		);
+		if ($component) {
+			if (!isset($result[$component])) {
+				throw new Exception_Parameter("Component should be on of {keys}", array(
+					"keys" => array_keys($result)
+				));
+			}
+			return $result[$component];
+		}
+		return $result;
 	}
+	
+	/**
+	 * 
+	 * @return number
+	 */
 	public static function memory_limit() {
 		$limit = ini_get('memory_limit');
 		if (intval($limit) < 0) {
 			return intval(0xFFFFFFFF);
 		}
 		return number::parse_bytes($limit);
-	}
-	
-	/**
-	 * @todo Move to an implementation-specific location
-	 * @deprecated 2014-01-01
-	 * @param unknown $message
-	 */
-	public static function critical_alert($message) {
-		$message = trim($message);
-		if (empty($message)) {
-			return;
-		}
-		$servers = arr::trim_clean(to_list(zesk::get('MONITOR_SERVICES_SERVERS'), null, " "));
-		if (count($servers) === 0) {
-			syslog::emergency("critical_alert: MONITOR_SERVICES_SERVERS is empty, can not deliver \"$message\"");
-			exit(1);
-		}
-		$nfs_home = zesk::get('NFS_CLUSTER_HOME');
-		if (empty($nfs_home)) {
-			syslog::emergency("critical_alert: NFS_CLUSTER_HOME is empty, can not deliver \"$message\"");
-			exit(2);
-		}
-		$hash = md5($message);
-		foreach ($servers as $server) {
-			$spath = path($nfs_home, "host", $server, 'monitor-services/messages/');
-			if (!is_dir($spath)) {
-				if (!mkdir($spath, 0770, true)) {
-					syslog::emergency("critical_alert: can not create $spath, can not deliver \"$message\"");
-					exit(3);
-				}
-			}
-			if (!file_put_contents(path($spath, $hash), $message)) {
-				syslog::emergency("critical_alert: can not create $spath, can not deliver \"$message\"");
-			}
-		}
-	}
-	
-	/**
-	 * Retrieve daemontools service status. Move to daemontools module, probably.
-	 *
-	 * @todo Move this to an implementation-specific class
-	 * @deprecated 2015-01-01
-	 */
-	public static function services_status() {
-		$path = path(zesk::get('MONITOR_SERVICES_PATH'), 'status/services');
-		$status = zesk\file::contents($path, null);
-		if ($status === null) {
-			return $status;
-		}
-		$status = explode("\n", $status);
-		$result = array();
-		foreach ($status as $status_line) {
-			// monitor-services/log: up (pid 16879) 2675829 seconds
-			// monitor-services: up (pid 16906) 2675829 seconds
-			// ruler-reader: up (pid 59124) 1209 seconds, want down
-			// ruler-reader: down 3 seconds, normally up
-			$matches = false;
-			if (preg_match('/([^:]+): (\w+) .* ([0-9]+) seconds/', $status_line, $matches)) {
-				$name = $matches[1];
-				$service = array();
-				$service['name'] = $name;
-				$service['state'] = $matches[2];
-				$service['seconds'] = $matches[3];
-				$result[$name] = $service;
-			}
-		}
-		return $result;
-	}
-	
-	/**
-	 * Retrieve an ID used for a daemon which may be running in a different installation than the original
-	 *
-	 * @todo Move this to application-specific location
-	 * @deprecated 2015-12-30
-	 * @return string
-	 */
-	public static function daemon_host_id() {
-		$host = self::host_id();
-		$path = substr(md5(__FILE__), 0, 8);
-		if (strpos(__FILE__, "test") !== false)
-			return "$host-$path-test";
-		return "$host-$path";
-	}
-	
-	/**
-	 * Retrieve an ID used for a daemon which may be running in a different installation than the original
-	 *
-	 * @todo Move this to application-specific location
-	 * @deprecated 2015-12-30
-	 * @return string
-	 */
-	public static function group_host_id() {
-		$path_contains_test = strpos(__FILE__, zesk::get('LIVE_TEST_PATH', "test/"));
-		if (zesk::production()) {
-			return $path_contains_test !== false ? "test" : "live";
-		} else {
-			return 'test';
-		}
 	}
 }
 

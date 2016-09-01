@@ -12,7 +12,7 @@ class Modules {
 	
 	/**
 	 *
-	 * @var Application
+	 * @var zesk\Application
 	 */
 	private $application = null;
 	
@@ -32,11 +32,18 @@ class Modules {
 	private $modules = array();
 	
 	/**
+	 * Loaded modules in the system
+	 *
+	 * @var array of hook name => list of module names (ordered)
+	 */
+	private $modules_with_hook = array();
+	
+	/**
 	 * Create the Modules
 	 *
 	 * @param Application $application        	
 	 */
-	public function __construct(Application $application) {
+	public function __construct(zesk\Application $application) {
 		$this->application = $application;
 	}
 	
@@ -246,6 +253,7 @@ class Modules {
 	}
 	private function _load_module_include($include, array $module_data) {
 		$application = $this->application;
+		$zesk = $application->zesk;
 		$module_directory = dirname($include);
 		assert($application instanceof Application);
 		return require_once $include;
@@ -261,21 +269,23 @@ class Modules {
 		$name = $path = $class = $include = null;
 		extract($module_data, EXTR_IF_EXISTS);
 		
+		global $zesk;
+		
 		$internal = $class === null ? false : class_exists($class, false);
 		
 		$this->modules[$name] = $module_data + array(
 			'loading' => true
 		);
 		if ($include) {
-			zesk::hook("module::load;$name::load", $name);
+			$zesk->hooks->call("module::load;$name::load", $name);
 			array_unshift($this->module_loader, $name);
 			// This may be called recursively
 			$this->_load_module_include($include, $module_data);
 			array_shift($this->module_loader);
 		} else if (!$internal) {
-			$result = Module::register_paths($path, $name);
+			$result = $this->register_paths($path, $name);
 			if (count($result) === 0) {
-				zesk::autoload_path($path);
+				$zesk->autoloader->path($path);
 			}
 			$module_data['status'] = 'loaded paths';
 		}
@@ -292,7 +302,7 @@ class Modules {
 		
 		$this->modules[$name] = $module_data;
 		
-		zesk::hook("Module_$name::loaded;Module::loaded", $name);
+		$this->application->hooks->call("Module_$name::loaded;Module::loaded", $name);
 		
 		return $module_data;
 	}
@@ -381,6 +391,7 @@ class Modules {
 			'module' => $name
 		);
 		$module_config = self::module_configuration_options($module_variables);
+		$module_config['settings'] = $settings = new Adapter_Settings_Array($module_variables);
 		$module_conf = path($path, "$base.module.json");
 		$module_data['configuration_file'] = $module_conf;
 		if (file_exists($module_conf)) {
@@ -390,7 +401,7 @@ class Modules {
 				throw new Exception_File_Format($module_conf);
 			}
 			$module_data['configuration_raw'] = $configuration;
-			$module_data['configuration'] = zesk\bash::substitute($configuration, $module_config + $configuration);
+			$module_data['configuration'] = zesk\bash::substitute($configuration, $settings);
 		} else {
 			$module_conf = path($path, "$base.module.conf");
 			if (file_exists($module_conf)) {
@@ -424,7 +435,7 @@ class Modules {
 				));
 			}
 			if (method_exists($module_object, "hooks")) {
-				zesk::hooks($class);
+				$this->application->hooks->register_class($class);
 			}
 			$module_object->codename = $name;
 			$result = array(
@@ -436,7 +447,8 @@ class Modules {
 					'module' => $module_object
 				);
 			} catch (Exception $e) {
-				zesk::hook("exception", $e);
+				global $zesk;
+				$zesk->hooks->call("exception", $e);
 				return $result + array(
 					"status" => "failed",
 					"initialize_exception" => $e
@@ -536,13 +548,12 @@ class Modules {
 	 *
 	 * @param array $variables        	
 	 */
-	private static function module_configuration_options(array $variables) {
+	private static function module_configuration_options() {
 		$options = array(
 			'lower' => true,
 			'trim' => true,
 			'multiline' => true,
-			'unquote' => '\'\'""',
-			'variables' => $variables
+			'unquote' => '\'\'""'
 		);
 		return $options;
 	}
@@ -674,20 +685,28 @@ class Modules {
 	 * @return mixed
 	 */
 	public final function all_hook_array($hook, array $arguments, $default = null, $hook_callback = null, $result_callback = null) {
-		$result = array();
-		// Static version of the hook, deprecated TODO
-		$result = zesk::all_hook_array("Module::$hook", $arguments, $default, $hook_callback, $result_callback);
-		foreach ($this->modules as $name => $data) {
-			if (!array_key_exists('module', $data)) {
-				continue;
+		$result = $default;
+		$module_names = isset($this->modules_with_hook[$hook]) ? $this->modules_with_hook[$hook] : null;
+		if (!is_array($module_names)) {
+			$module_names = array();
+			foreach ($this->modules as $name => $data) {
+				if (!array_key_exists('module', $data)) {
+					continue;
+				}
+				/* @var $module Module */
+				if (($module = $data['module']) !== null && $module->has_hook($hook)) {
+					$module_names[] = $name;
+				}
 			}
-			$module = $data['module'];
-			/* @var $module Module */
-			if ($module) {
-				$new_result = $module->hook_array($hook, $arguments, $default, $hook_callback, $result_callback);
-				$result = Hookable::combine_hook_results($result, $new_result);
-			}
+			$this->modules_with_hook[$hook] = $module_names;
 		}
+		foreach ($module_names as $module_name) {
+			$module = $this->modules[$module_name]['module'];
+			$new_result = $module->hook_array($hook, $arguments, $default, $hook_callback, $result_callback);
+			$result = Hookable::combine_hook_results($result, $new_result);
+		}
+		return $result;
+		
 		return $result;
 	}
 	

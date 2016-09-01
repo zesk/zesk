@@ -8,28 +8,24 @@
  * Created on Sun Apr 04 21:18:06 EDT 2010 21:18:06
  */
 class View_Link extends View_Text {
-
 	function format($set = null) {
 		if ($set !== null) {
 			return $this->set_option("format", $set);
 		}
 		return $this->option('format');
 	}
-
 	function action($set = null) {
 		if ($set !== null) {
 			return $this->set_option("action", $set);
 		}
 		return $this->option('action');
 	}
-
 	function href($set = null) {
 		if ($set !== null) {
 			return $this->set_option("href", $set);
 		}
 		return $this->option('href');
 	}
-
 	function render() {
 		$object = $this->object;
 		$pp = $this->option("format", null);
@@ -40,7 +36,7 @@ class View_Link extends View_Text {
 		$href = $this->option("href", "");
 		if (empty($href)) {
 			$action = $this->option('action');
-			$href = $this->request->get_route($action, $object);
+			$href = $this->application->router()->get_route($action, $object);
 		} else {
 			$href = $object->apply_map($href);
 		}

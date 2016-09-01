@@ -40,13 +40,15 @@ abstract class Server_Configuration extends Options {
 	 */
 	protected $variable_types_display = array();
 	public static function factory($type, Server_Platform $platform, $options = null) {
+		global $zesk;
+		/* @var $zesk zesk\Kernel */
 		if (empty($type)) {
 			throw new Exception_Parameter("No Configuration type passed to {class}::factory", array(
 				"class" => __CLASS__
 			));
 		}
 		$class = "Server_Configuration_$type";
-		return zesk::factory($class, $platform, $options);
+		return $zesk->objects->factory($class, $platform, $options);
 	}
 	function __construct(Server_Platform $platform, $options = null) {
 		parent::__construct($options);
@@ -91,21 +93,21 @@ abstract class Server_Configuration extends Options {
 	}
 	private function _validate_type_before($type, $name, $value) {
 		switch ($type) {
-			case "path" :
+			case "path":
 				return file::path_check($value) !== false;
-			case "file" :
+			case "file":
 				return file::path_check($value) !== false;
-			case "package" :
+			case "package":
 				return $this->packager->package_exists($value);
-			case "feature" :
+			case "feature":
 				return $this->platform->feature_exists($name);
-			case "executable" :
+			case "executable":
 				return file::path_check($value) !== false;
-			case "user" :
+			case "user":
 				return $this->platform->validate_user_name($value);
-			case "group" :
+			case "group":
 				return $this->platform->validate_group_name($value);
-			case "owner" :
+			case "owner":
 				return $this->platform->validate_owner_name($value);
 			default :
 				throw new Exception_Semantics("Unknown type \"$type\" supplied for name $name");
@@ -113,21 +115,21 @@ abstract class Server_Configuration extends Options {
 	}
 	private function _validate_type_after($type, $name, $value) {
 		switch ($type) {
-			case "path" :
+			case "path":
 				return is_string($value) && is_dir($value);
-			case "file" :
+			case "file":
 				return is_string($value) && is_file($value);
-			case "package" :
+			case "package":
 				return $this->packager->package_installed($name);
-			case "feature" :
+			case "feature":
 				return $this->platform->feature_installed($name);
-			case "executable" :
+			case "executable":
 				return is_string($value) && is_executable($value);
-			case "user" :
+			case "user":
 				return $this->platform->user_exists($name);
-			case "group" :
+			case "group":
 				return $this->platform->group_exists($name);
-			case "owner" :
+			case "owner":
 				return $this->platform->owner_exists($name);
 			default :
 				throw new Exception_Semantics("Unknown type \"$type\" supplied for name $name");
@@ -176,8 +178,10 @@ abstract class Server_Configuration extends Options {
 	 * @return boolean Whether it the setting is syntactically correct
 	 */
 	final public function check_type_before($name) {
+		global $zesk;
+		/* @var $zesk zesk\Kernel */
 		try {
-			return $this->validate_type_before(avalue($this->variable_types, strtolower($name)), $name, $this->option($name, zesk::get($name)));
+			return $this->validate_type_before(avalue($this->variable_types, strtolower($name)), $name, $this->option($name, $zesk->configuration->get($name)));
 		} catch (Exception $e) {
 			return false;
 		}
@@ -191,8 +195,10 @@ abstract class Server_Configuration extends Options {
 	 * @return boolean Whether it has been installed and validated
 	 */
 	final public function check_type_after($name) {
+		global $zesk;
+		/* @var $zesk zesk\Kernel */
 		try {
-			return $this->validate_type_after(avalue($this->variable_types, strtolower($name)), $name, $this->option($name, zesk::get($name)));
+			return $this->validate_type_after(avalue($this->variable_types, strtolower($name)), $name, $this->option($name, $zesk->configuration->get($name)));
 		} catch (Exception $e) {
 			return false;
 		}
@@ -246,11 +252,11 @@ abstract class Server_Configuration extends Options {
 	}
 	public function variable($name, $type, $set = null) {
 		$k = self::_option_key($name);
-		$value = arr::path($this->options, $k, null, "::");
-		$registered_type = arr::path($this->variable_types, $k, null, "::");
+		$value = apath($this->options, $k, null, "::");
+		$registered_type = apath($this->variable_types, $k, null, "::");
 		assert($registered_type === $type);
 		if ($set !== null) {
-			arr::path_set($this->options, $k, $set);
+			apath_set($this->options, $k, $set);
 			return true;
 		} else {
 			return avalue($this->options, $k);

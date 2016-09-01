@@ -1,5 +1,6 @@
 <?php
 
+use zesk\Timestamp as Timestamp;
 /**
  * @see Class_Browser
  * @property id $id

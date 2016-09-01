@@ -1,19 +1,12 @@
 <?php
 class Route_Method extends Route {
-	protected function initialize() {
-		parent::initialize();
+	public function validate(Application $application) {
 		$function = $this->options['method'];
-		$include = avalue($this->options, 'include');
-		$require = avalue($this->options, 'require');
 		$class = $method = null;
 		if (is_string($function)) {
 			list($class, $method) = pair($function, "::", null, $function);
 		}
-		if ($require) {
-			require_once $require;
-		} else if ($include) {
-			include_once $include;
-		}
+		list($include, $require) = $this->_do_includues();
 		if ($class) {
 			if (!class_exists($class, $this->option_bool('autoload', true))) {
 				throw new Exception_Parameter("No such class found {class}", array(
@@ -38,13 +31,33 @@ class Route_Method extends Route {
 				));
 			}
 		} else if (!is_callable($function)) {
+			global $zesk;
+			/* @var $zesk zesk\Kernel */
 			throw new Exception_Parameter("Not callable: {callable} for {pattern}", array(
-				"callable" => zesk::callable_string($function),
+				"callable" => $zesk->hooks->callable_string($function),
 				"pattern" => $this->pattern
 			));
 		}
 	}
 	
+	/**
+	 * Do includes if specified
+	 * 
+	 * @return mixed[]|array[]
+	 */
+	private function _do_includues() {
+		$include = avalue($this->options, 'include');
+		$require = avalue($this->options, 'require');
+		if ($require) {
+			require_once $require;
+		} else if ($include) {
+			include_once $include;
+		}
+		return array(
+			$include,
+			$require
+		);
+	}
 	/**
 	 * Use parent processing - honors objects {request} {response} etc.
 	 * - this doesn't
@@ -57,8 +70,8 @@ class Route_Method extends Route {
 	 *
 	 *
 	 *
-	 * @param unknown $name
-	 * @param unknown $default
+	 * @param unknown $name        	
+	 * @param unknown $default        	
 	 * @return Ambigous <unknown, multitype:mixed , mixed, string, multitype:, Hookable, array,
 	 *         number>
 	 */
@@ -76,6 +89,8 @@ class Route_Method extends Route {
 		return $arguments;
 	}
 	protected function _execute(Application $app) {
+		$this->_do_includues();
+		
 		$method = $this->options['method'];
 		$arguments = $this->args;
 		
@@ -91,8 +106,9 @@ class Route_Method extends Route {
 				$content = call_user_func_array($method, $arguments);
 			}
 		} catch (Exception $e) {
+			global $zesk;
 			$content = null;
-			zesk::hook("exception", $e);
+			$zesk->hooks->call("exception", $e);
 			log::error("{class}::_execute() Running {method} threw exception {e}", array(
 				"class" => __CLASS__,
 				"method" => zesk::callable_string($method),

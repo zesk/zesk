@@ -20,23 +20,35 @@
  * @property array $data
  */
 use zesk\Locale as Locale;
-
 class Health_Event extends Object {
-
+	
+	/**
+	 * 
+	 * @var string
+	 */
 	const updated_file = ".updated";
-
-	protected $classes = array(
-		"Health_Event"
-	);
-
+	
+	/**
+	 * 
+	 * {@inheritDoc}
+	 * @see Object::store()
+	 */
 	public function store() {
 		if ($this->member_is_empty('when_msec')) {
 			$this->when_msec = 0;
 		}
 		return parent::store();
 	}
-
+	
+	/**
+	 * 
+	 * @param array $event
+	 * @param unknown $path
+	 */
 	public static function event_log(array $event, $path) {
+		global $zesk;
+		/* @var $zesk zesk\Kernel */
+		
 		$microtime = microtime(true);
 		$event['when'] = $when = gmdate("Y-m-d H:i:s", $microtime);
 		$event['when_msec'] = $msec = ($microtime - intval($microtime)) * 1000;
@@ -46,8 +58,8 @@ class Health_Event extends Object {
 			error_log("Error while logging event " . __METHOD__ . "\n" . $e->getMessage() . "\n" . $e->getTraceAsString());
 			$event['server'] = null;
 		}
-		$event['application'] = zesk::application_class();
-
+		$event['application'] = $zesk->application_class;
+		
 		/* @var $class Class_Health_Event */
 		$class = Object::cache_class(__CLASS__, "class");
 		$data = array();
@@ -58,8 +70,8 @@ class Health_Event extends Object {
 			}
 		}
 		$event['data'] = $data;
-
-		$hash = md5(zesk::pid() . "-" . mt_rand() . "-" . $microtime);
+		
+		$hash = md5($zesk->process_id() . "-" . mt_rand() . "-" . $microtime);
 		$msec = text::ralign("$msec", 3, "0");
 		$filename = strtr("$when.$msec-$hash.event", array(
 			" " => "-"
@@ -67,15 +79,30 @@ class Health_Event extends Object {
 		file_put_contents(path($path, $filename), serialize($event));
 		file_put_contents(path($path, self::updated_file), strval($microtime));
 	}
-
+	
+	/**
+	 * 
+	 * @param string $path Directory for all deferred events
+	 * @param string $file Full path to file to defer
+	 * @param string $name Name of type of event to defer (reason)
+	 */
 	public static function event_defer($path, $file, $name) {
+		global $zesk;
+		/* @var $zesk zesk\Kernel */
 		$defer_event_path = path($path, $name);
 		dir::depend($defer_event_path);
 		rename($file, path($defer_event_path, basename($file)));
-		dir::cull_contents($defer_event_path, zesk::geti('Health_Event::defer_max_files', 100));
+		dir::cull_contents($defer_event_path, $zesk->configuration->path_get('Health_Event::defer_max_files', 100));
 	}
-
+	
+	/**
+	 * 
+	 * @param string $path
+	 * @return boolean
+	 */
 	public static function event_process($path) {
+		global $zesk;
+		/* @var $zesk zesk\Kernel */
 		$updated_file_path = path($path, self::updated_file);
 		clearstatcache(true, $updated_file_path);
 		if (!file_exists($updated_file_path)) {
@@ -85,21 +112,21 @@ class Health_Event extends Object {
 		}
 		file::unlink($updated_file_path);
 		$files = dir::ls($path, '/\.event$/', true);
-		$max_size = zesk::get("Health_Event::max_event_size", min(4 * 1024 * 1024, system::memory_limit() / 10));
+		$max_size = $zesk->configuration->path_get("Health_Event::max_event_size", min(4 * 1024 * 1024, system::memory_limit() / 10));
 		foreach ($files as $file) {
 			$size = filesize($file);
 			if ($size > $max_size) {
 				self::event_defer($path, $file, "huge");
-				log::error("File {file} exceeds event limit of {max_size}", compact("file", "max_size"));
+				$zesk->logger->error("File {file} exceeds event limit of {max_size}", compact("file", "max_size"));
 				continue;
 			}
-			log::debug("Processing {file}", compact("file"));
+			$zesk->logger->debug("Processing {file}", compact("file"));
 			$contents = file_get_contents($file);
 			try {
 				$settings = unserialize($contents);
 			} catch (Exception $e) {
 				self::event_defer($path, $file, "exception");
-				log::error("Exception {e} when unserializing file contents: {contents}", array(
+				$zesk->logger->error("Exception {e} when unserializing file contents: {contents}", array(
 					"e" => $e,
 					"contents" => $contents
 				));
@@ -110,7 +137,10 @@ class Health_Event extends Object {
 				unset($settings['msec']);
 			}
 			$event = Object::factory(__CLASS__);
-			if ($event->initialize($settings)->collate()->store()->deduplicate()) {
+			if ($event->initialize($settings)
+				->collate()
+				->store()
+				->deduplicate()) {
 				unlink($file);
 			}
 			unset($settings);
@@ -118,7 +148,7 @@ class Health_Event extends Object {
 		}
 		return true;
 	}
-
+	
 	/**
 	 * Generate Health_Events link
 	 *
@@ -129,13 +159,15 @@ class Health_Event extends Object {
 		$this->events = $events->register_from_event($this);
 		return $this;
 	}
-
+	
 	/**
 	 * Delete all but n of a particular Health_Event (based on Health_Events pointer)
 	 *
 	 * @return Health_Event
 	 */
 	public function deduplicate() {
+		global $zesk;
+		/* @var $zesk zesk\Kernel */
 		$n_samples = $this->option_integer("keep_duplicates", 10);
 		$n_found = Object::class_query(__CLASS__)->what("*n", "COUNT(id)")->where("events", $this->events)->one_integer("n");
 		if ($n_found > $n_samples) {
@@ -148,7 +180,7 @@ class Health_Event extends Object {
 			$delete_query = Object::class_query_delete(__CLASS__);
 			$delete_query->where("id", $ids_to_delete);
 			$delete_query->execute();
-			log::notice("Deleted {n} {rows} related to health event {message} (Health Events #{id}) - total {total}", array(
+			$zesk->logger->notice("Deleted {n} {rows} related to health event {message} (Health Events #{id}) - total {total}", array(
 				"n" => $nrows = $delete_query->affected_rows(),
 				"rows" => Locale::plural("row", $nrows),
 				"message" => $this->message,

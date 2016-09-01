@@ -1,5 +1,6 @@
 <?php
 
+use zesk\Timestamp as Timestamp;
 /**
  * @see Class_Contact_Address
  * @property string $name

@@ -32,7 +32,11 @@ class Model_Settings extends Model {
 		return zesk::has($key, false);
 	}
 	protected function _internal_get($key) {
-		return array_key_exists($key, $this->_changed) ? $this->_changed[$key] : zesk::get($key);
+		if (array_key_exists($key, $this->_changed)) {
+			return $this->_changed[$key];
+		}
+		$result = zesk::get($key);
+		return $result instanceof zesk\Configuration ? $result->to_array() : $result;
 	}
 	private function _ignore_variable($key) {
 		return in_array($key, $this->ignore_variables);
@@ -53,7 +57,13 @@ class Model_Settings extends Model {
 		return $this;
 	}
 	function variables() {
-		return zesk::get($this->variables);
+		$result = zesk::get($this->variables);
+		foreach ($result as $k => $v) {
+			if ($v instanceof zesk\Configuration) {
+				$result[$k] = $v->to_array();
+			}
+		}
+		return $result;
 	}
 	function __get($key) {
 		if (array_key_exists($key, $this->_accessor)) {

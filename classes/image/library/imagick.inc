@@ -1,14 +1,63 @@
 <?php
 class Image_Library_Imagick extends Image_Library {
+	/**
+	 * 
+	 * @var string
+	 */
+	const command_default = "convert";
+	
+	/**
+	 * 
+	 * @var string
+	 */
 	const command_scale = '{command} -antialias -matte -geometry "{width}x{height}" {source} {destination}';
-
+	
+	/**
+	 * 
+	 * @return string|\zesk\NULL
+	 */
+	private static function shell_command() {
+		global $zesk;
+		/* @var $zesk zesk\Kernel */
+		$which = $zesk->paths->which($zesk->configuration->path_get(array(
+			__CLASS__,
+			"command"
+		), self::command_default));
+		return $which;
+	}
+	
+	/**
+	 * 
+	 * @return string|\zesk\NULL
+	 */
+	private static function shell_command_scale() {
+		global $zesk;
+		/* @var $zesk zesk\Kernel */
+		$command = self::shell_command();
+		$scale_command = map($zesk->configuration->path_get(array(
+			__CLASS__,
+			"command_scale"
+		), self::command_scale), compact("command"));
+		return $scale_command;
+	}
+	
 	/**
 	 *
 	 * @return boolean
 	 */
 	public static function installed() {
-		return is_executable(zesk::get(''));
+		$which = self::shell_command();
+		if ($which) {
+			return true;
+		}
+		return false;
 	}
+	
+	/**
+	 * 
+	 * @param unknown $source
+	 * @return resource
+	 */
 	private function _imageload($source) {
 		return imagecreatefromstring(file_get_contents($source));
 	}
@@ -23,17 +72,6 @@ class Image_Library_Imagick extends Image_Library {
 		$output = avalue(self::$output_map, $type, 'png');
 		$method = "image$output";
 		return $method($dst, $dest);
-	}
-	private static function shell_command_scale() {
-		static $command = null;
-		if (!$command) {
-			$keys = to_list('Image_Library_Imagick::command');
-			$command = zesk::get1($keys);
-			if (!$command) {
-				$command = zesk::which('convert');
-			}
-		}
-		return map(self::command_scale, compact('command'));
 	}
 	function image_scale_data($data, array $options) {
 		$extension = Content_Image::determine_extension_simple_data($data);
@@ -67,21 +105,22 @@ class Image_Library_Imagick extends Image_Library {
 			"width" => $width,
 			"height" => $height
 		);
-
+		
 		$cmd = self::shell_command_scale();
 		if (empty($cmd)) {
 			die("ViewImage::scaleCommand($source, $dest, $width, $height): System doesn't contain ViewImage::system_scale_command");
 		}
-
+		
 		$cmd = map($cmd, $map);
-
+		
 		$result = false;
 		$this->debug_log("Running command: $cmd");
-
+		
 		$lastline = system($cmd, $result);
 		if ($result == 0 && file_exists($dest)) {
+			global $zesk;
 			@chmod($dest, 0644);
-			zesk::hook('file_created', $dest);
+			$zesk->hooks->call('file_created', $dest);
 			return true;
 		}
 		die("ViewImage::scaleCommand: System command failed \"$cmd\" returned $result ($lastline)");

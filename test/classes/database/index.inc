@@ -9,7 +9,7 @@
 class Test_Database_Index extends Test_Unit {
 
 	function test_main() {
-		$database = Database::factory(zesk::get('DB_URL'));
+		$database = $this->application->database_factory(zesk::get('DB_URL'));
 		$table = new Database_Table($database, "new_table");
 		$name = '';
 		$type = 'INDEX';

@@ -1,5 +1,5 @@
 <?php
-class Exception_Connect extends Zesk_Exception {
+class Exception_Connect extends zesk\Exception {
 	public $host = null;
 	function __construct($host, $message = null, array $arguments=array(), $previous = null) {
 		parent::__construct($message, $arguments, null, $previous);

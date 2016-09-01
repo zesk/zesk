@@ -13,5 +13,5 @@
  * 
  * @author kent
  */
-class Exception_Authentication extends Zesk_Exception {
+class Exception_Authentication extends zesk\Exception {
 }

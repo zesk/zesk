@@ -1,7 +1,7 @@
 <?php
 class Database_MySQL_SQL_Test extends Test_Unit {
 	public function sql() {
-		$db = Database::instance();
+		$db = $this->application->database_factory();
 		$sql = $db->sql();
 		return $sql;
 	}

@@ -41,8 +41,8 @@ class Currency extends Object {
 	 * @return string
 	 */
 	function format($value = 0) {
-		$decimals = zesk::get1("Currency::decimal_point;decimal_point", __("Currency::decimal_point:=."));
-		$thousands = zesk::get1('Currency::thousands_separator;thousands_separator', __("Currency::thousands_separator:=."));
+		$decimals = $this->option("decimal_point", __("Currency::decimal_point:=."));
+		$thousands = $this->option('thousands_separator', __("Currency::thousands_separator:=."));
 		return map($this->format, array(
 			'value_raw' => $value,
 			'value_decimal' => $intvalue = intval($value),

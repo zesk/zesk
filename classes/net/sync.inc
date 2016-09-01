@@ -1,6 +1,8 @@
 <?php
+use zesk\file as file;
+use zesk\Timestamp as Timestamp;
 class Net_Sync extends Options {
-
+	
 	/**
 	 *
 	 * @var Net_FileSystem
@@ -11,12 +13,12 @@ class Net_Sync extends Options {
 	 * @var Net_FileSystem
 	 */
 	protected $dst;
-
+	
 	/*
 	 * Synchronization stats
 	 */
 	private $stats = array();
-
+	
 	/**
 	 * Sync a local file with a destination file, optionally checking checksums
 	 *
@@ -33,6 +35,9 @@ class Net_Sync extends Options {
 	 * @return boolean true if file has changed, false if not
 	 */
 	public static function url_to_file($url, $path, array $options = array()) {
+		if (!isset($options['timeout'])) {
+			$options['timeout'] = 2 * 60 * 1000;
+		}
 		$path = file::validate_writable($path);
 		$time_to_live = avalue($options, 'time_to_live', 86400); // Once a day
 		if (is_file($path) && $time_to_live > 0) {
@@ -55,27 +60,38 @@ class Net_Sync extends Options {
 			return false;
 		}
 	}
+	
+	/**
+	 * 
+	 * @param unknown $url
+	 * @param array $options
+	 * @return string[]|string[]
+	 */
 	private static function _fetch_url($url, array $options = array()) {
-		$milliseconds = avalue($options, 'timeout', zesk::geti('Net_Sync::http_timeout', 2 * 60000));
-		$user_agent = avalue($options, 'user_agent', zesk::get('Net_Sync::user_agent', 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10.7; rv:12.0) Gecko/20100101 Firefox/12.1'));
-
+		$milliseconds = to_integer(avalue($options, 'timeout'));
+		$user_agent = avalue($options, 'user_agent');
+		
 		$client = new Net_HTTP_Client($url);
-		$client->timeout($milliseconds);
+		if ($milliseconds) {
+			$client->timeout($milliseconds);
+		}
 		$temp_file_name = file::temporary();
 		$client->follow_location(true);
-		$client->user_agent($user_agent);
+		if ($user_agent) {
+			$client->user_agent($user_agent);
+		}
 		$client->destination($temp_file_name);
 		log::debug(__("Downloading {0} ... ", $url));
-
+		
 		$result = $client->go();
-
+		
 		$filename = $client->filename();
 		return array(
 			$temp_file_name,
 			$filename
 		);
 	}
-
+	
 	/**
 	 * Utility function to sync two URLs
 	 *
@@ -90,7 +106,7 @@ class Net_Sync extends Options {
 		$sync = new Net_Sync($src_client, $dst_client, $options);
 		return $sync->go();
 	}
-
+	
 	/**
 	 * Create sync object
 	 *
@@ -104,7 +120,7 @@ class Net_Sync extends Options {
 		$this->src = $source;
 		$this->dst = $destination;
 	}
-
+	
 	/**
 	 * Internal function to manage filter values properly.
 	 * If it's a boolean (include all, exclude all), store it.
@@ -136,7 +152,7 @@ class Net_Sync extends Options {
 		$this->option('dir_exclude', self::_set_filter($exclude, false));
 		return $this;
 	}
-
+	
 	/**
 	 * Given a filename, should it be included in this sync?
 	 *
@@ -163,7 +179,7 @@ class Net_Sync extends Options {
 		}
 		return true;
 	}
-
+	
 	/**
 	 * Allow this file to be synced?
 	 *
@@ -173,7 +189,7 @@ class Net_Sync extends Options {
 	private function _file_allow($filename) {
 		return self::_allow($filename, $this->file_include, $this->file_exclude);
 	}
-
+	
 	/**
 	 * Allow this directory to be synced?
 	 *
@@ -183,7 +199,7 @@ class Net_Sync extends Options {
 	private function _dir_allow($filename) {
 		return self::_allow($filename, $this->dir_include, $this->dir_exclude);
 	}
-
+	
 	/**
 	 * Should this file be synced based on entry values?
 	 *
@@ -217,7 +233,7 @@ class Net_Sync extends Options {
 		}
 		return true;
 	}
-
+	
 	/**
 	 * Synchronize two URLs, recursively.
 	 *
@@ -228,14 +244,14 @@ class Net_Sync extends Options {
 	function go() {
 		$src = $this->src;
 		$dst = $this->dst;
-
+		
 		$src_url = $src->url();
 		$src_root = dir::add_slash($src->url('path'));
 		$src_root_length = strlen($src_root);
-
+		
 		$dst_url = $dst->url();
 		$dst_root = dir::add_slash($dst->url('path'));
-
+		
 		if (!$src->cd($src_root)) {
 			throw new Exception_Directory_NotFound("Source \"$src_url\" directory \"$src_root\" not found");
 		}
@@ -264,16 +280,16 @@ class Net_Sync extends Options {
 				$stats['total']++;
 				$name = $src_entry['name'];
 				$type = $src_entry['type'];
-
+				
 				$full_src_path = path($src_path, $name);
 				$rel_path = substr($full_src_path, $src_root_length);
 				$full_dst_path = path($dst_root, $rel_path);
-
+				
 				log::debug("sync $full_src_path");
-
+				
 				$dst_entry = $dst->stat($full_dst_path);
 				$dst_type = avalue($dst_entry, 'type');
-
+				
 				if ($type === 'dir') {
 					$stats['dirs']++;
 					if ($dst_type === null) {
@@ -321,7 +337,7 @@ class Net_Sync extends Options {
 		$this->stats = $stats;
 		return $this->stats;
 	}
-
+	
 	/**
 	 * Retrieve the most recent synchronization stats
 	 *

@@ -1,5 +1,7 @@
 <?php
 
+use zesk\Timestamp as Timestamp;
+
 /* @var $this Template */
 $response = $this->response;
 /* @var $response Response_HTML */
@@ -57,7 +59,12 @@ if ($minDate) {
 if ($maxDate) {
 	$options['maxDate'] = $maxDate->format($zformat);
 }
-$options['locale'] = $this->get("locale", zesk\Locale::language());
+$locale = $this->get("locale", zesk\Locale::language());
+
+// https://github.com/Eonasdan/bootstrap-datetimepicker/issues/1718
+$js_language = "moment.localeData(\"$locale\") ? \"$locale\" : \"en\"";
+
+$options['*locale'] = $js_language;
 // $options['icons'] = array(
 //	'today' => 'glyphicon glyphicon-home'
 // );

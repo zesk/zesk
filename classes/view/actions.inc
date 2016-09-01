@@ -36,7 +36,7 @@ class View_Actions extends View {
 		if ($this->has_option($action . "_href")) {
 			return $object->apply_map($this->option($action . '_href'));
 		}
-		$hr = $this->request->get_route($action, $object, $this->option_array("route_options"));
+		$hr = $this->application->router()->get_route($action, $object, $this->option_array("route_options"));
 		if ($add_ref) {
 			$hr = url::query_format($hr, array(
 				'ref' => url::current_uri()

@@ -9,7 +9,7 @@
 class Test_Database_Column extends Test_Unit {
 
 	function test_main() {
-		$db = Database::factory();
+		$db = $this->application->database_factory();
 
 		$table = new Database_Table($db, __METHOD__);
 

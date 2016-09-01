@@ -2,4 +2,4 @@
 
 Module::register_paths();
 
-zesk::register_class('Module_BootstrapX_Clickover');
+zesk\Classes::register('Module_BootstrapX_Clickover');

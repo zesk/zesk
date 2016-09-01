@@ -5,7 +5,7 @@ class Database_Test extends Test_Unit {
 	// 		$table = "db_table_indexes_test";
 
 
-	// 		$db = Database::instance();
+	// 		$db = $this->application->database_factory();
 	// 		$this->test_table($table);
 
 
@@ -25,7 +25,7 @@ class Database_Test extends Test_Unit {
 	// 	}
 	function test_table_columns() {
 		$table = "db_table_indexes_test";
-		$db = Database::instance();
+		$db = $this->application->database_factory();
 
 		$this->test_table($table);
 
@@ -52,7 +52,7 @@ class Database_Test extends Test_Unit {
 	public static $test = null;
 
 	function test_query_object() {
-		$db = Database::instance();
+		$db = $this->application->database_factory();
 		$table_name = "query_object_test";
 		$this->test_table($table_name);
 
@@ -96,7 +96,7 @@ class Database_Test extends Test_Unit {
 		self::$test = null;
 	}
 	function test_query_array_index() {
-		$db = Database::instance();
+		$db = $this->application->database_factory();
 		$table = "query_array_index_test";
 
 		$this->test_table($table);
@@ -161,7 +161,7 @@ class Database_Test extends Test_Unit {
 		));
 	}
 	function test_query_array() {
-		$db = Database::instance();
+		$db = $this->application->database_factory();
 
 		$table = "query_array_test";
 
@@ -260,38 +260,38 @@ class Database_Test extends Test_Unit {
 		));
 	}
 	function test_configured() {
-		$db = Database::instance();
+		$db = $this->application->database_factory();
 		$db->configured();
 	}
 	function test_affected_rows() {
-		$db = Database::instance();
+		$db = $this->application->database_factory();
 
 		$db->affected_rows();
 		echo basename(__FILE__) . ": success\n";
 	}
 	function test_auto_table_names() {
-		$db = Database::instance();
+		$db = $this->application->database_factory();
 
 		$set = null;
 		$db->auto_table_names($set);
 		echo basename(__FILE__) . ": success\n";
 	}
 	function test_auto_table_names_options() {
-		$db = Database::instance();
+		$db = $this->application->database_factory();
 
 		$set = null;
 		$db->auto_table_names_options($set);
 		echo basename(__FILE__) . ": success\n";
 	}
 	function test_auto_table_names_replace() {
-		$db = Database::instance();
+		$db = $this->application->database_factory();
 
 		$sql = null;
 		$db->auto_table_names_replace($sql);
 		echo basename(__FILE__) . ": success\n";
 	}
 	function test_bytes_used() {
-		$db = Database::instance();
+		$db = $this->application->database_factory();
 
 		//echo DB_URL ."\n";
 		//$db->debug();
@@ -312,7 +312,7 @@ class Database_Test extends Test_Unit {
 		echo basename(__FILE__) . ": success\n";
 	}
 	function test_connect() {
-		$db = Database::instance();
+		$db = $this->application->database_factory();
 
 		$name = "";
 		$url = false;
@@ -320,13 +320,13 @@ class Database_Test extends Test_Unit {
 		echo basename(__FILE__) . ": success\n";
 	}
 	function test_reconnect() {
-		$db = Database::instance();
+		$db = $this->application->database_factory();
 		$db->reconnect();
 		echo basename(__FILE__) . ": success\n";
 	}
 
 	function test_query_one() {
-		$db = Database::instance();
+		$db = $this->application->database_factory();
 
 		$table = "select_map_test";
 
@@ -355,18 +355,18 @@ class Database_Test extends Test_Unit {
 	}
 
 	function test_dump() {
-		$db = Database::instance();
+		$db = $this->application->database_factory();
 
 		$db->dump(file::temporary(".dbdump"));
 	}
 	function test_fetch_array() {
-		$db = Database::instance();
+		$db = $this->application->database_factory();
 
 		$res = $db->query("SELECT 1 AS A,2 AS B,3 as C,4 AS D,5 as E,'string' AS F");
 		$db->fetch_array($res);
 	}
 	function test_get_lock() {
-		$db = Database::instance();
+		$db = $this->application->database_factory();
 
 		$name = null;
 		$wait_seconds = 0;
@@ -374,12 +374,12 @@ class Database_Test extends Test_Unit {
 	}
 
 	function test_hooks() {
-		$db = Database::instance();
+		$db = $this->application->database_factory();
 
 		$db->hooks();
 	}
 	function test_insert() {
-		$db = Database::instance();
+		$db = $this->application->database_factory();
 
 		$table_name = "insert_test";
 
@@ -419,14 +419,14 @@ class Database_Test extends Test_Unit {
 		echo basename(__FILE__) . ": success\n";
 	}
 	function test_insert_id() {
-		$db = Database::instance();
+		$db = $this->application->database_factory();
 
 		$db->insert_id();
 		echo basename(__FILE__) . ": success\n";
 	}
 
 	function test_query() {
-		$db = Database::instance();
+		$db = $this->application->database_factory();
 
 		$table_name = "query_test";
 
@@ -444,7 +444,7 @@ class Database_Test extends Test_Unit {
 		echo basename(__FILE__) . ": success\n";
 	}
 	function test_query_integer() {
-		$db = Database::instance();
+		$db = $this->application->database_factory();
 
 		$sql = "SELECT 23 * 54 AS X";
 		$field = "X";
@@ -455,7 +455,7 @@ class Database_Test extends Test_Unit {
 		echo basename(__FILE__) . ": success\n";
 	}
 	function test_query_one1() {
-		$db = Database::instance();
+		$db = $this->application->database_factory();
 
 		$table_name = "query_object_test";
 
@@ -479,7 +479,7 @@ class Database_Test extends Test_Unit {
 		echo basename(__FILE__) . ": success\n";
 	}
 	function test_register() {
-		$db = Database::instance();
+		$db = $this->application->database_factory();
 
 		$name = null;
 		$url = null;
@@ -492,14 +492,14 @@ class Database_Test extends Test_Unit {
 	 * @always_fail
 	 */
 	function test_release_lock() {
-		$db = Database::instance();
+		$db = $this->application->database_factory();
 
 		$name = null;
 		$db->release_lock($name);
 		echo basename(__FILE__) . ": success\n";
 	}
 	function test_locks() {
-		$db = Database::instance();
+		$db = $this->application->database_factory();
 
 		$name = __FUNCTION__;
 		$this->assert($db->release_lock($name) === false);
@@ -514,7 +514,7 @@ class Database_Test extends Test_Unit {
 	}
 
 	function test_replace() {
-		$db = Database::instance();
+		$db = $this->application->database_factory();
 
 		$table_name = "replace_test";
 
@@ -555,7 +555,7 @@ class Database_Test extends Test_Unit {
 	}
 
 	function test_select_one_where() {
-		$db = Database::instance();
+		$db = $this->application->database_factory();
 
 		$where = null;
 		$order_by = false;
@@ -566,14 +566,14 @@ class Database_Test extends Test_Unit {
 		$db->select_one_where($table, $where, $order_by);
 	}
 	function test_table_exists() {
-		$db = Database::instance();
+		$db = $this->application->database_factory();
 
 		$table = null;
 		$db->table_exists($table);
 	}
 
 	function test_unstring() {
-		$db = Database::instance();
+		$db = $this->application->database_factory();
 
 		$sql = "UPDATE `Metric` SET
 	`Model` = '1',
@@ -625,7 +625,7 @@ class Database_Test extends Test_Unit {
 		$this->assert_equal(Database::restring(Database::unstring($sql, $state), $state), $sql);
 	}
 	function test_update() {
-		$db = Database::instance();
+		$db = $this->application->database_factory();
 
 		$table = "database_update_test";
 
@@ -713,7 +713,7 @@ class Database_Test extends Test_Unit {
 		}
 	}
 	function test_update1() {
-		$db = Database::instance();
+		$db = $this->application->database_factory();
 
 		$table = "database_update_test";
 
@@ -746,7 +746,7 @@ class Database_Test extends Test_Unit {
 		$this->assert($row['Foo'] == 100);
 	}
 	function test_update_id_test() {
-		$db = Database::instance();
+		$db = $this->application->database_factory();
 		$table = "db_update_id_test";
 
 		$this->test_table($table);
@@ -775,7 +775,7 @@ class Database_Test extends Test_Unit {
 		$this->assert($row['Foo'] == 100);
 	}
 	function test_url() {
-		$db = Database::instance();
+		$db = $this->application->database_factory();
 		$name = '';
 		$url = null;
 		$is_default = false;

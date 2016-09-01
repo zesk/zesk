@@ -7,11 +7,18 @@
  * @copyright Copyright &copy; 2008, Market Acumen, Inc.
  */
 class Session_PHP implements Session_Interface {
-
+	private static $started = false;
+	
+	/**
+	 * Ensure PHP session is started
+	 */
 	static private function need() {
-		if (zesk::get("session_start"))
+		global $zesk;
+		/* @var $zesk zesk\Kernel */
+		if (self::$started) {
 			return;
-		if (!zesk::$console) {
+		}
+		if (!$zesk->console) {
 			session_start();
 		} else {
 			global $_SESSION;
@@ -19,10 +26,20 @@ class Session_PHP implements Session_Interface {
 				$_SESSION = array();
 			}
 		}
-		zesk::set("session_start", true);
+		self::$started = true;
 	}
-
+	
+	/**
+	 *
+	 * @param string $create        	
+	 * @return Session_Interface|NULL|Session_PHP
+	 */
 	static public function instance($create = true) {
+		global $zesk;
+		if ($zesk->objects->session instanceof self) {
+			return $zesk->objects->session;
+		}
+		/* @var $zesk zesk\Kernel */
 		if (!$create) {
 			$name = ini_get('session.name');
 			if (!isset($_COOKIE[$name])) {
@@ -30,19 +47,25 @@ class Session_PHP implements Session_Interface {
 			}
 		}
 		self::need();
-		$x = zesk::get("Session_PHP");
-		if ($x instanceof Session_PHP) {
-			return $x;
-		}
-		$x = new Session_PHP();
-		zesk::set("Session_PHP", $x);
-		return $x;
+		return $zesk->objects->session = new Session_PHP();
 	}
-
+	
+	/**
+	 *
+	 * {@inheritdoc}
+	 *
+	 * @see Interface_Session::id()
+	 */
 	public function id() {
 		return session_id();
 	}
-
+	
+	/**
+	 *
+	 * {@inheritdoc}
+	 *
+	 * @see Interface_Settings::get()
+	 */
 	public function get($name = null, $default = null) {
 		self::need();
 		if ($name === null) {
@@ -50,64 +73,144 @@ class Session_PHP implements Session_Interface {
 		}
 		return avalue($_SESSION, $name, $default);
 	}
-
+	
+	/**
+	 *
+	 * {@inheritdoc}
+	 *
+	 * @see Interface_Settings::eget()
+	 */
 	public function eget($name, $default = null) {
 		return aevalue($_SESSION, $name, $default);
 	}
-
+	
+	/**
+	 *
+	 * {@inheritdoc}
+	 *
+	 * @see Interface_Settings::__get()
+	 */
 	public function __get($name) {
 		self::need();
 		return avalue($_SESSION, $name);
 	}
-
+	
+	/**
+	 *
+	 * {@inheritdoc}
+	 *
+	 * @see Interface_Settings::__set()
+	 */
 	public function __set($name, $value) {
 		self::need();
 		$_SESSION[$name] = $value;
 	}
-
+	
+	/**
+	 *
+	 * {@inheritdoc}
+	 *
+	 * @see Interface_Settings::set()
+	 */
 	public function set($name, $value = null) {
 		$this->__set($name, $value);
 	}
-
+	
+	/**
+	 *
+	 * {@inheritdoc}
+	 *
+	 * @see Interface_Settings::filter()
+	 */
 	public function filter($list = null) {
 		if ($list === null) {
 			return $_SESSION;
 		}
 		return arr::filter($_SESSION, $list);
 	}
-
+	
+	/**
+	 *
+	 * @return mixed|mixed[]|\zesk\Configuration
+	 */
 	private function global_session_user_id() {
-		return zesk::get("SESSION_USER_ID", "UserID");
+		global $zesk;
+		/* @var $zesk zesk\Kernel */
+		return $zesk->configuration->pave("session")->get("user_id_variable", "user");
 	}
-
+	
+	/**
+	 *
+	 * {@inheritdoc}
+	 *
+	 * @see Interface_Session::user_id()
+	 */
 	public function user_id() {
 		return $this->__get(self::global_session_user_id());
 	}
-
+	
+	/**
+	 *
+	 * {@inheritdoc}
+	 *
+	 * @see Interface_Session::user()
+	 */
 	public function user() {
 		return Object::factory("User")->fetch($this->user_id());
 	}
-
+	
+	/**
+	 *
+	 * {@inheritdoc}
+	 *
+	 * @see Interface_Session::authenticate()
+	 */
 	public function authenticate($id, $ip = false) {
 		$this->__set(self::global_session_user_id(), Object::mixed_to_id($id));
 		$this->__set(self::global_session_user_id() . "_IP", $ip);
 	}
-
+	
+	/**
+	 *
+	 * {@inheritdoc}
+	 *
+	 * @see Interface_Session::authenticated()
+	 */
 	public function authenticated() {
 		$user = $this->__get(self::global_session_user_id());
 		return !empty($user);
 	}
-
+	
+	/**
+	 *
+	 * {@inheritdoc}
+	 *
+	 * @see Interface_Session::deauthenticate()
+	 */
 	public function deauthenticate() {
 		$this->__set(self::global_session_user_id(), null);
 	}
-
+	
+	/**
+	 *
+	 * {@inheritdoc}
+	 *
+	 * @see Interface_Settings::variables()
+	 */
 	public function variables() {
 		return $_SESSION;
 	}
-
+	
+	/**
+	 *
+	 * {@inheritdoc}
+	 *
+	 * @see Interface_Session::delete()
+	 */
 	public function delete() {
-		if (!zesk::$console) {
+		global $zesk;
+		/* @var $zesk zesk\Kernel */
+		if (!$zesk->console) {
 			session_destroy();
 		}
 	}

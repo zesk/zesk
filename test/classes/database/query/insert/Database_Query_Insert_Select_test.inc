@@ -10,7 +10,7 @@
 class Database_Query_Insert_Select_Test extends Test_Unit {
 
 	function test_main() {
-		$db = Database::factory();
+		$db = $this->application->database_factory();
 		$testx = new Database_Query_Insert_Select($db);
 
 		$db = null;

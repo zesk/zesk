@@ -5,8 +5,8 @@
  *
  */
 class Route_Template extends Route {
-	protected function initialize() {
-		parent::initialize();
+	protected function initialize(Application $application) {
+		parent::initialize($application);
 		$template = $this->option("template");
 		if (!Template::would_exist($template)) {
 			throw new Exception_File_NotFound("No template $template found in " . implode(", ", zesk::theme_path()));

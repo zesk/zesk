@@ -22,12 +22,18 @@ class Test_Unit extends Options {
 		'skip' => 0,
 		'assert' => 0
 	);
+	
+	/**
+	 * 
+	 * @var Application $application
+	 */
+	protected $application = null;
 	private $test = null;
 	private $test_args = null;
 	private $test_result = true;
 	protected $last_test_output = null;
 	private $cache_dir = null;
-
+	
 	/**
 	 * Constructs a new Test_Unit object
 	 *
@@ -35,10 +41,11 @@ class Test_Unit extends Options {
 	 */
 	function __construct($options = null) {
 		parent::__construct($options);
+		$this->application = app(); // TODO
 		self::init();
 		$this->inherit_global_options();
 	}
-
+	
 	/**
 	 * Make sure we're initialized with basic error reporting
 	 */
@@ -52,21 +59,21 @@ class Test_Unit extends Options {
 			ini_set("error_prepend_string", "PHP-ERROR: ");
 		}
 	}
-
+	
 	/**
 	 * Make sure we have a test db? Is this used?
 	 *
 	 * @deprecated 2014-03-21
 	 */
 	public static function init_db() {
-		$db = Database::instance();
+		$db = app()->database_factory();
 		$db->query(array(
 			"CREATE DATABASE IF NOT EXISTS zesk_test",
 			"GRANT ALL PRIVILEGES ON zesk_test.* TO test@localhost IDENTIFIED BY 'localpass'",
 			"FLUSH PRIVILEGES"
 		));
 	}
-
+	
 	/**
 	 * Parse DocComment for a test
 	 *
@@ -76,7 +83,7 @@ class Test_Unit extends Options {
 	private function parse_doccomment($comment) {
 		return doccomment::parse($comment);
 	}
-
+	
 	/**
 	 * Begin a test
 	 *
@@ -98,7 +105,7 @@ class Test_Unit extends Options {
 			ob_start();
 		}
 	}
-
+	
 	/**
 	 * Finish a test
 	 *
@@ -146,7 +153,7 @@ class Test_Unit extends Options {
 			$this->last_test_output = null;
 		}
 	}
-
+	
 	/**
 	 * Reorder tests based on @depends
 	 *
@@ -157,19 +164,19 @@ class Test_Unit extends Options {
 	private static function reorder_tests(array $tests) {
 		return $tests;
 	}
-
+	
 	/**
 	 * Internal override method to set up a suite of tests
 	 */
 	protected function initialize() {
 	}
-
+	
 	/**
 	 * Internal override method to cleanup after suite of tests is completed
 	 */
 	protected function cleanup() {
 	}
-
+	
 	/**
 	 * Log a message
 	 *
@@ -188,7 +195,7 @@ class Test_Unit extends Options {
 		log::error($message, $arguments);
 		flush();
 	}
-
+	
 	/**
 	 * Check if a test should actually run, given its doccomment settings
 	 *
@@ -214,7 +221,7 @@ class Test_Unit extends Options {
 		}
 		return true;
 	}
-
+	
 	/**
 	 * Given a class, determine the methods which are eligible test methods
 	 *
@@ -249,7 +256,7 @@ class Test_Unit extends Options {
 			return array();
 		}
 	}
-
+	
 	/**
 	 * Main loop
 	 */
@@ -353,7 +360,7 @@ class Test_Unit extends Options {
 				$descriptor = "main";
 			}
 			$method = "$class$type$function";
-
+			
 			$left = $descriptor;
 			$right = $method;
 			$left = $method;
@@ -398,7 +405,20 @@ class Test_Unit extends Options {
 			$this->fail("Test failed $condition ($message)");
 		}
 	}
-	final public function assert_module($modules) {
+	
+	/**
+	 * 
+	 * @param string $module
+	 * @return Module
+	 */
+	final public function load_module($module) {
+		$app_module = $this->application->module;
+		$app_module->load($module);
+		$this->assert_true($app_module->loaded($module), "Module $module is not found");
+		return $app_module->object($module);
+	}
+	
+	final public function assert_modules($modules) {
 		$modules = to_list($modules);
 		foreach ($modules as $module) {
 			$this->assert_true(module::loaded($module), "Module $module is not found");
@@ -409,6 +429,21 @@ class Test_Unit extends Options {
 	}
 	final public function assert_true($condition, $message = null) {
 		$this->assert($condition, $message, false);
+	}
+	final public function assert_is_string($mixed, $message = null) {
+		$this->assert(is_string($mixed), "!is_string(" . type($mixed) . " $mixed) $message", false);
+	}
+	final public function assert_is_numeric($mixed, $message = null) {
+		$this->assert(is_numeric($mixed), "!is_numeric(" . type($mixed) . " $mixed) $message", false);
+	}
+	final public function assert_is_integer($mixed, $message = null) {
+		$this->assert(is_integer($mixed), "!is_integer(" . type($mixed) . " $mixed) $message", false);
+	}
+	final public function assert_is_array($mixed, $message = null) {
+		$this->assert(is_array($mixed), "!is_array(" . type($mixed) . " $mixed) $message", false);
+	}
+	final public function assert_instanceof($mixed, $instanceof, $message = null) {
+		$this->assert($mixed instanceof $instanceof, "!(" . type($mixed) . " $mixed) instanceof $instanceof $message", false);
 	}
 	final public function assert_positive($value, $message = null) {
 		$this->assert($value > 0, "$value > 0 : $message", false);
@@ -480,7 +515,7 @@ class Test_Unit extends Options {
 	}
 	public final function assert_equal_object($actual, $expected, $message = "") {
 		$this->assert(get_class($actual) === get_class($expected), $message . "get_class(" . get_class($actual) . ") === get_class(" . get_class($expected) . ")");
-
+		
 		$this->assert($actual == $expected, $message . "\n" . _dump($actual) . " !== " . _dump($expected));
 	}
 	final protected function assert_equal_array($actual, $expected, $message = "", $strict = true, $order_matters = false) {
@@ -536,7 +571,7 @@ class Test_Unit extends Options {
 			}
 		}
 	}
-
+	
 	/**
 	 * Create a sandbox folder to test with
 	 *
@@ -572,7 +607,7 @@ class Test_Unit extends Options {
 			dir::delete($cache_dir);
 		}
 	}
-
+	
 	/**
 	 * @not_test
 	 *
@@ -595,7 +630,7 @@ class Test_Unit extends Options {
 		$create_sql = "CREATE TABLE `$name` ( $cols )";
 		$this->test_table_sql($name, $create_sql);
 	}
-
+	
 	/**
 	 * @not_test
 	 *
@@ -607,7 +642,7 @@ class Test_Unit extends Options {
 		$this->test_table_sql($object->table(), $object->schema());
 		$object->schema_changed();
 	}
-
+	
 	/**
 	 * @not_test
 	 *
@@ -616,7 +651,7 @@ class Test_Unit extends Options {
 	 * @param unknown_type $uniq
 	 */
 	final public function test_table_sql($name, $create_sql) {
-		$db = Database::instance();
+		$db = app()->database_factory();
 		$db->query("DROP TABLE IF EXISTS `$name`");
 		$db->query($create_sql);
 		if (!$this->option_bool("debug_keep_tables")) {
@@ -627,7 +662,7 @@ class Test_Unit extends Options {
 		}
 	}
 	final protected function test_table_match($table, $match, $dbname = "") {
-		$db = Database::instance();
+		$db = app()->database_factory();
 		$headers = null;
 		$header_row = null;
 		$dbrows = array();
@@ -666,7 +701,7 @@ class Test_Unit extends Options {
 		include $include;
 		return class_exists($class, false);
 	}
-
+	
 	/**
 	 * Run a unit test usually externally.
 	 * This is called using
@@ -690,7 +725,7 @@ class Test_Unit extends Options {
 		$object->inherit_global_options();
 		return $object->run();
 	}
-
+	
 	/**
 	 * Run a unit test usually externally.
 	 * This is called using
@@ -716,7 +751,6 @@ class Test_Unit extends Options {
 		}
 		exit(self::run_one_class($class, $settings, $object) ? 0 : 1);
 	}
-
 	public function expose_method($class, $methods) {
 		if (is_object($class)) {
 			$class = get_class($class);
@@ -727,7 +761,7 @@ class Test_Unit extends Options {
 		foreach ($methods as $method) {
 			$cmethod = $refl->getMethod($method);
 			$cmethod->setAccessible(true);
-			$results[$method] = function ($object) use($cmethod) {
+			$results[$method] = function ($object) use ($cmethod) {
 				$args = func_get_args();
 				array_shift($args);
 				return $cmethod->invokeArgs($object, $args);
@@ -735,7 +769,6 @@ class Test_Unit extends Options {
 		}
 		return $results;
 	}
-
 	public function schema_synchronize($classes) {
 		$app = Application::instance();
 		foreach (to_list($classes) as $class) {
@@ -746,7 +779,7 @@ class Test_Unit extends Options {
 			)));
 		}
 	}
-
+	
 	/**
 	 *
 	 * @return array

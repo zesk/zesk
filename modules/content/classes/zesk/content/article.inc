@@ -14,7 +14,11 @@
  * @author kent
  */
 class Zesk_Content_Article extends Object {
-
+	
+	/**
+	 * 
+	 * @return string[][]|number[][]
+	 */
 	function configuration_options() {
 		return array(
 			"summary_maximum_length" => array(
@@ -29,7 +33,12 @@ class Zesk_Content_Article extends Object {
 			)
 		);
 	}
-
+	
+	/**
+	 * 
+	 * {@inheritDoc}
+	 * @see Object::store()
+	 */
 	function store() {
 		if (empty($this->parent)) {
 			$this->parent = null;
@@ -39,48 +48,27 @@ class Zesk_Content_Article extends Object {
 		}
 		return parent::store();
 	}
-
+	
+	/**
+	 * 
+	 * @param string $force
+	 * @param string $clear
+	 * @throws Exception_Unimplemented
+	 * @return boolean
+	 */
 	public function reindex($force = false, $clear = true) {
-		if (!zesk::getb("Article::search_active")) {
+		if (!$this->option_bool("search_active")) {
 			return true;
 		}
-
-		//		require_once ZESK_ROOT . "code/modules/search/CSearchScope.inc";
-		//		require_once ZESK_ROOT . "code/modules/search/CSearchIndex.inc";
-		//
-		//		if(!$this->AutoKeywords && !$force) {
-		//			return true;
-		//		}
-		//		if($clear) {
-		//			CSearchIndex::removeContent($this);
-		//		}
-		//		$content[] = "<html><head>";
-		//		if(!$this->member_is_empty("Keywords")) {
-		//			$content[] = '<meta name="keywords" content="' . htmlspecialchars($this->Keywords) . '" />';
-		//		}
-		//		if(!$this->member_is_empty("Summary")) {
-		//			$content[] = '<meta name="description" content="' . CString::stripHTML($this->Summary) . '" />';
-		//		}
-		//		$content[] = "<title>".$this->title()."</title>";
-		//		$content[] = "</head><body>";
-		//		$content[] = $this->Body;
-		//		$content[] = "</body><html>";
-		//		$content = remove_vars_recurse(implode("\n",$content), "[^}]+");
-		//
-		//		$scope = CSearchScope::registerModelType($this->modelType());
-		//		$result = CSearchIndex::registerContent($scope, $this, $this->Language, $content);
-		//		if(!is_error($result, true)) {
-		//			$this->AutoKeywords = true;
-		//			parent::store();
-		//		}
-		//		return $result;
-		return true;
+		throw new Exception_Unimplemented(__METHOD__);
 	}
-
-	/*====================================================================================*\
-	* Article Parsing
-	\*------------------------------------------------------------------------------------*/
-	private static function extractMeta(&$contents) {
+	
+	/**
+	 * 
+	 * @param unknown $contents
+	 * @return array
+	 */
+	private static function extract_meta(&$contents) {
 		$tags = html::extract_tags("meta", $contents);
 		$meta = array();
 		$fields = array();
@@ -99,7 +87,7 @@ class Zesk_Content_Article extends Object {
 		if ($temp) {
 			$fields["Language"] = $temp;
 		} else {
-			$fields["Language"] = null; //$locale->languageObject();
+			$fields["Language"] = null; 
 		}
 		if (count($meta) == 0)
 			return $fields;
@@ -114,8 +102,7 @@ class Zesk_Content_Article extends Object {
 		$fields["Summary"] = $description;
 		return $fields;
 	}
-
-	private static function extractTitle(&$contents, $default = null) {
+	private static function extract_title(&$contents, $default = null) {
 		$title = html::extract_tag_contents("title", $contents);
 		if ($title) {
 			$contents = html::remove_tags("title", $contents);
@@ -129,10 +116,9 @@ class Zesk_Content_Article extends Object {
 		}
 		return $title;
 	}
-
-	public function registerContent($name, $contents, $parent, $update = false) {
-		$title = self::extractTitle($contents, $name);
-		$fields = self::extractMeta($contents);
+	public function register_content($name, $contents, $parent, $update = false) {
+		$title = self::extract_title($contents, $name);
+		$fields = self::extract_meta($contents);
 		$body = html::extract_tag_contents("body", $contents);
 		if (!$body) {
 			$body = $contents;
@@ -147,22 +133,15 @@ class Zesk_Content_Article extends Object {
 		$this->initialize($fields);
 		return $this->register();
 	}
-
-	public function metaKeywords() {
-		//		if(CSystem::hasFeature("Module","Search"))
-		//		{
-		//			if($this->member_is_empty("Keywords")) {
-		//				require_once ZESK_ROOT . "code/modules/search/CSearchIndex.inc";
-		//				$locale = CLocale::master();
-		//				$keys = CSearchIndex::contentKeywords($locale->languageObject(), $this);
-		//				if(!is_array($keys))
-		//				return '';
-		//				return implode(", ", $keys);
-		//			}
-		//		}
+	public function meta_keywords() {
 		return $this->Keywords;
 	}
-
+	
+	/**
+	 * 
+	 * @param string $where
+	 * @return string
+	 */
 	static function where_publish_start_end($where = false) {
 		$where['*PublishStart|<='] = array(
 			null,
@@ -173,26 +152,39 @@ class Zesk_Content_Article extends Object {
 			"NOW()"
 		);
 		$where['IsActive'] = 'true';
-
+		
 		return $where;
 	}
-
+	
+	/**
+	 * 
+	 * @param string $where
+	 * @return string
+	 */
 	static function where_publish_start_end_NOT($where = false) {
 		$where['*PublishEnd|<'] = "NOW()";
-
+		
 		return $where;
 	}
-
+	
+	/**
+	 * 
+	 * @param unknown $spec
+	 */
 	static function factory_control_publish_start_end(&$spec) {
 		$f = widgets::control_date("PublishStart", "Begin publishing on", false);
 		$f->set_option("EmptyString", "Immediate");
 		$spec[$f->column()] = $f;
-
+		
 		$f = widgets::control_date("PublishEnd", "End publishing on", false);
 		$f->set_option("EmptyString", "Forever");
 		$spec[$f->column()] = $f;
 	}
-
+	
+	/**
+	 * 
+	 * @return string|void|mixed|string
+	 */
 	function displayDate() {
 		$dd = $this->DisplayDate;
 		if (empty($dd))
@@ -202,15 +194,26 @@ class Zesk_Content_Article extends Object {
 			'zero_string' => 'Today'
 		));
 	}
-
+	
+	/**
+	 * 
+	 * @return string
+	 */
 	function homeTitle() {
 		return $this->membere("Headline", $this->Title);
 	}
-
+	
+	/**
+	 * 
+	 */
 	function body() {
 		return $this->Body;
 	}
-
+	
+	/**
+	 * 
+	 * @return unknown|string
+	 */
 	function summary() {
 		$result = $this->membere("Summary", "");
 		if (!empty($result)) {
@@ -219,23 +222,68 @@ class Zesk_Content_Article extends Object {
 		$result = html::ellipsis($this->body(), $this->option_integer('summary_maximum_length_from_body', 200));
 		return $result;
 	}
-
+	
+	/**
+	 * 
+	 * @param number $image_index
+	 * @param string $options
+	 * @return string
+	 */
 	function articleImage($image_index = 0, $options = false) {
 		return $this->image($image_index, $options);
 	}
-
+	
+	/**
+	 * 
+	 * @param unknown $global_prefix
+	 * @param unknown $default_value
+	 * @return number
+	 */
+	private function _compute_image_width($global_prefix, $default_value) {
+		return $this->_compute_image_size("width", $global_prefix, $default_value);
+	}
+	
+	/**
+	 * 
+	 * @param unknown $global_prefix
+	 * @param unknown $default_value
+	 * @return number
+	 */
+	private function _compute_image_height($global_prefix, $default_value) {
+		return $this->_compute_image_size("height", $global_prefix, $default_value);
+	}
+	
+	/**
+	 * 
+	 * @param unknown $name
+	 * @param unknown $global_prefix
+	 * @param unknown $default_value
+	 * @return number
+	 */
+	private function _compute_image_size($name, $global_prefix, $default_value) {
+		global $zesk;
+		/* @var $zesk zesk\Kernel */
+		return $this->option_integer("image_${global_prefix}${name}_default", $zesk->configuration->path_get("Image::image_${global_prefix}${name}_default", $default_value));
+	}
+	
+	/**
+	 * 
+	 * @param number $image_index
+	 * @param string $options
+	 * @return string
+	 */
 	function image($image_index = 0, $options = false) {
 		$options['image_path'] = "/data/article";
-
+		
 		$member_prefix = (avalue($options, 'is_thumb')) ? "Thumb" : "";
 		$global_prefix = (avalue($options, 'is_thumb')) ? "thumb_" : "";
 		$default_value = (avalue($options, 'is_thumb')) ? 150 : 300;
-
+		
 		if (!array_key_exists('image_width', $options)) {
-			$options['image_width'] = $this->memberInteger("Photo${member_prefix}Width$image_index", zesk::geti("Article::image_${global_prefix}width_default", zesk::geti("Image::image_${global_prefix}width_default", $default_value)));
+			$options['image_width'] = $this->member_integer("Photo${member_prefix}Width$image_index", $this->_compute_image_width($global_prefix, $default_value));
 		}
 		if (!array_key_exists('image_height', $options)) {
-			$options['image_height'] = $this->memberInteger("Photo${member_prefix}Height$image_index", zesk::geti("Article::image_${global_prefix}height_default", zesk::geti("Image::image_${global_prefix}height_default", $default_value)));
+			$options['image_height'] = $this->member_integer("Photo${member_prefix}Height$image_index", $this->_compute_image_height($global_prefix, $default_value));
 		}
 		if (!array_key_exists('show_label', $options)) {
 			$options['show_label'] = true;
@@ -243,9 +291,9 @@ class Zesk_Content_Article extends Object {
 		$options['image_field'] = "Photo$image_index";
 		$options['image_caption_field'] = "PhotoCaption$image_index";
 		$options['is_relative'] = false;
-		$options['root_directory'] = zesk::web_root();
-
-		return $this->output('image/image-caption.tpl', $options);
+		$options['root_directory'] = $this->application->document_root();
+		
+		return $this->theme('image/image-caption', $options);
 	}
 }
 

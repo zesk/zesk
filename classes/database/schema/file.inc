@@ -45,14 +45,14 @@ class Database_Schema_File extends Database_Schema {
 	 * Create a schema file object for a given Class_Object, optionally specifying a string SQL
 	 * schema.
 	 *
-	 * @param Class_Object $object
-	 * @param string $sql
+	 * @param Class_Object $object        	
+	 * @param string $sql        	
 	 */
 	function __construct(Class_Object $class_object, Object $object = null, $sql = null) {
 		parent::__construct($class_object, $object);
 		if ($sql !== null) {
 			$this->sql = $sql;
-			$this->parser = Database_Parser::parse_factory($class_object->database(), $this->sql);
+			$this->parser = Database_Parser::parse_factory($this->database(), $this->sql, zesk::calling_function());
 			log::debug("Parsing SQL {sql} using {parse_class} for class {class}", array(
 				"sql" => $sql,
 				"parse_class" => get_class($this->parser),
@@ -63,7 +63,7 @@ class Database_Schema_File extends Database_Schema {
 			if ($path) {
 				$this->sql_file_path = $path;
 				$this->sql = file_get_contents($path);
-				$this->parser = Database_Parser::parse_factory($class_object->database(), $this->sql);
+				$this->parser = Database_Parser::parse_factory($this->database(), $this->sql, $path);
 				log::debug("Parsing {path} using {parse_class} for class {class}", array(
 					"path" => $path,
 					"parse_class" => get_class($this->parser),
@@ -106,7 +106,7 @@ class Database_Schema_File extends Database_Schema {
 	 */
 	protected function schema_path() {
 		$result = $this->_schema_path();
-		if (zesk::getb('Database_Schema_File::debug')) {
+		if ($this->option_bool('debug')) {
 			log::debug("{class_object} found file {result}", array(
 				"class_object" => get_class($this->class_object),
 				"result" => $result
@@ -121,17 +121,18 @@ class Database_Schema_File extends Database_Schema {
 	 * @return string Path to schema file
 	 */
 	private function _schema_path() {
-		$class_object = $this->class_object;
+		global $zesk;
 		
-		foreach (zesk::class_hierarchy($class_object, "Class_Object") as $class_name) {
-			$schema_path = zesk::autoload_search($class_name, array(
+		$class_object = $this->class_object;
+		foreach ($zesk->classes->hierarchy($class_object, "Class_Object") as $class_name) {
+			$schema_path = $zesk->autoloader->search($class_name, array(
 				'sql'
 			));
 			if ($schema_path) {
 				return $schema_path;
 			}
 		}
-		$schema_path = zesk::autoload_search($class_object->class, array(
+		$schema_path = $zesk->autoloader->search($class_object->class, array(
 			'sql'
 		));
 		if ($schema_path) {
@@ -164,23 +165,46 @@ class Database_Schema_File extends Database_Schema {
 	}
 	
 	/**
+	 * 
+	 * @var array
+	 */
+	private static $schema_paths = null;
+	/**
+	 * 
+	 * @param zesk\Kernel $zesk
+	 */
+	public static function hooks(zesk\Kernel $zesk) {
+		$zesk->hooks->add("configured", __CLASS__ . '::configured');
+	}
+	
+	/**
+	 * 
+	 * @param zesk\Application $application
+	 */
+	public static function configured(zesk\Application $application) {
+		global $zesk;
+		/* @var $zesk zesk\Kernel */
+		self::$schema_paths = to_list($zesk->configuration->path_get("Object::schema_path", array(
+			$zesk->paths->application('sql/schema'),
+			$zesk->paths->zesk('sql/schema')
+		)));
+	}
+	/**
 	 * Retrieve a list of paths where schema files are stored
 	 *
-	 * @param string $add Optionally add a path
-	 *
+	 * @param string $add
+	 *        	Optionally add a path
+	 *        	
 	 * @return array
 	 */
 	public static function template_schema_paths($add = null) {
-		$default_schema_paths = array(
-			zesk::application_root('sql/schema'),
-			zesk::root('sql/schema')
-		);
-		$result = zesk::get('Object::schema_path', $default_schema_paths);
-		if ($add !== null) {
-			$result[] = $add;
-			zesk::set('Object::schema_path', $result);
+		if (self::$schema_paths === null) {
+			throw new Exception_Semantics("Accessed \$schema_paths before configured - probably should fix this");
 		}
-		return $result;
+		if ($add !== null) {
+			self::$schema_paths[] = $add;
+		}
+		return self::$schema_paths;
 	}
 	
 	/**

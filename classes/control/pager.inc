@@ -8,15 +8,48 @@
  * Created on Tue Jul 15 16:27:00 EDT 2008
  */
 class Control_Pager extends Control {
+	/**
+	 * 
+	 * @param zesk\Kernel $zesk
+	 */
+	public static function hooks(zesk\Kernel $zesk) {
+		$zesk->configuration->deprecated(array(
+			__CLASS__,
+			"pager_limit"
+		), array(
+			__CLASS__,
+			"limit"
+		));
+		$zesk->configuration->deprecated("pager_limit", array(
+			__CLASS__,
+			"limit"
+		));
+	}
+	
+	/**
+	 * 
+	 * @var boolean
+	 */
 	protected $traverse = true;
 	
 	/*
 	 * @var Control_Select
 	 */
 	protected $limit_widget = null;
+	
+	/**
+	 * 
+	 * @var array
+	 */
 	protected $options = array(
 		'column' => 'pager'
 	);
+	
+	/**
+	 * 
+	 * {@inheritDoc}
+	 * @see Widget::model()
+	 */
 	function model() {
 		return new Model_List();
 	}
@@ -34,7 +67,7 @@ class Control_Pager extends Control {
 		return $this;
 	}
 	function limit_default() {
-		return $this->first_option("limit;pager_limit", zesk::get("pager_limit", 25));
+		return $this->option_integer("limit");
 	}
 	private function _limit_widget() {
 		$pager_limit_list = $this->pager_limit_list();

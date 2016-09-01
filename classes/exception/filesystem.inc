@@ -6,7 +6,7 @@
  * @author kent
  * @copyright Copyright &copy; 2010, Market Acumen, Inc.
  */
-class Exception_FileSystem extends Zesk_Exception {
+class Exception_FileSystem extends zesk\Exception {
 
 	protected $filename;
 

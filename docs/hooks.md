@@ -16,8 +16,8 @@ So, there are basically two places to register and call hooks, in zesk:
 
 ## Call a hook
 
-    zesk::hook($hook, ...);
-	zesk::hook_array($hook, array $arguments, $default=null);
+    zesk\Hooks::call($hook, ...);
+	zesk\Hooks::call_arguments($hook, array $arguments, $default=null);
 	
 And in any object which inherits "Hookable" which ... is most of them:
 
@@ -73,7 +73,7 @@ Note as well that we can also TODO
 
 How do you get your hook called, you say? In one of three ways:
 
-- Call `zesk::add_hook($hook, $function, $argument_definition)` to register your hook in the global hook tables
+- Call `zesk\Hooks::add($hook, $function, $argument_definition)` to register your hook in the global hook tables
 - Create a method called "hook_$hook" inside of a hookable class or subclass.
 - Register your class with `zesk::all_hook($method)`
 

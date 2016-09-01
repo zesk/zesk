@@ -7,6 +7,6 @@
  * @copyright Copyright &copy; 2011, Market Acumen, Inc.
  */
 
-class Exception_NotFound extends Zesk_Exception {
+class Exception_NotFound extends zesk\Exception {
 	
 }

@@ -16,6 +16,11 @@
 abstract class Module extends Hookable {
 	/**
 	 *
+	 * @var zesk\Kernel
+	 */
+	protected $zesk = null;
+	/**
+	 *
 	 * @var Application
 	 */
 	protected $application = null;
@@ -54,7 +59,8 @@ abstract class Module extends Hookable {
 		return arr::include_exclude(array_keys(get_object_vars($this)), null, "application");
 	}
 	function __wakeup() {
-		$this->application = zesk::singleton($this->application_class);
+		$this->zesk = zesk();
+		$this->application = app();
 		$this->initialize();
 	}
 	
@@ -65,6 +71,7 @@ abstract class Module extends Hookable {
 	 */
 	public final function __construct(Application $application, $options = null, array $module_data = array()) {
 		parent::__construct($options);
+		$this->zesk = $application->zesk;
 		$this->application = $application;
 		$this->application_class = get_class($application);
 		$this->inherit_global_options();
@@ -183,17 +190,6 @@ abstract class Module extends Hookable {
 	}
 	
 	/**
-	 * Dynamically determine the module version
-	 *
-	 * @deprecated 2016-01-13
-	 * @param mixed $mixed
-	 *        	Array of modules.
-	 */
-	public final static function version($mixed = null) {
-		return Application::instance()->module->version($mixed);
-	}
-	
-	/**
 	 * Retrieve information about a loaded module
 	 *
 	 * @deprecated 2016-01-13
@@ -255,7 +251,8 @@ abstract class Module extends Hookable {
 		//zesk::deprecated(); TODO
 		$result = array();
 		foreach (to_list($modules) as $name) {
-			zesk::register_class("Module_" . self::clean_class($name));
+			$class = "Module_" . self::clean_class($name);
+			zesk()->autoloader->load($class, false);
 		}
 		return self::load($modules, array(
 			'internal' => true

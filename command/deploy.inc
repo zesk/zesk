@@ -52,7 +52,7 @@ class Command_Deploy extends Command_Base {
 		$this->update_source_code();
 		
 		$this->log("Updating the schema ...");
-		$db = Database::instance();
+		$db = $this->application->database_factory();
 		$results = $application->schema_synchronize($db);
 		$this->log($results);
 		$db->query($results);

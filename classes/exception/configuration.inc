@@ -1,5 +1,5 @@
 <?php
-class Exception_Configuration extends Zesk_Exception {
+class Exception_Configuration extends zesk\Exception {
 	public $name = "";
 
 	public function __construct($name, $message, array $arguments = array(), Exception $previous = null) {

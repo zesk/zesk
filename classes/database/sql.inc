@@ -18,8 +18,6 @@ abstract class Database_SQL extends Hookable {
 	/**
 	 * Return a SQL statement to alter a table by adding a column
 	 *
-	 * @todo MySQL probably, refactor.
-	 *
 	 * @param Database_Table $table
 	 *        	The table to alter
 	 * @param Database_Column $column
@@ -57,8 +55,6 @@ abstract class Database_SQL extends Hookable {
 	/**
 	 * Return a SQL statement to change a table's column to another type
 	 *
-	 * @todo MySQL probably, refactor.
-	 *
 	 * @param string $table
 	 *        	The table to alter
 	 * @param Database_Column $dbColOld
@@ -71,8 +67,6 @@ abstract class Database_SQL extends Hookable {
 	
 	/**
 	 * Return a SQL statement to remove a table's column
-	 *
-	 * @todo MySQL probably, refactor.
 	 *
 	 * @param string $table
 	 *        	The table to alter
@@ -569,7 +563,7 @@ abstract class Database_SQL extends Hookable {
 	 *
 	 * Pass 'table', 'values' and 'low_priority'
 	 *
-	 * Database extensions may exist (e.g. MySQL replace) and so use additional options to handle
+	 * Database extensions may exist (e.g. REPLACE INTO) and so use additional options to handle
 	 * those
 	 *
 	 * @param array $options
@@ -693,7 +687,6 @@ abstract class Database_SQL extends Hookable {
 	
 	/**
 	 * LIMIT clause.
-	 * For MySQL - others?
 	 *
 	 * @param number $offset
 	 * @param number $limit
@@ -777,5 +770,19 @@ abstract class Database_SQL extends Hookable {
 			}
 		}
 		return $v;
+	}
+	
+	/**
+	 * @return array
+	 */
+	public function to_database(Object $object, array $data, $insert = false) {
+		return $data;
+	}
+	
+	/**
+	 * @return array
+	 */
+	public function from_database(Object $object, array $data) {
+		return $data;
 	}
 }

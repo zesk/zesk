@@ -71,6 +71,28 @@ class Options implements ArrayAccess {
 			"options"
 		);
 	}
+	private static $option_references = array();
+	
+	/**
+	 * Loading references
+	 * 
+	 * @param unknown $class
+	 * @return mixed
+	 */
+	private static function _default_options($class) {
+		if (!isset(self::$option_references[$class])) {
+			global $zesk;
+			/* @var $zesk zesk\Kernel */
+			$references = array();
+			// Class hierarchy is given from child -> parent
+			foreach ($zesk->classes->hierarchy($class) as $subclass) {
+				// Child options override parent options
+				$references[$subclass] = $zesk->configuration->pave($subclass);
+			}
+			self::$option_references[$class] = $references;
+		}
+		return self::$option_references[$class];
+	}
 	
 	/**
 	 * Load default options for an object. Leaf-class options override parent options.
@@ -90,11 +112,12 @@ class Options implements ArrayAccess {
 		$class = strtolower($class);
 		$opts = array();
 		// Class hierarchy is given from child -> parent
-		foreach (zesk::class_hierarchy($class) as $subclass) {
+		$config = new zesk\Configuration();
+		foreach (self::_default_options($class) as $subclass => $configuration) {
 			// Child options override parent options
-			$opts = $opts + zesk::geta($subclass, array());
+			$config->merge($configuration, false);
 		}
-		return $opts;
+		return $config->to_array();
 	}
 	
 	/**

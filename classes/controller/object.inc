@@ -190,7 +190,7 @@ abstract class Controller_Object extends Controller_Template_Login {
 		$url = null;
 		$action = $this->first_option("$class::${option}_action;${option}_action", $default_action);
 		if ($action) {
-			$url = $this->request->get_route($action, $object);
+			$url = $this->application->router()->get_route($action, $object);
 		}
 		if (!$url) {
 			$url = $this->first_option("$class::${option}_url;${option}_url", $default_url);
@@ -254,7 +254,7 @@ abstract class Controller_Object extends Controller_Template_Login {
 			$result = false;
 		}
 		$message = $object->words(__($message));
-		$redirect_url = $this->_compute_url($object, $result ? "delete_next" : "delete_failed", "list", $this->request->get("ref"));
+		$redirect_url = $this->_compute_url($object, $result ? "delete_next" : "delete_failed", "/", $this->request->get("ref"));
 		$format = $this->request->get("format");
 		if ($format === "json" || $this->request->is_ajax()) {
 			$this->auto_render = false;
@@ -466,7 +466,8 @@ abstract class Controller_Object extends Controller_Template_Login {
 				"route_action" => $action
 			));
 		} catch (Exception_Class_NotFound $e) {
-			zesk::hook("exception", $e);
+			global $zesk;
+			$zesk->hooks->call("exception", $e);
 			if ($this->not_found_url) {
 				$this->response->redirect($this->not_found_url, $this->not_found_message);
 			} else {

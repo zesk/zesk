@@ -8,6 +8,13 @@
 abstract class Route extends Hookable {
 	
 	/**
+	 * The router
+	 *
+	 * @var Router
+	 */
+	public $router = null;
+	
+	/**
 	 * Original options before being mapped
 	 */
 	protected $original_options = array();
@@ -70,13 +77,6 @@ abstract class Route extends Hookable {
 	protected $by_class = array();
 	
 	/**
-	 * The router
-	 *
-	 * @var Router
-	 */
-	public $router = null;
-	
-	/**
 	 * Return list of members to save upon sleep
 	 *
 	 * @see Options::__sleep()
@@ -117,6 +117,15 @@ abstract class Route extends Hookable {
 	protected function initialize() {
 		// Generic initial, override in subclasses
 		// As a policy, always call parent::initialize();
+	}
+	
+	/**
+	 * Check that this route is valid. Throw exceptions if not.
+	 * 
+	 * @return self
+	 */
+	public function validate(Application $application) {
+		return $this;
 	}
 	
 	/**
@@ -292,7 +301,7 @@ abstract class Route extends Hookable {
 	 * @return array
 	 */
 	function arguments_indexed() {
-		return $this->args;
+		return $this->url_args;
 	}
 	
 	/**
@@ -382,7 +391,8 @@ abstract class Route extends Hookable {
 			}
 			if ($name !== null) {
 				if (is_object($object)) {
-					foreach (zesk::class_hierarchy($object, "Model") as $class) {
+					global $zesk;
+					foreach ($zesk->classes->hierarchy($object, "Model") as $class) {
 						$this->by_class[strtolower($class)][$name] = $object;
 					}
 				}
@@ -668,7 +678,8 @@ abstract class Route extends Hookable {
 		return $result;
 	}
 	protected function get_route_map($action, $object = null, $options = null) {
-		$classes = zesk::class_hierarchy($object, "Object");
+		global $zesk;
+		$classes = $zesk->classes->hierarchy($object, "Object");
 		$options = to_array($options, array());
 		$map = array(
 			"action" => $action

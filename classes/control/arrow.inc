@@ -24,7 +24,7 @@ class Control_Arrow extends Control {
 		$js = "javascript:Control_Arrow_toggle('$id','$url')";
 
 		$img_attrs = $this->option_array("img_attrs", array());
-		$img_url = $this->option('img_url', zesk::get('Control_Arrow::img_url', cdn::url("/share/zesk/images/toggle/small-{state}.gif")));
+		$img_url = $this->option('img_url', $this->option('img_url', cdn::url("/share/zesk/images/toggle/small-{state}.gif")));
 		$img_attrs['src'] = map($img_url, array(
 			'state' => ($is_open ? "down" : "right")
 		));

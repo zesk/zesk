@@ -1,14 +1,17 @@
 <?php
-
-/* @var $current_user User */
-$current_user = $this->current_user;
-/* @var $object Object */
-$object = $this->object;
-/* @var $request Request */
-$request = $this->request;
+if (false) {
+	/* @var $current_user User */
+	$current_user = $this->current_user;
+	/* @var $object Object */
+	$object = $this->object;
+	/* @var $request Request */
+	$request = $this->request;
+	/* @var $router Router */
+	$router = $this->router;
+}
 
 try {
-	$url = $this->request->get_route('edit', $this->list_class, array(
+	$url = $router->get_route('edit', $this->list_class, array(
 		"id" => $this->object
 	));
 } catch (Exception_Object_NotFound $e) {
@@ -39,7 +42,7 @@ echo html::div(array(
 	"class" => 'badge'
 ), $object->total));
 
-$url = $request->get_route('delete', $this->list_class, array(
+$url = $router->get_route('delete', $this->list_class, array(
 	"id" => $this->object->id
 ));
 echo html::div(array(

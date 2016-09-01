@@ -29,7 +29,8 @@ class Control_Objects extends Control_Text {
 			try {
 				$objects[$id] = $objects = $this->application->object_factory($this->class, $id)->fetch();
 			} catch (Exception $e) {
-				zesk::hook("exception", $e);
+				global $zesk;
+				$zesk->hooks->call("exception", $e);
 				return false;
 			}
 		}

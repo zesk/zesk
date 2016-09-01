@@ -6,6 +6,9 @@
  * @package zesk
  * @subpackage model
  */
+use zesk\file as file;
+use zesk\Timestamp as Timestamp;
+
 class Net_File_Client extends Net_Client implements Net_FileSystem {
 	/**
 	 * Are we "connected"? Simply for semantic integrity between clients.

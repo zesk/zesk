@@ -1,29 +1,27 @@
 <?php
-
 class Control_Picker extends Control {
-
+	
 	/**
 	 * Tag wrapped around all items
 	 *
 	 * @var string
 	 */
 	protected $list_tag = 'div';
-
 	protected $list_attributes = ".control-picker-state";
-
+	
 	/**
 	 * Tag wrapped around each item displayed
 	 *
 	 * @var string
 	 */
 	protected $item_tag = "li";
-
+	
 	/**
 	 * Attributes for tag around each item displayed
 	 * @var mixed
 	 */
 	protected $item_attributes = null;
-
+	
 	/**
 	 * Renders an item in our list
 	 *
@@ -32,11 +30,11 @@ class Control_Picker extends Control {
 	 * subclass_class_name/item
 	 * control/picker/item
 	 *
-
+	 
 	 * @var string
 	 */
 	protected $theme_item = null;
-
+	
 	/**
 	 * Renders the actual selection tool for items
 	 *
@@ -46,7 +44,7 @@ class Control_Picker extends Control {
 	 * @var string
 	 */
 	protected $theme_item_selector = null;
-
+	
 	/**
 	 * Renders the actual selection tool for items
 	 *
@@ -58,33 +56,30 @@ class Control_Picker extends Control {
 	 * @var string
 	 */
 	protected $theme_item_search = null;
-
 	protected $search_columns = array();
-
+	
 	/**
 	 * Added to the form for the selector
 	 *
 	 * @var array
 	 */
 	public $form_attributes = array();
-
+	
 	/**
 	 *
 	 * @var Class_Object
 	 */
 	protected $class_object = null;
-
+	
 	/**
 	 * Data which should be passed to controller calls by the widget
 	 *
 	 * @var array
 	 */
 	protected $data_search = array();
-
 	public function where(array $set = null) {
 		return $set ? $this->set_option('where', $set) : $this->option_array('where');
 	}
-
 	public function data_search(array $set = null, $add = false) {
 		if ($set !== null) {
 			$this->data_search = $add ? $this->data_search + $set : $set;
@@ -92,7 +87,6 @@ class Control_Picker extends Control {
 			return $this->data_search;
 		}
 	}
-
 	public function picker_options(array $set = null, $add = true) {
 		$options = to_array(avalue($this->theme_variables, 'picker_options', array()));
 		if ($set !== null) {
@@ -101,8 +95,8 @@ class Control_Picker extends Control {
 		}
 		return $options;
 	}
-
 	protected function initialize() {
+		global $zesk;
 		parent::initialize();
 		$this->class_object = Object::cache_class($this->class, 'class');
 		if (count($this->search_columns) === 0) {
@@ -113,14 +107,15 @@ class Control_Picker extends Control {
 		if (!$this->has_option('order_by') && $this->class_object->name_column) {
 			$this->set_option('order_by', "X." . $this->class_object->name_column);
 		}
+		$hierarchy = $zesk->classes->hierarchy($this, __CLASS__);
 		if ($this->theme_item_selector === null) {
-			$this->theme_item_selector = arr::suffix(zesk::class_hierarchy($this, __CLASS__), '/selector');
+			$this->theme_item_selector = arr::suffix($hierarchy, '/selector');
 		}
 		if ($this->theme_item === null) {
-			$this->theme_item = arr::suffix(zesk::class_hierarchy($this, __CLASS__), '/item');
+			$this->theme_item = arr::suffix($hierarchy, '/item');
 		}
 		if ($this->theme_item_search === null) {
-			$this->theme_item_search = arr::suffix(zesk::class_hierarchy($this, __CLASS__), '/search');
+			$this->theme_item_search = arr::suffix($hierarchy, '/search');
 		}
 	}
 	function inline_picker($set = null) {
@@ -133,7 +128,6 @@ class Control_Picker extends Control {
 		}
 		return $this->search_columns;
 	}
-
 	private function to_objects($value) {
 		$value = to_iterator($value);
 		if ($value instanceof Object_Iterator) {
@@ -148,7 +142,6 @@ class Control_Picker extends Control {
 		}
 		return $value;
 	}
-
 	public function selectable($set = null) {
 		return $set === null ? $this->option_bool('selectable', true) : $this->set_option('selectable', to_bool($set));
 	}
@@ -157,11 +150,9 @@ class Control_Picker extends Control {
 			$this->theme = $this->theme_item_selector;
 		}
 	}
-
 	public function single_item($set = null) {
 		return $set === null ? $this->option_bool('single_item', $set) : $this->set_option('single_item', to_bool($set));
 	}
-
 	protected function load() {
 		$object = $this->object;
 		$input_name = $object->apply_map($this->name());
@@ -177,7 +168,6 @@ class Control_Picker extends Control {
 			parent::load();
 		}
 	}
-
 	public function theme_variables() {
 		$class_object = Object::cache_class($this->class, 'class');
 		$name = lang::lower(__($class_object->name));
@@ -211,7 +201,6 @@ class Control_Picker extends Control {
 			'item_selector_empty'
 		)) + parent::theme_variables();
 	}
-
 	public function controller() {
 		$action = $this->request->get('action');
 		$variables = $this->theme_variables();
@@ -238,7 +227,6 @@ class Control_Picker extends Control {
 		}
 		return null;
 	}
-
 	function submit_results(array $variables, array $ids) {
 		$iter = $this->_query()->where("X." . $this->class_object->id_column, $ids)->object_iterator();
 		$content = "";
@@ -282,11 +270,9 @@ class Control_Picker extends Control {
 			"q" => $value
 		)));
 	}
-
 	private function _query() {
 		return Object::class_query($this->class)->what_object($this->class, "X")->limit(0, $this->option_integer('limit', 25))->order_by($this->option('order_by'));
 	}
-
 	private function search_results(array $variables, $q) {
 		$query = $this->_query();
 		$total = Object::class_query($this->class);

@@ -14,7 +14,7 @@
  * columns and functionality. Override Class_Server to add columns or modify defaults.
  *
  * @see Class_Server
- * @see Class_Zesk_Server
- * @see Zesk_Server
+ * @see zesk\Class_Server
+ * @see zesk\Server
  */
-class Server extends Zesk_Server {}
+class Server extends zesk\Server {}

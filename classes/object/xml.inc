@@ -9,7 +9,7 @@
 
 class Object_XML {
 	static function from_table_name($db_url, $table_name) {
-		$x = Database::factory($db_url);
+		$x = app()->database_factory($db_url);
 		$table = $x->databaseTable($table_name);
 		$xml = new XML_Writer();
 		self::from_database_table($xml, $table);

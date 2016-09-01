@@ -7,6 +7,14 @@
  * @copyright Copyright &copy; 2009, Market Acumen, Inc.
  * Created on Fri Feb 26 17:26:58 EST 2010 17:26:58
  */
+
+use zesk\Timestamp as Timestamp;
+
+/**
+ * 
+ * @author kent
+ *
+ */
 class XML_RPC_Parser extends SimpleXMLElement {
 	function parse() {
 		$match = false;

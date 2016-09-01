@@ -6,7 +6,7 @@
  * @author kent
  * @copyright Copyright &copy; 2008, Market Acumen, Inc.
  */
-
+use zesk\Timestamp as Timestamp;
 /**
  * Object provides base class functionality for lists, editing, and creating objects which are
  * generally stored in a database.
@@ -316,12 +316,7 @@ abstract class Object extends Model {
 	 * @see Model::variables()
 	 */
 	function variables() {
-		return $this->members() + array(
-			"Class_Object::name" => $class_name = __($this->class->name),
-			"Class_Object::names" => zesk\Locale::plural($class_name),
-			"Class_Object::name_column" => $this->class->name_column,
-			"Class_Object::id_column" => $this->class->id_column,
-			"Class_Object::class" => get_class($this->class),
+		return $this->members() + arr::kprefix($this->class->variables(), "Class_Object::") + array(
 			"Object::class" => get_class($this)
 		);
 	}
@@ -365,6 +360,7 @@ abstract class Object extends Model {
 	 * @return Object If class not found or instance method does not exist, null is returned.
 	 */
 	public static function class_instance($class) {
+		global $zesk;
 		if ($class instanceof Object) {
 			return $class;
 		}
@@ -373,13 +369,13 @@ abstract class Object extends Model {
 			$refl = new ReflectionClass($class);
 			array_shift($args);
 			return $refl->getMethod("instance")->invokeArgs(null, $args);
-		} catch (Zesk_Exception $e) {
-			zesk::hook("exception", $e);
+		} catch (zesk\Exception $e) {
+			$zesk->hooks->call("exception", $e);
 			log::error($e->raw_message, $e->arguments + array(
 				"zesk_exception" => $e
 			));
 		} catch (Exception $e) {
-			zesk::hook("exception", $e);
+			$zesk->hooks->call("exception", $e);
 			log::error($e->getMessage(), array(
 				"exception" => $e
 			));
@@ -475,6 +471,10 @@ abstract class Object extends Model {
 		$cache = Cache::register(implode("/", $name));
 		if ($this->class->cache_column_names) {
 			$cache->invalidate_changed($this, $this->class->cache_column_names);
+		} else {
+			log::debug("Class {class} does not have cache column names - must invalidate manually", array(
+				"class" => get_class($this)
+			));
 		}
 		return $cache;
 	}
@@ -682,6 +682,7 @@ abstract class Object extends Model {
 	 *
 	 * @param $class string        	
 	 * @return Database_Query_Select
+	 * @deprecated 2016-08
 	 */
 	public static function class_query($class, $alias = null) {
 		/* @var $object Object */
@@ -694,6 +695,7 @@ abstract class Object extends Model {
 	 *
 	 * @param $class string        	
 	 * @return Database_Query_Insert
+	 * @deprecated 2016-08
 	 */
 	public static function class_query_insert($class) {
 		/* @var $object Object */
@@ -706,6 +708,7 @@ abstract class Object extends Model {
 	 *
 	 * @param $class string        	
 	 * @return Database_Query_Insert_Select
+	 * @deprecated 2016-08
 	 */
 	public static function class_query_insert_select($class) {
 		/* @var $object Object */
@@ -718,6 +721,7 @@ abstract class Object extends Model {
 	 *
 	 * @param $class string        	
 	 * @return Database_Query_Update
+	 * @deprecated 2016-08
 	 */
 	public static function class_query_update($class, $alias = null) {
 		/* @var $object Object */
@@ -730,6 +734,7 @@ abstract class Object extends Model {
 	 *
 	 * @param $class string        	
 	 * @return Database_Query_Delete
+	 * @deprecated 2016-08
 	 */
 	public static function class_query_delete($class) {
 		/* @var $object Object */
@@ -1211,7 +1216,8 @@ abstract class Object extends Model {
 		if (!is_array($options)) {
 			$options = array();
 		}
-		$iterator = new Object_Iterator(get_class($this), $query, $this->inherit_options() + $options);
+		$class = aevalue($options, "iterator_class", "Object_Iterator");
+		$iterator = new $class(get_class($this), $query, $this->inherit_options() + $options);
 		return $iterator;
 	}
 	
@@ -1240,7 +1246,9 @@ abstract class Object extends Model {
 		/*
 		 * @var $object Object
 		 */
-		$iterator = $object->iterator($query, $this->inherit_options());
+		$iterator = $object->iterator($query, array(
+			"class" => avalue($has_many, "iterator_class")
+		) + $this->inherit_options());
 		if (!avalue($has_many, 'table')) {
 			$iterator->set_parent($this, $has_many['foreign_key']);
 		}
@@ -1258,6 +1266,20 @@ abstract class Object extends Model {
 	 */
 	public function member_query($member, &$object = null) {
 		return $this->class->member_query($this, $member, $object);
+	}
+	
+	/**
+	 * Create a query for an object's member
+	 *
+	 * @param $member string
+	 *        	Many member
+	 * @param $object Object
+	 *        	Object related to this member, optionally returned
+	 * @return Database_Query_Select
+	 * @todo Unimplemented
+	 */
+	public function member_query_update($member, &$object = null) {
+		return $this->class->member_query_update($this, $member, $object);
 	}
 	
 	/**
@@ -1398,7 +1420,8 @@ abstract class Object extends Model {
 			$object = $this->member_object_factory($member, $class, $data, $options + $this->inherit_options());
 		} catch (Exception_Object_NotFound $e) {
 			if ($this->option_bool("fix_member_objects")) {
-				zesk::hook("exception", $e);
+				global $zesk;
+				$zesk->hooks->call("exception", $e);
 				log::error("Fixing not found {member} {member_class} (#{data}) in {class} (#{id})", array(
 					"member" => $member,
 					"member_class" => $class,
@@ -1453,7 +1476,8 @@ abstract class Object extends Model {
 			if (array_key_exists($member, $this->members)) {
 				return $this->members[$member];
 			}
-			return $this->member_iterator($member);
+			$many = $this->class->has_many[$member];
+			return $this->member_iterator($member, avalue($many, 'iterator_where'));
 		}
 		if (array_key_exists($member, $this->class->has_one)) {
 			return $this->member_object($member, $this->inherit_options());
@@ -2296,11 +2320,12 @@ abstract class Object extends Model {
 			) + $this->options);
 			return $result;
 		} catch (Exception_Class_NotFound $e) {
+			global $zesk;
 			log::error("Polymorphic conversion failed to class {polymorphic_leaf} from class {class}", array(
 				"polymorphic_leaf" => $this->polymorphic_leaf,
 				"class" => get_class($this)
 			));
-			zesk::hook("exception", $e);
+			$zesk->hooks->call("exception", $e);
 			return $this;
 		}
 	}
@@ -2428,7 +2453,8 @@ abstract class Object extends Model {
 			$this->hook("stored");
 			return $this;
 		} catch (Exception $e) {
-			zesk::hook("exception", $e);
+			global $zesk;
+			$zesk->hooks->call("exception", $e);
 			$this->storing = false;
 			throw $e;
 		}
@@ -2655,123 +2681,6 @@ abstract class Object extends Model {
 		}
 		$this->hook('delete');
 		return true;
-	}
-	private static function _clean_theme_name($name) {
-		if (is_array($name)) {
-			foreach ($name as $k => $n) {
-				$name[$k] = self::_clean_theme_name($n);
-			}
-			return $name;
-		}
-		return strtr(strtolower($name), array(
-			"_" => "/",
-			"\\" => "/"
-		));
-	}
-	
-	/**
-	 * Given a theme name, return the full template file path
-	 *
-	 * Uses the class name and extrapolates within the theme search path, so:
-	 *
-	 * User_Role and $theme_name = "view" then searches for
-	 *
-	 * <code>
-	 * user/role/view.tpl
-	 * </code>
-	 *
-	 * In the theme path. If the theme_name begins with a slash or a period, no conversion is done.
-	 *
-	 * @param string $theme_name        	
-	 * @return string
-	 */
-	private function _theme_paths($theme_names) {
-		if ($theme_names === null) {
-			$theme_names = array(
-				$this->option("default_theme", "view")
-			);
-		} else if (is_string($theme_names)) {
-			if ($theme_names[0] === "/" || $theme_names[0] === ".") {
-				return array(
-					$theme_names
-				);
-			}
-			$theme_names = array(
-				$theme_names
-			);
-		} else if (!is_array($theme_names)) {
-			return array();
-		}
-		$result = array();
-		$hier = zesk::class_hierarchy(get_class($this), "Object");
-		foreach ($hier as $class) {
-			$result = array_merge($result, arr::prefix($theme_names, $class . "/"));
-		}
-		if ($this->has_option("theme_path_prefix")) {
-			$result_prefix = arr::prefix($result, $this->option("theme_path_prefix"));
-			$result = array_merge($result_prefix, $result);
-		}
-		return self::_clean_theme_name($result);
-	}
-	
-	/**
-	 * Generate variables for theme and create template
-	 *
-	 * @param unknown $theme_path        	
-	 * @param unknown $options        	
-	 * @return string
-	 * @todo remove deprecated values
-	 */
-	private function _theme(array $theme_path, array $variables = array()) {
-		$variables += array(
-			'Object' => $this, // Deprecated variable name 2015-01
-			'object' => $this,
-			strtolower(get_class($this)) => $this
-		);
-		$application = $this->application;
-		foreach ($theme_path as $try_theme) {
-			if ($application->theme_exists($try_theme)) {
-				return $application->theme($try_theme, $variables);
-			}
-		}
-		log::debug("{class}: No themes found:\n{theme_path}", array(
-			"theme_path" => implode(",\n", $theme_path),
-			"class" => get_class($this)
-		));
-		return null;
-	}
-	
-	/**
-	 * Temporarily deprecated until we can make this our renamed version of "render"
-	 *
-	 * @param string $theme_name        	
-	 * @param array $options
-	 *        	Variables to be passed to the template
-	 * @return Template
-	 */
-	function theme($theme_name = null, array $variables = array()) {
-		zesk::obsolete();
-	}
-	
-	/**
-	 *
-	 * @param unknown $theme_name        	
-	 * @param unknown $options        	
-	 * @param unknown $default        	
-	 */
-	function render($theme_name = null, $variables = null, $default = "") {
-		$variables = is_string($variables) ? array(
-			'content' => $variables
-		) : (array) $variables;
-		$variables += array(
-			'Object' => $this, // Deprecated variable name
-			'object' => $this,
-			strtolower(get_class($this)) => $this
-		);
-		return $this->application->theme($this->_theme_paths($theme_name), $variables, array(
-			"default" => $default,
-			"first" => true
-		));
 	}
 	
 	/**
@@ -3215,20 +3124,6 @@ abstract class Object extends Model {
 	function objectCache($cache_id = null) {
 		zesk::deprecated();
 		return $this->object_cache($cache_id);
-	}
-	
-	/**
-	 * Output a template for the theme related to this object
-	 *
-	 * @param unknown $theme_name        	
-	 * @param unknown $options        	
-	 * @param unknown $default        	
-	 * @deprecated use render
-	 * @see Object::render
-	 */
-	function output($theme_name = null, $options = null, $default = "") {
-		zesk::deprecated();
-		return $this->render($theme_name, $options, $default);
 	}
 	
 	/**

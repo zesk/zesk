@@ -14,6 +14,7 @@ use zesk\file as file;
  * Roles are defined in the system environment file /etc/environment.sh
  *
  * One server is defined as a master web server, another as the master database server
+ * @deprecated 2014-01
  */
 class cluster {
 	public static function resolver_domain() {
@@ -150,17 +151,17 @@ class cluster {
 			list($ip, $host_name) = explode(" ", $host_line);
 			$result[$ip] = $host_name;
 		}
-		$result = zesk::hook_array("cluster::hosts_alter", array($result), $result);
+		$result = zesk()->hooks->call_arguments("cluster::hosts_alter", array($result), $result);
 		return $result;
 	}
 	
 	public static function hosts_trusted() {
 		$trusted = self::hosts("TRUSTED");
-		return zesk::hook_array("cluster::hosts_trusted_alter", array($trusted), $trusted);
+		return zesk()->hooks->call_arguments("cluster::hosts_trusted_alter", array($trusted), $trusted);
 	}
 	
 	public static function hosts_web() {
-		return zesk::hook("cluster::hosts_web_alter", self::hosts("TRUSTED"));
+		return zesk()->hooks->call("cluster::hosts_web_alter", self::hosts("TRUSTED"));
 	}
 	
 	public static function command($query, $from_host = null, $include_me = true) {

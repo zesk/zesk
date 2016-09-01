@@ -1,5 +1,7 @@
 <?php
 
+use zesk\Timestamp as Timestamp;
+
 class IPBan_IP extends Object {
 
 	/**

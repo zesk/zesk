@@ -39,7 +39,7 @@ class Test_Preference extends Test_Object {
 		Preference::userSet($user, $name, $value);
 	}
 	function test_Preference() {
-		$db = Database::instance();
+		$db = $this->application->database_factory();
 		$db->query(Application::instance()->schema_synchronize($db, array(
 			"Preference",
 			"Preference_Type"

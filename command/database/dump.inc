@@ -7,6 +7,8 @@
  * debug.db-connect=1)
  * @global boolean db-connect Set this global to alternate database
  */
+use zesk\file as file;
+use zesk\Timestamp as Timestamp;
 
 /**
  * Dump the database to stdout
@@ -21,6 +23,9 @@ class Command_Database_Dump extends Command_Base {
 		"name" => "string",
 		"echo" => "boolean",
 		"file" => "boolean",
+		"target" => "string",
+		"compress" => "boolean",
+		"no-compress" => "boolean",
 		"dir" => "string",
 		"arg-prefix" => "string",
 		"arg-suffix" => "string",
@@ -30,6 +35,9 @@ class Command_Database_Dump extends Command_Base {
 		"name" => "Database name to dump",
 		"echo" => "Output the shell command to do the dump instead of running it",
 		"file" => "Presence means write the output to a file instead of stdout",
+		"target" => "Implies --file and sets the file output pattern",
+		"compress" => "Explicitly compress the dump using gzip (new option)",
+		"no-compress" => "(deprecated) Prevent compression of the archive",
 		"dir" => "Place the file in this directory",
 		"arg-prefix" => "Pass options to prefix command-line",
 		"arg-suffix" => "Pass options to suffix command-line",
@@ -45,9 +53,17 @@ class Command_Database_Dump extends Command_Base {
 		}
 		return null;
 	}
+	
+	/**
+	 * 
+	 * {@inheritDoc}
+	 * @see Command::run()
+	 */
 	function run() {
+		global $zesk;
+		/* @var $zesk zesk\Kernel */
 		$dbname = $this->option('name');
-		$db = Database::instance($dbname);
+		$db = $this->application->database_factory($dbname);
 		if (!$db) {
 			$this->error("No such database for \"$dbname\"\n");
 			return false;
@@ -80,31 +96,56 @@ class Command_Database_Dump extends Command_Base {
 			$url = url::remove_password($url);
 			$this->usage("No command-line shell command found for database type $scheme (URL: $url)");
 		}
-		$full_command_path = zesk::which($command);
+		$full_command_path = $zesk->paths->which($command);
 		if (!$full_command_path) {
-			$this->error("Unable to find shell $command in system path:" . implode(", ", zesk::command_path()) . "\n");
+			$this->error("Unable to find shell $command in system path:" . implode(", ", $zesk->paths->command()) . "\n");
 			return false;
 		}
 		
 		$suffix = "";
 		$where = "";
 		if ($this->option_bool('file') || $this->has_option('dir')) {
-			$app_root = zesk::application_root();
+			$app_root = $this->application->application_root();
 			$map = array(
 				'database_name' => $path,
 				"database_host" => $host,
 				"database_port" => $port,
 				"database_user" => $user,
-				"zesk_application_root" => $app_root
+				"zesk_application_root" => $app_root,
+				"application_root" => $app_root
 			);
 			$dir = $this->option("dir", "sql-dumps");
-			$where = map(zesk::get("database_dump_file", path($dir, "{database_name}-{YYYY}-{MM}-{DD}_{hh}-{mm}.sql")), $map);
+			/**
+			 * @deprecated 2016-08
+			 */
+			if ($zesk->configuration->database_dump_file) {
+				// TODO D
+				zesk::deprecated();
+				$zesk->logger->error("Global database_dump_file is deprecated, please fix it {line} {file}", array(
+					"file" => __FILE__,
+					"line" => __LINE__
+				));
+				$database_dump_file = $zesk->configuration->database_dump_file;
+			} else if ($this->has_option("target")) {
+				$database_dump_file = $this->option("target");
+			} else {
+				$database_dump_file = path($dir, "{database_name}-{YYYY}-{MM}-{DD}_{hh}-{mm}.sql");
+			}
+			if (empty($database_dump_file)) {
+				$this->usage("Database dump file not specified?");
+				return -1;
+			}
+			if ($this->has_option("compress")) {
+				$compress = true;
+			} else {
+				$compress = !$this->option_bool("no-compress", false);
+			}
+			$where = map($database_dump_file, $map);
 			$where = Timestamp::now()->format($where);
 			$suffix = "";
-			$compress = zesk::getb("database_dump_compress", true);
 			if ($compress || file::extension($where) === "gz") {
 				if (!$compress) {
-					log::warning("database_dump_file has .gz extension, so ignoring database_dump_compress flag");
+					$zesk->logger->warning("database_dump_file has .gz extension, so ignoring database_dump_compress flag");
 				} else {
 					$where .= ".gz";
 				}

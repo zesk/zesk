@@ -1,4 +1,6 @@
 <?php
+use zesk\Timestamp as Timestamp;
+
 class Test_Object extends Test_Unit {
 	function _test_object() {
 		$this->assert($this->class !== null);

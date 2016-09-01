@@ -5,24 +5,39 @@
  * @category Debugging
  */
 class Command_Globals extends Command_Base {
+	/**
+	 * 
+	 * @var string
+	 */
 	protected $help = "Output all globals.";
+	
+	/**
+	 * 
+	 * @var array
+	 */
 	protected $option_types = array(
 		'format' => 'string',
-		'application' => 'string',
 		'*' => 'string'
 	);
+	
+	/**
+	 * 
+	 * @var array
+	 */
 	protected $option_help = array(
 		'format' => "Output format: html, php, json, text, serialize",
-		'application' => "Load alternate application context.",
 		"*" => "globals to output"
 	);
+	
+	/**
+	 * 
+	 * {@inheritDoc}
+	 * @see Command::run()
+	 */
 	function run() {
-		if ($this->option('application')) {
-			zesk::application_class($this->option('application'));
-			$app = Application::instance();
-		}
+		global $zesk;
 		php::dump_settings_one();
-		$globals = zesk::get();
+		$globals = $zesk->configuration->to_array();
 		ksort($globals);
 		$args = $this->arguments_remaining(true);
 		if (count($args) > 0) {

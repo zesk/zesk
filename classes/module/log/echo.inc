@@ -1,15 +1,12 @@
 <?php
-
 class Module_Log_Echo extends Module_Log {
 	public $stderr = null;
-
 	public function initialize() {
-		zesk::add_hook('configured', array(
+		$this->application->hooks->add('configured', array(
 			$this,
 			'configured'
 		));
 	}
-
 	public function configured() {
 		if (!$this->disabled()) {
 			if ($this->option_bool("debug")) {
@@ -17,7 +14,6 @@ class Module_Log_Echo extends Module_Log {
 			}
 		}
 	}
-
 	public function disabled($set = null) {
 		if (is_bool($set)) {
 			$this->set_option('disabled', $set);

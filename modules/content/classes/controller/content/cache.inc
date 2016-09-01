@@ -36,11 +36,24 @@ class Controller_Content_Cache extends Controller_Cache {
 		return path(self::cache_prefix(), $image->id(), $style, basename($image->path));
 	}
 
+	/**
+	 * 
+	 * @param Content_Image $image
+	 * @param unknown $width
+	 * @param unknown $height
+	 * @return string
+	 */
 	public static function url_content_image_scaled(Content_Image $image, $width = null, $height = null) {
 		$style = "c${width}x${height}";
 		return path(self::cache_prefix(), $image->id(), $style, basename($image->path));
 	}
 
+	
+	/**
+	 * 
+	 * @param string $url
+	 * @return Content_Image|null
+	 */
 	public static function image_from_url($url) {
 		$prefix = preg_quote(self::cache_prefix());
 		if (preg_match('#^' . $prefix . '([0-9]+)/.*#', $url, $matches)) {
@@ -114,6 +127,13 @@ class Controller_Content_Cache extends Controller_Cache {
 		}
 		return null;
 	}
+	
+	/**
+	 * 
+	 * @param array $commands
+	 * @param unknown $data
+	 * @return mixed|NULL|string|\zesk\NULL
+	 */
 	protected function apply_commands(array $commands, $data) {
 		$original = $data;
 		foreach ($commands as $command) {
@@ -129,6 +149,12 @@ class Controller_Content_Cache extends Controller_Cache {
 		}
 		return $data;
 	}
+	
+	/**
+	 * 
+	 * @param array $command
+	 * @return string
+	 */
 	protected function hook_image_scale(array $command) {
 		$width = $height = null;
 		extract($command, EXTR_IF_EXISTS);
@@ -138,6 +164,12 @@ class Controller_Content_Cache extends Controller_Cache {
 			'height' => $height
 		));
 	}
+	
+	/**
+	 * 
+	 * {@inheritDoc}
+	 * @see Controller::get_route_map()
+	 */
 	public function get_route_map($action = null, $object = null, $options = null) {
 		if ($action === "image") {
 			$width = $height = $styles = null;

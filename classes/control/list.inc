@@ -22,6 +22,7 @@ class Control_List extends Control_Widgets_Filter {
 	 * @var Class_Object
 	 */
 	protected $class_object = null;
+	
 	/**
 	 * Options to create the object we're listing, per row
 	 *
@@ -284,7 +285,8 @@ class Control_List extends Control_Widgets_Filter {
 	 * @return void
 	 */
 	protected function initialize_theme_paths() {
-		$hierarchy = zesk::class_hierarchy($this, __CLASS__);
+		global $zesk;
+		$hierarchy = $zesk->classes->hierarchy($this, __CLASS__);
 		foreach ($hierarchy as $index => $class) {
 			$hierarchy[$index] = strtr(strtolower($class), "_", "/") . "/";
 		}
@@ -341,7 +343,9 @@ class Control_List extends Control_Widgets_Filter {
 		$class_object = $this->class_object;
 		return array(
 			'query' => $this->query,
+			'sql_query' => strval($this->query),
 			'query_total' => $this->query_total,
+			'sql_query_total' => strval($this->query_total),
 			'total' => $this->cache_total,
 			'render_header_widgets' => $this->option_bool('render_header_widgets', true),
 			'header_widgets' => $this->header_widgets,

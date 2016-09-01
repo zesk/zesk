@@ -5,6 +5,7 @@ CREATE TABLE `{table}` (
 	code varchar(64) NOT NULL,
 	created timestamp NOT NULL DEFAULT 0,
 	start timestamp NULL,
+	priority tinyint NOT NULL DEFAULT 0,
 	server integer unsigned NULL,
 	pid integer unsigned NULL,
 	completed timestamp NULL,

@@ -1,14 +1,27 @@
 <?php
-$units = $this->get('units', zesk::get('distance::units', 'km'));
-// By default, all units in kilometers
+if (false) {
+	/* @var $this Template */
+	
+	$zesk = $this->zesk;
+	/* @var $zesk zesk\Kernel */
+	
+	$application = $this->application;
+	/* @var $application TimeBank */
+}
 
+$configuration = $zesk->configuration;
+
+$units = $this->get('units', $configuration->path_get('distance::units', 'km'));
+// By default, all units in kilometers
+	
 
 // Distance should always be passed in as "meters"
 $distance = $this->content;
 if (!is_numeric($distance)) {
 	return;
 }
-if (abs($distance) < $this->get('epsilon', zesk::get('distance::epsilon', 0.2))) {
+$epsilon = isset($this->epsilon) ? $this->epsilon : $configuration->path_get('distance::epsilon', 0.2);
+if (abs($distance) < $epsilon) {
 	echo html::tag('span', '.distance nearby', __('Nearby'));
 	return;
 }

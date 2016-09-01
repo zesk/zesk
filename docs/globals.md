@@ -78,7 +78,7 @@ Are synonymous once loaded. To save a global, do:
 	
 Finally, to enable `Settings` support in an application, simply register its hooks:
 
-	zesk::hooks('Settings');
+	zesk\Hooks::register_class('Settings');
 
 ... prior to `Application` configuration.
 

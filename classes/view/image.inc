@@ -10,6 +10,8 @@
  * @author Kent Davidson <kent@marketacumen.com>
  * @copyright Copyright &copy; 2009, Market Acumen, Inc.
  */
+use zesk\file as file;
+
 class View_Image extends View {
 	static $debug = false;
 

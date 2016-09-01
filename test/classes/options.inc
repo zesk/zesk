@@ -3,54 +3,53 @@ class test_options extends Test_Unit {
 	function test_options() {
 		$options = false;
 		$testx = new Options($options);
-
+		
 		$testx->__sleep();
-
+		
 		$testx->option();
-
+		
 		$remove = false;
 		$testx->options_exclude($remove);
-
+		
 		$selected = false;
 		$testx->options_include($selected);
-
+		
 		$testx->option_keys();
-
+		
 		$name = null;
 		$checkEmpty = false;
 		$testx->has_option($name, $checkEmpty);
-
+		
 		$mixed = null;
 		$value = false;
 		$overwrite = true;
 		$testx->set_option($mixed, $value, $overwrite);
-
+		
 		$name = null;
 		$default = false;
 		$testx->option($name, $default);
-
+		
 		$name = null;
 		$default = false;
 		$testx->option_bool($name, $default);
-
+		
 		$name = null;
 		$default = false;
 		$testx->option_integer($name, $default);
-
+		
 		$name = null;
 		$default = false;
 		$testx->option_double($name, $default);
-
+		
 		$name = null;
 		$default = false;
 		$testx->option_array($name, $default);
-
+		
 		$name = null;
 		$default = false;
 		$delimiter = ';';
 		$testx->option_list($name, $default, $delimiter);
 	}
-
 	function test_options_path_simple() {
 		$opts = new Options();
 		$opts->set_option_path("a.b.c.d", "1");
@@ -66,10 +65,9 @@ class test_options extends Test_Unit {
 			)
 		));
 	}
-
 	function test_options_path() {
 		$opts = new Options();
-
+		
 		$paths = array(
 			"a.a.a",
 			"a.a.b",
@@ -114,13 +112,12 @@ class test_options extends Test_Unit {
 		foreach ($paths as $path) {
 			$this->assert_equal($opts->option_path($path), $path);
 		}
-
+		
 		$this->assert_null($opts->option_path("a.a.c", null));
 	}
-
 	function test_options_inherit() {
 		$options = new Options();
-
+		
 		zesk::set("Options::test1", "test1");
 		zesk::set("Options::test2", "test2");
 		zesk::set("Options::test3array", array(
@@ -128,14 +125,20 @@ class test_options extends Test_Unit {
 			false,
 			null
 		));
+		
+		// No longer honored/merged as of 2016-01-01
 		zesk::set("Options::options", $optoptions = array(
 			"test1" => "test2",
 			"more" => "dude"
 		));
-
+		
 		$options->inherit_global_options();
-
-		$this->assert_equal($options->option(), array(
+		
+		$options = $options->option();
+		$this->assert_array_key_exists($options, "test1");
+		$this->assert_array_key_not_exists($options, "more");
+		
+		$this->assert_equal($options, array(
 			"test1" => "test1",
 			"test2" => "test2",
 			"test3array" => array(
@@ -143,7 +146,6 @@ class test_options extends Test_Unit {
 				false,
 				null
 			),
-			"more" => "dude",
 			"options" => $optoptions
 		));
 	}

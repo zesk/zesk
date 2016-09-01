@@ -151,10 +151,12 @@ class Response_HTML extends Response_Text {
 	 * @param array $options
 	 */
 	public function __construct(Application $application, $options = null) {
+		global $zesk;
+		/* @var $zesk zesk\Kernel */
 		parent::__construct($application, $options);
 		$this->script_settings = array(
 			'zesk' => array(
-				'inited' => zesk::get('init')
+				'inited' => $zesk->initialization_time
 			)
 		);
 	}

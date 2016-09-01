@@ -22,7 +22,7 @@ class Controller extends Hookable implements Interface_Theme {
 	 * @var string
 	 */
 	protected $method_default_arguments = null;
-	
+
 	/**
 	 * The Application
 	 *

@@ -17,8 +17,8 @@
  * @property mixed $value
  */
 class Server_Data extends Object {
-	public static function hooks() {
-		zesk::add_hook('Server::delete', array(
+	public static function hooks(zesk\Kernel $zesk) {
+		$zesk->hooks->add('Server::delete', array(
 			__CLASS__,
 			'server_delete'
 		));

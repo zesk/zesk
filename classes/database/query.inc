@@ -43,7 +43,7 @@ class Database_Query {
 	 */
 	function __construct($type = "SELECT", Database $db = null) {
 		$this->type = strtoupper($type);
-		$this->db = $db instanceof Database ? $db : Database::instance();
+		$this->db = $db instanceof Database ? $db : app()->database_factory();
 		$this->dbname = $this->db->code_name();
 		$this->class = null;
 	}
@@ -55,7 +55,7 @@ class Database_Query {
 		);
 	}
 	function __wakeup() {
-		$this->db = Database::instance($this->dbname);
+		$this->db = app()->database_factory($this->dbname);
 	}
 	
 	/**
@@ -82,7 +82,7 @@ class Database_Query {
 		return $this->db->code_name();
 	}
 	
-/**
+	/**
 	 *
 	 * @return Database_SQL
 	 */

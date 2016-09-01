@@ -18,7 +18,7 @@ class Test_Process_Tools extends Test_Unit {
 
 		require_once $php_file;
 
-		$db = Database::instance();
+		$db = $this->application->database_factory();
 		$db->query("DROP TABLE IF EXISTS test_PGT");
 		$db->query("CREATE TABLE test_PGT ( ID int(11) unsigned PRIMARY KEY NOT NULL AUTO_INCREMENT, PID int(11) NOT NULL )");
 		$table = 'test_PGT';

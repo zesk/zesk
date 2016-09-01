@@ -4,12 +4,11 @@
  * @subpackage control
  */
 class Control_CKEditor extends Control_Text {
-
 	private $FCKEditor = null;
-
+	
 	/*===========================================================================*\
-	* Control Methods
-	\*---------------------------------------------------------------------------*/
+	 * Control Methods
+	 \*---------------------------------------------------------------------------*/
 	/**
 	 * Instance of FCKeditor for this object
 	 *
@@ -18,14 +17,13 @@ class Control_CKEditor extends Control_Text {
 	private function fck_path() {
 		return rtrim($this->option("fck_path", _G('Control_RichText::fck_path', '/share/zesk/widgets/fckeditor/')), '/') . '/';
 	}
-
 	private function fck() {
 		require_once ZESK_ROOT . 'lib/fckeditor/fckeditor_php5.php';
-
+		
 		if ($this->FCKEditor instanceof FCKeditor) {
 			return $this->FCKEditor;
 		}
-
+		
 		$fck = new FCKeditor($this->column());
 		// N.B. FCKEditor must be hosted locally
 		$fck->BasePath = $this->fck_path();
@@ -35,24 +33,22 @@ class Control_CKEditor extends Control_Text {
 		$this->FCKEditor = $fck;
 		return $fck;
 	}
-
 	public final function render(Model $data) {
 		// Important: FCKEditor can not be hosted on another domain
 		$this->response->cdn_javascript($this->fck_path() . "fckeditor.js");
 		$this->response->cdn_javascript($this->fck_path() . "editor/fckconfig-simple.js");
-
+		
 		$column_name = $this->column();
 		$fck = $this->fck();
 		return $fck->CreateHtml($this->value($data));
 	}
-
 	public final function dimensions() {
 		$rows = $this->option_integer("rows", 5);
 		$cols = $this->option_integer("cols", 80);
-
-		$maxRows = zesk::geti("Control_RichText::rows_max", 64);
-		$maxCols = zesk::geti("Control_RichText::cols_max", 200);
-
+		
+		$maxRows = $this->option_integer("rows_max", 64);
+		$maxCols = $this->option_integer("cols_max", 200);
+		
 		if ($rows > $maxRows) {
 			$rows = $maxRows;
 		}
@@ -64,42 +60,6 @@ class Control_CKEditor extends Control_Text {
 			$cols
 		);
 	}
-
-	public final function output_legacy($data) {
-		$rows = $this->option("rows", _G("Control_RichText::rows_default", 5));
-		$cols = $this->option("cols", _G("Control_RichText::cols_default", 80));
-
-		$maxRows = _G("Control_RichText::rows_max", 64);
-		$maxCols = _G("Control_RichText::cols_max", 200);
-
-		if ($rows > $maxRows)
-			$rows = $maxRows;
-		if ($cols > $maxCols)
-			$cols = $maxCols;
-
-		$name = $this->name();
-
-		$form_id = $this->form_id();
-
-		$this->response->jquery('$("#' . $form_id . '").submit(RichText_UpdateAll)');
-
-		$value = avalue($data, $name, "");
-		$rteSafe = self::RTESafe($value);
-
-		$options = array(
-			"name" => $name,
-			"content" => $rteSafe,
-			"width" => $cols * 10,
-			"height" => $rows * 20,
-			"buttons" => true,
-			"readonly" => false,
-			"noscript_content" => self::noscriptRTESafe($value)
-		);
-
-		$t = new Template('widgets/richtext/Control_RichText.tpl', $options);
-		return $this->render_finish($data, $t->output());
-	}
-
 	private function clean($x) {
 		$x = html::clean_tags_without_attributes("a", $x);
 		//		echo "<h1>---original-------</h1>\n";
@@ -108,35 +68,34 @@ class Control_CKEditor extends Control_Text {
 		//		echo "<h1>---entities_clean-------</h1>\n";
 		//		dump($x);
 		$x = html::clean_tags_attributes($x, "style;href;target", false);
-
+		
 		$x = html::clean_style_attributes($x, "font-weight;font-style;margin-left;text-align", false);
-
+		
 		//		echo "<h1>---html::clean_tags_attributes-------</h1>\n";
 		//		dump($x);
-
+		
 
 		$allowed_tags = $this->option_list("allowed_tags", "strong;em;ul;li;h1;h2;h3;h4;h5;pre;a;blockquote;p;br;span;div");
 		$x = html::clean_tags($x, $allowed_tags);
 		//		echo "<h1>---html::clean_tags-------</h1>\n";
 		//		dump($x);
-
+		
 
 		$convert_tags = array(
 			"<br>" => "<br />"
 		);
-		$x = replace_map($convert_tags, $x);
+		$x = tr($x, $convert_tags);
 		//		echo "<h1>---replace_map-------</h1>\n";
 		//		dump($x);
-
+		
 
 		$x = html::trim_white_space($x);
-
+		
 		return $x;
 	}
-
 	private function autoLink($html) {
 		$x = html::remove_tags(explode(";", "a;img;link;style;pre"), $html, true);
-
+		
 		$urls = false;
 		if (preg_match_all('/[^"]([a-zA-Z]+[:\/\/]+[A-Za-z0-9\-_]+\\.+[A-Za-z0-9\.\/%&=\?\-_]+)/i', $x, $urls)) {
 			foreach ($urls as $url) {
@@ -145,7 +104,6 @@ class Control_CKEditor extends Control_Text {
 		}
 		return $html;
 	}
-
 	private static function entities_clean($x) {
 		$ents = array(
 			chr(160) => "&nbsp;",
@@ -250,45 +208,44 @@ class Control_CKEditor extends Control_Text {
 		$x = str_replace("(C)", "&copy;", $x);
 		return $x;
 	}
-
+	
 	/*
-	RTESafe:
-	From Cross-Browser Rich Text Editor
-	http://www.kevinroth.com/rte/demo.htm
-	*/
+	 RTESafe:
+	 From Cross-Browser Rich Text Editor
+	 http://www.kevinroth.com/rte/demo.htm
+	 */
 	static private function RTESafe($strText) {
 		//returns safe code for preloading in the RTE
 		$tmpString = trim($strText);
-
+		
 		//convert all types of single quotes
 		$tmpString = str_replace(chr(145), chr(39), $tmpString);
 		$tmpString = str_replace(chr(146), chr(39), $tmpString);
 		$tmpString = str_replace("'", "&#39;", $tmpString);
-
+		
 		//convert all types of double quotes
 		$tmpString = str_replace(chr(147), chr(34), $tmpString);
 		$tmpString = str_replace(chr(148), chr(34), $tmpString);
-
+		
 		//replace carriage returns & line feeds
 		$tmpString = str_replace(chr(10), " ", $tmpString);
 		$tmpString = str_replace(chr(13), " ", $tmpString);
-
+		
 		$tmpString = str_replace("<", "&lt;", $tmpString);
 		$tmpString = str_replace(">", "&gt;", $tmpString);
 		$tmpString = str_replace("\n", "\\n", $tmpString);
-
+		
 		return $tmpString;
 	}
-
 	static private function noscriptRTESafe($strText) {
 		$tmpString = trim($strText);
-
+		
 		//convert all types of single quotes
 		$tmpString = htmlspecialchars($tmpString);
-
+		
 		return $tmpString;
 	}
-
+	
 	//	function _convertSingles($string)
 	//	{
 	//		$result = CHTML::parseTags($string);
@@ -311,7 +268,7 @@ class Control_CKEditor extends Control_Text {
 	//		}
 	//		return str_replace($search, $replace, $string);
 	//	}
-
+	
 
 	//	function modelFromRTE($string)
 	//	{

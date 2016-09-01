@@ -15,7 +15,7 @@ if (!defined("ZESK_LOCALE_DEFAULT")) {
 }
 
 use \zesk as zesk;
-use \log as log;
+use log as log;
 
 class Locale {
 	
@@ -98,13 +98,17 @@ class Locale {
 			}
 			return $result;
 		}
-		list(, $text) = pair($phrase, ":=", null, $phrase);
-		$tt_lang = self::loaded($locale);
-		if (!$tt_lang) {
+		list(, $text) = explode(":=", $phrase, 2) + array(
+			null,
+			$phrase
+		);
+		if (!isset(self::$tt[$locale])) {
 			$tt_lang = self::load($locale);
 			if (!$tt_lang) {
 				return $text;
 			}
+		} else {
+			$tt_lang = self::$tt[$locale];
 		}
 		if (array_key_exists($phrase, $tt_lang)) {
 			return $tt_lang[$phrase];
@@ -129,15 +133,20 @@ class Locale {
 	/**
 	 * Hook "configured"
 	 */
-	public static function configured() {
-		$default = zesk::get("Locale::default");
+	public static function configured(zesk\Application $application) {
+		$configuration = $application->zesk->configuration;
+		$default = $configuration->Locale->default;
 		if ($default) {
 			self::current($default);
 		}
-		$auto = \zesk::get1('zesk\Locale::auto;Locale::auto;lang::auto', false);
+		$auto = $configuration->path_get_first(array(
+			'zesk\Locale::auto',
+			'Locale::auto',
+			'lang::auto'
+		));
 		if (is_bool($auto) || $auto === self::language() || $auto === self::current()) {
 			self::$auto = $auto;
-			\zesk::add_hook("exit", array(
+			zesk()->hooks->add("exit", array(
 				__CLASS__,
 				"shutdown"
 			));
@@ -147,12 +156,14 @@ class Locale {
 	/**
 	 * Register all hooks
 	 */
-	public static function hooks() {
-		\zesk::add_hook('<head>', array(
+	public static function hooks(zesk\Kernel $zesk) {
+		$zesk->configuration->pave("Locale");
+		$zesk->configuration->pave("zesk\Locale");
+		$zesk->hooks->add('<head>', array(
 			__CLASS__,
 			'hook_head'
 		));
-		\zesk::add_hook('configured', array(
+		$zesk->hooks->add('configured', array(
 			__CLASS__,
 			'configured'
 		));
@@ -203,7 +214,10 @@ class Locale {
 	 * @return string
 	 */
 	public static function normalize($locale) {
-		list($lang, $region) = \pair($locale, "_", $locale, null);
+		list($lang, $region) = explode("_", $locale, 2) + array(
+			$locale,
+			null
+		);
 		$lang = strtolower(substr($lang, 0, 2));
 		if ($region === null) {
 			return $lang;
@@ -235,11 +249,7 @@ class Locale {
 	 * @return false|array
 	 */
 	public static function loaded($locale) {
-		$locale = self::normalize($locale);
-		if (!array_key_exists($locale, self::$tt)) {
-			return false;
-		}
-		return self::$tt[$locale];
+		return isset(self::$tt[$locale]) ? self::$tt[$locale] : false;
 	}
 	
 	/**
@@ -465,9 +475,11 @@ class Locale {
 	 * "John" => "John's"
 	 * "Cass" => "Cass'"
 	 *
-	 * @param string $owner       	The thing that owns the object
-	 * @param string $context      	The thing that's owned by the object
-	 * @return string 
+	 * @param string $owner
+	 *        	The thing that owns the object
+	 * @param string $context
+	 *        	The thing that's owned by the object
+	 * @return string
 	 */
 	public static function possessive($owner, $object, $locale = null) {
 		if ($locale === null) {
@@ -537,7 +549,7 @@ class Locale {
 	 * @return string
 	 */
 	public static function now_string($ts, $min_unit = null, $zero_string = null, $locale = null) {
-		if ($ts instanceof \Timestamp) {
+		if ($ts instanceof zesk\Timestamp) {
 			$ts = $ts->unix_timestamp();
 		} else if (is_date($ts)) {
 			$ts = parse_time($ts);
@@ -679,6 +691,8 @@ class Locale {
 	 * Dump untranslated phrases
 	 */
 	public static function shutdown() {
+		global $zesk;
+		/* @var $zesk zesk\Kernel */
 		if (count(self::$locale_phrases) === 0) {
 			return;
 		}
@@ -687,15 +701,21 @@ class Locale {
 		// 		if (self::language($locale) === self::language(ZESK_LOCALE_DEFAULT)) {
 		// 			return;
 		// 		}
-		$path = \zesk::get1('zesk\Locale::auto_path;Locale::auto_path;lang::auto_path');
+		$path = $zesk->configuration->path_get_first(array(
+			'zesk\Locale::auto_path',
+			'Locale::auto_path',
+			'lang::auto_path'
+		));
 		if (!$path) {
 			return;
 		}
-		$formats = \arr::change_value_case(\to_list(\zesk::get1('zesk\Locale::formats;Locale::formats')));
+		$formats = arr::change_value_case(to_list($zesk->configuration->path_get_first(array(
+			'zesk\Locale::formats',
+			'Locale::formats'
+		))));
 		$do_csv = in_array("csv", $formats);
-		
 		if (!$path) {
-			\log::warning("No {class}::auto_path specified in {class}::shutdown", array(
+			log::warning("No {class}::auto_path specified in {class}::shutdown", array(
 				"class" => __CLASS__
 			));
 			return;
@@ -704,7 +724,7 @@ class Locale {
 			$path = Application::instance()->application_root($path);
 		}
 		if (!is_dir($path)) {
-			\log::warning("{class}::auto_path {path} is not a directory", array(
+			log::warning("{class}::auto_path {path} is not a directory", array(
 				"path" => $path,
 				"class" => __CLASS__
 			));

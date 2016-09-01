@@ -122,6 +122,7 @@ class Cache_File extends Cache {
 		return file::atomic($this->cache_file_path());
 	}
 	protected function store($data) {
+		zesk::profiler();
 		return file::atomic($this->cache_file_path(true), $data);
 	}
 

@@ -1,5 +1,5 @@
 <?php
-class Exception_Upload extends Zesk_Exception {
+class Exception_Upload extends zesk\Exception {
 
 	/**
 	 * From http://us1.php.net/manual/en/features.file-upload.errors.php

@@ -1,4 +1,10 @@
 <?php
+
+/**
+ * Should probably do this in Apache or nginx, not in code
+ * 
+ * @author kent
+ */
 class Module_gzip extends Module {
 	/**
 	 * Whether output buffering is enabled
@@ -15,12 +21,13 @@ class Module_gzip extends Module {
 	/**
 	 * Hook Module::hooks()
 	 */
-	public static function hooks() {
-		zesk::add_hook("Response::headers", __CLASS__ . "::response_headers");
-		zesk::add_hook("Response::render", __CLASS__ . "::response_render");
-		zesk::add_hook("Response::rendered", __CLASS__ . "::response_rendered");
-		zesk::add_hook("Response::output", __CLASS__ . "::response_output");
-		zesk::add_hook("Response::outputted", __CLASS__ . "::response_outputted");
+	public static function hooks(zesk\Kernel $zesk) {
+		$hooks = $zesk->hooks;
+		$hooks->add("Response::headers", __CLASS__ . "::response_headers");
+		$hooks->add("Response::render", __CLASS__ . "::response_render");
+		$hooks->add("Response::rendered", __CLASS__ . "::response_rendered");
+		$hooks->add("Response::output", __CLASS__ . "::response_output");
+		$hooks->add("Response::outputted", __CLASS__ . "::response_outputted");
 	}
 	
 	/**
@@ -76,10 +83,12 @@ class Module_gzip extends Module {
 	 * @return boolean
 	 */
 	public static function enabled($set = null) {
+		global $zesk;
+		/* @var $zesk zesk\Kernel */
 		if (is_bool($set)) {
-			zesk::set('Module_gzip::enabled', $set);
+			$zesk->configuration->pave('Module_gzip')->enabled = to_bool($set);
 		}
-		return zesk::getb('Module_gzip::enabled', true);
+		return $zesk->configuration->path_get("Module_gzip::enabled", true);
 	}
 	
 	/**

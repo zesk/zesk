@@ -1,4 +1,5 @@
 <?php
+
 /**
  * $URL$
  * @package zesk
@@ -6,14 +7,23 @@
  * @author kent
  * @copyright Copyright &copy; 2012, Market Acumen, Inc.
  */
+namespace zesk;
+
+use \zesk as zesk;
+use \Exception_Configuration as Exception_Configuration;
+use \Exception_Class_NotFound as Exception_Class_NotFound;
+use \Exception_Semantics as Exception_Semantics;
+use \Database as Database;
+use \Database_Exception_Table_NotFound as Database_Exception_Table_NotFound;
+use \Database_Exception_Connect as Database_Exception_Connect;
 
 /**
  * Base class for global settings to be retrieved/stored from permanent storage
  *
  * @author kent
- * @see Class_Zesk_Settings
+ * @see Class_Settings
  */
-class Zesk_Settings extends Object implements Interface_Data {
+class Settings extends Object implements Interface_Data {
 	
 	/**
 	 * Is the database down?
@@ -48,13 +58,15 @@ class Zesk_Settings extends Object implements Interface_Data {
 	 * @return NULL|Settings
 	 */
 	public static function instance() {
+		global $zesk;
+		/* @var $zesk zesk\Kernel */
 		if (self::$instance) {
 			return self::$instance;
 		}
-		$class = zesk::get("Settings::instance_class", "Settings");
-		self::$instance = zesk::factory($class);
+		$class = $zesk->configuration->settings->get("instance_class", "Settings");
+		self::$instance = $zesk->objects->factory($class);
 		if (!self::$instance instanceof Settings) {
-			throw new Exception_Configuration("Settings::instance_class", "Must specify subclass of Settings, class is {class}", array(
+			throw new Exception_Configuration(__CLASS__ . "::instance_class", "Must specify subclass of Settings, class is {class}", array(
 				"class" => $class
 			));
 		}
@@ -64,10 +76,12 @@ class Zesk_Settings extends Object implements Interface_Data {
 	/**
 	 * Hook Object::hooks
 	 */
-	public static function hooks() {
-		zesk::add_hook('configured', 'Settings::configured', 'first');
-		zesk::add_hook('reset', 'Settings::reset');
-		zesk::add_hook('exit', 'Settings::flush_instance');
+	public static function hooks(zesk\Kernel $zesk) {
+		$zesk->configuration->pave("Settings");
+		$hooks = $zesk->hooks;
+		$hooks->add('Application::configured', 'Settings::configured', 'first');
+		$hooks->add(zesk\Hooks::hook_reset, 'Settings::reset');
+		$hooks->add(zesk\Hooks::hook_exit, 'Settings::flush_instance');
 	}
 	
 	/**
@@ -92,7 +106,7 @@ class Zesk_Settings extends Object implements Interface_Data {
 			$value = unserialize($value);
 			return $value;
 		} catch (Exception_Class_NotFound $e) {
-			zesk::hook("exception", $e);
+			zesk()->hooks->call("exception", $e);
 			return null;
 		}
 	}
@@ -100,47 +114,65 @@ class Zesk_Settings extends Object implements Interface_Data {
 	 * configured Hook
 	 */
 	public static function configured(Application $application) {
+		global $zesk;
+		/* @var $zesk zesk\Kernel */
 		// If no databases registered, don't bother loading.
 		if (count(Database::register()) === 0) {
+			$zesk->logger->notice("{method} - no databases, not loading configuration", array(
+				"method" => __METHOD__
+			));
 			return;
 		}
-		// 		log::debug("{bt}", array(
-		// 			"bt" => _backtrace()
-		// 		));
+		$exception = null;
 		try {
 			$cache = self::_cache();
 			if (!$cache->has('globals')) {
 				//log::debug("Settings::configured() does not have globals .. loading");
 				$globals = array();
+				$n_loaded = 0;
+				$size_loaded = 0;
 				foreach (Object::class_query("Settings")->to_array("name", "value") as $name => $value) {
+					++$n_loaded;
+					$size_loaded += strlen($value);
 					if (is_string($value)) {
 						$globals[$name] = $value = self::unserialize($value);
 					}
 				}
+				$zesk->logger->info("{method} - loaded {n} globals {size} of data", array(
+					"method" => __METHOD__,
+					"n" => $n_loaded,
+					"size" => \number::format_bytes($size_loaded)
+				));
 				$cache->globals = $application->hook_array("filter_settings", array(
 					$globals
 				), $globals);
 			} else {
 				//log::debug("Settings::configured() has globals {globals}", array("globals" => $cache->globals));
 			}
-			zesk::set($cache->globals);
+			$n_loaded = 0;
+			foreach ($cache->globals as $key => $value) {
+				++$n_loaded;
+				$zesk->configuration->pave_set($key, $value);
+			}
+			$zesk->logger->info("{method} - loaded {n} globals from cache", array(
+				"method" => __METHOD__,
+				"n" => $n_loaded
+			));
 			self::$changes = array();
 		} catch (Database_Exception_Table_NotFound $e) {
-			zesk::hook("exception", $e);
-			self::$db_down = true;
-			self::$db_down_why = $e;
-			// Ignore for now
+			$exception = $e;
 		} catch (Database_Exception_Connect $e) {
-			zesk::hook("exception", $e);
-			self::$db_down = true;
-			self::$db_down_why = $e;
-			// Ignore for now
+			$exception = $e;
+		} catch (\Database_Exception_Unknown_Schema $e) {
+			$exception = $e;
 		} catch (Exception_Semantics $e) {
-			zesk::hook("exception", $e);
 			// Columns may have changed
+			$exception = $e;
+		}
+		if ($exception) {
+			$application->hooks->call("exception", $exception);
 			self::$db_down = true;
-			self::$db_down_why = $e;
-			// Ignore for now
+			self::$db_down_why = $exception;
 		}
 	}
 	
@@ -189,7 +221,9 @@ class Zesk_Settings extends Object implements Interface_Data {
 	 * @return mixed
 	 */
 	public function __get($name) {
-		return zesk::get($name);
+		global $zesk;
+		/* @var $zesk zesk\Kernel */
+		return $zesk->configuration->path_get($name);
 	}
 	
 	/**
@@ -198,7 +232,9 @@ class Zesk_Settings extends Object implements Interface_Data {
 	 * @see Object::get($mixed, $default)
 	 */
 	public function get($name = null, $default = null) {
-		return zesk::get($name, $default);
+		global $zesk;
+		/* @var $zesk zesk\Kernel */
+		return $zesk->configuration->path_get($name, $default);
 	}
 	
 	/**
@@ -207,8 +243,10 @@ class Zesk_Settings extends Object implements Interface_Data {
 	 * @see Object::__set($member, $value)
 	 */
 	public function __set($name, $value) {
-		self::$changes[implode(ZESK_GLOBAL_KEY_SEPARATOR, _zesk_global_key($name))] = $value;
-		zesk::set($name, $value);
+		global $zesk;
+		/* @var $zesk zesk\Kernel */
+		self::$changes[zesk_global_key_normalize($name)] = $value;
+		$zesk->configuration->pave_set($name, $value);
 	}
 	
 	/**
@@ -245,7 +283,10 @@ class Zesk_Settings extends Object implements Interface_Data {
 	 * @see Interface_Data::delete_data()
 	 */
 	public function delete_data($name) {
-		$this->__set($name, null);
+		$names = to_list($name);
+		foreach ($names as $name) {
+			$this->__set($name, null);
+		}
 		$this->flush();
 		return $this;
 	}

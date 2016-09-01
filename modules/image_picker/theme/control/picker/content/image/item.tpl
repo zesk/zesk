@@ -5,10 +5,7 @@ $title = $object->title;
 if (!$title) {
 	$title = basename($object->path);
 }
-/* @var $request Request */
-$request = $this->request;
-
-$delete_url = $request->get_route('delete', $object);
+$delete_url = $this->router->get_route('delete', $object);
 echo html::div('.item', html::div('.image-picker-item', $this->object->render('view', array(
 	'width' => 175,
 	'height' => 175

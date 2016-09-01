@@ -16,13 +16,14 @@
 class Zest extends Application {
 	public $file = __FILE__;
 	protected $hooks = array(
-		'db',
+		'Database',
 		'Settings',
 		'log'
 	);
 	protected $modules = array(
 		'bootstrap',
 		'zest',
+		'mysql',
 		'developer'
 	);
 	protected $internal_modules = array(
@@ -34,9 +35,10 @@ class Zest extends Application {
 	);
 	public function hook_request() {
 		$request = parent::hook_request();
+		// Danger TODO
 		$modules = $request->geta("module", array(), ";");
 		if (count($modules)) {
-			Module::load($modules);
+			$this->module->load($modules);
 		}
 		return $request;
 	}
@@ -44,35 +46,42 @@ class Zest extends Application {
 		$path = str_replace("/", "_", ltrim($request->path(), "/"));
 		return Widget::factory("Control_Form", null, $this)->child(Widget::factory($path, null, $this))->execute();
 	}
-	public static function run_test($string) {
+	public static function run_test(Request $reqeust, Response $response, $string) {
+		global $zesk;
+		/* @var $zesk zesk\Kernel */
 		$test = new Command_Test(array(
 			"Command_Test",
 			$string
 		), array(
-			"directory" => zesk::get("Application_Zesk_Test::test_directory", zesk::root()),
-			"debug" => true,
-			"verbose" => true,
+			"directory" => $zesk->configuration->path_get("Zest::test_directory", $zesk->paths->zesk()),
+			"debug" => $reqeust->getb("debug"),
+			"debug-command" => $reqeust->getb("debug-command"),
+			"verbose" => $reqeust->getb("verbose"),
 			"no-database" => true,
-			"no-sandbox" => true,
-			'no-buffer' => true,
+			"sandbox" => true,
 			"strict" => true,
 			"command_local_open" => null
 		));
+		
+		$result = array();
+		$result['test_pattern'] = $string;
+		
 		ob_start();
-		$test->go();
-		$content = ob_get_clean();
-		echo html::tag('pre', $content);
+		$result['result'] = $test->go();
+		$result['status'] = intval($result['result']) === 0;
+		$result['content'] = ob_get_clean();
+		
+		$response->json($result);
 	}
-
 	public function preconfigure(array $options = array()) {
-		zesk::autoload_path(zesk::root('command'), array(
+		$this->zesk->autoloader->path(zesk::root('command'), array(
 			"class_prefix" => "command"
 		));
 		$this->configure_include(array(
 			'zest.conf',
 			'zest-' . php_uname('n') . ".conf"
 		));
-
+		
 		log::file(zesk::application_root('log/zest.log'));
 		log::level(log::DEBUG);
 		$this->development(true);
@@ -81,7 +90,7 @@ class Zest extends Application {
 		$this->register_class("Module_Daemon_Jinkininki");
 		$this->register_class("Module_Daemon_Lamashtu");
 		$this->register_class("Module_Daemon_Pontianak");
-
+		
 		Database::database_default("zest");
 		dir::depend(zesk::application_root("/data/"));
 		Database::register("zest", "sqlite3://localhost" . zesk::application_root("/data/zest.sqlite3"));

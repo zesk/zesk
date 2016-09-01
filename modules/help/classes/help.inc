@@ -1,5 +1,7 @@
 <?php
 
+use zesk\Timestamp as Timestamp;
+
 /**
  * @author kent
  * @see Class_Help

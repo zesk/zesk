@@ -9,6 +9,7 @@
  *
  * @author kent
  * @see Class_Permission
+ * @see Module_Permission
  * @copyright &copy; 2013 Market Acumen, Inc.
  */
 class Permission extends Object {

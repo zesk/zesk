@@ -11,7 +11,7 @@ class Database_Query_Insert_Test extends Test_Unit {
 		 * @author Kent Davidson <kent@marketacumen.com>
 		 * @copyright Copyright &copy; 2010, Market Acumen, Inc.
 		 */
-		$db = Database::instance();
+		$db = $this->application->database_factory();
 		$testx = new Database_Query_Insert($db);
 		
 		$table = null;

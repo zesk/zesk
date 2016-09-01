@@ -6,6 +6,7 @@
  * @author Kent Davidson <kent@marketacumen.com>
  * @copyright Copyright &copy; 2005, Market Acumen, Inc.
  */
+use zesk\Timestamp as Timestamp;
 
 /**
  *
@@ -34,7 +35,7 @@ abstract class Zesk_Content_File extends Object {
 			)
 		);
 	}
-
+	
 	/**
 	 * (non-PHPdoc)
 	 *
@@ -46,7 +47,7 @@ abstract class Zesk_Content_File extends Object {
 		}
 		return parent::store();
 	}
-
+	
 	/**
 	 * Retrieve path to file in file system.
 	 * Creates file if doesn't exist locally.
@@ -57,7 +58,7 @@ abstract class Zesk_Content_File extends Object {
 	function fullpath() {
 		return $this->Content_Data->filepath();
 	}
-
+	
 	/**
 	 * fopen the file
 	 *
@@ -67,7 +68,7 @@ abstract class Zesk_Content_File extends Object {
 	function open_file($mode) {
 		return $this->Content_Data->fopen($mode);
 	}
-
+	
 	/**
 	 * Copy the file to a destination
 	 *
@@ -78,7 +79,7 @@ abstract class Zesk_Content_File extends Object {
 	function copy_file($destination) {
 		return $this->Content_Data->copy_file($destination);
 	}
-
+	
 	/**
 	 * Does the destination file match our database version?
 	 *
@@ -97,21 +98,29 @@ abstract class Zesk_Content_File extends Object {
 	function size() {
 		return $this->Content_Data->Size;
 	}
-
+	
 	/**
 	 * Retrieve the download link for this file
 	 *
 	 * @param Response $response
 	 * @return string
 	 */
-	function download_link(Response $response) {
-		$router = $response->request->router;
+	function download_link($mixed) {
+		if ($mixed instanceof Response) {
+			// TODO 2016-07-18 Deprecated
+			zesk::deprecated();
+			$router = $mixed->request->router;
+		} else if ($mixed instanceof Router) {
+			$router = $mixed;
+		} else {
+			throw new Exception_Parameter("Parameter should be a Router");
+		}
 		return $router->get_route("download", "Content_File", array(
 			"ID" => $this->id(),
 			"Object" => $this
 		));
 	}
-
+	
 	/**
 	 * Add extension given the mime type of the file for the file name
 	 *
@@ -130,7 +139,7 @@ abstract class Zesk_Content_File extends Object {
 		}
 		return $name . "." . $extension;
 	}
-
+	
 	/**
 	 * Download a file
 	 *
@@ -142,7 +151,7 @@ abstract class Zesk_Content_File extends Object {
 	function download(Response $response, $type = null) {
 		return $response->download($this->fullpath(), $this->add_extension($this->Name), $type);
 	}
-
+	
 	/**
 	 * Original name of file
 	 *
@@ -151,7 +160,7 @@ abstract class Zesk_Content_File extends Object {
 	function original_name() {
 		return $this->Original;
 	}
-
+	
 	/**
 	 * Mime Type of file
 	 *
@@ -160,7 +169,7 @@ abstract class Zesk_Content_File extends Object {
 	function mime_type() {
 		return $this->member("MIMEType", "application/unknown");
 	}
-
+	
 	/**
 	 * Given a file path, register a new file
 	 *
@@ -174,7 +183,7 @@ abstract class Zesk_Content_File extends Object {
 		}
 		$options = to_array($options);
 		$data = Content_Data::copy_from_path($path, $copy);
-
+		
 		$file = new Content_File();
 		$file->Original = avalue($options, 'Original', $path);
 		if ($file->find(array(
@@ -184,10 +193,10 @@ abstract class Zesk_Content_File extends Object {
 		}
 		$file->Content_Data = $data;
 		$file->Name = basename($path);
-
+		
 		return $file->store();
 	}
-
+	
 	/**
 	 * Retrieve scan_path global for this
 	 *
@@ -200,7 +209,7 @@ abstract class Zesk_Content_File extends Object {
 		}
 		return to_list(zesk::class_get(__CLASS__, "scan_path", array()), array(), ";");
 	}
-
+	
 	/**
 	 * Retrieve the scan_path_copy global - determines if files are copied or moved from scan paths
 	 *
@@ -213,7 +222,7 @@ abstract class Zesk_Content_File extends Object {
 		}
 		return to_bool(zesk::class_get(__CLASS__, "scan_path_copy", true));
 	}
-
+	
 	/**
 	 * Load
 	 */
@@ -248,7 +257,7 @@ abstract class Zesk_Content_File extends Object {
 		$extension = "." . mime::to_extension($this->mime_type());
 		return str::unsuffix(basename($name), $extension) . $extension;
 	}
-
+	
 	/**
 	 * Mime Type of file
 	 *
@@ -259,6 +268,5 @@ abstract class Zesk_Content_File extends Object {
 		zesk::deprecated();
 		return $this->mime_type();
 	}
-
 }
 

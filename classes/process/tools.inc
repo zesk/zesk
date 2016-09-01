@@ -7,7 +7,6 @@
  * @copyright Copyright &copy; 2014, Market Acumen, Inc.
  */
 class Process_Tools {
-
 	/**
 	 * Check all processes and clear ones which have died
 	 *
@@ -35,32 +34,15 @@ class Process_Tools {
 		Object::class_query_update($class)->value($pid_field, null)->where($pid_field, $dead_pids)->execute();
 		return true;
 	}
-
+	
 	/**
 	 * Test to see if any files have changed in this process. If so - quit and restart.
 	 *
 	 * @return boolean
 	 */
 	static function process_code_changed() {
-		clearstatcache();
-		$current = array();
-		foreach (get_included_files() as $f) {
-			if (file_exists($f)) {
-				$current[$f] = filemtime($f);
-			}
-		}
-		$saved = zesk::get("Process_Tools::code_mod_times", array());
-		foreach ($saved as $f => $saved_mod_time) {
-			$cur_mtime = avalue($current, $f, null);
-			if ($cur_mtime === null) {
-				log::error("Huh? Current include file {file} wasn't saved?", array(
-					"file" => $f
-				));
-			} else if ($cur_mtime > $saved_mod_time) {
-				return true;
-			}
-		}
-		zesk::set("Process_Tools::code_mod_times", $current);
-		return false;
+		global $zesk;
+		/* @var $zesk zesk\Kernel */
+		return $zesk->objects->singleton("zesk\File_Monitor_Includes")->changed();
 	}
 }

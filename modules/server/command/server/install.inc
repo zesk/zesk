@@ -45,9 +45,7 @@ class Command_Server_Install extends Command {
 		log::file(STDOUT);
 		log::level(99);
 		$this->configure('server-install');
-
-		zesk::hooks("log");
-
+		
 		log::debug("Running {class}", array(
 			"class" => __CLASS__
 		));
@@ -60,7 +58,7 @@ class Command_Server_Install extends Command {
 		log::debug("Configuring {class}", array(
 			"class" => get_class($platform)
 		));
-
+		
 		$features = null;
 		if ($this->has_arg()) {
 			$features = array();

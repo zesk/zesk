@@ -43,7 +43,7 @@ echo html::tag_close('div');
 if ($startPanel !== null) {
 	$slider_options['startPanel'] = $startPanel;
 }
-$slider_options = zesk::hook_array('slider_options_alter', array(
+$slider_options = zesk()->hooks->call_arguments('slider_options_alter', array(
 	$slider_options
 ), $slider_options);
 

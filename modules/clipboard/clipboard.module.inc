@@ -2,4 +2,4 @@
 
 Module::register_paths();
 
-zesk::register_class('Module_clipboard');
+zesk\Classes::register('Module_clipboard');

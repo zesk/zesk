@@ -21,6 +21,13 @@ class Model extends Hookable implements ArrayAccess {
 	 * @var Application
 	 */
 	public $application = null;
+	
+	/**
+	 * 
+	 * @param mixed $mixed
+	 * @param array $options
+	 * @param Application $application
+	 */
 	function __construct($mixed = null, $options = null, Application $application = null) {
 		$this->application = $application ? $application : Application::instance();
 		if (is_array($mixed)) {
@@ -52,6 +59,12 @@ class Model extends Hookable implements ArrayAccess {
 		}
 		return $object;
 	}
+	
+	/**
+	 * Is this a new object?
+	 * 
+	 * @return boolean
+	 */
 	function is_new() {
 		return $this->inited();
 	}
@@ -166,6 +179,13 @@ class Model extends Hookable implements ArrayAccess {
 		}
 		return $this->__get($mixed);
 	}
+	
+	/**
+	 * Does this model have a member?
+	 * 
+	 * @param list|string $mixed
+	 * @return boolean For a list, if ANY member exists, returns true. 
+	 */
 	public function has($mixed = null) {
 		if (is_array($mixed)) {
 			foreach ($mixed as $k) {
@@ -213,6 +233,13 @@ class Model extends Hookable implements ArrayAccess {
 		}
 		return $this;
 	}
+	
+	/**
+	 * Convert to string
+	 * 
+	 * {@inheritDoc}
+	 * @see Options::__toString()
+	 */
 	public function __toString() {
 		return php::dump($this->options);
 	}
@@ -226,17 +253,156 @@ class Model extends Hookable implements ArrayAccess {
 		}
 		return null;
 	}
+	
+	/**
+	 * 
+	 * {@inheritDoc}
+	 * @see Options::__set()
+	 */
 	public function __set($name, $value) {
 		$this->$name = $value;
 		$this->_inited = true;
 	}
+	
+	/**
+	 * 
+	 * @param string $name
+	 */
 	public function __unset($name) {
 		unset($this->$name);
 	}
+	
+	/**
+	 * Is a member set?
+	 * 
+	 * @param string $name
+	 * @return boolean
+	 */
 	public function __isset($name) {
 		return isset($this->$name);
 	}
+	
+	/**
+	 * Convert to JSON string
+	 * 
+	 * @param array $options
+	 * @return string
+	 */
 	public function json(array $options = array()) {
 		return json::encode($this->variables());
+	}
+	
+	/**
+	 * Convert a theme name (or names) into clean paths for finding theme templates
+	 * 
+	 * @param list|string $name
+	 * @return list|string Cleaned theme names
+	 */
+	private static function _clean_theme_name($name) {
+		if (is_array($name)) {
+			foreach ($name as $k => $n) {
+				$name[$k] = self::_clean_theme_name($n);
+			}
+			return $name;
+		}
+		return strtr(strtolower($name), array(
+			"_" => "/",
+			"\\" => "/"
+		));
+	}
+	
+	/**
+	 * Given a theme name, return the full template file path
+	 *
+	 * Uses the class name and extrapolates within the theme search path, so:
+	 *
+	 * User_Role and $theme_name = "view" then searches for
+	 *
+	 * <code>
+	 * user/role/view.tpl
+	 * </code>
+	 *
+	 * In the theme path. If the theme_name begins with a slash or a period, no conversion is done.
+	 *
+	 * @param string $theme_name
+	 * @return string
+	 */
+	private function _theme_paths($theme_names) {
+		global $zesk;
+		
+		if ($theme_names === null) {
+			$theme_names = array(
+				$this->option("default_theme", "view")
+			);
+		} else if (is_string($theme_names)) {
+			if ($theme_names[0] === "/" || $theme_names[0] === ".") {
+				return array(
+					$theme_names
+				);
+			}
+			$theme_names = array(
+				$theme_names
+			);
+		} else if (!is_array($theme_names)) {
+			return array();
+		}
+		$result = array();
+		$hier = $zesk->classes->hierarchy(get_class($this), "Object");
+		foreach ($hier as $class) {
+			$result = array_merge($result, arr::prefix($theme_names, $class . "/"));
+		}
+		if ($this->has_option("theme_path_prefix")) {
+			$result_prefix = arr::prefix($result, $this->option("theme_path_prefix"));
+			$result = array_merge($result_prefix, $result);
+		}
+		return self::_clean_theme_name($result);
+	}
+	
+	/**
+	 * Output a template for the theme related to this object
+	 *
+	 * @param unknown $theme_name
+	 * @param unknown $options
+	 * @param unknown $default
+	 * @deprecated use render
+	 * @see Object::render
+	 */
+	function output($theme_name = null, $options = null, $default = "") {
+		zesk::deprecated();
+		return $this->render($theme_name, $options, $default);
+	}
+	
+	/**
+	 * @see Model::theme
+	 * @deprecated 2016-06-28 Use Model::theme 
+	 * @param string $theme_name Theme or list of themes to invoke (first found is used)
+	 * @param array $variables Variables to be passed to the template
+	 * @param string $default Default value if no theme is found
+	 * @return string
+	 */
+	function render($theme_name = null, $variables = null, $default = "") {
+		return $this->theme($theme_name, $variables, $default);
+	}
+	
+	/**
+	 * Temporarily deprecated until we can make this our renamed version of "render"
+	 *
+	 * @param string $theme_name Theme or list of themes to invoke (first found is used)
+	 * @param array $variables Variables to be passed to the template
+	 * @param string $default Default value if no theme is found
+	 * @return string
+	 */
+	function theme($theme_name = null, $variables = null, $default = "") {
+		$variables = is_string($variables) ? array(
+			'content' => $variables
+		) : (array) $variables;
+		$variables += array(
+			'object' => $this,
+			strtolower(get_class($this)) => $this
+		);
+		return $this->application->theme($this->_theme_paths($theme_name), $variables, array(
+			"default" => $default,
+			"first" => true
+		));
 	}
 }

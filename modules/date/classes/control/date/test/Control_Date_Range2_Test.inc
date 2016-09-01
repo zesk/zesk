@@ -1,4 +1,7 @@
 <?php
+
+use zesk\Timestamp as Timestamp;
+
 /**
  * $URL: https://code.marketacumen.com/zesk/trunk/modules/date/classes/control/date/test/Control_Date_Range2_Test.inc $
  * @package zesk

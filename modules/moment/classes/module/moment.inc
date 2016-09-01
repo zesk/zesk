@@ -15,10 +15,10 @@ class Module_Moment extends Module_JSLib implements Module_Interface_Head {
 	public function hook_head(Request $request, Response_HTML $response, Template $template) {
 		$locale = zesk\Locale::current();
 		$language = zesk\Locale::language($locale);
-		$this->jquery_ready[] = 'moment.locale(' . js::arguments(array(
+		$this->jquery_ready[] = "try {\n\tmoment.locale(" . js::arguments(array(
 			$locale,
 			$language
-		)) . ');';
+		)) . ");\n} catch (e) {\n\twindow.zesk && window.zesk.log(\"Moment locale $locale failed to load\");\n}";
 		parent::hook_head($request, $response, $template);
 	}
 }

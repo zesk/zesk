@@ -6,61 +6,60 @@
  * @author kent
  */
 class Zesk_Command {
-
+	
 	/**
 	 * Search these paths to find application
 	 *
 	 * @var array
 	 */
 	private $search = array();
-
+	
 	/**
 	 * Main command run
 	 *
 	 * @var string
 	 */
 	private $command = null;
-
+	
 	/**
 	 * Was Zesk loaded?
 	 *
 	 * @var string
 	 */
 	private $zesk_loaded = false;
-
+	
 	/**
 	 * List of config files to load after loading application
 	 *
 	 * @var array
 	 */
 	private $wait_configs = array();
-
+	
 	/**
 	 * Command alaises
 	 *
 	 * @var array
 	 */
 	private $aliases = array();
-
 	const configure_options = 'application::configure_options';
-
+	
 	/**
 	 * Set up PHP basics so we can detect errors while testing, etc.
 	 */
 	public function __construct() {
 		global $_ZESK;
-
+		
 		if (!is_array($_ZESK)) {
 			$_ZESK = array();
 		}
-
+		
 		$_ZESK['zesk']['command'] = true;
 		$_ZESK['application']['configure_options']['skip_configured'] = true;
-
+		
 		ini_set('error_prepend_string', "\nPHP-ERROR " . str_repeat("=", 80) . "\n");
 		ini_set('error_append_string', "\n" . str_repeat("*", 80) . "\n");
 	}
-
+	
 	/**
 	 * Create instance
 	 *
@@ -69,20 +68,21 @@ class Zesk_Command {
 	public static function instance() {
 		return new self();
 	}
-
+	
 	/**
-	 * Run the command. Main entry point into this class after initialization, normally.
+	 * Run the command.
+	 * Main entry point into this class after initialization, normally.
 	 */
 	public function run() {
 		if (!array_key_exists('argv', $_SERVER)) {
 			die('No argv key in $_SERVER\n');
 		}
-
+		
 		$argv = $_SERVER['argv'];
 		assert('is_array($argv)');
 		$argv = $this->fix_zend_studio_arguments($argv);
 		$this->command = array_shift($argv);
-
+		
 		/*
 		 * Main comand loop. Handle parameters
 		 *
@@ -125,7 +125,7 @@ class Zesk_Command {
 				$first_command = $this->find_application();
 				require_once $first_command;
 				$this->zesk_loaded($first_command);
-				if (zesk::getb('debug')) {
+				if (zesk()->configuration->debug) {
 					$this->debug("Loaded application file $first_command\n");
 				}
 			}
@@ -137,7 +137,6 @@ class Zesk_Command {
 		}
 		return 0;
 	}
-
 	private function stderr() {
 		if (defined("STDERR")) {
 			return STDERR;
@@ -152,20 +151,25 @@ class Zesk_Command {
 	/**
 	 * Run a command
 	 *
-	 * @param string $arg
-	 * @param array $argv
+	 * @param string $arg        	
+	 * @param array $argv        	
 	 * @return array
 	 */
 	public function run_command($arg, array $argv) {
+		global $zesk;
+		/* @var $zesk zesk\Kernel */
 		$command = avalue($this->aliases, $arg, $arg);
 		$command = strtr($command, array(
 			"_" => "/",
 			"-" => "/"
 		));
+		$debug = $zesk->configuration->debug;
 		$find_command = zesk::find_file(zesk::zesk_command_path(), "$command.inc");
 		if ($find_command === null) {
-			if (zesk::getb('debug')) {
-				$this->debug("Search path: \n\t" . implode("\n\t", arr::suffix(zesk::zesk_command_path(), "/$command.inc")));
+			if ($debug) {
+				$this->debug("Search path: \n\t{paths}", array(
+					"paths" => implode("\n\t", arr::suffix($zesk->paths->zesk_command(), "/$command.inc"))
+				));
 			}
 			fprintf($this->stderr(), "Ignoring command $arg - not found\n");
 			return $argv;
@@ -174,16 +178,30 @@ class Zesk_Command {
 		$func = zesk::clean_function('zesk_command_' . $command);
 		$class = zesk::clean_function("Command_" . $command);
 		if (class_exists($class, false)) {
-			$command_object = zesk::factory($class, array_merge(array(
+			$command_object = $zesk->objects->factory($class, array_merge(array(
 				$arg
 			), $argv));
 			/* @var $command_object Command */
+			$application = Application::instance();
 			if (!$command_object->has_configuration) {
-				Application::instance()->configured();
+				$this->debug("Command {class} does not have configuration, calling {app} configured", array(
+					"class" => $class,
+					"app" => get_class($application)
+				));
+				if (!$application->configured()) {
+					$this->debug("Command {class} {app} WAS ALREADY CONFIGURED!!!!", array(
+						"class" => $class,
+						"app" => get_class($application)
+					));
+				}
+			} else {
+				$this->debug("Command {class} has configuration, skipping configured call", array(
+					"class" => $class
+				));
 			}
 			$result = $command_object->go();
 			$argv = $command_object->arguments_remaining();
-			if (zesk::getb('debug')) {
+			if ($debug) {
 				$this->debug("Remaining class arguments: " . json_encode($argv));
 			}
 			if ($result !== 0 && $result !== null) {
@@ -198,7 +216,7 @@ class Zesk_Command {
 			if (is_array($result)) {
 				$argv = $result;
 			}
-			if (zesk::getb('command::debug')) {
+			if ($debug) {
 				$this->debug("Remaining function arguments: " . json_encode($argv));
 			}
 		} else {
@@ -206,12 +224,12 @@ class Zesk_Command {
 		}
 		return $argv;
 	}
-
+	
 	/**
 	 * Show usage
 	 *
-	 * @param string $error
-	 * @param number $exit_code
+	 * @param string $error        	
+	 * @param number $exit_code        	
 	 */
 	private function usage($error = null, $exit_code = 1) {
 		if ($error) {
@@ -223,11 +241,11 @@ class Zesk_Command {
 		$message[] = "Loads an application context, then runs a bunch of commands in order, optionally setting globals beforehand.";
 		$message[] = "You can pass a --set name=value to set a zesk global at any point in the command";
 		$message[] = "As well, --name=value does the same, doing --variable sets the value to true";
-
+		
 		fwrite(STDERR, implode("\n", $message) . "\n");
 		exit($exit_code);
 	}
-
+	
 	/**
 	 * Handle running PHP commands via Zend Studio.
 	 *
@@ -245,7 +263,7 @@ class Zesk_Command {
 	 *
 	 * For debugging only.
 	 *
-	 * @param array $argv
+	 * @param array $argv        	
 	 * @return array New argv
 	 */
 	private function fix_zend_studio_arguments(array $argv) {
@@ -271,7 +289,7 @@ class Zesk_Command {
 		}
 		return $argv;
 	}
-
+	
 	/**
 	 * Find the application file from the CWD or the search directory
 	 *
@@ -314,10 +332,10 @@ class Zesk_Command {
 		$this->usage("No zesk " . implode(", ", $zesk_root_files) . " found in: " . implode(", ", $this->search));
 		return null;
 	}
-
+	
 	/**
 	 *
-	 * @param string $arg
+	 * @param string $arg        	
 	 * @return boolean
 	 */
 	private function zesk_loaded($arg = null) {
@@ -344,12 +362,12 @@ class Zesk_Command {
 		}
 		return true;
 	}
-
+	
 	/**
 	 * Convert global syntax
 	 *
 	 * @see zesk::normalize_global_key - it should match this
-	 * @param string $key
+	 * @param string $key        	
 	 * @return string
 	 */
 	static function normalize_global_key($key) {
@@ -361,13 +379,13 @@ class Zesk_Command {
 			" " => "_"
 		));
 	}
-
+	
 	/**
 	 * Handle --set
 	 *
 	 * Consumes one additional argument of form name=value
 	 *
-	 * @param array $argv
+	 * @param array $argv        	
 	 * @return array
 	 */
 	private function handle_set(array $argv) {
@@ -375,7 +393,7 @@ class Zesk_Command {
 		if ($pair === null) {
 			$this->usage("--set missing argument");
 		}
-
+		
 		list($key, $value) = explode("=", $pair, 2) + array(
 			null,
 			true
@@ -388,13 +406,13 @@ class Zesk_Command {
 		}
 		return $argv;
 	}
-
+	
 	/**
 	 * Handle --unset
 	 *
 	 * Consumes one additional argument of form name=value
 	 *
-	 * @param array $argv
+	 * @param array $argv        	
 	 * @return array
 	 */
 	private function handle_unset(array $argv) {
@@ -410,11 +428,11 @@ class Zesk_Command {
 		}
 		return $argv;
 	}
-
+	
 	/**
 	 * Handle --cd
 	 *
-	 * @param array $argv
+	 * @param array $argv        	
 	 * @return aray
 	 */
 	private function handle_cd(array $argv) {
@@ -428,11 +446,11 @@ class Zesk_Command {
 		chdir($arg);
 		return $argv;
 	}
-
+	
 	/**
 	 * Handle --search
 	 *
-	 * @param array $argv
+	 * @param array $argv        	
 	 * @return array
 	 */
 	private function handle_search(array $argv) {
@@ -449,11 +467,11 @@ class Zesk_Command {
 		}
 		return $argv;
 	}
-
+	
 	/**
 	 * Handle --config
 	 *
-	 * @param array $argv
+	 * @param array $argv        	
 	 * @return array
 	 */
 	private function handle_config(array $argv) {
@@ -471,8 +489,13 @@ class Zesk_Command {
 		}
 		return $argv;
 	}
-
-	private function debug($message) {
-		echo rtrim($message, "\n") . "\n";
+	
+	/**
+	 * Output a debug message
+	 * 
+	 * @param string $message
+	 */
+	private function debug($message, array $context = array()) {
+		echo rtrim(map($message, $context), "\n") . "\n";
 	}
 }

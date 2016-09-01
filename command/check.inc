@@ -9,12 +9,12 @@
  * @author Kent Davidson <kent@marketacumen.com>
  * @copyright Copyright &copy; 2011, Market Acumen, Inc.
  */
+use zesk\file as file;
 
 /**
  *
  */
 class Command_Check extends Command_Iterator_File {
-
 	protected $extensions = array(
 		"php",
 		"phpt",
@@ -22,7 +22,6 @@ class Command_Check extends Command_Iterator_File {
 		"tpl",
 		"module"
 	);
-
 	protected $prefixes = array(
 		"php" => array(
 			"<?php\n/**\n",
@@ -32,7 +31,6 @@ class Command_Check extends Command_Iterator_File {
 		"tpl" => "<?php\n",
 		"phpt" => "#!{php_bin_path}\n<?php\n"
 	);
-
 	protected $prefixes_gremlins = array(
 		"php" => array(
 			"<?php\n",
@@ -42,19 +40,18 @@ class Command_Check extends Command_Iterator_File {
 		"inc" => "<?php\n",
 		"phpt" => "#!{php_bin_path}\n<?php\n"
 	);
-
 	protected $log = array();
-
 	protected $editor = null;
-
+	
 	//	protected $debug = true;
 	protected $show = false;
-
 	protected $changed = 0;
-
 	function initialize() {
+		global $zesk;
+		/* @var $zesk zesk\Kernel */
+		
 		parent::initialize();
-
+		
 		$this->option_types['gremlins'] = 'boolean';
 		$this->option_types['fix'] = 'boolean';
 		$this->option_types['editor'] = 'string';
@@ -75,13 +72,26 @@ class Command_Check extends Command_Iterator_File {
 		$this->option_types['safe'] = 'boolean';
 		$this->option_types['no-backup'] = 'boolean';
 		$this->option_types['ignore'] = 'string';
-
+		
 		$this->set_option('php-bin-path', '/usr/bin/env php');
 		$this->set_option('year', date('Y'));
-
-		$this->editor = zesk::get('editor', 'mate');
+		
+		$this->editor = $this->option('editor', $this->default_editor());
 	}
-
+	
+	/**
+	 * Use TextMate on Mac OS X (default only)
+	 * 
+	 * @return string
+	 */
+	private function default_editor() {
+		$distro = system::distro("distro");
+		if ($distro === "Darwin") {
+			return "mate";
+		} else {
+			return "vim";
+		}
+	}
 	protected function start() {
 		$this->prefixes = map($this->prefixes, $this->options_include("php-bin-path"));
 		$this->prefixes_gremlins = map($this->prefixes_gremlins, $this->options_include("php-bin-path"));
@@ -92,7 +102,6 @@ class Command_Check extends Command_Iterator_File {
 		$this->verbose_log("Fix is " . ($this->option_bool('fix') ? 'on' : 'off') . ".");
 		$this->changed = 0;
 	}
-
 	private function lint_file($path, &$output = null) {
 		$result_var = 255;
 		$options = " -d error_reporting='E_ALL|E_STRICT'";
@@ -102,7 +111,6 @@ class Command_Check extends Command_Iterator_File {
 		}
 		return intval($result_var);
 	}
-
 	private function lint_php($php_code) {
 		$tmp = path(ZESK_ROOT, "." . md5($php_code) . "-" . zesk::pid() . ".php");
 		file_put_contents($tmp, $php_code);
@@ -110,7 +118,6 @@ class Command_Check extends Command_Iterator_File {
 		unlink($tmp);
 		return $result;
 	}
-
 	private function recomment(&$contents, $term, $function) {
 		$translate = array();
 		$comments = doccomment::extract($contents);
@@ -135,7 +142,6 @@ class Command_Check extends Command_Iterator_File {
 		$contents = strtr($contents, $translate);
 		return true;
 	}
-
 	private function show_comments($contents, $term) {
 		$translate = array();
 		$comments = doccomment::extract($contents);
@@ -148,7 +154,6 @@ class Command_Check extends Command_Iterator_File {
 		}
 		return $results;
 	}
-
 	private function first_comment($contents, $term) {
 		$translate = array();
 		$comments = doccomment::extract($contents);
@@ -160,11 +165,9 @@ class Command_Check extends Command_Iterator_File {
 		}
 		return null;
 	}
-
 	private function fix_copyright($value) {
 		return preg_replace("/([^0-9])[12][09][0-9][0-9]([^0-9])/", '${1}' . date('Y') . '${2}', $value);
 	}
-
 	private function fix_prefix(&$contents) {
 		$contents = ltrim($contents);
 		$new_prefix = map("<?php\n/**\n * @version \$URL\$\n * @author \$Author\$\n * @package {package}\n * @subpackage {subpackage}\n * @copyright Copyright (C) {year}, {company}. All rights reserved.\n */\n", $this->option());
@@ -180,53 +183,44 @@ class Command_Check extends Command_Iterator_File {
 		$contents = $new_prefix . "?>\n" . $contents;
 		return true;
 	}
-
 	private function fix_suffix(&$contents) {
 		$contents = rtrim($contents);
 		$contents = rtrim(str::unsuffix($contents, "?>")) . "\n";
 		return true;
 	}
-
 	private function fix_author($value) {
 		return '$' . 'Author' . '$';
 	}
-
 	private function fix_package($value) {
 		return $this->option('repackage');
 	}
-
 	private function fix_subpackage($value) {
 		return $this->option('resubpackage');
 	}
-
 	private function recopyright(&$contents) {
 		return $this->recomment($contents, 'copyright', array(
 			$this,
 			'fix_copyright'
 		));
 	}
-
 	private function reauthor(&$contents) {
 		return $this->recomment($contents, 'author', array(
 			$this,
 			'fix_author'
 		));
 	}
-
 	private function repackage(&$contents) {
 		return $this->recomment($contents, 'package', array(
 			$this,
 			'fix_package'
 		));
 	}
-
 	private function resubpackage(&$contents) {
 		return $this->recomment($contents, 'subpackage', array(
 			$this,
 			'fix_subpackage'
 		));
 	}
-
 	function process_file(SplFileInfo $file) {
 		$path = $file->getPathname();
 		if ($this->has_option('ignore')) {
@@ -341,7 +335,6 @@ class Command_Check extends Command_Iterator_File {
 			$this->changed++;
 		}
 	}
-
 	protected function finish() {
 		$n_found = count($this->log);
 		if ($n_found === 0) {

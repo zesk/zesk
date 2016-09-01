@@ -20,24 +20,26 @@ class Contact_Phone_Bootstrap {
 		self::bootstrap_country_codes();
 	}
 	static function bootstrap_area_codes() {
+		global $zesk;
+		/* @var $zesk zesk\Kernel */
 		if (self::$bootAreaCode) {
 			return;
 		}
 		$x = new Contact_Phone_AreaCode();
-		if (zesk::getb('bootstrap-drop-all')) {
+		if ($zesk->configuration->get('bootstrap-drop-all')) {
 			$x->database()->query('TRUNCATE ' . $x->table());
 		}
 		
 		$csv = new CSV_Reader();
 		// TODO Fix this path
-		$csv->setFile(ZESK_CONTACT_ROOT . "classes/data/AreaCodeCities.txt");
-		$csv->setHeaders(array(
+		$csv->filename(ZESK_CONTACT_ROOT . "classes/data/AreaCodeCities.txt");
+		$csv->set_headers(array(
 			"AreaCode",
 			"State",
 			"Desc"
 		));
 		$nRows = 0;
-		while (is_array($a = $csv->readRowAssoc(true))) {
+		while (is_array($a = $csv->read_row_assoc(true))) {
 			$areaCode = $a['areacode'];
 			if (empty($areaCode) || !is_numeric($areaCode)) {
 				continue;
@@ -104,10 +106,12 @@ class Contact_Phone_Bootstrap {
 		self::$bootAreaCode = true;
 	}
 	static function bootstrap_country_codes() {
+		global $zesk;
+		/* @var $zesk zesk\Kernel */
 		self::bootstrap_area_codes();
 		
 		$x = new Contact_Phone_CountryCode();
-		if (zesk::getb('bootstrap-drop-all'))
+		if ($zesk->configuration->get('bootstrap-drop-all'))
 			$x->database()->query('TRUNCATE ' . $x->table());
 		
 		$csv = new CSV_Reader(dirname(__FILE__) . "/../bootstrap-data/PhoneCountryCode.csv");

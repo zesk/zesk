@@ -1,5 +1,7 @@
 <?php
 
+use zesk\Timestamp as Timestamp;
+
 /* @var $this Template */
 $response = $this->response;
 /* @var $response Response_HTML */
@@ -70,7 +72,13 @@ foreach (array(
 		$options[$js_option] = $this->get($template_key);
 	}
 }
-$options['locale'] = zesk\Locale::language($this->get("locale", zesk\Locale::current()));
+$locale = $this->get("locale", zesk\Locale::language());
+
+// https://github.com/Eonasdan/bootstrap-datetimepicker/issues/1718
+$js_language = "moment.localeData(\"$locale\") ? \"$locale\" : \"en\"";
+
+$options['*locale'] = $js_language;
+
 $original_id = $id;
 if ($inline) {
 	$id = "$id-dtp";

@@ -6,6 +6,9 @@
  * @author Kent Davidson <kent@marketacumen.com>
  * @copyright Copyright &copy; 2008, Market Acumen, Inc.
  */
+use zesk\file as file;
+use zesk\Timestamp as Timestamp;
+
 abstract class Net_Client extends Options {
 	/**
 	 * Connection string
@@ -41,7 +44,8 @@ abstract class Net_Client extends Options {
 			$object = new $class($url, $options);
 			return $object;
 		} catch (Exception_Class_NotFound $e) {
-			zesk::hook("exception", $e);
+			global $zesk;
+			$zesk->hooks->call("exception", $e);
 			return null;
 		}
 	}

@@ -6,6 +6,6 @@
  *
  * @author kent
  */
-class Exception_Lock extends Zesk_Exception {
+class Exception_Lock extends zesk\Exception {
 
 }

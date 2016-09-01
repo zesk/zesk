@@ -13,6 +13,8 @@ class Command_Help extends Command_Base {
 	);
 
 	function run() {
+		global $zesk;
+		/* @var $zesk zesk\Kernel */
 		$command_files = array();
 		$opts = array(
 			'file_default' => false,
@@ -34,7 +36,7 @@ class Command_Help extends Command_Base {
 		foreach ($command_files as $path => $commands) {
 			foreach ($commands as $command) {
 				$command_file = path($path, $command);
-				if (zesk::getb('debug')) {
+				if ($zesk->configuration->debug) {
 					echo "Checking $command_file\n";
 				}
 				$command = basename(strtr($command, array(

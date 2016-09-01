@@ -1,14 +1,27 @@
 <?php
-
 class Control_SortOrder extends Control {
-
 	protected $options = array(
 		'name' => 'so',
 		'column' => 'sort_order'
 	);
+	
+	/**
+	 * 
+	 * @var boolean
+	 */
 	private $ascending = null;
+	
+	/**
+	 * 
+	 * @var boolean
+	 */
 	private $list_default_ascending = null;
-
+	
+	/**
+	 * 
+	 * {@inheritDoc}
+	 * @see Widget::initialize()
+	 */
 	public function initialize() {
 		parent::initialize();
 		$name = $this->name();
@@ -19,44 +32,30 @@ class Control_SortOrder extends Control {
 			$this->parent->preserve_hidden("so", $this->default_value());
 		}
 	}
-
-	public function hook_query_OLD(Database_Query_Select $query) {
-		zesk::obsolete();
-		$order_by_original = to_list($query->order_by(), array(), ",");
-		$this->list_default_ascending = strtolower(str::right(first(to_list($query->order_by())), " ")) !== 'desc';
-		if ($this->ascending === null) {
-			$this->ascending = $this->list_default_ascending;
-		}
-		if ($this->ascending === $this->list_default_ascending) {
-			return;
-		}
-		$order_by_reversed = array();
-		foreach ($order_by_original as $token) {
-			list($col, $ordering) = pair($token, " ", $token, "asc");
-			$ordering = strtolower($ordering) === 'desc' ? "ASC" : "DESC";
-			$order_by_reversed[] = "$col $ordering";
-		}
-		$query->order_by($order_by_reversed);
-	}
-
+	
+	/**
+	 * 
+	 * @param Database_Query_Select $query
+	 */
 	public function hook_after_query_list(Database_Query_Select $query) {
 		$parser = $query->parser();
 		$order_by_original = $parser->split_order_by($query->order_by());
 		$this->list_default_ascending = !endsi(first($order_by_original), " desc");
-		//		log::debug("Control_SortOrder: ascending=$this->ascending default=$this->list_default_ascending obo=" . _dump($order_by_original));
 		if ($this->ascending === null) {
-			//		log::debug("Control_SortOrder: this->ascending is null, setting to default $this->list_default_ascending");
 			$this->ascending = $this->list_default_ascending;
 		}
 		if ($this->ascending === $this->list_default_ascending) {
 			return;
 		}
 		$order_by_reversed = $parser->reverse_order_by($order_by_original);
-		log::error($order_by_original);
-		log::error($order_by_reversed);
 		$query->order_by($order_by_reversed);
 	}
-
+	
+	/**
+	 * 
+	 * {@inheritDoc}
+	 * @see Widget::theme_variables()
+	 */
 	public function theme_variables() {
 		return parent::theme_variables() + array(
 			'ascending' => $this->ascending,

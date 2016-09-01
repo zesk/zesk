@@ -38,7 +38,7 @@ class Command_Database_Reset extends Command {
 		zesk::php_has('pcntl', true);
 
 		$dbname = $this->option('name');
-		$db = Database::instance($dbname);
+		$db = $this->application->database_factory($dbname);
 		if (!$db) {
 			$this->error("No such database url for \"$dbname\"\n");
 			return false;

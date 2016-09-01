@@ -1,20 +1,13 @@
 <?php
-
 class Control_OrderBy extends Control {
-
 	const default_order_variable = 'o';
-
 	private $active = null;
-
 	private $sort_number;
 	private $sort_order;
-
 	private $url = null;
-
 	function list_order_by($set = null) {
 		return $set === null ? $this->option('list_order_by') : $this->set_option('list_order_by', $set);
 	}
-
 	function list_order_by_reverse($set = null) {
 		if ($set === null) {
 			$result = $this->option('list_order_by_reverse', null);
@@ -37,23 +30,23 @@ class Control_OrderBy extends Control {
 		}
 		return $this->set_option('list_order_by_reverse', $set);
 	}
-
 	function list_order_column($set = null) {
 		return $set === null ? $this->option('list_order_column', $this->column()) : $this->set_option('list_order_column', $set);
 	}
-
 	function list_order_variable($set = null) {
 		return $set === null ? $this->option('list_order_variable', $this->parent ? $this->parent->option('list_order_variable', self::default_order_variable) : self::default_order_variable) : $this->set_option('list_order_variable', $set);
 	}
-
 	function hook_header(Control_Header $header) {
 		$col = $this->list_order_column();
 		$header->add_ordering($col, $this->list_order_by());
 		$header->add_ordering("-$col", $this->list_order_by_reverse());
 	}
-
 	function initialize() {
 		parent::initialize();
+		$list_order_by = $this->list_order_by();
+		if ($list_order_by === true) {
+			$this->list_order_by($this->column());
+		}
 		$cur_sort_names = arr::clean($this->request->geta($this->list_order_variable(), array(), ";"));
 		$k = $this->list_order_column();
 		$order_var = $this->list_order_variable();
@@ -115,7 +108,7 @@ class Control_OrderBy extends Control {
 		$this->theme_variables['url'] = url::query_format($this->option("URI", url::current_uri()), array(
 			$order_var => $new_key
 		));
-
+		
 		$this->theme_variables['ascending'] = $ascending;
 		$this->theme_variables['selected'] = $selected;
 		$this->theme_variables['sort_order'] = $sort_order;
@@ -123,5 +116,4 @@ class Control_OrderBy extends Control {
 		$this->theme_variables['sort_number'] = $sort_number;
 		$this->theme_variables['sort_order'] = $sort_order;
 	}
-
 }

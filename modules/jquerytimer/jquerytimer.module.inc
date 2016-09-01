@@ -1,5 +1,5 @@
 <?php
-
-Module::register_paths();
-
-zesk::register_class("Module_jQueryTimer");
+if (false) {
+	$application = app();
+}
+$application->module->register_paths();

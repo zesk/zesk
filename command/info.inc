@@ -18,6 +18,8 @@ class Command_Info extends Command {
 		'format' => "output format: text (default), html, php, serialize, json"
 	);
 	static $human_names = array(
+		'zesk_version_release' => 'Zesk Version',
+		'zesk_version_string' => 'Zesk Version String',
 		'zesk_application_root' => 'Zesk Application Root',
 		'zesk_root' => 'Zesk Root',
 		'database::url' => 'Database URL (Primary)',
@@ -33,8 +35,12 @@ class Command_Info extends Command {
 		'conf::loaded' => 'Loaded Configuration Files'
 	);
 	function run() {
+		global $zesk;
+		/* @var $zesk zesk\Kernel */
 		$app = $this->application;
 		
+		$info['zesk_version_release'] = zesk\Version::release();
+		$info['zesk_version_string'] = zesk\Version::string();
 		$info['zesk_root'] = ZESK_ROOT;
 		$info['zesk_application_root'] = $app->application_root();
 		$info['Application::class'] = $app->application_class();
@@ -47,7 +53,7 @@ class Command_Info extends Command {
 		$info['php_ini'] = get_cfg_var('cfg_file_path');
 		$info['display_startup_errors'] = to_bool(ini_get('display_startup_errors')) ? 'true' : 'false';
 		$info['error_log'] = ini_get('error_log');
-		$info['conf::loaded'] = zesk::geta('conf::loaded');
+		$info['conf::loaded'] = to_array($zesk->configuration->path_get('conf::loaded'));
 		
 		$module_info = $app->module->all_hook_array("info", array(), array());
 		$info = array_merge($info, arr::key_value($module_info, null, "value"));

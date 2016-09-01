@@ -1,47 +1,44 @@
 <?php
-
 class Workflow extends Model {
-
+	
 	/**
 	 * Array of classes for steps
 	 *
 	 * @var array
 	 */
 	protected $steps = array();
-
 	protected $variables = array();
-
+	
 	/**
 	 * Computed from steps
 	 *
 	 * @var array of Workflow_Step
 	 */
 	protected $sorted_steps = null;
-
+	
 	/**
 	 *
 	 * @var boolean
 	 */
 	public $completed = true;
-
+	
 	/**
 	 * @var integer
 	 */
 	public $steps_completed = 0;
-
+	
 	/**
 	 *
 	 * @var integer
 	 */
 	public $steps_total = 0;
-
+	
 	/**
 	 * Whether the above are computed or not
 	 *
 	 * @var unknown
 	 */
 	private $dirty = true;
-
 	function __construct(array $variables = array(), array $options = array()) {
 		parent::__construct($options);
 		$this->inherit_global_options();
@@ -50,15 +47,11 @@ class Workflow extends Model {
 		$this->_init_steps();
 		$this->_clean_completed();
 	}
-
 	public final function percent() {
 		return 100 * ($this->steps_total === 0 ? 1 : $this->steps_completed / $this->steps_total);
 	}
-
 	protected function initialize() {
-
 	}
-
 	public function hash() {
 		foreach ($this->sorted_steps as $id => $step) {
 			$keys[] = $id;
@@ -78,7 +71,7 @@ class Workflow extends Model {
 		$this->_clean_completed();
 		return $this;
 	}
-
+	
 	/**
 	 * Clean the steps
 	 */
@@ -115,7 +108,7 @@ class Workflow extends Model {
 		foreach ($steps as $id => $step) {
 			/*
 			 * If we have no dependencies, or all of our dependencies are already in our list, then add it.
-			*/
+			 */
 			$dep_ids = $step->dependencies();
 			$dep_ids = arr::filter($dep_ids, $step_ids);
 			if (count($dep_ids) === 0 || arr::has($this->sorted_steps, $dep_ids)) {
@@ -142,7 +135,6 @@ class Workflow extends Model {
 			}
 		}
 	}
-
 	private function _clean_completed() {
 		if (!$this->dirty) {
 			return;
@@ -160,7 +152,7 @@ class Workflow extends Model {
 		$this->dirty = false;
 		$this->hook($this->completed ? 'completed' : "incomplete");
 	}
-
+	
 	/**
 	 * Return variables
 	 *
@@ -200,46 +192,42 @@ class Workflow extends Model {
 			"dump" => _dump($name)
 		));
 	}
-
-	function render($theme = null) {
-		if ($theme === null) {
-			$theme = "steps";
+	function render($theme_name = null, $variables = null, $default = "") {
+		global $zesk;
+		if ($theme_name === null) {
+			$theme_name = "steps";
 		}
 		$this->_clean_completed();
-		$themes = arr::suffix(zesk::class_hierarchy(get_class($this), __CLASS__), "/$theme");
+		$themes = arr::suffix($zesk->classes->hierarchy(get_class($this), __CLASS__), "/$theme_name");
 		return Application::instance()->theme($themes, array(
 			'workflow' => $this,
 			'completed' => $this->completed,
 			'steps' => $this->sorted_steps,
 			'steps_completed' => $this->steps_completed,
 			'steps_total' => $this->steps_total
-		), array(
-			'first' => true
+		) + to_array($variables, array()), array(
+			'first' => true,
+			"default" => $default
 		));
 	}
-
 	public function __toString() {
 		return php::dump($this->variables);
 	}
-
+	
 	/*
 	 * Only place to access ->$name is here
-	*/
+	 */
 	public function __get($name) {
 		return array_key_exists($name, $this->variables) ? $this->variables[$name] : null;
 	}
-
 	public function __set($name, $value) {
 		$this->variables[$name] = $value;
 		$this->_inited = true;
 	}
-
 	public function __unset($name) {
 		unset($this->variables[$name]);
 	}
-
 	public function __isset($name) {
 		return isset($this->variables[$name]);
 	}
-
 }

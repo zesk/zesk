@@ -1,5 +1,6 @@
 <?php
 
+use zesk\Timestamp as Timestamp;
 /**
  * Generate doccomment @property list for any Object/Class_Object pair in the system
  *

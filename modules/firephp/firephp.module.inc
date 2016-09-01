@@ -5,4 +5,4 @@ if (!defined('FIREPHP_MODULE_PATH')) {
 }
 Module::register_paths();
 
-zesk::register_class("Module_FirePHP");
+zesk\Classes::register("Module_FirePHP");

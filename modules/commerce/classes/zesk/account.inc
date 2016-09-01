@@ -1,39 +1,38 @@
 <?php
 /**
-* $URL: https://code.marketacumen.com/zesk/trunk/modules/commerce/classes/zesk/account.inc $
-* @package zesk
-* @subpackage objects
-*/
-
+ * $URL: https://code.marketacumen.com/zesk/trunk/modules/commerce/classes/zesk/account.inc $
+ * @package zesk
+ * @subpackage objects
+ */
+use zesk\Timestamp as Timestamp;
 /**
  * Zesk_Account
  * @author kent
  */
 class Zesk_Account extends Object {
-
 	public static function instance() {
 		static $singleton = null;
 		if ($singleton instanceof Zesk_Account) {
 			return $singleton;
 		}
 		$user = User::instance();
-		$singleton = zesk::hook_array('Account::instance', array($user), $user->Account);
+		$singleton = zesk()->hooks->call_arguments('Account::instance', array(
+			$user
+		), $user->Account);
 		if (is_numeric($singleton)) {
 			$singleton = $user->object_factory("Account")->fetch($singleton);
 		}
 		return $singleton;
 	}
-
 	public function compute_balance() {
 		$query = Object::class_query("Account_Transaction", "X")->what("*Balance", "SUM(X.Amount)")->where("Account", $this);
-
+		
 		$this->Balance = doubleval($query->where("Reconciled", true)->one("Balance", 0));
 		$this->NewBalance = doubleval($query->where("Reconciled", false)->one("Balance", 0));
 		if ($this->changed()) {
 			$this->store();
 		}
 	}
-
 	function balance_as_of(Timestamp $dt, $includingDate = true) {
 		$balance = $this->member("CurrentBalance");
 		$balance = $balance->copyObject($this);
@@ -46,9 +45,7 @@ class Zesk_Account extends Object {
 	function payment() {
 		return $this->Payment;
 	}
-
-	function payment_account()
-	{
+	function payment_account() {
 		if ($this->member_is_empty("PaymentAccount")) {
 			$this->PaymentAccount = $this;
 			$this->store();
@@ -58,27 +55,24 @@ class Zesk_Account extends Object {
 		}
 		return $this->PaymentAccount;
 	}
-
-	function is_self_paid()
-	{
+	function is_self_paid() {
 		return $this->payment_account()->id() === $this->id();
 	}
-
-	function payment_is_valid()
-	{
+	function payment_is_valid() {
 		if ($this->is_self_paid()) {
 			$payment = $this->find_valid_payment();
 			return $payment instanceof Payment;
 		}
 		return $this->payment_account()->payment_is_valid();
 	}
-
-	function find_valid_payment()
-	{
+	function find_valid_payment() {
 		if ($this->payment_is_valid()) {
 			return $this->payment();
 		}
-		$payments = Object::class_query("Payment")->where("IsValid", true)->where("Account", $this)->order_by("-Created")->object_iterator();
+		$payments = Object::class_query("Payment")->where("IsValid", true)
+			->where("Account", $this)
+			->order_by("-Created")
+			->object_iterator();
 		foreach ($payments as $payment) {
 			/* @var $payment Payment */
 			$result = $payment->checkValid();
@@ -90,9 +84,7 @@ class Zesk_Account extends Object {
 		}
 		return false;
 	}
-
-	function has_valid_payment()
-	{
+	function has_valid_payment() {
 		$paymentAccount = $this->payment_account();
 		if ($paymentAccount->member_is_empty("Payment")) {
 			return false;
@@ -106,9 +98,7 @@ class Zesk_Account extends Object {
 		}
 		return false;
 	}
-
-	function referrerAccount()
-	{
+	function referrerAccount() {
 		$ref = $this->memberGet("Referrer");
 		if ($ref) {
 			$account = $ref->account();
@@ -118,56 +108,49 @@ class Zesk_Account extends Object {
 		}
 		return false;
 	}
-
-	function manager_account()
-	{
+	function manager_account() {
 		return $this->memberGet("ManagerAccount");
 	}
-
-	function update_next_bill_date()
-	{
+	function update_next_bill_date() {
 		$lastBillDate = $this->LastBillDate;
 		if (!$lastBillDate) {
 			return false;
 		}
-		$this->NextBillDate  = $this->next_bill_date_from($lastBillDate);
+		$this->NextBillDate = $this->next_bill_date_from($lastBillDate);
 		return $this->store();
 	}
-
-	function bill_time_untis()
-	{
+	function bill_time_untis() {
 		$units = $this->BillTimeUnit;
 		if (empty($units)) {
-			$units = zesk::get("Account::bill_time_unit", "month");
+			$units = $this->option("bill_time_unit", "month");
 			$this->BillTimeUnit = $units;
-			$unitCount = zesk::get("Account::bill_time_unit_count", 1);
+			$unitCount = $this->option_integer("bill_time_unit_count", 1);
 			$this->BillTimeUnitCount = $unitCount;
 			$this->store();
 		} else {
 			$unitCount = $this->BillTimeUnitCount;
 		}
-		return array($units, $unitCount);
+		return array(
+			$units,
+			$unitCount
+		);
 	}
-
-	private static function next_bill_date_from(Timestamp $here)
-	{
+	private static function next_bill_date_from(Timestamp $here) {
 		$here = clone $here;
 		list($units, $unitCount) = $this->billTimeUnits();
 		$here->addUnit($units, $unitCount);
 		return $here;
 	}
-
-	function billedRecently(Timestamp $afterDate)
-	{
+	function billedRecently(Timestamp $afterDate) {
 		$query = Object::class_query("Payment_Transaction")->what("*LastDate", "MAX(X.ProcessDate)")->where("Account", $this);
 		$query->where("Authorized", true)->where("ProcessDate|>=", $afterDate);
 		$result = $query->one("LastDate");
 		if ($result) {
-			return Timestamp::instance($result);
+			return Timestamp::factory($result);
 		}
 		return null;
 	}
-
+	
 	//	// TODO: Prior to billing, update IsBillable in Account
 	//	function referred_total_accounts($asOfDate=false)
 	//	{
@@ -212,19 +195,18 @@ class Zesk_Account extends Object {
 	//
 	//		return $result;
 	//	}
-
-
 	function managed_total_accounts($asOfDate = false) {
 		if (!$asOfDate instanceof Timestamp) {
-			$asOfDate = Timestamp::instance();
+			$asOfDate = Timestamp::now();
 		}
-		$q = $this->query()->where("ManagerAccount", $this)->where("Cancelled|<=", array($asOfDate, null));
+		$q = $this->query()->where("ManagerAccount", $this)->where("Cancelled|<=", array(
+			$asOfDate,
+			null
+		));
 		$q->what("*Total", "COUNT(ID)");
 		return $q->one_integer("Total");
 	}
-
-	private function determine_commission()
-	{
+	private function determine_commission() {
 		$commission = $this->Commission;
 		if ($commission) {
 			return $commission;
@@ -235,9 +217,7 @@ class Zesk_Account extends Object {
 		}
 		return $accountType->DefaultCommission;
 	}
-
-	function commission()
-	{
+	function commission() {
 		$commission = $this->_commission();
 		if (!$commission) {
 			return null;
@@ -247,9 +227,7 @@ class Zesk_Account extends Object {
 		}
 		return null;
 	}
-
-	function discount()
-	{
+	function discount() {
 		$commission = $this->_commission();
 		if (!$commission) {
 			return null;
@@ -259,69 +237,67 @@ class Zesk_Account extends Object {
 		}
 		return null;
 	}
-
-	function referrerCommission()
-	{
+	function referrerCommission() {
 		$referrer = $this->referrerAccount();
 		if (!$referrer) {
 			return false;
 		}
 		return $referrer->commission();
 	}
-
-//	private function _lastInvoiceQuery(Timestamp $fromDate=null)
-//	{
-//		$q = CModelClass::queryFromType("Invoice");
-//		$where["Account"] = $this;
-//		if ($fromDate instanceof Timestamp && !$fromDate->isEmpty()) {
-//			$where["BillDate:lt"] = $fromDate;
-//		}
-//		$q->setWhere($where);
-//		$q->setOrderBy("-BillDate");
-//		$q->setLimit(1);
-//		return $q;
-//	}
-//
-//	function lastInvoice(Timestamp $fromDate)
-//	{
-//		$q = $this->_lastInvoiceQuery($fromDate);
-//		return $q->classQueryOne();
-//	}
-//
-//	function lastInvoiceDate(/*Timestamp */$fromDate=null, $create=false)
-//	{
-//		$q = $this->_lastInvoiceQuery($fromDate);
-//		$q->setWhat("BillDate");
-//		$result = $q->oneQueryDateTime("BillDate");
-//		if ($result instanceof Timestamp) {
-//			return $result;
-//		}
-//		if (!$create) {
-//			return $result;
-//		}
-//		return new Timestamp();
-//	}
-
-	function killAccount() 	{
+	
+	//	private function _lastInvoiceQuery(Timestamp $fromDate=null)
+	//	{
+	//		$q = CModelClass::queryFromType("Invoice");
+	//		$where["Account"] = $this;
+	//		if ($fromDate instanceof Timestamp && !$fromDate->isEmpty()) {
+	//			$where["BillDate:lt"] = $fromDate;
+	//		}
+	//		$q->setWhere($where);
+	//		$q->setOrderBy("-BillDate");
+	//		$q->setLimit(1);
+	//		return $q;
+	//	}
+	//
+	//	function lastInvoice(Timestamp $fromDate)
+	//	{
+	//		$q = $this->_lastInvoiceQuery($fromDate);
+	//		return $q->classQueryOne();
+	//	}
+	//
+	//	function lastInvoiceDate(/*Timestamp */$fromDate=null, $create=false)
+	//	{
+	//		$q = $this->_lastInvoiceQuery($fromDate);
+	//		$q->setWhat("BillDate");
+	//		$result = $q->oneQueryDateTime("BillDate");
+	//		if ($result instanceof Timestamp) {
+	//			return $result;
+	//		}
+	//		if (!$create) {
+	//			return $result;
+	//		}
+	//		return new Timestamp();
+	//	}
+	function killAccount() {
 		Object::class_query_update(__CLASS__)->values(array(
-				"Cancelled" => "now",
-				"IsBillable" => false,
-				"NextBillDate" => null,
-				"PaymentAccount" => null,
-				"ManagerAccount" => null,
-				"Payment" => null,
-			))->where(array("id" => $this->id()));
+			"Cancelled" => "now",
+			"IsBillable" => false,
+			"NextBillDate" => null,
+			"PaymentAccount" => null,
+			"ManagerAccount" => null,
+			"Payment" => null
+		))->where(array(
+			"id" => $this->id()
+		));
 	}
-
+	
 	/**
-		@param sdate is the start date of this invoice
-		@param edate returns the resulting end date of the clickthroughs
-		@return array of CInvoiceParameter
-	*/
-	function generateInvoiceParameters(Timestamp $billDate, $forceBillUnit=false)
-	{
+	 @param sdate is the start date of this invoice
+	 @param edate returns the resulting end date of the clickthroughs
+	 @return array of CInvoiceParameter
+	 */
+	function generateInvoiceParameters(Timestamp $billDate, $forceBillUnit = false) {
 		$p = new Invoice_Parameters($this, $billDate, $forceBillUnit);
-
+		
 		$now = Timestamp::now();
 		if ($billDate->difference($now, kTimeUnit_Day) >= 21) {
 			$p->messageAdd(__("Your account is behind in our billing, please note the effective date of this invoice. We appreciate your understanding!"));
@@ -341,9 +317,7 @@ class Zesk_Account extends Object {
 		}
 		return $p;
 	}
-
-	function generate_discounts(Invoice_Parameters $p)
-	{
+	function generate_discounts(Invoice_Parameters $p) {
 		$result = array();
 		$links = $this->find_billable_items();
 		if (!$links) {
@@ -356,93 +330,95 @@ class Zesk_Account extends Object {
 		}
 		return true;
 	}
-
-	private function find_billable_items()
-	{
+	private function find_billable_items() {
 		$c = $this->modelClass();
 		return $c->linkFindByOption("Billable");
 	}
-
+	
 	/*
 	 * Commissions and Invoices
 	 * @todo Fix this, rewrite
 	 */
-	private function _transactionQuery($invoiceID, $endDate)
-	{
+	private function _transactionQuery($invoiceID, $endDate) {
 		$accountID = $this->id();
-
+		
 		$q = Object::class_query("Account_Transaction");
 		$q->link("Account_Transaction_Type");
 		$q->link("Invoice");
 		$q->link("Invoice_Item");
-		$q->where(
+		$q->where(array(
+			"Account" => $this,
+			"EffectiveDate|<=" => $endDate,
+			//				"InvoiceItem.Invoice" => array($invoiceID, null), /* OR */
 			array(
-				"Account" => $this,
-				"EffectiveDate|<=" => $endDate,
-//				"InvoiceItem.Invoice" => array($invoiceID, null), /* OR */
-				array(
 					/* Things already linked to this invoice */
 					array(
-						"Invoice.PaymentInvoice" => $invoiceID,
-					),	 /* OR */
+					"Invoice.PaymentInvoice" => $invoiceID
+				),	 /* OR */
 					array(
-						"Invoice.PaymentInvoice" => null,
-						"*Invoice.PaymentAccount" => "AccountTransaction.Account",
-						"*Invoice.Account|!=" => "AccountTransaction.Account"
-					),	 /* OR */
+					"Invoice.PaymentInvoice" => null,
+					"*Invoice.PaymentAccount" => "AccountTransaction.Account",
+					"*Invoice.Account|!=" => "AccountTransaction.Account"
+				),	 /* OR */
 					array(
-						"InvoiceItem.Invoice" => $invoiceID,
-					),	 /* OR */
+					"InvoiceItem.Invoice" => $invoiceID
+				),	 /* OR */
 					/* Unreconciled transactions paid by us */
 					array(
-						"Reconciled" => false,
-						"Invoice.PaymentAccount" => $accountID,
-						"AccountTransactionType.InvoiceShow" => true,
-						"InvoiceItem.ID" => null,
-					),	 /* OR */
+					"Reconciled" => false,
+					"Invoice.PaymentAccount" => $accountID,
+					"AccountTransactionType.InvoiceShow" => true,
+					"InvoiceItem.ID" => null
+				),	 /* OR */
 					/* Reconciled transactions paid to us, not appearing on other invoices */
 					array(
-						"Reconciled" => true,
-						"Invoice.PaymentAccount:ne" => $accountID,
-						"AccountTransactionType.InvoiceShow" => true,
-						"InvoiceItem.ID" => null,
-					),	 /* OR */
+					"Reconciled" => true,
+					"Invoice.PaymentAccount:ne" => $accountID,
+					"AccountTransactionType.InvoiceShow" => true,
+					"InvoiceItem.ID" => null
+				),	 /* OR */
 					/* Reconciled transactions paid to us, not appearing on other invoices */
 					array(
-						"Reconciled" => false,
-						"Invoice.ID:ne" => $invoiceID,
-						"Invoice.PaymentAccount" => $accountID,
-					),	 /* OR */
+					"Reconciled" => false,
+					"Invoice.ID:ne" => $invoiceID,
+					"Invoice.PaymentAccount" => $accountID
+				),	 /* OR */
 					array(
-						"Reconciled" => false,
-						"AccountTransaction.Invoice" => NULL,
-						"AccountTransaction.InvoiceItem" => NULL,
-						"AccountTransaction.PaymentTransaction" => NULL,
-						"AccountTransactionType.InvoiceShow" => true,
-					),	 /* OR */
+					"Reconciled" => false,
+					"AccountTransaction.Invoice" => NULL,
+					"AccountTransaction.InvoiceItem" => NULL,
+					"AccountTransaction.PaymentTransaction" => NULL,
+					"AccountTransactionType.InvoiceShow" => true
+				),	 /* OR */
 					//TODO: When PaymentAccount=CommissionAccount, copy the commissions into this invoice
 				)
-			)
-		);
-		$q->order_by(array("EffectiveDate","OrderIndex"));
-//		CDebug::dump($q->toSQL()); exit();
+		));
+		$q->order_by(array(
+			"EffectiveDate",
+			"OrderIndex"
+		));
+		//		CDebug::dump($q->toSQL()); exit();
 		return $q;
 	}
-
 	function update_balance_all() {
 		$sql = explode(";", Template::instance(ZESK_COMMERCE_ROOT . "theme/account/update-balances.sql.tpl"));
 		return $this->database()->query($sql) ? true : false;
 	}
-
 	function issue_check($checkNumber, Timestamp $when, $amount, $description = "") {
-		$fields = array("TransactionGroup" => $checkNumber, "Account" => $this, "TransactionType" => "check", "EffectiveDate" => $when, "Description" => $description, "Amount" => -abs($amount), "Reconciled" => true);
+		$fields = array(
+			"TransactionGroup" => $checkNumber,
+			"Account" => $this,
+			"TransactionType" => "check",
+			"EffectiveDate" => $when,
+			"Description" => $description,
+			"Amount" => -abs($amount),
+			"Reconciled" => true
+		);
 		return Account_Transaction::register_transaction($fields);
 	}
-
 	function is_cancelled() {
 		return !$this->member_is_empty("Cancelled");
 	}
-
 	protected function hook_permission(User $user, $action) {
 		if ($user->memberInteger("Account") === $this->id()) {
 			return true;

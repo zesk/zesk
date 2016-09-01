@@ -1,5 +1,5 @@
 <?php
-class Exception_Permission extends Zesk_Exception {
+class Exception_Permission extends zesk\Exception {
 	function __construct(User $user, $action, Model $object = null, array $options = array(), $previous = null) {
 		parent::__construct("User {user.name} has no permission action={action} class={class} type={type}", array(
 			"action" => $action,

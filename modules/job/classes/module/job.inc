@@ -18,10 +18,12 @@ class Module_Job extends Module implements Module_Interface_Routes {
 	/**
 	 * For testing, call this statically from zesk eval, a web request, or a debugger
 	 */
-	public static function fake_daemon() {
-		$quit_after = 5000;
+	public static function fake_daemon(Application $application) {
+		global $zesk;
+		/* @var $zesk zesk\Kernel */
+		$quit_after = $zesk->configuration->path_get(__CLASS__ . "::fake_daemon_quit_after", 5000);
 		ini_set('max_execution_time', $quit_after);
-		$process = new Process_Interruptable_Mock(array(
+		$process = new Process_Interruptable_Mock($application, array(
 			"quit_after" => $quit_after
 		));
 		zesk\Job::execute_jobs($process);
@@ -38,12 +40,17 @@ class Module_Job extends Module implements Module_Interface_Routes {
 		if (!$has_hook) {
 			log::debug("No hook exists for wait_for_job, sleeping interval is {seconds} seconds", compact("seconds"));
 		}
-		while (!$process->done()) {
-			zesk\Job::execute_jobs($process);
-			if ($has_hook) {
-				$this->hook("wait_for_job", $process);
-			} else {
-				$process->sleep($seconds);
+		declare(ticks = 1) {
+			while (!$process->done()) {
+				zesk\Job::execute_jobs($process);
+				if ($has_hook) {
+					$this->hook_array("wait_for_job", array(
+						$process
+					));
+					$process->sleep(0);
+				} else {
+					$process->sleep($seconds);
+				}
 			}
 		}
 	}

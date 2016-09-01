@@ -52,7 +52,7 @@ class Command_Eval extends Command_Base {
 				if ($content) {
 					echo "# Content\n$content\n";
 				}
-				zesk::hook("exception", $ex);
+				$this->application->hooks->call("exception", $ex);
 				continue;
 			}
 			$content = ob_get_clean();

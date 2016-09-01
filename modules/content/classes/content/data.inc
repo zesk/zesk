@@ -1,4 +1,6 @@
 <?php
+
+use zesk\Timestamp as Timestamp;
 /**
  * @see Class_Content_Data
  * @author kent

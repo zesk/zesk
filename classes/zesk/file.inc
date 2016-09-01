@@ -3,9 +3,6 @@
 namespace zesk;
 
 use \zesk as zesk;
-use \arr as arr;
-use \dir as dir;
-use \str as str;
 use \Exception_File_NotFound as Exception_File_NotFound;
 use \Exception_File_Permission as Exception_File_Permission;
 use \Exception_Directory_NotFound as Exception_Directory_NotFound;
@@ -16,6 +13,7 @@ use Exception_File_Locked as Exception_File_Locked;
 
 /**
  * $URL: https://code.marketacumen.com/zesk/trunk/classes/zesk/file.inc $
+ * 
  * @package zesk
  * @subpackage system
  * @author $Author: kent $
@@ -46,12 +44,16 @@ class file {
 	const char_char = "c";
 	const char_fifo = "p";
 	const char_unknown = "u";
-	
+	public static function hooks(Kernel $zesk) {
+		$zesk->hooks->add("configured", __CLASS__ . '::configured');
+	}
+	public static function configured(\Application $application) {
+	}
 	/**
 	 * Return an absolute path given a filename and a working directory
 	 *
-	 * @param string $filename
-	 * @param string $cwd
+	 * @param string $filename        	
+	 * @param string $cwd        	
 	 * @return string null
 	 */
 	public static function absolute_path($filename, $cwd = null) {
@@ -154,8 +156,11 @@ class file {
 	/**
 	 * Convert a file path to another string using the map call
 	 *
-	 * @param string $filename Filename to map
-	 * @param string $pattern A destination pattern containing {dirname}, {basename}, {extension}, {filename}, and {/} for directory separator
+	 * @param string $filename
+	 *        	Filename to map
+	 * @param string $pattern
+	 *        	A destination pattern containing {dirname}, {basename}, {extension}, {filename},
+	 *        	and {/} for directory separator
 	 */
 	public static function map_pathinfo($filename, $pattern) {
 		return map($pattern, pathinfo($filename) + array(
@@ -277,7 +282,7 @@ class file {
 	/**
 	 * Create a temporary file
 	 *
-	 * @param unknown_type $ext
+	 * @param unknown_type $ext        	
 	 * @return Ambigous <string, mixed>
 	 */
 	public static function temporary($ext = "tmp") {
@@ -374,7 +379,7 @@ class file {
 	/**
 	 * Like unlink, but does some sanity tets and throws errors
 	 *
-	 * @param string $path
+	 * @param string $path        	
 	 * @throws Exception_File_Permission
 	 * @return boolean
 	 */
@@ -409,7 +414,7 @@ class file {
 	/**
 	 * Wrapper around file() to throw a file not found execption
 	 *
-	 * @param string $filename
+	 * @param string $filename        	
 	 * @throws Exception_File_NotFound
 	 * @return array Lines in the file
 	 */
@@ -501,7 +506,7 @@ class file {
 	 * Given a character type in the Unix "ls" command, convert it to our
 	 * internal string type names (e.g self::type_foo)
 	 *
-	 * @param string $char
+	 * @param string $char        	
 	 * @return string
 	 */
 	public static function ls_type($char) {
@@ -512,7 +517,7 @@ class file {
 	/**
 	 * Convert an octal or decimal file mode to a string
 	 *
-	 * @param integer $mode
+	 * @param integer $mode        	
 	 * @return string
 	 */
 	public static function mode_to_string($mode) {
@@ -537,7 +542,7 @@ class file {
 	 * Convert a ls-style mode string (e.g.
 	 * -rw-rw-rw) to a bitwide file mode
 	 *
-	 * @param string $mode_string
+	 * @param string $mode_string        	
 	 * @throws Exception_Unimplemented
 	 * @return integer
 	 */
@@ -561,7 +566,7 @@ class file {
 	/**
 	 * Change a file extension from one extension to another (string manipulation)
 	 *
-	 * @param string $file
+	 * @param string $file        	
 	 * @param string $new_extension
 	 *        	Extension with or without a "." in it (it's removed)
 	 * @return string
@@ -579,7 +584,7 @@ class file {
 	/**
 	 * Octal with a zero prefix
 	 *
-	 * @param integer $mode
+	 * @param integer $mode        	
 	 * @return string
 	 */
 	public static function mode_to_octal($mode) {
@@ -688,6 +693,53 @@ class file {
 	}
 	
 	/**
+	 * Max file size to trim files in memory
+	 * 
+	 * Performance-related setting
+	 * 
+	 * @global integer file::trim::maximum_file_size Size of file to use alternate method for
+	 * @return integer
+	 */
+	public static function trim_maximum_file_size() {
+		global $zesk;
+		/* @var $zesk zesk\Kernel */
+		$result = to_integer($zesk->configuration->path_get(array(
+			"zesk\file",
+			"trim",
+			"maximum_file_size"
+		)));
+		if ($result) {
+			return $result;
+		}
+		$memory_limit = ini_get("memory_limit");
+		return intval($memory_limit / 2);
+	}
+	
+	/**
+	 * Max memory size to read while trimming files
+	 * 
+	 * Performance-related setting
+	 * 
+	 * @global integer file::trim::read_buffer_size Size of file to use alternate method for
+	 * @return integer
+	 */
+	public static function trim_read_buffer_size() {
+		global $zesk;
+		/* @var $zesk zesk\Kernel */
+		$result = to_integer($zesk->configuration->path_get(array(
+			"zesk\file",
+			"trim",
+			"read_buffer_size"
+		)));
+		if ($result) {
+			return $result;
+		}
+		$memory_limit = ini_get("memory_limit");
+		$default_trim_read_buffer_size = clamp(10240, $memory_limit / 4, 1048576);
+		return intval($default_trim_read_buffer_size);
+	}
+	
+	/**
 	 * Trim a file similarly to how you would trim a string.
 	 *
 	 * @param string $path
@@ -699,10 +751,13 @@ class file {
 	 * @throws Exception_File_NotFound
 	 * @throws Exception_File_Create
 	 * @throws Exception_File_Permission
-	 * @global integer file::trim_max_file_size Size of file to use alternate method for
+	 * @global integer file::trim::maximum_file_size Size of file to use alternate method for
+	 * @global integer file::trim::read_buffer_size Size of file to use alternate method for
 	 * @return boolean
 	 */
 	public static function trim($path, $offset = 0, $length = null) {
+		global $zesk;
+		/* @var $zesk zesk\Kernel */
 		if (!is_file($path)) {
 			throw new Exception_File_NotFound($path);
 		}
@@ -713,8 +768,7 @@ class file {
 		if ($length === null) {
 			$length = $size;
 		}
-		$memory_limit = ini_get("memory_limit");
-		if ($size < zesk::geti('file::trim_max_file_size', $memory_limit / 2)) {
+		if ($size < self::trim_maximum_file_size()) {
 			$result = file_put_contents($path, substr(file_get_contents($path), $offset, $length));
 			if ($result === false) {
 				return false;
@@ -745,8 +799,7 @@ class file {
 			throw new Exception_File_Create($path);
 		}
 		fseek($r, $offset);
-		$default_trim_read_buffer_size = clamp(10240, $memory_limit / 4, 1048576);
-		$read_buffer_size = zesk::geti('file::trim_read_buffer_size', $default_trim_read_buffer_size);
+		$read_buffer_size = self::trim_read_buffer_size();
 		$remain = $length;
 		while (!feof($r)) {
 			$read_size = min($remain, $read_buffer_size);
@@ -772,8 +825,8 @@ class file {
 	/**
 	 * Retrieve the first part of a file
 	 *
-	 * @param string $filename
-	 * @param number $length
+	 * @param string $filename        	
+	 * @param number $length        	
 	 * @throws Exception_File_NotFound
 	 * @throws Exception_File_Permission
 	 * @return string
@@ -794,10 +847,10 @@ class file {
 	/**
 	 * Handle log rotation
 	 *
-	 * @param unknown $path
-	 * @param number $size_limit
-	 * @param number $keep_count
-	 * @param string $suffix
+	 * @param unknown $path        	
+	 * @param number $size_limit        	
+	 * @param number $keep_count        	
+	 * @param string $suffix        	
 	 * @return boolean
 	 */
 	public static function rotate($path, $size_limit = 10485760, $keep_count = 7, $suffix = "") {
@@ -820,7 +873,8 @@ class file {
 	/**
 	 * Is the path an absolute path?
 	 *
-	 * @param string $f Path to check
+	 * @param string $f
+	 *        	Path to check
 	 * @return boolean
 	 */
 	public static function is_absolute($f) {
@@ -843,10 +897,11 @@ class file {
 	}
 	
 	/**
-	 * Rename a file to another file atomically - and delete file. Handles rollback, locking, etc.
+	 * Rename a file to another file atomically - and delete file.
+	 * Handles rollback, locking, etc.
 	 *
-	 * @param string $source
-	 * @param string $target
+	 * @param string $source        	
+	 * @param string $target        	
 	 */
 	public static function move_atomic($source, $target, $new_target = null) {
 		if (!is_file($target)) {
@@ -895,8 +950,11 @@ class file {
 	
 	/**
 	 * Copy uid and gid
-	 * @param string $source Source file or folder to copy uid/gid from
-	 * @param string $target Target file or fiolder to copy uid/gid to
+	 * 
+	 * @param string $source
+	 *        	Source file or folder to copy uid/gid from
+	 * @param string $target
+	 *        	Target file or fiolder to copy uid/gid to
 	 * @throws Exception_File_Permission
 	 * @return string $target returned upon success
 	 */
@@ -906,8 +964,11 @@ class file {
 	
 	/**
 	 * Copy uid
-	 * @param string $source Source file or folder to copy uid from
-	 * @param string $target Target file or fiolder to copy uid to
+	 * 
+	 * @param string $source
+	 *        	Source file or folder to copy uid from
+	 * @param string $target
+	 *        	Target file or fiolder to copy uid to
 	 * @throws Exception_File_Permission
 	 * @return string $target returned upon success
 	 */
@@ -926,8 +987,11 @@ class file {
 	}
 	/**
 	 * Copy uid and gid
-	 * @param string $source Source file or folder to copy gid from
-	 * @param string $target Target file or fiolder to copy gid to
+	 * 
+	 * @param string $source
+	 *        	Source file or folder to copy gid from
+	 * @param string $target
+	 *        	Target file or fiolder to copy gid to
 	 * @throws Exception_File_Permission
 	 * @return string $target returned upon success
 	 */
@@ -948,7 +1012,7 @@ class file {
 	/**
 	 * Check that file is writable
 	 *
-	 * @param string $file
+	 * @param string $file        	
 	 * @throws Exception_Directory_NotFound
 	 * @throws Exception_File_Permission
 	 * @return string

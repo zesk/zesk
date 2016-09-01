@@ -12,8 +12,8 @@ class Module_JSPacker extends Module {
 			return "$php_file does not exist, run `zesk update jspacker` to fix.";
 		}
 	}
-	public static function hooks() {
-		zesk::add_hook("Response_HTML::compress_script", __CLASS__ . "::compress_script");
+	public static function hooks(zesk\Hooks $hook) {
+		$hook->add("Response_HTML::compress_script", __CLASS__ . "::compress_script");
 	}
 	public static function compress_script(Response_HTML $response, $contents) {
 		require_once self::include_file();

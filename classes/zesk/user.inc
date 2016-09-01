@@ -16,12 +16,41 @@
  *        
  */
 abstract class Zesk_User extends Object {
+	
+	/**
+	 * 
+	 * @var string
+	 */
+	public static $debug_permission = false;
+	
+	/**
+	 * @deprecated 2017-08
+	 * @var string
+	 */
 	const global_instance = "User::instance";
+	
 	/**
 	 *
 	 * @var Class_Zesk_User
 	 */
 	protected $class = null;
+	
+	/**
+	 * 
+	 * @param zesk\Kernel $zesk
+	 */
+	public static function hooks(zesk\Kernel $zesk) {
+		$zesk->configuration->pave("User");
+		$zesk->hooks->add("configured", __CLASS__ . "::configured");
+	}
+	
+	/**
+	 * 
+	 * @param zesk\Application $application
+	 */
+	public static function configured(zesk\Application $application) {
+		self::$debug_permission = to_bool(zesk()->configuration->User->debug_permission);
+	}
 	
 	/**
 	 * Session user ID
@@ -45,28 +74,7 @@ abstract class Zesk_User extends Object {
 	 * Session lock and validation information
 	 */
 	private function check_session() {
-		/*
-		 $logout_uri = zesk::get("Site.LogoutURI", "/logout.php");
-		 
-		 $session = Session::instance();
-		 
-		 TODO: Fix this, it's not working with new sessions
-		 *
-		 $user_ip = $session->get(zesk::get("SESSION_USER_IP", "UserIP"));
-		 if ($user_ip !== $_SERVER['REMOTE_ADDR']) {
-		 http::redirect($logout_uri, "You have been logged out automatically because your IP address changed. Please login again.");
-		 }
-		 $last_page_view = $session->last_page_view;
-		 $now			= time();
-		 if ($now > $last_page_view + Session::inactivity_seconds()) {
-		 http::redirect($logout_uri, "You have been logged out automatically because of inactivity. Please login again.");
-		 }
-		 $session->last_page_view = $now;
-		 $first_page_view = $session->first_page_view;
-		 if ($now > $first_page_view + Session::max_duration()) {
-		 http::redirect($logout_uri, "You have been logged out automatically because you've been logged in too long. Please login again.");
-		 }
-		 */
+		return $this->hook_array("check_session", array(), $this);
 	}
 	
 	/**
@@ -77,7 +85,10 @@ abstract class Zesk_User extends Object {
 	 * @return User
 	 */
 	static function instance($want_object = true) {
-		$user = zesk::get(self::global_instance);
+		global $zesk;
+		/* @var $zesk zesk\Kernel */
+		
+		$user = $zesk->objects->user;
 		if ($user instanceof User) {
 			return $user;
 		}
@@ -100,7 +111,9 @@ abstract class Zesk_User extends Object {
 	 * @return User
 	 */
 	static function set_instance(User $user) {
-		zesk::set(self::global_instance, $user);
+		global $zesk;
+		/* @var $zesk zesk\Kernel */
+		$zesk->objects->user = $user;
 		return $user;
 	}
 	
@@ -118,29 +131,25 @@ abstract class Zesk_User extends Object {
 	 * Load user from session ID
 	 */
 	protected function _from_session() {
-		$u = zesk::get(self::global_instance);
-		if (is_array($u)) {
-			$this->initialize($u);
-			return true;
-		}
 		// Command means no browser - perhaps change semantic to be "has browser with a session?"
-		if (!Command::running()) {
-			$user_id = self::session_user_id();
-			if (empty($user_id)) {
-				return false;
-			}
-			$this->initialize($user_id);
-			try {
-				if ($this->fetch()) {
-					$this->check_session();
+		if (Command::running()) {
+			return false;
+		}
+		$user_id = self::session_user_id();
+		if (empty($user_id)) {
+			return false;
+		}
+		$this->initialize($user_id);
+		try {
+			if ($this->fetch()) {
+				if ($this->check_session()) {
 					if ($this->check_user()) {
-						zesk::set("User", $this);
+						zesk()->objects->user = $this;
 						return true;
 					}
 				}
-			} catch (Exception_Object_NotFound $e) {
-				return false;
 			}
+		} catch (Exception_Object_NotFound $e) {
 		}
 		return false;
 	}
@@ -209,36 +218,11 @@ abstract class Zesk_User extends Object {
 	
 	/**
 	 * Override in subclasses to perform a final check before loading a user from the Session
-	 * 
+	 *
 	 * @return boolean
 	 */
 	function check_user() {
 		return true;
-	}
-	
-	/**
-	 * Return the user login name
-	 *
-	 * @return string
-	 */
-	function current_name() {
-		if ($this->_from_session()) {
-			return $this->display_name();
-		} else {
-			return __("No user.");
-		}
-	}
-	
-	/**
-	 *
-	 * @deprecated 2014-02-07
-	 * @return integer|null
-	 */
-	private function current_id() {
-		if ($this->_from_session()) {
-			return $this->id();
-		}
-		return null;
 	}
 	
 	/**
@@ -393,7 +377,7 @@ abstract class Zesk_User extends Object {
 		// Allow multiple actions
 		$is_or = is_string($actions) && strpos($actions, '|');
 		$actions = to_list($actions, array(), $is_or ? '|' : ';');
-		$default_result = zesk::getb("User::can", false);
+		$default_result = $this->option("can", false);
 		foreach ($actions as $action) {
 			$action = self::clean_permission($action);
 			if (is_string($context)) {
@@ -404,7 +388,7 @@ abstract class Zesk_User extends Object {
 				$context,
 				$options
 			), $default_result);
-			if (zesk::getb('User::debug_permission')) {
+			if (self::$debug_permission) {
 				log::debug("User::can({action},{context}) = {result}", array(
 					"action" => $action,
 					"context" => $context,

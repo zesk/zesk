@@ -1,5 +1,7 @@
 <?php
 
+use zesk\Timestamp as Timestamp;
+
 /* @var $this Template */
 $response = $this->response;
 /* @var $response Response_HTML */

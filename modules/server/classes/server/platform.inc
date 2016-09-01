@@ -1023,7 +1023,7 @@ abstract class Server_Platform extends Hookable {
 		$urls = to_list($urls);
 		foreach ($urls as $url) {
 			try {
-				$db = Database::factory($url);
+				$db = app()->database_factory($url);
 			} catch (Database_Exception $e) {
 				log::error("Need to configure DB_URL {url}: Reason {error}", array(
 					"url" => url::remove_password($url),

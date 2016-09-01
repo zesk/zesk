@@ -1,5 +1,5 @@
 <?php
-abstract class Exception_Object extends Zesk_Exception {
+abstract class Exception_Object extends zesk\Exception {
 	/**
 	 * Class of object where error occurred
 	 * @var string

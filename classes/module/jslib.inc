@@ -6,11 +6,23 @@
  * @author kent
  */
 abstract class Module_JSLib extends Module implements Module_Interface_Head {
+	/**
+	 * Array of css paths for this page
+	 * 
+	 * @var array
+	 */
 	protected $css_paths = array();
 	
 	/**
+	 * Array of options to pass to ->cdn_css for each css_paths
+	 *
+	 * @var array
+	 */
+	protected $css_options = array();
+	
+	/**
 	 * Array of options to pass to ->cdn_javascript for each javascript_paths
-	 * 
+	 *
 	 * @var array
 	 */
 	protected $javascript_options = array();
@@ -64,6 +76,20 @@ abstract class Module_JSLib extends Module implements Module_Interface_Head {
 	protected $jquery_ready_weight = -1000;
 	
 	/**
+	 * Disabled setter/getter
+	 *
+	 * @param unknown $set
+	 * @return Module_jQuery_Unveil|mixed|boolean
+	 */
+	public function disabled($set = null) {
+		if ($set) {
+			$this->set_option('disabled', to_bool($set));
+			return $this;
+		}
+		return $this->option_bool('disabled', false);
+	}
+	
+	/**
 	 * HTML Page head
 	 * 
 	 * @param Request $request
@@ -92,10 +118,18 @@ abstract class Module_JSLib extends Module implements Module_Interface_Head {
 					)
 				));
 			}
-			foreach ($this->css_paths as $path) {
-				$response->cdn_css($path, array(
-					'share' => true
-				));
+			foreach ($this->css_paths as $key => $value) {
+				if (is_string($key) && is_array($value)) {
+					$response->cdn_css($key, $value + $this->css_options);
+				} else if (is_numeric($key) && is_string($value)) {
+					$response->cdn_css($value, $this->css_options + array(
+						'share' => true
+					));
+				} else if (is_string($key) && is_string($value)) {
+					$response->cdn_css($key, array(
+						$value => true
+					) + $this->css_options);
+				}
 			}
 			foreach ($this->javascript_paths as $key => $value) {
 				if (is_numeric($key) && is_string($value)) {

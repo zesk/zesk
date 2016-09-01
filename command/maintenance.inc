@@ -7,11 +7,13 @@
  *
  */
 class Command_Maintenance extends Command_Base {
-	function run() {
-		zesk::add_hook("Application::maintenance_context", array(
+	protected function initialize() {
+		$this->application->hooks->add("Application::maintenance_context", array(
 			$this,
 			"maintenance_context"
 		));
+	}
+	function run() {
 		if (!$this->has_arg()) {
 			echo $this->application->maintenance();
 			return 0;

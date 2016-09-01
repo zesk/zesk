@@ -6,6 +6,9 @@
  * @author Kent Davidson <kent@marketacumen.com>
  * @copyright Copyright &copy; 2010, Market Ruler, LLC
  */
+
+use zesk\Timestamp as Timestamp;
+
 abstract class Database_Query_Select_Base extends Database_Query {
 	protected $objects_prefixes = array();
 	function __sleep() {
@@ -13,7 +16,7 @@ abstract class Database_Query_Select_Base extends Database_Query {
 			"objects_prefixes"
 		));
 	}
-
+	
 	/**
 	 * Convert this query into an iterator
 	 *
@@ -26,7 +29,7 @@ abstract class Database_Query_Select_Base extends Database_Query {
 	function iterator($key = null, $value = null) {
 		return new Database_Result_Iterator($this, $key, $value);
 	}
-
+	
 	/**
 	 * Convert this query into an Object Iterator
 	 *
@@ -40,7 +43,7 @@ abstract class Database_Query_Select_Base extends Database_Query {
 		$this->object_class($class);
 		return new Object_Iterator($this->class, $this, $options);
 	}
-
+	
 	/**
 	 * Convert this query into an Objects Iterator
 	 *
@@ -53,7 +56,7 @@ abstract class Database_Query_Select_Base extends Database_Query {
 	function objects_iterator(array $options = array()) {
 		return new Objects_Iterator($this->class, $this, $this->objects_prefixes);
 	}
-
+	
 	/**
 	 * Execute query and retrieve a single field or row
 	 *
@@ -62,9 +65,9 @@ abstract class Database_Query_Select_Base extends Database_Query {
 	 * @return unknown
 	 */
 	function one($field = false, $default = false) {
-		return $this->database()->query_one($this->__toString(), $field, $default, $this->db);
+		return $this->database()->query_one($this->__toString(), $field, $default);
 	}
-
+	
 	/**
 	 * Execute query and return the first returned row as an object
 	 *
@@ -82,7 +85,7 @@ abstract class Database_Query_Select_Base extends Database_Query {
 		$options['from_database'] = true;
 		return $this->object_factory($this->object_class($class), $columns, $options);
 	}
-
+	
 	/**
 	 * Execute query and convert to an object
 	 *
@@ -100,7 +103,7 @@ abstract class Database_Query_Select_Base extends Database_Query {
 		$object->initialize($result, true);
 		return $object;
 	}
-
+	
 	/**
 	 * This method should be overriden in subclasses if it has class_object support
 	 *
@@ -110,7 +113,7 @@ abstract class Database_Query_Select_Base extends Database_Query {
 	public function class_alias($class) {
 		return "";
 	}
-
+	
 	/**
 	 * Append "what" fields for an entire object class, with $prefix before it, using alias $alias
 	 *
@@ -134,7 +137,7 @@ abstract class Database_Query_Select_Base extends Database_Query {
 		if ($alias === null) {
 			$alias = $this->class_alias($class);
 		}
-
+		
 		$columns = Object::class_table_columns($class, $object_mixed, $object_options);
 		$g = $this->db->sql();
 		$what = array();
@@ -147,7 +150,7 @@ abstract class Database_Query_Select_Base extends Database_Query {
 		);
 		return $this->what($what, true);
 	}
-
+	
 	/**
 	 * Execute query and retrieve a single field, a Timestamp
 	 *
@@ -160,7 +163,7 @@ abstract class Database_Query_Select_Base extends Database_Query {
 	function one_integer($field = 0, $default = 0) {
 		return $this->integer($field, $default);
 	}
-
+	
 	/**
 	 * Execute query and retrieve a single field, an integer
 	 *
@@ -173,7 +176,7 @@ abstract class Database_Query_Select_Base extends Database_Query {
 	function one_timestamp($field = 0, $default = null) {
 		return $this->timestamp($field, $default);
 	}
-
+	
 	/**
 	 * Execute query and retrieve a single field, a double
 	 *
@@ -186,7 +189,7 @@ abstract class Database_Query_Select_Base extends Database_Query {
 	function double($field = 0, $default = null) {
 		return to_double($this->one($field), $default);
 	}
-
+	
 	/**
 	 * Execute query and retrieve a single field, an integer
 	 *
@@ -199,7 +202,7 @@ abstract class Database_Query_Select_Base extends Database_Query {
 	function integer($field = 0, $default = 0) {
 		return $this->database()->query_integer($this->__toString(), $field, $default);
 	}
-
+	
 	/**
 	 * Execute query and retrieve a single field, a Timestamp
 	 *
@@ -216,7 +219,7 @@ abstract class Database_Query_Select_Base extends Database_Query {
 		}
 		return new Timestamp($value, $timezone);
 	}
-
+	
 	/**
 	 *
 	 * @param string $key
@@ -227,7 +230,7 @@ abstract class Database_Query_Select_Base extends Database_Query {
 	function to_array($key = null, $value = null, $default = array()) {
 		return $this->database()->query_array($this->__toString(), $key, $value, $default);
 	}
-
+	
 	/**
 	 */
 	abstract function __toString();

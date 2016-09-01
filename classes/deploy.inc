@@ -2,16 +2,20 @@
 class Deploy extends Hookable {
 	protected $path = null;
 	protected $skipped = array();
-	
+	protected $options = array(
+		"last_tag" => "-none-"
+	);
 	/**
 	 *
 	 * Run a deployment check, using path for deployment state
 	 *
 	 * @param string $path Path to deployme
-	 * @param Settings $settings
+	 * @param zesk\Settings $settings
 	 * @return NULL|Deploy
 	 */
-	public static function settings_maintenance($path, Settings $settings) {
+	public static function settings_maintenance($path, zesk\Settings $settings) {
+		global $zesk;
+		
 		$options = to_array($settings->deploy);
 		$deploy = new Deploy($path, $options);
 		if ($deploy->failed()) {
@@ -21,10 +25,10 @@ class Deploy extends Hookable {
 			$deploy->_maintenance();
 			$results = $deploy->option();
 			$settings->deploy = $results;
-			$deploy->_maintenance();
+			$settings->flush();
 			$lock->release();
 		} else {
-			log::warning("Deployment is already running.");
+			$zesk->logger->warning("Deployment is already running.");
 		}
 		return $deploy;
 	}
@@ -38,7 +42,7 @@ class Deploy extends Hookable {
 		$last_tag = $this->option_path('last_tag');
 		$failed_tag = $this->option_path('failed_tag.name');
 		if (empty($last_tag) || empty($failed_tag)) {
-			log::error("Deploy::reset({skip}) Empty tags found last_tag={last_tag} failed_tag={failed_tag}", compact("last_tag", "failed_tag", "skip"));
+			#error("Deploy::reset({skip}) Empty tags found last_tag={last_tag} failed_tag={failed_tag}", compact("last_tag", "failed_tag", "skip"));
 			return null;
 		}
 		return $this->set_option(array(
@@ -99,6 +103,8 @@ class Deploy extends Hookable {
 		return $tags;
 	}
 	protected function _maintenance() {
+		global $zesk;
+		/* @var $zesk zesk\Kernel */
 		$last_tag = $this->option('last_tag');
 		$tags = $this->load_tags();
 		$results = array();
@@ -115,8 +121,8 @@ class Deploy extends Hookable {
 		$results['last_tag'] = $last_tag;
 		$results['status'] = true;
 		if (count($tags) > 0) {
-			log::notice('Last tag succeeded was {last_tag}', $this->options);
-			log::notice("Processing tags: {tags}", array(
+			$zesk->logger->notice('Last tag succeeded was {last_tag}', $this->options);
+			$zesk->logger->notice("Processing tags: {tags}", array(
 				"tags" => _dump($tags)
 			));
 			foreach ($tags as $name => $subpaths) {
@@ -126,6 +132,9 @@ class Deploy extends Hookable {
 						$tag
 					), array());
 					if (!is_array($result) || !avalue($result, 'status')) {
+						$zesk->logger->error("Tag failed: {tag} {message}", $result + array(
+							"tag" => $tag
+						));
 						$results['failed_tag'] = $tag;
 						$results['failed_result'] = $result;
 						$results['status'] = false;
@@ -151,7 +160,8 @@ class Deploy extends Hookable {
 			log::notice("Including PHP file {path}", compact("path"));
 			$result = @include $path;
 		} catch (Exception $e) {
-			zesk::hook("exception", $e);
+			global $zesk;
+			$zesk->hooks->call("exception", $e);
 			$status = false;
 			$result = null;
 		}
@@ -164,13 +174,14 @@ class Deploy extends Hookable {
 		);
 	}
 	protected function hook_extension_tpl(array $tag) {
+		global $zesk;
 		$path = $tag['path'];
 		$status = true;
 		try {
-			log::notice("Loading template {path}", compact("path"));
+			$zesk->logger->notice("Loading template {path}", compact("path"));
 			$content = Template::instance($path);
 		} catch (Exception $e) {
-			zesk::hook("exception", $e);
+			$zesk->hooks->call("exception", $e);
 			$status = false;
 		}
 		return array(
@@ -181,15 +192,17 @@ class Deploy extends Hookable {
 	}
 	protected function hook_extension_sql(array $tag) {
 		$path = $tag['path'];
-		$db = Database::instance();
+		$db = app()->database_factory();
 		$sqls = $db->split_sql_commands(file_get_contents($path));
 		$result = array(
 			'type' => 'sql'
 		);
+		
 		while (count($sqls) > 0) {
 			$sql = array_shift($sqls);
 			try {
 				if (!$db->query($sql)) {
+					$result['message'] = "SQL Failed: $sql";
 					$result['failed_sql'] = $sql;
 					$result['unapplied'] = $sqls;
 					$result['status'] = false;
@@ -198,7 +211,12 @@ class Deploy extends Hookable {
 					$result['applied'][] = $sql;
 				}
 			} catch (Exception $e) {
-				zesk::hook("exception", $e);
+				global $zesk;
+				$zesk->hooks->call("exception", $e);
+				$result['message'] = map("Exception {class}: {message}", array(
+					"class" => get_class($e),
+					"message" => $e->getMessage()
+				));
 				$result['exception'] = $e;
 				$result['exception_sql'] = $sql;
 				$result['status'] = false;

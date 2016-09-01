@@ -7,7 +7,9 @@
  * @category Optimization
  */
 function zesk_command_runtime() {
-	$delta = microtime(true) - zesk::get('init');
+	global $zesk;
+	/* @var $zesk zesk\Kernel */
+	$delta = microtime(true) - $zesk->initialization_time;
 	$digits = $delta < 0.001 ? ($delta < 0.000001 ? /* yeah right */ 9 : 6) : 3;
 	echo sprintf("%." . $digits . "f", $delta) . " sec\n";
 }

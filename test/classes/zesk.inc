@@ -12,31 +12,31 @@ class test_zesk extends Test_Unit {
 	function test_hook_order() {
 		// Nothing registered
 		$this->order = 0;
-		zesk::hook("test_hook_order", $this);
+		zesk()->hooks->call("test_hook_order", $this);
 		$this->assert_equal($this->order, 0);
 		
 		// Add hooks
-		zesk::add_hook("test_hook_order", "test_zesk::_test_hook_order_1st");
-		zesk::add_hook("test_hook_order", "test_zesk::_test_hook_order_2nd");
+		zesk()->hooks->add("test_hook_order", "test_zesk::_test_hook_order_1st");
+		zesk()->hooks->add("test_hook_order", "test_zesk::_test_hook_order_2nd");
 		
 		// Test ordering
 		$this->order = 0;
-		zesk::hook("test_hook_order", $this);
+		zesk()->hooks->call("test_hook_order", $this);
 		$this->assert_equal($this->order, 2);
 		
 		// Test clearing
 		zesk::clear_hook("test_hook_order");
 		$this->order = 0;
-		zesk::hook("test_hook_order", $this);
+		zesk()->hooks->call("test_hook_order", $this);
 		$this->assert_equal($this->order, 0);
 		
 		// Test "first"
-		zesk::add_hook("test_hook_order", "test_zesk::_test_hook_order_2nd");
-		zesk::add_hook("test_hook_order", "test_zesk::_test_hook_order_1st", null, null, true);
+		zesk()->hooks->add("test_hook_order", "test_zesk::_test_hook_order_2nd");
+		zesk()->hooks->add("test_hook_order", "test_zesk::_test_hook_order_1st", null, null, true);
 		
 		// Test ordering
 		$this->order = 0;
-		zesk::hook("test_hook_order", $this);
+		zesk()->hooks->call("test_hook_order", $this);
 		$this->assert_equal($this->order, 2);
 	}
 	function test_setk() {
@@ -54,13 +54,15 @@ class test_zesk extends Test_Unit {
 		), "_Sk", true, true);
 	}
 	function test_class_hierarchy() {
+		global $zesk;
+		
 		$mixed = null;
-		$this->assert_arrays_equal(zesk::class_hierarchy("A"), to_list('A;Hookable;Options'));
-		$this->assert_arrays_equal(zesk::class_hierarchy("B"), to_list('B;A;Hookable;Options'));
-		$this->assert_arrays_equal(zesk::class_hierarchy("C"), to_list('C;B;A;Hookable;Options'));
-		$this->assert_arrays_equal(zesk::class_hierarchy("zesk"), to_list('zesk'));
-		$this->assert_arrays_equal(zesk::class_hierarchy("http"), to_list('http'));
-		$this->assert_arrays_equal(zesk::class_hierarchy(new A()), to_list('A;Hookable;Options'));
+		$this->assert_arrays_equal($zesk->classes->hierarchy("A"), to_list('A;Hookable;Options'));
+		$this->assert_arrays_equal($zesk->classes->hierarchy("B"), to_list('B;A;Hookable;Options'));
+		$this->assert_arrays_equal($zesk->classes->hierarchy("C"), to_list('C;B;A;Hookable;Options'));
+		$this->assert_arrays_equal($zesk->classes->hierarchy("zesk"), to_list('zesk'));
+		$this->assert_arrays_equal($zesk->classes->hierarchy("http"), to_list('http'));
+		$this->assert_arrays_equal($zesk->classes->hierarchy(new A()), to_list('A;Hookable;Options'));
 	}
 	function test_add() {
 		$k = null;
@@ -72,7 +74,7 @@ class test_zesk extends Test_Unit {
 		$hook = null;
 		$function = null;
 		$args = null;
-		zesk::add_hook($hook, $function, $args);
+		zesk()->hooks->add($hook, $function, $args);
 		echo basename(__FILE__) . ": success\n";
 	}
 	function test_application_class() {
@@ -292,11 +294,11 @@ class test_zesk extends Test_Unit {
 	}
 	function test_has_hook() {
 		$hook = null;
-		zesk::has_hook($hook);
+		zesk()->hooks->has($hook);
 	}
 	function test_hook() {
 		$hook = null;
-		zesk::hook($hook);
+		zesk()->hooks->call($hook);
 	}
 	function test_hook_arguments() {
 		$object = new zTestObject();
@@ -315,7 +317,7 @@ class test_zesk extends Test_Unit {
 			2,
 			3
 		);
-		$this->assert_equal(zesk::hook_arguments($arguments, $arguments_definition), $arguments);
+		$this->assert_equal(zesk()->hooks->call_arguments($arguments, $arguments_definition), $arguments);
 		
 		$arguments_definition = array(
 			"Foo",
@@ -323,7 +325,7 @@ class test_zesk extends Test_Unit {
 			2,
 			3
 		);
-		$this->assert_equal(zesk::hook_arguments($arguments, $arguments_definition), array(
+		$this->assert_equal(zesk()->hooks->call_arguments($arguments, $arguments_definition), array(
 			"Foo" => $object,
 			"Bar" => "string",
 			2 => 423,
@@ -336,7 +338,7 @@ class test_zesk extends Test_Unit {
 			2,
 			3
 		);
-		$result = zesk::hook_arguments($arguments, $arguments_definition);
+		$result = zesk()->hooks->call_arguments($arguments, $arguments_definition);
 		$this->assert_equal($result, array(
 			"Foo" => "string",
 			"Bar" => $object,
@@ -350,7 +352,7 @@ class test_zesk extends Test_Unit {
 			1,
 			3
 		);
-		$result = zesk::hook_arguments($arguments, $arguments_definition);
+		$result = zesk()->hooks->call_arguments($arguments, $arguments_definition);
 		$this->assert_equal($result, array(
 			"Hike",
 			423,
@@ -367,7 +369,7 @@ class test_zesk extends Test_Unit {
 				"three" => 3
 			)
 		);
-		$result = zesk::hook_arguments($arguments, $arguments_definition);
+		$result = zesk()->hooks->call_arguments($arguments, $arguments_definition);
 		$this->assert_equal($result, array(
 			$object,
 			"string",
@@ -382,7 +384,7 @@ class test_zesk extends Test_Unit {
 		$hook = null;
 		$arguments = array();
 		$default = null;
-		zesk::hook_array($hook, $arguments, $default);
+		zesk()->hooks->call_arguments($hook, $arguments, $default);
 		echo basename(__FILE__) . ": success\n";
 	}
 	function test_href() {
@@ -583,7 +585,7 @@ class test_zesk extends Test_Unit {
 		zesk::theme_arguments($type, $set);
 	}
 	function test_version() {
-		zesk::version();
+		zesk\Version::release();
 		echo basename(__FILE__) . ": success\n";
 	}
 	function test_web_init() {

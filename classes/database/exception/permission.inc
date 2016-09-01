@@ -1,5 +1,5 @@
 <?php
 
-class Database_Exception_Permission extends Zesk_Exception {
+class Database_Exception_Permission extends zesk\Exception {
 
 }

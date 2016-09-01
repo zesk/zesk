@@ -1,17 +1,32 @@
 <?php
 
 /* You can override on a per-type basis in theme/content/group/type/view.tpl */
+if (false) {
+	/* @var $this Template */
+	
+	$zesk = $this->zesk;
+	/* @var $zesk zesk\Kernel */
+	
+	$application = $this->application;
+	/* @var $application TimeBank */
+	
+	$session = $this->session;
+	/* @var $session Session */
+	
+	$router = $this->router;
+	/* @var $request Router */
+	
+	$request = $this->request;
+	/* @var $request Request */
+	
+	$response = $this->response;
+	/* @var $response Response_HTML */
+	
+	$current_user = $this->current_user;
+	/* @var $current_user User */
+}
 
-/* @var $user User */
-$user = $this->user;
-
-$request = $this->request;
-/* @var $request Request */
-
-$response = $this->response;
-/* @var $response Response_HTML */
-
-$group = $this->Object;
+$group = $this->object;
 /* @var $group Content_Group */
 
 $menu = $this->menu;
@@ -38,18 +53,21 @@ if (is_string($menu_remain)) {
 
 echo html::tag_open("div", ".article-group");
 echo html::tag("h1", $group->Name);
-if ($user && $user->can($group, "edit")) {
+if ($current_user && $current_user->can("edit", $group)) {
 	echo html::tag_open("div", ".admin-edit");
 	$sep = "&nbsp;&middot;&nbsp;";
-	echo html::a($request->get_route('edit', $group), __("Edit {0}", $group->Name));
+	echo html::a($router->get_route('edit', $group), __("Edit {0}", $group->Name));
 	echo $sep;
-	echo html::a($request->get_route('list', $group), __("Manage Articles"));
+	echo html::a($router->get_route('list', $group), __("Manage Articles"));
 	echo $sep;
-	echo html::a($request->get_route('add', $group), __("Add {name-lower}", $group_object->class_code_name()));
+	echo html::a($router->get_route('add', $group), __("Add {name-lower}", $group_object->class_code_name()));
 	echo html::tag_close("div");
 }
 echo html::etag("p", array(
 	"class" => "intro"
 ), $group->Body);
-echo $group->output(to_list("view-item;./content/group/view-item.tpl"));
+echo $group->theme(array(
+	"view-item",
+	"./content/group/view-item.tpl"
+));
 echo html::tag_close("div");

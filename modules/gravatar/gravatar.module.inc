@@ -2,4 +2,4 @@
 
 Module::register_paths();
 
-zesk::register_class('Module_Gravatar');
+zesk\Classes::register('Module_Gravatar');

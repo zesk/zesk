@@ -7,6 +7,8 @@
  * @subpackage mail
  */
 
+use zesk\Timestamp as Timestamp;
+
 /**
  * Pattern for matching a list of email addresses
  */
@@ -241,7 +243,7 @@ class Mail_Message extends Object {
 				$extras[$name] = $value;
 			}
 		}
-		$extras["X-Mailer"] = "zesk/" . zesk::version();
+		$extras["X-Mailer"] = "zesk/" . zesk\Version::release();
 
 		if (!$this->member_is_empty("mail_from")) {
 			$extras["From"] = $this->mail_from;

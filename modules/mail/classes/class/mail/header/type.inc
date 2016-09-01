@@ -10,6 +10,6 @@ class Class_Mail_Header_Type extends Class_Object {
 		'name' => self::type_string,
 		'ignore' => self::type_boolean,
 		'created' => self::type_created,
-		'checked' => self::type_modified
+		'modified' => self::type_modified
 	);
 }

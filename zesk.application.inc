@@ -6,13 +6,14 @@
  * @author Kent Davidson <kent@marketacumen.com>
  * @copyright Copyright &copy; 2012, Market Acumen, Inc.
  */
-require_once dirname(__FILE__) . '/zesk.inc';
-
+/* @var $zesk zesk\Kernel */
 define('APPLICATION_NAME', 'zesk');
 
-zesk::set('Application::configuration_path', array(
-	zesk::application_root('etc'),
-	array_key_exists("HOME", $_SERVER) ? path($_SERVER['HOME'], '.zesk') : null
-));
+$zesk = require_once dirname(__FILE__) . '/zesk.inc';
 
-Application::instance()->configure();
+Application::instance()->configure(array(
+	"path" => array(
+		$zesk->paths->application('etc'),
+		$zesk->paths->uid()
+	)
+));

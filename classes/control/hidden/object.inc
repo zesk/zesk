@@ -8,7 +8,8 @@ class Control_Hidden_Object extends Control_Hidden {
 			$object = $this->application->object_factory($this->class, $x)->fetch();
 			$this->value($object);
 		} catch (Exception $e) {
-			zesk::hook("exception", $e);
+			global $zesk;
+			$zesk->hooks->call("exception", $e);
 		}
 	}
 }

@@ -1,5 +1,5 @@
 /*
- * $Id: zesk.js 3735 2016-03-23 22:02:52Z kent $
+ * $Id: zesk.js 3841 2016-06-23 13:47:33Z kent $
  *
  * Copyright (C) 2007 Market Acumen, Inc. All rights reserved
  */
@@ -704,7 +704,7 @@
 		    }
 		    for (k in object) {
 			    if (object.hasOwnProperty(k)) {
-				    var value = object[k], replace = value === null ? "" : object[k].toString();
+				    var value = object[k], replace = value === null ? "" : String(object[k]);
 				    self = self.replace(new RegExp("\\{" + k + "\\}", "g" + suffix), replace);
 			    }
 		    }
@@ -886,7 +886,7 @@
 	$(document).ready(function() {
 		zesk.hook("document::ready");
 	});
-	$(window).load(function() {
+	$(window).on("load", function() {
 		zesk.hook("window::load");
 	});
 }(window, window.jQuery));

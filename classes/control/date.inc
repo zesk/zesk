@@ -8,6 +8,7 @@
  * Created on Tue Jul 15 16:35:38 EDT 2008
  */
 
+use zesk\Timestamp as Timestamp;
 /**
  * Note that Control_Timestamp inherits from this, double-check nothing is Date specific
  *

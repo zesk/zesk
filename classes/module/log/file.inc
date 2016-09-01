@@ -1,41 +1,40 @@
 <?php
-
+use zesk\Timestamp as Timestamp;
 class Module_Log_File extends Module_Log {
-
 	const FATAL = log::FATAL;
 	const ERROR = log::ERROR;
 	const WARNING = log::WARNING;
 	const NOTICE = log::NOTICE;
 	const DEBUG = log::DEBUG;
 	const ALL = log::ALL;
-
+	
 	/**
 	 * Set to true to debug/trace log::file commands to stdout
 	 * @var unknown
 	 */
 	public static $debug_file = false;
-
+	
 	/**
 	 * Current log file pointer
 	 *
 	 * @var resource
 	 */
 	private $fp = null;
-
+	
 	/**
 	 * Current file setting.
 	 *
 	 * @var string
 	 */
 	private $file = null;
-
+	
 	/**
 	 * File name contains substitutions
 	 *
 	 * @var string
 	 */
 	private $file_rollover = false;
-
+	
 	/**
 	 * Default mode for log files
 	 *
@@ -43,7 +42,7 @@ class Module_Log_File extends Module_Log {
 	 * @see fopen
 	 */
 	private $mode = "a";
-
+	
 	/**
 	 *
 	 * @return Module_Log_File
@@ -51,9 +50,8 @@ class Module_Log_File extends Module_Log {
 	private static function singleton() {
 		return Module::object('Log_File');
 	}
-
 	public function initialize() {
-		zesk::add_hook('exit', array(
+		$this->zesk->hooks->add('exit', array(
 			$this,
 			'clean_up'
 		));
@@ -79,7 +77,7 @@ class Module_Log_File extends Module_Log {
 			fflush($this->fp);
 		}
 	}
-
+	
 	/**
 	 * Close log file
 	 */
@@ -89,40 +87,38 @@ class Module_Log_File extends Module_Log {
 			$this->fp = null;
 		}
 	}
-
+	
 	/**
 	 * Implements hook Module::configured
 	 *
 	 * Loads global values which affect logging options
 	 */
 	public function hook_configured() {
+		global $zesk;
+		/* @var $zesk zesk\Kernel */
 		if ($this->option('debug_file')) {
 			$this->debug_file = false;
 		}
-		$f = zesk::get1('Module_Log_File::file;log::file;log::target');
+		$f = $zesk->configuration->path_get_first(array(
+			'Module_Log_File::file',
+			'log::file',
+			'log::target'
+		));
 		if (!empty($f) && ($f !== $this->file)) {
 			$this->file($f);
 		}
 	}
-
+	
 	/**
 	 * Close log file on exit
 	 */
 	public function clean_up() {
 		$this->clean_up_fp();
 	}
-
-	/**
-	 * Implements Module::hooks to register this Module's hooks
-	 */
-	public static function hooks() {
-		zesk::add_hook('Application::configured', __CLASS__ . '::configured');
-	}
-
+	
 	public static function map($string) {
 		return Timestamp::now()->format($string);
 	}
-
 	private function open() {
 		if (empty($this->file)) {
 			return null;
@@ -156,7 +152,7 @@ class Module_Log_File extends Module_Log {
 			"mode" => $this->mode
 		));
 	}
-
+	
 	/**
 	 * Get/Set file, filename or disable file logging
 	 *

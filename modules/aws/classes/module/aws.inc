@@ -24,13 +24,13 @@ class Module_AWS extends Module {
 			return;
 		}
 		if (!$this->option_bool("disable_server_integration")) {
-			zesk::add_hook("Server::initialize_names", array(
+			$this->application->hooks->add("Server::initialize_names", array(
 				$this,
 				"server_initialize_names"
 			));
 		}
 		if (!$this->option_bool("disable_uname_integration")) {
-			zesk::add_hook("uname", function () {
+			$this->application->hooks->add("uname", function () {
 				return zesk::factory("AWS_EC2_Awareness")->get(AWS_EC2_Awareness::setting_mac);
 			});
 		}

@@ -7,9 +7,10 @@
  *
  */
 class Module_Developer extends Module implements Module_Interface_Routes {
-	public static function test_ip(Application $application) {
-		$ips = zesk::geta('Module_Developer::ip_allow');
-		$development = false;
+	public function test_ip() {
+		$application = $this->application;
+		$ips = $this->option_list('ip_allow');
+		$development = null;
 		$ip = IPv4::remote();
 		foreach ($ips as $mask) {
 			if ($ip === $mask) {
@@ -33,11 +34,10 @@ class Module_Developer extends Module implements Module_Interface_Routes {
 				break;
 			}
 		}
-		if (self::ip_matches(zesk::geta('Module_Developer::ip_deny'))) {
-			$application->development(false);
-			return;
+		if (self::ip_matches($this->option_list('ip_deny'))) {
+			$development = false;
 		}
-		if ($development) {
+		if ($development !== null) {
 			$application->development($development);
 		}
 	}
@@ -50,8 +50,9 @@ class Module_Developer extends Module implements Module_Interface_Routes {
 		}
 		return false;
 	}
-	public static function router_prematch(Application $app, Router $router) {
-		$restricted_ips = zesk::geta('Module_Developer::ip_restrict');
+	public function router_prematch() {
+		$app = $this->application;
+		$restricted_ips = $this->option_list('ip_restrict');
 		if (count($restricted_ips) === 0) {
 			return;
 		}
@@ -62,13 +63,17 @@ class Module_Developer extends Module implements Module_Interface_Routes {
 			$app->request->path("/developer/forbidden");
 		}
 	}
-	
-	/**
-	 * 
-	 */
-	public static function hooks() {
-		zesk::add_hook("Application::configured", __CLASS__ . '::test_ip');
-		zesk::add_hook("Application::router_prematch", __CLASS__ . '::router_prematch');
+	public function initialize() {
+		$zesk = $this->zesk;
+		
+		$zesk->hooks->add("Application::configured", array(
+			$this,
+			'test_ip'
+		));
+		$zesk->hooks->add("Application::router_prematch", array(
+			$this,
+			'router_prematch'
+		));
 	}
 	
 	/**
@@ -107,6 +112,13 @@ class Module_Developer extends Module implements Module_Interface_Routes {
 		) + $extras);
 		$router->add_route('ip', array(
 			'method' => 'IPv4::remote',
+			'json' => true
+		) + $extras);
+		$router->add_route('development/includes', array(
+			'method' => array(
+				$this,
+				'development_includes'
+			),
 			'json' => true
 		) + $extras);
 		$router->add_route('development', array(
@@ -178,9 +190,10 @@ class Module_Developer extends Module implements Module_Interface_Routes {
 		Database_Schema::debug(true);
 		$db = null;
 		if ($arg) {
-			$db = Database::factory($arg);
+			// TODO Potentical security issue - pass in URL value here
+			$db = $this->application->database_factory($arg);
 		} else {
-			$db = Database::instance();
+			$db = $this->application->database_factory();
 		}
 		$results = $app->schema_synchronize($db);
 		$exception = null;
@@ -201,6 +214,9 @@ class Module_Developer extends Module implements Module_Interface_Routes {
 			"-- " . $arg . ";\n"
 		), arr::suffix($results, ";\n"))));
 		return $result;
+	}
+	public function development_includes() {
+		return get_included_files();
 	}
 }
 

@@ -1,4 +1,6 @@
 <?php
+use zesk\Timestamp as Timestamp;
+
 class Test_Timestamp extends Test_Unit {
 	function test_instance() {
 		$year = $month = $day = $hour = $minute = $second = null;

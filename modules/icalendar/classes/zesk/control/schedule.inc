@@ -3,17 +3,24 @@
 namespace zesk;
 
 use \Control as Control;
-use \Time as Time;
-use \Date as Date;
 
 /**
+ *
  * @see $ZESK_ROOT/modules/schedule/theme/zesk/control/schedule.tpl
  * @author kent
- *
+ *        
  */
 class Control_Schedule extends Control {
+	
 	/**
-	 * 
+	 * When executing child, traverse the parent model
+	 *
+	 * @var boolean
+	 */
+	protected $traverse = true;
+	
+	/**
+	 *
 	 * @var array $options
 	 */
 	protected $options = array(
@@ -21,26 +28,40 @@ class Control_Schedule extends Control {
 	);
 	
 	/**
+	 *
 	 * @var \Control_DropDown
 	 */
 	protected $widget_unit = null;
 	/**
+	 *
 	 * @var \Control_DropDown
 	 */
 	protected $widget_dayofweek = null;
 	/**
+	 *
 	 * @var \Control_DropDown
 	 */
 	protected $widget_dayofmonth = null;
 	/**
+	 *
 	 * @var \Control_DropDown
 	 */
 	protected $widget_hourofday = null;
 	
 	/**
+	 * Schedule
+	 *
+	 * @var Schedule
+	 */
+	function model() {
+		return new Schedule($this->option_array("default"));
+	}
+	
+	/**
 	 * Setup our widgets and the relationships between them
-	 *  
-	 * {@inheritDoc}
+	 *
+	 * {@inheritdoc}
+	 *
 	 * @see Widget::initialize()
 	 */
 	public function initialize() {
@@ -48,6 +69,7 @@ class Control_Schedule extends Control {
 		 * Time of day
 		 */
 		$schedule_frequencies = array(
+			'day' => __('Daily'),
 			'week' => __('Weekly'),
 			'month' => __('Monthly')
 		);
@@ -90,62 +112,28 @@ class Control_Schedule extends Control {
 		}
 		
 		$column_prefix = $this->column_prefix();
-		
-		$this->child($this->theme_variables['widget_unit'] = $this->widget_unit = $this->widget_factory("Control_DropDown")
-			->names($column_prefix . "unit")
-			->control_options($schedule_frequencies)
-			->required(true)
-			->set_option("onupdate", "function (value) {
+		/* @var $w \Control_DropDown */
+		$this->child($this->theme_variables['widget_unit'] = $this->widget_unit = $w = $this->widget_factory("Control_DropDown")->names("unit", null, $column_prefix . "unit")->control_options($schedule_frequencies)->required(true)->set_option("onupdate", "function (value) {
 				zesk.log(\"value is \" + value); 
 				\$(\"#${column_prefix}dayofweek\").toggle(value === \"week\");
 				\$(\"#${column_prefix}dayofmonth\").toggle(value === \"month\");
 			}"));
+		$w->wrap("div", ".input-group-btn");
 		
-		$this->child($this->theme_variables['widget_dayofweek'] = $this->widget_dayofweek = $this->widget_factory("Control_DropDown")
-			->names($column_prefix . "dayofweek")
-			->control_options($schedule_dayofweek)
-			->required(true));
+		$this->child($this->theme_variables['widget_dayofweek'] = $this->widget_dayofweek = $w = $this->widget_factory("Control_DropDown")->names("weekday", null, $column_prefix . "dayofweek")->control_options($schedule_dayofweek)->required(true));
 		
-		$this->child($this->theme_variables['widget_dayofmonth'] = $this->widget_dayofmonth = $this->widget_factory("Control_DropDown")
-			->names($column_prefix . "dayofmonth")
-			->control_options($schedule_dayofmonth)
-			->default_value(1)
-			->required(true));
-		
-		$this->child($this->theme_variables['widget_hourofday'] = $this->widget_hourofday = $this->widget_factory("Control_DropDown")
-			->names($column_prefix . "hourofday")
-			->control_options($schedule_hourofday)
-			->required(true)
-			->default_value(9));
-		
+		$w->wrap("div", ".input-group-btn");
+		$this->child($this->theme_variables['widget_dayofmonth'] = $this->widget_dayofmonth = $w = $this->widget_factory("Control_DropDown")->names("monthday", null, $column_prefix . "dayofmonth")->control_options($schedule_dayofmonth)->default_value(1)->required(true));
+		$w->wrap("div", ".input-group-btn");
+		$this->child($this->theme_variables['widget_hourofday'] = $this->widget_hourofday = $w = $this->widget_factory("Control_DropDown")->names("hour", null, $column_prefix . "hourofday")->control_options($schedule_hourofday)->required(true)->default_value(9));
+		$w->wrap("div", ".input-group-btn");
 		parent::initialize();
+	}
+	public function validate() {
+		$object = $this->object;
+		return true;
 	}
 	private function column_prefix() {
 		return $this->column() . '_';
-	}
-	
-	/**
-	 * 
-	 * {@inheritDoc}
-	 * @see Widget::load()
-	 */
-	public function load() {
-		$this->children_load();
-		
-		$column_prefix = $this->column_prefix();
-		
-		$object = $this->object;
-		$value = $this->value();
-		if (!$value instanceof Schedule) {
-			$value = new Schedule();
-		}
-		/* @var $value Schedule */
-		$value->frequency = 1;
-		$value->unit = $object->get($column_prefix . '_unit');
-		$value->weekday = $object->get($column_prefix . '_dayofweek');
-		$value->monthday = $object->get($column_prefix . '_dayofmonth');
-		$value->hour = $object->get($column_prefix . '_hourofday');
-		
-		$this->value($value);
 	}
 }

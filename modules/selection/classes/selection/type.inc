@@ -1,5 +1,7 @@
 <?php
 
+use zesk\Timestamp as Timestamp;
+
 /**
  *
  * @author kent
@@ -120,7 +122,7 @@ class Selection_Type extends Object {
 						"type" => $this
 					))->execute();
 				} else {
-					Object::class_query_update("Selection_Item")->value("add", $op)->where(array(
+					Object::class_query_update("Selection_Item")->value(array("add" =>  $op, "query" => null))->where(array(
 						"id" => $id,
 						"type" => $this
 					))->execute();
@@ -131,6 +133,7 @@ class Selection_Type extends Object {
 		foreach ($items as $id => $op) {
 			Object::class_query_insert("Selection_Item")->values(array(
 				"add" => intval($op),
+				"query" => null,
 				"id" => $id,
 				"type" => $this
 			))->replace(true)->execute();
@@ -160,7 +163,7 @@ class Selection_Type extends Object {
 				"title" => $query->title,
 				"count" => $query->count(),
 				"operation" => $query->add ? "+" : "-",
-				"action" => $query->add ? __('Selection_Type:=Add to selection') : __('Selection_Type:=Remove from selection')
+				"action" => $query->add ? __('Selection_Type:=Added to selection') : __('Selection_Type:=Removed from selection')
 			)), html::span(".query-action " . ($query->add ? ".query-action-add" : ".query-action-remove"), "[]"));
 		}
 		$n_added = Object::class_query("Selection_Item")->where(array(
@@ -175,10 +178,11 @@ class Selection_Type extends Object {
 		}
 		$n_excluded = Object::class_query("Selection_Item")->where(array(
 			"type" => $this,
+			"query" => null,
 			"add" => 0
 		))->what("*n", "COUNT(id)")->one_integer("n");
 		if ($n_excluded) {
-			$line[] .= __("{n} specifically excluded", array(
+			$line[] .= __("{n} specifically removed", array(
 				"n" => $n_excluded
 			));
 		}

@@ -26,4 +26,8 @@ class Class_Schedule extends \Class_Object {
 		'monthday' => self::type_integer,
 		'hour' => self::type_integer
 	);
+	public $column_defaults = array(
+		'frequency' => 1,
+		'unit' => 'week'
+	);
 }

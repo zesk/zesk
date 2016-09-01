@@ -1,0 +1,13 @@
+{
+	"name": "jQuery Unveil",
+	"license": "mit",
+	"versions": {
+		"1.3.0": {
+			"url": "https://github.com/luis-almeida/unveil/archive/1.3.0.tar.gz"
+		}
+	}, 
+	"depends": [ "jquery" ],
+	"destination": "vendor/components/jquery-unveil",
+	"strip_components": 1,
+	"share_path": "vendor/components/jquery-unveil"
+}		

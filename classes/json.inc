@@ -217,7 +217,8 @@ class json {
 				return $result;
 			}
 		} catch (Exception $e) {
-			zesk::hook("exception", $e);
+			global $zesk;
+			$zesk->hooks->call("exception", $e);
 			self::$last_error = $e;
 		}
 		return null;

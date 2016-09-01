@@ -14,6 +14,9 @@ if (false) {
 	$name = $this->name;
 	/* @var $name string */
 	$value = $this->value;
+	/* @var $parent Widget */
+	$parent = $this->parent;
+	/* @var $variables array */
 	$variables = $this->variables;
 }
 $ia = $this->geta('attributes');
@@ -102,7 +105,7 @@ foreach ($control_options as $code => $attributes) {
 	} else {
 		$link_html = $code;
 	}
-	if (to_bool(avalue($attributes, 'selected')) || $code === $value) {
+	if (to_bool(avalue($attributes, 'selected')) || strval($code) === strval($value)) {
 		$li_attributes = html::add_class($li_attributes, "active");
 	}
 	$items[] = html::tag('li', $li_attributes, html::tag('a', $attributes, $link_html));
@@ -111,15 +114,18 @@ foreach ($control_options as $code => $attributes) {
 $html = "";
 
 $html .= html::div_open(array(
-	'class' => 'input-group-btn',
+	'class' => $this->get("outer_class", 'dropdown'), //'input-group-btn'
 	'id' => $id
 ));
+
+$input_id = $this->id . "_input";
 
 $html .= html::tag('button', array(
 	'type' => 'button',
 	'class' => 'btn btn-default dropdown-toggle',
 	'data-toggle' => 'dropdown',
 	'id' => $button_id,
+	'data-input' => "#$input_id",
 	'data-content' => '{label} ',
 	'aria-expanded' => 'false'
 ), html::span(".button-label", $button_label) . ' ' . html::span('.caret', ''));
@@ -133,7 +139,9 @@ $html .= implode("\n", $items);
 $html .= html::tag_close('ul');
 
 $html .= html::div_close(); // input-group-btn
-$html .= html::input('hidden', $this->column, $this->value, array(
+
+
+$input = html::input('hidden', $this->name, $this->value, array(
 	'id' => $this->id . "_input"
 ));
 
@@ -143,6 +151,11 @@ if (!$this->no_input_group) {
 echo $html;
 if (!$this->no_input_group) {
 	echo html::div_close(); // input-group
+	echo $input;
+} else if ($parent) {
+	$parent->suffix($input, true);
+} else {
+	echo $input;
 }
 
 $response->cdn_javascript('/share/bootstrap-x/js/dropdown.js', array(

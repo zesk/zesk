@@ -16,5 +16,5 @@ if (is_array($args)) {
 }
 echo html::tag_open('li');
 echo html::tag('div', '.method', html::etag('span', '.class', $class) . html::etag('span', '.type', $type) . html::etag('span', '.function', $function) . html::tag('ol', '.args', $args));
-echo html::tag('div', '.location', html::etag('span', 'file', $file) . html::etag('span', '.line', $line));
+echo html::tag('div', '.location', html::etag('span', 'file', $file) . ' ' . html::etag('span', '.line', $line));
 echo html::tag_close();

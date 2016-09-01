@@ -15,7 +15,7 @@ class View_Real extends View {
 			if ($this->option_bool("empty_string_no_wrap"))
 				return $result;
 		} else {
-			$result = number_format(doubleval($v), $this->option_integer("decimal_places", 2), $this->option("decimal_point", __('Number::decimal_point:=.')), $this->option('thousands_separator', __('Number::thousands_separator:=.')));
+			$result = number_format(doubleval($v), $this->option_integer("decimal_places", 2), $this->option("decimal_point", __('Number::decimal_point:=.')), $this->option('thousands_separator', __('Number::thousands_separator:=,')));
 		}
 		return $this->render_finish($result);
 	}

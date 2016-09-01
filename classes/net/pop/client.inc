@@ -253,7 +253,8 @@ class Net_POP_Client extends Net_Client_Socket {
 			$this->command("DELE $message_index");
 			return true;
 		} catch (Net_POP_Client_Exception $e) {
-			zesk::hook("exception", $e);
+			global $zesk;
+			$zesk->hooks->call("exception", $e);
 			return false;
 		}
 	}

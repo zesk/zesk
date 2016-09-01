@@ -285,6 +285,11 @@ class Template implements Interface_Theme {
 	public function values() {
 		return $this->_vars;
 	}
+	
+	/**
+	 *
+	 * @return Cache
+	 */
 	private function _paths_cache() {
 		if ($this->paths_cache instanceof Cache) {
 			return $this->paths_cache;
@@ -576,20 +581,23 @@ class Template implements Interface_Theme {
 	 * @return string
 	 */
 	function render() {
+		global $zesk;
 		if (!$this->_path) {
 			return null;
 		}
 		$__start = microtime(true);
 		ob_start();
 		$this->push();
-		extract($this->_vars, EXTR_SKIP); // Avoid overwriting $this
+		extract(array(
+			"zesk" => $zesk
+		) + $this->_vars, EXTR_SKIP); // Avoid overwriting $this
 		// This name is fairly unique to avoid conflicts with variables set in our include.
 		$_template_exception = null;
 		$variables = $this->_vars;
 		try {
 			$this->return = include $this->_path;
 		} catch (Exception $_template_exception) {
-			zesk::hook("exception", $_template_exception);
+			$this->application->hooks->call("exception", $_template_exception);
 		}
 		$this->pop();
 		$contents = ob_get_clean();
@@ -614,19 +622,23 @@ class Template implements Interface_Theme {
 	private static function _template_key($key) {
 		return strtolower($key);
 	}
-	public static function configured() {
-		self::$profile = zesk::getb('Template::profile');
-		self::$wrap = zesk::getb('Template::wrap');
+	public static function configured(zesk\Application $application) {
+		global $zesk;
+		$config = $zesk->configuration->template;
+		/* @var $zesk zesk\Kernel */
+		self::$profile = $config->profile;
+		self::$wrap = $config->wrap;
 	}
 	/**
 	 * Implements ::hooks
 	 */
-	public static function hooks() {
-		zesk::add_hook('</html>', 'Template::profile_output');
-		zesk::add_hook('configured', 'Template::configured');
+	public static function hooks(zesk\Kernel $zesk) {
+		$zesk->configuration->pave("template");
+		$zesk->hooks->add('</html>', 'Template::profile_output');
+		$zesk->hooks->add('configured', 'Template::configured');
 	}
 	public static function profile_output() {
-		if (!zesk::getb('Template::profile')) {
+		if (!self::$profile) {
 			return '';
 		}
 		echo Application::instance()->theme('template/profile', self::$_stats);
@@ -730,9 +742,9 @@ class Template implements Interface_Theme {
 	
 	/**
 	 * Start to deprecate Widget::factory
-	 * 
-	 * @param string $class
-	 * @param array $options
+	 *
+	 * @param string $class        	
+	 * @param array $options        	
 	 */
 	final function widget_factory($class, $options = null) {
 		return Widget::factory($class, $options, $this->application);

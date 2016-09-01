@@ -7,6 +7,14 @@
  * @copyright Copyright &copy; 2008, Market Acumen, Inc.
  * Created on Tue Jul 15 16:35:38 EDT 2008
  */
+
+use zesk\Timestamp as Timestamp;
+
+/**
+ * 
+ * @author kent
+ *
+ */
 class Control_Timestamp extends Control {
 
 	protected $options = array(

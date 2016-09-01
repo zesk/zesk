@@ -6,7 +6,7 @@
  * @author kent
  * @copyright Copyright &copy; 2010, Market Acumen, Inc.
  */
-class Exception_Class_NotFound extends Zesk_Exception {
+class Exception_Class_NotFound extends zesk\Exception {
 	
 	/**
 	 * Class which wasn't found

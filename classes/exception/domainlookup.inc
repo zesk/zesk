@@ -5,7 +5,7 @@
  * @author kent
  *
  */
-class Exception_DomainLookup extends Zesk_Exception {
+class Exception_DomainLookup extends zesk\Exception {
 	
 	/**
 	 * 

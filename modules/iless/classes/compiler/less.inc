@@ -40,7 +40,7 @@ class Compiler_Less {
 		$this->iless->parseFile($file);
 		$content = $this->iless->getCSS();
 		if ($destination !== null) {
-			file::put($destination, $content);
+			zesk\file::put($destination, $content);
 			return $destination;
 		}
 		return $content;
@@ -50,7 +50,7 @@ class Compiler_Less {
 		$this->iless->parseString($source);
 		$content = $this->iless->getCSS();
 		if ($destination !== null) {
-			file::put($destination, $content);
+			zesk\file::put($destination, $content);
 			return $destination;
 		}
 		return $content;

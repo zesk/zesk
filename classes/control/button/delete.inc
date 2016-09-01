@@ -17,7 +17,7 @@ class Control_Button_Delete extends Control_Button {
 		$object = $this->object;
 		$href = $this->option('href');
 		if (!$href) {
-			$href = $this->request->get_route("delete", $object);
+			$href = $this->application->router()->get_route("delete", $object);
 		}
 		$class_name = $this->option('class_name', $object->class_name());
 		$link_text = __("Delete {name}", array(

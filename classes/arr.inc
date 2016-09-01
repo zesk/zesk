@@ -903,6 +903,10 @@ class arr {
 				$exclude = array_change_key_case($exclude);
 			}
 			foreach ($a as $i => $action) {
+				if (!is_scalar($action)) {
+					error_log(__METHOD__ . ' ' . type($action) . " " . _backtrace(), E_USER_ERROR);
+				}
+				$action = strval($action);
 				if (array_key_exists($action, $exclude)) {
 					unset($newa[$i]);
 				}
@@ -1667,7 +1671,7 @@ class arr {
 	}
 	
 	/**
-	 * Convert multi-dimensional arrays to a single-dimensino array, using separator to separate entities
+	 * Convert multi-dimensional arrays to a single-dimension array, using separator to separate entities
 	 * @param array $array
 	 * @param string $separator
 	 * @return array

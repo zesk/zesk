@@ -1,5 +1,20 @@
 <?php
-/* @var $response Response_HTML */
+if (false) {
+	/* @var $this Template */
+	
+	$zesk = $this->zesk;
+	/* @var $zesk zesk\Kernel */
+	
+	$application = $this->application;
+	/* @var $application TimeBank */
+	
+	$request = $this->request;
+	/* @var $request Request */
+	
+	$response = $this->response;
+	/* @var $response Response_HTML */
+}
+
 $result = array();
 
 $result['time'] = microtime(true);
@@ -17,7 +32,7 @@ $result['system::load_averages'] = system::load_averages();
 $result['system::host_id'] = system::host_id();
 $result['system::volume_info'] = system::volume_info();
 
-$result = zesk::hook_array('system/status', array(
+$result = $zesk->hooks->call_arguments('system/status', array(
 	$result
 ), $result);
 
@@ -29,5 +44,5 @@ $query_string = to_list($request->query(), null);
 if ($query_string) {
 	$result = arr::filter($result, $query_string);
 }
-$result['elpased'] = microtime(true) - zesk::get("init");
+$result['elpased'] = microtime(true) - $zesk->initialization_time;
 $response->json($result);

@@ -9,7 +9,7 @@
 class Test_Database_Table extends Test_Unit {
 
 	function test_main() {
-		$db = Database::factory(zesk::get('DB_URL'));
+		$db = $this->application->database_factory(zesk::get('DB_URL'));
 		$table_name = null;
 		$type = false;
 		$x = new Database_Table($db, $table_name, $type);
@@ -72,7 +72,7 @@ class Test_Database_Table extends Test_Unit {
 	}
 
 	function test_main2() {
-		$db = Database::instance();
+		$db = $this->application->database_factory();
 		$table_name = 'test_table';
 		$type = false;
 		$testx = new Database_Table($db, $table_name, $type);

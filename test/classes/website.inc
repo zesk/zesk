@@ -401,11 +401,3 @@ abstract class Test_Website extends Test_Selenium {
 	}
 }
 
-/*
-if (zesk::getb('TEST_SELENIUM')) {
-	$argv = avalue($_SERVER, 'argv', array());
-	if (isset($argv) && is_array($argv)) {
-		Test_Environment::factoryCommandLine($argv, __FILE__);
-	}
-}
-*/

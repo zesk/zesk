@@ -1,21 +1,16 @@
 <?php
 /**
-* $URL: https://code.marketacumen.com/zesk/trunk/classes/schedule.inc $
-* @package zesk
-* @subpackage objects
-*/
+ * $URL: https://code.marketacumen.com/zesk/trunk/classes/schedule.inc $
+ * @package zesk
+ * @subpackage objects
+ */
+use zesk\Timestamp as Timestamp;
 class Schedule {
-
 	const cron_minute = 0;
-
 	const cron_hour = 1;
-
 	const cron_monthday = 2;
-
 	const cron_month = 3;
-
 	const cron_weekday = 4;
-
 	private static function cron_add($cron, $index, $add) {
 		if ($add === null) {
 			return $cron;
@@ -63,10 +58,9 @@ class Schedule {
 		$cron[$index] = implode(",", $old);
 		return $cron;
 	}
-
 	private static function compute_next_cron(Timestamp $now, $data) {
 		list($cron_minute, $cron_hour, $cron_monthday, $cron_month, $cron_weekday) = explode(" ", $data);
-
+		
 		$match_list = array(
 			array(
 				$cron_minute,
@@ -190,7 +184,6 @@ class Schedule {
 		}
 		return $next;
 	}
-
 	static function compute_next($code, $relative_time = "now") {
 		$now = new Timestamp();
 		$now->set($relative_time);
@@ -204,7 +197,7 @@ class Schedule {
 		}
 		return null;
 	}
-
+	
 	/**
 	 * Parse a string and convert it into a schedule
 	 *
@@ -253,8 +246,8 @@ class Schedule {
 			"short-dow" => '(' . implode("|", $short_dow) . ")",
 			"years" => "([0-9]{4})"
 		);
-
-		$debug = zesk::getb('debug-schedule-parsing');
+		
+		$debug = zesk()->configuration->path_get("Schedule::debug_parsing");
 		if ($debug) {
 			echo html::tag("h1", false, "$text");
 		}
@@ -368,7 +361,7 @@ class Schedule {
 					}
 					break;
 				case "weekday":
-					for($i = 1; $i <= 5; $i++) {
+					for ($i = 1; $i <= 5; $i++) {
 						$cron = self::cron_add($cron, self::cron_weekday, $i);
 					}
 					break;
@@ -454,7 +447,7 @@ class Schedule {
 						}
 					}
 					break;
-				default:
+				default :
 					throw new Exception_Parse("Unknown pattern in schedule: $item");
 			}
 		}
@@ -484,7 +477,7 @@ class Schedule {
 		}
 		return $result;
 	}
-
+	
 	/**
 	 * Parse a string and convert it into a schedule
 	 *
@@ -496,12 +489,11 @@ class Schedule {
 			$locale = _G('locale');
 		}
 		switch (strtolower(substr($locale, 0, 2))) {
-			default:
+			default :
 				break;
 		}
 		return self::parse_language_en($text);
 	}
-
 	private static function days_to_language($code, $locale) {
 		$items = explode(",", $code);
 		$result = array();
@@ -512,7 +504,6 @@ class Schedule {
 		}
 		return lang::conjunction($result, __('and', $locale));
 	}
-
 	private static function months_to_language($code, $locale) {
 		$items = explode(",", $code);
 		$result = array();
@@ -524,7 +515,6 @@ class Schedule {
 		}
 		return lang::conjunction($result, __('and', $locale));
 	}
-
 	private static function dow_to_language($code, $locale, $plural = false) {
 		if ($code === "1,2,3,4,5") {
 			return $plural ? __('weekdays', $locale) : __('weekday', $locale);
@@ -549,7 +539,6 @@ class Schedule {
 		}
 		return lang::conjunction($result, __('and', $locale));
 	}
-
 	private static function time_repeat_to_language($item, $unit, $locale) {
 		if (($number = self::is_time_repeat($item)) !== false) {
 			$translate = lang::translate($number === 1 ? 'Schedule:=Every {1}' : 'Schedule:=Every {0} {1}', $locale);
@@ -560,7 +549,6 @@ class Schedule {
 		}
 		return false;
 	}
-
 	private static function is_time_repeat($item) {
 		$matches = false;
 		if (preg_match('/\*\/([0-9]+)/', $item, $matches)) {
@@ -568,7 +556,6 @@ class Schedule {
 		}
 		return false;
 	}
-
 	private static function time_to_language($min, $hour, $locale) {
 		$min = explode(",", $min);
 		$hour = explode(",", $hour);
@@ -594,7 +581,6 @@ class Schedule {
 		}
 		return lang::conjunction($times, __("and", $locale));
 	}
-
 	private static function code_to_language_cron($data, $locale) {
 		list($min, $hour, $day, $month, $dow) = explode(" ", $data, 5);
 		$month_language = "";
@@ -659,7 +645,7 @@ class Schedule {
 			'weekday' => $dow_language
 		));
 	}
-
+	
 	// Format similar to crontab scheduling
 	//
 	// minute hour day-of-month month day-of-week
@@ -675,7 +661,7 @@ class Schedule {
 					break;
 			}
 		}
-
+		
 		return implode(";", $result);
 	}
 }

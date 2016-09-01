@@ -1,0 +1,199 @@
+<?php
+
+namespace zesk;
+
+use \Cache as Cache;
+
+class Classes {
+	
+	/**
+	 * Registry of class names
+	 *
+	 * @var array
+	 */
+	protected $classes = array();
+	
+	/**
+	 * @var array
+	 */
+	protected $subclasses = array();
+	
+	/**
+	 * @var arrayls
+	 */
+	protected $hierarchy = array();
+	
+	/**
+	 * @var boolean
+	 */
+	protected $dirty = false;
+	
+	/**
+	 * @var string
+	 */
+	public $cache_file = null;
+	
+	/**
+	 * 
+	 */
+	public function __construct(Kernel $zesk) {
+		$this->initialize($zesk);
+	}
+	
+	/**
+	 * Register hooks
+	 * 
+	 * @param Kernel $zesk
+	 */
+	public function initialize(Kernel $zesk) {
+		$zesk->hooks->add("exit", array(
+			$this,
+			"on_exit"
+		));
+	}
+	
+	/**
+	 * @param Kernel $zesk
+	 * @return \zesk\Classes
+	 */
+	public static function instance(Kernel $zesk) {
+		$cache_file = $zesk->paths->cache("zesk-classes.cache");
+		if (file_exists($cache_file)) {
+			$classes = unserialize(file_get_contents($cache_file));
+			if ($classes instanceof self) {
+				$classes->initialize($zesk);
+			} else {
+				$classes = new self($zesk);
+			}
+		} else {
+			$classes = new self($zesk);
+		}
+		$classes->cache_file = $cache_file;
+		return $classes;
+	}
+	public function on_exit() {
+		if ($this->dirty) {
+			$this->dirty = false;
+			file_put_contents($this->cache_file, serialize($this));
+		}
+	}
+	/**
+	 * 
+	 * @param string $class
+	 */
+	private function _add($class) {
+		$parent_classes = $this->hierarchy($class);
+		$this->classes[$class] = array();
+		$this->subclasses[$class] = array();
+		$this->dirty = true;
+		array_shift($parent_classes);
+		foreach ($parent_classes as $parent_class) {
+			$parent_class = strtolower($parent_class);
+			$this->classes[$parent_class][$class] = 1;
+			$this->subclasses[$parent_class] = array_keys($this->classes[$parent_class]);
+			$class = $parent_class;
+		}
+	}
+	
+	/**
+	 * Register a global hook by class
+	 */
+	public function register($class = null) {
+		if (is_array($class)) {
+			$result = array();
+			foreach ($class as $classy) {
+				$result[$classy] = $this->register($classy);
+			}
+			return $result;
+		}
+		if ($class === null) {
+			return $this->classes;
+		}
+		if (empty($class)) {
+			// Do we need to warn? Not sure if silent failure is best. Probably for now.
+			return null;
+		}
+		// We want to allow all classes to register here
+		// 		if (!is_subclass_of($class, "Hookable")) {
+		// 			return null;
+		// 		}
+		$low_class = strtolower($class);
+		if (!array_key_exists($low_class, $this->classes)) {
+			$this->_add($low_class);
+		}
+		return $this->subclasses[$low_class];
+	}
+	
+	/**
+	 * Return all known subclasses of a class
+	 * 
+	 * @param string $class
+	 * @return mixed[]
+	 */
+	public function subclasses($class) {
+		$classes = array(
+			$class
+		);
+		$result = array();
+		while (count($classes) > 0) {
+			$class = array_shift($classes);
+			if (empty($class)) {
+				continue;
+			}
+			$result[] = $class;
+			$subclasses = $this->register($class);
+			if (is_array($subclasses)) {
+				$classes = array_merge($classes, $subclasses);
+			}
+		}
+		return $result;
+	}
+	
+	/**
+	 * Retrieve a class hierarchy from leaf to base
+	 *
+	 * @param mixed $mixed
+	 *        	An object or string to find class hierarchy for
+	 * @param string $stop_class
+	 *        	Return up to and including this class
+	 * @return array
+	 */
+	public function hierarchy($mixed, $stop_class = null) {
+		if ($mixed === null) {
+			return $this->hierarchy;
+		}
+		if (is_object($mixed)) {
+			$mixed = get_class($mixed);
+		} else if (is_array($mixed)) {
+			$result = array();
+			foreach ($mixed as $key) {
+				$result[$key] = $this->hierarchy($key, $stop_class);
+			}
+			return $result;
+		}
+		if (array_key_exists($mixed, $this->hierarchy)) {
+			$result = $this->hierarchy[$mixed];
+		} else {
+			$parent = get_parent_class($mixed);
+			$result = array(
+				$mixed
+			);
+			if ($parent !== false) {
+				$result = array_merge($result, $this->hierarchy($parent));
+			}
+			$this->hierarchy[$mixed] = $result;
+			$this->dirty = true;
+		}
+		if ($stop_class === null) {
+			return $result;
+		}
+		$stop_result = array();
+		foreach ($result as $class) {
+			$stop_result[] = $class;
+			if ($class === $stop_class) {
+				return $stop_result;
+			}
+		}
+		return $stop_result;
+	}
+}

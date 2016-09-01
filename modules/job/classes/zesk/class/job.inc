@@ -24,6 +24,7 @@ class Class_Job extends \Class_Object {
 		'created' => self::type_created,
 		'start' => self::type_timestamp,
 		'server' => self::type_object,
+		'priority' => self::type_integer,
 		'pid' => self::type_integer,
 		'completed' => self::type_datetime,
 		'updated' => self::type_datetime,

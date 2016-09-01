@@ -1,4 +1,7 @@
 <?php
+
+use zesk\Timestamp as Timestamp;
+
 class Module_Nominatim extends Module {
 	private $url = null;
 	private $request_delay = null;
@@ -52,7 +55,7 @@ class Module_Nominatim extends Module {
 		));
 
 		$http = new Net_HTTP_Client();
-		$http->user_agent("Module_Nominatum in Zesk Library http://zesk.com/ v" . zesk::version());
+		$http->user_agent("Module_Nominatum in Zesk Library http://zesk.com/ v" . zesk\Version::release());
 		/* @var $item Contact_Address */
 		$run_time = $this->option("run_time", 60);
 		$timer = new Timer();

@@ -1,4 +1,5 @@
 <?php
+use zesk\Timestamp as Timestamp;
 
 /**
  * Module to allow jobs to be activated via mechanism which isn't polling the database.
@@ -13,15 +14,15 @@ class Module_Job_Trigger extends Module implements Module_Interface_Routes {
 	 */
 	public function initialize() {
 		parent::initialize();
-		zesk::add_hook("zesk\\Job::start", array(
+		$this->application->hooks->add("zesk\\Job::start", array(
 			$this,
 			"trigger_send"
 		));
-		zesk::add_hook("zesk\\Job::execute_interrupt", array(
+		$this->application->hooks->add("zesk\\Job::execute_interrupt", array(
 			$this,
 			"trigger_send"
 		));
-		zesk::add_hook("Module_Job::wait_for_job", array(
+		$this->application->hooks->add("Module_Job::wait_for_job", array(
 			$this,
 			"wait_for_job"
 		));
@@ -133,6 +134,8 @@ class Module_Job_Trigger extends Module implements Module_Interface_Routes {
 	 * @param Application $application
 	 */
 	public static function web_job_trigger(Application $application, Request $request) {
+		global $zesk;
+		/* @var $zesk zesk\Kernel */
 		$module = $application->module->object("job_trigger");
 		$result = $module->check_security($request->get("hash"), $request->get("timestamp"));
 		if (!is_array($result)) {
@@ -143,7 +146,7 @@ class Module_Job_Trigger extends Module implements Module_Interface_Routes {
 			);
 		}
 		return $result + array(
-			"elapsed" => microtime(true) - zesk::get("init"),
+			"elapsed" => microtime(true) - $zesk->initialization_time,
 			"now" => Timestamp::now()->format()
 		);
 	}
@@ -171,7 +174,7 @@ class Module_Job_Trigger extends Module implements Module_Interface_Routes {
 	/**
 	 * Wait for the job by seeing if our marker file exists
 	 */
-	public function wait_for_job() {
+	public function wait_for_job(Module_Job $module, Process_Interruptable $process) {
 		$timer = new Timer();
 		$marker = $this->marker_file();
 		log::debug("{method} waiting for marker to appear: {marker}", array(
@@ -181,7 +184,7 @@ class Module_Job_Trigger extends Module implements Module_Interface_Routes {
 		if (!file_exists($marker)) {
 			do {
 				$marker = $this->marker_file();
-				usleep(50000); // 0.1 second
+				$process->sleep(0.1); // 0.1 second
 				if ($timer->elapsed() > $this->wait_max_seconds()) {
 					break;
 				}

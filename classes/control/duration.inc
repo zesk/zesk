@@ -1,4 +1,12 @@
 <?php
+
+use zesk\Timestamp as Timestamp;
+
+/**
+ * 
+ * @author kent
+ *
+ */
 class Control_Duration extends Control_Select {
 	public function relative_to($column = null) {
 		return $column !== null ? $this->set_option('relative_to', $column) : $this->option('relative_to');

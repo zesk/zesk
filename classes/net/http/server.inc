@@ -14,14 +14,15 @@ abstract class Net_HTTP_Server extends Net_Server {
 	}
 
 	final function hook_receive($client_id = 0, $data = "") {
+		global $zesk;
 		$response = new Net_HTTP_Server_Response();
 		try {
 			$this->handle_request(new Net_HTTP_Server_Request($data), $response);
 		} catch (Net_HTTP_Server_Exception $e) {
-			zesk::hook("exception", $e);
+			$zesk->hooks->call("exception", $e);
 			$this->error_response($response, $e);
 		} catch (Exception $e) {
-			zesk::hook("exception", $e);
+			$zesk->hooks->call("exception", $e);
 			$this->error_response($response, new Net_HTTP_Server_Exception(Net_HTTP::Status_Internal_Server_Error, null, $e->getMessage()));
 		}
 		$this->send_response($client_id, $response);

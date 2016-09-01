@@ -6,6 +6,6 @@
  * @author kent
  * @copyright Copyright &copy; 2010, Market Acumen, Inc.
  */
-class Exception_Parameter extends Zesk_Exception {
+class Exception_Parameter extends zesk\Exception {
 
 }

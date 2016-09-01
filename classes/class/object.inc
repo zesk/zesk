@@ -1,4 +1,7 @@
 <?php
+use zesk\Timestamp as Timestamp;
+use zesk\Date as Date;
+use zesk\Time as Time;
 
 /**
  * Class abstraction for objects
@@ -95,21 +98,94 @@ class Class_Object extends Hookable {
 	 * @var string
 	 */
 	const type_real = "real";
+	
+	/**
+	 * 
+	 * @var string
+	 */
 	const type_float = "float";
+	/**
+	 * 
+	 * @var string
+	 */
 	const type_double = "double";
+	/**
+	 * 
+	 * @var string
+	 */
 	const type_decimal = "decimal";
+	/**
+	 * 
+	 * @var string
+	 */
 	const type_byte = "byte";
+	/**
+	 * 
+	 * @var string
+	 */
 	const type_binary = "binary";
+	/**
+	 * 
+	 * @var string
+	 */
 	const type_boolean = "boolean";
+	/**
+	 * 
+	 * @var string
+	 */
 	const type_timestamp = "timestamp";
+	/**
+	 * 
+	 * @var string
+	 */
 	const type_datetime = "datetime";
+	/**
+	 * 
+	 * @var string
+	 */
 	const type_date = "date";
+	/**
+	 * 
+	 * @var string
+	 */
 	const type_time = "time";
+	/**
+	 * 
+	 * @var string
+	 */
 	const type_ip = "ip";
+	/**
+	 * 
+	 * @var string
+	 */
 	const type_ip4 = "ip4";
+	/**
+	 * 
+	 * @var string
+	 */
 	const type_crc32 = "crc32";
+	/**
+	 * 
+	 * @var string
+	 */
 	const type_hex32 = "hex";
+	/**
+	 * 
+	 * @var string
+	 */
 	const type_hex = "hex";
+	
+	/**
+	 * Application class associated with this Class_Object
+	 * 
+	 * @var string
+	 */
+	public $application_class = null;
+	
+	/**
+	 * @var Application
+	 */
+	public $application = null;
 	
 	/**
 	 * PHP Class which created this (type Object)
@@ -221,9 +297,7 @@ class Class_Object extends Hookable {
 	 * <code>
 	 * protected $schema_file = 'MyObject.sql';
 	 * </code>
-	 * File which contains the schema for this object, found in:
-	 * zesk::application_root('sql/schema/' . $this->schema_file);
-	 * ZESK_ROOT . 'sql/schema/' . $this->schema_file
+	 * File which contains the schema for this object, found in: Database_Schema_File::template_schema_paths()
 	 * If not specified, it's get_class($this) . ".sql"
 	 *
 	 * @var string
@@ -490,6 +564,13 @@ class Class_Object extends Hookable {
 	static $classes = array();
 	
 	/**
+	 * Class cache
+	 *
+	 * @var boolean
+	 */
+	static $classes_dirty = false;
+	
+	/**
 	 * List of deferrable class linkages
 	 *
 	 * @var
@@ -531,7 +612,12 @@ class Class_Object extends Hookable {
 		list($namespace, $suffix) = pairr($classname, "\\", null, $classname, "left");
 		return $namespace . 'Class_' . $suffix;
 	}
-	
+	public static function classes_exit() {
+		if (self::$classes_dirty) {
+			global $zesk;
+			$zesk->hooks->call("Class_Object::classes_save", self::$classes);
+		}
+	}
 	/**
 	 * Create a new class instance - should only be called from Object
 	 *
@@ -539,21 +625,77 @@ class Class_Object extends Hookable {
 	 * @return Zesk_Class
 	 */
 	public static function instance(Object $object, array $options = array(), $class = null) {
+		global $zesk;
 		if ($class === null) {
 			$class = get_class($object);
 		}
 		$lowclass = strtolower($class);
+		if (!is_array(self::$classes)) {
+			self::$classes = $zesk->hooks->call_arguments("Class_Object::classes_load", array(), array());
+			$zesk->hooks->add("exit", "Class_Object::classes_exit");
+		}
 		if (array_key_exists($lowclass, self::$classes)) {
 			return self::$classes[$lowclass];
 		}
 		$class_class = self::object_to_class($class);
 		try {
-			$instance = self::$classes[$lowclass] = zesk::factory($class_class, $object);
+			$instance = self::$classes[$lowclass] = $zesk->objects->factory($class_class, $object);
+			self::$classes_dirty = true;
 		} catch (Exception_Class_NotFound $e) {
-			$instance = self::$classes[$lowclass] = zesk::factory('Class_Object_Legacy', $object);
+			$instance = self::$classes[$lowclass] = $zesk->objects->factory('Class_Object_Legacy', $object);
+			self::$classes_dirty = true;
 		}
-		zesk::hooks($class);
 		return $instance;
+	}
+	
+	/**
+	 * @ignore
+	 */
+	public function __sleep() {
+		return array_merge(array(
+			'application_class',
+			'class',
+			'database_name',
+			'table',
+			'name',
+			'members',
+			'polymorphic',
+			'polymorphic_inherit_class',
+			'code_name',
+			'schema_file',
+			'columns',
+			'column_types',
+			'load_database_columns',
+			'column_defaults',
+			'crc_column',
+			'name_column',
+			'id_column',
+			'primary_keys',
+			'auto_column',
+			'find_keys',
+			'find_order_by',
+			'duplicate_where',
+			'duplicate_keys',
+			'utc_timestamps',
+			'dynamic_columns',
+			'getters',
+			'setters',
+			'has_many',
+			'has_one',
+			'inherit_options',
+			'column_deleted',
+			'cache_column_names'
+		), parent::__sleep());
+	}
+	
+	/**
+	 * @see wakeup
+	 */
+	public function __wakeup() {
+		global $zesk;
+		/* @var $zesk zesk\Kernel */
+		$this->application = $zesk->objects->singleton($this->application_class);
+		$this->application->hooks->register_class($this->class);
 	}
 	
 	/**
@@ -619,13 +761,15 @@ class Class_Object extends Hookable {
 	 * @return Ambigous <mixed, array>
 	 */
 	public static function cache($class, $component = "") {
+		global $zesk;
+		/* @var $zesk zesk\Kernel */
 		if (!is_string($class) && !is_integer($class)) {
 			var_dump($class);
 			backtrace();
 		}
 		$lowclass = strtolower($class);
 		if (!array_key_exists($lowclass, self::$class_cache)) {
-			$object = zesk::factory($class);
+			$object = $zesk->objects->factory($class);
 			if (!$object instanceof Object) {
 				throw new Exception_Semantics("$class is not an Object");
 			}
@@ -651,7 +795,7 @@ class Class_Object extends Hookable {
 			$class = get_class($class);
 		} else if ($class instanceof Class_Object) {
 			$class = $class->class;
-		} 
+		}
 		if (!is_string($class)) {
 			throw new Exception_Parameter("Invalid class passed to {method}: {value} ({type})", array(
 				"method" => __METHOD__,
@@ -673,6 +817,7 @@ class Class_Object extends Hookable {
 	public function __construct(Object $object, array $options = array()) {
 		parent::__construct($options);
 		$this->inherit_global_options();
+		$this->application = $object->application;
 		$this_class = $object->class_object();
 		// Handle polymorphic classes - create correct Class and use correct base class
 		$this_class = $this->class = is_string($this_class) ? $this_class : get_class($object);
@@ -701,7 +846,7 @@ class Class_Object extends Hookable {
 				$this->id_column = $this->primary_keys[0];
 			}
 		} else if ($this->id_column === null) {
-			$this->id_column = zesk::get('Object_Class::id_column_default', 'id');
+			$this->id_column = $this->option('id_column_default', 'id');
 			if ($this->id_column && $this->primary_keys === null) {
 				$this->primary_keys = array(
 					$this->id_column
@@ -761,7 +906,7 @@ class Class_Object extends Hookable {
 			}
 		}
 		if (empty($this->utc_timestamps)) {
-			$this->utc_timestamps = zesk::get1(arr::suffix(zesk::class_hierarchy($this_class), "::utc_timestamps"));
+			$this->utc_timestamps = $this->option_bool("utc_timestamps");
 		}
 		if (count($this->columns) > 0) {
 			log::debug("{class} public \$columns is deprecated, use \$column_types", array(
@@ -775,6 +920,8 @@ class Class_Object extends Hookable {
 		if (count($this->column_types) === 0 && count($this->table_columns) > 0) {
 			$this->imply_column_types();
 		}
+		
+		$this->application->hooks->register_class($this->class);
 	}
 	
 	/**
@@ -854,13 +1001,12 @@ class Class_Object extends Hookable {
 			}
 			self::$column_cache[$cache_key] = $this->table_columns;
 		} catch (Database_Exception_Table_NotFound $e) {
-			zesk::hook("exception", $e);
+			$this->application->hooks->call("exception", $e);
 			unset(self::$column_cache[$cache_key]);
 			$this->table_columns = array();
 			$return = false;
 		} catch (Exception $e) {
-			zesk::hook("exception", $e);
-			//			echo nl2br($e->getTraceAsString());
+			$this->application->hooks->call("exception", $e);
 			unset(self::$column_cache[$cache_key]);
 			$this->table_columns = array();
 			$return = false;
@@ -979,6 +1125,7 @@ class Class_Object extends Hookable {
 		}
 		throw new Exception_Semantics("No path $segment found in " . $this->class . "::link_walk");
 	}
+	
 	/**
 	 * Adds an intermediate join clause to a query for the has_many specified
 	 *
@@ -1041,9 +1188,47 @@ class Class_Object extends Hookable {
 		}
 		return $result;
 	}
+	
+	/**
+	 * Adds an intermediate join clause to a query for the has_many specified
+	 *
+	 * @param $query Database_Query_Select
+	 * @param $many_spec array
+	 * @param $alias string
+	 *        	Optional alias to use for the intermediate table
+	 * @param $reverse boolean
+	 *        	If linking from far object to this
+	 * @return boolean true if intermediate table is used, false if not
+	 * @todo implement this
+	 */
+	final public function _has_many_query_update(Object $this_object, Database_Query_Update $query, array $many_spec, &$alias = "J", $link_alias = null, $join_type = true, $reverse = false) {
+		throw new Exception_Unimplemented(__METHOD__);
+	}
+	
+	/**
+	 * 
+	 * @param Object $object
+	 * @param array $many_spec
+	 * @param string $alias
+	 * @param string $reverse
+	 */
 	final public function has_many_query_default(Object $object, array $many_spec, $alias = "J", $reverse = false) {
 		$query = $many_spec['object']->query($alias);
 		$this->_has_many_query($object, $query, $many_spec, $alias, null, true, $reverse);
+		return $query;
+	}
+	
+	/**
+	 * 
+	 * @param Object $object
+	 * @param array $many_spec
+	 * @param string $alias
+	 * @param string $reverse
+	 * @return Database_Query_Update
+	 */
+	final public function has_many_query_update_default(Object $object, array $many_spec, $alias = "J", $reverse = false) {
+		$query = $many_spec['object']->query_update($alias);
+		$this->_has_many_query_update($object, $query, $many_spec, $alias, null, true, $reverse);
 		return $query;
 	}
 	private function has_many_query(Object $object, $member) {
@@ -1082,12 +1267,41 @@ class Class_Object extends Hookable {
 		$this->has_many[$member] = $this->has_many_init($object, $has_many);
 		return $this->has_many[$member];
 	}
+	
+	/**
+	 * Generate a query for a member
+	 * 
+	 * @param Object $this_object
+	 * @param string $member
+	 * @param Object $object Returned object class which represents the target object type
+	 * @return Database_Query_Select
+	 * @throws Exception_Semantics
+	 */
 	final public function member_query(Object $this_object, $member, &$object = null) {
 		if (!isset($this->has_many[$member])) {
 			throw new Exception_Semantics($this->class . "::member_query($member) called on non-many member");
 		}
 		$many_spec = $this->has_many($this_object, $member);
 		$query = $this->has_many_query_default($this_object, $many_spec, $member, true);
+		$object = $many_spec['object'];
+		return $query;
+	}
+	
+	/**
+	 * Generate a query for a member
+	 * 
+	 * @param Object $this_object
+	 * @param string $member
+	 * @param Object $object Returned object class which represents the target object type
+	 * @return Database_Query_Update
+	 * @throws Exception_Semantics
+	 */
+	final public function member_query_update(Object $this_object, $member, &$object = null) {
+		if (!isset($this->has_many[$member])) {
+			throw new Exception_Semantics($this->class . "::member_query($member) called on non-many member");
+		}
+		$many_spec = $this->has_many($this_object, $member);
+		$query = $this->has_many_query_update_default($this_object, $many_spec, $member, true);
 		$object = $many_spec['object'];
 		return $query;
 	}
@@ -1179,11 +1393,13 @@ class Class_Object extends Hookable {
 	 * @return array
 	 */
 	private function has_many_init(Object $object, array $has_many) {
+		global $zesk;
+		/* @var $zesk zesk\Kernel */
 		$class = $has_many['class'];
 		$my_class = $this->class;
 		$link_class = avalue($has_many, 'link_class');
 		if ($link_class) {
-			zesk::register_class($link_class);
+			$zesk->classes->register($link_class);
 			$table = Object::class_table_name($link_class);
 			if (!$table) {
 				throw new Exception_Configuration("$link_class::table", "Link class for {class} {link_class} table is empty", array(
@@ -1251,7 +1467,7 @@ class Class_Object extends Hookable {
 		if ($this->database instanceof Database) {
 			return $this->database;
 		}
-		return $this->database = Database::factory($this->database_name);
+		return $this->database = $this->application->database_factory($this->database_name);
 	}
 	
 	/**
@@ -1262,8 +1478,10 @@ class Class_Object extends Hookable {
 	 * @return Database_Schema
 	 */
 	final private function _database_schema(Object $object = null, $sql = null) {
+		global $zesk;
+		/* @var $zesk zesk\Kernel */
 		try {
-			return zesk::factory("Schema_" . $this->class, $this, $object);
+			return $zesk->objects->factory("Schema_" . $this->class, $this, $object);
 		} catch (Exception_Class_NotFound $e) {
 			$schema = new Database_Schema_File($this, $object, $sql);
 			if ($schema->exists() || $schema->has_sql()) {
@@ -1272,7 +1490,7 @@ class Class_Object extends Hookable {
 			log::warning("Can not find schema for " . $this->class . " (" . $e->getMessage() . ")");
 			return null;
 		} catch (Exception $e) {
-			zesk::hook("exception", $e);
+			$this->application->hooks->call("exception", $e);
 			log::error("Schema error for " . $this->class . " (" . get_class($e) . ": " . $e->getMessage() . ")");
 			return null;
 		}
@@ -1332,6 +1550,7 @@ class Class_Object extends Hookable {
 	final public function from_database(Object $object, array $data) {
 		$result = array();
 		$column_types = $this->column_types;
+		$data = $object->sql()->from_database($object, $data);
 		$columns = array_keys(count($data) < count($column_types) ? $data : $column_types);
 		foreach ($columns as $column) {
 			if (!array_key_exists($column, $column_types) || !array_key_exists($column, $data)) {
@@ -1369,6 +1588,7 @@ class Class_Object extends Hookable {
 	 * @return array
 	 */
 	final public function to_database(Object $object, array $data, $insert = false) {
+		$data = $object->sql()->to_database($object, $data, $insert);
 		$column_types = $this->column_types;
 		$columns = array_keys(count($data) < count($column_types) ? $data : $column_types);
 		foreach ($columns as $column) {
@@ -1481,7 +1701,13 @@ class Class_Object extends Hookable {
 				$data[$column] = to_bool($v);
 				break;
 			case self::type_serialize:
-				$data[$column] = empty($v) ? null : unserialize($v);
+				$data[$column] = $result = empty($v) ? null : @unserialize($v);
+				if ($result === false && $v !== 'b:0;') {
+					log::error("unserialize of {n} bytes failed: {data}", array(
+						"n" => strlen($v),
+						"data" => substr($v, 0, 100)
+					));
+				}
 				break;
 			case self::type_json:
 				try {
@@ -1520,12 +1746,12 @@ class Class_Object extends Hookable {
 						break;
 					}
 					$full_class = $this->polymorphic_class_generate($v);
-					log::debug("Setting object {class} polymorphic to {full_class} (polymorphic={polymorphic}, v={v})", array(
-						"class" => get_class($object),
-						"polymorphic" => $this->polymorphic,
-						"v" => $v,
-						"full_class" => $full_class
-					));
+					// 					log::debug("Setting object {class} polymorphic to {full_class} (polymorphic={polymorphic}, v={v})", array(
+					// 						"class" => get_class($object),
+					// 						"polymorphic" => $this->polymorphic,
+					// 						"v" => $v,
+					// 						"full_class" => $full_class
+					// 					));
 					$object->polymorphic($full_class);
 				}
 				break;
@@ -1601,8 +1827,8 @@ class Class_Object extends Hookable {
 			var_dump($column, $data);
 			backtrace();
 		}
-		$v = $data[$column];
 		$gen = $this->database()->sql();
+		$v = $data[$column];
 		switch ($type) {
 			case self::type_polymorph:
 				$data[$column] = $this->polymorphic_class_parse($object, $column);
@@ -1631,6 +1857,8 @@ class Class_Object extends Hookable {
 				$data[$column] = hex::decode($v);
 				break;
 			case self::type_id:
+				$data[$column] = to_integer($v, $v);
+				break;
 			case self::type_integer:
 				$data[$column] = to_integer($v, $v);
 				break;
@@ -1664,7 +1892,7 @@ class Class_Object extends Hookable {
 					unset($data[$column]);
 					$data["*$column"] = $this->sql_now($object);
 				} else if ($v instanceof Timestamp) {
-					$data[$column] = $v->format('{YYYY}-{MM}-{DD} {hh}:{mm}:{ss}');
+					$data[$column] = $v->sql();
 				} else if (is_numeric($v)) {
 					$data[$column] = gmdate('Y-m-d H:i:s', $v);
 				}
@@ -1720,35 +1948,6 @@ class Class_Object extends Hookable {
 	}
 	
 	/**
-	 * Load defaults based on old _Spec array
-	 *
-	 * @deprecated 2014-05-01
-	 * @return multitype:unknown Ambigous <string, mixed, boolean, number, multitype:, array,
-	 *         multitype:Ambigous <mixed, boolean, number, multitype:, array> > Ambigous <string,
-	 *         string>
-	 */
-	public function specification_defaults() {
-		zesk::deprecated();
-		$class = $this->polymorphic;
-		if (!$class) {
-			$class = $this->class;
-		}
-		$codename = $this->code_name ? $this->code_name : str::unprefix($class, "Zesk_");
-		$table = zesk::get($class . '::table', null);
-		if (!$table) {
-			$table = $this->code_name;
-		}
-		if (!$table) {
-			$table = zesk::get($class . "::table_prefix", zesk::get("table_prefix", "")) . $codename;
-		}
-		return array(
-			"table" => $table,
-			"name" => $codename,
-			"codename" => $codename
-		);
-	}
-	
-	/**
 	 * Name/value pairs used to generate the schema for this object
 	 * 
 	 * @return array
@@ -1758,6 +1957,29 @@ class Class_Object extends Hookable {
 			'name' => $this->name,
 			'code_name' => $this->code_name,
 			'table' => $this->table
+		);
+	}
+	
+	/**
+	 * Does this object have the following column?
+	 * 
+	 * @param string $name
+	 * @return boolean
+	 */
+	public function has_column($name) {
+		return array_key_exists($name, $this->column_types);
+	}
+	
+	/**
+	 * Class variables
+	 */
+	public function variables() {
+		return array(
+			"name" => $class_name = __($this->name),
+			"names" => zesk\Locale::plural($class_name),
+			"name_column" => $this->name_column,
+			"id_column" => $this->id_column,
+			"class" => get_class($this)
 		);
 	}
 }

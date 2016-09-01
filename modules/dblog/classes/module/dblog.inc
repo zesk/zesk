@@ -8,14 +8,14 @@
  * @subpackage dblog
  */
 class Module_DBLog extends Module_Log {
-
+	
 	/**
 	 * Cached log level
 	 *
 	 * @var integer
 	 */
 	private static $log_level = null;
-
+	
 	/**
 	 * Implements Module::classes
 	 *
@@ -24,7 +24,7 @@ class Module_DBLog extends Module_Log {
 	protected $classes = array(
 		"DBLog"
 	);
-
+	
 	/**
 	 * Implements Module::log_send()
 	 *
@@ -33,7 +33,7 @@ class Module_DBLog extends Module_Log {
 	public function hook_log_send(array $args) {
 		$level = avalue($args, '_level', log::DEBUG);
 		if (self::$log_level === null) {
-			self::$log_level = zesk::get('Module_DBLog::log_level', log::NOTICE);
+			self::$log_level = $this->option('log_level', log::NOTICE);
 		}
 		if ($level >= self::$log_level) {
 			return;
@@ -48,13 +48,13 @@ class Module_DBLog extends Module_Log {
 			self::$log_level = -9999;
 			return;
 		}
-
+		
 		$defaults = array(
 			'message' => "",
 			"user" => $user,
 			"session" => Session::instance(false),
 			"ip" => IPv4::remote(),
-			"pid" => zesk::pid(),
+			"pid" => zesk()->process_id(),
 			"level" => log::DEBUG,
 			"level_string" => "DEBUG",
 			"module" => "unknown"
@@ -82,13 +82,16 @@ class Module_DBLog extends Module_Log {
 			// Oopsie. Update the schema.
 		}
 	}
-
+	
 	/**
 	 * Is the DBLog enabled?
 	 *
 	 * @return boolean
 	 */
 	public static function enabled() {
-		return zesk::getb(__CLASS__ . '::enabled', Application::instance()->development());
+		global $zesk;
+		zesk::deprecated();
+		/* @var $zesk zesk\Kernel */
+		return boolval($zesk->configuration->path_get(__CLASS__ . '::enabled'));
 	}
 }

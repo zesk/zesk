@@ -1,18 +1,18 @@
 <?php
 class Route_Controller extends Route {
-
+	
 	/**
 	 *
 	 * @var ReflectionClass
 	 */
 	protected $class = null;
-
+	
 	/**
 	 *
 	 * @var string The class which was instantiated.
 	 */
 	protected $class_name = null;
-
+	
 	/**
 	 *
 	 * @var Controller
@@ -23,7 +23,27 @@ class Route_Controller extends Route {
 	 * @var string
 	 */
 	protected $controller_action = null;
-
+	
+	/**
+	 * 
+	 * {@inheritDoc}
+	 * @see Route::__sleep()
+	 */
+	public function __sleep() {
+		return array_merge(array(), parent::__sleep());
+	}
+	
+	/**
+	 * 
+	 * {@inheritDoc}
+	 * @see Route::__wakeup()
+	 */
+	public function __wakeup() {
+		$this->class = null;
+		$this->class_name = null;
+		$this->controller = null;
+		$this->controller_action = null;
+	}
 	/**
 	 *
 	 * @param Application $app
@@ -36,18 +56,18 @@ class Route_Controller extends Route {
 				$this->controller_action
 			);
 		}
-
+		
 		list($class, $this->controller_action) = $this->_determine_class_action();
-
+		
 		/* @var $controller Controller */
 		$this->controller = $class->newInstance($app, $this->option_array("controller options") + $this->options);
-
+		
 		return array(
 			$this->controller,
 			$this->controller_action
 		);
 	}
-
+	
 	/**
 	 * Execute this route
 	 *
@@ -66,10 +86,10 @@ class Route_Controller extends Route {
 				'before_' . $action_method,
 				"before"
 			), array());
-
+			
 			$arguments_method = $this->option('arguments method', $this->option('arguments method prefix', 'arguments_') . $action_method);
 			$method = $this->option('method', $this->option('method prefix', 'action_') . $action_method);
-
+			
 			$try_default = false;
 			ob_start();
 			if ($controller->has_method($method)) {
@@ -93,7 +113,8 @@ class Route_Controller extends Route {
 				$contents
 			));
 		} catch (Exception $e) {
-			zesk::hook("exception", $e);
+			global $zesk;
+			$zesk->hooks->call("exception", $e);
 			$controller->optional_method(array(
 				'exception_' . $action_method,
 				"exception"
@@ -103,7 +124,7 @@ class Route_Controller extends Route {
 			throw $e;
 		}
 	}
-
+	
 	/**
 	 * Determine the class of the controller and the action to run
 	 *
@@ -129,7 +150,7 @@ class Route_Controller extends Route {
 		$options = $this->named + $this->options;
 		$default_controller = avalue($options, "default controller", "index");
 		$controller = ucfirst(aevalue($options, "controller", $default_controller));
-
+		
 		$try_classes = array();
 		$default_classes = array();
 		foreach ($prefixes as $prefix) {
@@ -160,7 +181,7 @@ class Route_Controller extends Route {
 			));
 		}
 		$action = aevalue($options, "action", $this->option("default action", "index"));
-
+		
 		return array(
 			$class,
 			$action
@@ -180,7 +201,6 @@ class Route_Controller extends Route {
 		$this->_unmap_options();
 		return $map;
 	}
-
 	protected function hook_controllers(Application $app) {
 		$controller = $this->option('controller');
 		if (map_clean($controller) !== $controller) {

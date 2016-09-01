@@ -1,10 +1,13 @@
 <?php
-
-/* @var $object Object */
-/* @var $object Object */
-$object = $this->object;
-$request = $this->request;
-$action = $this->action;
+if (false) {
+	/* @var $object Object */
+	$object = $this->object;
+	/* @var $request Request */
+	$request = $this->request;
+	/* @var $router Router */
+	$router = $this->router;
+	$action = $this->action;
+}
 
 if (!$this->getb('show_' . $action)) {
 	return;
@@ -13,7 +16,7 @@ if (!$this->getb('show_' . $action)) {
 if ($this->has($action . "_href")) {
 	$href = $object->apply_map($this->get($action . '_href'));
 } else {
-	$href = $request->get_route($action, $object);
+	$href = $router->get_route($action, $object);
 }
 
 $attr = array();
@@ -26,8 +29,9 @@ $title = $this->get('title');
 $src = $this->get('src', "/share/images/actions/" . $action . ".gif");
 
 echo html::tag_open('div', $this->get('tag_attributes', ".action"));
-echo html::a(url::add_ref($x->apply_map($href)), $attr, html::cdn_img($src, $object->apply_map($title), array(
-	"width" => $this->get('width', 18), "height" => $this->get('height', 18)
+echo html::a(url::add_ref($object->apply_map($href)), $attr, html::cdn_img($src, $object->apply_map($title), array(
+	"width" => $this->get('width', 18),
+	"height" => $this->get('height', 18)
 )));
 echo html::tag_close('div');
 		

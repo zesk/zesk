@@ -54,12 +54,6 @@
 class Router extends Hookable {
 	
 	/**
-	 *
-	 * @var Application
-	 */
-	public $application = null;
-	
-	/**
 	 * Debugging is enabled
 	 *
 	 * @var boolean
@@ -132,6 +126,12 @@ class Router extends Hookable {
 	 * Index to ensure routes are sorted by added order.
 	 */
 	protected $weight_index = 0;
+	
+	/**
+	 * 
+	 * {@inheritDoc}
+	 * @see Options::__sleep()
+	 */
 	function __sleep() {
 		$result = array_merge(array(
 			'reverse_routes',
@@ -139,11 +139,14 @@ class Router extends Hookable {
 			'prefix',
 			'default_route',
 			'controller_prefixes',
-			"aliases",
-			"sorted"
+			"aliases"
 		), parent::__sleep());
 		return $result;
 	}
+	
+	/**
+	 * 
+	 */
 	function __wakeup() {
 		$this->by_id = array();
 		$this->route = null;
@@ -151,28 +154,19 @@ class Router extends Hookable {
 			$route->router = $this;
 			$this->_add_route_id($route);
 		}
-		if (!$this->application) {
-			$this->application = Application::instance();
-		}
+		$this->sorted = false;
 	}
-	function __construct(Application $application, $options = null) {
+	function __construct($options = null) {
 		parent::__construct($options);
-		$this->application = $application;
 		$this->hook("new");
-		zesk::add_hook('url', array(
-			$this,
-			'hook_url'
-		), 'first');
-		$application->module->all_hook("routes", $this);
 	}
-	public function hook_url(Model_URL $url) {
-		if ($url->_router) {
-			return;
-		}
-		$url->_router = true;
-		$url->url = $this->prefix . $url->url;
-	}
+	
+	/**
+	 * @deprecated 2016-08-19 Not generic enough anymore
+	 * @param unknown $route_options
+	 */
 	function add_default_route($route_options = null) {
+		zesk::deprecated();
 		$this->default_route = count($this->routes);
 		$this->add_route("({option controller}(/{option action}(/{integer ID})))", array(
 			"controller" => "{0}",
@@ -192,7 +186,7 @@ class Router extends Hookable {
 	 */
 	static function singleton() {
 		if (!self::$singleton instanceof Router) {
-			self::$singleton = new Router(Application::instance());
+			self::$singleton = new Router();
 		}
 		return self::$singleton;
 	}
@@ -203,9 +197,13 @@ class Router extends Hookable {
 	 * @return string
 	 */
 	private static function cache_path($cache_file = null) {
-		$app = zesk::application_class();
-		$cache_file = ($cache_file === null) ? zesk::get('Router::cache_file', "$app.cache") : $cache_file;
-		return zesk::cache_path(array(
+		global $zesk;
+		/* @var $zesk zesk\Kernel */
+		$app = $zesk->application_class;
+		if ($cache_file === null) {
+			$cache_file = $zesk->configuration->path_get("Router::cache_file", "$app.cache");
+		}
+		return $zesk->paths->cache(array(
 			"routers",
 			$cache_file
 		));
@@ -279,7 +277,7 @@ class Router extends Hookable {
 		$this->alias[$from] = $to;
 	}
 	public static function log($message, array $arguments = array(), $level = null) {
-		if (zesk::getb("Router::debug") || self::$debug) {
+		if (self::$debug) {
 			if ($level === null) {
 				$level = log::DEBUG;
 			}
@@ -363,13 +361,15 @@ class Router extends Hookable {
 		return $route;
 	}
 	function import($contents) {
+		global $zesk;
+		/* @var $zesk zesk\Kernel */
 		$lines = explode("\n", $contents);
 		$paths = array();
 		$options = array();
 		$whites = to_list(" ;\t");
 		$tr = array(
-			'$zesk_root' => zesk::root(),
-			'$zesk_application_root' => zesk::application_root()
+			'$zesk_root' => $zesk->paths->zesk(),
+			'$zesk_application_root' => $zesk->paths->application
 		);
 		foreach ($lines as $lineno => $line) {
 			$firstc = substr($line, 0, 1);
@@ -395,7 +395,8 @@ class Router extends Hookable {
 								$decoded = json::decode($value, null);
 								$value = $decoded;
 							} catch (Exception_Parse $e) {
-								zesk::hook("exception", $e);
+								global $zesk;
+								$zesk->hooks->call("exception", $e);
 							}
 						}
 						if (is_string($value) || is_array($value)) {
@@ -487,7 +488,8 @@ class Router extends Hookable {
 			$options += $this->route->arguments_named();
 		}
 		if (is_object($object)) {
-			$try_classes = zesk::class_hierarchy($object, "Object");
+			global $zesk;
+			$try_classes = $zesk->classes->hierarchy($object, "Object");
 			$options += $object->hook_array("route_options", array(
 				$this,
 				$action
@@ -515,7 +517,8 @@ class Router extends Hookable {
 				}
 				$url = $this->_find_route($try_routes, $action, $object, $options);
 				if ($url) {
-					$url = zesk::hook_array("Router::get_route_alter", array(
+					global $zesk;
+					$url = $zesk->hooks->call_arguments("Router::get_route_alter", array(
 						$action,
 						$object,
 						$options
@@ -540,10 +543,12 @@ class Router extends Hookable {
 	 * @return array
 	 */
 	public function controllers(Application $app) {
+		global $zesk;
+		/* @var $zesk zesk\Kernel */
 		$controllers = Controller::all();
 		$result = array();
 		foreach ($controllers as $controller => $settings) {
-			$result[$controller] = zesk::factory($controller, $app);
+			$result[$controller] = $zesk->objects->factory($controller, $app);
 		}
 		return $result;
 	}

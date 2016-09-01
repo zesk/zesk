@@ -1,9 +1,14 @@
 <?php
 /* @var $this Template */
-
 if (false) {
-	/* @var $request Application */
+	/* @var $this Template */
+	
+	$zesk = $this->zesk;
+	/* @var $zesk zesk\Kernel */
+	
 	$application = $this->application;
+	/* @var $application TimeBank */
+	
 	/* @var $request Request */
 	$request = $this->request;
 }
@@ -56,7 +61,7 @@ if ($widgets) {
 		/* @var $w Widget */
 		$this->child = $child;
 		if ($child->is_visible($object)) {
-			echo $this->theme(arr::suffix(zesk::class_hierarchy($this->widget), "/child"));
+			echo $this->theme(arr::suffix($zesk->classes->hierarchy($this->widget), "/child"));
 		} else {
 			$invisibles .= $child->content;
 		}

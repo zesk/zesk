@@ -1,4 +1,7 @@
 <?php
+
+use zesk\file as file;
+
 class Command_CONF2JSON extends Command_Iterator_File {
 	protected $extensions = array(
 		"conf"

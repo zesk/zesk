@@ -7,6 +7,8 @@
  * @copyright Copyright &copy; 2005, Market Acumen, Inc.
  */
 
+use zesk\Timestamp as Timestamp;
+
 /**
  * CSV_Reader
  *

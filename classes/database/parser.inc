@@ -19,8 +19,8 @@ abstract class Database_Parser extends Hookable {
 	/**
 	 * Create a new database parser
 	 *
-	 * @param Database $database
-	 * @param array $options
+	 * @param Database $database        	
+	 * @param array $options        	
 	 */
 	public function __construct(Database $database, $options = null) {
 		$this->database = $database;
@@ -30,7 +30,7 @@ abstract class Database_Parser extends Hookable {
 	/**
 	 * Parse SQL to determine type of command
 	 *
-	 * @param string $sql
+	 * @param string $sql        	
 	 * @param string $field
 	 *        	Optional desired field.
 	 * @return multitype:string NULL |Ambigous <mixed, array>
@@ -53,7 +53,7 @@ abstract class Database_Parser extends Hookable {
 	/**
 	 * Divide SQL commands into different distinct commands
 	 *
-	 * @param string $sql
+	 * @param string $sql        	
 	 * @return array
 	 */
 	public function split_sql_commands($sql) {
@@ -75,17 +75,27 @@ abstract class Database_Parser extends Hookable {
 	}
 	/**
 	 *
-	 * @param Database $db
-	 * @param string $sql
+	 * @param Database $db        	
+	 * @param string $sql        	
 	 * @return Database_Parser
 	 */
-	static function parse_factory(Database $db, $sql) {
+	static function parse_factory(Database $db, $sql, $source) {
+		if ($db->application->development() && empty($source)) {
+			backtrace();
+		}
 		$matches = null;
 		if (preg_match(self::pattern_database_hint, $sql, $matches)) {
+			$db_scheme = strtolower($matches[1]);
+			if ($db->supports_scheme($db_scheme)) {
+				return $db->parser();
+			}
 			try {
-				return zesk::factory("Database_" . $matches[1] . "_Parser", $db);
-			} catch (Exception_Class_NotFound $e) {
-				zesk::hook("exception", $e);
+				$db = Database::scheme_factory($db->application, $db_scheme);
+			} catch (Exception_NotFound $e) {
+				log::error("Unable to parse SQL from {source}, halting", array(
+					"source" => $source
+				));
+				throw $e;
 			}
 		}
 		return $db->parser();
@@ -93,7 +103,8 @@ abstract class Database_Parser extends Hookable {
 	
 	/**
 	 * Convert from SQL to Database_Table
-	 * @param string $sql
+	 *
+	 * @param string $sql        	
 	 * @return Database_Table
 	 */
 	abstract function create_table($sql);
@@ -102,7 +113,7 @@ abstract class Database_Parser extends Hookable {
 	/**
 	 * Convert an order-by clause into an array, parsing out any functions or other elements
 	 *
-	 * @param string $order_by
+	 * @param string $order_by        	
 	 * @return array
 	 */
 	public function split_order_by($order_by) {
@@ -136,7 +147,7 @@ abstract class Database_Parser extends Hookable {
 	/**
 	 * Reverses an order by clause as passed into a Database_Query_Select
 	 *
-	 * @param mixed $order_by
+	 * @param mixed $order_by        	
 	 * @return array
 	 */
 	public function reverse_order_by($order_by) {

@@ -90,8 +90,8 @@ class log {
 	/**
 	 * Register hooks
 	 */
-	public static function hooks() {
-		zesk::add_hook('configured', __CLASS__ . '::configured');
+	public static function hooks(zesk\Kernel $zesk) {
+		$zesk->hooks->add(zesk\Hooks::hook_configured, __CLASS__ . '::configured');
 	}
 	
 	/**
@@ -175,6 +175,8 @@ class log {
 	 * @param string $level        	
 	 */
 	public static function send($message, array $args = array(), $level = null) {
+		global $zesk;
+		/* @var $zesk zesk\Kernel */
 		if (self::$disabled) {
 			return;
 		}
@@ -201,7 +203,7 @@ class log {
 			}
 			return;
 		}
-		$pid = zesk::pid();
+		$pid = $zesk->process->id;
 		$time = microtime(true);
 		$int_time = intval($time);
 		
@@ -222,9 +224,6 @@ class log {
 		$args += $extras;
 		
 		$sending = true;
-		$args = Module::all_hook_array("log_alter", array(
-			$args
-		), $args);
 		Module::all_hook_array('log_send', array(
 			$args
 		), null, __CLASS__ . "::hook_callback");
@@ -252,8 +251,9 @@ class log {
 	 * @param array $args        	
 	 */
 	public static function fatal($message, array $args = array()) {
+		global $zesk;
 		self::send($message, $args, self::FATAL);
-		exit(zesk::hook('exit'));
+		exit($zesk->hooks->call('exit'));
 	}
 	
 	/**

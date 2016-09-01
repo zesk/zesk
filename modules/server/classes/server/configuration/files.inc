@@ -40,6 +40,8 @@ class Server_Configuration_Files extends Server_Configuration {
 		}
 	}
 	private function _load_configuration() {
+		global $zesk;
+		/* @var $zesk zesk\Kernel */
 		$hostname = $this->platform->hostname();
 		$alias_hostname = avalue($this->host_aliases(), $hostname, $hostname);
 		if ($alias_hostname !== $hostname) {
@@ -50,7 +52,7 @@ class Server_Configuration_Files extends Server_Configuration {
 		}
 		$searched_paths = array();
 		$this->search_path("all $alias_hostname");
-		$files = $this->option_list('files', zesk::get('server_configuration_file', 'environment.sh'));
+		$files = $this->option_list('files', $zesk->configuration->get('server_configuration_file', 'environment.sh'));
 		
 		$search_path = $this->search_path();
 		$result = array();
@@ -62,7 +64,9 @@ class Server_Configuration_Files extends Server_Configuration {
 				foreach ($files as $file) {
 					$conf = path($this->host_path, $path, $file);
 					if (!is_file($conf)) {
-						log::debug("No configuration file $conf");
+						$zesk->logger->debug("No configuration file {conf}", array(
+							"conf" => $conf
+						));
 						continue;
 					}
 					$variables = $this->platform->conf_load($conf, array(
@@ -77,7 +81,7 @@ class Server_Configuration_Files extends Server_Configuration {
 			}
 			$search_path = $this->search_path();
 		}
-		log::debug("configuration search path {paths}, files {files}, result {result}", array(
+		$zesk->logger->debug("configuration search path {paths}, files {files}, result {result}", array(
 			"paths" => implode(",", $search_path),
 			"files" => implode(",", $files),
 			"result" => php::dump($result)

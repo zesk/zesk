@@ -1,6 +1,11 @@
 <?php
+if (false) {
+	/* @var $application zesk\Application */
+	$application = $this->application;
+	/* @var $zesk zesk\Kernel */
+	$zesk = $this->zesk;
+}
 
-Module::register_paths();
+$application->module->register_paths();
 
-zesk::add_hook('Object::pre_insert', 'Module_Ordering::object_pre_insert');
 

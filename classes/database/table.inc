@@ -13,54 +13,54 @@
  * @subpackage system
  */
 class Database_Table extends Options {
-
+	
 	/**
 	 *
 	 * @var Database
 	 */
 	private $database = null;
-
+	
 	/**
 	 *
 	 * @var string
 	 */
 	private $name = '';
-
+	
 	/**
 	 *
 	 * @var string
 	 */
 	private $type = null;
-
+	
 	/**
 	 *
 	 * @var array
 	 */
 	public $columns = array();
-
+	
 	/**
 	 *
 	 * @var Database_Index
 	 */
 	private $primary = null;
-
+	
 	/**
 	 *
 	 * @var array
 	 */
 	public $indexes = array();
-
+	
 	/**
 	 *
 	 * @var array
 	 */
 	public $on = array();
-
+	
 	/**
 	 * @var string
 	 */
 	protected $source = null;
-
+	
 	/**
 	 * Create a table
 	 *
@@ -73,7 +73,6 @@ class Database_Table extends Options {
 		$this->name = $table_name;
 		$this->type = $type;
 	}
-
 	function __clone() {
 		foreach ($this->columns as $name => $column) {
 			/* $var $new_column Database_Column */
@@ -110,7 +109,6 @@ class Database_Table extends Options {
 		unset($this->columns);
 		unset($this->database);
 	}
-
 	function source($set = null, $append = false) {
 		if ($set === null) {
 			return $this->source;
@@ -126,7 +124,7 @@ class Database_Table extends Options {
 	function database() {
 		return $this->database;
 	}
-
+	
 	/**
 	 * Has column
 	 *
@@ -147,7 +145,7 @@ class Database_Table extends Options {
 		}
 		return $this->type;
 	}
-
+	
 	/**
 	 * Default index structure for table (e.g.
 	 * BTREE, etc.)
@@ -155,16 +153,20 @@ class Database_Table extends Options {
 	function default_index_structure() {
 		return $this->database->default_index_structure($this->type);
 	}
-
+	
 	/**
 	 * Table name
 	 *
 	 * @return string
 	 */
-	function name() {
-		return $this->name;
+	function name($set = null) {
+		if ($set === null) {
+			return $this->name;
+		}
+		$this->name = $set;
+		return $this;
 	}
-
+	
 	/**
 	 * Array of Database_Column
 	 *
@@ -173,7 +175,7 @@ class Database_Table extends Options {
 	function columns() {
 		return $this->columns;
 	}
-
+	
 	/**
 	 * Return array of column names
 	 *
@@ -187,7 +189,7 @@ class Database_Table extends Options {
 		}
 		return $result;
 	}
-
+	
 	/**
 	 * Retrieve the column from the table
 	 *
@@ -197,7 +199,7 @@ class Database_Table extends Options {
 	function column($name) {
 		return avalue($this->columns, $name, null);
 	}
-
+	
 	/**
 	 * Retieve the previous column definition for a column
 	 *
@@ -216,7 +218,7 @@ class Database_Table extends Options {
 		}
 		return null;
 	}
-
+	
 	/**
 	 *
 	 * @deprecated 2013
@@ -235,7 +237,7 @@ class Database_Table extends Options {
 		$name = strtolower($name);
 		return array_key_exists($name, $this->indexes);
 	}
-
+	
 	/**
 	 * Retrieve the index for the table
 	 *
@@ -288,7 +290,7 @@ class Database_Table extends Options {
 			$this->index_add($v);
 		}
 	}
-
+	
 	/**
 	 *
 	 * @param Database_Column $dbCol
@@ -328,13 +330,12 @@ class Database_Table extends Options {
 		}
 		return $this;
 	}
-
 	public function column_remove($mixed) {
 		if ($mixed instanceof Database_Column) {
 			return $this->column_remove($mixed->name());
 		}
 	}
-
+	
 	/**
 	 * Return statements to alter a table to a new setup
 	 *
@@ -346,7 +347,7 @@ class Database_Table extends Options {
 		$oldTableType = $old_table->type();
 		$newTableType = $this->type();
 		$tableName = $this->Name();
-
+		
 		log::debug("Table sql_alter {old} {new}", array(
 			"old" => $oldTableType,
 			"new" => $newTableType
@@ -357,7 +358,6 @@ class Database_Table extends Options {
 		return $result;
 	}
 	function is_similar(Database_Table $that, $debug = false) {
-
 		$defaults = $this->database->table_attributes();
 		$this_attributes = $this->option($defaults);
 		$that_attributes = $that->option($defaults);
@@ -372,21 +372,21 @@ class Database_Table extends Options {
 			}
 			return false;
 		}
-
+		
 		if (($this_count = count($this->columns())) !== ($that_count = count($that->columns()))) {
 			if ($debug) {
 				log::debug("Database_Table::is_similar($this->name): Column Counts: $this_count != $that_count");
 			}
 			return false;
 		}
-
+		
 		if (($this_count = count($this->indexes())) !== ($that_count = count($that->indexes()))) {
 			if ($debug) {
 				log::debug("Database_Table::is_similar($this->name): Index Counts: $this_count != $that_count");
 			}
 			return false;
 		}
-
+		
 		/*
 		 * Columns
 		 */
@@ -408,7 +408,7 @@ class Database_Table extends Options {
 				return false;
 			}
 		}
-
+		
 		/*
 		 * Indexes
 		 */
@@ -428,7 +428,7 @@ class Database_Table extends Options {
 				return false;
 			}
 		}
-
+		
 		$extras = $this->database->table_attributes();
 		foreach ($extras as $extra => $default) {
 			$this_value = $this->option($extra, $default);
@@ -440,7 +440,7 @@ class Database_Table extends Options {
 				return false;
 			}
 		}
-
+		
 		return true;
 	}
 	function toXML(XML_Writer_Interface $writer) {
@@ -487,11 +487,10 @@ class Database_Table extends Options {
 		}
 		return $this->on[$action] = array_merge($this->on[$action], $sqls);
 	}
-
 	public function __toString() {
 		return $this->name();
 	}
-
+	
 	/**
 	 *
 	 * @deprecated 2013
@@ -512,7 +511,7 @@ class Database_Table extends Options {
 	public function addColumn(Database_Column $dbCol) {
 		return $this->column_add($dbCol);
 	}
-
+	
 	/**
 	 *
 	 * @see previous_column()
@@ -521,7 +520,7 @@ class Database_Table extends Options {
 	function oldColumn($name) {
 		return $this->previous_column($name);
 	}
-
+	
 	/**
 	 *
 	 * @param Database_Column $dbCol
@@ -532,7 +531,6 @@ class Database_Table extends Options {
 		zesk::deprecated();
 		return $this->column_add($dbCol);
 	}
-
 	public function _debug_dump() {
 		$dump = get_object_vars($this);
 		$dump['database'] = $this->database ? $this->database->code_name() : null;
@@ -540,5 +538,4 @@ class Database_Table extends Options {
 		$result = "Object " . __CLASS__ . " (\n" . text::indent(_dump($dump, true)) . "\n)";
 		return $result;
 	}
-
 }

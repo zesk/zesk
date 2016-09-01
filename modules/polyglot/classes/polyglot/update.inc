@@ -1,6 +1,7 @@
 <?php
 
 use zesk\Locale as Locale;
+use zesk\Timestamp as Timestamp;
 
 /**
  * @see Class_PolyGlot_Update
@@ -22,9 +23,11 @@ class PolyGlot_Update extends Object {
 		return $object->store();
 	}
 
-	public static function cron_minute() {
+	public static function cron_minute(zesk\Application $application) {
+		global $zesk;
+		/* @var $zesk zesk\Kernel */
 		$server = Server::singleton();
-		$path = zesk::get("Module_PolyGlot::update_path", zesk::application_root("etc/language"));
+		$path = $zesk->configuration->path_get("Module_PolyGlot::update_path", $application->application_root("etc/language"));
 		if (!is_dir($path)) {
 			log::warning("Module_PolyGlot::update_path is not a directory ({path}) on {server}", array(
 				"path" => $path,
@@ -98,11 +101,14 @@ class PolyGlot_Update extends Object {
 	}
 
 	public static function update_locale($path, $locale) {
+		global $zesk;
+		/* @var $zesk zesk\Kernel */
+		
 		$iterator = PolyGlot_Token::locale_query($locale)->where("status", PolyGlot_Token::status_done)->order_by("updated DESC,original")->iterator("original", "translation");
 
 		$target_file = path($path, "$locale.inc");
 
-		$pid = zesk::pid();
+		$pid = $zesk->process_id();
 		$temp_file = path($path, "$locale.inc.$pid");
 		$f = fopen($temp_file, "w");
 		if (!$f) {
@@ -111,7 +117,7 @@ class PolyGlot_Update extends Object {
 		fwrite($f, "<?php\n\n// This file was automatically generated on " . date("Y-m-d H:i:s") . " by " . __METHOD__ . "\n\n");
 		$original_tt = array();
 		if (file_exists($target_file)) {
-			$original_tt = zesk::load($target_file);
+			$original_tt = $zesk->load($target_file);
 		}
 		if (!is_array($original_tt)) {
 			$original_tt = array();

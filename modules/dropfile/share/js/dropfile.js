@@ -318,6 +318,7 @@
 			$(this.$element).removeClass(this.active_class);
 			if (this.target) {
 				$(this.target).html(data.content);
+				zesk.hook("document::ready", $(this.target));
 			}
 			zesk.handle_json(data);
 		},

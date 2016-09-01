@@ -2,7 +2,7 @@ share/*
 	controller="{0}"
 test/*
 	method=Zest::run_test
-	arguments=[1]
+	arguments=["{request}","{response}",1]
 globals
 	prefix="<pre>"
 	method=Command_Globals::go

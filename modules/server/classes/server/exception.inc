@@ -1,5 +1,5 @@
 <?php
 
-class Server_Exception extends Zesk_Exception {
+class Server_Exception extends zesk\Exception {
 
 }

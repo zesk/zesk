@@ -10,8 +10,8 @@ class Module_JSMin extends Module {
 		// Something like valid_php_file($jsmin_inc), etc.
 		return true;
 	}
-	public static function hooks() {
-		zesk::add_hook("Response_HTML::compress_script", __CLASS__ . "::compress_script");
+	public static function hooks(zesk\Kernel $zesk) {
+		$zesk->hooks->add("Response_HTML::compress_script", __CLASS__ . "::compress_script");
 	}
 	public static function compress_script(Response_HTML $response, $javascript) {
 		require_once self::jsmin_inc();

@@ -31,7 +31,8 @@ class Controller_Search extends Controller_Template {
 					throw new Exception_Class_NotFound($class);
 				}
 			} catch (Exception_Class_NotFound $e) {
-				zesk::hook("exception", $e);
+				global $zesk;
+				$zesk->hooks->call("exception", $e);
 				log::error("Controller_Search::action_index {class} does not exist", array(
 					"class" => $class
 				));

@@ -68,7 +68,7 @@ class Module_jQPlot extends Module implements Module_Interface_Head {
 			$response->cdn_css("/share/jqplot/jquery.jqplot.css", array(
 				'share' => true
 			));
-			$jqplot_weight = zesk::geti(__CLASS__ . "::javascript_weight", 100);
+			$jqplot_weight = $this->option("javascript_weight", 100);
 			$response->cdn_javascript("/share/jquery-tools/compat.jquery.browser.js", array(
 				"share" => true,
 				'weight' => $jqplot_weight - 1

@@ -9,6 +9,8 @@
  * @author kent
  * @copyright Copyright &copy; 2013, Market Acumen, Inc.
  */
+use zesk\Interface_Data as Interface_Data;
+use zesk\Timestamp as Timestamp;
 class Module_Cron extends Module {
 	
 	/**
@@ -147,23 +149,33 @@ class Module_Cron extends Module {
 	 */
 	public function hook_configured() {
 		if ($this->option_bool('page_runner')) {
-			zesk::add_hook('response/html.tpl', array(
+			$this->application->hooks->add('response/html.tpl', array(
 				$this,
 				'page_runner'
 			));
 		}
 	}
+	/**
+	 * Config setting for when cron last run (unit)
+	 *
+	 * @return string
+	 */
 	private static function _cron_variable_prefix($suffix = "", $system = false) {
 		return __CLASS__ . "::last" . ($suffix ? "_$suffix" : "") . "::" . system::uname();
+	}
+	/**
+	 * Config setting for when cron last run (unit)
+	 *
+	 * @return string
+	 */
+	private static function _last_cron_variable($unit) {
+		return __CLASS__ . "::last" . ($unit ? "_$unit" : "");
 	}
 	/**
 	 * Time that cron was last run
 	 *
 	 * @return Timestamp
 	 */
-	private static function _last_cron_variable($unit) {
-		return __CLASS__ . "::last" . ($unit ? "_$unit" : "");
-	}
 	private static function _last_cron_run(Interface_Data $object, $unit = null) {
 		return Timestamp::factory($object->data(self::_last_cron_variable($unit)));
 	}
@@ -171,7 +183,10 @@ class Module_Cron extends Module {
 		return $object->data(self::_last_cron_variable($unit), $when->unix_timestamp());
 	}
 	private static function _cron_hooks($method) {
-		return arr::suffix(zesk::getl(__CLASS__ . '::classes', 'zesk\Application;Object'), "::$method");
+		global $zesk;
+		/* @var $zesk zesk\Kernel */
+		$classes = to_list($zesk->configuration->path_get(__CLASS__ . '::classes', 'zesk\Application;Object'));
+		return arr::suffix($classes, "::$method");
 	}
 	
 	/**
@@ -184,9 +199,9 @@ class Module_Cron extends Module {
 			return $this->scopes;
 		}
 		/* @var $server Server*/
-		$server = zesk::singleton("Server");
+		$server = Server::singleton();
 		/* @var $settings Settings */
-		$settings = zesk::singleton('Settings');
+		$settings = Settings::instance();
 		
 		return $this->scopes = array(
 			"cron" => array(
@@ -204,7 +219,10 @@ class Module_Cron extends Module {
 	 * @return multitype:boolean
 	 */
 	public function list_status() {
-		$now = Timestamp::factory('now');
+		global $zesk;
+		/* @var $zesk zesk\Kernel */
+		$hooks = $zesk->hooks;
+		$now = Timestamp::now();
 		$results = array();
 		try {
 			$scopes = $this->_cron_scopes();
@@ -219,19 +237,19 @@ class Module_Cron extends Module {
 			
 			$status = $now->difference($last_run, "second") > 0;
 			$cron_hooks = self::_cron_hooks($method);
-			$hooks = zesk::find_all_hooks($cron_hooks);
-			$hooks = array_merge($hooks, $this->application->module->all_hook_list($method));
-			foreach ($hooks as $hook) {
-				$results[zesk::callable_string($hook)] = $status;
+			$all_hooks = $hooks->find_all($cron_hooks);
+			$all_hooks = array_merge($all_hooks, $this->application->module->all_hook_list($method));
+			foreach ($all_hooks as $hook) {
+				$results[$hooks->callable_string($hook)] = $status;
 			}
 			foreach (self::$intervals as $unit) {
 				$last_unit_run = self::_last_cron_run($state, $unit);
 				$status = $now->difference($last_unit_run, $unit) > 0;
 				$unit_hooks = arr::suffix($cron_hooks, "_$unit");
-				$hooks = $this->application->module->all_hook_list($method . "_${unit}");
-				$hooks = array_merge($hooks, zesk::find_all_hooks($unit_hooks));
-				foreach ($hooks as $hook) {
-					$results[zesk::callable_string($hook)] = $status;
+				$all_hooks = $this->application->module->all_hook_list($method . "_${unit}");
+				$all_hooks = array_merge($all_hooks, $hooks->find_all($unit_hooks));
+				foreach ($all_hooks as $hook) {
+					$results[$hooks->callable_string($hook)] = $status;
 				}
 			}
 		}
@@ -251,13 +269,16 @@ class Module_Cron extends Module {
 			"backtrace" => $e->getTraceAsString(),
 			"exception" => $e
 		));
-		zesk::hook("exception", $e);
+		zesk()->hooks->call("exception", $e);
 	}
 	/**
 	 * Internal function to run tasks
 	 */
 	private function _run() {
-		$now = Timestamp::factory('now');
+		global $zesk;
+		/* @var $zesk zesk\Kernel */
+		$hooks = $zesk->hooks;
+		$now = Timestamp::now();
 		$results = array();
 		
 		try {
@@ -283,7 +304,7 @@ class Module_Cron extends Module {
 				if ($now->difference($last_run, "second")) {
 					self::_cron_ran($state, null, $now);
 					try {
-						zesk::all_hook_array($cron_hooks, $cron_arguments, null, $callback);
+						$hooks->all_call_arguments($cron_hooks, $cron_arguments, null, $callback);
 					} catch (Exception $e) {
 						$this->_exception($e, $cron_hooks);
 					}
@@ -304,7 +325,7 @@ class Module_Cron extends Module {
 						$unit_hooks = $method . "_$unit";
 						try {
 							$unit_hooks = arr::suffix($cron_hooks, "_$unit");
-							zesk::all_hook_array($unit_hooks, $cron_arguments, null, $callback);
+							$hooks->all_call_arguments($unit_hooks, $cron_arguments, null, $callback);
 						} catch (Exception $e) {
 							$this->_exception($e, $unit_hooks);
 						}
@@ -353,18 +374,20 @@ class Module_Cron extends Module {
 	 * @return boolean
 	 */
 	public function run() {
+		$modules = $this->application->module;
+		
 		$this->methods = array();
 		
-		$result = Module::all_hook_array("cron_before", array(), true);
+		$result = $modules->all_hook_array("cron_before", array(), true);
 		if ($result === false) {
 			log::error("Module::cron_before return false");
 			return $this->methods;
 		}
 		
-		zesk::php_set("time_limit", zesk::get(__CLASS__ . "::time_limit", 0));
+		zesk::php_set("time_limit", $this->option_integer("time_limit", 0));
 		self::_run();
 		
-		Module::all_hook_array("cron_after", array(
+		$modules->all_hook_array("cron_after", array(
 			$this->methods
 		));
 		
@@ -380,7 +403,7 @@ class Module_Cron extends Module {
 	public function page_runner(Request $request, Response_HTML $response) {
 		$response->cdn_javascript('/share/zesk/js/zesk.js', array(
 			'weight' => 'first',
-			'root_dir' => zesk::root()
+			'share' => true
 		));
 		$response->javascript(u($this->page_runner_script()), null, array(
 			'async' => 'async',
@@ -422,7 +445,7 @@ class Module_Cron extends Module {
 		$last_run_setting = $prefix . 'hourly_last_run';
 		$last_check_setting = $prefix . 'hourly_last_check';
 		
-		$now = Timestamp::factory('now');
+		$now = Timestamp::now();
 		$hour_minute = clone $now;
 		$hour_minute->minute($minute_to_hit)->second(0);
 		

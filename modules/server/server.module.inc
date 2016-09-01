@@ -1,6 +1,10 @@
 <?php
+/**
+ *
+ */
+if (false) {
+	$zesk = zesk();
+	$application = app();
+}
 
-Module::register_paths();
-
-zesk::register_class('Module_Server');
-
+$application->module->register_paths();

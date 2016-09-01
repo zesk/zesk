@@ -1,4 +1,5 @@
 <?php
+
 /**
  * $URL: https://code.marketacumen.com/zesk/trunk/classes/zesk/server.inc $
  * @package zesk
@@ -6,8 +7,19 @@
  * @author Kent Davidson <kent@marketacumen.com>
  * @copyright Copyright &copy; 2005, Market Acumen, Inc.
  */
+namespace zesk;
+
+use \Lock as Lock;
+use \system as system;
+use \Exception_Parameter as Exception_Parameter;
+use \Database_Exception_Table_NotFound as Database_Exception_Table_NotFound;
+use \Exception_Object_Duplicate as Exception_Object_Duplicate;
+use \zesk as zesk;
+use \Database as Database;
+use \Server_Data as Server_Data;
+
 /**
- * Zesk_Server
+ * zesk\Server
  *
  * Represents a server (virtual or physical)
  *
@@ -23,40 +35,41 @@
  * @property double $load
  * @property Timestamp $alive
  */
-abstract class Zesk_Server extends Object implements Interface_Data {
+abstract class Server extends Object implements Interface_Data {
 	/**
-	 * 
+	 *
 	 * @var string
 	 */
 	const option_alive_update_seconds = "alive_update_seconds";
 	
 	/**
 	 * Number of seconds after which the server status should be updated
-	 * 
+	 *
 	 * @var integer
 	 */
 	const default_alive_update_seconds = 30;
 	
 	/**
-	 * 
+	 *
 	 * @var string
 	 */
 	const option_timeout_seconds = "timeout_seconds";
 	
 	/**
-	 * 
+	 *
 	 * @var unknown
 	 */
 	const default_timeout_seconds = 180;
 	
 	/**
-	 * 
+	 *
 	 * @var Server
 	 */
 	private static $singleton = null;
 	
 	/**
-	 * Run once per minute per cluster. Delete servers who are not alive after `option_timeout_seconds` old.
+	 * Run once per minute per cluster.
+	 * Delete servers who are not alive after `option_timeout_seconds` old.
 	 */
 	public static function cron_cluster_minute(Application $application) {
 		$server = $application->object_factory("Server");
@@ -66,8 +79,8 @@ abstract class Zesk_Server extends Object implements Interface_Data {
 	
 	/**
 	 * Once a minute, update the state
-	 * 
-	 * @param Application $application
+	 *
+	 * @param Application $application        	
 	 */
 	public static function cron_minute(Application $application) {
 		$server = self::singleton();
@@ -99,7 +112,7 @@ abstract class Zesk_Server extends Object implements Interface_Data {
 	
 	/**
 	 * Retrieve the default host name
-	 * 
+	 *
 	 * @throws Exception_Parameter
 	 */
 	private static function host_default() {
@@ -117,7 +130,8 @@ abstract class Zesk_Server extends Object implements Interface_Data {
 	 *
 	 * Otherwise, stored in a cache for 1 minute.
 	 *
-	 * @param string $host Use the alternate host provided
+	 * @param string $host
+	 *        	Use the alternate host provided
 	 * @return Server
 	 */
 	public static function singleton($host = null) {
@@ -137,7 +151,8 @@ abstract class Zesk_Server extends Object implements Interface_Data {
 	
 	/**
 	 * Register and load this
-	 * @param unknown $host
+	 * 
+	 * @param unknown $host        	
 	 */
 	protected function _retrieve_singleton() {
 		$this->name = self::host_default();
@@ -152,7 +167,6 @@ abstract class Zesk_Server extends Object implements Interface_Data {
 		} catch (Database_Exception_Table_NotFound $e) {
 			return null;
 		}
-		log::debug(__METHOD__);
 		$this->hook("initialize_names");
 		$this->_initialize_names_defaults();
 		try {
@@ -163,8 +177,8 @@ abstract class Zesk_Server extends Object implements Interface_Data {
 		return $this;
 	}
 	/**
-	 * 
-	 * @param unknown $host
+	 *
+	 * @param unknown $host        	
 	 */
 	private function _initialize_names_defaults() {
 		$host = self::host_default();
@@ -179,20 +193,23 @@ abstract class Zesk_Server extends Object implements Interface_Data {
 		}
 		if (!isset($this->ip4_internal)) {
 			$ips = system::ip_addresses();
-			if (count($ips) === 1) {
-				$this->ip4_internal = first($ips);
+			$ips = arr::remove_values($ips, "127.0.0.1");
+			if (count($ips) >= 1) {
+				$this->ip4_internal = first(array_values($ips));
 			}
 		}
 	}
 	
 	/**
-	 * Update server state 
-	 * 
-	 * @param unknown $path
+	 * Update server state
+	 *
+	 * @param unknown $path        	
 	 */
 	function update_state($path = null) {
 		if ($path === null) {
-			$path = zesk::get('FDISK_PRIMARY', "/"); // TODO Consider renaming this
+			global $zesk;
+			/* @var $zesk zesk\Kernel */
+			$path = $zesk->configuration->get('FDISK_PRIMARY', "/"); // TODO Consider renaming this
 		}
 		$volume_info = system::volume_info();
 		$info = avalue($volume_info, $path);
@@ -203,10 +220,7 @@ abstract class Zesk_Server extends Object implements Interface_Data {
 		$pushed = $this->push_utc();
 		$update['load'] = avalue(system::load_averages(), 0, null);
 		$update['*alive'] = $this->sql()->now();
-		$this->query_update()
-			->values($update)
-			->where($this->members($this->primary_keys()))
-			->execute();
+		$this->query_update()->values($update)->where($this->members($this->primary_keys()))->execute();
 		$this->pop_utc($pushed);
 		return $this->fetch();
 	}
@@ -215,11 +229,16 @@ abstract class Zesk_Server extends Object implements Interface_Data {
 	 * Save the Database time zone state, temporarily.
 	 */
 	private function push_utc() {
-		$old_tz = $this->database()->query_one("SELECT @@time_zone as tz", "tz", "UTC");
-		$old_php_tz = date_default_timezone_get();
-		if ($old_tz !== 'UTC') {
-			$this->database()->query("SET time_zone='UTC'");
+		$db = $this->database();
+		if ($db->can(Database::feature_time_zone_relative_timestamp)) {
+			$old_tz = $db->time_zone();
+			if ($old_tz !== 'UTC') {
+				$db->time_zone('UTC');
+			}
+		} else {
+			$old_tz = null;
 		}
+		$old_php_tz = date_default_timezone_get();
 		if ($old_php_tz !== 'UTC') {
 			date_default_timezone_set('UTC');
 		}
@@ -234,8 +253,11 @@ abstract class Zesk_Server extends Object implements Interface_Data {
 	 */
 	private function pop_utc(array $pushed) {
 		list($old_tz, $old_php_tz) = $pushed;
-		if ($old_tz !== 'UTC') {
-			$this->database()->query("SET time_zone='$old_tz'");
+		$db = $this->database();
+		if ($db->can(Database::feature_time_zone_relative_timestamp)) {
+			if ($old_tz !== 'UTC') {
+				$db->time_zone($old_tz);
+			}
 		}
 		if ($old_php_tz !== 'UTC') {
 			date_default_timezone_set($old_php_tz);
@@ -244,8 +266,8 @@ abstract class Zesk_Server extends Object implements Interface_Data {
 	/**
 	 * Set or delete the server data object
 	 *
-	 * @param string $name
-	 * @param mixed $value
+	 * @param string $name        	
+	 * @param mixed $value        	
 	 * @return NULL|Server_Data
 	 */
 	private function set_data($name, $value = null) {
@@ -275,8 +297,8 @@ abstract class Zesk_Server extends Object implements Interface_Data {
 	/**
 	 * Get server data object
 	 *
-	 * @param string $name
-	 * @param mixed $value
+	 * @param string $name        	
+	 * @param mixed $value        	
 	 * @return NULL|Server_Data
 	 */
 	private function get_data($name) {
@@ -294,8 +316,8 @@ abstract class Zesk_Server extends Object implements Interface_Data {
 	 * Retrieve or store per-server data
 	 *
 	 * @see Interface_Data::data
-	 * @param mixed $name
-	 * @param mixed $value
+	 * @param mixed $name        	
+	 * @param mixed $value        	
 	 * @return mixed
 	 */
 	function data($name, $value = null) {
@@ -324,8 +346,8 @@ abstract class Zesk_Server extends Object implements Interface_Data {
 	 * Retrieve or store per-server data
 	 *
 	 * @see Interface_Data::delete_data
-	 * @param mixed $name
-	 * @param mixed $value
+	 * @param mixed $name        	
+	 * @param mixed $value        	
 	 * @return boolean
 	 */
 	function delete_data($name) {
@@ -338,8 +360,8 @@ abstract class Zesk_Server extends Object implements Interface_Data {
 	/**
 	 * Query all servers to find servers which match name = value
 	 *
-	 * @param string $name
-	 * @param mixed $value
+	 * @param string $name        	
+	 * @param mixed $value        	
 	 * @return Database_Query_Select
 	 */
 	public static function data_query($name, $value = null) {

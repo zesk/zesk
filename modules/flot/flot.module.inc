@@ -1,5 +1,6 @@
 <?php
-
-Module::register_paths();
-
-zesk::register_class('Module_Flot');
+if (false) {
+	$zesk = zesk();
+	$application = app();
+}
+$application->module->register_paths();

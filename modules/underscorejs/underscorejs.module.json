@@ -1,0 +1,13 @@
+{
+	"name": "Underscore JS",
+	"url": "http://underscorejs.org/underscore.js",
+	"version_data": { 
+		"file": "vendor/components/underscorejs/underscore.js", 
+		"pattern": "/Underscore.js\\s+([0-9.]+)/" 
+	},
+	"url_license": "https://raw2.github.com/jashkenas/underscore/master/LICENSE",
+	"github": "jashkenas/underscore",
+	"url_project": "http://underscorejs.org/",
+	"destination": "vendor/components/underscorejs",
+	"share_path": "vendor/components/underscorejs"
+}

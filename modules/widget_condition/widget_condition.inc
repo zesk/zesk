@@ -14,7 +14,7 @@ class Module_Widget_Condition extends Module {
 
 	public function initialize() {
 		parent::initialize();
-		zesk::add_hook("Widget::model_changed", 'Module_Widget_Condition::apply');
+		zesk()->hooks->add("Widget::model_changed", 'Module_Widget_Condition::apply');
 	}
 	public static function apply(Widget $widget, Model $object) {
 		self::apply_dynamic_column($widget, $object);

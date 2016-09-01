@@ -31,8 +31,8 @@ class Module_Permission extends Module {
 		"User_Role",
 		"Permission"
 	);
-	public static function hooks() {
-		zesk::add_hook("User::can", array(
+	public static function hooks(zesk\Kernel $zesk) {
+		$zesk->hooks->add("User::can", array(
 			__CLASS__,
 			"user_can"
 		));
@@ -57,7 +57,11 @@ class Module_Permission extends Module {
 	 *         <The, mixed, boolean> >
 	 */
 	public static function user_can(User $user, $action, Model $context = null, $options) {
+		global $zesk;
+		/* @var $zesk zesk\Kernel */
+		
 		self::prepare_user($user);
+		
 		if ($user->is_root) {
 			return true;
 		}
@@ -70,11 +74,18 @@ class Module_Permission extends Module {
 		}
 		$a = self::normalize_permission($action);
 		list($class, $permission) = pair($a, "::", strtolower(get_class($context)), $a);
+		
+		$cache_key = "$class::$permission";
+		$user_cache = $user->object_cache("permissions");
+		if (!$context && $user_cache->has($cache_key)) {
+			return $user_cache->$cache_key;
+		}
 		$perms = self::_permissions();
-		$parent_classes = empty($class) ? array() : arr::change_value_case(zesk::class_hierarchy($class, "Model"));
+		
+		$parent_classes = empty($class) ? array() : arr::change_value_case($zesk->classes->hierarchy($class, "Model"));
 		$parent_classes[] = "*";
 		foreach ($parent_classes as $parent_class) {
-			$perm = arr::path($perms, array(
+			$perm = apath($perms, array(
 				'class',
 				$parent_class,
 				$permission
@@ -83,7 +94,7 @@ class Module_Permission extends Module {
 				$result = $perm->check($user, $parent_class . "::" . $permission, $context, $options);
 				if (is_bool($result)) {
 					if ($result === false) {
-						log::warning("{user} denied {permission} (parent of {class})", array(
+						$zesk->logger->warning("{user} denied {permission} (parent of {class})", array(
 							"user" => $user->login(),
 							"permission" => $parent_class . "::" . $permission,
 							"class" => $class
@@ -93,30 +104,33 @@ class Module_Permission extends Module {
 				}
 			}
 		}
+		
 		$rids = self::user_roles($user);
 		foreach ($rids as $rid) {
-			$result = arr::path($perms, array(
+			$result = apath($perms, array(
 				'role',
 				$rid,
 				"$class::$permission"
 			));
 			if (is_bool($result)) {
 				if ($result === false) {
-					log::warning("{user} denied {permission} (role)", array(
+					$zesk->logger->warning("{user} denied {permission} (role)", array(
 						"user" => $user->login(),
 						"permission" => $class . "::" . $permission
 					));
 				}
+				$user_cache->$cache_key = $result;
 				return $result;
 			}
 		}
-		$result = zesk::getb("User::can");
+		$result = boolval($zesk->configuration->User->can);
 		if ($result === false) {
-			log::warning("{user} denied {permission} (not granted)", array(
+			$zesk->logger->warning("{user} denied {permission} (not granted)", array(
 				"user" => $user->login(),
 				"permission" => $class . "::" . $permission
 			));
 		}
+		$user_cache->$cache_key = $result;
 		return $result;
 	}
 	private static function prepare_user(User $user) {
@@ -170,7 +184,7 @@ class Module_Permission extends Module {
 		if ($cached !== $computed) {
 			// Nope. Update it.
 			$cache->__set(__CLASS__, $computed);
-			log::notice("Refreshed permissions cache");
+			zesk()->logger->notice("Refreshed permissions cache");
 		}
 	}
 	
@@ -190,10 +204,14 @@ class Module_Permission extends Module {
 	 *
 	 * @return array
 	 */
-	private static function _permissions_cached() {
+	private static function _permissions_cached(array $set = null) {
 		$cache = self::_cache();
 		if (!$cache) {
 			return null;
+		}
+		if ($set) {
+			$cache->__set(__CLASS__, $set);
+			return;
 		}
 		$perms = $cache->__get(__CLASS__);
 		return is_array($perms) ? $perms : null;
@@ -213,7 +231,7 @@ class Module_Permission extends Module {
 			return self::$_permissions;
 		}
 		self::$_permissions = self::_permissions_computed();
-		self::_cache()->__set(__CLASS__, self::$_permissions);
+		self::_permissions_cached(self::$_permissions);
 		return self::$_permissions;
 	}
 	public static function normalize_permission($mixed) {
@@ -240,6 +258,8 @@ class Module_Permission extends Module {
 	 * @return array
 	 */
 	public static function _permissions_computed() {
+		global $zesk;
+		/* @var $zesk zesk\Kernel */
 		$lock = Lock::require_lock(__METHOD__, 10);
 		$result = array();
 		$result['class'] = zesk::all_hook_array(array(
@@ -265,7 +285,7 @@ class Module_Permission extends Module {
 			$code = strtolower(zesk::clean_path($code));
 			$filename = $code . ".role.conf";
 			$result['role'][$rid] = $config = self::normalize_permission(conf::load_inherit($filename, $paths, array()));
-			log::debug("Loading {filename} resulted in {n_config} permissions", array(
+			$zesk->logger->debug("Loading {filename} resulted in {n_config} permissions", array(
 				"filename" => $filename,
 				"n_config" => count($config)
 			));
@@ -293,7 +313,6 @@ class Module_Permission extends Module {
 		}
 		$method = User::clean_permission($method);
 		$class = str::left($method, "::");
-		//$parents = zesk::class_hierarchy($class);
 		$class_perms = array();
 		/* @var $perm_class Class_Permission */
 		$perm_class = Object::cache_class("Permission", "class");

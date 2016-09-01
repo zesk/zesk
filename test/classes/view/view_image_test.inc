@@ -165,7 +165,7 @@ class View_Image_Test extends Test_Widget {
 		$extras = false;
 		View_Image::scaled_path($src, $width, $height, $alt, $extras);
 
-		zesk::set("LF", "\n");
+		newline("\n");
 
 		$images = array(
 			'z100x100.gif' => array(

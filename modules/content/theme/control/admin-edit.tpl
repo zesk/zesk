@@ -2,7 +2,7 @@
 $object = $this->object;
 
 if ($this->user && $this->user->can($object, "edit")) {
-	$url = $this->request->get_route('edit', $object);
+	$url = $this->router->get_route('edit', $object);
 	if ($url) {
 		echo html::div(".admin-edit", html::tag('a', array(
 			'href' => $this->request->get_route('edit', $object)

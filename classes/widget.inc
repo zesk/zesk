@@ -211,6 +211,7 @@ class Widget extends Hookable {
 	 * @param mixed $options        	
 	 */
 	public function __construct($options = false) {
+		global $zesk;
 		if ($options instanceof Application) {
 			$this->application = $options;
 			$this->request = $this->application->request();
@@ -243,7 +244,7 @@ class Widget extends Hookable {
 		$this->options += array(
 			'name' => avalue($this->options, 'column')
 		);
-		$this->hierarchy = zesk::class_hierarchy($this, 'Widget');
+		$this->hierarchy = $zesk->classes->hierarchy($this, 'Widget');
 		if ($this->theme === null) {
 			$this->theme = arr::change_value_case(tr($this->hierarchy, array(
 				"\\" => "/",
@@ -296,6 +297,15 @@ class Widget extends Hookable {
 			return $this->set_option('context_class', $add ? css::add_class($this->context_class(), $set) : $set);
 		}
 		return $this->option('context_class');
+	}
+	
+	/**
+	 * Retrieve the class object for this widget
+	 * 
+	 * @return zesk\Class_Object|Class_Object
+	 */
+	function class_object() {
+		return Object::cache_class($this->class, "class");
 	}
 	function object_class($set = null) {
 		if ($set !== null) {
@@ -1285,25 +1295,6 @@ class Widget extends Hookable {
 	}
 	
 	/**
-	 * Validate that the value for this widget is a valid date
-	 */
-	protected function validate_date() {
-		$v = $this->value();
-		$err = null;
-		if ($this->required()) {
-			$err = "{label} is required, and needs to be formatted like a date as MM/DD/YYYY, e.g. ({today}).";
-		} else if ($v != "") {
-			$err = "{label} is not required, but needs to be formatted like a date as MM/DD/YYYY, e.g. ({today}).";
-		}
-		if ($err) {
-			return __($err, array(
-				'today' => date(zesk::get('date_format_default', 'M/d/Y'))
-			));
-		}
-		return true;
-	}
-	
-	/**
 	 * Set the size limits for this widget (min/max byte length)
 	 *
 	 * Getter/setter. Call as follows:
@@ -1558,7 +1549,7 @@ class Widget extends Hookable {
 		return $value;
 	}
 	protected function children_load() {
-		if (is_array($this->children)) {
+		if (is_array($this->children) && count($this->children) !== 0) {
 			foreach ($this->children as $widget) {
 				/* @var $widget Widget */
 				$widget->object($widget->traverse ? $this->object->get($widget->column()) : $this->object);
@@ -2290,7 +2281,7 @@ class Widget extends Hookable {
 				"object" => $this->object->json()
 			);
 			if ($this->has_option('submit_theme', true)) {
-				$json['content'] = theme($this->option('submit_theme'), $this->theme_variables(), array(
+				$json['content'] = $this->application->theme($this->option('submit_theme'), $this->theme_variables(), array(
 					"first" => true
 				));
 			}

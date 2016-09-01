@@ -1,7 +1,19 @@
 <?php
+if (false) {
+	/* @var $this Template */
+	
+	$zesk = $this->zesk;
+	/* @var $zesk zesk\Kernel */
+	
+	$application = $this->application;
+	/* @var $application TimeBank */
+}
 /* @var $this Template */
 $decimals = $this->get1("1;decimals");
 if (!$decimals) {
-	$decimals = zesk::get1("percent.decimals;numeric.decimals;decimals", 0);
+	$decimals = $zesk->configuration->path_get_first(array(
+		"zesk\Locale::percent_decimals",
+		"zesk\Locale::numeric_decimals"
+	), 0);
 }
 echo sprintf("%.${decimals}f", $this->get1("0;content")) . "%";

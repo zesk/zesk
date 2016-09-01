@@ -6,6 +6,7 @@
  * @author Kent Davidson <kent@marketacumen.com>
  * @copyright Copyright &copy; 2014, Market Acumen, Inc.
  */
+use zesk\Timestamp as Timestamp;
 
 /**
  * Support locks across processes, servers. Specific to the database, however.
@@ -82,7 +83,10 @@ class Lock extends Object {
 	 * Delete Locks associated with this server which do not have a valid PID
 	 */
 	public static function delete_dead_pids() {
-		$you_are_dead_to_me = Timestamp::now()->add_unit("second", -abs(zesk::geti('Lock::timeout_seconds', 180)));
+		global $zesk;
+		/* @var $zesk zesk\Kernel */
+		$timeout_seconds = -abs($zesk->configuration->path_get("Lock::timeout_seconds", 100));
+		$you_are_dead_to_me = Timestamp::now()->add_unit("second", $timeout_seconds);
 		$iterator = Object::class_query(__CLASS__)->where(array(
 			'server' => Server::singleton(),
 			'locked|<=' => $you_are_dead_to_me
@@ -127,7 +131,7 @@ class Lock extends Object {
 	 * @return Lock|null
 	 */
 	public static function get_lock($code, $timeout = null) {
-		zesk::hooks(__CLASS__);
+		zesk()->hooks->register_class(__CLASS__);
 		$lock = self::_get_lock($code);
 		if ($lock->_is_mine()) {
 			return $lock;
@@ -149,13 +153,15 @@ class Lock extends Object {
 	 * Release all locks from my server/process
 	 */
 	public static function release_all() {
+		global $zesk;
+		/* @var $zesk zesk\Kernel */
 		self::$locks = array();
 		Object::class_query_update(__CLASS__)->values(array(
 			'pid' => null,
 			'server' => null,
 			'locked' => null
 		))->where(array(
-			'pid' => zesk::pid(),
+			'pid' => $zesk->process_id(),
 			'server' => Server::singleton()
 		));
 	}
@@ -172,12 +178,12 @@ class Lock extends Object {
 	/**
 	 * Register all zesk hooks
 	 */
-	public static function hooks() {
-		zesk::add_hook('Server::delete', array(
+	public static function hooks(zesk\Kernel $zesk) {
+		$zesk->hooks->add('Server::delete', array(
 			__CLASS__,
 			'server_delete'
 		));
-		zesk::add_hook('exit', array(
+		$zesk->hooks->add('exit', array(
 			__CLASS__,
 			"release_all"
 		));
@@ -194,10 +200,12 @@ class Lock extends Object {
 		return $lock->_is_locked();
 	}
 	private function _is_locked() {
+		global $zesk;
+		/* @var $zesk zesk\Kernel */
 		// Each server is responsible for keeping locks clean.
 		// Allow a hook to enable inter-server connection, later
 		if (!$this->_is_my_server()) {
-			return zesk::hook_array('Lock::server_is_locked', array(
+			return $this->application->hooks->call_arguments('Lock::server_is_locked', array(
 				$this->member_integer('server'),
 				$this->pid
 			), true);
@@ -207,7 +215,7 @@ class Lock extends Object {
 			return false;
 		}
 		// Is the process running?
-		if (zesk::is_alive($this->pid)) {
+		if ($zesk->process->alive($this->pid)) {
 			return true;
 		}
 		log::warning("Releasing lock from {server}:{pid} as process is dead", $this->members());
@@ -279,10 +287,12 @@ class Lock extends Object {
 	 * @param array $where
 	 */
 	private function _acquire_where(array $where = array()) {
+		global $zesk;
+		/* @var $zesk zesk\Kernel */
 		$update = Object::class_query_update(__CLASS__);
 		$sql = $update->sql();
 		$update->values(array(
-			'pid' => zesk::pid(),
+			'pid' => $zesk->process->id,
 			'server' => Server::singleton(),
 			'*locked' => $sql->now(),
 			'*used' => $sql->now()
@@ -325,7 +335,7 @@ class Lock extends Object {
 	private function _acquire($timeout) {
 		$timer = new Timer();
 		// Defaults to 0.5 seconds
-		$sleep = zesk::geti('Lock::sleep_seconds', 0.5);
+		$sleep = $this->option_integer('sleep_seconds', 0.5);
 		if ($timeout > 0 && $timeout < $sleep) {
 			$sleep = $timeout;
 		}
@@ -365,7 +375,9 @@ class Lock extends Object {
 	 * @return boolean
 	 */
 	private function is_process_alive() {
-		return zesk::is_alive($this->pid);
+		global $zesk;
+		/* @var $zesk zesk\Kernel */
+		return $zesk->process->alive($this->pid);
 	}
 	/**
 	 * Is this my server?
@@ -381,7 +393,9 @@ class Lock extends Object {
 	 * @return boolean
 	 */
 	private function _is_my_pid() {
-		return zesk::pid() === $this->member_integer('pid');
+		global $zesk;
+		/* @var $zesk zesk\Kernel */
+		return $zesk->process->id === $this->member_integer('pid');
 	}
 	
 	/**

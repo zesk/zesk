@@ -1,5 +1,7 @@
 <?php
 
+use zesk\Timestamp as Timestamp;
+
 /**
  * The health module monitors your application health and helps to diagnose issues across a larger server farm by
  * centralizing error logging.
@@ -27,7 +29,7 @@ class Module_Health extends Module {
 			$this,
 			"exception_handler"
 		));
-		zesk::add_hook("exception", array(
+		$this->application->hooks->add("exception", array(
 			$this,
 			"caught_exception_handler"
 		));
@@ -62,7 +64,7 @@ class Module_Health extends Module {
 				if ($this->option_bool("keep_backtrace_arguments")) {
 					$new_args = $stackframe['args'];
 					foreach ($new_args as $index => $arg) {
-						if (is_resource($arg)) {
+						if (is_resource($arg) || is_callable($arg)) {
 							$fake_arg = new stdClass();
 							$fake_arg['get_resource_type'] = get_resource_type($arg);
 							$fake_arg['strval'] = strval($arg);

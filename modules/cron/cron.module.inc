@@ -1,5 +1,11 @@
 <?php
+/**
+ * 
+ */
+if (false) {
+	$zesk = zesk();
+	$application = app();
+}
 
-Module::register_paths();
-
-zesk::register_class('Module_Cron');
+$application->module->register_paths();
+$zesk->classes->register('Module_Cron');

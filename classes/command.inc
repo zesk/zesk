@@ -1,4 +1,5 @@
 <?php
+use zesk\Timestamp as Timestamp;
 
 /**
  * $URL: https://code.marketacumen.com/zesk/trunk/classes/command.inc $
@@ -151,6 +152,9 @@ abstract class Command extends Hookable {
 	 * @param array $argv        	
 	 */
 	function __construct($argv = null, array $options = array()) {
+		global $zesk;
+		/* @var $zesk zesk\Kernel */
+		
 		$this->application = Application::instance();
 		
 		if ($argv === null) {
@@ -188,22 +192,27 @@ abstract class Command extends Hookable {
 				"args" => var_export($argv, true)
 			));
 		}
-		zesk::console(true);
-		// Deprecated?
-		zesk::set("command", $this);
-		zesk::set('command-line', true);
+		$zesk->console = true;
+		$zesk->newline = "\n";
 		
 		if ($this->has_errors()) {
 			$this->usage(implode("\n", $this->errors()));
 			exit(1);
 		}
 	}
+	
+	/**
+	 * 
+	 * @return string[]|NULL[]
+	 */
 	private static function configuration_path() {
+		global $zesk;
+		/* @var $zesk zesk\Kernel */
 		$paths = array();
-		if (is_dir(($path = zesk::application_root('etc')))) {
+		if (is_dir(($path = $zesk->paths->application('etc')))) {
 			$paths[] = $path;
 		}
-		$uid_path = zesk::uid_path();
+		$uid_path = $zesk->paths->uid();
 		if ($uid_path) {
 			$paths[] = $uid_path;
 		}
@@ -226,7 +235,7 @@ abstract class Command extends Hookable {
 		$path = $this->configuration_path();
 		$result = array(
 			'path' => $path,
-			'file' => $file = file::name_clean(strtolower($name)) . '.conf',
+			'file' => $file = zesk\file::name_clean(strtolower($name)) . '.conf',
 			'default' => $default = zesk::find_file($path, $file)
 		);
 		if (empty($default)) {
@@ -299,7 +308,7 @@ abstract class Command extends Hookable {
 					file_put_contents($config, "# Created $name on " . date('Y-m-d H:i:s') . "\n");
 				}
 			}
-			$this->debug = zesk::get('Command::debug', $this->debug);
+			$this->debug = $this->option_bool('debug', $this->debug);
 			return $config;
 		}
 		// $this->options = $this->option_values;
@@ -559,7 +568,17 @@ abstract class Command extends Hookable {
 		}
 		echo $message;
 	}
-	
+	private static function stderr() {
+		if (defined("STDERR")) {
+			return STDERR;
+		}
+		static $stderr = null;
+		if ($stderr !== null) {
+			return $stderr;
+		}
+		$stderr = fopen("php://stderr", "w");
+		return $stderr;
+	}
 	/**
 	 *
 	 * @param string $message        	
@@ -574,7 +593,7 @@ abstract class Command extends Hookable {
 		} else {
 			$message = map($message, $arguments);
 		}
-		fwrite(STDERR, "$message\n");
+		fwrite(self::stderr(), "$message\n");
 		$this->errors[] = $message;
 	}
 	
@@ -879,7 +898,7 @@ abstract class Command extends Hookable {
 			return null;
 		}
 		if (is_file($this->history_file_path) && $this->has_readline()) {
-			foreach (file::lines($this->history_file_path) as $line) {
+			foreach (zesk\file::lines($this->history_file_path) as $line) {
 				readline_add_history($line);
 			}
 		}
@@ -1031,13 +1050,14 @@ abstract class Command extends Hookable {
 		try {
 			$result = $this->run();
 		} catch (Exception $e) {
+			global $zesk;
 			$this->error("Exception thrown by command {class} : {exception_class} {message}\n{backtrace}", array(
 				"class" => get_class($this),
 				"exception_class" => get_class($e),
 				"message" => $e->getMessage(),
 				"backtrace" => $e->getTraceAsString()
 			));
-			zesk::hook("exception", $e);
+			$zesk->hooks->call("exception", $e);
 			if ($this->option_bool('debug', $this->application->development())) {
 				$this->error($e->getTraceAsString());
 			}

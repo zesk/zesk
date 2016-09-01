@@ -7,6 +7,6 @@
  * @copyright Copyright &copy; 2010, Market Acumen, Inc.
  */
 
-class Exception_Invalid extends Zesk_Exception {
+class Exception_Invalid extends zesk\Exception {
 
 }

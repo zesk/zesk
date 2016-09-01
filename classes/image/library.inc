@@ -24,11 +24,12 @@ abstract class Image_Library {
 					return $singleton = zesk::factory($class);
 				}
 			} catch (Exception $e) {
+				global $zesk;
 				log::error("{class}::installed resulted in {error}", array(
 					"class" => $class,
 					"error" => $e
 				));
-				zesk::hook("exception", $e);
+				$zesk->hooks->call("exception", $e);
 			}
 		}
 		return null;

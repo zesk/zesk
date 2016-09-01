@@ -9,11 +9,11 @@
  */
 
 /**
- * @todo subclass of Zesk_Exception
+ * @todo subclass of zesk\Exception
  * @author kent
  *
  */
-class Net_HTTP_Client_Exception extends Zesk_Exception {
+class Net_HTTP_Client_Exception extends zesk\Exception {
 	/**
 	 * Error code given by curl_errno
 	 *

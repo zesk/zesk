@@ -18,22 +18,18 @@ class Controller_Preference extends Controller {
 	 * @var string
 	 */
 	protected $method_default_arguments = "arguments_getset";
-
 	static $whitelist = null;
-
 	public static function _whitelist() {
 		return zesk::application_root("etc/preference-whitelist.txt");
 	}
-
 	public static function save_preferences() {
 		file_put_contents(self::_whitelist(), implode("\n", array_keys(self::$whitelist)));
 	}
-
 	public function arguments_getset($action, $arg) {
 		if (self::$whitelist === null) {
 			$path = self::$whitelist = array_flip(arr::clean(explode("\n", file::contents(self::_whitelist(), "")), ""));
 			if ($this->application->development()) {
-				zesk::add_hook("exit", __CLASS__ . '::save_preferences');
+				zesk()->hooks->add("exit", __CLASS__ . '::save_preferences');
 			}
 		}
 		if (!array_key_exists($arg, self::$whitelist)) {
@@ -49,7 +45,6 @@ class Controller_Preference extends Controller {
 			$arg
 		);
 	}
-
 	public function action_getset($type) {
 		if ($type === null) {
 			return $this->json(array(

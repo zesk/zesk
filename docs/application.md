@@ -157,7 +157,7 @@ For web applications, you should create an `index.php` file with the following c
 		$application->index();
 	} catch (Exception $e) {
 		$application = Application::instance();
-		echo $application->theme("page", zesk::theme(zesk::class_hierarchy($e), array(
+		echo $application->theme("page", zesk::theme(zesk\Classes::hierarchy($e), array(
 			"exception" => $e
 		)));
 		exit(1);

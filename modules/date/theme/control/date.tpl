@@ -1,5 +1,7 @@
 <?php
 
+use zesk\Timestamp as Timestamp;
+
 /* @var $widget Control_Date */
 $widget = $this->widget;
 /**

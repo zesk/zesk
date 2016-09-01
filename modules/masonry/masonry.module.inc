@@ -1,5 +1,10 @@
 <?php
+/**
+ *
+ */
+if (false) {
+	$zesk = zesk();
+	$application = app();
+}
 
-Module::register_paths();
-
-zesk::register_class('Module_Masonry');
+$application->module->register_paths();

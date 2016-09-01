@@ -1,5 +1,9 @@
 <?php
+if (false) {
+	$zesk = zesk();
+	$application = app();
+}
 
-Module::register_paths();
-zesk::hooks('AnythingSlider');
+$application->module->register_paths();
+
 

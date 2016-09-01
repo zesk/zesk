@@ -1,5 +1,4 @@
 <?php
-
 use zesk\file as file;
 
 /**
@@ -36,13 +35,13 @@ class conf {
 	 *        	
 	 * @throws Exception_File_NotFound
 	 */
-	public static function load($file, $options = array()) {
+	public static function load($file, $options = array(), array &$dependencies = null) {
 		if (zesk::getb('conf::debug')) {
 			log::debug("conf::load({file})", array(
 				"file" => $file
 			));
 		}
-		return self::parse(file::lines($file), $options);
+		return self::parse(file::lines($file), $options, $dependencies, $file);
 	}
 	private static $options_default_global = null;
 	
@@ -81,10 +80,9 @@ class conf {
 	 */
 	public static function options_default(array $options = array()) {
 		$options += self::_options_default_global();
-		if (!is_array($options['variables'])) {
-			$options['variables'] = arr::kflatten(zesk::get(), "::");
+		if (!isset($options['settings']) || !$options['settings'] instanceof Interface_Settings) {
+			$options['settings'] = new Adapter_Settings_Configuration(zesk()->configuration);
 		}
-		$options['variables'] = array_change_key_case($options['variables']);
 		return $options;
 	}
 	
@@ -95,7 +93,7 @@ class conf {
 	 * @param array $options        	
 	 * @return array loaded values
 	 */
-	public static function parse(array $lines, $options = array()) {
+	public static function parse(array $lines, $options = array(), array &$dependencies = null, $dependency_context = null) {
 		if ($options === true) {
 			$options = array(
 				'overwrite' => true
@@ -109,13 +107,15 @@ class conf {
 		$options = to_array($options, array());
 		
 		$options = self::options_default($options);
-		$separator = $lower = $trim_key = $unquote = $trim_value = $autotype = $overwrite = $variables = $multiline = null;
+		$separator = $lower = $trim_key = $unquote = $trim_value = $autotype = $overwrite = $settings = $multiline = null;
 		extract($options, EXTR_IF_EXISTS);
 		
+		if (!$settings instanceof Interface_Settings) {
+			$settings = new Adapter_Settings_Array(array());
+		}
 		if ($multiline) {
 			$lines = self::join_lines($lines);
 		}
-		
 		$result = array();
 		foreach ($lines as $line) {
 			$parse_result = self::parse_line($line, array(
@@ -138,7 +138,7 @@ class conf {
 				$value = unquote($value, $unquote, $found_quote);
 			}
 			if ($found_quote !== "'") {
-				$value = zesk\bash::substitute($value, $variables);
+				$value = zesk\bash::substitute($value, $settings, $dependencies, $dependency_context);
 			}
 			if (!$found_quote) {
 				if ($autotype) {
@@ -147,19 +147,27 @@ class conf {
 			}
 			if ($append) {
 				arr::append($result, $key, $value);
-				arr::append($variables, strtolower($key), $value);
+				$append_value = to_array($settings->get($key));
+				$append_value[] = $value;
+				$settings->set($key, $append_value);
 			} else {
 				if ($overwrite || !array_key_exists($key, $result)) {
 					$result[$key] = $value;
 				}
-				if ($overwrite || !array_key_exists($key, $variables)) {
-					$variables[strtolower($key)] = $value;
+				if ($overwrite || !$settings->has($key)) {
+					$settings->set($key, $value);
 				}
 			}
 		}
 		return $result;
 	}
-	static function load_inherit($files, array $paths, array $options = array()) {
+	static function load_inherit($files, array $paths, array $options = array(), array &$dependencies = null) {
+		global $zesk;
+		/* @var $zesk zesk\Kernel */
+		if (!is_array($dependencies)) {
+			$dependencies = array();
+		}
+		$dependencies += to_array($zesk->configuration->pave("conf")->dependencies);
 		$files = to_list($files);
 		$options = self::options_default($options);
 		$overwrite = to_bool(avalue($options, 'overwrite', zesk::getb('conf::overwrite')));
@@ -188,20 +196,19 @@ class conf {
 			}
 		}
 		foreach ($file_paths as $ff) {
-			$path_result = self::load($ff, $options);
+			$path_result = self::load($ff, $options, $dependencies, $ff);
 			if ($overwrite) {
 				$result = $path_result + $result;
-				$options['variables'] = $path_result + $options['variables'];
 			} else {
 				$result += $path_result;
-				$options['variables'] += $path_result;
 			}
 		}
 		zesk::add('conf::loaded', $file_paths);
 		zesk::add('conf::load_no_file', $no_file_paths);
+		zesk::set('conf::dependencies', $dependencies);
 		return $result;
 	}
-	public static function globals($paths, $options = array()) {
+	public static function globals($paths, $options = array(), array &$dependencies = null) {
 		if ($options === true) {
 			$options = array(
 				'overwrite' => true
@@ -210,7 +217,7 @@ class conf {
 		$paths = to_list($paths);
 		$options = to_array($options, array());
 		$files = avalue($options, 'files', zesk::get('conf::files', 'zesk.conf;environment.sh'));
-		$result = conf::load_inherit($files, $paths, $options);
+		$result = conf::load_inherit($files, $paths, $options, $dependencies);
 		zesk::set($result);
 		return $result;
 	}

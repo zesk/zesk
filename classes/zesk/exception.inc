@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Base class for all exceptions in Zesk.
  * Maybe add some tracking/reporting or some other functionality to it later.
@@ -8,7 +9,9 @@
  * @author $Author: kent $
  * @copyright Copyright &copy; 2011, Market Acumen, Inc.
  */
-class Zesk_Exception extends Exception {
+namespace zesk;
+
+class Exception extends \Exception {
 	/**
 	 * Raw message without variables substituted.
 	 * Allows logging of messages before substitutions.
@@ -16,7 +19,7 @@ class Zesk_Exception extends Exception {
 	 * @var string
 	 */
 	public $raw_message = '';
-
+	
 	/**
 	 * Arguments for message.
 	 * Uses map()
@@ -25,7 +28,7 @@ class Zesk_Exception extends Exception {
 	 * @var array
 	 */
 	public $arguments = array();
-
+	
 	/**
 	 * Construct a new exception
 	 *
@@ -38,7 +41,7 @@ class Zesk_Exception extends Exception {
 	 * @param Exception $previous
 	 *        	Previous exception which may have spawned this one
 	 */
-	function __construct($message = null, $arguments = array(), $code = null, Exception $previous = null) {
+	function __construct($message = null, $arguments = array(), $code = null, \Exception $previous = null) {
 		/* Support previous invokation style ($message, $code, $previous) */
 		if (is_array($arguments)) {
 			$this->arguments = $arguments;
@@ -55,7 +58,7 @@ class Zesk_Exception extends Exception {
 			parent::__construct($map_message, intval($code), $previous);
 		}
 	}
-
+	
 	/**
 	 * Retrieve variables for a Template
 	 *
@@ -63,7 +66,7 @@ class Zesk_Exception extends Exception {
 	 */
 	function variables() {
 		return array(
-			'exception class' => get_class($this),
+			'exception_class' => get_class($this),
 			'code' => $this->getCode(),
 			'file' => $this->getFile(),
 			'line' => $this->getLine(),
@@ -75,7 +78,7 @@ class Zesk_Exception extends Exception {
 			'trace_dump' => $this->getTraceAsString()
 		) + $this->arguments;
 	}
-
+	
 	/**
 	 * Used by log::send
 	 *
@@ -84,7 +87,7 @@ class Zesk_Exception extends Exception {
 	public function log_variables() {
 		return $this->variables();
 	}
-
+	
 	/**
 	 * Used by log::send
 	 *
@@ -92,5 +95,21 @@ class Zesk_Exception extends Exception {
 	 */
 	public function log_message() {
 		return $this->getMessage();
+	}
+	
+	/**
+	 * @todo is this used?
+	 * @param \Exception $e
+	 * @return array
+	 */
+	public static function exception_variables(\Exception $e) {
+		return array(
+			"class" => get_class($e),
+			"line" => $e->getLine(),
+			"code" => $e->getCode(),
+			"file" => $e->getFile(),
+			"message" => $e->getMessage(),
+			"backtrace" => $e->getTraceAsString()
+		);
 	}
 }

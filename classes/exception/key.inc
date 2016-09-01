@@ -7,7 +7,7 @@
  * @copyright Copyright &copy; 2010, Market Acumen, Inc.
  */
 
-class Exception_Key extends Zesk_Exception
+class Exception_Key extends zesk\Exception
 {
 
 }

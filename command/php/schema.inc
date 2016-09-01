@@ -10,7 +10,7 @@ class Command_PHP_Schema extends Command {
 		'class' => 'string'
 	);
 	function run() {
-		$db = Database::instance();
+		$db = $this->application->database_factory();
 		
 		$class = $this->option('class');
 		if (!$class) {

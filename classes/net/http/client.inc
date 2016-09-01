@@ -6,6 +6,8 @@
  * @package zesk
  * @subpackage system
  */
+use zesk\file as file;
+use zesk\Timestamp as Timestamp;
 /**
  *
  * @package zesk
@@ -185,20 +187,31 @@ class Net_HTTP_Client extends Options {
 	public function __construct($url = null, $options = false) {
 		parent::__construct($options);
 		$this->inherit_global_options();
+		$this->load_from_options();
 		if (!empty($url)) {
 			$this->set_option("URL", $url);
 		}
-		$this->user_agent(self::defaultUserAgent());
+		if (!$this->user_agent) {
+			$this->user_agent($this->default_user_agent());
+		}
 	}
-	
+	private function load_from_options() {
+		if ($this->has_option("timeout")) {
+			$this->timeout($this->option_integer("timeout"));
+		}
+		if ($this->has_option("user_agent")) {
+			$this->user_agent($this->option("user_agent"));
+		}
+	}
 	/**
 	 * The default user agent
 	 *
 	 * @return string
 	 */
-	public static function defaultUserAgent() {
-		return "zesk/Net_HTTP_Client " . zesk::version();
+	public function default_user_agent() {
+		return $this->option("default_user_agent", 'zesk/Net_HTTP_Client ' . zesk\Version::release());
 	}
+	
 	private function _method($method, $set = null) {
 		if ($set === null) {
 			return $this->method === $method;

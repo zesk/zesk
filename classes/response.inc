@@ -7,6 +7,7 @@
  * @subpackage system
  */
 
+use zesk\Timestamp as Timestamp;
 /**
  * Abstraction for web server responses to Request
  *
@@ -261,12 +262,13 @@ class Response extends Hookable {
 				'original_url' => $saved_url
 			));
 		} else {
+			global $zesk;
 			if ($url) {
 				$this->_header("Location: $url");
 			}
 			// Should do a response/redirect.tpl type thing here, too, in non-dev mode?
 			// TODO
-			zesk::hook_array('headers', array(
+			$zesk->hooks->call_arguments('headers', array(
 				$this->request,
 				$this,
 				null

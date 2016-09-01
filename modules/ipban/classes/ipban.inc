@@ -6,6 +6,7 @@
  * @subpackage ipban
  * @copyright (c) 2013 Market Acumen, Inc.
  */
+use zesk\Timestamp as Timestamp;
 
 /**
  * @see Class_IPBan

@@ -1,7 +1,5 @@
 <?php
-
 class Command_Translate extends Command_Base {
-
 	public $option_types = array(
 		'source' => 'string',
 		'target' => 'string',
@@ -11,31 +9,35 @@ class Command_Translate extends Command_Base {
 		'language-file' => 'file',
 		'interactive' => 'boolean'
 	);
-
 	public $option_help = array(
 		'source' => 'Source ',
 		'target' => 'string',
 		'interactive' => 'boolean',
 		'list' => 'boolean'
 	);
-
 	const error_parameters = 1;
 	const error_service_translate = 2;
-
 	const error_file_formats = 3;
 	/**
 	 *
 	 * @var zesk\Service_Translate
 	 */
 	protected $service_object;
-
+	
+	/**
+	 * 
+	 * {@inheritDoc}
+	 * @see Command::run()
+	 */
 	protected function run() {
-		$source_language_file = $this->option("language-file", zesk::get("Module_PolyGlot::source_file"));
+		global $zesk;
+		/* @var $zesk zesk\Kernel */
+		
+		$source_language_file = $this->option("language-file", $zesk->configuration->path_get("Module_PolyGlot::source_file"));
 		if (!$source_language_file) {
 			$this->usage("Need a source --language-file to determine source strings");
-
 		}
-		$destination = $this->option("destination", zesk::get("Locale::auto_path"));
+		$destination = $this->option("destination", $zesk->configuration->path_get("Locale::auto_path"));
 		if (!$destination) {
 			$this->usage("Need a directory --destination {destination} is not a directory");
 		}
@@ -53,16 +55,16 @@ class Command_Translate extends Command_Base {
 			return self::error_parameters;
 		}
 		$source_language = $this->option("source", zesk\Locale::language());
-
+		
 		$target_language = strtolower($target_language);
 		$source_language = strtolower($source_language);
-
+		
 		$default_class = first($classes);
 		$classes = arr::flip_copy($classes, true);
 		/* @var $service_object zesk\Service_Translate */
 		try {
 			$service_object = $this->service_object = zesk\Service_Translate::factory_translate($target_language, $source_language);
-		} catch (Zesk_Exception $e) {
+		} catch (zesk\Exception $e) {
 			$this->error($e->getMessage(), $e->arguments);
 			return 2;
 		}
@@ -70,16 +72,16 @@ class Command_Translate extends Command_Base {
 			"class" => get_class($service_object)
 		));
 		$target_file = path($destination, "$target_language.inc");
-
+		
 		if (!is_file($target_file)) {
 			$target_file = file_put_contents($target_file, map('<' . "?php\n// Generated file by {class}, editing OK\n\$tt = array();\n\nreturn \$tt;\n"));
 		}
-		$target_translations = zesk::load($target_file);
+		$target_translations = $zesk->load($target_file);
 		if (!is_array($target_translations)) {
 			$this->error("target file {target_file} does not return a translation table", compact("target_file"));
 			return self::error_file_formats;
 		}
-		$translation_file = zesk::load($source_language_file);
+		$translation_file = $zesk->load($source_language_file);
 		if (!is_array($translation_file)) {
 			$this->error("translation file {translation_file} does not return a translation table", compact("translation_file"));
 			return self::error_file_formats;
@@ -88,17 +90,25 @@ class Command_Translate extends Command_Base {
 			$this->error("translation file {translation_file} is empty", compact("translation_file"));
 			return self::error_file_formats;
 		}
-
+		
 		$tt = array();
 		foreach ($translation_file as $key => $phrase) {
 			$mapping = $this->preprocess_phrase($phrase);
 			$translation = $service_object->translate($phrase);
-			$translation = $this->postprocess_phrase($translation, $map);
-
+			$translation = $this->postprocess_phrase($translation, $mapping);
+			
 			$tt[$key] = $translation;
 		}
 	}
-
+	
+	/**
+	 * Remove tokens from the phrase so they are not automatically translated (and left alone by remote service)
+	 * 
+	 * Return a structure which should be passed to postprocess_phrase to undo these changes
+	 * 
+	 * @param string $phrase
+	 * @return array
+	 */
 	private function preprocess_phrase(&$phrase) {
 		$tokens = map_tokens($phrase);
 		foreach ($tokens as $index => $token) {
@@ -107,10 +117,15 @@ class Command_Translate extends Command_Base {
 		$phrase = tr($phrase, $map);
 		return array_flip($map);
 	}
-
+	
+	/**
+	 * Replace mapped tokens with originals
+	 * 
+	 * @param string $phrase
+	 * @param array $map
+	 * @return string
+	 */
 	private function postprocess_phrase($phrase, array $map) {
 		return tr($phrase, $map);
 	}
-
-
 }

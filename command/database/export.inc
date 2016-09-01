@@ -12,7 +12,7 @@ class Command_Database_Export extends Command {
 
 	function run() {
 		$dbname = $this->option('name');
-		$url = Database::factory($dbname);
+		$url = $this->application->database_factory($dbname);
 		if (!$url) {
 			echo "DB_ERROR=\"Database_Connect_Failed\";\n";
 			echo "DB_MESSAGE=\"Can not connect to '$dbname' - no URL configured\";\n";

@@ -6,6 +6,4 @@
  * @author kent
  * @copyright Copyright &copy; 2010, Market Acumen, Inc.
  */
-class Database_Exception_Duplicate extends Database_Exception {
-
-}
+class Database_Exception_Duplicate extends Database_Exception_SQL {}

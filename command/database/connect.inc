@@ -9,24 +9,40 @@
  * @aliases db-connect connect conn
  */
 class Command_Database_Connect extends Command_Base {
+	/**
+	 * 
+	 * @var array
+	 */
 	protected $option_types = array(
 		'name' => 'string',
 		'echo' => 'boolean',
+		'debug-connect' => 'boolean',
 		'db-url' => 'boolean',
 		'show-passwords' => 'boolean',
 		'force' => 'boolean',
 		'test' => 'boolean',
 		'db-name' => 'boolean'
 	);
+	/**
+	 * 
+	 * @var array
+	 */
 	protected $option_help = array(
 		'name' => 'Database code name to connect to',
 		'echo' => 'Output the connection command instead of running it',
+		'debug-connect' => 'Show the connect command',
 		'db-url' => 'Output the database URL or URLs',
 		'force' => 'Force command execution even on failure',
 		'test' => 'Test to make sure all connections work',
 		'db-name' => 'Output the database name or names'
 	);
+	
+	/**
+	 * @return integer 
+	 */
 	function run() {
+		global $zesk;
+		/* @var $zesk zesk\Kernel */
 		if ($this->option_bool("db-name") || $this->option_bool('db-url')) {
 			return $this->handle_info();
 		}
@@ -39,25 +55,30 @@ class Command_Database_Connect extends Command_Base {
 		}
 		
 		$name = $this->option('name');
-		$db = Database::factory($name);
+		$db = $this->application->database_factory($name);
 		list($command, $args) = $db->shell_command($this->options);
 		
-		if (zesk::getb('debug.db-connect')) {
+		if ($this->option_bool('debug-connect')) {
 			echo "$command " . implode(" ", $args) . "\n";
 		}
-		$full_command_path = zesk::which($command);
+		$full_command_path = is_file($command) ? $command : $zesk->paths->which($command);
 		if (!$full_command_path) {
-			die("Unable to find shell $command in system path:" . implode(", ", zesk::command_path()) . "\n");
+			die("Unable to find shell $command in system path:" . implode(", ", $zesk->paths->command()) . "\n");
 		}
 		if ($this->option_bool('echo')) {
 			echo $full_command_path . implode("", arr::prefix($args, " ")) . "\n";
 		} else {
-			zesk::php_has('pcntl', true);
+			zesk\PHP::requires('pcntl', true);
 			$method = 'pcntl_exec';
 			$method($full_command_path, $args);
 		}
 		return 0;
 	}
+	
+	/**
+	 * 
+	 * @return number
+	 */
 	private function handle_info() {
 		$name = $this->option('name');
 		$db = Database::register();
@@ -83,11 +104,16 @@ class Command_Database_Connect extends Command_Base {
 		echo text::format_pairs($db);
 		return 0;
 	}
+	
+	/**
+	 * 
+	 * @return number
+	 */
 	private function handle_test() {
 		$db = Database::register();
 		foreach ($db as $name => $url) {
 			try {
-				Database::instance($name);
+				$this->application->database_factory($name);
 				$db[$name] = true;
 			} catch (Exception $e) {
 				$db[$name] = false;

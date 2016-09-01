@@ -6,8 +6,5 @@
  * @author kent
  * @copyright Copyright &copy; 2010, Market Acumen, Inc.
  */
-
-class Exception_File_Format extends Exception_FileSystem {
-
-}
+class Exception_File_Format extends Exception_FileSystem {}
 

@@ -1,4 +1,6 @@
 <?php
+use zesk\file as file;
+use zesk\Locale as Locale;
 
 /**
  * Update code from remote sources in ${module}.module.conf
@@ -68,8 +70,10 @@ class Command_Update extends Command_Base {
 	 * Retrieve a list of modules from available paths
 	 */
 	private function modules_from_module_paths($module_options) {
+		global $zesk;
+		/* @var $zesk zesk\Kernel */
 		$modules = array();
-		$paths = zesk::module_path();
+		$paths = $zesk->paths->module();
 		if (count($paths) === 0) {
 			$this->verbose_log("No module paths configured");
 		}
@@ -81,7 +85,7 @@ class Command_Update extends Command_Base {
 				$this->verbose_log("Module path {path}: {count} {modules}", array(
 					"path" => $path,
 					"count" => $count,
-					"modules" => lang::plural(__("module"), $count)
+					"modules" => Locale::plural(__("module"), $count)
 				));
 				foreach ($globbed as $glob) {
 					$module = str::unprefix(dirname($glob), rtrim($path, "/") . "/");
@@ -91,7 +95,7 @@ class Command_Update extends Command_Base {
 						$modules[$module] = $data;
 						$this->verbose_log("Module {name} loaded configuration {configuration_file}", $debug + $data);
 					} else {
-						log::warning("{name} does not have an associated configuration file", $debug + $data);
+						$zesk->logger->warning("{name} does not have an associated configuration file", $debug + $data);
 					}
 				}
 			} else {
@@ -127,7 +131,7 @@ class Command_Update extends Command_Base {
 		
 		$this->verbose_log("Will update {count} {modules}", array(
 			"count" => count($modules),
-			"modules" => lang::plural(__("module"), count($modules))
+			"modules" => Locale::plural(__("module"), count($modules))
 		));
 		return $modules;
 	}
@@ -216,9 +220,9 @@ class Command_Update extends Command_Base {
 		if (!$force) {
 			$checked = avalue($state_data, 'CHECKED', null);
 			$checked_time = strtotime($checked);
-			$interval = zesk::get('Command_Update::check_interval', 24 * 60 * 60);
+			$interval = $this->option_integer('check_interval', 24 * 60 * 60);
 			if ($checked_time > $now - $interval) {
-				$this->verbose_log("$module checked less than " . lang::duration_string($interval, "hour") . " ago" . ($force_check ? "- checking anyway" : ""));
+				$this->verbose_log("$module checked less than " . Locale::duration_string($interval, "hour") . " ago" . ($force_check ? "- checking anyway" : ""));
 				if (!$force_check) {
 					return true;
 				}

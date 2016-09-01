@@ -1,4 +1,7 @@
 <?php
+
+use zesk\Timestamp as Timestamp;
+
 /**
  * Implementation of iCalendar RRULE
  *

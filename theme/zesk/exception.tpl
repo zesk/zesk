@@ -28,15 +28,15 @@ $dev = $this->application->development();
 	<h1><?php echo $dev ? $class : strtr($class, "_", " ")?>
 		<!--  <?php echo $class; ?> -->
 	</h1>
-	<?php if ($dev) { ?>
-		<p>The computer error given was:</p>
+	<p>The computer error given was:</p>
 		<?php
 		echo html::tag('code', $message);
-		?><p>The call stack is:</p><?php
-		echo $this->theme('exception/trace', array(
-			"content" => $trace
-		));
-		?>
+		if ($dev) {
+			?><p>The call stack is:</p><?php
+			echo $this->theme('exception/trace', array(
+				"content" => $trace
+			));
+			?>
 	<?php } ?>
 </div>
 <?php

@@ -1,5 +1,7 @@
 <?php
 
-class Settings extends Zesk_Settings {
-	
-}
+/**
+ * @author kent
+ *
+ */
+class Settings extends zesk\Settings {}
