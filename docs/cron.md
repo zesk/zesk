@@ -18,7 +18,7 @@ Specific examples of cron tasks which run within Zesk:
 
 ## Cron features
 
-Cron will run any static function in any class of type `Module`, `Application`, or `Object` which has the one of the following function names:
+Cron will run any **static function** in any class of type `Module`, `Application`, or `Object` which has the one of the following function names:
 
 - `cron` - Runs every cron run, on all servers
 - `cron_minute` - Runs every minute, on all servers
@@ -27,18 +27,20 @@ Cron will run any static function in any class of type `Module`, `Application`, 
 - `cron_week` - Runs every week, on all servers
 - `cron_month` - Runs every month, on all servers
 - `cron_year` - Runs once a year (!), on all servers
-- `cron_cluster` - Runs every cron run, once per database
-- `cron_minute` - Runs every minute, once per database
-- `cron_hour` - Runs every hour, once per database
-- `cron_day` - Runs every day, once per database
-- `cron_week` - Runs every week, once per database
-- `cron_month` - Runs every month, once per database
-- `cron_year` - Runs once a year (!), once per database
+- `cron_cluster` - Runs every cron run, on a single server only
+- `cron_cluster_minute` - Runs every minute, on a single server only
+- `cron_cluster_hour` - Runs every hour, on a single server only
+- `cron_cluster_day` - Runs every day, on a single server only
+- `cron_cluster_week` - Runs every week, on a single server only
+- `cron_cluster_month` - Runs every month, on a single server only
+- `cron_cluster_year` - Runs once a year (!), on a single server only
+
+All methods take a single parameter, the application. If you know your cron task will only run within your application, you can type your cron call to take your application type.
 
 These methods should be declared as
 
 	class Vehicle extends Object {
-		public static function cron() {
+		public static function cron(zesk\Application $application) {
 		
 		}
 	}
@@ -51,7 +53,7 @@ So, if I have an object, which requires regular maintenance or checking, I could
 
 	class Automobile extends Object {
 		...
-		public static function cron_cluster_month() {
+		public static function cron_cluster_month(zesk\Application $application) {
 			foreach (Object::class_query("Automobile")->where("IsActive", true)->object_iterator() as $auto) {
 				$auto->monthly_maintenance();
 			}
@@ -74,7 +76,7 @@ This invokes cron using `Command_Cron` located at `$ZESK_ROOT/command/cron.inc`.
 
 The available settings which change the behavior of cron are:
 
-- `cron::time_limit` - The number of seconds the cron should run for, by default forever.
+- `Module_Cron::time_limit` - The number of seconds the cron should run for, by default forever.
 
 You can set this, if desired, via the command line settings, like so:
 
@@ -92,13 +94,13 @@ On some shared hosts it's impossible to schedule a cron task using crontab. In t
 
 To do so, set the globals:
 
-- `cron::page_runner` to `true`
+- `Module_Cron::page_runner` to `true`
 
 This extends your `Router` to add a special page which runs cron, and adds it to every page request. 
 
 ## Debugging Cron tasks
 
-The best way to run cron tasks is to run them via a web browser and use a debugger. Enable `cron::page_runner` and ensure that the page is added to your web application, then debug the page itself.
+The best way to run cron tasks is to run them via a web browser and use a debugger. Enable `Module_Cron::page_runner` and ensure that the page is added to your web application, then debug the page itself.
 
 Similarly, you can use
 
@@ -108,8 +110,8 @@ To display the cron tasks which may possibly be run each occurance.
 
 You can run a database query such as:
 
-    DELETE FROM Settings WHERE Name LIKE 'cron::%'
-    DELETE FROM Server_Data WHERE Name LIKE 'cron::%'
+    DELETE FROM Settings WHERE Name LIKE 'Module_Cron::%'
+    DELETE FROM Server_Data WHERE Name LIKE 'Module_Cron::%'
 
 It will run then every cron task on each page request. Do this with caution in live environments.
 

@@ -16,8 +16,8 @@ So, there are basically two places to register and call hooks, in zesk:
 
 ## Call a hook
 
-    zesk\Hooks::call($hook, ...);
-	zesk\Hooks::call_arguments($hook, array $arguments, $default=null);
+    zesk()->hooks->call($hook, ...);
+	zesk()->hooks->call_arguments($hook, array $arguments, $default=null);
 	
 And in any object which inherits "Hookable" which ... is most of them:
 
@@ -73,11 +73,11 @@ Note as well that we can also TODO
 
 How do you get your hook called, you say? In one of three ways:
 
-- Call `zesk\Hooks::add($hook, $function, $argument_definition)` to register your hook in the global hook tables
-- Create a method called "hook_$hook" inside of a hookable class or subclass.
-- Register your class with `zesk::all_hook($method)`
+- Call `zesk()->hooks->add($hook, $function)` to register your hook in the global hook tables
+- Create a method called "`hook_$hook`" inside of a hookable class or subclass.
+- Register your class with `zesk()->classes->register()` and then invoke using `zesk()->hooks->all_call($method)`
 
-`zesk::hook` and `zesk::hook_array` are essentially just buckets where you can register your hook. 
+`zesk()->hooks->call` and `zesk()->hooks->call_arguments` are essentially just buckets where you can register your hook. 
 Zesk global hooks are registration-based. 
 
 Object-hooks are method space declaration. Meaning if you create a method in your object which is
@@ -103,7 +103,7 @@ registering your class will you be able to be called at the appropriate place.
 	}
 	
 	$product = Object::factory('Product')->fetch(23);
-	zesk::all_hook("Module::add_to_cart", $product);
+	zesk()->hooks->call_all("Module::add_to_cart", $product);
 	
 Calls method "add_to_cart" in all classes of type "Module" (if the method exists)
 	

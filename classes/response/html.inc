@@ -585,7 +585,7 @@ class Response_HTML extends Response_Text {
 			} else {
 				assert(array_key_exists('href', $attrs));
 				$media = avalue($attrs, 'media', 'screen');
-				list($href, $file_path) = self::resource_date($attrs['href'], $attrs);
+				list($href, $file_path) = $this->resource_date($attrs['href'], $attrs);
 				if ($href) {
 					$attrs['file_path'] = $file_path;
 					$attrs['href_original'] = $attrs['href'];
@@ -624,8 +624,13 @@ class Response_HTML extends Response_Text {
 	 * @param string $resource_path
 	 * @param unknown $route_expire
 	 */
-	static private function resource_path_route($resource_path, $route_expire) {
-		$path = zesk::cache_path(path("resources", $resource_path));
+	private function resource_path_route($resource_path, $route_expire) {
+		global $zesk;
+		/* @var $zesk zesk\Kernel */
+		$path = $this->application->cache_path(array(
+			"resources",
+			$resource_path
+		));
 		if (file_exists($path)) {
 			if (!$route_expire) {
 				return $path;
@@ -635,9 +640,8 @@ class Response_HTML extends Response_Text {
 				return $path;
 			}
 		}
-		$application = Application::instance();
 		dir::depend(dirname($path), 0770);
-		$content = $application->content($resource_path);
+		$content = $this->application->content($resource_path);
 		file_put_contents($path, $content);
 		return $path;
 	}
@@ -648,7 +652,7 @@ class Response_HTML extends Response_Text {
 	 * @param array $attributes
 	 * @return string
 	 */
-	static protected function resource_path($_path, array $attributes) {
+	protected function resource_path($_path, array $attributes) {
 		$root_dir = $cdn = $share = $is_route = null;
 		$route_expire = zesk::get('Response_HTML::resource_path_route_expire', 600); // 10 minutes
 		extract($attributes, EXTR_IF_EXISTS);
@@ -659,7 +663,7 @@ class Response_HTML extends Response_Text {
 		} else if ($share) {
 			return Controller_Share::realpath($_path);
 		} else if ($is_route) {
-			return self::resource_path_route($_path, $route_expire);
+			return $this->resource_path_route($_path, $route_expire);
 		} else {
 			return null;
 		}
@@ -673,9 +677,9 @@ class Response_HTML extends Response_Text {
 	 *        	Passed to resource_path
 	 * @return array First item is the URI, 2nd is the full path to the file
 	 */
-	static protected function resource_date($path, array $attributes) {
+	protected function resource_date($path, array $attributes) {
 		$query = array();
-		$file = self::resource_path($path, $attributes);
+		$file = $this->resource_path($path, $attributes);
 		if (!$file || !is_file($file)) {
 			log::warning("Resource $path not found at $file");
 			return array(
@@ -1035,7 +1039,7 @@ class Response_HTML extends Response_Text {
 				} else if (url::valid($attrs['src'])) {
 					$script_attributes['src'] = $attrs['src'];
 				} else {
-					list($resource_path, $file_path) = self::resource_date($attrs['src'], $attrs);
+					list($resource_path, $file_path) = $this->resource_date($attrs['src'], $attrs);
 					if ($resource_path) {
 						$script_attributes['src'] = $resource_path;
 						if ($cache_scripts && $file_path) {

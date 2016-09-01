@@ -985,7 +985,6 @@ function path_from_array($separator = '/', array $mixed) {
 	return $r;
 }
 
-
 /**
  * Create a file path and ensure only one slash appears between path entries
  *
@@ -1267,7 +1266,6 @@ function _zesk_global_key($key) {
 function zesk_global_key_normalize($key) {
 	return implode(ZESK_GLOBAL_KEY_SEPARATOR, _zesk_global_key($key));
 }
-
 
 /**
  * Get our global Zesk kernel

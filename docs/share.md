@@ -15,7 +15,7 @@ No, in Zesk, you should have a very small document root directory which contains
  - public/js/site.js
  - public/css/site.css
  
-The `public` directory is the `Application::document_root` so that no application files are exposed.
+The `public` directory is the `zesk()->paths->document()` so that no application files are exposed.
 
 So, how do we share our module resources?
 
@@ -25,7 +25,7 @@ Unfortunately, for now, this directory path is reserved. TODO: Change it to some
 
 But here's how it works. You register a `share path` using:
 
-	Application::instance()->share_path("/path/to/somwhere", "prefix");
+	app()->share_path("/path/to/somwhere", "prefix");
 	
 So that now when I visit:
 

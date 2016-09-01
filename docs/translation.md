@@ -67,6 +67,7 @@ The local names are used when loading files. All language files are (typically) 
 This way the majority of translated terms can be in a single, common file for a language, with specific country changes then in the dialect files.
 
 Finally, files are loaded from zesk's root directory first, then from the application's directory
+
 # Auto-localization
 
 While writing an application, it's nice to get a sense of what words are being translated. You can turn on "locale_auto" as a [global configuration option](./globals.md) in order to have all translated words written to an ever-growing list in 

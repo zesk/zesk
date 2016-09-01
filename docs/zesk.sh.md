@@ -48,8 +48,9 @@ The **Zesk Application File** configures the application and **Zesk**. The simpl
 	if (!defined('ZESK_ROOT')) {
 		define('ZESK_ROOT', dirname(ZESK_APPLICATION_ROOT) . "/zesk/");
 	}
-	require_once ZESK_ROOT . 'zesk.inc';
-	zesk::autoload_path(zesk::application_root('classes'));
+	$zesk = require_once ZESK_ROOT . 'zesk.inc';
+	$zesk->autoloader->path($zesk->paths->application('classes'));
+	$zesk->application_class = "MyApp";
 	Application::instance()->configure();
 
 Note that it defines `ZESK_ROOT`, includes `zesk.inc` and configures the application. All other application logic such as handling login or session management should be handled elsewhere.

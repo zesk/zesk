@@ -203,6 +203,11 @@ class Application extends \Hookable implements \Interface_Theme {
 	private $configured_was_run = false;
 	
 	/**
+	 * @var array:string
+	 */
+	private $content_recursion = false;
+	
+	/**
 	 *
 	 * @param unknown $options        	
 	 */
@@ -438,24 +443,25 @@ class Application extends \Hookable implements \Interface_Theme {
 		
 		$hook_callback = $result_callback = null;
 		
-// 		global $last_microtime;
-// 		$last_microtime = microtime(true);
-// 		$result_callback = function ($callable, $previous_result, $current_result) {
-// 			global $last_microtime;
-// 			global $zesk;
-// 			/* @var $zesk zesk\Kernel */
-// 			$now = microtime(true);
-// 			$duration = $now - $last_microtime;
-// 				//zesk::profile_timer(zesk::callable_string($callable), $now - $last_microtime);
-// TODO: This results in all output stopping? WTF? Recursion?
-// 			$zesk->logger->debug("{callable} initialized in {duration} seconds\n", array(
-// 				"callable" => zesk::callable_string($callable),
-// 				"duration" => $duration
-// 			));
-// 			$last_microtime = $now;
-// 			return $current_result;
-// 		};
+		// 		global $last_microtime;
+		// 		$last_microtime = microtime(true);
+		// 		$result_callback = function ($callable, $previous_result, $current_result) {
+		// 			global $last_microtime;
+		// 			global $zesk;
+		// 			/* @var $zesk zesk\Kernel */
+		// 			$now = microtime(true);
+		// 			$duration = $now - $last_microtime;
+		// 				//zesk::profile_timer(zesk::callable_string($callable), $now - $last_microtime);
+		// TODO: This results in all output stopping? WTF? Recursion?
+		// 			$zesk->logger->debug("{callable} initialized in {duration} seconds\n", array(
+		// 				"callable" => zesk::callable_string($callable),
+		// 				"duration" => $duration
+		// 			));
+		// 			$last_microtime = $now;
+		// 			return $current_result;
+		// 		};
 		
+
 		$this->hooks->call_arguments('configured', array(
 			$this
 		), null, $hook_callback, $result_callback); // System level
@@ -497,6 +503,7 @@ class Application extends \Hookable implements \Interface_Theme {
 		if (!$class) {
 			throw new \Exception_Configuration("Application::instance() zesk::application_class() is empty");
 		}
+		/* @var $application self */
 		$application = self::$singleton = zesk::factory($class, $options);
 		$application->theme_path(zesk::theme_path_default());
 		return $application;
@@ -885,6 +892,8 @@ class Application extends \Hookable implements \Interface_Theme {
 	 * - Render response
 	 */
 	public function main() {
+		global $zesk;
+		
 		$this->hook("main");
 		
 		$this->variables = array();
@@ -893,7 +902,7 @@ class Application extends \Hookable implements \Interface_Theme {
 		if (($router = $this->router()) !== null) {
 			try {
 				log::debug("App bootstrap took {seconds} seconds", array(
-					"seconds" => sprintf("%.3f", microtime(true) - zesk::get("init"))
+					"seconds" => sprintf("%.3f", microtime(true) - $zesk->initialization_time)
 				));
 				$template = $this->_main_route($router);
 			} catch (Exception $exception) {
@@ -924,6 +933,10 @@ class Application extends \Hookable implements \Interface_Theme {
 	 * Utility for index.php file for all public-served content.
 	 */
 	final public function content($path) {
+		if (isset($this->content_recursion[$path])) {
+			return "";
+		}
+		$this->content_recursion[$path] = true;
 		$this->hook("content");
 		
 		$old_request = $this->request;
@@ -950,6 +963,8 @@ class Application extends \Hookable implements \Interface_Theme {
 		$this->route = $this->router->route = $old_route;
 		$this->request = $old_request;
 		$this->response = $old_response;
+		
+		unset($this->content_recursion[$path]);
 		
 		return $content;
 	}

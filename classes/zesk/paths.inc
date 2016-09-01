@@ -122,7 +122,12 @@ class Paths {
 	
 	/**
 	 * Constuct a new Paths manager
-	 *
+	 * 
+	 * Modifies and initializes global HOME
+	 * 
+	 * Adds a configured hook
+	 * 
+	 * @global HOME
 	 * @param Configuration $config        	
 	 */
 	public function __construct(Kernel $zesk) {
@@ -132,6 +137,8 @@ class Paths {
 		$this->_init_application_root($config);
 		
 		$this->_init_paths();
+		
+		$zesk->configuration->home = $this->home;
 		
 		$zesk->hooks->add(Hooks::hook_configured, array(
 			$this,

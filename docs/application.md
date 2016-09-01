@@ -62,7 +62,7 @@ This will allow you to have Zesk installed in different locations on your develo
 				$root = self::_find_root();
 				define('ZESK_ROOT', rtrim($root, "/") . "/");
 			}
-			require_once ZESK_ROOT . 'zesk.inc';
+			return require_once ZESK_ROOT . 'zesk.inc';
 		}
 	}
 
@@ -102,12 +102,12 @@ Your application file solely handles setting up the context (configuration) for 
 	/*
 	 * Load Zesk
 	 */
-	_zesk_loader_::init();
+	$zesk = _zesk_loader_::init();
 
 	/*
 	 * Allow our application to be found
 	 */
-	zesk::autoload_path(ZESK_APPLICATION_ROOT . 'classes');
+	$zesk->autoloader->path(ZESK_APPLICATION_ROOT . 'classes');
 
 	/*
 	 * Configure our application
@@ -142,7 +142,11 @@ So, how would you use this?
 
 #### Development
 
-Matt is a developer working on Mac OS X, his computer name is `basura` and he also works on a laptop named `kermit`. He creates the following files
+Matt is a developer working on Mac OS X, his computer name is `basura` and he also works on a laptop named `kermit`. He creates the following files:
+
+	awesome.application.com
+	etc/
+		awe
 
 ## Application flow
 
@@ -156,8 +160,9 @@ For web applications, you should create an `index.php` file with the following c
 		$application = Application::instance();
 		$application->index();
 	} catch (Exception $e) {
+		global $zesk;
 		$application = Application::instance();
-		echo $application->theme("page", zesk::theme(zesk\Classes::hierarchy($e), array(
+		echo $application->theme("page", $application->theme($zesk->classes->hierarchy($e), array(
 			"exception" => $e
 		)));
 		exit(1);

@@ -2,19 +2,17 @@
 
 Zesk globals typically contain settings and custom configurations throughout the system. They also provide a means to customize per-object behavior in an application.
 
-The main accessor for global settings is the static methods in the `zesk` class:
+The main accessor for global settings is the methods in the `zesk\Configuration` class which is accessible from the `$zesk` global.
 
-    $value = zesk::get('named-value', $default_value); 
-	zesk::set('named-value', $new_value);
+	global $zesk;
+    $value = $zesk->configuration->get('named-value', $default_value); 
+	$zesk->configuration->set('named-value', $new_value);
 	
-Like many calls in the system, you can pass in an array to get back an array:
-
-	$values = zesk::get(array('named-value' => $default_value, 'another-named-value' => $another_default_value));
-	zesk::set(array('named-value' => $new_value, 'another-named-value' => $another_new_value));
-
 # $_ZESK Global Storage
 
-All globals in Zesk are stored in the global variable `$_ZESK` which is *named similarly* to the PHP superglobals `$_SERVER`, `$_REQUEST`, etc. but is **not** a superglobal.
+The global variable `$_ZESK` is *named similarly* to the PHP superglobals `$_SERVER`, `$_REQUEST`, etc. but is **not** a superglobal.
+
+**It is solely used for initializing the zesk globals prior to loading of `zesk.inc`. Once the `$zesk` global is instantiated, the `$_ZESK` global is not longer used.**
 
 Global keys are normalized to support use in a variety of contexts, but the general rule is stray punctuation is converted to underscores, and keys are lowercase. So:
 
@@ -31,7 +29,7 @@ Also, the `$_ZESK` global structure is multi-dimensional and is accessed using a
 
 So, for example:
 
-	zesk::set("a::b::c::d", "hello");
+	$zesk->configuration->pave_set("a::b::c::d", "hello");
 	
 Would result in the global `$_ZESK` to have the value:
 
@@ -44,8 +42,6 @@ Would result in the global `$_ZESK` to have the value:
 			)
 		)
 	)
-
-It is generally a bad practice to use the global `$_ZESK` unless absolutely required. Using `zesk::get()` and its variants is considered best practice.
 
 # Locked globals
 
@@ -83,6 +79,8 @@ Finally, to enable `Settings` support in an application, simply register its hoo
 ... prior to `Application` configuration.
 
 # Reserved globals
+
+***KMD: This section needs updating, and is not accurate as of 2016-08-31.***
 
 ## `zesk_root`
 

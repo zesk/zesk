@@ -8,7 +8,7 @@ Templates are essentially PHP include files with some special features:
 Simple template engine which uses PHP includes.
 
 Supports variables passed into the template, returned from the template,
-and inherited templates by setting up `zesk::template_paths`
+and inherited templates by setting up `app()->theme_path($add_theme_path)`
 
 Templates are "stacked" to inherit parent variables settings.
 
@@ -24,6 +24,8 @@ Note that variables are also extract'ed into the local scope, so
 
     $this->account
     $account
+
+both exist within the scope if passed via a variable to a template.
 
 ## Template basics
 
@@ -42,7 +44,7 @@ Within a template, the term `$this` is always of class `Template` meaning you ca
 
 Templates are accessed similarly to other aspects of Zesk by using a search path.
 
-    zesk::template_path()
+    zesk()->paths->template()
 
 Returns the current template search path. Most templates end with `.tpl` but can end with any extension, depending on type. However, all templates, by default, are `include`d so be aware that any template code will be loaded as regular PHP.
 

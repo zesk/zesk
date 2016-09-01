@@ -1,6 +1,5 @@
 language: php
 php:
-- 5.2
 - 5.3
 - 5.4
 - 5.5
@@ -10,4 +9,4 @@ services:
 - mysql
 before_install:
   - mysql -e "create database IF NOT EXISTS test_zesk;" -uroot
-script: ./bin/zesk --Database::names::default=mysqli://root:@127.0.0.1/test_zesk --debug
+script: ./bin/zesk --Database::names::default=mysqli://root:@127.0.0.1/test_zesk test --debug --verbose --sandbox

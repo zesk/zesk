@@ -28,7 +28,7 @@ Zesk supports the following types of file extensions, and conventions:
 
 - `.php` files are intended to be invoked externally, e.g. a command line function, or a web server page request.
 - `.inc` files are intended to be included in other files.
-- `.phpt` files are unit test files, and are invoked via the PHP interpreter
+- `.phpt` files are unit test files, and are invoked via the PHP interpreter (**deprecated**)
 - `.tpl` files are template files and are invoked via the PHP interpreter, usually as an `include`
 
 PHP files of all three types should have `<?php` as the first line in the file, and the trailing `?>` should be left off to avoid trailing white space issues.

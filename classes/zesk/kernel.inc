@@ -151,22 +151,58 @@ class Kernel {
 	function __construct(array $configuration = array()) {
 		$this->_include();
 		
+		/*
+		 * Read-only. Is this a shell or console invokation of Zesk? 
+		 */
+		$this->console = PHP_SAPI === 'cli';
+		/*
+		 * Preferred newline character for line-based output
+		 */
+		$this->newline = $this->console ? "\n" : "<br />\n";
+		/*
+		 * Is this on Windows-based OS?
+		 */
+		$this->is_windows = PATH_SEPARATOR === '\\';
+		/*
+		 * Zesk's start time in microseconds 
+		 */
 		$this->initialization_time = isset($configuration['init']) ? $configuration['init'] : microtime(true);
 		
+		/*
+		 * Current process interface
+		 */
 		$this->process = new Process($this);
 		
+		/*
+		 * Configuration of components in the system
+		 */
 		$this->configuration = Configuration::factory(self::$configuration_defaults)->merge(Configuration::factory($configuration));
 		
+		/*
+		 * Add default nodes to zesk globals
+		 */
 		$this->configuration->zesk = array(
 			"paths" => array()
 		);
+		
+		/*
+		 * Create our hooks registry
+		 */
 		$this->hooks = new Hooks($this);
+		
+		/*
+		 * Initialize system paths and set up default paths for interacting with the file system
+		 */
 		$this->paths = new Paths($this);
 		
-		$this->configuration->home = $this->paths->home;
-		
+		/*
+		 * Set up logger interface for central logging
+		 */
 		$this->logger = new Logger($this);
 		
+		/*
+		 * Manage object creation, singletons, and object sharing
+		 */
 		$this->objects = new Objects($this);
 	}
 	
@@ -177,11 +213,6 @@ class Kernel {
 		$this->autoloader = new Autoloader($this);
 		
 		$this->classes = Classes::instance($this);
-		
-		$this->console = PHP_SAPI === 'cli';
-		$this->newline = $this->console ? "\n" : "<br />\n";
-		
-		$this->is_windows = PATH_SEPARATOR === '\\';
 		
 		$this->initialize();
 		
@@ -261,8 +292,8 @@ class Kernel {
 		if ($configuration->assert_callback) {
 			assert_options(ASSERT_CALLBACK, $configuration->assert_callback);
 		}
-// 		foreach (get_declared_classes() as $class) {
-// 			$this->classes->register($class);
-// 		}
+		// 		foreach (get_declared_classes() as $class) {
+		// 			$this->classes->register($class);
+		// 		}
 	}
 }

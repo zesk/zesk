@@ -6,6 +6,10 @@ The Zesk configuration file format allows for diverse structures to be embedded 
 
 	array conf::parse(array $lines, $options = array());
 
+Added August 2016:
+
+	new zesk\Configuration_Parser_CONF(...)
+	
 The main workhorse of the configuration file processing is `conf::parse` which takes a list of file lines and a set of options. 
 
 The options affect how the file is loaded, and what features are present in the file. All options are optional, but you should be aware of their defaults The options available are:
