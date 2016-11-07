@@ -1,6 +1,5 @@
 {
   "name" : "zesk/zesk",
-  "version" : "0.8.1",
   "require" : {
     "php" : ">=5.2.0"
   },
