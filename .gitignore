@@ -2,7 +2,7 @@
 .buildpath
 .cvsignore
 .project
-cache/
+/cache/
 vendor/
 *-min.js
 *.codekit
