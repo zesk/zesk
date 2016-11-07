@@ -133,6 +133,8 @@ class Net_HTTP {
 		self::Status_Insufficient_Storage => 'Insufficient Storage'
 	);
 
+	const header_content_length = "Content-Length";
+	
 	static $request_headers = array(
 		"accept" => "Accept",
 		"accept-charset" => "Accept-Charset",
@@ -143,7 +145,7 @@ class Net_HTTP {
 		"cache-control" => "Cache-Control",
 		"connection" => "Connection",
 		"cookie" => "Cookie",
-		"content-length" => "Content-Length",
+		"content-length" => self::header_content_length,
 		"content-md5" => "Content-MD5",
 		"content-type" => self::request_Content_Type,
 		"date" => "Date",

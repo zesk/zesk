@@ -1,4 +1,5 @@
 <?php
+use zesk\Object;
 
 class Control_Currency extends Control_Select_Object {
 	protected $class = "Currency";

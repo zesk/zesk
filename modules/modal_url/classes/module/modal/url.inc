@@ -14,7 +14,7 @@ class Module_Modal_URL extends Module_JSLib {
 	 *
 	 * @see Module_JSLib::hook_head()
 	 */
-	public function hook_head(Request $request, Response_HTML $response, Template $template) {
+	public function hook_head(zesk\Request $request, zesk\Response_Text_HTML $response, zesk\Template $template) {
 		$response->jquery();
 		$response->cdn_css("/share/modal_url/css/modal_url.css", array(
 			'share' => true

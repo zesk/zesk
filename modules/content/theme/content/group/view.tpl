@@ -1,39 +1,24 @@
 <?php
+/**
+ * 
+ */
+namespace zesk;
 
-/* You can override on a per-type basis in theme/content/group/type/view.tpl */
-if (false) {
-	/* @var $this Template */
-	
-	$zesk = $this->zesk;
-	/* @var $zesk zesk\Kernel */
-	
-	$application = $this->application;
-	/* @var $application TimeBank */
-	
-	$session = $this->session;
-	/* @var $session Session */
-	
-	$router = $this->router;
-	/* @var $request Router */
-	
-	$request = $this->request;
-	/* @var $request Request */
-	
-	$response = $this->response;
-	/* @var $response Response_HTML */
-	
-	$current_user = $this->current_user;
-	/* @var $current_user User */
-}
-
-$group = $this->object;
-/* @var $group Content_Group */
-
+/* @var $this \zesk\Template */
+/* @var $zesk \zesk\Kernel */
+/* @var $application \zesk\Application */
+/* @var $session \zesk\Session */
+/* @var $router \zesk\Router */
+/* @var $route \zesk\Route */
+/* @var $request \zesk\Request */
+/* @var $response \zesk\Response_Text_HTML */
+/* @var $current_user \User */
+/* @var $object Content_Group */
 $menu = $this->menu;
 
 $menu_remain = avalue($menu, "MenuRemain");
 
-$group_object = $group->group_object();
+$group_object = $object->group_object();
 if (is_string($menu_remain)) {
 	$group_object->CodeName = $menu_remain;
 	if (!$group_object->find()) {
@@ -41,33 +26,33 @@ if (is_string($menu_remain)) {
 	}
 	$html_class = strtolower($group_object->class_code_name());
 	
-	echo html::div(array(
+	echo HTML::div(array(
 		"class" => "back $html_class-back"
-	), html::a($menu['URI'], __("Back to {0}", $group->Name)));
+	), HTML::a($menu['URI'], __("Back to {0}", $object->Name)));
 	
-	echo html::div(array(
+	echo HTML::div(array(
 		"class" => $html_class
-	), $group_object->output());
+	), $group_object->theme());
 	return;
 }
 
-echo html::tag_open("div", ".article-group");
-echo html::tag("h1", $group->Name);
-if ($current_user && $current_user->can("edit", $group)) {
-	echo html::tag_open("div", ".admin-edit");
+echo HTML::tag_open("div", ".article-group");
+echo HTML::tag("h1", $object->Name);
+if ($current_user && $current_user->can("edit", $object)) {
+	echo HTML::tag_open("div", ".admin-edit");
 	$sep = "&nbsp;&middot;&nbsp;";
-	echo html::a($router->get_route('edit', $group), __("Edit {0}", $group->Name));
+	echo HTML::a($router->get_route('edit', $object), __("Edit {0}", $object->Name));
 	echo $sep;
-	echo html::a($router->get_route('list', $group), __("Manage Articles"));
+	echo HTML::a($router->get_route('list', $object), __("Manage Articles"));
 	echo $sep;
-	echo html::a($router->get_route('add', $group), __("Add {name-lower}", $group_object->class_code_name()));
-	echo html::tag_close("div");
+	echo HTML::a($router->get_route('add', $object), __("Add {name-lower}", $group_object->class_code_name()));
+	echo HTML::tag_close("div");
 }
-echo html::etag("p", array(
+echo HTML::etag("p", array(
 	"class" => "intro"
-), $group->Body);
-echo $group->theme(array(
+), $object->Body);
+echo $object->theme(array(
 	"view-item",
 	"./content/group/view-item.tpl"
 ));
-echo html::tag_close("div");
+echo HTML::tag_close("div");

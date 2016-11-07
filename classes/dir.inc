@@ -6,5 +6,12 @@
  * @author kent
  * @copyright Copyright &copy; 2013, Market Acumen, Inc.
  */
-class dir extends zesk\dir {}
+zesk()->deprecated();
+
+/**
+ * 
+ * @author kent
+ * @deprecated 2016-10
+ */
+class dir extends zesk\Directory {}
 

@@ -2,7 +2,7 @@
 class Module_LessPHP extends Module {
 	public static function hooks(zesk\Hooks $hook) {
 		$method = "links_preproccess";
-		$hook->add("Response_HTML::$method", array(
+		$hook->add("zesk\Response_Text_HTML::$method", array(
 			__CLASS__,
 			$method
 		));

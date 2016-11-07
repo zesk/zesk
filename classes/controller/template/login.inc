@@ -6,6 +6,9 @@
  * @author kent
  * @copyright Copyright &copy; 2010, Market Acumen, Inc.
  */
+use zesk\Application;
+use zesk\URL;
+
 class Controller_Template_Login extends Controller_Template {
 
 	/**
@@ -79,7 +82,7 @@ class Controller_Template_Login extends Controller_Template {
 	 */
 	protected function login_redirect() {
 		if (!$this->user->authenticated()) {
-			$url = url::add_ref($this->login_redirect, $this->request->uri());
+			$url = URL::add_ref($this->login_redirect, $this->request->uri());
 			$this->response->redirect($url, __($this->login_redirect_message));
 		}
 	}

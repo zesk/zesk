@@ -1,4 +1,10 @@
 <?php
+use zesk\Date;
+/**
+ * 
+ * @author kent
+ *
+ */
 class Control_RRule extends Control {
 	protected $render_children = false;
 	protected $child_widgets = array();
@@ -43,10 +49,11 @@ class Control_RRule extends Control {
 	}
 	static function repeat_options() {
 		return __(array(
-			'daily' => 'Every day',
-			'weekly' => 'Every week',
-			'monthly' => 'Every month',
-			'yearly' => 'Every year'
+			'none' => 'No repeat',
+			'daily' => 'Daily',
+			'weekly' => 'Weekly',
+			'monthly' => 'Monthly',
+			'yearly' => 'Yearly'
 		));
 	}
 	static function repeat_custom_options() {

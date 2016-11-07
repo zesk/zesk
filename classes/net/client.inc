@@ -6,8 +6,11 @@
  * @author Kent Davidson <kent@marketacumen.com>
  * @copyright Copyright &copy; 2008, Market Acumen, Inc.
  */
-use zesk\file as file;
-use zesk\Timestamp as Timestamp;
+use zesk\File;
+use zesk\Timestamp;
+use zesk\Exception_Syntax;
+use zesk\URL;
+use zesk\arr;
 
 abstract class Net_Client extends Options {
 	/**
@@ -35,7 +38,7 @@ abstract class Net_Client extends Options {
 	 * @return Net_Client
 	 */
 	public static function factory($url, array $options = array()) {
-		$scheme = strtolower(url::scheme($url));
+		$scheme = strtolower(URL::scheme($url));
 		$scheme = avalue(array(
 			"https" => "http"
 		), $scheme, $scheme);
@@ -57,7 +60,7 @@ abstract class Net_Client extends Options {
 	 */
 	public function __construct($url, $options = false) {
 		$this->url = $url;
-		$this->url_parts = url::parse($url);
+		$this->url_parts = URL::parse($url);
 
 		parent::__construct($options);
 		$this->inherit_global_options();

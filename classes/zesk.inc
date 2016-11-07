@@ -6,7 +6,8 @@
  * @author kent
  * @copyright Copyright &copy; 2014, Market Acumen, Inc.
  */
-
+use zesk\PHP;
+use zesk\Exception_Semantics;
 
 /**
  * Core class in zesk; required for any other functionality.
@@ -80,19 +81,6 @@ class zesk {
 	 * @var array
 	 */
 	private static $singletons = array();
-	
-	/**
-	 * Special values used in weights to sort things first or last always
-	 *
-	 * @see zesk::sort_weight_array
-	 * @var array
-	 */
-	private static $weight_specials = array(
-		'zesk-first' => -1e300,
-		'first' => -1e299,
-		'last' => 1e299,
-		'zesk-last' => 1e300
-	);
 	
 	/**
 	 * Cache normalize_global_key calls
@@ -180,31 +168,35 @@ class zesk {
 	public static function load($__file__) {
 		global $zesk;
 		/* @var $zesk zesk\Kernel */
-		zesk::deprecated();
+		zesk()->deprecated();
 		return $zesk->load($__file__);
 	}
 	
 	/**
 	 * Get/Set temporary path
 	 *
+	 * @deprecated 2016-08 
 	 * @param string $add        	
 	 * @return string
 	 */
 	public static function temporary_path($add = null) {
 		global $zesk;
 		/* @var $zesk zesk\Kernel */
+		zesk()->deprecated();
 		return $zesk->paths->temporary($add);
 	}
 	
 	/**
 	 * Get/Set data storage path
 	 *
+	 * @deprecated 2016-08 
 	 * @param string $add        	
 	 * @return string
 	 */
 	public static function data_path($add = null) {
 		global $zesk;
 		/* @var $zesk zesk\Kernel */
+		zesk()->deprecated();
 		return $zesk->paths->data($add);
 	}
 	
@@ -226,6 +218,7 @@ class zesk {
 	 */
 	public static function command_path($add = null) {
 		global $zesk;
+		zesk()->deprecated();
 		/* @var $zesk zesk\Kernel */
 		return $zesk->paths->command($add);
 	}
@@ -248,9 +241,8 @@ class zesk {
 	 * @deprecated 2016-08
 	 */
 	public static function zesk_command_path($add = null) {
-		global $zesk;
-		/* @var $zesk zesk\Kernel */
-		return $zesk->paths->zesk_command($add);
+		zesk()->deprecated();
+		return app()->zesk_command_path($add);
 	}
 	
 	/**
@@ -278,82 +270,45 @@ class zesk {
 	 * @see debug_backtrace()
 	 * @see zesk::profiler
 	 * @see debug::calling_function
+	 * @deprecated 2016-09
 	 */
 	public static function calling_function($depth = 1, $include_line = true) {
-		$bt = debug_backtrace();
-		array_shift($bt); // Remove this function from the stack
-		if ($depth > 0) {
-			while ($depth-- !== 0) {
-				array_shift($bt);
-			}
-		}
-		$top = array_shift($bt);
-		if (!$top) {
-			return '-no calling function $depth deep-';
-		}
-		return avalue($top, "file") . " " . avalue($top, "class") . avalue($top, "type") . $top["function"] . ($include_line ? ':' . avalue($top, 'line') : '');
-	}
-	
-	/**
-	 * Internal call to initialize profiler structure
-	 */
-	private static function _profiler() {
-		if (self::$profiler === null) {
-			self::$profiler = new stdClass();
-			self::$profiler->calls = array();
-			self::$profiler->times = array();
-			self::add_hook("</body>", function () {
-				echo "<pre>";
-				asort(zesk::$profiler->calls);
-				asort(zesk::$profiler->times);
-				print_r(zesk::$profiler);
-				echo "</pre>";
-			});
-		}
-		return self::$profiler;
+		zesk()->deprecated();
+		return calling_function($depth + 1, $include_line);
 	}
 	
 	/**
 	 * Time a function call
 	 *
+	 * @deprecated 2016-10
 	 * @param string $item
 	 *        	Key
 	 * @param double $seconds
 	 *        	How long it took
 	 */
 	public static function profile_timer($item, $seconds) {
-		$profiler = self::_profiler();
-		if (array_key_exists($item, self::$profiler)) {
-			$profiler->times[$item] = $profiler->times[$item] + $seconds;
-		} else {
-			$profiler->times[$item] = $seconds;
-		}
+		zesk()->profile_timer($item, $seconds);
 	}
 	
 	/**
 	 * Internal profiler to determine who is calling what function how often.
 	 * Debugging only
-	 *
+	 * @deprecated 2016-10
 	 * @param numeric $depth        	
 	 */
 	public static function profiler($depth = 2) {
-		$profiler = self::_profiler();
-		$fkey = self::calling_function($depth + 1, true);
-		if (array_key_exists($fkey, self::$profiler->calls)) {
-			$profiler->calls[$fkey]++;
-		} else {
-			$profiler->calls[$fkey] = 1;
-		}
+		zesk()->profiler($depth);
 	}
 	
 	/**
 	 * Reset all globals to null and call hook('reset')
+	 *
 	 * @deprecated 2016-08
 	 */
 	public static function reset(array $globals = array()) {
 		global $zesk;
 		/* @var $zesk zesk\Kernel */
-		$zesk->reset();
+		$zesk->reset($globals);
 	}
 	
 	/**
@@ -584,7 +539,6 @@ class zesk {
 	/**
 	 * Path relative to the Zesk Application Root
 	 *
-	 * @todo Do I need the constant?
 	 * @see self::root
 	 * @param string $path
 	 *        	Path to add to the application root
@@ -592,10 +546,9 @@ class zesk {
 	 * @deprecated 2016-08
 	 */
 	public static function application_root($path = null) {
-		if (defined('ZESK_APPLICATION_ROOT')) {
-			return path(ZESK_APPLICATION_ROOT, $path);
-		}
-		return path(self::get('zesk::application_root', ZESK_ROOT), $path);
+		global $zesk;
+		/* @var $zesk zesk\Kernel */
+		return path($zesk->paths->application, $path);
 	}
 	
 	/**
@@ -617,9 +570,12 @@ class zesk {
 	 *        	Set the global Zesk Application class name
 	 * @return string class name of the application use for the current application
 	 * @global Application::class
+	 * @deprecated 2016-09
+	 * @see $zesk->application_class
 	 */
 	public static function application_class($set = null) {
 		global $zesk;
+		zesk()->deprecated();
 		/* @var $zesk zesk\Kernel */
 		if ($set !== null) {
 			$zesk->application_class = $set;
@@ -637,26 +593,11 @@ class zesk {
 	 *        	Directory to search for, or list of directories to search for (array)
 	 * @return string Full path of found directory, or null if not found
 	 * @see self::find_file
+	 * @deprecated 2016-09
 	 */
 	public static function find_directory(array $paths, $directory = null) {
-		if (is_array($directory)) {
-			foreach ($paths as $path) {
-				foreach ($directory as $d) {
-					$the_path = path($path, $d);
-					if (is_dir($the_path)) {
-						return $the_path;
-					}
-				}
-			}
-		} else {
-			foreach ($paths as $path) {
-				$the_path = path($path, $directory);
-				if (is_dir($the_path)) {
-					return $the_path;
-				}
-			}
-		}
-		return null;
+		zesk()->deprecated();
+		return zesk\Directory::find($paths, $directory);
 	}
 	
 	/**
@@ -668,26 +609,11 @@ class zesk {
 	 *        	File name to search for, or list of file names to search for (array)
 	 * @return string Full path of found file, or null if not found
 	 * @see self::find_directory
+	 * @deprecated 2016-09
 	 */
 	public static function find_file(array $paths, $file) {
-		if (is_array($file)) {
-			foreach ($paths as $path) {
-				foreach ($file as $f) {
-					$the_path = path($path, $f);
-					if (is_file($the_path)) {
-						return $the_path;
-					}
-				}
-			}
-		} else {
-			foreach ($paths as $path) {
-				$the_path = path($path, $file);
-				if (is_file($the_path)) {
-					return $the_path;
-				}
-			}
-		}
-		return null;
+		zesk()->deprecated();
+		return zesk\File::find_first($paths, $file);
 	}
 	
 	/**
@@ -699,29 +625,12 @@ class zesk {
 	 *        	File name to search for, or list of file names to search for (array)
 	 * @return array list of files found, in order
 	 * @see self::find_directory
+	 * @deprecated 2016-09
 	 */
 	public static function find_files(array $paths, $file) {
-		$result = array();
-		if (is_array($file)) {
-			foreach ($paths as $path) {
-				foreach ($file as $f) {
-					$the_path = path($path, $f);
-					if (is_file($the_path)) {
-						$result[] = $the_path;
-					}
-				}
-			}
-		} else {
-			foreach ($paths as $path) {
-				$the_path = path($path, $file);
-				if (is_file($the_path)) {
-					$result[] = $the_path;
-				}
-			}
-		}
-		return $result;
+		zesk()->deprecated();
+		return zesk\File::find_all($paths, $file);
 	}
-	
 	/**
 	 * Search for a file in the given paths, converting filename to a directory path by converting _
 	 * to /, and look for
@@ -741,7 +650,7 @@ class zesk {
 	 */
 	public static function file_search(array $paths, $file_prefix, array $extensions, &$tried_path = null) {
 		global $zesk;
-		zesk::deprecated();
+		zesk()->deprecated();
 		/* @var $zesk zesk\Kernel */
 		return $zesk->autoloader->file_search($paths, $file_prefix, $extensions, $tried_path);
 	}
@@ -757,7 +666,7 @@ class zesk {
 	 * @deprecated 2016-08
 	 */
 	public static function path($separator = '/', array $mixed) {
-		zesk::deprecated();
+		zesk()->deprecated();
 		return path_from_array($separator, $mixed);
 	}
 	
@@ -778,8 +687,6 @@ class zesk {
 		if (defined("ZESK_DEBUG_SET_ALREADY") && ZESK_DEBUG_SET_ALREADY) {
 			self::$debug_set_already = true;
 		}
-		
-		
 	}
 	
 	/**
@@ -792,7 +699,7 @@ class zesk {
 	 * @return string
 	 */
 	public static function href($path) {
-		if (url::valid($path)) {
+		if (URL::valid($path)) {
 			return $path;
 		}
 		$prefix = zesk::document_root_prefix();
@@ -868,14 +775,13 @@ class zesk {
 	 * @return integer
 	 */
 	public static function pid() {
-		zesk::deprecated();
+		zesk()->deprecated();
 		return intval(getmypid());
 	}
 	
 	/**
 	 *
 	 * @deprecated 2016-08
-	 * @todo Deprecate running or is_alive
 	 * @param unknown $pid        	
 	 * @throws Exception_Unimplemented
 	 */
@@ -883,7 +789,7 @@ class zesk {
 		global $zesk;
 		/* @var $zesk zesk\Kernel */
 		if ($pid === null) {
-			return $zesk->process->id;
+			return $zesk->process->id();
 		}
 		return $zesk->process->alive($pid);
 	}
@@ -903,20 +809,17 @@ class zesk {
 	
 	/**
 	 * For cordoning off old, dead code
+	 * @deprecated 2016-09
 	 */
 	public static function obsolete() {
-		log::error("Obsolete function called {function}", array(
-			'function' => self::calling_function(2)
-		));
-		if (Application::instance()->development()) {
-			backtrace();
-		}
+		zesk()->obsolete();
 	}
 	
 	/**
 	 * Enables a method to be tagged as "deprecated" To disabled deprecated function, call with
 	 * boolean value "false"
 	 *
+	 * @deprecated 2016-09
 	 * @param mixed $set
 	 *        	Value indicating how to handle deprecated functions: "exception" throws an
 	 *        	exception, "log"
@@ -924,24 +827,9 @@ class zesk {
 	 * @return mixed Current value
 	 */
 	public static function deprecated($set = null) {
-		if ($set !== null) {
-			self::$deprecated = $set;
-		} else if (self::$deprecated) {
-			switch (self::$deprecated) {
-				case "exception":
-					throw new Exception_Deprecated(_backtrace());
-				case "log":
-					log::error("deprecated function called: {calling_function}\n{backtrace}", array(
-						"calling_function" => self::calling_function(),
-						"backtrace" => _backtrace()
-					));
-					break;
-				default :
-					backtrace();
-					exit();
-			}
-		}
-		return self::$deprecated;
+		global $zesk;
+		/* @var $zesk zesk\Kernel */
+		$zesk->deprecated();
 	}
 	
 	/**
@@ -959,12 +847,13 @@ class zesk {
 	 * Useful for cleaning hooks generated automatically or
 	 * from user input.
 	 *
+	 * @deprecated 2016-09
 	 * @param string $func
 	 *        	String to clean
 	 * @return string
 	 */
 	public static function clean_function($func) {
-		return preg_replace("/[^a-zA-Z0-9_]/", '_', $func);
+		return zesk\PHP::clean_function($func);
 	}
 	
 	/**
@@ -972,12 +861,13 @@ class zesk {
 	 * Useful for cleaning user input for conversion to a
 	 * path or file name
 	 *
+	 * @deprecated 2016-09
 	 * @param string $func
 	 *        	String to clean
 	 * @return string
 	 */
 	public static function clean_path($path) {
-		return preg_replace("%[^-_./a-zA-Z0-9]%", '_', str_replace("_", "/", $path));
+		return zesk\File::clean_path($path);
 	}
 	
 	/* ===============================================================================================
@@ -999,7 +889,7 @@ class zesk {
 	public static function all_subclasses($class) {
 		global $zesk;
 		/* @var $zesk zesk\Kernel */
-		zesk::deprecated();
+		zesk()->deprecated();
 		return $zesk->classes->subclasses($class);
 	}
 	
@@ -1009,7 +899,7 @@ class zesk {
 	 * @deprecated 2016-08
 	 */
 	public static function all_hook($method) {
-		zesk::deprecated();
+		zesk()->deprecated();
 		$arguments = func_get_args();
 		array_shift($arguments);
 		return self::all_hook_array($method, $arguments);
@@ -1025,12 +915,11 @@ class zesk {
 	 *        	List of methods (array or ;-separated string)
 	 * @deprecated 2016-08
 	 * @see zesk\Hooks::find_all
-	 * @todo Where is this used?
 	 */
 	public static function find_all_hooks($methods) {
 		global $zesk;
 		/* @var $zesk zesk\Kernel */
-		zesk::deprecated();
+		zesk()->deprecated();
 		return $zesk->hooks->find_all($methods);
 	}
 	
@@ -1168,15 +1057,17 @@ class zesk {
 	 * @see usort
 	 * @see uasort
 	 * @return integer
+	 * @deprecated 2016-10
 	 */
 	public static function sort_weight_array(array $a, array $b) {
+		zesk()->deprecated();
 		// Get weight a, convert to double
 		$aw = array_key_exists('weight', $a) ? $a['weight'] : 0;
-		$aw = doubleval(array_key_exists("$aw", self::$weight_specials) ? self::$weight_specials[$aw] : $aw);
+		$aw = doubleval(array_key_exists("$aw", zesk\Kernel::$weight_specials) ? zesk\Kernel::$weight_specials[$aw] : $aw);
 		
 		// Get weight b, convert to double
 		$bw = array_key_exists('weight', $b) ? $b['weight'] : 0;
-		$bw = doubleval(array_key_exists("$bw", self::$weight_specials) ? self::$weight_specials[$bw] : $bw);
+		$bw = doubleval(array_key_exists("$bw", zesk\Kernel::$weight_specials) ? zesk\Kernel::$weight_specials[$bw] : $bw);
 		
 		// a < b -> -1
 		// a > b -> 1
@@ -1187,36 +1078,12 @@ class zesk {
 	/**
 	 * Convert a value automatically into a native PHP type
 	 *
+	 * @deprecated 2016-09
 	 * @param mixed $value        	
 	 * @return mixed
 	 */
 	public static function autotype($value) {
-		if (is_array($value)) {
-			foreach ($value as $k => $v) {
-				$value[$k] = self::autotype($v);
-			}
-			return $value;
-		}
-		if (!is_string($value)) {
-			return $value;
-		}
-		// Convert numeric types first, then boolean
-		if (preg_match('/^[0-9]+$/', $value)) {
-			return to_integer($value);
-		}
-		if (is_numeric($value)) {
-			return to_double($value);
-		}
-		if (($b = to_bool($value, null)) !== null) {
-			return $b;
-		}
-		if ($value === 'null') {
-			return null;
-		}
-		if (unquote($value, '{}[]') !== $value) {
-			return json::decode($value, true);
-		}
-		return $value;
+		return zesk\PHP::autotype($value);
 	}
 	
 	/**
@@ -1232,6 +1099,7 @@ class zesk {
 	 * @return array Lines output by the command (returned by exec)
 	 * @see exec
 	 * @see zesk::execute_array
+	 * @deprecated 2016-09
 	 */
 	public static function execute($command) {
 		$args = func_get_args();
@@ -1265,29 +1133,14 @@ class zesk {
 	 * @param boolean $passthru
 	 *        	Whether to use passthru vs exec
 	 * @throws Exception_Command
+	 * @deprecated 2016-09
 	 * @return array Lines output by the command (returned by exec)
 	 * @see exec
 	 */
 	public static function execute_array($command, array $args = array(), $passthru = false) {
-		foreach ($args as $i => $arg) {
-			$args[$i] = escapeshellarg($arg);
-		}
-		$raw_command = map($command, $args);
-		$result = 0;
-		$output = array();
-		if (self::getb('zesk::debug_execute')) {
-			log::debug("Running command: {raw_command}", compact("raw_command"));
-		}
-		if ($passthru) {
-			passthru($raw_command, $result);
-			$output = null;
-		} else {
-			exec($raw_command, $output, $result);
-		}
-		if (intval($result) !== 0) {
-			throw new Exception_Command($raw_command, $result, is_array($output) ? $output : array());
-		}
-		return $output;
+		global $zesk;
+		/* @var $zesk zesk\Kernel */
+		return $zesk->process->execute_arguments($command, $args, $passthru);
 	}
 	
 	/**
@@ -1337,7 +1190,7 @@ class zesk {
 	 */
 	public static function document_init($document_root = null, $prefix = null) {
 		global $zesk;
-		zesk::deprecated();
+		zesk()->deprecated();
 		/* @var $zesk zesk\Kernel */
 		$zesk->logger->error("{method} is now a no-op, use \$zesk->paths->document()", array(
 			'method' => __METHOD__
@@ -1363,9 +1216,9 @@ class zesk {
 	 */
 	public static function document_root($set = null, $prefix = null) {
 		global $zesk;
-		zesk::deprecated();
+		zesk()->deprecated();
 		/* @var $zesk zesk\Kernel */
-		return $zesk->paths->document($set, $prefix);
+		return app()->document_root($set, $prefix);
 	}
 	
 	/**
@@ -1385,9 +1238,9 @@ class zesk {
 	 */
 	public static function document_root_prefix($set = null) {
 		global $zesk;
-		zesk::deprecated();
+		zesk()->deprecated();
 		/* @var $zesk zesk\Kernel */
-		return $zesk->paths->document_prefix($set);
+		return app()->document_root_prefix($set);
 	}
 	
 	/**
@@ -1400,7 +1253,7 @@ class zesk {
 	 * @return boolean If all exist, returns true, otherwise false
 	 */
 	public static function theme_exists($types, $args = array()) {
-		zesk::deprecated();
+		zesk()->deprecated();
 		return Application::instance()->theme_exists($types, $args);
 	}
 	
@@ -1412,7 +1265,7 @@ class zesk {
 	 * @return string
 	 */
 	public static function theme($types, $arguments = array(), array $options = array()) {
-		zesk::deprecated();
+		zesk()->deprecated();
 		return Application::instance()->theme($types, $arguments, $options);
 	}
 	
@@ -1428,7 +1281,7 @@ class zesk {
 	 * @return array The ordered list of paths to search for theme files.
 	 */
 	public static function theme_path($add = null, $first = true) {
-		zesk::deprecated();
+		zesk()->deprecated();
 		return Application::instance()->theme_path($add, $first);
 	}
 	
@@ -1441,7 +1294,7 @@ class zesk {
 	 * @return string
 	 */
 	static function normalize_global_key($key) {
-		zesk::deprecated();
+		zesk()->deprecated();
 		return _zesk_global_key($key);
 	}
 	
@@ -1464,7 +1317,7 @@ class zesk {
 	 * @see zesk()->hooks->register_class
 	 */
 	public static function hooks($classes = null, $options = null) {
-		zesk::deprecated();
+		zesk()->deprecated();
 		return zesk()->hooks->register_class($classes, $options);
 	}
 	
@@ -1475,7 +1328,7 @@ class zesk {
 	 * @return boolean
 	 */
 	public static function production() {
-		zesk::deprecated();
+		zesk()->deprecated();
 		return !self::development();
 	}
 	
@@ -1487,7 +1340,7 @@ class zesk {
 	 * @return boolean
 	 */
 	public static function development($set = null) {
-		zesk::deprecated();
+		zesk()->deprecated();
 		if (is_bool($set)) {
 			self::set('development', $set);
 		}
@@ -1500,7 +1353,7 @@ class zesk {
 	 * @see zesk()->hooks->has
 	 */
 	public static function has_hook($hooks = null) {
-		zesk::deprecated();
+		zesk()->deprecated();
 		return zesk()->hooks->has($hooks);
 	}
 	
@@ -1510,7 +1363,7 @@ class zesk {
 	 * @see zesk()->hooks->remove
 	 */
 	public static function clear_hook($hook) {
-		zesk::deprecated();
+		zesk()->deprecated();
 		return zesk()->hooks->remove($hook);
 	}
 	
@@ -1520,7 +1373,7 @@ class zesk {
 	 * @see zesk()->hooks->remove
 	 */
 	public static function unhook($hook) {
-		zesk::deprecated();
+		zesk()->deprecated();
 		zesk()->hooks->remove($hook);
 	}
 	
@@ -1530,7 +1383,7 @@ class zesk {
 	 * @see zesk()->hooks->add
 	 */
 	public static function add_hook($hook, $function = null, $options = array()) {
-		zesk::deprecated();
+		zesk()->deprecated();
 		return zesk()->hooks->add($hook, $function, $options);
 	}
 	/**
@@ -1542,7 +1395,7 @@ class zesk {
 	 * @return mixed
 	 */
 	public static function hook_alias($oldname = null, $newname = null) {
-		zesk::deprecated();
+		zesk()->deprecated();
 		return zesk()->hooks->alias($oldname, $newname);
 	}
 	
@@ -1558,7 +1411,7 @@ class zesk {
 	 * @return string|NULL|mixed|string|number
 	 */
 	public static function hook_array($hook, $arguments = array(), $default = null, $hook_callback = null, $result_callback = null) {
-		zesk::deprecated();
+		zesk()->deprecated();
 		return zesk()->hooks->call_arguments($hook, $arguments, $default, $hook_callback, $result_callback);
 	}
 	
@@ -1607,7 +1460,7 @@ class zesk {
 	public static function initialize($paths = false, $options = array()) {
 		/* @var $zesk Zesk */
 		global $zesk;
-		zesk::deprecated();
+		zesk()->deprecated();
 		conf::globals($paths, $options);
 	}
 	
@@ -1620,7 +1473,7 @@ class zesk {
 	public static function version() {
 		/* @var $zesk Zesk */
 		global $zesk;
-		zesk::deprecated();
+		zesk()->deprecated();
 		return zesk\Version::release();
 	}
 	
@@ -1632,7 +1485,7 @@ class zesk {
 	public static function version_string() {
 		/* @var $zesk Zesk */
 		global $zesk;
-		zesk::deprecated();
+		zesk()->deprecated();
 		return zesk\Version::string();
 	}
 	
@@ -1644,7 +1497,7 @@ class zesk {
 	public static function version_date() {
 		/* @var $zesk Zesk */
 		global $zesk;
-		zesk::deprecated();
+		zesk()->deprecated();
 		return zesk\Version::date();
 	}
 	
@@ -1656,7 +1509,7 @@ class zesk {
 	public static function register_class($class = null, $scopes = null) {
 		/* @var $zesk Zesk */
 		global $zesk;
-		zesk::deprecated();
+		zesk()->deprecated();
 		return $zesk->classes->register($class, $scopes);
 	}
 	
@@ -1673,7 +1526,7 @@ class zesk {
 	public static function class_hierarchy($mixed = null, $stop_class = null) {
 		/* @var $zesk Zesk */
 		global $zesk;
-		zesk::deprecated();
+		zesk()->deprecated();
 		return $zesk->classes->hierarchy($mixed, $stop_class);
 	}
 	
@@ -1685,7 +1538,7 @@ class zesk {
 	public static function autoload_path($add = null, $options = true) {
 		/* @var $zesk Zesk */
 		global $zesk;
-		zesk::deprecated();
+		zesk()->deprecated();
 		return $zesk->autoloader->path($add, $options);
 	}
 	
@@ -1695,7 +1548,7 @@ class zesk {
 	 * @deprecated 2016-08 Too slow
 	 */
 	public static function all_hook_array($methods, array $arguments = array(), $default = null, $hook_callback = null, $result_callback = null) {
-		zesk::deprecated();
+		zesk()->deprecated();
 		$methods = self::find_all_hooks($methods);
 		$result = $default;
 		foreach ($methods as $class_method) {
@@ -1715,7 +1568,7 @@ class zesk {
 	 */
 	public static function autoload_extension($add = null) {
 		global $zesk;
-		zesk::deprecated();
+		zesk()->deprecated();
 		return $zesk->autoloader->extension($add);
 	}
 	
@@ -1728,7 +1581,7 @@ class zesk {
 	 */
 	public static function module_path($add = null) {
 		global $zesk;
-		zesk::deprecated();
+		zesk()->deprecated();
 		return $zesk->paths->module($add);
 	}
 	
@@ -1805,9 +1658,9 @@ class zesk {
 	 */
 	public static function document_cache($set = null) {
 		global $zesk;
-		zesk::deprecated();
+		zesk()->deprecated();
 		if ($set !== null) {
-			$zesk->paths->document_cache = $set;
+			app()->set_document_cache($set);
 			return $set;
 		}
 		return $zesk->paths->document_cache;
@@ -1825,7 +1678,7 @@ class zesk {
 	 */
 	public static function home_path($add = null) {
 		global $zesk;
-		zesk::deprecated();
+		zesk()->deprecated();
 		return $zesk->paths->home($add);
 	}
 	
@@ -1844,7 +1697,7 @@ class zesk {
 	public static function uid_path($add = null) {
 		global $zesk;
 		/* @var $zesk zesk\Kernel */
-		zesk::deprecated();
+		zesk()->deprecated();
 		return $zesk->paths->uid($add);
 	}
 }
@@ -1852,10 +1705,10 @@ class zesk {
 /**
  * Shortcut for generating URLs - allows global manipulation of URLs in the system
  *
- * TODO - This isn't used much, should probably use it or lose it - KMD
  * @deprecated 2016-08
  */
 function u($url, $options = null) {
+	zesk()->deprecated();
 	$model = new Model_URL(zesk::href($url), $options);
 	zesk()->hooks->call('url', $model);
 	return $model->url;
@@ -1867,7 +1720,7 @@ function u($url, $options = null) {
  * @param string $path
  *        	Path to template, may be relative or absolute
  * @param array $variables
- *        	List of variables to define in Template scope
+ *        	List of variables to define in zesk\Template scope
  * @param mixed $default
  *        	Value returned if template is not found
  * @param array $values
@@ -1876,7 +1729,7 @@ function u($url, $options = null) {
  * @deprecated 2016-01-12
  */
 function tpl($path, $variables = null, $default = null, &$values = null) {
-	zesk::deprecated();
+	zesk()->deprecated();
 	backtrace();
 	return Template::instance($path, $variables, $default, $values);
 }

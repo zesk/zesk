@@ -116,11 +116,16 @@ Will match the following:
     user/42
 	user/42/
 	user/42/edit
+
+But not:
+
 	user/42/edit/member
-	
+
+(You have to specify a `user(/{User user}(/{action}*))` for that.)
+
 However, the value of `user` will be an object of class `User` and loaded using an object's hook `route_argument` which has the following syntax:
 
-	class Example extends Object {
+	class User extends zesk\User {
 		...
 		public function route_argument(Route $route, $argument) {
 			return $this->id($argument)->fetch();

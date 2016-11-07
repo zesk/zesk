@@ -7,7 +7,7 @@ namespace zesk;
  * @author kent
  *
  */
-class Class_Tag_Label extends \Class_Object {
+class Class_Tag_Label extends Class_Object {
 	public $id_column = "id";
 	public $has_one = array(
 		'owner' => 'User'

@@ -1,4 +1,7 @@
 <?php
+
+use zesk\Cache;
+
 class test_cache extends Test_Unit {
 
 	function test_register() {

@@ -5,11 +5,9 @@
  * @category Database
  */
 class Command_Database_Export extends Command {
-
 	protected $option_types = array(
 		'name' => 'string'
 	);
-
 	function run() {
 		$dbname = $this->option('name');
 		$url = $this->application->database_factory($dbname);
@@ -19,7 +17,7 @@ class Command_Database_Export extends Command {
 			return;
 		}
 		$parts = parse_url($url);
-
+		
 		echo 'DB_URL=' . $this->shell_quote($url) . "\n";
 		echo 'DB_HOST=' . $this->shell_quote(avalue($parts, 'host', '')) . "\n";
 		echo 'DB_USER=' . $this->shell_quote(avalue($parts, 'user', '')) . "\n";

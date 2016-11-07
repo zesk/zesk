@@ -7,7 +7,7 @@
  * @subpackage mail
  */
 
-use zesk\Timestamp as Timestamp;
+use zesk\Timestamp;
 
 /**
  * Pattern for matching a list of email addresses
@@ -131,11 +131,11 @@ class Mail_Message extends Object {
 		if ($value === null) {
 			return $this->content;
 		}
-		$this->content = text::set_line_breaks($value, "\r\n");
+		$this->content = Text::set_line_breaks($value, "\r\n");
 		return $this;
 	}
 	function html_body($value = null) {
-		$this->content = text::set_line_breaks($value, "\r\n");
+		$this->content = Text::set_line_breaks($value, "\r\n");
 		return $this->content_type("text/html");
 	}
 	function cc($value = null) {
@@ -311,11 +311,11 @@ class Mail_Message extends Object {
 		$extras = implode($mailBR, $extras) . $mailBR;
 		if (ZESK_DEBUG_MAIL) {
 			$ff = fopen("/tmp/Mail.log", "a");
-			fwrite($ff, "To: $to\nSubject: $subject\n" . debug::dump($extras) . "\n\n" . text::set_line_breaks($content, $mailBR) . "\n-- \n\n");
+			fwrite($ff, "To: $to\nSubject: $subject\n" . debug::dump($extras) . "\n\n" . Text::set_line_breaks($content, $mailBR) . "\n-- \n\n");
 			fclose($ff);
 			$result = true;
 		} else {
-			$result = @mail($to, trim($subject), text::set_line_breaks($content, $mailBR) . $mailBR, $extras);
+			$result = @mail($to, trim($subject), Text::set_line_breaks($content, $mailBR) . $mailBR, $extras);
 		}
 		if ($result === false) {
 			throw new Exception_Mail_Send("$to, \"$subject\"");

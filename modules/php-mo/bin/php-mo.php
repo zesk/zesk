@@ -1,11 +1,7 @@
 #!/usr/bin/env php
 <?php
-
 require_once dirname(dirname(dirname(dirname(__FILE__)))) . '/zesk.inc';
 
-Module::load('php-mo');
-cdn::add('/share/', '/share/', ZESK_ROOT . 'share/');
-log::file(STDOUT);
-log::level(log::DEBUG);
+app()->modules->load('php-mo');
 
-zesk::factory("Command_PHP_MO")->go();
+zesk()->objects->factory("Command_PHP_MO")->go();

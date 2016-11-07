@@ -1,5 +1,5 @@
 <?php
-/* @var $this Template */
+/* @var $this zesk\Template */
 $parent = $this->parent;
 if (!$parent) {
 	echo $this->empty_string;

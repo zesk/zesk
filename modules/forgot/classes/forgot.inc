@@ -1,7 +1,16 @@
 <?php
-use zesk\Timestamp as Timestamp;
+/**
+ * 
+ */
+use zesk\Timestamp;
+use zesk\Object;
+use zesk\Application;
+use zesk\Mail;
+use zesk\Request;
+use zesk\arr;
 
 /**
+ *
  * @author kent
  * @see Class_Forgot
  * @property id $id
@@ -15,16 +24,23 @@ use zesk\Timestamp as Timestamp;
  * @see Schema_Forgot
  */
 class Forgot extends Object {
-	
 	/**
-	 * 
-	 * @param zesk\Application $application
+	 * List of variables in email
+	 *
+	 * @var array
 	 */
-	public static function cron_cluster_minute(zesk\Application $application) {
+	private static $mappable_variables = array(
+		"subject"
+	);
+	/**
+	 *
+	 * @param Application $application        	
+	 */
+	public static function cron_cluster_minute(Application $application) {
 		global $zesk;
 		/* @var $zesk zesk\Kernel */
 		$expire_seconds = -abs(to_integer($zesk->configuration->path_get("Module_Forgot::expire_seconds"), 3600));
-		$query = Object::class_query_delete("Forgot")->where("Created|<=", Timestamp::now()->add_unit("second", $expire_seconds));
+		$query = $application->query_delete("Forgot")->where("Created|<=", Timestamp::now()->add_unit("second", $expire_seconds));
 		$query->execute();
 		$affected_rows = $query->affected_rows();
 		if ($affected_rows > 0) {
@@ -33,36 +49,48 @@ class Forgot extends Object {
 	}
 	
 	/**
-	 * 
-	 * @param Request $request
+	 *
+	 * @param Request $request        	
 	 * @return Mail
 	 */
 	public function notify(Request $request) {
 		$user = $this->user;
 		$variables = array(
+			"subject" => __('Forgotten password request for {user_email}'),
 			"user_login" => $user->login(),
-			"user_email" => $user->email()
+			"user_email" => $user->email(),
+			"user" => $user,
+			"forgot" => $this,
 		);
 		
-		$variables += arr::kunprefix($this->options, "notify_", true);
 		$variables += arr::kprefix($this->members(), "forgot_");
 		$variables += arr::kprefix($user->members(), "user_");
 		$variables += arr::kprefix($request->variables(), "request_");
 		$variables += arr::kprefix($request->url_parts(), "url_");
 		
-		$variables = $this->hook_array("notify_variables", array(
+		$variables = $this->call_hook_arguments("notify_variables", array(
 			$variables
 		), $variables);
-		$mail = $this->hook("notify", $variables);
+		
+		$variables = arr::kunprefix($this->options, "notify_", true) + $variables;
+		
+		/*
+		 * Map subject again 
+		 */
+		foreach (self::$mappable_variables as $key) {
+			$variables[$key] = map($variables[$key], $variables);
+		}
+		
+		$mail = $this->call_hook("notify", $variables);
 		if ($mail instanceof Mail) {
 			return $mail;
 		}
-		$mail_options = mail::load_theme($this->application, "forgot/notify", $variables);
-		return mail::mulitpart_send($mail_options);
+		$mail_options = Mail::load_theme($this->application, "forgot/notify", $variables);
+		return Mail::mulitpart_send($mail_options);
 	}
 	
 	/**
-	 * 
+	 *
 	 * @return Forgot
 	 */
 	public function validated() {
@@ -70,8 +98,8 @@ class Forgot extends Object {
 		$user->password($this->new_password)->store();
 		$this->updated = "now";
 		$this->store();
-		$this->hook("validated");
-		$query = Object::class_query_update(__CLASS__);
+		$this->call_hook("validated");
+		$query = $this->query_update();
 		$query->value("*updated", $query->sql()->now());
 		$query->where(array(
 			"user" => $user,

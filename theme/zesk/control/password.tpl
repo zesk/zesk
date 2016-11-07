@@ -1,5 +1,7 @@
 <?php
-
+/**
+ * 
+ */
 echo $this->theme('control/text');
 
 if ($this->children) {

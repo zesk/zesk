@@ -2,47 +2,24 @@
 /**
  * @see zesk\Control_Schedule
  */
-if (false) {
-	/* @var $this Template */
-	
-	$application = $this->application;
-	/* @var $application ZeroBot */
-	
-	$session = $this->session;
-	/* @var $session Session */
-	
-	$request = $this->request;
-	/* @var $request Request */
-	
-	$response = $this->response;
-	/* @var $response Response_HTML */
-	
-	$current_user = $this->current_user;
-	/* @var $current_user User */
-	
-	$object = $this->object;
-	/* @var $object Object */
-	
-	/* @var $widget_unit Control_DropDown */
-	$widget_unit = $this->widget_unit;
-	
-	/* @var $widget_dayofmonth Control_DropDown */
-	$widget_dayofmonth = $this->widget_dayofmonth;
-	
-	/* @var $widget_dayofmonth Control_DropDown */
-	$widget_dayofweek = $this->widget_dayofweek;
-	
-	/* @var $widget_hourofday Control_DropDown */
-	$widget_hourofday = $this->widget_hourofday;
-}
-
+/* @var $this \zesk\Template */
+/* @var $zesk \zesk\Kernel */
+/* @var $application \zesk\Application */
+/* @var $session \zesk\Session */
+/* @var $router \zesk\Router */
+/* @var $route \zesk\Route */
+/* @var $request \zesk\Request */
+/* @var $response \zesk\Response_Text_HTML */
+/* @var $current_user \User */
+/* @var $object \Object */
+/* @var $widget_unit Control_DropDown */
+/* @var $widget_dayofweek Control_DropDown */
+/* @var $widget_dayofmonth Control_DropDown */
+/* @var $widget_hourofday Control_DropDown */
 ?><div class="input-group"><?php
-
 echo $widget_unit->render();
 echo $widget_dayofweek->render();
 echo $widget_dayofmonth->render();
 echo $widget_hourofday->render();
-
 ?>
 </div>
-<!-- /input-group -->

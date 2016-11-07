@@ -10,7 +10,11 @@
  * @author Kent Davidson <kent@marketacumen.com>
  * @copyright Copyright &copy; 2009, Market Acumen, Inc.
  */
-use zesk\file as file;
+use zesk\Directory;
+use zesk\File;
+use zesk\Model;
+use zesk\URL;
+use zesk\HTML;
 
 class View_Image extends View {
 	static $debug = false;
@@ -28,11 +32,11 @@ class View_Image extends View {
 	}
 
 	protected function source_directory() {
-		return $this->option('root_directory', zesk::document_root());
+		return $this->option('root_directory', $this->application->document_root());
 	}
 
 	protected function cache_directory() {
-		return $this->option('cache_directory', path(zesk::document_root(), "/cache/images/"));
+		return $this->option('cache_directory', path($this->application->document_root(), "/cache/images/"));
 	}
 
 	protected function cache_url_prefix() {
@@ -41,7 +45,7 @@ class View_Image extends View {
 			return $prefix;
 		}
 		$cache = realpath($this->cache_directory());
-		$doc_root = realpath(zesk::document_root());
+		$doc_root = realpath($this->application->document_root());
 		return str::unprefix($cache, $doc_root);
 	}
 
@@ -64,7 +68,7 @@ class View_Image extends View {
 
 		$cache = $this->cache_directory();
 		try {
-			dir::depend($cache, 0755);
+			Directory::depend($cache, 0755);
 		} catch (Exception_Directory_Create $e) {
 			log::error($e);
 			return $this->missing_file();
@@ -75,7 +79,7 @@ class View_Image extends View {
 		if ($this->has_option('id')) {
 			$prefix = $this->option('id') . '-';
 		}
-		$target_filename = $prefix . file::base($source) . "-${width}x${height}." . file::extension($source);
+		$target_filename = $prefix . File::base($source) . "-${width}x${height}." . File::extension($source);
 
 		$target_full_path = path($cache, $target_filename);
 		$scaled_result = path($this->cache_url_prefix(), $target_filename);
@@ -84,7 +88,7 @@ class View_Image extends View {
 			log::debug("\$scaled_result = {scaled_result}", compact("scaled_result"));
 		}
 		$this->set_option('scale_path', $target_full_path);
-		$this->hook('scale_path', $target_full_path);
+		$this->call_hook('scale_path', $target_full_path);
 		log::notice("\$target_full_path is $target_full_path");
 		if (!$this->option_bool('always_generate') && file_exists($target_full_path)) {
 			list($this->width, $this->height) = getimagesize($target_full_path);
@@ -103,7 +107,7 @@ class View_Image extends View {
 	}
 	private static function relative_to_absolute_path($path) {
 		if ($path[0] === "/") {
-			return zesk::href($path);
+			return HTML::href(app(), $path);
 		}
 		$wd = path(str_replace("\\", "/", dirname($_SERVER['SCRIPT_FILENAME'])), $path);
 		return $wd;
@@ -144,7 +148,7 @@ class View_Image extends View {
 			$this->debug_log("Image path not found: $path");
 			return $this->output_image($object, $file_path, $this->missing_image_path(), "\n<!-- Not a file -->");
 		}
-		$ext = strtolower(file::extension($path, false));
+		$ext = strtolower(File::extension($path, false));
 		if (!in_array($ext, array(
 			"jpg",
 			"jpeg",
@@ -182,12 +186,12 @@ class View_Image extends View {
 		}
 		$attrs["src"] = str_replace(" ", "%20", $attrs["src"]);
 		if ($this->has_option('query')) {
-			$attrs['src'] = url::query_format($attrs['src'], $this->option('query'));
+			$attrs['src'] = URL::query_format($attrs['src'], $this->option('query'));
 		}
 
 		$this->set_option("scale_src", $attrs['src']);
 
-		$result = html::tag("img", $attrs, null);
+		$result = HTML::tag("img", $attrs, null);
 
 		return $result . $extras;
 	}

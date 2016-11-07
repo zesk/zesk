@@ -1,6 +1,8 @@
 <?php
+use zesk\Object;
+use zesk\Class_Object;
 
-class Class_ObjectX extends Class_Object {
+class Class_ObjectX extends zesk\Class_Object {
 	
 	public $target_class = null;
 	

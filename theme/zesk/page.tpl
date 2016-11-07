@@ -1,4 +1,7 @@
 <?php
+
+namespace zesk;
+
 if (false) {
 	/* @var $this Template */
 	
@@ -12,7 +15,7 @@ if (false) {
 	/* @var $request Request */
 	
 	$response = $this->response;
-	/* @var $response Response_HTML */
+	/* @var $response zesk\Response_Text_HTML */
 	
 	/* @var $route Route */
 	$route = $this->route;
@@ -26,7 +29,7 @@ if (!$this->response) {
 }
 
 $wrap_html = $response->content_type === "text/html";
-$page_template = $zesk->configuration->path_get("Response_HTML::theme", 'response/html');
+$page_template = $zesk->configuration->path_get("zesk\Response_Text_HTML::theme", 'response/html');
 if (isset($route) && $route instanceof Route) {
 	$wrap_html = $response->option_bool('wrap_html', $route->option_bool('wrap_html', $wrap_html));
 	$page_template = $route->option('page template', $page_template);

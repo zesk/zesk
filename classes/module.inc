@@ -6,6 +6,8 @@
  * @author kent
  * @copyright Copyright &copy; 2012, Market Acumen, Inc.
  */
+use zesk\Application;
+use zesk\arr;
 
 /**
  * Module loading and management
@@ -58,6 +60,8 @@ abstract class Module extends Hookable {
 	function __sleep() {
 		return arr::include_exclude(array_keys(get_object_vars($this)), null, "application");
 	}
+	
+	
 	function __wakeup() {
 		$this->zesk = zesk();
 		$this->application = app();
@@ -80,6 +84,7 @@ abstract class Module extends Hookable {
 			// Code name used in JavaScript settings
 			$this->codename = strtolower(str::unprefix(get_class($this), __CLASS__ . "_"));
 		}
+		$this->application->register_class($this->classes());
 	}
 	
 	/**
@@ -88,6 +93,10 @@ abstract class Module extends Hookable {
 	public function initialize() {
 	}
 	
+	
+	public final function codename() {
+		return $this->codename;
+	}
 	/**
 	 * Override in subclasses - called upon Application::classes
 	 */
@@ -95,8 +104,19 @@ abstract class Module extends Hookable {
 		return $this->classes;
 	}
 	
+	
+	/**
+	 * 
+	 * @param string $class
+	 * @param mixed $mixed
+	 * @param array $options
+	 * @return \zesk\Object
+	 */
+	final public function object_factory($class, $mixed = null, array $options = array()) {
+		return $this->application->object_factory($class, $mixed, $options);
+	}
 	/*
-	 * public function hook_head(Request $request, Response_HTML $response, Template $template) {
+	 * public function hook_head(zesk\Request $request, zesk\Response_Text_HTML $response, zesk\Template $template) {
 	 *
 	 * }
 	 */
@@ -110,6 +130,7 @@ abstract class Module extends Hookable {
 	 * @return mixed
 	 */
 	public final static function all_hook($hook) {
+		zesk()->deprecated();
 		$arguments = func_get_args();
 		array_shift($arguments);
 		return Application::instance()->module->all_hook_array($hook, $arguments);
@@ -126,6 +147,7 @@ abstract class Module extends Hookable {
 	 * @return mixed
 	 */
 	public final static function all_modules() {
+		zesk()->deprecated();
 		return Application::instance()->module->all_modules();
 	}
 	
@@ -140,6 +162,7 @@ abstract class Module extends Hookable {
 	 * @return mixed
 	 */
 	public final static function all_hook_array($hook, array $arguments, $default = null, $hook_callback = null, $result_callback = null) {
+		zesk()->deprecated();
 		return Application::instance()->module->all_hook_array($hook, $arguments, $default, $hook_callback, $result_callback);
 	}
 	
@@ -153,6 +176,7 @@ abstract class Module extends Hookable {
 	 * @return mixed
 	 */
 	public final static function all_hook_list($hook) {
+		zesk()->deprecated();
 		return Application::instance()->module->all_hook_list($hook);
 	}
 	
@@ -225,6 +249,7 @@ abstract class Module extends Hookable {
 	 * @return Module|null
 	 */
 	public final static function object($module, $default = null) {
+		zesk()->deprecated();
 		return self::data($module, "module", $default);
 	}
 	
@@ -236,6 +261,7 @@ abstract class Module extends Hookable {
 	 * @return string
 	 */
 	private static function clean_class($name) {
+		zesk()->deprecated();
 		return trim(preg_replace('/-_+/', '_', preg_replace('/[^a-z0-9]/i', '_', $name)), "_");
 	}
 	
@@ -248,7 +274,7 @@ abstract class Module extends Hookable {
 	 * @return array
 	 */
 	public final static function internal($modules) {
-		//zesk::deprecated(); TODO
+		zesk()->deprecated();
 		$result = array();
 		foreach (to_list($modules) as $name) {
 			$class = "Module_" . self::clean_class($name);
@@ -265,6 +291,7 @@ abstract class Module extends Hookable {
 	 * @param array $options
 	 */
 	public static final function load($mixed = null, array $options = array()) {
+		zesk()->deprecated();
 		return Application::instance()->module->load($mixed, $options);
 	}
 	
@@ -278,6 +305,7 @@ abstract class Module extends Hookable {
 	 * command/ - zesk::zesk_command_path
 	 * bin/ - zesk::command_path
 	 *
+	 * @deprecated 2016-01-13
 	 * @param string $module_path
 	 *        	Directory to search for system paths
 	 * @param string $module
@@ -285,6 +313,7 @@ abstract class Module extends Hookable {
 	 * @return array Array of actually registered paths
 	 */
 	public final static function register_paths($module_path = null, $module = null) {
+		zesk()->deprecated();
 		return Application::instance()->module->register_paths($module_path, $module);
 	}
 	
@@ -297,6 +326,7 @@ abstract class Module extends Hookable {
 	 * @return string
 	 */
 	public final static function clean_name($module) {
-		return Modules::clean_name($module);
+		zesk()->deprecated();
+		return zesk\Modules::clean_name($module);
 	}
 }

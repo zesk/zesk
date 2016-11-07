@@ -6,6 +6,8 @@
  * @author kent
  * @copyright Copyright &copy; 2010, Market Acumen, Inc.
  */
+use zesk\arr;
+
 class Control_Widgets_Filter extends Control_Widgets {
 
 	/**
@@ -20,7 +22,7 @@ class Control_Widgets_Filter extends Control_Widgets {
 
 	protected function initialize_filter() {
 		if ($this->filter === null) {
-			$filters = $this->hook("filters");
+			$filters = $this->call_hook("filters");
 			if (count($filters) > 0) {
 				$options = $this->options_include("URI;filter_preserve_include;filter_preserve_exclude;ajax_id;filter_form_id");
 				$options = arr::map_keys($options, array(
@@ -32,7 +34,7 @@ class Control_Widgets_Filter extends Control_Widgets {
 				$this->filter->wrap("div", ".filters");
 				$this->child($this->filter);
 
-				$this->hook("initialize_filter");
+				$this->call_hook("initialize_filter");
 			}
 		}
 	}

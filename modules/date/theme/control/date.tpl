@@ -1,6 +1,6 @@
 <?php
 
-use zesk\Timestamp as Timestamp;
+use zesk\Timestamp;
 
 /* @var $widget Control_Date */
 $widget = $this->widget;
@@ -38,7 +38,7 @@ $attr['id'] = $input_id;
 $attr['class'] = "input-text form-control";
 
 $response = $this->response;
-/* @var $response Response_HTML */
+/* @var $response zesk\Response_Text_HTML */
 $response->cdn_javascript('/share/zesk/js/zesk.js', array(
 	'weight' => 'first'
 ));
@@ -65,9 +65,9 @@ if ($empty_string) {
 	$settings['data-empty-string'] = $empty_string;
 }
 
-echo html::tag_open('div', $settings + $widget->data_attributes());
+echo HTML::tag_open('div', $settings + $widget->data_attributes());
 
-echo html::tag("input", $attr, null);
-echo html::hidden($name, $value);
-echo html::tag_close('div');
+echo HTML::tag("input", $attr, null);
+echo HTML::hidden($name, $value);
+echo HTML::tag_close('div');
 

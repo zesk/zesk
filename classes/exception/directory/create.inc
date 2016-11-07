@@ -7,6 +7,9 @@
  * @copyright Copyright &copy; 2010, Market Acumen, Inc.
  */
 
-class Exception_Directory_Create extends Exception_FileSystem {
-
-}
+zesk()->deprecated();
+/**
+ * @deprecated 2016-09
+ * @author kent
+ */
+class Exception_Directory_Create extends zesk\Exception_Directory_Create {}

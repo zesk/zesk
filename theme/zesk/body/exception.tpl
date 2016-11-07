@@ -1,7 +1,7 @@
 <?php
 /* @var $application Application */
 $application = $this->application;
-/* @var $response Response_HTML */
+/* @var $response zesk\Response_Text_HTML */
 $response = $this->response;
 if (!$response) {
 	$response = $application->response();

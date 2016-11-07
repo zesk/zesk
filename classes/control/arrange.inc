@@ -1,5 +1,14 @@
 <?php
+/**
+ * 
+ */
+use zesk\Database_Query_Select;
 
+/**
+ * 
+ * @author kent
+ *
+ */
 class Control_Arrange extends Control_Select {
 
 	protected $what = array();

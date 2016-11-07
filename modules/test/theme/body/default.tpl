@@ -3,7 +3,7 @@ $menu = array(
 	'/run' => 'Run', 
 	'/config' => 'Configure'
 );
-echo theme('bootstrap/navbar', array(
+echo $this->theme('bootstrap/navbar', array(
 	'title' => 'Test', 
 	'menu' => $menu
 ));

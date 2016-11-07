@@ -20,9 +20,9 @@ class Control_Icon extends Control {
 		$img_attrs = $this->option_array("img_attributes");
 		$img_attrs['width'] = $this->option("img_width");
 		$img_attrs['height'] = $this->option("img_height");
-		$result = html::tag("a", $attrs, html::img($src, $this->option("alt", ""), $img_attrs));
+		$result = HTML::tag("a", $attrs, HTML::img($src, $this->option("alt", ""), $img_attrs));
 		if ($this->has_option("js_variable")) {
-			$result .= html::tag("script", array(
+			$result .= HTML::tag("script", array(
 				"type" => "text/javascript"
 			), "var " . $this->option("js_variable") . " = '" . $v . "'");
 		}

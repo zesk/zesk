@@ -1,6 +1,12 @@
 <?php
-
-use zesk\Timestamp as Timestamp;
+/**
+ * 
+ */
+use zesk\arr;
+use zesk\HTML;
+use zesk\Timestamp;
+use zesk\Database_Query_Select;
+use zesk\Options_Duplicate;
 
 /**
  *
@@ -17,11 +23,11 @@ class Selection_Type extends Object {
 	/**
 	 * Modify the current selection list using the queries
 	 * 
-	 * @param Database_Query_Select $total
-	 * @param Database_Query_Select $list
+	 * @param zesk\Database_Query_Select $total
+	 * @param zesk\Database_Query_Select $list
 	 * @param boolean $add True to add to the current list, false to remove
 	 */
-	public function items_all(Database_Query_Select $total, Database_Query_Select $list, $add = true) {
+	public function items_all(zesk\Database_Query_Select $total, zesk\Database_Query_Select $list, $add = true) {
 		$query = Selection_Query::instance($this, $total, $list);
 		if (!$query) {
 			return null;
@@ -32,7 +38,7 @@ class Selection_Type extends Object {
 		}
 		$query->reorder();
 		
-		/* @var $list Database_Query_Select */
+		/* @var $list zesk\Database_Query_Select */
 		$list = clone $list;
 		$alias = $list->alias();
 		$id_column = Object::class_id_column($list->object_class());
@@ -43,7 +49,10 @@ class Selection_Type extends Object {
 			"*query" => $query->id()
 		));
 		$list->limit(0, -1);
-		Object::class_query_insert("Selection_Item")->select($list)->replace(true)->execute();
+		$this->application->query_insert("Selection_Item")
+			->select($list)
+			->replace(true)
+			->execute();
 	}
 	
 	/**
@@ -73,8 +82,8 @@ class Selection_Type extends Object {
 	 * @see Object::delete()
 	 */
 	public function delete() {
-		Object::class_query_delete('Selection_Query')->where('type', $this->id)->execute();
-		Object::class_query_delete('Selection_Item')->where('type', $this->id)->execute();
+		$this->application->query_delete('Selection_Query')->where('type', $this->id)->execute();
+		$this->application->query_delete('Selection_Item')->where('type', $this->id)->execute();
 		return parent::delete();
 	}
 	
@@ -117,26 +126,35 @@ class Selection_Type extends Object {
 			$query_id = $row['query'];
 			if ($add !== $op) {
 				if ($op === false && !$query_id) {
-					Object::class_query_delete("Selection_Item")->where(array(
+					$this->application->query_delete("Selection_Item")->where(array(
 						"id" => $id,
 						"type" => $this
 					))->execute();
 				} else {
-					Object::class_query_update("Selection_Item")->value(array("add" =>  $op, "query" => null))->where(array(
+					$this->application->query_update("Selection_Item")
+						->value(array(
+						"add" => $op,
+						"query" => null
+					))
+						->where(array(
 						"id" => $id,
 						"type" => $this
-					))->execute();
+					))
+						->execute();
 				}
 			}
 			unset($items[$id]);
 		}
 		foreach ($items as $id => $op) {
-			Object::class_query_insert("Selection_Item")->values(array(
+			$this->application->query_insert("Selection_Item")
+				->values(array(
 				"add" => intval($op),
 				"query" => null,
 				"id" => $id,
 				"type" => $this
-			))->replace(true)->execute();
+			))
+				->replace(true)
+				->execute();
 		}
 	}
 	
@@ -164,23 +182,29 @@ class Selection_Type extends Object {
 				"count" => $query->count(),
 				"operation" => $query->add ? "+" : "-",
 				"action" => $query->add ? __('Selection_Type:=Added to selection') : __('Selection_Type:=Removed from selection')
-			)), html::span(".query-action " . ($query->add ? ".query-action-add" : ".query-action-remove"), "[]"));
+			)), HTML::span(".query-action " . ($query->add ? ".query-action-add" : ".query-action-remove"), "[]"));
 		}
-		$n_added = Object::class_query("Selection_Item")->where(array(
+		$n_added = $this->application->query_select("Selection_Item")
+			->where(array(
 			"type" => $this,
 			"query" => null,
 			"add" => 1
-		))->what("*n", "COUNT(id)")->one_integer("n");
+		))
+			->what("*n", "COUNT(id)")
+			->one_integer("n");
 		if ($n_added) {
 			$line[] .= __("{n} specifically added", array(
 				"n" => $n_added
 			));
 		}
-		$n_excluded = Object::class_query("Selection_Item")->where(array(
+		$n_excluded = $this->application->query_select("Selection_Item")
+			->where(array(
 			"type" => $this,
 			"query" => null,
 			"add" => 0
-		))->what("*n", "COUNT(id)")->one_integer("n");
+		))
+			->what("*n", "COUNT(id)")
+			->one_integer("n");
 		if ($n_excluded) {
 			$line[] .= __("{n} specifically removed", array(
 				"n" => $n_excluded

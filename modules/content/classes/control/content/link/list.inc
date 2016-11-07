@@ -43,8 +43,8 @@ class Control_Content_Link_List extends Control_Object_List {
 	}
 
 	function editWidgetList() {
-		html::jquery();
-		html::cdn_javascript("/share/zesk/js/link.js");
+		HTML::jquery();
+		HTML::cdn_javascript("/share/zesk/js/link.js");
 
 		$spec = array();
 
@@ -52,19 +52,19 @@ class Control_Content_Link_List extends Control_Object_List {
 		$f->set_option("class", "large");
 		$f->set_option("id", "Link_URL");
 		$f->set_option("onblur", "url_update_title('Link_URL', 'Link_Name', 'Link_Name_Progress', 'Link_Name_Error', true)");
-		$f->suffix(html::tag("input", array(
+		$f->suffix(HTML::tag("input", array(
 			"type" => "button",
 			"class" => "link-update-title",
 			"onclick" => "url_update_title('Link_URL', 'Link_Name', 'Link_Name_Progress')",
 			"value" => "Update Title from URL"
-		), null) . html::tag('div', array(
+		), null) . HTML::tag('div', array(
 			'id' => 'Link_Name_Error'
 		), ""));
 		$spec[$f->column()] = $f;
 
 		$f = widgets::control_text("Name", "Title", true, 1, 255);
 		$f->set_option("id", "Link_Name");
-		$f->suffix(html::tag("div", array(
+		$f->suffix(HTML::tag("div", array(
 			"id" => "Link_Name_Progress"
 		), ""));
 		$spec[$f->column()] = $f;

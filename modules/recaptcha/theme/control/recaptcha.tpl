@@ -1,7 +1,7 @@
 <?php
 if (false) {
 	$response = $this->response;
-	/* @var $response Response_HTML */
+	/* @var $response zesk\Response_Text_HTML */
 }
 
 $response->javascript("https://www.google.com/recaptcha/api.js?onloadCallback=recaptcha_onload", null, array(
@@ -11,7 +11,7 @@ $response->javascript("https://www.google.com/recaptcha/api.js?onloadCallback=re
 if (!$this->site_key) {
 	echo "<!-- reCAPTCHA site_key is missing -->";
 } else if (!$this->verified) {
-	echo html::div(array(
+	echo HTML::div(array(
 		'class' => 'g-recaptcha',
 		'data-sitekey' => $this->site_key
 	), "");

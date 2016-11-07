@@ -7,6 +7,9 @@
  * @copyright Copyright &copy; 2008, Market Acumen, Inc.
  *            Created on Tue Jul 15 16:39:10 EDT 2008
  */
+use zesk\arr;
+use zesk\HTML;
+use zesk\Database_Query_Select;
 
 /**
  * Controls edit model state when submitted
@@ -233,7 +236,7 @@ class Control extends Widget {
 		}
 		if (is_array($tags)) {
 			foreach ($tags as $tag) {
-				$value = html::remove_tags($tag, $value);
+				$value = HTML::remove_tags($tag, $value);
 			}
 		}
 		return $value;
@@ -271,13 +274,13 @@ class Control extends Widget {
 	}
 	
 	/**
-	 * Internal function to sanitize HTML-related values before storing in an object.
-	 *
+	 * Public function to sanitize HTML-related values before storing in an object.
+	 * 
 	 * {@inheritDoc}
 	 *
 	 * @see Widget::sanitize($value)
 	 */
-	protected function sanitize($value) {
+	public function sanitize($value) {
 		if (!$this->sanitize_html()) {
 			return $value;
 		}

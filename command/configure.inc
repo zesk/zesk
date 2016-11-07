@@ -1,4 +1,10 @@
 <?php
+/**
+ * 
+ */
+use zesk\Directory;
+use zesk\File;
+use zesk\arr;
 
 /**
  * Automatically keep a series of files and directories in sync between users, with security checks for superusers, and simplify version control of
@@ -11,8 +17,6 @@
  * @author kent
  *
  */
-use zesk\file as file;
-
 class Command_Configure extends Command_Base {
 	protected $option_types = array(
 		"non-interactive" => "boolean",
@@ -118,8 +122,8 @@ class Command_Configure extends Command_Base {
 		$this->variable_map['uname'] = $this->uname;
 		$this->variable_map['low_uname'] = $this->low_uname;
 		$this->variable_map['user'] = $this->username;
-		$this->variable_map['zesk_application_root'] = zesk::application_root();
-		$this->variable_map['zesk_root'] = zesk::root();
+		$this->variable_map['zesk_application_root'] = $this->application->application_root();
+		$this->variable_map['zesk_root'] = $this->application->zesk->paths->zesk();
 		
 		$this->log("Configuration synchronization for: {uname}, user: {user}", $this->variable_map);
 		$this->determine_environment_file();
@@ -140,7 +144,7 @@ class Command_Configure extends Command_Base {
 	private function determine_environment_file() {
 		$value = $this->environment_file;
 		$times = 0;
-		$this->completions = dir::ls("/etc/", "/(.conf|.sh)$/", true);
+		$this->completions = Directory::ls("/etc/", "/(.conf|.sh)$/", true);
 		while (empty($value) || !is_file($value)) {
 			if ($times > 2) {
 				echo __("System settings file is a BASH and Zesk conf::load parsable file which contains\na global which points to this hosts configuration directory.\n\n");
@@ -201,7 +205,7 @@ class Command_Configure extends Command_Base {
 		return $dirs;
 	}
 	private function determine_host_name() {
-		$this->possible_host_configurations = arr::unsuffix(dir::ls($this->host_path), "/", true);
+		$this->possible_host_configurations = arr::unsuffix(Directory::ls($this->host_path), "/", true);
 		$this->alias_file = path($this->host_path, "aliases.conf");
 		$__ = array(
 			"alias_file" => $this->alias_file
@@ -275,7 +279,7 @@ class Command_Configure extends Command_Base {
 			$this->variable_map['current_host_path'] = dirname(dirname(dirname($file)));
 			$this->verbose_log("Processing file {file}", compact("file"));
 			$contents = file::contents($file);
-			$contents = text::remove_line_comments($contents, "#", false);
+			$contents = Text::remove_line_comments($contents, "#", false);
 			$lines = arr::trim_clean(explode("\n", $contents));
 			foreach ($lines as $line) {
 				$line = preg_replace("/\s+/", " ", $line);
@@ -305,11 +309,21 @@ class Command_Configure extends Command_Base {
 		return true;
 	}
 	private function current_uid_gid() {
+		global $zesk;
+		/* @var $zesk \zesk\Kernel */
 		return array(
-			intval(implode("\n", zesk::execute("id -u"))),
-			intval(implode("\n", zesk::execute("id -g")))
+			intval(implode("\n", $zesk->process->execute("id -u"))),
+			intval(implode("\n", $zesk->process->execute("id -g")))
 		);
 	}
+	
+	/**
+	 * 
+	 * @param unknown $target
+	 * @param unknown $want_owner
+	 * @param unknown $want_mode
+	 * @return boolean
+	 */
 	private function handle_owner_mode($target, $want_owner = null, $want_mode = null) {
 		$stats = file::stat($target, "");
 		$__['target'] = $target;
@@ -431,7 +445,7 @@ class Command_Configure extends Command_Base {
 				if (!$this->prompt_yes_no(__("Symlink to create \"{symlink}\" is already a directory, delete?", $__))) {
 					return false;
 				}
-				dir::delete($symlink);
+				Directory::delete($symlink);
 			}
 			if (!$this->prompt_yes_no(__("Create symbolic link \n\t{symlink} => {file}\n?", $__))) {
 				return false;
@@ -458,7 +472,7 @@ class Command_Configure extends Command_Base {
 	 * @param unknown $destination
 	 */
 	private function _command_file_catenate($source, $destination) {
-		$sources = zesk::find_files($this->host_paths, $source);
+		$sources = File::find_all($this->host_paths, $source);
 		$__ = array(
 			"source" => $source,
 			"host_paths" => $this->host_paths
@@ -557,7 +571,7 @@ class Command_Configure extends Command_Base {
 			return $this->handle_owner_mode($destination, $want_owner, $want_mode);
 		}
 		try {
-			zesk::execute("diff -w {0} {1}", $source, $destination);
+			zesk()->process->execute("diff -w {0} {1}", $source, $destination);
 			return $this->handle_owner_mode($destination, $want_owner, $want_mode);
 		} catch (Exception_Command $e) {
 			// Not the same
@@ -603,7 +617,7 @@ class Command_Configure extends Command_Base {
 		}
 		$this->log("Files differ: < $source_name > $destination_name");
 		try {
-			zesk::execute_array("diff {0} {1}", array(
+			zesk()->process->execute_arguments("diff {0} {1}", array(
 				$source,
 				$destination
 			), true);
@@ -639,25 +653,27 @@ class Command_Configure extends Command_Base {
 	 * @param unknown $target
 	 */
 	private function _command_subversion($repo, $target) {
+		global $zesk;
+		/* @var $zesk \zesk\Kernel */
 		$__ = compact("repo", "target");
 		try {
 			if (!is_dir($target)) {
 				if (!$this->prompt_yes_no(__("Create subversion directory {target} for {repo}", $__))) {
 					return false;
 				}
-				if (!dir::create($target)) {
+				if (!Directory::create($target)) {
 					$this->error(__("Unable to create {target}", $__));
 					return false;
 				}
 				$this->verbose_log("Created {target}", $__);
 			}
-			$config_dir = zesk::home_path(".subversion");
+			$config_dir = $zesk->paths->home(".subversion");
 			$this->verbose_log("Subversion configuration path is {config_dir}", compact("config_dir"));
 			if (!is_dir(path($target, ".svn"))) {
 				if (!$this->prompt_yes_no(__("Checkout subversion {repo} to {target}", $__))) {
 					return false;
 				}
-				zesk::execute_array("svn --non-interactive --config-dir {0} co {1} {2}", array(
+				$zesk->process->execute_arguments("svn --non-interactive --config-dir {0} co {1} {2}", array(
 					$config_dir,
 					$repo,
 					$target
@@ -665,7 +681,7 @@ class Command_Configure extends Command_Base {
 				$this->changed = true;
 				return true;
 			} else {
-				$results = zesk::execute_array("svn --non-interactive --config-dir {0} status --show-updates {1}", array(
+				$results = $zesk->process->execute_arguments("svn --non-interactive --config-dir {0} status --show-updates {1}", array(
 					$config_dir,
 					$target
 				));
@@ -674,7 +690,7 @@ class Command_Configure extends Command_Base {
 					if (!$this->prompt_yes_no(__("Update subversion {target} from {repo}", $__))) {
 						return false;
 					}
-					zesk::execute_array("svn --non-interactive --config-dir {0} up --force {1}", array(
+					$zesk->process->execute_arguments("svn --non-interactive --config-dir {0} up --force {1}", array(
 						$config_dir,
 						$target
 					), true);

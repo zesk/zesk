@@ -5,7 +5,7 @@
  *
  * @author kent
  */
-abstract class Module_JSLib extends Module implements Module_Interface_Head {
+abstract class Module_JSLib extends Module implements zesk\Interface_Module_Head {
 	/**
 	 * Array of css paths for this page
 	 * 
@@ -93,10 +93,10 @@ abstract class Module_JSLib extends Module implements Module_Interface_Head {
 	 * HTML Page head
 	 * 
 	 * @param Request $request
-	 * @param Response_HTML $response
-	 * @param Template $template
+	 * @param zesk\Response_Text_HTML $response
+	 * @param zesk\Template $template
 	 */
-	public function hook_head(Request $request, Response_HTML $response, Template $template) {
+	public function hook_head(zesk\Request $request, zesk\Response_Text_HTML $response, zesk\Template $template) {
 		if (!$this->option_bool("disabled")) {
 			$this->javascript_settings['enabled'] = true;
 			if ($this->javascript_settings_inherit) {
@@ -149,10 +149,10 @@ abstract class Module_JSLib extends Module implements Module_Interface_Head {
 	/**
 	 * Able to call this from theme templates for AJAX calls
 	 *
-	 * @param Response_HTML $response
+	 * @param zesk\Response_Text_HTML $response
 	 */
-	public function ready(Response_HTML $response) {
-		$this->hook('ready');
+	public function ready(zesk\Response_Text_HTML $response) {
+		$this->call_hook('ready');
 		foreach ($this->jquery_ready as $code) {
 			$response->jquery($code, $this->jquery_ready_weight);
 		}

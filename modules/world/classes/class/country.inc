@@ -1,5 +1,5 @@
 <?php
-class Class_Country extends Class_Object {
+class Class_Country extends zesk\Class_Object {
 	public $id_column = "id";
 	public $find_keys = array(
 		"code"

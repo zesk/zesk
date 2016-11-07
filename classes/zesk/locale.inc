@@ -14,9 +14,12 @@ if (!defined("ZESK_LOCALE_DEFAULT")) {
 	define("ZESK_LOCALE_DEFAULT", "en_US");
 }
 
-use \zesk as zesk;
-use log as log;
-
+/**
+ * @todo Turn this into an object $zesk->locale-> and remove most static usage
+ * 
+ * @author kent
+ *
+ */
 class Locale {
 	
 	/**
@@ -115,14 +118,14 @@ class Locale {
 		}
 		$low_phrase = strtolower($phrase);
 		if (array_key_exists($low_phrase, $tt_lang)) {
-			return \str::case_match($tt_lang[$low_phrase], $text);
+			return str::case_match($tt_lang[$low_phrase], $text);
 		}
 		if (array_key_exists($text, $tt_lang)) {
 			return $tt_lang[$text];
 		}
 		$low_phrase = strtolower($text);
 		if (array_key_exists($low_phrase, $tt_lang)) {
-			return \str::case_match($tt_lang[$low_phrase], $text);
+			return str::case_match($tt_lang[$low_phrase], $text);
 		}
 		if (self::$auto) {
 			self::$locale_phrases[$phrase] = time();
@@ -133,7 +136,7 @@ class Locale {
 	/**
 	 * Hook "configured"
 	 */
-	public static function configured(zesk\Application $application) {
+	public static function configured(Application $application) {
 		$configuration = $application->zesk->configuration;
 		$default = $configuration->Locale->default;
 		if ($default) {
@@ -142,7 +145,7 @@ class Locale {
 		$auto = $configuration->path_get_first(array(
 			'zesk\Locale::auto',
 			'Locale::auto',
-			'lang::auto'
+			'Locale::auto'
 		));
 		if (is_bool($auto) || $auto === self::language() || $auto === self::current()) {
 			self::$auto = $auto;
@@ -156,7 +159,7 @@ class Locale {
 	/**
 	 * Register all hooks
 	 */
-	public static function hooks(zesk\Kernel $zesk) {
+	public static function hooks(Kernel $zesk) {
 		$zesk->configuration->pave("Locale");
 		$zesk->configuration->pave("zesk\Locale");
 		$zesk->hooks->add('<head>', array(
@@ -275,6 +278,8 @@ class Locale {
 	 * @return array Translation table
 	 */
 	public static function load($locale) {
+		global $zesk;
+		/* @var $zesk zesk\Kernel */
 		$locale = self::normalize($locale);
 		$paths = self::$paths;
 		array_unshift($paths, ZESK_ROOT . 'etc/language');
@@ -293,7 +298,7 @@ class Locale {
 			foreach ($files as $file) {
 				$inc_path = path($path, $file . ".inc");
 				if (file_exists($inc_path)) {
-					$tt_add = \zesk::load($inc_path);
+					$tt_add = $zesk->load($inc_path);
 					if (is_array($tt_add)) {
 						$tt = $tt_add + $tt;
 					}
@@ -503,7 +508,7 @@ class Locale {
 		}
 		$phrase = null;
 		if ($number === 0) {
-			// TODO Fix this in translation files lang:: -> Locale::
+			// TODO Fix this in translation files Locale:: -> Locale::
 			$phrase = 'Locale::plural_word:=no {word}';
 		} else if ($number === 1) {
 			$phrase = 'Locale::plural_word:=one {word}';
@@ -549,7 +554,7 @@ class Locale {
 	 * @return string
 	 */
 	public static function now_string($ts, $min_unit = null, $zero_string = null, $locale = null) {
-		if ($ts instanceof zesk\Timestamp) {
+		if ($ts instanceof Timestamp) {
 			$ts = $ts->unix_timestamp();
 		} else if (is_date($ts)) {
 			$ts = parse_time($ts);
@@ -562,7 +567,7 @@ class Locale {
 		if ($number === 0 && is_string($zero_string)) {
 			$phrase = $zero_string;
 		} else if ($delta < 0) {
-			// TODO Fix this in translation files lang:: -> Locale::
+			// TODO Fix this in translation files Locale:: -> Locale::
 			$phrase = "Locale::now_string:=in {duration}";
 		} else {
 			$phrase = "Locale::now_string:={duration} ago";
@@ -624,9 +629,9 @@ class Locale {
 	 * Output our locale translation files for JavaScript to use
 	 *
 	 * @param \Request $request        	
-	 * @param \Response_HTML $response        	
+	 * @param \zesk\Response_Text_HTML $response        	
 	 */
-	public static function hook_head(\Request $request, \Response_HTML $response) {
+	public static function hook_head(Request $request, Response_Text_HTML $response) {
 		$response->cdn_javascript("/share/zesk/js/locale.js", array(
 			"weight" => -20,
 			"share" => true
@@ -666,7 +671,7 @@ class Locale {
 		$additional_tt = "";
 		$result = array();
 		foreach ($phrases as $k => $value) {
-			$v = is_string($value) ? $value : \str::right($k, ":=", $k);
+			$v = is_string($value) ? $value : str::right($k, ":=", $k);
 			$k = str_replace("'", "\\'", $k);
 			if (strpos($contents, "\$tt['$k']") === false) {
 				$v = str_replace("'", "\\'", $v);
@@ -679,7 +684,7 @@ class Locale {
 			if (strpos($contents, $return)) {
 				$contents = str_replace($return, "", $contents);
 			}
-			$contents .= "\n// " . \url::current() . "\n";
+			$contents .= "\n// " . URL::current() . "\n";
 			$contents .= $additional_tt;
 			$contents .= $return;
 			file_put_contents($filename, $contents);
@@ -715,16 +720,16 @@ class Locale {
 		))));
 		$do_csv = in_array("csv", $formats);
 		if (!$path) {
-			log::warning("No {class}::auto_path specified in {class}::shutdown", array(
+			$zesk->logger->warning("No {class}::auto_path specified in {class}::shutdown", array(
 				"class" => __CLASS__
 			));
 			return;
 		}
-		if (!\dir::is_absolute($path)) {
+		if (!Directory::is_absolute($path)) {
 			$path = Application::instance()->application_root($path);
 		}
 		if (!is_dir($path)) {
-			log::warning("{class}::auto_path {path} is not a directory", array(
+			$zesk->logger->warning("{class}::auto_path {path} is not a directory", array(
 				"path" => $path,
 				"class" => __CLASS__
 			));
@@ -733,24 +738,50 @@ class Locale {
 		
 		$filename = path($path, $locale . '-auto.inc');
 		$csv_append = self::translation_file_append($filename, self::$locale_phrases);
-		log::debug("{class}::shutdown - Appended {n} entries to {filename}", array(
+		$zesk->logger->debug("{class}::shutdown - Appended {n} entries to {filename}", array(
 			"filename" => $filename,
 			"n" => count($csv_append),
 			"class" => __CLASS__
 		));
 		if ($do_csv && count($csv_append) > 0) {
 			$csv_filename = path($path, $locale . '-auto.csv');
-			$csv = \str::csv_quote_row(array(
+			$csv = str::csv_quote_row(array(
 				"en_US",
 				$locale
 			));
 			foreach ($csv_append as $k => $v) {
-				$csv .= \str::csv_quote_row(array(
+				$csv .= str::csv_quote_row(array(
 					$k,
 					$v
 				));
 			}
 			file::append($csv_filename, $csv);
+		}
+	}
+	public static function first_day_of_week() {
+		if (function_exists("intlcal_get_first_day_of_week")) {
+			$cal = IntlCalendar::createInstance(null, self::current());
+			return $cal->getFirstDayOfWeek();
+		}
+		return 0;
+	}
+}
+
+if (false) {
+	class IntlCalendar {
+		/**
+		 * 
+		 * @param string $timezone
+		 * @param string $locale
+		 * @return \zesk\IntlCalendar
+		 */
+		static function createInstance($timezone, $locale) {
+			return new self($timezone, $locale);
+		}
+		/**
+		 * @return integer
+		 */
+		static function getFirstDayOfWeek() {
 		}
 	}
 }

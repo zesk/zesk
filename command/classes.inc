@@ -1,5 +1,11 @@
 <?php
 /**
+ * @copyright &copy; 2016 Market Acumen, Inc.
+ */
+use zesk\arr;
+use zesk\Text;
+
+/**
  * Output all classes required in the application
  *
  * @category Database
@@ -35,7 +41,7 @@ class Command_Classes extends Command_Base {
 			}
 			$rows[] = $result;
 		}
-		echo text::format_table($rows);
+		echo Text::format_table($rows);
 		return 0;
 	}
 }

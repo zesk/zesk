@@ -1,18 +1,25 @@
 <?php
-
+/**
+ * 
+ */
 namespace zesk;
 
-use \str as str;
-use \log as log;
-use \json as json;
-
-class Locale_Validate extends \Options {
-
+/**
+ * 
+ * @author kent
+ *
+ */
+class Locale_Validate extends Options {
+	
+	/**
+	 * 
+	 * @param array $options
+	 */
 	public function __construct($options = null) {
 		parent::__construct($options);
 		$this->inherit_global_options();
 	}
-
+	
 	/**
 	 * Verifies if the source variables exist in the translation
 	 *
@@ -50,12 +57,17 @@ class Locale_Validate extends \Options {
 			if (method_exists($this, $full_method)) {
 				$errors = array_merge($errors, $this->$full_method($source, $translation));
 			} else {
-				log::error("Invalid translation check method: {method} for group {group}", compact("method", "group"));
+				zesk()->logger->error("Invalid translation check method: {method} for group {group}", compact("method", "group"));
 			}
 		}
 		return $errors;
 	}
-
+	
+	/**
+	 * 
+	 * @param string $string
+	 * @return string[]
+	 */
 	private function extract_tokens($string) {
 		$matches = array();
 		preg_match_all('/\{[^}]+\}/', $string, $matches, PREG_PATTERN_ORDER);
@@ -63,13 +75,27 @@ class Locale_Validate extends \Options {
 		sort($matches);
 		return $matches;
 	}
+	
+	/**
+	 * Match braces in a stirng and return all matches
+	 * 
+	 * @param string $string
+	 * @return array
+	 */
 	private function extract_braces($string) {
 		$matches = array();
 		preg_match_all('/[\[\]]/', $string, $matches, PREG_PATTERN_ORDER);
 		$matches = $matches[0];
 		return $matches;
 	}
-
+	
+	/**
+	 * Check the token count in the source and translation are the same
+	 * 
+	 * @param string $source
+	 * @param string $translation
+	 * @return string[] An array of errors found in the two strings when compared
+	 */
 	public function check_translation_token_count($source, $translation) {
 		$source = str::right($source, ":=", $source);
 		$source_matches = $this->extract_tokens($source);
@@ -87,7 +113,14 @@ class Locale_Validate extends \Options {
 		}
 		return $errors;
 	}
-
+	
+	/**
+	 * Check that the token names match between source and translation
+	 * 
+	 * @param string $source
+	 * @param string $translation
+	 * @return string[] An array of errors found in the two strings when compared
+	 */
 	public function check_translation_token_names($source, $translation) {
 		$source = str::right($source, ":=", $source);
 		$source_matches = $this->extract_tokens($source);
@@ -109,7 +142,14 @@ class Locale_Validate extends \Options {
 		}
 		return $errors;
 	}
-
+	
+	/**
+	 * Check that the braces in the pattern ar balanced and match between source and translation
+	 * 
+	 * @param string $source
+	 * @param string $translation
+	 * @return string[] An array of errors found when the two strings are compared
+	 */
 	public function check_translation_braces($source, $translation) {
 		$source = str::right($source, ":=", $source);
 		$source_matches = $this->extract_braces($source);
@@ -130,7 +170,7 @@ class Locale_Validate extends \Options {
 			if ($translation_bracket !== $bracket) {
 				$errors[] = __("The {nth} brace in the translation ({translation_bracket}) does not match the source string bracket ({bracket})", array(
 					"nth" => Locale::ordinal($index + 1),
-					"debug" => json::encode($source_matches) . " " . json::encode($translation_matches)
+					"debug" => JSON::encode($source_matches) . " " . JSON::encode($translation_matches)
 				) + compact("translation_bracket", "bracket"));
 				return $errors;
 			}

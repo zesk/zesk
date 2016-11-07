@@ -58,7 +58,7 @@ class Command_Deploy extends Command_Base {
 		$db->query($results);
 		
 		$this->log("Running upgrade scripts");
-		$application->hook("upgrade");
+		$application->call_hook("upgrade");
 		
 		$this->log("Replicating to other systems ...");
 		$this->replicate();

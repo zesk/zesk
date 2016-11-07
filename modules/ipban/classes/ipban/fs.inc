@@ -1,4 +1,8 @@
 <?php
+/**
+ * 
+ */
+use zesk\Directory;
 
 /**
  *
@@ -17,7 +21,7 @@ class IPBan_FS extends Options {
 		if (empty($this->fs_path)) {
 			throw new Exception_Configuration("IPBan_FS::path", "No path set for IPBan_FS::path");
 		}
-		dir::depend($this->fs_path, 0755);
+		Directory::depend($this->fs_path, 0755);
 		$this->php_inc_create();
 	}
 
@@ -97,7 +101,7 @@ class IPBan_FS extends Options {
 		}
 		$dir = dirname($ff);
 		try {
-			dir::depend($dir, 0755);
+			Directory::depend($dir, 0755);
 			file_put_contents($ff, time());
 			chmod($ff, 0644);
 			return 1;
@@ -131,9 +135,9 @@ class IPBan_FS extends Options {
 
 	function clean_empties() {
 		$deleted = 0;
-		foreach (dir::ls($this->fs_path, null, true) as $class_a) {
-			if (dir::is_empty($class_a)) {
-				dir::delete($class_a);
+		foreach (Directory::ls($this->fs_path, null, true) as $class_a) {
+			if (Directory::is_empty($class_a)) {
+				Directory::delete($class_a);
 				$deleted++;
 			}
 		}

@@ -29,7 +29,7 @@ abstract class Version {
 	 */
 	private static function _version_string() {
 		// WAS: zesk.inc 3942 2016-08-04 21:14:54Z kent on 2016-08-04
-		return explode(' ', '$Id: version.inc 3985 2016-08-26 20:44:02Z kent $', 5);
+		return explode(' ', '$Id: version.inc 4009 2016-09-07 19:48:38Z kent $', 5);
 	}
 	
 	/**

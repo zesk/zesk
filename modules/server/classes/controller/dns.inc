@@ -1,15 +1,23 @@
 <?php
-class DNS_Model extends Model {
-	public $valid = false;
-	public $old = null;
-	public $new = null;
-	public $lookup = null;
-	function store() {
-		$this->valid = true;
-	}
-}
+/**
+ * 
+ * @author kent
+ *
+ */
 class Controller_DNS extends Controller_Template {
+	/**
+	 * 
+	 * @var string
+	 */
 	protected $template = "body/default.tpl";
+	
+	/**
+	 * 
+	 * @param unknown $old
+	 * @param unknown $new
+	 * @param string $reverse
+	 * @return string[]
+	 */
 	private function _compare_results($old, $new, $reverse = false) {
 		$compare_result = array();
 		$old_result = $old['result'];
@@ -41,12 +49,21 @@ class Controller_DNS extends Controller_Template {
 				}
 				$compare_result[] = __("< {old}, > {new}: {query} (type {type}) mismatch:\n{debug}", array(
 					'type' => $old_record_type,
-					'debug' => html::tag('pre', $diff->output())
+					'debug' => HTML::tag('pre', $diff->output())
 				) + $old);
 			}
 		}
 		return $compare_result;
 	}
+	
+	/**
+	 * 
+	 * @param unknown $old
+	 * @param unknown $new
+	 * @param string $old_name
+	 * @param string $new_name
+	 * @return string[]
+	 */
 	private function compare_results($old, $new, $old_name = "old", $new_name = "new") {
 		if (!is_array($old)) {
 			return array(
@@ -66,45 +83,58 @@ class Controller_DNS extends Controller_Template {
 			"new" => $old_name
 		)));
 	}
-	private function run_test(DNS_Model $model) {
+	
+	/**
+	 * 
+	 * @param Model_DNS $model
+	 * @return string
+	 */
+	private function run_test(Model_DNS $model) {
 		Module::load("dns;diff");
 		$lookup = trim(preg_replace("/[\r\n,;]+/", "\n", $model->lookup));
 		$lookup = preg_replace('/ +/', ' ', $lookup);
 		$lookup = arr::trim_clean(explode("\n", $lookup));
 		$old = $model->old;
 		$new = $model->new;
-		$result[] = html::tag('h1', "Comparing $old to $new");
-		$result[] = html::tag_open("ul");
+		$result[] = HTML::tag('h1', "Comparing $old to $new");
+		$result[] = HTML::tag_open("ul");
 		foreach ($lookup as $name) {
 			list($type, $name) = pair($name, " ", null, $name);
 			$old_result = dns::host($name, $type, $old);
 			$new_result = dns::host($name, $type, $new);
 			$compare_results = self::compare_results($old_result, $new_result, $old, $new);
 			if (count($compare_results) === 0) {
-				$result[] = html::tag("li", "$name ($type) passed");
+				$result[] = HTML::tag("li", "$name ($type) passed");
 			} else {
-				$result[] = html::tag("li", ".error", count($compare_results) === 1 ? "$name ($type) failed: <br />" . implode("", $compare_results) : "$name($type) failed" . html::tag("ul", html::tags('li', $compare_results)));
+				$result[] = HTML::tag("li", ".error", count($compare_results) === 1 ? "$name ($type) failed: <br />" . implode("", $compare_results) : "$name($type) failed" . HTML::tag("ul", HTML::tags('li', $compare_results)));
 			}
-			// 			$result[] = html::tag('pre', var_export($old_result, true));
-			// 			$result[] = html::tag('pre', var_export($new_result, true));
+			// 			$result[] = HTML::tag('pre', var_export($old_result, true));
+			// 			$result[] = HTML::tag('pre', var_export($new_result, true));
 		}
-		$result[] = html::tag_close("ul");
+		$result[] = HTML::tag_close("ul");
 		return implode("\n", $result);
 	}
+	
+	/**
+	 * 
+	 * @param unknown $domain
+	 */
 	function action_index($domain) {
-		$control = new Control_Object_Edit();
-		$control->child(widgets::control_text("old", "Old Server", true));
-		$control->child(widgets::control_text("new", "New Server", true));
-		$control->child($w = widgets::control_textarea("lookup", "Name", true));
-		$w->set_option('rows', 20);
-		$w->set_option('cols', 80);
-		$w->suffix(html::tag('label', "One per line. Domain names, optionally prefixed by query type and a space."));
+		// 		$control = new Control_Object_Edit();
+		// 		$control->child(widgets::control_text("old", "Old Server", true));
+		// 		$control->child(widgets::control_text("new", "New Server", true));
+		// 		$control->child($w = widgets::control_textarea("lookup", "Name", true));
+		// 		$w->set_option('rows', 20);
+		// 		$w->set_option('cols', 80);
+		// 		$w->suffix(HTML::tag('label', "One per line. Domain names, optionally prefixed by query type and a space."));
+		
 
-		$model = new DNS_Model();
-		$content = $control->execute($model);
-		if ($model->valid) {
-			$content .= $this->run_test($model);
-		}
+		// 		$model = new Model_DNS();
+		// 		$content = $control->execute($model);
+		// 		if ($model->valid) {
+		// 			$content .= $this->run_test($model);
+		// 		}
+		$content = "TODO FIX THIS";
 		$this->template->content = $content;
 	}
 }

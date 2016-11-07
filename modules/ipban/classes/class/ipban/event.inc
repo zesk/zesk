@@ -1,5 +1,5 @@
 <?php
-class Class_IPBan_Event extends Class_Object {
+class Class_IPBan_Event extends zesk\Class_Object {
 
 	public $columns = array(
 		'ip',

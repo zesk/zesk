@@ -13,6 +13,6 @@ function request_uri($asHREF = false, $rooted = false)
 	if ($asHREF) {
 		$qs = str_replace("&", "&amp;", $qs);
 	}
-	return url::current_uri();
+	return URL::current_uri();
 }
 

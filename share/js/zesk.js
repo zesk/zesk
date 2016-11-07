@@ -1,5 +1,5 @@
 /*
- * $Id: zesk.js 3841 2016-06-23 13:47:33Z kent $
+ * $Id: zesk.js 4073 2016-10-17 19:52:16Z kent $
  *
  * Copyright (C) 2007 Market Acumen, Inc. All rights reserved
  */
@@ -7,12 +7,13 @@
 /* Globals storage container */
 (function(exports, $) {
 	"use strict";
-	var zesk = exports.zesk || {
+	var X = exports;
+	var zesk = X.zesk || {
 		inited: false
 	};
 	var hooks = {};
 	var html;
-	var X = exports;
+	var URL;
 	var d = X.document;
 	var L = X.location;
 	var _escape_map = {
@@ -71,6 +72,12 @@
 	function is_function(a) {
 		return gettype(a) === "function";
 	}
+	function is_float(a) {
+		return typeof a === "number" && parseInt(a, 10) !== a;
+	}
+	function is_url (x) {
+		return (/^http:\/\/.+|^https:\/\/.+|^mailto:.+@.+|^ftp:\/\/.+|^file:\/\/.+|^news:\/\/.+/).exec(x.toLowerCase().trim());
+	}
 	function flip(object) {
 		var i, result = {};
 		for (i in object) {
@@ -81,6 +88,17 @@
 		return result;
 	}
 
+	/* Kernel */
+
+	X.is_date = function(a) {
+		return Object.prototype.toString.call(a) === '[object Date]';
+	};
+
+
+	X.gettype = gettype;
+
+	X.each = zesk.each;
+
 	X.is_array = is_array;
 	X.is_object = is_object;
 	X.is_array = is_array;
@@ -90,6 +108,8 @@
 	X.is_string = is_string;
 	X.is_integer = is_integer;
 	X.is_function = is_function;
+	X.is_float = is_float;
+	X.is_url = is_url;
 
 	X.html = html = {};
 	_escape_map_flip = flip(_escape_map);
@@ -517,6 +537,76 @@
 	    }
 	};
 
+	X.URL = URL = function (mixed) {
+		var self = this;
+		$.each(this.keys, function () {
+			self[this] = null;
+		});
+		if (is_object(mixed)) {
+			$.each(this.keys, function () {
+				if (mixed[this]) {
+					self[this] = mixed[this];
+				}
+			});
+		} else if (is_url(mixed)) { 
+			this.parse(mixed);
+		} else if (is_string(mixed)) {
+			this.path = mixed;
+		}
+	};
+	$.extend(URL.prototype, {
+		keys: [ "url", "scheme", "user", "pass", "host", "port", "path", "query", "hash" ],
+		_query: function (mixed) {
+			if (mixed === undefined) {
+				return this.query || null;
+			}
+			if (is_string(mixed)) {
+				if (mixed.charAt(0) !== "?") {
+					mixed = "?" + mixed;
+				}
+			} else if (is_object(mixed)) {
+				var items = [];
+				$.each(mixed, function (k) {
+					if (this === null || this === undefined || this === "") {
+						return;
+					}
+					items.push(encodeURIComponent(k) + "=" + encodeURIComponent(this));
+				});
+				mixed = "?" + items.join("&");
+			}
+			this.query = mixed;
+			this.unparse();
+			return this;
+		},
+		default_port: function () {
+			var ports = {
+				"http": 80,
+				"https": 443,
+				"ftp": 21
+			};
+			return ports[this.scheme] || null;
+		},
+		parse: function (url) {
+			var parser = d.createElement('a');
+			parser.href = url;
+			this.url = url;
+			this.scheme = String(parser.protocol).replace(/:$/, '');
+			this.host = parser.hostname;
+			this.port = parser.port;
+			this.path = parser.pathname;
+			this.query = parser.search;
+			this.hash = parser.hash;
+			return this;
+		},
+		unparse: function () {
+			var user = this.user ? (this.user + (this.pass ? ":" + this.pass : "") + "@") : "";
+			var port = this.port ? (this.port === this.default_port() ? "" : ":" + this.port) : "";
+			var prefix = this.scheme ? this.scheme + ":" : "";
+			var uhp = this.host ? "//" + user + this.host + port : "";
+			this.url = prefix + uhp + this.path + this.query + (this.hash ? this.hash : "");
+			return this.url;
+		}
+	});
 	X.clone = function(object) {
 		var clone, prop, Constructor;
 		if (object === null) {
@@ -555,23 +645,6 @@
 		return clone;
 	};
 
-	/* Kernel */
-	X.is_float = function(a) {
-		return typeof a === "number" && parseInt(a, 10) !== a;
-	};
-
-	X.is_date = function(a) {
-		return Object.prototype.toString.call(a) === '[object Date]';
-	};
-
-	X.is_url = function(x) {
-		return (/^http:\/\/.+|^https:\/\/.+|^mailto:.+@.+|^ftp:\/\/.+|^file:\/\/.+|^news:\/\/.+/).exec(x.toLowerCase().trim());
-	};
-
-	X.gettype = gettype;
-
-	X.each = zesk.each;
-
 	$.extend(Array.prototype, {
 	    contains: function(x) {
 		    for (var i = 0; i < this.length; i++) {
@@ -599,6 +672,27 @@
 		    prefix = String(prefix) || "";
 		    suffix = String(suffix) || "";
 		    return prefix + this.join(suffix + prefix) + suffix;
+	    }
+	});
+
+	$.extend(Object, {
+	    fromCamelCase: function(from) {
+		    var to = {};
+		    for ( var i in from) {
+			    if (from.hasOwnProperty(i)) {
+				    to[i.fromCamelCase()] = from[i];
+			    }
+		    }
+		    return to;
+	    },
+	    toCamelCase: function(from) {
+		    var to = {};
+		    for ( var i in this) {
+			    if (from.hasOwnProperty(i)) {
+				    to[i.toCamelCase()] = from[i];
+			    }
+		    }
+		    return to;
 	    }
 	});
 

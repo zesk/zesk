@@ -1,5 +1,5 @@
 <?php
 
-class Class_Code_Function extends Class_Object {
+class Class_Code_Function extends zesk\Class_Object {
 
 }

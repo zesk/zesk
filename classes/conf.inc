@@ -1,9 +1,19 @@
 <?php
-use zesk\file as file;
+/**
+ * 
+ */
+use zesk\arr;
+use zesk\File;
+use zesk\JSON;
+use zesk\Text;
+use zesk\Adapter_Settings_Array;
+use zesk\Adapter_Settings_Configuration;
+use zesk\Interface_Settings;
 
 /**
  * Configuration files, somewhat compatible with BASH environment shells
  * Useful for setting options which you want to also access via BASH or compatible shell.
+ *
  * @see conf::load
  *
  * @version $URL$
@@ -41,7 +51,7 @@ class conf {
 				"file" => $file
 			));
 		}
-		return self::parse(file::lines($file), $options, $dependencies, $file);
+		return self::parse(File::lines($file), $options, $dependencies, $file);
 	}
 	private static $options_default_global = null;
 	
@@ -60,7 +70,7 @@ class conf {
 		if (self::$options_default_global === null) {
 			$prefix = __CLASS__ . "::";
 			self::$options_default_global = arr::kunprefix(zesk::get(array(
-				$prefix . "overwrite" => false,
+				$prefix . "overwrite" => true,
 				$prefix . "trim_key" => true,
 				$prefix . "separator" => '=',
 				$prefix . "trim_value" => true,
@@ -133,6 +143,10 @@ class conf {
 				$key = str::unsuffix($key, "[]");
 				$append = true;
 			}
+			$key = strtr($key, array(
+				"___" => "\\",
+				"__" => "::"
+			));
 			$found_quote = null;
 			if ($unquote) {
 				$value = unquote($value, $unquote, $found_quote);
@@ -175,7 +189,7 @@ class conf {
 		$file_paths = array();
 		$no_file_paths = array();
 		foreach ($files as $file) {
-			if (file::is_absolute($file)) {
+			if (File::is_absolute($file)) {
 				if (is_readable($file)) {
 					$file_paths[] = $file;
 				} else {
@@ -234,7 +248,7 @@ class conf {
 		$low_edits = arr::flip_copy(array_keys($edits), true);
 		$new_lines = array();
 		if (file_exists($path)) {
-			$lines = file::lines($path);
+			$lines = File::lines($path);
 			foreach ($lines as $line) {
 				$result = self::parse_line($line, $options);
 				if ($result === null) {
@@ -245,7 +259,7 @@ class conf {
 					if (array_key_exists($lowkey, $low_edits)) {
 						$key = $low_edits[$lowkey];
 						unset($low_edits[$lowkey]);
-						$new_lines[] = $key . '=' . text::lines_wrap(json::encode($edits[$key]), "\t", "", "") . "\n";
+						$new_lines[] = $key . '=' . Text::lines_wrap(JSON::encode($edits[$key]), "\t", "", "") . "\n";
 						unset($edits[$key]);
 					} else {
 						$new_lines[] = rtrim($line, "\n") . "\n";
@@ -254,9 +268,9 @@ class conf {
 			}
 		}
 		foreach ($low_edits as $low_edit => $key) {
-			$new_lines[] = $key . '=' . json::encode($edits[$key]) . "\n";
+			$new_lines[] = $key . '=' . JSON::encode($edits[$key]) . "\n";
 		}
-		file::put($path, implode("", $new_lines));
+		File::put($path, implode("", $new_lines));
 	}
 	
 	/**

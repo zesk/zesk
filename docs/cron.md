@@ -54,7 +54,7 @@ So, if I have an object, which requires regular maintenance or checking, I could
 	class Automobile extends Object {
 		...
 		public static function cron_cluster_month(zesk\Application $application) {
-			foreach (Object::class_query("Automobile")->where("IsActive", true)->object_iterator() as $auto) {
+			foreach ($application->query_select("Automobile")->where("IsActive", true)->object_iterator() as $auto) {
 				$auto->monthly_maintenance();
 			}
 		}
@@ -65,6 +65,14 @@ And it would be run approximately every month on a single server in a multi-serv
 Note that the cron run scheduler simply ensures that each task is run at least once a month, by comparing the current run time with the previously run time for each group of tasks.
 
 Cron **does use** a database lock to ensure that one copy of cron is running at any time, per server. Locks are made for each server, and then for the entire cluster to ensure that only one version is running at a time. 
+
+## No ordering
+
+Cron methods within a specific invocation are not run in any particular order, and applications should make efforts to avoid requiring ordering of functionality. If ordering of method invocation is needed, methods should be combined into single procedures to ensure correct ordering, or processing can be placed in `Module::hook_cron_before` (before all cron methods are run) or `Module::hook_cron_after` (after all cron methods are run).
+
+## Short tasks
+
+Cron tasks should be short tasks, less than a few seconds each. You can set the directive `Module_Cron::elapsed_warn` to the number of seconds you wish to see warnings about.
 
 ## Cron via Command Line
 

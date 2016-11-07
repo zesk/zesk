@@ -1,6 +1,6 @@
 <?php
 
-class Class_Filter_State extends Class_Object {
+class Class_Filter_State extends zesk\Class_Object {
 	public $id_column = "id";
 
 	public $column_types = array(

@@ -1,6 +1,6 @@
 <?php
 
-/* @var $this Template */
+/* @var $this zesk\Template */
 
 $where = $this->get('where');
 if (!in_array($where, array(
@@ -117,7 +117,7 @@ $timeout = $this->geti('timeout', 30);
 				e.innerHTML = content;
 				return e;
 			}
-			t.add(css_add('<?php echo url::query_format($this->css_url, $qs) ?>'));
+			t.add(css_add('<?php echo URL::query_format($this->css_url, $qs) ?>'));
 			t.add(iframe_add('<?php echo $this->iframe_url_prefix ?>'+escape(d.URL)+'&title='+escape(d.title)));
 			t.add(div_add('<?php echo $id ?>-close', '<a href="javascript:zesk_overlay.close()"></a>'));
 			t.te = t.add(div_add('<?php echo $id ?>-timer', '&nbsp;'));

@@ -160,7 +160,7 @@ class Parse_Log extends Hookable {
 		if ($this->line_pattern !== null) {
 			return;
 		}
-		$this->format = $format = $this->hook_array('format', array(), $this->option('format'));
+		$this->format = $format = $this->call_hook_arguments('format', array(), $this->option('format'));
 		$match = null;
 		$captures = array(
 			"line"
@@ -263,7 +263,7 @@ class Parse_Log extends Hookable {
 			$matches = call_user_func($method, $matches);
 		}
 		$matches = $this->imply_variables($matches);
-		return $this->hook_array("line_alter", array(
+		return $this->call_hook_arguments("line_alter", array(
 			$matches
 		), $matches);
 	}
@@ -278,7 +278,7 @@ class Parse_Log extends Hookable {
 		foreach (to_list('m;d;h;s;n') as $k) {
 			$kk = $k . $k;
 			if (!array_key_exists($kk, $variables) && array_key_exists($k, $variables)) {
-				$variables[$kk] = text::ralign($variables[$k], 2, '0');
+				$variables[$kk] = Text::ralign($variables[$k], 2, '0');
 			}
 			if (!array_key_exists($k, $variables) && array_key_exists($kk, $variables)) {
 				$variables[$k] = intval($variables[$kk]);

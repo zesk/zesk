@@ -1,5 +1,6 @@
 <?php
-use zesk\Timestamp as Timestamp;
+
+use zesk\Object;
 
 class Test_Object extends Test_Unit {
 	function _test_object() {
@@ -38,7 +39,7 @@ class Test_Object extends Test_Unit {
 	 * @not_test
 	 */
 	final function run_test_an_object(Object $object, $test_field = "ID") {
-		$this->log(get_class($object) . " members: " . php::dump($object->members()));
+		$this->log(get_class($object) . " members: " . PHP::dump($object->members()));
 
 		$table = $object->table();
 
@@ -66,7 +67,7 @@ class Test_Object extends Test_Unit {
 
 		$object->select_database();
 
-		$this->log(get_class($object) . " members: " . php::dump($object->members()));
+		$this->log(get_class($object) . " members: " . PHP::dump($object->members()));
 
 		$object->refresh();
 
@@ -92,7 +93,7 @@ class Test_Object extends Test_Unit {
 		$def = null;
 		$object->member($f, $def);
 
-		$this->log(get_class($object) . " members: " . php::dump($object->members()));
+		$this->log(get_class($object) . " members: " . PHP::dump($object->members()));
 
 		$f = $test_field;
 		$object->changed($f);
@@ -146,7 +147,7 @@ class Test_Object extends Test_Unit {
 				$object->__set($member, "stuff" . mt_rand());
 			}
 		}
-		echo php::dump($object->members());
+		echo PHP::dump($object->members());
 		$object->store();
 
 		$object->register();

@@ -1,6 +1,14 @@
 <?php
+/**
+ * 
+ */
+use zesk\Directory;
+use zesk\Timestamp;
+use zesk\Database;
+use zesk\Object;
+use zesk\Exception_File_NotFound;
+use zesk\Exception_File_Create;
 
-use zesk\Timestamp as Timestamp;
 /**
  * @see Class_Content_Data
  * @author kent
@@ -91,7 +99,7 @@ class Content_Data extends Object {
 			$object = Object::factory(__CLASS__, $fields);
 			$row = $object->exists();
 			if ($row) {
-				$object->register_result(self::REGISTER_Exists);
+				$object->object_status(self::status_exists);
 				return $object->initialize($row, true);
 			}
 		}
@@ -118,14 +126,16 @@ class Content_Data extends Object {
 	 * @return multitype:string unknown Ambigous <string, mixed>
 	 */
 	private static function _copy_data($source_path, $copy, $md5, $data = null) {
+		global $zesk;
+		/* @var $zesk zesk\Kernel */
 		$result = array();
-		$result['data_path'] = zesk::data_path();
+		$result['data_path'] = $zesk->paths->data();
 		$result['original_path'] = $source_path;
 		$result['path'] = 'content/data/' . $md5 . "." . file::extension($source_path);
 		
 		$dest = path($result['data_path'], $result['path']);
 		
-		dir::depend(dirname($dest));
+		Directory::depend(dirname($dest));
 		
 		if ($data !== null) {
 			if (!file_put_contents($dest, $data)) {
@@ -294,6 +304,8 @@ class Content_Data extends Object {
 	 * Internal validation function, attempts to repair files when filesystem changes, etc.
 	 */
 	protected function validate_and_repair() {
+		global $zesk;
+		/* @var $zesk zesk\Kernel */
 		if ($this->type === 'path') {
 			if (!is_array($this->data)) {
 				log::error("Content_data({ID}) has non array data", $this->members());
@@ -310,7 +322,7 @@ class Content_Data extends Object {
 							'old_path' => $old_path,
 							"new_path" => $this_path
 						) + $this->members());
-						$this->data['data_path'] = zesk::data_path();
+						$this->data['data_path'] = $zesk->paths->data();
 					} else {
 						log::error("Content_data({ID}) Unable to move {old_path} to {new_path}", array(
 							'old_path' => $old_path,
@@ -322,7 +334,7 @@ class Content_Data extends Object {
 						'old_path' => $old_path,
 						"new_path" => $this_path
 					) + $this->members());
-					if ($this->memberIsEmpty('missing')) {
+					if ($this->member_is_empty('missing')) {
 						$this->missing = "now";
 					}
 				}
@@ -344,6 +356,11 @@ class Content_Data extends Object {
 		$this->checked = "now";
 		$this->store();
 	}
+	
+	/**
+	 * 
+	 * @return Content_Data
+	 */
 	protected function switch_storage() {
 		if ($this->type === 'path') {
 			$data = $this->data();
@@ -362,10 +379,15 @@ class Content_Data extends Object {
 	 * @var unknown
 	 */
 	static $checked_db = false;
+	
+	/**
+	 * 
+	 * @return mixed|mixed[]|\zesk\Configuration
+	 */
 	public static function database_size_threshold() {
 		$result = zesk::class_get(__CLASS__, 'database_size_threshold', 8 * 1024 * 1024); // Handles most images, which is what we want.
 		if (!self::$checked_db) {
-			$size = Object::cache_object(__CLASS__)->database()->feature(Database::feature_max_blob_size);
+			$size = Object::cache_object(__CLASS__)->database()->feature(zesk\Database::feature_max_blob_size);
 			if ($size < $result) {
 				zesk::set(__CLASS__ . "::database_size_threshold", $result);
 				log::warning("{class}::database_size_threshold Database size threshold {result} is beyond database setting of {size} - adjusting", array(
@@ -379,18 +401,25 @@ class Content_Data extends Object {
 		}
 		return $result;
 	}
+	
 	/**
 	 * Run cron hourly to check files in file system to make sure they are still consistent.
 	 */
-	public static function cron_hourly() {
-		foreach (Object::class_query(__CLASS__)->where("*checked|<=", 'DATE_SUB(UTC_TIMESTAMP(),INTERVAL 1 DAY)')->object_iterator() as $object) {
+	public static function cron_hourly(zesk\Application $application) {
+		foreach ($application->class_query(__CLASS__)->where("*checked|<=", 'DATE_SUB(UTC_TIMESTAMP(),INTERVAL 1 DAY)')->object_iterator() as $object) {
 			$object->validate_and_repair();
 		}
 		$threshold = self::database_size_threshold();
-		foreach (Object::class_query(__CLASS__)->where("*size|<=", $threshold)->where('type', 'path')->object_iterator() as $object) {
+		foreach ($application->class_query(__CLASS__)
+			->where("*size|<=", $threshold)
+			->where('type', 'path')
+			->object_iterator() as $object) {
 			$object->switch_storage();
 		}
-		foreach (Object::class_query(__CLASS__)->where("*size|>", $threshold)->where('type', 'data')->object_iterator() as $object) {
+		foreach ($application->class_query(__CLASS__)
+			->where("*size|>", $threshold)
+			->where('type', 'data')
+			->object_iterator() as $object) {
 			$object->switch_storage();
 		}
 	}

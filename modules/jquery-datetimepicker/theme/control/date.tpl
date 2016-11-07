@@ -1,10 +1,30 @@
 <?php
+/**
+ * @copyright &copy; 2016 Market Acumen, Inc.
+ */
+namespace zesk;
 
-use zesk\Timestamp as Timestamp;
-
-/* @var $this Template */
-$response = $this->response;
-/* @var $response Response_HTML */
+if (false) {
+	/* @var $this Template */
+	
+	$zesk = $this->zesk;
+	/* @var $zesk \zesk\Kernel */
+	
+	$application = $this->application;
+	/* @var $application \zesk\Application */
+	
+	$session = $this->session;
+	/* @var $session \zesk\Session */
+	
+	$router = $this->router;
+	/* @var $request \zesk\Router */
+	
+	$request = $this->request;
+	/* @var $request \zesk\Request */
+	
+	$response = $this->response;
+	/* @var $response \zesk\Response_Text_HTML */
+}
 
 $id = $this->id;
 if (empty($id)) {
@@ -17,7 +37,7 @@ echo $this->theme('control/text', array(
 ));
 
 $options = $this->get(array(
-	"lang" => zesk\Locale::language(zesk\Locale::current()),
+	"lang" => Locale::language(zesk\Locale::current()),
 	"inline" => $this->getb('inline'),
 	"format" => "Y-m-d",
 	'timepicker' => false
@@ -28,4 +48,4 @@ if ($this->data_future_only) {
 	$options['maxDate'] = Timestamp::now()->format();
 }
 
-$this->response->jquery("\$(\"#$id\").datetimepicker(" . json::encode($options) . ");");
+$this->response->jquery("\$(\"#$id\").datetimepicker(" . JSON::encode($options) . ");");

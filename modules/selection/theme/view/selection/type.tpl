@@ -16,13 +16,13 @@ $lines = array();
 foreach ($tags as $key => $line) {
 	$class = $key === $first_key ? ".first" : "";
 	$class = $key === $last_key ? ".last" : "";
-	$lines[] = html::tag('li', $class, $line);
+	$lines[] = HTML::tag('li', $class, $line);
 }
-echo html::tag('ul', '.selection-type', implode("\n", $lines));
+echo HTML::tag('ul', '.selection-type', implode("\n", $lines));
 
 if ($this->show_editor) {
-	$href = url::add_ref('/selection/' . $value->id . '/list');
-	echo html::tag('a', array(
+	$href = URL::add_ref('/selection/' . $value->id . '/list');
+	echo HTML::tag('a', array(
 		'class' => 'btn btn-default',
 		'data-modal-url' => $href,
 		'href' => $href

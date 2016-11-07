@@ -1,5 +1,11 @@
 <?php
 
+use zesk\PHP;
+use zesk\Database;
+use zesk\Database_Table;
+use zesk\Database_Column;
+use zesk\Database_Exception_Duplicate;
+
 class Database_Test extends Test_Unit {
 	// 	function test_table_indexes() {
 	// 		$table = "db_table_indexes_test";
@@ -708,7 +714,7 @@ class Database_Test extends Test_Unit {
 
 		foreach ($tests as $test) {
 			list($what, $where, $count) = $test;
-			$this->assert($db->update($table, $what, $where, $options) === true, "\$db->update($table, " . php::dump($what) . ", " . php::dump($where) . ", " . php::dump($options) . ") === true");
+			$this->assert($db->update($table, $what, $where, $options) === true, "\$db->update($table, " . PHP::dump($what) . ", " . PHP::dump($where) . ", " . PHP::dump($options) . ") === true");
 			$this->assert($db->affected_rows() === $count);
 		}
 	}

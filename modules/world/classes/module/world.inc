@@ -6,6 +6,13 @@
  * @author kent
  * @copyright Copyright &copy; 2012, Market Acumen, Inc.
  */
+use zesk\Application;
+
+/**
+ * 
+ * @author kent
+ *
+ */
 class Module_World extends Module_JSLib {
 	protected $javascript_paths = array(
 		'/share/world/js/module.world.js'
@@ -18,8 +25,8 @@ class Module_World extends Module_JSLib {
 		'Language',
 		'Province'
 	);
-	public function hook_head(Request $request, Response_HTML $response, Template $template) {
-		$currency = $this->hook_array("currency", array(), null);
+	public function hook_head(zesk\Request $request, zesk\Response_Text_HTML $response, zesk\Template $template) {
+		$currency = $this->call_hook_arguments("currency", array(), null);
 		/* @var $currency Currency */
 		if ($currency instanceof Currency) {
 			$this->javascript_settings += array(
@@ -38,7 +45,7 @@ class Module_World extends Module_JSLib {
 	 // 			'http://www.iso.org/iso/list-en1-semic-3.txt',
 	 // 			'http://www.iso.org/iso/list-fr1-semic.txt'
 	 // 		);
-	 $dest = dir::depend(path($path, 'bootstrap-data'));
+	 $dest = Directory::depend(path($path, 'bootstrap-data'));
 	 foreach ($urls as $url) {
 	 $contents = file_get_contents($url);
 	 if ($contents) {

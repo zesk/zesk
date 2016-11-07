@@ -5,7 +5,7 @@
  *
  * @author kent
  */
-class Class_Zesk_Contact_Tag extends Class_Object {
+class Class_Zesk_Contact_Tag extends zesk\Class_Object {
 
 	public $has_one = array(
 		'user' => 'User'

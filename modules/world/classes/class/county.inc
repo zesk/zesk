@@ -1,5 +1,5 @@
 <?php
-class Class_County extends Class_Object {
+class Class_County extends zesk\Class_Object {
 	public $id_column = "id";
 	public $name_column = "name";
 	public $has_one = array(

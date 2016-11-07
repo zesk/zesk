@@ -8,7 +8,7 @@
  * Created on Fri Feb 26 17:23:39 EST 2010 17:23:39
  */
 
-use zesk\Timestamp as Timestamp;
+use zesk\Timestamp;
 
 /**
  * XML_RPC_Value

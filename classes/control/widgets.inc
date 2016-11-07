@@ -26,13 +26,13 @@ class Control_Widgets extends Control {
 			return;
 			backtrace();
 		}
-		$this->widgets = $widgets = Control::factory("Control")->names($this->name() . "_widgets");
+		$this->widgets = $widgets = $this->widget_factory("Control")->names($this->name() . "_widgets");
 		$child_widgets = $this->_widgets();
 		if (count($child_widgets)) {
 			$this->child($widgets);
 			$widgets->children($child_widgets);
 		}
-		$this->children = $this->hook_array("children", array(
+		$this->children = $this->call_hook_arguments("children", array(
 			$this->children
 		), $this->children);
 		foreach ($this->children as $name => $child) {
@@ -58,10 +58,6 @@ class Control_Widgets extends Control {
 					$w->error(__($message, $__), $w->column() . "_raw");
 					$valid = false;
 					$this->error($w);
-				}
-				/* TODO Deprecate this */
-				if ($w->option_bool("FileUpload")) {
-					$this->set_option("FileUpload", true);
 				}
 			}
 		}

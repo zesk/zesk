@@ -7,14 +7,15 @@
  * @copyright Copyright &copy; 2009, Market Acumen, Inc.
  * Created on Tue Sep 22 15:59:22 EDT 2009 15:59:22
  */
+namespace zesk;
+
 /**
  * @todo move this to a template
  * @author kent
  *
  */
 class clipboard {
-
-	public static function output(Response_HTML $response, $options = false) {
+	public static function output(Response_Text_HTML $response, $options = false) {
 		static $player_id = 1;
 		
 		$x = new Options($options);
@@ -41,7 +42,7 @@ class clipboard {
 		
 		$html = "<div id=\"clipboard_$id\">$get_flash_text</div>";
 		if ($wrap_class) {
-			$html = html::tag("div", array(
+			$html = HTML::tag("div", array(
 				"class" => $wrap_class
 			), $html);
 		}
@@ -56,7 +57,7 @@ class clipboard {
 			$json['*clipboard'] = $js_text . '.replace(/%/g,\'%25\').replace(/&/g,\'%26\').replace(/\+/g,\'%2B\')';
 		}
 		$js = "";
-		$js .= "var fv$id = " . json::encode($json) . ";\n";
+		$js .= "var fv$id = " . JSON::encode($json) . ";\n";
 		$js .= "var fp$id = swfobject.embedSWF('/clipboard/clipboard.swf','clipboard_$id',$width,$height,'7',null,fv$id);\n";
 		
 		$response->jquery($js);

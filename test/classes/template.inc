@@ -1,4 +1,15 @@
 <?php
+/**
+ * 
+ */
+use zesk\Text;
+use zesk\Template;
+
+/**
+ * 
+ * @author kent
+ *
+ */
 class Test_Template extends Test_Unit {
 
 	function initialize() {
@@ -46,10 +57,10 @@ class Test_Template extends Test_Unit {
 		$files = array();
 		for($i = 0; $i < 5; $i++) {
 			$files[$i] = $f = $this->test_sandbox($i . ".tpl");
-			$pushpop = "echo \"PUSH {\\n\" . text::indent(Template::instance(\"" . ($i + 1) . ".tpl\", array(\"i\" => $i)), 1) . \"} POP\\n\";";
+			$pushpop = "echo \"PUSH {\\n\" . Text::indent(Template::instance(\"" . ($i + 1) . ".tpl\", array(\"i\" => $i)), 1) . \"} POP\\n\";";
 			$content = <<<END
 <?php
-echo "BEGIN Template $i {\\n";
+echo "BEGIN zesk\Template $i {\\n";
 \$this->v$i = "hello$i";
 \$this->g = "hello$i";
 echo "v (" . \$this->v0 . "," . \$this->v1 . "," . \$this->v2 . "," . \$this->v3 . "," . \$this->v4 . ")\\n";
@@ -60,7 +71,7 @@ echo "v (" . \$this->v0 . "," . \$this->v1 . "," . \$this->v2 . "," . \$this->v3
 echo "g (" . \$this->g. ")\\n";
 echo "h (" . \$this->h. ")\\n";
 \$this->h = "hello$i";
-echo "} END Template $i";
+echo "} END zesk\Template $i";
 END;
 
 			$map = array(
@@ -76,27 +87,27 @@ END;
 		$result = $x->render();
 
 		$expect = <<<EOF
-BEGIN Template 0 {
+BEGIN zesk\Template 0 {
 v (hello0,,,,)
 g (hello0)
 h ()
 PUSH {
-	BEGIN Template 1 {
+	BEGIN zesk\Template 1 {
 	v (hello0,hello1,,,)
 	g (hello1)
 	h ()
 	PUSH {
-		BEGIN Template 2 {
+		BEGIN zesk\Template 2 {
 		v (hello0,hello1,hello2,,)
 		g (hello2)
 		h ()
 		PUSH {
-			BEGIN Template 3 {
+			BEGIN zesk\Template 3 {
 			v (hello0,hello1,hello2,hello3,)
 			g (hello3)
 			h ()
 			PUSH {
-				BEGIN Template 4 {
+				BEGIN zesk\Template 4 {
 				v (hello0,hello1,hello2,hello3,hello4)
 				g (hello4)
 				h ()
@@ -104,27 +115,27 @@ PUSH {
 				v (hello0,hello1,hello2,hello3,hello4)
 				g (hello4)
 				h ()
-				} END Template 4
+				} END zesk\Template 4
 			} POP
 			v (hello0,hello1,hello2,hello3,hello4)
 			g (hello4)
 			h (hello4)
-			} END Template 3
+			} END zesk\Template 3
 		} POP
 		v (hello0,hello1,hello2,hello3,hello4)
 		g (hello4)
 		h (hello3)
-		} END Template 2
+		} END zesk\Template 2
 	} POP
 	v (hello0,hello1,hello2,hello3,hello4)
 	g (hello4)
 	h (hello2)
-	} END Template 1
+	} END zesk\Template 1
 } POP
 v (hello0,hello1,hello2,hello3,hello4)
 g (hello4)
 h (hello1)
-} END Template 0
+} END zesk\Template 0
 EOF;
 		echo $result;
 		$this->assert_equal(trim($result), trim($expect));

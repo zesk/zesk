@@ -5,7 +5,7 @@
  * @author kent
  *
  */
-class Class_PolyGlot_Update extends Class_Object {
+class Class_PolyGlot_Update extends zesk\Class_Object {
 	public $id_column = "locale";
 
 	public $auto_column = false;

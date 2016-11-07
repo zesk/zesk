@@ -1,4 +1,8 @@
 <?php
+/**
+ * 
+ */
+use zesk\PHP;
 
 /**
  * Output all globals
@@ -36,7 +40,7 @@ class Command_Globals extends Command_Base {
 	 */
 	function run() {
 		global $zesk;
-		php::dump_settings_one();
+		PHP::dump_settings_one();
 		$globals = $zesk->configuration->to_array();
 		ksort($globals);
 		$args = $this->arguments_remaining(true);

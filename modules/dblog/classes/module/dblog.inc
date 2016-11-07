@@ -7,6 +7,13 @@
  * @package zesk
  * @subpackage dblog
  */
+use zesk\Database_Exception_Table_NotFound;
+
+/**
+ * 
+ * @author kent
+ *
+ */
 class Module_DBLog extends Module_Log {
 	
 	/**
@@ -90,7 +97,7 @@ class Module_DBLog extends Module_Log {
 	 */
 	public static function enabled() {
 		global $zesk;
-		zesk::deprecated();
+		zesk()->deprecated();
 		/* @var $zesk zesk\Kernel */
 		return boolval($zesk->configuration->path_get(__CLASS__ . '::enabled'));
 	}

@@ -1,5 +1,13 @@
 <?php
-use zesk\Locale as Locale;
+/**
+ * @version $URL: https://code.marketacumen.com/zesk/trunk/modules/polyglot/classes/polyglot/token.inc $
+ * @author $Author: kent $
+ * @package {package}
+ * @subpackage {subpackage}
+ * @copyright Copyright (C) 2016, {company}. All rights reserved.
+ */
+use zesk\Locale;
+use zesk\Database_Query_Select;
 
 /**
  * @author kent
@@ -34,7 +42,7 @@ class PolyGlot_Token extends Object {
 			$this->user = User::instance();
 		}
 		if ($this->member_is_empty("context")) {
-			$this->context = $this->hook("context_default");
+			$this->context = $this->call_hook("context_default");
 		}
 		if ($this->member_is_empty("status")) {
 			$this->status = self::status_todo;
@@ -45,7 +53,7 @@ class PolyGlot_Token extends Object {
 		}
 		$result = parent::store();
 		if ($result && $this->status === self::status_delete) {
-			Object::class_query_delete(__CLASS__)->where(array(
+			$this->query_delete()->where(array(
 				"*md5" => "UNHEX('$this->md5')",
 				"language|!=" => array(
 					null,
@@ -113,7 +121,7 @@ class PolyGlot_Token extends Object {
 	/**
 	 *
 	 * @param string $locale
-	 * @return Database_Query_Select
+	 * @return zesk\Database_Query_Select
 	 */
 	public static function locale_query($locale) {
 		return Object::class_query(__CLASS__)->what_object()->where(array(

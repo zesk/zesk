@@ -1,6 +1,6 @@
 <?php
 
-class Class_Lock extends Class_Object {
+class Class_Lock extends zesk\Class_Object {
 	public $id_column = "id";
 
 	public $has_one = array(

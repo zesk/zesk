@@ -7,13 +7,15 @@
  * @copyright Copyright &copy; 2014, Market Acumen, Inc.
  */
 
+namespace zesk;
+
 /**
  * Base class
  *
- * @see Class_Zesk_Content_Article
+ * @see Class_zesk\Content_Article
  * @author kent
  */
-class Zesk_Content_Article extends Object {
+class Content_Article extends Object {
 	
 	/**
 	 * 
@@ -69,7 +71,7 @@ class Zesk_Content_Article extends Object {
 	 * @return array
 	 */
 	private static function extract_meta(&$contents) {
-		$tags = html::extract_tags("meta", $contents);
+		$tags = HTML::extract_tags("meta", $contents);
 		$meta = array();
 		$fields = array();
 		if (is_array($tags)) {
@@ -81,7 +83,7 @@ class Zesk_Content_Article extends Object {
 					$meta[$name] = $tag->option("Content");
 				}
 			}
-			$contents = html::remove_tags("meta", $contents);
+			$contents = HTML::remove_tags("meta", $contents);
 		}
 		$temp = avalue($meta, "language");
 		if ($temp) {
@@ -103,13 +105,13 @@ class Zesk_Content_Article extends Object {
 		return $fields;
 	}
 	private static function extract_title(&$contents, $default = null) {
-		$title = html::extract_tag_contents("title", $contents);
+		$title = HTML::extract_tag_contents("title", $contents);
 		if ($title) {
-			$contents = html::remove_tags("title", $contents);
+			$contents = HTML::remove_tags("title", $contents);
 		} else {
-			$title = html::extract_tag_contents("h1", $contents);
+			$title = HTML::extract_tag_contents("h1", $contents);
 			if ($title) {
-				$contents = html::remove_tags("h1", $contents);
+				$contents = HTML::remove_tags("h1", $contents);
 			} else {
 				$title = $default;
 			}
@@ -119,7 +121,7 @@ class Zesk_Content_Article extends Object {
 	public function register_content($name, $contents, $parent, $update = false) {
 		$title = self::extract_title($contents, $name);
 		$fields = self::extract_meta($contents);
-		$body = html::extract_tag_contents("body", $contents);
+		$body = HTML::extract_tag_contents("body", $contents);
 		if (!$body) {
 			$body = $contents;
 		}
@@ -169,27 +171,13 @@ class Zesk_Content_Article extends Object {
 	
 	/**
 	 * 
-	 * @param unknown $spec
-	 */
-	static function factory_control_publish_start_end(&$spec) {
-		$f = widgets::control_date("PublishStart", "Begin publishing on", false);
-		$f->set_option("EmptyString", "Immediate");
-		$spec[$f->column()] = $f;
-		
-		$f = widgets::control_date("PublishEnd", "End publishing on", false);
-		$f->set_option("EmptyString", "Forever");
-		$spec[$f->column()] = $f;
-	}
-	
-	/**
-	 * 
 	 * @return string|void|mixed|string
 	 */
 	function displayDate() {
 		$dd = $this->DisplayDate;
 		if (empty($dd))
 			return "";
-		return View_Date::format($dd, "{mmm} {ddd} ({delta})", array(
+		return \View_Date::format($dd, "{mmm} {ddd} ({delta})", array(
 			'relative_min_unit' => 'day',
 			'zero_string' => 'Today'
 		));
@@ -217,9 +205,9 @@ class Zesk_Content_Article extends Object {
 	function summary() {
 		$result = $this->membere("Summary", "");
 		if (!empty($result)) {
-			return html::ellipsis($result, $this->option_integer('summary_maximum_length', -1));
+			return HTML::ellipsis($result, $this->option_integer('summary_maximum_length', -1));
 		}
-		$result = html::ellipsis($this->body(), $this->option_integer('summary_maximum_length_from_body', 200));
+		$result = HTML::ellipsis($this->body(), $this->option_integer('summary_maximum_length_from_body', 200));
 		return $result;
 	}
 	

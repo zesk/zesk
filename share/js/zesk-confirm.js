@@ -1,5 +1,5 @@
 /*
- * $Id: zesk-confirm.js 2404 2014-04-03 04:37:49Z kent $
+ * $Id: zesk-confirm.js 4076 2016-10-18 04:16:28Z kent $
  *
  * Copyright (C) 2007 Market Acumen, Inc. All rights reserved
  */
@@ -10,9 +10,11 @@
 	"use strict";
 	$('.confirm[data-confirm]').on('click', function (e) {
 		var $this = $(this);
-		if (confirm($this.data('confirm'))) {
+		if (exports.confirm($this.data('confirm'))) {
 			return true;
 		}
+		e.stopPropagation();
+		e.preventDefault();
 		return false;
 	});
 }(window, window.jQuery));

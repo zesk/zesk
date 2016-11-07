@@ -61,23 +61,23 @@ class Control_CKEditor extends Control_Text {
 		);
 	}
 	private function clean($x) {
-		$x = html::clean_tags_without_attributes("a", $x);
+		$x = HTML::clean_tags_without_attributes("a", $x);
 		//		echo "<h1>---original-------</h1>\n";
 		//		dump($x);
 		$x = self::entities_clean($x);
 		//		echo "<h1>---entities_clean-------</h1>\n";
 		//		dump($x);
-		$x = html::clean_tags_attributes($x, "style;href;target", false);
+		$x = HTML::clean_tags_attributes($x, "style;href;target", false);
 		
-		$x = html::clean_style_attributes($x, "font-weight;font-style;margin-left;text-align", false);
+		$x = HTML::clean_style_attributes($x, "font-weight;font-style;margin-left;text-align", false);
 		
-		//		echo "<h1>---html::clean_tags_attributes-------</h1>\n";
+		//		echo "<h1>---HTML::clean_tags_attributes-------</h1>\n";
 		//		dump($x);
 		
 
 		$allowed_tags = $this->option_list("allowed_tags", "strong;em;ul;li;h1;h2;h3;h4;h5;pre;a;blockquote;p;br;span;div");
-		$x = html::clean_tags($x, $allowed_tags);
-		//		echo "<h1>---html::clean_tags-------</h1>\n";
+		$x = HTML::clean_tags($x, $allowed_tags);
+		//		echo "<h1>---HTML::clean_tags-------</h1>\n";
 		//		dump($x);
 		
 
@@ -89,17 +89,17 @@ class Control_CKEditor extends Control_Text {
 		//		dump($x);
 		
 
-		$x = html::trim_white_space($x);
+		$x = HTML::trim_white_space($x);
 		
 		return $x;
 	}
 	private function autoLink($html) {
-		$x = html::remove_tags(explode(";", "a;img;link;style;pre"), $html, true);
+		$x = HTML::remove_tags(explode(";", "a;img;link;style;pre"), $html, true);
 		
 		$urls = false;
 		if (preg_match_all('/[^"]([a-zA-Z]+[:\/\/]+[A-Za-z0-9\-_]+\\.+[A-Za-z0-9\.\/%&=\?\-_]+)/i', $x, $urls)) {
 			foreach ($urls as $url) {
-				$html = str_replace($url[1], html::a($url[1], $url[1]), $html);
+				$html = str_replace($url[1], HTML::a($url[1], $url[1]), $html);
 			}
 		}
 		return $html;
@@ -260,7 +260,7 @@ class Control_CKEditor extends Control_Text {
 	//				case "img":
 	//					if (is_array($attrs)) {
 	//						$attrs = arr::include_exclude($attrs, array("width", "height", "align"));
-	//						$result = html::tag($tag, $attrs, null);
+	//						$result = HTML::tag($tag, $attrs, null);
 	//					}
 	//					break;
 	//			}

@@ -1,6 +1,6 @@
 <?php
 
-class Class_Help_User extends Class_Object {
+class Class_Help_User extends zesk\Class_Object {
 	public $primary_keys = array(
 		'help',
 		'user'

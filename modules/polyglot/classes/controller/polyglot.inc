@@ -9,7 +9,7 @@ class Controller_PolyGlot extends Controller_Template_Login {
 	protected $module = null;
 
 	public function initialize() {
-		$this->module = $this->application->module->object("polyglot");
+		$this->module = $this->application->modules->object("polyglot");
 		parent::initialize();
 	}
 

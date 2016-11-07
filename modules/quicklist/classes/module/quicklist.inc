@@ -1,5 +1,5 @@
 <?php
-class Module_QuickList extends Module_JSLib /* implements Module_Interface_Head, Module_Interface_Foot, Module_Interface_Routes */
+class Module_QuickList extends Module_JSLib /* implements zesk\Interface_Module_Head, zesk\Interface_Module_Foot, zesk\Interface_Module_Routes */
 {
 	protected $javascript_paths = array(
 		"/share/quicklist/js/jquery.quicklist.js" => array(
@@ -31,19 +31,19 @@ class Module_QuickList extends Module_JSLib /* implements Module_Interface_Head,
 	 */
 	
 	/*
-	 protected function hook_foot(Request $request, Response_HTML $response, Template $template) {
+	 protected function hook_foot(zesk\Request $request, zesk\Response_Text_HTML $response, zesk\Template $template) {
 	 
 	 }
 	 */
 	
 	/*
-	 protected function hook_head(Request $request, Response_HTML $response, Template $template) {
+	 protected function hook_head(zesk\Request $request, zesk\Response_Text_HTML $response, zesk\Template $template) {
 	 
 	 }
 	 */
 	
 	/*
-	 public function hook_routes(Router $router) {
+	 public function hook_routes(zesk\Router $router) {
 	 
 	 }
 	 */

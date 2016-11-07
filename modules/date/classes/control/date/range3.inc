@@ -48,18 +48,18 @@ class Control_Date_Range3 extends Control
 
 		$now 		= new Date(gmdate('Y-m-d'));
 
-		$min_date 	= new Date($this->option('minimum_date', $now->toString()));
-		$max_date 	= new Date($this->option('maximum_date', $now->toString()));
+		$min_date 	= new Date($this->option('minimum_date', $now->__toString()));
+		$max_date 	= new Date($this->option('maximum_date', $now->__toString()));
 
-		$start_date_default = new Date($this->option_date("StartDateDefault", $now->toString()));
+		$start_date_default = new Date($this->option_date("StartDateDefault", $now->__toString()));
 		$start_date_default->clamp($min_date, $max_date);
 
-		$start_date_default = $this->_default_value($start_date_default->toString(), $start_col);
+		$start_date_default = $this->_default_value($start_date_default->__toString(), $start_col);
 
-		$end_date_default = new Date($this->option_date("EndDateDefault", $now->toString()));
+		$end_date_default = new Date($this->option_date("EndDateDefault", $now->__toString()));
 		$end_date_default->clamp($min_date, $max_date);
 
-		$end_date_default = $this->_default_value($end_date_default->toString(), $end_col);
+		$end_date_default = $this->_default_value($end_date_default->__toString(), $end_col);
 
 		if ($this->fromDefaults($object)) {
 			$object[$start_col]		= $start_date_default;
@@ -81,8 +81,8 @@ class Control_Date_Range3 extends Control
 		$dtStart->clamp($min_date, $max_date);
 		$dtEnd->clamp($min_date, $max_date);
 
-		$object[$start_col] = $dtStart->toString();
-		$object[$end_col] = $dtEnd->toString();
+		$object[$start_col] = $dtStart->__toString();
+		$object[$end_col] = $dtEnd->__toString();
 
 		if (!$this->option("allow_future_start", false)) {
 			if ($dtStart->after($now)) {
@@ -98,8 +98,8 @@ class Control_Date_Range3 extends Control
 		// Must not allow start date to be after end date.  If this is the case, swap dates
 		// and check again.
 		if ($dtEnd->compare($dtStart) < 0) {
-			$object[$start_col] = $dtEnd->toString();
-			$object[$end_col] = $dtStart->toString();
+			$object[$start_col] = $dtEnd->__toString();
+			$object[$end_col] = $dtStart->__toString();
 		}
 
 		$this->_save_default_value($object[$start_col], $start_col);
@@ -115,10 +115,10 @@ class Control_Date_Range3 extends Control
 		$min_date 	= new Date($this->option('minimum_date', gmdate('Y-m-d')));
 		$max_date 	= new Date($this->option('maximum_date', gmdate('Y-m-d')));
 
-		$start_date_default = new Date($this->option_date("StartDateDefault", $now->toString()));
+		$start_date_default = new Date($this->option_date("StartDateDefault", $now->__toString()));
 		$start_date_default->clamp($min_date, $max_date);
 
-		$end_date_default = new Date($this->option_date("EndDateDefault", $now->toString()));
+		$end_date_default = new Date($this->option_date("EndDateDefault", $now->__toString()));
 		$end_date_default->clamp($min_date, $max_date);
 
 		$input_name = $this->name();
@@ -126,8 +126,8 @@ class Control_Date_Range3 extends Control
 		$start_column = $this->_startColumn();
 		$end_column = $this->_endColumn();
 
-		$start_date = new Date(aevalue($object, $start_column, $start_date_default->toString()));
-		$end_date = new Date(aevalue($object, $end_column, $end_date_default->toString()));
+		$start_date = new Date(aevalue($object, $start_column, $start_date_default->__toString()));
+		$end_date = new Date(aevalue($object, $end_column, $end_date_default->__toString()));
 
 		$attrs = array(
 		"mandatory" => true,
@@ -155,12 +155,12 @@ class Control_Date_Range3 extends Control
 		$result = "";
 		$input_type = "hidden";
 
-		$result .= html::input($input_type, $input_name . '_minDate', $min_date->toString());
-		$result .= html::input($input_type, $input_name . '_maxDate', $max_date->toString());
+		$result .= HTML::input($input_type, $input_name . '_minDate', $min_date->__toString());
+		$result .= HTML::input($input_type, $input_name . '_maxDate', $max_date->__toString());
 
 		$display_format = '{M}/{D}/{YYYY}';
 
-		$result .= html::input($input_type, $start_column, $start_date->toString());
+		$result .= HTML::input($input_type, $start_column, $start_date->__toString());
 		$input_attrs = array(
 			'type' => 'text',
 			'id' => $start_column . "_display",
@@ -168,8 +168,8 @@ class Control_Date_Range3 extends Control
 			'value' => $start_date->format($display_format),
 			'class' => 'date-input'
 		);
-		$result .= html::tag('input', $input_attrs, null);
-		$result .= html::input($input_type, $end_column, $end_date->toString());
+		$result .= HTML::tag('input', $input_attrs, null);
+		$result .= HTML::input($input_type, $end_column, $end_date->__toString());
 		$input_attrs = array(
 			'type' => 'text',
 			'id' => $end_column . "_display",
@@ -177,12 +177,12 @@ class Control_Date_Range3 extends Control
 			'value' => $end_date->format($display_format),
 			'class' => 'date-input'
 		);
-		$result .= '&nbsp;&mdash;&nbsp;' . html::tag('input', $input_attrs, null);
+		$result .= '&nbsp;&mdash;&nbsp;' . HTML::tag('input', $input_attrs, null);
 
-		$result = html::div(array('id' => $input_name . "_locale_date", "class" => "locale-chosen-date"), $this->option("empty_string", "No dates selected")) . $result;
+		$result = HTML::div(array('id' => $input_name . "_locale_date", "class" => "locale-chosen-date"), $this->option("empty_string", "No dates selected")) . $result;
 		$result .= $this->outputChoices($min_date, $max_date);
 
-		return html::tag('div', array('class' => 'datepicker'), $result);
+		return HTML::tag('div', array('class' => 'datepicker'), $result);
 	}
 
 	private function outputChoices(Date $minDate, Date $maxDate)
@@ -191,9 +191,9 @@ class Control_Date_Range3 extends Control
 		$name = $this->name();
 		$result = "";
 		foreach ($options as $k => $text) {
-			$result .= html::tag("li", null, html::tag("a", array("id" => "$name-$k", "href" => "javascript:zesk_datepicker_update('".$k."', '".$name."')"), $text));
+			$result .= HTML::tag("li", null, HTML::tag("a", array("id" => "$name-$k", "href" => "javascript:zesk_datepicker_update('".$k."', '".$name."')"), $text));
 		}
-		return html::tag("ul", array("class" => "choices"), $result);
+		return HTML::tag("ul", array("class" => "choices"), $result);
 	}
 
 	private function _rangeOptions(Date $minDate, Date $maxDate)

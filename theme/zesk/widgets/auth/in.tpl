@@ -9,7 +9,7 @@
  */
 
 if (false) {
-	/* @var $this Template */
+	/* @var $this zesk\Template */
 
 	$zesk = $this->zesk;
 	/* @var $zesk zesk\Kernel */
@@ -27,7 +27,7 @@ if (false) {
 	/* @var $request Request */
 
 	$response = $this->response;
-	/* @var $response Response_HTML */
+	/* @var $response zesk\Response_Text_HTML */
 
 	$current_user = $this->current_user;
 	/* @var $current_user User */

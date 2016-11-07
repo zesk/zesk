@@ -8,7 +8,7 @@
  * Created on Tue Feb 17 20:42:50 EST 2009 20:42:50
  */
 if (false) {
-	/* @var $this Template */
+	/* @var $this zesk\Template */
 	
 	$zesk = $this->zesk;
 	/* @var $zesk zesk\Kernel */
@@ -26,40 +26,40 @@ if (false) {
 	/* @var $request Request */
 	
 	$response = $this->response;
-	/* @var $response Response_HTML */
+	/* @var $response zesk\Response_Text_HTML */
 	
 	$current_user = $this->current_user;
 	/* @var $current_user User */
 }
 
 $web_key = $this->get("web_key", $zesk->configuration->web_key);
-/* @var $this Template */
+/* @var $this zesk\Template */
 
 if ($this->has("URL")) {
 	$u = $this->URL;
 	
-	$host = url::host($u);
-	$current_host = url::current_host();
+	$host = URL::host($u);
+	$current_host = URL::current_host();
 	
-	$attr = $this->has("Attributes") ? html::parse_attributes($this->Attributes) : array();
+	$attr = $this->has("Attributes") ? HTML::parse_attributes($this->Attributes) : array();
 	if ($host === $current_host) {
-		$out_u = url::query_format($u, array(
-			"ref" => url::current()
+		$out_u = URL::query_format($u, array(
+			"ref" => URL::current()
 		));
 	} else {
 		$session = Session_Database::instance(true);
 		$uk = md5($web_key . $u);
-		$out_u = url::query_format("/out/", array(
+		$out_u = URL::query_format("/out/", array(
 			"u" => $u,
 			"uk" => $uk,
-			"ref" => url::current()
+			"ref" => URL::current()
 		));
 	}
 	$attr['href'] = $out_u;
 	if ($this->has("Redirect") && $this->Redirect) {
 		$response->redirect($out_u);
 	}
-	echo html::tag("a", $attr, $this->get("LinkText", $u));
+	echo HTML::tag("a", $attr, $this->get("LinkText", $u));
 	return;
 }
 
@@ -77,7 +77,7 @@ if (md5($web_key . $u) !== $uk) {
 
 $session = Session_Database::instance(true);
 $session = $session->one_time_create();
-$in_url = url::query_format(url::left_host($u) . "in/", array(
+$in_url = URL::query_format(URL::left_host($u) . "in/", array(
 	"u" => $u,
 	"uk" => $uk,
 	"s" => $session->member('Cookie')

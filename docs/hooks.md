@@ -23,7 +23,7 @@ And in any object which inherits "Hookable" which ... is most of them:
 
     /* @var $u User */
     $u = User::instance();
-	if ($u->hook("allowed_request", $request)) {
+	if ($u->call_hook("allowed_request", $request)) {
 		// fun stuff
 	}
 
@@ -32,7 +32,7 @@ a default value to be returned when no hook exists:
 
 	/* @var $u User */
 	$u = User::instance();
-	if ($u->hook_array("allowed_request", array($request), true)) {
+	if ($u->call_hook_arguments("allowed_request", array($request), true)) {
 		// fun stuff
 	}
 
@@ -59,7 +59,7 @@ Let's handle these each in order:
 
 ### Interception of hooks on a per-object basis
 
-You'll note that [`Hookable`](`hookable.md`) inherits from [`Options`](options.md) so it inherits the ability to set arbitrary options on any `Hookable` object. There's a special option called "hooks" which allows the user to define a hook to be called. You can then turn this on and off for a specific object if you wish:
+You'll note that [`zesk\Hookable`](`hookable.md`) inherits from [`zesk\Options`](options.md) so it inherits the ability to set arbitrary options on any `Hookable` object. There's a special option called "hooks" which allows the user to define a hook to be called. You can then turn this on and off for a specific object if you wish:
 
 	$this->option_append("hooks", "delete", "project_deleted");
 	
@@ -89,7 +89,7 @@ named
 		}
 	}
 	$foo = new Foo();
-	$foo->hook("dee");
+	$foo->call_hook("dee");
 
 Then your method will be called at the appropriate time.
 

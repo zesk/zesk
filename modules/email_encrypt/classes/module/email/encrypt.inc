@@ -12,7 +12,7 @@ class Module_Email_Encrypt extends Module_JSLib {
 	public function initialize() {
 		global $zesk;
 		/* @var $zesk zesk\Kernel */
-		$zesk->hooks->add(html::tag_attributes_alter_hook_name("a"), array(
+		$zesk->hooks->add(HTML::tag_attributes_alter_hook_name("a"), array(
 			$this,
 			"alter_a_tag"
 		));

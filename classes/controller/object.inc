@@ -8,21 +8,27 @@
  * @copyright Copyright &copy; 2011, Market Acumen, Inc.
  *            Created on Mon,Aug 1, 11 at 5:19 PM
  */
+use zesk\Application;
+use zesk\Model;
+use zesk\Object;
+use zesk\Exception_NotFound;
+use zesk\Exception_Permission;
+use zesk\Exception_Class_NotFound;
 abstract class Controller_Object extends Controller_Template_Login {
-
+	
 	/**
 	 *
 	 * @var boolean
 	 */
 	protected $is_ajax = null;
-
+	
 	/**
 	 * Object class to control
 	 *
 	 * @var string
 	 */
 	protected $class = null;
-
+	
 	/**
 	 * Locale-specific object class name (e.g. "Link", "Page", etc.)
 	 *
@@ -32,7 +38,7 @@ abstract class Controller_Object extends Controller_Template_Login {
 	 * @var string
 	 */
 	protected $class_name = null;
-
+	
 	/**
 	 * Locale of the class_name for translation
 	 *
@@ -43,7 +49,7 @@ abstract class Controller_Object extends Controller_Template_Login {
 	// * @var Controller
 	// */
 	// protected $controller = null;
-
+	
 
 	/**
 	 * URL to redirect to if Control_${this->class}_List
@@ -51,27 +57,27 @@ abstract class Controller_Object extends Controller_Template_Login {
 	 * @var string
 	 */
 	protected $not_found_url = null;
-
+	
 	/**
 	 * Message to pass to failed page
 	 *
 	 * @var string
 	 */
 	protected $not_found_message = "Page not found";
-
+	
 	/**
 	 *
 	 * @var string
 	 */
 	protected $not_found_content = "Page not found";
-
+	
 	/**
 	 * Action default (override in subclasses)
 	 *
 	 * @var string
 	 */
 	protected $action_default = '';
-
+	
 	/**
 	 *
 	 * @var array
@@ -97,43 +103,42 @@ abstract class Controller_Object extends Controller_Template_Login {
 			"Edit"
 		)
 	);
-
 	protected $control_options = array();
-
+	
 	/**
 	 * Action which was found from ->actions above
 	 *
 	 * @var string
 	 */
 	protected $actual_action = null;
-
+	
 	/**
 	 * Permissions which are required for this object to continue
 	 *
 	 * @var string
 	 */
 	protected $permission_actions = null;
-
+	
 	/**
 	 * List of widgets tried when loading controller widget
 	 *
 	 * @var array of string
 	 */
 	protected $tried_widgets = array();
-
+	
 	/**
 	 *
 	 * @var Widget
 	 */
 	protected $widget = null;
-
+	
 	/**
 	 * Action related to above widget
 	 *
 	 * @var string
 	 */
 	protected $widget_action = null;
-
+	
 	/**
 	 *
 	 * @return multitype:
@@ -141,7 +146,7 @@ abstract class Controller_Object extends Controller_Template_Login {
 	function hook_actions() {
 		return array_keys($this->actions);
 	}
-
+	
 	/**
 	 * Classes that are handled by this controller
 	 *
@@ -152,7 +157,7 @@ abstract class Controller_Object extends Controller_Template_Login {
 			$this->class
 		);
 	}
-
+	
 	/**
 	 * Create a Controller_Object
 	 *
@@ -166,14 +171,13 @@ abstract class Controller_Object extends Controller_Template_Login {
 		parent::__construct($app, $options);
 		if (!$this->class_name) {
 			/* @var $class Class_Object */
-			$class = Object::cache_class($this->class, "class");
+			$class = $this->application->class_object($this->class);
 			$this->class_name = $class->name;
 		}
 		if ($this->class_name !== null) {
 			$this->class_name = __($this->class_name, $this->class_name_locale);
 		}
 	}
-
 	private function _action_default_arguments($action = null, $id = null) {
 		$args = func_get_args();
 		if (!empty($id)) {
@@ -184,7 +188,6 @@ abstract class Controller_Object extends Controller_Template_Login {
 		}
 		return $args;
 	}
-
 	private function _compute_url(Object $object, $option, $default_action = null, $default_url = null) {
 		$class = get_class($object);
 		$url = null;
@@ -197,7 +200,6 @@ abstract class Controller_Object extends Controller_Template_Login {
 		}
 		return $url;
 	}
-
 	private function _redirect_response($redirect_url, $message, array $options) {
 		$format = $this->request->get("format");
 		if ($format === "json") {
@@ -210,7 +212,6 @@ abstract class Controller_Object extends Controller_Template_Login {
 		}
 		$this->response->redirect_default($redirect_url, $message);
 	}
-
 	private function _arguments_load($parameter) {
 		if ($parameter instanceof Object) {
 			return array(
@@ -221,7 +222,6 @@ abstract class Controller_Object extends Controller_Template_Login {
 			$this->controller_object_factory($parameter)
 		);
 	}
-
 	function arguments_delete($parameter) {
 		$result = $this->_arguments_load($parameter);
 		if ($result[0] === null) {
@@ -229,11 +229,9 @@ abstract class Controller_Object extends Controller_Template_Login {
 		}
 		return $result;
 	}
-
 	function arguments_duplicate($parameter) {
 		return $this->_arguments_load($parameter);
 	}
-
 	function action_delete(Object $object) {
 		$widget = $this->_action_find_widget("delete", $object);
 		if ($widget) {
@@ -241,7 +239,7 @@ abstract class Controller_Object extends Controller_Template_Login {
 		}
 		$user = $this->user;
 		if ($user->can($object, "delete")) {
-			$this->hook('delete_before', $object);
+			$this->call_hook('delete_before', $object);
 			if (!$object->delete()) {
 				$message = get_class($object) . ":=Unable to delete {class_name-context-object-singular} \"{display_name}\".";
 				$result = false;
@@ -261,15 +259,14 @@ abstract class Controller_Object extends Controller_Template_Login {
 			$this->response->json(array(
 				"message" => $message,
 				"status" => $result,
-				"result" => $result,  // Deprecated
-				"result-deprecated" => $result,  // Deprecated
+				"result" => $result, // Deprecated
+				"result-deprecated" => $result, // Deprecated
 				"redirect_url" => $redirect_url
 			));
 			return;
 		}
 		$this->response->redirect_default($redirect_url, $message);
 	}
-
 	function action_duplicate(Object $object) {
 		$user = $this->user;
 		$class = get_class($object);
@@ -296,7 +293,6 @@ abstract class Controller_Object extends Controller_Template_Login {
 			"object" => $new_object->json()
 		));
 	}
-
 	function before() {
 		if ($this->request->getb('ajax')) {
 			$this->is_ajax = true;
@@ -307,7 +303,6 @@ abstract class Controller_Object extends Controller_Template_Login {
 		}
 		parent::before();
 	}
-
 	function after($result = null, $output = null) {
 		if ($this->is_ajax) {
 			if (!$this->response->json()) {
@@ -323,7 +318,7 @@ abstract class Controller_Object extends Controller_Template_Login {
 					'content' => $content,
 					'microtime' => microtime(true)
 				) + $this->response->to_json();
-
+				
 				$this->response->json($json);
 			}
 			$this->auto_render(false);
@@ -332,7 +327,6 @@ abstract class Controller_Object extends Controller_Template_Login {
 		}
 		parent::after();
 	}
-
 	protected function widget_control_classes($action) {
 		$actual_actions = avalue($this->actions, $action);
 		$actual_actions = to_list($actual_actions);
@@ -345,7 +339,6 @@ abstract class Controller_Object extends Controller_Template_Login {
 		}
 		return $controls;
 	}
-
 	private function _action_find_widget($action) {
 		if ($this->widget_action === $action && $this->widget) {
 			return $this->widget;
@@ -367,7 +360,7 @@ abstract class Controller_Object extends Controller_Template_Login {
 		}
 		return null;
 	}
-
+	
 	/**
 	 * Override in subclasses to get unique factory behavior (say, dependent on other objects in the route)
 	 *
@@ -378,7 +371,6 @@ abstract class Controller_Object extends Controller_Template_Login {
 	protected function controller_object_factory($mixed = null, $options = null) {
 		return $this->object_factory($this->class, $mixed, to_array($options))->fetch();
 	}
-
 	function _action_default($action = null, $object = null, $options = array()) {
 		$options = to_array($options);
 		log::debug("Controller_Object::_action_default($action)");
@@ -450,7 +442,7 @@ abstract class Controller_Object extends Controller_Template_Login {
 				$object = null;
 			}
 			$action_prefix = __(ucfirst($action)) . " ";
-
+			
 			$title = $widget->option('title', $this->option('title', $this->route->option('title')));
 			if ($title) {
 				$title = map($title, array(
@@ -471,7 +463,7 @@ abstract class Controller_Object extends Controller_Template_Login {
 			if ($this->not_found_url) {
 				$this->response->redirect($this->not_found_url, $this->not_found_message);
 			} else {
-				$this->template->content = $this->not_found_content . html::tag("div", ".error", $e->getMessage());
+				$this->template->content = $this->not_found_content . HTML::tag("div", ".error", $e->getMessage());
 			}
 		}
 	}

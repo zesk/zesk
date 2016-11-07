@@ -1,29 +1,42 @@
 <?php
+/**
+ * 
+ */
+use zesk\JavaScript;
+use zesk\Locale;
 
-class Controller_Locale extends Controller {
+/**
+ * 
+ * @author kent
+ *
+ */
+class Controller_Locale extends zesk\Controller {
+	/**
+	 * 
+	 */
 	function action_js() {
 		$locale = $this->request->get('ll');
 		if (empty($locale)) {
-			$locale = zesk\Locale::current();
+			$locale = Locale::current();
 		}
 		$locale = to_list($locale);
 		$locales = array();
 		foreach ($locale as $l) {
-			$tt = zesk\Locale::load($l);
+			$tt = Locale::load($l);
 			if (count($tt) !== 0) {
 				$locales[$l] = $tt;
 			} else {
-				$lang = zesk\Locale::language($l);
+				$lang = Locale::language($l);
 				if ($lang !== $l) {
-					$locales[$lang] = zesk\Locale::load($lang);
+					$locales[$lang] = Locale::load($lang);
 				}
 			}
 		}
 		$load_lines = array();
-		$load_lines[] = 'exports.Locale.locale(' . js::arguments(zesk\Locale::current()) . ');';
+		$load_lines[] = 'exports.Locale.locale(' . JavaScript::arguments(Locale::current()) . ');';
 		foreach ($locales as $code => $tt) {
 			if (count($tt) > 0) {
-				$load_lines[] = 'exports.Locale.load(' . js::arguments($code, $tt) . ');';
+				$load_lines[] = 'exports.Locale.load(' . JavaScript::arguments($code, $tt) . ');';
 			}
 		}
 		$this->response->content_type("text/javascript");

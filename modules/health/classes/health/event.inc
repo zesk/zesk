@@ -1,5 +1,12 @@
 <?php
 /**
+ * 
+ */
+use zesk\Locale;
+use zesk\Directory;
+use zesk\Text;
+
+/**
  * @see Class_Health_Event
  * @see Health_Events
  * @see Module_Health
@@ -19,7 +26,6 @@
  * @property array $backtrace
  * @property array $data
  */
-use zesk\Locale as Locale;
 class Health_Event extends Object {
 	
 	/**
@@ -72,7 +78,7 @@ class Health_Event extends Object {
 		$event['data'] = $data;
 		
 		$hash = md5($zesk->process_id() . "-" . mt_rand() . "-" . $microtime);
-		$msec = text::ralign("$msec", 3, "0");
+		$msec = Text::ralign("$msec", 3, "0");
 		$filename = strtr("$when.$msec-$hash.event", array(
 			" " => "-"
 		));
@@ -90,9 +96,9 @@ class Health_Event extends Object {
 		global $zesk;
 		/* @var $zesk zesk\Kernel */
 		$defer_event_path = path($path, $name);
-		dir::depend($defer_event_path);
+		Directory::depend($defer_event_path);
 		rename($file, path($defer_event_path, basename($file)));
-		dir::cull_contents($defer_event_path, $zesk->configuration->path_get('Health_Event::defer_max_files', 100));
+		Directory::cull_contents($defer_event_path, $zesk->configuration->path_get('Health_Event::defer_max_files', 100));
 	}
 	
 	/**
@@ -106,12 +112,12 @@ class Health_Event extends Object {
 		$updated_file_path = path($path, self::updated_file);
 		clearstatcache(true, $updated_file_path);
 		if (!file_exists($updated_file_path)) {
-			if (dir::is_empty($updated_file_path)) {
+			if (Directory::is_empty($updated_file_path)) {
 				return false;
 			}
 		}
 		file::unlink($updated_file_path);
-		$files = dir::ls($path, '/\.event$/', true);
+		$files = Directory::ls($path, '/\.event$/', true);
 		$max_size = $zesk->configuration->path_get("Health_Event::max_event_size", min(4 * 1024 * 1024, system::memory_limit() / 10));
 		foreach ($files as $file) {
 			$size = filesize($file);
@@ -169,15 +175,15 @@ class Health_Event extends Object {
 		global $zesk;
 		/* @var $zesk zesk\Kernel */
 		$n_samples = $this->option_integer("keep_duplicates", 10);
-		$n_found = Object::class_query(__CLASS__)->what("*n", "COUNT(id)")->where("events", $this->events)->one_integer("n");
+		$n_found = $this->application->query_select(__CLASS__)->what("*n", "COUNT(id)")->where("events", $this->events)->one_integer("n");
 		if ($n_found > $n_samples) {
 			$sample_offset = intval($n_samples / 2);
-			$ids_to_delete = Object::class_query(__CLASS__)->what("id", "X.id")
+			$ids_to_delete = $this->application->query_select(__CLASS__)->what("id", "X.id")
 				->where("X.events", $this->events)
 				->limit($sample_offset, $n_found - $n_samples)
 				->order_by("X.when,X.when_msec")
 				->to_array(null, "id");
-			$delete_query = Object::class_query_delete(__CLASS__);
+			$delete_query = $this->application->query_delete(__CLASS__);
 			$delete_query->where("id", $ids_to_delete);
 			$delete_query->execute();
 			$zesk->logger->notice("Deleted {n} {rows} related to health event {message} (Health Events #{id}) - total {total}", array(

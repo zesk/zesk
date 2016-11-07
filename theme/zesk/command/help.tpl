@@ -1,4 +1,30 @@
 <?php
+/**
+ * @copyright &copy; 2016 Market Acumen, Inc.
+ */
+namespace zesk;
+
+if (false) {
+	/* @var $this Template */
+	
+	$zesk = $this->zesk;
+	/* @var $zesk \zesk\Kernel */
+	
+	$application = $this->application;
+	/* @var $application \zesk\Application */
+	
+	$session = $this->session;
+	/* @var $session \zesk\Session */
+	
+	$router = $this->router;
+	/* @var $request \zesk\Router */
+	
+	$request = $this->request;
+	/* @var $request \zesk\Request */
+	
+	$response = $this->response;
+	/* @var $response \zesk\Response_Text_HTML */
+}
 
 $aliases = to_array($this->aliases);
 $aliases = arr::flip_multiple($aliases);
@@ -28,14 +54,14 @@ foreach ($this->categories as $category => $commands) {
 		$desc = avalue($info, "desc", __("No description provided."));
 		$parameters = array();
 		foreach (avalue($info, 'global', array()) as $global => $foo) {
-			$parameters[] = "$global (" . $foo[0] . ")" . "\n" . text::indent($foo[2], 1, true, $tab);
+			$parameters[] = "$global (" . $foo[0] . ")" . "\n" . Text::indent($foo[2], 1, true, $tab);
 		}
 		$parameters = implode("\n", $parameters);
 		if ($parameters) {
-			$parameters = "$tab$tab" . __("Globals:") . "\n" . text::indent($parameters, 3, false, $tab) . "\n";
+			$parameters = "$tab$tab" . __("Globals:") . "\n" . Text::indent($parameters, 3, false, $tab) . "\n";
 		}
 		$desc .= "\n\n";
-		echo rtrim(text::indent($desc, 2, true, $tab)) . "\n$parameters";
+		echo rtrim(Text::indent($desc, 2, true, $tab)) . "\n$parameters";
 	}
 	echo "\n";
 }

@@ -5,7 +5,7 @@
  *
  * @author kent
  */
-class Class_Payment_Type extends Class_Object {
+class Class_Payment_Type extends zesk\Class_Object {
 
 	public $id_column = 'id';
 

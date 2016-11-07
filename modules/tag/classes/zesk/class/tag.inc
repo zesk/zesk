@@ -8,7 +8,7 @@ namespace zesk;
  * @author kent
  *
  */
-class Class_Tag extends \Class_Object {
+class Class_Tag extends Class_Object {
 	/**
 	 * 
 	 * @var string

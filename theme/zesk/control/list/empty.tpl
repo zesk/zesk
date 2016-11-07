@@ -5,9 +5,9 @@ if (!$this->request) {
 ?>
 <div class="jumbotron">
 <?php
-echo html::tag("h1", __("No matches"));
-echo html::tag("p", __("Try being less specific."));
-echo html::tag("p", html::tag("a", array(
+echo HTML::tag("h1", __("No matches"));
+echo HTML::tag("p", __("Try being less specific."));
+echo HTML::tag("p", HTML::tag("a", array(
 	"class" => "btn btn-primary btn-lg",
 	"role" => "button",
 	"href" => $request->path()

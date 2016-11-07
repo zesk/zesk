@@ -1,6 +1,9 @@
 <?php
-
-use zesk\Timestamp as Timestamp;
+/**
+ * 
+ */
+use zesk\Timestamp;
+use zesk\Cache;
 /**
  * @see Class_Browser
  * @property id $id
@@ -55,7 +58,7 @@ class Browser extends Object {
 	 * @param Request $request
 	 * @return NULL|Browser
 	 */
-	public static function from_request(Request $request) {
+	public static function from_request(zesk\Request $request) {
 		return self::from_user_agent($request->header('User-Agent'));
 	}
 }

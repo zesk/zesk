@@ -58,7 +58,7 @@ class dns {
 				if ($host !== null) {
 					$host = trim($host);
 					$value = trim($value);
-					// 					if (arr::path($result, "$host.$type") === null) {
+					// 					if (apath($result, "$host.$type") === null) {
 					// 						$result[$host][$type] = array();
 					// 					}
 					$result[$host][$type][] = $value;

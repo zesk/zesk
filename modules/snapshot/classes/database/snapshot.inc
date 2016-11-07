@@ -1,5 +1,11 @@
 <?php
-use zesk\Timestamp as Timestamp;
+/**
+ * 
+ */
+use zesk\Directory;
+use zesk\Timestamp;
+use zesk\Database;
+use zesk\Exception_Semantics;
 
 /**
  * @see Class_Database_Snapshot
@@ -11,10 +17,11 @@ use zesk\Timestamp as Timestamp;
  * @property string $data
  */
 class Database_Snapshot extends Object {
-
 	public static function temporary_path($add = null) {
-		$path = zesk::temporary_path();
-		dir::depend($path);
+		global $zesk;
+		/* @var $zesk zesk\Kernel */
+		$path = $zesk->paths->temporary();
+		Directory::depend($path);
 		return path($path, $add);
 	}
 	/**
@@ -30,7 +37,7 @@ class Database_Snapshot extends Object {
 		}
 		$now = Timestamp::now();
 		$date = $now->format('{YYYY}-{MM}-{DD}_{hh}-{mm}-{ss}');
-
+		
 		$dbname = $db->database_name();
 		$filename = "backup-$date-$dbname.sql";
 		$temp = self::temporary_path($filename);
@@ -56,13 +63,12 @@ class Database_Snapshot extends Object {
 		}
 		return null;
 	}
-
 	public static function restore_latest(Database $db = null) {
 		if ($db === null) {
 			$db = app()->database_factory();
 		}
 		$dbname = $db->database_name();
-
+		
 		/* @var $snapshot Database_Snapshot */
 		$snapshot = Object::class_query(__CLASS__)->what_object()
 			->where(array(
@@ -76,7 +82,6 @@ class Database_Snapshot extends Object {
 		}
 		return $snapshot->restore($db);
 	}
-
 	public function restore(Database $db = null) {
 		if ($db === null) {
 			$db = $this->application->database_factory();

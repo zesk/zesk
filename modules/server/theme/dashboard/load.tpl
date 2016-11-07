@@ -13,7 +13,7 @@ foreach ($loads as $index => $load) {
 	<div class="span2 label"><?php echo avalue($labels, $index); ?></div>
 	</div><?php
 }
-echo theme("block/dashboard-widget", array(
+echo $this->theme("block/dashboard-widget", array(
 	"title" => "Load", 
 	"class" => "error", 
 	"id" => "status-load", 

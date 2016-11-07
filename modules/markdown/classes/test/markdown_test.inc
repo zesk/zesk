@@ -1,15 +1,24 @@
 <?php
-class Markdown_Test extends Test_Unit {
+/**
+ * 
+ */
+use zesk\Directory;
 
+/**
+ * 
+ * @author kent
+ *
+ */
+class Markdown_Test extends Test_Unit {
 	function initialize() {
 		Module::load('diff');
 	}
 	function test_md() {
 		Module::load('markdown');
-
+		
 		$failed = false;
-
-		$tests = dir::ls(dirname(__FILE__), '/.markdown$/');
+		
+		$tests = Directory::ls(dirname(__FILE__), '/.markdown$/');
 		chdir(dirname(__FILE__));
 		$bar = "\n" . str_repeat("*", 80) . "\n";
 		foreach ($tests as $test) {
@@ -62,9 +71,9 @@ Email me: [Kent](mailto:kent@marketacumen.com)
 Or link to: http://zesk.com/
 
 EOF;
-
+		
 		Markdown::filter($text);
-
+		
 		if ($failed) {
 			exit(1);
 		}

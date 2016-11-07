@@ -6,17 +6,14 @@
 namespace zesk;
 
 use \ReflectionClass;
-use \Exception_Parameter;
-use \Exception_Semantics;
 use \ReflectionException;
 use \LogicException;
-use \Exception_Class_NotFound;
 
 /**
  * Manage object creation, singletons, and object sharing 
  * 
  * @author kent
- *
+ * @property $session \Session_Interface
  */
 class Objects {
 	
@@ -24,7 +21,13 @@ class Objects {
 	 *
 	 * @var Application
 	 */
-	public $application = null;
+	private $application = null;
+	
+	/**
+	 *
+	 * @var Interface_Settings
+	 */
+	private $settings = null;
 	
 	/**
 	 *
@@ -36,13 +39,13 @@ class Objects {
 	 *
 	 * @var User
 	 */
-	public $user = null;
+	private $user = null;
 	
 	/**
 	 *
-	 * @var \Session_Interface
+	 * @var \Interface_Session
 	 */
-	public $session = null;
+	private $session = null;
 	
 	/**
 	 * 
@@ -51,12 +54,78 @@ class Objects {
 	private $singletons = array();
 	
 	/**
+	 * 
+	 * @var array
+	 */
+	private $read_members = array(
+		"application" => true,
+		"settings" => true,
+		"user" => true,
+		"session" => true
+	);
+	
+	/**
+	 * If value is true, allow only a single write
+	 * 
+	 * @var boolean[member]
+	 */
+	private $write_members = array(
+		"user" => false,
+		"application" => true,
+		"settings" => true,
+		"session" => true
+	);
+	
+	/**
+	 * @var array 
+	 */
+	private $debug = array();
+	
+	/**
 	 *
 	 * @param Kernel $zesk        	
 	 */
 	public function __construct(Kernel $zesk) {
 	}
+	public function __get($member) {
+		if (isset($this->read_members[$member])) {
+			return $this->$member;
+		}
+		throw new Exception_Key("Unable to access {member} in {method}", array(
+			"member" => $member,
+			"method" => __METHOD__
+		));
+		return null;
+	}
 	
+	/**
+	 * 
+	 * @param string $member
+	 * @param mixed $value
+	 * @throws Exception_Key
+	 */
+	public function __set($member, $value) {
+		if (!isset($this->write_members[$member])) {
+			throw new Exception_Key("Unable to set {member} in {method}", array(
+				"member" => $member,
+				"method" => __METHOD__
+			));
+		}
+		if ($this->write_members[$member]) {
+			if (!isset($this->$member)) {
+				$this->debug['first_call'][$member] = calling_function();
+				$this->$member = $value;
+				return;
+			}
+			throw new Exception_Key("Unable to write {member} a second time in {method} (first call from {first_calling_function}", array(
+				"member" => $member,
+				"method" => __METHOD__,
+				"first_calling_function" => $this->debug['first_call'][$member]
+			));
+		} else {
+			$this->$member = $value;
+		}
+	}
 	/**
 	 * 
 	 * @param string $class
@@ -74,9 +143,9 @@ class Objects {
 	 * @param array $arguments
 	 * @return object
 	 */
-	public function singleton_arguments($class, array $arguments = array()) {
+	public function singleton_arguments($class, array $arguments = array(), $use_static = true) {
 		if (!is_string($class)) {
-			throw new \Exception_Parameter("{class}::factory({arg_class}) not a class name", array(
+			throw new Exception_Parameter("{class}::factory({arg_class}) not a class name", array(
 				"class" => __CLASS__,
 				"arg_class" => $class
 			));
@@ -86,22 +155,24 @@ class Objects {
 			return $this->singletons[$low_class];
 		}
 		try {
-			$static_methods = array(
-				"singleton",
-				"instance",
-				"master"
-			);
 			$rc = new ReflectionClass($class);
-			foreach ($static_methods as $method) {
-				if ($rc->hasMethod($method)) {
-					$method = $rc->getMethod($method);
-					/* @var $method ReflectionMethod */
-					if ($method->isStatic()) {
-						return $this->singletons[$low_class] = $object = $method->invokeArgs(null, $arguments);
+			if ($use_static) {
+				$static_methods = array(
+					"singleton",
+					"instance",
+					"master"
+				);
+				foreach ($static_methods as $method) {
+					if ($rc->hasMethod($method)) {
+						$method = $rc->getMethod($method);
+						/* @var $method ReflectionMethod */
+						if ($method->isStatic()) {
+							return $this->singletons[$low_class] = $object = $method->invokeArgs(null, $arguments);
+						}
 					}
 				}
 			}
-			return $this->singletons[$low_class] = $rc->newInstance();
+			return $this->singletons[$low_class] = $rc->newInstanceArgs($arguments);
 		} catch (ReflectionException $e) {
 			throw new Exception_Class_NotFound($class, null, $e);
 		} catch (LogicException $e) {
@@ -131,7 +202,7 @@ class Objects {
 	 */
 	public function factory_arguments($class, array $arguments) {
 		if (!is_string($class)) {
-			throw new \Exception_Parameter("{method}({class}) not a class name", array(
+			throw new Exception_Parameter("{method}({class}) not a class name", array(
 				"method" => __METHOD__,
 				"class" => _dump($class)
 			));

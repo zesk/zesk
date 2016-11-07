@@ -1,7 +1,6 @@
 <?php
+/* @var $application zesk\Application */
 
-Module::register_paths();
+$application->modules->register_paths();
 
-zesk::zesk_command_path(dirname(__FILE__) . '/classes/command');
-zesk\Classes::register('Module_PHP_MO');
 

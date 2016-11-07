@@ -1,4 +1,16 @@
 <?php
+/**
+ * 
+ */
+use zesk\Model;
+use zesk\Database_Query_Select;
+use zesk\Exception_Semantics;
+
+/**
+ * 
+ * @author kent
+ *
+ */
 class Control_Selection extends Control {
 	
 	/**
@@ -73,16 +85,16 @@ class Control_Selection extends Control {
 	 * 
 	 * @param Model $object
 	 * @param Control_Row $row
-	 * @param Template $t
+	 * @param zesk\Template $t
 	 */
-	public function hook_control_list_row(Model $object, Control_Row $row, Template $t) {
+	public function hook_control_list_row(Model $object, Control_Row $row, zesk\Template $t) {
 		if (!$object instanceof Object) {
 			return;
 		}
 		if ($object->member_boolean("selected")) {
-			$row->row_attributes(html::add_class($row->row_attributes(), "selected"));
+			$row->row_attributes(HTML::add_class($row->row_attributes(), "selected"));
 		} else {
-			$row->row_attributes(html::remove_class($row->row_attributes(), "selected"));
+			$row->row_attributes(HTML::remove_class($row->row_attributes(), "selected"));
 		}
 	}
 	
@@ -182,7 +194,7 @@ class Control_Selection extends Control {
 			'actions' => $this->option_array("actions", array())
 		);
 	}
-	protected function hook_query_list(Database_Query_Select $query) {
+	protected function hook_query_list(zesk\Database_Query_Select $query) {
 		if ($query->has_what("selected")) {
 			// TODO Why is this called twice while listing?
 			return;

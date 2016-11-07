@@ -1,4 +1,8 @@
 <?php
+/**
+ * @copyright &copy; 2016 Market Acumen, Inc.
+ */
+namespace zesk;
 
 /**
  * Control_Dropdown template render
@@ -6,7 +10,7 @@
 /* @var $this Template */
 if (false) {
 	$response = $this->response;
-	/* @var $response Response_HTML */
+	/* @var $response zesk\Response_Text_HTML */
 	$object = $this->object;
 	/* @var $object Model */
 	$widget = $this->widget;
@@ -28,9 +32,9 @@ $ia['id'] = $button_id;
 
 $class = $this->class;
 if ($this->required) {
-	$class = css::add_class($class, "required");
+	$class = CSS::add_class($class, "required");
 }
-$ia['class'] = css::add_class($class, 'form-control');
+$ia['class'] = CSS::add_class($class, 'form-control');
 
 $ia = $object->apply_map($ia) + array(
 	'value' => $value
@@ -87,7 +91,7 @@ if (!$button_label) {
 $items = array();
 foreach ($control_options as $code => $attributes) {
 	if ($attributes === '-') {
-		$items[] = html::tag('li', '.divider', '');
+		$items[] = HTML::tag('li', '.divider', '');
 		continue;
 	}
 	$attributes += array(
@@ -106,21 +110,21 @@ foreach ($control_options as $code => $attributes) {
 		$link_html = $code;
 	}
 	if (to_bool(avalue($attributes, 'selected')) || strval($code) === strval($value)) {
-		$li_attributes = html::add_class($li_attributes, "active");
+		$li_attributes = HTML::add_class($li_attributes, "active");
 	}
-	$items[] = html::tag('li', $li_attributes, html::tag('a', $attributes, $link_html));
+	$items[] = HTML::tag('li', $li_attributes, HTML::tag('a', $attributes, $link_html));
 }
 
 $html = "";
 
-$html .= html::div_open(array(
+$html .= HTML::div_open(array(
 	'class' => $this->get("outer_class", 'dropdown'), //'input-group-btn'
 	'id' => $id
 ));
 
 $input_id = $this->id . "_input";
 
-$html .= html::tag('button', array(
+$html .= HTML::tag('button', array(
 	'type' => 'button',
 	'class' => 'btn btn-default dropdown-toggle',
 	'data-toggle' => 'dropdown',
@@ -128,29 +132,29 @@ $html .= html::tag('button', array(
 	'data-input' => "#$input_id",
 	'data-content' => '{label} ',
 	'aria-expanded' => 'false'
-), html::span(".button-label", $button_label) . ' ' . html::span('.caret', ''));
+), HTML::span(".button-label", $button_label) . ' ' . HTML::span('.caret', ''));
 
-$html .= html::tag_open('ul', array(
+$html .= HTML::tag_open('ul', array(
 	"class" => "dropdown-menu dropdown-menu-$side",
 	"role" => "menu"
 ));
 
 $html .= implode("\n", $items);
-$html .= html::tag_close('ul');
+$html .= HTML::tag_close('ul');
 
-$html .= html::div_close(); // input-group-btn
+$html .= HTML::div_close(); // input-group-btn
 
 
-$input = html::input('hidden', $this->name, $this->value, array(
+$input = HTML::input('hidden', $this->name, $this->value, array(
 	'id' => $this->id . "_input"
 ));
 
 if (!$this->no_input_group) {
-	echo html::div_open('.input-group');
+	echo HTML::div_open('.input-group');
 }
 echo $html;
 if (!$this->no_input_group) {
-	echo html::div_close(); // input-group
+	echo HTML::div_close(); // input-group
 	echo $input;
 } else if ($parent) {
 	$parent->suffix($input, true);

@@ -1,19 +1,21 @@
 <?php
+namespace zesk;
+
 if (false) {
 	/* @var $object Job */
 	$object = $this->object;
 	
-	/* @var $response Response_HTML */
+	/* @var $response zesk\Response_Text_HTML */
 	$response = $this->response;
 }
 /* @var $job Job */
 $job = $object;
 
-$object->render("scripts");
+$object->theme("scripts");
 
 $success = $this->success;
 if ($success) {
-	$success = html::attributes(array(
+	$success = HTML::attributes(array(
 		'data-success' => $success
 	));
 }
@@ -42,7 +44,7 @@ if ($job->dead()) {
 			<div class="message col-sm-9 col-md-8"></div>
 			<?php
 		} else {
-			echo html::div(".message dead col-sm-12", "");
+			echo HTML::div(".message dead col-sm-12", "");
 		}
 		?>
 		</div>

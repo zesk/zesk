@@ -1,38 +1,53 @@
 <?php
 /**
-* $URL: https://code.marketacumen.com/zesk/trunk/modules/content/classes/zesk/content/group.inc $
-* @package zesk
-* @subpackage default
-* @author Kent Davidson <kent@marketacumen.com>
-* @copyright Copyright &copy; 2008, Market Acumen, Inc.
-*/
+ * $URL: https://code.marketacumen.com/zesk/trunk/modules/content/classes/zesk/content/group.inc $
+ * @package zesk
+ * @subpackage default
+ * @author Kent Davidson <kent@marketacumen.com>
+ * @copyright Copyright &copy; 2008, Market Acumen, Inc.
+ */
+namespace zesk;
 
 /**
- * @see Class_Zesk_Content_Group
+ * @see Class_zesk\Content_Group
  * @author kent
  *
  */
-abstract class Zesk_Content_Group extends Object {
-
+abstract class Content_Group extends Object {
+	/**
+	 * 
+	 * {@inheritDoc}
+	 * @see \zesk\Object::store()
+	 */
 	function store() {
 		if (empty($this->CodeName)) {
 			$this->CodeName = $this->clean_code_name($this->Name);
 		}
 		return parent::store();
 	}
-
+	
+	/**
+	 * 
+	 * @param unknown $mixed
+	 * @param unknown $options
+	 * @return \zesk\Object
+	 */
 	public function group_object($mixed = null, $options = null) {
 		return $this->object_factory($this->group_class, $mixed, $options);
 	}
-
 	protected function order_methods() {
 		return array(
-			"name" => "Order by name", 
-			"order" => "Order explicitly", 
+			"name" => "Order by name",
+			"order" => "Order explicitly",
 			"created" => "Order by creation date"
 		);
 	}
-
+	
+	/**
+	 * 
+	 * @param Database_Query_Select $query
+	 * @return \zesk\Database_Query_Select|boolean
+	 */
 	function hook_query_alter(Database_Query_Select $query) {
 		$alias = $query->alias();
 		switch ($this->OrderMethod) {
@@ -43,7 +58,7 @@ abstract class Zesk_Content_Group extends Object {
 				return $query->order_by("$alias.OrderIndex");
 			case "created":
 				return $query->order_by("$alias.Created");
-			default:
+			default :
 				return false;
 		}
 	}

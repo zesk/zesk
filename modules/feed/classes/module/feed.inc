@@ -26,19 +26,19 @@ class Module_Feed extends Module {
 	 */
 	
 	/*
-	 protected function hook_foot(Request $request, Response_HTML $response, Template $template) {
+	 protected function hook_foot(zesk\Request $request, zesk\Response_Text_HTML $response, zesk\Template $template) {
 	 
 	 }
 	 */
 	
 	/*
-	 protected function hook_head(Request $request, Response_HTML $response, Template $template) {
+	 protected function hook_head(zesk\Request $request, zesk\Response_Text_HTML $response, zesk\Template $template) {
 	 
 	 }
 	 */
 	
 	/*
-	 public function hook_routes(Router $router) {
+	 public function hook_routes(zesk\Router $router) {
 	 
 	 }
 	 */

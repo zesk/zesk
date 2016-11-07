@@ -1,6 +1,8 @@
 <?php
-
-class Class_Account extends Class_Zesk_Account {
-	public $id_column = "id";
-
-}
+/**
+ * Override in applications to extend
+ * 
+ * @author kent
+ *
+ */
+class Class_Account extends zesk\Class_Account {}

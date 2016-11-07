@@ -1,4 +1,9 @@
 <?php
+/**
+ * 
+ */
+use zesk\HTML;
+use zesk\arr;
 
 /* @var $widget Widget */
 echo $this->prefix;
@@ -6,7 +11,7 @@ echo $this->theme($this->theme_prefix, array(), array(
 	"first" => true
 ));
 if ($this->form_tag) {
-	echo html::tag_open($this->form_tag, html::add_class($this->form_attributes, $this->class));
+	echo HTML::tag_open($this->form_tag, HTML::add_class($this->form_attributes, $this->class));
 }
 echo $this->theme($this->theme_header, array(), array(
 	"first" => true
@@ -15,11 +20,15 @@ $odd = 0;
 $invisible = "";
 $theme_widgets = $this->theme_widgets;
 $map = array();
+$theme_variables = array();
+
 foreach ($this->widgets as $widget) {
+	
 	$nolabel = $widget->option_bool("nolabel");
 	$name = $widget->name();
 	$prefix = "$name.";
-	$map[$prefix . "label"] = $label = $nolabel ? "" : html::tag("label", to_array($this->label_attributes) + array(
+	
+	$map[$prefix . "label"] = $label = $nolabel ? "" : HTML::tag("label", to_array($this->label_attributes) + array(
 		"for" => $widget->first_option("id;column")
 	), $widget->label());
 	$map[$prefix . "widget_class"] = get_class($widget);
@@ -28,14 +37,15 @@ foreach ($this->widgets as $widget) {
 	$map[$prefix . 'has-error'] = "";
 	$widget_attributes = $this->widget_attributes;
 	if ($has_errors) {
-		$widget_attributes = html::add_class($widget_attributes, 'has-error');
+		$widget_attributes = HTML::add_class($widget_attributes, 'has-error');
 		$map[$prefix . 'has-error'] = " has-error";
-		$errors .= html::tags('span', '.help-block error', $widget->errors());
+		$map[$prefix . 'has_error'] = " has-error"; // Class name is "has-error"
+		$errors .= HTML::tags('span', '.help-block error', $widget->errors());
 		$widget->suffix($errors, true);
 	}
 	$map[$prefix . "errors"] = $errors;
 	if ($widget->has_option('help')) {
-		$widget->suffix($map[$prefix . 'help'] = html::tag('div', '.help-block', $widget->option('help')), true);
+		$widget->suffix($map[$prefix . 'help'] = HTML::tag('div', '.help-block', $widget->option('help')), true);
 	}
 	if (!$widget->is_visible()) {
 		$map[$name] = $map[$prefix . "widget"] = $widget->render();
@@ -48,29 +58,33 @@ foreach ($this->widgets as $widget) {
 	if ($this->widget_wrap_tag) {
 		$widget->wrap($this->widget_wrap_tag, $nolabel ? $this->nolabel_widget_wrap_attributes : $this->widget_wrap_attributes);
 	}
-	$widget_attributes = html::add_class($widget_attributes, $widget->context_class());
+	$widget_attributes = HTML::add_class($widget_attributes, $widget->context_class());
 	if ($name) {
-		$widget_attributes = html::add_class($widget_attributes, "form-widget-$name");
+		$widget_attributes = HTML::add_class($widget_attributes, "form-widget-$name");
 	}
-	$map[$prefix . "widget"] = $render = $widget->render();
-	$map[$name] = $row = $this->widget_tag ? html::tag($this->widget_tag, html::add_class($widget_attributes, "odd-$odd"), $label . $render) : $label . $render;
+	$theme_variables["widget_${name}"] = $widget;
+	$map[$prefix . "widget"] = $map[$prefix . "render"] = $render = $widget->render();
+	$map[$name] = $row = $this->widget_tag ? HTML::tag($this->widget_tag, HTML::add_class($widget_attributes, "odd-$odd"), $label . $render) : $label . $render;
 	if (!$theme_widgets) {
 		echo map($row, $map);
 	}
 	$odd = 1 - $odd;
 }
+if ($theme_widgets) {
+	$theme_variables += arr::kprefix(arr::kreplace($map, ".", "_"), "widget_");
+	echo map($this->theme($theme_widgets, $theme_variables), $map);
+}
+// TODO: 2016-09-26 KMD Is this wrong? Should $theme_footer go after $theme_widgets, below?
+// MOVED 2016-09-26 it's gotta be wrong, right?
 echo $this->theme($this->theme_footer, array(), array(
 	"first" => true
 ));
-if ($theme_widgets) {
-	echo map($this->theme($theme_widgets), $map);
-}
 echo $invisible;
 foreach (to_array($this->form_preserve_hidden) as $name) {
-	echo html::input_hidden($name, $this->request->get($name));
+	echo HTML::input_hidden($name, $this->request->get($name));
 }
 if ($this->form_tag) {
-	echo html::tag_close($this->form_tag);
+	echo HTML::tag_close($this->form_tag);
 }
 echo $this->theme($this->theme_suffix, array(), array(
 	"first" => true

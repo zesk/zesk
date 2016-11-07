@@ -1,5 +1,5 @@
 <?php
-/* @var $this Template */
+/* @var $this zesk\Template */
 
 $width = $this->geti('width', 300);
 $height = $this->geti('height', 300);

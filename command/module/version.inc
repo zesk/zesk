@@ -15,12 +15,12 @@ class Command_Module_Version extends Command_Base {
 		$app = $this->application;
 		$modules = $this->arguments_remaining(true);
 		if (count($modules) === 0) {
-			$modules = array_keys($app->module->load());
+			$modules = array_keys($app->modules->load());
 		}
 		
 		foreach ($modules as $module) {
 			$this->verbose_log("Checking module {module}", compact("module"));
-			$version = $app->module->version($module);
+			$version = $app->modules->version($module);
 			if ($version === null) {
 				$version = "-";
 			}

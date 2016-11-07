@@ -7,6 +7,15 @@
  * @copyright Copyright &copy; 2008, Market Acumen, Inc.
  * Created on Tue Jul 15 16:27:40 EDT 2008
  */
+use zesk\Database_Query_Select;
+use zesk\HTML;
+use zesk\Lists;
+use zesk\URL;
+/**
+ * 
+ * @author kent
+ *
+ */
 class Control_Order extends Control {
 	function __construct($options = false) {
 		parent::__construct($options);
@@ -23,46 +32,46 @@ class Control_Order extends Control {
 	function validate() {
 		$verb = $this->request->get("move");
 		$ID = $this->request->get("ID");
-		if (!lists::contains("up;down;top;bottom", $verb) || $ID == "") {
+		if (!Lists::contains("up;down;top;bottom", $verb) || $ID == "") {
 			return true;
 		}
 		if ($this->option_bool('debug')) {
 			$this->response->debug_redirect(true);
 		}
-		if (lists::contains("top;bottom", $verb)) {
+		if (Lists::contains("top;bottom", $verb)) {
 			$this->moveTopBottom($ID, $verb);
 		} else {
 			$this->moveUpDown($ID, $verb);
 		}
-		$uri = url::current_uri();
-		$newURL = url::query_remove($uri, "move;message", false);
-
+		$uri = URL::current_uri();
+		$newURL = URL::query_remove($uri, "move;message", false);
+		
 		$this->response->redirect($newURL);
 		return false;
 	}
 	function render() {
 		$ID = $this->object->id();
-
-		$u = url::query_format(url::query_remove(url::current_uri(), "move", false), array(
+		
+		$u = URL::query_format(URL::query_remove(URL::current_uri(), "move", false), array(
 			"ID" => $ID
 		));
-
+		
 		$result = array();
-		$result[] = html::tag("a", array(
+		$result[] = HTML::tag("a", array(
 			"href" => "$u&move=top"
-		), html::cdn_img("/share/zesk/images/order/move-top.gif", "Move to top"));
-		$result[] = html::tag("a", array(
+		), HTML::cdn_img("/share/zesk/images/order/move-top.gif", "Move to top"));
+		$result[] = HTML::tag("a", array(
 			"href" => "$u&move=up"
-		), html::cdn_img("/share/zesk/images/order/move-up.gif", "Move up"));
-		$result[] = html::tag("a", array(
+		), HTML::cdn_img("/share/zesk/images/order/move-up.gif", "Move up"));
+		$result[] = HTML::tag("a", array(
 			"href" => "$u&move=down"
-		), html::cdn_img("/share/zesk/images/order/move-down.gif", "Move down"));
-		$result[] = html::tag("a", array(
+		), HTML::cdn_img("/share/zesk/images/order/move-down.gif", "Move down"));
+		$result[] = HTML::tag("a", array(
 			"href" => "$u&move=bottom"
-		), html::cdn_img("/share/zesk/images/order/move-bottom.gif", "Move to bottom"));
-
+		), HTML::cdn_img("/share/zesk/images/order/move-bottom.gif", "Move to bottom"));
+		
 		$result = implode("&nbsp;", $result);
-
+		
 		if ($this->option_bool('debug')) {
 			$result .= ' (' . $this->value() . ')';
 		}
@@ -87,7 +96,6 @@ class Control_Order extends Control {
 		$nextOrder = $db->query_one($sql, "N", 1);
 		$db->query("UPDATE `$table` SET `$col`=" . ($nextOrder + $delta) . " WHERE ID=$ID");
 	}
-
 	private function moveUpDown($ID, $verb) {
 		/* @var $object Object */
 		$table = $this->option("table", "no_table");
@@ -103,17 +111,17 @@ class Control_Order extends Control {
 			$icmp = "<=";
 			$order_by = "$col ASC";
 		}
-
+		
 		$where = $this->_where();
 		$where["ID"] = $ID;
-
+		
 		$db = $this->object->database();
-
+		
 		$sqlgen = $db->sql();
 		$sql = "SELECT `$col` AS N FROM `$table` " . $sqlgen->where($where);
 		$thisOrder = $db->query_one($sql, "N", false);
 		$nextObject = null;
-
+		
 		if (is_numeric($thisOrder)) {
 			$where = $this->_where();
 			$where["ID|!="] = $ID;
@@ -136,7 +144,7 @@ class Control_Order extends Control {
 		$where['ID|!='] = $ID;
 		$where["$col|$icmp"] = $thisOrder;
 		$sql = "UPDATE `$table` SET `$col`=`$col`${sign}5 " . $sqlgen->where($where);
-
+		
 		$db->query($sql);
 	}
 }

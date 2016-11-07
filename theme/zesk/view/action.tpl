@@ -28,10 +28,10 @@ $title = $this->get('title');
 
 $src = $this->get('src', "/share/images/actions/" . $action . ".gif");
 
-echo html::tag_open('div', $this->get('tag_attributes', ".action"));
-echo html::a(url::add_ref($object->apply_map($href)), $attr, html::cdn_img($src, $object->apply_map($title), array(
+echo HTML::tag_open('div', $this->get('tag_attributes', ".action"));
+echo HTML::a(URL::add_ref($object->apply_map($href)), $attr, HTML::cdn_img($src, $object->apply_map($title), array(
 	"width" => $this->get('width', 18),
 	"height" => $this->get('height', 18)
 )));
-echo html::tag_close('div');
+echo HTML::tag_close('div');
 		

@@ -9,15 +9,9 @@
  */
 namespace zesk;
 
-use \DateTimeZone as DateTimeZone;
-use \DateTime as DateTime;
-use \DateInterval as DateInterval;
-use \zesk as zesk;
-use \Exception_Convert as Exception_Convert;
-use \Exception_Range as Exception_Range;
-use \Exception_Semantics as Exception_Semantics;
-use \Exception_Parameter as Exception_Parameter;
-use \Exception_Syntax as Exception_Syntax;
+use \DateTimeZone;
+use \DateTime;
+use \DateInterval;
 
 /**
  * Timestamp class is similar to PHP DateTime
@@ -31,7 +25,7 @@ use \Exception_Syntax as Exception_Syntax;
  *
  * @author kent
  */
-class Timestamp extends \Temporal {
+class Timestamp extends Temporal {
 	
 	/**
 	 *
@@ -1163,6 +1157,7 @@ class Timestamp extends \Temporal {
 	 * @see Timestamp::factory_ymdhms
 	 */
 	public static function instance($year = null, $month = null, $day = null, $hour = null, $minute = null, $second = null) {
+		zesk()->deprecated();
 		$dt = new Timestamp(null);
 		$dt->ymd($year, $month, $day);
 		$dt->hms($hour, $minute, $second);

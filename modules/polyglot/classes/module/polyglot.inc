@@ -2,14 +2,16 @@
 /**
  * 
  */
-use zesk\Locale as Locale;
+use zesk\Locale;
+use zesk\Exception_File_Format;
+use zesk\Exception_File_NotFound;
 
 /**
  * 
  * @author kent
  *
  */
-class Module_PolyGlot extends Module implements Module_Interface_Routes {
+class Module_PolyGlot extends Module implements zesk\Interface_Module_Routes {
 	
 	/**
 	 * 
@@ -24,13 +26,16 @@ class Module_PolyGlot extends Module implements Module_Interface_Routes {
 	 * @return array
 	 */
 	public function locale_options() {
-		$list = $this->hook_array("locale_options", array(), $this->option_array("locale_options"));
+		$list = $this->call_hook_arguments("locale_options", array(), $this->option_array("locale_options"));
 		$options = array();
-		$locales = Object::class_query("Language")->what(array(
+		$locales = $this->application->query_select("Language")
+			->what(array(
 			"code" => "code",
 			"dialect" => "dialect",
 			"name" => "name"
-		))->where("code", $list)->to_array();
+		))
+			->where("code", $list)
+			->to_array();
 		$results = array();
 		foreach ($locales as $locale) {
 			$code = $dialect = $name = null;
@@ -47,9 +52,9 @@ class Module_PolyGlot extends Module implements Module_Interface_Routes {
 	 * @see Module::hook_routes
 	 * 
 	 * {@inheritDoc}
-	 * @see Module_Interface_Routes::hook_routes()
+	 * @see \zesk\Interface_Module_Routes::hook_routes()
 	 */
-	public function hook_routes(Router $router) {
+	public function hook_routes(zesk\Router $router) {
 		$router->add_route("polyglot/update/{dialect}", array(
 			"controller" => "PolyGlot",
 			"action" => "update",
@@ -81,6 +86,8 @@ class Module_PolyGlot extends Module implements Module_Interface_Routes {
 	 * @return array
 	 */
 	public function load_locale($locale = null) {
+		global $zesk;
+		/* @var $zesk \zesk\Kernel */
 		$user = User::instance();
 		$source_files = $this->option_list("source_files");
 		$table = array();
@@ -88,7 +95,7 @@ class Module_PolyGlot extends Module implements Module_Interface_Routes {
 			if (!is_file($source_file)) {
 				continue;
 			}
-			$tt = zesk::load($source_file);
+			$tt = $zesk->load($source_file);
 			if (!is_array($tt)) {
 				throw new Exception_File_Format($source_file, "Source file {basename} does not return the correct format", array(
 					"basename" => basename($source_file)
@@ -103,10 +110,10 @@ class Module_PolyGlot extends Module implements Module_Interface_Routes {
 				}
 			}
 		}
-		$existing = zesk\Locale::load($locale);
+		$existing = Locale::load($locale);
 		$table = $existing + $table;
-		$language = zesk\Locale::language($locale);
-		$dialect = zesk\Locale::dialect($locale);
+		$language = Locale::language($locale);
+		$dialect = Locale::dialect($locale);
 		$tokens = PolyGlot_Token::fetch_all($language, $dialect);
 		
 		foreach ($table as $original => $translation) {
@@ -120,3 +127,4 @@ class Module_PolyGlot extends Module implements Module_Interface_Routes {
 		return array_values($table);
 	}
 }
+

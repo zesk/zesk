@@ -15,7 +15,7 @@ class View_Errors extends View {
 		if (!$error_string) {
 			return "";
 		}
-		return $prefix . html::tag('span', '.error', $error_string);
+		return $prefix . HTML::tag('span', '.error', $error_string);
 	}
 	
 	public static function html(array $errors) {

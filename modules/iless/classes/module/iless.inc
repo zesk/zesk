@@ -1,12 +1,23 @@
 <?php
+/**
+ * 
+ */
+use zesk\Directory;
+use zesk\CSS;
+
+/**
+ * 
+ * @author kent
+ *
+ */
 class Module_iLess extends Module {
 	
 	/**
 	 * 
 	 * @return Compiler_Less
 	 */
-	public static function compiler() {
-		return new Compiler_Less();
+	public function compiler() {
+		return new Compiler_Less($this->application);
 	}
 	
 	/**
@@ -67,7 +78,7 @@ class Module_iLess extends Module {
 	 * @return string
 	 */
 	protected function hook_process_variable_color($value, array $settings) {
-		$value = css::color_normalize($value);
+		$value = CSS::color_normalize($value);
 		if (empty($value)) {
 			$value = ltrim($settings['default'], "#");
 		}
@@ -101,16 +112,16 @@ class Module_iLess extends Module {
 		$site_css = $this->_css_path();
 		$full_path = $this->_full_css_path();
 		$source = $this->_less_path();
-		dir::depend(dirname($full_path));
-		$compiler = Module_iLess::compiler();
+		Directory::depend(dirname($full_path));
+		$compiler = $this->compiler();
 		
-		$types = $variables + $this->hook_array("less_variables", array(), array());
+		$types = $variables + $this->call_hook_arguments("less_variables", array(), array());
 		$variables = array();
 		foreach ($types as $name => $settings) {
 			$settings['name'] = $name;
 			$type = avalue($settings, 'type', 'normal');
 			$value = $zesk->configuration->path_get($name, avalue($settings, 'default', null));
-			$variables[$name] = $this->hook_array("process_variables_$type", array(
+			$variables[$name] = $this->call_hook_arguments("process_variables_$type", array(
 				$value,
 				$settings
 			), $value);

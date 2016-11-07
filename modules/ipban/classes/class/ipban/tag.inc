@@ -4,7 +4,7 @@
  * @see IPBan_Tag
  * @author kent
  */
-class Class_IPBan_Tag extends Class_Object {
+class Class_IPBan_Tag extends zesk\Class_Object {
 
 	public $find_keys = array(
 		"type",

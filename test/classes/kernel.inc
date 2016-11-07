@@ -1,8 +1,37 @@
 <?php
 class test_kernel extends Test_Unit {
+	function test_zesk_global_access_time() {
+		/*
+		 *
+		 * Test using global $zesk
+		 */
+		$nsamples = 100000;
+		$start = microtime(true);
+		for ($i = 0; $i < $nsamples; $i++) {
+			global $zesk;
+			$zesk->paths->application();
+		}
+		$time_global = microtime(true) - $start;
+		$this->log("global \$zesk x {nsamples} time {time}", array(
+			"time" => $time_global,
+			"nsamples" => $nsamples
+		));
+		
+		$start = microtime(true);
+		for ($i = 0; $i < 100000; $i++) {
+			zesk()->paths->share();
+		}
+		$time_zesk_call = microtime(true) - $start;
+		$this->log("zesk() x {nsamples} time {time}", array(
+			"time" => $time_zesk_call,
+			"nsamples" => $nsamples
+		));
+		
+		$this->assert($time_zesk_call > $time_global, "zesk() ($time_zesk_call) > global $zesk ($time_global) FAILED");
+	}
 	function test_path() {
 		path();
-
+		
 		$this->assert(path("a", "b") === "a/b", path("a", "b") . " !== 'a/b'");
 		$this->assert(path("a/", "b") === "a/b", path("a/", "b") . " !== 'a/b'");
 		$this->assert(path("a", "/b") === "a/b", path("a", "/b") . " !== 'a/b'");
@@ -15,7 +44,7 @@ class test_kernel extends Test_Unit {
 			"/././"
 		), "/b/");
 		$this->assert($result === "/a/b/", $result . " !== '/a/b/'");
-
+		
 		$result = path("/publish/nfs/monitor-services", array(
 			'control',
 			'ruler-reader'
@@ -49,19 +78,19 @@ class test_kernel extends Test_Unit {
 	function test_W() {
 		$phrase = null;
 		_W($phrase);
-
+		
 		$this->assert(_W('This is a [simple] example', '<strong>[]</strong>') === 'This is a <strong>simple</strong> example', "'" . _W('This is a [simple] example', '<strong>[]</strong>') . "' === 'This is a <strong>simple</strong> example'");
-
+		
 		$this->assert(_W('This is a [1:simple] example', '<strong>[]</strong>') === 'This is a simple example', _W('This is a [1:simple] example', '<strong>[]</strong>') . " === 'This is a simple example'");
-
+		
 		$this->assert(_W('This is an example with [two] [items] example', '<strong>[]</strong>', '<em>[]</em>') === 'This is an example with <strong>two</strong> <em>items</em> example');
-
+		
 		$this->assert(_W('This is an example with [two] [0:items] example', '<strong>[]</strong>', '<em>[]</em>') === 'This is an example with <strong>two</strong> <strong>items</strong> example');
-
+		
 		$this->assert(_W('This is an example with [1:two] [items] example', '<strong>[]</strong>', '<em>[]</em>') === 'This is an example with <em>two</em> <em>items</em> example', _W('This is an example with [1:two] [items] example', '<strong>[]</strong>', '<em>[]</em>') . ' === This is an example with <em>two</em> <em>items</em> example');
-
+		
 		$this->assert(_W('This is an example with [1:two] [1:items] example', '<strong>[]</strong>', '<em>[]</em>') === 'This is an example with <em>two</em> <em>items</em> example', _W('This is an example with [1:two] [1:items] example', '<strong>[]</strong>', '<em>[]</em>') . ' === This is an example with <em>two</em> <em>items</em> example');
-
+		
 		$this->assert(_W('Nested example with [outernest [nest0] [nest1]] example', '<0>[]</0>', '<1>[]</1>', '<2>[]</2>') === 'Nested example with <2>outernest <0>nest0</0> <1>nest1</1></2> example', _W('Nested example with [outernest [nest0] [nest1]] example', '<0>[]</0>', '<1>[]</1>', '<2>[]</2>') . ' === Nested example with <2>outernest <0>nest0</0> <1>nest1</1></2> example');
 	}
 	function test_avalue() {
@@ -69,7 +98,7 @@ class test_kernel extends Test_Unit {
 		$k = "";
 		$default = null;
 		avalue($a, $k, $default);
-
+		
 		$a = array(
 			"" => "empty",
 			"0" => "zero",
@@ -83,12 +112,11 @@ class test_kernel extends Test_Unit {
 		$this->assert(avalue($a, "a") === null);
 		$this->assert(avalue($a, "a", "dude") === "dude");
 	}
-
 	function test___() {
 		$phrase = null;
 		$language = "en";
 		__($phrase, $language);
-
+		
 		$phrase = null;
 		$locale = null;
 		__($phrase, $locale);
@@ -105,7 +133,7 @@ class test_kernel extends Test_Unit {
 			42.552312,
 			1
 		)), "42.6%");
-		echo theme("percent", array(
+		echo app()->theme("percent", array(
 			42.552312,
 			1
 		)) . "\n";
@@ -113,8 +141,8 @@ class test_kernel extends Test_Unit {
 			42.552312,
 			0
 		)), "43%");
-
-		echo theme('control/button', array(
+		
+		echo app()->theme('control/button', array(
 			'label' => 'OK',
 			'object' => new Model()
 		));
@@ -146,14 +174,14 @@ class test_kernel extends Test_Unit {
 			'October 15th, 2012'
 		);
 	}
-
+	
 	/**
 	 * @data_provider good_dates
 	 */
 	function test_is_date($good_date) {
 		$this->assert(is_date($good_date));
 	}
-
+	
 	/**
 	 * @data_provider bad_dates
 	 */
@@ -163,19 +191,19 @@ class test_kernel extends Test_Unit {
 	function test_is_email() {
 		$email = null;
 		is_email($email);
-
+		
 		$this->assert(is_email('info@conversionruler.com') === true);
 		$this->assert(is_email('info@conversionr$uler.com') === false);
 		$this->assert(is_email('John-Doe`#arasdf@conversionruler.com') === true);
 		$this->assert(is_email('John-Doe`#arasdf@conversionruler.co.uk') === true);
-
+		
 		$this->assert(is_email('John-Doe`#arasdf@conversionruler.co') === true);
 		$this->assert(is_email('John-Doe`#arasdf@conversionruler.o') === false);
 	}
 	function test_is_phone() {
 		$phone = null;
 		is_phone($phone);
-
+		
 		$this->assert(is_phone('215-555-1212') === true);
 		$this->assert(is_phone('+011 44 23 41 23 23') === true);
 		$this->assert(is_phone('+1 215-555-1212') === true);
@@ -208,7 +236,7 @@ class test_kernel extends Test_Unit {
 		$s = null;
 		$def = null;
 		to_integer($s, $def);
-
+		
 		$this->assert(to_integer("124512", null) === 124512);
 		$this->assert(to_integer(124512, null) === 124512);
 		$this->assert(to_integer("124512.7", null) === 124512);
@@ -225,15 +253,15 @@ class test_kernel extends Test_Unit {
 		$s = null;
 		$def = null;
 		to_double($s, $def);
-
+		
 		$this->assert(to_double(100, null) === 100.0);
 		$this->assert(to_double(1, null) === 1.0);
 		$this->assert(to_double("10000", null) === 10000.0);
 		$this->assert(to_double("-1", null) === -1.0);
-
+		
 		$this->assert(to_double("e10000", null) === null);
 		$this->assert(to_double(array(), null) === null);
-
+		
 		echo basename(__FILE__) . ": success\n";
 	}
 	function test_to_bool() {
@@ -251,7 +279,7 @@ class test_kernel extends Test_Unit {
 		$this->assert(to_bool("enabled", null) === true);
 		$this->assert(to_bool("trUE", null) === true);
 		$this->assert(to_bool("true", null) === true);
-
+		
 		$this->assert(to_bool(0, null) === false);
 		$this->assert(to_bool("0", null) === false);
 		$this->assert(to_bool("f", null) === false);
@@ -267,7 +295,7 @@ class test_kernel extends Test_Unit {
 		$this->assert(to_bool("false", null) === false);
 		$this->assert(to_bool("null", null) === false);
 		$this->assert(to_bool("", null) === false);
-
+		
 		$this->assert(to_bool("01", null) === null);
 		$this->assert(to_bool(array(), null) === null);
 		$this->assert(to_bool(new stdClass(), null) === null);
@@ -334,7 +362,7 @@ class test_kernel extends Test_Unit {
 		}
 		$strpos_timing = $t->elapsed();
 		echo "to_bool_strpos: " . $t->elapsed() . "\n";
-
+		
 		$t = new Timer();
 		for ($i = 0; $i < 100000; $i++) {
 			self::to_bool_in_array('true');
@@ -348,7 +376,7 @@ class test_kernel extends Test_Unit {
 		$mixed = null;
 		$default = null;
 		to_array($mixed, $default);
-
+		
 		$this->assert(to_array("foo") === array(
 			"foo"
 		));
@@ -378,7 +406,7 @@ class test_kernel extends Test_Unit {
 		$this->assert(to_array("1") === array(
 			"1"
 		));
-
+		
 		echo basename(__FILE__) . ": success\n";
 	}
 	function test_newline() {
@@ -438,14 +466,14 @@ function MM_findObj(n, d)
 	d=parent.frames[n.substring(p+1)].document; n=n.substring(0,p);
     }
 EOF;
-
+		
 		$foo = map($test, array());
-
+		
 		$sandbox = $this->test_sandbox();
 		// file_put_contents("$sandbox/function.map.0.txt", $foo);
 		// file_put_contents("$sandbox/function.map.1.txt", $test);
 		$this->assert($foo === $test, "Mismatch $foo");
-
+		
 		$prefix = "dude";
 		$a = array(
 			"a" => "b",
@@ -464,7 +492,7 @@ EOF;
 		$x = null;
 		$max = null;
 		integer_between($min, $x, $max);
-
+		
 		$this->assert(integer_between(10, 10, 200) === true);
 		$this->assert(integer_between(10, 9, 200) === false);
 		$this->assert(integer_between(10, array(), 200) === false);

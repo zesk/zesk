@@ -6,7 +6,14 @@
  * @package zesk
  * @subpackage system
  */
+use zesk\Template;
+use zesk\Database_Table;
 
+/**
+ * 
+ * @author kent
+ *
+ */
 class Object_XML {
 	static function from_table_name($db_url, $table_name) {
 		$x = app()->database_factory($db_url);
@@ -18,7 +25,6 @@ class Object_XML {
 			"xml_header" => true
 		));
 	}
-
 	static function from_database_table(XML_Writer_Interface $XML_Writer, Database_Table $table) {
 		/* @var $XML_Writer IXMLWriter */
 		/* @var $table Database_Table */
@@ -59,7 +65,6 @@ class Object_XML {
 		), str_replace($table, '{table}', $database->sql_get_create_table($table)));
 		$XML_Writer->pop("Object");
 	}
-
 	static function to_php_class($content) {
 		$xml = new SimpleXMLElement($content);
 		$t = new Template("object/xml_object.tpl", array(

@@ -1,7 +1,5 @@
 <?php
-
 class Command_Cache extends Command_Base {
-
 	protected $option_types = array(
 		"*" => "string"
 	);
@@ -15,14 +13,12 @@ class Command_Cache extends Command_Base {
 			$this->run_arg("print");
 		}
 	}
-
 	protected function run_arg($arg) {
 		$method = "_exec_$arg";
 		if (method_exists($this, $method)) {
 			$this->$method();
 		}
 	}
-
 	private function _exec_clear() {
 		$this->log("Running: Application::cache_clear");
 		$application = Application::instance();

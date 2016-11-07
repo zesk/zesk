@@ -1,4 +1,16 @@
 <?php
+
+/**
+ * 
+ */
+use zesk\Lists;
+use zesk\HTML;
+
+/**
+ * 
+ * @author kent
+ *
+ */
 class Module_jQuery_Unveil extends Module_JSLib {
 	protected $javascript_paths = array(
 		"/share/jquery-unveil/jquery.unveil.js"
@@ -18,7 +30,7 @@ class Module_jQuery_Unveil extends Module_JSLib {
 	 * Register global hooks for this module
 	 */
 	public function initialize() {
-		$this->application->hooks->add(html::tag_attributes_alter_hook_name("img"), array(
+		$this->application->hooks->add(HTML::tag_attributes_alter_hook_name("img"), array(
 			$this,
 			"img_alter"
 		));
@@ -35,7 +47,7 @@ class Module_jQuery_Unveil extends Module_JSLib {
 			return null;
 		}
 		$class = avalue($attributes, 'class', '');
-		if (lists::contains($class, 'veil', ' ')) {
+		if (Lists::contains($class, 'veil', ' ')) {
 			return null;
 		}
 		$src = $attributes['src'];

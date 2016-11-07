@@ -1,6 +1,6 @@
 <?php
 
-class Class_Help extends Class_Object {
+class Class_Help extends zesk\Class_Object {
 	public $id_column = 'id';
 
 	public $find_keys = array(

@@ -15,7 +15,7 @@ abstract class Configuration_Parser extends Options {
 	protected $content = null;
 	
 	/**
-	 * @var \Interface_Settings
+	 * @var Interface_Settings
 	 */
 	protected $settings = null;
 	/**
@@ -33,11 +33,11 @@ abstract class Configuration_Parser extends Options {
 	 * 
 	 * @param unknown $type
 	 * @param unknown $content
-	 * @param \Interface_Settings $settings
+	 * @param Interface_Settings $settings
 	 * @param array $options
 	 * @return Configuration_Parser
 	 */
-	public static function factory($type, $content, \Interface_Settings $settings, array $options = array()) {
+	public static function factory($type, $content, Interface_Settings $settings, array $options = array()) {
 		global $zesk;
 		try {
 			/* @var $zesk Kernel */
@@ -50,10 +50,10 @@ abstract class Configuration_Parser extends Options {
 	/**
 	 * 
 	 * @param unknown $content
-	 * @param \Interface_Settings $settings
+	 * @param Interface_Settings $settings
 	 * @param array $options
 	 */
-	public final function __construct($content, \Interface_Settings $settings, array $options = array()) {
+	public final function __construct($content, Interface_Settings $settings, array $options = array()) {
 		parent::__construct($options);
 		$this->settings($settings);
 		$this->content($content);
@@ -63,10 +63,10 @@ abstract class Configuration_Parser extends Options {
 	/**
 	 * Getter/setter for settings
 	 * 
-	 * @param \Interface_Settings $settings
+	 * @param Interface_Settings $settings
 	 * @return Interface_Settings
 	 */
-	public function settings(\Interface_Settings $settings = null) {
+	public function settings(Interface_Settings $settings = null) {
 		if ($settings) {
 			$this->settings = $settings;
 			return $this;
@@ -76,7 +76,7 @@ abstract class Configuration_Parser extends Options {
 	/**
 	 * Getter/setter for settings
 	 * 
-	 * @param \Interface_Settings $settings
+	 * @param Interface_Settings $settings
 	 * @return Interface_Settings
 	 */
 	public function configuration_dependency(Configuration_Dependency $dependency = null) {
@@ -89,7 +89,7 @@ abstract class Configuration_Parser extends Options {
 	/**
 	 * Getter/setter for settings
 	 * 
-	 * @param \Interface_Settings $settings
+	 * @param Interface_Settings $settings
 	 * @return Interface_Settings
 	 */
 	public function configuration_loader(Configuration_Loader $loader = null) {

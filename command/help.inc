@@ -1,17 +1,18 @@
 <?php
+use zesk\Directory;
+use zesk\File;
 /**
  * This help.
+ * 
  * @category Documentation
  */
 class Command_Help extends Command_Base {
-
 	protected $option_types = array(
 		'no-core' => 'boolean'
 	);
 	protected $option_help = array(
 		'no-core' => 'Skip all Zesk core commands'
 	);
-
 	function run() {
 		global $zesk;
 		/* @var $zesk zesk\Kernel */
@@ -22,11 +23,12 @@ class Command_Help extends Command_Base {
 			'directory_default' => false,
 			'directory_walk_exclude_pattern' => '#/\..*$#'
 		);
-		foreach (zesk::zesk_command_path() as $path) {
-			if ($this->option_bool("no-core") && begins($path, zesk::root())) {
+		$zesk_root = $zesk->paths->zesk();
+		foreach ($this->application->zesk_command_path() as $path) {
+			if ($this->option_bool("no-core") && begins($path, $zesk_root)) {
 				continue;
 			}
-			$commands = dir::list_recursive($path, $opts);
+			$commands = Directory::list_recursive($path, $opts);
 			if ($commands) {
 				$command_files[$path] = $commands;
 			}
@@ -79,11 +81,10 @@ class Command_Help extends Command_Base {
 		));
 		$this->save_aliases($aliases);
 	}
-
 	function save_aliases(array $aliases) {
 		$paths = Application::instance()->configuration_path();
 		$name = "command-aliases.conf"; // Put this in a single location
-		$conf_file = zesk::find_file($paths, $name);
+		$conf_file = File::find_first($paths, $name);
 		if ($conf_file) {
 			try {
 				//echo "WRITING $conf_file\n";

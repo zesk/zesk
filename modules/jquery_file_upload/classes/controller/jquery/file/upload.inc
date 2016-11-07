@@ -1,5 +1,5 @@
 <?php
-/*
+/**
  * jQuery File Upload Plugin PHP Class 6.1.2 https://github.com/blueimp/jQuery-File-Upload 
  * 
  * Copyright 2010, Sebastian Tschan 
@@ -8,7 +8,13 @@
  * 
  * Licensed under the MIT license: http://www.opensource.org/licenses/MIT 
  *
- * Heavily modified for use in Zesk by Kent M. Davidson http://marketacumen.com/?crsource=$URL: https://code.marketacumen.com/zesk/trunk/modules/jquery_file_upload/classes/controller/jquery/file/upload.inc $
+ * Heavily modified for use in Zesk by Kent M. Davidson http://marketacumen.com/?crsource=$Id: upload.inc 4009 2016-09-07 19:48:38Z kent $
+ */
+use zesk\Directory;
+/**
+ * 
+ * @author kent
+ *
  */
 class Controller_JQuery_File_Upload extends Controller {
 	
@@ -94,7 +100,7 @@ class Controller_JQuery_File_Upload extends Controller {
 		$path = $this->option("upload_diretory", zesk::data_path('upload'));
 		$filename = md5_file($tmp_name);
 		try {
-			dir::depend($path, $this->option('upload_directory_mode'));
+			Directory::depend($path, $this->option('upload_directory_mode'));
 		} catch (Exception_Directory_Create $e) {
 			$result['error'] = 'upload_directory_create';
 			return $result;

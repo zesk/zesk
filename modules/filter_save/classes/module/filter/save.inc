@@ -7,7 +7,7 @@
  * 
  * @author kent
  */
-class Module_Filter_Save extends Module_JSLib implements Module_Interface_Routes {
+class Module_Filter_Save extends Module_JSLib implements \zesk\Interface_Module_Routes {
 	
 	/**
 	 * 
@@ -28,9 +28,9 @@ class Module_Filter_Save extends Module_JSLib implements Module_Interface_Routes
 	/**
 	 * 
 	 * {@inheritDoc}
-	 * @see Module_Interface_Routes::hook_routes()
+	 * @see \zesk\Interface_Module_Routes::hook_routes()
 	 */
-	public function hook_routes(Router $router) {
+	public function hook_routes(zesk\Router $router) {
 		$router->add_route('filter_state/new', array(
 			"method" => array(
 				$this,
@@ -74,8 +74,8 @@ class Module_Filter_Save extends Module_JSLib implements Module_Interface_Routes
 		$request = $widget->request();
 		$response = $widget->response();
 	}
-	public function filter_state_new(Request $request, Response_HTML $response) {
+	public function filter_state_new(zesk\Request $request, zesk\Response_Text_HTML $response) {
 	}
-	public function filter_state_delete(Request $request, Response_HTML $response, Filter_State $filter) {
+	public function filter_state_delete(zesk\Request $request, zesk\Response_Text_HTML $response, Filter_State $filter) {
 	}
 }

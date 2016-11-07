@@ -1,21 +1,30 @@
 <?php
-$user = $this->user;
-/* @var $user User */
+/**
+ * @copyright &copy; 2016 Market Acumen, Inc.
+ */
+namespace zesk;
 
-$article = $this->object;
+/* @var $this \zesk\Template */
+/* @var $zesk \zesk\Kernel */
+/* @var $application \zesk\Application */
+/* @var $session \zesk\Session */
+/* @var $router \zesk\Router */
+/* @var $route \zesk\Route */
+/* @var $request \zesk\Request */
+/* @var $response \zesk\Response_Text_HTML */
+/* @var $current_user \User */
+/* @var $object \Content_Article */
+$this->response->title($object->Title);
 
-/* @var $article Article */
-$this->response->title($article->Title);
+$byline = $object->Byline;
 
-$byline = $article->Byline;
-
-echo html::tag_open('div', ".article article-view $object->class_code_name()");
+echo HTML::tag_open('div', ".article article-view " . $object->class_code_name());
 echo $this->theme('control/admin-edit');
 
-echo html::tag("h1", $article->title);
+echo HTML::tag("h1", $object->title);
 
-echo html::tag_open('div', '.article-entry cmhtml');
-echo $article->body;
+echo HTML::tag_open('div', '.article-entry cmhtml');
+echo $object->body;
 
-echo html::tag_close('div');
-echo html::tag_close('div');
+echo HTML::tag_close('div');
+echo HTML::tag_close('div');

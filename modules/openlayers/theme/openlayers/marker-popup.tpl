@@ -1,8 +1,30 @@
 <?php
-/* @var $this Template */
+/**
+ * @copyright &copy; 2016 Market Acumen, Inc.
+ */
+namespace zesk;
 
-/* @var $response Response_HTML */
-$response = $this->response;
+if (false) {
+	/* @var $this Template */
+	
+	$zesk = $this->zesk;
+	/* @var $zesk \zesk\Kernel */
+	
+	$application = $this->application;
+	/* @var $application \zesk\Application */
+	
+	$session = $this->session;
+	/* @var $session \zesk\Session */
+	
+	$router = $this->router;
+	/* @var $request \zesk\Router */
+	
+	$request = $this->request;
+	/* @var $request \zesk\Request */
+	
+	$response = $this->response;
+	/* @var $response \zesk\Response_Text_HTML */
+}
 
 $latitude = $this->latitude;
 $longitude = $this->longitude;
@@ -22,7 +44,7 @@ $(document).ready(function () {
 	zoom = parseInt('<?php echo $zoom ?>', 10),
 	latitude = parseFloat('<?php echo $latitude ?>'),
 	longitude = parseFloat('<?php echo $longitude ?>'),
-	message = <?php echo json::encode($message); ?>,
+	message = <?php echo JSON::encode($message); ?>,
 	size = <?php echo $width ? "new ol.Size($width, $height)" : "null" ?>,
 	$popup = $('#<?php echo $id; ?>-popup'),
 	position =  ol.proj.transform([longitude, latitude], 'EPSG:4326', 'EPSG:3857'),
@@ -56,7 +78,7 @@ $(document).ready(function () {
 	map.renderSync();
 	$popup.popover({
 		html: true,
-		content: <?php echo json::encode($this->message); ?>,
+		content: <?php echo JSON::encode($this->message); ?>,
 		viewport: overlay.element,
 		placement: 'bottom'
 	}).popover('show');
@@ -64,10 +86,10 @@ $(document).ready(function () {
 </script>
 <?php
 
-$response->javascript_inline(html::extract_tag_contents("script", ob_get_clean()));
+$response->javascript_inline(HTML::extract_tag_contents("script", ob_get_clean()));
 
-echo html::tag("div", "#$id .openlayers-map .openlayers-map-marker-popup", "");
-echo html::tag('div', array(
+echo HTML::tag("div", "#$id .openlayers-map .openlayers-map-marker-popup", "");
+echo HTML::tag('div', array(
 	'id' => "$id-popup",
 	'class' => 'openlayers-map-marker-member',
 	'style' => "",

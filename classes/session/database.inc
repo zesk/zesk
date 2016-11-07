@@ -8,8 +8,16 @@
  * @author Kent Davidson <kent@marketacumen.com>
  * @copyright Copyright &copy; 2011, Market Acumen, Inc.
  */
-use zesk\Timestamp as Timestamp;
+use zesk\Timestamp;
 use \zesk as zesk;
+use zesk\URL;
+use zesk\Object;
+use zesk\Domain;
+use zesk\Request;
+use zesk\Response;
+use zesk\Database_Exception_Connect;
+use zesk\Database_Exception_Table_NotFound;
+use zesk\Interface_Session;
 
 /**
  * @see Class_Session_Database
@@ -26,7 +34,7 @@ use \zesk as zesk;
  * @property array $data
  * @author kent
  */
-class Session_Database extends zesk\Object implements Session_Interface {
+class Session_Database extends Object implements Interface_Session {
 	/**
 	 * Current execution does not allow sessions, do not touch database
 	 *
@@ -39,7 +47,7 @@ class Session_Database extends zesk\Object implements Session_Interface {
 	 *
 	 * @var array
 	 */
-	private $original;
+	private $original = array();
 	
 	/**
 	 * Something changed?
@@ -90,12 +98,12 @@ class Session_Database extends zesk\Object implements Session_Interface {
 			->where("id", $this)
 			->low_priority(true)
 			->execute();
-		$this->hook('seen');
+		$this->call_hook('seen');
 		return $this;
 	}
 	public static function hooks(zesk\Kernel $zesk) {
 		$zesk->configuration->pave("Session");
-		$zesk->hooks->add('Response::headers', __CLASS__ . '::response_headers');
+		$zesk->hooks->add('zesk\Response::headers', __CLASS__ . '::response_headers');
 		$zesk->hooks->add('exit', __CLASS__ . '::save');
 	}
 	function store() {
@@ -173,7 +181,7 @@ class Session_Database extends zesk\Object implements Session_Interface {
 	 */
 	public function deauthenticate() {
 		if ($this->user()) {
-			$this->user()->hook("logout");
+			$this->user()->call_hook("logout");
 		}
 		$this->set_member("user", null);
 		return $this->store();
@@ -194,7 +202,7 @@ class Session_Database extends zesk\Object implements Session_Interface {
 		try {
 			$user = $this->user();
 			if ($user) {
-				$user->hook("logout_expire");
+				$user->call_hook("logout_expire");
 			}
 		} catch (Exception_Object_NotFound $e) {
 			// User deleted
@@ -206,12 +214,12 @@ class Session_Database extends zesk\Object implements Session_Interface {
 	public static function cron_cluster_minute(zesk\Application $application) {
 		$now = Timestamp::now();
 		$where['expires|<'] = $now;
-		$iter = Object::class_query(__CLASS__)->where($where)->object_iterator();
+		$iter = $application->query_select(__CLASS__)->where($where)->object_iterator();
 		/* @var $session Session_Database */
 		foreach ($iter as $session) {
 			$session->logout_expire();
 		}
-		Object::class_query_delete(__CLASS__)->where($where)->execute();
+		$application->query_delete(__CLASS__)->where($where)->execute();
 	}
 	
 	/**
@@ -303,7 +311,7 @@ class Session_Database extends zesk\Object implements Session_Interface {
 		if ($session instanceof Session_Database) {
 			return $session;
 		}
-		$zesk->hooks->register_class(__CLASS__);
+		
 		$session = new Session_Database();
 		$zesk->objects->session = $session;
 		if (!self::enabled()) {
@@ -342,15 +350,6 @@ class Session_Database extends zesk\Object implements Session_Interface {
 	 */
 	function hash() {
 		return $this->member("cookie");
-	}
-	
-	/**
-	 * 
-	 * @todo Is this used?
-	 * @return integer
-	 */
-	function toString() {
-		return $this->id();
 	}
 	
 	/**
@@ -400,10 +399,13 @@ class Session_Database extends zesk\Object implements Session_Interface {
 		return $this;
 	}
 	public static function session_count($nSeconds = 600) {
-		$session = Session_Database::master();
+		$session = Session_Database::instance();
 		$where['seen|>='] = Timestamp::now()->add_unit("minute", -$nSeconds);
 		$where['id|!='] = $session->id();
-		return Object::class_query(__CLASS__)->what("*X", "COUNT(id)")->where($where)->one_integer("X");
+		return $session->query_select(__CLASS__)
+			->what("*X", "COUNT(id)")
+			->where($where)
+			->one_integer("X");
 	}
 	
 	/*
@@ -528,23 +530,33 @@ class Session_Database extends zesk\Object implements Session_Interface {
 	 * @return void
 	 */
 	static public function response_headers(Response $response) {
+		global $zesk;
+		
+		/* @var $zesk zesk\Kernel */
 		$session = self::instance();
 		$cookie = $session->member('cookie');
 		$cookieName = self::global_cookie_name();
 		$round = self::global_cookie_expire_round();
 		$cookieExpire = self::global_cookie_expire();
-		$tld = zesk::get("Session::domain_cookie", true);
-		if ($tld === true) {
-			$tld = http::tld(url::current_host());
-		} else if ($tld === false) {
-			$tld = url::current_host();
+		$host = URL::current_host();
+		$cookie_domain = $zesk->configuration->path_get("Session::domain_cookie", $session->option("domain_cookie", true));
+		if ($cookie_domain === true) {
+			$cookie_domain = Domain::domain_factory($host)->compute_cookie_domain();
+		} 
+		$cookie_domain = ltrim($cookie_domain, ".");
+		if (!ends($host, $cookie_domain)) {
+			$zesk->logger->warning("Unable to set cookie {cookie_domain} on host {host}", array(
+				"cookie_domain" => $cookie_domain,
+				"host" => $host
+			));
 		}
+		
 		$expire_time = time() + $cookieExpire;
 		$expire_time = intval(round($expire_time / $round) * $round);
-		if (!zesk::$console) {
+		if (!$zesk->console) {
 			setcookie($cookieName, null);
 			if (!empty($cookie)) {
-				setcookie($cookieName, $cookie, $expire_time, "/", $tld, zesk::getb("Session::cookie_secure", false));
+				setcookie($cookieName, $cookie, $expire_time, "/", ".$cookie_domain", $session->option_bool("cookie_secure", false));
 			}
 		}
 		return $cookie;

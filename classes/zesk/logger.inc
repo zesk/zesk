@@ -1,17 +1,62 @@
 <?php
-
+/**
+ * 
+ */
 namespace zesk;
 
-use \log as log;
 use Psr\Log\LogLevel as LogLevel;
 use Psr\Log\LoggerInterface as LoggerInterface;
 
 /**
- * TODO, use Monolog instead
+ * TODO, allow use of Monolog as well
  * @author kent
- *
  */
 class Logger implements LoggerInterface {
+	/**
+	 * 
+	 * @var array
+	 */
+	private static $levels = array(
+		LogLevel::EMERGENCY => LogLevel::EMERGENCY,
+		LogLevel::ALERT => LogLevel::ALERT,
+		LogLevel::CRITICAL => LogLevel::CRITICAL,
+		LogLevel::ERROR => LogLevel::ERROR,
+		LogLevel::WARNING => LogLevel::WARNING,
+		LogLevel::NOTICE => LogLevel::NOTICE,
+		LogLevel::INFO => LogLevel::INFO,
+		LogLevel::DEBUG => LogLevel::DEBUG
+	);
+	
+	/**
+	 * 
+	 * @var boolean
+	 */
+	private $sending = false;
+	
+	/**
+	 * 
+	 * @var boolean
+	 */
+	public $utc_time = false;
+	
+	/**
+	 * 
+	 * @var string[]
+	 */
+	private $handler_names = array();
+	
+	/**
+	 * 
+	 * @var \zesk\Logger\Processor[name]
+	 */
+	private $processors = array();
+	
+	/**
+	 * 
+	 * @var array
+	 */
+	private $handlers = array();
+	
 	/**
 	 * System is unusable.
 	 *
@@ -120,17 +165,162 @@ class Logger implements LoggerInterface {
 	 * @return null
 	 */
 	public function log($level, $message, array $context = array()) {
-		static $zesk_levels = array(
-			LogLevel::EMERGENCY => log::FATAL,
-			LogLevel::ALERT => log::FATAL,
-			LogLevel::CRITICAL => log::FATAL,
-			LogLevel::ERROR => log::ERROR,
-			LogLevel::WARNING => log::WARNING,
-			LogLevel::NOTICE => log::NOTICE,
-			LogLevel::INFO => log::NOTICE,
-			LogLevel::DEBUG => log::DEBUG
-		);
-		log::send($message, $context, avalue($zesk_levels, $level, $level));
+		global $zesk;
+		/* @var $zesk zesk\Kernel */
+		if ($this->sending) {
+			// Doh.
+			return;
+		}
+		if (!isset($this->handlers[$level])) {
+			return;
+		}
+		
+		if (is_object($message)) {
+			$message_args = method_exists($message, "log_variables") ? $message->log_variables() : array();
+			$message = method_exists($message, "log_message") ? $message->log_message() : strval($message);
+			$context = $message_args + $context;
+		}
+		foreach ($this->processors as $name => $processor) {
+			/* @var $processor \zesk\Logger\Processor */
+			$context = $processor->process($context);
+		}
+		if (is_array($message)) {
+			foreach ($message as $y) {
+				self::log($level, $y, $context);
+			}
+			return;
+		}
+		$pid = $zesk->process->id();
+		$time = microtime(true);
+		$int_time = intval($time);
+		
+		$extras = array();
+		$date = $this->utc_time ? "gmdate" : "date";
+		$extras['_date'] = $date("Y-m-d", $int_time);
+		$extras['_time'] = $date("H:i:s", $int_time) . ltrim(sprintf("%.3f", $time - $int_time), '0');
+		$extras['_microtime'] = $time;
+		$extras['_pid'] = $pid;
+		$extras['_level'] = $level;
+		$extras['_level_string'] = $level;
+		$extras['_severity'] = $level;
+		$extras['_message'] = $message;
+		$extras['_formatted'] = map($message, $context);
+		
+		$context += $extras;
+		
+		$sending = true;
+		$handlers = $this->handlers[$level];
+		foreach ($handlers as $name => $handler) {
+			/* @var $handler \zesk\Logger\Handler */
+			$context['_handler'] = $name;
+			try {
+				$handler->log($message, $context);
+			} catch (Exception $e) {
+				die($e->getMessage());
+			}
+		}
+		$sending = false;
+	}
+	/**
+	 * @return string[]
+	 */
+	public function handler_names() {
+		return array_values($this->handler_names);
+	}
+	
+	/**
+	 * 
+	 * @param unknown $name
+	 */
+	public function unregister_handler($name, $levels = null) {
+		$levels = $levels === null ? array_keys(self::$levels) : to_list($levels);
+		$nfound = 0;
+		if (is_array($name)) {
+			foreach ($name as $n) {
+				$nfound += $this->unregister_handler($n, $levels);
+			}
+			return $nfound;
+		}
+		$lowname = strtolower($name);
+		if (!isset($this->handler_names[$lowname])) {
+			return 0;
+		}
+		foreach ($levels as $level) {
+			if (isset(self::$levels[$level]) && isset(self::$levels[$level][$lowname])) {
+				unset($this->handlers[$level][$lowname]);
+				++$nfound;
+			}
+		}
+		unset($this->handler_names[$lowname]);
+		return $nfound;
+	}
+	/**
+	 * 
+	 * @param unknown $name
+	 * @param unknown $function
+	 * @param unknown $levels
+	 * @return \zesk\Logger
+	 */
+	public function register_handler($name, \zesk\Logger\Handler $handler, $levels = null) {
+		$levels = $levels === null ? array_keys(self::$levels) : to_list($levels);
+		$lowname = strtolower($name);
+		foreach ($levels as $level) {
+			if (isset(self::$levels[$level])) {
+				$this->handlers[$level][$lowname] = $handler;
+			}
+		}
+		$this->handler_names[$lowname] = $name;
+		return $this;
+	}
+	
+	/**
+	 * 
+	 * @param string $name
+	 * @param \zesk\Logger\Processor $processor
+	 * @return \zesk\Logger
+	 */
+	public function register_processor($name, \zesk\Logger\Processor $processor) {
+		$this->processors[$name] = $processor;
+		return $this;
+	}
+	
+	/**
+	 * 
+	 * @param string $name
+	 * @param \zesk\Logger\Processor $processor
+	 * @return \zesk\Logger
+	 */
+	public function unregister_processor($name) {
+		unset($this->processors[$name]);
+		return $this;
+	}
+	
+	/**
+	 * @return string[]
+	 */
+	public function processor_names() {
+		return array_keys($this->processors);
+	}
+	
+	/**
+	 * @return array
+	 */
+	public function levels() {
+		return self::$levels;
+	}
+	
+	/**
+	 * @return array
+	 */
+	public function levels_select($severity) {
+		$result = array();
+		foreach (self::$levels as $k => $v) {
+			$result[$k] = $v;
+			if ($severity === $k) {
+				return $result;
+			}
+		}
+		return $result;
 	}
 }
 

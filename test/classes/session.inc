@@ -6,7 +6,7 @@
  * @author Kent Davidson <kent@marketacumen.com>
  * @copyright Copyright &copy; 2008, Market Acumen, Inc.
  */
-
+use zesk\Cache;
 class Test_Session implements Session_Interface {
 	protected $ID;
 	/**
@@ -15,12 +15,10 @@ class Test_Session implements Session_Interface {
 	 * @var Cache
 	 */
 	protected $Cache;
-
 	function __construct() {
 		$this->ID = mt_rand(0, 0x7FFFFFFF);
 		$this->Cache = Cache::register("Session_Test-" . $this->ID);
 	}
-
 	static public function instance($create = true) {
 		if (!$create) {
 			return null;
@@ -53,6 +51,12 @@ class Test_Session implements Session_Interface {
 	}
 	public function __set($name, $value) {
 		$this->Cache->__set($name, $value);
+	}
+	public function __isset($name) {
+		$this->Cache->__isset($name);
+	}
+	public function has($name) {
+		$this->Cache->has($name);
 	}
 	public function set($name, $value = null) {
 		$this->Cache->__set($name, $value);

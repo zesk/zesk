@@ -1,28 +1,33 @@
 <?php
 /**
- * @version $Id: summary.tpl 3533 2016-01-13 21:56:49Z kent $
+ * @version $Id: summary.tpl 4073 2016-10-17 19:52:16Z kent $
  * @package fftt
  * @subpackage theme
  * @author Kent Davidson <kent@marketacumen.com>
- * @copyright Copyright &copy; 2008, Market Acumen, Inc.
- * Created on Thu Jun 19 14:36:22 EDT 2008
+ * @copyright Copyright &copy; 2016, Market Acumen, Inc.
  */
-$user = $this->user;
+namespace zesk;
 
-$object = $this->object;
-
-/* @var $object Content_Article */
-
+/* @var $this \zesk\Template */
+/* @var $zesk \zesk\Kernel */
+/* @var $application \zesk\Application */
+/* @var $session \zesk\Session */
+/* @var $router \zesk\Router */
+/* @var $route \zesk\Route */
+/* @var $request \zesk\Request */
+/* @var $response \zesk\Response_Text_HTML */
+/* @var $current_user \User */
+/* @var $object \Content_Article */
 $byline = $object->Byline;
 
 /* @var $request Request */
 $request = $this->request;
 
-$new_link = path(url::current_path(), $object->CodeName);
+$new_link = path(URL::current_path(), $object->CodeName);
 
-echo html::tag_open("div", '.article-entry');
+echo HTML::tag_open("div", '.article-entry');
 if ($object->member_boolean("ShowDisplayDate")) {
-	echo html::etag("div", array(
+	echo HTML::etag("div", array(
 		"class" => "article-date"
 	), $object->displayDate());
 }
@@ -30,14 +35,14 @@ echo $object->articleImage(0, array(
 	"image_size" => 150
 ));
 
-echo html::tag('h2', html::a($new_link, $object->homeTitle()));
+echo HTML::tag('h2', HTML::a($new_link, $object->homeTitle()));
 
 echo $this->theme('control/admin-edit.tpl');
 
 $insert_html = "&nbsp;<strong><a href=\"$new_link\">" . $object->member("MoreLink", "... more") . "</a></strong>";
 
-echo html::insert_inside_end($object->summary(), $insert_html);
+echo HTML::insert_inside_end($object->summary(), $insert_html);
 
-echo $object->render("byline");
+echo $object->theme("byline");
 
-echo html::tag_close('div');
+echo HTML::tag_close('div');

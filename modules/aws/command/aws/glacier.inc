@@ -1,5 +1,10 @@
 <?php
 /**
+ * @copyright &copy; 2016 Market Acumen, Inc.
+ */
+use zesk\Text;
+
+/**
  * Glacier command to store, retrieve, list, and manage glacier files
  * 
  * @author kent
@@ -130,12 +135,16 @@ class Command_AWS_Glacier extends Command_Base {
 		do {
 			sleep(5);
 			$status = $this->glacier->job_status($vault, $job_id);
-			echo text::format_table($status);
+			echo Text::format_table($status);
 		} while ($status['StatusCode'] === "InProgress");
 		return 0;
 	}
+	
+	/**
+	 * 
+	 */
 	private function run_list() {
 		$result = $this->glacier->vaults_list();
-		echo text::format_table($result);
+		echo Text::format_table($result);
 	}
 }

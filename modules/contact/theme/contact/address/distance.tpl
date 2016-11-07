@@ -1,6 +1,6 @@
 <?php
 if (false) {
-	/* @var $this Template */
+	/* @var $this zesk\Template */
 	
 	$application = $this->application;
 	/* @var $application Application */
@@ -12,7 +12,7 @@ if (false) {
 	/* @var $request Request */
 	
 	$response = $this->response;
-	/* @var $response Response_HTML */
+	/* @var $response zesk\Response_Text_HTML */
 	
 	$object = $this->object;
 	/* @var $object Contact_Address */

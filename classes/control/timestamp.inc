@@ -8,7 +8,7 @@
  * Created on Tue Jul 15 16:35:38 EDT 2008
  */
 
-use zesk\Timestamp as Timestamp;
+use zesk\Timestamp;
 
 /**
  * 

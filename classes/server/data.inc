@@ -17,22 +17,37 @@
  * @property mixed $value
  */
 class Server_Data extends Object {
+	/**
+	 * 
+	 * @param zesk\Kernel $zesk
+	 */
 	public static function hooks(zesk\Kernel $zesk) {
 		$zesk->hooks->add('Server::delete', array(
 			__CLASS__,
 			'server_delete'
 		));
 	}
-
-	public static function cron_cluster_hour() {
+	
+	/**
+	 * Clean up data of servers which have been deleted.
+	 * Could probably use a foreign key constraint to handle this as well.
+	 * 
+	 * @param zesk\Application $application
+	 */
+	public static function cron_cluster_hour(zesk\Application $application) {
 		$deleted_servers = Object::class_database(__CLASS__)->query_array("SELECT DISTINCT D.server FROM Server_Data D LEFT OUTER JOIN Server S on S.id=D.server WHERE S.id IS NULL", null, 'server');
 		if (count($deleted_servers) > 0) {
-			Object::class_query_delete(__CLASS__)->where('server', $deleted_servers)->execute();
+			$application->query_delete(__CLASS__)->where('server', $deleted_servers)->exec();
 		}
 	}
-
+	
+	/**
+	 * Delete all data associated with server
+	 * 
+	 * @param Server $server
+	 */
 	public static function server_delete(Server $server) {
-		Object::class_query_delete(__CLASS__)->where("server", $server)->execute();
+		$server->application->query_delete(__CLASS__)->where("server", $server)->exec();
 	}
 }
 

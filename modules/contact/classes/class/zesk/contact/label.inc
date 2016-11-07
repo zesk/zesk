@@ -2,7 +2,7 @@
 /**
  * Class_Zesk_Contact_Label
  */
-class Class_Zesk_Contact_Label extends Class_Object {
+class Class_Zesk_Contact_Label extends zesk\Class_Object {
 
 	public $id_column = "id";
 

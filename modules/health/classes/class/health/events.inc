@@ -5,7 +5,7 @@
  * @author kent
  *
  */
-class Class_Health_Events extends Class_Object {
+class Class_Health_Events extends zesk\Class_Object {
 
 	/**
 	 * Name of the Object which should share this database with.

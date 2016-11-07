@@ -44,7 +44,7 @@ class Session_Database_Test extends Test_Object {
 
 		$resx = $testx->one_time_create(2);
 		$this->assert($resx instanceof Session_Database);
-		$this->assert_true($resx->memberBoolean('is_one_time'));
+		$this->assert_true($resx->member_boolean('is_one_time'));
 		$this->assert_not_equal($resx->member('cookie'), $testx->member('cookie'));
 
 		$testx->A = "A";

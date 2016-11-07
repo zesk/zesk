@@ -1,15 +1,27 @@
 <?php
+use zesk\HTML;
+
+/* @var $this \zesk\Template */
+/* @var $zesk \zesk\Kernel */
+/* @var $application \zesk\Application */
+/* @var $session \zesk\Session */
+/* @var $router \zesk\Router */
+/* @var $route \zesk\Route */
+/* @var $request \zesk\Request */
+/* @var $response \zesk\Response_Text_HTML */
+/* @var $current_user \User */
 
 /* @var $link_widget Widget */
+/* @var $object \zesk\Model */
+/* @var $widget Widget */
+
 $link_widget = $this->link_widget;
 
-/* @var $widget Widget */
 $widget = $this->widget;
 
 $link_widget_name = $this->link_widget_name;
 
 $column = $this->column;
-/* @var $object Model */
 $object = $this->object;
 
 // This should only be set on SUBMIT
@@ -23,19 +35,19 @@ if ($maximum_objects <= 0) {
 	$maximum_objects = 100;
 }
 $template_name = "template-$column";
-echo html::tag_open("div", array(
+echo HTML::tag_open("div", array(
 	"class" => "control-link-object",
 	"data-minimum-objects" => $minimum_objects,
 	"data-template" => $template_name,
 	"data-maximum-objects" => $maximum_objects
 ));
 
-echo html::tag('script', array(
+echo HTML::tag('script', array(
 	'id' => $template_name,
 	"type" => "text/x-template"
 ), $blank_widget = $link_widget->render());
 
-echo html::tag_open('div', '.links');
+echo HTML::tag_open('div', '.links');
 $n_objects = 0;
 foreach ($links as $item) {
 	$link_widget->object($item);
@@ -53,7 +65,7 @@ for($i = 0; $i < $n_extras; $i++) {
 	echo $blank_widget;
 }
 
-echo html::tag_close('div');
+echo HTML::tag_close('div');
 
 if ($widget->option_bool("show_more", true)) {
 	$this->response->jquery('$(".control-link-object button.more").on("click", function () {
@@ -65,7 +77,7 @@ if ($widget->option_bool("show_more", true)) {
 	$add_attrs = array(
 		"class" => "form-control more"
 	);
-	echo html::tag('div', '.more', html::tag("button", $add_attrs, $widget->option('label_more', __("More ..."))));
+	echo HTML::tag('div', '.more', HTML::tag("button", $add_attrs, $widget->option('label_more', __("More ..."))));
 }
 
-echo html::tag_close('div');
+echo HTML::tag_close('div');

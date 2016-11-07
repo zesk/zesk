@@ -14,7 +14,7 @@
  *
  * @author kent
  */
-class Module_Forgot extends Module implements Module_Interface_Routes {
+class Module_Forgot extends Module implements zesk\Interface_Module_Routes {
 	
 	/**
 	 *
@@ -25,11 +25,21 @@ class Module_Forgot extends Module implements Module_Interface_Routes {
 	);
 	
 	/**
+	 * 
+	 * {@inheritDoc}
+	 * @see Module::initialize()
+	 */
+	public function initialize() {
+		parent::initialize();
+		$this->zesk->configuration->pave("Forgot")->theme_path_prefix = "object";
+	}
+	
+	/**
 	 * Implements Module::routes
 	 *
 	 * @param Router $router        	
 	 */
-	public function hook_routes(Router $router) {
+	public function hook_routes(zesk\Router $router) {
 		$router->add_route("forgot(/{option action}(/{hash}))", array(
 			"controller" => "forgot",
 			"arguments" => array(

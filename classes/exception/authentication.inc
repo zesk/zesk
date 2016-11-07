@@ -7,11 +7,11 @@
  * @author $Author: kent $
  * @copyright Copyright &copy; 2011, Market Acumen, Inc.
  */
+zesk()->deprecated();
 
 /**
- * Throw when the user does not authenticate, authentication fails, or access issues
- * 
+ * @deprecated 2016-09
  * @author kent
+ *
  */
-class Exception_Authentication extends zesk\Exception {
-}
+class Exception_Authentication extends zesk\Exception_Authentication {}

@@ -155,6 +155,7 @@
 							++n;
 						}
 					});
+					zesk.hook("document::ready", $results);
 					if (n === 0) {
 						zesk.message(__("No matches found for search &ldquo;{q}&rdquo;.", {q:q}));
 					}

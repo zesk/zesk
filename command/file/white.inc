@@ -13,15 +13,12 @@ class Command_File_White extends Command_Iterator_File {
 		"php4",
 		"php5"
 	);
-
 	protected $parsed = 0;
 	protected $whites = 0;
-
 	protected function start() {
 		$this->parsed = 0;
 		$this->whites = 0;
 	}
-
 	protected function process_file(SplFileInfo $file) {
 		$name = $file->getPathname();
 		$this->verbose_log("whitespace in $name");
@@ -33,7 +30,6 @@ class Command_File_White extends Command_Iterator_File {
 		}
 		$this->parsed++;
 	}
-
 	protected function finish() {
 		$this->log("Completed: {parsed} parsed, {whites} with whitespace", array(
 			"parsed" => $this->parsed,

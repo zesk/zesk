@@ -1,10 +1,47 @@
 <?php
+/**
+ * 
+ */
+use zesk\Directory;
+use zesk\File;
+use zesk\Request;
+use zesk\Response;
+
+/**
+ * Abstract class for iterating on a series of files and converting them from one syntax to another
+ * @author kent
+ * @api
+ *
+ */
 abstract class Command_File_Convert extends Command_Base {
-
+	
+	/**
+	 * Scan for files matching this extension pattern (no delimeters), use vertical bar only 
+	 * 
+	 * e.g. Use "inc|php|tpl" to match files ending with those extensions
+	 *  
+	 * @var string
+	 */
 	protected $source_extension_pattern = null;
+	
+	/**
+	 * 
+	 * @var string
+	 */
 	protected $destination_extension = null;
+	
+	/**
+	 * Override in subclasses to modify the configuration file loaded by this command.
+	 * 
+	 * @var string
+	 */
 	protected $configuration_file = "file-convert";
-
+	
+	/**
+	 * 
+	 * {@inheritDoc}
+	 * @see Command_Base::initialize()
+	 */
 	function initialize() {
 		$this->option_types += array(
 			'nomtime' => 'boolean',
@@ -27,11 +64,16 @@ abstract class Command_File_Convert extends Command_Base {
 		);
 		parent::initialize();
 	}
-
+	
+	/**
+	 * 
+	 * {@inheritDoc}
+	 * @see Command::run()
+	 */
 	protected function run() {
 		$this->verbose_log("Configuring using config file: " . $this->configuration_file);
 		$this->configure($this->configuration_file);
-		$app = Application::instance();
+		$app = $this->application;
 		$app->template->set(array(
 			"request" => Request::instance(),
 			'response' => Response::instance(),
@@ -50,7 +92,7 @@ abstract class Command_File_Convert extends Command_Base {
 			} else {
 				$cwd = getcwd();
 				$this->verbose_log("Listing {cwd}", compact("cwd"));
-				$files = dir::list_recursive($cwd, array(
+				$files = Directory::list_recursive($cwd, array(
 					'file_include_pattern' => '/\.(' . $this->source_extension_pattern . ')$/',
 					'file_default' => false,
 					'directory_default' => false,
@@ -66,7 +108,7 @@ abstract class Command_File_Convert extends Command_Base {
 				if (!file_exists($file)) {
 					continue;
 				}
-				$new_file = file::extension_change($file, ".$extension");
+				$new_file = File::extension_change($file, ".$extension");
 				if (!$force && is_file($new_file) && filesize($new_file) > 0) {
 					if ($noclobber) {
 						log::debug("noclobber: Will not overwrite: $new_file");
@@ -93,7 +135,13 @@ abstract class Command_File_Convert extends Command_Base {
 			echo $this->convert_fp(STDIN);
 		}
 	}
-
+	
+	/**
+	 * Default implementation of "convert_fp" which loads the file until feof($fp) and does the conversion in memory.
+	 * 
+	 * @api
+	 * @param resource $fp File opened for reading with file pointer cued to the file start position.
+	 */
 	protected function convert_fp($fp) {
 		$content = "";
 		while (!feof($fp)) {
@@ -101,20 +149,45 @@ abstract class Command_File_Convert extends Command_Base {
 		}
 		return $this->convert_raw($content);
 	}
-
+	
+	/**
+	 * Convert $file into $new_file
+	 * 
+	 * @api
+	 * @param string $file
+	 * @param string $new_file
+	 */
 	abstract protected function convert_file($file, $new_file);
-
+	
+	/**
+	 * Convert in memory and return converted entity
+	 * 
+	 * @api
+	 * @param string $content
+	 */
 	abstract protected function convert_raw($content);
-
+	
+	/**
+	 * 
+	 * @param unknown $file
+	 * @param unknown $new_file
+	 * @return number
+	 */
 	final protected function default_convert_file($file, $new_file) {
-		log::notice("Writing $new_file");
-		return file_put_contents($new_file, $this->convert_raw(file_get_contents($file)));
+		zesk()->logger->notice("Writing {new_file}", compact("new_file"));
+		return File::put($new_file, $this->convert_raw(file_get_contents($file)));
 	}
-
-	final function default_convert_raw($content) {
-		$src = file::temporary(".source");
-		$dst = file::temporary("." . $this->destination_extension);
-		file_put_contents($src, $content);
+	
+	/**
+	 * 
+	 * @param unknown $content
+	 * @throws zesk\Exception_Syntax
+	 * @return string
+	 */
+	final protected function default_convert_raw($content) {
+		$src = File::temporary(".source");
+		$dst = File::temporary("." . $this->destination_extension);
+		File::put($src, $content);
 		$result = $this->convert_file($src, $dst);
 		if ($result) {
 			$contents = file_get_contents($dst);
@@ -122,6 +195,6 @@ abstract class Command_File_Convert extends Command_Base {
 			@unlink($src);
 			return $contents;
 		}
-		throw new Exception_Syntax("Unable to convert file - ambigious");
+		throw new zesk\Exception_Syntax("Unable to convert file - ambigious");
 	}
 }

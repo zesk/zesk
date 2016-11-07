@@ -1,4 +1,10 @@
 <?php
+/**
+ * 
+ */
+namespace zesk;
+
+use \Net_HTTP;
 
 /**
  * Main share controller
@@ -6,7 +12,7 @@
  * @author kent
  * @see docs/share.md
  */
-class Zesk_Controller_Share extends Controller {
+class Controller_Share extends \Controller {
 	
 	/**
 	 * 
@@ -79,9 +85,9 @@ class Zesk_Controller_Share extends Controller {
 	 */
 	private function build($path, $file) {
 		$target = path($this->application->document_root(), $path);
-		dir::depend(dirname($target), 0775);
+		Directory::depend(dirname($target), 0775);
 		$status = copy($file, $target);
-		log::notice("Copied {file} to {target} - {status}", array(
+		zesk()->logger->notice("Copied {file} to {target} - {status}", array(
 			"file" => $file,
 			"target" => $target,
 			"status" => $status ? "true" : "false"
@@ -93,9 +99,9 @@ class Zesk_Controller_Share extends Controller {
 	 */
 	private function share_debug() {
 		$content = "";
-		$content .= html::tag("h1", "Server") . html::tag("pre", php::dump($_SERVER));
-		$content .= html::tag("h1", "Request headers") . html::tag('pre', php::dump($this->request->header()));
-		$content .= html::tag("h1", "Shares") . html::tag('pre', php::dump(zesk::share_path()));
+		$content .= HTML::tag("h1", "Server") . HTML::tag("pre", PHP::dump($_SERVER));
+		$content .= HTML::tag("h1", "Request headers") . HTML::tag('pre', PHP::dump($this->request->header()));
+		$content .= HTML::tag("h1", "Shares") . HTML::tag('pre', PHP::dump($this->application->share_path()));
 		return $content;
 	}
 	
@@ -108,7 +114,7 @@ class Zesk_Controller_Share extends Controller {
 		$path = explode("/", trim($path, '/'));
 		array_shift($path);
 		$share = array_shift($path);
-		$shares = zesk::share_path();
+		$shares = app()->share_path();
 		if (array_key_exists($share, $shares)) {
 			return path($shares[$share], implode("/", $path));
 		}
@@ -119,17 +125,19 @@ class Zesk_Controller_Share extends Controller {
 	 * Clear the share build path upon cache clear
 	 */
 	public function hook_cache_clear() {
-		log::debug(__METHOD__);
+		global $zesk;
+		/* @var $zesk \zesk\Kernel */
+		$zesk->logger->debug(__METHOD__);
 		if ($this->option_bool('build')) {
-			$share_dir = path(zesk::document_root(), 'share');
+			$share_dir = path($this->application->document_root(), 'share');
 			if (is_dir($share_dir)) {
-				log::notice('{class}::hook_cache_clear - deleting {share_dir}', array(
+				$zesk->logger->notice('{class}::hook_cache_clear - deleting {share_dir}', array(
 					'class' => __CLASS__,
 					'share_dir' => $share_dir
 				));
-				dir::delete($share_dir);
+				Directory::delete($share_dir);
 			} else {
-				log::notice('{class}::hook_cache_clear - would delete {share_dir} but it is not found', array(
+				$zesk->logger->notice('{class}::hook_cache_clear - would delete {share_dir} but it is not found', array(
 					'class' => __CLASS__,
 					'share_dir' => $share_dir
 				));

@@ -1,6 +1,18 @@
 <?php
-use zesk\file as file;
-use zesk\Locale as Locale;
+/**
+ * 
+ */
+use zesk\Directory;
+use zesk\arr;
+use zesk\URL;
+use zesk\File;
+use zesk\Locale;
+use zesk\Exception_Semantics;
+use zesk\Exception_NotFound;
+use zesk\Exception_File_Permission;
+use zesk\Exception_Configuration;
+use zesk\Exception_System;
+use zesk\Exception_File_NotFound;
 
 /**
  * Update code from remote sources in ${module}.module.conf
@@ -51,12 +63,12 @@ class Command_Update extends Command_Base {
 				"module" => $module
 			));
 			try {
-				$data = $this->application->module->load($module, $module_options);
+				$data = $this->application->modules->load($module, $module_options);
 			} catch (Exception_Directory_NotFound $e) {
 				log::error("No such module $module found.");
 				continue;
 			}
-			$data['debug'] = _dump($data);
+//			$data['debug'] = _dump($data);
 			if (is_array($data) && array_key_exists('configuration', $data)) {
 				$modules[$module] = $data;
 			} else {
@@ -73,7 +85,7 @@ class Command_Update extends Command_Base {
 		global $zesk;
 		/* @var $zesk zesk\Kernel */
 		$modules = array();
-		$paths = $zesk->paths->module();
+		$paths = $this->application->module_path();
 		if (count($paths) === 0) {
 			$this->verbose_log("No module paths configured");
 		}
@@ -89,8 +101,8 @@ class Command_Update extends Command_Base {
 				));
 				foreach ($globbed as $glob) {
 					$module = str::unprefix(dirname($glob), rtrim($path, "/") . "/");
-					$data = $this->application->module->load($module, $module_options);
-					$debug['debug'] = _dump($data);
+					$data = $this->application->modules->load($module, $module_options);
+//					$debug['debug'] = _dump($data);
 					if (is_array($data) && array_key_exists('configuration_file', $data)) {
 						$modules[$module] = $data;
 						$this->verbose_log("Module {name} loaded configuration {configuration_file}", $debug + $data);
@@ -122,7 +134,7 @@ class Command_Update extends Command_Base {
 		} else if ($this->option_bool('all')) {
 			$modules = $this->modules_from_module_paths($module_options);
 		} else {
-			$modules = $this->application->module->load();
+			$modules = $this->application->modules->load();
 		}
 		if (count($modules) === 0) {
 			$this->error("No modules found to update");
@@ -234,12 +246,14 @@ class Command_Update extends Command_Base {
 		$did_updates = $composer_updates || count($edits) > 0 ? true : false;
 		if ($did_updates) {
 			try {
-				$module_object = $this->application->module->object($module);
+				$module_object = $this->application->modules->object($module);
 				if ($module_object instanceof Module) {
 					$this->log("Running " . get_class($module_object) . "::hook_updated");
-					$module_object->hook('updated');
+					$module_object->call_hook('updated');
 				}
 			} catch (ReflectionException $e) {
+				log::debug("Module_$module was not found ... skipping");
+			} catch (Exception_NotFound $e) {
 				log::debug("Module_$module was not found ... skipping");
 			} catch (Exception_Class_NotFound $e) {
 				log::debug("Module_$module was not found ... skipping");
@@ -277,6 +291,8 @@ class Command_Update extends Command_Base {
 		return $did_updates;
 	}
 	private function composer_command() {
+		global $zesk;
+		/* @var $zesk zesk\Kernel */
 		if ($this->has_option("composer_command")) {
 			return $this->option("composer_command");
 		}
@@ -284,7 +300,7 @@ class Command_Update extends Command_Base {
 		if ($this->has_option("composer_phar")) {
 			$composer_phar = $this->option("composer_phar");
 		} else {
-			$composer_phar = zesk::which("composer.phar");
+			$composer_phar = $zesk->paths->which("composer.phar");
 		}
 		if ($composer_phar) {
 			return $this->option("php_command", "/usr/bin/env php $composer_phar");
@@ -350,7 +366,7 @@ class Command_Update extends Command_Base {
 		$client = new Net_HTTP_Client($url);
 		$minutes = 5; // 2 minutes total for client to run
 		$client->timeout($minutes * 60000);
-		$temp_file_name = file::temporary();
+		$temp_file_name = File::temporary();
 		$client->follow_location(true);
 		$client->user_agent('Mozilla/5.0 (Macintosh; Intel Mac OS X 10.7; rv:12.0) Gecko/20100101 Firefox/12.0');
 		$client->destination($temp_file_name);
@@ -407,7 +423,7 @@ class Command_Update extends Command_Base {
 		$urls = map($urls, $data);
 		$load_urls = array();
 		foreach ($urls as $url => $value) {
-			if (url::valid($url)) {
+			if (URL::valid($url)) {
 				if (is_string($value)) {
 					$load_urls[$url] = array(
 						'destination' => $value,
@@ -419,7 +435,7 @@ class Command_Update extends Command_Base {
 						'strip_components' => $strip_components
 					);
 				}
-			} else if (!url::valid($value)) {
+			} else if (!URL::valid($value)) {
 				$this->error("{value} in  module {name} is not a valid URL", array(
 					'value' => $value,
 					'name' => $name
@@ -497,7 +513,7 @@ class Command_Update extends Command_Base {
 						"hash" => $hash,
 						"new_hash" => $new_hash
 					));
-				} else if (!is_dir($destination) || dir::is_empty($destination)) {
+				} else if (!is_dir($destination) || Directory::is_empty($destination)) {
 					$do_update = true;
 					$this->verbose_log("Destination directory {destination} doesn't exist", array(
 						"destination" => $destination
@@ -510,14 +526,14 @@ class Command_Update extends Command_Base {
 			} else {
 				$did_updates = true;
 			}
-			dir::depend($destination, 0775);
+			Directory::depend($destination, 0775);
 			
 			$data['filename'] = $filename;
 			$data['temp_file_name'] = $temp_file_name;
 			$settings['destination'] = $destination;
 			
 			if ($this->option_bool('debug')) {
-				//echo text::format_array($data['configuration']);
+				//echo Text::format_array($data['configuration']);
 			}
 			
 			$unpack_result = $this->unpack($settings + $data);
@@ -576,7 +592,7 @@ class Command_Update extends Command_Base {
 				$this->log("Deleting directory {delete}", array(
 					"delete" => $delete
 				));
-				dir::delete($delete);
+				Directory::delete($delete);
 			} else if (is_file($delete)) {
 				$this->log("Deleting file {delete}", array(
 					"delete" => $delete
@@ -642,7 +658,7 @@ class Command_Update extends Command_Base {
 				'full_destination' => $full_destination
 			));
 			if (is_dir($temp_file_name)) {
-				$result = dir::copy($temp_file_name, $full_destination, true);
+				$result = Directory::copy($temp_file_name, $full_destination, true);
 			} else {
 				$result = copy($temp_file_name, $full_destination);
 			}
@@ -651,7 +667,7 @@ class Command_Update extends Command_Base {
 			return $result;
 		}
 		// Clean up perms
-		foreach (dir::list_recursive($destination) as $f) {
+		foreach (Directory::list_recursive($destination) as $f) {
 			$path = path($destination, $f);
 			chmod($path, is_file($path) ? 0644 : 0755);
 		}
@@ -679,7 +695,7 @@ class Command_Update extends Command_Base {
 				"dest" => $dest,
 				"name" => $data['name']
 			));
-			dir::copy($source, $dest, true);
+			Directory::copy($source, $dest, true);
 		} catch (Exception $e) {
 			$this->debug_log("Failed because of {e} ... rolling back", array(
 				"e" => $e
@@ -729,7 +745,7 @@ class Command_Update extends Command_Base {
 		assert("$n_components >= 0");
 		
 		if ($n_components > 0) {
-			foreach (dir::ls($temp_directory_name) as $d) {
+			foreach (Directory::ls($temp_directory_name) as $d) {
 				$dir = path($temp_directory_name, $d);
 				if (is_dir($dir)) {
 					if ($match !== null) {
@@ -745,7 +761,7 @@ class Command_Update extends Command_Base {
 			if ($debug) {
 				log::debug("strip_components: level=0 Copying $temp_directory_name");
 			}
-			foreach (dir::ls($temp_directory_name) as $f) {
+			foreach (Directory::ls($temp_directory_name) as $f) {
 				$source_path = path($temp_directory_name, $f);
 				$dest_path = path($final_destination, $f);
 				if ($debug) {
@@ -756,9 +772,9 @@ class Command_Update extends Command_Base {
 						throw new Exception_File_Permission($dest_path, "rename $source_path to $dest_path");
 					}
 				} else {
-					if (!dir::copy($source_path, $dest_path, true)) {
-						dir::delete($dest_path);
-						throw new Exception_File_Permission($dest_path, "dir::copy $source_path to $dest_path");
+					if (!Directory::copy($source_path, $dest_path, true)) {
+						Directory::delete($dest_path);
+						throw new Exception_File_Permission($dest_path, "Directory::copy $source_path to $dest_path");
 					}
 				}
 			}
@@ -821,7 +837,7 @@ class Command_Update extends Command_Base {
 		$args[] = $temp_file_name;
 		$actual_destination = $destination;
 		if ($strip_components) {
-			$destination = dir::temporary($name . '-' . zesk::pid());
+			$destination = Directory::temporary($name . '-' . zesk()->process->id());
 		}
 		$args[] = "-C '$destination'";
 		return $this->_unpack($args, $destination, $actual_destination, $strip_components);
@@ -842,7 +858,7 @@ class Command_Update extends Command_Base {
 		$args[] = $temp_file_name;
 		$actual_destination = $destination;
 		if ($strip_components) {
-			$destination = dir::temporary($name . '-' . zesk::pid());
+			$destination = Directory::temporary($name . '-' . zesk()->process->id());
 		}
 		$args[] = "-d '$destination'";
 		return $this->_unpack($args, $destination, $actual_destination, $strip_components);
@@ -862,7 +878,7 @@ class Command_Update extends Command_Base {
 		$output = ob_end_clean();
 		if ($return_var !== 0) {
 			if ($strip_components) {
-				dir::delete($destination);
+				Directory::delete($destination);
 			}
 			$this->error("$command failed:\n$output");
 			return false;

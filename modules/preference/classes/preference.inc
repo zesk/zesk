@@ -1,12 +1,16 @@
 <?php
 /**
- * @version $Id: preference.inc 3217 2015-06-09 23:54:34Z kent $
+ * @version $Id: preference.inc 4122 2016-11-07 20:43:38Z kent $
  * @package zesk
  * @subpackage user
  * @author Kent Davidson <kent@marketacumen.com>
  * @copyright Copyright &copy; 2013, Market Acumen, Inc.
  */
-
+use zesk\User;
+use zesk\Object;
+use zesk\Database_Query_Select;
+use zesk\Exception_Parameter;
+use zesk\Application;
 /**
  * @see Class_Preference
  *
@@ -28,7 +32,7 @@ class Preference extends Object {
 		}
 		return parent::store();
 	}
-
+	
 	/**
 	 * Does the user have a perference value?
 	 *
@@ -36,15 +40,16 @@ class Preference extends Object {
 	 * @param string $name
 	 * @return boolean
 	 */
-	static function user_has(user $user, $name) {
+	static function user_has(User $user, $name) {
 		if (!$user->authenticated()) {
 			return false;
 		}
 		$pref = self::user_get($user, $name, null);
 		return !empty($pref);
 	}
-	static function user_has_one(user $user, $name) {
-		return Object::class_query(__CLASS__)->join('Preference_Type', array(
+	static function user_has_one(User $user, $name) {
+		return $user->application->query_select(__CLASS__)
+			->join('Preference_Type', array(
 			'alias' => 'T'
 		))
 			->where('T.code', $name)
@@ -52,17 +57,17 @@ class Preference extends Object {
 			->what('value', 'COUNT(X.value)')
 			->one_integer('value') !== 0;
 	}
-
+	
 	/**
 	 * Internal function to retrieve
 	 *
 	 * @todo Replace user_has and userGet to use this instead for query basis - write test to ensure
 	 *       it works identically first!
 	 * @param user $user
-	 * @return Ambigous <Database_Query_Select, Database_Query_Select>
+	 * @return Ambigous <zesk\Database_Query_Select, zesk\Database_Query_Select>
 	 */
 	private static function _value_query(user $user, $name) {
-		$query = Object::class_query(__CLASS__)->link("Preference_Type", "type")->where(array(
+		$query = $user->application->query_select(__CLASS__)->link("Preference_Type", "type")->where(array(
 			'X.user' => $user,
 			'Preference_Type.code' => $name
 		));
@@ -75,7 +80,8 @@ class Preference extends Object {
 		$pref_name = strtolower($pref_name);
 		$prefs = $user->_preference_cache;
 		if (!is_array($prefs)) {
-			$prefs = Object::class_query("Preference")->link("Preference_Type", array(
+			$prefs = $user->application->query_select("Preference")
+				->link("Preference_Type", array(
 				"alias" => "T"
 			))
 				->what("name", "T.code")
@@ -95,15 +101,16 @@ class Preference extends Object {
 						"key" => $k,
 						"value" => $value
 					));
-					Object::class_query_delete("Preference")->where("id", $id)->execute();
+					$user->application->query_delete("Preference")->where("id", $id)->execute();
 				}
 			}
 			$user->_preference_cache = $prefs;
 		}
 		return avalue($prefs, $pref_name, $default);
 	}
-	static function user_get_single(user $user, $name, $default) {
-		$result = Object::class_query(__CLASS__)->join('Preference_Type', array(
+	static function user_get_single(User $user, $name, $default) {
+		$result = $user->application->query_select(__CLASS__)
+			->join('Preference_Type', array(
 			'alias' => 'T'
 		))
 			->where('T.code', $name)
@@ -115,7 +122,7 @@ class Preference extends Object {
 		}
 		return @unserialize($result);
 	}
-	static function user_set(user $user, $name, $value = null) {
+	static function user_set(User $user, $name, $value = null) {
 		if (!$user->authenticated()) {
 			return false;
 		}
@@ -129,13 +136,16 @@ class Preference extends Object {
 			return true;
 		}
 		$type = Preference_Type::register_name($name);
-		if (!$type)
+		if (!$type) {
 			return false;
+		}
 		return Preference::_register($user, $type, $value);
 	}
-	private static function _register($user, $type, $value) {
+	private static function _register(User $user, $type, $value) {
+		$app = $user->application;
 		$dbvalue = serialize($value);
-		$result = Object::class_query(__CLASS__)->what('id', 'id')
+		$result = $app->query_select(__CLASS__)
+			->what('id', 'id')
 			->what('value', 'value')
 			->where('user', $user)
 			->where('type', $type)
@@ -144,10 +154,13 @@ class Preference extends Object {
 			if ($result['value'] === $dbvalue) {
 				return $result['id'];
 			}
-			Object::class_query_update(__CLASS__)->value("value", $dbvalue)->where('id', $result['id'])->execute();
+			$app->query_update(__CLASS__)
+				->value("value", $dbvalue)
+				->where('id', $result['id'])
+				->execute();
 			return $result['id'];
 		}
-		return Object::factory(__CLASS__, array(
+		return $app->object_factory(__CLASS__, array(
 			'type' => $type,
 			'value' => $value,
 			"user" => $user

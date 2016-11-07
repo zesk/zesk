@@ -40,7 +40,7 @@ class Control_Arrow extends Control {
 		}
 		$img_attrs['id'] = $id . "_img";
 
-		$img = html::tag("img", $img_attrs, null);
+		$img = HTML::tag("img", $img_attrs, null);
 
 		$label_tag = $this->option("label_tag", "h2");
 		$label_attrs = $this->option_array("label_attrs", array());
@@ -55,22 +55,22 @@ class Control_Arrow extends Control {
 			$contents_attrs['class'] = 'toggle-arrow-content';
 		}
 
-		$inner_link = html::tag("a", $label_a_attrs, $this->option('title'));
+		$inner_link = HTML::tag("a", $label_a_attrs, $this->option('title'));
 
 		if ($label_tag) {
-			$inner_link = html::tag($label_tag, $label_attrs, $inner_link);
+			$inner_link = HTML::tag($label_tag, $label_attrs, $inner_link);
 		}
 
-		return html::tag("div", array(
+		return HTML::tag("div", array(
 			"class" => "toggle-arrow"
-		), html::tag("a", array(
+		), HTML::tag("a", array(
 			"class" => "toggle-arrow",
 			"href" => $js
-		), $img) . $inner_link) . html::tag_open("div", $contents_attrs);
+		), $img) . $inner_link) . HTML::tag_open("div", $contents_attrs);
 	}
 
 	private function _close() {
-		return html::tag_close('div');
+		return HTML::tag_close('div');
 	}
 
 	public static function html_init() {

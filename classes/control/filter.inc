@@ -7,6 +7,8 @@
  * @copyright Copyright &copy; 2008, Market Acumen, Inc.
  *            Created on Tue Jul 15 16:28:30 EDT 2008
  */
+use zesk\Model;
+
 class Control_Filter extends Control {
 	protected $theme = "control/filter";
 	
@@ -72,7 +74,16 @@ class Control_Filter extends Control {
 	protected $widget_attributes = array(
 		"class" => "form-group"
 	);
+	/**
+	 * 
+	 * @var string
+	 */
 	protected $render_children = false;
+	
+	/**
+	 * 
+	 * @var string
+	 */
 	protected $traverse = true;
 	
 	/**
@@ -81,9 +92,19 @@ class Control_Filter extends Control {
 	 * @var string
 	 */
 	protected $theme_widgets = null;
+	
+	/**
+	 * 
+	 * {@inheritDoc}
+	 * @see Widget::model()
+	 */
 	function model() {
 		return new Model();
 	}
+	
+	/**
+	 * 
+	 */
 	protected function init_defaults() {
 		foreach ($this->children as $child) {
 			$name = $child->name();
@@ -99,14 +120,25 @@ class Control_Filter extends Control {
 			}
 		}
 	}
+	
+	/**
+	 * 
+	 * {@inheritDoc}
+	 * @see Widget::initialize()
+	 */
 	protected function initialize() {
 		$this->names('filter', 'filter');
 		$this->set_option('query_column', false);
-		$this->children($this->hook('filters'));
+		$this->children($this->call_hook('filters'));
 		parent::initialize();
 		$this->init_defaults();
 	}
 	
+	/**
+	 * 
+	 * {@inheritDoc}
+	 * @see Widget::theme_variables()
+	 */
 	public function theme_variables() {
 		return array(
 			'theme_prefix' => $this->theme_prefix,

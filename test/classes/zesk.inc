@@ -148,11 +148,6 @@ class test_zesk extends Test_Unit {
 		$group = null;
 		zesk::configure($group);
 	}
-	function test_configuration_path() {
-		$add = null;
-		$lower_class = true;
-		zesk::configuration_path($add);
-	}
 	function test_console() {
 		$set = null;
 		zesk::console($set);

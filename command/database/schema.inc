@@ -1,4 +1,9 @@
 <?php
+/**
+ * 
+ */
+use zesk\arr;
+use zesk\URL;
 
 /**
  * Scan all application database files and output any changes needed to the schema
@@ -8,7 +13,7 @@
  */
 class Command_Database_Schema extends Command_Base {
 	/**
-	 * 
+	 *
 	 * @var array
 	 */
 	protected $option_types = array(
@@ -20,13 +25,19 @@ class Command_Database_Schema extends Command_Base {
 	);
 	
 	/**
-	 * 
+	 *
+	 * @var array
+	 */
+	protected $register_classes = array();
+	
+	/**
+	 *
 	 * @var array
 	 */
 	protected $results = array();
 	
 	/**
-	 * 
+	 *
 	 * @return \zesk\multitype:
 	 */
 	public function results() {
@@ -34,21 +45,29 @@ class Command_Database_Schema extends Command_Base {
 	}
 	
 	/**
-	 * 
 	 */
 	protected function synchronize_before() {
 		self::_synchronize_suffix("update");
 	}
 	
 	/**
-	 * 
 	 */
 	protected function synchronize_after() {
 		if ($this->option_bool("update")) {
 			self::_synchronize_suffix("updated");
 		}
 	}
-	
+	/**
+	 * Add calling callback log
+	 * 
+	 * @param callable $callable
+	 */
+	public function hook_callback($callable) {
+		$this->debug_log("{class}: Calling {callable}", array(
+			"class" => __CLASS__,
+			"callable" => zesk()->hooks->callable_string($callable)
+		));
+	}
 	/**
 	 * Invoke
 	 *
@@ -62,42 +81,62 @@ class Command_Database_Schema extends Command_Base {
 	 */
 	private function _synchronize_suffix($suffix) {
 		global $zesk;
+		$hook_callback = array(
+			$this,
+			"hook_callback"
+		);
+		
 		/* @var $zesk zesk\Kernel */
-		$hook_type = "Object::schema_$suffix";
+		$hook_type = "zesk\Object::schema_$suffix";
 		$all_hooks = $zesk->hooks->find_all($hook_type);
 		
 		$zesk->logger->notice("Running all $suffix hooks {hooks}", array(
 			"hooks" => ($all = implode(", ", array_values($all_hooks))) ? $all : "- no hooks found"
 		));
-		$zesk->hooks->all_call($hook_type, $this);
+		$zesk->hooks->all_call_arguments($hook_type, array(
+			$this
+		), null, $hook_callback);
 		
 		$hook_type = "schema_$suffix";
 		$app = $this->application;
-		$all = $app->module->all_hook_list($hook_type);
+		$all = $app->modules->all_hook_list($hook_type);
 		$zesk->logger->notice("Running module $suffix hooks {hooks}", array(
 			"hooks" => $all ? $all : "- no hooks found"
 		));
-		$app->module->all_hook($hook_type, $this);
+		$app->modules->all_hook_arguments($hook_type, array(
+			$this
+		), null, $hook_callback);
 		
 		$app_hooks = $app->hook_list($hook_type);
 		$zesk->logger->notice("Running application $suffix hooks {hooks}", array(
 			"hooks" => $app_hooks ? $app_hooks : "- no hooks found"
 		));
-		$app->hook($hook_type, $this);
+		$app->call_hook_arguments($hook_type, array(
+			$this
+		), null, $hook_callback);
 	}
-	
+	protected function initialize() {
+		global $zesk;
+		/* @var $zesk zesk\Kernel */
+		parent::initialize();
+		$zesk->classes->register("zesk\Database_Schema_File");
+	}
 	/**
-	 * 
-	 * {@inheritDoc}
+	 *
+	 * {@inheritdoc}
+	 *
 	 * @see Command::run()
 	 */
 	protected function run() {
 		$application = $this->application;
 		
+		if ($this->option_bool("debug")) {
+			zesk\Database_Schema::$debug = true;
+		}
 		$url = null;
 		if ($this->has_option("url")) {
 			$url = $this->option('url');
-			if (!url::valid($url)) {
+			if (!URL::valid($url)) {
 				$this->usage("--url is not a valid URL, e.g. mysql://user:password@host/database");
 			}
 		} else if ($this->has_option("name")) {

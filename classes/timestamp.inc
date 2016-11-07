@@ -7,7 +7,7 @@
  * @copyright Copyright &copy; 2008, Market Acumen, Inc.
  */
 
-zesk::deprecated();
+zesk()->deprecated();
 /**
  * @deprecated 2016-07-12
  * @author kent

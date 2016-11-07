@@ -7,7 +7,7 @@
  * @copyright Copyright &copy; 2010, Market Acumen, Inc.
  */
 
-use zesk\Timestamp as Timestamp;
+use zesk\Timestamp;
 
 /**
  * 

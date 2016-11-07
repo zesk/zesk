@@ -1,4 +1,6 @@
 <?php
+use zesk\Database_Schema;
+
 class Test_Database_Schema extends Test_Unit {
 
 	function test_0() {
@@ -23,6 +25,6 @@ class Test_Database_Schema extends Test_Unit {
 		Database_Schema::update($db, $dbTableOld, $dbTableNew, $change_permanently);
 	}
 }
-class Test_Database_Schema_User extends Zesk_User {
+class Test_Database_Schema_User extends zesk\User {
 }
 

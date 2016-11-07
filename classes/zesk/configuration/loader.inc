@@ -47,7 +47,7 @@ class Configuration_Loader {
 	
 	/**
 	 * 
-	 * @var \Interface_Settings
+	 * @var Interface_Settings
 	 */
 	private $settings = null;
 	
@@ -61,9 +61,9 @@ class Configuration_Loader {
 	 * 
 	 * @param array $files
 	 * @param array $paths
-	 * @param \Interface_Settings $context
+	 * @param Interface_Settings $context
 	 */
-	public function __construct($name, array $paths, array $files, \Interface_Settings $settings) {
+	public function __construct($name, array $paths, array $files, Interface_Settings $settings) {
 		$available_targets = array();
 		$possible_targets = array();
 		$this->paths = $paths;

@@ -1,6 +1,6 @@
 <?php
 if (false) {
-	/* @var $this Template */
+	/* @var $this zesk\Template */
 	
 	$zesk = $this->zesk;
 	/* @var $zesk zesk\Kernel */
@@ -22,7 +22,7 @@ if (!is_numeric($distance)) {
 }
 $epsilon = isset($this->epsilon) ? $this->epsilon : $configuration->path_get('distance::epsilon', 0.2);
 if (abs($distance) < $epsilon) {
-	echo html::tag('span', '.distance nearby', __('Nearby'));
+	echo HTML::tag('span', '.distance nearby', __('Nearby'));
 	return;
 }
 switch ($units) {
@@ -64,4 +64,4 @@ $map['distance'] = $map['number'] . ' ' . $map['units'];
 
 $format = $this->get("format", "{number} {units}");
 
-echo html::span('.distance', map($format, $map));
+echo HTML::span('.distance', map($format, $map));

@@ -1,6 +1,6 @@
 <?php
 
-class Class_Gravatar extends Class_Object {
+class Class_Gravatar extends zesk\Class_Object {
 
 	public $id_column = 'id';
 

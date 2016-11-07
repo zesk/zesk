@@ -9,21 +9,13 @@
  */
 namespace zesk;
 
-use \zesk as zesk;
-use \Exception_Configuration as Exception_Configuration;
-use \Exception_Class_NotFound as Exception_Class_NotFound;
-use \Exception_Semantics as Exception_Semantics;
-use \Database as Database;
-use \Database_Exception_Table_NotFound as Database_Exception_Table_NotFound;
-use \Database_Exception_Connect as Database_Exception_Connect;
-
 /**
  * Base class for global settings to be retrieved/stored from permanent storage
  *
  * @author kent
  * @see Class_Settings
  */
-class Settings extends Object implements Interface_Data {
+class Settings extends Object implements Interface_Data, Interface_Settings {
 	
 	/**
 	 * Is the database down?
@@ -47,7 +39,7 @@ class Settings extends Object implements Interface_Data {
 	static $changes = array();
 	
 	/**
-	 * 
+	 *
 	 * @var Settings
 	 */
 	private static $instance = null;
@@ -59,39 +51,41 @@ class Settings extends Object implements Interface_Data {
 	 */
 	public static function instance() {
 		global $zesk;
-		/* @var $zesk zesk\Kernel */
-		if (self::$instance) {
-			return self::$instance;
+		/* @var $zesk Kernel */
+		if ($zesk->objects->settings instanceof Interface_Settings) {
+			return $zesk->objects->settings;
 		}
 		$class = $zesk->configuration->settings->get("instance_class", "Settings");
-		self::$instance = $zesk->objects->factory($class);
-		if (!self::$instance instanceof Settings) {
-			throw new Exception_Configuration(__CLASS__ . "::instance_class", "Must specify subclass of Settings, class is {class}", array(
+		$zesk->objects->settings = $zesk->objects->factory($class);
+		if (!$zesk->objects->settings instanceof Interface_Settings) {
+			throw new Exception_Configuration(__CLASS__ . "::instance_class", "Must be Interface_Settings, class is {class}", array(
 				"class" => $class
 			));
 		}
-		return self::$instance;
+		return $zesk->objects->settings;
 	}
 	
 	/**
 	 * Hook Object::hooks
 	 */
-	public static function hooks(zesk\Kernel $zesk) {
+	public static function hooks(Kernel $zesk) {
 		$zesk->configuration->pave("Settings");
 		$hooks = $zesk->hooks;
-		$hooks->add('Application::configured', 'Settings::configured', 'first');
-		$hooks->add(zesk\Hooks::hook_reset, 'Settings::reset');
-		$hooks->add(zesk\Hooks::hook_exit, 'Settings::flush_instance');
+		$hooks->add('zesk\Application::configured', __CLASS__ . '::configured', 'first');
+		$hooks->add(Hooks::hook_reset, 'Settings::reset');
+		$hooks->add(Hooks::hook_exit, 'Settings::flush_instance');
 	}
 	
 	/**
 	 * Reset settings
 	 */
 	public static function reset() {
+		global $zesk;
+		/* @var $zesk Kernel */
 		self::$db_down = null;
 		self::$db_down_why = null;
 		self::$changes = array();
-		self::$instance = null;
+		$zesk->objects->session = null;
 	}
 	/**
 	 * Cache for the settings
@@ -101,9 +95,12 @@ class Settings extends Object implements Interface_Data {
 	public static function _cache() {
 		return Cache::register(__CLASS__)->expire_after(60);
 	}
-	private static function unserialize($value) {
+	private static function unserialize($serialized) {
 		try {
-			$value = unserialize($value);
+			$value = @unserialize($serialized);
+			if ($value === false && $serialized !== 'b:0;') {
+				throw new Exception_Syntax("Serialized value has an error");
+			}
 			return $value;
 		} catch (Exception_Class_NotFound $e) {
 			zesk()->hooks->call("exception", $e);
@@ -115,7 +112,7 @@ class Settings extends Object implements Interface_Data {
 	 */
 	public static function configured(Application $application) {
 		global $zesk;
-		/* @var $zesk zesk\Kernel */
+		/* @var $zesk \zesk\Kernel */
 		// If no databases registered, don't bother loading.
 		if (count(Database::register()) === 0) {
 			$zesk->logger->notice("{method} - no databases, not loading configuration", array(
@@ -123,38 +120,55 @@ class Settings extends Object implements Interface_Data {
 			));
 			return;
 		}
+		$fix_bad_globals = $zesk->configuration->path_get_first(array(
+			__CLASS__ . "::fix_bad_globals",
+			"Settings::fix_bad_globals"
+		), false);
 		$exception = null;
 		try {
 			$cache = self::_cache();
 			if (!$cache->has('globals')) {
-				//log::debug("Settings::configured() does not have globals .. loading");
+				//zesk()->logger->debug("Settings::configured() does not have globals .. loading");
 				$globals = array();
 				$n_loaded = 0;
 				$size_loaded = 0;
-				foreach (Object::class_query("Settings")->to_array("name", "value") as $name => $value) {
+				foreach ($application->query_select("Settings")->to_array("name", "value") as $name => $value) {
 					++$n_loaded;
 					$size_loaded += strlen($value);
 					if (is_string($value)) {
-						$globals[$name] = $value = self::unserialize($value);
+						try {
+							$globals[$name] = $value = self::unserialize($value);
+						} catch (Exception_Syntax $e) {
+							if ($fix_bad_globals) {
+								$zesk->logger->warning("Bad global {name} can not be unserialized - DELETING", array(
+									"name" => $name
+								));
+								$application->query_delete("Settings")->where("name", $name)->execute();
+							} else {
+								$zesk->logger->error("Bad global {name} can not be unserialized, please fix manually", array(
+									"name" => $name
+								));
+							}
+						}
 					}
 				}
-				$zesk->logger->info("{method} - loaded {n} globals {size} of data", array(
+				$zesk->logger->debug("{method} - loaded {n} globals {size} of data", array(
 					"method" => __METHOD__,
 					"n" => $n_loaded,
 					"size" => \number::format_bytes($size_loaded)
 				));
-				$cache->globals = $application->hook_array("filter_settings", array(
+				$cache->globals = $application->call_hook_arguments("filter_settings", array(
 					$globals
 				), $globals);
 			} else {
-				//log::debug("Settings::configured() has globals {globals}", array("globals" => $cache->globals));
+				//zesk()->logger->debug("Settings::configured() has globals {globals}", array("globals" => $cache->globals));
 			}
 			$n_loaded = 0;
 			foreach ($cache->globals as $key => $value) {
 				++$n_loaded;
 				$zesk->configuration->pave_set($key, $value);
 			}
-			$zesk->logger->info("{method} - loaded {n} globals from cache", array(
+			$zesk->logger->debug("{method} - loaded {n} globals from cache", array(
 				"method" => __METHOD__,
 				"n" => $n_loaded
 			));
@@ -163,7 +177,7 @@ class Settings extends Object implements Interface_Data {
 			$exception = $e;
 		} catch (Database_Exception_Connect $e) {
 			$exception = $e;
-		} catch (\Database_Exception_Unknown_Schema $e) {
+		} catch (Database_Exception_Unknown_Schema $e) {
 			$exception = $e;
 		} catch (Exception_Semantics $e) {
 			// Columns may have changed
@@ -184,7 +198,7 @@ class Settings extends Object implements Interface_Data {
 			return;
 		}
 		if (self::$db_down && !$force) {
-			log::debug("Settings::flush: Database is down, can not save changes {changes} because of {e}", array(
+			zesk()->logger->debug("Settings::flush: Database is down, can not save changes {changes} because of {e}", array(
 				"changes" => self::$changes,
 				"e" => self::$db_down_why
 			));
@@ -266,7 +280,10 @@ class Settings extends Object implements Interface_Data {
 	 */
 	public function data($name, $value = null) {
 		if ($value === null) {
-			$value = Object::class_query('Settings')->where("name", $name)->what("value", "value")->one("value");
+			$value = $this->application->query_select('Settings')
+				->where("name", $name)
+				->what("value", "value")
+				->one("value");
 			if ($value === null) {
 				return null;
 			}

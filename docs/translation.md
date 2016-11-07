@@ -6,7 +6,7 @@ Zesk uses the fairly standard short-form for string translation:
 	
 With an optional longer form for those who like clarity:
 
-    lang::translate($message, ...)
+    zesk\Locale::translate($message, ...)
 	
 Both are identical, and both return a translated string to the current locale. You can format translations like this:
 
@@ -45,11 +45,11 @@ Translation are PHP files which simply populate an array and return them. The fi
 	
 Or you can call any function available and loaded into the system. (Although loading language translations should be really, really fast.)
 
-	return conf::load(zesk::site_root("locale/en_GB.conf"));
+	return conf::load($application->application_root("etc/language/en_GB.conf"));
 
 There is currently no mechanism to segment language files into distinct sections of the site, so it's all or nothing.
 
-Translations are done for a **Language** first, then for a specific **Dialect** which is a country-code. This is represented by the universal 2-letter codes for a languages and then specific countries.
+Translations are done for a **Language** first, then for a specific **Dialect** which is (typically) a country-code. This is represented by the universal 2-letter codes for a languages and then specific countries.
 
 So, you can have:
 
@@ -57,26 +57,30 @@ So, you can have:
 	"en_GB": "Organisation", "Ms", "Mr"
 	"fr_FR": "L'Organisation", "Mr", "Mme"
 
-The first part is the language (en = English), the 2nd part is the country, US=United states.
+The first part is the language (`en` = *English*), the 2nd part is the country, `US` = *United states*.
 
-The local names are used when loading files. All language files are (typically) located in a single directory, and generally are loaded:
+The locale names are used when loading files. All language files are (typically) located in one or more directories, and generally are loaded:
 
 	${language}.inc
 	${language}_${dialect}.inc
 
+Use the call `zesk\Locale::locale_path($path_to_add)` to add a directory to search for locale files.
+
+This allows modules and applications to add their own translations for strings within their modules.
+
 This way the majority of translated terms can be in a single, common file for a language, with specific country changes then in the dialect files.
 
-Finally, files are loaded from zesk's root directory first, then from the application's directory
+Finally, files are loaded from zesk's root directory first, then from the application's directory.
 
 # Auto-localization
 
-While writing an application, it's nice to get a sense of what words are being translated. You can turn on "locale_auto" as a [global configuration option](./globals.md) in order to have all translated words written to an ever-growing list in 
+While writing an application, it's nice to get a sense of what words are being translated. You can turn on `zesk\Locale::auto` and `zesk\Locale::auto_path` as [global configuration options](./globals.md) in order to have all translated words written to an ever-growing list in 
 
-	${ZESK_SITE_ROOT}/locale/${locale}-auto.inc
+	${zesk\Locale::auto_path}/${locale}-auto.inc
 	
-You can then copy this file to
+You can then copy this file to your locale path.
 
-	${ZESK_SITE_ROOT}/locale/${locale}.inc
+	${ZESK_SITE_ROOT}/etc/language/${locale}.inc
 	
 And edit with the new language features.
 	

@@ -198,18 +198,18 @@ class Control_Date_Range2 extends Control {
 		$this->response->jquery(Template::instance('widgets/daterange/daterange_jquery_ready.js.tpl', $tpl_options));
 
 		$result = "";
-		//		$result .= html::tag("div", array("class" => "locale-chosen-date", "id" => $input_name . "_locale_date"), "No dates selected.");
-		$result .= html::tag("div", array(
+		//		$result .= HTML::tag("div", array("class" => "locale-chosen-date", "id" => $input_name . "_locale_date"), "No dates selected.");
+		$result .= HTML::tag("div", array(
 			"id" => $input_name,
 			"class" => "zesk-ui-datepicker"
 		), "");
 		$input_type = "hidden";
 
-		$result .= html::input($input_type, $input_name . '_minDate', $min_date->format());
-		$result .= html::input($input_type, $input_name . '_maxDate', $max_date->format());
-		$result .= html::input($input_type, $input_name . '_range', $object->get($name));
-		$result .= html::input($input_type, $start_column, $object->get($start_column), $start_date_default->format());
-		$result .= html::input($input_type, $end_column, $object->get($end_column), $end_date_default->format());
+		$result .= HTML::input($input_type, $input_name . '_minDate', $min_date->format());
+		$result .= HTML::input($input_type, $input_name . '_maxDate', $max_date->format());
+		$result .= HTML::input($input_type, $input_name . '_range', $object->get($name));
+		$result .= HTML::input($input_type, $start_column, $object->get($start_column), $start_date_default->format());
+		$result .= HTML::input($input_type, $end_column, $object->get($end_column), $end_date_default->format());
 
 		$arrow_opts = array();
 		$arrow_opts['label_tag'] = '';
@@ -228,7 +228,7 @@ class Control_Date_Range2 extends Control {
 
 		$result .= $this->outputChoices($min_date, $max_date);
 
-		return html::tag('div', array(
+		return HTML::tag('div', array(
 			'class' => 'datepicker'
 		), $result);
 	}
@@ -238,15 +238,15 @@ class Control_Date_Range2 extends Control {
 		$name = $this->name();
 		$start = $this->_startColumn();
 		$end = $this->_endColumn();
-		//		$result = html::tag("li", null, html::tag("a", array("onclick" => "\$('a.toggle-arrow', \$(this).parent()).click()"), html::tag("em", null, __('Custom'))));
+		//		$result = HTML::tag("li", null, HTML::tag("a", array("onclick" => "\$('a.toggle-arrow', \$(this).parent()).click()"), HTML::tag("em", null, __('Custom'))));
 		$result = "";
 		foreach ($options as $k => $text) {
-			$result .= html::tag("li", null, html::tag("a", array(
+			$result .= HTML::tag("li", null, HTML::tag("a", array(
 				"id" => "$name-$k",
 				"href" => "javascript:zesk_datepicker_update('" . $k . "', '" . $name . "', '" . $start . "', '" . $end . "')"
 			), $text));
 		}
-		return html::tag("ul", array(
+		return HTML::tag("ul", array(
 			"class" => "choices"
 		), $result);
 	}

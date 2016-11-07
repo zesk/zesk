@@ -1,6 +1,13 @@
 <?php
+/**
+ * 
+ * @author kent
+ *
+ */
 class Test_Views extends Test_Widget {
 	function test_view() {
+		global $zesk;
+		/* @var $zesk \zesk\Kernel */
 		$controls = array(
 			"View_Tooltip",
 			"View_Actions" => array(
@@ -26,7 +33,7 @@ class Test_Views extends Test_Widget {
 			"View_Time_Zone",
 			"View_Email"
 		);
-
+		
 		Session::implementation("test");
 		$app = Application::instance();
 		$router = $app->router();
@@ -40,8 +47,8 @@ class Test_Views extends Test_Widget {
 				$class = $options;
 				$options = array();
 			}
-			$this->log(__(__CLASS__ . "::test_views({0}, {1})", $class, php::dump($options)));
-			$this->test_basics(zesk::factory($class, $options));
+			$this->log(__(__CLASS__ . "::test_views({0}, {1})", $class, PHP::dump($options)));
+			$this->test_basics($zesk->objects->factory($class, $options));
 		}
 		return true;
 	}

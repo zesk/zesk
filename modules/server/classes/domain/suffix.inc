@@ -1,4 +1,5 @@
 <?php
+
 class Domain_Suffix extends Object {
 	public function cron_month() {
 		$url = 'http://www.iana.org/domains/root/db';

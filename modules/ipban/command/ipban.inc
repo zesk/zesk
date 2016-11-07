@@ -9,6 +9,7 @@
  * @subpackage ipban
  * @copyright (c) 2013 Market Acumen, Inc.
  */
+use zesk\Text;
 
 /**
  *
@@ -37,14 +38,14 @@ class Command_IPBan extends Command_Base {
 	protected function run() {
 		if ($this->option_bool("status") || $this->option_bool('stat')) {
 			/* @var $parser IPBan_Parser */
-			foreach (Object::class_query("IPBan_Parser")->object_iterator() as $parser) {
+			foreach ($this->application->query_select("IPBan_Parser")->object_iterator() as $parser) {
 				$files = $parser->file_status();
 				$server = $parser->server;
 				foreach ($files as $name => $data) {
 					$files[$name] = map("({size} bytes) {percent}% completed", $data);
 				}
 				echo $server->id . ": " . $server->name . " # Parser " . $parser->handler . " " . $parser->path . "\n";
-				echo text::format_pairs($files);
+				echo Text::format_pairs($files);
 				echo "\n";
 			}
 			return 0;

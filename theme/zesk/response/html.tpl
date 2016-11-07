@@ -1,24 +1,27 @@
 <?php
+/**
+ * 
+ */
+namespace zesk;
+
 if (false) {
-	/* @var $this Template */
+	/* @var $this \Template */
 	
 	$zesk = $this->zesk;
-	/* @var $zesk zesk\Kernel */
+	/* @var $zesk Kernel */
 	
 	$application = $this->application;
-	/* @var $application TimeBank */
+	/* @var $application Application */
 	
 	$request = $this->request;
 	/* @var $request Request */
 	
 	$response = $this->response;
-	/* @var $response Response_HTML */
+	/* @var $response Response_Text_HTML */
 }
 
 $request = $this->request;
-/* @var $request Request */
 $response = $this->response;
-/* @var $response Response_HTML */
 if (!$request) {
 	$request = $this->request = $application->request();
 }
@@ -33,7 +36,7 @@ $hook_parameters = array(
 );
 $zesk->hooks->call_arguments('response_html_start', $hook_parameters);
 {
-	$application->module->all_hook_array("headers", $hook_parameters);
+	$application->modules->all_hook_arguments("headers", $hook_parameters);
 	$zesk->hooks->call_arguments('headers', $hook_parameters);
 	
 	$ie6 = false;
@@ -50,22 +53,22 @@ $zesk->hooks->call_arguments('response_html_start', $hook_parameters);
 	if ($this->has('doctype')) {
 		$response->doctype($this->doctype);
 	}
-	$application->module->all_hook_array("html", $hook_parameters);
+	$application->modules->all_hook_arguments("html", $hook_parameters);
 	echo $response->doctype();
 	$zesk->hooks->call_arguments("<html>", $hook_parameters);
 	// Next line is @deprecated
 	$zesk->hooks->call_arguments("response/html.tpl", $hook_parameters);
-	echo html::tag_open('html', $response->html_attributes());
+	echo HTML::tag_open('html', $response->html_attributes());
 	{
-		echo html::tag_open('head');
+		echo HTML::tag_open('head');
 		{
-			$application->module->all_hook_array('head', $hook_parameters);
+			$application->modules->all_hook_arguments('head', $hook_parameters);
 			echo $zesk->hooks->call_arguments('<head>', $hook_parameters, '');
 			echo $response->head_prefix();
-			echo html::etag("title", $response->title());
+			echo HTML::etag("title", $response->title());
 			echo $response->metas();
 			echo $response->links(array(
-				'stylesheets_inline' => zesk::getb('page::stylesheets_inline', $this->stylesheets_inline)
+				'stylesheets_inline' => $this->stylesheets_inline
 			));
 			echo $response->inline_styles();
 			if ($ie6) {
@@ -74,7 +77,7 @@ $zesk->hooks->call_arguments('response_html_start', $hook_parameters);
 			echo $zesk->hooks->call_arguments('</head>', $hook_parameters, '');
 			echo $response->head_suffix();
 		}
-		echo html::tag_close('head') . "\n";
+		echo HTML::tag_close('head') . "\n";
 		
 		echo $response->body_begin();
 		{
@@ -94,14 +97,14 @@ $zesk->hooks->call_arguments('response_html_start', $hook_parameters);
 			}
 			echo $zesk->hooks->call_arguments('</body>', $hook_parameters, "");
 		}
-		log::debug("{elapsed} seconds", array(
-			"elapsed" => sprintf("%.3f", microtime(true) - zesk::get('init'))
+		$zesk->logger->debug("{elapsed} seconds", array(
+			"elapsed" => sprintf("%.3f", microtime(true) - $zesk->initialization_time)
 		));
-		$application->module->all_hook_array('foot', $hook_parameters);
+		$application->modules->all_hook_arguments('foot', $hook_parameters);
 		echo "\n" . $response->body_end();
 	}
 	echo $zesk->hooks->call_arguments('</html>', $hook_parameters, "");
-	echo "\n" . html::tag_close('html');
+	echo "\n" . HTML::tag_close('html');
 }
 $zesk->hooks->call_arguments('response_html_end', $hook_parameters);
 

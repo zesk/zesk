@@ -1,32 +1,23 @@
 <?php
-if (false) {
-	/* @var $this Template */
-	
-	$zesk = $this->zesk;
-	/* @var $zesk zesk\Kernel */
-	
-	$application = $this->application;
-	/* @var $application TimeBank */
-	
-	$session = $this->session;
-	/* @var $session Session */
-	
-	$router = $this->router;
-	/* @var $request Router */
-	
-	$request = $this->request;
-	/* @var $request Request */
-	
-	$response = $this->response;
-	/* @var $response Response_HTML */
-}
+/**
+ * @copyright &copy; 2016 Market Acumen, Inc.
+ */
+namespace zesk;
+
+/* @var $this \zesk\Template */
+/* @var $zesk \zesk\Kernel */
+/* @var $application \zesk\Application */
+/* @var $session \zesk\Session */
+/* @var $router \zesk\Router */
+/* @var $request \zesk\Request */
+/* @var $response \zesk\Response_Text_HTML */
 $configuration = $zesk->configuration;
 
 echo "<?php\n";
 
 $php = new php();
-$php->indent_char = $this->get("indent_char", $configuration->path_get("text::indent_char", "\t"));
-$php->indent_multiple = to_integer($this->geti("indent_multiple", $configuration->path_get("text::indent_multiple")), 1);
+$php->indent_char = $this->get("indent_char", $configuration->path_get("Text::indent_char", "\t"));
+$php->indent_multiple = to_integer($this->geti("indent_multiple", $configuration->path_get("Text::indent_multiple")), 1);
 
 ob_start();
 

@@ -173,7 +173,7 @@ class XML_Node extends Options {
 	function output($indent = 0, $singles = false) {
 		$prefix = str_repeat("\t", $indent);
 		$single = $singles && empty($this->Children);
-		$startTag = $single ? html::tag($this->Name, $this->options, null) : html::tag_open($this->Name, $this->options);
+		$startTag = $single ? HTML::tag($this->Name, $this->options, null) : HTML::tag_open($this->Name, $this->options);
 		$lines = array();
 		$nChars = 0;
 		foreach ($this->Children as $child) {
@@ -187,7 +187,7 @@ class XML_Node extends Options {
 		}
 		$endTag = "";
 		if (!$single) {
-			$endTag = html::tag_close($this->Name);
+			$endTag = HTML::tag_close($this->Name);
 		}
 		if (($nChars < 32) && count($lines) <= 1) {
 			return $prefix . $startTag . trim(implode("", $lines)) . $endTag;

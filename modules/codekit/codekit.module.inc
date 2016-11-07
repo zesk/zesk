@@ -1,3 +1,5 @@
 <?php
+/* @var $application zesk\Application */
 
-Module::register_paths();
+$application->modules->register_paths();
+

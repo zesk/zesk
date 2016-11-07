@@ -1,5 +1,10 @@
 <?php
 /**
+ * @copyright &copy; 2016 Market Acumen, Inc.
+ */
+namespace zesk;
+
+/**
  * Bootstrap-themed buttons
  */
 
@@ -22,12 +27,12 @@ if ($this->href) {
 }
 $attrs["type"] = $this->getb('submit', true) ? "submit" : "button";
 $content = $this->get1("button_label;label", __('OK'));
-$attrs['class'] = css::add_class('btn', $this->class);
+$attrs['class'] = CSS::add_class('btn', $this->class);
 $attrs['name'] = $this->get1('name;column');
 $attrs['id'] = $attrs['name'];
 if (!isset($attrs['value'])) {
 	$attrs['value'] = "1";
 }
 
-echo html::tag($button_tag, $object->apply_map($attrs), $content);
+echo HTML::tag($button_tag, $object->apply_map($attrs), $content);
 

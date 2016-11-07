@@ -1,5 +1,6 @@
 <?php
 use zest\Project;
+use zesk\Database_Query_Select;
 
 /**
  * 
@@ -43,7 +44,7 @@ class Control_List_Zest_Test extends Control_List {
 	 * {@inheritDoc}
 	 * @see Control::hook_query()
 	 */
-	protected function hook_query(Database_Query_Select $query) {
+	protected function hook_query(zesk\Database_Query_Select $query) {
 		if ($this->project) {
 			$query->where("project", $this->project);
 		}

@@ -13,7 +13,7 @@ if (!defined("PID_FILE")) {
 	return;
 }
 
-zesk::deprecated();
+zesk()->deprecated();
 function is_process_done() {
 	global $process_done;
 

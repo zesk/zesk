@@ -59,6 +59,13 @@ class Session_PHP implements Session_Interface {
 	public function id() {
 		return session_id();
 	}
+	public function has($name) {
+		return $this->__isset($name);
+	}
+	public function __isset($name) {
+		self::need();
+		return isset($_SESSION[$name]);
+	}
 	
 	/**
 	 *

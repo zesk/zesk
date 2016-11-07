@@ -20,7 +20,7 @@ class View_OrderBy extends View {
 		$english = $this->label();
 		$html = $this->option_bool('html');
 		if (!$html && $this->option_integer("show_size", -1) > 0) {
-			$english = html::ellipsis($english, $this->option_integer("show_size"));
+			$english = HTML::ellipsis($english, $this->option_integer("show_size"));
 		}
 		$order_var = $this->option("list_order_variable", "o");
 		$cur_sort_names = explode(";", $this->request->get($order_var, $this->option('default')));
@@ -63,19 +63,19 @@ class View_OrderBy extends View {
 		if ($multisort) {
 			$new_key = implode(";", $new_order);
 			$remove_order = implode(";", $remove_order);
-			$remove_url = url::query_format($this->option("URI", url::current_uri()), array(
+			$remove_url = URL::query_format($this->option("URI", URL::current_uri()), array(
 				$order_var => $remove_order
 			));
-			$sort_number = ($sort_index !== null) ? html::tag("div", array(
+			$sort_number = ($sort_index !== null) ? HTML::tag("div", array(
 				"class" => "list-order-index"
-			), html::a($remove_url, $sort_index + 1)) : "";
+			), HTML::a($remove_url, $sort_index + 1)) : "";
 		} else {
 			$sort_number = "";
 		}
-		$url = url::query_format($this->option("URI", url::current_uri()), array(
+		$url = URL::query_format($this->option("URI", URL::current_uri()), array(
 			$order_var => $new_key
 		));
-		$a_tag = html::tag('a', array(
+		$a_tag = HTML::tag('a', array(
 			'href' => $url
 		), $english);
 		$label = "<td nowrap=\"nowrap\">" . $a_tag . "</td>";

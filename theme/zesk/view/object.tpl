@@ -1,5 +1,8 @@
 <?php
 
+use zesk\Object;
+use zesk\HTML;
+
 /* @var $object Object */
 $object = $this->object;
 /* @var $class_object Class_Object */
@@ -12,7 +15,7 @@ $method = $this->display_method;
 $method_args = $this->display_method_arguments;
 
 if ($this->hidden_input) {
-	echo html::hidden($this->name, $value);
+	echo HTML::hidden($this->name, $value);
 }
 
 if (!empty($value)) {

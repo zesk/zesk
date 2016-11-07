@@ -6,7 +6,7 @@
  * @author Kent Davidson <kent@marketacumen.com>
  * @copyright Copyright &copy; 2015, Market Acumen, Inc.
  */
-zesk::deprecated();
+zesk()->deprecated();
 /**
  * @author Kent M. Davidson <kent@marketacumen.com>
  * @package zesk

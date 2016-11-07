@@ -18,16 +18,18 @@ class Payment extends Object {
 	 *       checking expiration
 	 * @return integer The number of cards which have expired
 	 */
-	public static function cron_cluster_minute() {
-		$query = Object::class_query_update(__CLASS__)->value('IsValid', 'false');
+	public static function cron_cluster_minute(zesk\Application $application) {
+		$query = $application->class_query_update(__CLASS__)->value('IsValid', 'false');
 		$query->where('*ExpireDate|<=', $query->sql()
 			->now_utc())
 			->where('IsValid', true)
 			->execute();
 		if (($n_rows = $query->affected_rows()) > 0) {
-			log::notice("Expired {n_rows} {payments} which reached their expiration date", array(
+			global $zesk;
+			/* @var $zesk zesk\Kernel */
+			$zesk->logger->notice("Expired {n_rows} {payments} which reached their expiration date", array(
 				"n_rows" => $n_rows,
-				"payments" => lang::plural(__CLASS__, $n_rows)
+				"payments" => zesk\Locale::plural(__CLASS__, $n_rows)
 			));
 		}
 	}

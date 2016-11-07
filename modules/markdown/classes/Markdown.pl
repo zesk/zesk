@@ -153,7 +153,7 @@ unless ($@) {
 
 	{
 		no warnings "once";
-		$smartypants = $MT::Template::Context::Global_filters{'smarty_pants'};
+		$smartypants = $MT::Template::ConText::Global_filters{'smarty_pants'};
 	}
 
 	if ($smartypants) {

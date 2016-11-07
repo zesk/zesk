@@ -1,20 +1,28 @@
 <?php
+
+use zesk\JSON;
+
+/**
+ * 
+ * @author kent
+ *
+ */
 class test_json extends Test_Unit {
 
 	/**
 	 * @expected_exception Exception_Parse
 	 */
 	function test_decode() {
-		json::decode(null);
+		JSON::decode(null);
 	}
 
 	function test_decode_null() {
-		$this->assert_equal(json::decode("null"), null);
+		$this->assert_equal(JSON::decode("null"), null);
 	}
 
 	function test_encode() {
 		$mixed = null;
-		json::encode($mixed);
+		JSON::encode($mixed);
 
 		$mixed = array(
 			array(
@@ -32,31 +40,31 @@ class test_json extends Test_Unit {
 			null,
 			"dog" => null
 		);
-		$this->assert_equal(json::encode($mixed), '{"0":{"Hello":"Dude","1241`2":"odd","__2341":2,"a459123":{}},"1":false,"2":true,"3":12312312,"4":"A string","5":"A string","don\'t encode result":document.referrer,"6":null,"dog":null}');
+		$this->assert_equal(JSON::encode($mixed), '{"0":{"Hello":"Dude","1241`2":"odd","__2341":2,"a459123":{}},"1":false,"2":true,"3":12312312,"4":"A string","5":"A string","don\'t encode result":document.referrer,"6":null,"dog":null}');
 	}
 
 	function test_encodex() {
 		$mixed = null;
-		$this->assert_equal(json::encodex($mixed), "null");
+		$this->assert_equal(JSON::encodex($mixed), "null");
 	}
 
 	function test_object_member_name_quote() {
 		$name = null;
-		json::object_member_name_quote($name);
+		JSON::object_member_name_quote($name);
 	}
 
 	function test_quote() {
 		$m = null;
-		$this->assert(json::quote("this.is.a.word") === "\"this.is.a.word\"");
-		$this->assert(json::quote("thingy") === "\"thingy\"", "\"" . json::quote("thingy") . "\" === \"thingy\"");
-		$this->assert(json::quote("2thingy") === "\"2thingy\"");
-		$this->assert(json::quote("thingy2") === "\"thingy2\"");
-		$this->assert(json::quote("th-ingy2") === "\"th-ingy2\"");
+		$this->assert(JSON::quote("this.is.a.word") === "\"this.is.a.word\"");
+		$this->assert(JSON::quote("thingy") === "\"thingy\"", "\"" . JSON::quote("thingy") . "\" === \"thingy\"");
+		$this->assert(JSON::quote("2thingy") === "\"2thingy\"");
+		$this->assert(JSON::quote("thingy2") === "\"thingy2\"");
+		$this->assert(JSON::quote("th-ingy2") === "\"th-ingy2\"");
 	}
 
 	function test_valid_member_name() {
 		$name = null;
-		$this->assert_equal(json::valid_member_name($name), false);
+		$this->assert_equal(JSON::valid_member_name($name), false);
 	}
 
 	function internal_values() {
@@ -105,9 +113,9 @@ class test_json extends Test_Unit {
 	 * @param mixed $mixed
 	 */
 	function test_internal($mixed) {
-		$encode = json::encode($mixed);
-		$decode = json::zesk_decode($encode, false);
-		$encode2 = json::encode($decode);
+		$encode = JSON::encode($mixed);
+		$decode = JSON::zesk_decode($encode, false);
+		$encode2 = JSON::encode($decode);
 		$this->assert_equal($encode, $encode2);
 	}
 
@@ -194,7 +202,7 @@ class test_json extends Test_Unit {
 	 * @param unknown $expected
 	 */
 	function test_parser($mixed, $expected) {
-		$actual = json::zesk_decode($mixed);
+		$actual = JSON::zesk_decode($mixed);
 		$this->assert_equal($actual, $expected);
 	}
 }

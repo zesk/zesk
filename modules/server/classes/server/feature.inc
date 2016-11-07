@@ -67,7 +67,7 @@ abstract class Server_Feature extends Server_Base {
 			$this->configure_root = str::unsuffix($class, ".inc");
 		}
 		
-		$this->hook("construct");
+		$this->call_hook("construct");
 		
 		$this->commands = to_list($this->commands, array());
 		$this->packages = to_list($this->packages, array());
@@ -144,7 +144,7 @@ abstract class Server_Feature extends Server_Base {
 		$installing = true;
 		$this->feature_install($this->features);
 		$this->package_install($this->packages);
-		$this->hook("install");
+		$this->call_hook("install");
 		$installing = false;
 	}
 	public function configure() {

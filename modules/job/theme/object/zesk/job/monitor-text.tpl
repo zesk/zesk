@@ -4,15 +4,15 @@ if (false) {
 	$job = $this->job;
 	/* @var $object Job */
 	$object = $this->object;
-	/* @var $response Response_HTML */
+	/* @var $response zesk\Response_Text_HTML */
 	$response = $this->response;
 }
 
-$object->render("scripts");
+$object->theme("scripts");
 
 $success = $this->success;
 if ($success) {
-	$success = html::attributes(array(
+	$success = HTML::attributes(array(
 		'data-success' => $success
 	));
 }

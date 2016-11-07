@@ -1,6 +1,6 @@
 <?php
 
-class Class_IPBan_Tag_Type extends Class_Object {
+class Class_IPBan_Tag_Type extends zesk\Class_Object {
 
 	public $find_keys = array(
 		'name'

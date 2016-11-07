@@ -1,5 +1,5 @@
 <?php
-class Class_Mail_Header extends Class_Object {
+class Class_Mail_Header extends zesk\Class_Object {
 	public $find_keys = array(
 		"mail",
 		"type",

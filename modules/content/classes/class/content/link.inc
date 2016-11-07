@@ -3,7 +3,7 @@
 /**
  * Class_Content_Link
  */
-class Class_Content_Link extends Class_Object {
+class Class_Content_Link extends zesk\Class_Object {
 
 	public $find_keys = array(
 		"Hash", 

@@ -1,5 +1,10 @@
 <?php
 /**
+ * 
+ */
+use zesk\PHP;
+
+/**
  * Run arbitrary PHP code in the application context.
  *
  * @category Management
@@ -26,17 +31,26 @@ class Command_Eval extends Command_Base {
 			return $this->interactive();
 		}
 	}
+	
+	/**
+	 * Interactive evaluation of commands
+	 * 
+	 * @return number
+	 */
 	public function interactive() {
-		$this->history_file_path = zesk::uid_path("eval-history.log");
-		$name = zesk::application_class();
+		global $zesk;
+		/* @var $zesk \zesk\Kernel */
+		$this->history_file_path = $zesk->paths->uid("eval-history.log");
+		$name = $zesk->application_class;
+		$last_exit_code = 0;
 		while (true) {
 			$command = $this->prompt($name . '>');
 			if (feof(STDIN)) {
 				echo "\nExit\n";
-				return 0;
+				return $last_exit_code;
 			}
 			if (empty($command)) {
-				return 0;
+				return $last_exit_code;
 			}
 			if ($command === "quit" || $command === "exit") {
 				return 0;
@@ -44,6 +58,7 @@ class Command_Eval extends Command_Base {
 			ob_start();
 			try {
 				$result = $this->_eval($command);
+				$last_exit_code = 0;
 			} catch (Exception $ex) {
 				$content = ob_get_clean();
 				echo "# exception " . get_class($ex) . "\n";
@@ -53,6 +68,7 @@ class Command_Eval extends Command_Base {
 					echo "# Content\n$content\n";
 				}
 				$this->application->hooks->call("exception", $ex);
+				$last_exit_code = 99;
 				continue;
 			}
 			$content = ob_get_clean();
@@ -63,7 +79,7 @@ class Command_Eval extends Command_Base {
 				} else {
 				}
 			} else {
-				echo "# return " . php::dump($result) . "\n";
+				echo "# return " . PHP::dump($result) . "\n";
 				if ($content !== "") {
 					echo $content . "\n";
 				}

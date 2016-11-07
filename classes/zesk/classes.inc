@@ -1,10 +1,28 @@
 <?php
-
 namespace zesk;
 
 use \Cache as Cache;
 
 class Classes {
+	/**
+	 * 
+	 * @var integer
+	 */
+	const VERSION = 5;
+	
+	/**
+	 * Version number of serialized file
+	 * 
+	 * @var integer
+	 */
+	protected $version = self::VERSION;
+	
+	/**
+	 * Lowercase class name -> capitalized class name
+	 *
+	 * @var array
+	 */
+	protected $class_case = array();
 	
 	/**
 	 * Registry of class names
@@ -60,7 +78,7 @@ class Classes {
 		$cache_file = $zesk->paths->cache("zesk-classes.cache");
 		if (file_exists($cache_file)) {
 			$classes = unserialize(file_get_contents($cache_file));
-			if ($classes instanceof self) {
+			if ($classes instanceof self && $classes->version === self::VERSION) {
 				$classes->initialize($zesk);
 			} else {
 				$classes = new self($zesk);
@@ -71,6 +89,10 @@ class Classes {
 		$classes->cache_file = $cache_file;
 		return $classes;
 	}
+	
+	/**
+	 * 
+	 */
 	public function on_exit() {
 		if ($this->dirty) {
 			$this->dirty = false;
@@ -82,13 +104,13 @@ class Classes {
 	 * @param string $class
 	 */
 	private function _add($class) {
+		$this->class_case[strtolower($class)] = $class;
 		$parent_classes = $this->hierarchy($class);
 		$this->classes[$class] = array();
 		$this->subclasses[$class] = array();
 		$this->dirty = true;
 		array_shift($parent_classes);
 		foreach ($parent_classes as $parent_class) {
-			$parent_class = strtolower($parent_class);
 			$this->classes[$parent_class][$class] = 1;
 			$this->subclasses[$parent_class] = array_keys($this->classes[$parent_class]);
 			$class = $parent_class;
@@ -97,6 +119,8 @@ class Classes {
 	
 	/**
 	 * Register a global hook by class
+	 * 
+	 * @return 
 	 */
 	public function register($class = null) {
 		if (is_array($class)) {
@@ -113,22 +137,19 @@ class Classes {
 			// Do we need to warn? Not sure if silent failure is best. Probably for now.
 			return null;
 		}
-		// We want to allow all classes to register here
-		// 		if (!is_subclass_of($class, "Hookable")) {
-		// 			return null;
-		// 		}
-		$low_class = strtolower($class);
-		if (!array_key_exists($low_class, $this->classes)) {
-			$this->_add($low_class);
+		$lowclass = strtolower($class);
+		$class = isset($this->class_case[$lowclass]) ? $this->class_case[$lowclass] : $class;
+		if (!array_key_exists($class, $this->classes)) {
+			$this->_add($class);
 		}
-		return $this->subclasses[$low_class];
+		return $this->subclasses[$class];
 	}
 	
 	/**
-	 * Return all known subclasses of a class
+	 * Return all known subclasses of a class including grandchildren and great-grandchildren, etc.
 	 * 
 	 * @param string $class
-	 * @return mixed[]
+	 * @return string[]
 	 */
 	public function subclasses($class) {
 		$classes = array(

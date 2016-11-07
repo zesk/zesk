@@ -6,7 +6,11 @@
  * @author kent
  * @copyright Copyright &copy; 2010, Market Acumen, Inc.
  */
+zesk()->deprecated();
 
-class Exception_Directory_NotFound extends Exception_FileSystem {
-
-}
+/**
+ * 
+ * @author kent
+ * @deprecated 2016-09
+ */
+class Exception_Directory_NotFound extends zesk\Exception_Directory_NotFound {}

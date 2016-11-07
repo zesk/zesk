@@ -1,4 +1,9 @@
 <?php
+/**
+ * 
+ */
+use zesk\Object;
+use zesk\Database_Query_Select;
 
 /**
  * @see Class_Selection_Query
@@ -11,11 +16,11 @@ class Selection_Query extends Object {
 	 * Fetch or create a query
 	 * 
 	 * @param Selection_Type $type
-	 * @param Database_Query_Select $total
-	 * @param Database_Query_Select $list
+	 * @param zesk\Database_Query_Select $total
+	 * @param zesk\Database_Query_Select $list
 	 * @return self
 	 */
-	public static function instance(Selection_Type $type, Database_Query_Select $total, Database_Query_Select $list) {
+	public static function instance(Selection_Type $type, zesk\Database_Query_Select $total, zesk\Database_Query_Select $list) {
 		$code = md5(serialize(strval($list)));
 		$object = $type->application->object_factory(__CLASS__, array(
 			"type" => $type,
@@ -32,7 +37,7 @@ class Selection_Query extends Object {
 		return $object->store();
 	}
 	public function reorder() {
-		$this->order_index = $this->query("X")
+		$this->order_index = $this->query_select("X")
 			->where("X.type", $this->type)
 			->what("*N", "MAX(X.order_index)")
 			->one_integer("N", 0) + 1;
@@ -40,7 +45,7 @@ class Selection_Query extends Object {
 	}
 	public function count() {
 		$query = $this->query_total;
-		if ($query instanceof Database_Query_Select) {
+		if ($query instanceof zesk\Database_Query_Select) {
 			return $query->one_integer("total", 0);
 		}
 		return "unknown";
@@ -48,7 +53,7 @@ class Selection_Query extends Object {
 	public static function copy_duplicate($old_type, $new_type) {
 		$map = array();
 		/* @var $query Selection_Query */
-		foreach (Object::class_query(__CLASS__)->where('type', $old_type)->object_iterator() as $query) {
+		foreach (app()->query_select(__CLASS__)->where('type', $old_type)->object_iterator() as $query) {
 			$old_id = $query->id;
 			$query->id = null;
 			$query->type = $new_type;

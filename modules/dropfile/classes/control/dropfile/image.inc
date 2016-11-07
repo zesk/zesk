@@ -1,5 +1,12 @@
 <?php
 
+use zesk\URL;
+
+/**
+ * 
+ * @author kent
+ *
+ */
 class Control_DropFile_Image extends Control_Content_Image {
 
 	public function initialize() {
@@ -28,7 +35,7 @@ class Control_DropFile_Image extends Control_Content_Image {
 	public function theme_variables() {
 		return array(
 			'remove_enabled' => $this->remove_enabled(),
-			'url_upload' => url::query_append($this->url_upload(), array(
+			'url_upload' => URL::query_append($this->url_upload(), array(
 				"theme" => 'dropfile',
 				"name" => $this->name,
 				"width" => $this->option_integer('width'),

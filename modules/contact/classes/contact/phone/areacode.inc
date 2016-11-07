@@ -44,7 +44,7 @@ class Contact_Phone_AreaCode extends Object {
 /**
  * Class_Contact_Phone_AreaCode
  */
-class Class_Contact_Phone_AreaCode extends Class_Object {
+class Class_Contact_Phone_AreaCode extends zesk\Class_Object {
 	public $find_keys = array(
 		"Code"
 	);

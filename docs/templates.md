@@ -2,7 +2,7 @@
 
 Templates are essentially PHP include files with some special features:
 
-- Template inheritance and overrides
+- zesk\Template inheritance and overrides
 - Variable inheritance and passing
 
 Simple template engine which uses PHP includes.
@@ -14,7 +14,7 @@ Templates are "stacked" to inherit parent variables settings.
 
 Changing template values within the template (e.g. `$this->frame = "foo";`) will then bubble up to parent templates.
 
-Templates should be implemented by assuming "$this" is a Template within the template file, and you can use:
+Templates should be implemented by assuming "$this" is a zesk\Template within the template file, and you can use:
 
 `$this->has('account')` to determine if a variable has been set, and
 
@@ -27,7 +27,7 @@ Note that variables are also extract'ed into the local scope, so
 
 both exist within the scope if passed via a variable to a template.
 
-## Template basics
+## zesk\Template basics
 
 A simple template which outputs a percent would be `view/percent.tpl`:
 
@@ -38,9 +38,9 @@ Similarly, you can make a template pure HTML:
 
 	<div class="bar-decoration"><i class="icon-edit" /></div>
 
-Within a template, the term `$this` is always of class `Template` meaning you can call Template methods directly.
+Within a template, the term `$this` is always of class `Template` meaning you can call zesk\Template methods directly.
 
-## Template naming conventions
+## zesk\Template naming conventions
 
 Templates are accessed similarly to other aspects of Zesk by using a search path.
 
@@ -54,7 +54,7 @@ So, loading a template like:
 
 Will search each template path until it finds the appropriate template, then include the template and return the results.
 
-## Template Inheritance
+## zesk\Template Inheritance
 
 Templates are managed in a global stack which allows for values to be inherited from one template to the next. This avoids having to pass application globals between templates and makes managing state easier as well.
 

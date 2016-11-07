@@ -6,6 +6,10 @@
  * @author kent
  * @copyright Copyright &copy; 2010, Market Acumen, Inc.
  */
-
-class Exception_Mail_Send extends Exception {}
+zesk()->deprecated();
+/**
+ * @deprecated 2016-09
+ * @author kent
+ */
+class Exception_Mail_Send extends zesk\Exception_Mail_Send {}
 

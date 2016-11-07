@@ -7,6 +7,18 @@
  * @copyright Copyright &copy; 2008, Market Acumen, Inc.
  * Created on Tue Apr 01 16:14:09 EDT 2008
  */
+use zesk\Text;
+use zesk\Exception_File_NotFound;
+use zesk\Exception_Directory_Create;
+use zesk\HTML;
+use zesk\Model;
+use zesk\Directory;
+
+/**
+ * 
+ * @author kent
+ *
+ */
 class View_Image_Text extends View {
 	static $debug = false;
 	static private function bbox($box) {
@@ -86,7 +98,7 @@ class View_Image_Text extends View {
 		}
 	}
 	function render() {
-		$rootdir = $this->option("root_directory", zesk::application_root());
+		$rootdir = $this->option("root_directory", $this->application->application_root());
 		
 		$col = $this->column();
 		
@@ -167,14 +179,14 @@ class View_Image_Text extends View {
 		);
 		
 		$cache_path = $this->option("cache_path", path($rootdir, '/cache/image-text/'));
-		$url_prefix = dir::add_slash($this->option("url_prefix", cdn::url('/cache/image-text')));
-		$absolute_cache_path = dir::add_slash(dir::undot($cache_path));
-		if (!dir::create($absolute_cache_path, 0775)) {
+		$url_prefix = Directory::add_slash($this->option("url_prefix", cdn::url('/cache/image-text')));
+		$absolute_cache_path = Directory::add_slash(Directory::undot($cache_path));
+		if (!Directory::create($absolute_cache_path, 0775)) {
 			throw new Exception_Directory_Create($absolute_cache_path);
 		}
 		
 		if ($width === 0 || $height === 0) {
-			return html::cdn_img('/share/images/spacer.gif', 'Zero width and height', array(
+			return HTML::cdn_img('/share/images/spacer.gif', 'Zero width and height', array(
 				"width" => 0,
 				"height" => 0
 			));
@@ -197,7 +209,7 @@ class View_Image_Text extends View {
 		$attr['title'] = $this->option("alt", $text);
 		$attr['width'] = $width;
 		$attr['height'] = $height;
-		return html::cdn_img($url_prefix . $fname, $this->option("alt", $text), $attr);
+		return HTML::cdn_img($url_prefix . $fname, $this->option("alt", $text), $attr);
 	}
 	public static function vertical($text, $attributes = false) {
 		$x = new Model();

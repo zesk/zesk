@@ -1,4 +1,19 @@
 <?php
+/**
+ * 
+ */
+use zesk\JSON;
+use zesk\str;
+use zesk\File;
+use zesk\Exception_File_NotFound;
+use zesk\Exception_Unimplemented;
+use \conf;
+
+/**
+ * 
+ * @author kent
+ *
+ */
 abstract class Server_Platform extends Hookable {
 	/**
 	 * Associative array of commands to full paths
@@ -6,63 +21,63 @@ abstract class Server_Platform extends Hookable {
 	 * @var array
 	 */
 	protected $shell_commands = array();
-
+	
 	/**
 	 * Configuration
 	 *
 	 * @var Server_Configuration
 	 */
 	public $config = array();
-
+	
 	/**
 	 * True when shell commands have to be recomputed
 	 *
 	 * @var boolean
 	 */
 	protected $_dirty_shell_commands = false;
-
+	
 	/**
 	 * Group of the root user
 	 */
 	protected $root_group = null;
-
+	
 	/**
 	 * Root user name
 	 */
 	protected $root_user = null;
-
+	
 	/**
 	 * Host name
 	 *
 	 * @var string
 	 */
 	protected $host_name = null;
-
+	
 	/**
 	 * Path to tools in the system
 	 *
 	 * @var string
 	 */
 	private $tool_path = null;
-
+	
 	/**
 	 *
 	 * @var array
 	 */
 	public $features = null;
-
+	
 	/**
 	 *
 	 * @var Server_Packager
 	 */
 	public $packager = null;
-
+	
 	/**
 	 *
 	 * @var Server_Files
 	 */
 	public $files = null;
-
+	
 	/**
 	 * List of paths to search for commands
 	 *
@@ -73,7 +88,7 @@ abstract class Server_Platform extends Hookable {
 		"/usr/bin"
 	);
 	protected $services = array();
-
+	
 	/**
 	 * Construct the platform object
 	 *
@@ -89,11 +104,11 @@ abstract class Server_Platform extends Hookable {
 		if ($this->root_user === null) {
 			throw new Exception_Unimplemented("\$this->root_user is null");
 		}
-
+		
 		if ($this->option_bool('awareness')) {
 			$this->awareness();
 		}
-
+		
 		$this->host_name = $this->option("host-name", php_uname('n'));
 	}
 	function name() {
@@ -117,7 +132,7 @@ abstract class Server_Platform extends Hookable {
 	public function conf_load($path, $options = null) {
 		$defaults = $this->_conf_defaults();
 		$options = is_array($options) ? $options + $defaults : $defaults;
-		if (file::extension($path) === "json") {
+		if (File::extension($path) === "json") {
 			return json_decode(file_get_contents($path));
 		}
 		return conf::load($path, $options);
@@ -125,7 +140,7 @@ abstract class Server_Platform extends Hookable {
 	public function conf_parse($contents, $options = null) {
 		$contents = ltrim($contents);
 		if ($contents[0] === '{') {
-			return json::decode($contents);
+			return JSON::decode($contents);
 		}
 		$defaults = $this->_conf_defaults();
 		$options = is_array($options) ? $options + $defaults : $defaults;
@@ -175,7 +190,7 @@ abstract class Server_Platform extends Hookable {
 		}
 		$this->tool_path = $this->option('tool_path', '/sbin');
 	}
-
+	
 	/**
 	 * Create a platform object based on the system we are on
 	 *
@@ -187,7 +202,7 @@ abstract class Server_Platform extends Hookable {
 		$platform = php_uname('s');
 		return zesk::factory("Server_Platform_$platform", $options);
 	}
-
+	
 	/**
 	 * Test if a particular feature is available
 	 *
@@ -198,13 +213,12 @@ abstract class Server_Platform extends Hookable {
 	function feature_exists($feature) {
 		try {
 			$class = "Server_Feature_$feature";
-			zesk::autoloader($class);
-			return class_exists($class);
+			return class_exists($class, true);
 		} catch (Exception_Class_NotFound $e) {
 			return false;
 		}
 	}
-
+	
 	/**
 	 *
 	 * @param unknown $path
@@ -221,7 +235,7 @@ abstract class Server_Platform extends Hookable {
 	 * @return Server_Packager
 	 */
 	abstract protected function packager();
-
+	
 	/**
 	 * Create a user in the operating system
 	 *
@@ -233,7 +247,7 @@ abstract class Server_Platform extends Hookable {
 	 *        	Additional options for user creation
 	 */
 	abstract public function user_create($user, $group, $home = null, $options = null);
-
+	
 	/**
 	 * Retrieve information about a particular user
 	 *
@@ -241,13 +255,13 @@ abstract class Server_Platform extends Hookable {
 	 * @return array
 	 */
 	abstract public function user($user);
-
+	
 	/**
 	 * Return the name of the current user
 	 * @return string
 	 */
 	abstract public function user_current();
-
+	
 	/**
 	 * Retrieve the home directory of a user
 	 *
@@ -262,7 +276,7 @@ abstract class Server_Platform extends Hookable {
 	 * @return integer
 	 */
 	abstract public function user_id($user);
-
+	
 	/**
 	 * Retrieve the group id of a user
 	 *
@@ -270,7 +284,7 @@ abstract class Server_Platform extends Hookable {
 	 * @return integer
 	 */
 	abstract public function user_group_id($user);
-
+	
 	/**
 	 * Remove a user from the system
 	 *
@@ -278,7 +292,7 @@ abstract class Server_Platform extends Hookable {
 	 * @return boolean
 	 */
 	abstract public function user_delete($user);
-
+	
 	/**
 	 * Create a new group
 	 *
@@ -290,7 +304,7 @@ abstract class Server_Platform extends Hookable {
 	 *        	Additional options for group creation
 	 */
 	abstract public function group_create($group, $members = null, $options = null);
-
+	
 	/**
 	 * Retrieve information about a particular group
 	 *
@@ -299,7 +313,7 @@ abstract class Server_Platform extends Hookable {
 	 * @return array Group information
 	 */
 	abstract public function group($group);
-
+	
 	/**
 	 * Retrieve group id
 	 *
@@ -314,7 +328,7 @@ abstract class Server_Platform extends Hookable {
 	 * @return array list of members
 	 */
 	abstract public function group_members($group);
-
+	
 	/**
 	 * Delete a group
 	 *
@@ -322,7 +336,7 @@ abstract class Server_Platform extends Hookable {
 	 * @return boolean
 	 */
 	abstract public function group_delete($group);
-
+	
 	/**
 	 * Require a particular directory to exist
 	 *
@@ -359,7 +373,7 @@ abstract class Server_Platform extends Hookable {
 	public function validate_group_name($group) {
 		return preg_match('/^[a-z_][a-z0-9_-]*$/i', $group) !== 0 && strlen($group) <= 31;
 	}
-
+	
 	/**
 	 * The login name may be up to 31 characters long.
 	 * For compatibility with
@@ -376,7 +390,7 @@ abstract class Server_Platform extends Hookable {
 	public function validate_user_name($user) {
 		return preg_match('/^[a-z_][a-z0-9_-]*$/i', $user) !== 0 && strlen($user) <= 31;
 	}
-
+	
 	/**
 	 * Parse a user:group owner label and validate it
 	 *
@@ -397,7 +411,7 @@ abstract class Server_Platform extends Hookable {
 		}
 		return true;
 	}
-
+	
 	/**
 	 * Check if a user exists and register if it doesn't exist
 	 *
@@ -418,7 +432,7 @@ abstract class Server_Platform extends Hookable {
 		}
 		return $this->user_create($user, $group, $home, $shell, $uid);
 	}
-
+	
 	/**
 	 * Check if a group exists and create it if not found
 	 *
@@ -433,7 +447,7 @@ abstract class Server_Platform extends Hookable {
 		}
 		return $this->user_create($group, $members, $gid);
 	}
-
+	
 	/**
 	 * Does a group exist?
 	 *
@@ -448,7 +462,7 @@ abstract class Server_Platform extends Hookable {
 			return false;
 		}
 	}
-
+	
 	/**
 	 * Does a user exist?
 	 *
@@ -464,7 +478,7 @@ abstract class Server_Platform extends Hookable {
 			return false;
 		}
 	}
-
+	
 	/**
 	 * Does an owner exist
 	 *
@@ -483,7 +497,7 @@ abstract class Server_Platform extends Hookable {
 		}
 		return true;
 	}
-
+	
 	/**
 	 * The unadulterated host name
 	 *
@@ -498,34 +512,36 @@ abstract class Server_Platform extends Hookable {
 		}
 		$awareness = AWS_EC2_Awareness::get();
 		$this->verbose_log("Using awareness");
-		$this->verbose_log(text::format_pairs($awareness));
+		$this->verbose_log(Text::format_pairs($awareness));
 		$user_data = avalue($awareness, 'UserData');
 		$user_data = $this->conf_parse($user_data);
 		$this->verbose_log("Parsed awareness data:");
-		$this->verbose_log(text::format_pairs($user_data));
+		$this->verbose_log(Text::format_pairs($user_data));
 		// Store into globals
 		zesk::set($user_data);
 		// Then copy into here
 		$this->inherit_global_options();
 	}
-
+	
 	/**
 	 * Configure the platform
 	 */
 	final public function configure(array $features = null) {
+		global $zesk;
+		/* @var $zesk zesk\Kernel */
 		$this->initialize_packager();
 		$this->initialize_config();
 		$this->initialize_files();
-
+		
 		$this->packager->configure();
-
-		$this->hook("configure_features");
+		
+		$this->call_hook("configure_features");
 		$feature_list = $this->config->feature_list();
 		log::debug("Feature list is {features}", array(
 			"features" => implode(", ", $feature_list)
 		));
 		foreach ($feature_list as $feature_name) {
-			$this->features[$feature_name] = zesk::factory("Server_Feature_$feature_name", $this);
+			$this->features[$feature_name] = $zesk->objects->factory("Server_Feature_$feature_name", $this);
 		}
 		foreach ($this->features as $feature_name => $feature) {
 			/* @var $feature Server_Feature */
@@ -562,7 +578,7 @@ abstract class Server_Platform extends Hookable {
 			}
 		} while (true);
 	}
-
+	
 	/**
 	 * If not root, throw an error
 	 *
@@ -574,7 +590,7 @@ abstract class Server_Platform extends Hookable {
 		}
 		return $this;
 	}
-
+	
 	/**
 	 * If root, throw an error
 	 *
@@ -626,7 +642,7 @@ abstract class Server_Platform extends Hookable {
 		}
 		return map($command, $args);
 	}
-
+	
 	/**
 	 * Shell command formatting (variable arguments)
 	 *
@@ -643,7 +659,7 @@ abstract class Server_Platform extends Hookable {
 		array_shift($args);
 		return $this->_format_command($command, $args);
 	}
-
+	
 	/**
 	 * Run a shell command and return the first line returned.
 	 * Arguments passed as parameters.
@@ -658,7 +674,7 @@ abstract class Server_Platform extends Hookable {
 		$result = $this->exec_array($command, $args);
 		return avalue($result, 0, "");
 	}
-
+	
 	/**
 	 * Run a shell command and return the first line returned.
 	 * Arguments pased as an array.
@@ -672,7 +688,7 @@ abstract class Server_Platform extends Hookable {
 		$result = $this->exec_array($command, $arguments);
 		return avalue($result, 0, "");
 	}
-
+	
 	/**
 	 * Run a shell command and return output.
 	 * Arguments passed as parameters.
@@ -686,7 +702,7 @@ abstract class Server_Platform extends Hookable {
 		array_shift($args);
 		return $this->exec_array($command, $args);
 	}
-
+	
 	/**
 	 * Run a shell command and return output.
 	 * Arguments passed as array.
@@ -706,7 +722,7 @@ abstract class Server_Platform extends Hookable {
 		}
 		throw new Server_Exception_Command($return, $result);
 	}
-
+	
 	/**
 	 * Test if a shell command exists on the system, optionally testing it
 	 *
@@ -734,7 +750,7 @@ abstract class Server_Platform extends Hookable {
 		}
 		return false;
 	}
-
+	
 	/**
 	 * Set owner of a file in the system
 	 *
@@ -805,7 +821,7 @@ abstract class Server_Platform extends Hookable {
 		}
 		return $this->owner($path, $owner, $mode);
 	}
-
+	
 	/**
 	 * Replace a file in the system with contents of a string
 	 *
@@ -824,7 +840,7 @@ abstract class Server_Platform extends Hookable {
 		$this->apply_permissions($dest, $options);
 		return $this;
 	}
-
+	
 	/**
 	 * Replace a file in the system with another file
 	 *
@@ -844,7 +860,7 @@ abstract class Server_Platform extends Hookable {
 		$this->apply_permissions($dest, $options);
 		return $this;
 	}
-
+	
 	/**
 	 * Map contents of a string with the configuration variables
 	 *
@@ -861,7 +877,7 @@ abstract class Server_Platform extends Hookable {
 		}
 		return $contents;
 	}
-
+	
 	/**
 	 * Return default map
 	 *
@@ -871,7 +887,7 @@ abstract class Server_Platform extends Hookable {
 		$variables = $this->config->variables();
 		return $variables;
 	}
-
+	
 	/**
 	 *
 	 * @param string $source
@@ -972,12 +988,10 @@ abstract class Server_Platform extends Hookable {
 		}
 		return $this->replace_file_contents($contents, $dest, $options);
 	}
-
 	abstract function login_script_install($user, $name, $command);
 	abstract function login_script_installed($user, $name);
 	abstract function login_script_run($user, $name);
 	abstract function login_script_uninstall($user, $name);
-
 	public function restart_service($name) {
 		$this->root_exec("svc -t /service/$name");
 	}
@@ -1024,9 +1038,9 @@ abstract class Server_Platform extends Hookable {
 		foreach ($urls as $url) {
 			try {
 				$db = app()->database_factory($url);
-			} catch (Database_Exception $e) {
+			} catch (zesk\Database_Exception $e) {
 				log::error("Need to configure DB_URL {url}: Reason {error}", array(
-					"url" => url::remove_password($url),
+					"url" => URL::remove_password($url),
 					"error" => $e->getMesage()
 				));
 			}
@@ -1036,7 +1050,7 @@ abstract class Server_Platform extends Hookable {
 		$this->initialize();
 		return $this->config->host_aliases();
 	}
-
+	
 	/**
 	 * Retrieve the volume short name given the volume's path
 	 *

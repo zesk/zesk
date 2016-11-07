@@ -120,7 +120,7 @@ class Mail extends Hookable {
 	 * @param zesk\Kernel $zesk
 	 */
 	public static function hooks(Kernel $zesk) {
-		$zesk->hooks->add("Application::configured", __CLASS__ . "::configured");
+		$zesk->hooks->add("zesk\Application::configured", __CLASS__ . "::configured");
 	}
 	
 	/**
@@ -188,7 +188,7 @@ class Mail extends Hookable {
 		
 		self::_log($this->headers, $this->body);
 		
-		if (!$this->hook_array("send", array(), true)) {
+		if (!$this->call_hook_arguments("send", array(), true)) {
 			return false;
 		}
 		if ($this->sent !== null) {
@@ -439,14 +439,14 @@ class Mail extends Hookable {
 		if (!self::$fp) {
 			self::$fp = fopen(self::$log, "a");
 			if (!self::$fp) {
-				log::error("Unable to open mail log {log} - mail logging disabled", array(
+				zesk()->logger->error("Unable to open mail log {log} - mail logging disabled", array(
 					"log" => self::$log
 				));
 				self::$log = null;
 				return;
 			}
 		}
-		fwrite(self::$fp, text::format_pairs($headers) . "\n" . $body . "\n\n");
+		fwrite(self::$fp, Text::format_pairs($headers) . "\n" . $body . "\n\n");
 	}
 	private static function render_headers(array $headers) {
 		$mail_eol = "\r\n";
@@ -461,7 +461,7 @@ class Mail extends Hookable {
 		return $mail->send();
 	}
 	public static function mail_array($to, $from, $subject, $array, $prefix = "", $suffix = "") {
-		$content = text::format_pairs($array);
+		$content = Text::format_pairs($array);
 		return self::sendmail($to, $from, $subject, $prefix . $content . $suffix);
 	}
 	public static function map($to, $from, $subject, $filename, $fields, $cc = false, $bcc = false) {
@@ -474,7 +474,7 @@ class Mail extends Hookable {
 		$fields['subject'] = $subject;
 		$fields['cc'] = $cc;
 		$fields['when'] = date("Y-m-d H-i-s");
-		$fields['*'] = text::format_array($fields);
+		$fields['*'] = Text::format_array($fields);
 		$contents = map(file_get_contents($filename), $fields);
 		$subject = trim(map($subject, $fields));
 		$contents = str_replace("\r\n", "\n", $contents);
@@ -519,13 +519,13 @@ class Mail extends Hookable {
 		# Common Headers
 		$headers = arr::filter($mail_options, "From;To;Reply-To;Return-Path;Cc;Bcc;Return-Receipt-To;Subject");
 		if (!array_key_exists("From", $headers)) {
-			throw new \Exception_Semantics("Need to have a From header: {keys} {debug}", array(
+			throw new Exception_Semantics("Need to have a From header: {keys} {debug}", array(
 				"keys" => array_keys($headers),
 				"debug" => _dump($mail_options)
 			));
 		}
 		if (!array_key_exists("To", $headers)) {
-			throw new \Exception_Semantics("Need to have a To header: {keys} <pre>{debug}</pre>", array(
+			throw new Exception_Semantics("Need to have a To header: {keys} <pre>{debug}</pre>", array(
 				"keys" => array_keys($headers),
 				"debug" => _dump($mail_options)
 			));
@@ -744,7 +744,7 @@ class Mail extends Hookable {
 					$data = quoted_printable_decode(str_replace("_", " ", $data));
 					break;
 				default :
-					throw new \Exception_Semantics("preg_match_all is busted: didn't find B or Q in encoding $header");
+					throw new Exception_Semantics("preg_match_all is busted: didn't find B or Q in encoding $header");
 			}
 			$data = utf8::from_charset($data, $charset);
 			$header = str_replace($match, $data, $header);
@@ -817,6 +817,6 @@ class Mail extends Hookable {
 	 * Dump a Mail object
 	 */
 	public function dump() {
-		return text::format_pairs($this->headers) . "\n\n" . $this->body;
+		return Text::format_pairs($this->headers) . "\n\n" . $this->body;
 	}
 }

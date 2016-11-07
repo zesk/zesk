@@ -1,9 +1,11 @@
 <?php
+/**
+ * Override in applications 
+ */
 
 /**
- * @see Content_Image
+ * 
  * @author kent
+ *
  */
-class Class_Content_Image extends Class_Zesk_Content_Image {
-}
-
+class Class_Content_Image extends zesk\Class_Content_Image {}

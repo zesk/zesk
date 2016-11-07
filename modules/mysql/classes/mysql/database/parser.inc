@@ -9,12 +9,12 @@
  */
 namespace mysql;
 
-use \Database_Table as Database_Table;
-use \Database_Column as Database_Column;
-use \Database_Index as Database_Index;
-use \Exception_Parse as Exception_Parse;
-use \log as log;
-use zesk\arr as arr;
+use zesk\Database_Table;
+use zesk\Database_Column;
+use zesk\Database_Index;
+use zesk\Exception_Parse;
+use zesk\log;
+use zesk\arr;
 
 /**
  * Pattern to capture an enture CREATE TABLE sql command
@@ -135,7 +135,7 @@ define('MYSQL_PATTERN_TIP_ALTER', '/^--+\s*([+-])' . MYSQL_PATTERN_COLUMN_NAME .
  * @author kent
  *
  */
-class Database_Parser extends \Database_Parser {
+class Database_Parser extends \zesk\Database_Parser {
 	
 	/**
 	 *

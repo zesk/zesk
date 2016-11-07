@@ -36,7 +36,7 @@ class Command_Database_Reset extends Command {
 	}
 	function run() {
 		zesk::php_has('pcntl', true);
-
+		
 		$dbname = $this->option('name');
 		$db = $this->application->database_factory($dbname);
 		if (!$db) {
@@ -46,12 +46,12 @@ class Command_Database_Reset extends Command {
 		$url = $db->url();
 		$dbname = $db->database_name();
 		$codename = $db->code_name();
-
+		
 		$live_db = $this->has_option('file') ? $this->option('file') : null;
 		$has_dd = $this->has_option('dump-directory');
 		if (!$live_db) {
 			$dump_dir = $has_dd ? $this->option('dump-directory') : $this->default_dump_directory();
-			$live_db = dir::ls($dump_dir, '#^' . $dbname . '.*\.sql\.gz$#', true);
+			$live_db = Directory::ls($dump_dir, '#^' . $dbname . '.*\.sql\.gz$#', true);
 			if (count($live_db) === 0) {
 				$this->error("No dumps called $dbname found\n");
 				exit(1);
@@ -62,7 +62,7 @@ class Command_Database_Reset extends Command {
 			log::warning("Specifying --file and --dump-directory are incompatible. --dump-diretory is ignored.");
 		}
 		if (!$this->option('yes')) {
-			echo "Overwrite\n\t" . url::remove_password($url) . "\nwith\n\t" . $live_db . "? (y/N) ";
+			echo "Overwrite\n\t" . URL::remove_password($url) . "\nwith\n\t" . $live_db . "? (y/N) ";
 			$reply = fgets(STDIN, 8);
 			if (to_bool(trim($reply)) !== true) {
 				$this->error("Aborting.");

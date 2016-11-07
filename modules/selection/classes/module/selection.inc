@@ -5,7 +5,7 @@ class Module_Selection extends Module {
 		"Selection_Query",
 		"Selection_Type"
 	);
-	public function hook_routes(Router $router) {
+	public function hook_routes(zesk\Router $router) {
 		$router->add_route('selection/{Selection_Type type}/list', array(
 			'controller' => 'Selection_Item',
 			'action' => 'list',

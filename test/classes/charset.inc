@@ -6,6 +6,9 @@
  * @author Kent Davidson <kent@marketacumen.com>
  * @copyright Copyright &copy; 2012, Market Acumen, Inc.
  */
+
+use zesk\Text;
+
 class test_charset extends Test_Unit {
 
 	function test_supported() {
@@ -32,10 +35,10 @@ class test_charset extends Test_Unit {
 
 		$all_charsets = charset::supported();
 
-		//echo text::lalign("SAMPLE", 20) . $every_char . "\n";
+		//echo Text::lalign("SAMPLE", 20) . $every_char . "\n";
 		foreach ($all_charsets as $charset) {
 			$result = charset::to_utf8($every_char, $charset);
-			//echo text::lalign($charset, 20) . $result . "\n";
+			//echo Text::lalign($charset, 20) . $result . "\n";
 			if (in_array($charset, array(
 				"CP037",
 				"CP1026",

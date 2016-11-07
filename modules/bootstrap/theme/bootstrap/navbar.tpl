@@ -6,7 +6,7 @@ $request = $this->request;
 	<div class="navbar-inner">
 		<div class="container" style="width: auto; padding: 0 20px;">
 			<?php
-			echo html::tag('a', array(
+			echo HTML::tag('a', array(
 				'class' => 'brand',
 				'href' => $this->get('title_href', '/')
 			), $this->title);
@@ -15,9 +15,9 @@ $request = $this->request;
 				<?php
 				foreach ((array) $this->menu as $link => $item) {
 					$active = $request->path() == $link;
-					echo html::tag('li', array(
+					echo HTML::tag('li', array(
 						"class" => $active ? "active" : ""
-					), html::tag('a', array(
+					), HTML::tag('a', array(
 						"href" => $link
 					), $item));
 				}

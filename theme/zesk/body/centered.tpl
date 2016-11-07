@@ -1,7 +1,14 @@
-
 <?php
+/**
+ * @version $URL: https://code.marketacumen.com/zesk/trunk/theme/zesk/body/centered.tpl $
+ * @author $Author: kent $
+ * @package {package}
+ * @subpackage {subpackage}
+ * @copyright Copyright (C) 2016, {company}. All rights reserved.
+ */
 
-html::css_inline();
+
+HTML::css_inline();
 
 ?>
 <style type="text/css">
@@ -57,7 +64,7 @@ html::css_inline();
 		
 	</style>
 <?php
-html::css_inline_end();
+HTML::css_inline_end();
 ?>
 	<div id="wrapper">
 		<div id="inner-wrap">

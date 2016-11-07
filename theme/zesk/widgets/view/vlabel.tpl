@@ -1,16 +1,22 @@
 <?php
+/**
+ * @copyright &copy; 2016 Market Acumen, Inc.
+ */
+namespace zesk;
 
-/* @var $application Application */
-$application = $this->application;
+use \Net_HTTP;
+use \View_Image_Text;
 
-/* @var $request Request */
-$request = $this->request;
-/* @var $response Response */
-$response = $this->response;
-
+/* @var $this Template */
+/* @var $zesk \zesk\Kernel */
+/* @var $application \zesk\Application */
+/* @var $session \zesk\Session */
+/* @var $router \zesk\Router */
+/* @var $request \zesk\Request */
+/* @var $response \zesk\Response_Text_HTML */
 $cache_path = $application->cache_path("vlabels");
 
-$allowed_vlabel_fields = zesk::getl('vlabel_allowed_options', 'font-size;width;height;align;angle;title;text');
+$allowed_vlabel_fields = $this->get('vlabel_allowed_options', 'font-size;width;height;align;angle;title;text');
 
 $attributes = arr::filter($request->variables(), $allowed_vlabel_fields);
 $text = $attributes['text'];
@@ -19,7 +25,7 @@ ksort($attributes);
 
 $cache_file = md5(serialize($attributes)) . ".png";
 
-$path = dir::create($cache_path, 0775);
+$path = Directory::create($cache_path, 0775);
 if (!$path) {
 	$response->status_code = Net_HTTP::Status_Internal_Server_Error;
 	$response->status_message = "Permission";

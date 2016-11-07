@@ -7,7 +7,7 @@
  * @subpackage model
  */
 
-use zesk\Timestamp as Timestamp;
+use zesk\Timestamp;
 /**
  *
  * @package zesk

@@ -1,5 +1,5 @@
 /*
- * $Id: jquery.timer.js 3919 2016-07-13 05:39:51Z kent $
+ * $Id: jquery.timer.js 4046 2016-09-17 16:13:00Z kent $
  *
  * @copyright Copyright (C) 2013 Market Acumen, Inc. All rights reserved.
  *
@@ -17,10 +17,12 @@
  */
 
 /*global window:false */
-!function($) {
+(function(exports, $) {
 	"use strict";
-
-	var timer_data = "timer_object", interval = null, timer = '[data-timer]', tick = function() {
+	var timer_data = "timer_object";
+	var interval = null;
+	var timer = '[data-timer]';
+	var tick = function() {
 		var i_am_ticked = false;
 		$(timer).each(function() {
 			var $this = $(this), data = $this.data(timer_data);
@@ -95,7 +97,7 @@
 	 * @return string
 	 */
 	duration_string = function(delta, min_unit) {
-		var number, result = [];
+		var number, result = [], prefix = "", remain;
 		if (delta < 0) {
 			delta = -eelta;
 		}
@@ -105,11 +107,19 @@
 			}
 			if (unit === min_unit || delta >= this) {
 				number = parseInt(delta / this, 10);
-				result.push(number + " " + plural(unit, number));
 				delta -= number * this;
+				prefix = "~";
+				remain = delta / this;
+				if (remain > 0.5) {
+					number += 1;
+				} else if (remain < 0.1) {
+					prefix = "";
+				}
+				result.push(prefix + number + " " + plural(unit, number));
 				if (unit === min_unit) {
 					delta = 0;
 				}
+				return false;
 			}
 		});
 		return result.join(", ");
@@ -171,7 +181,7 @@
 	};
 
 	$.fn.timer = function(options) {
-		return this.each(function() {
+		return $(this).each(function() {
 			var $this = $(this), data = $this.data(timer_data);
 			if (!data) {
 				$this.data(timer_data, (data = new Timer(this, options)));
@@ -196,7 +206,9 @@
 			}
 		}
 	});
+	// This is a one-shot deal. It will pick up additional timers as it matches
+	// the [data-timer] attribute to do so
 	$(document).ready(function() {
 		$.timer.instrument();
 	});
-}(window.jQuery);
+}(window, window.jQuery));

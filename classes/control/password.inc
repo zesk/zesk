@@ -7,6 +7,8 @@
  * @copyright Copyright &copy; 2014, Market Acumen, Inc.
  */
 
+use zesk\Locale;
+
 /**
  * Password widget
  *
@@ -59,7 +61,7 @@ class Control_Password extends Control_Text {
 	/**
 	 * Check password
 	 *
-	 * @see Control_Text::validate()
+	 * @see parent::validate()
 	 */
 	protected function validate() {
 		$result = parent::validate();
@@ -115,7 +117,7 @@ class Control_Password extends Control_Text {
 			}
 		}
 		if (count($requirements) > 0) {
-			$this->error(__("Your password is required to have {0}", lang::conjunction($requirements, __("and"))));
+			$this->error(__("Your password is required to have {0}", Locale::conjunction($requirements, __("and"))));
 			return false;
 		}
 		return true;

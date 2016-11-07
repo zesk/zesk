@@ -6,8 +6,11 @@
  * @author kent
  * @copyright Copyright &copy; 2010, Market Acumen, Inc.
  */
+zesk()->deprecated();
 
-class Exception_Key extends zesk\Exception
-{
-
-}
+/**
+ * @deprecated 2016-09
+ * @author kent
+ *
+ */
+class Exception_Key extends zesk\Exception_Key {}

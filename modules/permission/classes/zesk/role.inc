@@ -7,21 +7,14 @@
  * @copyright Copyright &copy; 2011, Market Acumen, Inc.
  * Created on Mon,Aug 1, 11 at 4:58 PM
  */
+namespace zesk;
 
 /**
  * @see Class_Zesk_Role
  * @author kent
- *
+ * @todo move to zesk\Role
  */
-abstract class Zesk_Role extends Object {
-	public static function view($name, $label) {
-		$table = Object::class_table_name(__CLASS__);
-		return widgets::view_object($name, $label, $table, "{name}");
-	}
-	public static function control($name, $label, $required = false) {
-		$table = Object::class_table_name(__CLASS__);
-		return widgets::control_select_object($name, $label, $table, $required);
-	}
+abstract class Role extends Object {
 	static function root_id() {
 		return Object::class_query('Role')->what('id')->where('is_root', true)->integer('id', null);
 	}

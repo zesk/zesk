@@ -6,12 +6,12 @@ if (empty($id)) {
 
 echo $this->theme('control/select');
 
-echo html::div(array(
+echo HTML::div(array(
 	'id' => "$id-sample",
 	'class' => 'control-font-sample-text'
 ), $this->get('sample_text', __('The quick brown fox jumped over the lazy dog.')));
 
-/* @var $response Response_HTML */
+/* @var $response zesk\Response_Text_HTML */
 $response = $this->response;
 
 $target = "#$id-sample";

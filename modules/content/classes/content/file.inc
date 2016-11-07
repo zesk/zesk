@@ -1,13 +1,12 @@
 <?php
 /**
- * @version $Id: file.inc 3919 2016-07-13 05:39:51Z kent $
+ * @version $Id: file.inc 4012 2016-09-08 03:04:56Z kent $
  * @package zesk
  * @subpackage content
  * @author Kent Davidson <kent@marketacumen.com>
  * @copyright Copyright &copy; 2012, Market Acumen, Inc.
  */
 
-use zesk\Timestamp as Timestamp;
 /**
  * Placeholder to override with custom code
  *
@@ -21,4 +20,4 @@ use zesk\Timestamp as Timestamp;
  * @property Timestamp $Created
  * @property Timestamp $Modified
  */
-class Content_File extends Zesk_Content_File {}
+class Content_File extends zesk\Content_File {}

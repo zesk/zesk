@@ -1,4 +1,7 @@
 <?php
+/**
+ * @copyright &copy; 2016 Market Acumen, Inc.
+ */
 
 /**
  * List all possible modules available to the current application.
@@ -7,14 +10,25 @@
  * @category Modules
  */
 class Command_Modules extends Command_Base {
-
+	/**
+	 * 
+	 * @var string
+	 */
 	protected $help = "List all possible modules available to the current application.";
-
+	protected $option_types = array(
+		"format" => "string",
+		"loaded" => "boolean"
+	);
 	function run() {
-		$modules = Module::available();
+		$only_loaded = $this->option_bool("loaded");
+		$loaded_modules = array();
+		$modules = $this->application->modules->available();
 		foreach ($modules as $module => $module_data) {
-			$loaded_modules[$module] = avalue($module_data, 'loaded') ? true : false;
+			$loaded = avalue($module_data, 'loaded') ? true : false;
+			if (!$only_loaded || $loaded) {
+				$loaded_modules[$module] = $loaded;
+			}
 		}
-		echo text::format_pairs($loaded_modules);
+		$this->render_format($loaded_modules);
 	}
 }

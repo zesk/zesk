@@ -6,10 +6,14 @@
  * @author Kent Davidson <kent@marketacumen.com>
  * @copyright Copyright &copy; 2005, Market Acumen, Inc.
  */
+namespace zesk;
+
+use zesk\Directory;
+use \Content_Data;
+use \Image_Library;
 
 /**
  *
- * @see Class_Zesk_Content_Image
  * @see Class_Content_Image
  * @see Content_Image
  * @author kent
@@ -23,7 +27,7 @@
  * @property integer $width
  * @property integer $height
  */
-class Zesk_Content_Image extends Object {
+class Content_Image extends Object {
 	/**
 	 * Register from a known file - will copy to database
 	 *
@@ -52,7 +56,7 @@ class Zesk_Content_Image extends Object {
 		return $this->width > $this->height;
 	}
 	protected function fetch_object() {
-		$query = $this->query("X");
+		$query = $this->query_select("X");
 		$get_data = false;
 		if ($get_data) {
 			$query->link('Content_Data', array(
@@ -136,11 +140,11 @@ class Zesk_Content_Image extends Object {
 	 * @return unknown Ambigous unknown>
 	 */
 	private function fix_extension($path, $rawfile) {
-		if (mime::from_filename($path) === $this->mime_type) {
+		if (MIME::from_filename($path) === $this->mime_type) {
 			return $path;
 		}
 		$extension = self::determine_extension($rawfile);
-		return $extension ? file::extension_change($path, $extension) : $path;
+		return $extension ? File::extension_change($path, $extension) : $path;
 	}
 	function basename() {
 		return basename($this->path);
@@ -155,7 +159,7 @@ class Zesk_Content_Image extends Object {
 	}
 	
 	/**
-	 * Retrieve the file size of this image
+	 * Retrieve the file size in bytes of this image
 	 *
 	 * @return number
 	 */
@@ -164,8 +168,19 @@ class Zesk_Content_Image extends Object {
 	}
 	
 	/**
+	 * Simplistic test to see if a file is of a particular type. Works great on validly formatted images.
+	 * 
+	 * Not-so-great on junk data. Returns image type:
+	 * 
+	 * * gif
+	 * * jpg
+	 * * png
+	 * * swf
+	 * 
+	 * Or false if not able to determine image type.
+	 * 
 	 * @see Content_Image::determine_extension_simple
-	 * @param unknown $data
+	 * @param string $data Raw image data
 	 * @return string|boolean
 	 */
 	static public function determine_extension_simple_data($data) {
@@ -248,7 +263,7 @@ class Zesk_Content_Image extends Object {
 		if (!$this->file_exists() || !$this->data->matches_file($this->path())) {
 			$path = $this->path();
 			$dir = dirname($path);
-			dir::depend($dir);
+			Directory::depend($dir);
 			$result = $this->data->copy_file($path);
 			$fixed_path = $this->fix_extension($this->path, $path);
 			if ($fixed_path !== $this->path) {
@@ -288,6 +303,13 @@ class Zesk_Content_Image extends Object {
 		$this->set_member("height", $result[1]);
 		return true;
 	}
+	
+	/**
+	 * Rotate image $degrees degrees in one direction or the other
+	 * 
+	 * @param integer $degrees
+	 * @return boolean
+	 */
 	public function rotate($degrees) {
 		$this->_force_to_disk();
 		$path = $this->path();
@@ -299,9 +321,29 @@ class Zesk_Content_Image extends Object {
 		$this->_update_sizes();
 		return $this->store();
 	}
+	
+	/**
+	 * Returns an array of (width, height) with the new image constrained the the box size. 
+	 * 
+	 * Image result width is guaranteed to be <= $eidth
+	 * Image result height is guaranteed to be <= $height
+	 *  
+	 * @param integer $width
+	 * @param integer $height
+	 * @return array
+	 */
 	public function constrain_dimensions($width, $height) {
 		return Image_Library::constrain_dimensions($this->width, $this->height, $width, $height);
 	}
+	
+	/**
+	 * Given an image file, fix the orientation based on the EXIF Orientation data
+	 * 
+	 * Returns true if file was fixed or unchanged, "unsupported" if operation is not supported, and "failed" if conversion failed
+	 *  
+	 * @param string $file
+	 * @return NULL|string|boolean
+	 */
 	public static function correct_orientation($file) {
 		if (!function_exists('exif_read_data')) {
 			return null;

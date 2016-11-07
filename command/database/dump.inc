@@ -7,8 +7,8 @@
  * debug.db-connect=1)
  * @global boolean db-connect Set this global to alternate database
  */
-use zesk\file as file;
-use zesk\Timestamp as Timestamp;
+use zesk\File;
+use zesk\Timestamp;
 
 /**
  * Dump the database to stdout
@@ -93,7 +93,7 @@ class Command_Database_Dump extends Command_Base {
 		try {
 			$command = self::map_db_scheme($scheme);
 		} catch (Exception $e) {
-			$url = url::remove_password($url);
+			$url = URL::remove_password($url);
 			$this->usage("No command-line shell command found for database type $scheme (URL: $url)");
 		}
 		$full_command_path = $zesk->paths->which($command);
@@ -119,8 +119,7 @@ class Command_Database_Dump extends Command_Base {
 			 * @deprecated 2016-08
 			 */
 			if ($zesk->configuration->database_dump_file) {
-				// TODO D
-				zesk::deprecated();
+				zesk()->deprecated();
 				$zesk->logger->error("Global database_dump_file is deprecated, please fix it {line} {file}", array(
 					"file" => __FILE__,
 					"line" => __LINE__
@@ -151,7 +150,7 @@ class Command_Database_Dump extends Command_Base {
 				}
 				$suffix .= " | gzip";
 			}
-			$where = dir::make_absolute($app_root, $where);
+			$where = Directory::make_absolute($app_root, $where);
 			$suffix .= " > $where";
 		}
 		

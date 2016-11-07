@@ -5,20 +5,17 @@
  * @category Tools
  */
 class Command_Licenses extends Command_Base {
-
 	protected $option_types = array(
 		'all' => 'boolean'
 	);
-
 	protected $option_help = array(
 		'all' => "Do all modules instead of just those loaded"
 	);
-
 	protected function run() {
 		$modules = $this->option_bool('all') ? Module::available() : Module::load();
 		foreach ($modules as $name => $module_data) {
 			$configuration = to_array(avalue($module_data, 'configuration'));
-
+			
 			$url_license = $url_project = $project_url = $licenses = $description = null;
 			extract($configuration, EXTR_IF_EXISTS);
 			if ($project_url !== null) {

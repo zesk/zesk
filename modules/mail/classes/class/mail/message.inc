@@ -6,7 +6,7 @@
  * @author kent
  *
  */
-class Class_Mail_Message extends Class_Object {
+class Class_Mail_Message extends zesk\Class_Object {
 	public $find_keys = array(
 		'message_id',
 		'hash'

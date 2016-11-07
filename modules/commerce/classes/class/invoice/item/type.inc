@@ -10,7 +10,7 @@
  * @see Invoice_Item_Type
  * @author kent
  */
-class Class_Invoice_Item_Type extends Class_Object {
+class Class_Invoice_Item_Type extends zesk\Class_Object {
 	public $id_column = "id";
 }
 

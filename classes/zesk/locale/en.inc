@@ -9,6 +9,11 @@
  */
 namespace zesk;
 
+/**
+ * 
+ * @author kent
+ *
+ */
 class Locale_EN extends Locale_Base {
 
 	public function date_format() {
@@ -31,10 +36,10 @@ class Locale_EN extends Locale_Base {
 		}
 	}
 	/**
-	 * English lang::plural exceptions
+	 * English Locale::plural exceptions
 	 *
-	 * @param string $s Word to lang::pluralize
-	 * @return lang::pluralized string, case matched to input, or null if not an exception
+	 * @param string $s Word to Locale::pluralize
+	 * @return Locale::pluralized string, case matched to input, or null if not an exception
 	 */
 	private function plural_en_exception($s) {
 		$exceptions = array(

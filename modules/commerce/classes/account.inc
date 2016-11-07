@@ -1,5 +1,5 @@
 <?php
 /**
  */
-class Account extends Zesk_Account {
+class Account extends zesk\Account {
 }

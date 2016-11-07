@@ -1,0 +1,10 @@
+{
+	"url_license": "https://raw.githubusercontent.com/tijsverkoyen/CssToInlineStyles/master/LICENSE.md",
+	"license": "mit",
+	"name": "CSS Inline",
+	"composer": {
+		"require": [
+			"tijsverkoyen/css-to-inline-styles"
+		]
+	}
+}

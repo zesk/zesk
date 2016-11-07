@@ -9,26 +9,47 @@
  */
 class Control_File extends Control {
 	protected $theme = "control/file";
-
+	
 	/**
 	 * File loaded from request
 	 *
 	 * @var array
 	 */
 	private $file = null;
-	function __construct($options = false) {
-		parent::__construct($options);
-		$this->set_option("FileUpload", true); // Make a protected member TODO
+	
+	/**
+	 * 
+	 * {@inheritDoc}
+	 * @see Widget::initialize()
+	 */
+	public function initialize() {
+		parent::initialize();
 		$this->upload(true);
 	}
+	
+	/**
+	 * 
+	 * @return mixed|string
+	 */
 	public function file_name_column() {
 		return $this->option("filecolumn", $this->column() . "_FileName");
 	}
+	
+	/**
+	 * 
+	 * {@inheritDoc}
+	 * @see Widget::defaults()
+	 */
 	function defaults() {
 		parent::defaults();
 		$this->object->set($this->file_name_column(), $this->option('filecolumn_default', ''));
 	}
-
+	
+	/**
+	 * 
+	 * {@inheritDoc}
+	 * @see Widget::load()
+	 */
 	function load() {
 		$col = $this->column();
 		$name = $this->name();
@@ -40,14 +61,20 @@ class Control_File extends Control {
 			$this->object->set($filecolumn, $this->request->get($filecolumn));
 		}
 	}
+	
+	/**
+	 * 
+	 * {@inheritDoc}
+	 * @see Widget::validate()
+	 */
 	function validate() {
 		$col = $this->column();
 		$name = $this->name();
 		$filecolumn = $this->file_name_column();
-
+		
 		$this->object->set($col, $this->request->get($name));
 		$this->object->set($filecolumn, $this->request->get($filecolumn));
-
+		
 		try {
 			$file = $this->request->file($name . '_file');
 		} catch (Exception_Upload $e) {
@@ -66,23 +93,51 @@ class Control_File extends Control {
 		}
 		return $this->validate_required();
 	}
+	
+	/**
+	 * 
+	 * @param string $set
+	 * @return \zesk\Model|mixed|NULL|mixed[]|NULL[]|mixed[][]|NULL[][]
+	 */
 	function path($set = null) {
 		$name = $this->name() . "_path";
 		return $set ? $this->object->set($name, $set) : $this->object->get($name);
 	}
+	
+	/**
+	 * 
+	 * @param unknown $set
+	 * @return \zesk\Model|mixed|NULL|mixed[]|NULL[]|mixed[][]|NULL[][]
+	 */
 	function filename($set = null) {
 		$name = $this->file_name_column();
 		return $set ? $this->object->set($name, $set) : $this->object->get($name);
 	}
+	
+	/**
+	 * 
+	 * @return \zesk\NULL
+	 */
 	private function _file() {
 		if (is_array($this->file)) {
 			return $this->file;
 		}
 		return $this->file = $this->request->file($this->name() . "_file");
 	}
+	
+	/**
+	 * 
+	 * @return mixed|array
+	 */
 	function original_name() {
 		return avalue($this->_file(), 'name', null);
 	}
+	
+	/**
+	 * 
+	 * {@inheritDoc}
+	 * @see Widget::submit()
+	 */
 	function submit() {
 		$col = $this->column();
 		$name = $this->name();

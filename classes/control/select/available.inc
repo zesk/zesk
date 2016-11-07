@@ -1,4 +1,13 @@
 <?php
+/**
+ * 
+ */
+
+/**
+ * 
+ * @author kent
+ *
+ */
 class Control_Select_Available extends Control_Select {
 	/**
 	 * @var Control_List

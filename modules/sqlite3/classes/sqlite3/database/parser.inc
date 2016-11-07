@@ -1,4 +1,5 @@
 <?php
+
 /**
  * $URL: http://code.marketacumen.com/zesk/trunk/classes/database/mysql.inc $
  * @author Kent M. Davidson <kent@marketacumen.com>
@@ -6,15 +7,14 @@
  * @package zesk
  * @subpackage database
  */
-
 namespace sqlite3;
 
-use \Database_Table as Database_Table;
-use \Database_Column as Database_Column;
-use \Database_Index as Database_Index;
-use \Exception_Parse as Exception_Parse;
-use \log as log;
-use zesk\text as text;
+use zesk\Database_Table;
+use zesk\Database_Column;
+use zesk\Database_Index;
+use zesk\Exception_Parse;
+use zesk\log;
+use zesk\Text;
 
 /**
  * Pattern to capture an enture CREATE TABLE sql command
@@ -118,7 +118,7 @@ define('SQLITE_COLUMN_QUOTES', '``""');
  * @author kent
  *
  */
-class Database_Parser extends \Database_Parser {
+class Database_Parser extends \zesk\Database_Parser {
 	
 	/**
 	 *
@@ -399,8 +399,8 @@ class Database_Parser extends \Database_Parser {
 		$tips = self::tips($sql);
 		
 		// Remove # lines
-		$sql = text::remove_line_comments($sql, '#'); // Technically not valid in SQL - but for legacy reasons leave it in
-		$sql = text::remove_line_comments($sql, '--');
+		$sql = Text::remove_line_comments($sql, '#'); // Technically not valid in SQL - but for legacy reasons leave it in
+		$sql = Text::remove_line_comments($sql, '--');
 		
 		/*
 		 * Parse table into name, columns, and options

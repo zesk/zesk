@@ -1,4 +1,8 @@
 <?php
+/**
+ * 
+ */
+use zesk\Cache;
 
 /**
  * Collect, store, and manage EC2 Awareness meta data

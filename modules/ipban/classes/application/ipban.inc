@@ -1,5 +1,12 @@
 <?php
-use zesk\Timestamp as Timestamp;
+/**
+ * @copyright &copy; 2016 Market Acumen, Inc.
+ */
+use zesk\Timestamp;
+use zesk\arr;
+use zesk\Text;
+use zesk\Exception_Configuration;
+
 /**
  * IP Banning application
  *
@@ -10,7 +17,7 @@ use zesk\Timestamp as Timestamp;
  * @subpackage IPBan
  * @copyright (C) 2013 Market Acumen, Inc.
  */
-class Application_IPBan extends Application {
+class Application_IPBan extends zesk\Application {
 	const snippet_match = '/var/db/ipban/ipban.inc';
 	const snippet = "if (file_exists('/var/db/ipban/ipban.inc')) {\n\trequire_once '/var/db/ipban/ipban.inc';\n}\n";
 	
@@ -128,10 +135,10 @@ class Application_IPBan extends Application {
 			'db_url' => "mysqli://ipban:ipban@localhost/ipban"
 		);
 	}
-	protected $hooks = array(
+	protected $register_hooks = array(
 		'Settings'
 	);
-	protected $modules = array(
+	protected $load_modules = array(
 		'ipban',
 		'parse_log',
 		'server',
@@ -153,24 +160,29 @@ class Application_IPBan extends Application {
 			$conf = path($path, $file);
 			if (!is_file($conf)) {
 				if (!@file_put_contents($conf, "")) {
-					log::warning("Can not write {conf}", compact("conf"));
-					zesk::set(self::default_configuration());
+					$this->logger->warning("Can not write {conf}", compact("conf"));
+					$this->configuration->paths_set(self::default_configuration());
 				} else {
 					conf::edit($conf, self::default_configuration());
 				}
 			}
 		} else {
-			log::warning("No configuration directory {path} or {file}", compact("path", "file"));
+			$this->logger->warning("No configuration directory {path} or {file}", compact("path", "file"));
 		}
-		zesk::set('Application_IPBan::url_toxic_ip', 'http://www.stopforumspam.com/downloads/toxic_ip_cidr.txt', false);
-		//$options['nohook'] = true;
+		$this->configuration->path_set('Application_IPBan::url_toxic_ip', 'http://www.stopforumspam.com/downloads/toxic_ip_cidr.txt', false);
 		return $options;
 	}
+	
+	/**
+	 * 
+	 * {@inheritDoc}
+	 * @see \zesk\Application::postconfigure()
+	 */
 	public function postconfigure() {
 		try {
 			$this->ipban_fs = new IPBan_FS();
 		} catch (Exception_Configuration $e) {
-			log::notice("IPBan_FS not configured. {e}", array(
+			$this->logger->notice("IPBan_FS not configured. {e}", array(
 				"e" => $e
 			));
 		}
@@ -182,7 +194,7 @@ class Application_IPBan extends Application {
 		$this->inherit_global_options();
 		$this->debug = $this->option_bool('debug');
 		if ($this->debug) {
-			log::debug("{class} debugging enabled", array(
+			$this->logger->debug("{class} debugging enabled", array(
 				"class" => __CLASS__
 			));
 		}
@@ -195,12 +207,12 @@ class Application_IPBan extends Application {
 	 * @param string $purpose
 	 * @return array
 	 */
-	private static function load_ip_file($path, $purpose = "IP") {
-		log::notice("Loading {purpose} file: {path}", compact("path", "purpose"));
+	private function load_ip_file($path, $purpose = "IP") {
+		$this->logger->notice("Loading {purpose} file: {path}", compact("path", "purpose"));
 		$contents = file::contents($path, "");
-		$contents = text::remove_line_comments($contents, "#", false);
+		$contents = Text::remove_line_comments($contents, "#", false);
 		$lines = arr::trim_clean(explode("\n", $contents));
-		$ips = self::normalize_ips($lines, $purpose);
+		$ips = $this->normalize_ips($lines, $purpose);
 		return $ips;
 	}
 	
@@ -210,13 +222,13 @@ class Application_IPBan extends Application {
 	 * @param array $ips
 	 * @return Ambigous <unknown, string>
 	 */
-	private static function normalize_ips(array $ips, $purpose = null) {
+	private function normalize_ips(array $ips, $purpose = null) {
 		foreach ($ips as $index => $ip) {
 			if (IPv4::is_mask($ip)) {
 				$ips[$index] = str::unsuffix($ip, "/32");
 			} else if (!IPv4::valid($ip)) {
 				unset($ips[$index]);
-				log::debug("normalize_ips: Removed {ip} from {purpose}", compact("ip", "purpose"));
+				$this->logger->debug("normalize_ips: Removed {ip} from {purpose}", compact("ip", "purpose"));
 			}
 		}
 		return $ips;
@@ -323,7 +335,7 @@ class Application_IPBan extends Application {
 		$files = $this->option_list("ipban_files");
 		
 		if (count($files) === 0) {
-			log::notice("No ipban_file specified for instrumentation.");
+			$this->logger->notice("No ipban_file specified for instrumentation.");
 		}
 		$checked = $updated = $failed = 0;
 		foreach ($files as $file) {
@@ -333,12 +345,12 @@ class Application_IPBan extends Application {
 			);
 			$checked++;
 			if (!is_readable($file)) {
-				log::warning("{class}::check_instrumented_files {file} does not exist or is not readable", $params);
+				$this->logger->warning("{class}::check_instrumented_files {file} does not exist or is not readable", $params);
 				++$failed;
 			} else {
 				$contents = file_get_contents($file);
 				if (strpos($contents, self::snippet_match) !== false) {
-					log::debug("{class}::check_instrumented_files {file} is instrumented", $params);
+					$this->logger->debug("{class}::check_instrumented_files {file} is instrumented", $params);
 				} else {
 					$found = null;
 					foreach (array(
@@ -351,25 +363,25 @@ class Application_IPBan extends Application {
 						}
 					}
 					if (!$found) {
-						log::error("{class}::check_instrumented_files {file} is not writable", array(
+						$this->logger->error("{class}::check_instrumented_files {file} is not writable", array(
 							"class" => get_class($this),
 							"file" => $file
 						));
 					} else {
 						if (!is_writable($file)) {
-							log::error("{class}::check_instrumented_files {file} is not writable", $params);
+							$this->logger->error("{class}::check_instrumented_files {file} is not writable", $params);
 							++$failed;
 						} else {
 							$contents = implode($tag . "\n" . self::snippet, explode($tag, $contents, 2));
 							file_put_contents($file, $contents);
-							log::notice("{class}::check_instrumented_files {file} was updated with ipban snippet", $params);
+							$this->logger->notice("{class}::check_instrumented_files {file} was updated with ipban snippet", $params);
 							$updated++;
 						}
 					}
 				}
 			}
 		}
-		log::notice("{class}::check_instrumented_files - {checked} checked, {updated} updated, {failed} failed", array(
+		$this->logger->notice("{class}::check_instrumented_files - {checked} checked, {updated} updated, {failed} failed", array(
 			"class" => get_class($this),
 			"checked" => $checked,
 			"failed" => $failed,
@@ -384,10 +396,10 @@ class Application_IPBan extends Application {
 		clearstatcache(true, $whitelist_file);
 		$mtime = filemtime($whitelist_file);
 		if ($mtime !== $this->whitelist_file_mtime) {
-			$this->whitelist = arr::flip_copy(self::load_ip_file($whitelist_file, "whitelist"));
+			$this->whitelist = arr::flip_copy($this->load_ip_file($whitelist_file, "whitelist"));
 			$this->whitelist_file_mtime = $mtime;
 			if (count($this->whitelist)) {
-				log::notice("Whitelisted IPs: {ips}", array(
+				$this->logger->notice("Whitelisted IPs: {ips}", array(
 					"ips" => implode(", ", $this->whitelist)
 				));
 			}
@@ -403,13 +415,13 @@ class Application_IPBan extends Application {
 	 */
 	public function daemon_loop(Process_Interruptable $p) {
 		$seconds = $this->option("daemon_loop_sleep", 1);
-		log::notice("Daemon loop sleep seconds: {seconds}", array(
+		$this->logger->notice("Daemon loop sleep seconds: {seconds}", array(
 			"seconds" => $seconds
 		));
 		declare(ticks = 1) {
 			if (!$this->option_bool("no_fifo")) {
 				$this->fifo = self::fifo(true);
-				log::debug("Created fifo {path}", array(
+				$this->logger->debug("Created fifo {path}", array(
 					"path" => $this->fifo->path()
 				));
 			}
@@ -418,7 +430,7 @@ class Application_IPBan extends Application {
 			$this->sync_toxic_ips(true);
 			$this->sync_whitelist();
 			$this->initial_ban();
-			log::debug("Entering main loop ...");
+			$this->logger->debug("Entering main loop ...");
 			while (!$this->process->done()) {
 				$this->handle_fifo();
 				$this->handle_db();
@@ -440,13 +452,15 @@ class Application_IPBan extends Application {
 	 * @throws Exception_Configuration
 	 */
 	private static function check_permissions() {
-		if (($iptables = zesk::which("iptables")) === null) {
+		global $zesk;
+		/* @var $zesk \zesk\Kernel */
+		if (($iptables = $zesk->paths->which("iptables")) === null) {
 			throw new Exception_Configuration("path", "IP tables is not installed in {path}", array(
-				"path" => implode(":", zesk::command_path())
+				"path" => implode(":", $zesk->paths->command())
 			));
 		}
 		try {
-			zesk::execute("$iptables --list=INPUT -n");
+			$zesk->process->execute("$iptables --list=INPUT -n");
 		} catch (Exception_Command $e) {
 			throw new Exception_Configuration("user", "You must be root to run Application_IPBan");
 		}
@@ -476,7 +490,7 @@ class Application_IPBan extends Application {
 		if ($result === array()) {
 			return;
 		}
-		log::debug("Received message: {data}", array(
+		$this->logger->debug("Received message: {data}", array(
 			"data" => serialize($result)
 		));
 	}
@@ -488,7 +502,7 @@ class Application_IPBan extends Application {
 		if ($this->option_bool("no_database")) {
 			return;
 		}
-		log::debug(__CLASS__ . "::handle_db");
+		$this->logger->debug(__CLASS__ . "::handle_db");
 		$options = $this->option();
 		
 		$now = Timestamp::now();
@@ -523,7 +537,7 @@ class Application_IPBan extends Application {
 	private static function remove_masked_ips($network, array $ips, $purpose = null) {
 		foreach ($ips as $key => $ip) {
 			if (IPv4::within_network($ip, $network)) {
-				log::debug("Removed {ip} from list - within {purpose} network {network}", compact("ip", "network", "purpose"));
+				$this->logger->debug("Removed {ip} from list - within {purpose} network {network}", compact("ip", "network", "purpose"));
 				unset($ips[$key]);
 			}
 		}
@@ -558,7 +572,7 @@ class Application_IPBan extends Application {
 		foreach (self::$chain_config as $settings) {
 			$suffix = $ip_column = null;
 			extract($settings, EXTR_IF_EXISTS);
-			$rules = arr::path($this->chains, array(
+			$rules = apath($this->chains, array(
 				$prefix . $suffix,
 				"rules"
 			));
@@ -591,7 +605,7 @@ class Application_IPBan extends Application {
 	 * @return boolean
 	 */
 	protected function chain_links_to($from, $to) {
-		$chain = arr::path($this->chains, array(
+		$chain = apath($this->chains, array(
 			$from,
 			"rules"
 		), array());
@@ -608,9 +622,9 @@ class Application_IPBan extends Application {
 	 * Initialize the chains, setup our internal chains
 	 */
 	protected function init_chains() {
-		$this->iptables = zesk::which("iptables");
+		$this->iptables = zesk()->paths->which("iptables");
 		$this->clean();
-		log::notice("Existing chains: " . implode(", ", array_keys($this->chains)));
+		$this->logger->notice("Existing chains: " . implode(", ", array_keys($this->chains)));
 		foreach (array(
 			self::chain_toxic,
 			self::chain_ban
@@ -618,11 +632,11 @@ class Application_IPBan extends Application {
 			foreach (self::$chain_config as $parent => $data) {
 				$name = $prefix . $data['suffix'];
 				if (!$this->has_chain($name)) {
-					log::notice("Adding chain {name}", compact("name"));
+					$this->logger->notice("Adding chain {name}", compact("name"));
 					$this->iptables('--new {0}', $name);
 				}
 				if (!$this->chain_links_to($parent, $name)) {
-					log::notice("Linking chain {name} to chain {parent}", compact("name", "parent"));
+					$this->logger->notice("Linking chain {name} to chain {parent}", compact("name", "parent"));
 					$this->iptables('--insert {0} 1 -j {1}', $parent, $name);
 				}
 			}
@@ -643,7 +657,7 @@ class Application_IPBan extends Application {
 			$rules = avalue($this->ips, $ip);
 			if (!$rules) {
 				if (!IPv4::is_mask($ip) && !IPv4::valid($ip)) {
-					log::error("Strange IP address: {ip}", array(
+					$this->logger->error("Strange IP address: {ip}", array(
 						"ip" => $ip
 					));
 				}
@@ -687,7 +701,7 @@ class Application_IPBan extends Application {
 		if (count($ips) === 0) {
 			return 0;
 		}
-		//log::notice("DROPPING {ips}", array("ips" => $ips));
+		//$this->logger->notice("DROPPING {ips}", array("ips" => $ips));
 		$this->clean();
 		$ips = $this->filter_whitelist($ips);
 		
@@ -703,7 +717,7 @@ class Application_IPBan extends Application {
 				if ($this->chain_has_ip($name, $ip)) {
 					continue;
 				}
-				log::notice("Blocking {ip} in {name}", array(
+				$this->logger->notice("Blocking {ip} in {name}", array(
 					"ip" => $ip,
 					"name" => $chain
 				));
@@ -735,7 +749,7 @@ class Application_IPBan extends Application {
 		
 		$found = $this->find_ips($ips);
 		if (count($found) === 0) {
-			log::debug("No entries found for ips: {ips}", array(
+			$this->logger->debug("No entries found for ips: {ips}", array(
 				"ips" => implode(", ", $ips)
 			));
 			return 0;
@@ -746,7 +760,7 @@ class Application_IPBan extends Application {
 		}
 		array_multisort($indexes, SORT_DESC | SORT_NUMERIC, $found);
 		foreach ($found as $rule) {
-			log::notice("Removing index {index} from {name} {source}->{destination}", $rule);
+			$this->logger->notice("Removing index {index} from {name} {source}->{destination}", $rule);
 			$this->iptables('-D {0} {1}', $rule['name'], $rule['index']);
 			$this->chains_dirty = true;
 		}
@@ -762,9 +776,9 @@ class Application_IPBan extends Application {
 	public function sync_toxic_ips($force = false) {
 		static $errored = false;
 		$url = $this->option('url_toxic_ip');
-		if (!url::valid($url)) {
+		if (!URL::valid($url)) {
 			if (!$errored) {
-				log::error("Application_IPBan::url_toxic_ip not set to valid URL: {url}", array(
+				$this->logger->error("Application_IPBan::url_toxic_ip not set to valid URL: {url}", array(
 					"url" => $url
 				));
 				$errored = true;
@@ -777,7 +791,7 @@ class Application_IPBan extends Application {
 			if (!is_file($path)) {
 				return "no-file";
 			}
-			$ips = self::load_ip_file($path, "toxic");
+			$ips = $this->load_ip_file($path, "toxic");
 			$ips = $this->filter_whitelist($ips);
 			// 			$this->clean();
 			// 			$chain_ips = $this->chain_ips(self::chain_toxic);
@@ -807,10 +821,10 @@ class Application_IPBan extends Application {
 		$allow_ips = array();
 		
 		if ($this->debug) {
-			log::debug("IP list: {ips}", array(
+			$this->logger->debug("IP list: {ips}", array(
 				"ips" => _dump($ips)
 			));
-			log::debug("CHAIN IPs: {ips}", array(
+			$this->logger->debug("CHAIN IPs: {ips}", array(
 				"ips" => _dump($chain_ips)
 			));
 		}
@@ -823,10 +837,10 @@ class Application_IPBan extends Application {
 			}
 		}
 		if ($this->debug) {
-			log::debug("ALLOW IPs: {ips}", array(
+			$this->logger->debug("ALLOW IPs: {ips}", array(
 				"ips" => _dump($chain_ips)
 			));
-			log::debug("DROP IPs: {ips}", array(
+			$this->logger->debug("DROP IPs: {ips}", array(
 				"ips" => _dump($drop_ips)
 			));
 		}
@@ -846,12 +860,12 @@ class Application_IPBan extends Application {
 			extract($settings, EXTR_IF_EXISTS);
 			$name = $prefix . $suffix;
 			
-			$rules = arr::path($this->chains, array(
+			$rules = apath($this->chains, array(
 				$name,
 				"rules"
 			));
 			if (!is_array($rules)) {
-				log::debug("remove_duplicates: No rules for {name}", compact("name"));
+				$this->logger->debug("remove_duplicates: No rules for {name}", compact("name"));
 				continue;
 			}
 			$remove_indexes = array();
@@ -867,7 +881,7 @@ class Application_IPBan extends Application {
 			if (count($remove_indexes) > 0) {
 				krsort($remove_indexes, SORT_NUMERIC | SORT_DESC);
 				foreach ($remove_indexes as $index => $ip) {
-					log::debug("Removing duplicate IP {ip} at index {index}", compact("ip", "index"));
+					$this->logger->debug("Removing duplicate IP {ip} at index {index}", compact("ip", "index"));
 					$this->iptables("-D {0} {1}", $name, $index);
 				}
 				$this->chains_dirty = true;
@@ -880,7 +894,7 @@ class Application_IPBan extends Application {
 	 */
 	protected function clean() {
 		if ($this->chains_dirty) {
-			log::debug("Cleaning");
+			$this->logger->debug("Cleaning");
 			$this->chains = $this->list_chains();
 			$this->ips = $this->ip_index($this->chains);
 			$this->chains_dirty = false;
@@ -943,7 +957,7 @@ class Application_IPBan extends Application {
 	 * @param string $string
 	 * @return array
 	 */
-	protected static function parse_chain_parens($string) {
+	protected function parse_chain_parens($string) {
 		$matches = null;
 		if (preg_match('/([0-9]+) references/', $string, $matches)) {
 			return array(
@@ -958,7 +972,7 @@ class Application_IPBan extends Application {
 				'stats' => trim($matches[2])
 			);
 		}
-		log::warning("Unable to parse chain parens: {string}", array(
+		$this->logger->warning("Unable to parse chain parens: {string}", array(
 			"string" => $string
 		));
 		return array();
@@ -976,7 +990,7 @@ class Application_IPBan extends Application {
 			$line = array_shift($result);
 			if (preg_match('/Chain ([-A-Za-z0-9_]+) \(([^)]*)\)/', $line, $matches)) {
 				$name = $matches[1];
-				$chain_data = self::parse_chain_parens($matches[2]);
+				$chain_data = $this->parse_chain_parens($matches[2]);
 				$line = array_shift($result);
 				$headers = explode(" ", preg_replace('/\s+/', ' ', trim($line)));
 				$rules = array();
@@ -1002,7 +1016,7 @@ class Application_IPBan extends Application {
 					'name' => $name
 				) + $chain_data;
 			} else {
-				log::notice("Skipping line {line} - no chain match", array(
+				$this->logger->notice("Skipping line {line} - no chain match", array(
 					"line" => $line
 				));
 			}
@@ -1019,7 +1033,7 @@ class Application_IPBan extends Application {
 	protected function iptables($parameters) {
 		$args = func_get_args();
 		array_shift($args);
-		return zesk::execute_array($this->iptables . " " . $parameters, $args);
+		return zesk()->process->execute_arguments($this->iptables . " " . $parameters, $args);
 	}
 }
 

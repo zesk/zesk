@@ -1,13 +1,20 @@
 <?php
+/**
+ * 
+ */
+use zesk\arr;
+use zesk\Database_Query_Select;
 
+/**
+ * 
+ * @author kent
+ *
+ */
 class Control_Filter_Query extends Control_Select {
-
 	protected $options = array(
 		'refresh' => true
 	);
-
 	protected $query_options = array();
-
 	public function query_options(array $set = null, $add = true) {
 		if ($set === null) {
 			return $this->query_options;
@@ -23,7 +30,6 @@ class Control_Filter_Query extends Control_Select {
 		}
 		return $this;
 	}
-
 	protected function hook_query(Database_Query_Select $query) {
 		$value = $this->value();
 		if (array_key_exists($value, $this->query_options)) {
@@ -35,7 +41,6 @@ class Control_Filter_Query extends Control_Select {
 			}
 		}
 	}
-
 	protected function filter_map() {
 		$value = $this->value();
 		return $this->option_array("filter_map") + array(

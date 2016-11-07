@@ -72,7 +72,7 @@ class Content_Menu extends Object {
 		
 		$first = true;
 		$parent_to_code = array();
-		$menus = $this->query()->what("ID,Name,CodeName,Parent,ContentObjects,ContentTemplate,ContentLayout,IsActive,IsHome");
+		$menus = $this->query_select()->what("ID,Name,CodeName,Parent,ContentObjects,ContentTemplate,ContentLayout,IsActive,IsHome");
 		$menus->order_by("Parent,OrderIndex");
 		
 		$result = array();
@@ -146,7 +146,7 @@ class Content_Menu extends Object {
 	 * @param unknown $x
 	 * @return boolean
 	 */
-	static function menu_selected(Request $request, $x) {
+	static function menu_selected(zesk\Request $request, $x) {
 		$uri = $request->path();
 		if ($x === "/") {
 			return ($uri === "/");
@@ -161,7 +161,7 @@ class Content_Menu extends Object {
 	 * @param unknown $sub
 	 * @return boolean
 	 */
-	static function menu_child_selected(Request $request, $top, $sub) {
+	static function menu_child_selected(zesk\Request $request, $top, $sub) {
 		$uri = $request->path();
 		$uri = trim($uri, "/");
 		if (!is_string($top)) {
@@ -240,7 +240,7 @@ class Content_Menu extends Object {
 		$template = aevalue($menu, 'ContentTemplate', 'default');
 		$layout_string = avalue($menu, 'ContentLayout');
 		
-		$layout = html::parse_attributes($layout_string);
+		$layout = HTML::parse_attributes($layout_string);
 		
 		$factory = $this->content_factory();
 		$objects_ids = $factory->objects_parse($objects_string);

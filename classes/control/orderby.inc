@@ -1,10 +1,47 @@
 <?php
+/**
+ * 
+ */
+use zesk\URL;
+use zesk\HTML;
+use zesk\arr;
+
+/**
+ * 
+ * @author kent
+ *
+ */
 class Control_OrderBy extends Control {
+	/**
+	 * 
+	 * @var string
+	 */
 	const default_order_variable = 'o';
+	/**
+	 * 
+	 * @var unknown
+	 */
 	private $active = null;
+	/**
+	 * 
+	 * @var unknown
+	 */
 	private $sort_number;
+	/**
+	 * 
+	 * @var unknown
+	 */
 	private $sort_order;
+	/**
+	 * 
+	 * @var unknown
+	 */
 	private $url = null;
+	/**
+	 * Getter/setter for 
+	 * @param unknown $set
+	 * @return void|mixed|string
+	 */
 	function list_order_by($set = null) {
 		return $set === null ? $this->option('list_order_by') : $this->set_option('list_order_by', $set);
 	}
@@ -96,16 +133,16 @@ class Control_OrderBy extends Control {
 		if ($multisort) {
 			$new_key = implode(";", $new_order);
 			$remove_order = implode(";", $remove_order);
-			$remove_url = url::query_format($this->option("URI", url::current_uri()), array(
+			$remove_url = URL::query_format($this->option("URI", URL::current_uri()), array(
 				$order_var => $remove_order
 			));
-			$sort_number = ($sort_index !== null) ? html::tag("div", array(
+			$sort_number = ($sort_index !== null) ? HTML::tag("div", array(
 				"class" => "list-order-index"
-			), html::a($remove_url, $sort_index + 1)) : "";
+			), HTML::a($remove_url, $sort_index + 1)) : "";
 		} else {
 			$sort_number = null;
 		}
-		$this->theme_variables['url'] = url::query_format($this->option("URI", url::current_uri()), array(
+		$this->theme_variables['url'] = URL::query_format($this->option("URI", URL::current_uri()), array(
 			$order_var => $new_key
 		));
 		

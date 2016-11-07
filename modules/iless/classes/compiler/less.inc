@@ -1,32 +1,40 @@
 <?php
+/**
+ *
+ */
+use zesk\Directory;
+use ILess\Cache\FileSystemCache;
+use ILess\Parser;
 
+/**
+ * 
+ * @author kent
+ *
+ */
 class Compiler_Less {
-
+	
 	/**
 	 * Wrapper around lessc
 	 *
 	 * @var ILess\Parser
 	 */
 	private $iless = null;
-
+	
 	/**
 	 *
 	 * @var array
 	 */
 	private $vars = array();
-
-	public function __construct() {
-		$cache_dir = zesk::application_root('cache/iless');
-		dir::depend($cache_dir);
-		$cache = new ILess\Cache\FileSystemCache($cache_dir);
-		//$cache = new ILess_Cache_None();
-		$this->iless = new ILess\Parser(array(
+	public function __construct(zesk\Application $application) {
+		$cache_dir = $application->application_root('cache/iless');
+		Directory::depend($cache_dir);
+		$cache = new FileSystemCache($cache_dir);
+		$this->iless = new Parser(array(
 			"compress" => false,
 			"strictMath" => false,
 			"source_map" => Application::instance()->development()
 		), $cache);
 	}
-
 	public function variables($set = null) {
 		if (is_array($set)) {
 			$this->vars += $set;
@@ -35,7 +43,6 @@ class Compiler_Less {
 		}
 		return $this->vars;
 	}
-
 	public function compile_file($file, $destination = null) {
 		$this->iless->parseFile($file);
 		$content = $this->iless->getCSS();
@@ -45,7 +52,6 @@ class Compiler_Less {
 		}
 		return $content;
 	}
-
 	public function compile($source, $destination = null) {
 		$this->iless->parseString($source);
 		$content = $this->iless->getCSS();

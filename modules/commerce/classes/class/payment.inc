@@ -3,7 +3,7 @@
 /**
  * Class_Payment
  */
-class Class_Payment extends Class_Object {
+class Class_Payment extends zesk\Class_Object {
 	public $id_column = "id";
 	public $has_one = array(
 		'payment_type' => "Payment_Type",

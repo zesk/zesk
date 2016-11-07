@@ -10,7 +10,7 @@
 /**
  * Description here
  */
-use zesk\Timestamp as Timestamp;
+use zesk\Timestamp;
 /**
  * InvoiceParameters
  *

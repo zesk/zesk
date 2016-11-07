@@ -73,7 +73,7 @@ class Control_Row extends Control {
 		if ($this->row_tag) {
 			$object = $this->object;
 			$map = $object->variables() + $this->theme_variables;
-			return html::tag(map($this->row_tag, $map), map($this->row_attributes, $map), parent::render());
+			return HTML::tag(map($this->row_tag, $map), map($this->row_attributes, $map), parent::render());
 		}
 		return parent::render();
 	}

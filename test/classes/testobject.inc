@@ -111,7 +111,7 @@ class test_testobject extends Test_Object {
 
 		$template_name = 'view';
 		$options = false;
-		$x->render($template_name, $options);
+		$x->theme($template_name, $options);
 
 		$x->option();
 
@@ -185,7 +185,7 @@ class test_testobject extends Test_Object {
 		$object->reorder($id0, $id1, $order_column);
 	}
 }
-class Class_TestObject extends Class_Object {
+class Class_TestObject extends zesk\Class_Object {
 	public $id_column = "ID";
 	public $column_types = array(
 		"ID" => self::type_id,

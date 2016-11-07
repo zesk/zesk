@@ -1,4 +1,6 @@
 <?php
+use zesk\Directory;
+
 /**
  *
  * @author kent
@@ -31,15 +33,15 @@ class testdir {
 class test_dir extends Test_Unit {
 	function test_is_absolute() {
 		$f = null;
-		$this->assert_false(dir::is_absolute($f));
-		$this->assert_true(dir::is_absolute("/"));
-		$this->assert_false(dir::is_absolute("./"));
-		$this->assert_false(dir::is_absolute("./place/to/go"));
-		$this->assert_false(dir::is_absolute("../place/to/go"));
-		if (zesk::$is_windows) {
-			$this->assert_true(dir::is_absolute("\\windows\\"));
+		$this->assert_false(Directory::is_absolute($f));
+		$this->assert_true(Directory::is_absolute("/"));
+		$this->assert_false(Directory::is_absolute("./"));
+		$this->assert_false(Directory::is_absolute("./place/to/go"));
+		$this->assert_false(Directory::is_absolute("../place/to/go"));
+		if (zesk()->is_windows) {
+			$this->assert_true(Directory::is_absolute("\\windows\\"));
 		} else {
-			$this->assert_false(dir::is_absolute("\\windows\\"));
+			$this->assert_false(Directory::is_absolute("\\windows\\"));
 		}
 	}
 	function test_delete() {
@@ -50,7 +52,7 @@ class test_dir extends Test_Unit {
 		for ($i = 0; $i < 100; $i++) {
 			file_put_contents($path . "/$i.txt", str_repeat(".", $i));
 		}
-		dir::delete($path);
+		Directory::delete($path);
 		$this->assert_false(is_dir($path));
 	}
 	function test_delete_contents() {
@@ -61,11 +63,11 @@ class test_dir extends Test_Unit {
 		for ($i = 0; $i < 100; $i++) {
 			file_put_contents($path . "/$i.txt", str_repeat(".", $i));
 		}
-		$this->assert_false(dir::is_empty($path));
-		dir::delete_contents($path);
+		$this->assert_false(Directory::is_empty($path));
+		Directory::delete_contents($path);
 		$this->assert_true(is_dir($path));
-		$this->assert_true(dir::is_empty($path));
-		dir::delete($path);
+		$this->assert_true(Directory::is_empty($path));
+		Directory::delete($path);
 	}
 	function undot_examples() {
 		return array(
@@ -88,27 +90,27 @@ class test_dir extends Test_Unit {
 	 * @data_provider undot_examples
 	 */
 	function test_undot($name, $expect) {
-		$result = dir::undot($name);
+		$result = Directory::undot($name);
 		$this->assert_equal($result, $expect);
 	}
 	function test_list_recursive() {
 		$path = null;
 		$options = false;
-		dir::list_recursive($path, $options);
+		Directory::list_recursive($path, $options);
 
 		$options['file_include_pattern'] = '/.*_test\.inc$/';
 		$options['file_exclude_pattern'] = false;
 		$options['directory_include_pattern'] = false;
 		$options['directory_walk_exclude_pattern'] = '/\.svn/';
 
-		$results = dir::list_recursive(ZESK_ROOT, $options);
+		$results = Directory::list_recursive(ZESK_ROOT, $options);
 		debug::output($results);
 
 		$this->assert(in_array("classes/test/dir_test.inc", $results));
 	}
 	function test_strip_slash() {
 		$p = null;
-		dir::strip_slash($p);
+		Directory::strip_slash($p);
 	}
 	function test_ls() {
 		$path = $this->sandbox("testdir");
@@ -116,13 +118,13 @@ class test_dir extends Test_Unit {
 		$cat_path = false;
 		$success = false;
 		try {
-			$this->assert(dir::ls($path, $filter, $cat_path) === false);
+			$this->assert(Directory::ls($path, $filter, $cat_path) === false);
 		} catch (Exception_Directory_NotFound $e) {
 			$success = true;
 		}
 		$this->assert($success);
 		$this->assert(mkdir($path, 0777) === true);
-		$this->assert_arrays_equal(dir::ls($path, $filter, $cat_path), array());
+		$this->assert_arrays_equal(Directory::ls($path, $filter, $cat_path), array());
 	}
 	function test_list_legacy() {
 		$path = null;
@@ -131,19 +133,19 @@ class test_dir extends Test_Unit {
 		$excludePattern = false;
 		$addpath = true;
 		$max_results = -1;
-		dir::list_legacy($path, $recursive, $includePattern, $excludePattern, $addpath, $max_results);
+		Directory::list_legacy($path, $recursive, $includePattern, $excludePattern, $addpath, $max_results);
 	}
 	function test_iterate() {
 		$source = ZESK_ROOT;
 		$directory_function = null;
 		$file_function = null;
-		dir::iterate($source, $directory_function, $file_function);
+		Directory::iterate($source, $directory_function, $file_function);
 
 		$source = ZESK_ROOT;
 		$directory_function = null;
 		$file_function = null;
 		ob_start();
-		dir::iterate($source, array(
+		Directory::iterate($source, array(
 			"testdir",
 			"collect_dirs"
 		), array(
@@ -152,7 +154,7 @@ class test_dir extends Test_Unit {
 		));
 		$iterate_dump = ob_end_clean();
 
-		list($dirs, $files) = testdir::dump();
+		list($dirs, $files) = testDirectory::dump();
 		//		debug::dump($files);
 
 
@@ -170,37 +172,37 @@ class test_dir extends Test_Unit {
 	function test_is_empty() {
 		$path = $this->sandbox(__FUNCTION__);
 		$this->assert(!is_dir($path));
-		$this->assert(dir::is_empty($path) === true);
+		$this->assert(Directory::is_empty($path) === true);
 		mkdir($path, 0777);
-		$this->assert(dir::is_empty($path) === true);
+		$this->assert(Directory::is_empty($path) === true);
 		$filepath = $path . "/foo.txt";
 		file_put_contents($filepath, "hello?");
-		$this->assert(dir::is_empty($path) === false);
+		$this->assert(Directory::is_empty($path) === false);
 		unlink($filepath);
-		$this->assert(dir::is_empty($path) === true);
+		$this->assert(Directory::is_empty($path) === true);
 	}
 	function test_duplicate() {
 		$source = ZESK_ROOT . 'cache/test';
 		$destination = ZESK_ROOT . 'cache/test1';
 
-		$this->assert(dir::delete($source));
+		$this->assert(Directory::delete($source));
 		$this->assert(mkdir($source, 0777));
 
 		$recursive = true;
 		$file_copy_function = null;
-		dir::duplicate($source, $destination, $recursive, $file_copy_function);
+		Directory::duplicate($source, $destination, $recursive, $file_copy_function);
 
-		$this->assert(dir::is_empty($destination));
+		$this->assert(Directory::is_empty($destination));
 
 		// TODO more tests here as necessary
 	}
 	function test_create() {
 		$path = $this->sandbox('/testpath/');
 		$mode = 504;
-		dir::create($path, $mode);
+		Directory::create($path, $mode);
 	}
 	function test_add_slash() {
 		$p = null;
-		dir::add_slash($p);
+		Directory::add_slash($p);
 	}
 }

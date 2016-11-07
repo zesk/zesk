@@ -1,4 +1,4 @@
 <?php
-class Content_Group extends Zesk_Content_Group {
+class Content_Group extends zesk\Content_Group {
 
 }

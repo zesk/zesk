@@ -6,26 +6,39 @@
  * @author Kent Davidson <kent@marketacumen.com>
  * @copyright Copyright &copy; 2005, Market Acumen, Inc.
  */
+use zesk\arr;
+use zesk\str;
+use zesk\Options;
+use zesk\Application;
 
+/**
+ * 
+ * @author kent
+ *
+ */
 class World_Bootstrap_Country extends Options {
-	// Source http://download.geonames.org/export/dump/countryInfo.txt
+	/**
+	 * Source http://download.geonames.org/export/dump/countryInfo.txt
+	 * 
+	 * Country database (TXT file)
+	 */
 	const url_geonames_country_file = "http://download.geonames.org/export/dump/countryInfo.txt";
-
+	
 	/**
 	 *
 	 * @var array
 	 */
 	private $include_country = null;
-
+	
 	/**
 	 *
 	 * @param array $options
 	 * @return World_Bootstrap_Currency
 	 */
 	public static function factory(array $options = array()) {
-		return zesk::factory(__CLASS__, $options);
+		return zesk()->objects->factory(__CLASS__, $options);
 	}
-
+	
 	/**
 	 * @global Module_World::include_country List of country codes to include
 	 *
@@ -39,13 +52,12 @@ class World_Bootstrap_Country extends Options {
 			$this->include_country = array_change_key_case(arr::flip_assign(to_list($include_country), true));
 		}
 	}
-
 	public function bootstrap(Application $application) {
 		$x = $application->object_factory(str::unprefix(__CLASS__, "World_Bootstrap_"));
 		if ($this->option_bool("drop")) {
 			$x->database()->query('TRUNCATE ' . $x->table());
 		}
-
+		
 		$map = self::load_countryinfo();
 		foreach ($map as $fields) {
 			$country = new Country($fields);
@@ -54,14 +66,13 @@ class World_Bootstrap_Country extends Options {
 			}
 		}
 	}
-
 	private function is_included(Country $country) {
 		if ($this->include_country) {
 			return avalue($this->include_country, strtolower($country->code), false);
 		}
 		return true;
 	}
-
+	
 	/**
 	 * Fetch and synchronize country source files
 	 *
@@ -70,7 +81,8 @@ class World_Bootstrap_Country extends Options {
 	 * @global Module_World::geonames_time_to_live
 	 */
 	private function load_countryinfo() {
-		$file = $this->option("geonames_country_cache_file", path(Module::path('world'), 'bootstrap-data/countryinfo.txt'));
+		$world_path = app()->modules->path("world");
+		$file = $this->option("geonames_country_cache_file", path($world_path, 'bootstrap-data/countryinfo.txt'));
 		Net_Sync::url_to_file(self::url_geonames_country_file, $file, array(
 			"time_to_live" => $this->option("geonames_time_to_live", 86400 * 30)
 		));
@@ -97,15 +109,16 @@ class World_Bootstrap_Country extends Options {
 		}
 		return $rows;
 	}
-
+	
 	/**
 	 * @deprecated 2014 Is this needed anymore?
 	 *
 	 * @return multitype:multitype:string
 	 */
 	private static function load_iso3166() {
-		$file = path(Module::path('world'), 'bootstrap-data/iso3166_en_code_lists.txt');
-
+		$world_path = app()->modules->path("world");
+		$file = path($world_path, 'bootstrap-data/iso3166_en_code_lists.txt');
+		
 		$x = file_get_contents($file);
 		$x = charset::to_utf8($x, "iso-8859-1");
 		$x = explode("\n", $x);
@@ -114,7 +127,7 @@ class World_Bootstrap_Country extends Options {
 		do {
 			$line = trim(array_shift($x));
 		} while (!empty($line));
-
+		
 		foreach ($x as $line) {
 			$line = explode(';', preg_replace('/\s+/', ' ', trim($line)));
 			if (!$line[0]) {

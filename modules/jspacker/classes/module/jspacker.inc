@@ -13,9 +13,9 @@ class Module_JSPacker extends Module {
 		}
 	}
 	public static function hooks(zesk\Hooks $hook) {
-		$hook->add("Response_HTML::compress_script", __CLASS__ . "::compress_script");
+		$hook->add("zesk\Response_Text_HTML::compress_script", __CLASS__ . "::compress_script");
 	}
-	public static function compress_script(Response_HTML $response, $contents) {
+	public static function compress_script(zesk\Response_Text_HTML $response, $contents) {
 		require_once self::include_file();
 		$packer = new JavaScriptPacker($contents);
 		return $packer->pack();

@@ -23,11 +23,11 @@ class Module_gzip extends Module {
 	 */
 	public static function hooks(zesk\Kernel $zesk) {
 		$hooks = $zesk->hooks;
-		$hooks->add("Response::headers", __CLASS__ . "::response_headers");
-		$hooks->add("Response::render", __CLASS__ . "::response_render");
-		$hooks->add("Response::rendered", __CLASS__ . "::response_rendered");
-		$hooks->add("Response::output", __CLASS__ . "::response_output");
-		$hooks->add("Response::outputted", __CLASS__ . "::response_outputted");
+		$hooks->add("zesk\Response::headers", __CLASS__ . "::response_headers");
+		$hooks->add("zesk\Response::render", __CLASS__ . "::response_render");
+		$hooks->add("zesk\Response::rendered", __CLASS__ . "::response_rendered");
+		$hooks->add("zesk\Response::output", __CLASS__ . "::response_output");
+		$hooks->add("zesk\Response::outputted", __CLASS__ . "::response_outputted");
 	}
 	
 	/**
@@ -98,7 +98,7 @@ class Module_gzip extends Module {
 	 *
 	 * @return boolean
 	 */
-	public static function ok(Request $request) {
+	public static function ok(zesk\Request $request) {
 		if (!self::enabled()) {
 			return false;
 		}

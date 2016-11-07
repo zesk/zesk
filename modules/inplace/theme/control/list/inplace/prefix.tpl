@@ -12,7 +12,7 @@ $new_url_button = "";
 if (!$this->hide_new_button) {
 	$new_url = $this->router->get_route("new", $this->list_class);
 	if ($new_url && $this->current_user->can($this->list_class . "::new")) {
-		$new_url_button = html::tag("button", array(
+		$new_url_button = HTML::tag("button", array(
 			"class" => "btn btn-warning",
 			"data-modal-url" => $new_url,
 			'data-target' => "#" . $parent->id()
@@ -21,10 +21,10 @@ if (!$this->hide_new_button) {
 		)));
 	}
 }
-echo html::tag('div', 'col-xs-12 col-md-5 pull-right', $new_url_button . html::tag('div', '.list-inplace-total', zesk\Locale::plural_word($this->list_object_name, $this->total)));
+echo HTML::tag('div', 'col-xs-12 col-md-5 pull-right', $new_url_button . HTML::tag('div', '.list-inplace-total', zesk\Locale::plural_word($this->list_object_name, $this->total)));
 
 if (!$this->hide_title) {
-	echo html::tag('h2', __("Manage list of {names}", array(
+	echo HTML::tag('h2', __("Manage list of {names}", array(
 		"names" => $names
 	)));
 }

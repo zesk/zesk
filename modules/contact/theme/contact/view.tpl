@@ -45,7 +45,7 @@ if ($this->get('show_other', true)) {
 
 $this->response->jquery("contact_view_load()");
 
-/* @var $this Template */
+/* @var $this zesk\Template */
 /* @var $person Person */
 
 $show_links = $this->get('show_links', true);
@@ -69,7 +69,7 @@ $show_links = $this->get('show_links', true);
 	}
 	?>
 	<div class="contact-person">
-		<?php echo html::etag('h1', '.person-full-name', $person->full_name())?>
+		<?php echo HTML::etag('h1', '.person-full-name', $person->full_name())?>
 		<?php
 		if ($person->Title && $person->Company) {
 			?>
@@ -77,8 +77,8 @@ $show_links = $this->get('show_links', true);
 		<?php
 		} else {
 			?>
-		<?php echo html::etag('h2', '.person-title', $person->Title)?>
-		<?php echo html::etag('h2', '.person-company', $person->Company)?>
+		<?php echo HTML::etag('h2', '.person-title', $person->Title)?>
+		<?php echo HTML::etag('h2', '.person-company', $person->Company)?>
 		<?php
 		}
 		?>
@@ -112,7 +112,7 @@ if (!$contact->member_is_empty('Notes')) {
 			<h2><?php echo __('Notes')?></h2>
 		</div>
 		<div class="section-control section-control-notes" id="Contact_Notes">
-			<?php echo  html::urlify(nl2br(htmlspecialchars($contact->Notes)))?>
+			<?php echo  HTML::urlify(nl2br(htmlspecialchars($contact->Notes)))?>
 		</div>
 	</div>
 <?php

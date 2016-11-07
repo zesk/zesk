@@ -1,5 +1,5 @@
 <?php
-class Model_Login extends Model {
+class Model_Login extends zesk\Model {
 
 	protected $login = null;
 

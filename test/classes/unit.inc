@@ -6,6 +6,9 @@
  * @author Kent Davidson <kent@marketacumen.com>
  * @copyright Copyright &copy; 2007, Market Acumen, Inc.
  */
+use zesk\Object;
+use zesk\Options;
+use zesk\Text;
 
 /**
  * Test_Unit class
@@ -25,13 +28,48 @@ class Test_Unit extends Options {
 	
 	/**
 	 * 
-	 * @var Application $application
+	 * @var zesk\Application $application
 	 */
 	protected $application = null;
+	
+	/**
+	 * 
+	 */
+	protected $load_modules = array();
+	
+	/**
+	 * Current test method
+	 * 
+	 * @var string
+	 */
 	private $test = null;
+	
+	/**
+	 * Current test metho arguments
+	 * 
+	 * @var array
+	 */
 	private $test_args = null;
+	
+	/**
+	 * Last test result
+	 * 
+	 * @var boolean
+	 */
 	private $test_result = true;
+	
+	/**
+	 * Previous test output
+	 * 
+	 * @var string
+	 */
 	protected $last_test_output = null;
+	
+	/**
+	 * Cache directory for this test
+	 * 
+	 * @var string
+	 */
 	private $cache_dir = null;
 	
 	/**
@@ -44,6 +82,9 @@ class Test_Unit extends Options {
 		$this->application = app(); // TODO
 		self::init();
 		$this->inherit_global_options();
+		if ($this->load_modules) {
+			$this->application->modules->load($this->load_modules);
+		}
 	}
 	
 	/**
@@ -94,7 +135,7 @@ class Test_Unit extends Options {
 	 */
 	private function begin_test($test, array $settings, array $arguments = array()) {
 		if ($this->test !== null) {
-			throw new Exception_Semantics("Begin test $test already started: $this->test");
+			throw new zesk\Exception_Semantics("Begin test $test already started: $this->test");
 		}
 		$this->stats['test']++;
 		$this->test = $test;
@@ -141,7 +182,7 @@ class Test_Unit extends Options {
 			} else if ($this->test_result === null) {
 				$this->stats['skip']++;
 			} else {
-				log::debug(php::dump($this->test_result));
+				zesk()->logger->debug(PHP::dump($this->test_result));
 			}
 		}
 		$this->test = null;
@@ -186,13 +227,13 @@ class Test_Unit extends Options {
 	 */
 	protected function log($message, array $arguments = array()) {
 		if (is_array($message)) {
-			$message = text::format_pairs($message);
+			$message = Text::format_pairs($message);
 		}
 		if (empty($message)) {
 			$message = "*empty message from {calling_function}*";
-			$arguments['calling_function'] = zesk::calling_function();
+			$arguments['calling_function'] = calling_function();
 		}
-		log::error($message, $arguments);
+		zesk()->logger->error($message, $arguments);
 		flush();
 	}
 	
@@ -240,7 +281,7 @@ class Test_Unit extends Options {
 				if ($this->option_bool('debug_test_settings')) {
 					if (count($settings) > 0) {
 						echo "$method_name:\n";
-						echo text::format_pairs($settings, "    ");
+						echo Text::format_pairs($settings, "    ");
 					} else {
 						echo "$method_name: no settings\n";
 					}
@@ -251,8 +292,8 @@ class Test_Unit extends Options {
 			}
 			return $tests;
 		} catch (ReflectionException $e) {
-			log::error("Unable to reflect on $class");
-			log::error($e->getMessage());
+			zesk()->logger->error("Unable to reflect on $class");
+			zesk()->logger->error($e->getMessage());
 			return array();
 		}
 	}
@@ -330,11 +371,11 @@ class Test_Unit extends Options {
 			}
 			$failed = ($fails !== $this->stats['fail']);
 			$this->log(__("# {class_test}: {status}", array(
-				'class_test' => text::lalign("$class::$test", 80),
+				'class_test' => Text::lalign("$class::$test", 80),
 				'status' => $failed ? 'FAIL' : 'OK'
 			)));
 			if (($failed || $this->option_bool('verbose')) && !empty($this->last_test_output)) {
-				log::error("Last test output: {output}", array(
+				zesk()->logger->error("Last test output: {output}", array(
 					"output" => $this->last_test_output
 				));
 			}
@@ -365,7 +406,7 @@ class Test_Unit extends Options {
 			$right = $method;
 			$left = $method;
 			$right = $descriptor;
-			$line = text::lalign($left, 50) . " -- $right";
+			$line = Text::lalign($left, 50) . " -- $right";
 			if ($file === __FILE__) {
 				$our_stack[] = $line;
 			} else {
@@ -377,13 +418,28 @@ class Test_Unit extends Options {
 		}
 		echo implode("\n", $their_stack) . "\n";
 	}
+	/**
+	 * 
+	 * @param string $message Why this test failed.
+	 * @param array $arguments Arguments for the test failure message
+	 * 
+	 * @throws zesk\Exception_Test
+	 */
 	final function fail($message, array $arguments = array()) {
 		$this->test_result = false;
 		if ($this->option_bool('debugger')) {
 			debugger_start_debug();
 		}
-		throw new Exception_Test($message, $arguments);
+		throw new zesk\Exception_Test($message, $arguments);
 	}
+	
+	/**
+	 * 
+	 * @param boolean|string $condition Boolean or string to evaluate condition
+	 * @param string $message What the assertion is about
+	 * @param boolean $should_fail This assertion should actually fail (test for false)
+	 * @throws zesk\Exception_Test
+	 */
 	final public function assert($condition, $message = null, $should_fail = false) {
 		$this->stats['assert']++;
 		$condition_text = $condition;
@@ -399,7 +455,7 @@ class Test_Unit extends Options {
 		}
 		if ($should_fail) {
 			if ($result) {
-				$this->fail("Assertion should have failed but didn't: " . php::dump($condition) . " ($message)");
+				$this->fail("Assertion should have failed but didn't: " . PHP::dump($condition) . " ($message)");
 			}
 		} else if (!$result) {
 			$this->fail("Test failed $condition ($message)");
@@ -418,45 +474,136 @@ class Test_Unit extends Options {
 		return $app_module->object($module);
 	}
 	
-	final public function assert_modules($modules) {
+	/**
+	 * 
+	 * @param unknown $modules
+	 */
+	final public function assert_modules(array $modules) {
+		$app_module = $this->application->module;
 		$modules = to_list($modules);
 		foreach ($modules as $module) {
-			$this->assert_true(module::loaded($module), "Module $module is not found");
+			$this->assert_true($app_module->loaded($module), "Module $module is not found");
 		}
 	}
+	
+	/**
+	 * Assert a value is false
+	 * 
+	 * @param mixed $mixed
+	 * @param string $message
+	 */
 	final public function assert_false($condition, $message = null) {
 		return $this->assert($condition, $message, true);
 	}
+	
+	/**
+	 * Assert a value is true
+	 *
+	 * @param mixed $mixed
+	 * @param string $message
+	 */
 	final public function assert_true($condition, $message = null) {
 		$this->assert($condition, $message, false);
 	}
+	
+	/**
+	 * Assert a value is a string
+	 *
+	 * @param mixed $mixed
+	 * @param string $message
+	 */
 	final public function assert_is_string($mixed, $message = null) {
 		$this->assert(is_string($mixed), "!is_string(" . type($mixed) . " $mixed) $message", false);
 	}
+	
+	/**
+	 * Assert a value is numeric
+	 *
+	 * @param mixed $mixed
+	 * @param string $message
+	 */
 	final public function assert_is_numeric($mixed, $message = null) {
 		$this->assert(is_numeric($mixed), "!is_numeric(" . type($mixed) . " $mixed) $message", false);
 	}
+	
+	/**
+	 * Assert a value is an integer
+	 *
+	 * @param mixed $mixed
+	 * @param string $message
+	 */
 	final public function assert_is_integer($mixed, $message = null) {
 		$this->assert(is_integer($mixed), "!is_integer(" . type($mixed) . " $mixed) $message", false);
 	}
+	
+	/**
+	 * Assert a value is an array
+	 *
+	 * @param mixed $mixed
+	 * @param string $message
+	 */
 	final public function assert_is_array($mixed, $message = null) {
 		$this->assert(is_array($mixed), "!is_array(" . type($mixed) . " $mixed) $message", false);
 	}
+	
+	/**
+	 * Assert a value is an instanceof a class
+	 *
+	 * @param mixed $mixed
+	 * @param string $message
+	 */
 	final public function assert_instanceof($mixed, $instanceof, $message = null) {
 		$this->assert($mixed instanceof $instanceof, "!(" . type($mixed) . " $mixed) instanceof $instanceof $message", false);
 	}
+	
+	/**
+	 * Assert a value is a positive number
+	 *
+	 * @param mixed $mixed
+	 * @param string $message
+	 */
 	final public function assert_positive($value, $message = null) {
 		$this->assert($value > 0, "$value > 0 : $message", false);
 	}
+	
+	/**
+	 * Assert a value is not NULL
+	 *
+	 * @param mixed $mixed
+	 * @param string $message
+	 */
 	final public function assert_not_null($value, $message = null) {
 		$this->assert($value !== null, "Asserted not NULL failed: $message", false);
 	}
+	
+	/**
+	 * Assert a value is a negative number
+	 *
+	 * @param mixed $mixed
+	 * @param string $message
+	 */
 	final public function assert_negative($value, $message = null) {
 		$this->assert($value < 0, "$value < 0 : $message", false);
 	}
+	
+	/**
+	 * Assert a value is null
+	 *
+	 * @param mixed $mixed
+	 * @param string $message
+	 */
 	final public function assert_null($value, $message = null) {
 		$this->assert($value === null, "$value === null : $message", false);
 	}
+	
+	/**
+	 * Assert two arrays are equal
+	 * 
+	 * @param array $actual
+	 * @param array $expected
+	 * @param string $message
+	 * @param boolean $strict
+	 */
 	final protected function assert_arrays_equal($actual, $expected, $message = null, $strict = true) {
 		$this->assert(is_array($actual), gettype($actual) . " is not an array");
 		$this->assert(is_array($expected), gettype($expected) . " is not an array");
@@ -583,7 +730,9 @@ class Test_Unit extends Options {
 		return $this->sandbox($file, $auto_delete);
 	}
 	final public function sandbox($file = null, $auto_delete = true) {
-		$cache_dir = zesk::application_root() . "cache/test/" . posix_getpid();
+		global $zesk;
+		/* @var $zesk zesk\Kernel */
+		$cache_dir = $this->application->application_root("cache/test/" . $zesk->process->id());
 		if (!is_dir($cache_dir)) {
 			if (!mkdir($cache_dir, 0777, true)) {
 				$this->fail("test_sandbox: Can't create $cache_dir");
@@ -591,7 +740,7 @@ class Test_Unit extends Options {
 			$this->cache_dir = $cache_dir;
 			chmod($cache_dir, 0770);
 			if ($auto_delete) {
-				register_shutdown_function(array(
+				$zesk->hooks->add("exit", array(
 					$this,
 					"_test_sandbox_shutdown"
 				));
@@ -599,12 +748,16 @@ class Test_Unit extends Options {
 		}
 		return path($cache_dir, $file);
 	}
+	
+	/**
+	 * Delete cache dir after test runs
+	 */
 	final public function _test_sandbox_shutdown() {
 		$cache_dir = $this->cache_dir;
 		$this->cache_dir = null;
 		echo "Deleting $cache_dir ...\n";
 		if (is_dir($cache_dir)) {
-			dir::delete($cache_dir);
+			zesk\Directory::delete($cache_dir);
 		}
 	}
 	
@@ -689,18 +842,6 @@ class Test_Unit extends Options {
 		$rows = $db->query_array("SELECT " . implode(",", $headers) . " FROM $table");
 		$this->assert_arrays_equal($rows, $dbrows, "Matching $table to row values", false);
 	}
-	private static function _find_test($class) {
-		$low_class = str::unsuffix(strtolower($class), "_test");
-		$parts = explode("_", $low_class);
-		array_pop($parts);
-		$path = path(implode("/", $parts), "test", $low_class . "_test.inc");
-		$include = zesk::find_file(array_keys(zesk::autoload_path()), $path);
-		if (!file_exists($include)) {
-			return false;
-		}
-		include $include;
-		return class_exists($class, false);
-	}
 	
 	/**
 	 * Run a unit test usually externally.
@@ -712,14 +853,14 @@ class Test_Unit extends Options {
 	 *        	The class to run
 	 * @param null $object
 	 *        	Optional return value to get the $object created back
-	 * @throws Exception_Invalid
+	 * @throws zesk\Exception_Invalid
 	 * @return boolean Whether the test passed
 	 */
 	public static function run_one_class($class, array $options, &$object = null) {
 		$object = zesk::factory($class);
 		/* @var $object Test_Unit */
 		if (!$object instanceof Test_Unit) {
-			throw new Exception_Invalid("$class is not an instance of Test_Unit");
+			throw new zesk\Exception_Invalid("$class is not an instance of Test_Unit");
 		}
 		$object->set_option($options);
 		$object->inherit_global_options();
@@ -736,21 +877,52 @@ class Test_Unit extends Options {
 	 *        	The class to run
 	 * @param null $object
 	 *        	Optional return value to get the $object created back
-	 * @throws Exception_Invalid
+	 * @throws zesk\Exception_Semantics
+	 * @throws zesk\Exception_Class_NotFound
 	 * @return boolean Whether the test passed
 	 */
 	public static function run_class($class, &$object = null) {
+		global $zesk;
+		/* @var $zesk zesk\Kernel */
 		if (empty($class)) {
-			throw new Exception_Semantics("{method}: No class specified", array(
+			throw new zesk\Exception_Semantics("{method}: No class specified", array(
 				"method" => __METHOD__
 			));
 		}
 		$settings = self::_configuration_load();
-		if (!class_exists($class, false) && !zesk::autoloader($class, true) && !self::_find_test($class)) {
-			throw new Exception_Class_NotFound($class);
+		if (!class_exists($class, false) && !$zesk->autoloader->load($class, true) && !self::_find_test($class)) {
+			throw new zesk\Exception_Class_NotFound($class);
 		}
 		exit(self::run_one_class($class, $settings, $object) ? 0 : 1);
 	}
+	
+	/**
+	 * 
+	 * @param unknown $class
+	 * @return boolean
+	 */
+	private static function _find_test($class) {
+		global $zesk;
+		/* @var $zesk zesk\Kernel */
+		$low_class = zesk\str::unsuffix(strtolower($class), "_test");
+		$parts = explode("_", $low_class);
+		array_pop($parts);
+		$path = path(implode("/", $parts), "test", $low_class . "_test.inc");
+		$include = zesk\File::find_first(array_keys($zesk->autoloader->path()), $path);
+		if (!$include) {
+			return false;
+		}
+		include $include;
+		return class_exists($class, false);
+	}
+	
+	/**
+	 * Given a class and a method, make the available method not-private to do blackbox testing
+	 * 
+	 * @param string $class
+	 * @param string|list $methods
+	 * @return Closure[]
+	 */
 	public function expose_method($class, $methods) {
 		if (is_object($class)) {
 			$class = get_class($class);
@@ -769,15 +941,25 @@ class Test_Unit extends Options {
 		}
 		return $results;
 	}
+	
+	/**
+	 * Synchronize the given classes with the database schema
+	 * 
+	 * @param list|string $classes
+	 * @return array[classname]
+	 */
 	public function schema_synchronize($classes) {
-		$app = Application::instance();
+		$app = $this->application;
+		$results = array();
 		foreach (to_list($classes) as $class) {
+			
 			$class_object = Object::cache_class($class, "class");
 			$db = $class_object->database();
-			$db->query($app->schema_synchronize($db, array(
+			$results[$class] = $db->query($app->schema_synchronize($db, array(
 				$class
 			)));
 		}
+		return $results;
 	}
 	
 	/**
@@ -789,12 +971,12 @@ class Test_Unit extends Options {
 		if (!$config) {
 			return array();
 		}
-		log::debug("Loading configuration file $config");
+		zesk()->logger->debug("Loading configuration file $config");
 		$settings = conf::load($config);
 		zesk::set($settings);
 		if (zesk::get('Command_Test::debug_config')) {
 			echo "Loaded configuration file:\n";
-			echo text::format_pairs($settings);
+			echo Text::format_pairs($settings);
 		}
 		return $settings;
 	}

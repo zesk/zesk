@@ -1,9 +1,8 @@
 <?php
-
+/**
+ * 
+ */
 namespace zesk;
-
-use \zesk as zesk;
-use \Exception_Class_NotFound as Exception_Class_NotFound;
 
 /**
  * Handles autoloading for Zesk
@@ -65,10 +64,9 @@ class Autoloader {
 	 * Create default autoloader for most of Zesk
 	 */
 	public function __construct(Kernel $kernel) {
-		$this->zesk = $kernel;
 		$this->path(ZESK_ROOT . 'classes', 'last');
 		$this->autoload_register();
-		$this->zesk->hooks->add(zesk\Hooks::hook_exit, array(
+		$kernel->hooks->add(Hooks::hook_exit, array(
 			$this,
 			"save"
 		));
@@ -182,10 +180,11 @@ class Autoloader {
 				if ($no_exception || defined('ZESK_NO_CONFLICT') || $this->no_exception) {
 					return false;
 				}
-				throw new Exception_Class_NotFound($class, "Class {class} not found in:\n{tried_path}\nInvoked from:\n{backtrace}", array(
+				throw new Exception_Class_NotFound($class, "Class {class} called from {calling_function} invoked from:\n{backtrace}\n{tried_path}", array(
 					"class" => $class,
-					"tried_path" => text::indent(implode("\n", $tried_path)),
-					"backtrace" => text::indent(_backtrace(), 1)
+					"calling_function" => calling_function(2, true),
+					"tried_path" => Text::indent(implode("\n", $tried_path)),
+					"backtrace" => Text::indent(_backtrace(), 1)
 				));
 			}
 			$cache[$lowclass] = $include;
@@ -218,6 +217,11 @@ class Autoloader {
 		$debug = $this->debug_file_search;
 		$tried_path = array();
 		foreach ($paths as $path => $options) {
+			$options += array(
+				'class_prefix' => '',
+				'lower' => true,
+				'extensions' => $extensions
+			);
 			if ($options === true) {
 				$options = array(
 					'lower' => true
@@ -225,7 +229,7 @@ class Autoloader {
 			} else if (!is_array($options)) {
 				$options = array();
 			}
-			$class_prefix = rtrim(avalue($options, 'class_prefix', ''), '_');
+			$class_prefix = rtrim($options['class_prefix'], '_');
 			if ($class_prefix !== "") {
 				if (substr($class_prefix, -1) !== "\\") {
 					$class_prefix .= "_";
@@ -241,12 +245,12 @@ class Autoloader {
 				$path_file_prefix = $file_prefix;
 			}
 			$path_file_prefix = strtr($path_file_prefix, '\\', '_');
-			$file_parts = implode("/", explode("_", avalue($options, 'lower', true) ? strtolower($path_file_prefix) : $path_file_prefix));
-			$exts = avalue($options, 'extensions', $extensions);
+			$file_parts = implode("/", explode("_", $options['lower'] ? strtolower($path_file_prefix) : $path_file_prefix));
+			$exts = $options['extensions'];
 			foreach ($exts as $extension) {
 				$full_path = path($path, $file_parts) . "." . $extension;
 				if ($debug) {
-					log::debug("$file_prefix: $full_path");
+					zesk()->logger->debug("$file_prefix: $full_path");
 				}
 				if (file_exists($full_path)) {
 					return $full_path;
@@ -302,7 +306,7 @@ class Autoloader {
 	 *        	So:
 	 *
 	 *        	<code>
-	 *        	$zesk->autoloader->path(zesk::application_root('classes','first');
+	 *        	$zesk->autoloader->path($zesk->paths->application('classes','first');
 	 *        	</code>
 	 *
 	 *        	Is a very common usage pattern.
@@ -331,10 +335,10 @@ class Autoloader {
 			if (isset($options['extensions'])) {
 				$options['extensions'] = to_list($options['extensions']);
 			}
-			if (to_bool(avalue($options, 'first'))) {
+			if (isset($options['first']) && $options['first']) {
 				$this->first[$add] = $options;
 				$this->cached = null;
-			} else if (to_bool(avalue($options, 'last'))) {
+			} else if (isset($options['last']) && $options['last']) {
 				$this->last[$add] = $options;
 				$this->cached = null;
 			} else {
@@ -371,7 +375,7 @@ class Autoloader {
 			if (@file_put_contents($path, serialize($this->autoload_cache))) {
 				return;
 			}
-			log::warning("Can not write autoload path to {path}", array(
+			zesk()->logger->warning("Can not write autoload path to {path}", array(
 				"path" => $path
 			));
 		}

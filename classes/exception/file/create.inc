@@ -1,12 +1,10 @@
 <?php
 /**
- * $URL: https://code.marketacumen.com/zesk/trunk/classes/exception/file/create.inc $
- * @package zesk
- * @subpackage system
- * @author kent
- * @copyright Copyright &copy; 2010, Market Acumen, Inc.
+ * 
  */
-
-class Exception_File_Create extends Exception_FileSystem {
-
-}
+zesk()->deprecated();
+/**
+ * @deprecated 2016-09
+ * @author kent
+ */
+class Exception_File_Create extends zesk\Exception_File_Create {}

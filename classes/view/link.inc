@@ -7,6 +7,14 @@
  * @copyright Copyright &copy; 2009, Market Acumen, Inc.
  * Created on Sun Apr 04 21:18:06 EDT 2010 21:18:06
  */
+use zesk\URL;
+use zesk\HTML;
+
+/**
+ * 
+ * @author kent
+ *
+ */
 class View_Link extends View_Text {
 	function format($set = null) {
 		if ($set !== null) {
@@ -52,17 +60,17 @@ class View_Link extends View_Text {
 			return $text;
 		}
 		$attrs = $object->apply_map($this->options_include("target;class;onclick;title;id"));
-		$add_ref = $this->option("add_ref", url::query_remove(url::current_uri(), "message"));
+		$add_ref = $this->option("add_ref", URL::query_remove(URL::current_uri(), "message"));
 		if ($add_ref) {
-			$href = url::query_format(url::query_remove($href, "ref"), array(
+			$href = URL::query_format(URL::query_remove($href, "ref"), array(
 				"ref" => $add_ref
 			));
 		}
 		$attrs['href'] = $href;
 		$attrs['title'] = avalue($attrs, 'title', $href);
 		$show_size = $this->show_size();
-		$text = $show_size > 0 ? html::ellipsis($text, $this->show_size(), $this->option("ellipsis", "&hellip;")) : $text;
-		$result = html::tag("a", $attrs, $text);
+		$text = $show_size > 0 ? HTML::ellipsis($text, $this->show_size(), $this->option("ellipsis", "&hellip;")) : $text;
+		$result = HTML::tag("a", $attrs, $text);
 		return $result;
 	}
 }

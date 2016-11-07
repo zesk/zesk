@@ -1,5 +1,16 @@
 <?php
-class Deploy extends Hookable {
+/**
+ * 
+ */
+use zesk\Directory;
+use zesk\Template;
+
+/**
+ * 
+ * @author kent
+ *
+ */
+class Deploy extends zesk\Hookable {
 	protected $path = null;
 	protected $skipped = array();
 	protected $options = array(
@@ -56,7 +67,7 @@ class Deploy extends Hookable {
 	public function __construct($path, $options = null) {
 		$this->path = $path;
 		parent::__construct($options);
-		$this->hook('construct');
+		$this->call_hook('construct');
 	}
 	private static function _parse_tag($subpath) {
 		$tag = array();
@@ -82,7 +93,7 @@ class Deploy extends Hookable {
 	private function load_tags() {
 		$last_tag = $this->option('last_tag');
 		try {
-			$subpaths = dir::ls($this->path, null, true);
+			$subpaths = Directory::ls($this->path, null, true);
 		} catch (Exception_Directory_NotFound $e) {
 			return array();
 		}
@@ -128,7 +139,7 @@ class Deploy extends Hookable {
 			foreach ($tags as $name => $subpaths) {
 				foreach ($subpaths as $subpath => $tag) {
 					$extension = $tag['extension'];
-					$result = $this->hook_array("extension_$extension", array(
+					$result = $this->call_hook_arguments("extension_$extension", array(
 						$tag
 					), array());
 					if (!is_array($result) || !avalue($result, 'status')) {
@@ -179,7 +190,7 @@ class Deploy extends Hookable {
 		$status = true;
 		try {
 			$zesk->logger->notice("Loading template {path}", compact("path"));
-			$content = Template::instance($path);
+			$content = new Template(app(), $path);
 		} catch (Exception $e) {
 			$zesk->hooks->call("exception", $e);
 			$status = false;

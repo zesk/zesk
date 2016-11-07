@@ -1,6 +1,6 @@
 <?php
 
-class Class_Invoice_Payment extends Class_Object {
+class Class_Invoice_Payment extends zesk\Class_Object {
 	public $id_column = "id";
 
 	public $has_one = array(

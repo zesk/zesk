@@ -113,14 +113,14 @@ class Control_Schedule extends Control {
 		$attrs['rows'] = $rows;
 		$attrs['class'] = $this->option('class');
 		
-		$result = html::hidden($input_name, $this->value());
+		$result = HTML::hidden($input_name, $this->value());
 		if (!$save_schedule_code) {
 			$code = $object->get($input_name . "_code");
-			$result .= html::hidden($input_name . "_code", $code);
+			$result .= HTML::hidden($input_name . "_code", $code);
 			if (false)
 				$result .= "<br />$code";
 		}
-		$result .= html::tag("textarea", $attrs, "$value");
+		$result .= HTML::tag("textarea", $attrs, "$value");
 		
 		return $this->render_finish($object, $result);
 	}

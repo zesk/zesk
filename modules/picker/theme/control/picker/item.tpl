@@ -1,13 +1,15 @@
 <?php
 
+use zesk\HTML;
+
 /* @var $object Object */
 $object = $this->object;
 $id = $object->id();
-echo html::div(html::add_class(array(
+echo HTML::div(HTML::add_class(array(
 	"class" => "item",
 	"data-id" => $id
-), $this->selected ? "selected" : ""), $object->render(array(
+), $this->selected ? "selected" : ""), $object->theme(array(
 	"picker-item",
 	"view"
-)) . html::hidden($this->column . '[]', $id, array("id" => null)));
+)) . HTML::hidden($this->column . '[]', $id, array("id" => null)));
 

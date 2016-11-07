@@ -18,33 +18,28 @@ namespace zesk\Kernel;
  * @author kent
  */
 class Loader {
+	/**
+	 * Microtime of when this file was loaded
+	 * 
+	 * @var double
+	 */
+	private static $init;
+	/**
+	 * 
+	 * @return \zesk\Kernel
+	 */
 	public static function kernel() {
-		global $_ZESK;
-		global $zesk;
-		
-		$init = microtime(true);
-		
-		if (!is_array($_ZESK)) {
-			$_ZESK = array();
-		}
-		if (!defined('E_DEPRECATED')) {
-			define('E_DEPRECATED', 0);
-		}
-		error_reporting(E_ALL | E_STRICT | E_DEPRECATED);
-		
+		self::$init = microtime(true);
 		require_once dirname(__FILE__) . "/classes/zesk/kernel.inc";
-		
-		$zesk = new \zesk\Kernel($_ZESK + array(
-			'init' => $init
+	}
+	public static function singleton() {
+		global $_ZESK;
+		return \zesk\Kernel::singleton((is_array($_ZESK) ? $_ZESK : array()) + array(
+			"init" => self::$init
 		));
-		unset($_ZESK);
-		
-		$zesk->bootstrap();
-		
-		\zesk::bootstrap($zesk);
-		
-		return $zesk;
 	}
 }
 
-return Loader::kernel();
+Loader::kernel();
+
+return Loader::singleton();

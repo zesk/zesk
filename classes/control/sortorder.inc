@@ -1,4 +1,7 @@
 <?php
+
+use zesk\Database_Query_Select;
+
 class Control_SortOrder extends Control {
 	protected $options = array(
 		'name' => 'so',

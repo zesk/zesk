@@ -1,5 +1,16 @@
 <?php
+/**
+ * @copyright &copy; 2016 Market Acumen, Inc.
+ */
+use zesk\CSS;
+use zesk\MIME;
+use zesk\arr;
 
+/**
+ * 
+ * @author kent
+ *
+ */
 class Image_Library_GD extends Image_Library {
 	private static $output_map = array(
 		'png' => 'png',
@@ -8,21 +19,28 @@ class Image_Library_GD extends Image_Library {
 		'jpg' => 'jpeg',
 		'jpg' => 'jpeg'
 	);
-
+	
 	/**
 	 * Background color allocated upon image create
 	 *
 	 * @var resource
 	 */
 	private $bg_color = null;
-
+	
+	/**
+	 * 
+	 * @return boolean
+	 */
 	public static function installed() {
 		return function_exists("imagecreate");
 	}
 
+	/*
+	 * TODO Remove this 2016-09
+	 * 
 	private function _image_transparency_setup($src, $dst) {
 		imagealphablending($dst, false);
-
+		
 		// get and reallocate transparency-color
 		$transparent_index = imagecolortransparent($src);
 		if ($transparent_index >= 0) {
@@ -32,10 +50,9 @@ class Image_Library_GD extends Image_Library {
 		}
 		return $transparent_index;
 	}
-
 	private function _image_transparency_finish($src, $dst, $state) {
 		imagealphablending($dst, false);
-
+		
 		// get and reallocate transparency-color
 		$transparent_index = imagecolortransparent($src);
 		if ($transparent_index >= 0) {
@@ -45,7 +62,8 @@ class Image_Library_GD extends Image_Library {
 		}
 		return $transparent_index;
 	}
-
+	*/
+	
 	/**
 	 *
 	 * @param resource $src
@@ -54,10 +72,9 @@ class Image_Library_GD extends Image_Library {
 	 * @return boolean|string
 	 */
 	private function _image_scale_resource($src, $dest, array $options) {
-
 		$actual_width = imagesx($src);
 		$actual_height = imagesy($src);
-
+		
 		// Extract settings
 		unset($options['src']);
 		unset($options['dest']);
@@ -68,12 +85,12 @@ class Image_Library_GD extends Image_Library {
 		$crop = false;
 		$skew = false;
 		extract($options, EXTR_IF_EXISTS);
-
+		
 		// Yeah, right.
 		if ($actual_width === $width && $actual_height === $height) {
 			return $this->_imageoutput($src, $dest);
 		}
-
+		
 		// Basic save values, compute aspect ratio
 		$original_width = $width;
 		$original_height = $height;
@@ -85,7 +102,7 @@ class Image_Library_GD extends Image_Library {
 		$src_height = $actual_height;
 		$dst_width = $width;
 		$dst_height = $height;
-
+		
 		// If we're skewing, don't adjust width/height
 		if (!$skew) {
 			// Maintain aspect ratio
@@ -128,9 +145,9 @@ class Image_Library_GD extends Image_Library {
 				}
 			}
 		}
-
+		
 		$dst = self::_imagecreate($width, $height);
-
+		
 		$high_quals = true;
 		if (function_exists('imageantialias')) {
 			imageantialias($src, $high_quals);
@@ -149,19 +166,43 @@ class Image_Library_GD extends Image_Library {
 		}
 		return $this->_imageoutput($dst, $dest);
 	}
+	
+	/**
+	 * 
+	 * {@inheritDoc}
+	 * @see Image_Library::image_scale_data()
+	 */
 	function image_scale_data($data, array $options) {
 		$src = imagecreatefromstring($data);
 		return $this->_image_scale_resource($src, null, $options);
 	}
+	
+	/**
+	 * 
+	 * {@inheritDoc}
+	 * @see Image_Library::image_scale()
+	 */
 	function image_scale($source, $dest, array $options) {
 		$src = self::_imageload($source);
 		return $this->_image_scale_resource($src, $dest, $options);
 	}
-
+	
+	/**
+	 * Load an image from a source file on disk
+	 * 
+	 * @param string $source image file path to load
+	 * @return resource
+	 */
 	private function _imageload($source) {
 		return imagecreatefromstring(file_get_contents($source));
 	}
-
+	
+	/**
+	 * Create an image in memory
+	 * @param integer $width
+	 * @param integer $height
+	 * @return resource
+	 */
 	private function _imagecreate($width, $height) {
 		if (!$res = @imagecreatetruecolor($width, $height)) {
 			$res = imagecreate($width, $height);
@@ -171,7 +212,7 @@ class Image_Library_GD extends Image_Library {
 		imagefill($res, 0, 0, $bg_color);
 		return $res;
 	}
-
+	
 	/**
 	 * Output image
 	 *
@@ -180,7 +221,7 @@ class Image_Library_GD extends Image_Library {
 	 * @return boolean|string
 	 */
 	private function _imageoutput($dst, $dest) {
-		$type = mime::from_filename($dest);
+		$type = MIME::from_filename($dest);
 		$output = avalue(self::$output_map, $type, 'png');
 		$method = "image$output";
 		if ($dest === null) {
@@ -190,7 +231,7 @@ class Image_Library_GD extends Image_Library {
 			case "imagejpeg":
 				$result = $method($dst, $dest, 100);
 				break;
-			default:
+			default :
 				$result = $method($dst, $dest);
 				break;
 		}
@@ -202,7 +243,13 @@ class Image_Library_GD extends Image_Library {
 		}
 		return $dest ? $result : $data;
 	}
-
+	
+	/**
+	 * Parse color value
+	 * 
+	 * @param mixed $value
+	 * @return integer[]
+	 */
 	private function parse_color($value) {
 		if (is_array($value)) {
 			if (arr::is_list($value)) {
@@ -214,7 +261,7 @@ class Image_Library_GD extends Image_Library {
 				$value['b']
 			);
 		} else if (is_string($value)) {
-			return css::color_parse($value);
+			return CSS::color_parse($value);
 		} else {
 			return array(
 				0,
@@ -223,7 +270,6 @@ class Image_Library_GD extends Image_Library {
 			);
 		}
 	}
-
 	function image_rotate($source, $destination, $degrees, array $options = array()) {
 		$source_resource = $this->_imageload($source);
 		$bgcoloroption = avalue($options, 'background_color', 0);
@@ -240,5 +286,4 @@ class Image_Library_GD extends Image_Library {
 		imagedestroy($source_resource);
 		return $result;
 	}
-
 }

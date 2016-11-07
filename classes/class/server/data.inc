@@ -5,7 +5,7 @@
  * @author kent
  *
  */
-class Class_Server_Data extends Class_Object {
+class Class_Server_Data extends zesk\Class_Object {
 	public $id_column = "id";
 	public $primary_keys = array(
 		"id"

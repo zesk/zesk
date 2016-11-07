@@ -1,5 +1,9 @@
 #!/usr/bin/env php
 <?php
+
+use zesk\HTML;
+use zesk\HTML_Tag;
+
 /**
  * $URL: https://code.marketacumen.com/zesk/trunk/test/classes/html/HTML_Tag.phpt $
  * @package zesk

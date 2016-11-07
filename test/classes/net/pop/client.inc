@@ -20,7 +20,7 @@ class Test_Net_POP_Client extends Test_Unit {
 		if (empty($this->url)) {
 			$this->fail(__CLASS__ . "::email_url not set");
 		}
-		$this->parts = url::parse($this->url);
+		$this->parts = URL::parse($this->url);
 		if (empty($this->parts)) {
 			$this->fail(__CLASS__ . "::email not a valid URL: $this->url");
 		}
@@ -91,7 +91,7 @@ class Test_Net_POP_Client extends Test_Unit {
 
 		$parts = arr::filter($this->parts, 'scheme;host;user');
 		$parts['pass'] = "bad-password";
-		$test_url = url::unparse($parts);
+		$test_url = URL::unparse($parts);
 
 		$options = array(
 			'echo_log' => true,

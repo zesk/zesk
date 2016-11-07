@@ -1,6 +1,17 @@
 <?php
-class nfs_cluster_test extends Test_Unit {
+/**
+ * 
+ *
+ */
+use zesk\Directory;
 
+/**
+ * 
+ * @author kent
+ *
+ */
+class nfs_cluster_test extends Test_Unit {
+	
 	/**
 	 * @expected_exception 
 	 */
@@ -15,17 +26,14 @@ class nfs_cluster_test extends Test_Unit {
 		$host = null;
 		nfs_cluster::host_file($source, $host);
 	}
-
 	function test_hosts() {
 		$this->assert(is_array(nfs_cluster::hosts()));
 	}
-
 	function test_mtime_near() {
 		$a = null;
 		$b = null;
 		nfs_cluster::mtime_near($a, $b);
 	}
-
 	function test_many_things() {
 		$nfs_cluster_conf = $this->test_sandbox('nfs-cluster.conf');
 		zesk::set('NFS_CLUSTER_HOME', $this->test_sandbox('nfs-cluster-home'));
@@ -65,7 +73,6 @@ class nfs_cluster_test extends Test_Unit {
 		$force = false;
 		$this->assert(nfs_cluster::replicate($source, false) === true);
 		check_replication();
-
 		function check_replication($fooling = false) {
 			global $nfs_home, $filename, $source;
 			
@@ -107,17 +114,15 @@ class nfs_cluster_test extends Test_Unit {
 		// Now delete everything
 		foreach ($hosts as $host) {
 			$dest = path($nfs_home, 'host', $host, 'test');
-			dir::delete($dest);
+			Directory::delete($dest);
 			$this->assert(!is_dir($dest));
 		}
 	}
-
 	function test_replicate_check() {
 		$source = null;
 		$force = false;
 		nfs_cluster::replicate_check($source, $force);
 	}
-
 	function test_unlink() {
 		$success = false;
 		try {
@@ -128,7 +133,6 @@ class nfs_cluster_test extends Test_Unit {
 		}
 		$this->assert($success);
 	}
-
 	function test_unlink_check() {
 		$source = null;
 		nfs_cluster::unlink_check($source);

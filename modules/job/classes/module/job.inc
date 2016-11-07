@@ -1,11 +1,16 @@
 <?php
+/**
+ * 
+ */
+use zesk\Application;
+use zesk\Module;
 
 /**
  * Job module for running background jobs in a somewhat reliable manner
  * 
  * @author kent
  */
-class Module_Job extends Module implements Module_Interface_Routes {
+class Module_Job extends Module implements zesk\Interface_Module_Routes {
 	
 	/**
 	 * 
@@ -19,8 +24,7 @@ class Module_Job extends Module implements Module_Interface_Routes {
 	 * For testing, call this statically from zesk eval, a web request, or a debugger
 	 */
 	public static function fake_daemon(Application $application) {
-		global $zesk;
-		/* @var $zesk zesk\Kernel */
+		$zesk = $application->zesk;
 		$quit_after = $zesk->configuration->path_get(__CLASS__ . "::fake_daemon_quit_after", 5000);
 		ini_set('max_execution_time', $quit_after);
 		$process = new Process_Interruptable_Mock($application, array(
@@ -44,7 +48,7 @@ class Module_Job extends Module implements Module_Interface_Routes {
 			while (!$process->done()) {
 				zesk\Job::execute_jobs($process);
 				if ($has_hook) {
-					$this->hook_array("wait_for_job", array(
+					$this->call_hook_arguments("wait_for_job", array(
 						$process
 					));
 					$process->sleep(0);
@@ -61,7 +65,7 @@ class Module_Job extends Module implements Module_Interface_Routes {
 	 */
 	public static function daemon(Command_Daemon $daemon) {
 		$application = $daemon->application;
-		$module = $application->module->object("job");
+		$module = $application->modules->object("job");
 		$module->run_daemon($daemon);
 	}
 	
@@ -69,9 +73,9 @@ class Module_Job extends Module implements Module_Interface_Routes {
 	 * Add routes to Router
 	 * 
 	 * {@inheritDoc}
-	 * @see Module_Interface_Routes::hook_routes()
+	 * @see \zesk\Interface_Module_Routes::hook_routes()
 	 */
-	public function hook_routes(Router $router) {
+	public function hook_routes(zesk\Router $router) {
 		$router->add_route("job/{zesk\\Job job}(/{option action})", array(
 			"controller" => "Job",
 			"arguments" => array(

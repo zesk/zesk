@@ -57,7 +57,7 @@ class gzip {
  * @deprecated
  */
 function gzip_handler_start() {
-	zesk::deprecated();
+	zesk()->deprecated();
 	return gzip::start();
 }
 
@@ -65,7 +65,7 @@ function gzip_handler_start() {
  * @deprecated
  */
 function gzip_handler_end() {
-	zesk::deprecated();
+	zesk()->deprecated();
 	return gzip::end();
 }
 

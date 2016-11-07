@@ -1,4 +1,16 @@
 <?php
+/**
+ * 
+ */
+use zesk\Object;
+use zesk\JSON;
+use zesk\Model;
+
+/**
+ * 
+ * @author kent
+ *
+ */
 class Controller_Selection_Item extends Controller_Object {
 	protected $class = "Selection_Item";
 
@@ -44,7 +56,7 @@ class Controller_Selection_Item extends Controller_Object {
 
 		if ($this->request->has('target')) {
 			$target = $this->request->get('target');
-			$this->response->jquery("\$(" . json::encode($target) . ").slideUp('slow', function() { $(this).remove(); });");
+			$this->response->jquery("\$(" . JSON::encode($target) . ").slideUp('slow', function() { $(this).remove(); });");
 		}
 		$this->json(array(
 			"status" => true,

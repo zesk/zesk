@@ -24,8 +24,8 @@ class Control_Button extends Control {
 	function submit() {
 		if (($url = $this->option('redirect_url')) !== null) {
 			$url = $this->object->apply_map($url);
-			$url = url::query_format($url, array(
-				"ref" => url::current_uri()
+			$url = URL::query_format($url, array(
+				"ref" => URL::current_uri()
 			));
 			$this->response->redirect($url, $this->object->apply_map($this->option('redirect_message')));
 		}

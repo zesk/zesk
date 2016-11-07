@@ -7,5 +7,5 @@ if (false) {
 	$application = app();
 }
 
-$application->module->register_paths();
+$application->modules->register_paths();
 $zesk->classes->register('Module_Cron');

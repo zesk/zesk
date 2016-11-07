@@ -1,4 +1,13 @@
 <?php
+/**
+ * 
+ */
+
+/**
+ * 
+ * @author kent
+ *
+ */
 class Session_PHP_Test extends Test_Unit {
 
 	function test_main() {

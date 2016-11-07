@@ -1,4 +1,9 @@
 <?php
+/**
+ * @copyright &copy; 2016 Market Acumen, Inc.
+ */
+namespace zesk;
+
 foreach ($this->widgets as $widget) {
 	/* @var $widget Widget */
 	if (!$widget->is_visible()) {
@@ -10,7 +15,7 @@ foreach ($this->widgets as $widget) {
 	}
 	$widget = clone $widget;
 	$width = $widget->option_integer("list_column_width", 2);
-	$attributes = css::add_class('.col-sm-' . $width, $widget->context_class());
+	$attributes = CSS::add_class('.col-sm-' . $width, $widget->context_class());
 	$attributes = $this->object->apply_map($attributes); // TODO perhaps add a flag to avoid doing this when not needed??
-	echo html::tag('div', $attributes, strval($widget->execute($this->object, true)));
+	echo HTML::tag('div', $attributes, strval($widget->execute($this->object, true)));
 }

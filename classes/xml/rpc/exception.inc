@@ -75,7 +75,7 @@ class XML_RPC_Exception extends Exception {
 	}
 
 	function toXML() {
-		return html::tag("methodResponse", html::tag("fault", html::tag("value", null, html::tag("struct", self::_member_xml("faultCode", "int", $this->code) . self::_member_xml("faultString", "string", $this->message)))));
+		return HTML::tag("methodResponse", HTML::tag("fault", HTML::tag("value", null, HTML::tag("struct", self::_member_xml("faultCode", "int", $this->code) . self::_member_xml("faultString", "string", $this->message)))));
 	}
 }
 

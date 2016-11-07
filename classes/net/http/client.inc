@@ -6,8 +6,13 @@
  * @package zesk
  * @subpackage system
  */
-use zesk\file as file;
-use zesk\Timestamp as Timestamp;
+use zesk\arr;
+use zesk\URL;
+use zesk\File;
+use zesk\Timestamp;
+use zesk\Exception_DomainLookup;
+use zesk\Exception_File_Permission;
+
 /**
  *
  * @package zesk
@@ -266,7 +271,7 @@ class Net_HTTP_Client extends Options {
 	 * @param string $set        	
 	 */
 	public function url($set = null) {
-		if ($set && url::is($set)) {
+		if ($set && URL::is($set)) {
 			$this->set_option("url", $set);
 			return $this;
 		}
@@ -566,7 +571,7 @@ class Net_HTTP_Client extends Options {
 		$parts = parse_url($this->url());
 		$host = avalue($parts, 'host');
 		$scheme = avalue($parts, 'scheme');
-		$default_port = url::protocol_default_port($scheme);
+		$default_port = URL::protocol_default_port($scheme);
 		$port = intval(avalue($parts, 'port', $default_port));
 		if ($port !== $default_port) {
 			$host .= ":$port";
@@ -685,7 +690,7 @@ class Net_HTTP_Client extends Options {
 		curl_close($curl);
 		if ($errno !== 0) {
 			if ($errno === CURLE_COULDNT_RESOLVE_HOST) {
-				$host = url::parse($this->url(), "host");
+				$host = URL::parse($this->url(), "host");
 				throw new Exception_DomainLookup($host, "Retrieving URL {url}", array(
 					"url" => $this->url()
 				), $errno);
@@ -718,7 +723,7 @@ class Net_HTTP_Client extends Options {
 	}
 	public function domain() {
 		$url = $this->option("URL");
-		return url::host($url);
+		return URL::host($url);
 	}
 	static public function url_content_length($url) {
 		$headers = self::url_headers($url);
@@ -994,7 +999,7 @@ class Net_HTTP_Client extends Options {
 				return unquote($value);
 			}
 		}
-		return basename(url::path($this->url()));
+		return basename(URL::path($this->url()));
 	}
 	/**
 	 * Get/Set that we want to retrieve the headers from the remote server
@@ -1014,7 +1019,7 @@ class Net_HTTP_Client extends Options {
 	 * @return $ResponseMessage
 	 */
 	public function responseMessage() {
-		zesk::deprecated();
+		zesk()->deprecated();
 		return $this->response_message;
 	}
 	/**
@@ -1023,7 +1028,7 @@ class Net_HTTP_Client extends Options {
 	 * @return string
 	 */
 	public function responseProtocol() {
-		zesk::deprecated();
+		zesk()->deprecated();
 		return $this->response_protocol;
 	}
 	/**
@@ -1034,7 +1039,7 @@ class Net_HTTP_Client extends Options {
 	 * @return string|Ambigous <mixed, array>
 	 */
 	public function getHeader($name, $default = false) {
-		zesk::deprecated();
+		zesk()->deprecated();
 		if (!is_array($this->request_headers)) {
 			return $default;
 		}
@@ -1047,7 +1052,7 @@ class Net_HTTP_Client extends Options {
 	 * @param string $set        	
 	 */
 	public function hasHeaders() {
-		zesk::deprecated();
+		zesk()->deprecated();
 		return is_array($this->request_headers);
 	}
 	/**
@@ -1057,7 +1062,7 @@ class Net_HTTP_Client extends Options {
 	 * @param string $set        	
 	 */
 	public function header($name = null, $set = null) {
-		zesk::deprecated();
+		zesk()->deprecated();
 		return $this->request_header($name, $set);
 	}
 	/**
@@ -1065,7 +1070,7 @@ class Net_HTTP_Client extends Options {
 	 * @deprecated 2015-09
 	 */
 	public function headers() {
-		zesk::deprecated();
+		zesk()->deprecated();
 		return $this->request_headers;
 	}
 	
@@ -1076,7 +1081,7 @@ class Net_HTTP_Client extends Options {
 	 * @return mixed
 	 */
 	static public function urlContentLength($url) {
-		zesk::deprecated();
+		zesk()->deprecated();
 		return self::url_content_length($url);
 	}
 	
@@ -1086,7 +1091,7 @@ class Net_HTTP_Client extends Options {
 	 * @return boolean
 	 */
 	public function isPost() {
-		zesk::deprecated();
+		zesk()->deprecated();
 		return $this->is_post();
 	}
 	
@@ -1095,7 +1100,7 @@ class Net_HTTP_Client extends Options {
 	 * @deprecated 2015-09
 	 */
 	public function setHEAD() {
-		zesk::deprecated();
+		zesk()->deprecated();
 		$this->method = Net_HTTP::Method_HEAD;
 	}
 	/**
@@ -1103,7 +1108,7 @@ class Net_HTTP_Client extends Options {
 	 * @deprecated 2015-09
 	 */
 	public function isHEAD() {
-		zesk::deprecated();
+		zesk()->deprecated();
 		return $this->method === Net_HTTP::Method_HEAD;
 	}
 }

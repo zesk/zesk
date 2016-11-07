@@ -5,7 +5,7 @@
  * @author kent
  *
  */
-class Class_IPBan_Parser extends Class_Object {
+class Class_IPBan_Parser extends zesk\Class_Object {
 
 	/**
 	 * How do we find these in the database?

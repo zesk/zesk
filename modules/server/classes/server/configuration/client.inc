@@ -11,7 +11,7 @@ class Server_Configuration_Client extends Server_Configuration {
 	function __construct(Server_Platform $platform, $options = null) {
 		parent::__construct($platform, $options);
 		$this->server_url = $this->option("server_url");
-		if (!url::valid($this->server_url)) {
+		if (!URL::valid($this->server_url)) {
 			throw new Exception_Syntax("Server_Configuration_Client server_url is not a valid url: $this->server_url");
 		}
 		$this->client = new XML_RPC_Client($this->server_url);
@@ -23,7 +23,7 @@ class Server_Configuration_Client extends Server_Configuration {
 		/*
 		 * Set up cache directory
 		 */
-		$domain = url::host($url, 'localhost');
+		$domain = URL::host($url, 'localhost');
 		$cache_path = path($this->path("CACHE_PATH"), "remote", $domain, md5($url));
 		$this->platform->require_directory($cache_path);
 		$file = basename($url);

@@ -1,13 +1,17 @@
 <?php
+/**
+ * @copyright &copy; 2016 Market Acumen, Inc.
+ */
+namespace zesk;
 
-echo html::tag("button", array(
+echo HTML::tag("button", array(
 	"type" => "button",
 	"id" => $this->id,
 	"title" => $this->title,
-	"class" => css::add_class("btn btn-default", $this->confirm ? "confirm" : "")
-) + $this->widget->data_attributes(), html::tag('span', '.glyphicon .glyphicon-repeat', '') . ' ' . $this->button_label);
+	"class" => CSS::add_class("btn btn-default", $this->confirm ? "confirm" : "")
+) + $this->widget->data_attributes(), HTML::tag('span', '.glyphicon .glyphicon-repeat', '') . ' ' . $this->button_label);
 
-/* $var $response Response_HTML */
+/* $var $response zesk\Response_Text_HTML */
 $response = $this->response;
 
 ob_start();
@@ -25,7 +29,7 @@ $('#{id}').off('click.default').on('click.default', function () {
 });
 </script>
 <?php
-$response->jquery(map(html::extract_tag_contents('script', ob_get_clean()), array(
+$response->jquery(map(HTML::extract_tag_contents('script', ob_get_clean()), array(
 	'id' => $this->id
 )));
 

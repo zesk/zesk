@@ -1,7 +1,14 @@
 <?php
-
+/**
+ * 
+ */
 namespace zesk;
 
+/**
+ * 
+ * @author kent
+ *
+ */
 class Configuration_Parser_JSON extends Configuration_Parser {
 	protected $options = array(
 		"overwrite" => true,
@@ -20,7 +27,7 @@ class Configuration_Parser_JSON extends Configuration_Parser {
 	 */
 	public function validate() {
 		try {
-			return is_array(json::decode($this->content));
+			return is_array(JSON::decode($this->content));
 		} catch (\Exception $e) {
 			return false;
 		}
@@ -33,10 +40,10 @@ class Configuration_Parser_JSON extends Configuration_Parser {
 		$lower = $overwrite = $interpolate = null;
 		extract($this->options, EXTR_IF_EXISTS);
 		
-		$result = json::decode($this->content);
+		$result = JSON::decode($this->content);
 		
 		if (!is_array($result)) {
-			zesk()->logger->warning("{method} json::decode returned non-array {type}", array(
+			zesk()->logger->warning("{method} JSON::decode returned non-array {type}", array(
 				"method" => __METHOD__,
 				"type" => type($result)
 			));

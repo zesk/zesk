@@ -3,13 +3,32 @@
  *
  * @version $URL: https://code.marketacumen.com/zesk/trunk/modules/bootstrap/classes/module/bootstrap.inc $
  */
-class Module_Bootstrap extends Module implements Module_Interface_Foot {
+use zesk\Directory;
+
+/**
+ * 
+ * @author kent
+ *
+ */
+class Module_Bootstrap extends Module implements \zesk\Interface_Module_Foot {
+	
+	/**
+	 * 
+	 * {@inheritDoc}
+	 * @see Module::initialize()
+	 */
 	public function initialize() {
 		$this->application->hooks->add('Control_List::row_widget', array(
 			$this,
 			'_hook_list_row_widget'
 		));
 	}
+	
+	/**
+	 * 
+	 * @param Control $self
+	 * @param Control_Row $row
+	 */
 	public function _hook_list_row_widget(Control $self, Control_Row $row) {
 		$n_columns = $self->option('list_column_count', 12);
 		$children = $row->children();
@@ -35,7 +54,14 @@ class Module_Bootstrap extends Module implements Module_Interface_Foot {
 			}
 		}
 	}
-	public function hook_head(Request $request, Response_HTML $response, Template $template) {
+	
+	/**
+	 * 
+	 * @param zesk\Request $request
+	 * @param zesk\Response_Text_HTML $response
+	 * @param zesk\Template $template
+	 */
+	public function hook_head(zesk\Request $request, zesk\Response_Text_HTML $response, zesk\Template $template) {
 		// Lazy eval
 		if ($this->option_bool('enabled')) {
 			if (!self::source_location()) {
@@ -62,7 +88,13 @@ class Module_Bootstrap extends Module implements Module_Interface_Foot {
 			));
 		}
 	}
-	public function hook_foot(Request $request, Response_HTML $response, Template $template) {
+	
+	/**
+	 * 
+	 * {@inheritDoc}
+	 * @see \zesk\Interface_Module_Foot::hook_foot()
+	 */
+	public function hook_foot(zesk\Request $request, zesk\Response_Text_HTML $response, zesk\Template $template) {
 		if ($this->application->development()) {
 			echo $this->application->theme("bootstrap/responsive-size");
 		}
@@ -126,6 +158,7 @@ class Module_Bootstrap extends Module implements Module_Interface_Foot {
 		}
 		return false;
 	}
+	
 	/**
 	 * After this module is updated
 	 */
@@ -138,7 +171,7 @@ class Module_Bootstrap extends Module implements Module_Interface_Foot {
 			));
 			return;
 		}
-		if (!!dir::is_absolute($source_location)) {
+		if (!!Directory::is_absolute($source_location)) {
 			$source_location = $this->application->application_root($source_location);
 		}
 		log::debug("{class}::hook_updated: source_location={source_location}", array(
@@ -151,7 +184,7 @@ class Module_Bootstrap extends Module implements Module_Interface_Foot {
 				log::error("Bootstrap master directory moved from \"{master}\" to {source_location} - update Module_Bootstrap code", compact("master", "source_location"));
 				return;
 			}
-			dir::copy($master, $source_location, true);
+			Directory::copy($master, $source_location, true);
 			$this->map_variables_file($source_location);
 		}
 	}

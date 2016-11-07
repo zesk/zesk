@@ -16,5 +16,4 @@
  * @author kent
  *
  */
-class Role extends Zesk_Role {
-}
+class Role extends zesk\Role {}

@@ -1,8 +1,8 @@
 <?php
-use zesk\Timestamp as Timestamp;
+use zesk\Timestamp;
 
 if (false) {
-	/* @var $this Template */
+	/* @var $this zesk\Template */
 	
 	$application = $this->application;
 	/* @var $application ZeroBot */
@@ -14,7 +14,7 @@ if (false) {
 	/* @var $request Request */
 	
 	$response = $this->response;
-	/* @var $response Response_HTML */
+	/* @var $response zesk\Response_Text_HTML */
 	
 	$current_user = $this->current_user;
 	/* @var $current_user User */
@@ -76,7 +76,7 @@ if ($attempted instanceof Timestamp && $attempted->add_unit("second", 60)->after
 				break;
 			}
 		}
-		echo html::ediv('.feed-view', implode("\n", $items));
+		echo HTML::ediv('.feed-view', implode("\n", $items));
 		$content = ob_get_clean();
 		$data->data($prefix . "content", $content);
 		$data->data($prefix . "updated", $now);

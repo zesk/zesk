@@ -1,4 +1,14 @@
 <?php
+/**
+ * 
+ */
+use zesk\Directory;
+
+/**
+ * 
+ * @author kent
+ *
+ */
 class Command_Daemon_Configure extends Command {
 
 	const default_num_processes = 5;
@@ -60,7 +70,7 @@ class Command_Daemon_Configure extends Command {
 	private function configure_initialize() {
 		if (!is_dir($this->workspace_path)) {
 			$this->workspace_path = zesk::temporary_path('daemon_configure');
-			$this->workspace_path = dir::depend($this->option('configure_workspace', $this->workspace_path), 0700);
+			$this->workspace_path = Directory::depend($this->option('configure_workspace', $this->workspace_path), 0700);
 		}
 		
 		/* Update free space */

@@ -67,7 +67,7 @@ class debug {
 			"debug",
 			"dump"
 		), $args);
-		if (zesk::console()) {
+		if (zesk()->console) {
 			echo $result . newline();
 		} else {
 			echo nl2br($result . newline());

@@ -33,15 +33,12 @@ class Session {
 	 *
 	 * @param boolean $create
 	 *        	Create a session if one does not exist
-	 * @return Session_Interface
+	 * @return zesk\Interface_Session
 	 */
-	public static function instance($create = true) {
+	public static function instance() {
 		global $zesk;
 		/* @var $zesk zesk\Kernel */
-		if ($zesk->objects->session) {
-			return $zesk->objects->session;
-		}
 		$class = "Session_" . ucfirst(strtolower(self::implementation()));
-		return $zesk->objects->session = $zesk->objects->singleton($class, $create);
+		return $zesk->objects->singleton($class);
 	}
 }

@@ -35,7 +35,7 @@ class View_Checklist extends View {
 // 	}
 
 	function render() {
-		$oopt = html::parse_attributes($this->option("options", ""));
+		$oopt = HTML::parse_attributes($this->option("options", ""));
 		$v = $this->value();
 		if (!is_array($v)) {
 			$sep = $this->option("separator", ";");

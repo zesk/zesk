@@ -6,6 +6,10 @@
  * @author Kent Davidson <kent@marketacumen.com>
  * @copyright Copyright &copy; 2005, Market Acumen, Inc.
  */
+use zesk\arr;
+use zesk\str;
+use zesk\Options;
+use zesk\Application;
 
 /**
  * @see Currency
@@ -13,28 +17,28 @@
  *
  */
 class World_Bootstrap_Currency extends Options {
-
+	
 	/**
 	 *
 	 * @var array
 	 */
 	private $include_currency = null;
-
+	
 	/**
 	 *
 	 * @var array
 	 */
 	private $include_country = null;
-
+	
 	/**
 	 *
 	 * @param array $options
 	 * @return World_Bootstrap_Currency
 	 */
 	public static function factory(array $options = array()) {
-		return zesk::factory(__CLASS__, $options);
+		return zesk()->objects->factory(__CLASS__, $options);
 	}
-
+	
 	/**
 	 * @global Module_World::include_currency List of currency codes to include
 	 * @global Module_World::include_country List of country codes to include
@@ -53,10 +57,9 @@ class World_Bootstrap_Currency extends Options {
 			$this->include_country = array_change_key_case(arr::flip_assign(to_list($include_country), true));
 		}
 	}
-
 	public function bootstrap(Application $application) {
 		$x = $application->object_factory(str::unprefix(__CLASS__, "World_Bootstrap_"));
-
+		
 		if ($this->option_bool("drop")) {
 			$x->database()->query('TRUNCATE ' . $x->table());
 		}
@@ -65,7 +68,6 @@ class World_Bootstrap_Currency extends Options {
 			$this->process_row($application, $row);
 		}
 	}
-
 	private function is_included(Currency $currency) {
 		if ($this->include_country) {
 			if ($currency->member_is_empty("bank_country")) {
@@ -79,13 +81,12 @@ class World_Bootstrap_Currency extends Options {
 		}
 		return true;
 	}
-
 	private function process_row(Application $application, array $row) {
 		list($country_name, $name, $codeName, $code_number, $symbol, $fractional_string) = $row;
-
+		
 		$name = $row[0];
 		$code = strtolower(substr($codeName, 0, 2));
-
+		
 		$country = $application->object_factory('Country', array(
 			'code' => $code,
 			'name' => $name
@@ -108,7 +109,7 @@ class World_Bootstrap_Currency extends Options {
 		if (empty($symbol)) {
 			$symbol = $codeName;
 		}
-
+		
 		$fields["id"] = $id = intval($row[3]);
 		$fields["name"] = $row[1];
 		$fields["code"] = $codeName;
@@ -117,12 +118,12 @@ class World_Bootstrap_Currency extends Options {
 		$fields["fractional"] = intval($fractional);
 		$fields["fractional_units"] = $units;
 		$fields["format"] = "{symbol}{amount}";
-
+		
 		if (empty($id)) {
 			log::debug("Unknown id for currency {code} {name}", $fields);
 			return null;
 		}
-
+		
 		$currency = new Currency($fields);
 		if ($this->is_included($currency)) {
 			if ($this->option_bool("delete_mismatched_ids")) {
@@ -139,7 +140,6 @@ class World_Bootstrap_Currency extends Options {
 		}
 		return null;
 	}
-
 	static private function _codes() {
 		return array(
 			array(

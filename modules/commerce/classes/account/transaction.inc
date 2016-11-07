@@ -21,7 +21,7 @@ class Account_Transaction extends Object {
  * 
  * @author kent
  */
-class Class_Account_Transaction extends Class_Object {
+class Class_Account_Transaction extends zesk\Class_Object {
 	public $columns = array(
 		"ID",
 		"TransactionGroup",

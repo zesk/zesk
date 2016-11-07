@@ -1,16 +1,11 @@
 <?php
-
 namespace zesk;
 
-use \Process_Interruptable as Process_Interruptable;
-use \Process_Interruptable_Mock as Process_Interruptable_Mock;
-use \zesk as zesk;
-use zesk\Timestamp as Timestamp;
-use \Exception_Parameter as Exception_Parameter;
-use \Exception_Semantics as Exception_Semantics;
-use \Exception_Interrupt as Exception_Interrupt;
+use \Process_Interruptable;
+use \Process_Interruptable_Mock;
 
 /**
+ * @see Module_Job
  * @see Class_Job
  * @property id $id
  * @property User $user
@@ -134,7 +129,7 @@ class Job extends Object implements Process_Interruptable {
 	 */
 	public function refresh_interval() {
 		$value = $this->sql()->function_date_diff($this->sql()->now_utc(), "updated");
-		$n_seconds = $this->query()->what('*delta', $value)->one_integer("delta");
+		$n_seconds = $this->query_select()->what('*delta', $value)->one_integer("delta");
 		$mag = 1;
 		while ($n_seconds > $mag) {
 			$mag *= 10;
@@ -157,7 +152,7 @@ class Job extends Object implements Process_Interruptable {
 	 * {@inheritDoc}
 	 * @see Process_Interruptable::application()
 	 */
-	public function application(\Application $set = null) {
+	public function application(Application $set = null) {
 		if ($set) {
 			$this->application = $set;
 			return $this;
@@ -186,7 +181,7 @@ class Job extends Object implements Process_Interruptable {
 		}
 		$this->start = $when;
 		$this->completed = null;
-		$this->hook("start");
+		$this->call_hook("start");
 		return $this->store();
 	}
 	
@@ -197,8 +192,14 @@ class Job extends Object implements Process_Interruptable {
 	 * @return NULL
 	 */
 	public static function execute_jobs(Process_Interruptable $process) {
+		global $zesk;
+		
+		$application = $process->application();
+		$logger = $application->logger;
+		
+		/* @var $zesk zesk\Kernel */
 		$server = Server::singleton();
-		$pid = zesk::pid();
+		$pid = $zesk->process->id();
 		
 		if ($process->done()) {
 			return null;
@@ -214,37 +215,47 @@ class Job extends Object implements Process_Interruptable {
 		 *
 		 * Deals with the situation below where this process grabs them and then crashes. (you never know)
 		 */
-		Object::class_query_update(__CLASS__)->values(array(
+		$application->query_update(__CLASS__)
+			->values(array(
 			"pid" => null,
 			"server" => null
-		))->where($server_pid)->execute();
+		))
+			->where($server_pid)
+			->execute();
 		/*
 		 * Find Server records with processes which no longer are running and free them up
 		 */
-		self::clean_dead_pids($server);
+		self::clean_dead_pids($application, $server);
 		
 		do {
 			/*
 			 * Now iterate through available Jobs, and re-sort each iteration in case stuff changes between jobs
 			 */
-			$query = Object::class_query(__CLASS__)->what_object()->where(array(
+			$query = $application->query_select(__CLASS__)
+				->what_object()
+				->where(array(
 				"start|<=" => Timestamp::now('UTC'),
 				"pid" => null,
 				"completed" => null,
 				'died|<=' => self::retry_attempts()
-			))->order_by("priority DESC,died,start");
-			log::debug($query->__toString());
+			))
+				->order_by("priority DESC,died,start");
+			$logger->debug($query->__toString());
 			$iterator = $query->object_iterator();
 			$found_job = false;
 			foreach ($iterator as $job) {
 				/* @var $job Job */
 				// Tag the Job as "ours" - this avoids race conditions between multiple servers
-				Object::class_query_update(__CLASS__)->values($server_pid)->where(array(
+				$application->query_update(__CLASS__)
+					->values($server_pid)
+					->where(array(
 					"pid" => null,
 					"id" => $job->id()
-				))->execute();
+				))
+					->execute();
 				// Race condition if we crash before this executes
-				if (!to_bool(Object::class_query(__CLASS__)->what("*X", "COUNT(id)")
+				if (!to_bool($application->query_select(__CLASS__)
+					->what("*X", "COUNT(id)")
 					->where($server_pid)
 					->where("id", $job->id())
 					->one_integer("X"))) {
@@ -252,10 +263,10 @@ class Job extends Object implements Process_Interruptable {
 					continue;
 				}
 				// We got it. Update our members so it reflects what's in the database
-				$job = Object::factory(__CLASS__, $job->id)->fetch();
+				$job = $application->object_factory(__CLASS__, $job->id)->fetch();
 				if ($job) {
 					$found_job = true;
-					log::debug("Server ID # {id}: Running Job # {job_id} - {job_name}", array(
+					$logger->info("Server ID # {id}: Running Job # {job_id} - {job_name}", array(
 						"id" => $server,
 						"job_id" => $job->id,
 						"job_name" => $job->name
@@ -264,7 +275,7 @@ class Job extends Object implements Process_Interruptable {
 					$job->release();
 					$jobs++;
 				}
-				self::clean_dead_pids($server);
+				self::clean_dead_pids($application, $server);
 				if ($process->done()) {
 					return;
 				}
@@ -275,7 +286,7 @@ class Job extends Object implements Process_Interruptable {
 		} while (!$process->done() && $found_job === true);
 		
 		if ($jobs === 0) {
-			log::debug("Server ID # {id}: No jobs", array(
+			$logger->debug("Server ID # {id}: No jobs", array(
 				"id" => $server
 			));
 		}
@@ -286,17 +297,22 @@ class Job extends Object implements Process_Interruptable {
 	 * 
 	 * @param Server $server
 	 */
-	private static function clean_dead_pids(Server $server) {
-		foreach (Object::class_query(__CLASS__)->what("pid", "pid")
+	private static function clean_dead_pids(Application $application, Server $server) {
+		global $zesk;
+		
+		/* @var $zesk zesk\Kernel */
+		foreach ($application->query_select(__CLASS__)
+			->what("pid", "pid")
 			->what('id', 'id')
 			->where(array(
 			"pid|!=" => null,
 			"server" => $server
 		))
 			->to_array("id", "pid") as $id => $pid) {
-			if (!zesk::is_alive($pid)) {
-				log::debug("Removing stale PID {pid} from Job # {id}", compact("pid", "id"));
-				Object::class_query_update(__CLASS__)->value('pid', null)
+			if (!$zesk->process->alive($pid)) {
+				$application->logger->debug("Removing stale PID {pid} from Job # {id}", compact("pid", "id"));
+				$application->query_update(__CLASS__)
+					->value('pid', null)
 					->value("server", null)
 					->value('*died', 'died+1')
 					->where('id', $id)
@@ -309,17 +325,17 @@ class Job extends Object implements Process_Interruptable {
 		
 		$timer = new Timer();
 		try {
-			$this->hook("execute_before");
+			$this->call_hook("execute_before");
 			$result = call_user_func_array($this->hook, array_merge(array(
 				$this
 			), to_array($this->hook_args)));
-			$this->hook("execute_after;execute_success");
+			$this->call_hook("execute_after;execute_success");
 		} catch (Exception_Interrupt $e) {
-			$this->hook("execute_after;execute_interrupt", $e);
+			$this->call_hook("execute_after;execute_interrupt", $e);
 			$process->terminate();
 			return;
 		} catch (\Exception $e) {
-			$this->hook("execute_after;execute_exception", $e);
+			$this->call_hook("execute_after;execute_exception", $e);
 			throw $e;
 		}
 		$elapsed = $timer->elapsed();
@@ -363,7 +379,7 @@ class Job extends Object implements Process_Interruptable {
 		if (is_bool($set)) {
 			$this->completed = Timestamp::now();
 			$this->data("completed_status", $set);
-			$this->hook("completed");
+			$this->call_hook("completed");
 			return $this->store();
 		}
 		return !$this->member_is_empty("completed");

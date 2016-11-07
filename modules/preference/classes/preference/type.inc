@@ -21,7 +21,7 @@ class Preference_Type extends Object {
 	 * @return Preference_Tyep
 	 */
 	static function registerName($code_name, $name = null) {
-		zesk::deprecated();
+		zesk()->deprecated();
 		return self::register_name($code_name, $name);
 	}
 

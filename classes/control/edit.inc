@@ -7,6 +7,11 @@
  * @copyright Copyright &copy; 2008, Market Acumen, Inc.
  *            Created on Tue Jul 15 16:28:30 EDT 2008
  */
+use zesk\URL;
+use zesk\HTML;
+use zesk\Database_Exception_Duplicate;
+use zesk\Exception_Object_Duplicate;
+use zesk\arr;
 
 /**
  * Edit an object with multiple columns
@@ -16,6 +21,11 @@
  * @see Widget::execute
  */
 class Control_Edit extends Control {
+	
+	/**
+	 * 
+	 * @var string
+	 */
 	const option_duplicate_message = 'duplicate_message';
 	
 	/**
@@ -192,7 +202,7 @@ class Control_Edit extends Control {
 		if (!$this->name()) {
 			$this->name("edit");
 		}
-		$ww = $this->hook('widgets');
+		$ww = $this->call_hook('widgets');
 		if (is_array($ww)) {
 			$ww = $this->_filter_widgets($ww);
 			$this->children($ww);
@@ -203,7 +213,7 @@ class Control_Edit extends Control {
 		
 		$this->form_attributes['action'] = $this->request->path();
 		
-		$this->form_attributes = html::add_class($this->form_attributes, strtr(strtolower(get_class($this)), "_", '-'));
+		$this->form_attributes = HTML::add_class($this->form_attributes, strtr(strtolower(get_class($this)), "_", '-'));
 		if ($this->parent && $this->traverse === null) {
 			$this->traverse = true;
 			if ($this->parent instanceof Control_Edit) {
@@ -234,7 +244,7 @@ class Control_Edit extends Control {
 		$url = null;
 		if ($redirect) {
 			$redirect = map($redirect, $vars);
-			$url = url::query_format($redirect, "ref", $this->request->get("ref", $this->request->url()));
+			$url = URL::query_format($redirect, "ref", $this->request->get("ref", $this->request->url()));
 		}
 		$message = map($this->option('delete_redirect_message'), $vars);
 		if ($this->request->is_ajax()) {
@@ -261,7 +271,7 @@ class Control_Edit extends Control {
 	}
 	private function _get_duplicate_message() {
 		$message = $this->option(self::option_duplicate_message, 'Another {Class_Object::name} with the same name already exists.');
-		$message = $this->hook_array("duplicate_message", array(
+		$message = $this->call_hook_arguments("duplicate_message", array(
 			$message
 		), $message);
 		$message = __($message, $this->object->variables());
@@ -273,16 +283,16 @@ class Control_Edit extends Control {
 				$this->error($this->option('store_error', __('Unable to save {object}', array(
 					'object' => strval($this->object)
 				))));
-				$this->hook('store_failed');
+				$this->call_hook('store_failed');
 				return true;
 			}
-			$this->hook('stored');
+			$this->call_hook('stored');
 		} catch (Database_Exception_Duplicate $dup) {
 			$this->error($this->_get_duplicate_message());
-			return $this->hook_array("store_failed", array(), false);
+			return $this->call_hook_arguments("store_failed", array(), false);
 		} catch (Exception_Object_Duplicate $dup) {
 			$this->error($this->_get_duplicate_message());
-			return $this->hook_array("store_failed", array(), false);
+			return $this->call_hook_arguments("store_failed", array(), false);
 		}
 		return true;
 	}
@@ -326,8 +336,18 @@ class Control_Edit extends Control {
 		// Set default theme to control/foo/prefix, control/foo/header etc.
 		foreach (to_list("prefix;header;footer;suffix") as $var) {
 			$theme_var = "theme_$var";
+			$debug_type = "overridden";
 			if (!$this->$theme_var) {
 				$this->$theme_var = arr::suffix($hierarchy, $var);
+				$debug_type = "default";
+			}
+			if ($this->option_bool("debug_theme_paths")) {
+				$zesk->logger->debug("{class}->{theme_var} theme ({debug_type}) is {paths}", array(
+					"debug_type" => $debug_type,
+					"class" => get_class($this),
+					"theme_var" => $theme_var,
+					"paths" => $this->$theme_var
+				));
 			}
 		}
 	}

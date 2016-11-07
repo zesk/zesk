@@ -63,7 +63,7 @@ class View_Layout extends View {
 		if (empty($layout)) {
 			return implode("\n", $this->generate_content());
 		}
-		$layout_options = (is_array($layout)) ? $layout : to_array(html::parse_attributes($layout), array());
+		$layout_options = (is_array($layout)) ? $layout : to_array(HTML::parse_attributes($layout), array());
 
 		$rows = clamp(1, to_integer(avalue($layout_options, 'rows')), 4);
 		$cols = clamp(1, to_integer(avalue($layout_options, 'cols')), 4);

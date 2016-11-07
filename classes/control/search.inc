@@ -1,5 +1,14 @@
 <?php
+/**
+ * 
+ */
+use zesk\Database_Query_Select;
 
+/**
+ * 
+ * @author kent
+ *
+ */
 class Control_Search extends Control_Text {
 
 	protected $search_columns = array();

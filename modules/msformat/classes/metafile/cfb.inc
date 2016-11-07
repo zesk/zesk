@@ -1,6 +1,17 @@
 <?php
+/**
+ * 
+ * 
+ */
+use zesk\PHP;
+use zesk\Exception_File_Format;
+use zesk\Exception_Invalid;
 
-
+/**
+ * 
+ * @author kent
+ *
+ */
 class Metafile_CFB extends Metafile {
 
 	protected $minor_version = null;
@@ -90,11 +101,11 @@ class Metafile_CFB extends Metafile {
 			0x1A, 
 			0xE1
 		)) {
-			throw new Exception_File_Format("CFB Header signature incorrect " . php::dump($signature));
+			throw new Exception_File_Format("CFB Header signature incorrect " . PHP::dump($signature));
 		}
 		$header_clsid = $this->read_byte(16);
 		if ($header_clsid !== array_fill(0, 16, 0)) {
-			$this->warning("Header_CLSID should be all zeros, it's not: " . php::dump($header_clsid));
+			$this->warning("Header_CLSID should be all zeros, it's not: " . PHP::dump($header_clsid));
 		}
 		$this->minor_version = $this->read_integer(2);
 		if ($this->minor_version !== 0x003E) {
@@ -127,7 +138,7 @@ class Metafile_CFB extends Metafile {
 			throw new Exception_File_Format("Min sector shift must be 0x0006 ($mini_sector_shift)");
 		}
 		if (($zeros = $this->read_byte(6)) !== array_fill(0, 6, 0)) {
-			$this->warning("Header Reserved (6) should be all zeros, it's not: " . php::dump($zeros));
+			$this->warning("Header Reserved (6) should be all zeros, it's not: " . PHP::dump($zeros));
 		}
 		$this->directory_sectors_count = $this->read_integer(4);
 		if ($this->major_version === 3 && $this->directory_sectors_count !== 0) {

@@ -6,7 +6,10 @@
  * @author kent
  * @copyright Copyright &copy; 2010, Market Acumen, Inc.
  */
+zesk()->deprecated();
 
-class Exception_File_Permission extends Exception_FileSystem {
-
-}
+/**
+ * @deprecated 2016-09
+ * @author kent
+ */
+class Exception_File_Permission extends zesk\Exception_File_Permission {}

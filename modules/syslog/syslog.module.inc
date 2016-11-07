@@ -1,3 +1,8 @@
 <?php
+if (false) {
+	$zesk = zesk();
+	$application = app();
+}
 
-Module::register_paths();
+$application->modules->register_paths();
+$application->register_class("syslog/Logger");

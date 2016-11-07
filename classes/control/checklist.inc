@@ -7,22 +7,29 @@
  * @copyright Copyright &copy; 2008, Market Acumen, Inc.
  * Created on Tue Jul 15 16:38:07 EDT 2008
  */
+use zesk\Exception_Parameter;
+use zesk\arr;
+
+/**
+ * 
+ * @author kent
+ *
+ */
 class Control_Checklist extends Control_Options {
-
 	const option_checklist_exclusive = "checklist_exclusive";
-
+	
 	/**
 	 *
 	 * @var array
 	 */
 	private $widgets_id = null;
-
+	
 	/**
 	 *
 	 * @var array
 	 */
 	private $checkbox_exclusives = array();
-
+	
 	/**
 	 * Convert value to/from a string (list)
 	 *
@@ -31,11 +38,16 @@ class Control_Checklist extends Control_Options {
 	public function value_is_list($set = null) {
 		return is_bool($set) ? $this->set_option('value_is_list', $set) : $this->option_bool('value_is_list');
 	}
-
+	
+	/**
+	 * Getter/setter for columns to display checkboxes in
+	 * 
+	 * @param integer $set
+	 * @return integer|self
+	 */
 	public function columns($set = null) {
 		return $set === null ? $this->option_integer('columns') : $this->set_option('columns', intval($set));
 	}
-
 	public function checkbox_exclusive($value = null, $set = null) {
 		if ($value === null) {
 			$result = array();
@@ -56,7 +68,6 @@ class Control_Checklist extends Control_Options {
 			"value" => $value
 		) + $this->options);
 	}
-
 	protected function hook_control_options_changed() {
 		$this->widgets_id = null;
 		$this->_init_children($this->control_options);
@@ -71,12 +82,11 @@ class Control_Checklist extends Control_Options {
 		if (is_array($options)) {
 			$this->_init_children($options);
 		} else {
-			$this->control_options = $this->hook_array('options', array(), $this->control_options);
-			$this->hook("control_options_changed");
+			$this->control_options = $this->call_hook_arguments('options', array(), $this->control_options);
+			$this->call_hook("control_options_changed");
 		}
 		parent::initialize();
 	}
-
 	private function control_checkbox_factory($name, $col, $label, $value) {
 		return new Control_Checkbox(array(
 			'name' => $name . "[]",
@@ -86,7 +96,6 @@ class Control_Checklist extends Control_Options {
 			'checked_value' => $value
 		));
 	}
-
 	private function _child_name($value) {
 		return "checklist-" . $this->name() . "-$value";
 	}
@@ -112,13 +121,13 @@ class Control_Checklist extends Control_Options {
 		}
 		return $this->widgets_id;
 	}
-
+	
 	/**
 	 * Hook intialized
 	 */
 	protected function hook_initialized() {
-		$values = $this->hook_array("object_value", array(), array());
-		if (is_array($values) || $values instanceof Iterator) {
+		$values = $this->call_hook_arguments("object_value", array(), array());
+		if (can_iterate($values)) {
 			foreach ($values as $id => $item) {
 				if (array_key_exists($id, $this->widgets_id)) {
 					$this->widgets_id[$id]->set_option("checked", true);
@@ -126,7 +135,7 @@ class Control_Checklist extends Control_Options {
 			}
 		}
 	}
-
+	
 	/**
 	 *
 	 * @return string
@@ -134,7 +143,7 @@ class Control_Checklist extends Control_Options {
 	private function option_separator() {
 		return $this->option('separator', ';');
 	}
-
+	
 	/**
 	 *
 	 * @return array Iterator
@@ -145,7 +154,7 @@ class Control_Checklist extends Control_Options {
 		}
 		return $this->value();
 	}
-
+	
 	/**
 	 * (non-PHPdoc)
 	 *
@@ -161,7 +170,7 @@ class Control_Checklist extends Control_Options {
 			}
 		}
 	}
-
+	
 	/**
 	 * (non-PHPdoc)
 	 *

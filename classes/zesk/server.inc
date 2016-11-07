@@ -10,12 +10,6 @@
 namespace zesk;
 
 use \Lock as Lock;
-use \system as system;
-use \Exception_Parameter as Exception_Parameter;
-use \Database_Exception_Table_NotFound as Database_Exception_Table_NotFound;
-use \Exception_Object_Duplicate as Exception_Object_Duplicate;
-use \zesk as zesk;
-use \Database as Database;
 use \Server_Data as Server_Data;
 
 /**
@@ -78,6 +72,27 @@ abstract class Server extends Object implements Interface_Data {
 	}
 	
 	/**
+	 * 
+	 * @param Kernel $zesk
+	 */
+	public static function hooks(Kernel $zesk) {
+		global $zesk;
+		/* @var $zesk Kernel */
+		$zesk->hooks->add(Hooks::hook_configured, array(
+			__CLASS__,
+			"configured"
+		));
+	}
+	
+	/**
+	 * 
+	 */
+	public static function configured(Application $application) {
+		global $zesk;
+		/* @var $zesk Kernel */
+		$zesk->configuration->deprecated("FDISK_PRIMARY", __CLASS__ . "::free_disk_volume");
+	}
+	/**
 	 * Once a minute, update the state
 	 *
 	 * @param Application $application        	
@@ -92,7 +107,7 @@ abstract class Server extends Object implements Interface_Data {
 	 */
 	public function bury_dead_servers() {
 		if (($lock = Lock::get_lock(__CLASS__ . '::bury_dead_servers')) !== null) {
-			$query = $this->query();
+			$query = $this->query_select();
 			$pushed = $this->push_utc();
 			
 			$dead_to_me = Timestamp::now('UTC')->add_unit("second", -abs($this->option_integer('timeout_seconds', self::default_timeout_seconds)));
@@ -102,7 +117,7 @@ abstract class Server extends Object implements Interface_Data {
 			/* @var $server Server */
 			foreach ($iterator as $server) {
 				// Delete this way so hooks get called per dead server
-				log::warning("Burying dead server {name} (#{id}), last alive on {alive}", $server->members());
+				zesk()->logger->warning("Burying dead server {name} (#{id}), last alive on {alive}", $server->members());
 				$server->delete();
 			}
 			$this->pop_utc($pushed);
@@ -116,7 +131,7 @@ abstract class Server extends Object implements Interface_Data {
 	 * @throws Exception_Parameter
 	 */
 	private static function host_default() {
-		$host = system::uname();
+		$host = System::uname();
 		if (empty($host)) {
 			throw new Exception_Parameter("No UNAME or HOST defined");
 		}
@@ -167,7 +182,7 @@ abstract class Server extends Object implements Interface_Data {
 		} catch (Database_Exception_Table_NotFound $e) {
 			return null;
 		}
-		$this->hook("initialize_names");
+		$this->call_hook("initialize_names");
 		$this->_initialize_names_defaults();
 		try {
 			return $this->store();
@@ -192,7 +207,7 @@ abstract class Server extends Object implements Interface_Data {
 			$this->name_external = $host;
 		}
 		if (!isset($this->ip4_internal)) {
-			$ips = system::ip_addresses();
+			$ips = System::ip_addresses();
 			$ips = arr::remove_values($ips, "127.0.0.1");
 			if (count($ips) >= 1) {
 				$this->ip4_internal = first(array_values($ips));
@@ -209,9 +224,9 @@ abstract class Server extends Object implements Interface_Data {
 		if ($path === null) {
 			global $zesk;
 			/* @var $zesk zesk\Kernel */
-			$path = $zesk->configuration->get('FDISK_PRIMARY', "/"); // TODO Consider renaming this
+			$path = $zesk->configuration->path_get(__CLASS__ . '::free_disk_volume', "/");
 		}
-		$volume_info = system::volume_info();
+		$volume_info = System::volume_info();
 		$info = avalue($volume_info, $path);
 		$update = array();
 		if ($info) {
@@ -220,7 +235,10 @@ abstract class Server extends Object implements Interface_Data {
 		$pushed = $this->push_utc();
 		$update['load'] = avalue(system::load_averages(), 0, null);
 		$update['*alive'] = $this->sql()->now();
-		$this->query_update()->values($update)->where($this->members($this->primary_keys()))->execute();
+		$this->query_update()
+			->values($update)
+			->where($this->members($this->primary_keys()))
+			->execute();
 		$this->pop_utc($pushed);
 		return $this->fetch();
 	}
@@ -337,7 +355,7 @@ abstract class Server extends Object implements Interface_Data {
 		if ($acquired_lock) {
 			$this->database()->release_lock($lock_name);
 		} else {
-			log::warning("Unable to acquire lock {lock_name}", compact("lock_name"));
+			zesk()->logger->warning("Unable to acquire lock {lock_name}", compact("lock_name"));
 		}
 		return $result;
 	}

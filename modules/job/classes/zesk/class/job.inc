@@ -7,7 +7,7 @@ namespace zesk;
  * @author kent
  *
  */
-class Class_Job extends \Class_Object {
+class Class_Job extends Class_Object {
 	public $id_column = "id";
 	public $find_keys = array(
 		"code"

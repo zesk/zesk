@@ -1,5 +1,17 @@
 <?php
 
+namespace zesk;
+
+/* @var $this \zesk\Template */
+/* @var $zesk \zesk\Kernel */
+/* @var $application \zesk\Application */
+/* @var $session \zesk\Session */
+/* @var $router \zesk\Router */
+/* @var $route \zesk\Route */
+/* @var $request \zesk\Request */
+/* @var $response \zesk\Response_Text_HTML */
+/* @var $current_user \User */
+
 $url = $this->url;
 $offset = $this->offset;
 $current = $this->current;
@@ -31,7 +43,7 @@ if ($disabled) {
 	);
 	$image .= "-off";
 } else {
-	$href = url::query_format($url, array(
+	$href = URL::query_format($url, array(
 		"offset" => $offset
 	));
 	if ($this->has("ajax_id")) {
@@ -47,4 +59,4 @@ if ($disabled) {
 		);
 	}
 }
-echo html::tag("a", $attrs, html::cdn_img("/share/zesk/images/pager/$image.gif", $name));
+echo HTML::tag("a", $attrs, HTML::cdn_img("/share/zesk/images/pager/$image.gif", $name));

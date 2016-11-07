@@ -1,4 +1,7 @@
 <?php
+use zesk\HTML;
+use zesk\HTML_Tag;
+
 class test_html extends Test_Unit {
 
 	function test_style_clean() {
@@ -9,7 +12,7 @@ class test_html extends Test_Unit {
 		);
 		$allowed = true;
 		$disallowed = 'crap';
-		$result = html::style_clean($attr, $allowed, $disallowed);
+		$result = HTML::style_clean($attr, $allowed, $disallowed);
 		debug::output($result);
 		$this->assert_arrays_equal($result, array(
 			'type' => 'text/javascript',
@@ -21,14 +24,14 @@ class test_html extends Test_Unit {
 	 * @expected_exception Exception_Semantics
 	 */
 	function test_javascript_end() {
-		html::script_end();
+		HTML::script_end();
 	}
 
 	function test_parse_attribute() {
 		$attrString = null;
-		html::parse_attributes($attrString);
+		HTML::parse_attributes($attrString);
 
-		$this->assert_arrays_equal(html::parse_attributes('template="volunteer-help" article="12"'), array(
+		$this->assert_arrays_equal(HTML::parse_attributes('template="volunteer-help" article="12"'), array(
 			"article" => "12",
 			"template" => "volunteer-help"
 		));
@@ -38,7 +41,7 @@ class test_html extends Test_Unit {
 		$tag = "a";
 		$contents = file_get_contents(dirname(__FILE__) . '/html-extract_tags.html');
 		$recursive = true;
-		$tags = html::extract_tags($tag, $contents, $recursive);
+		$tags = HTML::extract_tags($tag, $contents, $recursive);
 
 		$result_tags = array(
 			new HTML_Tag('a', array(
@@ -109,28 +112,28 @@ class test_html extends Test_Unit {
 			$result_tag->offset += 22;
 		}
 		$contents = str_repeat('.', 22) . $contents;
-		$tags = html::extract_tags($tag, $contents, $recursive);
+		$tags = HTML::extract_tags($tag, $contents, $recursive);
 
 		$this->assert_arrays_equal($tags, $result_tags);
 	}
 
 	function test_body_attributes() {
 		$add = null;
-		html::body_attributes("goo", "bar");
-		html::body_attributes(array(
+		HTML::body_attributes("goo", "bar");
+		HTML::body_attributes(array(
 			"goo" => "actual"
 		));
-		html::body_attributes(array(
+		HTML::body_attributes(array(
 			"poo" => "bar"
 		));
-		html::body_attributes("poo", "actual");
-		html::body_attributes(array(
+		HTML::body_attributes("poo", "actual");
+		HTML::body_attributes(array(
 			"dee" => "foofla"
 		));
-		html::body_attributes("dee", "actual");
-		html::body_attributes("loo", "actual");
+		HTML::body_attributes("dee", "actual");
+		HTML::body_attributes("loo", "actual");
 
-		$attrs = html::body_attributes();
+		$attrs = HTML::body_attributes();
 
 		$compare_result = array(
 			"goo" => "actual",
@@ -146,101 +149,101 @@ class test_html extends Test_Unit {
 	function test_a() {
 		$href = null;
 		$mixed = null;
-		html::a($href, $mixed);
+		HTML::a($href, $mixed);
 	}
 
 	function test_a_condition() {
 		$condition = null;
 		$href = null;
 		$mixed = null;
-		html::a_condition($condition, $href, $mixed);
+		HTML::a_condition($condition, $href, $mixed);
 	}
 
 	function test_a_match() {
 		$href = null;
 		$mixed = null;
-		html::a_match($href, $mixed);
+		HTML::a_match($href, $mixed);
 	}
 
 	function test_a_path() {
 		$href = null;
 		$mixed = null;
-		html::a_path($href, $mixed);
+		HTML::a_path($href, $mixed);
 	}
 
 	function test_a_prefix() {
 		$href = null;
 		$mixed = null;
-		html::a_prefix($href, $mixed);
+		HTML::a_prefix($href, $mixed);
 	}
 
 	function test_attributes() {
 		$attributes = null;
-		html::attributes($attributes);
+		HTML::attributes($attributes);
 	}
 
 	function test_body_begin() {
-		html::body_begin();
+		HTML::body_begin();
 	}
 
 	function test_body_end() {
-		html::body_end();
+		HTML::body_end();
 	}
 
 	function test_cdn() {
 		$uri = null;
-		html::cdn($uri);
+		HTML::cdn($uri);
 	}
 
 	function test_cdn_css() {
 		$path = null;
 		$options = null;
-		html::cdn_css($path, $options);
+		HTML::cdn_css($path, $options);
 	}
 
 	function test_cdn_img() {
 		$src = null;
 		$text = '';
 		$attrs = false;
-		html::cdn_img($src, $text, $attrs);
+		HTML::cdn_img($src, $text, $attrs);
 	}
 
 	function test_cdn_shortcut_icon() {
 		$path = null;
-		html::cdn_shortcut_icon($path);
+		HTML::cdn_shortcut_icon($path);
 	}
 
 	function test_clean_style_attributes() {
 		$string = null;
 		$include = true;
 		$exclude = false;
-		html::clean_style_attributes($string, $include, $exclude);
+		HTML::clean_style_attributes($string, $include, $exclude);
 	}
 
 	function test_clean_tags() {
 		$string = null;
 		$allowed_tags = true;
 		$remove_tags = false;
-		html::clean_tags($string, $allowed_tags, $remove_tags);
+		HTML::clean_tags($string, $allowed_tags, $remove_tags);
 	}
 
 	function test_clean_tags_attributes() {
 		$string = null;
 		$include = true;
 		$exclude = false;
-		html::clean_tags_attributes($string, $include, $exclude);
+		HTML::clean_tags_attributes($string, $include, $exclude);
 	}
 
 	function test_clean_tags_without_attributes() {
 		$tags = null;
 		$html = null;
-		html::clean_tags_without_attributes($tags, $html);
+		HTML::clean_tags_without_attributes($tags, $html);
 	}
 
 	function test_count_end_tags() {
 		$tag = null;
 		$mixed = null;
-		html::count_end_tags($tag, $mixed);
+		HTML::count_end_tags($tag, $mixed);
 	}
 
 	function test_count_until_tag() {
@@ -249,7 +252,7 @@ class test_html extends Test_Unit {
 		$offset = 17;
 		$nWords = null;
 		$tagName = "strong";
-		$this->assert(html::count_until_tag($string, $tagName, $nWords) === $offset, "html::count_until_tag($string, $tagName, $nWords) " . html::count_until_tag($string, $tagName, $nWords) . " === $offset");
+		$this->assert(HTML::count_until_tag($string, $tagName, $nWords) === $offset, "HTML::count_until_tag($string, $tagName, $nWords) " . HTML::count_until_tag($string, $tagName, $nWords) . " === $offset");
 		$this->assert($nWords === 2);
 		$this->assert($tagName === "strong", "$tagName === strong");
 	}
@@ -260,80 +263,80 @@ class test_html extends Test_Unit {
 		$media = null;
 		$browser = null;
 		$type = null;
-		html::css($path, $root_dir, $media, $browser, $type);
+		HTML::css($path, $root_dir, $media, $browser, $type);
 	}
 
 	function test_div() {
 		$mixed = null;
 		$content = null;
-		html::div($mixed, $content);
+		HTML::div($mixed, $content);
 	}
 
 	function test_ellipsis() {
 		$s = null;
 		$n = 20;
 		$dot_dot_dot = '...';
-		html::ellipsis($s, $n, $dot_dot_dot);
+		HTML::ellipsis($s, $n, $dot_dot_dot);
 	}
 
 	function test_etag() {
 		$name = null;
 		$mixed = null;
-		html::etag($name, $mixed);
+		HTML::etag($name, $mixed);
 	}
 
 	function test_extract_body() {
 		$mixed = null;
-		html::extract_body($mixed);
+		HTML::extract_body($mixed);
 	}
 
 	function test_extract_emails() {
 		$content = null;
-		html::extract_emails($content);
+		HTML::extract_emails($content);
 	}
 
 	function test_extract_links() {
 		$content = null;
-		html::extract_links("Goo <a href=\"dude\">Dude</a>");
+		HTML::extract_links("Goo <a href=\"dude\">Dude</a>");
 	}
 
 	function test_extract_tag() {
 		$tag = null;
 		$mixed = null;
-		html::extract_tag($tag, $mixed);
+		HTML::extract_tag($tag, $mixed);
 	}
 
 	function test_extract_tag_contents() {
 		$tag = null;
 		$mixed = null;
-		html::extract_tag_contents($tag, $mixed);
+		HTML::extract_tag_contents($tag, $mixed);
 	}
 
 	function test_extract_tag_object() {
 		$tag = null;
 		$mixed = null;
-		html::extract_tag_object($tag, $mixed);
+		HTML::extract_tag_object($tag, $mixed);
 	}
 
 	function test_head() {
-		html::head();
+		HTML::head();
 	}
 
 	function test_hidden() {
 		$name = null;
 		$value = null;
-		html::hidden($name, $value);
+		HTML::hidden($name, $value);
 	}
 
 	function test_id_counter() {
-		html::id_counter();
+		HTML::id_counter();
 	}
 
 	function test_img() {
 		$src = null;
 		$text = '';
 		$attrs = false;
-		html::img($src, $text, $attrs);
+		HTML::img($src, $text, $attrs);
 	}
 
 	function test_img_compat() {
@@ -342,11 +345,11 @@ class test_html extends Test_Unit {
 		$h = false;
 		$text = '';
 		$attrs = false;
-		html::img_compat($src, $w, $h, $text, $attrs);
+		HTML::img_compat($src, $w, $h, $text, $attrs);
 	}
 
 	function test_inline_styles() {
-		html::inline_styles();
+		HTML::inline_styles();
 	}
 
 	function test_input() {
@@ -354,56 +357,56 @@ class test_html extends Test_Unit {
 		$name = null;
 		$value = null;
 		$attributes = null;
-		html::input($type, $name, $value, $attributes);
+		HTML::input($type, $name, $value, $attributes);
 	}
 
 	function test_input_button() {
 		$n = null;
 		$v = null;
 		$attrs = false;
-		html::input_button($n, $v, $attrs);
+		HTML::input_button($n, $v, $attrs);
 	}
 
 	function test_input_hidden() {
 		$name = null;
 		$value = null;
 		$attributes = null;
-		html::input_hidden($name, $value, $attributes);
+		HTML::input_hidden($name, $value, $attributes);
 	}
 
 	function test_input_submit() {
 		$n = null;
 		$v = null;
 		$attrs = false;
-		html::input_submit($n, $v, $attrs);
+		HTML::input_submit($n, $v, $attrs);
 	}
 
 	function test_insert_inside_end() {
 		$html = null;
 		$insert_html = null;
-		html::insert_inside_end($html, $insert_html);
+		HTML::insert_inside_end($html, $insert_html);
 	}
 
 	function test_is_end_tag() {
 		$string = null;
-		html::is_end_tag($string);
+		HTML::is_end_tag($string);
 	}
 
 	function test_javascript() {
 		$path = null;
 		$root_dir = null;
 		$options = null;
-		html::javascript($path, $root_dir, $options);
+		HTML::javascript($path, $root_dir, $options);
 	}
 
 	function test_scripts() {
 		$type = "text/javascript";
 		$script = "alert('Hello, world!');";
-		html::javascript_inline($script, array(
+		HTML::javascript_inline($script, array(
 			'browser' => 'ie'
 		));
 
-		$scripts = html::scripts();
+		$scripts = HTML::scripts();
 
 		$this->assert(strpos($scripts, $script) !== false);
 		$this->assert(strpos($scripts, "<!--") !== false);
@@ -417,69 +420,69 @@ class test_html extends Test_Unit {
 		$script = null;
 		$browser = null;
 		$type = null;
-		html::javascript_inline($script, $browser, $type);
+		HTML::javascript_inline($script, $browser, $type);
 	}
 
 	function test_jquery() {
 		$add_ready_script = null;
-		html::jquery($add_ready_script);
+		HTML::jquery($add_ready_script);
 	}
 
 	function test_match_tags() {
 		$string = null;
-		html::match_tags($string);
+		HTML::match_tags($string);
 	}
 
 	function test_meta() {
 		$name = null;
 		$content = null;
-		html::meta($name, $content);
+		HTML::meta($name, $content);
 	}
 
 	function test_meta_description() {
 		$content = null;
-		html::meta_description($content);
+		HTML::meta_description($content);
 	}
 
 	function test_meta_http() {
 		$name = null;
 		$content = null;
-		html::meta_http($name, $content);
+		HTML::meta_http($name, $content);
 	}
 
 	function test_meta_keywords() {
 		$content = null;
-		html::meta_keywords($content);
+		HTML::meta_keywords($content);
 	}
 
 	function test_meta_nocache() {
-		html::meta_nocache();
+		HTML::meta_nocache();
 	}
 
 	function test_metas() {
-		html::metas();
+		HTML::metas();
 	}
 
 	function test_mixed_to_string() {
 		$mixed = null;
-		html::mixed_to_string($mixed);
+		HTML::mixed_to_string($mixed);
 	}
 
 	function test_parse_styles() {
 		$style_string = null;
-		html::parse_styles($style_string);
+		HTML::parse_styles($style_string);
 	}
 
 	function test_parse_tags() {
 		$string = null;
-		html::parse_tags($string);
+		HTML::parse_tags($string);
 	}
 
 	function test_remove_tags() {
 		$tag = null;
 		$mixed = null;
 		$delete = true;
-		html::remove_tags($tag, $mixed, $delete);
+		HTML::remove_tags($tag, $mixed, $delete);
 	}
 
 	function test_select() {
@@ -490,18 +493,18 @@ class test_html extends Test_Unit {
 			"opt2" => "opt2"
 		);
 		$attributes = null;
-		html::select($name, $value, $options, $attributes);
+		HTML::select($name, $value, $options, $attributes);
 	}
 
 	function test_shortcut_icon() {
 		$path = null;
 		$root_dir = null;
-		html::shortcut_icon($path, $root_dir);
+		HTML::shortcut_icon($path, $root_dir);
 	}
 
 	function test_specialchars() {
 		$mixed = null;
-		html::specialchars($mixed);
+		HTML::specialchars($mixed);
 
 		$string = 'o	The second step in the checkout process where the customer reviews the information they entered before placing the order
 		o	Action Page: “Preview Order” page...can’t see the URL
@@ -510,23 +513,23 @@ class test_html extends Test_Unit {
 
 	function test_specials() {
 		$string = null;
-		html::specials($string);
+		HTML::specials($string);
 	}
 
 	function test_strip() {
 		$x = null;
-		html::strip($x);
+		HTML::strip($x);
 	}
 
 	function test_strlen() {
 		$s = null;
-		html::strlen($s);
+		HTML::strlen($s);
 	}
 
 	function test_style_units() {
 		$item = null;
 		$default_unit = 'px';
-		html::style_units($item, $default_unit);
+		HTML::style_units($item, $default_unit);
 	}
 
 	function test_styles() {
@@ -534,20 +537,20 @@ class test_html extends Test_Unit {
 			"list-type" => "none"
 		);
 		$delim = "\n";
-		html::styles($styles, $delim);
+		HTML::styles($styles, $delim);
 	}
 
 	function test_substr() {
 		$s = null;
 		$offset = 0;
 		$length = null;
-		html::substr($s, $offset, $length);
+		HTML::substr($s, $offset, $length);
 	}
 
 	function test_tag() {
 		$name = null;
 		$mixed = null;
-		html::tag($name, $mixed);
+		HTML::tag($name, $mixed);
 	}
 
 	/**
@@ -555,54 +558,54 @@ class test_html extends Test_Unit {
 	 */
 	function test_tag_close() {
 		$tagName = null;
-		html::tag_close('p');
+		HTML::tag_close('p');
 	}
 
 	function test_tag_open() {
 		$attributes = array(
 			"id" => "dude"
 		);
-		html::tag_open("div", $attributes);
-		html::tag_close("DIV");
+		HTML::tag_open("div", $attributes);
+		HTML::tag_close("DIV");
 	}
 
 	function test_tags() {
 		$name = null;
 		$mixed = null;
-		html::tags($name, $mixed);
+		HTML::tags($name, $mixed);
 	}
 
 	function test_title() {
 		$set = null;
-		html::title($set);
+		HTML::title($set);
 	}
 
 	function test_to_attributes() {
 		$mixed = null;
 		$default = null;
-		html::to_attributes($mixed, $default);
+		HTML::to_attributes($mixed, $default);
 	}
 
 	function test_trim_white_space() {
 		$html = null;
-		html::trim_white_space($html);
+		HTML::trim_white_space($html);
 	}
 
 	function test_trim_words() {
 		$string = null;
 		$wordCount = null;
-		html::trim_words($string, $wordCount);
+		HTML::trim_words($string, $wordCount);
 	}
 
 	function test_urlify() {
 		$text = null;
 		$attributes = array();
-		html::urlify($text, $attributes);
+		HTML::urlify($text, $attributes);
 	}
 
 	function test_css_inline() {
 		$data = "strong { color: blue; }";
 		$type = "text/css";
-		html::css_inline($data, $type);
+		HTML::css_inline($data, $type);
 	}
 }

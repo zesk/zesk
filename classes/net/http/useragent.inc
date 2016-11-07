@@ -1,28 +1,38 @@
 <?php
+/**
+ * 
+ */
+use zesk\PHP;
+use zesk\arr;
 
+/**
+ * 
+ * @author kent
+ *
+ */
 class Net_HTTP_UserAgent {
-
+	
 	/**
 	 * User agent raw string
 	 *
 	 * @var string
 	 */
 	protected $user_agent = null;
-
+	
 	/**
 	 * Parsed results from user_agent_test
 	 *
 	 * @var array
 	 */
 	protected $is = null;
-
+	
 	/**
 	 * Parsed results from user_agent_test
 	 *
 	 * @var array
 	 */
 	protected $classify = null;
-
+	
 	/**
 	 * Language equivalents of the classification names
 	 *
@@ -34,7 +44,7 @@ class Net_HTTP_UserAgent {
 		'mobile' => 'Mobile/Desktop',
 		'user_agent' => 'User Agent'
 	);
-
+	
 	/**
 	 * Presence of these true values in ->is will display classification
 	 * Last array item in each is the default
@@ -63,7 +73,11 @@ class Net_HTTP_UserAgent {
 			'' => 'desktop'
 		)
 	);
-
+	
+	/**
+	 * 
+	 * @var array
+	 */
 	private static $lang_classifications = array(
 		'mac' => 'Mac OS X',
 		'windows' => "Windows",
@@ -79,30 +93,59 @@ class Net_HTTP_UserAgent {
 		'mobile' => 'Mobile device',
 		'desktop' => 'Desktop',
 		'platform' => 'Platform',
-		'browser' => 'Web Browser',
+		'browser' => 'Web Browser'
 	);
-
+	
+	/**
+	 * Create a new user agent
+	 * 
+	 * @param string $user_agent
+	 */
 	function __construct($user_agent = null) {
 		$this->user_agent($user_agent);
 	}
-
+	/**
+	 * 
+	 * @param string $user_agent
+	 * @return self
+	 */
 	static function factory($user_agent = null) {
-		return zesk::factory(__CLASS__, $user_agent);
+		return new self($user_agent);
 	}
-
+	
+	/**
+	 * 
+	 */
 	function __wakeup() {
 		$this->is = null;
 		$this->classify = null;
 	}
+	
+	/**
+	 * 
+	 * @return string[]
+	 */
 	function __sleep() {
 		return array(
 			"user_agent"
 		);
 	}
+	
+	/**
+	 * Convert to string
+	 * 
+	 * @return string
+	 */
 	function __toString() {
-		return php::dump($this->user_agent);
+		return PHP::dump($this->user_agent);
 	}
-
+	
+	/**
+	 * Get/set user agent
+	 * 
+	 * @param string $set
+	 * @return self|string
+	 */
 	function user_agent($set = null) {
 		if ($set !== null) {
 			$this->user_agent = strval($set);
@@ -112,7 +155,13 @@ class Net_HTTP_UserAgent {
 		}
 		return $this->user_agent;
 	}
-
+	
+	/**
+	 * Passes criteria passed in?
+	 * 
+	 * @param string $criteria
+	 * @return mixed|array
+	 */
 	function is($criteria = null) {
 		if (!is_array($this->is)) {
 			$this->is = self::parse($this->user_agent);
@@ -122,14 +171,19 @@ class Net_HTTP_UserAgent {
 		}
 		return avalue($this->is, $criteria, false);
 	}
-
+	
+	/**
+	 * Classify user agent and return classificiation
+	 * 
+	 * @param string $translate
+	 */
 	function classify($translate = false) {
 		if (!is_array($this->classify)) {
 			$this->classify = $this->_classify();
 		}
 		return $translate ? arr::map_keys(arr::map_values($this->classify, self::$lang_classifications), self::$lang_classifications) : $this->classify;
 	}
-
+	
 	/**
 	 * Check what the current browser is.
 	 * Generally, this is discouraged, but it makes sense in a few cases - generally if you are
@@ -185,9 +239,9 @@ class Net_HTTP_UserAgent {
 		// Opera on Mac OS X
 		//     Opera/9.80 (Macintosh; Intel Mac OS X 10.7.5; U; en) Presto/2.10.289 Version/12.02
 		$result['user_agent'] = $user_agent;
-
+		
 		$ua = strtolower($user_agent);
-
+		
 		$result['opera'] = (strpos($ua, "opera") !== false);
 		$result['iphone'] = (strpos($ua, "iphone") !== false);
 		$result['ipad'] = (strpos($ua, "ipad") !== false);
@@ -217,10 +271,15 @@ class Net_HTTP_UserAgent {
 		$result['phone'] = $result['iphone'];
 		$result['tablet'] = !$result['phone'] && ($result['ipad'] || $result['kindle'] || $result['surface']);
 		$result['desktop'] = !$result['phone'] && !$result['tablet'];
-
+		
 		return $result;
 	}
-
+	
+	/**
+	 * Classify user agent
+	 * 
+	 * @return unknown[]
+	 */
 	private function _classify() {
 		$result = array();
 		foreach (self::$classifications as $type => $tests) {

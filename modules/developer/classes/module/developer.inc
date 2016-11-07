@@ -1,4 +1,13 @@
 <?php
+/**
+ * 
+ */
+use zesk\Database_Schema;
+use zesk\Application;
+use zesk\Request;
+use zesk\HTML;
+use zesk\arr;
+use zesk\Response_Text_HTML;
 
 /**
  * Add developer tools and expose items based on IP
@@ -6,7 +15,7 @@
  * @author kent
  *
  */
-class Module_Developer extends Module implements Module_Interface_Routes {
+class Module_Developer extends Module implements \zesk\Interface_Module_Routes {
 	public function test_ip() {
 		$application = $this->application;
 		$ips = $this->option_list('ip_allow');
@@ -66,11 +75,11 @@ class Module_Developer extends Module implements Module_Interface_Routes {
 	public function initialize() {
 		$zesk = $this->zesk;
 		
-		$zesk->hooks->add("Application::configured", array(
+		$zesk->hooks->add("zesk\Application::configured", array(
 			$this,
 			'test_ip'
 		));
-		$zesk->hooks->add("Application::router_prematch", array(
+		$zesk->hooks->add("zesk\Application::router_prematch", array(
 			$this,
 			'router_prematch'
 		));
@@ -79,9 +88,9 @@ class Module_Developer extends Module implements Module_Interface_Routes {
 	/**
 	 * 
 	 * {@inheritDoc}
-	 * @see Module_Interface_Routes::hook_routes()
+	 * @see \zesk\Interface_Module_Routes::hook_routes()
 	 */
-	public function hook_routes(Router $router) {
+	public function hook_routes(zesk\Router $router) {
 		if (!$this->application->development()) {
 			return;
 		}
@@ -93,11 +102,26 @@ class Module_Developer extends Module implements Module_Interface_Routes {
 		);
 		if (function_exists('phpinfo')) {
 			// Some installations disable this function for security
-			$router->add_route('phpinfo', array(
+			$router->add_route('developer/phpinfo', array(
 				'method' => 'phpinfo',
 				'buffer' => true
 			) + $extras);
+		} else {
+			$router->add_route('developer/phpinfo', array(
+				'content' => 'phpinfo function is disabled (usually for security)'
+			));
 		}
+		$router->add_route('developer/opcache_get_configuration', array(
+			'method' => 'opcache_get_configuration',
+			'content type' => zesk\Response::content_type_json
+		));
+		$router->add_route('developer/opcache_get_status', array(
+			'method' => 'opcache_get_status',
+			'arguments' => array(
+				false
+			),
+			'content type' => zesk\Response::content_type_json
+		));
 		$router->add_route('debug', array(
 			'theme' => 'system/debug'
 		) + $extras);
@@ -107,10 +131,10 @@ class Module_Developer extends Module implements Module_Interface_Routes {
 		$router->add_route('system-status', array(
 			'theme' => 'system/status'
 		) + $extras);
-		$router->add_route('routes', array(
+		$router->add_route('developer/routes', array(
 			'theme' => 'system/routes'
 		) + $extras);
-		$router->add_route('ip', array(
+		$router->add_route('developer/ip', array(
 			'method' => 'IPv4::remote',
 			'json' => true
 		) + $extras);
@@ -169,11 +193,11 @@ class Module_Developer extends Module implements Module_Interface_Routes {
 	 * 
 	 * @param Request $request
 	 */
-	public function dump_router(Request $request) {
+	public function dump_router(zesk\Request $request) {
 		$router = $request->router;
 		/* @var $route Route */
 		foreach ($router->routes() as $pattern => $route) {
-			echo html::tag('h2', $route->clean_pattern) . theme('dl', array(
+			echo HTML::tag('h2', $route->clean_pattern) . theme('dl', array(
 				'class' => get_class($route)
 			) + $route->option());
 		}
@@ -183,10 +207,10 @@ class Module_Developer extends Module implements Module_Interface_Routes {
 	 * 
 	 * @param Application $app
 	 * @param Request $request
-	 * @param Response_HTML $response
+	 * @param zesk\Response_Text_HTML $response
 	 * @param unknown $arg
 	 */
-	public function schema(Application $app, Request $request, Response_HTML $response, $arg = null) {
+	public function schema(Application $app, Request $request, Response_Text_HTML $response, $arg = null) {
 		Database_Schema::debug(true);
 		$db = null;
 		if ($arg) {
@@ -201,16 +225,16 @@ class Module_Developer extends Module implements Module_Interface_Routes {
 			try {
 				foreach ($results as $index => $sql) {
 					$db->query($results);
-					$results[$index] = html::tag('span', '.alert alert-success', $results[$index]);
+					$results[$index] = HTML::tag('span', '.alert alert-success', $results[$index]);
 				}
 			} catch (Exception $exception) {
-				$results[$index] = html::tag('span', '.alert alert-danger', $results[$index]);
+				$results[$index] = HTML::tag('span', '.alert alert-danger', $results[$index]);
 			}
 		}
 		$result = $exception ? theme('exception', array(
 			'content' => $exception
 		)) : "";
-		$result .= html::tag('ul', ".sql", html::tags('li', array_merge(array(
+		$result .= HTML::tag('ul', ".sql", HTML::tags('li', array_merge(array(
 			"-- " . $arg . ";\n"
 		), arr::suffix($results, ";\n"))));
 		return $result;

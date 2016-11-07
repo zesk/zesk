@@ -1,21 +1,16 @@
 <?php
-
 class Command_File_Rename extends Command_Iterator_File {
 	protected $extensions = array();
-
 	protected $option_types = array(
 		'from' => 'string',
 		'to' => 'string',
 		'dry-run' => 'boolean'
 	);
-
 	private $from = null;
 	private $to = null;
-
 	private $failed = null;
 	private $suceed = null;
 	private $ignored = null;
-
 	protected function start() {
 		if (!$this->has_option('from')) {
 			$this->set_option("from", $this->prompt(" Search? "));
@@ -29,7 +24,6 @@ class Command_File_Rename extends Command_Iterator_File {
 		$this->succeed = 0;
 		$this->ignored = 0;
 	}
-
 	protected function process_file(SplFileInfo $file) {
 		$name = $file->getFilename();
 		$newname = str_replace($this->from, $this->to, $name);
@@ -53,7 +47,6 @@ class Command_File_Rename extends Command_Iterator_File {
 			$this->ignored++;
 		}
 	}
-
 	protected function finish() {
 		$this->log("Completed \"{from}\" => \"{to}\": {failed} failed, {succeed} succeeded, {ignored} ignored.", array(
 			"failed" => $this->failed,
@@ -63,5 +56,4 @@ class Command_File_Rename extends Command_Iterator_File {
 			"to" => $this->to
 		));
 	}
-
 }

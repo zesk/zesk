@@ -1,7 +1,37 @@
 <?php
-die(__FILE__ . ":" . __LINE__ . " Needs to be rewritten");
+/**
+ * @copyright &copy; 2016 Market Acumen, Inc.
+ */
+namespace zesk;
 
-$request = $this->request;
+use \Template;
+use \Contact;
+use \Contact_Person;
+use \Contact_Label;
+
+if (false) {
+	/* @var $this Template */
+	
+	$zesk = $this->zesk;
+	/* @var $zesk \zesk\Kernel */
+	
+	$application = $this->application;
+	/* @var $application \zesk\Application */
+	
+	$session = $this->session;
+	/* @var $session \zesk\Session */
+	
+	$router = $this->router;
+	/* @var $request \zesk\Router */
+	
+	$request = $this->request;
+	/* @var $request \zesk\Request */
+	
+	$response = $this->response;
+	/* @var $response \zesk\Response_Text_HTML */
+}
+
+die(__FILE__ . ":" . __LINE__ . " Needs to be rewritten");
 
 $contact = $this->contact;
 
@@ -144,7 +174,7 @@ if ($request->is_post()) {
 	}
 	$response['id'] = $contact->id();
 	$this->json = true;
-	echo json::encode($response);
+	echo JSON::encode($response);
 	return;
 }
 
@@ -160,11 +190,11 @@ function contact_edit_input($label, $class, $name, $id, $value, $default_visibil
 	);
 	$widget_attrs['class'] = $class;
 	if ($widget_textarea) {
-		$widget = html::tag("textarea", $widget_attrs, htmlspecialchars("$value"));
+		$widget = HTML::tag("textarea", $widget_attrs, htmlspecialchars("$value"));
 	} else {
 		$widget_attrs['type'] = 'text';
 		$widget_attrs['value'] = $value;
-		$widget = html::tag("input", $widget_attrs);
+		$widget = HTML::tag("input", $widget_attrs);
 	}
 	
 	$attrs = array(
@@ -174,7 +204,7 @@ function contact_edit_input($label, $class, $name, $id, $value, $default_visibil
 	if ($default_visibility === false && empty($value)) {
 		$attrs['style'] = 'display: none';
 	}
-	return html::div($attrs, html::tag('label', array(
+	return HTML::div($attrs, HTML::tag('label', array(
 		'for' => $id,
 		"class" => "overlabel"
 	), $label) . $widget);
@@ -186,21 +216,24 @@ function contact_edit_pair($label, $class, $name, $data, $labels, $section, $sec
 	$is_custom = intval(count($labels) === 0);
 	$id_label = 'label-' . $section_id;
 	if ($is_custom) {
-		$label_html = html::div('.overlabel-pair', html::tag('label', array(
+		$label_html = HTML::div('.overlabel-pair', HTML::tag('label', array(
 			'class' => 'overlabel',
 			'for' => $id_label
-		), __('Label')) . html::input('text', $field_name, '', array(
+		), __('Label')) . HTML::input('text', $field_name, '', array(
 			'id' => $id_label,
 			'class' => 'label-custom'
 		)));
 	} else {
 		$labels['...'] = __('Custom ...');
-		$w = widgets::control_select($field_name, null, $labels, true);
+		$w = $this->widget_factory("Control_Select")
+			->names($field_name)
+			->control_options($labels)
+			->required(true);
 		$w->set_option("onchange", "contact_label_change.call(this)");
 		$data[$field_name] = $label_value;
 		$label_html = $w->output($data);
 	}
-	return html::div('.contact-pair', contact_edit_input($label, $class, $name, $id_label, $value, true, true, $widget_textarea) . html::div('.contact-label', $label_html) . "<a href=\"javascript:contact_remove_item('$section','$section_id')\" class=\"remove\">" . __('remove') . "</a>" . html::input_hidden($name . "_Custom[]", "$is_custom", array(
+	return HTML::div('.contact-pair', contact_edit_input($label, $class, $name, $id_label, $value, true, true, $widget_textarea) . HTML::div('.contact-label', $label_html) . "<a href=\"javascript:contact_remove_item('$section','$section_id')\" class=\"remove\">" . __('remove') . "</a>" . HTML::input_hidden($name . "_Custom[]", "$is_custom", array(
 		"class" => "custom"
 	)));
 }
@@ -251,7 +284,7 @@ $sections = array(
 	)
 );
 
-html::jquery("contact_edit_load()");
+HTML::jquery("contact_edit_load()");
 
 $fields = array(
 	'Person_Prefix' => array(
@@ -299,8 +332,8 @@ $fields = array(
 		'Custom'
 	)
 )?>
-<form id="contact-form-<?php echo $id?>" action="<?php echo url::current()?>"
-	method="post"
+<form id="contact-form-<?php echo $id?>"
+	action="<?php echo URL::current()?>" method="post"
 	onsubmit="contact_save('contact-form-<?php echo $id?>', <?php echo $this->get('onsave', 'contact_view')?>); return false">
 	<input name="hash" value="<?php echo $this->get('hash')?>" id="hash"
 		type="hidden" />
@@ -311,23 +344,23 @@ $fields = array(
 				field</a>
 			<div class="add-fields" style="display: none">
 				<ul><?php
-				foreach ($fields as $codename => $field) {
-					list($section, $name) = $field;
-					if (is_string($codename)) {
-						$onclick = "$('#contact-field-$codename').show();$('#$codename-add').hide(); \$(this).parent().parent().parent().hide()";
-						$link = html::tag("a", array(
-							"onclick" => $onclick,
-							"id" => $codename . "-add"
-						), $name);
-					} else {
-						$onclick = "contact_add_item('$section'); \$(this).parent().parent().parent().hide()";
-						$link = html::tag("a", array(
-							"onclick" => $onclick
-						), $name);
-					}
-					echo html::tag('li', $link);
-				}
-				?></ul>
+foreach ($fields as $codename => $field) {
+	list($section, $name) = $field;
+	if (is_string($codename)) {
+		$onclick = "$('#contact-field-$codename').show();$('#$codename-add').hide(); \$(this).parent().parent().parent().hide()";
+		$link = HTML::tag("a", array(
+			"onclick" => $onclick,
+			"id" => $codename . "-add"
+		), $name);
+	} else {
+		$onclick = "contact_add_item('$section'); \$(this).parent().parent().parent().hide()";
+		$link = HTML::tag("a", array(
+			"onclick" => $onclick
+		), $name);
+	}
+	echo HTML::tag('li', $link);
+}
+?></ul>
 			</div>
 		</div>
 		<div class="contact-person">
@@ -352,14 +385,17 @@ $fields = array(
 $append_templates = array();
 foreach ($sections as $section => $variables) {
 	$label_type = $head_label = $object_name = $field_type = $widget_class = $default_hide = null;
-	;
+	
 	extract($variables, EXTR_IF_EXISTS);
 	$values = array();
 	if ($id) {
-		$values = Objet::class_query($object_name)->what(array(
+		$values = $application->query_select($object_name)
+			->what(array(
 			"Label" => "Label",
 			"Value" => "Value"
-		))->where("contact", $id)->to_array();
+		))
+			->where("contact", $id)
+			->to_array();
 	}
 	$display = "";
 	$required = avalue($required_labels, $label_type, array());

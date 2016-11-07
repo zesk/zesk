@@ -1,5 +1,4 @@
 <?php
-
 namespace zesk;
 
-abstract class Configuration_Editor {}
+abstract class Configuration_Editor extends Options {}

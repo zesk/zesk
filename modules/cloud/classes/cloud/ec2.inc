@@ -2,6 +2,8 @@
 /**
  * Define globals before including AmazonEC2
  */
+use zesk\Exception_Unimplemented;
+
 zesk::define_globals(Cloud_EC2::CLOUD_EC2_GLOBALS);
 
 /**

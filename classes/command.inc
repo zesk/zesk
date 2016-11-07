@@ -1,14 +1,33 @@
 <?php
-use zesk\Timestamp as Timestamp;
-
 /**
  * $URL: https://code.marketacumen.com/zesk/trunk/classes/command.inc $
  * @package zesk
  * @subpackage system
  * @author Kent Davidson <kent@marketacumen.com>
- * @copyright Copyright &copy; 2005, Market Acumen, Inc.
+ * @copyright Copyright &copy; 2016, Market Acumen, Inc.
  */
-abstract class Command extends Hookable {
+use zesk\Timestamp;
+use zesk\File;
+use zesk\Application;
+use zesk\PHP;
+use zesk\Text;
+use zesk\arr;
+use zesk\Exception_Parameter;
+use zesk\Exception_File_NotFound;
+use Psr\Log\LogLevel;
+
+/**
+ * 
+ * @author kent
+ *
+ */
+abstract class Command extends Hookable implements zesk\Logger\Handler {
+	
+	/**
+	 * 
+	 * @var integer
+	 */
+	protected $wordwrap = 120;
 	
 	/**
 	 * Application running this command
@@ -145,6 +164,19 @@ abstract class Command extends Hookable {
 	protected $completions = array();
 	
 	/**
+	 * Load these modules prior to running command
+	 *
+	 * $var array
+	 */
+	protected $load_modules = array();
+	
+	/**
+	 * 
+	 * @var array
+	 */
+	protected $register_classes = array();
+	
+	/**
 	 * Create a new Command.
 	 * Command line arguments can be passed in. If null, uses command-line arguments from
 	 * superglobals.
@@ -170,7 +202,7 @@ abstract class Command extends Hookable {
 		
 		$this->set_option($defaults, null, false);
 		
-		if (is_array($argv) || zesk::$console) {
+		if (is_array($argv) || $zesk->console) {
 			$this->program = array_shift($argv);
 			$this->arguments = $argv;
 			$this->argv = $argv;
@@ -183,6 +215,8 @@ abstract class Command extends Hookable {
 		}
 		
 		$this->initialize();
+		
+		$this->application->register_class($this->register_classes);
 		
 		$this->_parse_options();
 		
@@ -235,8 +269,8 @@ abstract class Command extends Hookable {
 		$path = $this->configuration_path();
 		$result = array(
 			'path' => $path,
-			'file' => $file = zesk\file::name_clean(strtolower($name)) . '.conf',
-			'default' => $default = zesk::find_file($path, $file)
+			'file' => $file = zesk\File::name_clean(strtolower($name)) . '.conf',
+			'default' => $default = File::find_first($path, $file)
 		);
 		if (empty($default)) {
 			$result['default'] = path(first($path), $file);
@@ -254,7 +288,7 @@ abstract class Command extends Hookable {
 	 */
 	public static function default_configuration_file($name) {
 		$path = self::configuration_path();
-		return zesk::find_file($path, $name . ".conf");
+		return File::find_first($path, $name . ".conf");
 	}
 	
 	/**
@@ -273,11 +307,11 @@ abstract class Command extends Hookable {
 	 */
 	protected function configure($name, $create = false) {
 		$configure_options = $this->_configuration_config($name);
-		// Load global include
 		
-
-		$this->application = $app = Application::instance();
+		// Load global include
+		$app = $this->application;
 		$app->configure_include($configure_options['file']);
+		$app->configure_include_path($configure_options['path']);
 		
 		$this->configuration = $app->reconfigure();
 		
@@ -309,10 +343,9 @@ abstract class Command extends Hookable {
 				}
 			}
 			$this->debug = $this->option_bool('debug', $this->debug);
-			return $config;
 		}
 		// $this->options = $this->option_values;
-		if ($this->option_bool('debug_config')) {
+		if ($this->option_bool('debug-config')) {
 			$this->log("Loaded configuration:");
 			$this->log($this->configuration);
 		}
@@ -339,11 +372,21 @@ abstract class Command extends Hookable {
 		}
 		return conf::edit($config, $edits);
 	}
+	
+	/**
+	 * 
+	 * {@inheritDoc}
+	 * @see Options::__toString()
+	 */
 	function __toString() {
-		return php::dump(array_merge(array(
+		return PHP::dump(array_merge(array(
 			$this->program
 		), $this->arguments));
 	}
+	
+	/**
+	 * 
+	 */
 	protected function initialize() {
 	}
 	
@@ -417,7 +460,6 @@ abstract class Command extends Hookable {
 		}
 		return "Unkown type: $type";
 	}
-	protected $wordwrap = 120;
 	
 	/**
 	 * Output the usage information
@@ -550,6 +592,16 @@ abstract class Command extends Hookable {
 	}
 	
 	/**
+	 * 
+	 * @var boolean[severity]
+	 */
+	private static $severity_is_error = array(
+		LogLevel::EMERGENCY => true,
+		LogLevel::ALERT => true,
+		LogLevel::CRITICAL => true,
+		LogLevel::ERROR => true
+	);
+	/**
 	 * Log a message to output
 	 *
 	 * @param string $message        	
@@ -558,16 +610,32 @@ abstract class Command extends Hookable {
 	public function log($message, array $arguments = array()) {
 		$newline = to_bool(avalue($arguments, "newline", true));
 		if (is_array($message)) {
-			$message = text::format_pairs($message);
+			$message = Text::format_pairs($message);
 		} else {
 			$message = strval($message);
 		}
-		$message = map($message, $arguments);
+		$message = rtrim(map($message, $arguments));
+		$suffix = "";
 		if ($newline && $message && $message[strlen($message) - 1] !== "\n") {
-			$message .= "\n";
+			$suffix = "\n";
 		}
-		echo $message;
+		$prefix = "";
+		$severity = avalue($arguments, '_severity', avalue($arguments, 'severity'));
+		if ($severity) {
+			$prefix = strtoupper($severity) . ": ";
+		}
+		if (isset(self::$severity_is_error[$severity])) {
+			fwrite(self::stderr(), $prefix . $message . $suffix);
+			$this->errors[] = $message;
+		} else {
+			echo $prefix . implode("\n" . str_repeat(" ", strlen($prefix)), explode("\n", $message)) . $suffix;
+		}
 	}
+	
+	/**
+	 * 
+	 * @return string|NULL|resource
+	 */
 	private static function stderr() {
 		if (defined("STDERR")) {
 			return STDERR;
@@ -588,13 +656,9 @@ abstract class Command extends Hookable {
 		if (!$message) {
 			return;
 		}
-		if ($message instanceof Exception) {
-			$message = $message->__toString();
-		} else {
-			$message = map($message, $arguments);
-		}
-		fwrite(self::stderr(), "$message\n");
-		$this->errors[] = $message;
+		$this->log($message, array(
+			"severity" => "error"
+		) + $arguments);
 	}
 	
 	/**
@@ -662,7 +726,7 @@ abstract class Command extends Hookable {
 	 * @see self::arguments_remaining
 	 */
 	public function remaining_arguments($clean = false) {
-		zesk::deprecated();
+		zesk()->deprecated();
 		return $this->arguments_remaining($clean);
 	}
 	
@@ -898,7 +962,7 @@ abstract class Command extends Hookable {
 			return null;
 		}
 		if (is_file($this->history_file_path) && $this->has_readline()) {
-			foreach (zesk\file::lines($this->history_file_path) as $line) {
+			foreach (zesk\File::lines($this->history_file_path) as $line) {
 				readline_add_history($line);
 			}
 		}
@@ -1014,12 +1078,14 @@ abstract class Command extends Hookable {
 	 * @return array
 	 */
 	protected function exec($command) {
+		global $zesk;
+		/* @var $zesk \zesk\Kernel */
 		$args = func_get_args();
 		array_shift($args);
 		if (count($args) === 1 && is_array($args[0])) {
 			$args = $args[0];
 		}
-		return zesk::execute_array($command, $args);
+		return $zesk->process->execute_arguments($command, $args);
 	}
 	
 	/**
@@ -1031,9 +1097,11 @@ abstract class Command extends Hookable {
 	 * @return array
 	 */
 	protected function passthru($command) {
+		global $zesk;
+		/* @var $zesk \zesk\Kernel */
 		$args = func_get_args();
 		array_shift($args);
-		return zesk::execute_array($command, $args, true);
+		return $zesk->process->execute_arguments($command, $args, true);
 	}
 	
 	/**
@@ -1042,15 +1110,16 @@ abstract class Command extends Hookable {
 	 * @return numeric
 	 */
 	final function go() {
+		global $zesk;
+		/* @var $zesk \zesk\Kernel */
 		self::$commands[] = $this;
-		$this->hook("run_before");
+		$this->call_hook("run_before");
 		if ($this->has_errors()) {
 			$this->usage();
 		}
 		try {
 			$result = $this->run();
 		} catch (Exception $e) {
-			global $zesk;
 			$this->error("Exception thrown by command {class} : {exception_class} {message}\n{backtrace}", array(
 				"class" => get_class($this),
 				"exception_class" => get_class($e),
@@ -1064,7 +1133,7 @@ abstract class Command extends Hookable {
 			$code = intval($e->getCode());
 			return ($code === 0) ? -1 : $code;
 		}
-		$result = $this->hook_array("run_after", array(
+		$result = $this->call_hook_arguments("run_after", array(
 			$result
 		), $result);
 		if ($result === true) {
@@ -1085,16 +1154,24 @@ abstract class Command extends Hookable {
 	public static function running() {
 		return last(self::$commands);
 	}
+	
+	/**
+	 * 
+	 * @param string $content
+	 * @param string $format
+	 * @param string $default_format
+	 * @return void|boolean
+	 */
 	public function render_format($content, $format = null, $default_format = "text") {
 		if ($format === null) {
 			$format = $this->option('format', $default_format);
 		}
 		switch ($format) {
 			case "html":
-				echo theme("dl", $content);
+				echo $this->application->theme("dl", $content);
 				return;
 			case "php":
-				echo php::dump($content);
+				echo PHP::dump($content);
 				return;
 			case "serialize":
 				echo serialize($content);
@@ -1103,7 +1180,7 @@ abstract class Command extends Hookable {
 				echo json_encode($content, JSON_PRETTY_PRINT);
 				return;
 			case "text":
-				echo text::format_pairs($content);
+				echo Text::format_pairs($content);
 				break;
 			default :
 				$this->error("Unknown format: {format}", array(

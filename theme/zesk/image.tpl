@@ -1,5 +1,5 @@
 <?php
-/* @var $this Template */
+/* @var $this zesk\Template */
 $src = $this->src;
 $width = $this->width;
 $height = $this->height;
@@ -13,7 +13,7 @@ $attributes = $this->geta('attributes', array()) + array(
 );
 $widget = View_Image::scaled_widget($width, $height, null, $attributes);
 
-$model = new Model();
+$model = new zesk\Model();
 $model->src = $src;
 
 echo $widget->execute($model);

@@ -1,4 +1,15 @@
 <?php
+/**
+ * 
+ */
+use zesk\Database;
+use zesk\Exception_Configuration;
+
+/**
+ * 
+ * @author kent
+ *
+ */
 class Server_Feature_PureFTPD extends Server_Feature {
 	protected $settings = array(
 		'authentications' => 'list',
@@ -103,7 +114,7 @@ class Server_Feature_PureFTPD extends Server_Feature {
 				$db_table_name = $this->config->first_option($db_table_options, avalue($this_auth, 'table'));
 				$this_auth['url_name'] = $db_url_name;
 				$url = $this->config->variable($db_url_name, "url");
-				$parts = Database::url_parse($url);
+				$parts = zesk\Database::url_parse($url);
 				if (!$parts) {
 					throw new Exception_Configuration($option_name, "{db_url_name} required by {class} should be a URL, but it's not ({url})", array(
 						"db_url_name" => $db_url_name,

@@ -2,12 +2,12 @@
 
 namespace mysql;
 
-use \Database_Column as Database_Column;
-use \Exception_Unimplemented as Exception_Unimplemented;
-use \Exception_Semantics as Exception_Semantics;
-use \Class_Object as Class_Object;
+use zesk\Database_Column;
+use zesk\Exception_Unimplemented;
+use zesk\Exception_Semantics;
+use zesk\Class_Object;
 
-class Database_Type extends \Database_Data_Type {
+class Database_Type extends \zesk\Database_Data_Type {
 	/**
 	 * Override in subclasses to configure alternate native types
 	 *
@@ -86,7 +86,7 @@ class Database_Type extends \Database_Data_Type {
 	/**
 	 * (non-PHPdoc)
 	 *
-	 * @see Database::parse_native_type()
+	 * @see zesk\Database::parse_native_type()
 	 */
 	final function parse_native_type($sql_type) {
 		$s0 = false;
@@ -97,7 +97,7 @@ class Database_Type extends \Database_Data_Type {
 	/**
 	 * (non-PHPdoc)
 	 *
-	 * @see Database::sql_type_default()
+	 * @see zesk\Database::sql_type_default()
 	 */
 	function sql_type_default($type, $default_value = null) {
 		//echo "sql_type_default($type, "._dump($default_value) . ")\n";

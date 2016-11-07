@@ -27,7 +27,7 @@ class Control_Text_DropDown extends Control_Text {
 	 * @deprecated 2015-08-14
 	 */
 	public function menu_dropdown(array $set = null) {
-		zesk::deprecated();
+		zesk()->deprecated();
 		return $this->dropdown_menu($set);
 	}
 

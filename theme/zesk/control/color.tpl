@@ -1,5 +1,10 @@
 <?php
-/* @var $response Response_HTML */
+/**
+ * @copyright &copy; 2016 Market Acumen, Inc.
+ */
+namespace zesk;
+
+/* @var $response zesk\Response_Text_HTML */
 $widget = $this->widget;
 /* @var $widget Widget */
 $response = $this->response;
@@ -23,15 +28,15 @@ $response->jquery("\$('#colorpicker_$name').farbtastic('#$name'); \$('#$name').o
 
 $result = "";
 
-$attributes = html::add_class($attributes, "form-control");
+$attributes = HTML::add_class($attributes, "form-control");
 
 $attributes['style'] = "background-color: $value";
 
 $attributes = $widget->attributes($attributes, "input");
-echo html::input("text", $name, $value, $attributes);
+echo HTML::input("text", $name, $value, $attributes);
 
 if ($this->targets) {
-	$targets = json::encode($this->targets);
+	$targets = JSON::encode($this->targets);
 	ob_start();
 	?><script>
 	(function () {
@@ -48,7 +53,7 @@ if ($this->targets) {
 		}, 500);
 	}());
 	</script><?php
-	$script = html::extract_tag_contents("script", ob_get_clean());
+	$script = HTML::extract_tag_contents("script", ob_get_clean());
 	$response->jquery($script);
 }
 ?>

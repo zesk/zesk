@@ -7,10 +7,15 @@
  * @copyright Copyright &copy; 2008, Market Acumen, Inc.
  *            Created on Thu Sep 04 22:06:17 EDT 2008 22:06:17
  */
-class Zesk_Content_Factory {
+namespace zesk;
+
+use \Content_Menu;
+use \Template;
+
+class Content_Factory {
 
 	public static final function objects_parse($objects_string) {
-		return html::parse_attributes($objects_string);
+		return HTML::parse_attributes($objects_string);
 	}
 
 	public final function content_instantiate($objects_mixed) {
@@ -52,8 +57,8 @@ class Zesk_Content_Factory {
 		return $objects;
 	}
 
-	public final function content_register(Menu $menu, $objects_string) {
-		$objects_strings = html::parse_attributes($objects_string);
+	public final function content_register(Content_Menu $menu, $objects_string) {
+		$objects_strings = HTML::parse_attributes($objects_string);
 		$new_code_name = array();
 		foreach ($objects_strings as $k => $name) {
 			$object = $this->content_object($k, $name);
@@ -90,7 +95,7 @@ class Zesk_Content_Factory {
 			}
 			$new_code_name[$k] = $id;
 		}
-		return trim(html::attributes($new_code_name));
+		return trim(HTML::attributes($new_code_name));
 	}
 
 	private static function _map_legacy_content_types($type) {

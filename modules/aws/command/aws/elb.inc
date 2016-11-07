@@ -1,5 +1,4 @@
 <?php
-
 use Aws\ElasticLoadBalancing\ElasticLoadBalancingClient as ElasticLoadBalancingClient;
 
 /**
@@ -13,13 +12,15 @@ class Command_AWS_ELB extends Command_AWS_Base {
 		"remove" => "boolean"
 	);
 	function run() {
+		global $zesk;
+		/* @var $zesk \zesk\Kernel */
 		$instance_id = $this->awareness->instance_id();
 		$__ = array(
 			"instance_id" => $instance_id
 		);
 		$this->log("Instance ID is {instance_id}", $__);
 		
-		$elbc = new ElasticLoadBalancingClient();
+		$elbc = $zesk->objects->factory('ElasticLoadBalancingClient');
 		$load_balancers = $elbc->describeLoadBalancers();
 		var_dump($load_balancers);
 	}

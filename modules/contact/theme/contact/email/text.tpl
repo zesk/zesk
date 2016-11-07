@@ -5,4 +5,4 @@ $result = $object->output("view", array(
 	"show_links" => false,
 	'show_other' => false
 ));
-echo html::strip($result);
+echo HTML::strip($result);

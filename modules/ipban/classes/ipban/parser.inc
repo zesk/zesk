@@ -1,6 +1,6 @@
 <?php
 
-use zesk\Timestamp as Timestamp;
+use zesk\Timestamp;
 
 /**
  * @see Class_IPBan_Parser
@@ -317,7 +317,7 @@ class IPBan_Parser extends IPBan {
 							$line_parsed['_parser'] = get_class($this->parser);
 							$line_parsed['_class'] = get_class($this);
 							$line_parsed['_handler'] = $this->Handler;
-							$this->hook("line", $line_parsed);
+							$this->call_hook("line", $line_parsed);
 							//log::notice("Line parsed timestamp=" . $line_parsed['timestamp']);
 							$this->max_timestamp = max($line_parsed['timestamp'], $this->max_timestamp);
 						} catch (Exception_Syntax $e) {

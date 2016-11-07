@@ -7,6 +7,14 @@
  * @copyright Copyright &copy; 2008, Market Acumen, Inc.
  * Created on Tue Jul 15 16:27:00 EDT 2008
  */
+use zesk\arr;
+use zesk\Database_Query_Select;
+
+/**
+ * 
+ * @author kent
+ *
+ */
 class Control_Pager extends Control {
 	/**
 	 * 

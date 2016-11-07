@@ -1,3 +1,3 @@
 <?php
-zesk::deprecated();
+zesk()->deprecated();
 class cdn extends zesk\cdn {}

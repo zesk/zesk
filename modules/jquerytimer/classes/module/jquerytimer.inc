@@ -1,5 +1,5 @@
 <?php
-use zesk\Timestamp as Timestamp;
+use zesk\Timestamp;
 
 /**
  * 
@@ -36,7 +36,7 @@ class Module_jQueryTimer extends Module_JSLib {
 		if (array_key_exists("format_past_zero", $options)) {
 			$attributes['data-format-past-zero'] = $options["format_past_zero"];
 		}
-		$formatting['delta'] = html::tag("span", $attributes, avalue($formatting, 'delta', ''));
+		$formatting['delta'] = HTML::tag("span", $attributes, avalue($formatting, 'delta', ''));
 		return $formatting;
 	}
 }

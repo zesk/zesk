@@ -14,7 +14,7 @@ namespace zesk;
  * @property integer $monthday
  * @property integer $hour
  */
-class Schedule extends \Object {
+class Schedule extends Object {
 	/**
 	 * 
 	 * @param Timestamp $last
@@ -28,7 +28,7 @@ class Schedule extends \Object {
 		} else {
 			$last->time_zone($timezone);
 		}
-		return $this->hook_array("compute_next_$unit", array(
+		return $this->call_hook_arguments("compute_next_$unit", array(
 			$last
 		), null);
 	}

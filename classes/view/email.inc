@@ -17,7 +17,7 @@ class View_Email extends View {
 		$text = $this->object->apply_map($text);
 		$attrs = $this->options_include('charset;coords;href;hreflang;rel;rev;shape;target;accesskey;class;dir;id;lang;style;tabindex;title;xml:lang');
 		$attrs['href'] = 'mailto:' . $value;
-		return $this->render_finish(html::tag('a', $attrs, $text));
+		return $this->render_finish(HTML::tag('a', $attrs, $text));
 	}
 }
 

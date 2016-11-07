@@ -14,7 +14,7 @@ class View_Video extends View {
 		if (is_bool($value)) {
 			$value = str::from_bool($value);
 		}
-		return html::tag("param", array(
+		return HTML::tag("param", array(
 			"name" => $name,
 			"value" => $value
 		), null);
@@ -89,7 +89,7 @@ pluginspage="http://www.microsoft.com/Windows/MediaPlayer/"
 src="' . zesk::href($path) . '"
 name="MediaPlayer1"
 width="' . $width . '" height="' . $height . '" autostart="' . intval($autostart) . '" showcontrols="' . intval($showcontrols) . '" volume="' . $volume . '">';
-		$embed = html::tag("embed", array(
+		$embed = HTML::tag("embed", array(
 			"src" => zesk::href($path),
 			"width" => $width,
 			"height" => $height,
@@ -132,9 +132,9 @@ standby="' . $standby_string . '" type="application/x-oleobject" width="' . $wid
 		$embed_attrs['height'] = $height;
 		$embed_attrs['pluginspage'] = 'http://www.apple.com/quicktime/download/';
 
-		$content = $oparams_content . html::tag("embed", $embed_attrs, '');
+		$content = $oparams_content . HTML::tag("embed", $embed_attrs, '');
 
-		$result = html::tag("object", $attrs, $content);
+		$result = HTML::tag("object", $attrs, $content);
 
 		return $result;
 	}

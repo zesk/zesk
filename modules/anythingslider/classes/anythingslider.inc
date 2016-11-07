@@ -1,14 +1,34 @@
 <?php
 /**
- *
- * @version $URL: https://code.marketacumen.com/zesk/trunk/modules/anythingslider/classes/anythingslider.inc $
+ * $URL: https://code.marketacumen.com/zesk/trunk/modules/anythingslider/classes/anythingslider.inc $
+ * @copyright &copy; 2016 Market Acumen, Inc.
  */
-class AnythingSlider extends Module implements Module_Interface_Head {
-	public function add(Response_HTML $response, $id, $options) {
+use zesk\JSON;
+
+/**
+ * 
+ * @author kent
+ *
+ */
+class AnythingSlider extends Module implements \zesk\Interface_Module_Head {
+	
+	/**
+	 * 
+	 * @param zesk\Response_Text_HTML $response
+	 * @param unknown $id
+	 * @param unknown $options
+	 */
+	public function add(zesk\Response_Text_HTML $response, $id, $options) {
 		$options = to_array($options, array());
-		$response->jquery("\$('$id').anythingSlider(" . json::encode($options) . ");");
+		$response->jquery("\$('$id').anythingSlider(" . JSON::encode($options) . ");");
 	}
-	public function hook_head(Request $request, Response_HTML $response, Template $template) {
+	
+	/**
+	 * 
+	 * {@inheritDoc}
+	 * @see \zesk\Interface_Module_Head::hook_head()
+	 */
+	public function hook_head(zesk\Request $request, zesk\Response_Text_HTML $response, zesk\Template $template) {
 		$response->jquery();
 		if ($this->application->development()) {
 			$response->cdn_javascript('/share/anythingslider/js/jquery.anythingslider.js');

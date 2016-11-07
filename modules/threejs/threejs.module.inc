@@ -3,5 +3,5 @@ if (false) {
 	$zesk = zesk();
 	$application = app();
 }
-$application->module->register_paths();
+$application->modules->register_paths();
 

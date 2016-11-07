@@ -2,7 +2,7 @@
 
 class Module_Markdown extends Module {
 
-	public static function request(Request $request) {
+	public static function request(zesk\Request $request) {
 		$input = $request->get('markdown');
 		$tab_size = $request->geti('tab_size', Markdown::default_tab_size);
 		return Markdown::filter($input, array(
@@ -10,7 +10,7 @@ class Module_Markdown extends Module {
 		));
 	}
 
-	public function hook_routes(Router $router) {
+	public function hook_routes(zesk\Router $router) {
 		$options = array(
 			'method' => 'Module_Markdown::request',
 			'arguments' => '{request}',

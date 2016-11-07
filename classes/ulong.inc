@@ -4,7 +4,7 @@
  * @package zesk
  * @subpackage system
  * @author kent
- * @copyright Copyright &copy; 2009, Market Acumen, Inc.
+ * @copyright Copyright &copy; 2016, Market Acumen, Inc.
  * @requires PHP 5
  * Created on Mon Apr 06 22:59:37 EDT 2009 22:59:37
  */
@@ -13,7 +13,7 @@
  * Because PHP only supports signed integers, this class allows you to operate on unsigned longs
  * and they behave correctly.
  *
- * Do not use this for anything complex, as math is likely really slow with objects.
+ * Do not use this for anything complex, as math is really slow with objects.
  *
  * However, in a pinch, it should behave correctly and wrap around without the annoying overflow
  * and double issues of PHP.
@@ -29,18 +29,6 @@ class ulong {
 		$this->set($x);
 	}
 
-	/**
-	 * 2015-08-04 I think this is wrong.
-	 *
-	 * @todo Check if this is wrong
-	 * @return ulong
-	 */
-	function __clone() {
-		$x = new ulong();
-		$x->short0 = $this->short0;
-		$x->short1 = $this->short1;
-		return $x;
-	}
 	static function to_ulong($x, $copy = false) {
 		if (is_numeric($x))
 			return new ulong($x);

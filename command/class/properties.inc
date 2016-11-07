@@ -1,6 +1,6 @@
 <?php
-
-use zesk\Timestamp as Timestamp;
+use zesk\arr;
+use zesk\Timestamp;
 /**
  * Generate doccomment @property list for any Object/Class_Object pair in the system
  *
@@ -30,7 +30,7 @@ class Command_Class_Properties extends Command_Base {
 			}
 		}
 		foreach ($classes as $class) {
-			$class_object = Object::cache_class($class, "class");
+			$class_object = $this->application->class_object($class);
 			if (!$class_object) {
 				$this->error("No such class $arg");
 				continue;

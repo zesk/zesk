@@ -22,7 +22,7 @@ class View extends Widget {
 	 * @return Ambigous <mixed, boolean>
 	 */
 	function option_hidden_input() {
-		zesk::deprecated();
+		zesk()->deprecated();
 		return $this->option_bool('hidden_input');
 	}
 	function hidden_input($set = null) {

@@ -1,4 +1,6 @@
 <?php
 
-Module::register_paths();
+/* @var $zesk zesk\Kernel */
+/* @var $application zesk\Application */
+$application->modules->register_paths();
 

@@ -1,10 +1,22 @@
 <?php
-
+/**
+ * 
+ */
 namespace sqlite3;
 
-use zesk\Class_Object as Class_Object;
+/**
+ * 
+ */
+use zesk\Database_Column;
+use zesk\Class_Object;
+use zesk\Exception_Semantics;
 
-class Database_Type extends \Database_Data_Type {
+/**
+ * 
+ * @author kent
+ *
+ */
+class Database_Type extends \zesk\Database_Data_Type {
 	/**
 	 * Override in subclasses to configure alternate native types
 	 *
@@ -54,10 +66,10 @@ class Database_Type extends \Database_Data_Type {
 	/*
 	 * Type Manipulation Class_Object::type_foo conversion to SQL Type
 	 */
-	public function type_set_sql_type(\Database_Column $type) {
+	public function type_set_sql_type(Database_Column $type) {
 		$type_name = $type->option("type", false);
 		if (!$type_name) {
-			throw new \Exception_Semantics("{class}::type_set_sql_type(...): \"Type\" is not set! {type}", array(
+			throw new Exception_Semantics("{class}::type_set_sql_type(...): \"Type\" is not set! {type}", array(
 				'class' => get_class($this),
 				'type' => _dump($type)
 			));
@@ -94,7 +106,7 @@ class Database_Type extends \Database_Data_Type {
 	/**
 	 * (non-PHPdoc)
 	 *
-	 * @see Database::parse_native_type()
+	 * @see zesk\Database::parse_native_type()
 	 */
 	final function parse_native_type($sql_type) {
 		$s0 = false;
@@ -105,7 +117,7 @@ class Database_Type extends \Database_Data_Type {
 	/**
 	 * (non-PHPdoc)
 	 *
-	 * @see Database::sql_type_default()
+	 * @see zesk\Database::sql_type_default()
 	 */
 	function sql_type_default($type, $default_value = null) {
 		//echo "sql_type_default($type, "._dump($default_value) . ")\n";

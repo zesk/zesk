@@ -6,6 +6,10 @@
  * @author kent
  * @copyright Copyright &copy; 2010, Market Acumen, Inc.
  */
-class Exception_Unsupported extends zesk\Exception {
-	
-}
+zesk()->deprecated();
+/**
+ * @deprecated 2016-09
+ * @author kent
+ *
+ */
+class Exception_Unsupported extends zesk\Exception_Unsupported {}

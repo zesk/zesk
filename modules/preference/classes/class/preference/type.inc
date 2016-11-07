@@ -6,7 +6,7 @@
 * @author Kent Davidson <kent@marketacumen.com>
 * @copyright Copyright &copy; 2005, Market Acumen, Inc.
 */
-class Class_Preference_Type extends Class_Object {
+class Class_Preference_Type extends zesk\Class_Object {
 	public $id_column = "id";
 
 	public $column_types = array(

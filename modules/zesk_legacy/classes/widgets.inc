@@ -21,7 +21,7 @@ class widgets {
 	 * @return View_Actions
 	 */
 	public static function actions($format = "{Name}", $url_prefix = false) {
-		zesk::deprecated();
+		zesk()->deprecated();
 		$w = new View_Actions();
 		$w->names('actions');
 		$w->set_option("format", $format);
@@ -45,7 +45,7 @@ class widgets {
 	 * @return Control_Text
 	 */
 	public static function control_text($name, $label = false, $required = false, $minLength = -1, $maxLength = -1) {
-		zesk::deprecated();
+		zesk()->deprecated();
 		$w = new Control_Text();
 		$w->names($name, $label, "");
 		$w->required($required);
@@ -54,7 +54,7 @@ class widgets {
 		return $w;
 	}
 	public static function control_url($name, $label = false, $required = false, $minLength = -1, $maxLength = -1) {
-		zesk::deprecated();
+		zesk()->deprecated();
 		$w = new Control_URL();
 		$w->names($name, $label, "");
 		$w->required($required);
@@ -74,7 +74,7 @@ class widgets {
 	 * @return Control_Text
 	 */
 	public static function control_integer($name, $label = false, $required = false, $minValue = false, $maxValue = false) {
-		zesk::deprecated();
+		zesk()->deprecated();
 		$w = self::control_text($name, $label, $required, 1, 11);
 		$w->set_option("validate", "integer");
 		$w->set_option("show_size", 8);
@@ -98,7 +98,7 @@ class widgets {
 	 * @return Control_Text
 	 */
 	public static function control_real($name, $label = false, $required = false, $minValue = false, $maxValue = false) {
-		zesk::deprecated();
+		zesk()->deprecated();
 		$w = self::control_text($name, $label, $required, 1, 11);
 		$w->set_option("validate", "real");
 		if ($minValue != false) {
@@ -123,7 +123,7 @@ class widgets {
 	 * @return Control_Text
 	 */
 	public static function control_textarea($name, $label = false, $required = false, $minLength = -1, $maxLength = -1) {
-		zesk::deprecated();
+		zesk()->deprecated();
 		$w = self::control_text($name, $label, $required, $minLength, $maxLength);
 		$w->set_option("textarea", true);
 		return $w;
@@ -142,7 +142,7 @@ class widgets {
 	 * @return Control_Text
 	 */
 	public static function control_ip_list($name, $label = false, $required = false, $allow_masks = false) {
-		zesk::deprecated();
+		zesk()->deprecated();
 		$w = new Control_IP_List(array(
 			"allow_ip_masks" => $allow_masks
 		));
@@ -151,7 +151,7 @@ class widgets {
 		return $w;
 	}
 	public static function control_IP($name, $label = false, $required = false) {
-		zesk::deprecated();
+		zesk()->deprecated();
 		$w = new Control_IP();
 		$w->names($name, $label);
 		$w->required($required);
@@ -171,7 +171,7 @@ class widgets {
 	 * @return Control_Text
 	 */
 	public static function control_richtext($name, $label = false, $required = false, $minLength = -1, $maxLength = -1) {
-		zesk::deprecated();
+		zesk()->deprecated();
 		$w = new Control_RichText();
 		$w->names($name, $label, "");
 		$w->required($required);
@@ -193,7 +193,7 @@ class widgets {
 	 * @return Control_Text
 	 */
 	public static function control_email($name, $label = false, $required = false) {
-		zesk::deprecated();
+		zesk()->deprecated();
 		$w = new Control_Email();
 		$w->names($name, $label, "");
 		$w->required($required);
@@ -213,7 +213,7 @@ class widgets {
 	 * @return Control_Phone
 	 */
 	public static function control_phone($name, $label = false, $required = false, $minLength = 10, $maxLength = 16) {
-		zesk::deprecated();
+		zesk()->deprecated();
 		$w = new Control_Phone();
 		$w->names($name, $label, "");
 		$w->required($required);
@@ -232,7 +232,7 @@ class widgets {
 	 * @return Control_Password
 	 */
 	public static function control_password($name, $label = false, $required = false, $confirm = false) {
-		zesk::deprecated();
+		zesk()->deprecated();
 		$w = new Control_Password();
 		$w->names($name, $label, "");
 		$w->required($required);
@@ -250,7 +250,7 @@ class widgets {
 	 * @return Control_Button
 	 */
 	public static function control_button($name, $label = false, $button_label = false) {
-		zesk::deprecated();
+		zesk()->deprecated();
 		$w = new Control_Button();
 		$w->names($name, $label, "");
 		if ($label === "") {
@@ -331,7 +331,7 @@ class widgets {
 	 * @return Control_Checkbox
 	 */
 	public static function control_checkbox($name, $label = "", $default = false) {
-		zesk::deprecated();
+		zesk()->deprecated();
 		$w = new Control_Checkbox();
 		$w->names($name, $label, "");
 		return $w;
@@ -346,7 +346,7 @@ class widgets {
 	 * @return Control_Checklist
 	 */
 	public static function control_checklist($name, $label, $options, $required = false) {
-		zesk::deprecated();
+		zesk()->deprecated();
 		$w = new Control_Checklist(array(
 			"options" => $options
 		));
@@ -381,7 +381,7 @@ class widgets {
 	 * @return Control_Select
 	 */
 	public static function control_select($name, $label, $options, $required = false) {
-		zesk::deprecated();
+		zesk()->deprecated();
 		$w = new Control_Select();
 		$w->names($name, $label, "");
 		$w->required($required);
@@ -402,7 +402,7 @@ class widgets {
 	 * @return Control_Select
 	 */
 	public static function control_radio($name, $label = false, $options = false, $required = false) {
-		zesk::deprecated();
+		zesk()->deprecated();
 		$w = new Control_Radio();
 		$w->names($name, $label, "");
 		$w->required($required);
@@ -423,7 +423,7 @@ class widgets {
 	 * @return Control_Select_Object
 	 */
 	public static function control_select_object($name, $label = false, $table, $required = false) {
-		zesk::deprecated();
+		zesk()->deprecated();
 		$w = new Control_Select_Object();
 		$w->names($name, $label, "");
 		$w->required($required);
@@ -445,7 +445,7 @@ class widgets {
 	 * @return Control_Select_Object
 	 */
 	public static function control_select_class($name, $label = true, $class = null, $required = false) {
-		zesk::deprecated();
+		zesk()->deprecated();
 		if ($class === null) {
 			$class = $name;
 		}
@@ -468,7 +468,7 @@ class widgets {
 	 * @return Control_Select_Object
 	 */
 	public static function control_select_object_dynamic($name, $label = false, $table, $required = false) {
-		zesk::deprecated();
+		zesk()->deprecated();
 		$w = new Control_Select_Object_Dynamic();
 		$w->names($name, $label, "");
 		$w->required($required);
@@ -490,7 +490,7 @@ class widgets {
 	 * @return Control_Select_ObjectHierarchy
 	 */
 	public static function control_select_object_hierarchy($name, $label = false, $table, $required = false) {
-		zesk::deprecated();
+		zesk()->deprecated();
 		$w = new Control_Select_Object_Hierarchy();
 		$w->names($name, $label, "");
 		$w->required($required);
@@ -512,7 +512,7 @@ class widgets {
 	 * @return Control_SelectFile
 	 */
 	public static function control_select_file($name, $label = false, $required = false, $sPath = false, $sFilter = false) {
-		zesk::deprecated();
+		zesk()->deprecated();
 		$w = new Control_Select_File();
 		$w->names($name, $label, "");
 		$w->required($required);
@@ -535,7 +535,7 @@ class widgets {
 	 * @return Control_Order
 	 */
 	public static function control_order($name, $label = false, $table) {
-		zesk::deprecated();
+		zesk()->deprecated();
 		$w = new Control_Order();
 		$w->names($name, $label, "");
 		$w->set_option("table", $table);
@@ -554,7 +554,7 @@ class widgets {
 	 * @return Control_Link_Object
 	 */
 	public static function control_link_object($name, $label = false, $table, $widget) {
-		zesk::deprecated();
+		zesk()->deprecated();
 		$w = new Control_Link_Object();
 		$w->names($name, $label, "");
 		$w->set_option("table", $table);
@@ -572,7 +572,7 @@ class widgets {
 	 * @return Control_LinkObject
 	 */
 	public static function view_link_object($name, $label = false, $table, $widget) {
-		zesk::deprecated();
+		zesk()->deprecated();
 		$w = new Control_Link_Object();
 		$w->names($name, $label, "");
 		$w->set_option("table", $table);
@@ -591,7 +591,7 @@ class widgets {
 	 * @return Control_Image
 	 */
 	public static function control_image($name, $label = false, $required = false, $srcFormat) {
-		zesk::deprecated();
+		zesk()->deprecated();
 		$w = new Control_Image();
 		$w->names($name, $label, "");
 		$w->required($required);
@@ -609,7 +609,7 @@ class widgets {
 	 * @return Control_File
 	 */
 	public static function control_file($name, $label = false, $required = false) {
-		zesk::deprecated();
+		zesk()->deprecated();
 		$w = new Control_File();
 		$w->names($name, $label, "");
 		$w->required($required);
@@ -626,7 +626,7 @@ class widgets {
 	 * @return Control_Select_Object
 	 */
 	public static function control_object($name, $label = false, $class = null) {
-		zesk::deprecated();
+		zesk()->deprecated();
 		$w = new Control_Select_Object();
 		$w->names($name, $label, "");
 		if ($class === null) {
@@ -644,7 +644,7 @@ class widgets {
 	 * @return ViewCheckbox
 	 */
 	public static function view_checkbox($name, $label, $true_string = null, $false_string = null) {
-		zesk::deprecated();
+		zesk()->deprecated();
 		$w = new View_Checkbox();
 		if ($true_string !== null)
 			$w->set_option("true_string", $true_string);
@@ -664,7 +664,7 @@ class widgets {
 	 * @return ViewCheckbox
 	 */
 	public static function view_null_check($name, $label, $null_string = "NULL", $non_null_string = "Non-NULL") {
-		zesk::deprecated();
+		zesk()->deprecated();
 		$w = new View_Checkbox();
 		$w->set_option("null_check", true);
 		$w->set_option("true_value", null);
@@ -683,7 +683,7 @@ class widgets {
 	 * @return Control_Checklist
 	 */
 	public static function view_checklist($name, $label = false, $options) {
-		zesk::deprecated();
+		zesk()->deprecated();
 		$w = new View_Checklist(array(
 			"options" => $options
 		));
@@ -701,7 +701,7 @@ class widgets {
 	 * @return ViewSelect
 	 */
 	public static function view_select($name, $label = false, $options, $default = false) {
-		zesk::deprecated();
+		zesk()->deprecated();
 		$w = new View_Select();
 		$w->names($name, $label, "");
 		if ($label === "") {
@@ -722,7 +722,7 @@ class widgets {
 	 * @return ViewObject
 	 */
 	public static function view_object($name, $label = false, $table, $format) {
-		zesk::deprecated();
+		zesk()->deprecated();
 		$w = new View_Object();
 		$w->names($name, $label, "");
 		$w->set_option("format", $format);
@@ -732,7 +732,7 @@ class widgets {
 		return $w;
 	}
 	public static function view_template($template, $label = false, $options = null) {
-		zesk::deprecated();
+		zesk()->deprecated();
 		$w = new View_Template(array(
 			"Template" => $template
 		));
@@ -741,7 +741,7 @@ class widgets {
 		return $w;
 	}
 	public static function view_ip($name, $label = false) {
-		zesk::deprecated();
+		zesk()->deprecated();
 		$w = new View_IP();
 		$w->names($name, $label);
 		return $w;
@@ -757,7 +757,7 @@ class widgets {
 	 * @return Control_Hidden
 	 */
 	public static function control_hidden($name, $default = null) {
-		zesk::deprecated();
+		zesk()->deprecated();
 		$w = new Control_Hidden();
 		$w->names($name, "", "");
 		if ($default !== null) {
@@ -776,7 +776,7 @@ class widgets {
 	 * @return View_Link
 	 */
 	public static function view_link($name, $label = false, $format = false, $href = "") {
-		zesk::deprecated();
+		zesk()->deprecated();
 		$w = new View_Link();
 		$w->names($name, $label, "");
 		$w->set_option("format", empty($format) ? '{' . $name . '}' : $format);
@@ -797,7 +797,7 @@ class widgets {
 	 * @return View_Text
 	 */
 	public static function view_text($name, $label = false, $sShowSize = -1) {
-		zesk::deprecated();
+		zesk()->deprecated();
 		$w = new View_Text();
 		$w->names($name, $label, "");
 		$w->set_option("show_size", $sShowSize);
@@ -813,7 +813,7 @@ class widgets {
 	 * @return ViewText
 	 */
 	public static function view_integer($name, $label = false) {
-		zesk::deprecated();
+		zesk()->deprecated();
 		$w = new View_Integer();
 		$w->names($name, $label, "");
 		return $w;
@@ -828,7 +828,7 @@ class widgets {
 	 * @return ViewText
 	 */
 	public static function view_bytes($name, $label = false) {
-		zesk::deprecated();
+		zesk()->deprecated();
 		$w = new View_Bytes();
 		$w->names($name, $label, "");
 		return $w;
@@ -843,7 +843,7 @@ class widgets {
 	 * @return ViewText
 	 */
 	public static function view_email($name, $label = false, $sShowSize = -1) {
-		zesk::deprecated();
+		zesk()->deprecated();
 		$w = new View_Email();
 		$w->names($name, $label, "");
 		$w->set_option("show_size", $sShowSize);
@@ -858,7 +858,7 @@ class widgets {
 	 * @param integer $sformat The sprintf format for outputting the real number
 	 */
 	public static function view_real($name, $label = false, $decimal_places = 2) {
-		zesk::deprecated();
+		zesk()->deprecated();
 		$w = new View_Real();
 		$w->names($name, $label, "");
 		if (is_numeric($decimal_places)) {
@@ -876,7 +876,7 @@ class widgets {
 	 * @return ViewText
 	 */
 	public static function view_currency($name, $label = false, $currency = false) {
-		zesk::deprecated();
+		zesk()->deprecated();
 		$w = new View_Currency();
 		$w->names($name, $label, "");
 		if ($currency) {
@@ -909,7 +909,7 @@ class widgets {
 	 * @return ViewDate
 	 */
 	public static function view_section($label) {
-		zesk::deprecated();
+		zesk()->deprecated();
 		$w = new View_Section();
 		$w->names($label, $label, "");
 		return $w;
@@ -927,7 +927,7 @@ class widgets {
 	 * @return ViewDate
 	 */
 	public static function view_time_span($name, $label) {
-		zesk::deprecated();
+		zesk()->deprecated();
 		$w = new View_Time_Span();
 		$w->names($name, $label, "");
 		return $w;
@@ -943,7 +943,7 @@ class widgets {
 	 * @return unknown
 	 */
 	public static function view_image($name, $label, $srcFormat, $altFormat = "") {
-		zesk::deprecated();
+		zesk()->deprecated();
 		$w = new View_Image();
 		$w->names($name, $label, "");
 		if ($altFormat != "") {
@@ -955,20 +955,20 @@ class widgets {
 		return $w;
 	}
 	public static function control_icon($name, $label, $icons) {
-		zesk::deprecated();
+		zesk()->deprecated();
 		$w = new Control_Icon();
 		$w->names($name, $label);
 		$w->set_option("icons", $icons);
 		return $w;
 	}
 	public static function control_slider($name, $label, $options = false) {
-		zesk::deprecated();
+		zesk()->deprecated();
 		$w = new Control_Slider($options);
 		$w->names($name, $label);
 		return $w;
 	}
 	public static function control_schedule($name, $label, $options = false) {
-		zesk::deprecated();
+		zesk()->deprecated();
 		$w = new Control_Schedule($options);
 		$w->names($name, $label);
 		return $w;
@@ -990,8 +990,8 @@ class widgets {
 	// 		$spec[$f->column()] = $f;
 	// 	}
 	public static function control_list_checkbox($idname = "ID", $header_attributes = null, $row_attributes = null) {
-		zesk::deprecated();
-		html::cdn_javascript('/share/zesk/js/zesk.js', array(
+		zesk()->deprecated();
+		HTML::cdn_javascript('/share/zesk/js/zesk.js', array(
 			'weight' => 'first'
 		));
 
@@ -1015,7 +1015,7 @@ class widgets {
 	}
 
 	public static function fieldset($idname, $label) {
-		zesk::deprecated();
+		zesk()->deprecated();
 		$w = Widget::factory("Control_FieldSet");
 		$w->id = $idname;
 		$w->column = $idname;

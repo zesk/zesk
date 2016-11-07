@@ -1,23 +1,18 @@
 <?php
 /**
- * $URL: https://code.marketacumen.com/zesk/trunk/modules/mail/classes/mail/validator.inc $
+ * @version $Id: validator.inc 4019 2016-09-08 19:00:17Z kent $
  * @package zesk
  * @subpackage mail
  * @author Kent Davidson <kent@marketacumen.com>
- * @copyright Copyright &copy; 2005, Market Acumen, Inc.
+ * @copyright Copyright &copy; 2016, Market Acumen, Inc.
  */
-
-use zesk\Timestamp as Timestamp;
+use zesk\Timestamp;
 
 /**
- *
- * @version $Id: validator.inc 3919 2016-07-13 05:39:51Z kent $
  * @package zesk
  * @subpackage mail
- * @todo Convert to regular zesk
  */
 class Mail_Validator extends Object {
-
 	public static function validated($email, User $user) {
 		$where = $where = array(
 			"address" => $email,
@@ -29,7 +24,6 @@ class Mail_Validator extends Object {
 		}
 		return !$object->member_is_empty("confirmed");
 	}
-
 	static function validate($hash, User $user = null) {
 		$members = array(
 			"hash" => $hash

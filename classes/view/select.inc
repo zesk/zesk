@@ -10,7 +10,7 @@
 class View_Select extends Control_Options {
 	function render() {
 		if ($this->option_bool('hidden_input')) {
-			$this->wrap(null, null, null, html::hidden($this->name(), $this->value()));
+			$this->wrap(null, null, null, HTML::hidden($this->name(), $this->value()));
 		}
 		$options = $this->control_options;
 		$value = $this->value();

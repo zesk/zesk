@@ -8,7 +8,7 @@
  * @deprecated Move to specific module
  */
 
-use zesk\file as file;
+use zesk\File;
 
 /**
  * Roles are defined in the system environment file /etc/environment.sh
@@ -189,7 +189,7 @@ class cluster {
 			if (!$include_me && $host === $me) {
 				continue;
 			}
-			$url = url::query_format("http://$host/manage.php", $query);
+			$url = URL::query_format("http://$host/manage.php", $query);
 			if (zesk::getb('cluster::command.debug')) {
 				echo "$url\n";
 			}

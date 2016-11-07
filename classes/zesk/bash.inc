@@ -9,7 +9,7 @@ namespace zesk;
  *
  */
 class bash {
-	public static function substitute($value, \Interface_Settings $settings, array &$dependencies = null) {
+	public static function substitute($value, Interface_Settings $settings, array &$dependencies = null) {
 		if (!is_array($dependencies)) {
 			$dependencies = array();
 		}

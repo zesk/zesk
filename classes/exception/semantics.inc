@@ -6,11 +6,10 @@
  * @author kent
  * @copyright Copyright &copy; 2010, Market Acumen, Inc.
  */
+zesk()->deprecated();
 
 /**
- * Throw when a function, method, or system semantics issue occurs.
- * 
+ * @deprecated 2016-09
  * @author kent
  */
-class Exception_Semantics extends zesk\Exception {
-}
+class Exception_Semantics extends zesk\Exception_Semantics {}

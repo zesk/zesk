@@ -7,6 +7,14 @@
  * @copyright Copyright &copy; 2008, Market Acumen, Inc.
  * @sandbox true
  */
+use zesk\Directory;
+use zesk\Database_Schema;
+
+/**
+ * 
+ * @author kent
+ *
+ */
 class Mail_Test extends Test_Unit {
 	function initialize() {
 		$module = $this->load_module('mail');
@@ -22,7 +30,7 @@ class Mail_Test extends Test_Unit {
 	 */
 	function test_files() {
 		$test_path = dirname(__FILE__) . '/test-data';
-		$ff = dir::ls($test_path, '/.*\.*txt$/', false);
+		$ff = Directory::ls($test_path, '/.*\.*txt$/', false);
 		mail::debug($this->option_bool('debug'));
 		foreach ($ff as $i => $f) {
 			$this->log("Testing mail parsing $f");

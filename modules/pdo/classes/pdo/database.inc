@@ -6,7 +6,9 @@
  * @package zesk
  * @subpackage database
  */
-class Database_PDO extends Database {
+use zesk\Database_Exception_Connect;
+
+class Database_PDO extends zesk\Database {
 	
 	/**
 	 *
@@ -59,7 +61,7 @@ class Database_PDO extends Database {
 			$scheme = $this->option('driver', null);
 			if ($scheme === null) {
 				throw new Exception_Configuration("driver", "URL scheme for Database_PDO lacks driver {url}", array(
-					"url" => url::remove_password($this->URL)
+					"url" => URL::remove_password($this->URL)
 				));
 			}
 		}
@@ -148,7 +150,7 @@ class Database_PDO extends Database {
 	 * @param mixed $result
 	 *        	The result of a query command.
 	 * @return void
-	 * @see Database::query
+	 * @see zesk\Database::query
 	 */
 	public function free($result) {
 		throw new Exception_Unimplemented(__CLASS__ . "::" . __METHOD__);

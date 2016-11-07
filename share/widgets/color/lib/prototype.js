@@ -234,7 +234,7 @@ String.prototype.gsub.prepareReplacement = function(replacement) {
 
 String.prototype.parseQuery = String.prototype.toQueryParams;
 
-var Template = Class.create();
+var zesk\Template = Class.create();
 Template.Pattern = /(^|.|\r|\n)(#\{(.*?)\})/;
 Template.prototype = {
   initialize: function(template, pattern) {

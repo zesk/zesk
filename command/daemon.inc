@@ -1,5 +1,15 @@
 <?php
-use zesk\Timestamp as Timestamp;
+/**
+ * @copyright &copy; 2016 Market Acumen, Inc.
+ */
+use zesk\arr;
+use zesk\PHP;
+use zesk\JSON;
+use zesk\Directory;
+use zesk\Timestamp;
+use zesk\Locale;
+use zesk\Text;
+use zesk\Exception_File_Permission;
 
 /**
  * Run daemons associated with an application. Runs a continual process for each daemon hook encountered, and restarts daemons
@@ -140,11 +150,11 @@ class Command_Daemon extends Command_Base implements Process_Interruptable {
 		
 		$this->configure("daemon", true);
 		if ($this->option_bool('debug-log')) {
-			echo text::format_pairs(arr::filter_prefix($zesk->configuration->to_array(), "log"));
+			echo Text::format_pairs(arr::filter_prefix($zesk->configuration->to_array(), "log"));
 		}
 		$runpath = $zesk->paths->data("run");
 		$this->rundir = path($runpath, 'daemon');
-		dir::depend($this->rundir, 0700);
+		Directory::depend($this->rundir, 0700);
 		
 		$this->fifo_path = path($this->rundir, "daemon-controller");
 		
@@ -203,27 +213,29 @@ class Command_Daemon extends Command_Base implements Process_Interruptable {
 	 * @return number
 	 */
 	public final function command_stop($signal = SIGTERM) {
+		global $zesk;
+		/* @var $zesk zesk\Kernel */
 		$database = $this->_process_database();
 		if (count($database) === 0) {
-			log::error("Not running.");
+			$zesk->logger->error("Not running.");
 			return 1;
 		}
 		$signal_name = avalue(self::$signals, $signal, $signal);
 		$me = avalue($database, 'me');
 		if (!$me) {
 			$changed = false;
-			log::error("Parent process has been terminated - killing children");
+			$zesk->logger->error("Parent process has been terminated - killing children");
 			var_dump($database);
 			foreach ($database as $name => $settings) {
 				$pid = $status = $time = null;
 				extract($settings, EXTR_IF_EXISTS);
 				if ($status === "up") {
 					if (!posix_kill($pid, $signal)) {
-						log::notice("Dead process {name} ({pid})", compact("name", "pid"));
+						$zesk->logger->notice("Dead process {name} ({pid})", compact("name", "pid"));
 						unset($database[$name]);
 						$changed = true;
 					} else {
-						log::notice("Sent {signal_name} to {name} ({pid})", compact("name", "pid"));
+						$zesk->logger->notice("Sent {signal_name} to {name} ({pid})", compact("name", "pid"));
 					}
 				} else {
 					unset($database[$name]);
@@ -237,7 +249,7 @@ class Command_Daemon extends Command_Base implements Process_Interruptable {
 		}
 		
 		$pid = $me['pid'];
-		log::notice("Sent {signal} to process {pid}", array(
+		$zesk->logger->notice("Sent {signal} to process {pid}", array(
 			"pid" => $pid,
 			"signal" => $signal_name
 		));
@@ -274,6 +286,8 @@ class Command_Daemon extends Command_Base implements Process_Interruptable {
 	 * @return number
 	 */
 	public final function command_state($name, $want, $newstate = null) {
+		global $zesk;
+		/* @var $zesk zesk\Kernel */
 		$database = $this->_process_database();
 		if ($name === "all") {
 			foreach ($database as $name => $settings) {
@@ -286,7 +300,7 @@ class Command_Daemon extends Command_Base implements Process_Interruptable {
 			$found = false;
 			foreach ($database as $procname => $settings) {
 				if (stripos($procname, $name) !== false) {
-					log::notice("Matched process name {procname}", compact("procname"));
+					$zesk->logger->notice("Matched process name {procname}", compact("procname"));
 					$this->_command_state($database, $procname, $settings, $want, $newstate);
 					$found = true;
 				}
@@ -297,7 +311,7 @@ class Command_Daemon extends Command_Base implements Process_Interruptable {
 			$settings = null;
 		}
 		if (!is_array($settings)) {
-			log::error("Unknown process {name}", array(
+			$zesk->logger->error("Unknown process {name}", array(
 				"name" => $name
 			));
 			return 2;
@@ -315,6 +329,8 @@ class Command_Daemon extends Command_Base implements Process_Interruptable {
 	 * @return number
 	 */
 	private function _command_state(array $database, $name, array $settings, $want, $newstate = null) {
+		global $zesk;
+		/* @var $zesk zesk\Kernel */
 		$pid = $status = null;
 		extract($settings, EXTR_IF_EXISTS);
 		if ($status === $want) {
@@ -337,7 +353,7 @@ class Command_Daemon extends Command_Base implements Process_Interruptable {
 					$killed = true;
 				}
 				if ($timer->elapsed() > 10) {
-					log::error("Unable to kill process {name} ({pid})", array(
+					$zesk->logger->error("Unable to kill process {name} ({pid})", array(
 						"name" => $name,
 						"pid" => $pid
 					));
@@ -393,9 +409,9 @@ class Command_Daemon extends Command_Base implements Process_Interruptable {
 						$suffix = "";
 					}
 				}
-				$pairs[$name] = "$status_text$suffix, " . lang::plural_number("second", $delta) . $want;
+				$pairs[$name] = "$status_text$suffix, " . Locale::plural_number("second", $delta) . $want;
 			}
-			echo text::format_pairs($pairs);
+			echo Text::format_pairs($pairs);
 		}
 		return 0;
 	}
@@ -407,6 +423,8 @@ class Command_Daemon extends Command_Base implements Process_Interruptable {
 		flock($path, LOCK_UN);
 	}
 	private function _process_database(array $database = null) {
+		global $zesk;
+		/* @var $zesk zesk\Kernel */
 		$path = $this->_database_path();
 		if ($database === null) {
 			if (!is_file($path)) {
@@ -416,8 +434,8 @@ class Command_Daemon extends Command_Base implements Process_Interruptable {
 			flock($fp, LOCK_SH);
 			$database = unserialize(fread($fp, 1024 * 1024));
 			if ($this->db_debug) {
-				log::debug("Read database: {data}", array(
-					'data' => json::encode($database)
+				$zesk->logger->debug("Read database: {data}", array(
+					'data' => JSON::encode($database)
 				));
 			}
 			flock($fp, LOCK_UN);
@@ -444,8 +462,8 @@ class Command_Daemon extends Command_Base implements Process_Interruptable {
 			flock($fp, LOCK_UN);
 			fclose($fp);
 			if ($this->db_debug) {
-				log::debug("Wrote database: {data}", array(
-					'data' => json::encode($database)
+				$zesk->logger->debug("Wrote database: {data}", array(
+					'data' => JSON::encode($database)
 				));
 			}
 			return $database;
@@ -476,12 +494,14 @@ class Command_Daemon extends Command_Base implements Process_Interruptable {
 	 *        	The signal number to handle
 	 */
 	public static function signal_handler($signo) {
+		global $zesk;
+		/* @var $zesk zesk\Kernel */
 		// echo "Unix Signal Handler: $signo\n";
 		$x = self::instance();
 		if (!$x) {
 			throw new Exception("No active process");
 		}
-		log::debug("Signal {signame} {signo} received", array(
+		$zesk->logger->debug("Signal {signame} {signo} received", array(
 			'signo' => $signo,
 			'signame' => avalue(self::$signals, $signo, 'Unknown')
 		));
@@ -565,7 +585,7 @@ class Command_Daemon extends Command_Base implements Process_Interruptable {
 				}
 				return unserialize(fread($this->fifo_r, $n));
 			}
-			//log::debug("stream_select timed out after $sec sec $usec usec");
+			//$zesk->logger->debug("stream_select timed out after $sec sec $usec usec");
 			return null;
 		}
 	}
@@ -604,9 +624,11 @@ class Command_Daemon extends Command_Base implements Process_Interruptable {
 	 * @return number
 	 */
 	public final function command_run() {
+		global $zesk;
+		/* @var $zesk zesk\Kernel */
 		$database = $this->_process_database();
 		assert(is_array($database));
-		$my_db_pid = arr::path($database, 'me.pid');
+		$my_db_pid = apath($database, 'me.pid');
 		if ($my_db_pid !== null && posix_kill($my_db_pid, 0)) {
 			if (!$this->option_bool('cron')) {
 				$this->error("Daemon already running.");
@@ -615,11 +637,11 @@ class Command_Daemon extends Command_Base implements Process_Interruptable {
 		}
 		
 		if ($this->option_bool('nohup')) {
-			$file = log::file();
+			$file = $zesk->logger->file();
 			if (!$file) {
 				$nohuplog = path($this->rundir, "daemon.log");
 				$this->error("Writing log to $nohuplog");
-				log::file($nohuplog);
+				$zesk->logger->file($nohuplog);
 			}
 			$pid = $this->daemonize();
 			if ($pid === 0) {
@@ -630,17 +652,17 @@ class Command_Daemon extends Command_Base implements Process_Interruptable {
 			}
 		}
 		$database['me'] = array(
-			'pid' => zesk::pid(),
+			'pid' => $zesk->process->id(),
 			'status' => 'up',
 			'time' => microtime(true)
 		);
 		$this->_process_database($database);
-		log::notice("Daemon run successfully.");
+		$zesk->logger->notice("Daemon run successfully.");
 		self::instance($this);
 		
 		zesk\PHP::feature("time_limit", $this->option_integer("time_limit", 0));
 		$daemons = $this->daemons();
-		log::debug("Daemons to run: " . implode(", ", $daemons));
+		$zesk->logger->debug("Daemons to run: " . implode(", ", $daemons));
 		
 		if (file_exists($this->fifo_path)) {
 			if (!unlink($this->fifo_path)) {
@@ -667,7 +689,7 @@ class Command_Daemon extends Command_Base implements Process_Interruptable {
 				}
 				if ($elapsed > $alive_notices) {
 					$alive_notices = $elapsed + $this->option('alive-interval', 600);
-					log::notice("Daemon is running at {date}", array(
+					$zesk->logger->notice("Daemon is running at {date}", array(
 						"date" => Timestamp::now()->format()
 					));
 				}
@@ -677,31 +699,31 @@ class Command_Daemon extends Command_Base implements Process_Interruptable {
 		return 0;
 	}
 	private function run_child($name) {
-		log::debug("FORKING for process {name} me={pid}", array(
+		global $zesk;
+		
+		$pid = $zesk->process->id();
+		/* @var $zesk zesk\Kernel */
+		$zesk->logger->debug("FORKING for process {name} me={pid}", array(
 			"name" => $name,
-			"pid" => zesk::pid()
-		));
-		$this->error("pcntl_fork {file}:{line}", array(
-			"file" => __FILE__,
-			"line" => __LINE__
+			"pid" => $pid
 		));
 		$nofork = $this->option_bool("nofork");
 		if ($nofork) {
-			log::warning("Not forking for child process because of --nofork");
+			$zesk->logger->warning("Not forking for child process because of --nofork");
 			$child = 0;
 		} else {
 			$child = pcntl_fork();
 		}
 		if ($child < 0) {
-			log::error("Unable to fork to run {name}", array(
+			$zesk->logger->error("Unable to fork to run {name}", array(
 				"name" => $name
 			));
 			return null;
 		} else if ($child === 0) {
 			$this->application->hooks->call('pcntl_fork-child');
-			log::notice("Running {name} as Process ID {pid}", array(
+			$zesk->logger->notice("Running {name} as Process ID {pid}", array(
 				"name" => $name,
-				"pid" => zesk::pid()
+				"pid" => $pid
 			));
 			$this->method = $name;
 			$this->child();
@@ -710,9 +732,9 @@ class Command_Daemon extends Command_Base implements Process_Interruptable {
 		}
 		$this->application->hooks->call('pcntl_fork-parent');
 		
-		log::debug("PARENT FORKED for process {name} me={pid} child={child}", array(
+		$zesk->logger->debug("PARENT FORKED for process {name} me={pid} child={child}", array(
 			"name" => $name,
-			"pid" => zesk::pid(),
+			"pid" => $pid,
 			"child" => $child
 		));
 		while (true) {
@@ -737,14 +759,16 @@ class Command_Daemon extends Command_Base implements Process_Interruptable {
 	 * @param unknown $timeout
 	 */
 	private function read_fifo($timeout) {
+		global $zesk;
+		/* @var $zesk zesk\Kernel */
 		if ($this->debug) {
-			log::debug("Server waiting for data in FIFO (timeout is {timeout} seconds)", array(
+			$zesk->logger->debug("Server waiting for data in FIFO (timeout is {timeout} seconds)", array(
 				"timeout" => $timeout
 			));
 		}
 		$result = $this->read($timeout);
 		if ($this->debug) {
-			log::debug("Server read: {data}", array(
+			$zesk->logger->debug("Server read: {data}", array(
 				'data' => var_export($result, true)
 			));
 		}
@@ -755,17 +779,17 @@ class Command_Daemon extends Command_Base implements Process_Interruptable {
 		foreach ($result as $name => $pid) {
 			if (is_numeric($pid)) {
 				if (!array_key_exists($name, $database)) {
-					log::error("Child sent name which isn't in our database? {name}", array(
+					$zesk->logger->error("Child sent name which isn't in our database? {name}", array(
 						"name" => $name
 					));
 				} else if ($database[$name]['pid'] !== $pid) {
-					log::error("Child sent PID which doesn't match our database (Child sent {childpid}, we have {pid}?", $database[$name] + array(
+					$zesk->logger->error("Child sent PID which doesn't match our database (Child sent {childpid}, we have {pid}?", $database[$name] + array(
 						"childpid" => $pid
 					));
 				}
 			} else if ($pid === null || $pid === "down") {
 				// Child dying or died, be sure to waitpid for it to allow safe exit
-				$childpid = arr::path($database, array(
+				$childpid = apath($database, array(
 					$name,
 					'pid'
 				));
@@ -773,12 +797,12 @@ class Command_Daemon extends Command_Base implements Process_Interruptable {
 				pcntl_waitpid($childpid, $status);
 				if ($pid === "down") {
 					$database[$name]['status'] = "down";
-					log::error("Service {name} requested to go down", array(
+					$zesk->logger->error("Service {name} requested to go down", array(
 						"name" => $name
 					));
 				}
 			} else {
-				log::debug("Unknown message from child: {child_pid}", array(
+				$zesk->logger->debug("Unknown message from child: {child_pid}", array(
 					'data' => serialize($pid)
 				));
 			}
@@ -790,6 +814,8 @@ class Command_Daemon extends Command_Base implements Process_Interruptable {
 	 * Run all of our children
 	 */
 	private function run_children() {
+		global $zesk;
+		/* @var $zesk zesk\Kernel */
 		$daemons = $this->daemons();
 		$database = $this->_process_database();
 		foreach ($daemons as $name) {
@@ -805,14 +831,14 @@ class Command_Daemon extends Command_Base implements Process_Interruptable {
 				extract($settings, EXTR_IF_EXISTS);
 				$pcntl_status = null;
 				if (($wait = pcntl_waitpid($pid, $pcntl_status, WNOHANG)) > 0) {
-					log::debug("Child process {name} {pid} exited with {pcntl_status} (result = {wait})", compact("name", "wait", "pcntl_status", "pid"));
+					$zesk->logger->debug("Child process {name} {pid} exited with {pcntl_status} (result = {wait})", compact("name", "wait", "pcntl_status", "pid"));
 					unset($database[$name]);
 					$this->_process_database($database);
 					continue;
 				}
 				if (posix_kill($pid, 0)) {
 					if ($status === 'down') {
-						log::debug("Sending TERM to {name} ({pid}) - want down", array(
+						$zesk->logger->debug("Sending TERM to {name} ({pid}) - want down", array(
 							"pid" => $pid,
 							"name" => $name
 						));
@@ -820,7 +846,7 @@ class Command_Daemon extends Command_Base implements Process_Interruptable {
 						continue;
 					}
 					if ($this->debug) {
-						log::debug("Checking {name} {pid}: Running", array(
+						$zesk->logger->debug("Checking {name} {pid}: Running", array(
 							"name" => $name,
 							"pid" => $pid
 						));
@@ -836,7 +862,7 @@ class Command_Daemon extends Command_Base implements Process_Interruptable {
 					}
 				} else {
 					$errno = posix_get_last_error();
-					log::debug("{name} REMOVED {pid} NOT RUNNING {errno}: {strerror}", array(
+					$zesk->logger->debug("{name} REMOVED {pid} NOT RUNNING {errno}: {strerror}", array(
 						"name" => $name,
 						"pid" => $database[$name],
 						"errno" => $errno,
@@ -848,7 +874,7 @@ class Command_Daemon extends Command_Base implements Process_Interruptable {
 			}
 		}
 		while (($wait = pcntl_waitpid(-1, $status, WNOHANG)) > 0) {
-			log::debug("Child process {wait} exited with {status}", compact("wait", "status"));
+			$zesk->logger->debug("Child process {wait} exited with {status}", compact("wait", "status"));
 		}
 	}
 	
@@ -858,12 +884,14 @@ class Command_Daemon extends Command_Base implements Process_Interruptable {
 	 * @throws Exception_File_Permission
 	 */
 	private function _fifo_write() {
+		global $zesk;
+		/* @var $zesk zesk\Kernel */
 		if (is_resource($this->fifo_w)) {
 			return;
 		}
 		$this->fifo_w = fopen($this->fifo_path, "w");
 		if (!$this->fifo_w) {
-			log::error("Can not open fifo {fifo} for writing", array(
+			$zesk->logger->error("Can not open fifo {fifo} for writing", array(
 				"fifo" => $this->fifo_path
 			));
 			throw new Exception_File_Permission($this->fifo_path, "fopen('{filename}', 'w')");
@@ -876,9 +904,11 @@ class Command_Daemon extends Command_Base implements Process_Interruptable {
 	 * @throws Exception_File_Permission
 	 */
 	private function _fifo_read() {
+		global $zesk;
+		/* @var $zesk zesk\Kernel */
 		$this->fifo_r = fopen($this->fifo_path, "r+");
 		if (!$this->fifo_r) {
-			log::error("Can not open fifo {fifo} for reading", array(
+			$zesk->logger->error("Can not open fifo {fifo} for reading", array(
 				"fifo" => $this->fifo_path
 			));
 			throw new Exception_File_Permission($this->fifo_path, "fopen('{filename}', 'r')");
@@ -918,6 +948,8 @@ class Command_Daemon extends Command_Base implements Process_Interruptable {
 	 * Run child process, then exit
 	 */
 	private function child() {
+		global $zesk;
+		/* @var $zesk zesk\Kernel */
 		$this->parent = false;
 		if ($this->option_bool("nofork")) {
 			$this->_fifos_close();
@@ -926,12 +958,13 @@ class Command_Daemon extends Command_Base implements Process_Interruptable {
 			$this->_fifo_write();
 		}
 		self::install_signals();
+		$pid = $zesk->process->id();
 		$this->send(array(
-			$this->method => zesk::pid()
+			$this->method => $pid
 		));
-		log::debug("Running {name} as part of {pid}", array(
+		$zesk->logger->debug("Running {name} as part of {pid}", array(
 			"name" => $this->method,
-			"pid" => zesk::pid()
+			"pid" => $pid
 		));
 		$result = call_user_func($this->method, $this);
 		if ($result === "down") {
@@ -968,7 +1001,7 @@ class Command_Daemon extends Command_Base implements Process_Interruptable {
 		if ($this->last_tick === null || $now - $this->last_tick > 1.0) {
 			$this->last_tick = $now;
 			if (Process_Tools::process_code_changed()) {
-				$this->log("Code changed - exiting.", array(), log::WARNING);
+				$this->warning("Code changed - exiting.");
 				$this->quitting = true;
 			}
 			$nobj = gc_collect_cycles();
@@ -990,10 +1023,11 @@ class Command_Daemon extends Command_Base implements Process_Interruptable {
 	 */
 	function kill() {
 		$this->quitting = true;
+		$pid = zesk()->process->id();
 		if ($this->parent) {
 			$database = $this->_process_database();
 			foreach ($database as $name => $pid) {
-				if ($pid !== zesk::pid()) {
+				if ($pid !== $pid) {
 					posix_kill($pid, SIGKILL);
 				} else {
 					posix_kill($pid, SIGTERM);
@@ -1007,11 +1041,13 @@ class Command_Daemon extends Command_Base implements Process_Interruptable {
 	 * @param array $database
 	 */
 	private function shutdown_children(array $database) {
+		global $zesk;
+		/* @var $zesk zesk\Kernel */
 		foreach ($database as $name => $settings) {
 			$pid = $status = null;
 			extract($settings, EXTR_IF_EXISTS);
 			if ($status === 'up' && $pid) {
-				log::debug("Sending SIGINT to {pid}", array(
+				$zesk->logger->debug("Sending SIGINT to {pid}", array(
 					'pid' => $pid
 				));
 				posix_kill($pid, SIGINT);
@@ -1022,7 +1058,7 @@ class Command_Daemon extends Command_Base implements Process_Interruptable {
 			foreach ($database as $name => $settings) {
 				$pid = $status = null;
 				extract($settings, EXTR_IF_EXISTS);
-				if ($pid === zesk::pid()) {
+				if ($pid === $zesk->process->id()) {
 					continue;
 				}
 				if ($status === 'down') {
@@ -1032,14 +1068,14 @@ class Command_Daemon extends Command_Base implements Process_Interruptable {
 				$status = null;
 				$result = pcntl_waitpid($pid, $status, WNOHANG);
 				if ($result === -1) {
-					log::error("pcntl_waitpid({pid}, {status}, WNOHANG) returned -1, child died? {name}", array(
+					$zesk->logger->error("pcntl_waitpid({pid}, {status}, WNOHANG) returned -1, child died? {name}", array(
 						"name" => $name,
 						"pid" => $pid,
 						"status" => $status
 					));
 					unset($database[$name]);
 				} else if ($result === 0) {
-					log::debug("pcntl_waitpid({pid}, {status}, WNOHANG) returned 0, no child available. {name}.", array(
+					$zesk->logger->debug("pcntl_waitpid({pid}, {status}, WNOHANG) returned 0, no child available. {name}.", array(
 						"name" => $name,
 						"pid" => $pid,
 						"status" => $status
@@ -1065,11 +1101,13 @@ class Command_Daemon extends Command_Base implements Process_Interruptable {
 	 * Nice way to do it.
 	 */
 	function terminate($message = null) {
+		global $zesk;
+		/* @var $zesk zesk\Kernel */
 		if ($this->quitting) {
 			return;
 		}
 		if ($message) {
-			log::notice($message);
+			$zesk->logger->notice($message);
 		}
 		$this->quitting = true;
 		if ($this->parent) {
@@ -1077,10 +1115,10 @@ class Command_Daemon extends Command_Base implements Process_Interruptable {
 			if (count($database) > 0) {
 				$this->shutdown_children($database);
 			} else {
-				log::error("Database is empty on termination? ...");
+				$zesk->logger->error("Database is empty on termination? ...");
 			}
 			usleep(0.1 * 1000000);
-			log::debug("Deleting FIFO and database ...");
+			$zesk->logger->debug("Deleting FIFO and database ...");
 			unlink($this->fifo_path);
 			unlink($this->_database_path());
 		} else {
@@ -1088,7 +1126,7 @@ class Command_Daemon extends Command_Base implements Process_Interruptable {
 			if ($this->has_option("terminate-wait")) {
 				sleep($this->option_integer("terminate-wait", 1));
 			}
-			log::notice("Daemon child terminated ...");
+			$zesk->logger->notice("Daemon child terminated ...");
 			exit();
 		}
 	}
@@ -1125,9 +1163,9 @@ class Command_Daemon extends Command_Base implements Process_Interruptable {
 	 * @param array $args
 	 * @param string $level
 	 */
-	function log($message, array $args = array(), $level = null) {
+	function warning($message, array $args = array()) {
 		global $zesk;
 		/* @var $zesk zesk\Kernel */
-		$zesk->logger->log($level, $message, $args);
+		$zesk->logger->warning($message, $args);
 	}
 }

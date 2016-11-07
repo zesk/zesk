@@ -7,9 +7,12 @@
  * @subpackage bin
  * @category Debugging
  * @author Kent Davidson <kent@marketacumen.com>
- * @copyright Copyright &copy; 2011, Market Acumen, Inc.
+ * @copyright &copy; 2016 Market Acumen, Inc.
  */
-use zesk\file as file;
+use zesk\arr;
+use zesk\Text;
+use zesk\File;
+use zesk\Locale;
 
 /**
  *
@@ -132,7 +135,7 @@ class Command_Check extends Command_Iterator_File {
 				$new_value = call_user_func($function, $items[$term]);
 				if ($new_value !== $items[$term]) {
 					$items[$term] = $new_value;
-					$translate[$comment] = text::indent(doccomment::unparse($items), $indent_text);
+					$translate[$comment] = Text::indent(doccomment::unparse($items), $indent_text);
 				}
 			}
 		}
@@ -342,12 +345,12 @@ class Command_Check extends Command_Iterator_File {
 			return 0;
 		}
 		$editor = $this->editor . " ";
-		echo "# " . lang::plural_word("error", $n_found) . " found\n";
+		echo "# " . Locale::plural_word("error", $n_found) . " found\n";
 		$results = array();
 		foreach ($this->log as $f => $errors) {
 			$results[] = $f . " # " . implode(", ", array_keys($errors));
 		}
-		echo lang::plural_word("file", $this->changed) . " changed\n";
+		echo Locale::plural_word("file", $this->changed) . " changed\n";
 		echo $editor . implode("\n$editor", $results) . "\n";
 	}
 }

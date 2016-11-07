@@ -1,5 +1,15 @@
 <?php
-$uri = url::query_append($this->request->uri(), array(
+namespace zesk;
+
+/* @var $this \zesk\Template */
+/* @var $zesk \zesk\Kernel */
+/* @var $application \zesk\Application */
+/* @var $session \zesk\Session */
+/* @var $router \zesk\Router */
+/* @var $route \zesk\Route */
+/* @var $request \zesk\Request */
+/* @var $response \zesk\Response_Text_HTML */
+$uri = URL::query_append($this->request->uri(), array(
 	"widget::target" => $this->column,
 	"ajax" => 1,
 	"action" => "selector"
@@ -8,12 +18,12 @@ $uri = url::query_append($this->request->uri(), array(
 $column = $this->column;
 $list_id = "$column-control-picker-items";
 
-echo html::tag_open('div', '.control-picker');
-echo html::tag('div', '.btn-group', html::tag('a', array(
+echo HTML::tag_open('div', '.control-picker');
+echo HTML::tag('div', '.btn-group', HTML::tag('a', array(
 	'class' => 'btn btn-default',
 	'data-modal-url' => $uri,
 	'data-target' => "#$list_id"
-), $this->get('label_button', html::span('.glyphicon .glyphicon-plus', ''))));
+), $this->get('label_button', HTML::span('.glyphicon .glyphicon-plus', ''))));
 
 $results = array();
 foreach ($this->objects as $object) {
@@ -23,24 +33,25 @@ foreach ($this->objects as $object) {
 	));
 }
 // $n = count($results);
-// echo html::tag('span', '.badge', __('{n} {nouns} selected', array(
+// echo HTML::tag('span', '.badge', __('{n} {nouns} selected', array(
 // 	"n" => $n,
-// 	"nouns" => lang::plural($this->class_object_name)
+// 	"nouns" => Locale::plural($this->class_object_name)
 // )));
 
 
-$list_attributes = html::to_attributes($this->list_attributes);
+$list_attributes = HTML::to_attributes($this->list_attributes);
 $list_attributes['id'] = $list_id;
-$list_attributes = html::add_class($list_attributes, "control-picker-state class-" . strtolower($this->object_class));
+$list_attributes = HTML::add_class($list_attributes, "control-picker-state class-" . strtolower($this->object_class));
 if ($this->selectable) {
-	$list_attributes = html::add_class($list_attributes, "selectable");
+	$list_attributes = HTML::add_class($list_attributes, "selectable");
 }
 
-echo html::tag($this->get('list_tag', 'div'), $list_attributes, implode("\n", $results));
-echo html::tag_close('div');
+echo HTML::tag($this->get('list_tag', 'div'), $list_attributes, implode("\n", $results));
+echo HTML::tag_close('div');
 
 /* @var $modal_url Module_Modal_URL */
-$modal_url = Module::object('modal_url');
-if ($modal_url) {
+try {
+	$modal_url = $application->modules->object('modal_url');
 	$modal_url->ready($this->response);
+} catch (\Exception_NotFound $e) {
 }

@@ -5,7 +5,7 @@
  *
  * @author kent
  */
-class Class_File_Data extends Class_Object {
+class Class_File_Data extends zesk\Class_Object {
 	public $columns = array(
 		"ID",
 		"Size",

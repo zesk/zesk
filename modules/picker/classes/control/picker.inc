@@ -1,4 +1,21 @@
 <?php
+/**
+ * @version $URL: https://code.marketacumen.com/zesk/trunk/modules/picker/classes/control/picker.inc $
+ * @author $Author: kent $
+ * @package {package}
+ * @subpackage {subpackage}
+ * @copyright Copyright (C) 2016, {company}. All rights reserved.
+ */
+use zesk\arr;
+use zesk\Object;
+use zesk\Database_Query_Select;
+use zesk\Object_Iterator;
+
+/**
+ * 
+ * @author kent
+ *
+ */
 class Control_Picker extends Control {
 	
 	/**
@@ -170,8 +187,8 @@ class Control_Picker extends Control {
 	}
 	public function theme_variables() {
 		$class_object = Object::cache_class($this->class, 'class');
-		$name = lang::lower(__($class_object->name));
-		$names = lang::plural($name);
+		$name = zesk\Locale::lower(__($class_object->name));
+		$names = zesk\Locale::plural($name);
 		return array(
 			'title' => $this->option('title'),
 			'target' => $this->inline_picker() ? null : $this->request->get('target'),
@@ -249,7 +266,7 @@ class Control_Picker extends Control {
 			"content" => $content
 		);
 	}
-	function hook_query(Database_Query_Select $query) {
+	function hook_query(zesk\Database_Query_Select $query) {
 		$value = $this->request->get('q');
 		if ($value === "" || $value === null) {
 			return array();
@@ -276,8 +293,8 @@ class Control_Picker extends Control {
 	private function search_results(array $variables, $q) {
 		$query = $this->_query();
 		$total = Object::class_query($this->class);
-		$this->hook('query_list;query', $query);
-		$this->hook('query_total;query', $total);
+		$this->call_hook('query_list;query', $query);
+		$this->call_hook('query_total;query', $total);
 		$total->what(array(
 			"*total" => "COUNT(DISTINCT X." . $this->class_object->id_column . ")"
 		));
@@ -301,10 +318,10 @@ class Control_Picker extends Control {
 		return $result;
 	}
 	private function wrap_form($content) {
-		return html::tag('form', array(
+		return HTML::tag('form', array(
 			'method' => 'post',
 			'class' => 'control-picker-selector',
-			'action' => url::query_remove($this->request->uri(), "widget::target;action;q")
-		) + $this->form_attributes, $content . html::input_hidden("action", "submit") . html::input_hidden("widget::target", $this->request->get('widget::target')));
+			'action' => URL::query_remove($this->request->uri(), "widget::target;action;q")
+		) + $this->form_attributes, $content . HTML::input_hidden("action", "submit") . HTML::input_hidden("widget::target", $this->request->get('widget::target')));
 	}
 }

@@ -7,6 +7,7 @@
  * @author Kent M. Davidson <kent@marketacumen.com>
  * @copyright Copyright &copy; 2008, Market Acumen, Inc.
  */
+use zesk\Directory;
 
 /**
  * Apache module integrates with Apache server and your web application, specifically - Generation
@@ -82,7 +83,7 @@ class Module_Apache extends Module {
 		$this_hash = md5(serialize($share_paths));
 		$alias_include_dir = $this->application->data_path("httpd");
 		$alias_include = path($alias_include_dir, "aliases.conf");
-		dir::depend($alias_include_dir);
+		Directory::depend($alias_include_dir);
 		
 		$file_hash = self::retrieve_hash($alias_include);
 		if (strcasecmp($this_hash, $file_hash) === 0) {

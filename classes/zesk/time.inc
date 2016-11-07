@@ -16,11 +16,7 @@
  */
 namespace zesk;
 
-use \zesk as zesk;
-use \Exception_Parameter as Exception_Parameter;
-use \Exception_Range as Exception_Range;
-
-class Time extends \Temporal {
+class Time extends Temporal {
 	const hours_per_day = 24;
 	const hour_max = 23;
 	const second_max = 59;

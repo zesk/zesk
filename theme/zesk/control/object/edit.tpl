@@ -1,4 +1,9 @@
 <?php
+/**
+ * @copyright &copy; 2016 Market Acumen, Inc.
+ */
+namespace zesk;
+
 /* @var $this Template */
 if (false) {
 	/* @var $this Template */
@@ -31,14 +36,14 @@ $invisibles = "";
 $form_attributes = $this->geta('form_attributes');
 $form_attributes['method'] = avalue($form_attributes, 'method', 'post');
 if ($this->ajax) {
-	$invisibles .= html::hidden("ajax", 1);
+	$invisibles .= HTML::hidden("ajax", 1);
 }
-$form_attributes['class'] = css::add_class(avalue($form_attributes, 'class'), 'form-' . $this->get('form-style', 'horizontal'));
+$form_attributes['class'] = CSS::add_class(avalue($form_attributes, 'class'), 'form-' . $this->get('form-style', 'horizontal'));
 
 $form_attributes['role'] = "form";
-echo html::tag_open("form", $form_attributes);
+echo HTML::tag_open("form", $form_attributes);
 
-echo html::tag_open('div', $table_attributes);
+echo HTML::tag_open('div', $table_attributes);
 
 foreach ($widget->children() as $name => $child) {
 	/* @var $child Widget */
@@ -47,12 +52,12 @@ foreach ($widget->children() as $name => $child) {
 	}
 	$label = "";
 	if ($child->label) {
-		$label = html::tag('label', array(
+		$label = HTML::tag('label', array(
 			'for' => $child->id(),
 			'class' => $this->inline ? 'sr-only' : ''
 		), $child->label);
 	}
-	echo html::div('.form-group', $label . $child->content . html::etag('p', '.help-block', $this->help));
+	echo HTML::div('.form-group', $label . $child->content . HTML::etag('p', '.help-block', $this->help));
 }
 
 $widgets = $widget->child("widgets");
@@ -67,11 +72,11 @@ if ($widgets) {
 		}
 	}
 }
-echo html::tag_close("div");
+echo HTML::tag_close("div");
 
-echo html::hidden("ref", $request->get("ref"));
+echo HTML::hidden("ref", $request->get("ref"));
 if (method_exists($object, 'id_column')) {
-	echo html::hidden($object->id_column(), $object->id()) . $invisibles;
+	echo HTML::hidden($object->id_column(), $object->id()) . $invisibles;
 }
 
 $buttonbar = $widget->child('buttonbar');
@@ -79,6 +84,6 @@ if ($buttonbar) {
 	echo $buttonbar->content;
 }
 
-echo html::tag_close("form");
+echo HTML::tag_close("form");
 
 $widget->content_children = "";

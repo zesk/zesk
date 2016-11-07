@@ -8,6 +8,16 @@
  * @global boolean db-connect Set this global to alternate database
  * @aliases db-connect connect conn
  */
+use zesk\Database;
+use zesk\PHP;
+use zesk\Text;
+use zesk\arr;
+
+/**
+ * 
+ * @author kent
+ *
+ */
 class Command_Database_Connect extends Command_Base {
 	/**
 	 * 
@@ -68,7 +78,7 @@ class Command_Database_Connect extends Command_Base {
 		if ($this->option_bool('echo')) {
 			echo $full_command_path . implode("", arr::prefix($args, " ")) . "\n";
 		} else {
-			zesk\PHP::requires('pcntl', true);
+			PHP::requires('pcntl', true);
 			$method = 'pcntl_exec';
 			$method($full_command_path, $args);
 		}
@@ -84,7 +94,7 @@ class Command_Database_Connect extends Command_Base {
 		$db = Database::register();
 		if (!$this->option_bool("show-passwords")) {
 			foreach ($db as $key => $url) {
-				$db[$key] = url::remove_password($url);
+				$db[$key] = URL::remove_password($url);
 			}
 		}
 		if ($this->option_bool("db-name")) {
@@ -101,7 +111,7 @@ class Command_Database_Connect extends Command_Base {
 				return -1;
 			}
 		}
-		echo text::format_pairs($db);
+		echo Text::format_pairs($db);
 		return 0;
 	}
 	
@@ -119,7 +129,7 @@ class Command_Database_Connect extends Command_Base {
 				$db[$name] = false;
 			}
 		}
-		echo text::format_pairs($db);
+		echo Text::format_pairs($db);
 		return 0;
 	}
 	
@@ -130,7 +140,7 @@ class Command_Database_Connect extends Command_Base {
 		$db = Database::register();
 		foreach ($db as $name => $url) {
 		}
-		echo text::format_pairs($db);
+		echo Text::format_pairs($db);
 		return 0;
 	}
 }

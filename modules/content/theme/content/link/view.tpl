@@ -1,18 +1,51 @@
 <?php
-global $user;
+/**
+ * 
+ */
+namespace zesk;
 
-$x = $this->Object;
-
-$class[] = "link";
-if ($this->get('class')) {
+/* @var $this \zesk\Template */
+/* @var $zesk \zesk\Kernel */
+/* @var $application \zesk\Application */
+/* @var $session \zesk\Session */
+/* @var $router \zesk\Router */
+/* @var $route \zesk\Route */
+/* @var $request \zesk\Request */
+/* @var $response \zesk\Response_Text_HTML */
+/* @var $current_user \User */
+/* @var $object \Content_Link */
+$class = array(
+	"link"
+);
+if ($this->class) {
 	$class[] = $this->class;
 }
-$rd_link = url::query_format("/out", array("Link" => $x->id(), "url" => $x->URL, "key" => md5($x->URL . _G('url_key'))));
+$rd_link = URL::query_format("/out", array(
+	"link" => $object->id(),
+	"url" => $object->URL,
+	"key" => md5($object->URL . _G('url_key'))
+));
 
-/* @var $x Link */
-?><div class="<?php echo  implode(" ", $class) ?>"><?php echo  etag("a", array("href" => $rd_link, "onmouseover" => "window.status='".$x->URL."'", "onmouseout" => "window.status=''"), $x->image()) ?>
-<?php echo  aa($rd_link, array("class" => "title", "onmouseover" => "window.status='".$x->URL."'", "onmouseout" => "window.status=''"), $x->Name) ?><?
+/* @var $object Link */
+echo HTML::div_open(array(
+	"class" => implode(" ", $class)
+));
+echo HTML::etag("a", array(
+	"href" => $rd_link,
+	"onmouseover" => "window.status='" . $object->URL . "'",
+	"onmouseout" => "window.status=''"
+), $object->image());
+
+echo HTML::a_condition($rd_link === $request->path(), $rd_link, array(
+	"class" => "title",
+	"onmouseover" => "window.status='" . $object->URL . "'",
+	"onmouseout" => "window.status=''"
+), $object->Name);
+
 echo $this->theme('control/admin-edit');
-?><?php echo  etag("p", array("class" => "desc"), $x->Body) ?>
 
-</div>
+echo HTML::etag("p", array(
+	"class" => "desc"
+), $object->Body);
+
+echo HTML::div_close();

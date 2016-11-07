@@ -1,6 +1,20 @@
 <?php
+/**
+ * 
+ */
+namespace zesk;
 
-/* @var $this Template */
+/* @var $this \zesk\Template */
+/* @var $zesk \zesk\Kernel */
+/* @var $application \zesk\Application */
+/* @var $session \zesk\Session */
+/* @var $router \zesk\Router */
+/* @var $route \zesk\Route */
+/* @var $request \zesk\Request */
+/* @var $response \zesk\Response_Text_HTML */
+/* @var $current_user \User */
+/* @var $object \zesk\Model */
+
 $attr = $this->attributes;
 
 $object = $this->object;
@@ -31,9 +45,9 @@ if ($this->checked) {
 	$attr["checked"] = "checked";
 }
 
-$result = $this->input_prefix . html::tag("input", $object ? $object->apply_map($attr) : $attr, null) . $this->input_suffix;
+$result = $this->input_prefix . HTML::tag("input", $object ? $object->apply_map($attr) : $attr, null) . $this->input_suffix;
 if ($this->getb("refresh")) {
-	echo html::hidden($cont_name, '');
+	echo HTML::hidden($cont_name, '');
 }
 
 if ($this->label_checkbox) {
@@ -41,9 +55,9 @@ if ($this->label_checkbox) {
 		"id" => "for"
 	));
 	$label_attr['class'] = $this->get('checkbox_label_class', null);
-	$result = html::tag('div', '.checkbox' . $disabled_class, html::tag("label", $label_attr, $result . $this->label_checkbox));
+	$result = HTML::tag('div', '.checkbox' . $disabled_class, HTML::tag("label", $label_attr, $result . $this->label_checkbox));
 }
 echo $result;
 if (!ends($name, ']')) {
-	echo html::hidden($name . '_ckbx', 1);
+	echo HTML::hidden($name . '_ckbx', 1);
 }

@@ -1,7 +1,13 @@
 <?php
 /**
+ * 
+ */
+use zesk\HTML;
+use zesk\arr;
+
+/**
  * Note similarities here and control/edit.tpl
- *
+ * TODO Consider merging the two to have consistency?
  *
  */
 $variables = $this->variables;
@@ -12,18 +18,18 @@ foreach ($this->children as $child) {
 	/* @var $child Widget */
 	$name = $child->column();
 	if ($child->has_option('help')) {
-		$suffix = html::tag('div', '.help-block', $child->option('help'));
+		$suffix = HTML::tag('div', '.help-block', $child->option('help'));
 		$child->suffix($suffix, true);
 		$child->set_option('help', null);
 	}
 	if ($child->has_errors()) {
-		$suffix = html::tags('div', '.help-block error', $child->errors());
+		$suffix = HTML::tags('div', '.help-block error', $child->errors());
 		$child->suffix($suffix, true);
 	}
 	
 	$child->object($this->object);
 	$content = $child->render();
-	$label = $results[$name . '.label'] = html::tag('label', array(
+	$label = $results[$name . '.label'] = HTML::tag('label', array(
 		'class' => $this->get('label_class', 'label label-default'),
 		'for' => $child->id()
 	), $child->label());
@@ -31,9 +37,9 @@ foreach ($this->children as $child) {
 		$label = "";
 	}
 	$widget_tag = $child->option('widget_tag', $this->get('widget_tag', 'div'));
-	$widget_attributes = html::add_class(to_array($this->widget_attributes), $child->context_class());
+	$widget_attributes = HTML::add_class(to_array($this->widget_attributes), $child->context_class());
 	
-	$cell = $results[$name . '.cell'] = empty($content) ? $content : html::tag($widget_tag, $widget_attributes, $label . $content);
+	$cell = $results[$name . '.cell'] = empty($content) ? $content : HTML::tag($widget_tag, $widget_attributes, $label . $content);
 	$results[$name] = $content;
 	
 	if ($child->is_visible()) {

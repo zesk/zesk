@@ -1,4 +1,15 @@
 <?php
+/**
+ * 
+ */
+use zesk\File;
+use zesk\MIME;
+
+/**
+ * 
+ * @author kent
+ *
+ */
 class Control_Content_Image extends Control {
 	public function initialize() {
 		$this->upload(true);
@@ -66,7 +77,7 @@ class Control_Content_Image extends Control {
 		
 		$allowed = $this->allowed_mime_types();
 		if (!in_array($type, $allowed)) {
-			$type = mime::from_filename($name);
+			$type = MIME::from_filename($name);
 			if (!in_array($type, $allowed)) {
 				$this->error(__("Not allowed to upload files of that type."));
 				return false;
@@ -89,7 +100,7 @@ class Control_Content_Image extends Control {
 			extract($data, EXTR_IF_EXISTS);
 			
 			$image = Content_Image::register_from_file($tmp_name, array(
-				'path' => file::name_clean($name)
+				'path' => File::name_clean($name)
 			));
 			$this->value($image->id());
 		} catch (Exception_Upload $e) {

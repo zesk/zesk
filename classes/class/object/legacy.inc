@@ -1,12 +1,15 @@
 <?php
 
+use zesk\Object;
+use zesk\Class_Object;
+
 /**
  * Backwards compatible class to support objects which use members to do specification. These are copied into the
  * Class_Object definition to behave identically.
  * 
  * @author kent
  */
-class Class_Object_Legacy extends Class_Object {
+class Class_Object_Legacy extends zesk\Class_Object {
 	/**
 	 * Array of class propreties to copy over
 	 *

@@ -1,6 +1,6 @@
 <?php
 
-class Class_Product extends Class_Object {
+class Class_Product extends zesk\Class_Object {
 	public $id_column = "id";
 
 }

@@ -1,4 +1,8 @@
 <?php
+/**
+ * @copyright &copy; 2016 Market Acumen, Inc.
+ */
+namespace zesk;
 
 /* @var $this Template */
 if (false) {
@@ -20,9 +24,9 @@ $ia["name"] = $name;
 
 $class = $this->class;
 if ($this->required) {
-	$class = css::add_class($class, "required");
+	$class = CSS::add_class($class, "required");
 }
-$ia['class'] = css::add_class($class, 'form-control');
+$ia['class'] = CSS::add_class($class, 'form-control');
 
 $ia['placeholder'] = $this->placeholder;
 
@@ -33,16 +37,16 @@ if ($this->textarea) {
 	$ia["rows"] = $this->rows;
 	$ia["cols"] = $this->cols;
 
-	echo html::tag_open("textarea", $ia) . htmlspecialchars(strval($value)) . html::tag_close("textarea");
+	echo HTML::tag_open("textarea", $ia) . htmlspecialchars(strval($value)) . HTML::tag_close("textarea");
 } else {
 	$ia["type"] = $this->password ? "password" : "text";
 	$ia = $object->apply_map($ia) + array(
 		'value' => $value
 	);
-	$input = html::tag("input", $ia);
+	$input = HTML::tag("input", $ia);
 	if ($this->input_group_addon) {
-		$html = html::span($this->get('input_group_class', '.input-group-addon'), $this->input_group_addon);
-		echo html::tag('div', '.input-group', $this->input_group_addon_left ? $html . $input : $input . $html);
+		$html = HTML::span($this->get('input_group_class', '.input-group-addon'), $this->input_group_addon);
+		echo HTML::tag('div', '.input-group', $this->input_group_addon_left ? $html . $input : $input . $html);
 	} else {
 		echo $input;
 	}

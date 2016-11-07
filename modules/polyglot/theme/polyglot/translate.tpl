@@ -1,8 +1,17 @@
 <?php
+/**
+ * 
+ */
+use zesk\Model;
+
+/**
+ * 
+ * @var unknown $current_user
+ */
 $current_user = $this->get1("current_user;user", User::instance(true));
 $can_update_live = $current_user->can("Module_PolyGlot::update");
 
-/* @var $response Response_HTML */
+/* @var $response zesk\Response_Text_HTML */
 $response = $this->response;
 
 $response->jquery();
@@ -19,7 +28,10 @@ $object->status = $this->request->get("s", PolyGlot_Token::status_todo);
 
 $locale_options = to_array($this->locale_options);
 asort($locale_options, SORT_LOCALE_STRING);
-$widget = Widget::factory("Control_Select", null, $this->application)->names("locale", __("Locale"))->control_options($locale_options)->hide_single(false)->default_value(first(array_keys($locale_options)));
+$widget = Widget::factory("Control_Select", null, $this->application)->names("locale", __("Locale"))
+	->control_options($locale_options)
+	->hide_single(false)
+	->default_value(first(array_keys($locale_options)));
 $widget->required(true);
 
 $status = Widget::factory("Control_Select", null, $this->application)->names("status", __("Status"))->control_options(PolyGlot_Token::lang_status_filters())->noname(__("All"));

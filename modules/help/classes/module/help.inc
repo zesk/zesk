@@ -4,15 +4,27 @@
  *
  * Uses Help for help text storage and Help_User to mark entries
  *
- * Currently not internationalizable, but could easily be added.
- *
  * Only works on authenticated users; perhaps add a session marker to allow per-session
  * help text for apps which is then copied into the user context.
  *
  * @author kent
  *
  */
+use zesk\Database_Exception;
+use zesk\Locale;
+use zesk\Request;
+use zesk\Response;
+
+/**
+ * 
+ * @author kent
+ *
+ */
 class Module_Help extends Module_JSLib {
+	/**
+	 * 
+	 * @var unknown
+	 */
 	private $authenticated = null;
 	protected $javascript_settings_inherit = array(
 		'show_count' => 3
@@ -27,15 +39,14 @@ class Module_Help extends Module_JSLib {
 		'Help',
 		'Help_User'
 	);
-	public function initialize() {
-	}
+	
 	/**
 	 * We inject our JavaScript on pages; it loads
 	 * 
 	 * @param Request $requset        	
-	 * @param Response_HTML $response        	
+	 * @param zesk\Response_Text_HTML $response        	
 	 */
-	public function hook_head(Request $request, Response_HTML $response, Template $template) {
+	public function hook_head(zesk\Request $request, zesk\Response_Text_HTML $response, zesk\Template $template) {
 		if (!$this->option_bool("disabled")) {
 			$response->cdn_javascript('/share/help/js/help.js', array(
 				'share' => true
@@ -60,7 +71,7 @@ class Module_Help extends Module_JSLib {
 	 */
 	public function hook_cron_cluster() {
 		$application = $this->application;
-		$helps = $application->module->all_hook_array(__CLASS__, array(), array());
+		$helps = $application->modules->all_hook_arguments(__CLASS__, array(), array());
 		log::notice("Module_Help::cron found {count} help items", array(
 			"count" => count($helps)
 		));
@@ -100,38 +111,45 @@ class Module_Help extends Module_JSLib {
 	/**
 	 * Adds needed routes to our router
 	 * 
-	 * @todo Make these non-static calls
 	 * @param Router $router        	
 	 */
-	public function hook_routes(Router $router) {
+	public function hook_routes(zesk\Router $router) {
 		$router->add_route('help/user-targets', array(
-			'method' => "Module_Help::user_targets",
+			'method' => array(
+				$this,
+				"user_targets"
+			),
 			'arguments' => array(
-				'{application}',
 				'{request}',
 				'{response}'
 			)
 		));
 		$router->add_route('help/user-reset', array(
-			'method' => "Module_Help::user_reset",
+			'method' => array(
+				$this,
+				"user_reset"
+			),
 			'arguments' => array(
-				'{application}',
 				'{request}',
 				'{response}'
 			)
 		));
 		$router->add_route('help/show', array(
-			'method' => "Module_Help::user_show",
+			'method' => array(
+				$this,
+				"user_show"
+			),
 			'arguments' => array(
-				'{application}',
 				'{request}',
 				'{response}'
 			)
 		));
 		$router->add_route('help/dismiss', array(
-			'method' => "Module_Help::user_dismiss",
+			'method' => array(
+				$this,
+				"user_dismiss"
+			),
 			'arguments' => array(
-				'{application}',
 				'{request}',
 				'{response}'
 			)
@@ -144,9 +162,10 @@ class Module_Help extends Module_JSLib {
 	 * @param Request $request        	
 	 * @param Response $response        	
 	 */
-	public static function user_targets(Application $application, Request $request, Response $response) {
-		$user = self::_help_auth($application, $request, $response);
-		$query = Object::class_query('Help')->link('Help_User', array(
+	public function user_targets(Request $request, Response $response) {
+		$application = $this->application;
+		$user = $this->_help_auth($request, $response);
+		$query = $this->application->query_select('Help')->link('Help_User', array(
 			'require' => false,
 			"alias" => "hu",
 			"on" => array(
@@ -158,7 +177,7 @@ class Module_Help extends Module_JSLib {
 		));
 		$helps = $query->object_iterator();
 		$result = array();
-		$mappables = $application->module->all_hook_array(__CLASS__ . "_map", array(), array());
+		$mappables = $application->modules->all_hook_arguments(__CLASS__ . "_map", array(), array());
 		if (count($mappables) === 0) {
 			$mappables = array();
 		}
@@ -198,7 +217,7 @@ class Module_Help extends Module_JSLib {
 	 *
 	 * @return User
 	 */
-	private static function _help_auth(Application $application, Request $request, Response $response) {
+	private function _help_auth(Request $request, Response $response) {
 		$user = User::instance();
 		if (!$user->authenticated()) {
 			$response->status(Net_HTTP::Status_Unauthorized, "Requires user")->json(array(
@@ -217,12 +236,12 @@ class Module_Help extends Module_JSLib {
 	 * @param Response $response        	
 	 * @return NULL|User
 	 */
-	private static function _help_update(Application $application, Request $request, Response $response) {
-		$user = self::_help_auth($application, $request, $response);
+	private function _help_update(Request $request, Response $response) {
+		$user = $this->_help_auth($request, $response);
 		if (!$user) {
 			return null;
 		}
-		if (!$application->development() && !$request->is_post()) {
+		if (!$this->application->development() && !$request->is_post()) {
 			$response->status(Net_HTTP::Status_Method_Not_Allowed, "Requires POST")->json(array(
 				'error' => __('Requires POST data')
 			));
@@ -237,10 +256,11 @@ class Module_Help extends Module_JSLib {
 	 * @param Request $request        	
 	 * @param Response $response        	
 	 */
-	public static function user_show(Application $application, Request $request, Response $response) {
-		if (($user = self::_help_update($application, $request, $response)) === null) {
+	public function user_show(Request $request, Response $response) {
+		if (($user = $this->_help_update($request, $response)) === null) {
 			return;
 		}
+		$application = $this->application;
 		$ids = $request->geta('id', array());
 		foreach ($ids as $id) {
 			$application->object_factory('Help', $id)->show();
@@ -256,10 +276,11 @@ class Module_Help extends Module_JSLib {
 	 * @param Request $request        	
 	 * @param Response $response        	
 	 */
-	public static function user_dismiss(Application $application, Request $request, Response $response) {
-		if (($user = self::_help_update($application, $request, $response)) === null) {
+	public function user_dismiss(Request $request, Response $response) {
+		if (($user = $this->_help_update($request, $response)) === null) {
 			return;
 		}
+		$application = $this->application;
 		$ids = $request->geta('id', array());
 		foreach ($ids as $id) {
 			$help = $application->object_factory('Help', $id)->fetch();
@@ -288,16 +309,16 @@ class Module_Help extends Module_JSLib {
 	 * @param Request $request        	
 	 * @param Response $response        	
 	 */
-	public static function user_reset(Application $application, Request $request, Response $response) {
-		if (($user = self::_help_auth($application, $request, $response)) === null) {
+	public function user_reset(Request $request, Response $response) {
+		if (($user = $this->_help_auth($request, $response)) === null) {
 			return;
 		}
-		$n = self::reset_user($user);
+		$n = $this->reset_user($user);
 		$response->json(array(
 			'status' => true,
 			'message' => __('Removed {n} {entries}', array(
 				'n' => $n,
-				'entries' => lang::plural(__('entry'), $n)
+				'entries' => Locale::plural(__('entry'), $n)
 			))
 		));
 	}
@@ -308,8 +329,8 @@ class Module_Help extends Module_JSLib {
 	 * @param User $user        	
 	 * @return number Number of affected records (number previous marked as "dismissed")
 	 */
-	public static function reset_user(User $user) {
-		$query = Object::class_query_delete('Help_User')->where('user', $user);
+	public function reset_user(User $user) {
+		$query = $this->application->class_query_delete('Help_User')->where('user', $user);
 		$query->execute();
 		return $query->affected_rows();
 	}

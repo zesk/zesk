@@ -1,8 +1,8 @@
 <?php
-
+/**
+ * 
+ */
 namespace zesk;
-
-use zesk\file as file;
 
 /**
  * Configuration files, somewhat compatible with BASH environment shells
@@ -24,10 +24,11 @@ class Configuration_Editor_CONF extends Configuration_Editor {
 	 * @param array $options
 	 */
 	public static function edit($path, array $edits) {
+		$parser = new Configuration_Parser_CONF("", $this->options);
 		$low_edits = arr::flip_copy(array_keys($edits), true);
 		$new_lines = array();
 		if (file_exists($path)) {
-			$lines = file::lines($path);
+			$lines = File::lines($path);
 			foreach ($lines as $line) {
 				$result = $parser->parse_line($line);
 				if ($result === null) {
@@ -38,7 +39,7 @@ class Configuration_Editor_CONF extends Configuration_Editor {
 					if (array_key_exists($lowkey, $low_edits)) {
 						$key = $low_edits[$lowkey];
 						unset($low_edits[$lowkey]);
-						$new_lines[] = $key . '=' . text::lines_wrap(json::encode($edits[$key]), "\t", "", "") . "\n";
+						$new_lines[] = $key . '=' . Text::lines_wrap(JSON::encode($edits[$key]), "\t", "", "") . "\n";
 						unset($edits[$key]);
 					} else {
 						$new_lines[] = rtrim($line, "\n") . "\n";
@@ -47,8 +48,8 @@ class Configuration_Editor_CONF extends Configuration_Editor {
 			}
 		}
 		foreach ($low_edits as $low_edit => $key) {
-			$new_lines[] = $key . '=' . json::encode($edits[$key]) . "\n";
+			$new_lines[] = $key . '=' . JSON::encode($edits[$key]) . "\n";
 		}
-		file::put($path, implode("", $new_lines));
+		File::put($path, implode("", $new_lines));
 	}
 }

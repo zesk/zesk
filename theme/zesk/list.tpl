@@ -8,17 +8,17 @@ if (is_array($content)) {
 			if (is_array($sValue)) {
 				$sValue = $this->theme('list', $sValue);
 			}
-			$result[] = html::tag('dt', $k) . html::tag("dd", $sValue);
+			$result[] = HTML::tag('dt', $k) . HTML::tag("dd", $sValue);
 		}
-		echo html::tag("dl", implode("\n", $result));
+		echo HTML::tag("dl", implode("\n", $result));
 	} else {
 		foreach ($content as $k => $sValue) {
 			if (is_array($sValue)) {
 				$sValue = $this->theme('list', $sValue);
 			}
-			$result[] = html::tag('li', $sValue);
+			$result[] = HTML::tag('li', $sValue);
 		}
-		echo html::tag("ul", implode("\n", $result));
+		echo HTML::tag("ul", implode("\n", $result));
 	}
 } else {
 	echo $content;

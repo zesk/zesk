@@ -1,4 +1,30 @@
 <?php
+/**
+ * @copyright &copy; 2016 Market Acumen, Inc.
+ */
+namespace zesk;
+
+if (false) {
+	/* @var $this Template */
+	
+	$zesk = $this->zesk;
+	/* @var $zesk \zesk\Kernel */
+	
+	$application = $this->application;
+	/* @var $application \zesk\Application */
+	
+	$session = $this->session;
+	/* @var $session \zesk\Session */
+	
+	$router = $this->router;
+	/* @var $request \zesk\Router */
+	
+	$request = $this->request;
+	/* @var $request \zesk\Request */
+	
+	$response = $this->response;
+	/* @var $response \zesk\Response_Text_HTML */
+}
 
 /**
  * Control_Text_Dropdown render template
@@ -7,7 +33,7 @@
 /* @var $this Template */
 if (false) {
 	$response = $this->response;
-	/* @var $response Response_HTML */
+	/* @var $response zesk\Response_Text_HTML */
 	$object = $this->object;
 	/* @var $object Model */
 	$widget = $this->widget;
@@ -24,9 +50,9 @@ $ia["name"] = $name;
 
 $class = $this->class;
 if ($this->required) {
-	$class = css::add_class($class, "required");
+	$class = CSS::add_class($class, "required");
 }
-$ia['class'] = css::add_class($class, 'form-control');
+$ia['class'] = CSS::add_class($class, 'form-control');
 
 $ia['placeholder'] = $this->placeholder;
 
@@ -40,17 +66,17 @@ $side = $this->get("dropdown_alignment", "right");
 
 $html = "";
 
-$html .= html::div_open('.input-group-btn');
+$html .= HTML::div_open('.input-group-btn');
 
-$html .= html::tag('button', array(
+$html .= HTML::tag('button', array(
 	'type' => 'button',
 	'class' => 'btn btn-default dropdown-toggle',
 	'data-toggle' => 'dropdown',
-	'data-content' => '{label} ' . html::span('.caret', ''),
+	'data-content' => '{label} ' . HTML::span('.caret', ''),
 	'aria-expanded' => 'false'
-), $button_label . ' ' . html::span('.caret', ''));
+), $button_label . ' ' . HTML::span('.caret', ''));
 
-$html .= html::tag_open('ul', array(
+$html .= HTML::tag_open('ul', array(
 	"class" => "dropdown-menu dropdown-menu-$side",
 	"role" => "menu"
 ));
@@ -78,7 +104,7 @@ if ($this->select_behavior_enabled && empty($dropdown_value)) {
 }
 foreach ($this->dropdown_menu as $code => $attributes) {
 	if ($attributes === '-') {
-		$html .= html::tag('li', '.divider', '');
+		$html .= HTML::tag('li', '.divider', '');
 		continue;
 	}
 	if (is_string($attributes)) {
@@ -102,26 +128,26 @@ foreach ($this->dropdown_menu as $code => $attributes) {
 		$link_html = $code;
 	}
 	if (to_bool(avalue($attributes, 'selected')) || $code === $dropdown_value) {
-		$li_attributes = html::add_class($li_attributes, "active");
+		$li_attributes = HTML::add_class($li_attributes, "active");
 	}
-	$html .= html::tag('li', $li_attributes, html::tag('a', $attributes, $link_html));
+	$html .= HTML::tag('li', $li_attributes, HTML::tag('a', $attributes, $link_html));
 }
-$html .= html::tag_close('ul');
-$html .= html::div_close(); // input-group-btn
+$html .= HTML::tag_close('ul');
+$html .= HTML::div_close(); // input-group-btn
 
 
-echo html::div_open('.input-group');
+echo HTML::div_open('.input-group');
 if ($side === "left") {
 	echo $html;
 }
-echo html::tag("input", $ia);
+echo HTML::tag("input", $ia);
 if ($side !== "left") {
 	echo $html;
 }
-echo html::div_close(); // input-group
+echo HTML::div_close(); // input-group
 
 
-echo html::input('hidden', $this->dropdown_name, $dropdown_value, array(
+echo HTML::input('hidden', $this->dropdown_name, $dropdown_value, array(
 	'id' => $this->dropdown_id
 ));
 
@@ -161,11 +187,11 @@ if ($this->select_behavior_enabled) {
 }());
 </script>
 <?php
-	$content = html::extract_tag_contents('script', ob_get_clean());
+	$content = HTML::extract_tag_contents('script', ob_get_clean());
 	$response->jquery(map($content, array(
 		'id' => $id,
 		'dropdown_id' => $this->dropdown_id,
-		'support_plural' => json::encode($this->plural_behavior_enabled)
+		'support_plural' => JSON::encode($this->plural_behavior_enabled)
 	)));
 }
 

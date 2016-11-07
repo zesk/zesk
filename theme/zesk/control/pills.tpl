@@ -6,7 +6,7 @@ $active_classes = "active btn-primary";
 ?><div class="btn-group btn-group-justified"><?php
 foreach ($this->control_options as $code => $label) {
 	$button_id = $name . "-" . $code;
-	echo html::tag("a", array(
+	echo HTML::tag("a", array(
 		"class" => "btn btn-default pill-group-$name",
 		"id" => $button_id,
 		"role" => "button",
@@ -18,7 +18,7 @@ if (!$input_id) {
 	$input_id = $this->column;
 }
 ?></div><?php
-echo html::input("hidden", $name, $value, array(
+echo HTML::input("hidden", $name, $value, array(
 	"id" => $input_id
 ));
 $this->response->jquery("(function() {

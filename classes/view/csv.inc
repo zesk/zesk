@@ -29,12 +29,12 @@ class View_CSV extends View {
 		if ($this->option_bool('rows_even_odd')) {
 			$rows = "";
 			foreach ($html as $i => $row) {
-				$rows .= html::tag('tr', array('class' => 'row-' . ($i & 1)), $row);
+				$rows .= HTML::tag('tr', array('class' => 'row-' . ($i & 1)), $row);
 			}
 		} else {
-			$rows = html::tags('tr', $html);
+			$rows = HTML::tags('tr', $html);
 		}
-		return html::tag('table', $this->option_array('table_attributes', array('cellspacing' => 1, 'cellpadding' => 4, 'border' => 0)), $rows);
+		return HTML::tag('table', $this->option_array('table_attributes', array('cellspacing' => 1, 'cellpadding' => 4, 'border' => 0)), $rows);
 	}
 	
 	public static function smart_tags($tag, array $attrs, array $cells) {
@@ -44,7 +44,7 @@ class View_CSV extends View {
 			if (is_numeric($cell) || is_date($cell)) {
 				$call_attrs['align'] = "right";
 			}
-			$html[] = html::tag($tag, $call_attrs, $cell);
+			$html[] = HTML::tag($tag, $call_attrs, $cell);
 		}
 		return implode("", $html);
 	}

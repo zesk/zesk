@@ -9,23 +9,25 @@ use \SQLite3Result as SQLite3Result;
 use \SQLite3Stmt as SQLite3Stmt;
 
 // Zesk classes
-use \Exception_Unimplemented as Exception_Unimplemented;
-use \Exception_Configuration as Exception_Configuration;
-use \Exception_Directory_NotFound as Exception_Directory_NotFound;
-use \Exception_Semantics as Exception_Semantics;
-use \Database_Table as Database_Table;
-use \Database_Index as Database_Index;
-use \Database_Exception as Database_Exception;
-use \Database_Exception_Table_NotFound as Database_Exception_Table_NotFound;
-use \Database_Exception_Connect as Database_Exception_Connect;
-use \zesk as zesk;
-use zesk\php as php;
+use zesk\Exception_Unimplemented;
+use zesk\Exception_Configuration;
+use zesk\Exception_Directory_NotFound;
+use zesk\Exception_Semantics;
+use zesk\Database_Table;
+use zesk\Database_Index;
+use zesk\Database_Exception;
+use zesk\Database_Exception_Table_NotFound;
+use zesk\Database_Exception_Connect;
+use zesk\PHP;
+use zesk\Directory;
 use zesk\Timer as Timer;
 use zesk\Date as Date;
 use zesk\Time as Time;
-use zesk\Timestamp as Timestamp;
-use zesk\dir as dir;
-use zesk\file as file;
+use zesk\Timestamp;
+use zesk\dir;
+use zesk\File;
+use zesk\Kernel;
+use zesk\arr;
 
 /**
  * SQLite Implementation
@@ -33,7 +35,7 @@ use zesk\file as file;
  * @author kent
  *
  */
-class Database extends \Database {
+class Database extends \zesk\Database {
 	private $call_prefix = null;
 	
 	/**
@@ -45,16 +47,16 @@ class Database extends \Database {
 	/**
 	 * Register schemes this class support
 	 */
-	public static function hooks(zesk\Kernel $zesk) {
+	public static function hooks(Kernel $zesk) {
 		$zesk->classes->register(__CLASS__);
-		\Database::register_scheme("sqlite", __CLASS__);
-		\Database::register_scheme("sqlite3", __CLASS__);
+		Database::register_scheme("sqlite", __CLASS__);
+		Database::register_scheme("sqlite3", __CLASS__);
 	}
 	
 	/**
 	 * Support database features
 	 *
-	 * @see Database::feature($feature, $set)
+	 * @see zesk\Database::feature($feature, $set)
 	 */
 	public function feature($feature, $set = null) {
 		switch ($feature) {
@@ -67,7 +69,7 @@ class Database extends \Database {
 		));
 	}
 	public function _to_php() {
-		return "new sqlite3\\Database(" . php::dump($this->URL) . ")";
+		return "new sqlite3\\Database(" . PHP::dump($this->URL) . ")";
 	}
 	public function default_index_structure($table_type) {
 		return "";
@@ -102,7 +104,7 @@ class Database extends \Database {
 	/**
 	 * Connect to the database
 	 *
-	 * @see Database::connect()
+	 * @see zesk\Database::connect()
 	 * @return boolean true if the connection is successful, false if not
 	 */
 	protected function _connect() {
@@ -114,7 +116,7 @@ class Database extends \Database {
 				"class" => __CLASS__
 			));
 		}
-		$path = map($path, zesk\arr::kprefix($zesk->paths->variables(), "zesk::paths::"));
+		$path = map($path, arr::kprefix($zesk->paths->variables(), "zesk::paths::"));
 		$dir = dirname($path);
 		if (!is_dir($dir)) {
 			throw new Exception_Directory_NotFound($dir, "{path} not found", array(
@@ -153,7 +155,7 @@ class Database extends \Database {
 	/**
 	 * 
 	 * {@inheritDoc}
-	 * @see Database::free()
+	 * @see zesk\Database::free()
 	 * @var $result SQLIte3Result
 	 */
 	final public function free($result) {
@@ -185,6 +187,8 @@ class Database extends \Database {
 		return $this->conn->lastInsertRowID();
 	}
 	public function shell_command(array $options = array()) {
+		global $zesk;
+		/* @var $zesk zesk\Kernel */
 		static $shell_command = null;
 		static $try_commands = array(
 			'sqlite3',
@@ -195,7 +199,7 @@ class Database extends \Database {
 			return $shell_command;
 		}
 		foreach ($try_commands as $try) {
-			$shell_command = zesk::which($try);
+			$shell_command = $zesk->paths->which($try);
 			echo "Try $try = $shell_command\n";
 			if ($shell_command) {
 				return array(
@@ -226,11 +230,13 @@ class Database extends \Database {
 	/**
 	 * Create a database at URL
 	 *
-	 * @see Database::create_database()
+	 * @see zesk\Database::create_database()
 	 */
 	function create_database($url) {
+		global $zesk;
+		/* @var $zesk zesk\Kernel */
 		try {
-			$db = zesk::factory(__CLASS__, $url);
+			$db = $zesk->objects->factory(__CLASS__, $url);
 			$db->connect();
 		} catch (Exception $e) {
 			zesk()->hooks->call("exception", $e);
@@ -242,7 +248,7 @@ class Database extends \Database {
 	/**
 	 * List tables
 	 *
-	 * @see Database::list_tables()
+	 * @see zesk\Database::list_tables()
 	 * @return array
 	 */
 	function list_tables() {
@@ -321,7 +327,7 @@ class Database extends \Database {
 	
 	/**
 	 *
-	 * @see Database::database_table()
+	 * @see zesk\Database::database_table()
 	 * @return Database_Table
 	 */
 	function database_table($table) {
@@ -366,6 +372,9 @@ class Database extends \Database {
 		if (!$this->Connection) {
 			throw new Database_Exception(null, __CLASS__ . "::query: Not connected");
 		}
+		if (is_string($query) && begins($query, "-- ")) {
+			return true;
+		}
 		try {
 			if ($query instanceof SQLite3Stmt) {
 				$statement_sql = avalue($options, "statement_sql", "-no-statement-sql-");
@@ -380,7 +389,7 @@ class Database extends \Database {
 				$result = $this->conn->query($query);
 				$this->_query_after($query, $options);
 			}
-		} catch (Exception $e) {
+		} catch (\Exception $e) {
 			$this->exception($e);
 		}
 		return $result;
@@ -988,7 +997,9 @@ class Database extends \Database {
 		return $this->database_table($table)->columns();
 	}
 	private function _lock_path() {
-		return zesk::cache_path('sqlite3/locks/' . md5($this->database_name()));
+		global $zesk;
+		/* @var $zesk Kernel */
+		return $zesk->paths->cache('sqlite3/locks/' . md5($this->database_name()));
 	}
 	private $locks = array();
 	public function release_all_locks() {
@@ -1005,7 +1016,7 @@ class Database extends \Database {
 	 */
 	public function get_lock($name, $wait_seconds = 0) {
 		$lock_path = $this->_lock_path();
-		dir::depend($lock_path);
+		Directory::depend($lock_path);
 		$name = file::name_clean($name);
 		$lock_file = path($lock_path, $name);
 		$f = fopen($lock_file, "w+");
@@ -1037,7 +1048,7 @@ class Database extends \Database {
 	 */
 	public function release_lock($name) {
 		$lock_path = self::_lock_path();
-		dir::depend($lock_path);
+		Directory::depend($lock_path);
 		$name = file::name_clean($name);
 		if (array_key_exists($name, $this->locks)) {
 			$f = $this->locks[$name];

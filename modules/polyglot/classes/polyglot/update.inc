@@ -1,7 +1,12 @@
 <?php
-
-use zesk\Locale as Locale;
-use zesk\Timestamp as Timestamp;
+/**
+ * 
+ */
+use zesk\File;
+use zesk\Locale;
+use zesk\Timestamp;
+use zesk\Exception_FileSystem;
+use zesk\Exception_File_Permission;
 
 /**
  * @see Class_PolyGlot_Update
@@ -9,7 +14,6 @@ use zesk\Timestamp as Timestamp;
  *
  */
 class PolyGlot_Update extends Object {
-
 	public static function register_update($locale, User $user = null) {
 		$object = Object::factory(__CLASS__, array(
 			"locale" => Locale::normalize($locale)
@@ -22,7 +26,6 @@ class PolyGlot_Update extends Object {
 		$object->updated = "now";
 		return $object->store();
 	}
-
 	public static function cron_minute(zesk\Application $application) {
 		global $zesk;
 		/* @var $zesk zesk\Kernel */
@@ -36,16 +39,16 @@ class PolyGlot_Update extends Object {
 			return;
 		}
 		$server_variable_name = __CLASS__ . "::last_update";
-		$update_requested = Object::class_query(__CLASS__)->what("*updated", "MAX(updated)")->one_timestamp("updated");
+		$update_requested = $application->query_select(__CLASS__)->what("*updated", "MAX(updated)")->one_timestamp("updated");
 		$server_updated = $server->data($server_variable_name);
 		$update_locales = array();
 		if ($server_updated) {
 			$server_updated = Timestamp::factory($server_updated);
 			if ($server_updated->before($update_requested)) {
-				$update_locales = Object::class_query(__CLASS__)->what("locale", "locale")->where("updated|>=", $server_updated)->to_array(null, "locale");
+				$update_locales = $application->query_select(__CLASS__)->what("locale", "locale")->where("updated|>=", $server_updated)->to_array(null, "locale");
 			}
 		} else {
-			$update_locales = Object::class_query(__CLASS__)->what("locale", "locale")->to_array(null, "locale");
+			$update_locales = $application->query_select(__CLASS__)->what("locale", "locale")->to_array(null, "locale");
 		}
 		if (count($update_locales) === 0) {
 			log::debug("No locale updates needed on {server}", array(
@@ -57,7 +60,9 @@ class PolyGlot_Update extends Object {
 		foreach ($update_locales as $update_locale) {
 			$dialect = Locale::dialect($update_locale);
 			if (!$dialect) {
-				$expanded_locales = Object::class_query('PolyGlot_Token')->distinct(true)->what("*locale", "CONCAT(language,'_',dialect)")->where(array(
+				$expanded_locales = $application->query_select('PolyGlot_Token')->distinct(true)
+					->what("*locale", "CONCAT(language,'_',dialect)")
+					->where(array(
 					"language" => $update_locale,
 					array(
 						"dialect|!=" => array(
@@ -65,7 +70,8 @@ class PolyGlot_Update extends Object {
 							""
 						)
 					)
-				))->to_array(null, "locale");
+				))
+					->to_array(null, "locale");
 				$additional_locales = array_merge($additional_locales, $expanded_locales);
 			}
 		}
@@ -93,21 +99,19 @@ class PolyGlot_Update extends Object {
 			$server->data($server_variable_name, time());
 		}
 	}
-
 	private static function write_translation_line($f, $filename, $original, $translation) {
-		if (!fwrite($f, '$tt[' . php::dump($original) . "] = " . php::dump($translation) . ";\n")) {
+		if (!fwrite($f, '$tt[' . PHP::dump($original) . "] = " . PHP::dump($translation) . ";\n")) {
 			throw new Exception_FileSystem($filename, "Unable to write to {filename}");
 		}
 	}
-
 	public static function update_locale($path, $locale) {
 		global $zesk;
 		/* @var $zesk zesk\Kernel */
 		
 		$iterator = PolyGlot_Token::locale_query($locale)->where("status", PolyGlot_Token::status_done)->order_by("updated DESC,original")->iterator("original", "translation");
-
+		
 		$target_file = path($path, "$locale.inc");
-
+		
 		$pid = $zesk->process_id();
 		$temp_file = path($path, "$locale.inc.$pid");
 		$f = fopen($temp_file, "w");

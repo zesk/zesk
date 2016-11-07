@@ -7,15 +7,19 @@
  * @copyright Copyright &copy; 2009, Market Acumen, Inc.
  * Created on Fri Apr 02 21:00:12 EDT 2010 21:00:12
  */
+namespace zesk;
+
+use \Command;
+use zesk\Model;
 
 /**
  *
- * @see Class_Zesk_User
+ * @see Class_User
  *
  * @author kent
  *        
  */
-abstract class Zesk_User extends Object {
+abstract class User extends Object {
 	
 	/**
 	 * 
@@ -24,31 +28,31 @@ abstract class Zesk_User extends Object {
 	public static $debug_permission = false;
 	
 	/**
-	 * @deprecated 2017-08
+	 * @deprecated 2016-08
 	 * @var string
 	 */
 	const global_instance = "User::instance";
 	
 	/**
 	 *
-	 * @var Class_Zesk_User
+	 * @var Class_User
 	 */
 	protected $class = null;
 	
 	/**
 	 * 
-	 * @param zesk\Kernel $zesk
+	 * @param Kernel $zesk
 	 */
-	public static function hooks(zesk\Kernel $zesk) {
+	public static function hooks(Kernel $zesk) {
 		$zesk->configuration->pave("User");
 		$zesk->hooks->add("configured", __CLASS__ . "::configured");
 	}
 	
 	/**
 	 * 
-	 * @param zesk\Application $application
+	 * @param Application $application
 	 */
-	public static function configured(zesk\Application $application) {
+	public static function configured(Application $application) {
 		self::$debug_permission = to_bool(zesk()->configuration->User->debug_permission);
 	}
 	
@@ -74,7 +78,7 @@ abstract class Zesk_User extends Object {
 	 * Session lock and validation information
 	 */
 	private function check_session() {
-		return $this->hook_array("check_session", array(), $this);
+		return $this->call_hook_arguments("check_session", array(), $this);
 	}
 	
 	/**
@@ -86,18 +90,17 @@ abstract class Zesk_User extends Object {
 	 */
 	static function instance($want_object = true) {
 		global $zesk;
-		/* @var $zesk zesk\Kernel */
+		/* @var $zesk Kernel */
 		
 		$user = $zesk->objects->user;
 		if ($user instanceof User) {
 			return $user;
 		}
-		$user = new User();
+		$class = $zesk->configuration->User->get("class", "User");
+		$user = $zesk->objects->factory($class);
 		if (!$user->_from_session()) {
 			if (!$want_object) {
 				return null;
-			} else {
-				$user = new User();
 			}
 		}
 		self::set_instance($user);
@@ -112,7 +115,7 @@ abstract class Zesk_User extends Object {
 	 */
 	static function set_instance(User $user) {
 		global $zesk;
-		/* @var $zesk zesk\Kernel */
+		/* @var $zesk Kernel */
 		$zesk->objects->user = $user;
 		return $user;
 	}
@@ -186,7 +189,7 @@ abstract class Zesk_User extends Object {
 	 *
 	 * @param string $set        	
 	 *
-	 * @return Zesk_User
+	 * @return User
 	 */
 	function login($set = null) {
 		$column = $this->column_login();
@@ -201,7 +204,7 @@ abstract class Zesk_User extends Object {
 	 *
 	 * @param string $set        	
 	 *
-	 * @return Zesk_User
+	 * @return User
 	 */
 	function email($set = null) {
 		$column = $this->column_email();
@@ -256,10 +259,11 @@ abstract class Zesk_User extends Object {
 		if (!$this->fetch_by_key($username, $column_login)) {
 			return false;
 		}
+		$this_password = $this->password();
 		if ($use_hash) {
-			$auth_test = strcasecmp(md5($password), $this->password()) === 0;
+			$auth_test = strcasecmp(md5($password), $this_password) === 0;
 		} else {
-			$auth_test = $case_sensitive ? ($password === $this->password()) : strcasecmp($password, $this->password()) === 0;
+			$auth_test = $case_sensitive ? ($password === $this_password) : strcasecmp($password, $this_password) === 0;
 		}
 		if ($auth_test) {
 			//$this->authenticated(true);
@@ -272,7 +276,7 @@ abstract class Zesk_User extends Object {
 	 * Get/set authentication status
 	 *
 	 * @param string $set        	
-	 * @return boolean Zesk_User
+	 * @return boolean User
 	 */
 	function authenticated($set = null) {
 		$matches = (self::session_user_id() === $this->id());
@@ -292,9 +296,9 @@ abstract class Zesk_User extends Object {
 		$session = Session::instance();
 		$session->authenticate($this->id(), $_SERVER['REMOTE_ADDR']);
 		User::set_instance($this);
-		$this->hook("authenticated", $session);
-		$this->application->hook("user_authenticated", $this, $session);
-		$this->application->module->all_hook("user_authenticated", $this, $session);
+		$this->call_hook("authenticated", $session);
+		$this->application->call_hook("user_authenticated", $this, $session);
+		$this->application->modules->all_hook("user_authenticated", $this, $session);
 		if ($changed) {
 			$this->store();
 		}
@@ -383,13 +387,13 @@ abstract class Zesk_User extends Object {
 			if (is_string($context)) {
 				$context = self::clean_permission($context);
 			}
-			$result = $this->hook_array("can", array(
+			$result = $this->call_hook_arguments("can", array(
 				$action,
 				$context,
 				$options
 			), $default_result);
 			if (self::$debug_permission) {
-				log::debug("User::can({action},{context}) = {result}", array(
+				zesk()->logger->debug("User::can({action},{context}) = {result}", array(
 					"action" => $action,
 					"context" => $context,
 					"result" => $result
@@ -440,40 +444,6 @@ abstract class Zesk_User extends Object {
 	 */
 	function can_delete($object) {
 		return $this->can("delete", $object);
-	}
-	
-	/**
-	 * Get control for User objects.
-	 * TODO move this elsewhere - doesn't belong here - too specific to User structure.
-	 *
-	 * @param string $name        	
-	 * @param string $label        	
-	 * @param string $required        	
-	 * @param string $active_only        	
-	 * @return Control_Select_Object
-	 */
-	static function control($name, $label, $required = false, $active_only = true) {
-		$w = new Control_Select_Object();
-		$w->names($name, $label);
-		$w->required($required);
-		$options = array(
-			"table" => Object::class_table_name("User"),
-			"textcolumn" => "FirstName,LastName",
-			"format" => "{LastName}, {FirstName}",
-			'default' => User::instance_id()
-		);
-		$where = array();
-		if ($active_only) {
-			$where["IsActive"] = 'true';
-		}
-		$user = User::master();
-		if (!$user->can("User::view all")) {
-			$where['Account'] = $user->Account;
-		}
-		$options['where'] = $where;
-		$options['default'] = self::masterID();
-		$w->set_option($options);
-		return $w;
 	}
 	
 	/**

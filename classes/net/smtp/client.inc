@@ -6,41 +6,57 @@
  * @author Kent Davidson <kent@marketacumen.com>
  * @copyright Copyright &copy; 2008, Market Acumen, Inc.
  */
-class Net_SMTP_Client extends Net_Client_Socket {
+use zesk\Exception_Syntax;
+use zesk\Mail;
 
+/**
+ *
+ * @author kent
+ *        
+ */
+class Net_SMTP_Client extends Net_Client_Socket {
+	
 	/**
 	 * Default port to connect to
+	 *
 	 * @var integer
 	 */
 	protected $default_port = 25;
-
+	
 	/**
 	 * Exception to throw upon errors
+	 *
 	 * @deprecated 2012
 	 * @var string
 	 */
 	protected $exception = "Net_SMTP_Client_Exception";
-
+	
 	/**
 	 * Send mail
-	 * @param string $from Simple FROM
-	 * @param unknown_type $to
-	 * @param unknown_type $headers
-	 * @param unknown_type $body
+	 *
+	 * @param string $from
+	 *        	Simple FROM
+	 * @param unknown_type $to        	
+	 * @param unknown_type $headers        	
+	 * @param unknown_type $body        	
 	 * @return boolean
 	 */
 	public function go($from, $to, $headers, $body) {
-		zesk::deprecated();
+		zesk()->deprecated();
 		return $this->send($from, $to, $headers, $body);
 	}
-
+	
 	/**
 	 * Send email
 	 *
-	 * @param string $from Simple FROM
-	 * @param mixed $to Email address or array of email addresses
-	 * @param mixed $headers raw formatted headers, or array of headers (not name-value, array of strings)
-	 * @param string $body Body to send
+	 * @param string $from
+	 *        	Simple FROM
+	 * @param mixed $to
+	 *        	Email address or array of email addresses
+	 * @param mixed $headers
+	 *        	raw formatted headers, or array of headers (not name-value, array of strings)
+	 * @param string $body
+	 *        	Body to send
 	 * @return boolean
 	 */
 	public function send($from, $to, $headers, $body) {
@@ -57,7 +73,7 @@ class Net_SMTP_Client extends Net_Client_Socket {
 			if (is_email($recipient)) {
 				$rcpts[] = $recipient;
 			} else {
-				$email = mail::parse_address($recipient, 'email');
+				$email = Mail::parse_address($recipient, 'email');
 				if ($email) {
 					$rcpts[] = $email;
 				} else {
@@ -78,7 +94,7 @@ class Net_SMTP_Client extends Net_Client_Socket {
 			$this->authenticated = true;
 		}
 		$this->mail($from);
-
+		
 		if (!is_array($headers)) {
 			$headers = array(
 				$headers
@@ -88,25 +104,32 @@ class Net_SMTP_Client extends Net_Client_Socket {
 			$this->rcpt($recipient);
 		}
 		$this->data();
-
+		
 		// Fix .s when first-on-line for email formatting
 		$headers = str_replace($this->EOL . '.', $this->EOL . '..', trim(implode($this->EOL, $headers)));
 		$body = $this->format_body($body);
-
+		
 		$this->write($headers . $this->EOL . $this->EOL . $body . $this->EOL . '.');
-
+		
 		$message = false;
 		$result = $this->expect('250', $message);
+		
+		zesk()->logger->debug("Sent email to {rcpts} {nbytes} bytes via {user}@{host}", array(
+			"rcpts" => $rcpts,
+			"nbytes" => strlen($body),
+			"user" => $this->url("user"),
+			"host" => $this->url("host")
+		));
 		return $result;
 	}
-
+	
 	/**
 	 * Clean up email body for sending with correct encoding
 	 *
-	 * @param string $body
+	 * @param string $body        	
 	 * @return string
 	 */
-	public  function format_body($body) {
+	public function format_body($body) {
 		$body = str_replace("\r\n", "\n", $body);
 		$body = str_replace("\r", "\n", $body);
 		$body = str_replace("\n", "\r\n", $body);
@@ -114,7 +137,7 @@ class Net_SMTP_Client extends Net_Client_Socket {
 		$body = substr($body, 0, 1) == '.' ? '.' . $body : $body;
 		return $body;
 	}
-
+	
 	/**
 	 * Connect using rfc2821 method
 	 *
@@ -124,7 +147,7 @@ class Net_SMTP_Client extends Net_Client_Socket {
 	private function helo() {
 		return $this->command("HELO " . $this->url('host'), "250");
 	}
-
+	
 	/**
 	 * Connect using SMTP extension
 	 *
@@ -134,9 +157,10 @@ class Net_SMTP_Client extends Net_Client_Socket {
 	private function ehlo() {
 		return $this->command("EHLO " . $this->url('host'), "250");
 	}
-
+	
 	/**
 	 * Authenticate using username and password
+	 *
 	 * @return boolean
 	 */
 	private function auth() {
@@ -149,27 +173,29 @@ class Net_SMTP_Client extends Net_Client_Socket {
 		$this->authenticated = true;
 		return $result;
 	}
-
+	
 	/**
 	 * MAIL FROM command
 	 *
-	 * @param string $from Email address
+	 * @param string $from
+	 *        	Email address
 	 * @return boolean
 	 */
 	private function mail($from) {
 		return $this->command("MAIL FROM: <" . $from . ">", "250");
 	}
-
+	
 	/**
 	 * RCPT TO command
 	 *
-	 * @param string $to Email address
+	 * @param string $to
+	 *        	Email address
 	 * @return boolean
 	 */
 	private function rcpt($to) {
 		return $this->command("RCPT TO: <$to>", "25");
 	}
-
+	
 	/**
 	 * Send message data command (data should follow using RFC2821 method)
 	 *
@@ -178,7 +204,7 @@ class Net_SMTP_Client extends Net_Client_Socket {
 	private function data() {
 		return $this->command("DATA", "354");
 	}
-
+	
 	/**
 	 * Send RSET command
 	 *
@@ -187,7 +213,7 @@ class Net_SMTP_Client extends Net_Client_Socket {
 	private function rset() {
 		return $this->command("RSET", "250");
 	}
-
+	
 	/**
 	 * Terminate the connection
 	 *

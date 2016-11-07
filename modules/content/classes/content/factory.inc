@@ -1,5 +1,5 @@
 <?php
 
-class Content_Factory extends Zesk_Content_Factory {
+class Content_Factory extends zesk\Content_Factory {
 	
 }

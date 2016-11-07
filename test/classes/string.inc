@@ -1,4 +1,6 @@
 <?php
+use zesk\Text;
+
 class test_string extends Test_Unit {
 
 	function test_begins() {
@@ -197,7 +199,7 @@ class test_string extends Test_Unit {
 		$n = -1;
 		$pad = " ";
 		$_trim = false;
-		text::lalign($text, $n, $pad, $_trim);
+		Text::lalign($text, $n, $pad, $_trim);
 	}
 
 	function test_ralign() {
@@ -205,7 +207,7 @@ class test_string extends Test_Unit {
 		$n = -1;
 		$pad = " ";
 		$_trim = false;
-		text::ralign($text, $n, $pad, $_trim);
+		Text::ralign($text, $n, $pad, $_trim);
 	}
 
 	function test_filter() {

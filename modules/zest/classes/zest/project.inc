@@ -3,7 +3,7 @@
 namespace zest;
 
 use \Object as Object;
-use zesk\Timestamp as Timestamp;
+use zesk\Timestamp;
 use zesk\arr as arr;
 
 /**

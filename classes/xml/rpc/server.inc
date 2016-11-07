@@ -6,8 +6,8 @@
  * @author Kent Davidson <kent@marketacumen.com>
  * @copyright Copyright &copy; 2005, Market Acumen, Inc.
  */
-
-use zesk\Timestamp as Timestamp;
+use zesk\Timestamp;
+use zesk\PHP;
 
 /**
  * XML_RPC_Server
@@ -18,18 +18,48 @@ use zesk\Timestamp as Timestamp;
  * @subpackage system
  */
 class XML_RPC_Server {
+	/**
+	 * 
+	 * @var array
+	 */
 	public $Methods = array();
+	/**
+	 * 
+	 * @var unknown
+	 */
 	public $Response;
+	/**
+	 * 
+	 * @var unknown
+	 */
 	public $Capabilities;
+	/**
+	 * 
+	 * @var unknown
+	 */
 	private $LogFile;
+	/**
+	 * 
+	 * @var unknown
+	 */
 	private $LogPath;
+	
+	/**
+	 * 
+	 * @var array
+	 */
 	protected $export_methods = array();
+	
+	/**
+	 * 
+	 * @param string $methods
+	 */
 	function __construct($methods = false) {
 		$this->Methods = array();
-
+		
 		$this->setupCapabilities();
 		$this->registerSystemMethods();
-
+		
 		if (is_array($methods)) {
 			$this->registerMethods($methods);
 		}
@@ -37,14 +67,33 @@ class XML_RPC_Server {
 			$this->register_reflection_method($this->export_methods);
 		}
 	}
+	
+	/**
+	 * 
+	 * @param unknown $value
+	 * @return string
+	 */
 	private function methodResponseXML($value) {
 		$xml = new XML_RPC_Value($value);
 		$xml = $xml->toXML();
 		return "<methodResponse><params><param><value>$xml</value></param></params></methodResponse>";
 	}
+	
+	/**
+	 * @todo convert to zesk logger, or add zesk\Logger member
+	 * 
+	 * @param unknown $data
+	 */
 	public function log($data) {
-		log::debug($data);
+		global $zesk;
+		/* @var $zesk \zesk\Kernel */
+		$zesk->logger->log("debug", $data);
 	}
+	
+	/**
+	 * 
+	 * @param string $data
+	 */
 	function serve($data = false) {
 		if (!$data) {
 			global $HTTP_RAW_POST_DATA;
@@ -55,10 +104,10 @@ class XML_RPC_Server {
 			$data = $HTTP_RAW_POST_DATA;
 			$this->log($data);
 		}
-
+		
 		$response = new XML_RPC_Parser($data);
 		$this->Response = $response;
-
+		
 		$result = $response->parse();
 		if (!$result) {
 			$this->error(XML_RPC_Exception::ERROR_PARSE_NOT_WELL_FORMED, 'Parse error: Malformed XML request.');
@@ -76,7 +125,7 @@ class XML_RPC_Server {
 		} catch (Exception $e) {
 			$result = new XML_RPC_Exception(XML_RPC_Exception::ERROR_APPLICATION, $e->getMessage());
 		}
-
+		
 		// Is the result an error?
 		if (is_a($result, 'XML_RPC_Exception')) {
 			$this->error($result);
@@ -84,15 +133,23 @@ class XML_RPC_Server {
 			$this->response(self::methodResponseXML($result));
 		}
 	}
+	
+	/**
+	 * 
+	 * @param string $methodName
+	 * @param array $args
+	 * @throws XML_RPC_Exception
+	 * @return XML_RPC_Exception|mixed
+	 */
 	function call($methodName, $args) {
 		$this->log("call $methodName");
-		$this->log("args: " . php::dump($args));
+		$this->log("args: " . PHP::dump($args));
 		if ($args && !is_array($args)) {
 			$args = array(
 				$args
 			);
 		}
-
+		
 		/* @var $method XML_RPC_Server_Method */
 		$method = avalue($this->Methods, $methodName);
 		if (!$method instanceof XML_RPC_Server_Method) {
@@ -101,12 +158,12 @@ class XML_RPC_Server {
 			$this->log("Avaliable methods: " . implode(", ", array_keys($this->Methods)));
 			throw new XML_RPC_Exception(XML_RPC_Exception::ERROR_SERVER_METHOD_NOT_FOUND, 'Server error. Requested method "' . $methodName . '" does not exist.');
 		}
-
+		
 		// Check the arguments
 		$this->log("$methodName checkArguments");
 		$method->checkArguments($methodName, $args);
 		$result = $method->invoke($this, $args);
-
+		
 		return $result;
 	}
 	function error($error, $message = false) {
@@ -163,7 +220,7 @@ class XML_RPC_Server {
 		}
 		return $type;
 	}
-
+	
 	/**
 	 *
 	 *
@@ -194,7 +251,7 @@ class XML_RPC_Server {
 		$doccomment = doccomment::parse($rmethod->getDocComment());
 		$doc_return = avalue($doccomment, 'return', '');
 		$doc_params = to_array(aevalue($doccomment, 'param'), array());
-
+		
 		$returnType = self::_rpc_type($doc_return, str::field($doc_return, 0));
 		$parameterTypes = array();
 		$parameterHelp = array();
@@ -206,7 +263,7 @@ class XML_RPC_Server {
 			if ($is_optional) {
 				$param_default = $param->getDefaultValue();
 			}
-
+			
 			$param_doc = avalue($doc_params, '$' . $param_name);
 			if (!$param_doc) {
 				throw new Exception_Unimplemented("Function $method missing parameter doccomment for \$$param_name");
@@ -225,10 +282,10 @@ class XML_RPC_Server {
 			'specVersion' => $specVersion
 		);
 	}
-
+	
 	/*====================================================================================*\
-	*	RPC Initialization Methods
-	\*------------------------------------------------------------------------------------*/
+	 *	RPC Initialization Methods
+	 \*------------------------------------------------------------------------------------*/
 	private function setupCapabilities() {
 		$this->addCapability('xmlrpc', 'http://www.xmlrpc.com/spec');
 		$this->addCapability('faults_interop', 'http://xmlrpc-epi.sourceforge.net/specs/rfc.fault_codes.php', 20010516);
@@ -296,18 +353,28 @@ class XML_RPC_Server {
 			)
 		));
 	}
-
+	
 	/*====================================================================================*\
-	*	RPC Server Methods
-	\*------------------------------------------------------------------------------------*/
+	 *	RPC Server Methods
+	 \*------------------------------------------------------------------------------------*/
 	function rpc_getCapabilities() {
 		return $this->Capabilities;
 	}
+	
+	/**
+	 * 
+	 */
 	function rpc_listMethods() {
 		$methods = array_keys($this->Methods);
 		sort($methods);
 		return $methods;
 	}
+	
+	/**
+	 * 
+	 * @param unknown $methodCalls
+	 * @return XML_RPC_Exception[]|NULL[][]
+	 */
 	function rpc_multicall($methodCalls) {
 		// See http://www.xmlrpc.com/discuss/msgReader$1208
 		$results = array();
@@ -334,6 +401,12 @@ class XML_RPC_Server {
 		}
 		return $results;
 	}
+	
+	/**
+	 * 
+	 * @param unknown $method
+	 * @return XML_RPC_Exception
+	 */
 	function rpc_methodSignature($method) {
 		$methodObject = avalue($this->Methods, $method);
 		if (!$methodObject) {
@@ -343,6 +416,12 @@ class XML_RPC_Server {
 		/* @var $methodObject XML_RPC_Server_Method */
 		return $methodObject->methodSignature();
 	}
+	
+	/**
+	 * 
+	 * @param unknown $method
+	 * @return string
+	 */
 	function rpc_methodHelp($method) {
 		$methodObject = avalue($this->Methods, $method);
 		if (!$methodObject) {

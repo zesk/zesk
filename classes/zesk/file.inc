@@ -1,54 +1,157 @@
 <?php
-
-namespace zesk;
-
-use \zesk as zesk;
-use \Exception_File_NotFound as Exception_File_NotFound;
-use \Exception_File_Permission as Exception_File_Permission;
-use \Exception_Directory_NotFound as Exception_Directory_NotFound;
-use \Exception_Unimplemented as Exception_Unimplemented;
-use \Exception_FileSystem as Exception_FileSystem;
-use \Exception_File_Create as Exception_File_Create;
-use Exception_File_Locked as Exception_File_Locked;
-
 /**
  * $URL: https://code.marketacumen.com/zesk/trunk/classes/zesk/file.inc $
  * 
  * @package zesk
  * @subpackage system
  * @author $Author: kent $
- * @copyright Copyright &copy; 2008, Market Acumen, Inc.
+ * @copyright Copyright &copy; 2016, Market Acumen, Inc.
  */
-class file {
+namespace zesk;
+
+/**
+ * File abstraction, lots of file tools
+ * 
+ * @author kent
+ */
+class File {
+	/**
+	 * 
+	 * @var integer
+	 */
 	const mask_file = 0100000;
+	/**
+	 * 
+	 * @var integer
+	 */
 	const mask_socket = 0140000;
+	/**
+	 * 
+	 * @var integer
+	 */
 	const mask_link = 0120000;
+	/**
+	 * 
+	 * @var integer
+	 */
 	const mask_block = 0060000;
+	/**
+	 * 
+	 * @var integer
+	 */
 	const mask_dir = 0040000;
+	/**
+	 * 
+	 * @var integer
+	 */
 	const mask_char = 0020000;
+	/**
+	 * 
+	 * @var integer
+	 */
 	const mask_fifo = 0010000;
+	/**
+	 * 
+	 * @var integer
+	 */
 	const mask_ftype = 0170000;
+	
+	/**
+	 * 
+	 * @var string
+	 */
 	const type_socket = "socket";
+	/**
+	 * 
+	 * @var string
+	 */
 	const type_link = "link";
+	/**
+	 * 
+	 * @var string
+	 */
 	const type_file = "file";
+	/**
+	 * 
+	 * @var string
+	 */
 	const type_block = "block";
+	/**
+	 * 
+	 * @var string
+	 */
 	const type_dir = "dir";
+	/**
+	 * 
+	 * @var string
+	 */
 	const type_char = "char";
+	/**
+	 * 
+	 * @var string
+	 */
 	const type_fifo = "fifo";
+	/**
+	 * 
+	 * @var string
+	 */
 	const type_unknown = "unknown";
+	/**
+	 * 
+	 * @var string
+	 */
 	const char_socket = "s";
+	/**
+	 * 
+	 * @var string
+	 */
 	const char_link = "l";
+	/**
+	 * 
+	 * @var string
+	 */
 	const char_file = "-";
+	/**
+	 * 
+	 * @var string
+	 */
 	const char_block = "b";
+	/**
+	 * 
+	 * @var string
+	 */
 	const char_dir = "d";
+	/**
+	 * 
+	 * @var string
+	 */
 	const char_char = "c";
+	/**
+	 * 
+	 * @var string
+	 */
 	const char_fifo = "p";
+	/**
+	 * 
+	 * @var string
+	 */
 	const char_unknown = "u";
+	
+	/**
+	 * 
+	 * @param Kernel $zesk
+	 */
 	public static function hooks(Kernel $zesk) {
 		$zesk->hooks->add("configured", __CLASS__ . '::configured');
 	}
-	public static function configured(\Application $application) {
+	
+	/**
+	 * 
+	 * @param Application $application
+	 */
+	public static function configured(Application $application) {
 	}
+	
 	/**
 	 * Return an absolute path given a filename and a working directory
 	 *
@@ -105,6 +208,22 @@ class file {
 		$mixed = preg_replace("/[^-A-Za-z0-9_.]/", $sep_char, $mixed);
 		$mixed = preg_replace("/$sep_char$sep_char+/", $sep_char, $mixed);
 		return $mixed;
+	}
+	
+
+	/**
+	 * Convert a string into a valid path suitable for all platforms.
+	 * Useful for cleaning user input for conversion to a
+	 * path or file name.
+	 * 
+	 * @todo deprecate this, where used?
+	 *
+	 * @param string $func
+	 *        	String to clean
+	 * @return string
+	 */
+	public static function clean_path($path) {
+		return preg_replace("%[^-_./a-zA-Z0-9]%", '_', str_replace("_", "/", $path));
 	}
 	
 	/**
@@ -167,6 +286,13 @@ class file {
 			'/' => DIRECTORY_SEPARATOR
 		));
 	}
+	
+	/**
+	 * Strip extension off of filename
+	 * 
+	 * @param string $filename
+	 * @return string
+	 */
 	public static function strip_extension($filename) {
 		return self::map_pathinfo($filename, "{dirname}{/}{filename}");
 	}
@@ -286,7 +412,7 @@ class file {
 	 * @return Ambigous <string, mixed>
 	 */
 	public static function temporary($ext = "tmp") {
-		return path(dir::depend(zesk::temporary_path()), md5(microtime()) . ".$ext");
+		return path(Directory::depend(zesk()->paths->temporary()), md5(microtime()) . ".$ext");
 	}
 	
 	/**
@@ -311,6 +437,14 @@ class file {
 			return $filename;
 		return strtolower($filename);
 	}
+	
+	/**
+	 * Change file mode (if file exists)
+	 * 
+	 * @param string $file_name
+	 * @param number $mode
+	 * @return boolean
+	 */
 	public static function chmod($file_name, $mode = 0770) {
 		if (file_exists($file_name)) {
 			return chmod($file_name, $mode);
@@ -333,6 +467,15 @@ class file {
 		}
 		return $default;
 	}
+	
+	/**
+	 * Create or append a file with content provided
+	 * 
+	 * @param string $filename
+	 * @param string $content
+	 * @throws Exception_File_Permission
+	 * @return boolean
+	 */
 	public static function append($filename, $content) {
 		$mode = file_exists($filename) ? "a" : "w";
 		if (!is_resource($f = fopen($filename, $mode))) {
@@ -373,6 +516,7 @@ class file {
 				"n" => strlen($contents)
 			));
 		}
+		zesk()->hooks->call("", $path);
 		return true;
 	}
 	
@@ -425,16 +569,10 @@ class file {
 		return file($filename);
 	}
 	
-	// private static $ftypes = array(
-	// self::mask_file => self::type_file,
-	// self::mask_socket => self::type_socket,
-	// self::mask_link => self::type_link,
-	// self::mask_block => self::type_block,
-	// self::mask_dir => self::type_dir,
-	// self::mask_char => self::type_char,
-	// self::mask_fifo => self::type_fifo,
-	// 0 => self::type_unknown
-	// );
+	/**
+	 * 
+	 * @var array
+	 */
 	private static $fchars = array(
 		self::mask_file => self::char_file,
 		self::mask_socket => self::char_socket,
@@ -445,6 +583,11 @@ class file {
 		self::mask_fifo => self::char_fifo,
 		0 => self::char_unknown
 	);
+	
+	/**
+	 * 
+	 * @var array
+	 */
 	private static $mtypes = array(
 		self::char_file => self::mask_file,
 		self::char_socket => self::mask_socket,
@@ -454,6 +597,11 @@ class file {
 		self::char_char => self::mask_char,
 		self::char_fifo => self::mask_fifo
 	);
+	
+	/**
+	 * 
+	 * @return number[][]
+	 */
 	private static function _mode_map() {
 		return array(
 			self::$mtypes,
@@ -590,6 +738,13 @@ class file {
 	public static function mode_to_octal($mode) {
 		return sprintf("0%o", 0777 & $mode);
 	}
+	
+	/**
+	 * 
+	 * @param string $id
+	 * @param string $method Callable function to convert id to name
+	 * @return NULL|string
+	 */
 	private static function _name_from_id($id, $method) {
 		if (!function_exists($method)) {
 			return null;
@@ -600,9 +755,21 @@ class file {
 		}
 		return avalue($result, 'name');
 	}
+	
+	/**
+	 * 
+	 * @param unknown $uid
+	 * @return NULL|mixed|array
+	 */
 	private static function name_from_uid($uid) {
 		return self::_name_from_id($uid, 'posix_getpwuid');
 	}
+	
+	/**
+	 * 
+	 * @param unknown $gid
+	 * @return NULL|mixed|array
+	 */
 	private static function name_from_gid($gid) {
 		return self::_name_from_id($gid, 'posix_getgrgid');
 	}
@@ -621,11 +788,13 @@ class file {
 	 * @throws Exception_File_NotFound
 	 */
 	public static function stat($path, $section = null) {
-		clearstatcache();
 		$is_res = is_resource($path);
+		if (!$is_res) {
+			clearstatcache(null, $path);
+		}
 		$ss = $is_res ? @fstat($path) : @stat($path);
 		if (!$ss) {
-			throw new Exception_File_NotFound($path);
+			throw new Exception_File_NotFound($is_res ? _dump($path) : $path);
 		}
 		
 		$p = $ss['mode'];
@@ -685,7 +854,9 @@ class file {
 			)
 		);
 		
-		clearstatcache();
+		if (!$is_res) {
+			clearstatcache(null, $path);
+		}
 		if ($section !== null) {
 			return avalue($s, $section, $s);
 		}
@@ -787,7 +958,7 @@ class file {
 		if ($length < 0) {
 			$length = $size + $length - $offset;
 		}
-		$temp = $path . '-temp-trim-' . zesk::pid();
+		$temp = $path . '-temp-trim-' . $zesk->process->id();
 		$temp_mv = $temp . "-rename";
 		$w = fopen($temp, "w");
 		if (!$w) {
@@ -878,6 +1049,8 @@ class file {
 	 * @return boolean
 	 */
 	public static function is_absolute($f) {
+		global $zesk;
+		/* @var $zesk zesk\Kernel */
 		if (!is_string($f)) {
 			dump($f);
 			backtrace();
@@ -886,7 +1059,7 @@ class file {
 		if ($f === "") {
 			return false;
 		}
-		if (zesk::$is_windows) {
+		if ($zesk->is_windows) {
 			if (strlen($f) < 1) {
 				return false;
 			}
@@ -904,13 +1077,15 @@ class file {
 	 * @param string $target        	
 	 */
 	public static function move_atomic($source, $target, $new_target = null) {
+		global $zesk;
+		/* @var $zesk zesk\Kernel */
 		if (!is_file($target)) {
 			return @rename($source, $target);
 		}
 		if (!is_file($source)) {
 			throw new Exception_File_NotFound($source);
 		}
-		$pid = zesk::pid();
+		$pid = $zesk->process->id();
 		$target_lock = $target . ".atomic-lock";
 		$lock = fopen($target_lock, "w+");
 		if (!$lock) {
@@ -1027,7 +1202,7 @@ class file {
 			}
 			throw new Exception_File_Permission($file, "Unable to write (!is_writable)");
 		}
-		$lockname = "$file.pid=" . zesk::pid() . ".lock";
+		$lockname = "$file.pid=" . zesk()->process->id() . ".writable.temp";
 		if (file_put_contents($lockname, strval(microtime(true))) !== false) {
 			unlink($lockname);
 			return $file;
@@ -1035,6 +1210,69 @@ class file {
 		throw new Exception_File_Permission($file, "Unable to write in {dir} {filename}", array(
 			"dir" => $dir
 		));
+	}
+	
+	/**
+	 * Given a list of paths and a file name, find the first occurrance of the file.
+	 *
+	 * @param array $paths
+	 *        	List of strings representing file system paths
+	 * @param mixed $file
+	 *        	File name to search for, or list of file names to search for (array)
+	 * @return string Full path of found file, or null if not found
+	 * @see self::find_directory
+	 */
+	public static function find_first(array $paths, $file) {
+		if (is_array($file)) {
+			foreach ($paths as $path) {
+				foreach ($file as $f) {
+					$the_path = path($path, $f);
+					if (is_file($the_path)) {
+						return $the_path;
+					}
+				}
+			}
+		} else {
+			foreach ($paths as $path) {
+				$the_path = path($path, $file);
+				if (is_file($the_path)) {
+					return $the_path;
+				}
+			}
+		}
+		return null;
+	}
+	
+	/**
+	 * Given a list of paths and a file name, find all occurrance of the named file.
+	 *
+	 * @param array $paths
+	 *        	List of strings representing file system paths
+	 * @param mixed $file
+	 *        	File name to search for, or list of file names to search for (array)
+	 * @return array list of files found, in order
+	 * @see self::find_directory
+	 */
+	public static function find_all(array $paths, $file) {
+		$result = array();
+		if (is_array($file)) {
+			foreach ($paths as $path) {
+				foreach ($file as $f) {
+					$the_path = path($path, $f);
+					if (is_file($the_path)) {
+						$result[] = $the_path;
+					}
+				}
+			}
+		} else {
+			foreach ($paths as $path) {
+				$the_path = path($path, $file);
+				if (is_file($the_path)) {
+					$result[] = $the_path;
+				}
+			}
+		}
+		return $result;
 	}
 }
 

@@ -1,6 +1,6 @@
 <?php
 if (false) {
-	/* @var $this Template */
+	/* @var $this zesk\Template */
 	
 	$application = $this->application;
 	/* @var $application ZeroBot */
@@ -12,7 +12,7 @@ if (false) {
 	/* @var $request Request */
 	
 	$response = $this->response;
-	/* @var $response Response_HTML */
+	/* @var $response zesk\Response_Text_HTML */
 	
 	$current_user = $this->current_user;
 	/* @var $current_user User */
@@ -23,10 +23,10 @@ if (false) {
 
 $link = $object->link;
 
-$title = $link ? html::tag('a', array(
+$title = $link ? HTML::tag('a', array(
 	'href' => $link
 ), $object->title) : $object->title;
-echo html::div_open('.feed-item');
-echo html::tag("h2", $title);
+echo HTML::div_open('.feed-item');
+echo HTML::tag("h2", $title);
 echo $object->description;
-echo html::div_close();
+echo HTML::div_close();

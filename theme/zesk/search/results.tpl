@@ -1,14 +1,14 @@
 <?php
 
-/* @var $response Response_HTML */
+/* @var $response zesk\Response_Text_HTML */
 if (false) {
 	$response = $this->response;
 }
 $response->title($title = __('Search results for &ldquo;{query}&rdquo;', array(
 	"query" => $this->query
 )));
-echo html::tag('h1', $title);
-echo html::div_open('.search-results');
+echo HTML::tag('h1', $title);
+echo HTML::div_open('.search-results');
 echo $this->theme($this->get('theme_search_form', 'search/form'));
 
 $none_found = array();
@@ -22,25 +22,25 @@ foreach ($this->results as $name => $result) {
 		'total' => $total
 	);
 	if ($total > 0) {
-		echo html::tag('h2', array(
+		echo HTML::tag('h2', array(
 			'class' => 'found'
-		), map($title . " ({total})", $__) . html::tag('a', array(
+		), map($title . " ({total})", $__) . HTML::tag('a', array(
 			'name' => $name
 		), ""));
 		if ($total === $shown) {
-			echo html::tag('p', '.small', __('Showing {shown} matching {nouns}', $__));
+			echo HTML::tag('p', '.small', __('Showing {shown} matching {nouns}', $__));
 			echo $content;
 		} else {
-			echo html::tag('p', '.small', __('Showing first {shown} of {total} matching {nouns}', $__));
+			echo HTML::tag('p', '.small', __('Showing first {shown} of {total} matching {nouns}', $__));
 			echo $content;
-			echo html::tag('a', array(
+			echo HTML::tag('a', array(
 				'href' => $more_href,
 				'class' => 'show-all'
 			), __('Show all {total} matching {nouns}', $__));
 		}
 	} else {
-		$none_found[] = html::tag('h2', '.not-found', __('No {nouns} found.', $__));
+		$none_found[] = HTML::tag('h2', '.not-found', __('No {nouns} found.', $__));
 	}
 }
 echo implode("\n", $none_found);
-echo html::div_close();
+echo HTML::div_close();

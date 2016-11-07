@@ -75,7 +75,7 @@
 		max_error: function (files) {
 			var dropfile = this;
 			$.each(files, function () {
-				zesk.message(__("DropFile:=The file {name} was not uploaded because you can only upload {n} files maximum.", { 
+				zesk.message(__("DropFile:=The file {file} was not uploaded because you can only upload {n} files maximum.", { 
 					file: clean_path(this.name), 
 					n: dropfile.max_files 
 				}));

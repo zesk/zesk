@@ -7,6 +7,14 @@
  * @copyright Copyright &copy; 2008, Market Acumen, Inc.
  * Created on Wed Aug 27 22:23:05 EDT 2008 22:23:05
  */
+use zesk\arr;
+use zesk\Exception_Semantics;
+
+/**
+ * 
+ * @author kent
+ *
+ */
 class Control_Text extends Control {
 
 	protected function initialize() {

@@ -5,7 +5,7 @@
  * @author kent
  *
  */
-class Class_Health_Event extends Class_Object {
+class Class_Health_Event extends zesk\Class_Object {
 
 	public $id_column = "id";
 

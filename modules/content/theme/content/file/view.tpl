@@ -1,22 +1,32 @@
 <?php
-$x = $this->Object;
+/**
+ * 
+ */
+namespace zesk;
 
-$class[] = "file";
-if ($this->get('class')) {
-	$class[] = $this->class;
-}
-/* @var $x Link */
-echo html::tag_open('div', array(
-	"class" => implode(" ", $class)
+/* @var $this \zesk\Template */
+/* @var $zesk \zesk\Kernel */
+/* @var $application \zesk\Application */
+/* @var $session \zesk\Session */
+/* @var $router \zesk\Router */
+/* @var $route \zesk\Route */
+/* @var $request \zesk\Request */
+/* @var $response \zesk\Response_Text_HTML */
+/* @var $current_user \User */
+/* @var $object \Content_File */
+echo HTML::tag_open('div', array(
+	"class" => CSS::add_class("file", $this->class)
 ));
-echo html::aa(url::query_append("/download.php", array(
-	"FileGroup" => $x->Parent,
-	"ID" => $x->ID
-)), array(
+// TODO Fix this
+$uri = URL::query_append("/download.php", array(
+	"FileGroup" => $object->Parent,
+	"ID" => $object->ID
+));
+echo HTML::a_condition($uri === $request->path(), $uri, array(
 	"class" => "title"
-), $x->Name);
+), $object->Name);
 echo $this->theme('control/admin-edit');
-echo html::etag("p", array(
+echo HTML::etag("p", array(
 	"class" => "desc"
-), $x->Body);
-echo html::tag_close('div');
+), $object->Body);
+echo HTML::tag_close('div');

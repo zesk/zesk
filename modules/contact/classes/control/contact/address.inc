@@ -31,7 +31,7 @@ class Control_Contact_Address extends Control_Edit {
 			$this->object->contact = $this->parent->object;
 		}
 		if (!$this->submit_store()) {
-			return $this->hook_array("store_failed", array(), true);
+			return $this->call_hook_arguments("store_failed", array(), true);
 		}
 		return $this->submit_redirect();
 	}

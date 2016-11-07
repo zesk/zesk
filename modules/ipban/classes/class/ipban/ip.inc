@@ -1,6 +1,6 @@
 <?php
 
-class Class_IPBan_IP extends Class_Object {
+class Class_IPBan_IP extends zesk\Class_Object {
 
 	public $id_column = "ip";
 

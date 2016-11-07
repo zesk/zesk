@@ -14,7 +14,7 @@ alias zesk-schema='zesk database-schema'
 #
 # File Converters
 #
-alias php-mo='z module php-mo php-mo'
+alias php-mo='$ZESK_ROOT/modules/php-mo/bin/php-mo.php'
 alias markdown='z module markdown markdown'
 
 #

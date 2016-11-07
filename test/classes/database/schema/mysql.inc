@@ -1,5 +1,8 @@
 <?php
 use mysql\Database;
+use zesk\Database_Schema;
+use \zesk;
+
 class Test_Database_Schema_MySQL extends Test_Unit {
 	
 	/**
@@ -86,7 +89,7 @@ class Test_Database_Schema_MySQL extends Test_Unit {
 		$db->query("DROP TABLE IF EXISTS $table");
 		$db->query($sql);
 		
-		$this->assert($db->connect(), "connecting to " . url::remove_password($db_url));
+		$this->assert($db->connect(), "connecting to " . URL::remove_password($db_url));
 		
 		$this->assert($db->table_exists($table), "$db->table_exists($table)");
 		
@@ -128,7 +131,7 @@ class Test_Database_Schema_MySQL extends Test_Unit {
 		$db->query("DROP TABLE IF EXISTS $table");
 		$db->query($sql);
 		
-		$this->assert($db->connect(), "connecting to " . url::remove_password($db_url));
+		$this->assert($db->connect(), "connecting to " . URL::remove_password($db_url));
 		
 		$this->assert($db->table_exists($table));
 		
@@ -141,7 +144,7 @@ class Test_Database_Schema_MySQL extends Test_Unit {
 		
 		$result = Database_Schema::update($db, $db_table, $object_table);
 		
-		$this->assert($result === array(), php::dump($result) . ' === array()');
+		$this->assert($result === array(), PHP::dump($result) . ' === array()');
 		
 		echo basename(__FILE__) . ": Success.\n";
 	}
@@ -178,7 +181,7 @@ class Test_Database_Schema_MySQL extends Test_Unit {
 		$db->query("DROP TABLE IF EXISTS $table");
 		$db->query($sql);
 		
-		$this->assert($db->connect(), "connecting to " . url::remove_password($db_url));
+		$this->assert($db->connect(), "connecting to " . URL::remove_password($db_url));
 		
 		$this->assert($db->table_exists($table));
 		
@@ -191,7 +194,7 @@ class Test_Database_Schema_MySQL extends Test_Unit {
 		
 		$result = Database_Schema::update($db, $db_table, $object_table);
 		
-		$this->assert($result === array(), php::dump($result) . ' === array()');
+		$this->assert($result === array(), PHP::dump($result) . ' === array()');
 		
 		echo basename(__FILE__) . ": Success.\n";
 	}
@@ -218,7 +221,7 @@ class Test_Database_Schema_MySQL extends Test_Unit {
 		$db->query("DROP TABLE IF EXISTS $table");
 		$db->query($sql);
 		
-		$this->assert($db->connect(), "connecting to " . url::remove_password($db_url));
+		$this->assert($db->connect(), "connecting to " . URL::remove_password($db_url));
 		
 		$this->assert($db->table_exists($table));
 		
@@ -231,7 +234,7 @@ class Test_Database_Schema_MySQL extends Test_Unit {
 		
 		$result = Database_Schema::update($db, $db_table, $object_table);
 		
-		$this->assert($result === array(), php::dump($result) . ' === array()');
+		$this->assert($result === array(), PHP::dump($result) . ' === array()');
 		
 		$db->query("DROP TABLE IF EXISTS $table");
 		

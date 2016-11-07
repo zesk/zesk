@@ -6,7 +6,7 @@ class Control_FieldSet extends Control_Widgets {
 	);
 
 	public function initialize() {
-		$this->prefix .= html::tag('legend', $this->label);
+		$this->prefix .= HTML::tag('legend', $this->label);
 		$this->wrap('fieldset', $this->attributes(array(
 			"class" => "control-fieldset",
 			"id" => $this->id
@@ -15,7 +15,7 @@ class Control_FieldSet extends Control_Widgets {
 	}
 
 // 	public function render() {
-// 		echo get_class($this) . '<br />' . html::tag('h2', $this->name()) . _backtrace();
+// 		echo get_class($this) . '<br />' . HTML::tag('h2', $this->name()) . _backtrace();
 // 		return parent::render();
 // 	}
 }

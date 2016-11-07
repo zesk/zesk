@@ -6,6 +6,13 @@
  * @author Kent Davidson <kent@marketacumen.com>
  * @copyright Copyright &copy; 2008, Market Acumen, Inc.
  */
+use zesk\Cache;
+
+/**
+ * 
+ * @author kent
+ *
+ */
 class Session_Mock implements Session_Interface {
 	protected $ID;
 	/**
@@ -31,6 +38,12 @@ class Session_Mock implements Session_Interface {
 	}
 	public function id() {
 		return $this->ID;
+	}
+	public function has($name) {
+		return $this->__isset($name);
+	}
+	public function __isset($name) {
+		return $this->Cache->__isset($name);
 	}
 	public function get($name = null, $default = null) {
 		$value = $this->Cache->__get($name);

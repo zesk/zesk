@@ -7,7 +7,7 @@
 // - show_values
 
 
-/* @var $response Response_HTML */
+/* @var $response zesk\Response_Text_HTML */
 $response = $this->response;
 /* @var $widget Widget */
 $widget = $this->widget;

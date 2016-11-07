@@ -5,7 +5,6 @@
  * @category Debugging
  */
 class Command_PHP_Schema extends Command {
-	
 	protected $option_types = array(
 		'class' => 'string'
 	);
@@ -35,7 +34,7 @@ class Command_PHP_Schema extends Command {
 			exit(1);
 		} else {
 			echo Template::instance('command/php/schema.tpl', array(
-				'class_name' => 'Schema_' . get_class($object), 
+				'class_name' => 'Schema_' . get_class($object),
 				'schema' => $schema
 			));
 		}

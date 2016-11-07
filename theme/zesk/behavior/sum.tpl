@@ -1,6 +1,6 @@
 <?php
 
-/* @var $response Response_HTML */
+/* @var $response zesk\Response_Text_HTML */
 $response = $this->response;
 /* @var $widget Widget */
 $widget = $this->widget;
@@ -114,4 +114,4 @@ ob_start();
 }());
 </script>
 <?php
-$response->jquery(map(html::extract_tag_contents("script", ob_get_clean()), $map));
+$response->jquery(map(HTML::extract_tag_contents("script", ob_get_clean()), $map));

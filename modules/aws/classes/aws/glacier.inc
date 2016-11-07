@@ -7,6 +7,8 @@
  * @copyright Copyright &copy; 2013, Market Acumen, Inc.
  */
 
+use zesk\Exception_NotFound;
+
 /**
  * Class wrapper around Aws\Glacier\GlacierClient
  * 

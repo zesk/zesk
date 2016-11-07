@@ -1,20 +1,40 @@
 <?php
+/**
+ * @copyright &copy; 2016 Market Acumen, Inc.
+ */
+use zesk\Timestamp;
+use zesk\JSON;
 
-use zesk\Timestamp as Timestamp;
-
+/**
+ * 
+ * @author kent
+ *
+ */
 class Module_Nominatim extends Module {
+	/**
+	 * 
+	 * @var string
+	 */
 	private $url = null;
+	/**
+	 * 
+	 * @var integer
+	 */
 	private $request_delay = null;
+	
+	/**
+	 * cron every minute
+	 */
 	public function hook_cron() {
 		if (!$this->option_bool('force') && $this->application->development()) {
 			return;
 		}
 		$url = $this->url = $this->option('url_geocode');
 		$rph = $this->option('geocode_requests_per_hour', 60);
-
+		
 		$this->request_delay = intval(3600 / $rph);
-
-		if (!url::valid($url)) {
+		
+		if (!URL::valid($url)) {
 			log::notice("{class}::cron - no URL_GEOCODE configured");
 			return;
 		}
@@ -34,7 +54,7 @@ class Module_Nominatim extends Module {
 			'longitude|!=' => null
 		));
 		$update->execute();
-
+		
 		// Set geocoded date to created date when lat/long are set
 		$update = Object::class_query_update("Contact_Address")->values(array(
 			'*geocoded' => 'created'
@@ -46,21 +66,21 @@ class Module_Nominatim extends Module {
 			'geocoded' => null
 		));
 		$update->execute();
-
+		
 		$query = Object::class_query('Contact_Address')->where(array(
 			array(
 				'geocoded' => null,
 				'geocoded|<=' => Timestamp::now()->add_unit("day", -abs($this->option_integer("geocode_refresh_days", 30)))
 			)
 		));
-
+		
 		$http = new Net_HTTP_Client();
 		$http->user_agent("Module_Nominatum in Zesk Library http://zesk.com/ v" . zesk\Version::release());
 		/* @var $item Contact_Address */
 		$run_time = $this->option("run_time", 60);
 		$timer = new Timer();
 		$settings = Settings::instance();
-
+		
 		$items = $query->object_iterator();
 		try {
 			foreach ($items as $item) {
@@ -98,6 +118,13 @@ class Module_Nominatim extends Module {
 			));
 		}
 	}
+	
+	/**
+	 * 
+	 * @param Net_HTTP_Client $http
+	 * @param Contact_Address $item
+	 * @return boolean
+	 */
 	private function geocode_address(Net_HTTP_Client $http, Contact_Address $item) {
 		$query = $this->option_array("url_geocode_query", array());
 		$query['format'] = 'json';
@@ -109,7 +136,7 @@ class Module_Nominatim extends Module {
 			$item->postal_code,
 			$item->country_code
 		)));
-
+		
 		$alt_query = $query;
 		$alt_query['street'] = trim("$item->street $item->additional");
 		$alt_query['city'] = $item->city;
@@ -118,8 +145,8 @@ class Module_Nominatim extends Module {
 		$alt_query['country'] = $item->country_code;
 		$alt_query['postalcode'] = $item->postal_code;
 		$alt_query = arr::trim_clean($alt_query);
-
-		$this_url = url::query_append($this->url, $query);
+		
+		$this_url = URL::query_append($this->url, $query);
 		$http->url($this_url);
 		$raw = $http->go();
 		if ($http->response_code() === Net_HTTP::Status_OK) {
@@ -127,7 +154,7 @@ class Module_Nominatim extends Module {
 				"url" => $this_url,
 				"data" => $raw
 			));
-			$item->geocode_data = $result = json::decode($raw);
+			$item->geocode_data = $result = JSON::decode($raw);
 			$item->geocoded = Timestamp::now();
 			if (count($result) > 0) {
 				$result = first($result);
@@ -141,7 +168,7 @@ class Module_Nominatim extends Module {
 				}
 				$message = __('Geocoding successful, found {n} {results}.', array(
 					"n" => count($result),
-					"results" => lang::plural(__('results'), count($result))
+					"results" => Locale::plural(__('results'), count($result))
 				));
 			} else {
 				$message = __('Module_Nominatim:=Unable to map your address. Is it a valid street address?');
@@ -149,14 +176,14 @@ class Module_Nominatim extends Module {
 			$item->geocode_data = to_array($item->geocode_data) + array(
 				'message' => $message,
 				'url' => $this_url,
-				'alt_url' => url::query_append($this->url, $alt_query)
+				'alt_url' => URL::query_append($this->url, $alt_query)
 			);
 			$item->store();
 			return true;
 		}
 		$item->geocode_data = array(
 			'url' => $this_url,
-			'alt_url' => url::query_append($this->url, $alt_query),
+			'alt_url' => URL::query_append($this->url, $alt_query),
 			"http_response_code" => $http->response_code,
 			"http_content" => $raw
 		);
@@ -164,6 +191,12 @@ class Module_Nominatim extends Module {
 		$item->store();
 		return false;
 	}
+	
+	/**
+	 * Show credits
+	 * @todo This should probably be a configuration option
+	 * @return string
+	 */
 	public function hook_credits() {
 		return '<p class="nominatim-credit">Nominatim Search Courtesy of <a href="http://www.mapquest.com/" target="_blank">MapQuest</a> <img src="/share/nominatim/images/mq_logo.png"></p>';
 	}

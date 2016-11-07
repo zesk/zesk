@@ -1,3 +1,12 @@
+<?php
+/**
+ * @version $URL: https://code.marketacumen.com/zesk/trunk/modules/contact/theme/control/contact/address/widgets.tpl $
+ * @author $Author: kent $
+ * @package {package}
+ * @subpackage {subpackage}
+ * @copyright Copyright (C) 2016, {company}. All rights reserved.
+ */
+?>
 <div class="row">
 	<div class="col-sm-12">{street}</div>
 	<div class="col-sm-12">{additional}</div>

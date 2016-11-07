@@ -7,7 +7,7 @@
  * @copyright Copyright &copy; 2011, Market Acumen, Inc.
  */
 
-/* @var $this Template */
+/* @var $this zesk\Template */
 $suffix = "";
 //$suffix = ($this->jquery) ? "_jquery" : "";
 $this->state_url = htmlspecialchars($this->state_url);

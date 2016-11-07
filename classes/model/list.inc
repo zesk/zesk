@@ -1,5 +1,10 @@
 <?php
-class Model_List extends Model {
+/**
+ * @todo move to zesk\ namespace
+ * @author kent
+ *
+ */
+class Model_List extends zesk\Model {
 
 	public $offset = 0;
 

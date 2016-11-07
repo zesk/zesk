@@ -1,11 +1,9 @@
 <?php
 /**
- * @version $Id: email.inc 408 2012-03-05 01:06:36Z kent $
+ * @version $Id: email.inc 4046 2016-09-17 16:13:00Z kent $
  * @package zesk
  * @subpackage objects
  * @author kent
  * @copyright Copyright &copy; 2010, Market Acumen, Inc.
  */
-
-class Contact_Email extends Zesk_Contact_Email {
-}
+class Contact_Email extends zesk\Contact_Email {}

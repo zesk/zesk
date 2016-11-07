@@ -28,17 +28,20 @@ class Language extends Object {
 		if (empty($dialect)) {
 			$dialect = null;
 		}
-		$lang_en = Object::class_query(__CLASS__)->what("name", "name")->where(array(
+		$lang_en = app()->query_select(__CLASS__)
+			->what("name", "name")
+			->where(array(
 			"code" => $language,
 			"dialect" => $dialect
-		))->one("name");
+		))
+			->one("name");
 		if ($lang_en) {
 			return zesk\Locale::translate("Locale:=$lang_en", $locale);
 		}
 		return "[$code]";
 	}
 	public static function clean_table() {
-		$query = Object::class_query_update(__CLASS__);
+		$query = app()->query_update(__CLASS__);
 		$query->value("dialect", null)->where("dialect", "");
 		$query->execute();
 		if ($query->affected_rows() > 0) {

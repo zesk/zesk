@@ -7,6 +7,13 @@
  * @copyright Copyright &copy; 2008, Market Acumen, Inc.
  * Created on Tue Jul 15 15:59:24 EDT 2008
  */
+use zesk\HTML;
+
+/**
+ * 
+ * @author kent
+ *
+ */
 class View_Text extends View {
 
 	function format($set = null) {
@@ -40,7 +47,7 @@ class View_Text extends View {
 				$is_html = true;
 				break;
 			case "no-html":
-				$v = html::strip($v);
+				$v = HTML::strip($v);
 				break;
 			case "camel":
 				$v = str::capitalize($v);
@@ -57,15 +64,15 @@ class View_Text extends View {
 					'weight' => 'first'
 				));
 
-				$my_id = html::id_counter();
+				$my_id = HTML::id_counter();
 				$ellip = "<a onclick=\"ellipsis_toggle('$my_id')\">$ellip</a>";
 				$close_ellip = "<a onclick=\"ellipsis_toggle('$my_id')\">&lt;&lt;</a>";
 				$old_v = $v;
 			}
 			if ($is_html) {
-				$v = html::ellipsis($v, $showSize, $ellip);
+				$v = HTML::ellipsis($v, $showSize, $ellip);
 			} else {
-				$v = html::ellipsis($v, $showSize, $ellip); // TODO?
+				$v = HTML::ellipsis($v, $showSize, $ellip); // TODO?
 			}
 			if ($allow_show_all && $old_v !== $v) {
 				$v = "<span id=\"ellipsis-$my_id\">$v</span><span style=\"display: none\" id=\"ellipsis-$my_id-all\">$old_v $close_ellip</span>";

@@ -1,5 +1,7 @@
 <?php
 
+use zesk\Database_Query_Select;
+
 class Control_Trinary extends Control_Select {
 	protected function initialize() {
 		parent::initialize();

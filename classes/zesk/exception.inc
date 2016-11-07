@@ -80,8 +80,9 @@ class Exception extends \Exception {
 	}
 	
 	/**
-	 * Used by log::send
+	 * Used by zesk\Logger::log
 	 *
+	 * @see zesk\Logger::log
 	 * @return array
 	 */
 	public function log_variables() {
@@ -89,8 +90,9 @@ class Exception extends \Exception {
 	}
 	
 	/**
-	 * Used by log::send
+	 * Used by zesk\Logger::log
 	 *
+	 * @see zesk\Logger::log
 	 * @return array
 	 */
 	public function log_message() {

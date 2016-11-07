@@ -9,31 +9,31 @@
  */
 namespace mysql;
 
-use \Exception as Exception;
-use \zesk as zesk;
-use \Exception_Semantics as Exception_Semantics;
-use \Exception_NotFound as Exception_NotFound;
-use \Exception_File_NotFound as Exception_File_NotFound;
-use \Database_Exception_Connect as Database_Exception_Connect;
-use \Database_Exception_Database_NotFound as Database_Exception_Database_NotFound;
-use \Database_Exception_Permission as Database_Exception_Permission;
-use \Database_Exception_Duplicate as Database_Exception_Duplicate;
-use \Database_Exception_Table_NotFound as Database_Exception_Table_NotFound;
-use \Database_Exception_SQL as Database_Exception_SQL;
-use \Database_Table as Database_Table;
-use \Database_Column as Database_Column;
-use zesk\IPv4 as IPv4;
-use zesk\arr as arr;
+use zesk\Exception_Semantics;
+use zesk\Exception_NotFound;
+use zesk\Exception_File_NotFound;
+use zesk\Database_Exception_Connect;
+use zesk\Database_Exception_Database_NotFound;
+use zesk\Database_Exception_Permission;
+use zesk\Database_Exception_Duplicate;
+use zesk\Database_Exception_Table_NotFound;
+use zesk\Database_Exception_SQL;
+use zesk\Database_Table;
+use zesk\Database_Column;
+use zesk\IPv4;
+use zesk\arr;
 use zesk\log as log;
-use zesk\text as text;
-use zesk\php as php;
+use zesk\Text;
+use zesk\PHP;
+use zesk\Kernel;
+use zesk\Timestamp;
 
 /**
  *
  * @package zesk
  * @subpackage system
  */
-class Database extends \Database {
+class Database extends \zesk\Database {
 	protected $singleton_prefix = __CLASS__;
 	
 	/**
@@ -110,10 +110,10 @@ class Database extends \Database {
 	/**
 	 * Register schemes this class support
 	 */
-	public static function hooks(zesk\Kernel $zesk) {
+	public static function hooks(Kernel $zesk) {
 		$zesk->classes->register(__CLASS__);
-		\Database::register_scheme("mysql", __CLASS__);
-		\Database::register_scheme("mysqli", __CLASS__);
+		\zesk\Database::register_scheme("mysql", __CLASS__);
+		\zesk\Database::register_scheme("mysqli", __CLASS__);
 	}
 	/**
 	 * Set default table type
@@ -123,7 +123,7 @@ class Database extends \Database {
 		$this->set_option("tabletype", $this->option(self::attribute_engine, $this->default_engine()));
 	}
 	public function remove_comments($sql) {
-		$sql = text::remove_line_comments($sql, "--");
+		$sql = Text::remove_line_comments($sql, "--");
 		return $sql;
 	}
 	private function _default_setting($attribute) {
@@ -199,7 +199,7 @@ class Database extends \Database {
 	/**
 	 *
 	 * @return Database
-	 * @see Database::select_database()
+	 * @see zesk\Database::select_database()
 	 */
 	public function select_database($name = null) {
 		if ($name === null) {
@@ -212,7 +212,7 @@ class Database extends \Database {
 			$this->query("USE " . $this->sql()->quote_table($name));
 			$this->change_database = $name;
 			return $this;
-		} catch (Exception $e) {
+		} catch (\Exception $e) {
 			throw $e;
 		}
 	}
@@ -233,7 +233,7 @@ class Database extends \Database {
 	/**
 	 * Retrieve the table's column definitions
 	 *
-	 * @see Database::table_columns()
+	 * @see zesk\Database::table_columns()
 	 */
 	function table_columns($table) {
 		$columns = array();
@@ -258,9 +258,11 @@ class Database extends \Database {
 	 * @param array $options
 	 *     "lock" => boolean Lock tables before dumping (avoids inconsistent state - bad for busy databases)
 	 *     "tables" => list of tables Dump these tables
-	 * @see Database::dump()
+	 * @see zesk\Database::dump()
 	 */
 	function dump($filename, array $options = array()) {
+		global $zesk;
+		/* @var $zesk zesk\Kernel */
 		$parts = $this->url_parts;
 		
 		$parts['port'] = avalue($parts, "port", 3306);
@@ -284,7 +286,7 @@ class Database extends \Database {
 		$cmd_options[] = implode(" ", $tables);
 		$result = 0;
 		$cmd = "mysqldump " . implode(" ", $cmd_options) . " > {filename}";
-		zesk::execute_array($cmd, $parts + array(
+		$zesk->process->execute_arguments($cmd, $parts + array(
 			'filename' => $filename
 		));
 		return file_exists($filename);
@@ -295,9 +297,11 @@ class Database extends \Database {
 	 *
 	 * @param string $filename
 	 * @param array $options
-	 * @see Database::dump()
+	 * @see zesk\Database::dump()
 	 */
 	function restore($filename, array $options = array()) {
+		global $zesk;
+		/* @var $zesk Kernel */
 		if (!file_exists($filename)) {
 			throw new Exception_File_NotFound($filename);
 		}
@@ -315,7 +319,7 @@ class Database extends \Database {
 		$cmd_options[] = $database;
 		$result = 0;
 		$cmd = "mysql " . implode(" ", $cmd_options) . " < {filename}";
-		zesk::execute_array($cmd, $parts + array(
+		$zesk->process->execute_arguments($cmd, $parts + array(
 			'filename' => $filename
 		));
 		return file_exists($filename);
@@ -323,9 +327,11 @@ class Database extends \Database {
 	
 	/**
 	 *
-	 * @see Database::connect()
+	 * @see zesk\Database::connect()
 	 */
 	final public function _connect() {
+		global $zesk;
+		/* @var $zesk Kernel */
 		$parts = $this->url_parts;
 		
 		$server = avalue($parts, "host");
@@ -335,7 +341,7 @@ class Database extends \Database {
 		$this->Database = $database = substr(avalue($parts, "path"), 1);
 		
 		if ($server === "localhost") {
-			$this->options["TablesCaseSensitive"] = !zesk::$is_windows;
+			$this->options["TablesCaseSensitive"] = !$zesk->is_windows;
 		}
 		if (!$port) {
 			$port = 3306;
@@ -443,7 +449,7 @@ class Database extends \Database {
 	/**
 	 * Create a database at URL
 	 *
-	 * @see Database::create_database()
+	 * @see zesk\Database::create_database()
 	 */
 	function create_database($url) {
 		$parts = parse_url($url);
@@ -479,7 +485,7 @@ PRIVILEGES;";
 	/**
 	 * List tables
 	 *
-	 * @see Database::list_tables()
+	 * @see zesk\Database::list_tables()
 	 * @return array
 	 */
 	function list_tables() {
@@ -511,31 +517,32 @@ PRIVILEGES;";
 	
 	/**
 	 *
-	 * @param unknown $table
-	 * @todo Make these attributes constants and convert to lower-underscore keys
-	 * @return array
+	 * @param string $table
+	 * @todo Move into type\Database_Table
+	 * @return array|null
 	 */
 	function table_information($table) {
 		$result = $this->query("SHOW TABLE STATUS LIKE '$table'");
 		$arr = $this->fetch_assoc($result);
 		if (!$arr) {
-			return false;
+			return null;
 		}
 		$this->free($result);
 		return array(
-			"Type" => avalue($arr, 'Engine', avalue($arr, 'Type', "Unknown")),
-			"RowCount" => $arr['Rows'],
-			"Size" => $arr['Data_length'],
-			"EmptySize" => $arr['Data_free'],
-			"Created" => $this->sql_format_datetime($arr['Create_time']),
-			"Updated" => $this->sql_format_datetime($arr['Update_time'])
+			"engine" => avalue($arr, 'Engine', avalue($arr, 'Type', null)),
+			"row_count" => $arr['Rows'],
+			"data_size" => $arr['Data_length'],
+			"free_size" => $arr['Index_length'],
+			"index_size" => $arr['Data_free'],
+			"Created" => Timestamp::factory($arr['Create_time']),
+			"Updated" => Timestamp::factory($arr['Update_time'])
 		);
 	}
 	
 	/**
 	 * (non-PHPdoc)
 	 *
-	 * @see Database::database_table()
+	 * @see zesk\Database::database_table()
 	 */
 	function database_table($table) {
 		$source = null;
@@ -556,7 +563,7 @@ PRIVILEGES;";
 	/**
 	 * (non-PHPdoc)
 	 *
-	 * @see Database::basic_types_compatible()
+	 * @see zesk\Database::basic_types_compatible()
 	 */
 	final protected function basic_types_compatible($t0, $t1) {
 		if ($t0 === $t1) {
@@ -580,7 +587,7 @@ PRIVILEGES;";
 	/**
 	 * (non-PHPdoc)
 	 *
-	 * @see Database::default_index_structure()
+	 * @see zesk\Database::default_index_structure()
 	 */
 	public function default_index_structure($table_type) {
 		switch (strtolower($table_type)) {
@@ -645,7 +652,7 @@ PRIVILEGES;";
 	/**
 	 * (non-PHPdoc)
 	 *
-	 * @see Database::shell_command()
+	 * @see zesk\Database::shell_command()
 	 */
 	function shell_command(array $options = array()) {
 		$parts = $this->url_parts;
@@ -702,7 +709,7 @@ PRIVILEGES;";
 			log::error("Released lock {name} FAILED (raw_result={raw_result}): ", array(
 				"name" => $name,
 				"backtrace" => debug_backtrace(false),
-				"raw_result" => php::dump($result)
+				"raw_result" => PHP::dump($result)
 			));
 			return false;
 		}
@@ -712,7 +719,7 @@ PRIVILEGES;";
 	/**
 	 * (non-PHPdoc)
 	 *
-	 * @see Database::is_reserved_word()
+	 * @see zesk\Database::is_reserved_word()
 	 */
 	function is_reserved_word($word) {
 		// Updated 2004-10-19 from MySQL Website YEARLY-TODO
@@ -943,7 +950,7 @@ PRIVILEGES;";
 		}
 		try {
 			$this->query("SET GLOBAL $name=" . $this->quote_text($set));
-		} catch (Exception $e) {
+		} catch (\Exception $e) {
 			throw new Database_Exception_Permission("Unable to set global {name}", array(
 				"name" => $name
 			));
@@ -988,7 +995,7 @@ PRIVILEGES;";
 	/**
 	 * (non-PHPdoc)
 	 *
-	 * @see Database::connection()
+	 * @see zesk\Database::connection()
 	 */
 	final public function connection() {
 		return $this->Connection;

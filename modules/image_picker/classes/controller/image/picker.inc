@@ -1,6 +1,18 @@
 <?php
+
+/**
+ * 
+ * @author kent
+ *
+ */
 class Controller_Image_Picker extends Controller_Object {
 	protected $class = "Content_Image";
+	
+	/**
+	 * 
+	 * {@inheritDoc}
+	 * @see Controller_Object::_action_default()
+	 */
 	function _action_default($action = null, $object = null, $options = array()) {
 		$control = $this->widget_factory('Control_Picker_Content_Image')->names('image');
 		$this->control($control, $object);

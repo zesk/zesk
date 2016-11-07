@@ -6,6 +6,9 @@
  * @author Kent Davidson <kent@marketacumen.com>
  * @copyright Copyright &copy; 2008, Market Acumen, Inc.
  */
+use zesk\Database_Table;
+use zesk\Database_Index;
+
 class Test_Database_Index extends Test_Unit {
 
 	function test_main() {

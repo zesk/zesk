@@ -30,7 +30,7 @@ class Application_Server extends Application {
 		
 		zesk::document_root(zesk::application_root("site"));
 	}
-	public function hook_head(Request $request, Response_HTML $response, Template $template) {
+	public function hook_head(zesk\Request $request, zesk\Response_Text_HTML $response, zesk\Template $template) {
 		$response->css("/css/server.css", array(
 			"root_dir" => zesk::document_root()
 		));

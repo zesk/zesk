@@ -5,7 +5,7 @@ class XML_RPC_Client_Multicall_Test extends Test_Unit {
 
 	function _init() {
 		$this->url = $this->option('xmlrpc_test_url');
-		$this->assert(url::valid($this->url));
+		$this->assert(URL::valid($this->url));
 	}
 
 	/**

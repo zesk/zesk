@@ -51,9 +51,9 @@ class Control_Content_Layout extends Control {
 
 		$factory = $this->Content_Factory;
 		if (!$factory instanceof Content_Factory) {
-			$factory = $this->hook("content_factory");
+			$factory = $this->call_hook("content_factory");
 			if (!$factory instanceof Content_Factory) {
-				$factory = $this->parent()->hook("content_factory");
+				$factory = $this->parent()->call_hook("content_factory");
 			}
 		}
 
@@ -63,7 +63,7 @@ class Control_Content_Layout extends Control {
 	function load() {
 		$object = $this->object;
 		$name = $this->name();
-		$layout_options = to_array(html::parse_attributes($object->get($name)));
+		$layout_options = to_array(HTML::parse_attributes($object->get($name)));
 		$object->set($name . "::Cols", clamp(1, to_integer(avalue($layout_options, "cols", 1)), 4));
 		$object->set($name . "::Rows", clamp(1, to_integer(avalue($layout_options, "rows", 1)), 4));
 		$object->set($name . "::Widths", avalue($layout_options, "widths", ""));
@@ -83,7 +83,7 @@ class Control_Content_Layout extends Control {
 		$layout_options['cols'] = $object["Cols_$name"] = clamp(1, $this->request->_geti("Cols_$name", 1), 4);
 		$layout_options['rows'] = $object["Rows_$name"] = clamp(1, $this->request->_geti("Rows_$name", 1), 4);
 
-		$this->value($object, html::attributes($layout_options));
+		$this->value($object, HTML::attributes($layout_options));
 		return true;
 	}
 	function render() {
@@ -110,21 +110,21 @@ class Control_Content_Layout extends Control {
 			$object_id = $object->option("menu_type") . self::EQUALS_SEP . $object->option("menu_id");
 			$default_object_ids[] = $object_id;
 			$object_name = $object->className() . ": " . $object->objectName();
-			$content .= html::tag("div", "class=\"layout-object $name-object\" id=\"$object_id\"", $object_name);
+			$content .= HTML::tag("div", "class=\"layout-object $name-object\" id=\"$object_id\"", $object_name);
 		}
 		$this->response->jquery("new Control_Layout('$name', $n_objects);");
 
-		$content .= html::tag("div", array(
+		$content .= HTML::tag("div", array(
 			"class" => "layout-grid",
 			"id" => "$name-grid"
 		), "");
 
-		$content = html::tag("div", "class=\"layout\" id=\"$name-layout\"", $content);
+		$content = HTML::tag("div", "class=\"layout\" id=\"$name-layout\"", $content);
 
-		$content .= html::hidden("Objects_${name}", $object->get("Objects_${name}", implode(";", $default_object_ids)));
-		$content .= html::hidden("Cols_${name}", $object->get("Cols_${name}", 1));
-		$content .= html::hidden("Rows_${name}", $object->get("Rows_${name}", 1));
-		$content .= html::hidden("Widths_${name}", $object->get("Widths_${name}", "1;1;2"));
+		$content .= HTML::hidden("Objects_${name}", $object->get("Objects_${name}", implode(";", $default_object_ids)));
+		$content .= HTML::hidden("Cols_${name}", $object->get("Cols_${name}", 1));
+		$content .= HTML::hidden("Rows_${name}", $object->get("Rows_${name}", 1));
+		$content .= HTML::hidden("Widths_${name}", $object->get("Widths_${name}", "1;1;2"));
 
 		return $content;
 	}

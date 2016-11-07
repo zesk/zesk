@@ -6,7 +6,20 @@
  * @author Kent Davidson <kent@marketacumen.com>
  * @copyright Copyright &copy; 2007, Market Acumen, Inc.
  */
-html::cdn_javascript("/share/zesk/js/date.js");
+use zesk\HTML;
+/* @var $this \zesk\Template */
+/* @var $zesk \zesk\Kernel */
+/* @var $application \zesk\Application */
+/* @var $session \zesk\Session */
+/* @var $router \zesk\Router */
+/* @var $route \zesk\Route */
+/* @var $request \zesk\Request */
+/* @var $response \zesk\Response_Text_HTML */
+/* @var $current_user \User */
+
+zesk()->deprecated("old old old");
+
+HTML::cdn_javascript("/share/zesk/js/date.js");
 $this->select->set_option("onchange", "ControlDateRange_Update(this,'" . $this->name . "')");
 $current = $model->get($name);
 ?><table class="daterange">

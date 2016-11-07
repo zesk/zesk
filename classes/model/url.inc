@@ -1,5 +1,5 @@
 <?php
-class Model_URL extends Model {
+class Model_URL extends zesk\Model {
 
 	public $url = null;
 

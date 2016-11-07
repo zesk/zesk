@@ -63,7 +63,7 @@ abstract class Import_Log_WebServer extends Import_Log
 			$parts['host'] = $result[self::Request_Host];
 			$parts['port'] = $port;
 			$parts['path'] = $result[self::Request_URI];
-			$result[self::Request_URL] = url::unparse($parts);
+			$result[self::Request_URL] = URL::unparse($parts);
 		}
 		if (arr::has($result, self::IP) && !arr::has($result, self::IP_Integer)) {
 			$result[self::IP_Integer] = inet_pton($result[self::IP]);

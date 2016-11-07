@@ -1,5 +1,32 @@
 <?php
-/* @var $this Template */
+/**
+ * @copyright &copy; 2016 Market Acumen, Inc.
+ */
+namespace zesk;
+
+if (false) {
+	/* @var $this Template */
+	
+	$zesk = $this->zesk;
+	/* @var $zesk \zesk\Kernel */
+	
+	$application = $this->application;
+	/* @var $application \zesk\Application */
+	
+	$session = $this->session;
+	/* @var $session \zesk\Session */
+	
+	$router = $this->router;
+	/* @var $request \zesk\Router */
+	
+	$request = $this->request;
+	/* @var $request \zesk\Request */
+	
+	$response = $this->response;
+	/* @var $response \zesk\Response_Text_HTML */
+}
+
+
 /* @var $widget View_Errors */
 /* @var $parent Widget */
 $errors = array();
@@ -29,6 +56,6 @@ if (avalue($errors, "continue", false)) {
 	$class = 'danger';
 }
 
-echo html::etag("div", array(
-	'class' => css::add_class("alert alert-$class")
-), html::tags("p", $errors));
+echo HTML::etag("div", array(
+	'class' => CSS::add_class("alert alert-$class")
+), HTML::tags("p", $errors));

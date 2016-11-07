@@ -66,7 +66,7 @@ class Control_Options extends Control {
 		if (is_array($this->control_options)) {
 			return;
 		}
-		$this->control_options = $this->hook_array('options', array(), $this->control_options);
+		$this->control_options = $this->call_hook_arguments('options', array(), $this->control_options);
 		$this->options['options'] = $this->control_options;
 	}
 	private function _init_default_option() {
@@ -158,7 +158,7 @@ class Control_Options extends Control {
 	public function control_options(array $set = null) {
 		if (is_array($set)) {
 			$this->control_options = $set;
-			$this->hook("control_options_changed");
+			$this->call_hook("control_options_changed");
 			return $this;
 		}
 		return $this->control_options;

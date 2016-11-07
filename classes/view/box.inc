@@ -7,6 +7,15 @@
  * @copyright Copyright &copy; 2009, Market Acumen, Inc.
  * Created on Sun Apr 04 21:26:38 EDT 2010 21:26:38
  */
+use zesk\Template;
+use zesk\Model;
+use zesk\Exception_Semantics;
+
+/**
+ * 
+ * @author kent
+ *
+ */
 class View_Box extends View {
 
 	private $Content = null;
@@ -90,8 +99,14 @@ class View_Box extends View {
 	}
 }
 
+/**
+ * 
+ * @param unknown $content
+ * @param string $style
+ * @return mixed|NULL|string
+ */
 function box($content, $style = "round") {
-	zesk::deprecated();
+	zesk()->deprecated();
 	return View_Box::format($content, $style);
 }
 
@@ -102,16 +117,23 @@ function box($content, $style = "round") {
  * @param array $attributes Other attributes to change features of the box (optional)
  */
 function box_start($style, $attributes = false) {
-	zesk::deprecated();
+	zesk()->deprecated();
 	return View_Box::start($style, $attributes);
 }
 
+/**
+ * 
+ * @return boolean
+ */
 function box_cancel() {
-	zesk::deprecated();
+	zesk()->deprecated();
 	return View_Box::cancel();
 }
 
+/**
+ * 
+ */
 function box_end() {
-	zesk::deprecated();
+	zesk()->deprecated();
 	return View_Box::end();
 }

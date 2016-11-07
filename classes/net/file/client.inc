@@ -6,9 +6,17 @@
  * @package zesk
  * @subpackage model
  */
-use zesk\file as file;
-use zesk\Timestamp as Timestamp;
+use zesk\File;
+use zesk\Timestamp;
+use zesk\Directory;
+use zesk\Exception_Semantics;
+use zesk\Exception_File_Permission;
 
+/**
+ * 
+ * @author kent
+ *
+ */
 class Net_File_Client extends Net_Client implements Net_FileSystem {
 	/**
 	 * Are we "connected"? Simply for semantic integrity between clients.
@@ -49,7 +57,7 @@ class Net_File_Client extends Net_Client implements Net_FileSystem {
 		if ($path === null) {
 			$path = getcwd();
 		}
-		$files = dir::ls($path);
+		$files = Directory::ls($path);
 		foreach ($files as $name) {
 			if ($name === "." || $name === "..") {
 				continue;
@@ -84,7 +92,7 @@ class Net_File_Client extends Net_Client implements Net_FileSystem {
 		if ($temporary) {
 			$temp = null;
 			if (is_file($remote_path)) {
-				$temp = $remote_path . '.rename-' . zesk::pid();
+				$temp = $remote_path . '.rename-' . zesk()->process->id();
 				if (!rename($remote_path, $temp)) {
 					throw new Exception_File_Permission($remote_path);
 				}
@@ -137,7 +145,7 @@ class Net_File_Client extends Net_Client implements Net_FileSystem {
 		switch ($feature) {
 			case self::feature_mtime:
 				return true;
-			default:
+			default :
 				return false;
 		}
 	}

@@ -1,4 +1,9 @@
 <?php
+/**
+ * @copyright &copy; 2016 Market Acumen, Inc.
+ */
+namespace zesk;
+
 if (false) {
 	/* @var $current_user User */
 	$current_user = $this->current_user;
@@ -32,22 +37,22 @@ if ($current_user->can("edit", $object)) {
 } else {
 	$attributes = array();
 }
-echo html::div(css::add_class('.col-xs-8 col-sm-10 action-edit'), html::span($attributes, $object->name));
+echo HTML::div(CSS::add_class('.col-xs-8 col-sm-10 action-edit'), HTML::span($attributes, $object->name));
 
-echo html::div(array(
+echo HTML::div(array(
 	'class' => 'col-xs-2 col-sm-1 total tip',
 	'data-placement' => 'left',
 	'title' => $this->get('total_title')
-), html::etag('span', array(
+), HTML::etag('span', array(
 	"class" => 'badge'
 ), $object->total));
 
 $url = $router->get_route('delete', $this->list_class, array(
 	"id" => $this->object->id
 ));
-echo html::div(array(
+echo HTML::div(array(
 	'class' => 'col-xs-2 col-sm-1 action-delete'
-), $current_user->can("delete", $object) ? html::tag('a', array(
+), $current_user->can("delete", $object) ? HTML::tag('a', array(
 	'class' => 'close tip',
 	'data-placement' => 'left',
 	'title' => __('Delete'),

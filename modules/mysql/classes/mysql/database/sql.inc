@@ -2,13 +2,13 @@
 
 namespace mysql;
 
-use \Database_Table as Database_Table;
-use \Database_Column as Database_Column;
-use \Database_Index as Database_Index;
-use \Database_Exception_Schema as Database_Exception_Schema;
-use \Exception_Invalid as Exception_Invalid;
-use \Exception_Semantics as Exception_Semantics;
-use zesk\text as text;
+use zesk\Database_Table as Database_Table;
+use zesk\Database_Column as Database_Column;
+use zesk\Database_Index as Database_Index;
+use zesk\Database_Exception_Schema as Database_Exception_Schema;
+use zesk\Exception_Invalid;
+use zesk\Exception_Semantics as Exception_Semantics;
+use zesk\Text as text;
 use zesk\arr as arr;
 use zesk\str as str;
 
@@ -17,7 +17,7 @@ use zesk\str as str;
  * @author kent
  *
  */
-class Database_SQL extends \Database_SQL {
+class Database_SQL extends \zesk\Database_SQL {
 	public function alter_table_column_add(Database_Table $table, Database_Column $db_col_new) {
 		$newName = $db_col_new->name();
 		$newType = $this->database_column_native_type($db_col_new);
@@ -102,7 +102,7 @@ class Database_SQL extends \Database_SQL {
 	/**
 	 * (non-PHPdoc)
 	 *
-	 * @see Database::sql_alter_table_column_drop()
+	 * @see zesk\Database::sql_alter_table_column_drop()
 	 */
 	public function alter_table_column_drop(Database_Table $table, $dbColName) {
 		return "ALTER TABLE " . $this->quote_table($table->name()) . " DROP COLUMN " . $this->quote_column($dbColName);
@@ -111,7 +111,7 @@ class Database_SQL extends \Database_SQL {
 	/**
 	 * (non-PHPdoc)
 	 *
-	 * @see Database::sql_alter_table_index_drop()
+	 * @see zesk\Database::sql_alter_table_index_drop()
 	 */
 	function alter_table_index_drop(Database_Table $table, Database_Index $index) {
 		$table_name = $table->name();
@@ -195,9 +195,9 @@ class Database_SQL extends \Database_SQL {
 		return "$verb " . $this->quote_table($table) . $where;
 	}
 	public function remove_comments($sql) {
-		$sql = text::remove_line_comments($sql, "--");
-		$sql = text::remove_line_comments($sql, "#");
-		$sql = text::remove_range_comments($sql, "/*", "*/");
+		$sql = Text::remove_line_comments($sql, "--");
+		$sql = Text::remove_line_comments($sql, "#");
+		$sql = Text::remove_range_comments($sql, "/*", "*/");
 		return $sql;
 	}
 	function function_ip2long($value) {

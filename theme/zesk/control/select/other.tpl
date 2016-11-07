@@ -8,7 +8,7 @@
 		</button>
 		<ul class="dropdown-menu"><?php
 		foreach ($this->control_options as $value => $label) {
-			echo html::tag('li', html::tag('a', array(
+			echo HTML::tag('li', HTML::tag('a', array(
 				'onclick' => "$('.form-control', \$(this).parents('.input-group')).val($(this).data('value'));",
 				'data-value' => $value
 			), $label));
@@ -22,6 +22,6 @@
 	) + $this->widget->data_attributes() + $this->widget->input_attributes() + array(
 		'value' => $this->value
 	);
-	echo html::tag('input', $input_attributes, null);
+	echo HTML::tag('input', $input_attributes, null);
 	?>
 </div>

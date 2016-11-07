@@ -38,7 +38,7 @@ class cdn {
 				break;
 			}
 		}
-		return dir::strip_slash($prefix) . '/' . ltrim($uri, '/');
+		return Directory::strip_slash($prefix) . '/' . ltrim($uri, '/');
 	}
 	public static function path($uri = "") {
 		$prefix = avalue(self::$defaults, 1, '');
@@ -87,12 +87,12 @@ class cdn {
 		$variables = array();
 		if (preg_match_all('/{([^}]+)}/', $pattern, $matches, PREG_SET_ORDER)) {
 			if ($create) {
-				throw new \Exception_Semantics("Can not create directory when pattern contains variables: $pattern");
+				throw new Exception_Semantics("Can not create directory when pattern contains variables: $pattern");
 			}
 			foreach ($matches as $match) {
 				list($full_match, $variable) = $match;
 				if (in_array($variable, $variables)) {
-					throw new \Exception_Semantics("Variable $variable appears twice in input pattern: $pattern");
+					throw new Exception_Semantics("Variable $variable appears twice in input pattern: $pattern");
 				}
 				$variables[] = $variable;
 				$index = count($variables);
@@ -104,10 +104,10 @@ class cdn {
 			if (!is_dir($root_dir)) {
 				if ($create) {
 					global $zesk;
-					dir::create($root_dir, 0775);
+					Directory::create($root_dir, 0775);
 					$zesk->hooks->call("directory_created", $root_dir);
 				}
-				throw new \Exception_Directory_NotFound($root_dir);
+				throw new Exception_Directory_NotFound($root_dir);
 			}
 		}
 		if (empty($pattern)) {

@@ -1,6 +1,9 @@
 <?php
-
-use zesk\Timestamp as Timestamp;
+/**
+ * 
+ */
+use zesk\Timestamp;
+use zesk\Directory;
 
 /**
  * The health module monitors your application health and helps to diagnose issues across a larger server farm by
@@ -20,7 +23,7 @@ class Module_Health extends Module {
 		parent::initialize();
 		$this->disabled = $this->option_bool("disabled");
 		$this->path = $path = $this->option("event_path", zesk::data_path("health-events"));
-		dir::depend($path);
+		Directory::depend($path);
 		set_error_handler(array(
 			$this,
 			"error_handler"
@@ -138,7 +141,7 @@ class Module_Health extends Module {
 		if ($this->disabled) {
 			return;
 		}
-		$event = $this->hook_array("log", array(
+		$event = $this->call_hook_arguments("log", array(
 			$event
 		), $event);
 		$event_object = Health_Event::event_log($event, $this->path);

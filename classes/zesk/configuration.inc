@@ -1,5 +1,4 @@
 <?php
-
 namespace zesk;
 
 class Configuration implements \Iterator, \Countable, \ArrayAccess {
@@ -193,6 +192,12 @@ class Configuration implements \Iterator, \Countable, \ArrayAccess {
 	 * @return mixed
 	 */
 	public function get($key, $default = null) {
+		if (strpos($key, "-")) {
+			zesk()->logger->error("Fetching key {key} with dash from {func}", array(
+				"key" => $key,
+				"func" => calling_function(2)
+			));
+		}
 		$key = strtolower($key);
 		return isset($this->_data[$key]) ? $this->_data[$key] : $default;
 	}
@@ -223,6 +228,19 @@ class Configuration implements \Iterator, \Countable, \ArrayAccess {
 		$result = array();
 		foreach ($paths as $path => $value) {
 			$result[$path] = $this->pave_set($path, $value);
+		}
+		return $result;
+	}
+	/**
+	 * Get multiple paths at once, using the key value as the default value
+	 * 
+	 * @param array $paths
+	 * @return array
+	 */
+	public function paths_get(array $paths) {
+		$result = array();
+		foreach ($paths as $path => $default) {
+			$result[$path] = $this->path_get($path, $default);
 		}
 		return $result;
 	}
@@ -519,8 +537,14 @@ class Configuration implements \Iterator, \Countable, \ArrayAccess {
 	public final function deprecated($old_path, $new_path) {
 		if ($this->path_exists($old_path) && !$this->path_exists($new_path)) {
 			$this->pave_set($new_path, $this->path_get($old_path));
+			if (is_array($old_path)) {
+				$old_path = implode(self::key_separator, $old_path);
+			}
+			if (is_array($new_path)) {
+				$new_path = implode(self::key_separator, $new_path);
+			}
 			zesk()->logger->warning("Global configuration option {old_path} is deprecated, use {new_path}", compact("old_path", "new_path"));
-			\zesk::deprecated();
+			zesk()->deprecated("$old_path no longer in use, use $new_path");
 		}
 	}
 }

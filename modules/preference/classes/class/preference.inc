@@ -1,12 +1,12 @@
 <?php
 /**
- * @version $Id: preference.inc 2403 2014-04-03 04:25:41Z kent $
+ * @version $Id: preference.inc 4094 2016-10-29 19:41:50Z kent $
  * @package zesk
  * @subpackage user
  * @author Kent Davidson <kent@marketacumen.com>
  * @copyright Copyright &copy; 2013, Market Acumen, Inc.
  */
-class Class_Preference extends Class_Object {
+class Class_Preference extends zesk\Class_Object {
 
 	public $id_column = "id";
 

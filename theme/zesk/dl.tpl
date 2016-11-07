@@ -13,11 +13,11 @@ foreach ($pairs as $name => $value) {
 		continue;
 	}
 	$class = ($index % 2 === 0) ? ".even" : ".odd";
-	$result .= html::tag('dt', $class, $name);
-	$result .= html::tag('dd', $class, is_array($value) ? $this->theme('dl', array(
+	$result .= HTML::tag('dt', $class, $name);
+	$result .= HTML::tag('dd', $class, is_array($value) ? $this->theme('dl', array(
 		'content' => $value
 	)) : strval($value));
 	$index = $index + 1;
 }
 
-echo html::etag('dl', $result);
+echo HTML::etag('dl', $result);

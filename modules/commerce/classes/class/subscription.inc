@@ -1,6 +1,6 @@
 <?php
 
-class Class_Subscription extends Class_Object {
+class Class_Subscription extends zesk\Class_Object {
 	public $id_column = "id";
 
 }

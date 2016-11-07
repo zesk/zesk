@@ -7,12 +7,17 @@
  * @copyright Copyright &copy; 2009, Market Acumen, Inc.
  * Created on Sun Apr 04 21:44:56 EDT 2010 21:44:56
  */
-class Control_Email extends Control_Text {
+use zesk\arr;
 
+/**
+ * 
+ * @author kent
+ *
+ */
+class Control_Email extends Control_Text {
 	function accept_list($set = null) {
 		return $set !== null ? $this->set_option('accept_list', to_bool($set)) : $this->option_bool('accept_list');
 	}
-
 	function validate() {
 		$temp = parent::validate();
 		$v = $this->value();

@@ -1,5 +1,12 @@
 <?php
+/**
+ * @copyright &copy; 2016 Market Acumen, Inc.
+ */
 
-class Controller_Share extends Zesk_Controller_Share {
-
-}
+/**
+ * Override in applications to add custom behavior
+ * 
+ * @author kent
+ *
+ */
+class Controller_Share extends zesk\Controller_Share {}

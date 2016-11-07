@@ -1,13 +1,38 @@
 <?php
+/**
+ * @copyright &copy; 2016 Market Acumen, Inc.
+ */
+namespace zesk;
+
+if (false) {
+	/* @var $this Template */
+	
+	$zesk = $this->zesk;
+	/* @var $zesk \zesk\Kernel */
+	
+	$application = $this->application;
+	/* @var $application \zesk\Application */
+	
+	$session = $this->session;
+	/* @var $session \zesk\Session */
+	
+	$router = $this->router;
+	/* @var $request \zesk\Router */
+	
+	$request = $this->request;
+	/* @var $request \zesk\Request */
+	
+	$response = $this->response;
+	/* @var $response \zesk\Response_Text_HTML */
+}
+
 // behavior/visibility
+	// Options:
+	// - hide_values
+	// - show_values
 
 
-// Options:
-// - hide_values
-// - show_values
-
-
-/* @var $response Response_HTML */
+/* @var $response zesk\Response_Text_HTML */
 $response = $this->response;
 /* @var $widget Widget */
 $widget = $this->widget;
@@ -19,17 +44,17 @@ $show_values = $this->show_values;
 if ($hide_values === null) {
 	$map['hide_value_expression'] = 'null';
 } else {
-	$map['hide_value_expression'] = json::encode(to_list($this->hide_values)) . '.contains(val)';
+	$map['hide_value_expression'] = JSON::encode(to_list($this->hide_values)) . '.contains(val)';
 }
 if ($show_values === null) {
 	$map['show_value_expression'] = 'null';
 } else {
-	$map['show_value_expression'] = json::encode(to_list($show_values)) . '.contains(val)';
+	$map['show_value_expression'] = JSON::encode(to_list($show_values)) . '.contains(val)';
 }
 
 $id = $widget->id();
 if (!$id) {
-	log::warning("Template behavior/visibility missing source ID");
+	$zesk->logger->warning("Template behavior/visibility missing source ID");
 	return;
 }
 $map['id'] = "#$id";
@@ -47,7 +72,7 @@ $durations = array(
 if (!is_numeric($duration)) {
 	$duration = avalue($durations, $duration, $durations['default']);
 }
-$map['duration'] = json::encode($duration);
+$map['duration'] = JSON::encode($duration);
 $effects = array(
 	'default' => array(
 		'effect-show' => 'show',

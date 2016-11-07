@@ -1035,11 +1035,11 @@ class test_arr extends Test_Unit {
 		);
 		$path = "path.to.the.deep.portion";
 		$default = null;
-		$this->assert(arr::path($array, $path, $default) === 1231242);
+		$this->assert(apath($array, $path, $default) === 1231242);
 		$path = "path.to.the.funzone";
-		$this->assert(arr::path($array, $path, $default) === "pigeon");
+		$this->assert(apath($array, $path, $default) === "pigeon");
 		$path = "path.to.the.funzone.thing";
-		$this->assert(arr::path($array, $path, "uh-uh") === "uh-uh");
+		$this->assert(apath($array, $path, "uh-uh") === "uh-uh");
 	}
 	function test_stristr() {
 		$haystack = "A rather long sentence";

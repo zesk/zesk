@@ -8,7 +8,10 @@
  * @author kent
  * @copyright &copy; 2014 Market Acumen, Inc.
  */
-class Module_Content extends Module implements Module_Interface_Head {
+
+use zesk\arr;
+
+class Module_Content extends Module implements \zesk\Interface_Module_Head {
 	private static $all_classes = array(
 		'Content_Article' => 'article',
 		'Content_Data' => 'data',
@@ -50,9 +53,9 @@ class Module_Content extends Module implements Module_Interface_Head {
 	/**
 	 * 
 	 * @param Request $request
-	 * @param Response_HTML $response
+	 * @param zesk\Response_Text_HTML $response
 	 */
-	public function hook_head(Request $request, Response_HTML $response, Template $template) {
+	public function hook_head(zesk\Request $request, zesk\Response_Text_HTML $response, zesk\Template $template) {
 		$response->cdn_css("/share/content/css/content.css", array(
 			"share" => true
 		));

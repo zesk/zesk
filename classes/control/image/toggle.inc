@@ -30,7 +30,7 @@ class Control_Image_Toggle extends Control {
 			"style" => null
 		));
 		$div_attrs['id'] = $id;
-		$content = html::tag("div", $div_attrs, html::img(avalue($js_object, $prefix . "_src"), avalue($js_object, $prefix . "_alt"), $attrs));
+		$content = HTML::tag("div", $div_attrs, HTML::img(avalue($js_object, $prefix . "_src"), avalue($js_object, $prefix . "_alt"), $attrs));
 		$this->response->jquery('$(\'#' . $id . '\').toggleImage(' . json_encode($js_object) . ');');
 
 		return $content;

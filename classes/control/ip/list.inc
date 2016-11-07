@@ -63,18 +63,18 @@ class Control_IP_List extends Control {
 			$err_attrs = $attrs;
 			$err_attrs['name'] = $name . '_errors';
 			$err_attrs['id'] = $col . '_ip_list_errors';
-			$errors = html::tag("div", array(
+			$errors = HTML::tag("div", array(
 				"class" => "ip-list ip-list-errors"
-			), html::tag("div", array(
+			), HTML::tag("div", array(
 				"class" => "ip-list-textarea"
-			), html::tag("textarea", $err_attrs, implode("\n", $this->ErrorIPs))) . html::etag("label", false, $this->option("error_ip_list_label", "Errors")));
+			), HTML::tag("textarea", $err_attrs, implode("\n", $this->ErrorIPs))) . HTML::etag("label", false, $this->option("error_ip_list_label", "Errors")));
 		}
-		$result = html::tag("div", array(
+		$result = HTML::tag("div", array(
 			"class" => "ip-list"
-		), html::tag("div", array(
+		), HTML::tag("div", array(
 			"class" => "ip-list-textarea"
-		), html::tag("textarea", $attrs, $this->value()) . $add_ip) . html::etag("label", false, $this->option("ip_list_label", ""))) . $errors;
-		$result = html::tag("div", array(
+		), HTML::tag("textarea", $attrs, $this->value()) . $add_ip) . HTML::etag("label", false, $this->option("ip_list_label", ""))) . $errors;
+		$result = HTML::tag("div", array(
 			"class" => "ip-list-widget"
 		), $result);
 		return $result;

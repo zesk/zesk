@@ -6,7 +6,7 @@
  * @author kent
  *
  */
-class Class_IPBan extends Class_Object {
+class Class_IPBan extends zesk\Class_Object {
 
 	/**
 	 * ID column

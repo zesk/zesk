@@ -1,4 +1,9 @@
 <?php
+/**
+ * 
+ */
+use zesk\HTML;
+use zesk\arr;
 
 /* $var $widget Control_Checklist */
 $widget = $this->widget;
@@ -12,7 +17,7 @@ $name = $widget->name();
 /* @var $object Object */
 $object = $this->object;
 
-echo html::input_hidden($name . '_sv', 1);
+echo HTML::input_hidden($name . '_sv', 1);
 
 $exclusives = array();
 $inputs = array();
@@ -26,14 +31,14 @@ foreach ($this->children as $child) {
 
 $columns = intval($this->columns);
 if ($columns > 1) {
-	echo html::div_open('.row');
+	echo HTML::div_open('.row');
 	$columns = clamp(2, $columns, 12);
 	$columns = avalue(arr::flip_copy(to_list("2;3;4;6;12")), $columns, 12);
 	$n_per = ceil(count($inputs) / $columns);
 	for($i = 0; $i < $columns; $i++) {
-		echo html::tag('div', '.col-sm-' . intval(12 / $columns), implode("\n", array_slice($inputs, $i * $n_per, $n_per)));
+		echo HTML::tag('div', '.col-sm-' . intval(12 / $columns), implode("\n", array_slice($inputs, $i * $n_per, $n_per)));
 	}
-	echo html::div_close();
+	echo HTML::div_close();
 } else {
 	echo implode("\n", $inputs);
 }
@@ -60,6 +65,6 @@ if (count($exclusives) > 0) {
 		$("{exclusives}").on("click", update).each(update);
 	}(window.jQuery));
 	</script><?php
-	$content = html::extract_tag_contents("script", map(ob_get_clean(), $map));
+	$content = HTML::extract_tag_contents("script", map(ob_get_clean(), $map));
 	$this->response->jquery($content);
 }

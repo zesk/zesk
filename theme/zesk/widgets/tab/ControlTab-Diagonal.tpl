@@ -3,7 +3,7 @@
  * $URL$
  */
 
-html::cdn_css("/share/zesk/widgets/tab/diagonal/tabs-diagonal.css");
+HTML::cdn_css("/share/zesk/widgets/tab/diagonal/tabs-diagonal.css");
 
 ?><div class="tabs-diagonal"><img
 class="screen" alt="" src="<?php echo cdn::url("/share/zesk/widgets/tab/diagonal/tabo.gif") ?>" width="20" height="20" border="0" /><?

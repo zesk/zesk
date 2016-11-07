@@ -4,7 +4,7 @@
  * @author kent
  * @see Content_Data
  */
-class Class_Content_Data extends Class_Object {
+class Class_Content_Data extends zesk\Class_Object {
 	public $id_column = "id";
 
 	public $column_types = array(

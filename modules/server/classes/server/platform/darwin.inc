@@ -1,4 +1,14 @@
 <?php
+/**
+ * 
+ */
+use zesk\Directory;
+
+/**
+ * 
+ * @author kent
+ *
+ */
 class Server_Platform_Darwin extends Server_Platform_UNIX {
 	/**
 	 * Root group
@@ -317,7 +327,7 @@ class Server_Platform_Darwin extends Server_Platform_UNIX {
 			if ($this->root_volume_name !== null) {
 				return $this->root_volume_name;
 			}
-			foreach (dir::ls("/Volumes", null, true) as $path) {
+			foreach (Directory::ls("/Volumes", null, true) as $path) {
 				if (!is_link($path)) {
 					continue;
 				}
@@ -354,7 +364,7 @@ class Server_Platform_Darwin extends Server_Platform_UNIX {
 				"path" => $path
 			));
 		}
-		dir::depend($path, $mode);
+		Directory::depend($path, $mode);
 		return $path;
 	}
 

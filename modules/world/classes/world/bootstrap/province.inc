@@ -6,6 +6,10 @@
  * @author Kent Davidson <kent@marketacumen.com>
  * @copyright Copyright &copy; 2008, Market Acumen, Inc.
  */
+use zesk\str;
+use zesk\arr;
+use zesk\Options;
+use zesk\Application;
 
 /**
  * ProvinceCode registers US State/Provinces.
@@ -16,13 +20,13 @@
  * @subpackage system
  */
 class World_Bootstrap_Province extends Options {
-
+	
 	/**
 	 *
 	 * @var array
 	 */
 	private $include_country = null;
-
+	
 	/**
 	 *
 	 * @param array $options
@@ -31,7 +35,7 @@ class World_Bootstrap_Province extends Options {
 	public static function factory(array $options = array()) {
 		return zesk::factory(__CLASS__, $options);
 	}
-
+	
 	/**
 	 * @global Module_World::include_country List of country codes to include
 	 *
@@ -45,20 +49,18 @@ class World_Bootstrap_Province extends Options {
 			$this->include_country = array_change_key_case(arr::flip_assign(to_list($include_country), true));
 		}
 	}
-
 	private function is_included(Country $country) {
 		if ($this->include_country) {
 			return avalue($this->include_country, strtolower($country->code), false);
 		}
 		return true;
 	}
-
 	public function bootstrap(Application $application) {
 		$x = $application->object_factory(str::unprefix(__CLASS__, "World_Bootstrap_"));
 		if ($this->option_bool("drop")) {
 			$x->database()->query('TRUNCATE ' . $x->table());
 		}
-
+		
 		$countries = array(
 			"US" => self::_province_us(),
 			"CA" => self::_province_ca()
@@ -81,7 +83,6 @@ class World_Bootstrap_Province extends Options {
 			}
 		}
 	}
-
 	private static function _province_ca() {
 		/* From: http://canadaonline.about.com/library/bl/blpabb.htm */
 		return array(

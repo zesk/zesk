@@ -57,8 +57,8 @@ class Control_Select_Object_Hierarchy extends Control_Select {
 		return $map;
 	}
 	function hook_options() {
-		$where = html::parse_attributes($this->option("where", ""));
-		$where = map($where, html::parse_attributes($this->option("default_map", "")));
+		$where = HTML::parse_attributes($this->option("where", ""));
+		$where = map($where, HTML::parse_attributes($this->option("default_map", "")));
 
 		$idcolumn = $this->id_column();
 		$textcolumn = $this->text_column();

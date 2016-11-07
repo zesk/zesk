@@ -1,14 +1,36 @@
 <?php
+
+/**
+ * 
+ * @author kent
+ *
+ */
 class Controller_Forgot extends Controller_Template {
+	/**
+	 * 
+	 */
 	function action_index() {
 		$this->control($this->widget_factory("Control_Forgot"));
 	}
+	
+	/**
+	 * 
+	 */
 	function action_unknown() {
 		$this->template->content = $this->application->theme('forgot/unknown');
 	}
+	
+	/**
+	 * 
+	 */
 	function action_sent() {
 		$this->template->content = $this->application->theme('forgot/sent');
 	}
+	
+	/**
+	 * 
+	 * @param unknown $hash
+	 */
 	function action_validate($hash) {
 		if (!preg_match('/[0-9a-f]{32}/i', $hash)) {
 			$this->template->content = $this->application->theme('forgot/not-found', array(
@@ -31,7 +53,7 @@ class Controller_Forgot extends Controller_Template {
 		/* @var $user User */
 		$user = $forgot->user;
 		if (!$user instanceof User) {
-			$this->template->content = $this->application->theme('forgot/not-found', array(
+			$this->template->content = $forgot->theme('forgot/not-found', array(
 				"message_type" => "user-not-found",
 				"message" => "User not found."
 			));
@@ -39,16 +61,16 @@ class Controller_Forgot extends Controller_Template {
 		}
 		$session = Session::instance();
 		if ($forgot->id() !== $session->forgot) {
-			$this->template->content = $this->application->theme('forgot/same-browser');
+			$this->template->content = $forgot->theme('same-browser');
 			return;
 		}
 		if (!$forgot->member_is_empty('updated')) {
-			$this->template->content = $this->application->theme("forgot/already");
+			$this->template->content = $forgot->theme("already");
 			return;
 		}
 		
 		$forgot->validated();
 		
-		$this->template->content = $this->application->theme("forgot/success");
+		$this->template->content = $forgot->theme("success");
 	}
 }

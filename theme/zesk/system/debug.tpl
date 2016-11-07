@@ -1,36 +1,27 @@
 <?php
-if (false) {
-	/* @var $this Template */
-	
-	$zesk = $this->zesk;
-	/* @var $zesk zesk\Kernel */
-	
-	$application = $this->application;
-	/* @var $application TimeBank */
-	
-	$session = $this->session;
-	/* @var $session Session */
-	
-	$request = $this->request;
-	/* @var $request Request */
-	
-	$response = $this->response;
-	/* @var $response Response_HTML */
-	
-	$current_user = $this->current_user;
-	/* @var $current_user User */
-}
-/* @var $session Session_Database */
+/**
+ * @copyright &copy; 2016 Market Acumen, Inc.
+ */
+namespace zesk;
+
+/* @var $this \zesk\Template */
+/* @var $zesk \zesk\Kernel */
+/* @var $application \zesk\Application */
+/* @var $session \zesk\Session */
+/* @var $request \zesk\Router */
+/* @var $request \zesk\Request */
+/* @var $response \zesk\Response_Text_HTML */
+/* @var $session \Session_Database */
 $session = $this->session;
 if (!$session) {
 	try {
-		$session = Session::instance();
+		$session = \Session::instance();
 	} catch (Exception $e) {
 	}
 }
 ?>
 <h1>Cookie</h1>
-<pre><?php echo php::dump($_COOKIE); ?></pre>
+<pre><?php echo PHP::dump($_COOKIE); ?></pre>
 <h1>Session</h1>
 <?php
 $login = "<em>None</em>";
@@ -44,26 +35,34 @@ if ($session && $session->authenticated()) {
 echo $login;
 ?>
 <pre>
-<?php echo $session ? php::dump($session->variables()) : "<em>no session</em>"?>
+<?php echo $session ? PHP::dump($session->variables()) : "<em>no session</em>"?>
 </pre>
 <h1>$_REQUEST</h1>
 <pre>
-<?php echo php::dump($_REQUEST); ?>
+<?php echo PHP::dump($_REQUEST); ?>
 </pre>
 <h1>Autoload Path</h1>
-<?php echo html::tag('ul', html::tags('li', array_keys($zesk->autoloader->path()))); ?>
+<?php echo HTML::tag('ul', HTML::tags('li', array_keys($zesk->autoloader->path()))); ?>
 <h1>Globals</h1>
 <pre>
-<?php echo php::dump($zesk->configuration->to_array()); ?>
+<?php echo PHP::dump($zesk->configuration->to_array()); ?>
 </pre>
 <h1>$_SERVER</h1>
 <pre>
-<?php echo php::dump($_SERVER); ?>
+<?php echo PHP::dump($_SERVER); ?>
 </pre>
+<h1>Share Paths</h1>
+<?php
+echo HTML::tag('ul', HTML::tags('li', $application->share_path()));
+?>
+<h1>Theme Paths</h1>
+<?php
+echo HTML::tag('ul', HTML::tags('li', $application->theme_path()));
+?>
 <h1>Databases</h1>
-<p>Default database is <?php echo html::tag('strong', Database::database_default()); ?></p>
+<p>Default database is <?php echo HTML::tag('strong', Database::database_default()); ?></p>
 <pre>
-<?php echo text::format_pairs(Database::register())?>
+<?php echo Text::format_pairs(Database::register())?>
 </pre>
 <h1>Hooks</h1>
 <pre>

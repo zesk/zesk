@@ -9,6 +9,7 @@
  * @global string Application::class Set this to the application class to install (if not the default)
  * @category Management
  */
+use zesk\Database_Schema;
 
 /**
  * Install all application classes by running their installation code
@@ -18,7 +19,7 @@ class Command_Install extends Command_Base {
 	function run() {
 		/* @var $application Application */
 		$application = Application::instance();
-
+		
 		/*
 		 * Load the classes for the appliation, and create all of the objects Check to make sure all database schemas
 		 * are up to date. If not, exit.
@@ -54,7 +55,7 @@ class Command_Install extends Command_Base {
 			echo implode("\n", $errors) . "\n";
 			exit(1);
 		}
-
+		
 		/*
 		 * Now, reorder the classes based on dependencies within them.
 		 */
@@ -65,7 +66,7 @@ class Command_Install extends Command_Base {
 			$requires = $conflicts = $install_before = $install_after = array();
 			$dependencies = $object->dependencies();
 			extract($dependencies, EXTR_IF_EXISTS);
-
+			
 			$requires = to_list($requires);
 			foreach ($requires as $require_class) {
 				$require = avalue($objects_by_class, $require_class);
@@ -73,14 +74,14 @@ class Command_Install extends Command_Base {
 					$errors[] = "Require_Class:$require_class required by $class";
 				}
 			}
-
+			
 			$conflicts = to_list($conflicts);
 			foreach ($conflicts as $conflict) {
 				if (array_key_exists($conflict, $objects_by_class)) {
 					$errors[] = "$class conflicts with $conflict";
 				}
 			}
-
+			
 			/**
 			 * Install $class before $before list
 			 */
@@ -96,13 +97,13 @@ class Command_Install extends Command_Base {
 			}
 			$object->set_option('installed_tag', false);
 		}
-
+		
 		if (count($errors) > 0) {
 			fwrite(STDERR, "Object_Errors: Conflicts and errors found\n");
 			echo implode("\n", $errors) . "\n";
 			exit(1);
 		}
-
+		
 		$ordered_objects = array();
 		foreach ($objects_by_class as $object) {
 			$errors = $this->order_walk_object($object, $ordered_objects);
@@ -112,17 +113,17 @@ class Command_Install extends Command_Base {
 			echo implode("\n", $errors) . "\n";
 			exit(1);
 		}
-
+		
 		foreach (array(
 			'pre_install',
 			'install',
 			'post_install'
 		) as $method_name) {
-			$application->hook($method_name . "_begin");
+			$application->call_hook($method_name . "_begin");
 			foreach ($ordered_objects as $object) {
 				if (method_exists($object, $method_name)) {
 					if ($object instanceof Hookable) {
-						$object->hook($method_name);
+						$object->call_hook($method_name);
 					}
 					if ($this->option_bool('verbose')) {
 						echo "== $object $method_name\n";
@@ -130,7 +131,7 @@ class Command_Install extends Command_Base {
 					$object->$method_name();
 				}
 			}
-			$application->hook($method_name . "_end");
+			$application->call_hook($method_name . "_end");
 		}
 	}
 	function order_walk_object(Object $object, array &$ordered_objects) {
@@ -154,10 +155,10 @@ class Command_Install extends Command_Base {
 				}
 			}
 		}
-
+		
 		$ordered_objects[] = $object;
 		$object->set_option('installed_tag', true);
-
+		
 		$object_list = $object->option('install_next');
 		$object->set_option('install_next');
 		if (is_array($object_list)) {

@@ -7,7 +7,7 @@ class Module_JQuery_File_Upload extends Module {
 	 * @param Request $request
 	 * @param Response $response
 	 */
-	public static function head(Request $request, Response $response) {
+	public static function head(zesk\Request $request, Response $response) {
 		$response->jquery();
 		$response->javascript("/share/jquery_file_upload/js/jquery.fileupload.js");
 	}
@@ -18,7 +18,7 @@ class Module_JQuery_File_Upload extends Module {
 	 * @param Request $request
 	 * @param Response $response
 	 */
-	public function hook_routes(Router $router) {
+	public function hook_routes(zesk\Router $router) {
 		$router->add_route("jquery_file_upload", array(
 			"controller" => "JQuery_File_Upload"
 		));

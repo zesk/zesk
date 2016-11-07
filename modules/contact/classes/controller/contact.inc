@@ -1,7 +1,7 @@
 <?php
 /**
  *
- * @version $Id: contact.inc 2159 2014-02-13 20:14:21Z kent $
+ * @version $Id: contact.inc 4046 2016-09-17 16:13:00Z kent $
  * @package zesk
  * @subpackage controllers
  * @author kent
@@ -26,7 +26,7 @@ class Controller_Contact extends Controller_Template_Login {
 		}
 		$vars = array();
 		$vars['title'] = $person->fullName();
-		$vars['content'] = html::tag('div', '.contact-edit', $content);
+		$vars['content'] = HTML::tag('div', '.contact-edit', $content);
 
 		$this->template->set($vars + $this->variables());
 	}
@@ -65,14 +65,14 @@ class Controller_Contact extends Controller_Template_Login {
 		}
 		$vars = array();
 		// $vars['title'] = $person->fullName();
-		$vars['content'] = html::tag('div', '.pblist', $content);
+		$vars['content'] = HTML::tag('div', '.pblist', $content);
 
 		$this->template->body = Template::instance('blocks/section-top.tpl', $vars + $this->variables());
 	}
 	function action_list() {
 		$options = array();
 
-		$options['empty_list_string'] = html::tag('div', '.padding', __("No contacts match your query.") . ' ' . html::a(url::current_left_path(), __("View all contacts")));
+		$options['empty_list_string'] = HTML::tag('div', '.padding', __("No contacts match your query.") . ' ' . HTML::a(URL::current_left_path(), __("View all contacts")));
 		$widget = new Control_Contact_List($options);
 		$content = $widget->execute();
 
@@ -87,8 +87,8 @@ class Controller_Contact extends Controller_Template_Login {
 			$title = $template->get("tag_title", __('All contacts'));
 
 			$vars['title'] = $title;
-			$vars['upper_right'] = html::a('/contact/new', __("Add a new contact"));
-			$vars['content'] = html::tag('div', '.contact-list', $content);
+			$vars['upper_right'] = HTML::a('/contact/new', __("Add a new contact"));
+			$vars['content'] = HTML::tag('div', '.contact-list', $content);
 		}
 
 		$this->template->set($vars + $this->variables());

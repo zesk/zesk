@@ -1,8 +1,30 @@
 <?php
-/* @var $this Template */
+/**
+ * @copyright &copy; 2016 Market Acumen, Inc.
+ */
+namespace zesk;
 
-/* @var $response Response_HTML */
-$response = $this->response;
+if (false) {
+	/* @var $this Template */
+	
+	$zesk = $this->zesk;
+	/* @var $zesk \zesk\Kernel */
+	
+	$application = $this->application;
+	/* @var $application \zesk\Application */
+	
+	$session = $this->session;
+	/* @var $session \zesk\Session */
+	
+	$router = $this->router;
+	/* @var $request \zesk\Router */
+	
+	$request = $this->request;
+	/* @var $request \zesk\Request */
+	
+	$response = $this->response;
+	/* @var $response \zesk\Response_Text_HTML */
+}
 
 if (!is_array($this->items)) {
 	return;
@@ -15,8 +37,8 @@ if ($this->has('selected')) {
 	$selected = $this->selected;
 }
 
-echo html::tag_open('div', array(
-	'id' => $id, 
+echo HTML::tag_open('div', array(
+	'id' => $id,
 	'class' => lists::append("slider group", $this->class, ' ')
 ));
 
@@ -32,13 +54,13 @@ foreach ($this->items as $name => $item) {
 		$startPanel = $index;
 	}
 	$item_attributes = array(
-		'id' => $id, 
+		'id' => $id,
 		'class' => lists::append('slider-item', $this->item_class, ' ')
 	) + $this->geta('item_attributes', array());
-	echo html::tag('div', $item_attributes, $item);
+	echo HTML::tag('div', $item_attributes, $item);
 	$index++;
 }
-echo html::tag_close('div');
+echo HTML::tag_close('div');
 
 if ($startPanel !== null) {
 	$slider_options['startPanel'] = $startPanel;
@@ -47,5 +69,5 @@ $slider_options = zesk()->hooks->call_arguments('slider_options_alter', array(
 	$slider_options
 ), $slider_options);
 
-$response->jquery("\$('#$id').anythingSlider(" . json::encode($slider_options) . ");");
+$response->jquery("\$('#$id').anythingSlider(" . JSON::encode($slider_options) . ");");
 $response->cdn_javascript('share/anythingslider/js/jquery.anythingslider.min.js');

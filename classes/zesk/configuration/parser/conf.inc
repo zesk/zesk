@@ -15,20 +15,17 @@ class Configuration_Parser_CONF extends Configuration_Parser {
 	);
 	
 	/**
-	 *
 	 */
 	public function initialize() {
 	}
 	
 	/**
-	 *
 	 */
 	public function validate() {
 		return true;
 	}
 	
 	/**
-	 *
 	 */
 	public function process() {
 		$separator = $lower = $trim_key = $unquote = $trim_value = $autotype = $overwrite = $multiline = null;
@@ -48,17 +45,27 @@ class Configuration_Parser_CONF extends Configuration_Parser {
 			}
 			$append = false;
 			list($key, $value) = $parse_result;
+			/**
+			 * Parse and normalize key
+			 */
 			if (ends($key, '[]')) {
 				$key = str::unsuffix($key, "[]");
 				$append = true;
 			}
 			$found_quote = null;
+			$key = strtr($key, array(
+				"___" => "\\",
+				"__" => "::"
+			));
+			/**
+			 * Parse and normalize value
+			 */
 			if ($unquote) {
 				$value = unquote($value, $unquote, $found_quote);
 			}
 			$dependencies = array();
 			if ($found_quote !== "'") {
-				$value = bash::substitute($value, $settings, $dependencies);
+				$value = BASH::substitute($value, $settings, $dependencies);
 			}
 			if (!$found_quote) {
 				if ($autotype) {
@@ -92,8 +99,9 @@ class Configuration_Parser_CONF extends Configuration_Parser {
 	
 	/**
 	 * Handle include files specially
-	 * 
-	 * @param string $file Name of additional include file
+	 *
+	 * @param string $file
+	 *        	Name of additional include file
 	 */
 	private function handle_include($file) {
 		if (file::is_absolute($file)) {
@@ -113,7 +121,7 @@ class Configuration_Parser_CONF extends Configuration_Parser {
 	/**
 	 * Allow multi-line settings by placing additional lines beginning with whitespace
 	 *
-	 * @param array $lines
+	 * @param array $lines        	
 	 */
 	private static function join_lines(array $lines) {
 		$result = array(
@@ -136,7 +144,8 @@ class Configuration_Parser_CONF extends Configuration_Parser {
 	
 	/**
 	 * Shared by Configuration_Editor_CONF
-	 * @param string $line
+	 *
+	 * @param string $line        	
 	 * @return array
 	 */
 	public function parse_line($line) {

@@ -23,4 +23,4 @@ foreach ($strings as $unit => $format) {
 		return;
 	}
 }
-echo html::span(".currently-online", __('Currently online'));
+echo HTML::span(".currently-online", __('Currently online'));

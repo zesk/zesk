@@ -1,24 +1,25 @@
 <?php
 /**
-* $URL: https://code.marketacumen.com/zesk/trunk/classes/process/interruptable.inc $
-* @package zesk
-* @subpackage system
-* @author Kent Davidson <kent@marketacumen.com>
-* @copyright Copyright &copy; 2008, Market Acumen, Inc.
-*/
+ * $URL: https://code.marketacumen.com/zesk/trunk/classes/process/interruptable.inc $
+ * @package zesk
+ * @subpackage system
+ * @author Kent Davidson <kent@marketacumen.com>
+ * @copyright Copyright &copy; 2008, Market Acumen, Inc.
+ */
+use zesk\Application;
 
 /**
  * For long processes which can be interrupted.
  */
 interface Process_Interruptable {
-
+	
 	/**
 	 * Retrieve current application
 	 *
 	 * @return Application
 	 */
 	public function application(Application $set = null);
-
+	
 	/**
 	 * Getter for done state
 	 *
@@ -26,7 +27,7 @@ interface Process_Interruptable {
 	 *        	boolean
 	 */
 	public function done();
-
+	
 	/**
 	 * Kill/interrupt this process.
 	 * Harsher than ->terminate();
@@ -34,26 +35,25 @@ interface Process_Interruptable {
 	 * @param string $interrupt
 	 */
 	public function kill();
-
+	
 	/**
 	 * Terminate this process.
 	 * Nice way to do it.
 	 */
 	public function terminate();
-
+	
 	/**
 	 * Take a nap.
 	 * I love naps.
 	 */
 	public function sleep($seconds = 1.0);
-
+	
 	/**
 	 * Logging tool for processes
 	 *
 	 * @param string $message
 	 * @param array $args
-	 * @param string $level
 	 */
-	public function log($message, array $args = array(), $level = null);
+	public function log($message, array $args = array());
 }
 

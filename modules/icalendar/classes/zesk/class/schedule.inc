@@ -2,7 +2,12 @@
 
 namespace zesk;
 
-class Class_Schedule extends \Class_Object {
+/**
+ * @see Schedule 
+ * @author kent
+ *
+ */
+class Class_Schedule extends Class_Object {
 	public $id_column = "id";
 	
 	/**

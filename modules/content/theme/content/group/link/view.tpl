@@ -1,3 +1,3 @@
 <?php
 
-echo $this->theme("content/group/view", $this->variables);
+echo $this->theme("content/group/view");

@@ -1,18 +1,31 @@
 <?php
+/**
+ * 
+ */
+namespace zesk;
 
-global $user;
+/* @var $this \zesk\Template */
+/* @var $zesk \zesk\Kernel */
+/* @var $application \zesk\Application */
+/* @var $session \zesk\Session */
+/* @var $router \zesk\Router */
+/* @var $route \zesk\Route */
+/* @var $request \zesk\Request */
+/* @var $response \zesk\Response_Text_HTML */
+/* @var $current_user \User */
+/* @var $object \Content_Video */
+/* @var $class string */
+$class = $this->class;
 
-$x = $this->Object;
+$class = CSS::add_class($class, "video");
 
-$class[] = "video";
-if ($this->get('class')) {
-	$class[] = $this->class;
+/* @var $object Video */
+echo HTML::div_open(array(
+	"class" => $class
+));
+if ($current_user && $current_user->can($object, "edit")) {
+	// TODO This is all wrong
+	echo HTML::a("/manage/video/edit.php?ID=" . $object->id(), HTML::img("/share/images/actions/edit.gif"), true);
 }
-/* @var $x Video */
-?><div class="<?php echo  implode(" ", $class) ?>"><?php
-if ($user && $user->can($x, "edit")) {
-	?><?php echo  a("/manage/video/edit.php?ID=".$x->id(),img("/share/images/actions/edit.gif"),true) ?><?
-}
-?>
 
-</div>
+echo HTML::div_close();

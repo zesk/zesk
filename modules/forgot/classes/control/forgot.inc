@@ -4,10 +4,21 @@
  * @package zesk
  * @subpackage widgets
  * @author Kent Davidson <kent@marketacumen.com>
- * @copyright Copyright &copy; 2008, Market Acumen, Inc.
+ * @copyright Copyright &copy; 2016, Market Acumen, Inc.
  * Created on Tue Jul 15 16:31:01 EDT 2008
  */
+
+/**
+ * 
+ * @author kent
+ *
+ */
 class Control_Forgot extends Control_Edit {
+	/**
+	 * 
+	 * @var string
+	 */
+	protected $class = "Forgot";
 	
 	/**
 	 * Header theme
@@ -38,6 +49,7 @@ class Control_Forgot extends Control_Edit {
 	 */
 	protected $theme_suffix = null; //"control/forgot/suffix";
 	
+
 	/**
 	 * 
 	 * @var array
@@ -78,7 +90,10 @@ class Control_Forgot extends Control_Edit {
 		$w->set_option('confirm', true);
 		$w->required(true);
 		
-		$ww[] = $w = $this->widget_factory('Control_Button')->names('forgot', $this->option("label_button", __("Send me an email")))->add_class('btn-primary btn-block')->nolabel(true);
+		$ww[] = $w = $this->widget_factory('Control_Button')
+			->names('forgot', $this->option("label_button", __("Send me an email")))
+			->add_class('btn-primary btn-block')
+			->nolabel(true);
 		
 		return $ww;
 	}
@@ -91,7 +106,7 @@ class Control_Forgot extends Control_Edit {
 		}
 		/* @var $user User */
 		$this->auth_user = $this->object_factory("User")->login($this->object->login)->find();
-		$this->auth_user = $this->hook_array("find_user", array(
+		$this->auth_user = $this->call_hook_arguments("find_user", array(
 			$this->auth_user
 		), $this->auth_user);
 		if ($this->option_bool('not_found_error', true) && !$this->auth_user) {

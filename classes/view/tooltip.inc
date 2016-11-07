@@ -24,7 +24,7 @@ class View_Tooltip extends View {
 		 */
 		$options = $this->options_include("sensitivity;interval;timeout");
 		$this->response->jquery('$(\'#' + $this->option("target_id") + '\').hoverBubble(\'#' + $id + '\',' . json_encode($options) . ");");
-		return html::tag("div", array(
+		return HTML::tag("div", array(
 			"id" => $id,
 			"style" => "display: none"
 		), $this->value());

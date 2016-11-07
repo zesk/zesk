@@ -1,5 +1,5 @@
 <?php
-class Class_User_Content_Image extends Class_Object {
+class Class_User_Content_Image extends zesk\Class_Object {
 	public $id_column = false;
 	public $primary_keys = array(
 		"user",

@@ -1,5 +1,5 @@
 <?php
-use zesk\Timestamp as Timestamp;
+use zesk\Timestamp;
 
 class Test_Timestamp extends Test_Unit {
 	function test_instance() {
@@ -410,7 +410,7 @@ class Test_Timestamp extends Test_Unit {
 			$this->assert(!$threw, "Exception_Convert was thrown? PHP_VERSION_ID=" . PHP_VERSION_ID);
 			$test_long_date_2 = new Timestamp();
 			$test_long_date_2->unix_timestamp($ts);
-			$this->assert($test_long_date_2->toString() === $test_long_date->toString(), $test_long_date_2->toString() . " === " . $test_long_date->toString());
+			$this->assert($test_long_date_2->__toString() === $test_long_date->__toString(), $test_long_date_2->__toString() . " === " . $test_long_date->__toString());
 		}
 	}
 	function test_difference() {

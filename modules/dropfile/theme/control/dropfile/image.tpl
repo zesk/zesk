@@ -13,7 +13,7 @@ $attributes = array(
 	"data-dropfile-column" => $this->column,
 	"data-dropfile-url" => $this->url_upload
 );
-echo html::tag('div', $attributes, $this->theme('control/dropfile/image/contents', array(
+echo HTML::tag('div', $attributes, $this->theme('control/dropfile/image/contents', array(
 	"object" => $value
 )));
 

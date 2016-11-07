@@ -7,7 +7,9 @@
  * @author Kent Davidson <kent@marketacumen.com>
  * @copyright Copyright &copy; 2008, Market Acumen, Inc.
  */
-zesk::deprecated();
+use zesk\Directory;
+
+zesk()->deprecated();
 
 die("This command is obsolete for the short term.");
 
@@ -101,7 +103,7 @@ function generate_function_test_code($func, $params) {
 			} else {
 				$v = null;
 			}
-			$v = php::dump($v);
+			$v = PHP::dump($v);
 		}
 		$clean_params[] = '$' . $k;
 		$contents[] = '$' . $k . ' = ' . $v . ";";
@@ -253,7 +255,7 @@ function generate_class_tests($file, $dest_path, $class) {
 		$param_list = array();
 		foreach ($params as $k => $v) {
 			$param_list[] = '$' . $k;
-			$contents[] = '$' . $k . ' = ' . php::dump($v) . ";";
+			$contents[] = '$' . $k . ' = ' . PHP::dump($v) . ";";
 		}
 		if (begins($method, "new ")) {
 			$prefix = '$testx = ';
@@ -461,7 +463,7 @@ while (count($argv) > 0) {
 			$dirs[] = ZESK_ROOT . "widgets";
 			break;
 		default:
-			if (dir::is_absolute($arg)) {
+			if (Directory::is_absolute($arg)) {
 				$dirs[] = $arg;
 			} else if (is_dir(path($cwd, $arg))) {
 				$dirs[] = $arg;
@@ -494,7 +496,7 @@ foreach ($dirs as $dir) {
 	if ($verbose) {
 		echo "Processing directory $dir ...\n";
 	}
-	if (!dir::is_absolute($dir)) {
+	if (!Directory::is_absolute($dir)) {
 		$dir = path(getcwd(), $dir);
 	}
 	$dir_files = new DirectoryIterator($dir);
@@ -530,7 +532,7 @@ foreach ($files as $file) {
 	if ($verbose) {
 		echo "Processing file $file ...\n";
 	}
-	if (!dir::is_absolute($file)) {
+	if (!Directory::is_absolute($file)) {
 		$file_full = path($cwd, $file);
 	}
 	if (!str::ends($file, $extensions)) {

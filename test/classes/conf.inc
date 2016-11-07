@@ -6,6 +6,8 @@
  * @author $Author: kent $
  * @copyright Copyright &copy; 2012, Market Acumen, Inc.
  */
+use zesk\Text;
+
 class test_conf extends Test_Unit {
 
 	function test_edit() {
@@ -70,7 +72,7 @@ class test_conf extends Test_Unit {
 			'lower' => false
 		);
 		$result = conf::parse($lines, $options);
-		echo text::format_array($result);
+		echo Text::format_array($result);
 		$this->assert($result['DUDE'] === 'BAR/BER', $result['DUDE'] . ' === ' . 'BAR/BER');
 		$this->assert($result['BOO'] === 'boo-boo', $result['BOO'] . ' === ' . 'boo-boo');
 	}

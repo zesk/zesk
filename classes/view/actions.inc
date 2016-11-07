@@ -7,6 +7,13 @@
  * @copyright Copyright &copy; 2008, Market Acumen, Inc.
  * Created on Tue Jun 17 00:58:51 EDT 2008
  */
+use zesk\URL;
+use zesk\HTML;
+/**
+ * 
+ * @author kent
+ *
+ */
 class View_Actions extends View {
 	protected function initialize() {
 		parent::initialize();
@@ -22,14 +29,14 @@ class View_Actions extends View {
 			"onclick" => "return confirm('Are you sure?')"
 		) : array();
 
-		$image = $use_cdn ? html::cdn_img($src, $x->apply_map($title), array(
+		$image = $use_cdn ? HTML::cdn_img($src, $x->apply_map($title), array(
 			"width" => $w,
 			"height" => $h
-		)) : html::cdn_img($src, $x->apply_map($title), array(
+		)) : HTML::cdn_img($src, $x->apply_map($title), array(
 			"width" => $w,
 			"height" => $h
 		));
-		return html::a($x->apply_map($href), $attr, $image);
+		return HTML::a($x->apply_map($href), $attr, $image);
 	}
 	private function _action_href($action, $add_ref = true) {
 		$object = $this->object;
@@ -38,8 +45,8 @@ class View_Actions extends View {
 		}
 		$hr = $this->application->router()->get_route($action, $object, $this->option_array("route_options"));
 		if ($add_ref) {
-			$hr = url::query_format($hr, array(
-				'ref' => url::current_uri()
+			$hr = URL::query_format($hr, array(
+				'ref' => URL::current_uri()
 			));
 		}
 		return $hr;
@@ -90,8 +97,8 @@ class View_Actions extends View {
 					$text = avalue($actSpec, "text", "");
 					$add_ref = avalue($actSpec, 'add_ref', false);
 					if ($add_ref) {
-						$hr = url::query_format($hr, array(
-							'ref' => url::current_uri()
+						$hr = URL::query_format($hr, array(
+							'ref' => URL::current_uri()
 						));
 					}
 					$html = $html . $this->actionlink($hr, avalue($actSpec, "prefix", "") . $src, 18, 18, $text, avalue($actSpec, "confirm", false, avalue($actSpec, 'cdn')));

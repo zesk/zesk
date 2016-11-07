@@ -7,6 +7,15 @@
  * @copyright Copyright &copy; 2008, Market Acumen, Inc.
  *            Created on Tue Jul 15 16:22:33 EDT 2008
  */
+use zesk\arr;
+use zesk\Object;
+use zesk\Database_Query_Select;
+
+/**
+ * 
+ * @author kent
+ *
+ */
 class Control_Select_Object extends Control_Select {
 	/**
 	 *
@@ -73,7 +82,7 @@ class Control_Select_Object extends Control_Select {
 	}
 	protected function hook_options() {
 		$db = $this->class_object->database();
-		$query = Object::class_query($this->class);
+		$query = $this->application->query_select($this->class);
 		$prefix = $query->alias() . ".";
 		
 		$text_column = $this->text_columns();
@@ -86,8 +95,8 @@ class Control_Select_Object extends Control_Select {
 		if (!$this->has_option('format')) {
 			$this->set_option('format', implode(" ", arr::wrap(array_keys($what), '{', '}')));
 		}
-		$this->hook("options_query", $query);
-		return $this->hook("options_query_format", $query);
+		$this->call_hook("options_query", $query);
+		return $this->call_hook("options_query_format", $query);
 	}
 	protected function hook_options_query_format(Database_Query_Select $query) {
 		$format = $this->option("format");

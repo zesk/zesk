@@ -1,6 +1,15 @@
 <?php
-use zesk\dir as dir;
-use zesk\file as file;
+/**
+ * @copyright &copy; 2016 Market Acumen, Inc.
+ */
+use zesk\arr;
+use zesk\PHP;
+use zesk\Text;
+use zesk\File;
+use zesk\Directory;
+use zesk\Exception_Directory_NotFound;
+use zesk\Exception_Configuration;
+use zesk\Exception_Unimplemented;
 
 /**
  * Run automated tests in a variety of formats.
@@ -155,7 +164,7 @@ class Command_Test extends Command_Base {
 	private $last_result = null;
 	protected function show_options() {
 		$this->log("All options:\n{options}", array(
-			"options" => text::format_pairs(arr::clean($this->option(), false))
+			"options" => Text::format_pairs(arr::clean($this->option(), false))
 		));
 	}
 	/**
@@ -183,7 +192,7 @@ class Command_Test extends Command_Base {
 		if ($this->option_bool("debug_options")) {
 			$this->log("Command_Test options:");
 			ksort($this->options);
-			$this->log(text::format_pairs($this->options));
+			$this->log(Text::format_pairs($this->options));
 		}
 		$db_reset = $this->option("database-reset");
 		$db_report = $this->option("database-report");
@@ -248,7 +257,7 @@ class Command_Test extends Command_Base {
 			$this->save_test_database();
 		}
 		$this->log("# Tests completed");
-		$this->log(text::format_pairs($this->stats));
+		$this->log(Text::format_pairs($this->stats));
 		return $result;
 	}
 	/**
@@ -285,13 +294,13 @@ class Command_Test extends Command_Base {
 		$cwd = getcwd();
 		$path = $this->option('directory', $cwd);
 		if ($path) {
-			$path = dir::make_absolute($cwd, $path);
-		} else if (!dir::is_absolute($path)) {
+			$path = Directory::make_absolute($cwd, $path);
+		} else if (!Directory::is_absolute($path)) {
 			throw new Exception_Directory_NotFound($path);
 		}
 		
 		if (!$this->has_arg()) {
-			return dir::list_recursive($path, $this->_test_list_options());
+			return Directory::list_recursive($path, $this->_test_list_options());
 		}
 		
 		$matches = array();
@@ -307,7 +316,7 @@ class Command_Test extends Command_Base {
 			}
 		}
 		if (count($matches) > 0) {
-			$potential_tests = dir::list_recursive($path, $this->_test_list_options());
+			$potential_tests = Directory::list_recursive($path, $this->_test_list_options());
 			foreach ($matches as $match) {
 				$found = arr::match($potential_tests, $match);
 				if (count($found) > 0) {
@@ -370,7 +379,9 @@ class Command_Test extends Command_Base {
 		}
 	}
 	private static function _initialize_test_environment() {
-		zesk::autoload_path(zesk::root('test/classes'), array(
+		global $zesk;
+		/* @var $zesk \zesk\Kernel */
+		$zesk->autoloader->path($zesk->paths->zesk('test/classes'), array(
 			'class_prefix' => 'Test_'
 		));
 	}
@@ -472,7 +483,7 @@ class Command_Test extends Command_Base {
 			}
 			$options = $this->load_test_options(file_get_contents($file));
 			if ($this->option_bool('debug_test_options') && count($options) > 0) {
-				$this->verbose_log("$file test options: \n" . text::format_pairs($options));
+				$this->verbose_log("$file test options: \n" . Text::format_pairs($options));
 			}
 			if (avalue($options, 'skip')) {
 				break;
@@ -588,6 +599,8 @@ class Command_Test extends Command_Base {
 		return $final_result;
 	}
 	private function _run_sandbox_command() {
+		global $zesk;
+		/* @var $zesk \zesk\Kernel */
 		static $command = null;
 		if ($command !== null) {
 			return $command;
@@ -599,11 +612,11 @@ class Command_Test extends Command_Base {
 			}
 			return $command;
 		}
-		$env = zesk::which('env');
-		$php = zesk::which('php');
+		$env = $zesk->paths->which('env');
+		$php = $zesk->paths->which('php');
 		if (!$env) {
 			if (!$php) {
-				throw new Exception_Configuration("No env or php found in path, is PATH invalid?\n" . implode("\n\t", zesk::command_path()) . "\n");
+				throw new Exception_Configuration("No env or php found in path, is PATH invalid?\n" . implode("\n\t", $zesk->paths->command()) . "\n");
 			}
 			$command = $php;
 		} else {
@@ -634,7 +647,7 @@ class Command_Test extends Command_Base {
 	 */
 	private function _run_test_sandbox($file, $class, array $options) {
 		$command = self::_run_sandbox_command();
-		$options['prefix'] = $command . " " . ZESK_ROOT . "bin/zesk-command.php --search \"" . zesk::application_root() . "\" ";
+		$options['prefix'] = $command . " " . ZESK_ROOT . "bin/zesk-command.php --search \"" . $this->application->application_root() . "\" ";
 		if (is_file($this->config)) {
 			$options['prefix'] .= '--config \'' . addslashes($this->config) . '\' ';
 		}
@@ -715,7 +728,7 @@ class Command_Test extends Command_Base {
 			ob_start();
 		} else {
 			if ($debug_buffering) {
-				echo "\n" . __FILE__ . " ### NO ob " . text::format_pairs($options) . " ###\n";
+				echo "\n" . __FILE__ . " ### NO ob " . Text::format_pairs($options) . " ###\n";
 			}
 		}
 		$system_result = system($command, $exit_code);
@@ -780,7 +793,7 @@ class Command_Test extends Command_Base {
 	private function run_test_phpt($file, array $options) {
 		$extract = doccomment::extract(file_get_contents($file));
 		if (count($extract)) {
-			$options = arr::filter(zesk::autotype(doccomment::parse(first($extract))), "strict") + $options;
+			$options = arr::filter(PHP::autotype(doccomment::parse(first($extract))), "strict") + $options;
 		}
 		return $this->_run_test_command($file, $options);
 	}
@@ -819,6 +832,6 @@ class Command_Test extends Command_Base {
 			}
 		}
 		echo implode("\n", $fails) . "\n";
-		echo text::format_pairs($stats);
+		echo Text::format_pairs($stats);
 	}
 }

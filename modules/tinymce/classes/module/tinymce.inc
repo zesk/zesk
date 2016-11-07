@@ -1,5 +1,20 @@
 <?php
-class Module_TinyMCE extends Module_JSLib implements Module_Interface_Routes {
+/**
+ * @copyright &copy; 2016 Market Acumen, Inc.
+ */
+use zesk\JSON;
+use zesk\arr;
+use zesk\Locale;
+use zesk\JavaScript;
+use zesk\PHP;
+use zesk\Lists;
+
+/**
+ * 
+ * @author kent
+ *
+ */
+class Module_TinyMCE extends Module_JSLib implements zesk\Interface_Module_Routes {
 	protected $javascript_paths = array(
 		'/share/tinymce/tinymce.min.js' => array()
 	);
@@ -63,11 +78,11 @@ class Module_TinyMCE extends Module_JSLib implements Module_Interface_Routes {
 	 *
 	 * @see Module_JSLib::hook_head()
 	 */
-	public function hook_head(Request $request, Response_HTML $response, Template $template) {
+	public function hook_head(zesk\Request $request, zesk\Response_Text_HTML $response, zesk\Template $template) {
 		$this->update_options();
 		return parent::hook_head($request, $response, $template);
 	}
-	public function hook_routes(Router $router) {
+	public function hook_routes(zesk\Router $router) {
 		$router->add_route('tinymce/spellchecker', array(
 			'method' => array(
 				$this,
@@ -79,7 +94,7 @@ class Module_TinyMCE extends Module_JSLib implements Module_Interface_Routes {
 			)
 		));
 	}
-	public function action_spellchecker(Request $request, Response $response) {
+	public function action_spellchecker(zesk\Request $request, Response $response) {
 		$params = $request->geta('params');
 		if (!is_array($params)) {
 			$response->json(array(
@@ -87,7 +102,7 @@ class Module_TinyMCE extends Module_JSLib implements Module_Interface_Routes {
 			));
 			return;
 		}
-		$lang = avalue($params, 'lang', lang::language());
+		$lang = avalue($params, 'lang', Locale::language());
 		$words = to_list(avalue($params, 'words'));
 		if (!function_exists('pspell_new')) {
 			$response->json(array(
@@ -159,7 +174,7 @@ class Module_TinyMCE extends Module_JSLib implements Module_Interface_Routes {
 	 * @return string
 	 */
 	public function jquery_ready() {
-		$json = json::encodex(arr::clean($this->tinymce_options, null));
+		$json = JSON::encodex(arr::clean($this->tinymce_options, null));
 		return $this->application->theme("tinymce/ready.js", array(
 			"json" => $json,
 			"base_url" => "/share/tinymce/"
@@ -186,12 +201,13 @@ class Module_TinyMCE extends Module_JSLib implements Module_Interface_Routes {
 		return $this->tinymce_options;
 	}
 	public function add_insertion_menu($title, array $menu, array $options = array()) {
-		$code = strtolower(zesk::clean_function($title));
+		$code = avalue($options, 'id', strtolower(PHP::clean_function($title)));
 		$this->insertion_menus[$code] = array(
 			'title' => $title,
 			'menu' => $menu,
 			'options' => $options
 		);
+		$this->tinymce_toolbar = Lists::remove($this->tinymce_toolbar, $code, " ");
 		if (avalue($options, 'first')) {
 			$this->tinymce_toolbar = "$code " . $this->tinymce_toolbar;
 		} else {
@@ -214,7 +230,7 @@ class Module_TinyMCE extends Module_JSLib implements Module_Interface_Routes {
 			foreach ($menu as $substitution => $name) {
 				$mce_menu[] = array(
 					'text' => $name,
-					'*onclick' => 'function() { editor.insertContent(' . json::encode('{' . $substitution . '}') . '); }'
+					'*onclick' => 'function() { editor.insertContent(' . JSON::encode('{' . $substitution . '}') . '); }'
 				);
 			}
 			$attrs = array(
@@ -223,7 +239,7 @@ class Module_TinyMCE extends Module_JSLib implements Module_Interface_Routes {
 				'icon' => false,
 				'menu' => $mce_menu
 			);
-			$js[] = 'editor.addButton(' . js::arguments($code, $attrs) . ");\n";
+			$js[] = 'editor.addButton(' . JavaScript::arguments($code, $attrs) . ");\n";
 		}
 		if (count($js) === 0) {
 			return;
@@ -237,7 +253,7 @@ class Module_TinyMCE extends Module_JSLib implements Module_Interface_Routes {
 			$doc_root = $this->application->document_root();
 			$full_path = path($doc_root, $language_url_path);
 			if (!is_dir($full_path)) {
-				log::error("Directory {class}::language_url_path specifies {full_path} which is not a directory", array(
+				zesk()->logger->error("Directory {class}::language_url_path specifies {full_path} which is not a directory", array(
 					"class" => __CLASS__,
 					"full_path" => $full_path
 				));

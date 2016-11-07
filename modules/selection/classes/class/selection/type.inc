@@ -5,7 +5,7 @@
  * @author kent
  *
  */
-class Class_Selection_Type extends Class_Object {
+class Class_Selection_Type extends zesk\Class_Object {
 	public $id_column = "id";
 
 	public $find_keys = array(

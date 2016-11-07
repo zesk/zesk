@@ -1,10 +1,30 @@
 <?php
+/**
+ * @copyright &copy; 2016 Market Acumen, Inc.
+ */
+namespace zesk;
 
-use zesk\Timestamp as Timestamp;
-
-/* @var $this Template */
-$response = $this->response;
-/* @var $response Response_HTML */
+if (false) {
+	/* @var $this Template */
+	
+	$zesk = $this->zesk;
+	/* @var $zesk \zesk\Kernel */
+	
+	$application = $this->application;
+	/* @var $application \zesk\Application */
+	
+	$session = $this->session;
+	/* @var $session \zesk\Session */
+	
+	$router = $this->router;
+	/* @var $request \zesk\Router */
+	
+	$request = $this->request;
+	/* @var $request \zesk\Request */
+	
+	$response = $this->response;
+	/* @var $response \zesk\Response_Text_HTML */
+}
 
 $id = $this->id;
 if (empty($id)) {
@@ -19,7 +39,7 @@ $inline = $this->getb("inline");
 echo $this->theme('control/text', array(
 	'value' => $value,
 	'onchange' => null,
-	'class' => $inline ? css::add_class($this->class, 'hidden') : $this->class
+	'class' => $inline ? CSS::add_class($this->class, 'hidden') : $this->class
 ));
 
 $options = $this->get(array(
@@ -59,7 +79,7 @@ if ($minDate) {
 if ($maxDate) {
 	$options['maxDate'] = $maxDate->format($zformat);
 }
-$locale = $this->get("locale", zesk\Locale::language());
+$locale = $this->get("locale", Locale::language());
 
 // https://github.com/Eonasdan/bootstrap-datetimepicker/issues/1718
 $js_language = "moment.localeData(\"$locale\") ? \"$locale\" : \"en\"";
@@ -71,9 +91,9 @@ $options['*locale'] = $js_language;
 $original_id = $id;
 if ($inline) {
 	$id = "$id-dtp";
-	echo html::div("#$id", "");
+	echo HTML::div("#$id", "");
 }
-$jquery = "\$(\"#$id\").datetimepicker(" . json::encode($options) . ")";
+$jquery = "\$(\"#$id\").datetimepicker(" . JSON::encode($options) . ")";
 
 if ($inline) {
 	$jquery .= ".on(\"dp.change\", function (e) {\n\t\$(\"#$original_id\").val(e.date.format('YYYY-MM-DD'));\n})";

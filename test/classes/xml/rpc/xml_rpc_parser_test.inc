@@ -6,7 +6,7 @@
  * @author Kent Davidson <kent@marketacumen.com>
  * @copyright Copyright &copy; 2008, Market Acumen, Inc.
  */
-use zesk\Timestamp as Timestamp;
+use zesk\Timestamp;
 
 class XML_RPC_Parser_Test extends Test_Unit {
 	function test_main() {

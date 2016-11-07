@@ -2,12 +2,14 @@
 
 namespace sqlite3;
 
-use \Database_Table as Database_Table;
-use \Database_Column as Database_Column;
-use \Database_Index as Database_Index;
-use \Exception_Unimplemented as Exception_Unimplemented;
-use \Exception_Invalid as Exception_Invalid;
-use zesk\text as text;
+use zesk\Object;
+use zesk\Class_Object;
+use zesk\Exception_Unimplemented;
+use zesk\Exception_Invalid;
+use zesk\Database_Table;
+use zesk\Database_Index;
+use zesk\Database_Column;
+use zesk\Text;
 use zesk\str as str;
 
 /**
@@ -18,7 +20,7 @@ use zesk\str as str;
  * @author kent
  *
  */
-class Database_SQL extends \Database_SQL {
+class Database_SQL extends \zesk\Database_SQL {
 	
 	/**
 	 * @var Database 
@@ -40,7 +42,7 @@ class Database_SQL extends \Database_SQL {
 	/**
 	 * (non-PHPdoc)
 	 *
-	 * @see Database::sql_alter_table_column_drop()
+	 * @see zesk\Database::sql_alter_table_column_drop()
 	 */
 	public function alter_table_column_drop(Database_Table $table, $dbColName) {
 		$sqls = array();
@@ -138,7 +140,7 @@ class Database_SQL extends \Database_SQL {
 	/**
 	 * (non-PHPdoc)
 	 *
-	 * @see Database::sql_alter_table_index_drop()
+	 * @see zesk\Database::sql_alter_table_index_drop()
 	 */
 	function alter_table_index_drop(Database_Table $table, Database_Index $index) {
 		$name = $index->name();
@@ -147,7 +149,7 @@ class Database_SQL extends \Database_SQL {
 			case Database_Index::Unique:
 			case Database_Index::Index:
 			case Database_Index::Primary:
-				return "DROP INDEX $name";
+				return "DROP INDEX IF EXISTS $name";
 			default :
 				throw new Exception_Invalid(__METHOD__ . "($table, $indexType, ...): Invalid index type $indexType");
 		}
@@ -196,8 +198,8 @@ class Database_SQL extends \Database_SQL {
 		return "INET_ATON($value)";
 	}
 	public function remove_comments($sql) {
-		$sql = text::remove_line_comments($sql, "--");
-		$sql = text::remove_range_comments($sql);
+		$sql = Text::remove_line_comments($sql, "--");
+		$sql = Text::remove_range_comments($sql);
 		return $sql;
 	}
 	
@@ -507,7 +509,7 @@ class Database_SQL extends \Database_SQL {
 	/**
 	 * @return array
 	 */
-	public function to_database(\Object $object, array $data, $insert = false) {
+	public function to_database(Object $object, array $data, $insert = false) {
 		if ($insert) {
 			if (is_string($auto_column = $object->class_object()->auto_column)) {
 				unset($data[$auto_column]);

@@ -14,7 +14,16 @@
  *
  * Yes, I'm aware of another PHP port.
  *
- * $Revision: 3509 $
+ * $Revision: 4057 $
+ */
+
+use zesk\Text;
+use zesk\preg;
+
+/**
+ * 
+ * @author kent
+ *
  */
 class Markdown extends Options {
 	const version = '1.0.1';
@@ -115,7 +124,7 @@ class Markdown extends Options {
 		$this->g_html_blocks = array();
 
 		# Standardize line endings:
-		$text = text::set_line_breaks($text, "\n");
+		$text = Text::set_line_breaks($text, "\n");
 
 		# Make sure $text ends with a couple of newlines:
 		$text .= "\n\n";

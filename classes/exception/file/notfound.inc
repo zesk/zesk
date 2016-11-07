@@ -6,7 +6,9 @@
  * @author kent
  * @copyright Copyright &copy; 2010, Market Acumen, Inc.
  */
-
-class Exception_File_NotFound extends Exception_FileSystem {
-
-}
+zesk()->deprecated();
+/**
+ * @deprecated 2016-09
+ * @author kent
+ */
+class Exception_File_NotFound extends zesk\Exception_File_NotFound {}

@@ -1,11 +1,15 @@
 <?php
+/**
+ * 
+ */
+namespace zesk;
 
 /**
- * @see Class_Zesk_User_Role
+ * @see Class_User_Role
  * @author kent
  *
  */
-class Zesk_User_Role extends Object {
+class User_Role extends Object {
 	public function store() {
 		if ($this->member_is_empty("creator")) {
 			$this->creator = User::instance_id();

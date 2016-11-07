@@ -1,6 +1,6 @@
 <?php
 if (false) {
-	/* @var $this Template */
+	/* @var $this zesk\Template */
 	
 	$zesk = $this->zesk;
 	/* @var $zesk zesk\Kernel */
@@ -18,13 +18,13 @@ if (false) {
 	/* @var $request Request */
 	
 	$response = $this->response;
-	/* @var $response Response_HTML */
+	/* @var $response zesk\Response_Text_HTML */
 	
 	$current_user = $this->current_user;
 	/* @var $current_user User */
 }
 
-/* @var $this Template */
+/* @var $this zesk\Template */
 
 $styles = <<<EOF
 div.redirect, div.backtrace {
@@ -49,10 +49,10 @@ $response->css_inline($styles);
 $this->begin('response/html.tpl');
 $this->begin('body/exception.tpl');
 
-echo html::div('.redirect', html::tag('label', __('Redirect:')) . $this->content);
+echo HTML::div('.redirect', HTML::tag('label', __('Redirect:')) . $this->content);
 
 if ($zesk->configuration->path_get('Response::redirect_show_backtrace', $this->application->development())) {
-	echo html::div('.backtrace', $this->theme('exception/trace', array(
+	echo HTML::div('.backtrace', $this->theme('exception/trace', array(
 		'content' => debug_backtrace(false)
 	)));
 }

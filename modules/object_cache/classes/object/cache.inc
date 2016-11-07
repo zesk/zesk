@@ -1,4 +1,14 @@
 <?php
+/**
+ * 
+ */
+use zesk\Object;
+
+/**
+ * 
+ * @author kent
+ *
+ */
 abstract class Object_Cache {
 
 	abstract public function load(Object $object, $key);

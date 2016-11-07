@@ -7,6 +7,9 @@
  * @copyright Copyright &copy; 2008, Market Acumen, Inc.
  * Created on Tue Jul 15 16:31:34 EDT 2008
  */
+use zesk\Object;
+use zesk\Model;
+
 class Control_Link_Object extends Control {
 
 	/**

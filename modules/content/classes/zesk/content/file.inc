@@ -6,12 +6,14 @@
  * @author Kent Davidson <kent@marketacumen.com>
  * @copyright Copyright &copy; 2005, Market Acumen, Inc.
  */
-use zesk\Timestamp as Timestamp;
+namespace zesk;
+
+use \Content_Data;
 
 /**
  *
  * @author kent
- * @see Class_Zesk_Content_File
+ * @see Class_zesk\Content_File
  * @property string $Original
  * @property string $MIMEType
  * @property Content_Data $data
@@ -20,7 +22,7 @@ use zesk\Timestamp as Timestamp;
  * @property Timestamp $Created
  * @property Timestamp $Modified
  */
-abstract class Zesk_Content_File extends Object {
+abstract class Content_File extends Object {
 	/**
 	 * User-configurable settings
 	 *
@@ -105,16 +107,7 @@ abstract class Zesk_Content_File extends Object {
 	 * @param Response $response
 	 * @return string
 	 */
-	function download_link($mixed) {
-		if ($mixed instanceof Response) {
-			// TODO 2016-07-18 Deprecated
-			zesk::deprecated();
-			$router = $mixed->request->router;
-		} else if ($mixed instanceof Router) {
-			$router = $mixed;
-		} else {
-			throw new Exception_Parameter("Parameter should be a Router");
-		}
+	function download_link(Router $router) {
 		return $router->get_route("download", "Content_File", array(
 			"ID" => $this->id(),
 			"Object" => $this
@@ -175,16 +168,14 @@ abstract class Zesk_Content_File extends Object {
 	 *
 	 * @param string $path
 	 * @param boolean $copy
-	 * @return Content_File
+	 * @return \Content_File
 	 */
-	public static function register_path($path, $options = array(), $copy = true) {
-		if ($options === true) {
-			$copy = true;
-		}
+	public function register_path($path, array $options = array()) {
+		$copy = $this->option_bool("scan_path_copy");
 		$options = to_array($options);
 		$data = Content_Data::copy_from_path($path, $copy);
 		
-		$file = new Content_File();
+		$file = new \Content_File();
 		$file->Original = avalue($options, 'Original', $path);
 		if ($file->find(array(
 			'Original' => $file->Original
@@ -198,42 +189,19 @@ abstract class Zesk_Content_File extends Object {
 	}
 	
 	/**
-	 * Retrieve scan_path global for this
-	 *
-	 * @param string $set
-	 * @return array
-	 */
-	public static function scan_path($set = null) {
-		if ($set !== null) {
-			return zesk::set(__CLASS__ . "::scan_path", to_list($set, array(), ";"));
-		}
-		return to_list(zesk::class_get(__CLASS__, "scan_path", array()), array(), ";");
-	}
-	
-	/**
-	 * Retrieve the scan_path_copy global - determines if files are copied or moved from scan paths
-	 *
-	 * @param string $set
-	 * @return boolean
-	 */
-	public static function scan_path_copy($set = null) {
-		if (is_bool($set)) {
-			return zesk::set(__CLASS__ . "::scan_path_copy", $set);
-		}
-		return to_bool(zesk::class_get(__CLASS__, "scan_path_copy", true));
-	}
-	
-	/**
 	 * Load
 	 */
-	public static function cron_minute() {
-		$paths = self::scan_path();
+	public function cron_minute(Application $application) {
+		global $zesk;
+		/* @var $zesk zesk\Kernel */
+		$object = new Content_File();
+		$paths = $this->option_list("scan_path");
 		foreach ($paths as $path) {
 			if (empty($path)) {
 				continue;
 			}
 			if (!is_dir($path)) {
-				log::error(__("Content_File::scan_path:=A configured path ({path}) was not found, <a href=\"{url}\">please update the setting.</a>"), array(
+				$zesk->logger->error(__(__METHOD__ . ":=A configured path ({path}) was not found, <a href=\"{url}\">please update the setting.</a>"), array(
 					"path" => $path,
 					"url" => "admin/settings/Content_File::scan_path"
 				));
@@ -242,13 +210,17 @@ abstract class Zesk_Content_File extends Object {
 			/*
 			 * Should probably have scan_path_copy settings on a per-dir basis TODO
 			 */
-			dir::iterate($path, null, array(
-				__CLASS__,
-				'register_path',
-				self::scan_path_copy()
+			Directory::iterate($path, null, array(
+				$this,
+				'register_path'
 			));
 		}
 	}
+	
+	/**
+	 * 
+	 * @return string
+	 */
 	function download_name() {
 		$name = $this->Original;
 		if (!$name) {
@@ -256,17 +228,6 @@ abstract class Zesk_Content_File extends Object {
 		}
 		$extension = "." . mime::to_extension($this->mime_type());
 		return str::unsuffix(basename($name), $extension) . $extension;
-	}
-	
-	/**
-	 * Mime Type of file
-	 *
-	 * @return string
-	 * @deprecated use mime_type
-	 */
-	function mimeType() {
-		zesk::deprecated();
-		return $this->mime_type();
 	}
 }
 

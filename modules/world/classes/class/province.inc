@@ -4,7 +4,7 @@
  * @author kent
  * Copyright &copy; 2013 Market Acumen, Inc.
  */
-class Class_Province extends Class_Object {
+class Class_Province extends zesk\Class_Object {
 	public $id_column = "id";
 
 	public $name = "Province:=State";

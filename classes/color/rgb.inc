@@ -6,7 +6,14 @@
  * @author kent
  * @copyright Copyright &copy; 2012, Market Acumen, Inc.
  */
+use zesk\CSS;
 
+/**
+ * Abstraction for RGB color
+ * 
+ * @author kent
+ *
+ */
 class Color_RGB {
 	/**
 	 *
@@ -36,7 +43,7 @@ class Color_RGB {
 			$this->green = clamp(0, $g, 255);
 			$this->blue = clamp(0, $b, 255);
 		} else if (is_string($r)) {
-			$parts = css::color_parse($r);
+			$parts = CSS::color_parse($r);
 			if (is_array($parts)) {
 				list($this->red, $this->green, $this->blue) = $parts;
 			}
@@ -57,7 +64,7 @@ class Color_RGB {
 	 * @return string
 	 */
 	function __toString() {
-		return css::rgb_to_hex(array(
+		return CSS::rgb_to_hex(array(
 			$this->red,
 			$this->green,
 			$this->blue

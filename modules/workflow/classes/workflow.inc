@@ -1,4 +1,9 @@
 <?php
+use zesk\arr;
+use zesk\PHP;
+use zesk\Exception_Parameter;
+use zesk\Model;
+
 class Workflow extends Model {
 	
 	/**
@@ -39,6 +44,12 @@ class Workflow extends Model {
 	 * @var unknown
 	 */
 	private $dirty = true;
+	
+	/**
+	 * 
+	 * @param array $variables
+	 * @param array $options
+	 */
 	function __construct(array $variables = array(), array $options = array()) {
 		parent::__construct($options);
 		$this->inherit_global_options();
@@ -76,6 +87,9 @@ class Workflow extends Model {
 	 * Clean the steps
 	 */
 	private function _init_steps() {
+		global $zesk;
+		/* @var $zesk \zesk\Kernel */
+		
 		$this->sorted_steps = array();
 		$steps = array();
 		$dependencies = array();
@@ -97,7 +111,7 @@ class Workflow extends Model {
 			}
 			try {
 				/* @var $step Workflow_Step */
-				$steps[$id] = $step = zesk::factory($class, $this, $options);
+				$steps[$id] = $step = $zesk->objects->factory($class, $this, $options);
 			} catch (Exception_Class_NotFound $e) {
 				log::error("Workflow::_init_steps Class not found {class}", array(
 					"class" => $step
@@ -139,7 +153,7 @@ class Workflow extends Model {
 		if (!$this->dirty) {
 			return;
 		}
-		$this->hook('clean');
+		$this->call_hook('clean');
 		$this->steps_total = 0;
 		$this->steps_completed = 0;
 		/* @var $step Workflow_Step */
@@ -150,7 +164,7 @@ class Workflow extends Model {
 		}
 		$this->completed = ($this->steps_completed === $this->steps_total);
 		$this->dirty = false;
-		$this->hook($this->completed ? 'completed' : "incomplete");
+		$this->call_hook($this->completed ? 'completed' : "incomplete");
 	}
 	
 	/**
@@ -211,7 +225,7 @@ class Workflow extends Model {
 		));
 	}
 	public function __toString() {
-		return php::dump($this->variables);
+		return PHP::dump($this->variables);
 	}
 	
 	/*

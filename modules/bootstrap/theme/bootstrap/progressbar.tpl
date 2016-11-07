@@ -1,4 +1,8 @@
 <?php
+/**
+ * @copyright &copy; 2016 Market Acumen, Inc.
+ */
+namespace zesk;
 
 /* @var $this Template */
 $minimum = $this->get("minimum", 0);
@@ -14,21 +18,21 @@ $text_arguments += array(
 	"percent" => $percent,
 	"value" => $this->value
 );
-echo html::tag_open('div', array(
-	"class" => css::add_class("progress", $this->class)
+echo HTML::tag_open('div', array(
+	"class" => CSS::add_class("progress", $this->class)
 ));
 
 echo __($this->prefix, $text_arguments);
 
-echo html::div(array(
-	"class" => css::add_class("progress-bar", $this->progressbar_class),
+echo HTML::div(array(
+	"class" => CSS::add_class("progress-bar", $this->progressbar_class),
 	"role" => "progressbar",
 	"aria-valuenow" => $this->value,
 	"aria-valuemin" => $this->get("minimum", 0),
 	"aria-valuemax" => $maximum,
 	"style" => "width: $percent%"
-), ($label ? __($label, $text_arguments) : html::etag("span", ".sr-only", __($this->accessible_label, $text_arguments))));
+), ($label ? __($label, $text_arguments) : HTML::etag("span", ".sr-only", __($this->accessible_label, $text_arguments))));
 
 echo map($this->suffix, $text_arguments);
 
-echo html::tag_close('div');
+echo HTML::tag_close('div');

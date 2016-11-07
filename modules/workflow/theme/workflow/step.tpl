@@ -7,8 +7,8 @@ $step = $this->step;
 
 $title = $step->title;
 if ($step->href) {
-	$title = html::tag('a', array(
+	$title = HTML::tag('a', array(
 		'href' => $step->href
 	), $title);
 }
-echo html::tag('h2', $title) . html::etag("p", $step->description);
+echo HTML::tag('h2', $title) . HTML::etag("p", $step->description);

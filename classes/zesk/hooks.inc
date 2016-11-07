@@ -1,8 +1,5 @@
 <?php
-
 namespace zesk;
-
-use \Exception_Semantics as Exception_Semantics;
 
 class HookGroup {
 	public $first = array();
@@ -89,6 +86,13 @@ class Hooks {
 	private $hooks_called = array();
 	
 	/**
+	 * Used to track which top-level classes have been gathered yet
+	 * 
+	 * @var array
+	 */
+	private $all_hook_classes = array();
+	
+	/**
 	 *
 	 * @param Kernel $kernel        	
 	 */
@@ -124,9 +128,9 @@ class Hooks {
 	 *
 	 * @param string $hook        	
 	 */
-	public static function unhook($hook) {
+	public function unhook($hook) {
 		$hook = $this->_hook_name($hook, true);
-		$this->hooks[$hook] = array();
+		unset($this->hooks[$hook]);
 	}
 	
 	/**
@@ -188,8 +192,8 @@ class Hooks {
 			return $this->hooks_called;
 		}
 		if (is_string($class)) {
-			$class = strtolower($class);
-			if (isset($this->hooks_called[$class])) {
+			$lowclass = strtolower($class);
+			if (isset($this->hooks_called[$lowclass])) {
 				return false;
 			}
 			if (method_exists($class, "hooks")) {
@@ -198,11 +202,11 @@ class Hooks {
 						$class,
 						"hooks"
 					), $this->zesk);
-					$this->hooks_called[$class] = $result[$class] = microtime(true);
+					$this->hooks_called[$lowclass] = $result[$class] = microtime(true);
 					return true;
 				} catch (\Exception $e) {
 					$this->call("exception", $e);
-					$this->hooks_called[$class] = $result[$class] = $e;
+					$this->hooks_called[$lowclass] = $result[$class] = $e;
 					return $e;
 				}
 			} else if ($this->debug) {
@@ -211,7 +215,7 @@ class Hooks {
 					"__FUNCTION__" => __FUNCTION__,
 					"class" => $class
 				));
-				$this->hooks_called[$class] = false;
+				$this->hooks_called[$lowclass] = false;
 				return true;
 			}
 			return false;
@@ -333,7 +337,6 @@ class Hooks {
 	 *        	List of methods (array or ;-separated string)
 	 */
 	public function find_all($methods) {
-		static $all_hook_classes = array();
 		$class_methods = to_list($methods);
 		$methods = array();
 		foreach ($class_methods as $class_method) {
@@ -341,9 +344,9 @@ class Hooks {
 			if ($class === null) {
 				continue;
 			}
-			$class = strtolower($class);
-			if (!array_key_exists($class, $all_hook_classes) && $method !== "hooks") {
-				$all_hook_classes[$class] = true;
+			$lowclass = strtolower($class);
+			if (!array_key_exists($lowclass, $this->all_hook_classes) && $method !== "hooks") {
+				$this->all_hook_classes[$lowclass] = true;
 				$this->_register_all_hooks($class);
 			}
 			$classes = $this->zesk->classes->subclasses($class);
@@ -352,8 +355,6 @@ class Hooks {
 			}
 			//echo "register_class($class) -> "; dump($classes);
 			foreach ($classes as $class) {
-				$class = strtolower($class);
-				//				echo "$class\n";
 				$refl = new \ReflectionClass($class);
 				if (!$refl->hasMethod($method)) {
 					//echo "$class - no $method\n";
@@ -367,7 +368,7 @@ class Hooks {
 				}
 				//echo " - has $method\n";
 				/* @var $refl_method ReflectionMethod */
-				$declaring = strtolower($refl_method->getDeclaringClass()->name);
+				$declaring = $refl_method->getDeclaringClass()->name;
 				//	echo "$class ($declaring) -> ";
 				if (strcasecmp($declaring, $class) === 0) {
 					//$methods[] = "$declaring*$class::$method";
@@ -404,15 +405,15 @@ class Hooks {
 	 * </code>
 	 * Retrieve a single alias:
 	 * <code>
-	 * $alias = zesk::hook_alias('configured');
+	 * $alias = zesk::hook_alias('aliasname');
 	 * </code>
 	 * Delete an alias:
 	 * <code>
-	 * $old_alias = zesk::hook_alias('configured', false);
+	 * $old_alias = zesk::hook_alias('aliasname', false);
 	 * </code>
 	 * Add an alias:
 	 * <code>
-	 * $previous_alias = zesk::hook_alias('configured', 'Application::configured');
+	 * $previous_alias = zesk::hook_alias('oldname', 'newname');
 	 * </code>
 	 * Bulk actions:
 	 * <code>
@@ -502,7 +503,7 @@ class Hooks {
 	 * @param unknown $result_callback        	
 	 * @return string|NULL
 	 */
-	public function call_arguments($hooks, $arguments = array(), $default = null, $hook_callback = null, $result_callback = null) {
+	public function call_arguments($hooks, $arguments = array(), $default = null, $hook_callback = null, $result_callback = null, $return_hint = null) {
 		$definitions = $this->hook_load_definitions($hooks);
 		if (count($definitions) === 0) {
 			return $default;
@@ -513,12 +514,12 @@ class Hooks {
 		// 			"def" => $definitions
 		// 		));
 		foreach ($definitions as $callable_string => $options) {
-			$return = array_key_exists('return', $options) ? $options['return'] : '+';
-			$result = \Hookable::hook_results($result, $options['callable'], $arguments, $hook_callback, $result_callback, $return);
+			$return = $return_hint !== null ? $return_hint : (array_key_exists('return', $options) ? $options['return'] : '+');
+			$result = Hookable::hook_results($result, $options['callable'], $arguments, $hook_callback, $result_callback, $return);
 		}
 		return $result;
 	}
-
+	
 	/**
 	 * Invoke a global hook by type
 	 *
@@ -534,7 +535,7 @@ class Hooks {
 		$methods = array_shift($args);
 		return $this->all_call_arguments($methods, $args);
 	}
-
+	
 	/**
 	 * Invoke a global hook by type
 	 *
@@ -549,7 +550,7 @@ class Hooks {
 		$methods = $this->find_all($methods);
 		$result = $default;
 		foreach ($methods as $class_method) {
-			// Note: These two lines were reversed when this was zesk--all_hook_array
+			// Note: These two lines were reversed when this was zesk--all_hook_arguments
 			$result = $this->call_arguments($class_method, $arguments, $result, $hook_callback, $result_callback);
 			$result = Hookable::hook_results($result, $class_method, $arguments, $hook_callback, $result_callback);
 		}

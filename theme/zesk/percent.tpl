@@ -1,6 +1,6 @@
 <?php
 if (false) {
-	/* @var $this Template */
+	/* @var $this zesk\Template */
 	
 	$zesk = $this->zesk;
 	/* @var $zesk zesk\Kernel */
@@ -8,7 +8,7 @@ if (false) {
 	$application = $this->application;
 	/* @var $application TimeBank */
 }
-/* @var $this Template */
+/* @var $this zesk\Template */
 $decimals = $this->get1("1;decimals");
 if (!$decimals) {
 	$decimals = $zesk->configuration->path_get_first(array(

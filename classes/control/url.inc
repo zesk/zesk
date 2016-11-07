@@ -6,22 +6,30 @@
  * @author Kent Davidson <kent@marketacumen.com>
  * @copyright Copyright &copy; 2006, Market Acumen, Inc.
  */
+use zesk\Locale;
+use zesk\arr;
+
+/**
+ * 
+ * @author kent
+ *
+ */
 class Control_URL extends Control_Text {
 
 	private function _url_check($url) {
-		if (url::valid($url)) {
-			return url::normalize($url);
+		if (URL::valid($url)) {
+			return URL::normalize($url);
 		}
 		if (!$this->option_bool('autofix')) {
 			return false;
 		}
-		$url_new = url::repair($url);
+		$url_new = URL::repair($url);
 		if ($url_new) {
-			return url::normalize($url_new);
+			return URL::normalize($url_new);
 		}
 		$default_protocol = $this->option("default_protocol", "http");
-		if (url::valid("$default_protocol://$url")) {
-			return url::normalize("$default_protocol://$url");
+		if (URL::valid("$default_protocol://$url")) {
+			return URL::normalize("$default_protocol://$url");
 		}
 		return false;
 	}
@@ -33,7 +41,7 @@ class Control_URL extends Control_Text {
 	private function _error_default() {
 		$protocols = arr::suffix($this->protocol_list(), "://");
 		return __('{label} must begin with {protocol_phrase}', array(
-			"protocol_phrase" => lang::conjunction($protocols)
+			"protocol_phrase" => Locale::conjunction($protocols)
 		));
 	}
 	private function error_protocol() {
@@ -45,7 +53,7 @@ class Control_URL extends Control_Text {
 	}
 	protected function error_map() {
 		return parent::error_map() + array(
-			'protocol_phrase' => lang::conjunction($this->protocol_list())
+			'protocol_phrase' => Locale::conjunction($this->protocol_list())
 		);
 	}
 
@@ -76,7 +84,7 @@ class Control_URL extends Control_Text {
 				}
 				$u = $this->_url_check($u);
 				if ($u) {
-					if (!in_array(url::parse($u, 'scheme'), $protocols)) {
+					if (!in_array(URL::parse($u, 'scheme'), $protocols)) {
 						$this->error_protocol();
 						$error_values[] = $u;
 					} else {
@@ -111,7 +119,7 @@ class Control_URL extends Control_Text {
 			}
 			return true;
 		}
-		if (!in_array(url::parse($new_value, 'scheme'), $protocols)) {
+		if (!in_array(URL::parse($new_value, 'scheme'), $protocols)) {
 			$this->error_protocol();
 			return false;
 		}

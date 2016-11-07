@@ -6,6 +6,11 @@
  * @author Kent Davidson <kent@marketacumen.com>
  * @copyright Copyright &copy; 2005, Market Acumen, Inc.
  */
+use zesk\arr;
+use zesk\str;
+use zesk\Options;
+use zesk\Application;
+
 class World_Bootstrap_Language extends Options {
 	
 	/**
@@ -26,7 +31,9 @@ class World_Bootstrap_Language extends Options {
 	 * @return World_Bootstrap_Currency
 	 */
 	public static function factory(array $options = array()) {
-		return zesk::factory(__CLASS__, $options);
+		global $zesk;
+		/* @var $zesk zesk\Kernel */
+		return $zesk->objects->factory(__CLASS__, $options);
 	}
 	
 	/**

@@ -2,11 +2,11 @@
 
 /**
  * @see User
- * @see Zesk_User
+ * @see zesk\User
  * @author kent
  *
  */
-class Class_User extends Class_Zesk_User {
+class Class_User extends zesk\Class_User {
 	/**
 	 * Name column
 	 *

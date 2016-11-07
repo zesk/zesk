@@ -1,5 +1,4 @@
 <?php
-
 /**
  * $URL: https://code.marketacumen.com/zesk/trunk/modules/zesk_legacy/html-legacy.inc $
  * @package zesk
@@ -9,30 +8,34 @@
  * ZESK_TEST_SKIP
  * @todo Remove this
  */
+use zesk\HTML;
+use zesk\URL;
+use zesk\JavaScript;
+
 function html_attributes($oAttr) {
-	zesk::deprecated();
-	$attr = html::parse_attributes($oAttr);
-	return html::attributes($attr);
+	zesk()->deprecated();
+	$attr = HTML::parse_attributes($oAttr);
+	return HTML::attributes($attr);
 }
 
 function html_tag($tagName, $oAttr = false, $single = false) {
-	zesk::deprecated();
+	zesk()->deprecated();
 	if ($tagName === "") {
 		return "";
 	}
 	if (is_string($oAttr)) {
-		$oAttr = html::parse_attributes($oAttr);
+		$oAttr = HTML::parse_attributes($oAttr);
 	}
-	return "<$tagName" . html::attributes($oAttr) . ($single ? " />" : ">");
+	return "<$tagName" . HTML::attributes($oAttr) . ($single ? " />" : ">");
 }
 
 function html_tag_single($tagName, $oAttr = null) {
-	zesk::deprecated();
+	zesk()->deprecated();
 	return html_tag($tagName, $oAttr, true);
 }
 
 function html_input($type, $n, $v, $id = null) {
-	zesk::deprecated();
+	zesk()->deprecated();
 	if ($id === null)
 		$id = $n;
 	return html_tag("input", array(
@@ -44,36 +47,36 @@ function html_input($type, $n, $v, $id = null) {
 }
 
 function input_submit($n, $v, $attrs = false) {
-	zesk::deprecated();
-	return html::input_submit($n, $v, $attrs);
+	zesk()->deprecated();
+	return HTML::input_submit($n, $v, $attrs);
 }
 
 function input_button($n, $v, $attrs = false) {
-	zesk::deprecated();
-	return html::input_button($n, $v, $attrs);
+	zesk()->deprecated();
+	return HTML::input_button($n, $v, $attrs);
 }
 
 function form_preserve_request($include = false, $exclude = false) {
-	zesk::obsolete();
+	zesk()->obsolete();
 }
 
 function form_clean_variable($variable) {
-	zesk::deprecated();
+	zesk()->deprecated();
 	return trim(preg_replace("/_+/", "_", preg_replace("/[^A-Za-z0-9_]/", "_", $variable)), "_");
 }
 
 function html_clean_anchor($text) {
-	zesk::deprecated();
+	zesk()->deprecated();
 	return strtolower(trim(preg_replace("/-+/", "-", preg_replace("/[^A-Za-z0-9_]/", "-", $text)), "-"));
 }
 
 function input_text($n, $v, $nChars = 20) {
-	zesk::deprecated();
+	zesk()->deprecated();
 	return html_tag("input", "type=\"text\" size=\"$nChars\" name=\"$n\" id=\"$n\" value=\"" . htmlspecialchars($v) . "\"", true);
 }
 
 function table_tr($tr_attrs, $td_attrs, $row, $header_row = false) {
-	zesk::deprecated();
+	zesk()->deprecated();
 	$tr = array();
 	$tr[] = html_tag("tr", $tr_attrs);
 	$colspan = 1;
@@ -83,21 +86,21 @@ function table_tr($tr_attrs, $td_attrs, $row, $header_row = false) {
 			if ($colspan-- > 1)
 				continue;
 			$colspan = intval(avalue($attrs, 'colspan', 1));
-			$tr[] = html_tag($row_tag, $attrs) . avalue($row, $i, '&nbsp;') . html::tag_close($row_tag);
+			$tr[] = html_tag($row_tag, $attrs) . avalue($row, $i, '&nbsp;') . HTML::tag_close($row_tag);
 		}
 	}
-	$tr[] = html::tag_close("tr");
+	$tr[] = HTML::tag_close("tr");
 
 	return implode("\n", $tr);
 }
 
 function href($hr, $encode = true, $pass_ref = false) {
-	zesk::deprecated();
+	zesk()->deprecated();
 	$hr = zesk::href($hr);
 	if ($pass_ref) {
-		$ref = is_string($pass_ref) ? url::query_remove($pass_ref, "message;message_key") : url::current_uri(true);
+		$ref = is_string($pass_ref) ? URL::query_remove($pass_ref, "message;message_key") : URL::current_uri(true);
 		if (!empty($ref)) {
-			$hr = url::query_format($hr, array(
+			$hr = URL::query_format($hr, array(
 				"ref" => $ref
 			));
 		}
@@ -109,91 +112,91 @@ function href($hr, $encode = true, $pass_ref = false) {
 }
 
 function toggle_edit($button, $id, $contents) {
-	zesk::deprecated();
-	html::jquery();
-	return tag("div", "id='" . $id . "_button'", html_tag_single("input", html::parse_attributes("value='" . $button . "' type='button' onclick=\"toggle_edit('" . $id . "')\""))) . tag("div", "style='display: none' id='" . $id . "_edit'", $contents);
+	zesk()->deprecated();
+	HTML::jquery();
+	return tag("div", "id='" . $id . "_button'", html_tag_single("input", HTML::parse_attributes("value='" . $button . "' type='button' onclick=\"toggle_edit('" . $id . "')\""))) . tag("div", "style='display: none' id='" . $id . "_edit'", $contents);
 }
 
 function a_cond($hr, $text, $cond, $pass_ref = false) {
-	zesk::deprecated();
+	zesk()->deprecated();
 	return aa_cond($hr, "", $text, $cond, $pass_ref);
 }
 
 function aa_cond($hr, $attr, $text, $cond, $pass_ref = false) {
-	zesk::deprecated();
+	zesk()->deprecated();
 	if ($cond) {
 		return "<span class=\"a\">" . $text . "</span>";
 	}
-	$attr = html::parse_attributes($attr);
+	$attr = HTML::parse_attributes($attr);
 	$attr["href"] = href($hr, false, $pass_ref);
-	return html::tag_open("a", $attr) . $text . html::tag_close("a");
+	return HTML::tag_open("a", $attr) . $text . HTML::tag_close("a");
 }
 
 function a_end($hr, $text, $pass_ref = false) {
-	zesk::deprecated();
+	zesk()->deprecated();
 	return aa_end($hr, "", $text, $pass_ref);
 }
 
 function aa_end($hr, $attr, $text, $pass_ref = false) {
-	zesk::deprecated();
-	return aa_cond($hr, $attr, $text, str::ends(url::current_uri(), $hr), $pass_ref);
+	zesk()->deprecated();
+	return aa_cond($hr, $attr, $text, str::ends(URL::current_uri(), $hr), $pass_ref);
 }
 
 function a_begin($hr, $text, $pass_ref = false) {
-	zesk::deprecated();
+	zesk()->deprecated();
 	return aa_begin($hr, "", $text, $pass_ref);
 }
 
 function aa_begin($hr, $attr, $text, $pass_ref = false) {
-	zesk::deprecated();
-	return aa_cond($hr, $attr, $text, str::begins(url::current_uri(), $hr), $pass_ref);
+	zesk()->deprecated();
+	return aa_cond($hr, $attr, $text, str::begins(URL::current_uri(), $hr), $pass_ref);
 }
 
 function a($hr, $text, $pass_ref = false) {
-	zesk::deprecated();
+	zesk()->deprecated();
 	return aa($hr, "", $text, $pass_ref);
 }
 
 function aa($hr, $attr, $text, $pass_ref = false) {
-	zesk::deprecated();
-	return aa_cond($hr, $attr, $text, url::current_uri() === $hr, $pass_ref);
+	zesk()->deprecated();
+	return aa_cond($hr, $attr, $text, URL::current_uri() === $hr, $pass_ref);
 }
 
 function a_match($hr, $text) {
-	zesk::deprecated();
+	zesk()->deprecated();
 	return aa_match($hr, "", $text);
 }
 
 function aa_match($hr, $attr, $text, $pass_ref = false) {
-	zesk::deprecated();
-	$here = url::current_uri();
+	zesk()->deprecated();
+	$here = URL::current_uri();
 	return aa_cond($hr, $attr, $text, strpos($here, $hr) !== false, $pass_ref);
 }
 
 function a_script($hr, $text, $pass_ref = false) {
-	zesk::deprecated();
+	zesk()->deprecated();
 	return aa_script($hr, "", $text, $pass_ref);
 }
 
 function aa_script($hr, $attr, $text, $pass_ref = false) {
-	zesk::deprecated();
+	zesk()->deprecated();
 	$here = basename($_SERVER["SCRIPT_NAME"]);
 	return aa_cond($hr, $attr, $text, $here == basename($hr), $pass_ref);
 }
 
 function a_uri($hr, $text, $pass_ref = false) {
-	zesk::deprecated();
+	zesk()->deprecated();
 	return aa_uri($hr, "", $text, $pass_ref);
 }
 
 function aa_uri($hr, $attr, $text, $pass_ref = false) {
-	zesk::deprecated();
+	zesk()->deprecated();
 	$here = avalue($_SERVER, "REQUEST_URI");
 	return aa_cond($hr, $attr, $text, $here == $hr, $pass_ref);
 }
 
 function img($src, $w = false, $h = false, $text = "", $attrs = false) {
-	zesk::deprecated();
+	zesk()->deprecated();
 	$attrs["alt"] = $text;
 	$attrs["title"] = avalue($attrs, 'title', $text);
 	$attrs["src"] = href($src, false);
@@ -221,12 +224,12 @@ function img($src, $w = false, $h = false, $text = "", $attrs = false) {
 }
 
 function tag($name, $attrs, $content) {
-	zesk::deprecated();
-	return html_tag($name, html::parse_attributes($attrs)) . $content . html::tag_close($name);
+	zesk()->deprecated();
+	return html_tag($name, HTML::parse_attributes($attrs)) . $content . HTML::tag_close($name);
 }
 
 function div($mixed, $content = null) {
-	zesk::deprecated();
+	zesk()->deprecated();
 	if (is_string($mixed)) {
 		if ($mixed[0] === '#') {
 			$mixed = array(
@@ -246,7 +249,7 @@ function div($mixed, $content = null) {
 }
 
 function etag($name, $attrs, $content) {
-	zesk::deprecated();
+	zesk()->deprecated();
 	if (empty($content)) {
 		return "";
 	}
@@ -254,7 +257,7 @@ function etag($name, $attrs, $content) {
 }
 
 function extract_string($x, $s, $e) {
-	zesk::deprecated();
+	zesk()->deprecated();
 	$result = "";
 	$soff = strpos($x, $s);
 	if ($soff === false) {
@@ -269,17 +272,17 @@ function extract_string($x, $s, $e) {
 }
 
 function clean_href($x) {
-	zesk::deprecated();
+	zesk()->deprecated();
 	return str_replace("&", "&amp;", str_replace("&amp;", "&", $x));
 }
 
 function email_encrypt($e, $hr = false, $noscript = true) {
-	zesk::deprecated();
+	zesk()->deprecated();
 	return mail::encrypt($e, $hr, $noscript);
 }
 
 function _auto_html_extras($x) {
-	zesk::deprecated();
+	zesk()->deprecated();
 	if (substr($x, -1) == ",") {
 		return array(
 			substr($x, 0, -1),
@@ -293,7 +296,7 @@ function _auto_html_extras($x) {
 }
 
 function html_encrypt_emails($html) {
-	zesk::deprecated();
+	zesk()->deprecated();
 	$matches = false;
 	$pattern = '/([^A-Za-z_0-9])([A-Za-z_0-9]+@[-A-Za-z.]+\.[A-Za-z]+)([^A-Za-z])/';
 	if (preg_match_all($pattern, $html, $matches, PREG_SET_ORDER)) {
@@ -305,7 +308,7 @@ function html_encrypt_emails($html) {
 }
 
 function auto_html($x) {
-	zesk::deprecated();
+	zesk()->deprecated();
 	$matches = false;
 	$patterns = array(
 		'/\s([A-Za-z_0-9]+@[-A-Za-z.]+\.[A-Za-z]+)/',
@@ -351,14 +354,14 @@ function auto_html($x) {
 }
 
 function format_text($s) {
-	zesk::deprecated();
+	zesk()->deprecated();
 	return auto_html(nl2br($s));
 }
 
 function format_key() {
 	global $key_id;
 
-	zesk::deprecated();
+	zesk()->deprecated();
 	if (!isset($key_id))
 		$key_id = 0;
 	$key_id++;
@@ -396,7 +399,7 @@ EOF;
 }
 
 function format_para($r, $useBR = false) {
-	zesk::deprecated();
+	zesk()->deprecated();
 	if (empty($r))
 		return "";
 
@@ -439,14 +442,14 @@ function format_para($r, $useBR = false) {
 }
 
 function format_list($s) {
-	zesk::deprecated();
+	zesk()->deprecated();
 	$s = "<ul><li>" . str_replace("\n", "</li>\n" . "<li>", $s) . "</li></ul>";
 	$s = str_replace("<li></li>", "", $s);
 	return auto_html($s);
 }
 
 function actionlink($x, $href, $src, $w, $h, $title, $confirm = false) {
-	zesk::deprecated();
+	zesk()->deprecated();
 	$attr = $confirm ? "onclick=\"return confirm('Are you sure?')\"" : "";
 	return aa(map($href, $x), $attr, img($src, $w, $h, map($title, $x)), false);
 }
@@ -455,7 +458,7 @@ function actionlink($x, $href, $src, $w, $h, $title, $confirm = false) {
 *	Text-related
 \*-----------------------------------------------------------------------------------*/
 function errors_show($x, $error_class = "error", $prefix = false) {
-	zesk::deprecated();
+	zesk()->deprecated();
 	if (!is_array($x)) {
 		return "";
 	}
@@ -478,7 +481,7 @@ function errors_show($x, $error_class = "error", $prefix = false) {
 }
 
 function error_show($errors, $k) {
-	zesk::deprecated();
+	zesk()->deprecated();
 	if (!array_key_exists($k, $errors)) {
 		return "";
 	}
@@ -486,7 +489,7 @@ function error_show($errors, $k) {
 }
 
 function buttonbar(Options $opts) {
-	zesk::deprecated();
+	zesk()->deprecated();
 	if ($opts->option_bool("hide_button_bar")) {
 		return "";
 	}
@@ -502,10 +505,10 @@ function buttonbar(Options $opts) {
 	$is_jquery = zesk::getb('ajax-jquery');
 
 	if ($ajax_id) {
-		$uri = url::current_path();
+		$uri = URL::current_path();
 		if ($is_jquery) {
-			$submit_onclick = "ajax_jquery_form_submit('$ajax_id', " . js::null($opts->option('ajax_form_submit')) . ")";
-			$cancel_onclick = "ajax_jquery_form_cancel('$ajax_id', " . js::null($opts->option('ajax_form_cancel')) . ")";
+			$submit_onclick = "ajax_jquery_form_submit('$ajax_id', " . JavaScript::null($opts->option('ajax_form_submit')) . ")";
+			$cancel_onclick = "ajax_jquery_form_cancel('$ajax_id', " . JavaScript::null($opts->option('ajax_form_cancel')) . ")";
 		} else {
 			$submit_onclick = "ajax_form_submit(this, '$ajax_id', '$uri')";
 			$cancel_onclick = "ajax_form_cancel('$ajax_id')";
@@ -547,7 +550,7 @@ function buttonbar(Options $opts) {
 		$r .= div('cancel-button', html_tag_single("input", $input_attrs));
 	}
 
-	$r .= html::tag_close("div");
+	$r .= HTML::tag_close("div");
 	return $r;
 }
 
@@ -563,9 +566,9 @@ function is_embedded($min_level = 1) {
 }
 
 function arrow_down_right($title, $id, $is_open = false, $class = false, $tag = "h2", $state_url = false) {
-	zesk::deprecated();
-	html::jquery("var frag = document.URL.split('#'); if (frag[1]) { $('#'+frag[1]).show(); }");
-	html::cdn_javascript("/share/zesk/js/zesk.js", array('weight' => 'first'));
+	zesk()->deprecated();
+	HTML::jquery("var frag = document.URL.split('#'); if (frag[1]) { $('#'+frag[1]).show(); }");
+	HTML::cdn_javascript("/share/zesk/js/zesk.js", array('weight' => 'first'));
 
 	$opts = array(
 		"title" => $title,
@@ -586,15 +589,15 @@ function arrow_down_right($title, $id, $is_open = false, $class = false, $tag = 
 }
 
 function section_down_right($title, $content, $id, $is_open = false, $class = false, $tag = "h2", $state_url = false) {
-	zesk::deprecated();
+	zesk()->deprecated();
 	return section_down_right_begin($title, $content, $id, $is_open, $class, $tag, $state_url) . section_down_right_end();
 }
 
 function section_down_right_begin($title, $id = false, $is_open = false, $class = false, $tag = "h2", $state_url = false) {
-	zesk::deprecated();
-	html::jquery("var frag = document.URL.split('#'); if (frag[1]) { $('#'+frag[1]).show(); }");
+	zesk()->deprecated();
+	HTML::jquery("var frag = document.URL.split('#'); if (frag[1]) { $('#'+frag[1]).show(); }");
 	if (empty($id)) {
-		$id = "section-dr-" . html::id_counter();
+		$id = "section-dr-" . HTML::id_counter();
 	}
 	return arrow_down_right($title, $id, $is_open, $class, $tag, $state_url) . html_tag("div", array(
 		"id" => $id,
@@ -604,17 +607,17 @@ function section_down_right_begin($title, $id = false, $is_open = false, $class 
 }
 
 function section_down_right_end() {
-	zesk::deprecated();
-	return html::tag_close("div");
+	zesk()->deprecated();
+	return HTML::tag_close("div");
 }
 
 function arrow_widget($title, $contents, $id, $is_open, Options $options) {
-	zesk::deprecated();
+	zesk()->deprecated();
 	return arrow_widget_begin($title, $id, $is_open, $options) . $contents . arrow_widget_end();
 }
 
 function arrow_widget_begin($title, $id, $is_open, Options $options) {
-	zesk::deprecated();
+	zesk()->deprecated();
 	$url = $options->option("url");
 
 	$js = "javascript:arrow_down_right('$id','$url')";
@@ -654,7 +657,7 @@ function arrow_widget_begin($title, $id, $is_open, Options $options) {
 }
 
 function arrow_widget_end() {
-	zesk::deprecated();
+	zesk()->deprecated();
 	return "</div>";
 }
 
@@ -666,12 +669,12 @@ function arrow_widget_end() {
  * @return integer The number of words found
  */
 function text_count_words($string, $limit = -1) {
-	zesk::deprecated();
+	zesk()->deprecated();
 	return count(preg_split('/\s+/', trim($string), $limit));
 }
 
 function html_closebox($content, $template_file = false, $options = false) {
-	zesk::deprecated();
+	zesk()->deprecated();
 	if (empty($template_file)) {
 		$template_file = ZESK_ROOT . "theme/zesk/widgets/closebox/default.tpl";
 	}
@@ -688,7 +691,7 @@ function html_closebox($content, $template_file = false, $options = false) {
  * @return string
  */
 function html_errors($e, $just_numeric = false) {
-	zesk::deprecated();
+	zesk()->deprecated();
 	if (is_string($e)) {
 		$e = array(
 			$e
@@ -730,7 +733,7 @@ function html_errors($e, $just_numeric = false) {
  * @return unknown
  */
 function html_error($e, $name, $prefix = "<br />") {
-	zesk::deprecated();
+	zesk()->deprecated();
 	if (!is_array($e)) {
 		return "";
 	}
@@ -750,7 +753,7 @@ function html_error($e, $name, $prefix = "<br />") {
  * @return unknown
  */
 function linklist($html, $tag = "dt", $maxn = -1) {
-	zesk::deprecated();
+	zesk()->deprecated();
 	$matches = false;
 	if (!preg_match_all('/(?U)<' . $tag . '[^>]*>(.*)<\/' . $tag . '[^>]*>/', $html, $matches)) {
 		return "";
@@ -763,7 +766,7 @@ function linklist($html, $tag = "dt", $maxn = -1) {
 				$result[$aname[1]] = "More ...";
 				break;
 			} else {
-				$result[$aname[1]] = html::strip($xx);
+				$result[$aname[1]] = HTML::strip($xx);
 			}
 		}
 	}
@@ -785,13 +788,13 @@ function linklist($html, $tag = "dt", $maxn = -1) {
  * @return unknown
  */
 function input_select($name, $opts, $value, $attrs = false) {
-	zesk::deprecated();
+	zesk()->deprecated();
 	if (!is_array($opts) || count($opts) === 1) {
 		foreach ($opts as $k => $v) {
 			return "<input type=\"hidden\" name=\"$name\" value=\"$k\" />$v";
 		}
 	}
-	$result[] = "<select name=\"$name\"" . html::attributes($attrs) . ">";
+	$result[] = "<select name=\"$name\"" . HTML::attributes($attrs) . ">";
 	foreach ($opts as $n => $v) {
 		$result[] = "<option value=\"$n\"" . (($value == $n) ? " selected" : "") . ">$v</option>";
 	}
@@ -809,7 +812,7 @@ function input_select($name, $opts, $value, $attrs = false) {
  * @return unknown
  */
 function input_date($formname, $name, $value = "Not set.", $showclear = false) {
-	zesk::deprecated();
+	zesk()->deprecated();
 	$result = "
 		<input type=\"text\"
 			name=\"Show_$name\"
@@ -849,7 +852,7 @@ function input_date($formname, $name, $value = "Not set.", $showclear = false) {
  * @return string word-wrapped string
  */
 function wrap_string($s, $br = "<br /> ", $nchars = 35) {
-	zesk::deprecated();
+	zesk()->deprecated();
 	$i = 0;
 	$ss = array();
 	while ($i < strlen($s)) {

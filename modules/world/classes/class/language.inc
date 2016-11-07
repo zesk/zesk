@@ -5,7 +5,7 @@
  * @author kent
  *
  */
-class Class_Language extends Class_Object {
+class Class_Language extends zesk\Class_Object {
 	public $id_column = 'id';
 	public $name_column = 'name';
 	public $name = "Language";

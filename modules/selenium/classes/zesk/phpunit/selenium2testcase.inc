@@ -2,6 +2,11 @@
 
 namespace zesk;
 
+/**
+ * 
+ * @author kent
+ *
+ */
 abstract class PHPUnit_Selenium2TestCase extends \PHPUnit_Extensions_Selenium2TestCase {
 	protected function waitForId($selector, $timeout = null) {
 		$this->log("Waiting for ID: {selector} ({timeout} secs)", compact("selector", "timeout"));
@@ -28,7 +33,7 @@ abstract class PHPUnit_Selenium2TestCase extends \PHPUnit_Extensions_Selenium2Te
 				sleep(1);
 			}
 		}
-		throw new \Exception_NotFound("{class}:waitFor:{func} Element {selector} not found on page {url}", array(
+		throw new Exception_NotFound("{class}:waitFor:{func} Element {selector} not found on page {url}", array(
 			"func" => $func,
 			"class" => get_class($this),
 			"method" => __METHOD__,
@@ -69,7 +74,7 @@ abstract class PHPUnit_Selenium2TestCase extends \PHPUnit_Extensions_Selenium2Te
 		if (is_array($mixed)) {
 			$details += $mixed;
 		}
-		return \text::format_pairs($details);
+		return \Text::format_pairs($details);
 	}
 	
 	/**
@@ -79,11 +84,11 @@ abstract class PHPUnit_Selenium2TestCase extends \PHPUnit_Extensions_Selenium2Te
 	 * @return mixed
 	 */
 	public function json_request($url) {
-		$this->assertTrue(\url::valid($url), "url::valid(\"$url\") is not TRUE");
+		$this->assertTrue(\URL::valid($url), "URL::valid(\"$url\") is not TRUE");
 		//echo "Fetching $url ...\n";
 		$result = file_get_contents($url);
 		//echo "==\n$result\n==\n";
-		return \json::decode($result);
+		return JSON::decode($result);
 	}
 	
 	/**
@@ -109,7 +114,7 @@ abstract class PHPUnit_Selenium2TestCase extends \PHPUnit_Extensions_Selenium2Te
 	 * @return string|null
 	 */
 	public function url_part($part) {
-		$parts = \url::parse($this->url());
+		$parts = \URL::parse($this->url());
 		return avalue($parts, $part);
 	}
 	protected function check_page_source() {

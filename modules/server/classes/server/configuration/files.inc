@@ -7,6 +7,17 @@
  * @author $Author: kent $
  * @copyright Copyright &copy; 2011, Market Acumen, Inc.
  */
+use zesk\arr;
+use zesk\Directory;
+use zesk\File;
+use zesk\Exception_Directory_NotFound;
+use zesk\Exception_Configuration;
+
+/**
+ * 
+ * @author kent
+ *
+ */
 class Server_Configuration_Files extends Server_Configuration {
 	protected $host_path = null;
 	protected $host_aliases = array();
@@ -45,7 +56,7 @@ class Server_Configuration_Files extends Server_Configuration {
 		$hostname = $this->platform->hostname();
 		$alias_hostname = avalue($this->host_aliases(), $hostname, $hostname);
 		if ($alias_hostname !== $hostname) {
-			log::warning("Server_Configuration_Files _load_configuration: {hostname} aliaesed to {alias_hostname}", array(
+			$zesk->logger->warning("Server_Configuration_Files _load_configuration: {hostname} aliaesed to {alias_hostname}", array(
 				"hostname" => $hostname,
 				"alias_hostname" => $alias_hostname
 			));
@@ -75,7 +86,7 @@ class Server_Configuration_Files extends Server_Configuration {
 					));
 					$result = $variables + $result;
 					$this->set_option($variables);
-					log::debug("Loading configuration $conf");
+					$zesk->logger->debug("Loading configuration $conf");
 				}
 				$searched_paths[$path] = true;
 			}
@@ -84,7 +95,7 @@ class Server_Configuration_Files extends Server_Configuration {
 		$zesk->logger->debug("configuration search path {paths}, files {files}, result {result}", array(
 			"paths" => implode(",", $search_path),
 			"files" => implode(",", $files),
-			"result" => php::dump($result)
+			"result" => PHP::dump($result)
 		));
 	}
 	function feature_list() {
@@ -100,20 +111,22 @@ class Server_Configuration_Files extends Server_Configuration {
 	function remote_package($url) {
 	}
 	function configure_feature(Server_Feature $feature) {
+		global $zesk;
+		/* @var $zesk \zesk\Kernel */
 		$shortname = $feature->code;
 		$files = array(
 			path($feature->configure_path(), 'feature.conf')
 		);
-		$files = array_merge($files, zesk::find_files($this->search_path(), path($shortname, "feature.conf")));
+		$files = array_merge($files, File::find_all($this->search_path(), path($shortname, "feature.conf")));
 		$settings = array();
 		foreach ($files as $file) {
 			if (is_file($file)) {
 				$settings = $this->platform->conf_load($file) + $settings;
 			}
 		}
-		log::debug("Configured feature {class} {settings}", array(
+		$zesk->logger->debug("Configured feature {class} {settings}", array(
 			"class" => get_class($feature),
-			"settings" => text::format_pairs($settings)
+			"settings" => Text::format_pairs($settings)
 		));
 		$feature->set_option($settings);
 	}
@@ -162,7 +175,7 @@ class Server_Configuration_Files extends Server_Configuration {
 		if (is_array($add_search_path)) {
 			$search_path = array_merge($search_path, $add_search_path);
 		}
-		if (zesk::find_directory($search_path) === null) {
+		if (Directory::find_first($search_path) === null) {
 			if (avalue($options, "require")) {
 				throw new Exception_Configuration($type, "Requires directory to be located in {search_path_list}", array(
 					"search_path" => $search_path,
@@ -177,9 +190,9 @@ class Server_Configuration_Files extends Server_Configuration {
 		foreach ($files as $mixed) {
 			$source_prefix = path($type, $mixed);
 			if (str::ends($source_prefix, "/")) {
-				$source = zesk::find_directory($search_path, $source_prefix);
+				$source = Directory::find_first($search_path, $source_prefix);
 			} else {
-				$source = zesk::find_file($search_path, $source_prefix);
+				$source = File::find_first($search_path, $source_prefix);
 			}
 			if ($source) {
 				$dest = path($dest, $source_prefix);

@@ -18,7 +18,7 @@ class http {
 	 * TODO Move this to Response
 	 */
 	public static function p3p($policyref, $compact_p3p = null) {
-		zesk::deprecated();
+		zesk()->deprecated();
 		$response = Response::instance();
 		if (empty($compact_p3p)) {
 			$compact_p3p = "NOI DSP NID PSA ADM OUR IND NAV COM";

@@ -1,5 +1,11 @@
 <?php
-use zesk\Timestamp as Timestamp;
+/**
+ * 
+ */
+use zesk\Application;
+use zesk\URL;
+use zesk\Timestamp;
+use zesk\Directory;
 
 /**
  * Module to allow jobs to be activated via mechanism which isn't polling the database.
@@ -8,7 +14,7 @@ use zesk\Timestamp as Timestamp;
  * 
  * @author kent
  */
-class Module_Job_Trigger extends Module implements Module_Interface_Routes {
+class Module_Job_Trigger extends Module implements zesk\Interface_Module_Routes {
 	/**
 	 * Add hooks for initialize
 	 */
@@ -41,7 +47,7 @@ class Module_Job_Trigger extends Module implements Module_Interface_Routes {
 	 */
 	private function marker_file() {
 		$path = $this->application->data_path("job_trigger");
-		dir::depend($path);
+		Directory::depend($path);
 		return path($path, "trigger");
 	}
 	
@@ -83,7 +89,7 @@ class Module_Job_Trigger extends Module implements Module_Interface_Routes {
 		$query['timestamp'] = $timestamp = strval(microtime(true));
 		$query['hash'] = $this->compute_hash($timestamp);
 		
-		return url::query_append($url, $query);
+		return URL::query_append($url, $query);
 	}
 	
 	/**
@@ -136,7 +142,7 @@ class Module_Job_Trigger extends Module implements Module_Interface_Routes {
 	public static function web_job_trigger(Application $application, Request $request) {
 		global $zesk;
 		/* @var $zesk zesk\Kernel */
-		$module = $application->module->object("job_trigger");
+		$module = $application->modules->object("job_trigger");
 		$result = $module->check_security($request->get("hash"), $request->get("timestamp"));
 		if (!is_array($result)) {
 			/* @var $module Module_Job_Trigger */
@@ -155,17 +161,19 @@ class Module_Job_Trigger extends Module implements Module_Interface_Routes {
 	 * Send a notice to all servers that jobs are waiting
 	 */
 	public function trigger_send() {
+		global $zesk;
+		/* @var $zesk \zesk\Kernel */
 		$server = $this->application->singleton("Server");
-		$servers = $server->query()->where("alive|>=", Timestamp::now()->add_unit("minute", -1))->object_iterator();
+		$servers = $server->query_select()->where("alive|>=", Timestamp::now()->add_unit("minute", -1))->object_iterator();
 		foreach ($servers as $other_server) {
 			if ($other_server->id() === $server->id()) {
 				$this->write_marker();
 			} else {
 				$url = $this->trigger_send_pattern($other_server);
 				if ($url) {
-					log::debug("Notifying job trigger for {url}", compact("url"));
+					$zesk->logger->debug("Notifying job trigger for {url}", compact("url"));
 					$url = $this->add_security($url);
-					zesk::execute("curl --connect-timeout 2 {0} > /dev/null 2>&1 &", $url);
+					$zesk->process->execute("curl --connect-timeout 2 {0} > /dev/null 2>&1 &", $url);
 				}
 			}
 		}
@@ -202,7 +210,7 @@ class Module_Job_Trigger extends Module implements Module_Interface_Routes {
 	 * 
 	 * @param Router $router
 	 */
-	public function hook_routes(Router $router) {
+	public function hook_routes(zesk\Router $router) {
 		if ($this->has_option("key")) {
 			// Only allowed to receive web requests with some form of shared key security.
 			// If you don't configure this works fine on single-server applications
@@ -211,7 +219,7 @@ class Module_Job_Trigger extends Module implements Module_Interface_Routes {
 					__CLASS__,
 					"web_job_trigger"
 				),
-				"content type" => Response_HTML::content_type_json,
+				"content type" => zesk\Response_Text_HTML::content_type_json,
 				"arguments" => array(
 					"{application}",
 					"{request}"
@@ -220,7 +228,7 @@ class Module_Job_Trigger extends Module implements Module_Interface_Routes {
 		}
 		$router->add_route("job_trigger/active", array(
 			"content" => true,
-			"content type" => Response_HTML::content_type_json
+			"content type" => zesk\Response_Text_HTML::content_type_json
 		));
 	}
 }

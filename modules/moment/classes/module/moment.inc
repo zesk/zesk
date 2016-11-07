@@ -1,9 +1,29 @@
 <?php
-class Module_Moment extends Module_JSLib implements Module_Interface_Head {
+/**
+ * 
+ */
+use zesk\JavaScript;
+
+/**
+ * 
+ * @author kent
+ *
+ */
+class Module_Moment extends Module_JSLib implements zesk\Interface_Module_Head {
+	/**
+	 * 
+	 * @var array
+	 */
 	protected $javascript_paths = array(
 		"/share/moment/moment.js",
 		"/share/moment/moment-with-locales.js"
 	);
+	
+	/**
+	 * 
+	 * {@inheritDoc}
+	 * @see Module::initialize()
+	 */
 	public function initialize() {
 		if ($this->option_bool('timezone_support')) {
 			$this->javascript_paths[] = '/share/moment/moment-timezone.js';
@@ -12,10 +32,16 @@ class Module_Moment extends Module_JSLib implements Module_Interface_Head {
 		}
 		parent::initialize();
 	}
-	public function hook_head(Request $request, Response_HTML $response, Template $template) {
+	
+	/**
+	 * 
+	 * {@inheritDoc}
+	 * @see Module_JSLib::hook_head()
+	 */
+	public function hook_head(zesk\Request $request, zesk\Response_Text_HTML $response, zesk\Template $template) {
 		$locale = zesk\Locale::current();
 		$language = zesk\Locale::language($locale);
-		$this->jquery_ready[] = "try {\n\tmoment.locale(" . js::arguments(array(
+		$this->jquery_ready[] = "try {\n\tmoment.locale(" . JavaScript::arguments(array(
 			$locale,
 			$language
 		)) . ");\n} catch (e) {\n\twindow.zesk && window.zesk.log(\"Moment locale $locale failed to load\");\n}";

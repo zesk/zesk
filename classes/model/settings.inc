@@ -1,5 +1,5 @@
 <?php
-class Model_Settings extends Model {
+class Model_Settings extends zesk\Model {
 	protected $_changed = array();
 	protected $_accessor = array();
 	protected $_access_cache = array();

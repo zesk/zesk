@@ -137,7 +137,7 @@ class Compatibility {
  * @deprecated Use strtr instead
  */
 function replace($search, $replace, $mixed) {
-	\zesk::deprecated();
+	zesk()->deprecated();
 	if (count($search) === 0) {
 		return $mixed;
 	}
@@ -160,7 +160,7 @@ function replace($search, $replace, $mixed) {
  * @deprecated Use strtr instead
  */
 function replace_map(array $map, $mixed) {
-	\zesk::deprecated();
+	zesk()->deprecated();
 	return replace(array_keys($map), array_values($map), $mixed);
 }
 

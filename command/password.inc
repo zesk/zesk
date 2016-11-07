@@ -8,24 +8,21 @@
  * @category Management
  */
 class Command_Password extends Command_Base {
-
 	protected $option_types = array(
-		"user" => "string", 
-		"password" => "string", 
+		"user" => "string",
+		"password" => "string",
 		"list" => "boolean"
 	);
-
 	protected $option_help = array(
-		"user" => "The user to edit", 
-		"password" => "The new password", 
+		"user" => "The user to edit",
+		"password" => "The new password",
 		"list" => "List the active users in the database"
 	);
-
 	function _option_list() {
 		/* @var $user User */
 		$user = $this->application->object_factory('User');
 		$col = $user->column_login();
-		$iterator = $user->query()
+		$iterator = $user->query_select()
 			->what($col)
 			->order_by($col)
 			->iterator(null, $col);
@@ -34,10 +31,9 @@ class Command_Password extends Command_Base {
 			fprintf(STDOUT, "$login\n");
 			++$n;
 		}
-		fprintf(STDERR, "# " . lang::plural_word("user", $n) . "\n");
+		fprintf(STDERR, "# " . Locale::plural_word("user", $n) . "\n");
 		return true;
 	}
-
 	function run() {
 		if ($this->option_bool('list')) {
 			return $this->_option_list();

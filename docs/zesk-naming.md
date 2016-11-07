@@ -95,9 +95,9 @@ The corresponding file names which contain these classes are lower-case:
 	
 Class names for purely static, utility classes are lower-case:
 
-    echo html::tag('div', '#customer-name', $content);
+    echo HTML::tag('div', '#customer-name', $content);
     echo zesk::get("Company.Name");
-    js::obfuscate_begin();
+    JavaScript::obfuscate_begin();
 
 ## Functions and Methods
 
@@ -119,7 +119,7 @@ Hooks are a simple but powerful method for modules to modify or interact with va
 
 Classes which inherit from `Hookable` have hook functionality built in. To invoke a hook:
 
-    $x->hook('notify', $emails);
+    $x->call_hook('notify', $emails);
 
 Hook names within a class are [Lower Underscore](naming-styles-definitions.md) and generally are message phrases, such a:
 

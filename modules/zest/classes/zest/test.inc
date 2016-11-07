@@ -4,7 +4,7 @@ namespace zest;
 
 use \Object as Object;
 use zesk\File as File;
-use zesk\Timestamp as Timestamp;
+use zesk\Timestamp;
 
 /**
  * @see Class_Test

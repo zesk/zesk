@@ -1,4 +1,6 @@
 <?php
+use zesk\Application;
+
 /**
  * Mock Process Interruptable for testing
  *
@@ -34,12 +36,12 @@ class Process_Interruptable_Mock extends Hookable implements Process_Interruptab
 	/**
 	 * Construct our mock process 
 	 * 
-	 * @param Application $applicadtion
+	 * @param Application $application
 	 * @param array $options
 	 */
-	function __construct(Application $applicadtion, $options = null) {
+	function __construct(Application $application, $options = null) {
 		parent::__construct($options);
-		$this->application = $applicadtion;
+		$this->application = $application;
 		$this->timer = new Timer();
 		$this->quit_after = $this->option_integer("quit_after", 60); // 60 seconds should be good, right?
 	}
@@ -66,7 +68,7 @@ class Process_Interruptable_Mock extends Hookable implements Process_Interruptab
 		if ($this->timer->elapsed() > $this->quit_after) {
 			return true;
 		}
-		return $this->hook_array('done', array(), $this->done);
+		return $this->call_hook_arguments('done', array(), $this->done);
 	}
 	
 	/**
@@ -102,7 +104,7 @@ class Process_Interruptable_Mock extends Hookable implements Process_Interruptab
 	 * @param array $args
 	 * @param string $level
 	 */
-	function log($message, array $args = array(), $level = null) {
-		log::send($message, $args, $level);
+	function log($message, array $args = array()) {
+		zesk()->logger->log(avalue($args, 'severity', 'info'), $message, $args);
 	}
 }

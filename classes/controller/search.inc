@@ -1,5 +1,14 @@
 <?php
+/**
+ * 
+ */
+use zesk\Exception_Class_NotFound;
 
+/**
+ * 
+ * @author kent
+ *
+ */
 class Controller_Search extends Controller_Template {
 
 	protected function action_index() {

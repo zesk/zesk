@@ -1,6 +1,6 @@
 <?php
 
-use zesk\Timestamp as Timestamp;
+use zesk\Timestamp;
 
 /**
  * $URL: https://code.marketacumen.com/zesk/trunk/modules/date/classes/control/date/input.inc $
@@ -68,25 +68,25 @@ class Control_Date_Input extends Control {
 	}
 	function render() {
 		$object = $this->object;
-		$tattr = html::parse_attributes("align=\"center\" class=\"tiny\"");
+		$tattr = HTML::parse_attributes("align=\"center\" class=\"tiny\"");
 
 		$name = $this->name();
 
-		$tr = html::tag("td", "", html::input('text', $name . "_mm", $object->get($name . "_mm", ""), 3));
-		$tr .= html::tag("td", "", html::input('text', $name . "_dd", $object->get($name . "_dd", ""), 3));
-		$tr .= html::tag("td", "", html::input('text', $name . "_yy", $object->get($name . "_yy", ""), 5));
+		$tr = HTML::tag("td", "", HTML::input('text', $name . "_mm", $object->get($name . "_mm", ""), 3));
+		$tr .= HTML::tag("td", "", HTML::input('text', $name . "_dd", $object->get($name . "_dd", ""), 3));
+		$tr .= HTML::tag("td", "", HTML::input('text', $name . "_yy", $object->get($name . "_yy", ""), 5));
 
-		$trlabel = html::tag("td", array(
+		$trlabel = HTML::tag("td", array(
 			"class" => "month label tiny"
 		) + $tattr, __("Month"));
-		$trlabel = html::tag("td", array(
+		$trlabel = HTML::tag("td", array(
 			"class" => "day label tiny"
 		) + $tattr, __("Day"));
-		$trlabel = html::tag("td", array(
+		$trlabel = HTML::tag("td", array(
 			"class" => "year label tiny"
 		) + $tattr, __("Year"));
 
-		return html::tag("table", "class=\"date\"", html::tag("tr", "", $tr) . html::tag("tr", "", $trlabel));
+		return HTML::tag("table", "class=\"date\"", HTML::tag("tr", "", $tr) . HTML::tag("tr", "", $trlabel));
 	}
 }
 

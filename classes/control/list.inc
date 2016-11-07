@@ -7,6 +7,16 @@
  * @copyright Copyright &copy; 2008, Market Acumen, Inc.
  *            Created on Tue Jul 15 16:28:30 EDT 2008
  */
+use zesk\Object;
+use zesk\arr;
+use zesk\Database_Query_Select;
+use zesk\Locale;
+
+/**
+ * 
+ * @author kent
+ *
+ */
 class Control_List extends Control_Widgets_Filter {
 	protected $theme = "control/list";
 	
@@ -237,17 +247,17 @@ class Control_List extends Control_Widgets_Filter {
 		//$this->object = Object::cache_object($this->class);
 		$this->initialize_theme_paths();
 		
-		$this->class_object = Object::cache_class($this->class, "class");
+		$this->class_object = $this->application->class_object($this->class);
 		
 		$this->row_widget = $row_widget = new Control_Row();
 		$row_widget->names($this->name() . '_row');
-		$row_widget->children($this->row_widgets = $this->hook_array('widgets', array(), array()));
+		$row_widget->children($this->row_widgets = $this->call_hook_arguments('widgets', array(), array()));
 		$row_widget->row_tag($this->row_tag);
 		$row_widget->row_attributes($this->row_attributes);
 		$row_widget->set_theme($this->theme_row);
 		$this->child($row_widget);
 		
-		$this->hook("row_widget", $this->row_widget);
+		$this->call_hook("row_widget", $this->row_widget);
 		
 		$this->initialize_header_widgets();
 		$this->initialize_query();
@@ -315,7 +325,7 @@ class Control_List extends Control_Widgets_Filter {
 			$header_widget->child($w);
 		}
 		$this->child($header_widget);
-		$this->hook("header_widget", $header_widget);
+		$this->call_hook("header_widget", $header_widget);
 	}
 	private function _prepare_queries() {
 		if (!$this->query_hooked) {
@@ -354,7 +364,7 @@ class Control_List extends Control_Widgets_Filter {
 			'widgets' => $this->row_widgets,
 			'hide_new_button' => $this->option_bool('hide_new_button'),
 			'list_object_name' => __($class_object->name),
-			'list_object_names' => lang::plural(__($class_object->name)),
+			'list_object_names' => Locale::plural(__($class_object->name)),
 			'list_class' => $this->class,
 			'list_class_object' => $this->class_object,
 			'list_is_empty' => $this->cache_total === 0,
@@ -383,7 +393,7 @@ class Control_List extends Control_Widgets_Filter {
 	 * @return Database_Query_Select
 	 */
 	private function _query() {
-		$query = Object::class_query($this->class)->what_object($this->class);
+		$query = $this->application->query_select($this->class)->what_object($this->class);
 		if ($this->has_option('where')) {
 			$query->where($this->option_array('where'));
 		}

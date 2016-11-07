@@ -1,6 +1,18 @@
 <?php
-use zesk\file as file;
-use zesk\Timestamp as Timestamp;
+/**
+ * 
+ */
+use zesk\File;
+use zesk\Directory;
+use zesk\Timestamp;
+use zesk\Exception_Directory_NotFound;
+use zesk\Exception_Directory_Create;
+
+/**
+ * 
+ * @author kent
+ *
+ */
 class Net_Sync extends Options {
 	
 	/**
@@ -246,11 +258,11 @@ class Net_Sync extends Options {
 		$dst = $this->dst;
 		
 		$src_url = $src->url();
-		$src_root = dir::add_slash($src->url('path'));
+		$src_root = Directory::add_slash($src->url('path'));
 		$src_root_length = strlen($src_root);
 		
 		$dst_url = $dst->url();
-		$dst_root = dir::add_slash($dst->url('path'));
+		$dst_root = Directory::add_slash($dst->url('path'));
 		
 		if (!$src->cd($src_root)) {
 			throw new Exception_Directory_NotFound("Source \"$src_url\" directory \"$src_root\" not found");

@@ -7,6 +7,14 @@
  * @copyright Copyright &copy; 2008, Market Acumen, Inc.
  * Created on Tue Jul 15 16:31:14 EDT 2008
  */
+use zesk\Object;
+use zesk\URL;
+
+/**
+ * 
+ * @author kent
+ *
+ */
 class Control_Login extends Control_Edit {
 	protected $class = "User";
 	protected $render_children = false;
@@ -52,7 +60,10 @@ class Control_Login extends Control_Edit {
 			$this->child($f);
 		}
 		
-		$f = $this->widget_factory('Control_Button')->names('login_button', false)->set_option('button_label', __("Login"))->add_class('btn-primary btn-block');
+		$f = $this->widget_factory('Control_Button')
+			->names('login_button', false)
+			->set_option('button_label', __("Login"))
+			->add_class('btn-primary btn-block');
 		$this->child($f);
 		
 		parent::initialize();
@@ -73,6 +84,8 @@ class Control_Login extends Control_Edit {
 	 * @see Control_Edit::validate()
 	 */
 	public function validate() {
+		global $zesk;
+		/* @var $zesk zesk\Kernel */
 		if (!parent::validate()) {
 			return false;
 		}
@@ -82,7 +95,7 @@ class Control_Login extends Control_Edit {
 		$user = new User();
 		$column_login = $this->option('column_login', $user->column_login());
 		if ($this->option("no_password")) {
-			$user = Object::class_query("User")->where($column_login, $object->login)->one_object();
+			$user = $this->application->query_select("User")->where($column_login, $object->login)->one_object();
 			if ($user) {
 				$this->user = $user;
 				return true;
@@ -95,7 +108,7 @@ class Control_Login extends Control_Edit {
 		$failed = false;
 		if (!$user->authenticate($login, $object->login_password_hash, false, false)) {
 			$failed = true;
-			if ($this->hook_array("authenticate", array(
+			if ($this->call_hook_arguments("authenticate", array(
 				$user,
 				$login,
 				$object->login_password_hash
@@ -104,16 +117,16 @@ class Control_Login extends Control_Edit {
 			}
 		}
 		if ($failed) {
-			log::warning("User login failed for user {login}", array(
+			$zesk->logger->warning("User login failed for user {login}", array(
 				"login" => $login,
 				"password_hash" => $object->login_password_hash
 			));
 			$this->error(__("Username or password is incorrect."));
 			$this->object->user = $this->user = null;
-			$user->hook("login_failed", $this);
+			$user->call_hook("login_failed", $this);
 			return false;
 		}
-		if ($user->hook_array("login", array(
+		if ($user->call_hook_arguments("login", array(
 			$this
 		), true)) {
 			$this->user = $this->object->user = $user;
@@ -132,7 +145,7 @@ class Control_Login extends Control_Edit {
 			$user = $this->user;
 			$user->authenticated(true);
 			$uref = $this->request->get("ref", null);
-			if (url::is($uref) && !url::is_same_server($uref, url::current())) {
+			if (URL::is($uref) && !URL::is_same_server($uref, URL::current())) {
 				$uref = false;
 			}
 			if (!$uref) {

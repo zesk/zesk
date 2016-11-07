@@ -15,6 +15,6 @@ class Control_Hidden extends Control {
 		$col = $this->column();
 		$input_name = $this->name();
 
-		return html::hidden($this->name(), $this->value(), $this->input_attributes() + $this->data_attributes());
+		return HTML::hidden($this->name(), $this->value(), $this->input_attributes() + $this->data_attributes());
 	}
 }

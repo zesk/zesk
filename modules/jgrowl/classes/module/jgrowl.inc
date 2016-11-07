@@ -1,14 +1,11 @@
 <?php
-
 class Module_jGrowl extends Module_JSLib {
 	protected $css_paths = array(
 		'/share/jgrowl/jquery.jgrowl.css'
 	);
-
 	protected $javascript_paths = array(
 		'/share/jgrowl/jquery.jgrowl.js'
 	);
-
 	protected $jquery_ready = array(
 		'zesk.add_hook("message", function (message, options) {
 			if (is_array(message)) {
@@ -17,16 +14,11 @@ class Module_jGrowl extends Module_JSLib {
 			options = $.extend(zesk.get_path("modules.jgrowl", {}), options || {}); $.jGrowl(message, options);
 		});'
 	);
-
-	protected $javascript_settings = array(
+	protected $javascript_settings_inherit = array(
+		'position' => 'top-right',
 		'life' => 8000
 	);
-
-	protected $javascript_settings_inherit = array(
-		'position' => 'top-right'
-	);
-
-	public function ready(Response_HTML $response) {
+	public function ready(zesk\Response_Text_HTML $response) {
 		parent::ready($response);
 	}
 }

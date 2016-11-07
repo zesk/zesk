@@ -1,4 +1,15 @@
 <?php
+/**
+ * 
+ */
+use zesk\Object;
+use zesk\Database_Query_Select;
+
+/**
+ * 
+ * @author kent
+ *
+ */
 class Module_Ordering extends Module {
 	
 	/**
@@ -9,17 +20,17 @@ class Module_Ordering extends Module {
 	public function initialize() {
 		global $zesk;
 		/* @var $zesk zesk\Kernel */
-		$zesk->hooks->add('Object::pre_insert', array(
+		$zesk->hooks->add('zesk\Object::pre_insert', array(
 			$this,
 			'object_pre_insert'
 		));
 	}
 	/**
 	 * @param Object $object
-	 * @return Database_Query_Select
+	 * @return zesk\Database_Query_Select
 	 */
 	private function query_ordering(Object $object) {
-		return $object->hook("query_ordering", $object->query("X"));
+		return $object->call_hook("query_ordering", $object->query_select("X"));
 	}
 	/**
 	 * Name of the column used for ordering (must be an integer field)
@@ -47,7 +58,7 @@ class Module_Ordering extends Module {
 		
 		// Minimize the number of changes to the database
 		if ($previous_id) {
-			$order_index = $object->query("X")
+			$order_index = $object->query_select("X")
 				->what("X", $order_column)
 				->where($id_column, $previous_id)
 				->one_integer("X");
@@ -58,7 +69,7 @@ class Module_Ordering extends Module {
 			return $object->set($order_column, $order_index + 1)->store();
 		}
 		if ($next_id) {
-			$order_index = $object->query("X")
+			$order_index = $object->query_select("X")
 				->what("X", $order_column)
 				->where($id_column, $next_id)
 				->one_integer("X");

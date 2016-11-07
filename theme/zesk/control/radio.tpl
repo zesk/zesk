@@ -17,7 +17,7 @@ $sel_k = strval($object->get($col, $widget->option("default", '')));
 $refresh = $widget->option_bool("refresh");
 $suffix = "";
 if ($refresh) {
-	$suffix = html::hidden($name . "_cont", "");
+	$suffix = HTML::hidden($name . "_cont", "");
 }
 $debug = $widget->option_bool('debug');
 $content = "";
@@ -41,9 +41,9 @@ foreach ($opts as $k => $v) {
 	} else {
 		unset($attrs['checked']);
 	}
-	$content .= html::tag("div", ".radio", html::tag("label", html::tag("input", $attrs, null) . $label . ($debug ? " " . _dump($k) : '')));
+	$content .= HTML::tag("div", ".radio", HTML::tag("label", HTML::tag("input", $attrs, null) . $label . ($debug ? " " . _dump($k) : '')));
 }
-$result = html::tag("div", array(
+$result = HTML::tag("div", array(
 	"class" => "control-radio"
 ), $content);
 echo $result . $suffix . ($debug ? " Selected K: " . _dump($sel_k) . ";" : "");

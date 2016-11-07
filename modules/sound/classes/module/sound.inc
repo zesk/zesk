@@ -12,9 +12,9 @@ class sound
 {
 	public static function scripts_register()
 	{
-		html::javascript('/sounds/FABridge.js', ZESK_ROOT . '/share/');
-		html::javascript('/sounds/sound.js', ZESK_ROOT . '/share/');
+		HTML::javascript('/sounds/FABridge.js', ZESK_ROOT . '/share/');
+		HTML::javascript('/sounds/sound.js', ZESK_ROOT . '/share/');
 
-		html::jquery("zeskSound.init('/sounds/');");
+		HTML::jquery("zeskSound.init('/sounds/');");
 	}
 }

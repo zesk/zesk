@@ -43,4 +43,4 @@ class Contact_Phone_CountryCode extends Object {
 		return $spec;
 	}
 }
-class Class_Contact_Phone_CountryCode extends Class_Object {}
+class Class_Contact_Phone_CountryCode extends zesk\Class_Object {}

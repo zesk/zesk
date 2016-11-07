@@ -7,6 +7,7 @@
  * @author Kent Davidson <kent@marketacumen.com>
  * @copyright Copyright &copy; 2014, Market Acumen, Inc.
  */
+use zesk\Database_Query_Select;
 
 /**
  * HTML Select Widget

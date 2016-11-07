@@ -1,6 +1,6 @@
 <?php
 
-class Class_Zesk_Contact extends Class_Object {
+class Class_Zesk_Contact extends zesk\Class_Object {
 	public $id_column = "id";
 
 	public $has_many = array(

@@ -14,6 +14,6 @@
  * @see Class_User
  * @author kent
  */
-class User extends Zesk_User {
+class User extends zesk\User {
 
 }

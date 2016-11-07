@@ -1,6 +1,10 @@
 <?php
+/**
+ * 
+ */
+use zesk\Database;
+use zesk\Timestamp;
 
-use zesk\Timestamp as Timestamp;
 /**
  * Generate doccomment @property list for any Object/Class_Object pair in the system
  *
@@ -105,7 +109,6 @@ class Command_Class_Check extends Command_Base {
 		}
 		$this->log("Done");
 	}
-
 	static $guess_names = array(
 		'timestamp' => array(
 			'created' => 'created',
@@ -119,7 +122,6 @@ class Command_Class_Check extends Command_Base {
 		'timestamp' => 'timestamp',
 		'blob' => 'serialize'
 	);
-
 	private function guess_type(Database $db, $name, $type) {
 		$schema_type = avalue(avalue(self::$guess_names, $type, array()), strtolower($name));
 		if ($schema_type) {

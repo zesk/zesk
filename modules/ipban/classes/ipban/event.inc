@@ -1,5 +1,7 @@
 <?php
-use zesk\Timestamp as Timestamp;
+use zesk\Timestamp;
+use zesk\Database_Exception_Duplicate;
+use zesk\Exception_Object_Duplicate;
 
 /**
  * @see Class_IPBan_Event

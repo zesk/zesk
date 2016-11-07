@@ -20,6 +20,7 @@
 				return true;
 			}
 			e.stopPropagation();
+			e.stopImmediatePropagation();
 			e.preventDefault();
 			return false;
 		});

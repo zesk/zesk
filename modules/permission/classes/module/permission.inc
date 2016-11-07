@@ -1,4 +1,15 @@
 <?php
+/**
+ * 
+ */
+use zesk\Application;
+use zesk\Cache;
+use zesk\Object;
+use zesk\arr;
+use zesk\File;
+use zesk\Class_Object;
+use zesk\Model;
+use zesk\Exception_Semantics;
 
 /**
  * Module to handle per-object, role-based permissions
@@ -80,7 +91,7 @@ class Module_Permission extends Module {
 		if (!$context && $user_cache->has($cache_key)) {
 			return $user_cache->$cache_key;
 		}
-		$perms = self::_permissions();
+		$perms = self::_permissions($user->application);
 		
 		$parent_classes = empty($class) ? array() : arr::change_value_case($zesk->classes->hierarchy($class, "Model"));
 		$parent_classes[] = "*";
@@ -94,7 +105,7 @@ class Module_Permission extends Module {
 				$result = $perm->check($user, $parent_class . "::" . $permission, $context, $options);
 				if (is_bool($result)) {
 					if ($result === false) {
-						$zesk->logger->warning("{user} denied {permission} (parent of {class})", array(
+						$zesk->logger->info("{user} denied {permission} (parent of {class})", array(
 							"user" => $user->login(),
 							"permission" => $parent_class . "::" . $permission,
 							"class" => $class
@@ -133,12 +144,20 @@ class Module_Permission extends Module {
 		$user_cache->$cache_key = $result;
 		return $result;
 	}
+	
+	/**
+	 * 
+	 * @param User $user
+	 */
 	private static function prepare_user(User $user) {
 		if (is_array($user->_roles)) {
 			return;
 		}
 		if ($user->is_new()) {
-			$roles = Object::class_query('Role')->where('is_default', true)->object_iterator()->to_array('id');
+			$roles = $user->application->query_select('Role')
+				->where('is_default', true)
+				->object_iterator()
+				->to_array('id');
 		} else {
 			// Load user role settings into user before checking
 			$roles = $user->member_query("roles")->object_iterator()->to_array("id");
@@ -165,14 +184,17 @@ class Module_Permission extends Module {
 		if (is_array($user->_roles)) {
 			return $user->_roles;
 		}
-		$user->_roles = Object::class_query("User_Role")->what("Role", "Role")->where("User", $user)->to_array(null, "Role", array());
+		$user->_roles = $user->application->query_select("User_Role")
+			->what("Role", "Role")
+			->where("User", $user)
+			->to_array(null, "Role", array());
 		return $user->_roles;
 	}
 	
 	/**
 	 * Refresh the permissions cache as often as needed
 	 */
-	public static function cron_minute() {
+	public static function cron_minute(Application $application) {
 		$cache = self::_cache();
 		// Is there a cache? If not, don't bother - may be disabled, etc.
 		if (!$cache->exists()) {
@@ -180,7 +202,7 @@ class Module_Permission extends Module {
 		}
 		// We have a cache. Does it match what it should?
 		$cached = self::_permissions_cached();
-		$computed = self::_permissions_computed();
+		$computed = self::_permissions_computed($application);
 		if ($cached !== $computed) {
 			// Nope. Update it.
 			$cache->__set(__CLASS__, $computed);
@@ -192,9 +214,9 @@ class Module_Permission extends Module {
 	 *
 	 * @return Cache
 	 */
-	private static function _cache($field = null) {
+	private static function _cache() {
 		$cache = Cache::register(__CLASS__);
-		if (zesk::getb(__CLASS__ . '::disable_cache')) {
+		if (zesk()->configuration->path_get(__CLASS__ . '::disable_cache')) {
 			return $cache->erase();
 		}
 		return $cache;
@@ -222,7 +244,7 @@ class Module_Permission extends Module {
 	 *
 	 * @return multitype:
 	 */
-	public static function _permissions() {
+	public static function _permissions(Application $application) {
 		if (self::$_permissions !== null) {
 			return self::$_permissions;
 		}
@@ -230,7 +252,7 @@ class Module_Permission extends Module {
 		if (is_array(self::$_permissions)) {
 			return self::$_permissions;
 		}
-		self::$_permissions = self::_permissions_computed();
+		self::$_permissions = self::_permissions_computed($application);
 		self::_permissions_cached(self::$_permissions);
 		return self::$_permissions;
 	}
@@ -257,32 +279,36 @@ class Module_Permission extends Module {
 	 *
 	 * @return array
 	 */
-	public static function _permissions_computed() {
+	public static function _permissions_computed(zesk\Application $application) {
 		global $zesk;
+		
 		/* @var $zesk zesk\Kernel */
 		$lock = Lock::require_lock(__METHOD__, 10);
 		$result = array();
-		$result['class'] = zesk::all_hook_array(array(
-			"Application::permissions",
+		$result['class'] = $zesk->hooks->all_call_arguments(array(
+			"zesk\Application::permissions",
 			"Module::permissions",
-			"Object::permissions"
+			"zesk\Object::permissions"
 		), array(), array(), null, array(
 			__CLASS__,
 			'_combine_permissions'
 		));
-		$roles = Object::class_query('Role', 'X')->what(array(
+		$roles = $application->query_select('Role', 'X')
+			->what(array(
 			"id" => "X.id",
 			"code" => "X.code"
-		))->order_by("X.id")->to_array("id", "code", array());
+		))
+			->order_by("X.id")
+			->to_array("id", "code", array());
 		$options = array(
 			'overwrite' => true,
 			'trim' => true,
 			'lower' => true,
 			'variables' => array()
 		);
-		$paths = zesk::getl('Module_Permission::role_paths', zesk::application_root('etc/role'));
+		$paths = to_list($application->configuration->path_get('Module_Permission::role_paths', $application->application_root('etc/role')));
 		foreach ($roles as $rid => $code) {
-			$code = strtolower(zesk::clean_path($code));
+			$code = strtolower(File::clean_path($code));
 			$filename = $code . ".role.conf";
 			$result['role'][$rid] = $config = self::normalize_permission(conf::load_inherit($filename, $paths, array()));
 			$zesk->logger->debug("Loading {filename} resulted in {n_config} permissions", array(
@@ -341,6 +367,6 @@ class Module_Permission extends Module {
 		return $state;
 	}
 	protected function hook_cache_clear() {
-		Object::class_query_delete("Permission")->truncate(true)->execute();
+		$this->application->query_delete("Permission")->truncate(true)->execute();
 	}
 }

@@ -2,7 +2,7 @@
 class hookable_test_a extends Hookable {
 	function hookit(array $data) {
 		$data['hookit'] = microtime(true);
-		$data = $this->hook('test', $data);
+		$data = $this->call_hook('test', $data);
 		return $data;
 	}
 }

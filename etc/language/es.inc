@@ -85,17 +85,17 @@ $tt['week'] = 'semana';
 $tt['weeks'] = 'semanas';
 $tt['year'] = 'a&ntilde;o';
 $tt['years'] = 'a&ntilde;os';
-$tt['lang::now_string:=in {duration}'] = 'en {duration}';
-$tt['lang::now_string:={duration} ago'] = 'hace {duration}';
+$tt['Locale::now_string:=in {duration}'] = 'en {duration}';
+$tt['Locale::now_string:={duration} ago'] = 'hace {duration}';
 $tt['yes'] = 'si';
 $tt['no'] = 'non';
 
 $tt['Control_Pager:=Showing {0} - {1} of {2}'] = 'Mostrando {0} - {1} de {2}';
 $tt['Control_Pager:=Show'] = 'Mostrar';
 
-$tt['lang::plural_word:=no {word}'] = 'hay {word}';
-$tt['lang::plural_word:=one {word}'] = '1 {word}';
-$tt['lang::plural_word:={number} {word}'] = '{number} {word}';
+$tt['Locale::plural_word:=no {word}'] = 'hay {word}';
+$tt['Locale::plural_word:=one {word}'] = '1 {word}';
+$tt['Locale::plural_word:={number} {word}'] = '{number} {word}';
 
 $tt['login'] = 'iniciar sesi&oacute;n';
 $tt['password'] = 'contrase&ntilde;a';

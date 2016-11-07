@@ -1,6 +1,6 @@
 <?php
 
-use zesk\Timestamp as Timestamp;
+use zesk\Timestamp;
 
 /**
  * 

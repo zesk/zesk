@@ -34,9 +34,9 @@ class Control_Edit_Horizontal extends Control_Edit {
 		$ncols = $this->option('layout_column_count', 12);
 		$quarter = round($ncols / 4);
 		$three_quarters = $ncols - $quarter;
-		$this->label_attributes = html::add_class($this->label_attributes, "col-sm-$quarter");
-		$this->widget_wrap_attributes = html::add_class($this->widget_wrap_attributes, "col-sm-$three_quarters");
-		$this->nolabel_widget_wrap_attributes = html::add_class($this->nolabel_widget_wrap_attributes, "col-sm-$ncols");
+		$this->label_attributes = HTML::add_class($this->label_attributes, "col-sm-$quarter");
+		$this->widget_wrap_attributes = HTML::add_class($this->widget_wrap_attributes, "col-sm-$three_quarters");
+		$this->nolabel_widget_wrap_attributes = HTML::add_class($this->nolabel_widget_wrap_attributes, "col-sm-$ncols");
 	}
 
 }

@@ -4,15 +4,22 @@
  * @package zesk
  * @subpackage objects
  */
-use zesk\Timestamp as Timestamp;
+namespace zesk;
+
+use \User;
+use \Invoice_Parameters;
+use \Template;
+use \Account_Transaction;
+use \Payment;
+
 /**
- * Zesk_Account
+ * Account
  * @author kent
  */
-class Zesk_Account extends Object {
+class Account extends Object {
 	public static function instance() {
 		static $singleton = null;
-		if ($singleton instanceof Zesk_Account) {
+		if ($singleton instanceof Account) {
 			return $singleton;
 		}
 		$user = User::instance();
@@ -25,7 +32,7 @@ class Zesk_Account extends Object {
 		return $singleton;
 	}
 	public function compute_balance() {
-		$query = Object::class_query("Account_Transaction", "X")->what("*Balance", "SUM(X.Amount)")->where("Account", $this);
+		$query = $this->application->class_query("Account_Transaction", "X")->what("*Balance", "SUM(X.Amount)")->where("Account", $this);
 		
 		$this->Balance = doubleval($query->where("Reconciled", true)->one("Balance", 0));
 		$this->NewBalance = doubleval($query->where("Reconciled", false)->one("Balance", 0));
@@ -38,7 +45,7 @@ class Zesk_Account extends Object {
 		$balance = $balance->copyObject($this);
 		$where = $balance->option_array("Where");
 		$cmp = $includingDate ? "le" : "lt";
-		$where["EffectiveDate:$cmp"] = $dt->toString();
+		$where["EffectiveDate:$cmp"] = $dt->__toString();
 		$balance->set_option("Where", $where);
 		return $balance->get();
 	}
@@ -69,7 +76,8 @@ class Zesk_Account extends Object {
 		if ($this->payment_is_valid()) {
 			return $this->payment();
 		}
-		$payments = Object::class_query("Payment")->where("IsValid", true)
+		$payments = $this->application->query_select("Payment")
+			->where("IsValid", true)
 			->where("Account", $this)
 			->order_by("-Created")
 			->object_iterator();
@@ -142,7 +150,7 @@ class Zesk_Account extends Object {
 		return $here;
 	}
 	function billedRecently(Timestamp $afterDate) {
-		$query = Object::class_query("Payment_Transaction")->what("*LastDate", "MAX(X.ProcessDate)")->where("Account", $this);
+		$query = $this->application->query_select("Payment_Transaction")->what("*LastDate", "MAX(X.ProcessDate)")->where("Account", $this);
 		$query->where("Authorized", true)->where("ProcessDate|>=", $afterDate);
 		$result = $query->one("LastDate");
 		if ($result) {
@@ -161,7 +169,7 @@ class Zesk_Account extends Object {
 	//		 * Count Accounts referred
 	//		 * Added "Invoice" which means an account is not "counted" unless it's invoiced.
 	//		 */
-	//		$q = $this->query("X");
+	//		$q = $this->query_select("X");
 	//		$q->what("*Total", "COUNT(DISTINCT Account.ID)");
 	//
 	//		//		$q->addLink("StatsSite");
@@ -183,8 +191,8 @@ class Zesk_Account extends Object {
 	//			INNER JOIN zeskInvoice I ON (I.Account=A.ID OR I.PaymentAccount=A.ID)
 	//			WHERE
 	//				R.Account=$this->ID
-	//				AND S.ActivateDateTime <= '".$asOfDate->toString()."'
-	//				AND (S.Deactivated IS null OR S.Deactivated >= '".$asOfDate->toString()."')
+	//				AND S.ActivateDateTime <= '".$asOfDate->__toString()."'
+	//				AND (S.Deactivated IS null OR S.Deactivated >= '".$asOfDate->__toString()."')
 	//			";
 	//*/
 	//		$result = $q->oneQuery("Total", 0);
@@ -199,7 +207,7 @@ class Zesk_Account extends Object {
 		if (!$asOfDate instanceof Timestamp) {
 			$asOfDate = Timestamp::now();
 		}
-		$q = $this->query()->where("ManagerAccount", $this)->where("Cancelled|<=", array(
+		$q = $this->query_select()->where("ManagerAccount", $this)->where("Cancelled|<=", array(
 			$asOfDate,
 			null
 		));
@@ -278,7 +286,7 @@ class Zesk_Account extends Object {
 	//		return new Timestamp();
 	//	}
 	function killAccount() {
-		Object::class_query_update(__CLASS__)->values(array(
+		$this->application->query_update(__CLASS__)->values(array(
 			"Cancelled" => "now",
 			"IsBillable" => false,
 			"NextBillDate" => null,
@@ -420,7 +428,7 @@ class Zesk_Account extends Object {
 		return !$this->member_is_empty("Cancelled");
 	}
 	protected function hook_permission(User $user, $action) {
-		if ($user->memberInteger("Account") === $this->id()) {
+		if ($user->member_integer("Account") === $this->id()) {
 			return true;
 		}
 		return false;
@@ -761,11 +769,11 @@ class Zesk_Account extends Object {
 //					$cancelDate->add(0,1);
 //					$a->set_member("Cancelled", $cancelDate);
 //					$a->set_member("BillingNotes", $a->memberGet("BillingNotes") . " self::taskRepairActive cancelled account. Account is beyond trial period.");
-//					echo "$id: Account is beyond trial period. Set cancelled on ". $cancelDate->toString() . "\n";
+//					echo "$id: Account is beyond trial period. Set cancelled on ". $cancelDate->__toString() . "\n";
 //					$x++;
 //					$a->store();
 //				} else {
-//					echo "$id: Still in trial ". $cancelDate->toString() . "\n";
+//					echo "$id: Still in trial ". $cancelDate->__toString() . "\n";
 //				}
 //			}
 //			else
@@ -915,7 +923,7 @@ class Zesk_Account extends Object {
 //		if (!$dateTime instanceof Timestamp) {
 //			$dateTime = $a->Created;
 //		}
-//		CLog::status("#### Recomputing starting from " .$dateTime->toString());
+//		CLog::status("#### Recomputing starting from " .$dateTime->__toString());
 //		// Recompute invoice commissions
 //		$q = CModelClass::queryFromType("Invoice");
 //		$q->setWhat(array("Total" => "COUNT(Invoice.ID)"));

@@ -58,7 +58,7 @@ class Options implements ArrayAccess {
 		}
 		if (is_array($options)) {
 			$this->options = self::_option_key(array_change_key_case($options) + $this->options);
-		} else if ($options instanceof Options) {
+		} else if ($options instanceof self) {
 			$this->options = $options->options + self::_option_key($this->options);
 		}
 	}
@@ -104,7 +104,6 @@ class Options implements ArrayAccess {
 	 * zesk::geta("Control::name1");
 	 * zesk::geta("Options::name1");
 	 *
-	 * @todo arr::kunprefix here is slow, restructure globals to be hierarchical or figure out another way
 	 * @param string $class
 	 * @return array
 	 */

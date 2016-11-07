@@ -1,5 +1,15 @@
 <?php
-class Module_Flot extends Module implements Module_Interface_Head {
+/**
+ * 
+ */
+use zesk\Directory;
+
+/**
+ * 
+ * @author kent
+ *
+ */
+class Module_Flot extends Module implements \zesk\Interface_Module_Head {
 	
 	/**
 	 *
@@ -11,12 +21,12 @@ class Module_Flot extends Module implements Module_Interface_Head {
 	 *
 	 * {@inheritDoc}
 	 *
-	 * @see Module_Interface_Head::hook_head()
+	 * @see \zesk\Interface_Module_Head::hook_head()
 	 */
-	public function hook_head(Request $request, Response_HTML $response, Template $template) {
+	public function hook_head(zesk\Request $request, zesk\Response_Text_HTML $response, zesk\Template $template) {
 		$this->_head($response);
 	}
-	private function _head(Response_HTML $response) {
+	private function _head(zesk\Response_Text_HTML $response) {
 		$response->jquery();
 		$response->cdn_javascript("/share/flot/jquery.flot.js", array(
 			"share" => true
@@ -36,12 +46,12 @@ class Module_Flot extends Module implements Module_Interface_Head {
 	 */
 	private function _plugins() {
 		if ($this->plugins === null) {
-			$result = dir::ls($this->flot_js_path(), '/jquery\.flot\.[a-zA-Z0-9]+]\.js/');
+			$result = Directory::ls($this->flot_js_path(), '/jquery\.flot\.[a-zA-Z0-9]+]\.js/');
 			$this->plugins = array_flip(arr::unwrap(arr::flip_copy($result), "jquery.flot.", ".js", true));
 		}
 		return $this->plugins;
 	}
-	public function plugin(Response_HTML $response, $plugins = null) {
+	public function plugin(zesk\Response_Text_HTML $response, $plugins = null) {
 		if ($plugins === null) {
 			return $this->_plugins();
 		}

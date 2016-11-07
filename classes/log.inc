@@ -203,7 +203,7 @@ class log {
 			}
 			return;
 		}
-		$pid = $zesk->process->id;
+		$pid = $zesk->process->id();
 		$time = microtime(true);
 		$int_time = intval($time);
 		
@@ -224,7 +224,7 @@ class log {
 		$args += $extras;
 		
 		$sending = true;
-		Module::all_hook_array('log_send', array(
+		app()->modules->all_hook_arguments('log_send', array(
 			$args
 		), null, __CLASS__ . "::hook_callback");
 		$sending = false;
@@ -239,9 +239,15 @@ class log {
 		return self::$disabled;
 	}
 	public static function file($filename = false, $mode = "a") {
-		Module::internal('Log_File');
-		$result = Module::object('Log_File')->file($filename, $mode);
-		return $result;
+		global $zesk;
+		
+		app()->module->load("Logger_File");
+		
+		/* @var $zesk \zesk\Kernel */
+		$zesk->deprecated();
+		$zesk->logger->register_handler("Module_Log_File", new zesk\Logger\File($filename, array(
+			"mode" => $mode
+		)));
 	}
 	/**
 	 * Log a fatal error.

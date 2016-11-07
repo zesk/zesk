@@ -7,7 +7,20 @@
  * @copyright Copyright &copy; 2009, Market Acumen, Inc.
  * Created on Fri Apr 02 21:15:05 EDT 2010 21:15:05
  */
+use zesk\Application;
+use zesk\Model;
+use zesk\Template;
+
+/**
+ * 
+ * @author kent
+ *
+ */
 abstract class Controller_Template extends Controller {
+	/**
+	 * 
+	 * @var boolean
+	 */
 	private $auto_render = true;
 	
 	/**
@@ -16,7 +29,7 @@ abstract class Controller_Template extends Controller {
 	protected $template = null;
 	
 	/**
-	 * Template variables to pass
+	 * zesk\Template variables to pass
 	 *
 	 * @var array
 	 */
@@ -46,7 +59,6 @@ abstract class Controller_Template extends Controller {
 	public function auto_render($set = null) {
 		if (is_bool($set)) {
 			if ($set === false && $this->template) {
-				$this->template->pop();
 				$this->template = null;
 			}
 			$this->auto_render = $set;
@@ -61,7 +73,7 @@ abstract class Controller_Template extends Controller {
 	 */
 	public function json($mixed = null) {
 		$this->auto_render(false);
-		$this->hook("json", $mixed);
+		$this->call_hook("json", $mixed);
 		return parent::json($mixed);
 	}
 	
@@ -81,9 +93,12 @@ abstract class Controller_Template extends Controller {
 	public function before() {
 		if ($this->auto_render) {
 			if ($this->template === null) {
-				$this->template = $this->hook('template');
+				$this->template = $this->call_hook('template');
 				if ($this->template === null) {
-					$this->template = zesk::class_get($this, "template", path(zesk::theme_path_default(), 'body/default.tpl'));
+					global $zesk;
+					/* @var $zesk \zesk\Kernel */
+					$default_template = path($zesk->paths->theme_default(), 'body/default.tpl');
+					$this->template = $this->option("template", $default_template);
 				}
 			}
 			if ($this->template !== null) {
@@ -102,24 +117,21 @@ abstract class Controller_Template extends Controller {
 			return $this->template;
 		}
 		if (is_string($template)) {
-			// TODO: Template suffix .tpl removal is deprecated
+			// TODO: zesk\Template suffix .tpl removal is deprecated
 			$template = str::unsuffix($template, ".tpl") . ".tpl";
 			if ($this->template instanceof Template) {
 				$this->template->path($template);
 			} else {
 				$this->template = new Template($this->application, $template, $this->variables());
-				$this->template->push();
 			}
 		} else {
 			if ($this->template instanceof Template) {
-				$this->template->pop();
 			}
 			if ($template instanceof Template) {
 				$this->template = $template;
 			} else {
 				$this->template = new Template($this->application, $template, $this->variables());
 			}
-			$this->template->push();
 		}
 		
 		return $this->template;
@@ -131,7 +143,6 @@ abstract class Controller_Template extends Controller {
 	 */
 	public function exception(Exception $e) {
 		if ($this->auto_render && $this->template instanceof Template) {
-			$this->template->pop();
 		}
 	}
 	
@@ -155,7 +166,6 @@ abstract class Controller_Template extends Controller {
 				}
 				// TODO: Why is this here? "frame" set to null? in the router?
 				$this->request->router->set_option('frame', null);
-				$this->template->pop();
 			}
 		}
 	}
@@ -178,7 +188,7 @@ abstract class Controller_Template extends Controller {
 	 */
 	protected function control(Control $control, Model $object = null, array $options = array()) {
 		$content = $control->execute($object);
-		$this->hook(avalue($options, "hook_execute", "control_execute"), $control, $object, $options);
+		$this->call_hook(avalue($options, "hook_execute", "control_execute"), $control, $object, $options);
 		$title = $control->option('title', avalue($options, 'title'));
 		$this->response->title($title, false); // Do not overwrite existing values
 		if ($this->response->json()) {

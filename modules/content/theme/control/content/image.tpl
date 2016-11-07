@@ -1,8 +1,13 @@
 <?php
+/**
+ * 
+ */
+namespace zesk;
+
 $value = $this->value;
 /* @var $value Content_Image */
-if ($value instanceof Content_Image) {
-	echo theme('content/image', array(
+if ($value instanceof \Content_Image) {
+	echo $this->theme('content/image', array(
 		"object" => $value,
 		"width" => $this->width,
 		"height" => $this->height,
@@ -13,4 +18,4 @@ $widget = $this->widget;
 
 $attributes += $widget->input_attributes() + $widget->data_attributes();
 $attributes['type'] = 'file';
-echo html::tag('input', $attributes);
+echo HTML::tag('input', $attributes);

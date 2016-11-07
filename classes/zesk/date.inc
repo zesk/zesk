@@ -11,18 +11,16 @@
  */
 namespace zesk;
 
-use \zesk as zesk;
-use \Exception_Convert as Exception_Convert;
-use \Exception_Range as Exception_Range;
-use \Exception_Parse as Exception_Parse;
-use \Exception_Parameter as Exception_Parameter;
-
 /**
  * Date representing a Month, Day, and Year
  *
  * @author kent
  */
-class Date extends \Temporal {
+class Date extends Temporal {
+	/**
+	 * 
+	 * @var integer
+	 */
 	const seconds_in_day = 86400;
 	
 	/**
@@ -161,7 +159,10 @@ class Date extends \Temporal {
 			return $this->parse($value);
 		}
 		if (!is_object($value)) {
-			throw new Exception_Convert("Date::set(" . strval($value) . ")");
+			throw new Exception_Convert("{method}({value})", array(
+				"method" => __METHOD__,
+				"value" => $value
+			));
 		}
 		if ($value instanceof Date || $value instanceof Timestamp) {
 			return $this->unix_timestamp($value->unix_timestamp());
@@ -294,17 +295,18 @@ class Date extends \Temporal {
 		;
 		return $this;
 	}
+	/**
+	 * 
+	 * @param integer $set
+	 * @throws Exception_Range
+	 * @return number|\zesk\Date
+	 */
 	function year($set = null) {
 		if ($set === null) {
 			return $this->year;
 		}
 		if ($set < 0) {
 			throw new Exception_Range(__("Date::year({0})", _dump($set)));
-		}
-		if ($set < 50) {
-			$set += 2000;
-		} else if ($set < 200) {
-			$set += 1900;
 		}
 		if ($this->year !== $set) {
 			$this->_weekday = $this->_yearday = null;
@@ -679,7 +681,7 @@ class Date extends \Temporal {
 		return $this->unix_timestamp($set);
 	}
 	function equals(Date $d) {
-		return $d->toString() === $this->toString();
+		return $d->__toString() === $this->__toString();
 	}
 	function equal_years(Date $d) {
 		return $d->year() === $this->year();
@@ -698,6 +700,41 @@ class Date extends \Temporal {
 		$this->_weekday = $date["wday"];
 		$this->_yearday = $date["yday"];
 		return true;
+	}
+	
+	/**
+	 * 
+	 * @param integer $year
+	 * @return boolean
+	 */
+	function is_leap_year($year = null) {
+		if ($year === null) {
+			$year = $this->year;
+		}
+		return ((($year % 4) == 0) && ((($year % 100) != 0) || (($year % 400) == 0)));
+	}
+	
+	/**
+	 * 
+	 * @var integer
+	 */
+	private static $gregorian_offset = null;
+	
+	/**
+	 * Get or set the gregorgian offset from year 1
+	 * 
+	 * @param integer $set
+	 * @return \zesk\Date|number
+	 */
+	function gregorian($set = null) {
+		if (self::$gregorian_offset === null) {
+			self::$gregorian_offset = gregoriantojd(1, 1, 1) - 1;
+		}
+		if ($set !== null) {
+			list($month, $day, $year) = explode("/", jdtogregorian($set + self::$gregorian_offset), 3);
+			return $this->ymd(intval($year), intval($month), intval($day));
+		}
+		return gregoriantojd($this->month, $this->day, $this->year) - self::$gregorian_offset;
 	}
 }
 

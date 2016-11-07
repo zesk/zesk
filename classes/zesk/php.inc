@@ -1,10 +1,16 @@
 <?php
-
+/**
+ * 
+ */
 namespace zesk;
 
-use \Exception_Syntax;
 use \ReflectionObject;
 
+/**
+ * 
+ * @author kent
+ *
+ */
 class PHP {
 	/**
 	 * Character used to indent code
@@ -85,6 +91,7 @@ class PHP {
 	
 	/**
 	 * Return global static dump object
+	 *
 	 * @return php
 	 */
 	public static function singleton() {
@@ -97,7 +104,7 @@ class PHP {
 	/**
 	 * Set or get the current settings
 	 *
-	 * @param array $set
+	 * @param array $set        	
 	 * @return Ambigous <php, array>
 	 */
 	public static function dump_settings(array $set = null) {
@@ -128,7 +135,7 @@ class PHP {
 	/**
 	 * Dump value as PHP
 	 *
-	 * @param mixed $x
+	 * @param mixed $x        	
 	 * @return string
 	 */
 	public static function dump($x) {
@@ -138,7 +145,7 @@ class PHP {
 	/**
 	 * Get or set the settings in this object
 	 *
-	 * @param array $set
+	 * @param array $set        	
 	 * @return php|array
 	 */
 	public function settings(array $set = null) {
@@ -158,7 +165,7 @@ class PHP {
 	/**
 	 * Output PHP structures formatted in PHP language
 	 *
-	 * @param mixed $x
+	 * @param mixed $x        	
 	 * @return string
 	 */
 	public function render($x) {
@@ -217,8 +224,8 @@ class PHP {
 	/**
 	 * Temporary error handler during unserialization
 	 *
-	 * @param integer $errno
-	 * @param string $errstr
+	 * @param integer $errno        	
+	 * @param string $errstr        	
 	 */
 	public static function _unserialize_handler($errno, $errstr) {
 		self::$unserialize_exception = new Exception_Syntax($errstr, array(), $errno);
@@ -227,7 +234,7 @@ class PHP {
 	/**
 	 * Safe unserialize function
 	 *
-	 * @param string $serialized
+	 * @param string $serialized        	
 	 * @throws Exception
 	 * @return mixed
 	 */
@@ -297,12 +304,12 @@ class PHP {
 	}
 	
 	/**
-	 * Set a PHP feature.
+	 * Set a PHP feature. Useful when you're a moron and can't remember the ini file settings names.
 	 *
-	 * @param string $feature
+	 * @param string $feature        	
 	 * @param mixed $value
 	 *        	Value to set it to
-	 *
+	 *        	
 	 * @return boolean True if successful
 	 */
 	public static function feature($feature, $value) {
@@ -312,9 +319,87 @@ class PHP {
 				set_time_limit(intval($value));
 				return true;
 			default :
-				throw new \Exception_Unimplemented("No such feature {feature}", compact("feature"));
+				throw new Exception_Unimplemented("No such feature {feature}", compact("feature"));
 		}
 		return null;
+	}
+	
+	/**
+	 * Is this a valid function name, syntactically?
+	 *
+	 * @param string $func        	
+	 * @return boolean
+	 */
+	public static function valid_function($func) {
+		return self::clean_function($func) === $func;
+	}
+	
+	/**
+	 * Is this a valid class name, syntactically?
+	 *
+	 * @param string $class        	
+	 * @return boolean
+	 */
+	public static function valid_class($class) {
+		return self::clean_function($class) === $class;
+	}
+	/**
+	 * Convert a string into a valid PHP function name.
+	 * Useful for cleaning hooks generated automatically or
+	 * from user input.
+	 *
+	 * @param string $func
+	 *        	String to clean
+	 * @return string
+	 */
+	public static function clean_function($func) {
+		return preg_replace("/[^a-zA-Z0-9_]/", '_', $func);
+	}
+	
+	/**
+	 * Convert a string into a valid PHP class name.
+	 *
+	 * @param string $func
+	 *        	String to clean
+	 * @return string
+	 */
+	public static function clean_class($func) {
+		return preg_replace("/[^a-zA-Z0-9_\\\\]/", '_', $func);
+	}
+	
+	/**
+	 * Convert a value automatically into a native PHP type
+	 *
+	 * @param mixed $value
+	 * @return mixed
+	 */
+	public static function autotype($value) {
+		if (is_array($value)) {
+			foreach ($value as $k => $v) {
+				$value[$k] = self::autotype($v);
+			}
+			return $value;
+		}
+		if (!is_string($value)) {
+			return $value;
+		}
+		// Convert numeric types first, then boolean
+		if (preg_match('/^[0-9]+$/', $value)) {
+			return to_integer($value);
+		}
+		if (is_numeric($value)) {
+			return to_double($value);
+		}
+		if (($b = to_bool($value, null)) !== null) {
+			return $b;
+		}
+		if ($value === 'null') {
+			return null;
+		}
+		if (unquote($value, '{}[]') !== $value) {
+			return JSON::decode($value, true);
+		}
+		return $value;
 	}
 }
 

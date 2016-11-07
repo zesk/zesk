@@ -155,7 +155,7 @@ class XML_RPC_Server_Method {
 		if ($doc) {
 			if ($this->Help)
 				$html[] = $this->Help;
-			$html[] = html::tag("h2", null, "Detailed Description");
+			$html[] = HTML::tag("h2", null, "Detailed Description");
 			$html[] = $doc;
 		} else {
 			$html[] = $this->Help ? $this->Help : "<em>No help description</em>";

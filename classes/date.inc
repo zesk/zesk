@@ -9,7 +9,7 @@
  * @see Base,DateTime,Time
  */
 
-zesk::deprecated();
+zesk()->deprecated();
 /**
  * Date representing a Month, Day, and Year
  *

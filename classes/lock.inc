@@ -6,7 +6,12 @@
  * @author Kent Davidson <kent@marketacumen.com>
  * @copyright Copyright &copy; 2014, Market Acumen, Inc.
  */
-use zesk\Timestamp as Timestamp;
+use zesk\Application;
+use zesk\Timestamp;
+use zesk\Locale;
+use zesk\Exception_Lock;
+use zesk\Exception_Timeout;
+use zesk\Object;
 
 /**
  * Support locks across processes, servers. Specific to the database, however.
@@ -26,24 +31,25 @@ class Lock extends Object {
 	/**
 	 * Once per hour, cull locks which are old
 	 */
-	public static function cron_cluster_hour() {
-		self::delete_unused_locks();
+	public static function cron_cluster_hour(Application $application) {
+		self::delete_unused_locks($application);
 	}
 	
 	/**
 	 * Once a minute, release locks associated with processes which are dead, 
 	 * or are associated with a dead server (no longer exists)
 	 */
-	public static function cron_cluster_minute() {
-		self::delete_dead_pids();
-		self::delete_unlinked_locks();
+	public static function cron_cluster_minute(Application $application) {
+		self::delete_dead_pids($application);
+		self::delete_unlinked_locks($application);
 	}
 	
 	/**
 	 * Delete Locks which have not been used in the past 24 hours
 	 */
-	public static function delete_unused_locks() {
-		$n_rows = Object::class_query_delete(__CLASS__)->where(array(
+	public static function delete_unused_locks(Application $application) {
+		$n_rows = $application->query_delete(__CLASS__)
+			->where(array(
 			'used|<=' => Timestamp::now()->add_unit("day", -1),
 			"server" => null,
 			"pid" => null
@@ -51,7 +57,7 @@ class Lock extends Object {
 			->execute()
 			->affected_rows();
 		if ($n_rows > 0) {
-			log::notice("Deleted {n_rows} {locks} which were unused in the past 24 hours.", array(
+			zesk()->logger->notice("Deleted {n_rows} {locks} which were unused in the past 24 hours.", array(
 				"n_rows" => $n_rows,
 				"locks" => zesk\Locale::plural(__CLASS__, $n_rows)
 			));
@@ -62,16 +68,16 @@ class Lock extends Object {
 	/**
 	 * Delete locks whose server doesn't link to a valid row in the Server table
 	 */
-	public static function delete_unlinked_locks() {
+	public static function delete_unlinked_locks(Application $application) {
 		// Deleting unlinked locks
 		$n_rows = 0;
-		$server_ids = Object::class_query("Server")->to_array(null, "id");
-		$iterator = Object::class_query(__CLASS__)->where("X.server|!=", $server_ids)->object_iterator();
+		$server_ids = $application->query_select("Server")->to_array(null, "id");
+		$iterator = $application->query_select(__CLASS__)->where("X.server|!=", $server_ids)->object_iterator();
 		foreach ($iterator as $lock) {
 			/* @var $lock Lock */
 			$server_id = $lock->member_integer("server");
 			$lock->release();
-			log::notice("Releasing lock #{id} {code} associated with defunct server # {server_id}", $lock->variables() + array(
+			zesk()->logger->notice("Releasing lock #{id} {code} associated with defunct server # {server_id}", $lock->variables() + array(
 				"server_id" => $server_id
 			));
 			++$n_rows;
@@ -82,12 +88,12 @@ class Lock extends Object {
 	/**
 	 * Delete Locks associated with this server which do not have a valid PID
 	 */
-	public static function delete_dead_pids() {
+	public static function delete_dead_pids(Application $application) {
 		global $zesk;
 		/* @var $zesk zesk\Kernel */
 		$timeout_seconds = -abs($zesk->configuration->path_get("Lock::timeout_seconds", 100));
 		$you_are_dead_to_me = Timestamp::now()->add_unit("second", $timeout_seconds);
-		$iterator = Object::class_query(__CLASS__)->where(array(
+		$iterator = $application->query_select(__CLASS__)->where(array(
 			'server' => Server::singleton(),
 			'locked|<=' => $you_are_dead_to_me
 		))->object_iterator();
@@ -95,7 +101,7 @@ class Lock extends Object {
 		foreach ($iterator as $lock) {
 			if (!$lock->is_process_alive()) {
 				// Delete this way so hooks get called per dead server
-				log::warning("Releasing lock {code} (#{id}), associated with dead process, locked on {locked}", $lock->members());
+				$application->logger->warning("Releasing lock {code} (#{id}), associated with dead process, locked on {locked}", $lock->members());
 				$lock->release();
 			}
 		}
@@ -154,9 +160,10 @@ class Lock extends Object {
 	 */
 	public static function release_all() {
 		global $zesk;
+		
 		/* @var $zesk zesk\Kernel */
 		self::$locks = array();
-		Object::class_query_update(__CLASS__)->values(array(
+		app()->query_update(__CLASS__)->values(array(
 			'pid' => null,
 			'server' => null,
 			'locked' => null
@@ -166,10 +173,10 @@ class Lock extends Object {
 		));
 	}
 	public static function server_delete(Server $server) {
-		$query = Object::class_query_delete(__CLASS__)->where('server', $server);
+		$query = app()->query_delete(__CLASS__)->where('server', $server);
 		$query->execute();
 		if (($n_rows = $query->affected_rows()) > 0) {
-			log::warning("Deleted {n} {locks} associated with server {name} (#{id})", array(
+			zesk()->logger->warning("Deleted {n} {locks} associated with server {name} (#{id})", array(
 				"n" => $n_rows,
 				"locks" => zesk\Locale::plural(__CLASS__, $n_rows)
 			) + $server->members());
@@ -218,7 +225,7 @@ class Lock extends Object {
 		if ($zesk->process->alive($this->pid)) {
 			return true;
 		}
-		log::warning("Releasing lock from {server}:{pid} as process is dead", $this->members());
+		zesk()->logger->warning("Releasing lock from {server}:{pid} as process is dead", $this->members());
 		$this->release();
 		return false;
 	}
@@ -228,14 +235,17 @@ class Lock extends Object {
 	 * @return Lock
 	 */
 	public function release() {
-		Object::class_query_update(__CLASS__)->values(array(
+		$this->query_update()
+			->values(array(
 			'pid' => null,
 			'server' => null,
 			'locked' => null
-		))->where(array(
+		))
+			->where(array(
 			"id" => $this->id
-		))->execute();
-		log::debug("Released lock $this->code");
+		))
+			->execute();
+		zesk()->logger->debug("Released lock $this->code");
 		$this->pid = null;
 		$this->server = null;
 		return $this;
@@ -289,10 +299,10 @@ class Lock extends Object {
 	private function _acquire_where(array $where = array()) {
 		global $zesk;
 		/* @var $zesk zesk\Kernel */
-		$update = Object::class_query_update(__CLASS__);
+		$update = $this->query_update();
 		$sql = $update->sql();
 		$update->values(array(
-			'pid' => $zesk->process->id,
+			'pid' => $zesk->process->id(),
 			'server' => Server::singleton(),
 			'*locked' => $sql->now(),
 			'*used' => $sql->now()
@@ -302,7 +312,7 @@ class Lock extends Object {
 		) + $where)
 			->execute();
 		if ($this->fetch()->_is_mine()) {
-			log::debug("Acquired lock $this->code");
+			zesk()->logger->debug("Acquired lock $this->code");
 			return $this;
 		}
 		return null;
@@ -340,11 +350,10 @@ class Lock extends Object {
 			$sleep = $timeout;
 		}
 		$sleep = intval($sleep * 1000000);
-		//		log::notice("Trying to get lock $this->code");
 		$delete_attempt = false;
 		while (true) {
 			if (!$delete_attempt) {
-				$this->delete_dead_pids();
+				self::delete_dead_pids($this->application);
 				$delete_attempt = true;
 			} else {
 				usleep($sleep);
@@ -361,7 +370,7 @@ class Lock extends Object {
 			if ($timeout > 0 && $timer->elapsed() > $timeout) {
 				throw new Exception_Timeout("Waiting for Lock \"{code}\" ({timeout} seconds)", array(
 					"function" => "Lock::get_lock",
-					"timeout" => "Lock::get_lock",
+					"timeout" => $timeout,
 					"code" => $this->code
 				));
 			}
@@ -395,7 +404,7 @@ class Lock extends Object {
 	private function _is_my_pid() {
 		global $zesk;
 		/* @var $zesk zesk\Kernel */
-		return $zesk->process->id === $this->member_integer('pid');
+		return $zesk->process->id() === $this->member_integer('pid');
 	}
 	
 	/**

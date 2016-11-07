@@ -332,7 +332,7 @@ abstract class CSV extends Options {
 	 * @deprecated 2015-04-16
 	 */
 	protected function _setFile($f, $mode, $create = false) {
-		zesk::deprecated();
+		zesk()->deprecated();
 		return $this->_set_file($f, $mode, $create = false);
 	}
 
@@ -346,7 +346,7 @@ abstract class CSV extends Options {
 	 * @see set_headers
 	 */
 	function setHeaders(array $headers, $is_map = false) {
-		zesk::deprecated();
+		zesk()->deprecated();
 		return $this->set_headers($headers, $is_map);
 	}
 
@@ -369,7 +369,7 @@ abstract class CSV extends Options {
 	 * @deprecated 2015-05-04
 	 */
 	function columnIsEmpty($name) {
-		zesk::deprecated();
+		zesk()->deprecated();
 		return $this->is_column_empty($name);
 	}
 

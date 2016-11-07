@@ -1,5 +1,12 @@
 <?php
+/**
+ * 
+ */
+namespace zesk;
 
-class Zesk_Module extends Module {
-	
-}
+/**
+ * 
+ * @author kent
+ *
+ */
+class Module extends \Module {}

@@ -1,15 +1,45 @@
 <?php
+/**
+ * 
+ */
+use zesk\Directory;
+use zesk\Cache;
+use zesk\Object;
+use zesk\Response;
+
+/**
+ * 
+ * @author kent
+ *
+ */
 class Controller_Content_Cache extends Controller_Cache {
+	/**
+	 * 
+	 * @var string
+	 */
 	const image_variation_default = "default";
-
+	
+	/**
+	 * 
+	 * @return mixed|mixed[]|\zesk\Configuration
+	 */
 	public static function cache_prefix() {
-		return zesk::get('Controller_Content_Cache::cache_prefix', '/cache/image/');
+		global $zesk;
+		/* @var $zesk \zesk\Kernel */
+		return $zesk->configuration->path_get('Controller_Content_Cache::cache_prefix', '/cache/image/');
 	}
-
+	
+	/**
+	 * 
+	 * @todo Use app()->document_cache()?
+	 * 
+	 * @param Content_Image $image
+	 */
 	public static function image_changed(Content_Image $image) {
-		$path = path(zesk::document_root(), self::cache_prefix(), $image->id());
+		/* @var $zesk zesk\Kernel */
+		$path = path(app()->document_root(), self::cache_prefix(), $image->id());
 		if (is_dir($path)) {
-			dir::delete_contents($path);
+			Directory::delete_contents($path);
 		}
 	}
 	private function _correct_url_redirect($image_file, $styles) {
@@ -20,11 +50,10 @@ class Controller_Content_Cache extends Controller_Cache {
 		)));
 		return;
 	}
-
+	
 	/**
 	 * Return the url for an image
 	 *
-	 * @todo fix this - will break
 	 * @param Content_Image $image
 	 * @param Router $router
 	 * @return string
@@ -35,7 +64,7 @@ class Controller_Content_Cache extends Controller_Cache {
 		}
 		return path(self::cache_prefix(), $image->id(), $style, basename($image->path));
 	}
-
+	
 	/**
 	 * 
 	 * @param Content_Image $image
@@ -45,9 +74,8 @@ class Controller_Content_Cache extends Controller_Cache {
 	 */
 	public static function url_content_image_scaled(Content_Image $image, $width = null, $height = null) {
 		$style = "c${width}x${height}";
-		return path(self::cache_prefix(), $image->id(), $style, basename($image->path));
+		return self::url_content_image($image, $style);
 	}
-
 	
 	/**
 	 * 
@@ -61,12 +89,11 @@ class Controller_Content_Cache extends Controller_Cache {
 				$image = Object::factory('Content_Image', $matches[1])->fetch();
 				return $image;
 			} catch (Exception_Object_NotFound $e) {
-
 			}
 		}
 		return null;
 	}
-
+	
 	/**
 	 *
 	 *
@@ -96,7 +123,7 @@ class Controller_Content_Cache extends Controller_Cache {
 			$this->response->cache_for(60, Response::cache_path);
 		}
 	}
-
+	
 	/**
 	 *
 	 * @param unknown $styles
@@ -143,7 +170,7 @@ class Controller_Content_Cache extends Controller_Cache {
 			}
 			$command['original'] = $original;
 			$command['data'] = $data;
-			$data = $this->hook_array("image_" . $hook, array(
+			$data = $this->call_hook_arguments("image_" . $hook, array(
 				$command
 			), $data);
 		}

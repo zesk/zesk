@@ -1,4 +1,9 @@
 <?php
+/**
+ * 
+ */
+use zesk\Mail;
+use zesk\Exception_Configuration;
 
 /**
  * Module object for Critical alerts
@@ -92,11 +97,7 @@ class Module_Critical extends Module {
 	 * @return Module_Critical|null
 	 */
 	public static function alert($sms_message, $frequency = 3600) {
-		$module = $this->application->module->object("critical");
-		if (!$module) {
-			throw new Exception_Semantics("Module critical is not loaded, failed to send message \"{sms_message}\"", compact("sms_message"));
-		}
-		$module->_alert($sms_message, $frequency);
+		app()->modules->object("critical")->_alert($sms_message, $frequency);
 	}
 	
 	/**
@@ -188,7 +189,7 @@ class Module_Critical extends Module {
 			$this->_store_alerts($alerts);
 			$emails = $this->option_list('email', array(), ",");
 			foreach ($emails as $email) {
-				mail::sendmail($email, $this->option("from"), $this->option("subject"), implode("\n", $sends), false, false, false, array(
+				Mail::sendmail($email, $this->option("from"), $this->option("subject"), implode("\n", $sends), false, false, false, array(
 					'no_force_to' => true
 				));
 			}

@@ -1,6 +1,20 @@
 <?php
+/**
+ * 
+ */
+use zesk\HTML;
 
-/* @var $widget Control_Select */
+/* @var $this \zesk\Template */
+/* @var $zesk \zesk\Kernel */
+/* @var $application \zesk\Application */
+/* @var $session \zesk\Session */
+/* @var $router \zesk\Router */
+/* @var $route \zesk\Route */
+/* @var $request \zesk\Request */
+/* @var $response \zesk\Response_Text_HTML */
+/* @var $current_user \User */
+/* @var $widget \Control_Select */
+
 $widget = $this->widget;
 
 /* @var $object Model */
@@ -14,6 +28,6 @@ if (!$limit_widget) {
 if (!$limit_widget->is_visible()) {
 	return;
 }
-echo html::tag("div", array(
+echo HTML::tag("div", array(
 	"class" => 'pager-limits form-group'
-), html::tag("label", false, __('Control_Pager:=Show') . $limit_widget->render()));
+), HTML::tag("label", false, __('Control_Pager:=Show') . $limit_widget->render()));
