@@ -204,11 +204,13 @@ class Command_Loader {
 					"class" => $class,
 					"app" => get_class($application)
 				));
-				if (!$application->configured()) {
+				if ($application->is_configured()) {
 					$this->debug("Command {class} {app} WAS ALREADY CONFIGURED!!!!", array(
 						"class" => $class,
 						"app" => get_class($application)
 					));
+				} else {
+					$application->configure();
 				}
 			} else {
 				$this->debug("Command {class} has configuration, skipping configured call", array(

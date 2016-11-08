@@ -540,6 +540,14 @@ class Application extends Hookable implements Interface_Theme {
 		
 		return $result;
 	}
+	/**
+	 * 
+	 * @return boolean
+	 */
+	public function is_configured() {
+		return $this->configured_was_run;
+	}
+	
 	public function configured() {
 		if (!$this->configured_was_run) {
 			$this->_configured();
