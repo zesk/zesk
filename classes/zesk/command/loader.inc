@@ -70,9 +70,10 @@ class Command_Loader {
 			$_ZESK = array();
 		}
 		
-		$_ZESK['zesk']['command'] = true;		// TODO Is this actually looked at anywere?
-		$_ZESK['application']['configure_options']['skip_configured'] = true; // TODO confirm this now used
+		$_ZESK['zesk']['command'] = true; // TODO Is this actually looked at anywere?
+		$_ZESK['zesk\application']['configure_options']['skip_configured'] = true; // TODO confirm this now used
 		
+
 		ini_set('error_prepend_string', "\nPHP-ERROR " . str_repeat("=", 80) . "\n");
 		ini_set('error_append_string', "\n" . str_repeat("*", 80) . "\n");
 	}
@@ -167,6 +168,7 @@ class Command_Loader {
 		$stderr = fopen("php://stderr", "a");
 		return $stderr;
 	}
+	
 	/**
 	 * Run a command
 	 *
@@ -184,9 +186,9 @@ class Command_Loader {
 		));
 		$find_command = File::find_first($application->zesk_command_path(), "$command.inc");
 		if ($find_command === null) {
-				$this->debug("Search path: \n\t{paths}", array(
-					"paths" => implode("\n\t", arr::suffix($zesk->paths->zesk_command(), "/$command.inc"))
-				));
+			$this->debug("Search path: \n\t{paths}", array(
+				"paths" => implode("\n\t", arr::suffix($zesk->paths->zesk_command(), "/$command.inc"))
+			));
 			fprintf($this->stderr(), "Ignoring command $arg - not found\n");
 			return $argv;
 		}
@@ -204,13 +206,11 @@ class Command_Loader {
 					"class" => $class,
 					"app" => get_class($application)
 				));
-				if ($application->is_configured()) {
+				if (!$application->configured()) {
 					$this->debug("Command {class} {app} WAS ALREADY CONFIGURED!!!!", array(
 						"class" => $class,
 						"app" => get_class($application)
 					));
-				} else {
-					$application->configure();
 				}
 			} else {
 				$this->debug("Command {class} has configuration, skipping configured call", array(
@@ -219,7 +219,7 @@ class Command_Loader {
 			}
 			$result = $command_object->go();
 			$argv = $command_object->arguments_remaining();
-				$this->debug("Remaining class arguments: " . json_encode($argv));
+			$this->debug("Remaining class arguments: " . json_encode($argv));
 			if ($result !== 0 && $result !== null) {
 				$this->debug("Command $class returned $result");
 			} else {
@@ -234,7 +234,7 @@ class Command_Loader {
 			if (is_array($result)) {
 				$argv = $result;
 			}
-				$this->debug("Remaining function arguments: " . json_encode($argv));
+			$this->debug("Remaining function arguments: " . json_encode($argv));
 		} else {
 			fprintf($this->stderr(), "Command $func and class $class does not exist in $find_command ... skipping\n");
 		}

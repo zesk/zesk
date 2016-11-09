@@ -2,19 +2,19 @@
 /**
  * Session object is a more powerful, multi-server, database session storage.
  * Dates and times are stored using UTC.
- * $URL: https://code.marketacumen.com/zesk/trunk/classes/session/database.inc $
+ * $URL: https://code.marketacumen.com/zesk/tags/0.8.1/classes/session/database.inc $
  * @package zesk
  * @subpackage session
  * @author Kent Davidson <kent@marketacumen.com>
  * @copyright Copyright &copy; 2011, Market Acumen, Inc.
  */
 use zesk\Timestamp;
-use \zesk as zesk;
 use zesk\URL;
 use zesk\Object;
 use zesk\Domain;
 use zesk\Request;
 use zesk\Response;
+use zesk\Exception_Object_NotFound;
 use zesk\Database_Exception_Connect;
 use zesk\Database_Exception_Table_NotFound;
 use zesk\Interface_Session;
@@ -139,7 +139,7 @@ class Session_Database extends Object implements Interface_Session {
 	 * @return integer Seconds by which to round the cookie expiration date
 	 */
 	public static function global_cookie_expire_round() {
-		return zesk::get("Session::cookie_expire_round", 3600); // 1 hour is default
+		return zesk()->configuration->path_get("Session::cookie_expire_round", 3600); // 1 hour is default
 	}
 	
 	/**
@@ -542,7 +542,7 @@ class Session_Database extends Object implements Interface_Session {
 		$cookie_domain = $zesk->configuration->path_get("Session::domain_cookie", $session->option("domain_cookie", true));
 		if ($cookie_domain === true) {
 			$cookie_domain = Domain::domain_factory($host)->compute_cookie_domain();
-		} 
+		}
 		$cookie_domain = ltrim($cookie_domain, ".");
 		if (!ends($host, $cookie_domain)) {
 			$zesk->logger->warning("Unable to set cookie {cookie_domain} on host {host}", array(

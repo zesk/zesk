@@ -3,6 +3,7 @@
  * 
  */
 use zesk\Mail;
+use zesk\Exception_Parameter;
 use zesk\Exception_Configuration;
 
 /**
@@ -97,6 +98,13 @@ class Module_Critical extends Module {
 	 * @return Module_Critical|null
 	 */
 	public static function alert($sms_message, $frequency = 3600) {
+		if (!is_numeric($frequency)) {
+			throw new Exception_Parameter("Parameter 2 to {method} should be integer value {value} is of type {type}", array(
+				"method" => __METHOD__,
+				"value" => to_text($frequency),
+				"type" => type($frequency)
+			));
+		}
 		app()->modules->object("critical")->_alert($sms_message, $frequency);
 	}
 	
@@ -148,8 +156,10 @@ class Module_Critical extends Module {
 	 * @return NULL
 	 */
 	public function send_critical_alerts() {
+		$logger = $this->application->logger;
+		
 		if (($lock = Lock::get_lock(__METHOD__, self::lock_timeout)) === null) {
-			log::error("Unable to lock {method}: can not send alerts", array(
+			$logger->error("Unable to lock {method}: can not send alerts", array(
 				"method" => __METHOD__
 			));
 			return null;
@@ -160,9 +170,17 @@ class Module_Critical extends Module {
 		foreach ($alerts as $alert_id => $alert) {
 			$first = $frequency = $count = $message = null;
 			extract($alert, EXTR_IF_EXISTS);
+			if (!is_numeric($first) || !is_numeric($frequency)) {
+				$logger->error("Alert is improperly formatted:\nPHP: {raw}\nJSON: {json}", array(
+					"raw" => serialize($alert),
+					"json" => json_encode($alert)
+				));
+				unset($alerts[$alert_id]);
+				continue;
+			}
 			if ($now > $first + $frequency) {
 				$sends[] = $message . ($count > 1 ? " (${count}x)" : "");
-				log::error("Sending critical alert {message} {alert}", array(
+				$logger->error("Sending critical alert {message} {alert}", array(
 					"message" => $message,
 					"alert" => $alert
 				));
@@ -178,7 +196,7 @@ class Module_Critical extends Module {
 						$remain = round($remain / 60);
 					}
 				}
-				log::notice("Will send alert {message} in {remain} {units}", array(
+				$logger->notice("Will send alert {message} in {remain} {units}", array(
 					"message" => $message,
 					"remain" => $remain,
 					"units" => zesk\Locale::plural($unit, $remain)

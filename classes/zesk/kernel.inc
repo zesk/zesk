@@ -9,7 +9,7 @@
  */
 namespace zesk;
 
-use \zesk as zesk;
+use \zesk as DEPRECATED_zesk;
 
 if (!defined('ZESK_ROOT')) {
 	define('ZESK_ROOT', dirname(dirname(dirname(__FILE__))) . "/");
@@ -194,8 +194,12 @@ class Kernel {
 	 * Include related classes
 	 */
 	public static function includes() {
-		require_once ZESK_ROOT . "classes/psr/log/loggerinterface.inc";
-		require_once ZESK_ROOT . "classes/psr/log/loglevel.inc";
+		if (!interface_exists('Psr\Log\LoggerInterface', false)) {
+			require_once ZESK_ROOT . "classes/psr/log/loggerinterface.inc";
+		}
+		if (!class_exists('Psr\Log\LogLevel', false)) {
+			require_once ZESK_ROOT . "classes/psr/log/loglevel.inc";
+		}
 		
 		/**
 		 *
@@ -248,7 +252,7 @@ class Kernel {
 		
 		$zesk->bootstrap();
 		
-		\zesk::bootstrap($zesk);
+		DEPRECATED_zesk::bootstrap($zesk);
 		
 		return $zesk;
 	}

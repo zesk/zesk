@@ -260,7 +260,7 @@ class Timestamp extends Temporal {
 			return $this->unix_timestamp($value);
 		}
 		if (!is_object($value)) {
-			throw new \Exception_Convert("Timestamp::set(" . strval($value) . ")");
+			throw new Exception_Convert("Timestamp::set(" . strval($value) . ")");
 		}
 		if ($value instanceof Date) {
 			$this->date($value);
@@ -272,6 +272,14 @@ class Timestamp extends Temporal {
 		}
 		if ($value instanceof Timestamp) {
 			return $this->unix_timestamp($value->unix_timestamp());
+		}
+		if ($value instanceof Configuration || is_array($value)) {
+			zesk()->logger->error("Invalid value passed to {method} ... {backtrace}\nVALUE={value}", array(
+				"method" => __METHOD__,
+				"backtrace" => _backtrace(),
+				"value" => to_array($value)
+			));
+			return $this;
 		}
 		return $this->set(strval($value));
 	}
@@ -740,7 +748,10 @@ class Timestamp extends Temporal {
 		global $zesk;
 		/* @var $zesk zesk\Kernel */
 		
-		$config_timestamp = $zesk->configuration->timestamp->pave("formatting");
+		$config_timestamp = $zesk->configuration->pave(array(
+			"timestamp",
+			"formatting"
+		));
 		$locale = avalue($options, "locale", null);
 		$ts = $this->unix_timestamp();
 		$formatting = $this->date()->formatting($options) + $this->time()->formatting($options);

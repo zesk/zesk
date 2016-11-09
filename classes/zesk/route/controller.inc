@@ -181,6 +181,7 @@ class Route_Controller extends Route {
 				$this->class_name = $class_name;
 				$this->log("Controller $class_name created");
 				break;
+			} catch (\ReflectionException $e) {
 			} catch (Exception_Class_NotFound $e) {
 			}
 		}

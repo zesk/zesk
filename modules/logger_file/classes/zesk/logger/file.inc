@@ -172,7 +172,11 @@ class File implements Handler {
 		return true;
 	}
 	
+	private function error_log($message, array $context = array()) {
+		error_log(map($message, $context));
+	}
 	/**
+	 * Inside logging
 	 * 
 	 * @return boolean
 	 */
@@ -182,11 +186,14 @@ class File implements Handler {
 			$linkname = path(dirname($this->filename), $linkname);
 		}
 		if (!file_exists($linkname)) {
-			symlink($this->filename, $linkname);
-			return true;
+			if (file_exists($this->filename)) {
+				@symlink($this->filename, $linkname);
+				return true;
+			}
+			return false;
 		}
 		if (!is_link($linkname)) {
-			zesk()->logger->error("Unable to create link file {linkname} is not a link", array(
+			$this->error_log("Unable to create link file {linkname} is not a link", array(
 				"linkname" => $linkname
 			));
 			return false;
@@ -195,18 +202,30 @@ class File implements Handler {
 		if ($target === $this->filename) {
 			return false;
 		}
-		if (!@unlink($linkname)) {
-			zesk()->logger->error("Unable to delete {linkname} while attempting to link to {filename}", array(
-				"linkname" => $linkname,
-				"filename" => $this->filename
-			));
-			return false;
+		$lockfile = $linkname . ".lock";
+		$lock = fopen($lockfile, "w");
+		if (!$lock) {
+			return;
 		}
-		zesk()->logger->debug("Created symlink {linkname} to {filename}", array(
-			"linkname" => $linkname,
-			"filename" => $this->filename
-		));
-		symlink($this->filename, $linkname);
+		if (flock($lock, LOCK_EX | LOCK_NB)) {
+			if (!@unlink($linkname)) {
+				$this->error_log("Unable to delete {linkname} while attempting to link to {filename}", array(
+					"linkname" => $linkname,
+					"filename" => $this->filename
+				));
+			} else {
+				$this->error_log("Created symlink {linkname} to {filename} ({time_zone})", array(
+					"linkname" => $linkname,
+					"filename" => $this->filename,
+					"time_zone" => $this->time_zone
+				));
+				@symlink($this->filename, $linkname);
+				// This still throws PHP Warning:  symlink(): File exists in zesk/modules/logger_file/classes/zesk/logger/file.inc on line 214 ... why? Lock not working?
+			}
+			flock($lock, LOCK_UN);
+		}
+		fclose($lock);
+		@unlink($lockfile);
 		return true;
 	}
 	
@@ -264,7 +283,7 @@ class File implements Handler {
 				global $zesk;
 				/* @var $zesk \zesk\Kernel */
 				$this->fp = false;
-				$zesk->logger->error("Unable to open file {filename} with {mode} for log file", $this->variables());
+				$this->error_log("Unable to open file {filename} with {mode} for log file", $this->variables());
 				return;
 			}
 		}

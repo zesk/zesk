@@ -27,41 +27,44 @@ class Controller_Preference extends Controller {
 	
 	/**
 	 * 
-	 * @var unknown
+	 * @var array
 	 */
-	static $whitelist = null;
+	protected $whitelist = null;
 	
 	/**
 	 * 
 	 * @return string
 	 */
-	public static function _whitelist() {
+	public function _whitelist() {
 		return $this->application->application_root("etc/preference-whitelist.txt");
 	}
 	
 	/**
 	 * 
 	 */
-	public static function save_preferences() {
-		file_put_contents(self::_whitelist(), implode("\n", array_keys(self::$whitelist)));
+	public function save_preferences() {
+		file_put_contents($this->_whitelist(), implode("\n", array_keys($this->whitelist)));
 	}
 	
 	/**
 	 * 
-	 * @param unknown $action
-	 * @param unknown $arg
+	 * @param string $action
+	 * @param string $arg
 	 * @return NULL[]|unknown[]
 	 */
 	public function arguments_getset($action, $arg) {
-		if (self::$whitelist === null) {
-			$path = self::$whitelist = array_flip(arr::clean(explode("\n", File::contents(self::_whitelist(), "")), ""));
+		if ($this->whitelist === null) {
+			$path = $this->whitelist = array_flip(arr::clean(explode("\n", File::contents($this->_whitelist(), "")), ""));
 			if ($this->application->development()) {
-				zesk()->hooks->add("exit", __CLASS__ . '::save_preferences');
+				zesk()->hooks->add("exit", array(
+					$this,
+					'save_preferences'
+				));
 			}
 		}
-		if (!array_key_exists($arg, self::$whitelist)) {
+		if (!array_key_exists($arg, $this->whitelist)) {
 			if ($this->application->development()) {
-				self::$whitelist[$arg] = true;
+				$this->whitelist[$arg] = true;
 			} else {
 				return array(
 					null

@@ -2,6 +2,7 @@
 /**
  * @copyright &copy; 2016 Market Acumen, Inc.
  */
+use zesk\Application;
 use zesk\arr;
 use zesk\PHP;
 use zesk\JSON;

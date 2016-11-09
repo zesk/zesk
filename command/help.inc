@@ -1,4 +1,7 @@
 <?php
+/**
+ * 
+ */
 use zesk\Directory;
 use zesk\File;
 /**
@@ -82,7 +85,7 @@ class Command_Help extends Command_Base {
 		$this->save_aliases($aliases);
 	}
 	function save_aliases(array $aliases) {
-		$paths = Application::instance()->configuration_path();
+		$paths = $this->application->configure_include_path();
 		$name = "command-aliases.conf"; // Put this in a single location
 		$conf_file = File::find_first($paths, $name);
 		if ($conf_file) {

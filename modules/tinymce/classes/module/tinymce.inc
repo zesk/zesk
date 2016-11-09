@@ -8,13 +8,19 @@ use zesk\Locale;
 use zesk\JavaScript;
 use zesk\PHP;
 use zesk\Lists;
+use zesk\Request;
+use zesk\Response;
+use zesk\Router;
+use zesk\Template;
+use zesk\Response_Text_HTML;
+use zesk\Interface_Module_Routes;
 
 /**
  * 
  * @author kent
  *
  */
-class Module_TinyMCE extends Module_JSLib implements zesk\Interface_Module_Routes {
+class Module_TinyMCE extends Module_JSLib implements Interface_Module_Routes {
 	protected $javascript_paths = array(
 		'/share/tinymce/tinymce.min.js' => array()
 	);
@@ -78,11 +84,11 @@ class Module_TinyMCE extends Module_JSLib implements zesk\Interface_Module_Route
 	 *
 	 * @see Module_JSLib::hook_head()
 	 */
-	public function hook_head(zesk\Request $request, zesk\Response_Text_HTML $response, zesk\Template $template) {
+	public function hook_head(Request $request, Response_Text_HTML $response, Template $template) {
 		$this->update_options();
 		return parent::hook_head($request, $response, $template);
 	}
-	public function hook_routes(zesk\Router $router) {
+	public function hook_routes(Router $router) {
 		$router->add_route('tinymce/spellchecker', array(
 			'method' => array(
 				$this,
@@ -94,7 +100,7 @@ class Module_TinyMCE extends Module_JSLib implements zesk\Interface_Module_Route
 			)
 		));
 	}
-	public function action_spellchecker(zesk\Request $request, Response $response) {
+	public function action_spellchecker(Request $request, Response $response) {
 		$params = $request->geta('params');
 		if (!is_array($params)) {
 			$response->json(array(
@@ -258,8 +264,8 @@ class Module_TinyMCE extends Module_JSLib implements zesk\Interface_Module_Route
 					"full_path" => $full_path
 				));
 			} else {
-				$locale = zesk\Locale::current();
-				$language = zesk\Locale::language($locale);
+				$locale = Locale::current();
+				$language = Locale::language($locale);
 				foreach (array(
 					path($language_url_path, "$locale.js"),
 					path($language_url_path, "$language.js")

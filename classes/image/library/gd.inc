@@ -86,8 +86,8 @@ class Image_Library_GD extends Image_Library {
 		$skew = false;
 		extract($options, EXTR_IF_EXISTS);
 		
-		// Yeah, right.
-		if ($actual_width === $width && $actual_height === $height) {
+		// Yeah, right. Avoid divide by zero below as well.
+		if (($actual_width === $width && $actual_height === $height) || $actual_width === 0 || $actual_height === 0) {
 			return $this->_imageoutput($src, $dest);
 		}
 		

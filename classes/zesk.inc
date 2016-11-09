@@ -1,6 +1,6 @@
 <?php
 /**
- * $URL: https://code.marketacumen.com/zesk/trunk/classes/zesk.inc $
+ * $URL: https://code.marketacumen.com/zesk/tags/0.8.1/classes/zesk.inc $
  * @package zesk
  * @subpackage system
  * @author kent
@@ -18,19 +18,27 @@ use zesk\Exception_Semantics;
  * @deprecated 2016-08
  */
 class zesk {
+	/**
+	 * @deprecated 2016-09
+	 * @var string
+	 */
 	const global_separator = "::";
+	/**
+	 * @deprecated 2016-09
+	 * @var string
+	 */
 	const global_document_cache = "document_cache";
 	
 	/**
 	 * Determine which functions are calling another function and their frequency
-	 *
+	 * @deprecated 2016-01
 	 * @var array
 	 */
 	static $profiler = null;
 	
 	/**
 	 * Key for setting internal globals
-	 *
+	 * @deprecated 2016-01
 	 * @var string
 	 */
 	private static $global_key = null;
@@ -38,21 +46,21 @@ class zesk {
 	/**
 	 * Deprecated function flag.
 	 * Can be true, "exception", "log", or "backtrace"
-	 *
+	 * @deprecated 2016-01
 	 * @var mixed
 	 */
 	private static $deprecated = null;
 	
 	/**
 	 * Turn on settings upon initialization to determine if values are set already
-	 *
+	 * @deprecated 2016-01
 	 * @var boolean
 	 */
 	public static $debug_set_already = false;
 	
 	/**
 	 * Debug loader problems
-	 *
+	 * @deprecated 2016-01
 	 * @var boolean
 	 */
 	public static $debug_loader = false;
@@ -77,14 +85,14 @@ class zesk {
 	/**
 	 * Global singletons.
 	 * Not cached.
-	 *
+	 * @deprecated 2016-01
 	 * @var array
 	 */
 	private static $singletons = array();
 	
 	/**
 	 * Cache normalize_global_key calls
-	 *
+	 * @deprecated 2016-01
 	 * @var array
 	 */
 	private static $key_map = array();
@@ -121,6 +129,7 @@ class zesk {
 	
 	/**
 	 * Create a new class based on name
+	 * @deprecated 2016-01
 	 *
 	 * @param string $class        	
 	 * @param array $args        	
@@ -247,6 +256,7 @@ class zesk {
 	
 	/**
 	 * Find a command using the comand path
+	 * @deprecated 2016-01
 	 *
 	 * @param string $command        	
 	 */
@@ -527,6 +537,7 @@ class zesk {
 	
 	/**
 	 * Is the system currently in maintenance mode?
+	 * @deprecated 2016-01
 	 *
 	 * @return boolean
 	 */

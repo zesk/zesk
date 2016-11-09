@@ -7,6 +7,10 @@
  * @subpackage kernel
  */
 
+use zesk\Exception_Directory_NotFound;
+use zesk\Exception_File_Permission;
+use zesk\Application;
+
 /**
  * The Unix platform abstraction
  *
@@ -14,6 +18,12 @@
  * @subpackage kernel
  */
 class Process_Group implements Process_Interruptable {
+	/**
+	 *
+	 * @var Application
+	 */
+	private $application = null;
+	
 	/**
 	 * This process group name
 	 *
@@ -166,6 +176,7 @@ class Process_Group implements Process_Interruptable {
 	 * @deprecated use instance
 	 */
 	static function master($name = false) {
+		zesk()->deprecated();
 		return self::instance($name);
 	}
 	
@@ -485,11 +496,6 @@ class Process_Group implements Process_Interruptable {
 		return false;
 	}
 	
-	/**
-	 *
-	 * @var Application
-	 */
-	private $application = null;
 	public function application(Application $set = null) {
 		if ($set) {
 			$this->application = $set;

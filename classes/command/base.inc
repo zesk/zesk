@@ -39,6 +39,10 @@ abstract class Command_Base extends Command {
 		$this->option_help['help'] = "This help.";
 		parent::initialize();
 	}
+	
+	/**
+	 * 
+	 */
 	protected function configure_logging() {
 		global $zesk;
 		/* @var $zesk \zesk\Kernel */
@@ -69,6 +73,10 @@ abstract class Command_Base extends Command {
 			}
 		}
 	}
+	
+	/**
+	 * 
+	 */
 	protected function hook_run_before() {
 		$this->configure_logging();
 		if ($this->option_bool('help')) {
@@ -81,6 +89,10 @@ abstract class Command_Base extends Command {
 			));
 		}
 	}
+	
+	/**
+	 * 
+	 */
 	public function action_debug_configured() {
 		$config = new Command_Config();
 		exit($config->go());

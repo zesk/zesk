@@ -4,6 +4,8 @@
  */
 use zesk\Timestamp;
 use zesk\arr;
+use zesk\URL;
+use zesk\File;
 use zesk\Text;
 use zesk\Exception_Configuration;
 
@@ -169,7 +171,10 @@ class Application_IPBan extends zesk\Application {
 		} else {
 			$this->logger->warning("No configuration directory {path} or {file}", compact("path", "file"));
 		}
-		$this->configuration->path_set('Application_IPBan::url_toxic_ip', 'http://www.stopforumspam.com/downloads/toxic_ip_cidr.txt', false);
+		$path = 'Application_IPBan::url_toxic_ip';
+		if (!$this->configuration->path_exists($path)) {
+			$this->configuration->pave_set($path, 'http://www.stopforumspam.com/downloads/toxic_ip_cidr.txt');
+		}
 		return $options;
 	}
 	

@@ -1273,7 +1273,7 @@ class Object extends Model {
 				$foreign_key => $this->id()
 			)
 		));
-		$this->database()->query_select($sql);
+		$this->database()->query($sql);
 	}
 	private function _fk_store(Object $object, $update_key) {
 		$object->$update_key = $this->id();

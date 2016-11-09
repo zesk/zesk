@@ -1,7 +1,7 @@
 <?php
 /**
  *
- * @version $URL: https://code.marketacumen.com/zesk/trunk/classes/controller/object.inc $
+ * @version $URL: https://code.marketacumen.com/zesk/tags/0.8.1/classes/controller/object.inc $
  * @package zesk
  * @subpackage controller
  * @author $Author: kent $
@@ -9,11 +9,18 @@
  *            Created on Mon,Aug 1, 11 at 5:19 PM
  */
 use zesk\Application;
+use zesk\HTML;
 use zesk\Model;
 use zesk\Object;
 use zesk\Exception_NotFound;
 use zesk\Exception_Permission;
 use zesk\Exception_Class_NotFound;
+
+/**
+ * 
+ * @author kent
+ *
+ */
 abstract class Controller_Object extends Controller_Template_Login {
 	
 	/**

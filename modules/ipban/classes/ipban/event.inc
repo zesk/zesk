@@ -1,4 +1,5 @@
 <?php
+use zesk\Object;
 use zesk\Timestamp;
 use zesk\Database_Exception_Duplicate;
 use zesk\Exception_Object_Duplicate;
@@ -38,8 +39,8 @@ class IPBan_Event extends IPBan {
 	public static function cron_cluster_hour(zesk\Application $application) {
 		global $zesk;
 		/* @var $zesk zesk\Kernel */
-		$event_lifetime = $zesk->configuration->path_et("IPBan_Event::lifetime", "-10 days");
-		$query = Object::class_query_delete(__CLASS__)->where("utc|<=", Timestamp::factory($event_lifetime));
+		$event_lifetime = $zesk->configuration->pave_set("IPBan_Event::lifetime", "-10 days");
+		$query = $application->query_delete(__CLASS__)->where("utc|<=", Timestamp::factory($event_lifetime));
 		$zesk->logger->notice($query->__toString());
 		$query->execute();
 	}

@@ -6,6 +6,8 @@ use zesk\Directory;
 use zesk\Cache;
 use zesk\Object;
 use zesk\Response;
+use zesk\Content_Image;
+use zesk\Exception_Object_NotFound;
 
 /**
  * 

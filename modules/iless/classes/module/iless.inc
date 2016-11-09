@@ -2,6 +2,7 @@
 /**
  * 
  */
+use zesk\File;
 use zesk\Directory;
 use zesk\CSS;
 
@@ -26,7 +27,7 @@ class Module_iLess extends Module {
 	 * @return void|mixed|string
 	 */
 	public function style_name($set = null) {
-		return $set === null ? $this->set_option('style_name', $set) : $this->option('style_name', strtolower(zesk::application_class()));
+		return $set === null ? $this->set_option('style_name', $set) : $this->option('style_name', strtolower($this->application->application_class()));
 	}
 	
 	/**
@@ -65,7 +66,7 @@ class Module_iLess extends Module {
 	 * CSS changed, dirty compiled less file
 	 */
 	public function css_theme_dirty() {
-		file::unlink(path($this->application->document_root(), $this->_css_path()));
+		File::unlink(path($this->application->document_root(), $this->_css_path()));
 	}
 	public function css_theme_changed(array $variables = array()) {
 		$this->_compile_css_theme($variables);

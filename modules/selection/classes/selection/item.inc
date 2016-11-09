@@ -1,5 +1,9 @@
 <?php
 
+use zesk\Object;
+use zesk\arr;
+use zesk\Exception_Object_NotFound;
+
 /**
  * @see Class_Selection_Item
  * @author kent

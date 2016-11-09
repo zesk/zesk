@@ -2,8 +2,11 @@
 /**
  * @copyright &copy; 2016 Market Acumen, Inc.
  */
+use zesk\arr;
 use zesk\Timestamp;
 use zesk\JSON;
+use zesk\URL;
+use zesk\Locale;
 
 /**
  * 
@@ -39,7 +42,7 @@ class Module_Nominatim extends Module {
 			return;
 		}
 		// Keep our database clean. Set lat/long to null when close to zero.
-		$update = Object::class_query_update("Contact_Address")->values(array(
+		$update = $this->application->query_update("Contact_Address")->values(array(
 			'latitude' => null,
 			'longitude' => null,
 			'geocoded' => null
@@ -56,7 +59,7 @@ class Module_Nominatim extends Module {
 		$update->execute();
 		
 		// Set geocoded date to created date when lat/long are set
-		$update = Object::class_query_update("Contact_Address")->values(array(
+		$update = $this->application->query_update("Contact_Address")->values(array(
 			'*geocoded' => 'created'
 		))->where(array(
 			array(
@@ -67,7 +70,7 @@ class Module_Nominatim extends Module {
 		));
 		$update->execute();
 		
-		$query = Object::class_query('Contact_Address')->where(array(
+		$query = $this->application->query_select('Contact_Address')->where(array(
 			array(
 				'geocoded' => null,
 				'geocoded|<=' => Timestamp::now()->add_unit("day", -abs($this->option_integer("geocode_refresh_days", 30)))

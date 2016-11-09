@@ -172,7 +172,6 @@ class Settings extends Object implements Interface_Data, Interface_Settings {
 				"method" => __METHOD__,
 				"n" => $n_loaded
 			));
-			self::$changes = array();
 		} catch (Database_Exception_Table_NotFound $e) {
 			$exception = $e;
 		} catch (Database_Exception_Connect $e) {

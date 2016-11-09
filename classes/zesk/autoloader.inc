@@ -81,12 +81,12 @@ class Autoloader {
 			spl_autoload_register(array(
 				$this,
 				"php_autoloader"
-			), false, defined("ZESK_NO_CONFLICT") ? false : true);
+			), false, false);
 		} else {
 			spl_autoload_register(array(
 				$this,
 				"php_autoloader"
-			), false);
+			), false, false);
 		}
 	}
 	

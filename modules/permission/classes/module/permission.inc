@@ -125,7 +125,7 @@ class Module_Permission extends Module {
 			));
 			if (is_bool($result)) {
 				if ($result === false) {
-					$zesk->logger->warning("{user} denied {permission} (role)", array(
+					$zesk->logger->info("{user} denied {permission} (role)", array(
 						"user" => $user->login(),
 						"permission" => $class . "::" . $permission
 					));
@@ -136,7 +136,7 @@ class Module_Permission extends Module {
 		}
 		$result = boolval($zesk->configuration->User->can);
 		if ($result === false) {
-			$zesk->logger->warning("{user} denied {permission} (not granted)", array(
+			$zesk->logger->info("{user} denied {permission} (not granted)", array(
 				"user" => $user->login(),
 				"permission" => $class . "::" . $permission
 			));

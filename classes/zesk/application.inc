@@ -1,7 +1,7 @@
 <?php
 
 /**
- * $URL: https://code.marketacumen.com/zesk/trunk/classes/zesk/application.inc $
+ * $URL: https://code.marketacumen.com/zesk/tags/0.8.1/classes/zesk/application.inc $
  * @package zesk
  * @subpackage core
  * @author $Author: kent $
@@ -11,13 +11,6 @@
 namespace zesk;
 
 use \conf;
-use zesk\arr;
-use zesk\Exception_Class_NotFound;
-use zesk\Template_Stack;
-use zesk\Directory;
-use zesk\Request;
-use zesk\Response;
-use zesk\Text;
 
 /**
  * Core web application object for Zesk.

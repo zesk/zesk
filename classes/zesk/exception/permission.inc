@@ -5,7 +5,7 @@
  */
 namespace zesk;
 
-use \User;
+use \User as UserObject;
 
 /**
  * 
@@ -13,7 +13,7 @@ use \User;
  *
  */
 class Exception_Permission extends Exception {
-	function __construct(User $user, $action, Model $object = null, array $options = array(), $previous = null) {
+	function __construct(UserObject $user, $action, Model $object = null, array $options = array(), $previous = null) {
 		parent::__construct("User {user.name} has no permission action={action} class={class} type={type}", array(
 			"action" => $action,
 			"object" => $object,
