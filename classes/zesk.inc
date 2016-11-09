@@ -1,6 +1,6 @@
 <?php
 /**
- * $URL: https://code.marketacumen.com/zesk/tags/0.8.1/classes/zesk.inc $
+ * $URL: https://code.marketacumen.com/zesk/trunk/classes/zesk.inc $
  * @package zesk
  * @subpackage system
  * @author kent

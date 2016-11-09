@@ -1,7 +1,7 @@
 <?php
 /**
  *
- * @version $URL: https://code.marketacumen.com/zesk/tags/0.8.1/classes/controller/object.inc $
+ * @version $URL: https://code.marketacumen.com/zesk/trunk/classes/controller/object.inc $
  * @package zesk
  * @subpackage controller
  * @author $Author: kent $
