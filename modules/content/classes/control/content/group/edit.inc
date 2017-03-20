@@ -8,7 +8,6 @@ class Control_Content_Group_Edit extends Control_Object_Edit {
 	}
 
 	function editWidgetList() {
-		//$user = User::instance();
 		$spec = array();
 		
 		$f = widgets::control_text("CodeName", "CodeName", true, 1, 255);

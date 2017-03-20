@@ -1,5 +1,8 @@
 <?php
 
+use zesk\Command;
+use zesk\Exception_Permission;
+
 class Controller_PolyGlot extends Controller_Template_Login {
 
 	/**
@@ -122,9 +125,9 @@ class Controller_PolyGlot extends Controller_Template_Login {
 			));
 		}
 		if ($id) {
-			$object = Object::factory("PolyGlot_Token", $id)->fetch();
+			$object = $this->application->object_factory("PolyGlot_Token", $id)->fetch();
 		} else {
-			$object = Object::factory("PolyGlot_Token");
+			$object = $this->application->object_factory("PolyGlot_Token");
 		}
 		$object->set_member($fields);
 		$errors = ($fields['status'] === 'delete') ? array() : $object->validate();

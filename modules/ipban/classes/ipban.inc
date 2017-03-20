@@ -74,7 +74,7 @@ class IPBan extends Object {
 	 */
 	public static function complain($ip, $severity, $message = "", array $arguments = array()) {
 		if (!IPv4::valid($ip)) {
-			log::debug("Invalid IP {ip} passed to {class}::complain", array(
+			$this->application->logger->debug("Invalid IP {ip} passed to {class}::complain", array(
 				"class" => __CLASS__,
 				"ip" => $ip
 			));
@@ -99,7 +99,7 @@ class IPBan extends Object {
 			))->store();
 		}
 		$complaints++;
-		log::warning("IP {ip} Complaint #{complaints}: $message", array(
+		$this->application->logger->warning("IP {ip} Complaint #{complaints}: $message", array(
 			"ip" => $ip,
 			"complaints" => $complaints
 		) + $arguments);
@@ -139,7 +139,7 @@ class IPBan extends Object {
 				"when" => $query->sql()->quote_text($when)
 			)));
 		}
-		log::debug("ban_since: {query}", array(
+		$this->application->logger->debug("ban_since: {query}", array(
 			"query" => $query->__toString()
 		));
 		return $query->to_array("ip", "ip");
@@ -169,12 +169,12 @@ class IPBan extends Object {
 				"recent|<=" => $before
 			);
 			$ips += $found_ips = Object::class_query(__CLASS__)->what("*ip", "INET_NTOA(ip)")->where($where)->to_array("ip", "ip");
-			log::debug("Allow IPs {severity} {ips}", array(
+			$this->application->logger->debug("Allow IPs {severity} {ips}", array(
 				"severity" => $severity,
 				"ips" => $found_ips
 			));
 			$delete = Object::class_query_delete(__CLASS__)->where($where);
-			//log::notice($delete->__toString());
+			//$this->application->logger->notice($delete->__toString());
 			$delete->execute();
 		}
 		return $ips;

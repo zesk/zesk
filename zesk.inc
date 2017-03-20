@@ -30,7 +30,13 @@ class Loader {
 	 */
 	public static function kernel() {
 		self::$init = microtime(true);
-		require_once dirname(__FILE__) . "/classes/zesk/kernel.inc";
+		$zesk_root = dirname(__FILE__);
+		if (!isset($GLOBALS['__composer_autoload_files'])) {
+			if (is_file($zesk_root . '/vendor/autoload.php')) {
+				require_once $zesk_root . '/vendor/autoload.php';
+			}
+		}
+		require_once $zesk_root . "/classes/Kernel.php";
 	}
 	public static function singleton() {
 		global $_ZESK;

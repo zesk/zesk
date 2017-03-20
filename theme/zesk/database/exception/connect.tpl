@@ -1,4 +1,6 @@
 <?php
+namespace zesk;
+
 $this->begin('body/exception');
 ?>
 <div class="error">

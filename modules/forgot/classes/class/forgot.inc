@@ -21,7 +21,7 @@ class Class_Forgot extends zesk\Class_Object {
 
 	public $has_one = array(
 		"user" => "User",
-		"session" => "Session_Database"
+		"session" => "zesk\Session_Database"
 	);
 
 	public $database_group = "User";

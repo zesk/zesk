@@ -35,8 +35,13 @@ abstract class Workflow_Step extends Hookable {
 	 *
 	 * @var mixed
 	 */
-	protected $theme = null;
 	protected $dependencies = array();
+	
+	/**
+	 * 
+	 * @param Workflow $workflow
+	 * @param array $options
+	 */
 	public function __construct(Workflow $workflow, array $options = array()) {
 		parent::__construct($options);
 		$this->inherit_global_options();

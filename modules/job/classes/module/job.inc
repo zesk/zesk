@@ -2,15 +2,19 @@
 /**
  * 
  */
+use zesk\Job;
 use zesk\Application;
 use zesk\Module;
+use zesk\Process_Mock;
+use zesk\Interface_Process;
+use zesk\Router;
 
 /**
  * Job module for running background jobs in a somewhat reliable manner
  * 
  * @author kent
  */
-class Module_Job extends Module implements zesk\Interface_Module_Routes {
+class Module_Job extends zesk\Module implements zesk\Interface_Module_Routes {
 	
 	/**
 	 * 
@@ -27,26 +31,26 @@ class Module_Job extends Module implements zesk\Interface_Module_Routes {
 		$zesk = $application->zesk;
 		$quit_after = $zesk->configuration->path_get(__CLASS__ . "::fake_daemon_quit_after", 5000);
 		ini_set('max_execution_time', $quit_after);
-		$process = new Process_Interruptable_Mock($application, array(
+		$process = new Process_Mock($application, array(
 			"quit_after" => $quit_after
 		));
-		zesk\Job::execute_jobs($process);
+		Job::execute_jobs($process);
 	}
 	
 	/**
 	 * Run daemon
 	 * 
-	 * @param Process_Interruptable $process
+	 * @param Interface_Process $process
 	 */
-	private function run_daemon(Process_Interruptable $process) {
+	private function run_daemon(Interface_Process $process) {
 		$has_hook = $this->has_hook("wait_for_job");
 		$seconds = $this->option("execute_jobs_wait", 10);
 		if (!$has_hook) {
-			log::debug("No hook exists for wait_for_job, sleeping interval is {seconds} seconds", compact("seconds"));
+			zesk()->logger->debug("No hook exists for wait_for_job, sleeping interval is {seconds} seconds", compact("seconds"));
 		}
 		declare(ticks = 1) {
 			while (!$process->done()) {
-				zesk\Job::execute_jobs($process);
+				Job::execute_jobs($process);
 				if ($has_hook) {
 					$this->call_hook_arguments("wait_for_job", array(
 						$process
@@ -61,12 +65,12 @@ class Module_Job extends Module implements zesk\Interface_Module_Routes {
 	/**
 	 * Daemon hook
 	 * 
-	 * @param Process_Interruptable $process
+	 * @param zesk\Interface_Process $process
 	 */
-	public static function daemon(Command_Daemon $daemon) {
-		$application = $daemon->application;
+	public static function daemon(Interface_Process $process) {
+		$application = $process->application();
 		$module = $application->modules->object("job");
-		$module->run_daemon($daemon);
+		$module->run_daemon($process);
 	}
 	
 	/**
@@ -75,7 +79,7 @@ class Module_Job extends Module implements zesk\Interface_Module_Routes {
 	 * {@inheritDoc}
 	 * @see \zesk\Interface_Module_Routes::hook_routes()
 	 */
-	public function hook_routes(zesk\Router $router) {
+	public function hook_routes(Router $router) {
 		$router->add_route("job/{zesk\\Job job}(/{option action})", array(
 			"controller" => "Job",
 			"arguments" => array(

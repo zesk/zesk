@@ -1,6 +1,6 @@
 <?php
 
-class Module_bxSlider extends Module_JSLib {
+class Module_bxSlider extends zesk\Module_JSLib {
 	protected $css_paths = array(
 		'/share/bxslider/jquery.bxslider.css'
 	);

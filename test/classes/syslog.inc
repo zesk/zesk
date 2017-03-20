@@ -1,8 +1,11 @@
 <?php
 class test_syslog extends Test_Unit {
 
+	protected $load_modules = array(
+		"syslog",
+	);
+	
 	function __construct() {
-		Module::load('syslog');
 		$this->assert_module('syslog');
 		parent::__construct();
 	}

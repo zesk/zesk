@@ -12,8 +12,8 @@ class Content_Image extends zesk\Content_Image {
 	/**
 	 * 
 	 */
-	public static function permissions() {
-		return parent::default_permissions(__CLASS__);
+	public static function permissions(zesk\Application $application) {
+		return parent::default_permissions($application, __CLASS__);
 	}
 	
 	/**

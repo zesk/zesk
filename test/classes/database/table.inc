@@ -62,12 +62,6 @@ class Test_Database_Table extends Test_Unit {
 		$that = new zesk\Database_Table($db, "someother", $debug);
 		$this->assert($x->is_similar($that, $debug) === false);
 
-		$writer = new XML_Writer();
-		$x->toXML($writer);
-
-		$element = new SimpleXMLElement("<foo/>");
-		$x->fromXML($element);
-
 		echo basename(__FILE__) . ": success\n";
 	}
 
@@ -130,12 +124,6 @@ class Test_Database_Table extends Test_Unit {
 		$that = $oldTable;
 		$debug = false;
 		$testx->is_similar($that, $debug);
-
-		$writer = new XML_Writer();
-		$testx->toXML($writer);
-
-		$element = new SimpleXMLElement('<table></table>');
-		$testx->fromXML($element);
 
 		echo basename(__FILE__) . ": success\n";
 	}

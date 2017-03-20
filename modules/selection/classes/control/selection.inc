@@ -3,6 +3,8 @@
  * 
  */
 use zesk\Model;
+use zesk\HTML;
+use zesk\Object;
 use zesk\Database_Query_Select;
 use zesk\Exception_Semantics;
 
@@ -111,7 +113,7 @@ class Control_Selection extends Control {
 				$top->query()
 			);
 		}
-		log::error("{class}: Top widget is not a list: {instead}", array(
+		$this->application->logger->error("{class}: Top widget is not a list: {instead}", array(
 			"class" => get_class($this),
 			"instead" => get_class($top)
 		));
@@ -194,15 +196,15 @@ class Control_Selection extends Control {
 			'actions' => $this->option_array("actions", array())
 		);
 	}
-	protected function hook_query_list(zesk\Database_Query_Select $query) {
+	protected function hook_query_list(Database_Query_Select $query) {
 		if ($query->has_what("selected")) {
 			// TODO Why is this called twice while listing?
 			return;
 		}
 		$type_id = $this->selection_type()->id();
 		$alias = $query->alias();
-		$id_column = Object::class_id_column($query->object_class());
-		$table = Object::class_table_name("Selection_Item");
+		$id_column = $this->application->object($query->object_class())->id_column();
+		$table = $this->application->object("Selection_Item")->table();
 		$query->join("LEFT OUTER JOIN $table sel_item ON sel_item.type=$type_id AND sel_item.id=$alias.$id_column");
 		$query->what("*selected", "sel_item.add");
 	}

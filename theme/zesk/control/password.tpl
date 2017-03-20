@@ -2,7 +2,7 @@
 /**
  * 
  */
-echo $this->theme('control/text');
+echo $this->theme('zesk/control/text');
 
 if ($this->children) {
 	foreach ($this->children as $child) {

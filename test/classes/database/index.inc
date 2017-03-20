@@ -52,9 +52,6 @@ class Test_Database_Index extends Test_Unit {
 		$this->assert($x->is_similar($that, $debug) === false);
 		$this->assert($x->is_similar($x, $debug) === true);
 
-		$writer = new XML_Writer();
-		$x->toXML($writer);
-
 		echo basename(__FILE__) . ": success\n";
 	}
 }

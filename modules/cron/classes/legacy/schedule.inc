@@ -4,6 +4,8 @@
  * @package zesk
  * @subpackage objects
  */
+zesk()->obsolete();
+
 use zesk\Timestamp;
 use zesk\Locale;
 

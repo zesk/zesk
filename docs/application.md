@@ -134,7 +134,7 @@ The default values for `Application::configuration_file` are:
 
 1. `application.conf`
 1. If the constant `APPLICATION_NAME` is defined, APPLICATION_NAME.conf
-1. The unique name of the system. In short, the result `system::uname()`, converted to lowercase, and then concatenated with the ".conf" extension
+1. The unique name of the system. In short, the result `zesk\System::uname()`, converted to lowercase, and then concatenated with the ".conf" extension
 
 Both default values can be overridden by setting `zesk` globals to different values, or by passing in TODO
 

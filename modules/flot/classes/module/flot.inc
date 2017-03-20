@@ -9,7 +9,7 @@ use zesk\Directory;
  * @author kent
  *
  */
-class Module_Flot extends Module implements \zesk\Interface_Module_Head {
+class Module_Flot extends zesk\Module implements \zesk\Interface_Module_Head {
 	
 	/**
 	 *

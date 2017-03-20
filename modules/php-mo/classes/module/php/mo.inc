@@ -12,7 +12,7 @@ use zesk\Exception_Syntax;
  * @author kent
  *
  */
-class Module_PHP_MO extends Module {
+class Module_PHP_MO extends zesk\Module {
 	
 	/**
 	 * 

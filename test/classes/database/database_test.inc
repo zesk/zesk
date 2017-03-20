@@ -308,7 +308,7 @@ class Database_Test extends Test_Unit {
 		$table = $this->test_table("bytes_used");
 		$status = $db->query_one("SHOW TABLE STATUS LIKE 'bytes_used'");
 
-		debug::output($status);
+		Debug::output($status);
 
 		$this->assert(array_key_exists("Name", $status));
 		$this->assert(array_key_exists("Rows", $status));

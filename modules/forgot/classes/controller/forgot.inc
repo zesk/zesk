@@ -5,7 +5,7 @@
  * @author kent
  *
  */
-class Controller_Forgot extends Controller_Template {
+class Controller_Forgot extends zesk\Controller_Template {
 	/**
 	 * 
 	 */
@@ -59,7 +59,7 @@ class Controller_Forgot extends Controller_Template {
 			));
 			return;
 		}
-		$session = Session::instance();
+		$session = $this->application->session();
 		if ($forgot->id() !== $session->forgot) {
 			$this->template->content = $forgot->theme('same-browser');
 			return;

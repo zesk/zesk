@@ -7,31 +7,17 @@
  * @copyright Copyright &copy; 2009, Market Ruler, LLC
  * Created on Tue Feb 17 20:42:50 EST 2009 20:42:50
  */
-if (false) {
-	/* @var $this zesk\Template */
-	
-	$zesk = $this->zesk;
-	/* @var $zesk zesk\Kernel */
-	
-	$application = $this->application;
-	/* @var $application TimeBank */
-	
-	$session = $this->session;
-	/* @var $session Session */
-	
-	$router = $this->router;
-	/* @var $request Router */
-	
-	$request = $this->request;
-	/* @var $request Request */
-	
-	$response = $this->response;
-	/* @var $response zesk\Response_Text_HTML */
-	
-	$current_user = $this->current_user;
-	/* @var $current_user User */
-}
-
+use zesk\URL;
+use zesk\HTML;
+use zesk\Session_Database;
+/* @var $this \zesk\Template */
+/* @var $zesk \zesk\Kernel */
+/* @var $application \zesk\Application */
+/* @var $session \zesk\Interface_Session */
+/* @var $request \zesk\Router */
+/* @var $request \zesk\Request */
+/* @var $response \zesk\Response_Text_HTML */
+/* @var $current_user User */
 $web_key = $this->get("web_key", $zesk->configuration->web_key);
 /* @var $this zesk\Template */
 

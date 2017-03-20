@@ -1,4 +1,6 @@
 <?php
+namespace zesk;
+
 class Command_World_Bootstrap extends Command_Base {
 	protected $option_types = array(
 		'drop' => 'boolean',
@@ -17,10 +19,10 @@ class Command_World_Bootstrap extends Command_Base {
 		'province' => 'Bootstrap US/CA provinces'
 	);
 	private static $straps = array(
-		'country' => 'World_Bootstrap_Country',
-		'currency' => 'World_Bootstrap_Currency',
-		'language' => 'World_Bootstrap_Language',
-		'province' => 'World_Bootstrap_Province'
+		'country' => 'zesk\\World_Bootstrap_Country',
+		'currency' => 'zesk\\World_Bootstrap_Currency',
+		'language' => 'zesk\\World_Bootstrap_Language',
+		'province' => 'zesk\\World_Bootstrap_Province'
 	);
 	function run() {
 		$straps = array();
@@ -43,7 +45,7 @@ class Command_World_Bootstrap extends Command_Base {
 		}
 		foreach ($straps as $strap) {
 			$class = self::$straps[$strap];
-			$object = Object::factory($class, $this->options);
+			$object = $this->application->object_factory($class, $this->options);
 			$this->log("Bootstrapping $strap ...");
 			$object->boostrap($this->application);
 		}

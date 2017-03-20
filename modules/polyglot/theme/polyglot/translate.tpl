@@ -4,11 +4,16 @@
  */
 use zesk\Model;
 
-/**
- * 
- * @var unknown $current_user
- */
-$current_user = $this->get1("current_user;user", User::instance(true));
+/* @var $this \zesk\Template */
+/* @var $zesk \zesk\Kernel */
+/* @var $application \zesk\Application */
+/* @var $session \zesk\Session */
+/* @var $router \zesk\Router */
+/* @var $route \zesk\Route */
+/* @var $request \zesk\Request */
+/* @var $response \zesk\Response_Text_HTML */
+/* @var $current_user \User */
+$current_user = $this->get1("current_user;user", $application->user(true));
 $can_update_live = $current_user->can("Module_PolyGlot::update");
 
 /* @var $response zesk\Response_Text_HTML */

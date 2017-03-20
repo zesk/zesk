@@ -1,4 +1,6 @@
 <?php
+namespace zesk;
+
 if (!$this->request) {
 	$request = $this->request = $this->application->request();
 }

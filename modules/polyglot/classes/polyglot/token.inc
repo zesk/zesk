@@ -30,16 +30,57 @@ class PolyGlot_Token extends Object {
 	 * @var zesk\Locale_Validate
 	 */
 	private $validator = null;
+	/**
+	 * Token to translate
+	 * 
+	 * @var string
+	 */
 	const status_todo = "todo";
+	
+	/**
+	 * Draft version of a token translation
+	 * 
+	 * @var string
+	 */
 	const status_draft = "draft";
+	
+	/**
+	 * Developer needs to review
+	 * 
+	 * @var string
+	 */
 	const status_dev = "dev";
+	
+	/**
+	 * Question about translation
+	 * 
+	 * @var string
+	 */
 	const status_question = "question";
+	
+	/**
+	 * Done
+	 * 
+	 * @var string
+	 */
 	const status_done = "done";
+	
+	/**
+	 * Delete
+	 * 
+	 * @var string
+	 */
 	const status_delete = "delete";
+	
+	/**
+	 * 
+	 * {@inheritDoc}
+	 * @see \zesk\Object::store()
+	 */
 	public function store() {
 		$this->md5 = md5($this->original);
 		if ($this->member_is_empty("user")) {
-			$this->user = User::instance();
+			$this->user = $this->application->user();
 		}
 		if ($this->member_is_empty("context")) {
 			$this->context = $this->call_hook("context_default");
@@ -148,7 +189,7 @@ class PolyGlot_Token extends Object {
 			$entities = htmlentities($translation);
 			if ($entities !== $translation) {
 				Object::class_query_update(__CLASS__)->value("translation", $entities)->where("id", $id)->execute();
-				log::debug("Updated #{id} {translation} to {entities}", compact("id", "translation", "entities"));
+				$this->application->logger->debug("Updated #{id} {translation} to {entities}", compact("id", "translation", "entities"));
 			}
 		}
 	}

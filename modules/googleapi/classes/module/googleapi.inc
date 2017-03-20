@@ -1,6 +1,6 @@
 <?php
 
-class Module_GoogleAPI extends Module {
+class Module_GoogleAPI extends zesk\Module {
 
 	public function initialize() {
 		global $zesk;

@@ -1,26 +1,22 @@
 <?php
+
 /**
  * @copyright &copy; 2016 Market Acumen, Inc.
  */
 namespace zesk;
 
-if (false) {
-	/* @var $current_user User */
-	$current_user = $this->current_user;
-	/* @var $object Object */
-	$object = $this->object;
-	/* @var $request Request */
-	$request = $this->request;
-	/* @var $router Router */
-	$router = $this->router;
-}
+/* @var $application Application */
+/* @var $current_user User */
+/* @var $object Object */
+/* @var $request Request */
+/* @var $router Router */
 
 try {
 	$url = $router->get_route('edit', $this->list_class, array(
 		"id" => $this->object
 	));
 } catch (Exception_Object_NotFound $e) {
-	log::error("Object {list_class} not found {object}", array(
+	$application->logger->error("Object {list_class} not found {object}", array(
 		"list_class" => $this->list_class,
 		"object" => $object->id()
 	));

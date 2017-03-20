@@ -9,6 +9,6 @@
  * Invoice
  * @see Class_Invoice
  */
-class Invoice extends Object {
+class Invoice extends \zesk\Object {
 
 }

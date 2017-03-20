@@ -1,5 +1,7 @@
 <?php
-
+/**
+ * 
+ */
 namespace zesk;
 
 /**
@@ -24,7 +26,7 @@ abstract class PHPUnit_Selenium2TestCase extends \PHPUnit_Extensions_Selenium2Te
 		if ($timeout === null) {
 			$timeout = 10;
 		}
-		$timer = new \Timer();
+		$timer = new Timer();
 		while ($timer->elapsed() < $timeout) {
 			try {
 				$result = $this->$func($selector);
@@ -74,7 +76,7 @@ abstract class PHPUnit_Selenium2TestCase extends \PHPUnit_Extensions_Selenium2Te
 		if (is_array($mixed)) {
 			$details += $mixed;
 		}
-		return \Text::format_pairs($details);
+		return Text::format_pairs($details);
 	}
 	
 	/**
@@ -84,7 +86,7 @@ abstract class PHPUnit_Selenium2TestCase extends \PHPUnit_Extensions_Selenium2Te
 	 * @return mixed
 	 */
 	public function json_request($url) {
-		$this->assertTrue(\URL::valid($url), "URL::valid(\"$url\") is not TRUE");
+		$this->assertTrue(URL::valid($url), "URL::valid(\"$url\") is not TRUE");
 		//echo "Fetching $url ...\n";
 		$result = file_get_contents($url);
 		//echo "==\n$result\n==\n";
@@ -114,7 +116,7 @@ abstract class PHPUnit_Selenium2TestCase extends \PHPUnit_Extensions_Selenium2Te
 	 * @return string|null
 	 */
 	public function url_part($part) {
-		$parts = \URL::parse($this->url());
+		$parts = URL::parse($this->url());
 		return avalue($parts, $part);
 	}
 	protected function check_page_source() {
@@ -126,7 +128,6 @@ abstract class PHPUnit_Selenium2TestCase extends \PHPUnit_Extensions_Selenium2Te
 		}
 		return true;
 	}
-
 	private $saved_url = null;
 	
 	/**
@@ -173,7 +174,6 @@ abstract class PHPUnit_Selenium2TestCase extends \PHPUnit_Extensions_Selenium2Te
 	public function url_path($path, $check = true) {
 		$this->url($this->add_path($path), $check);
 	}
-	
 	protected function assert_source_contains($substring) {
 		$source = $this->source();
 		$this->assertTrue(strpos($source, $substring) !== false, $this->message_details("Source does not contain substring \"$substring\""));

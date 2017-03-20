@@ -9,14 +9,7 @@
  * @author kent
  * @copyright Copyright &copy; 2013, Market Acumen, Inc.
  */
-use zesk\Interface_Data;
-use zesk\Timestamp;
-use zesk\Router;
-use zesk\Arr;
-use zesk\PHP;
-use zesk\Locale;
-use zesk\Exception_Parameter;
-use zesk\Object;
+namespace zesk;
 
 /**
  * 
@@ -31,9 +24,9 @@ class Module_Cron extends Module {
 	 * @var array
 	 */
 	protected $classes = array(
-		"Server",
-		"Lock",
-		"Settings"
+		"zesk\\Server",
+		"zesk\\Lock",
+		"zesk\\Settings"
 	);
 	
 	/**
@@ -95,9 +88,9 @@ class Module_Cron extends Module {
 	 */
 	public function _hook_callback($method, $arguments) {
 		global $zesk;
-		/* @var $zesk zesk\Kernel */
+		/* @var $zesk Kernel */
 		$method_string = $zesk->hooks->callable_string($method);
-		if (is_array($method) && $method[0] instanceof Module) {
+		if (is_array($method) && ($method[0] instanceof Module || $method[0] instanceof \Module)) {
 			$name = $method[0]->codename();
 			$message = "app()->modules->object(\"$name\")->{1}()";
 			$message_args = $method;
@@ -121,7 +114,7 @@ class Module_Cron extends Module {
 	 */
 	public function _result_callback($method, $previous_result, $new_result, $return_hint) {
 		global $zesk;
-		/* @var $zesk zesk\Kernel */
+		/* @var $zesk Kernel */
 		$elapsed = microtime(true) - $this->start;
 		if ($elapsed > ($elapsed_warn = $this->option_double("elapsed_warn", 2))) {
 			$zesk->logger->warning("Cron: {method} took {elapsed} {seconds} (exceeded {elapsed_warn} {elapsed_warn_seconds})", array(
@@ -187,7 +180,7 @@ class Module_Cron extends Module {
 	 *        	
 	 * @return void
 	 */
-	public function hook_routes(zesk\Router $router) {
+	public function hook_routes(Router $router) {
 		$router->add_route($this->page_runner_script(), array(
 			"method" => array(
 				$this,
@@ -214,7 +207,7 @@ class Module_Cron extends Module {
 	 * @return string
 	 */
 	private static function _cron_variable_prefix($suffix = "", $system = false) {
-		return __CLASS__ . "::last" . ($suffix ? "_$suffix" : "") . "::" . system::uname();
+		return __CLASS__ . "::last" . ($suffix ? "_$suffix" : "") . "::" . System::uname();
 	}
 	/**
 	 * Config setting for when cron last run (unit)
@@ -237,7 +230,7 @@ class Module_Cron extends Module {
 	}
 	private static function _cron_hooks($method) {
 		global $zesk;
-		/* @var $zesk zesk\Kernel */
+		/* @var $zesk Kernel */
 		$classes = to_list($zesk->configuration->path_get(__CLASS__ . '::classes', 'zesk\Application;zesk\Object'));
 		return arr::suffix($classes, "::$method");
 	}
@@ -273,7 +266,7 @@ class Module_Cron extends Module {
 	 */
 	public function list_status() {
 		global $zesk;
-		/* @var $zesk zesk\Kernel */
+		/* @var $zesk Kernel */
 		$hooks = $zesk->hooks;
 		$now = Timestamp::now();
 		$results = array();
@@ -329,7 +322,7 @@ class Module_Cron extends Module {
 	 */
 	private function _run() {
 		global $zesk;
-		/* @var $zesk zesk\Kernel */
+		/* @var $zesk Kernel */
 		$hooks = $zesk->hooks;
 		$now = Timestamp::now();
 		$results = array();
@@ -456,9 +449,9 @@ class Module_Cron extends Module {
 	 * Update a page to enable it to run cron
 	 *
 	 * @param Request $request        	
-	 * @param zesk\Response_Text_HTML $response        	
+	 * @param Response_Text_HTML $response        	
 	 */
-	public function page_runner(zesk\Request $request, zesk\Response_Text_HTML $response) {
+	public function page_runner(Request $request, Response_Text_HTML $response) {
 		$response->cdn_javascript('/share/zesk/js/zesk.js', array(
 			'weight' => 'first',
 			'share' => true
@@ -603,11 +596,45 @@ class Module_Cron extends Module {
 		}
 		return false;
 	}
-	protected function hook_system_panel(zesk\Template $template) {
+	/**
+	 * 
+	 * @param Template $template
+	 * @return string[][]
+	 */
+	protected function hook_system_panel(Template $template) {
 		return array(
 			"system/panel/cron" => array(
-				"title" => __("Cron Tasks")
+				"title" => __("Cron Tasks"),
+				"module_class" => __CLASS__
 			)
 		);
+	}
+	protected function hook_schema_updated() {
+		// Changed class structure on 2016-11-23
+		$update = $this->application->query_update("Settings");
+		$nrows = $update->value("*name", "REPLACE(name, 'Module_Cron::', " . $update->database()
+			->quote_text(__CLASS__ . "::") . ")")
+			->where("name|LIKE", 'Module_Cron::%')
+			->exec()
+			->affected_rows();
+		if ($nrows > 0) {
+			$this->application->logger->notice("Updated {nrows} settings to use new prefix {class}", array(
+				"nrows" => $nrows,
+				"class" => __CLASS__
+			));
+		}
+		$nrows = $this->application->query_delete("Settings")
+			->where("name|LIKE", array(
+			'Module_Cron::%',
+			'cron::%'
+		))
+			->exec()
+			->affected_rows();
+		if ($nrows > 0) {
+			$this->application->logger->notice("{class}: Deleted {nrows} settings to using old prefixes", array(
+				"nrows" => $nrows,
+				"class" => __CLASS__
+			));
+		}
 	}
 }

@@ -1,38 +1,25 @@
 <?php
+
 /**
  * @copyright &copy; 2016 Market Acumen, Inc.
  */
 namespace zesk;
 
-if (false) {
-	/* @var $this Template */
-	
-	$zesk = $this->zesk;
-	/* @var $zesk \zesk\Kernel */
-	
-	$application = $this->application;
-	/* @var $application \zesk\Application */
-	
-	$session = $this->session;
-	/* @var $session \zesk\Session */
-	
-	$router = $this->router;
-	/* @var $request \zesk\Router */
-	
-	$request = $this->request;
-	/* @var $request \zesk\Request */
-	
-	$response = $this->response;
-	/* @var $response \zesk\Response_Text_HTML */
-}
-
+/* @var $this \zesk\Template */
+/* @var $zesk \zesk\Kernel */
+/* @var $application \zesk\Application */
+/* @var $session \zesk\Session */
+/* @var $router \zesk\Router */
+/* @var $request \zesk\Request */
+/* @var $response \zesk\Response_HTML */
+/* @var $current_user \User */
 $this->begin('body/exception.tpl');
 
 /* @var $exception Exception */
 $exception = $this->exception;
 $class = get_class($this->exception);
 
-log::error("Exception: {exception_class}\nMessage: {message}\nServer:\n{server}\nRequest:\n{request}\nException: {exception_class}\nBacktrace:\n{backtrace}\n{exception}", array(
+$application->logger->error("Exception: {exception_class}\nMessage: {message}\nServer:\n{server}\nRequest:\n{request}\nException: {exception_class}\nBacktrace:\n{backtrace}\n{exception}", array(
 	"server" => Text::format_pairs($_SERVER),
 	"request" => Text::format_pairs($_REQUEST),
 	"exception_class" => $class,

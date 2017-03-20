@@ -30,7 +30,7 @@ class Service_Translate_Google extends Service_Translate {
 	
 	/**
 	 *
-	 * @var \Net_HTTP_Client $client
+	 * @var Net_HTTP_Client $client
 	 */
 	public $client = null;
 	
@@ -63,7 +63,7 @@ class Service_Translate_Google extends Service_Translate {
 		$this->inherit_global_options();
 		$this->source_language = $this->option("source", $source_language);
 		$this->target_language = $target_language ? $target_language : $this->option("target", Locale::language());
-		$this->client = new \Net_HTTP_Client(self::api_root);
+		$this->client = new Net_HTTP_Client(self::api_root);
 		$this->key = $this->option('api_key');
 		if (!$this->key) {
 			throw new Exception_Configuration("Service_Translate::api_key", "Translation authorization key is not available, unable to automatically translate text.");

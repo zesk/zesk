@@ -11,7 +11,7 @@ use zesk\HTML;
  * @author kent
  *
  */
-class Module_jQuery_Unveil extends Module_JSLib {
+class Module_jQuery_Unveil extends zesk\Module_JSLib {
 	protected $javascript_paths = array(
 		"/share/jquery-unveil/jquery.unveil.js"
 	);

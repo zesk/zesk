@@ -11,7 +11,7 @@ use zesk\Exception_File_NotFound;
  * @author kent
  *
  */
-class Module_PolyGlot extends Module implements zesk\Interface_Module_Routes {
+class Module_PolyGlot extends zesk\Module implements zesk\Interface_Module_Routes {
 	
 	/**
 	 * 
@@ -88,7 +88,7 @@ class Module_PolyGlot extends Module implements zesk\Interface_Module_Routes {
 	public function load_locale($locale = null) {
 		global $zesk;
 		/* @var $zesk \zesk\Kernel */
-		$user = User::instance();
+		$user = $this->application->user();
 		$source_files = $this->option_list("source_files");
 		$table = array();
 		foreach ($source_files as $source_file) {

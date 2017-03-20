@@ -9,7 +9,7 @@ use zesk\Text;
  * 
  * @author kent
  */
-class Command_AWS_Glacier extends Command_Base {
+class Command_AWS_Glacier extends zesk\Command_Base {
 	
 	/**
 	 * Help string output for usage

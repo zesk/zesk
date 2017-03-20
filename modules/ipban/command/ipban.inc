@@ -18,7 +18,7 @@ use zesk\Text;
  * @subpackage ipban
  * @copyright (c) 2013 Market Acumen, Inc.
  */
-class Command_IPBan extends Command_Base {
+class Command_IPBan extends zesk\Command_Base {
 	protected $option_types = array(
 		"*" => "string",
 		"allow" => "boolean",

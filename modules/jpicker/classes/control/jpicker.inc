@@ -1,14 +1,6 @@
 <?php
 
-class Control_jPicker extends Control {
-
-	/**
-	 * theme name
-	 *
-	 * @var string
-	 */
-	protected $theme = "control/jpicker";
-
+class Control_jPicker extends \zesk\Control {
 	/**
 	 * (non-PHPdoc)
 	 * @see Widget::validate()

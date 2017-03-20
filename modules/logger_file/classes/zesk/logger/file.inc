@@ -53,10 +53,16 @@ class File implements Handler {
 	protected $exclude_patterns = null;
 	
 	/**
-	 * 
+	 *
 	 * @var resource
 	 */
 	protected $fp = null;
+	
+	/**
+	 *
+	 * @var boolean
+	 */
+	protected $opened = null;
 	
 	/**
 	 * 
@@ -82,12 +88,19 @@ class File implements Handler {
 	 * @param array $options
 	 */
 	function __construct($filename = null, array $options = array()) {
-		if (can_map($filename)) {
+		if (is_resource($filename)) {
+			$this->fp = $filename;
+			$this->opened = false;
+			$this->filename = null;
+			$this->filename_pattern = null;
+		} else if (can_map($filename)) {
 			$this->filename = null;
 			$this->filename_pattern = $filename;
+			$this->fp = null;
 		} else {
 			$this->filename = $filename;
 			$this->filename_pattern = null;
+			$this->fp = null;
 		}
 		$this->linkname = avalue($options, "linkname");
 		$this->time_zone = avalue($options, "time_zone", null);
@@ -103,7 +116,6 @@ class File implements Handler {
 		if (count($this->exclude_patterns) === 0) {
 			$this->exclude_patterns = null;
 		}
-		$this->fp = null;
 	}
 	
 	/**
@@ -171,7 +183,6 @@ class File implements Handler {
 		}
 		return true;
 	}
-	
 	private function error_log($message, array $context = array()) {
 		error_log(map($message, $context));
 	}
@@ -279,6 +290,7 @@ class File implements Handler {
 			}
 			Directory::depend(dirname($this->filename));
 			$this->fp = fopen($this->filename, $this->mode);
+			$this->opened = true;
 			if (!$this->fp) {
 				global $zesk;
 				/* @var $zesk \zesk\Kernel */
@@ -303,7 +315,9 @@ class File implements Handler {
 	 */
 	public function close() {
 		if ($this->fp) {
-			fclose($this->fp);
+			if ($this->opened) {
+				fclose($this->fp);
+			}
 			$this->fp = null;
 		}
 	}

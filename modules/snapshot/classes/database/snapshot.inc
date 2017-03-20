@@ -2,6 +2,8 @@
 /**
  * 
  */
+use zesk\Timer;
+use zesk\File;
 use zesk\Directory;
 use zesk\Timestamp;
 use zesk\Database;
@@ -35,6 +37,7 @@ class Database_Snapshot extends Object {
 		if ($db === null) {
 			$db = app()->database_factory();
 		}
+		$app = $db->application;
 		$now = Timestamp::now();
 		$date = $now->format('{YYYY}-{MM}-{DD}_{hh}-{mm}-{ss}');
 		
@@ -45,7 +48,7 @@ class Database_Snapshot extends Object {
 			$timer = new Timer();
 			$db->dump($temp);
 			$elapsed = $timer->elapsed();
-			$snap = Object::factory(__CLASS__, array(
+			$snap = $app->object_factory(__CLASS__, array(
 				'name' => __('{db_name} snapshot saved on {date}', array(
 					'db_name' => $dbname,
 					'date' => $date
@@ -55,10 +58,10 @@ class Database_Snapshot extends Object {
 				'created' => $now,
 				'data' => file_get_contents($temp)
 			))->store();
-			file::unlink($temp);
+			File::unlink($temp);
 			return $snap;
 		} catch (Exception $e) {
-			file::unlink($temp);
+			File::unlink($temp);
 			throw $e;
 		}
 		return null;
@@ -70,7 +73,7 @@ class Database_Snapshot extends Object {
 		$dbname = $db->database_name();
 		
 		/* @var $snapshot Database_Snapshot */
-		$snapshot = Object::class_query(__CLASS__)->what_object()
+		$snapshot = app()->query_select(__CLASS__)->what_object()
 			->where(array(
 			"dbname" => $dbname
 		))
@@ -100,11 +103,11 @@ class Database_Snapshot extends Object {
 		file_put_contents($temp, $this->data);
 		try {
 			$db->restore($temp);
-			file::unlink($temp);
+			File::unlink($temp);
 			return $this;
 		} catch (Exception $e) {
-			log::error($e);
-			file::unlink($temp);
+			$this->application->logger->error($e);
+			File::unlink($temp);
 			throw $e;
 		}
 		return null;

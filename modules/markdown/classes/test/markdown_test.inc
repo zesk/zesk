@@ -5,17 +5,16 @@
 use zesk\Directory;
 
 /**
- * 
- * @author kent
  *
+ * @author kent
+ *        
  */
 class Markdown_Test extends Test_Unit {
-	function initialize() {
-		Module::load('diff');
-	}
+	protected $load_modules = array(
+		"markdown",
+		"diff"
+	);
 	function test_md() {
-		Module::load('markdown');
-		
 		$failed = false;
 		
 		$tests = Directory::ls(dirname(__FILE__), '/.markdown$/');

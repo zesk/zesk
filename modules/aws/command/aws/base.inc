@@ -1,5 +1,5 @@
 <?php
-abstract class Command_AWS_Base extends Command_Base {
+abstract class Command_AWS_Base extends zesk\Command_Base {
 	
 	/**
 	 * 

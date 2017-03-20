@@ -1,34 +1,22 @@
 <?php
-use zesk\Timestamp;
+namespace zesk;
 
-if (false) {
-	/* @var $this zesk\Template */
-	
-	$application = $this->application;
-	/* @var $application ZeroBot */
-	
-	$session = $this->session;
-	/* @var $session Session */
-	
-	$request = $this->request;
-	/* @var $request Request */
-	
-	$response = $this->response;
-	/* @var $response zesk\Response_Text_HTML */
-	
-	$current_user = $this->current_user;
-	/* @var $current_user User */
-	
-	/* @var $object zesk\Feed */
-	$object = $this->object;
-}
+/* @var $this Template */
+/* @var $application Application */
+/* @var $session Session */
+/* @var $request Request */
+/* @var $response Response_Text_HTML */
+/* @var $current_user User */
 
-/* @var $data zesk\Interface_Data */
+/* @var $object Feed */
+$object = $this->object;
+
+/* @var $data Interface_Data */
 $data = $this->data;
 $feed_update_frequency = $this->geti('feed_update_frequency', 600);
 $limit = $this->geti("limit", null);
 if ($limit <= 0) {
-	log::warning("Limit passed to {file} is <= 0 ({limit}), assuming no limit", array(
+	$application->logger->warning("Limit passed to {file} is <= 0 ({limit}), assuming no limit", array(
 		"file" => __FILE__,
 		"limit" => $limit
 	));
@@ -38,7 +26,7 @@ if ($limit <= 0) {
 $url = $object->url();
 $prefix = $this->get('name', md5($url)) . "_";
 
-if ($data instanceof zesk\Interface_Data) {
+if ($data instanceof Interface_Data) {
 	$content = $data->data($prefix . 'content');
 	$updated = $data->data($prefix . 'updated');
 } else {
@@ -61,16 +49,16 @@ if ($content && $updated instanceof Timestamp) {
 /* @var $attempted Timestamp */
 $attempted = $data->data($prefix . 'attempted');
 if ($attempted instanceof Timestamp && $attempted->add_unit("second", 60)->after($now)) {
-	log::warning("Only attempt download once a minute - waiting {n_seconds} {seconds}", array(
+	$application->logger->warning("Only attempt download once a minute - waiting {n_seconds} {seconds}", array(
 		"n_seconds" => $n_seconds = $attempted->difference($now),
-		"seconds" => zesk\Locale::plural(__("second"), $n_seconds)
+		"seconds" => Locale::plural(__("second"), $n_seconds)
 	));
 } else {
 	if ($object->execute()) {
 		ob_start();
 		$items = array();
 		foreach ($object as $post) {
-			/* @var $post zesk\Feed_Post */
+			/* @var $post Feed_Post */
 			$items[] = $post->theme("item");
 			if ($limit !== null && count($items) >= $limit) {
 				break;
@@ -86,9 +74,9 @@ if ($attempted instanceof Timestamp && $attempted->add_unit("second", 60)->after
 	}
 }
 
-log::error($object->errors());
+$application->logger->error($object->errors());
 if ($content) {
-	log::warning("Feed {name} Using cached content - unable to update feed", compact("name"));
+	$application->logger->warning("Feed {name} Using cached content - unable to update feed", compact("name"));
 	echo $content;
 }
 $data->data($prefix . "attempted", $now);

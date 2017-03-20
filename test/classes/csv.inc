@@ -1,15 +1,12 @@
 <?php
 class Test_CSV extends Test_Unit {
-
-	function __construct() {
-		Module::load('csv');
-		parent::__construct();
-	}
+	protected $load_modules = array(
+		"csv"
+	);
 	function test_quote() {
 		$x = null;
 		CSV_Reader::quote($x);
 	}
-
 	function test_quote_row() {
 		$x = array(
 			'',

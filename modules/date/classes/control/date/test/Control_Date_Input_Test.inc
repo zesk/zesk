@@ -7,9 +7,10 @@
  * @copyright Copyright &copy; 2008, Market Acumen, Inc.
  */
 class Control_Date_Input_Test extends Test_Control {
-	function initialize() {
-		Module::load('date');
-	}
+	protected $load_modules = array(
+		"date",
+	);
+	
 	function test_main() {
 		$this->test_basics(widget::factory('Control_Date_Input'));
 

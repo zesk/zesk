@@ -4,6 +4,9 @@
  */
 use zesk\Timestamp;
 use zesk\Cache;
+use zesk\Object;
+use zesk\Net_HTTP_UserAgent;
+
 /**
  * @see Class_Browser
  * @property id $id

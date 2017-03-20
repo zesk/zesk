@@ -14,7 +14,7 @@
  *
  * @author kent
  */
-class Module_Forgot extends Module implements zesk\Interface_Module_Routes {
+class Module_Forgot extends zesk\Module implements zesk\Interface_Module_Routes {
 	
 	/**
 	 *

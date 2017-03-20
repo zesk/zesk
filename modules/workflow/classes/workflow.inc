@@ -103,7 +103,7 @@ class Workflow extends Model {
 			} else if (is_array($spec)) {
 				list($class, $options) = $spec;
 			} else {
-				log::error("Workflow::_init_steps Invalid value type {type} {dump}", array(
+				zesk()->logger->error("Workflow::_init_steps Invalid value type {type} {dump}", array(
 					"type" => type($spec),
 					"dump" => _dump($spec)
 				));
@@ -113,7 +113,7 @@ class Workflow extends Model {
 				/* @var $step Workflow_Step */
 				$steps[$id] = $step = $zesk->objects->factory($class, $this, $options);
 			} catch (Exception_Class_NotFound $e) {
-				log::error("Workflow::_init_steps Class not found {class}", array(
+				zesk()->logger->error("Workflow::_init_steps Class not found {class}", array(
 					"class" => $step
 				));
 			}
@@ -141,7 +141,7 @@ class Workflow extends Model {
 				}
 			}
 			if (!$changed) {
-				log::error("Unable to resolve dependencies in {class}: {deps}", array(
+				zesk()->logger->error("Unable to resolve dependencies in {class}: {deps}", array(
 					"class" => get_class($this),
 					"deps" => array_keys($dependencies)
 				));

@@ -6,6 +6,12 @@
  *
  */
 class Test_Selenium extends Test_Unit {
+	
+	protected $load_modules = array(
+			"php-webdriver-facebook",
+	);
+	
+	
 	/**
 	 * Debuggin
 	 *
@@ -33,10 +39,6 @@ class Test_Selenium extends Test_Unit {
 	 * @var integer
 	 */
 	protected $timeout = 5000;
-
-	function initialize() {
-		Module::load('php-webdriver-facebook');
-	}
 
 	function cleanup() {
 		$this->close();
@@ -69,7 +71,7 @@ class Test_Selenium extends Test_Unit {
 				$timeout = $this->timeout;
 			}
 			if ($this->debug) {
-				log::debug("Connecting to {webdriver_url} {capabilities} {timeout}", compact("webdriver_url", "capabilities", "timeout"));
+				$this->application->logger->debug("Connecting to {webdriver_url} {capabilities} {timeout}", compact("webdriver_url", "capabilities", "timeout"));
 			}
 			$this->driver = RemoteWebDriver::create($webdriver_url, $capabilities, $timeout);
 		}

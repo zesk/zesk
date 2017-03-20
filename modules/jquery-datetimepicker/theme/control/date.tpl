@@ -32,7 +32,7 @@ if (empty($id)) {
 }
 
 $value = Timestamp::factory($value)->date()->format($this->get('format', '{YYYY}-{MM}-{DD}'));
-echo $this->theme('control/text', array(
+echo $this->theme('zesk/control/text', array(
 	'value' => $value
 ));
 

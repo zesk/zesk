@@ -16,14 +16,14 @@ class test_overhead extends Test_Unit {
 			$current = memory_get_usage();
 			// echo "Current=$current\n";
 			$delta = $current - $start;
-			// $this->log(count($users) . " users fit in $delta (" . number::format_bytes($delta) . ")");
+			// $this->log(count($users) . " users fit in $delta (" . Number::format_bytes($delta) . ")");
 			// echo "$current < $stop, " . ($current < $stop) . "\n";
 		} while ($current < $stop);
 		$nusers = count($users);
 		$this->log("{nusers} users fit in {bytes}, or {per_user} per user", array(
 			"nusers" => $nusers,
-			"bytes" => number::format_bytes($test_limit),
-			"per_user" => number::format_bytes($test_limit / $nusers)
+			"bytes" => Number::format_bytes($test_limit),
+			"per_user" => Number::format_bytes($test_limit / $nusers)
 		));
 	}
 	private function run_php_sandbox($sandbox) {
@@ -52,6 +52,6 @@ class test_overhead extends Test_Unit {
 		$this->log("Zesk PHP usage is $zesk_usage");
 		$zesk_usage = intval($result);
 		$delta = $zesk_usage - $raw_usage;
-		$this->log("Zesk Overhead is " . $delta . " " . number::format_bytes($delta));
+		$this->log("Zesk Overhead is " . $delta . " " . Number::format_bytes($delta));
 	}
 }

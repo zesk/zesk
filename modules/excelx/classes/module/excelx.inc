@@ -1,6 +1,6 @@
 <?php
 
-class Module_ExcelX extends Module {
+class Module_ExcelX extends zesk\Module {
 	
 	public static function download($filename, array $headers, Iterator $iterator, Response $response) {
 		// pretend content (which is XML) is XLS native

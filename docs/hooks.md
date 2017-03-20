@@ -96,7 +96,7 @@ Then your method will be called at the appropriate time.
 The final mechanism allows for hooks to be registered as static class methods, and just by 
 registering your class will you be able to be called at the appropriate place.
 
-	class Foo extends Module {
+	class Foo extends zesk\Module {
  		static function add_to_cart() {
 			echo "added to cart";
 		}

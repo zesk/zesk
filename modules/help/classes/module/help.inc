@@ -10,17 +10,20 @@
  * @author kent
  *
  */
+use zesk\Object;
 use zesk\Database_Exception;
 use zesk\Locale;
 use zesk\Request;
 use zesk\Response;
+use zesk\Response_Text_HTML;
+use zesk\Net_HTTP;
 
 /**
  * 
  * @author kent
  *
  */
-class Module_Help extends Module_JSLib {
+class Module_Help extends zesk\Module_JSLib {
 	/**
 	 * 
 	 * @var unknown
@@ -46,19 +49,19 @@ class Module_Help extends Module_JSLib {
 	 * @param Request $requset        	
 	 * @param zesk\Response_Text_HTML $response        	
 	 */
-	public function hook_head(zesk\Request $request, zesk\Response_Text_HTML $response, zesk\Template $template) {
+	public function hook_head(zesk\Request $request, Response_Text_HTML $response, zesk\Template $template) {
 		if (!$this->option_bool("disabled")) {
 			$response->cdn_javascript('/share/help/js/help.js', array(
 				'share' => true
 			));
 			$this->javascript_settings['active'] = false;
 			try {
-				$this->authenticated = User::instance()->authenticated();
+				$this->authenticated = $this->application->user()->authenticated();
 				if ($this->authenticated) {
 					$this->javascript_settings['active'] = true;
 				}
 			} catch (Database_Exception $e) {
-				log::debug("Module_Help::hook_head threw exception {e}", array(
+				$this->application->logger->debug("Module_Help::hook_head threw exception {e}", array(
 					'e' => $e
 				));
 			}
@@ -72,7 +75,7 @@ class Module_Help extends Module_JSLib {
 	public function hook_cron_cluster() {
 		$application = $this->application;
 		$helps = $application->modules->all_hook_arguments(__CLASS__, array(), array());
-		log::notice("Module_Help::cron found {count} help items", array(
+		$this->application->logger->notice("Module_Help::cron found {count} help items", array(
 			"count" => count($helps)
 		));
 		foreach ($helps as $target => $settings) {
@@ -81,7 +84,7 @@ class Module_Help extends Module_JSLib {
 					'target' => $target
 				));
 				if ($item) {
-					log::notice("Deleted help item for {target}", array(
+					$this->application->logger->notice("Deleted help item for {target}", array(
 						'target' => $target
 					));
 					$item->delete();
@@ -98,8 +101,8 @@ class Module_Help extends Module_JSLib {
 			$settings['target'] = $target;
 			$help = $application->object_factory('Help', $settings)->register();
 			/* @var $help Help */
-			if ($help->object_status() === Object::status_insert) {
-				log::notice("Registered help item for {target}", array(
+			if ($help->object_status() === Object::object_status_insert) {
+				$this->application->logger->notice("Registered help item for {target}", array(
 					'target' => $target
 				));
 			} else if ($this->option_bool('cron_update')) {
@@ -218,8 +221,8 @@ class Module_Help extends Module_JSLib {
 	 * @return User
 	 */
 	private function _help_auth(Request $request, Response $response) {
-		$user = User::instance();
-		if (!$user->authenticated()) {
+		$user = $this->application->user(false);
+		if (!$user || !$user->authenticated()) {
 			$response->status(Net_HTTP::Status_Unauthorized, "Requires user")->json(array(
 				'error' => __('Requires user')
 			));
@@ -292,7 +295,7 @@ class Module_Help extends Module_JSLib {
 				))->register();
 				$result[$id] = true;
 			} else {
-				log::error("{class}::{method} Help {id} not found", array(
+				$this->application->logger->error("{class}::{method} Help {id} not found", array(
 					"class" => __CLASS__,
 					"method" => __METHOD__,
 					"id" => $id

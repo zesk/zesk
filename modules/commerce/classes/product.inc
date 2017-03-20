@@ -4,5 +4,5 @@
  * @package zesk
  * @subpackage objects
  */
-class Product extends zesk\Object {}
+class Product extends \zesk\Object {}
 

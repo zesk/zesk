@@ -13,123 +13,157 @@
  */
 namespace RRule;
 
-use zesk\str;
+use zesk\arr;
 use zesk\Timestamp;
-use zesk\Exception_Parse;
-use zesk\Hookable;
+use zesk\Exception_Syntax;
 
-/**
- * 
- */
-class Parser extends Hookable {
-	protected $options = array(
-		"interval" => 1
-	);
-	public static function factory($code) {
-		$rrule = new self();
-		return $rrule->parse($code);
-	}
-	public function parse($code) {
-		if (!self::$inited) {
-			self::_init();
+class Parser {
+	/**
+	 * 
+	 * @var array
+	 */
+	protected $errors = array();
+	/**
+	 * 
+	 * @param unknown $s
+	 * @param Timestamp $dtstart
+	 * @param boolean $unfold
+	 * @throws Exception_Syntax
+	 * @return \RRule\Set
+	 */
+	function parse($s, Timestamp $dtstart = null, array $options = array()) {
+		$this->errors = array();
+		$s = trim(strtoupper($s));
+		if (empty($s)) {
+			throw new Exception_Syntax("Empty string");
 		}
-		if (!begins("RRULE:", $code)) {
-			throw new Exception_Parse("No RRULE: prefix in code \"{code}\"", array(
-				"code" => $code
-			));
+		$s = strtr($s, "\t", " ");
+		$lines = explode("\n", $s);
+		$unfold = avalue($options, "unfold", true);
+		if ($unfold) {
+			$lines = $this->unfold_lines($lines);
 		}
-		$code = str::unprefix($code, 'RRULE:');
-		if (preg_match_all('/([A-Z]+)=([^;]*);/gi', "$code;", $matches, PREG_SET_ORDER)) {
-			foreach ($matches as $match) {
-				$term = $match[1];
-				$value = $match[2];
-				$method = "parse_$term";
-				$this->set_option($term, method_exists($this, $method) ? $this->$method($value) : $value);
+		$rrulevals = array();
+		$rdatevals = array();
+		$exrulevals = array();
+		$exdatevals = array();
+		foreach ($lines as $line) {
+			$line = trim($line);
+			if (!$line) {
+				continue;
+			}
+			list($name, $value) = pair($line, ":", "RRULE", $line);
+			$parameters = arr::clean(explode(";", $name), "");
+			if (count($parameters) === 0) {
+				$this->errors[] = __(__CLASS__ . ":=Empty property name: {line}", compact("line"));
+				continue;
+			}
+			$name = array_shift($parameters);
+			if ($name == "RRULE") {
+				if (count($parameters) > 0) {
+					throw new Exception_Syntax("unsupported RRULE parameters: {parms}", array(
+						"parms" => $parameters
+					));
+				}
+				$rrulevals[] = $value;
+			} else if ($name == "RDATE") {
+				foreach ($parameters as $parameter) {
+					if ($parameter != "VALUE=DATE-TIME") {
+						throw new Exception_Syntax("unsupported RDATE parameter: {parm}", array(
+							"parm" => $parameter
+						));
+					}
+				}
+				$rdatevals[] = $value;
+			} else if ($name == "EXRULE") {
+				if (count($parameters) > 0) {
+					throw new Exception_Syntax("unsupported EXRULE parameters: {parms}", array(
+						"parms" => $parameters
+					));
+				}
+				$exrulevals[] = $value;
+			} else if ($name == "EXDATE") {
+				$time_zone = null;
+				foreach ($parameters as $param) {
+					if ($param === "VALUE=DATE-TIME") {
+						continue;
+					}
+					list($param_name, $param_value) = pair($param, "=", $param);
+					if ($param_name === "TZID") {
+						$time_zone = strtr($param_value, '-', '/');
+						continue;
+					}
+					throw new Exception_Syntax("unsupported DTSTART parameters: {parms}", array(
+						"parms" => $parameters
+					));
+				}
+				$exdatevals[] = Timestamp::factory($value, $time_zone);
+			} else if ($name == "DTSTART") {
+				$time_zone = null;
+				foreach ($parameters as $param) {
+					list($param_name, $param_value) = pair($param, "=", $param);
+					if ($param_name === "TZID") {
+						$time_zone = strtr($param_value, '-', '/');
+						continue;
+					}
+					throw new Exception_Syntax("unsupported DTSTART parameters: {parms}", array(
+						"parms" => $parameters
+					));
+				}
+				$dtstart = Timestamp::factory($value, $time_zone);
+			} else {
+				throw new Exception_Syntax("unsupported property: {name}", array(
+					"name" => $name
+				));
 			}
 		}
-		return $this;
+		if (!$dtstart) {
+			$dtstart = Timestamp::now();
+		}
+		$rset = new Set();
+		foreach ($rrulevals as $value) {
+			$rule = Rule_Parser::factory($value)->dtstart($dtstart)->rule();
+			$rset->rrule($rule);
+		}
+		foreach ($rdatevals as $value) {
+			foreach (explode(",", $value) as $datestr) {
+				$rset->rdate(Timestamp::factory($datestr));
+			}
+		}
+		foreach ($exrulevals as $value) {
+			$rule = Rule_Parser::factory($value)->dtstart($dtstart)->rule();
+			$rset->rrule($rule);
+		}
+		foreach ($exdatevals as $value) {
+			foreach (explode(",", $value) as $datestr) {
+				$rset->rdate(Timestamp::factory($datestr));
+			}
+		}
+		return $rset;
 	}
 	
 	/**
-	 * Convert an integer day of the week into the token
-	 * @param integer $dow
-	 * @return integer|null
+	 * 
+	 * @param array $lines
+	 * @return string[]
 	 */
-	private static function _dow_from_string($dow) {
-		if (is_array($dow)) {
-			foreach ($dow as $k => $v) {
-				$dow[$k] = self::_dow_from_string($v);
+	private function unfold_lines(array $lines) {
+		$newlines = array();
+		foreach ($lines as $line) {
+			$line = rtrim($line);
+			if (empty($line)) {
+				continue;
 			}
-			return $dow;
+			if ($line[0] === " ") {
+				$n = count($newlines);
+				if ($n > 0) {
+					$newlines[$n - 1] .= $line;
+				}
+			} else {
+				$newlines[] = $line;
+			}
 		}
-		return avalue(self::$dow_flip, $dow, null);
-	}
-	/**
-	 * Convert an integer day of the week into the token
-	 * @param integer $dow
-	 * @return string|null
-	 */
-	private static function _dow_to_string($dow) {
-		return self::$dow[intval($dow) % 7];
-	}
-	private function _parse_integer_list($value, $min = null, $max = null) {
-		$result = array();
-		foreach (explode(",", $value) as $v) {
-			$v = intval($v);
-			if ($min !== null) {
-				$v = max($min, $v);
-			}
-			if ($max !== null) {
-				$v = min($max, $v);
-			}
-			$result[] = $v;
-		}
-		$result = array_unique($result);
-		sort($result, SORT_NUMERIC);
-		return $result;
-	}
-	private function parse_INTERVAL($value) {
-		return intval(abs($value));
-	}
-	private function parse_COUNT($value) {
-		return intval($value);
-	}
-	private function parse_TZID($value) {
-		return strval($value);
-	}
-	private function parse_UNTIL($value) {
-		return new Timestamp(strtotime($value));
-	}
-	private function parse_WKST($value) {
-		return self::_dow_from_string($value);
-	}
-	private function parse_BYMONTH($value) {
-		return self::_parse_integer_list($value, 1, 12);
-	}
-	private function parse_BYWEEKNO($value) {
-		return self::_parse_integer_list($value, -53, 53);
-	}
-	private function parse_BYYEARDAY($value) {
-		return self::_parse_integer_list($value, -366, 366);
-	}
-	private function parse_BYMONTHDAY($value) {
-		return self::_parse_integer_list($value, -31, 31);
-	}
-	private function parse_BYDAY($value) {
-		return explode(",", $value);
-	}
-	private function parse_BYHOUR($value) {
-		return self::_parse_integer_list($value, 0, 23);
-	}
-	private function parse_BYMINUTE($value) {
-		return self::_parse_integer_list($value, 0, 59);
-	}
-	private function parse_BYSECOND($value) {
-		return self::_parse_integer_list($value, 0, 59);
-	}
-	private function parse_BYSETPOS($value) {
-		return self::_parse_integer_list($value, -366, 366);
-	}
-	public function compute(Timestamp $start = null, Timestamp $end = null) {
+		return $newlines;
 	}
 }
+				

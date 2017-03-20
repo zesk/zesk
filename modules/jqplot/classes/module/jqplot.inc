@@ -1,10 +1,18 @@
 <?php
+use zesk\arr;
+use zesk\Module;
+use zesk\Interface_Module_Head;
+use zesk\Exception_Directory_NotFound;
+use zesk\Request;
+use zesk\Response_Text_HTML;
+use zesk\Template;
+
 /**
  * @package modules
  * @subpackage jQPlot
  * @author kent
  */
-class Module_jQPlot extends Module implements zesk\Interface_Module_Head {
+class Module_jQPlot extends zesk\Module implements zesk\Interface_Module_Head {
 	public static $plugins = array(
 		"BezierCurveRenderer",
 		"barRenderer",
@@ -61,7 +69,7 @@ class Module_jQPlot extends Module implements zesk\Interface_Module_Head {
 	 * @param zesk\Response_Text_HTML $response        	
 	 * @param zesk\Template $template        	
 	 */
-	public function hook_head(zesk\Request $request, zesk\Response_Text_HTML $response, zesk\Template $template) {
+	public function hook_head(Request $request, Response_Text_HTML $response, Template $template) {
 		$response_option = $this->response_option();
 		if ($response->has_option($response_option) || $this->enabled()) {
 			$response->jquery();
@@ -157,7 +165,7 @@ class Module_jQPlot extends Module implements zesk\Interface_Module_Head {
 	 * @throws Exception_Directory_NotFound
 	 * @return zesk\Response_Text_HTML|array
 	 */
-	public function plugin(zesk\Response_Text_HTML $response, $add = null) {
+	public function plugin(Response_Text_HTML $response, $add = null) {
 		$option = self::response_option();
 		if ($add !== null) {
 			$path = $this->plugin_path();
@@ -171,7 +179,7 @@ class Module_jQPlot extends Module implements zesk\Interface_Module_Head {
 				if ($this->plugin_exists($plugin)) {
 					$response->option_append($option, $plugin, $plugin);
 				} else {
-					log::error("jQPlot plugin not found: {file}", array(
+					$this->application->logger->error("jQPlot plugin not found: {file}", array(
 						"file" => file
 					));
 				}

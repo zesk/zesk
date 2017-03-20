@@ -15,11 +15,13 @@
  */
 namespace RRule;
 
+use RRule\Iterator;
 use zesk\Timestamp;
 use zesk\Exception_Range;
 use zesk\Exception_Parameter;
 use zesk\Exception_Semantics;
 use zesk\Time;
+use zesk\Date;
 
 class Rule {
 	/**
@@ -66,7 +68,8 @@ class Rule {
 	 */
 	private static $inited = false;
 	/**
-	 *
+	 * Index 0 is normal year, Index 1 is leap year
+	 * 
 	 * @var array
 	 */
 	public static $MMASK = array(
@@ -74,6 +77,7 @@ class Rule {
 		1 => null
 	);
 	/**
+	 * Index 0 is normal year, Index 1 is leap year
 	 *
 	 * @var array
 	 */
@@ -82,6 +86,7 @@ class Rule {
 		1 => null
 	);
 	/**
+	 * Index 0 is normal year, Index 1 is leap year
 	 *
 	 * @var array
 	 */
@@ -91,26 +96,12 @@ class Rule {
 	);
 	
 	/**
+	 * Index 0 is normal year, Index 1 is leap year
 	 *
 	 * @var array
 	 */
 	public static $MRANGE = array(
 		0 => array(
-			0,
-			31,
-			60,
-			91,
-			121,
-			152,
-			182,
-			213,
-			244,
-			274,
-			305,
-			335,
-			366
-		),
-		1 => array(
 			0,
 			31,
 			59,
@@ -124,30 +115,36 @@ class Rule {
 			304,
 			334,
 			365
+		),
+		1 => array(
+			0,
+			31,
+			60,
+			91,
+			121,
+			152,
+			182,
+			213,
+			244,
+			274,
+			305,
+			335,
+			366
 		)
 	);
 	
 	/**
-	 * Days of the week
-	 *
+	 * weekday mask - big array of 0..6 x 55
+	 * 
 	 * @var array
 	 */
-	private static $dow = array(
-		'MO',
-		'TU',
-		'WE',
-		'TH',
-		'FR',
-		'SA',
-		'SU'
-	);
+	public static $WDAYMASK = array();
 	
 	/**
-	 * Days of the week code to integer DOW
-	 *
-	 * @var array
+	 * 
+	 * @var Weekday[]
 	 */
-	private static $dow_flip = null;
+	public static $weekdays = array();
 	
 	/**
 	 * 
@@ -189,13 +186,13 @@ class Rule {
 	 * @var array
 	 */
 	private static $frequencies = array(
-		self::FREQUENCY_YEARLY => FREQUENCY_INDEX_YEARLY,
-		self::FREQUENCY_MONTHLY => FREQUENCY_INDEX_MONTHLY,
-		self::FREQUENCY_WEEKLY => FREQUENCY_INDEX_WEEKLY,
-		self::FREQUENCY_DAILY => FREQUENCY_INDEX_DAILY,
-		self::FREQUENCY_HOURLY => FREQUENCY_INDEX_HOURLY,
-		self::FREQUENCY_MINUTELY => FREQUENCY_INDEX_MINUTELY,
-		self::FREQUENCY_SECONDLY => FREQUENCY_INDEX_SECONDLY
+		self::FREQUENCY_YEARLY => self::FREQUENCY_INDEX_YEARLY,
+		self::FREQUENCY_MONTHLY => self::FREQUENCY_INDEX_MONTHLY,
+		self::FREQUENCY_WEEKLY => self::FREQUENCY_INDEX_WEEKLY,
+		self::FREQUENCY_DAILY => self::FREQUENCY_INDEX_DAILY,
+		self::FREQUENCY_HOURLY => self::FREQUENCY_INDEX_HOURLY,
+		self::FREQUENCY_MINUTELY => self::FREQUENCY_INDEX_MINUTELY,
+		self::FREQUENCY_SECONDLY => self::FREQUENCY_INDEX_SECONDLY
 	);
 	
 	/**
@@ -213,7 +210,7 @@ class Rule {
 	 * 
 	 * @var string
 	 */
-	private $frequency = null;
+	public $frequency = null;
 	/**
 	 * 
 	 * @var integer
@@ -234,57 +231,57 @@ class Rule {
 	/**
 	 * @var integer|integer-list
 	 */
-	private $wkst = null;
+	public $wkst = null;
 	/**
 	 * @var integer|integer-list
 	 */
-	private $bysetpos = null;
+	public $bysetpos = null;
 	
 	/**
 	 * @var integer|integer-list
 	 */
-	private $bymonth = null;
+	public $bymonth = null;
 	
 	/**
 	 * @var integer|integer-list
 	 */
-	private $byyearday = null;
+	public $byyearday = null;
 	
 	/**
 	 * Month day list
 	 * 
 	 * @var integer|integer-list
 	 */
-	private $bymonthday = null;
+	public $bymonthday = null;
 	/**
 	 * @var integer|integer-list
 	 */
-	private $bynmonthday = null;
+	public $bynmonthday = null;
 	/**
 	 * @var integer|integer-list
 	 */
-	private $byweekno = null;
+	public $byweekno = null;
 	
 	/**
 	 * @var integer|integer-list
 	 */
-	private $byweekday = null;
+	public $byweekday = null;
 	/**
 	 * @var integer|integer-list
 	 */
-	private $bynweekday = null;
+	public $bynweekday = null;
 	/**
 	 * @var integer|integer-list
 	 */
-	private $byhour = null;
+	public $byhour = null;
 	/**
 	 * @var integer|integer-list
 	 */
-	private $byminute = null;
+	public $byminute = null;
 	/**
 	 * @var integer|integer-list
 	 */
-	private $bysecond = null;
+	public $bysecond = null;
 	
 	/**
 	 * @var Time[]
@@ -408,10 +405,14 @@ class Rule {
 	 * @param array $options
 	 */
 	function __construct($frequency, array $options = array()) {
+		self::_init();
+		
 		/* @var $dtstart Timestamp */
 		$interval = 1;
-		$dtstart = $wkst = $count = $until = $bysetpos = $bymonth = $bymonthday = $byyearday = $byweekno = $byweekday = $byhour = $byminute = $bysecond = null;
+		$dtstart = $wkst = $count = $until = $bysetpos = $bymonth = $bymonthday = $byyearday = $byweekno = $byday = $byhour = $byminute = $bysecond = null;
 		extract($options, EXTR_IF_EXISTS);
+		$byweekday = $byday;
+		
 		if (!$dtstart instanceof Timestamp) {
 			$dtstart = Timestamp::now();
 		} else {
@@ -444,7 +445,7 @@ class Rule {
 		// wkst: Starting day of the week
 		if ($wkst === null) {
 			$this->wkst = \zesk\Locale::first_day_of_week();
-		} else if (self::_is_integer_list("wkst", $wkst, 0, 6)) {
+		} else if (is_integer($wkst)) {
 			$this->wkst = $wkst;
 		} else if ($wkst instanceof Weekday) {
 			$this->wkst = $wkst->weekday;
@@ -467,6 +468,8 @@ class Rule {
 					$bymonth = $dtstart->month();
 					$this->original_rule['bymonth'] = null;
 				}
+				$bymonthday = $dtstart->day();
+				$this->original_rule['bymonthday'] = null;
 			} elseif ($frequency === self::FREQUENCY_MONTHLY) {
 				$bymonthday = $dtstart->day();
 				$this->original_rule['bymonthday'] = null;
@@ -498,7 +501,7 @@ class Rule {
 		if ($bymonthday === null) {
 			$this->bymonthday = array();
 			$this->bynmonthday = array();
-		} else if (self::_is_integer_list("bymonthday", $bymonthday, -12, 12, false)) {
+		} else if (self::_is_integer_list("bymonthday", $bymonthday, -31, 31, false)) {
 			$this->bymonthday = self::_integers_filter($bymonthday, true);
 			$this->bynmonthday = self::_integers_filter($bymonthday, false);
 			$this->original_rule += array(
@@ -534,8 +537,9 @@ class Rule {
 				} else if (($wday instanceof Weekday && !$wday->n) || $frequency_index > self::FREQUENCY_INDEX_MONTHLY) {
 					$this->byweekday[] = $wday->weekday;
 				} else if ($wday instanceof Weekday) {
-					$this->bynweekday += array(
-						$wday->weekday => $wday->n
+					$this->bynweekday[] = array(
+						$wday->weekday,
+						$wday->n
 					);
 				}
 			}
@@ -553,7 +557,8 @@ class Rule {
 				$this->bynweekday = null;
 			} else {
 				ksort($this->bynweekday, SORT_NUMERIC);
-				foreach ($this->bynweekday as $wday => $n) {
+				foreach ($this->bynweekday as $item) {
+					list($wday, $n) = $item;
 					$orig_bynweekday[] = new Weekday($wday, $n);
 				}
 			}
@@ -635,7 +640,333 @@ class Rule {
 			}
 		}
 	}
-	
+	private function flip_copy(array $array = null) {
+		if ($array) {
+			$result = array();
+			foreach ($array as $value) {
+				$result[$value] = $value;
+			}
+			return $result;
+		}
+		return null;
+	}
+	/**
+	 * 
+	 * @throws Exception_Semantics
+	 * @return void|Generator
+	 */
+	function generator() {
+		$year = $this->dtstart->year();
+		$month = $this->dtstart->month();
+		$day = $this->dtstart->day();
+		$hour = $this->dtstart->hour();
+		$minute = $this->dtstart->minute();
+		$second = $this->dtstart->second();
+		$weekday = $this->dtstart->weekday();
+		$yearday = $this->dtstart->yearday();
+		
+		// Some local variables to speed things up a bit: PHP - does this improve anything?
+		$freq = $this->frequency;
+		$frequency_index = $this->frequency_index;
+		$interval = $this->interval;
+		$wkst = $this->wkst;
+		$until = $this->until;
+		$bymonth = self::flip_copy($this->bymonth);
+		$byweekno = self::flip_copy($this->byweekno);
+		$byyearday = self::flip_copy($this->byyearday);
+		$byweekday = null;
+		if ($this->byweekday) {
+			$byweekday = array();
+			foreach ($this->byweekday as $bywd) {
+				if ($bywd instanceof Weekday) {
+					/* @var $weekday Weekday */
+					$byweekday[$bywd->weekday] = $bywd;
+				} else {
+					$byweekday[$bywd] = new Weekday($bywd);
+				}
+			}
+		}
+		$bymonthday = self::flip_copy($this->bymonthday);
+		$bynmonthday = self::flip_copy($this->bynmonthday);
+		$bysetpos = self::flip_copy($this->bysetpos);
+		$byhour = self::flip_copy($this->byhour);
+		$byminute = self::flip_copy($this->byminute);
+		$bysecond = self::flip_copy($this->bysecond);
+		
+		$ii = new Iterator($this);
+		$ii->rebuild($year, $month);
+		
+		if ($frequency_index < self::FREQUENCY_INDEX_HOURLY) {
+			$timeset = $this->timeset;
+		} else {
+			if ($frequency_index >= self::FREQUENCY_INDEX_HOURLY && is_array($byhour) && !isset($byhour[$hour])) {
+				$timeset = array();
+			} else if ($frequency_index >= self::FREQUENCY_INDEX_MINUTELY && is_array($byminute) && !isset($byminute[$minute])) {
+				$timeset = array();
+			} else if ($frequency_index >= self::FREQUENCY_INDEX_SECONDLY && is_array($bysecond) && !isset($bysecond[$second])) {
+				$timeset = array();
+			} else {
+				$timeset = $ii->gettimeset($hour, $minute, $second);
+			}
+		}
+		$total = 0;
+		$count = $this->count;
+		while (true) {
+			// Get dayset with the right frequency
+			list($dayset, $start, $end) = $ii->getdayset($year, $month, $day);
+			// Do the "hard" work ;-)
+			$filtered = false;
+			$yearlen = $ii->yearlen;
+			foreach (array_slice($dayset, $start, $end - $start) as $i) {
+				// If bymonth, and month is not in our list
+				if (is_array($bymonth)) {
+					if (!isset($bymonth[$ii->mmask[$i]])) {
+						unset($dayset[$i]);
+						$filtered = true;
+						continue;
+					}
+				}
+				// If byweek, and week is specifically excluded, remove the date
+				if (is_array($byweekno)) {
+					if (!$ii->wnomask[$i]) {
+						unset($dayset[$i]);
+						$filtered = true;
+						continue;
+					}
+				}
+				if (is_array($byweekday)) {
+					if (!isset($byweekday[$ii->wdaymask[$i]])) {
+						unset($dayset[$i]);
+						$filtered = true;
+						continue;
+					}
+				}
+				if (is_array($ii->nwdaymask)) {
+					if (!$ii->nwdaymask[$i]) {
+						unset($dayset[$i]);
+						$filtered = true;
+						continue;
+					}
+				}
+				if (is_array($bymonthday) || is_array($bynmonthday)) {
+					if (!isset($bymonthday[$ii->mdaymask[$i]]) && !isset($bynmonthday[$ii->nmdaymask[$i]])) {
+						unset($dayset[$i]);
+						$filtered = true;
+						continue;
+					}
+				}
+				if (is_array($byyearday)) {
+					if (((($i < $yearlen) && !isset($byyearday[$i + 1]) && !isset($byyearday[-$yearlen + $i]))) || (($i >= $yearlen) && !isset($byyearday[$i + 1 - $yearlen]) && !isset($byyearday[-$ii->nextyearlen + $i - $yearlen]))) {
+						unset($dayset[$i]);
+						$filtered = true;
+						continue;
+					}
+				}
+			}
+			// Output results;
+			if ($bysetpos && $timeset) {
+				$poslist = array();
+				foreach ($bysetpos as $pos) {
+					if ($pos < 0) {
+						list($daypos, $timepos) = self::divmod($pos, count($timeset));
+					} else {
+						list($daypos, $timepos) = self::divmod($pos - 1, count($timeset));
+					}
+					$newx = array();
+					$found_all = true;
+					foreach (array_splice($dayset, $start, $end - $start) as $x) {
+						$newx[] = $x;
+					}
+					if (isset($newx[$daypos])) {
+						$i = $newx[$daypos];
+						$time = $timeset[$timepos];
+						$date = Date::factory()->gregorian($ii->yearordinal + $i);
+						$res = Timestamp::factory(null, $this->dtstart->time_zone())->date($date)->time($time);
+						$res_str = $res->__toString();
+						if (!isset($poslist[$res_str])) {
+							$poslist[$res_str] = $res;
+						}
+					}
+				}
+				uasort($pos, "zesk\\Timestamp::compare_callback");
+				foreach ($poslist as $res) {
+					if ($until && $res->after($until)) {
+						$this->len = $total;
+						return;
+					} else if ($res->after($this->dtstart)) {
+						$total += 1;
+						yield $res;
+						if ($count) {
+							$count -= 1;
+							if (!$count) {
+								$this->len = total;
+								return;
+							}
+						}
+					}
+				}
+			} else {
+				foreach (array_splice($dayset, $start, $end - $start) as $i) {
+					if ($i === null) {
+						continue;
+					}
+					$date = Date::factory()->gregorian($ii->yearordinal + $i);
+					foreach ($timeset as $time) {
+						$res = Timestamp::factory(null, $this->dtstart->time_zone())->date($date)->time($time);
+						if ($until && $res->after($until)) {
+							$this->len = $total;
+							return;
+						} else if ($res->after($this->dtstart, true)) {
+							$total += 1;
+							yield $res;
+							if ($count) {
+								$count -= 1;
+								if (!$count) {
+									$this->len = $total;
+									return;
+								}
+							}
+						}
+					}
+				}
+			}
+			# Handle frequency and interval;
+			$fixday = False;
+			if ($freq === self::FREQUENCY_YEARLY) {
+				$year += $interval;
+				if ($year > Timestamp::maximum_year) {
+					$this->len = total;
+					return;
+				}
+				$ii->rebuild($year, $month);
+			} else if ($freq === self::FREQUENCY_MONTHLY) {
+				$month += $interval;
+				if ($month > 12) {
+					list($div, $mod) = self::divmod($month, 12);
+					$month = $mod;
+					$year += $div;
+					if ($month == 0) {
+						$month = 12;
+						$year -= 1;
+					}
+					if ($year > Timestamp::maximum_year) {
+						$this->len = $total;
+						return;
+					}
+				}
+				$ii->rebuild($year, $month);
+			} else if ($freq === self::FREQUENCY_WEEKLY) {
+				if ($wkst > $weekday) {
+					$day += -($weekday + 1 + (6 - $wkst)) + $this->interval * 7;
+				} else {
+					$day += -($weekday - $wkst) + $this->interval * 7;
+				}
+				$weekday = $wkst;
+				$fixday = true;
+			} else if ($freq == self::FREQUENCY_DAILY) {
+				$day += $interval;
+				$fixday = True;
+			} else if ($freq == self::FREQUENCY_HOURLY) {
+				if ($filtered) {
+					# Jump to one iteration before next day;
+					$hour += (self::intdiv(23 - $hour, $interval)) * $interval;
+				}
+				if ($byhour) {
+					list($ndays, $hour) = $this->_mod_distance($hour, $byhour, 24);
+				} else {
+					list($ndays, $hour) = self::divmod($hour + $interval, 24);
+				}
+				if ($ndays) {
+					$day += $ndays;
+					$fixday = true;
+				}
+				$timeset = $ii->gettimeset($hour, $minute, $second);
+			} else if ($freq === self::FREQUENCY_MINUTELY) {
+				if ($filtered) {
+					// Jump to one iteration before next day;
+					$minute += self::intdiv((1439 - (hour * 60 + minute)), interval) * interval;
+				}
+				$valid = False;
+				$rep_rate = (24 * 60);
+				$lastj = self::intdiv($rep_rate, self::gcd($interval, $rep_rate));
+				for ($j = 0; $j < $lastj; $j++) {
+					if ($byminute) {
+						list($nhours, $minute) = $this->_mod_distance($minute, $byminute, 60);
+					} else {
+						list($nhours, $minute) = self::divmod($minute + $interval, 60);
+					}
+					list($div, $hour) = self::divmod($hour + $nhours, 24);
+					if ($div) {
+						$day += $div;
+						$fixday = true;
+						$filtered = false;
+					}
+					if (!is_array($byhour) || isset($byhour[$hour])) {
+						$valid = true;
+						break;
+					}
+				}
+				if (!$valid) {
+					throw new Exception_Semantics('Invalid combination of interval and byhour resulting in empty rule.');
+				}
+				$timeset = $ii->gettimeset(hour, minute, second);
+			} else if ($freq == self::FREQUENCY_SECONDLY) {
+				if ($filtered) {
+					// Jump to one iteration before next day;
+					$second += self::intdiv(86399 - ($hour * 3600 + $minute * 60 + $second), $interval) * $interval;
+				}
+				$rep_rate = 24 * 3600;
+				$valid = false;
+				$lastj = self::intdiv($rep_rate, self::gcd($interval, $rep_rate));
+				for ($j = 0; $j < $lastj; $j++) {
+					if ($bysecond) {
+						list($nminutes, $second) = $this->_mod_distance($second, $bysecond, 60);
+					} else {
+						list($nminutes, $second) = self::divmod($second + $interval, 60);
+					}
+					list($div, $minute) = self::divmod($minute + $nminutes, 60);
+					if ($div) {
+						$hour += $div;
+						list($div, $hour) = self::divmod($hour, 24);
+						if ($div) {
+							$day += $div;
+							$fixday = true;
+						}
+					}
+					// 	if ((not byhour or hour in byhour) and
+					// 		(not byminute or minute in byminute) and
+					// 		(not bysecond or second in bysecond)):
+					if ((!is_array($byhour) || isset($byhour[$hour])) && (!is_array($byminute) || isset($byminute[$minute])) && (!is_array($bysecond) || isset($bysecond[$second]))) {
+						$valid = true;
+						break;
+					}
+				}
+				if (!$valid) {
+					throw new Exception_Semantics('Invalid combination of interval, byhour and byminute resulting in empty rule.');
+				}
+				$timeset = $ii->gettimeset($hour, $minute, $second);
+			}
+			if ($fixday && $day > 28) {
+				$daysinmonth = Date::instance($year, $month, 1)->lastday();
+				if ($day > $daysinmonth) {
+					while ($day > $daysinmonth) {
+						$day -= $daysinmonth;
+						$month += 1;
+						if ($month == 13) {
+							$month = 1;
+							$year += 1;
+							if ($year > 2050) {
+								$this->len = $total;
+								return;
+							}
+						}
+						$daysinmonth = Date::instance($year, $month, 1)->lastday();
+					}
+					$ii->rebuild($year, $month);
+				}
+			}
+		}
+	}
 	/**
 	 * Output a string that would generate this RRULE if passed to rrulestr.
 	 * This is mostly compatible with RFC2445, except for the
@@ -735,25 +1066,27 @@ class Rule {
 				}
 			}
 			$num = intval($num);
-			if ($min !== null && $num <= $min) {
-				throw new Exception_Range("{name} item #{index} must not be greater than {min} ({num} passed)", array(
+			if ($min !== null && $num < $min) {
+				throw new Exception_Range("{name} item {num} (#{index}) must be greater than or equal to minimum {min} ", array(
 					"name" => $name,
 					"num" => $num,
 					"index" => $index + 1,
 					"min" => $min
 				));
 			}
-			if ($max !== null && $num >= $min) {
-				throw new Exception_Range("{name} item #{index} must not be greater than {min} ({num} passed)", array(
+			if ($max !== null && $num > $max) {
+				throw new Exception_Range("{name} item {num} (#{index}) must be less than or equal to maximum {max}", array(
 					"name" => $name,
 					"num" => $num,
 					"index" => $index + 1,
-					"min" => $min
+					"max" => $max
 				));
 			}
 			if ($allow_zero !== true && $num === 0) {
-				throw new Exception_Range("{name} item #{index} does not allow a zero value", array(
+				throw new Exception_Range("{name} item #{index} does not allow a zero value ({num} from {check_items})", array(
 					"name" => $name,
+					"num" => $num,
+					"check_items" => $check_items,
 					"index" => $index + 1
 				));
 			}
@@ -787,6 +1120,48 @@ class Rule {
 			}
 		}
 		return $result;
+	}
+	
+	/**
+	 * Calculates the next value in a sequence where the `FREQ` parameter is
+	 * specified along with a `BYXXX` parameter at the same "level"
+	 * (e.g. `HOURLY` specified with `BYHOUR`).
+	 * 
+	 * :param value:
+	 *     The old value of the component.
+	 * :param byxxx:
+	 *     The `BYXXX` set, which should have been generated by
+	 *     `rrule._construct_byset`, or something else which checks that a
+	 *     valid rule is present.
+	 * :param base:
+	 *     The largest allowable value for the specified frequency (e.g.
+	 *     24 hours, 60 minutes).
+	 * 
+	 * If a valid value is not found after `base` iterations (the maximum
+	 * number before the sequence would start to repeat), this raises a
+	 * :exception:`ValueError`, as no valid values were found.
+	 * 
+	 * This returns a tuple of `divmod(n*interval, base)`, where `n` is the
+	 * smallest number of `interval` repetitions until the next specified
+	 * value in `byxxx` is found.
+	 */
+	private function __mod_distance($value, array $byxxx, $base) {
+		$accumulator = 0;
+		for ($ii = 1; $ii < $base + 1; $ii++) {
+			# Using divmod() over % to account for negative intervals
+			list($div, $value) = self::divmod($value + $this->interval, $base);
+			$accumulator += $div;
+			if (in_array($value, $byxxx)) {
+				return array(
+					$accumulator,
+					$value
+				);
+			}
+		}
+		return array(
+			null,
+			null
+		);
 	}
 	
 	/**
@@ -882,6 +1257,9 @@ class Rule {
 	public static function intdiv($a, $b) {
 		return intval(floor($a / $b));
 	}
+	public static function range($mixed) {
+		return array_keys(array_fill(0, $mixed, null));
+	}
 	/**
 	 * Returns array($dividend / $divisor, $divident % divisor)
 	 * 
@@ -910,9 +1288,9 @@ class Rule {
 	 * 
 	 * @param array $source
 	 */
-	private static function _compute_365(array $source) {
+	private static function _compute_365(array $source, $remove = 59) {
 		$target = $source;
-		unset($target[59]);
+		unset($target[$remove]);
 		return array_values($target);
 	}
 	
@@ -940,16 +1318,16 @@ class Rule {
 		
 		$M366MASK = array();
 		foreach ($monthdays as $month => $days) {
-			$M366MASK = array_merge($M366MASK, array_fill(0, $days - 1, $month));
+			$M366MASK = array_merge($M366MASK, array_fill(0, $days, $month));
 		}
 		$M366MASK = array_merge($M366MASK, array_fill(0, 7, 1));
 		
 		$m31 = array();
-		for ($i = 1; $i < 31; $i++) {
+		for ($i = 1; $i <= 31; $i++) {
 			$m31[] = $i;
 		}
 		$mdays = array();
-		for ($i = 29; $i < 31; $i++) {
+		for ($i = 29; $i <= 31; $i++) {
 			$mdays[$i] = array_slice($m31, 0, $i);
 		}
 		$MDAY366MASK = array();
@@ -962,7 +1340,7 @@ class Rule {
 		for ($i = -31; $i < 0; $i++) {
 			$m31[] = $i;
 		}
-		for ($i = 29; $i < 31; $i++) {
+		for ($i = 29; $i <= 31; $i++) {
 			$mdays[$i] = array_slice($m31, -$i);
 		}
 		
@@ -986,275 +1364,20 @@ class Rule {
 		}
 		
 		self::$MMASK = array(
-			0 => $M366MASK,
-			1 => self::_compute_365($M366MASK)
+			0 => self::_compute_365($M366MASK),
+			1 => $M366MASK
 		);
 		self::$MDAYMASK = array(
-			0 => $MDAY366MASK,
-			1 => self::_compute_365($MDAY366MASK)
+			0 => self::_compute_365($MDAY366MASK),
+			1 => $MDAY366MASK
 		);
 		self::$NMDAYMASK = array(
-			0 => $NMDAY366MASK,
-			1 => self::_compute_365($NMDAY366MASK)
+			0 => self::_compute_365($NMDAY366MASK, 31),
+			1 => $NMDAY366MASK
 		);
-		self::$dow_flip = array_flip(self::$dow);
 		self::$weekdays = array();
 		for ($i = 0; $i < 7; $i++) {
 			self::$weekdays[$i] = new Weekday($i);
 		}
-	}
-	public function iterate() {
-		$year = $this->dtstart->year();
-		$month = $this->dtstart->month();
-		$day = $this->dtstart->day();
-		$hour = $this->dtstart->hour();
-		$minute = $this->dtstart->minute();
-		$second = $this->dtstart->$second();
-		$weekday = $this->dtstart->weekday();
-		$yearday = $this->dtstart->yearday();
-		
-		$frequency = $this->frequency;
-		$interval = $this->interval;
-		$until = $this->until;
-		
-		$iterator = new Iterator($this);
-		$iterator->rebuild($year, $month);
-		
-		getdayset = {
-			YEARLY: ii.ydayset,
-		MONTHLY: ii.mdayset,
-		WEEKLY: ii.wdayset,
-		DAILY: ii.ddayset,
-		HOURLY: ii.ddayset,
-		MINUTELY: ii.ddayset,
-		SECONDLY:
-			ii.ddayset
-		}[freq]
-		
-		if freq < HOURLY:
-		timeset = self._timeset
-		else:
-		gettimeset = {
-			HOURLY: ii.htimeset,
-		MINUTELY: ii.mtimeset,
-		SECONDLY:
-			ii.stimeset
-		}[freq]
-		if ((freq >= HOURLY and
-				self._byhour and hour not in self._byhour) or
-				(freq >= MINUTELY and
-						self._byminute and minute not in self._byminute) or
-				(freq >= SECONDLY and
-						self._bysecond and second not in self._bysecond)):
-						timeset = ()
-						else:
-						timeset = gettimeset(hour, minute, second)
-		
-						total = 0
-						count = self._count
-						while True:
-						# Get dayset with the right frequency
-		dayset, start, end = getdayset(year, month, day)
-		
-		# Do the "hard" work ;-)
-		filtered = False
-		for i in dayset[start:end]:
-		if ((bymonth and ii.mmask[i] not in bymonth) or
-				(byweekno and not ii.wnomask[i]) or
-				(byweekday and ii.wdaymask[i] not in byweekday) or
-				(ii.nwdaymask and not ii.nwdaymask[i]) or
-				(byeaster and not ii.eastermask[i]) or
-				((bymonthday or bynmonthday) and
-						ii.mdaymask[i] not in bymonthday and
-						ii.nmdaymask[i] not in bynmonthday) or
-				(byyearday and
-						((i < ii.yearlen and i+1 not in byyearday and
-								-ii.yearlen+i not in byyearday) or
-								(i >= ii.yearlen and i+1-ii.yearlen not in byyearday and
-										-ii.nextyearlen+i-ii.yearlen not in byyearday)))):
-										dayset[i] = None
-										filtered = True
-		
-										# Output results
-		if bysetpos and timeset:
-		poslist = []
-		for pos in bysetpos:
-		if pos < 0:
-		daypos, timepos = divmod(pos, len(timeset))
-		else:
-		daypos, timepos = divmod(pos-1, len(timeset))
-		try:
-		i = [x for x in dayset[start:end]
-				if x is not None][daypos]
-				time = timeset[timepos]
-				except IndexError:
-				pass
-				else:
-				date = datetime.date.fromordinal(ii.yearordinal+i)
-				res = datetime.datetime.combine(date, time)
-				if res not in poslist:
-				poslist.append(res)
-				poslist.sort()
-				for res in poslist:
-				if until and res > until:
-				self._len = total
-				return
-				elif res >= self._dtstart:
-				total += 1
-				yield res
-				if count:
-				count -= 1
-				if not count:
-				self._len = total
-				return
-				else:
-				for i in dayset[start:end]:
-				if i is not None:
-				date = datetime.date.fromordinal(ii.yearordinal + i)
-				for time in timeset:
-				res = datetime.datetime.combine(date, time)
-				if until and res > until:
-				self._len = total
-				return
-				elif res >= self._dtstart:
-				total += 1
-				yield res
-				if count:
-				count -= 1
-				if not count:
-				self._len = total
-				return
-		
-				# Handle frequency and interval
-		fixday = False
-		if freq == YEARLY:
-		year += interval
-		if year > datetime.MAXYEAR:
-		self._len = total
-		return
-		ii.rebuild(year, month)
-		elif freq == MONTHLY:
-		month += interval
-		if month > 12:
-		div, mod = divmod(month, 12)
-		month = mod
-		year += div
-		if month == 0:
-		month = 12
-		year -= 1
-		if year > datetime.MAXYEAR:
-		self._len = total
-		return
-		ii.rebuild(year, month)
-		elif freq == WEEKLY:
-		if wkst > weekday:
-		day += -(weekday+1+(6-wkst))+self._interval*7
-		else:
-		day += -(weekday-wkst)+self._interval*7
-		weekday = wkst
-		fixday = True
-		elif freq == DAILY:
-		day += interval
-		fixday = True
-		elif freq == HOURLY:
-		if filtered:
-		# Jump to one iteration before next day
-		hour += ((23-hour)//interval)*interval
-		
-				if byhour:
-				ndays, hour = self.__mod_distance(value=hour,
-						byxxx=self._byhour,
-						base=24)
-				else:
-				ndays, hour = divmod(hour+interval, 24)
-		
-				if ndays:
-				day += ndays
-				fixday = True
-		
-				timeset = gettimeset(hour, minute, second)
-				elif freq == MINUTELY:
-				if filtered:
-				# Jump to one iteration before next day
-				minute += ((1439-(hour*60+minute))//interval)*interval
-		
-						valid = False
-						rep_rate = (24*60)
-						for j in range(rep_rate // gcd(interval, rep_rate)):
-								if byminute:
-								nhours, minute = \
-								self.__mod_distance(value=minute,
-										byxxx=self._byminute,
-										base=60)
-								else:
-								nhours, minute = divmod(minute+interval, 60)
-		
-								div, hour = divmod(hour+nhours, 24)
-								if div:
-								day += div
-								fixday = True
-								filtered = False
-		
-								if not byhour or hour in byhour:
-								valid = True
-								break
-		
-								if not valid:
-								raise ValueError('Invalid combination of interval and ' +
-										'byhour resulting in empty rule.')
-		
-								timeset = gettimeset(hour, minute, second)
-								elif freq == SECONDLY:
-								if filtered:
-								# Jump to one iteration before next day
-								second += (((86399 - (hour * 3600 + minute * 60 + second))
-										// interval) * interval)
-		
-										rep_rate = (24 * 3600)
-										valid = False
-										for j in range(0, rep_rate // gcd(interval, rep_rate)):
-												if bysecond:
-												nminutes, second = \
-												self.__mod_distance(value=second,
-														byxxx=self._bysecond,
-														base=60)
-												else:
-												nminutes, second = divmod(second+interval, 60)
-		
-												div, minute = divmod(minute+nminutes, 60)
-												if div:
-												hour += div
-												div, hour = divmod(hour, 24)
-												if div:
-												day += div
-												fixday = True
-		
-												if ((not byhour or hour in byhour) and
-														(not byminute or minute in byminute) and
-														(not bysecond or second in bysecond)):
-												valid = True
-												break
-		
-												if not valid:
-												raise ValueError('Invalid combination of interval, ' +
-														'byhour and byminute resulting in empty' +
-														' rule.')
-		
-												timeset = gettimeset(hour, minute, second)
-		
-												if fixday and day > 28:
-												daysinmonth = calendar.monthrange(year, month)[1]
-												if day > daysinmonth:
-												while day > daysinmonth:
-												day -= daysinmonth
-												month += 1
-												if month == 13:
-												month = 1
-												year += 1
-												if year > datetime.MAXYEAR:
-												self._len = total
-												return
-												daysinmonth = calendar.monthrange(year, month)[1]
-												ii.rebuild(year, month)
 	}
 }

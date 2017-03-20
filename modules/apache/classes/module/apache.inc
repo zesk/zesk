@@ -17,7 +17,7 @@ use zesk\Directory;
  * 
  * @author kent
  */
-class Module_Apache extends Module {
+class Module_Apache extends zesk\Module {
 	/**
 	 * Implement hook cron_minute
 	 */

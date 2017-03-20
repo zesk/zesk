@@ -4,31 +4,17 @@
  */
 namespace zesk;
 
-if (false) {
-	/* @var $this Template */
-	
-	$zesk = $this->zesk;
-	/* @var $zesk \zesk\Kernel */
-	
-	$application = $this->application;
-	/* @var $application \zesk\Application */
-	
-	$session = $this->session;
-	/* @var $session \zesk\Session */
-	
-	$router = $this->router;
-	/* @var $request \zesk\Router */
-	
-	$request = $this->request;
-	/* @var $request \zesk\Request */
-	
-	$response = $this->response;
-	/* @var $response \zesk\Response_Text_HTML */
-}
-
+/* @var $this Template */
+/* @var $zesk \zesk\Kernel */
+/* @var $application \zesk\Application */
+/* @var $session \zesk\Session */
+/* @var $request \zesk\Router */
+/* @var $request \zesk\Request */
+/* @var $response \zesk\Response_Text_HTML */
 
 /* @var $widget View_Errors */
 /* @var $parent Widget */
+
 $errors = array();
 $parent = $this->parent;
 

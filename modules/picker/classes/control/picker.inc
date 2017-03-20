@@ -7,6 +7,8 @@
  * @copyright Copyright (C) 2016, {company}. All rights reserved.
  */
 use zesk\arr;
+use zesk\HTML;
+use zesk\URL;
 use zesk\Object;
 use zesk\Database_Query_Select;
 use zesk\Object_Iterator;
@@ -115,7 +117,7 @@ class Control_Picker extends Control {
 	protected function initialize() {
 		global $zesk;
 		parent::initialize();
-		$this->class_object = Object::cache_class($this->class, 'class');
+		$this->class_object = $this->application->class_object($this->class);
 		if (count($this->search_columns) === 0) {
 			$this->search_columns = array(
 				$this->class_object->name_column
@@ -186,7 +188,7 @@ class Control_Picker extends Control {
 		}
 	}
 	public function theme_variables() {
-		$class_object = Object::cache_class($this->class, 'class');
+		$class_object = $this->application->class_object($this->class);
 		$name = zesk\Locale::lower(__($class_object->name));
 		$names = zesk\Locale::plural($name);
 		return array(
@@ -288,11 +290,11 @@ class Control_Picker extends Control {
 		)));
 	}
 	private function _query() {
-		return Object::class_query($this->class)->what_object($this->class, "X")->limit(0, $this->option_integer('limit', 25))->order_by($this->option('order_by'));
+		return $this->application->query_select($this->class)->what_object($this->class, "X")->limit(0, $this->option_integer('limit', 25))->order_by($this->option('order_by'));
 	}
 	private function search_results(array $variables, $q) {
 		$query = $this->_query();
-		$total = Object::class_query($this->class);
+		$total = $this->application->query_select($this->class);
 		$this->call_hook('query_list;query', $query);
 		$this->call_hook('query_total;query', $total);
 		$total->what(array(

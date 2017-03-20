@@ -1,0 +1,9 @@
+{
+	"name": "Health",
+	"autoload_options": {
+        "lower": false,
+        "extensions": [ "php" ],
+		"class_prefix": "zesk\\"
+    },
+    "module_class": "zesk\\Module_Health"
+}

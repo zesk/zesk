@@ -2,7 +2,7 @@
 
 namespace zest;
 
-use \Object as Object;
+use zesk\Object;
 use zesk\Timestamp;
 use zesk\arr as arr;
 
@@ -86,7 +86,7 @@ class Project extends Object {
 				if ($test->find_or_create()) {
 					$all_tests[$path] = $test;
 				}
-			} catch (\Exception_File_NotFound $e) {
+			} catch (Exception_File_NotFound $e) {
 			}
 		}
 		return $all_tests;

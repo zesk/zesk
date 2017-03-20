@@ -1,6 +1,20 @@
 <?php
-class Module_IPBan extends Module {
+/**
+ * 
+ */
+use zesk\Process_Mock;
+use zesk\Interface_Process;
 
+/**
+ * 
+ * @author kent
+ *
+ */
+class Module_IPBan extends zesk\Module {
+	/**
+	 * 
+	 * @var array
+	 */
 	protected $classes = array(
 		"IPBan",
 		"IPBan_IP",
@@ -9,7 +23,11 @@ class Module_IPBan extends Module {
 		"IPBan_Tag",
 		"IPBan_Tag_Type"
 	);
-
+	
+	/**
+	 * 
+	 * @return boolean[]
+	 */
 	public static function daemon_conf_options() {
 		return array(
 			'lower' => true,
@@ -17,19 +35,24 @@ class Module_IPBan extends Module {
 			'multiline' => true
 		);
 	}
-
+	
+	/**
+	 * 
+	 */
 	public static function test_daemon() {
-		$process = new Process_Interruptable_Mock();
+		$process = new Process_Mock();
 		self::daemon($process);
 	}
-
-	public static function daemon(Process_Interruptable $process) {
-		/* @var $module Module_IPBan */
-		$module = Module::data('ipban', 'module');
-		return $module->daemon_loop($process);
+	
+	/**
+	 * 
+	 * @param Interface_Process $process
+	 * @return string
+	 */
+	public static function daemon(Interface_Process $process) {
+		return $process->application()->modules->object('ipban')->daemon_loop($process);
 	}
-
-
+	
 	/**
 	 * See http://www.ipdeny.com/ipblocks/
 	 *
@@ -38,38 +61,43 @@ class Module_IPBan extends Module {
 	 * @var url
 	 */
 	const country_zone_source_url = "http://www.ipdeny.com/ipblocks/data/countries/all-zones.tar.gz";
-
+	
+	/**
+	 * 
+	 * @var integer
+	 */
 	private $last_glob = null;
-
+	
 	/**
 	 *
 	 * @var Server
 	 */
 	private $server = null;
-
+	
 	/**
 	 * Main loop for daemon
 	 *
-	 * @param Process_Interruptable $process
+	 * @param zesk\Interface_Process $process
 	 * @return string
 	 */
-	public function daemon_loop(Process_Interruptable $process) {
+	public function daemon_loop(Interface_Process $process) {
+		$app = $process->application();
 		$this->server = Server::singleton();
-		log::notice("{class} Running as server #{id}: {name}", array(
+		$this->application->logger->notice("{class} Running as server #{id}: {name}", array(
 			"class" => get_class($this)
 		) + $this->server->members());
-		$conf_file = $this->option('configuration_file', zesk::application_root('etc/ipban.conf'));
+		$conf_file = $this->option('configuration_file', $app->application_root('etc/ipban.conf'));
 		if (!is_file($conf_file)) {
-			log::notice("{class}::daemon termination - no configuration file at {file}", array(
+			$this->application->logger->notice("{class}::daemon termination - no configuration file at {file}", array(
 				"class" => __CLASS__,
 				"file" => $conf_file
 			));
 			return "down";
 		}
 		$conf = conf::load($conf_file, self::daemon_conf_options());
-		$conf_dir = avalue($conf, "configuration directory", $this->option('configuration_directory', zesk::application_root("etc/ipban")));
+		$conf_dir = avalue($conf, "configuration directory", $this->option('configuration_directory', $app->application_root("etc/ipban")));
 		if (!is_dir($conf_dir)) {
-			log::notice("{class}::daemon termination - no configuration directory at {dir}", array(
+			$this->application->logger->notice("{class}::daemon termination - no configuration directory at {dir}", array(
 				"class" => __CLASS__,
 				"dir" => $conf_file
 			));
@@ -77,13 +105,13 @@ class Module_IPBan extends Module {
 		}
 		$this->last_glob = null;
 		$parsers = array();
-		log::notice("Daemon sleep seconds {seconds}", array(
+		$this->application->logger->notice("Daemon sleep seconds {seconds}", array(
 			"seconds" => $this->option_integer("daemon_sleep_seconds", 30)
 		));
 		$debug_memory = false;
 		$last_mem = memory_get_usage();
 		if ($debug_memory) {
-			log::notice("Memory base usage: {usage}", array(
+			$this->application->logger->notice("Memory base usage: {usage}", array(
 				"usage" => $base_memory = $last_mem
 			));
 		}
@@ -100,7 +128,7 @@ class Module_IPBan extends Module {
 					break;
 				}
 				if ($debug_memory) {
-					log::notice("Memory usage (log): {usage} (+{last_mem})", array(
+					$this->application->logger->notice("Memory usage (log): {usage} (+{last_mem})", array(
 						"usage" => $this_mem = (memory_get_usage() - $base_memory),
 						"last_mem" => $this_mem - $last_mem
 					));
@@ -109,12 +137,12 @@ class Module_IPBan extends Module {
 				gc_collect_cycles();
 			}
 			$process->sleep($this->option_integer("daemon_sleep_seconds", 1));
-			IPBan_Parser::cull($this->option_integer('cull_duration', 86400));
+			IPBan_Parser::cull($app, $this->option_integer('cull_duration', 86400));
 			// Default keep 1 day of data
 		}
 		return "done";
 	}
-
+	
 	/**
 	 * Update list of parsers given our configuration directory. Pass in an empty array to
 	 * start.
@@ -129,7 +157,7 @@ class Module_IPBan extends Module {
 			$this->last_glob = $now;
 			$configuration_files = glob(path($conf_dir, "*.conf"));
 			if (count($configuration_files) === 0) {
-				log::warning("no configuration files found in directory \"{conf_dir}\"", compact("conf_dir"));
+				$this->application->logger->warning("no configuration files found in directory \"{conf_dir}\"", compact("conf_dir"));
 			}
 			foreach ($configuration_files as $file) {
 				$result = avalue($parsers, $file);
@@ -146,7 +174,7 @@ class Module_IPBan extends Module {
 					try {
 						$parsers[$file] = IPBan_Parser::register_parser($this->server, $options);
 					} catch (Exception_Configuration $e) {
-						log::error("Unable to register parser for {file}", array(
+						$this->application->logger->error("Unable to register parser for {file}", array(
 							"file" => $file
 						));
 						$parsers[$file] = filemtime($file);

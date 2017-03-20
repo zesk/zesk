@@ -311,7 +311,7 @@ class Mail_Message extends Object {
 		$extras = implode($mailBR, $extras) . $mailBR;
 		if (ZESK_DEBUG_MAIL) {
 			$ff = fopen("/tmp/Mail.log", "a");
-			fwrite($ff, "To: $to\nSubject: $subject\n" . debug::dump($extras) . "\n\n" . Text::set_line_breaks($content, $mailBR) . "\n-- \n\n");
+			fwrite($ff, "To: $to\nSubject: $subject\n" . Debug::dump($extras) . "\n\n" . Text::set_line_breaks($content, $mailBR) . "\n-- \n\n");
 			fclose($ff);
 			$result = true;
 		} else {

@@ -72,7 +72,7 @@ class test_string extends Test_Unit {
 		foreach ($files as $f => $isutf8) {
 			$content = file_get_contents(path($test_dir, $f));
 			echo "Testing file $f\n";
-			debug::output(urlencode($content));
+			Debug::output(urlencode($content));
 			echo "\n--END--\n";
 			$this->assert(str::is_utf8($content) === $isutf8);
 		}

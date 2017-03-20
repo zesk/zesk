@@ -3,4 +3,4 @@
 /* @var $widget Control_FieldSet */
 $widget = $this->widget;
 
-echo $this->theme('control/widgets');
+echo $this->theme('zesk/control/widgets');

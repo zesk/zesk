@@ -10,7 +10,7 @@ use zesk\Lists;
  * @author kent
  *
  */
-class Module_Image_Picker extends Module_JSLib {
+class Module_Image_Picker extends zesk\Module_JSLib {
 	/**
 	 * 
 	 * @var array

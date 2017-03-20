@@ -1,5 +1,5 @@
 <?php
-class Module_Selection extends Module {
+class Module_Selection extends zesk\Module {
 	protected $classes = array(
 		"Selection_Item",
 		"Selection_Query",

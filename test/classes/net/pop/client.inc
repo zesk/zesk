@@ -6,6 +6,17 @@
  * @author Kent Davidson <kent@marketacumen.com>
  * @copyright Copyright &copy; 2010, Market Acumen, Inc.
  */
+
+use zesk\URL;
+use zesk\Timer;
+use zesk\Mail;
+use zesk\arr;
+
+/**
+ * 
+ * @author kent
+ *
+ */
 class Test_Net_POP_Client extends Test_Unit {
 
 	private $url = null;
@@ -47,7 +58,7 @@ class Test_Net_POP_Client extends Test_Unit {
 
 		$test_key = $test_prefix . "-" . md5(microtime());
 
-		mail::sendmail($test_email, "no-reply@zesk.com", "Test Subject: $test_key", "This is not a comment. I hold a mild disdain for writing comments, but find them useful when others write them.\n$test_key");
+		Mail::sendmail($test_email, "no-reply@zesk.com", "Test Subject: $test_key", "This is not a comment. I hold a mild disdain for writing comments, but find them useful when others write them.\n$test_key");
 
 		$n_seconds = 1;
 		$success = false;

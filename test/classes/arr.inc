@@ -226,13 +226,13 @@ class test_arr extends Test_Unit {
 		$exclude = null;
 		$lower = true;
 		$result = arr::include_exclude($a, 'a;b;e', $exclude, $lower);
-		debug::output($result);
+		Debug::output($result);
 		$this->assert_arrays_equal($result, array(
 			'a',
 			'b'
 		));
 		$result = arr::include_exclude($a, null, 'a;b;e', $lower);
-		debug::output($result);
+		Debug::output($result);
 		$this->assert_arrays_equal($result, array(
 			2 => 'c',
 			3 => 'd'

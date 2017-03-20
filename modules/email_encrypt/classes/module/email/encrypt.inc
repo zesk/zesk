@@ -1,5 +1,5 @@
 <?php
-class Module_Email_Encrypt extends Module_JSLib {
+class Module_Email_Encrypt extends zesk\Module_JSLib {
 	
 	/**
 	 * Array of strings of JS to load, or array of path (key) => $options to load

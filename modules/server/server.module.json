@@ -1,0 +1,8 @@
+{
+	"name": "Server",
+	"autoload_options": {
+		"lower": false,
+		"extensions": [ "php" ]
+	},
+	"depends": [ "server" ]
+}

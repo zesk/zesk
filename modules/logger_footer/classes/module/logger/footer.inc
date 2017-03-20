@@ -1,12 +1,15 @@
 <?php
-use zesk\HTML;
+/**
+ * 
+ */
+namespace zesk;
 
 /**
  * 
  * @author kent
  *
  */
-class Module_Logger_Footer extends Module implements zesk\Interface_Module_Head, zesk\Interface_Module_Foot, zesk\Logger\Handler {
+class Module_Logger_Footer extends Module implements Interface_Module_Head, Interface_Module_Foot, Logger\Handler {
 	/**
 	 * Log messages received
 	 * 
@@ -21,7 +24,7 @@ class Module_Logger_Footer extends Module implements zesk\Interface_Module_Head,
 	 */
 	public function initialize() {
 		global $zesk;
-		/* @var $zesk zesk\Kernel */
+		/* @var $zesk Kernel */
 		parent::initialize();
 		if (!$zesk->console) {
 			$zesk->logger->register_handler(__CLASS__, $this);
@@ -48,12 +51,12 @@ class Module_Logger_Footer extends Module implements zesk\Interface_Module_Head,
 	 *
 	 * @return string
 	 */
-	public function hook_foot(zesk\Request $request, zesk\Response_Text_HTML $response, zesk\Template $template) {
+	public function hook_foot(Request $request, Response_Text_HTML $response, Template $template) {
 		$result = array();
 		if ($this->enabled() && count($this->log) > 0) {
 			global $zesk;
-			/* @var $zesk \zesk\Kernel */
-			$result[] = HTML::tag_open("div", "#zesk-errors");
+			/* @var $zesk \Kernel */
+			$result[] = HTML::tag_open("div", "#logger_footer");
 			$result[] = HTML::tag_open("ul");
 			$this->log[] = array(
 				"_level_string" => "info",
@@ -66,7 +69,7 @@ class Module_Logger_Footer extends Module implements zesk\Interface_Module_Head,
 					"notice" => "success",
 					"error" => "danger"
 				), $level_class, $level_class);
-				$result[] = HTML::tag('li', ".level-$level_class", HTML::tag("label", ".label .label-$label_class", $entry['_level_string']) . " " . $entry['_formatted']);
+				$result[] = HTML::tag('li', ".level-$level_class", HTML::tag("label", ".label .label-$label_class", $entry['_level_string']) . " " . nl2br($entry['_formatted']));
 			}
 			$result[] = HTML::tag_close("ul");
 			$result[] = HTML::tag_close("div");
@@ -78,20 +81,17 @@ class Module_Logger_Footer extends Module implements zesk\Interface_Module_Head,
 	 * Implement Module::head
 	 *
 	 * @param Request $request
-	 * @param zesk\Response_Text_HTML $response
+	 * @param Response_Text_HTML $response
 	 */
-	public function hook_head(zesk\Request $request, zesk\Response_Text_HTML $response, zesk\Template $template) {
+	public function hook_head(Request $request, Response_Text_HTML $response, Template $template) {
 		if ($this->enabled() && count($this->log) > 0) {
 			$response->jquery();
-			$response->cdn_javascript('/share/zesk/js/zesk.js', array(
+			$share = array(
 				'share' => true
-			));
-			$response->cdn_javascript('/share/zesk/js/zesk-debug.js', array(
-				'share' => true
-			));
-			$response->cdn_css('/share/zesk/css/zesk-debug.css', array(
-				'share' => true
-			));
+			);
+			$response->cdn_javascript('/share/zesk/js/zesk.js', $share);
+			$response->cdn_javascript('/share/logger_footer/js/logger_footer.js', $share);
+			$response->cdn_css('/share/logger_footer/css/logger_footer.css', $share);
 		}
 	}
 }

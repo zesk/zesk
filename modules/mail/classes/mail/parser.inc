@@ -318,7 +318,7 @@ class Mail_Parser {
 
 	private function _addHeader(&$headers, $hTypeName, $hValue) {
 		if (strpos($hTypeName, " ") !== false) {
-			log::notice("Skipping header line: $hTypeName");
+			zesk()->logger->notice("Skipping header line: $hTypeName");
 			return false;
 		}
 		$hType = Object::factory('Mail_Header_Type', array(
@@ -414,7 +414,7 @@ class Mail_Parser {
 				$this->popBoundary();
 				return $result;
 			}
-			log::warning("Mail_Parser::parseContent: No boundary in Content-Type: $type");
+			zesk()->logger->warning("Mail_Parser::parseContent: No boundary in Content-Type: $type");
 			return false;
 		}
 		if ($type === "message/rfc822") {
@@ -587,7 +587,7 @@ class Mail_Parser {
 							}
 						}
 					} else {
-						log::debug("Mail_Parser::parseMultiPart: start state didn't find boundary '--$bound' on first line... ($line)");
+						zesk()->logger->debug("Mail_Parser::parseMultiPart: start state didn't find boundary '--$bound' on first line... ($line)");
 					}
 					break;
 				case "headers":
@@ -619,13 +619,13 @@ class Mail_Parser {
 					break;
 				case "done":
 					if (feof($this->mail_file)) {
-						log::notice("self::parse: Extra lines in file for boundary $bound");
+						zesk()->logger->notice("self::parse: Extra lines in file for boundary $bound");
 					}
 					return $content;
 			}
 		}
 		$bound = $this->bound_stack[0];
-		log::notice("Mail_Parser::parseMultiPart: Didn't find end boundary: $bound--");
+		zesk()->logger->notice("Mail_Parser::parseMultiPart: Didn't find end boundary: $bound--");
 		return $content;
 	}
 
@@ -701,7 +701,7 @@ class Mail_Parser {
 		 Is this a bad mailer?
 		 */
 		if ((!$encoding) && (!$disposition) && (!$type)) {
-			log::warning("Mail_Parser::parseContentHeaders($this->mail_file): No Content-Type, Content-Transfer-Encoding, or Content-Disposition in mail section! line # $this->line_index");
+			zesk()->logger->warning("Mail_Parser::parseContentHeaders($this->mail_file): No Content-Type, Content-Transfer-Encoding, or Content-Disposition in mail section! line # $this->line_index");
 			$type = "text/plain";
 			return true;
 		}
@@ -725,7 +725,7 @@ class Mail_Parser {
 				case "quoted-printable":
 					break;
 				default:
-					log::notice("Mail_Parser::parseContentHeaders: Unknown encoding: \"$encoding\", using binary...");
+					zesk()->logger->notice("Mail_Parser::parseContentHeaders: Unknown encoding: \"$encoding\", using binary...");
 					$encoding = "binary";
 					break;
 			}
@@ -741,7 +741,7 @@ class Mail_Parser {
 					$isFile = true;
 					break;
 				default:
-					log::warning("Mail_Parser::parseContentHeaders: Unknown disposition: \"$disposition\", assume attachment...");
+					zesk()->logger->warning("Mail_Parser::parseContentHeaders: Unknown disposition: \"$disposition\", assume attachment...");
 					$dispos = "attachment";
 					break;
 			}

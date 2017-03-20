@@ -1,5 +1,5 @@
 <?php
-class Module_IP2Location extends Module {
+class Module_IP2Location extends zesk\Module {
 	public static function lib_include($class = null) {
 		if (!$class) {
 			$class = "IP2Location";

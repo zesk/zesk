@@ -4,9 +4,6 @@
  */
 namespace zesk;
 
-use \Net_HTTP;
-use \View_Image_Text;
-
 /* @var $this Template */
 /* @var $zesk \zesk\Kernel */
 /* @var $application \zesk\Application */

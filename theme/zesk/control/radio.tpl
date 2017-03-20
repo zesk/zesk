@@ -1,5 +1,7 @@
 <?php
 
+use zesk\HTML;
+
 /* @var $widget Control_Radio */
 $widget = $this->widget;
 /* @var $object Model */
@@ -8,7 +10,7 @@ $object = $this->object;
 $col = $widget->column();
 $name = $widget->name();
 $opts = $this->control_options;
-$base_attrs = $widget->options_include($widget->input_attribute_names());
+$base_attrs = $widget->options_include(HTML::input_attribute_names());
 $id_base = avalue($base_attrs, 'id', $name);
 $base_attrs['name'] = $name;
 $base_attrs['type'] = 'radio';

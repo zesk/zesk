@@ -6,7 +6,5 @@ if (!defined('ZESK_APPLICATION_ROOT')) {
 
 require_once dirname(dirname(ZESK_APPLICATION_ROOT)) . "/zesk.inc";
 
-Module::load('server');
-
 Application_Server::configure();
 

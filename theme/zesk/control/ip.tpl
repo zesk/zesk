@@ -1,4 +1,7 @@
 <?php
+
+namespace zesk;
+
 /* @var $widget Control_IP */
 $widget = $this->widget;
 $name = $this->name;

@@ -11,7 +11,7 @@ use zesk\Module;
  * 
  * @see zesk\Logger\File
  */
-class Module_Logger_File extends Module {
+class Module_Logger_File extends zesk\Module {
 	/**
 	 * 
 	 * @var array
@@ -36,6 +36,7 @@ class Module_Logger_File extends Module {
 		global $zesk;
 		/* @var $zesk \zesk\Kernel */
 		if ($zesk->configuration->path_exists("log::file")) {
+			// TODO Remove 2017-03
 			$this->_legacy_configuration($zesk);
 		}
 		$defaults = $this->option_array("defaults");

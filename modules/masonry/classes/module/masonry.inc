@@ -1,6 +1,6 @@
 <?php
 
-class Module_Masonry extends Module_JSLib {
+class Module_Masonry extends zesk\Module_JSLib {
 	protected $javascript_paths = array(
 		'/share/masonry/masonry.pkgd.js'
 	);

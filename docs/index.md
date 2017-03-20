@@ -27,6 +27,11 @@ Zesk is an application development platform which solves many problems found in 
 - [Hooks](hooks.md)
 - [List of Hooks](hooks-list.md)
 
+## Kernel
+
+- [Kernel](kernel.md)
+- [Deprecating Functionality](deprecated.md)
+
 ## Modules
 
 - [Modules](modules.md)

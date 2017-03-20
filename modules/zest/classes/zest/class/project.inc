@@ -7,7 +7,7 @@ namespace zest;
  * @author kent
  *
  */
-class Class_Project extends \Class_Object {
+class Class_Project extends \zesk\Class_Object {
 	public $id_column = "id";
 	public $find_keys = array(
 		"path"

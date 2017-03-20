@@ -28,6 +28,9 @@
  * @see        http://www.openqa.org/selenium-rc/
  * @since      0.1
  */
+use zesk\Timer;
+use zesk\Net_HTTP_Client;
+
 /**
  * Selenium exception class
  */
@@ -2114,7 +2117,7 @@ class Test_Selenium_Legacy extends Test_Unit {
 	}
 	protected function doCommand($verb, $args = array()) {
 		$this->clearCaches();
-		log::debug("{verb}({args_string})", array(
+		$this->application->logger->debug("{verb}({args_string})", array(
 			"verb" => $verb,
 			"args_string" => implode(",", $args),
 			"args"

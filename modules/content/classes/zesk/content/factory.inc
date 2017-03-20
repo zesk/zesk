@@ -126,7 +126,7 @@ class Content_Factory {
 					$object = $this->object_factory($try_type);
 					return $object;
 				} catch (Exception_Class_NotFound $e) {
-					log::error("Unknown attribute code: [$type]");
+					zesk()->logger->error("Unknown attribute code: [$type]");
 					// backtrace();
 					return null;
 				}

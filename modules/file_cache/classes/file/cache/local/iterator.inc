@@ -1,4 +1,9 @@
 <?php
+
+use zesk\Exception_Directory_NotFound;
+
+//use \SplFileInfo;
+
 class File_Cache_Local_Iterator implements Iterator {
 	public function __construct($cache_dir) {
 		if (!is_dir($cache_dir)) {

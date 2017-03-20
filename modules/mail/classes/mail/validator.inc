@@ -1,6 +1,6 @@
 <?php
 /**
- * @version $Id: validator.inc 4019 2016-09-08 19:00:17Z kent $
+ * @version $Id: validator.inc 4056 2016-09-22 20:19:02Z kent $
  * @package zesk
  * @subpackage mail
  * @author Kent Davidson <kent@marketacumen.com>

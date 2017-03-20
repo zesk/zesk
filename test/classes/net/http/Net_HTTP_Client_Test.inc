@@ -1,4 +1,6 @@
 <?php
+namespace zesk;
+
 class Net_HTTP_Client_Test extends Test_Unit {
 
 	function test_all() {

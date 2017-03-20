@@ -9,5 +9,10 @@
 		}
 	},
 	"destination": "vendor/components/chosen",
-	"share_path":  "vendor/components/chosen"
+	"share_path":  "vendor/components/chosen",
+	"autoload_options": {
+		"class_prefix": "zesk\\",
+		"lower": false
+	},
+	"module_class": "zesk\\Module_Chosen"
 }

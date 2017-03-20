@@ -1,4 +1,8 @@
 <?php
+
+use zesk\Exception_Configuration;
+use zesk\Net_HTTP_Client;
+
 class Client_DNSMadeEasy extends Net_HTTP_Client {
 	/**
 	 * 

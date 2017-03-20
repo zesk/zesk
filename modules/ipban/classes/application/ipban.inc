@@ -32,7 +32,7 @@ class Application_IPBan extends zesk\Application {
 	
 	/**
 	 *
-	 * @var Process_Interruptable
+	 * @var zesk\Interface_Process
 	 */
 	protected $process = null;
 	
@@ -281,10 +281,10 @@ class Application_IPBan extends zesk\Application {
 	/**
 	 * Implement Application::daemon()
 	 *
-	 * @param Process_Interruptable $p
+	 * @param zesk\Interface_Process $p
 	 * @return string number
 	 */
-	public static function daemon(Process_Interruptable $p) {
+	public static function daemon(zesk\Interface_Process $p) {
 		try {
 			self::check_permissions();
 		} catch (Exception $e) {
@@ -321,7 +321,7 @@ class Application_IPBan extends zesk\Application {
 	 * @return string
 	 */
 	public static function test($nseconds = 60) {
-		$p = new Process_Interruptable_Mock(array(
+		$p = new zesk\Interface_Process_Mock(array(
 			"quit_after" => $nseconds
 		));
 		return self::daemon($p);
@@ -415,10 +415,10 @@ class Application_IPBan extends zesk\Application {
 	/**
 	 * Main daemon loop
 	 *
-	 * @param Process_Interruptable $p
+	 * @param zesk\Interface_Process $p
 	 * @return number
 	 */
-	public function daemon_loop(Process_Interruptable $p) {
+	public function daemon_loop(zesk\Interface_Process $p) {
 		$seconds = $this->option("daemon_loop_sleep", 1);
 		$this->logger->notice("Daemon loop sleep seconds: {seconds}", array(
 			"seconds" => $seconds

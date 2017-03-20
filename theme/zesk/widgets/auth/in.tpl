@@ -8,6 +8,7 @@
  * Created on Tue Feb 17 20:42:50 EST 2009 20:42:50
  */
 
+use zesk\Session_Database;
 if (false) {
 	/* @var $this zesk\Template */
 

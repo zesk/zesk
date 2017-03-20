@@ -4,27 +4,13 @@
  */
 namespace zesk;
 
-if (false) {
-	/* @var $this Template */
-	
-	$zesk = $this->zesk;
-	/* @var $zesk \zesk\Kernel */
-	
-	$application = $this->application;
-	/* @var $application \zesk\Application */
-	
-	$session = $this->session;
-	/* @var $session \zesk\Session */
-	
-	$router = $this->router;
-	/* @var $request \zesk\Router */
-	
-	$request = $this->request;
-	/* @var $request \zesk\Request */
-	
-	$response = $this->response;
-	/* @var $response \zesk\Response_Text_HTML */
-}
+/* @var $this Template */
+/* @var $zesk Kernel */
+/* @var $application Application */
+/* @var $session Session */
+/* @var $request Router */
+/* @var $request Request */
+/* @var $response Response_Text_HTML */
 
 $response = $this->response;
 if (!$response instanceof Response) {

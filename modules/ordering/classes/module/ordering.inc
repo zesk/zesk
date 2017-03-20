@@ -10,7 +10,7 @@ use zesk\Database_Query_Select;
  * @author kent
  *
  */
-class Module_Ordering extends Module {
+class Module_Ordering extends zesk\Module {
 	
 	/**
 	 * 

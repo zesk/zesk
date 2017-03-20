@@ -103,7 +103,7 @@ abstract class Test_Website extends Test_Selenium {
 		}
 		$sleep_time = $this->option_integer("sleep_before_stop", 0);
 		if ($exception && $sleep_time > 0) {
-			log::error("Error occurred: {message}", array(
+			$this->application->logger->error("Error occurred: {message}", array(
 				"message" => $exception->getMessage(),
 				"exception" => $exception
 			));
@@ -152,7 +152,7 @@ abstract class Test_Website extends Test_Selenium {
 		return true;
 	}
 	protected function click_all_linkable_pages($start_page = "/", $skip_links = null, $validate_method = "validate_method_default", $logprefix = "#") {
-		log::error("$logprefix _click_all_linkable_pages START");
+		$this->application->logger->error("$logprefix _click_all_linkable_pages START");
 		if (!is_array($skip_links)) {
 			$skip_links = array();
 		}
@@ -254,7 +254,7 @@ abstract class Test_Website extends Test_Selenium {
 			echo Locale::plural_word("Error", count($errors)) . ":\n\t" . implode("\n\t", $errors) . "\n";
 			$this->assert(false);
 		}
-		log::error("$logprefix _click_all_linkable_pages DONE");
+		$this->application->logger->error("$logprefix _click_all_linkable_pages DONE");
 	}
 	
 	/**

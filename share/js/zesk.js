@@ -1,14 +1,25 @@
 /*
- * $Id: zesk.js 4073 2016-10-17 19:52:16Z kent $
+ * $Id: zesk.js 4300 2017-03-02 23:13:46Z kent $
  *
  * Copyright (C) 2007 Market Acumen, Inc. All rights reserved
  */
 
 /* Globals storage container */
-(function(exports, $) {
+(function (root, factory) {
+	/*globals module, require */
+    if (typeof module === 'object' && module.exports) {
+        // Node. Does not work with strict CommonJS, but
+        // only CommonJS-like environments that support module.exports,
+        // like Node.
+        module.exports = factory(module.exports, require('jquery'));
+    } else {
+        // Browser globals (root is window)
+        root.Locale = factory(root, root.jQuery);
+    }
+}(this, function (exports, $) {
 	"use strict";
 	var X = exports;
-	var zesk = X.zesk || {
+	var Zesk = X.Zesk || {
 		inited: false
 	};
 	var hooks = {};
@@ -26,7 +37,7 @@
 	};
 	var _escape_map_flip;
 
-	if (zesk.inited) {
+	if (Zesk.inited) {
 		return;
 	}
 
@@ -49,8 +60,7 @@
 		}
 		return def;
 	}
-	X.avalue = avalue;
-
+	
 	function is_bool(a) {
 		return gettype(a) === 'boolean';
 	}
@@ -90,14 +100,14 @@
 
 	/* Kernel */
 
-	X.is_date = function(a) {
+	function is_date(a) {
 		return Object.prototype.toString.call(a) === '[object Date]';
-	};
+	}
 
 
+	X.avalue = avalue;
 	X.gettype = gettype;
-
-	X.each = zesk.each;
+	X.each = Zesk.each;
 
 	X.is_array = is_array;
 	X.is_object = is_object;
@@ -110,6 +120,23 @@
 	X.is_function = is_function;
 	X.is_float = is_float;
 	X.is_url = is_url;
+	X.is_date = is_date;
+
+	Zesk.avalue = avalue;
+	Zesk.gettype = gettype;
+
+	Zesk.is_array = is_array;
+	Zesk.is_object = is_object;
+	Zesk.is_array = is_array;
+	Zesk.is_number = is_numeric;
+	Zesk.is_numeric = is_numeric;
+	Zesk.is_bool = is_bool;
+	Zesk.is_string = is_string;
+	Zesk.is_integer = is_integer;
+	Zesk.is_function = is_function;
+	Zesk.is_float = is_float;
+	Zesk.is_url = is_url;
+	Zesk.is_date = is_date;
 
 	X.html = html = {};
 	_escape_map_flip = flip(_escape_map);
@@ -255,7 +282,7 @@
 		return hook;
 	}
 
-	X.zesk = zesk = {
+	$.extend(Zesk, {
 	    d: d,
 	    settings: {}, // Place module data here!
 	    hooks: hooks, // Module hooks go here - use add_hook and hook to use
@@ -283,6 +310,49 @@
 			    }
 		    }
 		    return def;
+	    },
+	    /**
+	     * @param name string Name of cookie to set/get
+	     * @param value string Value of cookie to set
+	     * @param options object Extra options: ttl: integer (seconds), domain: string
+	     */
+	    cookie: function (name, value, options) {
+	    	var
+	    	getcookie = function (n)	{
+	    		var c = d.cookie;
+	    		var s = c.lastIndexOf(n+'=');
+	    		if (s < 0) {
+	    			return null;
+	    		}
+	    		s += n.length+1;
+	    		var e = c.indexOf(';', s);
+	    		if (e < 0) {
+	    			e = c.length;
+	    		}
+	    		return X.unescape(c.substring(s,e));
+	    	},
+	    	setcookie = function (n, v, options) {
+	    		var a = new Date(), t = parseInt(options.ttl, 10) || -1, m = options.domain || null;
+	    		if (t <= 0) {
+	    			a.setFullYear(2030);
+	    		} else if (t > 0) {
+	    			a.setTime(a.getTime() + t * 1000);
+	    		}
+	    		d.cookie = n + "=" + X.escape(v) + '; path=/; expires=' + a.toGMTString() + (m ? '; domain=' + m : '');
+	    		return v;
+	    	},
+	    	delete_cookie = function (name, dom) {
+	    		var 
+	    		now = new Date(), 
+	    		e = new Date(now.getTime() - 86400);
+	    		d.cookie = name + '=; path=/; expires=' + e.toGMTString() + (dom ? '; domain=' + dom : '');
+	    	};
+	    	options = options || {};
+    		if (value === null) {
+    			delete_cookie(name, options.dom || null);
+    			return;
+    		}
+    		return arguments.length === 1 ? getcookie(name) : setcookie(name, value, options);
 	    },
 	    css: function(p) {
 		    var css = d.createElement('link');
@@ -326,25 +396,25 @@
 		    return results;
 	    },
 	    get_path: function(path, def) {
-		    return object_path(X.zesk.settings, path, def);
+		    return object_path(X.Zesk.settings, path, def);
 	    },
 	    set_path: function(path, value) {
-		    return object_set_path(X.zesk.settings, path, value);
+		    return object_set_path(X.Zesk.settings, path, value);
 	    },
 	    get: function(n) {
 		    var a = arguments;
-		    return avalue(X.zesk.settings, n, a.length > 1 ? a[1] : null);
+		    return avalue(X.Zesk.settings, n, a.length > 1 ? a[1] : null);
 	    },
 	    getb: function(n) {
 		    var a = arguments, d = a.length > 1 ? a[1] : false;
-		    return to_bool(zesk.get(n, d));
+		    return to_bool(Zesk.get(n, d));
 	    },
 	    set: function(n, v) {
 		    var a = arguments, overwrite = a.length > 2 ? to_bool(a[2]) : true;
-		    if (!overwrite && typeof X.zesk.settings[n] !== 'undefined') {
-			    return X.zesk.settings[n];
+		    if (!overwrite && typeof X.Zesk.settings[n] !== 'undefined') {
+			    return X.Zesk.settings[n];
 		    }
-		    X.zesk.settings[n] = v;
+		    X.Zesk.settings[n] = v;
 		    return v;
 	    },
 	    inherit: function(the_class, super_class, prototype) {
@@ -416,7 +486,7 @@
 		    return $(mixed).html().map(map, false);
 	    },
 	    script_src_normalize: function(src) {
-		    var matches, parts = zesk.url_parts;
+		    var matches, parts = Zesk.url_parts;
 		    src = src.unprefix(parts.scheme + '://' + parts.host);
 		    if ((matches = src.match(/(.*)\?_ver=[0-9]+$/)) !== null) {
 			    src = matches[1];
@@ -424,33 +494,33 @@
 		    return src;
 	    },
 	    scripts_init: function() {
-		    zesk.page_scripts = {};
+		    Zesk.page_scripts = {};
 		    $('script[type="text/javascript"][src]').each(function() {
-			    zesk.script_add($(this).attr('src'));
+			    Zesk.script_add($(this).attr('src'));
 		    });
 
 	    },
 	    script_add: function(src) {
-		    if (zesk.page_scripts === null) {
-			    zesk.scripts_init();
+		    if (Zesk.page_scripts === null) {
+			    Zesk.scripts_init();
 		    }
-		    zesk.page_scripts[src] = true;
-		    zesk.page_scripts[zesk.script_src_normalize(src)] = true;
+		    Zesk.page_scripts[src] = true;
+		    Zesk.page_scripts[Zesk.script_src_normalize(src)] = true;
 	    },
 	    scripts: function() {
-		    if (zesk.page_scripts === null) {
-			    zesk.scripts_init();
+		    if (Zesk.page_scripts === null) {
+			    Zesk.scripts_init();
 		    }
-		    return zesk.page_scripts;
+		    return Zesk.page_scripts;
 	    },
 	    scripts_cached: function(srcs) {
-		    zesk.each(srcs, function() {
-			    zesk.script_add(this);
+		    Zesk.each(srcs, function() {
+			    Zesk.script_add(this);
 		    });
 	    },
 	    script_loaded: function(src) {
-		    var scripts = zesk.scripts(), result = scripts[src] || scripts[zesk.script_src_normalize(src)] || false;
-		    // zesk.log("zesk.script_loaded(" + src + ") = " + (result ? "true":
+		    var scripts = Zesk.scripts(), result = scripts[src] || scripts[Zesk.script_src_normalize(src)] || false;
+		    // Zesk.log("Zesk.script_loaded(" + src + ") = " + (result ? "true":
 		    // "false"));
 		    return result;
 	    },
@@ -461,8 +531,8 @@
 		    options = is_string(options) ? {
 			    level: options
 		    } : options;
-		    zesk.hook('message', message, options);
-		    zesk.log(message, options);
+		    Zesk.hook('message', message, options);
+		    Zesk.log(message, options);
 	    },
 	    regexp_quote: function(str, delimiter) {
 		    return String(str).replace(new RegExp('[.\\\\+*?\\[\\^\\]$(){}=!<>|:\\' + (delimiter || '') + '-]', 'g'), '\\$&');
@@ -473,7 +543,7 @@
 			    if (total === 0) {
 				    if (data.ready) {
 					    $.each(data.ready, function() {
-						    /* zesk.log("evaluating " + this); */
+						    /* Zesk.log("evaluating " + this); */
 						    $.globalEval(this);
 					    });
 				    }
@@ -499,20 +569,20 @@
 			    $.each(data.stylesheets, function() {
 				    var tag = this, name = tag.name, attrs = tag.attributes || {}, content = tag.content || null;
 				    if (name === "link") {
-					    if (attrs.href && zesk.stylesheet_loaded(attrs.href, attrs.media)) {
+					    if (attrs.href && Zesk.stylesheet_loaded(attrs.href, attrs.media)) {
 						    return;
 					    }
-					    zesk.log("Loading stylesheet " + attrs.href + "(media=" + attrs.media + ")");
+					    Zesk.log("Loading stylesheet " + attrs.href + "(media=" + attrs.media + ")");
 				    }
 				    $('head').append(html.tag(name, attrs, content));
 			    });
 		    }
 		    if (data.scripts) {
 			    $.each(data.scripts, function() {
-				    if (!zesk.script_loaded(this)) {
-					    zesk.log("Loading " + this);
+				    if (!Zesk.script_loaded(this)) {
+					    Zesk.log("Loading " + this);
 					    total++;
-					    zesk.page_scripts[this] = this;
+					    Zesk.page_scripts[this] = this;
 					    $.ajax({
 					        url: this,
 					        dataType: 'script',
@@ -526,16 +596,16 @@
 		    if (data.message) {
 			    if (is_array(data.message)) {
 				    $.each(data.message, function() {
-					    zesk.message(this, data.message_options || {});
+					    Zesk.message(this, data.message_options || {});
 				    });
 			    } else {
-				    zesk.message(data.message);
+				    Zesk.message(data.message);
 			    }
 		    }
 		    total++;
 		    success();
 	    }
-	};
+	});
 
 	X.URL = URL = function (mixed) {
 		var self = this;
@@ -781,7 +851,9 @@
 	    tr: function(object) {
 		    var k, self = this;
 		    for (k in object) {
-			    self = self.str_replace(k, object[k]);
+		    	if (object.hasOwnProperty(k)) {
+		    		self = self.str_replace(k, object[k]);
+		    	}
 		    }
 		    return self;
 	    },
@@ -793,7 +865,7 @@
 		    }
 		    self = this;
 		    if (case_insensitive) {
-			    object = zesk.change_key_case(object);
+			    object = Zesk.change_key_case(object);
 			    suffix = "i";
 		    }
 		    for (k in object) {
@@ -825,7 +897,7 @@
 	    },
 	    toCamelCase: function() {
 		    var result = "";
-		    zesk.each(this.split("_"), function() {
+		    Zesk.each(this.split("_"), function() {
 			    result += this.substr(0, 1).toUpperCase() + this.substr(1).toLowerCase();
 		    });
 		    return result;
@@ -878,7 +950,7 @@
 		return d;
 	};
 
-	X.to_string = function(x) {
+	Zesk.to_string = X.to_string = function(x) {
 		return x.toString();
 	};
 
@@ -908,10 +980,10 @@
 
 	X.ZObject = function(options) {
 		options = options || {};
-		this.options = zesk.change_key_case($.extend({}, options));
+		this.options = Zesk.change_key_case($.extend({}, options));
 		// this.constructor.super.call(this);
 	};
-	zesk.inherit(X.ZObject, null, {
+	Zesk.inherit(X.ZObject, null, {
 		clone: function() {
 			return X.clone(this);
 		}
@@ -926,7 +998,7 @@
 		}
 	};
 
-	zesk.change_key_case = function(me) {
+	Zesk.change_key_case = function(me) {
 		var k, newo = {};
 		for (k in me) {
 			if (me.hasOwnProperty(k)) {
@@ -943,9 +1015,9 @@
 	}
 
 	// TODO What's this for?
-	zesk.ajax_form = function() {
+	Zesk.ajax_form = function() {
 		var $form = $(this), target = $form.attr('target'), $target = $('#' + target);
-		zesk.log($target.html());
+		Zesk.log($target.html());
 	};
 
 	/*
@@ -975,12 +1047,14 @@
 		});
 	};
 
-	zesk.inited = true;
+	Zesk.inited = true;
 
 	$(document).ready(function() {
-		zesk.hook("document::ready");
+		Zesk.hook("document::ready");
 	});
 	$(window).on("load", function() {
-		zesk.hook("window::load");
+		Zesk.hook("window::load");
 	});
-}(window, window.jQuery));
+	exports.Zesk = Zesk;
+	exports.zesk = Zesk; // Deprecated 2017-01
+}));

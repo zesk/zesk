@@ -1,8 +1,8 @@
 <?php
+/**
+ * 
+ */
 namespace zesk;
-
-use \Process_Interruptable;
-use \Process_Interruptable_Mock;
 
 /**
  * @see Module_Job
@@ -25,7 +25,7 @@ use \Process_Interruptable_Mock;
  * @property array $data
  * @property string $status
  */
-class Job extends Object implements Process_Interruptable {
+class Job extends Object implements Interface_Process, Interface_Progress {
 	/**
 	 * 
 	 * @var integer
@@ -45,9 +45,9 @@ class Job extends Object implements Process_Interruptable {
 	const priority_normal = 0;
 	
 	/**
-	 * @var Process_Interruptable
+	 * @var Interface_Process
 	 */
-	private $interruptable = null;
+	private $process = null;
 	
 	/**
 	 *
@@ -95,11 +95,11 @@ class Job extends Object implements Process_Interruptable {
 		$job->find();
 		return $job->set_member($members)->store();
 	}
-	public static function mock_run($id) {
+	public static function mock_run(Application $application, $id, array $options = array()) {
 		/* @var $job Job */
-		$job = Object::factory(__CLASS__, $id)->fetch();
-		$interruptable = new Process_Interruptable_Mock();
-		return $job->execute($interruptable);
+		$job = $application->object_factory(__CLASS__, $id)->fetch();
+		$process = new Process_Mock($application, $options);
+		return $job->execute($process);
 	}
 	
 	/**
@@ -150,7 +150,7 @@ class Job extends Object implements Process_Interruptable {
 	 * Support application context
 	 *
 	 * {@inheritDoc}
-	 * @see Process_Interruptable::application()
+	 * @see Interface_Process::application()
 	 */
 	public function application(Application $set = null) {
 		if ($set) {
@@ -188,16 +188,16 @@ class Job extends Object implements Process_Interruptable {
 	/**
 	 * Run jobs as part of a process
 	 *
-	 * @param Process_Interruptable $process
+	 * @param Interface_Process $process
 	 * @return NULL
 	 */
-	public static function execute_jobs(Process_Interruptable $process) {
+	public static function execute_jobs(Interface_Process $process) {
 		global $zesk;
 		
 		$application = $process->application();
 		$logger = $application->logger;
 		
-		/* @var $zesk zesk\Kernel */
+		/* @var $zesk Kernel */
 		$server = Server::singleton();
 		$pid = $zesk->process->id();
 		
@@ -300,7 +300,7 @@ class Job extends Object implements Process_Interruptable {
 	private static function clean_dead_pids(Application $application, Server $server) {
 		global $zesk;
 		
-		/* @var $zesk zesk\Kernel */
+		/* @var $zesk Kernel */
 		foreach ($application->query_select(__CLASS__)
 			->what("pid", "pid")
 			->what('id', 'id')
@@ -320,8 +320,8 @@ class Job extends Object implements Process_Interruptable {
 			}
 		}
 	}
-	public function execute(Process_Interruptable $process) {
-		$this->interruptable = $process;
+	public function execute(Interface_Process $process) {
+		$this->process = $process;
 		
 		$timer = new Timer();
 		try {
@@ -344,15 +344,21 @@ class Job extends Object implements Process_Interruptable {
 			"*duration" => "duration+$elapsed"
 		);
 		
-		$this->interruptable = null;
+		$this->process = null;
 		
 		$this->query_update()
 			->values($values)
 			->where("id", $this->id())
 			->execute();
 	}
+	function progress_push($name) {
+		// TODO		
+	}
+	function progress_pop() {
+		// TODO
+	}
 	function progress($status = null, $percent = null) {
-		if ($this->interruptable && $this->interruptable->done()) {
+		if ($this->process && $this->process->done()) {
 			throw new Exception_Interrupt();
 		}
 		// Every 0.1sec
@@ -382,11 +388,11 @@ class Job extends Object implements Process_Interruptable {
 			$this->call_hook("completed");
 			return $this->store();
 		}
-		return !$this->member_is_empty("completed");
+		return !$this->member_is_empty("completed") && $this->data("completed_status");
 	}
 	static function retry_attempts() {
 		global $zesk;
-		/* @var $zesk zesk\Kernel */
+		/* @var $zesk Kernel */
 		return $zesk->configuration->path_get("zesk\Job::retry_attempts", 100);
 	}
 	function dead() {
@@ -410,47 +416,47 @@ class Job extends Object implements Process_Interruptable {
 	
 	/**
 	 * (non-PHPdoc)
-	 * @see Process_Interruptable::done()
+	 * @see Interface_Process::done()
 	 */
 	public function done() {
-		return $this->interruptable ? $this->interruptable->done() : true;
+		return $this->process ? $this->process->done() : true;
 	}
 	
 	/**
 	 * (non-PHPdoc)
-	 * @see Process_Interruptable::sleep()
+	 * @see Interface_Process::sleep()
 	 */
 	public function sleep($seconds = 1.0) {
-		return $this->interruptable ? $this->interruptable->sleep($seconds) : true;
+		return $this->process ? $this->process->sleep($seconds) : true;
 	}
 	
 	/**
 	 * (non-PHPdoc)
-	 * @see Process_Interruptable::terminate()
+	 * @see Interface_Process::terminate()
 	 */
 	public function terminate() {
-		if ($this->interruptable) {
-			$this->interruptable->terminate();
+		if ($this->process) {
+			$this->process->terminate();
 		}
 	}
 	
 	/**
 	 * (non-PHPdoc)
-	 * @see Process_Interruptable::kill()
+	 * @see Interface_Process::kill()
 	 */
 	public function kill() {
-		if ($this->interruptable) {
-			$this->interruptable->kill();
+		if ($this->process) {
+			$this->process->kill();
 		}
 	}
 	
 	/**
 	 * (non-PHPdoc)
-	 * @see Process_Interruptable::log()
+	 * @see Interface_Process::log()
 	 */
 	function log($message, array $args = array(), $level = null) {
-		if ($this->interruptable) {
-			$this->interruptable->log($message, $args, $level);
+		if ($this->process) {
+			$this->process->log($message, $args, $level);
 		}
 	}
 	

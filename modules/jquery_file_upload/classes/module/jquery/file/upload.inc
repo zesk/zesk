@@ -1,5 +1,5 @@
 <?php
-class Module_JQuery_File_Upload extends Module {
+class Module_JQuery_File_Upload extends zesk\Module {
 
 	/**
 	 * Implements Module::head

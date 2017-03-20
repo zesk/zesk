@@ -40,7 +40,7 @@ $onchange = $this->onchange;
 
 $inline = $this->getb("inline");
 
-echo $this->theme('control/text', array(
+echo $this->theme('zesk/control/text', array(
 	'onchange' => null,
 	'class' => $inline ? CSS::add_class($this->class, 'hidden') : $this->class
 ));

@@ -1,5 +1,5 @@
 <?php
 
-class Module_PaymentInfo extends Module {
+class Module_PaymentInfo extends zesk\Module {
 	
 }

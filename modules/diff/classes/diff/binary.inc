@@ -13,7 +13,7 @@ class Diff_Binary extends Diff {
 	private $bstring;
 
 	function __construct($a, $b, $dmax = null) {
-		parent::__construct(str::explode_chars($a), str::explode_chars($b), $dmax);
+		parent::__construct(str_split($a), str_split($b), $dmax);
 		$this->astring = $a;
 		$this->bstring = $b;
 		

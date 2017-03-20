@@ -2,7 +2,7 @@
 
 namespace zest;
 
-class Class_Test extends \Class_Object {
+class Class_Test extends \zesk\Class_Object {
 	public $id_column = "id";
 	public $has_one = array(
 		'project' => "zest\\Project"

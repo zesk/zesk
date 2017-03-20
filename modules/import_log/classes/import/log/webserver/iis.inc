@@ -66,7 +66,7 @@ class Import_Log_WebServer_IIS extends Import_Log_WebServer
 			switch (strtolower($name)) {
 				case "fields":
 					$this->field_map = explode(" ", trim($value));
-					debug::dump($this->field_map);
+					Debug::dump($this->field_map);
 					break;
 				default:
 					$this->set_option($name, $value);

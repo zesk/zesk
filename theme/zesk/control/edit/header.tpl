@@ -1,5 +1,7 @@
 <?php
 
+use zesk\HTML;
+
 if ($this->parent === null) {
 	$title = $this->title;
 	if (!$title) {

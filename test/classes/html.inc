@@ -13,7 +13,7 @@ class test_html extends Test_Unit {
 		$allowed = true;
 		$disallowed = 'crap';
 		$result = HTML::style_clean($attr, $allowed, $disallowed);
-		debug::output($result);
+		Debug::output($result);
 		$this->assert_arrays_equal($result, array(
 			'type' => 'text/javascript',
 			'src' => 'style.css'

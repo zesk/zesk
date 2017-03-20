@@ -21,7 +21,7 @@ alias markdown='z module markdown markdown'
 # Schema updates, show changes
 #
 zesk-schema-update() {
-	zesk-schema --update $1
+	zesk-schema --update $*
 }
 
 export PATH=$PATH:$ZESK_ROOT/bin

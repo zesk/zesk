@@ -104,7 +104,7 @@ class test_dir extends Test_Unit {
 		$options['directory_walk_exclude_pattern'] = '/\.svn/';
 
 		$results = Directory::list_recursive(ZESK_ROOT, $options);
-		debug::output($results);
+		Debug::output($results);
 
 		$this->assert(in_array("classes/test/dir_test.inc", $results));
 	}
@@ -155,7 +155,7 @@ class test_dir extends Test_Unit {
 		$iterate_dump = ob_end_clean();
 
 		list($dirs, $files) = testDirectory::dump();
-		//		debug::dump($files);
+		//		Debug::dump($files);
 
 
 		$this->assert(in_array(ZESK_ROOT . "zesk.inc", $files));

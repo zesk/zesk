@@ -7,7 +7,7 @@
  * 
  * @author kent
  */
-class Module_Filter_Save extends Module_JSLib implements \zesk\Interface_Module_Routes {
+class Module_Filter_Save extends zesk\Module_JSLib implements \zesk\Interface_Module_Routes {
 	
 	/**
 	 * 

@@ -4,8 +4,6 @@
  */
 namespace zesk;
 
-use \Net_Sync;
-
 /**
  * Utility class which allows filter and validation of existing capabilities.
  * 

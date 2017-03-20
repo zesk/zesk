@@ -10,7 +10,7 @@
  *
  * @author kent
  */
-class Payment extends Object {
+class Payment extends \zesk\Object {
 	/**
 	 * Update expiration date on cards which have expired in the database
 	 *

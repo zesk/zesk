@@ -1,17 +1,17 @@
 <?php
-namespace zesk;
-
 /**
  * $URL$
  *
  * @author kent
  * @copyright &copy; 2012 Market Acumen, Inc.
  */
+namespace zesk;
+
 $is_empty = false;
 try {
 	$timestamp = new Timestamp($this->value);
 	$is_empty = $timestamp->is_empty();
-} catch (\Exception_Convert $e) {
+} catch (Exception_Convert $e) {
 	$is_empty = true;
 }
 if (!$this->object) {

@@ -1,6 +1,6 @@
 <?php
 
-class Module_Picker extends Module_JSLib {
+class Module_Picker extends zesk\Module_JSLib {
 	protected $javascript_paths = array(
 		'/share/picker/js/picker.js'
 	);

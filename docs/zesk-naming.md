@@ -103,7 +103,7 @@ Class names for purely static, utility classes are lower-case:
 
 Functions and methods within the system generally follow the PHP function syntax by using lower-case and underscores to separate known words:
 
-    echo number::format_bytes(1512312);
+    echo Number::format_bytes(1512312);
     $result = Route::compare_weight($route1, $route2);
 
 Note that PHP itself uses two different naming methodologies for class methods and functions (class methods use first-lower [camelcase](glossary.md#camelcase)), while functions use [lower-case underscored](naming-style-definition.md) to separate words. Zesk uses the single convention [Lower Underscore](naming-styles-definitions.md) for new methods added to classes. 

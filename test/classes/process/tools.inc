@@ -7,6 +7,7 @@
  * @author Kent Davidson <kent@marketacumen.com>
  * @copyright Copyright &copy; 2008, Market Acumen, Inc.
  */
+use zesk\Process_Tools;
 
 class Test_Process_Tools extends Test_Unit {
 	function test_main() {
@@ -24,7 +25,7 @@ class Test_Process_Tools extends Test_Unit {
 		$table = 'test_PGT';
 		$where = array();
 		$pid_field = 'PID';
-//		Process_Tools::reset_dead_processes($table, $where, $pid_field);
+//		Process_Tools::reset_dead_processes($this->application, $table, $where, $pid_field);
 
 		$this->assert(Process_Tools::process_code_changed() === false);
 		sleep(1);

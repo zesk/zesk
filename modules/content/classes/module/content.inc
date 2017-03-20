@@ -11,7 +11,7 @@
 
 use zesk\arr;
 
-class Module_Content extends Module implements \zesk\Interface_Module_Head {
+class Module_Content extends zesk\Module implements \zesk\Interface_Module_Head {
 	private static $all_classes = array(
 		'Content_Article' => 'article',
 		'Content_Data' => 'data',
@@ -36,7 +36,7 @@ class Module_Content extends Module implements \zesk\Interface_Module_Head {
 			$this->classes = array_merge($this->classes, $types['data']);
 			foreach ($this->option_list("content_classes") as $type) {
 				if (!array_key_exists($type, $types)) {
-					log::warning("{method} Unknown content class type {type}", array(
+					$this->application->logger->warning("{method} Unknown content class type {type}", array(
 						"method" => __METHOD__,
 						"type" => $type
 					));

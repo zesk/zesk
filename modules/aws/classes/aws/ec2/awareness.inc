@@ -3,6 +3,8 @@
  * 
  */
 use zesk\Cache;
+use zesk\arr;
+use zesk\Net_HTTP_Client;
 
 /**
  * Collect, store, and manage EC2 Awareness meta data
@@ -160,8 +162,8 @@ class AWS_EC2_Awareness extends Options {
 			return $this->mock_settings;
 		}
 		$host = php_uname('n');
-		$ips = array_values(arr::clean(system::ip_addresses(), "127.0.0.1"));
-		$macs = array_values(system::mac_addresses());
+		$ips = array_values(arr::clean(zesk\System::ip_addresses(), "127.0.0.1"));
+		$macs = array_values(zesk\System::mac_addresses());
 		
 		$settings = array(
 			self::setting_hostname => $host,

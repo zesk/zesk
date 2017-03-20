@@ -1,5 +1,5 @@
 <?php
 
-class Module_Workflow extends Module {
+class Module_Workflow extends zesk\Module {
 	
 }

@@ -1,4 +1,5 @@
 <?php
+namespace zesk;
 
 ?>
 <div class="input-group">

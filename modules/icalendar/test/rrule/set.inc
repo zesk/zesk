@@ -1,0 +1,126 @@
+<?php
+/**
+ * 
+ */
+use zesk\Text;
+
+/**
+ * 
+ * @author kent
+ *
+ */
+class Test_RRule_Set extends Test_Unit {
+	protected $load_modules = array(
+		"icalendar"
+	);
+	function load_rrule_tests($tests_path) {
+		$tests_content = file_get_contents($tests_path);
+		$tests = array();
+		$test = array();
+		$attr = array(
+			"description",
+			"rrule",
+			"result"
+		);
+		$attrindex = 0;
+		$blank = null;
+		$lines = Text::remove_line_comments($tests_content);
+		$lines = explode("\n", $lines);
+		$content = "";
+		foreach ($lines as $line) {
+			$line = trim($line);
+			if (empty($line)) {
+				if ($blank === true) {
+					continue;
+				} else {
+					$blank = true;
+					if ($content) {
+						$test[$attr[$attrindex]] = trim($content);
+						$attrindex = ($attrindex + 1) % count($attr);
+						$content = "";
+						if ($attrindex === 0) {
+							$tests[] = $test;
+							$test = array();
+						}
+					}
+				}
+			} else {
+				$blank = false;
+				$content .= $line . "\n";
+			}
+		}
+		if ($content) {
+			$test[$attr[$attrindex]] = trim($content);
+		}
+		if (count($test) > 0) {
+			$tests[] = $test;
+		}
+		return $tests;
+	}
+	function test_rrules() {
+		$tests_path = $this->application->modules->path("icalendar", "test/test-data/rrule-tests.txt");
+		$tests = $this->load_rrule_tests($tests_path);
+		foreach ($tests as $test) {
+			$description = $rrule = $result = null;
+			extract($test, EXTR_IF_EXISTS);
+			$parser = new RRule\Parser();
+			$ruleset = $parser->parse($rrule);
+			$results = $this->parse_results($result);
+			$total = count($results);
+			$index = 0;
+			$forever = false;
+			foreach ($ruleset->iterator() as $ts) {
+				$expected = array_shift($results);
+				++$index;
+				if ($expected === true) {
+					$forever = true;
+					break;
+				}
+				$this->assert_equal($ts->format('{YYYY}-{MM}-{DD} {hh}:{mm}:{ss} {ZZZ}'), $expected, "#$index: $description\n$rrule");
+			}
+			if (!$forever) {
+				$this->assert_equal($index, $total, "Iterator stopped before results used up: " . implode(";", $results) . "\n$description\n$rrule");
+			}
+		}
+	}
+	function parse_results($result) {
+		$results = array();
+		$lines = explode("\n", $result);
+		while (count($lines) > 0) {
+			$line = array_shift($lines);
+			$line = trim($line);
+			if (begins($line, "==")) {
+				break;
+			}
+			if ($line === "...") {
+				$results[] = true;
+				break;
+			}
+			$extrapolated = array();
+			foreach (($preg = preg::matches('#\[([-,0-9]+)\]#', $line)) as $match) {
+				$series = $match[1];
+				$extrapolated = array();
+				if (preg_match('#([0-9]+)-([0-9]+)#', $series, $range)) {
+					$size = max(strlen($range[1]), strlen($range[2]));
+					$start = intval($range[1]);
+					$end = intval($range[2]);
+					for ($i = $start; $i <= $end; $i++) {
+						$repl = text::ralign($i, $size, 0);
+						$extrapolated[] = str_replace($match[0], $repl, $line);
+					}
+				} else {
+					foreach (explode(",", $series) as $repl) {
+						$extrapolated[] = str_replace($match[0], $repl, $line);
+					}
+				}
+			}
+			if (count($extrapolated) === 0) {
+				$results[] = $line;
+			} else {
+				$lines = array_merge($extrapolated, $lines);
+			}
+		}
+		sort($results);
+		return $results;
+	}
+}

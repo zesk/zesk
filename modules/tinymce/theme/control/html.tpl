@@ -10,4 +10,4 @@
 /* @var $response \zesk\Response_Text_HTML */
 /* @var $current_user \User */
 /* @var $response zesk\Response_Text_HTML */
-echo $this->theme('control/text');
+echo $this->theme('zesk/control/text');

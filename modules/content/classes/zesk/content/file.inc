@@ -45,7 +45,7 @@ abstract class Content_File extends Object {
 	 */
 	function store() {
 		if (!$this->MIMEType) {
-			$this->MIMEType = mime::from_filename($this->OriginalName);
+			$this->MIMEType = MIME::from_filename($this->OriginalName);
 		}
 		return parent::store();
 	}
@@ -122,7 +122,7 @@ abstract class Content_File extends Object {
 	 * @return string
 	 */
 	protected function add_extension($name) {
-		$extension = mime::to_extension($this->mime_type());
+		$extension = MIME::to_extension($this->mime_type());
 		if (!$extension) {
 			return $name;
 		}
@@ -226,7 +226,7 @@ abstract class Content_File extends Object {
 		if (!$name) {
 			$name = $this->Name;
 		}
-		$extension = "." . mime::to_extension($this->mime_type());
+		$extension = "." . MIME::to_extension($this->mime_type());
 		return str::unsuffix(basename($name), $extension) . $extension;
 	}
 }

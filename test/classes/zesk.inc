@@ -417,7 +417,7 @@ class test_zesk extends Test_Unit {
 			),
 			'overwrite' => false
 		));
-		debug::output($result);
+		Debug::output($result);
 		
 		$globals = array(
 			'TEST_VAR' => "smooth move",

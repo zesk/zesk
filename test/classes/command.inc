@@ -43,7 +43,7 @@ class Test_Command extends Test_Unit {
 	}
 }
 
-class Command_Base_Test extends Command_Base {
+class Command_Base_Test extends zesk\Command_Base {
 	public function initialize() {
 		parent::initialize();
 		$this->option_types += array(

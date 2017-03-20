@@ -1,4 +1,9 @@
 <?php
+
+use zesk\arr;
+use zesk\Timer;
+use zesk\Model;
+
 class test_kernel extends Test_Unit {
 	function test_zesk_global_access_time() {
 		/*
@@ -122,18 +127,19 @@ class test_kernel extends Test_Unit {
 		__($phrase, $locale);
 	}
 	function test_theme() {
-		echo "theme path is: \n" . implode("\n    ", zesk::theme_path()) . "\n";
+		$app = $this->application;
+		echo "theme path is: \n" . implode("\n    ", $app->theme_path()) . "\n";
 		$type = null;
-		$this->assert_equal(theme("microsecond", 42.512312), "42.5123");
-		$this->assert_equal(theme("percent", array(
+		$this->assert_equal($app->theme("microsecond", 42.512312), "42.5123");
+		$this->assert_equal($app->theme("percent", array(
 			42.512312,
 			1
 		)), "42.5%");
-		$this->assert_equal(theme("percent", array(
+		$this->assert_equal($app->theme("percent", array(
 			42.552312,
 			1
 		)), "42.6%");
-		echo app()->theme("percent", array(
+		echo $app->theme("percent", array(
 			42.552312,
 			1
 		)) . "\n";
@@ -142,7 +148,7 @@ class test_kernel extends Test_Unit {
 			0
 		)), "43%");
 		
-		echo app()->theme('control/button', array(
+		echo $app->theme('control/button', array(
 			'label' => 'OK',
 			'object' => new Model()
 		));

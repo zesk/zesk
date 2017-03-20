@@ -1,5 +1,5 @@
 /*
- * $Id: jquery.timer.js 4046 2016-09-17 16:13:00Z kent $
+ * $Id: jquery.timer.js 4217 2016-11-27 03:15:03Z kent $
  *
  * @copyright Copyright (C) 2013 Market Acumen, Inc. All rights reserved.
  *
@@ -19,6 +19,11 @@
 /*global window:false */
 (function(exports, $) {
 	"use strict";
+	var __ = window.__ || function(m) {
+		m = m.split(":=");
+		return m[1] || m[0];
+	};
+	var old_timer = $.fn.timer || null;
 	var timer_data = "timer_object";
 	var interval = null;
 	var timer = '[data-timer]';
@@ -62,8 +67,8 @@
 			$el.attr('data-timer', 1);
 		}
 		this.date = new Date();
-		if (typeof this.timer === "string" && (first = this.timer.substring(0, 1)) === "+" || first === '-') {
-			this.date.setTime(this.date.getTime() + this.timer * 1000);
+		if (this.timer < 0 || (typeof this.timer === "string" && (first = this.timer.substring(0, 1)) === "+" || first === '-')) {
+			this.date.setTime(this.date.getTime() + parseInt(this.timer,10) * 1000);
 		} else {
 			this.date.setTime(this.timer * 1000);
 		}
@@ -99,7 +104,7 @@
 	duration_string = function(delta, min_unit) {
 		var number, result = [], prefix = "", remain;
 		if (delta < 0) {
-			delta = -eelta;
+			delta = -delta;
 		}
 		$.each(units, function(unit) {
 			if (delta <= 0) {
@@ -142,7 +147,6 @@
 		if (isZero && this.done) {
 			this.done.call(this);
 			this.done = null;
-			delete this;
 		}
 		if (isPast && this.trigger) {
 			$(this.triggerTarget || this.$source).trigger(this.trigger);
@@ -177,7 +181,6 @@
 	Timer.prototype.destroy = function() {
 		this.$source.attr('data-timer', null);
 		this.$source.data(timer_data, null);
-		delete this;
 	};
 
 	$.fn.timer = function(options) {
@@ -187,7 +190,7 @@
 				$this.data(timer_data, (data = new Timer(this, options)));
 			}
 			if (typeof options === 'string') {
-				data[option].call($this);
+				data[options].call($this);
 			}
 		});
 	};

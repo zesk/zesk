@@ -53,5 +53,5 @@ echo HTML::tag_close('div');
 try {
 	$modal_url = $application->modules->object('modal_url');
 	$modal_url->ready($this->response);
-} catch (\Exception_NotFound $e) {
+} catch (Exception_NotFound $e) {
 }

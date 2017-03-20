@@ -1,4 +1,9 @@
 <?php
+/**
+ * 
+ */
+namespace zesk;
+
 $theme_options = array(
 	'first' => true
 );

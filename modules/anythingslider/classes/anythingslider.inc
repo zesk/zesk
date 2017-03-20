@@ -10,7 +10,7 @@ use zesk\JSON;
  * @author kent
  *
  */
-class AnythingSlider extends Module implements \zesk\Interface_Module_Head {
+class AnythingSlider extends zesk\Module implements \zesk\Interface_Module_Head {
 	
 	/**
 	 * 

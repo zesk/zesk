@@ -4,7 +4,7 @@
  */
 namespace zesk;
 
-echo $this->theme('control/text', array(
+echo $this->theme('zesk/control/text', array(
 	'name' => $this->name . '_search',
 	'data-target' => 'control-objects-' . $this->name,
 	'data-controller' => $this->controller_url

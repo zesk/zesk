@@ -4,21 +4,23 @@
  */
 use zesk\JSON;
 use zesk\HTML;
-
+use zesk\Net_HTTP;
+use zesk\Net_HTTP_Client;
+use zesk\Control;
 /**
- * 
- * @author kent
  *
+ * @author kent
+ *        
  */
 class Control_reCAPTCHA extends Control {
 	/**
-	 * 
+	 *
 	 * @var string
 	 */
 	static $url = "https://www.google.com/recaptcha/api/siteverify";
 	
 	/**
-	 * 
+	 *
 	 * @var array
 	 */
 	static $error_codes = array(
@@ -29,8 +31,9 @@ class Control_reCAPTCHA extends Control {
 	);
 	
 	/**
-	 * 
-	 * {@inheritDoc}
+	 *
+	 * {@inheritdoc}
+	 *
 	 * @see Widget::initialize()
 	 */
 	public function initialize() {
@@ -39,8 +42,9 @@ class Control_reCAPTCHA extends Control {
 	}
 	
 	/**
-	 * 
-	 * {@inheritDoc}
+	 *
+	 * {@inheritdoc}
+	 *
 	 * @see Widget::is_visible()
 	 */
 	function is_visible() {
@@ -48,13 +52,13 @@ class Control_reCAPTCHA extends Control {
 	}
 	
 	/**
-	 * 
-	 * {@inheritDoc}
+	 *
+	 * {@inheritdoc}
+	 *
 	 * @see Widget::validate()
 	 */
 	public function validate() {
-		global $zesk;
-		/* @var $zesk \zesk\Kernel */
+		$app = $this->application;
 		$this->theme_variables['reverify'] = false;
 		if (($verified = $this->is_verified()) === true) {
 			return true;
@@ -77,7 +81,7 @@ class Control_reCAPTCHA extends Control {
 			$debug .= "Result: $result\n";
 			$debug .= "Response: " . $http->response_code_type() . "\n";
 			$debug .= "Data: " . _dump(JSON::decode($result)) . "\n";
-			file_put_contents($this->application->application_root('recaptcha.log'), $debug);
+			file_put_contents($app->application_root('recaptcha.log'), $debug);
 		}
 		$code_type = $http->response_code_type();
 		if ($code_type === Net_HTTP::response_type_success) {
@@ -104,13 +108,21 @@ class Control_reCAPTCHA extends Control {
 			}
 		} else {
 			$this->error(__("Unable to verify that you are not a robot. Please try again later."));
-			Module_Critical::alert("reCAPTCHA response type $code_type from $ip");
+			$message = "reCAPTCHA response type {code_type} from {ip}";
+			$message_args = array(
+				"code_type" => $code_type,
+				"ip" => $ip
+			);
+			$app->logger->critical($message, $message_args);
+			try {
+				$app->modules->object("critical")->alert(map($message, $message_args));
+			} catch (Exception_NotFound $e) {
+			}
 		}
 		return false;
 	}
 	
 	/**
-	 * 
 	 */
 	private function verified() {
 		$now = time();
@@ -123,7 +135,7 @@ class Control_reCAPTCHA extends Control {
 		$this->theme_variables['verified'] = true;
 	}
 	/**
-	 * 
+	 *
 	 * @return boolean|NULL
 	 */
 	private function is_verified() {
@@ -140,7 +152,7 @@ class Control_reCAPTCHA extends Control {
 		$time = doubleval($time);
 		$delta = $now - $time;
 		if ($delta < 0) {
-			log::error("Time submitted was before now? {now} {time} {key} Bad server time?", compact("now", "time", "key"));
+			$this->application->logger->error("Time submitted was before now? {now} {time} {key} Bad server time?", compact("now", "time", "key"));
 			return null;
 		}
 		if ($delta < $this->option_integer("verification_minimum_age", 3)) {

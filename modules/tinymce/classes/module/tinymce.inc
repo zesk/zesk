@@ -20,7 +20,7 @@ use zesk\Interface_Module_Routes;
  * @author kent
  *
  */
-class Module_TinyMCE extends Module_JSLib implements Interface_Module_Routes {
+class Module_TinyMCE extends zesk\Module_JSLib implements Interface_Module_Routes {
 	protected $javascript_paths = array(
 		'/share/tinymce/tinymce.min.js' => array()
 	);
@@ -82,7 +82,7 @@ class Module_TinyMCE extends Module_JSLib implements Interface_Module_Routes {
 	/**
 	 * (non-PHPdoc)
 	 *
-	 * @see Module_JSLib::hook_head()
+	 * @see zesk\Module_JSLib::hook_head()
 	 */
 	public function hook_head(Request $request, Response_Text_HTML $response, Template $template) {
 		$this->update_options();

@@ -1,0 +1,6 @@
+{
+	"name": "Source code repository tools",
+	"autoload_options": {
+		"class_prefix": "zesk\\",
+	}
+}

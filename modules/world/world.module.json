@@ -1,0 +1,9 @@
+{
+	"name": "World - Internationalization and related (Country, Locale, Currency, Time Zone)",
+	"requires": ["file_cache"],
+	"autoload_options": {
+		"lower": false,
+		"class_prefix": "zesk\\"
+	},
+	"module_class": "zesk\\Module_World"
+}

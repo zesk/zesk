@@ -1,4 +1,10 @@
 <?php
+use zesk\Timer;
+/**
+ * 
+ * @author kent
+ *
+ */
 class Test_Timer extends Test_Unit {
 
 	function test_now() {

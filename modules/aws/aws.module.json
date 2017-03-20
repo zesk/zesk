@@ -3,5 +3,6 @@
 	"composer": {
 		"require": "aws/aws-sdk-php:^3.17"
 	},
-	"url_license": "http://aws.amazon.com/apache2.0/"
+	"url_license": "http://aws.amazon.com/apache2.0/",
+	"zesk_command_path_class_prefix": "Command_"
 }

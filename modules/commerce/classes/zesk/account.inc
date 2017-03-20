@@ -22,7 +22,7 @@ class Account extends Object {
 		if ($singleton instanceof Account) {
 			return $singleton;
 		}
-		$user = User::instance();
+		$user = app()->user();
 		$singleton = zesk()->hooks->call_arguments('Account::instance', array(
 			$user
 		), $user->Account);

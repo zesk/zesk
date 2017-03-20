@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Implements logging to a database table
  *
@@ -7,14 +8,14 @@
  * @package zesk
  * @subpackage dblog
  */
-use zesk\Database_Exception_Table_NotFound;
+namespace zesk;
 
 /**
- * 
- * @author kent
  *
+ * @author kent
+ *        
  */
-class Module_DBLog extends Module_Log {
+class Module_DBLog extends Module implements Logger\Handler {
 	
 	/**
 	 * Cached log level
@@ -31,74 +32,59 @@ class Module_DBLog extends Module_Log {
 	protected $classes = array(
 		"DBLog"
 	);
+	public function initialize() {
+		parent::initialize();
+		$logger = zesk()->logger;
+		$logger->register_handler(__CLASS__, $this, $this->option_list("levels", $logger->levels_select(true)));
+	}
 	
 	/**
 	 * Implements Module::log_send()
 	 *
-	 * @param array $args
+	 * @param array $context        	
 	 */
-	public function hook_log_send(array $args) {
-		$level = avalue($args, '_level', log::DEBUG);
-		if (self::$log_level === null) {
-			self::$log_level = $this->option('log_level', log::NOTICE);
-		}
-		if ($level >= self::$log_level) {
-			return;
-		}
-		if (!array_key_exists("request_url", $args)) {
-			$args['request_url'] = Request::instance()->url();
+	public function log($message, array $context) {
+		$application = $this->application;
+		
+		if (!array_key_exists("request_url", $context)) {
+			$context['request_url'] = $application->request()->url();
 		}
 		try {
-			$user = User::instance();
+			$user = $this->application->user();
 		} catch (Exception $e) {
-			log::warning("Module_DBLog::log_send threw exception - disabling");
-			self::$log_level = -9999;
 			return;
 		}
 		
 		$defaults = array(
 			'message' => "",
 			"user" => $user,
-			"session" => Session::instance(false),
+			"session" => app()->session(false),
 			"ip" => IPv4::remote(),
 			"pid" => zesk()->process_id(),
-			"level" => log::DEBUG,
-			"level_string" => "DEBUG",
+			"level_string" => avalue($context, 'severity', 'info'),
 			"module" => "unknown"
 		);
 		$fields = array();
 		foreach ($defaults as $key => $default) {
-			$fields[$key] = avalue($args, "_" . $key, $default);
-			unset($args['_' . $key]);
+			$fields[$key] = avalue($context, "_" . $key, $default);
+			unset($context['_' . $key]);
 		}
-		$fields['when'] = map('{_date} {_time}', $args);
-		$microsec = doubleval($args['_microtime']);
+		$fields['when'] = map('{_date} {_time}', $context);
+		$microsec = doubleval($context['_microtime']);
 		$fields['microsec'] = intval(($microsec - intval($microsec)) * 1000000);
 		foreach (to_list("_formatted;_date;_time;_microtime") as $k) {
-			unset($args[$k]);
+			unset($context[$k]);
 		}
-		foreach ($args as $k => $v) {
+		foreach ($context as $k => $v) {
 			if (is_object($v)) {
-				unset($args[$k]);
+				unset($context[$k]);
 			}
 		}
-		$fields['arguments'] = $args;
+		$fields['arguments'] = $context;
 		try {
 			$this->application->object_factory("DBLog")->set($fields)->store();
 		} catch (Database_Exception_Table_NotFound $e) {
 			// Oopsie. Update the schema.
 		}
-	}
-	
-	/**
-	 * Is the DBLog enabled?
-	 *
-	 * @return boolean
-	 */
-	public static function enabled() {
-		global $zesk;
-		zesk()->deprecated();
-		/* @var $zesk zesk\Kernel */
-		return boolval($zesk->configuration->path_get(__CLASS__ . '::enabled'));
 	}
 }

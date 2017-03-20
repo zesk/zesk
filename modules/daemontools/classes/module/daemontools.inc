@@ -1,2 +1,2 @@
 <?php
-class Module_DaemonTools extends Module {}
+class Module_DaemonTools extends zesk\Module {}

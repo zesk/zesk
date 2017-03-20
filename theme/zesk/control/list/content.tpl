@@ -1,11 +1,8 @@
 <?php
-if (false) {
-	/* @var $widget Widget */
-	$widget = $this->widget;
-	/* @var $widget Control_Row */
-	$row_widget = $this->row_widget;
-}
+namespace zesk;
 
+/* @var $widget Widget */
+/* @var $row_widget Control_Row */
 /* @var $this_row Control_Row */
 
 $odd = 0;

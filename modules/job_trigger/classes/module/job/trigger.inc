@@ -3,9 +3,12 @@
  * 
  */
 use zesk\Application;
+use zesk\Timer;
 use zesk\URL;
+use zesk\File;
 use zesk\Timestamp;
 use zesk\Directory;
+use zesk\Interface_Process;
 
 /**
  * Module to allow jobs to be activated via mechanism which isn't polling the database.
@@ -14,7 +17,7 @@ use zesk\Directory;
  * 
  * @author kent
  */
-class Module_Job_Trigger extends Module implements zesk\Interface_Module_Routes {
+class Module_Job_Trigger extends zesk\Module implements zesk\Interface_Module_Routes {
 	/**
 	 * Add hooks for initialize
 	 */
@@ -80,7 +83,7 @@ class Module_Job_Trigger extends Module implements zesk\Interface_Module_Routes 
 	 */
 	private function add_security($url) {
 		if (!$this->has_option("key")) {
-			log::warning("Can not add security to {url} - need to configure {class}::key global", array(
+			$this->application->logger->warning("Can not add security to {url} - need to configure {class}::key global", array(
 				"url" => $url,
 				"class" => __CLASS__
 			));
@@ -100,7 +103,7 @@ class Module_Job_Trigger extends Module implements zesk\Interface_Module_Routes 
 	 */
 	public function check_security($hash, $timestamp) {
 		if (!$this->has_option("key")) {
-			log::error("Can not check security! need to configure {class}::key global", array(
+			$this->application->logger->error("Can not check security! need to configure {class}::key global", array(
 				"class" => __CLASS__
 			));
 			return array(
@@ -163,7 +166,7 @@ class Module_Job_Trigger extends Module implements zesk\Interface_Module_Routes 
 	public function trigger_send() {
 		global $zesk;
 		/* @var $zesk \zesk\Kernel */
-		$server = $this->application->singleton("Server");
+		$server = $this->application->object_singleton("zesk\\Server");
 		$servers = $server->query_select()->where("alive|>=", Timestamp::now()->add_unit("minute", -1))->object_iterator();
 		foreach ($servers as $other_server) {
 			if ($other_server->id() === $server->id()) {
@@ -182,10 +185,10 @@ class Module_Job_Trigger extends Module implements zesk\Interface_Module_Routes 
 	/**
 	 * Wait for the job by seeing if our marker file exists
 	 */
-	public function wait_for_job(Module_Job $module, Process_Interruptable $process) {
+	public function wait_for_job(Module_Job $module, Interface_Process $process) {
 		$timer = new Timer();
 		$marker = $this->marker_file();
-		log::debug("{method} waiting for marker to appear: {marker}", array(
+		$this->application->logger->debug("{method} waiting for marker to appear: {marker}", array(
 			"method" => __METHOD__,
 			"marker" => $marker
 		));
@@ -198,11 +201,13 @@ class Module_Job_Trigger extends Module implements zesk\Interface_Module_Routes 
 				}
 			} while (!file_exists($marker));
 		}
-		log::debug("{method} deleting marker {marker}", array(
+		$this->application->logger->debug("{method} deleting marker {marker}", array(
 			"method" => __METHOD__,
 			"marker" => $marker
 		));
-		file::unlink($marker);
+		if (file_exists($marker)) {
+			File::unlink($marker);
+		}
 	}
 	
 	/**

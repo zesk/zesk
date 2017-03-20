@@ -1,0 +1,13 @@
+{
+	"name": "Markdown",
+	"version_data": { 
+		"file": "${MODULE_PATH}/classes/markdown.inc", 
+		"pattern": "/\\$Revision: ([0-9]+) \\$/" 
+	},
+	"share_path": "${MODULE_PATH}/share",
+	"autoload_options": {
+		"lower": false,
+		"class_prefix": "zesk\\"
+	},
+	"module_class": "zesk\\Module_Markdown"
+}

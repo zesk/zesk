@@ -7,7 +7,7 @@
  * @copyright Copyright &copy; 2008, Market Acumen, Inc.
  */
 use zesk\Cache;
-class Test_Session implements Session_Interface {
+class Test_Session implements Interface_Session {
 	protected $ID;
 	/**
 	 * Session data

@@ -1,4 +1,6 @@
 <?php
+namespace zesk;
+
 $english = $this->label;
 $html = $this->html;
 if (!$html && $this->show_size > 0) {

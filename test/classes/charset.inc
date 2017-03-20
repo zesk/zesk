@@ -7,7 +7,7 @@
  * @copyright Copyright &copy; 2012, Market Acumen, Inc.
  */
 
-use zesk\Text;
+use zesk\charset;
 
 class test_charset extends Test_Unit {
 
@@ -67,7 +67,7 @@ class test_charset extends Test_Unit {
 			array(
 				chr(0xE7),
 				"ISO-8859-10",
-				utf16::to_utf8(chr(0x01) . chr(0x2F))
+				UTF16::to_utf8(chr(0x01) . chr(0x2F))
 			)
 		);
 		foreach ($tests as $test) {

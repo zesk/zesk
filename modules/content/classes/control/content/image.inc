@@ -104,7 +104,7 @@ class Control_Content_Image extends Control {
 			));
 			$this->value($image->id());
 		} catch (Exception_Upload $e) {
-			log::debug("Upload exception {1}, Upload dir: {0}", array(
+			$this->application->logger->debug("Upload exception {1}, Upload dir: {0}", array(
 				ini_get('upload_tmp_dir'),
 				$e
 			));

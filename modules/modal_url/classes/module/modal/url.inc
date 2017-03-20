@@ -1,5 +1,5 @@
 <?php
-class Module_Modal_URL extends Module_JSLib {
+class Module_Modal_URL extends zesk\Module_JSLib {
 
 	/**
 	 *
@@ -12,7 +12,7 @@ class Module_Modal_URL extends Module_JSLib {
 	/**
 	 * (non-PHPdoc)
 	 *
-	 * @see Module_JSLib::hook_head()
+	 * @see zesk\Module_JSLib::hook_head()
 	 */
 	public function hook_head(zesk\Request $request, zesk\Response_Text_HTML $response, zesk\Template $template) {
 		$response->jquery();

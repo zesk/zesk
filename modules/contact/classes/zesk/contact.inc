@@ -50,7 +50,7 @@ class Zesk_Contact extends Object {
 				$this->account = Account::instance();
 			}
 			if ($this->member_is_empty('user')) {
-				$this->user = User::instance();
+				$this->user = $this->application->user();
 			}
 			$this->accounts = $this->account;
 		}

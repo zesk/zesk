@@ -123,7 +123,7 @@ class Test_Database_Schema_MySQL extends Test_Unit {
 		INDEX phrase ( Phrase(64) )
 		);";
 		
-		log::level(log::ERROR);
+		$this->application->logger->level($this->application->logger->ERROR);
 		Database_Schema::debug(true);
 		
 		$db = $this->application->database_factory($db_url);
@@ -173,7 +173,7 @@ class Test_Database_Schema_MySQL extends Test_Unit {
 		KEY `time` (`ActionTime`)
 		) AUTO_INCREMENT=1426";
 		
-		log::level(log::ERROR);
+		$this->application->logger->level($this->application->logger->ERROR);
 		Database_Schema::debug(true);
 		
 		$db = $this->application->database_factory($db_url);
@@ -213,7 +213,7 @@ class Test_Database_Schema_MySQL extends Test_Unit {
 		);
 		";
 		
-		log::level(log::ERROR);
+		$this->application->logger->level($this->application->logger->ERROR);
 		Database_Schema::debug(true);
 		
 		$db = $this->application->database_factory($db_url);
@@ -352,7 +352,7 @@ class Test_Database_Schema_MySQL extends Test_Unit {
 		$this->assert($db->table_exists($table));
 		
 		Database_Schema::debug(true);
-		log::file("php://stdout");
+		$this->application->logger->file("php://stdout");
 		
 		$result = Database_Schema::updateObjectPath(__FILE__, zesk::get('DB_URL'), 'DBSchemaTest8');
 		

@@ -36,7 +36,7 @@ class Class_IPBan_Parser extends zesk\Class_Object {
 	 * @var array
 	 */
 	public $has_one = array(
-		'server' => 'Server',
+		'server' => 'zesk\\Server',
 	);
 
 	/**

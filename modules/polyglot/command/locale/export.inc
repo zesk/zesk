@@ -1,6 +1,6 @@
 <?php
 
-class Command_Locale_Export extends Command_Base {
+class Command_Locale_Export extends zesk\Command_Base {
 
 	public $option_types = array(
 		'source' => 'string',

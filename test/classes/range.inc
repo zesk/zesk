@@ -1,6 +1,7 @@
 <?php
-class test_range extends Test_Unit {
+namespace zesk;
 
+class test_range extends \Test_Unit {
 	function test_overlap() {
 		$a0 = null;
 		$a1 = null;
@@ -10,10 +11,10 @@ class test_range extends Test_Unit {
 		$a1i = false;
 		$b0i = false;
 		$b1i = false;
-		$this->assert(range::overlap(1, 2, 3, 4, 0, 1, 2, 3) === false);
-		$this->assert(range::overlap(3, 4, 1, 2, 0, 1, 2, 3) === false);
-
-		$a = range::overlap(1, 3, 2, 4, 0, 1, 2, 3);
+		$this->assert(Range::overlap(1, 2, 3, 4, 0, 1, 2, 3) === false);
+		$this->assert(Range::overlap(3, 4, 1, 2, 0, 1, 2, 3) === false);
+		
+		$a = Range::overlap(1, 3, 2, 4, 0, 1, 2, 3);
 		$b = array(
 			1,
 			4,
@@ -23,8 +24,8 @@ class test_range extends Test_Unit {
 		dump($a);
 		dump($b);
 		$this->assert_arrays_equal($a, $b);
-
-		$this->assert_arrays_equal(range::overlap(0, 10, 3, 4, 5, 6, 7, 8), array(
+		
+		$this->assert_arrays_equal(Range::overlap(0, 10, 3, 4, 5, 6, 7, 8), array(
 			0,
 			10,
 			5,

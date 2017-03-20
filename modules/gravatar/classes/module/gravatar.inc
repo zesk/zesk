@@ -1,5 +1,5 @@
 <?php
 
-class Module_Gravatar extends Module {
+class Module_Gravatar extends zesk\Module {
 	
 }

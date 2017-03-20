@@ -6,6 +6,6 @@
  * @author kent
  *
  */
-class Module_ObjectX extends Module {
+class Module_ObjectX extends zesk\Module {
 	
 }

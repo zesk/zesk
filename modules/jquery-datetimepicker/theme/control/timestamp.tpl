@@ -38,7 +38,7 @@ $format = $this->allow_times ? 'Y-m-d H:i' : 'Y-m-d';
 $this->value = date($format, strtotime($value));
 $onchange = $this->onchange;
 
-echo $this->theme('control/text', array(
+echo $this->theme('zesk/control/text', array(
 	'onchange' => null
 ));
 

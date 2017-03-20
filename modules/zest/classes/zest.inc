@@ -46,15 +46,15 @@ class Zest extends zesk\Application {
 		'Logger_Footer'
 	);
 	protected $register_classes = array(
-		'Server',
-		'Lock'
+		'zesk\\Server',
+		'zesk\\Lock'
 	);
 	public function hook_request() {
 		$request = parent::hook_request();
 		// Danger TODO
 		$modules = $request->geta("module", array(), ";");
 		if (count($modules)) {
-			$this->module->load($modules);
+			$this->modules->load($modules);
 		}
 		return $request;
 	}

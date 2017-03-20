@@ -13,8 +13,8 @@ class Class_Job extends Class_Object {
 		"code"
 	);
 	public $has_one = array(
-		"user" => "User",
-		"server" => "Server"
+		"user" => "zesk\\User",
+		"server" => "zesk\\Server"
 	);
 	public $column_types = array(
 		'id' => self::type_id,

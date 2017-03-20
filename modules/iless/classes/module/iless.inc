@@ -11,7 +11,7 @@ use zesk\CSS;
  * @author kent
  *
  */
-class Module_iLess extends Module {
+class Module_iLess extends zesk\Module {
 	
 	/**
 	 * 

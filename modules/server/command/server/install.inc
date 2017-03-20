@@ -1,12 +1,20 @@
 <?php
+
 /**
  * Run server software installation and configuration, ensuring this server is up-to-date.
  *
  * @author kent
  */
+namespace zesk;
+
 class Command_Server_Install extends Command {
+	protected $load_modules = array(
+		'server'
+	);
+	
 	/**
 	 * Help string
+	 * 
 	 * @var string
 	 */
 	protected $help = "Run server software installation and configuration, ensuring this server is up-to-date.";
@@ -41,21 +49,18 @@ class Command_Server_Install extends Command {
 		'simulate-path' => '/var/zesk/server/'
 	);
 	protected function run() {
-		Module::load('server');
-		log::file(STDOUT);
-		log::level(99);
 		$this->configure('server-install');
 		
-		log::debug("Running {class}", array(
+		$this->verbose_log("Running {class}", array(
 			"class" => __CLASS__
 		));
 		try {
 			/* @var $platform Server_Platform */
-			$platform = Server_Platform::factory($this);
+			$platform = \Server_Platform::factory($this);
 		} catch (Exception $e) {
 			$this->usage($e->getMessage());
 		}
-		log::debug("Configuring {class}", array(
+		$this->verbose_log("Configuring {class}", array(
 			"class" => get_class($platform)
 		));
 		

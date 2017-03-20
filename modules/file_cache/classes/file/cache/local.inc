@@ -111,7 +111,7 @@ class File_Cache_Local implements Interface_File_Cache {
 			if ($delta < $wait_minimum) {
 				$wait_for = $wait_minimum - $delta;
 				$microseconds = intval($wait_for * 1000000);
-				log::notice("Sleeping for $wait_for seconds ...");
+				zesk()->logger->notice("Sleeping for $wait_for seconds ...");
 				usleep($microseconds);
 			}
 		}
@@ -124,7 +124,7 @@ class File_Cache_Local implements Interface_File_Cache {
 		$client->follow_location(true);
 		$client->user_agent(avalue($options, "user_agent", 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10.7; rv:12.0) Gecko/20100101 Firefox/12.0'));
 		$client->destination($temp_file_name);
-		log::notice("Downloading $url");
+		zesk()->logger->notice("Downloading $url");
 		$client->go();
 		$this->last_request = microtime(true);
 		return array(
@@ -191,7 +191,7 @@ class File_Cache_Local implements Interface_File_Cache {
 			}
 		}
 		if (!$need_check && $now > $checked + $ttl) {
-			log::debug("File_Cache_Local::_url({url}) TTL expired ({now} > {expire})", compact("now", "expire", "url"));
+			zesk()->logger->debug("File_Cache_Local::_url({url}) TTL expired ({now} > {expire})", compact("now", "expire", "url"));
 			$need_check = true;
 		}
 		if ($need_check) {

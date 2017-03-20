@@ -7,6 +7,9 @@
 		"file": "vendor/components/jquery/package.json", 
 		"key": "version"
 	},
+	"node_modules": {
+		"jquery": "vendor/components/jquery"
+	},
 	"share_path": "vendor/components/jquery",
 	"url_license": "https://jquery.org/license/"
 }

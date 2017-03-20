@@ -60,7 +60,7 @@ class Controller_Image_Picker extends Controller_Object {
 			return;
 		}
 		if ($fix_result !== true) {
-			log::warning("Unable to fix orientation of image {id}: {name}", array(
+			$this->application->logger->warning("Unable to fix orientation of image {id}: {name}", array(
 				'id' => $image->id(),
 				'name' => $file['name']
 			));

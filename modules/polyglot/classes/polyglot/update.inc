@@ -32,7 +32,7 @@ class PolyGlot_Update extends Object {
 		$server = Server::singleton();
 		$path = $zesk->configuration->path_get("Module_PolyGlot::update_path", $application->application_root("etc/language"));
 		if (!is_dir($path)) {
-			log::warning("Module_PolyGlot::update_path is not a directory ({path}) on {server}", array(
+			$this->application->logger->warning("Module_PolyGlot::update_path is not a directory ({path}) on {server}", array(
 				"path" => $path,
 				"server" => $server->name
 			));
@@ -51,7 +51,7 @@ class PolyGlot_Update extends Object {
 			$update_locales = $application->query_select(__CLASS__)->what("locale", "locale")->to_array(null, "locale");
 		}
 		if (count($update_locales) === 0) {
-			log::debug("No locale updates needed on {server}", array(
+			$this->application->logger->debug("No locale updates needed on {server}", array(
 				"server" => $server->name
 			));
 			return;
@@ -77,7 +77,7 @@ class PolyGlot_Update extends Object {
 		}
 		$update_locales = array_merge($update_locales, $additional_locales);
 		$update_locales = array_unique($update_locales);
-		log::warning("Updating locales {locales} on {server}", array(
+		$this->application->logger->warning("Updating locales {locales} on {server}", array(
 			"locales" => $update_locales,
 			"server" => $server->name
 		));
@@ -87,7 +87,7 @@ class PolyGlot_Update extends Object {
 			try {
 				self::update_locale($path, $update_locale);
 			} catch (Exception $e) {
-				log::error("Updating locale {locale} on {server} FAILED due to {message}", array(
+				$this->application->logger->error("Updating locale {locale} on {server} FAILED due to {message}", array(
 					"locales" => $update_locales,
 					"server" => $server->name,
 					"message" => $e->getMessage()

@@ -1,5 +1,5 @@
 <?php
-class Command_Translate extends Command_Base {
+class Command_Translate extends zesk\Command_Base {
 	public $option_types = array(
 		'source' => 'string',
 		'target' => 'string',

@@ -17,7 +17,7 @@ class Database_MySQL_Test extends Test_Unit {
 	 *
 	 * @return Database_MySQL
 	 */
-	function db() {
+	function database() {
 		$url = zesk::get('DB_URL');
 		$this->assert(begins($url, 'mysql:'));
 		/* @var $db Database_MySQL */
@@ -28,7 +28,7 @@ class Database_MySQL_Test extends Test_Unit {
 		return $db;
 	}
 	function test_mysql_1() {
-		$db = $this->db();
+		$db = $this->database();
 		
 		$sql = <<<EOF
 CREATE TABLE `tracking_1999` (
@@ -76,7 +76,7 @@ EOF;
 		echo "Test created because preg_match dies on web2 with above input... due to pcre backtracking stack overflow ... or something like that\n";
 	}
 	function test_mysql_funcs_1() {
-		$db = $this->db();
+		$db = $this->database();
 		
 		$test_table = $this->test_table('test_table');
 		

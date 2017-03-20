@@ -1,5 +1,5 @@
 <?php
-class Module_Contact extends Module {
+class Module_Contact extends zesk\Module {
 	protected $classes = array(
 		'Contact',
 		'Contact_Label',

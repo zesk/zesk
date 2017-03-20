@@ -13,7 +13,6 @@ use zesk\Database_Table;
 use zesk\Database_Column;
 use zesk\Database_Index;
 use zesk\Exception_Parse;
-use zesk\log;
 use zesk\Text;
 
 /**
@@ -364,7 +363,7 @@ class Database_Parser extends \zesk\Database_Parser {
 			if ($col) {
 				$col->previous_name($previous_name);
 			} else {
-				log::notice($table->name() . " contains rename tip for non-existent new column: $previous_name => $column");
+				zesk()->logger->notice($table->name() . " contains rename tip for non-existent new column: $previous_name => $column");
 			}
 		}
 		
@@ -374,7 +373,7 @@ class Database_Parser extends \zesk\Database_Parser {
 			if ($col) {
 				$col->set_option("add_sql", $add_sql);
 			} else {
-				log::notice($table->name() . " contains add tip for non-existent new column: $column => $add_sql");
+				zesk()->logger->notice($table->name() . " contains add tip for non-existent new column: $column => $add_sql");
 			}
 		}
 		$remove_tips = avalue($tips, 'add', array());

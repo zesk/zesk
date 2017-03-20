@@ -1,5 +1,5 @@
 <?php
-class Module_Tag extends Module {
+class Module_Tag extends zesk\Module {
 	protected $classes = array(
 		'zesk\\Tag',
 		'zesk\\Tag_Label'

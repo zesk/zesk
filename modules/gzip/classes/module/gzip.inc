@@ -5,7 +5,7 @@
  * 
  * @author kent
  */
-class Module_gzip extends Module {
+class Module_gzip extends zesk\Module {
 	/**
 	 * Whether output buffering is enabled
 	 * @var boolean
@@ -109,7 +109,7 @@ class Module_gzip extends Module {
 			return self::$ok;
 		}
 		$accept_encoding = $request->header("Accept-Encoding");
-		log::debug("Accept-Encoding: {value}", array(
+		$this->application->logger->debug("Accept-Encoding: {value}", array(
 			"value" => $accept_encoding
 		));
 		$accept_encoding = explode(",", str_replace(" ", "", $accept_encoding));
@@ -123,6 +123,6 @@ class Module_gzip extends Module {
 	 * @return unknown string
 	 */
 	private static function handler($content) {
-		return gzencode($content, _G('Module_gzip::compress_level', 9));
+		return gzencode($content, zesk()->configuration->path_get('Module_gzip::compress_level', 9));
 	}
 }

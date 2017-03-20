@@ -1,14 +1,20 @@
 <?php
 
+namespace zesk;
+
 class Module_reCAPTCHA extends Module {
 
 	function initialize() {
 		$result = true;
+		$configuration = $this->application->configuration;
 		foreach (to_list("site_key;secret_key") as $key) {
 			if ($this->has_option($key)) {
-				zesk::set("Control_reCAPTCHA::$key", $this->option($key), false);
+				$target = array("Control_reCAPTCHA", $key);
+				if (!$configuration->path_get($target)) {
+					$configuration->pave_set($target, $this->option($key));
+				}
 			} else {
-				log::error("RECAPTCHA is misconfigured (no {key})", compact("key"));
+				$this->application->logger->error("RECAPTCHA is misconfigured (no {key})", compact("key"));
 				Module_Critical::alert("RECAPTCHA is misconfigured (no $key)");
 				$result = false;
 			}

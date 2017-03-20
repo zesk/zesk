@@ -12,7 +12,7 @@ class test_number extends Test_Unit {
 		);
 
 		foreach ($tests as $n => $result) {
-			$this->assert_equal(number::format_bytes($n), $result, "number::format_bytes($n)");
+			$this->assert_equal(Number::format_bytes($n), $result, "Number::format_bytes($n)");
 		}
 	}
 }

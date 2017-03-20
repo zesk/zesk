@@ -1,5 +1,5 @@
 <?php
-class Module_Object_Cache extends Module {
+class Module_Object_Cache extends zesk\Module {
 	
 	/*
 	 * @var Object_Cache

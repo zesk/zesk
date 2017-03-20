@@ -177,7 +177,7 @@ class Parse_Log extends Hookable {
 			$name = strtolower($match[1][0]);
 			$codename = strtr($name, "-", "_");
 			if (!array_key_exists($name, $patterns)) {
-				log::warning("No pattern {name} exists in patterns for {class}: {available_patterns}", array(
+				zesk()->logger->warning("No pattern {name} exists in patterns for {class}: {available_patterns}", array(
 					'name' => $name,
 					'class' => get_class($this),
 					'available_patterns' => array_keys($patterns)
@@ -192,7 +192,7 @@ class Parse_Log extends Hookable {
 						'pattern' => $pattern_data
 					);
 				} else if (!is_array($pattern_data)) {
-					log::error("Pattern {name} does not have correct internal syntax (array or string) {class}: {type}", array(
+					zesk()->logger->error("Pattern {name} does not have correct internal syntax (array or string) {class}: {type}", array(
 						'name' => $name,
 						'class' => get_class($this),
 						'type' => gettype($pattern_data)

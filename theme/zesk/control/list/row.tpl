@@ -6,6 +6,6 @@ if ($this->row_widget instanceof Widget) {
 } else {
 	$children = $this->children;
 }
-echo $this->theme('control/widgets', array(
+echo $this->theme('zesk/control/widgets', array(
 	"children" => $children
 ));

@@ -228,7 +228,7 @@ class test_url extends Test_Unit {
 		);
 		foreach ($tests as $u => $r) {
 			echo "Testing url: $u\n";
-			debug::output(URL::parse($u));
+			Debug::output(URL::parse($u));
 			$this->assert("URL::is('$u') === " . str::from_bool($r), $u);
 		}
 	}

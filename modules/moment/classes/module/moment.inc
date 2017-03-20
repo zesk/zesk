@@ -9,7 +9,7 @@ use zesk\JavaScript;
  * @author kent
  *
  */
-class Module_Moment extends Module_JSLib implements zesk\Interface_Module_Head {
+class Module_Moment extends zesk\Module_JSLib implements zesk\Interface_Module_Head {
 	/**
 	 * 
 	 * @var array
@@ -36,7 +36,7 @@ class Module_Moment extends Module_JSLib implements zesk\Interface_Module_Head {
 	/**
 	 * 
 	 * {@inheritDoc}
-	 * @see Module_JSLib::hook_head()
+	 * @see zesk\Module_JSLib::hook_head()
 	 */
 	public function hook_head(zesk\Request $request, zesk\Response_Text_HTML $response, zesk\Template $template) {
 		$locale = zesk\Locale::current();

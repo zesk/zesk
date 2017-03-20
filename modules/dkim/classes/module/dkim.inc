@@ -1,5 +1,5 @@
 <?php
-class Module_DKIM extends Module {
+class Module_DKIM extends zesk\Module {
 	public function initialize() {
 	}
 	public function hook_configured() {

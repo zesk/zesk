@@ -1,5 +1,5 @@
 <?php
-class Module_Mail extends Module {
+class Module_Mail extends zesk\Module {
 	protected $classes = array(
 		'Mail_Message',
 		'Mail_Content',

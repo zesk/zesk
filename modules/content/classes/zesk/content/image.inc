@@ -97,7 +97,7 @@ class Content_Image extends Object {
 	function store() {
 		$this->_update_sizes();
 		if ($this->member_is_empty("mime_type")) {
-			$this->mime_type = mime::from_filename($this->path);
+			$this->mime_type = MIME::from_filename($this->path);
 		}
 		return parent::store();
 	}

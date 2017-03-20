@@ -2,7 +2,7 @@
 /**
  * 
  */
-use zesk\Text;
+namespace zesk;
 
 /**
  * Run zesk cron hooks

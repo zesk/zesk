@@ -4,11 +4,15 @@
  */
 namespace zesk;
 
-$object = $this->object;
-$widget = $this->widget;
-
-$col = $widget->column();
-$name = $object->apply_map($widget->name());
+/* @var $object \Model */
+/* @var $widget \Control_Select */
+/* @var $column string */
+/* @var $name string */
+/* @var $value string|array */
+/* @var $default string */
+/* @var $multiple boolean */
+/* @var $multiple boolean */
+$col = $column;
 
 $options = $this->control_options;
 if (!is_array($options) || count($options) === 0) {
@@ -30,10 +34,9 @@ if ($widget->option("refresh", false)) {
 		echo HTML::hidden($name . "_sv", "");
 	}
 }
-$sValue = $widget->value();
 $array_index = $widget->option("array_index");
-if ($array_index !== false && is_array($sValue)) {
-	$sValue = avalue($sValue, $array_index);
+if ($array_index !== false && is_array($value)) {
+	$value = avalue($value, $array_index);
 }
 $optgroup = to_bool($this->optgroup);
 unset($attributes['name']);
@@ -55,8 +58,9 @@ $escape_values = $this->escape_values;
 $escape_option_group_values = $widget->option_bool("escape_option_group_values", true);
 $attributes = $object->apply_map($attributes);
 $attributes['class'] = CSS::add_class(avalue($attributes, 'class'), 'form-control');
-$attributes['name'] = $name;
+$attributes['name'] = $name . ($multiple ? "[]" : "");
 $attributes['id'] = $this->id;
+$attributes['multiple'] = $multiple;
 
 echo HTML::tag_open('select', $attributes);
 if (!empty($no_name)) {
@@ -65,6 +69,9 @@ if (!empty($no_name)) {
 	), $escape_values ? htmlspecialchars($no_name) : $no_name);
 }
 $max_option_length = $widget->option_integer('max_option_length', 100);
+$values = $multiple ? arr::flatten(to_list($value)) : array(
+	$value
+);
 foreach ($options as $k => $v) {
 	if (is_array($v)) {
 		if ($optgroup) {
@@ -85,7 +92,7 @@ foreach ($options as $k => $v) {
 				}
 				echo HTML::tag('option', array(
 					'value' => $og_k,
-					'selected' => (strval($sValue) === strval($og_k))
+					'selected' => in_array(strval($og_k), $values)
 				) + $attributes, ($escape_values ? htmlspecialchars($content) : $content));
 			}
 			echo HTML::tag_close("optgroup");
@@ -93,7 +100,7 @@ foreach ($options as $k => $v) {
 			echo $this->theme('control/select/option', array(
 				"value" => $k,
 				"escape_values" => $escape_values,
-				"selected" => (strval($sValue) === strval($k))
+				"selected" => in_array(strval($k), $values)
 			) + $v);
 		}
 	} else {
@@ -101,11 +108,12 @@ foreach ($options as $k => $v) {
 			$v = HTML::ellipsis($v, $max_option_length, $widget->option('dot_dot_dot', '...'));
 		}
 		$debug = "";
-		//		$debug = strval($sValue) . "===" . strval($k);
 		echo HTML::tag('option', array(
 			'value' => $k,
-			'selected' => (strval($sValue) === strval($k))
+			'selected' => in_array(strval($k), $values)
 		), ($escape_values ? htmlspecialchars($v) : $v) . $debug);
 	}
 }
 echo HTML::tag_close('select');
+// echo "Default: $default<br />";
+// echo "Object: <pre>"._dump($object->variables())."</pre><br />";

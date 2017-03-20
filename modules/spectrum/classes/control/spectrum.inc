@@ -1,13 +1,7 @@
 <?php
+namespace zesk;
+
 class Control_Spectrum extends Control {
-
-	/**
-	 * theme name
-	 *
-	 * @var string
-	 */
-	protected $theme = "control/spectrum";
-
 	/**
 	 * (non-PHPdoc)
 	 *
@@ -15,7 +9,7 @@ class Control_Spectrum extends Control {
 	 */
 	function validate() {
 		$this->set_option("id", $this->name(), false);
-
+		
 		$color = $this->value();
 		if (begins($color, "#")) {
 			$color = substr($color, 1);

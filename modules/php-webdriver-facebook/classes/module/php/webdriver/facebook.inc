@@ -1,5 +1,5 @@
 <?php
 
-class Module_PHP_WebDriver_FaceBook extends Module {
+class Module_PHP_WebDriver_FaceBook extends zesk\Module {
 	
 }

@@ -283,7 +283,7 @@ class Content_Data extends Object {
 	 */
 	private function check_md5_and_size($computed_md5, $computed_size) {
 		if (strcasecmp($computed_md5, $this->md5hash) !== 0) {
-			log::error("Content_data({ID}) {noun} appears to have changed {suffix}: {md5hash} (old) !== {md5hashNew} (new)", array(
+			$this->application->logger->error("Content_data({ID}) {noun} appears to have changed {suffix}: {md5hash} (old) !== {md5hashNew} (new)", array(
 				'md5hashNew' => $computed_md5
 			) + $this->members());
 			if ($this->option_bool('repair;repair_checksums')) {
@@ -291,7 +291,7 @@ class Content_Data extends Object {
 			}
 		}
 		if ($computed_size !== $this->size) {
-			log::error("Content_data({ID}) {noun} appears to have changed size {suffix}: {size} (old) !== {sizeNew} (new)", array(
+			$this->application->logger->error("Content_data({ID}) {noun} appears to have changed size {suffix}: {size} (old) !== {sizeNew} (new)", array(
 				'sizeNew' => $computed_size
 			) + $this->members());
 			if ($this->first_option('repair;repair_sizes')) {
@@ -308,7 +308,7 @@ class Content_Data extends Object {
 		/* @var $zesk zesk\Kernel */
 		if ($this->type === 'path') {
 			if (!is_array($this->data)) {
-				log::error("Content_data({ID}) has non array data", $this->members());
+				$this->application->logger->error("Content_data({ID}) has non array data", $this->members());
 				return;
 			}
 			$this_path = $this->_filepath();
@@ -318,19 +318,19 @@ class Content_Data extends Object {
 				$old_path = path($data_path, $path);
 				if (file_exists($old_path)) {
 					if (file::fsmove($old_path, $this_path)) {
-						log::notice("Content_data({ID}) Moved {old_path} to {new_path}", array(
+						$this->application->logger->notice("Content_data({ID}) Moved {old_path} to {new_path}", array(
 							'old_path' => $old_path,
 							"new_path" => $this_path
 						) + $this->members());
 						$this->data['data_path'] = $zesk->paths->data();
 					} else {
-						log::error("Content_data({ID}) Unable to move {old_path} to {new_path}", array(
+						$this->application->logger->error("Content_data({ID}) Unable to move {old_path} to {new_path}", array(
 							'old_path' => $old_path,
 							"new_path" => $this_path
 						) + $this->members());
 					}
 				} else {
-					log::error("Content_data({ID}) appears to have disappeared: {old_path}/{new_path}", array(
+					$this->application->logger->error("Content_data({ID}) appears to have disappeared: {old_path}/{new_path}", array(
 						'old_path' => $old_path,
 						"new_path" => $this_path
 					) + $this->members());
@@ -346,7 +346,7 @@ class Content_Data extends Object {
 				));
 			}
 		} else if ($this->type !== 'data') {
-			log::error("Content_data({ID}) Invalid type {type}", $this->members());
+			$this->application->logger->error("Content_data({ID}) Invalid type {type}", $this->members());
 		} else {
 			$this->check_md5_and_size(md5($this->data), strlen($this->data), array(
 				'noun' => 'database data',
@@ -390,7 +390,7 @@ class Content_Data extends Object {
 			$size = Object::cache_object(__CLASS__)->database()->feature(zesk\Database::feature_max_blob_size);
 			if ($size < $result) {
 				zesk::set(__CLASS__ . "::database_size_threshold", $result);
-				log::warning("{class}::database_size_threshold Database size threshold {result} is beyond database setting of {size} - adjusting", array(
+				$this->application->logger->warning("{class}::database_size_threshold Database size threshold {result} is beyond database setting of {size} - adjusting", array(
 					"class" => __CLASS__,
 					'size' => $size,
 					'result' => $result

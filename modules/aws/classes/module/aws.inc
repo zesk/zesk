@@ -1,5 +1,16 @@
 <?php
-class Module_AWS extends Module {
+/**
+ * 
+ */
+use zesk\Module;
+use zesk\Exception_File_Permission;
+
+/**
+ * 
+ * @author kent
+ *
+ */
+class Module_AWS extends zesk\Module {
 	/**
 	 * Path to magic file which gives the hypervisor as belonging to ec2
 	 * 
@@ -15,8 +26,11 @@ class Module_AWS extends Module {
 	
 	/**
 	 * 
-	 * {@inheritDoc}
-	 * @see Module::initialize()
+	 * @var AWS_EC2_Awareness
+	 */
+	private $awareness;
+	/**
+	 * 
 	 */
 	public function initialize() {
 		parent::initialize();
@@ -31,9 +45,17 @@ class Module_AWS extends Module {
 		}
 		if (!$this->option_bool("disable_uname_integration")) {
 			$this->application->hooks->add("uname", function () {
-				return zesk::factory("AWS_EC2_Awareness")->get(AWS_EC2_Awareness::setting_mac);
+				return zesk()->objects->factory("AWS_EC2_Awareness")->get(AWS_EC2_Awareness::setting_mac);
 			});
 		}
+	}
+	
+	public function awareness(array $options = array()) {
+		if ($this->awareness) {
+			return $this->awareness;
+		}
+		$this->awareness = new AWS_EC2_Awareness($options);
+		return $this->awareness;
 	}
 	
 	/**
@@ -42,7 +64,7 @@ class Module_AWS extends Module {
 	 * @param Server $server
 	 */
 	public function server_initialize_names(Server $server) {
-		$awareness = new AWS_EC2_Awareness();
+		$awareness = $this->awareness();
 		if ($this->option_bool("disable_uname_integration")) {
 			$server->name = php_uname('n');
 		}

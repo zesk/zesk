@@ -9,6 +9,7 @@
 use zesk\Object;
 use zesk\Options;
 use zesk\Text;
+use zesk\DocComment;
 
 /**
  * Test_Unit class
@@ -102,27 +103,13 @@ class Test_Unit extends Options {
 	}
 	
 	/**
-	 * Make sure we have a test db? Is this used?
-	 *
-	 * @deprecated 2014-03-21
-	 */
-	public static function init_db() {
-		$db = app()->database_factory();
-		$db->query(array(
-			"CREATE DATABASE IF NOT EXISTS zesk_test",
-			"GRANT ALL PRIVILEGES ON zesk_test.* TO test@localhost IDENTIFIED BY 'localpass'",
-			"FLUSH PRIVILEGES"
-		));
-	}
-	
-	/**
 	 * Parse DocComment for a test
 	 *
 	 * @param string $comment
 	 * @return array
 	 */
 	private function parse_doccomment($comment) {
-		return doccomment::parse($comment);
+		return DocComment::parse($comment);
 	}
 	
 	/**
@@ -233,8 +220,7 @@ class Test_Unit extends Options {
 			$message = "*empty message from {calling_function}*";
 			$arguments['calling_function'] = calling_function();
 		}
-		zesk()->logger->error($message, $arguments);
-		flush();
+		zesk()->logger->info($message, $arguments);
 	}
 	
 	/**
@@ -857,7 +843,9 @@ class Test_Unit extends Options {
 	 * @return boolean Whether the test passed
 	 */
 	public static function run_one_class($class, array $options, &$object = null) {
-		$object = zesk::factory($class);
+		global $zesk;
+		/* @var $zesk \zesk\Kernel */
+		$object = $zesk->objects->factory($class);
 		/* @var $object Test_Unit */
 		if (!$object instanceof Test_Unit) {
 			throw new zesk\Exception_Invalid("$class is not an instance of Test_Unit");

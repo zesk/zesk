@@ -2,8 +2,6 @@
 
 namespace zesk;
 
-use \Control as Control;
-
 /**
  *
  * @see $ZESK_ROOT/modules/schedule/theme/zesk/control/schedule.tpl

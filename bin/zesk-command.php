@@ -15,8 +15,8 @@ define('ZESK_ROOT', dirname(dirname(__FILE__)) . '/' . (strpos(__FILE__, 'vendor
 /**
  * Load the bare minimum
  */
-require_once ZESK_ROOT . 'classes/zesk/functions.inc';
-require_once ZESK_ROOT . 'classes/zesk/command/loader.inc';
+require_once ZESK_ROOT . 'classes/functions.php';
+require_once ZESK_ROOT . 'classes/Command/Loader.php';
 
 /**
  * Run a zesk command and exit

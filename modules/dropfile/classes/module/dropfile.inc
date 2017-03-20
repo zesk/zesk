@@ -1,5 +1,5 @@
 <?php
-class Module_DropFile extends Module_JSLib {
+class Module_DropFile extends zesk\Module_JSLib {
 	/**
 	 *
 	 * @var array
@@ -50,8 +50,6 @@ class Module_DropFile extends Module_JSLib {
 	 */
 	public function initialize() {
 		$this->javascript_settings = $this->options_include($this->javascript_include_settings);
-		zesk::add('Controller_Image_Picker::upload_theme_map', array(
-			'dropfile' => 'control/dropfile/image/contents'
-		));
+		$this->application->configuration->pave_set('Controller_Image_Picker::upload_theme_map::dropfile', 'control/dropfile/image/contents');
 	}
 }

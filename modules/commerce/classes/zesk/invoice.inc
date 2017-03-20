@@ -1,11 +1,9 @@
 <?php
-
+namespace zesk;
 
 /**
- * @see Class_Zesk_Invoice
+ * @see Class_Invoice
  * @author kent
  *
  */
-class Zesk_Invoice extends Object {
-
-}
+class Invoice extends Object {}

@@ -10,7 +10,7 @@
  *
  * @author kent
  */
-class Module_Widget_Condition extends Module {
+class Module_Widget_Condition extends zesk\Module {
 
 	public function initialize() {
 		parent::initialize();

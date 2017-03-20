@@ -85,6 +85,17 @@ Generally, this is used to dynamically determine the version of the software whe
 
 When this module is loaded, a `Application::share_path` directory is added automatically. (See [sharing](share.md)). As well, this is used for correctly creating a "local" share path for the application in the web root.
 
+## `requires` (array of other module names)
+
+If your module requires other modules, enter that list here, e.g.
+
+	{
+		"name": "ReactJS",
+		"requires": [ "NodeJS" ]
+	}
+
+The dependent modules will be loaded prior to your module being initialized.
+
 # Update command settings
 
 The following fields are used by the [`update`](command-update) command to retrieve remote code libraries and automatically install most recent versions of code from the internet.
@@ -150,3 +161,43 @@ You can specify multiple files by using `urls` instead. The final version struct
 - `destination` - A unique destination path for this version
 - `strip_components` - A unique `strip_components` value for this version
 - ``
+
+## `module_class` (string)
+
+The name of the subclass of `zesk\Module` to instantiate for this module.
+
+## `autoload_path` (string)
+
+The name of the autoload path relative to the module path to use for autoloading. Defaults to `classes`.
+
+## `autoload_class_prefix` (string)
+
+The name of the class to prefix all classes which appear in autoload path. e.g. "mymodule\\" or "zesk\\" for example. Defaults to blank string.
+
+## `zesk_command_path` (string)
+
+The name of the zesk command path relative to the module path to use for autoloading. Defaults to `command`.
+
+## `zesk_command_class_prefix` (string)
+
+A string to prefix before any command classes prior to invokation. Defaults to `Commmand_`. Commands are converted to class names by converting non-alphanumeric characters to underscores, then prefixing with this string.
+
+## `locale_path` (string)
+
+Path to the locale files for this module relative to the module path. Defaults to `etc/language`.
+
+# Custom module extensions
+
+## `node_modules` (associative array)
+
+A custom mapping of `node_modules` directories to be aliased upon build by the `NodeJS` module:
+
+	{
+		"jquery": "vendor/components/jquery"
+	}
+	
+Will add an alias to the current application's `node_modules/jquery` to the application directory:
+
+	{app_root}/vendor/components/jquery
+	
+This allows modules to include code which is not a part of the `npm` repository to be included as part of a project.

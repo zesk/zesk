@@ -1,6 +1,6 @@
 <?php
 
-class Controller_Job extends Controller {
+class Controller_Job extends zesk\Controller {
 
 	function action_monitor(zesk\Job $job) {
 		$result = array(

@@ -1,6 +1,8 @@
 <?php
+use zesk\System;
+
 ob_start();
-$loads = system::load_averages();
+$loads = System::load_averages();
 
 $labels = array(
 		0 => __("Last minute"),

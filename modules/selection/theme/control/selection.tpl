@@ -18,7 +18,7 @@ $this->response->cdn_javascript('/share/selection/selection.js');
 
 $name = $this->name;
 $session = $this->session;
-/* @var $session Session_Interface */
+/* @var $session Interface_Session */
 
 $plural_noun = Locale::plural($this->label, 2);
 $singular_noun = $this->label;

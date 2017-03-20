@@ -1,29 +1,47 @@
 <?php
+/**
+ * 
+ */
+use zesk\Exception_Configuration;
+use zesk\Options;
+use zesk\Application;
 
+/**
+ * 
+ * @author kent
+ *
+ */
 class IPBan_Trigger extends Options {
 	public $codename = null;
-
+	
+	/**
+	 * Total duration for our sliding window.
+	 *
+	 * @var Application
+	 */
+	public $application = null;
+	
 	/**
 	 * Total duration for our sliding window.
 	 *
 	 * @var integer
 	 */
 	public $duration = null;
-
+	
 	/**
 	 * Size of our sub-segment for the sliding window
 	 *
 	 * @var integer
 	 */
 	public $segment = null;
-
+	
 	/**
 	 * Buckets indexed by time % segment
 	 *
 	 * @var array
 	 */
 	private $buckets = array();
-
+	
 	/**
 	 *
 	 * @param unknown $codename
@@ -31,7 +49,8 @@ class IPBan_Trigger extends Options {
 	 * @param number $nsegments
 	 * @param array $options
 	 */
-	function __construct($codename, array $options = null) {
+	function __construct(Application $application, $codename, array $options = null) {
+		$this->application = $application;
 		$this->codename = $codename;
 		parent::__construct($options);
 		$nsegments = $this->option_integer("segments", 10);
@@ -48,17 +67,25 @@ class IPBan_Trigger extends Options {
 			) + $this->options);
 			return;
 		}
-
 	}
-
+	
+	/**
+	 * 
+	 * @param unknown $set
+	 * @return void|mixed|string
+	 */
 	function severity($set = null) {
 		return ($set === null) ? $this->option('severity', 'notice') : $this->set_option('severity', $set);
 	}
-
+	
+	/**
+	 * 
+	 * @param unknown $max_timestamp
+	 */
 	function execute($max_timestamp) {
 		$count = $this->option_integer("count");
 		$type = $this->option('type');
-
+		
 		$duration = $this->duration;
 		$where = array(
 			"P.name" => $type
@@ -72,10 +99,11 @@ class IPBan_Trigger extends Options {
 		$count_method = $this->option('count_method', "id");
 		$count_methods = array(
 			'types' => 'T.id',
-			'events' => 'E.utc',
+			'events' => 'E.utc'
 		);
 		$count_method = avalue($count_methods, $count_method, $count_methods['events']);
-		$query = Object::class_query("IPBan_Event", "E")->link("IPBan_Tag", array(
+		$query = $this->application->query_select("IPBan_Event", "E")
+			->link("IPBan_Tag", array(
 			"alias" => "T"
 		))
 			->link("IPBan_Tag_Type", array(
@@ -90,17 +118,27 @@ class IPBan_Trigger extends Options {
 			->group_by('E.ip')
 			->order_by('`count` DESC');
 		$sql = "SELECT INET_NTOA(X.ip) AS ip,X.count FROM (" . $query . ") AS X WHERE X.count >= $count";
-		log::notice("\$max_timestamp=$max_timestamp, \$duration=$max_timestamp \$sql=$sql");
+		$this->application->logger->notice("\$max_timestamp=$max_timestamp, \$duration=$max_timestamp \$sql=$sql");
 		return $query->database()->query_array($sql, "ip", "count");
 	}
-
+	
+	/**
+	 * 
+	 * @return string
+	 */
 	function description() {
 		$count = $this->option_integer("count");
 		$type = $this->option('type');
 		$duration = $this->duration;
 		return "severity " . $this->severity() . " - more than $count events of type $type" . (empty($duration) ? " ever." : " every $duration seconds.");
 	}
-
+	
+	/**
+	 * 
+	 * @param array $ip_counts
+	 * @param unknown $current_time
+	 * @return unknown|number[]|unknown[]
+	 */
 	function add(array $ip_counts, $current_time) {
 		$segment = $this->segment;
 		$debug_values = array(
@@ -117,20 +155,20 @@ class IPBan_Trigger extends Options {
 		i:s', $bucket_id);
 		}
 		$debug_values['id'] = $bucket_id;
-
+		
 		if (!array_key_exists($bucket_id, $this->buckets)) {
-			log::debug("IPBan_Trigger::add {codename} adding bucket {id} {datetime}", $debug_values);
+			$this->application->logger->debug("IPBan_Trigger::add {codename} adding bucket {id} {datetime}", $debug_values);
 			// New bucket, all IPs receive complaints
 			$this->buckets[$bucket_id] = $ip_counts;
 			return $ip_counts;
 		}
-
+		
 		$result_ip_counts = array();
 		$bucket_ips = $this->buckets[$bucket_id];
 		// Add IPs not in the bucket
 		foreach ($ip_counts as $ip => $count) {
 			if (!array_key_exists($ip, $bucket_ips)) {
-				log::debug("IPBan_Trigger::add {codename} new IP {ip}:{count} adding bucket {id} {datetime}", $debug_values + array(
+				$this->application->logger->debug("IPBan_Trigger::add {codename} new IP {ip}:{count} adding bucket {id} {datetime}", $debug_values + array(
 					"ip" => $ip,
 					"count" => $count
 				));
@@ -143,7 +181,7 @@ class IPBan_Trigger extends Options {
 			if (array_key_exists($ip, $ip_counts)) {
 				$ip_count = $ip_counts[$ip];
 				if ($count < $ip_count) {
-					log::debug("IPBan_Trigger::add {codename} bump IP {ip}:{old_count} -> {count} adding bucket {id} {datetime}", $debug_values + array(
+					$this->application->logger->debug("IPBan_Trigger::add {codename} bump IP {ip}:{old_count} -> {count} adding bucket {id} {datetime}", $debug_values + array(
 						"ip" => $ip,
 						"old_count" => $count,
 						"count" => $ip_count
@@ -155,11 +193,15 @@ class IPBan_Trigger extends Options {
 		}
 		return $result_ip_counts;
 	}
-
+	
+	/**
+	 * 
+	 * @param unknown $before_time
+	 */
 	private function cull_buckets($before_time) {
 		foreach ($this->buckets as $bucket_id => $data) {
 			if ($bucket_id < $before_time) {
-				log::debug("IPBan_Trigger::cull_buckets {codename} Removing bucket {datetime}", array(
+				$this->application->logger->debug("IPBan_Trigger::cull_buckets {codename} Removing bucket {datetime}", array(
 					"codename" => $this->codename,
 					"datetime" => date('Y-m-d
 		H:

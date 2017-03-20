@@ -1,5 +1,5 @@
 <?php
-class Module_QuickList extends Module_JSLib /* implements zesk\Interface_Module_Head, zesk\Interface_Module_Foot, zesk\Interface_Module_Routes */
+class Module_QuickList extends zesk\Module_JSLib /* implements zesk\Interface_Module_Head, zesk\Interface_Module_Foot, zesk\Interface_Module_Routes */
 {
 	protected $javascript_paths = array(
 		"/share/quicklist/js/jquery.quicklist.js" => array(

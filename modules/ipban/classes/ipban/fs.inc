@@ -106,7 +106,7 @@ class IPBan_FS extends Options {
 			chmod($ff, 0644);
 			return 1;
 		} catch (Exception_Directory_Create $e) {
-			log::error("Unable to create directory {dir} to block IP {ips}", array(
+			zesk()->logger->error("Unable to create directory {dir} to block IP {ips}", array(
 				"dir" => $dir,
 				"ips" => $ips
 			));

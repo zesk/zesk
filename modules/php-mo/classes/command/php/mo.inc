@@ -5,7 +5,7 @@
  * @author kent
  *
  */
-class Command_PHP_MO extends Command_File_Convert {
+class Command_PHP_MO extends zesk\Command_File_Convert {
 	/**
 	 * 
 	 * @var string
