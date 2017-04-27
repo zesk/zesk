@@ -1,4 +1,9 @@
 {
+	"module_class": "sqlite3\\Module",
+	"autoload_options": {
+		"class_prefix": "sqlite3\\",
+		"lower": false
+	},
 	"name": "SQLite3 Database Interface",
-	"description": "The SQLite3 database API using the PHP SQLite3 API."
+	"description": "The SQLite3 database API using the PHP SQLite3 API. INCOMPLETE."
 }

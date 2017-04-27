@@ -1,5 +1,7 @@
 <?php
 
+namespace zesk;
+
 $visible = $this->visible;
 $animate_show = $this->animate_show;
 $animate_delay = $this->animate_delay;

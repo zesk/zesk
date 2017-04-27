@@ -1,4 +1,14 @@
 <?php
+/**
+ * 
+ */
+namespace zesk;
+
+/**
+ * 
+ * @author kent
+ *
+ */
 class test_debug extends Test_Unit {
 
 	function test_calling_file() {

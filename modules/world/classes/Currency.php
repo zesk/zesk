@@ -6,7 +6,6 @@
  * @author Kent Davidson <kent@marketacumen.com>
  * @copyright Copyright &copy; 2005, Market Acumen, Inc.
  */
-
 namespace zesk;
 
 /**
@@ -56,11 +55,10 @@ class Currency extends Object {
 			'amount' => number_format($value, $this->precision, $decimals, $thousands)
 		) + $this->members());
 	}
-
 	public function symbol_left() {
 		return begins($this->format, '{symbol}');
 	}
-
+	
 	/**
 	 * Get Euros
 	 *
@@ -71,7 +69,7 @@ class Currency extends Object {
 		if ($cached) {
 			return $cached;
 		}
-		return $cached = Object::factory('Currency', array(
+		return $cached = Object::factory(__CLASS__, array(
 			'name' => 'Euro',
 			'code' => 'EUR',
 			'id' => 978,
@@ -92,7 +90,7 @@ class Currency extends Object {
 		if ($cached) {
 			return $cached;
 		}
-		return $cached = Object::factory('Currency', array(
+		return $cached = app()->object_factory(__CLASS__, array(
 			'name' => 'US Dollar',
 			'code' => 'USD',
 			'bank_country' => Country::find_country('us'),
@@ -104,11 +102,10 @@ class Currency extends Object {
 			'fractional_units' => 'cent'
 		))->register();
 	}
-
 	function precision() {
 		return $this->member_integer("precision", 2);
 	}
-
+	
 	/**
 	 * Look up a Currency object based on its code
 	 *

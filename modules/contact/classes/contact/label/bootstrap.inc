@@ -6,6 +6,9 @@
  * @author kent
  * @copyright Copyright &copy; 2010, Market Acumen, Inc.
  */
+
+namespace zesk;
+
 class Contact_Label_Bootstrap {
 	public static function bootstrap() {
 		$labels = array(

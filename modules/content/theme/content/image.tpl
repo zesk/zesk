@@ -4,14 +4,12 @@
  */
 namespace zesk;
 
-use \Controller_Content_Cache;
-
 $image = $this->object;
 if (!$image instanceof Content_Image) {
 	$id = $this->id;
 	if (is_numeric($id) && !empty($id)) {
 		try {
-			$image = $this->application->object_factory('Content_Image', $id)->fetch();
+			$image = $this->application->object_factory('zesk\\Content_Image', $id)->fetch();
 		} catch (Exception_Object_NotFound $e) {
 			$image = null;
 		}

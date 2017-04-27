@@ -1,5 +1,7 @@
 <?php
 
+namespace zesk;
+
 echo HTML::tag('form', array(
 	'action' => '/search',
 	'method' => 'get',

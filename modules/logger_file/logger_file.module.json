@@ -1,1 +1,11 @@
-{"name":"Logger_File"}
+{
+	"name":"Logger_File",
+	"autoload_options": {
+		"class_prefix": "zesk\\",
+		"lower": false
+	},
+	"module_class": "zesk\\Module_Logger_File",
+	"composer": {
+		"require": "psr/log"
+	}
+}

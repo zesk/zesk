@@ -8,3 +8,5 @@ vendor/
 *.codekit
 config.codekit
 share/js/zesk.min.js
+
+.update.json

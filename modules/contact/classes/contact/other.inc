@@ -6,7 +6,16 @@
  * @subpackage subpackage
  * @copyright Copyright &copy; 2005, Market Acumen, Inc.
  */
-class Contact_Other extends Zesk_Contact_Other {
+namespace zesk;
 
+class Contact_Other extends Contact_Info {
+	/**
+	 * @see Contact_Label::LabelType_Foo
+	 *
+	 * @return string
+	 */
+	function label_type() {
+		return Contact_Label::LabelType_Other;
+	}
 }
 

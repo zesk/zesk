@@ -1,5 +1,4 @@
 <?php
-
 namespace zesk;
 
 /**
@@ -22,16 +21,20 @@ class Command_Cache extends Command_Base {
 		} else {
 			$this->run_arg("print");
 		}
+		return $this->has_errors() ? 1 : 0;
 	}
 	protected function run_arg($arg) {
 		$method = "_exec_$arg";
 		if (method_exists($this, $method)) {
 			$this->$method();
+		} else {
+			$this->error("No such command {arg}", array(
+				"arg" => $arg
+			));
 		}
 	}
 	private function _exec_clear() {
 		$this->log("Running: Application::cache_clear");
-		$application = Application::instance();
-		$application->cache_clear();
+		$this->application->cache_clear();
 	}
 }

@@ -6,6 +6,13 @@
  * @author Kent Davidson <kent@marketacumen.com>
  * @copyright Copyright &copy; 2010, Market Acumen, Inc.
  */
+namespace zesk;
+
+/**
+ * 
+ * @author kent
+ *
+ */
 class Test_Date extends Test_Unit {
 
 	function test_days_in_month() {

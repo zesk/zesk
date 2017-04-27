@@ -1,5 +1,6 @@
 <?php
-use zesk\Text;
+namespace zesk;
+
 
 class text_test extends Test_Unit {
 

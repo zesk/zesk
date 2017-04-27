@@ -15,7 +15,6 @@ namespace zesk;
  *
  */
 class View_OrderBy extends View {
-
 	function render() {
 		$k = $this->option("list_order_column", $this->column());
 		$english = $this->label();
@@ -64,7 +63,7 @@ class View_OrderBy extends View {
 		if ($multisort) {
 			$new_key = implode(";", $new_order);
 			$remove_order = implode(";", $remove_order);
-			$remove_url = URL::query_format($this->option("URI", URL::current_uri()), array(
+			$remove_url = URL::query_format($this->option("URI", $this->request->uri()), array(
 				$order_var => $remove_order
 			));
 			$sort_number = ($sort_index !== null) ? HTML::tag("div", array(
@@ -73,7 +72,7 @@ class View_OrderBy extends View {
 		} else {
 			$sort_number = "";
 		}
-		$url = URL::query_format($this->option("URI", URL::current_uri()), array(
+		$url = URL::query_format($this->option("URI", $this->request->uri()), array(
 			$order_var => $new_key
 		));
 		$a_tag = HTML::tag('a', array(
@@ -81,7 +80,7 @@ class View_OrderBy extends View {
 		), $english);
 		$label = "<td nowrap=\"nowrap\">" . $a_tag . "</td>";
 		$sort = "<td align=\"center\"><div class=\"list-order-by-icon\">$sort_number<a href=\"" . $url . "\"><img src=\"" . cdn::url("/share/zesk/images/sort/$sort_order.gif") . "\" alt=\"$sort_desc\" width=\"16\" height=\"16\" border=\"0\" /></a></div></td>";
-
+		
 		switch ($this->option("list_order_position")) {
 			case "top":
 				$content = $sort . "</tr><tr>" . $label;
@@ -92,7 +91,7 @@ class View_OrderBy extends View {
 			case "left":
 				$content = $sort . $label;
 				break;
-			default:
+			default :
 			case "right":
 				$content = $label . $sort;
 				break;

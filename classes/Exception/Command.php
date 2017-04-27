@@ -18,7 +18,7 @@ class Exception_Command extends Exception {
 	 */
 	public $output = null;
 	function __construct($command, $resultcode, array $output) {
-		parent::__construct("{command} exited with result {resultcode}", array(
+		parent::__construct("{command} exited with result {resultcode}\nOUTPUT:\n{output}\nEND OUTPUT", array(
 			"resultcode" => $resultcode,
 			"command" => $command,
 			"output" => $output

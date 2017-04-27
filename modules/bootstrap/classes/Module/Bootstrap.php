@@ -16,7 +16,7 @@ class Module_Bootstrap extends Module implements Interface_Module_Foot {
 	 * 
 	 */
 	public function initialize() {
-		$this->application->hooks->add('Control_List::row_widget', array(
+		$this->application->hooks->add('zesk\\Control_List::row_widget', array(
 			$this,
 			'_hook_list_row_widget'
 		));

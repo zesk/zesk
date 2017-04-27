@@ -2,33 +2,33 @@
 /**
  * 
  */
-use zesk\Locale;
-use zesk\Exception_File_Format;
-use zesk\Exception_File_NotFound;
+namespace zesk;
 
 /**
  * 
  * @author kent
  *
  */
-class Module_PolyGlot extends zesk\Module implements zesk\Interface_Module_Routes {
+class Module_PolyGlot extends Module implements Interface_Module_Routes {
 	
 	/**
 	 * 
 	 * @var array
 	 */
 	protected $classes = array(
-		"PolyGlot_Token",
-		"PolyGlot_Update"
+		"zesk\\PolyGlot_Token",
+		"zesk\\PolyGlot_Update"
 	);
-	
+	public function hook_configured() {
+		$this->application->configuration->deprecated("Module_PolyGlot", __CLASS__);
+	}
 	/**
 	 * @return array
 	 */
 	public function locale_options() {
 		$list = $this->call_hook_arguments("locale_options", array(), $this->option_array("locale_options"));
 		$options = array();
-		$locales = $this->application->query_select("Language")
+		$locales = $this->application->query_select("zesk\\Language")
 			->what(array(
 			"code" => "code",
 			"dialect" => "dialect",
@@ -52,25 +52,28 @@ class Module_PolyGlot extends zesk\Module implements zesk\Interface_Module_Route
 	 * @see Module::hook_routes
 	 * 
 	 * {@inheritDoc}
-	 * @see \zesk\Interface_Module_Routes::hook_routes()
+	 * @see Interface_Module_Routes::hook_routes()
 	 */
-	public function hook_routes(zesk\Router $router) {
+	public function hook_routes(Router $router) {
+		$router->add_route("polyglot", array(
+			"controller" => "zesk\\Controller_PolyGlot"
+		));
 		$router->add_route("polyglot/update/{dialect}", array(
-			"controller" => "PolyGlot",
+			"controller" => "zesk\\Controller_PolyGlot",
 			"action" => "update",
 			"arguments" => array(
 				2
 			)
 		));
 		$router->add_route("polyglot/load/{dialect}", array(
-			"controller" => "PolyGlot",
+			"controller" => "zesk\\Controller_PolyGlot",
 			"action" => "load",
 			"arguments" => array(
 				2
 			)
 		));
 		$router->add_route("polyglot/token/{dialect}", array(
-			"controller" => "PolyGlot",
+			"controller" => "zesk\\Controller_PolyGlot",
 			"action" => "token",
 			"arguments" => array(
 				2
@@ -87,7 +90,7 @@ class Module_PolyGlot extends zesk\Module implements zesk\Interface_Module_Route
 	 */
 	public function load_locale($locale = null) {
 		global $zesk;
-		/* @var $zesk \zesk\Kernel */
+		/* @var $zesk Kernel */
 		$user = $this->application->user();
 		$source_files = $this->option_list("source_files");
 		$table = array();

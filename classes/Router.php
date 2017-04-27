@@ -109,11 +109,16 @@ class Router extends Hookable {
 	public $route = null;
 	
 	/**
+	 * State variable - should be reset
+	 * @var Request
+	 */
+	public $request = null;
+	/**
 	 *
 	 * @var integer
 	 */
 	protected $default_route = 0;
-		
+	
 	/**
 	 *
 	 * @var array
@@ -160,6 +165,7 @@ class Router extends Hookable {
 			$route->router = $this;
 			$this->_add_route_id($route);
 		}
+		$this->request = $this->application->request();
 		$this->sorted = false;
 	}
 	
@@ -194,7 +200,7 @@ class Router extends Hookable {
 		/* @var $zesk Kernel */
 		$zesk->configuration->deprecated(("Router::debug"), "zesk\Router::debug");
 	}
-
+	
 	/**
 	 * Return singleton Router
 	 *
@@ -321,7 +327,6 @@ class Router extends Hookable {
 		}
 		return $this->prefix;
 	}
-	
 	public function add_alias($from, $to) {
 		$this->alias[$from] = $to;
 	}
@@ -336,6 +341,7 @@ class Router extends Hookable {
 	}
 	function match(Request $request) {
 		$request->router = $this;
+		$this->request = $request;
 		$path = strval($request->path());
 		if ($this->prefix) {
 			$path = str::unprefix($path, $this->prefix);
@@ -356,12 +362,17 @@ class Router extends Hookable {
 	/**
 	 * Route the URL and return the response
 	 *
-	 * @param Request $request
-	 * @return Response
+	 * @throws Exception_NotFound
+	 * @return \zesk\Route
 	 */
-	function execute() {
-		$request = $this->application->request;
+	function execute(Request $request = null) {
 		if (!$this->route) {
+			if (!$request) {
+				$request = $this->request;
+				if (!$request) {
+					throw new Exception_Semantics("Need a request to execute");
+				}
+			}
 			if (!$this->match($request)) {
 				$this->route = avalue($this->routes, $this->default_route);
 				if (!$this->route) {

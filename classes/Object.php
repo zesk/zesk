@@ -2028,16 +2028,16 @@ class Object extends Model {
 	function find($where = false) {
 		$data = $this->exists($where);
 		if (is_array($data)) {
-			return $this->initialize($data, true);
+			return $this->initialize($data, true)->_polymorphic();
 		}
 		return null;
 	}
 	function fetch_if_exists($where = null) {
 		$row = $this->exists($where);
 		if (is_array($row)) {
-			return $this->object_status(self::status_exists)->initialize($row, true);
+			return $this->object_status(self::object_status_exists)->initialize($row, true);
 		}
-		$this->object_status(self::status_unknown);
+		$this->object_status(self::object_status_unknown);
 		return null;
 	}
 	function exists($where = false) {
@@ -2098,7 +2098,7 @@ class Object extends Model {
 		if ($row === null) {
 			return null;
 		}
-		return $this->initialize($row, true);
+		return $this->initialize($row, true)->_polymorphic();
 	}
 	protected function fetch_query() {
 		$primary_keys = $this->class->primary_keys;
@@ -2204,7 +2204,7 @@ class Object extends Model {
 	function fetch($mixed = null) {
 		$mixed = $this->call_hook("fetch-enter", $mixed);
 		if ($mixed !== null) {
-			$this->initialize($mixed);
+			$this->initialize($mixed)->_polymorphic();
 		}
 		$hook_args = func_get_args();
 		$this->need_load = false;
@@ -2381,22 +2381,21 @@ class Object extends Model {
 			try {
 				$result = $this->store();
 				if (!$result) {
-					$this->object_status(self::status_unknown);
+					$this->object_status(self::object_status_unknown);
 					return null;
 				}
-				return $result->object_status(self::status_insert);
+				return $result->object_status(self::object_status_insert);
 			} catch (Database_Exception_Duplicate $e) {
 				$data = $this->exists($where);
 				if ($data === null) {
 					throw $e;
 				}
 			}
-			$this->initialize($data, true);
-			$this->store();
+			$result = $this->initialize($data, true)->_polymorphic()->store();
 		} else {
-			$this->initialize($data, true);
+			$result = $this->initialize($data, true)->_polymorphic();
 		}
-		return $this->object_status(self::status_exists);
+		return $result->object_status(self::object_status_exists);
 	}
 	
 	/**
@@ -2418,14 +2417,14 @@ class Object extends Model {
 	 * @return boolean
 	 */
 	function status_exists() {
-		return $this->status === self::status_exists;
+		return $this->status === self::object_status_exists;
 	}
 	/**
 	 *
 	 * @return boolean
 	 */
 	function status_created() {
-		return $this->status === self::status_insert;
+		return $this->status === self::object_status_insert;
 	}
 	private function _column_deleted_value() {
 		return array(
@@ -2433,6 +2432,13 @@ class Object extends Model {
 		);
 		// TODO: Support dates
 	}
+	
+	/**
+	 * @todo Make this non-static
+	 * 
+	 * @param unknown $class
+	 * @param unknown $mixed
+	 */
 	public static function clean_database_object_members($class, $mixed) {
 		global $zesk;
 		/* @var $zesk \zesk\Kernel */
@@ -2623,9 +2629,9 @@ class Object extends Model {
 			
 			/* Handle "resolve_objects" list and "allow_resolve_objects" checks */
 			$resolve_objects = to_list(avalue($options, "resolve_objects"), null);
+			$resolve_object_match = array();
 			if (is_array($resolve_objects)) {
 				$allow_resolve_objects = to_list(avalue($options, "allow_resolve_objects", null), null);
-				$resolve_object_match = array();
 				foreach ($resolve_objects as $member_path) {
 					if (is_array($allow_resolve_objects) && !str::begins($allow_resolve_objects, $member_path)) {
 						$this->application->logger->warning("Not allowed to traverse {member_path} as it is not included in {allow_resolve_objects}", compact("allow_resolve_objects", "member_path"));

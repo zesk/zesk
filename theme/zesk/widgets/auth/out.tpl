@@ -25,12 +25,12 @@ if ($this->has("URL")) {
 	$u = $this->URL;
 	
 	$host = URL::host($u);
-	$current_host = URL::current_host();
+	$current_host = $request->host();
 	
 	$attr = $this->has("Attributes") ? HTML::parse_attributes($this->Attributes) : array();
 	if ($host === $current_host) {
 		$out_u = URL::query_format($u, array(
-			"ref" => URL::current()
+			"ref" => $this->request->url()
 		));
 	} else {
 		$session = Session_Database::instance(true);
@@ -38,7 +38,7 @@ if ($this->has("URL")) {
 		$out_u = URL::query_format("/out/", array(
 			"u" => $u,
 			"uk" => $uk,
-			"ref" => URL::current()
+			"ref" => $this->request->url()
 		));
 	}
 	$attr['href'] = $out_u;

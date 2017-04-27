@@ -1,13 +1,17 @@
 <?php
+/**
+ * 
+ */
+namespace zesk;
 
 /**
  * @see Selection_Query
  * @author kent
  */
-class Class_Selection_Query extends zesk\Class_Object {
+class Class_Selection_Query extends Class_Object {
 	public $id_column = "id";
 	public $has_one = array(
-		'type' => 'Selection_Type'
+		'type' => 'zesk\\Selection_Type'
 	);
 	public $find_keys = array(
 		'type',

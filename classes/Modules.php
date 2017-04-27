@@ -243,6 +243,12 @@ class Modules {
 			if ($module === null) {
 				$module = avalue($current, 'name');
 			}
+		} else if ($module == null) {
+			throw new Exception_Parameter("Require a \$module path if not called during module load");
+		} else if (isset($this->modules[$module])) {
+			if (!is_dir($module_path)) {
+				throw new Exception_Directory_NotFound($module_path);
+			}
 		} else {
 			throw new Exception_Semantics("Can not call register paths unless during module load.");
 		}
@@ -436,11 +442,11 @@ class Modules {
 			$path
 		), array(
 			"$base.module.php",
-			"$base.module.inc",
-			"$base.application.php",
-			"$base.application.inc"
+			"$base.module.inc"
 		));
-		
+		if ($module_include) {
+			zesk()->deprecated("Module loader file is deprecated in Zesk 0.9, use subclass of \zesk\Module::initialize instead");
+		}
 		$module_variables = array(
 			'module_path' => $path,
 			'module' => $name
@@ -453,7 +459,6 @@ class Modules {
 			'conf' => path($path, "$base.module.conf")
 		);
 		foreach ($module_confs as $extension => $module_conf) {
-			$module_data['configuration_file'] = $module_conf;
 			if (file_exists($module_conf)) {
 				$raw_module_conf = file_get_contents($module_conf);
 				$configuration = new Configuration($module_variables);
@@ -773,7 +778,7 @@ class Modules {
 	 * @param mixed $default        	
 	 * @return mixed
 	 */
-	public final function all_hook_arguments($hook, array $arguments, $default = null, $hook_callback = null, $result_callback = null) {
+	public final function all_hook_arguments($hook, array $arguments, $default = null, $hook_callback = null, $result_callback = null, $return_hint = null) {
 		$result = $default;
 		$module_names = isset($this->modules_with_hook[$hook]) ? $this->modules_with_hook[$hook] : null;
 		if (!is_array($module_names)) {
@@ -792,8 +797,8 @@ class Modules {
 		foreach ($module_names as $module_name) {
 			$module = $this->modules[$module_name]['module'];
 			if ($module instanceof Module) {
-				$new_result = $module->call_hook_arguments($hook, $arguments, $result, $hook_callback, $result_callback);
-				$result = Hookable::combine_hook_results($result, $new_result);
+				$new_result = $module->call_hook_arguments($hook, $arguments, $result, $hook_callback, $result_callback, $return_hint);
+				$result = Hookable::combine_hook_results($result, $new_result, $arguments, $return_hint);
 			} else {
 				$this->application->logger->error("While calling hook {hook} for module for {module_name} is not of type zesk\Module ({value} is of type {type})", array(
 					"hook" => $hook,
@@ -820,6 +825,9 @@ class Modules {
 		global $zesk;
 		/* @var $zesk \zesk\Kernel */
 		$result = $zesk->hooks->find_all("zesk\\Module::$hook");
+		if (count($result) > 0) {
+			zesk()->deprecated("Static cache clear hook is deprecated: " . _dump($result));
+		}
 		foreach ($this->modules as $name => $data) {
 			$module = avalue($data, 'module');
 			/* @var $module Module */

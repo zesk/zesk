@@ -7,10 +7,7 @@
  * @copyright Copyright &copy; 2010, Market Acumen, Inc.
  */
 
-use zesk\URL;
-use zesk\Timer;
-use zesk\Mail;
-use zesk\arr;
+namespace zesk;
 
 /**
  * 

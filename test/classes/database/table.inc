@@ -6,13 +6,20 @@
  * @author Kent Davidson <kent@marketacumen.com>
  * @copyright Copyright &copy; 2008, Market Acumen, Inc.
  */
+namespace zesk;
+
+/**
+ * 
+ * @author kent
+ *
+ */
 class Test_Database_Table extends Test_Unit {
 
 	function test_main() {
 		$db = $this->application->database_factory(zesk::get('DB_URL'));
 		$table_name = null;
 		$type = false;
-		$x = new zesk\Database_Table($db, $table_name, $type);
+		$x = new Database_Table($db, $table_name, $type);
 
 		$x->__toString();
 
@@ -42,13 +49,13 @@ class Test_Database_Table extends Test_Unit {
 
 		$x->indexes();
 
-		$index = new zesk\Database_Index($x, "un");
+		$index = new Database_Index($x, "un");
 		$x->index_add($index);
 
 		$indexes = array();
 		$x->setIndexes($indexes);
 
-		$dbCol = new zesk\Database_Column("IDs", "varchar(32)");
+		$dbCol = new Database_Column("IDs", "varchar(32)");
 		$exception_reserved = false;
 		$x->add_Column($dbCol, $exception_reserved);
 
@@ -59,7 +66,7 @@ class Test_Database_Table extends Test_Unit {
 		$that = $x;
 		$debug = false;
 		$this->assert($x->is_similar($that, $debug) === true);
-		$that = new zesk\Database_Table($db, "someother", $debug);
+		$that = new Database_Table($db, "someother", $debug);
 		$this->assert($x->is_similar($that, $debug) === false);
 
 		echo basename(__FILE__) . ": success\n";
@@ -69,7 +76,7 @@ class Test_Database_Table extends Test_Unit {
 		$db = $this->application->database_factory();
 		$table_name = 'test_table';
 		$type = false;
-		$testx = new zesk\Database_Table($db, $table_name, $type);
+		$testx = new Database_Table($db, $table_name, $type);
 
 		$testx->database();
 
@@ -104,7 +111,7 @@ class Test_Database_Table extends Test_Unit {
 
 		$testx->indexes();
 
-		$index = new zesk\Database_Index($testx, "MyIndex");
+		$index = new Database_Index($testx, "MyIndex");
 		$testx->index_add($index);
 
 		$indexes = array(
@@ -112,13 +119,13 @@ class Test_Database_Table extends Test_Unit {
 		);
 		$testx->setIndexes($indexes);
 
-		$dbCol = new zesk\Database_Column("ID", "bigint");
+		$dbCol = new Database_Column("ID", "bigint");
 		$exception_reserved = false;
 		$testx->add_Column($dbCol, $exception_reserved);
 
 		$testx->toSQL();
 
-		$oldTable = new zesk\Database_Table($db, "test_table_new");
+		$oldTable = new Database_Table($db, "test_table_new");
 		$testx->alterSQL($oldTable);
 
 		$that = $oldTable;

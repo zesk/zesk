@@ -1,6 +1,15 @@
 <?php
+/**
+ * 
+ */
+namespace zesk;
 
-class Class_Help extends zesk\Class_Object {
+/**
+ * 
+ * @author kent
+ *
+ */
+class Class_Help extends Class_Object {
 	public $id_column = 'id';
 
 	public $find_keys = array(
@@ -37,7 +46,7 @@ class Class_Help extends zesk\Class_Object {
 
 	public $has_many = array(
 		'users' => array(
-			'class' => 'Help_User',
+			'class' => 'zesk\\Help_User',
 			'foreign_key' => 'help',
 			'far_key' => 'user'
 		)

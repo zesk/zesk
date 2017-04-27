@@ -39,7 +39,7 @@ This basically allows you to choose points anywhere in your source tree to serve
 
 ## How doth this sorcery work?
 
-It's a simple `Controller` called `Controller_Share` which does the logic of mapping one to the other. It's an empty class (inherits from zesk\Controller_Share) so you can override it in your application if you want special functionality.
+It's a simple `zesk\Controller` called `zesk\Controller_Share` which does the logic of mapping one to the other. 
 
 However, your first question is: Ain't that a tad slow?
 
@@ -47,17 +47,17 @@ The short answer is: Yes!
 
 The long answer is: Yes, but only the first time you load the resource.
 
-By default, there's an option for `Controller_Share` which is `build` which should be set to `true` in production systems.
+By default, there's an option for `zesk\Controller_Share` which is `build` which should be set to `true` in production systems. The first time a resource is accessed, it is copied to the directory path which matches it on the server; subsequent requests from the web server should serve the file directly from the file system.
 
 In your configuration file, this would look like:
 
 `.conf` file:
 
-	Controller_Share::build=true
+	zesk\Controller_Share::build=true
 	
 `.json` file:
 
-	"Controller_Share": {
+	"zesk\\Controller_Share": {
 		"build": true
 	}
 

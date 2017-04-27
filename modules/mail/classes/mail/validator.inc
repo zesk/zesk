@@ -1,12 +1,12 @@
 <?php
 /**
- * @version $Id: validator.inc 4056 2016-09-22 20:19:02Z kent $
+ * @version $Id: validator.inc 4500 2017-03-30 03:23:40Z kent $
  * @package zesk
  * @subpackage mail
  * @author Kent Davidson <kent@marketacumen.com>
  * @copyright Copyright &copy; 2016, Market Acumen, Inc.
  */
-use zesk\Timestamp;
+namespace zesk;
 
 /**
  * @package zesk

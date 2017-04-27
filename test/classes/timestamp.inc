@@ -1,5 +1,6 @@
 <?php
-use zesk\Timestamp;
+
+namespace zesk;
 
 class Test_Timestamp extends Test_Unit {
 	function test_instance() {

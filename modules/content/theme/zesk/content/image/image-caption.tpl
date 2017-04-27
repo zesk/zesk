@@ -9,6 +9,6 @@ namespace zesk;
 /* @var $route \zesk\Route */
 /* @var $request \zesk\Request */
 /* @var $response \zesk\Response_Text_HTML */
-/* @var $current_user \User */
-/* @var $object \Content_Image */
+/* @var $current_user \zesk\User */
+/* @var $object \zesk\Content_Image */
 echo HTML::etag('div', '.image-caption', $object->description);

@@ -1,4 +1,7 @@
 <?php
+
+namespace zesk;
+
 class test_ulong extends Test_Unit {
 
 	function test_ulong() {

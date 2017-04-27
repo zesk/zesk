@@ -6,6 +6,13 @@
  * @author Kent Davidson <kent@marketacumen.com>
  * @copyright Copyright &copy; 2010, Market Acumen, Inc.
  */
+namespace zesk;
+
+/**
+ * 
+ * @author kent
+ *
+ */
 class Net_SMTP_Client_Test extends Test_Unit {
 
 	function test_main() {

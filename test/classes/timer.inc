@@ -1,5 +1,6 @@
 <?php
-use zesk\Timer;
+namespace zesk;
+
 /**
  * 
  * @author kent

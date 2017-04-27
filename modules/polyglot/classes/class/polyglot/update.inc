@@ -1,11 +1,13 @@
 <?php
 
+namespace zesk;
+
 /**
  * @see PolyGlot_Update
  * @author kent
  *
  */
-class Class_PolyGlot_Update extends zesk\Class_Object {
+class Class_PolyGlot_Update extends Class_Object {
 	public $id_column = "locale";
 
 	public $auto_column = false;
@@ -16,6 +18,6 @@ class Class_PolyGlot_Update extends zesk\Class_Object {
 		"user" => self::type_object
 	);
 
-	protected $database_group = "PolyGlot_Token";
+	protected $database_group = "zesk\\PolyGlot_Token";
 
 }

@@ -6,10 +6,7 @@
  * @author Kent Davidson <kent@marketacumen.com>
  * @copyright Copyright &copy; 2007, Market Acumen, Inc.
  */
-use zesk\Object;
-use zesk\Options;
-use zesk\Text;
-use zesk\DocComment;
+namespace zesk;
 
 /**
  * Test_Unit class

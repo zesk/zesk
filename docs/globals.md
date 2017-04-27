@@ -12,7 +12,7 @@ The main accessor for global settings is the methods in the `zesk\Configuration`
 
 The global variable `$_ZESK` is *named similarly* to the PHP superglobals `$_SERVER`, `$_REQUEST`, etc. but is **not** a superglobal.
 
-**It is solely used for initializing the zesk globals prior to loading of `zesk.inc`. Once the `$zesk` global is instantiated, the `$_ZESK` global is not longer used.**
+**It is solely used for initializing the zesk globals prior to loading of Zesk's `autoload.php`. Once the `$zesk` global is instantiated, the `$_ZESK` global is not longer used.**
 
 Global keys are normalized to support use in a variety of contexts, but the general rule is stray punctuation is converted to underscores, and keys are lowercase. So:
 
@@ -23,7 +23,7 @@ Global keys are normalized to support use in a variety of contexts, but the gene
 
 	_zesk_global_key($key)
 	
-Normalizes all keys before they are used to access the global `$_ZESK`.
+Normalizes all keys before they are used to access a path into the `zesk\Configuration` object.
 
 Also, the `$_ZESK` global structure is multi-dimensional and is accessed using a "path" with `::` as the delimiter to different levels.
 
@@ -52,31 +52,31 @@ Certain globals in ZESK are "locked" and can not be overwritten by `zesk::set()`
 
 Obviously, you can overwrite these by accessing the `$_ZESK` global, so we discourage that practice. 
 
-# Settings
+# zesk\Settings
 
-`Settings` is an object which enables loading of Zesk globals from the database, and supports loading and saving those globals.
+`zesk\Settings` is an object which enables loading of Zesk globals from the database, and supports loading and saving those globals.
 
-	Settings::instance()->set("name", $value);
+	zesk\Settings::instance()->set("name", $value);
 	
 Values are serialized to the database, so complex structures can be stored and re-animated as needed. (However, use caution when storing large data as a global.) 
 
 If an application supports `Settings` for application configuration, all settings are loaded at Application configuration time. The `Settings` are loaded into the global scope, so:
 
-	Settings::instance()->get("named-value")
+	zesk\Settings::instance()->get("named-value")
 	
 and
 
-	zesk::get("named-value")
+	zesk()->configuration->get("named-value")
 	
 Are synonymous once loaded. To save a global, do:
 
 	Settings::instance()->set("named-value", $value);
 	
-Finally, to enable `Settings` support in an application, simply register its hooks:
+Finally, to enable `zesk\Settings` support in an application, simply register its hooks (TODO Is this still true?):
 
 	zesk\Hooks::register_class('Settings');
 
-... prior to `Application` configuration.
+... prior to `zesk\Application` configuration.
 
 # Reserved globals
 

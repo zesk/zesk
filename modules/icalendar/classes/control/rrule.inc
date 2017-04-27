@@ -5,7 +5,7 @@ use zesk\Date;
  * @author kent
  *
  */
-class Control_RRule extends Control {
+class Control_RRule extends \zesk\Control {
 	protected $render_children = false;
 	protected $child_widgets = array();
 	protected function initialize() {

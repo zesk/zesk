@@ -34,4 +34,7 @@ class Class_Server extends Class_Object {
 			'foreign_key' => 'server'
 		)
 	);
+	public $column_defaults = array(
+		'free_disk_units' => Server::disk_units_bytes
+	);
 }

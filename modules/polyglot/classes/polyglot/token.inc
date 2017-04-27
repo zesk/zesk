@@ -6,8 +6,7 @@
  * @subpackage {subpackage}
  * @copyright Copyright (C) 2016, {company}. All rights reserved.
  */
-use zesk\Locale;
-use zesk\Database_Query_Select;
+namespace zesk;
 
 /**
  * @author kent
@@ -27,7 +26,7 @@ class PolyGlot_Token extends Object {
 	
 	/**
 	 *
-	 * @var zesk\Locale_Validate
+	 * @var Locale_Validate
 	 */
 	private $validator = null;
 	/**
@@ -75,7 +74,7 @@ class PolyGlot_Token extends Object {
 	/**
 	 * 
 	 * {@inheritDoc}
-	 * @see \zesk\Object::store()
+	 * @see Object::store()
 	 */
 	public function store() {
 		$this->md5 = md5($this->original);
@@ -123,11 +122,12 @@ class PolyGlot_Token extends Object {
 	 * @return rray
 	 */
 	public static function fetch_all($language, $dialect = null) {
+		$app = app();
 		$where = array(
 			"language" => $language,
 			"dialect" => $dialect
 		);
-		$query = Object::class_query(__CLASS__);
+		$query = $app->query_select(__CLASS__);
 		$where = array(
 			array(
 				$where,
@@ -162,10 +162,11 @@ class PolyGlot_Token extends Object {
 	/**
 	 *
 	 * @param string $locale
-	 * @return zesk\Database_Query_Select
+	 * @return Database_Query_Select
 	 */
 	public static function locale_query($locale) {
-		return Object::class_query(__CLASS__)->what_object()->where(array(
+		$app = app();
+		return $app->query_select(__CLASS__)->what_object()->where(array(
 			"dialect" => Locale::dialect($locale),
 			"language" => Locale::language($locale)
 		));
@@ -181,14 +182,18 @@ class PolyGlot_Token extends Object {
 		));
 	}
 	public static function htmlentities_all() {
-		$iterator = Object::class_query(__CLASS__)->what(array(
+		$app = app();
+		$iterator = $app->query_select(__CLASS__)->what(array(
 			"id" => "id",
 			"translation" => "translation"
 		))->iterator("id", "translation");
 		foreach ($iterator as $id => $translation) {
 			$entities = htmlentities($translation);
 			if ($entities !== $translation) {
-				Object::class_query_update(__CLASS__)->value("translation", $entities)->where("id", $id)->execute();
+				$app->query_update(__CLASS__)
+					->value("translation", $entities)
+					->where("id", $id)
+					->exec();
 				$this->application->logger->debug("Updated #{id} {translation} to {entities}", compact("id", "translation", "entities"));
 			}
 		}
@@ -196,11 +201,11 @@ class PolyGlot_Token extends Object {
 	
 	/**
 	 *
-	 * @return zesk\Locale_Validate
+	 * @return Locale_Validate
 	 */
 	private function validator() {
 		if ($this->validator === null) {
-			$this->validator = new zesk\Locale_Validate();
+			$this->validator = new Locale_Validate();
 		}
 		return $this->validator;
 	}

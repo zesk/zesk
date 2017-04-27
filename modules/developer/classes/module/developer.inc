@@ -230,7 +230,7 @@ class Module_Developer extends Module implements Interface_Module_Routes {
 		$router = $request->router;
 		/* @var $route Route */
 		foreach ($router->routes() as $pattern => $route) {
-			echo HTML::tag('h2', $route->clean_pattern) . theme('dl', array(
+			echo HTML::tag('h2', $route->clean_pattern) . $this->application->theme('dl', array(
 				'class' => get_class($route)
 			) + $route->option());
 		}

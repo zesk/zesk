@@ -1,8 +1,15 @@
 <?php
-use zesk\HTML;
-use zesk\HTML_Tag;
+/**
+ * 
+ */
+namespace zesk;
 
-class test_html extends Test_Unit {
+/**
+ * 
+ * @author kent
+ *
+ */
+class test_html extends \Test_Unit {
 
 	function test_style_clean() {
 		$attr = array(

@@ -1,4 +1,14 @@
 <?php
+/**
+ * 
+ */
+use zesk\Hookable;
+
+/**
+ * 
+ * @author kent
+ *
+ */
 abstract class Workflow_Step extends Hookable {
 	
 	/**

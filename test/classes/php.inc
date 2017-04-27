@@ -1,4 +1,7 @@
 <?php
+
+namespace zesk;
+
 class test_php extends Test_Unit {
 	function test_php_basics() {
 		$this->assert_false(!!array());
@@ -6,7 +9,7 @@ class test_php extends Test_Unit {
 			1
 		));
 		$truthy = array(
-			new stdClass(),
+			new \stdClass(),
 			array(
 				1
 			),
@@ -41,9 +44,9 @@ class test_php extends Test_Unit {
 	 * JS: var a = arg || {};
 	 */
 	function test_php_andor() {
-		$a = new stdClass();
+		$a = new \stdClass();
 		$a->val = "a";
-		$b = new stdClass();
+		$b = new \stdClass();
 		$b->val = "b";
 		
 		$c = $a || $b;

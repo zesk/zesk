@@ -33,8 +33,27 @@ class HookGroup {
  *        
  */
 class Hooks {
+	/**
+	 * 
+	 * @var string
+	 */
+	const hook_database_configure = "database_configure";
+	
+	/**
+	 * 
+	 * @var string
+	 */
 	const hook_configured = "configured";
+	
+	/**
+	 * 
+	 * @var string
+	 */
 	const hook_reset = "reset";
+	/**
+	 * 
+	 * @var string
+	 */
 	const hook_exit = "exit";
 	
 	/**
@@ -318,10 +337,12 @@ class Hooks {
 			));
 			return;
 		}
-		$options['callable'] = $callable = ($function === null ? $hook : $function);
+		$options['callable'] = ($function === null ? $hook : $function);
 		$n = count($this->hooks[$hook]);
 		if (isset($options['first'])) {
-			$hook_group->first[$callable_string] = $options;
+			$hook_group->first = array_merge(array(
+				$callable_string => $options
+			), $hook_group->first);
 		} else if (isset($options['last'])) {
 			$hook_group->last[$callable_string] = $options;
 		} else {

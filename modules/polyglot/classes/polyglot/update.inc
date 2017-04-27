@@ -2,11 +2,7 @@
 /**
  * 
  */
-use zesk\File;
-use zesk\Locale;
-use zesk\Timestamp;
-use zesk\Exception_FileSystem;
-use zesk\Exception_File_Permission;
+namespace zesk;
 
 /**
  * @see Class_PolyGlot_Update
@@ -14,6 +10,12 @@ use zesk\Exception_File_Permission;
  *
  */
 class PolyGlot_Update extends Object {
+	/**
+	 * 
+	 * @param unknown $locale
+	 * @param User $user
+	 * @return \zesk\Object
+	 */
 	public static function register_update($locale, User $user = null) {
 		$object = Object::factory(__CLASS__, array(
 			"locale" => Locale::normalize($locale)
@@ -26,13 +28,17 @@ class PolyGlot_Update extends Object {
 		$object->updated = "now";
 		return $object->store();
 	}
-	public static function cron_minute(zesk\Application $application) {
+	/**
+	 * 
+	 * @param Application $application
+	 */
+	public static function cron_minute(Application $application) {
 		global $zesk;
-		/* @var $zesk zesk\Kernel */
+		/* @var $zesk Kernel */
 		$server = Server::singleton();
-		$path = $zesk->configuration->path_get("Module_PolyGlot::update_path", $application->application_root("etc/language"));
+		$path = $zesk->configuration->path_get("zesk\\Module_PolyGlot::update_path", $application->application_root("etc/language"));
 		if (!is_dir($path)) {
-			$this->application->logger->warning("Module_PolyGlot::update_path is not a directory ({path}) on {server}", array(
+			$application->logger->warning("zesk\\Module_PolyGlot::update_path is not a directory ({path}) on {server}", array(
 				"path" => $path,
 				"server" => $server->name
 			));
@@ -45,13 +51,16 @@ class PolyGlot_Update extends Object {
 		if ($server_updated) {
 			$server_updated = Timestamp::factory($server_updated);
 			if ($server_updated->before($update_requested)) {
-				$update_locales = $application->query_select(__CLASS__)->what("locale", "locale")->where("updated|>=", $server_updated)->to_array(null, "locale");
+				$update_locales = $application->query_select(__CLASS__)
+					->what("locale", "locale")
+					->where("updated|>=", $server_updated)
+					->to_array(null, "locale");
 			}
 		} else {
 			$update_locales = $application->query_select(__CLASS__)->what("locale", "locale")->to_array(null, "locale");
 		}
 		if (count($update_locales) === 0) {
-			$this->application->logger->debug("No locale updates needed on {server}", array(
+			$application->logger->debug("No locale updates needed on {server}", array(
 				"server" => $server->name
 			));
 			return;
@@ -60,7 +69,8 @@ class PolyGlot_Update extends Object {
 		foreach ($update_locales as $update_locale) {
 			$dialect = Locale::dialect($update_locale);
 			if (!$dialect) {
-				$expanded_locales = $application->query_select('PolyGlot_Token')->distinct(true)
+				$expanded_locales = $application->query_select('zesk\\PolyGlot_Token')
+					->distinct(true)
 					->what("*locale", "CONCAT(language,'_',dialect)")
 					->where(array(
 					"language" => $update_locale,
@@ -77,7 +87,7 @@ class PolyGlot_Update extends Object {
 		}
 		$update_locales = array_merge($update_locales, $additional_locales);
 		$update_locales = array_unique($update_locales);
-		$this->application->logger->warning("Updating locales {locales} on {server}", array(
+		$application->logger->warning("Updating locales {locales} on {server}", array(
 			"locales" => $update_locales,
 			"server" => $server->name
 		));
@@ -87,7 +97,7 @@ class PolyGlot_Update extends Object {
 			try {
 				self::update_locale($path, $update_locale);
 			} catch (Exception $e) {
-				$this->application->logger->error("Updating locale {locale} on {server} FAILED due to {message}", array(
+				$application->logger->error("Updating locale {locale} on {server} FAILED due to {message}", array(
 					"locales" => $update_locales,
 					"server" => $server->name,
 					"message" => $e->getMessage()
@@ -99,14 +109,32 @@ class PolyGlot_Update extends Object {
 			$server->data($server_variable_name, time());
 		}
 	}
+	
+	/**
+	 * 
+	 * @param resource $f
+	 * @param string $filename
+	 * @param string $original
+	 * @param string $translation
+	 * @throws Exception_FileSystem
+	 */
 	private static function write_translation_line($f, $filename, $original, $translation) {
 		if (!fwrite($f, '$tt[' . PHP::dump($original) . "] = " . PHP::dump($translation) . ";\n")) {
 			throw new Exception_FileSystem($filename, "Unable to write to {filename}");
 		}
 	}
+	
+	/**
+	 * 
+	 * @param string $path
+	 * @param string $locale
+	 * @throws Exception_File_Permission
+	 * @throws Exception
+	 * @return boolean
+	 */
 	public static function update_locale($path, $locale) {
 		global $zesk;
-		/* @var $zesk zesk\Kernel */
+		/* @var $zesk Kernel */
 		
 		$iterator = PolyGlot_Token::locale_query($locale)->where("status", PolyGlot_Token::status_done)->order_by("updated DESC,original")->iterator("original", "translation");
 		

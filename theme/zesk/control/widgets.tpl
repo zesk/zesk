@@ -6,7 +6,7 @@ use zesk\HTML;
 use zesk\arr;
 
 /**
- * Note similarities here and control/edit.tpl
+ * Note similarities here and zesk/control/edit.tpl
  * TODO Consider merging the two to have consistency?
  *
  */

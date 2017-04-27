@@ -6,6 +6,7 @@
  * @author $Author: kent $
  * @copyright Copyright &copy; 2011, Market Acumen, Inc.
  */
+namespace zesk;
 
 /* @var $this zesk\Template */
 $suffix = "";

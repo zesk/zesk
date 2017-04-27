@@ -6,13 +6,13 @@
  * @package zesk
  * @subpackage mail
  */
-
-use zesk\Timestamp;
+namespace zesk;
 
 /**
  * Pattern for matching a list of email addresses
  */
 define("PREG_EMAIL_LIST", '/([^",]*"[^"]*"[^",]*|[^",]*),/'); // Matches "foo" <bar@dee.com>, foo <bar@dee.com>, dee@bar.com
+
 
 /**
  * Database object representing a single email message
@@ -26,7 +26,7 @@ class Mail_Message extends Object {
 			"To" => "mail_to",
 			"Subject" => "subject"
 		);
-
+		
 		foreach ($items as $item => $var) {
 			$item = strtolower($item);
 			if (isset($headers[$item])) {
@@ -72,10 +72,13 @@ class Mail_Message extends Object {
 		))->register();
 		$hTypeID = $htype->id();
 		if ($value === null) {
-			$result = $this->member_query("headers")->where("headers.type", $htype)->what(array(
+			$result = $this->member_query("headers")
+				->where("headers.type", $htype)
+				->what(array(
 				"id" => "headers.id",
 				"value" => "headers.value"
-			))->to_array("id", "value");
+			))
+				->to_array("id", "value");
 			if (count($result) === 1) {
 				return avalue(array_values($result), 0);
 			}
@@ -145,10 +148,10 @@ class Mail_Message extends Object {
 		}
 		return $this->header("CC", $value);
 	}
-
+	
 	/*====================================================================================*\
-	* Sending
-	\*------------------------------------------------------------------------------------*/
+	 * Sending
+	 \*------------------------------------------------------------------------------------*/
 	private static function _parseEmail($mixed) {
 		$matches = false;
 		if (preg_match('/([-A-Za-z_.\']+@[-a-z0-9A-Z.]+)/', $mixed, $matches)) {
@@ -231,7 +234,7 @@ class Mail_Message extends Object {
 	}
 	function _mailExtras() {
 		$extras = array();
-
+		
 		/* @var $head Mail_Header */
 		foreach ($this->headers as $head) {
 			$name = $head->name();
@@ -243,8 +246,8 @@ class Mail_Message extends Object {
 				$extras[$name] = $value;
 			}
 		}
-		$extras["X-Mailer"] = "zesk/" . zesk\Version::release();
-
+		$extras["X-Mailer"] = "zesk/" . Version::release();
+		
 		if (!$this->member_is_empty("mail_from")) {
 			$extras["From"] = $this->mail_from;
 		}
@@ -252,62 +255,21 @@ class Mail_Message extends Object {
 			$this->message_id = md5(microtime());
 		}
 		$extras["Message-ID"] = $this->message_id;
-
+		
 		$result = array();
 		foreach ($extras as $k => $v) {
 			$result[] = "$k:$v";
 		}
 		return $result;
 	}
-
-	//	function inheritTemplate($t, $excludeList=false)
-	//	{
-	//		$blocks =
-	//		array(
-	//		"From"			=> "setFrom",
-	//		"To"			=> "setTo",
-	//		"BCC"			=> "setBCC",
-	//		"Subject"		=> "setSubject",
-	//		"content.Text"		=> "setBody",
-	//		"content.HTML"		=> "setHTMLBody",
-	//		);
-	//		if (!is_array($excludeList)) {
-	//			$excludeList = array();
-	//		} else {
-	//			$excludeList = array_change_key_case(array_flip($excludeList));
-	//		}
-	//		$errors = array();
-	//		foreach ($blocks as $block => $func) {
-	//			if (isset($excludeList[strtolower($block)])) {
-	//				continue;
-	//			}
-	//			if ($t->isBlock($block)) {
-	//				CLog::debug("self::inheritTemplate: has block $block");
-	//			} else {
-	//				CLog::debug("self::inheritTemplate: DOES NOT have block $block");
-	//			}
-	//			$value = $t->getBlock($block, true);
-	//			$value = trim($value);
-	//			if (!empty($value)) {
-	//				$err = $this->$func($value);
-	//				if (is_error($err)) {
-	//					$errors[] = $err;
-	//				}
-	//			}
-	//		}
-	//		if (count($errors) === 0) {
-	//			return true;
-	//		}
-	//		return $this->throwErrors($errors);
-	//	}
-	function send($force = false) {
+	function send() {
 		$to = $this->_mailTo();
 		$subject = $this->headerGet("Subject");
 		$content = $this->content;
 		$extras = $this->_mailExtras();
-
-		$mailBR = zesk::$is_windows ? "\r\n" : "\n";
-
+		
+		$mailBR = zesk()->is_windows ? "\r\n" : "\n";
+		
 		$extras = implode($mailBR, $extras) . $mailBR;
 		if (ZESK_DEBUG_MAIL) {
 			$ff = fopen("/tmp/Mail.log", "a");

@@ -262,7 +262,7 @@ class Widget extends Hookable {
 		$this->options += array(
 			'name' => avalue($this->options, 'column')
 		);
-		$this->hierarchy = $zesk->classes->hierarchy($this, 'Widget');
+		$this->hierarchy = $zesk->classes->hierarchy($this, __CLASS__);
 		if ($this->theme === null) {
 			$this->theme = arr::change_value_case(tr($this->hierarchy, array(
 				"\\" => "/",
@@ -270,7 +270,9 @@ class Widget extends Hookable {
 			)));
 		}
 		if ($this->context_class() === null) {
-			$this->context_class(strtr(strtolower(get_class($this)), '_', '-'));
+			$cl = get_class($this);
+			$cl = str::rright($cl, "\\", $cl);
+			$this->context_class(strtr(strtolower($cl), '_', '-'));
 		}
 		$this->call_hook("construct");
 	}
@@ -588,6 +590,8 @@ class Widget extends Hookable {
 		} catch (Exception_Class_NotFound $e) {
 			if (strpos($class, "\\") === false && class_exists("zesk\\$class")) {
 				$widget = $zesk->objects->factory_arguments("zesk\\" . $class, $args);
+			} else {
+				throw $e;
 			}
 		}
 		if (!$widget instanceof Widget) {
@@ -1556,7 +1560,7 @@ class Widget extends Hookable {
 						$this->save_new_value($new_value);
 					}
 				}
-			} else if ($this->request->has($input_name, false)) {
+			} else if ($input_name && $this->request->has($input_name, false)) {
 				$new_value = $this->request->get($input_name);
 				$new_value = $this->sanitize($new_value);
 				if (!in_array($new_value, $this->load_ignore_values, true)) {

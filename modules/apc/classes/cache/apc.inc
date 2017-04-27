@@ -1,5 +1,7 @@
 <?php
 
+namespace zesk;
+
 class Cache_APC extends Cache {
 
 	/**
@@ -51,4 +53,3 @@ class Cache_APC extends Cache {
 	}
 
 }
-

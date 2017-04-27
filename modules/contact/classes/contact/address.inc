@@ -1,6 +1,9 @@
 <?php
+/**
+ * 
+ */
+namespace zesk;
 
-use zesk\Timestamp;
 /**
  * @see Class_Contact_Address
  * @property string $name
@@ -22,10 +25,54 @@ use zesk\Timestamp;
  * @property Contact_Label $label
  * @property Country $country
  */
-class Contact_Address extends Zesk_Contact_Address {
-
+class Contact_Address extends Contact_Info {
+	/**
+	 * 
+	 * @var unknown
+	 */
 	const earth_radius_semimajor = 6378137.0;
-
+	
+	/**
+	 * 
+	 * {@inheritDoc}
+	 * @see \zesk\Contact_Info::store()
+	 */
+	public function store() {
+		if ($this->changed("country;unparsed;street;additional;city;county;province;postal_code")) {
+			$this->geocoded = null;
+			$this->geocode_data = null;
+		}
+		if ($this->changed('value')) {
+			$address = Contact_Address_Parser::parse($this->value);
+			if ($address) {
+				$columns = array(
+					"Street",
+					"City",
+					"Province",
+					"PostalCode",
+					"Country"
+				);
+				foreach ($columns as $col) {
+					$this->$col = $address->$col;
+				}
+			}
+		}
+		return parent::store();
+	}
+	
+	/**
+	 * 
+	 * {@inheritDoc}
+	 * @see \zesk\Contact_Info::label_type()
+	 */
+	function label_type() {
+		return Contact_Label::LabelType_Address;
+	}
+	
+	/**
+	 * 
+	 * @return string[]
+	 */
 	public static function lang_member_names() {
 		return array(
 			"id" => __('ID'),
@@ -50,20 +97,39 @@ class Contact_Address extends Zesk_Contact_Address {
 			'data' => __('Data')
 		);
 	}
+	
+	/**
+	 * 
+	 * @return number
+	 */
 	private static function earth_flattening() {
 		return 1.0 / 298.257223563;
 	}
-
+	
+	/**
+	 * 
+	 * @return number
+	 */
 	private static function earth_radius_semiminor() {
 		return self::earth_radius_semimajor * (1 - self::earth_flattening());
 	}
-
+	
+	/**
+	 * 
+	 * @return boolean
+	 */
 	public function has_geo() {
 		return !$this->member_is_empty(array(
 			'latitude',
 			'longitude'
 		));
 	}
+	
+	/**
+	 * 
+	 * @param Contact_Address $that
+	 * @return number|NULL
+	 */
 	public function distance(Contact_Address $that) {
 		if ($this->has_geo() && $that->has_geo()) {
 			return self::geographic_distance($this->longitude, $this->latitude, $that->longitude, $that->latitude);
@@ -79,7 +145,15 @@ class Contact_Address extends Zesk_Contact_Address {
 		$y = sin($lat) / self::earth_radius_semiminor();
 		return 1 / (sqrt($x * $x + $y * $y));
 	}
-
+	
+	/**
+	 * 
+	 * @param double $A_lon
+	 * @param double $A_lat
+	 * @param double $B_lon
+	 * @param double $B_lat
+	 * @return double
+	 */
 	function geographic_distance($A_lon, $A_lat, $B_lon, $B_lat) {
 		/*
 		 * http://www.sunearthtools.com/tools/distance.php#txtDist_1
@@ -96,46 +170,51 @@ class Contact_Address extends Zesk_Contact_Address {
 		$alat = deg2rad($A_lat);
 		$blon = deg2rad($B_lon);
 		$blat = deg2rad($B_lat);
-
+		
 		// Radius at average point of lat/long
 		$radius = self::earth_radius(($A_lat + $B_lat) / 2);
 		$cosangle = cos($alat) * cos($blat) * (cos($alon) * cos($blon) + sin($alon) * sin($blon)) + sin($alat) * sin($blat);
 		return acos($cosangle) * $radius;
 	}
-
+	
+	/**
+	 * 
+	 * @param double $lon
+	 * @param double $lat
+	 * @param string $alias
+	 * @param real $null_value
+	 * @return string
+	 */
 	static function mysql_geographic_distance($lon, $lat, $alias = '', $null_value = 1e100) {
 		$x = deg2rad($lon);
 		$y = deg2rad($lat);
-
+		
 		$radius = self::earth_radius($lat);
-
+		
 		$alias = empty($alias) ? $alias : ($alias . '.');
-
+		
 		$cosx = cos($x);
 		$cosy = cos($y);
 		$sinx = sin($x);
 		$siny = sin($y);
-
+		
 		return "IFNULL(ACOS($cosy * COS(RADIANS({$alias}latitude)) * ($cosx * COS(RADIANS({$alias}longitude)) + $sinx * SIN(RADIANS({$alias}longitude))) + $siny * SIN(RADIANS({$alias}latitude))), $null_value) * $radius";
 	}
-
+	
 	/**
 	 *
 	 * @return Contact_Address_Parser
 	 */
 	private function parser() {
-		return zesk::singleton("Contact_Address_Parser");
+		return $this->application->object_singleton("Contact_Address_Parser");
 	}
+	
+	/**
+	 * 
+	 * @param unknown $raw
+	 */
 	public function parse($raw) {
 		$parser = $this->parser();
 		$parser->parse($raw);
-	}
-
-	public function store() {
-		if ($this->changed("country;unparsed;street;additional;city;county;province;postal_code")) {
-			$this->geocoded = null;
-			$this->geocode_data = null;
-		}
-		return parent::store();
 	}
 }

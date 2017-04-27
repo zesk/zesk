@@ -2,7 +2,7 @@
  * $URL$
  * 
  * @package zesk
- * @subpackage Control_DropDown
+ * @subpackage Control_Dropdown
  * @author Kent M. Davidson http://www.razzed.com/
  * @copyright Copyright &copy; 2016, Market Acumen, Inc.
  * 

@@ -75,6 +75,7 @@ class Controller extends Hookable implements Interface_Theme {
 		parent::__construct($options);
 		
 		$this->inherit_global_options();
+		
 		$this->application = $app;
 		$this->router = $app->router;
 		$this->route = $this->router ? $this->router->route : null;
@@ -114,58 +115,6 @@ class Controller extends Hookable implements Interface_Theme {
 	 * Stub for override - initialize the controller - called after __construct is done.
 	 */
 	protected function initialize() {
-	}
-	
-	/**
-	 * Possibly very slow
-	 *
-	 * @return array
-	 */
-	final public static function all(Application $application) {
-		global $zesk;
-		/* @var $zesk Kernel */
-		$paths = $zesk->autoloader->path();
-		$cache = Cache::register(__CLASS__);
-		if (is_array($cache->all) && count($paths) === $cache->n_paths) {
-			return $cache->all;
-		}
-		$list_options = array(
-			'file_include_pattern' => '/\.(inc|php)$/',
-			'directory_default' => false
-		);
-		$found = array();
-		foreach ($paths as $path => $options) {
-			$controller_path = path($path, "controller");
-			if (is_dir($controller_path)) {
-				$controller_incs = Directory::list_recursive($controller_path, $list_options);
-				foreach ($controller_incs as $controller_inc) {
-					if (strpos("/$controller_inc", '/.') !== false) {
-						continue;
-					}
-					$zesk->logger->debug("Found controller {controller_inc}", compact("controller_inc"));
-					try {
-						$class_name = 'Controller_' . strtr(str::unsuffix($controller_inc, ".inc"), '/', '_');
-						$zesk->logger->debug("class name is {class_name}", compact("class_name"));
-						$refl = new ReflectionClass($class_name);
-						if (!$refl->isAbstract()) {
-							/* @var $controller Controller */
-							$controller = $refl->newInstance($application);
-							$found[$refl->getName()] = array(
-								'path' => path($controller_path, $controller_inc),
-								'classes' => $controller->call_hook('classes', array(), array())
-							);
-						}
-					} catch (ReflectionException $e) {
-					} catch (\Exception $e) {
-						$zesk->logger->error("Exception creating controller {controller_inc} {e}", compact("controller_inc", "e"));
-					}
-				}
-			}
-		}
-		ksort($found);
-		$cache->all = $found;
-		$cache->n_paths = count($paths);
-		return $found;
 	}
 	
 	/**
@@ -274,11 +223,8 @@ class Controller extends Hookable implements Interface_Theme {
 	public final function optional_method($name, array $arguments) {
 		$names = to_list($name);
 		foreach ($names as $name) {
-			if (method_exists($this, $name)) {
-				return call_user_func_array(array(
-					$this,
-					$name
-				), $arguments);
+			if ($this->has_method($name)) {
+				return $this->invoke_method($name, $arguments);
 			}
 		}
 		return $arguments;
@@ -301,12 +247,6 @@ class Controller extends Hookable implements Interface_Theme {
 	 * @return mixed
 	 */
 	public final function invoke_method($name, array $arguments) {
-		if (!method_exists($this, $name)) {
-			throw new Exception_NotFound("No method {name} in {class}", array(
-				"class" => get_class($this),
-				"name" => $name
-			));
-		}
 		return call_user_func_array(array(
 			$this,
 			$name
@@ -359,6 +299,60 @@ class Controller extends Hookable implements Interface_Theme {
 	 */
 	public function object_factory($class, $mixed = null, array $options = array()) {
 		return $this->application->object_factory($class, $mixed, $options);
+	}
+	
+	/**
+	 * Possibly very slow
+	 *
+	 * @return array
+	 */
+	final public static function all(Application $application) {
+		global $zesk;
+		/* @var $zesk Kernel */
+		$paths = $zesk->autoloader->path();
+		$cache = Cache::register(__CLASS__);
+		if (is_array($cache->all) && count($paths) === $cache->n_paths) {
+			return $cache->all;
+		}
+		$list_options = array(
+			'file_include_pattern' => '/\.(inc|php)$/',
+			'directory_default' => false
+		);
+		$found = array();
+		foreach ($paths as $path => $options) {
+			$controller_path = path($path, "controller");
+			if (is_dir($controller_path)) {
+				$class_prefix = avalue($options, "class_prefix", "");
+				$controller_incs = Directory::list_recursive($controller_path, $list_options);
+				foreach ($controller_incs as $controller_inc) {
+					if (strpos("/$controller_inc", '/.') !== false) {
+						continue;
+					}
+					$zesk->logger->debug("Found controller {controller_inc}", compact("controller_inc"));
+					try {
+						$controller_inc = File::extension_change($controller_inc, null);
+						$class_name = $class_prefix . 'Controller_' . strtr($controller_inc, '/', '_');
+						$zesk->logger->debug("class name is {class_name}", compact("class_name"));
+						$refl = new ReflectionClass($class_name);
+						if (!$refl->isAbstract()) {
+							/* @var $controller Controller */
+							$controller = $refl->newInstance($application);
+							$found[$refl->getName()] = array(
+								'path' => path($controller_path, $controller_inc),
+								'classes' => $controller->call_hook('classes', array(), array())
+							);
+						}
+					} catch (ReflectionException $e) {
+					} catch (\Exception $e) {
+						$zesk->logger->error("Exception creating controller {controller_inc} {e}", compact("controller_inc", "e"));
+					}
+				}
+			}
+		}
+		ksort($found);
+		$cache->all = $found;
+		$cache->n_paths = count($paths);
+		return $found;
 	}
 }
 

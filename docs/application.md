@@ -4,13 +4,13 @@ A Zesk Application is the primary container in which to deliver functionality.
 
 `Application` objects are generally used as singleton objects within your program.
 
-To create an application, all your application need do is create a file with the extension `.application.inc`. (e.g. `awesome.application.inc`) and place that file in the root directory of your application.
+To create an application, all your application need do is create a file with the extension `.application.php`. (e.g. `awesome.application.php`) and place that file in the root directory of your application.
 
 The main application entry point should load the minimum configuration to run your application, typically loading configuration files and any external modules required at all times.
 
 As the location of the Zesk toolkit changes from development to live platforms, we recommend that your application dynamically locate the Zesk library using a technique shown in the file
 
-	https://code.marketacumen.com/zesk/trunk/_zesk_loader_.inc
+	https://code.marketacumen.com/zesk/trunk/_zesk_loader_.php
 
 This will allow you to have Zesk installed in different locations on your development or production machines. 
 
@@ -34,7 +34,7 @@ This will allow you to have Zesk installed in different locations on your develo
 			if (array_key_exists('ZESK_ROOT', $_SERVER)) {
 				return $_SERVER['ZESK_ROOT'];
 			}
-			if (is_file(ZESK_APPLICATION_ROOT . '../zesk/zesk.inc')) {
+			if (is_file(ZESK_APPLICATION_ROOT . '../zesk/zesk.php')) {
 				return dirname(ZESK_APPLICATION_ROOT) . '/zesk/';
 			}
 			$ff = array(
@@ -62,7 +62,7 @@ This will allow you to have Zesk installed in different locations on your develo
 				$root = self::_find_root();
 				define('ZESK_ROOT', rtrim($root, "/") . "/");
 			}
-			return require_once ZESK_ROOT . 'zesk.inc';
+			return require_once ZESK_ROOT . 'zesk.php';
 		}
 	}
 
@@ -156,7 +156,7 @@ For web applications, you should create an `index.php` file with the following c
 
 	<?php
 	try {
-		require_once dirname(dirname(__FILE__)) . '/awesome.application.inc';
+		require_once dirname(dirname(__FILE__)) . '/awesome.application.php';
 		$application = Application::instance();
 		$application->index();
 	} catch (Exception $e) {
@@ -168,4 +168,50 @@ For web applications, you should create an `index.php` file with the following c
 		exit(1);
 	}
 	
+
+## How applications are initialized
+
+Applications are created upon each web request and generally destroyed at the end of that request. The creation process and ordering of components becomes important in that you may want modules to execute certain functions prior to other setup tasks.
+
+Here's the order of operations of applications during a request. Note individual applications can modify some aspects of initialization if custom operations are required. Application initialization and configuration is generally broken into three parts:
+
+1. Zesk initialization - Setting up the basic environment to find code and resources to run your application
+1. Application and module initialization - Register code hooks, load configuration files, and initialize modules with defaults and dependencies
+1. Application configuration hooks - Run the `configured` hook on the application to tell all objects we're ready to handle requests
+
+Now, broken into smaller sections:
+
+### 1. Zesk Initialization
+
+1. Zesk initialization, autoload configuration to find application class
+1. Set `zesk()->application_class` to class of application (e.g. `amazing\Application`)
+1. `\zesk\Application::instance()` or `app()` creates our application singleton. The application singleton contains most global objects from `zesk()` by reference (`zesk\Paths`,`zesk\Hooks`,`zesk\Configuration`,`zesk\Logger`,`zesk\Classes`,`zesk\Objects`,`zesk\Process`)
+
+### 2. Application and module initialization
+
+`app()->configure()` is called which consists of the following steps
+
+1. Hooks are registered using `app()->hooks->register_class()` for
+ - `zesk\Cache`
+ - `zesk\Database`
+ - `zesk\Settings`
+1. Hooks are registered using `app()->hooks->register_class()` for classes listed in `app()->register_hooks`
+1. `app()->call_hook("configure")` is called
+1. Application cache paths and document cache paths is computed
+1. `app()->preconfigure()` is called to set up additional paths and configure which files to load
+1. Application configuration files are loaded and stored in the global `Configuration` state
+1. `app()->call_hook("configured_files")` is called to handle extending or mananging file configuration state before modules are loaded
+1. Modules are loaded, and each module object is created and linked to our application instance, and each `zesk\Module->initialize()` call is called (which can register additional hooks). If your module throws an exception during the `initialize()` call, the object is discarded and the exception stored
+1. The application's options are reconfigured from the global configuration 
+1. Any modules dynamically loaded from `app()->option_list("modules")` are loaded
+
+### 3. Application configuration hooks
+
+The configured hooks instruct the system that "everything is ready and configuration can complete"; typically this is when modules and objects load their initial state from the configuration and deal with deprecated options and settings.
+
+Configured hooks are called from lowest-level to highest level:
+
+- System wide hook `configured` is called first
+- Each module's `hook_configured()` call is called, in order of module dependency
+- Finally the `\zesk\Application` object `hook_configured()` call is made
 

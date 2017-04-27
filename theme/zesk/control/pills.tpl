@@ -1,4 +1,6 @@
 <?php
+namespace zesk;
+
 $name = $this->name;
 $value = $this->value;
 $active_classes = "active btn-primary";

@@ -50,10 +50,30 @@ abstract class Module extends Hookable {
 	
 	/**
 	 * List of associated classes
+	 * 
+	 * Matches Application pattern of using "object_classes" member instead for consistency
 	 *
+	 * @deprecated 2017-03
+	 * @see $this->object_classes
 	 * @var array
 	 */
 	protected $classes = array();
+	
+	/**
+	 * List of associated Object classes
+	 *
+	 * @var array
+	 */
+	protected $object_classes = array();
+	
+	/**
+	 * Array of old_class => new_class
+	 *  
+	 * List of object aliases to automatically register.
+	 *
+	 * @var array
+	 */
+	protected $object_aliases = array();
 	
 	/**
 	 *
@@ -94,9 +114,26 @@ abstract class Module extends Hookable {
 			// Code name used in JavaScript settings
 			$this->codename = strtolower($codename);
 		}
+		if (count($this->classes) !== 0) {
+			$this->zesk->deprecated(get_class($this) . "->classes is deprecated, use ->object_classes");
+		}
 		$this->application->register_class($this->classes());
+		if (count($this->object_aliases)) {
+			$this->application->objects->map($this->object_aliases);
+		}
 	}
-	
+	/**
+	 * 
+	 * @param string $pathm
+	 */
+	public final function register_paths($path) {
+		return $this->application->modules->register_paths($path, $this->codename);
+	}
+	public function __toString() {
+		$php = new PHP();
+		$php->settings_one();
+		return "app(), " . $php->render($this->options);
+	}
 	/**
 	 * Override in subclasses - called upon load
 	 */
@@ -109,7 +146,7 @@ abstract class Module extends Hookable {
 	 * Override in subclasses - called upon Application::classes
 	 */
 	public function classes() {
-		return $this->classes;
+		return array_merge($this->object_classes, $this->classes);
 	}
 	
 	/**

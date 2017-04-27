@@ -15,7 +15,7 @@ namespace zesk;
  * @author kent
  *
  */
-class Control_Checklist extends Control_Options {
+class Control_Checklist extends Control_Optionss {
 	const option_checklist_exclusive = "checklist_exclusive";
 	
 	/**

@@ -18,6 +18,15 @@ Then the router will be loaded from:
 
 	classes/application/myapp.router
 
+**Important**: You must have the following field defined in your `\zesk\Application` subclass:
+
+	class MyApp extends \zesk\Application {
+		public $file = __FILE__;
+		...
+	}
+
+The `\zesk\Application` locates the router file using this field and by changing the file extension with `File::extension_change()`; this is implemented in `\zesk\Application::hook_router()`. If you have special handling of your router file, you can instead override `zesk\Application::hook_router()` to load your router in your own manner.
+
 ## Routing process
 
 Routing occurs as follows:
@@ -46,7 +55,7 @@ This allows you to put comments in the file if you want.
 	#
     login
 	# Load the Controller_Login
-        controller=login
+        controller=zesk\Controller_Login
 		# User login actions
 		actions=["login"]
 		theme=page/login
@@ -173,7 +182,7 @@ And you can force the variable to be set as a route option automatically (more o
 
 So, each route has a set of name/value pairs which set up its configuration. 
 
-First, value types are autotyped using `zesk::autotype()` which converts from a string to:
+First, value types are autotyped using `\zesk\PHP::autotype()` which converts from a string to:
 
 - null
 - integer
@@ -184,19 +193,19 @@ First, value types are autotyped using `zesk::autotype()` which converts from a 
 
 Second, the type of route will be created depending on the presence of one of the following named values in your route:
 
-`Route_Controller`:
+`\zesk\Route_Controller`:
 
-	controller="{0}"
+	controller="Controller_{0}"
 	
-`Route_Method`:
+`\zesk\Route_Method`:
 
 	method="output_page"
 	
-`Route_Content`:
+`\zesk\Route_Content`:
 
 	content="content to output"
 
-`Route_Theme`:
+`\zesk\Route_Theme`:
 
 	theme="page/body/welcome"
 
@@ -259,7 +268,7 @@ Or using the singular form:
 		permission context="{user}"
 		permission options={"columns": "Login"}
 		
-## Route options for `Route_Content`
+## Route options for `zesk\Route_Content`
 
 ### `content`: Content to output
 
@@ -274,7 +283,7 @@ You can set the content to a string:
 	out/results.txt
 		default content="Empty"
 
-## Route options for `Route_Theme`
+## Route options for `zesk\Route_Theme`
 
 ### `theme`: Theme to render
 

@@ -167,20 +167,20 @@ class JSON {
 	}
 	
 	/**
-	 * Like json_decode, except if the decoding fails, returns a default value
+	 * Like json_decode, except if the decoding fails throw an exception
 	 *
 	 * @param string $string
 	 *        	A JSON string to decode
 	 * @return the decoded JSON string, or the default value if it fails
 	 * @throws Exception_Parse
 	 */
-	static function decode($string) {
+	static function decode($string, $assoc = true) {
 		$string = trim($string);
 		if ($string === 'null') {
 			return null;
 		}
 		if (function_exists('json_decode')) {
-			$result = json_decode($string, true);
+			$result = json_decode($string, $assoc);
 			if ($result !== null) {
 				return $result;
 			}
@@ -193,7 +193,7 @@ class JSON {
 			throw $e;
 		} else {
 			// Throws own error
-			return self::zesk_decode($string, true);
+			return self::zesk_decode($string, $assoc);
 		}
 	}
 	
@@ -233,7 +233,6 @@ class JSON {
 		return null;
 	}
 	
-
 	/**
 	 * Used to track state for Zesk's internal JSON decoder
 	 * 

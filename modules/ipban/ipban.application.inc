@@ -3,12 +3,11 @@ if (!defined('ZESK_SITE_ROOT')) {
 	define('ZESK_SITE_ROOT', dirname(__FILE__) . '/');
 }
 
-require_once dirname(dirname(ZESK_SITE_ROOT)) . '/zesk.inc';
+/* @var $zesk \zesk\Kernel */
+$zesk = require_once dirname(dirname(ZESK_SITE_ROOT)) . '/autoload.php';
 
-zesk::application_class('Application_IPBan');
+$zesk->application_class = 'Application_IPBan';
+$zesk->autoloader->path(ZESK_SITE_ROOT . "/classes");
 
-zesk::autoload_path(ZESK_SITE_ROOT . "/classes");
-
-$application = Application::instance();
-$application->configure();
+return \zesk\Application::instance()->configure();
 

@@ -1,5 +1,7 @@
 <?php
 	
+namespace zesk;
+
 class Test_Zesk_Configuration extends Test_Unit {
 	
 	public function test_basics() {

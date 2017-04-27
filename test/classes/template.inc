@@ -2,8 +2,7 @@
 /**
  * 
  */
-use zesk\Text;
-use zesk\Template;
+namespace zesk;
 
 /**
  * 

@@ -191,11 +191,10 @@ class Command_Configure extends Command_Base {
 	}
 	private function save_conf($path, array $settings) {
 		$conf = array();
-		$parser = Configuration_Parser::factory(File::extension($path), File::contents($path), new Adapter_Settings_Array($conf));
-		$parser->process();
-		$editor = $parser->editor();
-		$editor->
-		return $conf;
+		$contents = File::contents($path);
+		$parser = Configuration_Parser::factory(File::extension($path), $contents, new Adapter_Settings_Array($conf));
+		$editor = $parser->editor($contents);
+		return File::put($path, $editor->edit($settings));
 	}
 	private function load_dirs($output = false) {
 		$env = $this->load_conf($this->environment_file);
@@ -235,7 +234,7 @@ class Command_Configure extends Command_Base {
 			$configs = $this->determine_host_configurations();
 			if ($this->prompt_yes_no(__("Save changes to {alias_file} for {uname}? ", $__ + $this->variable_map))) {
 				
-				conf::edit($this->alias_file, array(
+				$this->save_conf($this->alias_file, array(
 					$uname => $configs
 				));
 				$this->log("Changed {alias_file}", array(
@@ -268,7 +267,7 @@ class Command_Configure extends Command_Base {
 				"config" => $this->config
 			);
 			if ($this->prompt_yes_no(__("Save changes to {config}? ", $__))) {
-				conf::edit($this->config, arr::kprefix($this->options_include("environment_file;host_setting_name"), __CLASS__ . "::"));
+				$this->save_conf($this->config, arr::kprefix($this->options_include("environment_file;host_setting_name"), __CLASS__ . "::"));
 				$this->log("Wrote {config}", $__);
 			}
 		}

@@ -1,10 +1,12 @@
 <?php
+namespace zesk;
+
 $id = $this->id;
 if (empty($id)) {
 	$this->id = $id = $this->column;
 }
 
-echo $this->theme('control/select');
+echo $this->theme('zesk/control/select');
 
 echo HTML::div(array(
 	'id' => "$id-sample",
@@ -17,7 +19,7 @@ $response = $this->response;
 $target = "#$id-sample";
 $source_sample = "";
 if ($this->css_target) {
-	$target = lists::append($target, $this->css_target, ",");
+	$target = Lists::append($target, $this->css_target, ",");
 }
 
 $response->jquery("\$('#$id').on('change', function () {

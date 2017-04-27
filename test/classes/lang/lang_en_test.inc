@@ -6,10 +6,17 @@
  * @author Kent Davidson <kent@marketacumen.com>
  * @copyright Copyright &copy; 2010, Market Acumen, Inc.
  */
+namespace zesk;
+
+/**
+ * 
+ * @author kent
+ *
+ */
 class Lang_en_test extends Test_Unit {
 
 	function test_everything() {
-		$testx = new lang_en();
+		$testx = new Locale_EN();
 		
 		$testx->date_format();
 		
@@ -99,7 +106,7 @@ class Lang_en_test extends Test_Unit {
 	 * @data_provider ordinal_tests
 	 */
 	function test_ordinal($input, $result) {
-		$testx = new lang_en();
+		$testx = new Locale_EN();
 		$this->assert_equal($testx->ordinal($input), $result);
 	}
 }

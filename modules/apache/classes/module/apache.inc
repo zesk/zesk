@@ -7,7 +7,7 @@
  * @author Kent M. Davidson <kent@marketacumen.com>
  * @copyright Copyright &copy; 2008, Market Acumen, Inc.
  */
-use zesk\Directory;
+namespace zesk;
 
 /**
  * Apache module integrates with Apache server and your web application, specifically - Generation
@@ -17,7 +17,7 @@ use zesk\Directory;
  * 
  * @author kent
  */
-class Module_Apache extends zesk\Module {
+class Module_Apache extends Module {
 	/**
 	 * Implement hook cron_minute
 	 */

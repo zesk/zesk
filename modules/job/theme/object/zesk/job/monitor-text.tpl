@@ -1,12 +1,9 @@
 <?php
-if (false) {
-	/* @var $job Job */
-	$job = $this->job;
-	/* @var $object Job */
-	$object = $this->object;
-	/* @var $response zesk\Response_Text_HTML */
-	$response = $this->response;
-}
+namespace zesk;
+
+/* @var $job Job */
+/* @var $object Job */
+/* @var $response Response_Text_HTML */
 
 $object->theme("scripts");
 

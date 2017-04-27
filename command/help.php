@@ -57,21 +57,26 @@ class Command_Help extends Command_Base {
 			'rules_directory' => false
 		);
 		$zesk_root = $zesk->paths->zesk();
+		$nocore = $this->option_bool("no-core");
 		foreach ($this->application->zesk_command_path() as $path => $prefix) {
-			if ($this->option_bool("no-core") && begins($path, $zesk_root)) {
+			$this->command_paths[] = $path;
+			if ($nocore && begins($path, $zesk_root)) {
 				continue;
 			}
 			$commands = Directory::list_recursive($path, $opts);
 			if ($commands) {
-				$command_files[$path] = arr::ltrim($commands, "./");
+				$command_files[$path] = array(
+					$prefix,
+					arr::ltrim($commands, "./")
+				);
 			}
-			$this->command_paths[] = $path;
 		}
 		return $command_files;
 	}
 	function load_commands(array $command_files) {
 		$declared_classes_before = arr::flip_assign(get_declared_classes(), true);
-		foreach ($command_files as $path => $commands) {
+		foreach ($command_files as $path => $structure) {
+			list($prefix, $commands) = $structure;
 			foreach ($commands as $command) {
 				$this->verbose_log("Scanning {command}", compact("command"));
 				$command_file = path($path, $command);
@@ -98,9 +103,17 @@ class Command_Help extends Command_Base {
 			$this->zesk->classes->register($class);
 		}
 	}
+	
 	function process_class($class) {
 		$this->verbose_log("Checking $class");
-		$refl = new \ReflectionClass($class);
+		try {
+			$refl = new \ReflectionClass($class);
+		} catch (Exception_Class_NotFound $e) {
+			$this->verbose_log("{class} can not be loaded, skipping", array(
+				"class" => $class
+			));
+			return;
+		}
 		if ($refl->isAbstract()) {
 			$this->verbose_log("{class} is abstract, skipping", array(
 				"class" => $class
@@ -112,7 +125,6 @@ class Command_Help extends Command_Base {
 		$command = File::extension_change(ltrim($command, "/"), null);
 		$command = strtr($command, "/", "-");
 		$doccomment = $refl->getDocComment();
-		dump($doccomment);
 		$doccomment = DocComment::parse($doccomment);
 		if (!is_array($doccomment)) {
 			$doccomment = array();
@@ -153,7 +165,6 @@ class Command_Help extends Command_Base {
 		$this->categories = array();
 		
 		$subclasses = $zesk->classes->subclasses("zesk\Command");
-		var_dump($subclasses);
 		foreach ($subclasses as $subclass) {
 			$this->process_class($subclass);
 		}

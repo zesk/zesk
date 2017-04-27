@@ -6,7 +6,7 @@ namespace zesk;
 
 $value = $this->value;
 /* @var $value Content_Image */
-if ($value instanceof \Content_Image) {
+if ($value instanceof Content_Image) {
 	echo $this->theme('content/image', array(
 		"object" => $value,
 		"width" => $this->width,

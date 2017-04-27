@@ -2,9 +2,7 @@
 /**
  * 
  */
-use zesk\Object;
-use zesk\JSON;
-use zesk\Model;
+namespace zesk;
 
 /**
  * 
@@ -12,21 +10,34 @@ use zesk\Model;
  *
  */
 class Controller_Selection_Item extends Controller_Object {
-	protected $class = "Selection_Item";
-
+	protected $class = "zesk\\Selection_Item";
+	
 	/**
 	 *
 	 * @var Selection_Type
 	 */
 	private $type = null;
+	
+	/**
+	 * 
+	 * {@inheritDoc}
+	 * @see \zesk\Controller_Object::widget_control_classes()
+	 */
 	protected function widget_control_classes($action) {
 		if ($action === "list") {
-			return array(
-				'Control_List_Selection_Item_' . $this->type->class => "list"
-			);
+			$type_class = strtolower($this->type->class);
+			$widget_control_classes = $this->option_array("widget_control_classes");
+			if (array_key_exists($type_class, $widget_control_classes)) {
+				return $widget_control_classes[$type_class];
+			}
 		}
 		return parent::widget_control_classes($action);
 	}
+	
+	/**
+	 * 
+	 * @param Selection_Type $type
+	 */
 	protected function action_list(Selection_Type $type) {
 		if (!$this->user->can("list_items", $type)) {
 			$this->json(array(
@@ -36,7 +47,6 @@ class Controller_Selection_Item extends Controller_Object {
 			return;
 		}
 		$this->type = $type;
-		$class = $type->class;
 		return $this->_action_default("list");
 	}
 	protected function action_delete_id(Selection_Type $type, $id) {
@@ -49,11 +59,14 @@ class Controller_Selection_Item extends Controller_Object {
 			));
 			return;
 		}
-		Object::class_query_update($this->class)->value('add', 0)->where(array(
+		$this->application->query_update($this->class)
+			->value('add', 0)
+			->where(array(
 			"id" => $id,
 			'type' => $type
-		))->execute();
-
+		))
+			->execute();
+		
 		if ($this->request->has('target')) {
 			$target = $this->request->get('target');
 			$this->response->jquery("\$(" . JSON::encode($target) . ").slideUp('slow', function() { $(this).remove(); });");
@@ -64,7 +77,12 @@ class Controller_Selection_Item extends Controller_Object {
 			"content" => ""
 		) + $this->response->to_json());
 	}
-
+	
+	/**
+	 * 
+	 * {@inheritDoc}
+	 * @see \zesk\Controller_Template::control()
+	 */
 	protected function control(Control $control, Model $object = null, array $options = array()) {
 		if (method_exists($control, "selection_type")) {
 			$control->selection_type($this->type);

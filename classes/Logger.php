@@ -208,18 +208,18 @@ class Logger implements LoggerInterface {
 		
 		$context += $extras;
 		
-		$sending = true;
+		$this->sending = true;
 		$handlers = $this->handlers[$level];
 		foreach ($handlers as $name => $handler) {
 			/* @var $handler \zesk\Logger\Handler */
 			$context['_handler'] = $name;
 			try {
 				$handler->log($message, $context);
-			} catch (Exception $e) {
+			} catch (\Exception $e) {
 				die($e->getMessage());
 			}
 		}
-		$sending = false;
+		$this->sending = false;
 	}
 	/**
 	 * @return string[]

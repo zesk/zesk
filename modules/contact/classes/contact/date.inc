@@ -6,8 +6,13 @@
  * @author Kent Davidson <kent@marketacumen.com>
  * @copyright Copyright &copy; 2006, Market Acumen, Inc.
  */
+namespace zesk;
 
-class Contact_Date extends Zesk_Contact_Date {
-
+/**
+ * @see Class_Contact_Date
+ */
+class Contact_Date extends Contact_Info {
+	function label_type() {
+		return Contact_Label::LabelType_Date;
+	}
 }
-

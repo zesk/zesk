@@ -90,7 +90,7 @@ class Module_Cron extends Module {
 		global $zesk;
 		/* @var $zesk Kernel */
 		$method_string = $zesk->hooks->callable_string($method);
-		if (is_array($method) && ($method[0] instanceof Module || $method[0] instanceof \Module)) {
+		if (is_array($method) && ($method[0] instanceof Module)) {
 			$name = $method[0]->codename();
 			$message = "app()->modules->object(\"$name\")->{1}()";
 			$message_args = $method;
@@ -104,7 +104,7 @@ class Module_Cron extends Module {
 	}
 	
 	/**
-	 * Run this after each hook. Handles timing and wanrings. Passes to default Hookable::combine_hook_results.
+	 * Run this after each hook. Handles timing and warnings. Passes to default Hookable::combine_hook_results.
 	 * 
 	 * @param mixed $method
 	 * @param mixed $previous_result
@@ -112,7 +112,7 @@ class Module_Cron extends Module {
 	 * @param numeric|string $return_hint
 	 * @return mixed
 	 */
-	public function _result_callback($method, $previous_result, $new_result, $return_hint) {
+	public function _result_callback($method, $previous_result, $new_result, array &$arguments, $return_hint) {
 		global $zesk;
 		/* @var $zesk Kernel */
 		$elapsed = microtime(true) - $this->start;
@@ -125,7 +125,7 @@ class Module_Cron extends Module {
 				"method" => $zesk->hooks->callable_string($method)
 			));
 		}
-		return Hookable::combine_hook_results($previous_result, $new_result, $return_hint);
+		return Hookable::combine_hook_results($previous_result, $new_result, $arguments, $return_hint);
 	}
 	public function lock_name($set = null) {
 		if ($set !== null) {
@@ -416,7 +416,7 @@ class Module_Cron extends Module {
 	 * @return boolean
 	 */
 	public static function running() {
-		return Object::class_database("Settings")->is_locked(self::lock_name);
+		return app()->object_database("zesk\\Settings")->is_locked(self::lock_name);
 	}
 	
 	/**
@@ -431,7 +431,7 @@ class Module_Cron extends Module {
 		
 		$result = $modules->all_hook_arguments("cron_before", array(), true);
 		if ($result === false) {
-			$this->application->logger->error("Module::cron_before return false");
+			$this->application->logger->error(__CLASS__ . "::cron_before return false");
 			return $this->methods;
 		}
 		
@@ -456,7 +456,7 @@ class Module_Cron extends Module {
 			'weight' => 'first',
 			'share' => true
 		));
-		$response->javascript(u($this->page_runner_script()), null, array(
+		$response->javascript($this->page_runner_script(), null, array(
 			'async' => 'async',
 			'defer' => 'defer',
 			'nocache' => true
@@ -611,7 +611,7 @@ class Module_Cron extends Module {
 	}
 	protected function hook_schema_updated() {
 		// Changed class structure on 2016-11-23
-		$update = $this->application->query_update("Settings");
+		$update = $this->application->query_update("zesk\\Settings");
 		$nrows = $update->value("*name", "REPLACE(name, 'Module_Cron::', " . $update->database()
 			->quote_text(__CLASS__ . "::") . ")")
 			->where("name|LIKE", 'Module_Cron::%')
@@ -623,7 +623,7 @@ class Module_Cron extends Module {
 				"class" => __CLASS__
 			));
 		}
-		$nrows = $this->application->query_delete("Settings")
+		$nrows = $this->application->query_delete("zesk\\Settings")
 			->where("name|LIKE", array(
 			'Module_Cron::%',
 			'cron::%'

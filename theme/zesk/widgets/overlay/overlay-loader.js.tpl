@@ -1,16 +1,16 @@
 <?php
+namespace zesk;
 
-/* @var $this zesk\Template */
-
+/* @var $this Template */
 $where = $this->get('where');
 if (!in_array($where, array(
-	'left', 
-	'right', 
-	'top', 
-	'bottom', 
-	'top-right', 
-	'top-left', 
-	'bottom-right', 
+	'left',
+	'right',
+	'top',
+	'bottom',
+	'top-right',
+	'top-left',
+	'bottom-right',
 	'bottom-left'
 ))) {
 	$where = 'bottom-left';
@@ -29,7 +29,9 @@ $qs['thickness'] = $this->geti('thickness', 20);
 
 $timeout = $this->geti('timeout', 30);
 
+ob_start();
 ?>
+<script>
 (function(exports) {
 	function ZeskOverlay() {
 		this.e = [];
@@ -119,10 +121,15 @@ $timeout = $this->geti('timeout', 30);
 			}
 			t.add(css_add('<?php echo URL::query_format($this->css_url, $qs) ?>'));
 			t.add(iframe_add('<?php echo $this->iframe_url_prefix ?>'+escape(d.URL)+'&title='+escape(d.title)));
-			t.add(div_add('<?php echo $id ?>-close', '<a href="javascript:zesk_overlay.close()"></a>'));
+			t.add(div_add('<?php echo $id ?>-close', '
+<a href="javascript:zesk_overlay.close()"></a>
+'));
 			t.te = t.add(div_add('<?php echo $id ?>-timer', '&nbsp;'));
 			t.start();
 		}
 	};
 	exports.zesk_overlay = new ZeskOverlay();
 }(window));
+</script>
+<?php
+echo HTML::extract_tag("script", ob_get_clean());

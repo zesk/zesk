@@ -1,6 +1,14 @@
 <?php
+/**
+ * 
+ */
 namespace zesk;
 
+/**
+ * 
+ * @author kent
+ *
+ */
 class Net_HTTP_Client_Test extends Test_Unit {
 
 	function test_all() {

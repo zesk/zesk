@@ -12,10 +12,21 @@ namespace zesk;
  */
 class Autoloader {
 	/**
+	 * 
+	 * @var string
+	 */
+	const autoload_option_class_prefix_default = "";
+	/**
 	 *
 	 * @var boolean
 	 */
-	public $debug_file_search = false;
+	const autoload_option_lower_default = true;
+	
+	/**
+	 *
+	 * @var boolean
+	 */
+	public $debug_search = false;
 	/**
 	 *
 	 * @var boolean
@@ -89,40 +100,14 @@ class Autoloader {
 	}
 	
 	/**
-	 * Added 2017-03-07
-	 * 
-	 * @deprecated 2017-03
-	 * 
-	 * Support non-namespace class invokation: HTML::tag('p','...');
-	 * 
-	 * Invoke this in legacy applications to get the old bindings. Strongly suggest logging of deprecated functions and remove all old code.
-	 */
-	public function deprecated_support() {
-		$this->path(ZESK_ROOT . 'classes-deprecated', array(
-			'last' => true,
-			"lower" => false,
-			"extensions" => array(
-				"php"
-			)
-		));
-	}
-	
-	/**
 	 * Should be called once and only once.
 	 * Registers zesk's autoloader.
 	 */
 	private function autoload_register() {
-		if (PHP_VERSION_ID >= 50300) {
-			spl_autoload_register(array(
-				$this,
-				"php_autoloader"
-			), false, false);
-		} else {
-			spl_autoload_register(array(
-				$this,
-				"php_autoloader"
-			), false, false);
-		}
+		spl_autoload_register(array(
+			$this,
+			"php_autoloader"
+		), false, false);
 	}
 	
 	/**
@@ -192,11 +177,14 @@ class Autoloader {
 	 * @param string $class        	
 	 * @param boolean $no_exception
 	 *        	Do not throw an exception if class is not found
-	 * @return boolean
+	 * @return string|null
 	 * @global $this->no_exception
 	 * @global define:ZESK_NO_CONFLICT
 	 */
 	public function load($class, $no_exception = false) {
+		if ($class === "Class_Settings") {
+			backtrace();
+		}
 		$lowclass = strtolower($class);
 		$cache = & $this->_autoload_cache();
 		$include = null;
@@ -213,7 +201,7 @@ class Autoloader {
 			$include = $this->search($class, null, $tried_path);
 			if ($include === null) {
 				if ($no_exception || defined('ZESK_NO_CONFLICT') || $this->no_exception) {
-					return false;
+					return null;
 				}
 				throw new Exception_Class_NotFound($class, "Class {class} called from {calling_function} invoked from:\n{backtrace}\n{tried_path}", array(
 					"class" => $class,
@@ -229,7 +217,7 @@ class Autoloader {
 			echo "Include $include" . newline();
 		}
 		require_once $include;
-		return true;
+		return $include;
 	}
 	
 	/**
@@ -237,9 +225,26 @@ class Autoloader {
 	 * to /, and look for
 	 * files with the given extensions, in order.
 	 *
-	 * @param array $paths
-	 *        	An array of path keys with boolean values indicating whether the search should be
-	 *        	case-sensitive or not
+	 * @param string $file_prefix
+	 *        	The file name to search for, without the extension
+	 * @param array $extensions
+	 *        	A list of extensions to search for in each target path. If supplied, is forced.
+	 * @param array $tried_path
+	 *        	A list of paths which were tried to find the file, ending with the one which was found
+	 * @return string The found path, or null if not found
+	 * @deprecated 2017-03 
+	 * @see self::search
+	 */
+	public function file_search($file_prefix, array $extensions = null, &$tried_path = null) {
+		zesk()->deprecated();
+		return $this->search($file_prefix, $extensions, $tried_path);
+	}
+	
+	/**
+	 * Search for a file in the given paths, converting filename to a directory path by converting _
+	 * to /, and look for
+	 * files with the given extensions, in order.
+	 *
 	 * @param string $file_prefix
 	 *        	The file name to search for, without the extension
 	 * @param array $extensions
@@ -248,26 +253,18 @@ class Autoloader {
 	 *        	A list of paths which were tried to find the file
 	 * @return string The found path, or null if not found
 	 */
-	public function file_search(array $paths, $file_prefix, array $extensions = null, &$tried_path = null) {
-		$debug = $this->debug_file_search;
-		$tried_path = array();
-		$default_extensions = $this->extension();
-		foreach ($paths as $path => $options) {
-			$options += array(
-				'class_prefix' => '',
-				'lower' => true,
-				'extensions' => $default_extensions
-			);
-			if ($extensions) {
-				$options['extensions'] = $extensions;
-			}
-			if ($options === true) {
-				$options = array(
-					'lower' => true
-				);
-			} else if (!is_array($options)) {
-				$options = array();
-			}
+	public function possibilities($file_prefix, array $extensions = null) {
+		$debug = $this->debug_search;
+		$result = array();
+		$first_options = array();
+		if ($extensions) {
+			$first_options['extensions'] = $extensions;
+			$last_options = array();
+		} else {
+			$first_options = array();
+			$last_options['extensions'] = $extensions;
+		}
+		foreach ($this->path() as $path => $options) {
 			$class_prefix = rtrim($options['class_prefix'], '_');
 			if ($class_prefix !== "") {
 				if (substr($class_prefix, -1) !== "\\") {
@@ -285,19 +282,19 @@ class Autoloader {
 			}
 			$path_file_prefix = strtr($path_file_prefix, '\\', '_');
 			$file_parts = implode("/", explode("_", $options['lower'] ? strtolower($path_file_prefix) : $path_file_prefix));
-			$exts = $options['extensions'];
-			foreach ($exts as $extension) {
-				$full_path = path($path, $file_parts) . "." . $extension;
-				if ($debug) {
-					zesk()->logger->debug("$file_prefix: $full_path");
-				}
-				if (file_exists($full_path)) {
-					return $full_path;
-				}
-				$tried_path[] = $full_path;
+			if ($extensions) {
+				$iterate_extensions = $extensions;
+			} else if (isset($options['extensions'])) {
+				$iterate_extensions = $options['extensions'];
+			} else {
+				$iterate_extensions = $this->extension();
+			}
+			$prefix = path($path, $file_parts);
+			foreach ($iterate_extensions as $ext) {
+				$result[] = "$prefix.$ext";
 			}
 		}
-		return null;
+		return $result;
 	}
 	
 	/**
@@ -310,7 +307,17 @@ class Autoloader {
 	 * @return unknown
 	 */
 	public function search($class, array $extensions = null, &$tried_path = null) {
-		return $this->file_search($this->path(), $class, $extensions, $tried_path);
+		$debug = $this->debug_search;
+		$possibilities = $this->possibilities($class, $extensions);
+		$tried_path = array();
+		$default_extensions = $this->extension();
+		foreach ($possibilities as $path) {
+			$tried_path[] = $path;
+			if (file_exists($path)) {
+				return $path;
+			}
+		}
+		return null;
 	}
 	/**
 	 * Add/remove an extension
@@ -328,10 +335,26 @@ class Autoloader {
 		}
 		return $this->autoload_extensions;
 	}
-	public $first = array();
-	public $paths = array();
-	public $last = array();
-	public $cached = null;
+	/**
+	 * 
+	 * @var array[]
+	 */
+	private $first = array();
+	/**
+	 * 
+	 * @var array[]
+	 */
+	private $paths = array();
+	/**
+	 * 
+	 * @var array[]
+	 */
+	private $last = array();
+	/**
+	 * 
+	 * @var array[]
+	 */
+	private $cached = null;
 	
 	/**
 	 * Retrieve the list of autoload paths, or add one.
@@ -375,6 +398,11 @@ class Autoloader {
 			if (isset($options['extensions'])) {
 				$options['extensions'] = to_list($options['extensions']);
 			}
+			// Defaults (extension
+			$options += array(
+				'class_prefix' => self::autoload_option_class_prefix_default,
+				'lower' => self::autoload_option_lower_default
+			);
 			if (isset($options['first']) && $options['first']) {
 				$this->first[$add] = $options;
 				$this->cached = null;

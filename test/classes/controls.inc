@@ -5,13 +5,16 @@
  *
  */
 class Test_Controls extends Test_Widget {
-
+	
+	function _test_session() {
+		$this->application->set_option("session_class", "zesk\Session_Test");
+	}
 	/**
 	 * @data_provider controls_to_test
 	 */
 	function test_control($control, $options = array()) {
-		Session::implementation("test");
-		$this->test_basics(zesk::factory($control, $options));
+		$this->_test_session();
+		$this->test_basics($this->application->objects->factory($control, $options));
 	}
 	function controls_to_test() {
 		$controls = array(
@@ -86,43 +89,44 @@ class Test_Controls extends Test_Widget {
 			),
 			array(
 				"Control_IP_List"
-			),
+			)
 		);
 		return $controls;
 	}
 	function test_control_object_list_tree() {
-		Session::implementation("test");
-		$request = Request::instance();
-		$request->router = $router = Router::singleton();
-
+		$this->_test_session();
+		$request = $this->application->request();
+		$request->router = $router = $this->application->router();
+		
 		$router->add_route("*", array(
 			"class" => "Test_COLT_Object",
 			"action" => array(
 				0
 			)
 		));
-
+		
 		$object = new Test_COLT_Object();
 		$table = $object->table();
-
+		
 		$db = $this->application->database_factory();
 		$db->query("DROP TABLE IF EXISTS $table");
 		$db->query($object->schema());
+		
+		// 		$options = false;
+		// 		$x = new Control_Object_List_Tree($options);
+		// 		$x->object($object);
+		
 
-// 		$options = false;
-// 		$x = new Control_Object_List_Tree($options);
-// 		$x->object($object);
-
-// 		$this->test_basics($x);
+		// 		$this->test_basics($x);
 	}
 	function test_Control_Edit() {
-		Session::implementation("test");
-
+		$this->_test_session();
+		
 		$options = false;
-		$x = new Control_Edit($options);
+		$x = new \Control_Edit($options);
 		$object = new User();
 		$x->object($object);
-
+		
 		$this->test_basics($x);
 	}
 	function test_Control_Object_List() {
@@ -135,24 +139,24 @@ class Test_Controls extends Test_Widget {
 				0
 			)
 		));
-
+		
 		Session::implementation("test");
-
+		
 		$object = new Test_COL_Object();
 		$table = $object->table();
-
+		
 		$this->test_table($table);
 	}
 	function test_Control_Select_Object_Hierarchy_Test() {
 		$table = 'Control_Select_Object_Hierarchy_Test';
 		$this->test_table($table, 'Parent int(11) unsigned NOT NULL');
-
+		
 		$options = array(
 			'table' => $table,
 			'textcolumn' => "Foo"
 		);
 		$x = new Control_Select_Object_Hierarchy($options);
-
+		
 		$this->test_basics($x);
 	}
 	function test_Control_Select_File() {
@@ -160,12 +164,12 @@ class Test_Controls extends Test_Widget {
 			"path" => $this->sandbox()
 		);
 		$x = new Control_Select_File($options);
-
+		
 		$this->test_basics($x);
 	}
 	function test_Control_Select_Object() {
 		$this->test_table('Control_Select_Test_Object');
-
+		
 		$options = array(
 			'table' => 'Control_Select_Test_Object',
 			'textcolumn' => "Foo"
@@ -179,7 +183,7 @@ class Test_Controls extends Test_Widget {
 		$table = "Test_LinkObject";
 		$db->query("DROP TABLE IF EXISTS $table");
 		$db->query("CREATE TABLE $table ( A int(11) unsigned NOT NULL, B int(11) unsigned NOT NULL, UNIQUE ab (A,B) )");
-
+		
 		$options = array(
 			'table' => $table
 		);
@@ -187,18 +191,17 @@ class Test_Controls extends Test_Widget {
 		$text = new Control_Text();
 		$text->names('B');
 		$testx->widget($text);
-
+		
 		$this->test_basics($testx, array(
 			"column" => "A",
 			"test_object" => array(
 				'B' => 12
 			)
 		));
-
+		
 		$db->query("DROP TABLE IF EXISTS $table");
 	}
 }
-
 class Test_COLT_Object extends Object {
 	protected $table = __CLASS__;
 	protected $id_column = "ID";

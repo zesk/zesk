@@ -1,4 +1,7 @@
 <?php
+
+namespace zesk;
+
 class Test_Time extends Test_Unit {
 
 	function test_instance() {

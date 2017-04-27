@@ -1,4 +1,7 @@
 <?php
+
+namespace zesk;
+
 class test_zesk extends Test_Unit {
 	public $order = 0;
 	static function _test_hook_order_1st(Test_zesk $test) {

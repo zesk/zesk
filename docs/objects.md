@@ -1,4 +1,4 @@
-# Objects
+# `zesk\Object`s
 
 Zesk contains a powerful `Object` implementation which supports automatic integration with databases and traversal of objects as linked by database tables. When schema changes are made, you can run a command to output SQL statements which will bring your current database up-to-date without having to write your own ALTER scripts and track what to deploy where. 
 
@@ -10,9 +10,9 @@ Objects support an Object-Relational Mapping interface; to create an object in t
 	
 `Task` will be the instance (usually a row) from the database, and `Class_Task` defines the columns and relationships of the object. `task.sql` is a `CREATE TABLE` statement and (optionally) `INSERT` statements to create the table the first time, and also provides the schema definition for this object.
 
-## Definining `Class_Foo`
+## Definining `zesk\Class_Foo`
 
-When defining your class, you much subclass `Class_Object` which is the base class for all `Class_Foo` classes.
+When defining your class, you much subclass `zesk\Class_Object` which is the base class for all `zesk\Class_Foo` classes.
 
 In this case
 

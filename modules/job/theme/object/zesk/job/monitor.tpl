@@ -1,14 +1,10 @@
 <?php
 namespace zesk;
 
-if (false) {
-	/* @var $object Job */
-	$object = $this->object;
-	
-	/* @var $response zesk\Response_Text_HTML */
-	$response = $this->response;
-}
+/* @var $object Job */
+/* @var $response zesk\Response_Text_HTML */
 /* @var $job Job */
+
 $job = $object;
 
 $object->theme("scripts");

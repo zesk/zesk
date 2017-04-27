@@ -106,13 +106,15 @@ class Configuration_Parser_JSON extends Configuration_Parser {
 			} else if (is_string($value) && $interpolate && preg_match_all('/\$\{([^\}]+)\}/', $value, $matches, PREG_SET_ORDER)) {
 				$dependencies = array();
 				foreach ($matches as $match) {
-					$map[$match[0]] = strval($settings->get($match[1]));
+					list($token, $variable) = $match;
+					$map[$token] = strval($settings->get($variable));
+					$dependencies[$variable] = true;
 				}
 				$value = strtr($value, $map);
 				$variable = implode(Configuration::key_separator, $current_path);
 				$settings->set($variable, $value);
 				if ($dependency) {
-					$dependency->defines($variable, $dependencies);
+					$dependency->defines($variable, array_keys($dependencies));
 				}
 			} else {
 				$variable = implode(Configuration::key_separator, $current_path);

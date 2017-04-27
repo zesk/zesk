@@ -6,21 +6,14 @@
  * @author kent
  * @copyright Copyright &copy; 2010, Market Acumen, Inc.
  */
+namespace zesk;
 
 class Contact_Label_Group extends Object {
-	protected $columns = array(
-		"ID", 
-		"Name"
-	);
-	protected $find_keys = array(
-		"Name"
-	);
-	
 	public static function register_group($name) {
 		if (empty($name)) {
 			return null;
 		}
-		$g = new Contact_Label_Group(array(
+		$g = new self(array(
 			"Name" => $name
 		));
 		$g->register();

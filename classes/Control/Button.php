@@ -27,7 +27,7 @@ class Control_Button extends Control {
 		if (($url = $this->option('redirect_url')) !== null) {
 			$url = $this->object->apply_map($url);
 			$url = URL::query_format($url, array(
-				"ref" => URL::current_uri()
+				"ref" => $this->request->uri()
 			));
 			$this->response->redirect($url, $this->object->apply_map($this->option('redirect_message')));
 		}

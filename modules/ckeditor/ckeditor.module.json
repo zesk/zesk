@@ -3,5 +3,9 @@
 	"composer": {
 		"require": "ckeditor/ckeditor"
 	},
-	"share_path": "vendor/ckeditor/ckeditor"
+	"share_path": "vendor/ckeditor/ckeditor",
+	"autoload_options": {
+		"lower": false,
+		"class_prefix": "zesk\\"
+	}
 }

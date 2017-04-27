@@ -1,4 +1,6 @@
 <?php
+namespace zesk;
+
 class test_url extends Test_Unit {
 
 	function test_parse() {
@@ -148,52 +150,6 @@ class test_url extends Test_Unit {
 
 		$href = "?query=fuck";
 		$this->assert(URL::compute_href($url, $href) === "http://www.example.com/path/to/file.php?query=fuck");
-	}
-
-	function test_current() {
-		URL::current();
-	}
-
-	function test_current_host() {
-		URL::current_host();
-	}
-
-	function test_current_is_secure() {
-		URL::current_is_secure();
-	}
-
-	function test_current_left() {
-		$part = null;
-		URL::current_left($part);
-	}
-
-	function test_current_left_host() {
-		URL::current_left_host();
-	}
-
-	function test_current_left_path() {
-		URL::current_left_path();
-	}
-
-	function test_current_path() {
-		URL::current_path();
-	}
-
-	function test_current_port() {
-		URL::current_port();
-	}
-
-	function test_current_query_remove() {
-		$names = null;
-		URL::current_query_remove($names);
-	}
-
-	function test_current_scheme() {
-		URL::current_scheme();
-	}
-
-	function test_current_uri() {
-		URL::current_uri();
 	}
 
 	function test_host() {

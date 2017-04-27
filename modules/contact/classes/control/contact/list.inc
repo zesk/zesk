@@ -1,15 +1,13 @@
 <?php
+namespace zesk;
 
-class Control_Contact_List extends Control_Object_List {
-
-	protected $class = "Contact";
-
-	function _widgets() {
+class Control_Contact_List extends Control_List {
+	protected $class = "zesk\\Contact";
+	function hook_widgets() {
 		$widgets = array();
-
-		$widgets[] = widgets::control_text("Name");
-
+		
+		$widgets[] = $this->widget_factory("zesk\\View_Text")->names("name");
+		
 		return $widgets;
 	}
-
 }

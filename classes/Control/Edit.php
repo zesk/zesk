@@ -162,6 +162,7 @@ class Control_Edit extends Control {
 	private function _class() {
 		if ($this->class === null) {
 			$this->class = str::unprefix(get_class($this), __CLASS__ . '_');
+			zesk()->deprecated(get_class($this) . "->class auto-generation is deprecated 2017-03-05, please supply explict class name in leaf class: protected \$class = \"" . $this->class . "\";");
 		}
 		return $this->class;
 	}
@@ -327,7 +328,10 @@ class Control_Edit extends Control {
 		global $zesk;
 		$hierarchy = $zesk->classes->hierarchy($this, __CLASS__);
 		foreach ($hierarchy as $index => $class) {
-			$hierarchy[$index] = strtr(strtolower($class), "_", "/") . "/";
+			$hierarchy[$index] = strtr(strtolower($class), array(
+				"_" => "/",
+				"\\" => "/"
+			)) . "/";
 		}
 		// Set default theme to control/foo/prefix, control/foo/header etc.
 		foreach (to_list("prefix;header;footer;suffix") as $var) {

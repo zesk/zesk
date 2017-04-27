@@ -7,7 +7,7 @@ namespace zesk;
  * 
  * @author kent
  */
-class Control_DropDown extends Control_Select {
+class Control_Dropdown extends Control_Select {
 	protected $options = array(
 		'skip-chosen' => true
 	);

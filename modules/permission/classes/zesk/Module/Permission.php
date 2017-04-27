@@ -41,10 +41,11 @@ class Module_Permission extends Module {
 	 * @return array
 	 */
 	protected $classes = array(
-		"Role",
-		"User_Role",
-		"Permission"
+		"zesk\\Role",
+		"zesk\\User_Role",
+		"zesk\\Permission"
 	);
+	
 	public function initialize() {
 		$this->application->hooks->add("zesk\\User::can", array(
 			$this,
@@ -54,7 +55,7 @@ class Module_Permission extends Module {
 			'link_class' => 'zesk\\User_Role',
 			'far_key' => 'role',
 			'foreign_key' => 'user',
-			'class' => 'Role'
+			'class' => 'zesk\\Role'
 		));
 		parent::initialize();
 	}
@@ -295,7 +296,12 @@ class Module_Permission extends Module {
 		
 		$application = $this->application;
 		/* @var $zesk zesk\Kernel */
-		$lock = Lock::require_lock(__METHOD__, 10);
+		try {
+			$lock = Lock::require_lock(__METHOD__, 10);
+		} catch (Exception_Timeout $e) {
+			Lock::crack(__METHOD__);
+			$lock = Lock::require_lock(__METHOD__, 10);
+		}
 		$result = array();
 		$result['class'] = $application->hooks->all_call_arguments(self::$hook_methods, array(
 			$application
@@ -316,18 +322,26 @@ class Module_Permission extends Module {
 			'lower' => true,
 			'variables' => array()
 		);
-		$paths = to_list($application->configuration->path_get(__CLASS__ . '::role_paths', $application->application_root('etc/role')));
 		foreach ($roles as $rid => $code) {
-			$code = strtolower(File::clean_path($code));
-			$filename = $code . ".role.conf";
-			$result['role'][$rid] = $config = self::normalize_permission(conf::load_inherit($filename, $paths, array()));
-			$application->logger->debug("Loading {filename} resulted in {n_config} permissions", array(
-				"filename" => $filename,
-				"n_config" => count($config)
-			));
+			$result['role'][$rid] = $config = $this->_role_permissions($code);
 		}
 		$lock->release();
 		return $result;
+	}
+	private function _role_permissions($code) {
+		$application = $this->application;
+		$paths = $this->option_list('role_paths', $application->application_root('etc/role'));
+		$filename = $code . ".role.conf";
+		$config = array();
+		$loader = new Configuration_Loader($code, $paths, array(
+			$filename
+		), new Adapter_Settings_Array($config));
+		$loader->load();
+		$application->logger->debug("Loading {filename} resulted in {n_config} permissions", array(
+			"filename" => $filename,
+			"n_config" => count($config)
+		));
+		return $config;
 	}
 	
 	/**
@@ -352,7 +366,7 @@ class Module_Permission extends Module {
 		$default_class = str::left($method, "::");
 		$class_perms = array();
 		/* @var $perm_class \zesk\Class_Permission */
-		$perm_class = $this->application->class_object(__CLASS__);
+		$perm_class = $this->application->class_object("zesk\\Permission");
 		$perm_columns = $perm_class->column_types;
 		foreach ($result as $action => $permission_options) {
 			if (is_string($permission_options)) {
@@ -373,7 +387,7 @@ class Module_Permission extends Module {
 			$action = User::clean_permission($action);
 			list($class, $action) = pair($action, "::", $default_class, $action);
 			$permission_options['name'] = $class . "::" . $action;
-			$class_perms[$action] = self::register_permission($permission_options);
+			$class_perms[$action] = Permission::register_permission($permission_options);
 		}
 		$state[strtolower($class)] = $class_perms; // + array("*class" => $class);
 		return $state;

@@ -1,12 +1,14 @@
 <?php
 
+namespace zesk;
+
 abstract class Control_List_InPlace extends Control_List {
-	protected $theme_empty = "control/list/inplace/empty";
-	protected $theme_widgets = "control/list/inplace/widgets";
-	protected $theme_prefix = "control/list/inplace/prefix";
-	protected $theme_suffix = "control/list/inplace/suffix";
-	protected $theme_header = "control/list/inplace/header";
-	protected $theme_footer = "control/list/inplace/footer";
+	protected $theme_empty = "zesk/control/list/inplace/empty";
+	protected $theme_widgets = "zesk/control/list/inplace/widgets";
+	protected $theme_prefix = "zesk/control/list/inplace/prefix";
+	protected $theme_suffix = "zesk/control/list/inplace/suffix";
+	protected $theme_header = "zesk/control/list/inplace/header";
+	protected $theme_footer = "zesk/control/list/inplace/footer";
 	protected $widget_attributes = array();
 	protected $list_tag = "div";
 	protected $list_attributes = array(

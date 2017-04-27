@@ -6,6 +6,7 @@
  * @author Kent Davidson <kent@marketacumen.com>
  * @copyright Copyright &copy; 2005, Market Acumen, Inc.
  */
+namespace zesk;
 
 /**
  * Contact_Person
@@ -13,27 +14,14 @@
  * @author kent
  */
 class Contact_Person extends Contact_Info {
+	/**
+	 * 
+	 * {@inheritDoc}
+	 * @see \zesk\Contact_Info::label_type()
+	 */
 	function label_type() {
 		return false;
 	}
-	function listWidgetList() {
-		$spec = array();
-
-		$f = widgets::view_link("Name", "Name", "{LastName} {Suffix}, {Prefix} {FirstName} {MiddleName}");
-		$spec[$f->column()] = $f;
-
-		$f = widgets::actions();
-		$spec[$f->column()] = $f;
-
-		return $spec;
-	}
-	function newWidgetList() {
-		$spec = $this->editWidgetList();
-		unset($spec["Created"]);
-		unset($spec["Modified"]);
-		return $spec;
-	}
-
 	/**
 	 * Informal greeting
 	 *
@@ -53,10 +41,12 @@ class Contact_Person extends Contact_Info {
 		}
 		return null;
 	}
+	
+	/**
+	 * 
+	 * @return string
+	 */
 	function full_name() {
-		return $this->fullName();
-	}
-	function fullName() {
 		$result = array();
 		$names = array(
 			"Prefix",

@@ -1,11 +1,13 @@
 <?php
 
+namespace zesk;
+
 /**
  * @see Mail_Validator
  * @author kent
  *
  */
-class Class_Mail_Validator extends zesk\Class_Object {
+class Class_Mail_Validator extends Class_Object {
 	public $id_column = "id";
 
 	public $name_column = "address";

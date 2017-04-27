@@ -163,15 +163,13 @@ class Response extends Hookable {
 	/**
 	 * Retrieve global Response instance
 	 * 
-	 * @param string $mixed
-	 *        	URL of Response. If not specified takes from URL::current. If Response, then sets
-	 *        	Response
-	 *        	instance to $mixed
-	 * @param array $Response
-	 *        	server Response name/value pairs. If not specified, uses $_Response
-	 * @param boolean $is_post
-	 *        	Whether this is a POST operation or not. If not specified, uses self::_is_post
 	 * @return Response
+	 */
+	/**
+	 * 
+	 * @param \zesk\Application $application
+	 * @param string $content_type
+	 * @return \zesk\Response_Text_HTML
 	 */
 	public static function instance($application = null, $content_type = null) {
 		if (!$application instanceof Application) {
@@ -194,7 +192,8 @@ class Response extends Hookable {
 	public static function factory(Application $application, $options = null) {
 		global $zesk;
 		/* @var $zesk Kernel */
-		$content_type = $zesk->configuration->pave("Response")->get("content_type", self::content_type_html);
+		$zesk->configuration->deprecated("Response", __CLASS__);
+		$content_type = $zesk->configuration->pave(__CLASS__)->get("content_type", self::content_type_html);
 		if (is_string($options)) {
 			$content_type = $options;
 			$options = array();
@@ -205,7 +204,7 @@ class Response extends Hookable {
 		}
 		try {
 			$class = __NAMESPACE__ . "\\Response_" . str_replace("/", "_", $content_type);
-			return $zesk->objects->factory($class, $application, $content_type);
+			return $zesk->objects->factory($class, $application, $options);
 		} catch (Exception_Class_NotFound $e) {
 			return new Response_Text_HTML($application, self::content_type_html);
 		}
@@ -856,17 +855,20 @@ class Response extends Hookable {
 		} else {
 			$n_seconds = null;
 		}
+		$host = $this->request->host();
 		$domain = avalue($options, 'domain', $this->option("cookie_domain"));
+		if ($domain) {
+			$domain = ltrim($domain, ".");
+			if (!ends($host, $domain)) {
+				$this->application->logger->warning("Unable to set cookie domain {cookie_domain} on host {host}", array(
+					"cookie_domain" => $domain,
+					"host" => $host
+				));
+				$domain = null;
+			}
+		}
 		$secure = avalue($options, 'secure', $this->option_bool("cookie_secure"));
 		$path = avalue($options, 'path', $this->option_bool("cookie_path", "/"));
-		$host = $this->request->host();
-		if ($domain && !ends($host, $domain)) {
-			$this->application->logger->warning("Unable to set cookie domain {cookie_domain} on host {host}", array(
-				"cookie_domain" => $domain,
-				"host" => $host
-			));
-			$domain = null;
-		}
 		if (!$domain) {
 			$domain = Domain::domain_factory($host)->compute_cookie_domain();
 		}
@@ -874,7 +876,6 @@ class Response extends Hookable {
 		if ($this->request->is_browser()) {
 			setcookie($name, null);
 			if (!empty($value)) {
-				$domain = ltrim($domain, ".");
 				setcookie($name, $value, $expire_time, $path, ".$domain", $secure);
 			}
 		}

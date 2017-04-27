@@ -1,5 +1,7 @@
 <?php
 
+namespace zesk;
+
 abstract class Stream {
 	abstract function read($length);
 	abstract function write($data, $length=null);

@@ -219,9 +219,9 @@ class Hookable extends Options {
 		}
 		$new_result = call_user_func_array($callable, $arguments);
 		if ($result_callback !== null) {
-			return call_user_func($result_callback, $callable, $previous_result, $new_result, $return_hint);
+			return call_user_func($result_callback, $callable, $previous_result, $new_result, $arguments, $return_hint);
 		}
-		return self::combine_hook_results($previous_result, $new_result, $return_hint);
+		return self::combine_hook_results($previous_result, $new_result, $arguments, $return_hint);
 	}
 	
 	/**
@@ -232,7 +232,7 @@ class Hookable extends Options {
 	 * @param mixed $return_hint        	
 	 * @return mixed
 	 */
-	public static function combine_hook_results($previous_result, $new_result, $return_hint = null) {
+	public static function combine_hook_results($previous_result, $new_result, array &$arguments, $return_hint = null) {
 		if ($previous_result === null) {
 			return $new_result;
 		}

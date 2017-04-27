@@ -5,7 +5,7 @@
  * 
  * @author kent
  */
-class AWS extends Options {
+class AWS extends \zesk\Options {
 	function __construct($options = null) {
 		parent::__construct($options);
 		$this->inherit_global_options();

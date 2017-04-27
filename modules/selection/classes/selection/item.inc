@@ -1,8 +1,5 @@
 <?php
-
-use zesk\Object;
-use zesk\arr;
-use zesk\Exception_Object_NotFound;
+namespace zesk;
 
 /**
  * @see Class_Selection_Item
@@ -40,21 +37,27 @@ class Selection_Item extends Object {
 	 * @param array $mapping
 	 */
 	public static function copy_duplicate($old_type, $new_type, array $mapping) {
+		$app = app();
 		/* @var $class Class_Object */
-		$class = Object::cache_class(__CLASS__, 'class');
-		$members = $class->column_types;
+		$members = $app->class_object(__CLASS__)->column_types;
 		unset($members['type']);
 		$what = arr::flip_copy(array_keys($members));
 		$what['*type'] = $new_type;
-		Object::class_query_insert_select(__CLASS__)->what($what)->where('type', $old_type)->execute();
+		$app->query_insert_select(__CLASS__)
+			->what($what)
+			->where('type', $old_type)
+			->execute();
 		foreach ($mapping as $old_query_id => $new_query_id) {
-			Object::class_query_update(__CLASS__)->value('query', $new_query_id)->where(array(
+			$app->query_update(__CLASS__)
+				->value('query', $new_query_id)
+				->where(array(
 				'query' => $old_query_id,
 				'type' => $new_type
-			))->execute();
+			))
+				->execute();
 		}
 	}
-	protected function hook_schema_update_alter(zesk\Database_Schema $schema, zesk\Database_Table $table, array $changes) {
+	protected function hook_schema_update_alter(Database_Schema $schema, Database_Table $table, array $changes) {
 		$before_changes = array();
 		foreach ($changes as $change) {
 			if (strpos($change, 'tid') !== false && strpos($change, 'UNIQUE') !== false) {

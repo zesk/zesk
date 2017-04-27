@@ -1,53 +1,59 @@
 <?php
+
+namespace zesk;
+
+/**
+ * 
+ */
 class test_ip extends Test_Unit {
 
 	function test_from_integer() {
 		$ipid = null;
-		$this->assert(ip::from_integer(3232235720) === "192.168.0.200");
-		$this->assert(ip::from_integer("3232235720") === "192.168.0.200");
+		$this->assert(IPv4::from_integer(3232235720) === "192.168.0.200");
+		$this->assert(IPv4::from_integer("3232235720") === "192.168.0.200");
 	}
 
 	function test_is_mask() {
 		$string = null;
-		$this->assert(ip::is_mask("-1.0,0,0") === false);
-		$this->assert(ip::is_mask("-1.0.0.0.0") === false);
-		$this->assert(ip::is_mask("1.0.0.0.0") === false);
-		$this->assert(ip::is_mask("0.0,0,0") === false);
-		$this->assert(ip::is_mask("0.0.0.0/0") === false);
-		$this->assert(ip::is_mask("0.0.0.0/1") === false);
-		$this->assert(ip::is_mask("0.0.0.0/7") === false);
+		$this->assert(IPv4::is_mask("-1.0,0,0") === false);
+		$this->assert(IPv4::is_mask("-1.0.0.0.0") === false);
+		$this->assert(IPv4::is_mask("1.0.0.0.0") === false);
+		$this->assert(IPv4::is_mask("0.0,0,0") === false);
+		$this->assert(IPv4::is_mask("0.0.0.0/0") === false);
+		$this->assert(IPv4::is_mask("0.0.0.0/1") === false);
+		$this->assert(IPv4::is_mask("0.0.0.0/7") === false);
 		for($i = 8; $i < 32; $i++) {
-			$this->assert(ip::is_mask("1.0.0.0/$i") === true, "1.0.0.0/$i is apparently not a mask?");
+			$this->assert(IPv4::is_mask("1.0.0.0/$i") === true, "1.0.0.0/$i is apparently not a mask?");
 		}
-		$this->assert(ip::is_mask("0.0.0.0/33") === false);
-		$this->assert(ip::is_mask("0.0.0.*") === true);
-		$this->assert(ip::is_mask("0.0.*") === true);
-		$this->assert(ip::is_mask("0.*") === true);
-		$this->assert(ip::is_mask("-1.*") === false);
-		$this->assert(ip::is_mask("1.*/32") === false);
-		$this->assert(ip::is_mask("256.*") === false);
-		$this->assert(ip::is_mask("255.255.255.256/32") === false);
-		$this->assert(ip::is_mask("255.255.255.256/23") === false);
-		$this->assert(ip::is_mask("192.128.0.0/9") === true, 'ip::is_mask("192.128.0.0/9") === true');
+		$this->assert(IPv4::is_mask("0.0.0.0/33") === false);
+		$this->assert(IPv4::is_mask("0.0.0.*") === true);
+		$this->assert(IPv4::is_mask("0.0.*") === true);
+		$this->assert(IPv4::is_mask("0.*") === true);
+		$this->assert(IPv4::is_mask("-1.*") === false);
+		$this->assert(IPv4::is_mask("1.*/32") === false);
+		$this->assert(IPv4::is_mask("256.*") === false);
+		$this->assert(IPv4::is_mask("255.255.255.256/32") === false);
+		$this->assert(IPv4::is_mask("255.255.255.256/23") === false);
+		$this->assert(IPv4::is_mask("192.128.0.0/9") === true, 'IPv4::is_mask("192.128.0.0/9") === true');
 	}
 
 	function test_mask_to_integers() {
 		$ips = file(dirname(__FILE__) . '/test-data/ip.txt');
 
 		$ip = "192.168.0.248";
-		list($a, $b) = ip::mask_to_integers("$ip/29");
-		$this->assert(ip::from_integer($a) . "/$b" === "$ip/29");
+		list($a, $b) = IPv4::mask_to_integers("$ip/29");
+		$this->assert(IPv4::from_integer($a) . "/$b" === "$ip/29");
 
 		foreach ($ips as $ip) {
 			if (empty($ip))
 				continue;
 			for($i = 32; $i >= 8; $i--) {
 				$string = "$ip/$i";
-				list($a, $b) = ip::mask_to_integers($string);
-				$check_string = ip::mask_to_string($a, $b);
-				list($a1, $b1) = ip::mask_to_integers($check_string);
-				$check_string1 = ip::mask_to_string($a1, $b1);
-				list($a, $b) = ip::mask_to_integers($check_string1);
+				list($a, $b) = IPv4::mask_to_integers($string);
+				$check_string = IPv4::mask_to_string($a, $b);
+				list($a1, $b1) = IPv4::mask_to_integers($check_string);
+				$check_string1 = IPv4::mask_to_string($a1, $b1);
+				list($a, $b) = IPv4::mask_to_integers($check_string1);
 
 				$this->assert($check_string === $check_string1, "$string: $check_string === $check_string1 ($a, $a1 => $b, $b1)");
 				$this->assert($a === $a1 && $b === $b1, "$string: $a === $a1 && $b === $b1 " . sprintf("%032b === %032b", $a, $a1));
@@ -58,16 +64,16 @@ class test_ip extends Test_Unit {
 	function test_mask_to_string() {
 		$ip = null;
 		$ipbits = 32;
-		$this->assert(ip::mask_to_string($ip, $ipbits) === "0.0.0.0");
-		$this->assert(ip::mask_to_string($ip, 24) === "0.0.0.*");
-		$this->assert(ip::mask_to_string($ip, 16) === "0.0.*");
-		$this->assert(ip::mask_to_string($ip, 8) === "0.*");
+		$this->assert(IPv4::mask_to_string($ip, $ipbits) === "0.0.0.0");
+		$this->assert(IPv4::mask_to_string($ip, 24) === "0.0.0.*");
+		$this->assert(IPv4::mask_to_string($ip, 16) === "0.0.*");
+		$this->assert(IPv4::mask_to_string($ip, 8) === "0.*");
 
-		$this->assert(ip::mask_to_string(3232235720, 29) === "192.168.0.200/29");
-		$this->assert(ip::mask_to_string(3232235720, "29") === "192.168.0.200/29");
-		$this->assert(ip::mask_to_string("3232235720", "29") === "192.168.0.200/29", "ip::mask_to_string(\"3232235720\", \"29\") === \"" . ip::mask_to_string("3232235720", "29") . "\" === \"192.168.0.200/29\"");
+		$this->assert(IPv4::mask_to_string(3232235720, 29) === "192.168.0.200/29");
+		$this->assert(IPv4::mask_to_string(3232235720, "29") === "192.168.0.200/29");
+		$this->assert(IPv4::mask_to_string("3232235720", "29") === "192.168.0.200/29", "IPv4::mask_to_string(\"3232235720\", \"29\") === \"" . IPv4::mask_to_string("3232235720", "29") . "\" === \"192.168.0.200/29\"");
 
-		$all_ones = ip::to_integer("255.255.255.255");
+		$all_ones = IPv4::to_integer("255.255.255.255");
 		$n = 1;
 		$m = 0;
 		for($i = 31; $i > 16; $i--) {
@@ -79,7 +85,7 @@ class test_ip extends Test_Unit {
 			if ($i === 24)
 				continue;
 
-			$this->assert(ip::mask_to_string($all_ones, $i) === "255.255.$c.$d/$i", ip::mask_to_string($all_ones, $i) . " === 255.255.$c.$d/$i");
+			$this->assert(IPv4::mask_to_string($all_ones, $i) === "255.255.$c.$d/$i", IPv4::mask_to_string($all_ones, $i) . " === 255.255.$c.$d/$i");
 
 			$n = ($n * 2) + 1;
 			if ($m) {
@@ -90,13 +96,13 @@ class test_ip extends Test_Unit {
 			}
 		}
 
-		$this->assert(ip::mask_to_string(ip::to_integer("76.12.128.129"), 29) === "76.12.128.128/29", ip::mask_to_string(ip::to_integer("76.12.128.129"), 29) . " === 76.12.128.128/29");
-		$this->assert(ip::mask_to_string(ip::to_integer("76.12.128.129"), 29) === "76.12.128.128/29", ip::mask_to_string(ip::to_integer("76.12.128.129"), 29) . " === 76.12.128.128/29");
+		$this->assert(IPv4::mask_to_string(IPv4::to_integer("76.12.128.129"), 29) === "76.12.128.128/29", IPv4::mask_to_string(IPv4::to_integer("76.12.128.129"), 29) . " === 76.12.128.128/29");
+		$this->assert(IPv4::mask_to_string(IPv4::to_integer("76.12.128.129"), 29) === "76.12.128.128/29", IPv4::mask_to_string(IPv4::to_integer("76.12.128.129"), 29) . " === 76.12.128.128/29");
 	}
 
 	function test_network() {
 		$network = null;
-		ip::network($network);
+		IPv4::network($network);
 
 		$tests = array(
 			"192.168.*" => array(
@@ -125,26 +131,26 @@ class test_ip extends Test_Unit {
 			)
 		);
 
-		list($ip_low, $ip_high) = ip::network('1.0.0.0/16');
+		list($ip_low, $ip_high) = IPv4::network('1.0.0.0/16');
 		$this->assert($ip_low === (double) 0x01000000);
 		$this->assert($ip_high === (double) 0x0100FFFF);
 
 		foreach ($tests as $ipmask => $network) {
 			list($ip_check_low, $ip_check_high) = $network;
 			if (is_string($ip_check_low)) {
-				$ip_check_low = ip::to_integer($ip_check_low);
+				$ip_check_low = IPv4::to_integer($ip_check_low);
 			}
 			if (is_string($ip_check_high)) {
-				$ip_check_high = ip::to_integer($ip_check_high);
+				$ip_check_high = IPv4::to_integer($ip_check_high);
 			}
-			list($ip_low, $ip_high) = ip::network($ipmask);
-			$this->assert("$ip_low === $ip_check_low && $ip_high === $ip_check_high", "\nTEST: $ipmask => array('" . ip::from_integer($ip_check_low) . "','" . ip::from_integer($ip_check_high) . "')" . "\nFUNC: $ipmask => array('" . ip::from_integer($ip_low) . "','" . ip::from_integer($ip_high) . "')");
+			list($ip_low, $ip_high) = IPv4::network($ipmask);
+			$this->assert("$ip_low === $ip_check_low && $ip_high === $ip_check_high", "\nTEST: $ipmask => array('" . IPv4::from_integer($ip_check_low) . "','" . IPv4::from_integer($ip_check_high) . "')" . "\nFUNC: $ipmask => array('" . IPv4::from_integer($ip_low) . "','" . IPv4::from_integer($ip_high) . "')");
 		}
 	}
 
 	function test_remote() {
 		$default = '0.0.0.0';
-		ip::remote($default);
+		IPv4::remote($default);
 	}
 
 	function test_subnet_bits() {
@@ -152,35 +158,35 @@ class test_ip extends Test_Unit {
 		foreach ($ips as $ip) {
 			if (empty($ip))
 				continue;
-			$ipi = ip::to_integer($ip);
-			$this->assert(ip::subnet_bits($ipi, 32) === $ipi, ip::subnet_bits($ipi, 32) . "=== ip::subnet_bits($ipi, 32) === $ipi");
+			$ipi = IPv4::to_integer($ip);
+			$this->assert(IPv4::subnet_bits($ipi, 32) === $ipi, IPv4::subnet_bits($ipi, 32) . "=== IPv4::subnet_bits($ipi, 32) === $ipi");
 			$delta = ($ipi & 1) ? 1 : 0;
-			$this->assert(ip::subnet_bits($ipi, 31) === $ipi - $delta, ip::subnet_bits($ipi, 31) . " === ip::subnet_bits($ipi, 31) === $ipi - $delta");
+			$this->assert(IPv4::subnet_bits($ipi, 31) === $ipi - $delta, IPv4::subnet_bits($ipi, 31) . " === IPv4::subnet_bits($ipi, 31) === $ipi - $delta");
 			$delta = ($ipi & 3);
-			$this->assert(ip::subnet_bits($ipi, 30) === $ipi - $delta, ip::subnet_bits($ipi, 30) . " === ip::subnet_bits($ipi, 31) === $ipi - $delta");
+			$this->assert(IPv4::subnet_bits($ipi, 30) === $ipi - $delta, IPv4::subnet_bits($ipi, 30) . " === IPv4::subnet_bits($ipi, 31) === $ipi - $delta");
 			$delta = ($ipi & 0xFFFF);
-			$this->assert(ip::subnet_bits($ipi, 16) === $ipi - $delta, ip::subnet_bits($ipi, 16) . " === ip::subnet_bits($ipi, 16) === $ipi - $delta");
+			$this->assert(IPv4::subnet_bits($ipi, 16) === $ipi - $delta, IPv4::subnet_bits($ipi, 16) . " === IPv4::subnet_bits($ipi, 16) === $ipi - $delta");
 		}
 	}
 
 	function test_subnet_mask() {
 		for($n = 1; $n <= 32; $n++) {
-			$b = sprintf("%032b", ip::subnet_mask($n));
+			$b = sprintf("%032b", IPv4::subnet_mask($n));
 			$check = str_repeat("1", $n) . str_repeat("0", 32 - $n);
-			$this->assert($b === $check, "ip::subnet_mask($n) === $b === $check");
+			$this->assert($b === $check, "IPv4::subnet_mask($n) === $b === $check");
 		}
 	}
 
 	function test_subnet_mask_not() {
 		$ipbits = null;
-		ip::subnet_mask_not($ipbits);
+		IPv4::subnet_mask_not($ipbits);
 	}
 
 	function test_to_integer() {
 		$mixed = null;
-		ip::to_integer($mixed);
-		$this->assert("" . ip::to_integer('192.168.0.216') === "3232235736");
-		$this->assert("" . ip::to_integer('255.255.255.248') === "4294967288");
+		IPv4::to_integer($mixed);
+		$this->assert("" . IPv4::to_integer('192.168.0.216') === "3232235736");
+		$this->assert("" . IPv4::to_integer('255.255.255.248') === "4294967288");
 	}
 
 	function test_valid() {
@@ -205,14 +211,14 @@ class test_ip extends Test_Unit {
 			"255.255.255.256" => false
 		);
 		foreach ($tests as $string => $result) {
-			$this->assert(ip::valid($string) === $result, "$string should be " . ($result ? "valid ip" : "invalid ip"));
+			$this->assert(IPv4::valid($string) === $result, "$string should be " . ($result ? "valid ip" : "invalid ip"));
 		}
 	}
 
 	function test_within_network() {
 		$ip = null;
 		$network = null;
-		ip::within_network($ip, $network);
+		IPv4::within_network($ip, $network);
 
 		$tests = array(
 			array(
@@ -269,7 +275,7 @@ class test_ip extends Test_Unit {
 
 		foreach ($tests as $parms) {
 			list($ip, $network, $result) = $parms;
-			$this->assert(ip::within_network($ip, $network) === $result, "ip::within_network($ip, $network) === " . str::from_bool($result));
+			$this->assert(IPv4::within_network($ip, $network) === $result, "IPv4::within_network($ip, $network) === " . str::from_bool($result));
 		}
 	}
 }

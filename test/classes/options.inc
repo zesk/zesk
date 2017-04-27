@@ -1,4 +1,14 @@
 <?php
+/**
+ * 
+ */
+namespace zesk;
+
+/**
+ * 
+ * @author kent
+ *
+ */
 class test_options extends Test_Unit {
 	function test_options() {
 		$options = false;
@@ -118,16 +128,18 @@ class test_options extends Test_Unit {
 	function test_options_inherit() {
 		$options = new Options();
 		
-		zesk::set("Options::test1", "test1");
-		zesk::set("Options::test2", "test2");
-		zesk::set("Options::test3array", array(
+		$conf = $this->application->configuration;
+		
+		$conf->path_set("zesk\\Options::test1", "test1");
+		$conf->path_set("zesk\\Options::test2", "test2");
+		$conf->path_set("zesk\\Options::test3array", array(
 			0,
 			false,
 			null
 		));
 		
 		// No longer honored/merged as of 2016-01-01
-		zesk::set("Options::options", $optoptions = array(
+		$conf->path_set("zesk\\Options::options", $optoptions = array(
 			"test1" => "test2",
 			"more" => "dude"
 		));

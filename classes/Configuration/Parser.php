@@ -133,7 +133,7 @@ abstract class Configuration_Parser extends Options {
 	/**
 	 * @return Configuration_Editor
 	 */
-	public function editor() {
+	public function editor($content = null, array $options = array()) {
 		throw new Exception_Unimplemented(__METHOD__);
 	}
 }

@@ -10,7 +10,7 @@ $maximum = $this->get("maximum", 100);
 if (real_equal($maximum - $minimum, 0)) {
 	$percent = 0;
 } else {
-	$percent = round($this->value * 100.0 / ($maximum - $minimum));
+	$percent = intval(round($this->value * 100.0 / ($maximum - $minimum)));
 }
 $label = $this->label;
 $text_arguments = $this->geta('text_arguments', array());
@@ -22,7 +22,9 @@ echo HTML::tag_open('div', array(
 	"class" => CSS::add_class("progress", $this->class)
 ));
 
-echo __($this->prefix, $text_arguments);
+if ($this->prefix) {
+	echo __($this->prefix, $text_arguments);
+}
 
 echo HTML::div(array(
 	"class" => CSS::add_class("progress-bar", $this->progressbar_class),

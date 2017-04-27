@@ -2,11 +2,7 @@
 /**
  * 
  */
-use zesk\Directory;
-use zesk\File;
-use zesk\JSON;
-use zesk\Object;
-use zesk\Exception_Directory_Create;
+namespace zesk;
 
 /**
  * 

@@ -9,7 +9,7 @@
  */
 namespace zesk;
 
-class View_Select extends Control_Options {
+class View_Select extends Control_Optionss {
 	function render() {
 		if ($this->option_bool('hidden_input')) {
 			$this->wrap(null, null, null, HTML::hidden($this->name(), $this->value()));

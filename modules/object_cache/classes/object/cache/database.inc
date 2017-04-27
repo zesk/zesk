@@ -2,9 +2,7 @@
 /**
  * 
  */
-use zesk\Database;
-use zesk\Database_Schema;
-use zesk\Database_Query_Select;
+namespace zesk;
 
 /**
  * 
@@ -12,7 +10,7 @@ use zesk\Database_Query_Select;
  *
  */
 class Object_Cache_Database extends Object_Cache {
-
+	
 	/**
 	 * @param Object $object
 	 * @return Database
@@ -20,7 +18,6 @@ class Object_Cache_Database extends Object_Cache {
 	private function cache_database(Object $object) {
 		return $object->database();
 	}
-
 	private function _object_database_table(Database $database, Object $object, $table) {
 		$table_schema = array(
 			'columns' => array(
@@ -42,11 +39,9 @@ class Object_Cache_Database extends Object_Cache {
 		);
 		return Database_Schema::schema_to_database_table($database, $table, $table_schema);
 	}
-
 	private function object_table_name(Object $object) {
 		return "Cache_" . $object->table();
 	}
-
 	private function object_table(Object $object, $create = false) {
 		$table_name = $this->object_table_name($object);
 		$database = $this->cache_database($object);
@@ -56,14 +51,13 @@ class Object_Cache_Database extends Object_Cache {
 		}
 		return $database->table_exists($table_name) ? $table_name : null;
 	}
-
 	public function load(Object $object, $key) {
 		$table = $this->object_table($object);
 		if (!$table) {
 			return;
 		}
 		$db = $this->cache_database($object);
-		$query = new zesk\Database_Query_Select($db);
+		$query = new Database_Query_Select($db);
 		$query->from($table);
 		$query->where("", $object->id());
 		$hash = md5($key);
@@ -71,7 +65,6 @@ class Object_Cache_Database extends Object_Cache {
 		$query->what("data");
 		return unserialize($query->one("data", null));
 	}
-
 	public function save(Object $object, $key, $data) {
 		$database = $this->cache_database($object);
 		$table = $this->object_table($object, ($data !== null));
@@ -91,7 +84,6 @@ class Object_Cache_Database extends Object_Cache {
 		));
 		$database->query($sql);
 	}
-
 	public function invalidate(Object $object, $key = null) {
 		$table = $this->object_table($object);
 		if (!$table) {
@@ -109,7 +101,7 @@ class Object_Cache_Database extends Object_Cache {
 			'table' => $table,
 			'where' => $where
 		));
-
+		
 		$database->query($sql);
 	}
 }

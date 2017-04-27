@@ -2,7 +2,7 @@
 /**
  * 
  */
-use zesk\DocComment;
+namespace zesk;
 
 /**
  * 

@@ -3,6 +3,10 @@
  * 
  */
 use zesk\Directory;
+use zesk\Options;
+use zesk\IPv4;
+use zesk\Exception_Configuration;
+use zesk\Exception_Directory_Create;
 
 /**
  *
@@ -10,13 +14,20 @@ use zesk\Directory;
  *
  */
 class IPBan_FS extends Options {
-
+	/**
+	 * 
+	 * @var string
+	 */
 	private $fs_path = null;
-
+	
+	/**
+	 * 
+	 * @param array $options
+	 * @throws Exception_Configuration
+	 */
 	function __construct(array $options = null) {
 		parent::__construct($options);
 		$this->inherit_global_options();
-
 		$this->fs_path = $this->option('path');
 		if (empty($this->fs_path)) {
 			throw new Exception_Configuration("IPBan_FS::path", "No path set for IPBan_FS::path");
@@ -24,14 +35,25 @@ class IPBan_FS extends Options {
 		Directory::depend($this->fs_path, 0755);
 		$this->php_inc_create();
 	}
-
+	
+	/**
+	 * 
+	 * @param string $ip IP address
+	 * @return NULL|string
+	 */
 	private function ip_path($ip) {
 		if (!IPv4::valid($ip) && !IPv4::is_mask($ip)) {
 			return null;
 		}
 		return path($this->fs_path, implode("/", explode(".", $ip)));
 	}
-
+	
+	/**
+	 * 
+	 * @param string $ip
+	 * @param string $func
+	 * @return number
+	 */
 	private function _ip_drop_allow($ip, $func) {
 		if (IPv4::valid($ip)) {
 			return $this->$func($ip);
@@ -43,16 +65,16 @@ class IPBan_FS extends Options {
 		list($low, $high) = IPv4::network($ip);
 		if ($nbits > 24) {
 			$n = 0;
-			for($i = $low; $i <= $high; $i++) {
+			for ($i = $low; $i <= $high; $i++) {
 				$n += $this->$func(IPv4::from_integer($i));
 			}
 		} else {
 			$npops = $nbits <= 16 ? 2 : 1;
 			$delta = $nbits <= 16 ? 256 * 256 : 256;
-			for($i = $low; $i <= $high; $i += $delta) {
+			for ($i = $low; $i <= $high; $i += $delta) {
 				$ip = IPv4::from_integer($i);
 				$ip = explode(".", $ip);
-				for($n = 0; $n < $npops; $n++) {
+				for ($n = 0; $n < $npops; $n++) {
 					array_pop($ip);
 				}
 				$ip[] = "*";
@@ -65,7 +87,13 @@ class IPBan_FS extends Options {
 		}
 		return $n;
 	}
-
+	
+	/**
+	 * 
+	 * @param array $ips Array of IPs to disallow
+	 * @param unknown $func
+	 * @return number
+	 */
 	private function _ips_drop_allow($ips, $func) {
 		if (is_array($ips)) {
 			$n = 0;
@@ -76,14 +104,12 @@ class IPBan_FS extends Options {
 		}
 		return $this->_ip_drop_allow($ips, $func);
 	}
-
 	function drop($ips) {
 		return $this->_ips_drop_allow($ips, "drop_ip");
 	}
 	function allow($ips) {
 		return $this->_ips_drop_allow($ips, "allow_ip");
 	}
-
 	function drop_ip($ips) {
 		if (is_array($ips)) {
 			$n = 0;
@@ -113,7 +139,6 @@ class IPBan_FS extends Options {
 		}
 		return 0;
 	}
-
 	function allow_ip($ips) {
 		if (is_array($ips)) {
 			$n = 0;
@@ -132,7 +157,6 @@ class IPBan_FS extends Options {
 		}
 		return 0;
 	}
-
 	function clean_empties() {
 		$deleted = 0;
 		foreach (Directory::ls($this->fs_path, null, true) as $class_a) {
@@ -143,9 +167,8 @@ class IPBan_FS extends Options {
 		}
 		return $deleted;
 	}
-
 	private function php_inc_create() {
-		file_put_contents(path($this->fs_path, "ipban.inc"), theme('ipban-php', array(
+		file_put_contents(path($this->fs_path, "ipban.inc"), $this->application->theme('ipban-php', array(
 			"fs_path" => $this->fs_path
 		)));
 	}

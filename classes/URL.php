@@ -345,15 +345,37 @@ class URL {
 		$parts['query'] = avalue($_SERVER, 'QUERY_STRING', '');
 		return self::unparse($parts);
 	}
+	
+	/**
+	 * @deprecated 2017-03
+	 * @param unknown $part
+	 * @return string
+	 */
 	public static function current_left($part) {
 		return self::left(self::current(), $part);
 	}
+	/**
+	 * @deprecated 2017-03
+	 * 
+	 * @return string
+	 */
 	public static function current_left_host() {
 		return self::left_host(self::current());
 	}
+	/**
+	 * 
+	 * @deprecated 2017-03
+	 * @return string
+	 */
 	public static function current_left_path() {
 		return self::left(self::current(), 'path');
 	}
+	
+	/**
+	 * 
+	 * @deprecated 2017-03
+	 * @return boolean
+	 */
 	public static function current_is_secure() {
 		return self::is_secure(self::current());
 	}

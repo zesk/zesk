@@ -8,6 +8,14 @@
  * @author kent
  * @copyright &copy; 2012 Market Acumen, Inc.
  */
+
+namespace zesk;
+
+/**
+ * 
+ * @author kent
+ *
+ */
 class PHP_Formatter extends Hookable {
 	static $OPERATORS = array(
 		'=',

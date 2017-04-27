@@ -9,7 +9,7 @@ namespace zesk;
  * @author kent
  *
  */
-class Control_Text_DropDown extends Control_Text {
+class Control_Text_Dropdown extends Control_Text {
 	const option_button_label = "button_label";
 	const option_select_behavior_enabled = "select_behavior_enabled";
 	const option_plural_behavior_enabled = "plural_behavior_enabled";
@@ -99,7 +99,7 @@ class Control_Text_DropDown extends Control_Text {
 	 * Make the menu act like a selection list
 	 *
 	 * @param string $set
-	 * @return Control_Text_DropDown|boolean
+	 * @return Control_Text_Dropdown|boolean
 	 */
 	public function select_behavior_enabled($set = null) {
 		return $set === null ? $this->option_bool(self::option_select_behavior_enabled) : $this->set_option(self::option_select_behavior_enabled, to_bool($set));
@@ -115,7 +115,7 @@ class Control_Text_DropDown extends Control_Text {
 	 * `data-content` is a simple template for the content of tag which is to be updated with the plural form when needed. You can embed HTML, etc. in here as needed. If not specified, the default value is "{noun}". The term {noun} will be replaced
 	 *
 	 * @param string $set
-	 * @return Control_Text_DropDown|boolean
+	 * @return Control_Text_Dropdown|boolean
 	 */
 	public function plural_behavior_enabled($set = null) {
 		return $set === null ? $this->option_bool(self::option_plural_behavior_enabled) : $this->set_option(self::option_plural_behavior_enabled, to_bool($set));

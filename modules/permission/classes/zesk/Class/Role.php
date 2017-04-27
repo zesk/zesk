@@ -26,11 +26,11 @@ class Class_Role extends Class_Object {
 	);
 	public $has_many = array(
 		'users' => array(
-			'class' => 'User',
-			'table' => 'User_Role',
+			'class' => 'zesk\\User',
+			'link_class' => 'zesk\\User_Role',
 			'foreign_key' => 'role',
 			'far_key' => 'user'
 		)
 	);
-	public $database_group = "zesk\User";
+	public $database_group = "zesk\\User";
 }

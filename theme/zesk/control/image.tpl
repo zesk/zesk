@@ -1,4 +1,6 @@
 <?php
+namespace zesk;
+
 $this->response->cdn_javascript('/share/zesk/js/zesk.js', array(
 	'weight' => 'first'
 ));

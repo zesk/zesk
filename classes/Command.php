@@ -20,14 +20,14 @@ abstract class Command extends Hookable implements Logger\Handler {
 	 * @var integer
 	 */
 	protected $wordwrap = 120;
-
+	
 	/**
 	 * Application running this command
 	 *
 	 * @var Kernel
 	 */
 	public $zesk = null;
-
+	
 	/**
 	 * Application running this command
 	 *
@@ -370,7 +370,9 @@ abstract class Command extends Hookable implements Logger\Handler {
 				"name" => $name
 			));
 		}
-		return \conf::edit($config, $edits);
+		$contents = File::contents($config);
+		$editor = Configuration_Parser::factory(File::extension($config), "")->editor($contents);
+		return File::put($config, $editor->edit($edits));
 	}
 	
 	/**
@@ -638,6 +640,7 @@ abstract class Command extends Hookable implements Logger\Handler {
 			$this->errors[] = $message;
 		} else {
 			echo $prefix . implode("\n" . str_repeat(" ", strlen($prefix)), explode("\n", $message)) . $suffix;
+			flush();
 		}
 	}
 	

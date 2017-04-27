@@ -41,7 +41,7 @@ class Control_Order extends Control {
 		} else {
 			$this->moveUpDown($ID, $verb);
 		}
-		$uri = URL::current_uri();
+		$uri = $this->request->uri();
 		$newURL = URL::query_remove($uri, "move;message", false);
 		
 		$this->response->redirect($newURL);
@@ -50,7 +50,7 @@ class Control_Order extends Control {
 	function render() {
 		$ID = $this->object->id();
 		
-		$u = URL::query_format(URL::query_remove(URL::current_uri(), "move", false), array(
+		$u = URL::query_format(URL::query_remove($this->request->uri(), "move", false), array(
 			"ID" => $ID
 		));
 		

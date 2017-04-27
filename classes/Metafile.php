@@ -7,6 +7,8 @@
  * @copyright Copyright &copy; 2014, Market Acumen, Inc.
  */
 
+namespace zesk;
+
 /**
  * Binary file reading tool
  *

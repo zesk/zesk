@@ -6,6 +6,7 @@
  * @author Kent Davidson <kent@marketacumen.com>
  * @copyright Copyright &copy; 2005, Market Acumen, Inc.
  */
+namespace zesk;
 
 /**
  * @see Class_Mail_Header
@@ -39,7 +40,7 @@ class Mail_Header extends Object {
 	}
 	function name($set = null) {
 		if ($set !== null) {
-			$type = Object::factory('Mail_Header_Type', array(
+			$type = $this->object_factory('zesk\\Mail_Header_Type', array(
 				"code" => $set
 			))->register();
 			if ($type) {

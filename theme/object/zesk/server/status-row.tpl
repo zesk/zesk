@@ -1,5 +1,7 @@
 <?php
 
+namespace zesk;
+
 /* @var $this \zesk\Template */
 /* @var $zesk \zesk\Kernel */
 /* @var $application \zesk\Application */
@@ -8,11 +10,8 @@
 /* @var $route \zesk\Route */
 /* @var $request \zesk\Request */
 /* @var $response \zesk\Response_Text_HTML */
-/* @var $current_user \User */
-/* @var $object \Server */
-use zesk\HTML;
-use zesk\Timestamp;
-use zesk\Number;
+/* @var $current_user \zesk\User */
+/* @var $object \zesk\Server */
 
 $n_secs = Timestamp::now('UTC')->difference($object->alive, "second");
 

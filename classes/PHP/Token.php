@@ -1,5 +1,7 @@
 <?php
 
+namespace zesk;
+
 class PHP_Token {
 	public $type;
 	public $contents;

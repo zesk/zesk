@@ -1,11 +1,15 @@
 <?php
+/**
+ * 
+ */
+namespace zesk;
 
 /**
  * @see Selection_Item
  * @author kent
  *
  */
-class Class_Selection_Item extends zesk\Class_Object {
+class Class_Selection_Item extends Class_Object {
 
 	public $id_column = false;
 
@@ -15,8 +19,8 @@ class Class_Selection_Item extends zesk\Class_Object {
 	);
 
 	public $has_one = array(
-		'type' => 'Selection_Type',
-		'query' => 'Selection_Query',
+		'type' => 'zesk\\Selection_Type',
+		'query' => 'zesk\\Selection_Query',
 	);
 
 	public $column_types = array(

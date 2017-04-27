@@ -1,4 +1,6 @@
 <?php
+namespace zesk;
+
 $widget = $this->widget;
 /* @var $widget Widget */
 $widget->content_children = "";

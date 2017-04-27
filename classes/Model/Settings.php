@@ -16,8 +16,27 @@ class Model_Settings extends Model {
 	 * @var array $variables
 	 */
 	protected $variables = array();
+	
+	/**
+	 * 
+	 * @var Configuration
+	 */
+	protected $configuration = null;
+	
+	/**
+	 * 
+	 * @var array
+	 */
+	protected $state = array();
+	/**
+	 * 
+	 * {@inheritDoc}
+	 * @see \zesk\Model::construct()
+	 */
 	public function construct() {
+		parent::construct();
 		$this->configuration = $this->application->configuration;
+		$this->inherit_global_options();
 	}
 	
 	/**
@@ -36,33 +55,91 @@ class Model_Settings extends Model {
 		}
 		return $this;
 	}
-	function __isset($key) {
-		return $this->application->configuration->path_exists($key, false);
-	}
-	protected function _internal_get($key) {
-		if (array_key_exists($key, $this->_changed)) {
-			return $this->_changed[$key];
+	/**
+	 * 
+	 * @param mixed $mixed
+	 */
+	public function allow_variable($mixed = null) {
+		if ($mixed === null) {
+			return $this->variables;
 		}
-		$result = $this->configuration->path_get($key);
-		return $result instanceof Configuration ? $result->to_array() : $result;
+		$mixed = to_list($mixed);
+		foreach ($mixed as $item) {
+			if (!in_array($item, $this->variables)) {
+				$this->variables[$item] = null;
+				if ($this->option_bool("debug_variables")) {
+					$this->application->logger->debug("Adding permitted {variable} to {class}", array(
+						"variable" => $item,
+						"class" => get_class($this)
+					));
+				}
+			}
+		}
+		return $this;
+	}
+	function __isset($key) {
+		if (array_key_exists($key, $this->_changed)) {
+			return true;
+		}
+		if (array_key_exists($key, $this->variables)) {
+			return $this->application->configuration->path_exists($key, false);
+		}
+		return isset($this->state[$key]);
 	}
 	private function _ignore_variable($key) {
 		return in_array($key, $this->ignore_variables);
 	}
 	protected function _internal_set($key, $value) {
-		if (!array_key_exists($key, $this->_changed)) {
-			if (!$this->_ignore_variable($key)) {
-				$this->_changed[$key] = $value;
-			}
-			$this->configuration->path_get($key, $value);
-			return $this;
+		$old = $this->_internal_get($key);
+		if ($value === $old) {
+			return;
 		}
-		$old = $this->configuration->path_get($key);
-		if ($old !== $value) {
+		// Value has definitely changed
+		if (!$this->_ignore_variable($key)) {
+			if ($this->option_bool("debug_changes")) {
+				$this->application->logger->debug("{method} new value for key {key} {new_value} (old value was {old_value})", array(
+					"key" => $key,
+					"old_value" => $old,
+					"new_value" => $value,
+					"method" => __METHOD__
+				));
+			}
 			$this->_changed[$key] = $value;
-			$this->configuration->pave_set($key, $value);
+		} else if (array_key_exists($key, $this->variables)) {
+			$this->configuration->path_set($key, $value);
+		} else {
+			if ($this->option_bool("debug_variables")) {
+				$this->application->logger->warning("{method} STATE ONLY value for key {key} {new_value} (old value was {old_value})", array(
+					"key" => $key,
+					"old_value" => $old,
+					"new_value" => $value,
+					"method" => __METHOD__
+				));
+			}
+			$this->state[$key] = $value;
 		}
 		return $this;
+	}
+	
+	/**
+	 * Get a value from this model
+	 * 
+	 * @param string $key
+	 * @return mixed
+	 */
+	protected function _internal_get($key) {
+		if (array_key_exists($key, $this->_changed)) {
+			return $this->_changed[$key];
+		}
+		if (array_key_exists($key, $this->variables)) {
+			$result = $this->configuration->path_get($key);
+			return $result instanceof Configuration ? $result->to_array() : $result;
+		}
+		$this->application->logger->debug("{variable} not permitted in {class}, using local state instead", array(
+			"variable" => $key,
+			"class" => get_class($this)
+		));
+		return avalue($this->state, $key);
 	}
 	function variables() {
 		$result = $this->configuration->paths_get($this->variables);
@@ -93,15 +170,22 @@ class Model_Settings extends Model {
 		return $this->_internal_set($key, $value);
 	}
 	function __unset($key) {
-		$old = $this->__get($key);
-		if ($old !== null) {
-			$this->_changed[$key] = null;
-			$this->__set($key, null);
-		}
+		$this->__set($key, null);
 	}
 	function store() {
+		$this->application->logger->debug("{method} called", array(
+			"method" => __METHOD__
+		));
 		$settings = Settings::instance();
 		foreach ($this->_changed as $key => $value) {
+			if ($this->option_bool("debug_save")) {
+				$this->application->logger->debug("{method} Saving {key}={value} ({type})", array(
+					"method" => __METHOD__,
+					"key" => $key,
+					"value" => PHP::dump($value),
+					"type" => type($value)
+				));
+			}
 			$settings->set($key, $value);
 		}
 		$this->_changed = array();

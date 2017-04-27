@@ -18,6 +18,8 @@ use zesk\Locale;
 use zesk\Application;
 use zesk\Configuration;
 use zesk\arr;
+use zesk\Hookable;
+use zesk\Object_Iterator;
 
 /**
  * A regular expression pattern for matching email addresses anywhere (should delimit both ends in
@@ -44,20 +46,27 @@ define("PREG_PATTERN_EMAIL_STRING", '/^' . PREG_PATTERN_EMAIL . '$/');
 define("ZESK_GLOBAL_KEY_SEPARATOR", "::");
 
 /**
- * Assumes array has a 0-based key list
+ * Get our global Zesk kernel.
+ * Avoids having global $zesk overwritten.
+ *
+ * @return Kernel
+ */
+function zesk() {
+	return Kernel::zesk();
+}
+
+/**
+ * Does NOT assume array is a 0-based key list
  *
  * @param array $a        	
  * @return NULL|mixed
  */
 function first(array $a, $default = null) {
-	if (($n = count($a)) === 0) {
-		return $default;
-	}
-	return $a[0];
+	return count($a) !== 0 ? $a[key($a)] : $default;
 }
 
 /**
- * Assumes array has a 0-based key list
+ * Does NOT assume array is a 0-based key list
  *
  * @param array $a        	
  * @return NULL|mixed
@@ -66,7 +75,10 @@ function last(array $a, $default = null) {
 	if (($n = count($a)) === 0) {
 		return $default;
 	}
-	return $a[$n - 1];
+	if (isset($a[$n - 1])) {
+		return $a[$n - 1];
+	}
+	return $a[last(array_keys($a))];
 }
 
 /**
@@ -104,7 +116,7 @@ function type($mixed) {
  * @param string $string        	
  * @param string $prefix        	
  * @return boolean
- * @see str::begins
+ * @see \zesk\str::begins
  */
 function begins($haystack, $needle) {
 	$n = strlen($needle);
@@ -120,7 +132,7 @@ function begins($haystack, $needle) {
  * @param string $string        	
  * @param string $prefix        	
  * @return boolean
- * @see str::beginsi
+ * @see \zesk\str::beginsi
  */
 function beginsi($haystack, $needle) {
 	$n = strlen($needle);
@@ -136,7 +148,7 @@ function beginsi($haystack, $needle) {
  * @param string $string        	
  * @param string $prefix        	
  * @return boolean
- * @see str::ends
+ * @see \zesk\str::ends
  */
 function ends($haystack, $needle) {
 	$n = strlen($needle);
@@ -152,7 +164,7 @@ function ends($haystack, $needle) {
  * @param string $string        	
  * @param string $prefix        	
  * @return boolean
- * @see str::endsi
+ * @see \zesk\str::endsi
  */
 function endsi($haystack, $needle) {
 	$n = strlen($needle);
@@ -169,13 +181,11 @@ function endsi($haystack, $needle) {
  * @return string
  */
 function newline($set = null) {
-	/* @var $zesk Kernel */
-	global $zesk;
 	if ($set !== null) {
-		$zesk->newline = $set;
+		zesk()->newline = $set;
 		return $set;
 	}
-	return $zesk->newline;
+	return zesk()->newline;
 }
 
 /**
@@ -1107,7 +1117,7 @@ function clamp($minValue, $value, $maxValue) {
  * @return boolean
  */
 function real_equal($a, $b, $epsilon = 1e-5) {
-	return abs($a - $b) < $epsilon;
+	return abs($a - $b) <= $epsilon;
 }
 
 /**
@@ -1348,13 +1358,4 @@ function app() {
 	return Application::instance();
 }
 
-/**
- * Get our global Zesk kernel.
- * Avoids having global $zesk overwritten.
- *
- * @return Kernel
- */
-function zesk() {
-	return Kernel::zesk();
-}
 

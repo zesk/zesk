@@ -1,5 +1,8 @@
 <?php
-class Module_InPlace extends zesk\Module_JSLib {
+
+namespace zesk;
+
+class Module_InPlace extends Module_JSLib {
 	/**
 	 * Array of css paths for this page
 	 *
@@ -22,3 +25,4 @@ class Module_InPlace extends zesk\Module_JSLib {
 		)
 	);
 }
+

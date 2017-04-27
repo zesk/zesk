@@ -14,12 +14,11 @@ namespace zesk;
 /* @var $response \zesk\Response_Text_HTML */
 /* @var $current_user \User */
 /* @var $object Model_List */
-
 if (!$response) {
-	$response = Response::instance();
+	$response = $application->response();
 }
 if (!$request) {
-	$request = Request::instance();
+	$request = $application->request();
 }
 
 /* @var $widget Control_Pager */
@@ -46,12 +45,12 @@ $response->cdn_css("/share/zesk/widgets/pager/pager.css", array(
 ));
 
 $this->last_index = ($limit < 0) ? $total : min($offset + $limit, $total);
-$this->url = URL::query_format(URL::current_uri(), array(
+$this->url = URL::query_format($request->uri(), array(
 	"limit" => $limit
 ));
 
 $showing = __($total === 0 ? 'Control_Pager:=Showing none' : 'Control_Pager:=Showing {0} - {1} of {2}', ($offset + 1), $this->last_index, $total);
-$uri = URL::current_uri();
+$uri = $request->uri();
 
 echo HTML::tag_open('form', array(
 	"method" => 'get',
@@ -61,26 +60,26 @@ echo HTML::tag_open("div", array(
 	"class" => 'control-pager'
 ));
 $this->direction = -1;
-echo HTML::tag("div", ".pager-arrow", $this->theme('control/pager/arrow', array(
+echo HTML::tag("div", ".pager-arrow .pager-action-start", $this->theme('zesk/control/pager/arrow', array(
 	"image" => "pager-start",
 	"offset" => 0,
 	"name" => __("First page"),
 	"disabled_name" => __("Already at first page")
 )));
-echo HTML::tag("div", ".pager-arrow", $this->theme('control/pager/arrow', array(
+echo HTML::tag("div", ".pager-arrow .pager-action-prev", $this->theme('zesk/control/pager/arrow', array(
 	"image" => "pager-prev",
 	"offset" => max($offset - $limit, 0),
 	"name" => __("Previous page"),
 	"disabled_name" => __("Already at first page")
 )));
 $this->direction = 1;
-echo HTML::tag("div", ".pager-arrow", $this->theme('control/pager/arrow', array(
+echo HTML::tag("div", ".pager-arrow .pager-action-next", $this->theme('zesk/control/pager/arrow', array(
 	"image" => "pager-next",
 	"offset" => $offset + $limit,
 	"name" => __("Next page"),
 	"disabled_name" => __("Already at last page")
 )));
-echo HTML::tag("div", ".pager-arrow", $this->theme('control/pager/arrow', array(
+echo HTML::tag("div", ".pager-arrow .pager-action-end", $this->theme('zesk/control/pager/arrow', array(
 	"image" => "pager-end",
 	"offset" => $last_offset,
 	"name" => __("Last page"),
@@ -112,7 +111,7 @@ if (count($children) > 0) {
 	}
 }
 
-echo $this->theme("control/pager/limits");
+echo $this->theme("zesk/control/pager/limits");
 
 echo HTML::tag_close('div');
 

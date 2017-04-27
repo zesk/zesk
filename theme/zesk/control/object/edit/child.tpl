@@ -1,4 +1,7 @@
 <?php
+
+namespace zesk;
+
 /* @var $widget Widget */
 $widget = $this->widget;
 

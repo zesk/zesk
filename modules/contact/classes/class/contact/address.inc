@@ -1,4 +1,8 @@
 <?php
+/**
+ * 
+ */
+namespace zesk;
 
 /**
  * @see Contact_Address
@@ -6,14 +10,12 @@
  *
  */
 class Class_Contact_Address extends Class_Contact_Info {
-
 	public $contact_object_field = "address";
-
 	public $has_one = array(
-		'contact' => "Contact",
-		'label' => 'Contact_Label',
-		'country' => 'Country',
-		'county' => 'County'
+		'contact' => "zesk\\Contact",
+		'label' => 'zesk\\Contact_Label',
+		'country' => 'zesk\\Country',
+		'county' => 'zesk\\County'
 	);
 	public $column_types = array(
 		"id" => self::type_id,
@@ -37,7 +39,6 @@ class Class_Contact_Address extends Class_Contact_Info {
 		'modified' => self::type_modified,
 		'data' => self::type_serialize
 	);
-
 	public $column_defaults = array(
 		'name' => ''
 	);

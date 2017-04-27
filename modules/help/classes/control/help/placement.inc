@@ -1,5 +1,7 @@
 <?php
 
+namespace zesk;
+
 class Control_Help_Placement extends Control_Select {
 	protected function initialize() {
 		$this->control_options(array(

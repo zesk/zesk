@@ -40,7 +40,7 @@ class World_Bootstrap_Language extends Options {
 	 */
 	public function __construct($options) {
 		parent::__construct($options);
-		$this->inherit_global_options("Module_World");
+		$this->inherit_global_options("zesk\\Module_World");
 		$include_language = $this->option("include_language");
 		if ($include_language) {
 			$this->include_language = array_change_key_case(arr::flip_assign(to_list($include_language), true));
@@ -54,13 +54,14 @@ class World_Bootstrap_Language extends Options {
 		return true;
 	}
 	public function bootstrap(Application $application) {
-		$x = $application->object_factory(str::unprefix(__CLASS__, "World_Bootstrap_"));
+		$prefix = __NAMESPACE__ . "\\";
+		$x = $application->object_factory($prefix . str::unprefix(__CLASS__, $prefix . "World_Bootstrap_"));
 		if ($this->option_bool("drop")) {
 			$x->database()->query('TRUNCATE ' . $x->table());
 		}
 		$englishCodes = self::_language_codes_en();
 		foreach ($englishCodes as $code => $name) {
-			$x = $application->object_factory("Language", array(
+			$x = $application->object_factory($prefix . "Language", array(
 				'code' => strtoupper($code),
 				'name' => $name
 			));

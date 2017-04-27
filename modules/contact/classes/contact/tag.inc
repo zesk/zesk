@@ -1,12 +1,31 @@
 <?php
 /**
- * @version $Id: tag.inc 2159 2014-02-13 20:14:21Z kent $
+ * @version $Id: tag.inc 4481 2017-03-24 18:21:48Z kent $
  * @package zesk
  * @subpackage contact
  * @author kent
  * @copyright Copyright &copy; 2010, Market Acumen, Inc.
  */
-class Contact_Tag extends Zesk_Contact_Tag {
+namespace zesk;
+
+class Contact_Tag extends Object {
+	public static function register_tag($name, $user) {
+		$x = new self(array(
+			"name" => $name,
+			"user" => $user
+		));
+		if (!$x->register()) {
+			return null;
+		}
+		return $x;
+	}
+	public static function to_array(User $user, $where = null) {
+		$query = $user->application->query_select(__CLASS__);
+		return $query->where('user', $user)
+			->where($where)
+			->order_by('name')
+			->to_array('id');
+	}
 	function store() {
 		$result = parent::store();
 		if ($result) {
@@ -14,11 +33,13 @@ class Contact_Tag extends Zesk_Contact_Tag {
 		}
 		return $result;
 	}
-
 	function grant_user(User $user) {
-		Object::class_query_insert("User_Contact_Tag")->values(array(
-			"User" => $user,
-			"Contact_Tag" => $this->id()
-		))->replace()->execute();
+		$this->query_insert()
+			->values(array(
+			"user" => $user,
+			"contact_tag" => $this->id()
+		))
+			->replace()
+			->execute();
 	}
 }

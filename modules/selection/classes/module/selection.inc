@@ -1,13 +1,21 @@
 <?php
-class Module_Selection extends zesk\Module {
+/**
+ * 
+ */
+namespace zesk;
+
+/**
+ * 
+ */
+class Module_Selection extends Module {
 	protected $classes = array(
-		"Selection_Item",
-		"Selection_Query",
-		"Selection_Type"
+		"zesk\\Selection_Item",
+		"zesk\\Selection_Query",
+		"zesk\\Selection_Type"
 	);
-	public function hook_routes(zesk\Router $router) {
-		$router->add_route('selection/{Selection_Type type}/list', array(
-			'controller' => 'Selection_Item',
+	public function hook_routes(Router $router) {
+		$router->add_route('selection/{zesk\\Selection_Type type}/list', array(
+			'controller' => 'zesk\\Controller_Selection_Item',
 			'action' => 'list',
 			'actions' => array(
 				'list'
@@ -16,8 +24,8 @@ class Module_Selection extends zesk\Module {
 				1
 			)
 		));
-		$router->add_route('selection/{Selection_Type type}/delete/{id}', array(
-			'controller' => 'Selection_Item',
+		$router->add_route('selection/{zesk\\Selection_Type type}/delete/{id}', array(
+			'controller' => 'zesk\\Controller_Selection_Item',
 			'action' => 'delete_id',
 			'actions' => array(
 				'delete'

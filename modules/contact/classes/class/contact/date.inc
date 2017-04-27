@@ -1,10 +1,9 @@
 <?php
+namespace zesk;
 
-class Class_Contact_Date extends Class_Zesk_Contact_Date {
+class Class_Contact_Date extends Class_Contact_Info {
 	public $contact_object_field = "date";
-
 	public $id_column = "id";
-
 	public $column_types = array(
 		"id" => self::type_id,
 		"contact" => self::type_object,

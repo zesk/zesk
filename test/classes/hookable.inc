@@ -1,4 +1,6 @@
 <?php
+namespace zesk;
+
 class hookable_test_a extends Hookable {
 	function hookit(array $data) {
 		$data['hookit'] = microtime(true);
@@ -10,9 +12,9 @@ class test_hookable extends Test_Unit {
 	public static $counter = 0;
 
 	function test_hook_series() {
-		zesk()->hooks->add('hookable_test_a::test', __CLASS__ . '::hook_test1');
-		zesk()->hooks->add('hookable_test_a::test', __CLASS__ . '::hook_test2');
-		zesk()->hooks->add('hookable_test_a::test', __CLASS__ . '::hook_test3');
+		zesk()->hooks->add('zesk\\hookable_test_a::test', __CLASS__ . '::hook_test1');
+		zesk()->hooks->add('zesk\\hookable_test_a::test', __CLASS__ . '::hook_test2');
+		zesk()->hooks->add('zesk\\hookable_test_a::test', __CLASS__ . '::hook_test3');
 
 		$data = array(
 			'dude' => 'as in the'

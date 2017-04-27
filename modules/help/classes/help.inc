@@ -1,6 +1,8 @@
 <?php
-
-use zesk\Timestamp;
+/**
+ * 
+ */
+namespace zesk;
 
 /**
  * @author kent
@@ -21,9 +23,8 @@ use zesk\Timestamp;
  * @property integer $show_count
  */
 class Help extends Object {
-
 	public function show() {
-		$query = Object::class_query_update(__CLASS__);
+		$query = $this->query_update();
 		$query->value('*show_first', $query->sql()
 			->now())
 			->where('show_first', null)
@@ -31,7 +32,7 @@ class Help extends Object {
 			'id' => $this->id()
 		))
 			->execute();
-		$query = Object::class_query_update(__CLASS__);
+		$query = $this->query_update();
 		$query->value('*show_recent', $query->sql()
 			->now())
 			->value('*show_count', 'show_count+1')

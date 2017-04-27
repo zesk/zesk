@@ -4,15 +4,9 @@ Zesk has a simple interface to enable creation of chainable, command-line functi
 
 	zesk [arguments] [command] [command-arguments]
 	
-The main binary is `zesk` found at `$ZESK_ROOT/bin` which invokes `zesk.sh` which in turn invokes `zesk-command.php`.
+The main binary is `zesk` found at `$ZESK_ROOT/bin` which invokes `zesk.sh` which in turn invokes `zesk-command.php`. They are functionally identical.
 
-The command starts at the current working directory and looks for a file `application.inc` in parent directories until found or the root of the file system is reached.
-
-> To specify an alternate file to be searched for, export `zesk_root_files` in your environment as a list of files to search for, e.g.
->
->     `export zesk_root_files="foo.inc site.inc application.inc"`
->
-> Zesk will search for the file `foo.inc`, then `site.inc`, etc. in each directory until a match is found.
+The command starts at the current working directory and looks for a file ending with `.application.php` in parent directories until found or the root of the file system is reached.
 
 Once found, it runs your commands in PHP after first including the primary application include file. This allows your application to load its context, such as globals, database settings, or any other basic configuration needed to run commands.
 
@@ -140,21 +134,19 @@ The difference is that the `Command` class keeps track of the arguments which ha
 
 Certain commands can be chained, and others can not, depending on the command. A simple example which outlines how this works is as follows:
 
-	zesk pwd --cd .. pwd --cd .. pwd --cd .. pwd
+	zesk module server module jquery modules --loaded
 	
 Outputs:
 
-	/usr/home/username/zesk/
-	/usr/home/username/
-	/usr/home/
-	/usr/
+	jquery: true
+	server: true
 
-Commands should be implemented such that they use only arguments which are known to it. In addition, classes which extend `Command` SHOULD specify a
-wildcard parameter for remaining parameters, unless the command is **always** last in a chain (for example `db-connect`).
+Commands should be implemented such that they use only arguments which are known to it. In addition, classes which extend `zesk\Command` SHOULD specify a
+wildcard parameter for remaining parameters, unless the command is **always** last in a chain (for example `database-connect`).
 
 Some commands can specify an terminating string, which **should** be standardized to the double-dash argument (e.g. "`--`"):
 
-	zesk eval "echo zesk::get('init');" "zesk::all_hook('cron')" -- globals
+	zesk eval "echo zesk()->configuration->init;" "zesk()->hooks->call('alert')" -- globals
 	
 For example the `eval` command stops when it encounters the `--` argument, and then passes control to the next command.
 

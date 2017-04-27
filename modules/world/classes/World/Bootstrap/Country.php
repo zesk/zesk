@@ -43,14 +43,14 @@ class World_Bootstrap_Country extends Options {
 	 */
 	public function __construct($options) {
 		parent::__construct($options);
-		$this->inherit_global_options("Module_World");
+		$this->inherit_global_options("zesk\\Module_World");
 		$include_country = $this->option("include_country");
 		if ($include_country) {
 			$this->include_country = array_change_key_case(arr::flip_assign(to_list($include_country), true));
 		}
 	}
 	public function bootstrap(Application $application) {
-		$x = $application->object_factory(str::unprefix(__CLASS__, "World_Bootstrap_"));
+		$x = $application->objects->factory(__NAMESPACE__ . "\\" . str::unprefix(__CLASS__, __NAMESPACE__ . "\\World_Bootstrap_"));
 		if ($this->option_bool("drop")) {
 			$x->database()->query('TRUNCATE ' . $x->table());
 		}
@@ -106,5 +106,4 @@ class World_Bootstrap_Country extends Options {
 		}
 		return $rows;
 	}
-	
 }

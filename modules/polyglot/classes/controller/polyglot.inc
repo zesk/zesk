@@ -1,33 +1,28 @@
 <?php
-
-use zesk\Command;
-use zesk\Exception_Permission;
+namespace zesk;
 
 class Controller_PolyGlot extends Controller_Template_Login {
-
+	
 	/**
 	 *
 	 * @var Module_PolyGlot
 	 */
 	protected $module = null;
-
 	public function initialize() {
 		$this->module = $this->application->modules->object("polyglot");
 		parent::initialize();
 	}
-
 	public function before() {
 		if (!Command::running()) {
-			$action = "Module_PolyGlot::translate";
+			$action = "zesk\\Module_PolyGlot::translate";
 			if (!$this->user instanceof User || !$this->user->can($action)) {
 				throw new Exception_Permission($this->user, $action);
 			}
 		}
 		parent::before();
 	}
-
 	public function action_index() {
-		if (!$this->user->can("Module_PolyGlot::translate")) {
+		if (!$this->user->can("zesk\\Module_PolyGlot::translate")) {
 			throw new Exception_Permission($this->user, "Module_PolyGlot::index", null, array(
 				"message" => __("Not allowed to do translations.")
 			));
@@ -36,7 +31,7 @@ class Controller_PolyGlot extends Controller_Template_Login {
 			"locale_options" => $this->module->locale_options()
 		));
 	}
-
+	
 	/**
 	 * Load a locale for translation
 	 *
@@ -47,7 +42,7 @@ class Controller_PolyGlot extends Controller_Template_Login {
 			"lang_name" => Language::lang_name($locale),
 			"locale" => $locale
 		);
-		if ($this->user->can("Module_PolyGlot::load", null, array(
+		if ($this->user->can("zesk\\Module_PolyGlot::load", null, array(
 			"locale" => $locale
 		))) {
 			return $this->json(array(
@@ -61,7 +56,7 @@ class Controller_PolyGlot extends Controller_Template_Login {
 			"message" => __("You do not have permission to do translations.")
 		));
 	}
-
+	
 	/**
 	 * Update a locale on all servers with current translations
 	 *
@@ -72,7 +67,7 @@ class Controller_PolyGlot extends Controller_Template_Login {
 			"lang_name" => Language::lang_name($locale),
 			"locale" => $locale
 		);
-		if (!$this->user->can("Module_PolyGlot::update", null, array(
+		if (!$this->user->can("zesk\\Module_PolyGlot::update", null, array(
 			"locale" => $locale
 		))) {
 			return $this->json(array(
@@ -91,7 +86,7 @@ class Controller_PolyGlot extends Controller_Template_Login {
 			"message" => __("Locale {lang_name} was not updated.", $__)
 		));
 	}
-
+	
 	/**
 	 * Save a token
 	 * @param unknown $locale
@@ -102,7 +97,7 @@ class Controller_PolyGlot extends Controller_Template_Login {
 			"lang_name" => Language::lang_name($locale),
 			"locale" => $locale
 		);
-		if (!$this->user->can("Module_PolyGlot::translate", null, array(
+		if (!$this->user->can("zesk\\Module_PolyGlot::translate", null, array(
 			"locale" => $locale
 		))) {
 			return $this->json(array(
@@ -116,8 +111,8 @@ class Controller_PolyGlot extends Controller_Template_Login {
 			$fields[$k] = $this->request->get($k);
 		}
 		$fields['translation'] = $fields['translation'];
-		$fields["dialect"] = zesk\Locale::dialect($locale);
-		$fields["language"] = $language = zesk\Locale::language($locale);
+		$fields["dialect"] = Locale::dialect($locale);
+		$fields["language"] = $language = Locale::language($locale);
 		if (empty($language)) {
 			return $this->json(array(
 				"status" => false,
@@ -125,9 +120,9 @@ class Controller_PolyGlot extends Controller_Template_Login {
 			));
 		}
 		if ($id) {
-			$object = $this->application->object_factory("PolyGlot_Token", $id)->fetch();
+			$object = $this->application->object_factory("zesk\\PolyGlot_Token", $id)->fetch();
 		} else {
-			$object = $this->application->object_factory("PolyGlot_Token");
+			$object = $this->application->object_factory("zesk\\PolyGlot_Token");
 		}
 		$object->set_member($fields);
 		$errors = ($fields['status'] === 'delete') ? array() : $object->validate();

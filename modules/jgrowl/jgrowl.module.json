@@ -6,7 +6,8 @@
     "destination": "vendor/components/jgrowl/",
     "share_path": "vendor/components/jgrowl/",
     "autoload_options": {
-    	"class_prefix": "zesk\\"
+    	"class_prefix": "zesk\\",
+		"lower": false
     },
 	"module_class": "zesk\\Module_jGrowl"
 }

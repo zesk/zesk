@@ -4,6 +4,13 @@
  * @author kent
  * @sandbox false
  */
+namespace zesk;
+
+/**
+ * 
+ * @author kent
+ *
+ */
 class test_overhead extends Test_Unit {
 	function test_usage() {
 		$test_limit = 10 * 1024 * 1024; // 10M
@@ -27,7 +34,7 @@ class test_overhead extends Test_Unit {
 		));
 	}
 	private function run_php_sandbox($sandbox) {
-		$php = zesk::which("php");
+		$php = $this->application->paths->which("php");
 		ob_start();
 		$result = system("$php $sandbox");
 		ob_end_clean();

@@ -1,4 +1,5 @@
 <?php
+namespace zesk;
 
 /**
  * Save your filters for lists to a saved list of queries
@@ -7,14 +8,14 @@
  * 
  * @author kent
  */
-class Module_Filter_Save extends zesk\Module_JSLib implements \zesk\Interface_Module_Routes {
+class Module_Filter_Save extends Module_JSLib implements Interface_Module_Routes {
 	
 	/**
 	 * 
 	 * @var array
 	 */
 	protected $classes = array(
-		"Filter_State"
+		"zesk\\Filter_State"
 	);
 	
 	/**
@@ -30,7 +31,7 @@ class Module_Filter_Save extends zesk\Module_JSLib implements \zesk\Interface_Mo
 	 * {@inheritDoc}
 	 * @see \zesk\Interface_Module_Routes::hook_routes()
 	 */
-	public function hook_routes(zesk\Router $router) {
+	public function hook_routes(Router $router) {
 		$router->add_route('filter_state/new', array(
 			"method" => array(
 				$this,
@@ -41,7 +42,7 @@ class Module_Filter_Save extends zesk\Module_JSLib implements \zesk\Interface_Mo
 				"{response}"
 			)
 		));
-		$router->add_route('filter_state/{Filter_State filter}/delete', array(
+		$router->add_route('filter_state/{zesk\\Filter_State filter}/delete', array(
 			"method" => array(
 				$this,
 				"filter_state_delete"
@@ -74,8 +75,8 @@ class Module_Filter_Save extends zesk\Module_JSLib implements \zesk\Interface_Mo
 		$request = $widget->request();
 		$response = $widget->response();
 	}
-	public function filter_state_new(zesk\Request $request, zesk\Response_Text_HTML $response) {
+	public function filter_state_new(Request $request, Response_Text_HTML $response) {
 	}
-	public function filter_state_delete(zesk\Request $request, zesk\Response_Text_HTML $response, Filter_State $filter) {
+	public function filter_state_delete(Request $request, Response_Text_HTML $response, Filter_State $filter) {
 	}
 }

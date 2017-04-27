@@ -97,7 +97,7 @@ foreach ($options as $k => $v) {
 			}
 			echo HTML::tag_close("optgroup");
 		} else {
-			echo $this->theme('control/select/option', array(
+			echo $this->theme('zesk/control/select/option', array(
 				"value" => $k,
 				"escape_values" => $escape_values,
 				"selected" => in_array(strval($k), $values)

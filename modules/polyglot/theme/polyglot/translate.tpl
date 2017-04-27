@@ -2,7 +2,7 @@
 /**
  * 
  */
-use zesk\Model;
+namespace zesk;
 
 /* @var $this \zesk\Template */
 /* @var $zesk \zesk\Kernel */
@@ -14,7 +14,7 @@ use zesk\Model;
 /* @var $response \zesk\Response_Text_HTML */
 /* @var $current_user \User */
 $current_user = $this->get1("current_user;user", $application->user(true));
-$can_update_live = $current_user->can("Module_PolyGlot::update");
+$can_update_live = $current_user->can("zesk\\Module_PolyGlot::update");
 
 /* @var $response zesk\Response_Text_HTML */
 $response = $this->response;
@@ -28,7 +28,7 @@ $response->cdn_css("/share/polyglot/css/polyglot.css", array(
 ));
 
 $object = new Model();
-$object->locale = zesk\Locale::current();
+$object->locale = Locale::current();
 $object->status = $this->request->get("s", PolyGlot_Token::status_todo);
 
 $locale_options = to_array($this->locale_options);

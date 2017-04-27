@@ -1,19 +1,24 @@
 <?php
-if (false) {
-	/* @var $this zesk\Template */
-	
-	$zesk = $this->zesk;
-	/* @var $zesk zesk\Kernel */
-	
-	$application = $this->application;
-	/* @var $application TimeBank */
-}
+namespace zesk;
+
+/* @var $this \zesk\Template */
+/* @var $zesk \zesk\Kernel */
+/* @var $application \zesk\Application */
+/* @var $session \zesk\Session */
+/* @var $router \zesk\Router */
+/* @var $route \zesk\Route */
+/* @var $request \zesk\Request */
+/* @var $response \zesk\Response_Text_HTML */
+/* @var $current_user \zesk\User */
+
+$application = $this->application;
+/* @var $application Application */
 
 $configuration = $zesk->configuration;
 
 $units = $this->get('units', $configuration->path_get('distance::units', 'km'));
 // By default, all units in kilometers
-	
+
 
 // Distance should always be passed in as "meters"
 $distance = $this->content;
@@ -59,7 +64,7 @@ $map = array();
 $map['raw_number'] = round($distance, 1);
 $map['number'] = $this->theme('vulgar-fraction', round($distance, 1));
 $map['unit'] = $units;
-$map['units'] = __(zesk\Locale::plural($units, $distance));
+$map['units'] = __(Locale::plural($units, $distance));
 $map['distance'] = $map['number'] . ' ' . $map['units'];
 
 $format = $this->get("format", "{number} {units}");

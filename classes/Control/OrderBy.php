@@ -131,7 +131,7 @@ class Control_OrderBy extends Control {
 		if ($multisort) {
 			$new_key = implode(";", $new_order);
 			$remove_order = implode(";", $remove_order);
-			$remove_url = URL::query_format($this->option("URI", URL::current_uri()), array(
+			$remove_url = URL::query_format($this->option("URI", $this->request->uri()), array(
 				$order_var => $remove_order
 			));
 			$sort_number = ($sort_index !== null) ? HTML::tag("div", array(
@@ -140,7 +140,7 @@ class Control_OrderBy extends Control {
 		} else {
 			$sort_number = null;
 		}
-		$this->theme_variables['url'] = URL::query_format($this->option("URI", URL::current_uri()), array(
+		$this->theme_variables['url'] = URL::query_format($this->option("URI", $this->request->uri()), array(
 			$order_var => $new_key
 		));
 		

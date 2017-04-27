@@ -1,6 +1,14 @@
 <?php
-use zesk\Hexadecimal;
+/**
+ * 
+ */
+namespace zesk;
 
+/**
+ * 
+ * @author kent
+ *
+ */
 class test_hex extends Test_Unit {
 	function test_decode() {
 		$decoded = Hexadecimal::decode("DEADBEEF");

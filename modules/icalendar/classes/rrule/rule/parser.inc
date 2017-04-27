@@ -164,11 +164,11 @@ class Rule_Parser extends Options {
 		foreach ($value as $wday) {
 			if (preg_match("#([MTWFS][OUEHRA])\(([-+]?[0-9]+)\)#i", $wday, $matches)) {
 				# If it's of the form TH(+1), etc.
-				list(, $wday, $n) = $matches;
+				list($ignore, $wday, $n) = $matches;
 				$n = intval(trim($n, "+"));
 			} else if (preg_match("#([-+]?[0-9]+)?([MTWFS][OUEHRA])#i", $wday, $matches)) {
 				# If it's of the form +1MO
-				list(, $n, $wday) = $matches;
+				list($ignore, $n, $wday) = $matches;
 				if (!empty($n)) {
 					$n = intval(trim($n, "+"));
 				} else {

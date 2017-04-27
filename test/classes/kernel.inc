@@ -1,9 +1,14 @@
 <?php
+/**
+ * 
+ */
+namespace zesk;
 
-use zesk\arr;
-use zesk\Timer;
-use zesk\Model;
-
+/**
+ * 
+ * @author kent
+ *
+ */
 class test_kernel extends Test_Unit {
 	function test_zesk_global_access_time() {
 		/*
@@ -217,11 +222,6 @@ class test_kernel extends Test_Unit {
 		$this->assert(is_phone('(212) 828-4423') === true);
 		$this->assert(is_phone('222.333.4444') === true);
 	}
-	function test_u() {
-		$url = null;
-		$options = null;
-		u($url, $options);
-	}
 	function test_clamp() {
 		$minValue = null;
 		$value = null;
@@ -304,7 +304,7 @@ class test_kernel extends Test_Unit {
 		
 		$this->assert(to_bool("01", null) === null);
 		$this->assert(to_bool(array(), null) === null);
-		$this->assert(to_bool(new stdClass(), null) === null);
+		$this->assert(to_bool(new \stdClass(), null) === null);
 	}
 	static function to_bool_strpos($value, $default = false) {
 		if (is_bool($value)) {

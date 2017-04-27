@@ -19,7 +19,7 @@ class Controller_Share extends Controller {
 	 */
 	function path_to_file($path) {
 		$uri = str::unprefix($path, "/");
-		list(, $uri) = pair($uri, "/", null, $uri);
+		list($ignore, $uri) = pair($uri, "/", null, $uri);
 		$share_paths = $this->application->share_path();
 		foreach ($share_paths as $name => $path) {
 			if (empty($name) || begins($uri, "$name/")) {

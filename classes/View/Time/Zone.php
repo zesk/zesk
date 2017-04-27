@@ -32,7 +32,8 @@ class View_Time_Zone extends View_Text {
 			$text = htmlspecialchars($text);
 		}
 		$attrs = $object->apply_map($this->options_include("target;class;onclick"));
-		$add_ref = $this->option("add_ref", URL::query_remove(URL::current_uri(), "message"));
+		$uri = $this->request->uri();
+		$add_ref = $this->option("add_ref", URL::query_remove($uri, "message"));
 		if ($add_ref) {
 			$href = URL::query_format(URL::query_remove($href, "ref"), array(
 				"ref" => $add_ref

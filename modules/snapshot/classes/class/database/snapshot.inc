@@ -1,6 +1,8 @@
 <?php
 
-class Class_Database_Snapshot extends zesk\Class_Object {
+namespace zesk;
+
+class Class_Database_Snapshot extends Class_Object {
 
 	public $id_column = "id";
 

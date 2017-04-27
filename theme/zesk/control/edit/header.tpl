@@ -1,6 +1,8 @@
 <?php
-
-use zesk\HTML;
+/**
+ * 
+ */
+namespace zesk;
 
 if ($this->parent === null) {
 	$title = $this->title;

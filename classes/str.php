@@ -5,7 +5,9 @@
 namespace zesk;
 
 /**
- * First iteration, allow use of namespace, inheriting all parent attributes and methods
+ * String manipulation functions, largely based on latin languages.
+ * 
+ * @todo Check multibyte functionality with PHP7
  */
 class str {
 	public static function case_match($string, $pattern) {
@@ -217,8 +219,8 @@ class str {
 			return false;
 		}
 		if (is_array($needle)) {
-			foreach ($needle as $needles) {
-				if (self::begins($haystack, $needles, $case_insensitive)) {
+			foreach ($needle as $k) {
+				if (self::begins($haystack, $k, $case_insensitive)) {
 					return true;
 				}
 			}

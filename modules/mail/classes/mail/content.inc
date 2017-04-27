@@ -6,6 +6,7 @@
  * @package zesk
  * @subpackage mail
  */
+namespace zesk;
 
 /**
  * Class to hold data blobs in email
@@ -32,23 +33,19 @@ class Mail_Content extends Object {
 	}
 	function dump() {
 		$r = "";
-
+		
 		$r .= "Content-Type: " . $this->content_type . "\n";
 		$r .= "Content-Length: " . $this->content_data->size . "\n";
 		$r .= "Original File Name: " . $this->original_file_name() . "\n";
-
+		
 		if (!empty($this->content)) {
 			$r .= $this->content;
 		}
-
+		
 		return $r;
 	}
-
-	/*====================================================================================*\
-		MailContent
-	\*------------------------------------------------------------------------------------*/
 	function size() {
-		$f = $this->size;
+		return $this->content_data->size();
 	}
 	function contents() {
 		return $this->content_data->data();

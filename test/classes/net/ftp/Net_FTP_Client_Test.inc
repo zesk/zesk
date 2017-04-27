@@ -1,10 +1,13 @@
 <?php
 /**
- * $URL: https://code.marketacumen.com/zesk/trunk/test/classes/net/ftp/Net_FTP_Client_Test.inc $
  * @package zesk
  * @subpackage test
  * @author Kent Davidson <kent@marketacumen.com>
  * @copyright Copyright &copy; 2010, Market Acumen, Inc.
+ */
+namespace zesk;
+/**
+ * 
  */
 class Net_FTP_Client_Test extends Test_Unit {
 	function test_basics() {

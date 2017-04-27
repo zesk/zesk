@@ -10,7 +10,6 @@
 namespace zesk;
 
 class Control_Checkbox extends Control {
-
 	private function apply_options($bool_result) {
 		if ($bool_result) {
 			if ($this->has_option("trueoptions")) {
@@ -48,7 +47,6 @@ class Control_Checkbox extends Control {
 		}
 		return $this->value() === $this->object_value_true();
 	}
-
 	function submitted() {
 		return $this->request->getb($this->name() . "_ckbx");
 	}
@@ -59,6 +57,13 @@ class Control_Checkbox extends Control {
 			$checked = ($new_value === $this->input_value_true());
 			$object_value = $checked ? $this->object_value_true() : $this->object_value_false();
 			$this->value($object_value);
+			if ($this->option_bool("debug_load")) {
+				$this->application->logger->warning("Set widget {name} to {value} ({type})", array(
+					"name" => $this->name(),
+					"value" => $object_value,
+					"type" => type($object_value)
+				));
+			}
 			$this->apply_options($checked);
 		}
 	}
@@ -89,7 +94,7 @@ class Control_Checkbox extends Control {
 			'checked_value' => $this->object->apply_map($this->checked_value())
 		);
 	}
-
+	
 	/**
 	 * Return the jQuery expression to determine the value of this widget
 	 *

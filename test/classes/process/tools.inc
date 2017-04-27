@@ -7,7 +7,7 @@
  * @author Kent Davidson <kent@marketacumen.com>
  * @copyright Copyright &copy; 2008, Market Acumen, Inc.
  */
-use zesk\Process_Tools;
+namespace zesk;
 
 class Test_Process_Tools extends Test_Unit {
 	function test_main() {

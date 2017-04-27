@@ -149,14 +149,14 @@ abstract class Database extends Hookable {
 	 *
 	 * @var array of string => string
 	 */
-	private static $table_name_cache = array();
+	private $table_name_cache = array();
 	
 	/**
-	 * Passed to Object::class_table_name
-	 *
+	 * Options to be passed to new objects when generating table names.
+	 * 
 	 * @var array
 	 */
-	private static $auto_table_names_options = array();
+	private $auto_table_names_options = array();
 	
 	/**
 	 * Construct a new Database
@@ -298,7 +298,7 @@ abstract class Database extends Hookable {
 	 * Register system-wide hooks
 	 */
 	public static function hooks(Kernel $zesk) {
-		$zesk->hooks->add('configured', __CLASS__ . "::configured", "first");
+		$zesk->hooks->add(Hooks::hook_database_configure, __CLASS__ . "::configured", "first");
 		$zesk->hooks->add('exit', __CLASS__ . "::disconnect_all", "last");
 		
 		//		$zesk->hooks->add('pcntl_fork-parent', "Database::reconnect_all");
@@ -602,9 +602,14 @@ abstract class Database extends Hookable {
 	 * @return self
 	 */
 	public function change_url($url) {
-		$this->disconnect();
+		$connected = $this->connected();
+		if ($connected) {
+			$this->disconnect();
+		}
 		$this->_init_url($url);
-		$this->connect();
+		if ($connected) {
+			$this->connect();
+		}
 		return $this;
 	}
 	
@@ -638,7 +643,9 @@ abstract class Database extends Hookable {
 		$this->call_hook("connect");
 		return true;
 	}
-	
+	public function connected() {
+		return $this->connection() !== null;
+	}
 	/**
 	 * Connect to the database
 	 *
@@ -671,9 +678,9 @@ abstract class Database extends Hookable {
 	}
 	
 	/**
-	 * Retrieve raw database connection
+	 * Retrieve raw database connection. Return null if not connected.
 	 *
-	 * @return mixed
+	 * @return mixed|null
 	 */
 	abstract public function connection();
 	
@@ -1290,7 +1297,7 @@ abstract class Database extends Hookable {
 	 */
 	public static function configured() {
 		global $zesk;
-
+		
 		/* @var $zesk \zesk\Kernel */
 		$config = $zesk->configuration;
 		if ($config->has("table_prefix")) {
@@ -1383,30 +1390,25 @@ abstract class Database extends Hookable {
 	}
 	
 	/**
-	 * Getter/setter for auto table name settings, an array of options when generating table names
-	 * for a query.
-	 * For dynamic table names which require specific options to determine the table name, set this
-	 * prior to your query
-	 *
-	 * @param array $set        	
-	 * @return array
-	 * @deprecated 2016-08
-	 * @todo deprecate this and use parameter to auto_table_names_replcae instead. Global removal.
+	 * Getter/setter for auto_table_names options, passed to object creation for ALL tables for table
+	 * 
+	 * @param array $set
+	 * @return \zesk\Database
 	 */
-	public static function auto_table_names_options($set = null) {
-		if (is_array($set)) {
-			self::$auto_table_names_options = $set;
+	public function auto_table_names_options(array $set = null) {
+		if ($set === null) {
+			return $this->auto_table_names_options;
 		}
-		return self::$auto_table_names_options;
+		$this->auto_table_names_options = $set;
+		return $this;
 	}
-	
 	/**
 	 * Convert SQL and replace table names magically.
 	 *
 	 * @param string $sql        	
 	 * @return string SQL with table names replaced magically
 	 */
-	public static function auto_table_names_replace($sql, array $options = null) {
+	public function auto_table_names_replace($sql, array $options = array()) {
 		if (is_array($sql)) {
 			foreach ($sql as $k => $v) {
 				$sql[$k] = self::auto_table_names_replace($v);
@@ -1416,19 +1418,21 @@ abstract class Database extends Hookable {
 		$matches = false;
 		$state = null;
 		$sql = self::unstring($sql, $state);
-		$sql = strtr($sql, self::$table_name_cache);
-		if (!preg_match_all('/\{([A-Za-z][A-Za-z0-9_]*)\}/', $sql, $matches, PREG_SET_ORDER)) {
+		$sql = map($sql, $this->table_name_cache, true);
+		if (!preg_match_all('/\{([A-Za-z][A-Za-z0-9_]*)(\*?)\}/', $sql, $matches, PREG_SET_ORDER)) {
 			return self::restring($sql, $state);
 		}
-		$options = $options === null ? self::$auto_table_names_options : $options;
-		$map = self::$table_name_cache;
+		$options = $options + $this->auto_table_names_options;
+		$map = $this->table_name_cache;
 		foreach ($matches as $match) {
-			list($full_match, $class) = $match;
-			$table = Object::class_table_name($class, null, $options);
-			if ($options === null) {
-				self::$table_name_cache[$full_match] = $table;
+			list($full_match, $class, $no_cache) = $match;
+			// Possible bug: How do we NOT cache table name replacements which are parameterized?, e.g Site_5343 - table {Site} should not cache this result, right?
+			// TODO
+			$table = $this->application->object_table_name($class, null, $options);
+			if (count($options) === 0 && $no_cache !== "*") {
+				$this->table_name_cache[$full_match] = $table;
 			}
-			$map[$full_match] = $table;
+			$map[$full_match] = $this->quote_table($table);
 		}
 		$sql = strtr($sql, $map);
 		return self::restring($sql, $state);

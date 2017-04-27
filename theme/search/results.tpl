@@ -1,9 +1,7 @@
 <?php
+namespace zesk;
 
-/* @var $response zesk\Response_Text_HTML */
-if (false) {
-	$response = $this->response;
-}
+/* @var $response Response_Text_HTML */
 $response->title($title = __('Search results for &ldquo;{query}&rdquo;', array(
 	"query" => $this->query
 )));
@@ -17,7 +15,7 @@ foreach ($this->results as $name => $result) {
 	$total = $shown = $more_href = $noun = $more_text = $title = $content = null;
 	extract($result, EXTR_IF_EXISTS);
 	$__ = array(
-		'nouns' => zesk\Locale::plural($noun, $total),
+		'nouns' => Locale::plural($noun, $total),
 		'shown' => $shown,
 		'total' => $total
 	);

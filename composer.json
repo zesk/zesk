@@ -3,7 +3,8 @@
   "description" : "The Zesk Application Framework",
   "require" : {
     "php" : ">=5.4.0",
-    "psr/log": "^1.0"
+    "psr/log": "^1.0",
+    "components/jquery": "^3.2"
   },
   "require-dev" : {
     "phpunit/phpunit" : "^5.6",
@@ -18,7 +19,7 @@
   },
   "keywords" : [ "zesk", "application", "framework" ],
   "autoload" : {
-    "files" : [ "zesk.inc" ]
+    "files" : [ "autoload.php" ]
   },
   "bin" : [ "bin/zesk", "bin/zesk.sh", "bin/zesk-command.php" ],
   "type" : "library",

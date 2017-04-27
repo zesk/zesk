@@ -1,4 +1,6 @@
 <?php
+namespace zesk;
+
 $times = $this->times;
 $counts = $this->counts;
 

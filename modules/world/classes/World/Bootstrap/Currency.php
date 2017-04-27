@@ -44,7 +44,7 @@ class World_Bootstrap_Currency extends Options {
 	 */
 	public function __construct($options) {
 		parent::__construct($options);
-		$this->inherit_global_options("Module_World");
+		$this->inherit_global_options("zesk\\Module_World");
 		$include_currency = $this->option("include_currency");
 		if ($include_currency) {
 			$this->include_currency = array_change_key_case(arr::flip_assign(to_list($include_currency), true));
@@ -55,7 +55,8 @@ class World_Bootstrap_Currency extends Options {
 		}
 	}
 	public function bootstrap(Application $application) {
-		$x = $application->object_factory(str::unprefix(__CLASS__, "World_Bootstrap_"));
+		$prefix = __NAMESPACE__ . "\\";
+		$x = $application->object_factory($prefix . str::unprefix(__CLASS__, $prefix . "World_Bootstrap_"));
 		
 		if ($this->option_bool("drop")) {
 			$x->database()->query('TRUNCATE ' . $x->table());
@@ -84,7 +85,7 @@ class World_Bootstrap_Currency extends Options {
 		$name = $row[0];
 		$code = strtolower(substr($codeName, 0, 2));
 		
-		$country = $application->object_factory('Country', array(
+		$country = $application->object_factory('zesk\\Country', array(
 			'code' => $code,
 			'name' => $name
 		));

@@ -1,5 +1,24 @@
 <?php
+namespace zesk;
 
-class Class_Contact_Tag extends Class_Zesk_Contact_Tag {
-
+class Class_Contact_Tag extends Class_Contact_Info {
+	public $has_one = array(
+		'user' => 'zesk\\User'
+	);
+	public $has_many = array(
+		"contact" => array(
+			'class' => 'zesk\\Contact',
+			'foreign_key' => 'Contact_Tag',
+			'far_key' => 'Contact'
+		)
+	);
+	public $column_types = array(
+		"id" => self::type_integer,
+		"user" => self::type_object,
+		"name" => self::type_string
+	);
+	public $find_keys = array(
+		"user",
+		"name"
+	);
 }

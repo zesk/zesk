@@ -1,4 +1,5 @@
 <?php
+namespace zesk;
 
 /**
  * Presence of a record means a help item has been viewed and should no longer be shown to this user.
@@ -7,6 +8,4 @@
  * @author kent
  *
  */
-class Help_User extends Object {
-
-}
+class Help_User extends Object {}

@@ -1,10 +1,12 @@
 <?php
-class Module_Mail extends zesk\Module {
-	protected $classes = array(
-		'Mail_Message',
-		'Mail_Content',
-		'Mail_Header',
-		'Mail_Header_Type',
-		'Content_Data'
+namespace zesk;
+
+class Module_Mail extends Module {
+	protected $object_classes = array(
+		'zesk\\Mail_Message',
+		'zesk\\Mail_Content',
+		'zesk\\Mail_Header',
+		'zesk\\Mail_Header_Type',
+		'zesk\\Content_Data'
 	);
 }

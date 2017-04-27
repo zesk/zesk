@@ -2,12 +2,7 @@
 /**
  * 
  */
-use zesk\Timer;
-use zesk\File;
-use zesk\Directory;
-use zesk\Timestamp;
-use zesk\Database;
-use zesk\Exception_Semantics;
+namespace zesk;
 
 /**
  * @see Class_Database_Snapshot
@@ -21,7 +16,7 @@ use zesk\Exception_Semantics;
 class Database_Snapshot extends Object {
 	public static function temporary_path($add = null) {
 		global $zesk;
-		/* @var $zesk zesk\Kernel */
+		/* @var $zesk APCIteratorKernel */
 		$path = $zesk->paths->temporary();
 		Directory::depend($path);
 		return path($path, $add);

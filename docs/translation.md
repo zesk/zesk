@@ -20,7 +20,7 @@ Or use no parameters at all:
 
 	__("Organization")
 	
-If you want a label to be more context-sensitive, use := to assign a more specific translation label to it. For example, is the term "Submit" is used in many buttons, but a certain one should be translated differently, you would do:
+If you want a label to be more context-sensitive, use `:=` to assign a more specific translation label to it. For example, is the term "Submit" is used in many buttons, but a certain one should be translated differently, you would do:
 
 	__("Login_Submit:=Submit")
 
@@ -45,7 +45,7 @@ Translation are PHP files which simply populate an array and return them. The fi
 	
 Or you can call any function available and loaded into the system. (Although loading language translations should be really, really fast.)
 
-	return conf::load($application->application_root("etc/language/en_GB.conf"));
+	return JSON::decode(File::contents($application->application_root("etc/language/en_GB.json")));
 
 There is currently no mechanism to segment language files into distinct sections of the site, so it's all or nothing.
 

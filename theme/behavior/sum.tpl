@@ -1,11 +1,12 @@
 <?php
+/**
+ * 
+ */
+namespace zesk;
 
-/* @var $response zesk\Response_Text_HTML */
-$response = $this->response;
+/* @var $response Response_Text_HTML */
 /* @var $widget Widget */
-$widget = $this->widget;
 /* @var $object Model */
-$object = $this->object;
 
 $sum_widgets = array();
 foreach ($this->widgets as $widget_name) {

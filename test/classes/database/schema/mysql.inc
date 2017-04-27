@@ -1,8 +1,14 @@
 <?php
-use mysql\Database;
-use zesk\Database_Schema;
-use \zesk;
+/**
+ * 
+ */
+namespace zesk;
 
+/**
+ * 
+ * @author kent
+ *
+ */
 class Test_Database_Schema_MySQL extends Test_Unit {
 	
 	/**
@@ -10,9 +16,7 @@ class Test_Database_Schema_MySQL extends Test_Unit {
 	 * @return mysql\Database
 	 */
 	function db() {
-		$url = zesk::get('DB_URL');
-		$this->assert(begins($url, 'mysql:'), "URL $url does not begin with mysql:");
-		$testx = $this->application->database_factory($url);
+		$testx = $this->application->database_factory();
 		
 		$this->assert($testx->type() === "mysql");
 		return $testx;
@@ -62,8 +66,6 @@ class Test_Database_Schema_MySQL extends Test_Unit {
 		}
 	}
 	function test_0() {
-		$db_url = zesk::get('DB_URL');
-		
 		$table = 'temp_test_SearchPhrase';
 		
 		$sql = "CREATE TABLE `$table` (
@@ -84,12 +86,14 @@ class Test_Database_Schema_MySQL extends Test_Unit {
 		
 		Database_Schema::debug(true);
 		
-		$db = $this->application->database_factory($db_url);
+		/* @var $db Database */
+		$db = $this->application->database_factory();
+		$db_url = $db->url();
 		
 		$db->query("DROP TABLE IF EXISTS $table");
 		$db->query($sql);
 		
-		$this->assert($db->connect(), "connecting to " . URL::remove_password($db_url));
+		$this->assert($db->connect(), "connecting to " . URL::remove_password());
 		
 		$this->assert($db->table_exists($table), "$db->table_exists($table)");
 		

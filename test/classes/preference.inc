@@ -41,14 +41,14 @@ class Test_Preference extends Test_Object {
 	function test_Preference() {
 		$db = $this->application->database_factory();
 		$db->query(Application::instance()->schema_synchronize($db, array(
-			"Preference",
-			"Preference_Type"
+			"zesk\\Preference",
+			"zesk\\Preference_Type"
 		)));
 		$value = null;
 		$options = true;
 		$testx = new Preference($value, $options);
 
-		$this->test_an_object($testx, "PreferenceType");
+		$this->test_an_object($testx, "zesk\\Preference_Type");
 
 		$user = new User();
 		$name = null;

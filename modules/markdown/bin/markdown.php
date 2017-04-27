@@ -1,9 +1,17 @@
 #!/usr/bin/env php
 <?php
-require_once dirname(dirname(dirname(dirname(__FILE__)))) . '/zesk.inc';
+namespace zesk;
+
+define("ZESK_ROOT", dirname(dirname(dirname(dirname(__FILE__)))) . "/");
+
+if (file_exists(ZESK_ROOT . 'vendor/autoload.php')) {
+	require_once ZESK_ROOT . 'vendor/autoload.php';
+} else {
+	require_once ZESK_ROOT . 'zesk.inc';
+}
 
 app()->modules->load("markdown");
 
-cdn::add('/share/', '/share/', ZESK_ROOT . 'share/');
+CDN::add('/share/', '/share/', ZESK_ROOT . 'share/');
 
-zesk()->objects->factory("Command_Markdown")->go();
+app()->objects->factory("zesk\\Command_Markdown")->go();

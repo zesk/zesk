@@ -1,5 +1,7 @@
 <?php
 
+namespace zesk;
+
 class Class_Contact_Other extends Class_Contact_Info {
 	public $contact_object_field = "info";
 

@@ -23,10 +23,68 @@ namespace zesk;
  * @property ip4 $ip4_internal
  * @property ip4 $ip4_external
  * @property integer $free_disk
+ * @property integer $free_disk
  * @property double $load
  * @property Timestamp $alive
  */
 class Server extends Object implements Interface_Data {
+	/**
+	 * 1 = 1024^0
+	 * 
+	 * @var string
+	 */
+	const disk_units_bytes = 'b';
+	
+	/**
+	 * 1 = 1024^1
+	 * @var string
+	 */
+	const disk_units_kilobytes = 'k';
+	/**
+	 * 
+	 * @var string
+	 */
+	const disk_units_megabytes = 'm';
+	
+	/**
+	 * 1 = 1024^2
+	 * @var string
+	 */
+	const disk_units_gigabytes = 'g';
+	
+	/**
+	 * 1 = 1024^3
+	 * 
+	 * @var string
+	 */
+	const disk_units_terabytes = 't';
+	/**
+	 * 1 = 1024^4
+	 *
+	 * @var string
+	 */
+	const disk_units_petabytes = 'p';
+	/**
+	 * 1 = 1024^4
+	 *
+	 * @var string
+	 */
+	const disk_units_exabytes = 'e';
+	
+	/**
+	 * 
+	 * @var array
+	 */
+	private static $disk_units_list = array(
+		self::disk_units_bytes,
+		self::disk_units_kilobytes,
+		self::disk_units_megabytes,
+		self::disk_units_gigabytes,
+		self::disk_units_terabytes,
+		self::disk_units_petabytes,
+		self::disk_units_exabytes
+	);
+	
 	/**
 	 *
 	 * @var string
@@ -211,7 +269,6 @@ class Server extends Object implements Interface_Data {
 			}
 		}
 	}
-	
 	/**
 	 * Update server state
 	 *
@@ -227,12 +284,7 @@ class Server extends Object implements Interface_Data {
 		$info = avalue($volume_info, $path);
 		$update = array();
 		if ($info) {
-			$units = array(
-				'b',
-				'm',
-				'g',
-				't'
-			);
+			$units = self::$disk_units_list;
 			$free = $info['free'];
 			while ($free > 4294967295 && count($units) > 1) {
 				$free = round($free / 1024, 0);

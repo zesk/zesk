@@ -94,8 +94,8 @@ More `zesk\` namespace changes, cleanup of `instance` static calls.
  - `zesk\Object::class_primary_keys()`
  - `zesk\Object::class_table_columns()`
  - `zesk\Object::class_database()`
-- `Control_Text_DropDown::menu_default` removed (use `::dropdown_default` instead)
-- `Control_Text_DropDown::menu_dropdown` removed (use `::dropdown_menu` instead)
+- `Control_Text_Dropdown::menu_default` removed (use `::dropdown_default` instead)
+- `Control_Text_Dropdown::menu_dropdown` removed (use `::dropdown_menu` instead)
 - Removed class `Control_Content_Link_List` from `content` module (deprecated)
 - Removed calls in `csv` module: 
  - `CSV::_setFile` (protected)

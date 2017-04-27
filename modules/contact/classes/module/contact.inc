@@ -1,15 +1,17 @@
 <?php
-class Module_Contact extends zesk\Module {
+namespace zesk;
+
+class Module_Contact extends Module {
 	protected $classes = array(
-		'Contact',
-		'Contact_Label',
-		'Contact_Address',
-		'Contact_Company',
-		'Contact_Date',
-		'Contact_Other',
-		'Contact_Person',
-		'Contact_Phone',
-		'Contact_Tag',
-		'Contact_URL'
+		'zesk\\Contact',
+		'zesk\\Contact_Label',
+		'zesk\\Contact_Address',
+		'zesk\\Contact_Company',
+		'zesk\\Contact_Date',
+		'zesk\\Contact_Other',
+		'zesk\\Contact_Person',
+		'zesk\\Contact_Phone',
+		'zesk\\Contact_Tag',
+		'zesk\\Contact_URL'
 	);
 }

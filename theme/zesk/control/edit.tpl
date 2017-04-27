@@ -2,8 +2,7 @@
 /**
  * 
  */
-use zesk\HTML;
-use zesk\arr;
+namespace zesk;
 
 /* @var $widget Widget */
 echo $this->prefix;

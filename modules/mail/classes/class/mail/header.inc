@@ -1,5 +1,15 @@
 <?php
-class Class_Mail_Header extends zesk\Class_Object {
+/**
+ * 
+ */
+namespace zesk;
+
+/**
+ * 
+ * @author kent
+ *
+ */
+class Class_Mail_Header extends Class_Object {
 	public $find_keys = array(
 		"mail",
 		"type",
@@ -13,7 +23,7 @@ class Class_Mail_Header extends zesk\Class_Object {
 		'value' => self::type_string
 	);
 	public $has_one = array(
-		'mail' => 'Mail',
-		'type' => 'Mail_Header_Type'
+		'mail' => 'zesk\\Mail',
+		'type' => 'zesk\\Mail_Header_Type'
 	);
 }

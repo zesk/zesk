@@ -6,12 +6,26 @@
  * @author kent
  * @copyright Copyright &copy; 2010, Market Acumen, Inc.
  */
+namespace zesk;
 
 /**
  * Contact_Info
+ * @property \zesk\Contact $contact
  */
 abstract class Contact_Info extends Object {
+	
+	/**
+	 * @see Contact_Label::LabelType_Foo
+	 * 
+	 * @return string
+	 */
 	abstract function label_type();
+	
+	/**
+	 * 
+	 * 
+	 * @todo Why is this commented out?
+	 */
 	private function _update_contact() {
 		// 		if ($this->class->contact_object_field !== null) {
 		// 			$table = Object::class_table_name('Contact');
@@ -23,6 +37,14 @@ abstract class Contact_Info extends Object {
 		// 			));
 		// 		}
 	}
+	
+	/**
+	 * Effective no-op
+	 * @todo
+	 * 
+	 * {@inheritDoc}
+	 * @see \zesk\Object::store()
+	 */
 	public function store() {
 		$result = parent::store();
 		if ($result) {
@@ -31,6 +53,13 @@ abstract class Contact_Info extends Object {
 		}
 		return $result;
 	}
+	
+	/**
+	 * Effective no-op
+	 * 
+	 * {@inheritDoc}
+	 * @see \zesk\Object::register()
+	 */
 	public function register($where = null) {
 		$result = parent::register($where);
 		if ($this->object_status() === self::object_status_insert) {

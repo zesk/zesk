@@ -2,7 +2,7 @@
 /**
  * 
  */
-use zesk\HTML;
+namespace zesk;
 
 /* @var $this \zesk\Template */
 /* @var $zesk \zesk\Kernel */
@@ -13,7 +13,7 @@ use zesk\HTML;
 /* @var $request \zesk\Request */
 /* @var $response \zesk\Response_Text_HTML */
 /* @var $current_user \User */
-/* @var $object \Content_Image */
+/* @var $object zesk\Content_Image */
 
 $title = $object->title;
 if (!$title) {

@@ -144,7 +144,7 @@ class Control_Login extends Control_Edit {
 			$user = $this->user;
 			$user->authenticated(true);
 			$uref = $this->request->get("ref", null);
-			if (URL::is($uref) && !URL::is_same_server($uref, URL::current())) {
+			if (URL::is($uref) && !URL::is_same_server($uref, $this->request->url())) {
 				$uref = false;
 			}
 			if (!$uref) {

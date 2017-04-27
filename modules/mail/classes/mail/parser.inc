@@ -7,7 +7,7 @@
  * @copyright Copyright &copy; 2005, Market Acumen, Inc.
  */
 
-use zesk\Timestamp;
+namespace zesk;
 
 /**
  * Mail_Parser parses incoming mail and stores it as Mail_Message objects.
@@ -225,6 +225,9 @@ class Mail_Parser {
 		return $this->headers;
 	}
 
+	/**
+	 * @return Mail_Content[]
+	 */
 	public function contents() {
 		return $this->contents;
 	}

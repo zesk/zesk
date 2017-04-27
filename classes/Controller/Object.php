@@ -166,10 +166,19 @@ abstract class Controller_Object extends Controller_Template_Login {
 	 * @param array $options
 	 */
 	function __construct(Application $app, $options = null) {
-		if ($this->class === null) {
-			$this->class = str::unprefix(str::right(get_class($this), '\\'), "Controller_");
-		}
 		parent::__construct($app, $options);
+		if ($this->class === null) {
+			$controller_class = get_class($this);
+			list($ns, $cl) = pairr($controller_class, "\\", "", $controller_class);
+			if ($ns) {
+				$ns .= "\\";
+			}
+			$this->class = $ns . str::unprefix($cl, "Controller_");
+			$this->application->logger->debug("Automatically computed Object class name {class} from {controller_class}", array(
+				"controller_class" => $controller_class,
+				"class" => $this->class
+			));
+		}
 		if (!$this->class_name) {
 			/* @var $class Class_Object */
 			$class = $this->application->class_object($this->class);
@@ -405,7 +414,7 @@ abstract class Controller_Object extends Controller_Template_Login {
 		$controls = array();
 		list($namespace, $class) = pair($this->class, "\\", "", $this->class);
 		foreach ($actual_actions as $actual_action) {
-//			$controls[$namespace "\\Control_" . $class . "_" . $actual_action] = $actual_action;
+			//			$controls[$namespace "\\Control_" . $class . "_" . $actual_action] = $actual_action;
 			$controls[$namespace . "\\Control_" . $actual_action . "_" . $class] = $actual_action;
 		}
 		return $controls;
@@ -422,7 +431,6 @@ abstract class Controller_Object extends Controller_Template_Login {
 		}
 		$controls = $this->widget_control_classes($action);
 		$widget = null;
-		// TODO This can be sped up so the found Widget class is cached
 		foreach ($controls as $control => $actual_action) {
 			try {
 				$this->tried_widgets[] = $control;

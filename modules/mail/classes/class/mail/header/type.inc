@@ -1,5 +1,7 @@
 <?php
-class Class_Mail_Header_Type extends zesk\Class_Object {
+namespace zesk;
+
+class Class_Mail_Header_Type extends Class_Object {
 	public $id_column = "id";
 	public $find_keys = array(
 		"code"

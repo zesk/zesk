@@ -1,7 +1,14 @@
 <?php
+/**
+ * 
+ */
+namespace zesk;
 
-use zesk\JavaScript;
-
+/**
+ * 
+ * @author kent
+ *
+ */
 class test_js extends Test_Unit {
 
 	function test_clean_function_name() {

@@ -1,5 +1,7 @@
 <?php
 
+namespace zesk;
+
 $col = $this->column;
 $tpl = $col . "-pairs-template";
 

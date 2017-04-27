@@ -4,26 +4,21 @@
  */
 namespace zesk;
 
-/* @var $this Template */
-if (false) {
-	/* @var $this Template */
-	
-	$zesk = $this->zesk;
-	/* @var $zesk zesk\Kernel */
-	
-	$application = $this->application;
-	/* @var $application TimeBank */
-	
-	/* @var $request Request */
-	$request = $this->request;
-}
+/* @var $this \zesk\Template */
+/* @var $zesk \zesk\Kernel */
+/* @var $application \zesk\Application */
+/* @var $session \zesk\Session */
+/* @var $router \zesk\Router */
+/* @var $route \zesk\Route */
+/* @var $request \zesk\Request */
+/* @var $response \zesk\Response_Text_HTML */
+/* @var $current_user \zesk\User */
+/* @var $object \zesk\Object */
+/* @var $widget Widget */
+
 if (!$request instanceof Request) {
 	$request = $application->request();
 }
-/* @var $object Object */
-$object = $this->object;
-/* @var $widget Widget */
-$widget = $this->widget;
 
 $widget->child_content = "";
 

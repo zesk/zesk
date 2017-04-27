@@ -1,12 +1,17 @@
 <?php
+/**
+ * 
+ */
+use zesk\Content_Image;
+use zesk\Exception_Upload;
 
 /**
  * 
  * @author kent
  *
  */
-class Controller_Image_Picker extends Controller_Object {
-	protected $class = "Content_Image";
+class Controller_Image_Picker extends \zesk\Controller_Object {
+	protected $class = "zesk\\Content_Image";
 	
 	/**
 	 * 
@@ -33,7 +38,7 @@ class Controller_Image_Picker extends Controller_Object {
 				$this->response->json(array(
 					'status' => true,
 					'message' => __('That file is too large. You can only upload files which are less than {bytes}.', array(
-						'bytes' => theme('bytes', array(
+						'bytes' => $this->application->theme('bytes', array(
 							"content" => $real_size
 						))
 					))

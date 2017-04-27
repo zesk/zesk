@@ -23,12 +23,24 @@ class Module_Nominatim extends Module {
 	private $request_delay = null;
 	
 	/**
+	 * 
+	 */
+	public function hook_configured() {
+		// Value is modified in hook_cron
+		$this->application->configuration->deprecated("Module_Nominatim");
+	}
+	
+	/**
 	 * cron every minute
 	 */
 	public function hook_cron() {
 		if (!$this->option_bool('force') && $this->application->development()) {
 			return;
 		}
+		$settings = Settings::instance();
+		$last_request_var = __CLASS__ . "::last_request";
+		$settings->deprecated("Module_Nominatim::last_request", $last_request_var);
+		
 		$url = $this->url = $this->option('url_geocode');
 		$rph = $this->option('geocode_requests_per_hour', 60);
 		
@@ -39,7 +51,7 @@ class Module_Nominatim extends Module {
 			return;
 		}
 		// Keep our database clean. Set lat/long to null when close to zero.
-		$update = $this->application->query_update("Contact_Address")->values(array(
+		$update = $this->application->query_update("zesk\\Contact_Address")->values(array(
 			'latitude' => null,
 			'longitude' => null,
 			'geocoded' => null
@@ -56,7 +68,7 @@ class Module_Nominatim extends Module {
 		$update->execute();
 		
 		// Set geocoded date to created date when lat/long are set
-		$update = $this->application->query_update("Contact_Address")->values(array(
+		$update = $this->application->query_update("zesk\\Contact_Address")->values(array(
 			'*geocoded' => 'created'
 		))->where(array(
 			array(
@@ -67,7 +79,7 @@ class Module_Nominatim extends Module {
 		));
 		$update->execute();
 		
-		$query = $this->application->query_select('Contact_Address')->where(array(
+		$query = $this->application->query_select('zesk\\Contact_Address')->where(array(
 			array(
 				'geocoded' => null,
 				'geocoded|<=' => Timestamp::now()->add_unit("day", -abs($this->option_integer("geocode_refresh_days", 30)))
@@ -79,13 +91,10 @@ class Module_Nominatim extends Module {
 		/* @var $item Contact_Address */
 		$run_time = $this->option("run_time", 60);
 		$timer = new Timer();
-		$settings = Settings::instance();
-		
 		$items = $query->object_iterator();
 		try {
 			foreach ($items as $item) {
 				$now = time();
-				$last_request_var = __CLASS__ . "::last_request";
 				$last_request = $settings->get($last_request_var, null);
 				$next_request = $last_request === null ? time() : $last_request + $this->request_delay;
 				$wait_seconds = $next_request - $now;
@@ -125,7 +134,7 @@ class Module_Nominatim extends Module {
 	 * @param Contact_Address $item        	
 	 * @return boolean
 	 */
-	private function geocode_address(Net_HTTP_Client $http, \Contact_Address $item) {
+	private function geocode_address(Net_HTTP_Client $http, Contact_Address $item) {
 		$query = $this->option_array("url_geocode_query", array());
 		$query['format'] = 'json';
 		$query['q'] = implode(", ", arr::clean(array(

@@ -1,23 +1,14 @@
 <?php
-if (false) {
-	/* @var $this zesk\Template */
-	
-	$zesk = $this->zesk;
-	/* @var $zesk zesk\Kernel */
-	
-	$application = $this->application;
-	/* @var $application TimeBank */
-	
-	$router = $this->router;
-	/* @var $request Router */
-	
-	$request = $this->request;
-	/* @var $request Request */
-	
-	$response = $this->response;
-	/* @var $response zesk\Response_Text_HTML */
-}
 
+/* @var $this \zesk\Template */
+/* @var $zesk \zesk\Kernel */
+/* @var $application \zesk\Application */
+/* @var $session \zesk\Session */
+/* @var $router \zesk\Router */
+/* @var $route \zesk\Route */
+/* @var $request \zesk\Request */
+/* @var $response \zesk\Response_Text_HTML */
+/* @var $current_user \zesk\User */
 $configuration = $zesk->configuration;
 /**
  * @see Currency

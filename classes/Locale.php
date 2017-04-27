@@ -18,7 +18,7 @@ if (!defined("ZESK_LOCALE_DEFAULT")) {
  * @todo Turn this into an object $zesk->locale-> and remove most static usage
  * 
  * @author kent
- *
+ * @see Controller_Locale
  */
 class Locale {
 	
@@ -101,7 +101,15 @@ class Locale {
 			}
 			return $result;
 		}
-		list(, $text) = explode(":=", $phrase, 2) + array(
+		if (!is_string($phrase)) {
+			app()->logger->warning("Non-string phrase ({type}) passed to {method} {backtrace}", array(
+				"method" => __METHOD__,
+				"type" => type($phrase),
+				"backtrace" => _backtrace()
+			));
+			return "";
+		}
+		list($group, $text) = explode(":=", $phrase, 2) + array(
 			null,
 			$phrase
 		);
@@ -138,6 +146,7 @@ class Locale {
 	 */
 	public static function configured(Application $application) {
 		$configuration = $application->zesk->configuration;
+		$configuration->deprecated("Locale", "zesk\\Locale");
 		$default = $configuration->path_get("Locale::default");
 		if ($default) {
 			self::current($default);
@@ -160,18 +169,28 @@ class Locale {
 	 * Register all hooks
 	 */
 	public static function hooks(Kernel $zesk) {
-		$zesk->configuration->pave("Locale");
-		$zesk->configuration->pave("zesk\Locale");
+		$zesk->configuration->path("zesk\\Locale");
 		$zesk->hooks->add('<head>', array(
 			__CLASS__,
 			'hook_head'
+		));
+		$zesk->hooks->add("zesk\Application::router_loaded", array(
+			__CLASS__,
+			"router_loaded"
 		));
 		$zesk->hooks->add('configured', array(
 			__CLASS__,
 			'configured'
 		));
 	}
-	
+	public static function router_loaded(\zesk\Application $app, Router $router) {
+		$router->add_route("/locale/{option action}", array(
+			"controller" => "zesk\\Controller_Locale",
+			"arguments" => array(
+				1
+			)
+		));
+	}
 	/**
 	 * When a word appears at the start of a sentence, properly format it.
 	 *
@@ -192,7 +211,7 @@ class Locale {
 		if ($locale === null) {
 			$locale = self::current();
 		}
-		list($lang, ) = pair($locale, "_", $locale, "");
+		list($lang) = pair($locale, "_", $locale, "");
 		return strtolower(substr($lang, 0, 2));
 	}
 	
@@ -206,7 +225,7 @@ class Locale {
 		if ($locale === null) {
 			$locale = self::current();
 		}
-		list(, $dialect) = \pair($locale, "_", $locale, "");
+		list($dialect) = \pair($locale, "_", $locale, "");
 		return strtoupper(substr($dialect, 0, 2));
 	}
 	
@@ -460,8 +479,8 @@ class Locale {
 			$locale = self::current();
 		}
 		$tt = self::loaded($locale);
+		$k = "Locale::plural::" . $noun;
 		if (is_array($tt)) {
-			$k = "Locale::plural::" . $noun;
 			if (array_key_exists($k, $tt) && !empty($tt[$k])) {
 				return $tt[$k];
 			}
@@ -684,7 +703,7 @@ class Locale {
 			if (strpos($contents, $return)) {
 				$contents = str_replace($return, "", $contents);
 			}
-			$contents .= "\n// " . URL::current() . "\n";
+			$contents .= "\n// " . app()->request()->url() . "\n";
 			$contents .= $additional_tt;
 			$contents .= $return;
 			file_put_contents($filename, $contents);

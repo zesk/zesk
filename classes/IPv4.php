@@ -309,39 +309,6 @@ class IPv4 {
 	}
 	
 	/**
-	 * Helper function for self::remote.
-	 * Searches an array for a valid IP address.
-	 *
-	 * @param array $arr
-	 *        	An array to search for certain keys
-	 * @return an IP address if found, or false
-	 */
-	private static function _find_remote_key($arr) {
-		$ks = array(
-			"HTTP_CLIENT_IP",
-			"HTTP_X_FORWARDED_FOR",
-			"REMOTE_ADDR"
-		);
-		foreach ($ks as $k) {
-			if (!isset($arr[$k])) {
-				continue;
-			}
-			$ip = $arr[$k];
-			if ($ip === "unknown") {
-				continue;
-			}
-			if (empty($ip)) {
-				continue;
-			}
-			$match = false;
-			if (preg_match('/[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}/', $ip, $match)) {
-				return $match[0];
-			}
-		}
-		return false;
-	}
-	
-	/**
 	 * Returns the remote IP address, interpreting web server/proxy server intermediate IP addresses
 	 * if necessary.
 	 * Looks in $_ENV and $_SERVER for IP addresses.
@@ -350,21 +317,10 @@ class IPv4 {
 	 *        	A default IP address to return if none is found
 	 * @return The found IP address, or $default if not found
 	 * @see self::_find_remote_key
+	 * @deprecated 2017-03 - Depends on globals
 	 */
 	public static function remote($default = "0.0.0.0", array $context = null) {
-		$contexts = $context === null ? array(
-			$_SERVER,
-			$_ENV
-		) : array(
-			$context
-		);
-		foreach ($contexts as $context) {
-			$ip = self::_find_remote_key($context);
-			if ($ip !== false) {
-				return $ip;
-			}
-		}
-		return $default;
+		return app()->request()->ip($default);
 	}
 	/**
 	 * Returns the remote IP address, interpreting web server/proxy server intermediate IP addresses
@@ -375,9 +331,10 @@ class IPv4 {
 	 *        	A default IP address to return if none is found
 	 * @return The found IP address, or $default if not found
 	 * @see self::_find_ip_key
+	 * @deprecated 2017-03 - Depends on $_SERVER
 	 */
 	public static function server($default = "0.0.0.0") {
-		return avalue($_SERVER, 'SERVER_ADDR', $default);
+		return app()->request()->server_ip($default);
 	}
 	
 	/**

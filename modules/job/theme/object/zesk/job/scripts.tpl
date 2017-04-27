@@ -1,8 +1,7 @@
 <?php
-if (false) {
-	/* @var $response zesk\Response_Text_HTML */
-	$response = $this->response;
-}
+namespace zesk;
+
+/* @var $response Response_Text_HTML */
 
 $response->cdn_javascript('/share/zesk/js/zesk.js', array(
 	'share' => true,

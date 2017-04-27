@@ -2,7 +2,6 @@
 namespace zesk;
 
 class Net_Whois {
-
 	private static function clean_domain($domain) {
 		$domain = strtolower(trim($domain));
 		$domain = str::unprefix($domain, array(
@@ -15,7 +14,6 @@ class Net_Whois {
 		list($domain) = explode('/', $domain, 2);
 		return $domain;
 	}
-
 	public static function query($domain) {
 		// fix the domain name:
 		$domain = self::clean_domain($domain);
@@ -26,7 +24,7 @@ class Net_Whois {
 				"extension" => $extension
 			));
 		}
-
+		
 		$conn = fsockopen($server, 43);
 		if (!$conn) {
 			throw new Exception_Connect($server);

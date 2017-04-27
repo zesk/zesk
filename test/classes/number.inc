@@ -1,4 +1,14 @@
 <?php
+/**
+ * 
+ */
+namespace zesk;
+
+/**
+ * 
+ * @author kent
+ *
+ */
 class test_number extends Test_Unit {
 
 	function test_format_bytes() {

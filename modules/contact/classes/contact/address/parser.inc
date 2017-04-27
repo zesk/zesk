@@ -7,6 +7,8 @@
  * @copyright Copyright &copy; 2008, Market Acumen, Inc.
  */
 
+namespace zesk;
+
 /*
  * Docs:
  *

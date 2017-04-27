@@ -1,5 +1,7 @@
 <?php
 
+namespace zesk;
+
 if (false) {
 	$value = $this->value;
 	$selected = $this->selected;

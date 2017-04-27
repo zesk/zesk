@@ -1,4 +1,14 @@
 <?php
+/**
+ * 
+ */
+namespace zesk;
+
+/**
+ * 
+ * @author kent
+ *
+ */
 class test_exception extends Test_Unit {
 
 	function test_exception_directory_not_found() {

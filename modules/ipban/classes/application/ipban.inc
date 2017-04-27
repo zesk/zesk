@@ -8,6 +8,12 @@ use zesk\URL;
 use zesk\File;
 use zesk\Text;
 use zesk\Exception_Configuration;
+use zesk\JSON;
+use zesk\str;
+use zesk\IPv4;
+use zesk\Process_Mock;
+use zesk\FIFO;
+use zesk\Net_Sync;
 
 /**
  * IP Banning application
@@ -20,7 +26,17 @@ use zesk\Exception_Configuration;
  * @copyright (C) 2013 Market Acumen, Inc.
  */
 class Application_IPBan extends zesk\Application {
+	
+	/**
+	 * 
+	 * @var string
+	 */
 	const snippet_match = '/var/db/ipban/ipban.inc';
+	
+	/**
+	 * 
+	 * @var string
+	 */
 	const snippet = "if (file_exists('/var/db/ipban/ipban.inc')) {\n\trequire_once '/var/db/ipban/ipban.inc';\n}\n";
 	
 	/**
@@ -34,7 +50,7 @@ class Application_IPBan extends zesk\Application {
 	 *
 	 * @var zesk\Interface_Process
 	 */
-	protected $process = null;
+	protected $proc = null;
 	
 	/**
 	 *
@@ -130,11 +146,14 @@ class Application_IPBan extends zesk\Application {
 	);
 	public static function default_configuration() {
 		return array(
-			'zesk::run_path' => '/var/run/ipban',
-			'zesk::data_path' => '/var/run/ipban',
-			'zesk::log_path' => '/var/log/ipban/',
+// 			'zesk::run_path' => '/var/run/ipban',
+// 			'zesk::data_path' => '/var/run/ipban',
+			'zesk\\Module_Logger_File::defaults::time_zone' => 'UTC',
+			'zesk\\Module_Logger_File::files::main::linkname' => 'ipban.log',
+			'zesk\\Module_Logger_File::files::main::name' => '/var/log/ipban/{YYYY}-{MM}-{DD}-ipban.log',
 			'IPBan_FS::path' => '/var/db/ipban',
-			'db_url' => "mysqli://ipban:ipban@localhost/ipban"
+			'zesk\\Database::names::default' => "mysqli://ipban:ipban@localhost/ipban",
+			'zesk\\Database::default' => "default"
 		);
 	}
 	protected $register_hooks = array(
@@ -157,15 +176,13 @@ class Application_IPBan extends zesk\Application {
 		date_default_timezone_set("UTC");
 		umask(0);
 		$path = $options['path'] = '/etc/ipban/';
-		$file = $options['file'] = 'ipban.conf';
+		$file = $options['file'] = 'ipban.json';
 		if (is_dir($path)) {
 			$conf = path($path, $file);
 			if (!is_file($conf)) {
-				if (!@file_put_contents($conf, "")) {
+				if (!@file_put_contents($conf, JSON::encode_pretty(self::default_configuration()))) {
 					$this->logger->warning("Can not write {conf}", compact("conf"));
 					$this->configuration->paths_set(self::default_configuration());
-				} else {
-					conf::edit($conf, self::default_configuration());
 				}
 			}
 		} else {
@@ -173,7 +190,7 @@ class Application_IPBan extends zesk\Application {
 		}
 		$path = 'Application_IPBan::url_toxic_ip';
 		if (!$this->configuration->path_exists($path)) {
-			$this->configuration->pave_set($path, 'http://www.stopforumspam.com/downloads/toxic_ip_cidr.txt');
+			$this->configuration->path_set($path, 'http://www.stopforumspam.com/downloads/toxic_ip_cidr.txt');
 		}
 		return $options;
 	}
@@ -321,7 +338,7 @@ class Application_IPBan extends zesk\Application {
 	 * @return string
 	 */
 	public static function test($nseconds = 60) {
-		$p = new zesk\Interface_Process_Mock(array(
+		$p = new Process_Mock(array(
 			"quit_after" => $nseconds
 		));
 		return self::daemon($p);
@@ -430,16 +447,16 @@ class Application_IPBan extends zesk\Application {
 					"path" => $this->fifo->path()
 				));
 			}
-			$this->process = $p;
+			$this->proc = $p;
 			$this->init_chains();
 			$this->sync_toxic_ips(true);
 			$this->sync_whitelist();
 			$this->initial_ban();
 			$this->logger->debug("Entering main loop ...");
-			while (!$this->process->done()) {
+			while (!$this->proc->done()) {
 				$this->handle_fifo();
 				$this->handle_db();
-				$this->process->sleep($seconds);
+				$this->proc->sleep($seconds);
 				$this->sync_toxic_ips();
 				$this->sync_whitelist();
 			}
@@ -465,8 +482,8 @@ class Application_IPBan extends zesk\Application {
 			));
 		}
 		try {
-			$zesk->process->execute("$iptables --list=INPUT -n");
-		} catch (Exception_Command $e) {
+			$this->process->execute("$iptables --list=INPUT -n");
+		} catch (\zesk\Exception_Command $e) {
 			throw new Exception_Configuration("user", "You must be root to run Application_IPBan");
 		}
 	}
@@ -1038,7 +1055,7 @@ class Application_IPBan extends zesk\Application {
 	protected function iptables($parameters) {
 		$args = func_get_args();
 		array_shift($args);
-		return zesk()->process->execute_arguments($this->iptables . " " . $parameters, $args);
+		return $this->process->execute_arguments($this->iptables . " " . $parameters, $args);
 	}
 }
 

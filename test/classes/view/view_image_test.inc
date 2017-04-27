@@ -1,7 +1,10 @@
 <?php
-use zesk\HTML;
-use zesk\HTML_Tag;
-class View_Image_Test extends Test_Widget {
+/**
+ * 
+ */
+namespace zesk;
+
+class View_Image_Test extends \Test_Widget {
 	private $test_dir = null;
 	function validate_image_size_tag($img_tag, $width, $height) {
 		dump($img_tag);
@@ -36,8 +39,7 @@ class View_Image_Test extends Test_Widget {
 	function test_scaled() {
 		$this->test_dir = $this->test_sandbox();
 		
-		zesk::initialize();
-		zesk::document_root($this->test_dir);
+		$this->application->document_root($this->test_dir);
 		
 		$src = null;
 		$width = false;
@@ -151,8 +153,7 @@ class View_Image_Test extends Test_Widget {
 	function test_scaled_path() {
 		$test_dir = $this->test_sandbox();
 		
-		zesk::initialize();
-		zesk::document_root($test_dir);
+		$this->application->document_root($test_dir);
 		
 		$src = null;
 		$width = false;
@@ -259,7 +260,7 @@ class View_Image_Test extends Test_Widget {
 			foreach ($tests as $test) {
 				list($s0x, $s0y, $s1x, $s1y) = $test;
 				$rel_path = View_Image::scaled_path($src, $s0x, $s0y, "", $extras);
-				$full_path = path(zesk::document_root(), $rel_path);
+				$full_path = path($this->application->document_root(), $rel_path);
 				$this->validate_image_size($full_path, $s1x, $s1y);
 			}
 		}

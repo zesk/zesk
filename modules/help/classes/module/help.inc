@@ -10,25 +10,24 @@
  * @author kent
  *
  */
-use zesk\Object;
-use zesk\Database_Exception;
-use zesk\Locale;
-use zesk\Request;
-use zesk\Response;
-use zesk\Response_Text_HTML;
-use zesk\Net_HTTP;
+namespace zesk;
 
 /**
  * 
  * @author kent
  *
  */
-class Module_Help extends zesk\Module_JSLib {
+class Module_Help extends Module_JSLib {
 	/**
 	 * 
 	 * @var unknown
 	 */
 	private $authenticated = null;
+	
+	/**
+	 * 
+	 * @var array
+	 */
 	protected $javascript_settings_inherit = array(
 		'show_count' => 3
 	);
@@ -39,29 +38,31 @@ class Module_Help extends zesk\Module_JSLib {
 	 * @return array
 	 */
 	protected $classes = array(
-		'Help',
-		'Help_User'
+		'zesk\\Help',
+		'zesk\\Help_User'
 	);
 	
 	/**
 	 * We inject our JavaScript on pages; it loads
 	 * 
 	 * @param Request $requset        	
-	 * @param zesk\Response_Text_HTML $response        	
+	 * @param Response_Text_HTML $response        	
 	 */
-	public function hook_head(zesk\Request $request, Response_Text_HTML $response, zesk\Template $template) {
+	public function hook_head(Request $request, Response_Text_HTML $response, Template $template) {
 		if (!$this->option_bool("disabled")) {
 			$response->cdn_javascript('/share/help/js/help.js', array(
 				'share' => true
 			));
 			$this->javascript_settings['active'] = false;
 			try {
-				$this->authenticated = $this->application->user()->authenticated();
+				$user = $this->application->user(false);
+				$this->authenticated = $user ? $user->authenticated() : false;
 				if ($this->authenticated) {
 					$this->javascript_settings['active'] = true;
 				}
 			} catch (Database_Exception $e) {
-				$this->application->logger->debug("Module_Help::hook_head threw exception {e}", array(
+				$this->application->logger->debug("{class}::hook_head threw exception {e}", array(
+					'class' => __CLASS__,
 					'e' => $e
 				));
 			}
@@ -74,13 +75,14 @@ class Module_Help extends zesk\Module_JSLib {
 	 */
 	public function hook_cron_cluster() {
 		$application = $this->application;
-		$helps = $application->modules->all_hook_arguments(__CLASS__, array(), array());
-		$this->application->logger->notice("Module_Help::cron found {count} help items", array(
-			"count" => count($helps)
+		$helps = $application->modules->all_hook_arguments("module_help", array(), array());
+		$this->application->logger->notice("{class}::cron found {count} help items", array(
+			"count" => count($helps),
+			'class' => __CLASS__
 		));
 		foreach ($helps as $target => $settings) {
 			if ($settings === null) {
-				$item = $application->object_factory('Help')->find(array(
+				$item = $application->object_factory('zesk\\Help')->find(array(
 					'target' => $target
 				));
 				if ($item) {
@@ -91,15 +93,15 @@ class Module_Help extends zesk\Module_JSLib {
 				}
 				continue;
 			}
-			$locale = zesk\Locale::current();
+			$locale = Locale::current();
 			foreach (to_list("title", "content") as $translation_key) {
 				if (array_key_exists($translation_key, $settings)) {
 					// Will register with localization. Is there a more explicit way to do this?
-					zesk\Locale::translate($settings[$translation_key], $locale);
+					Locale::translate($settings[$translation_key], $locale);
 				}
 			}
 			$settings['target'] = $target;
-			$help = $application->object_factory('Help', $settings)->register();
+			$help = $application->object_factory('zesk\\Help', $settings)->register();
 			/* @var $help Help */
 			if ($help->object_status() === Object::object_status_insert) {
 				$this->application->logger->notice("Registered help item for {target}", array(
@@ -116,7 +118,7 @@ class Module_Help extends zesk\Module_JSLib {
 	 * 
 	 * @param Router $router        	
 	 */
-	public function hook_routes(zesk\Router $router) {
+	public function hook_routes(Router $router) {
 		$router->add_route('help/user-targets', array(
 			'method' => array(
 				$this,
@@ -168,7 +170,7 @@ class Module_Help extends zesk\Module_JSLib {
 	public function user_targets(Request $request, Response $response) {
 		$application = $this->application;
 		$user = $this->_help_auth($request, $response);
-		$query = $this->application->query_select('Help')->link('Help_User', array(
+		$query = $this->application->query_select('zesk\\Help')->link('zesk\\Help_User', array(
 			'require' => false,
 			"alias" => "hu",
 			"on" => array(
@@ -180,7 +182,7 @@ class Module_Help extends zesk\Module_JSLib {
 		));
 		$helps = $query->object_iterator();
 		$result = array();
-		$mappables = $application->modules->all_hook_arguments(__CLASS__ . "_map", array(), array());
+		$mappables = $application->modules->all_hook_arguments("module_help_map", array(), array());
 		if (count($mappables) === 0) {
 			$mappables = array();
 		}
@@ -266,7 +268,7 @@ class Module_Help extends zesk\Module_JSLib {
 		$application = $this->application;
 		$ids = $request->geta('id', array());
 		foreach ($ids as $id) {
-			$application->object_factory('Help', $id)->show();
+			$application->object_factory('zesk\\Help', $id)->show();
 		}
 		$response->json(array(
 			'status' => true,
@@ -288,7 +290,7 @@ class Module_Help extends zesk\Module_JSLib {
 		foreach ($ids as $id) {
 			$help = $application->object_factory('Help', $id)->fetch();
 			if ($help) {
-				$application->object_factory('Help_User', array(
+				$application->object_factory('zesk\\Help_User', array(
 					'help' => $help,
 					'user' => $user,
 					'dismissed' => 'now'

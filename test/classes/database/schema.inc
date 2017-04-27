@@ -1,12 +1,16 @@
 <?php
-use zesk\Database_Schema;
+namespace zesk;
 
+/**
+ * 
+ * @author kent
+ *
+ */
 class Test_Database_Schema extends Test_Unit {
 
 	function test_0() {
 		$object = new Test_Database_Schema_User();
-		$db_url = _G('DB_URL');
-		Database_Schema::updateObject($object, $db_url);
+		Database_Schema::updateObject($object);
 
 		$objects = array();
 		Database_Schema::updateObjectsCommand($objects);
@@ -25,6 +29,6 @@ class Test_Database_Schema extends Test_Unit {
 		Database_Schema::update($db, $dbTableOld, $dbTableNew, $change_permanently);
 	}
 }
-class Test_Database_Schema_User extends zesk\User {
+class Test_Database_Schema_User extends \zesk\User {
 }
 

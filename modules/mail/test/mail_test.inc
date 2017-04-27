@@ -7,8 +7,7 @@
  * @copyright Copyright &copy; 2008, Market Acumen, Inc.
  * @sandbox true
  */
-use zesk\Directory;
-use zesk\Database_Schema;
+namespace zesk;
 
 /**
  * 
@@ -16,13 +15,16 @@ use zesk\Database_Schema;
  *
  */
 class Mail_Test extends Test_Unit {
+	protected $load_modules = array(
+		"Mail"
+	);
 	function initialize() {
-		$module = $this->load_module('mail');
+		$module = $this->application->modules->object("Mail");
 		$classes = $module->classes();
 		Database_Schema::objects_synchronize($classes);
 		foreach ($classes as $class) {
 			// TODO MySQL specific
-			Object::cache_object($class)->database()->query("TRUNCATE " . Object::class_table_name($class));
+			$this->application->object_database($class)->query("TRUNCATE " . $this->application->object_table_name($class));
 		}
 	}
 	
@@ -31,7 +33,7 @@ class Mail_Test extends Test_Unit {
 	function test_files() {
 		$test_path = dirname(__FILE__) . '/test-data';
 		$ff = Directory::ls($test_path, '/.*\.*txt$/', false);
-		mail::debug($this->option_bool('debug'));
+		Mail::debug($this->option_bool('debug'));
 		foreach ($ff as $i => $f) {
 			$this->log("Testing mail parsing $f");
 			$f = path($test_path, $f);

@@ -1,5 +1,7 @@
 <?php
-class Module_Object_Cache extends zesk\Module {
+namespace zesk;
+
+class Module_Object_Cache extends Module {
 	
 	/*
 	 * @var Object_Cache
@@ -17,31 +19,32 @@ class Module_Object_Cache extends zesk\Module {
 			$factory = "_factory_file";
 		}
 		$this->cache = $this->$factory($this->application);
-		self::configure_object_cache(zesk()->hooks, $this->cache);
+		$this->configure_object_cache($this->cache);
 	}
-	public static function _factory_file(zesk\Application $application) {
+	public static function _factory_file(Application $application) {
 		return new Object_Cache_File($application->cache_path('object_cache'));
 	}
-	public static function _factory_database(zesk\Application $application) {
+	public static function _factory_database(Application $application) {
 		return new Object_Cache_Database();
 	}
-	private static function configure_object_cache(zesk\Hooks $hook, Object_Cache $cache) {
+	private static function configure_object_cache(Object_Cache $cache) {
+		$hooks = $this->application->hooks;
 		$invalidate = array(
 			$cache,
 			"invalidate"
 		);
-		$hook->add("zesk\Object::cache-load", array(
+		$hooks->add("zesk\Object::cache-load", array(
 			$cache,
 			"load"
 		));
-		$hook->add("zesk\Object::cache-save", array(
+		$hooks->add("zesk\Object::cache-save", array(
 			$cache,
 			"save"
 		));
-		$hook->add("zesk\Object::cache-dirty", $invalidate);
-		$hook->add("zesk\Object::insert", $invalidate);
-		$hook->add("zesk\Object::delete", $invalidate);
-		$hook->add("zesk\Object::update", $invalidate);
+		$hooks->add("zesk\Object::cache-dirty", $invalidate);
+		$hooks->add("zesk\Object::insert", $invalidate);
+		$hooks->add("zesk\Object::delete", $invalidate);
+		$hooks->add("zesk\Object::update", $invalidate);
 	}
 }
 

@@ -16,8 +16,18 @@ namespace zesk;
  * @author kent
  *
  */
-class Control_Select extends Control_Options {
+class Control_Select extends Control_Optionss {
+	/**
+	 * 
+	 * @var boolean
+	 */
 	const default_escape_values = true;
+	
+	/**
+	 * 
+	 * {@inheritDoc}
+	 * @see \zesk\Control_Options::initialize()
+	 */
 	protected function initialize() {
 		parent::initialize();
 		if ($this->control_options === null) {
@@ -46,6 +56,12 @@ class Control_Select extends Control_Options {
 			}
 		}
 	}
+	
+	/**
+	 * 
+	 * @param array $arr
+	 * @return number
+	 */
 	static function _control_options_count(array $arr) {
 		$n = count($arr);
 		foreach ($arr as $k => $v) {
@@ -55,6 +71,11 @@ class Control_Select extends Control_Options {
 		}
 		return $n;
 	}
+	
+	/**
+	 * 
+	 * @return integer
+	 */
 	function control_options_count() {
 		return self::_control_options_count($this->control_options);
 	}
@@ -66,6 +87,14 @@ class Control_Select extends Control_Options {
 	// 		}
 	// 		return false;
 	// 	}
+	
+
+	/**
+	 * 
+	 * {@inheritDoc}
+	 * @see \zesk\Widget::is_visible()
+	 * @return boolean
+	 */
 	function is_visible() {
 		if (!parent::is_visible()) {
 			return false;
@@ -80,6 +109,13 @@ class Control_Select extends Control_Options {
 		}
 		return true;
 	}
+	
+	/**
+	 * Getter/setter for multiple selection
+	 * 
+	 * @param boolean|null $set
+	 * @return self|boolean
+	 */
 	function multiple($set = null) {
 		return ($set !== null) ? $this->set_option('multiple', to_bool($set)) : $this->option_bool('multiple', false);
 	}

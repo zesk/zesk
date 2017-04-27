@@ -18,20 +18,18 @@ This article outlines how developers should name features of their code related 
 
 ## Files
 
-All Zesk internal file names are lowercase, with no spaces in the names. Dashes or underscores in names are both acceptable. Modules or third-party libraries may use whatever naming convention allowed, but the main entry point should follow the Zesk naming guidelines.
+Zesk internal file names are case sensitive, however never uses spaces in the names. Dashes or underscores in names are both acceptable. Modules or third-party libraries may use whatever naming convention allowed, but the main entry point should follow the Zesk naming guidelines. We recommend [PSR-4][] autoloading.
 
 ## File Extensions
 
 Zesk supports the following types of file extensions, and conventions:
 
-### PHP Files end with `.inc`, `.php`, `.phpt` or `.tpl`
+### PHP Files end with `.php`, or `.tpl`
 
 - `.php` files are intended to be invoked externally, e.g. a command line function, or a web server page request.
-- `.inc` files are intended to be included in other files.
-- `.phpt` files are unit test files, and are invoked via the PHP interpreter (**deprecated**)
 - `.tpl` files are template files and are invoked via the PHP interpreter, usually as an `include`
 
-PHP files of all three types should have `<?php` as the first line in the file, and the trailing `?>` should be left off to avoid trailing white space issues.
+PHP files of all types should have `<?php` as the first line in the file, and the trailing `?>` should be left off to avoid trailing white space issues.
 
 Command-line files (`.phpt`, and `.php` files which are command-line only) may be invoked using the shell bang format and have the first two lines as:
 
@@ -40,9 +38,18 @@ Command-line files (`.phpt`, and `.php` files which are command-line only) may b
 
 The preferred invocation style for command-line tools is to use `/usr/bin/env` to determine the PHP path. Most command-line tools can be written using `zesk-command.php` which provides a slim wrapper around commands.
 
+#### Deprecated as of April 2017
+
+The following file types are deprecated as of April 2017:
+
+- `.phpt` are unit test files, and are invoked via the PHP interpreter (**deprecated**)
+- `.inc` files are intended to be included in other files.
+
+These types of files will be removed from the source tree at **Zesk version 1.0**.
+
 ### Configuration files end with `.conf`
 
-The configuration file format _may_ be compatible with Unix `sh` or `bash` interpreters and can be used to share configuration settings across interpreters.
+The configuration file format *may* be compatible with Unix `sh` or `bash` interpreters and can be used to share configuration settings across interpreters.
 
 The basic configuration format is:
 
@@ -71,15 +78,15 @@ More about router files in [router files][].
 
 ## Classes
 
-Classes are loaded automatically based on name and the paths set up by `zesk::autoload_path`.
+Zesk classes are loaded automatically based on name and the paths set up by `zesk()->autoloader->path()`.
 
-Class paths are computed based on replacement of the underscore `_` in a class name with a path slash `/` and making the entire term lower-case, so:
+Class paths are computed based on replacement of the underscore `_` in a class name with a path slash `/`, so:
 
 	$f = new Route_Controller($pattern, $options);
 	
 Will search the autoload path for:
 
-    route/controller.inc
+    Route/Controller.php
 
 Class names are [Upper-first CamelCase](naming-styles-definitions.md), optionally separated by underscores for classes which are intended to be instantiated:
 
@@ -87,16 +94,16 @@ Class names are [Upper-first CamelCase](naming-styles-definitions.md), optionall
 	$c = new Control_Image_Toggle();
 	$s = new Province();
 
-The corresponding file names which contain these classes are lower-case:
+The corresponding file names which contain these classes use the [PSR-4][] standard:
 
-	classes/user.inc
-	classes/control/image/toggle.inc
-	classes/province.inc
+	classes/User.inc
+	classes/Control/Image/Toggle.inc
+	classes/Province.inc
 	
 Class names for purely static, utility classes are lower-case:
 
     echo HTML::tag('div', '#customer-name', $content);
-    echo zesk::get("Company.Name");
+    echo str::unprefix("Company.Name", "Company.");
     JavaScript::obfuscate_begin();
 
 ## Functions and Methods
@@ -113,7 +120,9 @@ Note that PHP itself uses two different naming methodologies for class methods a
 
 ## Hooks
 
-Hooks are a simple but powerful method for modules to modify or interact with various behaviors in the system. As a general rule, Hooks are named as follows:
+Hooks are a simple but powerful method your code to interact with various behaviors in the system. As a general rule, Hooks are named as follows:
+
+TODO
 
 ### Hookable syntax
 
@@ -128,11 +137,51 @@ Hook names within a class are [Lower Underscore](naming-styles-definitions.md) a
 
 ### Class syntax
 
-The `Hookable` class invokes `hook_`_`message`_ first, then calls the class hierarchy version of a hook:
+The `Hookable` class invokes `hook_`*`message`* first, then calls the class hierarchy version of a hook. By way of example, given the following class:
 
-	_`Class`_::` TODO
+	class MenuItem extends \zesk\Object {
+		...
+	}
+	class FoodItem extends MenuItem {
+		...
+	}
+	class Pizza extends FoodItem {
+		function hook_delivered(Location $location) {
+			...
+		}
+		function check_delivered() {
+			$location = $this->getLocation();
+			$truck_location = $this->deivery_truck()->location();
+			if ($location->within_radius(100 * Location::METERS)) {
+				$this->arrived = Timestamp::now();
+				$this->store();
+				$this->call_hook("delivered", $location);
+			}
+		}
+	}
+
+When we call `$pizza->check_delivered()`, and our hook is called, the following happens:
+
+- `$this->hook_delivered(...)` is called first with the parameters
+- `$this->options["hooks"]["delivered"]` is called with the value of `$this` passed as the first parameter, followed by the other parameters passed
+- The following global `zesk()->hooks` are called, in order with the value of `$this` passed as the first parameter, followed by the other parameters passed
+ - `Pizza::delivered`
+ - `FoodItem::delivered`
+ - `MenuItem::delivered`
+ - `zesk\Object::delivered`
+ - `zesk\Model::delivered`
+ - `zesk\Hookable::delivered`
+
+Results from the hook are combined using `Hookable::hook_results`, which, in the simplest case:
+
+- concatenates strings, or
+- merges arrays, or
+- returns the last hook result
+
+TODO more explanation
 
 [configuration files]: configuration-file-format.md "Configuration File Format"
 [router files]: router-file-format.md "Router File Format"
 [Naming Styles Definitions]: naming-styles-definitions.md "Naming Styles Definitions"
 [PHP Case Sensitivity]: php-case-sensitivity.md "PHP Case Sensitivity"
+[PSR-4]: http://www.php-fig.org/psr/psr-4/ "PHP Autoloading Standard"

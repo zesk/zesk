@@ -2,11 +2,7 @@
 /**
  * 
  */
-use zesk\Model;
-use zesk\HTML;
-use zesk\Object;
-use zesk\Database_Query_Select;
-use zesk\Exception_Semantics;
+namespace zesk;
 
 /**
  * 
@@ -48,7 +44,7 @@ class Control_Selection extends Control {
 		if ($this->type) {
 			return $this->type;
 		}
-		return $this->type = $this->object_factory("Selection_Type", array(
+		return $this->type = $this->object_factory(__NAMESPACE__ . "\\Selection_Type", array(
 			"session" => $this->session(),
 			"user" => $this->user(),
 			"code" => $this->selection_code(),
@@ -89,7 +85,7 @@ class Control_Selection extends Control {
 	 * @param Control_Row $row
 	 * @param zesk\Template $t
 	 */
-	public function hook_control_list_row(Model $object, Control_Row $row, zesk\Template $t) {
+	public function hook_control_list_row(Model $object, Control_Row $row, Template $t) {
 		if (!$object instanceof Object) {
 			return;
 		}
@@ -122,6 +118,12 @@ class Control_Selection extends Control {
 			null
 		);
 	}
+	
+	/**
+	 * 
+	 * {@inheritDoc}
+	 * @see \zesk\Widget::controller()
+	 */
 	public function controller() {
 		$request = $this->request();
 		$response = $this->response();
@@ -186,6 +188,12 @@ class Control_Selection extends Control {
 			"count" => $count
 		));
 	}
+	
+	/**
+	 * 
+	 * {@inheritDoc}
+	 * @see \zesk\Widget::theme_variables()
+	 */
 	public function theme_variables() {
 		$type = $this->selection_type();
 		return parent::theme_variables() + array(
@@ -196,6 +204,11 @@ class Control_Selection extends Control {
 			'actions' => $this->option_array("actions", array())
 		);
 	}
+	
+	/**
+	 * 
+	 * @param Database_Query_Select $query
+	 */
 	protected function hook_query_list(Database_Query_Select $query) {
 		if ($query->has_what("selected")) {
 			// TODO Why is this called twice while listing?
@@ -204,7 +217,7 @@ class Control_Selection extends Control {
 		$type_id = $this->selection_type()->id();
 		$alias = $query->alias();
 		$id_column = $this->application->object($query->object_class())->id_column();
-		$table = $this->application->object("Selection_Item")->table();
+		$table = $this->application->object(__NAMESPACE__ . "\\Selection_Item")->table();
 		$query->join("LEFT OUTER JOIN $table sel_item ON sel_item.type=$type_id AND sel_item.id=$alias.$id_column");
 		$query->what("*selected", "sel_item.add");
 	}

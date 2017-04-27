@@ -207,7 +207,7 @@ abstract class Route extends Hookable {
 	 * @return double
 	 */
 	public static function compare_weight(Route $a, Route $b) {
-		return \zesk::sort_weight_array($a->option(), $b->option());
+		return zesk()->sort_weight_array($a->option(), $b->option());
 	}
 	
 	/**

@@ -46,7 +46,7 @@ class View_Actions extends View {
 		$hr = $this->application->router()->get_route($action, $object, $this->option_array("route_options"));
 		if ($add_ref) {
 			$hr = URL::query_format($hr, array(
-				'ref' => URL::current_uri()
+				'ref' => $this->request->uri()
 			));
 		}
 		return $hr;
@@ -98,7 +98,7 @@ class View_Actions extends View {
 					$add_ref = avalue($actSpec, 'add_ref', false);
 					if ($add_ref) {
 						$hr = URL::query_format($hr, array(
-							'ref' => URL::current_uri()
+							'ref' => $this->request->uri()
 						));
 					}
 					$html = $html . $this->actionlink($hr, avalue($actSpec, "prefix", "") . $src, 18, 18, $text, avalue($actSpec, "confirm", false, avalue($actSpec, 'cdn')));

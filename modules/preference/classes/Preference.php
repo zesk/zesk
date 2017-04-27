@@ -1,6 +1,6 @@
 <?php
 /**
- * @version $Id: Preference.php 4412 2017-03-08 05:16:44Z kent $
+ * @version $Id: Preference.php 4555 2017-04-06 18:32:10Z kent $
  * @package zesk
  * @subpackage user
  * @author Kent Davidson <kent@marketacumen.com>
@@ -14,7 +14,6 @@ namespace zesk;
  * @author kent
  */
 class Preference extends Object {
-	
 	const type_class = "zesk\\Preference_Type";
 	
 	/**
@@ -49,7 +48,7 @@ class Preference extends Object {
 	}
 	static function user_has_one(User $user, $name) {
 		return $user->application->query_select(__CLASS__)
-			->join('Preference_Type', array(
+			->join('zesk\\Preference_Type', array(
 			'alias' => 'T'
 		))
 			->where('T.code', $name)
@@ -66,14 +65,14 @@ class Preference extends Object {
 	 * @param user $user
 	 * @return Ambigous <zesk\Database_Query_Select, zesk\Database_Query_Select>
 	 */
-	private static function _value_query(user $user, $name) {
+	private static function _value_query(User $user, $name) {
 		$query = $user->application->query_select(__CLASS__)->link(self::type_class, "type")->where(array(
 			'X.user' => $user,
 			'type.code' => $name
 		));
 		return $query;
 	}
-	static function user_get(user $user, $pref_name, $default = null) {
+	static function user_get(User $user, $pref_name, $default = null) {
 		if (!$user->authenticated()) {
 			return $default;
 		}
@@ -96,12 +95,12 @@ class Preference extends Object {
 				if ($vlen >= 4 && $value[1] === ':' && $value[$vlen - 1] === ';') {
 					$prefs[strtolower($k)] = @unserialize($value);
 				} else {
-					$this->application->logger->warning("Invalid preference string for {user}: {key}={value} - deleting", array(
+					$user->application->logger->warning("Invalid preference string for {user}: {key}={value} - deleting", array(
 						"user" => $user,
 						"key" => $k,
 						"value" => $value
 					));
-					$user->application->query_delete("Preference")->where("id", $id)->execute();
+					$user->application->query_delete("zesk\\Preference")->where("id", $id)->execute();
 				}
 			}
 			$user->_preference_cache = $prefs;

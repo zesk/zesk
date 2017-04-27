@@ -1,5 +1,7 @@
 <?php
 
+namespace zesk;
+
 echo HTML::a('mailto:' . $this->content, array(
 	'class' => $this->class,
 	'id' => $this->id

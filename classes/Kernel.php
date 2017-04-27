@@ -113,7 +113,7 @@ class Kernel {
 	 * @var Process
 	 */
 	public $process = null;
-
+	
 	/**
 	 *
 	 * @var Hooks
@@ -184,13 +184,12 @@ class Kernel {
 	 * Include related classes
 	 */
 	public static function includes() {
-// 		if (!interface_exists('Psr\Log\LoggerInterface', false)) {
-// 			require_once ZESK_ROOT . "classes-no-ns/Psr/Log/LoggerInterface.php";
-// 		}
-// 		if (!class_exists('Psr\Log\LogLevel', false)) {
-// 			require_once ZESK_ROOT . "classes-no-ns/Psr/Log/LogLevel.php";
-// 		}
-		
+		// 		if (!interface_exists('Psr\Log\LoggerInterface', false)) {
+		// 			require_once ZESK_ROOT . "classes-no-ns/Psr/Log/LoggerInterface.php";
+		// 		}
+		// 		if (!class_exists('Psr\Log\LogLevel', false)) {
+		// 			require_once ZESK_ROOT . "classes-no-ns/Psr/Log/LogLevel.php";
+		// 		}
 		$here = dirname(__FILE__);
 		
 		require_once $here . "/Process.php";
@@ -261,6 +260,8 @@ class Kernel {
 		$this->newline = $this->console ? "\n" : "<br />\n";
 		/*
 		 * Is this on Windows-based OS?
+		 * 
+		 * @todo Is this true
 		 */
 		$this->is_windows = PATH_SEPARATOR === '\\';
 		/*
@@ -280,6 +281,7 @@ class Kernel {
 	 * Reset
 	 */
 	public function reset(array $configuration) {
+		$this->objects->reset();
 		$this->hooks->call(Hooks::hook_reset);
 		$this->construct($configuration);
 		$this->bootstrap();
@@ -375,21 +377,21 @@ class Kernel {
 	 *        	logs to php error log, "backtrace" to backtrace immediately
 	 * @return mixed Current value
 	 */
-	public function deprecated($reason = null) {
+	public function deprecated($reason = null, array $arguments = array()) {
 		if ($this->deprecated) {
 			switch ($this->deprecated) {
 				case self::deprecated_exception:
-					throw new Exception_Deprecated("{reason}: deprecated function called: {calling_function}\n{backtrace}", array(
+					throw new Exception_Deprecated("${reason} deprecated function called: {calling_function}\n{backtrace}", array(
 						"reason" => $reason,
 						"calling_function" => calling_function(),
 						"backtrace" => _backtrace()
-					));
+					) + $arguments);
 				case self::deprecated_log:
-					$this->logger->error("{reason}: deprecated function called: {calling_function}\n{backtrace}", array(
+					$this->logger->error("${reason} deprecated function called: {calling_function}\n{backtrace}", array(
 						"reason" => $reason ? $reason : "DEPRECATED",
 						"calling_function" => calling_function(),
 						"backtrace" => _backtrace()
-					));
+					) + $arguments);
 					break;
 				case self::deprecated_backtrace:
 				default :

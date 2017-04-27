@@ -10,5 +10,9 @@
 	"requires": ["respondjs"],
 	"url_license": "https://github.com/twbs/bootstrap/blob/master/LICENSE",
 	"share_path": "vendor/twbs/bootstrap/dist",
-	"module_class": "zesk\\Module_Bootstrap"
+	"module_class": "zesk\\Module_Bootstrap",
+	"autoload_options": {
+		"class_prefix": "zesk\\",
+		"lower": false
+	}
 }

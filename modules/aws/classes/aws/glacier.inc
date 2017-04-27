@@ -9,6 +9,9 @@
 
 use zesk\Exception_NotFound;
 
+use Aws\Glacier\GlacierClient;
+use Aws\Glacier\Exception\ResourceNotFoundException;
+
 /**
  * Class wrapper around Aws\Glacier\GlacierClient
  * 
@@ -32,7 +35,7 @@ class AWS_Glacier extends AWS {
 			return;
 		}
 		$options = $this->options_include("key;secret;credentials;token;credentials;region");
-		$this->glacier_client = Aws\Glacier\GlacierClient::factory($options);
+		$this->glacier_client = GlacierClient::factory($options);
 	}
 	
 	/**
@@ -77,7 +80,7 @@ class AWS_Glacier extends AWS {
 				"job_id" => $result->get("jobId"),
 				"uri" => $result->get("location")
 			);
-		} catch (Aws\Glacier\Exception\ResourceNotFoundException $e) {
+		} catch (ResourceNotFoundException $e) {
 			throw new Exception_NotFound($e->getMessage());
 		}
 	}

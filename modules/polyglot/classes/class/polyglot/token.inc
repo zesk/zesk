@@ -1,15 +1,17 @@
 <?php
 
+namespace zesk;
+
 /**
  * @see PolyGlot_Token
  * @author kent
  *
  */
-class Class_PolyGlot_Token extends zesk\Class_Object {
+class Class_PolyGlot_Token extends Class_Object {
 	public $id_column = "id";
 
 	public $has_one = array(
-		"user" => "User"
+		"user" => "zesk\\User"
 	);
 
 	public $column_types = array(

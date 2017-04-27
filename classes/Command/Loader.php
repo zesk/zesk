@@ -141,6 +141,10 @@ class Command_Loader {
 			}
 			if (!class_exists('zesk\\Kernel', false)) {
 				$first_command = $this->find_application();
+				if (substr($first_command, -4) === ".inc") {
+					$new_first_command = substr($first_command, 0, -4) . ".php";
+					$this->error("Application files ending in .inc is deprecated in Zesk 0.9.0 as of 2017-03-01, do:\n\n\tmv $first_command $new_first_command\n\n");
+				}
 				require_once $first_command;
 				$application = $this->zesk_loaded($first_command);
 				if (zesk()->configuration->debug || $this->debug) {
@@ -156,6 +160,21 @@ class Command_Loader {
 		}
 		return 0;
 	}
+	
+	/**
+	 * 
+	 * @param string $message
+	 * @return number
+	 */
+	private function error($message) {
+		return fprintf($this->stderr(), $message);
+	}
+	
+	/**
+	 * Determine the STDERR file
+	 * 
+	 * @return string|unknown|resource
+	 */
 	private function stderr() {
 		if (defined("STDERR")) {
 			return STDERR;
@@ -188,13 +207,14 @@ class Command_Loader {
 			return $argv;
 		}
 		if (!class_exists($class, false)) {
-			fprintf($this->stderr(), "Command class $class does not exist in $path ... skipping\n");
+			$this->error("Command class $class does not exist in $path ... skipping\n");
 			return $argv;
 		}
 		/* @var $command_object Command */
 		$command_object = $zesk->objects->factory($class, array_merge(array(
 			$arg
 		), $argv));
+		
 		/* @var $command_object Command */
 		if (!$command_object->has_configuration) {
 			$this->debug("Command {class} does not have configuration, calling {app} configured", array(
@@ -239,18 +259,19 @@ class Command_Loader {
 		));
 		$try_files = array();
 		foreach ($paths as $path => $prefix) {
-			$try_files[] = path($path, $command . ".inc"); // DEPRECATED TODO 2017-03
-			$try_files[] = path($path, strtolower($command) . ".php");
-			$try_files[] = path($path, ucfirst($command) . ".php");
-			$try_files[] = path($path, strtoupper($command) . ".php");
+			$try_files[path($path, $command . ".inc")] = $prefix; // DEPRECATED TODO 2017-03
+			$try_files[path($path, strtolower($command) . ".php")] = $prefix;
+			$try_files[path($path, ucfirst($command) . ".php")] = $prefix;
+			$try_files[path($path, strtoupper($command) . ".php")] = $prefix;
 		}
-		foreach ($try_files as $file) {
+		foreach ($try_files as $file => $prefix) {
 			if (is_file($file)) {
 				if (File::extension($file) === "inc") {
 					/**
 					 * @deprecated 2017-013
 					 */
-					fprintf($this->stderr(), "Command file ending with .inc are deprecated in Zesk 0.9.0, please rename\n\n\t$file\n\nto use the .php extension\n");
+					$new_file = File::extension_change($file, "php");
+					$this->error("Command files ending with .inc are deprecated in Zesk 0.9.0, please rename\n\n\tmv $file $new_file\n\nto use the .php extension\n");
 				}
 				require_once $file;
 				return array(
@@ -262,7 +283,7 @@ class Command_Loader {
 		$this->debug("Search path: \n\t{paths}", array(
 			"paths" => implode("\n\t", arr::suffix(array_keys($paths), "/$command.inc"))
 		));
-		fprintf($this->stderr(), "Ignoring command $command - not found\n");
+		$this->error("Ignoring command $command - not found\n");
 		return array(
 			null,
 			null
@@ -354,7 +375,7 @@ class Command_Loader {
 			}
 		}
 		if (!$zesk_root_files) {
-			$zesk_root_files = "*.application.inc";
+			$zesk_root_files = "*.application.php *.application.inc";
 		}
 		$zesk_root_files = explode(" ", $zesk_root_files);
 		foreach ($this->search as $dir) {

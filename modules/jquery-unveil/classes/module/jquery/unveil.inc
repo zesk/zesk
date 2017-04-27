@@ -3,15 +3,14 @@
 /**
  * 
  */
-use zesk\Lists;
-use zesk\HTML;
+namespace zesk;
 
 /**
  * 
  * @author kent
  *
  */
-class Module_jQuery_Unveil extends zesk\Module_JSLib {
+class Module_jQuery_Unveil extends Module_JSLib {
 	protected $javascript_paths = array(
 		"/share/jquery-unveil/jquery.unveil.js"
 	);
@@ -36,6 +35,7 @@ class Module_jQuery_Unveil extends zesk\Module_JSLib {
 		));
 		parent::initialize();
 	}
+	
 	public function img_alter(array $attributes, $content) {
 		if (isset($this->options['disabled']) && $this->options['disabled']) {
 			return null;

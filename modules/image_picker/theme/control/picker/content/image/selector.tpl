@@ -25,15 +25,15 @@ $id = 'control-picker-' . $this->column . '-q';
 	}
 	?></div>
 <div
-	class="control-picker-results class-<?php echo strtolower($this->object_class) ?>"><?php
-	$query = $application->query_select('User_Content_Image')
-		->link('Content_Image', array(
+	class="control-picker-results class-<?php echo $this->object_class_css_class; ?>"><?php
+	$query = $application->query_select('zesk\\User_Content_Image')
+		->link('zesk\\Content_Image', array(
 		'alias' => 'ucimage'
 	))
-		->what_object('Content_Image')
+		->what_object('zesk\\Content_Image')
 		->where('X.user', $this->current_user);
 	//echo $query->__toString();
-	$iterator = $query->object_iterator('Content_Image');
+	$iterator = $query->object_iterator('zesk\Content_Image');
 	foreach ($iterator as $image) {
 		echo $this->theme('control/picker/content/image/item', array(
 			'object' => $image

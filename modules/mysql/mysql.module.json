@@ -2,7 +2,9 @@
 	"name": "MySQL Database",
 	"description": "Database abstraction for MySQL using PHP mysqli APIs.",
 	"autoload_options": {
+		"class_prefix": "MySQL\\",
         "lower": false,
         "extensions": [ "php" ]
-    }
+    },
+	"module_class": "MySQL\\Module"
 }

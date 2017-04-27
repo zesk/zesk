@@ -1,12 +1,14 @@
 <?php
 
+namespace zesk;
+
 /**
  * Class for Mail_Message
  *
  * @author kent
  *
  */
-class Class_Mail_Message extends zesk\Class_Object {
+class Class_Mail_Message extends Class_Object {
 	public $find_keys = array(
 		'message_id',
 		'hash'
@@ -14,7 +16,7 @@ class Class_Mail_Message extends zesk\Class_Object {
 	public $name = "Mail";
 	public $has_many = array(
 		'headers' => array(
-			'class' => 'Mail_Header',
+			'class' => 'zesk\\Mail_Header',
 			'column' => 'mail'
 		)
 	);

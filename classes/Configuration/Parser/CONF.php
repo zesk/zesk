@@ -35,6 +35,15 @@ class Configuration_Parser_CONF extends Configuration_Parser {
 	/**
 	 * 
 	 * {@inheritDoc}
+	 * @see \zesk\Configuration_Parser::editor()
+	 */
+	public function editor($content = null, array $options = array()) {
+		return new Configuration_Editor_CONF($content, $options);
+	}
+	
+	/**
+	 * 
+	 * {@inheritDoc}
 	 * @see \zesk\Configuration_Parser::process()
 	 * @return Interface_Settings
 	 */
@@ -76,7 +85,7 @@ class Configuration_Parser_CONF extends Configuration_Parser {
 			}
 			$dependencies = array();
 			if ($found_quote !== "'") {
-				$value = BASH::substitute($value, $settings, $dependencies);
+				$value = bash::substitute($value, $settings, $dependencies);
 			}
 			if (!$found_quote) {
 				if ($autotype) {
@@ -94,13 +103,13 @@ class Configuration_Parser_CONF extends Configuration_Parser {
 				$append_value[] = $value;
 				$settings->set($key, $append_value);
 				if ($dependency) {
-					$dependency->defines($key, $dependencies);
+					$dependency->defines($key, array_keys($dependencies));
 				}
 			} else {
 				if ($overwrite || !$settings->has($key)) {
 					$settings->set($key, $value);
 					if ($dependency) {
-						$dependency->defines($key, $dependencies);
+						$dependency->defines($key, array_keys($dependencies));
 					}
 				}
 			}
@@ -115,7 +124,7 @@ class Configuration_Parser_CONF extends Configuration_Parser {
 	 *        	Name of additional include file
 	 */
 	private function handle_include($file) {
-		if (file::is_absolute($file)) {
+		if (File::is_absolute($file)) {
 			$this->loader->append_files(array(
 				$file
 			));

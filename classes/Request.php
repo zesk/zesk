@@ -113,11 +113,20 @@ class Request extends Hookable {
 	
 	/**
 	 * Way to mock IP addresses if needed.
-	 * Defaults to IPv4::remote().
+	 * Defaults to $_SERVER variables based on load balancers or reverse proxies.
 	 *
 	 * @var string
 	 */
 	protected $ip = null;
+	
+	/**
+	 * Server IP address
+	 * 
+	 * Defaults to $_SERVER['SERVER_ADDR']
+	 *
+	 * @var string
+	 */
+	protected $server_ip = null;
 	
 	/**
 	 * @var string
@@ -153,18 +162,19 @@ class Request extends Hookable {
 		$this->data_file = self::default_data_file;
 		$this->data_inherit = null;
 		
+		$this->ip = $this->_find_remote_key($_SERVER);
+		$this->server_ip = avalue($_SERVER, 'SERVER_ADDR');
+		
 		$this->set_method(avalue($_SERVER, 'REQUEST_METHOD', Net_HTTP::Method_GET));
 		$this->uri = avalue($_SERVER, "REQUEST_URI", null);
 		$this->headers = self::http_headers_from_server($_SERVER);
 		$this->cookies = $_COOKIE;
 		$this->variables = self::clean_gpc($this->default_request());
-		$this->url = URL::current();
+		$this->url = $this->url_from_server($_SERVER);
 		
 		$this->files = is_array($_FILES) ? $_FILES : array();
 		
 		$this->url_parts = null;
-		
-		$this->ip = IPv4::remote();
 		
 		$this->call_hook(array(
 			"initialize",
@@ -346,7 +356,10 @@ class Request extends Hookable {
 			)) . '#';
 			$result[$key] = $attr;
 		}
-		uasort($result, array(zesk(), "sort_weight_array_reverse"));
+		uasort($result, array(
+			zesk(),
+			"sort_weight_array_reverse"
+		));
 		return $this->_parsed_header($name, $result);
 	}
 	
@@ -375,7 +388,10 @@ class Request extends Hookable {
 			return null;
 		}
 		if (count($result) > 1) {
-			uasort($result, array(zesk(), "sort_weight_array_reverse"));
+			uasort($result, array(
+				zesk(),
+				"sort_weight_array_reverse"
+			));
 		}
 		return first(array_keys($result));
 	}
@@ -956,7 +972,15 @@ class Request extends Hookable {
 	 * @return mixed|NULL
 	 */
 	public function ip() {
-		return firstarg($this->ip, IPv4::remote());
+		return $this->ip;
+	}
+	/**
+	 * Retrieve the server IP address
+	 * 
+	 * @return mixed|NULL
+	 */
+	public function server_ip() {
+		return $this->server_ip;
 	}
 	/**
 	 * Retrieve the referrer
@@ -1092,7 +1116,7 @@ class Request extends Hookable {
 		if ($this->method === Net_HTTP::Method_POST) {
 			if ($this->content_type() === "application/json") {
 				$data = $this->data();
-				return JSON::decode($data, true) + $_GET;
+				return JSON::decode($data) + $_GET;
 			}
 		}
 		return is_array($_REQUEST) ? $_REQUEST : array();
@@ -1123,6 +1147,69 @@ class Request extends Hookable {
 	private function _derive_uri() {
 		return $this->query() ? URL::query_format($this->path() . $this->query()) : $this->path();
 	}
+	private function url_from_server($server) {
+		$parts['scheme'] = $this->current_scheme($server);
+		$parts['host'] = $this->current_host();
+		$parts['port'] = $this->current_port($server);
+		$parts['path'] = $this->current_uri($server);
+		return URL::unparse($parts);
+	}
+	private function current_scheme(array $server) {
+		// Amazon load balancers
+		$proto = $this->header("X-Forwarded-Proto");
+		if ($proto) {
+			return $proto;
+		}
+		return avalue($server, 'HTTPS') === "on" ? "https" : "http";
+	}
+	private function current_host() {
+		$host = $this->header("Host");
+		return strtolower(str::left($host, ":", $host));
+	}
+	private function current_port(array $server) {
+		// Amazon load balancers
+		$port = $this->header("X-Forwarded-Port");
+		if ($port) {
+			return intval($port);
+		}
+		return avalue($server, "SERVER_PORT", 80);
+	}
+	private function current_uri(array $server) {
+		return avalue($server, 'REQUEST_URI');
+	}
+	
+	/**
+	 * Helper function for self::remote.
+	 * Searches an array for a valid IP address.
+	 *
+	 * @param array $arr
+	 *        	An array to search for certain keys
+	 * @return an IP address if found, or false
+	 */
+	private static function _find_remote_key(array $server, $default = null) {
+		$ks = array(
+			"HTTP_CLIENT_IP",
+			"HTTP_X_FORWARDED_FOR",
+			"REMOTE_ADDR"
+		);
+		foreach ($ks as $k) {
+			if (!isset($server[$k])) {
+				continue;
+			}
+			$ip = $server[$k];
+			if ($ip === "unknown") {
+				continue;
+			}
+			if (empty($ip)) {
+				continue;
+			}
+			$match = false;
+			if (preg_match('/[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}/', $ip, $match)) {
+				return $match[0];
+			}
+		}
+		return $default;
+	}
 	
 	/**
 	 * Get the session associated with this request
@@ -1152,9 +1239,6 @@ class Request extends Hookable {
 	 * Retrieve global Request instance
 	 *
 	 * @param string $mixed
-	 *        	URL of request. If not specified takes from URL::current. If Request, then sets
-	 *        	request
-	 *        	instance to $mixed
 	 * @param array $request
 	 *        	server request name/value pairs. If not specified, uses $_REQUEST
 	 * @param boolean $is_post
@@ -1179,9 +1263,6 @@ class Request extends Hookable {
 	 * Retrieve global Request instance
 	 *
 	 * @param string $mixed
-	 *        	URL of request. If not specified takes from URL::current. If Request, then sets
-	 *        	request
-	 *        	instance to $mixed
 	 * @param array $request
 	 *        	server request name/value pairs. If not specified, uses $_REQUEST
 	 * @param boolean $is_post

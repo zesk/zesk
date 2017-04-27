@@ -1,5 +1,7 @@
 <?php
 
+namespace zesk;
+
 ?><table class="pairs"><?php
 $pairs = to_array($this->content);
 foreach ($pairs as $k => $v) {

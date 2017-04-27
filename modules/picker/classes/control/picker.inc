@@ -12,6 +12,7 @@ use zesk\URL;
 use zesk\Object;
 use zesk\Database_Query_Select;
 use zesk\Object_Iterator;
+use zesk\Control;
 
 /**
  * 
@@ -116,6 +117,7 @@ class Control_Picker extends Control {
 	}
 	protected function initialize() {
 		global $zesk;
+		$this->class = $zesk->objects->resolve($this->class);
 		parent::initialize();
 		$this->class_object = $this->application->class_object($this->class);
 		if (count($this->search_columns) === 0) {
@@ -187,6 +189,12 @@ class Control_Picker extends Control {
 			parent::load();
 		}
 	}
+	public function object_class_css_class() {
+		return strtr(strtolower($this->class), array(
+			"\\" => "-",
+			"_" => "-"
+		));
+	}
 	public function theme_variables() {
 		$class_object = $this->application->class_object($this->class);
 		$name = zesk\Locale::lower(__($class_object->name));
@@ -197,6 +205,7 @@ class Control_Picker extends Control {
 			'description' => $this->option('description'),
 			'inline_picker' => $this->inline_picker(),
 			'object_class' => $this->class,
+			'object_class_css_class' => $this->object_class_css_class(),
 			'class_object' => $class_object,
 			'class_object_name' => $name,
 			"class_object_names" => $names,
@@ -290,7 +299,10 @@ class Control_Picker extends Control {
 		)));
 	}
 	private function _query() {
-		return $this->application->query_select($this->class)->what_object($this->class, "X")->limit(0, $this->option_integer('limit', 25))->order_by($this->option('order_by'));
+		return $this->application->query_select($this->class)
+			->what_object($this->class, "X")
+			->limit(0, $this->option_integer('limit', 25))
+			->order_by($this->option('order_by'));
 	}
 	private function search_results(array $variables, $q) {
 		$query = $this->_query();

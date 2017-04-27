@@ -131,36 +131,3 @@ class Compatibility {
 		}
 	}
 }
-
-/**
- *
- * @deprecated Use strtr instead
- */
-function replace($search, $replace, $mixed) {
-	zesk()->deprecated();
-	if (count($search) === 0) {
-		return $mixed;
-	}
-	if (is_bool($mixed)) {
-		return $mixed;
-	} else if (is_string($mixed)) {
-		return @str_replace($search, $replace, $mixed);
-	} else if (is_array($mixed)) {
-		foreach ($mixed as $k => $v) {
-			$mixed[$k] = replace($search, $replace, $v);
-		}
-		return $mixed;
-	} else {
-		return $mixed;
-	}
-}
-
-/**
- *
- * @deprecated Use strtr instead
- */
-function replace_map(array $map, $mixed) {
-	zesk()->deprecated();
-	return replace(array_keys($map), array_values($map), $mixed);
-}
-

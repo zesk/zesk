@@ -8,7 +8,7 @@
  */
 namespace zesk;
 
-class Control_Radio extends Control_Options {
+class Control_Radio extends Control_Optionss {
 	private function _check_refresh() {
 		if ($this->option_bool("refresh")) {
 			if ($this->request->get($this->name() . "_cont")) {

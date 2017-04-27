@@ -10,12 +10,27 @@ use zesk\Database_Query_Select;
  *
  */
 class Control_Picker_Content_Image extends Control_Picker {
-	protected $class = "Content_Image";
+	/**
+	 * 
+	 * @var string
+	 */
+	protected $class = "zesk\Content_Image";
+	
+	/**
+	 * 
+	 * @var array
+	 */
 	protected $search_columns = array(
 		'X.title',
 		'X.description',
 		'X.path'
 	);
+	
+	/**
+	 * 
+	 * {@inheritDoc}
+	 * @see Control_Picker::hook_query()
+	 */
 	function hook_query(zesk\Database_Query_Select $query) {
 		parent::hook_query($query);
 		
@@ -23,6 +38,12 @@ class Control_Picker_Content_Image extends Control_Picker {
 			"alias" => "user_image"
 		))->where("user_image.id", $this->user());
 	}
+	
+	/**
+	 * 
+	 * {@inheritDoc}
+	 * @see Control_Picker::theme_variables()
+	 */
 	public function theme_variables() {
 		return array(
 			'label_search' => __('Search uploaded images')

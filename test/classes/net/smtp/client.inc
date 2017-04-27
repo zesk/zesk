@@ -1,4 +1,14 @@
 <?php
+/**
+ * 
+ */
+namespace zesk;
+
+/**
+ * 
+ * @author kent
+ *
+ */
 class Test_Net_SMTP_Client extends Test_Unit {
 
 	function test_Net_SMTP_Client() {

@@ -11,5 +11,10 @@
 		"jquery": "vendor/components/jquery"
 	},
 	"share_path": "vendor/components/jquery",
+	"autoload_options": {
+		"class_prefix": "zesk\\",
+		"lower": false
+	},
+	"module_class": "zesk\\Module_jQuery",
 	"url_license": "https://jquery.org/license/"
 }

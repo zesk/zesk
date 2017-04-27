@@ -2,8 +2,7 @@
 /**
  * 
  */
-use zesk\Object;
-use zesk\Database_Query_Select;
+namespace zesk;
 
 /**
  * @see Class_Selection_Query
@@ -16,11 +15,11 @@ class Selection_Query extends Object {
 	 * Fetch or create a query
 	 * 
 	 * @param Selection_Type $type
-	 * @param zesk\Database_Query_Select $total
-	 * @param zesk\Database_Query_Select $list
+	 * @param Database_Query_Select $total
+	 * @param Database_Query_Select $list
 	 * @return self
 	 */
-	public static function instance(Selection_Type $type, zesk\Database_Query_Select $total, zesk\Database_Query_Select $list) {
+	public static function instance(Selection_Type $type, Database_Query_Select $total, Database_Query_Select $list) {
 		$code = md5(serialize(strval($list)));
 		$object = $type->application->object_factory(__CLASS__, array(
 			"type" => $type,
@@ -45,7 +44,7 @@ class Selection_Query extends Object {
 	}
 	public function count() {
 		$query = $this->query_total;
-		if ($query instanceof zesk\Database_Query_Select) {
+		if ($query instanceof Database_Query_Select) {
 			return $query->one_integer("total", 0);
 		}
 		return "unknown";

@@ -1,14 +1,10 @@
 <?php
-if (false) {
-	/* @var $object Object */
-	$object = $this->object;
-	/* @var $request Request */
-	$request = $this->request;
-	/* @var $router Router */
-	$router = $this->router;
-	$action = $this->action;
-}
+namespace zesk;
 
+/* @var $object Object */
+/* @var $request Request */
+/* @var $router Router */
+/* @var $action string */
 if (!$this->getb('show_' . $action)) {
 	return;
 }

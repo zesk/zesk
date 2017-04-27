@@ -15,7 +15,7 @@ class Controller_Login extends Controller_Template {
 	}
 	function action_login() {
 		$this->call_hook('login');
-		$w = $this->widget_factory('Control_Login');
+		$w = $this->widget_factory('zesk\\Control_Login');
 		return $w->execute();
 	}
 	function action_logout() {

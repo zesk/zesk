@@ -1,5 +1,15 @@
 <?php
-class Module_DropFile extends zesk\Module_JSLib {
+/**
+ * 
+ */
+namespace zesk;
+
+/**
+ * 
+ * @author kent
+ *
+ */
+class Module_DropFile extends Module_JSLib {
 	/**
 	 *
 	 * @var array
@@ -7,7 +17,7 @@ class Module_DropFile extends zesk\Module_JSLib {
 	protected $css_paths = array(
 		'/share/dropfile/css/dropfile.css'
 	);
-
+	
 	/**
 	 *
 	 * @var array
@@ -15,19 +25,19 @@ class Module_DropFile extends zesk\Module_JSLib {
 	protected $javascript_paths = array(
 		'/share/dropfile/js/dropfile.js'
 	);
-
+	
 	/**
 	 *
 	 * @var array
 	 */
 	protected $javascript_settings = array();
-
+	
 	/**
 	 *
 	 * @var array
 	 */
 	protected $jquery_ready = array();
-
+	
 	/**
 	 *
 	 * @var array
@@ -43,13 +53,13 @@ class Module_DropFile extends zesk\Module_JSLib {
 		"document_target_class",
 		"allowed_types"
 	);
-
+	
 	/**
 	 *
 	 * @see Module::initialize()
 	 */
 	public function initialize() {
 		$this->javascript_settings = $this->options_include($this->javascript_include_settings);
-		$this->application->configuration->pave_set('Controller_Image_Picker::upload_theme_map::dropfile', 'control/dropfile/image/contents');
+		$this->application->configuration->pave_set('Controller_Image_Picker::upload_theme_map::dropfile', 'zesk/control/dropfile/image/contents');
 	}
 }

@@ -6,8 +6,12 @@
  * @subpackage {subpackage}
  * @copyright Copyright (C) 2016, {company}. All rights reserved.
  */
+namespace zesk;
+
 ?>
 <div class="jumbotron">
-<h1>Unknown user</h1>
-<p>No user known by that name. <a href="/forgot">Try again?</a></p>
+	<h1>Unknown user</h1>
+	<p>
+		No user known by that name. <a href="/forgot">Try again?</a>
+	</p>
 </div>

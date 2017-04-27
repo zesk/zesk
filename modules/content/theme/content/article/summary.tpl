@@ -1,6 +1,6 @@
 <?php
 /**
- * @version $Id: summary.tpl 4073 2016-10-17 19:52:16Z kent $
+ * @version $Id: summary.tpl 4481 2017-03-24 18:21:48Z kent $
  * @package fftt
  * @subpackage theme
  * @author Kent Davidson <kent@marketacumen.com>
@@ -23,7 +23,7 @@ $byline = $object->Byline;
 /* @var $request Request */
 $request = $this->request;
 
-$new_link = path(URL::current_path(), $object->CodeName);
+$new_link = path($request->path(), $object->CodeName);
 
 echo HTML::tag_open("div", '.article-entry');
 if ($object->member_boolean("ShowDisplayDate")) {

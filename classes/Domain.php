@@ -58,11 +58,16 @@ class Domain extends Object {
 	 * @return \zesk\Domain
 	 */
 	static function domain_factory($name) {
-		return new self(array(
+		$domain = new self(array(
 			"name" => $name
 		));
+		return $domain->name_changed();
 	}
 	
+	protected function name_changed() {
+		$this->tld = $this->compute_tld();
+		return $this;
+	}
 	/**
 	 * 
 	 * {@inheritDoc}

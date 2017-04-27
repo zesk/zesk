@@ -1,4 +1,8 @@
 <?php
+/**
+ * 
+ */
+namespace zesk;
 
 /* @var $this \zesk\Template */
 /* @var $zesk \zesk\Kernel */
@@ -10,9 +14,6 @@
 /* @var $response \zesk\Response_Text_HTML */
 /* @var $current_user \User */
 /* @var $object \Server */
-use zesk\HTML;
-use zesk\Timestamp;
-
 $n_secs = Timestamp::now('UTC')->difference($object->alive, "second");
 
 echo HTML::tag('div', '.col-xs-4 .server-name', __("Name"));

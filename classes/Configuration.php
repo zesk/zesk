@@ -1,6 +1,14 @@
 <?php
+/**
+ * 
+ */
 namespace zesk;
 
+/**
+ * 
+ * @author kent
+ *
+ */
 class Configuration implements \Iterator, \Countable, \ArrayAccess {
 	const key_separator = "::";
 	
@@ -100,12 +108,10 @@ class Configuration implements \Iterator, \Countable, \ArrayAccess {
 				if ($value instanceof self && $this_value instanceof self) {
 					$this_value->merge($value, $overwrite);
 				} else if ($overwrite) {
-					$this->_data[$key] = clone $value;
+					$this->_data[$key] = $value instanceof self ? clone $value : $value;
 				}
-			} else if ($value instanceof self) {
-				$this->_data[$key] = clone $value;
 			} else {
-				$this->_data[$key] = $value;
+				$this->_data[$key] = $value instanceof self ? clone $value : $value;
 			}
 		}
 		$this->_count = count($this->_data);
@@ -192,13 +198,13 @@ class Configuration implements \Iterator, \Countable, \ArrayAccess {
 	 * @return mixed
 	 */
 	public function get($key, $default = null) {
-		if (strpos($key, "-")) {
-			zesk()->logger->warning("Fetching key {key} with dash from {func}", array(
+		$key = strtolower($key);
+		if (strpos($key, "-") && !isset($this->_data[$key])) {
+			zesk()->logger->warning("Fetching MISSING key {key} with dash from {func}", array(
 				"key" => $key,
-				"func" => calling_function(0)
+				"func" => calling_function(1)
 			));
 		}
-		$key = strtolower($key);
 		return isset($this->_data[$key]) ? $this->_data[$key] : $default;
 	}
 	
@@ -227,7 +233,7 @@ class Configuration implements \Iterator, \Countable, \ArrayAccess {
 	public function paths_set(array $paths) {
 		$result = array();
 		foreach ($paths as $path => $value) {
-			$result[$path] = $this->pave_set($path, $value);
+			$result[$path] = $this->path_set(to_list($path, array(), self::key_separator), $value);
 		}
 		return $result;
 	}
@@ -292,18 +298,19 @@ class Configuration implements \Iterator, \Countable, \ArrayAccess {
 		$key = strtolower($key);
 		return isset($this->_data[$key]) ? $this->_data[$key] : null;
 	}
-	public function pave_set($path, $value = null) {
-		// 		if (is_array($path)) {
-		// 			$result = array();
-		// 			foreach ($path as $k => $v) {
-		// 				$result[$k] = $this->pave_set($k, $v);
-		// 			}
-		// 			return $result;
-		// 		}
+	
+	/**
+	 * Given a path into the configuration tree, set a value
+	 * 
+	 * @param string|array $path
+	 * @param mixed $value
+	 * @return \zesk\Configuration parent node of final value set
+	 */
+	public function path_set($path, $value = null) {
 		$path = is_array($path) ? $path : explode(self::key_separator, $path);
 		$key = array_pop($path);
 		if (count($key) > 0) {
-			$current = $this->pave($path);
+			$current = $this->path($path);
 			$current->$key = $value;
 			return $current;
 		} else {
@@ -311,13 +318,13 @@ class Configuration implements \Iterator, \Countable, \ArrayAccess {
 			return $this;
 		}
 	}
+	
 	/**
 	 * Ensure configuration path is available
-	 *
 	 * @param array $keys        	
 	 * @return self
 	 */
-	public function pave($keys) {
+	public function path($keys) {
 		$keys = is_array($keys) ? $keys : explode(self::key_separator, $keys);
 		$current = $this;
 		while (count($keys) > 0) {
@@ -330,8 +337,9 @@ class Configuration implements \Iterator, \Countable, \ArrayAccess {
 		}
 		return $current;
 	}
+	
 	/**
-	 * Walk configuration
+	 * Walk configuration and return found value, or default if not found
 	 *
 	 * @param string|list $keys        	
 	 * @param mixed $default        	
@@ -535,19 +543,60 @@ class Configuration implements \Iterator, \Countable, \ArrayAccess {
 	 * @return boolean
 	 */
 	public final function deprecated($old_path, $new_path = null) {
-		$old_exists = $this->path_exists($old_path);
-		if ($new_path == null && $old_exists) {
-			zesk()->logger->warning("Global configuration option {old_path} is deprecated, remove it", compact("old_path"));
-		} else if ($old_exists && !$this->path_exists($new_path)) {
-			$this->pave_set($new_path, $this->path_get($old_path));
-			if (is_array($old_path)) {
-				$old_path = implode(self::key_separator, $old_path);
-			}
-			if (is_array($new_path)) {
-				$new_path = implode(self::key_separator, $new_path);
-			}
-			zesk()->logger->warning("Global configuration option {old_path} is deprecated, use {new_path}", compact("old_path", "new_path"));
-			zesk()->deprecated("$old_path no longer in use, use $new_path");
+		$old_value = $this->walk($old_path);
+		if ($old_value === null) {
+			return;
 		}
+		if ($new_path == null) {
+			zesk()->logger->warning("Global configuration option {old_path} is deprecated, remove it", compact("old_path"));
+			return;
+		}
+		if (!$this->path_exists($new_path)) {
+			$this->path_set($new_path, $this->path_get($old_path));
+			$message = "Global configuration option {old_path} is deprecated, use existing {new_path}";
+		} else {
+			$new_value = $this->walk($new_path);
+			if ($new_value instanceof self && $old_value instanceof self) {
+				$message = "Global configuration option {old_path} is deprecated, use existing {new_path} (merged)";
+				$new_value->merge($old_value);
+				$this->path_set($old_path, null);
+			} else {
+				$message = "Global configuration option {old_path} ({old_type}) is deprecated, use existing {new_path} (NOT merged)";
+			}
+		}
+		if (is_array($old_path)) {
+			$old_path = implode(self::key_separator, $old_path);
+		}
+		if (is_array($new_path)) {
+			$new_path = implode(self::key_separator, $new_path);
+		}
+		$message_args = compact("old_path", "new_path") + array(
+			"old_type" => type($old_value)
+		);
+		zesk()->logger->warning($message, $message_args);
+		zesk()->deprecated($message, $message_args);
+	}
+	
+	/**
+	 * 
+	 * @see self::path_set
+	 * @deprecated 2017-03
+	 * @param string|array $path
+	 * @param mixed $value
+	 * @return \zesk\Configuration parent node of final value set
+	 */
+	public function pave_set($path, $value = null) {
+		return $this->path_set($path, $value);
+	}
+	
+	/**
+	 * Ensure configuration path is available
+	 * @see self::path_set
+	 * @deprecated 2017-03
+	 * @param array $keys        	
+	 * @return self
+	 */
+	public function pave($keys) {
+		return $this->path($keys);
 	}
 }

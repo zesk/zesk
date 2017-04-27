@@ -1,5 +1,7 @@
 <?php
 
+namespace zesk;
+
 class Class_Filter_State extends zesk\Class_Object {
 	public $id_column = "id";
 

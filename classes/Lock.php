@@ -194,6 +194,22 @@ class Lock extends Object {
 			"release_all"
 		));
 	}
+	
+	/**
+	 * Break a lock. PHP5 does not allow functions called "break", PHP7 does.
+	 * 
+	 * @param unknown $code
+	 * @return NULL|\zesk\Lock
+	 */
+	public static function crack($code) {
+		$lock = self::_get_lock($code);
+		if (!$lock) {
+			return null;
+		}
+		$lock->pid = $lock->server = null;
+		return $lock->store();
+	}
+	
 	/**
 	 * Locked by SOMEONE ELSE
 	 * @param unknown $code

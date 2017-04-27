@@ -1,9 +1,10 @@
 <?php
-class Module_jQuery_Form extends zesk\Module {
-	public static function head(zesk\Request $request, Response $response) {
-		$response->jquery();
-		$response->cdn_javascript("/share/jquery-form/jquery.form.js", array(
+namespace zesk;
+
+class Module_jQuery_Form extends Module_JSLib {
+	protected $javascript_paths = array(
+		"/share/jquery-form/jquery.form.js" => array(
 			"share" => true
-		));
-	}
+		)
+	);
 }

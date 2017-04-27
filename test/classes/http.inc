@@ -1,17 +1,26 @@
 <?php
+
+namespace zesk;
+
+/**
+ * 
+ * @author kent
+ *
+ */
 class test_http extends Test_Unit {
 
 	function test_tld() {
 		$x = null;
-		http::tld($x);
+		
+		$x = Domain::domain_factory("test.com")->tld;
 
-		$this->assert('http::tld("conversion.kent.glucose") === ".kent.glucose"');
-		$this->assert('http::tld("www.conversionruler.com") === ".conversionruler.com"');
-		$this->assert('http::tld("hello.www.conversionruler.com") === ".conversionruler.com"');
-		$this->assert('http::tld("test.conversionruler.com") === ".conversionruler.com"');
-		$this->assert('http::tld("another-fucking-thing.roi-tracking.com") === ".roi-tracking.com"');
-		$this->assert('http::tld("Hello") === ".Hello"');
-		$this->assert('http::tld("joe.com") === ".joe.com"');
+		$this->assert('Domain::domain_factory("conversion.kent.glucose")->tld === ".kent.glucose"');
+		$this->assert('Domain::domain_factory("www.conversionruler.com")->tld === ".conversionruler.com"');
+		$this->assert('Domain::domain_factory("hello.www.conversionruler.com")->tld === ".conversionruler.com"');
+		$this->assert('Domain::domain_factory("test.conversionruler.com")->tld === ".conversionruler.com"');
+		$this->assert('Domain::domain_factory("another-fucking-thing.roi-tracking.com")->tld === ".roi-tracking.com"');
+		$this->assert('Domain::domain_factory("Hello")->tld === ".Hello"');
+		$this->assert('Domain::domain_factory("joe.com")->tld === ".joe.com"');
 	}
 
 }
@@ -65,13 +74,13 @@ class test_http extends Test_Unit {
 //$this->assert('URL::protocol_default_port("file") === false');
 //$this->assert('URL::protocol_default_port("foo") === false');
 
-//test_status("http::tld");
-//$this->assert('http::tld("www.conversionruler.com") === ".conversionruler.com"');
-//$this->assert('http::tld("hello.www.conversionruler.com") === ".conversionruler.com"');
-//$this->assert('http::tld("test.conversionruler.com") === ".conversionruler.com"');
-//$this->assert('http::tld("another-fucking-thing.roi-tracking.com") === ".roi-tracking.com"');
-//$this->assert('http::tld("Hello") === ".Hello"');
-//$this->assert('http::tld("joe.com") === ".joe.com"');
+//test_status("Domain::domain_factory");
+//$this->assert('Domain::domain_factory("www.conversionruler.com") === ".conversionruler.com"');
+//$this->assert('Domain::domain_factory("hello.www.conversionruler.com") === ".conversionruler.com"');
+//$this->assert('Domain::domain_factory("test.conversionruler.com") === ".conversionruler.com"');
+//$this->assert('Domain::domain_factory("another-fucking-thing.roi-tracking.com") === ".roi-tracking.com"');
+//$this->assert('Domain::domain_factory("Hello") === ".Hello"');
+//$this->assert('Domain::domain_factory("joe.com") === ".joe.com"');
 
 //test_status("URL::unparse");
 //

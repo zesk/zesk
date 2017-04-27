@@ -13,7 +13,6 @@ namespace zesk;
 /* @var $request \zesk\Request */
 /* @var $response \zesk\Response_Text_HTML */
 /* @var $current_user \User */
-
 $column = $this->column;
 
 $id = "control-picker-selector-q-$column";
@@ -50,9 +49,10 @@ echo HTML::etag('div', array(
 	'style' => 'display: none'
 ), $this->item_selector_none_selected);
 echo HTML::etag('div', '.control-picker-empty', $this->item_selector_empty);
+
 ?>
 <div
-	class="control-picker-results class-<?php echo strtr(strtolower($this->object_class), "_", "-") ?>">
+	class="control-picker-results class-<?php echo $this->object_class_css_class; ?>">
 <?php
 foreach ($this->objects as $object) {
 	$item_content = $this->theme($this->theme_item, array(

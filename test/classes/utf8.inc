@@ -1,6 +1,6 @@
 <?php
 
-use zesk\UTF8;
+namespace zesk;
 
 class test_utf8 extends Test_Unit {
 

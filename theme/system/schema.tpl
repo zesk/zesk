@@ -1,13 +1,18 @@
 <?php
+/* @var $this \zesk\Template */
+/* @var $zesk \zesk\Kernel */
+/* @var $application \zesk\Application */
+/* @var $session \zesk\Session */
+/* @var $router \zesk\Router */
+/* @var $route \zesk\Route */
+/* @var $request \zesk\Request */
+/* @var $response \zesk\Response_Text_HTML */
+namespace zesk;
 
-use zesk\HTML;
+$zesk->newline = "\n";
 
-newline("\n");
+$results = $application->schema_synchronize();
 
-$application = Application::instance();
-$db = $application->database_factory();
-
-$results = $application->schema_synchronize($db);
 echo HTML::tag('ul', HTML::tags('li', $results));
 
 $this->response->content_type = "text/plain";

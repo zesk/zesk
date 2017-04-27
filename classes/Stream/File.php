@@ -1,4 +1,7 @@
 <?php
+
+namespace zesk;
+
 class Stream_File extends Stream {
 
 	protected $filename = null;

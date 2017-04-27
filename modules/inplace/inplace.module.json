@@ -1,0 +1,8 @@
+{
+    "name": "Inplace Editor",
+    "autoload_options": { 
+		"class_prefix": "zesk\\",
+		"autoload_options::lower": true
+	},
+    "module_class": "zesk\\Module_InPlace"
+}

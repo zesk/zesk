@@ -1,6 +1,8 @@
 <?php
-
-use zesk\JSON;
+/**
+ * 
+ */
+namespace zesk;
 
 /**
  * 
@@ -8,28 +10,26 @@ use zesk\JSON;
  *
  */
 class test_json extends Test_Unit {
-
+	
 	/**
 	 * @expected_exception Exception_Parse
 	 */
 	function test_decode() {
 		JSON::decode(null);
 	}
-
 	function test_decode_null() {
 		$this->assert_equal(JSON::decode("null"), null);
 	}
-
 	function test_encode() {
 		$mixed = null;
 		JSON::encode($mixed);
-
+		
 		$mixed = array(
 			array(
 				"Hello" => "Dude",
 				"1241`2" => "odd",
 				"__2341" => 2,
-				"a459123" => new stdClass()
+				"a459123" => new \stdClass()
 			),
 			false,
 			true,
@@ -42,17 +42,14 @@ class test_json extends Test_Unit {
 		);
 		$this->assert_equal(JSON::encode($mixed), '{"0":{"Hello":"Dude","1241`2":"odd","__2341":2,"a459123":{}},"1":false,"2":true,"3":12312312,"4":"A string","5":"A string","don\'t encode result":document.referrer,"6":null,"dog":null}');
 	}
-
 	function test_encodex() {
 		$mixed = null;
 		$this->assert_equal(JSON::encodex($mixed), "null");
 	}
-
 	function test_object_member_name_quote() {
 		$name = null;
 		JSON::object_member_name_quote($name);
 	}
-
 	function test_quote() {
 		$m = null;
 		$this->assert(JSON::quote("this.is.a.word") === "\"this.is.a.word\"");
@@ -61,22 +58,20 @@ class test_json extends Test_Unit {
 		$this->assert(JSON::quote("thingy2") === "\"thingy2\"");
 		$this->assert(JSON::quote("th-ingy2") === "\"th-ingy2\"");
 	}
-
 	function test_valid_member_name() {
 		$name = null;
 		$this->assert_equal(JSON::valid_member_name($name), false);
 	}
-
 	function internal_values() {
-		$obj = new stdClass();
+		$obj = new \stdClass();
 		$obj->foo = "foo";
 		$obj->_thing_to_save = array(
 			"1",
 			"2",
 			"5"
 		);
-		$obj->another = new stdClass();
-
+		$obj->another = new \stdClass();
+		
 		return array(
 			array(
 				null
@@ -118,7 +113,6 @@ class test_json extends Test_Unit {
 		$encode2 = JSON::encode($decode);
 		$this->assert_equal($encode, $encode2);
 	}
-
 	function internal_expected_values() {
 		return array(
 			array(
@@ -194,7 +188,6 @@ class test_json extends Test_Unit {
 				)
 			)
 		);
-
 	}
 	/**
 	 * @data_provider internal_expected_values

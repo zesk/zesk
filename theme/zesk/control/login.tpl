@@ -1,3 +1,3 @@
 <?php
 
-echo $this->theme('control/edit');
+echo $this->theme('zesk/control/edit');

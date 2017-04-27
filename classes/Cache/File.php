@@ -128,8 +128,9 @@ class Cache_File extends Cache {
 	 */
 	public function delete() {
 		if ($this->exists()) {
-			@unlink($this->cache_file_path());
-			clearstatcache(null, $this->cache_file_path());
+			$path = $this->cache_file_path();
+			@unlink($path);
+			clearstatcache(null, $path);
 		}
 	}
 	private static function _disabled_file_exists() {

@@ -708,7 +708,7 @@ class Mail extends Hookable {
 		$matches = null;
 		
 		/* Repair instances where two encodings are together and separated by a space (strip the spaces) */
-		$header = preg_replace(self::rfc2047header_spaces, "$1$2", $header);
+		$header = preg_replace(self::rfc2047header_spaces, "\$1\$2", $header);
 		
 		/* Now see if any encodings exist and match them */
 		if (!preg_match_all(self::rfc2047header, $header, $matches, PREG_SET_ORDER)) {

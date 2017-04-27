@@ -13,12 +13,12 @@ Like most application frameworks, it's useful to be able to run tasks intermitte
 
 Specific examples of cron tasks which run within Zesk:
 
-- `Zesk_Application` - Checks if the schema needs to be updated
-- `Session_Database` - Deletes old sessions every minute
+- `zesk\Application` - Checks if the schema needs to be updated
+- `zesk\Session_Database` - Deletes old sessions every minute
 
 ## Cron features
 
-Cron will run any **static function** in any class of type `Module`, `Application`, or `Object` which has the one of the following function names:
+Cron will run any **static function** in any class of type `zesk\Module`, `zesk\Application`, or `zesk\Object` which has the one of the following function names:
 
 - `cron` - Runs every cron run, on all servers
 - `cron_minute` - Runs every minute, on all servers
@@ -45,7 +45,7 @@ These methods should be declared as
 		}
 	}
 	
-Methods take no parameters and return no values for compatibility with potential upgrades.
+Methods take a single parameter (the application) and return no values for compatibility with potential upgrades.
 
 The suffix indicates the frequency that the cron task will be run.
 
@@ -72,7 +72,7 @@ Cron methods within a specific invocation are not run in any particular order, a
 
 ## Short tasks
 
-Cron tasks should be short tasks, less than a few seconds each. You can set the directive `Module_Cron::elapsed_warn` to the number of seconds you wish to see warnings about.
+Cron tasks should be short tasks, less than a few seconds each. You can set the directive `zesk\Module_Cron::elapsed_warn` to the number of seconds you wish to see warnings about. Cron functions which takes longer than the number of seconds specified will output a warning to the logger.
 
 ## Cron via Command Line
 
@@ -80,15 +80,15 @@ To run cron tasks from the command line, use the `zesk` command line utility, an
 
     zesk cron
 
-This invokes cron using `Command_Cron` located at `$ZESK_ROOT/command/cron.inc`.
+This invokes cron using `zesk\Command_Cron` located at `$ZESK_ROOT/command/cron.php`.
 
 The available settings which change the behavior of cron are:
 
-- `Module_Cron::time_limit` - The number of seconds the cron should run for, by default forever.
+- `zesk\Module_Cron::time_limit` - The number of seconds the cron should run for, by default forever.
 
 You can set this, if desired, via the command line settings, like so:
 
-	zesk --cron::time_limit=600 cron
+	zesk --zesk\\Module_Cron::time_limit=600 cron
 	
 Which will quit after 10 minutes.
 
@@ -102,13 +102,13 @@ On some shared hosts it's impossible to schedule a cron task using crontab. In t
 
 To do so, set the globals:
 
-- `Module_Cron::page_runner` to `true`
+- `zesk\Module_Cron::page_runner` to `true`
 
 This extends your `Router` to add a special page which runs cron, and adds it to every page request. 
 
 ## Debugging Cron tasks
 
-The best way to run cron tasks is to run them via a web browser and use a debugger. Enable `Module_Cron::page_runner` and ensure that the page is added to your web application, then debug the page itself.
+The best way to run cron tasks is to run them via a web browser and use a debugger. Enable `zesk\Module_Cron::page_runner` and ensure that the page is added to your web application, then debug the page itself.
 
 Similarly, you can use
 
@@ -118,8 +118,8 @@ To display the cron tasks which may possibly be run each occurance.
 
 You can run a database query such as:
 
-    DELETE FROM Settings WHERE Name LIKE 'Module_Cron::%'
-    DELETE FROM Server_Data WHERE Name LIKE 'Module_Cron::%'
+    DELETE FROM Settings WHERE Name LIKE 'zesk\Module_Cron::%'
+    DELETE FROM Server_Data WHERE Name LIKE 'zesk\Module_Cron::%'
 
 It will run then every cron task on each page request. Do this with caution in live environments.
 

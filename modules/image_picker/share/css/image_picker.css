@@ -7,13 +7,13 @@
 .control-picker-selector .image-picker-dropfile:hover {
   border: 3px dashed #ff0000;
 }
-.control-picker-selector .control-picker-results.class-content_image .item {
+.control-picker-selector .control-picker-results.class-zesk-content-image .item {
   position: relative;
   padding: 0;
   border-radius: 4px;
   margin: 10px;
 }
-.control-picker-selector .control-picker-results.class-content_image .item .image-picker-item {
+.control-picker-selector .control-picker-results.class-zesk-content-image .item .image-picker-item {
   float: left;
   border-radius: 4px;
   padding: 5px;
@@ -23,21 +23,21 @@
   background-color: white;
   border: 5px solid #ffffff !important;
 }
-.control-picker-selector .control-picker-results.class-content_image .item .image-picker-item .content-image {
+.control-picker-selector .control-picker-results.class-zesk-content-image .item .image-picker-item .content-image {
   margin: 0 auto;
   text-align: center;
 }
-.control-picker-selector .control-picker-results.class-content_image .item .image-picker-item:hover {
+.control-picker-selector .control-picker-results.class-zesk-content-image .item .image-picker-item:hover {
   border: 5px solid #ff0000 !important;
 }
-.control-picker-selector .control-picker-results.class-content_image .item label {
+.control-picker-selector .control-picker-results.class-zesk-content-image .item label {
   display: block;
   border: none;
   padding: 0 5px 0;
   text-align: left;
   width: 195px;
 }
-.control-picker-selector .control-picker-results.class-content_image .item .action-delete {
+.control-picker-selector .control-picker-results.class-zesk-content-image .item .action-delete {
   position: absolute;
   right: 5px;
   top: 5px;
@@ -52,7 +52,7 @@
   border: 2px solid black;
   background-color: white;
 }
-.control-picker-selector .control-picker-results.class-content_image .item .action-delete:hover {
+.control-picker-selector .control-picker-results.class-zesk-content-image .item .action-delete:hover {
   text-decoration: none;
   border: 2px solid red;
   background-color: black;

@@ -737,7 +737,7 @@ class Class_Object extends Hookable {
 		if (count(self::$defer_class_links) === 0) {
 			return;
 		}
-		foreach ($this->application->zesk->classes->hierarchy($class) as $parent_class) {
+		foreach (zesk()->classes->hierarchy($class) as $parent_class) {
 			$lowclass = strtolower($parent_class);
 			if (array_key_exists($lowclass, self::$defer_class_links)) {
 				foreach (self::$defer_class_links[$lowclass] as $member => $many_spec) {
@@ -752,7 +752,7 @@ class Class_Object extends Hookable {
 		if (!array_key_exists('class', $many_spec)) {
 			throw new Exception_Semantics("many_spec for class {class} must contain key 'class' for member {member}", compact("class", "member"));
 		}
-		$class = $many_spec['class'];
+		$class = $this->application->objects->resolve($many_spec['class']);
 		if (avalue($many_spec, 'default')) {
 			arr::prepend($this->has_many_objects, $class, $member);
 		} else {
@@ -1373,7 +1373,7 @@ class Class_Object extends Hookable {
 		
 		$class = $many_spec['class'];
 		if (!$link instanceof $class) {
-			throw new Exception_Semantics(get_class($link) . " is not an instanceof of $class");
+			throw new Exception_Semantics(get_class($link) . " is not an instanceof $class");
 		}
 		$table = avalue($many_spec, 'table');
 		$foreign_key = $many_spec['foreign_key'];
@@ -1499,7 +1499,11 @@ class Class_Object extends Hookable {
 		global $zesk;
 		/* @var $zesk Kernel */
 		try {
-			return $zesk->objects->factory("Schema_" . $this->class, $this, $object);
+			list($namespace, $class) = pairr($this->class, "\\", "", $this->class);
+			if ($namespace) {
+				$namespace .= "\\";
+			}
+			return $zesk->objects->factory($namespace . "Schema_" . $class, $this, $object);
 		} catch (Exception_Class_NotFound $e) {
 			$schema = new Database_Schema_File($this, $object, $sql);
 			if ($schema->exists() || $schema->has_sql()) {

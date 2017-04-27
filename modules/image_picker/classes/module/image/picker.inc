@@ -35,7 +35,7 @@ class Module_Image_Picker extends zesk\Module_JSLib {
 		$router->add_route('imagepicker', array(
 			'controller' => 'Image_Picker'
 		));
-		$router->add_route('imagepicker/image/{Content_Image image}/delete', array(
+		$router->add_route('imagepicker/image/{zesk\Content_Image image}/delete', array(
 			'controller' => 'Image_Picker',
 			'action' => 'image_delete',
 			'arguments' => array(
@@ -60,7 +60,7 @@ class Module_Image_Picker extends zesk\Module_JSLib {
 			$toolbar = $module->tinymce_toolbar();
 			$toolbar = lists::remove($toolbar, 'image', ' ');
 			$module->tinymce_toolbar("$toolbar image_picker image");
-		} catch (Exception_NotFound $e) {
+		} catch (\zesk\Exception_NotFound $e) {
 		}
 	}
 }

@@ -2,12 +2,7 @@
 /**
  * 
  */
-use zesk\Mail;
-use zesk\Timer;
-use zesk\URL;
-use zesk\System;
-use zesk\UTF8;
-use zesk\Net_POP_Client;
+// namespace zesk;
 
 /**
  * 

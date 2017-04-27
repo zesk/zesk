@@ -1,4 +1,7 @@
 <?php
+
+namespace zesk;
+
 class test_utf16 extends Test_Unit {
 
 	function test_decode() {

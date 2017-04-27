@@ -93,6 +93,15 @@ class Objects {
 	public function __construct(Kernel $zesk) {
 	}
 	
+	public function reset() {
+		$this->settings = null;
+		$this->databases = array();
+		$this->user = null;
+		$this->session = null;
+		$this->singletons = array();
+		$this->debug = array();
+		$this->mapping = array();
+	}
 	/**
 	 * Provide a mapping for when internal classes need to be overridden by applications.
 	 * <code>

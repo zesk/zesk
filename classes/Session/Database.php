@@ -11,6 +11,8 @@
 namespace zesk;
 
 /**
+ * Sessions inherit some options from the global Application object in the initialize() function
+ * 
  * @see Class_Session_Database
  * @property id $id
  * @property string $cookie
@@ -67,6 +69,7 @@ class Session_Database extends Object implements Interface_Session {
 	function initialize($value, $from_database = false) {
 		$result = parent::initialize($value, $from_database);
 		$this->changed = false;
+		$this->set_option($this->application->option_array("session"));
 		return $result;
 	}
 	function fetch($mixed = null) {
@@ -94,33 +97,33 @@ class Session_Database extends Object implements Interface_Session {
 		$zesk->hooks->add('exit', __CLASS__ . '::save');
 	}
 	public static function configured(Application $application) {
-		$application->configuration->deprecated(array(
+		// 2017-01-01
+		foreach (array(
 			"Session",
-			"cookie_name"
-		), array(
-			"zesk\Application",
-			"session",
-			"cookie",
-			"name"
-		));
-		$application->configuration->deprecated(array(
-			"Session",
-			"cookie_expire"
-		), array(
-			"zesk\Application",
-			"session",
-			"cookie",
-			"expire"
-		));
-		$application->configuration->deprecated(array(
-			"Session",
-			"cookie_expire_round"
-		), array(
-			"zesk\Application",
-			"session",
-			"cookie",
-			"expire_round"
-		));
+			"zesk\\Session"
+		) as $class) {
+			$application->configuration->deprecated(array(
+				$class,
+				"cookie_name"
+			), array(
+				"zesk\Application",
+				"session",
+				"cookie",
+				"name"
+			));
+			$application->configuration->deprecated(array(
+				$class,
+				"cookie_expire"
+			), array(
+				"zesk\Application",
+				"session",
+				"cookie",
+				"expire"
+			));
+		}
+		$application->configuration->deprecated("Session::cookie_expire_round");
+		$application->configuration->deprecated("zesk\\Session::cookie_expire_round");
+		$application->configuration->deprecated("zesk\Application::session::cookie::expire_round");
 	}
 	function store() {
 		if (self::$nosession) {
@@ -137,18 +140,7 @@ class Session_Database extends Object implements Interface_Session {
 		return $this;
 	}
 	public function cookie_expire() {
-		return to_integer($this->application->option_path("session.cookie.expire"), 604800);
-	}
-	
-	/**
-	 * Global which indicates to what unit of time we should round the cookie expiration date.
-	 * This avoids having the cookie appear to have "changed" in FireBug every time a request is
-	 * made to the server.
-	 *
-	 * @return integer Seconds by which to round the cookie expiration date
-	 */
-	public static function cookie_expire_round() {
-		return zesk()->configuration->path_get("Session::cookie_expire_round", 3600); // 1 hour is default
+		return to_integer($this->option_path("cookie.expire"), 604800);
 	}
 	
 	/**
@@ -169,7 +161,7 @@ class Session_Database extends Object implements Interface_Session {
 		$cookieExpire = $this->cookie_expire();
 		$this->set_member("user", $user_id);
 		if ($ip === null) {
-			$ip = IPv4::remote();
+			$ip = $this->application->request()->ip();
 		}
 		$this->set_member("ip", $ip);
 		$this->set_member("expires", Timestamp::now()->add_unit("second", $cookieExpire));
@@ -257,7 +249,7 @@ class Session_Database extends Object implements Interface_Session {
 		return $set;
 	}
 	private function cookie_name() {
-		return $this->application->option("session_cookie_name", "ZCOOKIE");
+		return $this->option_path("cookie.name", "ZCOOKIE");
 	}
 	
 	/**
@@ -280,7 +272,7 @@ class Session_Database extends Object implements Interface_Session {
 		$expires = $this->compute_expires();
 		$this->set_member('cookie', $cookie_value);
 		$this->set_member('expires', $expires);
-		$this->set_member('ip', IPv4::remote());
+		$this->set_member('ip', $request->ip());
 		$this->set_member('data', to_array($this->data) + array(
 			'uri' => $application->request()->uri()
 		));
@@ -309,9 +301,13 @@ class Session_Database extends Object implements Interface_Session {
 			/* @var $zesk Kernel */
 			$expire_seconds = to_integer($zesk->configuration->Session->one_time_expire_seconds, 86400);
 		}
+		$app = app();
 		
-		Object::class_query_delete('Session_Database')->where('is_one_time', true)->where('user', $user)->execute();
-		$session = new Session_Database();
+		$app->query_delete(__CLASS__)
+			->where('is_one_time', true)
+			->where('user', $user)
+			->execute();
+		$session = $app->object_factory(__CLASS__);
 		$session->set_member(array(
 			'cookie' => self::_generate_cookie(),
 			'is_one_time' => true,
@@ -323,7 +319,7 @@ class Session_Database extends Object implements Interface_Session {
 	}
 	public static function one_time_find($hash) {
 		$hash = trim($hash);
-		$onetime = new Session_Database();
+		$onetime = app()->object_factory(__CLASS__);
 		if ($onetime->find(array(
 			"cookie" => $hash,
 			"is_one_time" => true

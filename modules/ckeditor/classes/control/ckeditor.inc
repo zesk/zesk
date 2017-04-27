@@ -1,4 +1,6 @@
 <?php
+namespace zesk;
+
 /**
  * @package zesk
  * @subpackage control
@@ -15,16 +17,16 @@ class Control_CKEditor extends Control_Text {
 	 * @return FCKeditor
 	 */
 	private function fck_path() {
-		return rtrim($this->option("fck_path", _G('Control_RichText::fck_path', '/share/zesk/widgets/fckeditor/')), '/') . '/';
+		return rtrim($this->option("fck_path", $this->option('fck_path', '/share/ckeditor/widgets/fckeditor/')), '/') . '/';
 	}
 	private function fck() {
 		require_once ZESK_ROOT . 'lib/fckeditor/fckeditor_php5.php';
 		
-		if ($this->FCKEditor instanceof FCKeditor) {
+		if ($this->FCKEditor instanceof \FCKeditor) {
 			return $this->FCKEditor;
 		}
 		
-		$fck = new FCKeditor($this->column());
+		$fck = new \FCKeditor($this->column());
 		// N.B. FCKEditor must be hosted locally
 		$fck->BasePath = $this->fck_path();
 		list($rows, $cols) = $this->dimensions();

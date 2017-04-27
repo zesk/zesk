@@ -6,7 +6,7 @@ $this->response->javascript('/share/zesk/jquery/jquery.autoresize.js');
 $this->response->javascript('/share/markdown/markdown.js');
 $this->response->css('/share/markdown/markdown.css');
 ?>
-<table width="100%">
+<table style="width: 100%">
 	<tr>
 		<td valign="top" width="50%"><textarea style="width: 100%"
 				class="markdown" id="markdown"

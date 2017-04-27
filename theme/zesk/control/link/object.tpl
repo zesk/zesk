@@ -1,5 +1,5 @@
 <?php
-use zesk\HTML;
+namespace zesk;
 
 /* @var $this \zesk\Template */
 /* @var $zesk \zesk\Kernel */
@@ -14,7 +14,6 @@ use zesk\HTML;
 /* @var $link_widget Widget */
 /* @var $object \zesk\Model */
 /* @var $widget Widget */
-
 $link_widget = $this->link_widget;
 
 $widget = $this->widget;
@@ -61,7 +60,7 @@ $n_extras = 0;
 if ($n_objects < $minimum_objects) {
 	$n_extras = $minimum_objects - $n_objects;
 }
-for($i = 0; $i < $n_extras; $i++) {
+for ($i = 0; $i < $n_extras; $i++) {
 	echo $blank_widget;
 }
 

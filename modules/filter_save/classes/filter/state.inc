@@ -1,5 +1,7 @@
 <?php
 
+namespace zesk;
+
 /**
  * Save and restore filter states in list views
  * 

@@ -51,7 +51,7 @@ class Health_Event extends Object {
 	 */
 	public static function event_log(array $event, $path) {
 		global $zesk;
-		/* @var $zesk \zesk\Kernel */
+		/* @var $zesk Kernel */
 		
 		$microtime = microtime(true);
 		$event['when'] = $when = gmdate("Y-m-d H:i:s", $microtime);
@@ -92,7 +92,7 @@ class Health_Event extends Object {
 	 */
 	public static function event_defer($path, $file, $name) {
 		global $zesk;
-		/* @var $zesk \zesk\Kernel */
+		/* @var $zesk Kernel */
 		$defer_event_path = path($path, $name);
 		Directory::depend($defer_event_path);
 		rename($file, path($defer_event_path, basename($file)));
@@ -106,7 +106,7 @@ class Health_Event extends Object {
 	 */
 	public static function event_process($path) {
 		global $zesk;
-		/* @var $zesk \zesk\Kernel */
+		/* @var $zesk Kernel */
 		$updated_file_path = path($path, self::updated_file);
 		clearstatcache(true, $updated_file_path);
 		if (!file_exists($updated_file_path)) {
@@ -171,7 +171,7 @@ class Health_Event extends Object {
 	 */
 	public function deduplicate() {
 		global $zesk;
-		/* @var $zesk \zesk\Kernel */
+		/* @var $zesk Kernel */
 		$n_samples = $this->option_integer("keep_duplicates", 10);
 		$n_found = $this->application->query_select(__CLASS__)->what("*n", "COUNT(id)")->where("events", $this->events)->one_integer("n");
 		if ($n_found > $n_samples) {

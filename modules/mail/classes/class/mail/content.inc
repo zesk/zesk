@@ -4,15 +4,17 @@
  * @author kent
  *
  */
-class Class_Mail_Content extends zesk\Class_Object {
+namespace zesk;
+
+class Class_Mail_Content extends Class_Object {
 	public $find_keys = array(
 		'mail',
 		'content_id',
 		'content_data'
 	);
 	public $has_one = array(
-		'mail' => 'Mail_Message',
-		'content_data' => 'Content_Data'
+		'mail' => 'zesk\\Mail_Message',
+		'content_data' => 'zesk\\Content_Data'
 	);
 	public $column_defaults = array(
 		'disposition' => '',

@@ -1,14 +1,15 @@
 <?php
+namespace zesk;
 
-class Class_Help_User extends zesk\Class_Object {
+class Class_Help_User extends Class_Object {
 	public $primary_keys = array(
 		'help',
 		'user'
 	);
 
 	public $has_one = array(
-		'help' => 'Help',
-		'user' => 'User'
+		'help' => 'zesk\\Help',
+		'user' => 'zesk\\User'
 	);
 	public $column_types = array(
 		'help' => self::type_object,

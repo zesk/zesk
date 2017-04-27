@@ -26,7 +26,7 @@ class Control_Settings extends Control {
 	 * @see Widget::model()
 	 */
 	public function model() {
-		return new Model_Settings();
+		return $this->application->objects->factory(__NAMESPACE__ . "\\Model_Settings");
 	}
 	protected function initialize() {
 		if (!$this->submit_url()) {
@@ -45,6 +45,8 @@ class Control_Settings extends Control {
 		foreach ($this->all_children() as $child) {
 			if ($child->option_bool("settings_ignore")) {
 				$this->object->ignore_variable($child->name());
+			} else {
+				$this->object->allow_variable($child->name());
 			}
 		}
 	}

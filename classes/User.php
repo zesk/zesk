@@ -10,11 +10,11 @@
 namespace zesk;
 
 /**
- *
+ * Represents a means of authentication to an application. 
+ * 
  * @see Class_User
  *
  * @author kent
- *        
  */
 class User extends Object {
 	
@@ -25,7 +25,8 @@ class User extends Object {
 	public static $debug_permission = false;
 	
 	/**
-	 *
+	 * Syntactic sygar; types this member.
+	 * 
 	 * @var Class_User
 	 */
 	protected $class = null;

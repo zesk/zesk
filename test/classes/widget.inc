@@ -1,4 +1,6 @@
 <?php
+namespace zesk;
+
 class Test_Widget extends Test_Unit {
 
 	function test_default_options() {

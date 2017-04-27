@@ -1,11 +1,15 @@
 <?php
+/**
+ * 
+ */
+namespace zesk;
 
 /**
  * @see Selection_Type
  * @author kent
  *
  */
-class Class_Selection_Type extends zesk\Class_Object {
+class Class_Selection_Type extends Class_Object {
 	public $id_column = "id";
 
 	public $find_keys = array(
@@ -14,7 +18,7 @@ class Class_Selection_Type extends zesk\Class_Object {
 	);
 
 	public $has_one = array(
-		"user" => "User"
+		"user" => "zesk\\User"
 	);
 	public $column_types = array(
 		"id" => self::type_id,
@@ -26,11 +30,11 @@ class Class_Selection_Type extends zesk\Class_Object {
 
 	public $has_many = array(
 		'items' => array(
-			'class' => "Selection_Item",
+			'class' => "zesk\\Selection_Item",
 			"foreign_key" => "type"
 		),
 		'queries' => array(
-			"class" => "Selection_Query",
+			"class" => "zesk\\Selection_Query",
 			"foreign_key" => "type",
 			"order_by" => "order_index",
 		)

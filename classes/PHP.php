@@ -194,7 +194,7 @@ class PHP {
 			$result .= str_repeat($this->indent_char, $indent_level * $this->indent_multiple) . $this->array_close_parenthesis_prefix . ")" . $this->array_close_parenthesis_suffix;
 			return $result;
 		} else if (is_string($x)) {
-			return '"' . addcslashes($x, "'\0..\37") . '"';
+			return '"' . addcslashes($x, "\"\\\0..\37") . '"';
 		} else if (is_integer($x)) {
 			return "$x";
 		} else if ($x === null) {
@@ -400,6 +400,33 @@ class PHP {
 			return JSON::decode($value, true);
 		}
 		return $value;
+	}
+
+	/**
+	 * Given a class with a namespace, return just the class portion.
+	 *
+	 * e.g. PHP::parse_class("zesk\Dude") === "Dude"
+	 *
+	 * @todo Does PHP have a native function which does this?
+	 * @param unknown $class
+	 * @return A
+	 */
+	public static function parse_class($class) {
+		list($ns, $cl) = pairr($class, "\\", null, $class);
+		return $cl;
+	}
+	
+	/**
+	 * Given a class with a namespace, return just the class portion.
+	 * 
+	 * e.g. PHP::parse_class("zesk\Dude") === "Dude"
+	 * 
+	 * @param unknown $class
+	 * @return A
+	 */
+	public static function parse_namespace($class) {
+		list($ns, $cl) = pairr($class, "\\", null, $class);
+		return $ns;
 	}
 }
 

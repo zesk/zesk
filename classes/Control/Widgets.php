@@ -48,9 +48,9 @@ class Control_Widgets extends Control {
 		$valid = true;
 		foreach ($this->children as $w) {
 			/* @var $w Widget */
-			if (/*$w->check_condition($object)*/true) {
-				$r = $w->validate();
-				if (!$r) {
+			$r = $w->validate();
+			if (!$r) {
+				if ($this->option_bool("generate_child_errors")) {
 					$__ = array(
 						"name" => $w->name,
 						"error" => _dump($w->error())
@@ -58,9 +58,9 @@ class Control_Widgets extends Control {
 					$message = "Widget {name} failed validation: {error}";
 					$this->application->logger->debug($message, $__);
 					$w->error(__($message, $__), $w->column() . "_raw");
-					$valid = false;
-					$this->error($w);
 				}
+				$valid = false;
+				$this->error($w);
 			}
 		}
 		if (!$valid && !$this->required()) {

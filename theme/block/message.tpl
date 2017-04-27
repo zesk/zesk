@@ -1,28 +1,16 @@
 <?php
-if (false) {
-	/* @var $this zesk\Template */
-	
-	$zesk = $this->zesk;
-	/* @var $zesk zesk\Kernel */
-	
-	$application = $this->application;
-	/* @var $application Application */
-	
-	$session = $this->session;
-	/* @var $session Session */
-	
-	$router = $this->router;
-	/* @var $request Router */
-	
-	$request = $this->request;
-	/* @var $request Request */
-	
-	$response = $this->response;
-	/* @var $response zesk\Response_Text_HTML */
-	
-	$current_user = $this->current_user;
-	/* @var $current_user User */
-}
+namespace zesk;
+
+/* @var $this \zesk\Template */
+/* @var $zesk \zesk\Kernel */
+/* @var $application \zesk\Application */
+/* @var $session \zesk\Session */
+/* @var $router \zesk\Router */
+/* @var $route \zesk\Route */
+/* @var $request \zesk\Request */
+/* @var $response \zesk\Response_Text_HTML */
+/* @var $current_user \zesk\User */
+
 if (!$response instanceof Response) {
 	$response = $application->response();
 }

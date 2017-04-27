@@ -26,7 +26,10 @@ class Deploy extends Hookable {
 	public static function settings_maintenance($path, Settings $settings) {
 		global $zesk;
 		
-		$options = to_array($settings->deploy);
+		$setting_name = __CLASS__ . "::state";
+		$settings->deprecated("deploy", $setting_name);
+		$options = to_array($settings->get($setting_name));
+		
 		$deploy = new Deploy($path, $options);
 		if ($deploy->failed()) {
 			$deploy->reset(true);
@@ -34,7 +37,7 @@ class Deploy extends Hookable {
 		if (($lock = Lock::get_lock('deploy')) !== null) {
 			$deploy->_maintenance();
 			$results = $deploy->option();
-			$settings->deploy = $results;
+			$settings->set($setting_name, $results);
 			$settings->flush();
 			$lock->release();
 		} else {
@@ -68,7 +71,7 @@ class Deploy extends Hookable {
 		parent::__construct($options);
 		$this->call_hook('construct');
 	}
-	private static function _parse_tag($subpath) {
+	private  function _parse_tag($subpath) {
 		$tag = array();
 		$filename = $extension = null;
 		extract(pathinfo($subpath), EXTR_IF_EXISTS);
@@ -77,17 +80,16 @@ class Deploy extends Hookable {
 		if (!is_file($subpath)) {
 			return null;
 		}
-		if (!in_array($extension, array(
-			'tpl',
-			'sql',
-			'inc'
-		))) {
+		if (!$this->extension_is_handled($extension)) {
 			return null;
 		}
 		$tag['path'] = $subpath;
 		$tag['extension'] = $extension;
 		$tag['name'] = $filename;
 		return $tag;
+	}
+	private function extension_is_handled($extension) {
+		return method_exists($this, "hook_extension_$extension");
 	}
 	private function load_tags() {
 		$last_tag = $this->option('last_tag');
@@ -98,7 +100,7 @@ class Deploy extends Hookable {
 		}
 		$tags = $result = array();
 		foreach ($subpaths as $subpath) {
-			$tag = self::_parse_tag($subpath);
+			$tag =$this->_parse_tag($subpath);
 			if ($tag === null) {
 				$this->skipped[] = $subpath;
 				continue;

@@ -1,5 +1,7 @@
 <?php
 
+namespace zesk;
+
 $content = $this->content;
 if (is_array($content)) {
 	$result = array();
