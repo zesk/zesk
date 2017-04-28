@@ -45,6 +45,6 @@ class Locale_DE extends Locale_Base {
 		if ($preferred_prefix === null) {
 			$preferred_prefix = "Kein";
 		}
-		return \str::case_match($preferred_prefix . $word, $word);
+		return str::case_match($preferred_prefix . $word, $word);
 	}
 }

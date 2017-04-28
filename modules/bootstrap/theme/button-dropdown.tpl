@@ -1,5 +1,7 @@
 <?php
 
+namespace zesk;
+
 $style = $this->style;
 if ($style && !begins($style, "btn-")) {
 	$style = "btn-";

@@ -28,7 +28,9 @@ To change to a directory prior or during command invocation:
 
 To set a global value in Zesk prior to invoking a command, the --set parameter allows setting of globals in Zesk via `zesk::set`.
 
-   zesk --set database::debug=1 update
+   zesk --set zesk\\database::debug=1 update
+
+Be sure to use proper backslash escaping when using the command line.
 
 ## --[variable]  &middot; *Set arbitrary global to true*
 
@@ -42,6 +44,14 @@ Similarly, you can specify a value for the global as value
 
 	zesk --log_path=$HOME/log update
 	
+## --define [variable]=[value]  &middot; *Set arbitrary global to string value*
+
+Similarly, you can define a variable before loading the application context:
+
+	zesk --define PHPUNIT update
+
+If the value (and the `=`) are not supplied, then the variable is defined to be `true`.
+
 ## --unset variable
 
 Unset a previously set variable.

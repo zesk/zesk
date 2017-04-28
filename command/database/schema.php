@@ -99,8 +99,14 @@ class Command_Database_Schema extends Command_Base {
 		$hook_type = "schema_$suffix";
 		$app = $this->application;
 		$all = $app->modules->all_hook_list($hook_type);
+		if (count($all) !== 0) {
+			$hooks_strings = array();
+			foreach ($all as $hook) {
+				$hooks_strings[] = $app->hooks->callable_string($hook);
+			}
+		}
 		$zesk->logger->notice("Running module $suffix hooks {hooks}", array(
-			"hooks" => $all ? $all : "- no hooks found"
+			"hooks" => $hooks_strings ? implode(", ", $hooks_strings) : "- no hooks found"
 		));
 		$app->modules->all_hook_arguments($hook_type, array(
 			$this->application

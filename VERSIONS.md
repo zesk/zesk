@@ -14,6 +14,7 @@ As well, the following changes occurred:
 - `Process_Group` has been removed (use `zesk\Command_Daemon` functionality)
 - `Router::add_default_route` has been removed.
 - `Router::controller_prefixes()` and related members and calls have been removed
+- `zesk update` now by default will **not** update your composer lock file, except if a requirement is added which is not already included in it. To update the composer lock, use `zesk update --composer-update` to always update dependencies in composer, or do `php composer.phar update` from the command line after `zesk update`.
 
 The following classes are now in the `zesk\` namespace:
 

@@ -6,9 +6,20 @@
  * @author kent
  * @copyright Copyright &copy; 2010, Market Acumen, Inc.
  */
-class Contact_Builder_Date extends Contact_Builder_Base {
-	protected $contact_class = "Contact_Date";
+namespace zesk;
 
+class Contact_Builder_Date extends Contact_Builder_Base {
+	/**
+	 * 
+	 * @var string
+	 */
+	protected $contact_class = "zesk\\Contact_Date";
+	
+	/**
+	 * 
+	 * {@inheritDoc}
+	 * @see \zesk\Contact_Builder_Base::process()
+	 */
 	function process(Contact_Import $import, $key, $value) {
 		if (!is_date($value)) {
 			throw new Exception_Syntax(__("Not a valid date."));
@@ -17,16 +28,16 @@ class Contact_Builder_Date extends Contact_Builder_Base {
 		if (in_array($value, $empty_values)) {
 			return;
 		}
-
+		
 		$data = array(
-			'Value' => $value
+			'value' => $value
 		) + $this->data;
 		$map = array(
 			'key' => $key
 		);
 		$data = map($data, $map);
-
-		$import->merge_item($this->contact_class, $data['Value'], $data);
+		
+		$import->merge_item($this->contact_class, $data['value'], $data);
 		return true;
 	}
 }

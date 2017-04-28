@@ -4,8 +4,6 @@
  */
 namespace zesk;
 
-use \Test_Unit;
-
 /**
  * Run automated tests in a variety of formats.
  *

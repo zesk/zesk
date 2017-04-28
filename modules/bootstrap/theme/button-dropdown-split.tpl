@@ -1,4 +1,5 @@
 <?php
+namespace zesk;
 
 $style = $this->style || $this->arg2;
 if ($style && !begins($style, "btn-")) {

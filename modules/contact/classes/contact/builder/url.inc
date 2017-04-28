@@ -6,10 +6,25 @@
  * @author kent
  * @copyright Copyright &copy; 2010, Market Acumen, Inc.
  */
+namespace zesk;
 
+/**
+ * 
+ * @author kent
+ *
+ */
 class Contact_Builder_URL extends Contact_Builder_Base {
-	protected $contact_class = "Contact_Phone";
-
+	/**
+	 * 
+	 * @var string
+	 */
+	protected $contact_class = "zesk\\Contact_Phone";
+	
+	/**
+	 * 
+	 * {@inheritDoc}
+	 * @see \zesk\Contact_Builder_Base::process()
+	 */
 	function process(Contact_Import $import, $key, $value) {
 		if (!URL::valid($value)) {
 			throw new Exception_Syntax(__("Not a valid url: \"$value\""));

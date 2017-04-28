@@ -6,6 +6,8 @@
  * @author kent
  * @copyright Copyright &copy; 2010, Market Acumen, Inc.
  */
+namespace zesk;
+
 class Contact_Import_Outlook extends Contact_Import {
 	function empty_date_values() {
 		return array(

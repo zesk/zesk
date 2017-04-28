@@ -72,7 +72,6 @@ class Command_Loader {
 		$_ZESK['zesk']['command'] = true; // TODO Is this actually looked at anywere?
 		$_ZESK['zesk\application']['configure_options']['skip_configured'] = true; // TODO confirm this now used
 		
-
 		ini_set('error_prepend_string', "\nPHP-ERROR " . str_repeat("=", 80) . "\n");
 		ini_set('error_append_string', "\n" . str_repeat("*", 80) . "\n");
 	}
@@ -306,6 +305,7 @@ class Command_Loader {
 		$message[] = "Loads an application context, then runs a bunch of commands in order, optionally setting globals beforehand.";
 		$message[] = "You can pass a --set name=value to set a zesk global at any point in the command";
 		$message[] = "As well, --name=value does the same, doing --variable sets the value to true";
+		$message[] = "Finally, --define name=value defines a name in the PHP scope, or --define name defines name to be true";
 		
 		fwrite(STDERR, implode("\n", $message) . "\n");
 		exit($exit_code);
@@ -499,7 +499,7 @@ class Command_Loader {
 	/**
 	 * Handle --cd
 	 *
-	 * @param array $argv        	
+	 * @param array $argv
 	 * @return aray
 	 */
 	private function handle_cd(array $argv) {
@@ -511,6 +511,29 @@ class Command_Loader {
 			$this->usage("$arg is not a directory to --cd to");
 		}
 		chdir($arg);
+		return $argv;
+	}
+	
+	/**
+	 * Handle --define
+	 *
+	 * @param array $argv        	
+	 * @return aray
+	 */
+	private function handle_define(array $argv) {
+		$arg = array_shift($argv);
+		if ($arg === null) {
+			$this->usage("--cd missing argument");
+		}
+		list($name, $value) = explode("=", $arg, 2) + array(
+			$arg,
+			true
+		);
+		if (!defined($name)) {
+			define($name, $value);
+		} else {
+			$this->error("$name command line definition is already defined");
+		}
 		return $argv;
 	}
 	

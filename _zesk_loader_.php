@@ -1,6 +1,6 @@
 <?php
 /**
- * Sample application.inc file - Copy this to your application root and rename it
+ * Sample application.php file - Copy this to your application root and rename it if not using Composer with Zesk
  *
  * <code>myapp.application.inc</code>
  *

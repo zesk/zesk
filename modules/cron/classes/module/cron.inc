@@ -112,7 +112,7 @@ class Module_Cron extends Module {
 	 * @param numeric|string $return_hint
 	 * @return mixed
 	 */
-	public function _result_callback($method, $previous_result, $new_result, array &$arguments, $return_hint) {
+	public function _result_callback($method, $previous_result, $new_result, array $arguments, $return_hint) {
 		global $zesk;
 		/* @var $zesk Kernel */
 		$elapsed = microtime(true) - $this->start;

@@ -7,9 +7,25 @@
  * @copyright Copyright &copy; 2010, Market Acumen, Inc.
  */
 
-class Contact_Builder_Address extends Contact_Builder_Base {
-	protected $contact_class = "Contact_Address";
+namespace zesk;
 
+/**
+ * 
+ * @author kent
+ *
+ */
+class Contact_Builder_Address extends Contact_Builder_Base {
+	/**
+	 * 
+	 * @var string
+	 */
+	protected $contact_class = "zesk\\Contact_Address";
+
+	/**
+	 * 
+	 * {@inheritDoc}
+	 * @see \zesk\Contact_Builder_Base::process()
+	 */
 	function process(Contact_Import $import, $key, $value) {
 		$data = $this->data;
 		$map = array(

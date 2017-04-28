@@ -17,6 +17,7 @@ class Command_Update extends Command_Base {
 		'dry-run' => 'boolean',
 		'skip-delete' => 'boolean',
 		'skip-database' => 'boolean',
+		'composer-update' => 'boolean',
 		'timeout' => 'integer',
 		'list' => 'boolean',
 		'force' => 'boolean',
@@ -29,6 +30,7 @@ class Command_Update extends Command_Base {
 		'dry-run' => 'Show what would have happened without actually doing it.',
 		'skip-delete' => 'Skip DELETE_AFTER values in module configuration files.',
 		'skip-database' => 'Do not store results in a local database, or load local database of last request times.',
+		'composer-update' => 'Update the composer lock file explicitly. Defaults to false.',
 		'timeout' => 'Timeout in milliseconds for URL downloads - this is the total time to donwload resulting packages, so keep it reasonable.',
 		'list' => 'List all modules which would update',
 		'force' => 'Force updates regardless if local copies match most recent downloaded copies',
@@ -52,6 +54,76 @@ class Command_Update extends Command_Base {
 	 * @var Repository
 	 */
 	protected $repo = null;
+	
+	/**
+	 *
+	 * @var array
+	 */
+	private $composer_json = null;
+	
+	/**
+	 *
+	 * @var boolean
+	 */
+	private $composer_do_install = false;
+	/**
+	 *
+	 * @var boolean
+	 */
+	private $composer_packages = array();
+	
+	/**
+	 * Main comman entry point
+	 *
+	 * {@inheritdoc}
+	 *
+	 * @see Command::run()
+	 */
+	function run() {
+		$this->inherit_global_options();
+		
+		if ($this->help) {
+			$this->usage();
+			return;
+		}
+		if (!$this->option_bool("skip-database")) {
+			// Options loaded from configuration file
+			$this->verbose_log("Loading update database");
+			$this->update_db = $this->update_database();
+		}
+		
+		if ($this->has_option('source-control')) {
+			$vc = $this->option('source-control');
+			$this->repo = Repository::factory($vc);
+			if (!$this->repo) {
+				$this->usage("No version-control of type \"{type}\" available", array(
+					"type" => $vc
+				));
+				return 1;
+			} else {
+				$this->verbose_log("Using repository {type}", array(
+					"type" => $vc
+				));
+			}
+		}
+		
+		$this->app_data = array(
+			'application_root' => $this->application->application_root()
+		);
+		$modules = $this->modules_to_update();
+		
+		$result = $this->before_update();
+		if ($result === 0) {
+			foreach ($modules as $module => $module_data) {
+				if (!$this->_update_module($module, $module_data)) {
+					$result = 1;
+				}
+			}
+			$this->after_update($result);
+		}
+		
+		return $result;
+	}
 	
 	/**
 	 * Retrieve a list of modules from the command line
@@ -143,61 +215,79 @@ class Command_Update extends Command_Base {
 			$this->error("No modules found to update");
 			return array();
 		}
-		
 		$this->verbose_log("Will update {count} {modules}", array(
 			"count" => count($modules),
 			"modules" => Locale::plural(__("module"), count($modules))
 		));
 		return $modules;
 	}
+	/**
+	 * 
+	 * @return integer
+	 */
+	private function before_update() {
+		$result = $this->composer_before_update();
+		return $result;
+	}
 	
 	/**
-	 * Main comman entry point
 	 *
-	 * {@inheritdoc}
-	 *
-	 * @see Command::run()
+	 * @param integer $result
 	 */
-	function run() {
-		$this->inherit_global_options();
-		
-		if ($this->help) {
-			$this->usage();
+	private function after_update($result) {
+		if ($result !== 0) {
 			return;
 		}
-		if (!$this->option_bool("skip-database")) {
-			// Options loaded from configuration file
-			$this->verbose_log("Loading update database");
-			$this->update_db = $this->update_database();
-		}
+		$this->composer_after_update();
+	}
+	
+	/**
+	 * 
+	 * @return integer
+	 */
+	private function composer_before_update() {
+		$this->composer_json = array();
+		$this->composer_packages = array();
 		
-		if ($this->has_option('source-control')) {
-			$vc = $this->option('source-control');
-			$this->repo = Repository::factory($vc);
-			if (!$this->repo) {
-				$this->usage("No version-control of type \"{type}\" available", array(
-					"type" => $vc
-				));
-				return 1;
-			} else {
-				$this->verbose_log("Using repository {type}", array(
-					"type" => $vc
-				));
-			}
+		// TODO Is this a bad idea to depend on the structure of composer.lock?
+		$composer_lock = $this->application->application_root("composer.json");
+		if (!file_exists($composer_lock)) {
+			return 0;
 		}
-		
-		$this->app_data = array(
-			'application_root' => $this->application->application_root()
-		);
-		$modules = $this->modules_to_update();
-		
-		$result = 0;
-		foreach ($modules as $module => $module_data) {
-			if (!$this->_update_module($module, $module_data)) {
-				$result = 1;
-			}
+		try {
+			$this->composer_json = JSON::decode(file_get_contents($composer_lock));
+		} catch (Exception_Parse $e) {
+			$this->error("Unable to parse JSON in {file}", array(
+				"file" => $composer_lock
+			));
+			return 1;
 		}
-		return $result;
+		$this->composer_packages = avalue($this->composer_json, "require", array()) + avalue($this->composer_json, "require-dev", array());
+		return 0;
+	}
+	
+	/**
+	 * 
+	 */
+	private function composer_after_update() {
+		try {
+			$composer_command = $this->option_bool("composer_update") ? "update" : "install";
+			$composer = $this->composer_command();
+			$args = $this->application->development() ? "" : " --no-dev";
+			$this->application->process->execute("$composer $composer_command$args");
+		} catch (Exception_Command $e) {
+			$this->error($e);
+		}
+	}
+	
+	/**
+	 * 
+	 * @param string $dependency
+	 * @return boolean
+	 */
+	private function composer_has_installed($dependency) {
+		list($package, $version) = pairr($dependency, ":", $dependency, null);
+		return array_key_exists($package, $this->composer_packages);
 	}
 	
 	/**
@@ -275,11 +365,11 @@ class Command_Update extends Command_Base {
 					$module_object->call_hook('updated');
 				}
 			} catch (\ReflectionException $e) {
-				$logger->debug("Module_$module was not found ... skipping");
+				$logger->debug("Module object for $module was not found ... skipping");
 			} catch (Exception_NotFound $e) {
-				$logger->debug("Module_$module was not found ... skipping");
+				$logger->debug("Module object for $module was not found ... skipping");
 			} catch (Exception_Class_NotFound $e) {
-				$logger->debug("Module_$module was not found ... skipping");
+				$logger->debug("Module object for $module was not found ... skipping");
 			}
 			$this->log("{name} updated to latest version.", array(
 				"name" => $module
@@ -347,11 +437,21 @@ class Command_Update extends Command_Base {
 			return;
 		}
 		$composer_command = $this->composer_command();
-		if (arr::has($composer, "require")) {
-			$composer_version = to_array($application->modules->configuration($name, "composer_version"));
-			$requires = to_list($composer['require']);
-			$pwd = getcwd();
-			chdir($application->application_root());
+		if (!arr::has_any($composer, "require;require-dev")) {
+			return true;
+		}
+		$composer_version = to_array($application->modules->configuration($name, "composer_version"));
+		$composer_require = to_list(avalue($composer, 'require', null));
+		$composer_require_dev = to_list(avalue($composer, 'require-dev', null));
+		$pwd = getcwd();
+		chdir($application->application_root());
+		$do_updates = $this->option_bool("composer-update");
+		
+		$changed = false;
+		foreach (array(
+			"" => $composer_require,
+			"--dev " => $composer_require_dev
+		) as $arg => $requires) {
 			foreach ($requires as $require) {
 				if (!is_string($require)) {
 					$logger->error("Module {name} {conf_path} composer.require is not a string? {type}", array(
@@ -363,29 +463,37 @@ class Command_Update extends Command_Base {
 				if (array_key_exists($component, $composer_version)) {
 					$require = $component . ":" . $composer_version[$component];
 				}
+				if ($this->composer_has_installed($component) && !$do_updates) {
+					if ($this->option_bool("dry-run")) {
+						$this->log("No update for composer {require} - already installed", array(
+							"require" => $require
+						));
+					}
+					$this->composer_do_install = true;
+					continue;
+				}
 				if ($this->option_bool("dry-run")) {
 					$this->log("Would run command: $composer_command require {require}", array(
 						"require" => $require
 					));
 				} else {
-					$this->exec("$composer_command require -q {require} 2>&1", array(
+					$this->exec("$composer_command require -q $arg{require} 2>&1", array(
 						"require" => $require
 					));
-					return true;
+					$changed = true;
 				}
 			}
 		}
-		return false;
+		return true;
 	}
-	private static function update_configuration_options() {
-		$options = array(
-			'lower' => true,
-			'trim' => true,
-			'multiline' => true,
-			'unquote' => '\'\'""'
-		);
-		return $options;
-	}
+	
+	/**
+	 * 
+	 * @param string $url
+	 * @throws Exception_NotFound
+	 * @throws Exception_System
+	 * @return string[]
+	 */
 	private function _fetch_url($url) {
 		$client = new Net_HTTP_Client($url);
 		$minutes = 5; // 2 minutes total for client to run
