@@ -6,7 +6,17 @@
  * @subpackage {subpackage}
  * @copyright Copyright (C) 2016, {company}. All rights reserved.
  */
+/* @var $this \zesk\Template */
+/* @var $zesk \zesk\Kernel */
+/* @var $application \zesk\Application */
+/* @var $session \zesk\Session */
+/* @var $router \zesk\Router */
+/* @var $route \zesk\Route */
+/* @var $request \zesk\Request */
+/* @var $response \zesk\Response_Text_HTML */
+/* @var $current_user \zesk\User */
 ?>
 <h1>Forbidden</h1>
-<p>While under development, this site is not accessible to the outside world.</p>
-<p class="tiny"><?php echo IPv4::remote(); ?></p>
+<p>While under development, this site is not accessible to the outside
+	world.</p>
+<p class="tiny"><?php echo $request->ip(); ?></p>

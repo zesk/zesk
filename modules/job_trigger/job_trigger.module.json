@@ -1,1 +1,8 @@
-{"name":"Job Trigger"}
+{
+	"name":"Job Trigger",
+	"autoload_options": {
+		"class_prefix": "zesk\\",
+		"lower": false
+	},
+	"module_class": "zesk\\Module_Job_Trigger"
+}

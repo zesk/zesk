@@ -17,7 +17,7 @@ class Control_Checklist_Bitmask extends Control_Checklist {
 		}
 		return $result;
 	}
-	protected function hook_object_value(Model $object) {
+	protected function hook_object_value() {
 		$column = $this->column();
 		$value = $object->get($column);
 		return $this->bitmaskToArray($value);

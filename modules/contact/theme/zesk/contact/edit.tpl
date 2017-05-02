@@ -452,4 +452,6 @@ foreach ($sections as $section => $variables) {
 			type="text" name="{name}" id="{id}" class="label-custom" />
 	</div>
 </div>
-<?php echo implode("\n", $append_templates)?>
+<?php 
+echo implode("\n", $append_templates);
+

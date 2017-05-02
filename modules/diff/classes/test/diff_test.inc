@@ -1,4 +1,11 @@
 <?php
+namespace zesk;
+
+/**
+ * 
+ * @author kent
+ *
+ */
 class diff_test extends Test_Unit {
 	protected $load_modules = array(
 		"diff"
@@ -76,7 +83,6 @@ class diff_test extends Test_Unit {
 	function test_diff_lines() {
 		$a = "Line1\nLine2\nLine4";
 		$b = "Line1\nLine2\nLine3\nLine4";
-		$this->log(implode("\n", array_keys(zesk::autoload_path())));
 		$testx = new Diff_Lines($a, $b);
 		
 		$this->log("Sample 1: \n$a");

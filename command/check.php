@@ -36,10 +36,14 @@ class Command_Check extends Command_Iterator_File {
 	protected $prefixes_gremlins = array(
 		"php" => array(
 			"<?php\n",
+			"<?php \n",
 			"#!{php_bin_path}\n<?php\n"
 		),
 		"tpl" => "<?php\n",
-		"inc" => "<?php\n",
+		"inc" => array(
+			"<?php\n",
+			"<?php \n"
+		),
 		"phpt" => "#!{php_bin_path}\n<?php\n"
 	);
 	protected $log = array();

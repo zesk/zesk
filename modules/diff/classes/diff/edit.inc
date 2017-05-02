@@ -6,8 +6,7 @@
  * @author kent
  * @copyright Copyright &copy; 2009, Market Acumen, Inc.
  */
-use zesk\PHP;
-
+namespace zesk;
 /**
  * 
  * @author kent

@@ -7,6 +7,12 @@
  * @copyright Copyright &copy; 2009, Market Acumen, Inc.
  */
 
+namespace zesk;
+/**
+ * 
+ * @author kent
+ *
+ */
 class Diff_MiddleSnake {
 	public $x;
 	public $y;

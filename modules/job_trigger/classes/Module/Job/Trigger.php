@@ -2,13 +2,7 @@
 /**
  * 
  */
-use zesk\Application;
-use zesk\Timer;
-use zesk\URL;
-use zesk\File;
-use zesk\Timestamp;
-use zesk\Directory;
-use zesk\Interface_Process;
+namespace zesk;
 
 /**
  * Module to allow jobs to be activated via mechanism which isn't polling the database.
@@ -17,12 +11,13 @@ use zesk\Interface_Process;
  * 
  * @author kent
  */
-class Module_Job_Trigger extends zesk\Module implements zesk\Interface_Module_Routes {
+class Module_Job_Trigger extends Module implements Interface_Module_Routes {
 	/**
 	 * Add hooks for initialize
 	 */
 	public function initialize() {
 		parent::initialize();
+		$this->application->configuration->deprecated("Module_Job_Trigger", __CLASS__);
 		$this->application->hooks->add("zesk\\Job::start", array(
 			$this,
 			"trigger_send"
@@ -215,7 +210,7 @@ class Module_Job_Trigger extends zesk\Module implements zesk\Interface_Module_Ro
 	 * 
 	 * @param Router $router
 	 */
-	public function hook_routes(zesk\Router $router) {
+	public function hook_routes(Router $router) {
 		if ($this->has_option("key")) {
 			// Only allowed to receive web requests with some form of shared key security.
 			// If you don't configure this works fine on single-server applications
@@ -224,7 +219,7 @@ class Module_Job_Trigger extends zesk\Module implements zesk\Interface_Module_Ro
 					__CLASS__,
 					"web_job_trigger"
 				),
-				"content type" => zesk\Response_Text_HTML::content_type_json,
+				"content type" => Response_Text_HTML::content_type_json,
 				"arguments" => array(
 					"{application}",
 					"{request}"
@@ -233,7 +228,7 @@ class Module_Job_Trigger extends zesk\Module implements zesk\Interface_Module_Ro
 		}
 		$router->add_route("job_trigger/active", array(
 			"content" => true,
-			"content type" => zesk\Response_Text_HTML::content_type_json
+			"content type" => Response_Text_HTML::content_type_json
 		));
 	}
 }

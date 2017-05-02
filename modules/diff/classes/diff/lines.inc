@@ -6,33 +6,57 @@
  * @author kent
  * @copyright Copyright &copy; 2009, Market Acumen, Inc.
  */
+namespace zesk;
+
+/**
+ *
+ * @author kent
+ *
+ */
 class Diff_Lines extends Diff {
-
+	/**
+	 * 
+	 * @var array
+	 */
 	private $alines;
-
+	/**
+	 *
+	 * @var array
+	 */
 	private $blines;
-
+	/**
+	 *
+	 * @var array
+	 */
 	private $hashtable;
-
+	/**
+	 *
+	 * @var array
+	 */
 	private $seq;
-
+	
+	/**
+	 * 
+	 * @param string $a
+	 * @param string $b
+	 * @param string $skip_whitespace
+	 */
 	function __construct($a, $b, $skip_whitespace = false) {
 		$this->alines = to_list($a, array(), "\n");
 		$this->blines = to_list($b, array(), "\n");
-
+		
 		$this->seq = 0;
 		$this->hashtable = array();
-
+		
 		$a = $this->hash_lines($this->alines, $skip_whitespace);
 		$b = $this->hash_lines($this->blines, $skip_whitespace);
-
+		
 		$this->hashtable = null;
-
+		
 		parent::__construct($a, $b, $this->seq);
-
+		
 		$this->process_results();
 	}
-
 	private function process_results() {
 		foreach ($this->diffs() as $edit) {
 			if ($edit->op === Diff_Edit::DIFF_INSERT) {
@@ -40,8 +64,6 @@ class Diff_Lines extends Diff {
 			}
 		}
 	}
-
-
 	private function hash_lines($lines, $skip_whitespace = false) {
 		$result = array();
 		foreach ($lines as $line) {
@@ -59,7 +81,6 @@ class Diff_Lines extends Diff {
 		}
 		return $result;
 	}
-
 	function output() {
 		$result = array();
 		$diffs = $this->diffs();
@@ -75,7 +96,7 @@ class Diff_Lines extends Diff {
 					break;
 			}
 		}
-
+		
 		return implode("\n", $result);
 	}
 }

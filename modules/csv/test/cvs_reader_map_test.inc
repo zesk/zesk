@@ -6,6 +6,8 @@
  * @author Kent Davidson <kent@marketacumen.com>
  * @copyright Copyright &copy; 2008, Market Acumen, Inc.
  */
+namespace zesk;
+
 class CSV_Reader_Test extends Test_Unit {
 	protected $load_modules = array(
 		"csv",

@@ -7,6 +7,7 @@
  * @copyright Copyright &copy; 2011, Market Acumen, Inc.
  * Created on Mon,Aug 1, 11 at 5:27 PM
  */
+namespace zesk;
 
 /*
 * diff - compute a shortest edit script (SES) given two sequences
@@ -48,6 +49,11 @@
 * This is the same algorithm used by GNU diff(1).
 */
 
+/**
+ * 
+ * @author kent
+ *
+ */
 class Diff {
 
 	/**

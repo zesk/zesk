@@ -1,130 +1,114 @@
 <?php
+namespace zesk;
 
 class Schema_Contact extends Database_Schema {
 	function schema() {
 		return array(
 			'{table}' => array(
 				'columns' => array(
-					'ID' => array(
+					'id' => array(
 						'not null' => true,
 						'increment' => true,
 						'unsigned' => true,
 						'type' => 'integer',
-						'sql_type' => 'integer',
-						'name' => 'ID'
+						'sql_type' => 'integer'
 					),
-					'Hash' => array(
+					'hash' => array(
 						'not null' => true,
 						'size' => 16,
 						'type' => 'binary(16)',
-						'sql_type' => 'binary(16)',
-						'name' => 'Hash'
+						'sql_type' => 'binary(16)'
 					),
-					'Account' => array(
+					'account' => array(
 						'unsigned' => true,
 						'type' => 'integer',
-						'sql_type' => 'integer',
-						'name' => 'Account'
+						'sql_type' => 'integer'
 					),
-					'User' => array(
+					'user' => array(
 						'unsigned' => true,
 						'type' => 'integer',
-						'sql_type' => 'integer',
-						'name' => 'User'
+						'sql_type' => 'integer'
 					),
-					'Keywords' => array(
+					'keywords' => array(
 						'type' => 'text',
-						'sql_type' => 'text',
-						'name' => 'Keywords'
+						'sql_type' => 'text'
 					),
-					'Person' => array(
+					'person' => array(
 						'unsigned' => true,
 						'type' => 'integer',
-						'sql_type' => 'integer',
-						'name' => 'Person'
+						'sql_type' => 'integer'
 					),
-					'Email' => array(
+					'email' => array(
 						'unsigned' => true,
 						'type' => 'integer',
-						'sql_type' => 'integer',
-						'name' => 'Email'
+						'sql_type' => 'integer'
 					),
-					'Address' => array(
+					'address' => array(
 						'unsigned' => true,
 						'type' => 'integer',
-						'sql_type' => 'integer',
-						'name' => 'Address'
+						'sql_type' => 'integer'
 					),
-					'Phone' => array(
+					'phone' => array(
 						'unsigned' => true,
 						'type' => 'integer',
-						'sql_type' => 'integer',
-						'name' => 'Phone'
+						'sql_type' => 'integer'
 					),
-					'URL' => array(
+					'url' => array(
 						'unsigned' => true,
 						'type' => 'integer',
-						'sql_type' => 'integer',
-						'name' => 'URL'
+						'sql_type' => 'integer'
 					),
-					'Notes' => array(
+					'notes' => array(
 						'type' => 'text',
-						'sql_type' => 'text',
-						'name' => 'Notes'
+						'sql_type' => 'text'
 					),
-					'Created' => array(
+					'created' => array(
 						'not null' => true,
 						'default' => '0',
 						'type' => 'timestamp',
-						'sql_type' => 'timestamp',
-						'name' => 'Created'
+						'sql_type' => 'timestamp'
 					),
-					'Modified' => array(
+					'modified' => array(
 						'not null' => true,
 						'default' => '0',
 						'type' => 'timestamp',
-						'sql_type' => 'timestamp',
-						'name' => 'Modified'
+						'sql_type' => 'timestamp'
 					),
-					'Connector' => array(
+					'connector' => array(
 						'unsigned' => true,
 						'type' => 'integer',
-						'sql_type' => 'integer',
-						'name' => 'Connector'
+						'sql_type' => 'integer'
 					),
-					'Verified' => array(
+					'verified' => array(
 						'type' => 'timestamp',
-						'sql_type' => 'timestamp',
-						'name' => 'Verified'
+						'sql_type' => 'timestamp'
 					),
-					'Verifier' => array(
+					'verifier' => array(
 						'unsigned' => true,
 						'type' => 'integer',
-						'sql_type' => 'integer',
-						'name' => 'Verifier'
+						'sql_type' => 'integer'
 					),
-					'Duplicate' => array(
+					'duplicate' => array(
 						'unsigned' => true,
 						'type' => 'integer',
-						'sql_type' => 'integer',
-						'name' => 'Duplicate'
+						'sql_type' => 'integer'
 					)
 				),
 				'primary keys' => array(
-					'ID'
+					'id'
 				),
 				'indexes' => array(
 					'e' => array(
-						'Email'
+						'email'
 					),
 					'a' => array(
-						'Address'
+						'address'
 					),
 					'p' => array(
-						'Phone'
+						'phone'
 					),
 					'v' => array(
-						'Verifier'
+						'verifier'
 					)
 				)
 			)
