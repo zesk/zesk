@@ -580,15 +580,15 @@ abstract class Command extends Hookable implements Logger\Handler {
 	 */
 	private function parse_option_defaults($options = false) {
 		foreach ($this->option_types as $k => $t) {
-			$k = self::_option_key($k);
+			$newk = self::_option_key($k);
 			switch (strtolower($t)) {
 				case "boolean":
-					$options[$k] = false;
+					$options[$newk] = to_bool(avalue($options, $k, false));
 					break;
 				default :
 					$v = avalue($options, $k);
 					if ($v !== null) {
-						$options[$k] = $v;
+						$options[$newk] = $v;
 					}
 					break;
 			}

@@ -20,7 +20,6 @@ class Module_Developer extends Module implements Interface_Module_Routes {
 	static $allowed_mock_headers = array(
 		"mock_accept" => Net_HTTP::request_Accept
 	);
-	
 	public function test_ip() {
 		$application = $this->application;
 		$ips = $this->option_list('ip_allow');
@@ -84,7 +83,6 @@ class Module_Developer extends Module implements Interface_Module_Routes {
 			}
 		}
 	}
-	
 	public function router_prematch() {
 		$app = $this->application;
 		$this->handle_mock_headers($app->request);
@@ -246,13 +244,17 @@ class Module_Developer extends Module implements Interface_Module_Routes {
 	public function schema(Application $app, Request $request, Response_Text_HTML $response, $arg = null) {
 		Database_Schema::debug(true);
 		$db = null;
+		$classes = null;
+		if ($request->has("classes")) {
+			$classes = to_list($request->get("classes"));
+		}
 		if ($arg) {
 			// TODO Potentical security issue - pass in URL value here
 			$db = $this->application->database_factory($arg);
 		} else {
 			$db = $this->application->database_factory();
 		}
-		$results = $app->schema_synchronize($db);
+		$results = $app->schema_synchronize($db, $classes);
 		$exception = null;
 		if ($request->get_bool("go")) {
 			try {

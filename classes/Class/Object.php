@@ -12,7 +12,7 @@
 namespace zesk;
 
 /**
- * First iteration, allow use of namespace, inheriting all parent attributes and methods
+ * @see Object
  */
 class Class_Object extends Hookable {
 	
@@ -911,16 +911,7 @@ class Class_Object extends Hookable {
 				}
 			}
 		}
-		if (!empty($this->database_group) && $this->database_group !== $this_class) {
-			$this->database_name = $this->database = $this->application->object($this->database_group)->database_name();
-		} else {
-			if (empty($this->database)) {
-				$this->database = $this->option("database", $object->option("database"));
-			}
-			if (empty($this->database_name)) {
-				$this->database_name = $this->database;
-			}
-		}
+		$this->initialize_database($object);
 		if (empty($this->utc_timestamps)) {
 			$this->utc_timestamps = $this->option_bool("utc_timestamps");
 		}
@@ -939,7 +930,18 @@ class Class_Object extends Hookable {
 		
 		$this->application->hooks->register_class($this->class);
 	}
-	
+	protected function initialize_database(Object $object) {
+		if (!empty($this->database_group) && $this->database_group !== $this->class) {
+			$this->database_name = $this->database = $this->application->object($this->database_group)->database_name();
+		} else {
+			if (empty($this->database)) {
+				$this->database = $this->option("database", $object->option("database"));
+			}
+			if (empty($this->database_name) && is_string($this->database)) {
+				$this->database_name = $this->database;
+			}
+		}
+	}
 	/**
 	 * Configure a class prior to instantiation
 	 *

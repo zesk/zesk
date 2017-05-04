@@ -5,7 +5,7 @@ class Control_Checklist_Bitmask extends Control_Checklist {
 	private function bitmaskToArray($value) {
 		$x = 0;
 		$result = array();
-		for($i = 0; $i < 31; $i++) {
+		for ($i = 0; $i < 31; $i++) {
 			if ($value === 0) {
 				break;
 			}
@@ -18,8 +18,7 @@ class Control_Checklist_Bitmask extends Control_Checklist {
 		return $result;
 	}
 	protected function hook_object_value() {
-		$column = $this->column();
-		$value = $object->get($column);
+		$value = $this->value();
 		return $this->bitmaskToArray($value);
 	}
 	protected function load() {

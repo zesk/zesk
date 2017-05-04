@@ -451,9 +451,12 @@ class Object extends Model {
 	 * @see self::clean_code_name
 	 * @param string $name        	
 	 */
-	static public function clean_code_name($name) {
-		$codename = preg_replace('|[\s/]+|', "-", strtolower(trim($name)));
+	static public function clean_code_name($name, $blank = "-") {
+		$codename = preg_replace('|[\s/]+|', "-", strtolower(trim($name, " \t\n$blank")));
 		$codename = preg_replace("/[^-A-Za-z0-9]/", "", $codename);
+		if ($blank !== "-") {
+			$codename = strtr($codename, "-", $blank);
+		}
 		return $codename;
 	}
 	
@@ -1393,7 +1396,7 @@ class Object extends Model {
 				$method
 			), array(
 				$value,
-				$member, /* Allow simple case to be written more easily */
+				$member /* Allow simple case to be written more easily */
 			));
 		}
 		if (array_key_exists($member, $this->class->has_many)) {

@@ -99,6 +99,7 @@ class Command_Database_Schema extends Command_Base {
 		$hook_type = "schema_$suffix";
 		$app = $this->application;
 		$all = $app->modules->all_hook_list($hook_type);
+		$hooks_strings = array();
 		if (count($all) !== 0) {
 			$hooks_strings = array();
 			foreach ($all as $hook) {

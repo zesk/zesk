@@ -1,12 +1,5 @@
 <?php
 /**
- * 
- */
-namespace zesk;
-
-use \SplFileInfo;
-
-/**
  * Check PHP code, and repair comments.
  *
  * @version $URL: https://code.marketacumen.com/zesk/trunk/command/check.php $
@@ -16,23 +9,44 @@ use \SplFileInfo;
  * @author Kent Davidson <kent@marketacumen.com>
  * @copyright &copy; 2016 Market Acumen, Inc.
  */
+namespace zesk;
+
+use \SplFileInfo;
+
+/**
+ *
+ */
 class Command_Check extends Command_Iterator_File {
+	/**
+	 * 
+	 * @var array
+	 */
 	protected $extensions = array(
 		"php",
-		"phpt",
+		//		"phpt",
 		"inc",
 		"tpl",
 		"module"
 	);
+	
+	/**
+	 * 
+	 * @var array
+	 */
 	protected $prefixes = array(
 		"php" => array(
 			"<?php\n/**\n",
 			"#!{php_bin_path}\n<?php\n/**\n"
 		),
 		"inc" => "<?php\n/**\n",
-		"tpl" => "<?php\n",
-		"phpt" => "#!{php_bin_path}\n<?php\n"
+		"tpl" => "<?php\n"
+		//		"phpt" => "#!{php_bin_path}\n<?php\n"
 	);
+	
+	/**
+	 * 
+	 * @var array
+	 */
 	protected $prefixes_gremlins = array(
 		"php" => array(
 			"<?php\n",
@@ -43,11 +57,15 @@ class Command_Check extends Command_Iterator_File {
 		"inc" => array(
 			"<?php\n",
 			"<?php \n"
-		),
-		"phpt" => "#!{php_bin_path}\n<?php\n"
+		)
+		//		"phpt" => "#!{php_bin_path}\n<?php\n"
 	);
+	
+	/**
+	 * 
+	 * @var array
+	 */
 	protected $log = array();
-	protected $editor = null;
 	
 	//	protected $debug = true;
 	protected $show = false;
@@ -58,45 +76,68 @@ class Command_Check extends Command_Iterator_File {
 		
 		parent::initialize();
 		
-		$this->option_types['gremlins'] = 'boolean';
-		$this->option_types['fix'] = 'boolean';
-		$this->option_types['editor'] = 'string';
-		$this->option_types['php-bin-path'] = 'string';
+		$this->option_types['prefix'] = 'string';
+		$this->option_types['suffix'] = 'string';
+		
 		$this->option_types['lint'] = 'boolean';
-		$this->option_types['recopyright'] = 'boolean';
-		$this->option_types['reauthor'] = 'boolean';
-		$this->option_types['package'] = 'string';
+		$this->option_types['php-bin-path'] = 'string';
+		
+		$this->option_types['copyright'] = 'boolean';
 		$this->option_types['company'] = 'string';
-		$this->option_types['year'] = 'string';
+		$this->option_types['copyright-suffix'] = 'string';
+		
+		$this->option_types['author'] = 'boolean';
+		$this->option_types['package'] = 'string';
 		$this->option_types['subpackage'] = 'string';
-		$this->option_types['repackage'] = 'string';
-		$this->option_types['resubpackage'] = 'string';
+		
+		$this->option_types['year'] = 'string';
+		
 		$this->option_types['show-package'] = 'boolean';
 		$this->option_types['show-subpackage'] = 'boolean';
 		$this->option_types['show-author'] = 'boolean';
 		$this->option_types['show-copyright'] = 'boolean';
+		
+		$this->option_types['update-only'] = 'boolean';
+		$this->option_types['gremlins'] = 'boolean';
+		$this->option_types['fix'] = 'boolean';
 		$this->option_types['safe'] = 'boolean';
 		$this->option_types['no-backup'] = 'boolean';
 		$this->option_types['ignore'] = 'string';
 		
+		$this->set_option('copyright-suffix', "");
+		$this->set_option('company', "");
+		
+		$this->option_help['gremlins'] = 'Check file headers for incorrect headings, ensure all PHP files have no characters before first PHP tag.';
+		$this->option_help['fix'] = 'Actually modify and fix files';
+		
+		$this->option_help['prefix'] = 'File output prefix';
+		$this->option_help['suffix'] = 'File output suffix';
+		
+		$this->option_help['lint'] = 'Run PHP lint on each file as well';
+		$this->option_help['php-bin-path'] = 'Path to PHP binary (uses \$PATH otherwise)';
+		
+		$this->option_help['update-only'] = 'Do not add in missing doccomments, just update existing ones.';
+		
+		$this->option_help['copyright-suffix'] = 'The suffix after the copyright (e.g. "Buy N Large, Inc.")';
+		
+		$this->option_help['copyright'] = 'Update the copyright string';
+		$this->option_help['author'] = 'Update the author to be \$Author\$';
+		$this->option_help['package'] = 'Set the doccomment package';
+		$this->option_help['subpackage'] = 'Set the doccomment subpackage';
+		$this->option_help['company'] = 'Copyright company';
+		$this->option_help['year'] = 'Set the copyright year to be this year (uses current year otherwise)';
+		
+		$this->option_help['show-package'] = 'Output the package for each file';
+		$this->option_help['show-subpackage'] = 'Output the subpackage for each file';
+		$this->option_help['show-author'] = 'Output the author for each file';
+		$this->option_help['show-copyright'] = 'Output the copyright for each file';
+		
+		$this->option_help['safe'] = 'Create a new file called name.new.ext';
+		$this->option_help['no-backup'] = 'Copy original to name.ext.old';
+		$this->option_help['ignore'] = 'Ignore file paths containing this string';
+		
 		$this->set_option('php-bin-path', '/usr/bin/env php');
 		$this->set_option('year', date('Y'));
-		
-		$this->editor = $this->option('editor', $this->default_editor());
-	}
-	
-	/**
-	 * Use TextMate on Mac OS X (default only)
-	 * 
-	 * @return string
-	 */
-	private function default_editor() {
-		$distro = System::distro("distro");
-		if ($distro === "Darwin") {
-			return "mate";
-		} else {
-			return "vim";
-		}
 	}
 	protected function start() {
 		$this->prefixes = map($this->prefixes, $this->options_include("php-bin-path"));
@@ -124,7 +165,7 @@ class Command_Check extends Command_Iterator_File {
 		unlink($tmp);
 		return $result;
 	}
-	private function recomment(&$contents, $term, $function) {
+	private function recomment(&$contents, $term, $function, $add_function = null) {
 		$translate = array();
 		$comments = DocComment::extract($contents);
 		foreach ($comments as $comment) {
@@ -139,6 +180,12 @@ class Command_Check extends Command_Iterator_File {
 				if ($new_value !== $items[$term]) {
 					$items[$term] = $new_value;
 					$translate[$comment] = Text::indent(DocComment::unparse($items), $indent_text);
+				}
+			} else if ($add_function) {
+				$new_value = call_user_func($add_function, $items, $term);
+				if (is_array($new_value)) {
+					$translate[$comment] = DocComment::unparse($new_value);
+					$add_function = null; // Just first one
 				}
 			}
 		}
@@ -174,9 +221,16 @@ class Command_Check extends Command_Iterator_File {
 	private function fix_copyright($value) {
 		return preg_replace("/([^0-9])[12][09][0-9][0-9]([^0-9])/", '${1}' . date('Y') . '${2}', $value);
 	}
+	private function copyright_pattern() {
+		return "&copy; {year} {company}{copyright_suffix}";
+	}
+	private function add_copyright(array $doccomment) {
+		$doccomment['copyright'] = map($this->copyright_pattern(), $this->option());
+		return $doccomment;
+	}
 	private function fix_prefix(&$contents) {
 		$contents = ltrim($contents);
-		$new_prefix = map("<?php\n/**\n * @version \$URL\$\n * @author \$Author\$\n * @package {package}\n * @subpackage {subpackage}\n * @copyright Copyright (C) {year}, {company}. All rights reserved.\n */\n", $this->option());
+		$new_prefix = map("<?php\n/**\n * @version \$URL\$\n * @author \$Author\$\n * @package {package}\n * @subpackage {subpackage}\n * @copyright " . $this->copyright_pattern() . "\n */\n", $this->option());
 		foreach (array(
 			'#^(<\?php)#',
 			'#^(<\?)[^=]#'
@@ -197,35 +251,58 @@ class Command_Check extends Command_Iterator_File {
 	private function fix_author($value) {
 		return '$' . 'Author' . '$';
 	}
+	private function doccomment_add_author(array $items, $term) {
+		$items[$term] = $this->fix_author("");
+		return $items;
+	}
 	private function fix_package($value) {
-		return $this->option('repackage');
+		return $this->option('package');
 	}
 	private function fix_subpackage($value) {
-		return $this->option('resubpackage');
+		return $this->option('subpackage');
+	}
+	private function is_add() {
+		return !$this->option_bool('update-only');
 	}
 	private function recopyright(&$contents) {
 		return $this->recomment($contents, 'copyright', array(
 			$this,
 			'fix_copyright'
-		));
+		), $this->is_add() ? array(
+			$this,
+			'add_copyright'
+		) : null);
 	}
 	private function reauthor(&$contents) {
 		return $this->recomment($contents, 'author', array(
 			$this,
 			'fix_author'
-		));
+		), $this->is_add() ? array(
+			$this,
+			'doccomment_add_author'
+		) : null);
 	}
-	private function repackage(&$contents) {
+	private function set_package(&$contents) {
 		return $this->recomment($contents, 'package', array(
 			$this,
 			'fix_package'
-		));
+		), $this->is_add() ? array(
+			$this,
+			'doccomment_add_option'
+		) : null);
 	}
-	private function resubpackage(&$contents) {
+	private function doccomment_add_option(array $items, $option) {
+		$items[$option] = $this->option($option);
+		return $items;
+	}
+	private function set_subpackage(&$contents) {
 		return $this->recomment($contents, 'subpackage', array(
 			$this,
 			'fix_subpackage'
-		));
+		), $this->is_add() ? array(
+			$this,
+			'doccomment_add_option'
+		) : null);
 	}
 	function process_file(SplFileInfo $file) {
 		$path = $file->getPathname();
@@ -279,20 +356,20 @@ class Command_Check extends Command_Iterator_File {
 		if ($this->option_bool('lint') && self::lint_file($path, $output) !== 0) {
 			$errors['lint'] = $output;
 		}
-		if ($this->option_bool('recopyright') && $this->recopyright($contents)) {
+		if ($this->option_bool('copyright') && $this->recopyright($contents)) {
 			$this->verbose_log("copyright changed");
 			$changed = true;
 		}
-		if ($this->option_bool('reauthor') && $this->reauthor($contents)) {
+		if ($this->option_bool('author') && $this->reauthor($contents)) {
 			$this->verbose_log("author changed");
 			$changed = true;
 		}
-		if ($this->option('repackage') && $this->repackage($contents)) {
-			$this->verbose_log("repackage changed");
+		if ($this->option('package') && $this->set_package($contents)) {
+			$this->verbose_log("package changed");
 			$changed = true;
 		}
-		if ($this->option('resubpackage') && $this->resubpackage($contents)) {
-			$this->verbose_log("resubpackage changed");
+		if ($this->option('subpackage') && $this->set_subpackage($contents)) {
+			$this->verbose_log("subpackage changed");
 			$changed = true;
 		}
 		if ($this->show) {
@@ -347,14 +424,32 @@ class Command_Check extends Command_Iterator_File {
 			$this->verbose_log("No issues found.");
 			return 0;
 		}
-		$editor = $this->editor . " ";
-		echo "# " . Locale::plural_word("error", $n_found) . " found\n";
-		$results = array();
-		foreach ($this->log as $f => $errors) {
-			$results[] = $f . " # " . implode(", ", array_keys($errors));
+		$prefix = trim($this->option('prefix', ''));
+		$suffix = trim($this->option('suffix', ''));
+		if ($prefix) {
+			$prefix = "$prefix ";
 		}
-		echo Locale::plural_word("file", $this->changed) . " changed\n";
-		echo $editor . implode("\n$editor", $results) . "\n";
+		if ($suffix) {
+			$suffix = " $suffix";
+		}
+		$verbose = $this->option_bool("verbose");
+		if ($verbose) {
+			echo "# " . Locale::plural_word("error", $n_found) . " found\n";
+		}
+		$results = array();
+		if ($this->option_bool("verbose")) {
+			foreach ($this->log as $f => $errors) {
+				$results[] = $prefix . $f . $suffix . " # " . implode(", ", array_keys($errors));
+			}
+		} else {
+			foreach ($this->log as $f => $errors) {
+				$results[] = $prefix . $f . $suffix;
+			}
+		}
+		if ($verbose) {
+			echo Locale::plural_word("file", $this->changed) . " changed\n";
+		}
+		echo implode("\n", $results) . "\n";
 	}
 }
 
