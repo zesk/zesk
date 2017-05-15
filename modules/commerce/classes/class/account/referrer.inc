@@ -1,11 +1,14 @@
 <?php
-
+/**
+ * 
+ */
+namespace zesk;
 /**
  * Class_Account_Referrer
  *
  * @author kent
  */
-class Class_Account_Referrer extends zesk\Class_Object {
+class Class_Account_Referrer extends Class_Object {
 	public $columns = array(
 		"ID",
 		"Account",
@@ -14,7 +17,7 @@ class Class_Account_Referrer extends zesk\Class_Object {
 		"Name"
 	);
 	public $has_one = array(
-		'Account' => 'Account'
+		'Account' => 'zesk\\Account'
 	);
 }
 

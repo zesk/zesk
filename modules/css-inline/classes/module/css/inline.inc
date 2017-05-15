@@ -40,3 +40,4 @@ class Module_CSS_Inline extends zesk\Module {
 		return $cssToInlineStyles->convert($html, $css);
 	}
 }
+

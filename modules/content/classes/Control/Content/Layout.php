@@ -7,6 +7,8 @@
  * @copyright Copyright &copy; 2008, Market Acumen, Inc.
  * Created on Fri Sep 05 17:00:20 EDT 2008 17:00:20
  */
+namespace zesk;
+
 class Control_Content_Layout extends Control {
 	private $Objects = array();
 	private $Content = null;
@@ -44,6 +46,8 @@ class Control_Content_Layout extends Control {
 			return false;
 		}
 
+		$object = $this->object;
+		
 		$objects_string = $object->get($objects_field);
 		if (!$objects_string) {
 			return false;

@@ -1,4 +1,8 @@
 <?php
+/**
+ * 
+ */
+namespace zesk;
 
 /**
  * Array of settings and values used to configure this system
@@ -219,7 +223,20 @@ abstract class Server_Configuration extends Options {
 	public function host_aliases() {
 		return array();
 	}
+	
+	/**
+	 * 
+	 * @param unknown $type
+	 * @param unknown $files
+	 * @param unknown $dest
+	 * @param array $options
+	 */
 	abstract public function configuration_files($type, $files, $dest, array $options = array());
+	
+	/**
+	 * 
+	 * @param Server_Feature $feature
+	 */
 	abstract public function configure_feature(Server_Feature $feature);
 	
 	/**

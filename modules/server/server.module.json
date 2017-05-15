@@ -1,8 +1,14 @@
 {
 	"name": "Server",
 	"autoload_options": {
+		"class_prefix": "zesk\\",
 		"lower": false,
-		"extensions": [ "php" ]
+		"extensions": [
+			"php"
+		]
 	},
-	"depends": [ "server" ]
+	"module_class": "zesk\\Module_Server",
+	"depends": [
+		"diff"
+	]
 }

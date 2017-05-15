@@ -4,6 +4,10 @@
  */
 use zesk\Process_Mock;
 use zesk\Interface_Process;
+use zesk\Exception_Configuration;
+use zesk\Configuration_Parser;
+use zesk\File;
+use zesk\Adapter_Settings_Array;
 
 /**
  * 
@@ -73,7 +77,12 @@ class Module_IPBan extends zesk\Module {
 	 * @var Server
 	 */
 	private $server = null;
-	
+	public function conf_load($file, array $options) {
+		$array = array();
+		$interface = new Adapter_Settings_Array($array);
+		Configuration_Parser::factory(File::extension($file), File::contents($file), $interface, $options)->process();
+		return $array;
+	}
 	/**
 	 * Main loop for daemon
 	 *
@@ -94,7 +103,7 @@ class Module_IPBan extends zesk\Module {
 			));
 			return "down";
 		}
-		$conf = conf::load($conf_file, self::daemon_conf_options());
+		$conf = $this->conf_load($conf_file, self::daemon_conf_options());
 		$conf_dir = avalue($conf, "configuration directory", $this->option('configuration_directory', $app->application_root("etc/ipban")));
 		if (!is_dir($conf_dir)) {
 			$this->application->logger->notice("{class}::daemon termination - no configuration directory at {dir}", array(
@@ -170,7 +179,7 @@ class Module_IPBan extends zesk\Module {
 					}
 				}
 				if ($result === null) {
-					$options = conf::load($file, self::daemon_conf_options());
+					$options = $this->conf_load($file, self::daemon_conf_options());
 					try {
 						$parsers[$file] = IPBan_Parser::register_parser($this->server, $options);
 					} catch (Exception_Configuration $e) {

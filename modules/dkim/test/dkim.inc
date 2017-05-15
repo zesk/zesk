@@ -1,4 +1,6 @@
 <?php
+namespace zesk;
+
 /**
  * @require
  * @author kent
@@ -48,7 +50,7 @@ class dkim_test extends Test_Unit {
 		$success = false;
 		try {
 			$testx = new DKIM($domain, $public_key_path, $private_key_path, $selector);
-		} catch (DKIM_Exception $e) {
+		} catch (Exception_DKIM $e) {
 			$success = true;
 		}
 		$this->assert($success === true);
@@ -65,7 +67,6 @@ class dkim_test extends Test_Unit {
 		//$data = null;
 		//DKIM::dump($what, $data);
 		
-
 		$path = ZESK_ROOT . 'system/test/DomainKeys-canonicalize/';
 		
 		for ($i = 1; $i <= 25; $i++) {
@@ -99,7 +100,7 @@ class dkim_test extends Test_Unit {
 	function test_DKIM_Exception() {
 		$message = null;
 		$code = null;
-		$testx = new DKIM_Exception($message, $code);
+		$testx = new Exception_DKIM($message, $code);
 		
 		$testx->getMessage();
 		

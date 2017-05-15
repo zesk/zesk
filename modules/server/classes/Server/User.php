@@ -1,5 +1,14 @@
 <?php
+/**
+ * 
+ */
+namespace zesk;
 
+/**
+ * 
+ * @author kent
+ *
+ */
 class Server_User extends Hookable {
 	/**
 	 * User name

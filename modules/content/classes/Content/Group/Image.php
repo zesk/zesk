@@ -6,6 +6,8 @@
 * @author Kent Davidson <kent@marketacumen.com>
 * @copyright Copyright &copy; 2008, Market Acumen, Inc.
 */
+namespace zesk;
+
 class Content_Group_Image extends Content_Group {
 
 	protected $name = "Images";

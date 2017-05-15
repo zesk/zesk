@@ -11,6 +11,10 @@
  * Heavily modified for use in Zesk by Kent M. Davidson http://marketacumen.com/?crsource=$Id: upload.inc 4009 2016-09-07 19:48:38Z kent $
  */
 use zesk\Directory;
+use zesk\Controller;
+use zesk\Exception_Directory_Create;
+use zesk\Exception_Directory_Permission;
+
 /**
  * 
  * @author kent
@@ -22,12 +26,12 @@ class Controller_JQuery_File_Upload extends Controller {
 	 * Map error codes to strings http://php.net/manual/en/features.file-upload.errors.php
 	 */
 	static $error_types = array(
-		UPLOAD_ERR_INI_SIZE => 'upload_max_file_size_php_ini', 
-		UPLOAD_ERR_FORM_SIZE => 'upload_max_file_size_html_form', 
-		UPLOAD_ERR_PARTIAL => 'upload_partial', 
-		UPLOAD_ERR_NO_FILE => 'upload_empty', 
-		UPLOAD_ERR_NO_TMP_DIR => 'upload_missing_temporary_directory', 
-		UPLOAD_ERR_CANT_WRITE => 'upload_write_error', 
+		UPLOAD_ERR_INI_SIZE => 'upload_max_file_size_php_ini',
+		UPLOAD_ERR_FORM_SIZE => 'upload_max_file_size_html_form',
+		UPLOAD_ERR_PARTIAL => 'upload_partial',
+		UPLOAD_ERR_NO_FILE => 'upload_empty',
+		UPLOAD_ERR_NO_TMP_DIR => 'upload_missing_temporary_directory',
+		UPLOAD_ERR_CANT_WRITE => 'upload_write_error',
 		UPLOAD_ERR_EXTENSION => 'upload_php_extension'
 	);
 	public function action_index() {
@@ -97,7 +101,7 @@ class Controller_JQuery_File_Upload extends Controller {
 			$result['error'] = avalue(self::$error_types, $error, "unknown-error: $error");
 			return $result;
 		}
-		$path = $this->option("upload_diretory", zesk::data_path('upload'));
+		$path = $this->option("upload_diretory", $this->application->data_path('upload'));
 		$filename = md5_file($tmp_name);
 		try {
 			Directory::depend($path, $this->option('upload_directory_mode'));

@@ -540,16 +540,16 @@ class Configuration implements \Iterator, \Countable, \ArrayAccess {
 	 * 
 	 * @param list|string $old_path
 	 * @param list|string $new_path
-	 * @return boolean
+	 * @return boolean Returns true if OLD value still found and (optionally) mapped to new
 	 */
 	public final function deprecated($old_path, $new_path = null) {
 		$old_value = $this->walk($old_path);
 		if ($old_value === null) {
-			return;
+			return false;
 		}
 		if ($new_path == null) {
 			zesk()->logger->warning("Global configuration option {old_path} is deprecated, remove it", compact("old_path"));
-			return;
+			return true;
 		}
 		if (!$this->path_exists($new_path)) {
 			$this->path_set($new_path, $this->path_get($old_path));
@@ -575,6 +575,7 @@ class Configuration implements \Iterator, \Countable, \ArrayAccess {
 		);
 		zesk()->logger->warning($message, $message_args);
 		zesk()->deprecated($message, $message_args);
+		return true;
 	}
 	
 	/**

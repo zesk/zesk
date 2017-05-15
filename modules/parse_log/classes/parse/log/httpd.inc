@@ -1,6 +1,8 @@
 <?php
-class Parse_Log_HTTPd extends Parse_Log {
+namespace zesk;
 
+class Parse_Log_HTTPd extends Parse_Log {
+	
 	/**
 	 * Known patterns
 	 *
@@ -9,25 +11,25 @@ class Parse_Log_HTTPd extends Parse_Log {
 	protected function patterns() {
 		return parent::patterns() + array(
 			'http-date' => array(
-				'pattern' => '\[[^\]]+\]', 
-				'function' => 'Parse_Log::strtotime', 
+				'pattern' => '\[[^\]]+\]',
+				'function' => 'Parse_Log::strtotime',
 				'synonyms' => 'timestamp'
-			), 
+			),
 			'http-request' => array(
-				'pattern' => '"([A-Z]+) ([^ ]+) HTTP/([0-9.]+)"', 
+				'pattern' => '"([A-Z]+) ([^ ]+) HTTP/([0-9.]+)"',
 				'captures' => array(
-					'http-request-method', 
-					'http-request-uri', 
+					'http-request-method',
+					'http-request-uri',
 					'http-request-version'
 				)
-			), 
-			'http-status' => self::pattern_number, 
+			),
+			'http-status' => self::pattern_number,
 			'http-referrer' => array(
-				'pattern' => self::pattern_dquoted_string, 
+				'pattern' => self::pattern_dquoted_string,
 				'function' => __CLASS__ . '::unquote'
-			), 
+			),
 			'http-user-agent' => array(
-				'pattern' => self::pattern_dquoted_string, 
+				'pattern' => self::pattern_dquoted_string,
 				'function' => __CLASS__ . '::unquote'
 			)
 		);

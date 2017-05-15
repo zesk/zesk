@@ -2,7 +2,9 @@
 /**
  * 
  */
+use zesk\preg;
 use zesk\Text;
+use zesk\Test_Unit;
 
 /**
  * 

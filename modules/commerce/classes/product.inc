@@ -4,5 +4,12 @@
  * @package zesk
  * @subpackage objects
  */
-class Product extends \zesk\Object {}
+namespace zesk;
+
+/**
+ * 
+ * @author kent
+ *
+ */
+class Product extends Object {}
 

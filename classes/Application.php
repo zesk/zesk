@@ -269,6 +269,12 @@ class Application extends Hookable implements Interface_Theme {
 	public $template_stack = null;
 	
 	/**
+	 *
+	 * @var string[]
+	 */
+	private $theme_stack = array();
+	
+	/**
 	 * Boolean
 	 *
 	 * @var boolean
@@ -321,6 +327,7 @@ class Application extends Hookable implements Interface_Theme {
 		$this->template_stack = new Template_Stack();
 		$this->template = new Template($this);
 		$this->template_stack->push($this->template);
+		$this->theme_stack = array();
 		
 		$this->theme_path($this->path_theme_default());
 		$this->share_path($this->path_share_default(), 'zesk');
@@ -533,7 +540,6 @@ class Application extends Hookable implements Interface_Theme {
 		
 		$this->configure_cache_paths(); // Initial cache paths are set up 
 		
-
 		$new_options = $this->preconfigure($options);
 		if (is_array($new_options)) {
 			$options = $new_options;
@@ -1498,6 +1504,13 @@ class Application extends Hookable implements Interface_Theme {
 	}
 	
 	/**
+	 * 
+	 * @return NULL|mixed
+	 */
+	public function theme_current() {
+		return last($this->theme_stack);
+	}
+	/**
 	 * theme an element
 	 *
 	 * @param string $type        	
@@ -1585,26 +1598,31 @@ class Application extends Hookable implements Interface_Theme {
 			throw new Exception_Semantics("Theme called with .tpl suffix - not required {type}", compact("type"));
 		}
 		$type = strtolower($type);
-		$object = avalue($args, "content");
-		if (is_object($object)) {
-			if (method_exists($object, "hook_theme")) {
-				return $object->call_hook_arguments("theme", array(
-					$args,
-					$content
-				), $content);
+		array_push($this->theme_stack, $type);
+		{
+			$object = avalue($args, "content");
+			if (is_object($object)) {
+				if (method_exists($object, "hook_theme")) {
+					$result = $object->call_hook_arguments("theme", array(
+						$args,
+						$content
+					), $content);
+					array_pop($this->theme_stack);
+					return $result;
+				}
+				if (method_exists($object, 'variables')) {
+					$args += $object->variables();
+				}
+			} else {
+				$object = null;
 			}
-			if (method_exists($object, 'variables')) {
-				$args += $object->variables();
+			$template_name = $this->clean_template_path($type) . $extension;
+			$t = new Template($this, $template_name, $args);
+			if ($t->exists()) {
+				$content = $t->render();
 			}
-		} else {
-			$object = null;
 		}
-		$template_name = $this->clean_template_path($type) . $extension;
-		$t = new Template($this, $template_name, $args);
-		if (!$t->exists()) {
-			return $content;
-		}
-		$content = $t->render();
+		array_pop($this->theme_stack);
 		return $content;
 	}
 	

@@ -1,6 +1,8 @@
 <?php
 namespace zesk;
 
+zesk()->obsolete();
+
 $this->response->cdn_javascript('/share/zesk/js/zesk.js', array(
 	'weight' => 'first'
 ));
@@ -26,7 +28,7 @@ $path = $object->apply_map($this->option("dest_path", $application->document_roo
 $name = $this->name();
 
 if (file_exists($path) && !is_dir($path)) {
-	echo "<div id=\"${name}_other\">" . $vi->output($vi_object) . "</div>" . toggle_edit("Change Image", $this->name(), $parent_content);
+//TODO	echo "<div id=\"${name}_other\">" . $vi->output($vi_object) . "</div>" . toggle_edit("Change Image", $this->name(), $parent_content);
 } else {
 	echo $parent_content;
 }

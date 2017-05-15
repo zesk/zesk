@@ -3,9 +3,7 @@
  * 
  * 
  */
-use zesk\PHP;
-use zesk\Exception_File_Format;
-use zesk\Exception_Invalid;
+namespace zesk;
 
 /**
  * 

@@ -8,6 +8,13 @@
  * Created on Wed Feb 24 13:48:13 EST 2010 13:48:13
  */
 
+namespace zesk;
+
+/**
+ * 
+ * @author kent
+ *
+ */
 class Import_Log_WebServer_IIS extends Import_Log_WebServer
 {
 	protected $header_read_size = 0;

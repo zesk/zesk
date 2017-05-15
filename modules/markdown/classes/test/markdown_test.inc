@@ -2,7 +2,7 @@
 /**
  * 
  */
-use zesk\Directory;
+namespace zesk;
 
 /**
  *

@@ -2,7 +2,7 @@
 /**
  * 
  */
-use zesk\Directory;
+namespace zesk;
 
 /**
  * 
@@ -28,7 +28,7 @@ class Server_Platform_Darwin extends Server_Platform_UNIX {
 	 * @var array of array
 	 */
 	private static $groups = array();
-
+	
 	/**
 	 * Darwin keys for mapping to standard Server_Platform_UNIX keys
 	 *
@@ -42,14 +42,14 @@ class Server_Platform_Darwin extends Server_Platform_UNIX {
 	const darwin_group_id = "PrimaryGroupID";
 	const darwin_group_name = "RecordName";
 	const darwin_group_members = "GroupMembership";
-
+	
 	/**
 	 * Name of the root volume - cached
 	 *
 	 * @var string
 	 */
 	private $root_volume_name = null;
-
+	
 	/**
 	 * Directory in user home directory for storing per-user scripts
 	 *
@@ -62,22 +62,25 @@ class Server_Platform_Darwin extends Server_Platform_UNIX {
 	 * @var integer
 	 */
 	const mode_userdir_launch_agents = 0755;
-
+	
 	/**
 	 * (non-PHPdoc)
 	 *
 	 * @see Server_Platform::packager()
 	 */
 	protected function packager() {
+		if ($this->has_shell_command("brew")) {
+			return $this->application->objects->factory(__NAMESPACE__ . "\\Server_Packager_Brew", $this);
+		}
 		if ($this->has_shell_command("macports")) {
-			return zesk::factory("Server_Packager_MacPORTS", $this);
+			return $this->application->objects->factory(__NAMESPACE__ . "\\Server_Packager_MacPORTS", $this);
 		}
 		if ($this->has_shell_command("fink")) {
-			return zesk::factory("Server_Packager_Fink", $this);
+			return $this->application->objects->factory(__NAMESPACE__ . "\\Server_Packager_Fink", $this);
 		}
 		return null;
 	}
-
+	
 	/**
 	 * Parse the output of dscl command
 	 *
@@ -125,7 +128,7 @@ class Server_Platform_Darwin extends Server_Platform_UNIX {
 		}
 		return $pairs;
 	}
-
+	
 	/**
 	 * Convert Darwin user output (dscl) to standard (UNIX)
 	 *
@@ -152,7 +155,7 @@ class Server_Platform_Darwin extends Server_Platform_UNIX {
 			self::darwin_group_members => self::f_group_members
 		);
 	}
-
+	
 	/**
 	 * Retrieve a user settings (and cache it)
 	 *
@@ -172,7 +175,7 @@ class Server_Platform_Darwin extends Server_Platform_UNIX {
 		}
 		return null;
 	}
-
+	
 	/**
 	 * Retrieve a group settings (and cache it)
 	 *
@@ -197,7 +200,7 @@ class Server_Platform_Darwin extends Server_Platform_UNIX {
 		}
 		return null;
 	}
-
+	
 	/**
 	 *
 	 * @see Server_Platform::user_create()
@@ -212,10 +215,10 @@ class Server_Platform_Darwin extends Server_Platform_UNIX {
 			throw new Server_Exception_Group_NotFound($group);
 		}
 		$params = compact("user", "group", "home") + options;
-
+		
 		$shell = $full_name = $uid = null;
 		extract($options, EXTR_IF_EXISTS);
-
+		
 		try {
 			$this->exec("dscl . -create /Users/{0}", $user);
 		} catch (Server_Exception_Command $e) {
@@ -249,7 +252,7 @@ class Server_Platform_Darwin extends Server_Platform_UNIX {
 		}
 		throw new Server_Exception_User_Create($user, $params, null, null, $ex);
 	}
-
+	
 	/**
 	 * (non-PHPdoc)
 	 *
@@ -340,7 +343,7 @@ class Server_Platform_Darwin extends Server_Platform_UNIX {
 		}
 		return basename($path);
 	}
-
+	
 	/**
 	 * Retrieve a user's directory, and ensure it exists
 	 *
@@ -367,8 +370,7 @@ class Server_Platform_Darwin extends Server_Platform_UNIX {
 		Directory::depend($path, $mode);
 		return $path;
 	}
-
-	private function _userdir_launch_agents($user, $create=false) {
+	private function _userdir_launch_agents($user, $create = false) {
 		return $this->_user_directory($user, self::userdir_launch_agents, $create, self::mode_userdir_launch_agents);
 	}
 	/**
@@ -382,10 +384,10 @@ class Server_Platform_Darwin extends Server_Platform_UNIX {
 		$path = $this->_userdir_launch_agents($user, true);
 		$name = file::name_clean($name);
 		$name = "com.zesk." . $name;
-
+		
 		return path($path, $name . '.plist');
 	}
-
+	
 	/**
 	 * Return XML for the login script
 	 *
@@ -396,13 +398,13 @@ class Server_Platform_Darwin extends Server_Platform_UNIX {
 	private static function _login_script_contents($name, $command) {
 		$contents = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<!DOCTYPE plist PUBLIC \"-//Apple Computer//DTD PLIST 1.0//EN\" \"http://www.apple.com/DTDs/PropertyList-1.0.dtd\">\n";
 		$contents .= "<plist version=\"1.0\"><dict><key>Label</key><string>{name}</string><key>Program</key><string>{command}</string><key>RunAtLoad</key><true/></dict></plist>";
-
+		
 		return map($contents, array(
 			"name" => $name,
 			"command" => $command
 		));
 	}
-
+	
 	/**
 	 * Is a login script installed for this user?
 	 *
@@ -413,7 +415,7 @@ class Server_Platform_Darwin extends Server_Platform_UNIX {
 		$path = $this->_login_script_path($user, $name);
 		return file_exists($path);
 	}
-
+	
 	/**
 	 * Install command to run at login for user
 	 *
@@ -424,15 +426,15 @@ class Server_Platform_Darwin extends Server_Platform_UNIX {
 	 */
 	function login_script_install($user, $name, $command) {
 		$filename = $this->_login_script_path($user, $name);
-
+		
 		$path = $this->_userdir_launch_agents($user);
 		$name = file::name_clean($name);
 		$name = "com.zesk." . $name;
-
+		
 		$filename = path($path, $name . '.plist');
-
+		
 		$contents = self::_login_script_contents($name, $command);
-
+		
 		if (file_exists($filename)) {
 			$old_contents = file_get_contents($filename);
 			if ($old_contents === $contents) {
@@ -457,10 +459,10 @@ class Server_Platform_Darwin extends Server_Platform_UNIX {
 		}
 		file::put($filename, $contents);
 		$this->exec("laumchctl load -D user {0}", $path);
-
+		
 		return true;
 	}
-
+	
 	/**
 	 * Run the login script now
 	 * @see Server_Platform::login_script_run()
@@ -475,9 +477,9 @@ class Server_Platform_Darwin extends Server_Platform_UNIX {
 		$path = $this->_userdir_launch_agents($user);
 		$name = file::name_clean($name);
 		$name = "com.zesk." . $name;
-
+		
 		$filename = path($path, $name . '.plist');
-
+		
 		return file::unlink($filename);
 	}
 }

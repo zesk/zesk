@@ -1,4 +1,11 @@
 <?php
+namespace zesk;
+
+/**
+ * 
+ * @author kent
+ *
+ */
 class Server_Test extends Test_Unit {
 	protected $load_modules = array(
 		"server"
@@ -7,7 +14,7 @@ class Server_Test extends Test_Unit {
 		$this->schema_synchronize("zesk\\Server");
 	}
 	function test_Server() {
-		zesk::set('HOST', 'localhost');
+		$this->application->configuration->HOST = "localhost";
 		
 		$mixed = null;
 		$options = false;

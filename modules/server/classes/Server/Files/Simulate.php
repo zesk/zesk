@@ -2,7 +2,7 @@
 /**
  * 
  */
-use zesk\Directory;
+namespace zesk;
 
 /**
  * Abstraction of file system - use when operating as non-root to record changes

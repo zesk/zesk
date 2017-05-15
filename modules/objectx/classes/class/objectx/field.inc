@@ -1,5 +1,9 @@
 <?php
-class Class_ObjectX_Field extends zesk\Class_Object {
+
+namespace zesk;
+
+
+class Class_ObjectX_Field extends Class_Object {
 	public $id_column = "id";
 	public $find_keys = array(
 		'class',

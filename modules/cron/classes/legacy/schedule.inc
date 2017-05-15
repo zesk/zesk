@@ -6,8 +6,14 @@
  */
 zesk()->obsolete();
 
+use zesk\HTML;
+use zesk\str;
+use zesk\arr;
+use zesk\Time;
+use zesk\Date;
 use zesk\Timestamp;
 use zesk\Locale;
+use zesk\Exception_Parse;
 
 /**
  * 
@@ -118,7 +124,7 @@ class Schedule {
 		);
 		$match = $default_match;
 		$loops = 0;
-		$debug = _G('debug-schedule-next');
+		$debug = zesk()->configuration->path_get(__CLASS__ . '::debug_schedule_next');
 		if ($debug) {
 			dump($data);
 		}
@@ -495,7 +501,7 @@ class Schedule {
 	 */
 	static function parse($text, $locale = null) {
 		if (!$locale) {
-			$locale = _G('locale');
+			$locale = Locale::current();
 		}
 		switch (strtolower(substr($locale, 0, 2))) {
 			default :

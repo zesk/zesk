@@ -93,13 +93,15 @@ class Module_iLess extends zesk\Module {
 	 * @return \ILess\Variable
 	 */
 	protected function hook_process_variable_font($value, array $settings) {
+		$objects = zesk()->objects;
 		$fonts = explode(",", $value);
 		$values = array();
 		foreach ($fonts as $font) {
 			$font = unquote(trim($font));
-			$values[] = new ILess\Node\QuotedNode("'$font'", $font);
+			$values[] = $objects->factory("ILess\\Node\\QuotedNode", "'$font'", $font);
 		}
-		return new ILess\Variable('site_theme_font', new ILess\Node\ValueNode($values));
+		$value_node = $objects->factory("ILess\Node\ValueNode", $values);
+		return $objects->factory("ILess\Variable", 'site_theme_font', $value_node);
 	}
 	
 	/**

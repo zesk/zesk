@@ -1,4 +1,7 @@
 <?php
+
+namespace zesk;
+
 class Currency_Test extends Test_Object {
 	protected $load_modules = array(
 		"commerce"

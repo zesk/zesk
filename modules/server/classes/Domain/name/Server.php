@@ -1,11 +1,12 @@
 <?php
+namespace zesk;
+
+/**
+ * 
+ * @author kent
+ *
+ */
 class Domain_Name_Server extends Object {
-	protected $column_types = array(
-		"IP" => "ip"
-	);
-	protected $has_one = array(
-		'Domain' => 'Domain_Name'
-	);
 }
 
 /*

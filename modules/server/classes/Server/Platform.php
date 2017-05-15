@@ -4,7 +4,6 @@
  */
 namespace zesk;
 
-
 /**
  * 
  * @author kent
@@ -16,7 +15,7 @@ abstract class Server_Platform extends Hookable {
 	 * 
 	 * @var Application
 	 */
-	protected $application = null;
+	public $application = null;
 	/**
 	 * Associative array of commands to full paths
 	 *
@@ -134,20 +133,12 @@ abstract class Server_Platform extends Hookable {
 	public function conf_load($path, $options = null) {
 		$defaults = $this->_conf_defaults();
 		$options = is_array($options) ? $options + $defaults : $defaults;
-		if (File::extension($path) === "json") {
-			return json_decode(file_get_contents($path));
-		}
-		return conf::load($path, $options);
+		$result = array();
+		$array_interface = new Adapter_Settings_Array($result);
+		$loader = Configuration_Parser::factory(File::extension($path), file_get_contents($path), $array_interface, $options);
+		return $result;
 	}
-	public function conf_parse($contents, $options = null) {
-		$contents = ltrim($contents);
-		if ($contents[0] === '{') {
-			return JSON::decode($contents);
-		}
-		$defaults = $this->_conf_defaults();
-		$options = is_array($options) ? $options + $defaults : $defaults;
-		return conf::parse(explode("\n", $contents), $options);
-	}
+	
 	/**
 	 * Initialize the file system object
 	 */
@@ -202,7 +193,7 @@ abstract class Server_Platform extends Hookable {
 	 */
 	final static function factory($options = null) {
 		$platform = php_uname('s');
-		return zesk::factory("Server_Platform_$platform", $options);
+		return $this->application->objects->factory(__CLASS__ . "_$platform", $options);
 	}
 	
 	/**
@@ -1042,7 +1033,7 @@ abstract class Server_Platform extends Hookable {
 		foreach ($urls as $url) {
 			try {
 				$db = app()->database_factory($url);
-			} catch (zesk\Database_Exception $e) {
+			} catch (Database_Exception $e) {
 				$this->application->logger->error("Need to configure DB_URL {url}: Reason {error}", array(
 					"url" => URL::remove_password($url),
 					"error" => $e->getMesage()

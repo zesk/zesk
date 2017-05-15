@@ -4,13 +4,14 @@
  * @package    zesk
  * @subpackage objects
  */
+namespace zesk;
 
 /**
  * Payment
  *
  * @author kent
  */
-class Payment extends \zesk\Object {
+class Payment extends Object {
 	/**
 	 * Update expiration date on cards which have expired in the database
 	 *
@@ -18,7 +19,7 @@ class Payment extends \zesk\Object {
 	 *       checking expiration
 	 * @return integer The number of cards which have expired
 	 */
-	public static function cron_cluster_minute(zesk\Application $application) {
+	public static function cron_cluster_minute(Application $application) {
 		$query = $application->class_query_update(__CLASS__)->value('IsValid', 'false');
 		$query->where('*ExpireDate|<=', $query->sql()
 			->now_utc())
@@ -29,7 +30,7 @@ class Payment extends \zesk\Object {
 			/* @var $zesk zesk\Kernel */
 			$zesk->logger->notice("Expired {n_rows} {payments} which reached their expiration date", array(
 				"n_rows" => $n_rows,
-				"payments" => zesk\Locale::plural(__CLASS__, $n_rows)
+				"payments" => Locale::plural(__CLASS__, $n_rows)
 			));
 		}
 	}

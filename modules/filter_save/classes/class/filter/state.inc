@@ -1,10 +1,11 @@
 <?php
-
 namespace zesk;
 
-class Class_Filter_State extends zesk\Class_Object {
+class Class_Filter_State extends Class_Object {
 	public $id_column = "id";
-
+	public $has_one = array(
+		"user" => "zesk\\User"
+	);
 	public $column_types = array(
 		'id' => self::type_id,
 		'scope' => self::type_string,

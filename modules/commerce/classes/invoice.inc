@@ -4,11 +4,10 @@
  * @package zesk
  * @subpackage objects
  */
+namespace zesk;
 
 /**
  * Invoice
  * @see Class_Invoice
  */
-class Invoice extends \zesk\Object {
-
-}
+class Invoice extends Object {}

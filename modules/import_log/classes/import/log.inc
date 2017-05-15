@@ -8,7 +8,9 @@
  * Created on Wed Feb 24 15:47:45 EST 2010 15:47:45
  */
 
-abstract class Import_Log extends Options implements Iterator {
+namespace zesk;
+
+abstract class Import_Log extends Options implements \Iterator {
 	private $_filename;
 	private $_fp;
 	

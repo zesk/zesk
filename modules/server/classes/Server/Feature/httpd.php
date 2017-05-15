@@ -1,4 +1,6 @@
 <?php
+namespace zesk;
+
 class Server_Feature_HTTPD extends Server_Feature {
 	public $name = 'httpd';
 	protected $settings = array(

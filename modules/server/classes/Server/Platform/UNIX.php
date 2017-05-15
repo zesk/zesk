@@ -1,4 +1,14 @@
 <?php
+/**
+ *
+ */
+namespace zesk;
+
+/**
+ *
+ * @author kent
+ *
+ */
 abstract class Server_Platform_UNIX extends Server_Platform {
 	protected $root_user = "root";
 	protected $uid = null;
@@ -14,7 +24,7 @@ abstract class Server_Platform_UNIX extends Server_Platform {
 	const f_group_id = "gid";
 	const f_group_members = "members";
 	public function has_shell_program($command) {
-		return zesk::which($command) === null ? false : true;
+		return $this->application->paths->which($command) === null ? false : true;
 	}
 	public function user_current() {
 		return trim($this->exec_one("id -un"));

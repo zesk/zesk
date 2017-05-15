@@ -2,10 +2,13 @@
 /**
  * 
  */
+use zesk\Object;
 use zesk\Timestamp;
 use zesk\Interface_Process;
 use zesk\Exception_Configuration;
 use zesk\Locale;
+use zesk\Exception_Syntax;
+use zesk\Parse_Log;
 
 /**
  * @see Class_IPBan_Parser

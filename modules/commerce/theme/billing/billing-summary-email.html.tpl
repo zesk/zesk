@@ -8,6 +8,8 @@
  * @copyright Copyright &copy; 2011, Market Acumen, Inc.
  * Created on Mon,Aug 1, 11 at 5:09 PM
  */
+namespace zesk;
+
 /* @var $this zesk\Template */
 $this->from = "ConversionRuler Billing Task <noreply@conversionruler.com>";
 $this->to = "ConversionRuler Billing <kent@marketacumen.com>";
@@ -156,16 +158,17 @@ click on each account and update the &quot;Checked&quot; field.
 			<li>Created Date: {CheckAccount.Created}</li>
 			<li>Referrer: {CheckAccount.Referrer}</li>
 			<li>BillString: {CheckAccount.BillString}</li>
-			<li>Sites</li>
-			<ul>
-				<!-- CheckAccount.Sites { -->
-				<li><a
-					href="{DomainPrefix}/popup{action($CheckAccount.Sites,edit)}?Ref=*close">{CheckAccount.Sites.Name}</a>
-				</li>
-				<li>Activated: {CheckAccount.Sites.Activated}</li>
-				<li>Deactivated: {CheckAccount.Sites.Deactivated}</li>
-				<!-- } -->
-			</ul>
+			<li>Sites
+				<ul>
+					<!-- CheckAccount.Sites { -->
+					<li><a
+						href="{DomainPrefix}/popup{action($CheckAccount.Sites,edit)}?Ref=*close">{CheckAccount.Sites.Name}</a>
+					</li>
+					<li>Activated: {CheckAccount.Sites.Activated}</li>
+					<li>Deactivated: {CheckAccount.Sites.Deactivated}</li>
+					<!-- } -->
+				</ul>
+			</li>
 		</ul> <!-- } -->
 
 </ul>
@@ -224,11 +227,11 @@ payment associated with them:
 	<!-- NonBilledAccount { -->
 	<!-- action($NonBilledAccount,edit) { -->
 	<li><a href="{DomainPrefix}/popup{Action.URI}?Ref=*close">{NonBilledAccount.Name}</a>
-		({NonBilledAccount.ID}) has no payment.</li>
+		({NonBilledAccount.ID}) has no payment.
+		<ul>
+			<li>Created Date: {NonBilledAccount.Created}</li>
+		</ul></li>
 	<!-- } -->
-	<ul>
-		<li>Created Date: {NonBilledAccount.Created}</li>
-	</ul>
 	<!-- } -->
 </ul>
 <!-- } else { -->
@@ -278,8 +281,8 @@ payment associated with them:
 		was skipped because it was billed on {RecentBillDate}.</li>
 	<!-- } -->
 	<!-- } else { -->
-	<p>No accounts skipped because of recent billing. (When caught-up, this
-		should be empty always)</p>
+	<li>No accounts skipped because of recent billing. (When caught-up,
+		this should be empty always)</li>
 	<!-- } -->
 </ul>
 <h2>Unbilled Accounts</h2>
@@ -378,27 +381,27 @@ payment associated with them:
 	<li><a href="{DomainPrefix}/popup{Action.URI}">{GeneratedAccount.Name}</a></li>
 	<!-- } -->
 	<!-- GenerateError { -->
-	<ul>
-		<li class="error">An error occurred generating this invoice: {message}</li>
-	</ul>
+	<li class="error">An error occurred generating this invoice: {message}</li>
 	<!-- } else { -->
-	<ul>
-		<!-- action($GeneratedInvoice,view) { -->
-		<li><a href="{DomainPrefix}/popup{Action.URI}">{GeneratedInvoice.CodeName}</a>
-			for {GeneratedInvoice.Total}</li>
-		<!-- } -->
-		<!-- !PaymentError { -->
-		<!-- GeneratedPayment { -->
-		<li><a href="{DomainPrefix}/popup{action($GeneratedPayment,view)}">Payment
-				information:</a> {GeneratedPayment}</li>
-		<!-- } else { -->
-		<li>No payment required</li>
-		<!-- } -->
-		<!-- } -->
-		<!-- PaymentError { -->
-		<li class="error">An error occurred during payment: {message}</li>
-		<!-- } -->
-	</ul>
+	<li>
+		<ul>
+			<!-- action($GeneratedInvoice,view) { -->
+			<li><a href="{DomainPrefix}/popup{Action.URI}">{GeneratedInvoice.CodeName}</a>
+				for {GeneratedInvoice.Total}</li>
+			<!-- } -->
+			<!-- !PaymentError { -->
+			<!-- GeneratedPayment { -->
+			<li><a href="{DomainPrefix}/popup{action($GeneratedPayment,view)}">Payment
+					information:</a> {GeneratedPayment}</li>
+			<!-- } else { -->
+			<li>No payment required</li>
+			<!-- } -->
+			<!-- } -->
+			<!-- PaymentError { -->
+			<li class="error">An error occurred during payment: {message}</li>
+			<!-- } -->
+		</ul>
+	</li>
 	<!-- } -->
 	<!-- } -->
 	<!-- !Generated { -->
@@ -415,12 +418,12 @@ payment associated with them:
 		for <a
 		href="{DomainPrefix}/popup{action($InvoicePaid.Account,edit}')}">{InvoicePaid.Account.Name}</a>
 		paid by <a
-		href="{DomainPrefix}/popup{action($InvoicePaid.PaymentAccount,edit}')}">{InvoicePaid.PaymentAccount.Name}</a></li>
-	<ul>
-		<li>Invoice Date: {InvoicePaid.BillDate}</li>
-		<li>Total: {InvoicePaid.Total}</li>
-		<li>Amount Due: {InvoicePaid.AmountDueNew}</li>
-	</ul>
+		href="{DomainPrefix}/popup{action($InvoicePaid.PaymentAccount,edit}')}">{InvoicePaid.PaymentAccount.Name}</a>
+		<ul>
+			<li>Invoice Date: {InvoicePaid.BillDate}</li>
+			<li>Total: {InvoicePaid.Total}</li>
+			<li>Amount Due: {InvoicePaid.AmountDueNew}</li>
+		</ul></li>
 	<!-- } -->
 </ul>
 <!-- MigrateData? { -->

@@ -1,4 +1,14 @@
 <?php
+/**
+ *
+ */
+namespace zesk;
+
+/**
+ * 
+ * @author kent
+ *
+ */
 class Server_Files_Direct extends Server_Files {
 	function is_file($file) {
 		return is_file($file);
@@ -13,7 +23,7 @@ class Server_Files_Direct extends Server_Files {
 		return @chmod($path, $mode);
 	}
 	function stat($path, $section = null) {
-		return file::stat($path, $section);
+		return File::stat($path, $section);
 	}
 	function file_put_contents($path, $contents) {
 		return file_put_contents($path, $contents);

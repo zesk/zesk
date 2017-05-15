@@ -4,6 +4,8 @@
  * @package zesk
  * @subpackage objects
  */
+namespace zesk;
+
 /**
  * Account_Transaction_Type
  *

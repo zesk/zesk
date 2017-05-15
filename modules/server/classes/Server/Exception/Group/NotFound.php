@@ -1,5 +1,14 @@
 <?php
+/**
+ *
+ */
+namespace zesk;
 
+/**
+ *
+ * @author kent
+ *
+ */
 class Server_Exception_Group_NotFound extends Server_Exception {
 	public $group = null;
 

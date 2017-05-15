@@ -1,11 +1,15 @@
 <?php
+/**
+ * 
+ */
+namespace zesk;
 
 /**
  * 
  * @author kent
  *
  */
-class Module_Server extends zesk\Module {
+class Module_Server extends Module {
 	protected $classes = array(
 		'zesk\\Server',
 		'zesk\\Server_Data',

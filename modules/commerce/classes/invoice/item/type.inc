@@ -4,6 +4,7 @@
  * @package zesk
  * @subpackage objects
  */
+namespace zesk;
 
 /**
  * Invoice_Item_Type

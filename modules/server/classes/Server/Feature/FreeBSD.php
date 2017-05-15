@@ -1,8 +1,5 @@
 <?php
-/**
- * 
- */
-use zesk\Directory;
+namespace zesk;
 
 /**
  * 

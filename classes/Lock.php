@@ -67,13 +67,14 @@ class Lock extends Object {
 		// Deleting unlinked locks
 		$n_rows = 0;
 		$server_ids = $application->query_select("zesk\\Server")->to_array(null, "id");
-		$iterator = $application->query_select(__CLASS__)->where("X.server|!=", $server_ids)->object_iterator();
+		$iterator = $application->query_select(__CLASS__)->where("X.server|!=|AND", $server_ids)->object_iterator();
 		foreach ($iterator as $lock) {
 			/* @var $lock Lock */
 			$server_id = $lock->member_integer("server");
 			$lock->release();
-			zesk()->logger->notice("Releasing lock #{id} {code} associated with defunct server # {server_id}", $lock->variables() + array(
-				"server_id" => $server_id
+			$application->logger->notice("Releasing lock #{id} {code} associated with defunct server # {server_id} (current server ids: {server_ids})", $lock->variables() + array(
+				"server_id" => $server_id,
+				"server_ids" => implode(",", $server_ids)
 			));
 			++$n_rows;
 		}

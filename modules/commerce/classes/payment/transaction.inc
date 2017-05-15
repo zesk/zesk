@@ -4,5 +4,12 @@
  * @package zesk
  * @subpackage objects
  */
+namespace zesk;
+
+/**
+ * 
+ * @author kent
+ *
+ */
 class Payment_Transaction extends Object {
 }

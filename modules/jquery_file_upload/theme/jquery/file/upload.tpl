@@ -4,28 +4,13 @@
  */
 namespace zesk;
 
-if (false) {
-	/* @var $this Template */
-	
-	$zesk = $this->zesk;
-	/* @var $zesk \zesk\Kernel */
-	
-	$application = $this->application;
-	/* @var $application \zesk\Application */
-	
-	$session = $this->session;
-	/* @var $session \zesk\Session */
-	
-	$router = $this->router;
-	/* @var $request \zesk\Router */
-	
-	$request = $this->request;
-	/* @var $request \zesk\Request */
-	
-	$response = $this->response;
-	/* @var $response \zesk\Response_Text_HTML */
-}
-
+/* @var $this Template */
+/* @var $zesk Kernel */
+/* @var $application Application */
+/* @var $session Session */
+/* @var $request Router */
+/* @var $request Request */
+/* @var $response Response_Text_HTML */
 $response->css("/share/jquery_file_upload/css/jquery.fileupload-ui.css");
 
 $id = $this->get('id', 'fileupload');
@@ -49,7 +34,7 @@ $response->javascript("/share/jquery_file_upload/js/jquery.fileupload.js");
 <form id="<?php echo $id; ?>form" method="POST"
 	enctype="multipart/form-data">
 	<input id="<?php echo $id; ?>" type="file" name="files[]"
-		data-url="<?php echo u("/jquery_file_upload"); ?>" multiple>
+		data-url="/jquery_file_upload" multiple>
 </form>
 <?php
 
@@ -58,7 +43,7 @@ return;
 <!-- Redirect browsers with JavaScript disabled to the origin page -->
 <noscript>
 	<input type="hidden" name="redirect"
-		value="<?php echo u("jquery_file_upload"); ?>">
+		value="<?php echo "jquery_file_upload"; ?>">
 </noscript>
 <!-- The fileupload-buttonbar contains buttons to add/delete files and start/cancel the upload -->
 <div class="row fileupload-buttonbar">

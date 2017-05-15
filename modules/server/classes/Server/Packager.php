@@ -1,5 +1,13 @@
 <?php
-
+/**
+ * 
+ */
+namespace zesk;
+/**
+ * 
+ * @author kent
+ *
+ */
 abstract class Server_Packager {
 	/**
 	 * @var Server_Platform

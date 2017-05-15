@@ -1,6 +1,6 @@
 <?php
 
-use zesk\Timestamp;
+namespace zesk;
 
 /**
  * $URL: https://code.marketacumen.com/zesk/trunk/modules/date/classes/control/date/input.inc $

@@ -37,7 +37,7 @@ echo $this->theme('zesk/control/text', array(
 ));
 
 $options = $this->get(array(
-	"lang" => Locale::language(zesk\Locale::current()),
+	"lang" => Locale::language(Locale::current()),
 	"inline" => $this->getb('inline'),
 	"format" => "Y-m-d",
 	'timepicker' => false

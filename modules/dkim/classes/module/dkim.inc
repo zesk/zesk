@@ -1,12 +1,36 @@
 <?php
-class Module_DKIM extends zesk\Module {
+/**
+ * 
+ */
+namespace zesk;
+
+/**
+ * 
+ * @author kent
+ *
+ */
+class Module_DKIM extends Module {
 	public function initialize() {
 	}
 	public function hook_configured() {
-		global $zesk;
-		/* @var $zesk zesk\Kernel */
-		
-		$zesk->configuration->deprecated("DKIM::public_key", __CLASS__ . "::public_key");
+		$config = $this->application->configuration;
+		$mapped_any = false;
+		foreach (array(
+			"public_key",
+			"private_key",
+			"selector",
+			"domain"
+		) as $name) {
+			if ($config->deprecated("DKIM::$name", __CLASS__ . "::$name")) {
+				$mapped_any = true;
+			}
+		}
+		if ($mapped_any) {
+			$this->inherit_global_options();
+		}
+	}
+	public function enabled() {
+		return !$this->option_bool('disabled');
 	}
 	/**
 	 * Sign email with DKIM
@@ -15,10 +39,14 @@ class Module_DKIM extends zesk\Module {
 	 * @todo Fix this
 	 */
 	private function _dkim_sign() {
-		$smtp_send = zesk::get('SMTP_URL');
-		if (zesk::get('DKIM::public_key') && $smtp_send) {
-			if (\DKIM::enabled()) {
-				$dkim = new DKIM(zesk::get('DKIM::domain'), zesk::get('DKIM::public_key'), zesk::get('DKIM::private_key'), zesk::get('DKIM::selector'));
+		$smtp_send = $this->application->configuration->SMTP_URL;
+		$public_key = $this->option("public_key");
+		if ($public_key && $smtp_send) {
+			if ($this->enabled()) {
+				$domain = $this->option("domain");
+				$private_key = $this->option("private_key");
+				$selector = $this->option("selector");
+				$dkim = new DKIM($domain, $public_key, $private_key, $selector);
 				$this->headers = $dkim->sign(self::render_headers($this->headers), $this->body);
 			}
 		}

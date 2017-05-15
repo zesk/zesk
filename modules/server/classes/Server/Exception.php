@@ -1,5 +1,12 @@
 <?php
+/**
+ * 
+ */
+namespace zesk;
 
-class Server_Exception extends zesk\Exception {
-
-}
+/**
+ * 
+ * @author kent
+ *
+ */
+class Server_Exception extends Exception {}

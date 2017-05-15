@@ -1,4 +1,14 @@
 <?php
+/**
+ * 
+ */
+namespace zesk;
+
+/**
+ * 
+ * @author kent
+ *
+ */
 class Server_Configuration_Client extends Server_Configuration {
 	private $server_url = null;
 	
@@ -14,7 +24,7 @@ class Server_Configuration_Client extends Server_Configuration {
 		if (!URL::valid($this->server_url)) {
 			throw new Exception_Syntax("Server_Configuration_Client server_url is not a valid url: $this->server_url");
 		}
-		$this->client = new XML_RPC_Client($this->server_url);
+		$this->client = new \xmlrpc\Client($this->server_url);
 	}
 	function feature_list() {
 		return $this->client->feature_list();

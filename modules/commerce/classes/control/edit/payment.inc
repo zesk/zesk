@@ -1,4 +1,14 @@
 <?php
+/**
+ *
+ */
+namespace zesk;
+
+/**
+ * 
+ * @author kent
+ *
+ */
 class Control_Edit_Payment extends Control_Edit {
 	function newWidgetList() {
 		$spec = $this->editWidgetList();

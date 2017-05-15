@@ -6,6 +6,7 @@
  * @author kent
  * @copyright Copyright &copy; 2009, Market Acumen, Inc.
  */
+namespace zesk;
 
 class Control_Date_Range2 extends Control {
 	function __construct($options = false) {

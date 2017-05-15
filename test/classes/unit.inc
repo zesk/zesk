@@ -26,7 +26,7 @@ class Test_Unit extends Options {
 	
 	/**
 	 * 
-	 * @var zesk\Application $application
+	 * @var Application $application
 	 */
 	protected $application = null;
 	
@@ -119,7 +119,7 @@ class Test_Unit extends Options {
 	 */
 	private function begin_test($test, array $settings, array $arguments = array()) {
 		if ($this->test !== null) {
-			throw new zesk\Exception_Semantics("Begin test $test already started: $this->test");
+			throw new Exception_Semantics("Begin test $test already started: $this->test");
 		}
 		$this->stats['test']++;
 		$this->test = $test;
@@ -254,8 +254,8 @@ class Test_Unit extends Options {
 	 */
 	private function _determine_run_methods($class) {
 		try {
-			$reflection = new ReflectionClass($class);
-			$methods = $reflection->getMethods(ReflectionMethod::IS_PUBLIC);
+			$reflection = new \ReflectionClass($class);
+			$methods = $reflection->getMethods(\ReflectionMethod::IS_PUBLIC);
 			$tests = array();
 			foreach ($methods as $method) {
 				/* @var $method ReflectionMethod */
@@ -274,7 +274,7 @@ class Test_Unit extends Options {
 				}
 			}
 			return $tests;
-		} catch (ReflectionException $e) {
+		} catch (\ReflectionException $e) {
 			zesk()->logger->error("Unable to reflect on $class");
 			zesk()->logger->error($e->getMessage());
 			return array();
@@ -406,14 +406,14 @@ class Test_Unit extends Options {
 	 * @param string $message Why this test failed.
 	 * @param array $arguments Arguments for the test failure message
 	 * 
-	 * @throws zesk\Exception_Test
+	 * @throws Exception_Test
 	 */
 	final function fail($message, array $arguments = array()) {
 		$this->test_result = false;
 		if ($this->option_bool('debugger')) {
 			debugger_start_debug();
 		}
-		throw new zesk\Exception_Test($message, $arguments);
+		throw new Exception_Test($message, $arguments);
 	}
 	
 	/**
@@ -421,7 +421,7 @@ class Test_Unit extends Options {
 	 * @param boolean|string $condition Boolean or string to evaluate condition
 	 * @param string $message What the assertion is about
 	 * @param boolean $should_fail This assertion should actually fail (test for false)
-	 * @throws zesk\Exception_Test
+	 * @throws Exception_Test
 	 */
 	final public function assert($condition, $message = null, $should_fail = false) {
 		$this->stats['assert']++;
@@ -714,7 +714,7 @@ class Test_Unit extends Options {
 	}
 	final public function sandbox($file = null, $auto_delete = true) {
 		global $zesk;
-		/* @var $zesk zesk\Kernel */
+		/* @var $zesk Kernel */
 		$cache_dir = $this->application->application_root("cache/test/" . $zesk->process->id());
 		if (!is_dir($cache_dir)) {
 			if (!mkdir($cache_dir, 0777, true)) {
@@ -740,7 +740,7 @@ class Test_Unit extends Options {
 		$this->cache_dir = null;
 		echo "Deleting $cache_dir ...\n";
 		if (is_dir($cache_dir)) {
-			zesk\Directory::delete($cache_dir);
+			Directory::delete($cache_dir);
 		}
 	}
 	
@@ -836,16 +836,16 @@ class Test_Unit extends Options {
 	 *        	The class to run
 	 * @param null $object
 	 *        	Optional return value to get the $object created back
-	 * @throws zesk\Exception_Invalid
+	 * @throws Exception_Invalid
 	 * @return boolean Whether the test passed
 	 */
 	public static function run_one_class($class, array $options, &$object = null) {
 		global $zesk;
-		/* @var $zesk \zesk\Kernel */
+		/* @var $zesk Kernel */
 		$object = $zesk->objects->factory($class);
 		/* @var $object Test_Unit */
 		if (!$object instanceof Test_Unit) {
-			throw new zesk\Exception_Invalid("$class is not an instance of Test_Unit");
+			throw new Exception_Invalid("$class is not an instance of Test_Unit");
 		}
 		$object->set_option($options);
 		$object->inherit_global_options();
@@ -862,21 +862,21 @@ class Test_Unit extends Options {
 	 *        	The class to run
 	 * @param null $object
 	 *        	Optional return value to get the $object created back
-	 * @throws zesk\Exception_Semantics
-	 * @throws zesk\Exception_Class_NotFound
+	 * @throws Exception_Semantics
+	 * @throws Exception_Class_NotFound
 	 * @return boolean Whether the test passed
 	 */
 	public static function run_class($class, &$object = null) {
 		global $zesk;
-		/* @var $zesk zesk\Kernel */
+		/* @var $zesk Kernel */
 		if (empty($class)) {
-			throw new zesk\Exception_Semantics("{method}: No class specified", array(
+			throw new Exception_Semantics("{method}: No class specified", array(
 				"method" => __METHOD__
 			));
 		}
 		$settings = self::_configuration_load();
 		if (!class_exists($class, false) && !$zesk->autoloader->load($class, true) && !self::_find_test($class)) {
-			throw new zesk\Exception_Class_NotFound($class);
+			throw new Exception_Class_NotFound($class);
 		}
 		exit(self::run_one_class($class, $settings, $object) ? 0 : 1);
 	}
@@ -888,12 +888,12 @@ class Test_Unit extends Options {
 	 */
 	private static function _find_test($class) {
 		global $zesk;
-		/* @var $zesk zesk\Kernel */
-		$low_class = zesk\str::unsuffix(strtolower($class), "_test");
+		/* @var $zesk Kernel */
+		$low_class = str::unsuffix(strtolower($class), "_test");
 		$parts = explode("_", $low_class);
 		array_pop($parts);
 		$path = path(implode("/", $parts), "test", $low_class . "_test.inc");
-		$include = zesk\File::find_first(array_keys($zesk->autoloader->path()), $path);
+		$include = File::find_first(array_keys($zesk->autoloader->path()), $path);
 		if (!$include) {
 			return false;
 		}

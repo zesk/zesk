@@ -1,4 +1,6 @@
 <?php
+namespace zesk;
+ 
 class Import_Log_Webserver_Test extends Test_Unit {
 	protected $load_modules = array(
 		"import_log"

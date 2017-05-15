@@ -1,4 +1,6 @@
 <?php
+namespace zesk;
+
 class Control_Content_File extends Control_Widgets {
 	/*
 	 * @var Control_File

@@ -7,6 +7,11 @@
  * @subpackage database
  */
 use zesk\Database_Exception_Connect;
+use zesk\Exception_Configuration;
+use zesk\arr;
+use zesk\URL;
+use zesk\Exception_Unsupported;
+use zesk\Exception_Unimplemented;
 
 class Database_PDO extends zesk\Database {
 	

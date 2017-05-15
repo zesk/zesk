@@ -1,5 +1,5 @@
 <?php
-use zesk\Exception_Directory_NotFound;
+namespace zesk;
 
 class Server_Feature_Daemontools extends Server_Feature {
 	protected $commands = array();

@@ -2,7 +2,9 @@
 /**
  * 
  */
+use zesk\arr;
 use zesk\Directory;
+use zesk\Exception_File_NotFound;
 
 /**
  * 

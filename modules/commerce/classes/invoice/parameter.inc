@@ -6,7 +6,9 @@
 * @author Kent Davidson <kent@marketacumen.com>
 * @copyright Copyright &copy; 2008, Market Acumen, Inc.
 */
-class Invoice_Parameter_Exception extends Exception {}
+
+namespace zesk;
+
 
 /**
  * Invoice_Parameter

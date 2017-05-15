@@ -1,14 +1,16 @@
 <?php
+namespace zesk;
 
-/* @var $response zesk\Response_Text_HTML */
-
+/* @var $response Response_Text_HTML */
 $response = $this->response;
 
 $response->option('Module_Highcharts', true);
 
-$response->jquery($ready);
+$response->jquery();
 
+ob_start();
 ?>
+<script>
 $(function () {
     var chart;
     $(document).ready(function() {
@@ -120,3 +122,7 @@ formatter: function() { // display only if larger than 1 return this.y >
 1 ? '
 <b>'+ this.point.name +':</b>
 '+ this.y +'%' : null; } } }] }); }); });
+</script>
+<?php
+$content = ob_get_clean();
+echo HTML::extract_tag_contents("script", $content);

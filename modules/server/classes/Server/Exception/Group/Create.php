@@ -1,5 +1,14 @@
 <?php
+/**
+ *
+ */
+namespace zesk;
 
+/**
+ *
+ * @author kent
+ *
+ */
 class Server_Exception_Group_Create extends Server_Exception {
 	public $parameters = null;
 

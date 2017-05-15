@@ -1,16 +1,14 @@
 <?php
-use zesk\Stream_File;
+namespace zesk;
 
 class Metafile_CFB_Test extends Test_Unit {
 	protected $load_modules = array(
 		"msformat"
 	);
 	function test_msformat() {
-		$this->assert_equal(avalue($module, "loaded"), true);
+		$module_path = $this->application->modules->path("msformat");
 		
-		dump($module);
-		
-		$test_file = path($module['path'], 'test-data/conference.doc');
+		$test_file = path($module_path, 'test-data/conference.doc');
 		
 		$stream = new Stream_File($test_file);
 		

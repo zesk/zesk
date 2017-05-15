@@ -1,4 +1,6 @@
 <?php
+namespace zesk;
+
 class world_test extends Test_Object {
 	protected $load_modules = array(
 		"world"

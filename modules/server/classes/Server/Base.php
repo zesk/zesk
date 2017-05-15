@@ -1,5 +1,21 @@
 <?php
+/**
+ * 
+ */
+namespace zesk;
+
+/**
+ * 
+ * @author kent
+ *
+ */
 class Server_Base extends Hookable {
+	/**
+	 *
+	 * @var Application
+	 */
+	protected $application = null;
+	
 	/**
 	 *
 	 * @var Server_Platform
@@ -20,6 +36,8 @@ class Server_Base extends Hookable {
 	function __construct(Server_Platform $platform) {
 		parent::__construct($platform);
 		$this->platform = $platform;
+		$this->application = $platform->application;
+		
 		$this->config = $platform->config;
 	}
 	

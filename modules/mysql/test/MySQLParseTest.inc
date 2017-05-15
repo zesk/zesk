@@ -1,4 +1,6 @@
 <?php
+namespace zesk;
+
 class MySQLParseTest extends Test_Unit {
 	protected $load_modules = "mysql";
 	static $schema = <<<EOF

@@ -1,4 +1,6 @@
 <?php
+namespace zesk;
+
 class Server_Feature_Users extends Server_Feature {
 	public $code = "users";
 	protected $commands = array(

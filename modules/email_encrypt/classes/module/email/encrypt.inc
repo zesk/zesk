@@ -1,5 +1,15 @@
 <?php
-class Module_Email_Encrypt extends zesk\Module_JSLib {
+/**
+ * 
+ */
+namespace zesk;
+
+/**
+ * 
+ * @author kent
+ *
+ */
+class Module_Email_Encrypt extends Module_JSLib {
 	
 	/**
 	 * Array of strings of JS to load, or array of path (key) => $options to load
@@ -58,32 +68,31 @@ class Module_Email_Encrypt extends zesk\Module_JSLib {
 		return urlencode($p);
 	}
 	
+	// 	public static function encrypt($e, $hr = false, $noscript = true) {
+	// 		if (empty($e)) {
+	// 			return "";
+	// 		}
+	// 		$offset = mt_rand(1, 10);
+	// 		$doff = 32 + $offset;
+	// 		$link = "<a href=\"mailto:" . $e . "\">$hr</a>";
+	// 		$j = "";
+	// 		$scr = "";
+	// 		$scr = $scr . "var e = unescape(\"" . self::caesar_encrypt($link, $offset) . "\");\n";
+	// 		$scr = $scr . "var i,p='';for(i=0;i<e.length;i++){p+=String.fromCharCode(((e.charCodeAt(i)-" . $doff . ")%240)+32);}\n";
+	// 		$code = zesk::get('encrypt-email-id', 0);
+	// 		$scr .= "\$('#enc_email_$code').html(p);";
+	// 		Response::instance()->jquery("(function () { " . $scr . " })();");
+	// 		$j = $j . "<span id=\"enc_email_$code\"></span>";
+	// 		zesk::set('encrypt-email-id', $code + 1);
 	
-// 	public static function encrypt($e, $hr = false, $noscript = true) {
-// 		if (empty($e)) {
-// 			return "";
-// 		}
-// 		$offset = mt_rand(1, 10);
-// 		$doff = 32 + $offset;
-// 		$link = "<a href=\"mailto:" . $e . "\">$hr</a>";
-// 		$j = "";
-// 		$scr = "";
-// 		$scr = $scr . "var e = unescape(\"" . self::caesar_encrypt($link, $offset) . "\");\n";
-// 		$scr = $scr . "var i,p='';for(i=0;i<e.length;i++){p+=String.fromCharCode(((e.charCodeAt(i)-" . $doff . ")%240)+32);}\n";
-// 		$code = zesk::get('encrypt-email-id', 0);
-// 		$scr .= "\$('#enc_email_$code').html(p);";
-// 		Response::instance()->jquery("(function () { " . $scr . " })();");
-// 		$j = $j . "<span id=\"enc_email_$code\"></span>";
-// 		zesk::set('encrypt-email-id', $code + 1);
-		
-// 		$e = explode("@", $e);
-// 		if ($noscript) {
-// 			$j = $j . "<noscript>" . $e[0] . " <em>-a<!-- " . mt_rand() . " -->t-</em> ";
-// 			$f = explode(".", $e[1]);
-// 			$j = $j . implode(" <em>d<!-- " . mt_rand() . " -->ot</em> ", $f);
-// 			$j = $j . "</noscript>";
-// 		}
-		
-// 		return $j;
-// 	}
+	// 		$e = explode("@", $e);
+	// 		if ($noscript) {
+	// 			$j = $j . "<noscript>" . $e[0] . " <em>-a<!-- " . mt_rand() . " -->t-</em> ";
+	// 			$f = explode(".", $e[1]);
+	// 			$j = $j . implode(" <em>d<!-- " . mt_rand() . " -->ot</em> ", $f);
+	// 			$j = $j . "</noscript>";
+	// 		}
+	
+	// 		return $j;
+	// 	}
 }

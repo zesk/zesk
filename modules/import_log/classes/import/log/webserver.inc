@@ -8,6 +8,13 @@
  * Created on Wed Feb 24 15:47:45 EST 2010 15:47:45
  */
 
+namespace zesk;
+
+/**
+ * 
+ * @author kent
+ *
+ */
 abstract class Import_Log_WebServer extends Import_Log
 {
 	const IP = "IP";

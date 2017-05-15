@@ -1,4 +1,8 @@
 <?php
+/**
+ * 
+ */
+namespace zesk;
 
 /**
  * Abstraction of file system 

@@ -1,5 +1,15 @@
 <?php
-class dns {
+/**
+ * 
+ */
+namespace zesk;
+
+/**
+ * 
+ * @author kent
+ *
+ */
+class DNS {
 	public static function host($name, $type = null, $options = null) {
 		if (is_string($options)) {
 			$options = array(

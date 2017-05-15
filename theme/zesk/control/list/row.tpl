@@ -1,4 +1,11 @@
 <?php
+/**
+ * 
+ */
+namespace zesk;
+/**
+ * 
+ */
 if ($this->row_widget instanceof Widget) {
 	$children = $this->row_widget->children;
 } else if (is_array($this->row_widgets)) {

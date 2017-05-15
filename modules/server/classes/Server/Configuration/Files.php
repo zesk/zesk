@@ -7,11 +7,7 @@
  * @author $Author: kent $
  * @copyright Copyright &copy; 2011, Market Acumen, Inc.
  */
-use zesk\arr;
-use zesk\Directory;
-use zesk\File;
-use zesk\Exception_Directory_NotFound;
-use zesk\Exception_Configuration;
+namespace zesk;
 
 /**
  * 

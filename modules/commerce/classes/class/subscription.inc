@@ -1,6 +1,15 @@
 <?php
+/**
+ *
+ */
+namespace zesk;
 
-class Class_Subscription extends zesk\Class_Object {
+/**
+ * 
+ * @author kent
+ *
+ */
+class Class_Subscription extends Class_Object {
 	public $id_column = "id";
 
 }

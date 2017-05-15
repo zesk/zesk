@@ -7,6 +7,8 @@
  * @copyright (c) 2013 Market Acumen, Inc.
  */
 use zesk\Timestamp;
+use zesk\IPv4;
+use zesk\Object;
 
 /**
  * @see Class_IPBan

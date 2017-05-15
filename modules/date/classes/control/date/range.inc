@@ -7,7 +7,7 @@
  * @copyright Copyright &copy; 2009, Market Acumen, Inc.
  * Created on Sun Apr 04 21:54:40 EDT 2010 21:54:40
  */
-use zesk\Timestamp;
+namespace zesk;
 
 /**
  * 

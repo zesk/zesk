@@ -30,7 +30,7 @@ class World_Bootstrap_Province extends Options {
 	 * @return World_Bootstrap_Province
 	 */
 	public static function factory(array $options = array()) {
-		return zesk::factory(__CLASS__, $options);
+		return zesk()->objects->factory(__CLASS__, $options);
 	}
 	
 	/**

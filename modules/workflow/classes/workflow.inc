@@ -3,6 +3,7 @@ use zesk\arr;
 use zesk\PHP;
 use zesk\Exception_Parameter;
 use zesk\Model;
+use zesk\Exception_Class_NotFound;
 
 class Workflow extends Model {
 	

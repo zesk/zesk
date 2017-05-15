@@ -1,11 +1,12 @@
 <?php
+namespace zesk;
 
 /**
  * Should probably do this in Apache or nginx, not in code
  * 
  * @author kent
  */
-class Module_gzip extends zesk\Module {
+class Module_GZIP extends Module {
 	/**
 	 * Whether output buffering is enabled
 	 * @var boolean
@@ -21,7 +22,7 @@ class Module_gzip extends zesk\Module {
 	/**
 	 * Hook Module::hooks()
 	 */
-	public static function hooks(zesk\Kernel $zesk) {
+	public static function hooks(Kernel $zesk) {
 		$hooks = $zesk->hooks;
 		$hooks->add("zesk\Response::headers", __CLASS__ . "::response_headers");
 		$hooks->add("zesk\Response::render", __CLASS__ . "::response_render");
@@ -84,9 +85,9 @@ class Module_gzip extends zesk\Module {
 	 */
 	public static function enabled($set = null) {
 		global $zesk;
-		/* @var $zesk zesk\Kernel */
+		/* @var $zesk Kernel */
 		if (is_bool($set)) {
-			$zesk->configuration->pave('Module_gzip')->enabled = to_bool($set);
+			$zesk->configuration->path(__CLASS__)->enabled = to_bool($set);
 		}
 		return $zesk->configuration->path_get("Module_gzip::enabled", true);
 	}
@@ -98,7 +99,7 @@ class Module_gzip extends zesk\Module {
 	 *
 	 * @return boolean
 	 */
-	public static function ok(zesk\Request $request) {
+	public static function ok(Request $request) {
 		if (!self::enabled()) {
 			return false;
 		}

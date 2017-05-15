@@ -173,7 +173,7 @@ class Content_File extends Object {
 		$options = to_array($options);
 		$data = Content_Data::copy_from_path($path, $copy);
 		
-		$file = new \Content_File();
+		$file = new Content_File();
 		$file->Original = avalue($options, 'Original', $path);
 		if ($file->find(array(
 			'Original' => $file->Original

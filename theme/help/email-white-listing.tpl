@@ -1,5 +1,4 @@
 <?php
-
 /**
  * $URL$
  * @package zesk
@@ -7,6 +6,7 @@
  * @author $Author: kent $
  * @copyright Copyright &copy; 2007, Market Acumen, Inc.
  */
+namespace zesk;
 
 /**
  * @param show_credit boolean Whether to show the credits or not
@@ -145,7 +145,7 @@ $email_host = strtolower(str::right($from_email, "@"));
 	<li>Click on the Addresses tab in the upper-left part of your account
 		screen.</li>
 	<li>Click on Add contact just under the Addresses tab.</li>
-	<li> Enter &quot;<?php echo $from_email?>&quot; in the email field Ð the rest can be left blank, if desired.
+	<li> Enter &quot;<?php echo $from_email?>&quot; in the email field ï¿½ the rest can be left blank, if desired.
 </li>
 	<li>Click on Save at the bottom of the page. You should see a
 		confirmation screen.</li>

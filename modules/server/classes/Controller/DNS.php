@@ -46,7 +46,7 @@ class Controller_DNS extends Controller_Template {
 				$old_records = array_values($old_records);
 				sort($new_records);
 				$new_records = array_values($new_records);
-				$diff = new \Diff_Lines($old_records, $new_records, true);
+				$diff = new Diff_Lines($old_records, $new_records, true);
 				if ($diff->is_identical()) {
 					continue;
 				}

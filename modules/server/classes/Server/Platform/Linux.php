@@ -1,4 +1,14 @@
 <?php
+/**
+ *
+ */
+namespace zesk;
+
+/**
+ *
+ * @author kent
+ *
+ */
 class Server_Platform_Linux extends Server_Platform_Unix {
 	protected $root_group = "root";
 	private static $users_loaded = false;

@@ -4,9 +4,9 @@
  * @package zesk
  * @subpackage objects
  */
+namespace zesk;
 
 /**
  * Invoice_Payment
  */
-class Invoice_Payment extends Object {
-}
+class Invoice_Payment extends Object {}

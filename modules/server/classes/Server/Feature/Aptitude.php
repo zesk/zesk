@@ -1,4 +1,6 @@
 <?php
+namespace zesk;
+
 class Server_Feature_Aptitute extends Server_Feature {
 	public function configure() {
 		if (!$this->platform->packager instanceof Server_Packager_APT) {

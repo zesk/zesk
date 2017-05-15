@@ -1,5 +1,13 @@
 <?php
-
+/**
+ * 
+ */
+namespace zesk;
+/**
+ * 
+ * @author kent
+ *
+ */
 class Server_Exception_User_Create extends Server_Exception {
 	public $user = null;
 	public $parameters = null;

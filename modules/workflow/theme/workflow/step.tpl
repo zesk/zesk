@@ -1,5 +1,7 @@
 <?php
 
+use zesk\HTML;
+
 /* @var $workflow Workflow */
 $workflow = $this->workflow;
 /* @var $step Workflow_Step */

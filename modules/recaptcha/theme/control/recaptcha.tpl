@@ -1,9 +1,7 @@
 <?php
-if (false) {
-	$response = $this->response;
-	/* @var $response zesk\Response_Text_HTML */
-}
+namespace zesk;
 
+/* @var $response Response_Text_HTML */
 $response->javascript("https://www.google.com/recaptcha/api.js?onloadCallback=recaptcha_onload", null, array(
 	"cache" => false
 ));

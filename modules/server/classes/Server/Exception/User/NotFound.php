@@ -1,5 +1,14 @@
 <?php
+/**
+ * 
+ */
+namespace zesk;
 
+/**
+ * 
+ * @author kent
+ *
+ */
 class Server_Exception_User_NotFound extends Server_Exception {
 	public $user = null;
 

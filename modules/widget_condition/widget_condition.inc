@@ -10,8 +10,14 @@
  *
  * @author kent
  */
-class Module_Widget_Condition extends zesk\Module {
+namespace zesk;
 
+/**
+ * 
+ * @author kent
+ *
+ */
+class Module_Widget_Condition extends zesk\Module {
 	public function initialize() {
 		parent::initialize();
 		zesk()->hooks->add("Widget::model_changed", 'Module_Widget_Condition::apply');
@@ -19,7 +25,6 @@ class Module_Widget_Condition extends zesk\Module {
 	public static function apply(Widget $widget, Model $object) {
 		self::apply_dynamic_column($widget, $object);
 	}
-
 	private static function apply_dynamic_column(Widget $widget, Model $object) {
 		if (!$widget->has_option("dynamic_column")) {
 			return;
@@ -36,7 +41,6 @@ class Module_Widget_Condition extends zesk\Module {
 		}
 		$widget->set_option($options);
 	}
-
 	private function condition_setup(Widget $widget, Model $object) {
 		if (!$widget->has_option("condition_options")) {
 			return;
@@ -55,7 +59,7 @@ class Module_Widget_Condition extends zesk\Module {
 			}
 		}
 	}
-
+	
 	/**
 	 * Evaluate a condition
 	 * @param $condition string Condition string
@@ -101,7 +105,7 @@ class Module_Widget_Condition extends zesk\Module {
 						return ($cond[0] == $cond[1]);
 					case "!":
 						return !to_bool($cond[1], false);
-					default:
+					default :
 						throw new Exception_Semantics("Unknown condition found? " . $condition);
 				}
 			}

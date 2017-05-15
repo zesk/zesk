@@ -1,5 +1,14 @@
 <?php
+/**
+ * 
+ */
+namespace zesk;
 
+/**
+ * 
+ * @author kent
+ *
+ */
 class Preference_Type_Test extends Test_Unit {
 	protected $load_modules = array(
 		"preference"

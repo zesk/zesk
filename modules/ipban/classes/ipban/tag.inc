@@ -1,4 +1,5 @@
 <?php
+use zesk\Object;
 
 /**
  * @see Class_IPBan_Tag

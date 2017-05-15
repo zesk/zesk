@@ -1,62 +1,64 @@
 <?php
-class Parse_Log extends Hookable {
+namespace zesk;
 
+class Parse_Log extends Hookable {
+	
 	/**
 	 * Integer pattern
 	 *
 	 * @var string
 	 */
 	const pattern_integer = '[0-9]+';
-
+	
 	/**
 	 * TLD pattern
 	 *
 	 * @var string
 	 */
 	const pattern_domain = '[-_.a-zA-Z]+';
-
+	
 	/**
 	 * IP Address pattern
 	 *
 	 * @var string
 	 */
 	const pattern_ip = '(?:\d{1,3}\.){3}\d{1,3}';
-
+	
 	/**
 	 * Double-quoted string pattern
 	 *
 	 * @var string
 	 */
 	const pattern_dquoted_string = '"[^"]*"';
-
+	
 	/**
 	 * Number pattern
 	 *
 	 * @var string
 	 */
 	const pattern_number = '[0-9]+';
-
+	
 	/**
 	 * Skip pattern (assumes space delimited)
 	 *
 	 * @var string
 	 */
 	const pattern_skip = '[^ ]+';
-
+	
 	/**
 	 * YMD pattern
 	 *
 	 * @var string
 	 */
 	const pattern_date_ymd = '2[0-9][0-9][0-9]-[01][0-9]-[0-3][0-9]';
-
+	
 	/**
 	 * HMS pattern
 	 *
 	 * @var string
 	 */
 	const pattern_time_hms = '[0-2][0-9]:[0-5][0-9]:[0-5][0-9]';
-
+	
 	/**
 	 * Known patterns
 	 *
@@ -101,7 +103,7 @@ class Parse_Log extends Hookable {
 			'DD' => '[0-9]{2}'
 		);
 	}
-
+	
 	/**
 	 * Create a log parser
 	 *
@@ -109,51 +111,51 @@ class Parse_Log extends Hookable {
 	 * @return Parse_Log
 	 */
 	final public static function factory($type, array $options = array()) {
-		return zesk::factory(__CLASS__ . '_' . $type, $options);
+		return zesk()->objects->factory(__CLASS__ . '_' . $type, $options);
 	}
-
+	
 	/**
 	 * Raw line format with pattern placeholders
 	 *
 	 * @var string
 	 */
 	private $format = null;
-
+	
 	/**
 	 * Converted line pattern
 	 *
 	 * @var string
 	 */
 	private $line_pattern = null;
-
+	
 	/**
 	 * Array of index => variable name
 	 *
 	 * @var array
 	 */
 	private $line_captures = null;
-
+	
 	/**
 	 * Array of convert functions
 	 *
 	 * @var string
 	 */
 	private $capture_functions = null;
-
+	
 	/**
 	 * Array of additional names for a variable
 	 *
 	 * @var string
 	 */
 	private $capture_synonyms = null;
-
+	
 	/**
 	 * Array of postprocessing functions
 	 *
 	 * @var string
 	 */
 	private $capture_postprocess = null;
-
+	
 	/**
 	 */
 	private function _init() {
@@ -229,7 +231,7 @@ class Parse_Log extends Hookable {
 		$this->capture_postprocess = array_values($capture_postprocess);
 		$this->capture_synonyms = $capture_synonyms;
 	}
-
+	
 	/**
 	 * Parse a line
 	 *
@@ -267,7 +269,7 @@ class Parse_Log extends Hookable {
 			$matches
 		), $matches);
 	}
-
+	
 	/**
 	 * Imply missing variables
 	 *
@@ -290,19 +292,16 @@ class Parse_Log extends Hookable {
 		}
 		return $variables;
 	}
-
 	public static function strtotime($value) {
 		return strtotime(unquote($value, "\"\"''[]{}()"));
 	}
-
 	public static function unquote($value) {
 		return unquote($value, "\"\"''[]{}()");
 	}
-
 	public static function to_integer($value) {
 		return to_integer($value, $value);
 	}
-
+	
 	/*
 	 * Conversion functions
 	 */
@@ -314,7 +313,7 @@ class Parse_Log extends Hookable {
 		}
 		return $vars;
 	}
-
+	
 	/**
 	 * Implied year - guesses log entries without a year based on the current date
 	 *

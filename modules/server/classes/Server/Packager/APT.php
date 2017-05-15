@@ -1,4 +1,14 @@
 <?php
+/**
+ * 
+ */
+namespace zesk;
+
+/**
+ * 
+ * @author kent
+ *
+ */
 class Server_Packager_APT extends Server_Packager {
 	protected function package_install($package) {
 		if ($this->confirm("install $package")) {

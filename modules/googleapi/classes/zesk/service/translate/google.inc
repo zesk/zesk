@@ -123,7 +123,7 @@ class Service_Translate_Google extends Service_Translate {
 		foreach ($phrases as $phrase) {
 			$suffix .= "&q=" . urlencode($phrase);
 		}
-		$url = \URL::query_format(self::api_root, $query_string) . $suffix;
+		$url = URL::query_format(self::api_root, $query_string) . $suffix;
 		$indexed_translations = $this->_execute($url, "data.translations");
 		if (!is_array($indexed_translations)) {
 			throw new Exception_Semantics("Result data.translations from Google is not an array: {content}", compact("content"));

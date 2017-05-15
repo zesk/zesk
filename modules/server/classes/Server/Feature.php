@@ -1,4 +1,14 @@
 <?php
+/**
+ * 
+ */
+namespace zesk;
+
+/**
+ * 
+ * @author kent
+ *
+ */
 abstract class Server_Feature extends Server_Base {
 	/**
 	 * Short name for this feature
@@ -61,7 +71,7 @@ abstract class Server_Feature extends Server_Base {
 		
 		$this->code = strtolower(str::unsuffix(get_class($this), __CLASS__));
 		if ($this->configure_root === null) {
-			$class = zesk::autoload_search(get_class($this), array(
+			$class = $this->application->zesk->autoloader->search($class, array(
 				"inc"
 			));
 			$this->configure_root = str::unsuffix($class, ".inc");
@@ -148,7 +158,6 @@ abstract class Server_Feature extends Server_Base {
 		$installing = false;
 	}
 	public function configure() {
-		
 	}
 	
 	/**

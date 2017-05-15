@@ -1,16 +1,13 @@
 <?php
 /**
-* $URL: https://code.marketacumen.com/zesk/trunk/modules/commerce/classes/invoice/parameters.inc $
-* @package zesk
-* @subpackage commerce
-* @author Kent Davidson <kent@marketacumen.com>
-* @copyright Copyright &copy; 2005, Market Acumen, Inc.
-*/
-
-/**
- * Description here
+ * $URL: https://code.marketacumen.com/zesk/trunk/modules/commerce/classes/invoice/parameters.inc $
+ * @package zesk
+ * @subpackage commerce
+ * @author Kent Davidson <kent@marketacumen.com>
+ * @copyright Copyright &copy; 2005, Market Acumen, Inc.
  */
-use zesk\Timestamp;
+namespace zesk;
+
 /**
  * InvoiceParameters
  *
@@ -55,8 +52,8 @@ class Invoice_Parameters extends Options {
 	}
 	
 	/*====================================================================================*\
-		Get/Set
-	\*------------------------------------------------------------------------------------*/
+	 Get/Set
+	 \*------------------------------------------------------------------------------------*/
 	function account() {
 		return $this->Account;
 	}

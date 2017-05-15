@@ -8,6 +8,9 @@ use zesk\URL;
 use zesk\Cache;
 use zesk\Exception_File_Permission;
 use zesk\Exception_NotFound;
+use zesk\Net_HTTP_Client;
+use zesk\File;
+use zesk\Net_HTTP;
 
 /**
  * 
@@ -120,7 +123,7 @@ class File_Cache_Local implements Interface_File_Cache {
 		if ($timeout) {
 			$client->timeout($timeout);
 		}
-		$temp_file_name = file::temporary();
+		$temp_file_name = File::temporary();
 		$client->follow_location(true);
 		$client->user_agent(avalue($options, "user_agent", 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10.7; rv:12.0) Gecko/20100101 Firefox/12.0'));
 		$client->destination($temp_file_name);

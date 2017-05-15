@@ -56,7 +56,7 @@ class Command_Server_Install extends Command {
 		));
 		try {
 			/* @var $platform Server_Platform */
-			$platform = \Server_Platform::factory($this);
+			$platform = Server_Platform::factory($this);
 		} catch (Exception $e) {
 			$this->usage($e->getMessage());
 		}

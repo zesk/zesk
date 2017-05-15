@@ -14,6 +14,8 @@ namespace zesk;
 /* @var $response \zesk\Response_Text_HTML */
 /* @var $current_user \User */
 /* @var $object \Content_Link */
+$url_key = $application->configuration->url_key;
+
 $class = array(
 	"link"
 );
@@ -23,7 +25,7 @@ if ($this->class) {
 $rd_link = URL::query_format("/out", array(
 	"link" => $object->id(),
 	"url" => $object->URL,
-	"key" => md5($object->URL . _G('url_key'))
+	"key" => md5($object->URL . $url_key)
 ));
 
 /* @var $object Link */

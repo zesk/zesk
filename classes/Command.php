@@ -607,12 +607,15 @@ abstract class Command extends Hookable implements Logger\Handler {
 		"error" => true
 	);
 	/**
-	 * Log a message to output
+	 * Log a message to output or stderr. Do not do anything if a theme is currently being rendered.
 	 *
 	 * @param string $message        	
 	 * @param array $arguments        	
 	 */
 	public function log($message, array $arguments = array()) {
+		if ($this->application->theme_current() !== null) {
+			return;
+		}
 		$newline = to_bool(avalue($arguments, "newline", true));
 		if (is_array($message)) {
 			if (arr::is_list($message)) {
