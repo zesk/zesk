@@ -1,6 +1,6 @@
 <?php
 /**
- * $URL: https://code.marketacumen.com/zesk/trunk/modules/commerce/classes/zesk/account.inc $
+ * $URL: https://code.marketacumen.com/zesk/trunk/modules/commerce/classes/account.inc $
  * @package zesk
  * @subpackage objects
  */

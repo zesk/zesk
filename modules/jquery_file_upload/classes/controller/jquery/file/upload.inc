@@ -8,7 +8,7 @@
  * 
  * Licensed under the MIT license: http://www.opensource.org/licenses/MIT 
  *
- * Heavily modified for use in Zesk by Kent M. Davidson http://marketacumen.com/?crsource=$Id: upload.inc 4009 2016-09-07 19:48:38Z kent $
+ * Heavily modified for use in Zesk by Kent M. Davidson http://marketacumen.com/?crsource=$Id: upload.inc 4594 2017-05-15 21:20:56Z kent $
  */
 use zesk\Directory;
 use zesk\Controller;
