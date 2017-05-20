@@ -250,7 +250,7 @@ class Objects {
 	public function factory($class) {
 		$arguments = func_get_args();
 		array_shift($arguments);
-		return $this->factory_arguments($this->resolve($class), $arguments);
+		return $this->factory_arguments($class, $arguments);
 	}
 	
 	/**

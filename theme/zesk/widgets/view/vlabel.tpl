@@ -38,3 +38,4 @@ if (is_file($cache_file)) {
 
 $file = View_Image_Text::vertical($text, $attributes);
 $label = new View_Image_Text();
+// TODO?

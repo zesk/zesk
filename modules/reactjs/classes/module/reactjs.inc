@@ -50,6 +50,12 @@ class Module_ReactJS extends Module implements Interface_Module_Routes, Interfac
 		}
 		return $script_names;
 	}
+	
+	/**
+	 * 
+	 * {@inheritDoc}
+	 * @see \zesk\Interface_Module_Routes::hook_routes()
+	 */
 	public function hook_routes(Router $router) {
 		$router->add_route("static/*", array(
 			"weight" => "first",
@@ -66,7 +72,7 @@ class Module_ReactJS extends Module implements Interface_Module_Routes, Interfac
 			"weight" => "first",
 			"method" => array(
 				$this,
-				"json_handler"
+				"not_found_handler"
 			),
 			"arguments" => array(
 				"{request}",
@@ -79,7 +85,7 @@ class Module_ReactJS extends Module implements Interface_Module_Routes, Interfac
 			return $this->proxy_prefix;
 		}
 		$app = $this->application;
-		$config = $app->configuration->pave_set(__CLASS__);
+		$config = $app->configuration->path_set(__CLASS__);
 		$conf = Configuration_Parser::factory("conf", File::contents($app->application_root(".env")));
 		$settings = $conf->process();
 		$host = aevalue($_SERVER, 'HOST', $settings->host);
@@ -96,8 +102,19 @@ class Module_ReactJS extends Module implements Interface_Module_Routes, Interfac
 		$proxy_prefix = $this->_proxy_prefix();
 		$http = new Net_HTTP_Client();
 		$http->proxy_request($request, $proxy_prefix);
-		$http->go();
+		try {
+			$http->go();
+		} catch (Net_HTTP_Client_Exception $e) {
+			$this->application->logger->error("{method} Unable to proxy request {url::path} to {proxy_prefix}: {message}", array(
+				"method" => __METHOD__,
+				"proxy_prefix" => $proxy_prefix,
+				"message" => $e->getMessage()
+			) + $request->variables() + arr::kprefix($request->url_parts(), "url::"));
+		}
 		return $http;
+	}
+	public function not_found_handler(Request $request, Response_Text_HTML $response) {
+		$response->status(Net_HTTP::Status_File_Not_Found);
 	}
 	/**
 	 * 

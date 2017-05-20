@@ -219,7 +219,7 @@ abstract class Controller_Object extends Controller_Template_Login {
 		$url = null;
 		$action = $this->first_option("$class::${option}_action;${option}_action", $default_action);
 		if ($action) {
-			$url = $this->application->router()->get_route($action, $object);
+			$url = $this->router->get_route($action, $object);
 		}
 		if (!$url) {
 			$url = $this->first_option("$class::${option}_url;${option}_url", $default_url);
@@ -467,7 +467,7 @@ abstract class Controller_Object extends Controller_Template_Login {
 		$this->application->logger->debug("Controller_Object::_action_default($action)");
 		try {
 			$request = $this->request;
-			$router = $request->router;
+			$router = $this->router;
 			$route = $router->route;
 			$action = strval($action);
 			if (empty($action)) {

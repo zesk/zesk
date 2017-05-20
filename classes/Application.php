@@ -292,11 +292,9 @@ class Application extends Hookable implements Interface_Theme {
 	 * @param unknown $options        	
 	 */
 	public function __construct($options = null) {
-		global $zesk;
-		
 		// Make kernel variables easily accessed
 		/* @var $zesk Kernel */
-		$this->zesk = $zesk;
+		$this->zesk = $zesk = zesk();
 		$this->paths = $zesk->paths;
 		$this->hooks = $zesk->hooks;
 		$this->configuration = $zesk->configuration;
@@ -342,14 +340,13 @@ class Application extends Hookable implements Interface_Theme {
 	 * @todo this should be called "singleton" but that call is used for creating singleton objects in the application. So deprecate that first, then deprecate this once that's gone.
 	 */
 	public static function instance(array $options = array()) {
-		global $zesk;
+		$zesk = zesk();
 		/* @var $zesk Kernel */
 		if (!$zesk->application_class) {
 			throw new Exception_Configuration("{method}() application_class is not set", array(
 				"method" => __METHOD__
 			));
 		}
-		
 		return $zesk->objects->singleton_arguments($zesk->application_class, $options, false);
 	}
 	
@@ -358,9 +355,7 @@ class Application extends Hookable implements Interface_Theme {
 	 * @return string
 	 */
 	private function path_module_default() {
-		global $zesk;
-		/* @var $zesk Kernel */
-		return $zesk->paths->zesk('modules');
+		return $this->paths->zesk('modules');
 	}
 	
 	/**
@@ -434,11 +429,9 @@ class Application extends Hookable implements Interface_Theme {
 		if ($path === null) {
 			return $this->include_paths;
 		}
-		global $zesk;
-		/* @var $zesk Kernel */
 		foreach (to_list($path) as $path) {
 			if (!is_dir($path)) {
-				$zesk->logger->error("{class}::{method}: {path} is not a valid directory, ignoring", array(
+				$this->logger->error("{class}::{method}: {path} is not a valid directory, ignoring", array(
 					"path" => $path,
 					"class" => get_class($this),
 					"method" => __METHOD__
@@ -468,16 +461,13 @@ class Application extends Hookable implements Interface_Theme {
 	 * continues to load
 	 */
 	final public function configure(array $options = array()) {
-		global $zesk;
-		
-		/* @var $zesk Kernel */
 		if (self::$configuration_options !== null) {
-			$zesk->logger->warning("Reconfiguring application {class}", array(
+			$this->logger->warning("Reconfiguring application {class}", array(
 				"class" => get_class($this)
 			));
 		}
 		$this->configuration->deprecated("Application::configure_options", __CLASS__ . "::configure_options");
-		self::$configuration_options = $options + to_array($zesk->configuration->pave(__CLASS__)->configure_options);
+		self::$configuration_options = $options + to_array($this->configuration->path(__CLASS__)->configure_options);
 		$this->_configure(self::$configuration_options);
 		return $this;
 	}
@@ -618,9 +608,7 @@ class Application extends Hookable implements Interface_Theme {
 	 * 
 	 */
 	private function configure_cache_paths() {
-		global $zesk;
-		/* @var $zesk Kernel */
-		$cache_path = $this->option("cache_path", $zesk->paths->cache());
+		$cache_path = $this->option("cache_path", $this->paths->cache());
 		$this->cache_path = Directory::is_absolute($cache_path) ? $cache_path : $this->application_root($cache_path);
 		if ($this->has_option('document_cache')) {
 			$this->document_cache = $this->option('document_cache');
@@ -658,10 +646,8 @@ class Application extends Hookable implements Interface_Theme {
 	 * Clear application cache
 	 */
 	final public function cache_clear() {
-		global $zesk;
-		/* @var $zesk Kernel */
 		foreach (array_unique(array(
-			$zesk->paths->cache(),
+			$this->paths->cache(),
 			$this->cache_path(),
 			$this->document_cache()
 		)) as $path) {
@@ -671,14 +657,14 @@ class Application extends Hookable implements Interface_Theme {
 			$size = Directory::size($path);
 			if ($size > 0) {
 				Directory::delete_contents($path);
-				$zesk->logger->notice("Deleted {size} bytes in {path}", compact("size", "path"));
+				$this->logger->notice("Deleted {size} bytes in {path}", compact("size", "path"));
 			} else {
-				$zesk->logger->notice("{path} is empty.", compact("size", "path"));
+				$this->logger->notice("{path} is empty.", compact("size", "path"));
 			}
 		}
 		$this->call_hook('cache_clear');
 		$hooks = $this->modules->all_hook_list("cache_clear");
-		$zesk->logger->notice("Running {cache_clear_hooks}", array(
+		$this->logger->notice("Running {cache_clear_hooks}", array(
 			"cache_clear_hooks" => $this->format_hooks($hooks)
 		));
 		$this->modules->all_hook("cache_clear", $this);
@@ -748,8 +734,6 @@ class Application extends Hookable implements Interface_Theme {
 	 * @return Object
 	 */
 	final public function object_singleton($class) {
-		global $zesk;
-		
 		$args = func_get_args();
 		array_shift($args);
 		
@@ -758,7 +742,7 @@ class Application extends Hookable implements Interface_Theme {
 		if ($object instanceof $class) {
 			return $object;
 		}
-		return $zesk->objects->singleton_arguments($class, $args);
+		return $this->objects->singleton_arguments($class, $args);
 	}
 	
 	/**
@@ -775,21 +759,19 @@ class Application extends Hookable implements Interface_Theme {
 	 * @return array
 	 */
 	private function _classes($add = null) {
-		global $zesk;
-		
 		$schema_file = File::extension_change($this->file, ".classes");
 		if (is_file($schema_file)) {
 			zesk()->deprecated("$schema_file support will end on 2017-09, use app()->object_classes instead");
 			$classes = arr::trim_clean(explode("\n", Text::remove_line_comments(file_get_contents($schema_file), '#', false)));
 			$classes = arr::flip_copy($classes, true);
-			$zesk->logger->debug("Classes from {schema_file} = {value}", array(
+			$this->logger->debug("Classes from {schema_file} = {value}", array(
 				"schema_file" => $schema_file,
 				"value" => array_keys($classes)
 			));
 		} else {
 			$classes = array();
 		}
-		$zesk->logger->debug("Classes from {class}->object_classes = {value}", array(
+		$this->logger->debug("Classes from {class}->object_classes = {value}", array(
 			"class" => get_class($this),
 			"value" => $this->object_classes
 		));
@@ -800,7 +782,7 @@ class Application extends Hookable implements Interface_Theme {
 		/* @var $module Module */
 		foreach ($this->modules->all_modules() as $name => $module) {
 			$module_classes = $module->classes();
-			$zesk->logger->debug("Classes for module {name} = {value}", array(
+			$this->logger->debug("Classes for module {name} = {value}", array(
 				"name" => $name,
 				"value" => $module_classes
 			));
@@ -820,8 +802,6 @@ class Application extends Hookable implements Interface_Theme {
 			$this->cached_classes = $this->_classes();
 		}
 		if ($add !== null) {
-			global $zesk;
-			/* @var $zesk Kernel */
 			foreach (to_list($add) as $class) {
 				$this->cached_classes[strtolower($class)] = $class;
 			}
@@ -911,9 +891,8 @@ class Application extends Hookable implements Interface_Theme {
 	 * @return Request
 	 */
 	protected function hook_request() {
-		$zesk = $this->zesk;
 		$request = new Request();
-		if ($zesk->console) {
+		if (zesk()->console) {
 			$request->initialize_from_settings("http://console/");
 		} else {
 			$request->initialize_from_globals();
@@ -934,15 +913,13 @@ class Application extends Hookable implements Interface_Theme {
 	 * @return Router
 	 */
 	protected function hook_router() {
-		global $zesk;
-		/* @var $zesk Kernel */
 		$router_file = File::extension_change($this->file, 'router');
 		$cache = $this->option("cache_router", null);
 		$router = $cache ? Router::cached(filemtime($router_file)) : null;
 		if (!$router) {
 			$router = new Router($this);
 			if (!is_file($router_file)) {
-				$zesk->logger->debug("No router file {router_file} to load - creating blank router", array(
+				$this->logger->debug("No router file {router_file} to load - creating blank router", array(
 					array(
 						"router_file",
 						$router_file
@@ -1023,7 +1000,7 @@ class Application extends Hookable implements Interface_Theme {
 			$response = $this->response();
 			
 			/* @var $router Router */
-			$router = $this->router = $request->router = $this->call_hook("router");
+			$router = $this->router = $this->call_hook("router");
 			$this->call_hook("router_loaded", $router);
 			
 			return $router;
@@ -1097,16 +1074,14 @@ class Application extends Hookable implements Interface_Theme {
 	 * - Render response
 	 */
 	public function main() {
-		global $zesk;
-		
 		$this->call_hook("main");
 		
 		$this->variables = array();
 		
 		if (($router = $this->router()) !== null) {
 			try {
-				$zesk->logger->debug("App bootstrap took {seconds} seconds", array(
-					"seconds" => sprintf("%.3f", microtime(true) - $zesk->initialization_time)
+				$this->logger->debug("App bootstrap took {seconds} seconds", array(
+					"seconds" => sprintf("%.3f", microtime(true) - zesk()->initialization_time)
 				));
 				$this->_main_route($router);
 			} catch (Exception $exception) {
@@ -1245,8 +1220,6 @@ class Application extends Hookable implements Interface_Theme {
 	 * @return multitype:
 	 */
 	public function schema_synchronize(Database $db = null, array $classes = null, array $options = array()) {
-		global $zesk;
-		/* @var $zesk Kernel */
 		if (!$db) {
 			$db = $this->database_factory();
 		}
@@ -1255,7 +1228,8 @@ class Application extends Hookable implements Interface_Theme {
 		} else {
 			$options['follow'] = avalue($options, 'follow', false);
 		}
-		$zesk->logger->debug("{method}: Synchronizing classes: {classes}", array(
+		$logger = $this->logger;
+		$logger->debug("{method}: Synchronizing classes: {classes}", array(
 			"method" => __METHOD__,
 			"classes" => $classes
 		));
@@ -1269,14 +1243,14 @@ class Application extends Hookable implements Interface_Theme {
 			if (avalue($objects_by_class, $lowclass)) {
 				continue;
 			}
-			$zesk->logger->debug("Parsing $class");
+			$logger->debug("Parsing $class");
 			$objects_by_class[$lowclass] = true;
 			try {
 				$object = $this->object_factory($class);
 				$object_db_name = $object->database()->code_name();
 				$updates = Database_Schema::update_object($object);
 			} catch (Exception $e) {
-				$zesk->logger->error("Unable to synchronize {class} because of {exception_class} {message}", array(
+				$logger->error("Unable to synchronize {class} because of {exception_class} {message}", array(
 					"class" => $class,
 					"message" => $e->getMessage(),
 					"exception_class" => get_class($e),
@@ -1302,7 +1276,7 @@ class Application extends Hookable implements Interface_Theme {
 					if (avalue($objects_by_class, $require)) {
 						continue;
 					}
-					$zesk->logger->debug("$class: Adding dependent class $require");
+					$logger->debug("$class: Adding dependent class $require");
 					$classes[] = $require;
 				}
 			}
@@ -1363,9 +1337,9 @@ class Application extends Hookable implements Interface_Theme {
 	 * Called once before a $zesk->hooks->all_hook("zesk\\Object::method");
 	 */
 	public static final function object_register_all_hooks() {
-		global $zesk;
-		$classes = Application::instance()->all_classes();
-		$zesk->classes->register(arr::collapse($classes, "class"));
+		$app = self::instance();
+		$classes = $app->all_classes();
+		$app->classes->register(arr::collapse($classes, "class"));
 	}
 	
 	/**
@@ -1385,7 +1359,7 @@ class Application extends Hookable implements Interface_Theme {
 		$parameters['application'] = $this;
 		$parameters['request'] = $request = $this->request;
 		$parameters['response'] = $this->response;
-		$parameters['router'] = $request ? $this->request->router : null;
+		$parameters['router'] = $this->router;
 		$parameters['route'] = $this->route;
 		$parameters['url'] = $request ? $this->request->url() : null;
 		return $parameters;
@@ -1475,7 +1449,6 @@ class Application extends Hookable implements Interface_Theme {
 	 * @throws Exception_Directory_NotFound
 	 */
 	public function zesk_command_path($add = null, $prefix = null) {
-		global $zesk;
 		if ($add !== null) {
 			if (!$prefix) {
 				$prefix = "zesk\Command_";
@@ -1484,7 +1457,7 @@ class Application extends Hookable implements Interface_Theme {
 			$add = to_list($add, array(), ":");
 			foreach ($add as $path) {
 				if ($debug && !is_dir($path)) {
-					$zesk->logger->warning("{method}: adding path \"{path}\" was not found", array(
+					$this->logger->warning("{method}: adding path \"{path}\" was not found", array(
 						"method" => __METHOD__,
 						"path" => $path
 					));
@@ -1492,7 +1465,7 @@ class Application extends Hookable implements Interface_Theme {
 				if (!isset($this->zesk_command_path[$path])) {
 					$this->zesk_command_path[$path] = $prefix;
 				} else if ($debug) {
-					$zesk->logger->debug("{method}: did not add \"{path}\" (prefix {prefix}) because it already exists", array(
+					$this->logger->debug("{method}: did not add \"{path}\" (prefix {prefix}) because it already exists", array(
 						"method" => __METHOD__,
 						"path" => $path,
 						"prefix" => $prefix
@@ -1698,9 +1671,8 @@ class Application extends Hookable implements Interface_Theme {
 	 * @return array This class name and parent classes
 	 */
 	public function register_class($class) {
-		$zesk = $this->zesk;
-		$zesk->hooks->register_class($class);
-		return $zesk->classes->register($class);
+		$this->hooks->register_class($class);
+		return $this->classes->register($class);
 	}
 	
 	/**
@@ -1711,7 +1683,7 @@ class Application extends Hookable implements Interface_Theme {
 	 * @return string
 	 */
 	public function application_root($suffix = null) {
-		return $this->zesk->paths->application($suffix);
+		return $this->paths->application($suffix);
 	}
 	
 	/**
@@ -1733,13 +1705,11 @@ class Application extends Hookable implements Interface_Theme {
 	 * @return string
 	 */
 	public static function application_class($class = null) {
-		global $zesk;
-		/* @var $zesk Kernel */
 		if ($class) {
-			$zesk->application_class = $class;
+			zesk()->application_class = $class;
 			return $class;
 		}
-		return $zesk->application_class;
+		return zesk()->application_class;
 	}
 	
 	/**

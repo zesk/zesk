@@ -12,7 +12,7 @@ class Controller_AJAX extends Controller {
 		array_shift($path);
 		$new_path = implode("/", $path);
 		$this->request->path($new_path);
-		$router = $this->request->router;
+		$router = $this->router;
 		$router->match($this->request);
 		$router->execute($this->application);
 		return $this->json($this->response->to_json() + array("content" => $this->response->content));

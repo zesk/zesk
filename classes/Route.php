@@ -438,7 +438,6 @@ abstract class Route extends Hookable {
 		}
 		// echo "<pre>"; var_dump($this->args); var_dump($this->named); echo "</pre>";
 		
-
 		return true;
 	}
 	
@@ -564,9 +563,10 @@ abstract class Route extends Hookable {
 				'{request}' => $request,
 				'{response}' => $response,
 				'{route}' => $this,
-				'{router}' => $request->router
+				'{router}' => $this->router
 			);
-			$this->map_variables += arr::kwrap($app->request->variables(), '{request.', '}');
+			$this->map_variables += arr::kwrap($request->variables(), '{request.', '}');
+			$this->map_variables += arr::kwrap($request->url_parts(), '{url.', '}');
 		}
 		return arr::map_values($mixed, $this->map_variables);
 	}

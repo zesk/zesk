@@ -87,7 +87,7 @@ class Router extends Hookable {
 	
 	/**
 	 *
-	 * @var array of Route
+	 * @var Route[]
 	 */
 	protected $routes = array();
 	
@@ -296,7 +296,7 @@ class Router extends Hookable {
 	}
 	
 	/**
-	 * 
+	 * @return Route[]
 	 */
 	function routes() {
 		if (!$this->sorted) {
@@ -340,7 +340,6 @@ class Router extends Hookable {
 		return $this;
 	}
 	function match(Request $request) {
-		$request->router = $this;
 		$this->request = $request;
 		$path = strval($request->path());
 		if ($this->prefix) {

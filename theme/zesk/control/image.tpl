@@ -19,6 +19,7 @@ $request = $this->request;
 $parent_content = $this->theme('control/file', $this);
 
 $image_src = $widget->option("src", "");
+// TODO: This is unsafe SECURITY-TODO
 $image_src = $object->apply_map(map($image_src, $request->variables()));
 $vi = new View_Image($this->options_include('image_host;is_relative;root_directory;ScaleWidth;ScaleHeight'));
 $vi_object['src'] = $image_src;

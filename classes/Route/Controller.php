@@ -99,7 +99,7 @@ class Route_Controller extends Route {
 	 */
 	function _execute() {
 		global $zesk;
-		/* @var $zesk zesk\Kernel */
+		/* @var $zesk zesk\Kernel */ // TODO Eliminate this
 		
 		list($controller, $action) = $this->_init_controller();
 		$__ = array(

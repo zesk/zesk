@@ -177,6 +177,9 @@ class Command_Help extends Command_Base {
 		$content = JSON::encode_pretty($aliases);
 		$conf_file = File::find_first($paths, $name);
 		if ($conf_file) {
+			if (file_get_contents($conf_file) === $content) {
+				return false;
+			}
 			try {
 				File::put($conf_file, $content);
 				$this->application->logger->notice("Wrote {file}", array(

@@ -388,6 +388,11 @@ class Job extends Object implements Interface_Process, Interface_Progress {
 		}
 		return $this;
 	}
+	/**
+	 * 
+	 * @param boolean $set
+	 * @return \zesk\Job|boolean
+	 */
 	function completed($set = null) {
 		if (is_bool($set)) {
 			$this->completed = Timestamp::now();

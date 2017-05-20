@@ -2,7 +2,7 @@
 
 namespace zesk;
 
-class Router_Test extends \Test_Unit {
+class Router_Test extends Test_Unit {
 	function test_Router() {
 		$route_map = false;
 		$defaults = null;

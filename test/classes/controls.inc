@@ -1,4 +1,5 @@
 <?php
+zesk()->deprecated("Need to rewrite");
 /**
  * @test_no_buffer false
  * @author kent
@@ -96,7 +97,7 @@ class Test_Controls extends Test_Widget {
 	function test_control_object_list_tree() {
 		$this->_test_session();
 		$request = $this->application->request();
-		$request->router = $router = $this->application->router();
+		$router = $this->application->router();
 		
 		$router->add_route("*", array(
 			"class" => "Test_COLT_Object",
@@ -128,24 +129,6 @@ class Test_Controls extends Test_Widget {
 		$x->object($object);
 		
 		$this->test_basics($x);
-	}
-	function test_Control_Object_List() {
-		$request = Request::instance();
-		$request->router = $router = Router::singleton();
-		$router->add_route("*", array(
-			"controller" => "object",
-			"class" => "Test_COL_Object",
-			"action" => array(
-				0
-			)
-		));
-		
-		Session::implementation("test");
-		
-		$object = new Test_COL_Object();
-		$table = $object->table();
-		
-		$this->test_table($table);
 	}
 	function test_Control_Select_Object_Hierarchy_Test() {
 		$table = 'Control_Select_Object_Hierarchy_Test';

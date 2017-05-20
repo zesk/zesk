@@ -506,6 +506,9 @@ class Request extends Hookable {
 			return false;
 		}
 		$this->variables[$name] = $value;
+		if ($name === "router" && $value instanceof Router) {
+			backtrace();
+		}
 		return $this->variables[$name];
 	}
 	
@@ -718,14 +721,14 @@ class Request extends Hookable {
 	}
 	
 	/**
-	 * Retrieve all variables for this request
-	 *
-	 * @todo Do we need to add in the url variables here?
+	 * Retrieve all REQUEST variables for this request. Does not include object attributes such as URL or others.
+	 * 
+	 * @see self::url_variables()
 	 *      
 	 * @return number
 	 */
 	public function variables() {
-		return $this->variables + URL::variables($this->url);
+		return $this->variables;
 	}
 	
 	/**

@@ -197,8 +197,6 @@ abstract class Controller_Template extends Controller {
 				if ($this->template->has('content_type')) {
 					$this->response->content_type($this->template->content_type);
 				}
-				// TODO: Why is this here? "frame" set to null? in the router?
-				$this->request->router->set_option('frame', null);
 			}
 		}
 	}

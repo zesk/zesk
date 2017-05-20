@@ -1,6 +1,14 @@
 <?php
 namespace zesk;
 
+/* @var $this \zesk\Template */
+/* @var $zesk \zesk\Kernel */
+/* @var $application \zesk\Application */
+/* @var $session \zesk\Session */
+/* @var $router \zesk\Router */
+/* @var $route \zesk\Route */
+/* @var $request \zesk\Request */
+/* @var $response \zesk\Response_Text_HTML */
 $pairs = $this->content;
 if (!$pairs) {
 	$pairs = $this->variables;
@@ -18,7 +26,7 @@ foreach ($pairs as $name => $value) {
 	$result .= HTML::tag('dt', $class, $name);
 	$result .= HTML::tag('dd', $class, is_array($value) ? $this->theme('dl', array(
 		'content' => $value
-	)) : strval($value));
+	)) : strval($value instanceof \Closure ? $zesk->hooks->callable_string($value) : $value));
 	$index = $index + 1;
 }
 

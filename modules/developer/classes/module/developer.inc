@@ -24,7 +24,7 @@ class Module_Developer extends Module implements Interface_Module_Routes {
 		$application = $this->application;
 		$ips = $this->option_list('ip_allow');
 		$development = null;
-		$ip = IPv4::remote();
+		$ip = $application->request()->ip();
 		foreach ($ips as $mask) {
 			if ($ip === $mask) {
 				$this->application->logger->debug("{class}::{function}: {ip} === {mask}, development on", array(
@@ -62,7 +62,7 @@ class Module_Developer extends Module implements Interface_Module_Routes {
 	 * @return boolean
 	 */
 	private static function ip_matches(array $ips) {
-		$ip = IPv4::remote();
+		$ip = app()->request()->ip();
 		foreach ($ips as $mask) {
 			if ($ip === $mask || IPv4::within_network($ip, $mask)) {
 				return true;
@@ -100,11 +100,11 @@ class Module_Developer extends Module implements Interface_Module_Routes {
 	public function initialize() {
 		$zesk = $this->zesk;
 		
-		$zesk->hooks->add("Application::configured", array(
+		$zesk->hooks->add("zesk\\Application::configured", array(
 			$this,
 			'test_ip'
 		));
-		$zesk->hooks->add("Application::router_prematch", array(
+		$zesk->hooks->add("zesk\\Application::router_prematch", array(
 			$this,
 			'router_prematch'
 		));
@@ -163,7 +163,7 @@ class Module_Developer extends Module implements Interface_Module_Routes {
 			'theme' => 'system/routes'
 		) + $extras);
 		$router->add_route('developer/ip', array(
-			'method' => 'IPv4::remote',
+			'method' => 'zesk\\IPv4::remote',
 			'json' => true
 		) + $extras);
 		$router->add_route('development/includes', array(
@@ -195,7 +195,7 @@ class Module_Developer extends Module implements Interface_Module_Routes {
 				$this,
 				'dump_router'
 			),
-			'arguments' => "{request}"
+			'arguments' => "{router}"
 		) + $extras);
 		$router->add_route('schema(/*)', array(
 			'method' => array(
@@ -224,13 +224,13 @@ class Module_Developer extends Module implements Interface_Module_Routes {
 	 * 
 	 * @param Request $request
 	 */
-	public function dump_router(Request $request) {
-		$router = $request->router;
-		/* @var $route Route */
+	public function dump_router(Router $router) {
 		foreach ($router->routes() as $pattern => $route) {
 			echo HTML::tag('h2', $route->clean_pattern) . $this->application->theme('dl', array(
-				'class' => get_class($route)
-			) + $route->option());
+				'content' => array(
+					'class' => get_class($route)
+				) + $route->option()
+			));
 		}
 	}
 	
