@@ -2,7 +2,11 @@
 
 ## v0.9.0
 
-We've made the leap to PSR-4 loading for Zesk core and all classes, and split the codebase into `namespace zesk` (now in `./classes/`) and non-namespace components (now in `./classes-no-ns/`). Code will be moved into modules or into `namespace zesk` as needed to complete the complete migration to the namespace-based classes.
+We've made the leap to PSR-4 loading for Zesk core and all classes, and split the codebase into `namespace zesk` (now in `./classes/`) and non-namespace components (now in `./classes-stubs/`). 
+
+You can add the module (`composer require zesk/zesk-0.8-compat`) to get old class definitions, which are all subclasses to the `zesk` namespace classes.
+
+Remaining module code will be moved into modules or into `namespace zesk` as needed to complete the complete migration to the namespace-based classes.
 
 The change to the loading and PSR-4 should not affect any zesk core functionality, except if you included files directly (which is not recommended in general.)
 
@@ -15,6 +19,8 @@ As well, the following changes occurred:
 - `Router::add_default_route` has been removed.
 - `Router::controller_prefixes()` and related members and calls have been removed
 - `zesk update` now by default will **not** update your composer lock file, except if a requirement is added which is not already included in it. To update the composer lock, use `zesk update --composer-update` to always update dependencies in composer, or do `php composer.phar update` from the command line after `zesk update`.
+- Application files should end with `.php` (e.g. `invoicing.application.php`) and a warning is displayed if not
+- `zesk.inc` is now called `autoload.php`
 
 The following classes are now in the `zesk\` namespace:
 
@@ -43,6 +49,8 @@ The following classes are now in the `zesk\` namespace:
 The `Controller` routes no longer support `controller prefix` and `controller prefixes` to search for a controller. Instead the controller class name is used explictly for the `controller` option. The search functionality for controllers was not widely enough used and caused performance issues with routes. This functionality is now deprecated and will be removed in the 0.10.0 release. You should update your router files and `hook_routes` calls appropriately for the new syntax. 
 
 Autoload paths support PSR-4 by default, so lowercase is not ON anymore by default. You will need to update your autoload paths for your application to add ["lower" => true] to added autoload paths.
+
+Note that this release has been tested in PHP 7.0 and 7.1 environments with no issues, so you are highly encouraged to upgrade to the version 7 of PHP as soon as possible due to the enormous potential performance increases available.
 
 ## v0.8.2
 
