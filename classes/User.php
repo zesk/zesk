@@ -36,7 +36,8 @@ class User extends Object {
 	 * @param Kernel $zesk
 	 */
 	public static function hooks(Kernel $zesk) {
-		$zesk->configuration->pave("User");
+		$zesk->configuration->deprecated("User", __CLASS__);
+		$zesk->configuration->path(__CLASS__);
 		$zesk->hooks->add("configured", __CLASS__ . "::configured");
 	}
 	
@@ -45,7 +46,17 @@ class User extends Object {
 	 * @param Application $application
 	 */
 	public static function configured(Application $application) {
-		self::$debug_permission = to_bool(zesk()->configuration->User->debug_permission);
+		$field = "debug_permission";
+		self::$debug_permission = to_bool($application->configuration->path_get_first(array(
+			array(
+				__CLASS__,
+				$field
+			),
+			array(
+				'User',
+				$field
+			)
+		)));
 	}
 	
 	/**
@@ -390,10 +401,11 @@ class User extends Object {
 				$options
 			), $default_result);
 			if (self::$debug_permission) {
-				zesk()->logger->debug("User::can({action},{context}) = {result}", array(
+				zesk()->logger->debug("User::can({action},{context}) = {result} (Roles {roles})", array(
 					"action" => $action,
 					"context" => $context,
-					"result" => $result
+					"result" => $result,
+					"roles" => $this->_roles
 				));
 			}
 			if ($is_or) {

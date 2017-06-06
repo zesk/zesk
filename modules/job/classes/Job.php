@@ -19,6 +19,7 @@ namespace zesk;
  * @property Timestamp $updated
  * @property integer $duration
  * @property integer $died
+ * @property boolean $last_exit
  * @property double $progress
  * @property string $hook
  * @property array $hook_args
@@ -62,16 +63,38 @@ class Job extends Object implements Interface_Process, Interface_Progress {
 	private $last_progress = null;
 	
 	/**
-	 * Hook should be a function like:
-	 *
-	 * function do_work(Job $job) {
-	 * }
 	 *
 	 * @param unknown $code
-	 * @param unknown $hook
+	 * @param
 	 * @throws Exception_Parameter
 	 * @throws Exception_Semantics
 	 * @return Job
+	 */
+	/**
+	 * Hook should be a function like:
+	 *
+	 * 	class MyClass {
+	 * 		public static function do_work(Job $job, array $things) {
+	 * 			// Magic
+	 * 		}
+	 * 	}
+	 * 
+	 * You would call this:
+	 * 
+	 *		$job = \zesk\Job::instance("Doing something interesting", "interesting-532", "MyClass::do_work", array(array(42,53)));
+	 *		$job->start();     		
+	 *
+	 * Job execute depends heavily on the fact that a daemon is running to process jobs.
+	 * 
+	 * @see Modue_Job::daemon
+	 * @param string $name Name to describe this job to a human.
+	 * @param string $code Unique identifier for this job.
+	 * @param string $hook Name of a static method to invoke to run this job. First argument is ALWAYS the application. Additional arguments are specified in the call and should be easily serializable.
+	 * @param array $arguments Additional arguments to pass to the hook.
+	 * @param integer $priority Numeric priority between 0 and 255.
+	 * @throws Exception_Parameter
+	 * @throws Exception_Semantics
+	 * @return \zesk\Job
 	 */
 	public static function instance($name, $code, $hook, array $arguments = array(), $priority = self::priority_normal) {
 		if (!is_string($hook)) {
@@ -278,7 +301,12 @@ class Job extends Object implements Interface_Process, Interface_Progress {
 						"job_id" => $job->id,
 						"job_name" => $job->name
 					));
-					$job->execute($process);
+					try {
+						$job->execute($process);
+					} catch (\Exception $e) {
+						$job->data("execute_exception", arr::flatten(Exception::exception_variables($e)));
+						$job->died(); // Stops permanently
+					}
 					$job->release();
 					$jobs++;
 				}
@@ -332,6 +360,10 @@ class Job extends Object implements Interface_Process, Interface_Progress {
 		
 		$timer = new Timer();
 		try {
+			list($class, $method) = pair($this->hook, "::", null, $this->hook);
+			if ($class && !class_exists($class, true)) {
+				throw new Exception_Class_NotFound($class);
+			}
 			$this->call_hook("execute_before");
 			$result = call_user_func_array($this->hook, array_merge(array(
 				$this
@@ -389,6 +421,7 @@ class Job extends Object implements Interface_Process, Interface_Progress {
 		return $this;
 	}
 	/**
+	 * Complete job and set exit status
 	 * 
 	 * @param boolean $set
 	 * @return \zesk\Job|boolean
@@ -396,12 +429,42 @@ class Job extends Object implements Interface_Process, Interface_Progress {
 	function completed($set = null) {
 		if (is_bool($set)) {
 			$this->completed = Timestamp::now();
-			$this->data("completed_status", $set);
+			$this->last_exit = $set;
 			$this->call_hook("completed");
 			return $this->store();
 		}
-		return !$this->member_is_empty("completed") && $this->data("completed_status");
+		return !$this->member_is_empty("completed");
 	}
+	
+	/**
+	 * Getter/Setter for successful job termination
+	 * 
+	 * @param boolean $set
+	 * @return \zesk\Job|boolean
+	 */
+	function succeeded($set = false) {
+		if ($set === true) {
+			return $this->completed(true);
+		}
+		return $this->completed() && $this->last_exit;
+	}
+	/**
+	 * Getter/Setter for failed job termination
+	 *
+	 * @param boolean $set
+	 * @return \zesk\Job|boolean
+	 */
+	function failed($set = false) {
+		if ($set === true) {
+			return $this->completed(false);
+		}
+		return $this->completed() && !$this->last_exit;
+	}
+	
+	/**
+	 * 
+	 * @return mixed|\zesk\Configuration|array
+	 */
 	static function retry_attempts() {
 		global $zesk;
 		/* @var $zesk Kernel */
@@ -411,6 +474,7 @@ class Job extends Object implements Interface_Process, Interface_Progress {
 		return $this->died > $this->option_integer("retry_attempts", self::retry_attempts());
 	}
 	function died() {
+		$this->last_exit = false;
 		$this->died = $this->died + 1;
 		$this->completed(false);
 		return $this->store();
@@ -481,9 +545,24 @@ class Job extends Object implements Interface_Process, Interface_Progress {
 	public function content($set = null) {
 		return $this->data("content", $set);
 	}
+	
+	/**
+	 * Data getter/setter
+	 * 
+	 * @param string $mixed
+	 * @param mixed $value
+	 * @return \zesk\Object|mixed
+	 */
 	public function data($mixed = null, $value = null) {
 		return $this->member_data("data", $mixed, $value);
 	}
+	
+	/**
+	 * Does this Job have the data key?
+	 * 
+	 * @param string $mixed
+	 * @return boolean
+	 */
 	public function has_data($mixed = null) {
 		$data = $this->data;
 		if (!is_array($data)) {

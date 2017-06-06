@@ -14,7 +14,7 @@ use zesk\Directory;
  * @author kent
  *
  */
-class Test_Command_Generate_Legacy extends Command {
+class Test_Command_Generate_Legacy extends \zesk\Command_Base {
 	function test_file_header($file, $dest_file, $do_include = true) {
 		$file = realpath($file);
 		$codehome = dirname(ZESK_ROOT);

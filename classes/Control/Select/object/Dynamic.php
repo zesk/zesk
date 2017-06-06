@@ -1,6 +1,6 @@
 <?php
 /**
- * $URL: https://code.marketacumen.com/zesk/trunk/classes/Control/Select/object/Dynamic.php $
+ * $URL: https://code.marketacumen.com/zesk/trunk/classes/Control/Select/Object/Dynamic.php $
  * @package zesk
  * @subpackage widgets
  * @author Kent Davidson <kent@marketacumen.com>

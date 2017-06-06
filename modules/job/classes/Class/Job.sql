@@ -12,6 +12,7 @@ CREATE TABLE `{table}` (
 	updated timestamp NULL,
 	duration integer NOT NULL DEFAULT 0,
 	died integer unsigned NOT NULL DEFAULT 0,
+	last_exit tinyint unsigned NOT NULL DEFAULT 0,
 	progress double NULL,
 	hook varchar(128),
 	hook_args blob NOT NULL DEFAULT '',

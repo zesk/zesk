@@ -1,6 +1,6 @@
 <?php
 /**
- * @version $URL: https://code.marketacumen.com/zesk/trunk/modules/contact/theme/control/contact/address/widgets.tpl $
+ * @version $URL: https://code.marketacumen.com/zesk/trunk/modules/contact/theme/zesk/control/contact/address/widgets.tpl $
  * @author $Author: kent $
  * @package {package}
  * @subpackage {subpackage}

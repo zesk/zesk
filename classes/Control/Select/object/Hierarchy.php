@@ -1,6 +1,6 @@
 <?php
 /**
- * $URL: https://code.marketacumen.com/zesk/trunk/classes/Control/Select/object/Hierarchy.php $
+ * $URL: https://code.marketacumen.com/zesk/trunk/classes/Control/Select/Object/Hierarchy.php $
  *
  * @package zesk
  * @subpackage widgets

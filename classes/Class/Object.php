@@ -888,8 +888,17 @@ class Class_Object extends Hookable {
 		$this->_add_defer_link_many($this_class);
 		if (!empty($this->has_many)) {
 			foreach ($this->has_many as $member => $many_spec) {
+				if (!is_array($many_spec)) {
+					throw new Exception_Semantics('many_spec for class {class} must have array value for member {member}', array(
+						"class" => $this_class,
+						"member" => $member
+					));
+				}
 				if (!array_key_exists('class', $many_spec)) {
-					throw new Exception_Semantics('many_spec for class ' . $this_class . " must contain key 'class' for member $member");
+					throw new Exception_Semantics('many_spec for class {class} must contain key \'class\' for member {member}', array(
+						"class" => $this_class,
+						"member" => $member
+					));
 				}
 				$class = $many_spec['class'];
 				if (avalue($many_spec, 'default')) {

@@ -304,7 +304,6 @@ class Settings extends Object implements Interface_Data, Interface_Settings {
 		return zesk()->configuration->path_exists($member);
 	}
 	
-	
 	/**
 	 * Global to save
 	 *
@@ -378,6 +377,7 @@ class Settings extends Object implements Interface_Data, Interface_Settings {
 		}
 		zesk()->deprecated(__CLASS__ . "::deprecated(\"$old_setting\", \"$new_setting\")");
 		if ($this->__isset($new_setting)) {
+			$this->__set($old_setting, null);
 			return $this;
 		}
 		$this->__set($new_setting, $this->__get($old_setting));

@@ -157,7 +157,8 @@ class Kernel {
 	public $maintenance = false;
 	
 	/**
-	 *
+	 * @deprecated 2017-05
+	 * @see self::console()
 	 * @var boolean
 	 */
 	public $console = false;
@@ -565,6 +566,10 @@ class Kernel {
 		} else {
 			$profiler->calls[$fkey] = 1;
 		}
+	}
+	
+	public function console() {
+		return $this->console;
 	}
 }
 

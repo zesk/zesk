@@ -182,6 +182,24 @@ class Text {
 		}
 		return implode($br, $r) . $br;
 	}
+	public static function trim_words_length($string, $length, $delimiter = " ") {
+		$string = to_list($string, array(), $delimiter);
+		$delim_len = strlen($delimiter);
+		$remain = $length;
+		$result = array();
+		foreach ($string as $index => $word) {
+			$word_len = strlen($word) + $delim_len;
+			if ($word_len > $remain) {
+				if ($index === 0) {
+					return substr($word, 0, $remain);
+				}
+				break;
+			}
+			$result[] = $word;
+			$remain -= $word_len;
+		}
+		return implode($delimiter, $result);
+	}
 	public static function trim_words($string, $wordCount) {
 		$words = preg_split('/(\s+)/', $string, -1, PREG_SPLIT_DELIM_CAPTURE);
 		$words = array_slice($words, 0, $wordCount * 2 - 1);

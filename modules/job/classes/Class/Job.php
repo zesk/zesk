@@ -30,6 +30,7 @@ class Class_Job extends Class_Object {
 		'updated' => self::type_datetime,
 		'duration' => self::type_integer,
 		'died' => self::type_integer,
+		'last_exit' => self::type_boolean,
 		'progress' => self::type_double,
 		'hook' => self::type_string,
 		'hook_args' => self::type_serialize,

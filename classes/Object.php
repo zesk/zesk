@@ -1157,9 +1157,9 @@ class Object extends Model {
 		//		}
 	}
 	private function member_foreign_add($member, Object $object) {
-		//if ($this->is_new()) {
-		$this->members[$member][$object->id()] = $object;
-		//}
+		$foreign_keys = $object->members($object->primary_keys());
+		$hash = json_encode($foreign_keys);
+		$this->members[$member][$hash] = $object;
 		$this->store_queue += $this->class->member_foreign_add($this, $member, $object);
 	}
 	private function _fk_delete($table, $foreign_key) {

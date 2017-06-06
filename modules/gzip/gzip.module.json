@@ -1,5 +1,5 @@
 {
-	"module_class": "zesk\Module_GZIP",
+	"module_class": "zesk\\Module_GZIP",
 	"autoload_options": {
 		"class_prefix": "zesk\\",
 		"lower": "false"

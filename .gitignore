@@ -6,7 +6,9 @@
 vendor/
 *-min.js
 *.codekit
-config.codekit
-share/js/zesk.min.js
-
+*.codekit3
+/share/js/zesk.min.js
+/modules/*/cache
+/modules/*/data
+/modules/*/log
 .update.json

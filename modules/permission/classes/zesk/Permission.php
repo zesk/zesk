@@ -208,6 +208,11 @@ class Permission extends Object {
 		}
 		return $cache[$name] = Object::factory("Permission", $fields)->register();
 	}
+	
+	/**
+	 * 
+	 * @return string
+	 */
 	public function _to_php() {
 		$members = $this->members();
 		return "new " . get_class($this) . '(' . PHP::dump($members) . ')';

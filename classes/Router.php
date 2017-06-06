@@ -529,6 +529,49 @@ class Router extends Hookable {
 	}
 	
 	/**
+	 * 
+	 * @param array $by_class
+	 * @param Object $add
+	 * @param string $stop_class
+	 * @return \zesk\Object|mixed
+	 */
+	public static function add_derived_classes(array $by_class, Object $add, $stop_class = null) {
+		$id = $add->id();
+		foreach (zesk()->classes->hierarchy($add, $stop_class ? $stop_class : "zesk\\Object") as $class) {
+			$by_class[$class] = $id;
+		}
+		return $by_class;
+	}
+	private function derived_classes(Object $object) {
+		$by_class = array();
+		$class_object = $object->class_object();
+		if (is_array($class_object->has_one) && $class_object->id_column) {
+			foreach ($class_object->has_one as $member => $class) {
+				$member_object = $object->__get($member);
+				if (!$member_object instanceof Object) {
+					$this->application->logger->error("Member {member} of object {class} should be an object of {expected_class}, returned {type} with value {value}", array(
+						"member" => $member,
+						"class" => get_class($object),
+						"expected_class" => $class,
+						"type" => type($member_object),
+						"value" => strval($member_object)
+					));
+					continue;
+				}
+				if ($member_object) {
+					$id = $member_object->id();
+					foreach (zesk()->classes->hierarchy($member_object, "zesk\\Object") as $class) {
+						$by_class[$class] = $id;
+					}
+				}
+			}
+		}
+		$by_class = $object->call_hook_arguments("router_derived_classes", array(
+			$by_class
+		), $by_class);
+		return $by_class;
+	}
+	/**
 	 * Retrieve a route to an object from the router. Uses current route's context to determine new route.
 	 *
 	 * @param string $action
@@ -555,7 +598,12 @@ class Router extends Hookable {
 			$options += $object->call_hook_arguments("route_options", array(
 				$this,
 				$action
-			), array());
+			), array()) + array(
+				"derived_classes" => array()
+			);
+			if ($object instanceof Object) {
+				$options['derived_classes'] += $this->derived_classes($object);
+			}
 		} else {
 			$try_classes = array(
 				$object

@@ -177,7 +177,7 @@ abstract class Route extends Hookable {
 		// Clean optional parens
 		$pattern = preg_replace('/[()]/', '', $pattern);
 		// Clean value types
-		$pattern = preg_replace('/\{[A-Za-z_]+\s+/', '{', $pattern);
+		$pattern = preg_replace('/\{[a-z][\\a-z0-9_]*\s+/i', '{', $pattern);
 		return $pattern;
 	}
 	
@@ -732,21 +732,23 @@ abstract class Route extends Hookable {
 	 * @return array
 	 */
 	protected function get_route_map($action, $object = null, $options = null) {
-		global $zesk;
-		$classes = $zesk->classes->hierarchy($object, "zesk\\Object");
+		$object_hierarchy = zesk()->classes->hierarchy($object, "zesk\\Object");
+		$derived_classes = avalue($options, 'derived_classes', array());
 		$options = to_array($options, array());
 		$map = array(
 			"action" => $action
 		) + $options;
 		
-		if (count($classes) > 0) {
+		if (count($object_hierarchy) > 0) {
 			foreach ($this->types as $type) {
 				if (!is_array($type)) {
 					continue;
 				}
 				list($part_class, $part_name) = $type;
-				if (in_array($part_class, $classes)) {
+				if (in_array($part_class, $object_hierarchy)) {
 					$map[$part_name] = $object instanceof Object ? $object->id() : avalue($options, $part_name, "");
+				} else if (array_key_exists($part_class, $derived_classes)) {
+					$map[$part_name] = $derived_classes[$part_class];
 				} else {
 					$option = avalue($options, $part_name);
 					if ($option instanceof Object) {

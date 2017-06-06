@@ -45,7 +45,6 @@ class Module_Permission extends Module {
 		"zesk\\User_Role",
 		"zesk\\Permission"
 	);
-	
 	public function initialize() {
 		$this->application->hooks->add("zesk\\User::can", array(
 			$this,
@@ -71,7 +70,7 @@ class Module_Permission extends Module {
 	 */
 	public function user_can(User $user, $action, Model $context = null, $options) {
 		global $zesk;
-		/* @var $zesk zesk\Kernel */
+		/* @var $zesk Kernel */
 		
 		$application = $this->application;
 		$this->prepare_user($user);
@@ -89,8 +88,9 @@ class Module_Permission extends Module {
 		$a = self::normalize_permission($action);
 		$default_class = $context ? $this->model_permission_class($context) : null;
 		list($class, $permission) = pair($a, "::", $default_class, $a);
+		$lowclass = strtolower($class);
 		
-		$cache_key = "$class::$permission";
+		$cache_key = "$lowclass::$permission";
 		$user_cache = $user->object_cache("permissions");
 		if (!$context && $user_cache->has($cache_key)) {
 			return $user_cache->$cache_key;
@@ -126,7 +126,7 @@ class Module_Permission extends Module {
 			$result = apath($perms, array(
 				'role',
 				$rid,
-				"$class::$permission"
+				"$lowclass::$permission"
 			));
 			if (is_bool($result)) {
 				if ($result === false) {
@@ -139,12 +139,16 @@ class Module_Permission extends Module {
 				return $result;
 			}
 		}
-		$result = boolval($zesk->configuration->User->can);
+		$result = boolval($zesk->configuration->path_get_first([
+			'zesk\\User::can',
+			'User::can'
+		]));
 		if ($result === false) {
-			$zesk->logger->info("{user} denied {permission} (not granted) called from {calling_function}", array(
+			$zesk->logger->info("{user} denied {permission} (not granted) called from {calling_function} (Roles: {roles})", array(
 				"user" => $user->login(),
 				"permission" => $class . "::" . $permission,
-				"calling_function" => calling_function(5)
+				"calling_function" => calling_function(5),
+				"roles" => $user->_roles
 			));
 		}
 		$user_cache->$cache_key = $result;
@@ -337,6 +341,7 @@ class Module_Permission extends Module {
 			$filename
 		), new Adapter_Settings_Array($config));
 		$loader->load();
+		$config = self::normalize_permission($config);
 		$application->logger->debug("Loading {filename} resulted in {n_config} permissions", array(
 			"filename" => $filename,
 			"n_config" => count($config)

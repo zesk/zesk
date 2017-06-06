@@ -1,20 +1,26 @@
 <?php
+
+/**
+ * 
+ */
 namespace zesk;
 
 /**
  * Should probably do this in Apache or nginx, not in code
- * 
+ *
  * @author kent
  */
 class Module_GZIP extends Module {
 	/**
 	 * Whether output buffering is enabled
+	 * 
 	 * @var boolean
 	 */
 	static $started = false;
 	
 	/**
 	 * Gzip enabled and running
+	 * 
 	 * @var boolean
 	 */
 	static $ok = null;
@@ -33,7 +39,8 @@ class Module_GZIP extends Module {
 	
 	/**
 	 * Hook Response::header
-	 * @param Response $response
+	 * 
+	 * @param Response $response        	
 	 */
 	public static function response_headers(Response $response) {
 		if (self::ok($response->request)) {
@@ -43,7 +50,8 @@ class Module_GZIP extends Module {
 	
 	/**
 	 * Hook Response::output
-	 * @param Response $response
+	 * 
+	 * @param Response $response        	
 	 */
 	public static function response_output(Response $response) {
 		if (self::ok($response->request)) {
@@ -53,7 +61,8 @@ class Module_GZIP extends Module {
 	}
 	/**
 	 * Hook Response::outputted
-	 * @param Response $response
+	 * 
+	 * @param Response $response        	
 	 */
 	public static function response_outputted(Response $response) {
 		if (self::$started) {
@@ -63,7 +72,8 @@ class Module_GZIP extends Module {
 	
 	/**
 	 * Hook Response::render
-	 * @param Response $response
+	 * 
+	 * @param Response $response        	
 	 */
 	public static function response_render(Response $response) {
 		if (self::ok($response->request)) {
@@ -72,7 +82,8 @@ class Module_GZIP extends Module {
 	}
 	/**
 	 * Hook Response::rendered
-	 * @param Response $response
+	 * 
+	 * @param Response $response        	
 	 */
 	public static function response_rendered(Response $response, $content) {
 		return self::$started ? self::handler($content) : $content;
@@ -80,7 +91,8 @@ class Module_GZIP extends Module {
 	
 	/**
 	 * Is GZIP enabled?
-	 * @param boolean $set
+	 * 
+	 * @param boolean $set        	
 	 * @return boolean
 	 */
 	public static function enabled($set = null) {
@@ -95,7 +107,8 @@ class Module_GZIP extends Module {
 	/**
 	 * Does the request support GZIP output?
 	 * Note: caches result
-	 * @param Request $request
+	 * 
+	 * @param Request $request        	
 	 *
 	 * @return boolean
 	 */
@@ -120,7 +133,8 @@ class Module_GZIP extends Module {
 	
 	/**
 	 * The GZIP handler
-	 * @param unknown_type $content
+	 * 
+	 * @param unknown_type $content        	
 	 * @return unknown string
 	 */
 	private static function handler($content) {
