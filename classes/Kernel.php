@@ -9,9 +9,6 @@
  */
 namespace zesk;
 
-if (!defined('ZESK_ROOT')) {
-	define('ZESK_ROOT', dirname(dirname(dirname(__FILE__))) . "/");
-}
 /**
  * Stuff that should probably just be part of PHP, but isn't.
  */
@@ -185,12 +182,6 @@ class Kernel {
 	 * Include related classes
 	 */
 	public static function includes() {
-		// 		if (!interface_exists('Psr\Log\LoggerInterface', false)) {
-		// 			require_once ZESK_ROOT . "classes-no-ns/Psr/Log/LoggerInterface.php";
-		// 		}
-		// 		if (!class_exists('Psr\Log\LogLevel', false)) {
-		// 			require_once ZESK_ROOT . "classes-no-ns/Psr/Log/LogLevel.php";
-		// 		}
 		$here = dirname(__FILE__);
 		
 		require_once $here . "/Process.php";
@@ -567,7 +558,6 @@ class Kernel {
 			$profiler->calls[$fkey] = 1;
 		}
 	}
-	
 	public function console() {
 		return $this->console;
 	}
