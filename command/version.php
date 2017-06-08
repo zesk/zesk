@@ -179,7 +179,7 @@ class Command_Version extends Command_Base {
 				);
 				if ($hooks) {
 					$this->log("Calling hooks {hooks}", [
-						"hooks" => $hooks
+						"hooks" => $this->application->hooks->callable_strings($hooks)
 					]);
 					$params = $this->application->modules->all_hook_arguments("version_updated", array(
 						$params
