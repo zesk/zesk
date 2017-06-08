@@ -604,4 +604,11 @@ class Hooks {
 		}
 		return "Unknown: " . type($callable);
 	}
+	public static function callable_strings(array $callables) {
+		$result = array();
+		foreach ($callables as $callable) {
+			$result[] = self::callable_string($callable);
+		}
+		return $result;
+	}
 }
