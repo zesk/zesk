@@ -1,0 +1,8 @@
+{
+	"file": "etc/db/version",
+	"content_map": "{major}.{minor}.{patch}{tag}",
+	"parse": {
+		"pattern": "/([0-9]+)\\.([0-9]+)\\.([0-9]+)([a-z]*)/",
+		"matches": [ "version", "major", "minor", "patch", "tag"]
+	}
+}
