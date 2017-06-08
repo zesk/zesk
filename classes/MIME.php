@@ -1,10 +1,28 @@
 <?php
-
 namespace zesk;
 
 class MIME {
+	/**
+	 *
+	 * @var string
+	 */
+	const TYPE_APPLICATION_JSON = "application/json";
+	
+	/**
+	 * 
+	 * @var string
+	 */
+	const TYPE_APPLICATION_JAVASCRIPT = "application/javascript";
+	
+	/**
+	 * 
+	 * @var unknown
+	 */
 	private static $extension_to_mime = null;
 	
+	/**
+	 * 
+	 */
 	// Taken straight from Apache httpd-2.4.16.tar.gz mime.types
 	private static $mime_to_extensions = array(
 		"application/andrew-inset" => "ez",
@@ -37,8 +55,8 @@ class MIME {
 		"application/java-archive" => "jar",
 		"application/java-serialized-object" => "ser",
 		"application/java-vm" => "class",
-		"application/javascript" => "js",
-		"application/json" => "json",
+		self::TYPE_APPLICATION_JAVASCRIPT => "js",
+		self::TYPE_APPLICATION_JSON => "json",
 		"application/jsonml+json" => "jsonml",
 		"application/lost+xml" => "lostxml",
 		"application/mac-binhex40" => "hqx",
