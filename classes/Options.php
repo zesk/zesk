@@ -6,7 +6,6 @@
  * @package zesk
  * @subpackage system
  */
-
 namespace zesk;
 
 /**

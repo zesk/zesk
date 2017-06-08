@@ -183,7 +183,7 @@ class File {
 	public static function depends($mixed) {
 		$mixed = to_list($mixed);
 		foreach ($mixed as $f) {
-			if (!file_exists($f)) {
+			if (!file_exists($f) || !is_file($f)) {
 				throw new Exception_File_NotFound($f);
 			}
 		}
