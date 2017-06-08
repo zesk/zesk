@@ -1047,6 +1047,26 @@ class Net_HTTP_Client extends Options {
 		$response->content = $this->content();
 		return $this;
 	}
+	public function request_variables() {
+		return array(
+			"url" => $this->url(),
+			"request_method" => $this->method(),
+			"request_cookies" => $this->request_cookie,
+			"request_data" => $this->data()
+		);
+	}
+	public function response_variables() {
+		return array(
+			"response_code" => $this->response_code,
+			"response_message" => $this->response_message,
+			"response_protocol" => $this->response_protocol,
+			"response_code_type" => $this->response_code_type(),
+			"response_data" => $this->Content
+		);
+	}
+	public function variables() {
+		return $this->request_variables() + $this->response_variables();
+	}
 }
 
 
