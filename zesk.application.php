@@ -18,9 +18,17 @@ if (!isset($GLOBALS['__composer_autoload_files'])) {
 	/* @var $zesk zesk\Kernel */
 	$zesk = require_once dirname(__FILE__) . '/zesk.inc';
 }
-return Application::instance()->configure(array(
-	"path" => array(
-		$zesk->paths->application('etc'),
-		$zesk->paths->uid()
-	)
+$application = Application::instance();
+$application->configure_include_path(array(
+	'/etc',
+	$zesk->paths->application('etc'),
+	$zesk->paths->uid()
 ));
+$application->configure_include(array(
+	"zesk.json",
+	"host/" . System::uname() . ".json"
+));
+$application->set_option("modules", array(
+	"GitHub"
+));
+return $application->configure();
