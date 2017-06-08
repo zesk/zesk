@@ -98,15 +98,13 @@ class Route_Controller extends Route {
 	 * @see Route::_execute()
 	 */
 	function _execute() {
-		global $zesk;
-		/* @var $zesk zesk\Kernel */ // TODO Eliminate this
-		
+		$app = $this->router->application;
 		list($controller, $action) = $this->_init_controller();
 		$__ = array(
 			'class' => get_class($controller),
 			'action' => $action
 		);
-		$zesk->logger->debug("Controller {class} running action {action}", $__);
+		$app->logger->debug("Controller {class} running action {action}", $__);
 		$action_method = str_replace("-", "_", $action);
 		try {
 			$controller->optional_method(array(
@@ -124,7 +122,7 @@ class Route_Controller extends Route {
 				$result = $controller->invoke_method($method, $args);
 			} else {
 				if ($action !== "index") {
-					$zesk->logger->warning("No such method {method} in {class}", array(
+					$app->logger->warning("No such method {method} in {class}", array(
 						"method" => $method,
 						"class" => get_class($controller)
 					));
@@ -142,8 +140,7 @@ class Route_Controller extends Route {
 				$contents
 			));
 		} catch (Exception $e) {
-			global $zesk;
-			$zesk->hooks->call("exception", $e);
+			$app->hooks->call("exception", $e);
 			$controller->optional_method(array(
 				'exception_' . $action_method,
 				"exception"

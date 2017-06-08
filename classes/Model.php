@@ -96,6 +96,8 @@ class Model extends Hookable implements \ArrayAccess {
 				$result[$k] = $v;
 			}
 		}
+		$result['_class'] = get_class($this);
+		$result['_parent_class'] = get_parent_class($this);
 		return $result;
 	}
 	

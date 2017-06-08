@@ -2018,6 +2018,7 @@ class Class_Object extends Hookable {
 			"names" => Locale::plural($class_name),
 			"name_column" => $this->name_column,
 			"id_column" => $this->id_column,
+			"primary_keys" => $this->primary_keys,
 			"class" => get_class($this)
 		);
 	}

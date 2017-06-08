@@ -269,15 +269,19 @@ class Object extends Model {
 	/**
 	 * Not sure why we're doing this; perhaps to force cyclical structures from being destroyed,
 	 * clean up memory references? KMD
+	 * 
+	 * KMD Removed 2017-06-07 https://stackoverflow.com/questions/2251113/should-i-use-unset-in-php-destruct
+	 * Monitor memory usage, how does PHP deal with cyclical references
 	 */
-	public function __destruct() {
-		foreach ($this->members as $k => $member) {
-			unset($this->members[$k]);
-		}
-		$this->members = array();
-		$this->class = null;
-		$this->original = array();
-	}
+	// 	public function __destruct() {
+	// 		foreach ($this->members as $k => $member) {
+	// 			unset($this->members[$k]);
+	// 		}
+	// 		$this->members = array();
+	// 		$this->class = null;
+	// 		$this->original = array();
+	// 	}
+	
 	/**
 	 * Wakeup functionality
 	 */

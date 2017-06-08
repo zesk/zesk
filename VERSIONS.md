@@ -1,5 +1,17 @@
 # Versions
 
+## v0.10.0
+
+We recommend that in your development builds, you enable deprecated logging in your logging configuration as follows:
+
+	zesk\Module_Logger_File::files::deprecated::name="log/deprecated.log"
+	zesk\Module_Logger_File::files::deprecated::include_patterns=["/DEPRECATED/i"]
+
+You can optionally exclude the deprecated messages from any log file by adding:
+
+	zesk\Module_Logger_File::files::main::exclude_patterns[]="/DEPRECATED/i"
+
+
 ## v0.9.0
 
 We've made the leap to PSR-4 loading for Zesk core and all classes, and split the codebase into `namespace zesk` (now in `./classes/`) and non-namespace components (now in `./classes-stubs/`). 
