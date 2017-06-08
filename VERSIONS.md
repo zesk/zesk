@@ -1,16 +1,17 @@
 # Versions
 
-## v0.10.0
+## v0.9.2
 
-We recommend that in your development builds, you enable deprecated logging in your logging configuration as follows:
+- Minor fixes. Enhanced version tags to allow mix of numbers and characters only in `zesk\Command_Version`. Updated docs.
+- Testing automatic version pushing and publishing, so apologize if you receive a lot of releases in a short period.
 
-	zesk\Module_Logger_File::files::deprecated::name="log/deprecated.log"
-	zesk\Module_Logger_File::files::deprecated::include_patterns=["/DEPRECATED/i"]
+## v0.9.1
 
-You can optionally exclude the deprecated messages from any log file by adding:
-
-	zesk\Module_Logger_File::files::main::exclude_patterns[]="/DEPRECATED/i"
-
+- Removed `\zesk\Object::__destruct` for performance improvements (see [this](https://stackoverflow.com/questions/2251113/should-i-use-unset-in-php-destruct))
+- `zesk\Class_Object->variables()` now returns a key 'primary_keys' with an array list of primary key names (member names)
+- `zesk\Object->variables()` now returns a key '_class' with the PHP class name, and '_parent_class' with the PHP parent class name.
+- Minor changes to `\zesk\Route_Controller` to avoid usage of the `$zesk` global and use `$application` instead.
+- Added `zesk version` to assist in managing version numbers for builds, etc.
 
 ## v0.9.0
 
