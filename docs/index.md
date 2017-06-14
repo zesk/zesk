@@ -10,7 +10,7 @@ Zesk is an application development platform which solves many problems found in 
 - Integration with Composer
 - 135 Modules and growing
 
-[About this documentation](readme.md).
+[About this documentation](readme.md). [Version history](versions.md). [Next release notes](current.md).
 
 # Basic Architecture
 

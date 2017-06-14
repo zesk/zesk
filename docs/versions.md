@@ -1,5 +1,3 @@
-# Versions
-
 ## v0.9.2
 
 - Minor fixes. Enhanced version tags to allow mix of numbers and characters only in `zesk\Command_Version`. Updated docs.

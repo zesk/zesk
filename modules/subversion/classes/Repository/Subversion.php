@@ -1,7 +1,7 @@
 <?php
 namespace zesk;
 
-class Repository_SVN extends Repository {
+class Repository_Subversion extends Repository {
 	
 	/**
 	 * First column: Says if item was added, deleted, or otherwise changed
@@ -86,7 +86,7 @@ class Repository_SVN extends Repository {
 		$results = array();
 		foreach ($matches as $match) {
 			$result = arr::map_keys($match, array(
-				0 => "status_line",
+				0 => "raw_status_line",
 				1 => "changed",
 				2 => "directory-properties-changed",
 				3 => "locked-working",

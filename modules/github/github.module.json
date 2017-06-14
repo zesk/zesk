@@ -1,8 +1,9 @@
 {
-    "name": "GitHub",
-    "autoload_options": {
-        "class_prefix": "zesk\\",
+	"name": "GitHub",
+	"autoload_options": {
+		"class_prefix": "zesk\\",
 		"lower": false
-    },
-    "module_class": "zesk\\Module_GitHub"
+	},
+	"module_class": "zesk\\Module_GitHub",
+	"zesk_command_path_class_prefix": "zesk\\Command_"
 }

@@ -31,4 +31,6 @@ $application->configure_include(array(
 $application->set_option("modules", array(
 	"GitHub"
 ));
-return $application->configure();
+$application->configure();
+$application->set_option("version", Version::release());
+return $application;

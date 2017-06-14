@@ -403,6 +403,15 @@ class Application extends Hookable implements Interface_Theme {
 	}
 	
 	/**
+	 * Override in subclasses if it is stored in a different way.
+	 *
+	 * @return mixed|string|array
+	 */
+	public function version() {
+		return $this->option("version");
+	}
+	
+	/**
 	 * Getter/setter to configure a file name to load (from path)
 	 *
 	 * @param mixed $includes        	
