@@ -5,6 +5,27 @@ abstract class Repository extends Hookable {
 	
 	/**
 	 * 
+	 * @var Application
+	 */
+	protected $application = null;
+	
+	/**
+	 * 
+	 * @param Application $application
+	 */
+	public function __construct(Application $application) {
+		$this->application = $application;
+		$this->initialize();
+	}
+	
+	/**
+	 * 
+	 */
+	protected function initialize() {
+	}
+	
+	/**
+	 * 
 	 * @param Application $application
 	 * @param unknown $type
 	 * @return NULL|Repository
@@ -17,14 +38,15 @@ abstract class Repository extends Hookable {
 			if (!$class) {
 				return null;
 			}
-			return $application->objects->factory($class);
+			return $application->objects->factory($class, $application);
 		} catch (Exception_Class_NotFound $e) {
 			return null;
 		}
 	}
 	
 	/**
-	 * Fetch a list of path
+	 * Fetch a list of repository status for a target
+	 * 
 	 * @param unknown $target
 	 * @param string $updates
 	 * 
@@ -41,6 +63,7 @@ abstract class Repository extends Hookable {
 	abstract public function commit($target, $message = null);
 	
 	/**
+	 * Update repository target at target, and get changes from remote
 	 * 
 	 * @param string $target
 	 */

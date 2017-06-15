@@ -1,7 +1,21 @@
 <?php
+/**
+ * 
+ */
 namespace zesk;
 
-class Repository_Subversion extends Repository {
+/**
+ * 
+ * @author kent
+ *
+ */
+class Repository_Subversion extends Repository_Command {
+	
+	/**
+	 * 
+	 * @var string
+	 */
+	protected $executable = "svn";
 	
 	/**
 	 * First column: Says if item was added, deleted, or otherwise changed
@@ -77,8 +91,10 @@ class Repository_Subversion extends Repository {
 		if ($extras) {
 			$extras = " $extras";
 		}
-		$command = $updates ? "svn status -u$extras {0}" : "svn status$extras {0}";
-		$result = zesk()->process->execute($command, $target);
+		$command = $updates ? "status -u$extras {target}" : "status$extras {target}";
+		$result = $this->run_command($command, array(
+			'target' => $target
+		));
 		$matches = null;
 		if (!preg_match_all('/^([ ACDIMRX?!~])([ CM])([ L])([ +])([ SX])([ KOTB])([ C]) ([^\s]+)\n/', $result, $matches)) {
 			return array();
@@ -99,6 +115,29 @@ class Repository_Subversion extends Repository {
 			$results[$result['path']] = arr::clean($result, " ");
 		}
 		return $results;
+	}
+	
+	/**
+	 * 
+	 * {@inheritDoc}
+	 * @see \zesk\Repository::commit()
+	 */
+	public function commit($target, $message = null) {
+		$this->sync($target);
+		$this->run_command("commit -m {message}", array(
+			"message" => escapeshellarg($message)
+		));
+	}
+	
+	/**
+	 * 
+	 * {@inheritDoc}
+	 * @see \zesk\Repository::update()
+	 */
+	public function update($target) {
+		$this->run_command("update {target}", array(
+			"target" => $target
+		));
 	}
 	
 	/**
@@ -134,13 +173,21 @@ class Repository_Subversion extends Repository {
 		}
 		return true;
 	}
+	
+	/**
+	 * 
+	 * {@inheritDoc}
+	 * @see \zesk\Repository::rollback()
+	 */
 	function rollback($target) {
 		$extras = $this->option('revert_arguments', '');
 		if ($extras) {
 			$extras = " $extras";
 		}
-		$command = "svn revert$extras {0}";
-		$result = zesk()->process->execute($command, $target);
+		$command = "revert$extras {target}";
+		$result = $this->run_command($command, array(
+			"target" => $target
+		));
 		if (!empty($result)) {
 			zesk()->logger->error("SVN revert failed for {target}:\n{output}", array(
 				'target' => $target,
@@ -160,15 +207,24 @@ class Repository_Subversion extends Repository {
 	function post_update($target) {
 		$this->sync($target);
 	}
-	function sync($target) {
+	
+	/**
+	 * 
+	 * @param unknown $target
+	 * @return boolean
+	 */
+	protected function sync($target) {
 		$status = $this->status($target);
 		$errors = "";
 		foreach ($status as $f => $attributes) {
 			$changed = $attributes['changed'];
+			$args = array(
+				"file" => $f
+			);
 			if ($changed === '?') {
-				$errors .= zesk()->process->execute("svn add {0}", $f);
+				$errors .= $this->run_command("add {file}", $args);
 			} else if ($changed === '!') {
-				$errors .= zesk()->process->execute("svn remove {0}", $f);
+				$errors .= $this->run_command("remove {file}", $args);
 			}
 		}
 		if (!empty($errors)) {
