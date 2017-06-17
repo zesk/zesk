@@ -616,6 +616,6 @@ class Options implements \ArrayAccess {
 	 * @param offset
 	 */
 	public function offsetUnset($offset) {
-		unset($this->options[self::_option_key]);
+		unset($this->options[self::_option_key($offset)]);
 	}
 }
