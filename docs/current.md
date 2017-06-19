@@ -1,0 +1,2 @@
+- Fixing some SQL files which were registered to lower-case paths in Git (`zesk\Class_City`, `zesk\Class_City`, `zesk\Content_Data`, )
+- Added `zesk-release.sh` to assist with cleaner and more consistent releases
