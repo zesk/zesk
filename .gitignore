@@ -12,3 +12,4 @@ vendor/
 /modules/*/data
 /modules/*/log
 .update.json
+.svn/
