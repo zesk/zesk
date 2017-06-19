@@ -8,12 +8,31 @@ if [ -z "$php" ]; then
 	echo "PHP is not found in PATH: " . $PATH 1>&2
 	exit 1
 fi
-if [ -z "$zesk_root" ]; then
-	here=`pwd`
-	cd `dirname $me`
-	cd ..
-	zesk_root=`pwd`
-	cd $here
+start=`pwd`
+app_root=
+while [ -z "$app_root" ]; do
+	current=`pwd`
+	if ls *.application.php 1> /dev/null 2>&1; then
+		app_root=`pwd`
+	else
+		cd ..
+		next=`pwd`
+		if [ "$next" = "$current" ]; then
+			echo "Unable to find *.application.php file, stopping at $next" 1>&2
+			exit 1001
+		fi
+	fi
+done
+#echo "app root is $app_root"
+cd $start
+if [ ! -d "$app_root/vendor/bin/" ]; then
+	echo "No vendor directory exists, run: composer require zesk/zesk && composer update" 1>&2
+	exit 1002
 fi
-
-exec "$php" "$zesk_root/bin/zesk-command.php" "$@"
+for binary in "$app_root/bin/zesk-command.php" "$app_root/vendor/bin/zesk-command.php"; do
+	if [ -x "$binary" ]; then
+		exec "$php" "$binary" "$@"
+	fi
+done
+echo "No zesk command file, run: composer require zesk/zesk && composer update" 1>&2
+exit 1003

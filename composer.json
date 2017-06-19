@@ -14,8 +14,6 @@
     "name" : "Kent Davidson"
   } ],
   "scripts" : {
-    "post-install-cmd" : [ "bin/zesk update" ],
-    "post-update-cmd" : [ "bin/zesk update" ]
   },
   "keywords" : [ "zesk", "application", "framework" ],
   "autoload" : {
