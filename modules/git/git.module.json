@@ -1,0 +1,9 @@
+{
+	"name": "Git source code control",
+	"depends": [ "Repository" ],
+	"autoload_options": {
+		"class_prefix": "zesk\\",
+		"lower": false
+	},
+	"module_class": "zesk\\Module_Git"
+}

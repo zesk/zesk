@@ -20,6 +20,9 @@ class Module_GitHub extends Module {
 	 * @return array
 	 */
 	public function hook_version_updated(array $settings) {
+		if (!$this->option_bool("tag-on-version-update")) {
+			return;
+		}
 		$version = null;
 		$previous_version = null;
 		extract($settings, EXTR_IF_EXISTS);
@@ -42,16 +45,30 @@ class Module_GitHub extends Module {
 			}
 		}
 	}
+	
+	/**
+	 * 
+	 * @return boolean
+	 */
 	public function has_credentials() {
 		return $this->has_option("owner") && $this->has_option("repository") && $this->has_option("access_token");
 	}
-	public function generate_tag($version) {
+	
+	/**
+	 * 
+	 * @param unknown $version
+	 * @return boolean
+	 */
+	public function generate_tag($version, $description = null) {
 		$version_name = "v$version";
+		if (!$description) {
+			$description = "Release of version $version_name";
+		}
 		$json_struct = array(
 			"tag_name" => $version_name,
 			"target_commitish" => "master",
 			"name" => $version_name,
-			"body" => "Release of version $version_name",
+			"body" => $description,
 			"draft" => false,
 			"prerelase" => false
 		);
@@ -68,28 +85,4 @@ class Module_GitHub extends Module {
 		$this->application->logger->error("Error with request: {response_code} {response_message} {response_data}", $client->response_variables());
 		return false;
 	}
-	
-	/*
-	 public function initialize() {
-	 parent::initialize();
-	 }
-	 */
-	
-	/*
-	 protected function hook_foot(zesk\Request $request, zesk\Response_Text_HTML $response, zesk\Template $template) {
-	 
-	 }
-	 */
-	
-	/*
-	 protected function hook_head(zesk\Request $request, zesk\Response_Text_HTML $response, zesk\Template $template) {
-	 
-	 }
-	 */
-	
-	/*
-	 public function hook_routes(zesk\Router $router) {
-	 
-	 }
-	 */
 }
