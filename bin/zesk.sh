@@ -23,7 +23,6 @@ while [ -z "$app_root" ]; do
 		fi
 	fi
 done
-#echo "app root is $app_root"
 cd $start
 if [ ! -d "$app_root/vendor/bin/" ]; then
 	echo "No vendor directory exists, run: composer require zesk/zesk && composer update" 1>&2
