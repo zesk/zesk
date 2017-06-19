@@ -25,7 +25,11 @@ class Module_GitHub extends Module {
 		}
 		$version = null;
 		$previous_version = null;
+		$commitish = null;
 		extract($settings, EXTR_IF_EXISTS);
+		if (!$commitish) {
+			$commitish = $this->option("commitish");
+		}
 		if ($version) {
 			if (!$this->has_credentials()) {
 				$this->application->logger->warning("{class} is not configured: need options owner, repository, and access_token to generate release for version {version}", array(
@@ -34,7 +38,7 @@ class Module_GitHub extends Module {
 				));
 				return $settings;
 			}
-			if (!$this->generate_tag($version)) {
+			if (!$this->generate_tag("v$version", $commitish)) {
 				$this->application->logger->error("Unable to generate a tag for {version}", array(
 					"version" => $version
 				));
@@ -59,15 +63,17 @@ class Module_GitHub extends Module {
 	 * @param unknown $version
 	 * @return boolean
 	 */
-	public function generate_tag($version, $description = null) {
-		$version_name = "v$version";
+	public function generate_tag($name, $commitish = null, $description = null) {
 		if (!$description) {
-			$description = "Release of version $version_name";
+			$description = "Release of version $name";
+		}
+		if (!$commitish) {
+			$commitish = "master";
 		}
 		$json_struct = array(
-			"tag_name" => $version_name,
-			"target_commitish" => "master",
-			"name" => $version_name,
+			"tag_name" => $name,
+			"target_commitish" => $commitish,
+			"name" => $name,
 			"body" => $description,
 			"draft" => false,
 			"prerelase" => false

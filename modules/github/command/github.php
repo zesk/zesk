@@ -15,7 +15,7 @@ class Command_GitHub extends Command_Base {
 		"tag" => "boolean",
 		"description-file" => "file",
 		"description" => "string",
-		"branch" => "string"
+		"commitish" => "string"
 	);
 	/**
 	 * 
@@ -23,7 +23,7 @@ class Command_GitHub extends Command_Base {
 	 */
 	protected $option_defaults = array(
 		"description" => "Release of version {version}.",
-		"branch" => "origin"
+		"commitish" => "master"
 	);
 	/**
 	 * 
@@ -66,10 +66,11 @@ class Command_GitHub extends Command_Base {
 			$this->error("Need a non-blank description");
 			return self::EXIT_CODE_NO_DESCRIPTION;
 		}
+		$description = map($description, $this->description_variables());
 		try {
 			/* @var $github Module_GitHub */
 			$github = $this->application->modules->object("GitHub");
-			if ($github->generate_tag($this->application->version(), $description)) {
+			if ($github->generate_tag("v" . $this->application->version(), $this->option("commitish"), $description)) {
 				return 0;
 			}
 			return self::EXIT_CODE_TAG_FAILED;
@@ -84,5 +85,10 @@ class Command_GitHub extends Command_Base {
 			) + Exception::exception_variables($e));
 			return self::EXIT_CODE_GITHUB_MODULE;
 		}
+	}
+	function description_variables() {
+		return array(
+			"version" => $this->application->version()
+		);
 	}
 }
