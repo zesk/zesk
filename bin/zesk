@@ -1,2 +1,2 @@
 #!/bin/sh
-exec `dirname $0`/zesk.sh "$@"
+exec "`dirname $0`/zesk.sh" "$@"
