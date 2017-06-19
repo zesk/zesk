@@ -1,12 +1,11 @@
 #!/bin/bash
 if [ -z "$ZESK_ROOT" ]; then
-        ZESK_ROOT=`dirname $BASH_SOURCE`
-        ZESK_ROOT=`dirname $ZESK_ROOT`
-        export ZESK_ROOT
+	ZESK_ROOT=`dirname $BASH_SOURCE`
+	ZESK_ROOT=`dirname $ZESK_ROOT`
+	export ZESK_ROOT
 fi
 
-alias z='zesk-command.php'
-alias zesk=z
+alias z=zesk
 alias zesk-connect='zesk database-connect'
 alias zesk-install='zesk install'
 alias zesk-schema='zesk database-schema'
@@ -15,7 +14,7 @@ alias zesk-schema='zesk database-schema'
 # File Converters
 #
 alias php-mo='$ZESK_ROOT/modules/php-mo/bin/php-mo.php'
-alias markdown='z module markdown markdown'
+alias markdown='zesk module markdown markdown'
 
 #
 # Schema updates, show changes
