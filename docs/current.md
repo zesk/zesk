@@ -1,3 +1,3 @@
 ## Zesk Version {version}
 
-- Fixing path of `zesk\\Control_Select_Object_Available` to be case-sensitive
+- Removing reference to `$this` in static function in `modules/content/classes/Content/Data.php`

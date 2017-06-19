@@ -388,11 +388,11 @@ class Content_Data extends Object {
 			$size = $application->object_database(__CLASS__)->feature(Database::feature_max_blob_size);
 			if ($size < $result) {
 				$data->set_option("database_size_threshold", $result);
-				$application->configuration->pave_set(array(
+				$application->configuration->path_set(array(
 					__CLASS__,
 					"database_size_threshold"
 				), $result);
-				$this->application->logger->warning("{class}::database_size_threshold Database size threshold {result} is beyond database setting of {size} - adjusting", array(
+				$application->logger->warning("{class}::database_size_threshold Database size threshold {result} is beyond database setting of {size} - adjusting", array(
 					"class" => __CLASS__,
 					'size' => $size,
 					'result' => $result
