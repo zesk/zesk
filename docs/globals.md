@@ -43,15 +43,6 @@ Would result in the global `$_ZESK` to have the value:
 		)
 	)
 
-# Locked globals
-
-Certain globals in ZESK are "locked" and can not be overwritten by `zesk::set()`. The list of locked globals is:
-
-- `ZESK_APPLICATION_ROOT`
-- `ZESK_ROOT`
-
-Obviously, you can overwrite these by accessing the `$_ZESK` global, so we discourage that practice. 
-
 # zesk\Settings
 
 `zesk\Settings` is an object which enables loading of Zesk globals from the database, and supports loading and saving those globals.
