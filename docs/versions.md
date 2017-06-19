@@ -1,3 +1,9 @@
+## v0.9.5
+
+- Skipped a few versions due to `zesk version` testing and other work
+- Fixed SQL files in git repo for `zesk\City`, `zesk\Country`, `zesk\County`, `zesk\Currency`, `zesk\Language`, `zesk\Province`, `zesk\Content_Data`, `zesk\Content_File`, `zesk\Content_Image`, `zesk\Lock`, `zesk\Permission`, `zesk\Preference`, `zesk\Preference_Type`, `zesk\Server_Data`
+- Worked on `reposotory`, `subversion`, and `github` modules (still work in progress)
+
 ## v0.9.2
 
 - Minor fixes. Enhanced version tags to allow mix of numbers and characters only in `zesk\Command_Version`. Updated docs.
