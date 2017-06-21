@@ -3,6 +3,7 @@
 export PATH=$PATH:/usr/bin:/bin:/usr/local/bin
 
 me="$0"
+here=$(dirname "$0")
 php=`which php`
 if [ -z "$php" ]; then
 	echo "PHP is not found in PATH: " . $PATH 1>&2
@@ -18,13 +19,17 @@ while [ -z "$app_root" ]; do
 		cd ..
 		next=`pwd`
 		if [ "$next" = "$current" ]; then
-			echo "Unable to find *.application.php file, stopping at $next" 1>&2
-			exit 1001
+			break
 		fi
 	fi
 done
 cd $start
-if [ ! -d "$app_root/vendor/bin/" ]; then
+if [ -z "$app_root" ]; then
+	cd $here
+	cd ..
+	app_root=`pwd`
+	cd $start
+elif [ ! -d "$app_root/vendor/bin/" ]; then
 	echo "No vendor directory exists, run: composer require zesk/zesk && composer update" 1>&2
 	exit 1002
 fi
