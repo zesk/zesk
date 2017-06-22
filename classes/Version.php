@@ -31,7 +31,8 @@ abstract class Version {
 		// WAS: zesk.inc 3942 2016-08-04 21:14:54Z kent on 2016-08-04
 		// WAS: Version.php 4306 2017-03-03 01:32:59Z kent on 2017-03-23
 		// WAS: Version.php 4485 2017-03-24 18:58:00Z kent on 2017-06-08
-		return explode(' ', '$Id: Version.php 4611 2017-06-08 20:42:51Z kent $', 5);
+		// WAS: Version.php 4611 2017-06-08 20:42:51Z kent on 2017-06-21
+		return explode(' ', '$Id: Version.php 4633 2017-06-22 01:53:39Z kent $', 5);
 	}
 	
 	/**
