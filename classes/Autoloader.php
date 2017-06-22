@@ -5,6 +5,8 @@
  */
 namespace zesk;
 
+use Psr\Cache\CacheItemInterface;
+
 /**
  * Handles autoloading for Zesk
  *
@@ -50,30 +52,6 @@ class Autoloader {
 	);
 	
 	/**
-	 *
-	 * @var boolean
-	 */
-	private $autoload_cache_changed = false;
-	
-	/**
-	 *
-	 * @var array
-	 */
-	private $autoload_cache_mtime = null;
-	
-	/**
-	 *
-	 * @var array
-	 */
-	private $autoload_cache = null;
-	
-	/**
-	 *
-	 * @var string
-	 */
-	private $autoload_cache_path = null;
-	
-	/**
 	 * Create default autoloader for most of Zesk
 	 */
 	public function __construct(Kernel $kernel) {
@@ -85,18 +63,18 @@ class Autoloader {
 			),
 			"class_prefix" => "zesk\\"
 		));
-		$this->path(ZESK_ROOT . 'classes-stubs', array(
-			'last' => true,
-			"lower" => false,
-			"extensions" => array(
-				"php"
-			)
-		));
+		// 		$this->path(ZESK_ROOT . 'classes-stubs', array(
+		// 			'last' => true,
+		// 			"lower" => false,
+		// 			"extensions" => array(
+		// 				"php"
+		// 			)
+		// 		));
 		$this->autoload_register();
-		$kernel->hooks->add(Hooks::hook_exit, array(
-			$this,
-			"save"
-		));
+// 		$kernel->hooks->add(Hooks::hook_exit, array(
+// 			$this,
+// 			"save"
+// 		));
 	}
 	
 	/**
@@ -111,46 +89,17 @@ class Autoloader {
 	}
 	
 	/**
-	 * Autoload caching, only needs to reset when classes are added/removed
-	 */
-	private function _autoload_cache_path() {
-		if ($this->autoload_cache_path === null) {
-			global $zesk;
-			// This is loaded early, so if you overwrite, it doesn't change.
-			$this->autoload_cache_path = $zesk->paths->cache('autoload.cache');
-		}
-		return $this->autoload_cache_path;
-	}
-	
-	/**
 	 * Retrieve the autoload cache structure, optionally creating the autoload cache directory if
 	 * needed.
 	 *
-	 * @return array
+	 * @return CacheItemInterface
 	 */
-	private function &_autoload_cache() {
-		if ($this->autoload_cache === null) {
-			$dir = dirname($path = $this->_autoload_cache_path());
-			if (!is_dir($dir) && is_writable(dirname($dir))) {
-				global $zesk;
-				/* @var $zesk Kernel */
-				if ($zesk->maintenance || !@mkdir($dir, 0770, true)) {
-					$this->autoload_cache_path = false;
-					$this->autoload_cache = array();
-					return $this->autoload_cache;
-				}
-			}
-			if (is_file($path)) {
-				$this->autoload_cache_mtime = filemtime($path);
-				$this->autoload_cache = unserialize(file_get_contents($path));
-			} else {
-				$this->autoload_cache_mtime = null;
-				$this->autoload_cache = array();
-			}
-		}
-		return $this->autoload_cache;
+	private function _autoload_cache() {
+		return zesk()->cache->getItem("autoload_cache");
 	}
-	
+	private function _autoload_cache_save(CacheItemInterface $item) {
+		zesk()->cache->saveDeferred($item);
+	}
 	/**
 	 * PHP Autoloader call.
 	 * Used in case PHP extends the autoloader to add a 2nd parameter - don't want
@@ -186,12 +135,16 @@ class Autoloader {
 			backtrace();
 		}
 		$lowclass = strtolower($class);
-		$cache = & $this->_autoload_cache();
+		$cache = $this->_autoload_cache();
 		$include = null;
-		if (array_key_exists($lowclass, $cache)) {
-			$include = $cache[$lowclass];
+		$cache_items = $cache->get();
+		if (!is_array($cache_items)) {
+			$cache_items = array();
+		}
+		if (array_key_exists($lowclass, $cache_items)) {
+			$include = $cache_items[$lowclass];
 			if (!is_file($include)) {
-				unset($this->autoload_cache[$lowclass]);
+				unset($cache_items[$lowclass]);
 				$include = null;
 			}
 		}
@@ -210,8 +163,9 @@ class Autoloader {
 					"backtrace" => Text::indent(_backtrace(), 1)
 				));
 			}
-			$cache[$lowclass] = $include;
-			$this->autoload_cache_changed = true;
+			$cache_items[$lowclass] = $include;
+			$cache->set($cache_items);
+			$this->_autoload_cache_save($cache);
 		}
 		if ($this->debug) {
 			echo "Include $include" . newline();
@@ -419,33 +373,5 @@ class Autoloader {
 		}
 		$this->cached = array_merge($this->first, $this->paths, $this->last);
 		return $this->cached;
-	}
-	
-	/**
-	 * Write autoload cache path (tests for writability and logs error in development environments)
-	 *
-	 * @see self::_autoload_cache_path()
-	 */
-	public function save() {
-		if (!$this->autoload_cache_changed) {
-			return;
-		}
-		$path = $this->_autoload_cache_path();
-		if (!$path) {
-			return;
-		}
-		if (file_exists("$path.lock")) {
-			return;
-		}
-		clearstatcache(true, $path);
-		// Do not overwrite if written since application load
-		if (!is_file($path) || filemtime($path) <= $this->autoload_cache_mtime) {
-			if (@file_put_contents($path, serialize($this->autoload_cache))) {
-				return;
-			}
-			zesk()->logger->warning("Can not write autoload path to {path}", array(
-				"path" => $path
-			));
-		}
 	}
 }

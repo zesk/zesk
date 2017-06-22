@@ -40,16 +40,6 @@ class Classes {
 	protected $hierarchy = array();
 	
 	/**
-	 * @var boolean
-	 */
-	protected $dirty = false;
-	
-	/**
-	 * @var string
-	 */
-	public $cache_file = null;
-	
-	/**
 	 * 
 	 */
 	public function __construct(Kernel $zesk) {
@@ -73,9 +63,9 @@ class Classes {
 	 * @return \zesk\Classes
 	 */
 	public static function instance(Kernel $zesk) {
-		$cache_file = $zesk->paths->cache("zesk-classes.cache");
-		if (file_exists($cache_file)) {
-			$classes = unserialize(file_get_contents($cache_file));
+		$cache_item = $zesk->cache->getItem(__CLASS__);
+		if ($cache_item->isHit()) {
+			$classes = $cache_item->get();
 			if ($classes instanceof self && $classes->version === self::VERSION) {
 				$classes->initialize($zesk);
 			} else {
@@ -84,7 +74,6 @@ class Classes {
 		} else {
 			$classes = new self($zesk);
 		}
-		$classes->cache_file = $cache_file;
 		return $classes;
 	}
 	
@@ -94,7 +83,7 @@ class Classes {
 	public function on_exit() {
 		if ($this->dirty) {
 			$this->dirty = false;
-			file_put_contents($this->cache_file, serialize($this));
+			zesk()->cache->saveDeferred(zesk()->cache->getItem(__CLASS__)->set($this->classes));
 		}
 	}
 	/**

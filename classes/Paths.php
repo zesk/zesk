@@ -1,12 +1,12 @@
 <?php
 /**
- * 
+ *
  * @copyright Copyright &copy; 2016 Market Acumen, Inc.
  */
 namespace zesk;
 
 /**
- * 
+ *
  * @author kent
  *
  */
@@ -122,21 +122,20 @@ class Paths {
 	
 	/**
 	 * Constuct a new Paths manager
-	 * 
+	 *
 	 * Modifies and initializes global HOME
-	 * 
+	 *
 	 * Adds a configured hook
-	 * 
+	 *
 	 * @global HOME
-	 * @param Configuration $config        	
+	 * @param Configuration $config
 	 */
 	public function __construct(Kernel $zesk) {
 		$config = $zesk->configuration;
 		
 		$this->_init_zesk_root($config);
-		$this->_init_application_root($config);
 		
-		$this->_init_paths();
+		$this->_init_system_paths();
 		
 		$zesk->configuration->home = $this->home;
 		
@@ -197,7 +196,7 @@ class Paths {
 	/**
 	 * Return a path relative to Zesk root
 	 *
-	 * @param string $suffix        	
+	 * @param string $suffix
 	 * @return string
 	 */
 	public function zesk($suffix = null) {
@@ -206,7 +205,7 @@ class Paths {
 	
 	/**
 	 *
-	 * @param Configuration $config        	
+	 * @param Configuration $config
 	 */
 	private function _init_zesk_root(Configuration $config) {
 		$zesk_root = dirname(dirname(__FILE__)) . "/";
@@ -217,41 +216,32 @@ class Paths {
 		}
 		$config->zesk->root = ZESK_ROOT;
 	}
+	public function set_application($set, $update = true) {
+		$this->application = rtrim($set, "/");
+		if ($update) {
+			$this->_init_app_paths();
+		}
+		return $this;
+	}
 	
 	/**
 	 *
-	 * @param Configuration $config        	
 	 */
-	private function _init_application_root(Configuration $config) {
-		if (defined('ZESK_SITE_ROOT') && !defined('ZESK_APPLICATION_ROOT')) {
-			define('ZESK_APPLICATION_ROOT', ZESK_SITE_ROOT);
-		}
-		if (!defined('ZESK_APPLICATION_ROOT')) {
-			define('ZESK_APPLICATION_ROOT', ZESK_ROOT);
-		}
-		$this->application = ZESK_APPLICATION_ROOT;
-		
-		$config->zesk->application_root = ZESK_APPLICATION_ROOT;
-		
-		/**
-		 * @deprecated 2016-09
-		 */
-		$this->run = ZESK_APPLICATION_ROOT . 'var/run/';
+	private function _init_system_paths() {
+		$this->_init_command();
+		$this->home = avalue($_SERVER, 'HOME');
+		$this->uid = $this->home(".zesk");
 	}
 	
 	/**
 	 * 
 	 */
-	private function _init_paths() {
-		$this->temporary = path(ZESK_APPLICATION_ROOT, "cache/temp");
-		$this->data = path(ZESK_APPLICATION_ROOT, "data");
-		
-		$this->_init_command();
-		
-		$this->cache = path(ZESK_APPLICATION_ROOT, "cache");
-		
-		$this->home = avalue($_SERVER, 'HOME');
-		$this->uid = $this->home(".zesk");
+	private function _init_app_paths() {
+		if ($this->application) {
+			$this->temporary = path($this->application, "cache/temp");
+			$this->data = path($this->application, "data");
+			$this->cache = path($this->application, "cache");
+		}
 	}
 	
 	/**
@@ -316,7 +306,7 @@ class Paths {
 	/**
 	 * Get/Set temporary path
 	 *
-	 * @param string $suffix        	
+	 * @param string $suffix
 	 * @return string
 	 */
 	public function temporary($suffix = null) {
@@ -326,7 +316,7 @@ class Paths {
 	/**
 	 * Get/Set data storage path
 	 *
-	 * @param string $suffix        	
+	 * @param string $suffix
 	 * @return string
 	 */
 	public function data($suffix = null) {
@@ -335,8 +325,6 @@ class Paths {
 	
 	/**
 	 * Directory for storing temporary cache files
-	 *
-	 * Default cache path is ZESK_APPLICATION_ROOT/cache
 	 *
 	 * @param string $suffix
 	 *        	Added file or directory to add to cache page
@@ -375,7 +363,7 @@ class Paths {
 	
 	/**
 	 * Similar to which command-line command. Returns executable path for command.
-	 * 
+	 *
 	 * @param string $command
 	 * @return string|NULL
 	 */
@@ -394,7 +382,7 @@ class Paths {
 	
 	/**
 	 * Retrieve path settings as variables
-	 * 
+	 *
 	 * @return string[]
 	 */
 	public function variables() {

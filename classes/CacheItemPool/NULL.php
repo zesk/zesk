@@ -1,6 +1,6 @@
 <?php
 /**
- * @copyright &copy; 2017 Market Acumen, Inc. 
+ * @copyright &copy; 2017 Market Acumen, Inc.
  */
 namespace zesk;
 
@@ -12,20 +12,7 @@ use Psr\Cache\CacheItemPoolInterface;
  * @author kent
  *
  */
-class Adapter_CachePool implements CacheItemPoolInterface {
-	
-	/**
-	 * 
-	 * @var Cache
-	 */
-	private $cache = null;
-	/**
-	 * 
-	 * @param unknown $name
-	 */
-	public function __construct($name) {
-		$this->cache = Cache::register($name);
-	}
+class CacheItemPool_NULL implements CacheItemPoolInterface {
 	/**
 	 * Returns a Cache Item representing the specified key.
 	 *
@@ -43,7 +30,7 @@ class Adapter_CachePool implements CacheItemPoolInterface {
 	 *   The corresponding Cache Item.
 	 */
 	public function getItem($key) {
-		return new Adapter_CacheItem($key, $this->cache->get($key), $this->cache->has($key), $this->cache->get("*expiration-$key"));
+		return new CacheItem_NULL($key);
 	}
 	
 	/**
@@ -88,7 +75,7 @@ class Adapter_CachePool implements CacheItemPoolInterface {
 	 *   True if item exists in the cache, false otherwise.
 	 */
 	public function hasItem($key) {
-		return $this->getItem($key)->isHit();
+		return false;
 	}
 	
 	/**
@@ -98,7 +85,7 @@ class Adapter_CachePool implements CacheItemPoolInterface {
 	 *   True if the pool was successfully cleared. False if there was an error.
 	 */
 	public function clear() {
-		$this->cache->erase();
+		return true;
 	}
 	
 	/**
@@ -115,8 +102,6 @@ class Adapter_CachePool implements CacheItemPoolInterface {
 	 *   True if the item was successfully removed. False if there was an error.
 	 */
 	public function deleteItem($key) {
-		$this->cache->set($key, null);
-		$this->cache->set("*expiration-$key", null);
 		return true;
 	}
 	
@@ -134,9 +119,6 @@ class Adapter_CachePool implements CacheItemPoolInterface {
 	 *   True if the items were successfully removed. False if there was an error.
 	 */
 	public function deleteItems(array $keys) {
-		foreach ($keys as $key) {
-			$this->deleteItem($key);
-		}
 		return true;
 	}
 	
@@ -150,9 +132,7 @@ class Adapter_CachePool implements CacheItemPoolInterface {
 	 *   True if the item was successfully persisted. False if there was an error.
 	 */
 	public function save(CacheItemInterface $item) {
-		$this->saveDeferred($item);
-		$this->cache->flush();
-		return true;
+		return false;
 	}
 	
 	/**
@@ -165,11 +145,7 @@ class Adapter_CachePool implements CacheItemPoolInterface {
 	 *   False if the item could not be queued or if a commit was attempted and failed. True otherwise.
 	 */
 	public function saveDeferred(CacheItemInterface $item) {
-		$key = $item->getKey();
-		$this->cache->set($key, $item->get());
-		if ($item instanceof Adapter_CacheItem && $item->expiration) {
-			$this->cache->set("*expiration-$key", $item->expiration);
-		}
+		return false;
 	}
 	
 	/**
@@ -179,6 +155,6 @@ class Adapter_CachePool implements CacheItemPoolInterface {
 	 *   True if all not-yet-saved items were successfully saved or there were none. False otherwise.
 	 */
 	public function commit() {
-		$this->cache->flush();
+		return false;
 	}
 }

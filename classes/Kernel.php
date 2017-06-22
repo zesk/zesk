@@ -9,6 +9,8 @@
  */
 namespace zesk;
 
+use Psr\Cache\CacheItemPoolInterface;
+
 /**
  * Stuff that should probably just be part of PHP, but isn't.
  */
@@ -99,6 +101,11 @@ class Kernel {
 	 */
 	public $initialization_time = null;
 	
+	/**
+	 * 
+	 * @var CacheItemPoolInterface
+	 */
+	public $cache = null;
 	/**
 	 *
 	 * @var Autoloader
@@ -200,6 +207,9 @@ class Kernel {
 		require_once $here . "/Compatibility.php";
 		require_once $here . "/CDN.php";
 		require_once $here . "/PHP.php";
+		
+		require_once $here . "/CacheItemPool/NULL.php";
+		require_once $here . "/CacheItem/NULL.php";
 	}
 	
 	/**
@@ -282,6 +292,12 @@ class Kernel {
 	 */
 	private function construct(array $configuration) {
 		Compatibility::install();
+		
+		if (isset($configuration['cache']) && $configuration['cache'] instanceof CacheItemPoolInterface) {
+			$this->cache = $configuration['cache'];
+		} else {
+			$this->cache = new CacheItemPool_NULL();
+		}
 		
 		/*
 		 * Set up logger interface for central logging

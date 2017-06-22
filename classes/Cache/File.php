@@ -27,6 +27,7 @@ namespace zesk;
  * 
  * @package zesk
  * @subpackage system
+ * @deprecated 2017-06
  */
 class Cache_File extends Cache {
 	

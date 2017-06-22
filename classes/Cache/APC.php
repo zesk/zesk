@@ -24,6 +24,7 @@ if (!function_exists('apc_exists')) {
  *
  * @package zesk
  * @subpackage system
+ * @deprecated 2017-06
  */
 class Cache_APC extends Cache {
 

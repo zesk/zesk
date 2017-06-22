@@ -5,8 +5,13 @@
  */
 namespace zesk;
 
+use Psr\Cache\CacheItemPoolInterface;
+
 /**
- *
+ * @deprecated 2017-06
+ * @see zesk()->cache
+ * @see CacheItemPoolInterface
+ * @see Adapter_CachePool
  * @author kent
  *        
  */
@@ -105,6 +110,12 @@ abstract class Cache implements \ArrayAccess {
 	 * @var integer
 	 */
 	protected $_created;
+	
+	/**
+	 *
+	 * @var boolean
+	 */
+	private $_is_hit = false;
 	
 	/**
 	 * Registered Cache interfaces
@@ -218,6 +229,14 @@ abstract class Cache implements \ArrayAccess {
 	}
 	
 	/**
+	 * 
+	 * @return string
+	 */
+	public function name() {
+		return $this->_name;
+	}
+	
+	/**
 	 * Reset object to no data
 	 */
 	protected function initialize() {
@@ -285,6 +304,7 @@ abstract class Cache implements \ArrayAccess {
 		$this->_load = false;
 		$this->_dirty = true;
 		$this->_data = array();
+		$this->_is_hit = false;
 		return $this;
 	}
 	
@@ -295,12 +315,14 @@ abstract class Cache implements \ArrayAccess {
 	 */
 	final protected function load() {
 		//		$start = microtime(true);
+		$this->_is_hit = false;
 		if (($data = $this->fetch()) !== null) {
 			if (!is_array($data)) {
 				$this->_data = array();
 			} else if (!array_key_exists('*version', $data)) {
 				$this->_data = $data;
 			} else {
+				$this->_is_hit = true;
 				$this->_data = $data['data'];
 				$this->_internal = $data['internal'];
 				$this->_version = $data['*version'];
@@ -332,6 +354,14 @@ abstract class Cache implements \ArrayAccess {
 				zesk()->logger->error("Cache::flush: Can't write $this->_name");
 			}
 		}
+	}
+	
+	/**
+	 * 
+	 * @return boolean
+	 */
+	final public function is_hit() {
+		return $this->_is_hit;
 	}
 	
 	/**
