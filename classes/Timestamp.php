@@ -11,7 +11,6 @@ namespace zesk;
 
 use \DateTimeZone;
 use \DateTime;
-use \DateInterval;
 
 /**
  * Timestamp class is similar to PHP DateTime
@@ -72,6 +71,54 @@ class Timestamp extends Temporal {
 	 */
 	const default_format = "{YYYY}-{MM}-{DD} {hh}:{mm}:{ss}";
 	
+// 	/**
+// 	 * 
+// 	 * {@inheritDoc}
+// 	 * @see DateTimeInterface::getTimezone()
+// 	 */
+// 	public function getTimezone() {
+// 		return $this->tz;
+// 	}
+	
+// 	/**
+// 	 * 
+// 	 * {@inheritDoc}
+// 	 * @see DateTimeInterface::getOffset()
+// 	 */
+// 	public function getOffset() {
+// 		return $this->tz->getOffset();
+// 	}
+	
+// 	/**
+// 	 * 
+// 	 * {@inheritDoc}
+// 	 * @see DateTimeInterface::__wakeup()
+// 	 */
+// 	public function __wakeup() {
+// 		return parent::__wakeup();
+// 	}
+// 	/**
+// 	 * 
+// 	 * {@inheritDoc}
+// 	 * @see DateTimeInterface::getTimestamp()
+// 	 */
+// 	public function getTimestamp() {
+// 		return $this->unix_timestamp();
+// 	}
+	
+// 	/**
+// 	 * @param \DateTimeInterface $object
+// 	 * @param $absolute [optional]
+// 	 */
+// 	public function diff($object, $absolute = NULL) {
+// 		$object_ts = Timestamp::factory($object);
+		
+// 		$diff = $object_ts->difference($this, self::UNIT_SECOND);
+		
+// 		$interval = new DateInterval("P0S");
+// 		return $interval->fromSeconds($absolute ? abs($diff) : $diff);
+// 	}
+	
 	/**
 	 *
 	 * @return NULL|\DateTimeZone
@@ -83,8 +130,13 @@ class Timestamp extends Temporal {
 		}
 		return $utc;
 	}
+	
+	/**
+	 * 
+	 * @param Kernel $zesk
+	 */
 	public static function hooks(Kernel $zesk) {
-		$zesk->configuration->pave('timestamp');
+		$zesk->configuration->path('Timestamp');
 	}
 	/**
 	 *
@@ -110,10 +162,16 @@ class Timestamp extends Temporal {
 	 * @param mixed $value        	
 	 */
 	function __construct($value = null, DateTimeZone $timezone = null) {
-		$this->tz = $timezone === null ? self::timezone_local() : $timezone;
 		$this->msec = null;
-		if ($value !== null && $value !== '0000-00-00 00:00:00' && $value !== '0000-00-00') {
+		if ($value instanceof \DateTimeInterface) {
+			$this->tz = $value->getTimezone();
 			$this->datetime = new DateTime(null, $this->tz);
+			$this->unix_timestamp($value->getTimestamp());
+		} else {
+			$this->tz = $timezone === null ? self::timezone_local() : $timezone;
+			if ($value !== null && $value !== '0000-00-00 00:00:00' && $value !== '0000-00-00') {
+				$this->datetime = new DateTime(null, $this->tz);
+			}
 			$this->set($value);
 		}
 	}
@@ -511,7 +569,7 @@ class Timestamp extends Temporal {
 	 * @return Timestamp
 	 */
 	function weekday_past($set) {
-		return $this->weekday($set)->add_unit("day", -7);
+		return $this->weekday($set)->add_unit(self::UNIT_DAY, -7);
 	}
 	/**
 	 * Get/set weekday.
@@ -831,6 +889,30 @@ class Timestamp extends Temporal {
 	}
 	
 	/**
+	 * Shortcut to test if time is before current time
+	 *
+	 * @param string $equal Return true if time MATCHES current time (seconds)
+	 * @return boolean
+	 */
+	function beforeNow($equal = false) {
+		$unix_timestamp = $this->unix_timestamp();
+		$now = time();
+		return boolval($equal ? ($unix_timestamp <= $now) : ($unix_timestamp < $now));
+	}
+	
+	/**
+	 * Shortcut to test if time is before current time
+	 * 
+	 * @param string $equal Return true if time MATCHES current time (seconds)
+	 * @return boolean
+	 */
+	function afterNow($equal = false) {
+		$unix_timestamp = $this->unix_timestamp();
+		$now = time();
+		return boolval($equal ? ($unix_timestamp >= $now) : ($unix_timestamp > $now));
+	}
+	
+	/**
 	 * Is passed in Timestamp after $this?
 	 *
 	 * @param Timestamp $model        	
@@ -962,27 +1044,27 @@ class Timestamp extends Temporal {
 	 * @throws Exception_Parameter
 	 * @return number
 	 */
-	function difference(Timestamp $timestamp, $unit = "second", $precision = 0) {
+	function difference(Timestamp $timestamp, $unit = self::UNIT_SECOND, $precision = 0) {
 		if ($timestamp->after($this, false)) {
 			return -$timestamp->difference($this, $unit, $precision);
 		}
-		if ($unit === "weekday") {
+		if ($unit === self::UNIT_WEEKDAY) {
 			return $this->weekday() - $timestamp->weekday();
 		}
 		$precision = intval($precision);
 		$delta = $this->subtract($timestamp);
 		switch ($unit) {
-			case "millisecond":
+			case self::UNIT_MILLISECOND:
 				return $delta * 1000;
-			case "second":
+			case self::UNIT_SECOND:
 				return $delta;
-			case "minute":
+			case self::UNIT_MINUTE:
 				return round($delta / 60.0, $precision);
-			case "hour":
+			case self::UNIT_HOUR:
 				return round($delta / 3600.0, $precision);
-			case "day":
+			case self::UNIT_DAY:
 				return round($delta / 86400, $precision);
-			case "week":
+			case self::UNIT_WEEK:
 				return round($delta / (86400 * 7), $precision);
 		}
 		
@@ -994,13 +1076,13 @@ class Timestamp extends Temporal {
 		
 		if ($precision === 0) {
 			switch ($unit) {
-				case "month":
+				case self::UNIT_MONTH:
 					return ($yend - $ystart) * 12 + ($mend - $mstart);
-				case "quarter":
+				case self::UNIT_QUARTER:
 					$mend = intval($mend / 4);
 					$mstart = intval($mstart / 4);
 					return ($yend - $ystart) * 4 + ($mend - $mstart);
-				case "year":
+				case self::UNIT_YEAR:
 					return ($yend - $ystart);
 				default :
 					throw new Exception_Parameter("Date::difference($timestamp, $unit): Bad unit");
@@ -1011,7 +1093,6 @@ class Timestamp extends Temporal {
 			// 2/22 -> 3/22 = 1 month
 			// 2/12 -> 3/22 = 1 month + ((3/22-2/22) / 28)
 			
-
 			$intmon = ($yend - $ystart) * 12 + ($mend - $mstart);
 			$total = Date::days_in_month($mstart, $ystart);
 			
@@ -1023,13 +1104,13 @@ class Timestamp extends Temporal {
 			$fract = $fract / doubleval($total * 86400);
 			
 			switch ($unit) {
-				case "month":
+				case self::UNIT_MONTH:
 					$result = round($intmon + $fract, $precision);
 					break;
-				case "quarter":
+				case self::UNIT_QUARTER:
 					$result = round(($intmon + $fract) / 3, $precision);
 					break;
-				case "year":
+				case self::UNIT_YEAR:
 					$result = round(($intmon + $fract) / 12, $precision);
 					break;
 				default :
@@ -1051,20 +1132,20 @@ class Timestamp extends Temporal {
 	 */
 	function unit($unit, $value = null) {
 		switch ($unit) {
-			case "millisecond":
+			case self::UNIT_MILLISECOND:
 				if ($value !== null) {
 					return $this->second(round($value / 1000));
 				} else {
 					return $this->milliseconds();
 				}
-			case "second":
-			case "minute":
-			case "hour":
-			case "weekday":
-			case "day":
-			case "month":
-			case "quarter":
-			case "year":
+			case self::UNIT_SECOND:
+			case self::UNIT_MINUTE:
+			case self::UNIT_HOUR:
+			case self::UNIT_WEEKDAY:
+			case self::UNIT_DAY:
+			case self::UNIT_MONTH:
+			case self::UNIT_QUARTER:
+			case self::UNIT_YEAR:
 				return $this->$unit($value);
 			default :
 				throw new Exception_Parameter("Timestamp::unit($unit, $value): Bad unit");
@@ -1072,38 +1153,63 @@ class Timestamp extends Temporal {
 	}
 	
 	/**
-	 * Add a unit to this Timestamp
+	 * Add a unit to this Timestamp.
+	 * 
+	 * As of 2017-06-21, Zesk 0.9.8, this call now taks the integer as the first argument and a string as the 2nd argument.
+	 * The call detects the legacy way of calling it and fires off a deprecated trigger, but everything
+	 * should work unless you're doing stupid things like ->add_unit(self::UNIT_SECOND,self::UNIT_SECOND) which you should probably fix anyway.
 	 *
-	 * @param string $unit
-	 *        	One of millisecond, second, minute, hour, weekday, day, month, quarter, year
-	 * @param integer $n
+	 * @param integer $n_units
 	 *        	Number of units to add (may be negative)
+	 * @param string $units
+	 *        	One of millisecond, second, minute, hour, weekday, day, month, quarter, year
 	 * @throws Exception_Parameter
 	 * @return Timestamp
 	 */
-	function add_unit($unit = "second", $n = 1) {
-		switch ($unit) {
-			case "millisecond":
-				return $this->add(0, 0, 0, 0, 0, round($n / 1000));
-			case "second":
-				return $this->add(0, 0, 0, 0, 0, $n);
-			case "minute":
-				return $this->add(0, 0, 0, 0, $n);
-			case "hour":
-				return $this->add(0, 0, 0, $n);
-			case "weekday":
-			case "day":
-				return $this->add(0, 0, $n);
-			case "week":
-				return $this->add(0, 0, $n * 7);
-			case "month":
-				return $this->add(0, $n);
-			case "quarter":
-				return $this->add(0, $n * 3);
-			case "year":
-				return $this->add($n);
+	function add_unit($n_units = 1, $units = self::UNIT_SECOND) {
+		/**
+		 * Support legacy call syntax
+		 * 
+		 * function add_unit($unit = self::UNIT_SECOND, $n = 1)
+		 * @deprecated 2017-06
+		 */
+		if (is_string($n_units) && array_key_exists($n_units, self::$UNITS_TRANSLATION_TABLE)) {
+			// Handle 2nd parameter defaults correctly
+			if ($units === self::UNIT_SECOND) {
+				$units = 1;
+			}
+			/* Swap */
+			list($n_units, $units) = array(
+				$units,
+				$n_units
+			);
+			zesk()->deprecated(__METHOD__ . " called with {n_units} {units} first", array(
+				"n_units" => $n_units,
+				"units" => $units
+			));
+		}
+		switch ($units) {
+			case self::UNIT_MILLISECOND:
+				return $this->add(0, 0, 0, 0, 0, round($n_units / 1000));
+			case self::UNIT_SECOND:
+				return $this->add(0, 0, 0, 0, 0, $n_units);
+			case self::UNIT_MINUTE:
+				return $this->add(0, 0, 0, 0, $n_units);
+			case self::UNIT_HOUR:
+				return $this->add(0, 0, 0, $n_units);
+			case self::UNIT_WEEKDAY:
+			case self::UNIT_DAY:
+				return $this->add(0, 0, $n_units);
+			case self::UNIT_WEEK:
+				return $this->add(0, 0, $n_units * 7);
+			case self::UNIT_MONTH:
+				return $this->add(0, $n_units);
+			case self::UNIT_QUARTER:
+				return $this->add(0, $n_units * 3);
+			case self::UNIT_YEAR:
+				return $this->add($n_units);
 			default :
-				throw new Exception_Parameter("Date::addUnit($unit, $n): Bad unit");
+				throw new Exception_Parameter("Date::addUnit($units, $n_units): Bad unit");
 		}
 	}
 	

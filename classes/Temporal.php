@@ -1,8 +1,144 @@
 <?php
-
+/**
+ * @author kent@marketacumen.com
+ * @copyright 2017 Market Acumen, Inc.
+ */
 namespace zesk;
 
+/**
+ * 
+ * @author kent
+ *
+ */
 abstract class Temporal {
+	/**
+	 * 
+	 * @var string
+	 */
+	const UNIT_YEAR = "year";
+	/*
+	 * @var string
+	 */
+	const UNIT_QUARTER = "quarter";
+	/*
+	 * @var string
+	 */
+	const UNIT_MONTH = "month";
+	/*
+	 * @var string
+	 */
+	const UNIT_WEEKDAY = "weekday";
+	/*
+	 * @var string
+	 */
+	const UNIT_WEEK = "week";
+	/*
+	 * @var string
+	 */
+	const UNIT_DAY = "day";
+	/*
+	 * @var string
+	 */
+	const UNIT_HOUR = "hour";
+	/*
+	 * @var string
+	 */
+	const UNIT_MINUTE = "minute";
+	/*
+	 * @var string
+	 */
+	const UNIT_SECOND = "second";
+	/*
+	 * @var string
+	 */
+	const UNIT_MILLISECOND = "millisecond";
+	
+	/**
+	 * Duh.
+	 *
+	 * @var integer
+	 */
+	const MILLISECONDS_PER_SECONDS = 1000; // Duh.
+	/**
+	 * @var integer
+	 */
+	const SECONDS_PER_MINUTE = 60;
+	/**
+	 * @var integer
+	 */
+	const MINUTES_PER_HOUR = 60;
+	/**
+	 * @var integer
+	 */
+	const HOURS_PER_DAY = 24;
+	/**
+	 * @var integer
+	 */
+	const DAYS_PER_YEAR = 365.25; // Leap
+	
+	/**
+	 * @var integer
+	 */
+	const MONTHS_PER_YEAR = 12;
+	/**
+	 * @var integer
+	 */
+	const DAYS_PER_WEEK = 7;
+	
+	/**
+	 * 
+	 * @var integer
+	 */
+	const DAYS_PER_QUARTER = self::DAYS_PER_YEAR / 4;
+	/**
+	 * @var double
+	 */
+	const DAYS_PER_MONTH = self::DAYS_PER_YEAR / self::MONTHS_PER_YEAR;
+	/**
+	 * @var integer
+	 */
+	const SECONDS_PER_DAY = self::SECONDS_PER_MINUTE * self::MINUTES_PER_HOUR * self::HOURS_PER_DAY;
+	/**
+	 * @var integer
+	 */
+	const SECONDS_PER_WEEK = self::SECONDS_PER_DAY * self::DAYS_PER_WEEK;
+	/**
+	 *
+	 * @var double
+	 */
+	const SECONDS_PER_YEAR = self::SECONDS_PER_DAY * self::DAYS_PER_YEAR;
+	/**
+	 *
+	 * @var double
+	 */
+	const SECONDS_PER_QUARTER = self::SECONDS_PER_DAY * self::DAYS_PER_QUARTER;
+	/**
+	 *
+	 * @var double
+	 */
+	const SECONDS_PER_MONTH = self::SECONDS_PER_YEAR / self::MONTHS_PER_YEAR;
+	/**
+	 *
+	 * @var double
+	 */
+	const SECONDS_PER_HOUR = self::SECONDS_PER_MINUTE * self::MINUTES_PER_HOUR;
+	
+	/**
+	 * Translate units into seconds
+	 * 
+	 * @var array
+	 */
+	public static $UNITS_TRANSLATION_TABLE = array(
+		self::UNIT_YEAR => self::SECONDS_PER_YEAR,
+		self::UNIT_QUARTER => self::SECONDS_PER_QUARTER,
+		self::UNIT_MONTH => self::SECONDS_PER_MONTH, // 365*86400/12 (average 30.42 days)
+		self::UNIT_WEEK => self::SECONDS_PER_WEEK, // 60*60*24*7
+		self::UNIT_DAY => self::SECONDS_PER_DAY, // 60*60*24
+		self::UNIT_HOUR => self::SECONDS_PER_HOUR, // 60*60
+		self::UNIT_MINUTE => self::SECONDS_PER_MINUTE, // 60
+		self::UNIT_SECOND => 1, // 1:1
+		self::UNIT_MILLISECOND => 0.001 // 1:1000
+	);
 	
 	/**
 	 * Convert to SQL format
@@ -33,15 +169,7 @@ abstract class Temporal {
 	 * @return array
 	 */
 	public static function units_translation_table($unit = null) {
-		$result = array(
-			"year" => 31536000, // 365*86400 days
-			"month" => 2628000, // 365*86400/12 (average 30.42 days)
-			"week" => 604800, // 60*60*24*7
-			"day" => 86400, // 60*60*24
-			"hour" => 3600, // 60*60
-			"minute" => 60, // 60
-			"second" => 1
-		); // 1
+		$result = self::$UNITS_TRANSLATION_TABLE;
 		if ($unit !== null) {
 			return avalue($result, $unit, null);
 		}
