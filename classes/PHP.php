@@ -401,7 +401,7 @@ class PHP {
 		}
 		return $value;
 	}
-
+	
 	/**
 	 * Given a class with a namespace, return just the class portion.
 	 *
@@ -412,7 +412,7 @@ class PHP {
 	 * @return A
 	 */
 	public static function parse_class($class) {
-		list($ns, $cl) = pairr($class, "\\", null, $class);
+		list($ns, $cl) = self::parse_namespace_class($class);
 		return $cl;
 	}
 	
@@ -425,8 +425,20 @@ class PHP {
 	 * @return A
 	 */
 	public static function parse_namespace($class) {
-		list($ns, $cl) = pairr($class, "\\", null, $class);
+		list($ns, $cl) = self::parse_namespace_class($class);
 		return $ns;
+	}
+	
+	/**
+	 * Given a class with a namespace, return a two-element list with the namespace first and the class second.
+	 * 
+	 * Returns NULL for namespace if no namespace
+	 * 
+	 * @param string $class
+	 * @return string[]
+	 */
+	public static function parse_namespace_class($class) {
+		return pairr($class, "\\", null, $class);
 	}
 }
 
