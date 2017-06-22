@@ -10,7 +10,7 @@ namespace zesk;
  * @author kent
  *
  */
-abstract class PHPUnit_Selenium2TestCase extends PHPUnit_Extensions_Selenium2TestCase {
+abstract class PHPUnit_Selenium2TestCase extends \PHPUnit_Extensions_Selenium2TestCase {
 	protected function waitForId($selector, $timeout = null) {
 		$this->log("Waiting for ID: {selector} ({timeout} secs)", compact("selector", "timeout"));
 		return $this->waitForFunc("byId", $selector, $timeout);
