@@ -35,7 +35,7 @@ if ($data instanceof Interface_Data) {
 $now = Timestamp::now();
 
 if ($content && $updated instanceof Timestamp) {
-	$expires = $updated->add_unit("second", $feed_update_frequency);
+	$expires = $updated->add_unit($feed_update_frequency);
 	if ($expires->before($now)) {
 		$data->delete_data(array(
 			$prefix . 'raw_content'
@@ -48,7 +48,7 @@ if ($content && $updated instanceof Timestamp) {
 
 /* @var $attempted Timestamp */
 $attempted = $data->data($prefix . 'attempted');
-if ($attempted instanceof Timestamp && $attempted->add_unit("second", 60)->after($now)) {
+if ($attempted instanceof Timestamp && $attempted->add_unit(60)->after($now)) {
 	$application->logger->warning("Only attempt download once a minute - waiting {n_seconds} {seconds}", array(
 		"n_seconds" => $n_seconds = $attempted->difference($now),
 		"seconds" => Locale::plural(__("second"), $n_seconds)
