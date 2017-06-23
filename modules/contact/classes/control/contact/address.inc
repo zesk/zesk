@@ -20,7 +20,7 @@ class Control_Contact_Address extends Control_Edit {
 	 * 
 	 * @var string
 	 */
-	protected $theme_widgets = "control/contact/address/widgets";
+	protected $theme_widgets = "zesk/control/contact/address/widgets";
 	
 	/**
 	 * 
