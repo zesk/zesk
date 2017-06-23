@@ -16,7 +16,7 @@ use zesk\Object;
  *
  */
 class IPBan extends Object {
-
+	
 	/**
 	 * Server admin bans.
 	 * Highest level of confidence.
@@ -24,43 +24,40 @@ class IPBan extends Object {
 	 * @var integer
 	 */
 	const severity_known = 0;
-
+	
 	/**
 	 * Visible hacking attempts
 	 *
 	 * @var ingeger
 	 */
 	const severity_hacking = 1;
-
+	
 	/**
 	 * Suspicious behavior
 	 *
 	 * @var integer
 	 */
 	const severity_suspicious = 2;
-
+	
 	/**
 	 * Noticed behavior
 	 *
 	 * @var integer
 	 */
 	const severity_notice = 3;
-
 	private static $severities = array(
 		"hacking" => self::severity_hacking,
 		"known" => self::severity_known,
 		"notice" => self::severity_notice,
 		"suspicious" => self::severity_suspicious
 	);
-
 	public static function severity_from_string($string) {
 		return avalue(self::$severities, preg_replace('/[^a-z]/', '', strtolower($string)), self::severity_hacking);
 	}
-
 	public static function severity_to_string($severity) {
 		return avalue(array_flip(self::$severities), $severity, null);
 	}
-
+	
 	/**
 	 * Lodge a complaint
 	 *
@@ -107,7 +104,7 @@ class IPBan extends Object {
 		) + $arguments);
 		return $complaints;
 	}
-
+	
 	/**
 	 * Banned since when?
 	 *
@@ -146,7 +143,7 @@ class IPBan extends Object {
 		));
 		return $query->to_array("ip", "ip");
 	}
-
+	
 	/**
 	 * Allowed since last check
 	 *
@@ -165,7 +162,7 @@ class IPBan extends Object {
 			self::severity_notice => avalue($options, "notice_expire_seconds", 8 * 3600)
 		) as $severity => $seconds) {
 			$before = clone $when;
-			$before->add_unit("second", -abs($seconds));
+			$before->add_unit(-abs($seconds), Timestamp::UNIT_SECOND);
 			$where = array(
 				"severity" => $severity,
 				"recent|<=" => $before

@@ -302,7 +302,7 @@ class Test_Timestamp extends Test_Unit {
 		$this->assert_equal($x->format("{12hh}:{mm}:{ss}"), "10:23:24");
 		$this->assert_equal($x->format("{12hh}:{mm}:{ss} {ampm}"), "10:23:24 pm");
 		$this->assert_equal($x->format("{12hh}:{mm}:{ss} {AMPM}"), "10:23:24 PM");
-		$x->add_unit("hour", -12);
+		$x->add_unit(-12, Timestamp::UNIT_HOUR);
 		$this->assert_equal($x->format("{12hh}:{mm}:{ss} {AMPM}"), "10:23:24 AM");
 		$this->assert_equal($x->format("{hh}:{mm}:{ss} {AMPM}"), "10:23:24 AM");
 		$this->assert_equal($x->format("{hh}:{mm}:{ss} {ampm}"), "10:23:24 am");
@@ -375,7 +375,7 @@ class Test_Timestamp extends Test_Unit {
 
 		$unit = 'second';
 		$n = 1;
-		$x->add_unit($unit, $n);
+		$x->add_unit($n, $unit);
 
 		$x->iso8601();
 
@@ -423,7 +423,7 @@ class Test_Timestamp extends Test_Unit {
 			$this->assert_negative($last_year->difference($now, $unit), "$unit");
 		}
 
-		$just_a_sec = Timestamp::factory($now)->add_unit("second", 1);
+		$just_a_sec = Timestamp::factory($now)->add_unit(1, Timestamp::UNIT_SECOND);
 		foreach ($units as $unit) {
 			if ($unit === "second") {
 				$this->assert_equal($just_a_sec->difference($now, $unit), 1, $unit, false);

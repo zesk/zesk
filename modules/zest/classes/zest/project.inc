@@ -101,7 +101,7 @@ class Project extends Object {
 		if (!$this->tests_updated) {
 			return false;
 		}
-		$refresh_if_updated_before = Timestamp::now()->add_unit("second", -$seconds);
+		$refresh_if_updated_before = Timestamp::now()->add_unit(-$seconds, Timestamp::UNIT_SECOND);
 		return $this->tests_updated->after($refresh_if_updated_before);
 	}
 	

@@ -164,7 +164,7 @@ class Session_Database extends Object implements Interface_Session {
 			$ip = $this->application->request()->ip();
 		}
 		$this->set_member("ip", $ip);
-		$this->set_member("expires", Timestamp::now()->add_unit("second", $cookieExpire));
+		$this->set_member("expires", Timestamp::now()->add_unit($cookieExpire, Timestamp::UNIT_SECOND));
 		return $this->store();
 	}
 	
@@ -228,7 +228,7 @@ class Session_Database extends Object implements Interface_Session {
 	 */
 	private function compute_expires() {
 		$expire = $this->cookie_expire();
-		$expires = Timestamp::now()->add_unit("second", $expire);
+		$expires = Timestamp::now()->add_unit($expire, Timestamp::UNIT_SECOND);
 		return $expires;
 	}
 	
@@ -311,7 +311,7 @@ class Session_Database extends Object implements Interface_Session {
 		$session->set_member(array(
 			'cookie' => self::_generate_cookie(),
 			'is_one_time' => true,
-			'expires' => Timestamp::now()->add_unit('second', $expire_seconds),
+			'expires' => Timestamp::now()->add_unit($expire_seconds, Timestamp::UNIT_SECOND),
 			'user' => $user
 		));
 		$session->really_store();
@@ -347,7 +347,7 @@ class Session_Database extends Object implements Interface_Session {
 	 * @return integer
 	 */
 	public function session_count($nSeconds = 600) {
-		$where['seen|>='] = Timestamp::now()->add_unit("minute", -$nSeconds);
+		$where['seen|>='] = Timestamp::now()->add_unit(-$nSeconds, Timestamp::UNIT_SECOND);
 		$where['id|!='] = $this->id();
 		return $this->query_select()
 			->what("*X", "COUNT(id)")

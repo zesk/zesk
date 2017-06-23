@@ -50,7 +50,7 @@ class Schedule extends Object {
 	protected function hook_compute_next_day(Timestamp $last) {
 		$next = $this->_next_initialize($last);
 		if ($next->before($last, true)) {
-			$next->add_unit("day", 1);
+			$next->add_unit(1, Timestamp::UNIT_DAY);
 		}
 		return $next;
 	}
@@ -58,7 +58,7 @@ class Schedule extends Object {
 		$next = $this->_next_initialize($last);
 		$next->weekday($this->weekday);
 		if ($next->before($last, true)) {
-			$next->add_unit("day", 7);
+			$next->add_unit(7, Timestamp::UNIT_DAY);
 		}
 		return $next;
 	}
@@ -66,7 +66,7 @@ class Schedule extends Object {
 		$next = $this->_next_initialize($last);
 		$next->day($this->monthday);
 		if ($next->before($last, true)) {
-			$next->add_unit("month", 1);
+			$next->add_unit(1, Timestamp::UNIT_MONTH);
 		}
 		return $next;
 	}

@@ -90,9 +90,9 @@ class Test_Time extends Test_Unit {
 		$format_string = '{hh}:{mm}:{ss}';
 		$x->format($format_string);
 
-		$unit = 'second';
+		$unit = Timestamp::UNIT_SECOND;
 		$n = 1;
-		$x->add_unit($unit, $n);
+		$x->add_unit($n, $unit);
 	}
 
 	/**
@@ -100,6 +100,6 @@ class Test_Time extends Test_Unit {
 	 */
 	function test_invalid_unit() {
 		$time = new Time();
-		$time->add_unit("money");
+		$time->add_unit(1, "money");
 	}
 }

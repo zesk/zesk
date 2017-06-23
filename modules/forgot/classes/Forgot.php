@@ -35,7 +35,7 @@ class Forgot extends Object {
 		global $zesk;
 		/* @var $zesk zesk\Kernel */
 		$expire_seconds = -abs(to_integer($zesk->configuration->path_get("Module_Forgot::expire_seconds"), 3600));
-		$query = $application->query_delete(__CLASS__)->where("Created|<=", Timestamp::now()->add_unit("second", $expire_seconds));
+		$query = $application->query_delete(__CLASS__)->where("Created|<=", Timestamp::now()->add_unit($expire_seconds, Timestamp::UNIT_SECOND));
 		$query->execute();
 		$affected_rows = $query->affected_rows();
 		if ($affected_rows > 0) {

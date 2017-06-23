@@ -45,7 +45,7 @@ class Lock extends Object {
 	public static function delete_unused_locks(Application $application) {
 		$n_rows = $application->query_delete(__CLASS__)
 			->where(array(
-			'used|<=' => Timestamp::now()->add_unit("day", -1),
+			'used|<=' => Timestamp::now()->add_unit(-1, Timestamp::UNIT_DAY),
 			"server" => null,
 			"pid" => null
 		))
@@ -88,7 +88,7 @@ class Lock extends Object {
 		global $zesk;
 		/* @var $zesk Kernel */
 		$timeout_seconds = -abs($zesk->configuration->path_get("Lock::timeout_seconds", 100));
-		$you_are_dead_to_me = Timestamp::now()->add_unit("second", $timeout_seconds);
+		$you_are_dead_to_me = Timestamp::now()->add_unit($timeout_seconds, Timestamp::UNIT_SECOND);
 		$iterator = $application->query_select(__CLASS__)->where(array(
 			'server' => Server::singleton(),
 			'locked|<=' => $you_are_dead_to_me

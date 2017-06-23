@@ -435,23 +435,53 @@ class Time extends Temporal {
 	/**
 	 * Add a unit to a time
 	 *
-	 * @param string $unit Unit to add: "millisecond", "second", "minute", "hour"
-	 * @param integer $n Number to add
+	 * As of 2017-06-21, Zesk 0.9.10, this call now taks the integer as the first argument and a string as the 2nd argument.
+	 * The call detects the legacy way of calling it and fires off a deprecated trigger, but everything
+	 * should work unless you're doing stupid things like ->add_unit(self::UNIT_SECOND,self::UNIT_SECOND) which you should probably fix anyway.
+	 *
+	 * @param string $units Unit to add: "millisecond", "second", "minute", "hour"
+	 * @param integer $n_units Number to add
 	 * @throws Exception_Parameter
 	 * @return Time
 	 */
-	function add_unit($unit = "second", $n = 1) {
-		switch ($unit) {
-			case "millisecond":
-				return $this->add(0, 0, round($n / 1000));
-			case "second":
-				return $this->add(0, 0, $n);
-			case "minute":
-				return $this->add(0, $n);
-			case "hour":
-				return $this->add($n);
+	function add_unit($n_units = 1, $units = self::UNIT_SECOND) {
+		/**
+		 * Support legacy call syntax
+		 *
+		 * function add_unit($unit = self::UNIT_SECOND, $n = 1)
+		 * @deprecated 2017-06
+		 */
+		if (is_string($n_units) && array_key_exists($n_units, self::$UNITS_TRANSLATION_TABLE)) {
+			// Handle 2nd parameter defaults correctly
+			if ($units === self::UNIT_SECOND) {
+				$units = 1;
+			}
+			/* Swap */
+			list($n_units, $units) = array(
+				$units,
+				$n_units
+			);
+			zesk()->deprecated("{method} called with {n_units} {units} first", array(
+				"method" => __METHOD__,
+				"n_units" => $n_units,
+				"units" => $units
+			));
+		}
+		switch ($units) {
+			case self::UNIT_MILLISECOND:
+				return $this->add(0, 0, round($n_units / 1000));
+			case self::UNIT_SECOND:
+				return $this->add(0, 0, $n_units);
+			case self::UNIT_MINUTE:
+				return $this->add(0, $n_units);
+			case self::UNIT_HOUR:
+				return $this->add($n_units);
 			default :
-				throw new Exception_Parameter("Time::addUnit($n, $unit): Bad unit");
+				throw new Exception_Parameter("{method)({n_units}, {units}): Invalid unit", array(
+					"method" => __METHOD__,
+					"n_units" => $n_units,
+					"units" => $units
+				));
 		}
 	}
 	

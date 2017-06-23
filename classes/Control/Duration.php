@@ -17,7 +17,7 @@ class Control_Duration extends Control_Select {
 		$options = array();
 		$ts = new Timestamp('2000-01-01 00:00:00');
 		for ($i = $duration_interval; $i < $max_duration; $i += $duration_interval) {
-			$ts->midnight()->add_unit("minute", $i);
+			$ts->midnight()->add_unit($i, Timestamp::UNIT_MINUTE);
 			$options[$i] = $ts->format(__('Control_Duration::duration_format:={h}:{mm}'));
 		}
 		$this->control_options($options);

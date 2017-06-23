@@ -82,7 +82,7 @@ class Module_Nominatim extends Module {
 		$query = $this->application->query_select('zesk\\Contact_Address')->where(array(
 			array(
 				'geocoded' => null,
-				'geocoded|<=' => Timestamp::now()->add_unit("day", -abs($this->option_integer("geocode_refresh_days", 30)))
+				'geocoded|<=' => Timestamp::now()->add_unit(-abs($this->option_integer("geocode_refresh_days", 30)), Timestamp::UNIT_DAY)
 			)
 		));
 		

@@ -71,53 +71,53 @@ class Timestamp extends Temporal {
 	 */
 	const default_format = "{YYYY}-{MM}-{DD} {hh}:{mm}:{ss}";
 	
-// 	/**
-// 	 * 
-// 	 * {@inheritDoc}
-// 	 * @see DateTimeInterface::getTimezone()
-// 	 */
-// 	public function getTimezone() {
-// 		return $this->tz;
-// 	}
+	// 	/**
+	// 	 * 
+	// 	 * {@inheritDoc}
+	// 	 * @see DateTimeInterface::getTimezone()
+	// 	 */
+	// 	public function getTimezone() {
+	// 		return $this->tz;
+	// 	}
 	
-// 	/**
-// 	 * 
-// 	 * {@inheritDoc}
-// 	 * @see DateTimeInterface::getOffset()
-// 	 */
-// 	public function getOffset() {
-// 		return $this->tz->getOffset();
-// 	}
+	// 	/**
+	// 	 * 
+	// 	 * {@inheritDoc}
+	// 	 * @see DateTimeInterface::getOffset()
+	// 	 */
+	// 	public function getOffset() {
+	// 		return $this->tz->getOffset();
+	// 	}
 	
-// 	/**
-// 	 * 
-// 	 * {@inheritDoc}
-// 	 * @see DateTimeInterface::__wakeup()
-// 	 */
-// 	public function __wakeup() {
-// 		return parent::__wakeup();
-// 	}
-// 	/**
-// 	 * 
-// 	 * {@inheritDoc}
-// 	 * @see DateTimeInterface::getTimestamp()
-// 	 */
-// 	public function getTimestamp() {
-// 		return $this->unix_timestamp();
-// 	}
+	// 	/**
+	// 	 * 
+	// 	 * {@inheritDoc}
+	// 	 * @see DateTimeInterface::__wakeup()
+	// 	 */
+	// 	public function __wakeup() {
+	// 		return parent::__wakeup();
+	// 	}
+	// 	/**
+	// 	 * 
+	// 	 * {@inheritDoc}
+	// 	 * @see DateTimeInterface::getTimestamp()
+	// 	 */
+	// 	public function getTimestamp() {
+	// 		return $this->unix_timestamp();
+	// 	}
 	
-// 	/**
-// 	 * @param \DateTimeInterface $object
-// 	 * @param $absolute [optional]
-// 	 */
-// 	public function diff($object, $absolute = NULL) {
-// 		$object_ts = Timestamp::factory($object);
-		
-// 		$diff = $object_ts->difference($this, self::UNIT_SECOND);
-		
-// 		$interval = new DateInterval("P0S");
-// 		return $interval->fromSeconds($absolute ? abs($diff) : $diff);
-// 	}
+	// 	/**
+	// 	 * @param \DateTimeInterface $object
+	// 	 * @param $absolute [optional]
+	// 	 */
+	// 	public function diff($object, $absolute = NULL) {
+	// 		$object_ts = Timestamp::factory($object);
+	
+	// 		$diff = $object_ts->difference($this, self::UNIT_SECOND);
+	
+	// 		$interval = new DateInterval("P0S");
+	// 		return $interval->fromSeconds($absolute ? abs($diff) : $diff);
+	// 	}
 	
 	/**
 	 *
@@ -569,7 +569,7 @@ class Timestamp extends Temporal {
 	 * @return Timestamp
 	 */
 	function weekday_past($set) {
-		return $this->weekday($set)->add_unit(self::UNIT_DAY, -7);
+		return $this->weekday($set)->add_unit(-7, self::UNIT_DAY);
 	}
 	/**
 	 * Get/set weekday.
@@ -1155,7 +1155,7 @@ class Timestamp extends Temporal {
 	/**
 	 * Add a unit to this Timestamp.
 	 * 
-	 * As of 2017-06-21, Zesk 0.9.8, this call now taks the integer as the first argument and a string as the 2nd argument.
+	 * As of 2017-06-21, Zesk 0.9.9, this call now taks the integer as the first argument and a string as the 2nd argument.
 	 * The call detects the legacy way of calling it and fires off a deprecated trigger, but everything
 	 * should work unless you're doing stupid things like ->add_unit(self::UNIT_SECOND,self::UNIT_SECOND) which you should probably fix anyway.
 	 *
@@ -1183,14 +1183,15 @@ class Timestamp extends Temporal {
 				$units,
 				$n_units
 			);
-			zesk()->deprecated(__METHOD__ . " called with {n_units} {units} first", array(
+			zesk()->deprecated("{method} called with {n_units} {units} first", array(
+				"method" => __METHOD__,
 				"n_units" => $n_units,
 				"units" => $units
 			));
 		}
 		switch ($units) {
 			case self::UNIT_MILLISECOND:
-				return $this->add(0, 0, 0, 0, 0, round($n_units / 1000));
+				return $this->add(0, 0, 0, 0, 0, round($n_units * self::MILLISECONDS_PER_SECONDS));
 			case self::UNIT_SECOND:
 				return $this->add(0, 0, 0, 0, 0, $n_units);
 			case self::UNIT_MINUTE:
@@ -1201,15 +1202,19 @@ class Timestamp extends Temporal {
 			case self::UNIT_DAY:
 				return $this->add(0, 0, $n_units);
 			case self::UNIT_WEEK:
-				return $this->add(0, 0, $n_units * 7);
+				return $this->add(0, 0, $n_units * self::DAYS_PER_WEEK);
 			case self::UNIT_MONTH:
 				return $this->add(0, $n_units);
 			case self::UNIT_QUARTER:
-				return $this->add(0, $n_units * 3);
+				return $this->add(0, $n_units * self::MONTHS_PER_QUARTER);
 			case self::UNIT_YEAR:
 				return $this->add($n_units);
 			default :
-				throw new Exception_Parameter("Date::addUnit($units, $n_units): Bad unit");
+				throw new Exception_Parameter("{method)({n_units}, {units}): Invalid unit", array(
+					"method" => __METHOD__,
+					"n_units" => $n_units,
+					"units" => $units
+				));
 		}
 	}
 	

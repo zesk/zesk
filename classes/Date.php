@@ -272,7 +272,6 @@ class Date extends Temporal {
 		// ========+====+====+====+====+
 		// $quarter
 		
-
 		/*
 		 * if ($quarter < $set) { // positive #s $this->add(0, ($set - $quarter) * 3); } if ($quarter > $set) { //
 		 * negative #s $this->add(0, (4 - ($quarter - $set)) * 3); }
@@ -352,7 +351,7 @@ class Date extends Temporal {
 	function lastday() {
 		return self::days_in_month($this->month, $this->year);
 	}
-		
+	
 	/**
 	 * 
 	 * @param integer $month
@@ -501,24 +500,52 @@ class Date extends Temporal {
 	/**
 	 * Add units to a date or time
 	 *
-	 * @param string $unit
-	 *        	"day", "month", "quarter", "year"
-	 * @param integer $n        	
+	 * @param string $units Use self::UNIT_FOO for units
+	 * @param integer $n_units        	
 	 * @throws Exception_Parameter
 	 * @return Date
 	 */
-	function add_unit($unit = "day", $n = 1) {
-		switch ($unit) {
-			case "day":
-				return $this->add(0, 0, $n);
-			case "month":
-				return $this->add(0, $n);
-			case "quarter":
-				return $this->add(0, $n * 3);
-			case "year":
-				return $this->add($n);
+	function add_unit($n_units = 1, $units = self::UNIT_DAY) {
+		/**
+		 * Support legacy call syntax
+		 *
+		 * function add_unit($unit = self::UNIT_DAY, $n = 1)
+		 * @deprecated 2017-06
+		 */
+		if (is_string($n_units) && array_key_exists($n_units, self::$UNITS_TRANSLATION_TABLE)) {
+			// Handle 2nd parameter defaults correctly
+			if ($units === self::UNIT_SECOND) {
+				$units = 1;
+			}
+			/* Swap */
+			list($n_units, $units) = array(
+				$units,
+				$n_units
+			);
+			zesk()->deprecated("{method} called with {n_units} {units} first", array(
+				"method" => __METHOD__,
+				"n_units" => $n_units,
+				"units" => $units
+			));
+		}
+		switch ($units) {
+			case self::UNIT_WEEKDAY:
+			case self::UNIT_DAY:
+				return $this->add(0, 0, $n_units);
+			case self::UNIT_WEEK:
+				return $this->add(0, 0, $n_units * self::DAYS_PER_WEEK);
+			case self::UNIT_MONTH:
+				return $this->add(0, $n_units);
+			case self::UNIT_QUARTER:
+				return $this->add(0, $n_units * self::MONTHS_PER_QUARTER);
+			case self::UNIT_YEAR:
+				return $this->add($n_units);
 			default :
-				throw new Exception_Parameter("Date::add_unit($unit, $n): Bad unit");
+				throw new Exception_Parameter("{method)({n_units}, {units}): Invalid unit", array(
+					"method" => __METHOD__,
+					"n_units" => $n_units,
+					"units" => $units
+				));
 		}
 	}
 	

@@ -179,12 +179,12 @@ class Module_Health extends Module {
 		if ($fatal_hours > 0) {
 			self::purge_event_types($class, $date_column, array(
 				"fatal" => true
-			), Timestamp::now()->add_unit("hour", -abs($fatal_hours)), "fatal");
+			), Timestamp::now()->add_unit(-abs($fatal_hours), Timestamp::UNIT_HOUR), "fatal");
 		}
 		if ($non_fatal_hours > 0) {
 			self::purge_event_types($class, $date_column, array(
 				"fatal" => false
-			), Timestamp::now()->add_unit("hour", -abs($non_fatal_hours)), "non-fatal");
+			), Timestamp::now()->add_unit(-abs($non_fatal_hours), Timestamp::UNIT_HOUR), "non-fatal");
 		}
 	}
 	private static function purge_event_types($class, $date_column, array $where, Timestamp $when, $description) {
