@@ -52,7 +52,7 @@ class Lock extends Object {
 			->execute()
 			->affected_rows();
 		if ($n_rows > 0) {
-			zesk()->logger->notice("Deleted {n_rows} {locks} which were unused in the past 24 hours.", array(
+			$application->logger->notice("Deleted {n_rows} {locks} which were unused in the past 24 hours.", array(
 				"n_rows" => $n_rows,
 				"locks" => Locale::plural(__CLASS__, $n_rows)
 			));
