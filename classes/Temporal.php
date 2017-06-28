@@ -58,7 +58,7 @@ abstract class Temporal {
 	 *
 	 * @var integer
 	 */
-	const MILLISECONDS_PER_SECONDS = 1000; // Duh.
+	const MILLISECONDS_PER_SECONDS = 1000; 
 	/**
 	 * @var integer
 	 */
@@ -83,10 +83,6 @@ abstract class Temporal {
 	/**
 	 * @var integer
 	 */
-	const MONTHS_PER_QUARTER = 3;
-	/**
-	 * @var integer
-	 */
 	const DAYS_PER_WEEK = 7;
 	
 	/**
@@ -96,8 +92,9 @@ abstract class Temporal {
 	const DAYS_PER_QUARTER = self::DAYS_PER_YEAR / 4;
 	/**
 	 * @var double
+	 * @todo PHP7 use calculation
 	 */
-	const DAYS_PER_MONTH = self::DAYS_PER_YEAR / self::MONTHS_PER_YEAR;
+	const DAYS_PER_MONTH = 30.4375; // self::DAYS_PER_YEAR / self::MONTHS_PER_YEAR;
 	/**
 	 * @var integer
 	 */
@@ -118,9 +115,10 @@ abstract class Temporal {
 	const SECONDS_PER_QUARTER = self::SECONDS_PER_DAY * self::DAYS_PER_QUARTER;
 	/**
 	 *
+	 * @todo PHP7 use calculation
 	 * @var double
 	 */
-	const SECONDS_PER_MONTH = self::SECONDS_PER_YEAR / self::MONTHS_PER_YEAR;
+	const SECONDS_PER_MONTH = 2629800; // self::SECONDS_PER_YEAR / self::MONTHS_PER_YEAR;
 	/**
 	 *
 	 * @var double
