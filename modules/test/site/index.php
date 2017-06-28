@@ -1,5 +1,4 @@
 <?php
+require_once dirname(__DIR__) . '/test.application.inc';
 
-require_once dirname(dirname(__FILE__)) . '/test.application.inc';
-
-Application::instance()->main();
+app()->index();

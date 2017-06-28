@@ -1,9 +1,7 @@
 <?php
 backtrace();
-if (false) {
-	/* @var $application Application */
-	$application = Application::instance();
-}
+
+/* @var $application \zesk\Application */
 define('ZESK_MODULE_TEST_ROOT', dirname(__FILE__) . '/');
 
 $application->autoload_path(ZESK_MODULE_TEST_ROOT . 'classes');

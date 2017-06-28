@@ -214,7 +214,7 @@ class Workflow extends Model {
 		}
 		$this->_clean_completed();
 		$themes = arr::suffix($zesk->classes->hierarchy(get_class($this), __CLASS__), "/$theme_name");
-		return Application::instance()->theme($themes, array(
+		return app()->theme($themes, array(
 			'workflow' => $this,
 			'completed' => $this->completed,
 			'steps' => $this->sorted_steps,

@@ -108,7 +108,7 @@ abstract class Workflow_Step extends Hookable {
 	 * @return string
 	 */
 	function render() {
-		return Application::instance()->theme($this->theme, array(
+		return app()->theme($this->theme, array(
 			'step' => $this,
 			'workflow' => $this->workflow
 		) + $this->workflow->variables(), array(

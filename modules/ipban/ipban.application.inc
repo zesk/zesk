@@ -9,5 +9,5 @@ $zesk = require_once dirname(dirname(ZESK_SITE_ROOT)) . '/autoload.php';
 $zesk->application_class = 'Application_IPBan';
 $zesk->autoloader->path(ZESK_SITE_ROOT . "/classes");
 
-return \zesk\Application::instance()->configure();
+return app()->configure();
 

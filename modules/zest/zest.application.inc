@@ -64,5 +64,5 @@ class _zesk_loader_ {
  */
 $zesk = _zesk_loader_::init();
 
-return Application::instance()->configure();
+return app()->configure();
 

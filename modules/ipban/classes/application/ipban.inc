@@ -14,6 +14,7 @@ use zesk\IPv4;
 use zesk\Process_Mock;
 use zesk\FIFO;
 use zesk\Net_Sync;
+use zesk\Application;
 
 /**
  * IP Banning application
@@ -25,7 +26,7 @@ use zesk\Net_Sync;
  * @subpackage IPBan
  * @copyright (C) 2013 Market Acumen, Inc.
  */
-class Application_IPBan extends zesk\Application {
+class Application_IPBan extends Application {
 	
 	/**
 	 * 
@@ -308,7 +309,7 @@ class Application_IPBan extends zesk\Application {
 			$p->log($e->getMessage());
 			return "down";
 		}
-		$application = Application::instance();
+		$application = self::instance();
 		/* @var $application Application_IPBan */
 		return $application->daemon_loop($p);
 	}
