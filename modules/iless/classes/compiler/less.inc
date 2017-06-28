@@ -3,6 +3,7 @@
  *
  */
 use zesk\Directory;
+use zesk\Application;
 use ILess\Cache\FileSystemCache;
 use ILess\Parser;
 
@@ -25,14 +26,14 @@ class Compiler_Less {
 	 * @var array
 	 */
 	private $vars = array();
-	public function __construct(zesk\Application $application) {
+	public function __construct(Application $application) {
 		$cache_dir = $application->application_root('cache/iless');
 		Directory::depend($cache_dir);
 		$cache = new FileSystemCache($cache_dir);
 		$this->iless = new Parser(array(
 			"compress" => false,
 			"strictMath" => false,
-			"source_map" => Application::instance()->development()
+			"source_map" => $application->development()
 		), $cache);
 	}
 	public function variables($set = null) {
