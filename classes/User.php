@@ -36,7 +36,6 @@ class User extends Object {
 	 * @param Kernel $zesk
 	 */
 	public static function hooks(Kernel $zesk) {
-		$zesk->configuration->deprecated("User", __CLASS__);
 		$zesk->configuration->path(__CLASS__);
 		$zesk->hooks->add("configured", __CLASS__ . "::configured");
 	}
