@@ -1178,16 +1178,16 @@ class Timestamp extends Temporal {
 			if ($units === self::UNIT_SECOND) {
 				$units = 1;
 			}
+			zesk()->deprecated("{method}({n_units}, {units}) - reversing parameter order", array(
+				"method" => __METHOD__,
+				"n_units" => $n_units,
+				"units" => $units
+			));
 			/* Swap */
 			list($n_units, $units) = array(
 				$units,
 				$n_units
 			);
-			zesk()->deprecated("{method} called with {n_units} {units} first", array(
-				"method" => __METHOD__,
-				"n_units" => $n_units,
-				"units" => $units
-			));
 		}
 		switch ($units) {
 			case self::UNIT_MILLISECOND:
