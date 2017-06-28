@@ -6,13 +6,13 @@
 namespace zesk;
 
 /**
- * 
+ *
  * @author kent
  *
  */
 abstract class Temporal {
 	/**
-	 * 
+	 *
 	 * @var string
 	 */
 	const UNIT_YEAR = "year";
@@ -58,7 +58,7 @@ abstract class Temporal {
 	 *
 	 * @var integer
 	 */
-	const MILLISECONDS_PER_SECONDS = 1000; 
+	const MILLISECONDS_PER_SECONDS = 1000;
 	/**
 	 * @var integer
 	 */
@@ -86,10 +86,11 @@ abstract class Temporal {
 	const DAYS_PER_WEEK = 7;
 	
 	/**
-	 * 
+	 *
 	 * @var integer
+	 * @todo PHP7 use calculation
 	 */
-	const DAYS_PER_QUARTER = self::DAYS_PER_YEAR / 4;
+	const DAYS_PER_QUARTER = 91.3125; // self::DAYS_PER_YEAR / 4;
 	/**
 	 * @var double
 	 * @todo PHP7 use calculation
@@ -97,22 +98,26 @@ abstract class Temporal {
 	const DAYS_PER_MONTH = 30.4375; // self::DAYS_PER_YEAR / self::MONTHS_PER_YEAR;
 	/**
 	 * @var integer
+	 * @todo PHP7 use calculation
 	 */
-	const SECONDS_PER_DAY = self::SECONDS_PER_MINUTE * self::MINUTES_PER_HOUR * self::HOURS_PER_DAY;
+	const SECONDS_PER_DAY = 86400; // self::SECONDS_PER_MINUTE * self::MINUTES_PER_HOUR * self::HOURS_PER_DAY;
 	/**
 	 * @var integer
+	 * @todo PHP7 use calculation
 	 */
-	const SECONDS_PER_WEEK = self::SECONDS_PER_DAY * self::DAYS_PER_WEEK;
+	const SECONDS_PER_WEEK = 604800; // self::SECONDS_PER_DAY * self::DAYS_PER_WEEK;
 	/**
 	 *
 	 * @var double
+	 * @todo PHP7 use calculation
 	 */
-	const SECONDS_PER_YEAR = self::SECONDS_PER_DAY * self::DAYS_PER_YEAR;
+	const SECONDS_PER_YEAR = 31557600; // self::SECONDS_PER_DAY * self::DAYS_PER_YEAR;
 	/**
 	 *
+	 * @todo PHP7 use calculation
 	 * @var double
 	 */
-	const SECONDS_PER_QUARTER = self::SECONDS_PER_DAY * self::DAYS_PER_QUARTER;
+	const SECONDS_PER_QUARTER = 7889400; // self::SECONDS_PER_DAY * self::DAYS_PER_QUARTER;
 	/**
 	 *
 	 * @todo PHP7 use calculation
@@ -121,13 +126,14 @@ abstract class Temporal {
 	const SECONDS_PER_MONTH = 2629800; // self::SECONDS_PER_YEAR / self::MONTHS_PER_YEAR;
 	/**
 	 *
+	 * @todo PHP7 use calculation
 	 * @var double
 	 */
-	const SECONDS_PER_HOUR = self::SECONDS_PER_MINUTE * self::MINUTES_PER_HOUR;
+	const SECONDS_PER_HOUR = 3600; // self::SECONDS_PER_MINUTE * self::MINUTES_PER_HOUR;
 	
 	/**
 	 * Translate units into seconds
-	 * 
+	 *
 	 * @var array
 	 */
 	public static $UNITS_TRANSLATION_TABLE = array(
@@ -144,7 +150,7 @@ abstract class Temporal {
 	
 	/**
 	 * Convert to SQL format
-	 * 
+	 *
 	 * @return string
 	 */
 	abstract function sql();
@@ -159,7 +165,7 @@ abstract class Temporal {
 	
 	/**
 	 * Fetch formatting for this object
-	 * 
+	 *
 	 * @param array $options
 	 * @return array
 	 */
@@ -180,7 +186,7 @@ abstract class Temporal {
 	
 	/**
 	 * Convert from seconds to a greater unit
-	 * 
+	 *
 	 * @param integer $seconds
 	 * @param string $unit
 	 * @throws Exception_Parameter
