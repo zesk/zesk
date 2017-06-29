@@ -69,14 +69,14 @@ class Options implements \ArrayAccess {
 	 */
 	function __sleep() {
 		return array(
-			"options"
+				"options"
 		);
 	}
 	private static $option_references = array();
 	
 	/**
 	 * Loading references
-	 * 
+	 *
 	 * @param unknown $class
 	 * @return mixed
 	 */
@@ -131,7 +131,12 @@ class Options implements \ArrayAccess {
 			$class = get_class($this);
 		}
 		$options = self::default_options($class);
-		$this->options = $this->options + $options;
+		foreach ($options as $key => $value) {
+			$key = self::_option_key($key);
+			if (!isset($this->options[$key])) {
+				$this->options[$key] = $value;
+			}
+		}
 		return $this;
 	}
 	
@@ -275,7 +280,7 @@ class Options implements \ArrayAccess {
 		$current_value = avalue($this->options, $name);
 		if (is_scalar($current_value) && $current_value !== null && $current_value !== false) {
 			$this->options[$name] = array(
-				$current_value
+					$current_value
 			);
 		}
 		$this->options[$name][] = $value;
@@ -416,9 +421,9 @@ class Options implements \ArrayAccess {
 			return $result;
 		}
 		return strtolower(strtr(trim($name), array(
-			"-" => self::option_space,
-			"_" => self::option_space,
-			" " => self::option_space
+				"-" => self::option_space,
+				"_" => self::option_space,
+				" " => self::option_space
 		)));
 	}
 	
