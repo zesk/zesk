@@ -1,3 +1,130 @@
+## Zesk Version 0.9.16
+
+- Removed `User` deprecation to `zesk\User` - may not necessarily be the case
+- Fixed an issue with `zesk\Options::inherit_global_options` which incorrectly inherited global options containing a dash (`-`) and did not normalize them using `zesk\Options::_option_key($key)` first.
+- Fixing an issue with `Database` auto table names options not being passed through when 1st parameter is an array
+
+## Zesk Version 0.9.15
+
+- Fixed references to `Application` in `modules`
+
+## Zesk Version 0.9.14
+
+- Fixed reference to `Application` in `iLess` module
+
+## Zesk Version 0.9.13
+
+- Fixed PHP7 constant dependencies in `classes/Temporal.php` (2nd attempt)
+
+## Zesk Version 0.9.12
+
+- Fixed PHP7 constant dependencies in `classes/Temporal.php`
+
+## Zesk Version 0.9.11
+
+- `zesk\Time::add_unit($n_units = 1, $units = self::UNIT_SECOND)` parameter order has been swapped to be more natural. The new syntax is `$time->add_unit(3, "minute")`. The old syntax (with `$units` first) will be supported for 6 months.
+- `zesk\Date::add_unit($n_units = 1, $units = self::UNIT_DAY)` parameter order has been swapped to be more natural. The new syntax is `$date->add_unit(3, "day")`. The old syntax (with `$units` first) will be supported for 6 months.
+- Fixed all references to `->add_unit()` and using UNIT constants
+- Fixed issue with contact address editor (theme path missing `zesk` prefix)
+
+## Zesk Version 0.9.9
+
+- Fixed `zesk.sh` to better support `--cd` arguments and not rely on `cwd`
+- Removed `_zesk_loader_.inc` in root, use `composer` instead for loading
+- Deprecated `ZESK_APPLICATION_ROOT` constant to support better composer loading. Use `zesk()->paths->set_application($path)` instead.
+ - Global `application_root` at root `zesk\Configuration` is not longer set
+- Added `zesk\PHP::parse_namespace_class()` utility function
+- Adding support for `psr/cache` compatibility and Adapters for zesk classes, so `zesk\Cache` will be deprecated, use `zesk()->cache` instead. It will be guaranteed to be set. Start using this instead of `Cache::` calls. Adapters in zesk are called `zesk\Adapter_CacheItem` and `zesk\Adapter_CachePool`.
+- `zesk\DateInterval` was added for `\DateInterval` tools for conversion to/from seconds
+- `zesk\Timestamp::UNIT_FOO` have been defined for all valid time units (second, minute, etc.)
+- `zesk\Timestamp::add_unit($n_units = 1, $units = self::UNIT_SECOND)` parameter order has been swapped to be more natural. The new syntax is `$ts->add_unit(3, "minute")`. The old syntax (with `$units` first) will be supported for 6 months.
+- Removed `ZESK_ROOT/classes-stubs` from default autoloader.
+
+## Zesk Version 0.9.8
+
+- Fixing lots of reference errors in Git version of Zesk and Subversion version of Zesk. Mostly removing empty directories from Subversion, and fixing incorrectly logged paths for Git (which is quirky with case-sensitivity on Mac OS X). Full list of fixes is below:
+
+	Only in zesk-git/classes/Control/Select: object
+	Only in zesk-svn/classes/Control/Select/Object: Dynamic.php
+	Only in zesk-svn/classes/Control/Select/Object: Hierarchy.php
+	Only in zesk-svn/classes/Control: Text
+	Only in zesk-git/classes/Control: Url.php
+	Only in zesk-svn/classes/Control: URL.php
+	Only in zesk-svn/classes/Response: Application
+	Only in zesk-svn/classes: User
+	Only in zesk-git/: composer.lock
+	Only in zesk-svn/: .cvsignore
+	Only in zesk-git/: .git
+	Only in zesk-git/: .gitignore
+	Only in zesk-svn/modules/bootstrap/classes/Control: Dropdown.php
+	Only in zesk-git/modules/bootstrap/classes/Control: DropDown.php
+	Only in zesk-svn/modules/bootstrap/classes/Control/Text: Dropdown.php
+	Only in zesk-git/modules/bootstrap/classes/Control/Text: DropDown.php
+	Only in zesk-svn/modules/commerce/classes: bootstrap
+	Only in zesk-git/modules/content/classes: class
+	Only in zesk-git/modules/content/classes/Class: content
+	Only in zesk-svn/modules/content/classes/Class/Content: Article.sql
+	Only in zesk-svn/modules/content/classes/Class/Content: Group.sql
+	Only in zesk-svn/modules/content/classes/Class/Content: Menu.sql
+	Only in zesk-svn/modules/content/classes/Class/Content: Video.sql
+	Only in zesk-svn/modules/content/classes/Content: Test
+	Only in zesk-svn/modules/content/theme/content/group: media
+	Only in zesk-svn/modules/content/theme/content/group: video
+	Only in zesk-svn/modules/daemontools: etc
+	Only in zesk-git/modules/dblog/classes: module
+	Only in zesk-svn/modules/dblog/classes: Module
+	Only in zesk-svn/modules/developer: share
+	Only in zesk-svn/modules/dkim/classes: test
+	Only in zesk-svn/modules/dnsmadeeasy/classes/Server/Feature: dns
+	Only in zesk-svn/modules/excelx/classes/module: simple
+	Only in zesk-svn/modules/excelx: excelx
+	Only in zesk-git/modules/health/classes: class
+	Only in zesk-svn/modules/health/classes/Class/Health: Event.sql
+	Only in zesk-svn/modules/health/classes/Class/Health: Events.sql
+	Only in zesk-svn/modules/icalendar/test/rrule: rule
+	Only in zesk-svn/modules/import_log/classes/import/log: test
+	Only in zesk-svn/modules/import_log/classes/import: test
+	Only in zesk-svn/modules/jquery-datetimepicker/classes: control
+	Only in zesk-svn/modules/jquery-datetimepicker/classes: view
+	Only in zesk-svn/modules/jquerymobile: theme
+	Only in zesk-svn/modules/mysql/classes: MySQL
+	Only in zesk-svn/modules/pdo/classes/pdo: database
+	Only in zesk-git/modules/permission/classes/zesk: class
+	Only in zesk-svn/modules/permission/classes/zesk/Class: Role.sql
+	Only in zesk-git/modules/permission/classes/zesk/Class: user
+	Only in zesk-svn/modules/permission/classes/zesk/Class: User
+	Only in zesk-svn/modules/phpunit/classes: Module
+	Only in zesk-svn/modules/polyglot: .codekit-cache
+	Only in zesk-git/modules/preference/classes: preference
+	Only in zesk-svn/modules/preference/classes/Preference: Test
+	Only in zesk-git/modules/server/classes: application
+	Only in zesk-svn/modules/server/classes/Application: Server.classes
+	Only in zesk-svn/modules/server/classes/Application: Server.router
+	Only in zesk-svn/modules/server/classes/Class: Zesk
+	Only in zesk-git/modules/server/classes: server
+	Only in zesk-svn/modules/server/classes/Server/Feature: DaemonTools
+	Only in zesk-svn/modules/server/command: daemon
+	Only in zesk-svn/modules/server: sbin
+	Only in zesk-svn/modules/test: bin
+	Only in zesk-svn/modules/zest/classes: application
+	Only in zesk-svn/share/widgets: iphoneframe
+	Only in zesk-svn/: .svn
+	Only in zesk-svn/test/classes: control
+	Only in zesk-svn/test/classes: controller
+	Only in zesk-svn/test/classes/database/query: select
+	Only in zesk-svn/test/classes/view: date
+	Only in zesk-svn/test/classes: xml
+	Only in zesk-svn/theme/zesk/control: file
+	Only in zesk-svn/theme/zesk/control: text
+
+## Zesk Version 0.9.7
+
+- Removing reference to `$this` in static function in `modules/content/classes/Content/Data.php`
+
+## Zesk Version 0.9.6
+
+- Fixing path of `zesk\\Control_Select_Object_Available` to be case-sensitive
+
 ## v0.9.5
 
 - Skipped a few versions due to `zesk version` testing and other work
