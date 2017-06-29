@@ -1411,7 +1411,7 @@ abstract class Database extends Hookable {
 	public function auto_table_names_replace($sql, array $options = array()) {
 		if (is_array($sql)) {
 			foreach ($sql as $k => $v) {
-				$sql[$k] = self::auto_table_names_replace($v);
+				$sql[$k] = self::auto_table_names_replace($v, $options);
 			}
 			return $sql;
 		}
