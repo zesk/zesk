@@ -790,7 +790,11 @@ function map($mixed, array $map, $insensitive = false, $prefix_char = "{", $suff
 			if ($v instanceof Configuration) {
 				backtrace();
 			}
-			$v = strval($v);
+			if (method_exists($v, '__toString')) {
+				$v = strval($v);
+			} else {
+				$v = get_class($v);
+			}
 		}
 		$s[$prefix_char . $k . $suffix_char] = $v;
 	}
