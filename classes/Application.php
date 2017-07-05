@@ -1433,7 +1433,7 @@ class Application extends Hookable implements Interface_Theme {
 	 * @return string Current data_path value
 	 */
 	public function data_path($suffix = null) {
-		return $this->zesk->paths->data($suffix);
+		return $this->paths->data($suffix);
 	}
 	
 	/**
@@ -1670,7 +1670,7 @@ class Application extends Hookable implements Interface_Theme {
 	 * @return array The ordered list of paths to search for class names
 	 */
 	public function command_path($add = null) {
-		return $this->zesk->paths->command($add);
+		return $this->paths->command($add);
 	}
 	
 	/**
@@ -1696,6 +1696,15 @@ class Application extends Hookable implements Interface_Theme {
 	}
 	
 	/**
+	 * 
+	 * @param string $path
+	 * @return \zesk\Application
+	 */
+	public function set_application_root($path) {
+		$this->paths->set_application($path, true);
+		return $this;
+	}
+	/**
 	 * Return the zesk root path.
 	 *
 	 * @param string $suffix
@@ -1703,7 +1712,7 @@ class Application extends Hookable implements Interface_Theme {
 	 * @return string
 	 */
 	public function zesk_root($suffix = null) {
-		return $this->zesk->paths->zesk($suffix);
+		return $this->paths->zesk($suffix);
 	}
 	
 	/**
