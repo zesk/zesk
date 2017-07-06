@@ -1,3 +1,15 @@
+## Zesk Version 0.9.19
+
+- Fixed `jqplot` module download link
+
+## Zesk Version 0.9.18
+
+- Adding `$app->set_application_root($path)`
+
+## Zesk Version 0.9.17
+
+- In `selenium` module, fixed `zesk\Selenium_Browsers::browsers_clean_and_fix` clean to return valid named browsers only
+
 ## Zesk Version 0.9.16
 
 - Removed `User` deprecation to `zesk\User` - may not necessarily be the case
