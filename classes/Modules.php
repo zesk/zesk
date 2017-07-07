@@ -445,7 +445,7 @@ class Modules {
 			"$base.module.inc"
 		));
 		if ($module_include) {
-			zesk()->deprecated("Module loader file is deprecated in Zesk 0.9, use subclass of \zesk\Module::initialize instead");
+			zesk()->deprecated("Module loader file ($module_include) is deprecated in Zesk 0.9, use subclass of \zesk\Module::initialize instead");
 		}
 		$module_variables = array(
 			'module_path' => $path,

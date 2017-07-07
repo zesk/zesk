@@ -99,13 +99,6 @@ class Command_Module_New extends Command {
 				"module_class" => $module_class,
 				"namespace_line" => $namespace_line
 			)));
-			
-			$tpl = file_get_contents(path($tpl_path, 'module.module.php.txt'));
-			$p = path($path, "$module.module.php");
-			$this->log("Created $p");
-			file_put_contents($p, map($tpl, array(
-				"module_class" => $module_class
-			)));
 		}
 		$conf['module_class'] = "$namespace\\$module_class";
 		$conf_path = path($path, "$module.module.json");
