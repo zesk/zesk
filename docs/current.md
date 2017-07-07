@@ -1,4 +1,3 @@
 ## Zesk Version {version}
 
-- Fixed `jqplot` module download link
-
+- Fixing module-new so it does not create a .php root file which is deprecated
