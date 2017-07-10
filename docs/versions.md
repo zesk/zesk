@@ -325,5 +325,6 @@ Version 1.0 of Zesk will have:
 - Full composer support for both Zesk as well as commonly used modules
 - Support for Psr/Cache for caching within Zesk
 - Support for Monolog within Zesk core
-
+- All modules use **namespaces**
+- Merging of `Response` and `Response_Text_HTML` into a single, unified polymorphic `Response`
 
