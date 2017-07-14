@@ -403,6 +403,7 @@ class Command_Test extends Command_Base {
 		$php_extensions = $this->option("automatic_open_extensions", "inc|tpl|php|php5|phpt");
 		$pattern = "#PHP-ERROR:.*?(?P<files>(?:" . ZESK_ROOT . "|$app_root)[A-Za-z_0-9./-]*\.(?:$php_extensions))#s";
 		$pattern = "#(?P<files>(?:" . ZESK_ROOT . "|$app_root)[A-Za-z_0-9./-]*\.(?:$php_extensions))#s";
+		$matches = null;
 		if (!preg_match_all($pattern, $contents, $matches)) {
 			return array();
 		}
@@ -554,7 +555,10 @@ class Command_Test extends Command_Base {
 		try {
 			$run_class = $this->include_file_classes($file);
 		} catch (Exception $e) {
-			$this->log("Unable to include $file without errors - fail.");
+			$this->log("Unable to include $file without error {class} {message} - fail.", array(
+				"class" => get_class($e),
+				"message" => $e->getMessage(),
+			));
 			return false;
 		}
 		if (count($run_class) === 0) {
