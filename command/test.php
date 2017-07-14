@@ -12,6 +12,10 @@ namespace zesk;
  * @category Test
  */
 class Command_Test extends Command_Base {
+	/**
+	 * @var string
+	 */
+	const TEST_UNIT_CLASS = "zesk\\Test_Unit";
 	
 	/**
 	 * Set to true in subclasses to skip Application configuration until ->go
@@ -520,14 +524,14 @@ class Command_Test extends Command_Base {
 		$after_classes = get_declared_classes();
 		sort($after_classes);
 		foreach ($after_classes as $new_class) {
-			if (!array_key_exists($new_class, $classes) && is_subclass_of($new_class, "Test_Unit")) {
+			if (!array_key_exists($new_class, $classes) && is_subclass_of($new_class, self::TEST_UNIT_CLASS)) {
 				$run_class[] = $new_class;
 				if ($debug_class_discovery) {
 					echo "- `$new_class`\n";
 				}
 			} else {
 				if ($debug_class_discovery) {
-					echo "- `$new_class` (not Test_Unit)\n";
+					echo "- `$new_class` (not " . self::TEST_UNIT_CLASS . ")\n";
 				}
 			}
 		}
@@ -557,12 +561,14 @@ class Command_Test extends Command_Base {
 		} catch (Exception $e) {
 			$this->log("Unable to include $file without error {class} {message} - fail.", array(
 				"class" => get_class($e),
-				"message" => $e->getMessage(),
+				"message" => $e->getMessage()
 			));
 			return false;
 		}
 		if (count($run_class) === 0) {
-			$this->log("Unable to find any Test_Unit classes in $file - skipping");
+			$this->log("Unable to find any {name} classes in $file - skipping", array(
+				"name" => self::TEST_UNIT_CLASS
+			));
 			return true;
 		}
 		if ($this->_determine_sandbox($options)) {
@@ -653,7 +659,7 @@ class Command_Test extends Command_Base {
 		foreach ($flags as $flag) {
 			$value = avalue($options, $flag);
 			if (is_bool($value) || is_string($value) || is_numeric($value)) {
-				$options['prefix'] .= "--set Test_Unit::$flag=" . json_encode($value) . " ";
+				$options['prefix'] .= "--set " . self::TEST_UNIT_CLASS . "::$flag=" . json_encode($value) . " ";
 			}
 		}
 		$opts = "";
@@ -664,7 +670,7 @@ class Command_Test extends Command_Base {
 			$opts .= "--verbose ";
 		}
 		$options['echo'] = true;
-		$options['suffix'] = " eval $opts--log - 'Command_Test::run_class(\"$class\", \"$file\")'";
+		$options['suffix'] = " eval $opts--log - 'zesk\\Command_Test::run_class(\"$class\", \"$file\")'";
 		$options['command'] = "{prefix}{suffix}";
 		
 		return $this->_run_test_command($file, $options);

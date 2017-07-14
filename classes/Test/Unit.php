@@ -81,6 +81,9 @@ class Test_Unit extends Options {
 		self::init();
 		$this->inherit_global_options();
 		if ($this->load_modules) {
+			$this->log("Loading modules: {load_modules}", array(
+				"load_modules" => $this->load_modules
+			));
 			$this->application->modules->load($this->load_modules);
 		}
 	}
@@ -874,7 +877,7 @@ class Test_Unit extends Options {
 				"method" => __METHOD__
 			));
 		}
-		$settings = self::_configuration_load();
+		$settings = self::_configuration_load(app());
 		if (!class_exists($class, false) && !$zesk->autoloader->load($class, true) && !self::_find_test($class)) {
 			throw new Exception_Class_NotFound($class);
 		}
@@ -937,8 +940,7 @@ class Test_Unit extends Options {
 		$app = $this->application;
 		$results = array();
 		foreach (to_list($classes) as $class) {
-			
-			$class_object = Object::cache_class($class, "class");
+			$class_object = $this->application->class_object($class);
 			$db = $class_object->database();
 			$results[$class] = $db->query($app->schema_synchronize($db, array(
 				$class
@@ -951,15 +953,21 @@ class Test_Unit extends Options {
 	 *
 	 * @return array
 	 */
-	private static function _configuration_load() {
-		$config = zesk::get('Test_Unit::config', Command::default_configuration_file('test'));
+	private static function _configuration_load(Application $application) {
+		$configuration = $application->configuration;
+		$config = $configuration->path_get('zesk\\Test_Unit::config', Command::default_configuration_file('test'));
 		if (!$config) {
 			return array();
 		}
 		zesk()->logger->debug("Loading configuration file $config");
-		$settings = conf::load($config);
-		zesk::set($settings);
-		if (zesk::get('Command_Test::debug_config')) {
+		$settings = array();
+		$loader = new Configuration_Loader(__CLASS__, $application->configure_include_path(), array(
+			$config
+		), new Adapter_Settings_Array($settings));
+		
+		$loader->load();
+		
+		if (to_bool($configuration->path_get('zesk\\Command_Test::debug_config'))) {
 			echo "Loaded configuration file:\n";
 			echo Text::format_pairs($settings);
 		}
