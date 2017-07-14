@@ -9,4 +9,5 @@ services:
 - mysql
 before_install:
   - mysql -e "create database IF NOT EXISTS test_zesk;" -uroot
-script: ./bin/test-zesk.sh
+  - composer update
+script: ./bin/zesk --Database::names::default=mysqli://root:@127.0.0.1/test_zesk test --debug --verbose --sandbox
