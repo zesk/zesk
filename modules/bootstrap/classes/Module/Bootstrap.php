@@ -1,4 +1,5 @@
 <?php
+
 /**
  *
  * @version $URL: https://code.marketacumen.com/zesk/trunk/modules/bootstrap/classes/Module/Bootstrap.php $
@@ -6,14 +7,13 @@
 namespace zesk;
 
 /**
- * 
- * @author kent
  *
+ * @author kent
+ *        
  */
-class Module_Bootstrap extends Module implements Interface_Module_Foot {
+class Module_Bootstrap extends Module implements Interface_Module_Foot, Interface_Module_Head {
 	
 	/**
-	 * 
 	 */
 	public function initialize() {
 		$this->application->hooks->add('zesk\\Control_List::row_widget', array(
@@ -23,9 +23,9 @@ class Module_Bootstrap extends Module implements Interface_Module_Foot {
 	}
 	
 	/**
-	 * 
-	 * @param Control $self
-	 * @param Control_Row $row
+	 *
+	 * @param Control $self        	
+	 * @param Control_Row $row        	
 	 */
 	public function _hook_list_row_widget(Control $self, Control_Row $row) {
 		$n_columns = $self->option('list_column_count', 12);
@@ -54,10 +54,10 @@ class Module_Bootstrap extends Module implements Interface_Module_Foot {
 	}
 	
 	/**
-	 * 
-	 * @param Request $request
-	 * @param Response_Text_HTML $response
-	 * @param Template $template
+	 *
+	 * @param Request $request        	
+	 * @param Response_Text_HTML $response        	
+	 * @param Template $template        	
 	 */
 	public function hook_head(Request $request, Response_Text_HTML $response, Template $template) {
 		// Lazy eval
@@ -88,8 +88,9 @@ class Module_Bootstrap extends Module implements Interface_Module_Foot {
 	}
 	
 	/**
-	 * 
-	 * {@inheritDoc}
+	 *
+	 * {@inheritdoc}
+	 *
 	 * @see Interface_Module_Foot::hook_foot()
 	 */
 	public function hook_foot(Request $request, Response_Text_HTML $response, Template $template) {
