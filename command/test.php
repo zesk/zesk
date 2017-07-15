@@ -1,4 +1,5 @@
 <?php
+
 /**
  * @copyright &copy; 2016 Market Acumen, Inc.
  */
@@ -8,11 +9,13 @@ namespace zesk;
  * Run automated tests in a variety of formats.
  *
  * @no_test
+ * 
  * @author kent
  * @category Test
  */
 class Command_Test extends Command_Base {
 	/**
+	 *
 	 * @var string
 	 */
 	const TEST_UNIT_CLASS = "zesk\\Test_Unit";
@@ -23,6 +26,15 @@ class Command_Test extends Command_Base {
 	 * @var boolean
 	 */
 	public $has_configuration = true;
+	
+	/**
+	 * Load these modules prior to running command
+	 *
+	 * $var array
+	 */
+	protected $load_modules = array(
+		"test"
+	);
 	
 	/**
 	 * Option types
@@ -541,7 +553,7 @@ class Command_Test extends Command_Base {
 	
 	/**
 	 *
-	 * @param array $options
+	 * @param array $options        	
 	 * @return boolean
 	 */
 	private function _determine_sandbox(array $options = null) {
@@ -646,7 +658,7 @@ class Command_Test extends Command_Base {
 	 *
 	 * @param string $file
 	 *        	File to run
-	 * @param array $options
+	 * @param array $options        	
 	 * @return boolean
 	 */
 	private function _run_test_sandbox($file, $class, array $options) {
@@ -670,17 +682,18 @@ class Command_Test extends Command_Base {
 			$opts .= "--verbose ";
 		}
 		$options['echo'] = true;
-		$options['suffix'] = " eval $opts--log - 'zesk\\Command_Test::run_class(\"$class\", \"$file\")'";
+		$options['suffix'] = " module test eval $opts 'zesk\\Command_Test::run_class(\"$class\", \"$file\")'";
 		$options['command'] = "{prefix}{suffix}";
 		
 		return $this->_run_test_command($file, $options);
 	}
 	
 	/**
-	 * Glue to run sandbox tests from the site. Sets the include path correctly, then runs the class in Test_Unit.
+	 * Glue to run sandbox tests from the site.
+	 * Sets the include path correctly, then runs the class in Test_Unit.
 	 *
-	 * @param string $class
-	 * @param string $file
+	 * @param string $class        	
+	 * @param string $file        	
 	 * @return boolean
 	 */
 	public static function run_class($class, $file) {
@@ -691,8 +704,8 @@ class Command_Test extends Command_Base {
 	/**
 	 * Run a test command
 	 *
-	 * @param string $file
-	 * @param array $options
+	 * @param string $file        	
+	 * @param array $options        	
 	 * @return boolean
 	 */
 	private function _run_test_command($file, array $options) {
@@ -790,8 +803,8 @@ class Command_Test extends Command_Base {
 	/**
 	 * Run a phpt test
 	 *
-	 * @param string $file
-	 * @param array $options
+	 * @param string $file        	
+	 * @param array $options        	
 	 * @return boolean
 	 */
 	private function run_test_phpt($file, array $options) {
