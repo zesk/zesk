@@ -1,26 +1,18 @@
 <?php
 
-use zesk\PHP;
-use zesk\Database;
-use zesk\Database_Table;
-use zesk\Database_Column;
-use zesk\Database_Exception_Duplicate;
+namespace zesk;
 
 class Database_Test extends Test_Unit {
 	// 	function test_table_indexes() {
 	// 		$table = "db_table_indexes_test";
 
-
 	// 		$db = $this->application->database_factory();
 	// 		$this->test_table($table);
-
 
 	// 		$dbname = "";
 	// 		$result = $db->table_indexes($table, $dbname);
 
-
 	// 		dump($result);
-
 
 	// 		$this->assert_arrays_equal(array(
 	// 			"ID"
@@ -54,9 +46,7 @@ class Database_Test extends Test_Unit {
 
 		$this->assert_arrays_equal($result, $compare_result);
 	}
-
 	public static $test = null;
-
 	function test_query_object() {
 		$db = $this->application->database_factory();
 		$table_name = "query_object_test";
@@ -330,7 +320,6 @@ class Database_Test extends Test_Unit {
 		$db->reconnect();
 		echo basename(__FILE__) . ": success\n";
 	}
-
 	function test_query_one() {
 		$db = $this->application->database_factory();
 
@@ -359,7 +348,6 @@ class Database_Test extends Test_Unit {
 
 		echo basename(__FILE__) . ": success\n";
 	}
-
 	function test_dump() {
 		$db = $this->application->database_factory();
 
@@ -374,15 +362,12 @@ class Database_Test extends Test_Unit {
 	function test_get_lock() {
 		$db = $this->application->database_factory();
 
-		$name = null;
+		$name = md5(microtime());
 		$wait_seconds = 0;
-		$db->get_lock($name, $wait_seconds);
-	}
-
-	function test_hooks() {
-		$db = $this->application->database_factory();
-
-		$db->hooks();
+		$result = $db->get_lock("test", $wait_seconds);
+		$this->assert_true($result, "get_lock(\"$name\") did not return true: " . _dump($result));
+		$result = $db->release_lock($name);
+		$this->assert_true($result, "release_lock(\"$name\") did not return true: " . _dump($result));
 	}
 	function test_insert() {
 		$db = $this->application->database_factory();
@@ -430,7 +415,6 @@ class Database_Test extends Test_Unit {
 		$db->insert_id();
 		echo basename(__FILE__) . ": success\n";
 	}
-
 	function test_query() {
 		$db = $this->application->database_factory();
 
@@ -468,7 +452,7 @@ class Database_Test extends Test_Unit {
 		$this->test_table($table_name);
 
 		$n = mt_rand(100, 1000);
-		for($i = 1; $i <= $n; $i++) {
+		for ($i = 1; $i <= $n; $i++) {
 			$db->insert($table_name, array(
 				"Foo" => $i * 100
 			));
@@ -499,10 +483,9 @@ class Database_Test extends Test_Unit {
 	 */
 	function test_release_lock() {
 		$db = $this->application->database_factory();
-
-		$name = null;
-		$db->release_lock($name);
-		echo basename(__FILE__) . ": success\n";
+		$name = "fail";
+		$result = $db->release_lock($name);
+		$this->assert_false($result);
 	}
 	function test_locks() {
 		$db = $this->application->database_factory();
@@ -518,7 +501,6 @@ class Database_Test extends Test_Unit {
 
 		echo basename(__FILE__) . ": success\n";
 	}
-
 	function test_replace() {
 		$db = $this->application->database_factory();
 
@@ -559,7 +541,6 @@ class Database_Test extends Test_Unit {
 
 		$this->assert(intval($db->query_one("SELECT COUNT(*) AS X FROM `$table_name`", "X", 100)) === 2);
 	}
-
 	function test_select_one_where() {
 		$db = $this->application->database_factory();
 
@@ -577,7 +558,6 @@ class Database_Test extends Test_Unit {
 		$table = null;
 		$db->table_exists($table);
 	}
-
 	function test_unstring() {
 		$db = $this->application->database_factory();
 
@@ -788,7 +768,6 @@ class Database_Test extends Test_Unit {
 		$db->url($name, $url, $is_default);
 	}
 }
-
 class DBQueryObjectTest extends Object {
 	protected $columns = array(
 		"ID",

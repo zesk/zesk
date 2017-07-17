@@ -1,10 +1,20 @@
 <?php
+
+/**
+ *
+ */
+namespace zesk;
+
+/**
+ *
+ * @author kent
+ *
+ */
 class Test_Database_Exception extends Test_Unit {
 	function database() {
 		return $this->application->database_factory($this->option("database"));
 	}
 	/**
-	 * 
 	 */
 	function test_main() {
 		for ($i = 0; $i < 100; $i++) {
@@ -12,13 +22,13 @@ class Test_Database_Exception extends Test_Unit {
 			$x = new Database_Exception("hello {dude}", array(
 				"dude" => "world!"
 			), $code, new Exception("previous"));
-			
+
 			$this->_test_exception($x, "hello world!", $code);
 		}
 	}
-	
+
 	/**
-	 * 
+	 *
 	 * @param Database_Exception $x
 	 * @param unknown $expected_message
 	 * @param unknown $expected_code
@@ -34,7 +44,7 @@ class Test_Database_Exception extends Test_Unit {
 		}
 
 		$this->assert_is_string($x->__toString());
-		
+
 		// I assume this is here to just make sure they do not explode/coverage, as these are all internal
 		$this->assert_true(is_file($x->getFile()));
 		$this->assert_integer($x->getLine());

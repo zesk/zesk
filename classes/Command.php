@@ -607,7 +607,8 @@ abstract class Command extends Hookable implements Logger\Handler {
 		"error" => true
 	);
 	/**
-	 * Log a message to output or stderr. Do not do anything if a theme is currently being rendered.
+	 * Log a message to output or stderr.
+	 * Do not do anything if a theme is currently being rendered.
 	 *
 	 * @param string $message        	
 	 * @param array $arguments        	
@@ -1092,9 +1093,9 @@ abstract class Command extends Hookable implements Logger\Handler {
 	
 	/**
 	 * Run a zesk command using the CLI
-	 * 
-	 * @param string $command
-	 * @param array $arguments
+	 *
+	 * @param string $command        	
+	 * @param array $arguments        	
 	 */
 	protected function zesk_cli($command, array $arguments = array()) {
 		$app = $this->application;
@@ -1130,6 +1131,7 @@ abstract class Command extends Hookable implements Logger\Handler {
 		global $zesk;
 		/* @var $zesk Kernel */
 		self::$commands[] = $this;
+		$this->application->modules->load($this->load_modules);
 		$this->call_hook("run_before");
 		if ($this->has_errors()) {
 			$this->usage();
@@ -1209,8 +1211,9 @@ abstract class Command extends Hookable implements Logger\Handler {
 	}
 	
 	/**
-	 * Add help from the doccomment. One place for docs is preferred. May not work with eaccelerator, etc.
-	 * 
+	 * Add help from the doccomment.
+	 * One place for docs is preferred. May not work with eaccelerator, etc.
+	 *
 	 * @return NULL|string
 	 */
 	private function doccomment_help() {
