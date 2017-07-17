@@ -82,12 +82,21 @@ function last(array $a, $default = null) {
 }
 
 /**
- * Use in lieu of ?? in PHP before PHP 7
+ * Use in lieu of ?: in PHP before PHP 7
  *
  * e.g.
  *
- * return firstarg($value, "default");
+ * PHP < 7.0:
+ * 
+ * return firstarg($value, $alternate_value, "default");
+ * 
+ * PHP >= 7.0:
+ * 
+ * return $value ?: $alternate_value ?: "default";
+ * 
+ * Equivalent to || or && in JavaScript.
  *
+ * @deprecated zesk-php-7-only
  * @return mixed|NULL
  * @see https://wiki.php.net/rfc/isset_ternary
  */
@@ -204,7 +213,8 @@ function _backtrace($n = -1) {
 	foreach ($bt as $i) {
 		$file = "closure";
 		$line = "-none-";
-		$class = $type = $function = $args = null;
+		$class = "-noclass-"; 
+		$type = $function = $args = null;
 		extract($i, EXTR_IF_EXISTS);
 		$line = "$file: $line $class$type$function";
 		if (is_array($args)) {
