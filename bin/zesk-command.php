@@ -21,4 +21,4 @@ require_once ZESK_ROOT . 'classes/Command/Loader.php';
 /**
  * Run a zesk command and exit
  */
-exit(zesk\Command_Loader::instance()->run());
+exit(zesk\Command_Loader::factory()->run());

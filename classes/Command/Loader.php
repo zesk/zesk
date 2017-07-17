@@ -81,7 +81,7 @@ class Command_Loader {
 	 *
 	 * @return self
 	 */
-	public static function instance() {
+	public static function factory() {
 		return new self();
 	}
 	
@@ -464,7 +464,7 @@ class Command_Loader {
 		if ($this->zesk_is_loaded()) {
 			global $zesk;
 			/* @var $zesk \zesk\Kernel */
-			$zesk->configuration->pave_set($key, $value);
+			$zesk->configuration->path_set($key, $value);
 		} else {
 			global $_ZESK;
 			\apath_set($_ZESK, _zesk_global_key($key), $value, ZESK_GLOBAL_KEY_SEPARATOR);
@@ -488,7 +488,7 @@ class Command_Loader {
 		if ($this->zesk_is_loaded()) {
 			global $zesk;
 			/* @var $zesk \zesk\Kernel */
-			$zesk->configuration->pave_set($key, null);
+			$zesk->configuration->path_set($key, null);
 		} else {
 			global $_ZESK;
 			\apath_set($_ZESK, _zesk_global_key($key), null, ZESK_GLOBAL_KEY_SEPARATOR);
