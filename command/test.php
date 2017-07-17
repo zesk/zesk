@@ -9,7 +9,7 @@ namespace zesk;
  * Run automated tests in a variety of formats.
  *
  * @no_test
- * 
+ *
  * @author kent
  * @category Test
  */
@@ -19,14 +19,14 @@ class Command_Test extends Command_Base {
 	 * @var string
 	 */
 	const TEST_UNIT_CLASS = "zesk\\Test_Unit";
-	
+
 	/**
 	 * Set to true in subclasses to skip Application configuration until ->go
 	 *
 	 * @var boolean
 	 */
 	public $has_configuration = true;
-	
+
 	/**
 	 * Load these modules prior to running command
 	 *
@@ -35,7 +35,7 @@ class Command_Test extends Command_Base {
 	protected $load_modules = array(
 		"test"
 	);
-	
+
 	/**
 	 * Option types
 	 *
@@ -60,7 +60,7 @@ class Command_Test extends Command_Base {
 		'show' => 'boolean',
 		'*' => 'string'
 	);
-	
+
 	/**
 	 * Help for options types above
 	 *
@@ -86,14 +86,14 @@ class Command_Test extends Command_Base {
 		'*' => 'Test patterns to run - either Class::method, or a string to match in the filename'
 	);
 	const width = 96;
-	
+
 	/**
 	 * Tests run
 	 *
 	 * @var array
 	 */
 	public $tests = array();
-	
+
 	/**
 	 * Test statistics
 	 *
@@ -107,21 +107,21 @@ class Command_Test extends Command_Base {
 		'assert' => 0
 	);
 	static $opened = array();
-	
+
 	/**
 	 * Name of test database for results
 	 *
 	 * @var string
 	 */
 	private $test_database_file = null;
-	
+
 	/**
 	 * Saved results from tests
 	 *
 	 * @var array
 	 */
 	private $test_results = array();
-	
+
 	/**
 	 * Classes
 	 *
@@ -129,21 +129,21 @@ class Command_Test extends Command_Base {
 	 * @var array
 	 */
 	private $classes = array();
-	
+
 	/**
 	 * Includes
 	 *
 	 * @var array
 	 */
 	private $incs = array();
-	
+
 	/**
 	 * Help string for this command
 	 *
 	 * @var string
 	 */
 	protected $help = "Run automated tests in a variety of formats.";
-	
+
 	/**
 	 * TODO we use two different ways of doing this: static::settings() and this.
 	 * Should pick one and stick with it.
@@ -164,7 +164,7 @@ class Command_Test extends Command_Base {
 			'description' => "Command to clear the console while running tests interactively (--interactive). @zesk_docs"
 		)
 	);
-	
+
 	/**
 	 * Most recent test result
 	 *
@@ -230,7 +230,7 @@ class Command_Test extends Command_Base {
 			$this->test_results = array();
 			$this->save_test_database();
 		}
-		
+
 		if ($this->option_bool('interactive')) {
 			$this->verbose_log("Interactive testing enabled.");
 		}
@@ -307,11 +307,11 @@ class Command_Test extends Command_Base {
 		} else if (!Directory::is_absolute($path)) {
 			throw new Exception_Directory_NotFound($path);
 		}
-		
+
 		if (!$this->has_arg()) {
 			return Directory::list_recursive($path, $this->_test_list_options());
 		}
-		
+
 		$matches = array();
 		$tests = array();
 		$this->test_results = array();
@@ -331,13 +331,15 @@ class Command_Test extends Command_Base {
 				if (count($found) > 0) {
 					$tests = array_merge($tests, $found);
 				} else {
-					$this->error("No match for test $arg");
+					$this->error("No match for test {arg}", array(
+						"arg" => $arg
+					));
 				}
 			}
 		}
 		return $tests;
 	}
-	
+
 	/**
 	 * Load the test database
 	 *
@@ -371,7 +373,7 @@ class Command_Test extends Command_Base {
 		$this->verbose_log("Will save to new test database $this->test_database_file");
 		return true;
 	}
-	
+
 	/**
 	 * Save the test database
 	 */
@@ -550,10 +552,10 @@ class Command_Test extends Command_Base {
 		$this->incs[$file] = $run_class;
 		return $run_class;
 	}
-	
+
 	/**
 	 *
-	 * @param array $options        	
+	 * @param array $options
 	 * @return boolean
 	 */
 	private function _determine_sandbox(array $options = null) {
@@ -609,7 +611,7 @@ class Command_Test extends Command_Base {
 				}
 			}
 		} catch (\Exception $e) {
-			$this->error("Exception {e}", $e);
+			$this->error("Exception {message} at {file}:{line}", Exception::exception_variables($e));
 			$final_result = false;
 		}
 		return $final_result;
@@ -658,7 +660,7 @@ class Command_Test extends Command_Base {
 	 *
 	 * @param string $file
 	 *        	File to run
-	 * @param array $options        	
+	 * @param array $options
 	 * @return boolean
 	 */
 	private function _run_test_sandbox($file, $class, array $options) {
@@ -684,16 +686,16 @@ class Command_Test extends Command_Base {
 		$options['echo'] = true;
 		$options['suffix'] = " module test eval $opts 'zesk\\Command_Test::run_class(\"$class\", \"$file\")'";
 		$options['command'] = "{prefix}{suffix}";
-		
+
 		return $this->_run_test_command($file, $options);
 	}
-	
+
 	/**
 	 * Glue to run sandbox tests from the site.
 	 * Sets the include path correctly, then runs the class in Test_Unit.
 	 *
-	 * @param string $class        	
-	 * @param string $file        	
+	 * @param string $class
+	 * @param string $file
 	 * @return boolean
 	 */
 	public static function run_class($class, $file) {
@@ -704,8 +706,8 @@ class Command_Test extends Command_Base {
 	/**
 	 * Run a test command
 	 *
-	 * @param string $file        	
-	 * @param array $options        	
+	 * @param string $file
+	 * @param array $options
 	 * @return boolean
 	 */
 	private function _run_test_command($file, array $options) {
@@ -799,12 +801,12 @@ class Command_Test extends Command_Base {
 		}
 		return true;
 	}
-	
+
 	/**
 	 * Run a phpt test
 	 *
-	 * @param string $file        	
-	 * @param array $options        	
+	 * @param string $file
+	 * @param array $options
 	 * @return boolean
 	 */
 	private function run_test_phpt($file, array $options) {
@@ -814,7 +816,7 @@ class Command_Test extends Command_Base {
 		}
 		return $this->_run_test_command($file, $options);
 	}
-	
+
 	/**
 	 * Output test results
 	 *
@@ -829,7 +831,7 @@ class Command_Test extends Command_Base {
 		echo trim($result) . "\n";
 		echo str_repeat("*", 80) . "\n";
 	}
-	
+
 	/**
 	 * Output database report
 	 */
