@@ -57,7 +57,7 @@ class CSV_Writer_Test extends Test_Unit {
 		}
 		$this->assert($success);
 		
-		$x->setHeaders(array(
+		$x->set_headers(array(
 			"Title",
 			"CodeName",
 			"Something"
