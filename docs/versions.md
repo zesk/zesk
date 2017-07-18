@@ -1,8 +1,8 @@
-## Zesk Version 0.9.21
+## Version 0.9.21
 
 - adding release-zesk.sh for better release automation
 
-## Zesk Version 0.9.20
+## Version 0.9.20
 
 - Allow zesk.sh to interpret --cd in command line before selecting zesk-command.php to run
 - Clarification of deprecating `firstarg` using `?:` (ternary operator) not `??` (null coalesce)
@@ -13,48 +13,48 @@
 - `test` module loaded for testing only
 - updating `version` doc
 
-## Zesk Version 0.9.19
+## Version 0.9.19
 
 - Fixed `jqplot` module download link
 
-## Zesk Version 0.9.18
+## Version 0.9.18
 
 - Adding `$app->set_application_root($path)`
 
-## Zesk Version 0.9.17
+## Version 0.9.17
 
 - In `selenium` module, fixed `zesk\Selenium_Browsers::browsers_clean_and_fix` clean to return valid named browsers only
 
-## Zesk Version 0.9.16
+## Version 0.9.16
 
 - Removed `User` deprecation to `zesk\User` - may not necessarily be the case
 - Fixed an issue with `zesk\Options::inherit_global_options` which incorrectly inherited global options containing a dash (`-`) and did not normalize them using `zesk\Options::_option_key($key)` first.
 - Fixing an issue with `Database` auto table names options not being passed through when 1st parameter is an array
 
-## Zesk Version 0.9.15
+## Version 0.9.15
 
 - Fixed references to `Application` in `modules`
 
-## Zesk Version 0.9.14
+## Version 0.9.14
 
 - Fixed reference to `Application` in `iLess` module
 
-## Zesk Version 0.9.13
+## Version 0.9.13
 
 - Fixed PHP7 constant dependencies in `classes/Temporal.php` (2nd attempt)
 
-## Zesk Version 0.9.12
+## Version 0.9.12
 
 - Fixed PHP7 constant dependencies in `classes/Temporal.php`
 
-## Zesk Version 0.9.11
+## Version 0.9.11
 
 - `zesk\Time::add_unit($n_units = 1, $units = self::UNIT_SECOND)` parameter order has been swapped to be more natural. The new syntax is `$time->add_unit(3, "minute")`. The old syntax (with `$units` first) will be supported for 6 months.
 - `zesk\Date::add_unit($n_units = 1, $units = self::UNIT_DAY)` parameter order has been swapped to be more natural. The new syntax is `$date->add_unit(3, "day")`. The old syntax (with `$units` first) will be supported for 6 months.
 - Fixed all references to `->add_unit()` and using UNIT constants
 - Fixed issue with contact address editor (theme path missing `zesk` prefix)
 
-## Zesk Version 0.9.9
+## Version 0.9.9
 
 - Fixed `zesk.sh` to better support `--cd` arguments and not rely on `cwd`
 - Removed `_zesk_loader_.inc` in root, use `composer` instead for loading
@@ -67,7 +67,7 @@
 - `zesk\Timestamp::add_unit($n_units = 1, $units = self::UNIT_SECOND)` parameter order has been swapped to be more natural. The new syntax is `$ts->add_unit(3, "minute")`. The old syntax (with `$units` first) will be supported for 6 months.
 - Removed `ZESK_ROOT/classes-stubs` from default autoloader.
 
-## Zesk Version 0.9.8
+## Version 0.9.8
 
 - Fixing lots of reference errors in Git version of Zesk and Subversion version of Zesk. Mostly removing empty directories from Subversion, and fixing incorrectly logged paths for Git (which is quirky with case-sensitivity on Mac OS X). Full list of fixes is below:
 
@@ -144,11 +144,11 @@
 	Only in zesk-svn/theme/zesk/control: file
 	Only in zesk-svn/theme/zesk/control: text
 
-## Zesk Version 0.9.7
+## Version 0.9.7
 
 - Removing reference to `$this` in static function in `modules/content/classes/Content/Data.php`
 
-## Zesk Version 0.9.6
+## Version 0.9.6
 
 - Fixing path of `zesk\\Control_Select_Object_Available` to be case-sensitive
 

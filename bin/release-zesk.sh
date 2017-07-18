@@ -46,8 +46,13 @@ if [ ! -d ./.git ]; then
 	echo "No .git directory at $ZESK_ROOT, stopping" 1>&2
 	exit 1
 fi
-if [ -z "$GIT" ]; then
+if [ ! -x "$GIT" ]; then
 	echo "git is not installed in $PATH" 1>& 2
+	exit 2
+fi
+
+if [ ! -x "$ZESK" ]; then
+	echo "zesk.sh is not executable?" 1>& 2
 	exit 2
 fi
 
@@ -80,7 +85,7 @@ pause "Versions look OK?"
 
 current_log=$ZESK_ROOT/docs/current.md
 permanent_log=$ZESK_ROOT/docs/versions.md
-echo '## Zesk Version {version}' > $current_log
+echo '## Release {version}' > $current_log
 echo >> $current_log
 $GIT log --pretty=format:'- %s' ^$ZESK_LAST_VERSION^{} HEAD | sort -u >> $current_log
 echo >> $current_log
