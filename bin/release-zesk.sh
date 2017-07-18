@@ -82,7 +82,7 @@ current_log=$ZESK_ROOT/docs/current.md
 permanent_log=$ZESK_ROOT/docs/versions.md
 echo '## Zesk Version {version}' > $current_log
 echo >> $current_log
-$GIT log --pretty=format:'- %an - %s' $ZESK_LAST_VERSION..HEAD | sort -u >> $current_log
+$GIT log --pretty=format:'- %s' $ZESK_LAST_VERSION..HEAD | sort -u >> $current_log
 echo >> $current_log
 echo >> $current_log
 echo '<!-- Generated automatically by release-zesk.sh, beware editing! -->' >> $current_log
