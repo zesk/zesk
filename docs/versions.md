@@ -1,5 +1,9 @@
 ## Zesk Version {version}
 
+- adding release-zesk.sh for better release automation
+
+## Zesk Version {version}
+
 - Allow zesk.sh to interpret --cd in command line before selecting zesk-command.php to run
 - Clarification of deprecating `firstarg` using `?:` (ternary operator) not `??` (null coalesce)
 - Fixing module-new so it does not create a .php root file which is deprecated
