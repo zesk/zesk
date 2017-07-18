@@ -63,15 +63,17 @@ echo "Synchronizing with remote ..."
 $GIT pull --tags > /dev/null 2>&1
 $GIT push --tags > /dev/null 2>&1
 
-temp=$ZESK_ROOT/$$.status.temp
-
+#
+# Make sure repository state seems sane
+#
 nlines=$(trim $(git status --short | wc -l | awk '{ print $1 }'))
 if [ $nlines -gt 0 ]; then
 	git status --short 
 	pause "Current git status, ok?"
 fi
+
 #
-# Determine versions
+# Determine last and next versions
 #
 cd $ZESK_ROOT
 ZESK_LAST_VERSION=`git tag | sort -t. -k 1.2,1n -k 2,2n -k 3,3n -k 4,4n | tail -1`	
@@ -90,6 +92,9 @@ echo "Zesk previous version is: $ZESK_LAST_VERSION"
 echo " Zesk release version is: $ZESK_CURRENT_VERSION"
 pause "Versions look OK?"
 
+#
+# Edit release notes
+#
 current_log=$ZESK_ROOT/docs/current.md
 permanent_log=$ZESK_ROOT/docs/versions.md
 echo '## Release {version}' > $current_log
@@ -109,10 +114,21 @@ while true; do
 		break
 	fi
 done
+
+#
+# Update release notes for all versions and current version
+#
 cat $current_log $permanent_log | grep -v 'by release-zesk.sh' | sed -e "s/{version}/$ZESK_CURRENT_VERSION/g" > $ZESK_ROOT/$$.temp
 mv $ZESK_ROOT/$$.temp $permanent_log
 $GIT commit -m "Release $ZESK_CURRENT_VERSION" $current_log $permanent_log
+
+#
+# Push to remote
+# 
 $GIT push --tags
+
+#
+# Tag automatically
+#
 $ZESK github --tag --description-file $current_log
 echo "Release $ZESK_CURRENT_VERSION completed"
-
