@@ -50,7 +50,6 @@ elif [ ! -d "$app_root/vendor/bin/" ]; then
 fi
 for binary in "$app_root/bin/zesk-command.php" "$app_root/vendor/bin/zesk-command.php"; do
 	if [ -x "$binary" ]; then
-		echo "$php" "$binary" "$@"
 		exec "$php" "$binary" "$@"
 	fi
 done

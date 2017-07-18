@@ -9,7 +9,6 @@
 - `test` module loaded for testing only
 - updating `version` doc
 
-<!-- Generated automatically by release-zesk.sh, beware editing! -->
 ## Zesk Version 0.9.19
 
 - Fixed `jqplot` module download link
