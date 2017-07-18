@@ -82,7 +82,7 @@ current_log=$ZESK_ROOT/docs/current.md
 permanent_log=$ZESK_ROOT/docs/versions.md
 echo '## Zesk Version {version}' > $current_log
 echo >> $current_log
-$GIT log --pretty=format:'- %s' $ZESK_LAST_VERSION..HEAD | sort -u >> $current_log
+$GIT log --pretty=format:'- %s' ^$ZESK_LAST_VERSION^{} HEAD | sort -u >> $current_log
 echo >> $current_log
 echo >> $current_log
 echo '<!-- Generated automatically by release-zesk.sh, beware editing! -->' >> $current_log
@@ -97,7 +97,7 @@ while true; do
 		break
 	fi
 done
-cat $current_log $permanent_log | grep -v 'by release-zesk.sh' > $ZESK_ROOT/$$.temp
+cat $current_log $permanent_log | grep -v 'by release-zesk.sh' | sed -e "s/{version}/$ZESK_CURRENT_VERSION/g" > $ZESK_ROOT/$$.temp
 mv $ZESK_ROOT/$$.temp $permanent_log
 $GIT commit -m "Release $ZESK_CURRENT_VERSION" $current_log $permanent_log
 $GIT push --tags

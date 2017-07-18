@@ -1,8 +1,8 @@
-## Zesk Version {version}
+## Zesk Version 0.9.21
 
 - adding release-zesk.sh for better release automation
 
-## Zesk Version {version}
+## Zesk Version 0.9.20
 
 - Allow zesk.sh to interpret --cd in command line before selecting zesk-command.php to run
 - Clarification of deprecating `firstarg` using `?:` (ternary operator) not `??` (null coalesce)
