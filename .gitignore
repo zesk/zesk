@@ -13,3 +13,4 @@ vendor/
 /modules/*/log
 .update.json
 .svn/
+composer.lock

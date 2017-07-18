@@ -63,6 +63,13 @@ echo "Synchronizing with remote ..."
 $GIT pull --tags > /dev/null 2>&1
 $GIT push --tags > /dev/null 2>&1
 
+temp=$ZESK_ROOT/$$.status.temp
+
+nlines=$(trim $(git status --short | wc -l | awk '{ print $1 }'))
+if [ $nlines -gt 0 ]; then
+	git status --short 
+	pause "Current git status, ok?"
+fi
 #
 # Determine versions
 #
