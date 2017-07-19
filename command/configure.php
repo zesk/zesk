@@ -1,6 +1,6 @@
 <?php
 /**
- * 
+ *
  */
 namespace zesk;
 
@@ -94,19 +94,19 @@ class Command_Configure extends Command_Base {
 	private $variable_map = array();
 	
 	/**
-	 * 
-	 * @var integer 
+	 *
+	 * @var integer
 	 */
 	protected $current_uid = null;
 	
 	/**
-	 * 
+	 *
 	 * @var integer
 	 */
 	protected $current_gid = null;
 	
 	/**
-	 * 
+	 *
 	 * {@inheritDoc}
 	 * @see Command::run()
 	 */
@@ -283,7 +283,10 @@ class Command_Configure extends Command_Base {
 		)));
 		$this->host_paths = $paths;
 		
-		$files = File::find_all($paths, "users/$username/configure");
+		$pattern = $this->option("user_configuration_file", "users/{username}/configure");
+		$files = File::find_all($paths, map($pattern, array(
+			"username" => $username
+		)));
 		$this->log(__("Configuration files:\n\t{files}", array(
 			"files" => implode("\n\t", $files)
 		)));
@@ -332,7 +335,7 @@ class Command_Configure extends Command_Base {
 	}
 	
 	/**
-	 * 
+	 *
 	 * @param unknown $target
 	 * @param unknown $want_owner
 	 * @param unknown $want_mode
@@ -417,7 +420,7 @@ class Command_Configure extends Command_Base {
 	}
 	
 	/**
-	 * 
+	 *
 	 * @param unknown $target
 	 * @param unknown $owner
 	 * @param unknown $mode
@@ -437,7 +440,7 @@ class Command_Configure extends Command_Base {
 	}
 	
 	/**
-	 * 
+	 *
 	 * @param unknown $symlink
 	 * @param unknown $file
 	 */
@@ -468,7 +471,7 @@ class Command_Configure extends Command_Base {
 			if (($oldlink = readlink($symlink)) === $file) {
 				return true;
 			}
-			if (!$this->prompt_yes_no("Symlink {symlink} points to {oldfile}, update to point to correct {file}?", compact("old_file") + $__)) {
+			if (!$this->prompt_yes_no(__("Symlink {symlink} points to {oldfile}, update to point to correct {file}?", compact("old_file") + $__))) {
 				return false;
 			}
 			file::unlink($symlink);
@@ -481,7 +484,7 @@ class Command_Configure extends Command_Base {
 	}
 	
 	/**
-	 * 
+	 *
 	 * @param unknown $source
 	 * @param unknown $destination
 	 */
@@ -536,7 +539,7 @@ class Command_Configure extends Command_Base {
 	}
 	
 	/**
-	 * 
+	 *
 	 * @param unknown $source
 	 * @param unknown $destination
 	 */
@@ -552,7 +555,7 @@ class Command_Configure extends Command_Base {
 	}
 	
 	/**
-	 * 
+	 *
 	 * @param unknown $destination
 	 * @param unknown $content
 	 */
@@ -568,7 +571,7 @@ class Command_Configure extends Command_Base {
 	}
 	
 	/**
-	 * 
+	 *
 	 * @param unknown $source
 	 * @param unknown $destination
 	 */
@@ -616,7 +619,7 @@ class Command_Configure extends Command_Base {
 	}
 	
 	/**
-	 * 
+	 *
 	 * @param unknown $source
 	 * @param unknown $destination
 	 * @param unknown $source_name
@@ -662,7 +665,7 @@ class Command_Configure extends Command_Base {
 	}
 	
 	/**
-	 * 
+	 *
 	 * @param unknown $repo
 	 * @param unknown $target
 	 */
