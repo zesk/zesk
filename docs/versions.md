@@ -1,3 +1,8 @@
+## Release v0.9.24
+
+- allow setting console state in `zesk()` superglobal via `zesk()->console(true)`
+- fixing `zesk\Command` `prefix` option feature
+
 ## Release v0.9.23
 
 - adding prefix/suffix to `zesk\Command` as options for stdout decoration
