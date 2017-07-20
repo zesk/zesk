@@ -574,7 +574,18 @@ class Kernel {
 			$profiler->calls[$fkey] = 1;
 		}
 	}
-	public function console() {
+	
+	/**
+	 * Getter/setter for console
+	 * 
+	 * @param boolean $set
+	 * @return boolean
+	 */
+	public function console($set = null) {
+		if (is_bool($set)) {
+			$this->console = $set;
+			return $set;
+		}
 		return $this->console;
 	}
 }
