@@ -1,5 +1,6 @@
-## Zesk Version {version}
+## Release {version}
 
-- adding release-zesk.sh for better release automation
-
-<!-- Generated automatically by release-zesk.sh, beware editing! -->
+- Zesk `release-zesk.sh` script updates
+- catch errors updating Server state
+- fixing minor issues with i18n and support alternate file layouts using configuration pattern
+- fixing release notes
