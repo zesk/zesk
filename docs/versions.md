@@ -1,3 +1,7 @@
+## Release v0.9.23
+
+- adding prefix/suffix to `zesk\Command` as options for stdout decoration
+
 ## Release v0.9.22
 
 - Zesk `release-zesk.sh` script updates
