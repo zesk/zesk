@@ -4,6 +4,7 @@
 - catch errors updating Server state
 - fixing minor issues with i18n and support alternate file layouts using configuration pattern
 - fixing release notes
+
 ## Version 0.9.21
 
 - adding release-zesk.sh for better release automation

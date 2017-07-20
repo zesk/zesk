@@ -639,6 +639,12 @@ abstract class Command extends Hookable implements Logger\Handler {
 		if ($severity) {
 			$prefix = strtoupper($severity) . ": ";
 		}
+		if ($this->has_option("prefix")) {
+			$prefix .= " " . $this->option("prefix");
+		}
+		if ($this->has_option("suffix")) {
+			$suffix = $this->option("suffix") . $suffix;
+		}
 		if (isset(self::$severity_is_error[$severity])) {
 			fwrite(self::stderr(), $prefix . $message . $suffix);
 			$this->errors[] = $message;
