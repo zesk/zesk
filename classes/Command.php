@@ -202,7 +202,7 @@ abstract class Command extends Hookable implements Logger\Handler {
 		
 		$this->set_option($defaults, null, false);
 		
-		if (is_array($argv) || $zesk->console) {
+		if (is_array($argv) || $zesk->console()) {
 			$this->program = array_shift($argv);
 			$this->arguments = $argv;
 			$this->argv = $argv;
@@ -226,7 +226,7 @@ abstract class Command extends Hookable implements Logger\Handler {
 				"args" => var_export($argv, true)
 			));
 		}
-		$zesk->console = true;
+		$zesk->console(true);
 		$zesk->newline = "\n";
 		
 		if ($this->has_errors()) {
@@ -640,10 +640,10 @@ abstract class Command extends Hookable implements Logger\Handler {
 			$prefix = strtoupper($severity) . ": ";
 		}
 		if ($this->has_option("prefix")) {
-			$prefix .= " " . $this->option("prefix");
+			$prefix .= $this->option("prefix") . " ";
 		}
 		if ($this->has_option("suffix")) {
-			$suffix = $this->option("suffix") . $suffix;
+			$suffix = " " . $this->option("suffix") . $suffix;
 		}
 		if (isset(self::$severity_is_error[$severity])) {
 			fwrite(self::stderr(), $prefix . $message . $suffix);
