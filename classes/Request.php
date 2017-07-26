@@ -169,19 +169,20 @@ class Request extends Hookable {
 		$this->uri = avalue($_SERVER, "REQUEST_URI", null);
 		$this->headers = self::http_headers_from_server($_SERVER);
 		$this->cookies = $_COOKIE;
-		$this->variables = self::clean_gpc($this->default_request());
 		$this->url = $this->url_from_server($_SERVER);
 		
 		$this->files = is_array($_FILES) ? $_FILES : array();
 		
 		$this->url_parts = null;
 		
+		$this->variables = self::clean_gpc($this->default_request());
+		
+		$this->init = "globals";
+		
 		$this->call_hook(array(
 			"initialize",
 			"initialize_from_globals"
 		));
-		
-		$this->init = __METHOD__;
 		
 		return $this;
 	}
@@ -207,6 +208,7 @@ class Request extends Hookable {
 		$this->ip = $request->ip;
 		
 		$this->init = "request";
+		
 		$this->call_hook(array(
 			"initialize",
 			"initialize_from_request"
