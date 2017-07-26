@@ -63,24 +63,29 @@ abstract class Database_Parser extends Hookable {
 	
 	/**
 	 * Divide SQL commands into different distinct commands
+	 * 
+	 * Using old pattern "/((?:(?:'[^']*')|[^;])*);/" caused backtrack limit errors in PHP7.
+	 * So changed to remove strings from SQL and replace afterwards
 	 *
 	 * @param string $sql        	
 	 * @return array
 	 */
 	public function split_sql_commands($sql) {
-		$pattern = "/((?:(?:'[^']*')|[^;])*);/";
-		$sqls = array();
 		$map = array(
 			"\\'" => '*SLASH_SLASH_QUOTE*'
 		);
 		$sql = strtr($sql, $map);
-		foreach (preg::matches($pattern, "$sql;") as $match) {
-			$statement = trim($match[1]);
-			if (empty($statement)) {
-				continue;
-			}
-			$sqls[] = $statement;
+		$index = 0;
+		while (preg_match("/'[^']*'/", $sql, $match) !== 0) {
+			$from = $match[0];
+			$to = chr(1) . "{" . $index . "}" . chr(2);
+			$index++;
+			$map[$from] = $to;
+			$sql = strtr($sql, array(
+				$from => $to
+			));
 		}
+		$sqls = arr::trim_clean(explode(";", $sql));
 		$sqls = tr($sqls, array_flip($map));
 		return $sqls;
 	}
