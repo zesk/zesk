@@ -240,10 +240,9 @@ class Request extends Hookable {
 				"settings" => $settings
 			));
 		}
-		$method = $uri = $url = $data = $data_file = null;
-		$headers = $cookies = $variables = $files = $ip = array();
+		$method = $uri = $url = $data = $data_file = $ip = null;
+		$headers = $cookies = $variables = $files = array();
 		extract($settings, EXTR_IF_EXISTS);
-		
 		$this->set_method(firstarg($method, "GET"));
 		$this->uri = $uri;
 		$this->headers = is_array($headers) ? $headers : array();
