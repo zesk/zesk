@@ -1,3 +1,8 @@
+## Release v0.9.27
+
+- Version parse fixes to support A.B.C.D versions (fixing version parsing)
+- `Request::ip()` returns `array()` incorrectly
+
 ## Release v0.9.25
 
 - Fixing issue with `split_sql_commands` which did not work for large strings due to limits to PREG backtracking in PHP7. Modified algorithm to use alternate parsing mechanism.
