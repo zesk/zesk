@@ -1,5 +1,10 @@
 ## Release v0.9.27
 
+- `zesk version` fixing version parsing to support A.B.C.D type versions
+- `Request::ip()` returns `array()`
+
+## Release v0.9.27
+
 - Version parse fixes to support A.B.C.D versions (fixing version parsing)
 - `Request::ip()` returns `array()` incorrectly
 
