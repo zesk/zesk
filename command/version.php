@@ -1,9 +1,14 @@
 <?php
+
 namespace zesk;
 
 /**
  * Version editor allows you to modify and bump version numbers easily for releases.
- * 
+ *
+ * Default version scheme is `major.minor.maintenance[.patch][tag]`
+ *
+ * Where `major`, `minor`, `maintenance`, and `patch` are integers matching `[0-9]`.
+ *
  * @see http://semver.org/
  * @author kent
  */
@@ -12,6 +17,7 @@ class Command_Version extends Command_Base {
 		'tag' => 'string',
 		'major' => 'boolean',
 		'minor' => 'boolean',
+		'maintenance' => 'boolean',
 		'patch' => 'boolean',
 		'decrement' => 'boolean',
 		'zero' => 'boolean',
@@ -21,6 +27,7 @@ class Command_Version extends Command_Base {
 		'tag' => 'Set tag to this value',
 		'major' => 'Bump major version (cascades)',
 		'minor' => 'Bump minor version (cascades)',
+		'maintenance' => 'Bump maintenance version',
 		'patch' => 'Bump patch version',
 		'decrement' => 'Decrement version instead of increasing version (cascades)',
 		'zero' => 'Set version component to zero instead (cascades)',
@@ -49,7 +56,7 @@ class Command_Version extends Command_Base {
 	const EXIT_CODE_READER_FAILED = 3;
 	
 	/**
-	 * 
+	 *
 	 * @var integer
 	 */
 	const EXIT_CODE_PARSER_FAILED = 4;
@@ -62,19 +69,22 @@ class Command_Version extends Command_Base {
 	const EXIT_CODE_GENERATOR_FAILED = 5;
 	/**
 	 * Updated version but was not reflected as a change upon reparsing
+	 *
 	 * @var integer
 	 */
 	const EXIT_CODE_VERSION_UPDATE_UNCHANGED = 6;
 	
 	/**
-	 * 
+	 *
 	 * @var integer
 	 */
 	const EXIT_CODE_INIT_EXISTS = 7;
 	
 	/**
+	 * Written using functional form as an experiment to see how it feels. Not bad.
 	 * 
-	 * {@inheritDoc}
+	 * {@inheritdoc}
+	 *
 	 * @see \zesk\Command::run()
 	 */
 	public function run() {
@@ -124,11 +134,13 @@ class Command_Version extends Command_Base {
 		$zero = $this->option_bool("zero");
 		$reset = false;
 		$flags = array();
-		foreach (array(
+		$tokens = avalue($schema, 'tokens', array(
 			"major",
 			"minor",
+			"maintenance",
 			"patch"
-		) as $token) {
+		));
+		foreach ($tokens as $token) {
 			if ($this->option_bool($token)) {
 				$flags[] = "--$token";
 				$old_value = avalue($version_structure, $token, 0);
@@ -143,7 +155,7 @@ class Command_Version extends Command_Base {
 			}
 		}
 		$generator = $this->version_generator(avalue($schema, 'generator', [
-			"map" => "{major}.{minor}.{patch}{tag}"
+			"map" => "{major}.{minor}.{maintenance}.{patch}{tag}"
 		]));
 		try {
 			$new_version = $generator($version_structure);
@@ -254,17 +266,18 @@ class Command_Version extends Command_Base {
 		}
 	}
 	/**
-	 * 
-	 * @param array $__parser
+	 *
+	 * @param array $__parser        	
 	 * @throws Exception_Semantics
 	 * @return unknown|NULL
 	 */
 	private function version_parser(array $__parser) {
-		$pattern = "/([0-9]+)\\.([0-9]+)\\.([0-9]+)(\\.([0-9]+))?([a-z][a-z0-9]*)?/i";
+		$pattern = "/([0-9]+)\\.([0-9]+)\\.([0-9]+)(?:\\.([0-9]+))?([a-z][a-z0-9]*)?/i";
 		$matches = array(
 			"version",
 			"major",
 			"minor",
+			"maintenance",
 			"patch",
 			"tag"
 		);
