@@ -151,7 +151,7 @@ class Command_Version extends Command_Base {
 			} else if ($reset) {
 				$version_structure[$token] = 0;
 			} else {
-				$version_structure[$token] = intval($version_structure[$token]);
+				$version_structure[$token] = intval(avalue($version_structure, $token, 0));
 			}
 		}
 		$generator = $this->version_generator(avalue($schema, 'generator', [
