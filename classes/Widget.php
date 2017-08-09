@@ -1633,8 +1633,9 @@ class Widget extends Hookable {
 			// is generated.
 			$output = $this->render();
 			$this->_update_child_state(self::render);
+			return $this->exec_state = $this->unwrap_all($output);
 		}
-		return $this->exec_state = $this->unwrap_all($output);
+		return $this->exec_state;
 	}
 	
 	/**
