@@ -260,7 +260,7 @@ class Command_Version extends Command_Base {
 	 * @return unknown|NULL
 	 */
 	private function version_parser(array $__parser) {
-		$pattern = "/([0-9]+)\\.([0-9]+)\\.([0-9]+)([a-z][a-z0-9]*)?/i";
+		$pattern = "/([0-9]+)\\.([0-9]+)\\.([0-9]+)(\\.([0-9]+))?([a-z][a-z0-9]*)?/i";
 		$matches = array(
 			"version",
 			"major",

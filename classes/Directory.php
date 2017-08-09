@@ -308,7 +308,7 @@ class Directory extends Hookable {
 		$path = rtrim($path, "/");
 		$d = @opendir($path);
 		if (!$d) {
-			return false;
+			return array();
 		}
 		$r = array();
 		$options['add_path'] = false;
