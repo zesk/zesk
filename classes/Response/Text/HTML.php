@@ -154,9 +154,9 @@ class Response_Text_HTML extends Response_Text {
 	protected $page_theme = "page";
 	
 	/**
-	 * 
-	 * @param Application $application
-	 * @param array $options
+	 *
+	 * @param Application $application        	
+	 * @param array $options        	
 	 */
 	public function __construct(Application $application, $options = null) {
 		global $zesk;
@@ -171,8 +171,8 @@ class Response_Text_HTML extends Response_Text {
 	}
 	
 	/**
-	 * 
-	 * @param Kernel $zesk
+	 *
+	 * @param Kernel $zesk        	
 	 */
 	public static function hooks(Kernel $zesk) {
 		$zesk->configuration->deprecated("body-attributes", array(
@@ -192,8 +192,8 @@ class Response_Text_HTML extends Response_Text {
 	/**
 	 * Set arbitrary HTML to place at the beginning of the <head> tag
 	 *
-	 * @param string $set
-	 * @param boolean $prepend
+	 * @param string $set        	
+	 * @param boolean $prepend        	
 	 * @return string
 	 */
 	function head_prefix($set = null, $prepend = true) {
@@ -206,8 +206,8 @@ class Response_Text_HTML extends Response_Text {
 	/**
 	 * Set arbitrary HTML to place at the end of the <head> tag
 	 *
-	 * @param string $set
-	 * @param boolean $append
+	 * @param string $set        	
+	 * @param boolean $append        	
 	 * @return string
 	 */
 	function head_suffix($set = null, $append = true) {
@@ -220,8 +220,8 @@ class Response_Text_HTML extends Response_Text {
 	/**
 	 * Set/get page title
 	 *
-	 * @param string $set
-	 * @param string $overwrite
+	 * @param string $set        	
+	 * @param string $overwrite        	
 	 * @return string
 	 */
 	function title($set = null, $overwrite = true) {
@@ -262,8 +262,8 @@ class Response_Text_HTML extends Response_Text {
 	/**
 	 * Get/set body attributes
 	 *
-	 * @param string $add
-	 * @param string $value
+	 * @param string $add        	
+	 * @param string $value        	
 	 * @return Response_Text_HTML|string
 	 */
 	final public function body_attributes($add = null, $value = null) {
@@ -280,8 +280,8 @@ class Response_Text_HTML extends Response_Text {
 	/**
 	 * Get/set HTML attributes
 	 *
-	 * @param string $add
-	 * @param string $value
+	 * @param string $add        	
+	 * @param string $value        	
 	 * @return Response_Text_HTML|string
 	 */
 	function html_attributes($add = null, $value = null) {
@@ -298,7 +298,7 @@ class Response_Text_HTML extends Response_Text {
 	/**
 	 * Get/set meta keywords
 	 *
-	 * @param string $content
+	 * @param string $content        	
 	 * @return Response_Text_HTML|string
 	 */
 	function meta_keywords($content = null) {
@@ -308,7 +308,7 @@ class Response_Text_HTML extends Response_Text {
 	/**
 	 * Get/set meta description text
 	 *
-	 * @param string $content
+	 * @param string $content        	
 	 * @return Response_Text_HTML|string
 	 */
 	function meta_description($content = null) {
@@ -318,8 +318,8 @@ class Response_Text_HTML extends Response_Text {
 	/**
 	 * Get/set meta tags
 	 *
-	 * @param string $name
-	 * @param string $content
+	 * @param string $name        	
+	 * @param string $content        	
 	 * @return Response_Text_HTML|this
 	 */
 	function meta($name = null, $content = null) {
@@ -343,8 +343,8 @@ class Response_Text_HTML extends Response_Text {
 	/**
 	 * Set Meta HTTP tag
 	 *
-	 * @param string $name
-	 * @param string $content
+	 * @param string $name        	
+	 * @param string $content        	
 	 * @return Response_Text_HTML
 	 */
 	function meta_http($name, $content) {
@@ -370,7 +370,7 @@ class Response_Text_HTML extends Response_Text {
 	/**
 	 * Get/Set shortcut icon
 	 *
-	 * @param string $path
+	 * @param string $path        	
 	 * @return Response_Text_HTML|string
 	 */
 	function shortcut_icon($set = null) {
@@ -380,7 +380,7 @@ class Response_Text_HTML extends Response_Text {
 	/**
 	 * Get/Set shortcut icon hosted on CDN
 	 *
-	 * @param string $path
+	 * @param string $path        	
 	 * @return Response_Text_HTML|string
 	 */
 	function cdn_shortcut_icon($set = null) {
@@ -390,8 +390,8 @@ class Response_Text_HTML extends Response_Text {
 	/**
 	 * Get/Set shortcut icon internally
 	 *
-	 * @param string $path
-	 * @param string $cdn
+	 * @param string $path        	
+	 * @param string $cdn        	
 	 */
 	private function _shortcut_icon($path = null, $cdn = false) {
 		if ($path === null) {
@@ -411,9 +411,9 @@ class Response_Text_HTML extends Response_Text {
 	 *
 	 * @param string $rel
 	 *        	Link rel=""
-	 * @param string $path
-	 * @param string $type
-	 * @param array $attrs
+	 * @param string $path        	
+	 * @param string $type        	
+	 * @param array $attrs        	
 	 * @throws Exception_Semantics
 	 * @return Response_Text_HTML|array
 	 */
@@ -517,8 +517,8 @@ class Response_Text_HTML extends Response_Text {
 	/**
 	 * Add a CSS to the page
 	 *
-	 * @param string $path
-	 * @param array $options
+	 * @param string $path        	
+	 * @param array $options        	
 	 * @return Response_Text_HTML|string
 	 */
 	function cdn_css($path = null, $options = null) {
@@ -547,7 +547,7 @@ class Response_Text_HTML extends Response_Text {
 	/**
 	 * Output links
 	 *
-	 * @param array $options
+	 * @param array $options        	
 	 * @return string
 	 */
 	function links(array $options = array()) {
@@ -567,7 +567,7 @@ class Response_Text_HTML extends Response_Text {
 	/**
 	 * Retrieve link tags in unrendered form for output via JSON or other mechanism
 	 *
-	 * @param array $options
+	 * @param array $options        	
 	 * @return array
 	 */
 	function link_tags(array $options = array()) {
@@ -648,9 +648,9 @@ class Response_Text_HTML extends Response_Text {
 	}
 	
 	/**
-	 * 
-	 * @param string $resource_path
-	 * @param unknown $route_expire
+	 *
+	 * @param string $resource_path        	
+	 * @param unknown $route_expire        	
 	 */
 	private function resource_path_route($resource_path, $route_expire) {
 		global $zesk;
@@ -680,8 +680,8 @@ class Response_Text_HTML extends Response_Text {
 	/**
 	 * Given a path, retrieve the actual resource path with a timestamp for cachebusting
 	 *
-	 * @param string $_path
-	 * @param array $attributes
+	 * @param string $_path        	
+	 * @param array $attributes        	
 	 * @return string
 	 */
 	protected function resource_path($_path, array $attributes) {
@@ -717,7 +717,7 @@ class Response_Text_HTML extends Response_Text {
 	/**
 	 * Utility function to determine the date of a file
 	 *
-	 * @param string $path
+	 * @param string $path        	
 	 * @param array $attributes
 	 *        	Passed to resource_path
 	 * @return array First item is the URI, 2nd is the full path to the file
@@ -748,10 +748,10 @@ class Response_Text_HTML extends Response_Text {
 	/**
 	 * Internal function to process CSS and cache it
 	 *
-	 * @param string $src
-	 * @param string $file
-	 * @param string $dest
-	 * @param string $contents
+	 * @param string $src        	
+	 * @param string $file        	
+	 * @param string $dest        	
+	 * @param string $contents        	
 	 * @return string
 	 */
 	protected function hook_process_cached_css($src, $file, $dest, $contents) {
@@ -825,10 +825,10 @@ class Response_Text_HTML extends Response_Text {
 	/**
 	 * Internal function to process cached datatypes (CSS/JavaScript)
 	 *
-	 * @param string $src
-	 * @param string $file
-	 * @param string $dest
-	 * @param string $extension
+	 * @param string $src        	
+	 * @param string $file        	
+	 * @param string $dest        	
+	 * @param string $extension        	
 	 * @return string
 	 */
 	private function process_cached_type($src, $file, $dest, $extension) {
@@ -844,7 +844,8 @@ class Response_Text_HTML extends Response_Text {
 	
 	/**
 	 * Cache files in the resource paths tend to grow, particularly
-	 * @param string $extension
+	 * 
+	 * @param string $extension        	
 	 */
 	public function clean_resource_caches($extension = null) {
 		global $zesk;
@@ -862,19 +863,21 @@ class Response_Text_HTML extends Response_Text {
 		$now = time();
 		$modified_after = $now - $expire_seconds;
 		$deleted = array();
-		foreach ($files as $file) {
-			if (!is_file($file)) {
-				continue;
-			}
-			$filemtime = filemtime($file);
-			if ($filemtime < $modified_after) {
-				$zesk->logger->debug("Deleting old file {file} modified on {when}, more than {delta} seconds ago", array(
-					"file" => $file,
-					"when" => date("Y-m-d H:i:s"),
-					"delta" => $now - $filemtime
-				));
-				@unlink($file);
-				$deleted[] = $file;
+		if ($files) {
+			foreach ($files as $file) {
+				if (!is_file($file)) {
+					continue;
+				}
+				$filemtime = filemtime($file);
+				if ($filemtime < $modified_after) {
+					$zesk->logger->debug("Deleting old file {file} modified on {when}, more than {delta} seconds ago", array(
+						"file" => $file,
+						"when" => date("Y-m-d H:i:s"),
+						"delta" => $now - $filemtime
+					));
+					@unlink($file);
+					$deleted[] = $file;
+				}
 			}
 		}
 		$zesk->logger->notice("Deleted {deleted} files from cache directory at {path} (Expire after {expire_seconds} seconds)", array(
@@ -887,9 +890,9 @@ class Response_Text_HTML extends Response_Text {
 	
 	/**
 	 * Return the href for our resource cache
-	 * 
-	 * @param string $extension
-	 * @param string $filename
+	 *
+	 * @param string $extension        	
+	 * @param string $filename        	
 	 * @return string
 	 */
 	private function resource_cache_href($extension = null, $filename = null) {
@@ -905,9 +908,9 @@ class Response_Text_HTML extends Response_Text {
 	
 	/**
 	 * Return the absolute path of our resource cache
-	 * 
-	 * @param string $extension
-	 * @param string $filename
+	 *
+	 * @param string $extension        	
+	 * @param string $filename        	
 	 * @return string
 	 */
 	private function resource_cache_path($extension = null, $filename = null) {
@@ -919,9 +922,9 @@ class Response_Text_HTML extends Response_Text {
 	/**
 	 * Run JavaScript/CSS concatenation
 	 *
-	 * @param array $cached
-	 * @param string $extension
-	 * @param string $hook
+	 * @param array $cached        	
+	 * @param string $extension        	
+	 * @param string $hook        	
 	 * @return string
 	 */
 	private function resource_cache(array $cached, $extension, $hook, &$debug) {
@@ -966,8 +969,8 @@ class Response_Text_HTML extends Response_Text {
 	/**
 	 * Run CSS caching
 	 *
-	 * @param array $cached
-	 * @param string $media
+	 * @param array $cached        	
+	 * @param string $media        	
 	 * @return array
 	 */
 	private function resource_cache_css(array $cached, $media = "screen") {
@@ -988,7 +991,7 @@ class Response_Text_HTML extends Response_Text {
 	/**
 	 * Run Script caching
 	 *
-	 * @param array $cached
+	 * @param array $cached        	
 	 * @return multitype:string multitype:string
 	 */
 	private function resource_cache_scripts(array $cached) {
@@ -1162,8 +1165,8 @@ class Response_Text_HTML extends Response_Text {
 	/**
 	 * Internal function to add script tag
 	 *
-	 * @param string $path
-	 * @param array $options
+	 * @param string $path        	
+	 * @param array $options        	
 	 * @throws Exception_Semantics
 	 * @return Response_Text_HTML
 	 */
@@ -1214,8 +1217,8 @@ class Response_Text_HTML extends Response_Text {
 	
 	/**
 	 * Add to JavaScript script settings
-	 * 
-	 * @param array $settings
+	 *
+	 * @param array $settings        	
 	 */
 	public final function javascript_settings(array $settings = null) {
 		if ($settings === null) {
@@ -1293,8 +1296,8 @@ class Response_Text_HTML extends Response_Text {
 	/**
 	 * Include JavaScript to be included inline in the page
 	 *
-	 * @param string $script
-	 * @param string $options
+	 * @param string $script        	
+	 * @param string $options        	
 	 * @return Response_Text_HTML
 	 */
 	function javascript_inline($script, $options = null) {
@@ -1382,8 +1385,8 @@ class Response_Text_HTML extends Response_Text {
 	/**
 	 * Require jQuery on the page, and optionally add a ready script
 	 *
-	 * @param string $add_ready_script
-	 * @param string $weight
+	 * @param string $add_ready_script        	
+	 * @param string $weight        	
 	 */
 	function jquery($add_ready_script = null, $weight = null) {
 		$weight = intval($weight);
@@ -1405,12 +1408,13 @@ class Response_Text_HTML extends Response_Text {
 	 * Internal function to conditionally wrap script tags with browser conditions.
 	 *
 	 * Notice how some companies *need* to be special in this way.
-	 * 
-	 * Avoid this like the plague, if possible. Unfortunately, crappy browser software may require it.
+	 *
+	 * Avoid this like the plague, if possible. Unfortunately, crappy browser software may require
+	 * it.
 	 *
 	 * @param string $browser
 	 *        	Browser code
-	 *
+	 *        	
 	 * @return array($prefix, $suffix)
 	 */
 	private function browser_conditionals($browser) {
@@ -1466,7 +1470,7 @@ class Response_Text_HTML extends Response_Text {
 	 * html-transitional
 	 * xhtml-transitional
 	 *
-	 * @param string $set
+	 * @param string $set        	
 	 * @return Response_Text_HTML|string
 	 */
 	final function doctype($set = null) {
@@ -1556,8 +1560,8 @@ class Response_Text_HTML extends Response_Text {
 	
 	/**
 	 * Set the page theme to use to render the final HTML output
-	 * 
-	 * @param null|string $set
+	 *
+	 * @param null|string $set        	
 	 * @return \zesk\Response_Text_HTML|string
 	 */
 	public function page_theme($set = false) {
@@ -1569,7 +1573,7 @@ class Response_Text_HTML extends Response_Text {
 	}
 	/**
 	 * Removes all external links (CSS, JavaScript) from this response
-	 * 
+	 *
 	 * Useful for rendering emails on the page
 	 */
 	public function output(array $options = array()) {
