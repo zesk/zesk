@@ -89,6 +89,7 @@ class Control_Pager extends Control {
 		$options['onchange'] = $onchange;
 		$options['default'] = $this->request->geti('limit', $this->limit_default());
 		$options['skip_query_condition'] = true;
+		$options['query_column'] = array();
 		
 		return $this->widget_factory("Control_Select")
 			->names('limit')

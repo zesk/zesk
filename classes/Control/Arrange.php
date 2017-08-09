@@ -19,6 +19,7 @@ class Control_Arrange extends Control_Select {
 
 	protected function initialize() {
 		$this->set_option("skip_query_condition", true);
+		$this->set_option("query_column", array());
 		$this->_clean();
 		parent::initialize();
 	}
