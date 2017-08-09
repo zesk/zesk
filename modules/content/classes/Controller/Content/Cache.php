@@ -1,23 +1,24 @@
 <?php
+
 /**
  * 
  */
 namespace zesk;
 
 /**
- * 
- * @author kent
  *
+ * @author kent
+ *        
  */
 class Controller_Content_Cache extends Controller_Cache {
 	/**
-	 * 
+	 *
 	 * @var string
 	 */
 	const image_variation_default = "default";
 	
 	/**
-	 * 
+	 *
 	 * @return mixed|mixed[]|\zesk\Configuration
 	 */
 	public static function cache_prefix() {
@@ -27,10 +28,10 @@ class Controller_Content_Cache extends Controller_Cache {
 	}
 	
 	/**
-	 * 
+	 *
 	 * @todo Use app()->document_cache()?
-	 * 
-	 * @param Content_Image $image
+	 *      
+	 * @param Content_Image $image        	
 	 */
 	public static function image_changed(Content_Image $image) {
 		/* @var $zesk zesk\Kernel */
@@ -51,8 +52,8 @@ class Controller_Content_Cache extends Controller_Cache {
 	/**
 	 * Return the url for an image
 	 *
-	 * @param Content_Image $image
-	 * @param Router $router
+	 * @param Content_Image $image        	
+	 * @param Router $router        	
 	 * @return string
 	 */
 	public static function url_content_image(Content_Image $image, $style = null) {
@@ -63,10 +64,10 @@ class Controller_Content_Cache extends Controller_Cache {
 	}
 	
 	/**
-	 * 
-	 * @param Content_Image $image
-	 * @param unknown $width
-	 * @param unknown $height
+	 *
+	 * @param Content_Image $image        	
+	 * @param unknown $width        	
+	 * @param unknown $height        	
 	 * @return string
 	 */
 	public static function url_content_image_scaled(Content_Image $image, $width = null, $height = null) {
@@ -75,8 +76,8 @@ class Controller_Content_Cache extends Controller_Cache {
 	}
 	
 	/**
-	 * 
-	 * @param string $url
+	 *
+	 * @param string $url        	
 	 * @return Content_Image|null
 	 */
 	public static function image_from_url($url) {
@@ -93,10 +94,9 @@ class Controller_Content_Cache extends Controller_Cache {
 	
 	/**
 	 *
-	 *
-	 * @param integer $id
-	 * @param string $styles
-	 * @param string $file
+	 * @param integer $id        	
+	 * @param string $styles        	
+	 * @param string $file        	
 	 */
 	protected function action_image($id, $styles = null, $file = null) {
 		try {
@@ -110,7 +110,13 @@ class Controller_Content_Cache extends Controller_Cache {
 				}
 				return $this->_correct_url_redirect($image_file, $styles);
 			}
-			$data = $image->data->data();
+			$image_data = $image->data;
+			if (!$image_data instanceof Content_Data) {
+				$this->response->status(404, "Not Found");
+				$this->response->cache_for(60, Response::cache_path);
+				return;
+			}
+			$data = $image_data->data();
 			if ($commands) {
 				$data = $this->apply_commands($commands, $data);
 			}
@@ -118,12 +124,13 @@ class Controller_Content_Cache extends Controller_Cache {
 		} catch (Exception_Object_NotFound $e) {
 			$this->response->status(404, "Not Found");
 			$this->response->cache_for(60, Response::cache_path);
+			return;
 		}
 	}
 	
 	/**
 	 *
-	 * @param unknown $styles
+	 * @param unknown $styles        	
 	 * @return array|null
 	 */
 	protected function parse_commands(Content_Image $image, $styles) {
@@ -153,9 +160,9 @@ class Controller_Content_Cache extends Controller_Cache {
 	}
 	
 	/**
-	 * 
-	 * @param array $commands
-	 * @param unknown $data
+	 *
+	 * @param array $commands        	
+	 * @param unknown $data        	
 	 * @return mixed|NULL|string|\zesk\NULL
 	 */
 	protected function apply_commands(array $commands, $data) {
@@ -175,8 +182,8 @@ class Controller_Content_Cache extends Controller_Cache {
 	}
 	
 	/**
-	 * 
-	 * @param array $command
+	 *
+	 * @param array $command        	
 	 * @return string
 	 */
 	protected function hook_image_scale(array $command) {
@@ -190,8 +197,9 @@ class Controller_Content_Cache extends Controller_Cache {
 	}
 	
 	/**
-	 * 
-	 * {@inheritDoc}
+	 *
+	 * {@inheritdoc}
+	 *
 	 * @see Controller::get_route_map()
 	 */
 	public function get_route_map($action = null, $object = null, $options = null) {
