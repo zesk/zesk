@@ -1453,7 +1453,7 @@ class Class_Object extends Hookable {
 		}
 		if ($table === true) {
 			// Clean up reference
-			$table = avalue($object->has_many_object($my_class), 'table');
+			$table = avalue($object->class_object()->has_many_object($class), 'table');
 			if (!is_string($table)) {
 				throw new Exception_Semantics("{my_class} references table in {class}, but no table found for have_many", compact("my_class", "class"));
 			}

@@ -8,6 +8,11 @@
  */
 namespace zesk;
 
+/**
+ * @see Class_Contact_Tag
+ * @author kent
+ *
+ */
 class Contact_Tag extends Object {
 	public static function register_tag($name, $user) {
 		$x = new self(array(

@@ -9,7 +9,8 @@ class Class_Contact extends Class_Object {
 	public $has_many = array(
 		"tags" => array(
 			'class' => 'zesk\\Contact_Tag',
-			'table' => true, // Use Contact_Tag's concept of the table,'foreign_key' => 'contact'
+			'link_class' => 'zesk\\Contact_Tag_Contact',
+			'far_key' => 'contact_tag'
 			'foreign_key' => 'contact'
 		),
 		"emails" => array(
@@ -36,12 +37,6 @@ class Class_Contact extends Class_Object {
 			'class' => 'zesk\\Contact_Other',
 			'foreign_key' => 'contact'
 		),
-		'accounts' => array(
-			'class' => 'Account',
-			'table' => true,
-			'far_key' => 'account',
-			'foreign_key' => 'contact'
-		)
 	);
 	public $has_one = array(
 		"email" => 'zesk\\Contact_Email',

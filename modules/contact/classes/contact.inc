@@ -10,7 +10,7 @@ namespace zesk;
 
 /**
  *
- * @see Class_Zesk_Contact
+ * @see Class_Contact
  * @author kent
  *
  */

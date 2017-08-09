@@ -7,10 +7,3 @@ create table `{table}` (
 	key `aname` (`user`,`name`)
 );
 
-create table `{table}_contact` (
-	`contact_tag` integer unsigned not null,
-	`contact` integer unsigned not null,
-	key contact_tag (`contact_tag`),
-	key contact (`contact`)
-);
-
