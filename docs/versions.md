@@ -9,6 +9,7 @@
 - `zesk\Directory::list_recursive`: if `opendir` fails on a directory, return an array instead of false
 - `Controller_Content_Cache` fixing issue with `Content_Image` data being `null`
 - Updating the `version` command to support custom version layouts properly
+
 ## Release v0.9.27
 
 - Version parse fixes to support A.B.C.D versions (fixing version parsing)
