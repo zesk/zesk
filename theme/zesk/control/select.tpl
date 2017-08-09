@@ -1,11 +1,12 @@
 <?php
+
 /**
  * @copyright &copy; 2016 Market Acumen, Inc.
  */
 namespace zesk;
 
-/* @var $object \Model */
-/* @var $widget \Control_Select */
+/* @var $object Model */
+/* @var $widget Control_Select */
 /* @var $column string */
 /* @var $name string */
 /* @var $value string|array */
@@ -40,9 +41,9 @@ if ($array_index !== false && is_array($value)) {
 }
 $optgroup = to_bool($this->optgroup);
 unset($attributes['name']);
-if ($widget->option("hide_single", $widget->required()) && (count($options) === 1 && $optgroup === false)) {
+if ($widget->is_single()) {
 	if ($widget->option('hide_single_text')) {
-		$single_tag_contents = "";
+		$single_tag_contents = strval($widget->option("hide_single_text"));
 	} else {
 		reset($options);
 		$single_tag_contents = current($options);

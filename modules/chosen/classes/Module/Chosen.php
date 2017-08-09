@@ -36,7 +36,7 @@ class Module_Chosen extends Module_JSLib {
 		foreach ($classes as $class) {
 			$chosen = $this;
 			$hooks->add("$class::initialized", function (Control_Select $widget) use ($chosen) {
-				if ($widget->option_bool("skip-chosen")) {
+				if ($widget->option_bool("skip-chosen") || $widget->is_single()) {
 					return;
 				}
 				$widget->add_class("chosen-select");
