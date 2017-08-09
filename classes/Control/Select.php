@@ -119,12 +119,45 @@ class Control_Select extends Control_Optionss {
 	function multiple($set = null) {
 		return ($set !== null) ? $this->set_option('multiple', to_bool($set)) : $this->option_bool('multiple', false);
 	}
+	
+	/**
+	 * Set to TRUE to force single values to be hidden or displayed using an alternate output
+	 * 
+	 * @param unknown $set
+	 * @return void|mixed|boolean
+	 */
 	function hide_single($set = null) {
 		return ($set !== null) ? $this->set_option('hide_single', to_bool($set)) : $this->option_bool('hide_single', true);
 	}
+	
+	/**
+	 * Getter/setter. When set to true, outputs hidden input when single option exists.
+	 * 
+	 * @param boolean $set 
+	 * @return boolean|self
+	 */
 	function hide_single_text($set = null) {
 		return ($set !== null) ? $this->set_option('hide_single_text', to_bool($set)) : $this->option_bool('hide_single_text');
 	}
+	
+	/**
+	 * 
+	 * @return boolean
+	 */
+	function is_single() {
+		$optgroup = $this->option_bool("optgroup");
+		return $this->option("hide_single", $this->required()) && (count($this->control_options) === 1 && $optgroup === false);
+	}
+	/**
+	 * Getter/setter the single_tag attribute - The HTML tag used to delimit a selection list with one item, instead of the usual `select` tag.
+	 * 
+	 * You can set attributes for this tag using self::single_tag_attributes($attributes);
+	 * 
+	 * Only used when a single item would output, and "hide_single" is active, or the item is required, or 
+	 * 
+	 * @param string|false $set HTML Tag or false to dis
+	 * @return void|mixed|string|array
+	 */
 	function single_tag($set = null) {
 		return ($set !== null) ? $this->set_option('single_tag', $set) : $this->option('single_tag');
 	}
