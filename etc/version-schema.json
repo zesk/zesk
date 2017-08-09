@@ -1,3 +1,11 @@
 {
-	"file": "etc/db/release"
+	"file": "etc/db/release",
+	"parser": {
+		"pattern": "/([0-9]+)\\.([0-9]+)\\.([0-9]+)/",
+		"matches": ["version","major","minor","patch"]
+	},
+	"generator": {
+		"map": "{major}.{minor}.{patch}"
+	},
+	"tokens": ["major","minor","patch"]
 }
