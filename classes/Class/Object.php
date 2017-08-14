@@ -68,7 +68,7 @@ class Class_Object extends Hookable {
 	const type_modified = "modified";
 	
 	/**
-	 * String information called using serialize/unserialize
+	 * String information called using serialize/unserialize. Column should be a blob (not text)
 	 *
 	 * @var string
 	 */
@@ -204,7 +204,7 @@ class Class_Object extends Hookable {
 	public $database_name = null;
 	
 	/**
-	 * Name of the Object which should share this database with.
+	 * Name of the Object which should share this database with. String must contain namespace prefix, if any.
 	 *
 	 * Allows objects to be grouped into a database (by module) or functionality, for example.
 	 *
