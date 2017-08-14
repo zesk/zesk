@@ -10,7 +10,6 @@ namespace zesk;
 /* @var $object Object */
 /* @var $request Request */
 /* @var $router Router */
-
 try {
 	$url = $router->get_route('edit', $this->list_class, array(
 		"id" => $this->object

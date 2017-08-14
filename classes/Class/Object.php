@@ -234,8 +234,10 @@ class Class_Object extends Hookable {
 	public $table = null;
 	
 	/**
-	 * English name of this object for possible display.
+	 * English name of this object for possible display (sorry...)
+	 * 
 	 * If not specified, class name.
+	 * 
 	 * e.g.
 	 * <code>
 	 * protected	$name = "Article Comment";

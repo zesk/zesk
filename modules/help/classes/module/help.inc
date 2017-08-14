@@ -288,7 +288,7 @@ class Module_Help extends Module_JSLib {
 		$application = $this->application;
 		$ids = $request->geta('id', array());
 		foreach ($ids as $id) {
-			$help = $application->object_factory('Help', $id)->fetch();
+			$help = $application->object_factory('zesk\\Help', $id)->fetch();
 			if ($help) {
 				$application->object_factory('zesk\\Help_User', array(
 					'help' => $help,
