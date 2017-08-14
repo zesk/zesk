@@ -1,3 +1,8 @@
+## Release v0.9.29
+
+- Added debugging template for `inplace` pages to determine class used, left for possible later use
+- Proper `zesk\` namespace for many objects in the system
+
 ## Release v0.9.28
 
 - Adding maintenance tag as default version `1.2.{maintenance}.0`
