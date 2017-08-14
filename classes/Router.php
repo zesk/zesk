@@ -504,6 +504,7 @@ class Router extends Hookable {
 			return $route;
 		}
 		foreach ($class_actions as $class => $actions) {
+			$class = $this->application->objects->resolve($class);
 			foreach ($actions as $action) {
 				$this->reverse_routes[strtolower($class)][strtolower($action)][] = $route;
 			}
@@ -583,6 +584,7 @@ class Router extends Hookable {
 	 * @return string|Ambigous <string, mixed, number>
 	 */
 	function get_route($action, $object = null, $options = null) {
+		$app = $this->application;
 		if (is_string($options) && begins($options, "?")) {
 			$options = array(
 				'query' => URL::query_parse($options)
@@ -593,8 +595,7 @@ class Router extends Hookable {
 			$options += $this->route->arguments_named();
 		}
 		if (is_object($object)) {
-			global $zesk;
-			$try_classes = $zesk->classes->hierarchy($object, "zesk\\Model");
+			$try_classes = $app->zesk->classes->hierarchy($object, "zesk\\Model");
 			$options += $object->call_hook_arguments("route_options", array(
 				$this,
 				$action
@@ -615,7 +616,7 @@ class Router extends Hookable {
 				$action,
 				"*"
 			) as $try_action) {
-				$try_class = strtolower($try_class);
+				$try_class = strtolower($app->objects->resolve($try_class));
 				$try_actions = avalue($this->reverse_routes, $try_class);
 				if (!is_array($try_actions)) {
 					continue;
