@@ -69,7 +69,7 @@ class Options implements \ArrayAccess {
 	 */
 	function __sleep() {
 		return array(
-				"options"
+			"options"
 		);
 	}
 	private static $option_references = array();
@@ -129,6 +129,9 @@ class Options implements \ArrayAccess {
 	final function inherit_global_options($class = null) {
 		if ($class === null) {
 			$class = get_class($this);
+		}
+		if (is_object($class)) {
+			$class = get_class($class);
 		}
 		$options = self::default_options($class);
 		foreach ($options as $key => $value) {
@@ -280,7 +283,7 @@ class Options implements \ArrayAccess {
 		$current_value = avalue($this->options, $name);
 		if (is_scalar($current_value) && $current_value !== null && $current_value !== false) {
 			$this->options[$name] = array(
-					$current_value
+				$current_value
 			);
 		}
 		$this->options[$name][] = $value;
@@ -421,9 +424,9 @@ class Options implements \ArrayAccess {
 			return $result;
 		}
 		return strtolower(strtr(trim($name), array(
-				"-" => self::option_space,
-				"_" => self::option_space,
-				" " => self::option_space
+			"-" => self::option_space,
+			"_" => self::option_space,
+			" " => self::option_space
 		)));
 	}
 	
