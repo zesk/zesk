@@ -551,15 +551,18 @@ class Configuration implements \Iterator, \Countable, \ArrayAccess {
 			zesk()->logger->warning("Global configuration option {old_path} is deprecated, remove it", compact("old_path"));
 			return true;
 		}
+		$message_args = array();
 		if (!$this->path_exists($new_path)) {
-			$this->path_set($new_path, $this->path_get($old_path));
-			$message = "Global configuration option {old_path} is deprecated, use existing {new_path}";
+			$this->path_set($new_path, $old_value);
+			$message = "Global configuration option \"{old_path}\" is deprecated ({old_value}), use existing \"{new_path}\"";
+			$message_args['old_value'] = to_array($old_value);
 		} else {
 			$new_value = $this->walk($new_path);
 			if ($new_value instanceof self && $old_value instanceof self) {
-				$message = "Global configuration option {old_path} is deprecated, use existing {new_path} (merged)";
+				$message = "Global configuration option {old_path} is deprecated ({old_value}), use existing \"{new_path}\" (merged)";
 				$new_value->merge($old_value);
 				$this->path_set($old_path, null);
+				$message_args['old_value'] = to_array($old_value);
 			} else {
 				$message = "Global configuration option {old_path} ({old_type}) is deprecated, use existing {new_path} (NOT merged)";
 			}
@@ -570,7 +573,7 @@ class Configuration implements \Iterator, \Countable, \ArrayAccess {
 		if (is_array($new_path)) {
 			$new_path = implode(self::key_separator, $new_path);
 		}
-		$message_args = compact("old_path", "new_path") + array(
+		$message_args += compact("old_path", "new_path") + array(
 			"old_type" => type($old_value)
 		);
 		zesk()->logger->warning($message, $message_args);
