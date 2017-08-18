@@ -394,16 +394,16 @@ class Kernel {
 		if ($this->deprecated) {
 			switch ($this->deprecated) {
 				case self::deprecated_exception:
-					throw new Exception_Deprecated("${reason} deprecated function called: {calling_function}\n{backtrace}", array(
+					throw new Exception_Deprecated("${reason} Deprecated: {calling_function}\n{backtrace}", array(
 						"reason" => $reason,
 						"calling_function" => calling_function(),
-						"backtrace" => _backtrace()
+						"backtrace" => _backtrace(4)
 					) + $arguments);
 				case self::deprecated_log:
-					$this->logger->error("${reason} deprecated function called: {calling_function}\n{backtrace}", array(
+					$this->logger->error("${reason} Deprecated: {calling_function}\n{backtrace}", array(
 						"reason" => $reason ? $reason : "DEPRECATED",
 						"calling_function" => calling_function(),
-						"backtrace" => _backtrace()
+						"backtrace" => _backtrace(4)
 					) + $arguments);
 					break;
 				case self::deprecated_backtrace:
