@@ -292,6 +292,15 @@ class Application extends Hookable implements Interface_Theme {
 	 * @param unknown $options        	
 	 */
 	public function __construct($options = null) {
+		$this->_initialize($options);
+	}
+	
+	/**
+	 * 
+	 * @param array $options
+	 * @throws Exception_Unimplemented
+	 */
+	protected function _initialize($options = null) {
 		// Make kernel variables easily accessed
 		/* @var $zesk Kernel */
 		$this->zesk = $zesk = zesk();
@@ -303,8 +312,41 @@ class Application extends Hookable implements Interface_Theme {
 		$this->objects = $zesk->objects;
 		$this->process = $zesk->process;
 		
-		foreach ($this->object_aliases as $parent => $child) {
-			$this->objects->map($parent, $child);
+		$this->module_path = array();
+		$this->zesk_command_path = array();
+		$this->theme_path = array();
+		$this->share_path = array();
+		$this->cache_path = null;
+		$this->document = null;
+		$this->document_prefix = '';
+		$this->document_cache = null;
+		$this->template_stack = null;
+		$this->template = null;
+		$this->theme_stack = null;
+		$this->configured_was_run = false;
+		
+		$this->command = null;
+		$this->request = null;
+		$this->router = null;
+		$this->route = null;
+		$this->response = null;
+		$this->session = null;
+		
+		// $this->load_modules is set in subclasses
+		// $this->object_aliases is set in subclasses
+		// $this->file is set in subclasses
+		// $this->variables is set in subclasses
+		// $this->register_hooks is set in subclasses
+		// $this->object_classes is set in subclasses
+		//
+		
+		// $this->includes is set in subclasses?
+		// $this->include_paths is set in subclasses?
+		// $this->template_variables is set in application itself?
+		$this->template_variables = array();
+		
+		foreach ($this->object_aliases as $requested => $resolved) {
+			$this->objects->map($requested, $resolved);
 		}
 		
 		parent::__construct($options);
@@ -560,9 +602,6 @@ class Application extends Hookable implements Interface_Theme {
 		
 		$this->call_hook('configured_files');
 		
-		if (is_array($this->internal_modules)) {
-			throw new Exception_Unimplemented(__CLASS__ . "::\$internal_modules no longer supported");
-		}
 		$this->modules->load($this->load_modules);
 		
 		// Reload application options
@@ -646,6 +685,7 @@ class Application extends Hookable implements Interface_Theme {
 	 * @see Application::configure
 	 */
 	public function reconfigure() {
+		$this->_initialize();
 		$result = $this->_configure(to_array(self::$configuration_options));
 		$this->_configured();
 		return $result;
@@ -1229,6 +1269,9 @@ class Application extends Hookable implements Interface_Theme {
 	 * @return multitype:
 	 */
 	public function schema_synchronize(Database $db = null, array $classes = null, array $options = array()) {
+		if ($this->objects !== $this->zesk->objects) {
+			die("App objects mismatch kernel " . __FILE__ . ":" . __LINE__);
+		}
 		if (!$db) {
 			$db = $this->database_factory();
 		}
@@ -1248,6 +1291,21 @@ class Application extends Hookable implements Interface_Theme {
 		$follow = avalue($options, 'follow', true);
 		while (count($classes) > 0) {
 			$class = array_shift($classes);
+			if (stripos($class, 'user_role')) {
+				$logger->debug("{method}: Object map is: {map}", array(
+					"method" => __METHOD__,
+					"map" => _dump($this->objects->map()),
+					"class" => $class
+				));
+			}
+			$resolved_class = $this->objects->resolve($class);
+			if ($resolved_class !== $class) {
+				$logger->debug("{resolved_class} resolved to {class}", array(
+					"resolved_class" => $resolved_class,
+					"class" => $class
+				));
+			}
+			$class = $resolved_class;
 			$lowclass = strtolower($class);
 			if (avalue($objects_by_class, $lowclass)) {
 				continue;
@@ -1275,6 +1333,18 @@ class Application extends Hookable implements Interface_Theme {
 				if ($object_db_name !== $db->code_name()) {
 					$other_updates[$object_db_name] = true;
 					$updates = array();
+					$logger->debug("Result of schema parse for {class}: {n} changes - Database {dbname}", array(
+						"class" => $class,
+						"n" => count($updates),
+						"updates" => $updates,
+						"dbname" => $object_db_name
+					));
+				} else {
+					$logger->debug("Result of schema parse for {class}: {n} updates", array(
+						"class" => $class,
+						"n" => count($updates),
+						"updates" => $updates
+					));
 				}
 			}
 			$results = array_merge($results, $updates);
@@ -2063,14 +2133,6 @@ class Application extends Hookable implements Interface_Theme {
 		}
 		return $this->user = null;
 	}
-	
-	/**
-	 * Array of internal modules to load
-	 *
-	 * @deprecated 2016-09
-	 * @var array of string
-	 */
-	protected $internal_modules = null;
 	
 	/**
 	 * @see self::object_singleton

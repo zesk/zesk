@@ -17,7 +17,7 @@ use Psr\Cache\CacheItemPoolInterface;
 require_once dirname(__FILE__) . "/functions.php";
 
 /**
- *
+ * @todo self::reset is NOT production ready
  * @author kent
  *        
  */
@@ -280,11 +280,16 @@ class Kernel {
 	}
 	
 	/**
-	 * Reset
+	 * Reset entrie Zesk global state and start from scratch. 
+	 * 
+	 * @see Application::instance()->reset()
+	 * @category DEVELOPMENT
+	 * @deprecated 2017-08 Not sure if allowing this is really a good idea at all
 	 */
 	public function reset(array $configuration) {
+		zesk()->deprecated();
 		$this->objects->reset();
-		$this->hooks->call(Hooks::hook_reset);
+		$this->hooks->reset();
 		$this->construct($configuration);
 		$this->bootstrap();
 	}
