@@ -10,7 +10,7 @@ class Class_Contact extends Class_Object {
 		"tags" => array(
 			'class' => 'zesk\\Contact_Tag',
 			'link_class' => 'zesk\\Contact_Tag_Contact',
-			'far_key' => 'contact_tag'
+			'far_key' => 'contact_tag',
 			'foreign_key' => 'contact'
 		),
 		"emails" => array(
@@ -36,7 +36,7 @@ class Class_Contact extends Class_Object {
 		"others" => array(
 			'class' => 'zesk\\Contact_Other',
 			'foreign_key' => 'contact'
-		),
+		)
 	);
 	public $has_one = array(
 		"email" => 'zesk\\Contact_Email',
