@@ -8,7 +8,7 @@ namespace zesk;
  * 
  */
 class Module_Selection extends Module {
-	protected $classes = array(
+	protected $object_classes = array(
 		"zesk\\Selection_Item",
 		"zesk\\Selection_Query",
 		"zesk\\Selection_Type"

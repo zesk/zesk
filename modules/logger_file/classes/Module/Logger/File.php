@@ -48,10 +48,6 @@ class Module_Logger_File extends Module {
 	 */
 	public function configured() {
 		/* @var $zesk Kernel */
-		if ($this->application->configuration->path_exists("log::file")) {
-			// TODO Remove 2017-03
-			$this->_legacy_configuration();
-		}
 		$defaults = $this->option_array("defaults");
 		$defaults = arr::remove($defaults, array(
 			"name",
