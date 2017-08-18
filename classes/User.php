@@ -17,6 +17,12 @@ namespace zesk;
  * @author kent
  */
 class User extends Object {
+	/**
+	 * Boolean value to enable debugging of permissions
+	 *
+	 * @var string
+	 */
+	const option_debug_permission = "debug_permission";
 	
 	/**
 	 * 
@@ -45,15 +51,14 @@ class User extends Object {
 	 * @param Application $application
 	 */
 	public static function configured(Application $application) {
-		$field = "debug_permission";
 		self::$debug_permission = to_bool($application->configuration->path_get_first(array(
 			array(
 				__CLASS__,
-				$field
+				self::option_debug_permission
 			),
 			array(
 				'User',
-				$field
+				self::option_debug_permission
 			)
 		)));
 	}
@@ -74,93 +79,6 @@ class User extends Object {
 			return null;
 		}
 		return $session->user_id();
-	}
-	
-	/**
-	 * Session lock and validation information
-	 */
-	private function check_session() {
-		return $this->call_hook_arguments("check_session", array(), $this);
-	}
-	
-	/**
-	 * Current user
-	 *
-	 * @param boolean $want_object
-	 *        	Don't return null, return an empty object if true
-	 * @return User
-	 */
-	static function current($want_object = true) {
-		global $zesk;
-		/* @var $zesk Kernel */
-		
-		$user = $zesk->objects->user;
-		if ($user instanceof User) {
-			return $user;
-		}
-		$class = $zesk->configuration->path_get_first(array(
-			"zesk\\User::class",
-			"User::class"
-		), __CLASS__);
-		$user = $zesk->objects->factory($class);
-		/* @var $user \zesk\User */
-		if (!$user->_from_session()) {
-			if (!$want_object) {
-				return null;
-			}
-		}
-		self::set_current($user);
-		return $user;
-	}
-	
-	/**
-	 * Set global user instance
-	 *
-	 * @param User $user        	
-	 * @return User
-	 */
-	static function set_current(User $user) {
-		global $zesk;
-		/* @var $zesk Kernel */
-		$zesk->objects->user = $user;
-		return $user;
-	}
-	
-	/**
-	 * Retrieve the current logged in user ID
-	 *
-	 * @return integer
-	 */
-	static function current_id() {
-		$user = User::current();
-		return $user->id();
-	}
-	
-	/**
-	 * Load user from session ID
-	 */
-	protected function _from_session() {
-		// Command means no browser - perhaps change semantic to be "has browser with a session?"
-		if (Command::running()) {
-			return false;
-		}
-		$user_id = $this->session_user_id();
-		if (empty($user_id)) {
-			return false;
-		}
-		$this->initialize($user_id);
-		try {
-			if ($this->fetch()) {
-				if ($this->check_session()) {
-					if ($this->check_user()) {
-						zesk()->objects->user = $this;
-						return true;
-					}
-				}
-			}
-		} catch (Exception_Object_NotFound $e) {
-		}
-		return false;
 	}
 	
 	/**
@@ -466,8 +384,8 @@ class User extends Object {
 	 * @return array
 	 */
 	static function permissions(Application $application) {
-		return parent::default_permissions($application, "User") + array(
-			'User::become' => array(
+		return parent::default_permissions($application, __CLASS__) + array(
+			__CLASS__ . '::become' => array(
 				'title' => __("Become another user"),
 				"class" => "User"
 			)
@@ -546,6 +464,100 @@ class User extends Object {
 	static function instance_id() {
 		zesk()->deprecated();
 		return self::instance_id();
+	}
+	
+	/**
+	 * Current user
+	 *
+	 * @param boolean $want_object
+	 *        	Don't return null, return an empty object if true
+	 * @return User
+	 * @deprecated 2017-08 Remove global-related stuff from almost every object unless absolutely necessary. This should be included in application state, not here.
+	 */
+	static function current($want_object = true) {
+		global $zesk;
+		/* @var $zesk Kernel */
+		
+		zesk()->deprecated();
+		$user = $zesk->objects->user;
+		if ($user instanceof User) {
+			return $user;
+		}
+		$class = $zesk->configuration->path_get_first(array(
+			"zesk\\User::class",
+			"User::class"
+		), __CLASS__);
+		$user = $zesk->objects->factory($class);
+		/* @var $user \zesk\User */
+		if (!$user->_from_session()) {
+			if (!$want_object) {
+				return null;
+			}
+		}
+		self::set_current($user);
+		return $user;
+	}
+	
+	/**
+	 * Set global user instance
+	 *
+	 * @param User $user
+	 * @return User
+	 * @deprecated 2017-08 Remove global-related stuff from almost every object unless absolutely necessary. This should be included in application state, not here.
+	 */
+	static function set_current(User $user) {
+		global $zesk;
+		zesk()->deprecated();
+		/* @var $zesk Kernel */
+		$zesk->objects->user = $user;
+		return $user;
+	}
+	
+	/**
+	 * Retrieve the current logged in user ID
+	 *
+	 * @return integer
+	 * @deprecated 2017-08 Remove global-related stuff from almost every object unless absolutely necessary. This should be included in application state, not here.
+	 */
+	static function current_id() {
+		$user = User::current();
+		return $user->id();
+	}
+	
+	/**
+	 * @deprecated 2017-08
+	 * Session lock and validation information
+	 */
+	private function check_session() {
+		return $this->call_hook_arguments("check_session", array(), $this);
+	}
+	
+	/**
+	 * @deprecated 2017-08
+	 * Load user from session ID
+	 */
+	protected function _from_session() {
+		// Command means no browser - perhaps change semantic to be "has browser with a session?"
+		if (Command::running()) {
+			return false;
+		}
+		$user_id = $this->session_user_id();
+		if (empty($user_id)) {
+			return false;
+		}
+		$this->initialize($user_id);
+		try {
+			if ($this->fetch()) {
+				if ($this->check_session()) {
+					if ($this->check_user()) {
+						zesk()->objects->user = $this;
+						return true;
+					}
+				}
+			}
+		} catch (Exception_Object_NotFound $e) {
+		}
+		return false;
 	}
 }
 
