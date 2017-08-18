@@ -60,7 +60,7 @@ class Process {
 	 * <pre>
 	 * zesk::execute("ls -d {0}", $dir);
 	 * </pre>
-	 * Arguments are indexed and passed through. If you'd prefer named arguments, use execute_array
+	 * Arguments are indexed and passed through. If you'd prefer named arguments, use execute_arguments
 	 *
 	 * @param string $command
 	 * @return array Lines output by the command (returned by exec)
