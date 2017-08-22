@@ -1,4 +1,5 @@
 <?php
+
 /**
  * $URL: https://code.marketacumen.com/zesk/trunk/classes/User.php $
  * @package zesk
@@ -10,8 +11,8 @@
 namespace zesk;
 
 /**
- * Represents a means of authentication to an application. 
- * 
+ * Represents a means of authentication to an application.
+ *
  * @see Class_User
  *
  * @author kent
@@ -23,31 +24,31 @@ class User extends Object {
 	 * @var string
 	 */
 	const option_debug_permission = "debug_permission";
-	
+
 	/**
-	 * 
+	 *
 	 * @var string
 	 */
 	public static $debug_permission = false;
-	
+
 	/**
 	 * Syntactic sygar; types this member.
-	 * 
+	 *
 	 * @var Class_User
 	 */
 	protected $class = null;
-	
+
 	/**
-	 * 
+	 *
 	 * @param Kernel $zesk
 	 */
 	public static function hooks(Kernel $zesk) {
 		$zesk->configuration->path(__CLASS__);
 		$zesk->hooks->add("configured", __CLASS__ . "::configured");
 	}
-	
+
 	/**
-	 * 
+	 *
 	 * @param Application $application
 	 */
 	public static function configured(Application $application) {
@@ -62,7 +63,7 @@ class User extends Object {
 			)
 		)));
 	}
-	
+
 	/**
 	 * Session user ID
 	 *
@@ -80,7 +81,7 @@ class User extends Object {
 		}
 		return $session->user_id();
 	}
-	
+
 	/**
 	 * Retrieve the column used for logging in
 	 *
@@ -89,7 +90,7 @@ class User extends Object {
 	function column_login() {
 		return $this->class->column_login;
 	}
-	
+
 	/**
 	 * Retrieve the password column name
 	 *
@@ -98,7 +99,7 @@ class User extends Object {
 	function column_password() {
 		return $this->class->column_password;
 	}
-	
+
 	/**
 	 * Retrieve the email column name
 	 *
@@ -107,11 +108,11 @@ class User extends Object {
 	function column_email() {
 		return $this->class->column_email;
 	}
-	
+
 	/**
 	 * Get or set the login column value
 	 *
-	 * @param string $set        	
+	 * @param string $set
 	 *
 	 * @return User
 	 */
@@ -122,11 +123,11 @@ class User extends Object {
 		}
 		return $this->member($column);
 	}
-	
+
 	/**
 	 * Get or set the email column value
 	 *
-	 * @param string $set        	
+	 * @param string $set
 	 *
 	 * @return User
 	 */
@@ -142,7 +143,7 @@ class User extends Object {
 		}
 		return $this->member($column);
 	}
-	
+
 	/**
 	 * Override in subclasses to perform a final check before loading a user from the Session
 	 *
@@ -151,11 +152,11 @@ class User extends Object {
 	function check_user() {
 		return true;
 	}
-	
+
 	/**
 	 * Get/set the password field
 	 *
-	 * @param string $set        	
+	 * @param string $set
 	 * @return string|User
 	 */
 	function password($set = null) {
@@ -165,15 +166,15 @@ class User extends Object {
 		}
 		return $this->member($column);
 	}
-	
+
 	/**
 	 * Check a username and password.
 	 * Will not authenticate user until ->authenticated(true) is called.
 	 *
-	 * @param string $username        	
-	 * @param string $password        	
-	 * @param string $use_hash        	
-	 * @param string $case_sensitive        	
+	 * @param string $username
+	 * @param string $password
+	 * @param string $use_hash
+	 * @param string $case_sensitive
 	 * @return boolean
 	 */
 	function authenticate($username, $password, $use_hash = true, $case_sensitive = true) {
@@ -195,11 +196,11 @@ class User extends Object {
 		}
 		return false;
 	}
-	
+
 	/**
 	 * Get/set authentication status
 	 *
-	 * @param string $set        	
+	 * @param string $set
 	 * @return boolean User
 	 */
 	function authenticated($set = null) {
@@ -228,15 +229,15 @@ class User extends Object {
 		}
 		return $this;
 	}
-	
+
 	/**
 	 * Similar to $user->can(...) but instead throws an Exception_Permission on failure
 	 *
 	 * Checks that user can perform action optionally on object
 	 *
-	 * @param string $action        	
-	 * @param Model $context        	
-	 * @param array $options        	
+	 * @param string $action
+	 * @param Model $context
+	 * @param array $options
 	 * @throws Exception_Permission
 	 * @return User
 	 */
@@ -254,7 +255,7 @@ class User extends Object {
 			'__' => '::'
 		)));
 	}
-	
+
 	/**
 	 * The core of the permissions system
 	 *
@@ -298,13 +299,13 @@ class User extends Object {
 			);
 		}
 		if ($context && !$context instanceof Model) {
-			zesk()->logger->warning("Non model passed as \$context to {method} ({type})", array(
+			$this->application->logger->warning("Non model passed as \$context to {method} ({type})", array(
 				"method" => __METHOD__,
 				"type" => type($context)
 			));
 			$context = null;
 		}
-		
+
 		$result = false; // By default, don't allow anything
 		// Allow multiple actions
 		$is_or = is_string($actions) && strpos($actions, '|');
@@ -318,7 +319,7 @@ class User extends Object {
 				$options
 			), $default_result);
 			if (self::$debug_permission) {
-				zesk()->logger->debug("User::can({action},{context}) = {result} (Roles {roles})", array(
+				$this->application->logger->debug("User::can({action},{context}) = {result} (Roles {roles})", array(
 					"action" => $action,
 					"context" => $context,
 					"result" => $result,
@@ -339,11 +340,11 @@ class User extends Object {
 		}
 		return $result;
 	}
-	
+
 	/**
 	 * Check if a user can edit an object
 	 *
-	 * @param Object $object        	
+	 * @param Object $object
 	 * @return boolean
 	 */
 	function can_edit($object) {
@@ -352,32 +353,33 @@ class User extends Object {
 	/**
 	 * Check if a user can view an object
 	 *
-	 * @param Object $object        	
+	 * @param Object $object
 	 * @return boolean
 	 */
 	function can_view($object) {
 		return $this->can("view", $object);
 	}
-	
+
 	/**
-	 * 
-	 * {@inheritDoc}
+	 *
+	 * {@inheritdoc}
+	 *
 	 * @see \zesk\Object::display_name()
 	 */
 	function display_name() {
 		return $this->member($this->column_login());
 	}
-	
+
 	/**
 	 * Check if a user can delete an object
 	 *
-	 * @param Object $object        	
+	 * @param Object $object
 	 * @return boolean
 	 */
 	function can_delete($object) {
 		return $this->can("delete", $object);
 	}
-	
+
 	/**
 	 * Implement Object::permissions
 	 *
@@ -391,13 +393,13 @@ class User extends Object {
 			)
 		);
 	}
-	
+
 	/**
 	 * Takes an array which can be formatted with theme("actions") and filters based on permissions.
 	 * Use the key "permission" in value to specify a permission to check. It can be a string, or an
 	 * array of ($action, $context, $options) to check.
 	 *
-	 * @param array $actions        	
+	 * @param array $actions
 	 * @param Model $context
 	 *        	Default context to pass to "can" function
 	 * @param array $options
@@ -428,57 +430,21 @@ class User extends Object {
 		}
 		return $actions_passed;
 	}
-	
-	/**
-	 * "Instance" means an object. We really mean "singleton" when we've been using instance. Deprecate this meaning of "instance."
-	 *
-	 * @deprecated 2016-12 
-	 * @see User::current
-	 * @param boolean $want_object
-	 *        	Don't return null, return an empty object if true
-	 * @return User
-	 */
-	static function instance($want_object = true) {
-		zesk()->deprecated();
-		return self::current($want_object);
-	}
-	
-	/**
-	 * Set global user instance
-	 * @deprecated 2016-12 
-	 *
-	 * @param User $user
-	 * @return User
-	 */
-	static function set_instance(User $user) {
-		zesk()->deprecated();
-		return self::set_current($user);
-	}
-	
-	/**
-	 * Retrieve the current logged in user ID
-	 *
-	 * @deprecated 2016-12 
-	 * @return integer
-	 */
-	static function instance_id() {
-		zesk()->deprecated();
-		return self::instance_id();
-	}
-	
+
 	/**
 	 * Current user
 	 *
 	 * @param boolean $want_object
 	 *        	Don't return null, return an empty object if true
 	 * @return User
-	 * @deprecated 2017-08 Remove global-related stuff from almost every object unless absolutely necessary. This should be included in application state, not here.
+	 * @deprecated 2017-08 Remove global-related stuff from almost every object unless absolutely
+	 *             necessary. This should be included in application state, not here.
 	 */
 	static function current($want_object = true) {
 		global $zesk;
 		/* @var $zesk Kernel */
-		
-		zesk()->deprecated();
+
+		$zesk->deprecated();
 		$user = $zesk->objects->user;
 		if ($user instanceof User) {
 			return $user;
@@ -497,44 +463,48 @@ class User extends Object {
 		self::set_current($user);
 		return $user;
 	}
-	
+
 	/**
 	 * Set global user instance
 	 *
 	 * @param User $user
 	 * @return User
-	 * @deprecated 2017-08 Remove global-related stuff from almost every object unless absolutely necessary. This should be included in application state, not here.
+	 * @deprecated 2017-08 Remove global-related stuff from almost every object unless absolutely
+	 *             necessary. This should be included in application state, not here.
 	 */
 	static function set_current(User $user) {
 		global $zesk;
-		zesk()->deprecated();
+		$zesk->deprecated();
 		/* @var $zesk Kernel */
 		$zesk->objects->user = $user;
 		return $user;
 	}
-	
+
 	/**
 	 * Retrieve the current logged in user ID
 	 *
 	 * @return integer
-	 * @deprecated 2017-08 Remove global-related stuff from almost every object unless absolutely necessary. This should be included in application state, not here.
+	 * @deprecated 2017-08 Remove global-related stuff from almost every object unless absolutely
+	 *             necessary. This should be included in application state, not here.
 	 */
 	static function current_id() {
 		$user = User::current();
 		return $user->id();
 	}
-	
+
 	/**
+	 *
 	 * @deprecated 2017-08
-	 * Session lock and validation information
+	 *             Session lock and validation information
 	 */
 	private function check_session() {
 		return $this->call_hook_arguments("check_session", array(), $this);
 	}
-	
+
 	/**
+	 *
 	 * @deprecated 2017-08
-	 * Load user from session ID
+	 *             Load user from session ID
 	 */
 	protected function _from_session() {
 		// Command means no browser - perhaps change semantic to be "has browser with a session?"
@@ -550,7 +520,8 @@ class User extends Object {
 			if ($this->fetch()) {
 				if ($this->check_session()) {
 					if ($this->check_user()) {
-						zesk()->objects->user = $this;
+						global $zesk;
+						$zesk->objects->user = $this;
 						return true;
 					}
 				}

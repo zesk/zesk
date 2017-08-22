@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Simple module to allow for conditions within Widgets to work
  *
@@ -13,14 +14,14 @@
 namespace zesk;
 
 /**
- * 
+ *
  * @author kent
  *
  */
-class Module_Widget_Condition extends zesk\Module {
+class Module_Widget_Condition extends Module {
 	public function initialize() {
 		parent::initialize();
-		zesk()->hooks->add("Widget::model_changed", 'Module_Widget_Condition::apply');
+		$this->application->hooks->add(__NAMESPACE__ . "\\Widget::model_changed", 'Module_Widget_Condition::apply');
 	}
 	public static function apply(Widget $widget, Model $object) {
 		self::apply_dynamic_column($widget, $object);
@@ -59,11 +60,14 @@ class Module_Widget_Condition extends zesk\Module {
 			}
 		}
 	}
-	
+
 	/**
 	 * Evaluate a condition
-	 * @param $condition string Condition string
-	 * @param $default mixed The value to return if the condition does not parse
+	 *
+	 * @param $condition string
+	 *        	Condition string
+	 * @param $default mixed
+	 *        	The value to return if the condition does not parse
 	 * @return unknown
 	 */
 	public static function condition_evaluate($condition, $default = false) {

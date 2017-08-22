@@ -1,6 +1,7 @@
 <?php
+
 /**
- * 
+ *
  */
 namespace zesk;
 
@@ -22,9 +23,12 @@ class URL {
 	/**
 	 * Query string parsing (case-sensitive)
 	 *
-	 * @param string $qs      	Query string to parse (Does NOT parse URLs)
-	 * @param string $name     	Name of field to return, or null to return an array
-	 * @param string $default  	Value to return if name not found in query string
+	 * @param string $qs
+	 *        	Query string to parse (Does NOT parse URLs)
+	 * @param string $name
+	 *        	Name of field to return, or null to return an array
+	 * @param string $default
+	 *        	Value to return if name not found in query string
 	 * @return mixed Parsed query string
 	 */
 	static function query_parse($qs, $name = null, $default = null) {
@@ -39,9 +43,12 @@ class URL {
 	/**
 	 * Case-insensitive query string parsing
 	 *
-	 * @param string $qs       	Query string to parse (Does NOT parse URLs)
-	 * @param string $name     	Name of field to return, or null to return an array
-	 * @param string $default  	Value to return if name not found in query string
+	 * @param string $qs
+	 *        	Query string to parse (Does NOT parse URLs)
+	 * @param string $name
+	 *        	Name of field to return, or null to return an array
+	 * @param string $default
+	 *        	Value to return if name not found in query string
 	 * @return mixed Parsed query string
 	 */
 	static function query_iparse($qs, $name = null, $default = null) {
@@ -209,15 +216,14 @@ class URL {
 	 * Append to the query string of a URL
 	 *
 	 * @param string $u
-	 * @param mixed $values Array or string to append
-	 * @param boolean $is_href Deprecated. Do not use.
+	 * @param mixed $values
+	 *        	Array or string to append
+	 * @param boolean $is_href
+	 *        	Deprecated. Do not use.
 	 * @return string
 	 */
-	public static function query_append($u, $values = null, $is_href = false) {
-		if ($is_href !== false) {
-			zesk()->deprecated();
-		}
-		$amp = $is_href ? "&amp;" : "&";
+	public static function query_append($u, $values = null) {
+		$amp = "&";
 		if (is_array($values)) {
 			$qs_append = array();
 			foreach ($values as $k => $v) {
@@ -299,7 +305,6 @@ class URL {
 	public static function has_ref($href, $key = "ref") {
 		return self::query_parse(str::right($href, "?", ""), $key) !== null;
 	}
-
 	public static function add_ref($href, $ref = null, $key = "ref") {
 		if ($ref) {
 			if (substr($ref, 0, 1) === '#') {
@@ -312,7 +317,6 @@ class URL {
 			$key => $ref
 		));
 	}
-	
 	public static function current_scheme() {
 		// Amazon load balancers
 		if (array_key_exists('HTTP_X_FORWARDED_PROTO', $_SERVER)) {
@@ -345,8 +349,9 @@ class URL {
 		$parts['query'] = avalue($_SERVER, 'QUERY_STRING', '');
 		return self::unparse($parts);
 	}
-	
+
 	/**
+	 *
 	 * @deprecated 2017-03
 	 * @param unknown $part
 	 * @return string
@@ -355,24 +360,25 @@ class URL {
 		return self::left(self::current(), $part);
 	}
 	/**
+	 *
 	 * @deprecated 2017-03
-	 * 
+	 *
 	 * @return string
 	 */
 	public static function current_left_host() {
 		return self::left_host(self::current());
 	}
 	/**
-	 * 
+	 *
 	 * @deprecated 2017-03
 	 * @return string
 	 */
 	public static function current_left_path() {
 		return self::left(self::current(), 'path');
 	}
-	
+
 	/**
-	 * 
+	 *
 	 * @deprecated 2017-03
 	 * @return boolean
 	 */
@@ -758,7 +764,6 @@ class URL {
 		$parts['host'] = $host;
 		return self::unparse($parts);
 	}
-
 	protected static $secure_protocols = array(
 		'http' => 'https',
 		'ftp' => 'sftp',

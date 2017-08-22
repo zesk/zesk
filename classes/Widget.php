@@ -2442,15 +2442,5 @@ class Widget extends Hookable {
 		}
 		return "\$(\"#$id\")";
 	}
-
-	/**
-	 *
-	 * @see HTML::input_attribute_names
-	 * @deprecated 2016-09
-	 */
-	public static function input_attribute_names($types = null) {
-		zesk()->deprecated();
-		return \zesk\HTML::input_attribute_names($types);
-	}
 }
 

@@ -1,4 +1,5 @@
 <?php
+
 /**
  * $URL: https://code.marketacumen.com/zesk/trunk/classes/View/Box.php $
  * @package zesk
@@ -10,16 +11,13 @@
 namespace zesk;
 
 /**
- * 
+ *
  * @author kent
  *
  */
 class View_Box extends View {
-
 	private $Content = null;
-
 	static $stack = array();
-
 	function initialize() {
 		parent::initialize();
 		$column = $this->column();
@@ -38,15 +36,12 @@ class View_Box extends View {
 		$t = new Template($this->application, $this->option("template", "widgets/box/$style/Box.tpl"), $attrs);
 		return $this->render_finish($t->render());
 	}
-
 	function _start() {
 		ob_start();
 	}
-
 	function _cancel() {
 		ob_end_clean();
 	}
-
 	function _end() {
 		$content = strval(ob_get_clean());
 		$model = new Model();
@@ -54,7 +49,6 @@ class View_Box extends View {
 		$model->set($this->column(), $content);
 		echo $this->execute($model);
 	}
-
 	public static function format($content, $style = "round") {
 		$b = new View_Box(array(
 			"box_style" => $style,
@@ -68,17 +62,18 @@ class View_Box extends View {
 	/**
 	 * Start a box
 	 *
-	 * @param string $style Style, folder name found in widgets/box/STYLE
-	 * @param array $attributes Other attributes to change features of the box (optional)
+	 * @param string $style
+	 *        	Style, folder name found in widgets/box/STYLE
+	 * @param array $attributes
+	 *        	Other attributes to change features of the box (optional)
 	 */
-	public static function start($style, $attributes = false) {
+	public static function start(Application $app, $style, $attributes = false) {
 		$attributes['box_style'] = $style;
 		$attributes['column'] = "a";
-		$b = new View_Box($attributes);
+		$b = new View_Box($app, $attributes);
 		$b->_start();
 		array_push(self::$stack, $b);
 	}
-
 	public static function cancel() {
 		$b = array_pop(self::$stack);
 		if (!$b instanceof View_Box) {
@@ -87,7 +82,6 @@ class View_Box extends View {
 		$b->_cancel();
 		return true;
 	}
-
 	public static function end() {
 		$b = array_pop(self::$stack);
 		if (!$b instanceof View_Box) {
@@ -95,43 +89,4 @@ class View_Box extends View {
 		}
 		$b->_end();
 	}
-}
-
-/**
- * 
- * @param unknown $content
- * @param string $style
- * @return mixed|NULL|string
- */
-function box($content, $style = "round") {
-	zesk()->deprecated();
-	return View_Box::format($content, $style);
-}
-
-/**
- * Start a box
- *
- * @param string $style Style, folder name found in widgets/box/STYLE
- * @param array $attributes Other attributes to change features of the box (optional)
- */
-function box_start($style, $attributes = false) {
-	zesk()->deprecated();
-	return View_Box::start($style, $attributes);
-}
-
-/**
- * 
- * @return boolean
- */
-function box_cancel() {
-	zesk()->deprecated();
-	return View_Box::cancel();
-}
-
-/**
- * 
- */
-function box_end() {
-	zesk()->deprecated();
-	return View_Box::end();
 }
