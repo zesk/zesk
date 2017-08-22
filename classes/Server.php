@@ -178,7 +178,7 @@ class Server extends Object implements Interface_Data {
 			/* @var $server Server */
 			foreach ($iterator as $server) {
 				// Delete this way so hooks get called per dead server
-				zesk()->logger->warning("Burying dead server {name} (#{id}), last alive on {alive}", $server->members());
+				$this->application->logger->warning("Burying dead server {name} (#{id}), last alive on {alive}", $server->members());
 				$server->delete();
 			}
 			$this->pop_utc($pushed);
@@ -426,7 +426,7 @@ class Server extends Object implements Interface_Data {
 		if ($acquired_lock) {
 			$this->database()->release_lock($lock_name);
 		} else {
-			zesk()->logger->warning("Unable to acquire lock {lock_name}", compact("lock_name"));
+			$this->application->logger->warning("Unable to acquire lock {lock_name}", compact("lock_name"));
 		}
 		return $result;
 	}

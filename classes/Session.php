@@ -44,7 +44,7 @@ class Session {
 	private static function session_class(Application $application) {
 		$default_class = self::_implementation($application->configuration);
 		if ($default_class) {
-			zesk()->deprecated("Session::implementation configuration value is deprecated, use zesk\Application::session_class instead (set to \"$default_class\")");
+			$application->zesk->deprecated("Session::implementation configuration value is deprecated, use zesk\Application::session_class instead (set to \"$default_class\")");
 			$default_class = __NAMESPACE__ . "\\" . "Session_" . $default_class;
 		} else {
 			$default_class = __NAMESPACE__ . "\\" . "Session_PHP";
@@ -64,6 +64,6 @@ class Session {
 		if (!$class) {
 			throw new Exception_Configuration("zesk\Application::session_implementation", "Needs a class name value");
 		}
-		return zesk()->objects->factory($class, null, null, $application)->initialize_session($application->request());
+		return $application->objects->factory($class, null, null, $application)->initialize_session($application->request());
 	}
 }

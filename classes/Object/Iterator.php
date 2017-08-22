@@ -1,4 +1,5 @@
 <?php
+
 /**
  * $URL: https://code.marketacumen.com/zesk/trunk/classes/Object/Iterator.php $
  * @package zesk
@@ -9,48 +10,56 @@
 namespace zesk;
 
 /**
- * 
  */
 class Object_Iterator extends Database_Result_Iterator {
 	/**
 	 * Class we're iterating over
+	 *
 	 * @var string
 	 */
 	protected $class;
 	/**
 	 * Options to be passed to each object constructor
+	 *
 	 * @var array
 	 */
 	protected $class_options;
-	
+
 	/**
 	 * Current parent
+	 *
 	 * @var Object
 	 */
 	private $parent = null;
-	
+
 	/**
 	 * Current parent
+	 *
 	 * @var Object
 	 */
 	private $parent_member = null;
-	
+
 	/**
 	 * Current object
+	 *
 	 * @var Object
 	 */
 	protected $object;
-	
+
 	/**
 	 * Current key
+	 *
 	 * @var mixed
 	 */
 	protected $id;
-	
+
 	/**
 	 * Create an object iterator
-	 * @param string $class Class to iterate over
-	 * @param Database_Query_Select $query Executed query to iterate
+	 *
+	 * @param string $class
+	 *        	Class to iterate over
+	 * @param Database_Query_Select $query
+	 *        	Executed query to iterate
 	 */
 	function __construct($class, Database_Query_Select_Base $query, $options = false) {
 		parent::__construct($query);
@@ -58,9 +67,9 @@ class Object_Iterator extends Database_Result_Iterator {
 		$options['initialize'] = true;
 		$this->class_options = $options;
 	}
-	
+
 	/**
-	 * 
+	 *
 	 * @param Object $parent
 	 * @param string $member
 	 * @return \zesk\Object_Iterator
@@ -74,29 +83,32 @@ class Object_Iterator extends Database_Result_Iterator {
 		}
 		return $this;
 	}
-	
+
 	/**
 	 * Current object
+	 *
 	 * @see Database_Result_Iterator::current()
 	 * @return Object
 	 */
 	public function current() {
 		return $this->object;
 	}
-	
+
 	/**
 	 * Current object ID
+	 *
 	 * @see Database_Result_Iterator::key()
 	 * @return string
 	 */
 	public function key() {
 		return is_array($this->id) ? JSON::encode($this->id) : $this->id;
 	}
-	
+
 	/**
 	 * Maintain parent object to avoid cyclical store(), and for memory saving
 	 *
-	 * If at any point we do Object-system caching, we can remove this as instantiation will re-use an object.
+	 * If at any point we do Object-system caching, we can remove this as instantiation will re-use
+	 * an object.
 	 *
 	 * @todo Decide on object system caching or this method.
 	 */
@@ -106,7 +118,7 @@ class Object_Iterator extends Database_Result_Iterator {
 			if ($check_id === $this->parent->id()) {
 				$this->object->__set($this->parent_member, $this->parent);
 			} else {
-				zesk()->logger->error("Object iterator for {class}, mismatched parent member {member} #{id} (expecting #{expect_id})", array(
+				$object->application->logger->error("Object iterator for {class}, mismatched parent member {member} #{id} (expecting #{expect_id})", array(
 					'class' => $this->class,
 					'member' => $this->parent_member,
 					'id' => $check_id,
@@ -117,6 +129,7 @@ class Object_Iterator extends Database_Result_Iterator {
 	}
 	/**
 	 * Next object in results
+	 *
 	 * @see Database_Result_Iterator::next()
 	 * @return Object
 	 */
@@ -134,9 +147,10 @@ class Object_Iterator extends Database_Result_Iterator {
 			$this->object = null;
 		}
 	}
-	
+
 	/**
 	 * Convert to an array
+	 *
 	 * @see Database_Result_Iterator::to_array()
 	 * @return Object[]
 	 */

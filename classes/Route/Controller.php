@@ -1,30 +1,31 @@
 <?php
+
 /**
- * 
+ *
  */
 namespace zesk;
 
 use \ReflectionClass;
 
 /**
- * 
+ *
  * @author kent
  *
  */
 class Route_Controller extends Route {
-	
+
 	/**
 	 *
 	 * @var ReflectionClass
 	 */
 	protected $class = null;
-	
+
 	/**
 	 *
 	 * @var string The class which was instantiated.
 	 */
 	protected $class_name = null;
-	
+
 	/**
 	 *
 	 * @var Controller
@@ -35,31 +36,33 @@ class Route_Controller extends Route {
 	 * @var string
 	 */
 	protected $controller_action = null;
-	
+
 	/**
-	 * 
-	 * {@inheritDoc}
+	 *
+	 * {@inheritdoc}
+	 *
 	 * @see Route::__sleep()
 	 */
 	public function __sleep() {
 		return array_merge(array(), parent::__sleep());
 	}
 	public function initialize() {
-		// To allow modules to set defaults in child controllers. 
+		// To allow modules to set defaults in child controllers.
 		$this->inherit_global_options();
 		foreach (to_list("controller prefix;controller prefixes") as $option) {
 			if ($this->has_option($option)) {
-				zesk()->deprecated(map("Option {option} in route {name} is deprecated 2017-02", array(
+				$this->router->application->zesk->deprecated(map("Option {option} in route {name} is deprecated 2017-02", array(
 					"option" => $option,
 					"name" => $this->clean_pattern
 				)));
 			}
 		}
 	}
-	
+
 	/**
-	 * 
-	 * {@inheritDoc}
+	 *
+	 * {@inheritdoc}
+	 *
 	 * @see Route::__wakeup()
 	 */
 	public function __wakeup() {
@@ -68,7 +71,7 @@ class Route_Controller extends Route {
 		$this->controller = null;
 		$this->controller_action = null;
 	}
-	
+
 	/**
 	 *
 	 * @return multitype:Controller string
@@ -80,18 +83,18 @@ class Route_Controller extends Route {
 				$this->controller_action
 			);
 		}
-		
+
 		list($class, $this->controller_action) = $this->_determine_class_action();
-		
+
 		/* @var $controller Controller */
 		$this->controller = $class->newInstance($this->router->application, $this->option_array("controller options") + $this->options);
-		
+
 		return array(
 			$this->controller,
 			$this->controller_action
 		);
 	}
-	
+
 	/**
 	 * Execute this route
 	 *
@@ -111,10 +114,10 @@ class Route_Controller extends Route {
 				'before_' . $action_method,
 				"before"
 			), array());
-			
+
 			$arguments_method = $this->option('arguments method', $this->option('arguments method prefix', 'arguments_') . $action_method);
 			$method = $this->option('method', $this->option('method prefix', 'action_') . $action_method);
-			
+
 			$try_default = false;
 			ob_start();
 			if ($controller->has_method($method)) {
@@ -150,7 +153,7 @@ class Route_Controller extends Route {
 			throw $e;
 		}
 	}
-	
+
 	/**
 	 * Determine the class of the controller and the action to run
 	 *
@@ -166,7 +169,8 @@ class Route_Controller extends Route {
 			$options = $this->named + $this->options;
 		} else {
 			/**
-			 * @deprecated 2017-02 
+			 *
+			 * @deprecated 2017-02
 			 */
 			if ($this->has_option('controller prefix')) {
 				$prefixes = array(
@@ -188,7 +192,7 @@ class Route_Controller extends Route {
 			}
 			$try_classes = array_unique(array_merge($try_classes, $default_classes));
 		}
-		
+
 		$this->class = $reflectionClass = null;
 		foreach ($try_classes as $class_name) {
 			try {
@@ -213,15 +217,15 @@ class Route_Controller extends Route {
 			));
 		}
 		$action = aevalue($options, "action", $this->option("default action", "index"));
-		
+
 		return array(
 			$reflectionClass,
 			$action
 		);
 	}
-	
+
 	/**
-	 * 
+	 *
 	 * @param unknown $action
 	 * @param unknown $object
 	 * @param unknown $options
@@ -241,9 +245,9 @@ class Route_Controller extends Route {
 		$this->_unmap_options();
 		return $map;
 	}
-	
+
 	/**
-	 * 
+	 *
 	 * @return stdClass[]
 	 */
 	protected function hook_controllers() {

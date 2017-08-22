@@ -1,17 +1,20 @@
 <?php
+
 namespace zesk;
 
 class Route_Theme extends Route {
-	
+
 	/**
 	 * Whether the theme path is set by variables
+	 *
 	 * @var unknown
 	 */
 	protected $dynamic_theme = false;
-	
+
 	/**
-	 * 
-	 * {@inheritDoc}
+	 *
+	 * {@inheritdoc}
+	 *
 	 * @see Route::initialize()
 	 */
 	protected function initialize() {
@@ -22,10 +25,10 @@ class Route_Theme extends Route {
 			return;
 		}
 	}
-	
+
 	/**
 	 * Validate this route
-	 * 
+	 *
 	 * @throws Exception_File_NotFound
 	 * @return Route_Theme
 	 */
@@ -42,12 +45,13 @@ class Route_Theme extends Route {
 			return $this;
 		}
 		/**
+		 *
 		 * @todo Remove this 2016-10
 		 */
 		$theme = str::unsuffix($this->option("template"), ".tpl");
 		if ($application->theme_exists($theme)) {
 			// TODO Remove this
-			zesk()->deprecated("Theme ending with .tpl are no longer allowed $theme");
+			$application->zesk->deprecated("Theme ending with .tpl are no longer allowed $theme");
 			$this->set_option("theme", $theme);
 			return $this;
 		}
@@ -56,10 +60,11 @@ class Route_Theme extends Route {
 			"theme_paths" => $application->theme_path()
 		));
 	}
-	
+
 	/**
-	 * 
-	 * {@inheritDoc}
+	 *
+	 * {@inheritdoc}
+	 *
 	 * @see Route::_execute()
 	 */
 	function _execute() {
@@ -79,7 +84,7 @@ class Route_Theme extends Route {
 				return;
 			}
 		}
-		zesk()->logger->debug("Executing theme={theme} mapped_theme={mapped_theme} args={args}", compact("theme", "mapped_theme", "args"));
+		$application->logger->debug("Executing theme={theme} mapped_theme={mapped_theme} args={args}", compact("theme", "mapped_theme", "args"));
 		$content = $application->theme($mapped_theme, $args, $theme_options); //TODO
 		if ($application->response->json()) {
 			return;

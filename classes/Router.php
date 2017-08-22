@@ -14,37 +14,38 @@ namespace zesk;
  * Handles converting a URL Path to a method invokation, with a special case for Controller objects.
  * Support for permissions, automatic variable conversion as well.
  * Basic setup is pattern -> array of settings
- * Pattern is a URL path, excluding / prefix	, with optional variables included, e.g.
+ * Pattern is a URL path, excluding / prefix , with optional variables included, e.g.
  * /foo/bar/dee
  * You can specify optional sections using parenthesis ()
  * The settings available are:
- * controller				Controller to invoke, can include variable name
- * controller prefixes		A list of controller prefixes to use, overrides the default Router prefixes
- * controller options		Array of options to set on the controller upon creation
- * action					The action to invoke in the controller
- * arguments				The arguments to the action. If values are numeric, specifies the URL part to pass
+ * controller Controller to invoke, can include variable name
+ * controller prefixes A list of controller prefixes to use, overrides the default Router prefixes
+ * controller options Array of options to set on the controller upon creation
+ * action The action to invoke in the controller
+ * arguments The arguments to the action. If values are numeric, specifies the URL part to pass
  * as an argument. Keys
  * may be specified, but are ignored.
  * For a template, it's:
- * template					Template to load, may include variables names
- * arguments				Name/value pairs passed to the template. If values are numeric, specifies the URL
+ * template Template to load, may include variables names
+ * arguments Name/value pairs passed to the template. If values are numeric, specifies the URL
  * part to pass as an
  * argument.
  * For a method it's:
- * method					Name of method to invoke. For class methods, specify array("ClassName" =>
+ * method Name of method to invoke. For class methods, specify array("ClassName" =>
  * "method_name"), or
  * ClassName::method_name
- * arguments				The arguments to the action. For numeric values, specifies the URL part to pass as
+ * arguments The arguments to the action. For numeric values, specifies the URL part to pass as
  * an argument.
  * For all routes
- * content type				Set the response content type to this
- * status code				Set the response status code
- * status message			Set the response status message
- * redirect					After invokation, redirect to here
+ * content type Set the response content type to this
+ * status code Set the response status code
+ * status message Set the response status message
+ * redirect After invokation, redirect to here
  * The pattern syntax is:
- * {variable-name}				An untyped variable, or string.
- * {type variable-name}			Typed variable name. Type can be integer, double, string, array, list, comma-list, dash-list,  semicolon-list, option, or an object type.
- * {type }						An unnamed variable, can be referenced by the URL path order
+ * {variable-name} An untyped variable, or string.
+ * {type variable-name} Typed variable name. Type can be integer, double, string, array, list,
+ * comma-list, dash-list, semicolon-list, option, or an object type.
+ * {type } An unnamed variable, can be referenced by the URL path order
  * e.g.
  * You can also group parameters as option by specifying
  * The following "magic" URI will invoke Controller_{Controller}::action_{action} with optional
@@ -53,63 +54,66 @@ namespace zesk;
  * {controller}/{action}(/{ID:+})
  */
 class Router extends Hookable {
-	
+
 	/**
 	 * Debugging is enabled
 	 *
 	 * @var boolean
 	 */
 	public $debug = false;
-	
+
 	/**
 	 *
 	 * @var Router
 	 */
 	private static $singleton = null;
-	
+
 	/**
 	 *
 	 * @var string
 	 */
 	protected $application_class = null;
-	
+
 	/**
 	 *
 	 * @var Application
 	 */
 	public $application = null;
-	
+
 	/**
 	 *
 	 * @var array of class => Route
 	 */
 	protected $reverse_routes = array();
-	
+
 	/**
 	 *
 	 * @var Route[]
 	 */
 	protected $routes = array();
-	
+
 	/**
+	 *
 	 * @var array of Route
 	 */
 	protected $by_id = array();
-	
+
 	/**
 	 *
 	 * @var string
 	 */
 	protected $prefix = "/";
-	
+
 	/**
 	 * State variable - should be reset
+	 *
 	 * @var Route
 	 */
 	public $route = null;
-	
+
 	/**
 	 * State variable - should be reset
+	 *
 	 * @var Request
 	 */
 	public $request = null;
@@ -118,28 +122,29 @@ class Router extends Hookable {
 	 * @var integer
 	 */
 	protected $default_route = 0;
-	
+
 	/**
 	 *
 	 * @var array
 	 */
 	protected $aliases = array();
-	
+
 	/**
 	 * Whether the routes have been sorted by weight yet
 	 *
 	 * @var boolean
 	 */
 	private $sorted = false;
-	
+
 	/**
 	 * Index to ensure routes are sorted by added order.
 	 */
 	protected $weight_index = 0;
-	
+
 	/**
-	 * 
-	 * {@inheritDoc}
+	 *
+	 * {@inheritdoc}
+	 *
 	 * @see Options::__sleep()
 	 */
 	function __sleep() {
@@ -153,14 +158,13 @@ class Router extends Hookable {
 		), parent::__sleep());
 		return $result;
 	}
-	
+
 	/**
-	 * 
 	 */
 	function __wakeup() {
 		$this->by_id = array();
 		$this->route = null;
-		$this->application = zesk()->objects->singleton($this->application_class);
+		$this->application = zesk()->application();
 		foreach ($this->routes as $route) {
 			$route->router = $this;
 			$this->_add_route_id($route);
@@ -168,9 +172,9 @@ class Router extends Hookable {
 		$this->request = $this->application->request();
 		$this->sorted = false;
 	}
-	
+
 	/**
-	 * 
+	 *
 	 * @param unknown $options
 	 */
 	function __construct(Application $application, $options = null) {
@@ -179,9 +183,9 @@ class Router extends Hookable {
 		$this->application = $application;
 		$this->call_hook("new");
 	}
-	
+
 	/**
-	 * 
+	 *
 	 * @param Kernel $zesk
 	 */
 	public static function hooks(Kernel $zesk) {
@@ -190,9 +194,9 @@ class Router extends Hookable {
 			"configured"
 		));
 	}
-	
+
 	/**
-	 * 
+	 *
 	 * @param Application $application
 	 */
 	public static function configured(Application $application) {
@@ -200,7 +204,7 @@ class Router extends Hookable {
 		/* @var $zesk Kernel */
 		$zesk->configuration->deprecated(("Router::debug"), "zesk\Router::debug");
 	}
-	
+
 	/**
 	 * Return singleton Router
 	 *
@@ -212,7 +216,7 @@ class Router extends Hookable {
 		}
 		return self::$singleton;
 	}
-	
+
 	/**
 	 * Returns the cache path for this router
 	 *
@@ -230,7 +234,7 @@ class Router extends Hookable {
 			$cache_file
 		));
 	}
-	
+
 	/**
 	 * Whether this router is cached; performance optimization
 	 *
@@ -250,9 +254,9 @@ class Router extends Hookable {
 		self::$singleton = unserialize(file_get_contents($path));
 		return self::$singleton;
 	}
-	
+
 	/**
-	 * 
+	 *
 	 * @param Route $a
 	 * @param Route $b
 	 * @return number
@@ -277,16 +281,16 @@ class Router extends Hookable {
 		}
 		return 1;
 	}
-	
+
 	/**
-	 * 
 	 */
 	private function _sort() {
 		uasort($this->routes, __CLASS__ . "::compare_weight");
 	}
-	
+
 	/**
-	 * Fetch a route by ID. ID is an attribute associated with each route, or the clean URL.
+	 * Fetch a route by ID.
+	 * ID is an attribute associated with each route, or the clean URL.
 	 *
 	 * @param string $id
 	 * @return Route
@@ -294,8 +298,9 @@ class Router extends Hookable {
 	function route($id) {
 		return avalue($this->by_id, strtolower($id));
 	}
-	
+
 	/**
+	 *
 	 * @return Route[]
 	 */
 	function routes() {
@@ -305,7 +310,7 @@ class Router extends Hookable {
 		}
 		return $this->routes;
 	}
-	
+
 	/**
 	 * Cache this router, destroy old cache
 	 */
@@ -315,9 +320,9 @@ class Router extends Hookable {
 		file_put_contents($path, serialize($this));
 		return $this;
 	}
-	
+
 	/**
-	 * 
+	 *
 	 * @param unknown $set
 	 * @return string
 	 */
@@ -357,7 +362,7 @@ class Router extends Hookable {
 		$this->log("warning", "No matches for {path}", compact("path"));
 		return null;
 	}
-	
+
 	/**
 	 * Route the URL and return the response
 	 *
@@ -411,10 +416,10 @@ class Router extends Hookable {
 		$this->by_id[strtolower($id)] = $route;
 		return $route;
 	}
-	
+
 	/**
 	 * TODO move to zesk\Router\Parser
-	 * 
+	 *
 	 * @param string $contents
 	 * @param array $add_options
 	 * @return void
@@ -528,9 +533,9 @@ class Router extends Hookable {
 		}
 		return null;
 	}
-	
+
 	/**
-	 * 
+	 *
 	 * @param array $by_class
 	 * @param Object $add
 	 * @param string $stop_class
@@ -573,13 +578,15 @@ class Router extends Hookable {
 		return $by_class;
 	}
 	/**
-	 * Retrieve a route to an object from the router. Uses current route's context to determine new route.
+	 * Retrieve a route to an object from the router.
+	 * Uses current route's context to determine new route.
 	 *
 	 * @param string $action
 	 * @param mixed $object
 	 * @param array $options
-	 *  "query" => (string or array). Append query string to URL
-	 *  "inherit_current_route" => (boolean). Use variables from current route when generating this route.
+	 *        	"query" => (string or array). Append query string to URL
+	 *        	"inherit_current_route" => (boolean). Use variables from current route when
+	 *        	generating this route.
 	 *
 	 * @return string|Ambigous <string, mixed, number>
 	 */
@@ -648,9 +655,10 @@ class Router extends Hookable {
 		}
 		return URL::query_append($this->prefix . $url, avalue($options, 'query', array()));
 	}
-	
+
 	/**
 	 * Retrieve a list of all known controllers
+	 *
 	 * @return array
 	 */
 	public function controllers(Application $app) {

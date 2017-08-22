@@ -1,6 +1,7 @@
 <?php
+
 /**
- * 
+ *
  */
 namespace zesk;
 
@@ -15,43 +16,43 @@ use \LogicException;
  * @property $session \Interface_Session
  */
 class Objects {
-	
+
 	/**
 	 *
 	 * @var Application
 	 */
 	private $application = null;
-	
+
 	/**
 	 *
 	 * @var Interface_Settings
 	 */
 	private $settings = null;
-	
+
 	/**
 	 *
 	 * @var \Database[]
 	 */
 	public $databases = array();
-	
+
 	/**
 	 *
 	 * @var User
 	 */
 	private $user = null;
-	
+
 	/**
 	 *
 	 * @var \Interface_Session
 	 */
 	private $session = null;
-	
+
 	/**
 	 *
 	 * @var array
 	 */
 	private $singletons = array();
-	
+
 	/**
 	 *
 	 * @var array
@@ -62,7 +63,7 @@ class Objects {
 		"user" => true,
 		"session" => true
 	);
-	
+
 	/**
 	 * If value is true, allow only a single write
 	 *
@@ -74,22 +75,22 @@ class Objects {
 		"settings" => true,
 		"session" => true
 	);
-	
+
 	/**
 	 *
 	 * @var array
 	 */
 	private $debug = array();
-	
+
 	/**
 	 *
 	 * @var array
 	 */
 	private $mapping = array();
-	
+
 	/**
 	 *
-	 * @param Kernel $zesk            
+	 * @param Kernel $zesk
 	 */
 	public function __construct(Kernel $zesk) {
 	}
@@ -102,7 +103,7 @@ class Objects {
 		$this->debug = array();
 		$this->mapping = array();
 	}
-	
+
 	/**
 	 * Provide a mapping for when internal classes need to be overridden by applications.
 	 * <code>
@@ -110,9 +111,9 @@ class Objects {
 	 * </code>
 	 *
 	 * @param string $requested_class
-	 *            When this class is requested, then ...
+	 *        	When this class is requested, then ...
 	 * @param string $target_class
-	 *            Use this class instead
+	 *        	Use this class instead
 	 * @return \zesk\Objects
 	 */
 	public function map($requested_class = null, $target_class = null) {
@@ -134,20 +135,20 @@ class Objects {
 		$this->mapping[strtolower($requested_class)] = $target_class;
 		return $this;
 	}
-	
+
 	/**
 	 * Convert from a requested class to the target class
 	 *
-	 * @param string $requested_class            
+	 * @param string $requested_class
 	 * @return string
 	 */
 	function resolve($requested_class) {
 		return avalue($this->mapping, strtolower($requested_class), $requested_class);
 	}
-	
+
 	/**
 	 *
-	 * @param unknown $member            
+	 * @param unknown $member
 	 * @throws Exception_Key
 	 * @return NULL
 	 */
@@ -161,11 +162,11 @@ class Objects {
 		));
 		return null;
 	}
-	
+
 	/**
 	 *
-	 * @param string $member            
-	 * @param mixed $value            
+	 * @param string $member
+	 * @param mixed $value
 	 * @throws Exception_Key
 	 */
 	public function __set($member, $value) {
@@ -190,10 +191,10 @@ class Objects {
 			$this->$member = $value;
 		}
 	}
-	
+
 	/**
 	 *
-	 * @param string $class            
+	 * @param string $class
 	 * @return object
 	 */
 	public function singleton($class) {
@@ -201,11 +202,11 @@ class Objects {
 		$class = array_shift($arguments);
 		return $this->singleton_arguments($class, $arguments);
 	}
-	
+
 	/**
 	 *
-	 * @param string $class            
-	 * @param array $arguments            
+	 * @param string $class
+	 * @param array $arguments
 	 * @return object
 	 */
 	public function singleton_arguments($class, array $arguments = array(), $use_static = true) {
@@ -234,7 +235,7 @@ class Objects {
 						/* @var $method ReflectionMethod */
 						if ($refl_method->isStatic()) {
 							if ($method === "instance") {
-								zesk()->deprecated("$resolve_class::$method will no longer be allowed for singleton creation");
+								$this->application->zesk->deprecated("$resolve_class::$method will no longer be allowed for singleton creation");
 							}
 							return $this->singletons[$low_class] = $object = $refl_method->invokeArgs(null, $arguments);
 						}
@@ -248,11 +249,11 @@ class Objects {
 			throw new Exception_Class_NotFound($resolve_class, null, null, $e);
 		}
 	}
-	
+
 	/**
 	 * Create a new class based on name
 	 *
-	 * @param string $class            
+	 * @param string $class
 	 * @return stdClass
 	 * @throws Exception
 	 */
@@ -261,12 +262,12 @@ class Objects {
 		array_shift($arguments);
 		return $this->factory_arguments($class, $arguments);
 	}
-	
+
 	/**
 	 * Create a new class based on name
 	 *
-	 * @param string $class            
-	 * @param array $arguments            
+	 * @param string $class
+	 * @param array $arguments
 	 * @return stdClass
 	 * @throws Exception
 	 */

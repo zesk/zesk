@@ -664,17 +664,17 @@ class Response_Text_HTML extends Response_Text {
 		extract($attributes, EXTR_IF_EXISTS);
 		if ($root_dir) {
 			if ($debug) {
-				zesk()->logger->debug("rootdir (" . json_encode($root_dir) . ") check $_path");
+				$this->application->logger->debug("rootdir (" . json_encode($root_dir) . ") check $_path");
 			}
 			return HTML::href($this->application, path($root_dir, $_path));
 		} else if ($share) {
 			if ($debug) {
-				zesk()->logger->debug("share check $_path");
+				$this->application->logger->debug("share check $_path");
 			}
 			return Controller_Share::realpath($this->application, $_path);
 		} else if ($is_route) {
 			if ($debug) {
-				zesk()->logger->debug("route check $_path");
+				$this->application->logger->debug("route check $_path");
 			}
 			return $this->resource_path_route($_path, $route_expire);
 		} else {
@@ -694,7 +694,7 @@ class Response_Text_HTML extends Response_Text {
 		$query = array();
 		$file = $this->resource_path($path, $attributes);
 		if (!$file || !is_file($file)) {
-			zesk()->logger->warning("Resource {path} not found at {file}", array(
+			$this->application->logger->warning("Resource {path} not found at {file}", array(
 				"path" => $path,
 				"file" => $file
 			));

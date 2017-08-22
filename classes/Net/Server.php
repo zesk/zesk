@@ -1,4 +1,5 @@
 <?php
+
 /**
  * @version $URL: https://code.marketacumen.com/zesk/trunk/classes/Net/Server.php $
  * @author Kent Davidson <kent@marketacumen.com>
@@ -17,7 +18,7 @@ abstract class Net_Server {
 	 * Net_Server_Driver_Single
 	 */
 	const type_single = "Single";
-	
+
 	/**
 	 * Override in subclasses to set the default driver type
 	 */
@@ -26,7 +27,7 @@ abstract class Net_Server {
 		self::type_fork,
 		self::type_single
 	);
-	
+
 	/**
 	 * Driver for this server
 	 *
@@ -46,28 +47,28 @@ abstract class Net_Server {
 		if ($port === null || ($port <= 0 || $port >= 65535)) {
 			throw new Exception_Parameter("Net_Server requires a nueric port between 1 and 65535 to be specified");
 		}
-		$this->driver = zesk()->objects->factory("Net_Server_Driver_$type", $this, $host, $port);
+		$this->driver = zesk()->objects->factory(__NAMESPACE__ . "\\Net_Server_Driver_$type", $this, $host, $port);
 	}
 	public function start() {
 		$this->driver->start();
 	}
-	
+
 	/*
 	 public function hook_start() {
 	 }
-	 
+
 	 public function hook_shutdown() {
 	 }
-	 
+
 	 function hook_connect($client_id = 0) {
 	 }
-	 
+
 	 function hook_connect_refused($client_id = 0) {
 	 }
-	 
+
 	 function hook_close($client_id = 0) {
 	 }
-	 
+
 	 */
 	abstract function hook_receive($client_id = 0, $data = "");
 	protected function send($client_id, $data) {

@@ -446,7 +446,7 @@ class Object extends Model {
 		if ($this->class->cache_column_names) {
 			$cache->invalidate_changed($this, $this->class->cache_column_names);
 		} else {
-			zesk()->logger->info("Class {class}->cache_column_names does not have value - must invalidate manually", array(
+			$this->application->logger->info("Class {class}->cache_column_names does not have value - must invalidate manually", array(
 				"class" => get_class($this->class)
 			));
 		}
@@ -1719,7 +1719,7 @@ class Object extends Model {
 	 */
 	private function _store_member($member, $store = null) {
 		if (!array_key_exists($member, $this->store_columns)) {
-			zesk()->logger->warning("Unknown column {member} in object {object} ({store_columns})", array(
+			$this->application->logger->warning("Unknown column {member} in object {object} ({store_columns})", array(
 				"member" => $member,
 				"object" => $this,
 				"store_columns" => array_keys($this->store_columns)
