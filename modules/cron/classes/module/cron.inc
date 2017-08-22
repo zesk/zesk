@@ -23,7 +23,7 @@ class Module_Cron extends Module {
 	 *
 	 * @var array
 	 */
-	protected $classes = array(
+	protected $object_classes = array(
 		"zesk\\Server",
 		"zesk\\Lock",
 		"zesk\\Settings"

@@ -130,6 +130,23 @@ class Hooks {
 			"call"
 		), 'shutdown');
 	}
+	
+	public function initialize() {
+		$this->hooks = array();
+		$this->hook_aliases = array();
+		$this->hook_definitions = array();
+		$this->hooks_called = array();
+		$all_hook_classes = $this->all_hook_classes;
+		$this->all_hook_classes = array();
+		return $all_hook_classes;
+	}
+	public function reset() {
+		$this->call(Hooks::hook_reset);
+		foreach ($this->initialize() as $class) {
+			$this->register_class($class);
+		}
+	}
+	
 	/**
 	 * Given a passed-in hook name, normalize it and return the internal name
 	 *
@@ -176,7 +193,7 @@ class Hooks {
 	/**
 	 * Called on classes which may register hooks in Zesk using $hooks->add().
 	 *
-	 * A list of classes is passeed in which are autoloaded and
+	 * A list of classes is passed in which are autoloaded and
 	 * then ::hooks is called for them. Every call is called once and only once, order must not
 	 * matter, but can be
 	 * enforced by calling $hooks->register_class('dependency1;dependency2'); as the first line to

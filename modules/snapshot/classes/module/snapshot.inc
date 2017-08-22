@@ -2,7 +2,7 @@
 namespace zesk;
 
 class Module_Snapshot extends Module {
-	protected $classes = array(
+	protected $object_classes = array(
 		'zesk\\Database_Snapshot'
 	);
 }

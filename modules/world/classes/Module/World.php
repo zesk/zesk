@@ -17,7 +17,7 @@ class Module_World extends Module_JSLib {
 	protected $javascript_paths = array(
 		'/share/world/js/module.world.js'
 	);
-	protected $classes = array(
+	protected $object_classes = array(
 		'zesk\\Currency',
 		'zesk\\City',
 		'zesk\\County',

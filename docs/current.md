@@ -1,11 +1,7 @@
 ## Release {version}
 
-- Adding maintenance tag as default version `1.2.{maintenance}.0`
-- Controls related to `Database_Query_Select` Avoids `query_column` warnings that field didn't modify where clause
-- Fix `Contact_Tag` and `Contact` linkage by adding intermediate table
-- Widgets: Fix unlikely code structure issue with `_exec_render` to avoid uninitialized variable and double unwrap
-- Updated docs in `Control_Select`
-- Support for `Control_Select::is_single()`
-- `zesk\Directory::list_recursive`: if `opendir` fails on a directory, return an array instead of false
-- `Controller_Content_Cache` fixing issue with `Content_Image` data being `null`
-- Updating the `version` command to support custom version layouts properly
+- Allow reinitialization of app, fixing up reset. Note that `zesk()->reset()` is not production-ready yet, and may possibly be removed in a future version. Likely add an "Application"-level reset instead and will migrate any values from `zesk()` global to Application level if necessary.
+- Deprecated module variable `$classes`
+- Fixing class names for world bootstrap
+- `Options::inherit_global_options` now can inherit from passed in object (uses `get_class`)
+- Adding back in `update.conf` to `zesk update` command

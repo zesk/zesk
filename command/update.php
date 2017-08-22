@@ -43,6 +43,12 @@ class Command_Update extends Command_Base {
 	protected $load_modules = array(
 		"Repository"
 	);
+	/**
+	 * Set to true in subclasses to skip Application configuration until ->go
+	 *
+	 * @var boolean
+	 */
+	public $has_configuration = false;
 	
 	/**
 	 *
@@ -80,6 +86,9 @@ class Command_Update extends Command_Base {
 	 * @see Command::run()
 	 */
 	function run() {
+		
+		$this->configure("update");
+		
 		$this->inherit_global_options();
 		
 		if ($this->help) {

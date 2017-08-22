@@ -40,7 +40,8 @@ class World_Bootstrap_Province extends Options {
 	 */
 	public function __construct($options) {
 		parent::__construct($options);
-		$this->inherit_global_options("Module_World");
+		$object = app()->modules->object("world");
+		$this->inherit_global_options($object);
 		$include_country = $this->option("include_country");
 		if ($include_country) {
 			$this->include_country = array_change_key_case(arr::flip_assign(to_list($include_country), true));
@@ -53,7 +54,10 @@ class World_Bootstrap_Province extends Options {
 		return true;
 	}
 	public function bootstrap(Application $application) {
-		$x = $application->object_factory(str::unprefix(__CLASS__, "World_Bootstrap_"));
+		$province_class = __NAMESPACE__ . '\\' . 'Province';
+		$country_class = __NAMESPACE__ . '\\' . 'Country';
+		
+		$x = $application->object_factory($province_class);
 		if ($this->option_bool("drop")) {
 			$x->database()->query('TRUNCATE ' . $x->table());
 		}
@@ -63,7 +67,7 @@ class World_Bootstrap_Province extends Options {
 			"CA" => self::_province_ca()
 		);
 		foreach ($countries as $country_code => $map) {
-			$country = $application->object_factory('Country', array(
+			$country = $application->object_factory($country_class, array(
 				'code' => $country_code
 			))->find();
 			if (!$country) {
@@ -71,7 +75,7 @@ class World_Bootstrap_Province extends Options {
 			}
 			if ($this->is_included($country)) {
 				foreach ($map as $name => $code) {
-					$application->object_factory("Province", array(
+					$application->object_factory($province_class, array(
 						"country" => $country,
 						"code" => strtoupper($code),
 						"name" => $name

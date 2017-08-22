@@ -3,7 +3,7 @@
 namespace zesk;
 
 class Module_iCalendar extends Module {
-	protected $classes = array(
+	protected $object_classes = array(
 		"zesk\\Schedule"
 	);
 }

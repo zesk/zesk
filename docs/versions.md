@@ -1,3 +1,15 @@
+## Release v0.9.30
+
+- Allow reinitialization of app, fixing up reset. Note that `zesk()->reset()` is not production-ready yet, and may possibly be removed in a future version. Likely add an "Application"-level reset instead and will migrate any values from `zesk()` global to Application level if necessary.
+- Deprecated module variable `$classes`
+- Fixing class names for world bootstrap
+- `Options::inherit_global_options` now can inherit from passed in object (uses `get_class`)
+- Adding back in `update.conf` to `zesk update` command
+## Release v0.9.29
+
+- Added debugging template for `inplace` pages to determine class used, left for possible later use
+- Proper `zesk\` namespace for many objects in the system
+
 ## Release v0.9.28
 
 - Adding maintenance tag as default version `1.2.{maintenance}.0`

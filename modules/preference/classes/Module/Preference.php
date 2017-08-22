@@ -4,7 +4,7 @@ namespace zesk;
 
 class Module_Preference extends Module {
 
-	protected $classes = array(
+	protected $object_classes = array(
 		"zesk\\Preference",
 		"zesk\\Preference_Type"
 	);

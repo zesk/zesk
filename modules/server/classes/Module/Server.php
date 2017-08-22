@@ -10,7 +10,7 @@ namespace zesk;
  *
  */
 class Module_Server extends Module {
-	protected $classes = array(
+	protected $object_classes = array(
 		'zesk\\Server',
 		'zesk\\Server_Data',
 		'zesk\\Lock'

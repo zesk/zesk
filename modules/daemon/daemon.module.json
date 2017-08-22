@@ -1,5 +1,7 @@
 {
 	"module_class": "zesk\\Module_Daemon",
 	"name": "Daemon",
-	"autoload_class_prefix": "zesk\\"
+	"autoload_options": {
+		"class_prefix": "zesk\\"
+	}
 }
