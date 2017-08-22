@@ -72,11 +72,11 @@ class Command_IPBan extends Command_Base {
 						));
 					}
 				} else {
-					IPBan::complain($ip, $this->option_integer("severity", IPBan::severity_known), $this->option("message", __CLASS__));
+					Complaint::complain($ip, $this->option_integer("severity", Complaint::severity_known), $this->option("message", __CLASS__));
 					$complained = true;
 				}
 				if ($complained) {
-					Application_IPBan::fifo()->write("Hello");
+					Application_Complaint::fifo()->write("Hello");
 				}
 			} while ($this->has_arg());
 		} else {

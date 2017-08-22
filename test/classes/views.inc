@@ -1,6 +1,6 @@
 <?php
 /**
- * 
+ *
  * @author kent
  *
  */
@@ -33,9 +33,9 @@ class Test_Views extends Test_Widget {
 			"View_Time_Zone",
 			"View_Email"
 		);
-		
+
 		Session::implementation("test");
-		$app = Application::instance();
+		$app = $this->application;
 		$router = $app->router();
 		$router->add_route("user/{action}", array(
 			"actions" => "edit;list;new",

@@ -446,7 +446,7 @@ class IPBan_Parser extends IPBan {
 		$banned = $trigger->add($banned, $this->max_timestamp);
 		
 		foreach ($banned as $ip => $count) {
-			IPBan::complain($ip, IPBan::severity_from_string($trigger->severity()), "{count} occurances of trigger {codename}", array(
+			Complaint::complain($ip, Complaint::severity_from_string($trigger->severity()), "{count} occurances of trigger {codename}", array(
 				"count" => $count,
 				"codename" => $codename
 			));

@@ -189,7 +189,7 @@ class Application_IPBan extends Application {
 		} else {
 			$this->logger->warning("No configuration directory {path} or {file}", compact("path", "file"));
 		}
-		$path = 'Application_IPBan::url_toxic_ip';
+		$path = 'Application_Complaint::url_toxic_ip';
 		if (!$this->configuration->path_exists($path)) {
 			$this->configuration->path_set($path, 'http://www.stopforumspam.com/downloads/toxic_ip_cidr.txt');
 		}
@@ -352,7 +352,7 @@ class Application_IPBan extends Application {
 	 *
 	 * Set in your configuration file:
 	 *
-	 * Application_IPBan::ipban_files=["/path/to/index.php","/path/to/wordpress/index.php","/path/to/drupal/index.php"]
+	 * Application_Complaint::ipban_files=["/path/to/index.php","/path/to/wordpress/index.php","/path/to/drupal/index.php"]
 	 */
 	public function check_instrumented_files() {
 		$files = $this->option_list("ipban_files");
@@ -466,7 +466,7 @@ class Application_IPBan extends Application {
 	}
 	private function initial_ban() {
 		$this->last_check = Timestamp::now();
-		$ips = IPBan::ban_since(null, $this->option());
+		$ips = Complaint::ban_since(null, $this->option());
 		$this->drop_ip(self::chain_ban, $ips);
 	}
 	/**
@@ -529,9 +529,9 @@ class Application_IPBan extends Application {
 		$options = $this->option();
 		
 		$now = Timestamp::now();
-		$ban_ips = IPBan::ban_since($this->last_check, $options);
+		$ban_ips = Complaint::ban_since($this->last_check, $options);
 		$ban_ips += IPBan_IP::blacklist($this->last_check);
-		$allow_ips = IPBan::allow_since($this->last_check, $options);
+		$allow_ips = Complaint::allow_since($this->last_check, $options);
 		$allow_ips += IPBan_IP::whitelist($this->last_check) + $this->whitelist;
 		
 		foreach ($ban_ips as $ip => $ip) {
@@ -801,7 +801,7 @@ class Application_IPBan extends Application {
 		$url = $this->option('url_toxic_ip');
 		if (!URL::valid($url)) {
 			if (!$errored) {
-				$this->logger->error("Application_IPBan::url_toxic_ip not set to valid URL: {url}", array(
+				$this->logger->error("Application_Complaint::url_toxic_ip not set to valid URL: {url}", array(
 					"url" => $url
 				));
 				$errored = true;

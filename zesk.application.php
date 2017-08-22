@@ -1,4 +1,5 @@
 <?php
+
 /**
  * $URL: http://code.marketacumen.com/zesk/trunk/zesk.inc $
  * @package zesk
@@ -19,6 +20,7 @@ if (!isset($GLOBALS['__composer_autoload_files'])) {
 }
 /* @var $zesk zesk\Kernel */
 $zesk->paths->set_application(dirname(__FILE__));
+
 $application = Application::instance();
 $application->configure_include_path(array(
 	'/etc',

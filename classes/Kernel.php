@@ -19,43 +19,47 @@ require_once dirname(__FILE__) . "/functions.php";
 /**
  *
  * @author kent
- *        
+ *
  */
 class Kernel {
 	/**
-	 * Throw an exception when a deprecated function is called. Useful during development only.
-	 * 
+	 * Throw an exception when a deprecated function is called.
+	 * Useful during development only.
+	 *
 	 * @var string
 	 */
 	const deprecated_exception = "exception";
-	
+
 	/**
-	 * Log all deprecated function calls. Useful for development or production environments.
-	 * 
+	 * Log all deprecated function calls.
+	 * Useful for development or production environments.
+	 *
 	 * @var string
 	 */
 	const deprecated_log = "log";
-	
+
 	/**
-	 * Terminate execution and output a backtrace when a deprecated function is called. Useful during development only.
-	 * 
+	 * Terminate execution and output a backtrace when a deprecated function is called.
+	 * Useful during development only.
+	 *
 	 * @var string
 	 */
 	const deprecated_backtrace = "backtrace";
-	
+
 	/**
-	 * Do nothing when deprecated functions are called. Production only. Default setting.
-	 * 
+	 * Do nothing when deprecated functions are called.
+	 * Production only. Default setting.
+	 *
 	 * @var null
 	 */
 	const deprecated_ignore = null;
-	
+
 	/**
 	 *
 	 * @var \zesk\Kernel
 	 */
 	private static $zesk = null;
-	
+
 	/**
 	 *
 	 * @var string
@@ -66,16 +70,16 @@ class Kernel {
 	 * @var array
 	 */
 	private $initialize_configuration = null;
-	
+
 	/**
 	 * For storing profiling information
-	 * 
+	 *
 	 * @see self::profiler()
 	 * @see self::profile_timer()
 	 * @var \stdClass
 	 */
 	private $profiler = null;
-	
+
 	/**
 	 *
 	 * @var array
@@ -94,15 +98,15 @@ class Kernel {
 		'last' => 1e299,
 		'zesk-last' => 1e300
 	);
-	
+
 	/**
 	 *
 	 * @var double
 	 */
 	public $initialization_time = null;
-	
+
 	/**
-	 * 
+	 *
 	 * @var CacheItemPoolInterface
 	 */
 	public $cache = null;
@@ -111,89 +115,96 @@ class Kernel {
 	 * @var Autoloader
 	 */
 	public $autoloader = null;
-	
+
 	/**
 	 *
 	 * @var Process
 	 */
 	public $process = null;
-	
+
 	/**
 	 *
 	 * @var Hooks
 	 */
 	public $hooks = null;
-	
+
 	/**
 	 *
 	 * @var Paths
 	 */
 	public $paths = null;
-	
+
 	/**
 	 *
 	 * @var Configuration
 	 */
 	public $configuration = null;
-	
+
 	/**
 	 *
 	 * @var Classes
 	 */
 	public $classes = null;
-	
+
 	/**
 	 *
 	 * @var Objects
 	 */
 	public $objects = null;
-	
+
 	/**
 	 *
 	 * @var Logger
 	 */
 	public $logger = null;
-	
+
 	/**
 	 *
 	 * @var boolean
 	 */
 	public $maintenance = false;
-	
+
 	/**
+	 *
 	 * @deprecated 2017-05
 	 * @see self::console()
 	 * @var boolean
 	 */
 	public $console = false;
-	
+
 	/**
 	 *
 	 * @var string
 	 */
 	public $newline = "\n";
-	
+
 	/**
 	 *
 	 * @var string
 	 */
-	public $application_class = "zesk\\Application";
-	
+	protected $application_class = __NAMESPACE__ . "\\" . "Application";
+
+	/**
+	 *
+	 * @var Application
+	 */
+	protected $application = null;
+
 	/**
 	 *
 	 * @var boolean
 	 */
 	public $is_windows = false;
-	
+
 	/**
 	 * Include related classes
 	 */
 	public static function includes() {
 		$here = dirname(__FILE__);
-		
+
 		require_once $here . "/Process.php";
 		require_once $here . "/Logger.php";
-		
+
 		require_once $here . "/Configuration.php";
 		require_once $here . "/Options.php";
 		require_once $here . "/Hookable.php";
@@ -202,16 +213,16 @@ class Kernel {
 		require_once $here . "/Autoloader.php";
 		require_once $here . "/Classes.php";
 		require_once $here . "/Objects.php";
-		
+
 		require_once $here . "/Paths.php";
 		require_once $here . "/Compatibility.php";
 		require_once $here . "/CDN.php";
 		require_once $here . "/PHP.php";
-		
+
 		require_once $here . "/CacheItemPool/NULL.php";
 		require_once $here . "/CacheItem/NULL.php";
 	}
-	
+
 	/**
 	 *
 	 * @return \zesk\Kernel
@@ -219,40 +230,40 @@ class Kernel {
 	static function zesk() {
 		return self::$zesk;
 	}
-	
+
 	/**
 	 *
-	 * @param array $configuration        	
+	 * @param array $configuration
 	 * @return \zesk\Kernel
 	 */
 	public static function singleton(array $configuration = array()) {
 		if (self::$zesk) {
 			return self::$zesk;
 		}
-		
+
 		global $zesk;
-		
+
 		self::$zesk = $zesk = new self($configuration);
-		
+
 		$zesk->bootstrap();
-		
+
 		return $zesk;
 	}
 	/**
 	 *
-	 * @param array $configuration        	
+	 * @param array $configuration
 	 */
 	function __construct(array $configuration = array()) {
 		if (!defined('E_DEPRECATED')) {
 			define('E_DEPRECATED', 0);
 		}
 		error_reporting(E_ALL | E_STRICT | E_DEPRECATED);
-		
+
 		$this->initialize_configuration = $configuration;
-		
+
 		/**
 		 * Set default console
-		 * 
+		 *
 		 * @var boolean
 		 */
 		$this->console = PHP_SAPI === 'cli';
@@ -262,7 +273,7 @@ class Kernel {
 		$this->newline = $this->console ? "\n" : "<br />\n";
 		/*
 		 * Is this on Windows-based OS?
-		 * 
+		 *
 		 * @todo Is this true
 		 */
 		$this->is_windows = PATH_SEPARATOR === '\\';
@@ -270,15 +281,15 @@ class Kernel {
 		 * Zesk's start time in microseconds
 		 */
 		$this->initialization_time = isset($configuration['init']) ? $configuration['init'] : microtime(true);
-		
+
 		/*
 		 * Create our hooks registry
 		 */
 		$this->hooks = new Hooks($this);
-		
+
 		$this->construct($configuration);
 	}
-	
+
 	/**
 	 * Reset
 	 */
@@ -292,23 +303,23 @@ class Kernel {
 	 */
 	private function construct(array $configuration) {
 		Compatibility::install();
-		
+
 		if (isset($configuration['cache']) && $configuration['cache'] instanceof CacheItemPoolInterface) {
 			$this->cache = $configuration['cache'];
 		} else {
 			$this->cache = new CacheItemPool_NULL();
 		}
-		
+
 		/*
 		 * Set up logger interface for central logging
 		 */
 		$this->logger = new Logger($this);
-		
+
 		/*
 		 * Configuration of components in the system
 		 */
 		$this->configuration = Configuration::factory(self::$configuration_defaults)->merge(Configuration::factory($configuration));
-		
+
 		//$this->caches = new Caches();
 		/*
 		 * Add default nodes to zesk globals
@@ -316,22 +327,22 @@ class Kernel {
 		$this->configuration->zesk = array(
 			"paths" => array()
 		);
-		
+
 		/*
 		 * Current process interface. Depends on ->hooks
 		 */
 		$this->process = new Process($this);
-		
+
 		/*
 		 * Initialize system paths and set up default paths for interacting with the file system
 		 */
 		$this->paths = new Paths($this);
-		
+
 		/*
 		 * Manage object creation, singletons, and object sharing
 		 */
 		$this->objects = new Objects($this);
-		
+
 		$this->application_class = $this->configuration->path_get(array(
 			__CLASS__,
 			"application_class"
@@ -341,11 +352,11 @@ class Kernel {
 	 */
 	public final function bootstrap() {
 		$this->autoloader = new Autoloader($this);
-		
+
 		$this->classes = Classes::instance($this);
-		
+
 		$this->initialize();
-		
+
 		if (PHP_VERSION_ID < 50000) {
 			die("Zesk works in PHP 5 only.");
 		}
@@ -359,7 +370,7 @@ class Kernel {
 			"configured"
 		));
 	}
-	
+
 	/**
 	 *
 	 * @return number
@@ -367,9 +378,9 @@ class Kernel {
 	public function process_id() {
 		return $this->process->id();
 	}
-	
+
 	/**
-	 * 
+	 *
 	 * @param string|null $set
 	 */
 	public function set_deprecated($set) {
@@ -408,7 +419,7 @@ class Kernel {
 			}
 		}
 	}
-	
+
 	/**
 	 * For cordoning off old, dead code
 	 */
@@ -420,7 +431,7 @@ class Kernel {
 			backtrace();
 		}
 	}
-	
+
 	/**
 	 * This loads an include without any variables defined, except super globals Handy when the file
 	 * is meant to return
@@ -435,7 +446,7 @@ class Kernel {
 	public function load($__file__) {
 		return include $__file__;
 	}
-	
+
 	/**
 	 * Load configuration
 	 */
@@ -477,7 +488,7 @@ class Kernel {
 			$zesk->logger->utc_time = to_bool($this->configuration->path_get("zesk\Logger::utc_time"));
 		}
 	}
-	
+
 	/**
 	 * Sort an array based on the weight array index
 	 * Support special terms such as "first" and "last"
@@ -485,15 +496,15 @@ class Kernel {
 	 * use like:
 	 *
 	 * `usort` does not maintain index association:
-	 * 
-	 *     usort($this->links_sorted, array(zesk(), "sort_weight_array"));
-	 * 
-	 * `uasort` DOES maintain index association:
-	 * 
-	 *     uasort($this->links_sorted, array(zesk(), "sort_weight_array"));
 	 *
-	 * @param array $a        	
-	 * @param array $b        	
+	 * usort($this->links_sorted, array(zesk(), "sort_weight_array"));
+	 *
+	 * `uasort` DOES maintain index association:
+	 *
+	 * uasort($this->links_sorted, array(zesk(), "sort_weight_array"));
+	 *
+	 * @param array $a
+	 * @param array $b
 	 * @see usort
 	 * @see uasort
 	 * @return integer
@@ -502,20 +513,20 @@ class Kernel {
 		// Get weight a, convert to double
 		$aw = array_key_exists('weight', $a) ? $a['weight'] : 0;
 		$aw = doubleval(array_key_exists("$aw", self::$weight_specials) ? self::$weight_specials[$aw] : $aw);
-		
+
 		// Get weight b, convert to double
 		$bw = array_key_exists('weight', $b) ? $b['weight'] : 0;
 		$bw = doubleval(array_key_exists("$bw", self::$weight_specials) ? self::$weight_specials[$bw] : $bw);
-		
+
 		// a < b -> -1
 		// a > b -> 1
 		// a === b -> 0
 		return $aw < $bw ? -1 : ($aw > $bw ? 1 : 0);
 	}
-	
+
 	/**
 	 * Same as sort_weight_array but highest values are FIRST, not LAST.
-	 * 
+	 *
 	 * @param array $a
 	 * @param array $b
 	 * @return integer
@@ -541,7 +552,7 @@ class Kernel {
 		}
 		return $this->profiler;
 	}
-	
+
 	/**
 	 * Time a function call
 	 *
@@ -558,7 +569,7 @@ class Kernel {
 			$profiler->times[$item] = $seconds;
 		}
 	}
-	
+
 	/**
 	 * Internal profiler to determine who is calling what function how often.
 	 * Debugging only
@@ -574,10 +585,10 @@ class Kernel {
 			$profiler->calls[$fkey] = 1;
 		}
 	}
-	
+
 	/**
 	 * Getter/setter for console
-	 * 
+	 *
 	 * @param boolean $set
 	 * @return boolean
 	 */
@@ -587,6 +598,57 @@ class Kernel {
 			return $set;
 		}
 		return $this->console;
+	}
+
+	/**
+	 * Getter/setter for application class
+	 *
+	 * @param string|null $set
+	 * @return string|self
+	 */
+	public function application_class($set = null) {
+		if ($set !== null) {
+			if ($set === $this->application_class) {
+				return $this;
+			}
+			if ($this->application !== null) {
+				throw new Exception_Semantics("Changing application class to {class} when application already instantiated", array(
+					"class" => $set
+				));
+			}
+			$this->application_class = $set;
+			return $this;
+		}
+		return $this->application_class;
+	}
+
+	/**
+	 *
+	 * @param array $options
+	 * @throws Exception_Semantics
+	 * @return Application
+	 */
+	public function create_application(array $options) {
+		if ($this->application !== null) {
+			throw new Exception_Semantics("{method} application of type {class} was already created", array(
+				"method" => __METHOD__,
+				"class" => get_class($this->application)
+			));
+		}
+		return $this->application = $this->objects->factory($this, $options);
+	}
+
+	/**
+	 *
+	 * @return Application
+	 */
+	public function application() {
+		if (!$this->application) {
+			throw new Exception_Semantics("Application must be created with {class}::create_application", array(
+				"class" => get_class($this)
+			));
+		}
+		return $this->application;
 	}
 }
 

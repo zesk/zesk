@@ -17,26 +17,26 @@ class test_zesk extends Test_Unit {
 		$this->order = 0;
 		zesk()->hooks->call("test_hook_order", $this);
 		$this->assert_equal($this->order, 0);
-		
+
 		// Add hooks
 		zesk()->hooks->add("test_hook_order", "test_zesk::_test_hook_order_1st");
 		zesk()->hooks->add("test_hook_order", "test_zesk::_test_hook_order_2nd");
-		
+
 		// Test ordering
 		$this->order = 0;
 		zesk()->hooks->call("test_hook_order", $this);
 		$this->assert_equal($this->order, 2);
-		
+
 		// Test clearing
 		zesk::clear_hook("test_hook_order");
 		$this->order = 0;
 		zesk()->hooks->call("test_hook_order", $this);
 		$this->assert_equal($this->order, 0);
-		
+
 		// Test "first"
 		zesk()->hooks->add("test_hook_order", "test_zesk::_test_hook_order_2nd");
 		zesk()->hooks->add("test_hook_order", "test_zesk::_test_hook_order_1st", null, null, true);
-		
+
 		// Test ordering
 		$this->order = 0;
 		zesk()->hooks->call("test_hook_order", $this);
@@ -49,7 +49,7 @@ class test_zesk extends Test_Unit {
 		zesk::setk($k, "b", $v);
 		zesk::setk($k, "c", $v);
 		zesk::setk($k, "d", $v);
-		
+
 		$this->assert_arrays_equal(zesk::get($k), array(
 			"b" => "c",
 			"c" => "c",
@@ -58,7 +58,7 @@ class test_zesk extends Test_Unit {
 	}
 	function test_class_hierarchy() {
 		global $zesk;
-		
+
 		$mixed = null;
 		$this->assert_arrays_equal($zesk->classes->hierarchy("A"), to_list('A;Hookable;Options'));
 		$this->assert_arrays_equal($zesk->classes->hierarchy("B"), to_list('B;A;Hookable;Options'));
@@ -104,24 +104,24 @@ class test_zesk extends Test_Unit {
 			"inc"
 		), $tried_path);
 		$this->assert($result === ZESK_ROOT . 'classes/user.inc');
-		
+
 		$result = zesk::autoload_search("User", array(
 			"inc",
 			"sql"
 		), $tried_path);
 		$this->assert($result === ZESK_ROOT . 'classes/user.inc');
-		
+
 		$result = zesk::autoload_search("User", array(
 			"sql"
 		), $tried_path);
 		$this->assert($result === ZESK_ROOT . 'classes/user.sql');
-		
+
 		$result = zesk::autoload_search("User", array(
 			"other",
 			"sql"
 		), $tried_path);
 		$this->assert($result === ZESK_ROOT . 'classes/user.sql');
-		
+
 		$result = zesk::autoload_search("User", array(
 			"other",
 			"none"
@@ -171,7 +171,7 @@ class test_zesk extends Test_Unit {
 			__FUNCTION__ => $hash
 		), $defined_error);
 		$this->assert(defined(__FUNCTION__));
-		
+
 		$this->assert(!defined('constant_thing'));
 		zesk::define_globals(array(
 			'constant_thing' => $hash
@@ -184,10 +184,11 @@ class test_zesk extends Test_Unit {
 		zesk::deprecated($set);
 	}
 	function test_development() {
-		$old_value = Application::instance()->development();
-		Application::instance()->development(true);
-		Application::instance()->development(false);
-		Application::instance()->development($old_value);
+		$app = $this->application;
+		$old_value = $app->development();
+		$app->development(true);
+		$app->development(false);
+		$app->development($old_value);
 	}
 	function test_factory() {
 		$class = "Model";
@@ -200,9 +201,9 @@ class test_zesk extends Test_Unit {
 	}
 	function test_file_search() {
 		$dir = dirname(__FILE__);
-		
+
 		$up_dir = dirname($dir);
-		
+
 		$paths = array(
 			$dir => true
 		);
@@ -213,13 +214,13 @@ class test_zesk extends Test_Unit {
 		);
 		$tried_path = null;
 		$result = zesk::file_search($paths, $file_prefix, $extensions, $tried_path);
-		
+
 		$this->assert_equal($result, path($dir, $file_prefix . '.' . $extension));
-		
+
 		$result = zesk::file_search(array(
 			$up_dir => true
 		), "test_$file_prefix", $extensions, $tried_path);
-		
+
 		$this->assert_equal($result, path($dir, $file_prefix . '.' . $extension));
 	}
 	function test_find_directory() {
@@ -244,9 +245,9 @@ class test_zesk extends Test_Unit {
 		$key = null;
 		$default = array();
 		$this->assert_equal(zesk::geta($key, $default), $default);
-		
+
 		$this->assert_equal(zesk::geta($key, null), null);
-		
+
 		$this->assert_equal(zesk::geta("geta_num"), array(
 			1
 		));
@@ -306,9 +307,9 @@ class test_zesk extends Test_Unit {
 			423,
 			"Hike"
 		);
-		
+
 		$arguments_definition = array();
-		
+
 		$arguments_definition = array(
 			0,
 			1,
@@ -316,7 +317,7 @@ class test_zesk extends Test_Unit {
 			3
 		);
 		$this->assert_equal(zesk()->hooks->call_arguments($arguments, $arguments_definition), $arguments);
-		
+
 		$arguments_definition = array(
 			"Foo",
 			"Bar",
@@ -329,7 +330,7 @@ class test_zesk extends Test_Unit {
 			2 => 423,
 			3 => "Hike"
 		));
-		
+
 		$arguments_definition = array(
 			"Foo" => 1,
 			"Bar" => 0,
@@ -343,7 +344,7 @@ class test_zesk extends Test_Unit {
 			423,
 			"Hike"
 		));
-		
+
 		$arguments_definition = array(
 			3,
 			2,
@@ -357,7 +358,7 @@ class test_zesk extends Test_Unit {
 			"string",
 			"Hike"
 		));
-		
+
 		$arguments_definition = array(
 			0,
 			1,
@@ -421,14 +422,14 @@ class test_zesk extends Test_Unit {
 			'overwrite' => false
 		));
 		Debug::output($result);
-		
+
 		$globals = array(
 			'TEST_VAR' => "smooth move",
 			'VAR_2' => "Ha ha! smooth move ex-lax",
 			'VAR_3' => "smooth",
 			'VAR_4' => "default value"
 		);
-		
+
 		foreach ($globals as $v => $result) {
 			$g = zesk::get($v);
 			$this->assert($g === $result, "$v: $g === $result");
@@ -440,7 +441,7 @@ class test_zesk extends Test_Unit {
 		);
 		$file = $this->test_sandbox("env.sh");
 		file_put_contents($file, "A=1\nTEST=YES");
-		
+
 		$overwrite = false;
 		$result = zesk::initialize($paths, array(
 			'files' => array(
@@ -484,7 +485,7 @@ class test_zesk extends Test_Unit {
 			'FOOTEST12=true',
 			'FOOTEST13=false'
 		);
-		
+
 		$results = array(
 			'FOO' => '/foo/foo',
 			'BAR' => '/bar/bar',
@@ -563,7 +564,7 @@ class test_zesk extends Test_Unit {
 		$add = null;
 		zesk::theme_path($add);
 	}
-	
+
 	/**
 	 * @expected_exception Exception_Parameter
 	 */
@@ -571,7 +572,7 @@ class test_zesk extends Test_Unit {
 		$type = null;
 		zesk::theme($type);
 	}
-	
+
 	/**
 	 */
 	function test_theme() {

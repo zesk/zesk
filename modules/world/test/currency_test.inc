@@ -7,7 +7,7 @@ class Currency_Test extends Test_Object {
 		"commerce"
 	);
 	function initialize() {
-		Application::instance()->schema_synchronize(null, array(
+		$this->application->schema_synchronize(null, array(
 			"Currency"
 		));
 		parent::initialize();

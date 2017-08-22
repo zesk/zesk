@@ -21,65 +21,74 @@ class Application extends Hookable implements Interface_Theme {
 	
 	/**
 	 * Equivalent of zesk()
-	 * 
+	 *
 	 * @var Kernel
 	 */
 	public $zesk = null;
 	
 	/**
-	 * Inherited directly from zesk(). Do not edit the value here.
+	 * Inherited directly from zesk().
+	 * Do not edit the value here.
 	 *
 	 * @var Paths
 	 */
 	public $paths = null;
 	
 	/**
-	 * Inherited directly from zesk(). Do not edit.
+	 * Inherited directly from zesk().
+	 * Do not edit.
 	 *
 	 * @var Hooks
 	 */
 	public $hooks = null;
 	
 	/**
-	 * Inherited directly from zesk(). Do not edit.
-	 * 
+	 * Inherited directly from zesk().
+	 * Do not edit.
+	 *
 	 * @var Configuration
 	 */
 	public $configuration = null;
 	
 	/**
+	 *
 	 * @var Configuration_Loader
 	 */
 	public $loader = null;
 	/**
-	 * Inherited directly from zesk(). Do not edit.
-	 * 
+	 * Inherited directly from zesk().
+	 * Do not edit.
+	 *
 	 * @var Logger
 	 */
 	public $logger = null;
 	
 	/**
-	 * Inherited directly from zesk(). Do not edit.
-	 * 
+	 * Inherited directly from zesk().
+	 * Do not edit.
+	 *
 	 * @var Classes
 	 */
 	public $classes = array();
 	
 	/**
-	 * Inherited directly from zesk(). Do not edit.
-	 * 
+	 * Inherited directly from zesk().
+	 * Do not edit.
+	 *
 	 * @var Objects
 	 */
 	public $objects = null;
 	
 	/**
-	 * Inherited directly from zesk(). Do not edit.
-	 * 
+	 * Inherited directly from zesk().
+	 * Do not edit.
+	 *
 	 * @var Process
 	 */
 	public $process = null;
 	
 	/**
+	 *
 	 * @var Command
 	 */
 	public $command = null;
@@ -131,10 +140,10 @@ class Application extends Hookable implements Interface_Theme {
 	protected $load_modules = array();
 	
 	/**
-	 * Array of parent => child mappings for object creation/instantiation. 
-	 * 
+	 * Array of parent => child mappings for object creation/instantiation.
+	 *
 	 * Allows you to set your own user class which extends \zesk\User, for example.
-	 * 
+	 *
 	 * @var array
 	 */
 	protected $object_aliases = array();
@@ -149,13 +158,13 @@ class Application extends Hookable implements Interface_Theme {
 	public $file = null;
 	
 	/**
-	 * 
+	 *
 	 * @var Interface_Session
 	 */
 	public $session = null;
 	
 	/**
-	 * 
+	 *
 	 * @var User
 	 */
 	public $user = null;
@@ -175,8 +184,9 @@ class Application extends Hookable implements Interface_Theme {
 	protected $register_hooks = array();
 	
 	/**
-	 * Array of starting list of Objects which are a part of this application. Used to sync schema and generate dependency classes.
-	 * 
+	 * Array of starting list of Objects which are a part of this application.
+	 * Used to sync schema and generate dependency classes.
+	 *
 	 *
 	 * @var array of string
 	 */
@@ -291,10 +301,10 @@ class Application extends Hookable implements Interface_Theme {
 	 *
 	 * @param unknown $options        	
 	 */
-	public function __construct($options = null) {
+	public function __construct(Kernel $zesk, $options = null) {
 		// Make kernel variables easily accessed
 		/* @var $zesk Kernel */
-		$this->zesk = $zesk = zesk();
+		$this->zesk = $zesk;
 		$this->paths = $zesk->paths;
 		$this->hooks = $zesk->hooks;
 		$this->configuration = $zesk->configuration;
@@ -334,10 +344,12 @@ class Application extends Hookable implements Interface_Theme {
 	/**
 	 * Load the Application singleton
 	 *
-	 * @param array $options
+	 * @deprecated 2017-08 Globals are bod.
+	 * @param array $options        	
 	 * @throws Exception_Configuration
 	 * @return Application
-	 * @todo this should be called "singleton" but that call is used for creating singleton objects in the application. So deprecate that first, then deprecate this once that's gone.
+	 * @todo this should be called "singleton" but that call is used for creating singleton objects
+	 *       in the application. So deprecate that first, then deprecate this once that's gone.
 	 */
 	public static function instance(array $options = array()) {
 		$zesk = zesk();
@@ -347,7 +359,7 @@ class Application extends Hookable implements Interface_Theme {
 				"method" => __METHOD__
 			));
 		}
-		return $zesk->objects->singleton_arguments($zesk->application_class, $options, false);
+		return $zesk->objects->singleton_arguments($zesk->application_class, $zesk, $options, false);
 	}
 	
 	/**
@@ -496,8 +508,8 @@ class Application extends Hookable implements Interface_Theme {
 	
 	/**
 	 * Load configuration files
-	 * 
-	 * @param array $options
+	 *
+	 * @param array $options        	
 	 */
 	private function _configure_files(array $options) {
 		$configuration = $this->configuration;
@@ -607,14 +619,12 @@ class Application extends Hookable implements Interface_Theme {
 	}
 	
 	/**
-	 * 
 	 */
 	private function configured_compatibility() {
 		$this->configuration->deprecated("Router::cache", __CLASS__ . "::cache_router");
 	}
 	
 	/**
-	 * 
 	 */
 	private function configure_cache_paths() {
 		$cache_path = $this->option("cache_path", $this->paths->cache());
@@ -625,7 +635,6 @@ class Application extends Hookable implements Interface_Theme {
 	}
 	
 	/**
-	 *
 	 */
 	private function configured_hooks() {
 		$hook_callback = $result_callback = null;
@@ -831,7 +840,7 @@ class Application extends Hookable implements Interface_Theme {
 		$rows = array();
 		while (count($classes) > 0) {
 			$class = array_shift($classes);
-			if (!is_subclass_of($class, __NAMESPACE__ . "\Object")) {
+			if (!is_subclass_of($class, __NAMESPACE__ . "\\Object")) {
 				zesk()->logger->warning("{method} {class} is not a subclass of zesk\\Object", array(
 					"method" => __METHOD__,
 					"class" => $class
@@ -1021,7 +1030,7 @@ class Application extends Hookable implements Interface_Theme {
 	
 	/**
 	 * Return all known/discerable Controllers for the application.
-	 * 
+	 *
 	 * Potentially slow.
 	 *
 	 * @return array of Controller
@@ -1486,7 +1495,7 @@ class Application extends Hookable implements Interface_Theme {
 	}
 	
 	/**
-	 * 
+	 *
 	 * @return NULL|mixed
 	 */
 	public function theme_current() {
@@ -1696,8 +1705,8 @@ class Application extends Hookable implements Interface_Theme {
 	}
 	
 	/**
-	 * 
-	 * @param string $path
+	 *
+	 * @param string $path        	
 	 * @return \zesk\Application
 	 */
 	public function set_application_root($path) {
@@ -2026,8 +2035,9 @@ class Application extends Hookable implements Interface_Theme {
 	}
 	
 	/**
-	 * 
-	 * @param string $require Throw exception if no session found
+	 *
+	 * @param string $require
+	 *        	Throw exception if no session found
 	 * @throws Exception_NotFound
 	 * @return \zesk\Interface_Session|NULL
 	 */
@@ -2046,7 +2056,7 @@ class Application extends Hookable implements Interface_Theme {
 	}
 	
 	/**
-	 * 
+	 *
 	 * @return User
 	 */
 	public function user($require = true) {
@@ -2073,9 +2083,10 @@ class Application extends Hookable implements Interface_Theme {
 	protected $internal_modules = null;
 	
 	/**
+	 *
 	 * @see self::object_singleton
 	 * @deprecated 2016-12
-	 * @param unknown $class
+	 * @param unknown $class        	
 	 * @return \zesk\Object
 	 */
 	final public function singleton($class) {

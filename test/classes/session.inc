@@ -1,4 +1,5 @@
 <?php
+
 /**
  * $URL: https://code.marketacumen.com/zesk/trunk/test/classes/session.inc $
  * @package zesk
@@ -6,7 +7,13 @@
  * @author Kent Davidson <kent@marketacumen.com>
  * @copyright Copyright &copy; 2008, Market Acumen, Inc.
  */
-use zesk\Cache;
+namespace zesk;
+
+/**
+ *
+ * @author kent
+ *
+ */
 class Test_Session implements Interface_Session {
 	protected $ID;
 	/**
@@ -15,7 +22,18 @@ class Test_Session implements Interface_Session {
 	 * @var Cache
 	 */
 	protected $Cache;
-	function __construct() {
+
+	/**
+	 *
+	 * @var Application
+	 */
+	protected $application = null;
+	/**
+	 *
+	 * @param Application $application
+	 */
+	function __construct(Application $application) {
+		$this->application = $application;
 		$this->ID = mt_rand(0, 0x7FFFFFFF);
 		$this->Cache = Cache::register("Session_Test-" . $this->ID);
 	}
@@ -71,7 +89,7 @@ class Test_Session implements Interface_Session {
 		return $this->__get(self::global_session_user_id());
 	}
 	public function user() {
-		return Application::instance()->object_factory("User")->fetch($this->user_id());
+		return $this->application->object_factory("User")->fetch($this->user_id());
 	}
 	public function authenticate($id, $ip = false) {
 		$this->__set(self::global_session_user_id(), Object::mixed_to_id($id));

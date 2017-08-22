@@ -1,10 +1,12 @@
 <?php
+
 /**
- * 
+ *
  */
 namespace zesk;
 
 /**
+ *
  * @see Class_Content_Data
  * @author kent
  * @property string $md5hash
@@ -30,11 +32,11 @@ class Content_Data extends Object {
 			)
 		);
 	}
-	
+
 	/**
 	 * Given a string of data, create a Content_data object
 	 *
-	 * @param string $data        	
+	 * @param string $data
 	 * @param boolean $register
 	 *        	Check to see if the object already exists in database, and return database copy if
 	 *        	so
@@ -43,11 +45,11 @@ class Content_Data extends Object {
 	public static function from_string($data, $register = true) {
 		return self::from_type($data, null, null, null, $register);
 	}
-	
+
 	/**
 	 * Given a path, copy a file to create a Content_data object
 	 *
-	 * @param string $path        	
+	 * @param string $path
 	 * @param boolean $register
 	 *        	Check to see if the object already exists in database, and return database copy if
 	 *        	so
@@ -60,7 +62,7 @@ class Content_Data extends Object {
 	 * Given a path, moving a file to create a Content_data object
 	 * Upon success, old file is removed.
 	 *
-	 * @param string $path        	
+	 * @param string $path
 	 * @param boolean $register
 	 *        	Check to see if the object already exists in database, and return database copy if
 	 *        	so
@@ -72,7 +74,7 @@ class Content_Data extends Object {
 	/**
 	 * Internal registration for Content_data
 	 *
-	 * @param string $path        	
+	 * @param string $path
 	 * @param boolean $copy
 	 *        	Copy file, don't move it
 	 * @param boolean $register
@@ -80,11 +82,10 @@ class Content_Data extends Object {
 	 *        	so
 	 * @return Content_data
 	 */
-	public static function from_path($path, $copy = true, $register = true) {
+	public static function from_path(Application $app, $path, $copy = true, $register = true) {
 		if (!file_exists($path)) {
 			throw new Exception_File_NotFound($path);
 		}
-		$app = Application::instance();
 		$md5 = md5_file($path);
 		$size = filesize($path);
 		$threshold = self::database_size_threshold($app);
@@ -106,11 +107,11 @@ class Content_Data extends Object {
 		}
 		return self::from_type($data, $type, $size, $md5, $register);
 	}
-	
+
 	/**
 	 * Internal version of copy_from_path, move_from_path
 	 *
-	 * @param string $source_path        	
+	 * @param string $source_path
 	 * @param boolean $copy
 	 *        	Copy data, don't move
 	 * @param string $md5
@@ -128,11 +129,11 @@ class Content_Data extends Object {
 		$result['data_path'] = $zesk->paths->data();
 		$result['original_path'] = $source_path;
 		$result['path'] = 'content/data/' . $md5 . "." . file::extension($source_path);
-		
+
 		$dest = path($result['data_path'], $result['path']);
-		
+
 		Directory::depend(dirname($dest));
-		
+
 		if ($data !== null) {
 			if (!file_put_contents($dest, $data)) {
 				throw new Exception_File_Create(__("Can not copy {size} data to {dest}", array(
@@ -157,7 +158,7 @@ class Content_Data extends Object {
 		}
 		return $result;
 	}
-	
+
 	/**
 	 * Register object with a given data type
 	 *
@@ -182,7 +183,7 @@ class Content_Data extends Object {
 		$object = Object::factory(__CLASS__, $fields);
 		return ($register) ? $object->register() : $object;
 	}
-	
+
 	/**
 	 * Extract the path from the data array (for ->type === 'data' ONLY)
 	 *
@@ -193,7 +194,7 @@ class Content_Data extends Object {
 		$path = avalue($this->data, 'path');
 		return $this->application->paths->data($path);
 	}
-	
+
 	/**
 	 * Retrieve the path of a file to copy this.
 	 *
@@ -215,7 +216,7 @@ class Content_Data extends Object {
 		}
 		return $this->temp_path;
 	}
-	
+
 	/**
 	 * Return a file pointer to the data in this file
 	 *
@@ -227,11 +228,11 @@ class Content_Data extends Object {
 	public function fopen($mode) {
 		return fopen($this->filepath(), $mode);
 	}
-	
+
 	/**
 	 * Copy file to a location
 	 *
-	 * @param string $destination        	
+	 * @param string $destination
 	 * @return boolean
 	 */
 	public function copy_file($destination) {
@@ -253,7 +254,7 @@ class Content_Data extends Object {
 			return $this->data;
 		}
 	}
-	
+
 	/**
 	 * Does the destination file match our database version?
 	 *
@@ -274,8 +275,8 @@ class Content_Data extends Object {
 	/**
 	 * Internal validation routing - checks consistency of data in files
 	 *
-	 * @param string $computed_md5        	
-	 * @param integer $computed_size        	
+	 * @param string $computed_md5
+	 * @param integer $computed_size
 	 */
 	private function check_md5_and_size($computed_md5, $computed_size) {
 		if (strcasecmp($computed_md5, $this->md5hash) !== 0) {
@@ -295,7 +296,7 @@ class Content_Data extends Object {
 			}
 		}
 	}
-	
+
 	/**
 	 * Internal validation function, attempts to repair files when filesystem changes, etc.
 	 */
@@ -352,9 +353,9 @@ class Content_Data extends Object {
 		$this->checked = "now";
 		$this->store();
 	}
-	
+
 	/**
-	 * 
+	 *
 	 * @return Content_Data
 	 */
 	protected function switch_storage() {
@@ -369,15 +370,16 @@ class Content_Data extends Object {
 		$this->data = $data;
 		return $this->store();
 	}
-	
+
 	/**
 	 * Whether we checked the database for max allowed packet size
+	 *
 	 * @var unknown
 	 */
 	static $checked_db = false;
-	
+
 	/**
-	 * 
+	 *
 	 * @return mixed|mixed[]|\Configuration
 	 */
 	public static function database_size_threshold(Application $application) {
@@ -403,7 +405,7 @@ class Content_Data extends Object {
 		}
 		return $result;
 	}
-	
+
 	/**
 	 * Run cron hourly to check files in file system to make sure they are still consistent.
 	 */
@@ -412,16 +414,10 @@ class Content_Data extends Object {
 			$object->validate_and_repair();
 		}
 		$threshold = self::database_size_threshold($application);
-		foreach ($application->class_query(__CLASS__)
-			->where("*size|<=", $threshold)
-			->where('type', 'path')
-			->object_iterator() as $object) {
+		foreach ($application->class_query(__CLASS__)->where("*size|<=", $threshold)->where('type', 'path')->object_iterator() as $object) {
 			$object->switch_storage();
 		}
-		foreach ($application->class_query(__CLASS__)
-			->where("*size|>", $threshold)
-			->where('type', 'data')
-			->object_iterator() as $object) {
+		foreach ($application->class_query(__CLASS__)->where("*size|>", $threshold)->where('type', 'data')->object_iterator() as $object) {
 			$object->switch_storage();
 		}
 	}

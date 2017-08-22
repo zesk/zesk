@@ -1,13 +1,8 @@
 <?php
-if (!defined('ZESK_APPLICATION_ROOT')) {
-	define('ZESK_APPLICATION_ROOT', dirname(__FILE__) . '/');
-}
+/**
+ *
+ */
+require_once __DIR__ . '/vendor/autoload.php';
 
-$zesk = require_once dirname(dirname(ZESK_APPLICATION_ROOT)) . "/autoload.php";
-
-/* @var $zesk \zesk\Kernel */
-
-$zesk->application_class = "zesk\\Application_Server";
-
-return \zesk\Application::instance()->configure();
+return zesk\Kernel::instance()->application_class("zesk\\Application_Server")->create_application()->configure();
 

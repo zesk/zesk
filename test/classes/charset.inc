@@ -6,17 +6,14 @@
  * @author Kent Davidson <kent@marketacumen.com>
  * @copyright Copyright &copy; 2012, Market Acumen, Inc.
  */
-
 use zesk\charset;
-
 class test_charset extends Test_Unit {
-
 	function test_supported() {
 		charset::$debug = true;
 
 		$charset = null;
 		$result = charset::supported($charset);
-		Application::instance()->development(true);
+		$this->application->development(true);
 		$this->assert(is_array($result));
 		foreach ($result as $charset) {
 			$this->assert(charset::supported($charset) === true);
@@ -24,12 +21,11 @@ class test_charset extends Test_Unit {
 			$result = charset::to_utf8("Hello, world", $charset);
 		}
 	}
-
 	function to_utf8() {
 		charset::$debug = true;
 
 		$every_char = "";
-		for($i = 32; $i <= 127; $i++) {
+		for ($i = 32; $i <= 127; $i++) {
 			$every_char .= chr($i);
 		}
 

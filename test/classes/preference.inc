@@ -40,7 +40,7 @@ class Test_Preference extends Test_Object {
 	}
 	function test_Preference() {
 		$db = $this->application->database_factory();
-		$db->query(Application::instance()->schema_synchronize($db, array(
+		$db->query($this->application->schema_synchronize($db, array(
 			"zesk\\Preference",
 			"zesk\\Preference_Type"
 		)));
