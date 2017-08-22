@@ -1,6 +1,7 @@
 <?php
+
 /**
- * 
+ *
  */
 namespace zesk;
 
@@ -15,13 +16,14 @@ namespace zesk;
  * @property Timestamp $created
  */
 class Selection_Type extends Object {
-	
+
 	/**
 	 * Modify the current selection list using the queries
-	 * 
+	 *
 	 * @param Database_Query_Select $total
 	 * @param Database_Query_Select $list
-	 * @param boolean $add True to add to the current list, false to remove
+	 * @param boolean $add
+	 *        	True to add to the current list, false to remove
 	 */
 	public function items_all(Database_Query_Select $total, Database_Query_Select $list, $add = true) {
 		$query = Selection_Query::instance($this, $total, $list);
@@ -33,7 +35,7 @@ class Selection_Type extends Object {
 			$query->add = $add;
 		}
 		$query->reorder();
-		
+
 		/* @var $list Database_Query_Select */
 		$list = clone $list;
 		$alias = $list->alias();
@@ -45,23 +47,17 @@ class Selection_Type extends Object {
 			"*query" => $query->id()
 		));
 		$list->limit(0, -1);
-		$this->application->query_insert("zesk\\Selection_Item")
-			->select($list)
-			->replace(true)
-			->execute();
+		$this->application->query_insert("zesk\\Selection_Item")->select($list)->replace(true)->execute();
 	}
-	
+
 	/**
+	 *
 	 * @return Object_Iterator
 	 */
 	public function items_selected() {
-		return $this->member_query('items')
-			->where("add", true)
-			->distinct(true)
-			->group_by("id")
-			->object_iterator();
+		return $this->member_query('items')->where("add", true)->distinct(true)->group_by("id")->object_iterator();
 	}
-	
+
 	/**
 	 * Is this selection a duplicate or not?
 	 *
@@ -70,11 +66,12 @@ class Selection_Type extends Object {
 	public function is_original() {
 		return !begins($this->code, "*");
 	}
-	
+
 	/**
 	 * Delete this object and any related objects
-	 * 
-	 * {@inheritDoc}
+	 *
+	 * {@inheritdoc}
+	 *
 	 * @see Object::delete()
 	 */
 	public function delete() {
@@ -82,22 +79,23 @@ class Selection_Type extends Object {
 		$this->application->query_delete('zesk\\Selection_Item')->where('type', $this->id)->execute();
 		return parent::delete();
 	}
-	
+
 	/**
 	 * Copy the selection
-	 * 
-	 * {@inheritDoc}
+	 *
+	 * {@inheritdoc}
+	 *
 	 * @see Object::duplicate($options)
 	 */
 	public function duplicate(Options_Duplicate &$options = null) {
 		$dup = parent::duplicate($options);
 		$dup->code = "*" . md5(microtime());
 		$dup->store();
-		$mapping = Selection_Query::copy_duplicate($this->id, $dup->id);
-		Selection_Item::copy_duplicate($this->id, $dup->id, $mapping);
+		$mapping = Selection_Query::copy_duplicate($this->application, $this->id, $dup->id);
+		Selection_Item::copy_duplicate($this->application, $this->id, $dup->id, $mapping);
 		return $dup;
 	}
-	
+
 	/**
 	 * Clear items
 	 */
@@ -106,10 +104,10 @@ class Selection_Type extends Object {
 		$this->queries = array();
 		$this->store();
 	}
-	
+
 	/**
 	 * Add or remove items manually
-	 * 
+	 *
 	 * @param array $add_items
 	 * @param array $remove_items
 	 */
@@ -127,45 +125,36 @@ class Selection_Type extends Object {
 						"type" => $this
 					))->execute();
 				} else {
-					$this->application->query_update("zesk\\Selection_Item")
-						->value(array(
+					$this->application->query_update("zesk\\Selection_Item")->value(array(
 						"add" => $op,
 						"query" => null
-					))
-						->where(array(
+					))->where(array(
 						"id" => $id,
 						"type" => $this
-					))
-						->execute();
+					))->execute();
 				}
 			}
 			unset($items[$id]);
 		}
 		foreach ($items as $id => $op) {
-			$this->application->query_insert("zesk\\Selection_Item")
-				->values(array(
+			$this->application->query_insert("zesk\\Selection_Item")->values(array(
 				"add" => intval($op),
 				"query" => null,
 				"id" => $id,
 				"type" => $this
-			))
-				->replace(true)
-				->execute();
+			))->replace(true)->execute();
 		}
 	}
-	
+
 	/**
 	 * How many items are in my selection?
-	 * 
+	 *
 	 * @return integer
 	 */
 	public function count() {
-		return $this->member_query("items")
-			->what("*n", "COUNT(DISTINCT items.id)")
-			->where("items.add", 1)
-			->one_integer("n");
+		return $this->member_query("items")->what("*n", "COUNT(DISTINCT items.id)")->where("items.add", 1)->one_integer("n");
 	}
-	
+
 	/**
 	 * Retrive a description of the queries which make up this selection
 	 */
@@ -180,27 +169,21 @@ class Selection_Type extends Object {
 				"action" => $query->add ? __('Selection_Type:=Added to selection') : __('Selection_Type:=Removed from selection')
 			)), HTML::span(".query-action " . ($query->add ? ".query-action-add" : ".query-action-remove"), "[]"));
 		}
-		$n_added = $this->application->query_select("zesk\\Selection_Item")
-			->where(array(
+		$n_added = $this->application->query_select("zesk\\Selection_Item")->where(array(
 			"type" => $this,
 			"query" => null,
 			"add" => 1
-		))
-			->what("*n", "COUNT(id)")
-			->one_integer("n");
+		))->what("*n", "COUNT(id)")->one_integer("n");
 		if ($n_added) {
 			$line[] .= __("{n} specifically added", array(
 				"n" => $n_added
 			));
 		}
-		$n_excluded = $this->application->query_select("zesk\\Selection_Item")
-			->where(array(
+		$n_excluded = $this->application->query_select("zesk\\Selection_Item")->where(array(
 			"type" => $this,
 			"query" => null,
 			"add" => 0
-		))
-			->what("*n", "COUNT(id)")
-			->one_integer("n");
+		))->what("*n", "COUNT(id)")->one_integer("n");
 		if ($n_excluded) {
 			$line[] .= __("{n} specifically removed", array(
 				"n" => $n_excluded

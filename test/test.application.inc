@@ -6,16 +6,13 @@
  * @author Kent Davidson <kent@marketacumen.com>
  * @copyright Copyright &copy; 2012, Market Acumen, Inc.
  */
-/* @var $zesk zesk\Kernel */
-$zesk = require_once dirname(dirname(__FILE__)) . '/zesk.inc';
+require_once __DIR__ . '/vendor/autoload.php';
 
-define('APPLICATION_NAME', 'test');
+$zesk = zesk\Kernel::singleton();
 
 $zesk->autoloader->no_exception = true;
 
-Application::instance()->configure(array(
-	"path" => array(
-		$zesk->paths->application("etc"),
-		$zesk->paths->uid()
-	)
-));
+return $zesk->create_application()->configure_include_path(array(
+	$zesk->paths->application("etc"),
+	$zesk->paths->uid()
+))->configure();

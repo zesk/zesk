@@ -1,19 +1,20 @@
 <?php
+
 /**
- * 
+ *
  */
 namespace zesk;
 
 /**
  * Main share controller
- * 
+ *
  * @author kent
  * @see docs/share.md
  */
 class Controller_Share extends Controller {
-	
+
 	/**
-	 * 
+	 *
 	 * @param unknown $path
 	 * @return string
 	 */
@@ -31,10 +32,10 @@ class Controller_Share extends Controller {
 		}
 		return null;
 	}
-	
+
 	/**
 	 *
-	 * {@inheritDoc}
+	 * {@inheritdoc}
 	 *
 	 * @see Controller::_action_default()
 	 */
@@ -60,7 +61,7 @@ class Controller_Share extends Controller {
 			}
 			return;
 		}
-		
+
 		// $this->response->header("X-Debug", "Mod - " . strtotime($mod) . " FMod - " . $fmod);
 		$request = $this->request;
 		if ($request->get("_ver")) {
@@ -74,12 +75,12 @@ class Controller_Share extends Controller {
 			$this->build($original_uri, $file);
 		}
 	}
-	
+
 	/**
 	 * Copy file to destination so web server serves it directly next time
 	 *
-	 * @param string $path        	
-	 * @param string $file        	
+	 * @param string $path
+	 * @param string $file
 	 */
 	private function build($path, $file) {
 		$target = path($this->application->document_root(), $path);
@@ -91,7 +92,7 @@ class Controller_Share extends Controller {
 			"status" => $status ? "true" : "false"
 		));
 	}
-	
+
 	/**
 	 * Output debug information during development
 	 */
@@ -102,40 +103,40 @@ class Controller_Share extends Controller {
 		$content .= HTML::tag("h1", "Shares") . HTML::tag('pre', PHP::dump($this->application->share_path()));
 		return $content;
 	}
-	
+
 	/**
 	 *
-	 * @param string $path        	
+	 * @param string $path
 	 * @return string
 	 */
-	public static function realpath($path) {
+	public static function realpath(Application $application, $path) {
 		$path = explode("/", trim($path, '/'));
 		array_shift($path);
 		$share = array_shift($path);
-		$shares = app()->share_path();
+		$shares = $application->share_path();
 		if (array_key_exists($share, $shares)) {
 			return path($shares[$share], implode("/", $path));
 		}
 		return null;
 	}
-	
+
 	/**
 	 * Clear the share build path upon cache clear
 	 */
 	public function hook_cache_clear() {
-		global $zesk;
+		$logger = $this->application->logger;
 		/* @var $zesk \zesk\Kernel */
-		$zesk->logger->debug(__METHOD__);
+		$logger->debug(__METHOD__);
 		if ($this->option_bool('build')) {
 			$share_dir = path($this->application->document_root(), 'share');
 			if (is_dir($share_dir)) {
-				$zesk->logger->notice('{class}::hook_cache_clear - deleting {share_dir}', array(
+				$logger->notice('{class}::hook_cache_clear - deleting {share_dir}', array(
 					'class' => __CLASS__,
 					'share_dir' => $share_dir
 				));
 				Directory::delete($share_dir);
 			} else {
-				$zesk->logger->notice('{class}::hook_cache_clear - would delete {share_dir} but it is not found', array(
+				$logger->notice('{class}::hook_cache_clear - would delete {share_dir} but it is not found', array(
 					'class' => __CLASS__,
 					'share_dir' => $share_dir
 				));

@@ -1,4 +1,5 @@
 <?php
+
 /**
  * $URL: https://code.marketacumen.com/zesk/trunk/modules/contact/classes/contact/label.inc $
  * @package zesk
@@ -7,6 +8,7 @@
 namespace zesk;
 
 /**
+ *
  * @see Class_Contact_Label
  */
 class Contact_Label extends Object {
@@ -21,20 +23,17 @@ class Contact_Label extends Object {
 	public static function bootstrap() {
 		return Contact_Label_Bootstrap::bootstrap();
 	}
-	public static function find_global($type, $name) {
+	public static function find_global(Application $application, $type, $name) {
 		$fields = array(
 			'Account' => null,
 			'CodeName' => $name,
 			"Type" => $type
 		);
-		return app()->query_select(__CLASS__)
-			->what("ID", "ID")
-			->where($fields)
-			->one("ID", null);
+		return $application->query_select(__CLASS__)->what("ID", "ID")->where($fields)->one("ID", null);
 	}
-	
+
 	/**
-	 * 
+	 *
 	 * @param unknown $type
 	 * @param unknown $name
 	 * @param Account $account
@@ -47,11 +46,8 @@ class Contact_Label extends Object {
 			'CodeName' => strtolower($name),
 			"Type" => $type
 		);
-		
-		$id = $app->query_select(__CLASS__)
-			->what("ID", "ID")
-			->where($fields)
-			->one("ID", null);
+
+		$id = $app->query_select(__CLASS__)->what("ID", "ID")->where($fields)->one("ID", null);
 		if ($id) {
 			return $id;
 		}
@@ -63,14 +59,14 @@ class Contact_Label extends Object {
 		);
 		return $app->query_update(__CLASS__)->values($fields)->execute();
 	}
-	
+
 	/**
-	 * 
+	 *
 	 * @param unknown $type
 	 * @param unknown $account
 	 * @return \zesk\Ambigous
 	 */
-	public static function label_options($type, $account = null) {
+	public static function label_options(Application $application, $type, $account = null) {
 		$account_where = null;
 		if (!empty($account)) {
 			$account_where = array(
@@ -78,20 +74,17 @@ class Contact_Label extends Object {
 				null
 			);
 		}
-		return app()->query_select(__CLASS__)
-			->what(array(
+		return $application->query_select(__CLASS__)->what(array(
 			"id" => "ID",
 			"name" => "Name"
-		))
-			->where(array(
+		))->where(array(
 			"Type" => $type,
 			"Account" => $account_where
-		))
-			->to_array("id", "name");
+		))->to_array("id", "name");
 	}
-	
+
 	/**
-	 * 
+	 *
 	 * @param unknown $locale
 	 * @return string
 	 */
@@ -106,23 +99,22 @@ class Contact_Label extends Object {
 			self::LabelType_Other => "Other"
 		), $locale);
 	}
-	
+
 	/**
-	 * 
+	 *
 	 * @return string
 	 */
 	public function type_name() {
 		return $this->Name . " " . avalue($this->type_names(), $this->Type, 'Unknown Type');
 	}
-	
+
 	/**
-	 * 
+	 *
 	 * @param unknown $types
 	 * @param unknown $account
 	 * @return \zesk\Ambigous
 	 */
-	public static function label_type_options($types = null, $account = null) {
-		$app = app();
+	public static function label_type_options(Application $app, $types = null, $account = null) {
 		$table = $app->object_table_name(__CLASS__);
 		$account_where = null;
 		if (!empty($account)) {
@@ -137,15 +129,12 @@ class Contact_Label extends Object {
 		if ($types !== null) {
 			$where['Type'] = $types;
 		}
-		$rows = $app->query_select(__CLASS__)
-			->what(array(
+		$rows = $app->query_select(__CLASS__)->what(array(
 			"id" => "ID",
 			"name" => "Name",
 			"type" => "Type"
-		))
-			->where($where)
-			->to_array("id");
-		
+		))->where($where)->to_array("id");
+
 		$result = array();
 		$type_names = self::type_names();
 		foreach ($rows as $id => $row) {

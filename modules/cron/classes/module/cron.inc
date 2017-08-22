@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Handles running of intermittent tasks
  *
@@ -12,12 +13,12 @@
 namespace zesk;
 
 /**
- * 
+ *
  * @author kent
  *
  */
 class Module_Cron extends Module {
-	
+
 	/**
 	 * List of associated classes
 	 *
@@ -28,14 +29,14 @@ class Module_Cron extends Module {
 		"zesk\\Lock",
 		"zesk\\Settings"
 	);
-	
+
 	/**
 	 * Database lock name
 	 *
 	 * @var string
 	 */
 	protected $lock_name = __CLASS__;
-	
+
 	/**
 	 * Debugging - place to accumulate called methods so we
 	 * can audit which methods are called by cron
@@ -43,16 +44,16 @@ class Module_Cron extends Module {
 	 * @var array
 	 */
 	private $methods = null;
-	
+
 	/**
 	 * Cached value for scopes
 	 *
 	 * @var array
 	 */
 	private $scopes = null;
-	
+
 	/**
-	 * 
+	 *
 	 * @var double
 	 */
 	private $start = null;
@@ -77,7 +78,7 @@ class Module_Cron extends Module {
 		"month",
 		"year"
 	);
-	
+
 	/**
 	 * Run this before each hook
 	 *
@@ -87,25 +88,25 @@ class Module_Cron extends Module {
 	 *        	Arguments being passed to the method
 	 */
 	public function _hook_callback($method, $arguments) {
-		global $zesk;
 		/* @var $zesk Kernel */
-		$method_string = $zesk->hooks->callable_string($method);
+		$method_string = $this->application->hooks->callable_string($method);
 		if (is_array($method) && ($method[0] instanceof Module)) {
 			$name = $method[0]->codename();
-			$message = "app()->modules->object(\"$name\")->{1}()";
+			$message = "\$application->modules->object(\"$name\")->{1}()";
 			$message_args = $method;
 		} else {
-			$message = "{method_string}(app())";
+			$message = "{method_string}(\$application)";
 			$message_args = compact("method_string");
 		}
-		$zesk->logger->notice("zesk eval '$message'", $message_args);
+		$this->application->logger->notice("zesk eval '$message'", $message_args);
 		$this->methods[] = $method_string;
 		$this->start = microtime(true);
 	}
-	
+
 	/**
-	 * Run this after each hook. Handles timing and warnings. Passes to default Hookable::combine_hook_results.
-	 * 
+	 * Run this after each hook.
+	 * Handles timing and warnings. Passes to default Hookable::combine_hook_results.
+	 *
 	 * @param mixed $method
 	 * @param mixed $previous_result
 	 * @param mixed $new_result
@@ -113,16 +114,14 @@ class Module_Cron extends Module {
 	 * @return mixed
 	 */
 	public function _result_callback($method, $previous_result, $new_result, array $arguments, $return_hint) {
-		global $zesk;
-		/* @var $zesk Kernel */
 		$elapsed = microtime(true) - $this->start;
 		if ($elapsed > ($elapsed_warn = $this->option_double("elapsed_warn", 2))) {
-			$zesk->logger->warning("Cron: {method} took {elapsed} {seconds} (exceeded {elapsed_warn} {elapsed_warn_seconds})", array(
+			$this->application->logger->warning("Cron: {method} took {elapsed} {seconds} (exceeded {elapsed_warn} {elapsed_warn_seconds})", array(
 				"elapsed" => sprintf("%.3f", $elapsed),
 				"seconds" => Locale::plural("second", $elapsed),
 				"elapsed_warn" => sprintf("%.3f", $elapsed_warn),
 				"elapsed_warn_seconds" => Locale::plural("second", $elapsed_warn),
-				"method" => $zesk->hooks->callable_string($method)
+				"method" => $this->application->hooks->callable_string($method)
 			));
 		}
 		return Hookable::combine_hook_results($previous_result, $new_result, $arguments, $return_hint);
@@ -177,7 +176,7 @@ class Module_Cron extends Module {
 	 *
 	 * @param Router $router
 	 *        	Current router
-	 *        	
+	 *
 	 * @return void
 	 */
 	public function hook_routes(Router $router) {
@@ -189,7 +188,7 @@ class Module_Cron extends Module {
 			"content type" => "text/javascript"
 		));
 	}
-	
+
 	/**
 	 * Hook Module::configured
 	 */
@@ -229,12 +228,11 @@ class Module_Cron extends Module {
 		return $object->data(self::_last_cron_variable($unit), $when->unix_timestamp());
 	}
 	private static function _cron_hooks($method) {
-		global $zesk;
 		/* @var $zesk Kernel */
-		$classes = to_list($zesk->configuration->path_get(__CLASS__ . '::classes', 'zesk\Application;zesk\Object'));
+		$classes = to_list($this->application->configuration->path_get(__CLASS__ . '::classes', 'zesk\Application;zesk\Object'));
 		return arr::suffix($classes, "::$method");
 	}
-	
+
 	/**
 	 * Retrieve the objects which store our state
 	 *
@@ -248,7 +246,7 @@ class Module_Cron extends Module {
 		$server = Server::singleton();
 		/* @var $settings Settings */
 		$settings = Settings::instance();
-		
+
 		return $this->scopes = array(
 			"cron" => array(
 				"state" => $server,
@@ -280,9 +278,9 @@ class Module_Cron extends Module {
 			$state = $settings['state'];
 			/* @var $state Interface_Data */
 			$last_run = self::_last_cron_run($state);
-			
+
 			$status = $now->difference($last_run, "second") > 0;
-			$cron_hooks = self::_cron_hooks($method);
+			$cron_hooks = $this->_cron_hooks($method);
 			$all_hooks = $hooks->find_all($cron_hooks);
 			$all_hooks = array_merge($all_hooks, $this->application->modules->all_hook_list($method));
 			foreach ($all_hooks as $hook) {
@@ -301,12 +299,12 @@ class Module_Cron extends Module {
 		}
 		return $results;
 	}
-	
+
 	/**
 	 * Log an exception during a cron run
 	 *
-	 * @param Exception $e        	
-	 * @param unknown $cron_hooks        	
+	 * @param Exception $e
+	 * @param unknown $cron_hooks
 	 */
 	private function _exception(Exception $e, $cron_hooks) {
 		$this->application->logger->error("Exception during {hooks}: {message}\n{backtrace}", array(
@@ -321,12 +319,10 @@ class Module_Cron extends Module {
 	 * Internal function to run tasks
 	 */
 	private function _run() {
-		global $zesk;
-		/* @var $zesk Kernel */
-		$hooks = $zesk->hooks;
+		$hooks = $this->application->hooks;
 		$now = Timestamp::now();
 		$results = array();
-		
+
 		try {
 			$scopes = $this->_cron_scopes();
 		} catch (Exception $e) {
@@ -349,49 +345,50 @@ class Module_Cron extends Module {
 			$state = $settings['state'];
 			/* @var $state Interface_Data */
 			$lock_name = $settings['lock'];
-			if (($lock = Lock::get_lock($lock_name)) !== null) {
-				$last_run = self::_last_cron_run($state);
-				$cron_hooks = self::_cron_hooks($method);
-				if ($now->difference($last_run, "second")) {
-					self::_cron_ran($state, null, $now);
-					try {
-						$hooks->all_call_arguments($cron_hooks, $cron_arguments, null, $hook_callback, $result_callback);
-					} catch (Exception $e) {
-						$this->_exception($e, $cron_hooks);
-					}
-					try {
-						$this->application->modules->all_hook_arguments($method, array(), null, $hook_callback, $result_callback);
-					} catch (Exception $e) {
-						$this->_exception($e, "Module::$method");
-					}
-				}
-				foreach (self::$intervals as $unit) {
-					$last_unit_run = self::_last_cron_run($state, $unit);
-					$this->application->logger->debug("Last ran {unit} {when}", array(
-						"unit" => $unit,
-						"when" => $last_unit_run->format()
-					));
-					if ($now->difference($last_unit_run, $unit) > 0) {
-						self::_cron_ran($state, $unit, $now);
-						$unit_hooks = $method . "_$unit";
-						try {
-							$unit_hooks = arr::suffix($cron_hooks, "_$unit");
-							$hooks->all_call_arguments($unit_hooks, $cron_arguments, null, $hook_callback, $result_callback);
-						} catch (Exception $e) {
-							$this->_exception($e, $unit_hooks);
-						}
-						try {
-							$this->application->modules->all_hook_arguments($method . "_$unit", array(), null, $hook_callback, $result_callback);
-						} catch (Exception $e) {
-							$this->_exception($e, $unit_hooks);
-						}
-					}
-				}
-				$lock->release();
+			if (($lock = Lock::get_lock($lock_name)) === null) {
+				continue;
 			}
+			$last_run = self::_last_cron_run($state);
+			$cron_hooks = $this->_cron_hooks($method);
+			if ($now->difference($last_run, "second")) {
+				self::_cron_ran($state, null, $now);
+				try {
+					$hooks->all_call_arguments($cron_hooks, $cron_arguments, null, $hook_callback, $result_callback);
+				} catch (Exception $e) {
+					$this->_exception($e, $cron_hooks);
+				}
+				try {
+					$this->application->modules->all_hook_arguments($method, array(), null, $hook_callback, $result_callback);
+				} catch (Exception $e) {
+					$this->_exception($e, "Module::$method");
+				}
+			}
+			foreach (self::$intervals as $unit) {
+				$last_unit_run = self::_last_cron_run($state, $unit);
+				$this->application->logger->debug("Last ran {unit} {when}", array(
+					"unit" => $unit,
+					"when" => $last_unit_run->format()
+				));
+				if ($now->difference($last_unit_run, $unit) > 0) {
+					self::_cron_ran($state, $unit, $now);
+					$unit_hooks = $method . "_$unit";
+					try {
+						$unit_hooks = arr::suffix($cron_hooks, "_$unit");
+						$hooks->all_call_arguments($unit_hooks, $cron_arguments, null, $hook_callback, $result_callback);
+					} catch (Exception $e) {
+						$this->_exception($e, $unit_hooks);
+					}
+					try {
+						$this->application->modules->all_hook_arguments($method . "_$unit", array(), null, $hook_callback, $result_callback);
+					} catch (Exception $e) {
+						$this->_exception($e, $unit_hooks);
+					}
+				}
+			}
+			$lock->release();
 		}
 	}
-	
+
 	/**
 	 * Run cron from a JavaScript request
 	 *
@@ -409,16 +406,7 @@ class Module_Cron extends Module {
 		$js[] = "}(window.zesk.settings));";
 		return arr::join_suffix($js, "\n");
 	}
-	
-	/**
-	 * Is cron running?
-	 *
-	 * @return boolean
-	 */
-	public static function running() {
-		return app()->object_database("zesk\\Settings")->is_locked(self::lock_name);
-	}
-	
+
 	/**
 	 * Run cron
 	 *
@@ -426,30 +414,30 @@ class Module_Cron extends Module {
 	 */
 	public function run() {
 		$modules = $this->application->modules;
-		
+
 		$this->methods = array();
-		
+
 		$result = $modules->all_hook_arguments("cron_before", array(), true);
 		if ($result === false) {
 			$this->application->logger->error(__CLASS__ . "::cron_before return false");
 			return $this->methods;
 		}
-		
+
 		PHP::feature("time_limit", $this->option_integer("time_limit", 0));
 		self::_run();
-		
+
 		$modules->all_hook_arguments("cron_after", array(
 			$this->methods
 		));
-		
+
 		return $this->methods;
 	}
-	
+
 	/**
 	 * Update a page to enable it to run cron
 	 *
-	 * @param Request $request        	
-	 * @param Response_Text_HTML $response        	
+	 * @param Request $request
+	 * @param Response_Text_HTML $response
 	 */
 	public function page_runner(Request $request, Response_Text_HTML $response) {
 		$response->cdn_javascript('/share/zesk/js/zesk.js', array(
@@ -462,7 +450,7 @@ class Module_Cron extends Module {
 			'nocache' => true
 		));
 	}
-	
+
 	/**
 	 * Function to manage running cron hourly at a certain minute past the hour
 	 *
@@ -480,7 +468,7 @@ class Module_Cron extends Module {
 	 * }
 	 * </code>
 	 *
-	 * @param string $prefix        	
+	 * @param string $prefix
 	 * @param integer $minute_to_hit
 	 *        	Minute of the hour to hit
 	 */
@@ -495,11 +483,11 @@ class Module_Cron extends Module {
 		 */
 		$last_run_setting = $prefix . 'hourly_last_run';
 		$last_check_setting = $prefix . 'hourly_last_check';
-		
+
 		$now = Timestamp::now();
 		$hour_minute = clone $now;
 		$hour_minute->minute($minute_to_hit)->second(0);
-		
+
 		$last_run = $settings->get($last_run_setting);
 		if ($last_run) {
 			$last_run = Timestamp::factory($last_run);
@@ -546,7 +534,7 @@ class Module_Cron extends Module {
 	 * }
 	 * </code>
 	 *
-	 * @param string $prefix        	
+	 * @param string $prefix
 	 * @param integer $hour_to_hit
 	 *        	Hour of the day to hit, 0 ... 23
 	 */
@@ -555,7 +543,7 @@ class Module_Cron extends Module {
 			throw new Exception_Parameter("Prefix mus be non-empty to daily_hour_of_day");
 		}
 		$settings = Settings::instance();
-		
+
 		$hour_to_hit = intval($hour_to_hit);
 		/*
 		 * last_check - last time this script checked if it should run
@@ -563,7 +551,7 @@ class Module_Cron extends Module {
 		 */
 		$last_run_setting = $prefix . 'daily_last_run';
 		$last_check_setting = $prefix . 'daily_last_check';
-		
+
 		$now = Timestamp::factory('now');
 		$today_hour = clone $now;
 		$today_hour->hour($hour_to_hit)->minute(0)->second(0);
@@ -597,7 +585,7 @@ class Module_Cron extends Module {
 		return false;
 	}
 	/**
-	 * 
+	 *
 	 * @param Template $template
 	 * @return string[][]
 	 */
@@ -612,24 +600,17 @@ class Module_Cron extends Module {
 	protected function hook_schema_updated() {
 		// Changed class structure on 2016-11-23
 		$update = $this->application->query_update("zesk\\Settings");
-		$nrows = $update->value("*name", "REPLACE(name, 'Module_Cron::', " . $update->database()
-			->quote_text(__CLASS__ . "::") . ")")
-			->where("name|LIKE", 'Module_Cron::%')
-			->exec()
-			->affected_rows();
+		$nrows = $update->value("*name", "REPLACE(name, 'Module_Cron::', " . $update->database()->quote_text(__CLASS__ . "::") . ")")->where("name|LIKE", 'Module_Cron::%')->exec()->affected_rows();
 		if ($nrows > 0) {
 			$this->application->logger->notice("Updated {nrows} settings to use new prefix {class}", array(
 				"nrows" => $nrows,
 				"class" => __CLASS__
 			));
 		}
-		$nrows = $this->application->query_delete("zesk\\Settings")
-			->where("name|LIKE", array(
+		$nrows = $this->application->query_delete("zesk\\Settings")->where("name|LIKE", array(
 			'Module_Cron::%',
 			'cron::%'
-		))
-			->exec()
-			->affected_rows();
+		))->exec()->affected_rows();
 		if ($nrows > 0) {
 			$this->application->logger->notice("{class}: Deleted {nrows} settings to using old prefixes", array(
 				"nrows" => $nrows,

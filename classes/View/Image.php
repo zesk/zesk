@@ -1,4 +1,5 @@
 <?php
+
 /**
  * This needs to be simplified greatly.
  * Too many options, needs to support most common case easily.
@@ -14,7 +15,6 @@ namespace zesk;
 
 class View_Image extends View {
 	static $debug = false;
-
 	public function initialize() {
 		parent::initialize();
 		self::$debug = $this->option("debug");
@@ -26,15 +26,12 @@ class View_Image extends View {
 		}
 		return self::$debug;
 	}
-
 	protected function source_directory() {
 		return $this->option('root_directory', $this->application->document_root());
 	}
-
 	protected function cache_directory() {
 		return $this->option('cache_directory', path($this->application->document_root(), "/cache/images/"));
 	}
-
 	protected function cache_url_prefix() {
 		$prefix = $this->option('cache_url_prefix', null);
 		if ($prefix) {
@@ -44,13 +41,11 @@ class View_Image extends View {
 		$doc_root = realpath($this->application->document_root());
 		return str::unprefix($cache, $doc_root);
 	}
-
 	private function debug_log($message) {
 		if (self::$debug) {
 			$this->application->logger->debug($message);
 		}
 	}
-
 	private function scale_image($source) {
 		list($width, $height) = getimagesize($source);
 		extract($this->options, EXTR_IF_EXISTS);
@@ -97,21 +92,17 @@ class View_Image extends View {
 		}
 		return $scaled_result;
 	}
-
 	private static function missing_file() {
-
 	}
-	private static function relative_to_absolute_path($path) {
+	private function relative_to_absolute_path($path) {
 		if ($path[0] === "/") {
-			return HTML::href(app(), $path);
+			return HTML::href($this->application, $path);
 		}
 		$wd = path(str_replace("\\", "/", dirname($_SERVER['SCRIPT_FILENAME'])), $path);
 		return $wd;
 	}
-
 	private function missing_image_path() {
-		return $this->option("missing_image_path", cdn::url("/share/zesk/images/missing.gif"));
-
+		return $this->option("missing_image_path", $this->application->url("/share/zesk/images/missing.gif"));
 	}
 	/**
 	 * Returns the representation of model as an <img /> tag.
@@ -126,14 +117,13 @@ class View_Image extends View {
 		$value = $object->apply_map($this->option("src", '{src}'));
 		//avalue($object, $this->column('src'));
 
-
 		if (empty($value)) {
 			$this->debug_log("Empty value for src...");
 			return "";
 		}
 
 		if ($this->option_bool("is_relative", true)) {
-			$file_path = self::relative_to_absolute_path($value);
+			$file_path = $this->relative_to_absolute_path($value);
 			$path = $file_path;
 		} else {
 			$file_path = $value;
@@ -161,7 +151,6 @@ class View_Image extends View {
 		$this->application->logger->notice("Output image path is file_path=$file_path value=$value");
 		return $this->output_image($file_path, $value);
 	}
-
 	protected function output_image($file_path, $value, $extras = "") {
 		$attrs = array();
 
@@ -191,7 +180,6 @@ class View_Image extends View {
 
 		return $result . $extras;
 	}
-
 	public function didCreateFile() {
 		return $this->option_bool("created_file", true);
 	}
@@ -199,7 +187,8 @@ class View_Image extends View {
 	/**
 	 * Generate a widget with appropriate options and return it.
 	 *
-	 * @param string $src Path to image to scale
+	 * @param string $src
+	 *        	Path to image to scale
 	 * @param integer $width
 	 * @param integer $height
 	 * @param string $alt
@@ -219,14 +208,12 @@ class View_Image extends View {
 		$w = new View_Image($extras);
 		return $w;
 	}
-
 	public static function scaled($src, $width = false, $height = false, $alt = "", $extras = false) {
 		$w = self::scaled_widget($width, $height, $alt, $extras);
 		$x = new Model();
 		$x->src = $src;
 		return $w->execute($x);
 	}
-
 	public static function scaled_path($src, $width = false, $height = false, $alt = "", $extras = false) {
 		$w = self::scaled_widget($width, $height, $alt, $extras);
 		$x = new Model();
@@ -234,5 +221,4 @@ class View_Image extends View {
 		$w->execute($x);
 		return $w->option("scale_src");
 	}
-
 }

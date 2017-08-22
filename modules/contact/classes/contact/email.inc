@@ -1,4 +1,5 @@
 <?php
+
 /**
  * @version $Id: email.inc 4481 2017-03-24 18:21:48Z kent $
  * @package zesk
@@ -10,6 +11,7 @@ namespace zesk;
 
 class Contact_Email extends Contact_Info {
 	/**
+	 *
 	 * @see Contact_Label::LabelType_Foo
 	 *
 	 * @return string
@@ -21,8 +23,8 @@ class Contact_Email extends Contact_Info {
 		$this->verified = "now";
 		$this->store();
 	}
-	public static function find_email($email) {
-		return app()->object_factory(__CLASS__, array(
+	public static function find_email(Application $app, $email) {
+		return $app->object_factory(__CLASS__, array(
 			'value' => $email
 		))->find();
 	}

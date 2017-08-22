@@ -17,6 +17,7 @@ use Psr\Cache\CacheItemPoolInterface;
 require_once dirname(__FILE__) . "/functions.php";
 
 /**
+ *
  * @todo self::reset is NOT production ready
  * @author kent
  *
@@ -216,7 +217,6 @@ class Kernel {
 
 		require_once $here . "/Paths.php";
 		require_once $here . "/Compatibility.php";
-		require_once $here . "/CDN.php";
 		require_once $here . "/PHP.php";
 
 		require_once $here . "/CacheItemPool/NULL.php";
@@ -291,9 +291,9 @@ class Kernel {
 	}
 
 	/**
-	 * Reset entrie Zesk global state and start from scratch. 
-	 * 
-	 * @see Application::instance()->reset()
+	 * Reset entrie Zesk global state and start from scratch.
+	 *
+	 * @see zesk\Application::reset()
 	 * @category DEVELOPMENT
 	 * @deprecated 2017-08 Not sure if allowing this is really a good idea at all
 	 */
@@ -432,7 +432,7 @@ class Kernel {
 		$this->logger->alert("Obsolete function called {function}", array(
 			'function' => calling_function(2)
 		));
-		if (Application::instance()->development()) {
+		if ($this->application()->development()) {
 			backtrace();
 		}
 	}
@@ -633,14 +633,14 @@ class Kernel {
 	 * @throws Exception_Semantics
 	 * @return Application
 	 */
-	public function create_application(array $options) {
+	public function create_application(array $options = array()) {
 		if ($this->application !== null) {
 			throw new Exception_Semantics("{method} application of type {class} was already created", array(
 				"method" => __METHOD__,
 				"class" => get_class($this->application)
 			));
 		}
-		return $this->application = $this->objects->factory($this, $options);
+		return $this->application = $this->objects->factory($this->application_class, $this, $options);
 	}
 
 	/**

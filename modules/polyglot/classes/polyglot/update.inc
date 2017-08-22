@@ -1,17 +1,19 @@
 <?php
+
 /**
- * 
+ *
  */
 namespace zesk;
 
 /**
+ *
  * @see Class_PolyGlot_Update
  * @author kent
  *
  */
 class PolyGlot_Update extends Object {
 	/**
-	 * 
+	 *
 	 * @param unknown $locale
 	 * @param User $user
 	 * @return \zesk\Object
@@ -29,14 +31,12 @@ class PolyGlot_Update extends Object {
 		return $object->store();
 	}
 	/**
-	 * 
+	 *
 	 * @param Application $application
 	 */
 	public static function cron_minute(Application $application) {
-		global $zesk;
-		/* @var $zesk Kernel */
 		$server = Server::singleton();
-		$path = $zesk->configuration->path_get("zesk\\Module_PolyGlot::update_path", $application->application_root("etc/language"));
+		$path = $application->configuration->path_get("zesk\\Module_PolyGlot::update_path", $application->application_root("etc/language"));
 		if (!is_dir($path)) {
 			$application->logger->warning("zesk\\Module_PolyGlot::update_path is not a directory ({path}) on {server}", array(
 				"path" => $path,
@@ -51,10 +51,7 @@ class PolyGlot_Update extends Object {
 		if ($server_updated) {
 			$server_updated = Timestamp::factory($server_updated);
 			if ($server_updated->before($update_requested)) {
-				$update_locales = $application->query_select(__CLASS__)
-					->what("locale", "locale")
-					->where("updated|>=", $server_updated)
-					->to_array(null, "locale");
+				$update_locales = $application->query_select(__CLASS__)->what("locale", "locale")->where("updated|>=", $server_updated)->to_array(null, "locale");
 			}
 		} else {
 			$update_locales = $application->query_select(__CLASS__)->what("locale", "locale")->to_array(null, "locale");
@@ -69,10 +66,7 @@ class PolyGlot_Update extends Object {
 		foreach ($update_locales as $update_locale) {
 			$dialect = Locale::dialect($update_locale);
 			if (!$dialect) {
-				$expanded_locales = $application->query_select('zesk\\PolyGlot_Token')
-					->distinct(true)
-					->what("*locale", "CONCAT(language,'_',dialect)")
-					->where(array(
+				$expanded_locales = $application->query_select('zesk\\PolyGlot_Token')->distinct(true)->what("*locale", "CONCAT(language,'_',dialect)")->where(array(
 					"language" => $update_locale,
 					array(
 						"dialect|!=" => array(
@@ -80,8 +74,7 @@ class PolyGlot_Update extends Object {
 							""
 						)
 					)
-				))
-					->to_array(null, "locale");
+				))->to_array(null, "locale");
 				$additional_locales = array_merge($additional_locales, $expanded_locales);
 			}
 		}
@@ -95,7 +88,7 @@ class PolyGlot_Update extends Object {
 		foreach ($update_locales as $update_locale) {
 			$update_locale = Locale::normalize($update_locale);
 			try {
-				self::update_locale($path, $update_locale);
+				self::update_locale($application, $path, $update_locale);
 			} catch (Exception $e) {
 				$application->logger->error("Updating locale {locale} on {server} FAILED due to {message}", array(
 					"locales" => $update_locales,
@@ -109,9 +102,9 @@ class PolyGlot_Update extends Object {
 			$server->data($server_variable_name, time());
 		}
 	}
-	
+
 	/**
-	 * 
+	 *
 	 * @param resource $f
 	 * @param string $filename
 	 * @param string $original
@@ -123,23 +116,23 @@ class PolyGlot_Update extends Object {
 			throw new Exception_FileSystem($filename, "Unable to write to {filename}");
 		}
 	}
-	
+
 	/**
-	 * 
+	 *
 	 * @param string $path
 	 * @param string $locale
 	 * @throws Exception_File_Permission
 	 * @throws Exception
 	 * @return boolean
 	 */
-	public static function update_locale($path, $locale) {
-		global $zesk;
+	public static function update_locale(Application $application, $path, $locale) {
+		$zesk = zesk();
 		/* @var $zesk Kernel */
-		
-		$iterator = PolyGlot_Token::locale_query($locale)->where("status", PolyGlot_Token::status_done)->order_by("updated DESC,original")->iterator("original", "translation");
-		
+
+		$iterator = PolyGlot_Token::locale_query($application, $locale)->where("status", PolyGlot_Token::status_done)->order_by("updated DESC,original")->iterator("original", "translation");
+
 		$target_file = path($path, "$locale.inc");
-		
+
 		$pid = $zesk->process_id();
 		$temp_file = path($path, "$locale.inc.$pid");
 		$f = fopen($temp_file, "w");

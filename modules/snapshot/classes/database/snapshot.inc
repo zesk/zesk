@@ -1,10 +1,12 @@
 <?php
+
 /**
- * 
+ *
  */
 namespace zesk;
 
 /**
+ *
  * @see Class_Database_Snapshot
  * @author kent
  * @property id $id
@@ -28,14 +30,11 @@ class Database_Snapshot extends Object {
 	 * @throws Exception
 	 * @return Database_Snapshot|NULL
 	 */
-	public static function backup(Database $db = null) {
-		if ($db === null) {
-			$db = app()->database_factory();
-		}
+	public static function backup(Database $db) {
 		$app = $db->application;
 		$now = Timestamp::now();
 		$date = $now->format('{YYYY}-{MM}-{DD}_{hh}-{mm}-{ss}');
-		
+
 		$dbname = $db->database_name();
 		$filename = "backup-$date-$dbname.sql";
 		$temp = self::temporary_path($filename);
@@ -61,20 +60,13 @@ class Database_Snapshot extends Object {
 		}
 		return null;
 	}
-	public static function restore_latest(Database $db = null) {
-		if ($db === null) {
-			$db = app()->database_factory();
-		}
+	public static function restore_latest(Database $db) {
 		$dbname = $db->database_name();
-		
+
 		/* @var $snapshot Database_Snapshot */
-		$snapshot = app()->query_select(__CLASS__)->what_object()
-			->where(array(
+		$snapshot = $db->application->query_select(__CLASS__)->what_object()->where(array(
 			"dbname" => $dbname
-		))
-			->order_by('created DESC')
-			->limit(0, 1)
-			->one_object();
+		))->order_by('created DESC')->limit(0, 1)->one_object();
 		if (!$snapshot) {
 			return null;
 		}

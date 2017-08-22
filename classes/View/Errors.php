@@ -1,4 +1,5 @@
 <?php
+
 /**
  * $URL: https://code.marketacumen.com/zesk/trunk/classes/View/Errors.php $
  * @package zesk
@@ -9,13 +10,13 @@
 namespace zesk;
 
 /**
- * 
+ *
  * @author kent
  *
  */
 class View_Errors extends View {
 	/**
-	 * 
+	 *
 	 * @param array $errors
 	 * @param unknown $name
 	 * @param string $prefix
@@ -28,16 +29,16 @@ class View_Errors extends View {
 		}
 		return $prefix . HTML::tag('span', '.error', $error_string);
 	}
-	
+
 	/**
-	 * 
+	 *
 	 * @param array $errors
 	 * @return mixed|NULL|string
 	 */
-	public static function html(array $errors) {
-		$model = new Model();
+	public static function html(Application $application, array $errors) {
+		$model = new Model($application);
 		$model->errors = $errors;
-		return app()->widget_factory('View_Errors', array(
+		return $application->widget_factory('View_Errors', array(
 			'column' => 'errors'
 		))->execute($model);
 	}

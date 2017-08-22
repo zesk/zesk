@@ -10,6 +10,8 @@
  */
 namespace zesk;
 
+use Psr\Cache\CacheItemPoolInterface;
+
 /**
  * Core web application object for Zesk.
  * If you're doing something useful, it's probably a simple application.
@@ -41,6 +43,14 @@ class Application extends Hookable implements Interface_Theme {
 	 * @var Hooks
 	 */
 	public $hooks = null;
+
+	/**
+	 * Inherited directly from zesk().
+	 * Do not edit.
+	 *
+	 * @var CacheItemPoolInterface
+	 */
+	public $cache = null;
 
 	/**
 	 * Inherited directly from zesk().
@@ -315,6 +325,7 @@ class Application extends Hookable implements Interface_Theme {
 		$this->paths = $zesk->paths;
 		$this->hooks = $zesk->hooks;
 		$this->configuration = $zesk->configuration;
+		$this->cache = $zesk->cache;
 		$this->logger = $zesk->logger;
 		$this->classes = $zesk->classes;
 		$this->objects = $zesk->objects;
@@ -796,7 +807,7 @@ class Application extends Hookable implements Interface_Theme {
 	private function _classes($add = null) {
 		$schema_file = File::extension_change($this->file, ".classes");
 		if (is_file($schema_file)) {
-			zesk()->deprecated("$schema_file support will end on 2017-09, use app()->object_classes instead");
+			zesk()->deprecated("$schema_file support will end on 2017-09, use Application->object_classes instead");
 			$classes = arr::trim_clean(explode("\n", Text::remove_line_comments(file_get_contents($schema_file), '#', false)));
 			$classes = arr::flip_copy($classes, true);
 			$this->logger->debug("Classes from {schema_file} = {value}", array(
@@ -1472,11 +1483,6 @@ class Application extends Hookable implements Interface_Theme {
 				throw new Exception_Directory_NotFound($add);
 			}
 			$this->share_path[$name] = $add;
-			if ($name === null) {
-				cdn::add("/share/", "/share/", $add, false);
-			} else {
-				cdn::add("/share/$name/", "/share/$name/", $add, false);
-			}
 		}
 		return $this->share_path;
 	}
@@ -1961,7 +1967,7 @@ class Application extends Hookable implements Interface_Theme {
 	 * @return Widget
 	 */
 	public function widget_factory($class, array $options = array()) {
-		return Widget::factory($class, $options, $this);
+		return Widget::factory($this, $class, $options);
 	}
 
 	/**
@@ -2038,7 +2044,7 @@ class Application extends Hookable implements Interface_Theme {
 	 * @param string $class
 	 * @param mixed $mixed
 	 * @param array $options
-	 * @return string|\zesk\Ambigous
+	 * @return \zesk\Database
 	 */
 	public final function object_database($class, $mixed = null, $options = null) {
 		return $this->object($class, $mixed, $options)->database();
@@ -2119,6 +2125,16 @@ class Application extends Hookable implements Interface_Theme {
 			}
 		}
 		return $this->user = null;
+	}
+
+	/**
+	 *
+	 * @param string $uri
+	 * @return string
+	 */
+	public function url($uri) {
+		// TODO Remove this
+		return $uri;
 	}
 
 	/**

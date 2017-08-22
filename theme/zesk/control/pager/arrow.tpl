@@ -1,4 +1,5 @@
 <?php
+
 namespace zesk;
 
 /* @var $this \zesk\Template */
@@ -57,4 +58,4 @@ if ($disabled) {
 		);
 	}
 }
-echo HTML::tag("a", $attrs, HTML::cdn_img("/share/zesk/images/pager/$image.gif", $name));
+echo HTML::tag("a", $attrs, HTML::img($application, "/share/zesk/images/pager/$image.gif", $name));

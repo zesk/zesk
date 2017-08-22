@@ -1,8 +1,9 @@
 <?php
+
 namespace zesk;
 
 class Controller_PolyGlot extends Controller_Template_Login {
-	
+
 	/**
 	 *
 	 * @var Module_PolyGlot
@@ -31,7 +32,7 @@ class Controller_PolyGlot extends Controller_Template_Login {
 			"locale_options" => $this->module->locale_options()
 		));
 	}
-	
+
 	/**
 	 * Load a locale for translation
 	 *
@@ -39,7 +40,7 @@ class Controller_PolyGlot extends Controller_Template_Login {
 	 */
 	public function action_load($locale) {
 		$__ = array(
-			"lang_name" => Language::lang_name($locale),
+			"lang_name" => Language::lang_name($this->application, $locale),
 			"locale" => $locale
 		);
 		if ($this->user->can("zesk\\Module_PolyGlot::load", null, array(
@@ -56,7 +57,7 @@ class Controller_PolyGlot extends Controller_Template_Login {
 			"message" => __("You do not have permission to do translations.")
 		));
 	}
-	
+
 	/**
 	 * Update a locale on all servers with current translations
 	 *
@@ -64,7 +65,7 @@ class Controller_PolyGlot extends Controller_Template_Login {
 	 */
 	public function action_update($locale) {
 		$__ = array(
-			"lang_name" => Language::lang_name($locale),
+			"lang_name" => Language::lang_name($this->application, $locale),
 			"locale" => $locale
 		);
 		if (!$this->user->can("zesk\\Module_PolyGlot::update", null, array(
@@ -86,15 +87,16 @@ class Controller_PolyGlot extends Controller_Template_Login {
 			"message" => __("Locale {lang_name} was not updated.", $__)
 		));
 	}
-	
+
 	/**
 	 * Save a token
+	 *
 	 * @param unknown $locale
 	 * @return Ambigous <Response, boolean>
 	 */
 	public function action_token($locale) {
 		$__ = array(
-			"lang_name" => Language::lang_name($locale),
+			"lang_name" => Language::lang_name($this->application, $locale),
 			"locale" => $locale
 		);
 		if (!$this->user->can("zesk\\Module_PolyGlot::translate", null, array(

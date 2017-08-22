@@ -1,7 +1,7 @@
 <?php
 
 /**
- * 
+ *
  */
 namespace zesk;
 
@@ -11,71 +11,71 @@ namespace zesk;
  * @author kent
  */
 class Command_Loader {
-	
+
 	/**
 	 * Search these paths to find application
 	 *
 	 * @var array
 	 */
 	private $search = array();
-	
+
 	/**
 	 * Main command run
 	 *
 	 * @var string
 	 */
 	private $command = null;
-	
+
 	/**
 	 * Was Zesk loaded?
 	 *
 	 * @var string
 	 */
 	private $zesk_loaded = false;
-	
+
 	/**
 	 * List of config files to load after loading application
 	 *
 	 * @var array
 	 */
 	private $wait_configs = array();
-	
+
 	/**
 	 * Command alaises
 	 *
 	 * @var array
 	 */
 	private $aliases = array();
-	
+
 	/**
 	 *
 	 * @var boolean
 	 */
 	private $debug = false;
-	
+
 	/**
 	 *
 	 * @var string
 	 */
 	const configure_options = 'application::configure_options';
-	
+
 	/**
 	 * Set up PHP basics so we can detect errors while testing, etc.
 	 */
 	public function __construct() {
 		global $_ZESK;
-		
+
 		if (!is_array($_ZESK)) {
 			$_ZESK = array();
 		}
-		
+
 		$_ZESK['zesk']['command'] = true; // TODO Is this actually looked at anywere?
 		$_ZESK['zesk\application']['configure_options']['skip_configured'] = true; // TODO confirm this now used
-		
+
 		ini_set('error_prepend_string', "\nPHP-ERROR " . str_repeat("=", 80) . "\n");
 		ini_set('error_append_string', "\n" . str_repeat("*", 80) . "\n");
 	}
-	
+
 	/**
 	 * Create instance
 	 *
@@ -84,7 +84,7 @@ class Command_Loader {
 	public static function factory() {
 		return new self();
 	}
-	
+
 	/**
 	 * Run the command.
 	 * Main entry point into this class after initialization, normally.
@@ -93,12 +93,12 @@ class Command_Loader {
 		if (!array_key_exists('argv', $_SERVER)) {
 			die('No argv key in $_SERVER\n');
 		}
-		
+
 		$argv = $_SERVER['argv'];
 		assert('is_array($argv)');
 		$argv = $this->fix_zend_studio_arguments($argv);
 		$this->command = array_shift($argv);
-		
+
 		/*
 		 * Main comand loop. Handle parameters
 		 *
@@ -159,19 +159,19 @@ class Command_Loader {
 		}
 		return 0;
 	}
-	
+
 	/**
-	 * 
+	 *
 	 * @param string $message
 	 * @return number
 	 */
 	private function error($message) {
 		return fprintf($this->stderr(), $message);
 	}
-	
+
 	/**
 	 * Determine the STDERR file
-	 * 
+	 *
 	 * @return string|unknown|resource
 	 */
 	private function stderr() {
@@ -185,12 +185,12 @@ class Command_Loader {
 		$stderr = fopen("php://stderr", "a");
 		return $stderr;
 	}
-	
+
 	/**
 	 * Run a command
 	 *
-	 * @param string $arg        	
-	 * @param array $argv        	
+	 * @param string $arg
+	 * @param array $argv
 	 * @return array
 	 */
 	public function run_command(Application $application, $arg, array $argv) {
@@ -210,10 +210,12 @@ class Command_Loader {
 			return $argv;
 		}
 		/* @var $command_object Command */
-		$command_object = $zesk->objects->factory($class, array_merge(array(
+		$command_object = $zesk->objects->factory($class, $application, array_merge(array(
 			$arg
-		), $argv));
-		
+		), $argv), array(
+			"debug" => $this->debug
+		));
+
 		/* @var $command_object Command */
 		if (!$command_object->has_configuration) {
 			$this->debug("Command {class} does not have configuration, calling {app} configured", array(
@@ -244,9 +246,9 @@ class Command_Loader {
 		}
 		return $argv;
 	}
-	
+
 	/**
-	 * 
+	 *
 	 * @param Application $application
 	 * @param unknown $command
 	 * @return string[]|NULL[]
@@ -267,6 +269,7 @@ class Command_Loader {
 			if (is_file($file)) {
 				if (File::extension($file) === "inc") {
 					/**
+					 *
 					 * @deprecated 2017-013
 					 */
 					$new_file = File::extension_change($file, "php");
@@ -288,12 +291,12 @@ class Command_Loader {
 			null
 		);
 	}
-	
+
 	/**
 	 * Show usage
 	 *
-	 * @param string $error        	
-	 * @param number $exit_code        	
+	 * @param string $error
+	 * @param number $exit_code
 	 */
 	private function usage($error = null, $exit_code = 1) {
 		if ($error) {
@@ -306,11 +309,11 @@ class Command_Loader {
 		$message[] = "You can pass a --set name=value to set a zesk global at any point in the command";
 		$message[] = "As well, --name=value does the same, doing --variable sets the value to true";
 		$message[] = "Finally, --define name=value defines a name in the PHP scope, or --define name defines name to be true";
-		
+
 		fwrite(STDERR, implode("\n", $message) . "\n");
 		exit($exit_code);
 	}
-	
+
 	/**
 	 * Handle running PHP commands via Zend Studio.
 	 *
@@ -328,7 +331,7 @@ class Command_Loader {
 	 *
 	 * For debugging only.
 	 *
-	 * @param array $argv        	
+	 * @param array $argv
 	 * @return array New argv
 	 */
 	private function fix_zend_studio_arguments(array $argv) {
@@ -354,7 +357,7 @@ class Command_Loader {
 		}
 		return $argv;
 	}
-	
+
 	/**
 	 * Find the application file from the CWD or the search directory
 	 *
@@ -397,10 +400,10 @@ class Command_Loader {
 		$this->usage("No zesk " . implode(", ", $zesk_root_files) . " found in: " . implode(", ", $this->search));
 		return null;
 	}
-	
+
 	/**
 	 *
-	 * @param string $arg        	
+	 * @param string $arg
 	 * @return boolean
 	 */
 	private function zesk_loaded($arg = null) {
@@ -416,10 +419,10 @@ class Command_Loader {
 		$this->zesk_loaded = true;
 		$zesk = zesk();
 		$zesk->autoloader->path(ZESK_ROOT . 'command', array(
-			"class_prefix" => "zesk\\command",
+			"class_prefix" => "zesk\\Command",
 			"lower" => true
 		));
-		$app = Application::instance();
+		$app = $zesk->application();
 		$this->aliases = array();
 		$loader = new Configuration_Loader("command-aliases", $app->configure_include_path(), array(
 			"command-aliases.json"
@@ -434,7 +437,7 @@ class Command_Loader {
 		}
 		return $app;
 	}
-	
+
 	/**
 	 *
 	 * @return boolean
@@ -442,13 +445,13 @@ class Command_Loader {
 	private function zesk_is_loaded() {
 		return class_exists('zesk\Kernel', false);
 	}
-	
+
 	/**
 	 * Handle --set
 	 *
 	 * Consumes one additional argument of form name=value
 	 *
-	 * @param array $argv        	
+	 * @param array $argv
 	 * @return array
 	 */
 	private function handle_set(array $argv) {
@@ -456,7 +459,7 @@ class Command_Loader {
 		if ($pair === null) {
 			$this->usage("--set missing argument");
 		}
-		
+
 		list($key, $value) = explode("=", $pair, 2) + array(
 			null,
 			true
@@ -471,13 +474,13 @@ class Command_Loader {
 		}
 		return $argv;
 	}
-	
+
 	/**
 	 * Handle --unset
 	 *
 	 * Consumes one additional argument of form name=value
 	 *
-	 * @param array $argv        	
+	 * @param array $argv
 	 * @return array
 	 */
 	private function handle_unset(array $argv) {
@@ -495,7 +498,7 @@ class Command_Loader {
 		}
 		return $argv;
 	}
-	
+
 	/**
 	 * Handle --cd
 	 *
@@ -513,11 +516,11 @@ class Command_Loader {
 		chdir($arg);
 		return $argv;
 	}
-	
+
 	/**
 	 * Handle --define
 	 *
-	 * @param array $argv        	
+	 * @param array $argv
 	 * @return aray
 	 */
 	private function handle_define(array $argv) {
@@ -536,11 +539,11 @@ class Command_Loader {
 		}
 		return $argv;
 	}
-	
+
 	/**
 	 * Handle --search
 	 *
-	 * @param array $argv        	
+	 * @param array $argv
 	 * @return array
 	 */
 	private function handle_search(array $argv) {
@@ -573,7 +576,7 @@ class Command_Loader {
 	/**
 	 * Handle --config
 	 *
-	 * @param array $argv        	
+	 * @param array $argv
 	 * @return array
 	 */
 	private function handle_config(array $argv) {
@@ -593,15 +596,15 @@ class Command_Loader {
 		}
 		return $argv;
 	}
-	
+
 	/**
 	 * Output a debug message
 	 *
-	 * @param string $message        	
+	 * @param string $message
 	 */
 	private function debug($message, array $context = array()) {
 		if ($this->debug || zesk()->configuration->debug) {
-			echo rtrim(map($message, $context), "\n") . "\n";
+			echo __CLASS__ . " " . rtrim(map($message, $context), "\n") . "\n";
 		}
 	}
 }

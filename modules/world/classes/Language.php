@@ -1,4 +1,5 @@
 <?php
+
 /**
  * $URL: https://code.marketacumen.com/zesk/trunk/modules/world/classes/Language.php $
  * @package zesk
@@ -7,10 +8,10 @@
  * @copyright Copyright &copy; 2008, Market Acumen, Inc.
  * Created on Tue Jul 15 12:37:21 EDT 2008
  */
-
 namespace zesk;
 
 /**
+ *
  * @see Class_Language
  * @author kent
  * @property id $id
@@ -25,25 +26,22 @@ class Language extends Object {
 		}
 		return strtolower($this->code) . "_" . strtoupper($this->dialect);
 	}
-	public static function lang_name($code, $locale = null) {
+	public static function lang_name(Application $application, $code, $locale = null) {
 		list($language, $dialect) = pair($code, "_", $code, null);
 		if (empty($dialect)) {
 			$dialect = null;
 		}
-		$lang_en = app()->query_select(__CLASS__)
-			->what("name", "name")
-			->where(array(
+		$lang_en = $application->query_select(__CLASS__)->what("name", "name")->where(array(
 			"code" => $language,
 			"dialect" => $dialect
-		))
-			->one("name");
+		))->one("name");
 		if ($lang_en) {
 			return Locale::translate("Locale:=$lang_en", $locale);
 		}
 		return "[$code]";
 	}
-	public static function clean_table() {
-		$query = app()->query_update(__CLASS__);
+	public static function clean_table(Application $application) {
+		$query = $application->query_update(__CLASS__);
 		$query->value("dialect", null)->where("dialect", "");
 		$query->execute();
 		if ($query->affected_rows() > 0) {

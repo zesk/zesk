@@ -1,4 +1,5 @@
 <?php
+
 /**
  * $URL: https://code.marketacumen.com/zesk/trunk/modules/world/classes/World/Bootstrap/Province.php $
  * @package zesk
@@ -17,13 +18,13 @@ namespace zesk;
  * @subpackage system
  */
 class World_Bootstrap_Province extends Options {
-	
+
 	/**
 	 *
 	 * @var array
 	 */
 	private $include_country = null;
-	
+
 	/**
 	 *
 	 * @param array $options
@@ -32,15 +33,16 @@ class World_Bootstrap_Province extends Options {
 	public static function factory(array $options = array()) {
 		return zesk()->objects->factory(__CLASS__, $options);
 	}
-	
+
 	/**
+	 *
 	 * @global Module_World::include_country List of country codes to include
 	 *
 	 * @param mixed $options
 	 */
-	public function __construct($options) {
+	public function __construct(Application $application, array $options = array()) {
 		parent::__construct($options);
-		$object = app()->modules->object("world");
+		$object = $application->modules->object("world");
 		$this->inherit_global_options($object);
 		$include_country = $this->option("include_country");
 		if ($include_country) {
@@ -56,12 +58,12 @@ class World_Bootstrap_Province extends Options {
 	public function bootstrap(Application $application) {
 		$province_class = __NAMESPACE__ . '\\' . 'Province';
 		$country_class = __NAMESPACE__ . '\\' . 'Country';
-		
+
 		$x = $application->object_factory($province_class);
 		if ($this->option_bool("drop")) {
 			$x->database()->query('TRUNCATE ' . $x->table());
 		}
-		
+
 		$countries = array(
 			"US" => self::_province_us(),
 			"CA" => self::_province_ca()

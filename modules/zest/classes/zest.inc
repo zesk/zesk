@@ -14,17 +14,17 @@ use zesk\Directory;
  * immediate satisfaction running tests against any code you write.
  *
  * @author kent
- *        
+ *
  */
 class Zest extends zesk\Application {
-	
+
 	/**
 	 * How the router is found
 	 *
 	 * @var string
 	 */
 	public $file = __FILE__;
-	
+
 	/**
 	 *
 	 * @var array
@@ -33,7 +33,7 @@ class Zest extends zesk\Application {
 		'zesk\Database',
 		'zesk\Settings'
 	);
-	
+
 	/**
 	 *
 	 * @var array
@@ -60,7 +60,7 @@ class Zest extends zesk\Application {
 	}
 	public static function widget_test(zesk\Request $request, Response $response) {
 		$path = str_replace("/", "_", ltrim($request->path(), "/"));
-		return Widget::factory("Control_Form", null, $this)->child(Widget::factory($path, null, $this))->execute();
+		return $this->widget_factory("zesk\\Control_Form", null, $this)->child($this->widget_factory($path))->execute();
 	}
 	public static function run_test(zesk\Request $reqeust, Response $response, $string) {
 		global $zesk;
@@ -78,22 +78,22 @@ class Zest extends zesk\Application {
 			"strict" => true,
 			"command_local_open" => null
 		));
-		
+
 		$result = array();
 		$result['test_pattern'] = $string;
-		
+
 		ob_start();
 		$result['result'] = $test->go();
 		$result['status'] = intval($result['result']) === 0;
 		$result['content'] = ob_get_clean();
-		
+
 		$response->json($result);
 	}
 	public function preconfigure(array $options = array()) {
 		global $zesk;
-		
+
 		$this->modules->load("Logger_File");
-		
+
 		/* @var $zesk \zesk\Kernel */
 		$zesk->autoloader->path(zesk::root('command'), array(
 			"class_prefix" => "command"
@@ -104,16 +104,16 @@ class Zest extends zesk\Application {
 		));
 		$severity = $this->development(true) ? "debug" : "info";
 		$zesk->logger->register_handler("file", zesk\Logger\File::factory($this->application_root('log/zest.log'), "a"), $zesk->logger->levels_select($severity));
-		
+
 		$this->register_class("Module_Daemon_Abyzou");
 		$this->register_class("Module_Daemon_Belphegor");
 		$this->register_class("Module_Daemon_Jinkininki");
 		$this->register_class("Module_Daemon_Lamashtu");
 		$this->register_class("Module_Daemon_Pontianak");
-		
+
 		zesk\Database::database_default("zest");
 		Directory::depend($this->application_root("/data/"));
-		
+
 		$zesk->logger->notice("Default socket is " . ini_get("mysqli.default_socket"));
 		//		zesk\Database::register("zest", "sqlite3://localhost" . $this->application_root("/data/zest.sqlite3"));
 		zesk\Database::register("zest", "mysqli://zest:zest@localhost/zest");

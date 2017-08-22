@@ -1,4 +1,5 @@
 <?php
+
 /**
  * $URL: https://code.marketacumen.com/zesk/trunk/modules/content/classes/Content/Image.php $
  * @package zesk-lite
@@ -32,9 +33,9 @@ class Content_Image extends Object {
 	 * @throws Exception_Invalid
 	 * @return Content_Image
 	 */
-	public static function register_from_file($path, array $members = array(), $copy = true, $register = true) {
+	public static function register_from_file(Application $application, $path, array $members = array(), $copy = true, $register = true) {
 		File::depends($path);
-		$members['data'] = $cf = Content_Data::from_path($path, $copy, true);
+		$members['data'] = $cf = Content_Data::from_path($application, $path, $copy, true);
 		if (!array_key_exists("path", $members)) {
 			$ext = self::determine_extension_simple($path);
 			if (!$ext) {
@@ -42,7 +43,7 @@ class Content_Image extends Object {
 			}
 			$members['path'] = basename($path);
 		}
-		$image = new self($members);
+		$image = $application->object_factory(__CLASS__, $members);
 		return $register ? $image->register() : $image->store();
 	}
 	public function is_portrait() {
@@ -65,7 +66,7 @@ class Content_Image extends Object {
 		if ($get_data) {
 			$query->what_object("Content_Data", null, "data_");
 		}
-		
+
 		$result = $query->one();
 		if (!$result) {
 			return array();
@@ -84,7 +85,7 @@ class Content_Image extends Object {
 	public function sync() {
 		$this->_force_to_disk();
 	}
-	
+
 	/**
 	 * (non-PHPdoc)
 	 *
@@ -97,7 +98,7 @@ class Content_Image extends Object {
 		}
 		return parent::store();
 	}
-	
+
 	/**
 	 * Does the file exist on the system? Useful if you are running in a cluster.
 	 *
@@ -109,14 +110,14 @@ class Content_Image extends Object {
 		}
 		return file_exists($this->path());
 	}
-	
+
 	/**
 	 * Returns the path, minus the docroot
 	 */
 	function source() {
 		return str::unprefix($this->path(), $this->application->document_root());
 	}
-	
+
 	/**
 	 * Path to where image are stored
 	 *
@@ -125,7 +126,7 @@ class Content_Image extends Object {
 	function content_image_path() {
 		return $this->option("path", path($this->application->document_root(), "cache/images"));
 	}
-	
+
 	/**
 	 * Given an internal path and a raw data file, fix the internal path extension to make it a
 	 * servable name
@@ -153,7 +154,7 @@ class Content_Image extends Object {
 	function path() {
 		return path($this->content_image_path(), $this->member("path"));
 	}
-	
+
 	/**
 	 * Retrieve the file size in bytes of this image
 	 *
@@ -162,27 +163,29 @@ class Content_Image extends Object {
 	function size() {
 		return $this->data->size();
 	}
-	
+
 	/**
-	 * Simplistic test to see if a file is of a particular type. Works great on validly formatted images.
-	 * 
+	 * Simplistic test to see if a file is of a particular type.
+	 * Works great on validly formatted images.
+	 *
 	 * Not-so-great on junk data. Returns image type:
-	 * 
+	 *
 	 * * gif
 	 * * jpg
 	 * * png
 	 * * swf
-	 * 
+	 *
 	 * Or false if not able to determine image type.
-	 * 
+	 *
 	 * @see Content_Image::determine_extension_simple
-	 * @param string $data Raw image data
+	 * @param string $data
+	 *        	Raw image data
 	 * @return string|boolean
 	 */
 	static public function determine_extension_simple_data($data) {
 		$head = substr($data, 0, 12);
 		$head = trim(strtolower(preg_replace("/[^A-Za-z]/", "", $head)));
-		
+
 		if (substr($head, 0, 3) == "gif") {
 			return "gif";
 		}
@@ -195,7 +198,7 @@ class Content_Image extends Object {
 		if (substr($head, 0, 3) == "cws") {
 			return "swf";
 		}
-		
+
 		return false;
 	}
 	/**
@@ -210,7 +213,7 @@ class Content_Image extends Object {
 		}
 		return self::determine_extension_simple_data(file_get_contents($filename, null, null, 0, 12));
 	}
-	
+
 	/**
 	 * Determine file extension for file using exif
 	 *
@@ -224,7 +227,7 @@ class Content_Image extends Object {
 		if (!function_exists("exif_imagetype")) {
 			return self::determine_extension_simple($filename);
 		}
-		
+
 		$t = exif_imagetype($filename);
 		if (!$t) {
 			return false;
@@ -242,14 +245,13 @@ class Content_Image extends Object {
 		//			IMAGETYPE_JPC => "jpc",
 		//			IMAGETYPE_JP2 => "jp2",
 		//			IMAGETYPE_JPX => "jpx",
-		
 
 		if (isset($t2ext[$t])) {
 			return $t2ext[$t];
 		}
 		return false;
 	}
-	
+
 	/**
 	 * Copy file to disk where it should be
 	 *
@@ -275,7 +277,7 @@ class Content_Image extends Object {
 		}
 		return true;
 	}
-	
+
 	/**
 	 * Update Width and Height
 	 *
@@ -299,10 +301,10 @@ class Content_Image extends Object {
 		$this->set_member("height", $result[1]);
 		return true;
 	}
-	
+
 	/**
 	 * Rotate image $degrees degrees in one direction or the other
-	 * 
+	 *
 	 * @param integer $degrees
 	 * @return boolean
 	 */
@@ -317,13 +319,13 @@ class Content_Image extends Object {
 		$this->_update_sizes();
 		return $this->store();
 	}
-	
+
 	/**
-	 * Returns an array of (width, height) with the new image constrained the the box size. 
-	 * 
+	 * Returns an array of (width, height) with the new image constrained the the box size.
+	 *
 	 * Image result width is guaranteed to be <= $eidth
 	 * Image result height is guaranteed to be <= $height
-	 *  
+	 *
 	 * @param integer $width
 	 * @param integer $height
 	 * @return array
@@ -331,12 +333,13 @@ class Content_Image extends Object {
 	public function constrain_dimensions($width, $height) {
 		return Image_Library::constrain_dimensions($this->width, $this->height, $width, $height);
 	}
-	
+
 	/**
 	 * Given an image file, fix the orientation based on the EXIF Orientation data
-	 * 
-	 * Returns true if file was fixed or unchanged, "unsupported" if operation is not supported, and "failed" if conversion failed
-	 *  
+	 *
+	 * Returns true if file was fixed or unchanged, "unsupported" if operation is not supported, and
+	 * "failed" if conversion failed
+	 *
 	 * @param string $file
 	 * @return NULL|string|boolean
 	 */
@@ -372,25 +375,21 @@ class Content_Image extends Object {
 		}
 		return true;
 	}
-	
+
 	/**
-	 * 
 	 */
 	public static function permissions(Application $application) {
 		return parent::default_permissions($application, __CLASS__);
 	}
-	
+
 	/**
-	 * 
+	 *
 	 * @param User $user
 	 * @param Permission $perm
 	 * @return mixed|boolean
 	 */
 	public function hook_permission(User $user, Permission $perm) {
-		$is_mine = to_bool($this->member_query('users')
-			->where('users.id', $user)
-			->what("*n", "COUNT(users.id)")
-			->one_integer('n'));
+		$is_mine = to_bool($this->member_query('users')->where('users.id', $user)->what("*n", "COUNT(users.id)")->one_integer('n'));
 		return $is_mine;
 	}
 }

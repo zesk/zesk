@@ -1,4 +1,5 @@
 <?php
+
 /**
  * $URL: https://code.marketacumen.com/zesk/trunk/classes/Cache/File.php $
  * @package zesk
@@ -9,34 +10,38 @@
 namespace zesk;
 
 /**
- * Cache class is used to store files which need to remain persistent across web page requests on the same physical file system.
- * 
+ * Cache class is used to store files which need to remain persistent across web page requests on
+ * the same physical file system.
+ *
  * To use, do:
  * <code>
  * $cache = Cache::register("permissions");
  * $cache->A = "goo";
  * $cache->B = "dee";
  * </code>
- * The data will persist across connections. Please note that this is not a reentrant cache, meaning your data is not
- * guaranteed to be saved. If two connections happen simultaneously which modify the same cache value, a race-condition
+ * The data will persist across connections. Please note that this is not a reentrant cache, meaning
+ * your data is not
+ * guaranteed to be saved. If two connections happen simultaneously which modify the same cache
+ * value, a race-condition
  * exists, and one set of data will be lost.
- * 
- * Best usage is for data which does not change often, and is tied to a particular user, for example.
- * 
- * No NFS locking or other wizardry is occurring. 
- * 
+ *
+ * Best usage is for data which does not change often, and is tied to a particular user, for
+ * example.
+ *
+ * No NFS locking or other wizardry is occurring.
+ *
  * @package zesk
  * @subpackage system
  * @deprecated 2017-06
  */
 class Cache_File extends Cache {
-	
+
 	/**
 	 *
 	 * @var string
 	 */
 	static $caches_path = null;
-	
+
 	/**
 	 * Check at flush time whether the "disabled" file exists.
 	 * We check once on startup, and once at exit
@@ -74,13 +79,11 @@ class Cache_File extends Cache {
 		return file_exists($this->cache_file_path());
 	}
 	private static function cache_directory() {
-		global $zesk;
-		/* @var $zesk \zesk\Kernel */
-		return app()->cache_path('data');
+		return zesk()->application()->cache_path('_deprecata_');
 	}
 	private static function _cache_file_path($name, $create = true) {
 		$file_path = self::cache_directory();
-		
+
 		$file_path = path($file_path, implode("/", File::name_clean(explode("/", $name))) . ".cache");
 		$dir_path = dirname($file_path);
 		if ($create) {
@@ -88,12 +91,13 @@ class Cache_File extends Cache {
 		}
 		return $file_path;
 	}
-	
+
 	/**
 	 * The complete file name of the cache file.
 	 * To override the cache directory on a site-wide
 	 * basis, set global "Cache::directory" to a absolute path
 	 * Cache files always end with ".cache"
+	 *
 	 * @return string A file name
 	 */
 	public function cache_file_path($create = false) {
@@ -123,7 +127,7 @@ class Cache_File extends Cache {
 	protected function store($data) {
 		return File::atomic($this->cache_file_path(true), $data);
 	}
-	
+
 	/**
 	 * Delete the cache file
 	 */

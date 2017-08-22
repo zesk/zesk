@@ -1,15 +1,15 @@
 <?php
+
 /**
-* $URL: https://code.marketacumen.com/zesk/trunk/classes/Control/Icon.php $
-* @package zesk
-* @subpackage default
-* @author Kent Davidson <kent@marketacumen.com>
-* @copyright Copyright &copy; 2008, Market Acumen, Inc.
-*/
+ * $URL: https://code.marketacumen.com/zesk/trunk/classes/Control/Icon.php $
+ * @package zesk
+ * @subpackage default
+ * @author Kent Davidson <kent@marketacumen.com>
+ * @copyright Copyright &copy; 2008, Market Acumen, Inc.
+ */
 namespace zesk;
 
 class Control_Icon extends Control {
-
 	function render() {
 		$col = $this->column();
 		$icons = $this->option_array("icons", array());
@@ -22,7 +22,7 @@ class Control_Icon extends Control {
 		$img_attrs = $this->option_array("img_attributes");
 		$img_attrs['width'] = $this->option("img_width");
 		$img_attrs['height'] = $this->option("img_height");
-		$result = HTML::tag("a", $attrs, HTML::img($src, $this->option("alt", ""), $img_attrs));
+		$result = HTML::tag("a", $attrs, HTML::img($this->application, $src, $this->option("alt", ""), $img_attrs));
 		if ($this->has_option("js_variable")) {
 			$result .= HTML::tag("script", array(
 				"type" => "text/javascript"

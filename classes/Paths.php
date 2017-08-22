@@ -1,4 +1,5 @@
 <?php
+
 /**
  *
  * @copyright Copyright &copy; 2016 Market Acumen, Inc.
@@ -11,94 +12,97 @@ namespace zesk;
  *
  */
 class Paths {
-	
+
 	/**
 	 * Debug various aspects of Paths
 	 *
 	 * @var boolean
 	 */
 	public $debug = false;
-	
+
 	/**
 	 * Root application directory
 	 *
 	 * @var string
 	 */
 	public $application = null;
-	
+
 	/**
 	 * Temporary files directory
 	 *
 	 * @var string
 	 */
 	public $temporary = null;
-	
+
 	/**
 	 * Data files directory
 	 *
 	 * @var string
 	 */
 	public $data = null;
-	
+
 	/**
 	 * Cache files directory
 	 *
 	 * @var string
 	 */
 	public $cache = null;
-	
+
 	/**
 	 * Current user home directory
 	 *
 	 * @var string
 	 */
 	public $home = null;
-	
+
 	/**
 	 * Current user home directory
 	 *
 	 * @var string
 	 */
 	public $uid = null;
-	
+
 	/**
 	 * Current web document root directory
+	 *
 	 * @deprecated 2016-09
 	 *
 	 * @var string
 	 */
 	public $document = null;
-	
+
 	/**
 	 * Current web document prefix
+	 *
 	 * @deprecated 2016-09
 	 *
 	 * @var string
 	 */
 	public $document_prefix = null;
-	
+
 	/**
 	 * Document cache files directory (accessible from web application)
+	 *
 	 * @deprecated 2016-09
 	 *
 	 * @var string
 	 */
 	public $document_cache = null;
-	
+
 	/**
 	 *
 	 * @deprecated 2016-09
 	 * @var array
 	 */
 	protected $module_path = array();
-	
+
 	/**
 	 *
 	 * @deprecated 2016-09
 	 * @var array
 	 */
 	protected $share_path = array();
-	
+
 	/**
 	 * Zesk commands path for zesk-command.php
 	 *
@@ -106,20 +110,20 @@ class Paths {
 	 * @var array
 	 */
 	private $zesk_command_path = null;
-	
+
 	/**
 	 * System command path for shell
 	 *
 	 * @var array
 	 */
 	private $command_path = null;
-	
+
 	/**
 	 *
 	 * @var array
 	 */
 	private $which_cache = array();
-	
+
 	/**
 	 * Constuct a new Paths manager
 	 *
@@ -132,19 +136,19 @@ class Paths {
 	 */
 	public function __construct(Kernel $zesk) {
 		$config = $zesk->configuration;
-		
+
 		$this->_init_zesk_root($config);
-		
+
 		$this->_init_system_paths();
-		
+
 		$zesk->configuration->home = $this->home;
-		
+
 		$zesk->hooks->add(Hooks::hook_configured, array(
 			$this,
 			"configured"
 		));
 	}
-	
+
 	/**
 	 * Get/Set data storage path
 	 *
@@ -154,16 +158,16 @@ class Paths {
 	public function application($suffix = null) {
 		return path($this->application, $suffix);
 	}
-	
+
 	/**
 	 * configured hook
 	 */
 	public function configured() {
 		global $zesk;
-		
+
 		$configuration = $zesk->configuration;
 		$paths = $configuration->zesk->paths;
-		
+
 		if ($paths->has('command_path')) {
 			$this->command($paths->command_path);
 		}
@@ -202,7 +206,7 @@ class Paths {
 	public function zesk($suffix = null) {
 		return path(ZESK_ROOT, $suffix);
 	}
-	
+
 	/**
 	 *
 	 * @param Configuration $config
@@ -223,18 +227,16 @@ class Paths {
 		}
 		return $this;
 	}
-	
+
 	/**
-	 *
 	 */
 	private function _init_system_paths() {
 		$this->_init_command();
 		$this->home = avalue($_SERVER, 'HOME');
 		$this->uid = $this->home(".zesk");
 	}
-	
+
 	/**
-	 * 
 	 */
 	private function _init_app_paths() {
 		if ($this->application) {
@@ -243,7 +245,7 @@ class Paths {
 			$this->cache = path($this->application, "cache");
 		}
 	}
-	
+
 	/**
 	 * Initialize the command path
 	 */
@@ -263,7 +265,7 @@ class Paths {
 			}
 		}
 	}
-	
+
 	/**
 	 * Get or set the system command path, usually defined by the system environment variable PATH
 	 * On *nix systems, the
@@ -302,7 +304,7 @@ class Paths {
 		}
 		return $this->command_path;
 	}
-	
+
 	/**
 	 * Get/Set temporary path
 	 *
@@ -312,7 +314,7 @@ class Paths {
 	public function temporary($suffix = null) {
 		return path($this->temporary, $suffix);
 	}
-	
+
 	/**
 	 * Get/Set data storage path
 	 *
@@ -322,7 +324,7 @@ class Paths {
 	public function data($suffix = null) {
 		return path($this->data, $suffix);
 	}
-	
+
 	/**
 	 * Directory for storing temporary cache files
 	 *
@@ -334,7 +336,7 @@ class Paths {
 	public function cache($suffix = null) {
 		return path($this->cache, $suffix);
 	}
-	
+
 	/**
 	 * Home directory of current process user, generally passed via the $_SERVER['HOME']
 	 * superglobal.
@@ -348,7 +350,7 @@ class Paths {
 	public function home($suffix = null) {
 		return $this->home ? path($this->home, $suffix) : null;
 	}
-	
+
 	/**
 	 * User configuration path - place to put configuration files, etc.
 	 * for this user
@@ -360,9 +362,10 @@ class Paths {
 	public function uid($suffix = null) {
 		return $this->uid ? path($this->uid, $suffix) : null;
 	}
-	
+
 	/**
-	 * Similar to which command-line command. Returns executable path for command.
+	 * Similar to which command-line command.
+	 * Returns executable path for command.
 	 *
 	 * @param string $command
 	 * @return string|NULL
@@ -379,7 +382,7 @@ class Paths {
 		}
 		return null;
 	}
-	
+
 	/**
 	 * Retrieve path settings as variables
 	 *
@@ -395,115 +398,5 @@ class Paths {
 			'home' => $this->home,
 			'uid' => $this->uid
 		);
-	}
-	
-	/**
-	 * Your web root is the directory in the file system which contains our application and other
-	 * files.
-	 * It may be served from an aliased or shared directory and as such may not appear at the web
-	 * server's root.
-	 *
-	 * To ensure all URLs are generated correctly, you can set zesk::document_root_prefix(string) to
-	 * set
-	 * a portion of
-	 * the URL which is always prefixed to any generated url.
-	 *
-	 * @param string $set
-	 *        	Optionally set the web root
-	 * @throws Exception_Directory_NotFound
-	 * @return string The directory
-	 * @deprecated 2016-09
-	 */
-	public function document($set = null, $prefix = null) {
-		zesk()->deprecated();
-		return app()->document_root($set, $prefix);
-	}
-	
-	/**
-	 * Your web root may be served from an aliased or shared directory and as such may not appear at
-	 * the web server's
-	 * root.
-	 * To ensure all URLs are generated correctly, you can set zesk::web_root_prefix(string) to set
-	 * a portion of
-	 * the URL which is always prefixed to any generated url.
-	 *
-	 * @param string $set
-	 *        	Optionally set the web root
-	 * @throws Exception_Directory_NotFound
-	 * @return string The directory
-	 * @todo should this be urlescpaed by web_root_prefix function to avoid & and + to be set?
-	 * @deprecated 2016-09
-	 */
-	public function document_prefix($set = null) {
-		zesk()->deprecated();
-		return app()->document_root_prefix($set);
-	}
-	
-	/**
-	 * Directory of the path to files which can be served from the webserver.
-	 * Used for caching CSS or
-	 * other resources. Should not serve any links to this path.
-	 *
-	 * Default document cache path is path(zesk::document_root(), 'cache')
-	 *
-	 * @param string $set
-	 *        	Set the document cache
-	 * @return string
-	 * @see Controller_Cache, Controller_Content_Cache, Command_Cache
-	 * @deprecated 2016-09
-	 */
-	public function document_cache($suffix = null) {
-		zesk()->deprecated();
-		return app()->document_cache($suffix);
-	}
-	
-	/**
-	 * Get or set the module search path
-	 *
-	 * @param string $add
-	 * @deprecated 2016-09
-	 * @return array List of paths searched
-	 */
-	public function module($add = null) {
-		zesk()->deprecated();
-		return app()->module_path($add);
-	}
-	
-	/**
-	 * Retrieve the list of shared content paths, or add one.
-	 * Basic layout is: /share/* -> ZESK_ROOT . 'share/'
-	 * /share/$name/file.js -> $add . 'file.js' /share/$name/css/my.css -> $add . 'css/my.css'
-	 *
-	 * @param string $add
-	 *        	(Optional) Path to add to the share path. Pass in null to do nothing.
-	 * @param string $name
-	 *        	(Optional) Subpath name to add, only relevant if $add is non-null.
-	 * @return array The ordered list of paths to search for content
-	 * @deprecated 2016-09
-	 */
-	public function share($add = null, $name = null) {
-		zesk()->deprecated();
-		return app()->share_path($add, $name);
-	}
-	
-	/**
-	 * Get or set the zesk command path, which is where Zesk searches for commands from the
-	 * command-line tool.
-	 *
-	 * The default path is ZESK_ROOT 'classes/command', but applications can add their own tools
-	 * upon initialization.
-	 *
-	 * This call always returns the complete path, even when adding. Note that adding a path which
-	 * does not exist has no effect.
-	 *
-	 * @param mixed $add
-	 *        	A path or array of paths to add. (Optional)
-	 * @global boolean debug.zesk_command_path Whether to log errors occurring during this call
-	 * @return array
-	 * @throws Exception_Directory_NotFound
-	 * @deprecated 2016-09
-	 */
-	public function zesk_command($add = null) {
-		return app()->zesk_command_path($add);
 	}
 }

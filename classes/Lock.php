@@ -1,4 +1,5 @@
 <?php
+
 /**
  * $URL: https://code.marketacumen.com/zesk/trunk/classes/Lock.php $
  * @package zesk
@@ -9,7 +10,8 @@
 namespace zesk;
 
 /**
- * Support locks across processes, servers. Specific to the database, however.
+ * Support locks across processes, servers.
+ * Specific to the database, however.
  *
  * @author kent
  * @see Class_Lock
@@ -22,35 +24,32 @@ namespace zesk;
  */
 class Lock extends Object {
 	private static $locks = array();
-	
+
 	/**
 	 * Once per hour, cull locks which are old
 	 */
 	public static function cron_cluster_hour(Application $application) {
 		self::delete_unused_locks($application);
 	}
-	
+
 	/**
-	 * Once a minute, release locks associated with processes which are dead, 
+	 * Once a minute, release locks associated with processes which are dead,
 	 * or are associated with a dead server (no longer exists)
 	 */
 	public static function cron_cluster_minute(Application $application) {
 		self::delete_dead_pids($application);
 		self::delete_unlinked_locks($application);
 	}
-	
+
 	/**
 	 * Delete Locks which have not been used in the past 24 hours
 	 */
 	public static function delete_unused_locks(Application $application) {
-		$n_rows = $application->query_delete(__CLASS__)
-			->where(array(
+		$n_rows = $application->query_delete(__CLASS__)->where(array(
 			'used|<=' => Timestamp::now()->add_unit(-1, Timestamp::UNIT_DAY),
 			"server" => null,
 			"pid" => null
-		))
-			->execute()
-			->affected_rows();
+		))->execute()->affected_rows();
 		if ($n_rows > 0) {
 			$application->logger->notice("Deleted {n_rows} {locks} which were unused in the past 24 hours.", array(
 				"n_rows" => $n_rows,
@@ -59,7 +58,7 @@ class Lock extends Object {
 		}
 		return $n_rows;
 	}
-	
+
 	/**
 	 * Delete locks whose server doesn't link to a valid row in the Server table
 	 */
@@ -80,7 +79,7 @@ class Lock extends Object {
 		}
 		return $n_rows;
 	}
-	
+
 	/**
 	 * Delete Locks associated with this server which do not have a valid PID
 	 */
@@ -102,12 +101,13 @@ class Lock extends Object {
 			}
 		}
 	}
-	
+
 	/**
 	 * Get a lock or throw an Exception_Lock
 	 *
 	 * @param string $code
-	 * @param integer $timeout Optional timeout
+	 * @param integer $timeout
+	 *        	Optional timeout
 	 * @throws Exception_Lock
 	 * @return Lock
 	 */
@@ -125,11 +125,13 @@ class Lock extends Object {
 	 * $lock = Lock::get_lock("foo"); // Returns null immediately if can't get lock
 	 * $lock = Lock::get_lock("foo", null); // Returns null immediately if can't get lock
 	 * $lock = Lock::get_lock("foo", 0); // Waits forever
-	 * $lock = Lock::get_lock("foo", 1); // Tries to get lock for one second, then throws Exception_Timeout
+	 * $lock = Lock::get_lock("foo", 1); // Tries to get lock for one second, then throws
+	 * Exception_Timeout
 	 * </code>
 	 *
 	 * @param string $code
-	 * @param double $timeout Time, in seconds, to wait until
+	 * @param double $timeout
+	 *        	Time, in seconds, to wait until
 	 * @return Lock|null
 	 */
 	public static function get_lock($code, $timeout = null) {
@@ -150,33 +152,32 @@ class Lock extends Object {
 		}
 		return $lock->_acquire(intval($timeout));
 	}
-	
+
 	/**
 	 * Release all locks from my server/process
 	 */
-	public static function release_all() {
-		global $zesk;
-		
+	public static function release_all(Application $application) {
 		/* @var $zesk Kernel */
 		self::$locks = array();
 		try {
-			app()->query_update(__CLASS__)->values(array(
+			$application->query_update(__CLASS__)->values(array(
 				'pid' => null,
 				'server' => null,
 				'locked' => null
 			))->where(array(
-				'pid' => $zesk->process_id(),
-				'server' => Server::singleton()
+				'pid' => zesk()->process_id(),
+				'server' => Server::singleton($application)
 			));
 		} catch (Exception $e) {
 			// Ignore for now - likely database misconfigured
 		}
 	}
 	public static function server_delete(Server $server) {
-		$query = app()->query_delete(__CLASS__)->where('server', $server);
+		$application = $server->application;
+		$query = $application->query_delete(__CLASS__)->where('server', $server);
 		$query->execute();
 		if (($n_rows = $query->affected_rows()) > 0) {
-			zesk()->logger->warning("Deleted {n} {locks} associated with server {name} (#{id})", array(
+			$application->logger->warning("Deleted {n} {locks} associated with server {name} (#{id})", array(
 				"n" => $n_rows,
 				"locks" => Locale::plural(__CLASS__, $n_rows)
 			) + $server->members());
@@ -186,7 +187,7 @@ class Lock extends Object {
 	 * Register all zesk hooks
 	 */
 	public static function hooks(Kernel $zesk) {
-		$zesk->hooks->add('Server::delete', array(
+		$zesk->hooks->add(__NAMESPACE__ . '\\Server::delete', array(
 			__CLASS__,
 			'server_delete'
 		));
@@ -195,10 +196,11 @@ class Lock extends Object {
 			"release_all"
 		));
 	}
-	
+
 	/**
-	 * Break a lock. PHP5 does not allow functions called "break", PHP7 does.
-	 * 
+	 * Break a lock.
+	 * PHP5 does not allow functions called "break", PHP7 does.
+	 *
 	 * @param unknown $code
 	 * @return NULL|\zesk\Lock
 	 */
@@ -210,9 +212,10 @@ class Lock extends Object {
 		$lock->pid = $lock->server = null;
 		return $lock->store();
 	}
-	
+
 	/**
 	 * Locked by SOMEONE ELSE
+	 *
 	 * @param unknown $code
 	 */
 	public static function is_locked($code) {
@@ -245,31 +248,29 @@ class Lock extends Object {
 		$this->release();
 		return false;
 	}
-	
+
 	/**
 	 * Release a lock I have
+	 *
 	 * @return Lock
 	 */
 	public function release() {
-		$this->query_update()
-			->values(array(
+		$this->query_update()->values(array(
 			'pid' => null,
 			'server' => null,
 			'locked' => null
-		))
-			->where(array(
+		))->where(array(
 			"id" => $this->id
-		))
-			->execute();
+		))->execute();
 		zesk()->logger->debug("Released lock $this->code");
 		$this->pid = null;
 		$this->server = null;
 		return $this;
 	}
-	
+
 	/**
 	 * Register or create a lock
-	 * 
+	 *
 	 * @param string $code
 	 */
 	private static function _create_lock($code) {
@@ -285,10 +286,10 @@ class Lock extends Object {
 		}
 		return self::$locks[strtolower($code)] = $lock;
 	}
-	
+
 	/**
 	 * Retrieve the cached version of a lock or register one
-	 * 
+	 *
 	 * @param string $code
 	 * @return Lock
 	 */
@@ -307,9 +308,10 @@ class Lock extends Object {
 		}
 		return $lock;
 	}
-	
+
 	/**
 	 * Acquire a lock with an optional where clause
+	 *
 	 * @param array $where
 	 */
 	private function _acquire_where(array $where = array()) {
@@ -322,18 +324,16 @@ class Lock extends Object {
 			'server' => Server::singleton(),
 			'*locked' => $sql->now(),
 			'*used' => $sql->now()
-		))
-			->where(array(
+		))->where(array(
 			'id' => $this->id
-		) + $where)
-			->execute();
+		) + $where)->execute();
 		if ($this->fetch()->_is_mine()) {
 			zesk()->logger->debug("Acquired lock $this->code");
 			return $this;
 		}
 		return null;
 	}
-	
+
 	/**
 	 * Acquire an inactive lock
 	 */
@@ -342,9 +342,10 @@ class Lock extends Object {
 			'pid' => null
 		));
 	}
-	
+
 	/**
-	 * Acquire a dead lock, requires that the pid and server don't change between now and acquisition
+	 * Acquire a dead lock, requires that the pid and server don't change between now and
+	 * acquisition
 	 */
 	private function _acquire_dead() {
 		return $this->_acquire_where(array(
@@ -393,7 +394,7 @@ class Lock extends Object {
 		}
 		return null;
 	}
-	
+
 	/**
 	 * Checks if the PID in this Lock is alive
 	 *
@@ -410,7 +411,7 @@ class Lock extends Object {
 	 * @return boolean
 	 */
 	private function _is_my_server() {
-		return Server::singleton()->id === $this->member_integer('server');
+		return Server::singleton($this->application)->id === $this->member_integer('server');
 	}
 	/**
 	 * Does my PID match (DOES NOT MEAN SERVER WILL MATCH)
@@ -422,7 +423,7 @@ class Lock extends Object {
 		/* @var $zesk Kernel */
 		return $zesk->process->id() === $this->member_integer('pid');
 	}
-	
+
 	/**
 	 * Is this lock free?
 	 *
@@ -431,7 +432,7 @@ class Lock extends Object {
 	private function _is_free() {
 		return $this->member_is_empty('pid') && $this->member_is_empty('server');
 	}
-	
+
 	/**
 	 * Implies PID and server match
 	 *

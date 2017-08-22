@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Session object is a more powerful, multi-server, database session storage.
  * Dates and times are stored using UTC.
@@ -12,7 +13,7 @@ namespace zesk;
 
 /**
  * Sessions inherit some options from the global Application object in the initialize() function
- * 
+ *
  * @see Class_Session_Database
  * @property id $id
  * @property string $cookie
@@ -30,27 +31,28 @@ namespace zesk;
 class Session_Database extends Object implements Interface_Session {
 	/**
 	 * Current execution does not allow sessions, do not touch database
+	 *
 	 * @deprecated 2016-12
 	 * @var boolean
 	 */
 	protected static $nosession = false;
-	
+
 	/**
 	 * Original session data (to see if things change)
 	 *
 	 * @var array
 	 */
 	private $original = array();
-	
+
 	/**
 	 * Something changed?
 	 *
 	 * @var boolean
 	 */
 	private $changed = false;
-	
+
 	/**
-	 * 
+	 *
 	 * @return Object
 	 */
 	function really_store() {
@@ -60,10 +62,11 @@ class Session_Database extends Object implements Interface_Session {
 			return parent::store();
 		}
 	}
-	
+
 	/**
-	 * 
-	 * {@inheritDoc}
+	 *
+	 * {@inheritdoc}
+	 *
 	 * @see Object::initialize()
 	 */
 	function initialize($value, $from_database = false) {
@@ -82,12 +85,7 @@ class Session_Database extends Object implements Interface_Session {
 	function seen() {
 		$query = $this->query_update();
 		$sql = $query->sql();
-		$query->value("*seen", $sql->now())
-			->value("expires", $this->compute_expires())
-			->value("*sequence_index", "sequence_index+1")
-			->where("id", $this)
-			->low_priority(true)
-			->execute();
+		$query->value("*seen", $sql->now())->value("expires", $this->compute_expires())->value("*sequence_index", "sequence_index+1")->where("id", $this)->low_priority(true)->execute();
 		$this->call_hook('seen');
 		return $this;
 	}
@@ -142,7 +140,7 @@ class Session_Database extends Object implements Interface_Session {
 	public function cookie_expire() {
 		return to_integer($this->option_path("cookie.expire"), 604800);
 	}
-	
+
 	/**
 	 * Set Session cookie
 	 *
@@ -152,9 +150,10 @@ class Session_Database extends Object implements Interface_Session {
 	private static function _generate_cookie() {
 		return md5("" . mt_rand(0, 999999999) . microtime());
 	}
-	
+
 	/**
 	 * Authenticate user at IP
+	 *
 	 * @see Interface_Session::authenticate()
 	 */
 	public function authenticate($user_id, $ip = null) {
@@ -167,17 +166,19 @@ class Session_Database extends Object implements Interface_Session {
 		$this->set_member("expires", Timestamp::now()->add_unit($cookieExpire, Timestamp::UNIT_SECOND));
 		return $this->store();
 	}
-	
+
 	/**
 	 * Are we authenticated?
+	 *
 	 * @see Interface_Session::authenticated()
 	 */
 	public function authenticated() {
 		return $this->member_is_empty('User');
 	}
-	
+
 	/**
 	 * De-authenticate
+	 *
 	 * @see Interface_Session::deauthenticate()
 	 */
 	public function deauthenticate() {
@@ -187,15 +188,17 @@ class Session_Database extends Object implements Interface_Session {
 		$this->set_member("user", null);
 		return $this->store();
 	}
-	
+
 	/**
 	 * Is this session expired?
+	 *
 	 * @return
+	 *
 	 */
 	public function expires() {
 		return $this->member_timestamp("expires");
 	}
-	
+
 	/**
 	 * Logout expired, run hook
 	 */
@@ -222,8 +225,9 @@ class Session_Database extends Object implements Interface_Session {
 		}
 		$application->query_delete(__CLASS__)->where($where)->execute();
 	}
-	
+
 	/**
+	 *
 	 * @return Timestamp
 	 */
 	private function compute_expires() {
@@ -231,11 +235,12 @@ class Session_Database extends Object implements Interface_Session {
 		$expires = Timestamp::now()->add_unit($expire, Timestamp::UNIT_SECOND);
 		return $expires;
 	}
-	
+
 	/**
 	 * Set sessions enabled or not (default are enabled)
-	 * 
-	 * @param boolean $set Optional
+	 *
+	 * @param boolean $set
+	 *        	Optional
 	 * @return boolean
 	 */
 	public static function enabled($set = null) {
@@ -251,10 +256,11 @@ class Session_Database extends Object implements Interface_Session {
 	private function cookie_name() {
 		return $this->option_path("cookie.name", "ZCOOKIE");
 	}
-	
+
 	/**
-	 * 
-	 * {@inheritDoc}
+	 *
+	 * {@inheritdoc}
+	 *
 	 * @see \zesk\Interface_Session::initialize_session()
 	 */
 	public function initialize_session(Request $request) {
@@ -276,37 +282,33 @@ class Session_Database extends Object implements Interface_Session {
 		$this->set_member('data', to_array($this->data) + array(
 			'uri' => $application->request()->uri()
 		));
-		
+
 		$application->response()->cookie($cookie_name, $cookie_value, $this->cookie_options());
-		
+
 		return $this;
 	}
-	
+
 	/**
+	 *
 	 * @return string
 	 */
 	function hash() {
 		return $this->member("cookie");
 	}
-	
+
 	/**
-	 * 
+	 *
 	 * @param unknown $user
 	 * @param unknown $expire_seconds
 	 * @return Session_Database
 	 */
-	public static function one_time_create($user, $expire_seconds = null) {
+	public static function one_time_create(User $user, $expire_seconds = null) {
+		$app = $user->application;
 		if ($expire_seconds === null) {
-			global $zesk;
 			/* @var $zesk Kernel */
-			$expire_seconds = to_integer($zesk->configuration->Session->one_time_expire_seconds, 86400);
+			$expire_seconds = to_integer($app->configuration->path_get(__CLASS__ . "::one_time_expire_seconds", 86400));
 		}
-		$app = app();
-		
-		$app->query_delete(__CLASS__)
-			->where('is_one_time', true)
-			->where('user', $user)
-			->execute();
+		$app->query_delete(__CLASS__)->where('is_one_time', true)->where('user', $user)->execute();
 		$session = $app->object_factory(__CLASS__);
 		$session->set_member(array(
 			'cookie' => self::_generate_cookie(),
@@ -317,9 +319,9 @@ class Session_Database extends Object implements Interface_Session {
 		$session->really_store();
 		return $session;
 	}
-	public static function one_time_find($hash) {
+	public static function one_time_find(Application $application, $hash) {
 		$hash = trim($hash);
-		$onetime = app()->object_factory(__CLASS__);
+		$onetime = $application->object_factory(__CLASS__);
 		if ($onetime->find(array(
 			"cookie" => $hash,
 			"is_one_time" => true
@@ -339,22 +341,19 @@ class Session_Database extends Object implements Interface_Session {
 		$this->set_master();
 		return $this;
 	}
-	
+
 	/**
 	 * Count all other sessions seen within the seconds window provided
-	 * 
+	 *
 	 * @param number $nSeconds
 	 * @return integer
 	 */
 	public function session_count($nSeconds = 600) {
 		$where['seen|>='] = Timestamp::now()->add_unit(-$nSeconds, Timestamp::UNIT_SECOND);
 		$where['id|!='] = $this->id();
-		return $this->query_select()
-			->what("*X", "COUNT(id)")
-			->where($where)
-			->one_integer("X");
+		return $this->query_select()->what("*X", "COUNT(id)")->where($where)->one_integer("X");
 	}
-	
+
 	/*
 	 * Get/Set session valuesfrom Object
 	 *
@@ -384,7 +383,7 @@ class Session_Database extends Object implements Interface_Session {
 		}
 		return $default;
 	}
-	
+
 	/**
 	 * Session variables are special
 	 *
@@ -393,9 +392,10 @@ class Session_Database extends Object implements Interface_Session {
 	public function __get($name) {
 		return avalue($this->members['data'], $name);
 	}
-	
+
 	/**
 	 * (non-PHPdoc)
+	 *
 	 * @see Object::__set($member, $value)
 	 */
 	public function __set($name, $value) {
@@ -415,7 +415,7 @@ class Session_Database extends Object implements Interface_Session {
 	public function changed($members = null) {
 		return $this->changed;
 	}
-	
+
 	/**
 	 * Retrieve some of the values
 	 *
@@ -429,6 +429,7 @@ class Session_Database extends Object implements Interface_Session {
 	}
 	/**
 	 * Rerieve all of the variables
+	 *
 	 * @see Interface_Session::variables()
 	 */
 	public function variables() {
@@ -450,13 +451,13 @@ class Session_Database extends Object implements Interface_Session {
 	public function found_session() {
 		return $this;
 	}
-	
+
 	/**
 	 * Really save
 	 */
-	public static function save() {
+	public static function save(Application $application) {
 		try {
-			$session = app()->session(false);
+			$session = $application->session(false);
 			if ($session instanceof self) {
 				$session->really_store();
 			}
@@ -464,7 +465,7 @@ class Session_Database extends Object implements Interface_Session {
 		} catch (Database_Exception_Table_NotFound $e) {
 		}
 	}
-	
+
 	/**
 	 *
 	 * @return array

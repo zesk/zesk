@@ -1,4 +1,5 @@
 <?php
+
 /**
  * $URL: https://code.marketacumen.com/zesk/trunk/classes/Database/Query.php $
  * @package zesk
@@ -9,7 +10,7 @@
 namespace zesk;
 
 /**
- * 
+ *
  * @author kent
  *
  */
@@ -20,49 +21,49 @@ class Database_Query {
 	 * @var string
 	 */
 	protected $type;
-	
+
 	/**
 	 * Database
 	 *
 	 * @var Database
 	 */
 	protected $db;
-	
+
 	/**
 	 * Database code
 	 *
 	 * @var string
 	 */
 	protected $dbname;
-	
+
 	/**
 	 * Object class used when iterating
 	 *
 	 * @var string
 	 */
 	protected $class;
-	
+
 	/**
-	 * 
+	 *
 	 * @var zesk\Object[]
 	 */
 	private $classes_cached = array();
-	
+
 	/**
 	 * Create a new query
 	 *
 	 * @param string $type
 	 * @param Database $db
 	 */
-	function __construct($type = "SELECT", Database $db = null) {
+	function __construct($type = "SELECT", Database $db) {
 		$this->type = strtoupper($type);
-		$this->db = $db instanceof Database ? $db : app()->database_factory();
+		$this->db = $db;
 		$this->dbname = $this->db->code_name();
 		$this->class = null;
 	}
-	
+
 	/**
-	 * 
+	 *
 	 * @return string[]
 	 */
 	function __sleep() {
@@ -72,16 +73,15 @@ class Database_Query {
 			"class"
 		);
 	}
-	
+
 	/**
-	 * 
 	 */
 	function __wakeup() {
-		$this->db = app()->database_factory($this->dbname);
+		$this->db = zesk()->application()->database_factory($this->dbname);
 	}
-	
+
 	/**
-	 * 
+	 *
 	 * @param Database_Query $from
 	 * @return \zesk\Database_Query
 	 */
@@ -99,7 +99,7 @@ class Database_Query {
 	public function duplicate() {
 		return clone $this;
 	}
-	
+
 	/**
 	 *
 	 * @return Database
@@ -107,7 +107,7 @@ class Database_Query {
 	function database() {
 		return $this->db;
 	}
-	
+
 	/**
 	 *
 	 * @return string
@@ -115,7 +115,7 @@ class Database_Query {
 	function database_name() {
 		return $this->db->code_name();
 	}
-	
+
 	/**
 	 *
 	 * @return Database_SQL
@@ -143,10 +143,18 @@ class Database_Query {
 		}
 		return $this->class;
 	}
-	
+
+	/**
+	 *
+	 * @return \zesk\Class_Object
+	 */
+	function class_object() {
+		return $this->db->application->class_object($this->class);
+	}
+
 	/**
 	 * Create objects in the current application context
-	 * 
+	 *
 	 * @param string $class
 	 * @param mixed $mixed
 	 * @param array $options
@@ -155,10 +163,10 @@ class Database_Query {
 	function object_factory($class, $mixed = null, array $options = array()) {
 		return $this->db->application->object_factory($class, $mixed, $options);
 	}
-	
+
 	/**
 	 * Cache for Object definitions, do not modify these objects
-	 * 
+	 *
 	 * @param string $class
 	 * @return \zesk\Object
 	 */
@@ -166,7 +174,6 @@ class Database_Query {
 		if (isset($this->objects_cached[$class])) {
 			return $this->objects_cached[$class];
 		}
-		return $this->objects_cached[$class] = $this->db->application->object($class); 
+		return $this->objects_cached[$class] = $this->db->application->object($class);
 	}
-	
 }

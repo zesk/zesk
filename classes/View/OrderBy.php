@@ -1,4 +1,5 @@
 <?php
+
 /**
  * $URL: https://code.marketacumen.com/zesk/trunk/classes/View/OrderBy.php $
  * @package zesk
@@ -10,6 +11,7 @@
 namespace zesk;
 
 /**
+ *
  * @deprecated use Control_OrderBy 2015-01
  * @author kent
  *
@@ -79,8 +81,8 @@ class View_OrderBy extends View {
 			'href' => $url
 		), $english);
 		$label = "<td nowrap=\"nowrap\">" . $a_tag . "</td>";
-		$sort = "<td align=\"center\"><div class=\"list-order-by-icon\">$sort_number<a href=\"" . $url . "\"><img src=\"" . cdn::url("/share/zesk/images/sort/$sort_order.gif") . "\" alt=\"$sort_desc\" width=\"16\" height=\"16\" border=\"0\" /></a></div></td>";
-		
+		$sort = "<td align=\"center\"><div class=\"list-order-by-icon\">$sort_number<a href=\"" . $url . "\"><img src=\"" . $this->application->url("/share/zesk/images/sort/$sort_order.gif") . "\" alt=\"$sort_desc\" width=\"16\" height=\"16\" border=\"0\" /></a></div></td>";
+
 		switch ($this->option("list_order_position")) {
 			case "top":
 				$content = $sort . "</tr><tr>" . $label;

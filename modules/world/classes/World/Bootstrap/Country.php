@@ -1,4 +1,5 @@
 <?php
+
 /**
  * $URL: https://code.marketacumen.com/zesk/trunk/modules/world/classes/World/Bootstrap/Country.php $
  * @package zesk
@@ -9,24 +10,24 @@
 namespace zesk;
 
 /**
- * 
+ *
  * @author kent
  *
  */
 class World_Bootstrap_Country extends Options {
 	/**
 	 * Source http://download.geonames.org/export/dump/countryInfo.txt
-	 * 
+	 *
 	 * Country database (TXT file)
 	 */
 	const url_geonames_country_file = "http://download.geonames.org/export/dump/countryInfo.txt";
-	
+
 	/**
 	 *
 	 * @var array
 	 */
 	private $include_country = null;
-	
+
 	/**
 	 *
 	 * @param array $options
@@ -35,8 +36,9 @@ class World_Bootstrap_Country extends Options {
 	public static function factory(array $options = array()) {
 		return zesk()->objects->factory(__CLASS__, $options);
 	}
-	
+
 	/**
+	 *
 	 * @global Module_World::include_country List of country codes to include
 	 *
 	 * @param mixed $options
@@ -54,8 +56,8 @@ class World_Bootstrap_Country extends Options {
 		if ($this->option_bool("drop")) {
 			$x->database()->query('TRUNCATE ' . $x->table());
 		}
-		
-		$map = self::load_countryinfo();
+
+		$map = self::load_countryinfo($application);
 		foreach ($map as $fields) {
 			$country = new Country($fields);
 			if ($this->is_included($country)) {
@@ -69,16 +71,17 @@ class World_Bootstrap_Country extends Options {
 		}
 		return true;
 	}
-	
+
 	/**
 	 * Fetch and synchronize country source files
 	 *
 	 * @return multitype:unknown array
-	 * @global Module_World::geonames_country_cache_file path to location to store country file (defaults to this module)
+	 * @global Module_World::geonames_country_cache_file path to location to store country file
+	 *         (defaults to this module)
 	 * @global Module_World::geonames_time_to_live
 	 */
-	private function load_countryinfo() {
-		$world_path = app()->modules->path("world");
+	private function load_countryinfo(Application $application) {
+		$world_path = $application->modules->path("world");
 		$file = $this->option("geonames_country_cache_file", path($world_path, 'bootstrap-data/countryinfo.txt'));
 		Net_Sync::url_to_file(self::url_geonames_country_file, $file, array(
 			"time_to_live" => $this->option("geonames_time_to_live", 86400 * 30)

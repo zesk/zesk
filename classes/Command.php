@@ -182,12 +182,9 @@ abstract class Command extends Hookable implements Logger\Handler {
 	 *
 	 * @param array $argv
 	 */
-	function __construct($argv = null, array $options = array()) {
-		global $zesk;
-		/* @var $zesk Kernel */
-
-		$this->application = Application::instance();
-		$this->zesk = $this->application->zesk;
+	function __construct(Application $application, $argv = null, array $options = array()) {
+		$this->application = $application;
+		$zesk = $this->zesk = $application->zesk;
 
 		if ($argv === null) {
 			$argv = avalue($_SERVER, 'argv', null);
@@ -221,7 +218,7 @@ abstract class Command extends Hookable implements Logger\Handler {
 		$this->_parse_options();
 
 		if ($this->debug) {
-			$this->application->logger->debug("{class}({args})", array(
+			$application->logger->debug("{class}({args})", array(
 				"class" => get_class($this),
 				"args" => var_export($argv, true)
 			));

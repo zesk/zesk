@@ -1,34 +1,24 @@
 <?php
+
 namespace zesk;
 
 class Test_Widget extends Test_Unit {
-
 	function test_default_options() {
 		$class = null;
 		Widget::default_options($class);
 		echo basename(__FILE__) . ": success\n";
 	}
-
-	function test_factory() {
-		$class = "Control";
-		$options = null;
-		Widget::factory($class, $options);
-		echo basename(__FILE__) . ": success\n";
-	}
-
 	function test_inherit_options() {
 		$options = null;
 		$class = null;
 		Widget::inherit_options($options, $class);
 		echo basename(__FILE__) . ": success\n";
 	}
-
 	function test_input_attribute_names() {
 		$types = false;
 		Widget::input_attribute_names($types);
 		echo basename(__FILE__) . ": success\n";
 	}
-
 	function test_basics() {
 		$options = false;
 		$testx = new Widget($options);

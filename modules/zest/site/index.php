@@ -8,12 +8,11 @@
  * @copyright  Copyright (C) 2013, {company}. All rights reserved.
  */
 try {
+	$application = require_once dirname(dirname(__FILE__)) . '/zest.application.php';
 	/* @var $application Zest */
-	$application = require_once dirname(dirname(__FILE__)) . '/zest.application.inc';
 	$application->index();
 } catch (Exception $e) {
-	global $zesk;
-	echo app()->theme($zesk->classes->hierarchy($e), array(
+	echo zesk()->application()->theme(zesk()->classes->hierarchy($e), array(
 		"exception" => $e
 	), array(
 		"first" => true

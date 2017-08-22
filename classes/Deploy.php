@@ -1,17 +1,38 @@
 <?php
+
 /**
- * 
+ *
  */
 namespace zesk;
 
 /**
- * 
+ *
  * @author kent
  *
  */
 class Deploy extends Hookable {
+	/**
+	 *
+	 * @var Application
+	 */
+	protected $application = null;
+	/**
+	 *
+	 * @var string
+	 */
 	protected $path = null;
+
+	/**
+	 *
+	 * @var array
+	 */
 	protected $skipped = array();
+
+	/**
+	 * Our options
+	 *
+	 * @var array
+	 */
 	protected $options = array(
 		"last_tag" => "-none-"
 	);
@@ -19,17 +40,16 @@ class Deploy extends Hookable {
 	 *
 	 * Run a deployment check, using path for deployment state
 	 *
-	 * @param string $path Path to deployme
+	 * @param string $path
+	 *        	Path to deployme
 	 * @param Settings $settings
 	 * @return NULL|Deploy
 	 */
 	public static function settings_maintenance($path, Settings $settings) {
-		global $zesk;
-		
 		$setting_name = __CLASS__ . "::state";
 		$settings->deprecated("deploy", $setting_name);
 		$options = to_array($settings->get($setting_name));
-		
+
 		$deploy = new Deploy($path, $options);
 		if ($deploy->failed()) {
 			$deploy->reset(true);
@@ -41,7 +61,7 @@ class Deploy extends Hookable {
 			$settings->flush();
 			$lock->release();
 		} else {
-			$zesk->logger->warning("Deployment is already running.");
+			$logger->warning("Deployment is already running.");
 		}
 		return $deploy;
 	}
@@ -66,12 +86,13 @@ class Deploy extends Hookable {
 	public function failed() {
 		return !$this->option_bool('status', true);
 	}
-	public function __construct($path, $options = null) {
+	public function __construct(Application $application, $path, $options = null) {
+		$this->application = $application;
 		$this->path = $path;
 		parent::__construct($options);
 		$this->call_hook('construct');
 	}
-	private  function _parse_tag($subpath) {
+	private function _parse_tag($subpath) {
 		$tag = array();
 		$filename = $extension = null;
 		extract(pathinfo($subpath), EXTR_IF_EXISTS);
@@ -91,6 +112,11 @@ class Deploy extends Hookable {
 	private function extension_is_handled($extension) {
 		return method_exists($this, "hook_extension_$extension");
 	}
+
+	/**
+	 *
+	 * @return array
+	 */
 	private function load_tags() {
 		$last_tag = $this->option('last_tag');
 		try {
@@ -100,7 +126,7 @@ class Deploy extends Hookable {
 		}
 		$tags = $result = array();
 		foreach ($subpaths as $subpath) {
-			$tag =$this->_parse_tag($subpath);
+			$tag = $this->_parse_tag($subpath);
 			if ($tag === null) {
 				$this->skipped[] = $subpath;
 				continue;
@@ -114,9 +140,13 @@ class Deploy extends Hookable {
 		ksort($tags);
 		return $tags;
 	}
+
+	/**
+	 *
+	 * @return boolean[]|array[]|unknown[]|NULL[]|mixed[]|string[]|\zesk\NULL[]|\zesk\Deploy
+	 */
 	protected function _maintenance() {
-		global $zesk;
-		/* @var $zesk Kernel */
+		$logger = $this->application->logger;
 		$last_tag = $this->option('last_tag');
 		$tags = $this->load_tags();
 		$results = array();
@@ -133,8 +163,8 @@ class Deploy extends Hookable {
 		$results['last_tag'] = $last_tag;
 		$results['status'] = true;
 		if (count($tags) > 0) {
-			$zesk->logger->notice('Last tag succeeded was {last_tag}', $this->options);
-			$zesk->logger->notice("Processing tags: {tags}", array(
+			$logger->notice('Last tag succeeded was {last_tag}', $this->options);
+			$logger->notice("Processing tags: {tags}", array(
 				"tags" => _dump($tags)
 			));
 			foreach ($tags as $name => $subpaths) {
@@ -144,7 +174,7 @@ class Deploy extends Hookable {
 						$tag
 					), array());
 					if (!is_array($result) || !avalue($result, 'status')) {
-						$zesk->logger->error("Tag failed: {tag} {message}", $result + array(
+						$logger->error("Tag failed: {tag} {message}", $result + array(
 							"tag" => $tag
 						));
 						$results['failed_tag'] = $tag;
@@ -164,7 +194,24 @@ class Deploy extends Hookable {
 		$this->set_option($results);
 		return $this;
 	}
+
+	/**
+	 * Run a deployment script which is a PHP include script
+	 *
+	 * @param array $tag
+	 * @return array
+	 */
 	protected function hook_extension_inc(array $tag) {
+		return $this->hook_extension_php($tag);
+	}
+
+	/**
+	 * Run a deployment script which is a PHP include script
+	 *
+	 * @param array $tag
+	 * @return array
+	 */
+	protected function hook_extension_php(array $tag) {
 		$path = $tag['path'];
 		ob_start();
 		$status = true;
@@ -172,28 +219,34 @@ class Deploy extends Hookable {
 			zesk()->logger->notice("Including PHP file {path}", compact("path"));
 			$result = @include $path;
 		} catch (Exception $e) {
-			global $zesk;
-			$zesk->hooks->call("exception", $e);
+			$this->application->hooks->call("exception", $e);
 			$status = false;
 			$result = null;
 		}
 		$content = ob_end_clean();
 		return array(
-			'type' => 'inc',
+			'path' => $path,
+			'type' => 'php',
 			'status' => $status,
 			'result' => $result,
 			'content' => $content
 		);
 	}
+
+	/**
+	 * Run a deployment script which is a TPL file (include)
+	 *
+	 * @param array $tag
+	 * @return array
+	 */
 	protected function hook_extension_tpl(array $tag) {
-		global $zesk;
 		$path = $tag['path'];
 		$status = true;
 		try {
-			$zesk->logger->notice("Loading template {path}", compact("path"));
-			$content = new Template(app(), $path);
+			$this->application->logger->notice("Loading template {path}", compact("path"));
+			$content = new Template($this->application, $path);
 		} catch (Exception $e) {
-			$zesk->hooks->call("exception", $e);
+			$this->application->hooks->call("exception", $e);
 			$status = false;
 		}
 		return array(
@@ -202,14 +255,21 @@ class Deploy extends Hookable {
 			'status' => $status
 		);
 	}
+
+	/**
+	 * Run a deployment script which is a SQL file
+	 *
+	 * @param array $tag
+	 * @return array
+	 */
 	protected function hook_extension_sql(array $tag) {
 		$path = $tag['path'];
-		$db = app()->database_factory();
+		$db = $this->application->database_factory();
 		$sqls = $db->split_sql_commands(file_get_contents($path));
 		$result = array(
 			'type' => 'sql'
 		);
-		
+
 		while (count($sqls) > 0) {
 			$sql = array_shift($sqls);
 			try {
@@ -222,9 +282,8 @@ class Deploy extends Hookable {
 				} else {
 					$result['applied'][] = $sql;
 				}
-			} catch (Exception $e) {
-				global $zesk;
-				$zesk->hooks->call("exception", $e);
+			} catch (\Exception $e) {
+				$this->application->hooks->call("exception", $e);
 				$result['message'] = map("Exception {class}: {message}", array(
 					"class" => get_class($e),
 					"message" => $e->getMessage()

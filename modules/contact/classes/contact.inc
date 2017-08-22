@@ -1,4 +1,5 @@
 <?php
+
 /**
  * @version $Id: contact.inc 4481 2017-03-24 18:21:48Z kent $
  * @package zesk
@@ -15,10 +16,24 @@ namespace zesk;
  *
  */
 class Contact extends Object {
-	public static function find_hash($hash, $where = null) {
-		$query = app()->query_select(__CLASS__);
+	/**
+	 *
+	 * @param Application $application
+	 * @param string $hash
+	 * @param array $where
+	 * @return integer ID of found object
+	 */
+	public static function find_hash(Application $application, $hash, $where = null) {
+		$query = $application->query_select(__CLASS__);
+		$class_object = $query->class_object();
 		$where['*hash'] = $query->sql()->function_unhex($hash);
-		return $query->what("ID")->where($where)->one_integer("ID");
+		$id_column = $class_object->id_column;
+		if (!$id_column) {
+			throw new Exception_Semantics("Find hash on a contact but no ID column {class}", array(
+				"class" => get_class($class_object)
+			));
+		}
+		return $query->what($id_column)->where($where)->one_integer($id_column);
 	}
 	public function full_name($default = "") {
 		if (!$this->member_is_empty("person")) {
@@ -58,10 +73,7 @@ class Contact extends Object {
 		return parent::store();
 	}
 	public function find_linked_data($member, $value) {
-		return $this->has_many_query($member)
-			->where("value", $value)
-			->what("X.*")
-			->object();
+		return $this->has_many_query($member)->where("value", $value)->what("X.*")->object();
 	}
 	public static function find_by_email($email) {
 		$contact_id = self::class_query('Contact_Email')->where('value', $email)->what('contact')->one('contact');
@@ -72,7 +84,7 @@ class Contact extends Object {
 		// TODO: Clean Contact_Email table
 		return null;
 	}
-	
+
 	/**
 	 * Returns an array of contacts
 	 *
@@ -89,7 +101,6 @@ class Contact extends Object {
 	// 			->where("UCT.User", $user_id)
 	// 			->where("Tag.ID", $tag);
 	// 	}
-	
 
 	/**
 	 * Create a contact with just an email
@@ -108,17 +119,17 @@ class Contact extends Object {
 		if (!$contact->store()) {
 			return null;
 		}
-		
+
 		$contact_email = new Contact_Email();
 		$contact_email->contact = $contact;
 		$contact_email->label = Contact_Label::find_global(Contact_Label::LabelType_Email, 'Home');
 		$contact_email->value = $email;
-		
+
 		if (!$contact_email->store()) {
 			$contact->delete();
 			return null;
 		}
-		
+
 		$contact_person = new Contact_Person();
 		$contact_person->contact = $contact;
 		$contact_person->nickname = str::left($email, '@');
@@ -127,7 +138,7 @@ class Contact extends Object {
 			$contact->delete();
 			return null;
 		}
-		
+
 		return $contact_email;
 	}
 	public function is_verified() {
@@ -155,10 +166,7 @@ class Contact extends Object {
 		);
 		$found_labels = array();
 		foreach ($objects as $object) {
-			$found_labels = array_merge($found_labels, self::class_query($object)->where("contact", $this->id())
-				->what("DISTINCT label")
-				->where("label", $labels)
-				->to_array("label", "Label"));
+			$found_labels = array_merge($found_labels, self::class_query($object)->where("contact", $this->id())->what("DISTINCT label")->where("label", $labels)->to_array("label", "Label"));
 		}
 		if (count($found_labels) === count($labels)) {
 			return true;

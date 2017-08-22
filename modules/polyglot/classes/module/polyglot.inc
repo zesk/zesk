@@ -1,18 +1,19 @@
 <?php
+
 /**
- * 
+ *
  */
 namespace zesk;
 
 /**
- * 
+ *
  * @author kent
  *
  */
 class Module_PolyGlot extends Module implements Interface_Module_Routes {
-	
+
 	/**
-	 * 
+	 *
 	 * @var array
 	 */
 	protected $object_classes = array(
@@ -23,19 +24,17 @@ class Module_PolyGlot extends Module implements Interface_Module_Routes {
 		$this->application->configuration->deprecated("Module_PolyGlot", __CLASS__);
 	}
 	/**
+	 *
 	 * @return array
 	 */
 	public function locale_options() {
 		$list = $this->call_hook_arguments("locale_options", array(), $this->option_array("locale_options"));
 		$options = array();
-		$locales = $this->application->query_select("zesk\\Language")
-			->what(array(
+		$locales = $this->application->query_select("zesk\\Language")->what(array(
 			"code" => "code",
 			"dialect" => "dialect",
 			"name" => "name"
-		))
-			->where("code", $list)
-			->to_array();
+		))->where("code", $list)->to_array();
 		$results = array();
 		foreach ($locales as $locale) {
 			$code = $dialect = $name = null;
@@ -47,11 +46,13 @@ class Module_PolyGlot extends Module implements Interface_Module_Routes {
 		}
 		return __($results);
 	}
-	
+
 	/**
+	 *
 	 * @see Module::hook_routes
-	 * 
-	 * {@inheritDoc}
+	 *
+	 * {@inheritdoc}
+	 *
 	 * @see Interface_Module_Routes::hook_routes()
 	 */
 	public function hook_routes(Router $router) {
@@ -80,9 +81,9 @@ class Module_PolyGlot extends Module implements Interface_Module_Routes {
 			)
 		));
 	}
-	
+
 	/**
-	 * 
+	 *
 	 * @param string $locale
 	 * @throws Exception_File_NotFound
 	 * @throws Exception_File_Format
@@ -117,8 +118,8 @@ class Module_PolyGlot extends Module implements Interface_Module_Routes {
 		$table = $existing + $table;
 		$language = Locale::language($locale);
 		$dialect = Locale::dialect($locale);
-		$tokens = PolyGlot_Token::fetch_all($language, $dialect);
-		
+		$tokens = PolyGlot_Token::fetch_all($this->application, $language, $dialect);
+
 		foreach ($table as $original => $translation) {
 			if (array_key_exists($original, $tokens)) {
 				$object = $tokens[$original];

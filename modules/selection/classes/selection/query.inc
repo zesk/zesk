@@ -1,19 +1,21 @@
 <?php
+
 /**
- * 
+ *
  */
 namespace zesk;
 
 /**
+ *
  * @see Class_Selection_Query
  * @author kent
  *
  */
 class Selection_Query extends Object {
-	
+
 	/**
 	 * Fetch or create a query
-	 * 
+	 *
 	 * @param Selection_Type $type
 	 * @param Database_Query_Select $total
 	 * @param Database_Query_Select $list
@@ -36,10 +38,7 @@ class Selection_Query extends Object {
 		return $object->store();
 	}
 	public function reorder() {
-		$this->order_index = $this->query_select("X")
-			->where("X.type", $this->type)
-			->what("*N", "MAX(X.order_index)")
-			->one_integer("N", 0) + 1;
+		$this->order_index = $this->query_select("X")->where("X.type", $this->type)->what("*N", "MAX(X.order_index)")->one_integer("N", 0) + 1;
 		return $this->store();
 	}
 	public function count() {
@@ -49,10 +48,18 @@ class Selection_Query extends Object {
 		}
 		return "unknown";
 	}
-	public static function copy_duplicate($old_type, $new_type) {
+
+	/**
+	 *
+	 * @param Application $application
+	 * @param string $old_type
+	 * @param string $new_type
+	 * @return integer[integer] Old IDs as keys, new IDs as values
+	 */
+	public static function copy_duplicate(Application $application, $old_type, $new_type) {
 		$map = array();
 		/* @var $query Selection_Query */
-		foreach (app()->query_select(__CLASS__)->where('type', $old_type)->object_iterator() as $query) {
+		foreach ($application->query_select(__CLASS__)->where('type', $old_type)->object_iterator() as $query) {
 			$old_id = $query->id;
 			$query->id = null;
 			$query->type = $new_type;

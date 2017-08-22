@@ -1,54 +1,55 @@
 <?php
 /**
- * 
+ *
  */
 use zesk\Hookable;
 
 /**
- * 
+ *
  * @author kent
  *
  */
 abstract class Workflow_Step extends Hookable {
-	
+
 	/**
 	 *
 	 * @var Workflow
 	 */
 	public $workflow = null;
-	
+
 	/**
 	 *
 	 * @var string
 	 */
 	public $title = '';
-	
+
 	/**
+	 *
 	 * @var string
 	 */
 	public $href = '';
-	
+
 	/**
 	 *
 	 * @var string
 	 */
 	public $description = '';
-	
+
 	/**
 	 * Is this completed? If null, not checked yet - call "refresh()" to update
 	 *
 	 * @var boolean
 	 */
 	public $completed = null;
-	
+
 	/**
 	 *
 	 * @var mixed
 	 */
 	protected $dependencies = array();
-	
+
 	/**
-	 * 
+	 *
 	 * @param Workflow $workflow
 	 * @param array $options
 	 */
@@ -93,7 +94,7 @@ abstract class Workflow_Step extends Hookable {
 	public function hash() {
 		return __CLASS__;
 	}
-	
+
 	/**
 	 * Check if this step is completed
 	 *
@@ -102,13 +103,14 @@ abstract class Workflow_Step extends Hookable {
 	function is_completed() {
 		return $this->substeps_total() === $this->substeps_completed();
 	}
-	
+
 	/**
 	 * Check if this step is completed
+	 *
 	 * @return string
 	 */
 	function render() {
-		return app()->theme($this->theme, array(
+		return $workflow->application->theme($this->theme, array(
 			'step' => $this,
 			'workflow' => $this->workflow
 		) + $this->workflow->variables(), array(

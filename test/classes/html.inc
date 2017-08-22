@@ -1,16 +1,16 @@
 <?php
+
 /**
- * 
+ *
  */
 namespace zesk;
 
 /**
- * 
+ *
  * @author kent
  *
  */
 class test_html extends \Test_Unit {
-
 	function test_style_clean() {
 		$attr = array(
 			'type' => 'text/javascript',
@@ -33,7 +33,6 @@ class test_html extends \Test_Unit {
 	function test_javascript_end() {
 		HTML::script_end();
 	}
-
 	function test_parse_attribute() {
 		$attrString = null;
 		HTML::parse_attributes($attrString);
@@ -43,7 +42,6 @@ class test_html extends \Test_Unit {
 			"template" => "volunteer-help"
 		));
 	}
-
 	function test_extract_tags() {
 		$tag = "a";
 		$contents = file_get_contents(dirname(__FILE__) . '/html-extract_tags.html');
@@ -123,7 +121,6 @@ class test_html extends \Test_Unit {
 
 		$this->assert_arrays_equal($tags, $result_tags);
 	}
-
 	function test_body_attributes() {
 		$add = null;
 		HTML::body_attributes("goo", "bar");
@@ -152,107 +149,89 @@ class test_html extends \Test_Unit {
 		dump($attrs, $compare_result);
 		$this->assert_arrays_equal($attrs, $compare_result);
 	}
-
 	function test_a() {
 		$href = null;
 		$mixed = null;
 		HTML::a($href, $mixed);
 	}
-
 	function test_a_condition() {
 		$condition = null;
 		$href = null;
 		$mixed = null;
 		HTML::a_condition($condition, $href, $mixed);
 	}
-
 	function test_a_match() {
 		$href = null;
 		$mixed = null;
 		HTML::a_match($href, $mixed);
 	}
-
 	function test_a_path() {
 		$href = null;
 		$mixed = null;
 		HTML::a_path($href, $mixed);
 	}
-
 	function test_a_prefix() {
 		$href = null;
 		$mixed = null;
 		HTML::a_prefix($href, $mixed);
 	}
-
 	function test_attributes() {
 		$attributes = null;
 		HTML::attributes($attributes);
 	}
-
 	function test_body_begin() {
 		HTML::body_begin();
 	}
-
 	function test_body_end() {
 		HTML::body_end();
 	}
-
 	function test_cdn() {
 		$uri = null;
 		HTML::cdn($uri);
 	}
-
 	function test_cdn_css() {
 		$path = null;
 		$options = null;
 		HTML::cdn_css($path, $options);
 	}
-
 	function test_cdn_img() {
 		$src = null;
 		$text = '';
 		$attrs = false;
-		HTML::cdn_img($src, $text, $attrs);
+		HTML::img($this->application, $src, $text, $attrs);
 	}
-
 	function test_cdn_shortcut_icon() {
 		$path = null;
 		HTML::cdn_shortcut_icon($path);
 	}
-
 	function test_clean_style_attributes() {
 		$string = null;
 		$include = true;
 		$exclude = false;
 		HTML::clean_style_attributes($string, $include, $exclude);
 	}
-
 	function test_clean_tags() {
 		$string = null;
 		$allowed_tags = true;
 		$remove_tags = false;
 		HTML::clean_tags($string, $allowed_tags, $remove_tags);
 	}
-
 	function test_clean_tags_attributes() {
 		$string = null;
 		$include = true;
 		$exclude = false;
 		HTML::clean_tags_attributes($string, $include, $exclude);
 	}
-
 	function test_clean_tags_without_attributes() {
 		$tags = null;
 		$html = null;
 		HTML::clean_tags_without_attributes($tags, $html);
 	}
-
 	function test_count_end_tags() {
 		$tag = null;
 		$mixed = null;
 		HTML::count_end_tags($tag, $mixed);
 	}
-
 	function test_count_until_tag() {
 		$string = "All good <strong>things</strong> must come to an <em>end</em>.<h1>Hello!</h1>";
 		//        01234567890123456789012345678901234567890123456789
@@ -263,7 +242,6 @@ class test_html extends \Test_Unit {
 		$this->assert($nWords === 2);
 		$this->assert($tagName === "strong", "$tagName === strong");
 	}
-
 	function test_css() {
 		$path = null;
 		$root_dir = null;
@@ -272,93 +250,77 @@ class test_html extends \Test_Unit {
 		$type = null;
 		HTML::css($path, $root_dir, $media, $browser, $type);
 	}
-
 	function test_div() {
 		$mixed = null;
 		$content = null;
 		HTML::div($mixed, $content);
 	}
-
 	function test_ellipsis() {
 		$s = null;
 		$n = 20;
 		$dot_dot_dot = '...';
 		HTML::ellipsis($s, $n, $dot_dot_dot);
 	}
-
 	function test_etag() {
 		$name = null;
 		$mixed = null;
 		HTML::etag($name, $mixed);
 	}
-
 	function test_extract_body() {
 		$mixed = null;
 		HTML::extract_body($mixed);
 	}
-
 	function test_extract_emails() {
 		$content = null;
 		HTML::extract_emails($content);
 	}
-
 	function test_extract_links() {
 		$content = null;
 		HTML::extract_links("Goo <a href=\"dude\">Dude</a>");
 	}
-
 	function test_extract_tag() {
 		$tag = null;
 		$mixed = null;
 		HTML::extract_tag($tag, $mixed);
 	}
-
 	function test_extract_tag_contents() {
 		$tag = null;
 		$mixed = null;
 		HTML::extract_tag_contents($tag, $mixed);
 	}
-
 	function test_extract_tag_object() {
 		$tag = null;
 		$mixed = null;
 		HTML::extract_tag_object($tag, $mixed);
 	}
-
 	function test_head() {
 		HTML::head();
 	}
-
 	function test_hidden() {
 		$name = null;
 		$value = null;
 		HTML::hidden($name, $value);
 	}
-
 	function test_id_counter() {
 		HTML::id_counter();
 	}
-
 	function test_img() {
 		$src = null;
 		$text = '';
 		$attrs = false;
-		HTML::img($src, $text, $attrs);
+		HTML::img($this->application, $src, $text, $attrs);
 	}
-
 	function test_img_compat() {
 		$src = null;
 		$w = false;
 		$h = false;
 		$text = '';
 		$attrs = false;
-		HTML::img_compat($src, $w, $h, $text, $attrs);
+		HTML::img_compat($this->application, $src, $w, $h, $text, $attrs);
 	}
-
 	function test_inline_styles() {
 		HTML::inline_styles();
 	}
-
 	function test_input() {
 		$type = null;
 		$name = null;
@@ -366,46 +328,39 @@ class test_html extends \Test_Unit {
 		$attributes = null;
 		HTML::input($type, $name, $value, $attributes);
 	}
-
 	function test_input_button() {
 		$n = null;
 		$v = null;
 		$attrs = false;
 		HTML::input_button($n, $v, $attrs);
 	}
-
 	function test_input_hidden() {
 		$name = null;
 		$value = null;
 		$attributes = null;
 		HTML::input_hidden($name, $value, $attributes);
 	}
-
 	function test_input_submit() {
 		$n = null;
 		$v = null;
 		$attrs = false;
 		HTML::input_submit($n, $v, $attrs);
 	}
-
 	function test_insert_inside_end() {
 		$html = null;
 		$insert_html = null;
 		HTML::insert_inside_end($html, $insert_html);
 	}
-
 	function test_is_end_tag() {
 		$string = null;
 		HTML::is_end_tag($string);
 	}
-
 	function test_javascript() {
 		$path = null;
 		$root_dir = null;
 		$options = null;
 		HTML::javascript($path, $root_dir, $options);
 	}
-
 	function test_scripts() {
 		$type = "text/javascript";
 		$script = "alert('Hello, world!');";
@@ -422,76 +377,62 @@ class test_html extends \Test_Unit {
 
 		$this->assert_equal($scripts, '<!--[if IE]><script type="text/javascript">alert(\'Hello, world!\');</script><![endif]-->');
 	}
-
 	function test_javascript_inline() {
 		$script = null;
 		$browser = null;
 		$type = null;
 		HTML::javascript_inline($script, $browser, $type);
 	}
-
 	function test_jquery() {
 		$add_ready_script = null;
 		HTML::jquery($add_ready_script);
 	}
-
 	function test_match_tags() {
 		$string = null;
 		HTML::match_tags($string);
 	}
-
 	function test_meta() {
 		$name = null;
 		$content = null;
 		HTML::meta($name, $content);
 	}
-
 	function test_meta_description() {
 		$content = null;
 		HTML::meta_description($content);
 	}
-
 	function test_meta_http() {
 		$name = null;
 		$content = null;
 		HTML::meta_http($name, $content);
 	}
-
 	function test_meta_keywords() {
 		$content = null;
 		HTML::meta_keywords($content);
 	}
-
 	function test_meta_nocache() {
 		HTML::meta_nocache();
 	}
-
 	function test_metas() {
 		HTML::metas();
 	}
-
 	function test_mixed_to_string() {
 		$mixed = null;
 		HTML::mixed_to_string($mixed);
 	}
-
 	function test_parse_styles() {
 		$style_string = null;
 		HTML::parse_styles($style_string);
 	}
-
 	function test_parse_tags() {
 		$string = null;
 		HTML::parse_tags($string);
 	}
-
 	function test_remove_tags() {
 		$tag = null;
 		$mixed = null;
 		$delete = true;
 		HTML::remove_tags($tag, $mixed, $delete);
 	}
-
 	function test_select() {
 		$name = null;
 		$value = null;
@@ -502,13 +443,11 @@ class test_html extends \Test_Unit {
 		$attributes = null;
 		HTML::select($name, $value, $options, $attributes);
 	}
-
 	function test_shortcut_icon() {
 		$path = null;
 		$root_dir = null;
 		HTML::shortcut_icon($path, $root_dir);
 	}
-
 	function test_specialchars() {
 		$mixed = null;
 		HTML::specialchars($mixed);
@@ -517,28 +456,23 @@ class test_html extends \Test_Unit {
 		o	Action Page: “Preview Order” page...can’t see the URL
 		o	Thank You page: It would be the “Order Confirmation” page…can’t see the URL';
 	}
-
 	function test_specials() {
 		$string = null;
 		HTML::specials($string);
 	}
-
 	function test_strip() {
 		$x = null;
 		HTML::strip($x);
 	}
-
 	function test_strlen() {
 		$s = null;
 		HTML::strlen($s);
 	}
-
 	function test_style_units() {
 		$item = null;
 		$default_unit = 'px';
 		HTML::style_units($item, $default_unit);
 	}
-
 	function test_styles() {
 		$styles = array(
 			"list-type" => "none"
@@ -546,14 +480,12 @@ class test_html extends \Test_Unit {
 		$delim = "\n";
 		HTML::styles($styles, $delim);
 	}
-
 	function test_substr() {
 		$s = null;
 		$offset = 0;
 		$length = null;
 		HTML::substr($s, $offset, $length);
 	}
-
 	function test_tag() {
 		$name = null;
 		$mixed = null;
@@ -567,7 +499,6 @@ class test_html extends \Test_Unit {
 		$tagName = null;
 		HTML::tag_close('p');
 	}
-
 	function test_tag_open() {
 		$attributes = array(
 			"id" => "dude"
@@ -575,41 +506,34 @@ class test_html extends \Test_Unit {
 		HTML::tag_open("div", $attributes);
 		HTML::tag_close("DIV");
 	}
-
 	function test_tags() {
 		$name = null;
 		$mixed = null;
 		HTML::tags($name, $mixed);
 	}
-
 	function test_title() {
 		$set = null;
 		HTML::title($set);
 	}
-
 	function test_to_attributes() {
 		$mixed = null;
 		$default = null;
 		HTML::to_attributes($mixed, $default);
 	}
-
 	function test_trim_white_space() {
 		$html = null;
 		HTML::trim_white_space($html);
 	}
-
 	function test_trim_words() {
 		$string = null;
 		$wordCount = null;
 		HTML::trim_words($string, $wordCount);
 	}
-
 	function test_urlify() {
 		$text = null;
 		$attributes = array();
 		HTML::urlify($text, $attributes);
 	}
-
 	function test_css_inline() {
 		$data = "strong { color: blue; }";
 		$type = "text/css";

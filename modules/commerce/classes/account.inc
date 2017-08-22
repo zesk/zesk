@@ -1,4 +1,5 @@
 <?php
+
 /**
  * $URL: https://code.marketacumen.com/zesk/trunk/modules/commerce/classes/account.inc $
  * @package zesk
@@ -8,26 +9,13 @@ namespace zesk;
 
 /**
  * Account
+ *
  * @author kent
  */
 class Account extends Object {
-	public static function instance() {
-		static $singleton = null;
-		if ($singleton instanceof Account) {
-			return $singleton;
-		}
-		$user = app()->user();
-		$singleton = zesk()->hooks->call_arguments('Account::instance', array(
-			$user
-		), $user->Account);
-		if (is_numeric($singleton)) {
-			$singleton = $user->object_factory("Account")->fetch($singleton);
-		}
-		return $singleton;
-	}
 	public function compute_balance() {
 		$query = $this->application->class_query("Account_Transaction", "X")->what("*Balance", "SUM(X.Amount)")->where("Account", $this);
-		
+
 		$this->Balance = doubleval($query->where("Reconciled", true)->one("Balance", 0));
 		$this->NewBalance = doubleval($query->where("Reconciled", false)->one("Balance", 0));
 		if ($this->changed()) {
@@ -70,11 +58,7 @@ class Account extends Object {
 		if ($this->payment_is_valid()) {
 			return $this->payment();
 		}
-		$payments = $this->application->query_select("Payment")
-			->where("IsValid", true)
-			->where("Account", $this)
-			->order_by("-Created")
-			->object_iterator();
+		$payments = $this->application->query_select("Payment")->where("IsValid", true)->where("Account", $this)->order_by("-Created")->object_iterator();
 		foreach ($payments as $payment) {
 			/* @var $payment Payment */
 			$result = $payment->checkValid();
@@ -152,7 +136,7 @@ class Account extends Object {
 		}
 		return null;
 	}
-	
+
 	//	// TODO: Prior to billing, update IsBillable in Account
 	//	function referred_total_accounts($asOfDate=false)
 	//	{
@@ -246,7 +230,7 @@ class Account extends Object {
 		}
 		return $referrer->commission();
 	}
-	
+
 	//	private function _lastInvoiceQuery(Timestamp $fromDate=null)
 	//	{
 	//		$q = CModelClass::queryFromType("Invoice");
@@ -291,15 +275,18 @@ class Account extends Object {
 			"id" => $this->id()
 		));
 	}
-	
+
 	/**
-	 @param sdate is the start date of this invoice
-	 @param edate returns the resulting end date of the clickthroughs
-	 @return array of CInvoiceParameter
+	 *
+	 * @param
+	 *        	sdate is the start date of this invoice
+	 * @param
+	 *        	edate returns the resulting end date of the clickthroughs
+	 * @return array of CInvoiceParameter
 	 */
 	function generateInvoiceParameters(Timestamp $billDate, $forceBillUnit = false) {
 		$p = new Invoice_Parameters($this, $billDate, $forceBillUnit);
-		
+
 		$now = Timestamp::now();
 		if ($billDate->difference($now, kTimeUnit_Day) >= 21) {
 			$p->messageAdd(__("Your account is behind in our billing, please note the effective date of this invoice. We appreciate your understanding!"));
@@ -336,14 +323,14 @@ class Account extends Object {
 		$c = $this->modelClass();
 		return $c->linkFindByOption("Billable");
 	}
-	
+
 	/*
 	 * Commissions and Invoices
 	 * @todo Fix this, rewrite
 	 */
 	private function _transactionQuery($invoiceID, $endDate) {
 		$accountID = $this->id();
-		
+
 		$q = Object::class_query("Account_Transaction");
 		$q->link("Account_Transaction_Type");
 		$q->link("Invoice");
@@ -568,7 +555,7 @@ class Account extends Object {
  function widgetPayReferrer( CContext $context)
  {
  $where = array("TransactionType" => "check");
- 
+
  $uriPrefix = "/".$context->parameterPrefix();
  $checkTransaction = $context->parameterPeekObject("AccountTransaction");
  if ($checkTransaction instanceof AccountTransaction) {
@@ -582,15 +569,15 @@ class Account extends Object {
  } else {
  $checkTransaction = null;
  }
- 
+
  if ($this->member_is_empty("Currency")) {
  $this->Currency = "USD";
  $this->store();
  }
- 
+
  // Page
  $t = $context->pushForm("AccountPayReferrer");
- 
+
  // Setup
  $options 	= array("Where" => $where, "Limit" => 1, "OrderBy" => array("-EffectiveDate","-OrderIndex"));
  $lastCheck	= $this->memberGetAs(kType_Object,"Transactions", false, $options);
@@ -614,22 +601,22 @@ class Account extends Object {
  }
  $t->set("LastDate", $lastDate);
  $t->set("NextCheck", $nextCheck);
- 
+
  $t->set("URLPrefix", $uriPrefix);
  $t->set("Account", $this);
- 
+
  $t->set("IssuedCheck", $checkTransaction);
- 
+
  $errors = $t->controlErrors("PayDate");
  $t->errorBlock($errors, "ControlError");
  $t->booleanBlock($checkTransaction, false, "NeedWidgets");
  if (count($errors) == 0 && !$thisDate->isEmpty())
  {
  $lastBalance = $this->balanceAsOf($lastDate);
- 
+
  $t->set("LastCheck", $lastCheck);
  $t->set("LastBalance", $lastBalance);
- 
+
  $options =
  array(
  "What"		=> array("Total" => "SUM(Amount)", "Type" => "AccountTransactionType.Name"),
@@ -648,24 +635,24 @@ class Account extends Object {
  "ByRow"		=> true,
  );
  $paySummary	= CModelClass::queryFromType("AccountTransaction", $options);
- 
+
  $t->blockMixed("XSummary", $paySummary);
- 
+
  $options["What"]  = array("Total" => "SUM(Amount)");
  $options["GroupBy"] = false;
- 
+
  $payQuery = CModelClass::queryFromType("AccountTransaction", $options);
  $total = $payQuery->oneQuery("Total");
  if ($lastBalance instanceof CModel) {
  $total += $lastBalance->get();
  }
  $t->set("Total", $total);
- 
+
  $checkNumber = $t->widgetModel("CheckNumber");
  $checkTotal = $t->widgetModel("CheckTotal");
- 
+
  $errors = $t->controlErrors();
- 
+
  if (count($errors) == 0
  && !$checkNumber->isEmpty()
  && !$checkTotal->isEmpty()
@@ -679,7 +666,7 @@ class Account extends Object {
  }
  }
  $t->set("TotalCheck", $total);
- 
+
  $options =
  array(
  "What"		=> array("Total" => "SUM(Amount)", "Account" => "Invoice.Account"),
@@ -696,13 +683,13 @@ class Account extends Object {
  "OrderBy"	=> "Invoice.Account",
  "ByRow"		=> true,
  );
- 
+
  $paySummary	= CModelClass::queryFromType("AccountTransaction", $options);
- 
+
  $t->blockMixed("AccountSummary", $paySummary);
  $t->set("debug", $paySummary->toSQL());
  }
- 
+
  return $context->popForm();
  }
  */
@@ -951,7 +938,7 @@ class Account extends Object {
 				//		}
 				//		return $account->executeAction(kAction_View, $context, "", $account);
 				//	}
-				
+
 				//	private function _widgetAccountMergeGo(/* CContext $context */, CTemplate $t)
 				//	{
 				//		$errors =
@@ -962,7 +949,7 @@ class Account extends Object {
 				//		);
 				//		return $errors;
 				//	}
-				
+
 				//	private function _widgetAccountMergeAccounts(/* CContext $context */, CTemplate $t)
 				//	{
 				//		$errors = array();
@@ -1095,7 +1082,7 @@ class Account extends Object {
 				//		}
 				//		return $errors;
 				//	}
-				
+
 				//	function widgetAccountMerge(/* CContext $context */)
 				//	{
 				//		$t = $context->pushForm("AccountMerge");
@@ -1176,8 +1163,8 @@ class Account extends Object {
 				//		$t->errorBlock($errors);
 				//		return $context->popForm();
 				//	}
-				
-				
+
+
 				/*
 				 +-------+------+---------------------+---------------------+-------+---------------------------+
 				 | ID    | Site | StartTime           | EndTime             | Total | Name                      |
@@ -1224,4 +1211,3 @@ class Account extends Object {
 				 | 17072 | 3272 | 2008-01-18 00:00:00 | 2008-02-17 23:59:59 |  NULL | www.rubiconproject.com    |
 				 +-------+------+---------------------+---------------------+-------+---------------------------+
 				 */
-				

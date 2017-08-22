@@ -1,6 +1,7 @@
 <?php
+
 /**
- * 
+ *
  */
 namespace zesk;
 
@@ -25,7 +26,7 @@ echo HTML::div_open(array(
 ));
 if ($current_user && $current_user->can($object, "edit")) {
 	// TODO This is all wrong
-	echo HTML::a("/manage/video/edit.php?ID=" . $object->id(), HTML::img("/share/images/actions/edit.gif"), true);
+	echo HTML::a("/manage/video/edit.php?ID=" . $object->id(), HTML::img($application, "/share/images/actions/edit.gif"), true);
 }
 
 echo HTML::div_close();

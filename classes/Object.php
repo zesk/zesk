@@ -35,19 +35,19 @@ class Object extends Model {
 	 * @var string
 	 */
 	const option_ignore_auto_column = "ignore_auto_column";
-	
+
 	/**
 	 * Previous call resulted in a new object retrieved from the database which exists
-	 * 
+	 *
 	 * @see Object::register
 	 * @see Object::fetch_if_exists
 	 * @var string
 	 */
 	const object_status_exists = "exists";
-	
+
 	/**
 	 * Previous call resulted in the saving of the existing object in the database
-	 * 
+	 *
 	 * @see Object::register
 	 * @see Object::fetch_if_exists
 	 * @var string
@@ -55,27 +55,27 @@ class Object extends Model {
 	const object_status_insert = "insert";
 	/**
 	 * Previous call failed or has an unknown result
-	 * 
+	 *
 	 * @see Object::register
 	 * @see Object::fetch_if_exists
 	 * @var string
 	 */
 	const object_status_unknown = "failed";
-	
+
 	/**
 	 * Object debugging
 	 *
 	 * @var boolean
 	 */
 	static $debug = false;
-	
+
 	/**
 	 * Global state
 	 *
 	 * @var Application
 	 */
 	public $application = null;
-	
+
 	/**
 	 * Initialize this value to an alternate object class name if you want more than one object to
 	 * be represented by the same table or class configuration.
@@ -90,14 +90,14 @@ class Object extends Model {
 	 * @var Class_Object
 	 */
 	protected $class = null;
-	
+
 	/**
 	 * The leaf polymorphic class goes here
 	 *
 	 * @var string
 	 */
 	protected $polymorphic_leaf = null;
-	
+
 	/**
 	 * Database name where this object resides.
 	 * If not specified, the default database.
@@ -108,7 +108,7 @@ class Object extends Model {
 	 * @var string
 	 */
 	protected $database_name = null;
-	
+
 	/**
 	 * Database object
 	 * If not specified, the default database.
@@ -116,7 +116,7 @@ class Object extends Model {
 	 * @var Database
 	 */
 	private $database = null;
-	
+
 	/**
 	 * Database table name
 	 * <code>
@@ -126,68 +126,68 @@ class Object extends Model {
 	 * @var string
 	 */
 	protected $table = null;
-	
+
 	/**
 	 * When is_new requires a database query, cache it here
 	 *
 	 * @var boolean
 	 */
 	private $is_new_cached = null;
-	
+
 	/**
 	 * When storing, set to true to avoid loops
 	 *
 	 * @var boolean
 	 */
 	protected $storing = false;
-	
+
 	/**
 	 * Members of this object
 	 *
 	 * @var array
 	 */
 	protected $members = array();
-	
+
 	/**
 	 * List of things to do when storing
 	 *
 	 * @var array
 	 */
 	private $store_queue = array();
-	
+
 	/**
 	 * Does this object need to be loaded from the database?
 	 *
 	 * @var boolean
 	 */
 	private $need_load = true;
-	
+
 	/**
 	 * Array of columns which I can store
 	 */
 	private $store_columns;
-	
+
 	/**
 	 * Result of register call
 	 *
 	 * @var string
 	 */
 	private $status = null;
-	
+
 	/**
 	 * When members is loaded, this is a copy to determine if changes have occurred.
 	 *
 	 * @var array
 	 */
 	private $original;
-	
+
 	/**
 	 * Cache stack
 	 *
 	 * @var array
 	 */
 	private $cache_stack = null;
-	
+
 	/**
 	 * Retrieve user-configurable settings for this object
 	 *
@@ -207,12 +207,9 @@ class Object extends Model {
 	 *        	Additional options for object
 	 * @return Object
 	 */
-	public static function factory($class, $mixed = null, $options = false, Application $application = null) {
+	public static function factory(Application $application, $class, $mixed = null, $options = false) {
 		if (!is_string($class)) {
 			throw new Exception_Semantics("$class is not a class name");
-		}
-		if (!$application) {
-			$application = Application::instance();
 		}
 		$object = $application->objects->factory($class, $mixed, $options, $application);
 		if (!$object instanceof Object) {
@@ -224,10 +221,10 @@ class Object extends Model {
 		}
 		return $object->_polymorphic();
 	}
-	
+
 	/**
 	 * Create an object in the context of the current object
-	 * 
+	 *
 	 * @param $class string
 	 *        	Object class to create
 	 * @param $mixed mixed
@@ -239,7 +236,7 @@ class Object extends Model {
 	public function object_factory($class, $mixed = null, $options = null) {
 		return Object::factory($class, $mixed, $options, $this->application);
 	}
-	
+
 	/**
 	 * Create a new object
 	 *
@@ -256,7 +253,7 @@ class Object extends Model {
 		$this->initialize($mixed, $this->option('initialize'));
 		$this->set_option('initialize', null);
 	}
-	
+
 	/**
 	 * Sleep functionality
 	 */
@@ -265,12 +262,13 @@ class Object extends Model {
 			"members"
 		), parent::__sleep());
 	}
-	
+
 	/**
 	 * Not sure why we're doing this; perhaps to force cyclical structures from being destroyed,
 	 * clean up memory references? KMD
-	 * 
-	 * KMD Removed 2017-06-07 https://stackoverflow.com/questions/2251113/should-i-use-unset-in-php-destruct
+	 *
+	 * KMD Removed 2017-06-07
+	 * https://stackoverflow.com/questions/2251113/should-i-use-unset-in-php-destruct
 	 * Monitor memory usage, how does PHP deal with cyclical references
 	 */
 	// 	public function __destruct() {
@@ -281,27 +279,27 @@ class Object extends Model {
 	// 		$this->class = null;
 	// 		$this->original = array();
 	// 	}
-	
+
 	/**
 	 * Wakeup functionality
 	 */
 	public function __wakeup() {
-		$this->application = Application::instance();
+		$this->application = zesk()->application();
 		$this->initialize_specification();
 		$this->initialize($this->members, 'raw');
 	}
-	
+
 	/**
 	 * Retrieve an option from the class
 	 *
-	 * @param string $name        	
-	 * @param mixed $default        	
+	 * @param string $name
+	 * @param mixed $default
 	 * @return mixed
 	 */
 	public function class_option($name, $default = null) {
 		return $this->class->option($name, $default);
 	}
-	
+
 	/**
 	 * Retrieve the Class_Object associated with this object.
 	 * Often matches "Class_" . get_class($this), but not always.
@@ -311,11 +309,12 @@ class Object extends Model {
 	public function class_object() {
 		return $this->class;
 	}
-	
+
 	/**
 	 * All variables for this object (useful for translations, logging, and output)
-	 * 
-	 * {@inheritDoc}
+	 *
+	 * {@inheritdoc}
+	 *
 	 * @see Model::variables()
 	 */
 	function variables() {
@@ -323,7 +322,7 @@ class Object extends Model {
 			"Object::class" => get_class($this)
 		);
 	}
-	
+
 	/**
 	 *
 	 * @param $mixed mixed
@@ -335,7 +334,7 @@ class Object extends Model {
 	public function get($mixed = null, $default = null) {
 		return $this->has($mixed) ? $this->__get($mixed) : $default;
 	}
-	
+
 	/**
 	 *
 	 * @param $mixed mixed
@@ -354,41 +353,7 @@ class Object extends Model {
 		}
 		return $this;
 	}
-	
-	/**
-	 * @deprecated 2016-12
-	 * @see app()->object_singleton
-	 * Retrieve object instance based on class name
-	 *
-	 * @param $class mixed
-	 *        	Class to retrieve instance for (singleton reference), or an object of type Object
-	 * @return Object If class not found or instance method does not exist, null is returned.
-	 */
-	public static function class_instance($class) {
-		global $zesk;
-		zesk()->deprecated();
-		if ($class instanceof Object) {
-			return $class;
-		}
-		$args = func_get_args();
-		try {
-			$refl = new ReflectionClass($class);
-			array_shift($args);
-			return $refl->getMethod("instance")->invokeArgs(null, $args);
-		} catch (Exception $e) {
-			$zesk->hooks->call("exception", $e);
-			$zesk->logger->error($e->raw_message, $e->arguments + array(
-				"zesk_exception" => $e
-			));
-		} catch (\Exception $e) {
-			$zesk->hooks->call("exception", $e);
-			$zesk->logger->error($e->getMessage(), array(
-				"exception" => $e
-			));
-		}
-		return null;
-	}
-	
+
 	/**
 	 * Retrieve a blank object.
 	 * Useful for retrieving class specification information
@@ -400,7 +365,7 @@ class Object extends Model {
 	public static function cached($class) {
 		return self::cache_class($class, "object");
 	}
-	
+
 	/**
 	 * Retrieve a list of class dependencies for this object
 	 */
@@ -419,10 +384,10 @@ class Object extends Model {
 				$result['requires'][] = $link_class;
 			}
 		}
-		
+
 		return $result;
 	}
-	
+
 	/**
 	 * Initialize per-object settings
 	 */
@@ -448,12 +413,12 @@ class Object extends Model {
 		$this->store_queue = array();
 		$this->original = array();
 	}
-	
+
 	/**
 	 * Clean a code name to be without spaces or special characters
 	 *
 	 * @see self::clean_code_name
-	 * @param string $name        	
+	 * @param string $name
 	 */
 	static public function clean_code_name($name, $blank = "-") {
 		$codename = preg_replace('|[\s/]+|', "-", strtolower(trim($name, " \t\n$blank")));
@@ -463,7 +428,7 @@ class Object extends Model {
 		}
 		return $codename;
 	}
-	
+
 	/**
 	 * Retrieve a cache attached to this object only
 	 *
@@ -487,7 +452,7 @@ class Object extends Model {
 		}
 		return $cache;
 	}
-	
+
 	/**
 	 *
 	 * @return Database_Schema
@@ -495,7 +460,7 @@ class Object extends Model {
 	final public function database_schema() {
 		return $this->class->database_schema($this);
 	}
-	
+
 	/**
 	 *
 	 * @return Database_Schema
@@ -503,7 +468,7 @@ class Object extends Model {
 	function schema() {
 		return $this->class->schema($this);
 	}
-	
+
 	/**
 	 * Are the fields in this object determined dynamically?
 	 *
@@ -512,7 +477,7 @@ class Object extends Model {
 	public function dynamic_columns() {
 		return $this->class->dynamic_columns;
 	}
-	
+
 	/**
 	 * Call when the schema of an object has changed and needs to be refreshed
 	 */
@@ -521,7 +486,7 @@ class Object extends Model {
 			$this->class->init_columns();
 		}
 	}
-	
+
 	/**
 	 * Cache object data
 	 */
@@ -537,22 +502,22 @@ class Object extends Model {
 			return $this;
 		}
 	}
-	
+
 	/**
 	 * Cache object data
 	 */
 	public function cache_dirty($key = null) {
 		$this->call_hook('cache-dirty', $key);
 	}
-	
+
 	/**
 	 * Cache output start, returns "false" if cache hit so do not generate output, e.g.
-	 * 
+	 *
 	 * if ($object->cache_output_begin("profile")) {
-	 * 		// Generate profile using $object
-	 * 		$object->cache_output_end();
+	 * // Generate profile using $object
+	 * $object->cache_output_end();
 	 * }
-	 * 
+	 *
 	 * @param mixed $key
 	 * @return boolean
 	 */
@@ -569,10 +534,10 @@ class Object extends Model {
 		$this->cache_stack[] = $key;
 		return true;
 	}
-	
+
 	/**
 	 * End caching, save output to cache
-	 * 
+	 *
 	 * @return self
 	 * @throws Exception_Semantics
 	 */
@@ -584,7 +549,7 @@ class Object extends Model {
 		$key = array_pop($this->cache_stack);
 		return $this->cache($key, $content);
 	}
-	
+
 	/**
 	 *
 	 * @return Database
@@ -600,7 +565,7 @@ class Object extends Model {
 		}
 		return $this->database = $this->application->database_factory($this->database_name);
 	}
-	
+
 	/**
 	 *
 	 * @return Database_SQL
@@ -608,11 +573,11 @@ class Object extends Model {
 	function sql() {
 		return $this->database()->sql();
 	}
-	
+
 	/**
 	 * Determine if a class table exists
 	 *
-	 * @param $class string        	
+	 * @param $class string
 	 * @return boolean
 	 */
 	public static function class_table_exists($class) {
@@ -625,7 +590,7 @@ class Object extends Model {
 	public function table_exists() {
 		return $this->database()->table_exists($this->table());
 	}
-	
+
 	/**
 	 * Default implementation of the object name
 	 */
@@ -636,19 +601,20 @@ class Object extends Model {
 		}
 		return $this->__get($name_col);
 	}
-	
+
 	/**
 	 * Retrieve the name column for this object (if any)
-	 * 
+	 *
 	 * @return string|null
 	 */
 	public final function name_column() {
 		return $this->class->name_column;
 	}
-	
+
 	/**
-	 * Retrieves the single find key for an object, if available. (Multi-key finds always return null)
-	 * 
+	 * Retrieves the single find key for an object, if available.
+	 * (Multi-key finds always return null)
+	 *
 	 * @return string|null
 	 */
 	public final function find_key() {
@@ -658,25 +624,25 @@ class Object extends Model {
 		}
 		return false;
 	}
-	
+
 	/**
 	 * Retrieve list of member names used to find an object in the database
-	 * 
+	 *
 	 * @return array:string
 	 */
 	public final function find_keys() {
 		return $this->class->find_keys;
 	}
-	
+
 	/**
 	 * Retrieve list of member names used to find a duplicate object in the database
-	 * 
+	 *
 	 * @return array:string
 	 */
 	public final function duplicate_keys() {
 		return $this->class->duplicate_keys;
 	}
-	
+
 	/**
 	 * Returns valid member names for this database table
 	 *
@@ -687,7 +653,7 @@ class Object extends Model {
 	function member_names() {
 		return $this->class->member_names();
 	}
-	
+
 	/**
 	 * Return just database columns for this object
 	 *
@@ -696,7 +662,7 @@ class Object extends Model {
 	function columns() {
 		return array_keys($this->class->column_types);
 	}
-	
+
 	/**
 	 * Name of this object's class (where is this used?)
 	 *
@@ -705,19 +671,19 @@ class Object extends Model {
 	function class_name() {
 		return $this->class->name;
 	}
-	
+
 	/**
 	 * If there's an ID column, return the name of the column
-	 * 
+	 *
 	 * @return string
 	 */
 	function id_column() {
 		return $this->class->id_column;
 	}
-	
+
 	/**
 	 * Does this object have all primary keys set to a value?
-	 * 
+	 *
 	 * @return boolean
 	 */
 	function has_primary_keys() {
@@ -733,34 +699,34 @@ class Object extends Model {
 		}
 		return true;
 	}
-	
+
 	/**
 	 * List of primary keys for this object
-	 * 
+	 *
 	 * @return array:string
 	 */
 	function primary_keys() {
 		return $this->class->primary_keys;
 	}
-	
+
 	/**
 	 * Class code name
-	 * 
+	 *
 	 * @return string
 	 */
 	function class_code_name() {
 		return $this->class->code_name;
 	}
-	
+
 	/**
 	 * Always use UTC timestamps when setting dates for this object
-	 * 
+	 *
 	 * @return boolean
 	 */
 	function utc_timestamps() {
 		return $this->class->utc_timestamps;
 	}
-	
+
 	/**
 	 * Select the current database if needed
 	 */
@@ -771,7 +737,7 @@ class Object extends Model {
 		}
 		return $db->select_database();
 	}
-	
+
 	/**
 	 * Ensure this object is loaded from database if needed
 	 */
@@ -781,12 +747,12 @@ class Object extends Model {
 		}
 		$this->need_load = false;
 	}
-	
+
 	/**
 	 * Object initialization; when creating an object this should be called using two methods: An
 	 * integer ID for this object, or an array of populated values, or from the database itself
 	 *
-	 * @param $mixed mixed        	
+	 * @param $mixed mixed
 	 * @return Object
 	 */
 	function initialize($mixed, $initialize = false) {
@@ -825,7 +791,7 @@ class Object extends Model {
 		}
 		return $this;
 	}
-	
+
 	/**
 	 * Is this a new object, or not?
 	 *
@@ -855,16 +821,16 @@ class Object extends Model {
 				'tables' => $this->table(),
 				'where' => $where
 			));
-			
+
 			$this->is_new_cached = !to_bool($this->database()->query_integer($sql, "X"));
 			return $this->is_new_cached;
 		}
 		return true; // Always new
 	}
-	
+
 	/**
 	 * Empty out this object's members and set to defaults
-	 * 
+	 *
 	 * @return Object
 	 */
 	function clear() {
@@ -872,10 +838,10 @@ class Object extends Model {
 		$this->store_queue = array();
 		return $this;
 	}
-	
+
 	/**
 	 * Ouptut the display name for this object.
-	 * 
+	 *
 	 * @return string
 	 */
 	function display_name() {
@@ -885,10 +851,10 @@ class Object extends Model {
 		}
 		return $this->member($name_column);
 	}
-	
+
 	/**
 	 * Get/set the ID for this object
-	 * 
+	 *
 	 * @param mixed $set
 	 * @return Object|mixed
 	 */
@@ -936,7 +902,7 @@ class Object extends Model {
 		if ($set === null) {
 			return $this->members($pk);
 		}
-		
+
 		/**
 		 * Passing a string or list of values to load
 		 */
@@ -976,14 +942,14 @@ class Object extends Model {
 			$this->set($set);
 			return $this;
 		}
-		
+
 		throw new Exception_Semantics("{class}::id(\"{value}\" {type}) unknown parameter: ", array(
 			"class" => get_class($this),
 			"value" => _dump($set),
 			"type" => type($set)
 		));
 	}
-	
+
 	/**
 	 * Returns name of the database used by this object
 	 *
@@ -993,11 +959,11 @@ class Object extends Model {
 	function database_name() {
 		return $this->database_name;
 	}
-	
+
 	/**
 	 * Retrieve a query for the current object
 	 *
-	 * @param $alias string        	
+	 * @param $alias string
 	 * @return Database_Query_Select
 	 */
 	function query_select($alias = null) {
@@ -1008,7 +974,7 @@ class Object extends Model {
 		}
 		return $query->from($this->table(), $alias)->what(null, $db->sql()->column_alias("*", $alias));
 	}
-	
+
 	/**
 	 * Create an insert query for this object
 	 *
@@ -1019,7 +985,7 @@ class Object extends Model {
 		$query->object_class(get_class($this));
 		return $query->into($this->table())->valid_columns($this->columns());
 	}
-	
+
 	/**
 	 * Create an insert -> select query for this object
 	 *
@@ -1031,7 +997,7 @@ class Object extends Model {
 		$query->from($this->table(), $alias);
 		return $query->into($this->table());
 	}
-	
+
 	/**
 	 * Create an update query for this object
 	 *
@@ -1041,7 +1007,7 @@ class Object extends Model {
 		$query = new Database_Query_Update($this->database());
 		return $query->object_class(get_class($this))->table($this->table(), $alias)->valid_columns($this->columns(), $alias);
 	}
-	
+
 	/**
 	 * Create an delete query for this object
 	 *
@@ -1053,11 +1019,11 @@ class Object extends Model {
 		$query->object_class(get_class($this));
 		return $query;
 	}
-	
+
 	/**
 	 * Retrieve an iterator for the current object
 	 *
-	 * @param $alias string        	
+	 * @param $alias string
 	 * @return Object_Iterator
 	 */
 	function iterator(Database_Query_Select $query, $options = null) {
@@ -1068,7 +1034,7 @@ class Object extends Model {
 		$iterator = new $class(get_class($this), $query, $this->inherit_options() + $options);
 		return $iterator;
 	}
-	
+
 	/**
 	 * Iterate on an object's member
 	 *
@@ -1102,10 +1068,11 @@ class Object extends Model {
 		}
 		return $iterator;
 	}
-	
+
 	/**
-	 * Create a query for an object's member. The alias for the target table is the name of the member.
-	 * 
+	 * Create a query for an object's member.
+	 * The alias for the target table is the name of the member.
+	 *
 	 * So $object->member_query("dogs") the alias is "dogs" so use "dogs.column" in the query.
 	 *
 	 * @param $member string
@@ -1117,7 +1084,7 @@ class Object extends Model {
 	public function member_query($member, &$object = null) {
 		return $this->class->member_query($this, $member, $object);
 	}
-	
+
 	/**
 	 * Create a query for an object's member
 	 *
@@ -1131,10 +1098,10 @@ class Object extends Model {
 	public function member_query_update($member, &$object = null) {
 		return $this->class->member_query_update($this, $member, $object);
 	}
-	
+
 	/**
 	 *
-	 * @param unknown $member        	
+	 * @param unknown $member
 	 */
 	private function member_foreign_list($member) {
 		if ($this->is_new()) {
@@ -1199,10 +1166,11 @@ class Object extends Model {
 		// return $this->options_exclude("class_object");
 		return array();
 	}
-	
+
 	/**
-	 * Retrieve the original value of an object's member prior to modifying in memory and before storing
-	 * 
+	 * Retrieve the original value of an object's member prior to modifying in memory and before
+	 * storing
+	 *
 	 * @param string $member
 	 * @param mixed $default
 	 * @return mixed
@@ -1217,15 +1185,15 @@ class Object extends Model {
 		$this->members = $save;
 		return $result;
 	}
-	
+
 	/**
 	 * Whenever an object attached to this object is requested, this method is called.
-	 * 
+	 *
 	 * Override in subclasses to get special behavior.
 	 *
 	 * @param string $member
 	 *        	Name of the member we are fetching
-	 *        	
+	 *
 	 * @param string $class
 	 *        	Class of member
 	 * @param string $data
@@ -1237,10 +1205,10 @@ class Object extends Model {
 	protected function member_object_factory($member, $class, $data, $options = false) {
 		return $this->object_factory($class, $data, $options)->fetch();
 	}
-	
+
 	/**
 	 * Retrieve a member which is another Object
-	 * 
+	 *
 	 * @param string $member
 	 * @param mixed $options
 	 */
@@ -1292,11 +1260,12 @@ class Object extends Model {
 		}
 		return null;
 	}
-	
+
 	/**
 	 * Does this object have a member value?
-	 * 
-	 * {@inheritDoc}
+	 *
+	 * {@inheritdoc}
+	 *
 	 * @see Model::has()
 	 */
 	function has($member = null) {
@@ -1304,10 +1273,11 @@ class Object extends Model {
 		// Prevents ->defaults() from nulling the value if it's in there
 		return $this->has_member($member) || array_key_exists($member, $this->members) || isset($this->class->has_many[$member]);
 	}
-	
+
 	/**
-	 * 
-	 * {@inheritDoc}
+	 *
+	 * {@inheritdoc}
+	 *
 	 * @see Model::__get()
 	 */
 	function __get($member) {
@@ -1334,10 +1304,11 @@ class Object extends Model {
 		}
 		return $this->member($member);
 	}
-	
+
 	/**
-	 * 
-	 * {@inheritDoc}
+	 *
+	 * {@inheritdoc}
+	 *
 	 * @see Model::__unset()
 	 */
 	function __unset($member) {
@@ -1348,9 +1319,9 @@ class Object extends Model {
 		}
 		$this->set_member($member, null);
 	}
-	
+
 	/**
-	 * 
+	 *
 	 * @param unknown $value
 	 */
 	function member_find($value) {
@@ -1372,10 +1343,11 @@ class Object extends Model {
 		}
 		return false;
 	}
-	
+
 	/**
-	 * 
-	 * {@inheritDoc}
+	 *
+	 * {@inheritdoc}
+	 *
 	 * @see Model::__isset()
 	 */
 	public function __isset($member) {
@@ -1384,10 +1356,11 @@ class Object extends Model {
 		}
 		return isset($this->members[$member]);
 	}
-	
+
 	/**
-	 * 
-	 * {@inheritDoc}
+	 *
+	 * {@inheritdoc}
+	 *
 	 * @see Model::__set()
 	 */
 	function __set($member, $value) {
@@ -1449,9 +1422,9 @@ class Object extends Model {
 		$this->set_member($member, $value);
 		$this->_inited = true;
 	}
-	
+
 	/**
-	 * 
+	 *
 	 * @param unknown $member
 	 */
 	function links($member) {
@@ -1460,9 +1433,9 @@ class Object extends Model {
 		}
 		return null;
 	}
-	
+
 	/**
-	 * 
+	 *
 	 * @param unknown $member
 	 * @param unknown $value
 	 */
@@ -1472,7 +1445,7 @@ class Object extends Model {
 		}
 		return false;
 	}
-	
+
 	/**
 	 * Retrieve a member as a boolean value
 	 *
@@ -1480,13 +1453,13 @@ class Object extends Model {
 	 *        	Name of member
 	 * @param $def mixed
 	 *        	Default value to return if can't convert to boolean
-	 * @return integer
+	 * @return boolean
 	 */
 	function member_boolean($member, $def = null) {
 		$this->refresh();
 		return to_bool(avalue($this->members, $member), $def);
 	}
-	
+
 	/**
 	 * Retrieve a member as a timestamp value
 	 *
@@ -1504,7 +1477,7 @@ class Object extends Model {
 		}
 		return Timestamp::factory($value);
 	}
-	
+
 	/**
 	 * Retrieve a member as an integer
 	 *
@@ -1525,7 +1498,7 @@ class Object extends Model {
 		}
 		return $def;
 	}
-	
+
 	/**
 	 * Retrieve a member of this object
 	 *
@@ -1539,13 +1512,13 @@ class Object extends Model {
 		$this->refresh();
 		return avalue($this->members, $member, $def);
 	}
-	
+
 	/**
 	 * Getter/setter for serialized array attached to an object
 	 *
-	 * @param string $member        	
-	 * @param string $mixed        	
-	 * @param string $value        	
+	 * @param string $member
+	 * @param string $mixed
+	 * @param string $value
 	 * @return Object|mixed
 	 */
 	public function member_data($member, $mixed = null, $value = null) {
@@ -1567,7 +1540,7 @@ class Object extends Model {
 		}
 		return $this->member($member);
 	}
-	
+
 	/**
 	 * Have any of the members given changed in this object?
 	 *
@@ -1589,7 +1562,7 @@ class Object extends Model {
 		}
 		return false;
 	}
-	
+
 	/**
 	 * Did anything change in this object? If no parameters are passed, determines if any
 	 * database member has changed.
@@ -1603,7 +1576,7 @@ class Object extends Model {
 	function changed($members = null) {
 		return $this->members_changed($members === null ? $this->columns() : $members);
 	}
-	
+
 	/**
 	 * Retrieve the changes to this object as an array of member => array("old value", "new value")
 	 *
@@ -1636,13 +1609,13 @@ class Object extends Model {
 		$temp_data = arr::filter($this->members, $mixed);
 		return $temp_data;
 	}
-	
+
 	/**
 	 * Returns true if the member is empty
 	 * For multiple members, returns true if ANY member is empty
 	 * For multiple members, returns false if no members are passed in
 	 *
-	 * @param mixed $member        	
+	 * @param mixed $member
 	 * @return boolean
 	 */
 	function member_is_empty($member) {
@@ -1657,7 +1630,7 @@ class Object extends Model {
 		$d = $this->member($member, null);
 		return empty($d);
 	}
-	
+
 	/**
 	 * Complex setter
 	 *
@@ -1677,9 +1650,9 @@ class Object extends Model {
 	 *
 	 * $object->set_member_serial("data", array("name1" => $value1, "name2" => $value2), false);
 	 *
-	 * @param string $member        	
-	 * @param mixed $mixed        	
-	 * @param mixed $value        	
+	 * @param string $member
+	 * @param mixed $mixed
+	 * @param mixed $value
 	 */
 	public function set_member_serial($member, $mixed = null, $value = null) {
 		assert(array_key_exists($member, $this->class->members_of_type(Class_Object::type_serialize)));
@@ -1705,13 +1678,13 @@ class Object extends Model {
 		$this->__set($member, $data);
 		return $this;
 	}
-	
+
 	/**
 	 * Set a member to a value
 	 *
-	 * @param string $member        	
-	 * @param mixed $v        	
-	 * @param boolean $overwrite        	
+	 * @param string $member
+	 * @param mixed $v
+	 * @param boolean $overwrite
 	 * @return $this
 	 */
 	function set_member($member, $v = null, $overwrite = true) {
@@ -1737,12 +1710,12 @@ class Object extends Model {
 			unset($this->members[$m]);
 		}
 	}
-	
+
 	/**
 	 * Change the status of the store column structure
 	 *
-	 * @param string $member        	
-	 * @param null|boolean $store        	
+	 * @param string $member
+	 * @param null|boolean $store
 	 */
 	private function _store_member($member, $store = null) {
 		if (!array_key_exists($member, $this->store_columns)) {
@@ -1802,10 +1775,10 @@ class Object extends Model {
 		}
 		return $this;
 	}
-	
+
 	/**
 	 * Does this object member have a corresponding column in the database?
-	 * 
+	 *
 	 * @param string $member
 	 * @return boolean
 	 */
@@ -1816,9 +1789,9 @@ class Object extends Model {
 	 * Does this object define the member given? (Does not determine if it has a value or not)
 	 *
 	 * Concept of member means a class column type defined.
-	 * 
+	 *
 	 * @see Object::member_empty
-	 * @param string $member        	
+	 * @param string $member
 	 * @return boolean
 	 */
 	function has_member($member) {
@@ -1833,11 +1806,11 @@ class Object extends Model {
 		}
 		return $patterns;
 	}
-	
+
 	/**
 	 * Rename a copy
 	 *
-	 * @param unknown_type $base_name        	
+	 * @param unknown_type $base_name
 	 */
 	protected function duplicate_rename($column, Database_Query_Select $select, $rename_pattern = null) {
 		$name = $this->get($column);
@@ -1909,7 +1882,7 @@ class Object extends Model {
 		$generator = $this->sql();
 		return $this->utc_timestamps() ? $generator->now_utc() : $generator->now();
 	}
-	
+
 	/*
 	 * Insert SQL
 	 */
@@ -1917,7 +1890,7 @@ class Object extends Model {
 		$member = $this->pre_insert();
 		return $this->database()->insert($this->table(), $member);
 	}
-	
+
 	/**
 	 * Prepare the internal data structure for output to the database
 	 *
@@ -2081,7 +2054,7 @@ class Object extends Model {
 		if (!$duplicate_keys) {
 			return false;
 		}
-		
+
 		$members = $this->members($duplicate_keys);
 		$query = $this->query_select("X")->where($members)->what("*n", "COUNT(*)");
 		if (!$this->is_new()) {
@@ -2137,11 +2110,11 @@ class Object extends Model {
 		}
 		return $this;
 	}
-	
+
 	/**
 	 * Is this deleted?
 	 *
-	 * @param unknown $data        	
+	 * @param unknown $data
 	 */
 	private function _deleted(array $data) {
 		$col = $this->class->column_deleted;
@@ -2153,7 +2126,7 @@ class Object extends Model {
 		}
 		return to_bool($data[$this->column_deleted]);
 	}
-	
+
 	/**
 	 * Is this object polymorphic (multiple classes handling a single table)
 	 *
@@ -2168,7 +2141,7 @@ class Object extends Model {
 		$this->polymorphic_leaf = $set;
 		return $this;
 	}
-	
+
 	/**
 	 * Convert to true form.
 	 * Override in subclasses to get custom polymorphic behavior.
@@ -2250,7 +2223,7 @@ class Object extends Model {
 	function store_errors() {
 		return $this->option_array("store_error", array());
 	}
-	
+
 	/**
 	 * Retrieve the error string for the error when a duplicate is found in the database when
 	 * storing
@@ -2276,7 +2249,7 @@ class Object extends Model {
 		}
 		$this->store_queue = array();
 	}
-	
+
 	/**
 	 *
 	 * @see Model::store()
@@ -2288,7 +2261,7 @@ class Object extends Model {
 		if ($this->storing) {
 			return $this;
 		}
-		
+
 		try {
 			$this->storing = true;
 			/*
@@ -2329,7 +2302,7 @@ class Object extends Model {
 			throw $e;
 		}
 	}
-	
+
 	/**
 	 * Store any objects which are members, first
 	 */
@@ -2364,7 +2337,7 @@ class Object extends Model {
 			}
 		}
 	}
-	
+
 	/**
 	 * Register an object based on its "find_keys"
 	 * Register means "create it if it doesn't exist, find it if it does"
@@ -2404,11 +2377,11 @@ class Object extends Model {
 		}
 		return $result->object_status(self::object_status_exists);
 	}
-	
+
 	/**
 	 * Set/get result of object operation
 	 *
-	 * @param string $set        	
+	 * @param string $set
 	 * @return string|$this
 	 */
 	function object_status($set = null) {
@@ -2418,7 +2391,7 @@ class Object extends Model {
 		}
 		return $this->status;
 	}
-	
+
 	/**
 	 *
 	 * @return boolean
@@ -2439,17 +2412,18 @@ class Object extends Model {
 		);
 		// TODO: Support dates
 	}
-	
+
 	/**
+	 *
 	 * @todo Make this non-static
-	 * 
+	 *
 	 * @param unknown $class
 	 * @param unknown $mixed
 	 */
 	public static function clean_database_object_members($class, $mixed) {
 		global $zesk;
 		/* @var $zesk \zesk\Kernel */
-		
+
 		/* @var $class_object Class_Object */
 		$class_object = Object::cache_class($class, "class");
 		$members = to_list($mixed);
@@ -2481,32 +2455,25 @@ class Object extends Model {
 				));
 				continue;
 			}
-			$ids = $ids + $this->application->query_select($class)
-				->link($member, array(
+			$ids = $ids + $this->application->query_select($class)->link($member, array(
 				"required" => false,
 				"alias" => "ref"
-			))
-				->where(array(
+			))->where(array(
 				"ref.$member_id_column" => null
-			))
-				->to_array($this_id_column, $this_id_column);
+			))->to_array($this_id_column, $this_id_column);
 		}
 		if (count($ids) > 0) {
 			Object::class_delete(__CLASS__)->where($this_id_column, array_values($ids));
 		}
 	}
 	protected function delete_unlinked_column($column, $class) {
-		$unlinked = $this->query_select()
-			->link($class, array(
+		$unlinked = $this->query_select()->link($class, array(
 			"alias" => "Link",
 			"require" => false
-		))
-			->where("Link.ID", null)
-			->what($column, $column)
-			->to_array(null, $column);
+		))->where("Link.ID", null)->what($column, $column)->to_array(null, $column);
 		return $this->query_delete()->where($column, $unlinked)->execute();
 	}
-	
+
 	/**
 	 * For each of the "has_one" - if the target object does not exist, the delete this row
 	 *
@@ -2522,7 +2489,7 @@ class Object extends Model {
 		}
 		return $result;
 	}
-	
+
 	/**
 	 * Convert to string
 	 */
@@ -2537,7 +2504,7 @@ class Object extends Model {
 		}
 		return PHP::dump($id);
 	}
-	
+
 	/**
 	 * Delete an object from the database
 	 */
@@ -2547,7 +2514,7 @@ class Object extends Model {
 		}
 		$cache = $this->object_cache();
 		$cache->delete();
-		
+
 		if ($this->option_bool("disable_database")) {
 			return false;
 		}
@@ -2564,11 +2531,11 @@ class Object extends Model {
 		$this->call_hook('delete');
 		return true;
 	}
-	
+
 	/**
 	 * Convert a variable to an ID
 	 *
-	 * @param $mixed mixed        	
+	 * @param $mixed mixed
 	 * @return integer or null if can't be converted to integer
 	 */
 	public static function mixed_to_id($mixed) {
@@ -2577,21 +2544,21 @@ class Object extends Model {
 		}
 		return to_integer($mixed, null);
 	}
-	
+
 	/**
 	 * Given a class $class, determine the default path to another class
 	 *
-	 * @param $class string        	
+	 * @param $class string
 	 * @return string
 	 */
 	public function link_default_path_to($class) {
 		return $this->class->link_default_path_to($class);
 	}
-	
+
 	/**
 	 * Walk path to $class while updating the query
 	 *
-	 * @param $class mixed        	
+	 * @param $class mixed
 	 * @param $mixed array
 	 *        	An array of link settings, or a string indicating the path to link to
 	 *        	The settings in the array are:
@@ -2603,19 +2570,23 @@ class Object extends Model {
 	public function link_walk(Database_Query_Select $query, $mixed = null) {
 		return $this->class->link_walk($this, $query, $mixed);
 	}
-	
+
 	/**
 	 * Convert an object into a notation transportable via JSON
-	 * 
-	 * Supports deep return of objects by passing option "resolve_objects" which is an array of strings, each string a dotted-path list of
-	 * object members to retrieve. e.g. "user.account.currency" which will retrieve the object representation of the member "user" then the member "account" from the user, 
-	 * and the member "currency" from the account and returned recursively.
-	 * 
-	 * Optionally pass an additional option "allow_resolve_objects" which is a list of allowed paths in an identical format.
-	 * 
-	 * Option "skip_members" is a list of members to NOT pass back, takes precedence over "resolve_objects"
 	 *
-	 * @param array $options        	
+	 * Supports deep return of objects by passing option "resolve_objects" which is an array of
+	 * strings, each string a dotted-path list of
+	 * object members to retrieve. e.g. "user.account.currency" which will retrieve the object
+	 * representation of the member "user" then the member "account" from the user,
+	 * and the member "currency" from the account and returned recursively.
+	 *
+	 * Optionally pass an additional option "allow_resolve_objects" which is a list of allowed paths
+	 * in an identical format.
+	 *
+	 * Option "skip_members" is a list of members to NOT pass back, takes precedence over
+	 * "resolve_objects"
+	 *
+	 * @param array $options
 	 * @return array
 	 */
 	public function json(array $options = array()) {
@@ -2633,7 +2604,7 @@ class Object extends Model {
 		} else {
 			$members = array();
 			$options['depth'] = $depth - 1;
-			
+
 			/* Handle "resolve_objects" list and "allow_resolve_objects" checks */
 			$resolve_objects = to_list(avalue($options, "resolve_objects"), null);
 			$resolve_object_match = array();
@@ -2653,7 +2624,7 @@ class Object extends Model {
 					}
 				}
 			}
-			
+
 			$skip_members = array_flip(avalue($options, "skip_members", array()));
 			/* Copy things to JSON */
 			foreach ($this->members() as $member => $value) {
@@ -2683,11 +2654,11 @@ class Object extends Model {
 			$result
 		), $result);
 	}
-	
+
 	/**
 	 * Load object
 	 *
-	 * @param Widget $source        	
+	 * @param Widget $source
 	 * @return $this
 	 */
 	protected function hook_control_loaded(Widget $source) {
@@ -2701,11 +2672,11 @@ class Object extends Model {
 		}
 		return $this;
 	}
-	
+
 	/**
 	 * Hook to return a message when a control cancels editing
 	 *
-	 * @param Control $control        	
+	 * @param Control $control
 	 * @return string
 	 */
 	protected function hook_control_message_cancel(Control $control) {
@@ -2713,11 +2684,11 @@ class Object extends Model {
 		$cancelNewMessage = $control->option("cancel_new_message", __("{class_name-context-subject-singular} was not created."));
 		return $this->is_new() ? $cancelNewMessage : $cancelMessage;
 	}
-	
+
 	/**
 	 * Hook to return message
 	 *
-	 * @param Control $control        	
+	 * @param Control $control
 	 * @return Ambigous <Model, Model, mixed, Hookable, string, array, number>
 	 */
 	protected function hook_control_message_store(Control $control) {
@@ -2729,11 +2700,11 @@ class Object extends Model {
 		}
 		return $store_message;
 	}
-	
+
 	/**
 	 * Hook to return message related to store errors
 	 *
-	 * @param Control $control        	
+	 * @param Control $control
 	 * @return string
 	 */
 	protected function hook_control_message_store_error(Control $control) {
@@ -2742,13 +2713,13 @@ class Object extends Model {
 		$message = $this->option("store_error", $message);
 		return $message;
 	}
-	
+
 	/**
 	 * Utility function for retrieving permissions.
-	 * 
+	 *
 	 * Add static function permissions() to your subclass and call this to get useful permissions
 	 *
-	 * @param string $class        	
+	 * @param string $class
 	 * @return array
 	 */
 	static function default_permissions(Application $application, $class) {
@@ -2805,7 +2776,7 @@ class Object extends Model {
 			)
 		);
 	}
-	
+
 	/**
 	 *
 	 * @see Debug::_dump
@@ -2818,13 +2789,13 @@ class Object extends Model {
 		$rows['members'] = $this->members;
 		return get_class($this) . " {\n" . Text::indent(Text::format_pairs($rows)) . "\n}\n";
 	}
-	
+
 	/**
 	 * Was deprecated 2012 - why? Where will this go?
 	 *
 	 * Replaced by ->variables()
 	 *
-	 * @param string $string        	
+	 * @param string $string
 	 * @return array string
 	 */
 	public function words($string = null) {
@@ -2838,20 +2809,20 @@ class Object extends Model {
 		$spec['class_name-context-title'] = str::capitalize($spec['class_name-context-object']);
 		$spec["class_name-context-subject-indefinite-article"] = Locale::indefinite_article($name, true);
 		$spec['class_name-plural'] = Locale::plural($name, $this->locale);
-		
+
 		$name = $this->display_name();
 		$spec['display_name'] = $name;
-		
+
 		if ($string === null) {
 			return $spec;
 		}
 		$result = $this->apply_map(map($string, $spec));
 		return $result;
 	}
-	
+
 	/**
 	 * How to retrieve this object when passed as an argument to a router
-	 * 
+	 *
 	 * @param Route $route
 	 * @param string $arg
 	 * @return self
@@ -2859,7 +2830,7 @@ class Object extends Model {
 	protected function hook_router_argument(Route $route, $arg) {
 		return $this->id($arg)->fetch();
 	}
-	
+
 	/**
 	 * Name/value pairs used to generate the schema for this object
 	 *
@@ -2870,16 +2841,17 @@ class Object extends Model {
 			'table' => $this->table()
 		);
 	}
-	
+
 	/*==================================================================================================================================*/
 	/*==================================================================================================================================*/
 	/*==================================================================================================================================*/
-	/* DEPRECATED BELOW 
+	/* DEPRECATED BELOW
 	 /*==================================================================================================================================*/
 	/*==================================================================================================================================*/
 	/*==================================================================================================================================*/
 	/**
-	 * status_foo is too generic, may want to use this in subclasses, so go overly specific for this constant as its inherited by all objects.
+	 * status_foo is too generic, may want to use this in subclasses, so go overly specific for this
+	 * constant as its inherited by all objects.
 	 *
 	 * @deprecated 2016-12
 	 * @see Object::register
@@ -2887,9 +2859,10 @@ class Object extends Model {
 	 * @var string
 	 */
 	const status_exists = self::object_status_exists;
-	
+
 	/**
-	 * status_foo is too generic, may want to use this in subclasses, so go overly specific for this constant as its inherited by all objects.
+	 * status_foo is too generic, may want to use this in subclasses, so go overly specific for this
+	 * constant as its inherited by all objects.
 	 *
 	 * @deprecated 2016-12
 	 * @see Object::register
@@ -2898,7 +2871,8 @@ class Object extends Model {
 	 */
 	const status_insert = self::object_status_insert;
 	/**
-	 * status_foo is too generic, may want to use this in subclasses, so go overly specific for this constant as its inherited by all objects.
+	 * status_foo is too generic, may want to use this in subclasses, so go overly specific for this
+	 * constant as its inherited by all objects.
 	 *
 	 * @deprecated 2016-12
 	 *
@@ -2907,7 +2881,7 @@ class Object extends Model {
 	 * @var string
 	 */
 	const status_unknown = self::object_status_unknown;
-	
+
 	/**
 	 * Retrieve a query for the current object
 	 *
@@ -2920,7 +2894,7 @@ class Object extends Model {
 		zesk()->deprecated();
 		return $this->query_select($alias);
 	}
-	
+
 	/**
 	 * Retrieve the query object for an object by class name
 	 *
@@ -2934,7 +2908,7 @@ class Object extends Model {
 		$object = self::cache_class($class, "object");
 		return $object->query_select($alias);
 	}
-	
+
 	/**
 	 * Retrieve the query object for an object by class name
 	 *
@@ -2948,7 +2922,7 @@ class Object extends Model {
 		$object = Class_Object::cache($class, "object");
 		return $object->query_insert();
 	}
-	
+
 	/**
 	 * Retrieve the query object for an object by class name
 	 *
@@ -2962,7 +2936,7 @@ class Object extends Model {
 		$object = Class_Object::cache($class, "object");
 		return $object->query_insert_select();
 	}
-	
+
 	/**
 	 * Retrieve the query object for an object by class name
 	 *
@@ -2976,7 +2950,7 @@ class Object extends Model {
 		$object = Class_Object::cache($class, "object");
 		return $object->query_update($alias);
 	}
-	
+
 	/**
 	 * Retrieve the query object for an object by class name
 	 *
@@ -2990,23 +2964,7 @@ class Object extends Model {
 		$object = Class_Object::cache($class, "object");
 		return $object->query_delete();
 	}
-	
-	/**
-	 * Retrieve the table for an object by class name
-	 *
-	 * @param $class string
-	 * @param $mixed mixed
-	 *        	Initialize the object with this (for dynamic tables)
-	 * @param $options mixed
-	 *        	Initialize the object with this (for dynamic tables)
-	 * @return string The table name
-	 * @deprecated 2016-10
-	 */
-	public static function class_table_name($class, $mixed = null, $options = null) {
-		zesk()->deprecated();
-		return app()->object_table_name($class, $mixed, $options);
-	}
-	
+
 	/**
 	 * Retrieve the id column for an object by class name
 	 *
@@ -3023,7 +2981,7 @@ class Object extends Model {
 		$object = self::cache_class($class, "object");
 		return $object->id_column();
 	}
-	
+
 	/**
 	 * Retrieve the id column for an object by class name
 	 *
@@ -3040,41 +2998,12 @@ class Object extends Model {
 		$object = self::cache_class($class, "object");
 		return $object->primary_keys();
 	}
-	
-	/**
-	 * Retrieve the columns for a class
-	 *
-	 * @param $class string
-	 * @param $mixed mixed
-	 *        	Initialize the object with this (for dynamic tables)
-	 * @param $options mixed
-	 *        	Initialize the object with this (for dynamic tables)
-	 * @return string The table name
-	 * @deprecated 2016-10
-	 */
-	public static function class_table_columns($class, $mixed = null, $options = null) {
-		zesk()->deprecated();
-		return app()->object_table_columns($class, $mixed, $options);
-	}
-	
-	/**
-	 * Retrieve the database associated with a class
-	 *
-	 * @deprecated 2016-10
-	 * @see app()->class_object()->database();
-	 * @param string $class
-	 */
-	public static function class_database($class) {
-		zesk()->deprecated();
-		/* @var $class Class_Object */
-		return app()->class_object($class)->database();
-	}
-	
+
 	/**
 	 * Load a cached version of this class
 	 *
 	 * @deprecated 2016-10 use $application->class_object, etc.
-	 * @param string $class        	
+	 * @param string $class
 	 * @param string $component
 	 *        	Optional component to return (usually "table", "dbname", "object", "class"
 	 * @return Class_Object|mixed
@@ -3083,13 +3012,13 @@ class Object extends Model {
 		zesk()->deprecated();
 		return Class_Object::cache($class, $component);
 	}
-	
+
 	/**
 	 * Retrieve a cached object instance.
 	 * Do not edit, please.
 	 *
 	 * @deprecated 2016-10 use $application->object, etc.
-	 * @param $class string        	
+	 * @param $class string
 	 * @return Object
 	 */
 	public static function cache_object($class) {

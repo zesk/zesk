@@ -1,42 +1,43 @@
 <?php
+
 /**
- * 
+ *
  */
 namespace zesk;
 
 /**
- * 
+ *
  * @author kent
  *
  */
 class Model extends Hookable implements \ArrayAccess {
 	/**
 	 * Option for theme path prefix for themes associated with this model
-	 * 
+	 *
 	 * @var string
 	 */
 	const option_theme_path_prefix = "theme_path_prefix";
-	
+
 	/**
-	 * 
+	 *
 	 * @var boolean
 	 */
 	protected $_inited = false;
-	
+
 	/**
-	 * 
+	 *
 	 * @var Application
 	 */
 	public $application = null;
-	
+
 	/**
-	 * 
+	 *
 	 * @param mixed $mixed
 	 * @param array $options
 	 * @param Application $application
 	 */
-	function __construct($mixed = null, $options = null, Application $application = null) {
-		$this->application = $application ? $application : Application::instance();
+	function __construct(Application $application, $mixed = null, $options = null) {
+		$this->application = $application;
 		if (is_array($mixed)) {
 			foreach ($mixed as $k => $v) {
 				$this->set($k, $v);
@@ -45,13 +46,13 @@ class Model extends Hookable implements \ArrayAccess {
 		parent::__construct($options);
 		$this->construct();
 	}
-	
+
 	/**
 	 * Run during __construct
 	 */
-	function construct() {
+	public function construct() {
 	}
-	
+
 	/**
 	 *
 	 * @param string $class
@@ -59,12 +60,12 @@ class Model extends Hookable implements \ArrayAccess {
 	 * @throws Exception_Semantics
 	 * @return Model
 	 */
-	public static function factory($class, $value = null, $options = null, Application $application = null) {
-		global $zesk;
-		/* @var $zesk Kernel */
-		$object = $zesk->objects->factory($class, $value, $options, $application);
+	public static function factory(Application $application, $class, $value = null, $options = null) {
+		$object = $application->objects->factory($class, $application, $value, $options);
 		if (!$object instanceof Model) {
-			throw new Exception_Semantics("Class $class is not of type Model");
+			throw new Exception_Semantics("Class {class} is not of type Model", array(
+				"class" => $class
+			));
 		}
 		if (is_array($value)) {
 			foreach ($value as $k => $v) {
@@ -75,10 +76,10 @@ class Model extends Hookable implements \ArrayAccess {
 		}
 		return $object;
 	}
-	
+
 	/**
 	 * Is this a new object?
-	 * 
+	 *
 	 * @return boolean
 	 */
 	function is_new() {
@@ -100,7 +101,7 @@ class Model extends Hookable implements \ArrayAccess {
 		$result['_parent_class'] = get_parent_class($this);
 		return $result;
 	}
-	
+
 	/**
 	 * Convert values in this object with map
 	 */
@@ -108,7 +109,7 @@ class Model extends Hookable implements \ArrayAccess {
 		$this->set(map($this->variables(), $map));
 		return $this;
 	}
-	
+
 	/**
 	 * Convert other values using this Model as the map
 	 */
@@ -121,27 +122,30 @@ class Model extends Hookable implements \ArrayAccess {
 		}
 		return map($mixed, $this->variables());
 	}
-	
+
 	/**
 	 * ArrayAccess offsetExists
+	 *
 	 * @param mixed $offset
 	 * @return boolean
 	 */
 	public function offsetExists($offset) {
 		return $this->__isset($offset);
 	}
-	
+
 	/**
 	 * ArrayAccess offsetGet
+	 *
 	 * @param mixed $offset
 	 * @return mixed
 	 */
 	public function offsetGet($offset) {
 		return $this->__get($offset);
 	}
-	
+
 	/**
 	 * ArrayAccess offsetSet
+	 *
 	 * @param mixed $offset
 	 * @param mixed $value
 	 * @return void
@@ -149,16 +153,17 @@ class Model extends Hookable implements \ArrayAccess {
 	public function offsetSet($offset, $value) {
 		$this->__set($offset, $value);
 	}
-	
+
 	/**
 	 * ArrayAccess offsetUnset
+	 *
 	 * @param mixed $offset
 	 * @return void
 	 */
 	public function offsetUnset($offset) {
 		$this->__unset($offset);
 	}
-	
+
 	/**
 	 *
 	 * @return boolean
@@ -166,20 +171,23 @@ class Model extends Hookable implements \ArrayAccess {
 	public function store() {
 		return $this;
 	}
-	
+
 	/**
 	 *
-	 * @param mixed $mixed Settings to retrieve a model from somewhere
+	 * @param mixed $mixed
+	 *        	Settings to retrieve a model from somewhere
 	 * @return Model Or null if can not be found
 	 */
 	function fetch($mixed = null) {
 		return $this;
 	}
-	
+
 	/**
 	 *
-	 * @param mixed $mixed Model value to retrieve
-	 * @param mixed $default Value to return if not found
+	 * @param mixed $mixed
+	 *        	Model value to retrieve
+	 * @param mixed $default
+	 *        	Value to return if not found
 	 * @return mixed
 	 */
 	public function get($mixed = null, $default = null) {
@@ -197,12 +205,12 @@ class Model extends Hookable implements \ArrayAccess {
 		}
 		return $this->__get($mixed);
 	}
-	
+
 	/**
 	 * Does this model have a member?
-	 * 
+	 *
 	 * @param list|string $mixed
-	 * @return boolean For a list, if ANY member exists, returns true. 
+	 * @return boolean For a list, if ANY member exists, returns true.
 	 */
 	public function has($mixed = null) {
 		if (is_array($mixed)) {
@@ -218,7 +226,7 @@ class Model extends Hookable implements \ArrayAccess {
 		}
 		return false;
 	}
-	
+
 	/**
 	 * Returns true if model has been initialized with valid values
 	 *
@@ -227,11 +235,13 @@ class Model extends Hookable implements \ArrayAccess {
 	public function inited() {
 		return $this->_inited;
 	}
-	
+
 	/**
 	 *
-	 * @param mixed $mixed Model value to set
-	 * @param mixed $value Value to set
+	 * @param mixed $mixed
+	 *        	Model value to set
+	 * @param mixed $value
+	 *        	Value to set
 	 * @return Model $this
 	 */
 	public function set($mixed, $value = null) {
@@ -251,17 +261,18 @@ class Model extends Hookable implements \ArrayAccess {
 		}
 		return $this;
 	}
-	
+
 	/**
 	 * Convert to string
-	 * 
-	 * {@inheritDoc}
+	 *
+	 * {@inheritdoc}
+	 *
 	 * @see Options::__toString()
 	 */
 	public function __toString() {
 		return PHP::dump($this->options);
 	}
-	
+
 	/*
 	 * Only place to access ->$name is here
 	 */
@@ -271,48 +282,49 @@ class Model extends Hookable implements \ArrayAccess {
 		}
 		return null;
 	}
-	
+
 	/**
-	 * 
-	 * {@inheritDoc}
+	 *
+	 * {@inheritdoc}
+	 *
 	 * @see Options::__set()
 	 */
 	public function __set($name, $value) {
 		$this->$name = $value;
 		$this->_inited = true;
 	}
-	
+
 	/**
-	 * 
+	 *
 	 * @param string $name
 	 */
 	public function __unset($name) {
 		unset($this->$name);
 	}
-	
+
 	/**
 	 * Is a member set?
-	 * 
+	 *
 	 * @param string $name
 	 * @return boolean
 	 */
 	public function __isset($name) {
 		return isset($this->$name);
 	}
-	
+
 	/**
 	 * Convert to JSON string
-	 * 
+	 *
 	 * @param array $options
 	 * @return string
 	 */
 	public function json(array $options = array()) {
 		return JSON::encode($this->variables());
 	}
-	
+
 	/**
 	 * Convert a theme name (or names) into clean paths for finding theme templates
-	 * 
+	 *
 	 * @param list|string $name
 	 * @return list|string Cleaned theme names
 	 */
@@ -328,7 +340,7 @@ class Model extends Hookable implements \ArrayAccess {
 			"\\" => "/"
 		));
 	}
-	
+
 	/**
 	 * Given a theme name, return the theme paths which are checked.
 	 *
@@ -371,16 +383,19 @@ class Model extends Hookable implements \ArrayAccess {
 			$result_prefix = arr::prefix($result, rtrim($this->option(self::option_theme_path_prefix), "/") . "/");
 			$result = array_merge($result_prefix, $result);
 		}
-		
+
 		return self::_clean_theme_name($result);
 	}
-	
+
 	/**
 	 * Temporarily deprecated until we can make this our renamed version of "render"
 	 *
-	 * @param string $theme_name Theme or list of themes to invoke (first found is used)
-	 * @param array $variables Variables to be passed to the template
-	 * @param string $default Default value if no theme is found
+	 * @param string $theme_name
+	 *        	Theme or list of themes to invoke (first found is used)
+	 * @param array $variables
+	 *        	Variables to be passed to the template
+	 * @param string $default
+	 *        	Default value if no theme is found
 	 * @return string
 	 */
 	function theme($theme_name = null, $variables = null, $default = "") {

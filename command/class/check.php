@@ -1,6 +1,7 @@
 <?php
+
 /**
- * 
+ *
  */
 namespace zesk;
 
@@ -28,13 +29,13 @@ class Command_Class_Check extends Command_Base {
 		while ($this->has_arg()) {
 			$arg = $this->get_arg("class");
 			if ($arg === "all") {
-				$classes = array_merge($classes, Application::instance()->classes());
+				$classes = array_merge($classes, $this->application->classes());
 			} else {
 				$classes[] = $arg;
 			}
 		}
 		if (count($classes) === 0) {
-			$classes = Application::instance()->classes();
+			$classes = $this->application->classes();
 		}
 		foreach ($classes as $class) {
 			$this->verbose_log("Checking class {class}", array(

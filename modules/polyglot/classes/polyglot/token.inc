@@ -1,4 +1,5 @@
 <?php
+
 /**
  * @version $URL: https://code.marketacumen.com/zesk/trunk/modules/polyglot/classes/polyglot/token.inc $
  * @author $Author: kent $
@@ -9,6 +10,7 @@
 namespace zesk;
 
 /**
+ *
  * @author kent
  *
  * @see Class_PolyGlot_Token
@@ -23,7 +25,7 @@ namespace zesk;
  * @property timestamp $updated
  */
 class PolyGlot_Token extends Object {
-	
+
 	/**
 	 *
 	 * @var Locale_Validate
@@ -31,49 +33,50 @@ class PolyGlot_Token extends Object {
 	private $validator = null;
 	/**
 	 * Token to translate
-	 * 
+	 *
 	 * @var string
 	 */
 	const status_todo = "todo";
-	
+
 	/**
 	 * Draft version of a token translation
-	 * 
+	 *
 	 * @var string
 	 */
 	const status_draft = "draft";
-	
+
 	/**
 	 * Developer needs to review
-	 * 
+	 *
 	 * @var string
 	 */
 	const status_dev = "dev";
-	
+
 	/**
 	 * Question about translation
-	 * 
+	 *
 	 * @var string
 	 */
 	const status_question = "question";
-	
+
 	/**
 	 * Done
-	 * 
+	 *
 	 * @var string
 	 */
 	const status_done = "done";
-	
+
 	/**
 	 * Delete
-	 * 
+	 *
 	 * @var string
 	 */
 	const status_delete = "delete";
-	
+
 	/**
-	 * 
-	 * {@inheritDoc}
+	 *
+	 * {@inheritdoc}
+	 *
 	 * @see Object::store()
 	 */
 	public function store() {
@@ -113,16 +116,15 @@ class PolyGlot_Token extends Object {
 		$token->status = ($status === null) ? self::status_todo : $status;
 		return $token;
 	}
-	
+
 	/**
 	 * Fetch all locale strings for the dialect/language
-	 * 
+	 *
 	 * @param string $language
 	 * @param string|null $dialect
 	 * @return rray
 	 */
-	public static function fetch_all($language, $dialect = null) {
-		$app = app();
+	public static function fetch_all(Application $app, $language, $dialect = null) {
 		$where = array(
 			"language" => $language,
 			"dialect" => $dialect
@@ -158,19 +160,23 @@ class PolyGlot_Token extends Object {
 		$members['user'] = $this->member_integer("user");
 		return $members;
 	}
-	
+
 	/**
 	 *
 	 * @param string $locale
 	 * @return Database_Query_Select
 	 */
-	public static function locale_query($locale) {
-		$app = app();
-		return $app->query_select(__CLASS__)->what_object()->where(array(
+	public static function locale_query(Application $application, $locale) {
+		return $application->query_select(__CLASS__)->what_object()->where(array(
 			"dialect" => Locale::dialect($locale),
 			"language" => Locale::language($locale)
 		));
 	}
+
+	/**
+	 *
+	 * @return string
+	 */
 	public static function lang_status_filters() {
 		return __(array(
 			"todo" => "Need translation",
@@ -181,8 +187,12 @@ class PolyGlot_Token extends Object {
 			"done" => "Translated"
 		));
 	}
-	public static function htmlentities_all() {
-		$app = app();
+
+	/**
+	 *
+	 * @param Application $app
+	 */
+	public static function htmlentities_all(Application $app) {
 		$iterator = $app->query_select(__CLASS__)->what(array(
 			"id" => "id",
 			"translation" => "translation"
@@ -190,15 +200,12 @@ class PolyGlot_Token extends Object {
 		foreach ($iterator as $id => $translation) {
 			$entities = htmlentities($translation);
 			if ($entities !== $translation) {
-				$app->query_update(__CLASS__)
-					->value("translation", $entities)
-					->where("id", $id)
-					->exec();
-				$this->application->logger->debug("Updated #{id} {translation} to {entities}", compact("id", "translation", "entities"));
+				$app->query_update(__CLASS__)->value("translation", $entities)->where("id", $id)->exec();
+				$app->logger->debug("Updated #{id} {translation} to {entities}", compact("id", "translation", "entities"));
 			}
 		}
 	}
-	
+
 	/**
 	 *
 	 * @return Locale_Validate

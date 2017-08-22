@@ -1,4 +1,5 @@
 <?php
+
 /**
  * $URL: https://code.marketacumen.com/zesk/trunk/classes/Control/Arrow.php $
  * @package zesk
@@ -9,11 +10,8 @@
 namespace zesk;
 
 class Control_Arrow extends Control {
-
 	static $id_index = 0;
-
 	static $stack = array();
-
 	private function _open() {
 		$is_open = $this->option_bool('is_open');
 		$id = $this->option('id');
@@ -26,7 +24,7 @@ class Control_Arrow extends Control {
 		$js = "javascript:Control_Arrow_toggle('$id','$url')";
 
 		$img_attrs = $this->option_array("img_attrs", array());
-		$img_url = $this->option('img_url', $this->option('img_url', cdn::url("/share/zesk/images/toggle/small-{state}.gif")));
+		$img_url = $this->option('img_url', $this->option('img_url', $this->application->url("/share/zesk/images/toggle/small-{state}.gif")));
 		$img_attrs['src'] = map($img_url, array(
 			'state' => ($is_open ? "down" : "right")
 		));
@@ -70,16 +68,15 @@ class Control_Arrow extends Control {
 			"href" => $js
 		), $img) . $inner_link) . HTML::tag_open("div", $contents_attrs);
 	}
-
 	private function _close() {
 		return HTML::tag_close('div');
 	}
-
 	public static function html_init() {
-		Response::instance()->cdn_javascript("/share/zesk/js/zesk.js", array('weight' => 'first'));
+		Response::instance()->cdn_javascript("/share/zesk/js/zesk.js", array(
+			'weight' => 'first'
+		));
 		Response::instance()->jquery("Control_Arrow_onload();");
 	}
-
 	function render() {
 		self::html_init();
 
@@ -89,11 +86,9 @@ class Control_Arrow extends Control {
 
 		return $this->render_finish($contents);
 	}
-
 	public static function html($title, $is_open = false, $options = null, $content = "") {
 		return self::open($title, $is_open, $options) . $content . self::close();
 	}
-
 	public static function open($title, $is_open = false, $options = null) {
 		$options['title'] = $title;
 		$options['is_open'] = to_bool($is_open);
@@ -103,7 +98,6 @@ class Control_Arrow extends Control {
 		ob_start();
 		return "";
 	}
-
 	public static function open_set_option($name, $value = null) {
 		$widget = avalue(self::$stack, count(self::$stack) - 1);
 		if (!$widget) {
@@ -111,7 +105,6 @@ class Control_Arrow extends Control {
 		}
 		$widget->set_option($name, $value);
 	}
-
 	public static function close() {
 		$widget = array_pop(self::$stack);
 		if (!$widget) {

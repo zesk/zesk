@@ -58,7 +58,7 @@ function zesk() {
 /**
  * Does NOT assume array is a 0-based key list
  *
- * @param array $a        	
+ * @param array $a
  * @return NULL|mixed
  */
 function first(array $a, $default = null) {
@@ -68,7 +68,7 @@ function first(array $a, $default = null) {
 /**
  * Does NOT assume array is a 0-based key list
  *
- * @param array $a        	
+ * @param array $a
  * @return NULL|mixed
  */
 function last(array $a, $default = null) {
@@ -87,13 +87,13 @@ function last(array $a, $default = null) {
  * e.g.
  *
  * PHP < 7.0:
- * 
+ *
  * return firstarg($value, $alternate_value, "default");
- * 
+ *
  * PHP >= 7.0:
- * 
+ *
  * return $value ?: $alternate_value ?: "default";
- * 
+ *
  * Equivalent to || or && in JavaScript.
  *
  * @deprecated zesk-php-7-only
@@ -112,7 +112,7 @@ function firstarg() {
 /**
  * Return a sane type for a variable
  *
- * @param mixed $mixed        	
+ * @param mixed $mixed
  * @return string
  */
 function type($mixed) {
@@ -122,8 +122,8 @@ function type($mixed) {
 /**
  * Does string begin with another string?
  *
- * @param string $string        	
- * @param string $prefix        	
+ * @param string $string
+ * @param string $prefix
  * @return boolean
  * @see \zesk\str::begins
  */
@@ -138,8 +138,8 @@ function begins($haystack, $needle) {
 /**
  * Does string begin with another string (case-insensitive)?
  *
- * @param string $string        	
- * @param string $prefix        	
+ * @param string $string
+ * @param string $prefix
  * @return boolean
  * @see \zesk\str::beginsi
  */
@@ -154,8 +154,8 @@ function beginsi($haystack, $needle) {
 /**
  * Does string end with another string?
  *
- * @param string $string        	
- * @param string $prefix        	
+ * @param string $string
+ * @param string $prefix
  * @return boolean
  * @see \zesk\str::ends
  */
@@ -170,8 +170,8 @@ function ends($haystack, $needle) {
 /**
  * Does string end with another string (insensitive)?
  *
- * @param string $string        	
- * @param string $prefix        	
+ * @param string $string
+ * @param string $prefix
  * @return boolean
  * @see \zesk\str::endsi
  */
@@ -186,7 +186,7 @@ function endsi($haystack, $needle) {
 /**
  * Set or get the newline character.
  *
- * @param string $set        	
+ * @param string $set
  * @return string
  */
 function newline($set = null) {
@@ -213,7 +213,7 @@ function _backtrace($n = -1) {
 	foreach ($bt as $i) {
 		$file = "closure";
 		$line = "-none-";
-		$class = "-noclass-"; 
+		$class = "-noclass-";
 		$type = $function = $args = null;
 		extract($i, EXTR_IF_EXISTS);
 		$line = "$file: $line $class$type$function";
@@ -263,7 +263,7 @@ function backtrace($exit = true, $n = -1) {
  * which don't have the autoloader set yet.
  *
  * @return string
- * @param unknown $depth        	
+ * @param unknown $depth
  * @see debug_backtrace()
  * @see Debug::calling_function
  */
@@ -316,7 +316,7 @@ function _dump($x) {
 /**
  * Another sane object type output
  *
- * @param unknown $x        	
+ * @param unknown $x
  * @return string
  */
 function vartype($x) {
@@ -459,7 +459,7 @@ function to_array($mixed, $default = array()) {
 /**
  * Converts a PHP value to a string, usually for debugging.
  *
- * @param mixed $mixed        	
+ * @param mixed $mixed
  * @return string
  */
 function to_text($mixed) {
@@ -478,7 +478,7 @@ function to_text($mixed) {
 /**
  * Converts an object into an iterator, suitable for a foreach
  *
- * @param mixed $mixed        	
+ * @param mixed $mixed
  * @return array|Iterator
  */
 function to_iterator($mixed) {
@@ -499,8 +499,8 @@ function to_iterator($mixed) {
 /**
  * Converts 20G to integer value
  *
- * @param unknown $mixed        	
- * @param string $default        	
+ * @param unknown $mixed
+ * @param string $default
  * @return Ambigous <mixed, number>|number
  */
 function to_bytes($mixed, $default = null) {
@@ -612,7 +612,7 @@ function aevalue($a, $k, $default = null) {
 /**
  * Convert a deep object into a flat one (string)
  *
- * @param mixed $mixed        	
+ * @param mixed $mixed
  * @return string
  */
 function flatten($mixed) {
@@ -825,10 +825,10 @@ function map($mixed, array $map, $insensitive = false, $prefix_char = "{", $suff
  * @test_inline $this->assert_equal(map_clean("He wanted {n} days"), "He wanted days");
  * @test_inline $this->assert_equal(map_clean("{}{}{}{}{}{all}{of}{this}{is}{removed}except}"),
  * "except}");
- * 
- * @param mixed $mixed        	
- * @param string $prefix_char        	
- * @param string $suffix_char        	
+ *
+ * @param mixed $mixed
+ * @param string $prefix_char
+ * @param string $suffix_char
  * @return mixed
  */
 function map_clean($mixed, $prefix_char = "{", $suffix_char = "}") {
@@ -838,6 +838,7 @@ function map_clean($mixed, $prefix_char = "{", $suffix_char = "}") {
 
 /**
  * Return true if string contains tokens which can be mapped using prefix/suffix
+ *
  * @param string $string
  * @return boolean
  */
@@ -849,9 +850,9 @@ function can_map($string, $prefix_char = "{", $suffix_char = "}") {
 /**
  * Retrieve map tokens from a string
  *
- * @param mixed $mixed        	
- * @param string $prefix_char        	
- * @param string $suffix_char        	
+ * @param mixed $mixed
+ * @param string $prefix_char
+ * @param string $suffix_char
  * @return array
  */
 function map_tokens($mixed, $prefix_char = "{", $suffix_char = "}") {
@@ -923,7 +924,7 @@ function _W($phrase) {
 		}
 		$phrase = substr($phrase, 0, $match_off) . $replace_value . substr($phrase, $match_off + $match_len);
 	}
-	
+
 	if (count($skip_s) === 0) {
 		return $phrase;
 	}
@@ -999,9 +1000,9 @@ function pairr($a, $delim = '.', $left = false, $right = false, $include_delimit
  * glue("http://localhost/test/","/","foo") === "http://localhost/test/foo";
  * glue("http://localhost/test","/","foo") === "http://localhost/test/foo";
  *
- * @param string $left        	
- * @param string $glue        	
- * @param string $right        	
+ * @param string $left
+ * @param string $glue
+ * @param string $right
  * @return string
  */
 function glue($left, $glue, $right) {
@@ -1125,9 +1126,9 @@ function clamp($minValue, $value, $maxValue) {
  * Utility for comparing floating point numbers where inaccuracies and rounding in math
  * produces close numbers which are not actually equal.
  *
- * @param real $a        	
- * @param real $b        	
- * @param real $epsilon        	
+ * @param real $a
+ * @param real $b
+ * @param real $epsilon
  * @return boolean
  */
 function real_equal($a, $b, $epsilon = 1e-5) {
@@ -1137,7 +1138,7 @@ function real_equal($a, $b, $epsilon = 1e-5) {
 /**
  * Can I do foreach on this object?
  *
- * @param mixed $mixed        	
+ * @param mixed $mixed
  * @return boolean
  */
 function can_iterate($mixed) {
@@ -1146,8 +1147,8 @@ function can_iterate($mixed) {
 /**
  * Is this value close (enough) to zero? Handles rounding errors with double-precision values.
  *
- * @param double $value        	
- * @param real $epsilon        	
+ * @param double $value
+ * @param real $epsilon
  * @return boolean
  */
 function is_zero($value, $epsilon = 1e-5) {
@@ -1157,9 +1158,9 @@ function is_zero($value, $epsilon = 1e-5) {
 /**
  * Simple integer comparison routine, syntactic sugar
  *
- * @param integer $min        	
- * @param integer $x        	
- * @param integer $max        	
+ * @param integer $min
+ * @param integer $x
+ * @param integer $max
  * @return boolean
  */
 function integer_between($min, $x, $max) {
@@ -1172,7 +1173,7 @@ function integer_between($min, $x, $max) {
 /**
  * Get the date in the UTC locale
  *
- * @param string $ts        	
+ * @param string $ts
  * @see getdate
  * @return array
  */
@@ -1187,7 +1188,7 @@ function utc_getdate($ts) {
 /**
  * Parse a time in UTC locale
  *
- * @param string $ts        	
+ * @param string $ts
  * @return integer number, or null if can not parse
  */
 function utc_parse_time($ts) {
@@ -1201,7 +1202,7 @@ function utc_parse_time($ts) {
 /**
  * Parse a time in the current locale
  *
- * @param string $ts        	
+ * @param string $ts
  * @return integer number, or null if can not parse
  */
 function parse_time($ts) {
@@ -1236,7 +1237,7 @@ function is_date($x) {
 /**
  * Determine if a string is a possible email address
  *
- * @param string $email        	
+ * @param string $email
  * @return boolean
  */
 function is_email($email) {
@@ -1246,7 +1247,7 @@ function is_email($email) {
 /**
  * Determine if a string is a possible phone number
  *
- * @param string $phone        	
+ * @param string $phone
  * @return boolean
  */
 function is_phone($phone) {
@@ -1270,7 +1271,7 @@ function is_phone($phone) {
 
 /**
  *
- * @param array $array        	
+ * @param array $array
  * @param mixed $path
  *        	string path or array
  * @param mixed $default
@@ -1302,7 +1303,7 @@ function &apath(array $array, $path, $default = null, $separator = ".") {
 /**
  * Partner of apath - sets an array path to a specific value
  *
- * @param array $current        	
+ * @param array $current
  * @param string $path
  *        	A path into the array separated by $separator (e.g. "document.title")
  * @param mixed $value
@@ -1339,7 +1340,7 @@ function &apath_set(array &$array, $path, $value = null, $separator = ".") {
 /**
  * Convert a global name to a standard internal format.
  *
- * @param string $key        	
+ * @param string $key
  * @return array
  */
 function _zesk_global_key($key) {
@@ -1356,7 +1357,7 @@ function _zesk_global_key($key) {
 /**
  * Normalize a zesk global key
  *
- * @param string $key        	
+ * @param string $key
  * @return string
  */
 function zesk_global_key_normalize($key) {
@@ -1365,11 +1366,12 @@ function zesk_global_key_normalize($key) {
 
 /**
  * Get our global application
- * 
+ *
+ * @deprecated 2017-08 Avoid usage
  * @return Application
  */
 function app() {
+	zesk()->deprecated();
 	return Application::instance();
 }
-
 

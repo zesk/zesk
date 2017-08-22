@@ -21,7 +21,7 @@ if (!isset($GLOBALS['__composer_autoload_files'])) {
 /* @var $zesk zesk\Kernel */
 $zesk->paths->set_application(dirname(__FILE__));
 
-$application = Application::instance();
+$application = $zesk->create_application();
 $application->configure_include_path(array(
 	'/etc',
 	$zesk->paths->application('etc'),

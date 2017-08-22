@@ -1,4 +1,5 @@
 <?php
+
 /**
  * $URL: https://code.marketacumen.com/zesk/trunk/classes/View/Actions.php $
  * @package zesk
@@ -10,7 +11,7 @@
 namespace zesk;
 
 /**
- * 
+ *
  * @author kent
  *
  */
@@ -29,10 +30,10 @@ class View_Actions extends View {
 			"onclick" => "return confirm('Are you sure?')"
 		) : array();
 
-		$image = $use_cdn ? HTML::cdn_img($src, $x->apply_map($title), array(
+		$image = $use_cdn ? HTML::img($this->application, $src, $x->apply_map($title), array(
 			"width" => $w,
 			"height" => $h
-		)) : HTML::cdn_img($src, $x->apply_map($title), array(
+		)) : HTML::img($this->application, $src, $x->apply_map($title), array(
 			"width" => $w,
 			"height" => $h
 		));
@@ -51,7 +52,6 @@ class View_Actions extends View {
 		}
 		return $hr;
 	}
-
 	function format($set = null) {
 		return ($set !== null) ? $this->set_option('format', $set) : $this->option('format');
 	}

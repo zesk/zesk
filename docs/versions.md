@@ -1,14 +1,20 @@
 ## Release v0.9.30
 
+Removed as many references as possible to `app()` and `zesk\Application::instance()` in the code. Removed the `CDN` class.
+
+- `zesk\Application::instance()` is now deprecated, **try to avoid usage**
+- `Content_Image::register_from_file` now takes the application as the first parameter
+- `Content_Data::from_path` now takes the application as the first parameter
+- `Database_Query::__construct` now requires the `zesk\Database` to be non-null
+- `Controller_Share::realpath` now takes the application as the first parameter
+
+## Release v0.9.29
+
 - Allow reinitialization of app, fixing up reset. Note that `zesk()->reset()` is not production-ready yet, and may possibly be removed in a future version. Likely add an "Application"-level reset instead and will migrate any values from `zesk()` global to Application level if necessary.
 - Deprecated module variable `$classes`
 - Fixing class names for world bootstrap
 - `Options::inherit_global_options` now can inherit from passed in object (uses `get_class`)
 - Adding back in `update.conf` to `zesk update` command
-## Release v0.9.29
-
-- Added debugging template for `inplace` pages to determine class used, left for possible later use
-- Proper `zesk\` namespace for many objects in the system
 
 ## Release v0.9.28
 

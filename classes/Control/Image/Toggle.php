@@ -1,4 +1,5 @@
 <?php
+
 /**
  * $URL: https://code.marketacumen.com/zesk/trunk/classes/Control/Image/Toggle.php $
  * @package zesk
@@ -32,7 +33,7 @@ class Control_Image_Toggle extends Control {
 			"style" => null
 		));
 		$div_attrs['id'] = $id;
-		$content = HTML::tag("div", $div_attrs, HTML::img(avalue($js_object, $prefix . "_src"), avalue($js_object, $prefix . "_alt"), $attrs));
+		$content = HTML::tag("div", $div_attrs, HTML::img($this->application, avalue($js_object, $prefix . "_src"), avalue($js_object, $prefix . "_alt"), $attrs));
 		$this->response->jquery('$(\'#' . $id . '\').toggleImage(' . json_encode($js_object) . ');');
 
 		return $content;

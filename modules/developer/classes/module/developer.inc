@@ -1,12 +1,13 @@
 <?php
+
 /**
- * 
+ *
  */
 namespace zesk;
 
 /**
  * Add developer tools and expose items based on IP
- * 
+ *
  * @author kent
  *
  */
@@ -14,7 +15,7 @@ class Module_Developer extends Module implements Interface_Module_Routes {
 	/**
 	 * List of request parameters/HTTP headers to allow for mocking AJAX and other types of
 	 * calls for debugging and/or testing
-	 * 
+	 *
 	 * @var array
 	 */
 	static $allowed_mock_headers = array(
@@ -47,22 +48,22 @@ class Module_Developer extends Module implements Interface_Module_Routes {
 				break;
 			}
 		}
-		if (self::ip_matches($this->option_list('ip_deny'))) {
+		if ($this->ip_matches($this->option_list('ip_deny'))) {
 			$development = false;
 		}
 		if ($development !== null) {
 			$application->development($development);
 		}
 	}
-	
+
 	/**
 	 * Does the remote IP address match one of the list of IPs including netmasks?
-	 * 
+	 *
 	 * @param array $ips
 	 * @return boolean
 	 */
-	private static function ip_matches(array $ips) {
-		$ip = app()->request()->ip();
+	private function ip_matches(array $ips) {
+		$ip = $this->application->request()->ip();
 		foreach ($ips as $mask) {
 			if ($ip === $mask || IPv4::within_network($ip, $mask)) {
 				return true;
@@ -70,10 +71,10 @@ class Module_Developer extends Module implements Interface_Module_Routes {
 		}
 		return false;
 	}
-	
+
 	/**
 	 * Modify the Request to allow for mock headers
-	 * 
+	 *
 	 * @param Request $request
 	 */
 	private function handle_mock_headers(Request $request) {
@@ -90,7 +91,7 @@ class Module_Developer extends Module implements Interface_Module_Routes {
 		if (count($restricted_ips) === 0) {
 			return;
 		}
-		if (!self::ip_matches($restricted_ips)) {
+		if (!$this->ip_matches($restricted_ips)) {
 			if (begins($app->request->path(), "/share")) {
 				return;
 			}
@@ -99,7 +100,7 @@ class Module_Developer extends Module implements Interface_Module_Routes {
 	}
 	public function initialize() {
 		$zesk = $this->zesk;
-		
+
 		$zesk->hooks->add("zesk\\Application::configured", array(
 			$this,
 			'test_ip'
@@ -109,10 +110,11 @@ class Module_Developer extends Module implements Interface_Module_Routes {
 			'router_prematch'
 		));
 	}
-	
+
 	/**
-	 * 
-	 * {@inheritDoc}
+	 *
+	 * {@inheritdoc}
+	 *
 	 * @see \Interface_Module_Routes::hook_routes()
 	 */
 	public function hook_routes(Router $router) {
@@ -210,18 +212,18 @@ class Module_Developer extends Module implements Interface_Module_Routes {
 			)
 		) + $extras);
 	}
-	
+
 	/**
-	 * 
+	 *
 	 * @param Response $response
 	 */
 	public function dump_session(Application $app, Response $response) {
 		$session = $app->session();
 		$response->json($session->get());
 	}
-	
+
 	/**
-	 * 
+	 *
 	 * @param Request $request
 	 */
 	public function dump_router(Router $router) {
@@ -233,9 +235,9 @@ class Module_Developer extends Module implements Interface_Module_Routes {
 			));
 		}
 	}
-	
+
 	/**
-	 * 
+	 *
 	 * @param Application $app
 	 * @param Request $request
 	 * @param Response_Text_HTML $response

@@ -1,7 +1,9 @@
 <?php
+
 namespace zesk;
 
 /**
+ *
  * @see Class_Selection_Item
  * @author kent
  *
@@ -9,17 +11,19 @@ namespace zesk;
 class Selection_Item extends Object {
 	/**
 	 * Value in "add" for items which should be removed from the query
+	 *
 	 * @var integer
 	 */
 	const type_remove = 0;
 	/**
 	 * Value in "add" for items which should be added to the query
+	 *
 	 * @var integer
 	 */
 	const type_add = 1;
-	
+
 	/**
-	 * 
+	 *
 	 * @param unknown $class
 	 */
 	public function item($class) {
@@ -29,32 +33,25 @@ class Selection_Item extends Object {
 			return null;
 		}
 	}
-	
+
 	/**
-	 * 
+	 *
 	 * @param unknown $old_type
 	 * @param unknown $new_type
 	 * @param array $mapping
 	 */
-	public static function copy_duplicate($old_type, $new_type, array $mapping) {
-		$app = app();
+	public static function copy_duplicate(Application $application, $old_type, $new_type, array $mapping) {
 		/* @var $class Class_Object */
-		$members = $app->class_object(__CLASS__)->column_types;
+		$members = $application->class_object(__CLASS__)->column_types;
 		unset($members['type']);
 		$what = arr::flip_copy(array_keys($members));
 		$what['*type'] = $new_type;
-		$app->query_insert_select(__CLASS__)
-			->what($what)
-			->where('type', $old_type)
-			->execute();
+		$application->query_insert_select(__CLASS__)->what($what)->where('type', $old_type)->execute();
 		foreach ($mapping as $old_query_id => $new_query_id) {
-			$app->query_update(__CLASS__)
-				->value('query', $new_query_id)
-				->where(array(
+			$application->query_update(__CLASS__)->value('query', $new_query_id)->where(array(
 				'query' => $old_query_id,
 				'type' => $new_type
-			))
-				->execute();
+			))->execute();
 		}
 	}
 	protected function hook_schema_update_alter(Database_Schema $schema, Database_Table $table, array $changes) {

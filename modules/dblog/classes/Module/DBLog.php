@@ -13,17 +13,17 @@ namespace zesk;
 /**
  *
  * @author kent
- *        
+ *
  */
 class Module_DBLog extends Module implements Logger\Handler {
-	
+
 	/**
 	 * Cached log level
 	 *
 	 * @var integer
 	 */
 	private static $log_level = null;
-	
+
 	/**
 	 * Implements Module::classes
 	 *
@@ -34,18 +34,25 @@ class Module_DBLog extends Module implements Logger\Handler {
 	);
 	public function initialize() {
 		parent::initialize();
-		$logger = zesk()->logger;
-		$logger->register_handler(__CLASS__, $this, $this->option_list("levels", $logger->levels_select(true)));
+		$logger = $this->application->logger;
+		if ($logger instanceof \zesk\Logger || method_exists($logger, "register_handler")) {
+			$logger->register_handler(__CLASS__, $this, $this->option_list("levels", $logger->levels_select(true)));
+		} else {
+			$logger->warning("{class} not supported on logger of class {logger_class}", array(
+				"class" => __CLASS__,
+				"logger_class" => get_class($logger)
+			));
+		}
 	}
-	
+
 	/**
 	 * Implements Module::log_send()
 	 *
-	 * @param array $context        	
+	 * @param array $context
 	 */
 	public function log($message, array $context) {
 		$application = $this->application;
-		
+
 		if (!array_key_exists("request_url", $context)) {
 			$context['request_url'] = $application->request()->url();
 		}
@@ -54,11 +61,11 @@ class Module_DBLog extends Module implements Logger\Handler {
 		} catch (Exception $e) {
 			return;
 		}
-		
+
 		$defaults = array(
 			'message' => "",
 			"user" => $user,
-			"session" => app()->session(false),
+			"session" => $this->application->session(false),
 			"ip" => IPv4::remote(),
 			"pid" => zesk()->process_id(),
 			"level_string" => avalue($context, 'severity', 'info'),

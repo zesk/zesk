@@ -1,9 +1,18 @@
 <?php
+
 /**
- * 
+ *
  */
 namespace zesk;
 
+/* @var $this \zesk\Template */
+/* @var $zesk \zesk\Kernel */
+/* @var $application \zesk\Application */
+/* @var $session \zesk\Session */
+/* @var $router \zesk\Router */
+/* @var $request \zesk\Request */
+/* @var $response \zesk\Response_HTML */
+/* @var $current_user \User */
 $object = $this->object;
 
 if ($this->user && $this->user->can($object, "edit")) {
@@ -11,10 +20,10 @@ if ($this->user && $this->user->can($object, "edit")) {
 	if ($url) {
 		echo HTML::div(".admin-edit", HTML::tag('a', array(
 			'href' => $this->request->get_route('edit', $object)
-		), HTML::cdn_img('/share/images/actions/edit.gif', __("Edit \"{0}\"", $object->Title))));
+		), HTML::img($application, '/share/images/actions/edit.gif', __("Edit \"{0}\"", $object->Title))));
 	} else {
 		echo HTML::div(".admin-edit", HTML::tag('a', array(
 			'href' => '#'
-		), HTML::cdn_img('/share/images/actions/owl.gif', __("Editing is misconfigured \"{0}\"", $object->Title))));
+		), HTML::img($application, '/share/images/actions/owl.gif', __("Editing is misconfigured \"{0}\"", $object->Title))));
 	}
 }

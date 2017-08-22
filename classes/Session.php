@@ -1,11 +1,12 @@
 <?php
+
 /**
- * 
+ *
  */
 namespace zesk;
 
 /**
- * 
+ *
  * @author kent
  *
  */
@@ -18,53 +19,43 @@ class Session {
 	private static $aliases = array(
 		"db" => "database"
 	);
-	
+
 	/**
-	 * @deprecated 2016-12
-	 * @see zesk\Application::session_class
-	 * @param string $set
-	 * @return mixed|array
+	 *
+	 * @param Kernel $zesk
 	 */
-	public static function implementation($set = null) {
-		global $zesk;
-		/* @var $zesk zesk\Kernel */
-		if ($set !== null) {
-			$set = strtolower($set);
-			$set = avalue(self::$aliases, $set, $set);
-			$zesk->configuration->pave("session")->implementation = $set;
-			return $set;
-		}
-		$get = $zesk->configuration->pave("session")->get("implementation", "");
+	public static function hooks(Kernel $zesk) {
+		$zesk->configuration->deprecated("Session", __CLASS__);
+	}
+	/**
+	 *
+	 * @return string
+	 */
+	private static function _implementation(Configuration $configuration) {
+		$get = $configuration->path(__CLASS__)->get("implementation", "");
 		return avalue(self::$aliases, $get, $get);
 	}
+
+	/**
+	 *
+	 * @param Application $application
+	 * @return mixed|string|array
+	 */
 	private static function session_class(Application $application) {
-		$default_class = self::implementation();
+		$default_class = self::_implementation($application->configuration);
 		if ($default_class) {
 			zesk()->deprecated("Session::implementation configuration value is deprecated, use zesk\Application::session_class instead (set to \"$default_class\")");
-			$default_class = __NAMESPACE__ . "\\Session_" . $default_class;
+			$default_class = __NAMESPACE__ . "\\" . "Session_" . $default_class;
 		} else {
-			$default_class = __NAMESPACE__ . "\\Session_PHP";
+			$default_class = __NAMESPACE__ . "\\" . "Session_PHP";
 		}
 		$class = $application->option("session_class", $default_class);
 		return $class;
 	}
-	/**
-	 * Retrieve the current session, creating it if specified and if nececssary.
-	 *
-	 * @see app()->session();
-	 * @deprecated 2016-12 
-	 * @param boolean $create
-	 *        	Create a session if one does not exist
-	 * @return zesk\Interface_Session
-	 */
-	public static function instance() {
-		zesk()->deprecated();
-		return self::factory(app());
-	}
-	
+
 	/**
 	 * Retrieve the session
-	 * 
+	 *
 	 * @param Application $application
 	 * @throws Exception_Configuration
 	 */

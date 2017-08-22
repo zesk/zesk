@@ -1,4 +1,5 @@
 <?php
+
 /**
  * @copyright &copy; 2016 Market Acumen, Inc.
  */
@@ -19,7 +20,7 @@ class Command_Classes extends Command_Base {
 		"table" => "show table related to object"
 	);
 	function run() {
-		$application = Application::instance();
+		$application = $this->application;
 		$classes = $application->all_classes();
 		$objects_by_class = array();
 		$is_table = false;

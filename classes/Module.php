@@ -27,30 +27,30 @@ abstract class Module extends Hookable {
 	 * @var Application
 	 */
 	protected $application = null;
-	
+
 	/**
 	 *
 	 * @var Application
 	 */
 	protected $application_class = null;
-	
+
 	/**
 	 * Module code name
 	 *
 	 * @var string
 	 */
 	protected $codename = null;
-	
+
 	/**
 	 * Path to this module
 	 *
 	 * @var string
 	 */
 	protected $path = null;
-	
+
 	/**
 	 * List of associated classes
-	 * 
+	 *
 	 * Matches Application pattern of using "object_classes" member instead for consistency
 	 *
 	 * @deprecated 2017-03
@@ -58,23 +58,23 @@ abstract class Module extends Hookable {
 	 * @var array
 	 */
 	protected $classes = array();
-	
+
 	/**
 	 * List of associated Object classes
 	 *
 	 * @var array
 	 */
 	protected $object_classes = array();
-	
+
 	/**
 	 * Array of old_class => new_class
-	 *  
+	 *
 	 * List of object aliases to automatically register.
 	 *
 	 * @var array
 	 */
 	protected $object_aliases = array();
-	
+
 	/**
 	 *
 	 * @ignore
@@ -90,14 +90,14 @@ abstract class Module extends Hookable {
 	}
 	function __wakeup() {
 		$this->zesk = zesk();
-		$this->application = app();
+		$this->application = $this->zesk->application();
 		$this->initialize();
 	}
-	
+
 	/**
 	 * Create Module
 	 *
-	 * @param string $options        	
+	 * @param string $options
 	 */
 	public final function __construct(Application $application, $options = null, array $module_data = array()) {
 		parent::__construct($options);
@@ -123,7 +123,7 @@ abstract class Module extends Hookable {
 		}
 	}
 	/**
-	 * 
+	 *
 	 * @param string $pathm
 	 */
 	public final function register_paths($path) {
@@ -132,7 +132,7 @@ abstract class Module extends Hookable {
 	public function __toString() {
 		$php = new PHP();
 		$php->settings_one();
-		return "app(), " . $php->render($this->options);
+		return "\$application, " . $php->render($this->options);
 	}
 	/**
 	 * Override in subclasses - called upon load
@@ -148,12 +148,12 @@ abstract class Module extends Hookable {
 	public function classes() {
 		return array_merge($this->object_classes, $this->classes);
 	}
-	
+
 	/**
 	 *
-	 * @param string $class        	
-	 * @param mixed $mixed        	
-	 * @param array $options        	
+	 * @param string $class
+	 * @param mixed $mixed
+	 * @param array $options
 	 * @return \zesk\Object
 	 */
 	final public function object_factory($class, $mixed = null, array $options = array()) {

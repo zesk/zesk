@@ -1,4 +1,5 @@
 <?php
+
 /**
  * $URL: https://code.marketacumen.com/zesk/trunk/modules/permission/classes/zesk/Role.php $
  * @package zesk
@@ -10,22 +11,32 @@
 namespace zesk;
 
 /**
+ *
  * @see Class_Role
  * @author kent
  */
 class Role extends Object {
-	static function root_id() {
-		return app()->query_select(__CLASS__)
-			->what('id')
-			->where('is_root', true)
-			->integer('id', null);
+	/**
+	 *
+	 * @param Application $application
+	 * @return integer
+	 */
+	static function root_id(Application $application) {
+		return $application->query_select(__CLASS__)->what('id')->where('is_root', true)->integer('id', null);
 	}
-	static function default_id() {
-		return app()->query_select(__CLASS__)
-			->what('id')
-			->where('is_default', true)
-			->integer('id', null);
+	/**
+	 *
+	 * @param Application $application
+	 * @return integer
+	 */
+	static function default_id(Application $application) {
+		return $application->query_select(__CLASS__)->what('id')->where('is_default', true)->integer('id', null);
 	}
+
+	/**
+	 *
+	 * @return boolean
+	 */
 	function is_root() {
 		return $this->member_boolean("is_root");
 	}

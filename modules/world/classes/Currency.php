@@ -1,4 +1,5 @@
 <?php
+
 /**
  * $URL: https://code.marketacumen.com/zesk/trunk/modules/world/classes/Currency.php $
  * @package zesk
@@ -58,18 +59,18 @@ class Currency extends Object {
 	public function symbol_left() {
 		return begins($this->format, '{symbol}');
 	}
-	
+
 	/**
 	 * Get Euros
 	 *
 	 * @return Currency
 	 */
-	static function euro() {
+	static function euro(Application $application) {
 		static $cached = null;
 		if ($cached) {
 			return $cached;
 		}
-		return $cached = Object::factory(__CLASS__, array(
+		return $cached = $application->object_factory(__CLASS__, array(
 			'name' => 'Euro',
 			'code' => 'EUR',
 			'id' => 978,
@@ -85,12 +86,12 @@ class Currency extends Object {
 	 *
 	 * @return Currency
 	 */
-	static function usd() {
+	static function usd(Application $application) {
 		static $cached = null;
 		if ($cached) {
 			return $cached;
 		}
-		return $cached = app()->object_factory(__CLASS__, array(
+		return $cached = $application->object_factory(__CLASS__, array(
 			'name' => 'US Dollar',
 			'code' => 'USD',
 			'bank_country' => Country::find_country('us'),
@@ -105,7 +106,7 @@ class Currency extends Object {
 	function precision() {
 		return $this->member_integer("precision", 2);
 	}
-	
+
 	/**
 	 * Look up a Currency object based on its code
 	 *

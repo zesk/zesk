@@ -1,4 +1,5 @@
 <?php
+
 /**
  * $URL: https://code.marketacumen.com/zesk/trunk/modules/date/classes/control/date/range2.inc $
  * @package zesk
@@ -13,18 +14,15 @@ class Control_Date_Range2 extends Control {
 		parent::__construct($options);
 		//$this->set_option("default", "day-0-0", false);
 	}
-
 	function optionTimeValue() {
 		return $this->option("TimeValue", "00:00:00");
 	}
-
 	private function _startColumn() {
 		return $this->option("StartDateColumn", "StartDate");
 	}
 	private function _endColumn() {
 		return $this->option("EndDateColumn", "EndDate");
 	}
-
 	public function defaults_start_end() {
 		$object = $this->object;
 
@@ -51,7 +49,6 @@ class Control_Date_Range2 extends Control {
 			$end_date_default
 		);
 	}
-
 	public function defaults() {
 		$object = $this->object;
 		parent::defaults();
@@ -61,9 +58,7 @@ class Control_Date_Range2 extends Control {
 		list($start_date_default, $end_date_default) = $this->defaults_start_end();
 		$object->set($start_col, $start_date_default);
 		$object->set($end_col, $end_date_default);
-
 	}
-
 	public function load() {
 		$object = $this->object;
 		$start_col = $this->_startColumn();
@@ -79,7 +74,6 @@ class Control_Date_Range2 extends Control {
 			$val = $this->request->get($col, $def);
 			$object->set($col, is_date($val) ? $val : $def);
 		}
-
 	}
 	public function validate() {
 		$object = $this->object;
@@ -127,7 +121,6 @@ class Control_Date_Range2 extends Control {
 		// Must not allow start date to be after end date.  If this is the case, swap dates
 		// and check again.
 
-
 		if ($dtEnd->compare($dtStart) < 0) {
 			$dtStartTempTime = clone $dtStart->getTime();
 			$dtStart->setTime($dtEnd->getTime());
@@ -145,7 +138,6 @@ class Control_Date_Range2 extends Control {
 
 		return true;
 	}
-
 	function render() {
 		$object = $this->object;
 
@@ -166,6 +158,7 @@ class Control_Date_Range2 extends Control {
 		$start_column = $this->_startColumn();
 		$end_column = $this->_endColumn();
 
+		$app = $this->application;
 		$attrs = array(
 			"rangeSelect" => true,
 			"mandatory" => true,
@@ -179,14 +172,13 @@ class Control_Date_Range2 extends Control {
 			"showWeeks" => true,
 			"clickMonth" => true,
 			'showOtherMonths' => false,
-			'prevText' => '<img src="' . cdn::url('/share/zesk/widgets/daterange/prev.png') . '" alt="Past" title="Past"  width="16" height="140" />',
-			'prevTextDisabled' => '<img src="' . cdn::url('/share/zesk/widgets/daterange/prev-disabled.png') . '" alt="No data exists before this month" title="No data exists before this month"  width="16" height="140" />',
-			'nextText' => '<img src="' . cdn::url('/share/zesk/widgets/daterange/next.png') . '" alt="Present" title="Present"  width="16" height="140" />',
-			'nextTextDisabled' => '<img src="' . cdn::url('/share/zesk/widgets/daterange/next-disabled.png"') . ' alt="No data exists beyond this month" title="No data exists beyond this month"  width="16" height="140" />'
+			'prevText' => '<img src="' . $app->url('/share/zesk/widgets/daterange/prev.png') . '" alt="Past" title="Past"  width="16" height="140" />',
+			'prevTextDisabled' => '<img src="' . $app->url('/share/zesk/widgets/daterange/prev-disabled.png') . '" alt="No data exists before this month" title="No data exists before this month"  width="16" height="140" />',
+			'nextText' => '<img src="' . $app->url('/share/zesk/widgets/daterange/next.png') . '" alt="Present" title="Present"  width="16" height="140" />',
+			'nextTextDisabled' => '<img src="' . $app->url('/share/zesk/widgets/daterange/next-disabled.png"') . ' alt="No data exists beyond this month" title="No data exists beyond this month"  width="16" height="140" />'
 		);
 		//'navigationAsDateFormat' => true,
 		//'showStatus' => true,
-
 
 		$tpl_options = array(
 			"options" => $attrs,
@@ -226,14 +218,12 @@ class Control_Date_Range2 extends Control {
 		$result = "TODO"; // TODO
 		//	$result = arrow_widget($this->option("empty_string", "No dates selected"), $result, $input_name . '_control', $this->option("arrow_state_open", true), new Options($arrow_opts));
 
-
 		$result .= $this->outputChoices($min_date, $max_date);
 
 		return HTML::tag('div', array(
 			'class' => 'datepicker'
 		), $result);
 	}
-
 	private function outputChoices(Date $minDate, Date $maxDate) {
 		$options = $this->_rangeOptions($minDate, $maxDate);
 		$name = $this->name();
@@ -251,7 +241,6 @@ class Control_Date_Range2 extends Control {
 			"class" => "choices"
 		), $result);
 	}
-
 	private function _rangeOptions(Date $minDate, Date $maxDate) {
 		$result = array();
 		if ($this->option("no_name")) {
@@ -291,11 +280,9 @@ class Control_Date_Range2 extends Control {
 		}
 		return $options;
 	}
-
 	private function firstDayOfWeek() {
 		return $this->option_integer("first_day_of_week", 0);
 	}
-
 	private function computeRangeDates($key) {
 		$parts = explode("-", $key);
 		if (count($parts) !== 3)
@@ -381,7 +368,7 @@ class Control_Date_Range2 extends Control {
 				$endDate->add($eoff * -1);
 				break;
 			case "day":
-			default:
+			default :
 				$startDate->add(0, 0, -$soff);
 				$endDate->add(0, 0, -$eoff, 0);
 				break;

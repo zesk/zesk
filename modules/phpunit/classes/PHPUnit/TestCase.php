@@ -1,42 +1,45 @@
 <?php
+
 namespace zesk;
 
 use PHPUnit\Framework\TestCase;
 
 class PHPUnit_TestCase extends TestCase {
-	
+
 	/**
 	 *
 	 * @var Application
 	 */
 	protected $application = null;
-	
+
 	/**
-	 * 
+	 *
 	 * @var Configuration
 	 */
 	protected $configuration = null;
-	
+
 	/**
-	 * 
-	 * {@inheritDoc}
+	 *
+	 * {@inheritdoc}
+	 *
 	 * @see \PHPUnit\Framework\TestCase::setUp()
 	 */
 	function setUp() {
 		/*
-		 * Set up our state 
+		 * Set up our state
 		 */
 		if (!$this->application) {
-			$this->application = app();
+			/* zesk() ok */
+			$this->application = zesk()->application();
 		}
 		if (!$this->configuration) {
 			$this->configuration = $this->application->configuration;
 		}
 		parent::setUp();
 	}
-	
+
 	/**
-	 * 
+	 *
 	 * @param string $string
 	 * @param unknown $message
 	 * @return unknown
