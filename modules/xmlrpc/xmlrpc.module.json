@@ -1,7 +1,7 @@
 {
 	"name":"XMLRPC",
 	"autoload_options": {
-		"class_prefix": "xmlrpc\\"
+		"class_prefix": "xmlrpc\\","lower": true
 	},
 	"module_class":"xmlrpc\\Module"
 }
