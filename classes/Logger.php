@@ -58,6 +58,29 @@ class Logger implements LoggerInterface {
 	private $handlers = array();
 	
 	/**
+	 * Output configuration
+	 */
+	public function dump_config() {
+		$pairs = array();
+		$pairs["Currently sending"] = $this->sending ? "yes" : "no";
+		$pairs["UTC Logging"] = $this->utc_time ? "yes" : "no";
+		foreach ($this->processors as $name => $processor) {
+			$pairs["Processor named $name"] = get_class($processor);
+		}
+		foreach (self::$levels as $level) {
+			if (array_key_exists($level, $this->handlers)) {
+				$handler_names = array();
+				foreach ($this->handlers[$level] as $handler) {
+					$handler_names[] = get_class($handler);
+				}
+				$pairs['Handler at ' . $level] = implode(", ", $handler_names);
+			} else {
+				$pairs['Handler at ' . $level] = "None";
+			}
+		}
+		return Text::format_pairs($pairs);
+	}
+	/**
 	 * System is unusable.
 	 *
 	 * @param string $message
