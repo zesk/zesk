@@ -1,4 +1,8 @@
 <?php
+/**
+ * 
+ */
+namespace zesk;
 
 /**
  * @module selenium/php-webdriver-facebook
@@ -6,11 +10,9 @@
  *
  */
 class Test_Selenium extends Test_Unit {
-	
 	protected $load_modules = array(
-			"php-webdriver-facebook",
+		"php-webdriver-facebook"
 	);
-	
 	
 	/**
 	 * Debuggin
@@ -23,7 +25,7 @@ class Test_Selenium extends Test_Unit {
 	 * @var RemoteWebDriver
 	 */
 	protected $driver = null;
-
+	
 	/**
 	 * Desired browser capabilities
 	 *
@@ -32,18 +34,17 @@ class Test_Selenium extends Test_Unit {
 	protected $capabilities = array(
 		'browserName' => 'firefox'
 	);
-
+	
 	/**
 	 * Connection timeout
 	 *
 	 * @var integer
 	 */
 	protected $timeout = 5000;
-
 	function cleanup() {
 		$this->close();
 	}
-
+	
 	/**
 	 * Open a new session
 	 *
@@ -73,11 +74,11 @@ class Test_Selenium extends Test_Unit {
 			if ($this->debug) {
 				$this->application->logger->debug("Connecting to {webdriver_url} {capabilities} {timeout}", compact("webdriver_url", "capabilities", "timeout"));
 			}
-			$this->driver = RemoteWebDriver::create($webdriver_url, $capabilities, $timeout);
+			$this->driver = \RemoteWebDriver::create($webdriver_url, $capabilities, $timeout);
 		}
 		return $this->driver;
 	}
-
+	
 	/**
 	 * Close a shutdown session
 	 *

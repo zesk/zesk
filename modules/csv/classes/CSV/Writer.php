@@ -100,7 +100,9 @@ class CSV_Writer extends CSV {
 	}
 	
 	/**
-	 * Enter description here...
+	 * Add a mapping from an object member names to CSV file header names.
+	 * 
+	 * The values passed in must exist as headers in the CSV file, otherwise an Exception_Key is thrown.
 	 *
 	 * @param string $name
 	 * @param array $map
@@ -116,7 +118,12 @@ class CSV_Writer extends CSV {
 		foreach ($map as $member => $column) {
 			$column = strtolower($column);
 			if (!isset($this->HeadersToIndex[$column])) {
-				throw new Exception_Key("CSV_Writer::createObjectMap($name,...): $column not found in headers");
+				throw new Exception_Key("{method}({name},...): {column} not found in headers {headers}", array(
+					"method" => __METHOD__,
+					"name" => $name,
+					"headers" => JSON::encode($this->HeadersToIndex),
+					"column" => $column
+				));
 			} else {
 				$indexes = $this->HeadersToIndex[$column];
 				$mapGroup[strtolower($member)] = $indexes;

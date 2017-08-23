@@ -1,7 +1,18 @@
 <?php
+/**
+ * 
+ */
+namespace zesk;
 
+/**
+ * 
+ * @author kent
+ *
+ */
 class Database_Parser_Test extends Test_Unit {
-
+	protected $load_modules = array(
+		"MySQL"
+	);
 	function data_provider_split_order_by() {
 		return array(
 			// Suffix, string
@@ -65,19 +76,19 @@ class Database_Parser_Test extends Test_Unit {
 			)
 		);
 	}
-
+	
 	/**
 	 * @data_provider data_provider_split_order_by
 	 */
 	function test_split_order_by($order_by, $expected_split, $expected_reverse) {
 		$parser = $this->application->database_factory()->parser();
-
+		
 		$actual = $parser->split_order_by($order_by);
-
+		
 		$this->assert_equal_array($actual, $expected_split);
-
+		
 		$actual_reverse = $parser->reverse_order_by($order_by);
-
+		
 		// 		$this->log('reverse_order_by');
 		// 		$this->log($actual_reverse);
 		// 		$this->log($expected_reverse);

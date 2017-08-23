@@ -1,14 +1,22 @@
 <?php
+namespace zesk;
+
 class Selenium_Test extends Test_Unit {
+	protected $load_modules = array(
+		"Selenium"
+	);
 	function test_selenium_basics() {
-		global $zesk;
-		/* @var $zesk zesk\Kernel */
-		$test_selenium = Module_Selenium::is_enabled();
-		if (!$test_selenium) {
-			$this->log("Skipping Selenium test due to Module_Selenium::is_enabled() value ...");
-			return true;
+		$options = array(
+			"browser" => "*chrome",
+			"url" => "http://www.addresslock.com",
+			"host" => $host = $this->option("selenium_host", null)
+		);
+		if (!$host) {
+			$this->log("Selenium is not enabled, set {class}::selenium_host to valid IP or Domain Name", array(
+				"class" => get_class($this)
+			));
 		}
-		$selenium = new Test_Selenium("*chrome", "http://www.addresslock.com", "192.168.0.201");
+		$selenium = new Test_Selenium_Legacy($this->application, $options);
 		$selenium->start();
 		
 		$selenium->open("/");

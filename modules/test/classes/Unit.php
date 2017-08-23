@@ -24,63 +24,63 @@ class Test_Unit extends Options {
 		'skip' => 0,
 		'assert' => 0
 	);
-
+	
 	/**
 	 *
 	 * @var Application $application
 	 */
 	protected $application = null;
-
+	
 	/**
 	 *
 	 * @var array
 	 */
 	protected $load_modules = array();
-
+	
 	/**
 	 * Current test method
 	 *
 	 * @var string
 	 */
 	private $test = null;
-
+	
 	/**
 	 * Current test metho arguments
 	 *
 	 * @var array
 	 */
 	private $test_args = null;
-
+	
 	/**
 	 * Last test result
 	 *
 	 * @var boolean
 	 */
 	private $test_result = true;
-
+	
 	/**
 	 * Previous test output
 	 *
 	 * @var string
 	 */
 	protected $last_test_output = null;
-
+	
 	/**
 	 * Cache directory for this test
 	 *
 	 * @var string
 	 */
 	private $cache_dir = null;
-
+	
 	/**
 	 * Constructs a new Test_Unit object
 	 *
 	 * @param string $options
 	 */
 	function __construct(Application $application, array $options = array()) {
+		self::init();
 		parent::__construct($options);
 		$this->application = $application;
-		self::init();
 		$this->inherit_global_options();
 		if ($this->load_modules) {
 			$this->log("Loading modules: {load_modules}", array(
@@ -89,7 +89,7 @@ class Test_Unit extends Options {
 			$this->application->modules->load($this->load_modules);
 		}
 	}
-
+	
 	/**
 	 * Make sure we're initialized with basic error reporting
 	 */
@@ -103,7 +103,7 @@ class Test_Unit extends Options {
 			ini_set("error_prepend_string", "PHP-ERROR: ");
 		}
 	}
-
+	
 	/**
 	 * Parse DocComment for a test
 	 *
@@ -113,7 +113,7 @@ class Test_Unit extends Options {
 	private function parse_doccomment($comment) {
 		return DocComment::parse($comment);
 	}
-
+	
 	/**
 	 * Begin a test
 	 *
@@ -135,7 +135,7 @@ class Test_Unit extends Options {
 			ob_start();
 		}
 	}
-
+	
 	/**
 	 * Finish a test
 	 *
@@ -171,7 +171,7 @@ class Test_Unit extends Options {
 			} else if ($this->test_result === null) {
 				$this->stats['skip']++;
 			} else {
-				zesk()->logger->debug(PHP::dump($this->test_result));
+				$this->application->logger->debug(PHP::dump($this->test_result));
 			}
 		}
 		$this->test = null;
@@ -183,7 +183,7 @@ class Test_Unit extends Options {
 			$this->last_test_output = null;
 		}
 	}
-
+	
 	/**
 	 * Reorder tests based on @depends
 	 *
@@ -194,25 +194,26 @@ class Test_Unit extends Options {
 	private static function reorder_tests(array $tests) {
 		return $tests;
 	}
-
+	
 	/**
 	 * Internal override method to set up a suite of tests
 	 */
 	protected function initialize() {
 	}
-
+	
 	/**
 	 * Internal override method to cleanup after suite of tests is completed
 	 */
 	protected function cleanup() {
 	}
-
+	
 	/**
 	 * Log a message
 	 *
 	 * @param string $message
 	 * @param array $arguments
 	 *        	Arguments in the message
+	 * @return self
 	 */
 	protected function log($message, array $arguments = array()) {
 		if (is_array($message)) {
@@ -222,9 +223,28 @@ class Test_Unit extends Options {
 			$message = "*empty message from {calling_function}*";
 			$arguments['calling_function'] = calling_function();
 		}
-		zesk()->logger->info($message, $arguments);
+		if ($this->option_bool("debug-logger-config")) {
+			if (method_exists($this->application->logger, "dump_config")) {
+				echo $this->application->logger->dump_config();
+			}
+		}
+		$this->application->logger->log(avalue($arguments, "severity", "info"), $message, $arguments);
+		return $this;
 	}
-
+	
+	/**
+	 * Log an error
+	 * 
+	 * @param string $message
+	 * @param array $arguments
+	 * @return self
+	 */
+	protected function error($message, array $arguments = array()) {
+		return $this->log($message, array(
+			"severity" => "error"
+		) + $arguments);
+	}
+	
 	/**
 	 * Check if a test should actually run, given its doccomment settings
 	 *
@@ -250,7 +270,7 @@ class Test_Unit extends Options {
 		}
 		return true;
 	}
-
+	
 	/**
 	 * Given a class, determine the methods which are eligible test methods
 	 *
@@ -285,7 +305,7 @@ class Test_Unit extends Options {
 			return array();
 		}
 	}
-
+	
 	/**
 	 * Main loop
 	 */
@@ -320,15 +340,10 @@ class Test_Unit extends Options {
 					$this->log("## Data provider $data_provider_method");
 				}
 				$loop = 0;
+				$test_output = "";
 				foreach ($data_provider as $arguments) {
 					try {
 						if (!is_array($arguments)) {
-							// $this->fail(__("Data provider {class}::{method} provided non array during
-							// iteration\n", array(
-							// "class" => get_class($this),
-							// 'method' => $data_provider_method
-							// )));
-							// continue 2;
 							$arguments = array(
 								$arguments
 							);
@@ -343,8 +358,10 @@ class Test_Unit extends Options {
 					} catch (Exception $e) {
 						$this->end_test($settings, $e);
 					}
+					$test_output .= $this->last_test_output;
 					$loop++;
 				}
+				$this->last_test_output = $test_output;
 			} else {
 				try {
 					$this->begin_test($test, $settings);
@@ -363,8 +380,8 @@ class Test_Unit extends Options {
 				'status' => $failed ? 'FAIL' : 'OK'
 			)));
 			if (($failed || $this->option_bool('verbose')) && !empty($this->last_test_output)) {
-				zesk()->logger->error("Last test output: {output}", array(
-					"output" => $this->last_test_output
+				zesk()->logger->error("Last test output:\n{output}--- End of output", array(
+					"output" => "\n" . Text::indent($this->last_test_output, 1, true)
 				));
 			}
 		}
@@ -374,9 +391,9 @@ class Test_Unit extends Options {
 	final function report(Exception $e) {
 		$this->log(" -    Type: " . get_class($e) . "\n");
 		$this->log(" -  Result: FAILED\n");
+		$this->log(" -    Code: " . $e->getCode() . "\n");
 		$this->log(" - Message: " . $e->getMessage() . "\n");
 		$this->log_backtrace($e->getTrace());
-		// it var_export($e->getTrace(), true);
 	}
 	final function log_backtrace(array $stackframes) {
 		$their_stack = array();
@@ -389,7 +406,7 @@ class Test_Unit extends Options {
 				$descriptor = "main";
 			}
 			$method = "$class$type$function";
-
+			
 			$left = $descriptor;
 			$right = $method;
 			$left = $method;
@@ -422,7 +439,7 @@ class Test_Unit extends Options {
 		}
 		throw new Exception_Test($message, $arguments);
 	}
-
+	
 	/**
 	 *
 	 * @param boolean|string $condition
@@ -454,7 +471,7 @@ class Test_Unit extends Options {
 			$this->fail("Test failed $condition ($message)");
 		}
 	}
-
+	
 	/**
 	 *
 	 * @param string $module
@@ -466,7 +483,7 @@ class Test_Unit extends Options {
 		$this->assert_true($app_module->loaded($module), "Module $module is not found");
 		return $app_module->object($module);
 	}
-
+	
 	/**
 	 *
 	 * @param unknown $modules
@@ -478,7 +495,7 @@ class Test_Unit extends Options {
 			$this->assert_true($app_module->loaded($module), "Module $module is not found");
 		}
 	}
-
+	
 	/**
 	 * Assert a value is false
 	 *
@@ -488,7 +505,7 @@ class Test_Unit extends Options {
 	final public function assert_false($condition, $message = null) {
 		return $this->assert($condition, $message, true);
 	}
-
+	
 	/**
 	 * Assert a value is true
 	 *
@@ -498,7 +515,7 @@ class Test_Unit extends Options {
 	final public function assert_true($condition, $message = null) {
 		$this->assert($condition, $message, false);
 	}
-
+	
 	/**
 	 * Assert a value is a string
 	 *
@@ -508,7 +525,7 @@ class Test_Unit extends Options {
 	final public function assert_is_string($mixed, $message = null) {
 		$this->assert(is_string($mixed), "!is_string(" . type($mixed) . " $mixed) $message", false);
 	}
-
+	
 	/**
 	 * Assert a value is numeric
 	 *
@@ -518,7 +535,7 @@ class Test_Unit extends Options {
 	final public function assert_is_numeric($mixed, $message = null) {
 		$this->assert(is_numeric($mixed), "!is_numeric(" . type($mixed) . " $mixed) $message", false);
 	}
-
+	
 	/**
 	 * Assert a value is an integer
 	 *
@@ -528,7 +545,7 @@ class Test_Unit extends Options {
 	final public function assert_is_integer($mixed, $message = null) {
 		$this->assert(is_integer($mixed), "!is_integer(" . type($mixed) . " $mixed) $message", false);
 	}
-
+	
 	/**
 	 * Assert a value is an array
 	 *
@@ -538,7 +555,7 @@ class Test_Unit extends Options {
 	final public function assert_is_array($mixed, $message = null) {
 		$this->assert(is_array($mixed), "!is_array(" . type($mixed) . " $mixed) $message", false);
 	}
-
+	
 	/**
 	 * Assert a value is an instanceof a class
 	 *
@@ -548,7 +565,7 @@ class Test_Unit extends Options {
 	final public function assert_instanceof($mixed, $instanceof, $message = null) {
 		$this->assert($mixed instanceof $instanceof, "!(" . type($mixed) . " $mixed) instanceof $instanceof $message", false);
 	}
-
+	
 	/**
 	 * Assert a value is a positive number
 	 *
@@ -558,7 +575,7 @@ class Test_Unit extends Options {
 	final public function assert_positive($value, $message = null) {
 		$this->assert($value > 0, "$value > 0 : $message", false);
 	}
-
+	
 	/**
 	 * Assert a value is not NULL
 	 *
@@ -568,7 +585,7 @@ class Test_Unit extends Options {
 	final public function assert_not_null($value, $message = null) {
 		$this->assert($value !== null, "Asserted not NULL failed: $message", false);
 	}
-
+	
 	/**
 	 * Assert a value is a negative number
 	 *
@@ -578,7 +595,7 @@ class Test_Unit extends Options {
 	final public function assert_negative($value, $message = null) {
 		$this->assert($value < 0, "$value < 0 : $message", false);
 	}
-
+	
 	/**
 	 * Assert a value is null
 	 *
@@ -588,7 +605,7 @@ class Test_Unit extends Options {
 	final public function assert_null($value, $message = null) {
 		$this->assert($value === null, "$value === null : $message", false);
 	}
-
+	
 	/**
 	 * Assert two arrays are equal
 	 *
@@ -619,6 +636,12 @@ class Test_Unit extends Options {
 			$message = "$haystack\n=== DOES NOT CONTAIN STRING===\n$needle";
 		}
 		$this->assert(strpos($haystack, $needle) !== false, $message);
+	}
+	final protected function assert_string_begins($haystack, $needle, $message = null) {
+		if ($message === null) {
+			$message = "$haystack\n=== DOES NOT BEGIN WITH STRING===\n$needle";
+		}
+		$this->assert(strpos($haystack, $needle) === 0, $message);
 	}
 	final protected function assert_equal($actual, $expected, $message = null, $strict = true) {
 		$this->stats['assert']++;
@@ -655,7 +678,7 @@ class Test_Unit extends Options {
 	}
 	public final function assert_equal_object($actual, $expected, $message = "") {
 		$this->assert(get_class($actual) === get_class($expected), $message . "get_class(" . get_class($actual) . ") === get_class(" . get_class($expected) . ")");
-
+		
 		$this->assert($actual == $expected, $message . "\n" . _dump($actual) . " !== " . _dump($expected));
 	}
 	final protected function assert_equal_array($actual, $expected, $message = "", $strict = true, $order_matters = false) {
@@ -711,7 +734,7 @@ class Test_Unit extends Options {
 			}
 		}
 	}
-
+	
 	/**
 	 * Create a sandbox folder to test with
 	 *
@@ -741,7 +764,7 @@ class Test_Unit extends Options {
 		}
 		return path($cache_dir, $file);
 	}
-
+	
 	/**
 	 * Delete cache dir after test runs
 	 */
@@ -753,7 +776,7 @@ class Test_Unit extends Options {
 			Directory::delete($cache_dir);
 		}
 	}
-
+	
 	/**
 	 * @not_test
 	 *
@@ -762,21 +785,21 @@ class Test_Unit extends Options {
 	 * @param unknown_type $uniq
 	 */
 	final public function test_table($name, $extra_cols = null, $uniq = true) {
-		$cols[] = "ID int(11) unsigned NOT NULL PRIMARY KEY AUTO_INCREMENT";
-		$cols[] = "Foo int(11) NOT NULL";
+		$cols[] = "id int(11) unsigned NOT NULL PRIMARY KEY AUTO_INCREMENT";
+		$cols[] = "foo int(11) NOT NULL";
 		if (is_string($extra_cols)) {
 			$cols[] = $extra_cols;
 		} else if (is_array($extra_cols)) {
 			$cols = array_merge($cols, $extra_cols);
 		}
 		if ($uniq) {
-			$cols[] = "UNIQUE `f` (`Foo`)";
+			$cols[] = "UNIQUE `f` (`foo`)";
 		}
 		$cols = implode(", ", $cols);
 		$create_sql = "CREATE TABLE `$name` ( $cols )";
 		$this->test_table_sql($name, $create_sql);
 	}
-
+	
 	/**
 	 * @not_test
 	 *
@@ -788,7 +811,7 @@ class Test_Unit extends Options {
 		$this->test_table_sql($object->table(), $object->schema());
 		$object->schema_changed();
 	}
-
+	
 	/**
 	 * @not_test
 	 *
@@ -835,7 +858,7 @@ class Test_Unit extends Options {
 		$rows = $db->query_array("SELECT " . implode(",", $headers) . " FROM $table");
 		$this->assert_arrays_equal($rows, $dbrows, "Matching $table to row values", false);
 	}
-
+	
 	/**
 	 * Run a unit test usually externally.
 	 * This is called using
@@ -861,7 +884,7 @@ class Test_Unit extends Options {
 		$object->inherit_global_options();
 		return $object->run();
 	}
-
+	
 	/**
 	 * Run a unit test usually externally.
 	 * This is called using
@@ -890,7 +913,7 @@ class Test_Unit extends Options {
 		}
 		exit(self::run_one_class($application, $class, $settings, $object) ? 0 : 1);
 	}
-
+	
 	/**
 	 *
 	 * @param unknown $class
@@ -910,7 +933,7 @@ class Test_Unit extends Options {
 		include $include;
 		return class_exists($class, false);
 	}
-
+	
 	/**
 	 * Given a class and a method, make the available method not-private to do blackbox testing
 	 *
@@ -936,7 +959,7 @@ class Test_Unit extends Options {
 		}
 		return $results;
 	}
-
+	
 	/**
 	 * Synchronize the given classes with the database schema
 	 *
@@ -955,7 +978,7 @@ class Test_Unit extends Options {
 		}
 		return $results;
 	}
-
+	
 	/**
 	 *
 	 * @return array
@@ -971,9 +994,9 @@ class Test_Unit extends Options {
 		$loader = new Configuration_Loader(__CLASS__, $application->configure_include_path(), array(
 			$config
 		), new Adapter_Settings_Array($settings));
-
+		
 		$loader->load();
-
+		
 		if (to_bool($configuration->path_get('zesk\\Command_Test::debug_config'))) {
 			echo "Loaded configuration file:\n";
 			echo Text::format_pairs($settings);

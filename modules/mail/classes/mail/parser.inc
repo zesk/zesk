@@ -6,7 +6,6 @@
  * @author Kent Davidson <kent@marketacumen.com>
  * @copyright Copyright &copy; 2005, Market Acumen, Inc.
  */
-
 namespace zesk;
 
 /**
@@ -16,61 +15,61 @@ namespace zesk;
  * @subpackage mail
  */
 class Mail_Parser {
-
+	
+	/**
+	 * 
+	 * @var Application
+	 */
+	private $application = null;
 	/**
 	 *
 	 * @var Mail_Message
 	 */
 	private $mail = null;
-
+	
 	/**
 	 *
 	 * @var array
 	 */
 	private $headers = array();
-
+	
 	/**
 	 *
 	 * @var array
 	 */
 	private $contents = array();
-
+	
 	/**
 	 * Message ID parsed from the message
 	 *
 	 * @var string
 	 */
 	private $message_id = false;
-
+	
 	/**
 	 * File of email to parse
 	 *
 	 * @var resource
 	 */
 	private $mail_file = false;
-
+	
 	/**
 	 * Boundary stack (push/pop)
 	 *
 	 * @var array
 	 */
 	private $bound_stack = array();
-
+	
 	/**
 	 * Depth of stack when we're at the "top"
 	 *
 	 * @var integer
 	 */
 	private $bound_top = 0;
-
 	private $is_bound_end = false;
-
 	private $line_index = 0;
-
 	private $forwarded = array();
-
 	private $state;
-
 	function dump() {
 		$r = "";
 		foreach ($this->headers as $k => $v) {
@@ -94,32 +93,45 @@ class Mail_Parser {
 		}
 		return $r;
 	}
-
-	public static function from_file($mail_fd, $boundary = false) {
-		$parser = new Mail_Parser();
+	public function __construct(Application $application) {
+		$this->application = $application;
+	}
+	public static function from_file(Application $application, $mail_fd, $boundary = false) {
+		$parser = new self($application);
+		return $parser->_from_file($mail_fd, $boundary);
+	}
+	
+	/**
+	 * 
+	 * @param unknown $mail_fd
+	 * @param string $boundary
+	 * @return boolean|\zesk\Mail_Message
+	 */
+	private function _from_file($mail_fd, $boundary = false) {
+		$application = $this->application;
 		if ($boundary) {
-			$parser->pushBoundary($boundary);
+			$this->pushBoundary($boundary);
 		}
-		$m = new Mail_Message();
-		if (!$parser->parse($mail_fd)) {
+		$m = new Mail_Message($application);
+		if (!$this->parse($mail_fd)) {
 			return false;
 		}
 		if ($boundary) {
-			$was_boundary_end = $parser->isBoundaryEnd();
-			$parser->popBoundary();
+			$was_boundary_end = $this->isBoundaryEnd();
+			$this->popBoundary();
 		}
 		$fields = array(
-			"message_id" => $parser->message_id(),  //
+			"message_id" => $this->message_id(), //
 			"date" => Timestamp::now(),
 			"hash" => ""
 		);
-
+		
 		$m->set_member($fields);
 		$m->register();
-
-		$headers = $parser->headers();
-		$contents = $parser->contents();
-
+		
+		$headers = $this->headers();
+		$contents = $this->contents();
+		
 		if ($contents instanceof Mail_Content) {
 			/* @var $contents Mail_Content */
 			if (str::begins($contents->content_type, 'text/')) {
@@ -133,9 +145,9 @@ class Mail_Parser {
 			}
 		}
 		$m->applyHeaders($headers, $contents);
-
+		
 		$m->store();
-
+		
 		foreach ($headers as $h) {
 			if (is_array($h)) {
 				foreach ($h as $hdup) {
@@ -163,7 +175,7 @@ class Mail_Parser {
 		}
 		return $m;
 	}
-
+	
 	/*
 	 Public functions
 	 */
@@ -193,13 +205,13 @@ class Mail_Parser {
 		if ($this->contents === false) {
 			return false;
 		}
-
+		
 		if (mail::debug()) {
 			echo "====  CONTENTS DONE ===\n";
 		}
 		/*
 		 Verify we've got it all here
-
+		 
 		 TODO: Add additional checks here? Or just dump it in the db
 		 and deal later?
 		 */
@@ -208,30 +220,25 @@ class Mail_Parser {
 			return true;
 		return false;
 	}
-
 	private function hasHeader($name) {
 		return self::_hasHeader($this->headers, $name);
 	}
-
 	private function getHeader($name, $index = 0, $default = false) {
 		return self::_getHeader($this->headers, $name, $index, $default);
 	}
-
 	private function message_id() {
 		return $this->message_id;
 	}
-
 	private function headers() {
 		return $this->headers;
 	}
-
+	
 	/**
 	 * @return Mail_Content[]
 	 */
 	public function contents() {
 		return $this->contents;
 	}
-
 	public function forwardedMails() {
 		return $this->forwarded;
 	}
@@ -249,7 +256,6 @@ class Mail_Parser {
 		}
 		return $line;
 	}
-
 	private static function parseContentLine($text, &$attribs) {
 		$items = explode(";", $text);
 		if (count($items) == 0)
@@ -269,12 +275,10 @@ class Mail_Parser {
 		}
 		return $type;
 	}
-
 	private function _hasHeader($headers, $name) {
 		$name = strtolower($name);
 		return isset($headers[$name]);
 	}
-
 	private function _getHeader($headers, $name, $index = 0, $default = false) {
 		$name = strtolower($name);
 		if (!array_key_exists($name, $headers)) {
@@ -289,7 +293,6 @@ class Mail_Parser {
 		}
 		return $h[$index]->value;
 	}
-
 	private function _requiremessage_id() {
 		$mid = $this->getHeader("Message-ID");
 		if ($mid) {
@@ -304,7 +307,7 @@ class Mail_Parser {
 			"Date"
 		);
 		$checksum = array();
-
+		
 		foreach ($attribs as $attrib) {
 			$h = $this->getHeader($attrib);
 			if ($h) {
@@ -318,17 +321,16 @@ class Mail_Parser {
 		$this->message_id = "zesk:" . md5($checksum);
 		return true;
 	}
-
 	private function _addHeader(&$headers, $hTypeName, $hValue) {
 		if (strpos($hTypeName, " ") !== false) {
 			zesk()->logger->notice("Skipping header line: $hTypeName");
 			return false;
 		}
-		$hType = Object::factory('Mail_Header_Type', array(
+		$hType = $this->application->object_factory(__NAMESPACE__ . '\\' . 'Mail_Header_Type', array(
 			"code" => strtolower($hTypeName),
 			'name' => $hTypeName
 		))->register();
-
+		
 		$lowType = strtolower($hTypeName);
 		$hParams = array(
 			"type" => $hType,
@@ -338,21 +340,20 @@ class Mail_Parser {
 			if (!is_array($headers[$lowType])) {
 				$temp = $headers[$lowType];
 				$headers[$lowType] = array();
-
+				
 				$headers[$lowType][] = $temp;
 			}
-			$headers[$lowType][] = new Mail_Header($hParams);
+			$headers[$lowType][] = $this->application->object_factory(__NAMESPACE__ . "\\" . "Mail_Header", $hParams);
 		} else {
-			$headers[$lowType] = new Mail_Header($hParams);
+			$headers[$lowType] = $this->application->object_factory(__NAMESPACE__ . "\\" . "Mail_Header", $hParams);
 		}
 		return true;
 	}
-
 	private function parseHeaders() {
 		$curType = "";
 		$curValue = "";
 		$headers = array();
-
+		
 		while (($line = $this->readLine()) != false) {
 			$line = rtrim($line);
 			if ($line === "") {
@@ -383,7 +384,6 @@ class Mail_Parser {
 		}
 		return $headers;
 	}
-
 	private function parseContent($headers) {
 		$encoding = false;
 		$disposition = false;
@@ -424,7 +424,7 @@ class Mail_Parser {
 			$boundary = $this->boundary();
 			if (mail::debug())
 				echo "### BEGIN FORWARD at $boundary\n";
-			$m = self::from_file($this->mail_file, $this->boundary());
+			$m = self::_from_file($this->mail_file, $this->boundary());
 			if ($m instanceof Mail) {
 				if (mail::debug())
 					echo "### FORWARD WAS A MAIL\n";
@@ -451,28 +451,23 @@ class Mail_Parser {
 			return self::createFileContent($type, $encoding, $disposition, $filename, $contentID);
 		}
 	}
-
 	private function pushBoundary($boundary) {
 		if (mail::debug())
 			echo ">>>>>>>>>>>>>>> PUSH $boundary\n";
 		array_unshift($this->bound_stack, $boundary);
 	}
-
 	private function boundary() {
 		return avalue($this->bound_stack, 0);
 	}
-
 	private function popBoundary() {
 		if (mail::debug())
 			echo "<<<<<<<<<<<<<<< POP " . $this->boundary() . "\n";
 		array_shift($this->bound_stack);
 		$this->is_bound_end = false;
 	}
-
 	private function isBoundaryEnd() {
 		return $this->is_bound_end;
 	}
-
 	private function checkBoundary($line) {
 		$this->is_bound_end = false;
 		if (count($this->bound_stack) == 0) {
@@ -493,7 +488,6 @@ class Mail_Parser {
 		}
 		return false;
 	}
-
 	private function readEncodedLine($encoding = false) {
 		$line = $this->readLine();
 		if ($line === false) {
@@ -509,7 +503,6 @@ class Mail_Parser {
 		}
 		return $line;
 	}
-
 	private function decodeData($data, $encoding = false) {
 		if ($encoding == "base64") {
 			return base64_decode($data);
@@ -518,7 +511,6 @@ class Mail_Parser {
 		}
 		return $data;
 	}
-
 	private function createFile($encoding = false) {
 		$encoding = strtolower($encoding);
 		$fname = file::temporary();
@@ -529,7 +521,6 @@ class Mail_Parser {
 		fclose($f);
 		return $fname;
 	}
-
 	private function createData($encoding = false) {
 		$encoding = strtolower($encoding);
 		$data = "";
@@ -538,40 +529,37 @@ class Mail_Parser {
 		}
 		return $data;
 	}
-
 	private function createFileContent($type, $encoding, $disposition, $filename, $contentID = '') {
 		$f = self::createFile($encoding);
-
+		
 		$fields["content_id"] = $contentID;
 		$fields["content_type"] = $type;
 		$fields["filename"] = basename($filename);
 		$fields["disposition"] = $disposition;
-		$fields["content_data"] = Content_Data::move_from_path($f, false);
-
-		$content = new Mail_Content($fields);
-
+		$fields["content_data"] = Content_Data::move_from_path($this->application, $f, false);
+		
+		$content = $this->application->object_factory(__NAMESPACE__ . "\\" . "Mail_Content", $fields);
+		
 		return $content;
 	}
-
 	private function createDataContent($type, $encoding = false) {
 		$data = self::createData($encoding);
-
+		
 		$fields = array();
-
+		
 		$fields["content_type"] = strtolower($type);
-		$fields["content_data"] = Content_Data::from_string($data, false);
-
-		return new Mail_Content($fields);
+		$fields["content_data"] = Content_Data::from_string($this->application, $data, false);
+		
+		return $this->application->object_factory(__NAMESPACE__ . "\\" . "Mail_Content", $fields);
 	}
-
 	private function parseMultiPart() {
 		$headers = false;
 		$content = array();
-
+		
 		$state = "start";
-
+		
 		$bound = $this->bound_stack[0];
-
+		
 		$state_prefix = str_repeat("*", 90);
 		while (!feof($this->mail_file)) {
 			switch ($state) {
@@ -631,31 +619,31 @@ class Mail_Parser {
 		zesk()->logger->notice("Mail_Parser::parseMultiPart: Didn't find end boundary: $bound--");
 		return $content;
 	}
-
+	
 	/*
 	 Examples:
-
+	 
 	 Content-Type: audio/microsoft-wave; name="smooch.wav";
 	 x-mac-type="57415645"; x-mac-creator="5343504C"
 	 Content-Transfer-Encoding: base64
 	 Content-Disposition: attachment; filename="smooch.wav"
-
+	 
 	 Content-Type: text/plain; name="SerialSync.txt";
 	 x-mac-type="42494E41"; x-mac-creator="74747874"
 	 Content-Transfer-Encoding: base64
 	 Content-Disposition: attachment; filename="SerialSync.txt"
-
+	 
 	 Content-Type: text/plain; charset=us-ascii
 	 Content-Id:
 	 Content-Disposition: inline
-
+	 
 	 Content-Type: application/x-msdownload; name="Calc32.exe"
 	 Content-Transfer-Encoding: base64
 	 Content-Description: Calc32.exe
 	 Content-Disposition: attachment; filename="Calc32.exe"
-
+	 
 	 Content-Transfer-Encoding Values:
-
+	 
 	 Content-Disposition Values:
 	 Content-Disposition: attachment;
 	 Content-Disposition: attachment; filename="Calc32.exe"
@@ -664,13 +652,13 @@ class Mail_Parser {
 	 Content-Disposition: attachment; filename="smooch.wav"
 	 Content-Disposition: inline
 	 Content-Disposition: inline; filename="SerialSync.txt"
-
+	 
 	 Content-Description:
 	 Content-Disposition:
 	 Content-Id:
 	 Content-Transfer-Encoding:
 	 Content-Type:
-
+	 
 	 */
 	private function parseContentHeaders($headers, &$encoding, &$disposition, &$filename, &$contentID, &$type, &$boundary) {
 		/*
@@ -680,18 +668,18 @@ class Mail_Parser {
 		$encoding = self::_getHeader($headers, "Content-Transfer-Encoding");
 		$contentID = self::_getHeader($headers, "Content-ID");
 		$contentID = unquote($contentID, "<>");
-
+		
 		$disposition = false;
 		$disposAttrib = array();
-
+		
 		$temp = self::_getHeader($headers, "Content-Disposition");
 		if ($temp) {
 			$disposition = self::parseContentLine($temp, $disposAttrib);
 		}
-
+		
 		$type = false;
 		$typeAttrib = array();
-
+		
 		$typeMajor = false;
 		$typeMinor = false;
 		$temp = self::_getHeader($headers, "Content-Type");
@@ -699,7 +687,7 @@ class Mail_Parser {
 			$type = strtolower(self::parseContentLine($temp, $typeAttrib));
 			list($typeMajor, $typeMinor) = explode("/", $type);
 		}
-
+		
 		/*
 		 Is this a bad mailer?
 		 */
@@ -708,10 +696,10 @@ class Mail_Parser {
 			$type = "text/plain";
 			return true;
 		}
-
+		
 		$filename = false;
 		$isFile = false;
-
+		
 		/*
 		 First, determine what format the data is in:
 		 7bit
@@ -727,7 +715,7 @@ class Mail_Parser {
 					break;
 				case "quoted-printable":
 					break;
-				default:
+				default :
 					zesk()->logger->notice("Mail_Parser::parseContentHeaders: Unknown encoding: \"$encoding\", using binary...");
 					$encoding = "binary";
 					break;
@@ -743,7 +731,7 @@ class Mail_Parser {
 				case "attachment":
 					$isFile = true;
 					break;
-				default:
+				default :
 					zesk()->logger->warning("Mail_Parser::parseContentHeaders: Unknown disposition: \"$disposition\", assume attachment...");
 					$dispos = "attachment";
 					break;
@@ -769,7 +757,7 @@ class Mail_Parser {
 						$encoding = "7bit";
 					}
 					break;
-				default:
+				default :
 					if (!$filename) {
 						$filename = "unknown_" . $typeMajor . "_" . $typeMinor;
 					}
@@ -784,7 +772,6 @@ class Mail_Parser {
 		}
 		return true;
 	}
-
 	private static function _guess_encoding(array $lines) {
 		$is7bit = true;
 		$isBase64 = true;

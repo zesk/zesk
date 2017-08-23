@@ -1,5 +1,18 @@
 <?php
+/**
+ * 
+ */
+namespace zesk;
+
+/**
+ * 
+ * @author kent
+ *
+ */
 class Database_Query_Insert_Test extends Test_Unit {
+	protected $load_modules = array(
+		"MySQL"
+	);
 	function test_Database_Query_Insert() {
 		/**
 		 * $URL:

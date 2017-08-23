@@ -36,7 +36,7 @@ define('MYSQL_PATTERN_CREATE_TABLE', '/\s*CREATE\s+TABLE\s+(`[^`]+`|[A-Za-z][A-Z
  * @var string
  * @see preg_match
  */
-define("MYSQL_PATTERN_CREATE_TABLE_OPTIONS", '/(ENGINE|DEFAULT CHARSET)=([A-Za-z0-9]+)/i');
+define("MYSQL_PATTERN_CREATE_TABLE_OPTIONS", '/(ENGINE|DEFAULT CHARSET|COLLATE)=([A-Za-z0-9]+)/i');
 
 /**
  * Pattern to capture `Name's alive` or Name_Of_Column in MySQL
@@ -443,9 +443,8 @@ class Database_Parser extends \zesk\Database_Parser {
 		 */
 		$table_options = self::create_table_options($matches[3]);
 		
-		// TODO: Need to handle DEFAULT CHARSET
 		$type = avalue($table_options, "engine", avalue($table_options, "type", $this->database->default_engine()));
-		$table = new Database_Table($this->database, $table, $type);
+		$table = new Database_Table($this->database, $table, $type, $table_options);
 		$table->source($source_sql);
 		$sql_columns = trim($matches[2]) . ",";
 		

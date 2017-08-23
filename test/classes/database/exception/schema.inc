@@ -1,5 +1,4 @@
 <?php
-
 namespace zesk;
 
 class Test_Database_Exception_Schema extends Test_Database_Exception {

@@ -1,21 +1,21 @@
 <?php
-
 namespace zesk;
 
 class Currency_Test extends Test_Object {
 	protected $load_modules = array(
-		"commerce"
+		"Commerce",
+		"MySQL"
 	);
 	function initialize() {
 		$this->application->schema_synchronize(null, array(
-			"Currency"
+			__NAMESPACE__ . "\\" . "Currency"
 		));
 		parent::initialize();
 	}
 	function classes_to_test() {
 		return array(
 			array(
-				"Currency",
+				__NAMESPACE__ . "\\" . "Currency",
 				array()
 			)
 		);

@@ -57,11 +57,15 @@ class CSV_Writer_Test extends Test_Unit {
 		}
 		$this->assert($success);
 		
-		$x->set_headers(array(
+		$set_headers = array(
 			"Title",
 			"CodeName",
 			"Something"
-		));
+		);
+		$this->assert_equal($x->set_headers($set_headers, false), $x);
+		
+		$headers = $x->headers();
+		$this->assert_equal($headers, $set_headers);
 		
 		$name = "omap";
 		$map = array(
@@ -97,13 +101,63 @@ class CSV_Writer_Test extends Test_Unit {
 		
 		$x->filename();
 		
-		$name = null;
-		$x->columnIsEmpty($name);
+		$x->row_index();
+	}
+	function badkeys() {
+		return array(
+			"f!rst",
+			"2ECOND",
+			"THURD",
+			"4",
+			"random",
+			"5 ",
+			"six"
+		);
+	}
+	function goodkeys() {
+		return array(
+			"first",
+			"SECOND",
+			"tHIRD",
+			"4th",
+			5
+		);
+	}
+	/**
+	 * @data_provider badkeys
+	 * @expected_exception zesk\Exception_Key
+	 */
+	function test_badkey($badkey) {
+		$x = new CSV_Writer();
+		$x->set_headers(array(
+			"First",
+			"Second",
+			"Third",
+			"4th",
+			"5",
+			6
+		), false);
 		
-		$name = null;
-		$default = false;
-		$x->columnGet($name, $default);
+		$x->add_object_map("test", array(
+			"ID" => $badkey
+		));
+	}
+	/**
+	 * @data_provider goodkeys
+	 */
+	function test_goodkey($key) {
+		$x = new CSV_Writer();
+		$x->set_headers(array(
+			"First",
+			"Second",
+			"Third",
+			"4th",
+			"5",
+			6
+		), false);
 		
-		$x->rowIndex();
+		$x->add_object_map("test", array(
+			"ID" => $key
+		));
 	}
 }

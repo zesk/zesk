@@ -7,28 +7,29 @@ namespace zesk;
  *
  */
 class Test_Database_Schema extends Test_Unit {
-
-	function test_0() {
-		$object = new Test_Database_Schema_User();
-		Database_Schema::updateObject($object);
-
-		$objects = array();
-		Database_Schema::updateObjectsCommand($objects);
-
-		$path = null;
-		$db_url = null;
-		Database_Schema::updateObjectPath($path, $db_url);
-
-		$object = null;
-		Database_Schema::create($object);
-
-		$db = null;
-		$dbTableOld = null;
-		$dbTableNew = null;
-		$change_permanently = false;
-		Database_Schema::update($db, $dbTableOld, $dbTableNew, $change_permanently);
+	protected $load_modules = array(
+		"MySQL"
+	);
+	function test_debug() {
+		$value = Database_Schema::debug();
+		
+		Database_Schema::debug(true);
+		$this->assert_equal(Database_Schema::debug(), true);
+		Database_Schema::debug("Friday");
+		$this->assert_equal(Database_Schema::debug(), true);
+		
+		Database_Schema::debug(false);
+		$this->assert_equal(Database_Schema::debug(), false);
+		Database_Schema::debug("Friday");
+		$this->assert_equal(Database_Schema::debug(), false);
+		
+		Database_Schema::debug($value);
+	}
+	function test_update_objects() {
+		$object = $this->application->object_factory(__NAMESPACE__ . "\\" . "Test_Database_Schema_User");
+		Database_Schema::update_object($object);
 	}
 }
-class Test_Database_Schema_User extends \zesk\User {
-}
+class Class_Test_Database_Schema_User extends \zesk\Class_User {}
+class Test_Database_Schema_User extends \zesk\User {}
 

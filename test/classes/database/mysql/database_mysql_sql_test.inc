@@ -1,5 +1,10 @@
 <?php
+namespace zesk;
+
 class Database_MySQL_SQL_Test extends Test_Unit {
+	protected $load_modules = array(
+		"MySQL"
+	);
 	public function sql() {
 		$db = $this->application->database_factory();
 		$sql = $db->sql();
@@ -50,7 +55,7 @@ class Database_MySQL_SQL_Test extends Test_Unit {
 		));
 		$sql = preg_replace('/\s+/', " ", $sql);
 		$this->assert_equal($sql, "INSERT INTO `table` ( `A` ) VALUES ( 'B' )", "$sql === \"INSERT INTO `table` ( `A` ) VALUES ( 'B' )\"");
-
+		
 		$t = "table";
 		$arr = array(
 			"Foo" => 1,
@@ -65,10 +70,9 @@ class Database_MySQL_SQL_Test extends Test_Unit {
 		$sql = preg_replace('/\s+/', ' ', $sql);
 		$sql_compare = "INSERT INTO `table` ( `Foo`, `Why` ) VALUES ( 1, 'Du\\'de' )";
 		$this->assert_equal($sql, $sql_compare, "$sql === $sql_compare");
-
+		
 		echo basename(__FILE__) . ": success\n";
 	}
-
 	function test_now() {
 		$sql = $this->sql();
 		$sql->now();
@@ -120,7 +124,7 @@ class Database_MySQL_SQL_Test extends Test_Unit {
 	}
 	function test_select() {
 		$sql = $this->sql();
-
+		
 		$what = null;
 		$tables = null;
 		$where = null;
@@ -141,12 +145,11 @@ class Database_MySQL_SQL_Test extends Test_Unit {
 	}
 	function test_table_as() {
 		$sql = $this->sql();
-
+		
 		$table = "John";
 		$as = "Nancy";
 		$this->assert_equal("`John` AS `Nancy`", $sql->table_as($table, $as));
 	}
-
 	function test_unhex() {
 		$sql = $this->sql();
 		$data = "ABACAB";
@@ -170,13 +173,11 @@ class Database_MySQL_SQL_Test extends Test_Unit {
 		$expected = "UPDATE LOW_PRIORITY `table` SET `A` = 2, `B` = 4";
 		$this->assert_equal($actual, $expected);
 	}
-
 	function test_now_utc() {
 		$sql = $this->sql();
 		$sql->now_utc();
 		echo basename(__FILE__) . ": success\n";
 	}
-
 	function test_where() {
 		$sql = $this->sql();
 		$where = array(
@@ -192,12 +193,12 @@ class Database_MySQL_SQL_Test extends Test_Unit {
 	}
 	function test_where_clause() {
 		$sql = $this->sql();
-
+		
 		$arr = null;
 		$conj = "AND";
 		$prefix_in = "";
 		$sql->where_clause($arr, $conj, $prefix_in);
-
+		
 		$where = array(
 			"Q.Site" => arraY(
 				1,
@@ -207,11 +208,11 @@ class Database_MySQL_SQL_Test extends Test_Unit {
 			"*Q.UTC|<=" => "MIN(F.Stats_UTC)"
 		);
 		$this->assert($sql->where_clause($where) === "(`Q`.`Site` = 1 OR `Q`.`Site` = 2 OR `Q`.`Site` = 3) AND Q.UTC<=MIN(F.Stats_UTC)", $sql->where_clause($where));
-
+		
 		$this->assert($sql->where_clause(array(
 			"*Q.UTC|<=" => "MIN(F.Stats_UTC)"
 		)) === "Q.UTC<=MIN(F.Stats_UTC)");
-
+		
 		$this->assert($sql->where_clause(array(
 			"*FOO" => 0
 		)) === "FOO=0");
@@ -221,7 +222,7 @@ class Database_MySQL_SQL_Test extends Test_Unit {
 		$this->assert($sql->where_clause(array(
 			"*FOO" => ""
 		)) === "FOO=");
-
+		
 		$this->assert($sql->where_clause(array(
 			"FOO" => 0
 		)) === "`FOO` = 0");

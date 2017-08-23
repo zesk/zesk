@@ -11,20 +11,18 @@ namespace zesk;
  */
 class Preference_Type_Test extends Test_Unit {
 	protected $load_modules = array(
-		"preference"
+		"preference",
+		"MySQL"
 	);
 	protected function initialize() {
-		$this->schema_synchronize("Preference_Type");
+		$this->schema_synchronize(__NAMESPACE__ . "\\" . "Preference_Type");
 	}
 	function test_object() {
-		$test = new Test_Unit();
-		
-		$value = null;
-		$options = false;
-		$x = new Preference_Type($value, $options);
+		$x = $this->application->object_factory(__NAMESPACE__ . "\\" . "Preference_Type");
 		
 		$code_name = "Poore";
 		$name = false;
-		Preference_Type::register_name($code_name, $name);
+		Preference_Type::register_name($this->application, $code_name, $name);
 	}
 }
+

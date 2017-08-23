@@ -6,10 +6,13 @@
  * @author Kent Davidson <kent@marketacumen.com>
  * @copyright Copyright &copy; 2008, Market Acumen, Inc.
  */
-class AddMeUp extends XML_RPC_Server {
-	function __construct() {
-		parent::__construct();
-	}
+namespace zesk;
+
+use xmlrpc\Server;
+use xmlrpc\Server_Method;
+use xmlrpc\Exception;
+
+class AddMeUp extends Server {
 	function rpc_add($a, $b) {
 		return $a + $b;
 	}
@@ -28,7 +31,7 @@ class XML_RPC_Server_Method_Test {
 			"one" => "Some number",
 			"two" => "another number"
 		);
-		$x = new XML_RPC_Server_Method($name, $returnType, $phpMethod, $parameterTypes, $help, $parameterHelp);
+		$x = new Server_Method($name, $returnType, $phpMethod, $parameterTypes, $help, $parameterHelp);
 		
 		$methodName = "add.me.up";
 		$arguments = array(
@@ -53,7 +56,7 @@ class XML_RPC_Server_Method_Test {
 				3
 			);
 			$x->checkArguments($methodName, $arguments);
-		} catch (XML_RPC_Exception $e) {
+		} catch (Exception $e) {
 			$success = true;
 		}
 		$this->assert($success);
@@ -65,7 +68,7 @@ class XML_RPC_Server_Method_Test {
 				1
 			);
 			$x->checkArguments($methodName, $arguments);
-		} catch (XML_RPC_Exception $e) {
+		} catch (Exception $e) {
 			$success = true;
 		}
 		$this->assert($success);
@@ -78,7 +81,7 @@ class XML_RPC_Server_Method_Test {
 				"b"
 			);
 			$x->checkArguments($methodName, $arguments);
-		} catch (XML_RPC_Exception $e) {
+		} catch (Exception $e) {
 			$success = true;
 		}
 		$this->assert($success);
@@ -91,7 +94,7 @@ class XML_RPC_Server_Method_Test {
 				"2"
 			);
 			$x->checkArguments($methodName, $arguments);
-		} catch (XML_RPC_Exception $e) {
+		} catch (Exception $e) {
 			$success = true;
 		}
 		$this->assert($success);
@@ -101,7 +104,5 @@ class XML_RPC_Server_Method_Test {
 		$x->getDocumentation();
 		
 		$x->methodHelp();
-		
-		echo basename(__FILE__) . ": success\n";
 	}
 }

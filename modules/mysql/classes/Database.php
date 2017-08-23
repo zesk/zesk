@@ -187,7 +187,7 @@ class Database extends \zesk\Database {
 	function normalize_attributes(array $attributes) {
 		$newattrs = array();
 		foreach ($attributes as $k => $v) {
-			$k = strtoupper(preg_replace("/[-_]/", " ", strtolower($k)));
+			$k = strtolower(preg_replace("/[-_]/", " ", strtolower($k)));
 			$newattrs[$k] = $v;
 		}
 		return $newattrs;
@@ -500,7 +500,7 @@ PRIVILEGES;";
 	function list_tables() {
 		$result = $this->query("SHOW TABLES");
 		$tables = array();
-		$caseSensitive = $this->tablesCaseSensitive();
+		$caseSensitive = $this->tables_case_sensitive();
 		if ($caseSensitive) {
 			while (($arr = $this->fetch_array($result)) != false) {
 				$tables[$arr[0]] = $arr[0];
@@ -564,8 +564,10 @@ PRIVILEGES;";
 	
 	/*
 	 * String Manipulation
+	 * @deprecated 2017-08
 	 */
 	function sql_format_string($sql) {
+		zesk()->deprecated();
 		return "'" . addslashes($sql) . "'";
 	}
 	
@@ -619,11 +621,8 @@ PRIVILEGES;";
 	 * @return integer
 	 */
 	function estimate_rows($sql) {
-		$result = $this->query("EXPLAIN $sql");
+		$result = $this->query_array("EXPLAIN $sql");
 		$n = 1;
-		if (!is_resource($result)) {
-			throw new Database_Exception_SQL($this, "EXPLAIN $sql", "Explain failed");
-		}
 		while (($arr = $this->fetch_array($result)) != false) {
 			$x = avalue($arr, "rows");
 			if (!empty($x)) {

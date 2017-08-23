@@ -1,0 +1,7 @@
+{
+	"name": "Log import tools, for webservers",
+	"autoload_options": {
+		"class_prefix": "zesk\\",
+		"lower": true
+	}
+}

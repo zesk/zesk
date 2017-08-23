@@ -16,12 +16,14 @@ namespace zesk;
  */
 class Mail_Test extends Test_Unit {
 	protected $load_modules = array(
-		"Mail"
+		"Mail",
+		"MySQL",
 	);
 	function initialize() {
+		parent::initialize();
 		$module = $this->application->modules->object("Mail");
 		$classes = $module->classes();
-		Database_Schema::objects_synchronize($classes);
+		$this->application->schema_synchronize(null, $classes);
 		foreach ($classes as $class) {
 			// TODO MySQL specific
 			$this->application->object_database($class)->query("TRUNCATE " . $this->application->object_table_name($class));
@@ -37,7 +39,7 @@ class Mail_Test extends Test_Unit {
 		foreach ($ff as $i => $f) {
 			$this->log("Testing mail parsing $f");
 			$f = path($test_path, $f);
-			$m = Mail_Message::import_file($f);
+			$m = Mail_Message::import_file($this->application, $f);
 			$this->assert($m instanceof Mail_Message, "Parsing $f");
 			$this->log("Done parsing $f");
 		}

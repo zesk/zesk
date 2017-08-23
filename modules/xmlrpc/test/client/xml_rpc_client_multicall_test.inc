@@ -1,20 +1,25 @@
 <?php
+namespace zesk;
+
+use xmlrpc\Client_Multicall;
+
 class XML_RPC_Client_Multicall_Test extends Test_Unit {
-
+	protected $load_modules = array(
+		"xmlrpc"
+	);
 	private $url = null;
-
 	function _init() {
 		$this->url = $this->option('xmlrpc_test_url');
 		$this->assert(URL::valid($this->url));
 	}
-
+	
 	/**
 	 * @no_buffer
 	 */
 	function test_xmlrpc() {
 		$this->_init();
 		
-		$x = new XML_RPC_Client_Multicall($this->url);
+		$x = new Client_Multicall($this->url);
 		$x->set_option('debug', true);
 		
 		$x->addCall("system.listmethods");
@@ -25,8 +30,6 @@ class XML_RPC_Client_Multicall_Test extends Test_Unit {
 		
 		$this->assert(is_array($result));
 		$this->assert(count($result) === 3);
-		
-		var_dump($result);
 		
 		$list_result = $result[0];
 		$this->assert_in_array($list_result, "capitalize");
@@ -39,7 +42,7 @@ class XML_RPC_Client_Multicall_Test extends Test_Unit {
 		
 		$fault_result = $result[2];
 		$this->assert_equal($fault_result, array(
-			"faultCode" => -32601, 
+			"faultCode" => -32601,
 			"faultString" => "Server error. Requested method \"unknown_function\" does not exist."
 		));
 		$this->log($result);

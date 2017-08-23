@@ -1,0 +1,7 @@
+{
+	"name": "Microsoft Metafile Format Tools",
+	"autoload_options": {
+		"class_prefix": "zesk\\",
+		"lower": true
+	}
+}

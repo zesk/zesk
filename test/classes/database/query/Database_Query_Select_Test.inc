@@ -6,14 +6,18 @@
  * @author Kent Davidson <kent@marketacumen.com>
  * @copyright Copyright &copy; 2010, Market Acumen, Inc.
  */
+namespace zesk;
+
 class Database_Query_Select_Test extends Test_Unit {
-	
+	protected $load_modules = array(
+		"MySQL"
+	);
 	function test_main() {
 		$table_name = "Database_Query_Select";
 		
 		$this->test_table($table_name);
 		
-		$db = null;
+		$db = $this->application->database_factory();
 		$testx = new Database_Query_Select($db);
 		
 		$db = null;
@@ -54,9 +58,7 @@ class Database_Query_Select_Test extends Test_Unit {
 		$default = false;
 		$testx->one($field, $default);
 		
-		$class = null;
-		$options = false;
-		$testx->object($class, $options);
+		$testx->object("User");
 		
 		$field = null;
 		$default = 0;
@@ -76,13 +78,14 @@ class Database_Query_Select_Test extends Test_Unit {
 		$class = null;
 		$testx->object_class($class);
 		
+		$db = $this->application->database_factory();
 		$x = new Database_Query_Select($db);
 		$x->from($table_name);
 		$x->what(null, "ID");
 		$x->where("ID", array(
-			1, 
-			2, 
-			3, 
+			1,
+			2,
+			3,
 			4
 		));
 		
@@ -97,9 +100,9 @@ class Database_Query_Select_Test extends Test_Unit {
 		$x->from($table_name);
 		$x->what(null, "ID");
 		$x->where("ID|!=|AND", array(
-			1, 
-			2, 
-			3, 
+			1,
+			2,
+			3,
 			4
 		));
 		$result = strval($x);
@@ -115,9 +118,9 @@ class Database_Query_Select_Test extends Test_Unit {
 		$x->from($table_name);
 		$x->what(null, "ID");
 		$x->where("*SUM(Total)|!=|AND", array(
-			1, 
-			2, 
-			3, 
+			1,
+			2,
+			3,
 			4
 		));
 		$result = strval($x);
@@ -129,7 +132,5 @@ class Database_Query_Select_Test extends Test_Unit {
 		$valid_result = preg_replace('/\s+/', ' ', trim($valid_result));
 		
 		$this->assert($result === "$valid_result", "\"$result\" === \"$valid_result\"");
-		
-		echo basename(__FILE__) . ": success\n";
 	}
 }

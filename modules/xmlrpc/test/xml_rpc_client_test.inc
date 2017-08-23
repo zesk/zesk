@@ -6,10 +6,17 @@
  * @author Kent Davidson <kent@marketacumen.com>
  * @copyright Copyright &copy; 2008, Market Acumen, Inc.
  */
+namespace zesk;
+
+use xmlrpc\Client;
+
 class XML_RPC_Client_Test extends Test_Unit {
+	protected $load_modules = array(
+		"MySQL"
+	);
 	function test_main() {
 		$url = $this->option("xmlrpc_test_url");
-		$x = new XML_RPC_Client($url);
+		$x = new Client($url);
 		
 		$x->setCallMap(array(
 			"__" => "."
@@ -22,41 +29,35 @@ class XML_RPC_Client_Test extends Test_Unit {
 		
 		$x->isFault();
 		
-		XML_RPC_Client::defaultUserAgent();
-		
 		$default = false;
-		$x->userAgent($default);
+		$x->user_agent();
 		
-		$value = null;
-		$x->setUserAgent($value);
+		$value = "Dude";
+		$x->user_agent($value);
 		
-		$x->isPost();
+		$x->isFault();
 		
 		$x->url();
 		
 		$x->headers();
 		
-		$x->responseCode();
+		$x->response_code();
 		
-		$x->responseCodeType();
+		$x->response_code_type();
 		
-		$x->responseMessage();
+		$x->response_message();
 		
-		$x->responseProtocol();
-		
-		$x->hasHeaders();
+		$x->response_protocol();
 		
 		$name = "Content-Length";
 		$default = false;
-		$x->getHeader($name, $default);
+		$x->response_header($name, $default);
 		
 		$x->go();
 		
 		$url = null;
-		XML_RPC_Client::simpleGet($url);
+		Client::simpleGet($url);
 		
 		$x->domain();
-		
-		echo basename(__FILE__) . ": success\n";
 	}
 }

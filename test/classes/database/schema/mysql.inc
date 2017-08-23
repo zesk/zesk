@@ -10,6 +10,13 @@ namespace zesk;
  *
  */
 class Test_Database_Schema_MySQL extends Test_Unit {
+	/**
+	 * 
+	 * @var array
+	 */
+	protected $load_modules = array(
+		"MySQL"
+	);
 	
 	/**
 	 *
@@ -29,6 +36,9 @@ class Test_Database_Schema_MySQL extends Test_Unit {
 		$table0 = $db->parse_create_table($sql0);
 		$table1 = $db->parse_create_table($sql1);
 		
+		// 		$this->log(JSON::encode($table0->option()));
+		// 		$this->log(JSON::encode($table1->option()));
+		
 		$result = Database_Schema::update($db, $table0, $table1, false);
 		
 		$datatype = $db->data_type();
@@ -37,7 +47,7 @@ class Test_Database_Schema_MySQL extends Test_Unit {
 		$this->assert_true($datatype->native_types_equal("int", "integer(12)"));
 		
 		$this->assert_arrays_equal($result, array(
-			"ALTER IGNORE TABLE `table` CHANGE COLUMN `created` `created` timestamp NULL"
+			"ALTER TABLE `test` CHANGE COLUMN `created` `created` timestamp NULL DEFAULT NULL"
 		));
 	}
 	function test_primary_key_location() {
@@ -57,9 +67,13 @@ class Test_Database_Schema_MySQL extends Test_Unit {
 		
 		$table = __FUNCTION__;
 		$sql = map($sql, compact("table"));
-		$this->test_table($table);
-		
 		$db = $this->application->database_factory();
+		
+		$result = $db->query("DROP TABLE IF EXISTS $table");
+		$this->assert_equal($result, true);
+		
+		$this->assert_true(!$db->table_exists($table), "$table should not exist");
+		
 		foreach ($sql as $key => $create) {
 			$result = Database_Schema::table_synchronize($db, $create, false);
 			$db->query($result);
@@ -88,12 +102,10 @@ class Test_Database_Schema_MySQL extends Test_Unit {
 		
 		/* @var $db Database */
 		$db = $this->application->database_factory();
-		$db_url = $db->url();
-		
 		$db->query("DROP TABLE IF EXISTS $table");
 		$db->query($sql);
 		
-		$this->assert($db->connect(), "connecting to " . URL::remove_password());
+		$this->assert($db->connect(), "connecting to " . $db->safe_url());
 		
 		$this->assert($db->table_exists($table), "$db->table_exists($table)");
 		
@@ -109,8 +121,6 @@ class Test_Database_Schema_MySQL extends Test_Unit {
 		$this->assert_equal($result, array());
 	}
 	function test_1() {
-		$db_url = zesk::get('DB_URL');
-		
 		$table = 'temp_test_keywords';
 		
 		$sql = "CREATE TABLE `$table` (
@@ -127,15 +137,14 @@ class Test_Database_Schema_MySQL extends Test_Unit {
 		INDEX phrase ( Phrase(64) )
 		);";
 		
-		$this->application->logger->level($this->application->logger->ERROR);
 		Database_Schema::debug(true);
 		
-		$db = $this->application->database_factory($db_url);
+		$db = $this->application->database_factory();
 		
 		$db->query("DROP TABLE IF EXISTS $table");
 		$db->query($sql);
 		
-		$this->assert($db->connect(), "connecting to " . URL::remove_password($db_url));
+		$this->assert($db->connect(), "connecting to " . $db->safe_url());
 		
 		$this->assert($db->table_exists($table));
 		
@@ -153,8 +162,6 @@ class Test_Database_Schema_MySQL extends Test_Unit {
 		echo basename(__FILE__) . ": Success.\n";
 	}
 	function test_2() {
-		$db_url = zesk::get('DB_URL');
-		
 		$table = 'temp_test_actions';
 		
 		$sql = "CREATE TABLE `$table` (
@@ -177,15 +184,14 @@ class Test_Database_Schema_MySQL extends Test_Unit {
 		KEY `time` (`ActionTime`)
 		) AUTO_INCREMENT=1426";
 		
-		$this->application->logger->level($this->application->logger->ERROR);
 		Database_Schema::debug(true);
 		
-		$db = $this->application->database_factory($db_url);
+		$db = $this->application->database_factory();
 		
 		$db->query("DROP TABLE IF EXISTS $table");
 		$db->query($sql);
 		
-		$this->assert($db->connect(), "connecting to " . URL::remove_password($db_url));
+		$this->assert($db->connect(), "connecting to " . $db->safe_url());
 		
 		$this->assert($db->table_exists($table));
 		
@@ -199,12 +205,8 @@ class Test_Database_Schema_MySQL extends Test_Unit {
 		$result = Database_Schema::update($db, $db_table, $object_table);
 		
 		$this->assert($result === array(), PHP::dump($result) . ' === array()');
-		
-		echo basename(__FILE__) . ": Success.\n";
 	}
 	function test_3() {
-		$db_url = zesk::get('DB_URL');
-		
 		$table = 'temp_test_varbin';
 		
 		$sql = "CREATE TABLE `$table` (
@@ -217,15 +219,14 @@ class Test_Database_Schema_MySQL extends Test_Unit {
 		);
 		";
 		
-		$this->application->logger->level($this->application->logger->ERROR);
 		Database_Schema::debug(true);
 		
-		$db = $this->application->database_factory($db_url);
+		$db = $this->application->database_factory();
 		
 		$db->query("DROP TABLE IF EXISTS $table");
 		$db->query($sql);
 		
-		$this->assert($db->connect(), "connecting to " . URL::remove_password($db_url));
+		$this->assert($db->connect(), "connecting to " . $db->safe_url());
 		
 		$this->assert($db->table_exists($table));
 		
@@ -242,24 +243,21 @@ class Test_Database_Schema_MySQL extends Test_Unit {
 		
 		$db->query("DROP TABLE IF EXISTS $table");
 		
-		echo basename(__FILE__) . ": Success.\n";
+		$this->log(__FUNCTION__);
 	}
 	function test_4() {
-		$db_url = zesk::get('DB_URL');
-		
 		DBSchemaTest4::$test_table = $table = 'temp_test_multi_create';
 		
 		DBSchemaTest4::$test_table2 = $table2 = 'temp_test_multi_create2';
 		
-		$db = $this->application->database_factory($db_url);
+		$db = $this->application->database_factory();
 		
 		$db->query("DROP TABLE IF EXISTS $table");
 		$db->query("DROP TABLE IF EXISTS $table2");
 		
-		zesk::set('test_table', $table);
-		$object = zesk::factory('DBSchemaTest4');
+		$object = new DBSchemaTest4($this->application);
+		
 		$result = Database_Schema::update_object($object);
-		dump($object->database_schema());
 		$this->log($result);
 		$db->query($result);
 		
@@ -273,7 +271,8 @@ class Test_Database_Schema_MySQL extends Test_Unit {
 		
 		$this->assert(!$db->table_exists($table2));
 		
-		$result = Database_Schema::updateObjectPath(__FILE__, zesk::get('DB_URL'), 'DBSchemaTest4');
+		$object = new DBSchemaTest4($this->application);
+		$result = Database_Schema::update_object($object);
 		$db->query($result);
 		
 		$this->assert($db->table_exists($table));
@@ -287,39 +286,37 @@ class Test_Database_Schema_MySQL extends Test_Unit {
 		echo basename(__FILE__) . ": Success.\n";
 	}
 	function test_5() {
-		$db_url = zesk::get('DB_URL');
-		
-		$db = $this->application->database_factory($db_url);
+		$db = $this->application->database_factory();
 		
 		DBSchemaTest5::$test_table = $table = 'keywords_test';
 		$db->query("DROP TABLE IF EXISTS $table");
 		
-		$result = Database_Schema::updateObjectPath(__FILE__, zesk::get('DB_URL'), 'DBSchemaTest5');
+		$object = new DBSchemaTest5($this->application);
+		$result = Database_Schema::update_object($object);
 		$db->query($result);
 		
 		$this->assert($db->table_exists($table));
 		
 		Database_Schema::debug(true);
 		
-		$result = Database_Schema::updateObjectPath(__FILE__, zesk::get('DB_URL'), 'DBSchemaTest5');
+		$object = new DBSchemaTest5($this->application);
+		$result = Database_Schema::update_object($object);
 		$this->assert($result === array(), gettype($result));
 		
 		//$db->query("DROP TABLE IF EXISTS $table");
 		
-
 		echo basename(__FILE__) . ": Success.\n";
 	}
 	function test_6() {
-		$db_url = zesk::get('DB_URL');
-		
 		$table = 'keywords_test';
 		
-		$db = $this->application->database_factory($db_url);
+		$db = $this->application->database_factory();
 		
 		$db->query("DROP TABLE IF EXISTS $table");
 		
 		DBSchemaTest6::$test_table = $table;
-		$result = Database_Schema::updateObjectPath(__FILE__, zesk::get('DB_URL'), 'DBSchemaTest6');
+		$object = new DBSchemaTest6($this->application);
+		$result = Database_Schema::update_object($object);
 		$db->query($result);
 		
 		$this->assert($db->table_exists($table));
@@ -327,38 +324,37 @@ class Test_Database_Schema_MySQL extends Test_Unit {
 		Database_Schema::debug(true);
 		
 		DBSchemaTest7::$test_table = $table;
-		$result = Database_Schema::updateObjectPath(__FILE__, zesk::get('DB_URL'), 'DBSchemaTest7');
+		$object = new DBSchemaTest7($this->application);
+		$result = Database_Schema::update_object($object);
 		
 		$check_result = array(
-			"ALTER IGNORE TABLE `keywords_test` ADD COLUMN `Proto` tinyint NOT NULL DEFAULT '0' AFTER `Protocol`"
+			"ALTER TABLE `keywords_test` ADD COLUMN `Proto` tinyint NOT NULL DEFAULT 0 AFTER `Protocol`"
 		);
 		
 		$this->assert_arrays_equal($result, $check_result, true);
 		
 		//$db->query("DROP TABLE IF EXISTS $table");
 		
-
 		echo basename(__FILE__) . ": Success.\n";
 	}
 	function test_8() {
-		$db_url = zesk::get('DB_URL');
-		
 		$table = 'bigint_test';
 		
-		$db = $this->application->database_factory($db_url);
+		$db = $this->application->database_factory();
 		
 		$db->query("DROP TABLE IF EXISTS $table");
 		
 		DBSchemaTest8::$test_table = $table;
-		$result = Database_Schema::updateObjectPath(__FILE__, zesk::get('DB_URL'), 'DBSchemaTest8');
+		$object = new DBSchemaTest8($this->application);
+		$result = Database_Schema::update_object($object);
 		$db->query($result);
 		
 		$this->assert($db->table_exists($table));
 		
 		Database_Schema::debug(true);
-		$this->application->logger->file("php://stdout");
 		
-		$result = Database_Schema::updateObjectPath(__FILE__, zesk::get('DB_URL'), 'DBSchemaTest8');
+		$object = new DBSchemaTest8($this->application);
+		$result = Database_Schema::update_object($object);
 		
 		$this->assert_arrays_equal($result, array());
 		
@@ -367,51 +363,64 @@ class Test_Database_Schema_MySQL extends Test_Unit {
 		echo basename(__FILE__) . ": Success.\n";
 	}
 }
+class Class_DBSchemaTest4 extends Class_Object {
+	public function initialize() {
+		parent::initialize();
+		$this->table = DBSchemaTest4::$test_table;
+	}
+	public $column_types = array(
+		"ID" => self::type_id,
+		"Depth" => self::type_integer,
+		"CodeName" => self::type_string,
+		"Name" => self::type_string
+	);
+}
 class DBSchemaTest4 extends Object {
 	public static $test_table = "";
 	public static $test_table2 = "";
-	function specification() {
-		$table = self::$test_table;
-		return array(
-			"table" => $table,
-			"fields" => "ID;Depth;CodeName;Name"
-		);
-	}
 	function schema() {
 		$table = self::$test_table;
 		$table2 = self::$test_table2;
 		return "CREATE TABLE `$table` (
-				`ID` int(11) unsigned NOT NULL auto_increment,
-				`Depth` tinyint(4) default '0',
-				`CodeName` varbinary(80) NOT NULL default '',
-				`Name` varchar(128) NOT NULL default '',
-				PRIMARY KEY  (`ID`),
-				UNIQUE KEY `codename` (`Depth`,`CodeName`)
+		`ID` int(11) unsigned NOT NULL auto_increment,
+		`Depth` tinyint(4) default '0',
+		`CodeName` varbinary(80) NOT NULL default '',
+		`Name` varchar(128) NOT NULL default '',
+		PRIMARY KEY  (`ID`),
+		UNIQUE KEY `codename` (`Depth`,`CodeName`)
 		);
-
-				CREATE TABLE `$table2` (
-				`ID` int(11) unsigned NOT NULL auto_increment,
-				`Depth` tinyint(4) default '0',
-				`CodeName` varbinary(80) NOT NULL default '',
-				`Name` varchar(128) NOT NULL default '',
-				PRIMARY KEY  (`ID`),
-				UNIQUE KEY `codename` (`Depth`,`CodeName`)
+		
+		CREATE TABLE `$table2` (
+		`ID` int(11) unsigned NOT NULL auto_increment,
+		`Depth` tinyint(4) default '0',
+		`CodeName` varbinary(80) NOT NULL default '',
+		`Name` varchar(128) NOT NULL default '',
+		PRIMARY KEY  (`ID`),
+		UNIQUE KEY `codename` (`Depth`,`CodeName`)
 		);
-			INSERT INTO $table ( Depth, CodeName, Name ) VALUES ( 3, 'foo', 'bar');";
+		INSERT INTO $table ( Depth, CodeName, Name ) VALUES ( 3, 'foo', 'bar');";
 	}
+}
+class Class_DBSchemaTest5 extends Class_Object {
+	public function initialize() {
+		parent::initialize();
+		$this->table = DBSchemaTest5::$test_table;
+	}
+	public $column_types = array(
+		"ID" => self::type_id,
+		"Hash" => self::type_string,
+		"Phrase" => self::type_string,
+		"Created" => self::type_created,
+		"Modified" => self::type_modified,
+		"Status" => self::type_integer,
+		"IsOrganic" => self::type_string,
+		"LastUsed" => self::type_timestamp
+	);
 }
 class DBSchemaTest5 extends Object {
 	public static $test_table = null;
-	function specification() {
-		$table = self::$test_table;
-		return array(
-			"table" => $table,
-			"fields" => "ID;Hash;Phrase;Created;Modified;Status;IsOrganic;LastUsed"
-		);
-	}
 	function schema() {
-		$table = self::$test_table;
-		return "CREATE TABLE `${table}` (
+		return "CREATE TABLE `{table}` (
 		`ID` int(11) NOT NULL PRIMARY KEY AUTO_INCREMENT,
 		`Hash` binary(16) NOT NULL,
 		`Phrase` varchar(255) NOT NULL,
@@ -426,18 +435,29 @@ class DBSchemaTest5 extends Object {
 		);";
 	}
 }
+class Class_DBSchemaTest6 extends Class_Object {
+	public $column_types = array(
+		"ID" => self::type_id,
+		"Hash" => self::type_string,
+		"Protocol" => self::type_string,
+		"Proto" => self::type_object,
+		"Domain" => self::type_object,
+		"Port" => self::type_integer,
+		"URI" => self::type_object,
+		"QueryString" => self::type_object,
+		"Title" => self::type_object,
+		"Fragment" => self::type_string,
+		"Frag" => self::type_object
+	);
+	public function initialize() {
+		parent::initialize();
+		$this->table = DBSchemaTest6::$test_table;
+	}
+}
 class DBSchemaTest6 extends Object {
 	public static $test_table = null;
-	function specification() {
-		$table = self::$test_table;
-		return array(
-			"table" => $table,
-			"fields" => "ID;Hash;Protocol;Domain;Port;URI;QueryString;Title;Fragment;Frag"
-		);
-	}
 	function schema() {
-		$table = self::$test_table;
-		return "CREATE TABLE `$table` (
+		return "CREATE TABLE `{table}` (
 		`ID` int(11) unsigned NOT NULL auto_increment,
 		`Hash` char(32) NOT NULL,
 		`Protocol` varchar(7) NOT NULL default '',
@@ -455,18 +475,29 @@ class DBSchemaTest6 extends Object {
 		);";
 	}
 }
+class Class_DBSchemaTest7 extends Class_Object {
+	public $column_types = array(
+		"ID" => self::type_id,
+		"Hash" => self::type_string,
+		"Protocol" => self::type_string,
+		"Proto" => self::type_object,
+		"Domain" => self::type_object,
+		"Port" => self::type_integer,
+		"URI" => self::type_object,
+		"QueryString" => self::type_object,
+		"Title" => self::type_object,
+		"Fragment" => self::type_string,
+		"Frag" => self::type_object
+	);
+	public function initialize() {
+		parent::initialize();
+		$this->table = DBSchemaTest7::$test_table;
+	}
+}
 class DBSchemaTest7 extends Object {
 	public static $test_table = null;
-	function specification() {
-		$table = self::$test_table;
-		return array(
-			"table" => $table,
-			"fields" => "ID;Hash;Protocol;Domain;Port;URI;QueryString;Title;Fragment;Frag;Proto"
-		);
-	}
 	function schema() {
-		$table = self::$test_table;
-		return "CREATE TABLE `$table` (
+		return "CREATE TABLE `{table}` (
 	`ID` int(11) unsigned NOT NULL auto_increment,
 	`Hash` char(32) NOT NULL,
 	`Protocol` varchar(7) NOT NULL default '',
@@ -485,18 +516,21 @@ class DBSchemaTest7 extends Object {
 	);";
 	}
 }
+class Class_DBSchemaTest8 extends Class_Object {
+	public $column_types = array(
+		"ID" => self::type_id,
+		"Hash" => self::type_string,
+		"Size" => self::type_integer
+	);
+	public function initialize() {
+		parent::initialize();
+		$this->table = DBSchemaTest8::$test_table;
+	}
+}
 class DBSchemaTest8 extends Object {
 	public static $test_table = null;
-	function specification() {
-		$table = self::$test_table;
-		return array(
-			"table" => $table,
-			"fields" => "ID;Hash;Size"
-		);
-	}
 	function schema() {
-		$table = self::$test_table;
-		return "CREATE TABLE `$table` (
+		return "CREATE TABLE `{table}` (
 			`ID` int(11) unsigned NOT NULL auto_increment,
 			`Hash` char(32) NOT NULL,
 			`Size` bigint unsigned NOT NULL,

@@ -19,6 +19,7 @@ class Command_Eval extends Command_Base {
 		'i' => 'interactive'
 	);
 	function run() {
+		$this->handle_base_options();
 		while ($this->has_arg()) {
 			$arg = $this->get_arg("eval");
 			if ($arg === "--") {
@@ -38,10 +39,8 @@ class Command_Eval extends Command_Base {
 	 * @return number
 	 */
 	public function interactive() {
-		global $zesk;
-		/* @var $zesk \zesk\Kernel */
-		$this->history_file_path = $zesk->paths->uid("eval-history.log");
-		$name = $zesk->application_class;
+		$this->history_file_path = $this->application->paths->uid("eval-history.log");
+		$name = get_class($this->application);
 		$last_exit_code = 0;
 		while (true) {
 			$command = $this->prompt($name . '>');
@@ -97,6 +96,8 @@ class Command_Eval extends Command_Base {
 			$prefix = "";
 		}
 		try {
+			$command = $this;
+			$application = $this->application;
 			$result = eval("?" . "><" . "?php\n$prefix " . $string . ";\n");
 			return $result;
 		} catch (Exception $e) {

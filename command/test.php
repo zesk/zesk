@@ -19,14 +19,14 @@ class Command_Test extends Command_Base {
 	 * @var string
 	 */
 	const TEST_UNIT_CLASS = "zesk\\Test_Unit";
-
+	
 	/**
 	 * Set to true in subclasses to skip Application configuration until ->go
 	 *
 	 * @var boolean
 	 */
 	public $has_configuration = true;
-
+	
 	/**
 	 * Load these modules prior to running command
 	 *
@@ -35,7 +35,7 @@ class Command_Test extends Command_Base {
 	protected $load_modules = array(
 		"test"
 	);
-
+	
 	/**
 	 * Option types
 	 *
@@ -60,7 +60,7 @@ class Command_Test extends Command_Base {
 		'show' => 'boolean',
 		'*' => 'string'
 	);
-
+	
 	/**
 	 * Help for options types above
 	 *
@@ -86,14 +86,14 @@ class Command_Test extends Command_Base {
 		'*' => 'Test patterns to run - either Class::method, or a string to match in the filename'
 	);
 	const width = 96;
-
+	
 	/**
 	 * Tests run
 	 *
 	 * @var array
 	 */
 	public $tests = array();
-
+	
 	/**
 	 * Test statistics
 	 *
@@ -107,21 +107,21 @@ class Command_Test extends Command_Base {
 		'assert' => 0
 	);
 	static $opened = array();
-
+	
 	/**
 	 * Name of test database for results
 	 *
 	 * @var string
 	 */
 	private $test_database_file = null;
-
+	
 	/**
 	 * Saved results from tests
 	 *
 	 * @var array
 	 */
 	private $test_results = array();
-
+	
 	/**
 	 * Classes
 	 *
@@ -129,21 +129,21 @@ class Command_Test extends Command_Base {
 	 * @var array
 	 */
 	private $classes = array();
-
+	
 	/**
 	 * Includes
 	 *
 	 * @var array
 	 */
 	private $incs = array();
-
+	
 	/**
 	 * Help string for this command
 	 *
 	 * @var string
 	 */
 	protected $help = "Run automated tests in a variety of formats.";
-
+	
 	/**
 	 * TODO we use two different ways of doing this: static::settings() and this.
 	 * Should pick one and stick with it.
@@ -164,7 +164,7 @@ class Command_Test extends Command_Base {
 			'description' => "Command to clear the console while running tests interactively (--interactive). @zesk_docs"
 		)
 	);
-
+	
 	/**
 	 * Most recent test result
 	 *
@@ -180,7 +180,7 @@ class Command_Test extends Command_Base {
 	 * Run tests
 	 */
 	protected function run() {
-		self::_initialize_test_environment();
+		self::_initialize_test_environment($this->application);
 		if ($this->option_bool('help')) {
 			$this->usage("Run tests");
 		}
@@ -230,7 +230,7 @@ class Command_Test extends Command_Base {
 			$this->test_results = array();
 			$this->save_test_database();
 		}
-
+		
 		if ($this->option_bool('interactive')) {
 			$this->verbose_log("Interactive testing enabled.");
 		}
@@ -307,11 +307,11 @@ class Command_Test extends Command_Base {
 		} else if (!Directory::is_absolute($path)) {
 			throw new Exception_Directory_NotFound($path);
 		}
-
+		
 		if (!$this->has_arg()) {
 			return Directory::list_recursive($path, $this->_test_list_options());
 		}
-
+		
 		$matches = array();
 		$tests = array();
 		$this->test_results = array();
@@ -339,7 +339,7 @@ class Command_Test extends Command_Base {
 		}
 		return $tests;
 	}
-
+	
 	/**
 	 * Load the test database
 	 *
@@ -373,7 +373,7 @@ class Command_Test extends Command_Base {
 		$this->verbose_log("Will save to new test database $this->test_database_file");
 		return true;
 	}
-
+	
 	/**
 	 * Save the test database
 	 */
@@ -385,10 +385,8 @@ class Command_Test extends Command_Base {
 			file_put_contents($this->test_database_file, JSON::encode_pretty($this->test_results));
 		}
 	}
-	private static function _initialize_test_environment() {
-		global $zesk;
-		/* @var $zesk \zesk\Kernel */
-		$zesk->autoloader->path($zesk->paths->zesk('test/classes'), array(
+	private static function _initialize_test_environment(Application $app) {
+		$app->zesk->autoloader->path($app->paths->zesk('test/classes'), array(
 			'class_prefix' => 'Test_'
 		));
 	}
@@ -552,7 +550,7 @@ class Command_Test extends Command_Base {
 		$this->incs[$file] = $run_class;
 		return $run_class;
 	}
-
+	
 	/**
 	 *
 	 * @param array $options
@@ -684,12 +682,14 @@ class Command_Test extends Command_Base {
 			$opts .= "--verbose ";
 		}
 		$options['echo'] = true;
-		$options['suffix'] = " module test eval $opts 'zesk\\Command_Test::run_class(\"$class\", \"$file\")'";
+		$options['suffix'] = " module test eval $opts 'zesk\\Command_Test::run_class(\$application, \"" . strtr($class, array(
+			"\\" => "\\\\"
+		)) . "\", \"$file\")'";
 		$options['command'] = "{prefix}{suffix}";
-
+		
 		return $this->_run_test_command($file, $options);
 	}
-
+	
 	/**
 	 * Glue to run sandbox tests from the site.
 	 * Sets the include path correctly, then runs the class in Test_Unit.
@@ -698,11 +698,12 @@ class Command_Test extends Command_Base {
 	 * @param string $file
 	 * @return boolean
 	 */
-	public static function run_class($class, $file) {
-		self::_initialize_test_environment();
+	public static function run_class(Application $application, $class, $file) {
+		self::_initialize_test_environment($application);
 		require_once $file;
-		return Test_Unit::run_class($class);
+		return Test_Unit::run_class($application, $class);
 	}
+	
 	/**
 	 * Run a test command
 	 *
@@ -801,7 +802,7 @@ class Command_Test extends Command_Base {
 		}
 		return true;
 	}
-
+	
 	/**
 	 * Run a phpt test
 	 *
@@ -816,7 +817,7 @@ class Command_Test extends Command_Base {
 		}
 		return $this->_run_test_command($file, $options);
 	}
-
+	
 	/**
 	 * Output test results
 	 *
@@ -831,7 +832,7 @@ class Command_Test extends Command_Base {
 		echo trim($result) . "\n";
 		echo str_repeat("*", 80) . "\n";
 	}
-
+	
 	/**
 	 * Output database report
 	 */

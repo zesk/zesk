@@ -68,7 +68,7 @@ class Test_Date extends Test_Unit {
 	}
 
 	/**
-	 * @expected_exception Exception_Range
+	 * @expected_exception zesk\Exception_Range
 	 * @data_provider _test_range_fail_parameters
 	 */
 	function test_range_fail($y, $m, $d) {

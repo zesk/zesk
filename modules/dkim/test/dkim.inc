@@ -8,7 +8,7 @@ namespace zesk;
  */
 class dkim_test extends Test_Unit {
 	protected $load_modules = array(
-		"dkim"
+		"DKIM"
 	);
 	
 	/**

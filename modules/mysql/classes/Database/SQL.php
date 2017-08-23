@@ -1,5 +1,4 @@
 <?php
-
 namespace MySQL;
 
 use zesk\Database_Table as Database_Table;
@@ -82,7 +81,6 @@ class Database_SQL extends \zesk\Database_SQL {
 		// 			}
 		// 		}
 		
-
 		// OK to add primary key if no old primary key exists
 		$primary = $db_col_old->table()->primary() === null;
 		
@@ -96,7 +94,7 @@ class Database_SQL extends \zesk\Database_SQL {
 		
 		$new_sql = "ALTER TABLE " . $this->quote_table($table) . " CHANGE COLUMN " . $this->quote_column($previous_name) . " " . $this->quote_column($newName) . " $newType $suffix";
 		$old_table = $db_col_old->table();
-		return $new_sql;
+		return trim($new_sql);
 	}
 	
 	/**
@@ -116,12 +114,18 @@ class Database_SQL extends \zesk\Database_SQL {
 	function alter_table_index_drop(Database_Table $table, Database_Index $index) {
 		$table_name = $table->name();
 		$table_name = $this->quote_table($table_name);
-		$name = $index->name();
+		$original_name = $index->name();
 		$index_type = $index->type();
-		$name = $this->quote_column($name);
+		$name = $this->quote_column($original_name);
 		switch ($index_type) {
 			case Database_Index::Unique:
 			case Database_Index::Index:
+				if (empty($original_name)) {
+					throw new Exception_Semantics("{method} index for table {table} has no name, but is required", array(
+						"method" => __METHOD__,
+						"table" => $table_name
+					));
+				}
 				return "ALTER TABLE $table_name DROP INDEX $name";
 			case Database_Index::Primary:
 				return "ALTER TABLE $table_name DROP PRIMARY KEY";

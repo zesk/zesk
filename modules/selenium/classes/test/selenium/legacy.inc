@@ -28,8 +28,7 @@
  * @see        http://www.openqa.org/selenium-rc/
  * @since      0.1
  */
-use zesk\Timer;
-use zesk\Net_HTTP_Client;
+namespace zesk;
 
 /**
  * Selenium exception class
@@ -79,7 +78,7 @@ use zesk\Net_HTTP_Client;
  * name=username
  * </li>
  * </ul>
-<p>
+ <p>
  * The name may optionally be followed by one or more <i>element-filters</i>, separated from the name by whitespace.  If the <i>filterType</i> is not specified, <b>value</b> is assumed.
  * </p>
  * <ul>
@@ -162,7 +161,7 @@ use zesk\Net_HTTP_Client;
  * css=span#firstChild + span
  * </li>
  * </ul>
-<p>
+ <p>
  * Currently the css selector locator supports all css1, css2 and css3 selectors except namespace in css3, some pseudo classes(:nth-of-type, :nth-last-of-type, :first-of-type, :last-of-type, :only-of-type, :visited, :hover, :active, :focus, :indeterminate) and pseudo elements(::first-line, ::first-letter, ::selection, ::before, ::after).
  * </p>
  * </li>
@@ -191,20 +190,20 @@ use zesk\Net_HTTP_Client;
  * <p>
  * Element filters can be used with a locator to refine a list of candidate elements.  They are currently used only in the 'name' element-locator.
  * </p>
-<p>
+ <p>
  * Filters look much like locators, ie.
  * </p>
-<p>
+ <p>
  *
  * <i>filterType</i><b>=</b><i>argument</i>
  * </p>
  * <p>
  * Supported element-filters are:
  * </p>
-<p>
+ <p>
  * <b>value=</b><i>valuePattern</i>
  * </p>
-<p>
+ <p>
  *
  *
  * Matches elements based on their values.  This is particularly useful for refining a list of similarly-named toggle-buttons.
@@ -212,7 +211,7 @@ use zesk\Net_HTTP_Client;
  * <p>
  * <b>index=</b><i>index</i>
  * </p>
-<p>
+ <p>
  *
  *
  * Selects a single element based on its position in the list (offset from zero).
@@ -260,73 +259,73 @@ use zesk\Net_HTTP_Client;
  * @author Bjoern Schotte <schotte at mayflower dot de>
  */
 class Test_Selenium_Legacy extends Test_Unit {
-
+	
 	/**
 	 *
 	 * @var string
 	 * @access private
 	 */
 	protected $browser;
-
+	
 	/**
 	 *
 	 * @var string
 	 * @access private
 	 */
 	protected $browserUrl;
-
+	
 	/**
 	 *
 	 * @var string
 	 * @access private
 	 */
 	protected $host;
-
+	
 	/**
 	 *
 	 * @var int
 	 * @access private
 	 */
 	protected $port;
-
+	
 	/**
 	 *
 	 * @var string
 	 * @access private
 	 */
 	protected $sessionId;
-
+	
 	/**
 	 *
 	 * @var string
 	 * @access private
 	 */
 	protected $timeout;
-
+	
 	/**
 	 * Most recent page title
 	 * @var string
 	 */
 	protected $page_title;
-
+	
 	/**
 	 * Most recent page body
 	 * @var string
 	 */
 	protected $page_body;
-
+	
 	/**
 	 * Most recent page text
 	 * @var array Keys are locators
 	 */
 	protected $page_text;
-
+	
 	/**
 	 * Most recent page html
 	 * @var string
 	 */
 	protected $page_html;
-
+	
 	/**
 	 * Constructor
 	 * @param string $browser
@@ -337,8 +336,8 @@ class Test_Selenium_Legacy extends Test_Unit {
 	 * @access public
 	 * @throws Exception_Selenium
 	 */
-	public function __construct(array $options=array()) {
-		parent::__construct($options);
+	public function __construct(Application $application, array $options = array()) {
+		parent::__construct($application, $options);
 		$this->inherit_global_options();
 		$browser = "*chrome";
 		$url = "localhost";
@@ -367,7 +366,7 @@ class Test_Selenium_Legacy extends Test_Unit {
 	public function setBrowserChrome() {
 		return $this->setBrowser('*chrome');
 	}
-
+	
 	/**
 	 * Run the browser and set session id.
 	 * @access public
@@ -380,7 +379,7 @@ class Test_Selenium_Legacy extends Test_Unit {
 		));
 		return $this->sessionId;
 	}
-
+	
 	/**
 	 * Close the browser and set session id null
 	 * @access public
@@ -394,7 +393,7 @@ class Test_Selenium_Legacy extends Test_Unit {
 		$this->stop();
 		$this->start();
 	}
-
+	
 	/**
 	 * Clicks on a link, button, checkbox or radio button.
 	 * If the click action
@@ -408,7 +407,7 @@ class Test_Selenium_Legacy extends Test_Unit {
 			$locator
 		));
 	}
-
+	
 	/**
 	 * Double clicks on a link, button, checkbox or radio button.
 	 * If the double click action
@@ -422,7 +421,7 @@ class Test_Selenium_Legacy extends Test_Unit {
 			$locator
 		));
 	}
-
+	
 	/**
 	 * Clicks on a link, button, checkbox or radio button.
 	 * If the click action
@@ -439,7 +438,7 @@ class Test_Selenium_Legacy extends Test_Unit {
 			$coordString
 		));
 	}
-
+	
 	/**
 	 * Doubleclicks on a link, button, checkbox or radio button.
 	 * If the action
@@ -456,7 +455,7 @@ class Test_Selenium_Legacy extends Test_Unit {
 			$coordString
 		));
 	}
-
+	
 	/**
 	 * Explicitly simulate an event, to trigger the corresponding "on<i>event</i>"
 	 * handler.
@@ -470,7 +469,7 @@ class Test_Selenium_Legacy extends Test_Unit {
 			$eventName
 		));
 	}
-
+	
 	/**
 	 * Simulates a user pressing and releasing a key.
 	 * @access public
@@ -484,7 +483,7 @@ class Test_Selenium_Legacy extends Test_Unit {
 			$keySequence
 		));
 	}
-
+	
 	/**
 	 * Press the shift key and hold it down until doShiftUp() is called or a new page is loaded.
 	 * @access public
@@ -492,7 +491,7 @@ class Test_Selenium_Legacy extends Test_Unit {
 	public function shiftKeyDown() {
 		$this->doCommand("shiftKeyDown", array());
 	}
-
+	
 	/**
 	 * Release the shift key.
 	 * @access public
@@ -500,7 +499,7 @@ class Test_Selenium_Legacy extends Test_Unit {
 	public function shiftKeyUp() {
 		$this->doCommand("shiftKeyUp", array());
 	}
-
+	
 	/**
 	 * Press the meta key and hold it down until doMetaUp() is called or a new page is loaded.
 	 * @access public
@@ -508,7 +507,7 @@ class Test_Selenium_Legacy extends Test_Unit {
 	public function metaKeyDown() {
 		$this->doCommand("metaKeyDown", array());
 	}
-
+	
 	/**
 	 * Release the meta key.
 	 * @access public
@@ -516,7 +515,7 @@ class Test_Selenium_Legacy extends Test_Unit {
 	public function metaKeyUp() {
 		$this->doCommand("metaKeyUp", array());
 	}
-
+	
 	/**
 	 * Press the alt key and hold it down until doAltUp() is called or a new page is loaded.
 	 * @access public
@@ -524,7 +523,7 @@ class Test_Selenium_Legacy extends Test_Unit {
 	public function altKeyDown() {
 		$this->doCommand("altKeyDown", array());
 	}
-
+	
 	/**
 	 * Release the alt key.
 	 * @access public
@@ -532,7 +531,7 @@ class Test_Selenium_Legacy extends Test_Unit {
 	public function altKeyUp() {
 		$this->doCommand("altKeyUp", array());
 	}
-
+	
 	/**
 	 * Press the control key and hold it down until doControlUp() is called or a new page is loaded.
 	 * @access public
@@ -540,7 +539,7 @@ class Test_Selenium_Legacy extends Test_Unit {
 	public function controlKeyDown() {
 		$this->doCommand("controlKeyDown", array());
 	}
-
+	
 	/**
 	 * Release the control key.
 	 * @access public
@@ -548,7 +547,7 @@ class Test_Selenium_Legacy extends Test_Unit {
 	public function controlKeyUp() {
 		$this->doCommand("controlKeyUp", array());
 	}
-
+	
 	/**
 	 * Simulates a user pressing a key (without releasing it yet).
 	 * @access public
@@ -562,7 +561,7 @@ class Test_Selenium_Legacy extends Test_Unit {
 			$keySequence
 		));
 	}
-
+	
 	/**
 	 * Simulates a user releasing a key.
 	 * @access public
@@ -576,7 +575,7 @@ class Test_Selenium_Legacy extends Test_Unit {
 			$keySequence
 		));
 	}
-
+	
 	/**
 	 * Simulates a user hovering a mouse over the specified element.
 	 * @access public
@@ -587,7 +586,7 @@ class Test_Selenium_Legacy extends Test_Unit {
 			$locator
 		));
 	}
-
+	
 	/**
 	 * Simulates a user moving the mouse pointer away from the specified element.
 	 * @access public
@@ -598,7 +597,7 @@ class Test_Selenium_Legacy extends Test_Unit {
 			$locator
 		));
 	}
-
+	
 	/**
 	 * Simulates a user pressing the mouse button (without releasing it yet) on
 	 * the specified element.
@@ -610,7 +609,7 @@ class Test_Selenium_Legacy extends Test_Unit {
 			$locator
 		));
 	}
-
+	
 	/**
 	 * Simulates a user pressing the mouse button (without releasing it yet) at
 	 * the specified location.
@@ -625,7 +624,7 @@ class Test_Selenium_Legacy extends Test_Unit {
 			$coordString
 		));
 	}
-
+	
 	/**
 	 * Simulates the event that occurs when the user releases the mouse button (i.e., stops
 	 * holding the button down) on the specified element.
@@ -637,7 +636,7 @@ class Test_Selenium_Legacy extends Test_Unit {
 			$locator
 		));
 	}
-
+	
 	/**
 	 * Simulates the event that occurs when the user releases the mouse button (i.e., stops
 	 * holding the button down) at the specified location.
@@ -652,7 +651,7 @@ class Test_Selenium_Legacy extends Test_Unit {
 			$coordString
 		));
 	}
-
+	
 	/**
 	 * Simulates a user pressing the mouse button (without releasing it yet) on
 	 * the specified element.
@@ -664,7 +663,7 @@ class Test_Selenium_Legacy extends Test_Unit {
 			$locator
 		));
 	}
-
+	
 	/**
 	 * Simulates a user pressing the mouse button (without releasing it yet) on
 	 * the specified element.
@@ -679,7 +678,7 @@ class Test_Selenium_Legacy extends Test_Unit {
 			$coordString
 		));
 	}
-
+	
 	/**
 	 * Sets the value of an input field, as though you typed it in.
 	 * <p>
@@ -696,7 +695,7 @@ class Test_Selenium_Legacy extends Test_Unit {
 			$value
 		));
 	}
-
+	
 	/**
 	 * Simulates keystroke events on the specified element, as though you typed the value key-by-key.
 	 * <p>
@@ -722,7 +721,7 @@ class Test_Selenium_Legacy extends Test_Unit {
 			$value
 		));
 	}
-
+	
 	/**
 	 * Set execution speed (i.e., set the millisecond length of a delay which will follow each selenium operation).
 	 * By default, there is no such delay, i.e.,
@@ -735,7 +734,7 @@ class Test_Selenium_Legacy extends Test_Unit {
 			$value
 		));
 	}
-
+	
 	/**
 	 * Get execution speed (i.e., get the millisecond length of the delay following each selenium operation).
 	 * By default, there is no such delay, i.e.,
@@ -751,7 +750,7 @@ class Test_Selenium_Legacy extends Test_Unit {
 			$locator
 		));
 	}
-
+	
 	/**
 	 * Check a toggle-button (checkbox/radio)
 	 * @access public
@@ -762,7 +761,7 @@ class Test_Selenium_Legacy extends Test_Unit {
 			$locator
 		));
 	}
-
+	
 	/**
 	 * Uncheck a toggle-button (checkbox/radio)
 	 * @access public
@@ -773,7 +772,7 @@ class Test_Selenium_Legacy extends Test_Unit {
 			$locator
 		));
 	}
-
+	
 	/**
 	 * Select an option from a drop-down using an option locator.
 	 * <p>
@@ -833,7 +832,7 @@ class Test_Selenium_Legacy extends Test_Unit {
 			$optionLocator
 		));
 	}
-
+	
 	/**
 	 * Add a selection to the set of selected options in a multi-select element using an option locator.
 	 * @see #doSelect for details of option locators
@@ -847,7 +846,7 @@ class Test_Selenium_Legacy extends Test_Unit {
 			$optionLocator
 		));
 	}
-
+	
 	/**
 	 * Remove a selection from the set of selected options in a multi-select element using an option locator.
 	 * @see #doSelect for details of option locators
@@ -861,7 +860,7 @@ class Test_Selenium_Legacy extends Test_Unit {
 			$optionLocator
 		));
 	}
-
+	
 	/**
 	 * Unselects all of the selected options in a multi-select element.
 	 * @access public
@@ -872,7 +871,7 @@ class Test_Selenium_Legacy extends Test_Unit {
 			$locator
 		));
 	}
-
+	
 	/**
 	 * Submit the specified form.
 	 * This is particularly useful for forms without
@@ -885,7 +884,7 @@ class Test_Selenium_Legacy extends Test_Unit {
 			$formLocator
 		));
 	}
-
+	
 	/**
 	 * Opens an URL in the test frame.
 	 * This accepts both relative and absolute
@@ -904,7 +903,7 @@ class Test_Selenium_Legacy extends Test_Unit {
 			$url
 		));
 	}
-
+	
 	/**
 	 * Opens a popup window (if a window with that ID isn't already open).
 	 * After opening the window, you'll need to select it using the selectWindow
@@ -926,7 +925,7 @@ class Test_Selenium_Legacy extends Test_Unit {
 			$windowID
 		));
 	}
-
+	
 	/**
 	 * Selects a popup window; once a popup window has been selected, all
 	 * commands go to that window.
@@ -976,7 +975,7 @@ class Test_Selenium_Legacy extends Test_Unit {
 			$windowID
 		));
 	}
-
+	
 	/**
 	 * Selects a frame within the current window.
 	 * (You may invoke this command
@@ -996,7 +995,7 @@ class Test_Selenium_Legacy extends Test_Unit {
 			$locator
 		));
 	}
-
+	
 	/**
 	 * Determine whether current/locator identify the frame containing this running code.
 	 * <p>
@@ -1017,7 +1016,7 @@ class Test_Selenium_Legacy extends Test_Unit {
 			$target
 		));
 	}
-
+	
 	/**
 	 * Determine whether currentWindowString plus target identify the window containing this running code.
 	 * <p>
@@ -1038,7 +1037,7 @@ class Test_Selenium_Legacy extends Test_Unit {
 			$target
 		));
 	}
-
+	
 	/**
 	 * Waits for a popup window to appear and load up.
 	 * @access public
@@ -1051,7 +1050,7 @@ class Test_Selenium_Legacy extends Test_Unit {
 			$timeout
 		));
 	}
-
+	
 	/**
 	 * By default, Selenium's overridden window.confirm() function will
 	 * return true, as if the user had manually clicked OK; after running
@@ -1066,7 +1065,7 @@ class Test_Selenium_Legacy extends Test_Unit {
 	public function chooseCancelOnNextConfirmation() {
 		$this->doCommand("chooseCancelOnNextConfirmation", array());
 	}
-
+	
 	/**
 	 * Undo the effect of calling chooseCancelOnNextConfirmation.
 	 * Note
@@ -1082,7 +1081,7 @@ class Test_Selenium_Legacy extends Test_Unit {
 	public function chooseOkOnNextConfirmation() {
 		$this->doCommand("chooseOkOnNextConfirmation", array());
 	}
-
+	
 	/**
 	 * Instructs Selenium to return the specified answer string in response to
 	 * the next JavaScript prompt [window.prompt()].
@@ -1094,7 +1093,7 @@ class Test_Selenium_Legacy extends Test_Unit {
 			$answer
 		));
 	}
-
+	
 	/**
 	 * Simulates the user clicking the "back" button on their browser.
 	 * @access public
@@ -1102,7 +1101,7 @@ class Test_Selenium_Legacy extends Test_Unit {
 	public function goBack() {
 		$this->doCommand("goBack", array());
 	}
-
+	
 	/**
 	 * Simulates the user clicking the "Refresh" button on their browser.
 	 * @access public
@@ -1110,7 +1109,7 @@ class Test_Selenium_Legacy extends Test_Unit {
 	public function refresh() {
 		$this->doCommand("refresh", array());
 	}
-
+	
 	/**
 	 * Simulates the user clicking the "close" button in the titlebar of a popup
 	 * window or tab.
@@ -1119,7 +1118,7 @@ class Test_Selenium_Legacy extends Test_Unit {
 	public function close() {
 		$this->doCommand("close", array());
 	}
-
+	
 	/**
 	 * Has an alert occurred?
 	 * <p>
@@ -1131,7 +1130,7 @@ class Test_Selenium_Legacy extends Test_Unit {
 	public function isAlertPresent() {
 		return $this->getBoolean("isAlertPresent", array());
 	}
-
+	
 	/**
 	 * Has a prompt occurred?
 	 * <p>
@@ -1143,7 +1142,7 @@ class Test_Selenium_Legacy extends Test_Unit {
 	public function isPromptPresent() {
 		return $this->getBoolean("isPromptPresent", array());
 	}
-
+	
 	/**
 	 * Has confirm() been called?
 	 * <p>
@@ -1155,7 +1154,7 @@ class Test_Selenium_Legacy extends Test_Unit {
 	public function isConfirmationPresent() {
 		return $this->getBoolean("isConfirmationPresent", array());
 	}
-
+	
 	/**
 	 * Retrieves the message of a JavaScript alert generated during the previous action, or fail if there were no
 	 * alerts.
@@ -1177,7 +1176,7 @@ class Test_Selenium_Legacy extends Test_Unit {
 	public function getAlert() {
 		return $this->getString("getAlert", array());
 	}
-
+	
 	/**
 	 * Retrieves the message of a JavaScript confirmation dialog generated during
 	 * the previous action.
@@ -1201,7 +1200,7 @@ class Test_Selenium_Legacy extends Test_Unit {
 	public function getConfirmation() {
 		return $this->getString("getConfirmation", array());
 	}
-
+	
 	/**
 	 * Retrieves the message of a JavaScript question prompt dialog generated during
 	 * the previous action.
@@ -1223,7 +1222,7 @@ class Test_Selenium_Legacy extends Test_Unit {
 	public function getPrompt() {
 		return $this->getString("getPrompt", array());
 	}
-
+	
 	/**
 	 * Gets the absolute URL of the current page.
 	 * @access public
@@ -1232,7 +1231,7 @@ class Test_Selenium_Legacy extends Test_Unit {
 	public function getLocation() {
 		return $this->getString("getLocation", array());
 	}
-
+	
 	/**
 	 * Gets the title of the current page.
 	 * @access public
@@ -1241,7 +1240,7 @@ class Test_Selenium_Legacy extends Test_Unit {
 	public function getTitle() {
 		return $this->getString("getTitle", array());
 	}
-
+	
 	/**
 	 * Gets the entire text of the page.
 	 * @access public
@@ -1253,7 +1252,7 @@ class Test_Selenium_Legacy extends Test_Unit {
 		}
 		return $this->page_body;
 	}
-
+	
 	/**
 	 * Gets the (whitespace-trimmed) value of an input field (or anything else with a value parameter).
 	 * For checkbox/radio elements, the value will be "on" or "off" depending on
@@ -1267,7 +1266,7 @@ class Test_Selenium_Legacy extends Test_Unit {
 			$locator
 		));
 	}
-
+	
 	/**
 	 * Gets the text of an element.
 	 * This works for any element that contains
@@ -1283,7 +1282,7 @@ class Test_Selenium_Legacy extends Test_Unit {
 			$locator
 		));
 	}
-
+	
 	/**
 	 * Briefly changes the backgroundColor of the specified element yellow.
 	 * Useful for debugging.
@@ -1295,7 +1294,7 @@ class Test_Selenium_Legacy extends Test_Unit {
 			$locator
 		));
 	}
-
+	
 	/**
 	 * Gets the result of evaluating the specified JavaScript snippet.
 	 * The snippet may
@@ -1318,7 +1317,7 @@ class Test_Selenium_Legacy extends Test_Unit {
 			$script
 		));
 	}
-
+	
 	/**
 	 * Gets whether a toggle-button (checkbox/radio) is checked.
 	 * Fails if the specified element doesn't exist or isn't a toggle-button.
@@ -1331,7 +1330,7 @@ class Test_Selenium_Legacy extends Test_Unit {
 			$locator
 		));
 	}
-
+	
 	/**
 	 * Gets the text from a cell of a table.
 	 * The cellAddress syntax
@@ -1345,7 +1344,7 @@ class Test_Selenium_Legacy extends Test_Unit {
 			$tableCellAddress
 		));
 	}
-
+	
 	/**
 	 * Gets all option labels (visible text) for selected options in the specified select or multi-select element.
 	 * @access public
@@ -1357,7 +1356,7 @@ class Test_Selenium_Legacy extends Test_Unit {
 			$selectLocator
 		));
 	}
-
+	
 	/**
 	 * Gets option label (visible text) for selected option in the specified select element.
 	 * @access public
@@ -1369,7 +1368,7 @@ class Test_Selenium_Legacy extends Test_Unit {
 			$selectLocator
 		));
 	}
-
+	
 	/**
 	 * Gets all option values (value attributes) for selected options in the specified select or multi-select element.
 	 * @access public
@@ -1381,7 +1380,7 @@ class Test_Selenium_Legacy extends Test_Unit {
 			$selectLocator
 		));
 	}
-
+	
 	/**
 	 * Gets option value (value attribute) for selected option in the specified select element.
 	 * @access public
@@ -1393,7 +1392,7 @@ class Test_Selenium_Legacy extends Test_Unit {
 			$selectLocator
 		));
 	}
-
+	
 	/**
 	 * Gets all option indexes (option number, starting at 0) for selected options in the specified select or
 	 * multi-select element.
@@ -1406,7 +1405,7 @@ class Test_Selenium_Legacy extends Test_Unit {
 			$selectLocator
 		));
 	}
-
+	
 	/**
 	 * Gets option index (option number, starting at 0) for selected option in the specified select element.
 	 * @access public
@@ -1418,7 +1417,7 @@ class Test_Selenium_Legacy extends Test_Unit {
 			$selectLocator
 		));
 	}
-
+	
 	/**
 	 * Gets all option element IDs for selected options in the specified select or multi-select element.
 	 * @access public
@@ -1430,7 +1429,7 @@ class Test_Selenium_Legacy extends Test_Unit {
 			$selectLocator
 		));
 	}
-
+	
 	/**
 	 * Gets option element ID for selected option in the specified select element.
 	 * @access public
@@ -1442,7 +1441,7 @@ class Test_Selenium_Legacy extends Test_Unit {
 			$selectLocator
 		));
 	}
-
+	
 	/**
 	 * Determines whether some option in a drop-down menu is selected.
 	 * @access public
@@ -1454,7 +1453,7 @@ class Test_Selenium_Legacy extends Test_Unit {
 			$selectLocator
 		));
 	}
-
+	
 	/**
 	 * Gets all option labels in the specified select drop-down.
 	 * @access public
@@ -1466,7 +1465,7 @@ class Test_Selenium_Legacy extends Test_Unit {
 			$selectLocator
 		));
 	}
-
+	
 	/**
 	 * Gets the value of an element attribute.
 	 * @access public
@@ -1479,7 +1478,7 @@ class Test_Selenium_Legacy extends Test_Unit {
 			$attributeLocator
 		));
 	}
-
+	
 	/**
 	 * Verifies that the specified text pattern appears somewhere on the rendered page shown to the user.
 	 * @access public
@@ -1491,7 +1490,7 @@ class Test_Selenium_Legacy extends Test_Unit {
 			$pattern
 		));
 	}
-
+	
 	/**
 	 * Verifies that the specified element is somewhere on the page.
 	 * @access public
@@ -1503,7 +1502,7 @@ class Test_Selenium_Legacy extends Test_Unit {
 			$locator
 		));
 	}
-
+	
 	/**
 	 * Determines if the specified element is visible.
 	 * An
@@ -1520,7 +1519,7 @@ class Test_Selenium_Legacy extends Test_Unit {
 			$locator
 		));
 	}
-
+	
 	/**
 	 * Determines whether the specified input element is editable, ie hasn't been disabled.
 	 * This method will fail if the specified element isn't an input element.
@@ -1533,7 +1532,7 @@ class Test_Selenium_Legacy extends Test_Unit {
 			$locator
 		));
 	}
-
+	
 	/**
 	 * Returns the IDs of all buttons on the page.
 	 * <p>
@@ -1545,7 +1544,7 @@ class Test_Selenium_Legacy extends Test_Unit {
 	public function getAllButtons() {
 		return $this->getStringArray("getAllButtons", array());
 	}
-
+	
 	/**
 	 * Returns the IDs of all links on the page.
 	 * <p>
@@ -1557,7 +1556,7 @@ class Test_Selenium_Legacy extends Test_Unit {
 	public function getAllLinks() {
 		return $this->getStringArray("getAllLinks", array());
 	}
-
+	
 	/**
 	 * Returns the IDs of all input fields on the page.
 	 * <p>
@@ -1569,7 +1568,7 @@ class Test_Selenium_Legacy extends Test_Unit {
 	public function getAllFields() {
 		return $this->getStringArray("getAllFields", array());
 	}
-
+	
 	/**
 	 * Returns every instance of some attribute from all known windows.
 	 * @access public
@@ -1581,7 +1580,7 @@ class Test_Selenium_Legacy extends Test_Unit {
 			$attributeName
 		));
 	}
-
+	
 	/**
 	 * deprecated - use dragAndDrop instead
 	 * @access public
@@ -1595,7 +1594,7 @@ class Test_Selenium_Legacy extends Test_Unit {
 			$movementsString
 		));
 	}
-
+	
 	/**
 	 * Configure the number of pixels between "mousemove" events during dragAndDrop commands (default=10).
 	 * <p>
@@ -1614,7 +1613,7 @@ class Test_Selenium_Legacy extends Test_Unit {
 			$pixels
 		));
 	}
-
+	
 	/**
 	 * Returns the number of pixels between "mousemove" events during dragAndDrop commands (default=10).
 	 * @access public
@@ -1623,7 +1622,7 @@ class Test_Selenium_Legacy extends Test_Unit {
 	public function getMouseSpeed() {
 		return $this->getNumber("getMouseSpeed", array());
 	}
-
+	
 	/**
 	 * Drags an element a certain distance and then drops it
 	 * @access public
@@ -1637,7 +1636,7 @@ class Test_Selenium_Legacy extends Test_Unit {
 			$movementsString
 		));
 	}
-
+	
 	/**
 	 * Drags an element and drops it on another element
 	 * @access public
@@ -1651,7 +1650,7 @@ class Test_Selenium_Legacy extends Test_Unit {
 			$locatorOfDragDestinationObject
 		));
 	}
-
+	
 	/**
 	 * Gives focus to the currently selected window
 	 * @access public
@@ -1659,7 +1658,7 @@ class Test_Selenium_Legacy extends Test_Unit {
 	public function windowFocus() {
 		$this->doCommand("windowFocus", array());
 	}
-
+	
 	/**
 	 * Resize currently selected window to take up the entire screen
 	 * @access public
@@ -1667,7 +1666,7 @@ class Test_Selenium_Legacy extends Test_Unit {
 	public function windowMaximize() {
 		$this->doCommand("windowMaximize", array());
 	}
-
+	
 	/**
 	 * Returns the IDs of all windows that the browser knows about.
 	 * @access public
@@ -1676,7 +1675,7 @@ class Test_Selenium_Legacy extends Test_Unit {
 	public function getAllWindowIds() {
 		return $this->getStringArray("getAllWindowIds", array());
 	}
-
+	
 	/**
 	 * Returns the names of all windows that the browser knows about.
 	 * @access public
@@ -1685,7 +1684,7 @@ class Test_Selenium_Legacy extends Test_Unit {
 	public function getAllWindowNames() {
 		return $this->getStringArray("getAllWindowNames", array());
 	}
-
+	
 	/**
 	 * Returns the titles of all windows that the browser knows about.
 	 * @access public
@@ -1694,7 +1693,7 @@ class Test_Selenium_Legacy extends Test_Unit {
 	public function getAllWindowTitles() {
 		return $this->getStringArray("getAllWindowTitles", array());
 	}
-
+	
 	/**
 	 * Returns the entire HTML source between the opening and
 	 * closing "html" tags.
@@ -1704,7 +1703,7 @@ class Test_Selenium_Legacy extends Test_Unit {
 	public function getHtmlSource() {
 		return $this->getString("getHtmlSource", array());
 	}
-
+	
 	/**
 	 * Moves the text cursor to the specified position in the given input element or textarea.
 	 * This method will fail if the specified element isn't an input element or textarea.
@@ -1720,7 +1719,7 @@ class Test_Selenium_Legacy extends Test_Unit {
 			$position
 		));
 	}
-
+	
 	/**
 	 * Get the relative index of an element to its parent (starting from 0).
 	 * The comment node and empty text node
@@ -1734,7 +1733,7 @@ class Test_Selenium_Legacy extends Test_Unit {
 			$locator
 		));
 	}
-
+	
 	/**
 	 * Check if these two elements have same parent and are ordered siblings in the DOM.
 	 * Two same elements will
@@ -1750,7 +1749,7 @@ class Test_Selenium_Legacy extends Test_Unit {
 			$locator2
 		));
 	}
-
+	
 	/**
 	 * Retrieves the horizontal position of an element
 	 * @access public
@@ -1762,7 +1761,7 @@ class Test_Selenium_Legacy extends Test_Unit {
 			$locator
 		));
 	}
-
+	
 	/**
 	 * Retrieves the vertical position of an element
 	 * @access public
@@ -1774,7 +1773,7 @@ class Test_Selenium_Legacy extends Test_Unit {
 			$locator
 		));
 	}
-
+	
 	/**
 	 * Retrieves the width of an element
 	 * @access public
@@ -1786,7 +1785,7 @@ class Test_Selenium_Legacy extends Test_Unit {
 			$locator
 		));
 	}
-
+	
 	/**
 	 * Retrieves the height of an element
 	 * @access public
@@ -1798,7 +1797,7 @@ class Test_Selenium_Legacy extends Test_Unit {
 			$locator
 		));
 	}
-
+	
 	/**
 	 * Retrieves the text cursor position in the given input element or textarea; beware, this may not work perfectly on
 	 * all browsers.
@@ -1818,7 +1817,7 @@ class Test_Selenium_Legacy extends Test_Unit {
 			$locator
 		));
 	}
-
+	
 	/**
 	 * Returns the specified expression.
 	 * <p>
@@ -1834,7 +1833,7 @@ class Test_Selenium_Legacy extends Test_Unit {
 			$expression
 		));
 	}
-
+	
 	/**
 	 * Returns the number of nodes that match the specified xpath, eg.
 	 * "//table" would give
@@ -1849,7 +1848,7 @@ class Test_Selenium_Legacy extends Test_Unit {
 			$xpath
 		));
 	}
-
+	
 	/**
 	 * Temporarily sets the "id" attribute of the specified element, so you can locate it in the future
 	 * using its ID rather than a slow/complicated XPath.
@@ -1865,7 +1864,7 @@ class Test_Selenium_Legacy extends Test_Unit {
 			$identifier
 		));
 	}
-
+	
 	/**
 	 * Specifies whether Selenium should use the native in-browser implementation
 	 * of XPath (if any native version is available); if you pass "false" to
@@ -1881,7 +1880,7 @@ class Test_Selenium_Legacy extends Test_Unit {
 			$allow
 		));
 	}
-
+	
 	/**
 	 * Runs the specified JavaScript snippet repeatedly until it evaluates to "true".
 	 * The snippet may have multiple lines, but only the result of the last line
@@ -1902,7 +1901,7 @@ class Test_Selenium_Legacy extends Test_Unit {
 			$timeout
 		));
 	}
-
+	
 	/**
 	 * Specifies the amount of time that Selenium will wait for actions to complete.
 	 * <p>
@@ -1917,7 +1916,7 @@ class Test_Selenium_Legacy extends Test_Unit {
 			$timeout
 		));
 	}
-
+	
 	/**
 	 * Waits for a new page to load.
 	 * <p>
@@ -1952,7 +1951,7 @@ class Test_Selenium_Legacy extends Test_Unit {
 			$delay = min($delay + 1, 3);
 		} while (strpos($html, $pattern) === false);
 	}
-
+	
 	/**
 	 * Waits for a new frame to load.
 	 * <p>
@@ -1970,7 +1969,7 @@ class Test_Selenium_Legacy extends Test_Unit {
 			$timeout
 		));
 	}
-
+	
 	/**
 	 * Return all cookies of the current page under test.
 	 * @access public
@@ -1979,7 +1978,7 @@ class Test_Selenium_Legacy extends Test_Unit {
 	public function getCookie() {
 		return $this->getString("getCookie", array());
 	}
-
+	
 	/**
 	 * Create a new cookie whose path and domain are same with those of current page
 	 * under test, unless you specified a path for this cookie explicitly.
@@ -1995,7 +1994,7 @@ class Test_Selenium_Legacy extends Test_Unit {
 			$optionsString
 		));
 	}
-
+	
 	/**
 	 * Delete a named cookie with specified path.
 	 * @access public
@@ -2008,7 +2007,7 @@ class Test_Selenium_Legacy extends Test_Unit {
 			$path
 		));
 	}
-
+	
 	/**
 	 * Sets the threshold for browser-side logging messages; log messages beneath this threshold will be discarded.
 	 * Valid logLevel strings are: "debug", "info", "warn", "error" or "off".
@@ -2022,7 +2021,7 @@ class Test_Selenium_Legacy extends Test_Unit {
 			$logLevel
 		));
 	}
-
+	
 	/**
 	 * Creates a new "script" tag in the body of the current test window, and
 	 * adds the specified text into the body of the command.
@@ -2040,7 +2039,7 @@ class Test_Selenium_Legacy extends Test_Unit {
 			$script
 		));
 	}
-
+	
 	/**
 	 * Defines a new function for Selenium to locate elements on the page.
 	 * For example,
@@ -2073,7 +2072,7 @@ class Test_Selenium_Legacy extends Test_Unit {
 			$functionDefinition
 		));
 	}
-
+	
 	/**
 	 * Writes a message to the status bar and adds a note to the browser-side
 	 * log.
@@ -2085,7 +2084,7 @@ class Test_Selenium_Legacy extends Test_Unit {
 			$context
 		));
 	}
-
+	
 	/**
 	 * Captures a PNG screenshot to the specified file.
 	 * @access public
@@ -2123,7 +2122,7 @@ class Test_Selenium_Legacy extends Test_Unit {
 			"args"
 		));
 		$url = sprintf('http://%s:%s/selenium-server/driver/?cmd=%s', $this->host, $this->port, urlencode($verb));
-		for($i = 0; $i < count($args); $i++) {
+		for ($i = 0; $i < count($args); $i++) {
 			$argNum = strval($i + 1);
 			$url .= sprintf('&%s=%s', $argNum, urlencode(trim($args[$i])));
 		}
@@ -2131,7 +2130,7 @@ class Test_Selenium_Legacy extends Test_Unit {
 			$url .= sprintf('&%s=%s', 'sessionId', $this->sessionId);
 		}
 		$response = $this->http_get_HTTP_Client($url);
-
+		
 		if (!preg_match('/^OK/', $response)) {
 			throw new Exception_Selenium('The Response of the Selenium RC is invalid: ' . $response);
 		}
@@ -2148,7 +2147,7 @@ class Test_Selenium_Legacy extends Test_Unit {
 		$token = '';
 		$tokens = array();
 		$letters = preg_split('//', $csv, -1, PREG_SPLIT_NO_EMPTY);
-		for($i = 0; $i < count($letters); $i++) {
+		for ($i = 0; $i < count($letters); $i++) {
 			$letter = $letters[$i];
 			switch ($letter) {
 				case '\\':
@@ -2160,7 +2159,7 @@ class Test_Selenium_Legacy extends Test_Unit {
 					array_push($tokens, $token);
 					$token = '';
 					break;
-				default:
+				default :
 					$token = $token . $letter;
 					break;
 			}
@@ -2175,7 +2174,7 @@ class Test_Selenium_Legacy extends Test_Unit {
 				return true;
 			case 'false':
 				return false;
-			default:
+			default :
 				throw new Exception_Selenium('result is neither "true" or "false": ' . $result);
 		}
 	}
@@ -2322,7 +2321,7 @@ class Test_Selenium_Legacy extends Test_Unit {
 		if ($boolean)
 			$this->failed($message);
 	}
-
+	
 	/**
 	 * Clicks on a link, button, checkbox or radio button.
 	 * If the click action

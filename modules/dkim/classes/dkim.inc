@@ -36,6 +36,15 @@ class DKIM {
 	 * @var unknown
 	 */
 	private $Selector;
+	
+	/**
+	 * 
+	 * @param unknown $domain
+	 * @param unknown $public_key_path
+	 * @param unknown $private_key_path
+	 * @param string $selector
+	 * @throws Exception_DKIM
+	 */
 	public function __construct($domain, $public_key_path, $private_key_path, $selector = false) {
 		$this->Domain = $domain;
 		$this->Selector = empty($selector) ? "all" : "";

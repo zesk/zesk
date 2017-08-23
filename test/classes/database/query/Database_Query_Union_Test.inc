@@ -6,17 +6,20 @@
  * @author Kent Davidson <kent@marketacumen.com>
  * @copyright Copyright &copy; 2010, Market Acumen, Inc.
  */
-class Database_Query_Union_Test extends Test_Unit {
+namespace zesk;
 
+class Database_Query_Union_Test extends Test_Unit {
+	protected $load_modules = array(
+		"MySQL"
+	);
 	function test_main() {
 		$table_name = "Database_Query_Union";
 		
 		$this->test_table($table_name);
 		
-		$db = null;
+		$db = $this->application->database_factory();
 		$testx = new Database_Query_Union($db);
 		
-		$db = null;
 		$select = new Database_Query_Select($db);
 		$testx->union($select);
 		
@@ -49,7 +52,7 @@ class Database_Query_Union_Test extends Test_Unit {
 		
 		$testx->iterator();
 		
-		$class = null;
+		$class = "U";
 		$options = false;
 		$testx->object_iterator($class, $options);
 		
@@ -57,9 +60,8 @@ class Database_Query_Union_Test extends Test_Unit {
 		$default = false;
 		$testx->one($field, $default);
 		
-		$class = null;
-		$options = false;
-		$testx->object($class, $options);
+		$class = "User";
+		$testx->object($class);
 		
 		$field = null;
 		$default = 0;
@@ -78,7 +80,5 @@ class Database_Query_Union_Test extends Test_Unit {
 		
 		$class = null;
 		$testx->object_class($class);
-		
-		echo basename(__FILE__) . ": success\n";
 	}
 }

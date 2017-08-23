@@ -7,6 +7,5 @@ class Module_Mail extends Module {
 		'zesk\\Mail_Content',
 		'zesk\\Mail_Header',
 		'zesk\\Mail_Header_Type',
-		'zesk\\Content_Data'
 	);
 }

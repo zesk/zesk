@@ -45,8 +45,9 @@ class Mail_Message extends Object {
 			if ($n_contents === 1) {
 				$contents = $contents[0];
 			} else if ($n_contents > 1) {
+				/* @var $content Content_Data */
 				foreach ($contents as $content) {
-					$size += $content->size();
+					$size += $content->size;
 				}
 			}
 		}
@@ -285,12 +286,12 @@ class Mail_Message extends Object {
 		$this->set_member("date", Timestamp::now());
 		return $this->store();
 	}
-	static function from_file($fd) {
-		return Mail_Parser::from_file($fd);
+	static function from_file(Application $application, $fd) {
+		return Mail_Parser::from_file($application, $fd);
 	}
-	static function import_file($filename = "php://stdin") {
+	static function import_file(Application $application, $filename = "php://stdin") {
 		$fd = fopen($filename, "r");
-		$m = self::from_file($fd);
+		$m = self::from_file($application, $fd);
 		return $m;
 	}
 }

@@ -1,10 +1,10 @@
 <?php
-use zesk\Database_Exception;
-use zesk\Database_Index;
-use zesk\Database_Column;
-use zesk\Database_Table;
-use zesk\Database_Schema;
+namespace zesk;
+
 class Database_MySQL_Test extends Test_Unit {
+	protected $load_modules = array(
+		"MySQL"
+	);
 	function test_types_compatible() {
 		$mysql = $this->application->database_factory("mysql://root@localhost/mysql", array(
 			'connect' => false
@@ -15,16 +15,12 @@ class Database_MySQL_Test extends Test_Unit {
 	
 	/**
 	 *
-	 * @return Database_MySQL
+	 * @return \mysql\Database
 	 */
 	function database() {
-		$url = zesk::get('DB_URL');
-		$this->assert(begins($url, 'mysql:'));
-		/* @var $db Database_MySQL */
+		$db = $this->application->database_factory();
 		
-		$db = $this->application->database_factory($url);
-		
-		$this->assert($db->type() === "mysql");
+		$this->assert_equal($db->type(), "mysqli");
 		return $db;
 	}
 	function test_mysql_1() {
@@ -71,7 +67,7 @@ EOF;
 		
 		$table = $db->parse_create_table($sql);
 		
-		$this->assert($table instanceof zesk\Database_Table);
+		$this->assert_instanceof($table, "zesk\\Database_Table");
 		
 		echo "Test created because preg_match dies on web2 with above input... due to pcre backtracking stack overflow ... or something like that\n";
 	}
@@ -82,23 +78,26 @@ EOF;
 		
 		$db->database_name();
 		
-		$where = null;
-		$suffix = null;
-		$inList = null;
-		$exList = null;
-		$lock_first = true;
+		$filename = path($this->test_sandbox("dump.sql"));
+		$options = array();
 		$db->connect();
-		$db->dump($this->test_sandbox(), date('Y-m-d'), $inList, $exList, $lock_first);
+		$db->dump($filename, $options);
 		
 		$db->disconnect();
-		
+		$this->assert_equal($db->connected(), false);
 		$success = false;
 		try {
-			$db->query("SHOW TABLES");
-		} catch (zesk\Database_Exception $e) {
-			$this->assert(strpos($e->getMessage(), "Not connected") !== false);
+			/**
+			 * Set auto_connect to false
+			 */
+			$db->query("SHOW TABLES", array(
+				"auto_connect" => false
+			));
+		} catch (Database_Exception $e) {
+			$this->assert_contains($e->getMessage(), "Not connected");
 			$success = true;
 		}
+		$this->assert_equal($db->connected(), false);
 		$this->assert($success);
 		
 		$db->connect();
@@ -108,20 +107,33 @@ EOF;
 			//$db->createDatabase('mysql://test_user:test_pass@localhost/zesk_create_test_db');
 		}
 		
-		$db->tablesCaseSensitive();
+		$db->tables_case_sensitive();
 		
-		$this->assert($db->can(zesk\Database::feature_list_tables) === true);
-		$this->assert($db->can(zesk\Database::feature_create_database) === true);
+		$this->assert($db->can(Database::feature_list_tables) === true);
+		$this->assert($db->can(Database::feature_create_database) === true);
 		
 		$tables = $db->list_tables();
 		
+		$debug = false;
+		
 		foreach ($tables as $table) {
-			$sql = $db->sql_get_create_table($table);
-			$this->assert(str::begins($sql, "CREATE TABLE"));
+			if ($debug) {
+				$this->log("Showing table {table}", array(
+					"table" => $table
+				));
+			}
+			$sql = $db->query_one("SHOW CREATE TABLE $table", 1);
+			if ($debug) {
+				$this->log("Showing table {table} = {sql}", array(
+					"table" => $table,
+					"sql" => $sql
+				));
+			}
+			$this->assert_string_begins($sql, "CREATE TABLE");
 			$this->assert(strpos($sql, "$table") !== false);
 			
 			$dbTableObject = $db->parse_create_table($sql);
-			$sql = $db->sql_create_table($dbTableObject);
+			$sql = $db->sql()->create_table($dbTableObject);
 			if (!is_array($sql)) {
 				$sqls = array(
 					$sql
@@ -134,12 +146,8 @@ EOF;
 				$this->assert(strpos($sql, "$table") !== false);
 			}
 			
-			$result = $db->tableInformation($table);
+			$result = $db->table_information($table);
 		}
-		
-		$type = null;
-		$default_value = null;
-		$db->sql_type_default($type, $default_value);
 		
 		$table = null;
 		
@@ -153,42 +161,46 @@ EOF;
 		$this->assert($success === true);
 		
 		$table = null;
-		$newType = null;
-		$db->sql_alter_table_type($table, $newType);
+		$type = null;
+		$db->sql()->alter_table_type($table, $type);
 		
 		$success = false;
 		try {
-			$table = null;
-			$name = null;
-			$indexType = null;
-			$db->sql_alter_table_index_drop($table, $name, $indexType);
-		} catch (Exception $e) {
+			$table = new Database_Table($db, "Foo");
+			$index = new Database_Index($table);
+			$index->type("DUCKY");
+			$this->assert_equal($index->type(), Database_Index::Index);
+			$sql = $db->sql()->alter_table_index_drop($table, $index);
+			$this->log($sql);
+		} catch (Exception_Semantics $e) {
 			$success = true;
 		}
 		$this->assert($success);
 		
-		$table = null;
-		$name = null;
-		$indexType = null;
-		$db->sql_alter_table_index_drop($table, $name, Database_Index::Primary);
-		$table = null;
-		$name = null;
-		$indexType = null;
-		$db->sql_alter_table_index_drop($table, $name, Database_Index::Index);
-		$db->sql_alter_table_index_drop($table, $name, Database_Index::Unique);
+		$table = new Database_Table($db, "Foo");
+		$index = new Database_Index($table, "dude");
+		$sql = $db->sql()->alter_table_index_drop($table, $index);
+		$this->assert_equal($sql, "ALTER TABLE `Foo` DROP INDEX `dude`");
+		
+		$table = new Database_Table($db, "Foo");
+		$index = new Database_Index($table, "dude");
+		$index->type(Database_Index::Primary);
+		
+		$sql = $db->sql()->alter_table_index_drop($table, $index);
+		$this->assert_equal($sql, "ALTER TABLE `Foo` DROP PRIMARY KEY");
 		
 		$table = null;
 		$name = null;
 		$indexes = array(
 			"Foo" => 32
 		);
-		$db->sql_index_type($table, $name, Database_Index::Index, $indexes);
+		$db->sql()->index_type($table, $name, Database_Index::Index, $indexes);
 		$table = null;
 		$name = null;
-		$db->sql_index_type($table, $name, Database_Index::Unique, $indexes);
+		$db->sql()->index_type($table, $name, Database_Index::Unique, $indexes);
 		$table = null;
 		$name = null;
-		$db->sql_index_type($table, $name, Database_Index::Primary, $indexes);
+		$db->sql()->index_type($table, $name, Database_Index::Primary, $indexes);
 		
 		$table = null;
 		$name = null;
@@ -196,16 +208,26 @@ EOF;
 		$indexes = array(
 			"Foo" => 32
 		);
-		$db->sql_alter_table_index_add($table, $name, Database_Index::Primary, $indexes);
 		
-		$table = null;
-		$dbColOld = new Database_Column("Foo", "varchar(32)");
-		$dbColNew = new Database_Column("Foo", "varchar(33)");
-		$db->sql_alter_table_change_column($table, $dbColOld, $dbColNew);
+		$table = new Database_Table($db, "Foo");
+		$table->column_add(new Database_Column($table, "ID", array(
+			"sql_type" => "integer unsigned"
+		)));
+		$table->column_add(new Database_Column($table, "Name", array(
+			"sql_type" => "varchar(32)"
+		)));
+		$index = new Database_Index($table, "dude");
+		$index->column_add("ID");
+		$index->type(Database_Index::Primary);
 		
-		$offset = -1;
-		$limit = -1;
-		$db->_MySQL_Limit($offset, $limit);
+		$sql = $db->sql()->alter_table_index_add($table, $index);
+		$this->assert_equal($sql, "ALTER TABLE `Foo` ADD PRIMARY KEY (`ID`)");
+		
+		$table = new Database_Table($db, $table_name = "TestLine_" . __LINE__);
+		$dbColOld = new Database_Column($table, "Foo", "varchar(32)");
+		$dbColNew = new Database_Column($table, "Foo", "varchar(33)");
+		$sql = $db->sql()->alter_table_change_column($table, $dbColOld, $dbColNew);
+		$this->assert_equal($sql, "ALTER TABLE `$table_name` CHANGE COLUMN `Foo` `Foo` varchar(33) NULL");
 		
 		$success = false;
 		try {
@@ -235,109 +257,19 @@ EOF;
 		$default = null;
 		$db->query_array($sql, $k, $v, $default);
 		
-		$db->sql_now();
+		$db->now();
 		
-		$db->sql_now_utc();
+		$db->now_utc();
 		
-		$value = null;
-		$db->sql_validate_datetime($value);
-		
-		$value = null;
-		$db->sql_validate_Date($value);
-		
-		$value = null;
-		$db->sql_validate_time($value);
-		
-		$value = null;
-		$db->sql_validate_timeStamp($value);
-		
-		$value = null;
-		$db->sql_parse_datetime($value);
-		
-		$value = null;
-		$db->sql_parse_date($value);
-		
-		$value = null;
-		$db->sql_parse_time($value);
-		
-		$table = null;
-		$db->table_exists($table);
-		
-		$sql = null;
-		$db->sql_format_datetime($sql);
-		
-		$sql = null;
-		$db->sqlToDate($sql);
-		
-		$value = null;
-		$db->sql_parse_timeStamp($value);
-		
-		$sql = null;
-		$db->sql_format_timestamp($sql);
-		
-		$sqlDate = null;
-		$number = null;
-		$units = "second";
-		$db->sql_function_date_add($sqlDate, $number, $units);
-		
-		$sqlDate = null;
-		$number = null;
-		$units = "second";
-		$db->sql_function_date_subtract($sqlDate, $number, $units);
-		
-		$table = null;
-		$name = '';
-		$db->sql_table_as($table, $name);
+		$this->assert_true($db->table_exists("User"));
 		
 		$word = null;
 		$db->is_reserved_word($word);
 		
-		$column_name = null;
-		$cmp = null;
-		$string = null;
-		$db->sql_function_compare_binary($column_name, $cmp, $string);
-		
-		$sql = null;
-		$db->sql_format_string($sql);
-		
-		$sqlType = null;
-		$size = null;
-		Database_MySQL::parseType($sqlType, $size);
-		
-		$t = null;
-		Database_MySQL::_basicType($t);
-		
-		$sqlType = null;
-		Database_MySQL::sqlBasicType($sqlType);
-		
-		$sqlType0 = null;
-		$sqlType1 = null;
-		$db->types_compatible($sqlType0, $sqlType1);
-		
-		$value = null;
-		$db->sql_parse_boolean($value);
-		
-		$sql = null;
-		$db->sql_format_boolean($sql);
-		
-		$value = null;
-		$db->sql_format_password($value);
-		
-		$func = null;
-		$memberName = null;
-		$alias = '';
-		$db->sql_format_function($func, $memberName, $alias);
-		
-		$db->hasInnoDB();
-		
-		$sql = "SELECT * FROM test_table";
-		$db->estimate_rows($sql);
-		
 		$sql = "CREATE TABLE Foo ( ID integer )";
 		$db->parse_create_table($sql);
 		
-		$url = zesk::get('DB_URL');
-		$this->application->database_factory($url);
+		$db = $this->application->database_factory();
 		
 		$url = $db->url();
 		
@@ -347,19 +279,22 @@ EOF;
 		$safe_url = $db->safe_url($filler);
 		$this->assert(strpos($safe_url, $filler) !== false, "Safe URL $safe_url does not contain $filler");
 		
-		$table = null;
-		$column = new Database_Column("hello", "varchar(2)");
+		$table = new Database_Table($db, $table_name = "TestTable" . __LINE__);
+		$column = new Database_Column($table, "hello", "varchar(2)");
 		$sqlType = null;
 		$after_col = false;
-		$db->sql_alter_table_column_add($table, $column, $after_col);
+		$sql = $db->sql()->alter_table_column_add($table, $column);
+		$this->assert_equal($sql, "ALTER TABLE `$table_name` ADD COLUMN `hello` varchar(2) NULL");
 		
-		$table = null;
-		$dbColName = null;
-		$db->sql_alter_table_column_drop($table, $dbColName);
+		$table = new Database_Table($db, $table_name = "TestTable" . __LINE__);
+		$column = new Database_Column($table, "hello", "varchar(2)");
+		$sql = $db->sql()->alter_table_column_drop($table, $column);
+		$this->assert_equal($sql, "ALTER TABLE `$table_name` DROP COLUMN `hello`");
 		
-		$col = null;
-		$alias = '';
-		$db->sql_column_alias($col, $alias);
+		$col = "Hippy";
+		$alias = 'Dippy';
+		$sql = $db->sql()->column_alias($col, $alias);
+		$this->assert_equal($sql, "`Dippy`.`Hippy`");
 		
 		$db->transaction_start();
 		
@@ -370,96 +305,76 @@ EOF;
 		$type = false;
 		$db->new_database_table($table, $type);
 		
-		$db->table_prefix();
-		
-		$db->__sleep();
-		
-		$lkeys = null;
-		$rkeys = null;
-		$db->walk($lkeys, $rkeys);
-		
-		$db->option();
-		
-		$remove = false;
-		$db->options_exclude($remove);
-		
-		$selected = false;
-		$db->options_include($selected);
-		
-		$db->option_keys();
-		
-		$name = null;
-		$checkEmpty = false;
-		$db->has_option($name, $checkEmpty);
-		
-		$mixed = null;
-		$value = false;
-		$overwrite = true;
-		$db->set_option($mixed, $value, $overwrite);
+		$this->assert_is_string($db->table_prefix());
 	}
 	function test_schema0() {
-		$db_url = zesk::get('DB_URL');
-		
-		$updates = Database_Schema::updateObject($this->application->object_factory('DBSchemaTest_columns_0'));
+		$updates = Database_Schema::update_object($this->application->object_factory(__NAMESPACE__ . "\\" . 'DBSchemaTest_columns_0'));
 		dump($updates);
 		//TODO - not sure what this is testing but perhaps the SQL caused errors previously?
-		$updates = Database_Schema::updateObject($this->application->object_factory('DBSchemaTest_columns_1'));
+		$updates = Database_Schema::update_object($this->application->object_factory(__NAMESPACE__ . "\\" . 'DBSchemaTest_columns_1'));
 		dump($updates);
 		//TODO - not sure what this is testing but perhaps the SQL caused errors previously?
 	}
+	public function test_estimate_rows() {
+		$db = $this->database();
+		$this->assert_true($db->table_exists("test_table"));
+		$sql = "SELECT * FROM test_table";
+		$db->estimate_rows($sql);
+	}
+}
+class Class_DBSchemaTest_columns_0 extends Class_Object {
+	public $column_types = array(
+		"ID" => self::type_id,
+		"Hash" => self::type_string,
+		"Protocol" => self::type_string,
+		"Domain" => self::type_object,
+		"Port" => self::type_integer,
+		"URI" => self::type_object,
+		"QueryString" => self::type_object,
+		"Fragment" => self::type_string,
+		"Frag" => self::type_object
+	);
 }
 class DBSchemaTest_columns_0 extends Object {
-	protected $columns = array(
-		"ID",
-		"Hash",
-		"Protocol",
-		"Domain",
-		"Port",
-		"URI",
-		"QueryString"
-	);
 	function schema() {
-		return map("CREATE TABLE `{table}` (
-				`ID` int(11) unsigned NOT NULL auto_increment,
-				`Hash` char(32) NOT NULL,
-				`Protocol` varchar(7) NOT NULL default '',
-				`Domain` int(11) unsigned default NULL,
-				`Port` smallint(11) unsigned NULL,
-				`URI` int(11) unsigned default NULL,
-				`QueryString` int(11) unsigned default NULL,
-				`Title` int(11) unsigned NULL,
-				`Fragment` text,
-				`Frag` int(11) unsigned NULL,
-				PRIMARY KEY  (`ID`),
-				UNIQUE KEY `Hash` (`Hash`) USING HASH,
-				KEY `domain` (`Domain`),
-				KEY `title` (`Title`)
-			);", array(
-			"table" => get_class($this)
-		));
+		return "CREATE TABLE `{table}` (
+					`ID` int(11) unsigned NOT NULL auto_increment,
+					`Hash` char(32) NOT NULL,
+					`Protocol` varchar(7) NOT NULL default '',
+					`Domain` int(11) unsigned default NULL,
+					`Port` smallint(11) unsigned NULL,
+					`URI` int(11) unsigned default NULL,
+					`QueryString` int(11) unsigned default NULL,
+					`Title` int(11) unsigned NULL,
+					`Fragment` text,
+					`Frag` int(11) unsigned NULL,
+					PRIMARY KEY  (`ID`),
+					UNIQUE KEY `Hash` (`Hash`) USING HASH,
+					KEY `domain` (`Domain`),
+					KEY `title` (`Title`)
+				);";
 	}
 }
-class DBSchemaTest_columns_1 extends Object {
-	protected $columns = array(
-		"ID",
-		"Hash",
-		"Protocol",
-		"Domain",
-		"Port",
-		"URI",
-		"QueryString"
+class Class_DBSchemaTest_columns_1 extends Class_Object {
+	public $column_types = array(
+		"ID" => self::type_id,
+		"Hash" => self::type_string,
+		"Protocol" => self::type_string,
+		"Domain" => self::type_object,
+		"Port" => self::type_integer,
+		"URI" => self::type_object
 	);
+}
+class DBSchemaTest_columns_1 extends Object {
 	function schema() {
-		return map("CREATE TABLE `{table}` (
-				`ID` int(11) unsigned NOT NULL auto_increment,
-				`Hash` char(32) NOT NULL,
-				`Protocol` varchar(7) NOT NULL default '',
-				`Domain` int(11) unsigned default NULL,
-				`Port` smallint(11) unsigned NULL,
-				`URI` int(11) unsigned default NULL
-			);", array(
-			"table" => get_class($this)
-		));
+		return "CREATE TABLE `{table}` (
+					`ID` int(11) unsigned NOT NULL auto_increment,
+					`Hash` char(32) NOT NULL,
+					`Protocol` varchar(7) NOT NULL default '',
+					`Domain` int(11) unsigned default NULL,
+					`Port` smallint(11) unsigned NULL,
+					`URI` int(11) unsigned default NULL
+				);";
 	}
 }
 

@@ -21,12 +21,12 @@ class Preference_Type extends Object {
 	 * @param string $name
 	 * @return Preference_Type|NULL
 	 */
-	static function register_name($code_name, $name = null) {
+	static function register_name(Application $application, $code_name, $name = null) {
 		$fields = array(
 			"name" => $name ? $name : $code_name,
 			"code" => $code_name
 		);
-		$pref = new Preference_Type($fields);
+		$pref = $application->object_factory(__CLASS__, $fields);
 		return $pref->register();
 	}
 }
