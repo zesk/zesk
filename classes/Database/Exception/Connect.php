@@ -35,12 +35,15 @@ class Database_Exception_Connect extends Database_Exception {
 	function __construct($url, $message = null, array $arguments = array(), $errno = null) {
 		if (URL::valid($url)) {
 			$this->url = $url;
-			$this->parts = URL::parse($url);
-			$this->parts['database'] = rtrim(avalue($this->parts, '/'));
+			$arguments['safe_url'] = URL::remove_password($url);
+			$arguments += Database::url_parse($url);
+			$arguments['database'] = $arguments['name'];
 		} else {
 			$this->url = "nulldb://null/null";
 		}
-		$message = "Message: " . parent::getMessage() . "\nURL: " . URL::remove_password($this->url) . "\n";
+		if (strpos($message, "{safe_url}") === false) {
+			$message .= " ({safe_url})";
+		}
 		parent::__construct($message, $arguments, $errno);
 	}
 	
