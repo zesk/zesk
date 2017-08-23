@@ -6,14 +6,13 @@
  * @author Kent Davidson <kent@marketacumen.com>
  * @copyright Copyright &copy; 2008, Market Acumen, Inc.
  */
-namespace zesk;
+namespace xmlrpc;
 
-use xmlrpc\Client;
-
-class XML_RPC_Client_Test extends Test_Unit {
+class Client_Test extends  Test_Unit {
 	protected $load_modules = array(
-		"MySQL"
+			"xmlrpc"
 	);
+	
 	function test_main() {
 		$url = $this->option("xmlrpc_test_url");
 		$x = new Client($url);

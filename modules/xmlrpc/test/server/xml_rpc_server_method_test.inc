@@ -17,7 +17,10 @@ class AddMeUp extends Server {
 		return $a + $b;
 	}
 }
-class XML_RPC_Server_Method_Test {
+class XML_RPC_Server_Method_Test extends Test_Unit {
+	protected $load_modules = array(
+		"xmlrpc"
+	);
 	function test_main() {
 		$name = "add.me.up";
 		$returnType = "int";

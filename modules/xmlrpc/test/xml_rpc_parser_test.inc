@@ -6,11 +6,14 @@
  * @author Kent Davidson <kent@marketacumen.com>
  * @copyright Copyright &copy; 2008, Market Acumen, Inc.
  */
-use zesk\Timestamp;
+namespace xmlrpc;
 
-class XML_RPC_Parser_Test extends Test_Unit {
+class Parser_Test extends Test_Unit {
+	protected $load_modules = array(
+		"xmlrpc"
+	);
 	function test_main() {
-		$x = new XML_RPC_Parser('<?xml version="1.0" ?>
+		$x = new Parser('<?xml version="1.0" ?>
 <methodCall>
 <methodName>ruler.authenticate</methodName>
 <params>
@@ -28,11 +31,9 @@ class XML_RPC_Parser_Test extends Test_Unit {
 		$this->assert($result->Parameters[0] === 0, '$result->Parameters[0] === 0');
 		$this->assert($result->Parameters[1] === 1, '$result->Parameters[1] === 1');
 		$this->assert($result->Parameters[2] === "123123123", '$result->Parameters[2] === "123123123"');
-		$this->assert($result->Parameters[3] instanceof Timestamp, '$result->Parameters[3] instanceof Timestamp');
+		$this->assert_instanceof($result->Parameters[3], "zesk\Timestamp");
 		$dt = $result->Parameters[3];
 		
 		$this->assert_equal(strval($dt), "2008-08-11 12:34:22");
-		
-		echo basename(__FILE__) . ": success\n";
 	}
 }

@@ -596,7 +596,7 @@ class Command_Test extends Command_Base {
 		try {
 			foreach ($run_class as $class) {
 				$object = null;
-				$result = Test_Unit::run_one_class($class, $options, $object);
+				$result = Test_Unit::run_one_class($this->application, $class, $options, $object);
 				if ($object instanceof Test_Unit) {
 					if ($this->stats === null) {
 						$this->stats = $object->stats;

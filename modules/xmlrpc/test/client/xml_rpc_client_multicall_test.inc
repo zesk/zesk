@@ -1,13 +1,18 @@
 <?php
-namespace zesk;
+namespace xmlrpc;
 
-use xmlrpc\Client_Multicall;
-
-class XML_RPC_Client_Multicall_Test extends Test_Unit {
+class Client_Multicall_Test extends Test_Unit {
 	protected $load_modules = array(
 		"xmlrpc"
 	);
+	/**
+	 * 
+	 * @var unknown
+	 */
 	private $url = null;
+	/**
+	 * 
+	 */
 	function _init() {
 		$this->url = $this->option('xmlrpc_test_url');
 		$this->assert(URL::valid($this->url));
@@ -55,16 +60,14 @@ class XML_RPC_Client_Multicall_Test extends Test_Unit {
 		
 		$x->url();
 		
-		$x->headers();
+		$x->response_code();
 		
-		$x->responseCode();
+		$x->response_code_type();
 		
-		$x->responseCodeType();
+		$x->response_message();
 		
-		$x->responseMessage();
+		$x->response_protocol();
 		
-		$x->responseProtocol();
-		
-		$x->hasHeaders();
+		$this->log("Content-Type is " . $x->response_header("Content-Type"));
 	}
 }

@@ -553,7 +553,7 @@ class Test_Unit extends Options {
 	 * @param string $message
 	 */
 	final public function assert_is_array($mixed, $message = null) {
-		$this->assert(is_array($mixed), "!is_array(" . type($mixed) . " $mixed) $message", false);
+		$this->assert(is_array($mixed), "!is_array(" . type($mixed) . ") $message", false);
 	}
 	
 	/**
