@@ -27,6 +27,13 @@ class Database_Column extends Options {
 	 * @var string
 	 */
 	protected $name = null;
+	
+	/**
+	 * 
+	 * @param Database_Table $table
+	 * @param unknown $name
+	 * @param unknown $options
+	 */
 	function __construct(Database_Table $table, $name, $options = null) {
 		$this->table = $table;
 		if (is_string($options)) {
@@ -41,6 +48,7 @@ class Database_Column extends Options {
 		}
 		parent::__construct($options);
 		$this->name($name);
+		$this->sql_type($this->option("sql_type"));
 	}
 	
 	/**
@@ -170,7 +178,7 @@ class Database_Column extends Options {
 	}
 	public final function sql_type($set = null) {
 		if ($set !== null) {
-			$this->set_option("sql_type", $set);
+			$this->set_option("sql_type", strtolower($set));
 			return $this;
 		}
 		return $this->option("sql_type", false);
