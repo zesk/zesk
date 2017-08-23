@@ -190,7 +190,11 @@ class Database_Index {
 	 * 
 	 * @return string
 	 */
-	function type() {
+	function type($set = null) {
+		if ($set !== null) {
+			$this->type = self::determineType($set);
+			return $this;
+		}
 		return $this->type;
 	}
 	
