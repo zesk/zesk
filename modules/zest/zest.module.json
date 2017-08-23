@@ -1,7 +1,0 @@
-{
-	"name": "Zest Application Testing framework",
-	"description": "A testing framework which allows for continuous testing using Zesk tests and PHPUnit tests.",
-	"requires": [ 
-		"sqlite3" 
-	]
-}
