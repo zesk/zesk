@@ -72,3 +72,17 @@ pause
 echo 'Function is obsolete:'
 php-find.sh Object::class_instance
 pause
+
+
+echo 'First parameter is now $application:'
+php-find.sh Content_Data::copy_from_path
+php-find.sh Content_Data::move_from_path
+php-find.sh Content_Data::from_string
+pause
+
+echo 'First parameter is now $application:'
+Preference_Type::register_name
+pause
+
+
+	
