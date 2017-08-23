@@ -504,8 +504,13 @@ abstract class Database_Schema extends Hookable {
 		$columnsOld = $db_table_old->columns();
 		$columnsNew = $db_table_new->columns();
 		
+		/* @var $dbColOld Database_Column */
+		/* @var $dbColNew Database_Column */
+		
 		$columns = array_unique(array_merge(array_keys($columnsNew), array_keys($columnsOld)));
 		$ignoreColumns = array();
+		$ignoreIndexes = array();
+		
 		/*
 		 * First do changed names, then everything else
 		 */
@@ -554,6 +559,11 @@ abstract class Database_Schema extends Hookable {
 					if ($sql) {
 						$changes[$column] = $sql;
 					}
+					// TODO MySQL specific stuff should be factored out
+					if ($dbColNew->is_increment() && $dbColNew->is_index(Database_Index::Primary)) {
+						$name = $db_table_new->primary()->name();
+						$ignoreIndexes[$name] = true;
+					}
 					$drops[$column] = $generator->alter_table_column_drop($db_table_new, $dbColOld);
 					$adds[$column] = $generator->alter_table_column_add($db_table_new, $dbColNew);
 				}
@@ -582,17 +592,27 @@ abstract class Database_Schema extends Hookable {
 		/* @var $indexOld Database_Index */
 		/* @var $indexNew Database_Index */
 		foreach ($indexes_old as $index_name => $index_old) {
+			if (isset($ignoreIndexes[$index_name])) {
+				continue;
+			}
 			if (array_key_exists($index_name, $indexes_new)) {
 				$index_new = $indexes_new[$index_name];
 				if (!$index_old->is_similar($index_new, self::$debug)) {
-					$drops["index_" . $index_name] = $index_old->sql_index_drop();
+					$changes = array_merge(array(
+						"index_" . $index_name => $index_old->sql_index_drop()
+					), $changes);
 					$adds["index_" . $index_name] = $index_new->sql_index_add();
 				}
 			} else {
-				$adds["index_" . $index_name] = $index_old->sql_index_drop();
+				$changes = array_merge(array(
+					"index_" . $index_name => $index_old->sql_index_drop()
+				), $changes);
 			}
 		}
 		foreach ($indexes_new as $index_name => $index_new) {
+			if (isset($ignoreIndexes[$index_name])) {
+				continue;
+			}
 			if (!array_key_exists($index_name, $indexes_old)) {
 				$adds["index_" . $index_name] = $index_new->sql_index_add();
 			}
