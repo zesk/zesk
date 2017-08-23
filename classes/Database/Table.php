@@ -70,7 +70,8 @@ class Database_Table extends Options {
 	 * @param unknown $table_name
 	 * @param string $type
 	 */
-	function __construct(Database $db, $table_name, $type = null) {
+	function __construct(Database $db, $table_name, $type = null, array $options = null) {
+		parent::__construct($options);
 		$this->database = $db;
 		$this->name = $table_name;
 		$this->type = $type;
@@ -295,13 +296,21 @@ class Database_Table extends Options {
 	}
 	
 	/**
-	 * 
+	 *
 	 * @param array $indexes
 	 */
-	public function setIndexes(array $indexes) {
+	public function set_indexes(array $indexes) {
 		foreach ($indexes as $v) {
 			$this->index_add($v);
 		}
+	}
+	
+	/**
+	 * @deprecated 2017-08
+	 * @param array $indexes
+	 */
+	public function setIndexes(array $indexes) {
+		return $this->set_indexes($indexes);
 	}
 	
 	/**
@@ -370,19 +379,12 @@ class Database_Table extends Options {
 			"old" => $oldTableType,
 			"new" => $newTableType
 		));
-		if (!$this->is_similar($old_table)) {
+		if (!$this->table_attributes_is_similar($old_table)) {
 			$result[] = $this->database->sql()->alter_table_attributes($this, $this->option());
 		}
 		return $result;
 	}
-	
-	/**
-	 * 
-	 * @param Database_Table $that
-	 * @param string $debug
-	 * @return boolean
-	 */
-	function is_similar(Database_Table $that, $debug = false) {
+	private function table_attributes_is_similar(Database_Table $that, $debug = false) {
 		$logger = zesk()->logger;
 		$defaults = $this->database->table_attributes();
 		$this_attributes = $this->option($defaults);
@@ -398,14 +400,25 @@ class Database_Table extends Options {
 			}
 			return false;
 		}
-		
+		return true;
+	}
+	/**
+	 * 
+	 * @param Database_Table $that
+	 * @param string $debug
+	 * @return boolean
+	 */
+	function is_similar(Database_Table $that, $debug = false) {
+		$logger = zesk()->logger;
+		if (!$this->table_attributes_is_similar($that, $debug)) {
+			return false;
+		}
 		if (($this_count = count($this->columns())) !== ($that_count = count($that->columns()))) {
 			if ($debug) {
 				$logger->debug("Database_Table::is_similar($this->name): Column Counts: $this_count != $that_count");
 			}
 			return false;
 		}
-		
 		if (($this_count = count($this->indexes())) !== ($that_count = count($that->indexes()))) {
 			if ($debug) {
 				$logger->debug("Database_Table::is_similar($this->name): Index Counts: $this_count != $that_count");
