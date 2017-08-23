@@ -10,33 +10,33 @@ namespace zesk;
  *
  */
 class Test_Request extends Test_Unit {
-
 	function test_instance() {
-		Request::instance();
+		$request = $this->application->request();
+		$this->assert_instanceof($request, __NAMESPACE__ . "\\" . "Request");
 	}
-
 	function test_put_request() {
 		//Request::put_request(); // Write to stdin to solve this one TODO
 	}
-
 	function test_Request() {
-		$settings = array();
+		$settings = array(
+			"url" => "https://ex.to/"
+		);
 		$testx = new Request($settings);
-
+		
 		$testx->is_post();
-
+		
 		$name = null;
 		$value = null;
 		$testx->set($name, $value);
-
+		
 		$default = null;
 		$testx->get("Hello", $default);
-
+		
 		$testx->path();
 	}
-
+	
 	/**
-	 * @expected_exception Exception_File_Permission
+	 * @expected_exception zesk\Exception_File_Permission
 	 */
 	function test__file_migrate1() {
 		$source = $this->test_sandbox(__FUNCTION__ . '.txt');
