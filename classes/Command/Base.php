@@ -128,16 +128,25 @@ abstract class Command_Base extends Command {
 			));
 		}
 	}
+	protected function handle_base_options() {
+		if ($this->option_bool('debug-config')) {
+			return $this->action_debug_configured(false);
+		}
+	}
 	
 	/**
 	 */
-	public function action_debug_configured() {
+	public function action_debug_configured($exit = true) {
 		$this->application->autoload_path($this->application->zesk_root("command"), array(
 			"extensions" => "php;inc",
 			"lower" => true,
 			"class_prefix" => "zesk\\Command_"
 		));
-		$config = new Command_Config();
-		exit($config->go());
+		$config = new Command_Config($this->application, array(), $this->option());
+		$result = $config->go();
+		if ($exit) {
+			exit($result);
+		}
+		return $result;
 	}
 }
