@@ -16,6 +16,8 @@ namespace RRule;
 use zesk\Timestamp;
 use zesk\Options;
 use zesk\Exception_Syntax;
+use zesk\Exception_Range;
+use zesk\Exception_Parameter;
 
 /**
  * 
@@ -46,6 +48,13 @@ class Rule_Parser extends Options {
 		"FR" => 5,
 		"SA" => 6
 	);
+	
+	/**
+	 * Code parsed
+	 * 
+	 * @var string
+	 */
+	protected $code = null;
 	/**
 	 * 
 	 * @var string[]
@@ -87,6 +96,7 @@ class Rule_Parser extends Options {
 		if (count($this->errors) > 0) {
 			throw new Exception_Syntax(implode("\n", $this->errors));
 		}
+		$this->code = $code;
 		return $this;
 	}
 	
@@ -107,6 +117,9 @@ class Rule_Parser extends Options {
 	private function _parse_integer_list($value, $min = null, $max = null) {
 		$result = array();
 		foreach (explode(",", $value) as $v) {
+			if ($v === "") {
+				continue;
+			}
 			$v = intval($v);
 			if ($min !== null) {
 				$v = max($min, $v);
@@ -114,9 +127,9 @@ class Rule_Parser extends Options {
 			if ($max !== null) {
 				$v = min($max, $v);
 			}
-			$result[] = $v;
+			$result[$v] = $v;
 		}
-		$result = array_unique($result);
+		$result = array_keys($result);
 		sort($result, SORT_NUMERIC);
 		return $result;
 	}
@@ -200,6 +213,18 @@ class Rule_Parser extends Options {
 		return self::_parse_integer_list($value, -366, 366);
 	}
 	public function rule() {
-		return new Rule($this->options['freq'], $this->options);
+		try {
+			return new Rule($this->options['freq'], $this->options);
+		} catch (Exception_Parameter $e) {
+			throw new Exception_Syntax("Parameter error with code:\n{code}\nError: {message}", array(
+				"code" => $this->code,
+				"message" => $e->getMessage()
+			));
+		} catch (Exception_Range $e) {
+			throw new Exception_Syntax("Range error with code:\n{code}\nError: {message}", array(
+				"code" => $this->code,
+				"message" => $e->getMessage()
+			));
+		}
 	}
 }

@@ -749,7 +749,9 @@ class Rule {
 					}
 				}
 				if (is_array($bymonthday) || is_array($bynmonthday)) {
-					if (!isset($bymonthday[$ii->mdaymask[$i]]) && !isset($bynmonthday[$ii->nmdaymask[$i]])) {
+					$bymonthdaytest = is_array($bymonthday) ? isset($bymonthday[$ii->mdaymask[$i]]) : false;
+					$bynmonthdaytest = is_array($bynmonthday) ? isset($bynmonthday[$ii->nmdaymask[$i]]) : false;
+					if (!$bymonthdaytest && !$bynmonthdaytest) {
 						unset($dayset[$i]);
 						$filtered = true;
 						continue;
@@ -774,11 +776,13 @@ class Rule {
 					}
 					$newx = array();
 					$found_all = true;
-					foreach (array_splice($dayset, $start, $end - $start) as $x) {
-						$newx[] = $x;
+					foreach (array_splice($dayset, $start, $end - $start) as $index => $value) {
+						if ($value) {
+							$newx[] = $value;
+						}
 					}
-					if (isset($newx[$daypos])) {
-						$i = $newx[$daypos];
+					$i = avalue($newx, $daypos > 0 ? $daypos : count($newx) + $daypos, null);
+					if ($i) {
 						$time = $timeset[$timepos];
 						$date = Date::factory()->gregorian($ii->yearordinal + $i);
 						$res = Timestamp::factory(null, $this->dtstart->time_zone())->date($date)->time($time);
@@ -788,25 +792,27 @@ class Rule {
 						}
 					}
 				}
-				uasort($pos, "zesk\\Timestamp::compare_callback");
+				uasort($poslist, "zesk\\Timestamp::compare_callback");
 				foreach ($poslist as $res) {
+					/* @var $res \zesk\Timestamp */
 					if ($until && $res->after($until)) {
 						$this->len = $total;
 						return;
-					} else if ($res->after($this->dtstart)) {
+					} else if ($res->after($this->dtstart, true)) {
 						$total += 1;
 						yield $res;
 						if ($count) {
 							$count -= 1;
 							if (!$count) {
-								$this->len = total;
+								$this->len = $total;
 								return;
 							}
 						}
 					}
 				}
 			} else {
-				foreach (array_splice($dayset, $start, $end - $start) as $i) {
+				$selected_days = array_splice($dayset, $start, $end - $start);
+				foreach ($selected_days as $i) {
 					if ($i === null) {
 						continue;
 					}
@@ -909,7 +915,7 @@ class Rule {
 				if (!$valid) {
 					throw new Exception_Semantics('Invalid combination of interval and byhour resulting in empty rule.');
 				}
-				$timeset = $ii->gettimeset(hour, minute, second);
+				$timeset = $ii->gettimeset($hour, $minute, $second);
 			} else if ($freq == self::FREQUENCY_SECONDLY) {
 				if ($filtered) {
 					// Jump to one iteration before next day;

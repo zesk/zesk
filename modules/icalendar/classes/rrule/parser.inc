@@ -16,6 +16,7 @@ namespace RRule;
 use zesk\arr;
 use zesk\Timestamp;
 use zesk\Exception_Syntax;
+use zesk\Exception_Parameter;
 
 class Parser {
 	/**
@@ -121,27 +122,61 @@ class Parser {
 			$dtstart = Timestamp::now();
 		}
 		$rset = new Set();
-		foreach ($rrulevals as $value) {
-			$rule = Rule_Parser::factory($value)->dtstart($dtstart)->rule();
-			$rset->rrule($rule);
-		}
-		foreach ($rdatevals as $value) {
-			foreach (explode(",", $value) as $datestr) {
-				$rset->rdate(Timestamp::factory($datestr));
-			}
-		}
-		foreach ($exrulevals as $value) {
-			$rule = Rule_Parser::factory($value)->dtstart($dtstart)->rule();
-			$rset->rrule($rule);
-		}
-		foreach ($exdatevals as $value) {
-			foreach (explode(",", $value) as $datestr) {
-				$rset->rdate(Timestamp::factory($datestr));
-			}
-		}
+		
+		$this->add_rules_mixed($rset, $dtstart, $rrulevals, "rrule");
+		$this->add_timestamps_mixed($rset, $rdatevals, "rdate");
+		$this->add_rules_mixed($rset, $dtstart, $exrulevals, "exrule");
+		$this->add_timestamps_mixed($rset, $exdatevals, "exdate");
+		
 		return $rset;
 	}
 	
+	/**
+	 * 
+	 * @param Set $rset
+	 * @param Timestamp $dtstart
+	 * @param array $values
+	 * @param unknown $method
+	 */
+	private function add_rules_mixed(Set $rset, Timestamp $dtstart, array $values, $method) {
+		foreach ($values as $value) {
+			$rule = Rule_Parser::factory($value)->dtstart($dtstart)->rule();
+			$rset->$method($rule);
+		}
+	}
+	/**
+	 * Add a mixed list of timestamps/integers/strings to 
+	 * @param Set $rset
+	 * @param array $values
+	 * @param string $method
+	 * @throws Exception_Syntax
+	 */
+	private function add_timestamps_mixed(Set $rset, array $values, $method) {
+		foreach ($values as $value) {
+			foreach (to_list($value) as $mixed) {
+				if ($mixed instanceof Timestamp) {
+					$rset->$method($value);
+				} else if (is_string($mixed) || is_numeric($mixed)) {
+					$ts = Timestamp::factory($mixed, $time_zone);
+					if (!$ts->is_empty()) {
+						throw new Exception_Syntax("{tag} value of {value} is not a valid date (empty timestamp)", array(
+							"tag" => strtoupper($method),
+							"value" => $mixed
+						));
+					} else {
+						$rset->$method($mixed);
+					}
+				} else {
+					throw new Exception_Parameter("Unknown type {type} passed to {method}(\$set, {nvalues}, \"{param_method}\")", array(
+						"method" => __METHOD__,
+						"nvalues" => "Array of " . count($values),
+						"type" => type($mixed),
+						"param_method" => $method
+					));
+				}
+			}
+		}
+	}
 	/**
 	 * 
 	 * @param array $lines

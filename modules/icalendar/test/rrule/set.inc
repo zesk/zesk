@@ -62,9 +62,15 @@ class Test_RRule_Set extends Test_Unit {
 	function test_rrules() {
 		$tests_path = $this->application->modules->path("icalendar", "test/test-data/rrule-tests.txt");
 		$tests = $this->load_rrule_tests($tests_path);
-		foreach ($tests as $test) {
+		foreach ($tests as $test_index => $test) {
 			$description = $rrule = $result = null;
 			extract($test, EXTR_IF_EXISTS);
+			
+			if ($test_index === 36) {
+				// KMD TODO DEBUGGING
+				$forever = false;
+			}
+			
 			$parser = new RRule\Parser();
 			$ruleset = $parser->parse($rrule);
 			$results = $this->parse_results($result);
@@ -78,10 +84,10 @@ class Test_RRule_Set extends Test_Unit {
 					$forever = true;
 					break;
 				}
-				$this->assert_equal($ts->format('{YYYY}-{MM}-{DD} {hh}:{mm}:{ss} {ZZZ}'), $expected, "#$index: $description\n$rrule");
+				$this->assert_equal($ts->format('{YYYY}-{MM}-{DD} {hh}:{mm}:{ss} {ZZZ}'), $expected, "Test #$test_index, result #$index: $description\n$rrule");
 			}
 			if (!$forever) {
-				$this->assert_equal($index, $total, "Iterator stopped before results used up: " . implode(";", $results) . "\n$description\n$rrule");
+				$this->assert_equal($index, $total, "Test #$test_index: $description\n\nIterator stopped before results used up: \n\n\t" . implode("\n\t", $results) . "\n\nRule:\n\n$rrule\n");
 			}
 		}
 	}
