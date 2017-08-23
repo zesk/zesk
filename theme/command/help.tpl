@@ -19,12 +19,12 @@ $aliases = arr::flip_multiple($aliases);
 
 ?># Zesk Command
 
-    zesk [ --set name=value ] [ --name=value ] [ --unset name ] [ --cd dir ] [ --search dir ] [ --config file ] command0 [ command1 ... ]
+    zesk [ --set name=value ] [ --name=value ] [ --unset name ] [ --cd dir ] [ --search dir ] [ --config file ] command0 [ ... command-0-options ... ] [ command1 ... ]
 
 Zesk command-line management interface. Execute commands within an application context.
 Commands may process arguments differently.
 
-Searches from `--search` directories, or current working directory for a `*.application.inc` file before running any commands.
+Searches from `--search` directories, or current working directory for a `*.application.php` file before running any commands.
 Pre-set globals using `--set`, `--name=value`, `--config`.
 
 Change starting context using `--cd` (to search elsewhere by default) or adding `--search`.
