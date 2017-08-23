@@ -79,7 +79,7 @@ class Database_Query_Select extends Database_Query_Select_Base {
 	 *
 	 * @param Database $db
 	 */
-	function __construct(Database $db = null) {
+	function __construct(Database $db) {
 		parent::__construct("SELECT", $db);
 	}
 	
@@ -325,7 +325,17 @@ class Database_Query_Select extends Database_Query_Select_Base {
 		if ($alias === null) {
 			$alias = $class;
 		}
-		if ($object->database_name() !== $this->database_name()) {
+		/*
+		 * $object->database_name() is sometimes blank, sometimes "default" here so it uses the more complex
+		 * database name to join tables here, which is not what we want.
+		 * 
+		 * Using $object->database()->code_name() means it fetches it from the actual database.
+		 * 
+		 * You can also try and fix this with logic:
+		 * 
+		 * empty "database_name" means value of configuration zesk\Database::default
+		 */
+		if ($object->database()->code_name() !== $this->database_name()) {
 			$cross_db_this = $this->database()->feature(Database::feature_cross_database_queries);
 			$cross_db_object = $object->database()->feature(Database::feature_cross_database_queries);
 			if ($cross_db_this !== true) {

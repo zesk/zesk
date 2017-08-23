@@ -198,7 +198,7 @@ class Response extends Hookable {
 		}
 		try {
 			$class = __NAMESPACE__ . "\\Response_" . str_replace("/", "_", $content_type);
-			return $zesk->objects->factory($class, $application, $options);
+			return $application->objects->factory($class, $application, $options);
 		} catch (Exception_Class_NotFound $e) {
 			return new Response_Text_HTML($application, self::content_type_html);
 		}

@@ -588,13 +588,6 @@ class Class_Object extends Hookable {
 	static $defer_class_links = array();
 	
 	/**
-	 * Class cache
-	 *
-	 * @var array:array
-	 */
-	static $class_cache = array();
-	
-	/**
 	 * Cache database columns here
 	 *
 	 * @var array:array
@@ -606,7 +599,6 @@ class Class_Object extends Hookable {
 	 */
 	public static function dirty() {
 		self::$classes = array();
-		self::$class_cache = array();
 		self::$defer_class_links = array();
 		self::_column_cache()->erase()->delete();
 	}
@@ -650,10 +642,6 @@ class Class_Object extends Hookable {
 		$class_class = self::object_to_class($class);
 		$instance = self::$classes[$lowclass] = $zesk->objects->factory($class_class, $object);
 		self::$classes_dirty = true;
-		// 		} catch (Exception_Class_NotFound $e) {
-		// 			$instance = self::$classes[$lowclass] = $zesk->objects->factory('Class_Object_Legacy', $object);
-		// 			self::$classes_dirty = true;
-		// 		}
 		return $instance;
 	}
 	
@@ -701,9 +689,7 @@ class Class_Object extends Hookable {
 	 * @see wakeup
 	 */
 	public function __wakeup() {
-		global $zesk;
-		/* @var $zesk zesk\Kernel */
-		$this->application = $zesk->objects->singleton($this->application_class);
+		$this->application = zesk()->application();
 		$this->application->hooks->register_class($this->class);
 	}
 	
@@ -768,7 +754,8 @@ class Class_Object extends Hookable {
 	
 	/**
 	 * Retrieve object or classes from cache
-	 *
+	 * 
+	 * @deprecated 2017-08 Use application functions for this
 	 * @param string $class
 	 * @param string $component
 	 *        	Optional component to retrieve
@@ -776,52 +763,16 @@ class Class_Object extends Hookable {
 	 * @return Ambigous <mixed, array>
 	 */
 	public static function cache($class, $component = "") {
-		global $zesk;
-		/* @var $zesk zesk\Kernel */
-		if (!is_string($class) && !is_integer($class)) {
-			var_dump($class);
-			backtrace();
-		}
-		$lowclass = strtolower($class);
-		if (!array_key_exists($lowclass, self::$class_cache)) {
-			$object = $zesk->objects->factory($class);
-			if (!$object instanceof Object) {
-				throw new Exception_Semantics("$class is not an Object");
-			}
-			self::$class_cache[$lowclass] = array(
-				'table' => $object->table(),
-				'dbname' => $object->database_name(),
-				'database_name' => $object->database_name(),
-				'object' => $object,
-				'class' => $object->class_object(),
-				'id_column' => $object->id_column()
-			);
-		}
-		$result = self::$class_cache[$lowclass];
-		return avalue($result, $component, $result);
+		zesk()->deprecated();
+		return zesk()->application()->_class_cache($class, $component);
 	}
 	
 	/**
 	 * 
 	 * @param unknown $class
 	 */
-	public static function cache_dirty($class) {
-		if ($class instanceof Object) {
-			$class = get_class($class);
-		} else if ($class instanceof Class_Object) {
-			$class = $class->class;
-		}
-		if (!is_string($class)) {
-			throw new Exception_Parameter("Invalid class passed to {method}: {value} ({type})", array(
-				"method" => __METHOD__,
-				"type" => type($class),
-				"value" => $class
-			));
-		}
-		$lowclass = strtolower($class);
-		if (array_key_exists($lowclass, self::$class_cache)) {
-			unset(self::$class_cache[$lowclass]);
-		}
+	public static function cache_dirty($class = null) {
+		return zesk()->application()->clear_class_cache($class);
 	}
 	
 	/**
@@ -1545,6 +1496,8 @@ class Class_Object extends Hookable {
 			return $result;
 		} else if (is_array($result)) {
 			return $this->_database_schema($object, implode(";\n", $result));
+		} else if (is_string($result)) {
+			return $this->_database_schema($object, $result);
 		}
 		if ($result === null) {
 			return $result;

@@ -16,30 +16,30 @@ namespace zesk;
  *
  */
 class Database_Query_Union extends Database_Query_Select_Base {
-
+	
 	/**
 	 * Array of queries to UNION
 	 *
 	 * @var array
 	 */
 	protected $queries = array();
-
+	
 	/**
 	 * Order by clause
 	 *
 	 * @var string
 	 */
 	private $order_by = null;
-
+	
 	/**
 	 * Construct a new UNION select query
 	 *
 	 * @param Database $db
 	 */
-	function __construct(Database $db = null) {
+	function __construct(Database $db) {
 		parent::__construct("UNION", $db);
 	}
-
+	
 	/**
 	 * Create an new query
 	 *

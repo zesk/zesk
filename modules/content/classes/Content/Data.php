@@ -17,6 +17,14 @@ namespace zesk;
  * @property Timestamp $missing
  */
 class Content_Data extends Object {
+	
+	/**
+	 * Whether we checked the database for max allowed packet size
+	 *
+	 * @var unknown
+	 */
+	static $checked_db = false;
+	
 	/**
 	 * Retrieve user-configurable settings for this object
 	 *
@@ -32,7 +40,7 @@ class Content_Data extends Object {
 			)
 		);
 	}
-
+	
 	/**
 	 * Given a string of data, create a Content_data object
 	 *
@@ -42,10 +50,10 @@ class Content_Data extends Object {
 	 *        	so
 	 * @return Content_data
 	 */
-	public static function from_string($data, $register = true) {
-		return self::from_type($data, null, null, null, $register);
+	public static function from_string(Application $application, $data, $register = true) {
+		return self::from_type($application, $data, null, null, null, $register);
 	}
-
+	
 	/**
 	 * Given a path, copy a file to create a Content_data object
 	 *
@@ -55,8 +63,8 @@ class Content_Data extends Object {
 	 *        	so
 	 * @return Content_data
 	 */
-	public static function copy_from_path($path, $register = true) {
-		return self::from_path($path, true, $register);
+	public static function copy_from_path(Application $application, $path, $register = true) {
+		return self::from_path($application, $path, true, $register);
 	}
 	/**
 	 * Given a path, moving a file to create a Content_data object
@@ -68,8 +76,8 @@ class Content_Data extends Object {
 	 *        	so
 	 * @return Content_data
 	 */
-	public static function move_from_path($path, $register = true) {
-		return self::from_path($path, false, $register);
+	public static function move_from_path(Application $application, $path, $register = true) {
+		return self::from_path($application, $path, false, $register);
 	}
 	/**
 	 * Internal registration for Content_data
@@ -105,9 +113,9 @@ class Content_Data extends Object {
 		} else {
 			$data = file_get_contents($path);
 		}
-		return self::from_type($data, $type, $size, $md5, $register);
+		return self::from_type($app, $data, $type, $size, $md5, $register);
 	}
-
+	
 	/**
 	 * Internal version of copy_from_path, move_from_path
 	 *
@@ -129,11 +137,11 @@ class Content_Data extends Object {
 		$result['data_path'] = $zesk->paths->data();
 		$result['original_path'] = $source_path;
 		$result['path'] = 'content/data/' . $md5 . "." . file::extension($source_path);
-
+		
 		$dest = path($result['data_path'], $result['path']);
-
+		
 		Directory::depend(dirname($dest));
-
+		
 		if ($data !== null) {
 			if (!file_put_contents($dest, $data)) {
 				throw new Exception_File_Create(__("Can not copy {size} data to {dest}", array(
@@ -158,7 +166,7 @@ class Content_Data extends Object {
 		}
 		return $result;
 	}
-
+	
 	/**
 	 * Register object with a given data type
 	 *
@@ -174,16 +182,16 @@ class Content_Data extends Object {
 	 *        	Register this object (load or store)
 	 * @return Ambigous <object, string, Object>
 	 */
-	private static function from_type($data, $type = 'data', $size = null, $hash = null, $register = true) {
+	private static function from_type(Application $application, $data, $type = 'data', $size = null, $hash = null, $register = true) {
 		$fields = array();
 		$fields['type'] = $type;
 		$fields['data'] = $data;
 		$fields['size'] = $size === null ? strlen($data) : $size;
 		$fields['md5hash'] = $hash === null ? md5($data) : $hash;
-		$object = Object::factory(__CLASS__, $fields);
+		$object = $application->object_factory(__CLASS__, $fields);
 		return ($register) ? $object->register() : $object;
 	}
-
+	
 	/**
 	 * Extract the path from the data array (for ->type === 'data' ONLY)
 	 *
@@ -194,7 +202,7 @@ class Content_Data extends Object {
 		$path = avalue($this->data, 'path');
 		return $this->application->paths->data($path);
 	}
-
+	
 	/**
 	 * Retrieve the path of a file to copy this.
 	 *
@@ -216,7 +224,7 @@ class Content_Data extends Object {
 		}
 		return $this->temp_path;
 	}
-
+	
 	/**
 	 * Return a file pointer to the data in this file
 	 *
@@ -228,7 +236,7 @@ class Content_Data extends Object {
 	public function fopen($mode) {
 		return fopen($this->filepath(), $mode);
 	}
-
+	
 	/**
 	 * Copy file to a location
 	 *
@@ -254,8 +262,17 @@ class Content_Data extends Object {
 			return $this->data;
 		}
 	}
-
-	/**
+	
+		/**
+	 * Retrieve the data size as a double-precision integer
+	 *
+	 * @return integer
+	 */
+	public function size() {
+		return $this->size;
+	}
+	
+/**
 	 * Does the destination file match our database version?
 	 *
 	 * @param string $destination
@@ -296,7 +313,7 @@ class Content_Data extends Object {
 			}
 		}
 	}
-
+	
 	/**
 	 * Internal validation function, attempts to repair files when filesystem changes, etc.
 	 */
@@ -353,7 +370,7 @@ class Content_Data extends Object {
 		$this->checked = "now";
 		$this->store();
 	}
-
+	
 	/**
 	 *
 	 * @return Content_Data
@@ -370,14 +387,7 @@ class Content_Data extends Object {
 		$this->data = $data;
 		return $this->store();
 	}
-
-	/**
-	 * Whether we checked the database for max allowed packet size
-	 *
-	 * @var unknown
-	 */
-	static $checked_db = false;
-
+	
 	/**
 	 *
 	 * @return mixed|mixed[]|\Configuration
@@ -405,7 +415,7 @@ class Content_Data extends Object {
 		}
 		return $result;
 	}
-
+	
 	/**
 	 * Run cron hourly to check files in file system to make sure they are still consistent.
 	 */
@@ -414,10 +424,16 @@ class Content_Data extends Object {
 			$object->validate_and_repair();
 		}
 		$threshold = self::database_size_threshold($application);
-		foreach ($application->class_query(__CLASS__)->where("*size|<=", $threshold)->where('type', 'path')->object_iterator() as $object) {
+		foreach ($application->class_query(__CLASS__)
+			->where("*size|<=", $threshold)
+			->where('type', 'path')
+			->object_iterator() as $object) {
 			$object->switch_storage();
 		}
-		foreach ($application->class_query(__CLASS__)->where("*size|>", $threshold)->where('type', 'data')->object_iterator() as $object) {
+		foreach ($application->class_query(__CLASS__)
+			->where("*size|>", $threshold)
+			->where('type', 'data')
+			->object_iterator() as $object) {
 			$object->switch_storage();
 		}
 	}
