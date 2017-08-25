@@ -3,11 +3,6 @@ namespace zesk;
 
 class Configuration_Loader {
 	/**
-	 * 
-	 * @var \string
-	 */
-	private $name = null;
-	/**
 	 * Paths to search for configuration files to process
 	 * 
 	 * @var \string[]
@@ -62,7 +57,7 @@ class Configuration_Loader {
 	 * @param array $paths
 	 * @param Interface_Settings $context
 	 */
-	public function __construct($name, array $paths, array $files, Interface_Settings $settings) {
+	public function __construct(array $paths, array $files, Interface_Settings $settings) {
 		$available_targets = array();
 		$possible_targets = array();
 		$this->paths = $paths;
