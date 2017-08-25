@@ -11,11 +11,10 @@ class Module_reCAPTCHA extends Module {
 			if ($this->has_option($key)) {
 				$target = array("Control_reCAPTCHA", $key);
 				if (!$configuration->path_get($target)) {
-					$configuration->pave_set($target, $this->option($key));
+					$configuration->path_set($target, $this->option($key));
 				}
 			} else {
-				$this->application->logger->error("RECAPTCHA is misconfigured (no {key})", compact("key"));
-				Module_Critical::alert("RECAPTCHA is misconfigured (no $key)");
+				$this->application->logger->critical("RECAPTCHA is misconfigured (no {key})", compact("key"));
 				$result = false;
 			}
 		}
