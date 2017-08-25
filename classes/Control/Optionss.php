@@ -28,7 +28,7 @@ class Control_Optionss extends Control {
 	protected $force_value = false;
 	
 	/**
-	 * Needs to default to null so will be initialized in _ini_control_options - unless an alternate
+	 * Needs to default to null so will be initialized in _init_control_options - unless an alternate
 	 * method is used to
 	 * track whether this has been initialized.
 	 *
@@ -76,7 +76,9 @@ class Control_Optionss extends Control {
 			return;
 		}
 		$this->control_options = $this->call_hook_arguments('options', array(), $this->control_options);
-		$this->options['options'] = $this->control_options;
+		if (!is_array($this->control_options)) {
+			$this->control_options = array();
+		}
 	}
 	private function _init_default_option() {
 		$default = avalue($this->options, 'default');
