@@ -15,6 +15,7 @@ class Selenium_Test extends Test_Unit {
 			$this->log("Selenium is not enabled, set {class}::selenium_host to valid IP or Domain Name", array(
 				"class" => get_class($this)
 			));
+			return;
 		}
 		$selenium = new Test_Selenium_Legacy($this->application, $options);
 		$selenium->start();
