@@ -1,6 +1,6 @@
 <?php
 /**
- * 
+ * Define an interface to name/value pairs
  */
 namespace zesk;
 
