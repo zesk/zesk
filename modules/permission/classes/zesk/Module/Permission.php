@@ -230,7 +230,7 @@ class Module_Permission extends Module {
 	 */
 	private function _cache() {
 		$cache = Cache::register(__CLASS__);
-		if (zesk()->configuration->path_get(__CLASS__ . '::disable_cache')) {
+		if ($this->application->configuration->path_get(__CLASS__ . '::disable_cache')) {
 			return $cache->erase();
 		}
 		return $cache;
@@ -337,7 +337,7 @@ class Module_Permission extends Module {
 		$paths = $this->option_list('role_paths', $application->application_root('etc/role'));
 		$filename = $code . ".role.conf";
 		$config = array();
-		$loader = new Configuration_Loader($code, $paths, array(
+		$loader = new Configuration_Loader($paths, array(
 			$filename
 		), new Adapter_Settings_Array($config));
 		$loader->load();
