@@ -125,16 +125,17 @@ class Preference extends Object {
 		if (!$user->authenticated()) {
 			return false;
 		}
+		$app = $user->application;
 		if (is_array($name)) {
 			foreach ($name as $k => $v) {
-				$type = Preference_Type::register_name($k);
+				$type = Preference_Type::register_name($app, $k);
 				if (!$type)
 					continue;
 				self::_register($user, $type, $v);
 			}
 			return true;
 		}
-		$type = Preference_Type::register_name($name);
+		$type = Preference_Type::register_name($app, $name);
 		if (!$type) {
 			return false;
 		}
