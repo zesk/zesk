@@ -991,7 +991,7 @@ class Test_Unit extends Options {
 		}
 		zesk()->logger->debug("Loading configuration file $config");
 		$settings = array();
-		$loader = new Configuration_Loader(__CLASS__, $application->configure_include_path(), array(
+		$loader = new Configuration_Loader($application->configure_include_path(), array(
 			$config
 		), new Adapter_Settings_Array($settings));
 		
