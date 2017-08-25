@@ -194,8 +194,6 @@ class Command_Loader {
 	 * @return array
 	 */
 	public function run_command(Application $application, $arg, array $argv) {
-		global $zesk;
-		/* @var $zesk zesk\Kernel */
 		$command = avalue($this->aliases, $arg, $arg);
 		$command = strtr($command, array(
 			"_" => "/",
@@ -210,7 +208,7 @@ class Command_Loader {
 			return $argv;
 		}
 		/* @var $command_object Command */
-		$command_object = $zesk->objects->factory($class, $application, array_merge(array(
+		$command_object = $application->objects->factory($class, $application, array_merge(array(
 			$arg
 		), $argv), array(
 			"debug" => $this->debug
@@ -424,7 +422,7 @@ class Command_Loader {
 		));
 		$app = $zesk->application();
 		$this->aliases = array();
-		$loader = new Configuration_Loader("command-aliases", $app->configure_include_path(), array(
+		$loader = new Configuration_Loader($app->configure_include_path(), array(
 			"command-aliases.json"
 		), new Adapter_Settings_Array($this->aliases));
 		$loader->load();
@@ -465,9 +463,8 @@ class Command_Loader {
 			true
 		);
 		if ($this->zesk_is_loaded()) {
-			global $zesk;
 			/* @var $zesk \zesk\Kernel */
-			$zesk->configuration->path_set($key, $value);
+			zesk()->configuration->path_set($key, $value);
 		} else {
 			global $_ZESK;
 			\apath_set($_ZESK, _zesk_global_key($key), $value, ZESK_GLOBAL_KEY_SEPARATOR);
@@ -489,9 +486,8 @@ class Command_Loader {
 			$this->usage("--unset missing argument");
 		}
 		if ($this->zesk_is_loaded()) {
-			global $zesk;
 			/* @var $zesk \zesk\Kernel */
-			$zesk->configuration->path_set($key, null);
+			zesk()->configuration->path_set($key, null);
 		} else {
 			global $_ZESK;
 			\apath_set($_ZESK, _zesk_global_key($key), null, ZESK_GLOBAL_KEY_SEPARATOR);
@@ -588,9 +584,8 @@ class Command_Loader {
 			$this->usage("$arg is not a file to load configuration");
 		}
 		if ($this->zesk_is_loaded()) {
-			global $zesk;
 			/* @var $zesk \zesk\Kernel */
-			$zesk->configuration->paths_set($this->load_configuration_file($arg));
+			zesk()->configuration->paths_set($this->load_configuration_file($arg));
 		} else {
 			$this->wait_configs[] = $arg;
 		}
