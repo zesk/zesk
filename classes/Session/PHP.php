@@ -130,7 +130,7 @@ class Session_PHP implements Interface_Session {
 	private function global_session_user_id() {
 		global $zesk;
 		/* @var $zesk zesk\Kernel */
-		return $zesk->configuration->pave("session")->get("user_id_variable", "user");
+		return $zesk->configuration->path("session")->get("user_id_variable", "user");
 	}
 	
 	/**
