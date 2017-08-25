@@ -58,6 +58,6 @@ class Module_World extends Module_JSLib {
 		}
 		$this->application->logger->debug("{method} ended", $__);
 		
-		Language::clean_table();
+		Language::clean_table($this->application);
 	}
 }
