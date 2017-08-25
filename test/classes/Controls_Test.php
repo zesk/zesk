@@ -1,95 +1,100 @@
 <?php
-zesk()->deprecated("Need to rewrite");
+/**
+ * 
+ */
+namespace zesk;
+
 /**
  * @test_no_buffer false
  * @author kent
  *
  */
-class Test_Controls extends Test_Widget {
-	
+class Controls_Test extends Test_Widget {
 	function _test_session() {
 		$this->application->set_option("session_class", "zesk\Session_Test");
 	}
 	/**
 	 * @data_provider controls_to_test
 	 */
-	function test_control($control, $options = array()) {
+	function test_control($widget_class, $options = array()) {
 		$this->_test_session();
-		$this->test_basics($this->application->objects->factory($control, $options));
+		$control = $this->application->widget_factory($widget_class, $options);
+		$this->assert_instanceof($control, "zesk\\Widget", "$widget_class is not an instanceof of zesk\\Widget (" . type($control) . ")");
+		$this->widget_tests($control);
 	}
 	function controls_to_test() {
 		$controls = array(
 			array(
-				"Control_Button"
+				__NAMESPACE__ . "\\" . "Control_Button"
 			),
 			array(
-				"Control_Checkbox"
+				__NAMESPACE__ . "\\" . "Control_Checkbox"
 			),
 			array(
-				"Control_Checklist"
+				__NAMESPACE__ . "\\" . "Control_Checklist"
 			),
 			array(
-				"Control_Color"
+				__NAMESPACE__ . "\\" . "Control_Color"
 			),
 			array(
-				"Control_Email"
+				__NAMESPACE__ . "\\" . "Control_Email"
 			),
 			array(
-				"Control_File"
+				__NAMESPACE__ . "\\" . "Control_File"
 			),
 			array(
-				"Control_Filter"
+				__NAMESPACE__ . "\\" . "Control_Filter"
 			),
 			array(
-				"Control_Hidden"
+				__NAMESPACE__ . "\\" . "Control_Hidden"
 			),
 			array(
-				"Control_IP"
+				__NAMESPACE__ . "\\" . "Control_IP"
 			),
 			array(
-				"Control_Icon"
+				__NAMESPACE__ . "\\" . "Control_Icon"
 			),
 			array(
-				"Control_Image"
+				__NAMESPACE__ . "\\" . "Control_Image"
 			),
 			array(
-				"Control_Login"
+				__NAMESPACE__ . "\\" . "Control_Login"
 			),
 			array(
-				"Control_Order"
+				__NAMESPACE__ . "\\" . "Control_Order"
 			),
 			array(
-				"Control_Pager"
+				__NAMESPACE__ . "\\" . "Control_Pager"
 			),
 			array(
-				"Control_Password"
+				__NAMESPACE__ . "\\" . "Control_Password"
 			),
 			array(
-				"Control_Phone"
+				__NAMESPACE__ . "\\" . "Control_Phone"
 			),
 			array(
-				"Control_Radio"
+				__NAMESPACE__ . "\\" . "Control_Radio"
 			),
 			array(
-				"Control_RichText"
+				__NAMESPACE__ . "\\" . "Control_RichText"
 			),
 			array(
-				"Control_Schedule"
+				__NAMESPACE__ . "\\" . "Control_Schedule"
 			),
 			array(
-				"Control_Select"
+				__NAMESPACE__ . "\\" . "Control_Select"
 			),
 			array(
-				"Control_Text"
+				__NAMESPACE__ . "\\" . "Control_Text"
 			),
 			array(
-				"Control_URL"
+				__NAMESPACE__ . "\\" . "Control_URL"
 			),
 			array(
-				"Control_Image_Toggle"
+				__NAMESPACE__ . "\\" . "Control_Image_Toggle"
 			),
 			array(
-				"Control_IP_List"
+				__NAMESPACE__ . "\\" . "Control_IP_List"
 			)
 		);
 		return $controls;
@@ -117,7 +122,6 @@ class Test_Controls extends Test_Widget {
 		// 		$x = new Control_Object_List_Tree($options);
 		// 		$x->object($object);
 		
-
 		// 		$this->test_basics($x);
 	}
 	function test_Control_Edit() {
