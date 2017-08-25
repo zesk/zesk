@@ -1,32 +1,32 @@
 <?php
 namespace zesk;
 
-class world_test extends Test_Object {
+class World_Test extends Test_Object {
 	protected $load_modules = array(
-		"world"
+		"World",
+		"MySQL"
 	);
-	function __construct() {
-		parent::__construct();
+	function initialize() {
 		$db = $this->application->database_factory();
 		$this->assert_not_null($db, "Database not connected");
-		$this->require_tables("Country");
+		$this->require_tables(__NAMESPACE__ . "\\" . "Country");
 	}
 	function classes_to_test() {
 		return array(
 			array(
-				"City",
+				__NAMESPACE__ . "\\" . "City",
 				array()
 			),
 			array(
-				"Country",
+				__NAMESPACE__ . "\\" . "Country",
 				array()
 			),
 			array(
-				"Province",
+				__NAMESPACE__ . "\\" . "Province",
 				array()
 			),
 			array(
-				"Currency",
+				__NAMESPACE__ . "\\" . "Currency",
 				array()
 			)
 		);
