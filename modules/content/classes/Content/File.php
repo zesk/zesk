@@ -171,9 +171,9 @@ class Content_File extends Object {
 	public function register_path($path, array $options = array()) {
 		$copy = $this->option_bool("scan_path_copy");
 		$options = to_array($options);
-		$data = Content_Data::copy_from_path($path, $copy);
+		$data = Content_Data::copy_from_path($this->application, $path, $copy);
 		
-		$file = new Content_File();
+		$file = $this->application->object_fatcory(__CLASS__);
 		$file->Original = avalue($options, 'Original', $path);
 		if ($file->find(array(
 			'Original' => $file->Original
