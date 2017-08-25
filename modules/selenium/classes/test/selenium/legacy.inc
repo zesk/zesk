@@ -347,6 +347,9 @@ class Test_Selenium_Legacy extends Test_Unit {
 		extract($this->options, EXTR_IF_EXISTS);
 		$this->browser = $browser;
 		$this->browserUrl = $url;
+		if (empty($host)) {
+			throw new Exception_Configuration(__CLASS__ . "::host", "No host found");
+		}
 		$this->host = $host;
 		$this->port = $port;
 		$this->timeout = $timeout;
