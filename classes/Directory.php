@@ -32,7 +32,7 @@ class Directory extends Hookable {
 	 * configured hook
 	 */
 	public static function configured(Application $application) {
-		self::$debug = zesk()->configuration->pave(__CLASS__)->debug;
+		self::$debug = zesk()->configuration->path(__CLASS__)->debug;
 	}
 	private static function octal_equal($a, $b) {
 		return intval($a) === intval($b);
@@ -72,7 +72,7 @@ class Directory extends Hookable {
 	public static function default_mode() {
 		global $zesk;
 		/* @var $zesk zesk\Kernel */
-		$mode = to_integer($zesk->configuration->pave(__CLASS__)->directory_mode, 0770);
+		$mode = to_integer($zesk->configuration->path(__CLASS__)->directory_mode, 0770);
 		return $mode;
 	}
 	public static function temporary($name = null, $mode = null) {
@@ -116,7 +116,7 @@ class Directory extends Hookable {
 			throw new Exception_Parameter("self::duplicate: Destination is empty");
 		}
 		if (!is_dir($destination)) {
-			if (!mkdir($destination, $zesk->configuration->pave(__CLASS__)->get('DIRECTORY_MODE', 0770), true)) {
+			if (!mkdir($destination, $zesk->configuration->path(__CLASS__)->get('DIRECTORY_MODE', 0770), true)) {
 				throw new Exception_Directory_NotFound("Can't create $destination");
 			}
 		}

@@ -187,7 +187,7 @@ class Response extends Hookable {
 	 */
 	public static function factory(Application $application, $options = null) {
 		$application->configuration->deprecated("Response", __CLASS__);
-		$content_type = $application->configuration->pave(__CLASS__)->get("content_type", self::content_type_html);
+		$content_type = $application->configuration->path(__CLASS__)->get("content_type", self::content_type_html);
 		if (is_string($options)) {
 			$content_type = $options;
 			$options = array();

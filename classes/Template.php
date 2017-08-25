@@ -617,7 +617,7 @@ class Template implements Interface_Theme {
 	}
 	public static function configured(Application $application) {
 		global $zesk;
-		$config = $zesk->configuration->pave("template");
+		$config = $zesk->configuration->path("template");
 		/* @var $zesk Kernel */
 		self::$profile = to_bool($config->profile);
 		self::$wrap = to_bool($config->wrap);

@@ -113,7 +113,7 @@ class Module_Bootstrap extends Module implements Interface_Module_Foot, Interfac
 		global $zesk;
 		/* @var $zesk Kernel */
 		if ($set !== null) {
-			$zesk->configuration->pave(__CLASS__)->source_location = $set;
+			$zesk->configuration->path(__CLASS__)->source_location = $set;
 			return $set;
 		}
 		return $zesk->configuration->path_get(array(

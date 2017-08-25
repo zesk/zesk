@@ -552,7 +552,7 @@ abstract class Cache implements \ArrayAccess {
 	 */
 	final static public function hooks(Kernel $zesk) {
 		$zesk->configuration->deprecated('Cache::interface', __CLASS__ . "::interface");
-		$zesk->configuration->pave(__CLASS__);
+		$zesk->configuration->path(__CLASS__);
 		$zesk->hooks->add('reset', __CLASS__ . "::reset");
 		$zesk->hooks->add('exit', __CLASS__ . "::at_exit");
 	}

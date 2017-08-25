@@ -1313,7 +1313,7 @@ abstract class Database extends Hookable {
 		}
 		$config->deprecated("Database::database_names", __CLASS__ . "::names");
 		$config->deprecated(__CLASS__ . "::database_names", __CLASS__ . "::names");
-		$databases = to_array($config->pave(array(
+		$databases = to_array($config->path(array(
 			__CLASS__,
 			'names'
 		)));

@@ -29,7 +29,7 @@ Also, the `$_ZESK` global structure is multi-dimensional and is accessed using a
 
 So, for example:
 
-	$zesk->configuration->pave_set("a::b::c::d", "hello");
+	$zesk->configuration->path_set("a::b::c::d", "hello");
 	
 Would result in the global `$_ZESK` to have the value:
 

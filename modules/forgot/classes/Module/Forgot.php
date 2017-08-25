@@ -32,7 +32,7 @@ class Module_Forgot extends Module implements Interface_Module_Routes {
 	 */
 	public function initialize() {
 		parent::initialize();
-		$this->zesk->configuration->pave("zesk\\Forgot")->theme_path_prefix = "object";
+		$this->zesk->configuration->path("zesk\\Forgot")->theme_path_prefix = "object";
 	}
 	
 	/**

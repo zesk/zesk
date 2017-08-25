@@ -88,7 +88,7 @@ class Options implements \ArrayAccess {
 			// Class hierarchy is given from child -> parent
 			foreach ($zesk->classes->hierarchy($class) as $subclass) {
 				// Child options override parent options
-				$references[$subclass] = $zesk->configuration->pave($subclass);
+				$references[$subclass] = $zesk->configuration->path($subclass);
 			}
 			self::$option_references[$class] = $references;
 		}

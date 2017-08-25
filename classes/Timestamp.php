@@ -815,7 +815,7 @@ class Timestamp extends Temporal {
 		global $zesk;
 		/* @var $zesk zesk\Kernel */
 
-		$config_timestamp = $zesk->configuration->pave(array(
+		$config_timestamp = $zesk->configuration->path(array(
 			"timestamp",
 			"formatting"
 		));

@@ -61,7 +61,7 @@ class Adapter_Settings_Configuration implements Interface_Settings {
 	 * @param mixed $value Value to save. As a general rule, best to use scalar types
 	 */
 	public function __set($name, $value) {
-		$this->configuration->pave_set($name, $value);
+		$this->configuration->path_set($name, $value);
 	}
 	
 	/**
@@ -72,7 +72,7 @@ class Adapter_Settings_Configuration implements Interface_Settings {
 	 * @return Interface_Settings
 	 */
 	public function set($name, $value = null) {
-		$this->configuration->pave_set($name, $value);
+		$this->configuration->path_set($name, $value);
 	}
 	
 	/**

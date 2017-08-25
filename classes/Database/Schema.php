@@ -117,7 +117,7 @@ abstract class Database_Schema extends Hookable {
 	 */
 	public static function hooks(Kernel $zesk) {
 		$zesk->hooks->add("configured", __CLASS__ . "::configured");
-		$zesk->configuration->pave(__CLASS__);
+		$zesk->configuration->path(__CLASS__);
 	}
 	
 	/**
