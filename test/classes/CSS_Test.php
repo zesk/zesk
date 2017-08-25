@@ -1,7 +1,7 @@
 <?php
-use zesk\CSS;
+namespace zesk;
 
-class test_css extends Test_Unit {
+class CSS_Test extends Test_Unit {
 
 	function test_color_parse() {
 		$text = null;

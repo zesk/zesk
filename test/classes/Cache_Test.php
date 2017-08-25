@@ -1,8 +1,8 @@
 <?php
 
-use zesk\Cache;
+namespace zesk;
 
-class test_cache extends Test_Unit {
+class Cache_Test extends Test_Unit {
 
 	function test_register() {
 		$name = 'test';

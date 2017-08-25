@@ -1,5 +1,7 @@
 <?php
-class test_base26 extends Test_Unit {
+namespace zesk;
+
+class Base26_Test extends Test_Unit {
 
 	function test_from_integer() {
 		$i = null;
