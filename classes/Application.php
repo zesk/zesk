@@ -559,7 +559,7 @@ class Application extends Hookable implements Interface_Theme {
 		if (count($this->include_paths) === 0 || array_key_exists('path', $options)) {
 			$this->configure_include_path(avalue($options, 'path', $this->default_include_path()));
 		}
-		$this->loader = new Configuration_Loader(get_class($this), $this->include_paths, $this->includes, new Adapter_Settings_Configuration($configuration));
+		$this->loader = new Configuration_Loader($this->include_paths, $this->includes, new Adapter_Settings_Configuration($configuration));
 		
 		$this->loader->load();
 		
