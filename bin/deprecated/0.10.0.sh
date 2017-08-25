@@ -81,8 +81,15 @@ php-find.sh Content_Data::from_string
 pause
 
 echo 'First parameter is now $application:'
-Preference_Type::register_name
+php-find.sh Preference_Type::register_name
 pause
 
 
-	
+echo 'Configuration_Loader no longer takes \$name as first parameter'
+php-find.sh 'new Configuration_Loader'
+pause
+
+echo 'Configuration::pave_set and Configuration::pave will be depreacted shortly'
+php-find.sh '>pave_set('
+php-find.sh '>pave('
+pause
