@@ -70,7 +70,7 @@ class Control_Checklist extends Control_Optionss {
 	}
 	protected function hook_control_options_changed() {
 		$this->widgets_id = null;
-		$this->_init_children($this->control_options);
+		$this->_init_children(to_array($this->control_options));
 	}
 	/**
 	 * (non-PHPdoc)
