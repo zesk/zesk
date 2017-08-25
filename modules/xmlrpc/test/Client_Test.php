@@ -8,11 +8,12 @@
  */
 namespace xmlrpc;
 
-class Client_Test extends  Test_Unit {
+use zesk\Test_Unit;
+
+class Client_Test extends Test_Unit {
 	protected $load_modules = array(
-			"xmlrpc"
+		"xmlrpc"
 	);
-	
 	function test_main() {
 		$url = $this->option("xmlrpc_test_url");
 		$x = new Client($url);

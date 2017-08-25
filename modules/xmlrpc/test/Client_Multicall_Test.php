@@ -1,6 +1,8 @@
 <?php
 namespace xmlrpc;
 
+use zesk\Test_Unit;
+
 class Client_Multicall_Test extends Test_Unit {
 	protected $load_modules = array(
 		"xmlrpc"

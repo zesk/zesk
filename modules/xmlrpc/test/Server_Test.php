@@ -8,12 +8,17 @@
  */
 namespace xmlrpc;
 
+use zesk\Test_Unit;
+
 /**
  * 
  * @author kent
  *
  */
-class XML_RPC_Server_Test extends Test {
+class Server_Test extends Test_Unit {
+	protected $load_modules = array(
+		"xmlrpc"
+	);
 	function test_basics() {
 		$methods = false;
 		$x = new Server($methods);

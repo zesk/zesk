@@ -8,6 +8,8 @@
  */
 namespace xmlrpc;
 
+use zesk\Test_Unit;
+
 class Parser_Test extends Test_Unit {
 	protected $load_modules = array(
 		"xmlrpc"

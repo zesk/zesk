@@ -8,7 +8,10 @@
  */
 namespace xmlrpc;
 
-class XML_RPC_Value_Test extends Test {
+class Value_Test extends \zesk\Test_Unit {
+	protected $load_modules = array(
+		"xmlrpc"
+	);
 	function test_basics() {
 		$x = new Value($data, $type);
 		

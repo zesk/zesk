@@ -10,7 +10,7 @@ namespace zesk;
 
 use xmlrpc\Value_Binary;
 
-class XML_RPC_Value_Binary_Test extends Test_Unit {
+class Value_Binary_Test extends Test_Unit {
 	protected $load_modules = array(
 		"xmlrpc"
 	);

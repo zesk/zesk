@@ -5,11 +5,11 @@
  * @author Kent Davidson <kent@marketacumen.com>
  * @copyright Copyright &copy; 2017its, Market Acumen, Inc.
  */
-namespace zesk;
+namespace xmlrpc;
 
-use xmlrpc\Result;
+use zesk\Test_Unit;
 
-class XML_RPC_Result_Test extends Test_Unit {
+class Result_Test extends Test_Unit {
 	protected $load_modules = array(
 		"xmlrpc"
 	);

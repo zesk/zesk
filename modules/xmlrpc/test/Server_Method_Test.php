@@ -6,18 +6,16 @@
  * @author Kent Davidson <kent@marketacumen.com>
  * @copyright Copyright &copy; 2008, Market Acumen, Inc.
  */
-namespace zesk;
+namespace xmlrpc;
 
-use xmlrpc\Server;
-use xmlrpc\Server_Method;
-use xmlrpc\Exception;
+use zesk\Test_Unit;
 
 class AddMeUp extends Server {
 	function rpc_add($a, $b) {
 		return $a + $b;
 	}
 }
-class XML_RPC_Server_Method_Test extends Test_Unit {
+class Server_Method_Test extends Test_Unit {
 	protected $load_modules = array(
 		"xmlrpc"
 	);
