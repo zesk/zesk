@@ -280,6 +280,7 @@ class Command_Test extends Command_Base {
 				'#\.application\.inc#i' => false,
 				'#\.module\.inc#i' => false,
 				'#.*/test/.*(\.inc|\.phpt)#i' => true,
+				'#.*_test.php#i' => true,
 				false
 			),
 			'rules_directory' => false,
@@ -566,7 +567,24 @@ class Command_Test extends Command_Base {
 		}
 		return $sandbox;
 	}
+	/**
+	 * inc and php files are treated identically
+	 * 
+	 * @param string $file
+	 * @param array $options
+	 */
 	private function run_test_inc($file, array $options) {
+		return $this->run_test_php($file, $options);
+	}
+	
+	/**
+	 * Load a PHP file which contains a subclass of zesk\Test_Unit
+	 *  
+	 * @param string $file
+	 * @param array $options
+	 * @return boolean
+	 */
+	private function run_test_php($file, array $options) {
 		$options += $this->options;
 		try {
 			$run_class = $this->include_file_classes($file);
