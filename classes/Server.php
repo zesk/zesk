@@ -228,7 +228,12 @@ class Server extends Object implements Interface_Data {
 			$item->set($server);
 			$item->expiresAfter(60);
 		}
+		return $server;
 	}
+	
+	/**
+	 * 
+	 */
 	protected function refresh_names() {
 	}
 
