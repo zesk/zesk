@@ -5,6 +5,8 @@
  */
 namespace zesk;
 
+use \stdClass;
+
 class arr_Test extends Test_Unit {
 	function test_change_value_case() {
 		$a = array(
@@ -1171,10 +1173,21 @@ class arr_Test extends Test_Unit {
 		arr::prepend($arr, $k, $v);
 	}
 	function test_trim_clean() {
-		$arr = null;
+		$arr = array(
+			"    \n\r\n\n\r\t\t\t\thello\t\n\r",
+			"\n\n\n\r\t\n",
+			" world",
+			" ",
+			"",
+			null,
+			false
+		);
 		$value = '';
-		arr::trim_clean($arr);
-		echo basename(__FILE__) . ": success\n";
+		$result = arr::trim_clean($arr);
+		$this->assert_arrays_equal($result, array(
+			0 => "hello",
+			2 => "world"
+		));
 	}
 }
 class faker {

@@ -1,6 +1,5 @@
 <?php
 /**
- * $URL: https://code.marketacumen.com/zesk/trunk/modules/xmlrpc/test/XML_RPC_Server.phpt $
  * @package zesk
  * @subpackage test
  * @author Kent Davidson <kent@marketacumen.com>
@@ -9,7 +8,13 @@
 namespace xmlrpc;
 
 use zesk\Test_Unit;
+use zesk\str;
 
+class MyServer extends Server {
+	function rpc_capitalize($string) {
+		return str::capitalize($string);
+	}
+}
 /**
  * 
  * @author kent
@@ -21,12 +26,15 @@ class Server_Test extends Test_Unit {
 	);
 	function test_basics() {
 		$methods = false;
-		$x = new Server($methods);
+		$x = new MyServer($methods);
 		
-		$data = false;
-		$x->serve($data);
+		$x->registerMethod("capitalize", "string", "this:capitalize", array(
+			"string" => "string"
+		), "Capitalizes a word", array(
+			"string" => "String to capitalize"
+		));
 		
-		$methodName = null;
+		$methodName = "dude";
 		$args = null;
 		$x->call($methodName, $args);
 		
@@ -68,5 +76,20 @@ class Server_Test extends Test_Unit {
 		
 		$method = null;
 		$x->rpc_methodHelp($method);
+	}
+	
+	/**
+	 * @expectedException xmlrpc\Exception
+	 */
+	function test_missing_method() {
+		$methods = false;
+		$x = new MyServer($methods);
+		
+		// 		$data = false;
+		// 		$x->serve($data);
+		
+		$methodName = "missing";
+		$args = null;
+		$x->call($methodName, $args);
 	}
 }

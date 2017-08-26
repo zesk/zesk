@@ -8,7 +8,7 @@ namespace zesk;
  */
 class Server_Test extends Test_Unit {
 	protected $load_modules = array(
-		"server"
+		"MySQL"
 	);
 	protected function initialize() {
 		$this->schema_synchronize("zesk\\Server");
@@ -18,12 +18,13 @@ class Server_Test extends Test_Unit {
 		
 		$mixed = null;
 		$options = false;
-		$testx = new Server($mixed, $options);
+		$testx = new Server($this->application, $mixed, $options);
 		
-		$testx = Server::singleton(__CLASS__);
+		$testx = Server::singleton($this->application);
 		
+		$this->assert_instanceof($testx, __NAMESPACE__ . "\\" . "Server");
 		$path = "/";
-		$testx->ID = 1;
+		$testx->id = 1;
 		$testx->update_state($path);
 	}
 }

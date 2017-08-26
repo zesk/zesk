@@ -9,6 +9,13 @@
 namespace zesk;
 
 class Configuration_Loader_Test extends Test_Unit {
+	function test_implements() {
+		$config = new Configuration();
+		$settings = new Adapter_Settings_Configuration($config);
+		$this->assert_instanceof($settings, __NAMESPACE__ . "\\" . "Adapter_Settings_Configuration");
+		$this->assert_instanceof($settings, __NAMESPACE__ . "\\" . "Interface_Settings");
+		$this->assert_implements($settings, __NAMESPACE__ . "\\" . "Interface_Settings");
+	}
 	function test_new() {
 		$path = $this->test_sandbox();
 		Directory::depend($one = path($path, "one"));
@@ -21,21 +28,10 @@ class Configuration_Loader_Test extends Test_Unit {
 			"weight" => 140,
 			"eye_color" => "brown"
 		);
-		$settings = new Adapter_Settings_Array($array);
-		$this->assert_instanceof($setings, __NAMESPACE__ . "\\" . "Interface_Settings");
+		$config = new Configuration($array);
+		$settings = new Adapter_Settings_Configuration($config);
 		$conf_name = "a.conf";
 		$json_name = "b.json";
-		$loader = new Configuration_Loader(array(
-			$one,
-			path($path, "nope"),
-			$two,
-			path($path, "double_nope"),
-			$three
-		), array(
-			"a.conf",
-			"b.json"
-		), $settings);
-		
 		// Four files
 		
 		$one_json = array(
@@ -58,7 +54,7 @@ class Configuration_Loader_Test extends Test_Unit {
 			"Person::hair_color=\"\${hair_color:=red}-two-conf\"",
 			"LAST=two-conf",
 			"FILE_LOADED__TWO_CONF=1",
-			"zesk___User__class" => "User"
+			"zesk___User__class=User"
 		);
 		$three_json = array(
 			"Person::name" => "\${name}-three-json",
@@ -82,26 +78,47 @@ class Configuration_Loader_Test extends Test_Unit {
 		file_put_contents(path($three, $json_name), JSON::encode_pretty($three_json));
 		file_put_contents(path($three, $conf_name), implode("\n", $three_conf));
 		
+		$loader = new Configuration_Loader(array(
+			$one,
+			path($path, "nope"),
+			$two,
+			path($path, "double_nope"),
+			$three
+		), array(
+			"a.conf",
+			"b.json"
+		), $settings);
+		
 		$loader->load();
 		
-		$this->assert_arrays_equal($array, array(
+		$variables = $loader->variables();
+		$this->assert_equal($variables['processed'], array(
+			"$path/one/$json_name",
+			"$path/two/$conf_name",
+			"$path/three/$conf_name",
+			"$path/three/$json_name"
+		));
+		
+		$this->assert_arrays_equal(to_array($config), array(
 			"name" => "ralph",
 			"rank" => "admiral",
 			"weight" => 140,
+			"eye_color" => "brown",
 			"person" => array(
-				"name" => "ralph-three-conf",
-				"rank" => "ralph-three-conf",
-				"weight" => "ralph-three-conf",
-				"eye_color" => "ralph-three-conf"
+				"name" => "ralph-three-json",
+				"rank" => "admiral-three-json",
+				"weight" => "140-three-conf",
+				"eye_color" => "brown-two-conf",
+				"hair_color" => "red-two-conf"
 			),
+			"last" => "three-json",
 			"file_loaded" => array(
 				"one_json" => 1,
 				"two_conf" => 1,
 				"three_conf" => 1,
 				"three_json" => 1
 			),
-			"last" => "three-json",
-			"zesk\\User" => array(
+			"zesk\\user" => array(
 				"class" => "User"
 			)
 		));

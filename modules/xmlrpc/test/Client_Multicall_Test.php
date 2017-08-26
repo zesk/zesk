@@ -1,6 +1,7 @@
 <?php
 namespace xmlrpc;
 
+use zesk\URL;
 use zesk\Test_Unit;
 
 class Client_Multicall_Test extends Test_Unit {
@@ -57,8 +58,6 @@ class Client_Multicall_Test extends Test_Unit {
 		$x->clear();
 		
 		$x->isFault();
-		
-		$x->isPost();
 		
 		$x->url();
 		

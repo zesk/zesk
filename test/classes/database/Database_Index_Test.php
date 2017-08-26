@@ -13,7 +13,7 @@ namespace zesk;
  * @author kent
  *
  */
-class Test_Database_Index extends Test_Unit {
+class Database_Index_Test extends Test_Unit {
 	protected $load_modules = array(
 		"MySQL"
 	);
@@ -34,7 +34,7 @@ class Test_Database_Index extends Test_Unit {
 	}
 	function test_main() {
 		$table = $this->mytesttable();
-		$name = '';
+		$name = 'index_with_a_name';
 		$type = 'INDEX';
 		$x = new Database_Index($table, $name, $type);
 		
@@ -67,6 +67,21 @@ class Test_Database_Index extends Test_Unit {
 		$debug = false;
 		$this->assert($x->is_similar($that, $debug) === false);
 		$this->assert($x->is_similar($x, $debug) === true);
+	}
+	/**
+	 * @expectedException zesk\Exception_Semantics
+	 */
+	function test_name_required() {
+		$table = $this->mytesttable();
+		$name = '';
+		$type = 'INDEX';
+		$x = new Database_Index($table, $name, $type);
+		
+		$mixed = new Database_Column($table, "Foo");
+		$size = true;
+		$x->column_add($mixed, $size);
+		
+		$x->sql_index_drop();
 	}
 	function test_determine_type() {
 		$this->assert_equal(Database_Index::determineType("unique"), Database_Index::Unique);

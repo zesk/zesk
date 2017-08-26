@@ -12,7 +12,7 @@ namespace zesk;
  * @author kent
  *
  */
-class Command_Test extends Test_Unit {
+class TheCommand_Test extends Test_Unit {
 	function test_main() {
 		$dir = $this->test_sandbox();
 		$f = $this->test_sandbox("test-file.txt");
@@ -28,7 +28,7 @@ class Command_Test extends Test_Unit {
 			$f
 		);
 		
-		$testx = new Command_Base_Test();
+		$testx = new Command_Base_Test($this->application);
 		
 		$this->assert($testx->has_errors() === false, "Has errors? " . implode(";", $testx->errors()));
 		
@@ -36,8 +36,8 @@ class Command_Test extends Test_Unit {
 		
 		$this->assert_equal($file, $f, "File option mismatch ($file !== $f) found: " . _dump($testx));
 		
-		$message = null;
-		$testx->usage($message);
+// 		$message = null;
+// 		$testx->usage($message);
 		
 		$testx->arguments_remaining();
 		

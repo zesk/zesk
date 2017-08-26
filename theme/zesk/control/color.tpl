@@ -4,12 +4,20 @@
  */
 namespace zesk;
 
-/* @var $response zesk\Response_Text_HTML */
+/* @var $this \zesk\Template */
+/* @var $zesk \zesk\Kernel */
+/* @var $application \zesk\Application */
+/* @var $session \zesk\Session */
+/* @var $router \zesk\Router */
+/* @var $route \zesk\Route */
+/* @var $request \zesk\Request */
+/* @var $response \zesk\Response_Text_HTML */
+/* @var $current_user \zesk\User */
 $widget = $this->widget;
 /* @var $widget Widget */
 $response = $this->response;
 if (!$response) {
-	$response = Response::instance();
+	$response = $application->response();
 }
 
 $name = $widget->column();
@@ -19,8 +27,8 @@ if ($value[0] !== '#') {
 }
 
 $name = $widget->name();
-$response->cdn_javascript("/share/zesk/jquery/farbtastic/farbtastic.js");
-$response->cdn_css("/share/zesk/jquery/farbtastic/farbtastic.css");
+$response->javascript("/share/zesk/jquery/farbtastic/farbtastic.js");
+$response->css("/share/zesk/jquery/farbtastic/farbtastic.css");
 $response->jquery("\$('#colorpicker_$name').farbtastic('#$name'); \$('#$name').on('default', function () {
 		var \$this = \$(this), container = \$('#colorpicker_$name').get(0);
 		container.farbtastic.setColor(\$this.val());
@@ -57,4 +65,5 @@ if ($this->targets) {
 	$response->jquery($script);
 }
 ?>
-<div class="colorpicker" id="colorpicker_<?php echo $name; ?>" style="display: none"></div>
+<div class="colorpicker" id="colorpicker_<?php echo $name; ?>"
+	style="display: none"></div>

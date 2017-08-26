@@ -1,6 +1,5 @@
 <?php
 /**
- * $URL: https://code.marketacumen.com/zesk/trunk/modules/xmlrpc/test/xml_rpc_client_test.inc $
  * @package zesk
  * @subpackage test
  * @author Kent Davidson <kent@marketacumen.com>
@@ -9,13 +8,30 @@
 namespace xmlrpc;
 
 use zesk\Test_Unit;
+use zesk\Exception_Unsupported;
 
 class Client_Test extends Test_Unit {
 	protected $load_modules = array(
 		"xmlrpc"
 	);
-	function test_main() {
+	protected $url = null;
+	
+	/**
+	 * 
+	 * {@inheritDoc}
+	 * @see \zesk\Test_Unit::initialize()
+	 */
+	function initialize() {
 		$url = $this->option("xmlrpc_test_url");
+		if (!$url) {
+			throw new Exception_Unsupported("Need to configure {class}::xmlrpc_test_url", array(
+				"class" => __CLASS__
+			));
+		}
+		$this->url = $url;
+	}
+	function test_main() {
+		$url = $this->url;
 		$x = new Client($url);
 		
 		$x->setCallMap(array(

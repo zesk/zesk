@@ -5,41 +5,29 @@
 namespace zesk;
 
 /**
+ * @todo inherit from Session_Test
  * 
  * @author kent
  *
  */
 class Session_PHP_Test extends Test_Unit {
-
 	function test_main() {
-		$testx = Session_PHP::instance(true);
+		$class = __NAMESPACE__ . "\\" . "Session_PHP";
 		
-		$testx->id();
+		$this->application->set_option("session_class", $class);
 		
-		$name = "Foo";
-		$default = null;
-		$testx->get($name, $default);
+		$session = $this->application->session(true);
 		
-		$name = "Foo";
-		$testx->__get($name);
+		$this->assert_instanceof($session, $class);
 		
-		$name = "Foo";
-		$value = null;
-		$testx->__set($name, $value);
+		$this->session_tests($session);
+	}
+	function session_tests(Interface_Session $session) {
+		$id = $session->id();
+		$this->assert_is_string($id, "Session ID is string");
 		
-		$list = null;
-		$testx->filter($list);
-		
-		$testx->user_id();
-		
-		$id = null;
-		$ip = false;
-		$testx->authenticate($id, $ip);
-		
-		$testx->deauthenticate();
-		
-		$testx->delete();
-		
-		echo basename(__FILE__) . ": success\n";
+		$this->assert_false($session->authenticated(), "Session authenticated");
+		$this->assert_null($session->user_id(), "Session user ID is null");
+		$this->assert_null($session->user(), "Session user is null");
 	}
 }
