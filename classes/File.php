@@ -503,6 +503,12 @@ class File {
 	 * @return boolean
 	 */
 	public static function put($path, $contents) {
+		if (!is_scalar($contents)) {
+			throw new Exception_Parameter("{method}: Contents should be a scalar value {type} passed", array(
+				"method" => __METHOD__,
+				"type" => type($contents)
+			));
+		}
 		if (!is_dir($dir = dirname($path))) {
 			throw new Exception_Directory_NotFound($dir, "Unable to write {n} bytes to file {file}", array(
 				"file" => $path,
