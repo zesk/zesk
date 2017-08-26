@@ -10,7 +10,7 @@ namespace zesk;
 class Session_PHP implements Interface_Session {
 	private $started = false;
 	private $application = null;
-	function __construct($mixed = null, $options = false, Application $application = null) {
+	function __construct(Application $application, $mixed = null, $options = false) {
 		$this->application = $application;
 	}
 	
@@ -20,14 +20,13 @@ class Session_PHP implements Interface_Session {
 	 */
 	public function initialize_session(Request $request) {
 		$this->need();
+		return $this;
 	}
 	public function need() {
-		global $zesk;
-		/* @var $zesk zesk\Kernel */
 		if ($this->started) {
 			return;
 		}
-		if (!$zesk->console) {
+		if (!zesk()->console()) {
 			session_start();
 		} else {
 			global $_SESSION;
@@ -150,7 +149,16 @@ class Session_PHP implements Interface_Session {
 	 * @see Interface_Session::user()
 	 */
 	public function user() {
-		return Object::factory("User")->fetch($this->user_id());
+		$user_id = $this->user_id();
+		if (empty($user_id)) {
+			return null;
+		}
+		try {
+			return $this->application->object_factory(__NAMESPACE__ . "\\" . "User", $user_id)->fetch();
+		} catch (Exception_Object_NotFound $e) {
+			$this->__set(self::global_session_user_id(), null);
+			return null;
+		}
 	}
 	
 	/**
