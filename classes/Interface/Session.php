@@ -18,7 +18,7 @@ interface Interface_Session extends Interface_Settings {
 	 * @param array $options
 	 * @param Application $application
 	 */
-	function __construct($mixed = null, $options = false, Application $application = null);
+	function __construct(Application $application, $mixed = null, $options = false);
 	
 	/**
 	 * Singleton interface to retrieve current session
@@ -66,7 +66,8 @@ interface Interface_Session extends Interface_Settings {
 	public function user();
 	
 	/**
-	 * Delete any reference to this session, including cookies
+	 * 
+	 * @param Response $response Optional response to set cookies
 	 */
 	public function delete();
 }
