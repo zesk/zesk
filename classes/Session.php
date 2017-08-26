@@ -19,7 +19,7 @@ class Session {
 	private static $aliases = array(
 		"db" => "database"
 	);
-
+	
 	/**
 	 *
 	 * @param Kernel $zesk
@@ -35,7 +35,7 @@ class Session {
 		$get = $configuration->path(__CLASS__)->get("implementation", "");
 		return avalue(self::$aliases, $get, $get);
 	}
-
+	
 	/**
 	 *
 	 * @param Application $application
@@ -52,7 +52,7 @@ class Session {
 		$class = $application->option("session_class", $default_class);
 		return $class;
 	}
-
+	
 	/**
 	 * Retrieve the session
 	 *
@@ -64,6 +64,6 @@ class Session {
 		if (!$class) {
 			throw new Exception_Configuration("zesk\Application::session_implementation", "Needs a class name value");
 		}
-		return $application->objects->factory($class, null, null, $application)->initialize_session($application->request());
+		return $application->objects->factory($class, $application)->initialize_session($application->request());
 	}
 }
