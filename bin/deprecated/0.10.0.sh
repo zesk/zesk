@@ -93,3 +93,7 @@ echo 'Configuration::pave_set and Configuration::pave will be depreacted shortly
 php-find.sh '>pave_set('
 php-find.sh '>pave('
 pause
+
+echo 'Controller::factory is deprecated'
+php-find.sh 'Controller::factory'
+pause
