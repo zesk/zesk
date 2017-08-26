@@ -144,7 +144,7 @@ class Test_Unit extends Options {
 	 * @throws string
 	 */
 	private function end_test(array $settings, $error = null) {
-		$expected_exception = avalue($settings, 'expected_exception', avalue($settings, 'expectedexception'));
+		$expected_exception = avalue($settings, 'expected_exception', avalue($settings, 'expectedexception', avalue($settings, 'expectedException')));
 		$error_class = is_object($error) ? get_class($error) : gettype($error);
 		if ($expected_exception) {
 			if ($expected_exception === $error_class) {
@@ -380,7 +380,7 @@ class Test_Unit extends Options {
 				'status' => $failed ? 'FAIL' : 'OK'
 			)));
 			if (($failed || $this->option_bool('verbose')) && !empty($this->last_test_output)) {
-				zesk()->logger->error("Last test output:\n{output}--- End of output", array(
+				zesk()->logger->info("Last test output:\n{output}--- End of output", array(
 					"output" => "\n" . Text::indent($this->last_test_output, 1, true)
 				));
 			}
@@ -563,7 +563,18 @@ class Test_Unit extends Options {
 	 * @param string $message
 	 */
 	final public function assert_instanceof($mixed, $instanceof, $message = null) {
-		$this->assert($mixed instanceof $instanceof, "!(" . type($mixed) . " $mixed) instanceof $instanceof $message", false);
+		$this->assert($mixed instanceof $instanceof, "!" . type($mixed) . " instanceof $instanceof $message", false);
+	}
+	
+	/**
+	 * Assert a value is an instanceof a class
+	 *
+	 * @param mixed $mixed
+	 * @param string $message
+	 */
+	final public function assert_implements($mixed, $instanceof, $message = null) {
+		$interfaces = class_implements($mixed);
+		$this->assert(in_array($instanceof, $interfaces), "!" . type($mixed) . " implements $instanceof (does implement " . implode(", ", $interfaces) . ") $message", false);
 	}
 	
 	/**
