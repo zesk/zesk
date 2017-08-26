@@ -100,6 +100,10 @@ class Server {
 	 * @param string $data
 	 */
 	function serve($data = false) {
+		if ($this->option("allow_query_string_data") && !$data) {
+			$req = app()->request();
+			$data = $req->get("data");
+		}
 		if (!$data) {
 			$data = file_get_contents("php://input");
 			if (!$data) {
