@@ -55,9 +55,6 @@ class Controls_Test extends Test_Widget {
 				__NAMESPACE__ . "\\" . "Control_Icon"
 			),
 			array(
-				__NAMESPACE__ . "\\" . "Control_Image"
-			),
-			array(
 				__NAMESPACE__ . "\\" . "Control_Login"
 			),
 			array(
@@ -77,9 +74,6 @@ class Controls_Test extends Test_Widget {
 			),
 			array(
 				__NAMESPACE__ . "\\" . "Control_RichText"
-			),
-			array(
-				__NAMESPACE__ . "\\" . "Control_Schedule"
 			),
 			array(
 				__NAMESPACE__ . "\\" . "Control_Select"
@@ -111,7 +105,7 @@ class Controls_Test extends Test_Widget {
 			)
 		));
 		
-		$object = new Test_COLT_Object();
+		$object = new Test_COLT_Object($this->application);
 		$table = $object->table();
 		
 		$db = $this->application->database_factory();
@@ -128,8 +122,8 @@ class Controls_Test extends Test_Widget {
 		$this->_test_session();
 		
 		$options = false;
-		$x = new \Control_Edit($options);
-		$object = new User();
+		$x = new Control_Edit($this->application, $options);
+		$object = new User($this->application);
 		$x->object($object);
 		
 		$this->test_basics($x);
@@ -142,7 +136,7 @@ class Controls_Test extends Test_Widget {
 			'table' => $table,
 			'textcolumn' => "Foo"
 		);
-		$x = new Control_Select_Object_Hierarchy($options);
+		$x = new Control_Select_Object_Hierarchy($this->application, $options);
 		
 		$this->test_basics($x);
 	}
@@ -150,7 +144,7 @@ class Controls_Test extends Test_Widget {
 		$options = array(
 			"path" => $this->sandbox()
 		);
-		$x = new Control_Select_File($options);
+		$x = new Control_Select_File($this->application, $options);
 		
 		$this->test_basics($x);
 	}
@@ -161,8 +155,8 @@ class Controls_Test extends Test_Widget {
 			'table' => 'Control_Select_Test_Object',
 			'textcolumn' => "Foo"
 		);
-		$x = new Control_Select_Object($options);
-		$x->_class("User");
+		$x = new Control_Select_Object($this->application, $options);
+		$x->object_class(__NAMESPACE__ . "\\" . "User");
 		$this->test_basics($x);
 	}
 	function test_Control_Link_Object() {
@@ -174,8 +168,8 @@ class Controls_Test extends Test_Widget {
 		$options = array(
 			'table' => $table
 		);
-		$testx = new Control_Link_Object($options);
-		$text = new Control_Text();
+		$testx = new Control_Link_Object($this->application, $options);
+		$text = new Control_Text($this->application);
 		$text->names('B');
 		$testx->widget($text);
 		
@@ -189,21 +183,26 @@ class Controls_Test extends Test_Widget {
 		$db->query("DROP TABLE IF EXISTS $table");
 	}
 }
-class Test_COLT_Object extends Object {
-	protected $table = __CLASS__;
-	protected $id_column = "ID";
-	protected $columns = array(
-		'Foo'
+class Class_Test_COLT_Object extends Class_Object {
+	public $table = 'Test_COLT_Object';
+	public $id_column = "ID";
+	public $column_types = array(
+		'ID' => self::type_id,
+		'Foo' => self::type_string
 	);
+}
+class Test_COLT_Object extends Object {
 	function schema() {
-		return "CREATE TABLE " . $this->table() . " ( ID int(11) unsigned PRIMARY KEY AUTO_INCREMENT NOT NULL, Foo varchar(23) NOT NULL )";
+		return "CREATE TABLE `" . $this->table() . "` ( ID int(11) unsigned PRIMARY KEY AUTO_INCREMENT NOT NULL, Foo varchar(23) NOT NULL )";
 	}
 }
-class Test_COL_Object extends Object {
-	protected $table = __CLASS__;
-	protected $id_column = "ID";
-	protected $columns = array(
-		'Foo'
+class Class_Test_COL_Object extends Class_Object {
+	public $table = __CLASS__;
+	public $id_column = "ID";
+	public $column_types = array(
+		'ID' => self::type_id,
+		'Foo' => self::type_string
 	);
 }
+class Test_COL_Object extends Object {}
 

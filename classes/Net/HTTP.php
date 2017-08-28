@@ -55,13 +55,11 @@ class Net_HTTP {
 	const Status_Gateway_Timeout = 503;
 	const Status_HTTP_Version_not_supported = 505;
 	const Status_Insufficient_Storage = 507;
-
 	const response_type_info = 1;
 	const response_type_success = 2;
 	const response_type_redirect = 3;
 	const response_type_error_client = 4;
 	const response_type_error_server = 5;
-
 	const Method_GET = "GET";
 	const Method_POST = "POST";
 	const Method_PUT = "PUT";
@@ -70,16 +68,15 @@ class Net_HTTP {
 	const Method_OPTIONS = "OPTIONS";
 	const Method_TRACE = "TRACE";
 	const Method_CONNECT = "CONNECT";
-
 	const request_Referrer = "Referer";
 	const request_User_Agent = "User-Agent";
 	const request_Accept = "Accept";
 	const request_Content_Type = "Content-Type";
 	const response_Content_Disposition = "Content-Disposition";
+	const response_Content_Type = "Content-Type";
 	const response_Accept_Ranges = "Accept-Ranges";
 	const response_Content_Encoding = "Content-Encoding";
 	const response_Transfer_Encoding = "Transfer-Encoding";
-
 	static $methods = array(
 		self::Method_OPTIONS => self::Method_OPTIONS,
 		self::Method_GET => self::Method_GET,
@@ -90,7 +87,6 @@ class Net_HTTP {
 		self::Method_TRACE => self::Method_TRACE,
 		self::Method_CONNECT => self::Method_CONNECT
 	);
-
 	static $status_text = array(
 		self::Status_Continue => 'Continue',
 		self::Status_Switching_Protocols => 'Switching Protocols',
@@ -138,9 +134,7 @@ class Net_HTTP {
 		self::Status_HTTP_Version_not_supported => 'HTTP Version not supported',
 		self::Status_Insufficient_Storage => 'Insufficient Storage'
 	);
-
 	const header_content_length = "Content-Length";
-	
 	static $request_headers = array(
 		"accept" => self::request_Accept,
 		"accept-charset" => "Accept-Charset",
@@ -190,7 +184,7 @@ class Net_HTTP {
 		"x-uidh" => "X-UIDH",
 		"x-csrf-token" => "X-Csrf-Token"
 	);
-
+	
 	/**
 	 * https://en.wikipedia.org/wiki/List_of_HTTP_header_fields
 	 *

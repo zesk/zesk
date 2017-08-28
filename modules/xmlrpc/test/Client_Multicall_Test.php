@@ -1,8 +1,7 @@
 <?php
-namespace xmlrpc;
+namespace zesk;
 
-use zesk\URL;
-use zesk\Test_Unit;
+use xmlrpc\Client_Multicall;
 
 class Client_Multicall_Test extends Test_Unit {
 	protected $load_modules = array(

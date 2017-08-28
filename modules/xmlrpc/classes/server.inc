@@ -13,6 +13,7 @@ use zesk\PHP;
 use zesk\DocComment;
 use zesk\Exception_Semantics;
 use zesk\Exception_Unimplemented;
+use zesk\Options;
 
 /**
  * Server
@@ -22,7 +23,7 @@ use zesk\Exception_Unimplemented;
  * @package zesk
  * @subpackage xmlrpc
  */
-class Server {
+class Server extends Options {
 	/**
 	 * 
 	 * @var array
@@ -59,7 +60,10 @@ class Server {
 	 * 
 	 * @param string $methods
 	 */
-	function __construct($methods = false) {
+	function __construct($methods = false, array $options = array()) {
+		parent::__construct($options);
+		$this->inherit_global_options();
+		
 		$this->Methods = array();
 		
 		$this->setupCapabilities();
@@ -176,7 +180,7 @@ class Server {
 	}
 	function error($error, $message = false) {
 		if (!$error instanceof Exception) {
-			$error = new Exception($message, array(), $error);
+			$error = new Exception($error, $message, array());
 		}
 		$this->log("Error: $error $message");
 		$this->response($error->toXML());

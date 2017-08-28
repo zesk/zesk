@@ -75,9 +75,6 @@ class Route_Method extends Route {
 	 * @see Route::_execute()
 	 */
 	protected function _execute() {
-		global $zesk;
-		/* @var $zesk Kernel */
-		
 		$app = $this->router->application;
 		$this->_do_includues();
 		
@@ -90,17 +87,17 @@ class Route_Method extends Route {
 			if (is_string($method) && strpos($method, "::") !== false) {
 				list($class, $method) = pair($method, '::', 'stdClass', $method);
 				$method = new ReflectionMethod($class, $method);
-				$object = $method->isStatic() ? null : $zesk->objects->factory_arguments($class, $construct_arguments);
+				$object = $method->isStatic() ? null : $app->objects->factory_arguments($class, $construct_arguments);
 				$content = $method->invokeArgs($object, $arguments);
 			} else {
 				$content = call_user_func_array($method, $arguments);
 			}
 		} catch (\Exception $e) {
 			$content = null;
-			$zesk->hooks->call("exception", $e);
-			$zesk->logger->error("{class}::_execute() Running {method} threw exception {e}", array(
+			$app->hooks->call("exception", $e);
+			$app->logger->error("{class}::_execute() Running {method} threw exception {e}", array(
 				"class" => __CLASS__,
-				"method" => $zesk->hooks->callable_string($method),
+				"method" => $app->hooks->callable_string($method),
 				"e" => $e
 			));
 		}

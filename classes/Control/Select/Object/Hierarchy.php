@@ -16,10 +16,7 @@ class Control_Select_Object_Hierarchy extends Control_Select {
 	 * @var Class_Object
 	 */
 	public $class_object = null;
-	function __construct($options = false) {
-		parent::__construct($options);
-		$this->options["novalue"] = 0;
-	}
+
 	protected function initialize() {
 		if ($this->class === null) {
 			$this->class = $this->option('class', null);

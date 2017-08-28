@@ -5,25 +5,21 @@
  * @author Kent Davidson <kent@marketacumen.com>
  * @copyright Copyright &copy; 2008, Market Acumen, Inc.
  */
-namespace xmlrpc;
+namespace zesk;
 
-use zesk\Test_Unit;
-use zesk\str;
-
-class MyServer extends Server {
-	function rpc_capitalize($string) {
-		return str::capitalize($string);
-	}
-}
 /**
  * 
  * @author kent
  *
  */
-class Server_Test extends Test_Unit {
+class XMLRPC_Server_Test extends Test_Unit {
 	protected $load_modules = array(
 		"xmlrpc"
 	);
+	function initialize() {
+		parent::initialize();
+		require_once __DIR__ . '/MyServer.php';
+	}
 	function test_basics() {
 		$methods = false;
 		$x = new MyServer($methods);
@@ -34,16 +30,16 @@ class Server_Test extends Test_Unit {
 			"string" => "String to capitalize"
 		));
 		
-		$methodName = "dude";
-		$args = null;
-		$x->call($methodName, $args);
+		$methodName = "capitalize";
+		$args = array(
+			"hello, world, how are you"
+		);
+		$result = $x->call($methodName, $args);
+		$this->assert_equal($result, "Hello, World, How Are You");
 		
 		$error = null;
 		$message = false;
 		$x->error($error, $message);
-		
-		$xml = null;
-		$x->response($xml);
 		
 		$method = null;
 		$x->hasMethod($method);
@@ -79,6 +75,18 @@ class Server_Test extends Test_Unit {
 	}
 	
 	/**
+	 * @todo Fix this so it doesn't exit and use zesk\Request
+	 * 
+	 */
+	function __test_response() {
+		$methods = false;
+		$x = new MyServer($methods);
+		
+		$xml = null;
+		$x->response($xml);
+	}
+	
+	/**
 	 * @expectedException xmlrpc\Exception
 	 */
 	function test_missing_method() {
@@ -89,6 +97,24 @@ class Server_Test extends Test_Unit {
 		// 		$x->serve($data);
 		
 		$methodName = "missing";
+		$args = null;
+		$x->call($methodName, $args);
+	}
+	
+	/**
+	 * @expectedException xmlrpc\Exception
+	 */
+	function test_wrong_method() {
+		$methods = false;
+		$x = new MyServer($methods);
+		
+		$x->registerMethod("capitalize", "string", "this:capitalize", array(
+			"string" => "string"
+		), "Capitalizes a word", array(
+			"string" => "String to capitalize"
+		));
+		
+		$methodName = "dude";
 		$args = null;
 		$x->call($methodName, $args);
 	}

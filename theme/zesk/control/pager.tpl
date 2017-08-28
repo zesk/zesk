@@ -15,6 +15,7 @@ namespace zesk;
 /* @var $current_user \User */
 /* @var $object Model_List */
 if (!$response) {
+	backtrace();
 	$response = $application->response();
 }
 if (!$request) {

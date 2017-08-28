@@ -209,7 +209,7 @@ class Net_HTTP_Client extends Options {
 	 * @return string
 	 */
 	public function default_user_agent() {
-		return $this->option("default_user_agent", 'zesk/Net_HTTP_Client ' . Version::release());
+		return $this->option("default_user_agent", __CLASS__ . ' ' . Version::release());
 	}
 	private function _method($method, $set = null) {
 		if ($set === null) {
@@ -668,7 +668,7 @@ class Net_HTTP_Client extends Options {
 		$this->Content = @curl_exec($curl);
 		$this->_method_close($curl);
 		$errno = curl_errno($curl);
-		$error = curl_error($curl);
+		$error_code = curl_error($curl);
 		
 		$this->_parse_headers($dest_headers_name);
 		
@@ -689,13 +689,17 @@ class Net_HTTP_Client extends Options {
 					"url" => $this->url()
 				), $errno);
 			}
+			// TODO 2017-08 These should probably all be their own Exception class
 			$errno_map = array(
 				CURLE_COULDNT_CONNECT => self::Error_Connection,
 				CURLE_COULDNT_RESOLVE_HOST => self::Error_Resolve_Host,
 				CURLE_OPERATION_TIMEOUTED => self::Error_Timeout,
 				CURLE_SSL_CONNECT_ERROR => self::Error_SSL_Connect
 			);
-			throw new Net_HTTP_Client_Exception($error, $errno, avalue($errno_map, $errno, "UnknownErrno-$errno"));
+			$error_string = avalue($errno_map, $errno, "UnknownErrno-$errno");
+			throw new Net_HTTP_Client_Exception("Error {error_code} ({errno} = {error_string})", array(
+				"error_string" => $error_string
+			), $error_code, $errno);
 		}
 		return $this->Content;
 	}
@@ -727,9 +731,13 @@ class Net_HTTP_Client extends Options {
 		$x = new Net_HTTP_Client($url);
 		$x->method_head(true);
 		$x->go();
-		$result = $x->responseCodeType();
+		$result = $x->response_code_type();
 		if ($result !== 2) {
-			throw new Net_HTTP_Client_Exception("Net_HTTP_Client::urlHeaders($url) returned response code $result ", $x->responseCode());
+			throw new Net_HTTP_Client_Exception("{method}({url}) returned response code {result} ", array(
+				"method" => __METHOD__,
+				"ur" => $url,
+				"result" => $x->responseCode()
+			));
 		}
 		return $x->response_header();
 	}

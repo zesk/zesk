@@ -56,7 +56,7 @@ class Control_IP_List extends Control {
 			"id" => $col . "_ip_list",
 			"name" => $name
 		));
-		$ip = IPv4::remote();
+		$ip = $this->request->ip();
 		$this->response->cdn_javascript('/share/zesk/widgets/iplist/iplist.js');
 		$this->response->cdn_css('/share/zesk/widgets/iplist/iplist.css');
 

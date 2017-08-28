@@ -17,19 +17,19 @@ class Model extends Hookable implements \ArrayAccess {
 	 * @var string
 	 */
 	const option_theme_path_prefix = "theme_path_prefix";
-
+	
 	/**
 	 *
 	 * @var boolean
 	 */
 	protected $_inited = false;
-
+	
 	/**
 	 *
 	 * @var Application
 	 */
 	public $application = null;
-
+	
 	/**
 	 *
 	 * @param mixed $mixed
@@ -46,13 +46,13 @@ class Model extends Hookable implements \ArrayAccess {
 		parent::__construct($options);
 		$this->construct();
 	}
-
+	
 	/**
 	 * Run during __construct
 	 */
 	public function construct() {
 	}
-
+	
 	/**
 	 *
 	 * @param string $class
@@ -76,7 +76,21 @@ class Model extends Hookable implements \ArrayAccess {
 		}
 		return $object;
 	}
-
+	
+	/**
+	 * Get/set the ID for this model
+	 *
+	 * @param mixed $set
+	 * @return self|mixed
+	 */
+	function id($set = null) {
+		if ($set !== null) {
+			throw new Exception_Unimplemented("Model of {class} does not support setting ID", array(
+				"class" => get_class($this)
+			));
+		}
+		return null;
+	}
 	/**
 	 * Is this a new object?
 	 *
@@ -101,7 +115,7 @@ class Model extends Hookable implements \ArrayAccess {
 		$result['_parent_class'] = get_parent_class($this);
 		return $result;
 	}
-
+	
 	/**
 	 * Convert values in this object with map
 	 */
@@ -109,7 +123,7 @@ class Model extends Hookable implements \ArrayAccess {
 		$this->set(map($this->variables(), $map));
 		return $this;
 	}
-
+	
 	/**
 	 * Convert other values using this Model as the map
 	 */
@@ -122,7 +136,7 @@ class Model extends Hookable implements \ArrayAccess {
 		}
 		return map($mixed, $this->variables());
 	}
-
+	
 	/**
 	 * ArrayAccess offsetExists
 	 *
@@ -132,7 +146,7 @@ class Model extends Hookable implements \ArrayAccess {
 	public function offsetExists($offset) {
 		return $this->__isset($offset);
 	}
-
+	
 	/**
 	 * ArrayAccess offsetGet
 	 *
@@ -142,7 +156,7 @@ class Model extends Hookable implements \ArrayAccess {
 	public function offsetGet($offset) {
 		return $this->__get($offset);
 	}
-
+	
 	/**
 	 * ArrayAccess offsetSet
 	 *
@@ -153,7 +167,7 @@ class Model extends Hookable implements \ArrayAccess {
 	public function offsetSet($offset, $value) {
 		$this->__set($offset, $value);
 	}
-
+	
 	/**
 	 * ArrayAccess offsetUnset
 	 *
@@ -163,7 +177,7 @@ class Model extends Hookable implements \ArrayAccess {
 	public function offsetUnset($offset) {
 		$this->__unset($offset);
 	}
-
+	
 	/**
 	 *
 	 * @return boolean
@@ -171,7 +185,7 @@ class Model extends Hookable implements \ArrayAccess {
 	public function store() {
 		return $this;
 	}
-
+	
 	/**
 	 *
 	 * @param mixed $mixed
@@ -181,7 +195,7 @@ class Model extends Hookable implements \ArrayAccess {
 	function fetch($mixed = null) {
 		return $this;
 	}
-
+	
 	/**
 	 *
 	 * @param mixed $mixed
@@ -205,7 +219,7 @@ class Model extends Hookable implements \ArrayAccess {
 		}
 		return $this->__get($mixed);
 	}
-
+	
 	/**
 	 * Does this model have a member?
 	 *
@@ -226,7 +240,7 @@ class Model extends Hookable implements \ArrayAccess {
 		}
 		return false;
 	}
-
+	
 	/**
 	 * Returns true if model has been initialized with valid values
 	 *
@@ -235,7 +249,7 @@ class Model extends Hookable implements \ArrayAccess {
 	public function inited() {
 		return $this->_inited;
 	}
-
+	
 	/**
 	 *
 	 * @param mixed $mixed
@@ -261,7 +275,7 @@ class Model extends Hookable implements \ArrayAccess {
 		}
 		return $this;
 	}
-
+	
 	/**
 	 * Convert to string
 	 *
@@ -272,7 +286,7 @@ class Model extends Hookable implements \ArrayAccess {
 	public function __toString() {
 		return PHP::dump($this->options);
 	}
-
+	
 	/*
 	 * Only place to access ->$name is here
 	 */
@@ -282,7 +296,7 @@ class Model extends Hookable implements \ArrayAccess {
 		}
 		return null;
 	}
-
+	
 	/**
 	 *
 	 * {@inheritdoc}
@@ -293,7 +307,7 @@ class Model extends Hookable implements \ArrayAccess {
 		$this->$name = $value;
 		$this->_inited = true;
 	}
-
+	
 	/**
 	 *
 	 * @param string $name
@@ -301,7 +315,7 @@ class Model extends Hookable implements \ArrayAccess {
 	public function __unset($name) {
 		unset($this->$name);
 	}
-
+	
 	/**
 	 * Is a member set?
 	 *
@@ -311,7 +325,7 @@ class Model extends Hookable implements \ArrayAccess {
 	public function __isset($name) {
 		return isset($this->$name);
 	}
-
+	
 	/**
 	 * Convert to JSON string
 	 *
@@ -321,7 +335,7 @@ class Model extends Hookable implements \ArrayAccess {
 	public function json(array $options = array()) {
 		return JSON::encode($this->variables());
 	}
-
+	
 	/**
 	 * Convert a theme name (or names) into clean paths for finding theme templates
 	 *
@@ -340,7 +354,7 @@ class Model extends Hookable implements \ArrayAccess {
 			"\\" => "/"
 		));
 	}
-
+	
 	/**
 	 * Given a theme name, return the theme paths which are checked.
 	 *
@@ -383,10 +397,10 @@ class Model extends Hookable implements \ArrayAccess {
 			$result_prefix = arr::prefix($result, rtrim($this->option(self::option_theme_path_prefix), "/") . "/");
 			$result = array_merge($result_prefix, $result);
 		}
-
+		
 		return self::_clean_theme_name($result);
 	}
-
+	
 	/**
 	 * Temporarily deprecated until we can make this our renamed version of "render"
 	 *

@@ -29,11 +29,6 @@ class Control_Link_Object extends Control {
 	 */
 	private $widgets = array();
 
-	function __construct($options = false) {
-		parent::__construct("control:linkobject", $options);
-		$this->widget = null;
-	}
-
 	private function _list_name() {
 		return $this->name() . '_list';
 	}

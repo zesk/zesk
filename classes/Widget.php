@@ -1927,7 +1927,7 @@ class Widget extends Hookable {
 		/* @var $zesk \zesk\Kernel */
 		$model = $this->call_hook("model_new", $this);
 		if (!$model instanceof Model) {
-			$model = $zesk->objects->factory("zesk\Model");
+			$model = $zesk->objects->factory(__NAMESPACE__ . "\\" . "Model", $this->application);
 			$model = $this->call_hook('model_alter', $model);
 		}
 		return $model;
@@ -2090,8 +2090,7 @@ class Widget extends Hookable {
 	 * @return array
 	 */
 	public function theme_variables() {
-		return array(
-			'application' => $this->application,
+		return $this->application->variables() + array(
 			'widget' => $this,
 			'input_attributes' => $input_attributes = $this->input_attributes(),
 			'data_attributes' => $data_attributes = $this->data_attributes(),

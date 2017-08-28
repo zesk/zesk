@@ -1131,8 +1131,8 @@ abstract class Command extends Hookable implements Logger\Handler {
 	 * @return numeric
 	 */
 	final function go() {
-		global $zesk;
-		/* @var $zesk Kernel */
+
+		
 		self::$commands[] = $this;
 		$this->application->modules->load($this->load_modules);
 		$this->call_hook("run_before");
@@ -1148,7 +1148,7 @@ abstract class Command extends Hookable implements Logger\Handler {
 				"message" => $e->getMessage(),
 				"backtrace" => $e->getTraceAsString()
 			));
-			$zesk->hooks->call("exception", $e);
+			$this->application->hooks->call("exception", $e);
 			if ($this->option_bool('debug', $this->application->development())) {
 				$this->error($e->getTraceAsString());
 			}

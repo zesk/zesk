@@ -5,10 +5,7 @@
  * @author Kent Davidson <kent@marketacumen.com>
  * @copyright Copyright &copy; 2008, Market Acumen, Inc.
  */
-namespace xmlrpc;
-
-use zesk\Test_Unit;
-use zesk\Exception_Unsupported;
+namespace zesk;
 
 class Client_Test extends Test_Unit {
 	protected $load_modules = array(
@@ -32,7 +29,7 @@ class Client_Test extends Test_Unit {
 	}
 	function test_main() {
 		$url = $this->url;
-		$x = new Client($url);
+		$x = new \xmlrpc\Client($url);
 		
 		$x->setCallMap(array(
 			"__" => "."
@@ -55,7 +52,7 @@ class Client_Test extends Test_Unit {
 		
 		$x->url();
 		
-		$x->headers();
+		$this->assert_is_array($x->response_header());
 		
 		$x->response_code();
 		
@@ -72,7 +69,7 @@ class Client_Test extends Test_Unit {
 		$x->go();
 		
 		$url = null;
-		Client::simpleGet($url);
+		\xmlrpc\Client::simpleGet($url);
 		
 		$x->domain();
 	}

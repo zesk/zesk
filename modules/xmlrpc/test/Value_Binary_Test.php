@@ -16,6 +16,7 @@ class Value_Binary_Test extends Test_Unit {
 	);
 	public function test_basics() {
 		$data = "Hello, World";
+		$isXML = false;
 		
 		$x = new Value_Binary($data, $isXML);
 		

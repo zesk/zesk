@@ -19,11 +19,10 @@ class Control_Select_File extends Control_Select {
 	 * 
 	 * @param string $options
 	 */
-	function __construct($options = false) {
-		parent::__construct($options);
+	function initialize() {
+		parent::initialize();
 		$this->set_option("novalue", "");
 	}
-	
 	/**
 	 * 
 	 * @return mixed[]

@@ -10,7 +10,9 @@ namespace zesk;
  *
  */
 class Repository_Subversion_Test extends Repository_TestCase {
-	
+	protected $load_modules = array(
+		"Subversion"
+	);
 	/**
 	 * Override in subclasses
 	 *

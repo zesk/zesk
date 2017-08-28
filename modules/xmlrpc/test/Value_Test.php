@@ -13,6 +13,8 @@ class Value_Test extends \zesk\Test_Unit {
 		"xmlrpc"
 	);
 	function test_basics() {
+		$data = "123";
+		$type = Value::type_integer;
 		$x = new Value($data, $type);
 		
 		$x->toXML();
