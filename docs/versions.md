@@ -22,7 +22,7 @@
 - Modules
  - Moved `ipban` to its own repository
  - Moved `zest` to its own repository
-
+- SECURITY: `Preference::user_get` and `Preference::user_set` no longer check if user is authenticated before returning values
 
 ## Release v0.9.30
 

@@ -198,14 +198,15 @@ class Server extends Options {
 	function hasMethod($method) {
 		return isset($this->Methods[$method]);
 	}
-	function registerMethods($arr) {
-		foreach ($arr as $methodName => $row) {
+	function registerMethods(array $methods) {
+		foreach ($methods as $methodName => $row) {
 			array_unshift($row, $methodName);
 			call_user_func_array(array(
 				$this,
 				"registerMethod"
 			), $row);
 		}
+		return $this;
 	}
 	function registerMethod($name, $returnType, $phpMethod, $parameterTypes = false, $help = false, $parameterHelp = false) {
 		$this->Methods[strtolower($name)] = new Server_Method($name, $returnType, $phpMethod, $parameterTypes, $help, $parameterHelp);
@@ -384,10 +385,10 @@ class Server extends Options {
 	
 	/**
 	 * 
-	 * @param unknown $methodCalls
+	 * @param array $methodCalls
 	 * @return Exception[]|NULL[][]
 	 */
-	function rpc_multicall($methodCalls) {
+	function rpc_multicall(array $methodCalls) {
 		// See http://www.xmlrpc.com/discuss/msgReader$1208
 		$results = array();
 		foreach ($methodCalls as $call) {

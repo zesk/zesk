@@ -9,7 +9,7 @@ namespace zesk;
  * @author kent
  *
  */
-class Test_Request extends Test_Unit {
+class Request_Test extends Test_Unit {
 	function test_instance() {
 		$request = $this->application->request();
 		$this->assert_instanceof($request, __NAMESPACE__ . "\\" . "Request");

@@ -376,6 +376,9 @@ class Response extends Hookable {
 		static $called = false;
 
 		$this->call_hook('headers');
+		if ($this->option_bool("skip_response_headers")) {
+			return;
+		}
 		if ($called) {
 			throw new Exception_Semantics("Response headers called twice! {previous}", array(
 				"previous" => $called

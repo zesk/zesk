@@ -388,7 +388,7 @@ class Command_Test extends Command_Base {
 	}
 	private static function _initialize_test_environment(Application $app) {
 		$app->zesk->autoloader->path($app->paths->zesk('test/classes'), array(
-			'class_prefix' => 'Test_'
+			'class_prefix' => __NAMESPACE__ . '\\Test_'
 		));
 	}
 	private function _run_test_init() {
@@ -721,7 +721,16 @@ class Command_Test extends Command_Base {
 		require_once $file;
 		return Test_Unit::run_class($application, $class);
 	}
-	
+	/**
+	 * 
+	 * @todo PHPUnit tests are not run
+	 * @param string $file
+	 * @param array $options
+	 * @return boolean
+	 */
+	private function run_phpunit_test($file, array $options) {
+		return true;
+	}
 	/**
 	 * Run a test command
 	 *
@@ -750,6 +759,16 @@ class Command_Test extends Command_Base {
 			}
 			return true;
 		}
+		
+		$is_phpunit = avalue($options, 'test_phpunit');
+		if ($is_phpunit) {
+			$result = $this->run_phpunit_test($file);
+			if ($verbose) {
+				echo $result ? "PHPUNIT OK\n" : "PHPUNIT FAIL";
+			}
+			return true;
+		}
+		
 		$this->stats['test']++;
 		$options['prefix'] = avalue($options, 'prefix', '');
 		$options['suffix'] = avalue($options, 'suffix', '');

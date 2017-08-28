@@ -55,6 +55,9 @@ class Process_Tools {
 	 * @return boolean
 	 */
 	static function process_code_changed() {
-		return zesk()->objects->singleton("zesk\\File_Monitor_Includes")->changed();
+		return zesk()->objects->singleton(__NAMESPACE__ . "\\" . "File_Monitor_Includes")->changed();
+	}
+	static function process_code_changed_files() {
+		return zesk()->objects->singleton(__NAMESPACE__ . "\\" . "File_Monitor_Includes")->changed_files();
 	}
 }

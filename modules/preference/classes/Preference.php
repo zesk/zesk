@@ -40,9 +40,6 @@ class Preference extends Object {
 	 * @return boolean
 	 */
 	static function user_has(User $user, $name) {
-		if (!$user->authenticated()) {
-			return false;
-		}
 		$pref = self::user_get($user, $name, null);
 		return !empty($pref);
 	}
@@ -73,8 +70,12 @@ class Preference extends Object {
 		return $query;
 	}
 	static function user_get(User $user, $pref_name, $default = null) {
-		if (!$user->authenticated()) {
-			return $default;
+		if (empty($pref_name)) {
+			throw new Exception_Parameter("{method}({user}, {name}, ...) Name is empty", array(
+				"method" => __METHOD__,
+				"user" => $user->id(),
+				"name" => $pref_name
+			));
 		}
 		$pref_name = strtolower($pref_name);
 		$prefs = $user->_preference_cache;
@@ -122,8 +123,12 @@ class Preference extends Object {
 		return @unserialize($result);
 	}
 	static function user_set(User $user, $name, $value = null) {
-		if (!$user->authenticated()) {
-			return false;
+		if (empty($name)) {
+			throw new Exception_Parameter("{method}({user}, {name}, ...) Name is empty", array(
+				"method" => __METHOD__,
+				"user" => $user->id(),
+				"name" => $name
+			));
 		}
 		$app = $user->application;
 		if (is_array($name)) {

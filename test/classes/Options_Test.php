@@ -9,7 +9,7 @@ namespace zesk;
  * @author kent
  *
  */
-class test_options extends Test_Unit {
+class Options_Test extends Test_Unit {
 	function test_options() {
 		$options = false;
 		$testx = new Options($options);

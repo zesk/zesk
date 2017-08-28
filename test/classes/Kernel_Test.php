@@ -1,8 +1,7 @@
 <?php
-
 namespace zesk;
 
-class test_zesk extends Test_Unit {
+class Kr extends Test_Unit {
 	public $order = 0;
 	static function _test_hook_order_1st(Test_zesk $test) {
 		$test->assert_equal($test->order, 0);
@@ -17,26 +16,26 @@ class test_zesk extends Test_Unit {
 		$this->order = 0;
 		zesk()->hooks->call("test_hook_order", $this);
 		$this->assert_equal($this->order, 0);
-
+		
 		// Add hooks
 		zesk()->hooks->add("test_hook_order", "test_zesk::_test_hook_order_1st");
 		zesk()->hooks->add("test_hook_order", "test_zesk::_test_hook_order_2nd");
-
+		
 		// Test ordering
 		$this->order = 0;
 		zesk()->hooks->call("test_hook_order", $this);
 		$this->assert_equal($this->order, 2);
-
+		
 		// Test clearing
 		zesk::clear_hook("test_hook_order");
 		$this->order = 0;
 		zesk()->hooks->call("test_hook_order", $this);
 		$this->assert_equal($this->order, 0);
-
+		
 		// Test "first"
 		zesk()->hooks->add("test_hook_order", "test_zesk::_test_hook_order_2nd");
 		zesk()->hooks->add("test_hook_order", "test_zesk::_test_hook_order_1st", null, null, true);
-
+		
 		// Test ordering
 		$this->order = 0;
 		zesk()->hooks->call("test_hook_order", $this);
@@ -45,20 +44,29 @@ class test_zesk extends Test_Unit {
 	function test_setk() {
 		$k = "a";
 		$k1 = "b";
-		$v = "c";
-		zesk::setk($k, "b", $v);
-		zesk::setk($k, "c", $v);
-		zesk::setk($k, "d", $v);
-
-		$this->assert_arrays_equal(zesk::get($k), array(
-			"b" => "c",
-			"c" => "c",
-			"d" => "c"
-		), "_Sk", true, true);
+		$v = md5(microtime());
+		zesk()->configuration->path_set(array(
+			$k,
+			"b"
+		), $v);
+		zesk()->configuration->path_set(array(
+			$k,
+			"c"
+		), $v);
+		zesk()->configuration->path_set(array(
+			$k,
+			"d"
+		), $v);
+		
+		$this->assert_arrays_equal(zesk()->configuration->path_get($k), array(
+			"b" => $v,
+			"c" => $v,
+			"d" => $v
+		), "path_set/path_get", true, true);
 	}
 	function test_class_hierarchy() {
 		global $zesk;
-
+		
 		$mixed = null;
 		$this->assert_arrays_equal($zesk->classes->hierarchy("A"), to_list('A;Hookable;Options'));
 		$this->assert_arrays_equal($zesk->classes->hierarchy("B"), to_list('B;A;Hookable;Options'));
@@ -104,24 +112,24 @@ class test_zesk extends Test_Unit {
 			"inc"
 		), $tried_path);
 		$this->assert($result === ZESK_ROOT . 'classes/user.inc');
-
+		
 		$result = zesk::autoload_search("User", array(
 			"inc",
 			"sql"
 		), $tried_path);
 		$this->assert($result === ZESK_ROOT . 'classes/user.inc');
-
+		
 		$result = zesk::autoload_search("User", array(
 			"sql"
 		), $tried_path);
 		$this->assert($result === ZESK_ROOT . 'classes/user.sql');
-
+		
 		$result = zesk::autoload_search("User", array(
 			"other",
 			"sql"
 		), $tried_path);
 		$this->assert($result === ZESK_ROOT . 'classes/user.sql');
-
+		
 		$result = zesk::autoload_search("User", array(
 			"other",
 			"none"
@@ -131,9 +139,6 @@ class test_zesk extends Test_Unit {
 	function test_autoloader() {
 		$class = null;
 		zesk::autoloader("zesk");
-	}
-	function test_bootstrap() {
-		$this->assert_false(zesk::bootstrap(), 'zesk::bootstrap()');
 	}
 	function test_clean_function() {
 		$func = null;
@@ -171,7 +176,7 @@ class test_zesk extends Test_Unit {
 			__FUNCTION__ => $hash
 		), $defined_error);
 		$this->assert(defined(__FUNCTION__));
-
+		
 		$this->assert(!defined('constant_thing'));
 		zesk::define_globals(array(
 			'constant_thing' => $hash
@@ -201,9 +206,9 @@ class test_zesk extends Test_Unit {
 	}
 	function test_file_search() {
 		$dir = dirname(__FILE__);
-
+		
 		$up_dir = dirname($dir);
-
+		
 		$paths = array(
 			$dir => true
 		);
@@ -214,13 +219,13 @@ class test_zesk extends Test_Unit {
 		);
 		$tried_path = null;
 		$result = zesk::file_search($paths, $file_prefix, $extensions, $tried_path);
-
+		
 		$this->assert_equal($result, path($dir, $file_prefix . '.' . $extension));
-
+		
 		$result = zesk::file_search(array(
 			$up_dir => true
 		), "test_$file_prefix", $extensions, $tried_path);
-
+		
 		$this->assert_equal($result, path($dir, $file_prefix . '.' . $extension));
 	}
 	function test_find_directory() {
@@ -245,9 +250,9 @@ class test_zesk extends Test_Unit {
 		$key = null;
 		$default = array();
 		$this->assert_equal(zesk::geta($key, $default), $default);
-
+		
 		$this->assert_equal(zesk::geta($key, null), null);
-
+		
 		$this->assert_equal(zesk::geta("geta_num"), array(
 			1
 		));
@@ -307,9 +312,9 @@ class test_zesk extends Test_Unit {
 			423,
 			"Hike"
 		);
-
+		
 		$arguments_definition = array();
-
+		
 		$arguments_definition = array(
 			0,
 			1,
@@ -317,7 +322,7 @@ class test_zesk extends Test_Unit {
 			3
 		);
 		$this->assert_equal(zesk()->hooks->call_arguments($arguments, $arguments_definition), $arguments);
-
+		
 		$arguments_definition = array(
 			"Foo",
 			"Bar",
@@ -330,7 +335,7 @@ class test_zesk extends Test_Unit {
 			2 => 423,
 			3 => "Hike"
 		));
-
+		
 		$arguments_definition = array(
 			"Foo" => 1,
 			"Bar" => 0,
@@ -344,7 +349,7 @@ class test_zesk extends Test_Unit {
 			423,
 			"Hike"
 		));
-
+		
 		$arguments_definition = array(
 			3,
 			2,
@@ -358,7 +363,7 @@ class test_zesk extends Test_Unit {
 			"string",
 			"Hike"
 		));
-
+		
 		$arguments_definition = array(
 			0,
 			1,
@@ -422,14 +427,14 @@ class test_zesk extends Test_Unit {
 			'overwrite' => false
 		));
 		Debug::output($result);
-
+		
 		$globals = array(
 			'TEST_VAR' => "smooth move",
 			'VAR_2' => "Ha ha! smooth move ex-lax",
 			'VAR_3' => "smooth",
 			'VAR_4' => "default value"
 		);
-
+		
 		foreach ($globals as $v => $result) {
 			$g = zesk::get($v);
 			$this->assert($g === $result, "$v: $g === $result");
@@ -441,7 +446,7 @@ class test_zesk extends Test_Unit {
 		);
 		$file = $this->test_sandbox("env.sh");
 		file_put_contents($file, "A=1\nTEST=YES");
-
+		
 		$overwrite = false;
 		$result = zesk::initialize($paths, array(
 			'files' => array(
@@ -462,67 +467,11 @@ class test_zesk extends Test_Unit {
 		$this->assert_equal(zesk::get("TEST"), "YES");
 		$this->assert_equal(zesk::get("A"), "1");
 	}
-	function test_load_globals_lines1() {
-		$lines = array(
-			"FOO=/foo/foo",
-			"BAR=/bar/bar",
-			"B_R=red",
-			"UNQ0=\"quotes0\"",
-			"UNQ1='quotes1'",
-			'FOOTEST0=${FOO:-123}',
-			'FOOTEST1=${UNDEF:-123}',
-			'FOOTEST2=${FOO:-123}${BAR:-456}',
-			'FOOTEST3=${UNDEF:-123}${BAR:-456}',
-			'FOOTEST4=some${FOO:-123}some${UNDEF:-456}some',
-			'FOOTEST5=goo${UNDEF:-123}goo${BAR:-456}goo',
-			'FOOTEST6=goo${FOO}goo${BAR}goo',
-			'FOOTEST7=goo${UNDEF}goo${U_NDEF2}goo',
-			'FOOTEST8=${B_R}$B_R$B_R',
-			'export FOOTEST9=${B_R}$B_R$B_R',
-			"export\tFOOTEST10=\${B_R}\$B_R\$B_R",
-			"export\t\t\tFOOTEST10=\${B_R}\$B_R\$B_R",
-			'FOOTEST11="$B_Rthing"',
-			'FOOTEST12=true',
-			'FOOTEST13=false'
-		);
-
-		$results = array(
-			'FOO' => '/foo/foo',
-			'BAR' => '/bar/bar',
-			'B_R' => 'red',
-			'UNQ0' => 'quotes0',
-			'UNQ1' => 'quotes1',
-			'FOOTEST0' => '/foo/foo',
-			'FOOTEST1' => 123,
-			'FOOTEST2' => '/foo/foo/bar/bar',
-			'FOOTEST3' => '123/bar/bar',
-			'FOOTEST4' => 'some/foo/foosome456some',
-			'FOOTEST5' => 'goo123goo/bar/bargoo',
-			'FOOTEST6' => 'goo/foo/foogoo/bar/bargoo',
-			'FOOTEST7' => 'googoogoo',
-			'FOOTEST8' => 'redredred',
-			'FOOTEST9' => 'redredred',
-			'FOOTEST10' => 'redredred',
-			'FOOTEST11' => '',
-			'FOOTEST12' => true,
-			'FOOTEST13' => false
-		);
-		$result = conf::parse($lines, array(
-			'overwrite' => false,
-			'lower' => false
-		));
-		foreach ($result as $k => $set) {
-			$this->assert_equal($set, $results[$k]);
-			unset($result[$k]);
-		}
-		$this->assert(count($result) === 0);
-	}
 	function test_maintenance() {
-		zesk::maintenance();
+		$this->application->maintenance();
 	}
 	function test_module_path() {
-		$add = null;
-		zesk::module_path($add);
+		$this->application->module_path($this->test_sandbox());
 	}
 	function test_path() {
 		$separator = '^';
@@ -531,86 +480,74 @@ class test_zesk extends Test_Unit {
 			'^two^',
 			'three^'
 		);
-		$result = zesk::path($separator, $mixed);
+		$result = path($separator, $mixed);
 		$this->assert($result === "^one^two^three^");
 	}
 	function test_pid() {
-		zesk::pid();
+		$this->application->process->id();
 	}
 	function test_production() {
-		zesk::production();
+		$this->application->production();
 	}
 	function test_running() {
-		zesk::running();
-		$this->assert_equal(zesk::running(), zesk::pid());
-		$this->assert_true(zesk::running(zesk::pid()));
-		$this->assert_false(zesk::running(32766));
+		$process = zesk()->process;
+		$pid = zesk()->process->id();
+		$this->assert_equal(zesk()->process_id(), $pid);
+		$this->assert_true($process->alive($pid));
+		$this->assert_false($process->alive(32766));
 	}
 	function test_set() {
-		$key = null;
-		$value = null;
-		$overwrite = true;
-		zesk::set($key, $value, $overwrite);
+		$this->assert_equal($this->application->configuration->path_get("a::b::c"), null);
+		$this->application->configuration->path_set("a::b::c", 9876);
+		$this->assert_equal($this->application->configuration->path_get("a::b::c"), 9876);
 	}
 	function test_share_path() {
-		$add = null;
-		$name = null;
-		zesk::share_path($add, $name);
+		$this->application->share_path($this->test_sandbox());
 	}
 	function test_site_root() {
-		zesk::site_root();
+		$this->application->document_root($this->test_sandbox());
 	}
 	function test_theme_path() {
 		$add = null;
-		zesk::theme_path($add);
+		$this->application->theme_path($add);
 	}
-
+	
 	/**
 	 * @expected_exception Exception_Parameter
 	 */
 	function test_theme_fail() {
 		$type = null;
-		zesk::theme($type);
+		$this->application->theme($type);
 	}
-
+	
 	/**
 	 */
 	function test_theme() {
-		zesk::theme("test");
-	}
-	function test_theme_template_arguments() {
-		$type = null;
-		$set = null;
-		zesk::theme_arguments($type, $set);
+		$type = "dude";
+		$this->application->theme($type, array(
+			"hello" => 1
+		));
 	}
 	function test_version() {
-		zesk\Version::release();
-		echo basename(__FILE__) . ": success\n";
+		$version = Version::release();
+		$this->assert_is_string($version);
 	}
-	function test_web_init() {
-		$web_root_prefix = null;
-		zesk::web_init($web_root_prefix);
-		echo basename(__FILE__) . ": success\n";
-	}
-	function test_web_root() {
+	function test_document_root() {
 		$set = null;
-		zesk::web_root($set);
-		echo basename(__FILE__) . ": success\n";
+		$this->application->document_root($set);
 	}
-	function test_web_root_prefix() {
+	function test_document_root_prefix() {
 		$set = null;
-		zesk::web_root_prefix($set);
+		$this->application->document_root_prefix($set);
 		echo basename(__FILE__) . ": success\n";
 	}
 	function test_which() {
-		$command = null;
-		zesk::which($command);
-		echo basename(__FILE__) . ": success\n";
+		$command = "ls";
+		zesk()->paths->which($command);
 	}
 	function test_zesk_command_path() {
 		$add = null;
-		zesk::zesk_command_path($add);
-		echo basename(__FILE__) . ": success\n";
+		$this->application->zesk_command_path($add);
 	}
 }
 class A extends Hookable {}

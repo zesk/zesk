@@ -1,5 +1,4 @@
 <?php
-
 namespace zesk;
 
 abstract class File_Monitor {
@@ -34,6 +33,28 @@ abstract class File_Monitor {
 		}
 		return $current;
 	}
+	
+	/**
+	 * List of filenames which have been modified since last successful check
+	 * 
+	 * @return string[]
+	 */
+	public function changed_files() {
+		$result = array();
+		$current = $this->current_mtimes();
+		foreach ($this->file_mtimes as $filename => $saved_mod_time) {
+			if (!isset($current[$filename])) {
+				zesk()->logger->error("Huh? Existing file monitor file {file} no longer monitored?", array(
+					"file" => $filename
+				));
+			} else {
+				if ($current[$filename] !== $saved_mod_time) {
+					$result[] = $filename;
+				}
+			}
+		}
+		return $result;
+	}
 	/**
 	 * Did any of the files change?
 	 * 
@@ -42,12 +63,10 @@ abstract class File_Monitor {
 	 * @return boolean
 	 */
 	public function changed() {
-		global $zesk;
-		/* @var $zesk zesk\Kernel */
 		$current = $this->current_mtimes();
 		foreach ($this->file_mtimes as $filename => $saved_mod_time) {
 			if (!isset($current[$filename])) {
-				$zesk->logger->error("Huh? Existing file monitor file {file} no longer monitored?", array(
+				zesk()->logger->error("Huh? Existing file monitor file {file} no longer monitored?", array(
 					"file" => $filename
 				));
 			} else {

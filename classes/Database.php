@@ -1183,6 +1183,7 @@ abstract class Database extends Hookable {
 		$this->change_database = null;
 		$matches = false;
 		if (!is_string($query)) {
+			dump(type($query));
 			backtrace(false);
 		}
 		if (preg_match('/^\s*[uU][sS][eE]\s+([A-Za-z]+)\s*;?$/', $query, $matches)) {

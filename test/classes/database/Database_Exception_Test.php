@@ -8,29 +8,11 @@
  */
 namespace zesk;
 
-class Database_Exception_Test extends Test_Unit {
+class Database_Exception_Test extends Test_Exception {
 	public function test_basics() {
-		$db = null;
-		$sql = null;
-		$errno = 0;
-		$message = null;
-		$testx = new Database_Exception($db, $sql, $errno, $message);
+		$testx = new Database_Exception();
 		
-		$testx->__toString();
-		
-		$testx->getMessage();
-		
-		$testx->getCode();
-		
-		$testx->getFile();
-		
-		$testx->getLine();
-		
-		$testx->getTrace();
-		
-		$testx->getPrevious();
-		
-		$testx->getTraceAsString();
+		$this->exception_test($testx);
 	}
 }
 

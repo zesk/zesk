@@ -37,14 +37,10 @@ class XMLRPC_Server_Test extends Test_Unit {
 		$result = $x->call($methodName, $args);
 		$this->assert_equal($result, "Hello, World, How Are You");
 		
-		$error = null;
-		$message = false;
-		$x->error($error, $message);
-		
 		$method = null;
 		$x->hasMethod($method);
 		
-		$arr = null;
+		$arr = array();
 		$x->registerMethods($arr);
 		
 		$name = null;
@@ -64,7 +60,7 @@ class XMLRPC_Server_Test extends Test_Unit {
 		
 		$x->rpc_listMethods();
 		
-		$methodCalls = null;
+		$methodCalls = array();
 		$x->rpc_multicall($methodCalls);
 		
 		$method = null;
@@ -73,13 +69,22 @@ class XMLRPC_Server_Test extends Test_Unit {
 		$method = null;
 		$x->rpc_methodHelp($method);
 	}
-	
+	/**
+	 * @todo Fix this so it doesn't exit and use zesk\Request
+	 *
+	 */
+	function __test_error() {
+		$x = new MyServer($methods);
+		
+		$error = null;
+		$message = false;
+		$x->error($error, $message);
+	}
 	/**
 	 * @todo Fix this so it doesn't exit and use zesk\Request
 	 * 
 	 */
 	function __test_response() {
-		$methods = false;
 		$x = new MyServer($methods);
 		
 		$xml = null;

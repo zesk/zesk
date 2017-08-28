@@ -28,10 +28,10 @@ class Database_Test extends Test_Unit {
 	// 		dump($result);
 	
 	// 		$this->assert_arrays_equal(array(
-	// 			"ID"
+	// 			"id"
 	// 		), avalue($result, "PRIMARY"));
 	// 		$this->assert_arrays_equal(array(
-	// 			"Foo"
+	// 			"foo"
 	// 		), avalue($result, "f"));
 	// 	}
 	function test_table_columns() {
@@ -45,12 +45,12 @@ class Database_Test extends Test_Unit {
 		
 		$compare_table = new Database_Table($db, $table);
 		$compare_result = array(
-			"ID" => new Database_Column($compare_table, "ID", array(
+			"id" => new Database_Column($compare_table, "id", array(
 				"sql_type" => "int(11) unsigned",
 				"not null" => true,
 				"serial" => true
 			)),
-			"Foo" => new Database_Column($compare_table, "Foo", array(
+			"foo" => new Database_Column($compare_table, "foo", array(
 				"sql_type" => "int(11)",
 				"not null" => true,
 				"serial" => false
@@ -66,17 +66,17 @@ class Database_Test extends Test_Unit {
 		$this->test_table($table_name);
 		
 		$db->insert($table_name, array(
-			"Foo" => 100
+			"foo" => 100
 		));
 		$db->insert($table_name, array(
-			"Foo" => 200
+			"foo" => 200
 		));
 		$db->insert($table_name, array(
-			"Foo" => 300
+			"foo" => 300
 		));
 		
 		$sql = "SELECT * FROM $table_name";
-		$k = "ID";
+		$k = "id";
 		$phpClass = "DBQueryObjectTest";
 		$options = false;
 		$dbname = "";
@@ -89,16 +89,16 @@ class Database_Test extends Test_Unit {
 		}
 		
 		$compare_result[1] = new DBQueryObjectTest($this->application, array(
-			"ID" => 1,
-			"Foo" => 100
+			"id" => 1,
+			"foo" => 100
 		));
 		$compare_result[2] = new DBQueryObjectTest($this->application, array(
-			"ID" => 2,
-			"Foo" => 200
+			"id" => 2,
+			"foo" => 200
 		));
 		$compare_result[3] = new DBQueryObjectTest($this->application, array(
-			"ID" => 3,
-			"Foo" => 300
+			"id" => 3,
+			"foo" => 300
 		));
 		
 		$this->assert_arrays_equal($result, $compare_result);
@@ -120,13 +120,13 @@ class Database_Test extends Test_Unit {
 		$this->assert_arrays_equal($result, array());
 		
 		$db->insert($table, array(
-			"Foo" => 10
+			"foo" => 10
 		));
 		$db->insert($table, array(
-			"Foo" => 20
+			"foo" => 20
 		));
 		$db->insert($table, array(
-			"Foo" => 30
+			"foo" => 30
 		));
 		
 		$result = $db->query_array_index($sql);
@@ -177,8 +177,8 @@ class Database_Test extends Test_Unit {
 		$this->test_table($table);
 		
 		$sql = "SELECT * FROM $table ORDER BY Foo ASC";
-		$k = "ID";
-		$v = "Foo";
+		$k = "id";
+		$v = "foo";
 		$default = null;
 		$dbname = "";
 		$result = $db->query_array($sql, $k, $v, $default, $dbname);
@@ -186,48 +186,48 @@ class Database_Test extends Test_Unit {
 		$this->assert_arrays_equal($result, array());
 		
 		$db->insert($table, array(
-			"Foo" => 10
+			"foo" => 10
 		));
 		$db->insert($table, array(
-			"Foo" => 20
+			"foo" => 20
 		));
 		$db->insert($table, array(
-			"Foo" => 30
+			"foo" => 30
 		));
 		
 		$result = $db->query_array($sql);
 		$this->assert_arrays_equal($result, array(
 			array(
-				"ID" => "1",
-				"Foo" => "10"
+				"id" => "1",
+				"foo" => "10"
 			),
 			array(
-				"ID" => "2",
-				"Foo" => "20"
+				"id" => "2",
+				"foo" => "20"
 			),
 			array(
-				"ID" => "3",
-				"Foo" => "30"
+				"id" => "3",
+				"foo" => "30"
 			)
 		));
 		
 		$result = $db->query_array($sql, $k, false, $default, $dbname);
 		$this->assert_arrays_equal($result, array(
 			"1" => array(
-				"ID" => "1",
-				"Foo" => "10"
+				"id" => "1",
+				"foo" => "10"
 			),
 			"2" => array(
-				"ID" => "2",
-				"Foo" => "20"
+				"id" => "2",
+				"foo" => "20"
 			),
 			"3" => array(
-				"ID" => "3",
-				"Foo" => "30"
+				"id" => "3",
+				"foo" => "30"
 			)
 		));
 		
-		$result = $db->query_array($sql, false, "Foo", $default, $dbname);
+		$result = $db->query_array($sql, false, "foo", $default, $dbname);
 		
 		$this->assert_arrays_equal($result, array(
 			"10",
@@ -235,7 +235,7 @@ class Database_Test extends Test_Unit {
 			"30"
 		));
 		
-		$result = $db->query_array($sql, null, "Foo", $default, $dbname);
+		$result = $db->query_array($sql, null, "foo", $default, $dbname);
 		
 		$this->assert_arrays_equal($result, array(
 			"10",
@@ -243,7 +243,7 @@ class Database_Test extends Test_Unit {
 			"30"
 		));
 		
-		$result = $db->query_array($sql, "Foo", "ID", $default, $dbname);
+		$result = $db->query_array($sql, "foo", "id", $default, $dbname);
 		
 		$this->assert_arrays_equal($result, array(
 			"10" => "1",
@@ -251,20 +251,20 @@ class Database_Test extends Test_Unit {
 			"30" => "3"
 		));
 		
-		$result = $db->query_array($sql, "Foo", null, $default, $dbname);
+		$result = $db->query_array($sql, "foo", null, $default, $dbname);
 		
 		$this->assert_arrays_equal($result, array(
 			"10" => array(
-				"ID" => "1",
-				"Foo" => "10"
+				"id" => "1",
+				"foo" => "10"
 			),
 			"20" => array(
-				"ID" => "2",
-				"Foo" => "20"
+				"id" => "2",
+				"foo" => "20"
 			),
 			"30" => array(
-				"ID" => "3",
-				"Foo" => "30"
+				"id" => "3",
+				"foo" => "30"
 			)
 		));
 	}
@@ -341,14 +341,14 @@ class Database_Test extends Test_Unit {
 		$this->test_table($table);
 		
 		$where = array(
-			"Foo" => 2
+			"foo" => 2
 		);
 		$db->insert($table, $where);
 		
 		$this->assert(intval($db->query_one("SELECT COUNT(*) AS X FROM $table", "X", 100)) === 1);
 		
 		$where = array(
-			"Foo" => 3
+			"foo" => 3
 		);
 		$db->insert($table, $where);
 		
@@ -393,7 +393,7 @@ class Database_Test extends Test_Unit {
 		
 		$t = $table_name;
 		$arr = array(
-			"Foo" => 1
+			"foo" => 1
 		);
 		$db->insert($t, $arr);
 		
@@ -401,7 +401,7 @@ class Database_Test extends Test_Unit {
 		
 		$t = $table_name;
 		$arr = array(
-			"Foo" => 2
+			"foo" => 2
 		);
 		$db->insert($t, $arr);
 		
@@ -411,7 +411,7 @@ class Database_Test extends Test_Unit {
 		try {
 			$t = $table_name;
 			$arr = array(
-				"Foo" => 2
+				"foo" => 2
 			);
 			$dbname = "";
 			$result = $db->insert($t, $arr);
@@ -467,7 +467,7 @@ class Database_Test extends Test_Unit {
 		$n = mt_rand(100, 1000);
 		for ($i = 1; $i <= $n; $i++) {
 			$db->insert($table_name, array(
-				"Foo" => $i * 100
+				"foo" => $i * 100
 			));
 		}
 		$sql = "SELECT MAX(ID) AS X FROM $table_name";
@@ -525,7 +525,7 @@ class Database_Test extends Test_Unit {
 		
 		$t = $table_name;
 		$arr = array(
-			"Foo" => 1
+			"foo" => 1
 		);
 		$result = $db->replace($t, $arr);
 		$this->assert($result === 1);
@@ -538,7 +538,7 @@ class Database_Test extends Test_Unit {
 		$this->assert(intval($db->query_one("SELECT COUNT(*) AS X FROM `$table_name`", "X", 100)) === 1);
 		
 		$arr = array(
-			"Foo" => 2
+			"foo" => 2
 		);
 		$result = $db->replace($t, $arr);
 		$this->assert($result === 3);
@@ -547,7 +547,7 @@ class Database_Test extends Test_Unit {
 		
 		$t = $table_name;
 		$arr = array(
-			"Foo" => 2
+			"foo" => 2
 		);
 		$result = $db->replace($t, $arr);
 		$this->assert($result === 4);
@@ -631,37 +631,37 @@ class Database_Test extends Test_Unit {
 		$this->test_table($table, null, false);
 		
 		$db->insert($table, array(
-			"Foo" => 1
+			"foo" => 1
 		));
 		$db->insert($table, array(
-			"Foo" => 2
+			"foo" => 2
 		));
 		$db->insert($table, array(
-			"Foo" => 2
+			"foo" => 2
 		));
 		$db->insert($table, array(
-			"Foo" => 2
+			"foo" => 2
 		));
 		$db->insert($table, array(
-			"Foo" => 3
+			"foo" => 3
 		));
 		$db->insert($table, array(
-			"Foo" => 3
+			"foo" => 3
 		));
 		$db->insert($table, array(
-			"Foo" => 3
+			"foo" => 3
 		));
 		$db->insert($table, array(
-			"Foo" => 3
+			"foo" => 3
 		));
 		$db->insert($table, array(
-			"Foo" => 3
+			"foo" => 3
 		));
 		$db->insert($table, array(
-			"Foo" => 3
+			"foo" => 3
 		));
 		$db->insert($table, array(
-			"Foo" => 3
+			"foo" => 3
 		));
 		
 		$options = array();
@@ -669,37 +669,37 @@ class Database_Test extends Test_Unit {
 		$tests = array(
 			array(
 				array(
-					"Foo" => "99"
+					"foo" => "99"
 				),
 				array(
-					"Foo" => 1
+					"foo" => 1
 				),
 				1
 			),
 			array(
 				array(
-					"Foo" => "99"
+					"foo" => "99"
 				),
 				array(
-					"Foo" => 2
+					"foo" => 2
 				),
 				3
 			),
 			array(
 				array(
-					"Foo" => "99"
+					"foo" => "99"
 				),
 				array(
-					"Foo" => 3
+					"foo" => 3
 				),
 				7
 			),
 			array(
 				array(
-					"Foo" => 0
+					"foo" => 0
 				),
 				array(
-					"Foo" => 99
+					"foo" => 99
 				),
 				11
 			)
@@ -719,30 +719,30 @@ class Database_Test extends Test_Unit {
 		$this->test_table($table);
 		
 		$id = $db->insert($table, array(
-			"Foo" => 6
+			"foo" => 6
 		));
 		
 		$row = $db->select_one_where($table, array(
-			"ID" => $id
+			"id" => $id
 		));
 		
-		$this->assert($row['Foo'] == 6);
+		$this->assert($row["foo"] == 6);
 		
 		$arr = array(
-			"Foo" => 100
+			"foo" => 100
 		);
-		$idname = "ID";
+		$idname = "id";
 		$low_priority = false;
 		$dbname = '';
 		$db->update($table, $arr, array(
-			"Foo" => 6
+			"foo" => 6
 		));
 		
 		$row = $db->select_one_where($table, array(
-			"ID" => $id
+			"id" => $id
 		));
 		
-		$this->assert($row['Foo'] == 100);
+		$this->assert($row["foo"] == 100);
 	}
 	function test_update_id_test() {
 		$db = $this->application->database_factory();
@@ -751,27 +751,27 @@ class Database_Test extends Test_Unit {
 		$this->test_table($table);
 		
 		$id = $db->insert($table, array(
-			"Foo" => 6
+			"foo" => 6
 		));
 		
 		$row = $db->select_one_where($table, array(
-			"ID" => $id
+			"id" => $id
 		));
 		
-		$this->assert($row['Foo'] == 6);
+		$this->assert($row["foo"] == 6);
 		
 		$arr = array(
-			"Foo" => 100
+			"foo" => 100
 		);
 		$db->update($table, $arr, array(
-			"ID" => $id
+			"id" => $id
 		));
 		
 		$row = $db->select_one_where($table, array(
-			"ID" => $id
+			"id" => $id
 		));
 		
-		$this->assert($row['Foo'] == 100);
+		$this->assert($row["foo"] == 100);
 	}
 	function test_url() {
 		$db = $this->application->database_factory();
@@ -782,16 +782,16 @@ class Database_Test extends Test_Unit {
 	}
 }
 class Class_DBQueryObjectTest extends Class_Object {
-	public $id_column = "ID";
+	public $id_column = "id";
 	public $column_types = array(
-		"ID" => self::type_id,
-		"Foo" => self::type_string
+		"id" => self::type_id,
+		"foo" => self::type_string
 	);
 }
 class DBQueryObjectTest extends Object {
 	function validate() {
 		$test = Database_Test::$test;
-		$test->assert(!$this->member_is_empty("ID"));
-		$test->assert(!$this->member_is_empty("Foo"));
+		$test->assert(!$this->member_is_empty("id"));
+		$test->assert(!$this->member_is_empty("foo"));
 	}
 }

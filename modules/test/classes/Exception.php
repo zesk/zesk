@@ -15,11 +15,11 @@ class Test_Exception extends Test_Unit {
 	 * @param \Exception $e
 	 */
 	function exception_test(\Exception $e) {
-		$e->getMessage();
+		$this->assert_is_string($e->getMessage());
 		
-		$e->getCode();
+		$this->assert_is_integer($e->getCode());
 		
-		$e->getFile();
+		$this->assert_is_string($e->getFile());
 		
 		$e->getLine();
 		

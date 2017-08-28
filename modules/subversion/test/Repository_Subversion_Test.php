@@ -1,6 +1,6 @@
 <?php
 /**
- * 
+ * @test_phpunit true
  */
 namespace zesk;
 

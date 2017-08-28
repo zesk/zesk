@@ -21,15 +21,26 @@ use zesk\HTML;
 class Server_Method {
 	public $Method;
 	public $PHPMethod;
-	public $ParameterTypes;
+	public $ParameterTypes = array();
 	public $ReturnType;
 	public $Help;
 	public $ParameterHelp;
-	function __construct($name, $returnType, $phpMethod, $parameterTypes = false, $help = false, $parameterHelp = false) {
+	
+	/**
+	 * 
+	 * @param unknown $name
+	 * @param unknown $returnType
+	 * @param unknown $phpMethod
+	 * @param array $parameterTypes
+	 * @param string $help
+	 * @param string $parameterHelp
+	 * @throws Exception_Internal
+	 */
+	function __construct($name, $returnType, $phpMethod, $parameterTypes = array(), $help = false, $parameterHelp = false) {
 		$this->Method = $name;
 		$this->ReturnType = $returnType;
 		$this->PHPMethod = $phpMethod;
-		$this->ParameterTypes = $parameterTypes;
+		$this->ParameterTypes = to_array($parameterTypes);
 		
 		$this->Help = $help;
 		$this->ParameterHelp = $parameterHelp;
@@ -155,7 +166,6 @@ class Server_Method {
 		$html[] = $this->ReturnType;
 		//$this->getReturnDocumentation();
 		
-
 		$html[] = "<h2>Description</h2>";
 		$doc = $this->getDocumentation();
 		if ($doc) {

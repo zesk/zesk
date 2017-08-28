@@ -642,6 +642,12 @@ class Test_Unit extends Options {
 		}
 		$this->assert(in_array($mixed, $array), $message);
 	}
+	final protected function assert_not_in_array(array $array, $mixed, $message = null) {
+		if ($message === null) {
+			$message = "Array should not contain value: $mixed (values: " . implode(", ", array_values($array)) . ")";
+		}
+		$this->assert(!in_array($mixed, $array), $message);
+	}
 	final protected function assert_contains($haystack, $needle, $message = null) {
 		if ($message === null) {
 			$message = "$haystack\n=== DOES NOT CONTAIN STRING===\n$needle";

@@ -10,7 +10,7 @@ namespace zesk;
  * @author kent
  *
  */
-class test_html extends Test_Unit {
+class HTML_Test extends Test_Unit {
 	function test_style_clean() {
 		$attr = array(
 			'type' => 'text/javascript',
@@ -28,11 +28,23 @@ class test_html extends Test_Unit {
 	}
 	
 	/**
-	 * @expected_exception Exception_Semantics
+	 * 
 	 */
 	function test_parse_attribute() {
-		$attrString = null;
-		HTML::parse_attributes($attrString);
+		$this->assert_equal(HTML::parse_attributes(array()), array());
+		$this->assert_equal(HTML::parse_attributes(array(
+			1,
+			2,
+			3
+		)), array(
+			1,
+			2,
+			3
+		));
+		$this->assert_equal(HTML::parse_attributes(1), array());
+		$this->assert_equal(HTML::parse_attributes(null), array());
+		$this->assert_equal(HTML::parse_attributes(true), array());
+		$this->assert_equal(HTML::parse_attributes(false), array());
 		
 		$this->assert_arrays_equal(HTML::parse_attributes('template="volunteer-help" article="12"'), array(
 			"article" => "12",

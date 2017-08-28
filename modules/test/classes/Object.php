@@ -42,7 +42,13 @@ class Test_Object extends Test_Unit {
 		
 		$table = $object->table();
 		
-		$this->test_table_sql($table, $object->schema());
+		$db = $object->database();
+		$results = $this->application->schema_synchronize($db, array(
+			get_class($object)
+		));
+		if (count($results) > 0) {
+			$db->query($results);
+		}
 		
 		$this->assert($object->database()->table_exists($table), "Table not created/exists");
 		
@@ -70,8 +76,8 @@ class Test_Object extends Test_Unit {
 		
 		$object->refresh();
 		
-		$mixed = "ID";
-		$object->initialize($mixed);
+		// 		$mixed = "ID";
+		// 		$object->initialize($mixed);
 		
 		$object->is_new();
 		
@@ -115,7 +121,7 @@ class Test_Object extends Test_Unit {
 		$object->set_member($f, $v, $overwrite);
 		
 		$mixed = $test_field;
-		$object->memberRemove($mixed);
+		$object->member_remove($mixed);
 		
 		$f = $test_field;
 		$object->has_member($f);
@@ -147,13 +153,11 @@ class Test_Object extends Test_Unit {
 			}
 		}
 		echo PHP::dump($object->members());
-		$object->store();
+		// 		$object->store();
 		
-		$object->register();
+		// 		$object->register();
 		
-		$object->is_soft_delete();
-		
-		$object->delete();
+		//		$object->delete();
 		
 		$object->__toString();
 		

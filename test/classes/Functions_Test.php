@@ -9,7 +9,7 @@ namespace zesk;
  * @author kent
  *
  */
-class test_kernel extends Test_Unit {
+class Functions_Test extends Test_Unit {
 	function test_zesk_global_access_time() {
 		/*
 		 *
@@ -17,9 +17,10 @@ class test_kernel extends Test_Unit {
 		 */
 		$nsamples = 100000;
 		$start = microtime(true);
+		$result = array();
 		for ($i = 0; $i < $nsamples; $i++) {
 			global $zesk;
-			$zesk->paths->application();
+			$result[] = $zesk->paths->application();
 		}
 		$time_global = microtime(true) - $start;
 		$this->log("global \$zesk x {nsamples} time {time}", array(
@@ -28,8 +29,9 @@ class test_kernel extends Test_Unit {
 		));
 		
 		$start = microtime(true);
+		$result = array();
 		for ($i = 0; $i < 100000; $i++) {
-			zesk()->paths->share();
+			$result[] = zesk()->paths->application();
 		}
 		$time_zesk_call = microtime(true) - $start;
 		$this->log("zesk() x {nsamples} time {time}", array(
@@ -37,7 +39,7 @@ class test_kernel extends Test_Unit {
 			"nsamples" => $nsamples
 		));
 		
-		$this->assert($time_zesk_call > $time_global, "zesk() ($time_zesk_call) > global $zesk ($time_global) FAILED");
+		$this->assert($time_zesk_call > $time_global, "zesk() ($time_zesk_call) > global \$zesk ($time_global) FAILED");
 	}
 	function test_path() {
 		path();
@@ -82,7 +84,7 @@ class test_kernel extends Test_Unit {
 			)
 		);
 		foreach ($b as $k => $v) {
-			$this->assert_equal(aevalue($b, $k, "-EMPTY-"), $v, aevalue($b, $k, "-EMPTY-") . " === $v ($k => $v)");
+			$this->assert_equal(aevalue($b, $k, "-EMPTY-"), $v, _dump(aevalue($b, $k, "-EMPTY-")) . " === " . _dump($v) . " ($k => " . _dump($v) . ")");
 		}
 	}
 	function test_W() {
@@ -148,14 +150,14 @@ class test_kernel extends Test_Unit {
 			42.552312,
 			1
 		)) . "\n";
-		$this->assert_equal(theme("percent", array(
+		$this->assert_equal($app->theme("percent", array(
 			42.552312,
 			0
 		)), "43%");
 		
 		echo $app->theme('control/button', array(
 			'label' => 'OK',
-			'object' => new Model()
+			'object' => new Model($this->application)
 		));
 	}
 	function test_dump() {
@@ -357,6 +359,13 @@ class test_kernel extends Test_Unit {
 		}
 		return $default;
 	}
+	/**
+	 * As of 2017-08 the in_array version is nearly identical in speed to the strpos version and varies test-to-test.
+	 * 
+	 * Updated to test for whether it's 10% faster
+	 * 
+	 * @see \to_bool
+	 */
 	function test_to_bool_timing() {
 		$value = null;
 		$default = false;
@@ -376,7 +385,7 @@ class test_kernel extends Test_Unit {
 		}
 		$in_array_timing = $t->elapsed();
 		echo "to_bool_in_array: " . $t->elapsed() . "\n";
-		$this->assert($strpos_timing < $in_array_timing);
+		$this->assert($strpos_timing < $in_array_timing * 1.1, "strpos to_bool is more than 10% slower than in_array implementation");
 	}
 	function test_to_array() {
 		$mixed = null;

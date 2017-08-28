@@ -9,52 +9,43 @@ namespace zesk;
  * @author kent
  *
  */
-class Test_Template extends Test_Unit {
-
+class Template_Test extends Test_Unit {
 	function initialize() {
 		Template::clear_cache();
 	}
-
 	function test_begin() {
 		$path = null;
 		$options = false;
 		Template::begin($path, $options);
 	}
-
 	function test_end() {
 		$options = array();
 		$content_variable = 'content';
 		Template::end($options, $content_variable);
 	}
-
 	function test_find_path() {
 		Template::find_path("template.tpl");
 	}
-
 	function test_instance() {
 		$path = null;
 		$options = false;
 		Template::instance($path, $options);
 	}
-
 	function test_run() {
 		$path = null;
 		$options = false;
 		$default = null;
 		Template::run($path, $options, $default);
 	}
-
-	function
-	 test_would_exist() {
+	function test_would_exist() {
 		$path = null;
 		Template::would_exist($path);
 	}
-
 	function test_output() {
-		zesk::theme_path($this->test_sandbox());
-
+		$this->application->theme_path($this->test_sandbox());
+		
 		$files = array();
-		for($i = 0; $i < 5; $i++) {
+		for ($i = 0; $i < 5; $i++) {
 			$files[$i] = $f = $this->test_sandbox($i . ".tpl");
 			$pushpop = "echo \"PUSH {\\n\" . Text::indent(Template::instance(\"" . ($i + 1) . ".tpl\", array(\"i\" => $i)), 1) . \"} POP\\n\";";
 			$content = <<<END
@@ -72,19 +63,19 @@ echo "h (" . \$this->h. ")\\n";
 \$this->h = "hello$i";
 echo "} END zesk\Template $i";
 END;
-
+			
 			$map = array(
 				'pushpop' => ($i !== 4) ? $pushpop : "echo \"LEAF\\n\";\n"
 			);
-
+			
 			file_put_contents($f, map($content, $map));
 		}
-
+		
 		$path = null;
 		$options = false;
 		$x = new Template("0.tpl", $options);
 		$result = $x->render();
-
+		
 		$expect = <<<EOF
 BEGIN zesk\Template 0 {
 v (hello0,,,,)
@@ -138,7 +129,7 @@ h (hello1)
 EOF;
 		echo $result;
 		$this->assert_equal(trim($result), trim($expect));
-
+		
 		echo basename(__FILE__) . ": success\n";
 	}
 }

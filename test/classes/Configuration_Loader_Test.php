@@ -123,6 +123,67 @@ class Configuration_Loader_Test extends Test_Unit {
 			)
 		));
 	}
+	function test_load_globals_lines1() {
+		$lines = array(
+			"FOO=/foo/foo",
+			"BAR=/bar/bar",
+			"B_R=red",
+			"UNQ0=\"quotes0\"",
+			"UNQ1='quotes1'",
+			'FOOTEST0=${FOO:-123}',
+			'FOOTEST1=${UNDEF:-123}',
+			'FOOTEST2=${FOO:-123}${BAR:-456}',
+			'FOOTEST3=${UNDEF:-123}${BAR:-456}',
+			'FOOTEST4=some${FOO:-123}some${UNDEF:-456}some',
+			'FOOTEST5=goo${UNDEF:-123}goo${BAR:-456}goo',
+			'FOOTEST6=goo${FOO}goo${BAR}goo',
+			'FOOTEST7=goo${UNDEF}goo${U_NDEF2}goo',
+			'FOOTEST8=${B_R}$B_R$B_R',
+			'export FOOTEST9=${B_R}$B_R$B_R',
+			"export\tFOOTEST10=\${B_R}\$B_R\$B_R",
+			"export\t\t\tFOOTEST10=\${B_R}\$B_R\$B_R",
+			'FOOTEST11="$B_Rthing"',
+			'FOOTEST12=true',
+			'FOOTEST13=false'
+		);
+		
+		$results = array(
+			'FOO' => '/foo/foo',
+			'BAR' => '/bar/bar',
+			'B_R' => 'red',
+			'UNQ0' => 'quotes0',
+			'UNQ1' => 'quotes1',
+			'FOOTEST0' => '/foo/foo',
+			'FOOTEST1' => 123,
+			'FOOTEST2' => '/foo/foo/bar/bar',
+			'FOOTEST3' => '123/bar/bar',
+			'FOOTEST4' => 'some/foo/foosome456some',
+			'FOOTEST5' => 'goo123goo/bar/bargoo',
+			'FOOTEST6' => 'goo/foo/foogoo/bar/bargoo',
+			'FOOTEST7' => 'googoogoo',
+			'FOOTEST8' => 'redredred',
+			'FOOTEST9' => 'redredred',
+			'FOOTEST10' => 'redredred',
+			'FOOTEST11' => '',
+			'FOOTEST12' => true,
+			'FOOTEST13' => false
+		);
+		$options = array(
+			'overwrite' => false,
+			'lower' => false
+		);
+		$results = array();
+		$settings = new Adapter_Settings_Array($results);
+		$parser = new Configuration_Parser_CONF(implode("\n", $lines), $settings, $options);
+		$parser->process();
+		
+		foreach ($result as $k => $set) {
+			$this->assert_equal($set, $results[$k]);
+			unset($result[$k]);
+		}
+		$this->assert(count($result) === 0);
+	}
+	
 	// 	function test_edit() {
 	// 		$path = $this->test_sandbox(__FUNCTION__ . ".conf");
 	// 		file_put_contents($path, "MONKEY=MAN\nDoG=\"CANINE\"");

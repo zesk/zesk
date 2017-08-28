@@ -2,7 +2,7 @@
 
 namespace zesk;
 
-class test_php extends Test_Unit {
+class PHP_Test extends Test_Unit {
 	function test_php_basics() {
 		$this->assert_false(!!array());
 		$this->assert_true(!!array(

@@ -10,6 +10,9 @@ namespace zesk;
  *
  */
 class Controls_Test extends Test_Widget {
+	protected $load_modules = array(
+		"MySQL"
+	);
 	function _test_session() {
 		$this->application->set_option("session_class", "zesk\Session_Test");
 	}
