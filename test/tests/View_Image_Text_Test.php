@@ -1,5 +1,15 @@
 <?php
-use zesk\View_Image_Text;
+
+/**
+ *
+ */
+namespace zesk;
+
+/**
+ *
+ * @author kent
+ *
+ */
 class View_Image_Text_Test extends Test_Widget {
 	function test_horizontal() {
 		View_Image_Text::$debug = true;

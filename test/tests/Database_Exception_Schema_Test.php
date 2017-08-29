@@ -1,7 +1,8 @@
 <?php
+
 namespace zesk;
 
-class Test_Database_Exception_Schema extends Test_Database_Exception {
+class Database_Exception_Schema_Test extends Test_Database_Exception {
 	protected $load_modules = array(
 		"MySQL"
 	);

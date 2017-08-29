@@ -1,4 +1,5 @@
 <?php
+
 /**
  * $URL: https://code.marketacumen.com/zesk/trunk/test/classes/net/pop/client.inc $
  * @package zesk
@@ -6,22 +7,34 @@
  * @author Kent Davidson <kent@marketacumen.com>
  * @copyright Copyright &copy; 2010, Market Acumen, Inc.
  */
-
 namespace zesk;
 
 /**
- * 
+ *
  * @author kent
  *
  */
-class Test_Net_POP_Client extends Test_Unit {
-
+class Net_POP_Client_Test extends Test_Unit {
+	/**
+	 *
+	 * @var string
+	 */
 	private $url = null;
 
+	/**
+	 *
+	 * @var string
+	 */
 	private $email = null;
 
+	/**
+	 *
+	 * @var array
+	 */
 	private $parts = array();
 
+	/**
+	 */
 	private function _init() {
 		$this->url = $this->option('email_url');
 
@@ -40,7 +53,6 @@ class Test_Net_POP_Client extends Test_Unit {
 			$this->fail("User " . $this->parts['user'] . " !== $this->email\n");
 		}
 	}
-
 	function test_mail_delivery() {
 		$this->_init();
 
@@ -92,7 +104,7 @@ class Test_Net_POP_Client extends Test_Unit {
 	}
 
 	/**
-	 * @expected_exception Exception_Authentication
+	 * @expected_exception zesk\Exception_Authentication
 	 */
 	function test_bad_password() {
 		$this->_init();

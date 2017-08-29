@@ -1,4 +1,5 @@
 <?php
+
 /**
  * $URL: https://code.marketacumen.com/zesk/trunk/modules/mail/test/mail_test.inc $
  * @package zesk
@@ -10,26 +11,32 @@
 namespace zesk;
 
 /**
- * 
+ *
  * @author kent
  *
  */
 class Mail_Test extends Test_Unit {
 	protected $load_modules = array(
 		"Mail",
-		"MySQL",
+		"MySQL"
 	);
 	function initialize() {
 		parent::initialize();
 		$module = $this->application->modules->object("Mail");
 		$classes = $module->classes();
-		$this->application->schema_synchronize(null, $classes);
+		$this->log("Synchronizing schema of {classes}", array(
+			"classes" => $classes
+		));
 		foreach ($classes as $class) {
 			// TODO MySQL specific
-			$this->application->object_database($class)->query("TRUNCATE " . $this->application->object_table_name($class));
+			$this->application->object_database($class)->query("DROP TABLE IF EXISTS " . $this->application->object_table_name($class));
 		}
+
+		$db = $this->application->database_factory();
+		$result = $this->application->schema_synchronize($db, $classes);
+		$db->query($result);
 	}
-	
+
 	/**
 	 */
 	function test_files() {

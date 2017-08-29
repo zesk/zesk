@@ -1,6 +1,8 @@
 <?php
-class test_testobject extends Test_Object {
 
+namespace zesk;
+
+class TestObject_Test extends Test_Object {
 	public static function object_tests(Object $x) {
 		$x->schema();
 
@@ -82,9 +84,7 @@ class test_testobject extends Test_Object {
 
 		//$x->insert();
 
-
 		//$x->update();
-
 
 		$where = false;
 		$x->exists($where);
@@ -98,12 +98,12 @@ class test_testobject extends Test_Object {
 		$column = false;
 		$x->fetch_by_key($value, $column);
 
-//		$x->fetch();
+		//		$x->fetch();
 
-// 		$x->Foo = 232;
-// 		$x->store();
+		// 		$x->Foo = 232;
+		// 		$x->store();
 
-//		$x->register();
+		//		$x->register();
 
 		$x->delete();
 
@@ -156,7 +156,6 @@ class test_testobject extends Test_Object {
 		$default = false;
 		$delimiter = ';';
 		$x->option_list($name, $default, $delimiter);
-
 	}
 	function test_object() {
 		$sTable = "TestObject";
@@ -185,7 +184,7 @@ class test_testobject extends Test_Object {
 		$object->reorder($id0, $id1, $order_column);
 	}
 }
-class Class_TestObject extends zesk\Class_Object {
+class Class_TestObject extends Class_Object {
 	public $id_column = "ID";
 	public $column_types = array(
 		"ID" => self::type_id,
