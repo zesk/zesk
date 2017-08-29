@@ -54,6 +54,12 @@ class Command_Loader {
 	private $debug = false;
 
 	/**
+	 * Collect command-line context 
+	 * 
+	 * @var array
+	 */
+	private $global_context = array();
+	/**
 	 *
 	 * @var string
 	 */
@@ -150,6 +156,7 @@ class Command_Loader {
 					$this->debug = true;
 				}
 				$this->debug("Loaded application file $first_command\n");
+				zesk()->objects;
 			}
 			if (substr($arg, 0, 1) === '/' && is_file($arg)) {
 				require_once $arg;
@@ -463,10 +470,10 @@ class Command_Loader {
 			true
 		);
 		if ($this->zesk_is_loaded()) {
-			/* @var $zesk \zesk\Kernel */
 			zesk()->configuration->path_set($key, $value);
 		} else {
 			global $_ZESK;
+			$this->global_context[_zesk_global_key($key)] = $value;
 			\apath_set($_ZESK, _zesk_global_key($key), $value, ZESK_GLOBAL_KEY_SEPARATOR);
 		}
 		return $argv;
@@ -486,10 +493,10 @@ class Command_Loader {
 			$this->usage("--unset missing argument");
 		}
 		if ($this->zesk_is_loaded()) {
-			/* @var $zesk \zesk\Kernel */
 			zesk()->configuration->path_set($key, null);
 		} else {
 			global $_ZESK;
+			$this->global_context[_zesk_global_key($key)] = null;
 			\apath_set($_ZESK, _zesk_global_key($key), null, ZESK_GLOBAL_KEY_SEPARATOR);
 		}
 		return $argv;

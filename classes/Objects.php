@@ -16,43 +16,31 @@ use \LogicException;
  * @property $session \Interface_Session
  */
 class Objects {
-
-	/**
-	 *
-	 * @var Application
-	 */
-	private $application = null;
-
 	/**
 	 *
 	 * @var Interface_Settings
 	 */
 	private $settings = null;
-
+	
 	/**
 	 *
-	 * @var \Database[]
+	 * @var Database[]
 	 */
 	public $databases = array();
-
+	
 	/**
 	 *
+	 * @deprecated 2017-08
 	 * @var User
 	 */
 	private $user = null;
-
-	/**
-	 *
-	 * @var \Interface_Session
-	 */
-	private $session = null;
-
+	
 	/**
 	 *
 	 * @var array
 	 */
 	private $singletons = array();
-
+	
 	/**
 	 *
 	 * @var array
@@ -63,7 +51,7 @@ class Objects {
 		"user" => true,
 		"session" => true
 	);
-
+	
 	/**
 	 * If value is true, allow only a single write
 	 *
@@ -75,19 +63,19 @@ class Objects {
 		"settings" => true,
 		"session" => true
 	);
-
+	
 	/**
 	 *
 	 * @var array
 	 */
 	private $debug = array();
-
+	
 	/**
 	 *
 	 * @var array
 	 */
 	private $mapping = array();
-
+	
 	/**
 	 *
 	 * @param Kernel $zesk
@@ -98,12 +86,11 @@ class Objects {
 		$this->settings = null;
 		$this->databases = array();
 		$this->user = null;
-		$this->session = null;
 		$this->singletons = array();
 		$this->debug = array();
 		$this->mapping = array();
 	}
-
+	
 	/**
 	 * Provide a mapping for when internal classes need to be overridden by applications.
 	 * <code>
@@ -135,7 +122,7 @@ class Objects {
 		$this->mapping[strtolower($requested_class)] = $target_class;
 		return $this;
 	}
-
+	
 	/**
 	 * Convert from a requested class to the target class
 	 *
@@ -145,7 +132,7 @@ class Objects {
 	function resolve($requested_class) {
 		return avalue($this->mapping, strtolower($requested_class), $requested_class);
 	}
-
+	
 	/**
 	 *
 	 * @param unknown $member
@@ -162,7 +149,7 @@ class Objects {
 		));
 		return null;
 	}
-
+	
 	/**
 	 *
 	 * @param string $member
@@ -191,7 +178,7 @@ class Objects {
 			$this->$member = $value;
 		}
 	}
-
+	
 	/**
 	 *
 	 * @param string $class
@@ -202,7 +189,7 @@ class Objects {
 		$class = array_shift($arguments);
 		return $this->singleton_arguments($class, $arguments);
 	}
-
+	
 	/**
 	 *
 	 * @param string $class
@@ -235,7 +222,7 @@ class Objects {
 						/* @var $method ReflectionMethod */
 						if ($refl_method->isStatic()) {
 							if ($method === "instance") {
-								$this->application->zesk->deprecated("$resolve_class::$method will no longer be allowed for singleton creation");
+								zesk()->deprecated("$resolve_class::$method will no longer be allowed for singleton creation");
 							}
 							return $this->singletons[$low_class] = $object = $refl_method->invokeArgs(null, $arguments);
 						}
@@ -249,7 +236,7 @@ class Objects {
 			throw new Exception_Class_NotFound($resolve_class, null, null, $e);
 		}
 	}
-
+	
 	/**
 	 * Create a new class based on name
 	 *
@@ -262,7 +249,7 @@ class Objects {
 		array_shift($arguments);
 		return $this->factory_arguments($class, $arguments);
 	}
-
+	
 	/**
 	 * Create a new class based on name
 	 *

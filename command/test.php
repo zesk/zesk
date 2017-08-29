@@ -52,6 +52,7 @@ class Command_Test extends Command_Base {
 		'database-report' => 'boolean',
 		'database-reset' => 'boolean',
 		'no-buffer' => 'boolean',
+		'no-config' => 'boolean',
 		'interactive' => 'boolean',
 		'deprecated' => 'boolean',
 		'strict' => 'boolean',
@@ -77,6 +78,7 @@ class Command_Test extends Command_Base {
 		'database-report' => "Show a report of failed tests in the database",
 		'database-reset' => "Reset all tests stored in the database, and start over. Use cautiously!",
 		'no-buffer' => "Do not do any output buffering",
+		'no-config' => "Skip loading of any external configuration files",
 		'interactive' => 'Run tests interactively, continue only when successful.',
 		'deprecated' => 'Throw exceptions when deprecated functions are used.',
 		'strict' => 'Strict warnings count as failure.',
@@ -184,7 +186,12 @@ class Command_Test extends Command_Base {
 		if ($this->option_bool('help')) {
 			$this->usage("Run tests");
 		}
-		$this->configure("test");
+		if (!$this->option_bool("no-config")) {
+			$this->configure("test");
+		} else {
+			$this->verbose_log("Skipping loading configuration files");
+			$this->application->configured();
+		}
 		if ($this->option_bool("show-options")) {
 			$this->show_options();
 		}
