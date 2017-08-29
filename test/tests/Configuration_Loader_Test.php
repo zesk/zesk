@@ -172,16 +172,16 @@ class Configuration_Loader_Test extends Test_Unit {
 			'overwrite' => false,
 			'lower' => false
 		);
-		$results = array();
-		$settings = new Adapter_Settings_Array($results);
+		$actual = array();
+		$settings = new Adapter_Settings_Array($actual);
 		$parser = new Configuration_Parser_CONF(implode("\n", $lines), $settings, $options);
 		$parser->process();
 		
-		foreach ($result as $k => $set) {
-			$this->assert_equal($set, $results[$k]);
-			unset($result[$k]);
+		foreach ($actual as $k => $set) {
+			$this->assert_equal($set, $results[$k], "Key $k did not match");
+			unset($actual[$k]);
 		}
-		$this->assert(count($result) === 0);
+		$this->assert(count($actual) === 0);
 	}
 	
 	// 	function test_edit() {
