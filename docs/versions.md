@@ -1,7 +1,7 @@
 ## Release v0.10.0
 
 - Removed usage of global state
- - `Application::instance` removal across the system, reducing in usage of `zesk()`
+ - `Application::instance` removal across the system, reduced usage of `zesk()`
  - Pass `$application` around instead of using globals, require context for all __construct calls, moved class cache to `Application`
  - Remove references to `app()` and `zesk()` where possible
  - removing global references and restructuring function calls to remove global access
