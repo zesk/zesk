@@ -9,7 +9,7 @@ namespace zesk;
  * @author kent
  *
  */
-class test_doccomment extends Test_Unit {
+class DocComment_Test extends Test_Unit {
 	function test_extract() {
 		$content = file_get_contents(ZESK_ROOT . 'classes/arr.inc');
 		$comments = DocComment::extract($content);

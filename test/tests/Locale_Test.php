@@ -9,7 +9,7 @@ namespace zesk;
  * @author kent
  *
  */
-class test_lang extends Test_Unit {
+class Locale_Test extends Test_Unit {
 
 	function test_plural() {
 		$tests = array(

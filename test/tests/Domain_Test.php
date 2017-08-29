@@ -7,7 +7,7 @@ namespace zesk;
  * @author kent
  *
  */
-class test_http extends Test_Unit {
+class Domain_Test extends Test_Unit {
 
 	function test_tld() {
 		$x = null;

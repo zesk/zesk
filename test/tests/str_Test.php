@@ -1,7 +1,7 @@
 <?php
 namespace zesk;
 
-class test_string extends Test_Unit {
+class str_Test extends Test_Unit {
 
 	function test_begins() {
 		$haystack = null;

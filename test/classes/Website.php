@@ -11,11 +11,7 @@
  *            Needs to be cleaned up as Test_Unit added functionality which is present in here (test iteration, for
  *            example)
  */
-
-use zesk\arr;
-use zesk\URL;
-use zesk\Directory;
-use zesk\Exception_Unimplemented;
+namespace zesk;
 
 abstract class Test_Website extends Test_Selenium {
 	

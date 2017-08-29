@@ -9,7 +9,7 @@ namespace zesk;
  * @author kent
  *
  */
-class test_lists extends Test_Unit {
+class Lists_Test extends Test_Unit {
 	function append_data_provider() {
 		$lists = array(
 			array(
@@ -102,9 +102,9 @@ class test_lists extends Test_Unit {
 	 * @data_provider append_data_provider
 	 */
 	function test_append($list, $add, $sep, $expected) {
-		$actual = lists::append($list, $add, $sep);
+		$actual = Lists::append($list, $add, $sep);
 		$this->assert_equal(type($actual), type($expected), "Type of list does not match return type");
-		$this->assert_equal($actual, $expected, map("lists::append({list}, {add}, \"$sep\")", array(
+		$this->assert_equal($actual, $expected, map("Lists::append({list}, {add}, \"$sep\")", array(
 			"list" => _dump($list),
 			"add" => _dump($add)
 		)), false);
@@ -119,7 +119,7 @@ class test_lists extends Test_Unit {
 		} else {
 			$expected = implode($sep, array_unique(explode($sep, $expected)));
 		}
-		$actual = lists::append_unique($list, $add, $sep);
+		$actual = Lists::append_unique($list, $add, $sep);
 		$this->assert_equal(type($actual), type($expected));
 		$this->assert_equal($actual, $expected);
 	}
@@ -127,34 +127,34 @@ class test_lists extends Test_Unit {
 		$llist = null;
 		$item = null;
 		$sep = ';';
-		$this->assert_true(lists::contains("a;b;c;d;ee;ff", "a"));
-		$this->assert_true(lists::contains("a;b;c;d;ee;ff", "b"));
-		$this->assert_true(lists::contains("a;b;c;d;ee;ff", "c"));
-		$this->assert_true(lists::contains("a;b;c;d;ee;ff", "d"));
-		$this->assert_true(lists::contains("a;b;c;d;ee;ff", "ee"));
-		$this->assert_true(lists::contains("a;b;c;d;ee;ff", "ff"));
+		$this->assert_true(Lists::contains("a;b;c;d;ee;ff", "a"));
+		$this->assert_true(Lists::contains("a;b;c;d;ee;ff", "b"));
+		$this->assert_true(Lists::contains("a;b;c;d;ee;ff", "c"));
+		$this->assert_true(Lists::contains("a;b;c;d;ee;ff", "d"));
+		$this->assert_true(Lists::contains("a;b;c;d;ee;ff", "ee"));
+		$this->assert_true(Lists::contains("a;b;c;d;ee;ff", "ff"));
 	}
 	function test_pop() {
 		$llist = null;
 		$sep = ';';
-		lists::pop($llist, $sep);
+		Lists::pop($llist, $sep);
 	}
 	function test_prepend() {
 		$llist = null;
 		$item = null;
 		$sep = ';';
-		lists::prepend($llist, $item, $sep);
+		Lists::prepend($llist, $item, $sep);
 	}
 	function test_remove() {
 		$llist = null;
 		$item = null;
 		$sep = ';';
-		lists::remove($llist, $item, $sep);
+		Lists::remove($llist, $item, $sep);
 	}
 	function test_unique() {
 		$llist = "X;a;A;b;b;c;c;D;F;a;X";
 		$sep = ";";
-		$this->assert(lists::unique($llist, $sep) === "X;a;A;b;c;D;F");
+		$this->assert(Lists::unique($llist, $sep) === "X;a;A;b;c;D;F");
 		
 		echo basename(__FILE__) . ": success\n";
 	}

@@ -9,7 +9,7 @@ namespace zesk;
  * @author kent
  *
  */
-class test_js extends Test_Unit {
+class JavaScript_Test extends Test_Unit {
 
 	function test_clean_function_name() {
 		$x = null;

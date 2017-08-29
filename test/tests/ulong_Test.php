@@ -2,7 +2,7 @@
 
 namespace zesk;
 
-class test_ulong extends Test_Unit {
+class ulong_Test extends Test_Unit {
 
 	function test_ulong() {
 		$x = 0;

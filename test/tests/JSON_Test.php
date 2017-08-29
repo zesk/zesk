@@ -9,7 +9,7 @@ namespace zesk;
  * @author kent
  *
  */
-class test_json extends Test_Unit {
+class JSON_Test extends Test_Unit {
 	
 	/**
 	 * @expected_exception Exception_Parse

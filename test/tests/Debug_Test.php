@@ -9,7 +9,7 @@ namespace zesk;
  * @author kent
  *
  */
-class test_debug extends Test_Unit {
+class Debug_Test extends Test_Unit {
 	function test_calling_file() {
 		Debug::calling_file();
 	}

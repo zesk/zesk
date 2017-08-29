@@ -9,7 +9,7 @@ namespace zesk;
  * @author kent
  *
  */
-class test_hex extends Test_Unit {
+class Hexadecimal_Test extends Test_Unit {
 	function test_decode() {
 		$decoded = Hexadecimal::decode("DEADBEEF");
 		$x = null;

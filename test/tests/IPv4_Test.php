@@ -5,7 +5,7 @@ namespace zesk;
 /**
  * 
  */
-class test_ip extends Test_Unit {
+class IPv4_Test extends Test_Unit {
 
 	function test_from_integer() {
 		$ipid = null;

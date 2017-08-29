@@ -33,7 +33,7 @@ class testdir {
  * @author kent
  *
  */
-class test_dir extends Test_Unit {
+class Directory_Test extends Test_Unit {
 	function test_is_absolute() {
 		$f = null;
 		$this->assert_false(Directory::is_absolute($f));
