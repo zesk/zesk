@@ -498,7 +498,12 @@ class Command_Test extends Command_Base {
 			if ($this->option_bool('debugger')) {
 				debugger_start_debug();
 			}
-			$result = $this->$method($file, $options);
+			$is_phpunit = to_bool(avalue($options, 'phpunit'));
+			if ($is_phpunit) {
+				$result = $this->run_phpunit_test($file, $options);
+			} else {
+				$result = $this->$method($file, $options);
+			}
 			$repeated = true;
 			if ($result === false) {
 				$this->_run_test_failed($file);
@@ -756,15 +761,6 @@ class Command_Test extends Command_Base {
 			$this->stats['skip']++;
 			if ($verbose) {
 				echo "* OK\n";
-			}
-			return true;
-		}
-		
-		$is_phpunit = avalue($options, 'test_phpunit');
-		if ($is_phpunit) {
-			$result = $this->run_phpunit_test($file);
-			if ($verbose) {
-				echo $result ? "PHPUNIT OK\n" : "PHPUNIT FAIL";
 			}
 			return true;
 		}

@@ -6,7 +6,7 @@ namespace zesk;
  * @author kent
  *
  */
-class dkim_test extends Test_Unit {
+class DKIM_Test extends Test_Unit {
 	protected $load_modules = array(
 		"DKIM"
 	);

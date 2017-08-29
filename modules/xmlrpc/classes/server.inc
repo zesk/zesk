@@ -14,6 +14,7 @@ use zesk\DocComment;
 use zesk\Exception_Semantics;
 use zesk\Exception_Unimplemented;
 use zesk\Options;
+use zesk\Application;
 
 /**
  * Server
@@ -51,16 +52,23 @@ class Server extends Options {
 	private $LogPath;
 	
 	/**
-	 * 
+	 *
 	 * @var array
 	 */
 	protected $export_methods = array();
 	
 	/**
+	 *
+	 * @var array
+	 */
+	protected $rpc_methods = array();
+	
+	/**
 	 * 
 	 * @param string $methods
 	 */
-	function __construct($methods = false, array $options = array()) {
+	function __construct(Application $application, array $options = array()) {
+		$this->application = $application;
 		parent::__construct($options);
 		$this->inherit_global_options();
 		
@@ -69,8 +77,8 @@ class Server extends Options {
 		$this->setupCapabilities();
 		$this->registerSystemMethods();
 		
-		if (is_array($methods)) {
-			$this->registerMethods($methods);
+		if (is_array($this->rpc_methods)) {
+			$this->registerMethods($this->rpc_methods);
 		}
 		if (is_array($this->export_methods)) {
 			$this->register_reflection_method($this->export_methods);
