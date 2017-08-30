@@ -1,3 +1,8 @@
+## Release v0.10.2
+
+- `zesk\Application::application_class()` called old-style `zesk()->application_class`, now fixed
+
+
 ## Release v0.10.1
 
 - `zesk` command line now MUNGES input date to support easier invocation using namespaces. Specifically, the token `___` (triple underscore) is converted in **ALL** command-line arguments to backslash `\`. This mimics similar functionality in the `Configuration_Loader_CONF` class. If your scripts depend on variables with triple-underscores, you may need to revise them.
