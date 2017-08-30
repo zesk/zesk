@@ -1996,7 +1996,7 @@ class Application extends Hookable implements Interface_Theme {
 	 * @return Class_Object
 	 */
 	public function class_object($class) {
-		return Class_Object::cache($this->objects->resolve($class), "class");
+		return $this->_class_cache($this->objects->resolve($class), "class");
 	}
 	
 	/**
