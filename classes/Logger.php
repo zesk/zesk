@@ -239,7 +239,6 @@ class Logger implements LoggerInterface {
 			try {
 				$handler->log($message, $context);
 			} catch (\Exception $e) {
-				die($e->getMessage());
 			}
 		}
 		$this->sending = false;
