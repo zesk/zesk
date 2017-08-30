@@ -52,7 +52,7 @@ class View_Text extends View {
 			$allow_show_all = $this->option_bool("allow_show_all");
 			$ellip = $this->option($is_html ? "html_ellipsis" : "text_ellipsis", '...');
 			if ($allow_show_all) {
-				$this->response->cdn_javascript("/share/zesk/js/zesk.js", array(
+				$this->response->javascript("/share/zesk/js/zesk.js", array(
 					'weight' => 'first'
 				));
 

@@ -11,9 +11,9 @@ namespace zesk;
 class Control_Slider extends Control {
 	function render() {
 		$this->response->jquery();
-		$this->response->cdn_css("/share/zesk/widgets/slider/slider.css");
-		$this->response->cdn_javascript("/share/zesk/jquery/ui/ui.core.js");
-		$this->response->cdn_javascript("/share/zesk/jquery/ui/ui.slider.js");
+		$this->response->css("/share/zesk/widgets/slider/slider.css");
+		$this->response->javascript("/share/zesk/jquery/ui/ui.core.js");
+		$this->response->javascript("/share/zesk/jquery/ui/ui.slider.js");
 
 		$id = $this->column() . "_slider";
 		$opts = $this->options_include("min;max;vertical;step;range;steps");

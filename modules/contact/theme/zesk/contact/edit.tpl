@@ -21,8 +21,8 @@ $account = $this->account;
 $person = $this->person;
 
 $this->response->jquery();
-$this->response->cdn_javascript('/share/zesk/jquery/jquery.overlabel.js');
-$this->response->cdn_javascript('/share/zesk/jquery/jquery.glow.js');
+$this->response->javascript('/share/zesk/jquery/jquery.overlabel.js');
+$this->response->javascript('/share/zesk/jquery/jquery.glow.js');
 
 /* @var $request Request */
 /* @var $account Account */

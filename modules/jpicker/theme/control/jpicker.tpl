@@ -44,10 +44,10 @@ $options = array(
 );
 
 $response->jquery("\$('#$html_id').jPicker(" . JSON::encodex($options) . ");");
-$response->cdn_javascript("/share/jpicker/jpicker-$version.js", array(
+$response->javascript("/share/jpicker/jpicker-$version.js", array(
 	"share" => true
 ));
-$response->cdn_css("/share/jpicker/css/jPicker-$version.css", array(
+$response->css("/share/jpicker/css/jPicker-$version.css", array(
 	"share" => true
 ));
 

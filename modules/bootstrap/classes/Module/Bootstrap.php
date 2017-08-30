@@ -63,7 +63,7 @@ class Module_Bootstrap extends Module implements Interface_Module_Foot, Interfac
 		// Lazy eval
 		if ($this->option_bool('enabled')) {
 			if (!self::source_location()) {
-				$response->cdn_css("/share/bootstrap/css/bootstrap.css", array(
+				$response->css("/share/bootstrap/css/bootstrap.css", array(
 					'share' => true
 				));
 			}
@@ -79,7 +79,7 @@ class Module_Bootstrap extends Module implements Interface_Module_Foot, Interfac
 			));
 			
 			$response->jquery();
-			$response->cdn_javascript(array(
+			$response->javascript(array(
 				$this->application->development() ? "/share/bootstrap/js/bootstrap.js" : "/share/bootstrap/js/bootstrap.min.js"
 			), array(
 				'share' => true

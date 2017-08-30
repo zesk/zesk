@@ -73,20 +73,20 @@ class Module_jQPlot extends zesk\Module implements zesk\Interface_Module_Head {
 		$response_option = $this->response_option();
 		if ($response->has_option($response_option) || $this->enabled()) {
 			$response->jquery();
-			$response->cdn_css("/share/jqplot/jquery.jqplot.css", array(
+			$response->css("/share/jqplot/jquery.jqplot.css", array(
 				'share' => true
 			));
 			$jqplot_weight = $this->option("javascript_weight", 100);
-			$response->cdn_javascript("/share/jquery-tools/compat.jquery.browser.js", array(
+			$response->javascript("/share/jquery-tools/compat.jquery.browser.js", array(
 				"share" => true,
 				'weight' => $jqplot_weight - 1
 			));
-			$response->cdn_javascript("/share/jqplot/jquery.jqplot.js", array(
+			$response->javascript("/share/jqplot/jquery.jqplot.js", array(
 				'share' => true,
 				'weight' => $jqplot_weight
 			));
 			foreach ($this->plugin($response) as $plugin) {
-				$response->cdn_javascript($this->plugin_uri($plugin), array(
+				$response->javascript($this->plugin_uri($plugin), array(
 					"share" => true,
 					'weight' => ++$jqplot_weight
 				));

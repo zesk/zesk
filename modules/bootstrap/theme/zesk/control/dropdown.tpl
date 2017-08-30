@@ -162,7 +162,7 @@ if (!$this->no_input_group) {
 	echo $input;
 }
 
-$response->cdn_javascript('/share/bootstrap-x/js/dropdown.js', array(
+$response->javascript('/share/bootstrap-x/js/dropdown.js', array(
 	"share" => true
 ));
 $response->jquery(map('$("#{id}").bootstrap_dropdown({ onupdate: {onupdate} });', array(

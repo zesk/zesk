@@ -21,10 +21,10 @@ $can_update_live = $current_user->can("zesk\\Module_PolyGlot::update");
 $response = $this->response;
 
 $response->jquery();
-$response->cdn_javascript("/share/polyglot/js/polyglot.js", array(
+$response->javascript("/share/polyglot/js/polyglot.js", array(
 	"share" => true
 ));
-$response->cdn_css("/share/polyglot/css/polyglot.css", array(
+$response->css("/share/polyglot/css/polyglot.css", array(
 	"share" => true
 ));
 

@@ -70,4 +70,4 @@ $slider_options = zesk()->hooks->call_arguments('slider_options_alter', array(
 ), $slider_options);
 
 $response->jquery("\$('#$id').anythingSlider(" . JSON::encode($slider_options) . ");");
-$response->cdn_javascript('share/anythingslider/js/jquery.anythingslider.min.js');
+$response->javascript('share/anythingslider/js/jquery.anythingslider.min.js');

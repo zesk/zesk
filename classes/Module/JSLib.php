@@ -16,14 +16,14 @@ abstract class Module_JSLib extends Module implements Interface_Module_Head {
 	protected $css_paths = array();
 	
 	/**
-	 * Array of options to pass to ->cdn_css for each css_paths
+	 * Array of options to pass to Response::css for each css_paths
 	 *
 	 * @var array
 	 */
 	protected $css_options = array();
 	
 	/**
-	 * Array of options to pass to ->cdn_javascript for each javascript_paths
+	 * Array of options to pass to Response::javascript for each javascript_paths
 	 *
 	 * @var array
 	 */
@@ -130,24 +130,24 @@ abstract class Module_JSLib extends Module implements Interface_Module_Head {
 			}
 			foreach ($this->css_paths as $key => $value) {
 				if (is_string($key) && is_array($value)) {
-					$response->cdn_css($key, $value + $this->css_options);
+					$response->css($key, $value + $this->css_options);
 				} else if (is_numeric($key) && is_string($value)) {
-					$response->cdn_css($value, $this->css_options + array(
+					$response->css($value, $this->css_options + array(
 						'share' => true
 					));
 				} else if (is_string($key) && is_string($value)) {
-					$response->cdn_css($key, array(
+					$response->css($key, array(
 						$value => true
 					) + $this->css_options);
 				}
 			}
 			foreach ($this->javascript_paths as $key => $value) {
 				if (is_numeric($key) && is_string($value)) {
-					$response->cdn_javascript($value, $this->javascript_options + array(
+					$response->javascript($value, $this->javascript_options + array(
 						'share' => true
 					));
 				} else if (is_string($key) && is_array($value)) {
-					$response->cdn_javascript($key, $value + $this->javascript_options + array(
+					$response->javascript($key, $value + $this->javascript_options + array(
 						'share' => true
 					));
 				}

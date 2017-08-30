@@ -6,10 +6,10 @@ if (!$response) {
 	$response = $application->response();
 }
 $response->jquery();
-$response->cdn_css('/share/zesk/css/exception.css', array(
+$response->css('/share/zesk/css/exception.css', array(
 	'root_dir' => $application->zesk_root()
 ));
-$response->cdn_javascript('/share/zesk/js/exception.js', array(
+$response->javascript('/share/zesk/js/exception.js', array(
 	'root_dir' => $application->zesk_root()
 ));
 

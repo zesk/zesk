@@ -440,7 +440,7 @@ class Module_Cron extends Module {
 	 * @param Response_Text_HTML $response
 	 */
 	public function page_runner(Request $request, Response_Text_HTML $response) {
-		$response->cdn_javascript('/share/zesk/js/zesk.js', array(
+		$response->javascript('/share/zesk/js/zesk.js', array(
 			'weight' => 'first',
 			'share' => true
 		));

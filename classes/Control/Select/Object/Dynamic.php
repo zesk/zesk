@@ -88,7 +88,7 @@ class Control_Select_Object_Dynamic extends Control_Select_Object {
 		$n_found = $this->count_results();
 		if ($n_found > $this->optionSelectObjectsLimit()) {
 			$this->response->jquery();
-			$this->response->cdn_javascript("/share/zesk/js/zesk.js", array(
+			$this->response->javascript("/share/zesk/js/zesk.js", array(
 				'weight' => 'first'
 			));
 			$this->response->jquery('$(".control-select-object-dynamic .csod-button").keydown(Control_Select_Object_Dynamic_KeyDown);');

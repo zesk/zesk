@@ -25,7 +25,7 @@ if ($overlabel) {
 	// $overlabel_id = "overlabel_". HTML::id_counter();
 	$child->set_option("overlabel", true);
 	$this->response->jquery();
-	$this->response->cdn_javascript("/share/zesk/jquery/jquery.overlabel.js");
+	$this->response->javascript("/share/zesk/jquery/jquery.overlabel.js");
 	$this->response->jquery("$('label.overlabel').overlabel();");
 	// $widget->set_option("id", $overlabel_id);
 }

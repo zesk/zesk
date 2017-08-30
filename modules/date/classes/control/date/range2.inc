@@ -78,14 +78,14 @@ class Control_Date_Range2 extends Control {
 	public function validate() {
 		$object = $this->object;
 		$this->response->jquery();
-		$this->response->cdn_javascript('/share/zesk/js/zesk.js', array(
+		$this->response->javascript('/share/zesk/js/zesk.js', array(
 			'weight' => 'first'
 		));
-		$this->response->cdn_javascript('/share/zesk/jquery/ui/ui.core.js');
-		$this->response->cdn_javascript('/share/zesk/jquery/zesk.ui.datepicker.js');
-		$this->response->cdn_javascript('/share/zesk/widgets/daterange/zesk.ui.datepicker.js');
+		$this->response->javascript('/share/zesk/jquery/ui/ui.core.js');
+		$this->response->javascript('/share/zesk/jquery/zesk.ui.datepicker.js');
+		$this->response->javascript('/share/zesk/widgets/daterange/zesk.ui.datepicker.js');
 
-		$this->response->cdn_css('/share/zesk/widgets/daterange/zesk.ui.datepicker.css');
+		$this->response->css('/share/zesk/widgets/daterange/zesk.ui.datepicker.css');
 
 		$start_col = $this->_startColumn();
 		$end_col = $this->_endColumn();

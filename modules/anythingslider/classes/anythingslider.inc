@@ -31,12 +31,12 @@ class AnythingSlider extends zesk\Module implements \zesk\Interface_Module_Head 
 	public function hook_head(zesk\Request $request, zesk\Response_Text_HTML $response, zesk\Template $template) {
 		$response->jquery();
 		if ($this->application->development()) {
-			$response->cdn_javascript('/share/anythingslider/js/jquery.anythingslider.js');
+			$response->javascript('/share/anythingslider/js/jquery.anythingslider.js');
 		} else {
-			$response->cdn_javascript('/share/anythingslider/js/jquery.anythingslider.min.js');
+			$response->javascript('/share/anythingslider/js/jquery.anythingslider.min.js');
 		}
-		$response->cdn_javascript('/share/anythingslider/js/jquery.easing.1.2.js');
-		$response->cdn_css('/share/anythingslider/css/anythingslider.css');
-		$response->cdn_css('/share/anythingslider/css/animate.css');
+		$response->javascript('/share/anythingslider/js/jquery.easing.1.2.js');
+		$response->css('/share/anythingslider/css/anythingslider.css');
+		$response->css('/share/anythingslider/css/animate.css');
 	}
 }

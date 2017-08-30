@@ -16,7 +16,7 @@ namespace zesk;
 /**
  * 
  */
-$response->cdn_css('/share/zesk/css/webfonts.css', array(
+$response->css('/share/zesk/css/webfonts.css', array(
 	'share' => true
 ));
 $fonts = array(

@@ -55,7 +55,7 @@ class Module_Content extends Module implements Interface_Module_Head {
 	 * @param Response_Text_HTML $response
 	 */
 	public function hook_head(Request $request, Response_Text_HTML $response, Template $template) {
-		$response->cdn_css("/share/content/css/content.css", array(
+		$response->css("/share/content/css/content.css", array(
 			"share" => true
 		));
 	}

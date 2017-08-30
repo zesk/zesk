@@ -72,7 +72,7 @@ class Control_Arrow extends Control {
 		return HTML::tag_close('div');
 	}
 	public static function html_init() {
-		Response::instance()->cdn_javascript("/share/zesk/js/zesk.js", array(
+		Response::instance()->javascript("/share/zesk/js/zesk.js", array(
 			'weight' => 'first'
 		));
 		Response::instance()->jquery("Control_Arrow_onload();");

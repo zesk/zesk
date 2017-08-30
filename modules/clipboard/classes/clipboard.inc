@@ -35,7 +35,7 @@ class clipboard {
 		$id = $player_id++;
 		
 		$response->jquery();
-		$response->cdn_javascript("/share/zesk/js/swfobject.js");
+		$response->javascript("/share/zesk/js/swfobject.js");
 		
 		// TODO: CDN?
 		$response->javascript("/clipboard/clipboard.js", ZESK_ROOT . '/share/zesk/widgets');

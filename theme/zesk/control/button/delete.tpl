@@ -14,6 +14,6 @@ echo HTML::tag("a", array(
 /* $var $response zesk\Response_Text_HTML */
 $response = $this->response;
 
-$response->cdn_javascript("/share/zesk/js/zesk-confirm.js", array(
+$response->javascript("/share/zesk/js/zesk-confirm.js", array(
 	"share" => true
 ));

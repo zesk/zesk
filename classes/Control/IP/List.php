@@ -57,8 +57,8 @@ class Control_IP_List extends Control {
 			"name" => $name
 		));
 		$ip = $this->request->ip();
-		$this->response->cdn_javascript('/share/zesk/widgets/iplist/iplist.js');
-		$this->response->cdn_css('/share/zesk/widgets/iplist/iplist.css');
+		$this->response->javascript('/share/zesk/widgets/iplist/iplist.js');
+		$this->response->css('/share/zesk/widgets/iplist/iplist.css');
 
 		$add_ip = "<a class=\"ip-list-add\" id=\"${name}\" onclick=\"iplist_add('${col}_ip_list', '${ip}')\">" . __('Add current IP') . ": $ip</a>";
 		if (count($this->ErrorIPs)) {

@@ -46,10 +46,10 @@ $options = array(
 );
 
 $response->jquery("\$('#$html_id').spectrum(" . JSON::encodex($options) . ");");
-$response->cdn_javascript("/share/spectrum/spectrum.js", array(
+$response->javascript("/share/spectrum/spectrum.js", array(
 	"share" => true
 ));
-$response->cdn_css("/share/spectrum/spectrum.css", array(
+$response->css("/share/spectrum/spectrum.css", array(
 	"share" => true
 ));
 

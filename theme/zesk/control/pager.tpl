@@ -41,7 +41,7 @@ if (!$this->always_show) {
 
 $this->last_offset = $last_offset = $object->last_offset;
 
-$response->cdn_css("/share/zesk/widgets/pager/pager.css", array(
+$response->css("/share/zesk/widgets/pager/pager.css", array(
 	'root_dir' => ZESK_ROOT
 ));
 

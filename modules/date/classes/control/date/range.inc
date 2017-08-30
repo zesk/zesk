@@ -205,7 +205,7 @@ class Control_Date_Range extends Control {
 			"select" => $this->child($name),
 			"month" => $this->child($name . '-MonthDate')
 		);
-		$this->response->cdn_javascript('/share/zesk/js/zesk.js', array(
+		$this->response->javascript('/share/zesk/js/zesk.js', array(
 			'weight' => 'first'
 		));
 		$t = new Template("widgets/Control_Date_Range.tpl", $options);

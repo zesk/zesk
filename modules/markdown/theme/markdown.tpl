@@ -1,7 +1,7 @@
 <?php
 namespace zesk;
 
-$this->response->cdn_css('/share/markdown/markdown.css', array(
+$this->response->css('/share/markdown/markdown.css', array(
 	'share' => true
 ));
 

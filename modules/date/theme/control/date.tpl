@@ -39,20 +39,20 @@ $attr['class'] = "input-text form-control";
 
 $response = $this->response;
 /* @var $response zesk\Response_Text_HTML */
-$response->cdn_javascript('/share/zesk/js/zesk.js', array(
+$response->javascript('/share/zesk/js/zesk.js', array(
 	'weight' => 'first'
 ));
-$response->cdn_javascript('/share/zesk/js/zesk-date.js', array(
+$response->javascript('/share/zesk/js/zesk-date.js', array(
 	"share" => true
 ));
-$response->cdn_javascript('/share/date/js/date.js');
+$response->javascript('/share/date/js/date.js');
 
 $js_options = array();
 
 //$response->jquery("\$(\"#$input_id\").control_date(" . json_encode($js_options) . ")");
 
 
-$response->cdn_css('/share/date/css/date.css', array(
+$response->css('/share/date/css/date.css', array(
 	"media" => "screen"
 ));
 

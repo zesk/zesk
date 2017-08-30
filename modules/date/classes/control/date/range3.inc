@@ -25,17 +25,17 @@ class Control_Date_Range3 extends Control {
 	}
 	public function check(&$object) {
 		$this->response->jquery();
-		$this->response->cdn_javascript('/share/zesk/js/zesk.js', array(
+		$this->response->javascript('/share/zesk/js/zesk.js', array(
 			'weight' => 'first'
 		));
-		$this->response->cdn_javascript('/share/zesk/jquery/ui/ui.core.js');
-		$this->response->cdn_javascript('/share/zesk/jquery/ui/ui.datepicker.js');
-		$this->response->cdn_javascript('/share/zesk/widgets/daterange/zesk.ui.datepicker3.js');
+		$this->response->javascript('/share/zesk/jquery/ui/ui.core.js');
+		$this->response->javascript('/share/zesk/jquery/ui/ui.datepicker.js');
+		$this->response->javascript('/share/zesk/widgets/daterange/zesk.ui.datepicker3.js');
 		
-		$this->response->cdn_css('/share/zesk/jquery/themes/smoothness/ui.core.css');
-		$this->response->cdn_css('/share/zesk/jquery/themes/smoothness/ui.datepicker.css');
-		$this->response->cdn_css('/share/zesk/jquery/themes/smoothness/ui.theme.css');
-		$this->response->cdn_css('/share/zesk/widgets/daterange/zesk.ui.datepicker3.css');
+		$this->response->css('/share/zesk/jquery/themes/smoothness/ui.core.css');
+		$this->response->css('/share/zesk/jquery/themes/smoothness/ui.datepicker.css');
+		$this->response->css('/share/zesk/jquery/themes/smoothness/ui.theme.css');
+		$this->response->css('/share/zesk/widgets/daterange/zesk.ui.datepicker3.css');
 		
 		$start_col = $this->_startColumn();
 		$end_col = $this->_endColumn();

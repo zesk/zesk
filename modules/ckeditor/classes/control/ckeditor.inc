@@ -35,8 +35,8 @@ class Control_CKEditor extends Control_Text {
 	}
 	public final function render(Model $data) {
 		// Important: FCKEditor can not be hosted on another domain
-		$this->response->cdn_javascript($this->fck_path() . "fckeditor.js");
-		$this->response->cdn_javascript($this->fck_path() . "editor/fckconfig-simple.js");
+		$this->response->javascript($this->fck_path() . "fckeditor.js");
+		$this->response->javascript($this->fck_path() . "editor/fckconfig-simple.js");
 		
 		$column_name = $this->column();
 		$fck = $this->fck();

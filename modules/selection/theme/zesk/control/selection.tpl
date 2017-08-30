@@ -13,7 +13,7 @@ namespace zesk;
 /* @var $response \zesk\Response_Text_HTML */
 /* @var $current_user \User */
 
-$this->response->cdn_javascript('/share/selection/selection.js');
+$this->response->javascript('/share/selection/selection.js');
 
 $name = $this->name;
 $session = $this->session;

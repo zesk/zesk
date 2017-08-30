@@ -16,10 +16,10 @@ class Module_Modal_URL extends zesk\Module_JSLib {
 	 */
 	public function hook_head(zesk\Request $request, zesk\Response_Text_HTML $response, zesk\Template $template) {
 		$response->jquery();
-		$response->cdn_css("/share/modal_url/css/modal_url.css", array(
+		$response->css("/share/modal_url/css/modal_url.css", array(
 			'share' => true
 		));
-		$response->cdn_javascript("/share/modal_url/js/jquery.modal_url.js", array(
+		$response->javascript("/share/modal_url/js/jquery.modal_url.js", array(
 			'share' => true
 		));
 		$response->javascript_inline($this->application->theme("modal/url", array(

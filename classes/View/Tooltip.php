@@ -17,9 +17,9 @@ class View_Tooltip extends View {
 
 	function render() {
 		$this->response->jquery();
-		$this->response->cdn_javascript("/share/zesk/jquery/jquery.hoverIntent.js");
-		$this->response->cdn_javascript("/share/zesk/jquery/jquery.corners.min.js");
-		$this->response->cdn_javascript("/share/zesk/widgets/hoverbubble/hoverbubble.js");
+		$this->response->javascript("/share/zesk/jquery/jquery.hoverIntent.js");
+		$this->response->javascript("/share/zesk/jquery/jquery.corners.min.js");
+		$this->response->javascript("/share/zesk/widgets/hoverbubble/hoverbubble.js");
 
 		$col = $this->column();
 		$id = "hover-bubble-" + $this->response->id_counter();

@@ -30,7 +30,7 @@ class Module_Flot extends zesk\Module implements \zesk\Interface_Module_Head {
 	}
 	private function _head(zesk\Response_Text_HTML $response) {
 		$response->jquery();
-		$response->cdn_javascript("/share/flot/jquery.flot.js", array(
+		$response->javascript("/share/flot/jquery.flot.js", array(
 			"share" => true
 		));
 	}
@@ -65,7 +65,7 @@ class Module_Flot extends zesk\Module implements \zesk\Interface_Module_Head {
 			$js_name = "jquery.flot.$plugin.js";
 			$plugin_path = "/share/flot/$js_name";
 			if ((is_array($this->plugins) && array_key_exists($plugin, $this->plugins)) || file_exists($full_path = path($path, $js_name))) {
-				$response->cdn_javascript($plugin_path, array(
+				$response->javascript($plugin_path, array(
 					"share" => true
 				));
 			} else {

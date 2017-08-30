@@ -100,6 +100,6 @@ echo HTML::input_hidden($this->name, $this->value, array(
 ));
 echo HTML::tag_close('div');
 
-$response->cdn_javascript('/share/zesk/js/control/filter/selector.js', array(
+$response->javascript('/share/zesk/js/control/filter/selector.js', array(
 	"share" => true
 ));

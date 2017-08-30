@@ -89,9 +89,9 @@ class Module_Logger_Footer extends Module implements Interface_Module_Head, Inte
 			$share = array(
 				'share' => true
 			);
-			$response->cdn_javascript('/share/zesk/js/zesk.js', $share);
-			$response->cdn_javascript('/share/logger_footer/js/logger_footer.js', $share);
-			$response->cdn_css('/share/logger_footer/css/logger_footer.css', $share);
+			$response->javascript('/share/zesk/js/zesk.js', $share);
+			$response->javascript('/share/logger_footer/js/logger_footer.js', $share);
+			$response->css('/share/logger_footer/css/logger_footer.css', $share);
 		}
 	}
 }

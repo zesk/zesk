@@ -96,11 +96,11 @@ class Control_Content_Layout extends Control {
 		$name = $this->column();
 
 		$this->response->jquery();
-		$this->response->cdn_javascript("/share/zesk/widgets/layout/layout.js");
-		$this->response->cdn_javascript("/share/zesk/jquery/ui/ui.core.js");
-		$this->response->cdn_javascript("/share/zesk/jquery/ui/ui.draggable.js");
-		$this->response->cdn_javascript("/share/zesk/jquery/ui/ui.droppable.js");
-		$this->response->cdn_css("/share/zesk/widgets/layout/layout.css");
+		$this->response->javascript("/share/zesk/widgets/layout/layout.js");
+		$this->response->javascript("/share/zesk/jquery/ui/ui.core.js");
+		$this->response->javascript("/share/zesk/jquery/ui/ui.draggable.js");
+		$this->response->javascript("/share/zesk/jquery/ui/ui.droppable.js");
+		$this->response->css("/share/zesk/widgets/layout/layout.css");
 
 		$default_object_ids = array();
 		$content = "";

@@ -22,20 +22,20 @@ class Response_Text_HTML extends Response_Text {
 	 * @var string
 	 */
 	public $content_type = "text/html";
-
+	
 	/**
 	 * ID counter for rendering things on the page which should have unique IDs
 	 *
 	 * @var integer
 	 */
 	private $id_counter = 0;
-
+	
 	/**
 	 *
 	 * @var string
 	 */
 	private $head_prefix = "";
-
+	
 	/**
 	 *
 	 * @var string
@@ -47,35 +47,35 @@ class Response_Text_HTML extends Response_Text {
 	 * @var array
 	 */
 	private $links = array();
-
+	
 	/**
 	 * head <link tags> as [rel] => array(path1,path2)
 	 *
 	 * @var array
 	 */
 	private $links_by_rel = array();
-
+	
 	/**
 	 * Links sorted?
 	 *
 	 * @var boolean
 	 */
 	private $links_sorted = null;
-
+	
 	/**
 	 * <script> tags
 	 *
 	 * @var array
 	 */
 	private $scripts = array();
-
+	
 	/**
 	 * Whether the scripts array has been sorted by weight
 	 *
 	 * @var boolean
 	 */
 	private $scripts_sorted = false;
-
+	
 	/**
 	 * State for inline script capturing.
 	 * When non-null, we're between begin/end script calls.
@@ -83,76 +83,76 @@ class Response_Text_HTML extends Response_Text {
 	 * @var string
 	 */
 	private $script_begin = null;
-
+	
 	/**
 	 * Globals to set on the page
 	 *
 	 * @var array
 	 */
 	private $script_settings = array();
-
+	
 	/**
 	 * Page title
 	 *
 	 * @var string
 	 */
 	private $title = "";
-
+	
 	/**
 	 * Head meta tags
 	 *
 	 * @var array
 	 */
 	private $meta = array();
-
+	
 	/**
 	 * Head stylesheets
 	 *
 	 * @var array
 	 */
 	private $styles = array();
-
+	
 	/**
 	 * <html> tag attributes
 	 *
 	 * @var array
 	 */
 	private $html_attributes = array();
-
+	
 	/**
 	 * <body> tag attributes
 	 *
 	 * @var array
 	 */
 	private $body_attributes = array();
-
+	
 	/**
 	 * jquery ready functions
 	 *
 	 * @var array
 	 */
 	private $jquery = null;
-
+	
 	/**
 	 * Change the doctype
 	 *
 	 * @var string
 	 */
 	public $doctype = null;
-
+	
 	/**
 	 * Change the document language
 	 *
 	 * @var string
 	 */
 	public $language = "en_US";
-
+	
 	/**
 	 *
 	 * @var string
 	 */
 	protected $page_theme = "page";
-
+	
 	/**
 	 *
 	 * @param Application $application
@@ -169,7 +169,7 @@ class Response_Text_HTML extends Response_Text {
 		);
 		$this->page_theme = $this->option("page_theme", $this->page_theme);
 	}
-
+	
 	/**
 	 *
 	 * @param Kernel $zesk
@@ -188,7 +188,7 @@ class Response_Text_HTML extends Response_Text {
 	function head() {
 		return $this->head_prefix . HTML::tag('title', $this->title()) . $this->metas() . $this->links() . $this->inline_styles() . $this->head_suffix;
 	}
-
+	
 	/**
 	 * Set arbitrary HTML to place at the beginning of the <head> tag
 	 *
@@ -202,7 +202,7 @@ class Response_Text_HTML extends Response_Text {
 		}
 		return $this->head_prefix;
 	}
-
+	
 	/**
 	 * Set arbitrary HTML to place at the end of the <head> tag
 	 *
@@ -216,7 +216,7 @@ class Response_Text_HTML extends Response_Text {
 		}
 		return $this->head_suffix;
 	}
-
+	
 	/**
 	 * Set/get page title
 	 *
@@ -237,7 +237,7 @@ class Response_Text_HTML extends Response_Text {
 		}
 		return $this->title;
 	}
-
+	
 	/**
 	 * Output body open tag
 	 *
@@ -246,7 +246,7 @@ class Response_Text_HTML extends Response_Text {
 	function body_begin() {
 		return "<body" . HTML::attributes($this->option_array('body_attributes', array()) + self::body_attributes()) . ">";
 	}
-
+	
 	/**
 	 * Output body close tag
 	 *
@@ -276,7 +276,7 @@ class Response_Text_HTML extends Response_Text {
 		}
 		return $this->body_attributes;
 	}
-
+	
 	/**
 	 * Get/set HTML attributes
 	 *
@@ -294,7 +294,7 @@ class Response_Text_HTML extends Response_Text {
 		}
 		return $this->html_attributes;
 	}
-
+	
 	/**
 	 * Get/set meta keywords
 	 *
@@ -304,7 +304,7 @@ class Response_Text_HTML extends Response_Text {
 	function meta_keywords($content = null) {
 		return $this->meta("keywords", $content);
 	}
-
+	
 	/**
 	 * Get/set meta description text
 	 *
@@ -314,7 +314,7 @@ class Response_Text_HTML extends Response_Text {
 	function meta_description($content = null) {
 		return $this->meta("description", $content);
 	}
-
+	
 	/**
 	 * Get/set meta tags
 	 *
@@ -339,7 +339,7 @@ class Response_Text_HTML extends Response_Text {
 		);
 		return $this;
 	}
-
+	
 	/**
 	 * Set Meta HTTP tag
 	 *
@@ -354,7 +354,7 @@ class Response_Text_HTML extends Response_Text {
 		);
 		return $this;
 	}
-
+	
 	/**
 	 * Add nocache meta tags
 	 *
@@ -366,7 +366,7 @@ class Response_Text_HTML extends Response_Text {
 		$this->meta_http('expires', '-1');
 		return $this;
 	}
-
+	
 	/**
 	 * Get/Set shortcut icon
 	 *
@@ -376,7 +376,7 @@ class Response_Text_HTML extends Response_Text {
 	function shortcut_icon($set = null) {
 		return $this->_shortcut_icon($set);
 	}
-
+	
 	/**
 	 * Get/Set shortcut icon internally
 	 *
@@ -395,7 +395,7 @@ class Response_Text_HTML extends Response_Text {
 		$this->link('icon', $path, $type, $attrs);
 		return $this;
 	}
-
+	
 	/**
 	 * Get/set a link tag in the header
 	 *
@@ -431,7 +431,7 @@ class Response_Text_HTML extends Response_Text {
 		$this->links_sorted = null;
 		return $this;
 	}
-
+	
 	/**
 	 * Add a css to the page
 	 *
@@ -461,7 +461,7 @@ class Response_Text_HTML extends Response_Text {
 		);
 		return $this->link('stylesheet', $path, $options['type'], $options);
 	}
-
+	
 	/**
 	 * Inline styles ouput
 	 *
@@ -478,7 +478,7 @@ class Response_Text_HTML extends Response_Text {
 		}
 		return implode("\n", $html);
 	}
-
+	
 	/**
 	 * Add a css to the page
 	 *
@@ -503,7 +503,7 @@ class Response_Text_HTML extends Response_Text {
 		$options['content'] = $styles;
 		$this->styles[md5($styles)] = $options;
 	}
-
+	
 	/**
 	 * Output meta tags
 	 *
@@ -516,7 +516,7 @@ class Response_Text_HTML extends Response_Text {
 		}
 		return implode("\n", $result);
 	}
-
+	
 	/**
 	 * Output links
 	 *
@@ -536,7 +536,7 @@ class Response_Text_HTML extends Response_Text {
 		}
 		return implode("\n", $output);
 	}
-
+	
 	/**
 	 * Retrieve link tags in unrendered form for output via JSON or other mechanism
 	 *
@@ -562,7 +562,7 @@ class Response_Text_HTML extends Response_Text {
 		), $this->links_sorted);
 		foreach ($this->links_sorted as $attrs) {
 			$tag = self::browser_conditionals(avalue($attrs, 'browser'));
-
+			
 			$root_dir = avalue($attrs, 'root_dir');
 			$cdn = avalue($attrs, 'cdn');
 			$share = avalue($attrs, 'share');
@@ -619,7 +619,7 @@ class Response_Text_HTML extends Response_Text {
 		}
 		return $result;
 	}
-
+	
 	/**
 	 *
 	 * @param string $resource_path
@@ -681,7 +681,7 @@ class Response_Text_HTML extends Response_Text {
 			return null;
 		}
 	}
-
+	
 	/**
 	 * Utility function to determine the date of a file
 	 *
@@ -709,7 +709,7 @@ class Response_Text_HTML extends Response_Text {
 			$file
 		);
 	}
-
+	
 	/**
 	 * Internal function to process CSS and cache it
 	 *
@@ -729,7 +729,7 @@ class Response_Text_HTML extends Response_Text {
 			': ' => ':',
 			'; ' => ';'
 		));
-
+		
 		if (preg_match_all('|@import\s*([^;]+)\s*;|', $contents, $matches, PREG_SET_ORDER)) {
 			$map = array();
 			foreach ($matches as $match) {
@@ -786,7 +786,7 @@ class Response_Text_HTML extends Response_Text {
 		}
 		return strtr($contents, $map);
 	}
-
+	
 	/**
 	 * Internal function to process cached datatypes (CSS/JavaScript)
 	 *
@@ -806,7 +806,7 @@ class Response_Text_HTML extends Response_Text {
 		), $contents);
 		return $contents;
 	}
-
+	
 	/**
 	 * Cache files in the resource paths tend to grow, particularly
 	 *
@@ -852,7 +852,7 @@ class Response_Text_HTML extends Response_Text {
 		));
 		return $deleted;
 	}
-
+	
 	/**
 	 * Return the href for our resource cache
 	 *
@@ -870,7 +870,7 @@ class Response_Text_HTML extends Response_Text {
 		}
 		return path($segments);
 	}
-
+	
 	/**
 	 * Return the absolute path of our resource cache
 	 *
@@ -883,7 +883,7 @@ class Response_Text_HTML extends Response_Text {
 		$cache_path = path($this->application->document_root(), $href);
 		return $cache_path;
 	}
-
+	
 	/**
 	 * Run JavaScript/CSS concatenation
 	 *
@@ -930,7 +930,7 @@ class Response_Text_HTML extends Response_Text {
 		$debug = implode("\n", $debug);
 		return $href;
 	}
-
+	
 	/**
 	 * Run CSS caching
 	 *
@@ -952,7 +952,7 @@ class Response_Text_HTML extends Response_Text {
 			'suffix' => $this->application->development() ? "<!--\n$debug\n-->" : ""
 		);
 	}
-
+	
 	/**
 	 * Run Script caching
 	 *
@@ -972,7 +972,7 @@ class Response_Text_HTML extends Response_Text {
 			'suffix' => $this->application->development() ? "<!--\n$debug\n-->" : ""
 		);
 	}
-
+	
 	/**
 	 * Output all scripts
 	 *
@@ -997,7 +997,7 @@ class Response_Text_HTML extends Response_Text {
 		}
 		return implode("\n", $result);
 	}
-
+	
 	/**
 	 * Output jQuery ready tags
 	 *
@@ -1014,7 +1014,7 @@ class Response_Text_HTML extends Response_Text {
 		}
 		return $result;
 	}
-
+	
 	/**
 	 * Output generated script tags.
 	 * Returns array of arrays
@@ -1179,7 +1179,7 @@ class Response_Text_HTML extends Response_Text {
 		$this->scripts_sorted = false;
 		return $this;
 	}
-
+	
 	/**
 	 * Add to JavaScript script settings
 	 *
@@ -1192,14 +1192,14 @@ class Response_Text_HTML extends Response_Text {
 		$this->script_settings = arr::merge($this->script_settings, $settings);
 		return $this;
 	}
-
+	
 	/**
 	 * Return JavaScript code to load JavaScript settings
 	 */
 	public function _javascript_settings() {
 		return '$.extend(true, window.zesk.settings, ' . JSON::encode($this->script_settings) . ');';
 	}
-
+	
 	/**
 	 * Register a javascript to be put on the page
 	 *
@@ -1211,53 +1211,21 @@ class Response_Text_HTML extends Response_Text {
 	 *        	cdn (defaults to false)
 	 * @return Response_Text_HTML
 	 */
-	function javascript($path, $root_dir = null, $options = null) {
+	function javascript($path, array $options = null) {
 		if (empty($path)) {
 			return $this;
-		}
-		if (is_array($root_dir)) {
-			if ($options !== null) {
-				throw new Exception_Parameter("{method} takes a string,array, or just an array (string,{arg1type},{arg2type} passed)", array(
-					"method" => __METHOD__,
-					"arg1type" => type($root_dir),
-					"arg2type" => type($options)
-				));
-			}
-			$options = $root_dir;
-		} else if (is_string($root_dir)) {
-			$options = to_array($options, array());
-			$options['root_dir'] = $root_dir;
-			$root_dir = null;
-		} else {
-			$options = to_array($options, array());
 		}
 		if (is_array($path)) {
 			$result = array();
 			foreach ($path as $index => $path) {
-				$result[$index] = $this->javascript($path, $root_dir, $options);
+				$this->javascript($path, $options);
 			}
 			return $this;
 		}
 		$options['src'] = $path;
 		return $this->script_add($path, $options);
 	}
-
-	/**
-	 * Register a javascript to be put on the page
-	 *
-	 * @param string $path
-	 *        	File path to serve for the javascript
-	 * @param array $options
-	 *        	Optional settings: type (defaults to text/javascript), browser (defaults to all
-	 *        	browsers),
-	 *        	cdn (defaults to false)
-	 * @return void
-	 */
-	function cdn_javascript($path, $options = null) {
-		$options['cdn'] = true;
-		return $this->javascript($path, null, $options);
-	}
-
+	
 	/**
 	 * Include JavaScript to be included inline in the page
 	 *
@@ -1277,7 +1245,7 @@ class Response_Text_HTML extends Response_Text {
 			'browser' => avalue($options, 'browser')
 		) + $options);
 	}
-
+	
 	/**
 	 * Utility to capture output for inline script.
 	 * Bracket your code with begin/end, like so:
@@ -1301,7 +1269,7 @@ class Response_Text_HTML extends Response_Text {
 		ob_start();
 		$this->script_begin = $options;
 	}
-
+	
 	/**
 	 * Finish capturing output and add script to page's inline javascript
 	 *
@@ -1321,7 +1289,7 @@ class Response_Text_HTML extends Response_Text {
 		$this->script_begin = null;
 		return $this;
 	}
-
+	
 	/**
 	 * Add jQuery to page and ensure it's initialized
 	 */
@@ -1329,11 +1297,11 @@ class Response_Text_HTML extends Response_Text {
 		if ($this->jquery !== null) {
 			return;
 		}
-		$this->cdn_javascript("/share/jquery/jquery.js", array(
+		$this->javascript("/share/jquery/jquery.js", array(
 			'weight' => 'zesk-first',
 			'share' => true
 		));
-		$this->cdn_javascript("/share/zesk/js/zesk.js", array(
+		$this->javascript("/share/zesk/js/zesk.js", array(
 			'weight' => 'first',
 			'share' => true
 		));
@@ -1346,7 +1314,7 @@ class Response_Text_HTML extends Response_Text {
 		));
 		$this->jquery = array();
 	}
-
+	
 	/**
 	 * Require jQuery on the page, and optionally add a ready script
 	 *
@@ -1368,7 +1336,7 @@ class Response_Text_HTML extends Response_Text {
 		}
 		return $this;
 	}
-
+	
 	/**
 	 * Internal function to conditionally wrap script tags with browser conditions.
 	 *
@@ -1415,7 +1383,7 @@ class Response_Text_HTML extends Response_Text {
 			'suffix' => $suffix
 		);
 	}
-
+	
 	/**
 	 * Page ID counter - always returns a unique ID PER PAGE
 	 *
@@ -1424,7 +1392,7 @@ class Response_Text_HTML extends Response_Text {
 	public function id_counter() {
 		return $this->id_counter++;
 	}
-
+	
 	/**
 	 * Set/Get the doctype type
 	 *
@@ -1468,10 +1436,10 @@ class Response_Text_HTML extends Response_Text {
 				$result .= '<!DOCTYPE html>';
 				break;
 		}
-
+		
 		return $result . "\n";
 	}
-
+	
 	/**
 	 * Convert Response to a JSON object for client-side rendering
 	 *
@@ -1522,7 +1490,7 @@ class Response_Text_HTML extends Response_Text {
 			'title' => $this->title()
 		), null);
 	}
-
+	
 	/**
 	 * Set the page theme to use to render the final HTML output
 	 *
@@ -1551,7 +1519,7 @@ class Response_Text_HTML extends Response_Text {
 		$this->content = $this->call_hook("content_postprocess", $this->content);
 		return parent::output($options);
 	}
-
+	
 	/**
 	 * Get/Set shortcut icon hosted on CDN
 	 *
@@ -1563,7 +1531,7 @@ class Response_Text_HTML extends Response_Text {
 		zesk()->deprecated();
 		return $this->_shortcut_icon($set, true);
 	}
-
+	
 	/**
 	 * Add a CSS to the page
 	 *
@@ -1581,5 +1549,23 @@ class Response_Text_HTML extends Response_Text {
 		}
 		$options['cdn'] = true;
 		return $this->css($path, null, $options);
+	}
+	
+	/**
+	 * Register a javascript to be put on the page
+	 *
+	 * @param string $path
+	 *        	File path to serve for the javascript
+	 * @param array $options
+	 *        	Optional settings: type (defaults to text/javascript), browser (defaults to all
+	 *        	browsers),
+	 *        	cdn (defaults to false)
+	 * @return void
+	 * @deprecated 2017-08
+	 */
+	function cdn_javascript($path, $options = null) {
+		zesk()->deprecated();
+		$options['cdn'] = true;
+		return $this->javascript($path, $options);
 	}
 }

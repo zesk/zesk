@@ -50,7 +50,7 @@ class Module_Help extends Module_JSLib {
 	 */
 	public function hook_head(Request $request, Response_Text_HTML $response, Template $template) {
 		if (!$this->option_bool("disabled")) {
-			$response->cdn_javascript('/share/help/js/help.js', array(
+			$response->javascript('/share/help/js/help.js', array(
 				'share' => true
 			));
 			$this->javascript_settings['active'] = false;
