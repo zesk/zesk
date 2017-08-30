@@ -2,6 +2,68 @@
 
 - `zesk` command line now MUNGES input date to support easier invocation using namespaces. Specifically, the token `___` (triple underscore) is converted in **ALL** command-line arguments to backslash `\`. This mimics similar functionality in the `Configuration_Loader_CONF` class. If your scripts depend on variables with triple-underscores, you may need to revise them.
 - SECURITY: `Preference::user_get` and `Preference::user_set` no longer check if user is authenticated before returning values
+- 0.10 version deprecated and modified calls
+- Adding `dump_config` to debug logging configuration
+- `Database_Index`: Allow changing index type
+- Pass `$application` around instead of using globals, require context for all __construct calls, moved class cache to `Application`
+- Removing deprecated invocation of `Module_Critical::alert`, instead use `critical` logger call. Also `pave_set` is deprecated, using `path_set` instead.
+- Testing system: Better error messages
+- Fixed issue with `Server::singleton` returning void
+- Fixing tests
+- Selenium tests: If no host, do not run selenium tests
+- Interface_Settings: Added comments
+- Major test suite updates, support for fewer references to `app()` global
+- Perhaps add a deprecated common.sh toolset?
+- Release v0.10.0
+- Schema: Fixing issue with modifying a primary column and making sure the index isn't added redundantly
+- Support PHPUnit parameters as well
+- Support subclasses which do not run `zesk\Application::configured` hooks
+- Test renaming and updates in prep for move to PHPUnit
+- Test reorganization and cleanup.
+- Updated docs for help and .php extension
+- Updated tests on the path to all passing
+- Updating deprecated tools
+- Updating for tests
+- Widget `hook_control_options_changed`, ensure `$this->control_options` is array
+- XMLRPC namespace and fixing classes and tests
+- `Class_User` now adds member columns if they are not declared by subclasses in `$column_types`
+- `Command_Loader`: avoid `global`, `Configuration_Loader` API change
+- `Configuration::pave_set` and `Configuration::pave` are deprecated, remove internal usage
+- `Configuration::pave` is deprecated, changing to `::path`
+- `Configuration_Loader` no longer has name as part of constructor
+- `Configuration_Loader`: No longer takes `$name` as first parameter in constructor
+- `Content_File`: Global reduction, pass `$application` around to static calls
+- `Controller::factory` is deprecated
+- `Controls_Test` rename and fixes
+- `File::put` now throws exception if contents is non-scalar
+- `Interface_Session` fixing `__construct` parameter order (application first)
+- `Language::clean_table` now requires `$application` as first parameter
+- `Module_Permission`: Avoid global usage, API change in `Configuration_Loader`
+- `Preference`: Global reduction, pass `$application` around to static calls
+- `Session_Database` removed deprecated global `$nosession`
+- `Session` adjusted factory parameters for new parameter order 
+- `Test_Unit`: `Configuration_Loader` API change
+- `Widget::factory` fixes
+- `World_Test` fixing namespaces
+- `xmlrpc\\Server` supports option `allow_query_string_data` to allow passing of data (via ?data=) for debugging only
+- `zesk test` now tests which end with `.php`
+- `zesk\Control_Optionss`: Ensure `$this->control_options` is always an array after `::initialize` exist
+- `zesk\Database_Column`: Ensure `sql_type` is normalized to lowercase
+- `zesk\Database_Table`: Adding `table_attributes_is_similar` and fixing bug with table type changing to database default
+- fixing Configuration_Loader_Test issues
+- fixing RRule tests and fixing variety of bugs. RRule passes\!
+- fixing tests
+- getting to testing pass
+- moving to own repo
+- new test structure and naming
+- new version
+- no reformatting
+- refactored XMLRPC tests
+- updating tests and fixing them
+- updating tests for travis-ci
+- updating tests, support \ better in command line
+- version notes
+
 
 ## Release v0.10.0
 
