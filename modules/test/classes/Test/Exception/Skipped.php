@@ -2,11 +2,11 @@
 /**
  * 
  */
-namespace zesk;
+namespace zesk\Test;
 
 /**
  * 
  * @author kent
  *
  */
-class Exception_TestSkipped extends Exception_Test {}
+class Exception_Skipped extends Exception {}

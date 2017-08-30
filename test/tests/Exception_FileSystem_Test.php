@@ -7,7 +7,7 @@
  */
 namespace zesk;
 
-class Exception_FileSystem_Test extends Exception_Test {
+class Exception_FileSystem_Test extends Exception_TestCase {
 	function test_basics() {
 		$filename = "/etc";
 		$message = 'Nothing';

@@ -3,9 +3,9 @@
 /**
  * 
  */
-namespace zesk;
+namespace zesk\Test;
 
 /**
  * 
  */
-class Exception_Test extends Exception {}
+class Exception extends \zesk\Exception {}

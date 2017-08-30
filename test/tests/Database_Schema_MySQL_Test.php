@@ -34,8 +34,8 @@ class Database_Schema_MySQL_Test extends Test_Unit {
 		$sql1 = "CREATE TABLE test ( id integer unsigned NOT NULL, created timestamp NULL ) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci";
 
 		$db = $this->application->database_factory();
-		$table0 = $db->parse_create_table($sql0);
-		$table1 = $db->parse_create_table($sql1);
+		$table0 = $db->parse_create_table($sql0, __METHOD__);
+		$table1 = $db->parse_create_table($sql1, __METHOD__);
 
 		// 		$this->log(JSON::encode($table0->option()));
 		// 		$this->log(JSON::encode($table1->option()));

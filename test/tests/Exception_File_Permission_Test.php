@@ -7,7 +7,7 @@
  */
 namespace zesk;
 
-class Exception_File_Permission_Test extends Test_Exception {
+class Exception_File_Permission_Test extends Exception_TestCase {
 	function test_basics() {
 		$testx = new Exception_File_Permission();
 		$this->exception_test($testx);

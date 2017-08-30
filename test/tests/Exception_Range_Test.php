@@ -7,7 +7,7 @@
  */
 namespace zesk;
 
-class Exception_Range_Test extends Test_Exception {
+class Exception_Range_Test extends Exception_TestCase {
 	function test_basics() {
 		$testx = new Exception_Range();
 		$this->exception_test($testx);

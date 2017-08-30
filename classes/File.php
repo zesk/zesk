@@ -1058,8 +1058,10 @@ class File {
 		global $zesk;
 		/* @var $zesk zesk\Kernel */
 		if (!is_string($f)) {
-			dump($f);
-			backtrace();
+			throw new Exception_Parameter("{method} First parameter should be string {type} passed", array(
+				"method" => __METHOD__,
+				"type" => type($f)
+			));
 		}
 		$f = strval($f);
 		if ($f === "") {

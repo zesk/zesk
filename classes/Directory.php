@@ -34,9 +34,7 @@ class Directory extends Hookable {
 	public static function configured(Application $application) {
 		self::$debug = zesk()->configuration->path(__CLASS__)->debug;
 	}
-	private static function octal_equal($a, $b) {
-		return intval($a) === intval($b);
-	}
+	
 	/**
 	 * If a directory does not exist, create it. If an error occurs
 	 * @param unknown $path
@@ -106,6 +104,16 @@ class Directory extends Hookable {
 		}
 		return $path;
 	}
+	
+	/**
+	 * 
+	 * @param string $source
+	 * @param string $destination
+	 * @param boolean $recursive
+	 * @param Closure $file_copy_function
+	 * @throws Exception_Parameter
+	 * @throws Exception_Directory_NotFound
+	 */
 	public static function duplicate($source, $destination, $recursive = true, $file_copy_function = null) {
 		global $zesk;
 		/* @var $zesk zesk\Kernel */
@@ -116,7 +124,7 @@ class Directory extends Hookable {
 			throw new Exception_Parameter("self::duplicate: Destination is empty");
 		}
 		if (!is_dir($destination)) {
-			if (!mkdir($destination, $zesk->configuration->path(__CLASS__)->get('DIRECTORY_MODE', 0770), true)) {
+			if (!mkdir($destination, self::default_mode(), true)) {
 				throw new Exception_Directory_NotFound("Can't create $destination");
 			}
 		}
@@ -132,7 +140,7 @@ class Directory extends Hookable {
 					self::duplicate($fpath, path($destination, $f), $recursive, $file_copy_function);
 				}
 			} else {
-				if (is_string($file_copy_function)) {
+				if ($file_copy_function) {
 					$file_copy_function($fpath, path($destination, $f));
 				} else {
 					copy($fpath, path($destination, $f));
@@ -140,7 +148,9 @@ class Directory extends Hookable {
 			}
 		}
 		unset($d);
+		return $destination;
 	}
+	
 	public static function is_empty($path) {
 		if (!is_dir($path)) {
 			return true;
@@ -652,6 +662,9 @@ class Directory extends Hookable {
 			}
 		}
 		return $result;
+	}
+	private static function octal_equal($a, $b) {
+		return intval($a) === intval($b);
 	}
 }
 

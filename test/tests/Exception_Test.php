@@ -9,7 +9,7 @@ namespace zesk;
  * @author kent
  *
  */
-class Exception_Test extends Test_Exception {
+class Exception_Test extends Exception_TestCase {
 	function test_exception_directory_not_found() {
 		$x = new Exception_Directory_NotFound(ZESK_ROOT);
 		

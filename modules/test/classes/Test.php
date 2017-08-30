@@ -4,6 +4,10 @@
  */
 namespace zesk;
 
+use zesk\Test\Exception_Incomplete;
+use zesk\Test\Exception_Skipped;
+use zesk\Test\Exception as TestException;
+
 /**
  * 
  * @author kent
@@ -157,7 +161,7 @@ class Test extends Options {
 				}
 				return;
 			}
-			if ($error instanceof Exception_TestIncomplete) {
+			if ($error instanceof Exception_Incomplete) {
 				$this->report($error, "SKIPPED");
 			} else if ($error !== null) {
 				$this->test_result = false;
@@ -321,10 +325,10 @@ class Test extends Options {
 		$tests = self::reorder_tests($tests);
 		try {
 			$this->initialize();
-		} catch (Exception_TestIncomplete $e) {
+		} catch (Exception_Incomplete $e) {
 			$this->stats['skip']++;
 			return true;
-		} catch (Exception_TestSkipped $e) {
+		} catch (Exception_Skipped $e) {
 			$this->stats['skip']++;
 			return true;
 		}
@@ -362,7 +366,7 @@ class Test extends Options {
 							$test
 						), $arguments);
 						$this->end_test($settings);
-					} catch (Exception $e) {
+					} catch (\Exception $e) {
 						$this->end_test($settings, $e);
 					}
 					$test_output .= $this->last_test_output;
@@ -377,7 +381,7 @@ class Test extends Options {
 						$test
 					));
 					$this->end_test($settings);
-				} catch (Exception $e) {
+				} catch (\Exception $e) {
 					$this->end_test($settings, $e);
 				}
 			}
@@ -395,11 +399,14 @@ class Test extends Options {
 		$this->cleanup();
 		return $this->stats['fail'] === 0;
 	}
-	final function report(Exception $e, $result = "FAILED") {
-		$this->log(" -    Type: " . get_class($e) . "\n");
-		$this->log(" -  Result: $result\n");
-		$this->log(" -    Code: " . $e->getCode() . "\n");
-		$this->log(" - Message: " . $e->getMessage() . "\n");
+	final function report(\Exception $e, $result = "FAILED") {
+		$this->log(" - Exception: " . get_class($e) . "\n");
+		$this->log(" -    Result: $result\n");
+		$code = $e->getCode();
+		if ($code !== 0) {
+			$this->log(" -      Code: " . $e->getCode() . "\n");
+		}
+		$this->log(" -   Message: " . $e->getMessage() . "\n");
 		$this->log_backtrace($e->getTrace());
 	}
 	final function log_backtrace(array $stackframes) {
@@ -444,7 +451,7 @@ class Test extends Options {
 		if ($this->option_bool('debugger')) {
 			debugger_start_debug();
 		}
-		throw new Exception_Test($message, $arguments);
+		throw new TestException($message, $arguments);
 	}
 	
 	/**
@@ -455,7 +462,7 @@ class Test extends Options {
 	 */
 	final function markTestIncomplete($message) {
 		$this->test_result = null;
-		throw new Exception_TestIncomplete($message);
+		throw new Exception_Incomplete($message);
 	}
 	
 	/**
@@ -466,7 +473,7 @@ class Test extends Options {
 	 */
 	final function markTestSkipped($message) {
 		$this->test_result = null;
-		throw new Exception_TestSkipped($message);
+		throw new Exception_Skipped($message);
 	}
 	
 	/**
@@ -477,7 +484,7 @@ class Test extends Options {
 	 *        	What the assertion is about
 	 * @param boolean $should_fail
 	 *        	This assertion should actually fail (test for false)
-	 * @throws Exception_Test
+	 * @throws TestException
 	 */
 	final public function assert($condition, $message = null, $should_fail = false) {
 		$this->stats['assert']++;

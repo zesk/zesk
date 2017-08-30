@@ -1,11 +1,12 @@
-<?php 
+<?php
 /**
  * 
  */
-namespace zesk;
+namespace zesk\Test;
+
 /**
  * 
  * @author kent
  *
  */
-class Exception_TestIncomplete extends Exception {}
+class Exception_Incomplete extends Exception {}
