@@ -87,7 +87,6 @@ class System {
 	 * @return array
 	 */
 	public static function ifconfig($filter = null) {
-		global $zesk;
 		/* @var $zesk Kernel */
 		$result = array();
 		try {
@@ -95,7 +94,7 @@ class System {
 			if ($cache->command) {
 				$command = $cache->command;
 			} else {
-				$command = $cache->command = $zesk->process->execute("ifconfig");
+				$command = $cache->command = zesk()->process->execute("ifconfig");
 			}
 			$interface = null;
 			$flags = null;
@@ -230,10 +229,12 @@ class System {
 	 * Usage:
 	 * <code>echo self::growl("At 32, Mozart had three symphonies.");</code>
 	 *
+	 * @deprecated 2017-08 Growl no longer works in iTerm, I believe.
 	 * @param string $message        	
 	 * @return string
 	 */
 	public static function growl($message) {
+		zesk()->deprecated();
 		return chr(033) . "]9;'$message'" . chr(007);
 	}
 	

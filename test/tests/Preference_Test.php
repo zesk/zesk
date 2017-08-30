@@ -45,7 +45,7 @@ class Preference_Test extends Test_Object {
 		)));
 		
 		$user = new User($this->application, 1);
-		
+		Int	ir
 		Preference::user_set($user, "country", "Random");
 		
 		$pref = new Preference($this->application, array(
@@ -70,5 +70,12 @@ class Preference_Test extends Test_Object {
 		
 		Preference::user_set($user, $name, "Ape");
 		$this->assert_equal(Preference::user_get($user, $name, $default), "Ape");
+	}
+	/**
+	 * @expectedException zesk\Exception_Parameter
+	 */
+	function test_Preference_set_parameter() {
+		$user = new User($this->application, 1);
+		Preference::user_set($user, null, "Ape");
 	}
 }

@@ -1,7 +1,7 @@
 <?php
 namespace zesk;
 
-class Test_Exception extends Test_Unit {
+class Exception_TestCase extends Test_Unit {
 	function simple_exceptions() {
 		return array(
 			new \Exception("message", 123, new \Exception("previous", 345)),

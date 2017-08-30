@@ -16,8 +16,11 @@ class Client_Multicall_Test extends Test_Unit {
 	 * 
 	 */
 	function _init() {
-		$this->url = $this->option('xmlrpc_test_url');
-		$this->assert(URL::valid($this->url));
+		$option = "xmlrpc_test_url";
+		$this->url = $this->option($option);
+		if (!URL::valid($this->url)) {
+			$this->markTestIncomplete("No configuration " . __CLASS__ . "::$option");
+		}
 	}
 	
 	/**

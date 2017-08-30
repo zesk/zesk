@@ -87,6 +87,11 @@ class JSON {
 					$mixed = $mixed->to_json();
 				} else if (method_exists($mixed, "__toString")) {
 					$mixed = strval($mixed);
+				} else if ($mixed instanceof \stdClass) {
+					$mixed = get_object_vars($mixed);
+					if (count($mixed) === 0) {
+						return '{}';
+					}
 				} else {
 					$mixed = get_class($mixed) . ":no-json-method";
 				}

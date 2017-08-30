@@ -1,12 +1,11 @@
 <?php
-
 namespace zesk;
 
 class HookGroup {
 	public $first = array();
 	public $middle = array();
 	public $last = array();
-
+	
 	/**
 	 * Merge two groups together
 	 *
@@ -19,7 +18,7 @@ class HookGroup {
 		$this->last = array_merge($this->last, $merge->last);
 		return $this;
 	}
-
+	
 	/**
 	 * Combine all three together
 	 *
@@ -40,13 +39,13 @@ class Hooks {
 	 * @var string
 	 */
 	const hook_database_configure = "database_configure";
-
+	
 	/**
 	 *
 	 * @var string
 	 */
 	const hook_configured = "configured";
-
+	
 	/**
 	 *
 	 * @var string
@@ -57,20 +56,20 @@ class Hooks {
 	 * @var string
 	 */
 	const hook_exit = "exit";
-
+	
 	/**
 	 * Output a debug log when a class is called with ::hooks but does not implement it
 	 *
 	 * @var boolean
 	 */
 	public $debug = false;
-
+	
 	/**
 	 *
 	 * @var Kernel
 	 */
 	public $zesk = null;
-
+	
 	/**
 	 * Determine which hooks are looked at/tested for existence.
 	 * Retrieve with ->has()
@@ -78,61 +77,61 @@ class Hooks {
 	 * @var boolean
 	 */
 	public $profile_hooks = false;
-
+	
 	/**
 	 * System hooks for adding custom functionality throughout the system
 	 *
 	 * @var array
 	 */
 	private $hooks = array();
-
+	
 	/**
 	 * Hook alias table for old-call to new-call.
 	 *
 	 * @var array of oldname => newname
 	 */
 	private $hook_aliases = array();
-
+	
 	/**
 	 * Argument definitions for hooks
 	 *
 	 * @var array
 	 */
 	private $hook_definitions = array();
-
+	
 	/**
 	 *
 	 * @var array
 	 */
 	private $hooks_called = array();
-
+	
 	/**
 	 * Used to track which top-level classes have been gathered yet
 	 *
 	 * @var array
 	 */
 	private $all_hook_classes = array();
-
+	
 	/**
 	 *
 	 * @param Kernel $kernel
 	 */
 	public function __construct(Kernel $kernel) {
 		$this->zesk = $kernel;
-
+		
 		/*  TODO PHP7 use closure */
 		register_shutdown_function(array(
 			$this,
 			"_app_call"
 		), self::hook_exit);
-
+		
 		/* @deprecated Shutdown TODO PHP7 use closure */
 		register_shutdown_function(array(
 			$this,
 			"_app_call"
 		), 'shutdown');
 	}
-
+	
 	/**
 	 *
 	 * @param string $hook
@@ -155,7 +154,7 @@ class Hooks {
 			$this->register_class($class);
 		}
 	}
-
+	
 	/**
 	 * Given a passed-in hook name, normalize it and return the internal name
 	 *
@@ -164,10 +163,17 @@ class Hooks {
 	 * @param boolean $alias
 	 */
 	private function _hook_name($name, $alias = false) {
+		if (!is_string($name)) {
+			throw new Exception_Parameter("{method}({name},...) {type} is not string", array(
+				"method" => __METHOD__,
+				"name" => _dump($name),
+				"type" => type($name)
+			));
+		}
 		$name = strtolower($name);
 		return !$alias ? $name : (isset($this->hook_aliases[$name]) ? $this->hook_aliases[$name] : $name);
 	}
-
+	
 	/**
 	 * Remove hooks - use with caution
 	 *
@@ -177,7 +183,7 @@ class Hooks {
 		$hook = $this->_hook_name($hook, true);
 		unset($this->hooks[$hook]);
 	}
-
+	
 	/**
 	 *
 	 * @param unknown $hooks
@@ -198,7 +204,7 @@ class Hooks {
 		}
 		return $definitions;
 	}
-
+	
 	/**
 	 * Called on classes which may register hooks in Zesk using $hooks->add().
 	 *
@@ -274,13 +280,13 @@ class Hooks {
 		}
 		return $result;
 	}
-
+	
 	/**
 	 *
 	 * @var array
 	 */
 	private $hook_cache = array();
-
+	
 	/**
 	 * Does a hook exist? Logs all hook name requests.
 	 * To retrieve them just call $hook->has() to get the currently
@@ -326,7 +332,7 @@ class Hooks {
 		}
 		return false;
 	}
-
+	
 	/**
 	 * Hooks are very flexible, and each hook determines how it is combined with the next hook.
 	 *
@@ -339,6 +345,9 @@ class Hooks {
 	 *        	Return value handling
 	 */
 	public function add($hook, $function = null, $options = array()) {
+		if ($hook === null) {
+			return;
+		}
 		if (is_string($options)) {
 			$options = array(
 				$options => true
@@ -375,7 +384,7 @@ class Hooks {
 			$hook_group->middle[$callable_string] = $options;
 		}
 	}
-
+	
 	/**
 	 * Find all hooks given a class::method string - finds all items of class which have method
 	 * method
@@ -437,7 +446,7 @@ class Hooks {
 		}
 		return $methods;
 	}
-
+	
 	/**
 	 * Remove hooks - use with caution
 	 *
@@ -452,7 +461,7 @@ class Hooks {
 		}
 		return false;
 	}
-
+	
 	/**
 	 * Allow easy migration from old names to new
 	 * Retrieve all aliases:
@@ -521,7 +530,7 @@ class Hooks {
 			return $previous;
 		}
 	}
-
+	
 	/**
 	 *
 	 * @param unknown $class
@@ -534,7 +543,7 @@ class Hooks {
 		}
 		$this->call("$class::register_all_hooks");
 	}
-
+	
 	/**
 	 * Call a hook, with optional additional arguments
 	 *
@@ -547,7 +556,7 @@ class Hooks {
 		array_shift($arguments);
 		return $this->call_arguments($hook, $arguments);
 	}
-
+	
 	/**
 	 *
 	 * @param string|list $hooks
@@ -575,7 +584,7 @@ class Hooks {
 		}
 		return $result;
 	}
-
+	
 	/**
 	 * Invoke a global hook by type
 	 *
@@ -591,7 +600,7 @@ class Hooks {
 		$methods = array_shift($args);
 		return $this->all_call_arguments($methods, $args);
 	}
-
+	
 	/**
 	 * Invoke a global hook by type
 	 *
@@ -613,7 +622,7 @@ class Hooks {
 		}
 		return $result;
 	}
-
+	
 	/**
 	 * Convert a callable to a string for output/debugging
 	 *

@@ -22,7 +22,7 @@ class XMLRPC_Server_Test extends Test_Unit {
 	}
 	function test_basics() {
 		$methods = false;
-		$x = new MyServer($methods);
+		$x = new MyServer($this->application);
 		
 		$x->registerMethod("capitalize", "string", "this:capitalize", array(
 			"string" => "string"
@@ -74,7 +74,7 @@ class XMLRPC_Server_Test extends Test_Unit {
 	 *
 	 */
 	function __test_error() {
-		$x = new MyServer($methods);
+		$x = new MyServer($this->application);
 		
 		$error = null;
 		$message = false;
@@ -85,7 +85,7 @@ class XMLRPC_Server_Test extends Test_Unit {
 	 * 
 	 */
 	function __test_response() {
-		$x = new MyServer($methods);
+		$x = new MyServer($this->application);
 		
 		$xml = null;
 		$x->response($xml);
@@ -95,8 +95,7 @@ class XMLRPC_Server_Test extends Test_Unit {
 	 * @expectedException xmlrpc\Exception
 	 */
 	function test_missing_method() {
-		$methods = false;
-		$x = new MyServer($methods);
+		$x = new MyServer($this->application);
 		
 		// 		$data = false;
 		// 		$x->serve($data);
@@ -110,8 +109,7 @@ class XMLRPC_Server_Test extends Test_Unit {
 	 * @expectedException xmlrpc\Exception
 	 */
 	function test_wrong_method() {
-		$methods = false;
-		$x = new MyServer($methods);
+		$x = new MyServer($this->application);
 		
 		$x->registerMethod("capitalize", "string", "this:capitalize", array(
 			"string" => "string"

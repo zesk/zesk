@@ -3,7 +3,8 @@
 	"module_class": "zesk\\Module_PHPUnit",
 	"autoload_options": {
 		"class_prefix": "zesk\\",
-		"lower": false
+		"lower": false,
+		"first": true
 	},
 	"composer": {
 		"require": "phpunit/phpunit"

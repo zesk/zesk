@@ -639,6 +639,7 @@ class Command_Test extends Command_Base {
 				}
 			}
 		} catch (\Exception $e) {
+			$this->stats['fail']++;
 			$this->error("Exception {message} at {file}:{line}", Exception::exception_variables($e));
 			$final_result = false;
 		}
@@ -683,6 +684,22 @@ class Command_Test extends Command_Base {
 		}
 		return null;
 	}
+	private function _pass_along_loader_options() {
+		$loader = $this->application->objects->singleton("zesk\\Command_Loader");
+		if (!$loader) {
+			return "";
+		}
+		$context = $loader->context();
+		if (count($context) === 0) {
+			return "";
+		}
+		$result = array();
+		foreach ($context as $name => $value) {
+			$result[] = "--set " . unquote(escapeshellarg($name)) . "=" . unquote(escapeshellarg($value));
+		}
+		return implode(" ", $result) . " ";
+	}
+	
 	/**
 	 * Run a command in the sandbox
 	 *
@@ -697,6 +714,7 @@ class Command_Test extends Command_Base {
 		if (is_file($this->config)) {
 			$options['prefix'] .= '--config \'' . addslashes($this->config) . '\' ';
 		}
+		$options['prefix'] .= $this->_pass_along_loader_options();
 		$flags = $this->_unit_options();
 		foreach ($flags as $flag) {
 			$value = avalue($options, $flag);
@@ -712,11 +730,14 @@ class Command_Test extends Command_Base {
 			$opts .= "--verbose ";
 		}
 		$options['echo'] = true;
-		$options['suffix'] = " module test eval $opts 'zesk\\Command_Test::run_class(\$application, \"" . strtr($class, array(
-			"\\" => "\\\\"
-		)) . "\", \"$file\")'";
+		$options['suffix'] = " module test eval $opts 'zesk\\Command_Test::run_class(\$application, \"$class\", \"$file\")'";
 		$options['command'] = "{prefix}{suffix}";
 		
+		foreach ($options as $k => $v) {
+			$options[$k] = strtr($v, array(
+				"\\" => "___"
+			));
+		}
 		return $this->_run_test_command($file, $options);
 	}
 	
@@ -760,7 +781,7 @@ class Command_Test extends Command_Base {
 		$strict = avalue($options, 'strict');
 		if ($verbose) {
 			$pad = str_repeat(" ", max(self::width - strlen($file), 0));
-			echo "$file$pad# ";
+			echo " # ";
 		}
 		$exit_code = 0;
 		$test_contents = file_get_contents($file);

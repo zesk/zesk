@@ -8,7 +8,7 @@
  */
 namespace zesk;
 
-class Database_Exception_Test extends Test_Exception {
+class Database_Exception_Test extends Exception_TestCase {
 	public function test_basics() {
 		$testx = new Database_Exception();
 		

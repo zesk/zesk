@@ -25,9 +25,31 @@ class Mail_Test extends Test_Unit {
 	 * @var array
 	 */
 	private $parts = array();
+	
+	/**
+	 * 
+	 */
+	protected function test_outgoing_requirements() {
+		$this->url = $this->option('email_url');
+		
+		if (empty($this->url)) {
+			$this->markTestSkipped(__CLASS__ . "::email_url not set");
+		}
+		$this->parts = URL::parse($this->url);
+		if (empty($this->parts)) {
+			$this->markTestSkipped(__CLASS__ . "::email not a valid URL: $this->url");
+		}
+		$this->email = $this->option('email', avalue($this->parts, 'user'));
+		if (empty($this->email)) {
+			$this->markTestSkipped(__CLASS__ . "::email set");
+		}
+		if ($this->parts['user'] !== $this->email) {
+			$this->markTestSkipped("User " . $this->parts['user'] . " !== $this->email\n");
+		}
+	}
 	function test_load() {
 		$filename = null;
-		$result = Mail::load(file_get_contents(dirname(__FILE__) . '/test-data/mail_load.0.txt'));
+		$result = Mail::load(file_get_contents($this->application->zesk_root('test/test-data/mail_load.0.txt')));
 		$this->assert_arrays_equal($result, array(
 			'File-Format' => 'both',
 			'File-Format-Separator' => '--DOG--',
@@ -163,7 +185,6 @@ class Mail_Test extends Test_Unit {
 			list($test, $expect, $expected_charsets) = $header;
 			$result = Mail::decode_header($test);
 			$this->assert($result === $expect, "$result === $expect");
-			echo "$test => $result (" . implode(",", $expected_charsets) . "<br />\n";
 			$charsets = Mail::header_charsets($test);
 			$this->assert_arrays_equal($charsets, $expected_charsets);
 		}
@@ -172,12 +193,6 @@ class Mail_Test extends Test_Unit {
 	function test_debug() {
 		$set = null;
 		Mail::debug($set);
-	}
-	function test_encrypt() {
-		$e = null;
-		$hr = false;
-		$noscript = true;
-		Mail::encrypt($e, $hr, $noscript);
 	}
 	function test_is_encoded_header() {
 		$headers = array(
@@ -312,7 +327,7 @@ Thanks,
 		Mail::debug(true);
 		
 		$to = "kent@marketacumen.com";
-		$from = "no-reply@" . zesk\System::uname();
+		$from = "no-reply@" . System::uname();
 		$subject = null;
 		$array = array(
 			"Hello" => "Name",
@@ -377,48 +392,11 @@ All work and no play makes Kent a dull boy.
 		$headers = false;
 		Mail::send_sms($to, $from, $subject, $body, $cc, $bcc, $headers);
 	}
-	function test_send_template() {
-		$template = $this->test_sandbox("mail.tpl");
-		
-		Mail::debug(true);
-		
-		file_put_contents($template, "From: no-reply@zesk.com\nTo:noone@example.com\n<?php\necho \$this->thing;");
-		$options = array(
-			"thing" => "hello"
-		);
-		$attachments = null;
-		$map = null;
-		ob_start();
-		Mail::send_template($template, $options, $attachments, $map);
-		$contents = ob_get_clean();
-		echo $contents;
-		
-		// TODO: Fix mailer
-	}
 	
 	/**
-	 * Taken from Net_Pop_Client_Test::_init
+	 * @depends test_outgoing_requirements
 	 */
-	private function _init() {
-		$this->url = $this->option('email_url');
-		
-		if (empty($this->url)) {
-			$this->fail(__CLASS__ . "::email_url not set");
-		}
-		$this->parts = URL::parse($this->url);
-		if (empty($this->parts)) {
-			$this->fail(__CLASS__ . "::email not a valid URL: $this->url");
-		}
-		$this->email = $this->option('email', avalue($this->parts, 'user'));
-		if (empty($this->email)) {
-			$this->fail(__CLASS__ . "::email set");
-		}
-		if ($this->parts['user'] !== $this->email) {
-			$this->fail("User " . $this->parts['user'] . " !== $this->email\n");
-		}
-	}
 	function test_sendmail() {
-		$this->_init();
 		Mail::debug(false);
 		$pop_url = $this->url;
 		
@@ -431,7 +409,7 @@ All work and no play makes Kent a dull boy.
 		$headers[] = 'X-Bogus-Header: This is a bogus header';
 		
 		$this->log("Sending mail to $to");
-		$this->assert_true(Mail::sendmail($to, $from, $subject, $body, $cc, $bcc, $headers));
+		$this->assert_instanceof(Mail::sendmail($to, $from, $subject, $body, $cc, $bcc, $headers), __NAMESPACE__ . "\\" . "Mail");
 		
 		$test_mailbox = $to;
 		$n_seconds = 1;

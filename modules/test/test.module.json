@@ -8,7 +8,7 @@
 	"url_license": "https://zesk.com/license",
 	"module_class": "zesk\\Test_Module",
 	"autoload_options": {
-		"class_prefix": "zesk\\Test_",
+		"class_prefix": "zesk\\",
 		"lower": false
 	},
 	"zesk_command_path_class_prefix": "zesk\\Command_"

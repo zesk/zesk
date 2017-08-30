@@ -15,7 +15,7 @@ namespace zesk;
  * @author kent
  *
  */
-class Mail_Test extends Test_Unit {
+class Module_Mail_Test extends Test_Unit {
 	protected $load_modules = array(
 		"Mail",
 		"MySQL"

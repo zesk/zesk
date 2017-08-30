@@ -1,3 +1,8 @@
+## Release v0.10.1
+
+- `zesk` command line now MUNGES input date to support easier invocation using namespaces. Specifically, the token `___` (triple underscore) is converted in **ALL** command-line arguments to backslash `\`. This mimics similar functionality in the `Configuration_Loader_CONF` class. If your scripts depend on variables with triple-underscores, you may need to revise them.
+- SECURITY: `Preference::user_get` and `Preference::user_set` no longer check if user is authenticated before returning values
+
 ## Release v0.10.0
 
 - Removed usage of global state
@@ -22,7 +27,6 @@
 - Modules
  - Moved `ipban` to its own repository
  - Moved `zest` to its own repository
-- SECURITY: `Preference::user_get` and `Preference::user_set` no longer check if user is authenticated before returning values
 
 ## Release v0.9.30
 

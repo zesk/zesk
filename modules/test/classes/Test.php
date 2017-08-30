@@ -1,22 +1,20 @@
 <?php
-
 /**
- * $URL: https://code.marketacumen.com/zesk/trunk/test/classes/unit.inc $
- * @package test
- * @subpackage test
- * @author Kent Davidson <kent@marketacumen.com>
- * @copyright Copyright &copy; 2007, Market Acumen, Inc.
+ * 
  */
 namespace zesk;
 
 /**
- * Test_Unit class
- *
- * base class for all unit tests
- *
+ * 
  * @author kent
+ *
  */
-class Test_Unit extends Options {
+class Test extends Options {
+	/**
+	 * Statistics for test run
+	 * 
+	 * @var array
+	 */
 	public $stats = array(
 		'test' => 0,
 		'pass' => 0,
@@ -24,7 +22,6 @@ class Test_Unit extends Options {
 		'skip' => 0,
 		'assert' => 0
 	);
-	
 	/**
 	 *
 	 * @var Application $application
@@ -160,7 +157,9 @@ class Test_Unit extends Options {
 				}
 				return;
 			}
-			if ($error !== null) {
+			if ($error instanceof Exception_TestIncomplete) {
+				$this->report($error, "SKIPPED");
+			} else if ($error !== null) {
 				$this->test_result = false;
 				$this->report($error);
 			}
@@ -234,7 +233,7 @@ class Test_Unit extends Options {
 	
 	/**
 	 * Log an error
-	 * 
+	 *
 	 * @param string $message
 	 * @param array $arguments
 	 * @return self
@@ -320,7 +319,15 @@ class Test_Unit extends Options {
 		$class = get_class($this);
 		$tests = $this->_determine_run_methods($class);
 		$tests = self::reorder_tests($tests);
-		$this->initialize();
+		try {
+			$this->initialize();
+		} catch (Exception_TestIncomplete $e) {
+			$this->stats['skip']++;
+			return true;
+		} catch (Exception_TestSkipped $e) {
+			$this->stats['skip']++;
+			return true;
+		}
 		foreach ($tests as $test => $settings) {
 			$fails = $this->stats['fail'];
 			$data_provider = null;
@@ -388,9 +395,9 @@ class Test_Unit extends Options {
 		$this->cleanup();
 		return $this->stats['fail'] === 0;
 	}
-	final function report(Exception $e) {
+	final function report(Exception $e, $result = "FAILED") {
 		$this->log(" -    Type: " . get_class($e) . "\n");
-		$this->log(" -  Result: FAILED\n");
+		$this->log(" -  Result: $result\n");
 		$this->log(" -    Code: " . $e->getCode() . "\n");
 		$this->log(" - Message: " . $e->getMessage() . "\n");
 		$this->log_backtrace($e->getTrace());
@@ -438,6 +445,28 @@ class Test_Unit extends Options {
 			debugger_start_debug();
 		}
 		throw new Exception_Test($message, $arguments);
+	}
+	
+	/**
+	 *
+	 * @param string $message
+	 * @param array $arguments
+	 * @throws Exception_TestIncomplete
+	 */
+	final function markTestIncomplete($message) {
+		$this->test_result = null;
+		throw new Exception_TestIncomplete($message);
+	}
+	
+	/**
+	 *
+	 * @param string $message
+	 * @param array $arguments
+	 * @throws Exception_TestIncomplete
+	 */
+	final function markTestSkipped($message) {
+		$this->test_result = null;
+		throw new Exception_TestSkipped($message);
 	}
 	
 	/**
@@ -565,7 +594,15 @@ class Test_Unit extends Options {
 	final public function assert_instanceof($mixed, $instanceof, $message = null) {
 		$this->assert($mixed instanceof $instanceof, "!" . type($mixed) . " instanceof $instanceof $message", false);
 	}
-	
+	final public function assert_class_exists($class, $message = null) {
+		$this->assert_is_string($class, "Class passed to " . __METHOD__ . " should be string");
+		$default_message = "Asserted class $class exists when it does not";
+		try {
+			$this->assert(class_exists($class), $message ? $message : $default_message);
+		} catch (Exception_Class_NotFound $e) {
+			$this->assert(false, $message ? $message : $default_message);
+		}
+	}
 	/**
 	 * Assert a value is an instanceof a class
 	 *
@@ -847,7 +884,14 @@ class Test_Unit extends Options {
 			), "DROP TABLE IF EXISTS `$name`");
 		}
 	}
-	final protected function test_table_match($table, $match, $dbname = "") {
+	
+	/**
+	 *
+	 * @param string $table
+	 * @param array $match
+	 * @param string $dbname
+	 */
+	final protected function test_table_match($table, array $match = array(), $dbname = "") {
 		$db = $this->application->database_factory();
 		$headers = null;
 		$header_row = null;
@@ -914,7 +958,7 @@ class Test_Unit extends Options {
 	 *        	Optional return value to get the $object created back
 	 * @throws Exception_Semantics
 	 * @throws Exception_Class_NotFound
-	 * @return boolean Whether the test passed
+	 * @return exits, never returns
 	 */
 	public static function run_class(Application $application, $class, &$object = null) {
 		global $zesk;

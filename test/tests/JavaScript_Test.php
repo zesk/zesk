@@ -27,7 +27,7 @@ class JavaScript_Test extends Test_Unit {
 	}
 
 	/**
-	 * @expected_exception Exception_Semantics
+	 * @expectedException zesk\Exception_Semantics
 	 */
 	function test_obfuscate_begin2() {
 		JavaScript::obfuscate_begin();
@@ -35,7 +35,7 @@ class JavaScript_Test extends Test_Unit {
 	}
 
 	/**
-	 * @expected_exception Exception_Semantics
+	 * @expectedException zesk\Exception_Semantics
 	 */
 	function test_obfuscate_end() {
 		$function_map = array();

@@ -82,6 +82,7 @@ class Route_Method extends Route {
 		$arguments = $this->args;
 		
 		$construct_arguments = $this->_map_variables($this->option_array("construct arguments"));
+		$method = $this->_map_variables($method);
 		ob_start();
 		try {
 			if (is_string($method) && strpos($method, "::") !== false) {

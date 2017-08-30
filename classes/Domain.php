@@ -57,13 +57,18 @@ class Domain extends Object {
 	 * @param string $name
 	 * @return \zesk\Domain
 	 */
-	static function domain_factory($name) {
-		$domain = new self(array(
+	static function domain_factory(Application $application, $name) {
+		$domain = $application->object_factory(__CLASS__, array(
 			"name" => $name
 		));
 		return $domain->name_changed();
 	}
 	
+	/**
+	 * Compute the TLD for a domain
+	 * 
+	 * @return \zesk\Domain
+	 */
 	protected function name_changed() {
 		$this->tld = $this->compute_tld();
 		return $this;

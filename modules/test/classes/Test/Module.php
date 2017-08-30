@@ -21,6 +21,6 @@ class Test_Module extends Module {
 	 * @return boolean
 	 */
 	public function has_phpunit() {
-		return file_exists($this->phpunit);
+		return file_exists($this->phpunit) && is_executable($this->phpunit);
 	}
 }

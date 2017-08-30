@@ -226,7 +226,7 @@ class Locale {
 		if ($locale === null) {
 			$locale = self::current();
 		}
-		list($dialect) = \pair($locale, "_", $locale, "");
+		list($lang, $dialect) = \pair($locale, "_", $locale, "");
 		return strtoupper(substr($dialect, 0, 2));
 	}
 

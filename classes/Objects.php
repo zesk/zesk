@@ -180,14 +180,33 @@ class Objects {
 	}
 	
 	/**
-	 *
-	 * @param string $class
-	 * @return object
+	 * Getter/setter for singletons in the system
+	 * 
+	 * @param string|object $class
+	 * @return object|self
 	 */
 	public function singleton($class) {
-		$arguments = func_get_args();
-		$class = array_shift($arguments);
-		return $this->singleton_arguments($class, $arguments);
+		if (is_string($class)) {
+			$arguments = func_get_args();
+			$class = array_shift($arguments);
+			return $this->singleton_arguments($class, $arguments);
+		} else if (is_object($class)) {
+			$class_name = get_class($class);
+			$low_class = strtolower($class_name);
+			if (isset($this->singletons[$low_class])) {
+				throw new Exception_Semantics("{method}(Object of {class_name}) Can not set singleton {class_name} twice", array(
+					"method" => __METHOD__,
+					"class_name" => $class_name
+				));
+			}
+			$this->singletons[$low_class] = $class;
+			return $this;
+		} else {
+			throw new Exception_Parameter("{method} takes a string or an object, {type} passed instead", array(
+				"method" => __METHOD__,
+				"type" => type($class)
+			));
+		}
 	}
 	
 	/**
@@ -222,6 +241,9 @@ class Objects {
 						/* @var $method ReflectionMethod */
 						if ($refl_method->isStatic()) {
 							if ($method === "instance") {
+								/**
+								 * @deprecated 2017-01
+								 */
 								zesk()->deprecated("$resolve_class::$method will no longer be allowed for singleton creation");
 							}
 							return $this->singletons[$low_class] = $object = $refl_method->invokeArgs(null, $arguments);

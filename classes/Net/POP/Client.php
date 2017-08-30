@@ -9,86 +9,86 @@
 namespace zesk;
 
 class Net_POP_Client extends Net_Client_Socket {
-
+	
 	/**
 	 * Default port
 	 * @var integer
 	 */
 	protected $default_port = 110;
-
+	
 	/**
 	 * EOF for a message
 	 * @var string
 	 */
 	const EOF = ".\r\n";
-
+	
 	/**
 	 * OK response
 	 * @var string
 	 */
 	const OK = "+OK";
-
+	
 	/**
 	 * ERR response
 	 * @var string
 	 */
 	const ERR = "-ERR";
-
+	
 	/**
 	 * disconnected state constant
 	 * @var integer
 	 */
 	const State_Disconnect = 0;
-
+	
 	/**
 	 * connected state constant
 	 * @var integer
 	 */
 	const State_Connect = 1;
-
+	
 	/**
 	 * mid-transaction state constant
 	 * @var integer
 	 */
 	const State_Transaction = 2;
-
+	
 	/**
 	 * Current state
 	 * @var integer
 	 */
 	protected $state = self::State_Disconnect;
-
+	
 	/**
 	 * Messages listed
 	 * @var integer
 	 */
 	protected $n_messages = null;
-
+	
 	/**
 	 * Bytes of messages
 	 * @var integer
 	 */
 	protected $n_bytes = null;
-
+	
 	/**
 	 * Destroy this client
 	 */
 	function __destruct() {
 		$this->disconnect();
 	}
-
+	
 	/**
 	 * Connect
 	 * @see Net_Client_Socket::connect()
 	 */
 	public function connect() {
 		if ($this->state <= self::State_Connect) {
-			return parent::connect();
+			parent::connect();
 			$this->state = self::State_Connect;
 		}
 		return true;
 	}
-
+	
 	/**
 	 * Disconnect this puppy
 	 * @see Net_Client_Socket::disconnect()
@@ -99,7 +99,7 @@ class Net_POP_Client extends Net_Client_Socket {
 		}
 		parent::disconnect();
 	}
-
+	
 	/**
 	 * Run a command against the server
 	 * @see Net_Client_Socket::command()
@@ -110,7 +110,7 @@ class Net_POP_Client extends Net_Client_Socket {
 		}
 		return parent::command($command, $expect);
 	}
-
+	
 	/**
 	 * APOP authentication
 	 * @param string $user
@@ -131,16 +131,18 @@ class Net_POP_Client extends Net_Client_Socket {
 		if ($this->option_bool("debug_apop")) {
 			echo "server id is $server_id, checksum is $hash\n";
 		}
+		if ($message === null) {
+			$message = "APOP authentication failed";
+		}
 		try {
 			$this->command("APOP $user $hash");
 		} catch (Net_POP_Client_Exception $e) {
-			if ($message === null) {
-				$message = "APOP authentication failed";
-			}
+			throw new Exception_Authentication($message);
+		} catch (Exception_Protocol $e) {
 			throw new Exception_Authentication($message);
 		}
 	}
-
+	
 	/**
 	 * USER/PASS authentication
 	 * @param string $user
@@ -161,7 +163,7 @@ class Net_POP_Client extends Net_Client_Socket {
 			throw new Exception_Authentication("User $user invalid password");
 		}
 	}
-
+	
 	/**
 	 * Authenticate with the remote server
 	 * @throws Exception_Authentication
@@ -174,22 +176,28 @@ class Net_POP_Client extends Net_Client_Socket {
 			switch ($this->option('authentication')) {
 				case "apop":
 					$this->apop($user, $pass);
+					$this->state = self::State_Transaction;
 					break;
 				case "password":
 					$this->user_pass($user, $pass);
+					$this->state = self::State_Transaction;
 					break;
-				default:
+				default :
+					$message = null;
 					try {
 						$this->user_pass($user, $pass);
+						$this->state = self::State_Transaction;
+						return;
 					} catch (Exception_Authentication $auth) {
-						$this->apop($user, $pass, $auth->getMessage());
+						$message = $auth->getMessage();
 					}
+					$this->apop($user, $pass, $message);
+					$this->state = self::State_Transaction;
 					break;
 			}
-			$this->state = self::State_Transaction;
 		}
 	}
-
+	
 	/**
 	 * Count messages
 	 * @return number
@@ -202,7 +210,7 @@ class Net_POP_Client extends Net_Client_Socket {
 		$this->n_bytes = to_integer($result[2]);
 		return $this->n_messages;
 	}
-
+	
 	/**
 	 * List messages
 	 * @return array
@@ -219,7 +227,7 @@ class Net_POP_Client extends Net_Client_Socket {
 		}
 		return $messages;
 	}
-
+	
 	/**
 	 * Retrieve a message
 	 * @param integer $message_index
@@ -231,7 +239,7 @@ class Net_POP_Client extends Net_Client_Socket {
 		$this->command("RETR $message_index");
 		return $this->read_multiline($filename);
 	}
-
+	
 	/**
 	 * Retrieve the message top section (usually the headers)
 	 * @param integer $message_index
@@ -243,7 +251,7 @@ class Net_POP_Client extends Net_Client_Socket {
 		$n_bytes = $this->command("TOP $message_index $n_lines");
 		return $this->read_multiline();
 	}
-
+	
 	/**
 	 * Delete a message
 	 * @param integer $message_index
@@ -260,7 +268,7 @@ class Net_POP_Client extends Net_Client_Socket {
 			return false;
 		}
 	}
-
+	
 	/**
 	 * Retrieve iterator for this client to iterate through message headers
 	 * @return Net_POP_Client_Iterator
@@ -268,7 +276,7 @@ class Net_POP_Client extends Net_Client_Socket {
 	public function iterator() {
 		return new Net_POP_Client_Iterator($this);
 	}
-
+	
 	/**
 	 * Require states
 	 * @param integer $state
@@ -282,7 +290,7 @@ class Net_POP_Client extends Net_Client_Socket {
 			throw new Net_POP_Client_Exception("Net_POP_Client::_require_state($state) State is only $this->state");
 		}
 	}
-
+	
 	/**
 	 * Quit server and disconnect
 	 */
@@ -291,7 +299,7 @@ class Net_POP_Client extends Net_Client_Socket {
 		parent::disconnect();
 		$this->state = self::State_Disconnect;
 	}
-
+	
 	/**
 	 * Read multi-line response from server
 	 *
