@@ -1794,10 +1794,10 @@ class Application extends Hookable implements Interface_Theme {
 	 */
 	public static function application_class($class = null) {
 		if ($class) {
-			zesk()->application_class = $class;
+			zesk()->application_class($class);
 			return $class;
 		}
-		return zesk()->application_class;
+		return zesk()->application_class();
 	}
 	
 	/**
