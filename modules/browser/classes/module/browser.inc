@@ -1,7 +1,10 @@
 <?php
+namespace zesk;
 
-class Module_Browser extends zesk\Module {
+class Module_Browser extends Module {
 	protected function hook_classes() {
-		return array('Browser');
+		return array(
+			__NAMESPACE__ . '\\' . 'Browser'
+		);
 	}
 }

@@ -2,10 +2,7 @@
 /**
  * 
  */
-use zesk\Timestamp;
-use zesk\Cache;
-use zesk\Object;
-use zesk\Net_HTTP_UserAgent;
+namespace zesk;
 
 /**
  * @see Class_Browser
@@ -20,24 +17,20 @@ use zesk\Net_HTTP_UserAgent;
  * @property timestamp $parsed
  */
 class Browser extends Object {
-
+	
 	/**
 	 * Register a browser based on a string user agent
 	 *
 	 * @param Request $request
 	 * @return NULL|Browser
 	 */
-	public static function from_user_agent($name) {
+	public static function from_user_agent(Application $application, $name) {
 		if (empty($name)) {
 			return null;
 		}
-		$cache = Cache::register(__CLASS__)->expire_after(3600);
-		if ($cache->has($name)) {
-			return $cache->get($name);
-		}
 		$md5 = md5($name);
 		/* @var $browser Browser */
-		$browser = Object::factory(__CLASS__, array(
+		$browser = $application->object_factory(__CLASS__, array(
 			'md5' => $md5,
 			"name" => $name
 		));
@@ -51,17 +44,16 @@ class Browser extends Object {
 			$browser->parsed = Timestamp::now();
 			$browser->store();
 		}
-		$cache->set($name, $browser);
 		return $browser;
 	}
-
+	
 	/**
 	 * Register a browser based on the request user agent
 	 *
 	 * @param Request $request
 	 * @return NULL|Browser
 	 */
-	public static function from_request(zesk\Request $request) {
-		return self::from_user_agent($request->header('User-Agent'));
+	public static function from_request(Application $application) {
+		return self::from_user_agent($application, $application->request()->header('User-Agent'));
 	}
 }

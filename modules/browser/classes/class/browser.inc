@@ -1,6 +1,8 @@
 <?php
 
-class Class_Browser extends zesk\Class_Object {
+namespace zesk;
+
+class Class_Browser extends Class_Object {
 	public $id_column = "id";
 
 	public $find_keys = array(
