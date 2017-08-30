@@ -1,3 +1,9 @@
+## Release v0.10.3
+
+- Updates to tests, renamed exceptions in test system
+- patch `zesk\Application::application_class` to work correctly
+
+
 ## Release v0.10.2
 
 - `zesk\Application::application_class()` called old-style `zesk()->application_class`, now fixed
