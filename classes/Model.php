@@ -38,12 +38,12 @@ class Model extends Hookable implements \ArrayAccess {
 	 */
 	function __construct(Application $application, $mixed = null, $options = null) {
 		$this->application = $application;
+		parent::__construct($options);
 		if (is_array($mixed)) {
 			foreach ($mixed as $k => $v) {
-				$this->set($k, $v);
+				$this->__set($k, $v);
 			}
 		}
-		parent::__construct($options);
 		$this->construct();
 	}
 	
@@ -66,13 +66,6 @@ class Model extends Hookable implements \ArrayAccess {
 			throw new Exception_Semantics("Class {class} is not of type Model", array(
 				"class" => $class
 			));
-		}
-		if (is_array($value)) {
-			foreach ($value as $k => $v) {
-				$object->__set($k, $v);
-			}
-		} else if (is_scalar($value)) {
-			$object->__set("content", $value);
 		}
 		return $object;
 	}
