@@ -76,7 +76,7 @@ class Controller_PolyGlot extends Controller_Template_Login {
 				"message" => __("You do not have permission to update the {lang_name} locale.")
 			));
 		}
-		if (PolyGlot_Update::register_update($locale, $this->user)) {
+		if (PolyGlot_Update::register_update($this->application, $locale, $this->user)) {
 			return $this->json(array(
 				"status" => true,
 				"message" => __("Locale {lang_name} will be updated in the new few minutes.", $__)

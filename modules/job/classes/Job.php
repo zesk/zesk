@@ -222,14 +222,11 @@ class Job extends Object implements Interface_Process, Interface_Progress {
 	 * @return NULL
 	 */
 	public static function execute_jobs(Interface_Process $process) {
-		global $zesk;
-		
 		$application = $process->application();
 		$logger = $application->logger;
 		
-		/* @var $zesk Kernel */
-		$server = Server::singleton();
-		$pid = $zesk->process->id();
+		$server = Server::singleton($application);
+		$pid = $application->process->id();
 		
 		if ($process->done()) {
 			return null;
@@ -333,9 +330,6 @@ class Job extends Object implements Interface_Process, Interface_Progress {
 	 * @param Server $server
 	 */
 	private static function clean_dead_pids(Application $application, Server $server) {
-		global $zesk;
-		
-		/* @var $zesk Kernel */
 		foreach ($application->query_select(__CLASS__)
 			->what("pid", "pid")
 			->what('id', 'id')
@@ -344,7 +338,7 @@ class Job extends Object implements Interface_Process, Interface_Progress {
 			"server" => $server
 		))
 			->to_array("id", "pid") as $id => $pid) {
-			if (!$zesk->process->alive($pid)) {
+			if (!$application->process->alive($pid)) {
 				$application->logger->debug("Removing stale PID {pid} from Job # {id}", compact("pid", "id"));
 				$application->query_update(__CLASS__)
 					->value('pid', null)
@@ -466,9 +460,7 @@ class Job extends Object implements Interface_Process, Interface_Progress {
 	 * @return mixed|\zesk\Configuration|array
 	 */
 	static function retry_attempts() {
-		global $zesk;
-		/* @var $zesk Kernel */
-		return $zesk->configuration->path_get("zesk\Job::retry_attempts", 100);
+		return zesk()->configuration->path_get("zesk\Job::retry_attempts", 100);
 	}
 	function dead() {
 		return $this->died > $this->option_integer("retry_attempts", self::retry_attempts());

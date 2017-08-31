@@ -41,23 +41,33 @@ class Settings extends Object implements Interface_Data, Interface_Settings {
 	/**
 	 * Retrieve the Settings singleton.
 	 *
+	 * @deprecated 2017-08
+	 * @see self::singleton
 	 * @return NULL|Settings
 	 */
 	public static function instance() {
-		global $zesk;
-		
+		return self::singleton(app());
+	}
+	
+	/**
+	 * 
+	 * @param Application $application
+	 * @throws Exception_Configuration
+	 * @return \zesk\Interface_Settings
+	 */
+	public static function singleton(Application $application) {
 		/* @var $zesk Kernel */
-		if ($zesk->objects->settings instanceof Interface_Settings) {
-			return $zesk->objects->settings;
+		if ($application->objects->settings instanceof Interface_Settings) {
+			return $application->objects->settings;
 		}
-		$class = $zesk->configuration->path_get(__CLASS__ . "::instance_class", __CLASS__);
-		$zesk->objects->settings = $zesk->objects->factory($class);
-		if (!$zesk->objects->settings instanceof Interface_Settings) {
+		$class = $application->configuration->path_get(__CLASS__ . "::instance_class", __CLASS__);
+		$application->objects->settings = $application->objects->factory($class, $application);
+		if (!$application->objects->settings instanceof Interface_Settings) {
 			throw new Exception_Configuration(__CLASS__ . "::instance_class", "Must be Interface_Settings, class is {class}", array(
 				"class" => $class
 			));
 		}
-		return $zesk->objects->settings;
+		return $application->objects->settings;
 	}
 	
 	/**

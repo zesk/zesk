@@ -42,16 +42,14 @@ class Module_Daemon extends Module {
 			)
 		);
 	}
-	protected function hook_cron_minute() {
-		global $zesk;
-		/* @var $zesk Kernel */
+	protected function hook_cron_minute(Application $application) {
 		try {
-			$server = Server::singleton();
+			$server = Server::singleton($application);
 			if ($server) {
 				$database = $this->process_database();
 				foreach ($database as $process => $settings) {
 					$pid = $settings['pid'];
-					$database[$process]['alive'] = $zesk->process->alive($pid);
+					$database[$process]['alive'] = $application->process->alive($pid);
 				}
 				$server->data(__CLASS__ . "::process_database", $database);
 			}
@@ -84,9 +82,8 @@ class Module_Daemon extends Module {
 	 * @param array $set
 	 */
 	public function process_database(array $database = null) {
-		global $zesk;
-		/* @var $zesk Kernel */
 		$path = $this->_database_path();
+		$logger = $this->application->logger;
 		if ($database === null) {
 			if (!is_file($path)) {
 				return array();
@@ -95,7 +92,7 @@ class Module_Daemon extends Module {
 			flock($fp, LOCK_SH);
 			$database = unserialize(fread($fp, 1024 * 1024));
 			if ($this->db_debug) {
-				$zesk->logger->debug("Read database: {data}", array(
+				$logger->debug("Read database: {data}", array(
 					'data' => JSON::encode($database)
 				));
 			}
@@ -123,7 +120,7 @@ class Module_Daemon extends Module {
 			flock($fp, LOCK_UN);
 			fclose($fp);
 			if ($this->db_debug) {
-				$zesk->logger->debug("Wrote database: {data}", array(
+				$logger->debug("Wrote database: {data}", array(
 					'data' => JSON::encode($database)
 				));
 			}

@@ -18,8 +18,8 @@ class PolyGlot_Update extends Object {
 	 * @param User $user
 	 * @return \zesk\Object
 	 */
-	public static function register_update($locale, User $user = null) {
-		$object = Object::factory(__CLASS__, array(
+	public static function register_update(Application $application, $locale, User $user = null) {
+		$object = $application->object_factory(__CLASS__, array(
 			"locale" => Locale::normalize($locale)
 		));
 		try {
@@ -35,7 +35,7 @@ class PolyGlot_Update extends Object {
 	 * @param Application $application
 	 */
 	public static function cron_minute(Application $application) {
-		$server = Server::singleton();
+		$server = Server::singleton($application);
 		$path = $application->configuration->path_get("zesk\\Module_PolyGlot::update_path", $application->application_root("etc/language"));
 		if (!is_dir($path)) {
 			$application->logger->warning("zesk\\Module_PolyGlot::update_path is not a directory ({path}) on {server}", array(

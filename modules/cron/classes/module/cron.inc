@@ -88,7 +88,6 @@ class Module_Cron extends Module {
 	 *        	Arguments being passed to the method
 	 */
 	public function _hook_callback($method, $arguments) {
-		/* @var $zesk Kernel */
 		$method_string = $this->application->hooks->callable_string($method);
 		if (is_array($method) && ($method[0] instanceof Module)) {
 			$name = $method[0]->codename();
@@ -228,7 +227,6 @@ class Module_Cron extends Module {
 		return $object->data(self::_last_cron_variable($unit), $when->unix_timestamp());
 	}
 	private static function _cron_hooks($method) {
-		/* @var $zesk Kernel */
 		$classes = to_list($this->application->configuration->path_get(__CLASS__ . '::classes', 'zesk\Application;zesk\Object'));
 		return arr::suffix($classes, "::$method");
 	}
@@ -238,14 +236,14 @@ class Module_Cron extends Module {
 	 *
 	 * @return array:Interface_Data
 	 */
-	private function _cron_scopes() {
+	private function _cron_scopes(Application $application) {
 		if (is_array($this->scopes)) {
 			return $this->scopes;
 		}
 		/* @var $server Server*/
-		$server = Server::singleton();
+		$server = Server::singleton($application);
 		/* @var $settings Settings */
-		$settings = Settings::instance();
+		$settings = Settings::singleton($application);
 
 		return $this->scopes = array(
 			"cron" => array(
@@ -263,13 +261,11 @@ class Module_Cron extends Module {
 	 * @return multitype:boolean
 	 */
 	public function list_status() {
-		global $zesk;
-		/* @var $zesk Kernel */
-		$hooks = $zesk->hooks;
+		$hooks = $this->application->hooks;
 		$now = Timestamp::now();
 		$results = array();
 		try {
-			$scopes = $this->_cron_scopes();
+			$scopes = $this->_cron_scopes($this->application);
 		} catch (Exception $e) {
 			$this->_exception($e, __CLASS__ . '::list_status');
 			return array();
@@ -324,7 +320,7 @@ class Module_Cron extends Module {
 		$results = array();
 
 		try {
-			$scopes = $this->_cron_scopes();
+			$scopes = $this->_cron_scopes($this->application);
 		} catch (Exception $e) {
 			$this->_exception($e, __CLASS__ . "::_cron_scopes");
 			return false;

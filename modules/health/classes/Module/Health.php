@@ -161,7 +161,7 @@ class Module_Health extends Module {
 		$this->disabled(true);
 		declare(ticks = 1) {
 			while (!$process->done()) {
-				if (!Health_Event::event_process($this->path)) {
+				if (!Health_Event::event_process($process->application(), $this->path)) {
 					$process->sleep(1);
 				}
 			}
