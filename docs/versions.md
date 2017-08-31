@@ -1,3 +1,9 @@
+## Release v0.10.6
+
+- Lock API changes
+- Removal of globals and fixing of `Server::singleton()` calls in Zesk
+
+
 ## Release v0.10.5
 
 - Lock API changes, now `Lock::instance($application, $name)` then arrow functions to operate.
