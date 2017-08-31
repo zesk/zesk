@@ -1,3 +1,7 @@
+## Release v0.10.5
+
+- Lock API changes, now `Lock::instance($application, $name)` then arrow functions to operate.
+
 ## Release v0.10.4
 
 - Adding `zesk\Application::model_factory` method
