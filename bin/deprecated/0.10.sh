@@ -97,3 +97,23 @@ pause
 echo 'Controller::factory is deprecated'
 php-find.sh 'Controller::factory'
 pause
+
+zesk cannon $cannon_opts --skip-when-matches 'function cdn_javascript' cdn_css css
+zesk cannon $cannon_opts --skip-when-matches 'function cdn_javascript' cdn_javascript javascript
+
+echo 'Controller::factory is deprecated'
+php-find.sh 'Controller::factory'
+pause
+
+echo '`Lock::crack` now takes `$application` as first parameter'
+php-find.sh 'Lock::crack'
+pause
+
+echo '`Settings::instance` is deprecated. Use `Settings::singleton($application)`'
+php-find.sh 'Settings::instance'
+pause
+
+echo '`Server::singleton` now takes `$application`'
+php-find.sh 'Settings::singleton'
+pause
+
