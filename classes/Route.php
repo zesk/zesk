@@ -553,6 +553,9 @@ abstract class Route extends Hookable {
 	 * @return mixed
 	 */
 	protected function _map_variables($mixed) {
+		if (!is_array($mixed)) {
+			return $mixed;
+		}
 		$app = $this->router->application;
 		if (!is_array($this->map_variables)) {
 			$response = $app->response;
