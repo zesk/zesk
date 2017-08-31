@@ -1979,7 +1979,7 @@ class Application extends Hookable implements Interface_Theme {
 	}
 	
 	/**
-	 * Create a widget
+	 * Create an Object
 	 *
 	 * @param string $class
 	 * @param array $options
@@ -1988,6 +1988,18 @@ class Application extends Hookable implements Interface_Theme {
 	 */
 	public function object_factory($class, $mixed = null, array $options = array()) {
 		return Object::factory($this, $class, $mixed, $options);
+	}
+	
+	/**
+	 * Create a model
+	 *
+	 * @param string $class
+	 * @param array $options
+	 * @todo Pass application as part of creation call
+	 * @return Object
+	 */
+	public function model_factory($class, $mixed = null, array $options = array()) {
+		return Model::factory($this, $class, $mixed, $options);
 	}
 	
 	/**
