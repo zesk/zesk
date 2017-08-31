@@ -97,7 +97,7 @@ class Control_Filter extends Control {
 	 * @see Widget::model()
 	 */
 	function model() {
-		return new Model();
+		return new Model($this->application);
 	}
 	
 	/**

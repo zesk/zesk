@@ -39,7 +39,7 @@ class Control_Login extends Control_Edit {
 	 * @see Control_Edit::model()
 	 */
 	public function model() {
-		return new Model_Login();
+		return new Model_Login($this->application);
 	}
 	
 	/**
@@ -91,7 +91,7 @@ class Control_Login extends Control_Edit {
 		
 		$object = $this->object;
 		$login = $object->login;
-		$user = $this->application->objects->factory("zesk\\User");
+		$user = $this->application->object_factory("zesk\\User");
 		$column_login = $this->option('column_login', $user->column_login());
 		if ($this->option("no_password")) {
 			$user = $this->application->query_select("zesk\\User")->where($column_login, $object->login)->one_object();

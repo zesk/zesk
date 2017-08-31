@@ -58,7 +58,7 @@ class Control_Pager extends Control {
 	 * @see Widget::model()
 	 */
 	function model() {
-		return new Model_List();
+		return new Model_List($this->application);
 	}
 	function preserve_hidden($name, $value = null) {
 		$variables = avalue($this->theme_variables, 'preserve_hidden');
