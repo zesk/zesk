@@ -26,5 +26,5 @@ if ($this->parent === null) {
 	}
 }
 if (is_array($this->errors) && count($this->errors) > 0) {
-	echo View_Errors::html($this->errors);
+	echo View_Errors::html($application, $this->errors);
 }
