@@ -881,7 +881,7 @@ class Response extends Hookable {
 		$secure = avalue($options, 'secure', $this->option_bool("cookie_secure"));
 		$path = avalue($options, 'path', $this->option_bool("cookie_path", "/"));
 		if (!$domain) {
-			$domain = Domain::domain_factory($host)->compute_cookie_domain();
+			$domain = Domain::domain_factory($this->application, $host)->compute_cookie_domain();
 		}
 		$expire_time = $n_seconds ? time() + $n_seconds : null;
 		if ($this->request->is_browser()) {
