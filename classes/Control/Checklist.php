@@ -9,9 +9,8 @@
  */
 namespace zesk;
 
-
 /**
- * 
+ *
  * @author kent
  *
  */
@@ -41,7 +40,7 @@ class Control_Checklist extends Control_Optionss {
 	
 	/**
 	 * Getter/setter for columns to display checkboxes in
-	 * 
+	 *
 	 * @param integer $set
 	 * @return integer|self
 	 */
@@ -88,7 +87,7 @@ class Control_Checklist extends Control_Optionss {
 		parent::initialize();
 	}
 	private function control_checkbox_factory($name, $col, $label, $value) {
-		return new Control_Checkbox(array(
+		return $this->widget_factory(__NAMESPACE__ . "\\" . "Control_Checkbox", array(
 			'name' => $name . "[]",
 			'column' => $col,
 			'id' => $col,
