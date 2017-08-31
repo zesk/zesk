@@ -1,3 +1,7 @@
+## Release v0.10.7
+
+- Deploy fixes, removal of app()
+
 ## Release v0.10.6
 
 - Lock API changes
