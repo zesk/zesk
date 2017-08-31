@@ -823,8 +823,7 @@ function map($mixed, array $map, $insensitive = false, $prefix_char = "{", $suff
  * Clean map tokens from a string
  *
  * @test_inline $this->assert_equal(map_clean("He wanted {n} days"), "He wanted days");
- * @test_inline $this->assert_equal(map_clean("{}{}{}{}{}{all}{of}{this}{is}{removed}except}"),
- * "except}");
+ * @test_inline $this->assert_equal(map_clean("{}{}{}{}{}{all}{of}{this}{is}{removed}except}{}"),"except}");
  *
  * @param mixed $mixed
  * @param string $prefix_char
@@ -924,7 +923,7 @@ function _W($phrase) {
 		}
 		$phrase = substr($phrase, 0, $match_off) . $replace_value . substr($phrase, $match_off + $match_len);
 	}
-
+	
 	if (count($skip_s) === 0) {
 		return $phrase;
 	}
