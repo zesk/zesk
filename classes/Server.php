@@ -34,7 +34,7 @@ class Server extends Object implements Interface_Data {
 	 * @var string
 	 */
 	const disk_units_bytes = 'b';
-
+	
 	/**
 	 * 1 = 1024^1
 	 *
@@ -46,14 +46,14 @@ class Server extends Object implements Interface_Data {
 	 * @var string
 	 */
 	const disk_units_megabytes = 'm';
-
+	
 	/**
 	 * 1 = 1024^2
 	 *
 	 * @var string
 	 */
 	const disk_units_gigabytes = 'g';
-
+	
 	/**
 	 * 1 = 1024^3
 	 *
@@ -72,7 +72,7 @@ class Server extends Object implements Interface_Data {
 	 * @var string
 	 */
 	const disk_units_exabytes = 'e';
-
+	
 	/**
 	 *
 	 * @var array
@@ -86,38 +86,38 @@ class Server extends Object implements Interface_Data {
 		self::disk_units_petabytes,
 		self::disk_units_exabytes
 	);
-
+	
 	/**
 	 *
 	 * @var string
 	 */
 	const option_alive_update_seconds = "alive_update_seconds";
-
+	
 	/**
 	 * Number of seconds after which the server status should be updated
 	 *
 	 * @var integer
 	 */
 	const default_alive_update_seconds = 30;
-
+	
 	/**
 	 *
 	 * @var string
 	 */
 	const option_timeout_seconds = "timeout_seconds";
-
+	
 	/**
 	 *
 	 * @var unknown
 	 */
 	const default_timeout_seconds = 180;
-
+	
 	/**
 	 *
 	 * @var Server
 	 */
 	private static $singleton = null;
-
+	
 	/**
 	 * Run once per minute per cluster.
 	 * Delete servers who are not alive after `option_timeout_seconds` old.
@@ -127,7 +127,7 @@ class Server extends Object implements Interface_Data {
 		/* @var $server Server */
 		$server->bury_dead_servers();
 	}
-
+	
 	/**
 	 *
 	 * @param Kernel $zesk
@@ -140,7 +140,7 @@ class Server extends Object implements Interface_Data {
 			"configured"
 		));
 	}
-
+	
 	/**
 	 */
 	public static function configured(Application $application) {
@@ -161,31 +161,33 @@ class Server extends Object implements Interface_Data {
 			$application->logger->error("Exception {class} {code} {file}:{line}\n{message}\n{backtrace}", Exception::exception_variables($e));
 		}
 	}
-
+	
 	/**
 	 * Run intermittently once per cluster to clean away dead Server records
 	 */
 	public function bury_dead_servers() {
-		if (($lock = Lock::get_lock(__CLASS__ . '::bury_dead_servers')) !== null) {
-			$query = $this->query_select();
-			$pushed = $this->push_utc();
-
-			$timeout_seconds = -abs($this->option_integer('timeout_seconds', self::default_timeout_seconds));
-			$dead_to_me = Timestamp::now('UTC')->add_unit($timeout_seconds, Timestamp::UNIT_SECOND);
-			$iterator = $query->where(array(
-				'alive|<=' => $dead_to_me
-			))->object_iterator();
-			/* @var $server Server */
-			foreach ($iterator as $server) {
-				// Delete this way so hooks get called per dead server
-				$this->application->logger->warning("Burying dead server {name} (#{id}), last alive on {alive}", $server->members());
-				$server->delete();
-			}
-			$this->pop_utc($pushed);
-			$lock->release();
+		$lock = Lock::instance($this->application, __CLASS__ . '::bury_dead_servers');
+		if ($lock->acquire() === null) {
+			return;
 		}
+		$query = $this->query_select();
+		$pushed = $this->push_utc();
+		
+		$timeout_seconds = -abs($this->option_integer('timeout_seconds', self::default_timeout_seconds));
+		$dead_to_me = Timestamp::now('UTC')->add_unit($timeout_seconds, Timestamp::UNIT_SECOND);
+		$iterator = $query->where(array(
+			'alive|<=' => $dead_to_me
+		))->object_iterator();
+		/* @var $server Server */
+		foreach ($iterator as $server) {
+			// Delete this way so hooks get called per dead server
+			$this->application->logger->warning("Burying dead server {name} (#{id}), last alive on {alive}", $server->members());
+			$server->delete();
+		}
+		$this->pop_utc($pushed);
+		$lock->release();
 	}
-
+	
 	/**
 	 * Retrieve the default host name
 	 *
@@ -198,7 +200,7 @@ class Server extends Object implements Interface_Data {
 		}
 		return $host;
 	}
-
+	
 	/**
 	 * Create a singleton for this server.
 	 *
@@ -236,7 +238,7 @@ class Server extends Object implements Interface_Data {
 	 */
 	protected function refresh_names() {
 	}
-
+	
 	/**
 	 * Register and load this
 	 *
@@ -314,11 +316,14 @@ class Server extends Object implements Interface_Data {
 		$pushed = $this->push_utc();
 		$update['load'] = avalue(System::load_averages(), 0, null);
 		$update['*alive'] = $this->sql()->now();
-		$this->query_update()->values($update)->where($this->members($this->primary_keys()))->execute();
+		$this->query_update()
+			->values($update)
+			->where($this->members($this->primary_keys()))
+			->execute();
 		$this->pop_utc($pushed);
 		return $this->fetch();
 	}
-
+	
 	/**
 	 * Save the Database time zone state, temporarily.
 	 */
@@ -341,7 +346,7 @@ class Server extends Object implements Interface_Data {
 			$old_php_tz
 		);
 	}
-
+	
 	/**
 	 * Restore the Database time zone state after the push_utc
 	 */
@@ -380,14 +385,14 @@ class Server extends Object implements Interface_Data {
 		if ($value === null) {
 			return null;
 		}
-		$data = new Server_Data(array(
+		$data = new Server_Data($this->application, array(
 			"server" => $this,
 			"name" => $name,
 			"value" => $value
 		));
 		return $data->store();
 	}
-
+	
 	/**
 	 * Get server data object
 	 *
@@ -405,7 +410,7 @@ class Server extends Object implements Interface_Data {
 		}
 		return null;
 	}
-
+	
 	/**
 	 * Retrieve or store per-server data
 	 *
@@ -435,7 +440,7 @@ class Server extends Object implements Interface_Data {
 		}
 		return $result;
 	}
-
+	
 	/**
 	 * Retrieve or store per-server data
 	 *
@@ -445,12 +450,15 @@ class Server extends Object implements Interface_Data {
 	 * @return boolean
 	 */
 	function delete_data($name) {
-		return $this->application->query_delete("zesk\\Server_Data")->where(array(
+		return $this->application->query_delete("zesk\\Server_Data")
+			->where(array(
 			"server" => $this,
 			"name" => $name
-		))->execute()->affected_rows() > 0;
+		))
+			->execute()
+			->affected_rows() > 0;
 	}
-
+	
 	/**
 	 * Query all servers to find servers which match name = value
 	 *

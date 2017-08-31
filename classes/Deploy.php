@@ -21,13 +21,13 @@ class Deploy extends Hookable {
 	 * @var string
 	 */
 	protected $path = null;
-
+	
 	/**
 	 *
 	 * @var array
 	 */
 	protected $skipped = array();
-
+	
 	/**
 	 * Our options
 	 *
@@ -49,12 +49,13 @@ class Deploy extends Hookable {
 		$setting_name = __CLASS__ . "::state";
 		$settings->deprecated("deploy", $setting_name);
 		$options = to_array($settings->get($setting_name));
-
-		$deploy = new Deploy($path, $options);
+		
+		$deploy = new Deploy($settings->application, $path, $options);
 		if ($deploy->failed()) {
 			$deploy->reset(true);
 		}
-		if (($lock = Lock::get_lock('deploy')) !== null) {
+		$lock = Lock::instance($settings->application, 'deploy');
+		if ($lock->acquire() !== null) {
 			$deploy->_maintenance();
 			$results = $deploy->option();
 			$settings->set($setting_name, $results);
@@ -65,8 +66,8 @@ class Deploy extends Hookable {
 		}
 		return $deploy;
 	}
-	public static function factory($path, $options = null) {
-		return new Deploy($path, $options);
+	public static function factory(Application $application, $path, $options = null) {
+		return new Deploy($application, $path, $options);
 	}
 	public function reset($skip = false) {
 		if (!$this->failed()) {
@@ -112,7 +113,7 @@ class Deploy extends Hookable {
 	private function extension_is_handled($extension) {
 		return method_exists($this, "hook_extension_$extension");
 	}
-
+	
 	/**
 	 *
 	 * @return array
@@ -140,7 +141,7 @@ class Deploy extends Hookable {
 		ksort($tags);
 		return $tags;
 	}
-
+	
 	/**
 	 *
 	 * @return boolean[]|array[]|unknown[]|NULL[]|mixed[]|string[]|\zesk\NULL[]|\zesk\Deploy
@@ -194,7 +195,7 @@ class Deploy extends Hookable {
 		$this->set_option($results);
 		return $this;
 	}
-
+	
 	/**
 	 * Run a deployment script which is a PHP include script
 	 *
@@ -204,7 +205,7 @@ class Deploy extends Hookable {
 	protected function hook_extension_inc(array $tag) {
 		return $this->hook_extension_php($tag);
 	}
-
+	
 	/**
 	 * Run a deployment script which is a PHP include script
 	 *
@@ -232,7 +233,7 @@ class Deploy extends Hookable {
 			'content' => $content
 		);
 	}
-
+	
 	/**
 	 * Run a deployment script which is a TPL file (include)
 	 *
@@ -255,7 +256,7 @@ class Deploy extends Hookable {
 			'status' => $status
 		);
 	}
-
+	
 	/**
 	 * Run a deployment script which is a SQL file
 	 *
@@ -269,7 +270,7 @@ class Deploy extends Hookable {
 		$result = array(
 			'type' => 'sql'
 		);
-
+		
 		while (count($sqls) > 0) {
 			$sql = array_shift($sqls);
 			try {

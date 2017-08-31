@@ -226,7 +226,7 @@ class Module_Cron extends Module {
 	private static function _cron_ran(Interface_Data $object, $unit = null, Timestamp $when) {
 		return $object->data(self::_last_cron_variable($unit), $when->unix_timestamp());
 	}
-	private static function _cron_hooks($method) {
+	private function _cron_hooks($method) {
 		$classes = to_list($this->application->configuration->path_get(__CLASS__ . '::classes', 'zesk\Application;zesk\Object'));
 		return arr::suffix($classes, "::$method");
 	}
@@ -341,7 +341,8 @@ class Module_Cron extends Module {
 			$state = $settings['state'];
 			/* @var $state Interface_Data */
 			$lock_name = $settings['lock'];
-			if (($lock = Lock::get_lock($lock_name)) === null) {
+			$lock = Lock::instance($this->application, $lock_name);
+			if ($lock->acquire() === null) {
 				continue;
 			}
 			$last_run = self::_last_cron_run($state);
