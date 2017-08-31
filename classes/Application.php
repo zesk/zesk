@@ -1421,7 +1421,7 @@ class Application extends Hookable implements Interface_Theme {
 	 * Called once before a $zesk->hooks->all_hook("zesk\\Object::method");
 	 */
 	public static final function object_register_all_hooks() {
-		$app = self::instance();
+		$app = zesk()->application();
 		$classes = $app->all_classes();
 		$app->classes->register(arr::collapse($classes, "class"));
 	}
@@ -1431,7 +1431,7 @@ class Application extends Hookable implements Interface_Theme {
 	 * in the system.
 	 */
 	public static function hooks(Kernel $zesk) {
-		$zesk->hooks->add(__NAMESPACE__ . '\Object::register_all_hooks', __CLASS__ . "::object_register_all_hooks");
+		$zesk->hooks->add(__NAMESPACE__ . '\\' . 'Object::register_all_hooks', __CLASS__ . "::object_register_all_hooks");
 	}
 	
 	/**

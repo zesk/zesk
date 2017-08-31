@@ -154,7 +154,7 @@ class Server extends Object implements Interface_Data {
 	 * @param Application $application
 	 */
 	public static function cron_minute(Application $application) {
-		$server = self::singleton();
+		$server = self::singleton($application);
 		try {
 			$server->update_state();
 		} catch (Exception $e) {
