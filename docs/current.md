@@ -1,5 +1,6 @@
 ## Release {version}
 
-- Deploy fixes, removal of app()
+- fixing `Control_Checklist` widgets creation call
+
 
 <!-- Generated automatically by release-zesk.sh, beware editing! -->

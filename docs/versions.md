@@ -1,3 +1,8 @@
+## Release v0.10.8
+
+- fixing `Control_Checklist` widgets creation call
+
+
 ## Release v0.10.7
 
 - Deploy fixes, removal of app()
