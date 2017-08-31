@@ -23,15 +23,55 @@ namespace zesk;
  * @property timestamp $used
  */
 class Lock extends Object {
+	/**
+	 * 
+	 * @var array
+	 */
 	private static $locks = array();
-
+	
+	/**
+	 * Register all zesk hooks.
+	 */
+	public static function hooks(Kernel $zesk) {
+		$zesk->hooks->add(__NAMESPACE__ . '\\' . 'Server::delete', array(
+			__CLASS__,
+			'server_delete'
+		));
+		$zesk->hooks->add('exit', array(
+			__CLASS__,
+			"release_all"
+		));
+	}
+	
+	/**
+	 * Retrieve the cached version of a lock or register one
+	 *
+	 * @param string $code
+	 * @return Lock
+	 */
+	public static function instance(Application $application, $code) {
+		/* @var $lock Lock */
+		$lock = avalue(self::$locks, strtolower($code));
+		if (!$lock) {
+			$lock = self::_create_lock($application, $code);
+		} else if (!$lock->_is_mine()) {
+			try {
+				$lock->fetch();
+			} catch (Exception_Object_NotFound $e) {
+				// Has since been deleted
+				$lock = self::_create_lock($application, $code);
+			}
+		}
+		return $lock;
+	}
+	
 	/**
 	 * Once per hour, cull locks which are old
 	 */
 	public static function cron_cluster_hour(Application $application) {
 		self::delete_unused_locks($application);
 	}
-
+	
 	/**
 	 * Once a minute, release locks associated with processes which are dead,
 	 * or are associated with a dead server (no longer exists)
@@ -40,16 +80,19 @@ class Lock extends Object {
 		self::delete_dead_pids($application);
 		self::delete_unlinked_locks($application);
 	}
-
+	
 	/**
 	 * Delete Locks which have not been used in the past 24 hours
 	 */
 	public static function delete_unused_locks(Application $application) {
-		$n_rows = $application->query_delete(__CLASS__)->where(array(
+		$n_rows = $application->query_delete(__CLASS__)
+			->where(array(
 			'used|<=' => Timestamp::now()->add_unit(-1, Timestamp::UNIT_DAY),
 			"server" => null,
 			"pid" => null
-		))->execute()->affected_rows();
+		))
+			->execute()
+			->affected_rows();
 		if ($n_rows > 0) {
 			$application->logger->notice("Deleted {n_rows} {locks} which were unused in the past 24 hours.", array(
 				"n_rows" => $n_rows,
@@ -58,7 +101,7 @@ class Lock extends Object {
 		}
 		return $n_rows;
 	}
-
+	
 	/**
 	 * Delete locks whose server doesn't link to a valid row in the Server table
 	 */
@@ -79,17 +122,15 @@ class Lock extends Object {
 		}
 		return $n_rows;
 	}
-
+	
 	/**
 	 * Delete Locks associated with this server which do not have a valid PID
 	 */
 	public static function delete_dead_pids(Application $application) {
-		global $zesk;
-		/* @var $zesk Kernel */
-		$timeout_seconds = -abs($zesk->configuration->path_get("Lock::timeout_seconds", 100));
+		$timeout_seconds = -abs($application->configuration->path_get(__CLASS__ . "::timeout_seconds", 100));
 		$you_are_dead_to_me = Timestamp::now()->add_unit($timeout_seconds, Timestamp::UNIT_SECOND);
 		$iterator = $application->query_select(__CLASS__)->where(array(
-			'server' => Server::singleton(),
+			'server' => Server::singleton($application),
 			'locked|<=' => $you_are_dead_to_me
 		))->object_iterator();
 		/* @var $lock Lock */
@@ -101,7 +142,57 @@ class Lock extends Object {
 			}
 		}
 	}
-
+	
+	/**
+	 * Acquire exclusive access to a lock, optionally waiting for availability.
+	 *
+	 * <code>
+	 * $lock = Lock::instance("foo")->acquire(); // Returns null immediately if can't get lock
+	 * $lock = Lock::instance("foo")->acquire(null); // Returns null immediately if can't get lock
+	 * $lock = Lock::instance("foo")->acquire(0); // Waits forever
+	 * $lock = Lock::instance("foo")->acquire(1); // Tries to get lock for one second, then throws
+	 * Exception_Timeout
+	 * </code>
+	 *
+	 * @param double $timeout
+	 *        	Time, in seconds, to wait until
+	 * @return Lock|null
+	 */
+	public function acquire($timeout = null) {
+		if ($this->_is_mine()) {
+			return $this;
+		}
+		if ($this->_is_my_server() && !$this->is_process_alive()) {
+			return $this->_acquire_dead();
+		}
+		if ($timeout === null) {
+			$this->_is_locked();
+			return $this->_acquire_once();
+		}
+		if (!is_integer($timeout) || $timeout < 0) {
+			return null;
+		}
+		return $this->_acquire(intval($timeout));
+	}
+	
+	/**
+	 * Acquire a lock or throw an Exception_Lock
+	 *
+	 * @param string $code
+	 * @param integer $timeout
+	 *        	Optional timeout
+	 * @throws Exception_Lock
+	 * @return Lock
+	 */
+	public function expect($timeout = null) {
+		$result = $this->acquire($timeout);
+		if ($result) {
+			return $result;
+		}
+		throw new Excetion_Lock("Unable to obtain lock {code} (timeout={timeout}", $this->members("code") + array(
+			"timeout" => $timeout
+		));
+	}
 	/**
 	 * Get a lock or throw an Exception_Lock
 	 *
@@ -110,8 +201,11 @@ class Lock extends Object {
 	 *        	Optional timeout
 	 * @throws Exception_Lock
 	 * @return Lock
+	 * @deprecated 2017-08 use require() 
+	 * @see
 	 */
 	public static function require_lock($code, $timeout = null) {
+		zesk()->deprecated();
 		$lock = self::get_lock($code, $timeout);
 		if (!$lock) {
 			throw new Exception_Lock("Unable to obtain lock {code} (timeout={timeout}", compact("code", "timeout"));
@@ -133,10 +227,11 @@ class Lock extends Object {
 	 * @param double $timeout
 	 *        	Time, in seconds, to wait until
 	 * @return Lock|null
+	 * @deprecated 2017-08 see self::acquire
 	 */
 	public static function get_lock($code, $timeout = null) {
-		zesk()->hooks->register_class(__CLASS__);
-		$lock = self::_get_lock($code);
+		zesk()->deprecated();
+		$lock = self::instance(app(), $code);
 		if ($lock->_is_mine()) {
 			return $lock;
 		}
@@ -152,7 +247,7 @@ class Lock extends Object {
 		}
 		return $lock->_acquire(intval($timeout));
 	}
-
+	
 	/**
 	 * Release all locks from my server/process
 	 */
@@ -172,6 +267,12 @@ class Lock extends Object {
 			// Ignore for now - likely database misconfigured
 		}
 	}
+	
+	/**
+	 * Hook called when server is deleted. Deletes related locks.
+	 * 
+	 * @param Server $server
+	 */
 	public static function server_delete(Server $server) {
 		$application = $server->application;
 		$query = $application->query_delete(__CLASS__)->where('server', $server);
@@ -183,98 +284,57 @@ class Lock extends Object {
 			) + $server->members());
 		}
 	}
-	/**
-	 * Register all zesk hooks
-	 */
-	public static function hooks(Kernel $zesk) {
-		$zesk->hooks->add(__NAMESPACE__ . '\\Server::delete', array(
-			__CLASS__,
-			'server_delete'
-		));
-		$zesk->hooks->add('exit', array(
-			__CLASS__,
-			"release_all"
-		));
-	}
-
+	
 	/**
 	 * Break a lock.
 	 * PHP5 does not allow functions called "break", PHP7 does.
 	 *
-	 * @param unknown $code
-	 * @return NULL|\zesk\Lock
+	 * @return \zesk\Lock
 	 */
-	public static function crack($code) {
-		$lock = self::_get_lock($code);
-		if (!$lock) {
-			return null;
-		}
-		$lock->pid = $lock->server = null;
-		return $lock->store();
+	public function crack() {
+		$this->pid = $this->server = null;
+		return $this->store();
 	}
-
+	
 	/**
 	 * Locked by SOMEONE ELSE
-	 *
-	 * @param unknown $code
 	 */
-	public static function is_locked($code) {
-		$lock = self::_get_lock($code);
-		if ($lock->member_is_empty('pid') && $lock->member_is_empty('server')) {
+	public function is_locked() {
+		if ($this->member_is_empty('pid') && $this->member_is_empty('server')) {
 			return false;
 		}
-		return $lock->_is_locked();
+		return $this->_is_locked();
 	}
-	private function _is_locked() {
-		global $zesk;
-		/* @var $zesk Kernel */
-		// Each server is responsible for keeping locks clean.
-		// Allow a hook to enable inter-server connection, later
-		if (!$this->_is_my_server()) {
-			return $this->application->hooks->call_arguments('Lock::server_is_locked', array(
-				$this->member_integer('server'),
-				$this->pid
-			), true);
-		}
-		if ($this->_is_my_pid()) {
-			// My process, so it's not locked
-			return false;
-		}
-		// Is the process running?
-		if ($zesk->process->alive($this->pid)) {
-			return true;
-		}
-		zesk()->logger->warning("Releasing lock from {server}:{pid} as process is dead", $this->members());
-		$this->release();
-		return false;
-	}
-
+	
 	/**
 	 * Release a lock I have
 	 *
 	 * @return Lock
 	 */
 	public function release() {
-		$this->query_update()->values(array(
+		$this->query_update()
+			->values(array(
 			'pid' => null,
 			'server' => null,
 			'locked' => null
-		))->where(array(
+		))
+			->where(array(
 			"id" => $this->id
-		))->execute();
+		))
+			->execute();
 		zesk()->logger->debug("Released lock $this->code");
 		$this->pid = null;
 		$this->server = null;
 		return $this;
 	}
-
+	
 	/**
 	 * Register or create a lock
 	 *
 	 * @param string $code
 	 */
-	private static function _create_lock($code) {
-		$lock = $lock = Object::factory(__CLASS__, array(
+	private static function _create_lock(Application $application, $code) {
+		$lock = $application->object_factory(__CLASS__, array(
 			'code' => $code
 		));
 		try {
@@ -286,54 +346,66 @@ class Lock extends Object {
 		}
 		return self::$locks[strtolower($code)] = $lock;
 	}
-
+	
 	/**
-	 * Retrieve the cached version of a lock or register one
-	 *
-	 * @param string $code
-	 * @return Lock
+	 * Is this Lock locked by SOMEONE BESIDES MY PROCESS?
+	 * 
+	 * Logic is as follows:
+	 * - If it's registered to another server: We run a hook to check. If no hook, then we assume it's locked.
+	 * - Now we assume the lock is on my current server.
+	 * - If it's my process ID, then it's not locked by someone else, return false.
+	 * - If the other process is still alive, it's locked, return true.
+	 * - The other process is dead, so we release the lock. It's no longer alive, return false.
+	 * 
+	 * @return boolean
 	 */
-	private static function _get_lock($code) {
-		/* @var $lock Lock */
-		$lock = avalue(self::$locks, strtolower($code));
-		if (!$lock) {
-			$lock = self::_create_lock($code);
-		} else if (!$lock->_is_mine()) {
-			try {
-				$lock->fetch();
-			} catch (Exception_Object_NotFound $e) {
-				// Has since been deleted
-				$lock = self::_create_lock($code);
-			}
+	private function _is_locked() {
+		// Each server is responsible for keeping locks clean.
+		// Allow a hook to enable inter-server connection, later
+		if (!$this->_is_my_server()) {
+			return $this->application->hooks->call_arguments(__CLASS__ . '::server_is_locked', array(
+				$this->member_integer('server'),
+				$this->pid
+			), true);
 		}
-		return $lock;
+		if ($this->_is_my_pid()) {
+			// My process, so it's not locked
+			return false;
+		}
+		// Is the process running?
+		if ($this->application->process->alive($this->pid)) {
+			return true;
+		}
+		$this->application->logger->warning("Releasing lock from {server}:{pid} as process is dead", $this->members());
+		$this->release();
+		return false;
 	}
-
+	
 	/**
 	 * Acquire a lock with an optional where clause
 	 *
 	 * @param array $where
 	 */
 	private function _acquire_where(array $where = array()) {
-		global $zesk;
-		/* @var $zesk Kernel */
 		$update = $this->query_update();
 		$sql = $update->sql();
 		$update->values(array(
-			'pid' => $zesk->process->id(),
-			'server' => Server::singleton(),
+			'pid' => $this->application->process->id(),
+			'server' => Server::singleton($this->application),
 			'*locked' => $sql->now(),
 			'*used' => $sql->now()
-		))->where(array(
+		))
+			->where(array(
 			'id' => $this->id
-		) + $where)->execute();
+		) + $where)
+			->execute();
 		if ($this->fetch()->_is_mine()) {
 			zesk()->logger->debug("Acquired lock $this->code");
 			return $this;
 		}
 		return null;
 	}
-
+	
 	/**
 	 * Acquire an inactive lock
 	 */
@@ -342,7 +414,7 @@ class Lock extends Object {
 			'pid' => null
 		));
 	}
-
+	
 	/**
 	 * Acquire a dead lock, requires that the pid and server don't change between now and
 	 * acquisition
@@ -353,6 +425,7 @@ class Lock extends Object {
 			"server" => $this->server
 		));
 	}
+	
 	/**
 	 * Loop and try to get lock
 	 *
@@ -386,7 +459,7 @@ class Lock extends Object {
 			}
 			if ($timeout > 0 && $timer->elapsed() > $timeout) {
 				throw new Exception_Timeout("Waiting for Lock \"{code}\" ({timeout} seconds)", array(
-					"function" => "Lock::get_lock",
+					"method" => __METHOD__,
 					"timeout" => $timeout,
 					"code" => $this->code
 				));
@@ -394,16 +467,14 @@ class Lock extends Object {
 		}
 		return null;
 	}
-
+	
 	/**
 	 * Checks if the PID in this Lock is alive
 	 *
 	 * @return boolean
 	 */
 	private function is_process_alive() {
-		global $zesk;
-		/* @var $zesk Kernel */
-		return $zesk->process->alive($this->pid);
+		return $this->application->process->alive($this->pid);
 	}
 	/**
 	 * Is this my server?
@@ -419,11 +490,9 @@ class Lock extends Object {
 	 * @return boolean
 	 */
 	private function _is_my_pid() {
-		global $zesk;
-		/* @var $zesk Kernel */
-		return $zesk->process->id() === $this->member_integer('pid');
+		return $this->application->process->id() === $this->member_integer('pid');
 	}
-
+	
 	/**
 	 * Is this lock free?
 	 *
@@ -432,7 +501,7 @@ class Lock extends Object {
 	private function _is_free() {
 		return $this->member_is_empty('pid') && $this->member_is_empty('server');
 	}
-
+	
 	/**
 	 * Implies PID and server match
 	 *

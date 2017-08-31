@@ -200,13 +200,13 @@ class Permission extends Object {
 	 * @param array $fields
 	 * @return Permission
 	 */
-	public static function register_permission(array $fields) {
+	public static function register_permission(Application $application, array $fields) {
 		static $cache = array();
 		$name = $fields['name'];
 		if (array_key_exists($name, $cache)) {
 			return $cache[$name];
 		}
-		return $cache[$name] = Object::factory("Permission", $fields)->register();
+		return $cache[$name] = $application->object_factory(__CLASS__, $fields)->register();
 	}
 	
 	/**

@@ -227,13 +227,12 @@ abstract class Route extends Hookable {
 			'theme' => 'Route_Theme',
 			'template' => 'Route_Theme'
 		);
-		/* @var $zesk Kernel */
 		foreach ($types as $k => $class) {
 			if (array_key_exists($k, $options)) {
 				return $router->application->objects->factory("zesk\\$class", $router, $pattern, $options);
 			}
 		}
-		return $zesk->objects->factory("zesk\\Route_Content", $router, $pattern, $options);
+		return $router->application->objects->factory("zesk\\Route_Content", $router, $pattern, $options);
 	}
 	
 	/**
@@ -422,7 +421,7 @@ abstract class Route extends Hookable {
 			}
 			if ($name !== null) {
 				if (is_object($object)) {
-					foreach ($zesk->classes->hierarchy($object, "Model") as $class) {
+					foreach ($application->classes->hierarchy($object, "Model") as $class) {
 						$this->by_class[strtolower($class)][$name] = $object;
 					}
 				}

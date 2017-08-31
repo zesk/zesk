@@ -299,12 +299,12 @@ class Module_Permission extends Module {
 		global $zesk;
 		
 		$application = $this->application;
-		/* @var $zesk zesk\Kernel */
+		$lock = Lock::instance($this->application, __CLASS__);
 		try {
-			$lock = Lock::require_lock(__METHOD__, 10);
+			$lock->expect(10);
 		} catch (Exception_Timeout $e) {
-			Lock::crack(__METHOD__);
-			$lock = Lock::require_lock(__METHOD__, 10);
+			$lock->crack();
+			$lock->expect(10);
 		}
 		$result = array();
 		$result['class'] = $application->hooks->all_call_arguments(self::$hook_methods, array(
@@ -392,7 +392,7 @@ class Module_Permission extends Module {
 			$action = User::clean_permission($action);
 			list($class, $action) = pair($action, "::", $default_class, $action);
 			$permission_options['name'] = $class . "::" . $action;
-			$class_perms[$action] = Permission::register_permission($permission_options);
+			$class_perms[$action] = Permission::register_permission($this->application, $permission_options);
 		}
 		$state[strtolower($class)] = $class_perms; // + array("*class" => $class);
 		return $state;
