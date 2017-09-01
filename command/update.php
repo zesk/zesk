@@ -86,7 +86,6 @@ class Command_Update extends Command_Base {
 	 * @see Command::run()
 	 */
 	function run() {
-		
 		$this->configure("update");
 		
 		$this->inherit_global_options();
@@ -282,8 +281,9 @@ class Command_Update extends Command_Base {
 		try {
 			$composer_command = $this->option_bool("composer_update") ? "update" : "install";
 			$composer = $this->composer_command();
-			$args = $this->application->development() ? "" : " --no-dev";
-			$this->application->process->execute("$composer $composer_command$args");
+			$devargs = $this->application->development() ? "" : " --no-dev";
+			$quietargs = $this->option_bool("quiet") ? " -q" : "";
+			$this->application->process->execute("$composer$quietargs $composer_command$devargs");
 		} catch (Exception_Command $e) {
 			$this->error($e);
 		}
