@@ -119,15 +119,11 @@ class Settings extends Object implements Interface_Data, Interface_Settings {
 	 * @param boolean $fix_bad_globals
 	 * @return array
 	 */
-	private static function load_globals_from_database(Application $application) {
+	private static function load_globals_from_database(Application $application, $debug_load = false) {
 		$globals = array();
 		$size_loaded = 0;
 		$n_loaded = 0;
 		$object = $application->object(__CLASS__);
-		$debug_load = $application->configuration->path_get(array(
-			__CLASS__,
-			"debug_load"
-		));
 		$fix_bad_globals = $object->option_bool("fix_bad_globals");
 		
 		foreach ($application->query_select(__CLASS__)->to_array("name", "value") as $name => $value) {
@@ -159,11 +155,13 @@ class Settings extends Object implements Interface_Data, Interface_Settings {
 				}
 			}
 		}
-		$application->logger->debug("{method} - loaded {n} globals {size} of data", array(
-			"method" => __METHOD__,
-			"n" => $n_loaded,
-			"size" => Number::format_bytes($size_loaded)
-		));
+		if ($debug_load) {
+			$application->logger->debug("{method} - loaded {n} globals {size} of data", array(
+				"method" => __METHOD__,
+				"n" => $n_loaded,
+				"size" => Number::format_bytes($size_loaded)
+			));
+		}
 		$globals = $application->call_hook_arguments("filter_settings", array(
 			$globals
 		), $globals);
@@ -177,10 +175,18 @@ class Settings extends Object implements Interface_Data, Interface_Settings {
 		$__ = array(
 			"method" => __METHOD__
 		);
-		$application->logger->debug("{method} entry", $__);
+		$debug_load = $application->configuration->path_get(array(
+			__CLASS__,
+			"debug_load"
+		));
+		if ($debug_load) {
+			$application->logger->debug("{method} entry", $__);
+		}
 		// If no databases registered, don't bother loading.
 		if (count(Database::register()) === 0) {
-			$application->logger->debug("{method} - no databases, not loading configuration", $__);
+			if ($debug_load) {
+				$application->logger->debug("{method} - no databases, not loading configuration", $__);
+			}
 			return;
 		}
 		$application->configuration->deprecated("Settings", __CLASS__);
@@ -190,16 +196,22 @@ class Settings extends Object implements Interface_Data, Interface_Settings {
 		$exception = null;
 		try {
 			if ($cache_disabled) {
-				$application->logger->debug("{method} cache disabled", $__);
-				$globals = self::load_globals_from_database($application);
+				if ($debug_load) {
+					$application->logger->debug("{method} cache disabled", $__);
+				}
+				$globals = self::load_globals_from_database($application, $debug_load);
 			} else {
 				$cache = self::_cache();
 				if (!$cache->has('globals')) {
-					$application->logger->debug("{method} does not have cached globals .. loading", $__);
-					$globals = self::load_globals_from_database($application);
+					if ($debug_load) {
+						$application->logger->debug("{method} does not have cached globals .. loading", $__);
+					}
+					$globals = self::load_globals_from_database($application, $debug_load);
 					$cache->globals = $globals;
 				} else {
-					$application->logger->debug("{method} - loading globals from cache", $__);
+					if ($debug_load) {
+						$application->logger->debug("{method} - loading globals from cache", $__);
+					}
 					$globals = $cache->globals;
 				}
 			}
