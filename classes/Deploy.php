@@ -36,6 +36,31 @@ class Deploy extends Hookable {
 	protected $options = array(
 		"last_tag" => "-none-"
 	);
+	
+	/**
+	 * 
+	 * @param Application $application
+	 * @param string $path
+	 * @param array $options
+	 * @return \zesk\Deploy
+	 */
+	public static function factory(Application $application, $path, $options = null) {
+		return new Deploy($application, $path, $options);
+	}
+	
+	/**
+	 * 
+	 * @param Application $application
+	 * @param unknown $path
+	 * @param unknown $options
+	 */
+	public function __construct(Application $application, $path, $options = null) {
+		$this->application = $application;
+		$this->path = $path;
+		parent::__construct($options);
+		$this->call_hook('construct');
+	}
+	
 	/**
 	 *
 	 * Run a deployment check, using path for deployment state
@@ -66,9 +91,7 @@ class Deploy extends Hookable {
 		}
 		return $deploy;
 	}
-	public static function factory(Application $application, $path, $options = null) {
-		return new Deploy($application, $path, $options);
-	}
+
 	public function reset($skip = false) {
 		if (!$this->failed()) {
 			return $this;
@@ -84,15 +107,21 @@ class Deploy extends Hookable {
 			'last_tag' => $skip ? $failed_tag : $last_tag
 		));
 	}
+	
+	/**
+	 * Did the deploy fail?
+	 * 
+	 * @return boolean
+	 */
 	public function failed() {
 		return !$this->option_bool('status', true);
 	}
-	public function __construct(Application $application, $path, $options = null) {
-		$this->application = $application;
-		$this->path = $path;
-		parent::__construct($options);
-		$this->call_hook('construct');
-	}
+	
+	/**
+	 * 
+	 * @param unknown $subpath
+	 * @return NULL|unknown[]|string[]
+	 */
 	private function _parse_tag($subpath) {
 		$tag = array();
 		$filename = $extension = null;
@@ -110,6 +139,13 @@ class Deploy extends Hookable {
 		$tag['name'] = $filename;
 		return $tag;
 	}
+	
+	/**
+	 * Can we handle a file extension in the deployment directory
+	 * 
+	 * @param string $extension
+	 * @return boolean
+	 */
 	private function extension_is_handled($extension) {
 		return method_exists($this, "hook_extension_$extension");
 	}
@@ -144,7 +180,7 @@ class Deploy extends Hookable {
 	
 	/**
 	 *
-	 * @return boolean[]|array[]|unknown[]|NULL[]|mixed[]|string[]|\zesk\NULL[]|\zesk\Deploy
+	 * @return self|array
 	 */
 	protected function _maintenance() {
 		$logger = $this->application->logger;
@@ -199,6 +235,7 @@ class Deploy extends Hookable {
 	/**
 	 * Run a deployment script which is a PHP include script
 	 *
+	 * @see self::hook_extension_php
 	 * @param array $tag
 	 * @return array
 	 */
