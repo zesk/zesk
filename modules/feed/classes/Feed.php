@@ -25,8 +25,8 @@ class Feed extends Model implements \Iterator {
 	 * 
 	 * @param unknown $file_or_url
 	 */
-	function __construct($url, array $options = array()) {
-		parent::__construct(null, $options);
+	function __construct(Application $application, $url, array $options = array()) {
+		parent::__construct($application, $options);
 		$this->url($url);
 	}
 	
@@ -83,8 +83,16 @@ class Feed extends Model implements \Iterator {
 		}
 		return $errors;
 	}
+	
+	/**
+	 * 
+	 * @return string|Net_HTTP_Client_Exception
+	 */
 	function load_remote_url() {
 		$http = new Net_HTTP_Client($this->url);
+		if ($this->has_option("user_agent")) {
+			$http->user_agent($this->option("user_agent"));
+		}
 		try {
 			$content = $http->go();
 			return $content;
@@ -110,7 +118,7 @@ class Feed extends Model implements \Iterator {
 			return null;
 		}
 		foreach ($x->channel->item as $item) {
-			$post = new Feed_Post();
+			$post = new Feed_Post($this->application);
 			$post->raw_date = (string) $item->pubDate;
 			$post->date = new Timestamp($item->pubDate);
 			$post->link = (string) $item->link;

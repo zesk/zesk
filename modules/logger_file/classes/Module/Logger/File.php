@@ -58,7 +58,9 @@ class Module_Logger_File extends Module {
 		foreach ($files as $name => $settings) {
 			$settings += $defaults;
 			if (!isset($settings['name'])) {
-				$this->application->logger->error(__CLASS__ . "::files::$name is missing name key");
+				$this->application->logger->error(__CLASS__ . "::files::{name} is missing name key", array(
+					"name" => $name
+				));
 				continue;
 			}
 			$filename = $this->_filename_path($settings['name']);
@@ -67,10 +69,12 @@ class Module_Logger_File extends Module {
 			$this->application->logger->register_handler($name, $handler, $levels);
 			$names[] = $name;
 		}
-		$this->application->logger->debug("{method} invoked, {names} handlers registered", array(
-			"method" => __METHOD__,
-			"names" => $names
-		));
+		if ($this->debug) {
+			$this->application->logger->debug("{method} invoked, {names} handlers registered", array(
+				"method" => __METHOD__,
+				"names" => $names
+			));
+		}
 	}
 	
 	/**

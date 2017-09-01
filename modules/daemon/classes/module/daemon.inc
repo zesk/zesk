@@ -77,6 +77,7 @@ class Module_Daemon extends Module {
 	public function unlink_database() {
 		unlink($this->_database_path());
 	}
+	
 	/**
 	 * Get/set daemon database
 	 * 
