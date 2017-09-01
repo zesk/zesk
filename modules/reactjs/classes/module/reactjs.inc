@@ -33,9 +33,11 @@ class Module_ReactJS extends Module implements Interface_Module_Routes, Interfac
 				));
 			}
 		} else {
-			$response->javascript("/static/js/bundle.js", array(
-				"is_route" => true
-			));
+			if ($this->_proxy_prefix()) {
+				$response->javascript("/static/js/bundle.js", array(
+					"is_route" => true
+				));
+			}
 		}
 	}
 	/**
@@ -86,7 +88,14 @@ class Module_ReactJS extends Module implements Interface_Module_Routes, Interfac
 		}
 		$app = $this->application;
 		$config = $app->configuration->path_set(__CLASS__);
-		$conf = Configuration_Parser::factory("conf", File::contents($app->application_root(".env")));
+		$dotenv = $app->application_root(".env");
+		if (!file_exists($dotenv)) {
+			$this->application->logger->error("{dotenv} needs to be created to support ReactJS proxy", array(
+				"dotenv" => $dotenv
+			));
+			return null;
+		}
+		$conf = Configuration_Parser::factory("conf", File::contents($dotenv));
 		$settings = $conf->process();
 		$host = aevalue($_SERVER, 'HOST', $settings->host);
 		$port = aevalue($_SERVER, 'PORT', $settings->port);
@@ -100,6 +109,9 @@ class Module_ReactJS extends Module implements Interface_Module_Routes, Interfac
 	 */
 	private function _proxy_path(Request $request) {
 		$proxy_prefix = $this->_proxy_prefix();
+		if ($proxy_prefix === null) {
+			return null;
+		}
 		$http = new Net_HTTP_Client();
 		$http->proxy_request($request, $proxy_prefix);
 		try {
