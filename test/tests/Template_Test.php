@@ -1,17 +1,17 @@
 <?php
+
 /**
- * 
+ *
  */
 namespace zesk;
 
 /**
- * 
+ *
  * @author kent
  *
  */
 class Template_Test extends Test_Unit {
 	function initialize() {
-		Template::clear_cache();
 	}
 	function test_begin() {
 		$path = null;
@@ -43,7 +43,7 @@ class Template_Test extends Test_Unit {
 	}
 	function test_output() {
 		$this->application->theme_path($this->test_sandbox());
-		
+
 		$files = array();
 		for ($i = 0; $i < 5; $i++) {
 			$files[$i] = $f = $this->test_sandbox($i . ".tpl");
@@ -63,19 +63,19 @@ echo "h (" . \$this->h. ")\\n";
 \$this->h = "hello$i";
 echo "} END zesk\Template $i";
 END;
-			
+
 			$map = array(
 				'pushpop' => ($i !== 4) ? $pushpop : "echo \"LEAF\\n\";\n"
 			);
-			
+
 			file_put_contents($f, map($content, $map));
 		}
-		
+
 		$path = null;
 		$options = false;
 		$x = new Template("0.tpl", $options);
 		$result = $x->render();
-		
+
 		$expect = <<<EOF
 BEGIN zesk\Template 0 {
 v (hello0,,,,)
@@ -129,7 +129,7 @@ h (hello1)
 EOF;
 		echo $result;
 		$this->assert_equal(trim($result), trim($expect));
-		
+
 		echo basename(__FILE__) . ": success\n";
 	}
 }
