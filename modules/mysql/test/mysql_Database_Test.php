@@ -21,7 +21,10 @@ class Database_MySQL_Test extends Test_Unit {
 	function database() {
 		$db = $this->application->database_factory();
 
-		$this->assert_equal($db->type(), "mysql");
+		$this->assert_in_array(array(
+			"mysql",
+			"mysqli"
+		), $db->type(), "Type must be mysqli or mysql");
 		return $db;
 	}
 	function test_mysql_1() {

@@ -628,15 +628,14 @@ PRIVILEGES;";
 	 * @return integer
 	 */
 	function estimate_rows($sql) {
-		$result = $this->query_array("EXPLAIN $sql");
+		$rows = $this->query_array("EXPLAIN $sql");
 		$n = 1;
-		while (($arr = $this->fetch_array($result)) != false) {
-			$x = avalue($arr, "rows");
+		foreach ($rows as $row) {
+			$x = avalue($row, "rows");
 			if (!empty($x)) {
 				$n *= $x;
 			}
 		}
-		$this->free($result);
 		return $n;
 	}
 
