@@ -1068,7 +1068,7 @@ abstract class Database extends Hookable {
 	 * @return string A string which is pre-pended to some database table names
 	 */
 	function table_prefix() {
-		return $this->option("table_prefix", $this->option("tableprefix"));
+		return $this->option("table_prefix", $this->option("tableprefix", ""));
 	}
 	/**
 	 * Update a table
