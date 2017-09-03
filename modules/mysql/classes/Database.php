@@ -1157,10 +1157,12 @@ PRIVILEGES;";
 		return $id;
 	}
 	public final function fetch_assoc($result) {
-		throw new Exception_Parameter("{method} requires first parameter to be {class}", array(
-			"method" => __METHOD__,
-			"class" => "mysqli_result"
-		));
+		if (!$result instanceof \mysqli_result) {
+			throw new Exception_Parameter("{method} requires first parameter to be {class}", array(
+				"method" => __METHOD__,
+				"class" => "mysqli_result"
+			));
+		}
 		return mysqli_fetch_assoc($result);
 	}
 	public final function fetch_array($result) {

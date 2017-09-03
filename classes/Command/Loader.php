@@ -640,7 +640,7 @@ class Command_Loader {
 	 * @param string $message
 	 */
 	private function debug($message, array $context = array()) {
-		if ($this->debug || zesk()->configuration->debug) {
+		if ($this->debug) {
 			$context = self::wrap_brackets($context);
 			echo __CLASS__ . " " . rtrim(strtr($message, $context), "\n") . "\n";
 		}
