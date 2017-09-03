@@ -27,6 +27,7 @@ use zesk\PHP;
 use zesk\Kernel;
 use zesk\Timestamp;
 use zesk\Exception_Parameter;
+use zesk\Database_Exception;
 
 /**
  *
@@ -84,7 +85,7 @@ class Database extends \zesk\Database {
 	 *
 	 * @var string
 	 */
-	const default_engine = "MyISAM";
+	const default_engine = "InnoDB";
 
 	/**
 	 * Current selected database
@@ -119,7 +120,8 @@ class Database extends \zesk\Database {
 	 * Register schemes this class support
 	 */
 	public static function hooks(Kernel $zesk) {
-		$zesk->classes->register(__CLASS__);
+		// Kernel shoudl find some way to store this registration data instead of per-class
+		// TODO
 		\zesk\Database::register_scheme("mysql", __CLASS__);
 		\zesk\Database::register_scheme("mysqli", __CLASS__);
 	}
@@ -1087,7 +1089,18 @@ PRIVILEGES;";
 			$this->Connection = null;
 		}
 	}
+
+	/**
+	 * Main query entry point
+	 *
+	 * {@inheritdoc}
+	 *
+	 * @see \zesk\Database::query()
+	 */
 	public final function query($query, array $options = array()) {
+		if (empty($query)) {
+			return null;
+		}
 		if (is_array($query)) {
 			$result = array();
 			foreach ($query as $index => $sql) {
@@ -1144,9 +1157,19 @@ PRIVILEGES;";
 		return $id;
 	}
 	public final function fetch_assoc($result) {
+		throw new Exception_Parameter("{method} requires first parameter to be {class}", array(
+			"method" => __METHOD__,
+			"class" => "mysqli_result"
+		));
 		return mysqli_fetch_assoc($result);
 	}
 	public final function fetch_array($result) {
+		if (!$result instanceof \mysqli_result) {
+			throw new Exception_Parameter("{method} requires first parameter to be {class}", array(
+				"method" => __METHOD__,
+				"class" => "mysqli_result"
+			));
+		}
 		return mysqli_fetch_array($result, MYSQLI_NUM);
 	}
 	public final function native_quote_text($value) {

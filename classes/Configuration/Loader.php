@@ -1,10 +1,11 @@
 <?php
+
 namespace zesk;
 
 class Configuration_Loader {
 	/**
 	 * Paths to search for configuration files to process
-	 * 
+	 *
 	 * @var \string[]
 	 */
 	private $paths = array();
@@ -14,45 +15,45 @@ class Configuration_Loader {
 	 * @var \string[]
 	 */
 	private $files = array();
-	
+
 	/**
 	 * Files which could be loaded, but do not exist
-	 * 
+	 *
 	 * @var \array
 	 */
 	private $missing_files = array();
 	/**
 	 * Files which could be loaded, but do not exist
-	 * 
+	 *
 	 * @var \array
 	 */
 	private $processed_files = array();
 	/**
 	 * Files which could be loaded, but do not exist
-	 * 
+	 *
 	 * @var \array
 	 */
 	private $skipped_files = array();
 	/**
-	 * 
+	 *
 	 * @var File_Monitor_List
 	 */
 	private $file_monitor = null;
-	
+
 	/**
-	 * 
+	 *
 	 * @var Interface_Settings
 	 */
 	private $settings = null;
-	
+
 	/**
-	 * 
+	 *
 	 * @var Configuration_Dependency
 	 */
 	private $dependency = null;
-	
+
 	/**
-	 * 
+	 *
 	 * @param array $files
 	 * @param array $paths
 	 * @param Interface_Settings $context
@@ -83,17 +84,18 @@ class Configuration_Loader {
 		$this->file_monitor = new File_Monitor_List($files);
 		$this->dependency = new Configuration_Dependency();
 	}
-	
+
 	/**
+	 *
 	 * @return string[]
 	 */
 	public function paths() {
 		return $this->paths;
 	}
-	
+
 	/**
 	 * Add additional files to load
-	 * 
+	 *
 	 * @param array $files
 	 * @return \zesk\Configuration_Loader
 	 */
@@ -105,7 +107,7 @@ class Configuration_Loader {
 		return $this;
 	}
 	/**
-	 * 
+	 *
 	 * @return number|unknown
 	 */
 	public function load() {
@@ -118,10 +120,10 @@ class Configuration_Loader {
 			}
 		}
 	}
-	
+
 	/**
 	 * Load a single file
-	 * 
+	 *
 	 * @param unknown $file
 	 * @throws Exception_File_Format
 	 * @return void
@@ -138,10 +140,11 @@ class Configuration_Loader {
 		$parser->configuration_loader($this);
 		$parser->process();
 		$this->processed_files[] = $file;
+		return $this;
 	}
-	
+
 	/**
-	 * 
+	 *
 	 * @return array[]
 	 */
 	public function variables() {
