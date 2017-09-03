@@ -16,30 +16,21 @@ class Template_Test extends Test_Unit {
 	function test_begin() {
 		$path = null;
 		$options = false;
-		Template::begin($path, $options);
-	}
-	function test_end() {
-		$options = array();
-		$content_variable = 'content';
-		Template::end($options, $content_variable);
+		$template = new Template($this->application);
+		$template->begin("good");
+
+		$template->end(array(
+			"bad" => 1
+		));
 	}
 	function test_find_path() {
-		Template::find_path("template.tpl");
-	}
-	function test_instance() {
-		$path = null;
-		$options = false;
-		Template::instance($path, $options);
-	}
-	function test_run() {
-		$path = null;
-		$options = false;
-		$default = null;
-		Template::run($path, $options, $default);
+		$template = new Template($this->application);
+		$template->find_path("template.tpl");
 	}
 	function test_would_exist() {
-		$path = null;
-		Template::would_exist($path);
+		$path = "foo.tpl";
+		$template = new Template($this->application);
+		$template->would_exist($path);
 	}
 	function test_output() {
 		$this->application->theme_path($this->test_sandbox());
