@@ -1,4 +1,5 @@
 <?php
+
 /**
  * $URL: https://code.marketacumen.com/zesk/trunk/test/classes/net/smtp/Net_SMTP_Client_Test.inc $
  * @package zesk
@@ -9,12 +10,11 @@
 namespace zesk;
 
 /**
- * 
+ *
  * @author kent
  *
  */
 class Net_SMTP_Client_Test extends Test_Unit {
-
 	function test_main() {
 		$url = $this->option("url");
 		if (!$url) {
@@ -28,20 +28,18 @@ class Net_SMTP_Client_Test extends Test_Unit {
 		if (!$to) {
 			throw new Exception_Configuration("No to specified for " . __CLASS__);
 		}
-		
+
 		$options = array(
 			"echo_log" => true
 		);
 		$testx = new Net_SMTP_Client($url, $options);
-		
+
 		echo "Hello";
-		
+
 		$testx->connect();
-		
+
 		$headers = null;
 		$body = null;
-		$testx->go($from, $to, $headers, $body);
-		
-		echo basename(__FILE__) . ": success\n";
+		$testx->send($from, $to, $headers, $body);
 	}
 }

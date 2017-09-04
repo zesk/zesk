@@ -8,6 +8,7 @@ namespace zesk;
 use zesk\Test\Exception_Incomplete;
 use zesk\Test\Exception_Skipped;
 use zesk\Test\Exception as TestException;
+use zesk\Test\Method;
 
 /**
  *
@@ -40,14 +41,47 @@ class Test extends Options {
 	protected $load_modules = array();
 
 	/**
+	 * Method => settings
+	 *
+	 * @var array[string]
+	 */
+	private $tests = array();
+
+	/**
+	 * Keys to tests/tests_status/test_results
+	 *
+	 * @var string[]
+	 */
+	private $test_queue = array();
+
+	/**
+	 * Pass/fail status
+	 *
+	 * Method => true/false/null
+	 *
+	 * @var mixed[string]
+	 */
+	private $test_status = array();
+
+	/**
+	 * Method return value storage.
+	 * Failed tests do not return anything so their values will be empty.
+	 *
+	 * Method => mixed
+	 *
+	 * @var mixed[string]
+	 */
+	private $test_results = array();
+
+	/**
 	 * Current test method
 	 *
-	 * @var string
+	 * @var Method
 	 */
 	private $test = null;
 
 	/**
-	 * Current test metho arguments
+	 * Current test method arguments
 	 *
 	 * @var array
 	 */
@@ -124,16 +158,18 @@ class Test extends Options {
 	 * @param array $arguments
 	 * @throws Exception_Semantics
 	 */
-	private function begin_test($test, array $settings, array $arguments = array()) {
+	private function begin_test(Method $test, array $arguments = array()) {
 		if ($this->test !== null) {
-			throw new Exception_Semantics("Begin test $test already started: $this->test");
+			throw new Exception_Semantics("{method}({name}): Already started test {this_name}", $test->variables() + arr::kprefix($this->test->variables(), "this_") + array(
+				"method" => __METHOD__
+			));
 		}
 		$this->stats['test']++;
 		$this->test = $test;
 		$this->test_args = $arguments;
 		$this->test_result = true;
-		$settings = $settings + $this->options;
-		if (!avalue($settings, 'no_buffer')) {
+		$no_buffer = $test->option("no_buffer", $this->option("no_buffer"));
+		if (!$no_buffer) {
 			ob_start();
 		}
 	}
@@ -145,24 +181,32 @@ class Test extends Options {
 	 * @param string $error
 	 * @throws string
 	 */
-	private function end_test(array $settings, $error = null) {
-		$expected_exception = avalue($settings, 'expected_exception', avalue($settings, 'expectedexception', avalue($settings, 'expectedException')));
+	private function end_test($error = null) {
+		$test = $this->test;
+		if ($test === null) {
+			if ($error !== null) {
+				throw $error;
+			}
+			return;
+		}
+
+		$name = $test->name();
+		$expected_exception = $test->option('expectedException', $test->option('expected_exception'));
 		$error_class = is_object($error) ? get_class($error) : gettype($error);
 		if ($expected_exception) {
 			if ($expected_exception === $error_class) {
 				$this->stats['pass']++;
+				$this->test_results[$name] = null;
+				$this->test_status[$name] = avalue($this->test_status, $name, true);
 			} else {
 				$this->stats['fail']++;
+				$this->test_status[$name] = false;
 				$this->log("Expected exception $expected_exception and received $error_class");
 			}
 		} else {
-			if ($this->test === null) {
-				if ($error !== null) {
-					throw $error;
-				}
-				return;
-			}
 			if ($error instanceof Exception_Incomplete) {
+				$this->report($error, "INCOMPLETE");
+			} else if ($error instanceof Exception_Skipped) {
 				$this->report($error, "SKIPPED");
 			} else if ($error !== null) {
 				$this->test_result = false;
@@ -170,33 +214,27 @@ class Test extends Options {
 			}
 			if ($this->test_result === false) {
 				$this->stats['fail']++;
+				$this->test_status[$name] = false;
 			} else if ($this->test_result === true) {
 				$this->stats['pass']++;
+				$this->test_status[$name] = avalue($this->test_status, $name, true);
 			} else if ($this->test_result === null) {
 				$this->stats['skip']++;
+				$this->test_status[$name] = null;
 			} else {
 				$this->application->logger->debug(PHP::dump($this->test_result));
+				$this->test_status[$name] = null;
 			}
 		}
+
 		$this->test = null;
 		$this->test_args = null;
-		$settings = $settings + $this->options;
-		if (!avalue($settings, "no_buffer")) {
+		$no_buffer = $test->option("no_buffer", $this->option("no_buffer"));
+		if (!$no_buffer) {
 			$this->last_test_output = ob_get_clean();
 		} else {
 			$this->last_test_output = null;
 		}
-	}
-
-	/**
-	 * Reorder tests based on @depends
-	 *
-	 * @todo
-	 *
-	 * @param array $tests
-	 */
-	private static function reorder_tests(array $tests) {
-		return $tests;
 	}
 
 	/**
@@ -219,7 +257,7 @@ class Test extends Options {
 	 *        	Arguments in the message
 	 * @return self
 	 */
-	protected function log($message, array $arguments = array()) {
+	public function log($message, array $arguments = array()) {
 		if (is_array($message)) {
 			$message = Text::format_pairs($message);
 		}
@@ -293,20 +331,129 @@ class Test extends Options {
 				if ($this->option_bool('debug_test_settings')) {
 					if (count($settings) > 0) {
 						echo "$method_name:\n";
+
 						echo Text::format_pairs($settings, "    ");
 					} else {
 						echo "$method_name: no settings\n";
 					}
 				}
 				if ($this->_test_should_run($method_name, $settings)) {
-					$tests[$method_name] = $settings;
+					$tests[$method_name] = new Method($this, $method_name, $settings);
 				}
 			}
 			return $tests;
 		} catch (\ReflectionException $e) {
-			zesk()->logger->error("Unable to reflect on $class");
-			zesk()->logger->error($e->getMessage());
+			$this->application->logger->error("Unable to reflect on $class");
+			$this->application->logger->error($e->getMessage());
 			return array();
+		}
+	}
+
+	/**
+	 *
+	 * @param string $name
+	 * @return boolean
+	 */
+	final public function has_test($name) {
+		return array_key_exists($name, $this->tests);
+	}
+
+	/**
+	 *
+	 * @param string $name
+	 */
+	final public function get_test_result($name) {
+		return avalue($this->test_results, $name);
+	}
+
+	/**
+	 *
+	 * @param string $name
+	 */
+	final public function has_test_result($name) {
+		return array_key_exists($name, $this->test_results);
+	}
+
+	/**
+	 * Getter/setter for last test output
+	 *
+	 * @param string $name
+	 */
+	final public function last_test_output($set = null) {
+		if ($set === null) {
+			return $this->last_test_output;
+		}
+		$this->last_test_output = $set;
+		return $this;
+	}
+
+	/**
+	 *
+	 * @param unknown $name
+	 * @return Method
+	 */
+	final public function find_test($name) {
+		return avalue($this->tests, $name, null);
+	}
+	final public function can_run_test($name) {
+		if (!$this->has_test($name)) {
+			return false;
+		}
+		/* @var $test Method */
+		$test = $this->find_test($name);
+		if (!$test) {
+			return false;
+		}
+		if ($test->has_dependencies()) {
+			return $test->dependencies_have_been_met();
+		}
+		return true;
+	}
+
+	/**
+	 *
+	 * @param string $name
+	 * @return boolean
+	 */
+	final public function is_test_queued($name) {
+		return in_array($name, $this->test_queue);
+	}
+
+	/**
+	 * Should we put off this test until later (dependencies?)
+	 *
+	 * @param string $name
+	 * @return boolean
+	 */
+	final public function should_defer_test($name) {
+		/* @var $test Method */
+		$test = $this->find_test($name);
+		if (!$test) {
+			return false;
+		}
+		if ($test->has_dependencies()) {
+			if ($test->dependencies_can_be_met()) {
+				return true;
+			}
+		}
+		return false;
+	}
+
+	/**
+	 *
+	 * @param Method $method
+	 */
+	final public function _run_test_method(Method $method, array $arguments) {
+		$name = $method->name();
+		try {
+			$this->begin_test($method, $arguments);
+			$this->test_results[$name] = call_user_func_array(array(
+				$this,
+				$name
+			), $arguments);
+			$this->end_test();
+		} catch (\Exception $e) {
+			$this->end_test($e);
 		}
 	}
 
@@ -323,7 +470,6 @@ class Test extends Options {
 		}
 		$class = get_class($this);
 		$tests = $this->_determine_run_methods($class);
-		$tests = self::reorder_tests($tests);
 		try {
 			$this->initialize();
 		} catch (Exception_Incomplete $e) {
@@ -333,73 +479,57 @@ class Test extends Options {
 			$this->stats['skip']++;
 			return true;
 		}
-		foreach ($tests as $test => $settings) {
-			$fails = $this->stats['fail'];
-			$data_provider = null;
-			$data_provider_method = avalue($settings, 'data_provider', avalue($settings, 'dataProvider'));
-			if ($data_provider_method) {
-				if (!method_exists($this, $data_provider_method)) {
-					$this->error("No such data provider method $data_provider_method exists to run test $test");
-					continue;
-				}
-				$data_provider = call_user_func(array(
-					$this,
-					$data_provider_method
-				));
-			}
-			if ($data_provider) {
-				if ($this->option("show-data-providers")) {
-					$this->log("## Data provider $data_provider_method");
-				}
-				$loop = 0;
-				$test_output = "";
-				foreach ($data_provider as $arguments) {
-					try {
-						if (!is_array($arguments)) {
-							$arguments = array(
-								$arguments
-							);
-						}
-						$this->begin_test($test, $settings, $arguments);
-						$this->log(__("- $test iteration {0}: {1}", $loop + 1, substr(json_encode($arguments), 0, 80)));
-						call_user_func_array(array(
-							$this,
-							$test
-						), $arguments);
-						$this->end_test($settings);
-					} catch (\Exception $e) {
-						$this->end_test($settings, $e);
-					}
-					$test_output .= $this->last_test_output;
-					$loop++;
-				}
-				$this->last_test_output = $test_output;
-			} else {
-				try {
-					$this->begin_test($test, $settings);
-					call_user_func(array(
-						$this,
-						$test
+		$this->tests = $tests;
+		$this->test_queue = array_keys($tests);
+		$this->test_status = array();
+		$this->test_results = array();
+
+		$deferred = array();
+		while (count($this->test_queue) > 0) {
+			$name = array_shift($this->test_queue);
+			$test = $this->tests[$name];
+
+			if ($this->can_run_test($name)) {
+				$this->log(__("# Running {name}", array(
+					'name' => $name
+				)));
+				$test->run();
+				$failed = avalue($this->test_status, $name) !== true;
+				$this->log(__("# {class_test}: {status}", array(
+					'class_test' => Text::lalign("$class::$name", 80),
+					'status' => $failed ? 'FAIL' : 'OK'
+				)));
+				if (($failed || $this->option_bool('verbose')) && !empty($this->last_test_output)) {
+					$this->application->logger->info("Last test output:\n{output}--- End of output", array(
+						"output" => "\n" . Text::indent($this->last_test_output, 1, true)
 					));
-					$this->end_test($settings);
-				} catch (\Exception $e) {
-					$this->end_test($settings, $e);
 				}
-			}
-			$failed = ($fails !== $this->stats['fail']);
-			$this->log(__("# {class_test}: {status}", array(
-				'class_test' => Text::lalign("$class::$test", 80),
-				'status' => $failed ? 'FAIL' : 'OK'
-			)));
-			if (($failed || $this->option_bool('verbose')) && !empty($this->last_test_output)) {
-				zesk()->logger->info("Last test output:\n{output}--- End of output", array(
-					"output" => "\n" . Text::indent($this->last_test_output, 1, true)
-				));
+			} else if ($this->should_defer_test($name)) {
+				if (isset($deferred[$name])) {
+					$this->application->logger->info("Test deferred already, skipping {name}", array(
+						"name" => $name
+					));
+					$this->test_status[$name] = "skipped";
+					$this->stats['skip']++;
+				} else {
+					$deferred[$name] = true;
+					$this->test_queue[] = $name;
+				}
+			} else {
+				$this->test_status[$name] = "skipped";
+				$this->stats['skip']++;
 			}
 		}
+
 		$this->cleanup();
 		return $this->stats['fail'] === 0;
 	}
+
+	/**
+	 *
+	 * @param \Exception $e
+	 * @param string $result
+	 */
 	final function report(\Exception $e, $result = "FAILED") {
 		$this->log(" - Exception: " . get_class($e) . "\n");
 		$this->log(" -    Result: $result\n");
@@ -807,6 +937,9 @@ class Test extends Options {
 	final protected function test_sandbox($file = null, $auto_delete = true) {
 		return $this->sandbox($file, $auto_delete);
 	}
+
+	/**
+	 */
 	final public function sandbox($file = null, $auto_delete = true) {
 		global $zesk;
 		/* @var $zesk Kernel */

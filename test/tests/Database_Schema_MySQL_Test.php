@@ -110,7 +110,7 @@ class Database_Schema_MySQL_Test extends Test_Unit {
 
 		$this->assert($db->table_exists($table), "$db->table_exists($table)");
 
-		$object_table = $db->parse_create_table($sql);
+		$object_table = $db->parse_create_table($sql, __METHOD__);
 		$table_name = $object_table->name();
 
 		$this->assert_equal($table_name, $table);
@@ -149,7 +149,7 @@ class Database_Schema_MySQL_Test extends Test_Unit {
 
 		$this->assert($db->table_exists($table));
 
-		$object_table = $db->parse_create_table($sql);
+		$object_table = $db->parse_create_table($sql, __METHOD__);
 		$table_name = $object_table->name();
 
 		$this->assert("'$table_name' === '$table'");
@@ -196,7 +196,7 @@ class Database_Schema_MySQL_Test extends Test_Unit {
 
 		$this->assert($db->table_exists($table));
 
-		$object_table = $db->parse_create_table($sql);
+		$object_table = $db->parse_create_table($sql, __METHOD__);
 		$table_name = $object_table->name();
 
 		$this->assert("'$table_name' === '$table'");
@@ -231,7 +231,7 @@ class Database_Schema_MySQL_Test extends Test_Unit {
 
 		$this->assert($db->table_exists($table));
 
-		$object_table = $db->parse_create_table($sql);
+		$object_table = $db->parse_create_table($sql, __METHOD__);
 		$table_name = $object_table->name();
 
 		$this->assert("'$table_name' === '$table'");
