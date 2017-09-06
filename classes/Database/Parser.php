@@ -74,18 +74,22 @@ abstract class Database_Parser extends Hookable {
 		$map = array(
 			"\\'" => '*SLASH_SLASH_QUOTE*'
 		);
+		$rev_map = array_flip($map);
+		// Munge our string to make pattern matching easier
 		$sql = strtr($sql, $map);
 		$index = 0;
 		while (preg_match("/'[^']*'/", $sql, $match) !== 0) {
 			$from = $match[0];
 			$to = chr(1) . "{" . $index . "}" . chr(2);
 			$index++;
-			$map[$from] = $to;
+			// Map BACK to the original string, not the munged one
+			$map[strtr($from, $rev_map)] = $to;
 			$sql = strtr($sql, array(
 				$from => $to
 			));
 		}
 		$sqls = arr::trim_clean(explode(";", $sql));
+		// Now convert everything back to what it is supposed to be
 		$sqls = tr($sqls, array_flip($map));
 		return $sqls;
 	}
