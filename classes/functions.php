@@ -642,7 +642,7 @@ function flatten($mixed) {
  * @return mixed Whatever passed in is returned (string/array)
  */
 function tr($mixed, array $map) {
-	if (is_array($mixed)) {
+	if (can_iterate($mixed)) {
 		foreach ($mixed as $k => $v) {
 			$mixed[$k] = tr($v, $map);
 		}
