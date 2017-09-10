@@ -383,7 +383,7 @@ class Database_Query_Select extends Database_Query_Select_Base {
 		$path = avalue($mixed, 'path', null);
 		$object = $this->object_cache($this->class);
 		if ($path === null) {
-			$target_class = zesk()->objects->resolve($class);
+			$target_class = $this->application->objects->resolve($class);
 			$path = $object->link_default_path_to($target_class);
 			if ($path === null) {
 				throw new Exception_Semantics("No path to {target_class} (resolved from {class}) from $this->class, specify explicitly", array(

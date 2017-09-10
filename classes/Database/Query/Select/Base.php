@@ -163,8 +163,7 @@ abstract class Database_Query_Select_Base extends Database_Query {
 		if ($alias === null) {
 			$alias = $this->class_alias($class);
 		}
-		$db = $this->db;
-		$columns = $db->application->object_table_columns($class, $object_mixed, $object_options);
+		$columns = $this->application->object_table_columns($class, $object_mixed, $object_options);
 		$what = array();
 		foreach ($columns as $column) {
 			$what[$prefix . $column] = "$alias.$column";
