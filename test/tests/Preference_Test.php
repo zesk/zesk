@@ -45,7 +45,7 @@ class Preference_Test extends Test_Object {
 		)));
 		
 		$user = new User($this->application, 1);
-		Int	ir
+
 		Preference::user_set($user, "country", "Random");
 		
 		$pref = new Preference($this->application, array(
