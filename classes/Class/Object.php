@@ -1118,8 +1118,6 @@ class Class_Object extends Hookable {
 	 * @return boolean true if intermediate table is used, false if not
 	 */
 	final public function _has_many_query(Object $this_object, Database_Query_Select $query, array $many_spec, &$alias = "J", $link_alias = null, $join_type = true, $reverse = false) {
-		global $zesk;
-		/* @var $zesk \zesk\Kernel */
 		$result = false;
 		$table = avalue($many_spec, 'table');
 		$foreign_key = $many_spec['foreign_key'];
@@ -1151,17 +1149,17 @@ class Class_Object extends Hookable {
 			
 			$query->join_object($join_type, $object, $alias, $on, $table);
 		}
-		
+		$logger = $this_object->application->logger;
 		$this_alias = $alias;
 		if (!$this_object->is_new()) {
 			if (Object::$debug) {
-				$zesk->logger->debug(get_class($this_object) . " is NOT new");
+				$logger->debug(get_class($this_object) . " is NOT new");
 			}
 			$this_alias = $query_class === get_class($this) ? $query->alias() : $alias;
 			$query->where("*" . $gen->column_alias($foreign_key, $this_alias), $this_object->id());
 		} else {
 			if (Object::$debug) {
-				$zesk->logger->notice(get_class($this_object) . " is  new");
+				$logger->notice(get_class($this_object) . " is  new");
 			}
 		}
 		
