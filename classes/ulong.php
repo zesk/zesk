@@ -8,6 +8,7 @@
  * @requires PHP 5
  * Created on Mon Apr 06 22:59:37 EDT 2009 22:59:37
  */
+namespace zesk;
 
 /**
  * Because PHP only supports signed integers, this class allows you to operate on unsigned longs
@@ -21,14 +22,11 @@
 class ulong {
 	public $short0;
 	public $short1;
-
 	const maxshort = 0xFFFF;
 	const maxlong = 0xFFFFFFFF;
-
 	function __construct($x = 0) {
 		$this->set($x);
 	}
-
 	static function to_ulong($x, $copy = false) {
 		if (is_numeric($x))
 			return new ulong($x);
@@ -60,7 +58,7 @@ class ulong {
 				return $this->short1 & 0xFF;
 			case 3:
 				return ($this->short1 >> 8) & 0xFF;
-			default:
+			default :
 				return 0;
 		}
 	}
@@ -95,21 +93,18 @@ class ulong {
 		$this->short1 = $this->short1 & $x->short1;
 		return $this;
 	}
-
 	function bit_or($x) {
 		$x = self::to_ulong($x);
 		$this->short0 |= $x->short0;
 		$this->short1 |= $x->short1;
 		return $this;
 	}
-
 	function bit_xor($x) {
 		$x = self::to_ulong($x);
 		$this->short0 ^= $x->short0;
 		$this->short1 ^= $x->short1;
 		return $this;
 	}
-
 	function lshift($n) {
 		$s1 = $this->short1 << $n;
 		$s0 = $this->short0 << $n;
@@ -118,14 +113,12 @@ class ulong {
 		//echo "$this\n";
 		return $this;
 	}
-
 	function rshift($n) {
 		$s1 = $this->short1;
 		$this->short0 = ($s1 << 16 - $n) & self::maxshort | ($this->short0 >> $n);
 		$this->short1 = ($s1 >> $n) & self::maxshort;
 		return $this;
 	}
-
 	function __tostring() {
 		return "" . $this->get();
 	}
