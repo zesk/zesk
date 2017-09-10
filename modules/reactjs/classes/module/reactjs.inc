@@ -158,8 +158,12 @@ class Module_ReactJS extends Module implements Interface_Module_Routes, Interfac
 				$response->cache_forever();
 			}
 		} catch (Exception_File_NotFound $e) {
+			$debug = "";
+			if ($app->development()) {
+				$debug = "<br />" . $e->filename();
+			}
 			$response->status(Net_HTTP::Status_File_Not_Found, "Not found");
-			$response->content = "ReactJS File not found";
+			$response->content = "ReactJS File not found" . $debug;
 		}
 	}
 	private function copy_to_response(Net_HTTP_Client $client, Response $response) {
