@@ -47,6 +47,8 @@ class Process_Tools_Test extends Test_Unit {
 		
 		unlink($php_file);
 		
+		$db = $this->application->database_factory();
+		
 		$db->query("DROP TABLE IF EXISTS test_PGT");
 		
 		echo basename(__FILE__) . ": success\n";
