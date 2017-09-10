@@ -189,7 +189,7 @@ class Lock extends Object {
 		if ($result) {
 			return $result;
 		}
-		throw new Excetion_Lock("Unable to obtain lock {code} (timeout={timeout}", $this->members("code") + array(
+		throw new Exception_Lock("Unable to obtain lock {code} (timeout={timeout}", $this->members("code") + array(
 			"timeout" => $timeout
 		));
 	}
