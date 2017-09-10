@@ -129,6 +129,10 @@ class Configuration_Loader {
 	 * @return void
 	 */
 	public function load_one($file) {
+		if (!file_exists($file)) {
+			$this->skipped_files[] = $file;
+			return $this;
+		}
 		$extension = strtoupper(File::extension($file));
 		$content = file_get_contents($file);
 		$parser = Configuration_Parser::factory($extension, $content, $this->settings);
