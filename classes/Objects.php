@@ -130,6 +130,12 @@ class Objects {
 	 * @return string
 	 */
 	function resolve($requested_class) {
+		if (!is_string($requested_class)) {
+			throw new Exception_Parameter("{method} argument should be a string (is a {type})", array(
+				"method" => __METHOD__,
+				"type" => type($requested_class)
+			));
+		}
 		return avalue($this->mapping, strtolower($requested_class), $requested_class);
 	}
 	
