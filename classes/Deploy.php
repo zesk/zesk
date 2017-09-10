@@ -71,15 +71,16 @@ class Deploy extends Hookable {
 	 * @return NULL|Deploy
 	 */
 	public static function settings_maintenance($path, Settings $settings) {
+		$app = $settings->application;
 		$setting_name = __CLASS__ . "::state";
 		$settings->deprecated("deploy", $setting_name);
 		$options = to_array($settings->get($setting_name));
 		
-		$deploy = new Deploy($settings->application, $path, $options);
+		$deploy = new Deploy($app, $path, $options);
 		if ($deploy->failed()) {
 			$deploy->reset(true);
 		}
-		$lock = Lock::instance($settings->application, 'deploy');
+		$lock = Lock::instance($app, 'deploy');
 		if ($lock->acquire() !== null) {
 			$deploy->_maintenance();
 			$results = $deploy->option();
@@ -87,7 +88,7 @@ class Deploy extends Hookable {
 			$settings->flush();
 			$lock->release();
 		} else {
-			$logger->warning("Deployment is already running.");
+			$app->logger->warning("Deployment is already running.");
 		}
 		return $deploy;
 	}
