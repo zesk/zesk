@@ -363,4 +363,26 @@ class Text {
 	public static function count_words($string, $limit = -1) {
 		return count(preg_split('/\s+/', trim($string), $limit));
 	}
+	
+	/**
+	 * Similar to shell command "head" returns first $count lines from $string
+	 *
+	 * @param string $string
+	 * @param number $count
+	 * @return string
+	 */
+	public static function head($string, $count = 20, $newline = "\n") {
+		return implode($newline, array_slice(explode($newline, $string), 0, $count));
+	}
+	
+	/**
+	 * Similar to shell command "head" returns first $count lines from $string
+	 *
+	 * @param string $string
+	 * @param number $count
+	 * @return string
+	 */
+	public static function tail($string, $count = 20, $newline = "\n") {
+		return implode($newline, array_slice(explode($newline, $string), -$count));
+	}
 }
