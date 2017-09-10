@@ -23,19 +23,22 @@ class Command_Class_Check extends Command_Base {
 		'created' => 'Timestamp',
 		'modified' => 'Timestamp'
 	);
+	private function all_classes() {
+		return arr::key_value($this->application->all_classes(), null, "class");
+	}
 	function run() {
 		$logger = $this->application->logger;
 		$classes = array();
 		while ($this->has_arg()) {
 			$arg = $this->get_arg("class");
 			if ($arg === "all") {
-				$classes = array_merge($classes, $this->application->classes());
+				$classes = array_merge($classes, $this->all_classes());
 			} else {
 				$classes[] = $arg;
 			}
 		}
 		if (count($classes) === 0) {
-			$classes = $this->application->classes();
+			$classes = $this->all_classes();
 		}
 		foreach ($classes as $class) {
 			$this->verbose_log("Checking class {class}", array(
