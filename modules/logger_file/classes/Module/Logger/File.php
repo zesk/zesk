@@ -83,39 +83,9 @@ class Module_Logger_File extends Module {
 	 * @return string
 	 */
 	private function _filename_path($filename) {
-		global $zesk;
-		/* @var $zesk Kernel */
 		if (!File::is_absolute($filename)) {
-			$filename = $zesk->paths->application($filename);
+			$filename = $this->application->application_root($filename);
 		}
 		return $filename;
-	}
-	/**
-	 * @deprecated 2016-09
-	 */
-	private function _legacy_configuration() {
-		$app = $this->application;
-		$this->zesk->deprecated("log:file/log::level configuration option is deprecated");
-		$level = $app->configuration->path_get("log::level", LogLevel::ERROR);
-		$level = avalue(array(
-			0 => LogLevel::CRITICAL,
-			1 => LogLevel::ERROR,
-			2 => LogLevel::WARNING,
-			3 => LogLevel::NOTICE,
-			4 => LogLevel::DEBUG
-		), $level, $level);
-		if (is_numeric($level) && $level > 4) {
-			$level = LogLevel::DEBUG;
-		}
-		$filename = $this->_filename_path($app->configuration->log->file);
-		$file = new Logger\File($filename);
-		$levels = array();
-		foreach ($this->fps as $fp_level) {
-			$levels[] = $fp_level;
-			if ($fp_level === $level) {
-				break;
-			}
-		}
-		$app->logger->register_handler("log::file", $file, $levels);
 	}
 }
