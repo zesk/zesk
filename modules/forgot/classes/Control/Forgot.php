@@ -19,7 +19,7 @@ class Control_Forgot extends Control_Edit {
 	 * 
 	 * @var string
 	 */
-	protected $class = "Forgot";
+	protected $class = "zesk\\Forgot"; // TODO fix to __NAMESPACE__ when TODO-PHP7 only
 	
 	/**
 	 * Header theme
@@ -28,7 +28,6 @@ class Control_Forgot extends Control_Edit {
 	 */
 	protected $theme_prefix = null; //"zesk/control/forgot/prefix";
 	
-
 	/**
 	 * Header theme
 	 *
@@ -36,7 +35,6 @@ class Control_Forgot extends Control_Edit {
 	 */
 	protected $theme_header = null; //"zesk/control/forgot/header";
 	
-
 	/**
 	 * Footer theme
 	 *
@@ -50,7 +48,6 @@ class Control_Forgot extends Control_Edit {
 	 */
 	protected $theme_suffix = null; //"zesk/control/forgot/suffix";
 	
-
 	/**
 	 * 
 	 * @var array
@@ -69,14 +66,11 @@ class Control_Forgot extends Control_Edit {
 	 * @var User
 	 */
 	private $auth_user = null;
-	
+
 	/**
-	 *
-	 * @see Control_Object::model()
+	 * 
+	 * @return \zesk\Widget[]|boolean[]
 	 */
-	function model() {
-		return new Forgot();
-	}
 	function hook_widgets() {
 		$this->form_name("forgot_form");
 		
