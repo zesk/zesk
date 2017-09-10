@@ -45,7 +45,7 @@ class str_Test extends Test_Unit {
 		str::is_utf16($str, $be);
 	}
 	function test_is_utf8() {
-		$test_dir = zesk::root('test/test-data');
+		$test_dir = $this->application->zesk_root('test/test-data');
 		
 		$files = array(
 			"utf16-le-no-bom.data" => false,
@@ -151,7 +151,7 @@ class str_Test extends Test_Unit {
 		
 		$this->assert(str::to_bool("01", null) === null);
 		$this->assert(str::to_bool(array(), null) === null);
-		$this->assert(str::to_bool(new stdClass(), null) === null);
+		$this->assert(str::to_bool(new \stdClass(), null) === null);
 	}
 	function test_unprefix() {
 		$string = null;
@@ -227,7 +227,7 @@ class str_Test extends Test_Unit {
 		);
 		foreach ($tests as $test) {
 			list($name, $rules, $default, $result) = $test;
-			$this->assert(str::filter($name, $rules, $default) === $result, "str::filter($name, $in_pattern, $ex_pattern," . str::from_bool($default) . ") === " . str::from_bool($result));
+			$this->assert(str::filter($name, $rules, $default) === $result, "str::filter(" . PHP::dump($name) . ", " . PHP::dump($rules) . ", " . str::from_bool($default) . ") === " . str::from_bool($result));
 		}
 	}
 	function test_substr() {
