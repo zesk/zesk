@@ -733,7 +733,7 @@ class Locale {
 		if (!$path) {
 			return;
 		}
-		$formats = arr::change_value_case(to_list($zesk->configuration->path_get_first(array(
+		$formats = arr::change_value_case(to_list($application->configuration->path_get_first(array(
 			'zesk\Locale::formats',
 			'Locale::formats'
 		))));
