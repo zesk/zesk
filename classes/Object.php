@@ -9,8 +9,6 @@
  */
 namespace zesk;
 
-use \ReflectionClass;
-
 /**
  * Object provides base class functionality for lists, editing, and creating objects which are
  * generally stored in a database.
