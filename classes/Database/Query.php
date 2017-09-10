@@ -16,6 +16,11 @@ namespace zesk;
  */
 class Database_Query {
 	/**
+	 * 
+	 * @var Application
+	 */
+	public $application = null;
+	/**
 	 * Type of query
 	 *
 	 * @var string
@@ -56,6 +61,7 @@ class Database_Query {
 	 * @param Database $db
 	 */
 	function __construct($type = "SELECT", Database $db) {
+		$this->application = $db->application;
 		$this->type = strtoupper($type);
 		$this->db = $db;
 		$this->dbname = $this->db->code_name();
