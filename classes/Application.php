@@ -888,7 +888,7 @@ class Application extends Hookable implements Interface_Theme {
 				continue;
 			}
 			$result = array();
-			$result['class'] = $lowclass;
+			$result['class'] = $class;
 			try {
 				$result['object'] = $object = $this->object_factory($class);
 				$result['database'] = $object->database_name();
