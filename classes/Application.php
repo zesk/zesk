@@ -2001,6 +2001,17 @@ class Application extends Hookable implements Interface_Theme {
 	public function model_factory($class, $mixed = null, array $options = array()) {
 		return Model::factory($this, $class, $mixed, $options);
 	}
+	/**
+	 * Create a generic object
+	 *
+	 * @param string $class
+	 * @return object
+	 */
+	public function factory($class) {
+		$arguments = func_get_args();
+		$class = array_shift($arguments);
+		return $this->objects->factory_arguments($class, $arguments);
+	}
 	
 	/**
 	 * Access a class_object
