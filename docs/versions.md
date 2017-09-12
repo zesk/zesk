@@ -1,3 +1,14 @@
+## Release v0.10.12
+
+- Fixing `zesk\Contact_Address_Parser` processing for `zesk\Contact_Address::store()`
+- `Country::find_country` now takes `$application` as first parameter for context
+- `Model::factory`, `Object::factory`, and `Widget::factory` now support `$application->factory()` instead
+- `zesk\Application::factory` is a shortcut to `$application->objects->factory()`
+- `zesk\Database`: Removed references to global `$zesk`
+- `zesk\Module_World` command `world-bootstrap` now properly creates bootstrap objects
+- `zesk\\Options::inherit_global_options` now takes `$application` as first parameter.
+
+
 ## Release v0.10.11
 
 - `zesk\Configuration_Loader::load_one` does not emit error with file name which does not exist is passed in.
