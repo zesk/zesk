@@ -61,7 +61,7 @@ class Model extends Hookable implements \ArrayAccess {
 	 * @return Model
 	 */
 	public static function factory(Application $application, $class, $value = null, $options = null) {
-		$object = $application->objects->factory($class, $application, $value, $options);
+		$object = $application->factory($class, $application, $value, $options);
 		if (!$object instanceof Model) {
 			throw new Exception_Semantics("Class {class} is not of type Model", array(
 				"class" => $class

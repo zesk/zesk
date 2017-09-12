@@ -209,7 +209,7 @@ class Object extends Model {
 		if (!is_string($class)) {
 			throw new Exception_Semantics("$class is not a class name");
 		}
-		$object = $application->objects->factory($class, $application, $mixed, $options, $application);
+		$object = $application->factory($class, $application, $mixed, $options, $application);
 		if (!$object instanceof Object) {
 			throw new Exception_Semantics("{method}({class}) is not a subclass of {object_class}", array(
 				"method" => __METHOD__,

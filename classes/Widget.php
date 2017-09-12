@@ -569,7 +569,7 @@ class Widget extends Hookable {
 		);
 		$widget = null;
 		try {
-			$widget = $application->objects->factory_arguments($class, $args);
+			$widget = $application->factory_arguments($class, $args);
 		} catch (Exception_Class_NotFound $e) {
 			if (strpos($class, "\\") === false && class_exists("zesk\\$class")) {
 				$widget = $application->objects->factory_arguments("zesk\\" . $class, $args);
