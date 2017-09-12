@@ -94,7 +94,7 @@ class Currency extends Object {
 		return $cached = $application->object_factory(__CLASS__, array(
 			'name' => 'US Dollar',
 			'code' => 'USD',
-			'bank_country' => Country::find_country('us'),
+			'bank_country' => Country::find_country($application, 'us'),
 			'id' => 840,
 			'symbol' => '$',
 			'format' => '{symbol}{amount}',

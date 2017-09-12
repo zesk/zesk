@@ -6,7 +6,6 @@
  * @author Kent Davidson <kent@marketacumen.com>
  * @copyright Copyright &copy; 2008, Market Acumen, Inc.
  */
-
 namespace zesk;
 
 /*
@@ -47,11 +46,10 @@ namespace zesk;
  *
  * 	[A-Z]{1,2}[A-Z0-9]{1,2}[0-9]?[A-Z]{2}
  */
-
 class Contact_Address_Parser {
 	/**
 	 * Pattern to match a company name
- 	*/
+	 */
 	const RE_ADDRESS_COMPANY = '.+(\.com|\.net|\.org|L\.P\.|P\.C\.|LLC|inc|ltd|GmbH).*';
 	/**
 	 * Pattern to match a city
@@ -69,7 +67,7 @@ class Contact_Address_Parser {
 	 * Pattern to match a Country Code or country name
 	 */
 	const RE_ADDRESS_COUNTRY = '[A-Za-z]{2,} ?[A-Za-z]*';
-
+	
 	/**
 	 * Pattern to match a Zip code in the US
 	 */
@@ -86,13 +84,12 @@ class Contact_Address_Parser {
 	 * Pattern to match a Zip code in all other countries?
 	 */
 	const RE_ADDRESS_ZIP_OTHER = '[-A-Z0-9]{4,}';
-
-	public static function parse($lines) {
+	public static function parse(Application $application, $lines) {
 		/**
 		 * Pattern to match a Zip code in all countries
 		 */
 		$RE_ADDRESS_ZIP = self::RE_ADDRESS_ZIP_GB . '|' . self::RE_ADDRESS_ZIP_CA . '|' . self::RE_ADDRESS_ZIP_OTHER;
-
+		
 		// Ordering:
 		//		Country items are first, as they will be rejected if the country is not found in the database
 		//		Then from most limiting to least limiting patterns
@@ -108,8 +105,8 @@ class Contact_Address_Parser {
 				0 => "country"
 			),
 			// City, State Zip Country
-			'/^(' . self::RE_ADDRESS_CITY . '),? (' . self::RE_ADDRESS_STATE . ') (' . $RE_ADDRESS_ZIP . ') (' . self::RE_ADDRESS_COUNTRY . ')$/' => 			//[A-Za-z]{2,} country
-array(
+			//[A-Za-z]{2,} country
+			'/^(' . self::RE_ADDRESS_CITY . '),? (' . self::RE_ADDRESS_STATE . ') (' . $RE_ADDRESS_ZIP . ') (' . self::RE_ADDRESS_COUNTRY . ')$/' => array(
 				4 => "country",
 				1 => "city",
 				2 => "province",
@@ -186,7 +183,7 @@ array(
 				1 => "postal_code"
 			)
 		);
-
+		
 		if (is_string($lines)) {
 			$lines = explode("\n", $lines);
 		}
@@ -201,7 +198,7 @@ array(
 			}
 			$line = str_replace(",", ", ", $line);
 			$line = preg_replace('/\s+/', " ", $line);
-
+			
 			$matched = false;
 			foreach ($patterns as $pattern => $map) {
 				$matches = false;
@@ -219,7 +216,7 @@ array(
 							$matched = true;
 							break;
 						} else if ($k === "country") {
-							$cc = Country::find_country($v);
+							$cc = Country::find_country($application, $v);
 							if (empty($cc)) {
 								break;
 							}

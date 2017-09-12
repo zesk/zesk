@@ -4,7 +4,6 @@
  * @package zesk
  * @subpackage objects
  */
-
 namespace zesk;
 
 /**
@@ -15,14 +14,14 @@ namespace zesk;
  * @property string $name
  */
 class Country extends Object {
-	public static function find_country($mixed) {
+	public static function find_country(Application $application, $mixed) {
 		if (is_numeric($mixed)) {
-			$c = new Country($mixed);
+			$c = new Country($application, $mixed);
 			if ($c->fetch()) {
 				return $c;
 			}
 		} else {
-			$c = new Country(array(
+			$c = new Country($application, array(
 				"code" => $mixed
 			));
 			return $c->find();

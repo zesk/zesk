@@ -117,3 +117,6 @@ echo '`Server::singleton` now takes `$application`'
 php-find.sh 'Settings::singleton'
 pause
 
+echo '`zesk\\Contact_Address_Parser::parse` now takes `$application`'
+php-find.sh 'Contact_Address_Parser::parse'
+pause
