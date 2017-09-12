@@ -11,9 +11,9 @@ use zesk\Test_Unit;
  * @author kent
  *
  */
-class Test_RRule_Set extends Test_Unit {
+class RRule_Set_Test extends Test_Unit {
 	protected $load_modules = array(
-		"icalendar"
+		"iCalendar"
 	);
 	function load_rrule_tests($tests_path) {
 		$tests_content = file_get_contents($tests_path);

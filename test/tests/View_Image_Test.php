@@ -47,7 +47,7 @@ class View_Image_Test extends Test_Widget {
 		$height = false;
 		$alt = "";
 		$extras = false;
-		View_Image::scaled($src, $width, $height, $alt, $extras);
+		View_Image::scaled($this->application, $src, $width, $height, $alt, $extras);
 
 		newline("\n");
 
@@ -147,7 +147,7 @@ class View_Image_Test extends Test_Widget {
 			);
 			foreach ($tests as $test) {
 				list($s0x, $s0y, $s1x, $s1y) = $test;
-				$this->validate_image_size_tag(View_Image::scaled($src, $s0x, $s0y, "", $extras), $s1x, $s1y);
+				$this->validate_image_size_tag(View_Image::scaled($this->application, $src, $s0x, $s0y, "", $extras), $s1x, $s1y);
 			}
 		}
 	}
@@ -161,7 +161,7 @@ class View_Image_Test extends Test_Widget {
 		$height = false;
 		$alt = "";
 		$extras = false;
-		View_Image::scaled_path($src, $width, $height, $alt, $extras);
+		View_Image::scaled_path($this->application, $src, $width, $height, $alt, $extras);
 
 		newline("\n");
 
@@ -260,7 +260,7 @@ class View_Image_Test extends Test_Widget {
 			);
 			foreach ($tests as $test) {
 				list($s0x, $s0y, $s1x, $s1y) = $test;
-				$rel_path = View_Image::scaled_path($src, $s0x, $s0y, "", $extras);
+				$rel_path = View_Image::scaled_path($this->application, $src, $s0x, $s0y, "", $extras);
 				$full_path = path($this->application->document_root(), $rel_path);
 				$this->validate_image_size($full_path, $s1x, $s1y);
 			}
@@ -278,7 +278,7 @@ class View_Image_Test extends Test_Widget {
 		$height = false;
 		$alt = "";
 		$extras = false;
-		View_Image::scaled_widget($width, $height, $alt, $extras);
+		View_Image::scaled_widget($this->application, $width, $height, $alt, $extras);
 	}
 	function test_debug() {
 		$set = null;

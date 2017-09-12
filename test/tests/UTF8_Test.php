@@ -2,7 +2,7 @@
 
 namespace zesk;
 
-class test_utf8 extends Test_Unit {
+class UTF8_Test extends Test_Unit {
 
 	function test_to_iso8859() {
 		$mixed = null;

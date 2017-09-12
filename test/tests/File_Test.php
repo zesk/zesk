@@ -1,7 +1,7 @@
 <?php
 namespace zesk;
 
-class test_file extends Test_Unit {
+class File_Test extends Test_Unit {
 
 	private function _test_atomic_increment($path, $start) {
 		$this->assert(File::atomic_put($path, "$start"), "Creating initial file");

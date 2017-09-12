@@ -78,35 +78,28 @@ class Preference extends Object {
 			));
 		}
 		$pref_name = strtolower($pref_name);
-		$prefs = $user->_preference_cache;
-		if (!is_array($prefs)) {
-			$prefs = $user->application->query_select(__CLASS__)
-				->link(self::type_class, array(
-				"alias" => "T"
-			))
-				->what("name", "T.code")
-				->what("value", "X.value")
-				->what("id", "X.id")
-				->where('X.user', $user)
-				->to_array("name");
-			foreach ($prefs as $k => $row) {
-				$id = $row['id'];
-				$value = $row['value'];
-				$vlen = strlen($value);
-				if ($vlen >= 4 && $value[1] === ':' && $value[$vlen - 1] === ';') {
-					$prefs[strtolower($k)] = @unserialize($value);
-				} else {
-					$user->application->logger->warning("Invalid preference string for {user}: {key}={value} - deleting", array(
-						"user" => $user,
-						"key" => $k,
-						"value" => $value
-					));
-					$user->application->query_delete("zesk\\Preference")->where("id", $id)->execute();
-				}
-			}
-			$user->_preference_cache = $prefs;
+		$row = $user->application->query_select(__CLASS__)
+			->link(self::type_class, array(
+			"alias" => "T"
+		))
+			->what("value", "X.value")
+			->what("id", "X.id")
+			->where('T.code', $pref_name)
+			->where('X.user', $user)
+			->one();
+		$value = $row['value'];
+		$vlen = strlen($value);
+		if ($vlen >= 4 && $value[1] === ':' && $value[$vlen - 1] === ';') {
+			return PHP::unserialize($value);
+		} else {
+			$user->application->logger->warning("Invalid preference string for {user}: {key}={value} - deleting", array(
+				"user" => $user,
+				"key" => $pref_name,
+				"value" => $value
+			));
+			$user->application->query_delete("zesk\\Preference")->where("id", $row['id'])->execute();
 		}
-		return avalue($prefs, $pref_name, $default);
+		return $default;
 	}
 	static function user_get_single(User $user, $name, $default) {
 		$result = $user->application->query_select(__CLASS__)

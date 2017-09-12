@@ -33,10 +33,10 @@ class ulong_Test extends Test_Unit {
 		$x = 51234;
 		$testx->bit_xor($x);
 		
-		$n = 51234;
+		$n = 4;
 		$testx->lshift($n);
 		
-		$n = 51234;
+		$n = 4;
 		$testx->rshift($n);
 	}
 	function test_to_ulong() {
