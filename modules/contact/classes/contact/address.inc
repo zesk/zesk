@@ -43,14 +43,14 @@ class Contact_Address extends Contact_Info {
 			$this->geocode_data = null;
 		}
 		if ($this->changed('value')) {
-			$address = Contact_Address_Parser::parse($this->value);
+			$address = Contact_Address_Parser::parse($this->application, $this->value);
 			if ($address) {
 				$columns = array(
-					"Street",
-					"City",
-					"Province",
-					"PostalCode",
-					"Country"
+					"street",
+					"city",
+					"province",
+					"postalCode",
+					"country"
 				);
 				foreach ($columns as $col) {
 					$this->$col = $address->$col;
