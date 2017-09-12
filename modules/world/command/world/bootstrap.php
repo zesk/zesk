@@ -47,7 +47,7 @@ class Command_World_Bootstrap extends Command_Base {
 			$class = self::$straps[$strap];
 			$object = $this->application->factory($class, $this->options);
 			$this->log("Bootstrapping $strap ...");
-			$object->boostrap($this->application);
+			$object->bootstrap($this->application);
 		}
 	}
 }

@@ -184,9 +184,9 @@ class Net_HTTP_Client extends Options {
 	 * @param string $url        	
 	 * @param string $options        	
 	 */
-	public function __construct($url = null, $options = false) {
+	public function __construct(Application $application, $url = null, $options = false) {
 		parent::__construct($options);
-		$this->inherit_global_options();
+		$this->inherit_global_options($application);
 		$this->load_from_options();
 		if (!empty($url)) {
 			$this->set_option("URL", $url);

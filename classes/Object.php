@@ -245,7 +245,7 @@ class Object extends Model {
 	 */
 	function __construct(Application $application, $mixed = null, $options = false) {
 		parent::__construct($application, null, $options);
-		$this->inherit_global_options();
+		$this->inherit_global_options($application);
 		$this->initialize_specification();
 		$this->members = $this->class->column_defaults;
 		$this->initialize($mixed, $this->option('initialize'));

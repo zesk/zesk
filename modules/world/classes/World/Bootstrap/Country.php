@@ -15,37 +15,35 @@ namespace zesk;
  *
  */
 class World_Bootstrap_Country extends Options {
+	
+	/**
+	 *
+	 * @var Application
+	 */
+	private $application = null;
 	/**
 	 * Source http://download.geonames.org/export/dump/countryInfo.txt
 	 *
 	 * Country database (TXT file)
 	 */
 	const url_geonames_country_file = "http://download.geonames.org/export/dump/countryInfo.txt";
-
+	
 	/**
 	 *
 	 * @var array
 	 */
 	private $include_country = null;
-
-	/**
-	 *
-	 * @param array $options
-	 * @return World_Bootstrap_Currency
-	 */
-	public static function factory(array $options = array()) {
-		return zesk()->objects->factory(__CLASS__, $options);
-	}
-
+	
 	/**
 	 *
 	 * @global Module_World::include_country List of country codes to include
 	 *
 	 * @param mixed $options
 	 */
-	public function __construct($options) {
+	public function __construct(Application $application, array $options = array()) {
+		$this->application = $application;
 		parent::__construct($options);
-		$this->inherit_global_options("zesk\\Module_World");
+		$this->inherit_global_options($application, "zesk\\Module_World");
 		$include_country = $this->option("include_country");
 		if ($include_country) {
 			$this->include_country = array_change_key_case(arr::flip_assign(to_list($include_country), true));
@@ -56,7 +54,7 @@ class World_Bootstrap_Country extends Options {
 		if ($this->option_bool("drop")) {
 			$x->database()->query('TRUNCATE ' . $x->table());
 		}
-
+		
 		$map = self::load_countryinfo($application);
 		foreach ($map as $fields) {
 			$country = new Country($fields);
@@ -71,7 +69,7 @@ class World_Bootstrap_Country extends Options {
 		}
 		return true;
 	}
-
+	
 	/**
 	 * Fetch and synchronize country source files
 	 *

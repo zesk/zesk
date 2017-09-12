@@ -120,3 +120,8 @@ pause
 echo '`zesk\\Contact_Address_Parser::parse` now takes `$application`'
 php-find.sh 'Contact_Address_Parser::parse'
 pause
+echo '`zesk\\Options::inherit_global_options` now takes `$application`'
+php-find.sh '>inherit_global_options('
+pause
+
+

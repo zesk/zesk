@@ -212,7 +212,7 @@ class PolyGlot_Token extends Object {
 	 */
 	private function validator() {
 		if ($this->validator === null) {
-			$this->validator = new Locale_Validate();
+			$this->validator = new Locale_Validate($this->application);
 		}
 		return $this->validator;
 	}

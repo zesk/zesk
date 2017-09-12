@@ -191,7 +191,7 @@ class Settings extends Object implements Interface_Data, Interface_Settings {
 		}
 		$application->configuration->deprecated("Settings", __CLASS__);
 		$object = $application->object(__CLASS__);
-		$object->inherit_global_options();
+		$object->inherit_global_options($application);
 		$cache_disabled = $object->option_bool("cache_disabled");
 		$exception = null;
 		try {

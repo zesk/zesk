@@ -58,9 +58,9 @@ class Service_Translate_Google extends Service_Translate {
 	 * @param string $source_language
 	 * @param string $target_language
 	 */
-	public function __construct($target_language = null, $source_language = null) {
-		parent::__construct();
-		$this->inherit_global_options();
+	public function __construct(Application $application, $target_language = null, $source_language = null) {
+		parent::__construct($application);
+		$this->inherit_global_options($application);
 		$this->source_language = $this->option("source", $source_language);
 		$this->target_language = $target_language ? $target_language : $this->option("target", Locale::language());
 		$this->client = new Net_HTTP_Client(self::api_root);

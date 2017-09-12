@@ -70,7 +70,7 @@ class Server extends Options {
 	function __construct(Application $application, array $options = array()) {
 		$this->application = $application;
 		parent::__construct($options);
-		$this->inherit_global_options();
+		$this->inherit_global_options($application);
 		
 		$this->Methods = array();
 		

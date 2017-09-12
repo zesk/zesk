@@ -117,7 +117,7 @@ class Test extends Options {
 		self::init();
 		parent::__construct($options);
 		$this->application = $application;
-		$this->inherit_global_options();
+		$this->inherit_global_options($application);
 		if ($this->load_modules) {
 			$this->log("Loading modules: {load_modules}", array(
 				"load_modules" => $this->load_modules

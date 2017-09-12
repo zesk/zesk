@@ -57,7 +57,7 @@ abstract class Server_Configuration extends Options {
 	function __construct(Server_Platform $platform, $options = null) {
 		parent::__construct($options);
 		$this->platform = $platform;
-		$this->inherit_global_options();
+		$this->inherit_global_options($platform->application);
 	}
 	final public function verbose_log($message, array $args = array()) {
 		return $this->platform->verbose_log($message, $args);

@@ -213,7 +213,7 @@ class Response extends Hookable {
 		$this->application = $application;
 		$this->request = $application->request;
 		parent::__construct($options);
-		$this->inherit_global_options();
+		$this->inherit_global_options($application);
 	}
 
 	/**

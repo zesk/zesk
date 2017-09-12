@@ -75,9 +75,10 @@ class Mail extends Hookable {
 	 * @param string $body
 	 * @param array $options
 	 */
-	public function __construct(array $headers, $body, array $options = array()) {
+	public function __construct(Application $application, array $headers, $body, array $options = array()) {
+		$this->application = $application;
 		parent::__construct($options);
-		$this->inherit_global_options();
+		$this->inherit_global_options($application);
 		$this->headers = $headers;
 		$this->body = $body;
 		$this->sent = null;
@@ -91,8 +92,8 @@ class Mail extends Hookable {
 	 * @param array $options
 	 * @return Mail
 	 */
-	public static function factory(array $headers, $body, array $options = array()) {
-		return new self($headers, $body, $options);
+	public static function factory(Application $application, array $headers, $body, array $options = array()) {
+		return new self($application, $headers, $body, $options);
 	}
 	
 	/**

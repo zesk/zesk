@@ -9,7 +9,7 @@ namespace zesk;
  * @author kent
  *
  */
-class Server_User extends Hookable {
+class Server_User extends Model {
 	/**
 	 * User name
 	 * @var string
@@ -28,9 +28,9 @@ class Server_User extends Hookable {
 	 */
 	public $home = null;
 	
-	function __construct($options=null) {
-		parent::__construct($options);
-		$this->inherit_global_options();
+	function __construct(Application $application, $options=null) {
+		parent::__construct($application, $options);
+		$this->inherit_global_options($application);
 		$this->user = $this->option('user');
 		$this->group = $this->option('group');
 		$this->home = $this->option('home');

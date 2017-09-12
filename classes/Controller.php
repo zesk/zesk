@@ -74,7 +74,7 @@ class Controller extends Hookable implements Interface_Theme {
 	public function __construct(Application $app, $options = null) {
 		parent::__construct($options);
 		
-		$this->inherit_global_options();
+		$this->inherit_global_options($app);
 		
 		$this->application = $app;
 		$this->router = $app->router;

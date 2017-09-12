@@ -784,7 +784,7 @@ class Class_Object extends Hookable {
 		global $zesk;
 		/* @var $zesk \zesk\Kernel */
 		parent::__construct($options);
-		$this->inherit_global_options();
+		$this->inherit_global_options($object->application);
 		$this->application = $object->application;
 		$this_class = $object->class_object();
 		// Handle polymorphic classes - create correct Class and use correct base class

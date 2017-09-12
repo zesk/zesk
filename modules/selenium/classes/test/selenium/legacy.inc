@@ -338,7 +338,7 @@ class Test_Selenium_Legacy extends Test_Unit {
 	 */
 	public function __construct(Application $application, array $options = array()) {
 		parent::__construct($application, $options);
-		$this->inherit_global_options();
+		$this->inherit_global_options($application);
 		$browser = "*chrome";
 		$url = "localhost";
 		$host = "localhost";

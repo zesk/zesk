@@ -1,10 +1,24 @@
 <?php
-
 namespace zesk;
 
 class Service extends Hookable {
+	
+	/**
+	 * 
+	 * @var Application
+	 */
+	public $application = null;
+	
+	/**
+	 * 
+	 * @var unknown
+	 */
 	private static $valid_types = null;
-
+	
+	public function __construct(Application $application, array $options = array()) {
+		parent::__construct($options);
+		$this->inherit_global_options($application);
+	}
 	/**
 	 * Valid service type
 	 *
@@ -20,7 +34,7 @@ class Service extends Hookable {
 		}
 		return $type === null ? self::$valid_types : array_key_exists(strtolower($type), self::$valid_types);
 	}
-
+	
 	/**
 	 * Retrieve the classes which implement the selected service
 	 *
@@ -33,21 +47,24 @@ class Service extends Hookable {
 		}
 		return array();
 	}
-
+	
 	/**
 	 * Subclasses should create a factory_$type function to allow parameters to be passed
 	 *
 	 * @param string $type
 	 * @throws \Exception_Semantics
+	 * @return self
 	 */
 	public static function factory(Application $application, $type) {
-		if (!self::valid_type($type)) {
+		if (!self::valid_type($application, $type)) {
 			throw new Exception_Semantics("Invalid service type {type}", array(
 				"type" => $type
 			));
 		}
 		$args = func_get_args();
 		array_shift($args);
+		array_shift($args);
+		array_unshift($args, $application);
 		$class = $application->configuration->path_get(__NAMESPACE__ . "\\Service_$type::class");
 		if (!$class) {
 			$classes = self::service_classes($application, $type);

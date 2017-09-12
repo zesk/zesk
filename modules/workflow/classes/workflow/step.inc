@@ -10,44 +10,44 @@ use zesk\Hookable;
  *
  */
 abstract class Workflow_Step extends Hookable {
-
+	
 	/**
 	 *
 	 * @var Workflow
 	 */
 	public $workflow = null;
-
+	
 	/**
 	 *
 	 * @var string
 	 */
 	public $title = '';
-
+	
 	/**
 	 *
 	 * @var string
 	 */
 	public $href = '';
-
+	
 	/**
 	 *
 	 * @var string
 	 */
 	public $description = '';
-
+	
 	/**
 	 * Is this completed? If null, not checked yet - call "refresh()" to update
 	 *
 	 * @var boolean
 	 */
 	public $completed = null;
-
+	
 	/**
 	 *
 	 * @var mixed
 	 */
 	protected $dependencies = array();
-
+	
 	/**
 	 *
 	 * @param Workflow $workflow
@@ -55,8 +55,8 @@ abstract class Workflow_Step extends Hookable {
 	 */
 	public function __construct(Workflow $workflow, array $options = array()) {
 		parent::__construct($options);
-		$this->inherit_global_options();
 		$this->workflow = $workflow;
+		$this->inherit_global_options($workflow->application);
 		if (empty($this->title)) {
 			$this->title = $this->option('title');
 		}
@@ -94,7 +94,7 @@ abstract class Workflow_Step extends Hookable {
 	public function hash() {
 		return __CLASS__;
 	}
-
+	
 	/**
 	 * Check if this step is completed
 	 *
@@ -103,7 +103,7 @@ abstract class Workflow_Step extends Hookable {
 	function is_completed() {
 		return $this->substeps_total() === $this->substeps_completed();
 	}
-
+	
 	/**
 	 * Check if this step is completed
 	 *

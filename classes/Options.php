@@ -72,6 +72,11 @@ class Options implements \ArrayAccess {
 			"options"
 		);
 	}
+	
+	/**
+	 * @todo global remove
+	 * @var array
+	 */
 	private static $option_references = array();
 	
 	/**
@@ -80,15 +85,13 @@ class Options implements \ArrayAccess {
 	 * @param unknown $class
 	 * @return mixed
 	 */
-	private static function _default_options($class) {
+	private static function _default_options(Application $application, $class) {
 		if (!isset(self::$option_references[$class])) {
-			global $zesk;
-			/* @var $zesk zesk\Kernel */
 			$references = array();
 			// Class hierarchy is given from child -> parent
-			foreach ($zesk->classes->hierarchy($class) as $subclass) {
+			foreach ($application->classes->hierarchy($class) as $subclass) {
 				// Child options override parent options
-				$references[$subclass] = $zesk->configuration->path($subclass);
+				$references[$subclass] = $application->configuration->path($subclass);
 			}
 			self::$option_references[$class] = $references;
 		}
@@ -108,12 +111,12 @@ class Options implements \ArrayAccess {
 	 * @param string $class
 	 * @return array
 	 */
-	static function default_options($class) {
+	static function default_options(Application $application, $class) {
 		$class = strtolower($class);
 		$opts = array();
 		// Class hierarchy is given from child -> parent
 		$config = new Configuration();
-		foreach (self::_default_options($class) as $subclass => $configuration) {
+		foreach (self::_default_options($application, $class) as $subclass => $configuration) {
 			// Child options override parent options
 			$config->merge($configuration, false);
 		}
@@ -126,14 +129,14 @@ class Options implements \ArrayAccess {
 	 * @param string $class Inherit globals from this class
 	 * @return Command
 	 */
-	final function inherit_global_options($class = null) {
+	final function inherit_global_options(Application $application, $class = null) {
 		if ($class === null) {
 			$class = get_class($this);
 		}
 		if (is_object($class)) {
 			$class = get_class($class);
 		}
-		$options = self::default_options($class);
+		$options = self::default_options($application, $class);
 		foreach ($options as $key => $value) {
 			$key = self::_option_key($key);
 			if (!isset($this->options[$key])) {

@@ -2,6 +2,7 @@
 /**
  * 
  */
+use zesk\Server;
 use zesk\Module;
 use zesk\Exception_File_Permission;
 

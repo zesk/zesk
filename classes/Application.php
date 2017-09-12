@@ -613,7 +613,7 @@ class Application extends Hookable implements Interface_Theme {
 		$this->modules->load($this->load_modules);
 		
 		// Reload application options
-		$this->inherit_global_options();
+		$this->inherit_global_options($this);
 		
 		// Load dynamic modules now
 		$modules = $this->option_list('modules');

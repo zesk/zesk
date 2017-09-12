@@ -144,7 +144,7 @@ class Options_Test extends Test_Unit {
 			"more" => "dude"
 		));
 		
-		$options->inherit_global_options();
+		$options->inherit_global_options($this->application);
 		
 		$options = $options->option();
 		$this->assert_array_key_exists($options, "test1");

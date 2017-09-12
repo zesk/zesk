@@ -10,6 +10,10 @@ namespace zesk;
 
 abstract class Net_Client extends Options {
 	/**
+	 * @var Application
+	 */
+	public $application = null;
+	/**
 	 * Connection string
 	 * @var string
 	 */
@@ -20,13 +24,13 @@ abstract class Net_Client extends Options {
 	 * @var array
 	 */
 	protected $url_parts;
-
+	
 	/**
 	 * Error log
 	 * @var array
 	 */
 	protected $errors = array();
-
+	
 	/**
 	 * Create a Net_Client
 	 * @param string $url
@@ -54,12 +58,13 @@ abstract class Net_Client extends Options {
 	 * @param array $options Options which change the behavior of this SMTP_Client connection
 	 * @return SMTP_Client
 	 */
-	public function __construct($url, $options = false) {
+	public function __construct(Application $application, $url, $options = false) {
+		$this->application = $application;
 		$this->url = $url;
 		$this->url_parts = URL::parse($url);
-
+		
 		parent::__construct($options);
-		$this->inherit_global_options();
+		$this->inherit_global_options($this->application);
 	}
 	public function __toString() {
 		return $this->url;
@@ -79,7 +84,7 @@ abstract class Net_Client extends Options {
 	 * @return false;
 	 */
 	abstract public function is_connected();
-
+	
 	/**
 	 * Force connection
 	 */
@@ -108,7 +113,7 @@ abstract class Net_Client extends Options {
 			zesk()->logger->debug($message);
 		}
 	}
-
+	
 	/**
 	 * Parse a UNIX-ish LS line
 	 * @param string $line
@@ -117,7 +122,7 @@ abstract class Net_Client extends Options {
 	 */
 	protected function parse_ls_line($line) {
 		$line = trim($line);
-
+		
 		$fields = preg_split('/\s+/', $line, 9);
 		if (strtolower($fields[0]) === "total") {
 			return null;
@@ -144,7 +149,7 @@ abstract class Net_Client extends Options {
 		$entry['type'] = file::ls_type($entry['mode']);
 		return $this->_parse_date($entry);
 	}
-
+	
 	/**
 	 *
 	 * @param unknown_type $month

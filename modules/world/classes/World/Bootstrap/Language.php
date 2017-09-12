@@ -12,6 +12,12 @@ class World_Bootstrap_Language extends Options {
 	
 	/**
 	 *
+	 * @var Application
+	 */
+	private $application = null;
+	
+	/**
+	 *
 	 * @var array
 	 */
 	private $include_country = null;
@@ -23,24 +29,14 @@ class World_Bootstrap_Language extends Options {
 	private $include_language = null;
 	
 	/**
-	 *
-	 * @param array $options
-	 * @return World_Bootstrap_Currency
-	 */
-	public static function factory(array $options = array()) {
-		global $zesk;
-		/* @var $zesk Kernel */
-		return $zesk->objects->factory(__CLASS__, $options);
-	}
-	
-	/**
 	 * @global Module_World::include_language List of language codes to include
 	 *
 	 * @param mixed $options
 	 */
-	public function __construct($options) {
+	public function __construct(Application $application, array $options = array()) {
+		$this->application = $application;
 		parent::__construct($options);
-		$this->inherit_global_options("zesk\\Module_World");
+		$this->inherit_global_options($this->application, "zesk\\Module_World");
 		$include_language = $this->option("include_language");
 		if ($include_language) {
 			$this->include_language = array_change_key_case(arr::flip_assign(to_list($include_language), true));

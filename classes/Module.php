@@ -104,7 +104,7 @@ abstract class Module extends Hookable {
 		$this->zesk = $application->zesk;
 		$this->application = $application;
 		$this->application_class = get_class($application);
-		$this->inherit_global_options();
+		$this->inherit_global_options($application);
 		$this->path = avalue($module_data, 'path');
 		if (!$this->codename) {
 			$codename = str::unprefix(get_class($this), array(

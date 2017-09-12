@@ -134,7 +134,7 @@ abstract class Route extends Hookable {
 		$this->original_pattern = $pattern;
 		$this->compile_route_pattern($pattern);
 		$this->clean_pattern = $this->clean_pattern($pattern);
-		$this->inherit_global_options();
+		$this->inherit_global_options($router->application);
 		$this->initialize();
 	}
 	

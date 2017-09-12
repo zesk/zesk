@@ -517,7 +517,7 @@ abstract class Server_Platform extends Hookable {
 		// Store into globals
 		$this->application->configuration->paths_set($user_data);
 		// Then copy into here
-		$this->inherit_global_options();
+		$this->inherit_global_options($this->application);
 	}
 
 	/**

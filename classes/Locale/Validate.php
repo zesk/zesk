@@ -13,11 +13,17 @@ class Locale_Validate extends Options {
 	
 	/**
 	 * 
+	 * @var Application
+	 */
+	public $application = null;
+	/**
+	 * 
 	 * @param array $options
 	 */
-	public function __construct($options = null) {
+	public function __construct(Application $application, $options = null) {
+		$this->application = $application;
 		parent::__construct($options);
-		$this->inherit_global_options();
+		$this->inherit_global_options($application);
 	}
 	
 	/**
