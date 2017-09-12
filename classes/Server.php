@@ -296,9 +296,7 @@ class Server extends Object implements Interface_Data {
 	 */
 	function update_state($path = null) {
 		if ($path === null) {
-			global $zesk;
-			/* @var $zesk zesk\Kernel */
-			$path = $zesk->configuration->path_get(__CLASS__ . '::free_disk_volume', "/");
+			$path = $this->option('free_disk_volume', "/");
 		}
 		$volume_info = System::volume_info();
 		$info = avalue($volume_info, $path);
