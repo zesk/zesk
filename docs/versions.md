@@ -1,3 +1,8 @@
+## Release v0.10.13
+
+- Fixed `zesk world-bootstrap --all` so it works properly without error
+- Fixing final tests - everything should pass now on development systems
+
 ## Release v0.10.12
 
 - Fixed a variety of tests so they pass
