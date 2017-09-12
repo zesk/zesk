@@ -165,3 +165,7 @@ echo '`zesk\\Mail::send_sms` now takes `$application`'
 php-find.sh 'Mail::send_sms'
 pause
 
+echo '`new Net_Foo` now takes `$application`'
+php-find.sh 'new Net' | grep -v app
+pause
+
