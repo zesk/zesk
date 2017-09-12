@@ -23,7 +23,7 @@ class Database_Index_Test extends Test_Unit {
 		return $table;
 	}
 	/**
-	 * @expected_exception zesk\Exception_NotFound
+	 * @expectedException zesk\Exception_NotFound
 	 */
 	function test_add_column_not_found() {
 		$table = $this->mytesttable();

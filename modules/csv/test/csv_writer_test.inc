@@ -125,7 +125,7 @@ class CSV_Writer_Test extends Test_Unit {
 	}
 	/**
 	 * @data_provider badkeys
-	 * @expected_exception zesk\Exception_Key
+	 * @expectedException zesk\Exception_Key
 	 */
 	function test_badkey($badkey) {
 		$x = new CSV_Writer();

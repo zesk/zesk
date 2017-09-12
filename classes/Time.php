@@ -30,49 +30,49 @@ class Time extends Temporal {
 	 * @var integer
 	 */
 	const hour_max = 23;
-
+	
 	/**
 	 * Maximum 0-based second is 59
 	 *
 	 * @var integer
 	 */
 	const second_max = 59;
-
+	
 	/**
 	 * Maximum 0-indexed minute is 59
 	 *
 	 * @var integer
 	 */
 	const minute_max = 59;
-
+	
 	/**
 	 * Maximum value for seconds from midnight in a day
 	 *
 	 * @var integer
 	 */
 	const seconds_max = 86399;
-
+	
 	/**
 	 * 60 seconds in a minute
 	 *
 	 * @var integer
 	 */
 	const seconds_per_minute = 60;
-
+	
 	/**
 	 * 3,600 seconds an hour
 	 *
 	 * @var integer
 	 */
 	const seconds_per_hour = 3600;
-
+	
 	/**
 	 * 86,400 seconds in a day
 	 *
 	 * @var integer
 	 */
 	const seconds_per_day = 86400;
-
+	
 	/**
 	 * Integer value of seconds from midnight.
 	 *
@@ -83,14 +83,14 @@ class Time extends Temporal {
 	 * @var integer
 	 */
 	protected $seconds = null;
-
+	
 	/**
 	 * Millisecond offset (0-999)
 	 *
 	 * @var integer
 	 */
 	protected $milliseconds = null;
-
+	
 	/**
 	 * Construct a new Time object
 	 *
@@ -100,7 +100,7 @@ class Time extends Temporal {
 	function __construct($value = null) {
 		$this->set($value);
 	}
-
+	
 	/**
 	 * Create a Time object
 	 *
@@ -110,7 +110,7 @@ class Time extends Temporal {
 	public static function factory($value = null) {
 		return new self($value);
 	}
-
+	
 	/**
 	 * Create exact replica of this object
 	 *
@@ -119,7 +119,7 @@ class Time extends Temporal {
 	public function duplicate() {
 		return clone $this;
 	}
-
+	
 	/**
 	 * Create a new Time object by calling a static method
 	 *
@@ -133,7 +133,7 @@ class Time extends Temporal {
 		$tt->hms($hour, $minute, $second);
 		return $tt;
 	}
-
+	
 	/**
 	 * Return a new Time object representing current time of day
 	 *
@@ -142,7 +142,7 @@ class Time extends Temporal {
 	public static function now() {
 		return self::factory('now');
 	}
-
+	
 	/**
 	 * Set the time object
 	 *
@@ -171,7 +171,7 @@ class Time extends Temporal {
 		}
 		throw new Exception_Parameter(__("Time::set({0})", _dump($value)));
 	}
-
+	
 	/**
 	 * Is this object empty?
 	 *
@@ -180,7 +180,7 @@ class Time extends Temporal {
 	function is_empty() {
 		return $this->seconds === null;
 	}
-
+	
 	/**
 	 * Set this object as empty
 	 *
@@ -190,7 +190,7 @@ class Time extends Temporal {
 		$this->seconds = null;
 		return $this;
 	}
-
+	
 	/**
 	 * Set the time to the current time of day
 	 *
@@ -200,7 +200,7 @@ class Time extends Temporal {
 	function set_now() {
 		return $this->unix_timestamp(time());
 	}
-
+	
 	/**
 	 * Set the time of day to midnight
 	 *
@@ -210,7 +210,7 @@ class Time extends Temporal {
 		$this->seconds = 0;
 		return $this;
 	}
-
+	
 	/**
 	 * Set the time of day to noon
 	 *
@@ -220,7 +220,7 @@ class Time extends Temporal {
 		$this->seconds = 0;
 		return $this->hour(12);
 	}
-
+	
 	/**
 	 * Set or get the unix timestamp.
 	 *
@@ -240,7 +240,7 @@ class Time extends Temporal {
 		}
 		return $this->seconds;
 	}
-
+	
 	/**
 	 * Set the hour, minute, and second of the day explicitly
 	 *
@@ -257,7 +257,7 @@ class Time extends Temporal {
 		$this->seconds = ($hh * self::seconds_per_hour) + ($mm * self::seconds_per_minute) + $ss;
 		return $this;
 	}
-
+	
 	/**
 	 *
 	 * @todo should this honor locale? Or just be generic, programmer-only version
@@ -270,7 +270,7 @@ class Time extends Temporal {
 		$result = self::format("{hh}:{mm}:{ss}");
 		return $result;
 	}
-
+	
 	/**
 	 * Parse a time and set this object
 	 *
@@ -279,13 +279,39 @@ class Time extends Temporal {
 	 * @return Time
 	 */
 	function parse($value) {
+		foreach (array(
+			"/([0-9]{1,2}):([0-9]{2}):([0-9]{2})/" => array(
+				null,
+				"hour",
+				"minute",
+				"second"
+			),
+			"/([0-9]{1,2}):([0-9]{2})/" => array(
+				null,
+				"hour",
+				"minute"
+			)
+		) as $pattern => $assign) {
+			if (preg_match($pattern, $value, $matches)) {
+				$this->hms(0, 0, 0);
+				foreach ($assign as $index => $method) {
+					if ($method) {
+						$this->$method($matches[$index]);
+					}
+				}
+				return $this;
+			}
+		}
+		$tz = date_default_timezone_get();
+		date_default_timezone_set("UTC");
 		$ts = strtotime($value, $this->unix_timestamp());
+		date_default_timezone_set($tz);
 		if ($ts === false || $ts < 0) {
 			throw new Exception_Parameter(__("Time::parse({0}): Can't parse", $value));
 		}
 		return $this->unix_timestamp($ts);
 	}
-
+	
 	/**
 	 * Get/set the hour of the day
 	 *
@@ -298,7 +324,7 @@ class Time extends Temporal {
 		}
 		return intval($this->seconds / self::seconds_per_hour);
 	}
-
+	
 	/**
 	 * Get/set the minute of the day
 	 *
@@ -311,7 +337,7 @@ class Time extends Temporal {
 		}
 		return $this->hms($this->hour(), $set, $this->second());
 	}
-
+	
 	/**
 	 * Get/set the second of the day
 	 *
@@ -324,7 +350,7 @@ class Time extends Temporal {
 		}
 		return $this->hms($this->hour(), $this->minute(), $set);
 	}
-
+	
 	/**
 	 * Get/set the second of the day
 	 *
@@ -337,7 +363,7 @@ class Time extends Temporal {
 		}
 		return $this->seconds % self::seconds_per_day;
 	}
-
+	
 	/**
 	 * Get/set the 12-hour of the day
 	 *
@@ -357,7 +383,7 @@ class Time extends Temporal {
 		// Retains AM/PM
 		return $this->hour($set + ($this->hour() < 12 ? 0 : 12));
 	}
-
+	
 	/**
 	 * Returns whether it's am or pm
 	 *
@@ -367,7 +393,7 @@ class Time extends Temporal {
 		$hour = $this->hour();
 		return ($hour < 12) ? "am" : "pm";
 	}
-
+	
 	/**
 	 * Get number of seconds since midnight
 	 *
@@ -376,7 +402,7 @@ class Time extends Temporal {
 	function day_seconds() {
 		return $this->seconds;
 	}
-
+	
 	/**
 	 * Compare one time with another
 	 *
@@ -399,7 +425,7 @@ class Time extends Temporal {
 		$result = $this->seconds - $value->seconds;
 		return $result;
 	}
-
+	
 	/**
 	 * Subtract one time from another
 	 *
@@ -409,7 +435,7 @@ class Time extends Temporal {
 	function subtract(Time $value) {
 		return $this->seconds - $value->seconds;
 	}
-
+	
 	/**
 	 * Add hours, minutes, seconds to a time
 	 *
@@ -432,7 +458,7 @@ class Time extends Temporal {
 		$this->seconds = $newValue;
 		return $this;
 	}
-
+	
 	/**
 	 * Returns an array of token values (h,m,s,hh,mm,ss and values for this object)
 	 *
@@ -441,7 +467,7 @@ class Time extends Temporal {
 	 */
 	function formatting(array $options = array()) {
 		$locale = avalue($options, "locale", null);
-
+		
 		$x = array();
 		$x['h'] = $this->hour();
 		$x['12h'] = $this->hour12();
@@ -457,7 +483,7 @@ class Time extends Temporal {
 		$x['AMPM'] = Locale::translate("Time:=$ampm", $locale);
 		return $x;
 	}
-
+	
 	/**
 	 * Format a time string
 	 *
@@ -469,14 +495,15 @@ class Time extends Temporal {
 	 */
 	function format($format_string = null, array $options = array()) {
 		if ($format_string === null) {
-			global $zesk;
-			/* @var $zesk zesk\Kernel */
-			$format_string = $zesk->configuration->time->get("format_string", "{hh}:{mm}:{ss}");
+			$format_string = zesk()->configuration->path_get(array(
+				__CLASS__,
+				"format_string"
+			), "{hh}:{mm}:{ss}");
 		}
 		$x = $this->formatting($options);
 		return map($format_string, $x);
 	}
-
+	
 	/**
 	 * Format HH${sep}MM${sep}SS
 	 *
@@ -486,7 +513,7 @@ class Time extends Temporal {
 	private function _hms_format($sep = ":") {
 		return str::zero_pad($this->hour()) . $sep . str::zero_pad($this->minute()) . $sep . str::zero_pad($this->second());
 	}
-
+	
 	/**
 	 * Format for SQL
 	 *
@@ -495,7 +522,7 @@ class Time extends Temporal {
 	public function sql() {
 		return $this->_hms_format();
 	}
-
+	
 	/**
 	 * Add a unit to a time
 	 *
@@ -554,7 +581,7 @@ class Time extends Temporal {
 				));
 		}
 	}
-
+	
 	/**
 	 * Take the results of PHP getdate and set the Time
 	 *
@@ -564,7 +591,7 @@ class Time extends Temporal {
 	private function _set_date(array $darr) {
 		return $this->hms($darr["hours"], $darr["minutes"], $darr["seconds"]);
 	}
-
+	
 	/**
 	 *
 	 * @param Time $a

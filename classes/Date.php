@@ -709,7 +709,10 @@ class Date extends Temporal {
 		if ($format_string === null) {
 			global $zesk;
 			/* @var $zesk zesk\Kernel */
-			$format_string = $zesk->date->get("format_string", "{YYYY}-{MM}-{DD}");
+			$format_string = zesk()->configuration->path_get(array(
+				__CLASS__,
+				"format_string"
+			), "{YYYY}-{MM}-{DD}");
 		}
 		$formatting = $this->formatting($options);
 		return map($format_string, $formatting);

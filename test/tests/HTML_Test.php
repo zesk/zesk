@@ -432,7 +432,7 @@ class HTML_Test extends Test_Unit {
 	}
 	
 	/**
-	 * @expected_exception zesk\Exception_Semantics
+	 * @expectedException zesk\Exception_Semantics
 	 */
 	function test_tag_close() {
 		$tagName = null;

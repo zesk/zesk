@@ -135,6 +135,7 @@ class Functions_Test extends Test_Unit {
 	}
 	function test_theme() {
 		$app = $this->application;
+		$theme_path = $app->theme_path();
 		echo "theme path is: \n" . implode("\n    ", $app->theme_path()) . "\n";
 		$type = null;
 		$this->assert_equal($app->theme("microsecond", 42.512312), "42.5123");
@@ -385,7 +386,8 @@ class Functions_Test extends Test_Unit {
 		}
 		$in_array_timing = $t->elapsed();
 		echo "to_bool_in_array: " . $t->elapsed() . "\n";
-		$this->assert($strpos_timing < $in_array_timing * 1.1, "strpos to_bool is more than 10% slower than in_array implementation");
+		$diff = 20;
+		$this->assert($strpos_timing < $in_array_timing * (1 + ($diff / 100)), "strpos to_bool is more than $diff% slower than in_array implementation");
 	}
 	function test_to_array() {
 		$mixed = null;

@@ -1,5 +1,6 @@
 <?php
 /**
+ * @test_sandbox true
  * @package zesk
  * @subpackage test
  * @copyright &copy; 2017 Market Acumen, Inc.

@@ -126,7 +126,7 @@ class Timestamp_Test extends Test_Unit {
 	}
 	
 	/**
-	 * @expected_exception zesk\Exception_Range
+	 * @expectedException zesk\Exception_Range
 	 */
 	function test_quarter_range_low() {
 		$x = new Timestamp();
@@ -134,7 +134,7 @@ class Timestamp_Test extends Test_Unit {
 	}
 	
 	/**
-	 * @expected_exception zesk\Exception_Range
+	 * @expectedException zesk\Exception_Range
 	 */
 	function test_quarter_range_high() {
 		$x = new Timestamp();
@@ -178,13 +178,8 @@ class Timestamp_Test extends Test_Unit {
 		$value = null;
 		$x->set($value);
 		
-		$success = false;
-		try {
-			$x->unix_timestamp(true);
-		} catch (Exception_Parameter $e) {
-			$success = true;
-		}
-		$this->assert($success);
+		$x->unix_timestamp();
+		
 		$ts = 1231204;
 		$this->assert($x->unix_timestamp($ts) === $x);
 		
@@ -228,8 +223,6 @@ class Timestamp_Test extends Test_Unit {
 		$x->minute();
 		
 		$x->second();
-		
-		$x->seconds();
 		
 		$x->hour12();
 		
@@ -383,9 +376,7 @@ class Timestamp_Test extends Test_Unit {
 		// Test
 		$long_date = "Sat, 16-Aug-2064 04:11:10 GMT";
 		
-		$test_long_date = new Timestamp($long_date, array(
-			"cookie_format" => true
-		));
+		$test_long_date = new Timestamp($long_date, null);
 		$this->assert_equal($test_long_date->time()->format(), "04:11:10");
 		$this->assert_equal($test_long_date->date()->format(), "2064-08-16");
 		$threw = false;
@@ -413,23 +404,19 @@ class Timestamp_Test extends Test_Unit {
 	function test_difference() {
 		$now = Timestamp::factory('now');
 		$last_year = Timestamp::factory($now)->add(-1);
-		$units = array_keys(Timestamp::units_translation_table());
-		foreach ($units as $unit) {
-			$this->assert_positive($now->difference($last_year, $unit), "$unit");
-			$this->assert_negative($last_year->difference($now, $unit), "$unit");
+		$units = Timestamp::units_translation_table();
+		foreach ($units as $unit => $seconds) {
+			$this->assert_positive($now->difference($last_year, $unit), "$unit should be positive");
+			$this->assert_negative($last_year->difference($now, $unit), "$unit should be negative");
 		}
 		
 		$just_a_sec = Timestamp::factory($now)->add_unit(1, Timestamp::UNIT_SECOND);
-		foreach ($units as $unit) {
-			if ($unit === "second") {
-				$this->assert_equal($just_a_sec->difference($now, $unit), 1, $unit, false);
-			} else {
-				$this->assert_equal($just_a_sec->difference($now, $unit), 0, $unit, false);
-			}
+		foreach ($units as $unit => $seconds) {
+			$this->assert_equal($just_a_sec->difference($now, $unit), intval(round(1 / $seconds, 0)), $unit, false);
 		}
 	}
 	/**
-	 * @expected_exception zesk\Exception_Convert
+	 * @expectedException zesk\Exception_Convert
 	 */
 	function test_parse_fail() {
 		$x = new Timestamp();

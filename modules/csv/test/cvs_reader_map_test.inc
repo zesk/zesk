@@ -69,7 +69,7 @@ class CSV_Reader_Test extends Test_Unit {
 		$x->row_index();
 	}
 	/**
-	 * @expected_exception zesk\Exception_Key
+	 * @expectedException zesk\Exception_Key
 	 */
 	function test_bad_read_map_key() {
 		$x = $this->sample_reader();

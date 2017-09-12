@@ -187,10 +187,10 @@ class Mail extends Hookable {
 		self::_log($this->headers, $this->body);
 		
 		if (!$this->call_hook_arguments("send", array(), true)) {
-			return false;
+			return null;
 		}
 		if ($this->sent !== null) {
-			return true;
+			return $this;
 		}
 		if (self::$debug) {
 			return $this->_send_echo();
@@ -198,7 +198,7 @@ class Mail extends Hookable {
 		if (self::$disabled) {
 			$this->sent = time();
 			$this->method = "disabled";
-			return false;
+			return null;
 		}
 		if ($smtp_send) {
 			return $this->_send_smtp();

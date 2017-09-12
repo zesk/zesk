@@ -207,7 +207,7 @@ class Configuration_Loader_Test extends Test_Unit {
 	// 	}
 	
 	// 	/**
-	// 	 * @expected_exception Exception_File_NotFound
+	// 	 * @expectedException Exception_File_NotFound
 	// 	 */
 	// 	function test_load_not_found() {
 	// 		$path = $this->test_sandbox(__FUNCTION__ . ".conf");

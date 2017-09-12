@@ -209,13 +209,13 @@ class View_Image extends View {
 		return $w;
 	}
 	public static function scaled(Application $application, $src, $width = false, $height = false, $alt = "", $extras = false) {
-		$w = self::scaled_widget($width, $height, $alt, $extras);
+		$w = self::scaled_widget($application, $width, $height, $alt, $extras);
 		$x = new Model($application);
 		$x->src = $src;
 		return $w->execute($x);
 	}
 	public static function scaled_path(Application $application, $src, $width = false, $height = false, $alt = "", $extras = false) {
-		$w = self::scaled_widget($width, $height, $alt, $extras);
+		$w = self::scaled_widget($application, $width, $height, $alt, $extras);
 		$x = new Model($application);
 		$x->src = $src;
 		$w->execute($x);

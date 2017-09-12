@@ -12,7 +12,7 @@ namespace zesk;
 class JSON_Test extends Test_Unit {
 	
 	/**
-	 * @expected_exception zesk\Exception_Parse
+	 * @expectedException zesk\Exception_Parse
 	 */
 	function test_decode() {
 		JSON::decode(null);

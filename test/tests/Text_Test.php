@@ -2,7 +2,7 @@
 namespace zesk;
 
 
-class text_test extends Test_Unit {
+class Text_Test extends Test_Unit {
 
 	function test_fill() {
 		$n = null;
@@ -25,10 +25,10 @@ class text_test extends Test_Unit {
 		$space = " ";
 		$suffix = ": ";
 		$br = "\n";
-		$this->assert_equal(Text::format_pairs($map[0], $prefix, $space, $suffix, $br), "---a: 'A'\n---b: 'B'\n");
+		$this->assert_equal(Text::format_pairs($map[0], $prefix, $space, $suffix, $br), "---a: \"A\"\n---b: \"B\"\n");
 		$prefix = '$dude$';
 		$space = "space";
-		$this->assert_equal(Text::format_pairs($map[1], $prefix, $space, $suffix, $br), "\$dude\$longervar: 1\n\$dude\$bspacespa: 'Hello'\n");
+		$this->assert_equal(Text::format_pairs($map[1], $prefix, $space, $suffix, $br), "\$dude\$longervar: 1\n\$dude\$bspacespa: \"Hello\"\n");
 
 		$map = array(
 			"Name" => "John"
@@ -37,7 +37,7 @@ class text_test extends Test_Unit {
 		$space = ' ';
 		$suffix = ': ';
 		$br = "\n";
-		$this->assert_equal(Text::format_pairs($map, $prefix, $space, $suffix, $br), " Name: 'John'\n");
+		$this->assert_equal(Text::format_pairs($map, $prefix, $space, $suffix, $br), " Name: \"John\"\n");
 	}
 
 	function test_format_table() {

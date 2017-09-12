@@ -496,7 +496,7 @@ class Command_Test extends Command_Base {
 				$this->_clear_console();
 			}
 			$options = $this->load_test_options(file_get_contents($file));
-			if ($this->option_bool('debug_test_options') && count($options) > 0) {
+			if ($this->option_bool('debug_test_options') && count($options) >= 0) {
 				$this->verbose_log("$file test options: \n" . Text::format_pairs($options));
 			}
 			if (avalue($options, 'skip')) {
@@ -872,10 +872,6 @@ class Command_Test extends Command_Base {
 	 * @return boolean
 	 */
 	private function run_test_phpt($file, array $options) {
-		$extract = DocComment::extract(file_get_contents($file));
-		if (count($extract)) {
-			$options = arr::filter(PHP::autotype(DocComment::parse(first($extract))), "strict") + $options;
-		}
 		return $this->_run_test_command($file, $options);
 	}
 

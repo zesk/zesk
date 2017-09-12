@@ -36,7 +36,7 @@ class Request_Test extends Test_Unit {
 	}
 	
 	/**
-	 * @expected_exception zesk\Exception_File_Permission
+	 * @expectedException zesk\Exception_File_Permission
 	 */
 	function test__file_migrate1() {
 		$source = $this->test_sandbox(__FUNCTION__ . '.txt');
