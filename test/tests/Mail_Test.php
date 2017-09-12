@@ -335,7 +335,7 @@ Thanks,
 		);
 		$prefix = "";
 		$suffix = "";
-		Mail::mail_array($to, $from, $subject, $array, $prefix, $suffix);
+		Mail::mail_array($this->application, $to, $from, $subject, $array, $prefix, $suffix);
 	}
 	function test_mailer() {
 		Mail::debug(true);
@@ -345,7 +345,7 @@ Thanks,
 			"Subject" => basename(__FILE__)
 		);
 		$body = "This is the body\n\n--\nnoone@example.com";
-		Mail::mailer($headers, $body);
+		Mail::mailer($this->application, $headers, $body);
 	}
 	function test_map() {
 		$to = null;
@@ -355,7 +355,7 @@ Thanks,
 		$fields = null;
 		$cc = false;
 		$bcc = false;
-		Mail::map($to, $from, $subject, $filename, $fields, $cc, $bcc);
+		Mail::map($this->application, $to, $from, $subject, $filename, $fields, $cc, $bcc);
 	}
 	function test_parse_headers() {
 		$content = null;
@@ -369,7 +369,7 @@ Thanks,
 			"To" => "no-reply@zesk.com"
 		);
 		$attachments = null;
-		Mail::mulitpart_send($mail_options, $attachments);
+		Mail::mulitpart_send($this->application, $mail_options, $attachments);
 	}
 	/**
 	 * @depends test_outgoing_requirements
@@ -393,7 +393,7 @@ All work and no play makes Kent a dull boy.
 		$cc = false;
 		$bcc = false;
 		$headers = false;
-		Mail::send_sms($to, $from, $subject, $body, $cc, $bcc, $headers);
+		Mail::send_sms($this->application, $to, $from, $subject, $body, $cc, $bcc, $headers);
 	}
 
 	/**
@@ -414,14 +414,14 @@ All work and no play makes Kent a dull boy.
 		$headers[] = 'X-Bogus-Header: This is a bogus header';
 
 		$this->log("Sending mail to $to");
-		$this->assert_instanceof(Mail::sendmail($to, $from, $subject, $body, $cc, $bcc, $headers), __NAMESPACE__ . "\\" . "Mail");
+		$this->assert_instanceof(Mail::sendmail($this->application, $to, $from, $subject, $body, $cc, $bcc, $headers), __NAMESPACE__ . "\\" . "Mail");
 
 		$test_mailbox = $to;
 		$n_seconds = 1;
 		$success = false;
 		$timer = new Timer();
 		do {
-			$pop = new Net_POP_Client($pop_url, array(
+			$pop = new Net_POP_Client($this->application, $pop_url, array(
 				"echo_log" => false
 			));
 			$iterator = $pop->iterator();

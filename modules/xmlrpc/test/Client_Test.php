@@ -29,7 +29,7 @@ class Client_Test extends Test_Unit {
 	}
 	function test_main() {
 		$url = $this->url;
-		$x = new \xmlrpc\Client($url);
+		$x = new \xmlrpc\Client($this->application, $url);
 		
 		$x->setCallMap(array(
 			"__" => "."

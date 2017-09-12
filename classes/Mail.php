@@ -352,9 +352,7 @@ class Mail extends Hookable {
 	 *        	Optional extra headers in the form: array("Header-Type: Header Value", "...")
 	 * @return boolean True if email sent, False if not.
 	 */
-	public static function send_sms($to, $from, $subject, $body, $cc = false, $bcc = false, $headers = false) {
-		global $zesk;
-		/* @var $zesk zesk\Kernel */
+	public static function send_sms(Application $application, $to, $from, $subject, $body, $cc = false, $bcc = false, $headers = false) {
 		$email_parts = self::parse_address($from);
 		$from_part = avalue($email_parts, "name", avalue($email_parts, "email", ""));
 		
@@ -362,7 +360,6 @@ class Mail extends Hookable {
 		// SUBJ:$subject\n
 		// MSG:...
 		
-
 		$len = 0;
 		if ($from_part) {
 			$len = strlen("FRM:$from_part\n");
@@ -372,12 +369,12 @@ class Mail extends Hookable {
 		}
 		$len += strlen("MSG:");
 		
-		$remain = to_integer($zesk->configuration->path_get(array(
+		$remain = to_integer($application->configuration->path_get(array(
 			__CLASS__,
 			"sms_max_characters"
 		)), 140) - $len;
 		
-		return self::sendmail($to, $from, $subject, substr($body, 0, $remain), $cc, $bcc, $headers);
+		return self::sendmail($application, $to, $from, $subject, substr($body, 0, $remain), $cc, $bcc, $headers);
 	}
 	
 	/**
@@ -399,7 +396,7 @@ class Mail extends Hookable {
 	 *        	Optional extra headers in the form: array("Header-Type: Header Value", "...")
 	 * @return boolean True if email sent, False if not.
 	 */
-	public static function sendmail($to, $from, $subject, $body, $cc = false, $bcc = false, $headers = false, array $options = array()) {
+	public static function sendmail(Application $application, $to, $from, $subject, $body, $cc = false, $bcc = false, $headers = false, array $options = array()) {
 		$new_headers = array();
 		if (!is_array($headers)) {
 			$headers = array();
@@ -421,14 +418,13 @@ class Mail extends Hookable {
 		
 		//	$headers[] = "Content-Type: text/plain";
 		
-
 		foreach ($headers as $header) {
 			list($name, $value) = pair($header, ":", null, null);
 			if ($name) {
 				$new_headers[$name] = ltrim($value);
 			}
 		}
-		return self::mailer($new_headers, $body, $options);
+		return self::mailer($application, $new_headers, $body, $options);
 	}
 	private static function _log($headers, $body) {
 		if (!self::$log) {
@@ -454,15 +450,15 @@ class Mail extends Hookable {
 		}
 		return $raw_headers;
 	}
-	public static function mailer(array $headers, $body, array $options = array()) {
-		$mail = new Mail($headers, $body, $options);
+	public static function mailer(Application $application, array $headers, $body, array $options = array()) {
+		$mail = new Mail($application, $headers, $body, $options);
 		return $mail->send();
 	}
-	public static function mail_array($to, $from, $subject, $array, $prefix = "", $suffix = "") {
+	public static function mail_array(Application $application, $to, $from, $subject, $array, $prefix = "", $suffix = "") {
 		$content = Text::format_pairs($array);
-		return self::sendmail($to, $from, $subject, $prefix . $content . $suffix);
+		return self::sendmail($application, $to, $from, $subject, $prefix . $content . $suffix);
 	}
-	public static function map($to, $from, $subject, $filename, $fields, $cc = false, $bcc = false) {
+	public static function map(Application $application, $to, $from, $subject, $filename, $fields, $cc = false, $bcc = false) {
 		if (!file_exists($filename)) {
 			return false;
 		}
@@ -507,7 +503,7 @@ class Mail extends Hookable {
 	 *  - "content_type" - The content type to use for this attachment (uses MIME detection otherwise)
 	 * @return Mail
 	 */
-	public static function mulitpart_send(array $mail_options, $attachments = null) {
+	public static function mulitpart_send(Application $application, array $mail_options, $attachments = null) {
 		$eol = mail::mail_eol();
 		$mime_boundary = md5(microtime());
 		
@@ -604,7 +600,7 @@ class Mail extends Hookable {
 		$m .= "--" . $mime_boundary . "--" . $eol . $eol;
 		
 		// SEND THE EMAIL
-		$result = self::mailer($headers, $m);
+		$result = self::mailer($application, $headers, $m);
 		
 		return $result;
 	}

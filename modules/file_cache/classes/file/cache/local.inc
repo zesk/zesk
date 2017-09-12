@@ -11,6 +11,7 @@ use zesk\Exception_NotFound;
 use zesk\Net_HTTP_Client;
 use zesk\File;
 use zesk\Net_HTTP;
+use zesk\Application;
 
 /**
  * 
@@ -19,22 +20,33 @@ use zesk\Net_HTTP;
  */
 class File_Cache_Local implements Interface_File_Cache {
 	/**
+	 *
+	 * @var Application
+	 */
+	public $application = null;
+	/**
 	 * Directory where cache files are stored
 	 * @var string
 	 */
 	private $cache_dir = null;
 	
 	/**
+	 * 
+	 * @param Application $application
+	 */
+	public function __construct(Application $application) {
+		$this->application = $application;
+	}
+	/**
 	 * Initialize this object if not inited already
 	 * @return string
 	 */
 	private function _init() {
-		global $zesk;
 		/* @var $zesk zesk\Kernel */
 		if ($this->cache_dir !== null) {
 			return $this->cache_dir;
 		}
-		$this->cache_dir = $zesk->configuration->path_get('File_Cache::path', $zesk->paths->application('cache/file_cache'));
+		$this->cache_dir = $this->application->configuration->path_get('File_Cache::path', $this->application->application_root('cache/file_cache'));
 		Directory::depend($this->cache_dir, 0770);
 	}
 	
@@ -118,7 +130,7 @@ class File_Cache_Local implements Interface_File_Cache {
 				usleep($microseconds);
 			}
 		}
-		$client = new Net_HTTP_Client($url);
+		$client = new Net_HTTP_Client($this->application, $url);
 		$timeout = avalue($options, "timeout");
 		if ($timeout) {
 			$client->timeout($timeout);

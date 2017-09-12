@@ -81,7 +81,7 @@ class World_Bootstrap_Country extends Options {
 	private function load_countryinfo(Application $application) {
 		$world_path = $application->modules->path("world");
 		$file = $this->option("geonames_country_cache_file", path($world_path, 'bootstrap-data/countryinfo.txt'));
-		Net_Sync::url_to_file(self::url_geonames_country_file, $file, array(
+		Net_Sync::url_to_file($application, self::url_geonames_country_file, $file, array(
 			"time_to_live" => $this->option("geonames_time_to_live", 86400 * 30)
 		));
 		$fp = fopen($file, "r");

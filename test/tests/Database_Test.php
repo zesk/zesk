@@ -270,7 +270,7 @@ class Database_Test extends Test_Unit {
 	}
 	function test_configured() {
 		$db = $this->application->database_factory();
-		$db->configured();
+		Database::_configured($this->application);
 	}
 	function test_affected_rows() {
 		$db = $this->application->database_factory();

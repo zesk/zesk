@@ -2014,6 +2014,16 @@ class Application extends Hookable implements Interface_Theme {
 	}
 	
 	/**
+	 * Create a generic object
+	 *
+	 * @param string $class
+	 * @return object
+	 */
+	public function factory_arguments($class, array $arguments = array()) {
+		return $this->objects->factory_arguments($class, $arguments);
+	}
+	
+	/**
 	 * Access a class_object
 	 *
 	 * @return Class_Object

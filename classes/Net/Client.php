@@ -37,14 +37,14 @@ abstract class Net_Client extends Options {
 	 * @param array $options
 	 * @return Net_Client
 	 */
-	public static function factory($url, array $options = array()) {
+	public static function factory(Application $application, $url, array $options = array()) {
 		$scheme = strtolower(URL::scheme($url));
 		$scheme = avalue(array(
 			"https" => "http"
 		), $scheme, $scheme);
 		try {
 			$class = "Net_" . strtoupper($scheme) . "_Client";
-			$object = new $class($url, $options);
+			$object = new $class($application, $url, $options);
 			return $object;
 		} catch (Exception_Class_NotFound $e) {
 			global $zesk;

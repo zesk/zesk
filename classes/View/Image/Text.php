@@ -22,7 +22,7 @@ class View_Image_Text extends View {
 		$xmax = max($box[0], $box[2], $box[4], $box[6]);
 		$ymin = min($box[1], $box[3], $box[5], $box[7]);
 		$ymax = max($box[1], $box[3], $box[5], $box[7]);
-
+		
 		return array(
 			$xmin,
 			$ymin,
@@ -44,18 +44,18 @@ class View_Image_Text extends View {
 		 *     | sin T     cos T |
 		 *
 		 */
-
+		
 		$theta = deg2rad($degrees);
 		$cos_theta = cos($theta);
 		$sin_theta = sin($theta);
-
+		
 		for ($i = 0; $i < 8; $i += 2) {
 			$x0 = $bbox[$i];
 			$y0 = $bbox[$i + 1];
-
+			
 			$x1 = $x0 * $cos_theta - $y0 * $sin_theta;
 			$y1 = $x0 * $sin_theta + $y0 * $cos_theta;
-
+			
 			$bbox[$i] = intval(round($x1));
 			$bbox[$i + 1] = intval(round($y1));
 		}
@@ -95,38 +95,38 @@ class View_Image_Text extends View {
 	}
 	function render() {
 		$rootdir = $this->option("root_directory", $this->application->application_root());
-
+		
 		$col = $this->column();
-
+		
 		$text = $this->value();
-
+		
 		$background = $this->option("background-color", 'FFF');
 		$background = new Color_RGB($background);
 		$foreground = $this->option("color", '000');
 		$foreground = new Color_RGB($foreground);
-
+		
 		$font = $this->font();
 		$font_size = $this->font_size();
 		$font_angle = $this->angle();
 		$align = $this->align();
 		$debug = $this->option_bool('debug', self::$debug);
-
+		
 		$this->debug_log("Font: $font");
 		$this->debug_log("Text: $text");
-
+		
 		$obox = @imagettfbbox($font_size, 0, $font, $text);
 		$box = self::rotate_bbox($obox, -$font_angle);
-
+		
 		list($xmin, $ymin, $xmax, $ymax) = self::bbox($box);
-
+		
 		$textwidth = abs($xmax - $xmin);
 		$textheight = abs($ymax - $ymin);
-
+		
 		$width = $this->width();
 		$height = $this->height();
-
+		
 		$padding = $this->option("padding", 3);
-
+		
 		if ($width === "auto") {
 			$width = $textwidth + ($padding * 2);
 		} else {
@@ -137,10 +137,10 @@ class View_Image_Text extends View {
 		} else {
 			$height = intval($height);
 		}
-
+		
 		$xoff = -$xmin;
 		$yoff = -$ymin + $padding;
-
+		
 		switch ($align) {
 			case "right":
 				if ($font_angle == 0) {
@@ -155,12 +155,12 @@ class View_Image_Text extends View {
 				break;
 		}
 		$transparency = $this->option_bool("transparency", true);
-
+		
 		$this->debug_log(_dump($box));
 		$this->debug_log("Offset: $xoff,$yoff");
 		$this->debug_log("Image: $width x $height");
 		$this->debug_log("Bounds: $textwidth x $textheight");
-
+		
 		$params = array(
 			$font,
 			$font_size,
@@ -173,14 +173,14 @@ class View_Image_Text extends View {
 			$xoff,
 			$yoff
 		);
-
+		
 		$cache_path = $this->option("cache_path", path($rootdir, '/cache/image-text/'));
 		$url_prefix = Directory::add_slash($this->option("url_prefix", $this->application->url('/cache/image-text')));
 		$absolute_cache_path = Directory::add_slash(Directory::undot($cache_path));
 		if (!Directory::create($absolute_cache_path, 0775)) {
 			throw new Exception_Directory_Create($absolute_cache_path);
 		}
-
+		
 		if ($width === 0 || $height === 0) {
 			return HTML::img($this->application, '/share/images/spacer.gif', 'Zero width and height', array(
 				"width" => 0,
@@ -207,19 +207,19 @@ class View_Image_Text extends View {
 		$attr['height'] = $height;
 		return HTML::img($this->application, $url_prefix . $fname, $this->option("alt", $text), $attr);
 	}
-	public static function vertical($text, $attributes = false) {
-		$x = new Model();
+	public static function vertical(Application $application, $text, $attributes = false) {
+		$x = new Model($application);
 		$x->text = $text;
 		$attributes['angle'] = 90;
 		$attributes['column'] = 'text';
-		$w = new View_Image_Text($attributes);
+		$w = new View_Image_Text($application, $attributes);
 		return $w->execute($x);
 	}
-	public static function horizontal($text, $attributes = false) {
-		$x = new Model();
+	public static function horizontal(Application $application, $text, $attributes = false) {
+		$x = new Model($application);
 		$x->text = $text;
 		$attributes['column'] = 'text';
-		$w = new View_Image_Text($attributes);
+		$w = new View_Image_Text($application, $attributes);
 		return $w->execute($x);
 	}
 }

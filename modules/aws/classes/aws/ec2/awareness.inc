@@ -2,6 +2,8 @@
 /**
  * 
  */
+use zesk\Application;
+use zesk\Options;
 use zesk\Cache;
 use zesk\arr;
 use zesk\Net_HTTP_Client;
@@ -14,6 +16,13 @@ use zesk\Net_HTTP_Client;
  *
  */
 class AWS_EC2_Awareness extends Options {
+	
+	/**
+	 * 
+	 * @var Application
+	 */
+	public $application = null;
+	
 	/**
 	 * Root URL to retrieve the settings from the network
 	 */
@@ -106,8 +115,9 @@ class AWS_EC2_Awareness extends Options {
 	 * 
 	 * @param array $options
 	 */
-	public function __construct(array $options = null) {
+	public function __construct(Application $application, array $options = null) {
 		parent::__construct($options);
+		$this->application = $application;
 		$this->inherit_global_options();
 		$this->cache = Cache::register(__CLASS__)->expire_after($this->option("cache_expire_seconds", self::default_cache_expire_seconds));
 	}
@@ -199,7 +209,7 @@ class AWS_EC2_Awareness extends Options {
 		if (to_bool(ini_get("allow_url_fopen"))) {
 			$result = file_get_contents($url);
 		} else {
-			$client = new Net_HTTP_Client($url);
+			$client = new Net_HTTP_Client($this->application, $url);
 			$result = $client->go();
 			unset($client);
 		}

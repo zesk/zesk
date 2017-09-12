@@ -37,7 +37,7 @@ class Module_Nominatim extends Module {
 		if (!$this->option_bool('force') && $this->application->development()) {
 			return;
 		}
-		$settings = Settings::instance();
+		$settings = Settings::singleton($this->application);
 		$last_request_var = __CLASS__ . "::last_request";
 		$settings->deprecated("Module_Nominatim::last_request", $last_request_var);
 		
@@ -86,7 +86,7 @@ class Module_Nominatim extends Module {
 			)
 		));
 		
-		$http = new Net_HTTP_Client();
+		$http = new Net_HTTP_Client($this->application);
 		$http->user_agent("Module_Nominatum in Zesk Library http://zesk.com/ v" . Version::release());
 		/* @var $item Contact_Address */
 		$run_time = $this->option("run_time", 60);

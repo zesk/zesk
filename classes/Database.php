@@ -297,7 +297,7 @@ abstract class Database extends Hookable {
 	 * Register system-wide hooks
 	 */
 	public static function hooks(Kernel $zesk) {
-		$zesk->hooks->add(Hooks::hook_database_configure, __CLASS__ . "::configured", "first");
+		$zesk->hooks->add(Hooks::hook_database_configure, __CLASS__ . "::_configured", "first");
 		$zesk->hooks->add('exit', __CLASS__ . "::disconnect_all", "last");
 		
 		//		$zesk->hooks->add('pcntl_fork-parent', "Database::reconnect_all");
@@ -1303,7 +1303,7 @@ abstract class Database extends Hookable {
 	/**
 	 * Internal function to load database settings from globals
 	 */
-	public static function configured(Application $application) {
+	public static function _configured(Application $application) {
 		$config = $application->configuration;
 		if ($config->has("table_prefix")) {
 			zesk()->deprecated("Using table_prefix - no longer supported n 2017");

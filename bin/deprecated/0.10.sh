@@ -120,8 +120,48 @@ pause
 echo '`zesk\\Contact_Address_Parser::parse` now takes `$application`'
 php-find.sh 'Contact_Address_Parser::parse'
 pause
+
 echo '`zesk\\Options::inherit_global_options` now takes `$application`'
 php-find.sh '>inherit_global_options('
 pause
 
+echo '`zesk\\Net_Sync::url_to_file` now takes `$application`'
+php-find.sh '::url_to_file'
+pause
+
+echo '`zesk\\Net_Sync::urls` now takes `$application`'
+php-find.sh 'Net_Sync::urls'
+pause
+
+echo '`zesk\\Net_HTTP_Client::url_content_length` now takes `$application`'
+php-find.sh 'Net_HTTP_Client::url_content_length'
+pause
+
+echo '`zesk\\Net_HTTP_Client::url_headers` now takes `$application`'
+php-find.sh 'Net_HTTP_Client::url_headers'
+pause
+
+echo '`zesk\\Mail::multipart_send` now takes `$application`'
+php-find.sh 'Mail::multipart_send'
+pause
+
+echo '`zesk\\Mail::map` now takes `$application`'
+php-find.sh 'Mail::map'
+pause
+
+echo '`zesk\\Mail::mail_array` now takes `$application`'
+php-find.sh 'Mail::mail_array'
+pause
+
+echo '`zesk\\Mail::mailer` now takes `$application`'
+php-find.sh 'Mail::mailer'
+pause
+
+echo '`zesk\\Mail::sendmail` now takes `$application`'
+php-find.sh 'Mail::sendmail'
+pause
+
+echo '`zesk\\Mail::send_sms` now takes `$application`'
+php-find.sh 'Mail::send_sms'
+pause
 

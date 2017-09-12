@@ -112,7 +112,7 @@ class Module_ReactJS extends Module implements Interface_Module_Routes, Interfac
 		if ($proxy_prefix === null) {
 			return null;
 		}
-		$http = new Net_HTTP_Client();
+		$http = new Net_HTTP_Client($this->application);
 		$http->proxy_request($request, $proxy_prefix);
 		try {
 			$http->go();

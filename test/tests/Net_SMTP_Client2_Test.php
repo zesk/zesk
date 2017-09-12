@@ -10,13 +10,13 @@ namespace zesk;
  * @author kent
  *
  */
-class Net_SMTP_Client_Test extends Test_Unit {
+class Net_SMTP_Client2_Test extends Test_Unit {
 	function test_Net_SMTP_Client() {
 		$url = "smtp://mail.conversionruler.com";
 		$options = array(
 			"timeout" => 30
 		);
-		$x = new Net_SMTP_Client($url, $options);
+		$x = new Net_SMTP_Client($this->application, $url, $options);
 
 		$x->connect();
 

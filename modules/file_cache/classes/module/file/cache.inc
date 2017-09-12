@@ -2,7 +2,7 @@
 class Module_File_Cache extends zesk\Module {
 	public function hook_cron_hour() {
 		// Expire cache
-		foreach (File_Cache::iterator() as $url => $settings) {
+		foreach (File_Cache::iterator($this->application) as $url => $settings) {
 			$this->application->logger->debug("{url} found in cache TODO", array(
 				"url" => $url
 			));

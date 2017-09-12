@@ -1,18 +1,26 @@
 <?php
-class File_Cache {
+/**
+ * 
+ */
+use zesk\Application;
 
+/**
+ * 
+ * @author kent
+ *
+ */
+class File_Cache {
+	
 	/**
 	 * Retrieve singleton File_Cache
 	 * @return File_Cache
 	 */
-	public static function instance() {
-		global $zesk;
-		/* @var $zesk zesk\Kernel */
+	public static function instance(Application $application) {
 		static $singleton = null;
 		if ($singleton instanceof Interface_File_Cache) {
 			return $singleton;
 		}
-		$singleton = $zesk->objects->factory($zesk->configuration->path_get("File_Cache::class", "File_Cache_Local"));
+		$singleton = $application->factory($application, $application->configuration->path_get(__CLASS__ . "::class", "File_Cache_Local"));
 		return $singleton;
 	}
 	/**
@@ -23,13 +31,13 @@ class File_Cache {
 	 * @return array
 	 * @throws Exception_NotFound
 	 */
-	public static function url($url, array $options = array()) {
-		return self::instance()->_url($url, $options);
+	public static function url(Application $application, $url, array $options = array()) {
+		return self::instance($application)->_url($url, $options);
 	}
-	public static function info($url) {
-		return self::instance()->_info($url);
+	public static function info(Application $application, $url) {
+		return self::instance($application)->_info($url);
 	}
-	public static function iterator() {
-		return self::instance()->_iterator();
+	public static function iterator(Application $application) {
+		return self::instance($application)->_iterator();
 	}
 }

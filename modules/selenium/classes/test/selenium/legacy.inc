@@ -2108,7 +2108,7 @@ class Test_Selenium_Legacy extends Test_Unit {
 		return $response;
 	}
 	protected function http_get_HTTP_Client($url) {
-		$x = new Net_HTTP_Client($url);
+		$x = new Net_HTTP_Client($this->application, $url);
 		$x->timeout(60000);
 		try {
 			$data = $x->go();

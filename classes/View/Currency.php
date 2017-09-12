@@ -25,11 +25,11 @@ class View_Currency extends View {
 		}
 		return $result;
 	}
-	public static function format($amount, $currency = null) {
-		$view = new View_Currency(array(
+	public static function format(Application $application, $amount, $currency = null) {
+		$view = new View_Currency($application, array(
 			"column" => "amount"
 		));
-		$model = new Model();
+		$model = new Model($application);
 		$model->amount = $amount;
 		if ($currency) {
 			$view->set_option("currency", $currency);

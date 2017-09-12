@@ -79,7 +79,7 @@ class Module_GitHub extends Module {
 			"prerelase" => false
 		);
 		$url = map(self::API_ENDPOINT_RELEASE, $this->options);
-		$client = new Net_HTTP_Client($url);
+		$client = new Net_HTTP_Client($this->application, $url);
 		$client->method(Net_HTTP::Method_POST);
 		$client->data(JSON::encode($json_struct));
 		$client->request_header(Net_HTTP::request_Content_Type, MIME::TYPE_APPLICATION_JSON);

@@ -198,7 +198,7 @@ class Module_Critical extends Module {
 			$this->_store_alerts($alerts);
 			$emails = $this->option_list('email', array(), ",");
 			foreach ($emails as $email) {
-				Mail::sendmail($email, $this->option("from"), $this->option("subject"), implode("\n", $sends), false, false, false, array(
+				Mail::sendmail($this->application, $email, $this->option("from"), $this->option("subject"), implode("\n", $sends), false, false, false, array(
 					'no_force_to' => true
 				));
 			}

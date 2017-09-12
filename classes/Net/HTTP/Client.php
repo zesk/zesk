@@ -723,12 +723,12 @@ class Net_HTTP_Client extends Options {
 		$url = $this->option("URL");
 		return URL::host($url);
 	}
-	static public function url_content_length($url) {
-		$headers = self::url_headers($url);
+	static public function url_content_length(Application $application, $url) {
+		$headers = self::url_headers($application, $url);
 		return to_integer(aevalue($headers, "Content-Length"));
 	}
-	static public function url_headers($url) {
-		$x = new Net_HTTP_Client($url);
+	static public function url_headers(Application $application, $url) {
+		$x = new Net_HTTP_Client($application, $url);
 		$x->method_head(true);
 		$x->go();
 		$result = $x->response_code_type();

@@ -164,7 +164,7 @@ class TestObject_Test extends Test_Object {
 
 		$mixed = null;
 		$options = false;
-		$x = new TestObject($mixed, $options);
+		$x = new TestObject($this->application, $mixed, $options);
 
 		$this->object_tests($x);
 

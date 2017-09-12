@@ -65,7 +65,7 @@ class Net_POP_Client_Test extends Test_Unit {
 
 		$test_key = $test_prefix . "-" . md5(microtime());
 
-		$mail = Mail::sendmail($test_email, "no-reply@zesk.com", "Test Subject: $test_key", "This is not a comment. I hold a mild disdain for writing comments, but find them useful when others write them.\n$test_key");
+		$mail = Mail::sendmail($this->application, $test_email, "no-reply@zesk.com", "Test Subject: $test_key", "This is not a comment. I hold a mild disdain for writing comments, but find them useful when others write them.\n$test_key");
 
 		$this->assert_instanceof($mail, 'zesk\\Mail');
 
@@ -74,7 +74,7 @@ class Net_POP_Client_Test extends Test_Unit {
 		$timer = new Timer();
 		echo "Searching for subject containing: $test_key\n";
 		do {
-			$testx = new Net_POP_Client($test_url, $options);
+			$testx = new Net_POP_Client($this->application, $test_url, $options);
 
 			$iterator = $testx->iterator();
 			foreach ($iterator as $message_id => $headers) {
@@ -117,7 +117,7 @@ class Net_POP_Client_Test extends Test_Unit {
 			"debug" => true,
 			"debug_apop" => true
 		);
-		$testx = new Net_POP_Client($test_url, $options);
+		$testx = new Net_POP_Client($this->application, $test_url, $options);
 
 		$testx->authenticate();
 	}

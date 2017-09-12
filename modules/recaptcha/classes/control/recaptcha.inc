@@ -69,7 +69,7 @@ class Control_reCAPTCHA extends Control {
 			$this->theme_variables['reverify'] = true;
 			return false;
 		}
-		$http = new Net_HTTP_Client(self::$url);
+		$http = new Net_HTTP_Client($this->application, self::$url);
 		$http->method_post(true);
 		$ip = $this->request->ip();
 		$http->data(array(

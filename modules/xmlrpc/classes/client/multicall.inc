@@ -9,10 +9,12 @@
  */
 namespace xmlrpc;
 
+use zesk\Application;
+
 class Client_Multicall extends Client {
 	private $calls = array();
-	function __construct($url) {
-		parent::__construct($url);
+	function __construct(Application $application, $url) {
+		parent::__construct($application, $url);
 		$this->user_agent('Zesk XML-RPC multicall v' . self::VERSION);
 		$this->calls = array();
 	}

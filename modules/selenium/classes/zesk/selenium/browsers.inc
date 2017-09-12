@@ -53,7 +53,7 @@ class Selenium_Browsers {
 		$dir = dirname($path);
 		Directory::depend($dir);
 		
-		Net_Sync::url_to_file($url, $path);
+		Net_Sync::url_to_file($application, $url, $path);
 		
 		return JSON::decode(file_get_contents($path));
 	}

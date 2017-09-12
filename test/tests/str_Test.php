@@ -166,12 +166,12 @@ class str_Test extends Test_Unit {
 	function test_zero_pad() {
 		$s = null;
 		str::zero_pad($s);
-		$this->assert("str::zero_pad('0') == '00'");
-		$this->assert("str::zero_pad('00') == '00'");
+		$this->assert_equal(str::zero_pad('0'), '00');
+		$this->assert_equal(str::zero_pad('00'), '00');
 		
-		$this->assert("str::zero_pad('1') == '01'");
-		$this->assert("str::zero_pad('01') == '01'");
-		$this->assert("str::zero_pad('xx',4) == '00xx'");
+		$this->assert_equal(str::zero_pad('1'), '01');
+		$this->assert_equal(str::zero_pad('01'), '01');
+		$this->assert_equal(str::zero_pad('xx', 4), '00xx');
 	}
 	function test_lalign() {
 		$text = null;
@@ -198,15 +198,16 @@ class str_Test extends Test_Unit {
 				array(
 					'/.*\.php$/' => true
 				),
-				true,
+				null,
 				true
 			),
 			array(
-				'foo.php',
+				'foo.php.no',
 				array(
 					'/.*\.php$/' => true
 				),
-				true
+				null,
+				null
 			),
 			array(
 				'user/.svn/',
@@ -214,6 +215,7 @@ class str_Test extends Test_Unit {
 					'/\.svn/' => false,
 					true
 				),
+				null,
 				false
 			),
 			array(
@@ -225,17 +227,23 @@ class str_Test extends Test_Unit {
 				false
 			)
 		);
-		foreach ($tests as $test) {
+		foreach ($tests as $index => $test) {
 			list($name, $rules, $default, $result) = $test;
-			$this->assert(str::filter($name, $rules, $default) === $result, "str::filter(" . PHP::dump($name) . ", " . PHP::dump($rules) . ", " . str::from_bool($default) . ") === " . str::from_bool($result));
+			$this->assert_equal(str::filter($name, $rules, $default), $result, "Test #$index failed: $name");
 		}
 	}
 	function test_substr() {
-		// Never knew this
+		// Never knew this'
 		$foo = "OK,";
 		$result = substr($foo, 3);
-		$this->assert(gettype($result) === "boolean");
-		$this->assert($result === false);
+		if (PHP_VERSION_ID > 070000) {
+			// Fixed in 7.0
+			$this->assert_equal(gettype($result), "string");
+			$this->assert_equal($result, "");
+		} else {
+			$this->assert_equal(gettype($result), "boolean");
+			$this->assert_equal($result, false);
+		}
 	}
 	function test_replace_first1() {
 		$this->assert(str::replace_first("a", "b", "abracadabra") === "bbracadabra");

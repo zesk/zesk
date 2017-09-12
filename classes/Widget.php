@@ -237,7 +237,7 @@ class Widget extends Hookable {
 		if (!is_array($options)) {
 			$options = array();
 		}
-		$options = $options + self::default_options(get_class($this));
+		$options = $options + self::default_options($application, get_class($this));
 		parent::__construct($options);
 		$this->options += array(
 			"column" => avalue($this->options, 'id')
@@ -510,11 +510,11 @@ class Widget extends Hookable {
 	 * @param $options unknown_type
 	 * @param $class unknown_type
 	 */
-	static function inherit_options($options, $class) {
+	static function inherit_options(Application $application, $options, $class) {
 		if (!is_array($options)) {
 			$options = array();
 		}
-		return $options + self::default_options($class);
+		return $options + self::default_options($application, $class);
 	}
 	
 	/**

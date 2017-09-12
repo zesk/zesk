@@ -13,7 +13,7 @@ class Net_HTTP_Client_Test extends Test_Unit {
 	function test_all() {
 		$url = "http://www.marketacumen.com/";
 		$options = false;
-		$x = new Net_HTTP_Client($url, $options);
+		$x = new Net_HTTP_Client($this->application, $url, $options);
 		
 		$default = false;
 		$x->user_agent($default);
@@ -61,17 +61,17 @@ class Net_HTTP_Client_Test extends Test_Unit {
 	}
 	function test_url_content_length() {
 		$url = "http://www.marketacumen.com/images/marketacumen-logo.png";
-		$n = Net_HTTP_Client::url_content_length($url);
+		$n = Net_HTTP_Client::url_content_length($this->application, $url);
 		$this->assert($n > 0);
 	}
 	function test_url_headers() {
 		$url = "http://www.marketacumen.com/";
-		$headers = Net_HTTP_Client::url_headers($url);
+		$headers = Net_HTTP_Client::url_headers($this->application, $url);
 		$this->log($headers);
 		$this->assert($headers['Content-Type'] === 'text/html');
 	}
 	function test_default_user_agent() {
-		$client = new Net_HTTP_Client();
+		$client = new Net_HTTP_Client($this->application);
 		$this->assert(strpos($client->default_user_agent(), "zesk") === 0);
 		echo basename(__FILE__) . ": success\n";
 	}

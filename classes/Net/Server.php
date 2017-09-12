@@ -23,6 +23,15 @@ abstract class Net_Server {
 	 * Override in subclasses to set the default driver type
 	 */
 	protected $default_driver = self::type_fork;
+	
+	/**
+	 * @var Application
+	 */
+	public $application = null;
+	/**
+	 * 
+	 * @var array
+	 */
 	static $types = array(
 		self::type_fork,
 		self::type_single
@@ -34,7 +43,8 @@ abstract class Net_Server {
 	 * @var Net_Server_Driver
 	 */
 	protected $driver = null;
-	function __construct($host = null, $port = null, $type = null) {
+	function __construct(Application $application, $host = null, $port = null, $type = null) {
+		$this->application = $application;
 		if ($type === null) {
 			$type = $this->default_driver;
 		}
@@ -47,7 +57,7 @@ abstract class Net_Server {
 		if ($port === null || ($port <= 0 || $port >= 65535)) {
 			throw new Exception_Parameter("Net_Server requires a nueric port between 1 and 65535 to be specified");
 		}
-		$this->driver = zesk()->objects->factory(__NAMESPACE__ . "\\Net_Server_Driver_$type", $this, $host, $port);
+		$this->driver = $application->objects->factory(__NAMESPACE__ . "\\Net_Server_Driver_$type", $this, $host, $port);
 	}
 	public function start() {
 		$this->driver->start();

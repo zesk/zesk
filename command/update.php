@@ -504,7 +504,7 @@ class Command_Update extends Command_Base {
 	 * @return string[]
 	 */
 	private function _fetch_url($url) {
-		$client = new Net_HTTP_Client($url);
+		$client = new Net_HTTP_Client($this->application, $url);
 		$minutes = 5; // 2 minutes total for client to run
 		$client->timeout($minutes * 60000);
 		$temp_file_name = File::temporary();

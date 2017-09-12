@@ -29,7 +29,7 @@ class Client_Multicall_Test extends Test_Unit {
 	function test_xmlrpc() {
 		$this->_init();
 		
-		$x = new Client_Multicall($this->url);
+		$x = new Client_Multicall($this->application, $this->url);
 		$x->set_option('debug', true);
 		
 		$x->addCall("system.listmethods");

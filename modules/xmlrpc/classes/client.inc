@@ -11,14 +11,15 @@ namespace xmlrpc;
 
 use zesk\Net_HTTP_Client;
 use zesk\Net_HTTP;
+use zesk\Application;
 
 class Client extends Net_HTTP_Client {
 	const VERSION = 1.0;
 	private $Response = false;
 	private $LastError = false;
 	private $call_map = array();
-	function __construct($url) {
-		parent::__construct($url);
+	function __construct(Application $application, $url) {
+		parent::__construct($application, $url);
 		
 		$this->user_agent('Zesk XML-RPC v' . self::VERSION);
 		$this->set_option("Content-Type", "text/xml");
