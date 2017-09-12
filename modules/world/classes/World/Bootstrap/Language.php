@@ -49,7 +49,8 @@ class World_Bootstrap_Language extends Options {
 		}
 		return true;
 	}
-	public function bootstrap(Application $application) {
+	public function bootstrap() {
+		$application = $this->application;
 		$prefix = __NAMESPACE__ . "\\";
 		$x = $application->object_factory($prefix . str::unprefix(__CLASS__, $prefix . "World_Bootstrap_"));
 		if ($this->option_bool("drop")) {

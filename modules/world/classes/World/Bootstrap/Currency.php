@@ -52,16 +52,16 @@ class World_Bootstrap_Currency extends Options {
 			$this->include_country = array_change_key_case(arr::flip_assign(to_list($include_country), true));
 		}
 	}
-	public function bootstrap(Application $application) {
+	public function bootstrap() {
 		$prefix = __NAMESPACE__ . "\\";
-		$x = $application->object_factory($prefix . str::unprefix(__CLASS__, $prefix . "World_Bootstrap_"));
+		$x = $this->application->object_factory($prefix . str::unprefix(__CLASS__, $prefix . "World_Bootstrap_"));
 		
 		if ($this->option_bool("drop")) {
 			$x->database()->query('TRUNCATE ' . $x->table());
 		}
 		$codes = self::_codes();
 		foreach ($codes as $row) {
-			$this->process_row($application, $row);
+			$this->process_row($row);
 		}
 	}
 	private function is_included(Currency $currency) {
@@ -77,29 +77,39 @@ class World_Bootstrap_Currency extends Options {
 		}
 		return true;
 	}
-	private function process_row(Application $application, array $row) {
+	private function determine_country($code, $name) {
+		if (empty($name)) {
+			return null;
+		}
+		if (substr($name, 0, 1) === "*") {
+			return null;
+		}
+		$country = $this->application->object_factory('zesk\\Country', array(
+			'code' => $code,
+			'name' => $name
+		));
+		if (($found = $country->find("code")) !== null) {
+			return $found;
+		}
+		if (($found = $country->find(array(
+			"name|LIKE" => $name
+		))) !== null) {
+			return $found;
+		}
+		zesk()->logger->warning("Unable to find country {name} in database", array(
+			"name" => $name
+		));
+		return null;
+	}
+	private function process_row(array $row) {
 		list($country_name, $name, $codeName, $code_number, $symbol, $fractional_string) = $row;
 		
 		$name = $row[0];
 		$code = strtolower(substr($codeName, 0, 2));
 		
-		$country = $application->object_factory('zesk\\Country', array(
-			'code' => $code,
-			'name' => $name
-		));
-		if (!$country->find()) {
-			if (!empty($name)) {
-				if (!$country->find(array(
-					'name' => $name
-				))) {
-					zesk()->logger->warning("Unable to find country {name} in database", array(
-						"name" => $name
-					));
-					$country = null;
-				}
-			} else {
-				$country = null;
-			}
+		$country = $this->determine_country($code, $name);
+		if (!$country && !$this->option_bool("include_no_country")) {
+			return null;
 		}
 		$fields["bank_country"] = $country;
 		if (empty($symbol)) {
@@ -120,7 +130,7 @@ class World_Bootstrap_Currency extends Options {
 			return null;
 		}
 		
-		$currency = new Currency($fields);
+		$currency = $this->application->object_factory(__NAMESPACE__ . "\\" . "Currency");
 		if ($this->is_included($currency)) {
 			if ($this->option_bool("delete_mismatched_ids")) {
 				$found = $currency->find();
@@ -131,7 +141,8 @@ class World_Bootstrap_Currency extends Options {
 					return $currency->store();
 				}
 			} else {
-				return $currency->register()->set_member($fields)->store();
+				$currency->find();
+				return $currency->set_member($fields)->store();
 			}
 		}
 		return null;
@@ -563,7 +574,7 @@ class World_Bootstrap_Currency extends Options {
 				'100 centimos'
 			),
 			array(
-				"C&ocirc;te D'ivoire",
+				"Ivory Coast",
 				'CFA Franc BCEAO',
 				'XOF',
 				952,
@@ -607,7 +618,7 @@ class World_Bootstrap_Currency extends Options {
 				'Czech Koruna',
 				'CZK',
 				203,
-				'Kc (with hacek on c)',
+				'K&#269;', // Kc (with hacek o)
 				'100 haleru'
 			),
 			array(
@@ -707,7 +718,7 @@ class World_Bootstrap_Currency extends Options {
 				'100 cents'
 			),
 			array(
-				'European Union',
+				'*European Union',
 				'Euro',
 				'EUR',
 				978,
@@ -970,14 +981,14 @@ class World_Bootstrap_Currency extends Options {
 				'Rp',
 				'100 sen (no longer used)'
 			),
-			array(
-				'International Monetary Fund (Imf)',
-				'SDR',
-				'XDR',
-				960,
-				'SDR',
-				''
-			),
+			// 			array(
+			// 				'International Monetary Fund (Imf)',
+			// 				'SDR',
+			// 				'XDR',
+			// 				960,
+			// 				'SDR',
+			// 				''
+			// 			),
 			array(
 				'Iran (Islamic Republic Of)',
 				'Iranian Rial',
@@ -1627,7 +1638,7 @@ class World_Bootstrap_Currency extends Options {
 				'100 new pence'
 			),
 			array(
-				'St Kitts - Nevis',
+				'%Kitts%',
 				'East Caribbean Dollar',
 				'XCD',
 				951,
@@ -1643,7 +1654,7 @@ class World_Bootstrap_Currency extends Options {
 				'100 cents'
 			),
 			array(
-				'St Pierre and Miquelon',
+				'%Saint Pierre%',
 				'Euro',
 				'EUR',
 				978,
@@ -2083,7 +2094,7 @@ class World_Bootstrap_Currency extends Options {
 				'100 cents'
 			),
 			array(
-				'Wallis and Futuna Islands',
+				'%Wallis%',
 				'CFP Franc',
 				'XPF',
 				953,

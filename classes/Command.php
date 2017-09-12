@@ -1145,7 +1145,7 @@ abstract class Command extends Hookable implements Logger\Handler {
 				"exception_class" => get_class($e),
 				"message" => $e->getMessage(),
 				"backtrace" => $e->getTraceAsString(),
-				"backtrace-4" => Text::head($e->getTraceAsString(), 4)
+				"backtrace-4" => Text::head($e->getTraceAsString(), 6)
 			));
 			$this->application->hooks->call("exception", $e);
 			if ($this->option_bool('debug', $this->application->development())) {

@@ -18,13 +18,18 @@ namespace zesk;
  * @subpackage system
  */
 class World_Bootstrap_Province extends Options {
-
+	
+	/**
+	 * 
+	 * @var Application
+	 */
+	public $application = null;
 	/**
 	 *
 	 * @var array
 	 */
 	private $include_country = null;
-
+	
 	/**
 	 *
 	 * @param array $options
@@ -33,7 +38,7 @@ class World_Bootstrap_Province extends Options {
 	public static function factory(array $options = array()) {
 		return zesk()->objects->factory(__CLASS__, $options);
 	}
-
+	
 	/**
 	 *
 	 * @global Module_World::include_country List of country codes to include
@@ -41,6 +46,7 @@ class World_Bootstrap_Province extends Options {
 	 * @param mixed $options
 	 */
 	public function __construct(Application $application, array $options = array()) {
+		$this->application = $application;
 		parent::__construct($options);
 		$object = $application->modules->object("world");
 		$this->inherit_global_options($application, $object);
@@ -49,21 +55,34 @@ class World_Bootstrap_Province extends Options {
 			$this->include_country = array_change_key_case(arr::flip_assign(to_list($include_country), true));
 		}
 	}
+	
+	/**
+	 * 
+	 * @param Country $country
+	 * @return boolean
+	 */
 	private function is_included(Country $country) {
 		if ($this->include_country) {
 			return avalue($this->include_country, strtolower($country->code), false);
 		}
 		return true;
 	}
-	public function bootstrap(Application $application) {
+	
+	/**
+	 * 
+	 * @throws Exception
+	 */
+	public function bootstrap() {
+		$application = $this->application;
+		
 		$province_class = __NAMESPACE__ . '\\' . 'Province';
 		$country_class = __NAMESPACE__ . '\\' . 'Country';
-
+		
 		$x = $application->object_factory($province_class);
 		if ($this->option_bool("drop")) {
 			$x->database()->query('TRUNCATE ' . $x->table());
 		}
-
+		
 		$countries = array(
 			"US" => self::_province_us(),
 			"CA" => self::_province_ca()

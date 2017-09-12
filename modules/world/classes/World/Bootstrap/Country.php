@@ -50,14 +50,15 @@ class World_Bootstrap_Country extends Options {
 		}
 	}
 	public function bootstrap(Application $application) {
-		$x = $application->objects->factory(__NAMESPACE__ . "\\" . str::unprefix(__CLASS__, __NAMESPACE__ . "\\World_Bootstrap_"));
+		$prefix = __NAMESPACE__ . "\\";
+		$x = $application->objects->factory($prefix . str::unprefix(__CLASS__, $prefix . "World_Bootstrap_"), $application);
 		if ($this->option_bool("drop")) {
 			$x->database()->query('TRUNCATE ' . $x->table());
 		}
 		
 		$map = self::load_countryinfo($application);
 		foreach ($map as $fields) {
-			$country = new Country($fields);
+			$country = new Country($application, $fields);
 			if ($this->is_included($country)) {
 				$country->register();
 			}
