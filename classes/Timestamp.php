@@ -456,7 +456,7 @@ class Timestamp extends Temporal {
 	/**
 	 * Parse a date string
 	 *
-	 * @param unknown $value
+	 * @param mixed $value
 	 * @throws Exception_Convert
 	 * @return Timestamp
 	 */
@@ -465,7 +465,7 @@ class Timestamp extends Temporal {
 		// Set-Cookie: TrkCookieID=51830899; expires=Sat, 16-Aug-2064 04:11:10 GMT
 		// DAY, DD-MMM-YYYY HH:MM:SS GMT
 		$matches = null;
-		if (preg_match('/([0-9]{2})-([A-Z]{3})-([0-9]{4}) ([0-2][0-9]):([0-5][0-9]):([0-5][0-9])/i', $value, $matches)) {
+		if (preg_match('/([0-9]{2})-([A-Z]{3})-([0-9]{4}) ([0-2][0-9]):([0-5][0-9]):([0-5][0-9])/i', "$value", $matches)) {
 			$mm = avalue($this->_month_names_en(), strtolower($matches[2]), 1);
 			$this->ymd($matches[3], $mm, $matches[1]);
 			$this->hms($matches[4], $matches[5], $matches[6]);
