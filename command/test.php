@@ -19,14 +19,14 @@ class Command_Test extends Command_Base {
 	 * @var string
 	 */
 	const TEST_UNIT_CLASS = "zesk\\Test_Unit";
-
+	
 	/**
 	 * Set to true in subclasses to skip Application configuration until ->go
 	 *
 	 * @var boolean
 	 */
 	public $has_configuration = true;
-
+	
 	/**
 	 * Load these modules prior to running command
 	 *
@@ -35,7 +35,7 @@ class Command_Test extends Command_Base {
 	protected $load_modules = array(
 		"test"
 	);
-
+	
 	/**
 	 * Option types
 	 *
@@ -46,6 +46,7 @@ class Command_Test extends Command_Base {
 		'config' => 'file',
 		'test-database' => 'file',
 		'debugger' => 'boolean',
+		'format' => 'string',
 		'debug-command' => 'boolean',
 		'no-database' => 'boolean',
 		'show-options' => 'boolean',
@@ -61,7 +62,7 @@ class Command_Test extends Command_Base {
 		'show' => 'boolean',
 		'*' => 'string'
 	);
-
+	
 	/**
 	 * Help for options types above
 	 *
@@ -72,6 +73,7 @@ class Command_Test extends Command_Base {
 		'config' => 'Configuration file to load. Defaults to $HOME/.zesk/test.conf',
 		'test-database' => 'Store tests results in specified database file - makes testing faster',
 		'debugger' => 'Open debugger right before test is run',
+		'format' => 'databse-report format',
 		'debug-command' => 'Debug the sandbox execution command',
 		'no-database' => 'Ignore past saved results, do not save any test results (even if specified)',
 		'show-options' => "Show computed options for command before running tests",
@@ -88,14 +90,14 @@ class Command_Test extends Command_Base {
 		'*' => 'Test patterns to run - either Class::method, or a string to match in the filename'
 	);
 	const width = 96;
-
+	
 	/**
 	 * Tests run
 	 *
 	 * @var array
 	 */
 	public $tests = array();
-
+	
 	/**
 	 * Test statistics
 	 *
@@ -109,21 +111,21 @@ class Command_Test extends Command_Base {
 		'assert' => 0
 	);
 	static $opened = array();
-
+	
 	/**
 	 * Name of test database for results
 	 *
 	 * @var string
 	 */
 	private $test_database_file = null;
-
+	
 	/**
 	 * Saved results from tests
 	 *
 	 * @var array
 	 */
 	private $test_results = array();
-
+	
 	/**
 	 * Classes
 	 *
@@ -131,21 +133,21 @@ class Command_Test extends Command_Base {
 	 * @var array
 	 */
 	private $classes = array();
-
+	
 	/**
 	 * Includes
 	 *
 	 * @var array
 	 */
 	private $incs = array();
-
+	
 	/**
 	 * Help string for this command
 	 *
 	 * @var string
 	 */
 	protected $help = "Run automated tests in a variety of formats.";
-
+	
 	/**
 	 * TODO we use two different ways of doing this: static::settings() and this.
 	 * Should pick one and stick with it.
@@ -166,7 +168,7 @@ class Command_Test extends Command_Base {
 			'description' => "Command to clear the console while running tests interactively (--interactive). @zesk_docs"
 		)
 	);
-
+	
 	/**
 	 * Most recent test result
 	 *
@@ -237,7 +239,7 @@ class Command_Test extends Command_Base {
 			$this->test_results = array();
 			$this->save_test_database();
 		}
-
+		
 		if ($this->option_bool('interactive')) {
 			$this->verbose_log("Interactive testing enabled.");
 		}
@@ -315,11 +317,11 @@ class Command_Test extends Command_Base {
 		} else if (!Directory::is_absolute($path)) {
 			throw new Exception_Directory_NotFound($path);
 		}
-
+		
 		if (!$this->has_arg()) {
 			return Directory::list_recursive($path, $this->_test_list_options());
 		}
-
+		
 		$matches = array();
 		$tests = array();
 		$this->test_results = array();
@@ -347,7 +349,7 @@ class Command_Test extends Command_Base {
 		}
 		return $tests;
 	}
-
+	
 	/**
 	 * Load the test database
 	 *
@@ -381,7 +383,7 @@ class Command_Test extends Command_Base {
 		$this->verbose_log("Will save to new test database $this->test_database_file");
 		return true;
 	}
-
+	
 	/**
 	 * Save the test database
 	 */
@@ -393,35 +395,77 @@ class Command_Test extends Command_Base {
 			file_put_contents($this->test_database_file, JSON::encode_pretty($this->test_results));
 		}
 	}
+	
+	/**
+	 * Set up Zesk autoloader for test classes and support classes
+	 * 
+	 * @param Application $app
+	 */
 	private static function _initialize_test_environment(Application $app) {
 		$app->zesk->autoloader->path($app->paths->zesk('test/classes'), array(
 			'class_prefix' => __NAMESPACE__ . '\\Test_'
 		));
 	}
+	
+	/**
+	 * Initialize our state before running any tests
+	 */
 	private function _run_test_init() {
 		self::$opened = array();
 	}
-	private function _run_test_failed($test) {
-		if ($this->option_bool('automatic_open')) {
-			if ($this->option_bool('automatic_open_match')) {
-				$files = $this->_parse_path_info($this->last_result);
-				if ($this->option_bool('debug_matched_files')) {
-					echo "### MATCHED FILES:\n\t" . implode("\n\t", $files) . "\n";
-				}
-			} else {
-				$files = array();
+	
+	/**
+	 * If a test fails, and configuration exists, open the file in the local editor
+	 *
+	 * (this can be a PITA if lots of files fail!)
+	 *
+	 * @param string $test Filename of test file to fail
+	 */
+	private function _local_editor_open_match($test) {
+		if ($this->option_bool('automatic_open_match')) {
+			$files = $this->_parse_path_info($this->last_result);
+			if ($this->option_bool('debug_matched_files')) {
+				echo "### MATCHED FILES:\n\t" . implode("\n\t", $files) . "\n";
 			}
-			$files[] = $test;
-			foreach ($files as $file) {
-				if (!avalue(self::$opened, $file)) {
-					self::$opened[$file] = true;
-					$this->_local_open($file);
-				}
+		} else {
+			$files = array();
+		}
+		$files[] = $test;
+		foreach ($files as $file) {
+			if (!avalue(self::$opened, $file)) {
+				self::$opened[$file] = true;
+				$this->_local_open($file);
 			}
 		}
 	}
-	private function _run_test_success($test) {
+	
+	/**
+	 * If a test fails, and configuration exists, open the file in the local editor 
+	 * 
+	 * (this can be a PITA if lots of files fail!)
+	 * 
+	 * @param string $test Filename of test file to fail
+	 */
+	private function _run_test_failed($test) {
+		if ($this->option_bool('automatic_open')) {
+			$this->_local_editor_open_match($test);
+		}
 	}
+	
+	/**
+	 * When a test is successful, do something congratulatory
+	 * 
+	 * @param string $test
+	 */
+	private function _run_test_success($test) {
+		// Have a day.
+	}
+	
+	/**
+	 * 
+	 * @param unknown $contents
+	 * @return array|mixed|array
+	 */
 	private function _parse_path_info($contents) {
 		$app_root = $this->application->application_root();
 		$php_extensions = $this->option("automatic_open_extensions", "inc|tpl|php|php5|phpt");
@@ -436,6 +480,15 @@ class Command_Test extends Command_Base {
 		}
 		return avalue($matches, 'files', array());
 	}
+	
+	/**
+	 * Security issues with allowing access to this. 
+	 * 
+	 * @configuration self::command_local_open Command line to execute, use {file} token for file to open
+	 * 
+	 * @param string $file
+	 * @return boolean
+	 */
 	private function _local_open($file) {
 		static $command = null;
 		if ($command === null) {
@@ -458,6 +511,12 @@ class Command_Test extends Command_Base {
 		system($localopen, $return_var);
 		return ($return_var === 0);
 	}
+	
+	/**
+	 * Ouput the clear command to the console for iterating over a test
+	 * 
+	 * @return void
+	 */
 	private function _clear_console() {
 		static $command = null;
 		if ($command === null) {
@@ -472,6 +531,14 @@ class Command_Test extends Command_Base {
 		}
 		system($command);
 	}
+	
+	/**
+	 * Run a test on the file given based on its extension, global options, and file-specific options.
+	 * 
+	 * @param string $file
+	 * @throws Exception_Unimplemented
+	 * @return boolean
+	 */
 	private function run_test($file) {
 		$ext = File::extension($file);
 		$method = "run_test_$ext";
@@ -520,6 +587,15 @@ class Command_Test extends Command_Base {
 		} while ($this->option_bool('interactive') && $result === false);
 		return $result;
 	}
+	
+	/**
+	 * Load the test options from the associated file content passed in.
+	 * 
+	 * Parses DocComment and returns the doccomment structure for the FIRST occurrence in the file.
+	 * 
+	 * @param unknown $contents
+	 * @return array|array
+	 */
 	private function load_test_options($contents) {
 		$comments = DocComment::extract($contents);
 		if (count($comments) === 0) {
@@ -527,6 +603,14 @@ class Command_Test extends Command_Base {
 		}
 		return array_change_key_case(arr::kunprefix(to_array(DocComment::parse($comments[0])), "test_", true));
 	}
+	
+	/**
+	 * Including a file, determine what new classes are now available. File must not have been included already.
+	 * 
+	 * @option boolean debug_class_directory ECHO lots of debugging information regarding how class discovery differences things.
+	 * @param unknown $file
+	 * @return array
+	 */
 	private function include_file_classes($file) {
 		/* This class *must* cache if called more than once - include files usually aren't included more than once,
 		 * so issue remains when 2nd go-round, no new classes are declared */
@@ -563,7 +647,7 @@ class Command_Test extends Command_Base {
 		$this->incs[$file] = $run_class;
 		return $run_class;
 	}
-
+	
 	/**
 	 *
 	 * @param array $options
@@ -588,7 +672,7 @@ class Command_Test extends Command_Base {
 	private function run_test_inc($file, array $options) {
 		return $this->run_test_php($file, $options);
 	}
-
+	
 	/**
 	 * Load a PHP file which contains a subclass of zesk\Test_Unit
 	 *
@@ -619,9 +703,9 @@ class Command_Test extends Command_Base {
 			}
 			return $this->_run_test_sandbox($file, first($run_class), $options);
 		}
-
+		
 		$this->verbose_log("Running $file in no-sandbox mode (Override).");
-
+		
 		$final_result = true;
 		try {
 			foreach ($run_class as $class) {
@@ -675,6 +759,13 @@ class Command_Test extends Command_Base {
 	private function _unit_options() {
 		return to_list('verbose;no-buffer');
 	}
+	
+	/**
+	 * After including a test file, return the first instanceof Test_Unit found.
+	 * 
+	 * @param string $file
+	 * @return \zesk\Test_Unit|mixed|array|unknown|NULL
+	 */
 	private function determine_test_class($file) {
 		$classes = $this->include_file_classes($file);
 		foreach ($classes as $index => $class) {
@@ -684,6 +775,12 @@ class Command_Test extends Command_Base {
 		}
 		return null;
 	}
+	
+	/**
+	 * Pass loader globals along to subprocess so we work when invoked via command-line configuration only
+	 * 
+	 * @return string
+	 */
 	private function _pass_along_loader_options() {
 		$loader = $this->application->objects->singleton("zesk\\Command_Loader");
 		if (!$loader) {
@@ -699,7 +796,7 @@ class Command_Test extends Command_Base {
 		}
 		return implode(" ", $result) . " ";
 	}
-
+	
 	/**
 	 * Run a command in the sandbox
 	 *
@@ -732,7 +829,7 @@ class Command_Test extends Command_Base {
 		$options['echo'] = true;
 		$options['suffix'] = " module test eval $opts 'zesk\\Command_Test::run_class(\$application, \"$class\", \"$file\")'";
 		$options['command'] = "{prefix}{suffix}";
-
+		
 		foreach ($options as $k => $v) {
 			$options[$k] = strtr($v, array(
 				"\\" => "___"
@@ -740,7 +837,7 @@ class Command_Test extends Command_Base {
 		}
 		return $this->_run_test_command($file, $options);
 	}
-
+	
 	/**
 	 * Glue to run sandbox tests from the site.
 	 * Sets the include path correctly, then runs the class in Test_Unit.
@@ -792,7 +889,7 @@ class Command_Test extends Command_Base {
 			}
 			return true;
 		}
-
+		
 		$this->stats['test']++;
 		$options['prefix'] = avalue($options, 'prefix', '');
 		$options['suffix'] = avalue($options, 'suffix', '');
@@ -863,7 +960,7 @@ class Command_Test extends Command_Base {
 		}
 		return true;
 	}
-
+	
 	/**
 	 * Run a phpt test
 	 *
@@ -874,7 +971,7 @@ class Command_Test extends Command_Base {
 	private function run_test_phpt($file, array $options) {
 		return $this->_run_test_command($file, $options);
 	}
-
+	
 	/**
 	 * Output test results
 	 *
@@ -889,7 +986,7 @@ class Command_Test extends Command_Base {
 		echo trim($result) . "\n";
 		echo str_repeat("*", 80) . "\n";
 	}
-
+	
 	/**
 	 * Output database report
 	 */
@@ -900,15 +997,21 @@ class Command_Test extends Command_Base {
 			'fail' => 0
 		);
 		$fails = array();
+		$first = null;
+		$last = null;
 		foreach ($this->test_results as $test => $value) {
 			if ($value === false) {
 				$stats['fail']++;
-				$fails[] = "zesk --cd \"" . dirname($test) . "\" test \"$test\"";
+				$fails[] = $test;
 			} else {
+				$first = $first === null ? $value : min($first, $value);
+				$last = $last === null ? $value : max($last, $value);
 				$stats['pass']++;
 			}
 		}
-		echo implode("\n", $fails) . "\n";
-		echo Text::format_pairs($stats);
+		$stats['first'] = $first ? Timestamp::factory($first)->format() : null;
+		$stats['last'] = $last ? Timestamp::factory($last)->format() : null;
+		$stats['failing_tests'] = $fails;
+		$this->render_format($stats);
 	}
 }
