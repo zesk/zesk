@@ -56,7 +56,7 @@ class Controller_Template_Login extends Controller_Template {
 		$this->user = $this->application->user(false);
 		
 		if ($this->login_redirect === null) {
-			$this->login_redirect = $this->router ? $this->router->get_route("login") : null;
+			$this->login_redirect = $this->router ? $this->router->get_route("login", "zesk\\User") : null;
 			if (!$this->login_redirect) {
 				$this->login_redirect = '/login';
 			}
