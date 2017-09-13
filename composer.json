@@ -20,7 +20,7 @@
   "autoload" : {
     "files" : [ "autoload.php" ]
   },
-  "bin" : [ "bin/zesk", "bin/zesk.sh", "bin/zesk-command.php" ],
+  "bin" : [ "bin/zesk", "bin/zesk.sh", "bin/zesk-command.php", "bin/php-find.sh" ],
   "type" : "library",
   "license" : "MIT",
   "homepage" : "http://zesk.com"
