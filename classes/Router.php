@@ -604,7 +604,7 @@ class Router extends Hookable {
 			$options += $this->route->arguments_named();
 		}
 		if (is_object($object)) {
-			$try_classes = $app->zesk->classes->hierarchy($object, "zesk\\Model");
+			$try_classes = $app->classes->hierarchy($object, "zesk\\Model");
 			$options += $object->call_hook_arguments("route_options", array(
 				$this,
 				$action
@@ -614,10 +614,12 @@ class Router extends Hookable {
 			if ($object instanceof Object) {
 				$options['derived_classes'] += $this->derived_classes($object);
 			}
-		} else {
+		} else if (is_string($object)) {
 			$try_classes = array(
 				$object
 			);
+		} else if (is_array($object)) {
+			$try_classes = $object;
 		}
 		$try_classes[] = "*";
 		foreach ($try_classes as $try_class) {
@@ -625,7 +627,9 @@ class Router extends Hookable {
 				$action,
 				"*"
 			) as $try_action) {
-				$try_class = strtolower($app->objects->resolve($try_class));
+				if ($try_class !== "*") {
+					$try_class = strtolower($app->objects->resolve($try_class));
+				}
 				$try_actions = avalue($this->reverse_routes, $try_class);
 				if (!is_array($try_actions)) {
 					continue;
