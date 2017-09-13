@@ -30,7 +30,7 @@ class Functions_Test extends Test_Unit {
 		
 		$start = microtime(true);
 		$result = array();
-		for ($i = 0; $i < 100000; $i++) {
+		for ($i = 0; $i < $nsamples; $i++) {
 			$result[] = zesk()->paths->application();
 		}
 		$time_zesk_call = microtime(true) - $start;
