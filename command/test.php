@@ -253,10 +253,11 @@ class Command_Test extends Command_Base {
 		 */
 		if (count($tests) === 0) {
 			echo "No tests found.\n";
-			exit(0);
+			return 0;
 		}
 		$result = 0;
 		foreach ($tests as $test) {
+			$success = false;
 			$this->verbose_log("Running $test ...");
 			try {
 				$test_succeeded_mtime = avalue($this->test_results, $test);
@@ -264,14 +265,19 @@ class Command_Test extends Command_Base {
 				if ($test_mtime === $test_succeeded_mtime) {
 					continue;
 				}
-				if (!$this->run_test($test)) {
-					$result = 1;
+				if ($this->run_test($test)) {
+					$success = true;
+				} else {
+					$success = false;
 				}
 			} catch (\Exception $e) {
-				$result = 1;
+				$success = false;
 				echo $e->getMessage();
 			}
-			$this->test_results[$test] = $result === 0 ? $test_mtime : false;
+			if (!$success) {
+				$result = 1;
+			}
+			$this->test_results[$test] = $success ? $test_mtime : false;
 			$this->save_test_database();
 		}
 		$this->log("# Tests completed");
