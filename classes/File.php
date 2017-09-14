@@ -1067,7 +1067,7 @@ class File {
 		if ($f === "") {
 			return false;
 		}
-		if ($zesk->is_windows) {
+		if (\is_windows()) {
 			if (strlen($f) < 1) {
 				return false;
 			}

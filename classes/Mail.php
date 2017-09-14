@@ -268,9 +268,8 @@ class Mail extends Hookable {
 		return $this;
 	}
 	private static function mail_eol() {
-		global $zesk;
 		/* @var $zesk zesk\Kernel */
-		return $zesk->is_windows ? "\r\n" : "\n";
+		return \is_windows() ? "\r\n" : "\n";
 	}
 	
 	/**

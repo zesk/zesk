@@ -13,7 +13,6 @@ namespace zesk;
  */
 define("PREG_EMAIL_LIST", '/([^",]*"[^"]*"[^",]*|[^",]*),/'); // Matches "foo" <bar@dee.com>, foo <bar@dee.com>, dee@bar.com
 
-
 /**
  * Database object representing a single email message
  *
@@ -269,7 +268,7 @@ class Mail_Message extends Object {
 		$content = $this->content;
 		$extras = $this->_mailExtras();
 		
-		$mailBR = zesk()->is_windows ? "\r\n" : "\n";
+		$mailBR = \is_windows() ? "\r\n" : "\n";
 		
 		$extras = implode($mailBR, $extras) . $mailBR;
 		if (ZESK_DEBUG_MAIL) {

@@ -192,7 +192,7 @@ class Kernel {
 	protected $application = null;
 	
 	/**
-	 *
+	 * @deprecated 2017-09 Moved to `\is_windows()` for now
 	 * @var boolean
 	 */
 	public $is_windows = false;
@@ -276,7 +276,7 @@ class Kernel {
 		 *
 		 * @todo Is this true
 		 */
-		$this->is_windows = PATH_SEPARATOR === '\\';
+		$this->is_windows = \is_windows();
 		/*
 		 * Zesk's start time in microseconds
 		 */
