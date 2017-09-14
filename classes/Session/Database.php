@@ -300,7 +300,7 @@ class Session_Database extends Object implements Interface_Session {
 			'is_one_time' => true,
 			'expires' => Timestamp::now()->add_unit($expire_seconds, Timestamp::UNIT_SECOND),
 			'user' => $user,
-			'ip' => $user->application->request()->ip()
+			'ip' => $ip
 		));
 		$session->really_store();
 		return $session;
