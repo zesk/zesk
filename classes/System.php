@@ -187,8 +187,8 @@ class System {
 		if (!$result) {
 			return array();
 		}
-		$volume_info = explode("\n", preg_replace('/[ \t]+/', ' ', $volume_info));
-		$headers = explode(" ", array_shift($volume_info), $max_tokens);
+		$volume_info = explode("\n", $volume_info);
+		$volume_info = Text::parse_columns($volume_info);
 		// FreeBSD:	Filesystem  1024-blocks     Used Avail 		Capacity 	Mounted on
 		// Debian:	Filesystem  1K-blocks       Used Available	Use%		Mounted on
 		// Linux:	Filesystem  1K-blocks       Used Available	Use%		Mounted on
@@ -201,20 +201,18 @@ class System {
 			"capacity" => "used_percent",
 			"mounted" => "path"
 		);
-		foreach ($headers as $i => $h) {
-			$h = strtolower($h);
-			$headers[$i] = avalue($normalized_headers, $h, $h);
-		}
 		$result = array();
-		foreach ($volume_info as $line) {
-			$columns = explode(" ", $line, $max_tokens);
+		foreach ($volume_info as $volume_data) {
 			$row = array();
-			foreach ($columns as $i => $column) {
-				$row[$headers[$i]] = $column;
+			foreach ($volume_data as $field => $value) {
+				$field = avalue($normalized_headers, strtolower($field), $field);
+				$row[$field] = $value;
 			}
-			$row['total'] *= 1024;
-			$row['used'] *= 1024;
-			$row['free'] *= 1024;
+			foreach (to_list('total;used;free') as $kbmult) {
+				if (array_key_exists($kbmult, $row)) {
+					$row[$kbmult] *= 1024;
+				}
+			}
 			$row['used_percent'] = intval(substr($row['used_percent'], 0, -1));
 			$result[$row['path']] = $row;
 		}

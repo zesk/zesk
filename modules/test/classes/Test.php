@@ -844,7 +844,7 @@ class Test extends Options {
 	}
 	final protected function assert_equal($actual, $expected, $message = null, $strict = true) {
 		$this->stats['assert']++;
-		$message .= "\nassert_equal failed:\n  Actual: " . gettype($actual) . ": " . _dump($actual) . "\nExpected: " . gettype($expected) . ": " . _dump($expected);
+		$message .= "\nassert_equal failed:\n  Actual: " . gettype($actual) . ": " . $this->dump($actual) . "\nExpected: " . gettype($expected) . ": " . $this->dump($expected);
 		if (is_scalar($actual) && is_scalar($expected)) {
 			if (is_double($actual) && is_double($expected)) {
 				if (abs($actual - $expected) > 0.00001) {
@@ -867,7 +867,7 @@ class Test extends Options {
 	}
 	final protected function assert_not_equal($actual, $expected, $message = null, $strict = true) {
 		if ($message === null) {
-			$message = gettype($actual) . ": " . _dump($actual) . " === " . gettype($expected) . ": " . _dump($expected);
+			$message = gettype($actual) . ": " . $this->dump($actual) . " === " . gettype($expected) . ": " . $this->dump($expected);
 		}
 		if ($strict) {
 			$this->assert($actual !== $expected, $message);
@@ -878,15 +878,24 @@ class Test extends Options {
 	public final function assert_equal_object($actual, $expected, $message = "") {
 		$this->assert(get_class($actual) === get_class($expected), $message . "get_class(" . get_class($actual) . ") === get_class(" . get_class($expected) . ")");
 		
-		$this->assert($actual == $expected, $message . "\n" . _dump($actual) . " !== " . _dump($expected));
+		$this->assert($actual == $expected, $message . "\n" . $this->dump($actual) . " !== " . $this->dump($expected));
+	}
+	/**
+	 * Central place to dump variables to output. Use PHP output to facilitate generating tests whose output can be copied for first writing and manual verification.
+	 * 
+	 * @param mixed $value
+	 * @return string
+	 */
+	private function dump($value) {
+		return PHP::singleton()->settings_one()->render($value);
 	}
 	final protected function assert_equal_array($actual, $expected, $message = "", $strict = true, $order_matters = false) {
 		$this->stats['assert']++;
 		if (!is_array($actual)) {
-			$this->fail("$message: \$actual is not an array: " . _dump($actual, false));
+			$this->fail("$message: \$actual is not an array: " . $this->dump($actual, false));
 		}
 		if (!is_array($expected)) {
-			$this->fail("$message: \$expected is not an array: " . _dump($expected, false));
+			$this->fail("$message: \$expected is not an array: " . $this->dump($expected, false));
 		}
 		if (count($actual) !== count($expected)) {
 			$this->fail("$message: Arrays are diferent sizes: count(\$actual)=" . count($actual) . " count(\$expected)=" . count($expected));
@@ -919,10 +928,10 @@ class Test extends Options {
 	}
 	final protected function assert_array_contains($subset, $superset, $message = "") {
 		if (!is_array($subset)) {
-			$this->fail("$message: \$subset is not an array: " . _dump($subset, false));
+			$this->fail("$message: \$subset is not an array: " . $this->dump($subset, false));
 		}
 		if (!is_array($superset)) {
-			$this->fail("$message: \$superset is not an array: " . _dump($superset, false));
+			$this->fail("$message: \$superset is not an array: " . $this->dump($superset, false));
 		}
 		foreach ($subset as $k => $v) {
 			$this->assert(array_key_exists($k, $superset), "$message: Key exists in superset $k (subset value=$v)");
