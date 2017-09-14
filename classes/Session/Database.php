@@ -235,7 +235,6 @@ class Session_Database extends Object implements Interface_Session {
 		$expires = Timestamp::now()->add_unit($expire, Timestamp::UNIT_SECOND);
 		return $expires;
 	}
-
 	private function cookie_name() {
 		return $this->option_path("cookie.name", "ZCOOKIE");
 	}
@@ -300,7 +299,8 @@ class Session_Database extends Object implements Interface_Session {
 			'cookie' => self::_generate_cookie(),
 			'is_one_time' => true,
 			'expires' => Timestamp::now()->add_unit($expire_seconds, Timestamp::UNIT_SECOND),
-			'user' => $user
+			'user' => $user,
+			'ip' => $user->application->request()->ip()
 		));
 		$session->really_store();
 		return $session;
@@ -462,7 +462,6 @@ class Session_Database extends Object implements Interface_Session {
 	public function cookie_options() {
 		return $this->option_array("cookie");
 	}
-	
 	
 	/**
 	 * Set sessions enabled or not (default are enabled)
