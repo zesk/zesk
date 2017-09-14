@@ -117,6 +117,7 @@ class Database_Type extends \zesk\Database_Data_Type {
 			case self::sql_type_datetime:
 				if ($default_value === 0 || $default_value === "0") {
 					$invalid_dates_ok = $this->database->option_bool("invalid_dates_ok");
+					$this->database->application->logger->error("invalid_dates_ok=$invalid_dates_ok");
 					return $invalid_dates_ok ? '0000-00-00 00:00:00' : 'CURRENT_TIMESTAMP';
 				}
 				return strval($default_value);

@@ -16,7 +16,6 @@ class Session_Database_Test extends Test_Object {
 		$options = false;
 		$testx = new Session_Database($this->application, $value, $options);
 		
-		
 		$user = new User($this->application);
 		$user_table = $user->table();
 		

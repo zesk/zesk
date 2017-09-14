@@ -35,40 +35,57 @@ use zesk\Database_Exception;
  * @subpackage system
  */
 class Database extends \zesk\Database {
+	/**
+	 * 
+	 * @var string
+	 */
 	protected $singleton_prefix = __CLASS__;
+	
+	/**
+	 * Should we reconnect automatically if we are disconnected?
+	 * 
+	 * @var boolean
+	 */
 	protected $auto_reconnect = false;
-
+	
 	/**
 	 * Database connection
 	 *
 	 * @var mysqli
 	 */
 	protected $Connection = null;
-
+	
 	/**
 	 *
 	 * @var string
 	 */
 	const attribute_default_charset = "default charset";
-
+	
 	/**
 	 *
 	 * @var string
 	 */
 	const attribute_character_set = "character set";
-
+	
 	/**
 	 *
 	 * @var string
 	 */
 	const attribute_collation = "collate";
-
+	
+	/**
+	 * Current MySQL version
+	 * 
+	 * @var string
+	 */
+	const attribute_version = "version";
+	
 	/**
 	 *
 	 * @var string
 	 */
 	const attribute_engine = "engine";
-
+	
 	// utf8 is the future
 	/**
 	 *
@@ -80,27 +97,27 @@ class Database extends \zesk\Database {
 	 * @var string
 	 */
 	const default_collation = "utf8_unicode_ci";
-
+	
 	/**
 	 *
 	 * @var string
 	 */
 	const default_engine = "InnoDB";
-
+	
 	/**
 	 * Current selected database
 	 *
 	 * @var string
 	 */
 	private $change_database = null;
-
+	
 	/*
 	 * Set to empty array to have it refreshed from the database
 	 *
 	 * @var string
 	 */
 	protected $default_settings = array();
-
+	
 	/**
 	 *
 	 * @var string
@@ -108,14 +125,15 @@ class Database extends \zesk\Database {
 	private static $mysql_variables = array(
 		self::attribute_engine => "@@default_storage_engine",
 		self::attribute_character_set => "@@character_set_database",
-		self::attribute_collation => "@@collation_database"
+		self::attribute_collation => "@@collation_database",
+		self::attribute_version => "@@version"
 	);
 	private static $mysql_default_attributes = array(
 		self::attribute_engine => self::default_engine,
 		self::attribute_character_set => self::default_character_set,
 		self::attribute_collation => self::default_engine
 	);
-
+	
 	/**
 	 * Register schemes this class support
 	 */
@@ -137,7 +155,7 @@ class Database extends \zesk\Database {
 		$sql = Text::remove_line_comments($sql, "--");
 		return $sql;
 	}
-	private function _default_setting($attribute) {
+	private function _fetch_setting($attribute) {
 		if ($this->has_option($attribute)) {
 			return $this->option($attribute);
 		}
@@ -149,13 +167,13 @@ class Database extends \zesk\Database {
 		return $value;
 	}
 	public function default_engine() {
-		return $this->_default_setting(self::attribute_engine);
+		return $this->_fetch_setting(self::attribute_engine);
 	}
 	public function default_character_set() {
-		return $this->_default_setting(self::attribute_character_set);
+		return $this->_fetch_setting(self::attribute_character_set);
 	}
 	public function default_collation() {
-		return $this->_default_setting(self::attribute_collation);
+		return $this->_fetch_setting(self::attribute_collation);
 	}
 	/**
 	 * Retrieve additional column attributes which are supported by this database, in the form
@@ -208,7 +226,7 @@ class Database extends \zesk\Database {
 			self::attribute_collation => $this->default_collation()
 		);
 	}
-
+	
 	/**
 	 *
 	 * @return Database
@@ -242,7 +260,7 @@ class Database extends \zesk\Database {
 		}
 		return $this->query($sql);
 	}
-
+	
 	/**
 	 * Retrieve the table's column definitions
 	 *
@@ -263,7 +281,7 @@ class Database extends \zesk\Database {
 		}
 		return $columns;
 	}
-
+	
 	/**
 	 * Dump a database to $path using mysqldump
 	 *
@@ -278,12 +296,12 @@ class Database extends \zesk\Database {
 		global $zesk;
 		/* @var $zesk zesk\Kernel */
 		$parts = $this->url_parts;
-
+		
 		$parts['port'] = avalue($parts, "port", 3306);
 		$database = $this->database_name();
-
+		
 		$tables = to_list(avalue($options, 'tables', array()));
-
+		
 		$cmd_options = array(
 			"--add-drop-table",
 			"-c",
@@ -305,7 +323,7 @@ class Database extends \zesk\Database {
 		));
 		return file_exists($filename);
 	}
-
+	
 	/**
 	 * Restore a database from $path using mysql command-line tool
 	 *
@@ -320,10 +338,10 @@ class Database extends \zesk\Database {
 			throw new Exception_File_NotFound($filename);
 		}
 		$parts = $this->url_parts;
-
+		
 		$parts['port'] = avalue($parts, "port", 3306);
 		$database = $this->database_name();
-
+		
 		$cmd_options = array(
 			"--host={host}",
 			"--port={port}",
@@ -338,38 +356,32 @@ class Database extends \zesk\Database {
 		));
 		return file_exists($filename);
 	}
-
+	
 	/**
 	 *
 	 * @see zesk\Database::connect()
 	 */
 	final public function _connect() {
-		global $zesk;
-		/* @var $zesk Kernel */
 		$parts = $this->url_parts;
-
+		
 		$server = avalue($parts, "host");
 		$port = avalue($parts, "port", null);
 		$user = avalue($parts, "user");
 		$password = avalue($parts, "pass");
 		$this->Database = $database = substr(avalue($parts, "path"), 1);
-
-		if ($server === "localhost") {
-			$this->options["TablesCaseSensitive"] = !$zesk->is_windows;
-		}
+		
 		if (!$port) {
 			$port = 3306;
 		}
-
 		if (!$this->_mysql_connect($server, $user, $password, $database, $port)) {
 			return false;
 		}
-
+		
 		$this->set_option("Database", $this->Database);
 		$this->set_option("User", $user);
 		$this->set_option("Port", $port);
 		$this->set_option("Server", $server);
-
+		
 		$character_set = $this->option(self::attribute_character_set, self::default_character_set);
 		if ($character_set) {
 			$sql = "SET NAMES '$character_set'";
@@ -379,9 +391,27 @@ class Database extends \zesk\Database {
 			}
 			$this->query($sql);
 		}
+		$this->version_settings();
 		return true;
 	}
-
+	private function version_settings() {
+		$this->set_option(self::attribute_version, null);
+		$this->_fetch_setting(self::attribute_version);
+		
+		$version = $this->version;
+		if (preg_match('/([0-9]+)\.([0-9]+)\.([0-9]+)/', $version, $matches)) {
+			list($v, $major, $minor, $patch) = $matches;
+			if ($major !== "5") {
+				$this->application->logger->warning("Unknown major version of MySQL (We know MySQL 5 only): {version}", array(
+					"version" => $version
+				));
+			}
+			if ($minor <= 6) {
+				$this->set_option("invalid_dates_ok", true);
+			}
+		}
+	}
+	
 	/**
 	 * Connection error
 	 *
@@ -402,7 +432,7 @@ class Database extends \zesk\Database {
 		}
 		throw new Database_Exception_Connect($this->URL, __("mysql\Database:=Can not connect to {database} at {server}:{port} as {user} (MySQL Error: #{errno} {error})"), $words, $words['errno']);
 	}
-
+	
 	/**
 	 * Throw a MySQL Error
 	 *
@@ -445,7 +475,7 @@ class Database extends \zesk\Database {
 		}
 		return false;
 	}
-
+	
 	/**
 	 * Get/set time zone
 	 *
@@ -461,7 +491,7 @@ class Database extends \zesk\Database {
 		$this->query("SET time_zone=" . $this->quote_text($set));
 		return $this;
 	}
-
+	
 	/**
 	 * Create a database at URL
 	 *
@@ -469,12 +499,12 @@ class Database extends \zesk\Database {
 	 */
 	function create_database($url) {
 		$parts = parse_url($url);
-
+		
 		$server = avalue($parts, "host");
 		$user = avalue($parts, "user");
 		$password = avalue($parts, "pass");
 		$database = substr(avalue($parts, "path"), 1);
-
+		
 		$query = "CREATE DATABASE IF NOT EXISTS $database;";
 		if (!$this->query($query))
 			return false;
@@ -497,7 +527,7 @@ PRIVILEGES;";
 			return false;
 		return true;
 	}
-
+	
 	/**
 	 * List tables
 	 *
@@ -530,7 +560,7 @@ PRIVILEGES;";
 		$this->free($result);
 		return $data;
 	}
-
+	
 	/**
 	 *
 	 * @param string $table
@@ -554,7 +584,7 @@ PRIVILEGES;";
 			"Updated" => Timestamp::factory($arr['Update_time'])
 		);
 	}
-
+	
 	/**
 	 * (non-PHPdoc)
 	 *
@@ -568,7 +598,7 @@ PRIVILEGES;";
 		}
 		return null;
 	}
-
+	
 	/*
 	 * String Manipulation
 	 * @deprecated 2017-08
@@ -577,7 +607,7 @@ PRIVILEGES;";
 		zesk()->deprecated();
 		return "'" . addslashes($sql) . "'";
 	}
-
+	
 	/**
 	 * (non-PHPdoc)
 	 *
@@ -594,14 +624,14 @@ PRIVILEGES;";
 		);
 		return avalue($map, $t0, $t0) === avalue($map, $t1, $t1);
 	}
-
+	
 	/*
 	 * Boolean Type
 	 */
 	function sql_parse_boolean($value) {
 		return $value ? "'true'" : "'false'";
 	}
-
+	
 	/**
 	 * (non-PHPdoc)
 	 *
@@ -619,7 +649,7 @@ PRIVILEGES;";
 				return "BTREE";
 		}
 	}
-
+	
 	/**
 	 * Figure out how many rows a query will hit
 	 *
@@ -638,7 +668,7 @@ PRIVILEGES;";
 		}
 		return $n;
 	}
-
+	
 	/**
 	 * MySQL parse RENAME TABLE syntax
 	 *
@@ -662,7 +692,7 @@ PRIVILEGES;";
 		$result = $this->query_array("SHOW TABLES LIKE " . $this->quote_text($table));
 		return (count($result) !== 0);
 	}
-
+	
 	/**
 	 * (non-PHPdoc)
 	 *
@@ -689,13 +719,13 @@ PRIVILEGES;";
 		}
 		$path = substr($path, 1);
 		$args[] = $path;
-
+		
 		return array(
 			"mysql",
 			$args
 		);
 	}
-
+	
 	/**
 	 * MySQL locking
 	 *
@@ -709,7 +739,7 @@ PRIVILEGES;";
 		$result = $this->query_integer("SELECT GET_LOCK($name, $wait_seconds) AS X", "X", 0) === 1;
 		return $result;
 	}
-
+	
 	/**
 	 * MySQL Release lock
 	 *
@@ -729,7 +759,7 @@ PRIVILEGES;";
 		}
 		return true;
 	}
-
+	
 	/**
 	 * (non-PHPdoc)
 	 *
@@ -997,7 +1027,7 @@ PRIVILEGES;";
 			return $total;
 		}
 	}
-
+	
 	/**
 	 * (non-PHPdoc)
 	 *
@@ -1006,7 +1036,7 @@ PRIVILEGES;";
 	final public function connection() {
 		return $this->Connection;
 	}
-
+	
 	// 		MYSQLI_CLIENT_COMPRESS	    Use compression protocol
 	// 		MYSQLI_CLIENT_FOUND_ROWS	return number of matched rows, not the number of affected rows
 	// 		MYSQLI_CLIENT_IGNORE_SPACE	Allow spaces after function names. Makes all function names reserved words.
@@ -1019,7 +1049,7 @@ PRIVILEGES;";
 		'interactive' => MYSQLI_CLIENT_INTERACTIVE,
 		'ssl' => MYSQLI_CLIENT_SSL
 	);
-
+	
 	/**
 	 * Internal connection method
 	 *
@@ -1088,7 +1118,7 @@ PRIVILEGES;";
 			$this->Connection = null;
 		}
 	}
-
+	
 	/**
 	 * Main query entry point
 	 *
@@ -1192,7 +1222,7 @@ PRIVILEGES;";
 		}
 		return false;
 	}
-
+	
 	/**
 	 * Begin a transaction in the database
 	 *
@@ -1202,7 +1232,7 @@ PRIVILEGES;";
 		// TODO: Ensure database is in auto-commit mode
 		return $this->query("START TRANSACTION");
 	}
-
+	
 	/**
 	 * Finish transaction in the database
 	 *
