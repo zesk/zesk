@@ -447,9 +447,13 @@ class Text {
 		$headers = array();
 		$was_space = true;
 		$start = 0;
+		// $uindex is for handling duplicate header column names. Duplicates are numbered name-0, then name-1
+		// regardless of prior names
 		$uindex = 0;
+		// $line is our header line to parse header names
 		$line = first($lines);
-		dump($line);
+		// Ad a final space so our last token is parsed as well
+		$spaces[] = true;
 		foreach ($spaces as $index => $space) {
 			// Transition
 			if ($space !== $was_space) {
@@ -469,7 +473,7 @@ class Text {
 				$was_space = $space;
 			}
 		}
-		dump($headers);
+		
 		$first = true;
 		$rows = array();
 		foreach ($lines as $index => $line) {
