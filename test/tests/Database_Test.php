@@ -493,7 +493,7 @@ class Database_Test extends Test_Unit {
 		$intversion = 0;
 		if ($db instanceof \MySQL\Database) {
 			$version = $db->version;
-			list($maj, $min, $patch, $rest) = explode($version, ".", 4) + array_fill(0, 4, 0);
+			list($maj, $min, $patch, $rest) = explode(".", $version, 4) + array_fill(0, 4, 0);
 			$intversion = intval($maj) * 10000 + intval($min) * 100 + intval($patch);
 		}
 		if ($intversion >= 50700) {
