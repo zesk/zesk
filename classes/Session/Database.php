@@ -121,6 +121,11 @@ class Session_Database extends Object implements Interface_Session {
 		$application->configuration->deprecated("zesk\\Session::cookie_expire_round");
 		$application->configuration->deprecated("zesk\Application::session::cookie::expire_round");
 	}
+	function hook_store() {
+		if (!isset($this->ip)) {
+			$this->ip = "127.0.0.1";
+		}
+	}
 	function store() {
 		$session = $this->application->session(false);
 		if (!$session instanceof self || $this->id() !== $session->id()) {
