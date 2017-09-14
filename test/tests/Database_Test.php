@@ -491,7 +491,7 @@ class Database_Test extends Test_Unit {
 		$this->assert_true($db->release_lock($name));
 		
 		$intversion = 0;
-		if ($db->type() === "mysql") {
+		if ($db instanceof \MySQL\Database) {
 			$version = $db->version;
 			list($maj, $min, $patch, $rest) = explode($version, ".", 4) + array_fill(0, 4, 0);
 			$intversion = intval($maj) * 10000 + intval($min) * 100 + intval($patch);
@@ -501,6 +501,7 @@ class Database_Test extends Test_Unit {
 			$this->assert_false($db->release_lock($name));
 			$this->assert_false($db->release_lock($name));
 		} else {
+			echo "$intversion\n";
 			$this->assert_false($db->release_lock($name));
 			$this->assert_false($db->release_lock($name));
 			$this->assert_false($db->release_lock($name));
