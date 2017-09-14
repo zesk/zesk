@@ -504,11 +504,26 @@ class Database_Test extends Test_Unit {
 		$db = $this->application->database_factory();
 		
 		$name = __FUNCTION__;
-		$this->assert($db->release_lock($name) === false);
-		$this->assert($db->get_lock($name) === true);
-		$this->assert($db->get_lock($name) === true);
-		$this->assert($db->release_lock($name) === true);
-		$this->assert($db->release_lock($name) === false);
+		$this->assert_false($db->release_lock($name));
+		$this->assert_true($db->get_lock($name));
+		$this->assert_true($db->get_lock($name));
+		$this->assert_true($db->release_lock($name));
+		
+		$intversion = 0;
+		if ($db->type() === "mysql") {
+			$version = $db->version;
+			list($maj, $min, $patch, $rest) = explode($version, ".", 4) + array_fill(0, 4, 0);
+			$intversion = intval($maj) * 10000 + intval($min)* 100 + intval($patch);
+		}
+		if ($intversion >= 50700) {
+			$this->assert_true($db->release_lock($name));
+			$this->assert_false($db->release_lock($name));
+			$this->assert_false($db->release_lock($name));
+		} else {
+			$this->assert_false($db->release_lock($name));
+			$this->assert_false($db->release_lock($name));
+			$this->assert_false($db->release_lock($name));
+		}
 		
 		$this->assert($db->get_lock($name) === true);
 		
