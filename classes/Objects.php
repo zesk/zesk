@@ -194,12 +194,15 @@ class Objects {
 	public function singleton($class) {
 		if (is_string($class)) {
 			$arguments = func_get_args();
-			$class = array_shift($arguments);
+			$class = $this->resolve(array_shift($arguments));
 			return $this->singleton_arguments($class, $arguments);
 		} else if (is_object($class)) {
-			$class_name = get_class($class);
+			$class_name = $this->resolve(get_class($class));
 			$low_class = strtolower($class_name);
 			if (isset($this->singletons[$low_class])) {
+				if ($this->singletons[$low_class] === $class) {
+					return $this;
+				}
 				throw new Exception_Semantics("{method}(Object of {class_name}) Can not set singleton {class_name} twice", array(
 					"method" => __METHOD__,
 					"class_name" => $class_name

@@ -230,6 +230,7 @@ class Server extends Object implements Interface_Data {
 			$item->set($server);
 			$item->expiresAfter(60);
 		}
+		$application->objects->singleton($server);
 		return $server;
 	}
 	
@@ -267,8 +268,7 @@ class Server extends Object implements Interface_Data {
 		return $this;
 	}
 	/**
-	 *
-	 * @param unknown $host
+	 * Set up some reasonable defaults which define this server relative to other servers
 	 */
 	private function _initialize_names_defaults() {
 		$host = self::host_default();
@@ -288,7 +288,14 @@ class Server extends Object implements Interface_Data {
 				$this->ip4_internal = first(array_values($ips));
 			}
 		}
+		if (!isset($this->ip4_internal)) {
+			$this->ip4_internal = "127.0.0.1";
+		}
+		if (!isset($this->ip4_external)) {
+			$this->ip4_external = $this->ip4_internal;
+		}
 	}
+	
 	/**
 	 * Update server state
 	 *
