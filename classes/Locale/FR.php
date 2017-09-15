@@ -7,7 +7,6 @@
  * @copyright Copyright &copy; 2009, Market Acumen, Inc.
  * Created on Thu Apr 15 17:38:33 EDT 2010 17:38:33
  */
-
 namespace zesk;
 
 class Locale_FR extends Locale_Base {
@@ -20,11 +19,9 @@ class Locale_FR extends Locale_Base {
 	public function time_format($include_seconds = false) {
 		return $include_seconds ? "{hh}:{mm}:{ss}" : "{hh}:{mm}";
 	}
-
 	public function plural($word, $count = 2) {
 		return $count !== 1 ? "$word" . "s" : $word;
 	}
-
 	public function indefinite_article($word, $caps = false, $gender = "n") {
 		$gender = __("$word.gender");
 		if (!$gender) {
@@ -33,11 +30,9 @@ class Locale_FR extends Locale_Base {
 		$article = ($gender === "f") ? "une" : "un";
 		return ($caps ? ucfirst($article) : $article) . " " . $word;
 	}
-
 	public function possessive($owner, $object) {
 		return "$object de $owner";
 	}
-
 	public function ordinal($n) {
 		// TODO: Check this
 		if ($n === 1) {
@@ -45,7 +40,6 @@ class Locale_FR extends Locale_Base {
 		}
 		return $n . "e";
 	}
-
 	public function negate_word($word, $preferred_prefix = null) {
 		if ($preferred_prefix === null) {
 			$preferred_prefix = "pas de";

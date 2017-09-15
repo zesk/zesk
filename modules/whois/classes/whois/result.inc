@@ -11,7 +11,5 @@
  * @package zesk
  * @subpackage whois
  */
-class Whois_Registrar extends Object {
-
-}
+class Whois_Registrar extends Object {}
 

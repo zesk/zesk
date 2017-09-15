@@ -1,5 +1,4 @@
 <?php
-
 namespace zesk;
 
 ?><table class="pairs"><?php

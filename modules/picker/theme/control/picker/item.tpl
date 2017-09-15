@@ -1,5 +1,4 @@
 <?php
-
 use zesk\HTML;
 
 /* @var $object Object */
@@ -11,5 +10,7 @@ echo HTML::div(HTML::add_class(array(
 ), $this->selected ? "selected" : ""), $object->theme(array(
 	"picker-item",
 	"view"
-)) . HTML::hidden($this->column . '[]', $id, array("id" => null)));
+)) . HTML::hidden($this->column . '[]', $id, array(
+	"id" => null
+)));
 

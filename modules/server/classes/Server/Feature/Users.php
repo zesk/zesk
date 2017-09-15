@@ -17,25 +17,20 @@ class Server_Feature_Users extends Server_Feature {
 			'required' => false
 		)
 	);
-	
 	private $require_users = array();
 	private $require_groups = array();
-	
 	public function configure() {
 		$users = $this->config->user_list("users");
 		foreach ($users as $user) {
 			$this->configure_user($user);
 		}
 	}
-	
 	public function require_user($user) {
 		$this->require_users[] = $user;
 	}
-	
 	public function require_group($group) {
 		$this->require_groups[] = $group;
 	}
-	
 	private function configure_user(array $object) {
 		$user = $group = $home = $options = null;
 		extract($object, EXTR_IF_EXISTS);

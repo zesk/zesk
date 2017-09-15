@@ -1,5 +1,4 @@
 <?php
-
 namespace zesk;
 
 abstract class Control_List_InPlace extends Control_List {
@@ -14,17 +13,13 @@ abstract class Control_List_InPlace extends Control_List {
 	protected $list_attributes = array(
 		"class" => "list list-inplace"
 	);
-
 	protected $total_title = null;
-
 	protected $hierarchy_column = null;
-
 	protected $row_attributes = array(
 		"class" => "row",
 		"id" => "row-{id}",
-		"data-id" => "{id}",
+		"data-id" => "{id}"
 	);
-
 	protected function initialize() {
 		parent::initialize();
 		$id = $this->id();
@@ -35,12 +30,14 @@ abstract class Control_List_InPlace extends Control_List {
 		$this->wrap('div', '.control-list-inplace');
 	}
 	protected function hook_widgets() {
-		$widgets[] = $w = $this->widget_factory('zesk\Control_Hidden')->names('id', __('ID'), 'id[]')->id(false)->add_class('selection-id');
+		$widgets[] = $w = $this->widget_factory('zesk\Control_Hidden')
+			->names('id', __('ID'), 'id[]')
+			->id(false)
+			->add_class('selection-id');
 		$widgets[] = $w = $this->widget_factory('zesk\View_Text')->names('name');
-
+		
 		return $widgets;
 	}
-
 	public function theme_variables() {
 		return array(
 			'hierarchy_column' => $this->hierarchy_column,
@@ -50,7 +47,6 @@ abstract class Control_List_InPlace extends Control_List {
 			'current_user' => $this->user()
 		) + parent::theme_variables();
 	}
-
 	public function hierarchy_column($set = null) {
 		if ($set === null) {
 			return $this->hierarchy_column;

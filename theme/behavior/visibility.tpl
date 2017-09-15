@@ -15,10 +15,9 @@ namespace zesk;
 /* @var $current_user \zesk\User */
 
 // behavior/visibility
-	// Options:
-	// - hide_values
-	// - show_values
-
+// Options:
+// - hide_values
+// - show_values
 
 /* @var $response zesk\Response_Text_HTML */
 $response = $this->response;

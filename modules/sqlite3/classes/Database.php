@@ -1,5 +1,4 @@
 <?php
-
 namespace sqlite3;
 
 // PHP classes
@@ -181,9 +180,7 @@ class Database extends \zesk\Database {
 	final public function affected_rows($result = null) {
 		return $this->conn->changes();
 	}
-	final public 
-
-	function insert_id() {
+	final public function insert_id() {
 		return $this->conn->lastInsertRowID();
 	}
 	public function shell_command(array $options = array()) {

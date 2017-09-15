@@ -1,10 +1,9 @@
 <?php
 /**
-* $URL: https://code.marketacumen.com/zesk/trunk/modules/commerce/classes/invoice/item.inc $
-* @package zesk
-* @subpackage objects
-*/
-
+ * $URL: https://code.marketacumen.com/zesk/trunk/modules/commerce/classes/invoice/item.inc $
+ * @package zesk
+ * @subpackage objects
+ */
 namespace zesk;
 
 /**

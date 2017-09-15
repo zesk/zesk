@@ -3,7 +3,6 @@ namespace zesk;
 
 class Net_Ping {
 	private static $icmp_proto = null;
-	
 	public static function _init() {
 		if (self::$icmp_proto === null) {
 			self::$icmp_proto = getprotobyname("icmp");
@@ -25,7 +24,7 @@ class Net_Ping {
 		$seconds = intval($timeout_seconds);
 		$microseconds = ($timeout_seconds - $seconds) * 1000000;
 		socket_set_option($socket, SOL_SOCKET, SO_RCVTIMEO, array(
-			'sec' => $seconds, 
+			'sec' => $seconds,
 			'usec' => $microseconds
 		));
 		socket_connect($socket, $host, null);

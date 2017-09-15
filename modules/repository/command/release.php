@@ -5,7 +5,7 @@ class Command_Release extends Command_Base {
 	protected $option_types = array(
 		"source-control" => "string",
 		"current-release-notes" => "file",
-		"release-notes" => "file",
+		"release-notes" => "file"
 	);
 	/**
 	 * 
@@ -23,6 +23,6 @@ class Command_Release extends Command_Base {
 	 * @see \zesk\Command::run()
 	 */
 	function run() {
-		$source_control = 
+		$source_control =
 	}
 }

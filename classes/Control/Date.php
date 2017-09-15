@@ -7,8 +7,8 @@
  * @copyright Copyright &copy; 2008, Market Acumen, Inc.
  * Created on Tue Jul 15 16:35:38 EDT 2008
  */
-
 namespace zesk;
+
 /**
  * Note that Control_Timestamp inherits from this, double-check nothing is Date specific
  *
@@ -16,14 +16,12 @@ namespace zesk;
  * @see Control_Timestamp
  */
 class Control_Date extends Control_Timestamp {
-
 	function time_value($set = null) {
 		if ($set !== null) {
 			return $this->set_option('time_value', $set);
 		}
 		return $this->time_control() ? $this->object->get($this->name() . '_time') : $this->option("time_value", "00:00:00");
 	}
-
 	function load() {
 		parent::load();
 		$value = $this->value();

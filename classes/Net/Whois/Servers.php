@@ -43,7 +43,6 @@ class Net_Whois_Servers {
 		"aero" => "whois.information.aero",
 		"nl" => "whois.domain-registry.nl"
 	);
-
 	public static function server_from_tld($tld) {
 		return avalue(self::$servers, preg_replace('/[^a-z]/', '', strtolower(str::right($tld, "."))));
 	}

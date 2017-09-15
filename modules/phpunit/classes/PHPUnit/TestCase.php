@@ -1,23 +1,22 @@
 <?php
-
 namespace zesk;
 
 use PHPUnit\Framework\TestCase;
 
 class PHPUnit_TestCase extends TestCase {
-
+	
 	/**
 	 *
 	 * @var Application
 	 */
 	protected $application = null;
-
+	
 	/**
 	 *
 	 * @var Configuration
 	 */
 	protected $configuration = null;
-
+	
 	/**
 	 *
 	 * {@inheritdoc}
@@ -37,7 +36,7 @@ class PHPUnit_TestCase extends TestCase {
 		}
 		parent::setUp();
 	}
-
+	
 	/**
 	 *
 	 * @param string $string

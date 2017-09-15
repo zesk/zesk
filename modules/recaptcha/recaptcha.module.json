@@ -1,4 +1,6 @@
 {
 	"name": "Google reCAPTCHA",
-	"depends": [ "critical" ] 
+	"depends": [
+		"critical"
+	]
 }

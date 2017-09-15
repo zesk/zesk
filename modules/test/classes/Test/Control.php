@@ -7,5 +7,4 @@
  * @copyright  Copyright &copy; 2011, Market Acumen, Inc.
  *             Created on Wed Aug 27 20:50:44 EDT 2011 20:50:44
  */
-class Test_Control extends Test_Widget {
-}
+class Test_Control extends Test_Widget {}

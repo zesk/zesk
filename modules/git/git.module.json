@@ -1,6 +1,8 @@
 {
 	"name": "Git source code control",
-	"depends": [ "Repository" ],
+	"depends": [
+		"Repository"
+	],
 	"autoload_options": {
 		"class_prefix": "zesk\\",
 		"lower": false

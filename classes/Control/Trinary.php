@@ -1,5 +1,4 @@
 <?php
-
 namespace zesk;
 
 class Control_Trinary extends Control_Select {
@@ -11,7 +10,6 @@ class Control_Trinary extends Control_Select {
 			1 => __('Yes')
 		));
 	}
-
 	protected function hook_query(Database_Query_Select $query) {
 		$val = $this->value();
 		$column = $this->query_column();

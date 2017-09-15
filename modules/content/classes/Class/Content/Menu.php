@@ -1,7 +1,6 @@
 <?php
 namespace zesk;
 
-
 /**
  * @see Content_Menu
  * @author kent

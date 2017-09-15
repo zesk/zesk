@@ -1,5 +1,4 @@
 <?php
-
 namespace zesk;
 
 /* @var $widget Widget */
@@ -44,7 +43,7 @@ if ($fill_label) {
 		echo HTML::tag("td", ".input-required", $widget->required() ? "*" : "&nbsp;");
 	}
 	echo HTML::tag("td", array(
-		'colspan' => $n_cols, 
+		'colspan' => $n_cols,
 		'class' => $class_parent
 	), $data);
 } else if ($nolabel) {
@@ -67,7 +66,7 @@ if ($fill_label) {
 	), HTML::tag("div", array(
 		"class" => "overlabel-pair"
 	), HTML::tag("label", array(
-		"class" => "overlabel", 
+		"class" => "overlabel",
 		"for" => $id
 	), $label) . $data));
 } else {
@@ -78,7 +77,7 @@ if ($fill_label) {
 		"for" => $id
 	), $label));
 	echo HTML::tag("td", array(
-		'class' => $class_parent, 
+		'class' => $class_parent,
 		'id' => $id
 	), $data);
 }

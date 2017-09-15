@@ -1,10 +1,8 @@
 <?php
-
 namespace zesk;
 
 class Class_Content_Video extends Class_Object {
 	public $id_column = "id";
-	
 	public $columns = array(
 		"id",
 		"name",

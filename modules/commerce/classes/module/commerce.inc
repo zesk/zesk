@@ -1,5 +1,4 @@
 <?php
-
 class Module_Commerce extends zesk\Module {
 	protected $classes = array(
 		"Invoice",

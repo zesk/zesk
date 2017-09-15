@@ -9,6 +9,4 @@ namespace zesk;
 /**
  * Invoice_Item_Type
  */
-class Invoice_Item_Type extends Object {
-
-}
+class Invoice_Item_Type extends Object {}

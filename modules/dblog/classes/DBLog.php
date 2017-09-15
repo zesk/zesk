@@ -7,7 +7,6 @@
  * @package zesk
  * @subpackage dblog
  */
-
 namespace zesk;
 
 /**
@@ -16,5 +15,4 @@ namespace zesk;
  * @author kent
  *        
  */
-class DBLog extends Object {
-}
+class DBLog extends Object {}

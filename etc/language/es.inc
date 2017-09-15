@@ -7,7 +7,6 @@
  * @copyright Copyright &copy; 2008, Market Acumen, Inc.
  * Created on Thu Jan 22 12:10:40 EST 2009 12:10:40
  */
-
 $tt = array();
 
 $tt['and'] = "y";
@@ -70,7 +69,6 @@ $tt['this month'] = 'este mes';
 $tt['last month'] = 'mes pasado';
 $tt['this year'] = 'este a&ntilde;o';
 $tt['last year'] = 'el a&ntilde;o pasado';
-
 
 $tt['microsecond'] = 'microsegundo';
 $tt['millisecond'] = 'milisegundo';

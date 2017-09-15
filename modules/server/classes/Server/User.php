@@ -27,8 +27,7 @@ class Server_User extends Model {
 	 * @var path
 	 */
 	public $home = null;
-	
-	function __construct(Application $application, $options=null) {
+	function __construct(Application $application, $options = null) {
 		parent::__construct($application, $options);
 		$this->inherit_global_options($application);
 		$this->user = $this->option('user');

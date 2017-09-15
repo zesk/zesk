@@ -1,5 +1,2 @@
 <?php
-
-class Module_Diff extends zesk\Module {
-
-}
+class Module_Diff extends zesk\Module {}

@@ -12,7 +12,10 @@ class Control_RRule extends \zesk\Control {
 		$name = $this->name();
 		$ww = array();
 		
-		$w = $this->widget_factory("Control_Select")->names($name . '_repeat', __('Repeat'))->control_options(self::repeat_options())->noname(__('None'));
+		$w = $this->widget_factory("Control_Select")
+			->names($name . '_repeat', __('Repeat'))
+			->control_options(self::repeat_options())
+			->noname(__('None'));
 		$this->child($w);
 		$ww['repeat'] = $w;
 		
@@ -20,23 +23,41 @@ class Control_RRule extends \zesk\Control {
 		$this->child($w);
 		$ww['interval'] = $w;
 		
-		$w = $this->widget_factory('Control_Pills')->names($name . '_weekday')->control_options($this->weekday_options())->multiple(true)->one_or_more(true);
+		$w = $this->widget_factory('Control_Pills')
+			->names($name . '_weekday')
+			->control_options($this->weekday_options())
+			->multiple(true)
+			->one_or_more(true);
 		$this->child($w);
 		$ww['weekday'] = $w;
 		
-		$w = $this->widget_factory('Control_Pills')->names($name . '_monthday')->control_options($this->monthday_options())->multiple(true)->one_or_more(true);
+		$w = $this->widget_factory('Control_Pills')
+			->names($name . '_monthday')
+			->control_options($this->monthday_options())
+			->multiple(true)
+			->one_or_more(true);
 		$this->child($w);
 		$ww['monthday'] = $w;
 		
-		$w = $this->widget_factory('Control_Pills')->names($name . '_yearly')->control_options($this->monthly_options())->multiple(true)->one_or_more(true);
+		$w = $this->widget_factory('Control_Pills')
+			->names($name . '_yearly')
+			->control_options($this->monthly_options())
+			->multiple(true)
+			->one_or_more(true);
 		$this->child($w);
 		$ww['month'] = $w;
 		
-		$w = $this->widget_factory('Control_Select')->names($name . '_on_which')->control_options($this->which_day_options())->noname("");
+		$w = $this->widget_factory('Control_Select')
+			->names($name . '_on_which')
+			->control_options($this->which_day_options())
+			->noname("");
 		$this->child($w);
 		$ww['onwhich'] = $w;
 		
-		$w = $this->widget_factory('Control_Select')->names($name . '_on_day')->control_options($this->day_choice_options())->noname("");
+		$w = $this->widget_factory('Control_Select')
+			->names($name . '_on_day')
+			->control_options($this->day_choice_options())
+			->noname("");
 		$this->child($w);
 		$ww['onday'] = $w;
 		

@@ -6,7 +6,6 @@ class Control_Content_File extends Control_Widgets {
 	 * @var Control_File
 	 */
 	private $_file_widget = null;
-
 	function model() {
 		return new Content_File();
 	}
@@ -18,13 +17,13 @@ class Control_Content_File extends Control_Widgets {
 		) + $this->options);
 		$w->column = $prefix . "upload";
 		// $this->child(widgets::control_text($prefix . "name"), __("Name"));
-
+		
 		$this->child($w);
-
+		
 		$w = $this->widget_factory("Control_Text")->names($prefix . "desc", __("Description"))->textarea(true);
 		$this->child($w);
 		$this->upload(true);
-
+		
 		parent::initialize();
 	}
 	/**

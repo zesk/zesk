@@ -10,6 +10,7 @@
 	width: 58px;
 	height: 20px;
 }
+
 #colorscheme-control a {
 	background-color: #EEE;
 	border-left: 1px solid #CCC;
@@ -23,10 +24,12 @@
 	height: 18px;
 	float: left;
 }
+
 #colorscheme-control img {
 	padding: 1px;
 	border: 0;
 }
+
 #colorscheme-control a:hover {
 	background-color: #777;
 	border-left: 1px solid #AAA;
@@ -34,6 +37,7 @@
 	border-bottom: 1px solid #CCC;
 	border-right: 1px solid #CCC;
 }
+
 #colorscheme-control span {
 	font-size: 15px;
 	display: block;

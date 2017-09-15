@@ -10,7 +10,6 @@ namespace zesk;
 /* @var $request \zesk\Request */
 /* @var $response \zesk\Response_Text_HTML */
 /* @var $current_user \zesk\User */
-
 $application = $this->application;
 /* @var $application Application */
 
@@ -18,7 +17,6 @@ $configuration = $zesk->configuration;
 
 $units = $this->get('units', $configuration->path_get('distance::units', 'km'));
 // By default, all units in kilometers
-
 
 // Distance should always be passed in as "meters"
 $distance = $this->content;

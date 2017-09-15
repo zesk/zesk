@@ -3,10 +3,12 @@
 		"require": "components/jqueryui:^1"
 	},
 	"name": "jQuery UI",
-	"requires": ["jquery"],
-	"version_data": { 
-		"file": "vendor/components/jqueryui/package.json", 
-		"key": "version" 
+	"requires": [
+		"jquery"
+	],
+	"version_data": {
+		"file": "vendor/components/jqueryui/package.json",
+		"key": "version"
 	},
 	"url_license": "https://jquery.org/license/",
 	"share_path": "vendor/components/jqueryui"

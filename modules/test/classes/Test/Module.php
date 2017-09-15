@@ -1,5 +1,4 @@
 <?php
-
 namespace zesk;
 
 class Test_Module extends Module {

@@ -1,5 +1,4 @@
 <?php
-
 namespace zesk;
 
 /**
@@ -8,9 +7,7 @@ namespace zesk;
  *
  */
 class Class_Health_Event extends Class_Object {
-
 	public $id_column = "id";
-
 	public $has_one = array(
 		"events" => "zesk\\Health_Events",
 		"server" => "zesk\\Server"
@@ -31,7 +28,6 @@ class Class_Health_Event extends Class_Object {
 		"backtrace" => self::type_serialize,
 		"data" => self::type_serialize
 	);
-
 	public $column_defaults = array(
 		'when_msec' => 0
 	);

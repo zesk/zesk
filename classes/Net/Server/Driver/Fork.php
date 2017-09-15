@@ -10,14 +10,12 @@ namespace zesk;
 
 class Net_Server_Driver_Fork extends Net_Server_Driver {
 	private $is_parent = true;
-	
 	function __construct(Net_Server $server, $host, $port, $protocol = AF_INET) {
 		if (!function_exists('pcntl_fork')) {
 			throw new Exception_Unsupported('Needs pcntl extension to fork processes.');
 		}
 		parent::__construct($server, $host, $port, $protocol);
 	}
-	
 	public function start() {
 		$this->listen();
 		
@@ -30,7 +28,7 @@ class Net_Server_Driver_Fork extends Net_Server_Driver {
 			if ($client_id === null) {
 				continue;
 			}
-
+			
 			/* Child */
 			$this->is_parent = false;
 			// store the new file descriptor
@@ -38,7 +36,6 @@ class Net_Server_Driver_Fork extends Net_Server_Driver {
 			exit();
 		}
 	}
-	
 	protected function _after_accept($socket) {
 		$pid = pcntl_fork();
 		if ($pid === -1) {
@@ -51,11 +48,12 @@ class Net_Server_Driver_Fork extends Net_Server_Driver {
 		}
 		return true;
 	}
-	
 	private function handle_request($client_id) {
 		$fd = $this->clients[$client_id];
 		while (true) {
-			$fds = array($fd);
+			$fds = array(
+				$fd
+			);
 			$ready = $this->select($fds);
 			if ($ready === false) {
 				return;

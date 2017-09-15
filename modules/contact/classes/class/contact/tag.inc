@@ -1,5 +1,4 @@
 <?php
-
 namespace zesk;
 
 class Class_Contact_Tag extends Class_Contact_Info {

@@ -35,13 +35,13 @@ namespace zesk;
  * @deprecated 2017-06
  */
 class Cache_File extends Cache {
-
+	
 	/**
 	 *
 	 * @var string
 	 */
 	static $caches_path = null;
-
+	
 	/**
 	 * Check at flush time whether the "disabled" file exists.
 	 * We check once on startup, and once at exit
@@ -83,7 +83,7 @@ class Cache_File extends Cache {
 	}
 	private static function _cache_file_path($name, $create = true) {
 		$file_path = self::cache_directory();
-
+		
 		$file_path = path($file_path, implode("/", File::name_clean(explode("/", $name))) . ".cache");
 		$dir_path = dirname($file_path);
 		if ($create) {
@@ -91,7 +91,7 @@ class Cache_File extends Cache {
 		}
 		return $file_path;
 	}
-
+	
 	/**
 	 * The complete file name of the cache file.
 	 * To override the cache directory on a site-wide
@@ -127,7 +127,7 @@ class Cache_File extends Cache {
 	protected function store($data) {
 		return File::atomic($this->cache_file_path(true), $data);
 	}
-
+	
 	/**
 	 * Delete the cache file
 	 */

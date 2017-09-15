@@ -1,5 +1,4 @@
 <?php
-
 namespace zesk;
 
 class Application_Server extends Application {

@@ -6,7 +6,6 @@ namespace zesk;
 /* @var $application TimeBank */
 /* @var $request Request */
 /* @var $response Response_Text_HTML */
-
 $result = array();
 
 $result['time'] = microtime(true);

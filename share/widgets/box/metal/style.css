@@ -1,50 +1,60 @@
 body {
-	background-image:  url("/share/zesk/widgets/box/metal/background.jpg");
+	background-image: url("/share/zesk/widgets/box/metal/background.jpg");
 	background-repeat: repeat;
 }
+
 .box-metal .box-top-left {
-	background-image:  url("/share/zesk/widgets/box/metal/top-left.jpg");
+	background-image: url("/share/zesk/widgets/box/metal/top-left.jpg");
 	background-repeat: no-repeat;
 	background-position: bottom right;
 }
+
 .box-metal .box-top {
-	background-image:  url("/share/zesk/widgets/box/metal/top.jpg");
+	background-image: url("/share/zesk/widgets/box/metal/top.jpg");
 	background-repeat: repeat-x;
 	background-position: bottom;
 }
+
 .box-metal .box-top-right {
-	background-image:  url("/share/zesk/widgets/box/metal/top-right.jpg");
+	background-image: url("/share/zesk/widgets/box/metal/top-right.jpg");
 	background-repeat: no-repeat;
 	background-position: bottom left;
 }
+
 .box-metal .box-bottom-left {
-	background-image:  url("/share/zesk/widgets/box/metal/bottom-left.jpg");
+	background-image: url("/share/zesk/widgets/box/metal/bottom-left.jpg");
 	background-repeat: no-repeat;
 	background-position: top right;
 }
+
 .box-metal .box-bottom {
-	background-image:  url("/share/zesk/widgets/box/metal/bottom.jpg");
+	background-image: url("/share/zesk/widgets/box/metal/bottom.jpg");
 	background-repeat: repeat-x;
 	background-position: top;
 }
+
 .box-metal .box-bottom-right {
-	background-image:  url("/share/zesk/widgets/box/metal/bottom-right.jpg");
+	background-image: url("/share/zesk/widgets/box/metal/bottom-right.jpg");
 	background-repeat: no-repeat;
 	background-position: top left;
 }
+
 .box-metal .box-left {
-	background-image:  url("/share/zesk/widgets/box/metal/left.jpg");
+	background-image: url("/share/zesk/widgets/box/metal/left.jpg");
 	background-repeat: repeat-y;
 	background-position: center right;
 }
+
 .box-metal .box-right {
-	background-image:  url("/share/zesk/widgets/box/metal/right.jpg");
+	background-image: url("/share/zesk/widgets/box/metal/right.jpg");
 	background-repeat: repeat-y;
 	background-position: center left;
 }
+
 .box-metal .box-content {
 	background-color: #FFF;
 }
+
 .box-metal .box-title {
 	font-weight: bold;
 }

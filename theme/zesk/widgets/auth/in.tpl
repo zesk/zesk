@@ -7,7 +7,6 @@
  * @copyright Copyright &copy; 2009, Market Ruler, LLC
  * Created on Tue Feb 17 20:42:50 EST 2009 20:42:50
  */
-
 namespace zesk;
 
 /* @var $this \zesk\Template */
@@ -19,7 +18,6 @@ namespace zesk;
 /* @var $request \zesk\Request */
 /* @var $response \zesk\Response_Text_HTML */
 /* @var $current_user \zesk\User */
-
 $web_key = $this->get("web_key", $zesk->configuration->web_key);
 
 $u = $request->get("u", "/");

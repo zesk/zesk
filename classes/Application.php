@@ -789,8 +789,8 @@ class Application extends Hookable implements Interface_Theme {
 	 */
 	final public function object_singleton($class) {
 		$args = func_get_args();
-		array_shift($args);
 		
+		$args[0] = $this;
 		/* @var $zesk Kernel */
 		$object = $this->call_hook_arguments("singleton_$class", $args, null);
 		if ($object instanceof $class) {

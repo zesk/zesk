@@ -1,5 +1,4 @@
 <?php
-
 namespace zesk;
 
 class MySQL_Database_Parse_Test extends Test_Unit {

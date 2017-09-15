@@ -15,19 +15,15 @@ namespace zesk;
  *
  */
 class Locale_EN extends Locale_Base {
-
 	public function date_format() {
 		return "{MMMM} {DDD}, {YYYY}";
 	}
-
 	public function datetime_format() {
 		return "{MMMM} {DDD}, {YYYY} {12hh}:{mm} {AMPM}";
 	}
-
 	public function time_format($include_seconds = false) {
 		return $include_seconds ? "{12h}:{mm}:{ss} {ampm}" : "{12h}:{mm} {AMPM}";
 	}
-
 	public function possessive($owner, $object) {
 		if (ends($owner, "s")) {
 			return "$owner' $object";
@@ -58,7 +54,6 @@ class Locale_EN extends Locale_Base {
 		}
 		return null;
 	}
-
 	public function plural($word, $count = 2) {
 		if ($count > 0 && $count <= 1) {
 			return $word;
@@ -83,7 +78,6 @@ class Locale_EN extends Locale_Base {
 		}
 		return $word . 's';
 	}
-
 	public function indefinite_article($word, $context = false) {
 		if (strlen($word) === 0) {
 			return '';
@@ -100,7 +94,6 @@ class Locale_EN extends Locale_Base {
 		}
 		return ($context ? ucfirst($article) : $article);
 	}
-
 	public function ordinal($n) {
 		$n = doubleval($n);
 		$mod_100 = $n % 100;
@@ -114,7 +107,6 @@ class Locale_EN extends Locale_Base {
 			3 => "rd"
 		), $mod_10, "th");
 	}
-
 	public function negate_word($word, $preferred_prefix = null) {
 		if ($preferred_prefix === null) {
 			$preferred_prefix = "Non-";

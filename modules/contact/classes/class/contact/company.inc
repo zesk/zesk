@@ -1,12 +1,9 @@
 <?php
-
 namespace zesk;
 
 class Class_Contact_Company extends Class_Contact_Info {
 	public $contact_object_field = "company";
-
 	public $id_column = "id";
-
 	public $column_types = array(
 		"id" => self::type_id,
 		"name" => self::type_string,

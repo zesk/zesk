@@ -1,14 +1,12 @@
 <?php
 namespace zesk;
 
-
 /**
  * Class_Currency
  */
 class Class_Currency extends Class_Object {
 	public $id_column = "id";
 	public $auto_column = false;
-
 	public $find_keys = array(
 		"bank_country",
 		"code"

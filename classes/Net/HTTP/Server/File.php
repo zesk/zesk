@@ -10,13 +10,9 @@ namespace zesk;
  *
  */
 class Net_HTTP_Server_File extends Net_HTTP_Server {
-
 	protected $default_driver = self::type_single;
-
 	protected $root_path = null;
-
 	protected $directory_list = false;
-
 	final function root_path($set = null) {
 		if ($set !== null) {
 			if (!is_dir($set)) {
@@ -27,7 +23,6 @@ class Net_HTTP_Server_File extends Net_HTTP_Server {
 		}
 		return $this->root_path;
 	}
-
 	final function directory_list($set = null) {
 		if ($set !== null) {
 			$this->directory_list = to_bool($set);
@@ -35,7 +30,6 @@ class Net_HTTP_Server_File extends Net_HTTP_Server {
 		}
 		return $this->directory_list;
 	}
-
 	final protected function handle_request(Net_HTTP_Server_Request $request, Net_HTTP_Server_Response $response) {
 		$uri = $request->uri;
 		

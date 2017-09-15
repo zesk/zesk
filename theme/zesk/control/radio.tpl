@@ -1,5 +1,4 @@
 <?php
-
 use zesk\HTML;
 
 /* @var $widget Control_Radio */

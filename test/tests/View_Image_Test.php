@@ -9,21 +9,21 @@ class View_Image_Test extends Test_Widget {
 	private $test_dir = null;
 	function validate_image_size_tag($img_tag, $width, $height) {
 		dump($img_tag);
-
+		
 		$tag = HTML::extract_tag_object("img", $img_tag);
 		dump($tag);
-
+		
 		$this->assert_equal(get_class($tag), "zesk\HTML_Tag");
-
+		
 		$w = $tag->option("width");
 		$h = $tag->option("height");
 		$src = $tag->option("src");
-
+		
 		$image_path = path($this->test_dir, $src);
-
+		
 		$exists = file_exists($image_path);
 		$this->assert_true($exists, "Image file should exist $image_path");
-
+		
 		list($w_img, $h_img) = getimagesize($image_path);
 		echo "$img_tag\n";
 		echo "$src is tag[$w x $h] image[$w_img x $h_img]\n";
@@ -39,18 +39,18 @@ class View_Image_Test extends Test_Widget {
 	}
 	function test_scaled() {
 		$this->test_dir = $this->test_sandbox();
-
+		
 		$this->application->document_root($this->test_dir);
-
+		
 		$src = null;
 		$width = false;
 		$height = false;
 		$alt = "";
 		$extras = false;
 		View_Image::scaled($this->application, $src, $width, $height, $alt, $extras);
-
+		
 		newline("\n");
-
+		
 		$images = array(
 			'z100x100.gif' => array(
 				array(
@@ -131,17 +131,17 @@ class View_Image_Test extends Test_Widget {
 				)
 			)
 		);
-
+		
 		foreach ($images as $image_name => $tests) {
 			echo "############# test with image $image_name ...\n";
 			$test_image = ZESK_ROOT . "share/images/test/$image_name";
 			$src_image = "$this->test_dir/$image_name";
 			$src = "/$image_name";
-
+			
 			copy($test_image, $src_image);
-
+			
 			View_Image::debug(true);
-
+			
 			$extras = array(
 				"is_relative" => false
 			);
@@ -153,18 +153,18 @@ class View_Image_Test extends Test_Widget {
 	}
 	function test_scaled_path() {
 		$test_dir = $this->test_sandbox();
-
+		
 		$this->application->document_root($test_dir);
-
+		
 		$src = null;
 		$width = false;
 		$height = false;
 		$alt = "";
 		$extras = false;
 		View_Image::scaled_path($this->application, $src, $width, $height, $alt, $extras);
-
+		
 		newline("\n");
-
+		
 		$images = array(
 			'z100x100.gif' => array(
 				array(
@@ -245,16 +245,16 @@ class View_Image_Test extends Test_Widget {
 				)
 			)
 		);
-
+		
 		foreach ($images as $image_name => $tests) {
 			$test_image = ZESK_ROOT . "share/images/test/$image_name";
 			$src_image = "$test_dir/$image_name";
 			$src = "/$image_name";
-
+			
 			copy($test_image, $src_image);
-
+			
 			View_Image::debug();
-
+			
 			$extras = array(
 				"is_relative" => false
 			);

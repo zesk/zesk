@@ -6,7 +6,6 @@
  * @package zesk
  * @subpackage model
  */
-
 namespace zesk;
 
 /**
@@ -164,7 +163,7 @@ class Net_FTP_Client extends Net_Client implements Net_FileSystem {
 			$this->stat_cache[$dir] = $listing = $this->ls($dir);
 		}
 		return avalue($listing, $file, array(
-			'type' => null, 
+			'type' => null,
 			'name' => $file
 		));
 	}
@@ -175,7 +174,7 @@ class Net_FTP_Client extends Net_Client implements Net_FileSystem {
 		switch ($feature) {
 			case self::feature_mtime:
 				return false;
-			default:
+			default :
 				return false;
 		}
 	}

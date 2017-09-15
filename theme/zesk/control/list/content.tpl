@@ -4,7 +4,6 @@ namespace zesk;
 /* @var $widget Widget */
 /* @var $row_widget Control_Row */
 /* @var $this_row Control_Row */
-
 $odd = 0;
 $total = 0;
 /* @var $query Database_Query_Select */

@@ -9,11 +9,12 @@
  */
 namespace zesk;
 
-class View_Section_End extends View
-{
-	function __construct($options=false)
-	{
+class View_Section_End extends View {
+	function __construct($options = false) {
 		parent::__construct($options);
-		$this->set_option(array('is_section_end' => true, 'is_section' => true));
+		$this->set_option(array(
+			'is_section_end' => true,
+			'is_section' => true
+		));
 	}
 }

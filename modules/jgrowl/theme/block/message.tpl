@@ -11,7 +11,6 @@ namespace zesk;
 /* @var $request Router */
 /* @var $request Request */
 /* @var $response Response_Text_HTML */
-
 $response = $this->response;
 if (!$response instanceof Response) {
 	$response = $application->response();

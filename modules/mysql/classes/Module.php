@@ -1,5 +1,4 @@
 <?php
-
 namespace MySQL;
 
 class Module extends \zesk\Module {

@@ -1,5 +1,4 @@
 <?php
-
 namespace zesk;
 
 /**
@@ -9,6 +8,4 @@ namespace zesk;
  * @author kent
  * @see Class_Filter_State
  */
-class Filter_State extends Object {
-	
-}
+class Filter_State extends Object {}

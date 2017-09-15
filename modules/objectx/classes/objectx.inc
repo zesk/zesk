@@ -1,7 +1,4 @@
 <?php
-
 namespace zesk;
 
-class ObjectX extends Object {
-
-}
+class ObjectX extends Object {}

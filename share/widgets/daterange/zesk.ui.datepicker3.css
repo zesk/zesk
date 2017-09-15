@@ -3,26 +3,32 @@
 	padding: 0;
 	margin: 0;
 }
+
 .datepicker ul li {
 	padding: 0 10px 0 0;
 	margin: 0;
 	float: left;
 }
+
 .datepicker input.date-input {
 	width: 13ex;
 }
+
 .ui-datepicker-current-day {
 	background: black;
 }
+
 .ui-datepicker-current-day a {
-	color: white;  /* !important */
+	color: white; /* !important */
 }
+
 .datepicker .locale-chosen-date {
 	font-size: 1.7em;
 	text-decoration: none;
 	color: black;
 	padding: 0.2em 0 0.1em 0.2em;
 }
+
 .datepicker a.toggle-arrow img {
 	padding-top: 0.5em;
 }
@@ -34,23 +40,26 @@
 	height: 160px;
 	padding-bottom: 10px;
 }
+
 .datepicker .ui-datepicker-inline {
 	width: 980px;
 	display: block;
 	position: relative;
 }
+
 .datepicker .toggle-arrow {
 	width: 600px;
 }
+
 .datepicker ul.choices {
 	clear: both;
 	padding: 3px 5px 5px 2px;
 	width: 800px;
 }
+
 .datepicker ul.choices li {
 	padding: 0px 10px 0 0;
 }
-
 
 .ui-datepicker-calendar td {
 	width: 14.2%;

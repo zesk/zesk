@@ -9,7 +9,6 @@
 namespace zesk;
 
 class View_Email extends View {
-
 	function render() {
 		$value = $this->value();
 		if (empty($value) || !is_email($value)) {

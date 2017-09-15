@@ -13,13 +13,11 @@
 	cursor: hand;
 }
 
-table.layout-table
-{
+table.layout-table {
 	border: 5px solid black;
 }
 
-table.layout-table td
-{
+table.layout-table td {
 	background-color: white;
 	text-align: center;
 	margin: 0;

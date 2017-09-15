@@ -11,7 +11,6 @@ namespace zesk;
 /* @var $request \zesk\Router */
 /* @var $request \zesk\Request */
 /* @var $response \zesk\Response_Text_HTML */
-
 $trace_item = $this->content;
 if (!is_array($trace_item)) {
 	return;

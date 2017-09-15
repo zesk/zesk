@@ -11,16 +11,14 @@ namespace zesk;
  *
  */
 class Metafile_CFB extends Metafile {
-
 	protected $minor_version = null;
-
 	protected $major_version = null;
-
+	
 	/**
 	 * @var integer
 	 */
 	protected $sector_size = null;
-
+	
 	/**
 	 * Number of Directory Sectors (4 bytes): This integer field contains the count of the number
 	 * of directory sectors in the compound file.
@@ -30,56 +28,55 @@ class Metafile_CFB extends Metafile {
 	 * @var integer
 	 */
 	protected $directory_sectors_count = null;
-
+	
 	/**
 	 * First Directory Sector Location (4 bytes): This integer field contains the starting sector number for the directory stream.
 	 * 
 	 * @var integer
 	 */
 	protected $directory_sector_offset = null;
-
+	
 	/**
 	 * Transaction Signature Number (4 bytes): This integer field MAY contain a sequence number that is incremented every time the compound file is saved by an implementation that supports file transactions. This is field that MUST be set to all zeroes if file transactions are not implemented.<1>
 	 * 
 	 * @var integer
 	 */
 	protected $transaction_signature_number = null;
-
+	
 	/**
 	 * First Mini FAT Sector Location (4 bytes): This integer field contains the starting sector number for the mini FAT.
 	 * 
 	 * @var integer
 	 */
 	protected $mini_fat_sector_location = null;
-
+	
 	/**
 	 * Number of Mini FAT Sectors (4 bytes): This integer field contains the count of the number of mini FAT sectors in the compound file.
 	 * 
 	 * @var integer
 	 */
 	protected $mini_fat_sector_count = null;
-
+	
 	/**
 	 * First DIFAT Sector Location (4 bytes): This integer field contains the starting sector number for the DIFAT.
 	 * 
 	 * @var integer
 	 */
 	protected $difat_sector_location = null;
-
+	
 	/**
 	 * Number of DIFAT Sectors (4 bytes): This integer field contains the count of the number of DIFAT sectors in the compound file.
 	 * 
 	 * @var integer
 	 */
 	protected $difat_sector_count = null;
-
+	
 	/**
 	 * DIFAT (436 bytes): This array of 32-bit integer fields contains the first 109 FAT sector locations of the compound file.
 	 * 
 	 * @var array
 	 */
 	protected $difat = array();
-
 	function validate() {
 		$this->read_header();
 	}
@@ -90,13 +87,13 @@ class Metafile_CFB extends Metafile {
 		echo "START: $starting_offset\n";
 		$signature = $this->read_byte(8);
 		if ($signature !== array(
-			0xD0, 
-			0xCF, 
-			0x11, 
-			0xE0, 
-			0xA1, 
-			0xB1, 
-			0x1A, 
+			0xD0,
+			0xCF,
+			0x11,
+			0xE0,
+			0xA1,
+			0xB1,
+			0x1A,
 			0xE1
 		)) {
 			throw new Exception_File_Format("CFB Header signature incorrect " . PHP::dump($signature));
@@ -111,7 +108,7 @@ class Metafile_CFB extends Metafile {
 		}
 		$this->major_version = $this->read_integer(2);
 		if (!in_array($this->major_version, array(
-			3, 
+			3,
 			4
 		))) {
 			$this->warning(__("Header Minor version should 3 or 4, but it's: {0}", $this->major_version));
@@ -168,17 +165,16 @@ class Metafile_CFB extends Metafile {
 		}
 		return $this;
 	}
-
+	
 	/**
-		 * A sector number can be converted into a byte offset into the file by using the following formula: 
-		 * 
-		 * (sector number + 1) x Sector Size. 
-		 * 
-		 * This implies that sector #0 of the file begins at byte offset Sector Size, not at 0.
-		 */
+	 * A sector number can be converted into a byte offset into the file by using the following formula: 
+	 * 
+	 * (sector number + 1) x Sector Size. 
+	 * 
+	 * This implies that sector #0 of the file begins at byte offset Sector Size, not at 0.
+	 */
 	protected function load_sector($number) {
 	}
-
 	function load_fat() {
 		/*
 		 * Special values are reserved for chain terminators 

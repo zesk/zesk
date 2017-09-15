@@ -1,5 +1,4 @@
 <?php
-
 $object = $this->object;
 /* @var $object Object */
 if (($name = $object->class_object()->name_column) !== null) {

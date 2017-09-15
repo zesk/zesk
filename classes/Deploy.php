@@ -92,7 +92,6 @@ class Deploy extends Hookable {
 		}
 		return $deploy;
 	}
-
 	public function reset($skip = false) {
 		if (!$this->failed()) {
 			return $this;

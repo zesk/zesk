@@ -10,6 +10,4 @@
 /**
  * Base class for all iCalendar objects
  */
-class iCalendar {
-	
-}
+class iCalendar {}

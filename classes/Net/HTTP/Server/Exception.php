@@ -11,7 +11,6 @@ namespace zesk;
 class Net_HTTP_Server_Exception extends Exception {
 	public $status = null;
 	public $status_text = null;
-	
 	function __construct($http_status, $http_message = null, $content = null) {
 		$this->status = $http_status;
 		if ($http_message === null) {

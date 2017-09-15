@@ -4,7 +4,8 @@ namespace zesk;
 ?>
 <div class="input-group">
 	<div class="input-group-btn">
-		<button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">
+		<button type="button" class="btn btn-default dropdown-toggle"
+			data-toggle="dropdown">
 			<?php echo $this->label_button ?> <span class="caret"></span>
 		</button>
 		<ul class="dropdown-menu"><?php

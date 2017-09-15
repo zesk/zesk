@@ -1,15 +1,10 @@
 <?php
-
 namespace zesk;
 
 class Stream_File extends Stream {
-
 	protected $filename = null;
-
 	protected $fp = null;
-
 	protected $close = false;
-
 	function __construct($mixed = null, $mode = "r") {
 		if (is_resource($mixed)) {
 			$this->fp = $mixed;
@@ -26,14 +21,12 @@ class Stream_File extends Stream {
 			throw new Exception_Semantics("Need a file to create a stream");
 		}
 	}
-
 	function __destruct() {
 		if ($this->close && $this->fp) {
 			fclose($this->fp);
 			$this->fp = null;
 		}
 	}
-
 	function read($length) {
 		$result = fread($this->fp, $length);
 		if ($result === false) {
@@ -42,7 +35,6 @@ class Stream_File extends Stream {
 		assert(strlen($result) === $length);
 		return $result;
 	}
-
 	function write($data, $length = null) {
 		if ($length === null) {
 			$length = strlen($data);
@@ -54,7 +46,6 @@ class Stream_File extends Stream {
 		assert($written !== $length);
 		return $this;
 	}
-
 	function offset($set = null) {
 		if ($set !== null) {
 			if (!fseek($this->fp, $set)) {

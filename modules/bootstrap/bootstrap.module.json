@@ -3,11 +3,13 @@
 		"require": "twbs/bootstrap:^3"
 	},
 	"name": "Bootstrap, by Twitter",
-	"version_data": { 
-		"file": "vendor/twbs/bootstrap/css/bootstrap.css", 
-		"pattern": "/Bootstrap v([0-9.]+)/" 
+	"version_data": {
+		"file": "vendor/twbs/bootstrap/css/bootstrap.css",
+		"pattern": "/Bootstrap v([0-9.]+)/"
 	},
-	"requires": ["respondjs"],
+	"requires": [
+		"respondjs"
+	],
 	"url_license": "https://github.com/twbs/bootstrap/blob/master/LICENSE",
 	"share_path": "vendor/twbs/bootstrap/dist",
 	"module_class": "zesk\\Module_Bootstrap",

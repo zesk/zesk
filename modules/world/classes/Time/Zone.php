@@ -1,5 +1,4 @@
 <?php
-
 namespace zesk;
 
 /**
@@ -7,6 +6,4 @@ namespace zesk;
  * @author kent
  *
  */
-class Time_Zone extends Object {
-
-}
+class Time_Zone extends Object {}

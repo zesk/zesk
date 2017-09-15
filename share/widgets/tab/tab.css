@@ -4,8 +4,7 @@
 	z-index: 10;
 }
 
-.tablist
-{
+.tablist {
 	padding: 3px 0 3px 15px;
 	margin: 0;
 	border-bottom: 1px solid #778;
@@ -18,17 +17,14 @@
 	padding: 0 !important;
 }
 
-.tablist li
-{
+.tablist li {
 	list-style: none;
 	margin: 0;
 	padding: 0;
 	display: inline;
 }
 
-.tablist li a,
-.tablist li span
-{
+.tablist li a, .tablist li span {
 	padding: 3px 0.5em;
 	margin-left: 3px;
 	border: 1px solid #778;
@@ -36,52 +32,45 @@
 	text-decoration: none;
 }
 
-* html .tablist li span,
-* html .tablist li a
-{
+* html .tablist li span, * html .tablist li a {
 	padding: 3px 0.5em;
 	font: bold medium Verdana, sans-serif;
 }
 
-.tablist li a:link { color: #448; }
-.tablist li a:visited { color: #667; }
+.tablist li a:link {
+	color: #448;
+}
 
-.tablist li a:hover
-{
+.tablist li a:visited {
+	color: #667;
+}
+
+.tablist li a:hover {
 	color: #000;
 	background-color: #AAE;
 	border-color: #227;
 }
 
-a.tab_active,
-span.tab_active
-{
+a.tab_active, span.tab_active {
 	background-color: white;
 	border-bottom: 1px solid white !important;
 }
 
-a.tab_inactive,
-span.tab_inactive
-{
+a.tab_inactive, span.tab_inactive {
 	background-color: #DDE;
 	border-bottom: 1px solid #778;
 }
 
-a.tab_inactive_dhtml,
-span.tab_inactive_dhtml
-{
+a.tab_inactive_dhtml, span.tab_inactive_dhtml {
 	background-color: #DDE;
 	border-bottom: 1px solid white !important;
 }
 
-.tablist li span,
-.tablist li a
-{
+.tablist li span, .tablist li a {
 	font: bold medium Verdana, sans-serif;
 }
 
-.tabs .extra
-{
+.tabs .extra {
 	position: absolute;
 	right: 10px;
 	top: 0;
@@ -92,16 +81,13 @@ span.tab_inactive_dhtml
 	z-index: -2;
 }
 
-.tab-dhtml-sections
-{
+.tab-dhtml-sections {
 	border-right: 1px solid black;
 	border-left: 1px solid black;
 	border-bottom: 1px solid black;
 	padding: 1em;
 }
 
-.tab-dhtml-section
-{
+.tab-dhtml-section {
 	display: none;
 }
-

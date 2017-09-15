@@ -1,7 +1,7 @@
 {
-"name": "Selenium Testing Suite",
-"autoload_options": {
-"class_prefix": "zesk\\",
-"lower":false
-}
+	"name": "Selenium Testing Suite",
+	"autoload_options": {
+		"class_prefix": "zesk\\",
+		"lower": false
+	}
 }

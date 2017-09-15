@@ -8,7 +8,6 @@ class Module_File_Cache extends zesk\Module {
 			));
 		}
 	}
-
 	function settings() {
 		return array(
 			"File_Cache::path" => array(

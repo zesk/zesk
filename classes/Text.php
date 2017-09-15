@@ -468,7 +468,10 @@ class Text {
 						$name .= "-$uindex";
 						$uindex = $uindex + 1;
 					}
-					$headers[$name] = array($start, $length);
+					$headers[$name] = array(
+						$start,
+						$length
+					);
 				}
 				$was_space = $space;
 			}

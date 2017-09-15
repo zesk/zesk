@@ -114,7 +114,7 @@ php-find.sh 'Settings::instance'
 pause
 
 echo '`Server::singleton` now takes `$application`'
-php-find.sh 'Settings::singleton'
+php-find.sh 'Server::singleton'
 pause
 
 echo '`zesk\\Contact_Address_Parser::parse` now takes `$application`'

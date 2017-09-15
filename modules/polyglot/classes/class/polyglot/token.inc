@@ -1,5 +1,4 @@
 <?php
-
 namespace zesk;
 
 /**
@@ -9,11 +8,9 @@ namespace zesk;
  */
 class Class_PolyGlot_Token extends Class_Object {
 	public $id_column = "id";
-
 	public $has_one = array(
 		"user" => "zesk\\User"
 	);
-
 	public $column_types = array(
 		'id' => self::type_id,
 		'language' => self::type_string,

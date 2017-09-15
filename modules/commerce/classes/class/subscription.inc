@@ -11,5 +11,4 @@ namespace zesk;
  */
 class Class_Subscription extends Class_Object {
 	public $id_column = "id";
-
 }

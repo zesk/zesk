@@ -29,9 +29,12 @@ class Contact_Label extends Object {
 			'CodeName' => $name,
 			"Type" => $type
 		);
-		return $application->query_select(__CLASS__)->what("ID", "ID")->where($fields)->one("ID", null);
+		return $application->query_select(__CLASS__)
+			->what("ID", "ID")
+			->where($fields)
+			->one("ID", null);
 	}
-
+	
 	/**
 	 *
 	 * @param unknown $type
@@ -46,8 +49,11 @@ class Contact_Label extends Object {
 			'CodeName' => strtolower($name),
 			"Type" => $type
 		);
-
-		$id = $app->query_select(__CLASS__)->what("ID", "ID")->where($fields)->one("ID", null);
+		
+		$id = $app->query_select(__CLASS__)
+			->what("ID", "ID")
+			->where($fields)
+			->one("ID", null);
 		if ($id) {
 			return $id;
 		}
@@ -59,7 +65,7 @@ class Contact_Label extends Object {
 		);
 		return $app->query_update(__CLASS__)->values($fields)->execute();
 	}
-
+	
 	/**
 	 *
 	 * @param unknown $type
@@ -74,15 +80,18 @@ class Contact_Label extends Object {
 				null
 			);
 		}
-		return $application->query_select(__CLASS__)->what(array(
+		return $application->query_select(__CLASS__)
+			->what(array(
 			"id" => "ID",
 			"name" => "Name"
-		))->where(array(
+		))
+			->where(array(
 			"Type" => $type,
 			"Account" => $account_where
-		))->to_array("id", "name");
+		))
+			->to_array("id", "name");
 	}
-
+	
 	/**
 	 *
 	 * @param unknown $locale
@@ -99,7 +108,7 @@ class Contact_Label extends Object {
 			self::LabelType_Other => "Other"
 		), $locale);
 	}
-
+	
 	/**
 	 *
 	 * @return string
@@ -107,7 +116,7 @@ class Contact_Label extends Object {
 	public function type_name() {
 		return $this->Name . " " . avalue($this->type_names(), $this->Type, 'Unknown Type');
 	}
-
+	
 	/**
 	 *
 	 * @param unknown $types
@@ -129,12 +138,15 @@ class Contact_Label extends Object {
 		if ($types !== null) {
 			$where['Type'] = $types;
 		}
-		$rows = $app->query_select(__CLASS__)->what(array(
+		$rows = $app->query_select(__CLASS__)
+			->what(array(
 			"id" => "ID",
 			"name" => "Name",
 			"type" => "Type"
-		))->where($where)->to_array("id");
-
+		))
+			->where($where)
+			->to_array("id");
+		
 		$result = array();
 		$type_names = self::type_names();
 		foreach ($rows as $id => $row) {

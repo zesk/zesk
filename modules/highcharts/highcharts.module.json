@@ -9,9 +9,12 @@
 	"name": "Highcharts",
 	"copyright": "Copyright &copy; 2012 Highsoft, LLC",
 	"url_license": "http://shop.highsoft.com/highcharts.html",
-	"license": [ "non-commercial-free", "commercial-paid" ],
-	"version_data": { 
-		"file": "vendor/components/highcharts/highcharts.src.js", 
-		"pattern": "/@license.*\\s+v([0-9.]+)/" 
+	"license": [
+		"non-commercial-free",
+		"commercial-paid"
+	],
+	"version_data": {
+		"file": "vendor/components/highcharts/highcharts.src.js",
+		"pattern": "/@license.*\\s+v([0-9.]+)/"
 	}
 }

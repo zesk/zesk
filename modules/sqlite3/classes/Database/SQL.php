@@ -1,5 +1,4 @@
 <?php
-
 namespace sqlite3;
 
 use zesk\Object;
@@ -55,7 +54,6 @@ class Database_SQL extends \zesk\Database_SQL {
 		$sqls[] = "BEGIN EXCLUSIVE TRANSACTION";
 		// 		 Remember the format of all indexes and triggers associated with table X. This information will be needed in step 8 below. One way to do this is to run a query like the following: SELECT type, sql FROM sqlite_master WHERE tbl_name='X'.
 		
-
 		$new_table->column_remove($dbColName->name());
 		
 		$new_table->name($new_table_name = strval($table) . "_" . md5(microtime()));
@@ -84,13 +82,10 @@ class Database_SQL extends \zesk\Database_SQL {
 		$sqls[] = "ALTER TABLE $quoted_new_table_name RENAME TO $quoted_table_name";
 		// 		 Use CREATE INDEX and CREATE TRIGGER to reconstruct indexes and triggers associated with table X. Perhaps use the old format of the triggers and indexes saved from step 3 above as a guide, making changes as appropriate for the alteration.
 		
-
 		// 		 If any views refer to table X in a way that is affected by the schema change, then drop those views using DROP VIEW and recreate them with whatever changes are necessary to accommodate the schema change using CREATE VIEW.
 		
-
 		// 		 If foreign key constraints were originally enabled then run PRAGMA foreign_key_check to verify that the schema change did not break any foreign key constraints.
 		
-
 		// 		 Commit the transaction started in step 2.
 		$sqls[] = "COMMIT TRANSACTION";
 		
@@ -98,7 +93,6 @@ class Database_SQL extends \zesk\Database_SQL {
 		
 		// 		 If foreign keys constraints were originally enabled, reenable them now.
 		
-
 		return $sqls;
 	}
 	function alter_table_index_add(Database_Table $table, Database_Index $index) {

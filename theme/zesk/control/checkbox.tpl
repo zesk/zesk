@@ -14,7 +14,6 @@ namespace zesk;
 /* @var $response \zesk\Response_Text_HTML */
 /* @var $current_user \User */
 /* @var $object \zesk\Model */
-
 $attr = $this->attributes;
 
 $object = $this->object;

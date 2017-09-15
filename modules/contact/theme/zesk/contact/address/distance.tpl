@@ -10,7 +10,6 @@ namespace zesk;
 /* @var $request \zesk\Request */
 /* @var $response \zesk\Response_Text_HTML */
 /* @var $object \zesk\Contact_Address */
-
 if (!$this->from instanceof Contact_Address) {
 	return;
 }

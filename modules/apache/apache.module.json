@@ -1,7 +1,7 @@
 {
-    "name": "Apache Integration",
-    "description": "Provides services to integrate directly with the Apache web server.",
-    "url_project": "http://httpd.apache.org/",
+	"name": "Apache Integration",
+	"description": "Provides services to integrate directly with the Apache web server.",
+	"url_project": "http://httpd.apache.org/",
 	"module_class": "zesk\\Module_Apache",
 	"autoload_options": {
 		"class_prefix": "zesk\\",

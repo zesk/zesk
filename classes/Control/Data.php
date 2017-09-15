@@ -2,19 +2,15 @@
 namespace zesk;
 
 class Control_Data extends Control {
-
 	protected $options = array(
 		"default" => array()
 	);
-
 	function validate() {
 		return true;
 	}
-
 	function option_merge($set = null) {
 		return $set === null ? $this->option_bool("merge") : $this->set_option('merge', to_bool($set));
 	}
-
 	function allow_keys($set = null) {
 		return $set === null ? $this->option_list("allow_keys") : $this->set_option('allow_keys', to_list($set));
 	}

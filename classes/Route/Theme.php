@@ -1,16 +1,15 @@
 <?php
-
 namespace zesk;
 
 class Route_Theme extends Route {
-
+	
 	/**
 	 * Whether the theme path is set by variables
 	 *
 	 * @var unknown
 	 */
 	protected $dynamic_theme = false;
-
+	
 	/**
 	 *
 	 * {@inheritdoc}
@@ -25,7 +24,7 @@ class Route_Theme extends Route {
 			return;
 		}
 	}
-
+	
 	/**
 	 * Validate this route
 	 *
@@ -60,7 +59,7 @@ class Route_Theme extends Route {
 			"theme_paths" => $application->theme_path()
 		));
 	}
-
+	
 	/**
 	 *
 	 * {@inheritdoc}

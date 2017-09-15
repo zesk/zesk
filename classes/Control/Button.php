@@ -10,7 +10,7 @@
 namespace zesk;
 
 class Control_Button extends Control {
-
+	
 	/**
 	 * Setting this converts the button into an A tag
 	 * @param string $set
@@ -22,7 +22,6 @@ class Control_Button extends Control {
 	public function button_label($set = null) {
 		return $set === null ? $this->option('button_label') : $this->set_option("button_label", $set);
 	}
-
 	function submit() {
 		if (($url = $this->option('redirect_url')) !== null) {
 			$url = $this->object->apply_map($url);
@@ -33,12 +32,10 @@ class Control_Button extends Control {
 		}
 		return true;
 	}
-
 	function theme_variables() {
 		return parent::theme_variables() + array(
 			'href' => $this->href(),
 			'button_label' => $this->button_label()
 		);
 	}
-
 }

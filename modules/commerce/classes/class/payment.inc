@@ -4,7 +4,6 @@
  */
 namespace zesk;
 
-
 /**
  * Class_Payment
  */

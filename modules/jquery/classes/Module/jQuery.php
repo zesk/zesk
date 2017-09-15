@@ -1,5 +1,4 @@
 <?php
-	
 namespace zesk;
 
 class Module_jQuery extends Module_JSLib {

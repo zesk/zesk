@@ -1,9 +1,6 @@
 <?php
-
 use zesk\Exception_Directory_NotFound;
-
 class Module_GoogleAPI extends zesk\Module {
-
 	public function initialize() {
 		global $zesk;
 		/* @var $zesk zesk\Kernel */

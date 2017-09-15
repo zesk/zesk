@@ -1,5 +1,2 @@
 <?php
-
-class Module_TinyColorPicker extends zesk\Module {
-	
-}
+class Module_TinyColorPicker extends zesk\Module {}

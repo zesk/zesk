@@ -230,7 +230,6 @@ class Server extends Object implements Interface_Data {
 			$item->set($server);
 			$item->expiresAfter(60);
 		}
-		$application->objects->singleton($server);
 		return $server;
 	}
 	

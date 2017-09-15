@@ -6,10 +6,15 @@
  * @subpackage whois
  * @copyright Copyright &copy; 2005, Market Acumen, Inc.
  */
-class Whois_Server extends Object {
+namespace zesk\Whois;
+
+use zesk\Object;
+use zesk\IPv4;
+
+class Server extends Object {
 	protected $columns = array(
-		"ID", 
-		"TLD", 
+		"ID",
+		"TLD",
 		"Host"
 	);
 	function _textFormat() {
@@ -17,8 +22,8 @@ class Whois_Server extends Object {
 	}
 	function bootstrap() {
 		$tlds = array(
-			"com", 
-			"net", 
+			"com",
+			"net",
 			"edu"
 		);
 		return true;
@@ -37,7 +42,7 @@ class Whois_Server extends Object {
 		return Object::factory(__CLASS__)->register($fields);
 	}
 	public static function find_server($tld) {
-		$foo = new Whois_Server();
+		$foo = new self();
 		if (IPv4::valid($tld)) {
 			$tld = "." . array_pop(explode(".", $tld)) . ".in-addr.arpa";
 			if ($foo->find(array(

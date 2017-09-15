@@ -189,7 +189,7 @@ abstract class Contact_Import extends Options {
 			'account' => $this->option_integer('account'),
 			'user' => $this->option_integer('user')
 		), $this->objects);
-
+		
 		throw new Exception_Unimplemented("Need to update this code");
 		
 		$account = $this->option_integer("account");

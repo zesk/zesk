@@ -1,5 +1,4 @@
 <?php
-
 namespace zesk;
 
 class Configuration_Loader {
@@ -15,7 +14,7 @@ class Configuration_Loader {
 	 * @var \string[]
 	 */
 	private $files = array();
-
+	
 	/**
 	 * Files which could be loaded, but do not exist
 	 *
@@ -39,19 +38,19 @@ class Configuration_Loader {
 	 * @var File_Monitor_List
 	 */
 	private $file_monitor = null;
-
+	
 	/**
 	 *
 	 * @var Interface_Settings
 	 */
 	private $settings = null;
-
+	
 	/**
 	 *
 	 * @var Configuration_Dependency
 	 */
 	private $dependency = null;
-
+	
 	/**
 	 *
 	 * @param array $files
@@ -84,7 +83,7 @@ class Configuration_Loader {
 		$this->file_monitor = new File_Monitor_List($files);
 		$this->dependency = new Configuration_Dependency();
 	}
-
+	
 	/**
 	 *
 	 * @return string[]
@@ -92,7 +91,7 @@ class Configuration_Loader {
 	public function paths() {
 		return $this->paths;
 	}
-
+	
 	/**
 	 * Add additional files to load
 	 *
@@ -120,7 +119,7 @@ class Configuration_Loader {
 			}
 		}
 	}
-
+	
 	/**
 	 * Load a single file
 	 *
@@ -146,7 +145,7 @@ class Configuration_Loader {
 		$this->processed_files[] = $file;
 		return $this;
 	}
-
+	
 	/**
 	 *
 	 * @return array[]

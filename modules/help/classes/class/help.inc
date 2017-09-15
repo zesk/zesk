@@ -11,11 +11,9 @@ namespace zesk;
  */
 class Class_Help extends Class_Object {
 	public $id_column = 'id';
-
 	public $find_keys = array(
 		'target'
 	);
-
 	public $column_types = array(
 		'id' => self::type_id,
 		'target' => self::type_string,
@@ -34,7 +32,6 @@ class Class_Help extends Class_Object {
 		'show_recent' => self::type_timestamp,
 		'show_count' => self::type_integer
 	);
-
 	public $column_defaults = array(
 		'type' => 'basic',
 		'require_user' => true,
@@ -43,7 +40,6 @@ class Class_Help extends Class_Object {
 		'content_url' => '',
 		'placement' => 'auto'
 	);
-
 	public $has_many = array(
 		'users' => array(
 			'class' => 'zesk\\Help_User',

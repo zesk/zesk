@@ -14,11 +14,8 @@ namespace zesk;
  *
  */
 class Diff_Binary extends Diff {
-
 	private $astring;
-
 	private $bstring;
-
 	function __construct($a, $b, $dmax = null) {
 		parent::__construct(str_split($a), str_split($b), $dmax);
 		$this->astring = $a;
@@ -26,7 +23,6 @@ class Diff_Binary extends Diff {
 		
 		$this->process_results();
 	}
-
 	private function process_results() {
 		foreach ($this->diffs() as $edit) {
 			if ($edit->op === Diff_Edit::DIFF_INSERT) {
@@ -34,7 +30,6 @@ class Diff_Binary extends Diff {
 			}
 		}
 	}
-
 	function output() {
 		$result = array();
 		$diffs = $this->diffs();

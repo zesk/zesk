@@ -10,44 +10,44 @@
 namespace zesk;
 
 /*
-* diff - compute a shortest edit script (SES) given two sequences
-* Copyright (c) 2004 Michael B. Allen <mba2000 ioplex.com>
-*
-* Ported to PHP by Kent M. Davidson
-* kent@marketacumen.com
-*
-* The MIT License
-*
-* Permission is hereby granted, free of charge, to any person obtaining a
-* copy of this software and associated documentation files (the "Software"),
-* to deal in the Software without restriction, including without limitation
-* the rights to use, copy, modify, merge, publish, distribute, sublicense,
-* and/or sell copies of the Software, and to permit persons to whom the
-* Software is furnished to do so, subject to the following conditions:
-*
-* The above copyright notice and this permission notice shall be included
-* in all copies or substantial portions of the Software.
-*
-* THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-* IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-* FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL
-* THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR
-* OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE,
-* ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
-* OTHER DEALINGS IN THE SOFTWARE.
-*/
+ * diff - compute a shortest edit script (SES) given two sequences
+ * Copyright (c) 2004 Michael B. Allen <mba2000 ioplex.com>
+ *
+ * Ported to PHP by Kent M. Davidson
+ * kent@marketacumen.com
+ *
+ * The MIT License
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a
+ * copy of this software and associated documentation files (the "Software"),
+ * to deal in the Software without restriction, including without limitation
+ * the rights to use, copy, modify, merge, publish, distribute, sublicense,
+ * and/or sell copies of the Software, and to permit persons to whom the
+ * Software is furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included
+ * in all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL
+ * THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR
+ * OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE,
+ * ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
+ * OTHER DEALINGS IN THE SOFTWARE.
+ */
 
 /*
-* This algorithm is basically Myers' solution to SES/LCS with
-* the Hirschberg linear space refinement as described in the
-* following publication:
-*
-*   E. Myers, ``An O(ND) Difference Algorithm and Its Variations,''
-*   Algorithmica 1, 2 (1986), 251-266.
-*   http://www.cs.arizona.edu/people/gene/PAPERS/diff.ps
-*
-* This is the same algorithm used by GNU diff(1).
-*/
+ * This algorithm is basically Myers' solution to SES/LCS with
+ * the Hirschberg linear space refinement as described in the
+ * following publication:
+ *
+ *   E. Myers, ``An O(ND) Difference Algorithm and Its Variations,''
+ *   Algorithmica 1, 2 (1986), 251-266.
+ *   http://www.cs.arizona.edu/people/gene/PAPERS/diff.ps
+ *
+ * This is the same algorithm used by GNU diff(1).
+ */
 
 /**
  * 
@@ -55,49 +55,49 @@ namespace zesk;
  *
  */
 class Diff {
-
+	
 	/**
 	 * Track state of matching
 	 *
 	 * @var array of integer
 	 */
 	private $buf;
-
+	
 	/**
 	 * Maximum
 	 *
 	 * @var unknown_type
 	 */
 	private $dmax;
-
+	
 	/**
 	 * List of edits to make A match B
 	 *
 	 * @var array of Diff_Edit
 	 */
 	private $edits;
-
+	
 	/**
 	 * List of edits to make A match B, excluding Diff_Edit::DIFF_MATCH
 	 *
 	 * @var array of Diff_Edit
 	 */
 	private $diffs;
-
+	
 	/**
 	 * Compare A
 	 *
 	 * @var array
 	 */
 	private $a;
-
+	
 	/**
 	 * Compare B
 	 *
 	 * @var array
 	 */
 	private $b;
-
+	
 	/**
 	 * Create a diff object and compute the shortest edit sequence to make $a like $b
 	 *
@@ -119,11 +119,11 @@ class Diff {
 		
 		$this->dmax = $n + $m + 2;
 		/*
-		* The _ses function assumes the SES will begin or end with a delete
-		* or insert. The following will insure this is true by eating any
-		* beginning matches. This is also a quick to process sequences
-		* that match entirely.
-		*/
+		 * The _ses function assumes the SES will begin or end with a delete
+		 * or insert. The following will insure this is true by eating any
+		 * beginning matches. This is also a quick to process sequences
+		 * that match entirely.
+		 */
 		$x = 0;
 		while ($x < $n && $x < $m && $this->a[$x] === $this->b[$x]) {
 			$x++;
@@ -138,15 +138,12 @@ class Diff {
 		
 		return $d;
 	}
-
 	public function edits() {
 		return $this->edits;
 	}
-
 	public function is_identical() {
 		return (count($this->diffs()) === 0);
 	}
-
 	public function diffs() {
 		if (is_array($this->diffs)) {
 			return $this->diffs;
@@ -160,25 +157,20 @@ class Diff {
 		$this->diffs = $diffs;
 		return $diffs;
 	}
-
 	private static function index($k, $r) {
 		$j = ($k <= 0) ? (-$k * 4 + $r) : ($k * 4 + ($r - 2));
 		return $j;
 	}
-
 	private function _setv($k, $r, $val) {
 		$j = self::index($k, $r);
 		$this->buf[$j] = $val;
 	}
-
 	private function FV($k) {
 		return $this->_v($k, 0);
 	}
-
 	private function RV($k) {
 		return $this->_v($k, 1);
 	}
-
 	private function _v($k, $r) {
 		$j = self::index($k, $r);
 		if (!array_key_exists($j, $this->buf)) {
@@ -186,7 +178,6 @@ class Diff {
 		}
 		return $this->buf[$j];
 	}
-
 	private function _find_middle_snake($aoff, $n, $boff, $m, Diff_MiddleSnake $ms) {
 		$delta = $n - $m;
 		$odd = $delta & 1;
@@ -196,12 +187,12 @@ class Diff {
 		$this->_setv(1, 0, 0);
 		$this->_setv($delta - 1, 1, $n);
 		
-		for($d = 0; $d <= $mid; $d++) {
+		for ($d = 0; $d <= $mid; $d++) {
 			if ((2 * $d - 1) >= $this->dmax) {
 				return $this->dmax;
 			}
 			
-			for($k = $d; $k >= -$d; $k -= 2) {
+			for ($k = $d; $k >= -$d; $k -= 2) {
 				if ($k == -$d || ($k != $d && $this->FV($k - 1) < $this->FV($k + 1))) {
 					$x = $this->FV($k + 1);
 				} else {
@@ -227,7 +218,7 @@ class Diff {
 					}
 				}
 			}
-			for($k = $d; $k >= -$d; $k -= 2) {
+			for ($k = $d; $k >= -$d; $k -= 2) {
 				$kr = ($n - $m) + $k;
 				
 				if ($k == $d || ($k != -$d && $this->RV($kr - 1) < $this->RV($kr + 1))) {
@@ -261,15 +252,14 @@ class Diff {
 		
 		return -1;
 	}
-
 	private function _edit($op, $off, $len) {
 		if ($len == 0) {
 			return;
 		}
 		/*
-		* Add an edit to the SES (or
-		* coalesce if the op is the same)
-		*/
+		 * Add an edit to the SES (or
+		 * coalesce if the op is the same)
+		 */
 		$nedits = count($this->edits);
 		if ($nedits) {
 			$edit = $this->edits[$nedits - 1];
@@ -302,9 +292,9 @@ class Diff {
 		}
 		
 		/*
-		* Find the middle "snake" around which we
-		* recursively solve the sub-problems.
-		*/
+		 * Find the middle "snake" around which we
+		 * recursively solve the sub-problems.
+		 */
 		$d = $this->_find_middle_snake($aoff, $n, $boff, $m, $ms);
 		if ($d == -1) {
 			return -1;
@@ -333,18 +323,18 @@ class Diff {
 		$u = $ms->u;
 		
 		/* There are only 4 base cases when the
-		* edit distance is 1.
-		*
-		* n > m   m > n
-		*
-		*   -       |
-		*    \       \    x != u
-		*     \       \
-		*
-		*   \       \
-		*    \       \    x == u
-		*     -       |
-		*/
+		 * edit distance is 1.
+		 *
+		 * n > m   m > n
+		 *
+		 *   -       |
+		 *    \       \    x != u
+		 *     \       \
+		 *
+		 *   \       \
+		 *    \       \    x == u
+		 *     -       |
+		 */
 		if ($m > $n) {
 			if ($x == $u) {
 				$this->_edit(Diff_Edit::DIFF_MATCH, $aoff, $n);

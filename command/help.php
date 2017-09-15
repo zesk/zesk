@@ -103,7 +103,6 @@ class Command_Help extends Command_Base {
 			$this->zesk->classes->register($class);
 		}
 	}
-	
 	function process_class($class) {
 		$this->verbose_log("Checking $class");
 		try {

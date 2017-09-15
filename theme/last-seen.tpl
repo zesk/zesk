@@ -1,5 +1,4 @@
 <?php
-
 namespace zesk;
 
 $content = $this->content instanceof Timestamp ? $this->content : new Timestamp($this->content);

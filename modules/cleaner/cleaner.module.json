@@ -1,5 +1,5 @@
 {
-	"name":"Cleaner",
+	"name": "Cleaner",
 	"autoload_options": {
 		"class_prefix": "zesk\\",
 		"lower": false

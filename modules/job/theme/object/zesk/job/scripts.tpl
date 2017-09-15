@@ -2,7 +2,6 @@
 namespace zesk;
 
 /* @var $response Response_Text_HTML */
-
 $response->javascript('/share/zesk/js/zesk.js', array(
 	'share' => true,
 	'weight' => 'first'

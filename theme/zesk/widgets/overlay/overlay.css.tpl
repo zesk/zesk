@@ -1,6 +1,5 @@
 <?php
 /* @var $this zesk\Template */
-
 $width = $this->geti('width', 300);
 $height = $this->geti('height', 300);
 
@@ -22,13 +21,13 @@ $timer_height = 12;
 $where = $this->get('where', 'top-right');
 
 if (!in_array($where, array(
-	'left', 
-	'right', 
-	'top', 
-	'bottom', 
-	'top-right', 
-	'top-left', 
-	'bottom-right', 
+	'left',
+	'right',
+	'top',
+	'bottom',
+	'top-right',
+	'top-left',
+	'bottom-right',
 	'bottom-left'
 ))) {
 	$where = 'top-right';
@@ -94,7 +93,7 @@ switch ($where) {
 		$x_close = $width - $close_height;
 		$bg = "url($corner_image) no-repeat right bottom";
 		break;
-	default:
+	default :
 	case 'top-right':
 		break;
 }

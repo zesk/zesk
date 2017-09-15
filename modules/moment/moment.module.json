@@ -1,19 +1,19 @@
 {
-    "name": "Moment",
-    "urls": [
-        "http://momentjs.com/downloads/moment.js",
-        "http://momentjs.com/downloads/moment-with-locales.js",
-        "http://momentjs.com/downloads/moment-timezone.js",
-        "http://momentjs.com/downloads/moment-timezone-with-data-2012-2022.js",
-        "http://momentjs.com/downloads/moment-timezone-with-data.js"
-    ],
-    "module_class": "zesk\\Module_Moment",
-    "destination": "vendor/components/moment",
-    "share_path": "vendor/components/moment",
-    "github": "moment/moment",
-    "url_license": "https://raw.githubusercontent.com/moment/moment/develop/LICENSE",
-    "autoload_options": {
-    	"class_prefix": "zesk\\",
-    	"lower": false
-    }
+	"name": "Moment",
+	"urls": [
+		"http://momentjs.com/downloads/moment.js",
+		"http://momentjs.com/downloads/moment-with-locales.js",
+		"http://momentjs.com/downloads/moment-timezone.js",
+		"http://momentjs.com/downloads/moment-timezone-with-data-2012-2022.js",
+		"http://momentjs.com/downloads/moment-timezone-with-data.js"
+	],
+	"module_class": "zesk\\Module_Moment",
+	"destination": "vendor/components/moment",
+	"share_path": "vendor/components/moment",
+	"github": "moment/moment",
+	"url_license": "https://raw.githubusercontent.com/moment/moment/develop/LICENSE",
+	"autoload_options": {
+		"class_prefix": "zesk\\",
+		"lower": false
+	}
 }

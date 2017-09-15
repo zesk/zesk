@@ -42,7 +42,6 @@ class Net_Server_Driver_Single extends Net_Server_Driver {
 			}
 		}
 	}
-	
 	protected function _after_accept($socket) {
 		socket_setopt($socket, SOL_SOCKET, SO_REUSEADDR, 1);
 		return true;

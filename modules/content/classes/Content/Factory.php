@@ -10,11 +10,9 @@
 namespace zesk;
 
 class Content_Factory {
-
 	public static final function objects_parse($objects_string) {
 		return HTML::parse_attributes($objects_string);
 	}
-
 	public final function content_instantiate($objects_mixed) {
 		if (is_string($objects_mixed)) {
 			$objects_ids = self::objects_parse($objects_mixed);
@@ -53,7 +51,6 @@ class Content_Factory {
 		}
 		return $objects;
 	}
-
 	public final function content_register(Content_Menu $menu, $objects_string) {
 		$objects_strings = HTML::parse_attributes($objects_string);
 		$new_code_name = array();
@@ -80,7 +77,7 @@ class Content_Factory {
 				$objects_stringname = $name;
 			}
 			$data = array(
-				$name_name => $name, 
+				$name_name => $name,
 				"CodeName" => $objects_stringname
 			);
 			$object->initialize($data);
@@ -94,19 +91,18 @@ class Content_Factory {
 		}
 		return trim(HTML::attributes($new_code_name));
 	}
-
 	private static function _map_legacy_content_types($type) {
 		static $map = array(
-			"link" => "Content_Link", 
-			"linkgroup" => "Content_Group_Link", 
-			"article" => "Content_Article", 
-			"articlegroup" => "Content_Group_Article", 
-			"video" => "Content_Video", 
+			"link" => "Content_Link",
+			"linkgroup" => "Content_Group_Link",
+			"article" => "Content_Article",
+			"articlegroup" => "Content_Group_Article",
+			"video" => "Content_Video",
 			"videogroup" => "Content_Group_Video"
 		);
 		return avalue($map, $type, "Content_" . $type);
 	}
-
+	
 	/**
 	 * Return an object
 	 * @param string $type
@@ -117,7 +113,7 @@ class Content_Factory {
 			case "template":
 				$object = new Template($this->template_file($value));
 				break;
-			default:
+			default :
 				try {
 					$try_type = self::_map_legacy_content_types($type);
 					$object = $this->object_factory($try_type);
@@ -131,11 +127,9 @@ class Content_Factory {
 		}
 		return $object;
 	}
-
 	static function template_file($template) {
 		return path('content/menu/layout', $template . ".tpl");
 	}
-
 	public function content_layout(array $options, $template) {
 		$template_file = $this->template_file($template);
 		return Template::instance($template_file, $options);

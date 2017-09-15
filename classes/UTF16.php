@@ -7,7 +7,6 @@
  * @copyright Copyright &copy; 2014, Market Acumen, Inc.
  * Created on Wed Feb 24 14:17:02 EST 2010 14:17:02
  */
-
 namespace zesk;
 
 /**
@@ -29,7 +28,7 @@ class UTF16 {
 	public static function to_utf8($str, &$be = null) {
 		$c0 = ord($str[0]);
 		$c1 = ord($str[1]);
-
+		
 		$found_be = false;
 		if ($c0 == 0xFE && $c1 == 0xFF) {
 			$be = true;
@@ -46,7 +45,7 @@ class UTF16 {
 		if ($len % 1 !== 0) {
 			$odd = 1;
 		}
-		for($i = $found_be ? 2 : 0; $i < $len; $i += 2) {
+		for ($i = $found_be ? 2 : 0; $i < $len; $i += 2) {
 			$c = ($be) ? ord($str[$i]) << 8 | ord($str[$i + 1]) : ord($str[$i + 1]) << 8 | ord($str[$i]);
 			if ($c >= 0x0001 && $c <= 0x007F) {
 				$dec .= chr($c);
@@ -61,7 +60,7 @@ class UTF16 {
 		}
 		return $dec;
 	}
-
+	
 	/**
 	 * Decode UTF-16 encoded strings.
 	 *
@@ -95,7 +94,7 @@ class UTF16 {
 		}
 		$len = strlen($str);
 		$newstr = '';
-		for($i = $start; $i < $len; $i += 2) {
+		for ($i = $start; $i < $len; $i += 2) {
 			if ($be) {
 				$val = ord($str[$i]) << 4;
 				$val += ord($str[$i + 1]);
@@ -107,7 +106,7 @@ class UTF16 {
 		}
 		return $newstr;
 	}
-
+	
 	/**
 	 * This is probably too simplistic, but should work for most standard ASCII < 0x7F
 	 * Used currently in CSVReader to convert delimiters
@@ -124,12 +123,12 @@ class UTF16 {
 			$result .= $be ? chr(0xFE) . chr(0xFF) : chr(0xFF) . chr(0xFE);
 		}
 		if ($be) {
-			for($i = 0; $i < $n; $i++) {
+			for ($i = 0; $i < $n; $i++) {
 				$c = ord($str[$i]);
 				$result .= chr(0x00) . chr($c);
 			}
 		} else {
-			for($i = 0; $i < $n; $i++) {
+			for ($i = 0; $i < $n; $i++) {
 				$c = ord($str[$i]);
 				$result .= chr($c) . chr(0x00);
 			}

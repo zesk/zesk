@@ -10,20 +10,15 @@ namespace zesk;
  *
  */
 class Control_Arrange extends Control_Select {
-
 	protected $what = array();
-
 	private $arrange_options = null;
-
 	private $arrange_options_dirty = true;
-
 	protected function initialize() {
 		$this->set_option("skip_query_condition", true);
 		$this->set_option("query_column", array());
 		$this->_clean();
 		parent::initialize();
 	}
-
 	protected function defaults() {
 		$this->children_defaults();
 		$this->value($this->request->get($this->name()));
@@ -33,7 +28,7 @@ class Control_Arrange extends Control_Select {
 		$map = $this->arrange_map();
 		return avalue($map, strval($val));
 	}
-
+	
 	/**
 	 * Array of key values which indicate the order-by clause, the key used to identify the arrange in the query string, and the "what" clause to include
 	 *
@@ -72,7 +67,6 @@ class Control_Arrange extends Control_Select {
 		$this->arrange_options_dirty = true;
 		return $this;
 	}
-
 	private function _clean() {
 		if ($this->arrange_options_dirty) {
 			$this->_fix_options();
@@ -85,7 +79,6 @@ class Control_Arrange extends Control_Select {
 		}
 		return parent::control_options($set);
 	}
-
 	protected function hook_query_list(Database_Query_Select $query) {
 		$val = $this->value();
 		if ($val !== null) {
@@ -96,7 +89,7 @@ class Control_Arrange extends Control_Select {
 			}
 		}
 	}
-
+	
 	/**
 	 * Set a mapping of value => sort_column
 	 * @param array $set
@@ -105,7 +98,6 @@ class Control_Arrange extends Control_Select {
 	public function arrange_map(array $set = null) {
 		return $set === null ? $this->option_array('arrange_map') : $this->set_option('arrange_map', $set);
 	}
-
 	protected function _fix_options() {
 		$options = array();
 		$map = $this->arrange_map();

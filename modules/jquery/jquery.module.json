@@ -3,8 +3,8 @@
 		"require": "components/jquery"
 	},
 	"name": "jQuery",
-	"version_data": { 
-		"file": "vendor/components/jquery/package.json", 
+	"version_data": {
+		"file": "vendor/components/jquery/package.json",
 		"key": "version"
 	},
 	"node_modules": {

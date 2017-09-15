@@ -1,15 +1,14 @@
-.toggle-arrow
-{
+.toggle-arrow {
 	position: relative;
 }
-.toggle-arrow img
-{
+
+.toggle-arrow img {
 	position: relative;
 	padding: 1px;
 	float: left;
 }
-.toggle-arrow h2
-{
+
+.toggle-arrow h2 {
 	position: relative;
 	padding-left: 20px;
 	font-size: 1.2em;

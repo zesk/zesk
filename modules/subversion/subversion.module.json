@@ -1,6 +1,8 @@
 {
 	"name": "Subversion source code repository",
-	"depends": [ "Repository" ],
+	"depends": [
+		"Repository"
+	],
 	"autoload_options": {
 		"class_prefix": "zesk\\",
 		"lower": false

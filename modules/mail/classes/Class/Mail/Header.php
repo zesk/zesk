@@ -23,7 +23,7 @@ class Class_Mail_Header extends Class_Object {
 		'value' => self::type_string
 	);
 	public $has_one = array(
-		'mail' => 'zesk\\Mail',
+		'mail' => 'zesk\\Mail_Message',
 		'type' => 'zesk\\Mail_Header_Type'
 	);
 }

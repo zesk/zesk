@@ -1,7 +1,8 @@
 <?php
-
 ?>
-<div class="modal fade" id="<?php echo $this->get('id', 'form-modal'); ?>" tabindex="-1" role="dialog">
+<div class="modal fade"
+	id="<?php echo $this->get('id', 'form-modal'); ?>" tabindex="-1"
+	role="dialog">
 	<div class="modal-dialog">
 		<div class="modal-content">
 			<div class="modal-header">

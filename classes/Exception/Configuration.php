@@ -1,5 +1,4 @@
 <?php
-
 namespace zesk;
 
 class Exception_Configuration extends Exception {

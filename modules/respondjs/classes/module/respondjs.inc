@@ -1,5 +1,4 @@
 <?php
-
 class Module_RespondJS extends zesk\Module {
 	public function hook_head(zesk\Request $request, zesk\Response_Text_HTML $response, zesk\Template $template) {
 		if ($request->user_agent_is('ie')) {
@@ -11,5 +10,4 @@ class Module_RespondJS extends zesk\Module {
 			));
 		}
 	}
-
 }

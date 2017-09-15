@@ -1,18 +1,14 @@
 body {
 	background: transparent !important;
 }
-.box-metal-top-left,
-.box-metal-top,
-.box-metal-top-right,
-.box-metal-bottom-left,
-.box-metal-bottom,
-.box-metal-bottom-right,
-.box-metal-left,
-.box-metal-right,
-.box-metal-title { 
+
+.box-metal-top-left, .box-metal-top, .box-metal-top-right,
+	.box-metal-bottom-left, .box-metal-bottom, .box-metal-bottom-right,
+	.box-metal-left, .box-metal-right, .box-metal-title {
 	background: transparent !important;
 	display: none;
 }
+
 .box-metal-content {
 	background: transparent !important;
 }

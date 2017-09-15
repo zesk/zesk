@@ -1,5 +1,4 @@
 <?php
-
 namespace zesk;
 
 $content = $this->content;

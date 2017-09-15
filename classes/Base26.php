@@ -64,7 +64,7 @@ class Base26 {
 		$A = ord('A');
 		$mul = 1;
 		$total = 0;
-		for($i = strlen($s) - 1; $i >= 0; $i--) {
+		for ($i = strlen($s) - 1; $i >= 0; $i--) {
 			$total += (ord($s[$i]) - $A) * $mul;
 			$mul = $mul * 26;
 		}

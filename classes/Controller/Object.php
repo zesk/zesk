@@ -51,7 +51,6 @@ abstract class Controller_Object extends Controller_Template_Login {
 	// */
 	// protected $controller = null;
 	
-
 	/**
 	 * URL to redirect to if Control_${this->class}_List
 	 *

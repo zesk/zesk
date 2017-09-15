@@ -1,5 +1,2 @@
 <?php
-
-class Module_OpenID extends zesk\Module {
-
-}
+class Module_OpenID extends zesk\Module {}

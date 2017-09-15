@@ -1,14 +1,14 @@
 {
-    "name": "Job",
-    "description": "Run background tasks which take a long time in a uniform manner.",
-    "requires": [
-        "server",
-        "jqueryui",
-        "daemon"
-    ],
-    "autoload_options": {
-    	"class_prefix": "zesk\\",
-    	"lower": false
-    },
-    "module_class": "zesk\\Module_Job"
+	"name": "Job",
+	"description": "Run background tasks which take a long time in a uniform manner.",
+	"requires": [
+		"server",
+		"jqueryui",
+		"daemon"
+	],
+	"autoload_options": {
+		"class_prefix": "zesk\\",
+		"lower": false
+	},
+	"module_class": "zesk\\Module_Job"
 }

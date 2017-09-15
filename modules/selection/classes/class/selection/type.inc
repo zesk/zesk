@@ -11,12 +11,10 @@ namespace zesk;
  */
 class Class_Selection_Type extends Class_Object {
 	public $id_column = "id";
-
 	public $find_keys = array(
 		"code",
 		"user"
 	);
-
 	public $has_one = array(
 		"user" => "zesk\\User"
 	);
@@ -27,7 +25,6 @@ class Class_Selection_Type extends Class_Object {
 		"user" => self::type_object,
 		"created" => self::type_created
 	);
-
 	public $has_many = array(
 		'items' => array(
 			'class' => "zesk\\Selection_Item",
@@ -36,7 +33,7 @@ class Class_Selection_Type extends Class_Object {
 		'queries' => array(
 			"class" => "zesk\\Selection_Query",
 			"foreign_key" => "type",
-			"order_by" => "order_index",
+			"order_by" => "order_index"
 		)
 	);
 }

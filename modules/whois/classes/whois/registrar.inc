@@ -7,8 +7,5 @@
  * @copyright Copyright &copy; 2011, Market Acumen, Inc.
  * Created on Mon,Aug 1, 11 at 5:06 PM
  */
-
-class Whois_Registrar extends Object {
-
-}
+class Whois_Registrar extends Object {}
 

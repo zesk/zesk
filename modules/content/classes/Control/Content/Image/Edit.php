@@ -17,7 +17,6 @@ class Control_Edit_Content_Image extends Control_Edit {
 		//		$f = $this->widget_factory("control_date")->names("Released", "Released", true);
 		//		$spec[$f->column()] = $f;
 		
-
 		$f = $this->widget_factory("control_image")->names("ImagePath", "Image", false, "/data/image/{ImagePath}");
 		$f->set_option("dest_path", $this->application->application_root("www/data/image/{ImagePath}"));
 		$f->set_option("is_relative", true);

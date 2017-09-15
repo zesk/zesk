@@ -1,9 +1,9 @@
 {
-    "name": "Help",
-    "requires": [
-        "bootstrap",
-        "jquery"
-    ],
+	"name": "Help",
+	"requires": [
+		"bootstrap",
+		"jquery"
+	],
 	"autoload_options": {
 		"class_prefix": "zesk\\"
 	},

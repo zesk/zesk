@@ -1,5 +1,4 @@
 <?php
-
 namespace zesk;
 
 /**
@@ -60,14 +59,20 @@ class Health_Events extends Object {
 		return $this->store();
 	}
 	public function bump($when, $when_msec = 0) {
-		$this->query_update()->value("*total", "total+1")->where("id", $this->id)->execute();
-		$this->query_update()->values(array(
+		$this->query_update()
+			->value("*total", "total+1")
+			->where("id", $this->id)
+			->execute();
+		$this->query_update()
+			->values(array(
 			"recent" => $when,
 			"recent_msec" => $when_msec
-		))->where(array(
+		))
+			->where(array(
 			"id" => $this->id,
 			"recent|<=" => $when
-		))->execute();
+		))
+			->execute();
 		return $this;
 	}
 }

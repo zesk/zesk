@@ -1,5 +1,4 @@
 <?php
-
 namespace zesk;
 
 /**
@@ -15,7 +14,7 @@ class Control_Date_Input extends Control {
 		$def = $this->value();
 		$parts = getdate($def);
 		$name = $this->name();
-
+		
 		$object = $this->object;
 		$object->set($name . "_mm", $this->request->geti($name . "_mm", avalue($parts, "mon")), "");
 		$object->set($name . "_dd", $this->request->geti($name . "_dd", avalue($parts, "mday")), "");
@@ -27,7 +26,7 @@ class Control_Date_Input extends Control {
 	}
 	function validate() {
 		$col = $this->column();
-
+		
 		$object = $this->object;
 		$name = $this->name();
 		$temp = intval($object->get($name . "_mm"));
@@ -50,32 +49,32 @@ class Control_Date_Input extends Control {
 			)));
 			return false;
 		}
-
+		
 		$ddate = $object[$name . "_yy"] . "-" . str::zero_pad($object[$name . "_mm"]) . "-" . str::zero_pad($object[$name . "_dd"]) . " " . $this->option("fixed_time", "00:00:00");
 		if (is_date($ddate)) {
 			$this->value($object, Timestamp::factory($ddate));
 			return true;
 		}
-
+		
 		if ($this->required()) {
 			$this->error(__("{label} must be formatted like a date, e.g. MM/DD/YYYY", array(
 				"label" => $this->label()
 			)));
 			return false;
 		}
-
+		
 		return true;
 	}
 	function render() {
 		$object = $this->object;
 		$tattr = HTML::parse_attributes("align=\"center\" class=\"tiny\"");
-
+		
 		$name = $this->name();
-
+		
 		$tr = HTML::tag("td", "", HTML::input('text', $name . "_mm", $object->get($name . "_mm", ""), 3));
 		$tr .= HTML::tag("td", "", HTML::input('text', $name . "_dd", $object->get($name . "_dd", ""), 3));
 		$tr .= HTML::tag("td", "", HTML::input('text', $name . "_yy", $object->get($name . "_yy", ""), 5));
-
+		
 		$trlabel = HTML::tag("td", array(
 			"class" => "month label tiny"
 		) + $tattr, __("Month"));
@@ -85,7 +84,7 @@ class Control_Date_Input extends Control {
 		$trlabel = HTML::tag("td", array(
 			"class" => "year label tiny"
 		) + $tattr, __("Year"));
-
+		
 		return HTML::tag("table", "class=\"date\"", HTML::tag("tr", "", $tr) . HTML::tag("tr", "", $trlabel));
 	}
 }

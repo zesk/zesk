@@ -15,7 +15,6 @@ namespace zesk;
  *
  */
 class Control_Text extends Control {
-
 	protected function initialize() {
 		$this->options += arr::map_keys($this->options, array(
 			"integer_minimum" => "value_minimum",
@@ -25,7 +24,6 @@ class Control_Text extends Control {
 		));
 		parent::initialize();
 	}
-
 	public function value_minimum($set = null) {
 		return $set === null ? $this->option_double('value_minimum') : $this->set_option('value_minimum', doubleval($set));
 	}
@@ -54,7 +52,7 @@ class Control_Text extends Control {
 		}
 		return true;
 	}
-
+	
 	/*
 	 * Validate an integer
 	 */

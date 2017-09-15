@@ -1,5 +1,5 @@
 {
-	"name":"Job Trigger",
+	"name": "Job Trigger",
 	"autoload_options": {
 		"class_prefix": "zesk\\",
 		"lower": false

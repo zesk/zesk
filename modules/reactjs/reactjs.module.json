@@ -1,8 +1,10 @@
 {
-	"name":"ReactJS",
+	"name": "ReactJS",
 	"autoload_options": {
 		"class_prefix": "zesk\\"
 	},
 	"module_class": "zesk\\Module_ReactJS",
-	"requires": [ "NodeJS" ]
+	"requires": [
+		"NodeJS"
+	]
 }

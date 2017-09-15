@@ -2,7 +2,6 @@
 namespace zesk;
 
 class Control_Hidden_Object extends Control_Hidden {
-
 	function load() {
 		$x = $this->request->get($this->name());
 		try {

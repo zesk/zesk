@@ -1,80 +1,91 @@
 .markdown {
-  font: 14px "Trebuchet MS", Helvetica, sans-serif;
-  margin: 0;
-  padding: 0;
-  background-color: #FFF;
-  background: #FFF;
-  color: #000;
+	font: 14px "Trebuchet MS", Helvetica, sans-serif;
+	margin: 0;
+	padding: 0;
+	background-color: #FFF;
+	background: #FFF;
+	color: #000;
 }
+
 .markdown h1 {
-  font-weight: bolder;
+	font-weight: bolder;
 }
+
 .markdown h4 {
-  font-style: italic;
-  margin-top: 1ex;
-  margin-bottom: 1ex;
+	font-style: italic;
+	margin-top: 1ex;
+	margin-bottom: 1ex;
 }
+
 .markdown blockquote {
-  font-style: italic;
-  margin: 1em 25px;
-  padding-left: 1em;
+	font-style: italic;
+	margin: 1em 25px;
+	padding-left: 1em;
 }
-.markdown code,
+
+.markdown code, .markdown pre {
+	font-family: "LuxiMono", "Bitstream Vera Sans Mono", "Monaco",
+		"Courier New", monospace;
+	font-size: 95%;
+	color: #1C360C;
+	background-color: inherit;
+	line-height: inherit;
+	word-wrap: break-word;
+	white-space: pre;
+	white-space: pre-wrap;
+	white-space: -moz-pre-wrap;
+	white-space: -o-pre-wrap;
+}
+
 .markdown pre {
-  font-family: "LuxiMono", "Bitstream Vera Sans Mono", "Monaco", "Courier New", monospace;
-  font-size: 95%;
-  color: #1C360C;
-  background-color: inherit;
-  line-height: inherit;
-  word-wrap: break-word;
-  white-space: pre;
-  white-space: pre-wrap;
-  white-space: -moz-pre-wrap;
-  white-space: -o-pre-wrap;
+	padding: 10px 10px 10px 20px;
+	background-color: #f0f0f0;
+	border: 1px solid #cccbba;
 }
-.markdown pre {
-  padding: 10px 10px 10px 20px;
-  background-color: #f0f0f0;
-  border: 1px solid #cccbba;
+
+.markdown li>p {
+	margin: 1ex 0 1ex 0;
 }
-.markdown li > p {
-  margin: 1ex 0 1ex 0;
-}
+
 .markdown hr {
-  background: #606060;
-  color: #606060;
-  border-style: solid;
-  border-color: #606060;
-  border-width: 1px 0 0 0;
-  margin-top: 0;
+	background: #606060;
+	color: #606060;
+	border-style: solid;
+	border-color: #606060;
+	border-width: 1px 0 0 0;
+	margin-top: 0;
 }
+
 .markdown a {
-  color: #0D2681;
+	color: #0D2681;
 }
+
 .markdown h1 {
-  color: #333;
-  text-shadow: #DDDDDD 3px 3px 5px;
+	color: #333;
+	text-shadow: #DDDDDD 3px 3px 5px;
 }
+
 .markdown h2 {
-  color: #222;
-  text-shadow: #DDDDDD 3px 3px 5px;
+	color: #222;
+	text-shadow: #DDDDDD 3px 3px 5px;
 }
+
 .markdown h3 {
-  color: #333;
-  text-shadow: #DDDDDD 3px 3px 5px;
+	color: #333;
+	text-shadow: #DDDDDD 3px 3px 5px;
 }
+
 .markdown h4 {
-  color: #666;
+	color: #666;
 }
+
 .markdown blockquote {
-  border-left: 4px solid #E6E5DD;
+	border-left: 4px solid #E6E5DD;
 }
+
 @media print {
-  blockquote,
-  code,
-  pre,
-  table {
-    page-break-inside: avoid;
-  }
+	blockquote, code, pre, table {
+		page-break-inside: avoid;
+	}
 }
 /*# sourceMappingURL=markdown.css.map */
