@@ -1,3 +1,8 @@
+## Release v0.11.1
+
+- `zesk\Server`: fixing UTC support in database.
+
+
 ## Release v0.11.0
 
 - Adding `\is_windows()` instead of `zesk()->is_windows`
