@@ -1,4 +1,7 @@
 <?php
+/**
+ * @test_sandbox true
+ */
 namespace zesk;
 
 class Router_Test extends Test_Unit {
@@ -24,6 +27,7 @@ class Router_Test extends Test_Unit {
 		$this->assert($testx->match($request) === null);
 		
 		$app = $this->application;
+		$app->request();
 		$app->request = $request = new Request(array(
 			"url" => 'http://www.example.com/foo'
 		));

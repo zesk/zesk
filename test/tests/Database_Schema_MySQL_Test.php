@@ -167,7 +167,7 @@ class Database_Schema_MySQL_Test extends Test_Unit {
 
 		$sql = "CREATE TABLE `$table` (
 		`ID` int(11) unsigned NOT NULL AUTO_INCREMENT,
-		`ActionTime` datetime NOT NULL DEFAULT '0000-00-00 00:00:00',
+		`ActionTime` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
 		`PageView` int(11) unsigned DEFAULT NULL,
 		`Session` int(11) unsigned NOT NULL DEFAULT '0',
 		`ActionType` int(11) unsigned NOT NULL DEFAULT '0',

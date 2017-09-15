@@ -17,6 +17,19 @@ define("PREG_EMAIL_LIST", '/([^",]*"[^"]*"[^",]*|[^",]*),/'); // Matches "foo" <
  * Database object representing a single email message
  *
  * @author kent
+ * @see Class_Mail_Message
+ * @property integer $id
+ * @property string $hash
+ * @property string $message_id
+ * @property string $mail_from
+ * @property string $mail_to
+ * @property string $subject
+ * @property integer $state
+ * @property \zesk\Timestamp $date
+ * @property string $content_type
+ * @property string $content
+ * @property integer $size
+ * @property object $user
  */
 class Mail_Message extends Object {
 	function applyHeaders($headers, &$contents) {

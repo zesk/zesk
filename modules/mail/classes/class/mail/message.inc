@@ -1,10 +1,9 @@
 <?php
-
 namespace zesk;
 
 /**
  * Class for Mail_Message
- *
+ * @see Mail_Message
  * @author kent
  *
  */
@@ -35,6 +34,6 @@ class Class_Mail_Message extends Class_Object {
 		'user' => self::type_object
 	);
 	public $column_defaults = array(
-		'state' => ''
+		'state' => 0
 	);
 }
