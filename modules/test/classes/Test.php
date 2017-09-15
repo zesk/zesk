@@ -492,10 +492,10 @@ class Test extends Options {
 			$test = $this->tests[$name];
 			
 			if ($this->can_run_test($name)) {
-// 				$this->log(__("# Running {class}::{name}", array(
-// 					'class' => get_class($this),
-// 					'name' => $name
-// 				)));
+				// 				$this->log(__("# Running {class}::{name}", array(
+				// 					'class' => get_class($this),
+				// 					'name' => $name
+				// 				)));
 				$test->run();
 				$failed = avalue($this->test_status, $name) !== true;
 				if (!$failed) {
@@ -1192,9 +1192,10 @@ class Test extends Options {
 	 * Synchronize the given classes with the database schema
 	 *
 	 * @param list|string $classes
+	 * @param array $options 
 	 * @return array[classname]
 	 */
-	public function schema_synchronize($classes) {
+	public function schema_synchronize($classes, array $options = array()) {
 		$app = $this->application;
 		$results = array();
 		foreach (to_list($classes) as $class) {
@@ -1202,6 +1203,8 @@ class Test extends Options {
 			$db = $class_object->database();
 			$results[$class] = $db->query($app->schema_synchronize($db, array(
 				$class
+			), $options + array(
+				"follow" => true
 			)));
 		}
 		return $results;

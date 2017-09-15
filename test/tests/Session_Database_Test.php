@@ -28,6 +28,8 @@ class Session_Database_Test extends Test_Object {
 		$db->query($this->application->schema_synchronize($db, array(
 			__NAMESPACE__ . "\\" . "User",
 			__NAMESPACE__ . "\\" . "Session_Database"
+		), array(
+			"follow" => true
 		)));
 		
 		//$this->test_an_object($testx, "ID");

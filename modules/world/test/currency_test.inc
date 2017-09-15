@@ -9,6 +9,8 @@ class Currency_Test extends Test_Object {
 	function initialize() {
 		$this->application->schema_synchronize(null, array(
 			__NAMESPACE__ . "\\" . "Currency"
+		), array(
+			"follow" => true
 		));
 		parent::initialize();
 	}
