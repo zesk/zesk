@@ -144,7 +144,7 @@ class Mail_Parser {
 					$contents = charset::to_utf8($contents, $attributes['charset']);
 				}
 				$m->content = $contents;
-				$m->content_type = $contents->content_type;
+				$m->content_type = $content_type->value;
 				$contents = null;
 			} else {
 				$contents = array(
