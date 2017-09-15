@@ -125,7 +125,7 @@ class Test extends Options {
 			$this->application->modules->load($this->load_modules);
 		}
 	}
-	
+	const PHP_ERROR_MARIAH = "PHP-ERROR";
 	/**
 	 * Make sure we're initialized with basic error reporting
 	 */
@@ -136,7 +136,9 @@ class Test extends Options {
 			$inited = true;
 			error_reporting(E_ALL | E_STRICT);
 			ini_set("display_errors", true);
-			ini_set("error_prepend_string", "PHP-ERROR: ");
+			$line = str_repeat("=", 80) . "\n";
+			ini_set("error_prepend_string", $line . PHP_ERROR_MARIAH . ":\n");
+			ini_set("error_append_string", "\n" . $line);
 		}
 	}
 	
@@ -496,6 +498,15 @@ class Test extends Options {
 				)));
 				$test->run();
 				$failed = avalue($this->test_status, $name) !== true;
+				if (!$failed) {
+					if (($offset = strpos($this->last_test_output, "PHP-ERROR")) !== false) {
+						$this->log("Test output contained PHP-ERROR at offset {n}", array(
+							"n" => $offset
+						));
+						$this->test_status[$name] = false;
+						$failed = true;
+					}
+				}
 				$this->log(__("# {class_test}: {status}", array(
 					'class_test' => Text::lalign("$class::$name", 80),
 					'status' => $failed ? 'FAIL' : 'OK'
