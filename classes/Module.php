@@ -27,27 +27,27 @@ abstract class Module extends Hookable {
 	 * @var Application
 	 */
 	protected $application = null;
-
+	
 	/**
 	 *
 	 * @var Application
 	 */
 	protected $application_class = null;
-
+	
 	/**
 	 * Module code name
 	 *
 	 * @var string
 	 */
 	protected $codename = null;
-
+	
 	/**
 	 * Path to this module
 	 *
 	 * @var string
 	 */
 	protected $path = null;
-
+	
 	/**
 	 * List of associated classes
 	 *
@@ -58,14 +58,14 @@ abstract class Module extends Hookable {
 	 * @var array
 	 */
 	protected $classes = array();
-
+	
 	/**
 	 * List of associated Object classes
 	 *
 	 * @var array
 	 */
 	protected $object_classes = array();
-
+	
 	/**
 	 * Array of old_class => new_class
 	 *
@@ -74,7 +74,7 @@ abstract class Module extends Hookable {
 	 * @var array
 	 */
 	protected $object_aliases = array();
-
+	
 	/**
 	 *
 	 * @ignore
@@ -93,7 +93,7 @@ abstract class Module extends Hookable {
 		$this->application = $this->zesk->application();
 		$this->initialize();
 	}
-
+	
 	/**
 	 * Create Module
 	 *
@@ -107,10 +107,7 @@ abstract class Module extends Hookable {
 		$this->inherit_global_options($application);
 		$this->path = avalue($module_data, 'path');
 		if (!$this->codename) {
-			$codename = str::unprefix(get_class($this), array(
-				"Module_",
-				__CLASS__ . "_"
-			));
+			$codename = str::unprefix(PHP::parse_class(get_class($this)), "Module_");
 			// Code name used in JavaScript settings
 			$this->codename = strtolower($codename);
 		}
@@ -148,7 +145,7 @@ abstract class Module extends Hookable {
 	public function classes() {
 		return array_merge($this->object_classes, $this->classes);
 	}
-
+	
 	/**
 	 *
 	 * @param string $class

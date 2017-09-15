@@ -334,11 +334,11 @@ class Modules {
 	/**
 	 * Load module based on setup options
 	 *
-	 * @param array $module_data        	
+	 * @param array $module_data
 	 *
 	 * @return number
 	 */
-	private function _load_module(array $module_data) {
+	private function _load_module_configuration(array $module_data) {
 		$name = $path = $include = null;
 		extract($module_data, EXTR_IF_EXISTS);
 		
@@ -362,13 +362,44 @@ class Modules {
 		$module_data += array(
 			'status' => self::status_loaded
 		);
-		$module_data = $this->_load_module_object($module_data) + $module_data;
-		
-		$this->modules[$name] = $module_data;
 		
 		return $module_data;
 	}
-	
+	private function _handle_share_path(array $module_data) {
+		// Apply share_path automatically
+		$share_path = apath($module_data, 'configuration.share_path');
+		if ($share_path) {
+			if (!Directory::is_absolute($share_path)) {
+				$share_path = $this->application->application_root($share_path);
+			}
+			if (!is_dir($share_path)) {
+				$this->application->logger->critical("Module {module} share path \"{share_path}\" is not a directory", array(
+					"module" => $name,
+					"share_path" => $share_path
+				));
+			} else {
+				$this->application->share_path($share_path, $module_data['name']);
+			}
+		}
+		return $module_data;
+	}
+	private function _handle_requires($requires, array $options) {
+		// Load dependent modules
+		$result = array();
+		foreach (to_array($requires) as $required_module) {
+			if (!apath($this->modules, array(
+				$required_module,
+				"loaded"
+			))) {
+				$result += self::_load_one($required_module, $options);
+			}
+		}
+		return $result;
+	}
+	private function _apply_module_configuration(array $module_data) {
+		$module_data = $this->_handle_share_path($module_data);
+		return $module_data;
+	}
 	/**
 	 * Load a single module by name
 	 *
@@ -396,35 +427,19 @@ class Modules {
 		$module_data += self::_find_module_include($module_data);
 		
 		if (to_bool(avalue($options, 'load', true))) {
-			$result[$name] = $this->_load_module($module_data);
-			// Apply share_path automatically
-			$share_path = apath($module_data, 'configuration.share_path');
-			if ($share_path) {
-				if (!Directory::is_absolute($share_path)) {
-					$share_path = $this->application->application_root($share_path);
-				}
-				if (!is_dir($share_path)) {
-					zesk()->logger->critical("Module {module} share path \"{share_path}\" is not a directory", array(
-						"module" => $name,
-						"share_path" => $share_path
-					));
-				} else {
-					$this->application->share_path($share_path, $name);
-				}
+			$module_data = $this->_load_module_configuration($module_data);
+			$module_data = $this->_apply_module_configuration($module_data);
+			$this->modules[$name] = $module_data;
+			
+			$requires = to_list(apath($module_data, 'configuration.requires'));
+			if ($requires) {
+				$result += $this->_handle_requires($requires, $options);
 			}
-			// Load dependent modules
-			$requires = apath($module_data, 'configuration.requires');
-			foreach (to_array($requires) as $required_module) {
-				if (!apath($this->modules, array(
-					$required_module,
-					"loaded"
-				))) {
-					$result += self::_load_one($required_module, $options);
-				}
-			}
-		} else {
-			$result[$name] = $module_data;
+			
+			$this->modules[$name] = $module_data = $this->_load_module_object($module_data) + $module_data;
 		}
+		
+		$result[$name] = $module_data;
 		return $result;
 	}
 	
@@ -517,7 +532,8 @@ class Modules {
 		} catch (Exception_Class_NotFound $e) {
 			return array(
 				'module' => null,
-				'class' => null
+				'class' => null,
+				'missing_class' => $e->class
 			);
 		}
 	}
