@@ -303,6 +303,9 @@ class Mail_Message extends Object {
 	}
 	static function import_file(Application $application, $filename = "php://stdin") {
 		$fd = fopen($filename, "r");
+		if (strpos($filename, "mail.31589.txt") !== false) {
+			$test = true;
+		}
 		$m = self::from_file($application, $fd);
 		return $m;
 	}

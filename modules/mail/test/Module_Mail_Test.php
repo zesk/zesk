@@ -22,6 +22,10 @@ class Module_Mail_Test extends Test_Unit {
 	);
 	function initialize() {
 		parent::initialize();
+		$database = $this->application->database_factory();
+		$this->assert_instanceof($database, "MySQL\\Database");
+		/* @var $database \MySQL\Database */
+		$database->set_option(\MySQL\Database::attribute_default_charset, "utf8");
 		$module = $this->application->modules->object("Mail");
 		$classes = $module->classes();
 		$this->log("Synchronizing schema of {classes}", array(
