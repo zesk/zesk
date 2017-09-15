@@ -137,7 +137,7 @@ class Test extends Options {
 			error_reporting(E_ALL | E_STRICT);
 			ini_set("display_errors", true);
 			$line = str_repeat("=", 80) . "\n";
-			ini_set("error_prepend_string", $line . PHP_ERROR_MARIAH . ":\n");
+			ini_set("error_prepend_string", $line . self::PHP_ERROR_MARIAH . ":\n");
 			ini_set("error_append_string", "\n" . $line);
 		}
 	}
@@ -499,8 +499,9 @@ class Test extends Options {
 				$test->run();
 				$failed = avalue($this->test_status, $name) !== true;
 				if (!$failed) {
-					if (($offset = strpos($this->last_test_output, "PHP-ERROR")) !== false) {
-						$this->log("Test output contained PHP-ERROR at offset {n}", array(
+					if (($offset = strpos($this->last_test_output, self::PHP_ERROR_MARIAH)) !== false) {
+						$this->log("Test output contained {mariah} at offset {n}", array(
+							"mariah" => self::PHP_ERROR_MARIAH,
 							"n" => $offset
 						));
 						$this->test_status[$name] = false;
