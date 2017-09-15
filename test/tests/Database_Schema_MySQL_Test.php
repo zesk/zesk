@@ -165,9 +165,11 @@ class Database_Schema_MySQL_Test extends Test_Unit {
 	function test_2() {
 		$table = 'temp_test_actions';
 
+		// 2017-09 ActionTime datetime NOT NULL DEFAULT 0 no longer compatible across 5.6 and 5.7
+		// Converting to case which should not matter
 		$sql = "CREATE TABLE `$table` (
 		`ID` int(11) unsigned NOT NULL AUTO_INCREMENT,
-		`ActionTime` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
+		`ActionTime` datetime NULL,
 		`PageView` int(11) unsigned DEFAULT NULL,
 		`Session` int(11) unsigned NOT NULL DEFAULT '0',
 		`ActionType` int(11) unsigned NOT NULL DEFAULT '0',
