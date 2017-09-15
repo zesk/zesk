@@ -492,10 +492,10 @@ class Test extends Options {
 			$test = $this->tests[$name];
 			
 			if ($this->can_run_test($name)) {
-				$this->log(__("# Running {class}::{name}", array(
-					'class' => get_class($this),
-					'name' => $name
-				)));
+// 				$this->log(__("# Running {class}::{name}", array(
+// 					'class' => get_class($this),
+// 					'name' => $name
+// 				)));
 				$test->run();
 				$failed = avalue($this->test_status, $name) !== true;
 				if (!$failed) {

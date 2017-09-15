@@ -31,12 +31,12 @@ class Module_Mail_Test extends Test_Unit {
 			// TODO MySQL specific
 			$this->application->object_database($class)->query("DROP TABLE IF EXISTS " . $this->application->object_table_name($class));
 		}
-
+		
 		$db = $this->application->database_factory();
 		$result = $this->application->schema_synchronize($db, $classes);
 		$db->query($result);
 	}
-
+	
 	/**
 	 */
 	function test_files() {
