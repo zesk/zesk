@@ -372,13 +372,14 @@ class Modules {
 			if (!Directory::is_absolute($share_path)) {
 				$share_path = $this->application->application_root($share_path);
 			}
+			$name = $module_data['name'];
 			if (!is_dir($share_path)) {
 				$this->application->logger->critical("Module {module} share path \"{share_path}\" is not a directory", array(
 					"module" => $name,
 					"share_path" => $share_path
 				));
 			} else {
-				$this->application->share_path($share_path, $module_data['name']);
+				$this->application->share_path($share_path, $name);
 			}
 		}
 		return $module_data;
