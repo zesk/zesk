@@ -19,11 +19,10 @@ class Client_Test extends Test_Unit {
 	 * @see \zesk\Test_Unit::initialize()
 	 */
 	function initialize() {
-		$url = $this->option("xmlrpc_test_url");
+		$option = "xmlrpc_test_url";
+		$url = $this->option($option);
 		if (!$url) {
-			throw new Exception_Unsupported("Need to configure {class}::xmlrpc_test_url", array(
-				"class" => __CLASS__
-			));
+			$this->markTestSkipped("Need to configure " . __CLASS__ . "::$option");
 		}
 		$this->url = $url;
 	}
