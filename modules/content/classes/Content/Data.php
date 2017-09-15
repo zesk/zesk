@@ -9,6 +9,7 @@ namespace zesk;
  *
  * @see Class_Content_Data
  * @author kent
+ * @property integer $id
  * @property string $md5hash
  * @property string $type
  * @property array $data
@@ -263,7 +264,7 @@ class Content_Data extends Object {
 		}
 	}
 	
-		/**
+	/**
 	 * Retrieve the data size as a double-precision integer
 	 *
 	 * @return integer
@@ -272,7 +273,7 @@ class Content_Data extends Object {
 		return $this->size;
 	}
 	
-/**
+	/**
 	 * Does the destination file match our database version?
 	 *
 	 * @param string $destination

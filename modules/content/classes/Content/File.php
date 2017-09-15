@@ -12,13 +12,14 @@ namespace zesk;
  *
  * @author kent
  * @see Class_zesk\Content_File
- * @property string $Original
- * @property string $MIMEType
+ * @property integer $id
+ * @property string $original
+ * @property string $mime
  * @property Content_Data $data
- * @property string $Description
- * @property User $User
- * @property Timestamp $Created
- * @property Timestamp $Modified
+ * @property string $description
+ * @property User $user
+ * @property Timestamp $created
+ * @property Timestamp $modified
  */
 class Content_File extends Object {
 	/**
@@ -42,8 +43,8 @@ class Content_File extends Object {
 	 * @see Object::store()
 	 */
 	function store() {
-		if (!$this->MIMEType) {
-			$this->MIMEType = MIME::from_filename($this->OriginalName);
+		if (!$this->mime) {
+			$this->mime = MIME::from_filename($this->originalName);
 		}
 		return parent::store();
 	}
@@ -56,7 +57,7 @@ class Content_File extends Object {
 	 * @return string
 	 */
 	function fullpath() {
-		return $this->Content_Data->filepath();
+		return $this->data->filepath();
 	}
 	
 	/**
@@ -66,7 +67,7 @@ class Content_File extends Object {
 	 * @return resource
 	 */
 	function open_file($mode) {
-		return $this->Content_Data->fopen($mode);
+		return $this->data->fopen($mode);
 	}
 	
 	/**
@@ -77,7 +78,7 @@ class Content_File extends Object {
 	 * @return boolean
 	 */
 	function copy_file($destination) {
-		return $this->Content_Data->copy_file($destination);
+		return $this->data->copy_file($destination);
 	}
 	
 	/**
@@ -88,7 +89,7 @@ class Content_File extends Object {
 	 * @return boolean
 	 */
 	function matches_file($destination) {
-		return $this->Content_Data->matches_file($destination);
+		return $this->data->matches_file($destination);
 	}
 	/**
 	 * Return the size of the file
@@ -96,7 +97,7 @@ class Content_File extends Object {
 	 * @return integer
 	 */
 	function size() {
-		return $this->Content_Data->Size;
+		return $this->data->size();
 	}
 	
 	/**
@@ -106,9 +107,9 @@ class Content_File extends Object {
 	 * @return string
 	 */
 	function download_link(Router $router) {
-		return $router->get_route("download", "Content_File", array(
-			"ID" => $this->id(),
-			"Object" => $this
+		return $router->get_route("download", __CLASS__, array(
+			"id" => $this->id(),
+			"object" => $this
 		));
 	}
 	
@@ -124,7 +125,7 @@ class Content_File extends Object {
 		if (!$extension) {
 			return $name;
 		}
-		$actual_extension = file::extension($name, "", true);
+		$actual_extension = File::extension($name, "", true);
 		if ($actual_extension === $extension) {
 			return $name;
 		}
@@ -140,16 +141,16 @@ class Content_File extends Object {
 	 * @return Response
 	 */
 	function download(Response $response, $type = null) {
-		return $response->download($this->fullpath(), $this->add_extension($this->Name), $type);
+		return $response->download($this->fullpath(), $this->add_extension($this->name), $type);
 	}
 	
 	/**
-	 * Original name of file
+	 * original name of file
 	 *
 	 * @return string
 	 */
 	function original_name() {
-		return $this->Original;
+		return $this->original;
 	}
 	
 	/**
@@ -158,7 +159,7 @@ class Content_File extends Object {
 	 * @return string
 	 */
 	function mime_type() {
-		return $this->member("MIMEType", "application/unknown");
+		return $this->member("mime", "application/unknown");
 	}
 	
 	/**
@@ -174,34 +175,32 @@ class Content_File extends Object {
 		$data = Content_Data::copy_from_path($this->application, $path, $copy);
 		
 		$file = $this->application->object_fatcory(__CLASS__);
-		$file->Original = avalue($options, 'Original', $path);
+		$file->original = avalue($options, 'original', $path);
 		if ($file->find(array(
-			'Original' => $file->Original
+			'original' => $file->original
 		))) {
 			return $file;
 		}
-		$file->Content_Data = $data;
-		$file->Name = basename($path);
+		$file->data = $data;
+		$file->name = basename($path);
 		
 		return $file->store();
 	}
 	
 	/**
-	 * Load
+	 * Load images from a particular directory and create Content_Files for them.
 	 */
-	public function cron_minute(Application $application) {
-		global $zesk;
-		/* @var $zesk zesk\Kernel */
-		$object = new Content_File();
-		$paths = $this->option_list("scan_path");
+	public static function cron_minute(Application $application) {
+		$object = new Content_File($application);
+		$paths = $object->option_list("scan_path");
 		foreach ($paths as $path) {
 			if (empty($path)) {
 				continue;
 			}
 			if (!is_dir($path)) {
-				$zesk->logger->error(__(__METHOD__ . ":=A configured path ({path}) was not found, <a href=\"{url}\">please update the setting.</a>"), array(
+				$application->logger->error(__(__METHOD__ . ":=A configured path ({path}) was not found, <a href=\"{url}\">please update the setting.</a>"), array(
 					"path" => $path,
-					"url" => "admin/settings/Content_File::scan_path"
+					"url" => "admin/settings/Content_File::scan_path" /* TODO */
 				));
 				continue;
 			}
@@ -209,7 +208,7 @@ class Content_File extends Object {
 			 * Should probably have scan_path_copy settings on a per-dir basis TODO
 			 */
 			Directory::iterate($path, null, array(
-				$this,
+				$object,
 				'register_path'
 			));
 		}
@@ -220,9 +219,9 @@ class Content_File extends Object {
 	 * @return string
 	 */
 	function download_name() {
-		$name = $this->Original;
+		$name = $this->original;
 		if (!$name) {
-			$name = $this->Name;
+			$name = $this->name;
 		}
 		$extension = "." . MIME::to_extension($this->mime_type());
 		return str::unsuffix(basename($name), $extension) . $extension;
