@@ -199,13 +199,16 @@ class System {
 			"available" => "free",
 			"use%" => "used_percent",
 			"capacity" => "used_percent",
-			"mounted" => "path"
+			"mounted" => "path",
+			"mounted on" => "path",
+			"filesystem" => "filesystem"
 		);
 		$result = array();
 		foreach ($volume_info as $volume_data) {
 			$row = array();
 			foreach ($volume_data as $field => $value) {
-				$field = avalue($normalized_headers, strtolower($field), $field);
+				$field = strtolower($field);
+				$field = avalue($normalized_headers, $field, $field);
 				$row[$field] = $value;
 			}
 			foreach (to_list('total;used;free') as $kbmult) {
