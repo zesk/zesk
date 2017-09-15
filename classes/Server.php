@@ -330,14 +330,31 @@ class Server extends Object implements Interface_Data {
 	}
 	
 	/**
+	 * Handle issue with UTC not being recognized as a valid TZ in virgin MySQL databases.
+	 * 
+	 * Returns whether the database time zone is currently in UTC.
+	 * 
+	 * @param string $tz
+	 * @return boolean
+	 */
+	private function _db_tz_is_utc($tz) {
+		return in_array(strtolower($tz), array(
+			"utc",
+			"+00:00"
+		));
+	}
+	/**
 	 * Save the Database time zone state, temporarily.
 	 */
 	private function push_utc() {
 		$db = $this->database();
 		if ($db->can(Database::feature_time_zone_relative_timestamp)) {
 			$old_tz = $db->time_zone();
-			if ($old_tz !== 'UTC') {
-				$db->time_zone('UTC');
+			if (!$this->_db_tz_is_utc($old_tz)) {
+				// From https://stackoverflow.com/questions/2934258/how-do-i-get-the-current-time-zone-of-mysql#2934271
+				// UTC fails on virgin MySQL installations
+				// TODO this is (?) specific to MySQL - need to modify for different databases
+				$db->time_zone('+00:00');
 			}
 		} else {
 			$old_tz = null;
@@ -359,7 +376,7 @@ class Server extends Object implements Interface_Data {
 		list($old_tz, $old_php_tz) = $pushed;
 		$db = $this->database();
 		if ($db->can(Database::feature_time_zone_relative_timestamp)) {
-			if ($old_tz !== 'UTC') {
+			if (!$this->_db_tz_is_utc($old_tz)) {
 				$db->time_zone($old_tz);
 			}
 		}
