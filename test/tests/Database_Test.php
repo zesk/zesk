@@ -501,7 +501,6 @@ class Database_Test extends Test_Unit {
 			$this->assert_false($db->release_lock($name));
 			$this->assert_false($db->release_lock($name));
 		} else {
-			echo "$intversion\n";
 			$this->assert_false($db->release_lock($name));
 			$this->assert_false($db->release_lock($name));
 			$this->assert_false($db->release_lock($name));

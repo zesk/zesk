@@ -122,8 +122,9 @@ class Session_Database extends Object implements Interface_Session {
 		$application->configuration->deprecated("zesk\Application::session::cookie::expire_round");
 	}
 	function hook_store() {
-		if (!IPv4::valid($this->ip)) {
-			$this->ip = "127.0.0.1";
+		$ip = $this->member("ip");
+		if (!IPv4::valid($ip)) {
+			$this->set_member("ip", "127.0.0.1");
 		}
 	}
 	function store() {
@@ -295,6 +296,7 @@ class Session_Database extends Object implements Interface_Session {
 			->where('user', $user)
 			->execute();
 		$session = $app->object_factory(__CLASS__);
+		$ip = $user->application->request()->ip();
 		$session->set_member(array(
 			'cookie' => self::_generate_cookie(),
 			'is_one_time' => true,
