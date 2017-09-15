@@ -131,19 +131,17 @@ class Mail_Parser {
 		$m->register();
 		
 		$headers = $this->headers();
+		/* @var $content_type Mail_Header */
 		$content_type = avalue($headers, "content-type");
 		$contents = $this->contents();
 		
 		if ($contents instanceof Mail_Content) {
-			$content_type = $contents->content_type;
 			/* @var $contents Mail_Content */
-			if (str::begins($contents->content_type, 'text/')) {
+			if ($content_type && str::begins($content_type->value, 'text/')) {
 				$contents = $contents->contents();
-				if ($content_type) {
-					$attributes = $content_type->parse_attributes();
-					if (array_key_exists("charset", $attributes)) {
-						$contents = charset::to_utf8($contents, $attributes['charset']);
-					}
+				$attributes = $content_type->parse_attributes();
+				if (array_key_exists("charset", $attributes)) {
+					$contents = charset::to_utf8($contents, $attributes['charset']);
 				}
 				$m->content = $contents;
 				$m->content_type = $contents->content_type;
