@@ -182,7 +182,8 @@ class System {
 		ob_start();
 		$max_tokens = 10;
 		$args = $volume ? ' ' . escapeshellarg($volume) : '';
-		$result = system("/bin/df -lk$args 2> /dev/null");
+		// Added -P to avoid issue on Mac OS X where Capacity and iused overlap
+		$result = system("/bin/df -P -lk$args 2> /dev/null");
 		$volume_info = trim(ob_get_clean());
 		if (!$result) {
 			return array();
@@ -192,6 +193,8 @@ class System {
 		// FreeBSD:	Filesystem  1024-blocks     Used Avail 		Capacity 	Mounted on
 		// Debian:	Filesystem  1K-blocks       Used Available	Use%		Mounted on
 		// Linux:	Filesystem  1K-blocks       Used Available	Use%		Mounted on
+		// Darwin:  Filesystem  1024-blocks     Used Available  Capacity iused ifree %iused Mounted on
+		// Darwin:  Filesystem   1024-blocks       Used  Available Capacity  Mounted on
 		$normalized_headers = array(
 			"1024-blocks" => "total",
 			"1k-blocks" => "total",

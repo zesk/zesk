@@ -258,13 +258,13 @@ class Command_Test extends Command_Base {
 		$result = 0;
 		foreach ($tests as $test) {
 			$success = false;
-			$this->verbose_log("Running $test ...");
 			try {
 				$test_succeeded_mtime = avalue($this->test_results, $test);
 				$test_mtime = filemtime($test);
 				if ($test_mtime === $test_succeeded_mtime) {
 					continue;
 				}
+				$this->verbose_log("Running $test ...");
 				if ($this->run_test($test)) {
 					$success = true;
 				} else {

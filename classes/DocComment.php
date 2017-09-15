@@ -1,13 +1,19 @@
 <?php
 /**
- * @version $URL: https://code.marketacumen.com/zesk/trunk/classes/DocComment.php $
+ * DocComment parsing tools
+ * 
  * @package zesk
  * @subpackage system
- * @author $Author: kent $
- * @copyright Copyright &copy; 2009, Market Acumen, Inc.
+ * @author kent
+ * @copyright Copyright &copy; 2017, Market Acumen, Inc.
  */
 namespace zesk;
 
+/**
+ * 
+ * @author kent
+ *
+ */
 class DocComment {
 	/**
 	 * Removes stars from beginning and end of doccomments
@@ -24,10 +30,10 @@ class DocComment {
 		$string = arr::unprefix($string, "*");
 		$string = arr::trim($string);
 		$string = implode("\n", $string);
-
+		
 		return $string;
 	}
-
+	
 	/**
 	 * 
 	 * @param string $string
@@ -55,7 +61,8 @@ class DocComment {
 			}
 		}
 		$param_keys = to_list(avalue($options, 'param_keys'));
-		$param_keys[] = "param"; 
+		$param_keys[] = "property";
+		$param_keys[] = "param";
 		$param_keys[] = "global"; // Dunno. Are there any other doccomments like this?
 		$param_keys = array_unique($param_keys);
 		foreach ($param_keys as $key) {
@@ -78,7 +85,12 @@ class DocComment {
 		}
 		return arr::trim($result);
 	}
-
+	
+	/**
+	 * 
+	 * @param array $items
+	 * @return string
+	 */
 	static function unparse(array $items) {
 		$max_length = 0;
 		foreach (array_keys($items) as $name) {
@@ -95,7 +107,13 @@ class DocComment {
 		}
 		return "/**\n" . implode("\n", $result) . "\n */";
 	}
-
+	
+	/**
+	 * Retrieve all DocComment blocks in content as strings. Resulting strings should then be `self::parse`d to determine pairs.
+	 * 
+	 * @param string $content
+	 * @return string[]
+	 */
 	static function extract($content) {
 		$matches = null;
 		if (!preg_match_all('#[\t ]*/\*\*[^*]*\*+([^/*][^*]*\*+)*/#se', $content, $matches, PREG_PATTERN_ORDER)) {

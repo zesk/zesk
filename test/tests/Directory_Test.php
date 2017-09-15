@@ -46,7 +46,7 @@ class Directory_Test extends Test_Unit {
 		$this->assert_false(Directory::is_absolute("./"));
 		$this->assert_false(Directory::is_absolute("./place/to/go"));
 		$this->assert_false(Directory::is_absolute("../place/to/go"));
-		if (\is_windows) {
+		if (\is_windows()) {
 			$this->assert_true(Directory::is_absolute("\\windows\\"));
 		} else {
 			$this->assert_false(Directory::is_absolute("\\windows\\"));
