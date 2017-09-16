@@ -14,7 +14,7 @@ if (!isset($GLOBALS['__composer_autoload_files'])) {
 	if (is_file($zesk_root . '/vendor/autoload.php')) {
 		require_once $zesk_root . '/vendor/autoload.php';
 	}
-	$zesk = zesk();
+	$zesk = Kernel::singleton();
 } else {
 	$zesk = require_once dirname(__FILE__) . '/autoload.php';
 }
@@ -22,6 +22,7 @@ if (!isset($GLOBALS['__composer_autoload_files'])) {
 $zesk->paths->set_application(dirname(__FILE__));
 
 $application = $zesk->create_application();
+
 $application->configure_include_path(array(
 	'/etc',
 	$zesk->paths->application('etc'),
@@ -35,5 +36,7 @@ $application->set_option("modules", array(
 	"GitHub"
 ));
 $application->configure();
+
 $application->set_option("version", Version::release());
+
 return $application;

@@ -48,6 +48,14 @@ class Application extends Hookable implements Interface_Theme {
 	 * Inherited directly from zesk().
 	 * Do not edit.
 	 *
+	 * @var Autoloader
+	 */
+	public $autoloader = null;
+
+	/**
+	 * Inherited directly from zesk().
+	 * Do not edit.
+	 *
 	 * @var CacheItemPoolInterface
 	 */
 	public $cache = null;
@@ -330,6 +338,7 @@ class Application extends Hookable implements Interface_Theme {
 		$this->zesk = $zesk;
 		$this->paths = $zesk->paths;
 		$this->hooks = $zesk->hooks;
+		$this->autoloader = $zesk->autoloader;
 		$this->configuration = $zesk->configuration;
 		$this->cache = $zesk->cache;
 		$this->logger = $zesk->logger;
@@ -605,7 +614,7 @@ class Application extends Hookable implements Interface_Theme {
 		}
 		$result = $this->_configure_files($options);
 		if ($profile) {
-			zesk()->profile_timer("_configure_files", microtime(true) - $mtime);
+			$this->zesk->profile_timer("_configure_files", microtime(true) - $mtime);
 		}
 
 		$this->call_hook('configured_files');
@@ -1135,7 +1144,7 @@ class Application extends Hookable implements Interface_Theme {
 		if (($router = $this->router()) !== null) {
 			try {
 				$this->logger->debug("App bootstrap took {seconds} seconds", array(
-					"seconds" => sprintf("%.3f", microtime(true) - zesk()->initialization_time)
+					"seconds" => sprintf("%.3f", microtime(true) - $this->zesk->initialization_time)
 				));
 				$this->_main_route($router);
 			} catch (Exception $exception) {
@@ -1399,7 +1408,7 @@ class Application extends Hookable implements Interface_Theme {
 			$content = ob_get_clean();
 			$final_map['{page-is-cached}'] = '0';
 		} else {
-			zesk()->hooks->unhook('exit');
+			$this->hooks->unhook('exit');
 			$final_map['{page-is-cached}'] = '1';
 		}
 		$final_map += array(
@@ -1783,21 +1792,6 @@ class Application extends Hookable implements Interface_Theme {
 	 */
 	public function zesk_root($suffix = null) {
 		return $this->paths->zesk($suffix);
-	}
-
-	/**
-	 * Return the application class.
-	 *
-	 * @param string $path
-	 *        	Optional path to add to the application path
-	 * @return string
-	 */
-	public static function application_class($class = null) {
-		if ($class) {
-			zesk()->application_class($class);
-			return $class;
-		}
-		return zesk()->application_class();
 	}
 
 	/**
@@ -2243,6 +2237,25 @@ class Application extends Hookable implements Interface_Theme {
 		return $this->user = null;
 	}
 
+	/**
+	 *
+	 * @param string $message
+	 * @param array $arguments
+	 * @return void
+	 */
+	public function deprecated($message, array $arguments = array()) {
+		$this->zesk->deprecated($message, $arguments);
+	}
+
+	/**
+	 * Console status getter/setter
+	 *
+	 * @param boolean $set
+	 * @return boolean
+	 */
+	public function console($set = null) {
+		return $this->zesk->console($set);
+	}
 	/**
 	 *
 	 * @param string $uri

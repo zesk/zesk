@@ -1,19 +1,23 @@
 <?php
+
 /**
- * 
+ *
  */
 namespace zesk;
 
 use \conf;
 
 /**
- * Automatically keep a series of files and directories in sync between users, with security checks for superusers, and simplify version control of
+ * Automatically keep a series of files and directories in sync between users, with security checks
+ * for superusers, and simplify version control of
  * remote systems.
  *
- * Basically, if you deploy software to remote systems, this lets you keep your configuration files in a source repository and copy them into the
+ * Basically, if you deploy software to remote systems, this lets you keep your configuration files
+ * in a source repository and copy them into the
  * appropriate locations without too much extra work
  *
  * @alias sync
+ *
  * @author kent
  *
  */
@@ -23,118 +27,123 @@ class Command_Configure extends Command_Base {
 		"environment-file" => "string",
 		"host-setting-name" => "string"
 	);
-	
+
 	/**
 	 * Whether the configuration should be saved
 	 *
 	 * @var boolean
 	 */
 	private $changed = null;
-	
+
 	/**
 	 * Whether anything was skipped (out of sync)
 	 *
 	 * @var integer
 	 */
 	private $incomplete = 0;
-	
+
 	/**
+	 *
 	 * @var string
 	 */
 	private $host_path = null;
-	
+
 	/**
+	 *
 	 * @var string
 	 */
 	private $uname = null;
-	
+
 	/**
+	 *
 	 * @var string
 	 */
 	private $low_uname = null;
-	
+
 	/**
+	 *
 	 * @var string
 	 */
 	private $username = null;
-	
+
 	/**
 	 * List of known host configurations
 	 *
 	 * @var array
 	 */
 	private $possible_host_configurations = array();
-	
+
 	/**
 	 * Map from uname => host configurations
 	 *
 	 * @var array
 	 */
 	private $alias_file = null;
-	
+
 	/**
 	 * List of host configurations
 	 *
 	 * @var array
 	 */
 	private $host_configurations = array();
-	
+
 	/**
 	 * List of host paths for this host
 	 *
 	 * @var array
 	 */
 	private $host_paths = array();
-	
+
 	/**
 	 * Variables to map when copying files around, etc.
 	 *
 	 * @var array
 	 */
 	private $variable_map = array();
-	
+
 	/**
-	 * 
-	 * @var integer 
+	 *
+	 * @var integer
 	 */
 	protected $current_uid = null;
-	
+
 	/**
-	 * 
+	 *
 	 * @var integer
 	 */
 	protected $current_gid = null;
-	
+
 	/**
-	 * 
-	 * {@inheritDoc}
+	 *
+	 * {@inheritdoc}
+	 *
 	 * @see Command::run()
 	 */
 	protected function run() {
 		$this->completion_function();
-		
+
 		$this->configure("configure", true);
-		
+
 		$this->uname = System::uname();
 		$this->low_uname = strtolower($this->uname);
 		$this->username = avalue($_SERVER, 'USER');
-		
+
 		$this->variable_map['uname'] = $this->uname;
 		$this->variable_map['low_uname'] = $this->low_uname;
 		$this->variable_map['user'] = $this->username;
 		$this->variable_map['zesk_application_root'] = $this->application->application_root(); // Deprecated
 		$this->variable_map['application_root'] = $this->application->application_root();
-		$this->variable_map['zesk_root'] = $this->application->zesk->paths->zesk();
-		
+		$this->variable_map['zesk_root'] = $this->application->zesk_root();
+
 		$this->log("Configuration synchronization for: {uname}, user: {user}", $this->variable_map);
 		$this->determine_environment_file();
 		if (!$this->determine_host_path_setting_name()) {
 			return 1;
 		}
 		$this->determine_host_name();
-		
+
 		$this->save_configuration_changes();
-		
+
 		$this->incomplete = 0;
 		if (!$this->configure_user()) {
 			return 99;
@@ -233,7 +242,7 @@ class Command_Configure extends Command_Base {
 		while (!is_array($host_configs = avalue($aliases = $this->load_conf($this->alias_file), $this->low_uname)) || count(array_diff($host_configs, $this->possible_host_configurations)) !== 0) {
 			$configs = $this->determine_host_configurations();
 			if ($this->prompt_yes_no(__("Save changes to {alias_file} for {uname}? ", $__ + $this->variable_map))) {
-				
+
 				$this->save_conf($this->alias_file, array(
 					$uname => $configs
 				));
@@ -282,7 +291,7 @@ class Command_Configure extends Command_Base {
 			"paths" => implode("\n\t", $paths)
 		)));
 		$this->host_paths = $paths;
-		
+
 		$pattern = $this->option("user_configuration_file", "users/{username}/configure");
 		$files = File::find_all($paths, map($pattern, array(
 			"username" => $username
@@ -291,7 +300,7 @@ class Command_Configure extends Command_Base {
 			"files" => implode("\n\t", $files)
 		)));
 		list($this->current_uid, $this->current_gid) = $this->current_uid_gid();
-		
+
 		foreach ($files as $file) {
 			$this->variable_map['current_host_path'] = dirname(dirname(dirname($file)));
 			$this->verbose_log("Processing file {file}", compact("file"));
@@ -333,9 +342,9 @@ class Command_Configure extends Command_Base {
 			intval(implode("\n", $zesk->process->execute("id -g")))
 		);
 	}
-	
+
 	/**
-	 * 
+	 *
 	 * @param unknown $target
 	 * @param unknown $want_owner
 	 * @param unknown $want_mode
@@ -418,9 +427,9 @@ class Command_Configure extends Command_Base {
 		}
 		return true;
 	}
-	
+
 	/**
-	 * 
+	 *
 	 * @param unknown $target
 	 * @param unknown $owner
 	 * @param unknown $mode
@@ -438,9 +447,9 @@ class Command_Configure extends Command_Base {
 		}
 		return $this->handle_owner_mode($target, $owner, $mode);
 	}
-	
+
 	/**
-	 * 
+	 *
 	 * @param unknown $symlink
 	 * @param unknown $file
 	 */
@@ -482,9 +491,9 @@ class Command_Configure extends Command_Base {
 		}
 		return true;
 	}
-	
+
 	/**
-	 * 
+	 *
 	 * @param unknown $source
 	 * @param unknown $destination
 	 */
@@ -537,9 +546,9 @@ class Command_Configure extends Command_Base {
 		}
 		return null;
 	}
-	
+
 	/**
-	 * 
+	 *
 	 * @param unknown $source
 	 * @param unknown $destination
 	 */
@@ -553,9 +562,9 @@ class Command_Configure extends Command_Base {
 		}
 		return true;
 	}
-	
+
 	/**
-	 * 
+	 *
 	 * @param unknown $destination
 	 * @param unknown $content
 	 */
@@ -569,9 +578,9 @@ class Command_Configure extends Command_Base {
 		}
 		return true;
 	}
-	
+
 	/**
-	 * 
+	 *
 	 * @param unknown $source
 	 * @param unknown $destination
 	 */
@@ -588,7 +597,7 @@ class Command_Configure extends Command_Base {
 			return $this->handle_owner_mode($destination, $want_owner, $want_mode);
 		}
 		try {
-			zesk()->process->execute("diff -w {0} {1}", $source, $destination);
+			$this->application->process->execute("diff -w {0} {1}", $source, $destination);
 			return $this->handle_owner_mode($destination, $want_owner, $want_mode);
 		} catch (Exception_Command $e) {
 			// Not the same
@@ -614,12 +623,12 @@ class Command_Configure extends Command_Base {
 		if (!file_exists($destination)) {
 			$this->verbose_log(is_dir(dirname($destination)) ? "Destination {destination} does not exist" : "Destination {destination} does not exist, nor does its parent directory", $__);
 		}
-		
+
 		return null;
 	}
-	
+
 	/**
-	 * 
+	 *
 	 * @param unknown $source
 	 * @param unknown $destination
 	 * @param unknown $source_name
@@ -634,7 +643,7 @@ class Command_Configure extends Command_Base {
 		}
 		$this->log("Files differ: < $source_name > $destination_name");
 		try {
-			zesk()->process->execute_arguments("diff {0} {1}", array(
+			$this->application->process->execute_arguments("diff {0} {1}", array(
 				$source,
 				$destination
 			), true);
@@ -663,9 +672,9 @@ class Command_Configure extends Command_Base {
 				return null;
 		}
 	}
-	
+
 	/**
-	 * 
+	 *
 	 * @param unknown $repo
 	 * @param unknown $target
 	 */

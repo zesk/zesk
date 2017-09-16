@@ -1,8 +1,8 @@
 <?php
 
 /**
- * 
- * 
+ *
+ *
  */
 namespace zesk;
 
@@ -47,15 +47,15 @@ class Command_Module_New extends Command {
 	function new_module_path($module) {
 		global $zesk;
 		/* @var $zesk \zesk\Kernel */
-		
+
 		$is_zesk = $this->option_bool("zesk");
 		$is_app = $this->option_bool("app", !$is_zesk);
-		
+
 		if (!$is_app && !$is_zesk) {
 			$is_app = true;
 		}
 		$app_root = $this->application->application_root();
-		$zesk_root = $zesk->paths->zesk();
+		$zesk_root = $this->application->zesk_root();
 		$module_paths = $this->application->module_path();
 		foreach ($module_paths as $module_path) {
 			$path = path($module_path, $module);
@@ -81,7 +81,7 @@ class Command_Module_New extends Command {
 			);
 			$namespace_line = "namespace $namespace;\n";
 		}
-		
+
 		$tpl_path = path(dirname(__FILE__), 'templates');
 		$module_class = PHP::clean_function("Module_$name");
 		if ($this->prompt_yes_no("Create $module_class?")) {
@@ -91,7 +91,7 @@ class Command_Module_New extends Command {
 			$inc_name = strtolower(array_pop($inc_path)) . ".php";
 			$inc_path = strtolower(path($path, implode("/", $inc_path)));
 			Directory::create($inc_path);
-			
+
 			$tpl = file_get_contents(path($tpl_path, 'module.php.txt'));
 			$p = path($inc_path, $inc_name);
 			$this->log("Created $p");

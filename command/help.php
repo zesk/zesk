@@ -1,7 +1,7 @@
 <?php
 
 /**
- * 
+ *
  */
 namespace zesk;
 
@@ -17,14 +17,14 @@ class Command_Help extends Command_Base {
 	protected $option_help = array(
 		'no-core' => 'Skip all Zesk core commands'
 	);
-	
+
 	/**
-	 * 
+	 *
 	 * @var array
 	 */
 	private $categories = array();
 	/**
-	 * 
+	 *
 	 * @var array
 	 */
 	private $aliases = array();
@@ -38,9 +38,8 @@ class Command_Help extends Command_Base {
 		$this->save_aliases($this->aliases);
 		return 0;
 	}
-	
+
 	/**
-	 * 
 	 */
 	function collect_command_files() {
 		$zesk = $this->zesk;
@@ -56,7 +55,7 @@ class Command_Help extends Command_Base {
 			),
 			'rules_directory' => false
 		);
-		$zesk_root = $zesk->paths->zesk();
+		$zesk_root = $this->application->zesk_root();
 		$nocore = $this->option_bool("no-core");
 		foreach ($this->application->zesk_command_path() as $path => $prefix) {
 			$this->command_paths[] = $path;
@@ -103,7 +102,6 @@ class Command_Help extends Command_Base {
 			$this->zesk->classes->register($class);
 		}
 	}
-	
 	function process_class($class) {
 		$this->verbose_log("Checking $class");
 		try {
@@ -155,20 +153,18 @@ class Command_Help extends Command_Base {
 		$this->categories[$category][$command] = $doccomment;
 	}
 	function collect_help() {
-		$zesk = zesk();
-		
 		$command_files = $this->collect_command_files();
-		
+
 		$this->load_commands($command_files);
-		
+
 		$this->aliases = array();
 		$this->categories = array();
-		
-		$subclasses = $zesk->classes->subclasses("zesk\Command");
+
+		$subclasses = $this->application->classes->subclasses("zesk\Command");
 		foreach ($subclasses as $subclass) {
 			$this->process_class($subclass);
 		}
-		
+
 		ksort($this->categories);
 	}
 	function save_aliases(array $aliases) {

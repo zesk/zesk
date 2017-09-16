@@ -1,4 +1,5 @@
 <?php
+
 namespace zesk;
 
 /**
@@ -18,11 +19,11 @@ class Command_Build extends Command_Base {
 	);
 	function build_hook_callback($callable, array $arguments) {
 		$this->log("Running build step {callable}", array(
-			"callable" => zesk()->hooks->callable_string($callable)
+			"callable" => $this->application->hooks->callable_string($callable)
 		));
 	}
 	function build_result_callback($callable, $previous_result, $new_result, $return_hint) {
-		$callable_string = zesk()->hooks->callable_string($callable);
+		$callable_string = $this->application->hooks->callable_string($callable);
 		$this->log("Completed build step {callable}", array(
 			"callable" => $callable_string
 		));

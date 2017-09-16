@@ -16,28 +16,28 @@ namespace zesk;
  * @see Class_Settings
  */
 class Settings extends Object implements Interface_Data, Interface_Settings {
-	
+
 	/**
 	 * Is the database down?
 	 *
 	 * @var boolean
 	 */
-	private static $db_down = false;
-	
+	private $db_down = false;
+
 	/**
 	 * Reason why the database is down
 	 *
 	 * @var Exception
 	 */
-	private static $db_down_why = null;
-	
+	private $db_down_why = null;
+
 	/**
 	 * List of global changes to settings to be saved
 	 *
 	 * @var string
 	 */
-	static $changes = array();
-	
+	private $changes = array();
+
 	/**
 	 * Retrieve the Settings singleton.
 	 *
@@ -48,9 +48,9 @@ class Settings extends Object implements Interface_Data, Interface_Settings {
 	public static function instance() {
 		return self::singleton(app());
 	}
-	
+
 	/**
-	 * 
+	 *
 	 * @param Application $application
 	 * @throws Exception_Configuration
 	 * @return \zesk\Interface_Settings
@@ -61,15 +61,19 @@ class Settings extends Object implements Interface_Data, Interface_Settings {
 			return $application->objects->settings;
 		}
 		$class = $application->configuration->path_get(__CLASS__ . "::instance_class", __CLASS__);
-		$application->objects->settings = $application->objects->factory($class, $application);
-		if (!$application->objects->settings instanceof Interface_Settings) {
+		$settings = $application->objects->factory($class, $application);
+		if (!$settings instanceof Interface_Settings) {
 			throw new Exception_Configuration(__CLASS__ . "::instance_class", "Must be Interface_Settings, class is {class}", array(
 				"class" => $class
 			));
 		}
-		return $application->objects->settings;
+		$application->hooks->add(Hooks::hook_exit, array(
+			$settings,
+			"flush_instance"
+		));
+		return $application->objects->settings = $settings;
 	}
-	
+
 	/**
 	 * Hook Object::hooks
 	 */
@@ -79,19 +83,8 @@ class Settings extends Object implements Interface_Data, Interface_Settings {
 		$zesk->configuration->path(__CLASS__);
 		$hooks = $zesk->hooks;
 		$hooks->add('configured', __CLASS__ . '::configured', 'first');
-		$hooks->add(Hooks::hook_reset, __CLASS__ . '::reset');
-		$hooks->add(Hooks::hook_exit, __CLASS__ . '::flush_instance');
 	}
-	
-	/**
-	 * Reset settings
-	 */
-	public static function reset() {
-		self::$changes = array();
-		self::$db_down = null;
-		self::$db_down_why = null;
-		self::$changes = array();
-	}
+
 	/**
 	 * Cache for the settings
 	 *
@@ -100,7 +93,15 @@ class Settings extends Object implements Interface_Data, Interface_Settings {
 	public static function _cache() {
 		return Cache::register(__CLASS__)->expire_after(60);
 	}
-	private static function unserialize($serialized) {
+
+	/**
+	 *
+	 * @param Application $application
+	 * @param string $serialized
+	 * @throws Exception_Syntax
+	 * @return mixed|null
+	 */
+	private static function unserialize(Application $application, $serialized) {
 		try {
 			$value = @unserialize($serialized);
 			if ($value === false && $serialized !== 'b:0;') {
@@ -108,13 +109,13 @@ class Settings extends Object implements Interface_Data, Interface_Settings {
 			}
 			return $value;
 		} catch (Exception_Class_NotFound $e) {
-			zesk()->hooks->call("exception", $e);
+			$application->hooks->call("exception", $e);
 			return null;
 		}
 	}
-	
+
 	/**
-	 * 
+	 *
 	 * @param Application $application
 	 * @param boolean $fix_bad_globals
 	 * @return array
@@ -125,13 +126,13 @@ class Settings extends Object implements Interface_Data, Interface_Settings {
 		$n_loaded = 0;
 		$object = $application->object(__CLASS__);
 		$fix_bad_globals = $object->option_bool("fix_bad_globals");
-		
+
 		foreach ($application->query_select(__CLASS__)->to_array("name", "value") as $name => $value) {
 			++$n_loaded;
 			$size_loaded += strlen($value);
 			if (is_string($value)) {
 				try {
-					$globals[$name] = $value = self::unserialize($value);
+					$globals[$name] = $value = self::unserialize($application, $value);
 					if ($debug_load) {
 						$application->logger->debug("{method} Loaded {name}={value}", array(
 							"method" => __METHOD__,
@@ -167,7 +168,7 @@ class Settings extends Object implements Interface_Data, Interface_Settings {
 		), $globals);
 		return $globals;
 	}
-	
+
 	/**
 	 * configured Hook
 	 */
@@ -232,37 +233,37 @@ class Settings extends Object implements Interface_Data, Interface_Settings {
 		}
 		if ($exception) {
 			$application->hooks->call("exception", $exception);
-			self::$db_down = true;
-			self::$db_down_why = $exception;
+			$this->db_down = true;
+			$this->db_down_why = $exception;
 		}
 	}
-	
+
 	/**
 	 * Hook shutdown - save all settings to database
 	 */
-	public static function flush_instance($force = false) {
-		if (count(self::$changes) === 0) {
+	public function flush_instance($force = false) {
+		if (count($this->changes) === 0) {
 			return;
 		}
-		if (self::$db_down && !$force) {
-			zesk()->logger->debug("{method}: Database is down, can not save changes {changes} because of {e}", array(
+		if ($this->db_down && !$force) {
+			$this->application->logger->debug("{method}: Database is down, can not save changes {changes} because of {e}", array(
 				"method" => __METHOD__,
 				"class" => __CLASS__,
 				"changes" => self::$changes,
-				"e" => self::$db_down_why
+				"e" => $this->db_down_why
 			));
 			return;
 		}
-		self::$db_down = false;
-		self::instance()->flush();
+		$this->db_down = false;
+		$this->flush();
 	}
-	
+
 	/**
-	 * Internal function to write all settings to the database
+	 * Internal function to write all settings store in this object to the database instantly.
 	 */
 	public function flush() {
 		$debug_save = $this->option_bool("debug_save");
-		foreach (self::$changes as $name => $value) {
+		foreach ($this->changes as $name => $value) {
 			$settings = $this->application->object_factory(__CLASS__, array(
 				'name' => $name
 			));
@@ -289,10 +290,10 @@ class Settings extends Object implements Interface_Data, Interface_Settings {
 		$this->application->logger->debug("Deleted {class} cache", array(
 			"class" => __CLASS__
 		));
-		self::_cache()->delete();
-		self::$changes = array();
+		$this->_cache()->delete();
+		$this->changes = array();
 	}
-	
+
 	/**
 	 * Override get to retrieve from global state
 	 *
@@ -305,7 +306,7 @@ class Settings extends Object implements Interface_Data, Interface_Settings {
 		/* @var $zesk zesk\Kernel */
 		return $zesk->configuration->path_get($name);
 	}
-	
+
 	/**
 	 * Same as __get with a default
 	 *
@@ -316,16 +317,17 @@ class Settings extends Object implements Interface_Data, Interface_Settings {
 		/* @var $zesk zesk\Kernel */
 		return $zesk->configuration->path_get($name, $default);
 	}
-	
+
 	/**
 	 *
-	 * {@inheritDoc}
+	 * {@inheritdoc}
+	 *
 	 * @see Model::__isset()
 	 */
 	public function __isset($member) {
-		return zesk()->configuration->path_exists($member);
+		return $this->application->configuration->path_exists($member);
 	}
-	
+
 	/**
 	 * Global to save
 	 *
@@ -341,7 +343,7 @@ class Settings extends Object implements Interface_Data, Interface_Settings {
 		self::$changes[zesk_global_key_normalize($name)] = $value;
 		$zesk->configuration->path_set($name, $value);
 	}
-	
+
 	/**
 	 * Global to save
 	 *
@@ -352,17 +354,14 @@ class Settings extends Object implements Interface_Data, Interface_Settings {
 		$this->__set($name, $value);
 		return $this;
 	}
-	
+
 	/**
 	 *
 	 * @see Interface_Data::data()
 	 */
 	public function data($name, $value = null) {
 		if ($value === null) {
-			$value = $this->application->query_select(__CLASS__)
-				->where("name", $name)
-				->what("value", "value")
-				->one("value");
+			$value = $this->application->query_select(__CLASS__)->where("name", $name)->what("value", "value")->one("value");
 			if ($value === null) {
 				return null;
 			}
@@ -372,7 +371,7 @@ class Settings extends Object implements Interface_Data, Interface_Settings {
 		$this->flush();
 		return $this;
 	}
-	
+
 	/**
 	 * (non-PHPdoc)
 	 *
@@ -386,10 +385,10 @@ class Settings extends Object implements Interface_Data, Interface_Settings {
 		$this->flush();
 		return $this;
 	}
-	
+
 	/**
 	 * Call this when you change your setting names
-	 * 
+	 *
 	 * @param unknown $old_setting
 	 * @param unknown $new_setting
 	 */
@@ -397,7 +396,7 @@ class Settings extends Object implements Interface_Data, Interface_Settings {
 		if (!$this->__isset($old_setting)) {
 			return;
 		}
-		zesk()->deprecated(__CLASS__ . "::deprecated(\"$old_setting\", \"$new_setting\")");
+		$this->application->deprecated(__CLASS__ . "::deprecated(\"$old_setting\", \"$new_setting\")");
 		if ($this->__isset($new_setting)) {
 			$this->__set($old_setting, null);
 			return $this;

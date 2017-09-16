@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Integration with operating system. Host name, process ID, system services, load averages, volume info.
  *
@@ -13,7 +14,7 @@ namespace zesk;
 /**
  *
  * @author kent
- *        
+ *
  */
 class System {
 	public static function host_id() {
@@ -32,7 +33,7 @@ class System {
 		$zesk->configuration->uname = $name;
 		return $name;
 	}
-	
+
 	/**
 	 * Get current process ID
 	 *
@@ -43,7 +44,7 @@ class System {
 		/* @var $zesk Kernel */
 		return $zesk->process->id();
 	}
-	
+
 	/**
 	 * Load IP addresses for this sytem
 	 *
@@ -62,7 +63,7 @@ class System {
 		}
 		return $ips;
 	}
-	
+
 	/**
 	 * Load MAC addresses for this sytem
 	 *
@@ -79,14 +80,14 @@ class System {
 		}
 		return $macs;
 	}
-	
+
 	/**
 	 * Run ifconfig configuration utility and parse results
 	 *
-	 * @param string $filter        	
+	 * @param string $filter
 	 * @return array
 	 */
-	public static function ifconfig($filter = null) {
+	public static function ifconfig(Application $application, $filter = null) {
 		/* @var $zesk Kernel */
 		$result = array();
 		try {
@@ -94,7 +95,7 @@ class System {
 			if ($cache->command) {
 				$command = $cache->command;
 			} else {
-				$command = $cache->command = zesk()->process->execute("ifconfig");
+				$command = $cache->command = $application->process->execute("ifconfig");
 			}
 			$interface = null;
 			$flags = null;
@@ -142,7 +143,7 @@ class System {
 		}
 		return $result;
 	}
-	
+
 	/**
 	 * Determine system current load averages using /proc/loadavg or system call to uptime
 	 *
@@ -170,7 +171,7 @@ class System {
 		);
 		return $loads;
 	}
-	
+
 	/**
 	 * Retrieve volume information in a parsed manner from system call to "df"
 	 *
@@ -220,24 +221,7 @@ class System {
 		}
 		return $result;
 	}
-	
-	/**
-	 * When outputting to terminal windows which support them, this generates a growl message on the
-	 * host
-	 * terminal machine.
-	 *
-	 * Usage:
-	 * <code>echo self::growl("At 32, Mozart had three symphonies.");</code>
-	 *
-	 * @deprecated 2017-08 Growl no longer works in iTerm, I believe.
-	 * @param string $message        	
-	 * @return string
-	 */
-	public static function growl($message) {
-		zesk()->deprecated();
-		return chr(033) . "]9;'$message'" . chr(007);
-	}
-	
+
 	/**
 	 * Based on http://www.novell.com/coolsolutions/feature/11251.html
 	 *
@@ -307,9 +291,9 @@ class System {
 		}
 		return $result;
 	}
-	
+
 	/**
-	 * 
+	 *
 	 * @return number
 	 */
 	public static function memory_limit() {

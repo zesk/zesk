@@ -1,7 +1,7 @@
 <?php
 
 /**
- * 
+ *
  */
 namespace zesk;
 
@@ -49,24 +49,24 @@ class Command_Update extends Command_Base {
 	 * @var boolean
 	 */
 	public $has_configuration = false;
-	
+
 	/**
 	 *
 	 * @var array
 	 */
 	protected $update_db = array();
-	
+
 	/*
 	 * @var Repository
 	 */
 	protected $repo = null;
-	
+
 	/**
 	 *
 	 * @var array
 	 */
 	private $composer_json = null;
-	
+
 	/**
 	 *
 	 * @var boolean
@@ -77,7 +77,7 @@ class Command_Update extends Command_Base {
 	 * @var boolean
 	 */
 	private $composer_packages = array();
-	
+
 	/**
 	 * Main comman entry point
 	 *
@@ -87,9 +87,9 @@ class Command_Update extends Command_Base {
 	 */
 	function run() {
 		$this->configure("update");
-		
+
 		$this->inherit_global_options($this->application);
-		
+
 		if ($this->help) {
 			$this->usage();
 			return;
@@ -99,7 +99,7 @@ class Command_Update extends Command_Base {
 			$this->verbose_log("Loading update database");
 			$this->update_db = $this->update_database();
 		}
-		
+
 		if ($this->has_option('source-control')) {
 			$vc = $this->option('source-control');
 			$this->repo = Repository::factory($vc);
@@ -114,12 +114,12 @@ class Command_Update extends Command_Base {
 				));
 			}
 		}
-		
+
 		$this->app_data = array(
 			'application_root' => $this->application->application_root()
 		);
 		$modules = $this->modules_to_update();
-		
+
 		$result = $this->before_update();
 		if ($result === 0) {
 			foreach ($modules as $module => $module_data) {
@@ -129,10 +129,10 @@ class Command_Update extends Command_Base {
 			}
 			$this->after_update($result);
 		}
-		
+
 		return $result;
 	}
-	
+
 	/**
 	 * Retrieve a list of modules from the command line
 	 */
@@ -159,7 +159,7 @@ class Command_Update extends Command_Base {
 		} while ($this->has_arg());
 		return $modules;
 	}
-	
+
 	/**
 	 * Retrieve a list of modules from available paths
 	 */
@@ -201,7 +201,7 @@ class Command_Update extends Command_Base {
 		}
 		return $modules;
 	}
-	
+
 	/**
 	 * Determine the array of module_name => module_data to update
 	 *
@@ -211,7 +211,7 @@ class Command_Update extends Command_Base {
 		$module_options = array(
 			'load' => false
 		);
-		
+
 		if ($this->has_arg()) {
 			$modules = $this->modules_from_command_line($module_options);
 		} else if ($this->option_bool('all')) {
@@ -230,14 +230,14 @@ class Command_Update extends Command_Base {
 		return $modules;
 	}
 	/**
-	 * 
+	 *
 	 * @return integer
 	 */
 	private function before_update() {
 		$result = $this->composer_before_update();
 		return $result;
 	}
-	
+
 	/**
 	 *
 	 * @param integer $result
@@ -248,15 +248,15 @@ class Command_Update extends Command_Base {
 		}
 		$this->composer_after_update();
 	}
-	
+
 	/**
-	 * 
+	 *
 	 * @return integer
 	 */
 	private function composer_before_update() {
 		$this->composer_json = array();
 		$this->composer_packages = array();
-		
+
 		// TODO Is this a bad idea to depend on the structure of composer.lock?
 		$composer_lock = $this->application->application_root("composer.json");
 		if (!file_exists($composer_lock)) {
@@ -273,9 +273,8 @@ class Command_Update extends Command_Base {
 		$this->composer_packages = avalue($this->composer_json, "require", array()) + avalue($this->composer_json, "require-dev", array());
 		return 0;
 	}
-	
+
 	/**
-	 * 
 	 */
 	private function composer_after_update() {
 		try {
@@ -288,9 +287,9 @@ class Command_Update extends Command_Base {
 			$this->error($e);
 		}
 	}
-	
+
 	/**
-	 * 
+	 *
 	 * @param string $dependency
 	 * @return boolean
 	 */
@@ -298,10 +297,10 @@ class Command_Update extends Command_Base {
 		list($package, $version) = pairr($dependency, ":", $dependency, null);
 		return array_key_exists($package, $this->composer_packages);
 	}
-	
+
 	/**
 	 *
-	 * @param array $set        	
+	 * @param array $set
 	 * @return mixed
 	 */
 	private function update_database(array $set = null) {
@@ -321,8 +320,8 @@ class Command_Update extends Command_Base {
 	/**
 	 * Update a single module
 	 *
-	 * @param string $module        	
-	 * @param array $module_data        	
+	 * @param string $module
+	 * @param array $module_data
 	 * @return array
 	 */
 	private function _update_module($module, array $module_data) {
@@ -432,12 +431,12 @@ class Command_Update extends Command_Base {
 	/**
 	 * Update composer data as part of a module
 	 *
-	 * @param array $data        	
+	 * @param array $data
 	 */
 	private function composer_update(array $data) {
 		$name = $composer = null;
 		extract($data, EXTR_IF_EXISTS);
-		
+
 		$application = $this->application;
 		$logger = $application->logger;
 		$configuration = $this->application->configuration;
@@ -455,7 +454,7 @@ class Command_Update extends Command_Base {
 		$pwd = getcwd();
 		chdir($application->application_root());
 		$do_updates = $this->option_bool("composer-update");
-		
+
 		$changed = false;
 		foreach (array(
 			"" => $composer_require,
@@ -495,9 +494,9 @@ class Command_Update extends Command_Base {
 		}
 		return true;
 	}
-	
+
 	/**
-	 * 
+	 *
 	 * @param string $url
 	 * @throws Exception_NotFound
 	 * @throws Exception_System
@@ -526,10 +525,10 @@ class Command_Update extends Command_Base {
 		}
 		throw new Exception_System("Server {url} temporarily down or returning an error? {response_code}", compact("url", "response_code"));
 	}
-	
+
 	/**
 	 *
-	 * @param array $data        	
+	 * @param array $data
 	 * @throws Exception_Semantics
 	 * @return array
 	 */
@@ -590,10 +589,10 @@ class Command_Update extends Command_Base {
 		}
 		return $load_urls;
 	}
-	
+
 	/**
 	 *
-	 * @param array $data        	
+	 * @param array $data
 	 */
 	private function fetch(array $data) {
 		// $source = $url = $destination = $strip_components = $description = $hashes = null;
@@ -609,11 +608,11 @@ class Command_Update extends Command_Base {
 		}
 		$dry_run = $this->option_bool('dry-run');
 		$new_hashes = array();
-		
+
 		$did_updates = false;
 		foreach ($load_urls as $url => $settings) {
 			$destination = avalue($settings, 'destination', null);
-			
+
 			if ($destination === null) {
 				$this->error("Need to supply a destination for $url");
 				continue;
@@ -632,7 +631,7 @@ class Command_Update extends Command_Base {
 				));
 				return $e;
 			}
-			
+
 			$do_update = false;
 			$new_hash = md5_file($temp_file_name);
 			$dest_file = path($destination, $filename);
@@ -668,19 +667,19 @@ class Command_Update extends Command_Base {
 				$did_updates = true;
 			}
 			Directory::depend($destination, 0775);
-			
+
 			$data['filename'] = $filename;
 			$data['temp_file_name'] = $temp_file_name;
 			$settings['destination'] = $destination;
-			
+
 			if ($this->option_bool('debug')) {
 				//echo Text::format_array($data['configuration']);
 			}
-			
+
 			$unpack_result = $this->unpack($settings + $data);
-			
+
 			$this->update_share($settings + $data);
-			
+
 			@unlink($temp_file_name);
 			if ($unpack_result) {
 				$new_hashes[$url] = $new_hash;
@@ -745,7 +744,7 @@ class Command_Update extends Command_Base {
 		}
 	}
 	private function _which_command($cmd) {
-		$path = zesk()->paths->which($cmd);
+		$path = $this->application->paths->which($cmd);
 		if ($path) {
 			return $path;
 		}
@@ -814,10 +813,10 @@ class Command_Update extends Command_Base {
 		}
 		return $result;
 	}
-	
+
 	/**
 	 *
-	 * @param array $data        	
+	 * @param array $data
 	 * @throws Exception
 	 * @return boolean
 	 */
@@ -866,7 +865,7 @@ class Command_Update extends Command_Base {
 	private function strip_components($temp_directory_name, $final_destination, $strip_components) {
 		assert("is_dir('$temp_directory_name')");
 		assert("is_dir('$final_destination')");
-		
+
 		$match = null;
 		if (is_numeric($strip_components)) {
 			$match = null;
@@ -884,7 +883,7 @@ class Command_Update extends Command_Base {
 			}
 		}
 		assert("$n_components >= 0");
-		
+
 		if ($n_components > 0) {
 			foreach (Directory::ls($temp_directory_name) as $d) {
 				$dir = path($temp_directory_name, $d);
@@ -962,12 +961,12 @@ class Command_Update extends Command_Base {
 		// 		}
 		return path($application_root, $destination);
 	}
-	
+
 	/**
 	 * Many systems do not support `tar --strip-components`, so default to internal method of
 	 * handling
 	 *
-	 * @param array $data        	
+	 * @param array $data
 	 * @return boolean
 	 */
 	private function unpack_tar(array $data) {
@@ -979,16 +978,16 @@ class Command_Update extends Command_Base {
 		$args[] = $temp_file_name;
 		$actual_destination = $destination;
 		if ($strip_components) {
-			$destination = Directory::temporary($name . '-' . zesk()->process->id());
+			$destination = Directory::temporary($name . '-' . $this->application->process->id());
 		}
 		$args[] = "-C '$destination'";
 		return $this->_unpack($args, $destination, $actual_destination, $strip_components);
 	}
-	
+
 	/**
 	 * Unpack a downloaded ZIP file
 	 *
-	 * @param array $data        	
+	 * @param array $data
 	 * @return boolean
 	 */
 	private function unpack_zip(array $data) {
@@ -1000,16 +999,16 @@ class Command_Update extends Command_Base {
 		$args[] = $temp_file_name;
 		$actual_destination = $destination;
 		if ($strip_components) {
-			$destination = Directory::temporary($name . '-' . zesk()->process->id());
+			$destination = Directory::temporary($name . '-' . $this->application->process->id());
 		}
 		$args[] = "-d '$destination'";
 		return $this->_unpack($args, $destination, $actual_destination, $strip_components);
 	}
-	
+
 	/**
 	 * Unpack generic
 	 *
-	 * @param array $data        	
+	 * @param array $data
 	 * @return boolean
 	 */
 	private function _unpack(array $args, $destination, $actual_destination, $strip_components) {

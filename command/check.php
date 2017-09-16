@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Check PHP code, and repair comments.
  *
@@ -14,11 +15,10 @@ namespace zesk;
 use \SplFileInfo;
 
 /**
- *
  */
 class Command_Check extends Command_Iterator_File {
 	/**
-	 * 
+	 *
 	 * @var array
 	 */
 	protected $extensions = array(
@@ -28,9 +28,9 @@ class Command_Check extends Command_Iterator_File {
 		"tpl",
 		"module"
 	);
-	
+
 	/**
-	 * 
+	 *
 	 * @var array
 	 */
 	protected $prefixes = array(
@@ -42,9 +42,9 @@ class Command_Check extends Command_Iterator_File {
 		"tpl" => "<?php\n"
 		//		"phpt" => "#!{php_bin_path}\n<?php\n"
 	);
-	
+
 	/**
-	 * 
+	 *
 	 * @var array
 	 */
 	protected $prefixes_gremlins = array(
@@ -60,82 +60,82 @@ class Command_Check extends Command_Iterator_File {
 		)
 		//		"phpt" => "#!{php_bin_path}\n<?php\n"
 	);
-	
+
 	/**
-	 * 
+	 *
 	 * @var array
 	 */
 	protected $log = array();
-	
+
 	//	protected $debug = true;
 	protected $show = false;
 	protected $changed = 0;
 	function initialize() {
 		global $zesk;
 		/* @var $zesk zesk\Kernel */
-		
+
 		parent::initialize();
-		
+
 		$this->option_types['prefix'] = 'string';
 		$this->option_types['suffix'] = 'string';
-		
+
 		$this->option_types['lint'] = 'boolean';
 		$this->option_types['php-bin-path'] = 'string';
-		
+
 		$this->option_types['copyright'] = 'boolean';
 		$this->option_types['company'] = 'string';
 		$this->option_types['copyright-suffix'] = 'string';
-		
+
 		$this->option_types['author'] = 'boolean';
 		$this->option_types['package'] = 'string';
 		$this->option_types['subpackage'] = 'string';
-		
+
 		$this->option_types['year'] = 'string';
-		
+
 		$this->option_types['show-package'] = 'boolean';
 		$this->option_types['show-subpackage'] = 'boolean';
 		$this->option_types['show-author'] = 'boolean';
 		$this->option_types['show-copyright'] = 'boolean';
-		
+
 		$this->option_types['update-only'] = 'boolean';
 		$this->option_types['gremlins'] = 'boolean';
 		$this->option_types['fix'] = 'boolean';
 		$this->option_types['safe'] = 'boolean';
 		$this->option_types['no-backup'] = 'boolean';
 		$this->option_types['ignore'] = 'string';
-		
+
 		$this->set_option('copyright-suffix', "");
 		$this->set_option('company', "");
-		
+
 		$this->option_help['gremlins'] = 'Check file headers for incorrect headings, ensure all PHP files have no characters before first PHP tag.';
 		$this->option_help['fix'] = 'Actually modify and fix files';
-		
+
 		$this->option_help['prefix'] = 'File output prefix';
 		$this->option_help['suffix'] = 'File output suffix';
-		
+
 		$this->option_help['lint'] = 'Run PHP lint on each file as well';
 		$this->option_help['php-bin-path'] = 'Path to PHP binary (uses \$PATH otherwise)';
-		
+
 		$this->option_help['update-only'] = 'Do not add in missing doccomments, just update existing ones.';
-		
+
 		$this->option_help['copyright-suffix'] = 'The suffix after the copyright (e.g. "Buy N Large, Inc.")';
-		
+
 		$this->option_help['copyright'] = 'Update the copyright string';
 		$this->option_help['author'] = 'Update the author to be \$Author\$';
 		$this->option_help['package'] = 'Set the doccomment package';
 		$this->option_help['subpackage'] = 'Set the doccomment subpackage';
 		$this->option_help['company'] = 'Copyright company';
 		$this->option_help['year'] = 'Set the copyright year to be this year (uses current year otherwise)';
-		
+
 		$this->option_help['show-package'] = 'Output the package for each file';
 		$this->option_help['show-subpackage'] = 'Output the subpackage for each file';
 		$this->option_help['show-author'] = 'Output the author for each file';
 		$this->option_help['show-copyright'] = 'Output the copyright for each file';
-		
+
 		$this->option_help['safe'] = 'Create a new file called name.new.ext';
 		$this->option_help['no-backup'] = 'Copy original to name.ext.old';
 		$this->option_help['ignore'] = 'Ignore file paths containing this string';
-		
+
 		$this->set_option('php-bin-path', '/usr/bin/env php');
 		$this->set_option('year', date('Y'));
 	}
@@ -159,7 +159,7 @@ class Command_Check extends Command_Iterator_File {
 		return intval($result_var);
 	}
 	private function lint_php($php_code) {
-		$tmp = path(ZESK_ROOT, "." . md5($php_code) . "-" . zesk()->process->id() . ".php");
+		$tmp = path(ZESK_ROOT, "." . md5($php_code) . "-" . $this->application->process->id() . ".php");
 		file_put_contents($tmp, $php_code);
 		$result = self::lint_file($tmp);
 		unlink($tmp);

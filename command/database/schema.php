@@ -1,4 +1,5 @@
 <?php
+
 /**
  *
  */
@@ -6,9 +7,12 @@ namespace zesk;
 
 /**
  * Scan all application database files and output any changes needed to the schema
+ *
  * @category Database
- * @param application Pass the application name after this parameter in order to invoke an alternate application
- * @aliases schema
+ * @param
+ *        	application Pass the application name after this parameter in order to invoke an
+ *        	alternate application
+ *        	@aliases schema
  */
 class Command_Database_Schema extends Command_Base {
 	/**
@@ -22,19 +26,19 @@ class Command_Database_Schema extends Command_Base {
 		"update" => "boolean",
 		"*" => "string"
 	);
-	
+
 	/**
 	 *
 	 * @var array
 	 */
 	protected $register_classes = array();
-	
+
 	/**
 	 *
 	 * @var array
 	 */
 	protected $results = array();
-	
+
 	/**
 	 *
 	 * @return \zesk\multitype:
@@ -42,13 +46,13 @@ class Command_Database_Schema extends Command_Base {
 	public function results() {
 		return $this->results;
 	}
-	
+
 	/**
 	 */
 	protected function synchronize_before() {
 		self::_synchronize_suffix("update");
 	}
-	
+
 	/**
 	 */
 	protected function synchronize_after() {
@@ -58,13 +62,13 @@ class Command_Database_Schema extends Command_Base {
 	}
 	/**
 	 * Add calling callback log
-	 * 
+	 *
 	 * @param callable $callable
 	 */
 	public function hook_callback($callable) {
 		$this->debug_log("{class}: Calling {callable}", array(
 			"class" => __CLASS__,
-			"callable" => zesk()->hooks->callable_string($callable)
+			"callable" => $this->application->hooks->callable_string($callable)
 		));
 	}
 	/**
@@ -76,7 +80,7 @@ class Command_Database_Schema extends Command_Base {
 	 * Module::schema_updated
 	 * Module::schema_update
 	 *
-	 * @param string $suffix        	
+	 * @param string $suffix
 	 */
 	private function _synchronize_suffix($suffix) {
 		global $zesk;
@@ -84,18 +88,18 @@ class Command_Database_Schema extends Command_Base {
 			$this,
 			"hook_callback"
 		);
-		
+
 		/* @var $zesk zesk\Kernel */
 		$hook_type = "zesk\Object::schema_$suffix";
 		$all_hooks = $zesk->hooks->find_all($hook_type);
-		
+
 		$zesk->logger->notice("Running all $suffix hooks {hooks}", array(
 			"hooks" => ($all = implode(", ", array_values($all_hooks))) ? $all : "- no hooks found"
 		));
 		$zesk->hooks->all_call_arguments($hook_type, array(
 			$this->application
 		), null, $hook_callback);
-		
+
 		$hook_type = "schema_$suffix";
 		$app = $this->application;
 		$all = $app->modules->all_hook_list($hook_type);
@@ -112,7 +116,7 @@ class Command_Database_Schema extends Command_Base {
 		$app->modules->all_hook_arguments($hook_type, array(
 			$this->application
 		), null, $hook_callback);
-		
+
 		$app_hooks = $app->hook_list($hook_type);
 		$zesk->logger->notice("Running application $suffix hooks {hooks}", array(
 			"hooks" => $app_hooks ? $app_hooks : "- no hooks found"
@@ -135,7 +139,7 @@ class Command_Database_Schema extends Command_Base {
 	 */
 	protected function run() {
 		$application = $this->application;
-		
+
 		if ($this->option_bool("debug")) {
 			Database_Schema::$debug = true;
 		}
@@ -153,9 +157,9 @@ class Command_Database_Schema extends Command_Base {
 			$classes = $this->arguments_remaining(true);
 			$this->verbose_log("Running on classes {classes}", compact("classes"));
 		}
-		
+
 		$this->synchronize_before();
-		
+
 		$database = $application->database_factory($url);
 		$this->results = $results = $application->schema_synchronize($database, $classes, array(
 			"check" => $this->option_bool('check')
