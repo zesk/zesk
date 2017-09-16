@@ -38,7 +38,6 @@ class Locale_ES extends Locale_Base {
 	public function possessive($owner, $object) {
 		return "$object de $owner";
 	}
-
 	public function ordinal($n, $gender = "m") {
 		// TODO: Primero, 1o? no idea
 		if ($gender === 'm') {

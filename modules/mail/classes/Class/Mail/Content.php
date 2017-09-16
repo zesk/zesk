@@ -1,11 +1,17 @@
 <?php
 /**
- * @copyright 2013 &copy; Market Acumen, Inc. 
+ * @copyright 2017 &copy; Market Acumen, Inc. 
  * @author kent
  *
  */
 namespace zesk;
 
+
+/**
+ * 
+ * @author kent
+ *
+ */
 class Class_Mail_Content extends Class_Object {
 	/**
 	 * 

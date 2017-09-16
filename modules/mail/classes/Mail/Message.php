@@ -13,11 +13,23 @@ namespace zesk;
  */
 define("PREG_EMAIL_LIST", '/([^",]*"[^"]*"[^",]*|[^",]*),/'); // Matches "foo" <bar@dee.com>, foo <bar@dee.com>, dee@bar.com
 
-
 /**
  * Database object representing a single email message
  *
  * @author kent
+ * @see Class_Mail_Message
+ * @property integer $id
+ * @property string $hash
+ * @property string $message_id
+ * @property string $mail_from
+ * @property string $mail_to
+ * @property string $subject
+ * @property integer $state
+ * @property \zesk\Timestamp $date
+ * @property string $content_type
+ * @property string $content
+ * @property integer $size
+ * @property object $user
  */
 class Mail_Message extends Object {
 	function applyHeaders($headers, &$contents) {
@@ -269,7 +281,7 @@ class Mail_Message extends Object {
 		$content = $this->content;
 		$extras = $this->_mailExtras();
 		
-		$mailBR = zesk()->is_windows ? "\r\n" : "\n";
+		$mailBR = \is_windows() ? "\r\n" : "\n";
 		
 		$extras = implode($mailBR, $extras) . $mailBR;
 		if (ZESK_DEBUG_MAIL) {
@@ -291,6 +303,9 @@ class Mail_Message extends Object {
 	}
 	static function import_file(Application $application, $filename = "php://stdin") {
 		$fd = fopen($filename, "r");
+		if (strpos($filename, "mail.31589.txt") !== false) {
+			$test = true;
+		}
 		$m = self::from_file($application, $fd);
 		return $m;
 	}

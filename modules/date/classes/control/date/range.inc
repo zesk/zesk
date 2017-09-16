@@ -130,12 +130,11 @@ class Control_Date_Range extends Control {
 		
 		if (!$result)
 			return $result;
-			
-			//start bug fix
-			//Construct new DateTime instances for start, end, and now time
-			//Compare start to now first then start to end
-			
-
+		
+		//start bug fix
+		//Construct new DateTime instances for start, end, and now time
+		//Compare start to now first then start to end
+		
 		//check if allow_future_start option is false (future start prohibited) and perform check if necessary
 		if (!$this->option("allow_future_start", false)) {
 			$dtStart = new Timestamp($object[$this->_startColumn()]);
@@ -162,7 +161,6 @@ class Control_Date_Range extends Control {
 		//Must not allow start date to be after end date.  If this is the case, swap dates
 		//and check again.
 		
-
 		if ($dtEnd->compare($dtStart) < 0) {
 			//Modify HMS accordingly
 			$dtStartTempTime = clone $dtStart->getTime();
@@ -179,7 +177,6 @@ class Control_Date_Range extends Control {
 		}
 		//End Bug Fix
 		
-
 		$this->_setMonthDefault($object);
 		return $result;
 	}

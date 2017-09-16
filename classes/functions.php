@@ -1364,6 +1364,15 @@ function zesk_global_key_normalize($key) {
 }
 
 /**
+ * Do we need to deal with platform issues on Windows?
+ * 
+ * @return boolean
+ */
+function is_windows() {
+	return PATH_SEPARATOR === '\\';
+}
+
+/**
  * Get our global application
  *
  * @deprecated 2017-08 Avoid usage

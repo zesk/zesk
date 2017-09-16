@@ -12,7 +12,6 @@ namespace zesk;
 /* @var $request \zesk\Request */
 /* @var $response \zesk\Response_Text_HTML */
 /* @var $current_user \User */
-
 $this->response->javascript('/share/selection/selection.js');
 
 $name = $this->name;

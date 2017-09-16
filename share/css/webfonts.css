@@ -1,18 +1,20 @@
 .webfont-sample {
-  display: block;
-  border: 1px solid #EEE;
-  background-color: #FFF;
-  padding: 15px;
-  margin: 15px;
-  position: relative;
+	display: block;
+	border: 1px solid #EEE;
+	background-color: #FFF;
+	padding: 15px;
+	margin: 15px;
+	position: relative;
 }
+
 .webfont-sample div.webfont-content {
-  display: block;
+	display: block;
 }
+
 .webfont-sample div.font {
-  display: block;
-  font-size: 7px;
-  position: absolute;
-  bottom: 5px;
-  right: 5px;
+	display: block;
+	font-size: 7px;
+	position: absolute;
+	bottom: 5px;
+	right: 5px;
 }

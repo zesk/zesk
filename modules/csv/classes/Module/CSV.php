@@ -1,7 +1,4 @@
-<?php 
-
+<?php
 namespace zesk;
 
-class Module_CSV extends Module {
-
-}
+class Module_CSV extends Module {}

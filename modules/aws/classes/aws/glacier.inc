@@ -6,7 +6,6 @@
  * @author Kent Davidson <kent@marketacumen.com>
  * @copyright Copyright &copy; 2013, Market Acumen, Inc.
  */
-
 use zesk\Exception_NotFound;
 
 use Aws\Glacier\GlacierClient;
@@ -85,7 +84,6 @@ class AWS_Glacier extends AWS {
 		}
 	}
 	public function jobs_list($vault) {
-		
 	}
 	public function job_status($vault, $job_id) {
 		$this->_init();

@@ -1,5 +1,4 @@
 <?php
-
 namespace zesk;
 
 class UTF16_Test extends Test_Unit {

@@ -14,76 +14,76 @@ namespace zesk;
  *
  */
 class Database_Result_Iterator implements \Iterator {
-
+	
 	/**
 	 *
 	 * @var Database_Query_Select_Base
 	 */
 	public $query;
-
+	
 	/**
 	 * Current database result
 	 *
 	 * @var resource
 	 */
 	private $resource;
-
+	
 	/**
 	 * Valid state
 	 *
 	 * @var boolean
 	 */
 	protected $_valid;
-
+	
 	/**
 	 * Current row
 	 *
 	 * @var array
 	 */
 	protected $_row;
-
+	
 	/**
 	 * Current key
 	 *
 	 * @var integer
 	 */
 	protected $_row_index;
-
+	
 	/**
 	 * Query is unbuffered or not
 	 *
 	 * @var boolean
 	 */
 	protected $unbuffered = false;
-
+	
 	/**
 	 * The value used for the key from each row
 	 *
 	 * @var mixed
 	 */
 	protected $_key;
-
+	
 	/**
 	 * The value used for the value from each row
 	 *
 	 * @var mixed
 	 */
 	protected $_value;
-
+	
 	/**
 	 * Debugging on or off
 	 *
 	 * @var boolean
 	 */
 	protected $_debug;
-
+	
 	/**
 	 * Database
 	 *
 	 * @var Database
 	 */
 	protected $db = null;
-
+	
 	/**
 	 * Create an row iterator
 	 *
@@ -106,7 +106,7 @@ class Database_Result_Iterator implements \Iterator {
 			$this->set_key_value($key, $value);
 		}
 	}
-
+	
 	/**
 	 * Delete it
 	 */
@@ -117,7 +117,7 @@ class Database_Result_Iterator implements \Iterator {
 		}
 		unset($this->db);
 	}
-
+	
 	/**
 	 *
 	 * @param string $key
@@ -131,7 +131,7 @@ class Database_Result_Iterator implements \Iterator {
 		$this->_value = $value;
 		return $this;
 	}
-
+	
 	/**
 	 * Set or get the unbuffered query status
 	 *
@@ -145,7 +145,7 @@ class Database_Result_Iterator implements \Iterator {
 		}
 		return $this->unbuffered;
 	}
-
+	
 	/**
 	 *
 	 * @return Database_Query_Select
@@ -153,7 +153,7 @@ class Database_Result_Iterator implements \Iterator {
 	public function query() {
 		return $this->query;
 	}
-
+	
 	/**
 	 * Current query result
 	 *
@@ -173,7 +173,7 @@ class Database_Result_Iterator implements \Iterator {
 		}
 		return $this->_row;
 	}
-
+	
 	/**
 	 * Return current row key (ID or index)
 	 *
@@ -190,7 +190,7 @@ class Database_Result_Iterator implements \Iterator {
 		}
 		return $this->_row_index;
 	}
-
+	
 	/**
 	 * Move to next row
 	 *
@@ -207,7 +207,7 @@ class Database_Result_Iterator implements \Iterator {
 			$this->_row = null;
 		}
 	}
-
+	
 	/**
 	 * Return to the beginning of the query
 	 *
@@ -219,7 +219,7 @@ class Database_Result_Iterator implements \Iterator {
 		}
 		$this->_loaded = false;
 	}
-
+	
 	/**
 	 * Do we have more rows to fetch?
 	 *
@@ -229,7 +229,7 @@ class Database_Result_Iterator implements \Iterator {
 		$this->_load();
 		return $this->_valid;
 	}
-
+	
 	/**
 	 * Set/get debug state
 	 *
@@ -243,7 +243,7 @@ class Database_Result_Iterator implements \Iterator {
 		}
 		return $this->_debug;
 	}
-
+	
 	/**
 	 * Convert entire set into an array (uses memory, potentially lots!)
 	 *
@@ -256,7 +256,7 @@ class Database_Result_Iterator implements \Iterator {
 		}
 		return $result;
 	}
-
+	
 	/**
 	 * Internal function to init, load a row from the database
 	 *

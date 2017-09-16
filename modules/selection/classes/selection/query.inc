@@ -12,7 +12,7 @@ namespace zesk;
  *
  */
 class Selection_Query extends Object {
-
+	
 	/**
 	 * Fetch or create a query
 	 *
@@ -38,7 +38,10 @@ class Selection_Query extends Object {
 		return $object->store();
 	}
 	public function reorder() {
-		$this->order_index = $this->query_select("X")->where("X.type", $this->type)->what("*N", "MAX(X.order_index)")->one_integer("N", 0) + 1;
+		$this->order_index = $this->query_select("X")
+			->where("X.type", $this->type)
+			->what("*N", "MAX(X.order_index)")
+			->one_integer("N", 0) + 1;
 		return $this->store();
 	}
 	public function count() {
@@ -48,7 +51,7 @@ class Selection_Query extends Object {
 		}
 		return "unknown";
 	}
-
+	
 	/**
 	 *
 	 * @param Application $application

@@ -32,7 +32,7 @@ class DNS {
 			$options = array();
 		}
 		$append = array(
-			'query' => $name, 
+			'query' => $name,
 			'type' => $type
 		);
 		$typearg = is_string($type) ? "-t" . preg_replace("/[^a-z0-9]/", "", $type) . " " : "-ta ";
@@ -45,7 +45,7 @@ class DNS {
 		exec($command, $output, $result);
 		if ($result === 0) {
 			return $append + array(
-				'result' => self::_parse_host_response($output), 
+				'result' => self::_parse_host_response($output),
 				'result_raw' => $output
 			);
 		}
@@ -58,10 +58,10 @@ class DNS {
 		$lines = to_list($lines);
 		foreach ($lines as $line) {
 			foreach (array(
-				"mx" => "mail is handled by", 
-				'aaaa' => 'has IPv6 address', 
-				"a" => "has address", 
-				"txt" => "descriptive text", 
+				"mx" => "mail is handled by",
+				'aaaa' => 'has IPv6 address',
+				"a" => "has address",
+				"txt" => "descriptive text",
 				'cname' => 'is an alias for'
 			) as $type => $pattern) {
 				list($host, $value) = pair($line, $pattern, null, null);

@@ -42,6 +42,11 @@ class Objects {
 	private $singletons = array();
 	
 	/**
+	 * 
+	 * @var array
+	 */
+	private $singletons_caller = array();
+	/**
 	 *
 	 * @var array
 	 */
@@ -197,15 +202,11 @@ class Objects {
 			$class = array_shift($arguments);
 			return $this->singleton_arguments($class, $arguments);
 		} else if (is_object($class)) {
-			$class_name = get_class($class);
-			$low_class = strtolower($class_name);
-			if (isset($this->singletons[$low_class])) {
-				throw new Exception_Semantics("{method}(Object of {class_name}) Can not set singleton {class_name} twice", array(
-					"method" => __METHOD__,
-					"class_name" => $class_name
-				));
+			$object = $this->_get_singleton(get_class($class), $class_name);
+			if ($object && $object === $class) {
+				return $object;
 			}
-			$this->singletons[$low_class] = $class;
+			$this->_set_singleton($class);
 			return $this;
 		} else {
 			throw new Exception_Parameter("{method} takes a string or an object, {type} passed instead", array(
@@ -215,6 +216,37 @@ class Objects {
 		}
 	}
 	
+	/**
+	 * Set a singleton
+	 * 
+	 * @param unknown $class
+	 * @param unknown $resolve_class
+	 * @return NULL|mixed
+	 */
+	private function _get_singleton($class, &$resolve_class) {
+		$resolve_class = $this->resolve($class);
+		$low_class = strtolower($resolve_class);
+		return isset($this->singletons[$low_class]) ? $this->singletons[$low_class] : null;
+	}
+	/**
+	 * 
+	 * @param mixed $object
+	 * @return mixed
+	 */
+	private function _set_singleton($object) {
+		$class = $this->resolve($class_name = get_class($object));
+		$low_class = strtolower($class);
+		if (isset($this->singletons[$low_class])) {
+			throw new Exception_Semantics("{method}(Object of {class_name}) Can not set singleton {class_name} twice, originally set in {first_caller}", array(
+				"method" => __METHOD__,
+				"class_name" => $class_name,
+				"first_caller" => $this->singletons_caller[$low_class]
+			));
+		}
+		$this->singletons_caller[$low_class] = calling_function(2);
+		$this->singletons[$low_class] = $object;
+		return $object;
+	}
 	/**
 	 *
 	 * @param string $class
@@ -228,10 +260,9 @@ class Objects {
 				"arg_class" => $class
 			));
 		}
-		$resolve_class = $this->resolve($class);
-		$low_class = strtolower($resolve_class);
-		if (array_key_exists($low_class, $this->singletons)) {
-			return $this->singletons[$low_class];
+		$object = $this->_get_singleton($class, $resolve_class);
+		if ($object) {
+			return $object;
 		}
 		try {
 			$rc = new ReflectionClass($resolve_class);
@@ -252,12 +283,12 @@ class Objects {
 								 */
 								zesk()->deprecated("$resolve_class::$method will no longer be allowed for singleton creation");
 							}
-							return $this->singletons[$low_class] = $object = $refl_method->invokeArgs(null, $arguments);
+							return $this->_set_singleton($refl_method->invokeArgs(null, $arguments));
 						}
 					}
 				}
 			}
-			return $this->singletons[$low_class] = $rc->newInstanceArgs($arguments);
+			return $this->_set_singleton($rc->newInstanceArgs($arguments));
 		} catch (ReflectionException $e) {
 			throw new Exception_Class_NotFound($resolve_class, null, null, $e);
 		} catch (LogicException $e) {

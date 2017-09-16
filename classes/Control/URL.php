@@ -14,7 +14,6 @@ namespace zesk;
  *
  */
 class Control_URL extends Control_Text {
-
 	private function _url_check($url) {
 		if (URL::valid($url)) {
 			return URL::normalize($url);
@@ -32,11 +31,9 @@ class Control_URL extends Control_Text {
 		}
 		return false;
 	}
-
 	private function error_syntax() {
 		$this->error($this->option('error_syntax', $this->_error_default()));
 	}
-
 	private function _error_default() {
 		$protocols = arr::suffix($this->protocol_list(), "://");
 		return __('{label} must begin with {protocol_phrase}', array(
@@ -46,7 +43,6 @@ class Control_URL extends Control_Text {
 	private function error_protocol() {
 		$this->error($this->option('error_protocol', $this->_error_default()));
 	}
-
 	function protocol_list() {
 		return to_list($this->option('protocol', 'http;https'));
 	}
@@ -55,7 +51,6 @@ class Control_URL extends Control_Text {
 			'protocol_phrase' => Locale::conjunction($this->protocol_list())
 		);
 	}
-
 	function multiple($set = null) {
 		if ($set !== null) {
 			$this->set_option('multiple', true);
@@ -63,7 +58,6 @@ class Control_URL extends Control_Text {
 		}
 		return $this->option_bool('multiple');
 	}
-
 	function validate() {
 		$temp = parent::validate();
 		if (!$temp) {
@@ -109,7 +103,7 @@ class Control_URL extends Control_Text {
 			$this->value($urls);
 			return true;
 		}
-
+		
 		$new_value = $this->_url_check($value);
 		if (!$new_value) {
 			if ($this->required()) {

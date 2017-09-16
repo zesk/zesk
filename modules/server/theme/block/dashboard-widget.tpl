@@ -12,7 +12,7 @@ if (!$id) {
 	$this->id = $id = "dashboard-widget-" . $response->id_counter();
 }
 echo HTML::tag_open("div", array(
-	"class" => CSS::add_class("dashboard-widget", $this->class), 
+	"class" => CSS::add_class("dashboard-widget", $this->class),
 	"id" => $id
 ));
 ?>

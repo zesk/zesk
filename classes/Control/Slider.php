@@ -14,7 +14,7 @@ class Control_Slider extends Control {
 		$this->response->css("/share/zesk/widgets/slider/slider.css");
 		$this->response->javascript("/share/zesk/jquery/ui/ui.core.js");
 		$this->response->javascript("/share/zesk/jquery/ui/ui.slider.js");
-
+		
 		$id = $this->column() . "_slider";
 		$opts = $this->options_include("min;max;vertical;step;range;steps");
 		$styles = $this->options_include("width;height");

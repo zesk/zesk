@@ -1,17 +1,15 @@
 <?php
 /**
-* $URL: https://code.marketacumen.com/zesk/trunk/classes/Control/IP/List.php $
-* @package zesk
-* @subpackage default
-* @author Kent Davidson <kent@marketacumen.com>
-* @copyright Copyright &copy; 2009, Market Acumen, Inc.
-*/
+ * $URL: https://code.marketacumen.com/zesk/trunk/classes/Control/IP/List.php $
+ * @package zesk
+ * @subpackage default
+ * @author Kent Davidson <kent@marketacumen.com>
+ * @copyright Copyright &copy; 2009, Market Acumen, Inc.
+ */
 namespace zesk;
 
 class Control_IP_List extends Control {
-
 	private $ErrorIPs;
-
 	function load() {
 		$name = $this->name();
 		$value = trim($this->request->get($name, "") . ' ' . $this->request->get($name . '_errors', ''));
@@ -19,7 +17,6 @@ class Control_IP_List extends Control {
 		$this->value($value);
 		return parent::load();
 	}
-
 	function validate() {
 		$allow_ip_masks = $this->option("allow_ip_masks", false);
 		$col = $this->column();
@@ -45,7 +42,6 @@ class Control_IP_List extends Control {
 		}
 		return true;
 	}
-
 	function render() {
 		$col = $this->column();
 		$name = $this->name();
@@ -59,7 +55,7 @@ class Control_IP_List extends Control {
 		$ip = $this->request->ip();
 		$this->response->javascript('/share/zesk/widgets/iplist/iplist.js');
 		$this->response->css('/share/zesk/widgets/iplist/iplist.css');
-
+		
 		$add_ip = "<a class=\"ip-list-add\" id=\"${name}\" onclick=\"iplist_add('${col}_ip_list', '${ip}')\">" . __('Add current IP') . ": $ip</a>";
 		if (count($this->ErrorIPs)) {
 			$err_attrs = $attrs;

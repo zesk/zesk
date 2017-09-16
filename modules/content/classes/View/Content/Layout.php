@@ -9,22 +9,21 @@
 namespace zesk;
 
 class View_Layout extends View {
-
+	
 	/**
 	 * @var array
 	 */
 	private $Objects = null;
-
+	
 	/**
 	 * @var Content
 	 */
 	private $Content = null;
-
+	
 	/**
 	 * @var Content_Factory
 	 */
 	private $Content_Factory = null;
-
 	function objects($objects = null) {
 		if (is_array($objects)) {
 			$this->Objects = $objects;
@@ -32,7 +31,6 @@ class View_Layout extends View {
 		}
 		return $this->Objects;
 	}
-
 	function content_factory(Content_Factory $factory = null) {
 		if ($factory) {
 			$this->Content_Factory = $factory;
@@ -40,7 +38,6 @@ class View_Layout extends View {
 		}
 		return $this->Content_Factory;
 	}
-
 	private function _initObjects($data) {
 		if (is_array($this->Objects)) {
 			return true;
@@ -59,32 +56,31 @@ class View_Layout extends View {
 		$this->Objects = $this->Content_Factory->instantiateContent($objects_string);
 		return true;
 	}
-
 	function render(Model $data) {
 		$layout = $this->value($data);
 		if (empty($layout)) {
 			return implode("\n", $this->generate_content());
 		}
 		$layout_options = (is_array($layout)) ? $layout : to_array(HTML::parse_attributes($layout), array());
-
+		
 		$rows = clamp(1, to_integer(avalue($layout_options, 'rows')), 4);
 		$cols = clamp(1, to_integer(avalue($layout_options, 'cols')), 4);
 		$widths = to_list(avalue($layout_options, 'widths'), array());
 		$objects = explode("|", avalue($layout_options, 'objects', ''));
-
+		
 		if (count($widths) < $cols) {
 			$widths[] = 1;
 		}
 		$wtot = 0;
-		for($w = 0; $w < count($widths); $w++) {
+		for ($w = 0; $w < count($widths); $w++) {
 			$wtot += intval($widths[$w]);
 		}
 		$wtot = max(1, $wtot);
 		$ratio = 100 / $wtot;
-		for($w = 0; $w < count($widths); $w++) {
+		for ($w = 0; $w < count($widths); $w++) {
 			$widths[$w] = round($widths[$w] * $ratio, 0);
 		}
-
+		
 		if ($cols + $rows > 2) {
 			$all_prefix = "<table width=\"100%\" class=\"layout\">";
 			$all_suffix = "</table>";
@@ -102,9 +98,9 @@ class View_Layout extends View {
 		}
 		$cell_index = 0;
 		$format = $all_prefix;
-		for($row = 0; $row < $rows; $row++) {
+		for ($row = 0; $row < $rows; $row++) {
 			$format .= $row_prefix;
-			for($col = 0; $col < $cols; $col++) {
+			for ($col = 0; $col < $cols; $col++) {
 				$width = intval($widths[$col]);
 				$cell_attrs = array(
 					"width" => $width
@@ -126,13 +122,12 @@ class View_Layout extends View {
 			$format .= $row_suffix;
 		}
 		$format .= $all_suffix;
-
+		
 		$this->_initObjects($data);
 		$contents = $this->generate_content();
-
+		
 		return map($format, $contents);
 	}
-
 	private function generate_content() {
 		if (is_array($this->Content)) {
 			return $this->Content;

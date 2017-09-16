@@ -14,7 +14,6 @@ namespace zesk;
  *
  */
 class Lang_en_test extends Test_Unit {
-
 	function test_everything() {
 		$testx = new Locale_EN();
 		
@@ -36,8 +35,8 @@ class Lang_en_test extends Test_Unit {
 		$this->assert_equal($testx->indefinite_article("HOUR AWAY", true), 'An');
 		
 		$x = array(
-			"lions", 
-			"tigers", 
+			"lions",
+			"tigers",
 			"bears"
 		);
 		$conj = "and";
@@ -48,60 +47,59 @@ class Lang_en_test extends Test_Unit {
 		$locale = null;
 		$this->assert_equal($testx->plural_number($s, $n), "3 words");
 	}
-
 	function ordinal_tests() {
 		return array(
 			array(
-				'1', 
+				'1',
 				'1st'
-			), 
+			),
 			array(
-				1, 
+				1,
 				'1st'
-			), 
+			),
 			array(
-				'0', 
+				'0',
 				'0th'
-			), 
+			),
 			array(
-				0, 
+				0,
 				'0th'
-			), 
+			),
 			array(
-				'11', 
+				'11',
 				'11th'
-			), 
+			),
 			array(
-				'101', 
+				'101',
 				'101st'
-			), 
+			),
 			array(
-				'2', 
+				'2',
 				'2nd'
-			), 
+			),
 			array(
-				'12', 
+				'12',
 				'12th'
-			), 
+			),
 			array(
-				'21', 
+				'21',
 				'21st'
-			), 
+			),
 			array(
-				'22', 
+				'22',
 				'22nd'
-			), 
+			),
 			array(
-				'99', 
+				'99',
 				'99th'
-			), 
+			),
 			array(
-				'100000001', 
+				'100000001',
 				'100000001st'
 			)
 		);
 	}
-
+	
 	/**
 	 * @data_provider ordinal_tests
 	 */

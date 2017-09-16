@@ -25,25 +25,25 @@ class Control_Date_Range2 extends Control {
 	}
 	public function defaults_start_end() {
 		$object = $this->object;
-
+		
 		$start_col = $this->_startColumn();
 		$end_col = $this->_endColumn();
-
+		
 		$now = new Date(gmdate('Y-m-d'));
-
+		
 		$min_date = new Date($this->option('minimum_date', $now->format()));
 		$max_date = new Date($this->option('maximum_date', $now->format()));
-
+		
 		$start_date_default = new Date($this->option_date("StartDateDefault", $now->format()));
 		$start_date_default->clamp($min_date, $max_date);
-
+		
 		$start_date_default = $this->_default_value($start_date_default->format(), $start_col);
-
+		
 		$end_date_default = new Date($this->option_date("EndDateDefault", $now->format()));
 		$end_date_default->clamp($min_date, $max_date);
-
+		
 		$end_date_default = $this->_default_value($end_date_default->format(), $end_col);
-
+		
 		return array(
 			$start_date_default,
 			$end_date_default
@@ -54,7 +54,7 @@ class Control_Date_Range2 extends Control {
 		parent::defaults();
 		$start_col = $this->_startColumn();
 		$end_col = $this->_endColumn();
-
+		
 		list($start_date_default, $end_date_default) = $this->defaults_start_end();
 		$object->set($start_col, $start_date_default);
 		$object->set($end_col, $end_date_default);
@@ -63,9 +63,9 @@ class Control_Date_Range2 extends Control {
 		$object = $this->object;
 		$start_col = $this->_startColumn();
 		$end_col = $this->_endColumn();
-
+		
 		list($start_date_default, $end_date_default) = $this->defaults_start_end();
-
+		
 		$cols = array(
 			$this->_startColumn() => $start_date_default,
 			$this->_endColumn() => $end_date_default
@@ -84,80 +84,80 @@ class Control_Date_Range2 extends Control {
 		$this->response->javascript('/share/zesk/jquery/ui/ui.core.js');
 		$this->response->javascript('/share/zesk/jquery/zesk.ui.datepicker.js');
 		$this->response->javascript('/share/zesk/widgets/daterange/zesk.ui.datepicker.js');
-
+		
 		$this->response->css('/share/zesk/widgets/daterange/zesk.ui.datepicker.css');
-
+		
 		$start_col = $this->_startColumn();
 		$end_col = $this->_endColumn();
-
+		
 		$now = new Date(gmdate('Y-m-d'));
-
+		
 		$min_date = new Date($this->option('minimum_date', $now->format()));
 		$max_date = new Date($this->option('maximum_date', $now->format()));
-
+		
 		list($start_date_default, $end_date_default) = $this->defaults_start_end();
-
+		
 		$dtStart = new Date($object->get($start_col));
 		$dtEnd = new Date($object->get($end_col));
-
+		
 		$dtStart->clamp($min_date, $max_date);
 		$dtEnd->clamp($min_date, $max_date);
-
+		
 		$object->set($start_col, $dtStart->format());
 		$object->set($end_col, $dtEnd->format());
-
+		
 		if (!$this->option("allow_future_start", false)) {
 			if ($dtStart->after($now)) {
 				$this->setError($this->column(), "Please select a start date that is not in the future");
 				return false;
 			}
-
+			
 			if (!$this->option("allow_future_end", true) && $dtEnd->after($now)) {
 				$this->setError($this->column(), "Please select an end date that is not in the future");
 				return false;
 			}
 		}
-
+		
 		// Must not allow start date to be after end date.  If this is the case, swap dates
 		// and check again.
-
+		
 		if ($dtEnd->compare($dtStart) < 0) {
 			$dtStartTempTime = clone $dtStart->getTime();
 			$dtStart->setTime($dtEnd->getTime());
 			$dtEnd->setTime($dtStartTempTime);
-
+			
 			$object[$start_col] = $dtEnd->format();
 			$object[$end_col] = $dtStart->format();
-
+			
 			$this->setError($this->column(), "Start date was after end date, and were swapped. Please check your work.");
 			return false;
 		}
-
+		
 		$this->_save_default_value($object->get($start_col), $start_col);
 		$this->_save_default_value($object->get($end_col), $end_col);
-
+		
 		return true;
 	}
 	function render() {
 		$object = $this->object;
-
+		
 		$now = new Date(gmdate('Y-m-d'));
-
+		
 		$min_date = new Date($this->option('minimum_date', gmdate('Y-m-d')));
 		$max_date = new Date($this->option('maximum_date', gmdate('Y-m-d')));
-
+		
 		$start_date_default = new Date($this->option_date("StartDateDefault", $now->format()));
 		$start_date_default->clamp($min_date, $max_date);
-
+		
 		$end_date_default = new Date($this->option_date("EndDateDefault", $now->format()));
 		$end_date_default->clamp($min_date, $max_date);
-
+		
 		$name = $this->column();
 		$input_name = $this->name();
-
+		
 		$start_column = $this->_startColumn();
 		$end_column = $this->_endColumn();
-
+		
 		$app = $this->application;
 		$attrs = array(
 			"rangeSelect" => true,
@@ -179,7 +179,7 @@ class Control_Date_Range2 extends Control {
 		);
 		//'navigationAsDateFormat' => true,
 		//'showStatus' => true,
-
+		
 		$tpl_options = array(
 			"options" => $attrs,
 			'start_column' => $start_column,
@@ -189,7 +189,7 @@ class Control_Date_Range2 extends Control {
 			'first_day_of_week' => $this->firstDayOfWeek()
 		);
 		$this->response->jquery(Template::instance('widgets/daterange/daterange_jquery_ready.js.tpl', $tpl_options));
-
+		
 		$result = "";
 		//		$result .= HTML::tag("div", array("class" => "locale-chosen-date", "id" => $input_name . "_locale_date"), "No dates selected.");
 		$result .= HTML::tag("div", array(
@@ -197,13 +197,13 @@ class Control_Date_Range2 extends Control {
 			"class" => "zesk-ui-datepicker"
 		), "");
 		$input_type = "hidden";
-
+		
 		$result .= HTML::input($input_type, $input_name . '_minDate', $min_date->format());
 		$result .= HTML::input($input_type, $input_name . '_maxDate', $max_date->format());
 		$result .= HTML::input($input_type, $input_name . '_range', $object->get($name));
 		$result .= HTML::input($input_type, $start_column, $object->get($start_column), $start_date_default->format());
 		$result .= HTML::input($input_type, $end_column, $object->get($end_column), $end_date_default->format());
-
+		
 		$arrow_opts = array();
 		$arrow_opts['label_tag'] = '';
 		$arrow_opts['label_a_attrs'] = array(
@@ -214,12 +214,12 @@ class Control_Date_Range2 extends Control {
 			'class' => 'zesk-ui-datepicker'
 		);
 		$arrow_opts['url'] = $this->option("arrow_state_url", "");
-
+		
 		$result = "TODO"; // TODO
 		//	$result = arrow_widget($this->option("empty_string", "No dates selected"), $result, $input_name . '_control', $this->option("arrow_state_open", true), new Options($arrow_opts));
-
+		
 		$result .= $this->outputChoices($min_date, $max_date);
-
+		
 		return HTML::tag('div', array(
 			'class' => 'datepicker'
 		), $result);
@@ -261,11 +261,11 @@ class Control_Date_Range2 extends Control {
 			$result['year-1-1'] = 'Last Year';
 			$result['day-365-0'] = 'Last 365 Days';
 		}
-
+		
 		foreach ($result as $k => $v) {
 			$result[$k] = __($v);
 		}
-
+		
 		$options = array();
 		foreach ($result as $k => $v) {
 			$startDate = $endDate = null;
@@ -291,10 +291,10 @@ class Control_Date_Range2 extends Control {
 				null
 			);
 		list($unit, $soff, $eoff) = $parts;
-
+		
 		$startDate = Date::now();
 		$endDate = clone $startDate;
-
+		
 		switch ($unit) {
 			case "week":
 				/* Use cases:
@@ -348,7 +348,7 @@ class Control_Date_Range2 extends Control {
 				$endDate->month($m);
 				$endDate->day(1);
 				$endDate->add(0, 3, -1);
-
+				
 				$startDate->add(0, -$soff * 3, 0);
 				$endDate->add(0, -$eoff * 3, 0);
 				break;

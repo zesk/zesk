@@ -6,6 +6,8 @@
 		"class_prefix": "zesk\\"
 	},
 	"module_class": "zesk\\Module_Nominatim",
-	"depends": [ "contact" ]
+	"depends": [
+		"contact"
+	]
 }
 

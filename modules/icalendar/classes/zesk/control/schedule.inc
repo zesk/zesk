@@ -1,5 +1,4 @@
 <?php
-
 namespace zesk;
 
 /**
@@ -111,19 +110,34 @@ class Control_Schedule extends Control {
 		
 		$column_prefix = $this->column_prefix();
 		/* @var $w Control_Dropdown */
-		$this->child($this->theme_variables['widget_unit'] = $this->widget_unit = $w = $this->widget_factory("zesk\\Control_Dropdown")->names("unit", null, $column_prefix . "unit")->control_options($schedule_frequencies)->required(true)->set_option("onupdate", "function (value) {
+		$this->child($this->theme_variables['widget_unit'] = $this->widget_unit = $w = $this->widget_factory("zesk\\Control_Dropdown")
+			->names("unit", null, $column_prefix . "unit")
+			->control_options($schedule_frequencies)
+			->required(true)
+			->set_option("onupdate", "function (value) {
 				zesk.log(\"value is \" + value); 
 				\$(\"#${column_prefix}dayofweek\").toggle(value === \"week\");
 				\$(\"#${column_prefix}dayofmonth\").toggle(value === \"month\");
 			}"));
 		$w->wrap("div", ".input-group-btn");
 		
-		$this->child($this->theme_variables['widget_dayofweek'] = $this->widget_dayofweek = $w = $this->widget_factory("zesk\\Control_Dropdown")->names("weekday", null, $column_prefix . "dayofweek")->control_options($schedule_dayofweek)->required(true));
+		$this->child($this->theme_variables['widget_dayofweek'] = $this->widget_dayofweek = $w = $this->widget_factory("zesk\\Control_Dropdown")
+			->names("weekday", null, $column_prefix . "dayofweek")
+			->control_options($schedule_dayofweek)
+			->required(true));
 		
 		$w->wrap("div", ".input-group-btn");
-		$this->child($this->theme_variables['widget_dayofmonth'] = $this->widget_dayofmonth = $w = $this->widget_factory("zesk\\Control_Dropdown")->names("monthday", null, $column_prefix . "dayofmonth")->control_options($schedule_dayofmonth)->default_value(1)->required(true));
+		$this->child($this->theme_variables['widget_dayofmonth'] = $this->widget_dayofmonth = $w = $this->widget_factory("zesk\\Control_Dropdown")
+			->names("monthday", null, $column_prefix . "dayofmonth")
+			->control_options($schedule_dayofmonth)
+			->default_value(1)
+			->required(true));
 		$w->wrap("div", ".input-group-btn");
-		$this->child($this->theme_variables['widget_hourofday'] = $this->widget_hourofday = $w = $this->widget_factory("zesk\\Control_Dropdown")->names("hour", null, $column_prefix . "hourofday")->control_options($schedule_hourofday)->required(true)->default_value(9));
+		$this->child($this->theme_variables['widget_hourofday'] = $this->widget_hourofday = $w = $this->widget_factory("zesk\\Control_Dropdown")
+			->names("hour", null, $column_prefix . "hourofday")
+			->control_options($schedule_hourofday)
+			->required(true)
+			->default_value(9));
 		$w->wrap("div", ".input-group-btn");
 		parent::initialize();
 	}

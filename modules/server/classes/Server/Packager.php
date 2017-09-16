@@ -3,6 +3,7 @@
  * 
  */
 namespace zesk;
+
 /**
  * 
  * @author kent
@@ -13,7 +14,6 @@ abstract class Server_Packager {
 	 * @var Server_Platform
 	 */
 	protected $platform = null;
-
 	function __construct(Server_Platform $platform) {
 		$this->platform = $platform;
 	}
@@ -38,11 +38,9 @@ abstract class Server_Packager {
 		}
 		return true;
 	}
-
-	public function configure() { 
+	public function configure() {
 		return true;
 	}
-	
 	final function confirm($message) {
 		return $this->platform->confirm($message);
 	}
@@ -68,19 +66,16 @@ abstract class Server_Packager {
 		}
 		return count($result) ? $result : true;
 	}
-
 	final function root_exec($command) {
 		$args = func_get_args();
 		array_shift($args);
 		return $this->platform->root_exec_array($command, $args);
 	}
-
 	final function exec($command) {
 		$args = func_get_args();
 		array_shift($args);
 		return $this->platform->exec_array($command, $args);
 	}
-
 	final function exec_one($command) {
 		$args = func_get_args();
 		array_shift($args);
@@ -91,31 +86,31 @@ abstract class Server_Packager {
 	 * @return array
 	 */
 	abstract public function packages();
-
+	
 	/**
 	 * @return array
 	 */
 	abstract public function packages_update();
-
+	
 	/**
 	 * @return array
 	 */
 	abstract public function package_exists($package);
-
+	
 	/**
 	 * Install a single package
 	 * @param string $package
 	 * @return string error message, or true if succeeded
 	 */
 	abstract protected function package_install($package);
-
+	
 	/**
 	 * Is a single package installed
 	 * @param string $package
 	 * @return boolean
 	 */
 	abstract protected function package_installed($package);
-
+	
 	/**
 	 * Remove a single package
 	 * @param string $package A package to remove

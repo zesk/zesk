@@ -1,5 +1,4 @@
 <?php
-	
 namespace dnsmadeeasy;
 
 class Module extends \zesk\Module {

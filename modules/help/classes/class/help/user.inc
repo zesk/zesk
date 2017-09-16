@@ -6,7 +6,6 @@ class Class_Help_User extends Class_Object {
 		'help',
 		'user'
 	);
-
 	public $has_one = array(
 		'help' => 'zesk\\Help',
 		'user' => 'zesk\\User'

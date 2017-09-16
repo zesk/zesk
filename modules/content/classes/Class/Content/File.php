@@ -14,19 +14,34 @@ namespace zesk;
  * @see Content_File
  */
 class Class_Content_File extends Class_Object {
+	/**
+	 * 
+	 * @var string
+	 */
+	public $id_column = "id";
+	
+	/**
+	 * 
+	 * @var array
+	 */
 	public $column_types = array(
-		"ID" => self::type_id,
-		"MIMEType" => self::type_string,
-		"Original" => self::type_string,
-		"Name" => self::type_string,
-		"Content_Data" => self::type_object,
-		"Description" => self::type_string,
-		"User" => self::type_object,
-		"Created" => self::type_created,
-		"Modified" => self::type_modified
+		"id" => self::type_id,
+		"mime" => self::type_string,
+		"original" => self::type_string,
+		"name" => self::type_string,
+		"data" => self::type_object,
+		"description" => self::type_string,
+		"user" => self::type_object,
+		"created" => self::type_created,
+		"modified" => self::type_modified
 	);
+	
+	/**
+	 * 
+	 * @var array
+	 */
 	public $has_one = array(
-		'Content_Data' => 'zesk\Content_Data',
-		'User' => 'zesk\User'
+		'data' => 'zesk\\Content_Data',
+		'user' => 'zesk\\User'
 	);
 }

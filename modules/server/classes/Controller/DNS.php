@@ -1,5 +1,4 @@
 <?php
-
 namespace zesk;
 
 /**
@@ -94,7 +93,7 @@ class Controller_DNS extends Controller_Template {
 	 */
 	private function run_test(Model_DNS $model) {
 		$this->application->modules->load("dns;diff");
-
+		
 		$lookup = trim(preg_replace("/[\r\n,;]+/", "\n", $model->lookup));
 		$lookup = preg_replace('/ +/', ' ', $lookup);
 		$lookup = arr::trim_clean(explode("\n", $lookup));
@@ -132,7 +131,6 @@ class Controller_DNS extends Controller_Template {
 		// 		$w->set_option('cols', 80);
 		// 		$w->suffix(HTML::tag('label', "One per line. Domain names, optionally prefixed by query type and a space."));
 		
-
 		// 		$model = new Model_DNS();
 		// 		$content = $control->execute($model);
 		// 		if ($model->valid) {

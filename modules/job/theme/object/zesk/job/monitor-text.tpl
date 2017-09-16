@@ -4,7 +4,6 @@ namespace zesk;
 /* @var $job Job */
 /* @var $object Job */
 /* @var $response Response_Text_HTML */
-
 $object->theme("scripts");
 
 $success = $this->success;

@@ -7,24 +7,35 @@
  * @copyright Copyright &copy; 2005, Market Acumen, Inc.
  */
 class Whois_Search extends Object {
-	protected $columns = array("ID", "Search", "TLDs");
+	protected $columns = array(
+		"ID",
+		"Search",
+		"TLDs"
+	);
 	protected $column_types = array();
-	protected $has_many = array("Queries" => array("class" => "Whois_Query"));
+	protected $has_many = array(
+		"Queries" => array(
+			"class" => "Whois_Query"
+		)
+	);
 	private $Extrapolated;
 	private $Matches;
 	private $TLDs;
-	
 	function __construct($value = null, $options = false) {
 		$this->Extrapolated = true;
 		$this->Matches = array();
 		
 		parent::__construct($value, $options);
 	}
-	
 	public static function character_codes() {
-		return array("~" => "aeiou", "#" => "0123456789", "!" => "bcdfghjklmnpqrstvwxyz", "?" => "abcdefghijklmnopqrstuvwxyz", "*" => "abcdefghijklmnopqrstuvwxyz0123456789-");
+		return array(
+			"~" => "aeiou",
+			"#" => "0123456789",
+			"!" => "bcdfghjklmnpqrstvwxyz",
+			"?" => "abcdefghijklmnopqrstuvwxyz",
+			"*" => "abcdefghijklmnopqrstuvwxyz0123456789-"
+		);
 	}
-	
 	private function multiply_match($add) {
 		$newMatches = array();
 		
@@ -37,7 +48,7 @@ class Whois_Search extends Object {
 		} else if (is_string($add)) {
 			$len = strlen($add);
 			foreach ($this->Matches as $match) {
-				for($i = 0; $i < $len; $i++) {
+				for ($i = 0; $i < $len; $i++) {
 					$newMatches[] = $match . substr($add, $i, 1);
 				}
 			}
@@ -47,17 +58,15 @@ class Whois_Search extends Object {
 		
 		$this->Matches = $newMatches;
 	}
-	
 	private function extend_match($add) {
 		if ($add === "") {
 			return;
 		}
 		$matchCount = count($this->Matches);
-		for($i = 0; $i < $matchCount; $i++) {
+		for ($i = 0; $i < $matchCount; $i++) {
 			$this->Matches[$i] = $this->Matches[$i] . $add;
 		}
 	}
-	
 	function _extrapolate($search) {
 		$this->Matches = array();
 		$this->Matches[] = "";
@@ -71,7 +80,7 @@ class Whois_Search extends Object {
 		
 		$len = strlen($search);
 		$build = "";
-		for($i = 0; $i < $len; $i++) {
+		for ($i = 0; $i < $len; $i++) {
 			$char = substr($search, $i, 1);
 			if (isset($keyLookup["$char"])) {
 				$this->extend_match($build);
@@ -87,6 +96,5 @@ class Whois_Search extends Object {
 		}
 		$this->multiply_match($this->getTLDs());
 	}
-
 }
 

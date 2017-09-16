@@ -16,7 +16,7 @@ class Class_Permission extends Class_Object {
 	 * @var string
 	 */
 	public $id_column = "id";
-
+	
 	/**
 	 * How to find one of these without an id?
 	 *
@@ -25,12 +25,12 @@ class Class_Permission extends Class_Object {
 	public $find_keys = array(
 		'name'
 	);
-
+	
 	/**
 	 * Special handling of columns
 	 *
 	 * @var array
-	*/
+	 */
 	public $column_types = array(
 		"id" => self::type_id,
 		"name" => self::type_string,
@@ -39,6 +39,5 @@ class Class_Permission extends Class_Object {
 		"hook" => self::type_string,
 		"options" => self::type_serialize
 	);
-
 	public $database_group = "User";
 }

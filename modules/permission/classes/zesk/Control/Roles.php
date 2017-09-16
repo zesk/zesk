@@ -1,5 +1,4 @@
 <?php
-
 namespace zesk;
 
 class Control_Roles extends Control_Checklist_Object {
@@ -8,7 +7,6 @@ class Control_Roles extends Control_Checklist_Object {
 	 * @var string
 	 */
 	protected $class = "zesk\\Role";
-	
 	public function initialize() {
 		parent::initialize();
 		

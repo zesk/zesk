@@ -43,9 +43,12 @@ class Test_Object extends Test_Unit {
 		$table = $object->table();
 		
 		$db = $object->database();
+		$options = array(
+			"follow" => true
+		);
 		$results = $this->application->schema_synchronize($db, array(
 			get_class($object)
-		));
+		), $options);
 		if (count($results) > 0) {
 			$db->query($results);
 		}

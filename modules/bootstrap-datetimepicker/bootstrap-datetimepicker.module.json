@@ -1,4 +1,4 @@
-{ 
+{
 	"name": "Bootstrap DateTime Picker",
 	"composer": {
 		"require": "eonasdan/bootstrap-datetimepicker"
@@ -6,6 +6,8 @@
 	"github": "eonasdan/bootstrap-datetimepicker",
 	"share_path": "vendor/eonasdan/bootstrap-datetimepicker/build/",
 	"strip_components": 1,
-	"depends": [ "moment" ],
+	"depends": [
+		"moment"
+	],
 	"module_class": "Module_Bootstrap_DateTimePicker"
 }

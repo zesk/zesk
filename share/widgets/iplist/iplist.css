@@ -2,27 +2,34 @@
 	float: left;
 	text-align: center;
 }
+
 .ip-list-widget .ip-list textarea {
 	width: 12em;
 	padding: 5px;
 }
+
 .ip-list-widget .ip-list label {
 	display: block;
 	clear: both;
 }
+
 .ip-list-widget .ip-list-errors textarea {
 	border: 1px solid red;
 }
+
 .ip-list-widget .ip-list-errors label {
 	color: red;
 	font-weight: bold;
 }
+
 .ip-list-widget {
 	height: auto;
 }
+
 .ip-list-textarea {
 	position: relative;
 }
+
 .ip-list-add {
 	bottom: 1em;
 	left: 1em;

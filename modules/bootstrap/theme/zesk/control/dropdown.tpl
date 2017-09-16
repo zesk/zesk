@@ -144,7 +144,6 @@ $html .= HTML::tag_close('ul');
 
 $html .= HTML::div_close(); // input-group-btn
 
-
 $input = HTML::input('hidden', $this->name, $this->value, array(
 	'id' => $this->id . "_input"
 ));

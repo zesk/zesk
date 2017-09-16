@@ -6,7 +6,6 @@
  * @author kent
  * @copyright Copyright &copy; 2014, Market Acumen, Inc.
  */
-
 namespace zesk;
 
 /**
@@ -18,7 +17,6 @@ class UTF8 {
 	public static function from_charset($mixed, $charset) {
 		return charset::to_utf8($mixed, $charset);
 	}
-
 	public static function to_iso8859($mixed) {
 		if (is_array($mixed)) {
 			foreach ($mixed as $k => $v) {

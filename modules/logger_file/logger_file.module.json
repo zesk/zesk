@@ -1,5 +1,5 @@
 {
-	"name":"Logger_File",
+	"name": "Logger_File",
 	"autoload_options": {
 		"class_prefix": "zesk\\",
 		"lower": false

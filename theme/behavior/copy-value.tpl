@@ -1,7 +1,6 @@
 <?php
 // behavior/copy-value
 
-
 /* @var $response zesk\Response_Text_HTML */
 $response = $this->response;
 /* @var $widget Widget */

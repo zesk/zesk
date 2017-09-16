@@ -1,11 +1,11 @@
 <?php
 /**
- * $URL: https://code.marketacumen.com/zesk/trunk/classes/arr.inc $
+ * Array tools
+ * 
  * @package zesk
  * @subpackage system
  * @author kent
- * @copyright Copyright &copy; 2009, Market Acumen, Inc.
- *            Created on Wed Feb 03 01:41:11 EST 2010 01:41:11
+ * @copyright Copyright &copy; 2017, Market Acumen, Inc.
  */
 namespace zesk;
 

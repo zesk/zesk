@@ -150,7 +150,6 @@ class Directory extends Hookable {
 		unset($d);
 		return $destination;
 	}
-	
 	public static function is_empty($path) {
 		if (!is_dir($path)) {
 			return true;

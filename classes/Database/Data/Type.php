@@ -1,5 +1,4 @@
 <?php
-
 namespace zesk;
 
 abstract class Database_Data_Type {

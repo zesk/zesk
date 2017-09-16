@@ -31,10 +31,13 @@ class Language extends Object {
 		if (empty($dialect)) {
 			$dialect = null;
 		}
-		$lang_en = $application->query_select(__CLASS__)->what("name", "name")->where(array(
+		$lang_en = $application->query_select(__CLASS__)
+			->what("name", "name")
+			->where(array(
 			"code" => $language,
 			"dialect" => $dialect
-		))->one("name");
+		))
+			->one("name");
 		if ($lang_en) {
 			return Locale::translate("Locale:=$lang_en", $locale);
 		}

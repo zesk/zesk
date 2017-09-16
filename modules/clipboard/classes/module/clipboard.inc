@@ -1,5 +1,2 @@
 <?php
-
-class Module_Clipboard extends zesk\Module {
-
-}
+class Module_Clipboard extends zesk\Module {}

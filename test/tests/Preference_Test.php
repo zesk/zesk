@@ -42,6 +42,8 @@ class Preference_Test extends Test_Object {
 		$db->query($this->application->schema_synchronize($db, array(
 			$preference_class,
 			__NAMESPACE__ . "\\" . "Preference_Type"
+		), array(
+			"follow" => true
 		)));
 		
 		$user = new User($this->application, 1);

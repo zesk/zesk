@@ -1,27 +1,41 @@
 {
-  "name" : "zesk/zesk",
-  "description" : "The Zesk Application Framework",
-  "require" : {
-    "php" : ">=5.4.0",
-    "psr/log": "^1.0",
-    "components/jquery": "^3.2",
-    "psr/cache": "^1.0"
-  },
-  "require-dev" : {
-    "phpunit/phpunit" : "*",
-    "phpunit/php-invoker" : "*"
-  },
-  "authors" : [ {
-    "name" : "Kent Davidson"
-  } ],
-  "scripts" : {
-  },
-  "keywords" : [ "zesk", "application", "framework" ],
-  "autoload" : {
-    "files" : [ "autoload.php" ]
-  },
-  "bin" : [ "bin/zesk", "bin/zesk.sh", "bin/zesk-command.php" ],
-  "type" : "library",
-  "license" : "MIT",
-  "homepage" : "http://zesk.com"
+	"name": "zesk/zesk",
+	"description": "The Zesk Application Framework",
+	"require": {
+		"php": ">=5.4.0",
+		"psr/log": "^1.0",
+		"components/jquery": "^3.2",
+		"psr/cache": "^1.0"
+	},
+	"require-dev": {
+		"phpunit/phpunit": "*",
+		"phpunit/php-invoker": "*"
+	},
+	"authors": [
+		{
+			"name": "Kent Davidson"
+		}
+	],
+	"scripts": {
+		
+	},
+	"keywords": [
+		"zesk",
+		"application",
+		"framework"
+	],
+	"autoload": {
+		"files": [
+			"autoload.php"
+		]
+	},
+	"bin": [
+		"bin/zesk",
+		"bin/zesk.sh",
+		"bin/zesk-command.php",
+		"bin/php-find.sh"
+	],
+	"type": "library",
+	"license": "MIT",
+	"homepage": "http://zesk.com"
 }

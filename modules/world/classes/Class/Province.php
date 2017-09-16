@@ -8,9 +8,7 @@ namespace zesk;
  */
 class Class_Province extends Class_Object {
 	public $id_column = "id";
-
 	public $name = "Province:=State";
-
 	public $column_types = array(
 		"id" => self::type_id,
 		"country" => self::type_object,

@@ -15,7 +15,7 @@ namespace zesk;
 class Account extends Object {
 	public function compute_balance() {
 		$query = $this->application->class_query("Account_Transaction", "X")->what("*Balance", "SUM(X.Amount)")->where("Account", $this);
-
+		
 		$this->Balance = doubleval($query->where("Reconciled", true)->one("Balance", 0));
 		$this->NewBalance = doubleval($query->where("Reconciled", false)->one("Balance", 0));
 		if ($this->changed()) {
@@ -58,7 +58,11 @@ class Account extends Object {
 		if ($this->payment_is_valid()) {
 			return $this->payment();
 		}
-		$payments = $this->application->query_select("Payment")->where("IsValid", true)->where("Account", $this)->order_by("-Created")->object_iterator();
+		$payments = $this->application->query_select("Payment")
+			->where("IsValid", true)
+			->where("Account", $this)
+			->order_by("-Created")
+			->object_iterator();
 		foreach ($payments as $payment) {
 			/* @var $payment Payment */
 			$result = $payment->checkValid();
@@ -136,7 +140,7 @@ class Account extends Object {
 		}
 		return null;
 	}
-
+	
 	//	// TODO: Prior to billing, update IsBillable in Account
 	//	function referred_total_accounts($asOfDate=false)
 	//	{
@@ -230,7 +234,7 @@ class Account extends Object {
 		}
 		return $referrer->commission();
 	}
-
+	
 	//	private function _lastInvoiceQuery(Timestamp $fromDate=null)
 	//	{
 	//		$q = CModelClass::queryFromType("Invoice");
@@ -275,7 +279,7 @@ class Account extends Object {
 			"id" => $this->id()
 		));
 	}
-
+	
 	/**
 	 *
 	 * @param
@@ -286,7 +290,7 @@ class Account extends Object {
 	 */
 	function generateInvoiceParameters(Timestamp $billDate, $forceBillUnit = false) {
 		$p = new Invoice_Parameters($this, $billDate, $forceBillUnit);
-
+		
 		$now = Timestamp::now();
 		if ($billDate->difference($now, kTimeUnit_Day) >= 21) {
 			$p->messageAdd(__("Your account is behind in our billing, please note the effective date of this invoice. We appreciate your understanding!"));
@@ -323,14 +327,14 @@ class Account extends Object {
 		$c = $this->modelClass();
 		return $c->linkFindByOption("Billable");
 	}
-
+	
 	/*
 	 * Commissions and Invoices
 	 * @todo Fix this, rewrite
 	 */
 	private function _transactionQuery($invoiceID, $endDate) {
 		$accountID = $this->id();
-
+		
 		$q = Object::class_query("Account_Transaction");
 		$q->link("Account_Transaction_Type");
 		$q->link("Invoice");

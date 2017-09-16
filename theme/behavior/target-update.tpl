@@ -16,11 +16,9 @@ namespace zesk;
 
 // behavior/visibility
 
-
 // Options:
 // - hide_values
 // - show_values
-
 
 /* @var $response zesk\Response_Text_HTML */
 $response = $this->response;

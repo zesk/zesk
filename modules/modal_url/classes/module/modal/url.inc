@@ -1,6 +1,6 @@
 <?php
 class Module_Modal_URL extends zesk\Module_JSLib {
-
+	
 	/**
 	 *
 	 * @var array
@@ -8,7 +8,7 @@ class Module_Modal_URL extends zesk\Module_JSLib {
 	protected $jquery_ready = array(
 		'$.modal_url_ready();'
 	);
-
+	
 	/**
 	 * (non-PHPdoc)
 	 *

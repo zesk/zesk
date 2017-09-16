@@ -1,5 +1,4 @@
 <?php
-
 ?>Your system does not have the {command} utility in the path {path}. To fix:
 
 1. Check that it is installed

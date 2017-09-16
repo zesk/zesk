@@ -28,7 +28,6 @@ foreach ($this->children as $widget) {
 	} else {
 		$suffix[] = $widget;
 	}
-
 }
 
 /*

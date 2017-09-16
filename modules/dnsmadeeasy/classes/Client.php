@@ -1,5 +1,4 @@
 <?php
-
 namespace DNSMadeEasy;
 
 use zesk\Exception_Configuration;

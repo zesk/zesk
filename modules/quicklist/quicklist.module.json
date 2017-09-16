@@ -1,4 +1,6 @@
 {
-	"name":"QuickList",
-	"requires": ["underscorejs"]
+	"name": "QuickList",
+	"requires": [
+		"underscorejs"
+	]
 }

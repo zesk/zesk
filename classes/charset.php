@@ -8,17 +8,13 @@
  * @author kent
  * @copyright Copyright &copy; 2014, Market Acumen, Inc.
  */
-
 namespace zesk;
 
 use \DirectoryIterator;
 
 class charset {
-
 	private static $tables = array();
-
 	public static $debug = false;
-
 	public static function to_utf8($data, $charset) {
 		if (is_array($data)) {
 			foreach ($data as $k => $v) {
@@ -36,7 +32,7 @@ class charset {
 		$table = self::load_table($charset);
 		$length = strlen($data);
 		$result = "";
-		for($i = 0; $i < $length; $i++) {
+		for ($i = 0; $i < $length; $i++) {
 			$c = ord($data[$i]);
 			if (!array_key_exists($c, $table)) {
 				self::debug("Char $c not found in $charset");
@@ -55,7 +51,7 @@ class charset {
 		}
 		return $result;
 	}
-
+	
 	/**
 	 * Load a character set table
 	 *
@@ -88,9 +84,9 @@ class charset {
 		}
 		return self::$tables[$charset];
 	}
-
+	
 	/**
- 	 * Files are stored in ZESK_ROOT/etc/charset-data/
+	 * Files are stored in ZESK_ROOT/etc/charset-data/
 	 *
 	 * @param string $charset Charset path to return (optional)
 	 * @return string Path to charset files or individual charset file
@@ -98,14 +94,12 @@ class charset {
 	private static function charset_path($charset = null) {
 		return ZESK_ROOT . 'etc/charset-data/' . ($charset === null ? '' : strtolower($charset) . '.txt');
 	}
-
 	public static function supported($charset = null) {
 		if ($charset === null) {
 			return self::list_all();
 		}
 		return file_exists(self::charset_path($charset));
 	}
-
 	private static function list_all() {
 		$iter = new DirectoryIterator(self::charset_path());
 		$result = array();
@@ -124,7 +118,6 @@ class charset {
 		}
 		return $result;
 	}
-
 	private static function debug($message) {
 		if (self::$debug) {
 			zesk()->logger->debug($message);

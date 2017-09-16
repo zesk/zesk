@@ -135,7 +135,6 @@ foreach ($this->dropdown_menu as $code => $attributes) {
 $html .= HTML::tag_close('ul');
 $html .= HTML::div_close(); // input-group-btn
 
-
 echo HTML::div_open('.input-group');
 if ($side === "left") {
 	echo $html;
@@ -145,7 +144,6 @@ if ($side !== "left") {
 	echo $html;
 }
 echo HTML::div_close(); // input-group
-
 
 echo HTML::input('hidden', $this->dropdown_name, $dropdown_value, array(
 	'id' => $this->dropdown_id

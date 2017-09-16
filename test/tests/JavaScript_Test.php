@@ -23,7 +23,7 @@ class JavaScript_Test extends Test_Unit {
 		JavaScript::obfuscate_begin();
 		JavaScript::obfuscate_end(array());
 	}
-
+	
 	/**
 	 * @expectedException zesk\Exception_Semantics
 	 */
@@ -31,7 +31,7 @@ class JavaScript_Test extends Test_Unit {
 		JavaScript::obfuscate_begin();
 		JavaScript::obfuscate_begin();
 	}
-
+	
 	/**
 	 * @depends test_obfuscate_begin2
 	 * @expectedException zesk\Exception_Semantics

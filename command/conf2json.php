@@ -26,7 +26,6 @@ class Command_CONF2JSON extends Command_Iterator_File {
 		parent::initialize();
 	}
 	protected function start() {
-		
 	}
 	protected function process_file(SplFileInfo $file) {
 		$source_name = $file->getPathname();

@@ -13,9 +13,8 @@ namespace zesk;
 /* @var $request \zesk\Request */
 /* @var $response \zesk\Response_Text_HTML */
 /* @var $current_user \zesk\User */
-
 if ($response->content_type() === "text/html") {
-	echo HTML::tag("pre", implode("\n", $this->content));	
+	echo HTML::tag("pre", implode("\n", $this->content));
 } else {
 	echo arr::join_wrap($this->content, "    ", "\n");
 }

@@ -66,7 +66,7 @@ class Control_Forgot extends Control_Edit {
 	 * @var User
 	 */
 	private $auth_user = null;
-
+	
 	/**
 	 * 
 	 * @return \zesk\Widget[]|boolean[]

@@ -18,7 +18,6 @@ namespace zesk;
 /* @var $response \zesk\Response_Text_HTML */
 /* @var $current_user \User */
 /* @var $object \zesk\Contact_Other */
-
 echo HTML::div_open(".contact-other contact-view");
 echo $object->value;
 echo HTML::tag("label", $object->label);

@@ -6,7 +6,6 @@
  * @author Kent Davidson <kent@marketacumen.com>
  * @copyright Copyright &copy; 2014, Market Acumen, Inc.
  */
-
 namespace zesk;
 
 /**
@@ -20,23 +19,21 @@ abstract class Metafile extends Options {
 	 * @var Stream
 	 */
 	protected $stream = null;
-
+	
 	/**
 	 * Whether this is a big-endian or little-endian file format
 	 * @var boolean
 	 */
 	protected $big_endian = false;
-
+	
 	/**
 	 * Warnings
 	 * @var array
 	 */
 	protected $warnings = array();
-
 	function __construct(Stream $stream) {
 		$this->stream = $stream;
 	}
-
 	function read_byte($count = 1) {
 		assert($count > 0);
 		$data = $this->stream->read($count);
@@ -44,12 +41,11 @@ abstract class Metafile extends Options {
 			return ord($data[0]);
 		}
 		$result = array();
-		for($i = 0; $i < $count; $i++) {
+		for ($i = 0; $i < $count; $i++) {
 			$result[] = ord($data[$i]);
 		}
 		return $result;
 	}
-
 	function read_integer($size = 4, $count = 1) {
 		$offset = 0;
 		$data = $this->read_byte($size * $count);
@@ -81,7 +77,7 @@ abstract class Metafile extends Options {
 				break;
 			case 1:
 				return $data;
-			default:
+			default :
 				throw new Exception_Semantics("read_integer reads 1,2,4 byte integers");
 		}
 		if ($count === 1) {
@@ -89,9 +85,7 @@ abstract class Metafile extends Options {
 		}
 		return $result;
 	}
-
 	abstract function validate();
-
 	function warning($message = null) {
 		if ($message === null) {
 			return $this->warnings;

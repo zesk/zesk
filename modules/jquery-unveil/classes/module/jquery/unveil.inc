@@ -35,7 +35,6 @@ class Module_jQuery_Unveil extends Module_JSLib {
 		));
 		parent::initialize();
 	}
-	
 	public function img_alter(array $attributes, $content) {
 		if (isset($this->options['disabled']) && $this->options['disabled']) {
 			return null;

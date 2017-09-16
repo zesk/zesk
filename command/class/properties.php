@@ -26,11 +26,9 @@ class Command_Class_Properties extends Command_Base {
 		Class_Object::type_text => 'string',
 		Class_Object::type_id => 'integer'
 	);
-	
 	private function all_classes() {
 		return arr::key_value($this->application->all_classes(), null, "class");
 	}
-	
 	function run() {
 		$classes = array();
 		while ($this->has_arg()) {

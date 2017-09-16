@@ -7,26 +7,21 @@
  * @copyright Copyright &copy; 2009, Market Acumen, Inc.
  * Created on Wed Feb 24 15:47:45 EST 2010 15:47:45
  */
-
 namespace zesk;
 
 abstract class Import_Log extends Options implements \Iterator {
 	private $_filename;
 	private $_fp;
-	
 	protected $header_read_size = 1024;
 	protected $line_read_size = 10240;
-	
 	protected $current = null;
 	protected $valid = true;
 	protected $rewind_tell = 0;
 	protected $line_number = 0;
-	
 	function __construct($filename, $options = null) {
 		$this->_filename = $filename;
 		parent::__construct($options);
 	}
-	
 	final function open() {
 		if (is_resource($this->_fp)) {
 			return true;
@@ -41,7 +36,6 @@ abstract class Import_Log extends Options implements \Iterator {
 		}
 		return $this->read_header();
 	}
-	
 	final protected function read_header() {
 		if ($this->header_read_size <= 0) {
 			return true;
@@ -59,11 +53,9 @@ abstract class Import_Log extends Options implements \Iterator {
 		}
 		return true;
 	}
-	
 	protected function _read_header($header_data) {
 		return 0;
 	}
-	
 	protected function _read_line() {
 		$this->open();
 		$line = fgets($this->_fp, $this->line_read_size);
@@ -73,28 +65,22 @@ abstract class Import_Log extends Options implements \Iterator {
 		$this->line_number++;
 		return $line;
 	}
-	
 	abstract public function read_line();
-	
 	function rewind() {
 		$this->open();
 		fseek($this->_fp, $this->rewind_tell);
 		$this->line_number = 0;
 		$this->current = $this->read_line();
 	}
-	
 	function current() {
 		return $this->current;
 	}
-	
 	function key() {
 		return ftell($this->_fp);
 	}
-	
 	function next() {
 		$this->current = $this->read_line();
 	}
-	
 	function valid() {
 		return (!empty($this->current));
 	}

@@ -1,5 +1,4 @@
 <?php
-
 namespace zesk;
 
 /**
@@ -14,7 +13,6 @@ class Class_Session_Database extends Class_Object {
 	 * @var string
 	 */
 	public $id_column = "id";
-
 	public $find_keys = array(
 		"cookie"
 	);
@@ -34,11 +32,10 @@ class Class_Session_Database extends Class_Object {
 		"sequence_index" => self::type_integer,
 		"data" => self::type_serialize
 	);
-
 	public $code_name = "Session";
-
 	public $column_defaults = array(
 		'data' => array(),
-		'sequence_index' => 0
+		'sequence_index' => 0,
+		'ip' => '127.0.0.1'
 	);
 }

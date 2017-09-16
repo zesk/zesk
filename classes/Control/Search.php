@@ -10,11 +10,8 @@ namespace zesk;
  *
  */
 class Control_Search extends Control_Text {
-
 	protected $search_columns = array();
-
 	protected $options = array();
-
 	function search_columns($set = null) {
 		if ($set !== null) {
 			$this->search_columns = to_list($set);
@@ -22,11 +19,9 @@ class Control_Search extends Control_Text {
 		}
 		return $this->search_columns;
 	}
-
 	protected function defaults() {
 		$this->value($this->request->get($this->name()));
 	}
-
 	function hook_query(Database_Query_Select $query) {
 		$value = $this->value();
 		if ($value === "" || $value === null) {
@@ -49,7 +44,6 @@ class Control_Search extends Control_Text {
 			"q" => $value
 		)));
 	}
-
 	function theme_variables() {
 		return parent::theme_variables() + array(
 			'search_title' => $this->option('search_title')

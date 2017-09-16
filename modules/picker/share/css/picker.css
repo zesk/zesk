@@ -1,186 +1,245 @@
 .control-picker-state {
-  padding: 10px 0;
+	padding: 10px 0;
 }
+
 .control-picker-state .item {
-  color: #aaaaaa;
-  background-color: #ffffff;
-  border: 1px solid #aaaaaa;
-  display: block;
-  float: left;
-  border-radius: 10px;
-  padding: 5px 10px;
-  margin-right: 10px;
-  margin-bottom: 10px;
-  transition: border-color 0.3s;
-  transition: color 0.3s;
-  transition: background-color 0.3s;
+	color: #aaaaaa;
+	background-color: #ffffff;
+	border: 1px solid #aaaaaa;
+	display: block;
+	float: left;
+	border-radius: 10px;
+	padding: 5px 10px;
+	margin-right: 10px;
+	margin-bottom: 10px;
+	transition: border-color 0.3s;
+	transition: color 0.3s;
+	transition: background-color 0.3s;
 }
-.control-picker-state .item .checked,
-.control-picker-state .item .unchecked {
-  font-size: 3em;
-  position: absolute;
-  right: 10px;
-  top: 14px;
+
+.control-picker-state .item .checked, .control-picker-state .item .unchecked
+	{
+	font-size: 3em;
+	position: absolute;
+	right: 10px;
+	top: 14px;
 }
+
 .control-picker-state .item .checked {
-  display: none;
+	display: none;
 }
+
 .control-picker-state .item .unchecked {
-  display: block;
+	display: block;
 }
+
 .control-picker-state .item.selected {
-  border: 1px solid #000000;
-  background-color: #eeeeee;
-  color: #000000;
+	border: 1px solid #000000;
+	background-color: #eeeeee;
+	color: #000000;
 }
+
 .control-picker-state .item.selected .checked {
-  display: block;
+	display: block;
 }
+
 .control-picker-state .item.selected .unchecked {
-  display: none;
+	display: none;
 }
-.control-picker-state:before,
+
+.control-picker-state:before, .control-picker-state:after {
+	content: " ";
+	display: table;
+}
+
 .control-picker-state:after {
-  content: " ";
-  display: table;
+	clear: both;
 }
-.control-picker-state:after {
-  clear: both;
-}
+
 .control-picker-state.selectable {
-  padding: 10px 0;
+	padding: 10px 0;
 }
+
 .control-picker-state.selectable .item.selected-over {
-  background-color: #eeeeee;
+	background-color: #eeeeee;
 }
+
 .control-picker-state.selectable .item.selected-over .checked {
-  display: none;
+	display: none;
 }
+
 .control-picker-state.selectable .item.selected-over .unchecked {
-  display: block;
+	display: block;
 }
+
 .control-picker-state.selectable .item.unselected-over {
-  background-color: #eeeeee;
-  color: #000000;
+	background-color: #eeeeee;
+	color: #000000;
 }
+
 .control-picker-state.selectable .item.unselected-over .checked {
-  display: none;
+	display: none;
 }
+
 .control-picker-state.selectable .item.unselected-over .unchecked {
-  display: block;
+	display: block;
 }
+
 .control-picker-state.selectable .item.selected.selected-over {
-  color: #aaaaaa;
+	color: #aaaaaa;
 }
+
 .control-picker-state.selectable .item.selected.selected-over .checked {
-  display: block;
+	display: block;
 }
-.control-picker-state.selectable .item.selected.selected-over .unchecked {
-  display: none;
+
+.control-picker-state.selectable .item.selected.selected-over .unchecked
+	{
+	display: none;
 }
+
 .control-picker-state.selectable .item.selected.unselected-over {
-  color: #000000;
+	color: #000000;
 }
-.control-picker-state.selectable .item.selected.unselected-over .checked {
-  color: #000000;
-  display: block;
+
+.control-picker-state.selectable .item.selected.unselected-over .checked
+	{
+	color: #000000;
+	display: block;
 }
-.control-picker-state.selectable .item.selected.unselected-over .unchecked {
-  display: none;
+
+.control-picker-state.selectable .item.selected.unselected-over .unchecked
+	{
+	display: none;
 }
+
 .control-picker-selector .control-picker-none-selected {
-  font-size: 100%;
-  font-weight: bold;
-  border: 1px solid #EEE;
-  padding: 10px;
-  margin: 0 0 10px;
-  border-radius: 5px;
+	font-size: 100%;
+	font-weight: bold;
+	border: 1px solid #EEE;
+	padding: 10px;
+	margin: 0 0 10px;
+	border-radius: 5px;
 }
+
 .control-picker-selector .control-picker-results {
-  padding: 0;
+	padding: 0;
 }
+
 .control-picker-selector .control-picker-results .item {
-  color: #aaaaaa;
-  background-color: #ffffff;
-  border: 1px solid #aaaaaa;
-  display: block;
-  float: left;
-  border-radius: 10px;
-  padding: 5px 10px;
-  margin-right: 10px;
-  margin-bottom: 10px;
-  transition: border-color 0.3s;
-  transition: color 0.3s;
-  transition: background-color 0.3s;
+	color: #aaaaaa;
+	background-color: #ffffff;
+	border: 1px solid #aaaaaa;
+	display: block;
+	float: left;
+	border-radius: 10px;
+	padding: 5px 10px;
+	margin-right: 10px;
+	margin-bottom: 10px;
+	transition: border-color 0.3s;
+	transition: color 0.3s;
+	transition: background-color 0.3s;
 }
+
 .control-picker-selector .control-picker-results .item .checked,
-.control-picker-selector .control-picker-results .item .unchecked {
-  font-size: 3em;
-  position: absolute;
-  right: 10px;
-  top: 14px;
+	.control-picker-selector .control-picker-results .item .unchecked {
+	font-size: 3em;
+	position: absolute;
+	right: 10px;
+	top: 14px;
 }
+
 .control-picker-selector .control-picker-results .item .checked {
-  display: none;
+	display: none;
 }
+
 .control-picker-selector .control-picker-results .item .unchecked {
-  display: block;
+	display: block;
 }
+
 .control-picker-selector .control-picker-results .item.selected {
-  border: 1px solid #000000;
-  background-color: #eeeeee;
-  color: #000000;
+	border: 1px solid #000000;
+	background-color: #eeeeee;
+	color: #000000;
 }
-.control-picker-selector .control-picker-results .item.selected .checked {
-  display: block;
+
+.control-picker-selector .control-picker-results .item.selected .checked
+	{
+	display: block;
 }
-.control-picker-selector .control-picker-results .item.selected .unchecked {
-  display: none;
+
+.control-picker-selector .control-picker-results .item.selected .unchecked
+	{
+	display: none;
 }
+
 .control-picker-selector .control-picker-results .item.selected-over {
-  background-color: #eeeeee;
+	background-color: #eeeeee;
 }
-.control-picker-selector .control-picker-results .item.selected-over .checked {
-  display: none;
+
+.control-picker-selector .control-picker-results .item.selected-over .checked
+	{
+	display: none;
 }
-.control-picker-selector .control-picker-results .item.selected-over .unchecked {
-  display: block;
+
+.control-picker-selector .control-picker-results .item.selected-over .unchecked
+	{
+	display: block;
 }
+
 .control-picker-selector .control-picker-results .item.unselected-over {
-  background-color: #eeeeee;
-  color: #000000;
+	background-color: #eeeeee;
+	color: #000000;
 }
-.control-picker-selector .control-picker-results .item.unselected-over .checked {
-  display: none;
+
+.control-picker-selector .control-picker-results .item.unselected-over .checked
+	{
+	display: none;
 }
-.control-picker-selector .control-picker-results .item.unselected-over .unchecked {
-  display: block;
+
+.control-picker-selector .control-picker-results .item.unselected-over .unchecked
+	{
+	display: block;
 }
-.control-picker-selector .control-picker-results .item.selected.selected-over {
-  color: #aaaaaa;
+
+.control-picker-selector .control-picker-results .item.selected.selected-over
+	{
+	color: #aaaaaa;
 }
-.control-picker-selector .control-picker-results .item.selected.selected-over .checked {
-  display: block;
+
+.control-picker-selector .control-picker-results .item.selected.selected-over .checked
+	{
+	display: block;
 }
-.control-picker-selector .control-picker-results .item.selected.selected-over .unchecked {
-  display: none;
+
+.control-picker-selector .control-picker-results .item.selected.selected-over .unchecked
+	{
+	display: none;
 }
-.control-picker-selector .control-picker-results .item.selected.unselected-over {
-  color: #000000;
+
+.control-picker-selector .control-picker-results .item.selected.unselected-over
+	{
+	color: #000000;
 }
-.control-picker-selector .control-picker-results .item.selected.unselected-over .checked {
-  color: #000000;
-  display: block;
+
+.control-picker-selector .control-picker-results .item.selected.unselected-over .checked
+	{
+	color: #000000;
+	display: block;
 }
-.control-picker-selector .control-picker-results .item.selected.unselected-over .unchecked {
-  display: none;
+
+.control-picker-selector .control-picker-results .item.selected.unselected-over .unchecked
+	{
+	display: none;
 }
+
 .control-picker-selector .control-picker-results:before,
-.control-picker-selector .control-picker-results:after {
-  content: " ";
-  display: table;
+	.control-picker-selector .control-picker-results:after {
+	content: " ";
+	display: table;
 }
+
 .control-picker-selector .control-picker-results:after {
-  clear: both;
+	clear: both;
 }
 /*# sourceMappingURL=picker.css.map */

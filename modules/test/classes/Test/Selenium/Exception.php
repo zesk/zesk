@@ -27,6 +27,4 @@
  * @author     Bjoern Schotte <schotte at mayflower dot de>
  * @version    @package_version@
  */
-class Test_Selenium_Exception extends Exception
-{
-}
+class Test_Selenium_Exception extends Exception {}

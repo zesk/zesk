@@ -276,28 +276,24 @@ class Database_Test extends Test_Unit {
 		$db = $this->application->database_factory();
 		
 		$db->affected_rows();
-		echo basename(__FILE__) . ": success\n";
 	}
 	function test_auto_table_names() {
 		$db = $this->application->database_factory();
 		
 		$set = null;
 		$db->auto_table_names($set);
-		echo basename(__FILE__) . ": success\n";
 	}
 	function test_auto_table_names_options() {
 		$db = $this->application->database_factory();
 		
 		$set = null;
 		$db->auto_table_names_options($set);
-		echo basename(__FILE__) . ": success\n";
 	}
 	function test_auto_table_names_replace() {
 		$db = $this->application->database_factory();
 		
 		$sql = null;
 		$db->auto_table_names_replace($sql);
-		echo basename(__FILE__) . ": success\n";
 	}
 	function test_bytes_used() {
 		$db = $this->application->database_factory();
@@ -317,8 +313,6 @@ class Database_Test extends Test_Unit {
 		$this->assert(array_key_exists("Rows", $status));
 		$this->assert(array_key_exists("Data_length", $status));
 		$this->assert(array_key_exists("Index_length", $status));
-		
-		echo basename(__FILE__) . ": success\n";
 	}
 	function test_connect() {
 		$db = $this->application->database_factory();
@@ -326,12 +320,10 @@ class Database_Test extends Test_Unit {
 		$name = "";
 		$url = false;
 		$db->connect($name, $url);
-		echo basename(__FILE__) . ": success\n";
 	}
 	function test_reconnect() {
 		$db = $this->application->database_factory();
 		$db->reconnect();
-		echo basename(__FILE__) . ": success\n";
 	}
 	function test_query_one() {
 		$db = $this->application->database_factory();
@@ -358,8 +350,6 @@ class Database_Test extends Test_Unit {
 		$db->delete($table, $where, $dbname);
 		
 		$this->assert(intval($db->query_one("SELECT COUNT(*) AS X FROM $table", "X", 100)) === 1);
-		
-		echo basename(__FILE__) . ": success\n";
 	}
 	function test_dump() {
 		$db = $this->application->database_factory();
@@ -419,14 +409,11 @@ class Database_Test extends Test_Unit {
 			$caught = true;
 		}
 		$this->assert($caught === true);
-		
-		echo basename(__FILE__) . ": success\n";
 	}
 	function test_insert_id() {
 		$db = $this->application->database_factory();
 		
 		$db->insert_id();
-		echo basename(__FILE__) . ": success\n";
 	}
 	function test_query() {
 		$db = $this->application->database_factory();
@@ -443,8 +430,6 @@ class Database_Test extends Test_Unit {
 		
 		$sql = "UPDATE $table_name SET Foo=Foo+1";
 		$this->assert(is_bool($db->query($sql)));
-		
-		echo basename(__FILE__) . ": success\n";
 	}
 	function test_query_integer() {
 		$db = $this->application->database_factory();
@@ -455,7 +440,6 @@ class Database_Test extends Test_Unit {
 		$this->assert($db->query_integer($sql, "X", $default) === 23 * 54);
 		$this->assert($db->query_integer($sql, "Y", $default) === 0);
 		$this->assert($db->query_integer($sql, "Y", null) === null);
-		echo basename(__FILE__) . ": success\n";
 	}
 	function test_query_one1() {
 		$db = $this->application->database_factory();
@@ -478,8 +462,6 @@ class Database_Test extends Test_Unit {
 		$this->assert(intval($db->query_one($sql, "X", -1)) === $n * 100);
 		$sql = "SELECT MIN(Foo) AS X FROM $table_name";
 		$this->assert(intval($db->query_one($sql, "X", -1)) === 100);
-		
-		echo basename(__FILE__) . ": success\n";
 	}
 	function test_register() {
 		$db = $this->application->database_factory();
@@ -488,7 +470,6 @@ class Database_Test extends Test_Unit {
 		$url = null;
 		$is_default = false;
 		$db->register($name, $url, $is_default);
-		echo basename(__FILE__) . ": success\n";
 	}
 	
 	/**
@@ -504,15 +485,28 @@ class Database_Test extends Test_Unit {
 		$db = $this->application->database_factory();
 		
 		$name = __FUNCTION__;
-		$this->assert($db->release_lock($name) === false);
-		$this->assert($db->get_lock($name) === true);
-		$this->assert($db->get_lock($name) === true);
-		$this->assert($db->release_lock($name) === true);
-		$this->assert($db->release_lock($name) === false);
+		$this->assert_false($db->release_lock($name));
+		$this->assert_true($db->get_lock($name));
+		$this->assert_true($db->get_lock($name));
+		$this->assert_true($db->release_lock($name));
+		
+		$intversion = 0;
+		if ($db instanceof \MySQL\Database) {
+			$version = $db->version;
+			list($maj, $min, $patch, $rest) = explode(".", $version, 4) + array_fill(0, 4, 0);
+			$intversion = intval($maj) * 10000 + intval($min) * 100 + intval($patch);
+		}
+		if ($intversion >= 50700) {
+			$this->assert_true($db->release_lock($name));
+			$this->assert_false($db->release_lock($name));
+			$this->assert_false($db->release_lock($name));
+		} else {
+			$this->assert_false($db->release_lock($name));
+			$this->assert_false($db->release_lock($name));
+			$this->assert_false($db->release_lock($name));
+		}
 		
 		$this->assert($db->get_lock($name) === true);
-		
-		echo basename(__FILE__) . ": success\n";
 	}
 	function test_replace() {
 		$db = $this->application->database_factory();
@@ -590,12 +584,12 @@ class Database_Test extends Test_Unit {
 	`IsActive` = 'true',
 	Modified=UTC_TIMESTAMP()	 WHERE `ID` = '4';";
 		$state = null;
-		echo "OLD: $sql\n";
+		//echo "OLD: $sql\n";
 		$sql = Database::unstring($sql, $state);
 		$sql = strtr($sql, array(
 			"''" => "empty-string"
 		));
-		echo "NEW: $sql\n";
+		//echo "NEW: $sql\n";
 		$this->assert(strpos($sql, "'") === false);
 		
 		$state = null;
@@ -616,9 +610,9 @@ class Database_Test extends Test_Unit {
 	`IsActive` = 'true',
 	Modified=UTC_TIMESTAMP()	 WHERE `ID` = '4';";
 		$state = null;
-		echo "OLD: $sql\n";
+		//echo "OLD: $sql\n";
 		$new_sql = Database::unstring($sql, $state);
-		echo "NEW: $new_sql\n";
+		//echo "NEW: $new_sql\n";
 		$this->assert(strpos($new_sql, "'") === false);
 		$state = null;
 		$this->assert_equal(Database::restring(Database::unstring($sql, $state), $state), $sql);

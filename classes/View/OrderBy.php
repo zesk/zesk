@@ -82,7 +82,7 @@ class View_OrderBy extends View {
 		), $english);
 		$label = "<td nowrap=\"nowrap\">" . $a_tag . "</td>";
 		$sort = "<td align=\"center\"><div class=\"list-order-by-icon\">$sort_number<a href=\"" . $url . "\"><img src=\"" . $this->application->url("/share/zesk/images/sort/$sort_order.gif") . "\" alt=\"$sort_desc\" width=\"16\" height=\"16\" border=\"0\" /></a></div></td>";
-
+		
 		switch ($this->option("list_order_position")) {
 			case "top":
 				$content = $sort . "</tr><tr>" . $label;

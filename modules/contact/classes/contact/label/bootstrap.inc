@@ -6,110 +6,109 @@
  * @author kent
  * @copyright Copyright &copy; 2010, Market Acumen, Inc.
  */
-
 namespace zesk;
 
 class Contact_Label_Bootstrap {
 	public static function bootstrap() {
 		$labels = array(
 			array(
-				'Work', 
-				'work', 
+				'Work',
+				'work',
 				Contact_Label::LabelType_Phone
-			), 
+			),
 			array(
-				'Work', 
-				'work', 
+				'Work',
+				'work',
 				Contact_Label::LabelType_Email
-			), 
+			),
 			array(
-				'Work', 
-				'work', 
+				'Work',
+				'work',
 				Contact_Label::LabelType_Address
-			), 
+			),
 			array(
-				'Work', 
-				'work', 
+				'Work',
+				'work',
 				Contact_Label::LabelType_URL
-			), 
+			),
 			array(
-				'Home', 
-				'home', 
+				'Home',
+				'home',
 				Contact_Label::LabelType_Phone
-			), 
+			),
 			array(
-				'Home', 
-				'home', 
+				'Home',
+				'home',
 				Contact_Label::LabelType_Email
-			), 
+			),
 			array(
-				'Home', 
-				'home', 
+				'Home',
+				'home',
 				Contact_Label::LabelType_Address
-			), 
+			),
 			array(
-				'Home', 
-				'home', 
+				'Home',
+				'home',
 				Contact_Label::LabelType_URL
-			), 
+			),
 			array(
-				'Mobile', 
-				null, 
+				'Mobile',
+				null,
 				Contact_Label::LabelType_Phone
-			), 
+			),
 			array(
-				'Main', 
-				'work', 
+				'Main',
+				'work',
 				Contact_Label::LabelType_Phone
-			), 
+			),
 			array(
-				'Home fax', 
-				'home', 
+				'Home fax',
+				'home',
 				Contact_Label::LabelType_Phone
-			), 
+			),
 			array(
-				'Work fax', 
-				'work', 
+				'Work fax',
+				'work',
 				Contact_Label::LabelType_Phone
-			), 
+			),
 			array(
-				'Pager', 
-				null, 
+				'Pager',
+				null,
 				Contact_Label::LabelType_Phone
-			), 
+			),
 			array(
-				'Other', 
-				null, 
+				'Other',
+				null,
 				Contact_Label::LabelType_Phone
-			), 
+			),
 			array(
-				'Other', 
-				null, 
+				'Other',
+				null,
 				Contact_Label::LabelType_Email
-			), 
+			),
 			array(
-				'Other', 
-				null, 
+				'Other',
+				null,
 				Contact_Label::LabelType_Address
-			), 
+			),
 			array(
-				'Other', 
-				null, 
+				'Other',
+				null,
 				Contact_Label::LabelType_URL
-			), 
+			),
 			array(
-				'Homepage', 
-				'home', 
+				'Homepage',
+				'home',
 				Contact_Label::LabelType_URL
-			), 
+			),
 			array(
-				'Anniversary', 
-				null, 
+				'Anniversary',
+				null,
 				Contact_Label::LabelType_Date
-			), 
+			),
 			array(
-				'Birthday', 
-				null, 
+				'Birthday',
+				null,
 				Contact_Label::LabelType_Date
 			)
 		);
@@ -121,10 +120,10 @@ class Contact_Label_Bootstrap {
 			list($codename, $group_name, $type) = $arr;
 			$group_name = Contact_Label_Group::register_group($group_name);
 			$label = new Contact_Label(array(
-				'CodeName' => $codename, 
-				"Type" => $type, 
-				"Name" => $codename, 
-				"Account" => null, 
+				'CodeName' => $codename,
+				"Type" => $type,
+				"Name" => $codename,
+				"Account" => null,
 				"Group" => $group_name
 			));
 			if (!$label->exists()) {

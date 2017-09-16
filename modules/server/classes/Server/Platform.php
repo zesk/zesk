@@ -11,7 +11,7 @@ namespace zesk;
  *
  */
 abstract class Server_Platform extends Hookable {
-
+	
 	/**
 	 *
 	 * @var Application
@@ -23,63 +23,63 @@ abstract class Server_Platform extends Hookable {
 	 * @var array
 	 */
 	protected $shell_commands = array();
-
+	
 	/**
 	 * Configuration
 	 *
 	 * @var Server_Configuration
 	 */
 	public $config = array();
-
+	
 	/**
 	 * True when shell commands have to be recomputed
 	 *
 	 * @var boolean
 	 */
 	protected $_dirty_shell_commands = false;
-
+	
 	/**
 	 * Group of the root user
 	 */
 	protected $root_group = null;
-
+	
 	/**
 	 * Root user name
 	 */
 	protected $root_user = null;
-
+	
 	/**
 	 * Host name
 	 *
 	 * @var string
 	 */
 	protected $host_name = null;
-
+	
 	/**
 	 * Path to tools in the system
 	 *
 	 * @var string
 	 */
 	private $tool_path = null;
-
+	
 	/**
 	 *
 	 * @var array
 	 */
 	public $features = null;
-
+	
 	/**
 	 *
 	 * @var Server_Packager
 	 */
 	public $packager = null;
-
+	
 	/**
 	 *
 	 * @var Server_Files
 	 */
 	public $files = null;
-
+	
 	/**
 	 * List of paths to search for commands
 	 *
@@ -90,7 +90,7 @@ abstract class Server_Platform extends Hookable {
 		"/usr/bin"
 	);
 	protected $services = array();
-
+	
 	/**
 	 * Construct the platform object
 	 *
@@ -106,11 +106,11 @@ abstract class Server_Platform extends Hookable {
 		if ($this->root_user === null) {
 			throw new Exception_Unimplemented("\$this->root_user is null");
 		}
-
+		
 		if ($this->option_bool('awareness')) {
 			$this->awareness();
 		}
-
+		
 		$this->host_name = $this->option("host-name", php_uname('n'));
 	}
 	function name() {
@@ -139,7 +139,7 @@ abstract class Server_Platform extends Hookable {
 		$loader = Configuration_Parser::factory(File::extension($path), file_get_contents($path), $array_interface, $options);
 		return $result;
 	}
-
+	
 	/**
 	 * Initialize the file system object
 	 */
@@ -184,7 +184,7 @@ abstract class Server_Platform extends Hookable {
 		}
 		$this->tool_path = $this->option('tool_path', '/sbin');
 	}
-
+	
 	/**
 	 * Create a platform object based on the system we are on
 	 *
@@ -196,7 +196,7 @@ abstract class Server_Platform extends Hookable {
 		$platform = php_uname('s');
 		return $this->application->objects->factory(__CLASS__ . "_$platform", $options);
 	}
-
+	
 	/**
 	 * Test if a particular feature is available
 	 *
@@ -212,7 +212,7 @@ abstract class Server_Platform extends Hookable {
 			return false;
 		}
 	}
-
+	
 	/**
 	 *
 	 * @param unknown $path
@@ -229,7 +229,7 @@ abstract class Server_Platform extends Hookable {
 	 * @return Server_Packager
 	 */
 	abstract protected function packager();
-
+	
 	/**
 	 * Create a user in the operating system
 	 *
@@ -241,7 +241,7 @@ abstract class Server_Platform extends Hookable {
 	 *        	Additional options for user creation
 	 */
 	abstract public function user_create($user, $group, $home = null, $options = null);
-
+	
 	/**
 	 * Retrieve information about a particular user
 	 *
@@ -249,14 +249,14 @@ abstract class Server_Platform extends Hookable {
 	 * @return array
 	 */
 	abstract public function user($user);
-
+	
 	/**
 	 * Return the name of the current user
 	 *
 	 * @return string
 	 */
 	abstract public function user_current();
-
+	
 	/**
 	 * Retrieve the home directory of a user
 	 *
@@ -271,7 +271,7 @@ abstract class Server_Platform extends Hookable {
 	 * @return integer
 	 */
 	abstract public function user_id($user);
-
+	
 	/**
 	 * Retrieve the group id of a user
 	 *
@@ -279,7 +279,7 @@ abstract class Server_Platform extends Hookable {
 	 * @return integer
 	 */
 	abstract public function user_group_id($user);
-
+	
 	/**
 	 * Remove a user from the system
 	 *
@@ -287,7 +287,7 @@ abstract class Server_Platform extends Hookable {
 	 * @return boolean
 	 */
 	abstract public function user_delete($user);
-
+	
 	/**
 	 * Create a new group
 	 *
@@ -299,7 +299,7 @@ abstract class Server_Platform extends Hookable {
 	 *        	Additional options for group creation
 	 */
 	abstract public function group_create($group, $members = null, $options = null);
-
+	
 	/**
 	 * Retrieve information about a particular group
 	 *
@@ -308,7 +308,7 @@ abstract class Server_Platform extends Hookable {
 	 * @return array Group information
 	 */
 	abstract public function group($group);
-
+	
 	/**
 	 * Retrieve group id
 	 *
@@ -323,7 +323,7 @@ abstract class Server_Platform extends Hookable {
 	 * @return array list of members
 	 */
 	abstract public function group_members($group);
-
+	
 	/**
 	 * Delete a group
 	 *
@@ -331,7 +331,7 @@ abstract class Server_Platform extends Hookable {
 	 * @return boolean
 	 */
 	abstract public function group_delete($group);
-
+	
 	/**
 	 * Require a particular directory to exist
 	 *
@@ -368,7 +368,7 @@ abstract class Server_Platform extends Hookable {
 	public function validate_group_name($group) {
 		return preg_match('/^[a-z_][a-z0-9_-]*$/i', $group) !== 0 && strlen($group) <= 31;
 	}
-
+	
 	/**
 	 * The login name may be up to 31 characters long.
 	 * For compatibility with
@@ -385,7 +385,7 @@ abstract class Server_Platform extends Hookable {
 	public function validate_user_name($user) {
 		return preg_match('/^[a-z_][a-z0-9_-]*$/i', $user) !== 0 && strlen($user) <= 31;
 	}
-
+	
 	/**
 	 * Parse a user:group owner label and validate it
 	 *
@@ -406,7 +406,7 @@ abstract class Server_Platform extends Hookable {
 		}
 		return true;
 	}
-
+	
 	/**
 	 * Check if a user exists and register if it doesn't exist
 	 *
@@ -427,7 +427,7 @@ abstract class Server_Platform extends Hookable {
 		}
 		return $this->user_create($user, $group, $home, $shell, $uid);
 	}
-
+	
 	/**
 	 * Check if a group exists and create it if not found
 	 *
@@ -442,7 +442,7 @@ abstract class Server_Platform extends Hookable {
 		}
 		return $this->user_create($group, $members, $gid);
 	}
-
+	
 	/**
 	 * Does a group exist?
 	 *
@@ -457,7 +457,7 @@ abstract class Server_Platform extends Hookable {
 			return false;
 		}
 	}
-
+	
 	/**
 	 * Does a user exist?
 	 *
@@ -473,7 +473,7 @@ abstract class Server_Platform extends Hookable {
 			return false;
 		}
 	}
-
+	
 	/**
 	 * Does an owner exist
 	 *
@@ -492,7 +492,7 @@ abstract class Server_Platform extends Hookable {
 		}
 		return true;
 	}
-
+	
 	/**
 	 * The unadulterated host name
 	 *
@@ -519,7 +519,7 @@ abstract class Server_Platform extends Hookable {
 		// Then copy into here
 		$this->inherit_global_options($this->application);
 	}
-
+	
 	/**
 	 * Configure the platform
 	 */
@@ -527,9 +527,9 @@ abstract class Server_Platform extends Hookable {
 		$this->initialize_packager();
 		$this->initialize_config();
 		$this->initialize_files();
-
+		
 		$this->packager->configure();
-
+		
 		$this->call_hook("configure_features");
 		$feature_list = $this->config->feature_list();
 		$this->application->logger->debug("Feature list is {features}", array(
@@ -573,7 +573,7 @@ abstract class Server_Platform extends Hookable {
 			}
 		} while (true);
 	}
-
+	
 	/**
 	 * If not root, throw an error
 	 *
@@ -585,7 +585,7 @@ abstract class Server_Platform extends Hookable {
 		}
 		return $this;
 	}
-
+	
 	/**
 	 * If root, throw an error
 	 *
@@ -637,7 +637,7 @@ abstract class Server_Platform extends Hookable {
 		}
 		return map($command, $args);
 	}
-
+	
 	/**
 	 * Shell command formatting (variable arguments)
 	 *
@@ -654,7 +654,7 @@ abstract class Server_Platform extends Hookable {
 		array_shift($args);
 		return $this->_format_command($command, $args);
 	}
-
+	
 	/**
 	 * Run a shell command and return the first line returned.
 	 * Arguments passed as parameters.
@@ -669,7 +669,7 @@ abstract class Server_Platform extends Hookable {
 		$result = $this->exec_array($command, $args);
 		return avalue($result, 0, "");
 	}
-
+	
 	/**
 	 * Run a shell command and return the first line returned.
 	 * Arguments pased as an array.
@@ -683,7 +683,7 @@ abstract class Server_Platform extends Hookable {
 		$result = $this->exec_array($command, $arguments);
 		return avalue($result, 0, "");
 	}
-
+	
 	/**
 	 * Run a shell command and return output.
 	 * Arguments passed as parameters.
@@ -697,7 +697,7 @@ abstract class Server_Platform extends Hookable {
 		array_shift($args);
 		return $this->exec_array($command, $args);
 	}
-
+	
 	/**
 	 * Run a shell command and return output.
 	 * Arguments passed as array.
@@ -717,7 +717,7 @@ abstract class Server_Platform extends Hookable {
 		}
 		throw new Server_Exception_Command($return, $result);
 	}
-
+	
 	/**
 	 * Test if a shell command exists on the system, optionally testing it
 	 *
@@ -745,7 +745,7 @@ abstract class Server_Platform extends Hookable {
 		}
 		return false;
 	}
-
+	
 	/**
 	 * Set owner of a file in the system
 	 *
@@ -816,7 +816,7 @@ abstract class Server_Platform extends Hookable {
 		}
 		return $this->owner($path, $owner, $mode);
 	}
-
+	
 	/**
 	 * Replace a file in the system with contents of a string
 	 *
@@ -835,7 +835,7 @@ abstract class Server_Platform extends Hookable {
 		$this->apply_permissions($dest, $options);
 		return $this;
 	}
-
+	
 	/**
 	 * Replace a file in the system with another file
 	 *
@@ -855,7 +855,7 @@ abstract class Server_Platform extends Hookable {
 		$this->apply_permissions($dest, $options);
 		return $this;
 	}
-
+	
 	/**
 	 * Map contents of a string with the configuration variables
 	 *
@@ -872,7 +872,7 @@ abstract class Server_Platform extends Hookable {
 		}
 		return $contents;
 	}
-
+	
 	/**
 	 * Return default map
 	 *
@@ -882,7 +882,7 @@ abstract class Server_Platform extends Hookable {
 		$variables = $this->config->variables();
 		return $variables;
 	}
-
+	
 	/**
 	 *
 	 * @param string $source
@@ -1045,7 +1045,7 @@ abstract class Server_Platform extends Hookable {
 		$this->initialize();
 		return $this->config->host_aliases();
 	}
-
+	
 	/**
 	 * Retrieve the volume short name given the volume's path
 	 *

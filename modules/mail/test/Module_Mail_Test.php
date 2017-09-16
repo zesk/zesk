@@ -22,6 +22,11 @@ class Module_Mail_Test extends Test_Unit {
 	);
 	function initialize() {
 		parent::initialize();
+		$database = $this->application->database_factory();
+		$this->assert_instanceof($database, "MySQL\\Database");
+		/* @var $database \MySQL\Database */
+// 		$database->set_option(\MySQL\Database::attribute_default_charset, \MySQL\Database::default_character_set);
+// 		$database->set_option(\MySQL\Database::attribute_collation, \MySQL\Database::default_collation);
 		$module = $this->application->modules->object("Mail");
 		$classes = $module->classes();
 		$this->log("Synchronizing schema of {classes}", array(
@@ -31,12 +36,10 @@ class Module_Mail_Test extends Test_Unit {
 			// TODO MySQL specific
 			$this->application->object_database($class)->query("DROP TABLE IF EXISTS " . $this->application->object_table_name($class));
 		}
-
-		$db = $this->application->database_factory();
-		$result = $this->application->schema_synchronize($db, $classes);
-		$db->query($result);
+		
+		$this->schema_synchronize($classes);
 	}
-
+	
 	/**
 	 */
 	function test_files() {

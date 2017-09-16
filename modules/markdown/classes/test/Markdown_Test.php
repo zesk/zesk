@@ -37,7 +37,7 @@ class Markdown_Test extends Test_Unit {
 				echo $diff->output();
 				file_put_contents($test . ".loaded", $html);
 				file_put_contents($test . ".computed", $result_html);
-				echo "bbdiff $test.loaded $test.computed\n";
+				echo "\nbbdiff $test.loaded $test.computed\n";
 				echo $bar;
 				$failed = true;
 				break;

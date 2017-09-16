@@ -119,7 +119,6 @@ class Image_Library_imagick extends Image_Library {
 		$cmd = map($cmd, $map);
 		
 		$result = false;
-		$this->debug_log("Running command: $cmd");
 		
 		$lastline = system($cmd, $result);
 		if ($result == 0 && file_exists($dest)) {

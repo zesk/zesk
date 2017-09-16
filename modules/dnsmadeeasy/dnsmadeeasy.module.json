@@ -1,7 +1,9 @@
 {
 	"name": "DNS Made Easy Integration",
-	"urls": { 
-		"http://www.dnsmadeeasy.com/integration/pdf/API-Docv2.pdf": "vendor/dnsmadeeasy/docs/" 
+	"urls": {
+		"http://www.dnsmadeeasy.com/integration/pdf/API-Docv2.pdf": "vendor/dnsmadeeasy/docs/"
 	},
-	"requires": [ "server" ]
+	"requires": [
+		"server"
+	]
 }

@@ -11,32 +11,32 @@ namespace zesk;
  * @author kent
  */
 class Process_Mock extends Hookable implements Interface_Process {
-
+	
 	/**
 	 * Done yet?
 	 *
 	 * @var boolean
 	 */
 	private $done = false;
-
+	
 	/**
 	 *
 	 * @var Timer
 	 */
 	private $timer = null;
-
+	
 	/**
 	 *
 	 * @var integer
 	 */
 	private $quit_after = null;
-
+	
 	/**
 	 *
 	 * @var Application
 	 */
 	private $application = null;
-
+	
 	/**
 	 * Construct our mock process
 	 *
@@ -49,7 +49,7 @@ class Process_Mock extends Hookable implements Interface_Process {
 		$this->timer = new Timer();
 		$this->quit_after = $this->option_integer("quit_after", 60); // 60 seconds should be good, right?
 	}
-
+	
 	/**
 	 * Getter/setter for application
 	 *
@@ -76,7 +76,7 @@ class Process_Mock extends Hookable implements Interface_Process {
 		}
 		return $this->call_hook_arguments('done', array(), $this->done);
 	}
-
+	
 	/**
 	 * Kill/interrupt this process.
 	 * Harsher than ->done(true);
@@ -86,7 +86,7 @@ class Process_Mock extends Hookable implements Interface_Process {
 	function kill() {
 		$this->done = true;
 	}
-
+	
 	/**
 	 * Terminate this process.
 	 * Nice way to do it.
@@ -94,7 +94,7 @@ class Process_Mock extends Hookable implements Interface_Process {
 	function terminate() {
 		$this->done = true;
 	}
-
+	
 	/**
 	 * Take a nap.
 	 * I love naps.
@@ -102,7 +102,7 @@ class Process_Mock extends Hookable implements Interface_Process {
 	function sleep($seconds = 1.0) {
 		usleep($seconds * 1000000);
 	}
-
+	
 	/**
 	 * Logging tool for processes
 	 *

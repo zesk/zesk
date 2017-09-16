@@ -54,5 +54,24 @@ class Mail_Header extends Object {
 		}
 		return $this->type->name();
 	}
+	function parse_attributes() {
+		$items = explode(";", $this->value);
+		if (count($items) == 0) {
+			return array();
+		}
+		$value = array_shift($items);
+		$attribs = array(
+			"value" => trim($value)
+		);
+		foreach ($items as $item) {
+			list($key, $value) = pair($item, "=", $item, true);
+			$key = trim($key);
+			if (is_string($value)) {
+				$value = unquote(trim($value));
+			}
+			$attribs[$key] = $value;
+		}
+		return $attribs;
+	}
 }
 

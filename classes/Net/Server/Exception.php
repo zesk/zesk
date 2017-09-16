@@ -8,6 +8,4 @@
  */
 namespace zesk;
 
-class Net_Server_Exception extends Exception {
-	
-}
+class Net_Server_Exception extends Exception {}

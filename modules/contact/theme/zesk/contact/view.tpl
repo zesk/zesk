@@ -1,5 +1,4 @@
 <?php
-
 namespace zesk;
 
 $this->response->javascript('/share/zesk/jquery/jquery.overlabel.js');
@@ -98,7 +97,8 @@ foreach ($sections as $section => $variables) {
 	))->what('label_name', 'L.name')->where('contact', $id);
 	$values = $query->to_array();
 	if (count($values) > 0) {
-		?><div class="contact-section" id="contact-section-<?php echo $section?>"><?php
+		?><div class="contact-section"
+		id="contact-section-<?php echo $section?>"><?php
 		foreach ($values as $i => $data) {
 			$object = new $object_class($data);
 			echo $object->output(null, array(

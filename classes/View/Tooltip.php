@@ -14,16 +14,15 @@ namespace zesk;
  *
  */
 class View_Tooltip extends View {
-
 	function render() {
 		$this->response->jquery();
 		$this->response->javascript("/share/zesk/jquery/jquery.hoverIntent.js");
 		$this->response->javascript("/share/zesk/jquery/jquery.corners.min.js");
 		$this->response->javascript("/share/zesk/widgets/hoverbubble/hoverbubble.js");
-
+		
 		$col = $this->column();
 		$id = "hover-bubble-" + $this->response->id_counter();
-
+		
 		/*
 		 *  sensitivity: 7, // number = sensitivity threshold (must be 1 or higher)
 		 *	interval: 100,   // number = milliseconds of polling interval
@@ -36,7 +35,6 @@ class View_Tooltip extends View {
 			"style" => "display: none"
 		), $this->value());
 	}
-
 	public static function tooltip($target_id, $content, array $opts = array()) {
 		$opts['target_id'] = $target_id;
 		$opts['column'] = 'data';

@@ -59,7 +59,7 @@ class Currency extends Object {
 	public function symbol_left() {
 		return begins($this->format, '{symbol}');
 	}
-
+	
 	/**
 	 * Get Euros
 	 *
@@ -106,7 +106,7 @@ class Currency extends Object {
 	function precision() {
 		return $this->member_integer("precision", 2);
 	}
-
+	
 	/**
 	 * Look up a Currency object based on its code
 	 *

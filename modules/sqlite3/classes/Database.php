@@ -1,5 +1,4 @@
 <?php
-
 namespace sqlite3;
 
 // PHP classes

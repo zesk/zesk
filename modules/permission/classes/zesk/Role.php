@@ -22,7 +22,10 @@ class Role extends Object {
 	 * @return integer
 	 */
 	static function root_id(Application $application) {
-		return $application->query_select(__CLASS__)->what('id')->where('is_root', true)->integer('id', null);
+		return $application->query_select(__CLASS__)
+			->what('id')
+			->where('is_root', true)
+			->integer('id', null);
 	}
 	/**
 	 *
@@ -30,9 +33,12 @@ class Role extends Object {
 	 * @return integer
 	 */
 	static function default_id(Application $application) {
-		return $application->query_select(__CLASS__)->what('id')->where('is_default', true)->integer('id', null);
+		return $application->query_select(__CLASS__)
+			->what('id')
+			->where('is_default', true)
+			->integer('id', null);
 	}
-
+	
 	/**
 	 *
 	 * @return boolean

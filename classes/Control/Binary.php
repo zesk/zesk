@@ -1,5 +1,4 @@
 <?php
-
 namespace zesk;
 
 class Control_Binary extends Control_Filter_Query {

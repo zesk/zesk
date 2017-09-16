@@ -1,9 +1,8 @@
 <?php
-
 namespace zesk;
 
 abstract class Image_Library {
-
+	
 	/**
 	 *
 	 * @return NULL|Image_Library
@@ -36,10 +35,9 @@ abstract class Image_Library {
 		}
 		return null;
 	}
-
 	const width = "width";
 	const height = "height";
-
+	
 	/**
 	 * Scale an image and save to disk
 	 *
@@ -49,7 +47,7 @@ abstract class Image_Library {
 	 * @return boolean
 	 */
 	abstract function image_scale($source, $dest, array $options);
-
+	
 	/**
 	 * Scale an image in memory
 	 *
@@ -58,7 +56,7 @@ abstract class Image_Library {
 	 * @return string
 	 */
 	abstract function image_scale_data($data, array $options);
-
+	
 	/**
 	 * Rotate
 	 * @param unknown $source
@@ -67,10 +65,10 @@ abstract class Image_Library {
 	 * @param array $options
 	 */
 	abstract function image_rotate($source, $destination, $degrees, array $options = array());
-
+	
 	/**
 	 * Scale an image size to be within a rectangle specified
-
+	 
 	 * @param integer $image_width
 	 * @param integer $image_height
 	 * @param integer $width
@@ -99,5 +97,4 @@ abstract class Image_Library {
 			);
 		}
 	}
-
 }

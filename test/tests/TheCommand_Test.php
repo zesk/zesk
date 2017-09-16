@@ -36,8 +36,8 @@ class TheCommand_Test extends Test_Unit {
 		
 		$this->assert_equal($file, $f, "File option mismatch ($file !== $f) found: " . _dump($testx));
 		
-// 		$message = null;
-// 		$testx->usage($message);
+		// 		$message = null;
+		// 		$testx->usage($message);
 		
 		$testx->arguments_remaining();
 		

@@ -7,7 +7,6 @@
  * @copyright Copyright &copy; 2009, Market Acumen, Inc.
  * Created on Wed Feb 24 15:47:45 EST 2010 15:47:45
  */
-
 namespace zesk;
 
 /**
@@ -15,8 +14,7 @@ namespace zesk;
  * @author kent
  *
  */
-abstract class Import_Log_WebServer extends Import_Log
-{
+abstract class Import_Log_WebServer extends Import_Log {
 	const IP = "IP";
 	const IP_Integer = "IP_Integer";
 	const User = "User";
@@ -40,22 +38,26 @@ abstract class Import_Log_WebServer extends Import_Log
 	const Request_User_Agent = "Request_User_Agent";
 	const Request_Referrer = "Request_Referrer";
 	const Request_Cookie = "Request_Cookie";
-
 	private $_filename;
 	private $_fp;
-
 	protected $header_read_size = 1024;
 	protected $line_read_size = 10240;
-
-	protected function derive_fields($result)
-	{
-		$int_keys = array(self::Response_Status, self::Response_Size, self::Request_Size, self::Server_Port);
+	protected function derive_fields($result) {
+		$int_keys = array(
+			self::Response_Status,
+			self::Response_Size,
+			self::Request_Size,
+			self::Server_Port
+		);
 		foreach ($int_keys as $int_key) {
 			if (array_key_exists($int_key, $result)) {
 				$result[$int_key] = to_integer($result[$int_key], $result[$int_key]);
 			}
 		}
-		if (!arr::has($result, self::DateTime) && arr::has($result, array(self::Date, self::Time))) {
+		if (!arr::has($result, self::DateTime) && arr::has($result, array(
+			self::Date,
+			self::Time
+		))) {
 			$result[self::DateTime] = $result[self::Date] . " " . $result[self::Time];
 		}
 		if (!array_key_exists(self::Request_Host, $result) && $this->has_option(self::Request_Host)) {
@@ -64,7 +66,11 @@ abstract class Import_Log_WebServer extends Import_Log
 		if (!array_key_exists(self::Server_Port, $result)) {
 			$result[self::Server_Port] = $this->option(self::Server_Port, 80);
 		}
-		if (!arr::has($result, self::Request_URL) && arr::has($result, array(self::Request_URI, self::Server_Port, self::Request_Host))) {
+		if (!arr::has($result, self::Request_URL) && arr::has($result, array(
+			self::Request_URI,
+			self::Server_Port,
+			self::Request_Host
+		))) {
 			$port = $result[self::Server_Port];
 			$parts['scheme'] = $this->option_bool("is_secure", ($port === 443)) ? "https" : "http";
 			$parts['host'] = $result[self::Request_Host];

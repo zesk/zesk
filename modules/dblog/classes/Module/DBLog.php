@@ -16,14 +16,14 @@ namespace zesk;
  *
  */
 class Module_DBLog extends Module implements Logger\Handler {
-
+	
 	/**
 	 * Cached log level
 	 *
 	 * @var integer
 	 */
 	private static $log_level = null;
-
+	
 	/**
 	 * Implements Module::classes
 	 *
@@ -44,7 +44,7 @@ class Module_DBLog extends Module implements Logger\Handler {
 			));
 		}
 	}
-
+	
 	/**
 	 * Implements Module::log_send()
 	 *
@@ -52,7 +52,7 @@ class Module_DBLog extends Module implements Logger\Handler {
 	 */
 	public function log($message, array $context) {
 		$application = $this->application;
-
+		
 		if (!array_key_exists("request_url", $context)) {
 			$context['request_url'] = $application->request()->url();
 		}
@@ -61,7 +61,7 @@ class Module_DBLog extends Module implements Logger\Handler {
 		} catch (Exception $e) {
 			return;
 		}
-
+		
 		$defaults = array(
 			'message' => "",
 			"user" => $user,

@@ -7,7 +7,6 @@
  * @copyright Copyright &copy; 2009, Market Acumen, Inc.
  * Created on Fri Feb 26 17:26:58 EST 2010 17:26:58
  */
-
 namespace xmlrpc;
 
 use zesk\Timestamp;

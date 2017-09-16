@@ -15,7 +15,6 @@ namespace zesk;
  *
  */
 class View_Text extends View {
-
 	function format($set = null) {
 		return $set === null ? $this->option('format') : $this->set_option('format', $set);
 	}
@@ -55,7 +54,7 @@ class View_Text extends View {
 				$this->response->javascript("/share/zesk/js/zesk.js", array(
 					'weight' => 'first'
 				));
-
+				
 				$my_id = HTML::id_counter();
 				$ellip = "<a onclick=\"ellipsis_toggle('$my_id')\">$ellip</a>";
 				$close_ellip = "<a onclick=\"ellipsis_toggle('$my_id')\">&lt;&lt;</a>";

@@ -16,7 +16,6 @@ class Control_Select_Object_Hierarchy extends Control_Select {
 	 * @var Class_Object
 	 */
 	public $class_object = null;
-
 	protected function initialize() {
 		if ($this->class === null) {
 			$this->class = $this->option('class', null);
@@ -44,29 +43,32 @@ class Control_Select_Object_Hierarchy extends Control_Select {
 		$idcolumn = $this->id_column();
 		$textcolumn = $this->text_column();
 		$parentcolumn = $this->parent_column();
-
+		
 		$order_by = $this->option("order_by", $textcolumn);
-
+		
 		$map = Object::class_query($this->class)->what(array(
 			"id" => $idcolumn,
 			"parent" => $parentcolumn,
 			"name" => $textcolumn
-		))->where($where)->order_by($order_by)->to_array();
-
+		))
+			->where($where)
+			->order_by($order_by)
+			->to_array();
+		
 		return $map;
 	}
 	function hook_options() {
 		$where = HTML::parse_attributes($this->option("where", ""));
 		$where = map($where, HTML::parse_attributes($this->option("default_map", "")));
-
+		
 		$idcolumn = $this->id_column();
 		$textcolumn = $this->text_column();
 		$parentcolumn = $this->parent_column();
-
+		
 		$map = $this->select_map($where);
-
+		
 		$format = $this->option("Format", "{" . $textcolumn . "}");
-
+		
 		$options = array();
 		foreach ($map as $row) {
 			$optgroup_name = map($format, $row);
@@ -75,7 +77,7 @@ class Control_Select_Object_Hierarchy extends Control_Select {
 		}
 		$this->options["options"] = $options;
 		$this->options["optgroup"] = true;
-
+		
 		return $options;
 	}
 }

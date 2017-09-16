@@ -121,6 +121,12 @@ class Session_Database extends Object implements Interface_Session {
 		$application->configuration->deprecated("zesk\\Session::cookie_expire_round");
 		$application->configuration->deprecated("zesk\Application::session::cookie::expire_round");
 	}
+	function hook_store() {
+		$ip = $this->member("ip");
+		if (!IPv4::valid($ip)) {
+			$this->set_member("ip", "127.0.0.1");
+		}
+	}
 	function store() {
 		$session = $this->application->session(false);
 		if (!$session instanceof self || $this->id() !== $session->id()) {
@@ -230,7 +236,6 @@ class Session_Database extends Object implements Interface_Session {
 		$expires = Timestamp::now()->add_unit($expire, Timestamp::UNIT_SECOND);
 		return $expires;
 	}
-
 	private function cookie_name() {
 		return $this->option_path("cookie.name", "ZCOOKIE");
 	}
@@ -291,11 +296,13 @@ class Session_Database extends Object implements Interface_Session {
 			->where('user', $user)
 			->execute();
 		$session = $app->object_factory(__CLASS__);
+		$ip = $user->application->request()->ip();
 		$session->set_member(array(
 			'cookie' => self::_generate_cookie(),
 			'is_one_time' => true,
 			'expires' => Timestamp::now()->add_unit($expire_seconds, Timestamp::UNIT_SECOND),
-			'user' => $user
+			'user' => $user,
+			'ip' => $ip
 		));
 		$session->really_store();
 		return $session;
@@ -457,7 +464,6 @@ class Session_Database extends Object implements Interface_Session {
 	public function cookie_options() {
 		return $this->option_array("cookie");
 	}
-	
 	
 	/**
 	 * Set sessions enabled or not (default are enabled)

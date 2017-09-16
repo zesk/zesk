@@ -17,7 +17,6 @@ namespace zesk;
  *
  */
 class View_Time_Zone extends View_Text {
-
 	function render() {
 		$pp = $this->option("format", null);
 		if ($pp === null) {

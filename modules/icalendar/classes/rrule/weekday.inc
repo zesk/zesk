@@ -1,4 +1,4 @@
-<?php 
+<?php
 /**
  * Implementation of iCalendar RRULE
  *

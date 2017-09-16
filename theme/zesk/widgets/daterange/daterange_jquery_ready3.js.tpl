@@ -1,5 +1,4 @@
 <?php
-
 $opts = $this->options;
 $opts['language'] = $this->language;
 

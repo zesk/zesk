@@ -71,10 +71,10 @@ class Autoloader {
 		// 			)
 		// 		));
 		$this->autoload_register();
-// 		$kernel->hooks->add(Hooks::hook_exit, array(
-// 			$this,
-// 			"save"
-// 		));
+		// 		$kernel->hooks->add(Hooks::hook_exit, array(
+		// 			$this,
+		// 			"save"
+		// 		));
 	}
 	
 	/**

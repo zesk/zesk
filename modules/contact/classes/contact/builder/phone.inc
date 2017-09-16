@@ -6,7 +6,6 @@
  * @author kent
  * @copyright Copyright &copy; 2010, Market Acumen, Inc.
  */
-
 namespace zesk;
 
 /**
@@ -20,7 +19,7 @@ class Contact_Builder_Phone extends Contact_Builder_Base {
 	 * @var string
 	 */
 	protected $contact_class = "zesk\\Contact_Phone";
-
+	
 	/**
 	 * 
 	 * {@inheritDoc}

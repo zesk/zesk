@@ -6,8 +6,8 @@
  * @author kent
  * @copyright Copyright &copy; 2009, Market Acumen, Inc.
  */
-
 namespace zesk;
+
 /**
  * 
  * @author kent

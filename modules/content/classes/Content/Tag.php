@@ -1,6 +1,4 @@
 <?php
 namespace zesk;
 
-class Content_Tag extends Object {
-	
-}
+class Content_Tag extends Object {}

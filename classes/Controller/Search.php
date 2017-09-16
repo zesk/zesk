@@ -10,7 +10,6 @@ namespace zesk;
  *
  */
 class Controller_Search extends Controller_Template {
-
 	protected function action_index() {
 		$query = $this->request->get('q');
 		$results = array();

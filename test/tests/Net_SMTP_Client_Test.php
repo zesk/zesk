@@ -18,15 +18,15 @@ class Net_SMTP_Client_Test extends Test_Unit {
 	function test_main() {
 		$url = $this->option("url");
 		if (!$url) {
-			throw new Exception_Configuration("No URL specified for " . __CLASS__);
+			$this->markTestIncomplete("No URL specified for " . __CLASS__);
 		}
 		$from = $this->option("from");
 		if (!$from) {
-			throw new Exception_Configuration("No from specified for " . __CLASS__);
+			$this->markTestIncomplete("No from specified for " . __CLASS__);
 		}
 		$to = $this->option("to");
 		if (!$to) {
-			throw new Exception_Configuration("No to specified for " . __CLASS__);
+			$this->markTestIncomplete("No to specified for " . __CLASS__);
 		}
 		
 		$options = array(

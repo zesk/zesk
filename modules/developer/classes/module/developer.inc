@@ -55,7 +55,7 @@ class Module_Developer extends Module implements Interface_Module_Routes {
 			$application->development($development);
 		}
 	}
-
+	
 	/**
 	 * Does the remote IP address match one of the list of IPs including netmasks?
 	 *
@@ -71,7 +71,7 @@ class Module_Developer extends Module implements Interface_Module_Routes {
 		}
 		return false;
 	}
-
+	
 	/**
 	 * Modify the Request to allow for mock headers
 	 *
@@ -100,7 +100,7 @@ class Module_Developer extends Module implements Interface_Module_Routes {
 	}
 	public function initialize() {
 		$zesk = $this->zesk;
-
+		
 		$zesk->hooks->add("zesk\\Application::configured", array(
 			$this,
 			'test_ip'
@@ -110,7 +110,7 @@ class Module_Developer extends Module implements Interface_Module_Routes {
 			'router_prematch'
 		));
 	}
-
+	
 	/**
 	 *
 	 * {@inheritdoc}
@@ -212,7 +212,7 @@ class Module_Developer extends Module implements Interface_Module_Routes {
 			)
 		) + $extras);
 	}
-
+	
 	/**
 	 *
 	 * @param Response $response
@@ -221,7 +221,7 @@ class Module_Developer extends Module implements Interface_Module_Routes {
 		$session = $app->session();
 		$response->json($session->get());
 	}
-
+	
 	/**
 	 *
 	 * @param Request $request
@@ -235,7 +235,7 @@ class Module_Developer extends Module implements Interface_Module_Routes {
 			));
 		}
 	}
-
+	
 	/**
 	 *
 	 * @param Application $app
@@ -256,7 +256,9 @@ class Module_Developer extends Module implements Interface_Module_Routes {
 		} else {
 			$db = $this->application->database_factory();
 		}
-		$results = $app->schema_synchronize($db, $classes);
+		$results = $app->schema_synchronize($db, $classes, array(
+			"follow" => false
+		));
 		$exception = null;
 		if ($request->get_bool("go")) {
 			try {

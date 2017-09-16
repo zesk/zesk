@@ -12,6 +12,5 @@
  */
 class iCalendar_Event extends iCalendar {
 	function __construct() {
-		
 	}
 }

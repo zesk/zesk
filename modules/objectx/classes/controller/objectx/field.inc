@@ -1,5 +1,4 @@
 <?php
-
 namespace zesk;
 
 /**
@@ -7,6 +6,4 @@ namespace zesk;
  * @author kent
  *
  */
-class Controller_ObjectX_Field extends Controller_Object {
-	
-}
+class Controller_ObjectX_Field extends Controller_Object {}

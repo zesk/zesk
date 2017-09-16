@@ -8,7 +8,6 @@
  * @subpackage kernel
  * @copyright Copyright &copy; 2012, Market Acumen, Inc.
  */
-
 namespace zesk;
 
 /**
@@ -17,28 +16,28 @@ namespace zesk;
  *
  */
 class Timer {
-
+	
 	/**
 	 * microtime of the time this timer was started
 	 * @see microtime
 	 * @var string
 	 */
 	private $start;
-
+	
 	/**
 	 * microtime of the time the function mark() was called
 	 * @see microtime
 	 * @var string
 	 */
 	private $last;
-
+	
 	/**
 	 * microtime of the time this timer was stopped
 	 * @see microtime
 	 * @var string
 	 */
 	private $stop;
-
+	
 	/**
 	 * Create a new Timer
 	 *
@@ -56,7 +55,7 @@ class Timer {
 		$this->start = $start + $offset;
 		$this->last = $this->start;
 	}
-
+	
 	/**
 	 * Convert legacy string microtime to double
 	 *
@@ -70,7 +69,7 @@ class Timer {
 		list($usec, $sec) = explode(" ", $value);
 		return ((double) $usec + (double) $sec);
 	}
-
+	
 	/**
 	 * Current time from microtime
 	 *
@@ -79,7 +78,7 @@ class Timer {
 	static function now() {
 		return microtime(true);
 	}
-
+	
 	/**
 	 * Stop the timer and return the total elapsed time
 	 *
@@ -89,7 +88,7 @@ class Timer {
 		$this->stop = self::now();
 		return $this->stop - $this->start;
 	}
-
+	
 	/**
 	 * Mark the time and return the time between the last mark and this mark
 	 *
@@ -99,10 +98,10 @@ class Timer {
 		$now = self::now();
 		$result = $now - $this->last;
 		$this->last = $now;
-
+		
 		return $result;
 	}
-
+	
 	/**
 	 * Current elapsed time (does not stop timer)
 	 *
@@ -111,8 +110,7 @@ class Timer {
 	function elapsed() {
 		return self::now() - $this->last;
 	}
-
-
+	
 	/**
 	 * Reset timer to zero
 	 */
@@ -131,7 +129,7 @@ class Timer {
 		$delta = $this->elapsed();
 		$elapsed = self::now() - $this->start;
 		$this->last = $now;
-
+		
 		$result = "";
 		if (!empty($comment)) {
 			$result .= "<strong>$comment</strong>: ";
@@ -144,7 +142,7 @@ class Timer {
 		}
 		return $result;
 	}
-
+	
 	/**
 	 * Echo the output
 	 *

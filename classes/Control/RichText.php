@@ -52,13 +52,11 @@ class Control_RichText extends Control_Text {
 		// echo "<h1>---HTML::clean_tags_attributes-------</h1>\n";
 		// dump($x);
 		
-
 		$allowed_tags = $this->option_list("allowed_tags", "strong;em;ul;li;h1;h2;h3;h4;h5;pre;a;blockquote;p;br;span;div");
 		$x = HTML::clean_tags($x, $allowed_tags);
 		// echo "<h1>---HTML::clean_tags-------</h1>\n";
 		// dump($x);
 		
-
 		$convert_tags = array(
 			"<br>" => "<br />"
 		);
@@ -66,7 +64,6 @@ class Control_RichText extends Control_Text {
 		// echo "<h1>---replace_map-------</h1>\n";
 		// dump($x);
 		
-
 		$x = HTML::trim_white_space($x);
 		
 		return $x;

@@ -1,5 +1,4 @@
 <?php
-
 namespace zesk;
 
 class Control_SortOrder extends Control {

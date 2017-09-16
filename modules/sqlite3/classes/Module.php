@@ -1,5 +1,4 @@
 <?php
-	
 namespace sqlite3;
 
 class Module extends \zesk\Module {

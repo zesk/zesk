@@ -31,7 +31,6 @@ $this->offset = $this->current = $offset = $object->offset;
 
 // Prevent child content to be output by render function
 
-
 $widget->content_children = "";
 
 if (!$this->always_show) {

@@ -194,7 +194,7 @@ class PHP {
 			$result .= str_repeat($this->indent_char, $indent_level * $this->indent_multiple) . $this->array_close_parenthesis_prefix . ")" . $this->array_close_parenthesis_suffix;
 			return $result;
 		} else if (is_string($x)) {
-			return '"' . addcslashes($x, "\"\\\0..\37") . '"';
+			return '"' . addcslashes($x, "\$\"\\\0..\37") . '"';
 		} else if (is_integer($x)) {
 			return "$x";
 		} else if ($x === null) {

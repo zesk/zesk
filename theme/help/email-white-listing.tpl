@@ -11,7 +11,6 @@ namespace zesk;
 /**
  * @param show_credit boolean Whether to show the credits or not
  */
-
 $emails_id = 0;
 
 $client_email = $this->client_email;

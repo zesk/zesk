@@ -1,5 +1,4 @@
-<?php 
-
+<?php
 namespace zesk;
 
 class AddMeUp extends \xmlrpc\Server {

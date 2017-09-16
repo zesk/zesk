@@ -10,7 +10,7 @@ if ($value instanceof Content_Image) {
 	echo $this->theme('content/image', array(
 		"object" => $value,
 		"width" => $this->width,
-		"height" => $this->height,
+		"height" => $this->height
 	));
 }
 $widget = $this->widget;

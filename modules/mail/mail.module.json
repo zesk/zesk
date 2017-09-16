@@ -1,10 +1,14 @@
 {
 	"name": "Mail module for storing mail in a database",
-	"depends": [ "content" ],
+	"requires": [
+		"Content"
+	],
 	"autoload_options": {
 		"class_prefix": "zesk\\",
-		"lower": true
+		"lower": false,
+		"extensions": [
+			"php"
+		]
 	},
-	"module_class": "zesk\\Module_Mail",
-	"requires": [ "Content" ]
+	"module_class": "zesk\\Module_Mail"
 }

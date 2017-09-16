@@ -19,7 +19,7 @@ class URL {
 		'query',
 		'fragment'
 	);
-
+	
 	/**
 	 * Query string parsing (case-sensitive)
 	 *
@@ -39,7 +39,7 @@ class URL {
 		}
 		return $res;
 	}
-
+	
 	/**
 	 * Case-insensitive query string parsing
 	 *
@@ -60,7 +60,7 @@ class URL {
 		}
 		return avalue($res, $name, $default);
 	}
-
+	
 	/**
 	 * Similar to parse_str.
 	 * Returns false if the query string or URL is empty. Because we're not parsing to
@@ -97,7 +97,7 @@ class URL {
 		}
 		return $urlVars;
 	}
-
+	
 	/**
 	 * Utility function for URL::query_parse.
 	 * Given a result array, a starting key, and a set of keys formatted like "[a][b][c]"
@@ -294,7 +294,7 @@ class URL {
 		}
 		return $newu . "?" . implode("&", $nq) . $m;
 	}
-
+	
 	/**
 	 * Does this URL have a reference parameter already?
 	 *
@@ -349,7 +349,7 @@ class URL {
 		$parts['query'] = avalue($_SERVER, 'QUERY_STRING', '');
 		return self::unparse($parts);
 	}
-
+	
 	/**
 	 *
 	 * @deprecated 2017-03
@@ -376,7 +376,7 @@ class URL {
 	public static function current_left_path() {
 		return self::left(self::current(), 'path');
 	}
-
+	
 	/**
 	 *
 	 * @deprecated 2017-03
@@ -385,7 +385,7 @@ class URL {
 	public static function current_is_secure() {
 		return self::is_secure(self::current());
 	}
-
+	
 	/**
 	 * Parse a URL without choking on non-URLs
 	 *
@@ -436,7 +436,7 @@ class URL {
 		}
 		return avalue($result, $component, $default);
 	}
-
+	
 	/**
 	 * Takes a URL or url parts (array) and adds useful variables helpful in generating URLs as
 	 * variables
@@ -464,26 +464,26 @@ class URL {
 		}
 		$scheme = strtolower($parts["scheme"]);
 		$url = $scheme . (($scheme === "mailto") ? ":" : "://");
-
+		
 		$temp = avalue($parts, "user");
 		if ($temp !== null) {
 			$url .= urlencode($temp);
-
+			
 			$temp = avalue($parts, "pass");
 			if ($temp !== null) {
 				$url .= ":" . urlencode($parts["pass"]);
 			}
-
+			
 			$url .= "@";
 		}
-
+		
 		$url .= strtolower(avalue($parts, "host"));
-
+		
 		$temp = intval(avalue($parts, "port"));
 		if ($temp && ($temp !== self::protocol_default_port($scheme))) {
 			$url .= ":" . $parts["port"];
 		}
-
+		
 		$temp = avalue($parts, "path");
 		if (!empty($temp)) {
 			if ($temp[0] !== '/') {
@@ -497,12 +497,12 @@ class URL {
 		if ($temp) {
 			$url .= "?" . $temp;
 		}
-
+		
 		$temp = avalue($parts, "fragment");
 		if ($temp) {
 			$url .= "#" . urlencode($temp);
 		}
-
+		
 		return $url;
 	}
 	public static function valid($url) {
@@ -538,7 +538,7 @@ class URL {
 		);
 		return avalue($protocols, strtolower($x), false);
 	}
-
+	
 	/**
 	 * Converts a URL into its normalized form for comparison.
 	 * The following is done:
@@ -563,20 +563,20 @@ class URL {
 			return false;
 		}
 		$proto = strtolower($proto);
-
+		
 		$host = avalue($p, 'host');
 		if (!empty($host)) {
 			$p['host'] = trim(strtolower(urldecode($host)));
 		}
-
+		
 		$p['scheme'] = $proto;
 		if ($proto !== "mailto") {
 			$p['path'] = avalue($p, 'path', '/');
 		}
-
+		
 		return self::unparse($p);
 	}
-
+	
 	/**
 	 * Return the left-hand portion of the URL up to the specified part
 	 *
@@ -613,7 +613,7 @@ class URL {
 		}
 		return self::unparse($new_parts);
 	}
-
+	
 	/**
 	 * Returns everything in the URL prior to the path, query string, and fragment
 	 * e.g.
@@ -629,7 +629,7 @@ class URL {
 	public static function left_host($u) {
 		return self::left($u, 'port');
 	}
-
+	
 	/**
 	 * Returns everything in the URL prior to the query string, and fragment
 	 * e.g.
@@ -645,7 +645,7 @@ class URL {
 	public static function left_path($u) {
 		return self::left($u, 'path');
 	}
-
+	
 	/**
 	 * Fix common issues with URL formatting, particularly when passed in via query strings, etc.
 	 *
@@ -674,7 +674,7 @@ class URL {
 		}
 		return $u;
 	}
-
+	
 	/**
 	 * Returns the scheme of the url
 	 *
@@ -688,7 +688,7 @@ class URL {
 		$result = self::parse($url, 'scheme');
 		return ($result === false) ? $default : strtolower($result);
 	}
-
+	
 	/**
 	 * Returns the host of a URL)
 	 *
@@ -702,7 +702,7 @@ class URL {
 		$result = self::parse($url, 'host');
 		return ($result === false) ? $default : $result;
 	}
-
+	
 	/**
 	 * Returns the query string of a URL (a=b&c=d)
 	 *
@@ -718,7 +718,7 @@ class URL {
 		}
 		return self::parse($url, 'query');
 	}
-
+	
 	/**
 	 * Returns the path of a URL (/path/to/index.php)
 	 *
@@ -732,7 +732,7 @@ class URL {
 		$result = self::parse($url, 'path');
 		return ($result === false) ? $default : $result;
 	}
-
+	
 	/**
 	 * Convert the current request URL and make it secure
 	 *
@@ -747,7 +747,7 @@ class URL {
 		}
 		return $u;
 	}
-
+	
 	/**
 	 * Change http://server1/whatever?qs=1#thinig to http://server2/whatever?qs=1#thinig
 	 *
@@ -769,7 +769,7 @@ class URL {
 		'ftp' => 'sftp',
 		'telnet' => 'ssh'
 	);
-
+	
 	/**
 	 * Returns true if the URL is secure (https)
 	 *
@@ -780,7 +780,7 @@ class URL {
 	public static function is_secure($url) {
 		return in_array(self::scheme($url, ""), array_values(self::$secure_protocols));
 	}
-
+	
 	/**
 	 * Returns true if the URL is secure (https)
 	 *
@@ -796,7 +796,7 @@ class URL {
 		$parts['scheme'] = avalue(self::$secure_protocols, $parts['scheme'], $parts['scheme']);
 		return self::unparse($parts);
 	}
-
+	
 	/**
 	 * Returns true if a url is an absolute URL (for testing href links)
 	 *
@@ -808,7 +808,7 @@ class URL {
 		$url = trim($url);
 		return begins($url, "https://", true) || begins($url, "http://", true);
 	}
-
+	
 	/**
 	 * Determines if TWO urls reside on the same "server"
 	 *
@@ -821,14 +821,14 @@ class URL {
 	public static function is_same_server($url1, $url2) {
 		$p1 = self::parse(strtolower($url1));
 		$p2 = self::parse(strtolower($url2));
-
+		
 		if (!is_array($p1) || !is_array($p2)) {
 			return false;
 		}
-
+		
 		$p1proto = avalue($p1, "scheme", "http");
 		$p2proto = avalue($p2, "scheme", "http");
-
+		
 		$p1port = avalue($p1, "port", self::protocol_default_port($p1proto));
 		$p2port = avalue($p2, "port", self::protocol_default_port($p2proto));
 		if (($p1proto == $p2proto) && (trim(avalue($p1, "host", "")) === trim(avalue($p2, "host", ""))) && ($p1port == $p2port)) {
@@ -836,7 +836,7 @@ class URL {
 		}
 		return false;
 	}
-
+	
 	/**
 	 * Given a page URL and a href that exists on the page, return the full URL of the href.
 	 * Handles relative, absolute, and full URL hrefs

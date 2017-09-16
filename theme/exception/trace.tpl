@@ -1,5 +1,4 @@
 <?php
-
 namespace zesk;
 
 $trace = $this->content;

@@ -1,6 +1,5 @@
 <?php
 namespace zesk;
 
-class Exception_Selenium extends Exception {
-}
+class Exception_Selenium extends Exception {}
 

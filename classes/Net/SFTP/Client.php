@@ -176,7 +176,7 @@ class Net_SFTP_Client extends Net_Client implements Net_FileSystem {
 			$this->stat_cache[$dir] = $listing = $this->ls($dir);
 		}
 		return avalue($listing, $file, array(
-			'type' => null, 
+			'type' => null,
 			'name' => $file
 		));
 	}
@@ -189,7 +189,7 @@ class Net_SFTP_Client extends Net_Client implements Net_FileSystem {
 		switch ($feature) {
 			case self::feature_mtime:
 				return true;
-			default:
+			default :
 				return false;
 		}
 	}

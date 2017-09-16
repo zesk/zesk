@@ -798,9 +798,7 @@ class Application extends Hookable implements Interface_Theme {
 	 */
 	final public function object_singleton($class) {
 		$args = func_get_args();
-		array_shift($args);
-
-		/* @var $zesk Kernel */
+		$args[0] = $this;
 		$object = $this->call_hook_arguments("singleton_$class", $args, null);
 		if ($object instanceof $class) {
 			return $object;
@@ -1284,7 +1282,13 @@ class Application extends Hookable implements Interface_Theme {
 	 */
 	public function schema_synchronize(Database $db = null, array $classes = null, array $options = array()) {
 		if ($this->objects !== $this->zesk->objects) {
-			die("App objects mismatch kernel " . __FILE__ . ":" . __LINE__);
+			// KMD: I assume this must have happened once and should not ever happen again.
+			// If it does it's a SNAFU
+			$this->logger->emergency("App objects mismatch kernel {file}:{line}", array(
+				"file" => __FILE__,
+				"line" => __LINE__
+			));
+			exit(131);
 		}
 		if (!$db) {
 			$db = $this->database_factory();

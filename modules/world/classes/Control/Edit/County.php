@@ -4,7 +4,6 @@ namespace zesk;
 class Control_Edit_County extends Control_Edit {
 	protected $options = array();
 	protected $class = __NAMESPACE__ . "\\" . "County";
-	
 	protected function initialize() {
 		parent::initialize();
 		$this->options['submit_redirect_message'] = __('"{object.name}" was saved.');

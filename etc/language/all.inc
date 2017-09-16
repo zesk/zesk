@@ -1,5 +1,4 @@
 <?php
-
 $tt['Language:=en_US'] = "English (US)";
 $tt['Language:=en_GB'] = "English (UK)";
 $tt['Language:=es_ES'] = "Spanish (Spain)";
@@ -143,12 +142,12 @@ $tt += array(
 	'Language:=Yoruba' => 'Yoruba',
 	'Language:=Chinese' => 'Chinese',
 	'Language:=Zulu' => 'Zulu',
-		
+	
 	'Language:=English (United States)' => 'English (United States)',
 	'Language:=English (Great Britain)' => 'English (Great Britain)',
 	'Language:=English (New Zealand)' => 'English (New Zealand)',
-		
+	
 	'Language:=French (Canada)' => 'French (Canada)',
-	'Language:=French (France)' => 'French (France)',
+	'Language:=French (France)' => 'French (France)'
 );
 return $tt;

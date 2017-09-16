@@ -18,7 +18,7 @@ namespace zesk;
  *
  */
 class Module_Cron extends Module {
-
+	
 	/**
 	 * List of associated classes
 	 *
@@ -29,14 +29,14 @@ class Module_Cron extends Module {
 		"zesk\\Lock",
 		"zesk\\Settings"
 	);
-
+	
 	/**
 	 * Database lock name
 	 *
 	 * @var string
 	 */
 	protected $lock_name = __CLASS__;
-
+	
 	/**
 	 * Debugging - place to accumulate called methods so we
 	 * can audit which methods are called by cron
@@ -44,14 +44,14 @@ class Module_Cron extends Module {
 	 * @var array
 	 */
 	private $methods = null;
-
+	
 	/**
 	 * Cached value for scopes
 	 *
 	 * @var array
 	 */
 	private $scopes = null;
-
+	
 	/**
 	 *
 	 * @var double
@@ -78,7 +78,7 @@ class Module_Cron extends Module {
 		"month",
 		"year"
 	);
-
+	
 	/**
 	 * Run this before each hook
 	 *
@@ -101,7 +101,7 @@ class Module_Cron extends Module {
 		$this->methods[] = $method_string;
 		$this->start = microtime(true);
 	}
-
+	
 	/**
 	 * Run this after each hook.
 	 * Handles timing and warnings. Passes to default Hookable::combine_hook_results.
@@ -187,7 +187,7 @@ class Module_Cron extends Module {
 			"content type" => "text/javascript"
 		));
 	}
-
+	
 	/**
 	 * Hook Module::configured
 	 */
@@ -230,7 +230,7 @@ class Module_Cron extends Module {
 		$classes = to_list($this->application->configuration->path_get(__CLASS__ . '::classes', 'zesk\Application;zesk\Object'));
 		return arr::suffix($classes, "::$method");
 	}
-
+	
 	/**
 	 * Retrieve the objects which store our state
 	 *
@@ -244,7 +244,7 @@ class Module_Cron extends Module {
 		$server = Server::singleton($application);
 		/* @var $settings Settings */
 		$settings = Settings::singleton($application);
-
+		
 		return $this->scopes = array(
 			"cron" => array(
 				"state" => $server,
@@ -274,7 +274,7 @@ class Module_Cron extends Module {
 			$state = $settings['state'];
 			/* @var $state Interface_Data */
 			$last_run = self::_last_cron_run($state);
-
+			
 			$status = $now->difference($last_run, "second") > 0;
 			$cron_hooks = $this->_cron_hooks($method);
 			$all_hooks = $hooks->find_all($cron_hooks);
@@ -295,7 +295,7 @@ class Module_Cron extends Module {
 		}
 		return $results;
 	}
-
+	
 	/**
 	 * Log an exception during a cron run
 	 *
@@ -318,7 +318,7 @@ class Module_Cron extends Module {
 		$hooks = $this->application->hooks;
 		$now = Timestamp::now();
 		$results = array();
-
+		
 		try {
 			$scopes = $this->_cron_scopes($this->application);
 		} catch (Exception $e) {
@@ -385,7 +385,7 @@ class Module_Cron extends Module {
 			$lock->release();
 		}
 	}
-
+	
 	/**
 	 * Run cron from a JavaScript request
 	 *
@@ -403,7 +403,7 @@ class Module_Cron extends Module {
 		$js[] = "}(window.zesk.settings));";
 		return arr::join_suffix($js, "\n");
 	}
-
+	
 	/**
 	 * Run cron
 	 *
@@ -411,25 +411,25 @@ class Module_Cron extends Module {
 	 */
 	public function run() {
 		$modules = $this->application->modules;
-
+		
 		$this->methods = array();
-
+		
 		$result = $modules->all_hook_arguments("cron_before", array(), true);
 		if ($result === false) {
 			$this->application->logger->error(__CLASS__ . "::cron_before return false");
 			return $this->methods;
 		}
-
+		
 		PHP::feature("time_limit", $this->option_integer("time_limit", 0));
 		self::_run();
-
+		
 		$modules->all_hook_arguments("cron_after", array(
 			$this->methods
 		));
-
+		
 		return $this->methods;
 	}
-
+	
 	/**
 	 * Update a page to enable it to run cron
 	 *
@@ -447,7 +447,7 @@ class Module_Cron extends Module {
 			'nocache' => true
 		));
 	}
-
+	
 	/**
 	 * Function to manage running cron hourly at a certain minute past the hour
 	 *
@@ -480,11 +480,11 @@ class Module_Cron extends Module {
 		 */
 		$last_run_setting = $prefix . 'hourly_last_run';
 		$last_check_setting = $prefix . 'hourly_last_check';
-
+		
 		$now = Timestamp::now();
 		$hour_minute = clone $now;
 		$hour_minute->minute($minute_to_hit)->second(0);
-
+		
 		$last_run = $settings->get($last_run_setting);
 		if ($last_run) {
 			$last_run = Timestamp::factory($last_run);
@@ -540,7 +540,7 @@ class Module_Cron extends Module {
 			throw new Exception_Parameter("Prefix mus be non-empty to daily_hour_of_day");
 		}
 		$settings = Settings::instance();
-
+		
 		$hour_to_hit = intval($hour_to_hit);
 		/*
 		 * last_check - last time this script checked if it should run
@@ -548,7 +548,7 @@ class Module_Cron extends Module {
 		 */
 		$last_run_setting = $prefix . 'daily_last_run';
 		$last_check_setting = $prefix . 'daily_last_check';
-
+		
 		$now = Timestamp::factory('now');
 		$today_hour = clone $now;
 		$today_hour->hour($hour_to_hit)->minute(0)->second(0);
@@ -597,17 +597,24 @@ class Module_Cron extends Module {
 	protected function hook_schema_updated() {
 		// Changed class structure on 2016-11-23
 		$update = $this->application->query_update("zesk\\Settings");
-		$nrows = $update->value("*name", "REPLACE(name, 'Module_Cron::', " . $update->database()->quote_text(__CLASS__ . "::") . ")")->where("name|LIKE", 'Module_Cron::%')->exec()->affected_rows();
+		$nrows = $update->value("*name", "REPLACE(name, 'Module_Cron::', " . $update->database()
+			->quote_text(__CLASS__ . "::") . ")")
+			->where("name|LIKE", 'Module_Cron::%')
+			->exec()
+			->affected_rows();
 		if ($nrows > 0) {
 			$this->application->logger->notice("Updated {nrows} settings to use new prefix {class}", array(
 				"nrows" => $nrows,
 				"class" => __CLASS__
 			));
 		}
-		$nrows = $this->application->query_delete("zesk\\Settings")->where("name|LIKE", array(
+		$nrows = $this->application->query_delete("zesk\\Settings")
+			->where("name|LIKE", array(
 			'Module_Cron::%',
 			'cron::%'
-		))->exec()->affected_rows();
+		))
+			->exec()
+			->affected_rows();
 		if ($nrows > 0) {
 			$this->application->logger->notice("{class}: Deleted {nrows} settings to using old prefixes", array(
 				"nrows" => $nrows,

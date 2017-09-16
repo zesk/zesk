@@ -1,5 +1,4 @@
 <?php
-
 namespace zesk;
 
 /**
@@ -21,7 +20,7 @@ class Selection_Item extends Object {
 	 * @var integer
 	 */
 	const type_add = 1;
-
+	
 	/**
 	 *
 	 * @param unknown $class
@@ -33,7 +32,7 @@ class Selection_Item extends Object {
 			return null;
 		}
 	}
-
+	
 	/**
 	 *
 	 * @param unknown $old_type
@@ -46,12 +45,18 @@ class Selection_Item extends Object {
 		unset($members['type']);
 		$what = arr::flip_copy(array_keys($members));
 		$what['*type'] = $new_type;
-		$application->query_insert_select(__CLASS__)->what($what)->where('type', $old_type)->execute();
+		$application->query_insert_select(__CLASS__)
+			->what($what)
+			->where('type', $old_type)
+			->execute();
 		foreach ($mapping as $old_query_id => $new_query_id) {
-			$application->query_update(__CLASS__)->value('query', $new_query_id)->where(array(
+			$application->query_update(__CLASS__)
+				->value('query', $new_query_id)
+				->where(array(
 				'query' => $old_query_id,
 				'type' => $new_type
-			))->execute();
+			))
+				->execute();
 		}
 	}
 	protected function hook_schema_update_alter(Database_Schema $schema, Database_Table $table, array $changes) {

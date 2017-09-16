@@ -15,36 +15,30 @@ namespace zesk;
  *
  */
 class Control_Timestamp extends Control {
-
 	protected $options = array(
 		"allow_times" => true
 	);
-
 	function future_only($set = null) {
 		if ($set !== null) {
 			return $this->set_option("data-future-only", to_bool($set));
 		}
 		return $this->option_bool('data-future-only');
 	}
-
 	function past_only($set = null) {
 		if ($set !== null) {
 			return $this->set_option("data-past-only", to_bool($set));
 		}
 		return $this->option_bool('data-past-only');
 	}
-
 	function allow_times($set = null) {
 		if ($set !== null) {
 			return $this->set_option("allow_times", to_bool($set));
 		}
 		return $this->option_bool('allow_times');
 	}
-
 	function time_control($set = null) {
 		return $set === null ? $this->option_bool('time_control') : $this->set_option('time_control', to_bool($set));
 	}
-
 	function load() {
 		parent::load();
 		$value = $this->value();
@@ -55,14 +49,12 @@ class Control_Timestamp extends Control {
 			$this->value($ts);
 		}
 	}
-
 	function null_string($set = null) {
 		if ($set !== null) {
 			return $this->set_option('null_string', $set);
 		}
 		return $this->option('null_string');
 	}
-
 	function validate() {
 		$value = $this->value();
 		if (!$value instanceof Timestamp && !is_date($value)) {
@@ -93,6 +85,5 @@ class Control_Timestamp extends Control {
 		}
 		return true;
 	}
-
 }
 

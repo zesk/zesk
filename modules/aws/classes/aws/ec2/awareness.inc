@@ -80,7 +80,6 @@ class AWS_EC2_Awareness extends Options {
 	 */
 	const default_cache_expire_seconds = 600; // 10 Minutes
 	
-
 	/**
 	 * 
 	 * @var Cache

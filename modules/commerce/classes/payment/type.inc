@@ -12,6 +12,5 @@ namespace zesk;
  * @author kent
  * @see Class_Payment_Type
  */
-class Payment_Type extends Object {
-}
+class Payment_Type extends Object {}
 

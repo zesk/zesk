@@ -1,10 +1,7 @@
 <?php
-
 namespace zesk;
 
-
 class Control_Button_Delete extends Control_Button {
-
 	protected $options = array(
 		'nolabel' => true
 	);
@@ -14,7 +11,6 @@ class Control_Button_Delete extends Control_Button {
 		}
 		return $this->user_can("delete", $this->object);
 	}
-
 	function theme_variables() {
 		/* @var $object Object */
 		$object = $this->object;
@@ -39,7 +35,6 @@ class Control_Button_Delete extends Control_Button {
 			'link_text' => $link_text
 		) + parent::theme_variables();
 	}
-
 	public function render() {
 		return $this->is_visible() ? parent::render() : "";
 	}

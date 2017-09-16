@@ -3,6 +3,7 @@
  * @see zesk\Control_Schedule
  */
 namespace zesk;
+
 /* @var $this \zesk\Template */
 /* @var $zesk \zesk\Kernel */
 /* @var $application \zesk\Application */

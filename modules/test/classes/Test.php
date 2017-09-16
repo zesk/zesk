@@ -125,6 +125,7 @@ class Test extends Options {
 			$this->application->modules->load($this->load_modules);
 		}
 	}
+	const PHP_ERROR_MARIAH = "PHP-ERROR";
 
 	/**
 	 * Make sure we're initialized with basic error reporting
@@ -136,7 +137,9 @@ class Test extends Options {
 			$inited = true;
 			error_reporting(E_ALL | E_STRICT);
 			ini_set("display_errors", true);
-			ini_set("error_prepend_string", "PHP-ERROR: ");
+			$line = str_repeat("=", 80) . "\n";
+			ini_set("error_prepend_string", $line . self::PHP_ERROR_MARIAH . ":\n");
+			ini_set("error_append_string", "\n" . $line);
 		}
 	}
 
@@ -490,12 +493,22 @@ class Test extends Options {
 			$test = $this->tests[$name];
 
 			if ($this->can_run_test($name)) {
-				$this->log(__("# Running {class}::{name}", array(
-					'class' => get_class($this),
-					'name' => $name
-				)));
+				// 				$this->log(__("# Running {class}::{name}", array(
+				// 					'class' => get_class($this),
+				// 					'name' => $name
+				// 				)));
 				$test->run();
 				$failed = avalue($this->test_status, $name) !== true;
+				if (!$failed) {
+					if (($offset = strpos($this->last_test_output, self::PHP_ERROR_MARIAH)) !== false) {
+						$this->log("Test output contained {mariah} at offset {n}", array(
+							"mariah" => self::PHP_ERROR_MARIAH,
+							"n" => $offset
+						));
+						$this->test_status[$name] = false;
+						$failed = true;
+					}
+				}
 				$this->log(__("# {class_test}: {status}", array(
 					'class_test' => Text::lalign("$class::$name", 80),
 					'status' => $failed ? 'FAIL' : 'OK'
@@ -844,7 +857,7 @@ class Test extends Options {
 	}
 	final protected function assert_equal($actual, $expected, $message = null, $strict = true) {
 		$this->stats['assert']++;
-		$message .= "\nassert_equal failed:\n  Actual: " . gettype($actual) . ": " . _dump($actual) . "\nExpected: " . gettype($expected) . ": " . _dump($expected);
+		$message .= "\nassert_equal failed:\n  Actual: " . gettype($actual) . ": " . $this->dump($actual) . "\nExpected: " . gettype($expected) . ": " . $this->dump($expected);
 		if (is_scalar($actual) && is_scalar($expected)) {
 			if (is_double($actual) && is_double($expected)) {
 				if (abs($actual - $expected) > 0.00001) {
@@ -867,7 +880,7 @@ class Test extends Options {
 	}
 	final protected function assert_not_equal($actual, $expected, $message = null, $strict = true) {
 		if ($message === null) {
-			$message = gettype($actual) . ": " . _dump($actual) . " === " . gettype($expected) . ": " . _dump($expected);
+			$message = gettype($actual) . ": " . $this->dump($actual) . " === " . gettype($expected) . ": " . $this->dump($expected);
 		}
 		if ($strict) {
 			$this->assert($actual !== $expected, $message);
@@ -877,16 +890,26 @@ class Test extends Options {
 	}
 	public final function assert_equal_object($actual, $expected, $message = "") {
 		$this->assert(get_class($actual) === get_class($expected), $message . "get_class(" . get_class($actual) . ") === get_class(" . get_class($expected) . ")");
-
-		$this->assert($actual == $expected, $message . "\n" . _dump($actual) . " !== " . _dump($expected));
+		$this->assert($actual == $expected, $message . "\n" . $this->dump($actual) . " !== " . $this->dump($expected));
+	}
+	/**
+	 * Central place to dump variables to output.
+	 * Use PHP output to facilitate generating tests whose output can be copied for first writing
+	 * and manual verification.
+	 *
+	 * @param mixed $value
+	 * @return string
+	 */
+	private function dump($value) {
+		return PHP::singleton()->settings_one()->render($value);
 	}
 	final protected function assert_equal_array($actual, $expected, $message = "", $strict = true, $order_matters = false) {
 		$this->stats['assert']++;
 		if (!is_array($actual)) {
-			$this->fail("$message: \$actual is not an array: " . _dump($actual, false));
+			$this->fail("$message: \$actual is not an array: " . $this->dump($actual, false));
 		}
 		if (!is_array($expected)) {
-			$this->fail("$message: \$expected is not an array: " . _dump($expected, false));
+			$this->fail("$message: \$expected is not an array: " . $this->dump($expected, false));
 		}
 		if (count($actual) !== count($expected)) {
 			$this->fail("$message: Arrays are diferent sizes: count(\$actual)=" . count($actual) . " count(\$expected)=" . count($expected));
@@ -919,10 +942,10 @@ class Test extends Options {
 	}
 	final protected function assert_array_contains($subset, $superset, $message = "") {
 		if (!is_array($subset)) {
-			$this->fail("$message: \$subset is not an array: " . _dump($subset, false));
+			$this->fail("$message: \$subset is not an array: " . $this->dump($subset, false));
 		}
 		if (!is_array($superset)) {
-			$this->fail("$message: \$superset is not an array: " . _dump($superset, false));
+			$this->fail("$message: \$superset is not an array: " . $this->dump($superset, false));
 		}
 		foreach ($subset as $k => $v) {
 			$this->assert(array_key_exists($k, $superset), "$message: Key exists in superset $k (subset value=$v)");
@@ -1165,9 +1188,10 @@ class Test extends Options {
 	 * Synchronize the given classes with the database schema
 	 *
 	 * @param list|string $classes
+	 * @param array $options
 	 * @return array[classname]
 	 */
-	public function schema_synchronize($classes) {
+	public function schema_synchronize($classes, array $options = array()) {
 		$app = $this->application;
 		$results = array();
 		foreach (to_list($classes) as $class) {
@@ -1175,6 +1199,8 @@ class Test extends Options {
 			$db = $class_object->database();
 			$results[$class] = $db->query($app->schema_synchronize($db, array(
 				$class
+			), $options + array(
+				"follow" => true
 			)));
 		}
 		return $results;

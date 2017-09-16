@@ -1,5 +1,4 @@
 <?php
-
 namespace zesk;
 
 class PHP_Test extends Test_Unit {
@@ -57,6 +56,48 @@ class PHP_Test extends Test_Unit {
 		
 		$c = false || array();
 		$this->assert_equal($c, false);
+	}
+	function data_provider_render() {
+		return array(
+			array(
+				false,
+				"false"
+			),
+			array(
+				true,
+				"true"
+			),
+			array(
+				null,
+				"null"
+			),
+			array(
+				0,
+				"0"
+			),
+			array(
+				0.123,
+				"0.123"
+			),
+			array(
+				"\$Hello",
+				"\"\\\$Hello\""
+			),
+			array(
+				array(
+					"1",
+					"2",
+					"3"
+				),
+				"array(\"1\", \"2\", \"3\" )"
+			)
+		);
+	}
+	/**
+	 * @dataProvider data_provider_render
+	 */
+	function test_render($test, $expected) {
+		$this->assert_equal(PHP::singleton()->settings_one()->render($test), $expected);
 	}
 	function test_php_references() {
 		$bigthing = array(

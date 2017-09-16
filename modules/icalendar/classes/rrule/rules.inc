@@ -13,7 +13,6 @@
  *
  * see module's README.txt for license information.
  */
-
 namespace RRule;
 
 use zesk\Timestamp;

@@ -12,17 +12,14 @@ class Net_HTTP_Server_Response {
 	public $status = Net_HTTP::Status_OK;
 	public $status_text = null;
 	public $headers = array();
-	
 	public $content = "";
 	public $filename = null;
 	public $file = null;
-	
 	function __construct() {
 		$this->header("Server", "Zesk Net_HTTP_Server 1.0");
 		//$this->header("Connection", "close");
 		$this->header("Date", gmdate("D, d M y H:i:s", time()) . " GMT");
 	}
-	
 	function __destruct() {
 		$this->close_file();
 	}
@@ -31,7 +28,7 @@ class Net_HTTP_Server_Response {
 			return;
 		}
 		if ($value === null) {
-			list ($name, $value) = pair($name, ":", $name, null);
+			list($name, $value) = pair($name, ":", $name, null);
 			if ($value === null) {
 				throw new Exception_Syntax("Incorrect header value: $name");
 			}
@@ -39,7 +36,6 @@ class Net_HTTP_Server_Response {
 		}
 		$this->headers[$name] = $value;
 	}
-	
 	function raw_headers() {
 		$raw_headers = array();
 		$status_text = ($this->status_text === null) ? avalue(Net_HTTP::$status_text, $this->status, "Unknown status") : $this->status_text;
@@ -56,11 +52,8 @@ class Net_HTTP_Server_Response {
 			}
 		}
 		return implode("\r\n", $raw_headers) . "\r\n\r\n";
-	
 	}
-	
-	function filename($filename=null)
-	{
+	function filename($filename = null) {
 		if ($filename === null) {
 			return $this->filename;
 		}
@@ -68,9 +61,7 @@ class Net_HTTP_Server_Response {
 		$this->content = "";
 		return $this;
 	}
-	
-	private function file_headers()
-	{
+	private function file_headers() {
 		if (!$this->filename) {
 			return;
 		}
@@ -79,7 +70,6 @@ class Net_HTTP_Server_Response {
 			$this->header("Content-Length", filesize($this->filename), true);
 		}
 	}
-	
 	function file() {
 		if ($this->file) {
 			return $this->file;
@@ -87,13 +77,12 @@ class Net_HTTP_Server_Response {
 		if ($this->filename) {
 			if (!file_exists($this->filename)) {
 				$this->status = Net_HTTP::Status_File_Not_Found;
-			}	
+			}
 			$this->file = fopen($this->filename, "r");
 			return $this->file;
 		}
 		return null;
 	}
-	
 	function close_file() {
 		if ($this->file) {
 			fclose($this->file);

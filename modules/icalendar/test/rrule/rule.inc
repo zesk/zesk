@@ -1,6 +1,5 @@
 <?php
 use zesk\Test_Unit;
-
 class Test_RRule_Rule extends Test_Unit {
 	protected $load_modules = array(
 		"icalendar"
@@ -28,7 +27,6 @@ class Test_RRule_Rule extends Test_Unit {
 			$this->assert_equal($actual, $expected, "intdiv(" . -$i . ", $b)");
 		}
 	}
-	
 	function test_divmod() {
 		//>>> for i in range(10):
 		//...   print divmod(-3, i+1);

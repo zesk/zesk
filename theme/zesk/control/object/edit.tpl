@@ -15,7 +15,6 @@ namespace zesk;
 /* @var $current_user \zesk\User */
 /* @var $object \zesk\Object */
 /* @var $widget Widget */
-
 if (!$request instanceof Request) {
 	$request = $application->request();
 }

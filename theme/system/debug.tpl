@@ -11,7 +11,6 @@ namespace zesk;
 /* @var $request \zesk\Router */
 /* @var $request \zesk\Request */
 /* @var $response \zesk\Response_Text_HTML */
-
 $session = $this->session;
 if (!$session) {
 	try {

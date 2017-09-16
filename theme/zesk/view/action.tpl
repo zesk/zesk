@@ -1,5 +1,4 @@
 <?php
-
 namespace zesk;
 
 /* @var $this \zesk\Template */

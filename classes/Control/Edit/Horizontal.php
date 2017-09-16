@@ -7,29 +7,25 @@ class Control_Edit_Horizontal extends Control_Edit {
 		"method" => "post",
 		"role" => "form"
 	);
-
 	protected $label_attributes = array();
-
 	protected $widget_attributes = array(
 		'class' => 'form-group'
 	);
-
 	protected $widget_wrap_tag = "div";
-
+	
 	/**
 	 * Optional wrap attributes for each widget
 	 *
 	 * @var array
 	 */
 	protected $widget_wrap_attributes = array();
-
+	
 	/**
 	 * Optional wrap attributes for each widget which have no label
 	 *
 	 * @var array
 	 */
 	protected $nolabel_widget_wrap_attributes = array();
-
 	protected function initialize() {
 		parent::initialize();
 		$ncols = $this->option('layout_column_count', 12);
@@ -39,5 +35,4 @@ class Control_Edit_Horizontal extends Control_Edit {
 		$this->widget_wrap_attributes = HTML::add_class($this->widget_wrap_attributes, "col-sm-$three_quarters");
 		$this->nolabel_widget_wrap_attributes = HTML::add_class($this->nolabel_widget_wrap_attributes, "col-sm-$ncols");
 	}
-
 }

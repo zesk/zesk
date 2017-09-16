@@ -50,8 +50,8 @@ $dev = $this->application->development();
 			"content" => $trace
 		));
 		?>
-	<?php 
-	} 
+	<?php
+	}
 	if ($this->suffix) {
 		echo HTML::tag("p", $this->suffix);
 	}

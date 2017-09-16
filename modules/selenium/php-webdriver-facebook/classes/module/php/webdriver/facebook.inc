@@ -1,5 +1,4 @@
 <?php
-
 namespace zesk;
 
 class Module_PHP_WebDriver_Facebook extends Module {

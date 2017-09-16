@@ -6,19 +6,16 @@
  * @author Kent Davidson <kent@marketacumen.com>
  * @copyright Copyright &copy; 2007, Market Acumen, Inc.
  */
-
-class sms
-{
-	public static function select_options()
-	{
+class sms {
+	public static function select_options() {
 		return array(
-			"phonenumber@tmomail.net" 				=> "T-Mobile",
-			"phonenumber@vmobl.com" 				=> "Virgin Mobile",
-			"phonenumber@cingularme.com" 			=> "Cingular",
-			"phonenumber@messaging.sprintpcs.com"	=> "Sprint",
-			"phonenumber@vtext.com"					=> "Verizon" ,
-			"phonenumber@messaging.nextel.com"		=> "Nextel",
-			"phonenumber@txt.att.net" 				=> "AT & T",
+			"phonenumber@tmomail.net" => "T-Mobile",
+			"phonenumber@vmobl.com" => "Virgin Mobile",
+			"phonenumber@cingularme.com" => "Cingular",
+			"phonenumber@messaging.sprintpcs.com" => "Sprint",
+			"phonenumber@vtext.com" => "Verizon",
+			"phonenumber@messaging.nextel.com" => "Nextel",
+			"phonenumber@txt.att.net" => "AT & T"
 		);
 	}
 }

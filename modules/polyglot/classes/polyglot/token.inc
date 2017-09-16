@@ -25,7 +25,7 @@ namespace zesk;
  * @property timestamp $updated
  */
 class PolyGlot_Token extends Object {
-
+	
 	/**
 	 *
 	 * @var Locale_Validate
@@ -37,42 +37,42 @@ class PolyGlot_Token extends Object {
 	 * @var string
 	 */
 	const status_todo = "todo";
-
+	
 	/**
 	 * Draft version of a token translation
 	 *
 	 * @var string
 	 */
 	const status_draft = "draft";
-
+	
 	/**
 	 * Developer needs to review
 	 *
 	 * @var string
 	 */
 	const status_dev = "dev";
-
+	
 	/**
 	 * Question about translation
 	 *
 	 * @var string
 	 */
 	const status_question = "question";
-
+	
 	/**
 	 * Done
 	 *
 	 * @var string
 	 */
 	const status_done = "done";
-
+	
 	/**
 	 * Delete
 	 *
 	 * @var string
 	 */
 	const status_delete = "delete";
-
+	
 	/**
 	 *
 	 * {@inheritdoc}
@@ -116,7 +116,7 @@ class PolyGlot_Token extends Object {
 		$token->status = ($status === null) ? self::status_todo : $status;
 		return $token;
 	}
-
+	
 	/**
 	 * Fetch all locale strings for the dialect/language
 	 *
@@ -160,7 +160,7 @@ class PolyGlot_Token extends Object {
 		$members['user'] = $this->member_integer("user");
 		return $members;
 	}
-
+	
 	/**
 	 *
 	 * @param string $locale
@@ -172,7 +172,7 @@ class PolyGlot_Token extends Object {
 			"language" => Locale::language($locale)
 		));
 	}
-
+	
 	/**
 	 *
 	 * @return string
@@ -187,7 +187,7 @@ class PolyGlot_Token extends Object {
 			"done" => "Translated"
 		));
 	}
-
+	
 	/**
 	 *
 	 * @param Application $app
@@ -200,12 +200,15 @@ class PolyGlot_Token extends Object {
 		foreach ($iterator as $id => $translation) {
 			$entities = htmlentities($translation);
 			if ($entities !== $translation) {
-				$app->query_update(__CLASS__)->value("translation", $entities)->where("id", $id)->exec();
+				$app->query_update(__CLASS__)
+					->value("translation", $entities)
+					->where("id", $id)
+					->exec();
 				$app->logger->debug("Updated #{id} {translation} to {entities}", compact("id", "translation", "entities"));
 			}
 		}
 	}
-
+	
 	/**
 	 *
 	 * @return Locale_Validate

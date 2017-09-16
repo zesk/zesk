@@ -6,7 +6,6 @@
  * @author Kent Davidson <kent@marketacumen.com>
  * @copyright Copyright &copy; 2010, Market Acumen, Inc.
  */
-
 namespace zesk;
 
 /**
@@ -45,30 +44,25 @@ class Net_HTTP_Client_Cookie {
 	 * @var boolean
 	 */
 	public $secure;
-
 	public function __construct($name, $value, $domain, $path, $expires = false, $secure = false) {
 		$this->name = $name;
 		$this->value = $value;
 		$this->domain = strtolower($domain);
 		$this->path = $path;
-
+		
 		$this->setExpires($expires);
-
+		
 		$this->secure = $secure ? true : false;
 	}
-
 	public function name() {
 		return $this->name;
 	}
-
 	public function value() {
 		return $this->value;
 	}
-
 	public function secure() {
 		return $this->secure;
 	}
-
 	public function setExpires($expires) {
 		if ($expires instanceof Timestamp) {
 			$this->expires = $expires->unix_timestamp();
@@ -76,18 +70,15 @@ class Net_HTTP_Client_Cookie {
 			$this->expires = $expires;
 		}
 	}
-
 	public function matches($domain, $path) {
 		return (strcasecmp($domain, $this->domain) === 0) && (strcasecmp($path, $this->path) === 0);
 	}
-
 	public function update($value, $expires = null) {
 		$this->value = $value;
 		if ($expires) {
 			$this->setExpires($expires);
 		}
 	}
-
 	function string() {
 		return $this->__toString();
 	}

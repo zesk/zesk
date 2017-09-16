@@ -2,7 +2,7 @@
 namespace zesk;
 
 class Control_Delete extends Control_Edit {
-
+	
 	/**
 	 * (non-PHPdoc)
 	 * @see Control_Edit::initialize()
@@ -16,7 +16,6 @@ class Control_Delete extends Control_Edit {
 		));
 		$this->set_option('title', $title);
 	}
-
 	public function submit() {
 		if (!$this->submit_children()) {
 			return false;

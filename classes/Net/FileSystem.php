@@ -1,5 +1,4 @@
 <?php
-
 namespace zesk;
 
 interface Net_FileSystem {

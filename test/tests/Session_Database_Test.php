@@ -16,7 +16,6 @@ class Session_Database_Test extends Test_Object {
 		$options = false;
 		$testx = new Session_Database($this->application, $value, $options);
 		
-		
 		$user = new User($this->application);
 		$user_table = $user->table();
 		
@@ -29,6 +28,8 @@ class Session_Database_Test extends Test_Object {
 		$db->query($this->application->schema_synchronize($db, array(
 			__NAMESPACE__ . "\\" . "User",
 			__NAMESPACE__ . "\\" . "Session_Database"
+		), array(
+			"follow" => true
 		)));
 		
 		//$this->test_an_object($testx, "ID");

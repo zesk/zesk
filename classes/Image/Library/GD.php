@@ -32,35 +32,35 @@ class Image_Library_GD extends Image_Library {
 	public static function installed() {
 		return function_exists("imagecreate");
 	}
-
+	
 	/*
 	 * TODO Remove this 2016-09
 	 * 
-	private function _image_transparency_setup($src, $dst) {
-		imagealphablending($dst, false);
-		
-		// get and reallocate transparency-color
-		$transparent_index = imagecolortransparent($src);
-		if ($transparent_index >= 0) {
-			$transparent_color = imagecolorsforindex($src, $transparent_index);
-			$transparent_index = imagecolorallocatealpha(dst, $transparent_color['red'], $transparent_color['green'], $transparent_color['blue'], 127);
-			imagefill($dst, 0, 0, $transparent_index);
-		}
-		return $transparent_index;
-	}
-	private function _image_transparency_finish($src, $dst, $state) {
-		imagealphablending($dst, false);
-		
-		// get and reallocate transparency-color
-		$transparent_index = imagecolortransparent($src);
-		if ($transparent_index >= 0) {
-			$transparent_color = imagecolorsforindex($src, $transparent_index);
-			$transparent_index = imagecolorallocatealpha(dst, $transparent_color['red'], $transparent_color['green'], $transparent_color['blue'], 127);
-			imagefill($dst, 0, 0, $transparent_index);
-		}
-		return $transparent_index;
-	}
-	*/
+	 private function _image_transparency_setup($src, $dst) {
+	 imagealphablending($dst, false);
+	 
+	 // get and reallocate transparency-color
+	 $transparent_index = imagecolortransparent($src);
+	 if ($transparent_index >= 0) {
+	 $transparent_color = imagecolorsforindex($src, $transparent_index);
+	 $transparent_index = imagecolorallocatealpha(dst, $transparent_color['red'], $transparent_color['green'], $transparent_color['blue'], 127);
+	 imagefill($dst, 0, 0, $transparent_index);
+	 }
+	 return $transparent_index;
+	 }
+	 private function _image_transparency_finish($src, $dst, $state) {
+	 imagealphablending($dst, false);
+	 
+	 // get and reallocate transparency-color
+	 $transparent_index = imagecolortransparent($src);
+	 if ($transparent_index >= 0) {
+	 $transparent_color = imagecolorsforindex($src, $transparent_index);
+	 $transparent_index = imagecolorallocatealpha(dst, $transparent_color['red'], $transparent_color['green'], $transparent_color['blue'], 127);
+	 imagefill($dst, 0, 0, $transparent_index);
+	 }
+	 return $transparent_index;
+	 }
+	 */
 	
 	/**
 	 *

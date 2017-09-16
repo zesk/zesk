@@ -1,10 +1,10 @@
 {
-    "name": "OpenLayers 3",
-    "url": "https://github.com/openlayers/openlayers/archive/v3.0.0.zip",
-    "source_url": "https://github.com/openlayers/openlayers/archive/master.zip",
-    "strip_components": 1,
-    "github": "openlayers/openlayers",
-    "destination": "vendor/components/openlayers",
-    "share_path": "vendor/components/openlayers",
-    "url_license": "https://raw.githubusercontent.com/openlayers/openlayers/master/LICENSE.md"
+	"name": "OpenLayers 3",
+	"url": "https://github.com/openlayers/openlayers/archive/v3.0.0.zip",
+	"source_url": "https://github.com/openlayers/openlayers/archive/master.zip",
+	"strip_components": 1,
+	"github": "openlayers/openlayers",
+	"destination": "vendor/components/openlayers",
+	"share_path": "vendor/components/openlayers",
+	"url_license": "https://raw.githubusercontent.com/openlayers/openlayers/master/LICENSE.md"
 }

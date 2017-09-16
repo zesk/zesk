@@ -25,7 +25,6 @@ class Controller_Image_Picker extends \zesk\Controller_Object {
 	function upload_theme_map(array $set = null) {
 		return $set === null ? $this->option_array('upload_theme_map', array()) : $this->set_option('upload_theme_map', $set);
 	}
-
 	function action_upload() {
 		$request = $this->request;
 		try {

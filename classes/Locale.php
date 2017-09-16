@@ -756,7 +756,7 @@ class Locale {
 		}
 		
 		$filename = path($path, $locale . '-auto.inc');
-		$csv_append = self::translation_file_append($filename, self::$locale_phrases);
+		$csv_append = self::translation_file_append($application, $filename, self::$locale_phrases);
 		$application->logger->debug("{class}::shutdown - Appended {n} entries to {filename}", array(
 			"filename" => $filename,
 			"n" => count($csv_append),

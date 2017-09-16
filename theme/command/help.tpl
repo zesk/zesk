@@ -13,7 +13,6 @@ namespace zesk;
 /* @var $request \zesk\Request */
 /* @var $response \zesk\Response_Text_HTML */
 /* @var $current_user \zesk\User */
-
 $aliases = to_array($this->aliases);
 $aliases = arr::flip_multiple($aliases);
 

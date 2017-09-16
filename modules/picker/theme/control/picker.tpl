@@ -38,7 +38,6 @@ foreach ($this->objects as $object) {
 // 	"nouns" => Locale::plural($this->class_object_name)
 // )));
 
-
 $list_attributes = HTML::to_attributes($this->list_attributes);
 $list_attributes['id'] = $list_id;
 $list_attributes = HTML::add_class($list_attributes, "control-picker-state class-" . strtolower($this->object_class));

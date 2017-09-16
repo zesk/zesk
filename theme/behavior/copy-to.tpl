@@ -1,11 +1,9 @@
 <?php
 // behavior/copy-to
 
-
 // Options:
 // - hide_values
 // - show_values
-
 
 /* @var $response zesk\Response_Text_HTML */
 $response = $this->response;

@@ -8,7 +8,6 @@ namespace zesk;
 /* @var $response Response_Text_HTML */
 /* @var $current_user User */
 /* @var $object Feed_Post */
-
 $link = $object->link;
 
 $title = $link ? HTML::tag('a', array(

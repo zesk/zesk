@@ -1,13 +1,13 @@
 {
-    "name": "jGrowl",
-    "url": "https://github.com/stanlemon/jGrowl/archive/master.zip",
-    "url_license": "https://raw.githubusercontent.com/stanlemon/jGrowl/master/LICENSE",
-    "strip_components": 1,
-    "destination": "vendor/components/jgrowl/",
-    "share_path": "vendor/components/jgrowl/",
-    "autoload_options": {
-    	"class_prefix": "zesk\\",
+	"name": "jGrowl",
+	"url": "https://github.com/stanlemon/jGrowl/archive/master.zip",
+	"url_license": "https://raw.githubusercontent.com/stanlemon/jGrowl/master/LICENSE",
+	"strip_components": 1,
+	"destination": "vendor/components/jgrowl/",
+	"share_path": "vendor/components/jgrowl/",
+	"autoload_options": {
+		"class_prefix": "zesk\\",
 		"lower": false
-    },
+	},
 	"module_class": "zesk\\Module_jGrowl"
 }

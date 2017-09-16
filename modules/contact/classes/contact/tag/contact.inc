@@ -1,7 +1,4 @@
-<?php 
-
+<?php
 namespace zesk;
 
-class Contact_Tag_Contact extends Object {
-	
-}
+class Contact_Tag_Contact extends Object {}

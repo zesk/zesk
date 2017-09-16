@@ -1,13 +1,9 @@
 <?php
-
 class Class_Gravatar extends zesk\Class_Object {
-
 	public $id_column = 'id';
-
 	public $find_columns = array(
 		'email'
 	);
-
 	public $column_types = array(
 		'id' => self::type_id,
 		'email' => self::type_string,
@@ -20,7 +16,6 @@ class Class_Gravatar extends zesk\Class_Object {
 		'created' => self::type_created,
 		'updated' => self::type_timestamp
 	);
-
 	public $column_defaults = array(
 		'status' => 0
 	);

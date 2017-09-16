@@ -14,7 +14,6 @@ namespace zesk;
 
 /* @var $widget View_Errors */
 /* @var $parent Widget */
-
 $errors = array();
 $parent = $this->parent;
 

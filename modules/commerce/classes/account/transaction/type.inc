@@ -11,6 +11,5 @@ namespace zesk;
  *
  * @author kent
  */
-class Account_Transaction_Type extends Object {
-}
+class Account_Transaction_Type extends Object {}
 

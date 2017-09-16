@@ -1,11 +1,11 @@
 <?php
 /**
-* $URL: https://code.marketacumen.com/zesk/trunk/modules/content/classes/Content/Link.php $
-* @package zesk
-* @subpackage default
-* @author Kent Davidson <kent@marketacumen.com>
-* @copyright Copyright &copy; 2008, Market Acumen, Inc.
-*/
+ * $URL: https://code.marketacumen.com/zesk/trunk/modules/content/classes/Content/Link.php $
+ * @package zesk
+ * @subpackage default
+ * @author Kent Davidson <kent@marketacumen.com>
+ * @copyright Copyright &copy; 2008, Market Acumen, Inc.
+ */
 namespace zesk;
 
 /**
@@ -31,13 +31,22 @@ class Content_Link extends Object {
 		return $this->output('image/image-caption.tpl', $options);
 	}
 	function clicked() {
-		$this->query_update()->values(array(
+		$this->query_update()
+			->values(array(
 			"*ClickCount" => "ClickCount+1",
-			"*LastClick" => $this->sql()->now()
-		))->where("ID", $this->id())->execute();
-		$this->query_update()->values(array(
-			"*FirstClick" => $this->sql()->now()
-		))->where("ID", $this->id())->where("FirstClick", null)->execute();
+			"*LastClick" => $this->sql()
+				->now()
+		))
+			->where("ID", $this->id())
+			->execute();
+		$this->query_update()
+			->values(array(
+			"*FirstClick" => $this->sql()
+				->now()
+		))
+			->where("ID", $this->id())
+			->where("FirstClick", null)
+			->execute();
 	}
 }
 

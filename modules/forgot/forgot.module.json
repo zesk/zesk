@@ -1,8 +1,8 @@
 {
-    "name": "Forgotten Password",
-    "autoload_options": {
-    	"class_prefix": "zesk\\",
-    	"lower": false
-    },
-    "module_class": "zesk\\Module_Forgot"
+	"name": "Forgotten Password",
+	"autoload_options": {
+		"class_prefix": "zesk\\",
+		"lower": false
+	},
+	"module_class": "zesk\\Module_Forgot"
 }

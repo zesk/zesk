@@ -7,5 +7,4 @@
  * @copyright Copyright &copy; 2010, Market Acumen, Inc.
  * @deprecated Move to specific module
  */
-
 zesk()->obsolete();

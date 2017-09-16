@@ -1,5 +1,5 @@
 {
-	"name":"Feed",
+	"name": "Feed",
 	"autoload_options": {
 		"class_prefix": "zesk\\",
 		"lower": false

@@ -1,5 +1,4 @@
 <?php
-
 namespace zesk;
 
 class Module_NoJS extends Module {

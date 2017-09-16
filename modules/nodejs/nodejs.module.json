@@ -1,5 +1,5 @@
 {
-	"name":"NodeJS",
+	"name": "NodeJS",
 	"autoload_options": {
 		"class_prefix": "zesk\\"
 	},

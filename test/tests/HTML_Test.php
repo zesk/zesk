@@ -143,7 +143,6 @@ class HTML_Test extends Test_Unit {
 		
 		$this->assert_arrays_equal($tags, $result_tags);
 		
-		
 		// 		$contents = str_repeat('_', 22) . $contents;
 		// 		$tags = HTML::extract_tags($tag, $contents, $recursive);
 		

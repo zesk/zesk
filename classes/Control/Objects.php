@@ -2,15 +2,11 @@
 namespace zesk;
 
 class Control_Objects extends Control_Text {
-
 	protected $class = null;
-
 	protected $class_results = "";
-
 	protected $theme_object = null;
 	protected $controller = null;
 	protected $controller_url = null;
-
 	protected function initialize() {
 		parent::initialize();
 		if ($this->theme_object === null) {
@@ -38,7 +34,6 @@ class Control_Objects extends Control_Text {
 		$this->value($objects);
 		return true;
 	}
-
 	public function theme_variables() {
 		return array(
 			'theme_object' => $this->theme_object,

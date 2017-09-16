@@ -7,7 +7,6 @@
  * @copyright Copyright &copy; 2009, Market Ruler, LLC
  * Created on Wed Feb 24 13:48:13 EST 2010 13:48:13
  */
-
 namespace zesk;
 
 /**
@@ -15,55 +14,47 @@ namespace zesk;
  * @author kent
  *
  */
-class Import_Log_WebServer_IIS extends Import_Log_WebServer
-{
+class Import_Log_WebServer_IIS extends Import_Log_WebServer {
 	protected $header_read_size = 0;
-
 	protected $field_map = array();
-
 	static $field_to_internal = array(
-	"c-ip" => self::IP,
-	"date" => self::Date,
-	"time" => self::Time,
-	"cs-username" => self::User,
-	"s-sitename" => "IIS-Site_Name",
-	"s-computername" => self::Server_Name,
-	"s-ip" => self::Server_IP,
-	"s-port" => self::Server_Port,
-	"cs-method" => self::Request_Method,
-	"cs-uri-stem" => self::Request_URI,
-	"cs-uri-query" => self::Request_Query_String,
-	"sc-status" => self::Response_Status,
-	"sc-substatus" => "IIS-Substatus",
-	"sc-win32-status" => "IIS-Win32-Status",
-	"sc-bytes" => self::Response_Size,
-	"cs-bytes" => self::Request_Size,
-	"time-taken" => self::Duration,
-	"cs-version" => self::Request_Version,
-	"cs-host" => self::Request_Host,
-	"cs(User-Agent)" => self::Request_User_Agent,
-	"cs(Cookie)" => self::Request_Cookie,
-	"cs(Referer)" => self::Request_Referrer ,
+		"c-ip" => self::IP,
+		"date" => self::Date,
+		"time" => self::Time,
+		"cs-username" => self::User,
+		"s-sitename" => "IIS-Site_Name",
+		"s-computername" => self::Server_Name,
+		"s-ip" => self::Server_IP,
+		"s-port" => self::Server_Port,
+		"cs-method" => self::Request_Method,
+		"cs-uri-stem" => self::Request_URI,
+		"cs-uri-query" => self::Request_Query_String,
+		"sc-status" => self::Response_Status,
+		"sc-substatus" => "IIS-Substatus",
+		"sc-win32-status" => "IIS-Win32-Status",
+		"sc-bytes" => self::Response_Size,
+		"cs-bytes" => self::Request_Size,
+		"time-taken" => self::Duration,
+		"cs-version" => self::Request_Version,
+		"cs-host" => self::Request_Host,
+		"cs(User-Agent)" => self::Request_User_Agent,
+		"cs(Cookie)" => self::Request_Cookie,
+		"cs(Referer)" => self::Request_Referrer
 	);
-
 	static $unescape_values = array(
 		self::Request_User_Agent,
 		self::Request_Cookie,
 		self::Request_URI,
-		self::Request_Query_String,
+		self::Request_Query_String
 	);
-	function __construct($filename, $options=null)
-	{
+	function __construct($filename, $options = null) {
 		parent::__construct($filename, $options);
 		$this->field_map = explode(" ", 'date time s-sitename s-ip cs-method cs-uri-stem cs-uri-query s-port cs-username c-ip cs(User-Agent) sc-status sc-substatus sc-win32-status');
 	}
-
-	protected function is_state_line($line)
-	{
+	protected function is_state_line($line) {
 		return strlen($line) > 0 && $line[0] === "#";
 	}
-	protected function read_state_line($line)
-	{
+	protected function read_state_line($line) {
 		if ($line[0] !== "#") {
 			return false;
 		}
@@ -75,16 +66,14 @@ class Import_Log_WebServer_IIS extends Import_Log_WebServer
 					$this->field_map = explode(" ", trim($value));
 					Debug::dump($this->field_map);
 					break;
-				default:
+				default :
 					$this->set_option($name, $value);
 					break;
 			}
 		}
 		return true;
 	}
-
-	protected function _read_header($header_data)
-	{
+	protected function _read_header($header_data) {
 		$lines = explode("\n", $header_data);
 		$bytes = 0;
 		foreach ($lines as $line) {
@@ -99,11 +88,8 @@ class Import_Log_WebServer_IIS extends Import_Log_WebServer
 		}
 		return $bytes;
 	}
-
-	public function read_line()
-	{
-		while (($line = $this->_read_line()) !== null)
-		{
+	public function read_line() {
+		while (($line = $this->_read_line()) !== null) {
 			if (self::is_state_line($line)) {
 				self::read_state_line($line);
 			} else {
@@ -128,7 +114,6 @@ class Import_Log_WebServer_IIS extends Import_Log_WebServer
 		}
 		return $this->derive_fields($result);
 	}
-
 }
 
 

@@ -19,4 +19,4 @@ $id = $this->object[$idname];
 	src="/share/images/actions/delete.gif" width="18" height="18"
 	onclick="list_dhtml_delete(this,<?php echo $id ?>)" />
 <div class="list-message" id="list-message-<?php echo $id ?>"></div><?
-}
+	}

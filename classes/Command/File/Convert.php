@@ -72,8 +72,8 @@ abstract class Command_File_Convert extends Command_Base {
 		$this->configure($this->configuration_file);
 		$app = $this->application;
 		$app->template->set(array(
-			"request" => Request::instance(),
-			'response' => Response::instance(),
+			"request" => $app->request(),
+			'response' => $app->response(),
 			'stylesheets_inline' => true
 		));
 		$dry_run = $this->option_bool('dry-run');

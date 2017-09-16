@@ -1,6 +1,8 @@
 {
 	"name": "Permission",
-	"hooks": [ "Module::permissions" ],
+	"hooks": [
+		"Module::permissions"
+	],
 	"autoload_options": {
 		"lower": false
 	},

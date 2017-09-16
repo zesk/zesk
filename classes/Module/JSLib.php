@@ -1,5 +1,4 @@
 <?php
-
 namespace zesk;
 
 /**
@@ -93,7 +92,6 @@ abstract class Module_JSLib extends Module implements Interface_Module_Head {
 	public function javascript_settings() {
 		return $this->compute_javascript_settings()->javascript_settings;
 	}
-	
 	public function compute_javascript_settings() {
 		if ($this->javascript_settings_inherit) {
 			foreach ($this->javascript_settings_inherit as $key => $value) {

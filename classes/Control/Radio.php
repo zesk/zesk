@@ -18,7 +18,6 @@ class Control_Radio extends Control_Optionss {
 		}
 		return true;
 	}
-
 	function validate() {
 		$name = $this->name();
 		$v = $this->request->get($name, $this->option("default", null));
@@ -31,7 +30,7 @@ class Control_Radio extends Control_Optionss {
 		}
 		return $this->validate_required();
 	}
-
+	
 	/**
 	 * Return the jQuery expression to determine the value of this widget
 	 */

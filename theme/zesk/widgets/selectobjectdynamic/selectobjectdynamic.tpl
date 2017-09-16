@@ -1,5 +1,4 @@
 <?php
-
 namespace zesk;
 
 /* @var $this \zesk\Template */
@@ -12,7 +11,7 @@ namespace zesk;
 /* @var $current_user \User */
 ?><div class="control-select-object-dynamic"
 	id="<?php
-
+	
 	echo $this->column;
 	?>_widget">
 	<div class="csod-select csod-none search" style="display: none">

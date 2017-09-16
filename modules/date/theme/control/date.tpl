@@ -1,5 +1,4 @@
 <?php
-
 namespace zesk;
 
 /* @var $widget Control_Date */
@@ -50,7 +49,6 @@ $response->javascript('/share/date/js/date.js');
 $js_options = array();
 
 //$response->jquery("\$(\"#$input_id\").control_date(" . json_encode($js_options) . ")");
-
 
 $response->css('/share/date/css/date.css', array(
 	"media" => "screen"

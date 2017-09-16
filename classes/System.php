@@ -183,16 +183,19 @@ class System {
 		ob_start();
 		$max_tokens = 10;
 		$args = $volume ? ' ' . escapeshellarg($volume) : '';
-		$result = system("/bin/df -lk$args 2> /dev/null");
+		// Added -P to avoid issue on Mac OS X where Capacity and iused overlap
+		$result = system("/bin/df -P -lk$args 2> /dev/null");
 		$volume_info = trim(ob_get_clean());
 		if (!$result) {
 			return array();
 		}
-		$volume_info = explode("\n", preg_replace('/[ \t]+/', ' ', $volume_info));
-		$headers = explode(" ", array_shift($volume_info), $max_tokens);
+		$volume_info = explode("\n", $volume_info);
+		$volume_info = Text::parse_columns($volume_info);
 		// FreeBSD:	Filesystem  1024-blocks     Used Avail 		Capacity 	Mounted on
 		// Debian:	Filesystem  1K-blocks       Used Available	Use%		Mounted on
 		// Linux:	Filesystem  1K-blocks       Used Available	Use%		Mounted on
+		// Darwin:  Filesystem  1024-blocks     Used Available  Capacity iused ifree %iused Mounted on
+		// Darwin:  Filesystem   1024-blocks       Used  Available Capacity  Mounted on
 		$normalized_headers = array(
 			"1024-blocks" => "total",
 			"1k-blocks" => "total",
@@ -200,22 +203,23 @@ class System {
 			"available" => "free",
 			"use%" => "used_percent",
 			"capacity" => "used_percent",
-			"mounted" => "path"
+			"mounted" => "path",
+			"mounted on" => "path",
+			"filesystem" => "filesystem"
 		);
-		foreach ($headers as $i => $h) {
-			$h = strtolower($h);
-			$headers[$i] = avalue($normalized_headers, $h, $h);
-		}
 		$result = array();
-		foreach ($volume_info as $line) {
-			$columns = explode(" ", $line, $max_tokens);
+		foreach ($volume_info as $volume_data) {
 			$row = array();
-			foreach ($columns as $i => $column) {
-				$row[$headers[$i]] = $column;
+			foreach ($volume_data as $field => $value) {
+				$field = strtolower($field);
+				$field = avalue($normalized_headers, $field, $field);
+				$row[$field] = $value;
 			}
-			$row['total'] *= 1024;
-			$row['used'] *= 1024;
-			$row['free'] *= 1024;
+			foreach (to_list('total;used;free') as $kbmult) {
+				if (array_key_exists($kbmult, $row)) {
+					$row[$kbmult] *= 1024;
+				}
+			}
 			$row['used_percent'] = intval(substr($row['used_percent'], 0, -1));
 			$result[$row['path']] = $row;
 		}

@@ -1,5 +1,4 @@
 <?php
-
 namespace zesk;
 
 /**
@@ -10,17 +9,14 @@ namespace zesk;
  *
  */
 class Control_Filter_Selector extends Control {
-
 	const option_toggle_mode = 'toggle_mode';
-
 	public $filtered_children = null;
-
 	protected $options = array(
 		'name' => 'filter-selector',
 		'column' => 'filter-selector',
 		'id' => 'filter-selector'
 	);
-
+	
 	/**
 	 * When toggle mode is enabled, filters are either all on or all off
 	 *
@@ -40,7 +36,6 @@ class Control_Filter_Selector extends Control {
 		unset($children[$this->column()]);
 		return $this->filtered_children = $children;
 	}
-
 	public function is_visible() {
 		$children = $this->filtered_children();
 		if (count($children) === 0) {
@@ -48,7 +43,6 @@ class Control_Filter_Selector extends Control {
 		}
 		return true;
 	}
-
 	public function theme_variables() {
 		return array(
 			"toggle_mode" => $this->toggle_mode(),

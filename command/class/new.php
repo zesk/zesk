@@ -52,7 +52,6 @@ class Command_Class_New extends Command {
 	// 		$option_zesk = $this->option_bool("zesk");
 	// 		$app = $this->option_bool("app", !$option_zesk);
 	
-
 	// 		if (!$app && !$option_zesk) {
 	// 			$app = true;
 	// 		}

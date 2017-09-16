@@ -7,7 +7,6 @@ namespace zesk;
 /* @var $response Response_Text_HTML */
 /* @var $widget Widget */
 /* @var $object Model */
-
 $sum_widgets = array();
 foreach ($this->widgets as $widget_name) {
 	$sum_widgets[$widget_name] = $widget->top()->child($widget_name)->jquery_target_expression();

@@ -60,7 +60,7 @@ class Module_Widget_Condition extends Module {
 			}
 		}
 	}
-
+	
 	/**
 	 * Evaluate a condition
 	 *

@@ -38,7 +38,7 @@ class Text {
 		}
 		return implode($newline, $lines) . $newline;
 	}
-
+	
 	/**
 	 * Universally modify line break characters in a string to be a certain line break string.
 	 *
@@ -59,7 +59,7 @@ class Text {
 		$string = str_replace("\n", $temp_char, $string);
 		return str_replace($temp_char, $br, $string);
 	}
-
+	
 	/**
 	 * Format an array with labels and values
 	 *
@@ -135,7 +135,7 @@ class Text {
 		$text = self::_align_helper($text, $n, $pad, $fill, $_trim);
 		return $text . $fill;
 	}
-
+	
 	/**
 	 * Delete the line comments in a string
 	 *
@@ -165,7 +165,7 @@ class Text {
 		}
 		return implode("\n", $new_data);
 	}
-
+	
 	/**
 	 * Remove C/Java/PHP/etc-style range comments
 	 *
@@ -223,7 +223,7 @@ class Text {
 	public static function words($string) {
 		return count(preg_split('/(\s+)/', $string, -1, PREG_SPLIT_DELIM_CAPTURE));
 	}
-
+	
 	/**
 	 * Generates a table like this:
 	 *
@@ -289,7 +289,7 @@ class Text {
 		}
 		$divLine = "+-" . implode("-+-", $line) . "-+";
 		$result[] = $divLine;
-
+		
 		$line = array();
 		foreach ($hs as $i => $h) {
 			$line[] = str_pad($h, $ws[$i]);
@@ -306,7 +306,7 @@ class Text {
 		$result[] = $divLine;
 		return $prefix . implode("\n$prefix", $result) . "\n";
 	}
-
+	
 	/**
 	 * Split a line where multiple characters may serve as a delimiter.
 	 *
@@ -324,7 +324,7 @@ class Text {
 	private static function split_line($line, $num_columns = 99, $delimiters = " \t") {
 		return explode($delimiters[0], preg_replace("/[" . preg_quote($delimiters) . "]+/", $delimiters[0], $line), $num_columns);
 	}
-
+	
 	/**
 	 * Parse a table output by many common UNIX and DOS commands.
 	 *
@@ -378,7 +378,7 @@ class Text {
 		}
 		return $results;
 	}
-
+	
 	/**
 	 * Returns the number of words delimited by spaces found in string.
 	 *
@@ -412,5 +412,85 @@ class Text {
 	 */
 	public static function tail($string, $count = 20, $newline = "\n") {
 		return implode($newline, array_slice(explode($newline, $string), -$count));
+	}
+	
+	/**
+	 * Parse text output which may have spaces in file names.
+	 * 
+	 * This operates differently than parse_table, which breaks each line up by grouping delimiters and then
+	 * converting to postional parameters.
+	 * 
+	 * parse_columns scans all output text lines and determines columns which contain your delimiter in all columns, 
+	 * and then segments the columns based on that information. This best supports `df` output which
+	 * refers to volumes with spaces in their names, which breaks under `parse_table` above.
+	 * 
+	 * <code>
+	 * Filesystem             1K-blocks       Used  Available Use% Mounted on
+	 * udev                      482380          0     482380   0% /dev
+	 * tmpfs                     100928      11332      89596  12% /run
+	 * /dev/sda1               64891708    5079872   56492492   9% /
+	 * tmpfs                     504636        216     504420   1% /dev/shm
+	 * tmpfs                       5120          4       5116   1% /run/lock
+	 * Google Drive           487712924  411037236   76675688  85% /media/psf/Google Drive
+	 * </code>
+	 * 
+	 * @param array $lines
+	 */
+	public static function parse_columns(array $lines, $whitespace = " \t") {
+		$spaces = array();
+		$whitespace_in_array = str_split($whitespace);
+		foreach ($lines as $line) {
+			foreach (str_split($line) as $index => $c) {
+				$spaces[$index] = avalue($spaces, $index, true) && in_array($c, $whitespace_in_array);
+			}
+		}
+		$headers = array();
+		$was_space = true;
+		$start = 0;
+		// $uindex is for handling duplicate header column names. Duplicates are numbered name-0, then name-1
+		// regardless of prior names
+		$uindex = 0;
+		// $line is our header line to parse header names
+		$line = first($lines);
+		// Ad a final space so our last token is parsed as well
+		$spaces[] = true;
+		foreach ($spaces as $index => $space) {
+			// Transition
+			if ($space !== $was_space) {
+				if (!$space) {
+					// beginning of token
+					$start = $index;
+				} else {
+					// end of token
+					$length = $index - $start;
+					$name = trim(substr($line, $start, $length), $whitespace);
+					if (array_key_exists($name, $headers)) {
+						$name .= "-$uindex";
+						$uindex = $uindex + 1;
+					}
+					$headers[$name] = array(
+						$start,
+						$length
+					);
+				}
+				$was_space = $space;
+			}
+		}
+		
+		$first = true;
+		$rows = array();
+		foreach ($lines as $index => $line) {
+			if ($first) {
+				$first = false;
+				continue;
+			}
+			$record = array();
+			foreach ($headers as $name => $pair) {
+				list($start, $length) = $pair;
+				$record[$name] = trim(substr($line, $start, $length), $whitespace);
+			}
+			$rows[] = $record;
+		}
+		return $rows;
 	}
 }

@@ -16,7 +16,6 @@ class Control_Phone extends Control_Text {
 		$phone = str_replace("  ", " ", $phone);
 		return $phone;
 	}
-
 	protected function validate() {
 		$value = $this->value();
 		$value = self::clean($value);

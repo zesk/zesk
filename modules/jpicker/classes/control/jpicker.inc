@@ -1,5 +1,4 @@
 <?php
-
 class Control_jPicker extends \zesk\Control {
 	/**
 	 * (non-PHPdoc)

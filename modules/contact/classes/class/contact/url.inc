@@ -1,12 +1,9 @@
 <?php
-
 namespace zesk;
 
 class Class_Contact_URL extends Class_Contact_Info {
 	public $contact_object_field = "URL";
-
 	public $id_column = "id";
-
 	public $has_one = array(
 		'contact' => "zesk\\Contact",
 		"label" => "zesk\\Contact_Label"

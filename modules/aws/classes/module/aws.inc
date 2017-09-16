@@ -50,7 +50,6 @@ class Module_AWS extends zesk\Module {
 			});
 		}
 	}
-	
 	public function awareness(array $options = array()) {
 		if ($this->awareness) {
 			return $this->awareness;

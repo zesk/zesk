@@ -24,35 +24,35 @@ class Object_Iterator extends Database_Result_Iterator {
 	 * @var array
 	 */
 	protected $class_options;
-
+	
 	/**
 	 * Current parent
 	 *
 	 * @var Object
 	 */
 	private $parent = null;
-
+	
 	/**
 	 * Current parent
 	 *
 	 * @var Object
 	 */
 	private $parent_member = null;
-
+	
 	/**
 	 * Current object
 	 *
 	 * @var Object
 	 */
 	protected $object;
-
+	
 	/**
 	 * Current key
 	 *
 	 * @var mixed
 	 */
 	protected $id;
-
+	
 	/**
 	 * Create an object iterator
 	 *
@@ -67,7 +67,7 @@ class Object_Iterator extends Database_Result_Iterator {
 		$options['initialize'] = true;
 		$this->class_options = $options;
 	}
-
+	
 	/**
 	 *
 	 * @param Object $parent
@@ -83,7 +83,7 @@ class Object_Iterator extends Database_Result_Iterator {
 		}
 		return $this;
 	}
-
+	
 	/**
 	 * Current object
 	 *
@@ -93,7 +93,7 @@ class Object_Iterator extends Database_Result_Iterator {
 	public function current() {
 		return $this->object;
 	}
-
+	
 	/**
 	 * Current object ID
 	 *
@@ -103,7 +103,7 @@ class Object_Iterator extends Database_Result_Iterator {
 	public function key() {
 		return is_array($this->id) ? JSON::encode($this->id) : $this->id;
 	}
-
+	
 	/**
 	 * Maintain parent object to avoid cyclical store(), and for memory saving
 	 *
@@ -147,7 +147,7 @@ class Object_Iterator extends Database_Result_Iterator {
 			$this->object = null;
 		}
 	}
-
+	
 	/**
 	 * Convert to an array
 	 *

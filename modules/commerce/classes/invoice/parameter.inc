@@ -1,14 +1,12 @@
 <?php
 /**
-* $URL: https://code.marketacumen.com/zesk/trunk/modules/commerce/classes/invoice/parameter.inc $
-* @package zesk
-* @subpackage commerce
-* @author Kent Davidson <kent@marketacumen.com>
-* @copyright Copyright &copy; 2008, Market Acumen, Inc.
-*/
-
+ * $URL: https://code.marketacumen.com/zesk/trunk/modules/commerce/classes/invoice/parameter.inc $
+ * @package zesk
+ * @subpackage commerce
+ * @author Kent Davidson <kent@marketacumen.com>
+ * @copyright Copyright &copy; 2008, Market Acumen, Inc.
+ */
 namespace zesk;
-
 
 /**
  * Invoice_Parameter
@@ -27,8 +25,8 @@ class Invoice_Parameter {
 	private $IsNew;
 	
 	/*====================================================================================*\
-		Instance
-	\*------------------------------------------------------------------------------------*/
+	 Instance
+	 \*------------------------------------------------------------------------------------*/
 	function __construct($object, $desc, $quantities = false) {
 		$this->Object = $object;
 		if (method_exists($object, "product")) {
@@ -44,8 +42,8 @@ class Invoice_Parameter {
 	}
 	
 	/*====================================================================================*\
-		Get/Set
-	\*------------------------------------------------------------------------------------*/
+	 Get/Set
+	 \*------------------------------------------------------------------------------------*/
 	function object() {
 		return $this->Object;
 	}

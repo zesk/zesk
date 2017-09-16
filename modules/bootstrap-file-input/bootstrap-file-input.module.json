@@ -4,9 +4,9 @@
 		"http://gregpike.net/demos/bootstrap-file-input/bootstrap.file-input.js": "vendor/components/bootstrap-file-input/"
 	},
 	"share_path": "vendor/components/bootstrap-file-input/",
-	"version_data": { 
-		"file": "vendor/components/bootstrap.file-input.js", 
-		"pattern": "/Bootstrap v([0-9.]+)/" 
+	"version_data": {
+		"file": "vendor/components/bootstrap.file-input.js",
+		"pattern": "/Bootstrap v([0-9.]+)/"
 	},
 	"license": "http://gregpike.net/demos/bootstrap-file-input/demo.html"
 }

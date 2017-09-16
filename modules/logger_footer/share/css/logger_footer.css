@@ -1,70 +1,80 @@
 #logger_footer {
-  z-index: 3000;
-  clear: both;
-  display: block;
-  position: fixed;
-  bottom: 0;
-  width: 100%;
-  padding: 0;
-  margin: 0;
-  border-top: 10px solid red;
-  background-color: white;
-  max-height: 50%;
-  overflow: scroll;
-  font-size: 13px;
-  color: black;
+	z-index: 3000;
+	clear: both;
+	display: block;
+	position: fixed;
+	bottom: 0;
+	width: 100%;
+	padding: 0;
+	margin: 0;
+	border-top: 10px solid red;
+	background-color: white;
+	max-height: 50%;
+	overflow: scroll;
+	font-size: 13px;
+	color: black;
 }
+
 #logger_footer .filters {
-  background-color: #DDD;
-  display: block;
-  padding: 5px;
-  margin: 1px 0 2px;
+	background-color: #DDD;
+	display: block;
+	padding: 5px;
+	margin: 1px 0 2px;
 }
+
 #logger_footer .filters .btn {
-  font-family: inherit;
-  position: relative;
-  margin-right: 10px;
-  color: black;
-  font-weight: bold;
+	font-family: inherit;
+	position: relative;
+	margin-right: 10px;
+	color: black;
+	font-weight: bold;
 }
+
 #logger_footer .filters .btn .badge {
-  background-color: #000;
-  position: absolute;
-  top: -10px;
-  right: -10px;
-  padding: 3px 6px 3px 6px;
+	background-color: #000;
+	position: absolute;
+	top: -10px;
+	right: -10px;
+	padding: 3px 6px 3px 6px;
 }
+
 #logger_footer .filters .btn.inactive {
-  background-color: white;
-  color: #DDD;
+	background-color: white;
+	color: #DDD;
 }
+
 #logger_footer ul {
-  list-style: none;
-  padding: 0;
-  margin: 0;
+	list-style: none;
+	padding: 0;
+	margin: 0;
 }
+
 #logger_footer li {
-  padding: 3px 5px;
-  margin: 0;
-  border-bottom: 1px solid #999;
-  font-family: "Courier New", Courier, fixed;
+	padding: 3px 5px;
+	margin: 0;
+	border-bottom: 1px solid #999;
+	font-family: "Courier New", Courier, fixed;
 }
+
 #logger_footer li.error {
-  color: red;
-  font-weight: bold;
+	color: red;
+	font-weight: bold;
 }
+
 #logger_footer li.warning {
-  color: orange;
-  font-weight: bold;
+	color: orange;
+	font-weight: bold;
 }
+
 #logger_footer li.debug {
-  color: #006;
+	color: #006;
 }
+
 #logger_footer code {
-  display: block;
-  width: 80%;
-  padding: 20px;
-  white-space: pre;
-  margin: 10px 0 0 30px;
+	display: block;
+	width: 80%;
+	padding: 20px;
+	white-space: pre;
+	margin: 10px 0 0 30px;
 }
 /*# sourceMappingURL=logger_footer.css.map */

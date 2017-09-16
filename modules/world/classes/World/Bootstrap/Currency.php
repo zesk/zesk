@@ -1,6 +1,5 @@
 <?php
 /**
- * $URL: https://code.marketacumen.com/zesk/trunk/modules/world/classes/World/Bootstrap/Currency.php $
  * @package zesk
  * @subpackage model
  * @author Kent Davidson <kent@marketacumen.com>
@@ -59,7 +58,7 @@ class World_Bootstrap_Currency extends Options {
 		if ($this->option_bool("drop")) {
 			$x->database()->query('TRUNCATE ' . $x->table());
 		}
-		$codes = self::_codes();
+		$codes = $this->_codes();
 		foreach ($codes as $row) {
 			$this->process_row($row);
 		}
@@ -147,7 +146,54 @@ class World_Bootstrap_Currency extends Options {
 		}
 		return null;
 	}
-	static private function _codes() {
+	private function _codes() {
+		$codes = $this->_somewhat_dated_codes();
+		$valid_ones = self::_valid_codes();
+		$missing_ones = arr::flip_copy($valid_ones, true);
+		foreach ($codes as $index => $row) {
+			$code = strtolower($row[2]);
+			if (!isset($missing_ones[$code])) {
+				$this->application->logger->error("Code {2} ({1}) no longer valid, remove it", $row);
+				unset($codes[$index]);
+				continue;
+			}
+			unset($missing_ones[$code]);
+		}
+		if (count($missing_ones) > 0) {
+			$this->application->logger->error("Currency codes {missing_ones} need to be added", array(
+				"missing_oens" => $missing_ones
+			));
+		}
+		return $codes;
+	}
+	
+	/**
+	 * https://gist.githubusercontent.com/Fluidbyte/2973986/raw/b0d1722b04b0a737aade2ce6e055263625a0b435/Common-Currency.json
+	 */
+	function _somwhat_recent_codes() {
+		$file = $this->application->modules->path("world", "bootstrap-data/currency.json");
+		File::depends($file);
+		$currencies = JSON::decode(file_get_contents($file));
+		return $currencies;
+	}
+	static function _process_somewhat_dated_codes() {
+		$codes = self::_somewhat_dated_codes();
+		$result = array();
+		foreach ($codes as $row) {
+			$item = arr::map_keys($row, array(
+				"country_name",
+				"name",
+				"code",
+				"id",
+				"symbol",
+				"unit_phrase"
+			));
+			
+			$result[$item['code']] = $item;
+		}
+		return $result;
+	}
+	static function _somewhat_dated_codes() {
 		return array(
 			array(
 				'Afghanistan',
@@ -162,8 +208,8 @@ class World_Bootstrap_Currency extends Options {
 				'Lek',
 				'ALL',
 				8,
-				'L',
-				'100 qindarka (qintars)'
+				'Lek',
+				'100 qindarkë'
 			),
 			array(
 				'Algeria',
@@ -291,7 +337,7 @@ class World_Bootstrap_Currency extends Options {
 				'BDT',
 				50,
 				'Tk',
-				'100 paisa (poisha)'
+				'100 poisha'
 			),
 			array(
 				'Barbados',
@@ -411,7 +457,7 @@ class World_Bootstrap_Currency extends Options {
 				'BND',
 				96,
 				'B$',
-				'100 sen (a.k.a. 100 cents)'
+				'100 sen'
 			),
 			array(
 				'Bulgaria',
@@ -507,7 +553,7 @@ class World_Bootstrap_Currency extends Options {
 				'CNY',
 				156,
 				'Y',
-				'10 jiao = 100 fen'
+				'10 jiao'
 			),
 			array(
 				'Christmas Island',
@@ -963,7 +1009,7 @@ class World_Bootstrap_Currency extends Options {
 				'ISK',
 				352,
 				'IKr',
-				'100 aurar (sg. aur)'
+				'100 aurar'
 			),
 			array(
 				'India',
@@ -979,7 +1025,7 @@ class World_Bootstrap_Currency extends Options {
 				'IDR',
 				360,
 				'Rp',
-				'100 sen (no longer used)'
+				''
 			),
 			// 			array(
 			// 				'International Monetary Fund (Imf)',
@@ -995,7 +1041,7 @@ class World_Bootstrap_Currency extends Options {
 				'IRR',
 				364,
 				'Rls',
-				'10 rials = 1 toman'
+				'100 Dinar'
 			),
 			array(
 				'Iraq',
@@ -1043,7 +1089,7 @@ class World_Bootstrap_Currency extends Options {
 				'JPY',
 				392,
 				'&yen;',
-				'100 sen (not used)'
+				'100 sen'
 			),
 			array(
 				'Jersey',
@@ -1215,11 +1261,11 @@ class World_Bootstrap_Currency extends Options {
 			),
 			array(
 				'Madagascar',
-				'Malagasy Franc',
-				'MGF',
+				'Malagasy Ariary',
+				'MGA',
 				450,
 				'FMG',
-				'1 francs = 100 centimes'
+				'5 Iraimbilanja'
 			),
 			array(
 				'Malawi',
@@ -1751,19 +1797,19 @@ class World_Bootstrap_Currency extends Options {
 			),
 			array(
 				'Slovakia',
-				'Slovak Koruna',
-				'SKK',
+				'Euro',
+				'EUR',
 				703,
-				'Sk',
-				'100 haliers (halierov?)'
+				'&euro;',
+				'100 euro-cents'
 			),
 			array(
 				'Slovenia',
-				'Tolar',
-				'SIT',
+				'Euro',
+				'EUR',
 				705,
-				'SlT',
-				'100 stotinov (stotins)'
+				'&euro;',
+				'100 euro-cents'
 			),
 			array(
 				'Solomon Islands',
@@ -2229,6 +2275,180 @@ class World_Bootstrap_Currency extends Options {
 				'',
 				''
 			)
+		);
+	}
+	
+	/**
+	 * Taken from http://www.xe.com/currency/ HTML as of 2017-09-13
+	 */
+	private function _valid_codes() {
+		return array(
+			'USD',
+			'EUR',
+			'GBP',
+			'INR',
+			'AUD',
+			'CAD',
+			'SGD',
+			'CHF',
+			'MYR',
+			'JPY',
+			'CNY',
+			'NZD',
+			'THB',
+			'HUF',
+			'AED',
+			'HKD',
+			'MXN',
+			'ZAR',
+			'PHP',
+			'SEK',
+			'IDR',
+			'SAR',
+			'BRL',
+			'TRY',
+			'KES',
+			'KRW',
+			'EGP',
+			'IQD',
+			'NOK',
+			'KWD',
+			'RUB',
+			'DKK',
+			'PKR',
+			'ILS',
+			'PLN',
+			'QAR',
+			'XAU',
+			'OMR',
+			'COP',
+			'CLP',
+			'TWD',
+			'ARS',
+			'CZK',
+			'VND',
+			'MAD',
+			'JOD',
+			'BHD',
+			'XOF',
+			'LKR',
+			'UAH',
+			'NGN',
+			'TND',
+			'UGX',
+			'RON',
+			'BDT',
+			'PEN',
+			'GEL',
+			'XAF',
+			'FJD',
+			'VEF',
+			'BYN',
+			'HRK',
+			'UZS',
+			'BGN',
+			'DZD',
+			'IRR',
+			'DOP',
+			'ISK',
+			'XAG',
+			'CRC',
+			'SYP',
+			'LYD',
+			'JMD',
+			'MUR',
+			'GHS',
+			'AOA',
+			'UYU',
+			'AFN',
+			'LBP',
+			'XPF',
+			'TTD',
+			'TZS',
+			'ALL',
+			'XCD',
+			'GTQ',
+			'NPR',
+			'BOB',
+			'ZWD',
+			'BBD',
+			'CUC',
+			'LAK',
+			'BND',
+			'BWP',
+			'HNL',
+			'PYG',
+			'ETB',
+			'NAD',
+			'PGK',
+			'SDG',
+			'MOP',
+			'NIO',
+			'BMD',
+			'KZT',
+			'PAB',
+			'BAM',
+			'GYD',
+			'YER',
+			'MGA',
+			'KYD',
+			'MZN',
+			'RSD',
+			'SCR',
+			'AMD',
+			'SBD',
+			'AZN',
+			'SLL',
+			'TOP',
+			'BZD',
+			'MWK',
+			'GMD',
+			'BIF',
+			'SOS',
+			'HTG',
+			'GNF',
+			'MVR',
+			'MNT',
+			'CDF',
+			'STD',
+			'TJS',
+			'KPW',
+			'MMK',
+			'LSL',
+			'LRD',
+			'KGS',
+			'GIP',
+			'XPT',
+			'MDL',
+			'CUP',
+			'KHR',
+			'MKD',
+			'VUV',
+			'MRO',
+			'ANG',
+			'SZL',
+			'CVE',
+			'SRD',
+			'XPD',
+			'SVC',
+			'BSD',
+			'XDR',
+			'RWF',
+			'AWG',
+			'DJF',
+			'BTN',
+			'KMF',
+			'WST',
+			'SPL',
+			'ERN',
+			'FKP',
+			'SHP',
+			'JEP',
+			'TMT',
+			'TVD',
+			'IMP',
+			'GGP',
+			'ZMW'
 		);
 	}
 }

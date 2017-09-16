@@ -58,7 +58,7 @@ class View_Box extends View {
 		$model->content = $content;
 		return $b->execute($model);
 	}
-
+	
 	/**
 	 * Start a box
 	 *
