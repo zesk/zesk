@@ -1,6 +1,7 @@
 <?php
+
 /**
- * 
+ *
  */
 namespace zesk;
 
@@ -8,13 +9,19 @@ namespace zesk;
  * Array of settings and values used to configure this system
  */
 abstract class Server_Configuration extends Options {
-	
+
+	/**
+	 *
+	 * @var Application
+	 */
+	public $application = null;
+
 	/**
 	 *
 	 * @var Server_Platform
 	 */
 	protected $platform = null;
-	
+
 	/**
 	 * Array of settings and types
 	 *
@@ -36,7 +43,7 @@ abstract class Server_Configuration extends Options {
 	 * @var array
 	 */
 	protected $variable_types = array();
-	
+
 	/**
 	 * Array of lowercase name => display case name
 	 *
@@ -44,20 +51,19 @@ abstract class Server_Configuration extends Options {
 	 */
 	protected $variable_types_display = array();
 	public static function factory($type, Server_Platform $platform, $options = null) {
-		global $zesk;
-		/* @var $zesk zesk\Kernel */
 		if (empty($type)) {
 			throw new Exception_Parameter("No Configuration type passed to {class}::factory", array(
 				"class" => __CLASS__
 			));
 		}
 		$class = "Server_Configuration_$type";
-		return $zesk->objects->factory($class, $platform, $options);
+		return $platform->application->factory($class, $platform, $options);
 	}
 	function __construct(Server_Platform $platform, $options = null) {
 		parent::__construct($options);
 		$this->platform = $platform;
-		$this->inherit_global_options($platform->application);
+		$this->application = $platform->application;
+		$this->inherit_global_options($this->application);
 	}
 	final public function verbose_log($message, array $args = array()) {
 		return $this->platform->verbose_log($message, $args);
@@ -149,7 +155,7 @@ abstract class Server_Configuration extends Options {
 		}
 		return $this->service_path;
 	}
-	
+
 	/**
 	 * Register global settings associated with a system configuration
 	 *
@@ -173,7 +179,7 @@ abstract class Server_Configuration extends Options {
 		}
 		return $this;
 	}
-	
+
 	/**
 	 * Validate a type before it has been installed/created/etc.
 	 *
@@ -182,15 +188,13 @@ abstract class Server_Configuration extends Options {
 	 * @return boolean Whether it the setting is syntactically correct
 	 */
 	final public function check_type_before($name) {
-		global $zesk;
-		/* @var $zesk zesk\Kernel */
 		try {
-			return $this->validate_type_before(avalue($this->variable_types, strtolower($name)), $name, $this->option($name, $zesk->configuration->get($name)));
+			return $this->validate_type_before(avalue($this->variable_types, strtolower($name)), $name, $this->option($name, $this->application->configuration->get($name)));
 		} catch (Exception $e) {
 			return false;
 		}
 	}
-	
+
 	/**
 	 * Validate a type after it has been installed/created/etc.
 	 *
@@ -199,15 +203,14 @@ abstract class Server_Configuration extends Options {
 	 * @return boolean Whether it has been installed and validated
 	 */
 	final public function check_type_after($name) {
-		global $zesk;
 		/* @var $zesk zesk\Kernel */
 		try {
-			return $this->validate_type_after(avalue($this->variable_types, strtolower($name)), $name, $this->option($name, $zesk->configuration->get($name)));
+			return $this->validate_type_after(avalue($this->variable_types, strtolower($name)), $name, $this->option($name, $this->application->configuration->get($name)));
 		} catch (Exception $e) {
 			return false;
 		}
 	}
-	
+
 	/**
 	 * Retrieve settings
 	 *
@@ -216,29 +219,29 @@ abstract class Server_Configuration extends Options {
 	 * @return string $path Of retrieved file
 	 */
 	abstract public function remote_package($url);
-	
+
 	/**
 	 * Return an array of hostname => aliasname
 	 */
 	public function host_aliases() {
 		return array();
 	}
-	
+
 	/**
-	 * 
+	 *
 	 * @param unknown $type
 	 * @param unknown $files
 	 * @param unknown $dest
 	 * @param array $options
 	 */
 	abstract public function configuration_files($type, $files, $dest, array $options = array());
-	
+
 	/**
-	 * 
+	 *
 	 * @param Server_Feature $feature
 	 */
 	abstract public function configure_feature(Server_Feature $feature);
-	
+
 	/**
 	 * Retrieve directory to configure a feature
 	 *

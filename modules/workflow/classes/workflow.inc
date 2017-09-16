@@ -21,45 +21,45 @@ class Workflow extends Model {
 	 * @var array
 	 */
 	protected $steps = array();
-	
+
 	/**
 	 *
 	 * @var array
 	 */
 	protected $variables = array();
-	
+
 	/**
 	 * Computed from steps
 	 *
 	 * @var array of Workflow_Step
 	 */
 	protected $sorted_steps = null;
-	
+
 	/**
 	 *
 	 * @var boolean
 	 */
 	public $completed = true;
-	
+
 	/**
 	 *
 	 * @var integer
 	 */
 	public $steps_completed = 0;
-	
+
 	/**
 	 *
 	 * @var integer
 	 */
 	public $steps_total = 0;
-	
+
 	/**
 	 * Whether the above are computed or not
 	 *
 	 * @var unknown
 	 */
 	private $dirty = true;
-	
+
 	/**
 	 *
 	 * @param array $variables
@@ -97,14 +97,12 @@ class Workflow extends Model {
 		$this->_clean_completed();
 		return $this;
 	}
-	
+
 	/**
 	 * Clean the steps
 	 */
 	private function _init_steps() {
-		global $zesk;
-		/* @var $zesk \zesk\Kernel */
-		
+		$app = $this->application;
 		$this->sorted_steps = array();
 		$steps = array();
 		$dependencies = array();
@@ -118,7 +116,7 @@ class Workflow extends Model {
 			} else if (is_array($spec)) {
 				list($class, $options) = $spec;
 			} else {
-				zesk()->logger->error("Workflow::_init_steps Invalid value type {type} {dump}", array(
+				$app->logger->error("Workflow::_init_steps Invalid value type {type} {dump}", array(
 					"type" => type($spec),
 					"dump" => _dump($spec)
 				));
@@ -126,9 +124,9 @@ class Workflow extends Model {
 			}
 			try {
 				/* @var $step Workflow_Step */
-				$steps[$id] = $step = $zesk->objects->factory($class, $this, $options);
+				$steps[$id] = $step = $app->objects->factory($class, $this, $options);
 			} catch (Exception_Class_NotFound $e) {
-				zesk()->logger->error("Workflow::_init_steps Class not found {class}", array(
+				$app->logger->error("Workflow::_init_steps Class not found {class}", array(
 					"class" => $step
 				));
 			}
@@ -181,7 +179,7 @@ class Workflow extends Model {
 		$this->dirty = false;
 		$this->call_hook($this->completed ? 'completed' : "incomplete");
 	}
-	
+
 	/**
 	 * Return variables
 	 *
@@ -241,7 +239,7 @@ class Workflow extends Model {
 	public function __toString() {
 		return PHP::dump($this->variables);
 	}
-	
+
 	/*
 	 * Only place to access ->$name is here
 	 */

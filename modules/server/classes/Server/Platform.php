@@ -524,8 +524,6 @@ abstract class Server_Platform extends Hookable {
 	 * Configure the platform
 	 */
 	final public function configure(array $features = null) {
-		global $zesk;
-		/* @var $zesk zesk\Kernel */
 		$this->initialize_packager();
 		$this->initialize_config();
 		$this->initialize_files();
@@ -538,7 +536,7 @@ abstract class Server_Platform extends Hookable {
 			"features" => implode(", ", $feature_list)
 		));
 		foreach ($feature_list as $feature_name) {
-			$this->features[$feature_name] = $zesk->objects->factory("Server_Feature_$feature_name", $this);
+			$this->features[$feature_name] = $this->application->objects->factory("Server_Feature_$feature_name", $this);
 		}
 		foreach ($this->features as $feature_name => $feature) {
 			/* @var $feature Server_Feature */

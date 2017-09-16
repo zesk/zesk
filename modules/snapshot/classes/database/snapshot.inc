@@ -16,10 +16,14 @@ namespace zesk;
  * @property string $data
  */
 class Database_Snapshot extends Object {
-	public static function temporary_path($add = null) {
-		global $zesk;
-		/* @var $zesk APCIteratorKernel */
-		$path = $zesk->paths->temporary();
+	/**
+	 *
+	 * @param Application $application
+	 * @param unknown $add
+	 * @return string
+	 */
+	public static function temporary_path(Application $application, $add = null) {
+		$path = $application->paths->temporary();
 		Directory::depend($path);
 		return path($path, $add);
 	}
@@ -37,7 +41,7 @@ class Database_Snapshot extends Object {
 
 		$dbname = $db->database_name();
 		$filename = "backup-$date-$dbname.sql";
-		$temp = self::temporary_path($filename);
+		$temp = self::temporary_path($db->application, $filename);
 		try {
 			$timer = new Timer();
 			$db->dump($temp);
@@ -86,7 +90,7 @@ class Database_Snapshot extends Object {
 		$date = $now->format('{YYYY}-{MM}-{DD}_{hh}-{mm}-{ss}');
 		$dbname = $db->database_name();
 		$filename = "restore-$date-$dbname.sql";
-		$temp = self::temporary_path($filename);
+		$temp = self::temporary_path($db->application, $filename);
 		file_put_contents($temp, $this->data);
 		try {
 			$db->restore($temp);

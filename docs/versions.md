@@ -30,7 +30,6 @@
 - `zesk\Module_World` command `world-bootstrap` now properly creates bootstrap objects
 - `zesk\\Options::inherit_global_options` now takes `$application` as first parameter.
 
-
 ## Release v0.10.11
 
 - `zesk\Configuration_Loader::load_one` does not emit error with file name which does not exist is passed in.

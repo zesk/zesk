@@ -1,4 +1,5 @@
 <?php
+
 /**
  *
  * @version $URL: https://code.marketacumen.com/zesk/trunk/modules/server/classes/Server/Configuration/Files.php $
@@ -10,7 +11,7 @@
 namespace zesk;
 
 /**
- * 
+ *
  * @author kent
  *
  */
@@ -20,7 +21,7 @@ class Server_Configuration_Files extends Server_Configuration {
 	protected $variables = array();
 	function __construct(Server_Platform $platform, $options = null) {
 		parent::__construct($platform, $options);
-		
+
 		$this->_configure_host_path();
 		$this->_load_aliases();
 		$this->_load_configuration();
@@ -47,20 +48,19 @@ class Server_Configuration_Files extends Server_Configuration {
 		}
 	}
 	private function _load_configuration() {
-		global $zesk;
-		/* @var $zesk zesk\Kernel */
+		$app = $this->application;
 		$hostname = $this->platform->hostname();
 		$alias_hostname = avalue($this->host_aliases(), $hostname, $hostname);
 		if ($alias_hostname !== $hostname) {
-			$zesk->logger->warning("Server_Configuration_Files _load_configuration: {hostname} aliaesed to {alias_hostname}", array(
+			$app->logger->warning("Server_Configuration_Files _load_configuration: {hostname} aliaesed to {alias_hostname}", array(
 				"hostname" => $hostname,
 				"alias_hostname" => $alias_hostname
 			));
 		}
 		$searched_paths = array();
 		$this->search_path("all $alias_hostname");
-		$files = $this->option_list('files', $zesk->configuration->get('server_configuration_file', 'environment.sh'));
-		
+		$files = $this->option_list('files', $app->configuration->get('server_configuration_file', 'environment.sh'));
+
 		$search_path = $this->search_path();
 		$result = array();
 		while (count($searched_paths) < count($search_path)) {
@@ -71,7 +71,7 @@ class Server_Configuration_Files extends Server_Configuration {
 				foreach ($files as $file) {
 					$conf = path($this->host_path, $path, $file);
 					if (!is_file($conf)) {
-						$zesk->logger->debug("No configuration file {conf}", array(
+						$app->logger->debug("No configuration file {conf}", array(
 							"conf" => $conf
 						));
 						continue;
@@ -82,13 +82,13 @@ class Server_Configuration_Files extends Server_Configuration {
 					));
 					$result = $variables + $result;
 					$this->set_option($variables);
-					$zesk->logger->debug("Loading configuration $conf");
+					$app->logger->debug("Loading configuration $conf");
 				}
 				$searched_paths[$path] = true;
 			}
 			$search_path = $this->search_path();
 		}
-		$zesk->logger->debug("configuration search path {paths}, files {files}, result {result}", array(
+		$app->logger->debug("configuration search path {paths}, files {files}, result {result}", array(
 			"paths" => implode(",", $search_path),
 			"files" => implode(",", $files),
 			"result" => PHP::dump($result)
@@ -107,8 +107,6 @@ class Server_Configuration_Files extends Server_Configuration {
 	function remote_package($url) {
 	}
 	function configure_feature(Server_Feature $feature) {
-		global $zesk;
-		/* @var $zesk \zesk\Kernel */
 		$shortname = $feature->code;
 		$files = array(
 			path($feature->configure_path(), 'feature.conf')
@@ -120,7 +118,7 @@ class Server_Configuration_Files extends Server_Configuration {
 				$settings = $this->platform->conf_load($file) + $settings;
 			}
 		}
-		$zesk->logger->debug("Configured feature {class} {settings}", array(
+		$this->application->logger->debug("Configured feature {class} {settings}", array(
 			"class" => get_class($feature),
 			"settings" => Text::format_pairs($settings)
 		));
@@ -138,7 +136,7 @@ class Server_Configuration_Files extends Server_Configuration {
 		if (!file_exists($alias_file)) {
 			return $this->host_aliases;
 		}
-		
+
 		foreach (file($alias_file) as $line) {
 			list($line) = pair(trim($line), "#", $line);
 			$line = trim($line);

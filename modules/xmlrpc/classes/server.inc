@@ -1,4 +1,5 @@
 <?php
+
 /**
  * $URL: https://code.marketacumen.com/zesk/trunk/modules/xmlrpc/classes/xmlrpc/server.inc $
  * @package zesk
@@ -25,58 +26,64 @@ use zesk\Application;
  * @subpackage xmlrpc
  */
 class Server extends Options {
+
 	/**
-	 * 
+	 *
+	 * @var Application
+	 */
+	public $application = null;
+	/**
+	 *
 	 * @var array
 	 */
 	public $Methods = array();
 	/**
-	 * 
+	 *
 	 * @var unknown
 	 */
 	public $Response;
 	/**
-	 * 
+	 *
 	 * @var unknown
 	 */
 	public $Capabilities;
 	/**
-	 * 
+	 *
 	 * @var unknown
 	 */
 	private $LogFile;
 	/**
-	 * 
+	 *
 	 * @var unknown
 	 */
 	private $LogPath;
-	
+
 	/**
 	 *
 	 * @var array
 	 */
 	protected $export_methods = array();
-	
+
 	/**
 	 *
 	 * @var array
 	 */
 	protected $rpc_methods = array();
-	
+
 	/**
-	 * 
+	 *
 	 * @param string $methods
 	 */
 	function __construct(Application $application, array $options = array()) {
 		$this->application = $application;
 		parent::__construct($options);
 		$this->inherit_global_options($application);
-		
+
 		$this->Methods = array();
-		
+
 		$this->setupCapabilities();
 		$this->registerSystemMethods();
-		
+
 		if (is_array($this->rpc_methods)) {
 			$this->registerMethods($this->rpc_methods);
 		}
@@ -84,9 +91,9 @@ class Server extends Options {
 			$this->register_reflection_method($this->export_methods);
 		}
 	}
-	
+
 	/**
-	 * 
+	 *
 	 * @param unknown $value
 	 * @return string
 	 */
@@ -95,20 +102,19 @@ class Server extends Options {
 		$xml = $xml->toXML();
 		return "<methodResponse><params><param><value>$xml</value></param></params></methodResponse>";
 	}
-	
+
 	/**
+	 *
 	 * @todo convert to zesk logger, or add zesk\Logger member
-	 * 
+	 *
 	 * @param unknown $data
 	 */
 	public function log($data) {
-		global $zesk;
-		/* @var $zesk \zesk\Kernel */
-		$zesk->logger->log("debug", $data);
+		$this->application->logger->log("debug", $data);
 	}
-	
+
 	/**
-	 * 
+	 *
 	 * @param string $data
 	 */
 	function serve($data = false) {
@@ -124,10 +130,10 @@ class Server extends Options {
 			}
 			$this->log($data);
 		}
-		
+
 		$response = new Parser($data);
 		$this->Response = $response;
-		
+
 		$result = $response->parse();
 		if (!$result) {
 			$this->error(Exception::ERROR_PARSE_NOT_WELL_FORMED, 'Parse error: Malformed XML request.');
@@ -145,7 +151,7 @@ class Server extends Options {
 		} catch (Exception $e) {
 			$result = new Exception(Exception::ERROR_APPLICATION, $e->getMessage());
 		}
-		
+
 		// Is the result an error?
 		if (is_a($result, 'Exception')) {
 			$this->error($result);
@@ -153,9 +159,9 @@ class Server extends Options {
 			$this->response(self::methodResponseXML($result));
 		}
 	}
-	
+
 	/**
-	 * 
+	 *
 	 * @param string $methodName
 	 * @param array $args
 	 * @throws Exception
@@ -169,7 +175,7 @@ class Server extends Options {
 				$args
 			);
 		}
-		
+
 		/* @var $method Server_Method */
 		$method = avalue($this->Methods, $methodName);
 		if (!$method instanceof Server_Method) {
@@ -178,12 +184,12 @@ class Server extends Options {
 			$this->log("Avaliable methods: " . implode(", ", array_keys($this->Methods)));
 			throw new Exception(Exception::ERROR_SERVER_METHOD_NOT_FOUND, 'Server error. Requested method "' . $methodName . '" does not exist.');
 		}
-		
+
 		// Check the arguments
 		$this->log("$methodName checkArguments");
 		$method->checkArguments($methodName, $args);
 		$result = $method->invoke($this, $args);
-		
+
 		return $result;
 	}
 	function error($error, $message = false) {
@@ -241,7 +247,7 @@ class Server extends Options {
 		}
 		return $type;
 	}
-	
+
 	/**
 	 *
 	 *
@@ -272,7 +278,7 @@ class Server extends Options {
 		$doccomment = DocComment::parse($rmethod->getDocComment());
 		$doc_return = avalue($doccomment, 'return', '');
 		$doc_params = to_array(aevalue($doccomment, 'param'), array());
-		
+
 		$returnType = self::_rpc_type($doc_return, str::field($doc_return, 0));
 		$parameterTypes = array();
 		$parameterHelp = array();
@@ -284,7 +290,7 @@ class Server extends Options {
 			if ($is_optional) {
 				$param_default = $param->getDefaultValue();
 			}
-			
+
 			$param_doc = avalue($doc_params, '$' . $param_name);
 			if (!$param_doc) {
 				throw new Exception_Unimplemented("Function $method missing parameter doccomment for \$$param_name");
@@ -303,7 +309,7 @@ class Server extends Options {
 			'specVersion' => $specVersion
 		);
 	}
-	
+
 	/*====================================================================================*\
 	 *	RPC Initialization Methods
 	 \*------------------------------------------------------------------------------------*/
@@ -374,25 +380,24 @@ class Server extends Options {
 			)
 		));
 	}
-	
+
 	/*====================================================================================*\
 	 *	RPC Server Methods
 	 \*------------------------------------------------------------------------------------*/
 	function rpc_getCapabilities() {
 		return $this->Capabilities;
 	}
-	
+
 	/**
-	 * 
 	 */
 	function rpc_listMethods() {
 		$methods = array_keys($this->Methods);
 		sort($methods);
 		return $methods;
 	}
-	
+
 	/**
-	 * 
+	 *
 	 * @param array $methodCalls
 	 * @return Exception[]|NULL[][]
 	 */
@@ -422,9 +427,9 @@ class Server extends Options {
 		}
 		return $results;
 	}
-	
+
 	/**
-	 * 
+	 *
 	 * @param unknown $method
 	 * @return Exception
 	 */
@@ -437,9 +442,9 @@ class Server extends Options {
 		/* @var $methodObject Server_Method */
 		return $methodObject->methodSignature();
 	}
-	
+
 	/**
-	 * 
+	 *
 	 * @param unknown $method
 	 * @return string
 	 */

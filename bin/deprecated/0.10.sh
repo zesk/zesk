@@ -169,3 +169,8 @@ echo '`new Net_Foo` now takes `$application`'
 php-find.sh 'new Net' | grep -v app
 pause
 
+echo '`Database_Snapshot::temporary_path` now takes `$application`'
+php-find.sh 'Database_Snapshot::temporary_path' 
+pause
+
+
