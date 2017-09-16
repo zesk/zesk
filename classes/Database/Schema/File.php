@@ -60,7 +60,7 @@ class Database_Schema_File extends Database_Schema {
 	function __construct(Class_Object $class_object, Object $object = null, $sql = null) {
 		parent::__construct($class_object, $object);
 		if ($sql !== null) {
-			$this->sql = $sql;
+			$this->_set_sql($sql);
 			$this->parser = Database_Parser::parse_factory($this->database(), $this->sql, calling_function());
 			zesk()->logger->debug("Parsing SQL {sql} using {parse_class} for class {class}", array(
 				"sql" => $sql,
@@ -71,18 +71,27 @@ class Database_Schema_File extends Database_Schema {
 			$path = $this->schema_path();
 			if ($path) {
 				$this->sql_file_path = $path;
-				$this->sql = file_get_contents($path);
+				$this->_set_sql(file_get_contents($path));
 				$this->parser = Database_Parser::parse_factory($this->database(), $this->sql, $path);
-				zesk()->logger->debug("Parsing {path} using {parse_class} for class {class}", array(
+				zesk()->logger->debug("Parsing {path} using {parse_class} for class {class}\nSQL:\n{sql}\n", array(
 					"path" => $path,
+					"sql" => $this->mapped_sql,
 					"parse_class" => get_class($this->parser),
 					"class" => get_class($class_object)
 				));
 			}
 		}
-		$this->mapped_sql = map($this->sql, $this->schema_map());
 	}
 	
+	/**
+	 * Set all variables dependent on the SQL parsed
+	 * 
+	 * @param string $sql
+	 */
+	private function _set_sql($sql) {
+		$this->sql = $sql;
+		$this->mapped_sql = map($this->sql, $this->schema_map());
+	}
 	/**
 	 * List of paths searched
 	 *

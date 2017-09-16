@@ -10,13 +10,31 @@ namespace zesk;
  *
  */
 class Class_Contact_Address extends Class_Contact_Info {
+	/**
+	 * 
+	 * @var string
+	 */
+	public $id_column = "id";
+	/**
+	 * 
+	 * @var string
+	 */
 	public $contact_object_field = "address";
+	/**
+	 * 
+	 * @var array
+	 */
 	public $has_one = array(
 		'contact' => "zesk\\Contact",
 		'label' => 'zesk\\Contact_Label',
 		'country' => 'zesk\\Country',
 		'county' => 'zesk\\County'
 	);
+	
+	/**
+	 * 
+	 * @var array
+	 */
 	public $column_types = array(
 		"id" => self::type_id,
 		"contact" => self::type_object,
@@ -39,6 +57,11 @@ class Class_Contact_Address extends Class_Contact_Info {
 		'modified' => self::type_modified,
 		'data' => self::type_serialize
 	);
+	
+	/**
+	 * 
+	 * @var array
+	 */
 	public $column_defaults = array(
 		'name' => ''
 	);

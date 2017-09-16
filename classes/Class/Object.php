@@ -1234,7 +1234,10 @@ class Class_Object extends Hookable {
 	 * @return string ';'-separated list of fields in this database
 	 */
 	final public function member_names() {
-		return array_merge(array_keys($this->column_types), array_keys($this->has_one), array_keys($this->has_many));
+		return array_keys($this->column_types + $this->has_one + $this->has_many);
+	}
+	final public function column_names() {
+		return array_keys($this->column_types + $this->has_one);
 	}
 	final public function has_many(Object $object, $member) {
 		if (!array_key_exists($member, $this->has_many)) {
@@ -1461,7 +1464,7 @@ class Class_Object extends Hookable {
 		global $zesk;
 		/* @var $zesk Kernel */
 		try {
-			list($namespace, $class) = pairr($this->class, "\\", "", $this->class);
+			list($namespace, $class) = PHP::parse_namespace_class($this->class);
 			if ($namespace) {
 				$namespace .= "\\";
 			}
@@ -1494,8 +1497,6 @@ class Class_Object extends Hookable {
 			return $result;
 		} else if (is_array($result)) {
 			return $this->_database_schema($object, implode(";\n", $result));
-		} else if (is_string($result)) {
-			return $this->_database_schema($object, $result);
 		}
 		if ($result === null) {
 			return $result;
@@ -1945,10 +1946,14 @@ class Class_Object extends Hookable {
 	 * @return array
 	 */
 	public function schema_map() {
+		// Some of these are for MySQL only. Good/bad? TODO
 		return $this->option_array("schema_map") + array(
 			'name' => $this->name,
 			'code_name' => $this->code_name,
-			'table' => $this->table
+			'table' => $this->table,
+			"extra_keys" => "",
+			"auto_increment" => $this->auto_column ? "AUTO_INCREMENT" : "",
+			"primary_keys" => implode(",", $this->primary_keys)
 		);
 	}
 	

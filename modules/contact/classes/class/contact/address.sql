@@ -1,6 +1,7 @@
 -- Database: mysql
 CREATE TABLE `{table}` (
-	`id` integer unsigned not null auto_increment,
+	{additional_keys}
+	`id` integer unsigned not null {auto_increment},
 	`contact` integer unsigned null,
 	`label` integer unsigned null,
 	`name` varchar(64) not null default '',
@@ -20,6 +21,6 @@ CREATE TABLE `{table}` (
 	`created` timestamp not null default 0,
 	`modified` timestamp not null default 0,
 	`data` blob,
-	PRIMARY KEY  (`id`)
+	PRIMARY KEY ({primary_keys})
 );
 
