@@ -260,14 +260,8 @@ class Router extends Hookable {
 	 * @return number
 	 */
 	static function compare_weight(Route $a, Route $b) {
-		$a_weight = $a->option("weight");
-		if (isset(Kernel::$weight_specials[$a_weight])) {
-			$a_weight = Kernel::$weight_specials[$a_weight];
-		}
-		$b_weight = $b->option("weight");
-		if (isset(Kernel::$weight_specials[$b_weight])) {
-			$b_weight = Kernel::$weight_specials[$b_weight];
-		}
+		$a_weight = zesk_weight($a->option("weight"));
+		$b_weight = zesk_weight($b->option("weight"));
 		$a->set_option("computed_weight", $a_weight);
 		$b->set_option("computed_weight", $b_weight);
 		$delta = doubleval($a_weight) - doubleval($b_weight);

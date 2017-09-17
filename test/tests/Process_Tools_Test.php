@@ -2,6 +2,7 @@
 /**
  * $URL: https://code.marketacumen.com/zesk/trunk/test/classes/process/tools.inc $
  *
+ * @test_sandbox true
  * @package zesk
  * @subpackage test
  * @author Kent Davidson <kent@marketacumen.com>
