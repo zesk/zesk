@@ -205,6 +205,28 @@ class Database extends \zesk\Database {
 			self::attribute_collation => $table->option(self::attribute_collation, $this->default_collation())
 		);
 	}
+	
+	/**
+	 * Handle database-specific differences between two columns
+	 * @param Database_Column $self
+	 * @param Database_Column $that
+	 * @param array $diffs
+	 */
+	function column_differences(Database_Column $self, Database_Column $that, array $diffs) {
+		if ($self->is_text()) {
+			return $diffs + $self->attributes_differences($this, $that, array(
+				self::attribute_character_set,
+				self::attribute_collation
+			));
+		}
+		return array();
+	}
+	
+	/**
+	 * 
+	 * @param array $attributes
+	 * @return unknown[]
+	 */
 	function normalize_attributes(array $attributes) {
 		$newattrs = array();
 		foreach ($attributes as $k => $v) {

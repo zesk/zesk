@@ -37,7 +37,7 @@ class Database_Column extends Options {
 	function __construct(Database_Table $table, $name, $options = null) {
 		$this->table = $table;
 		if (is_string($options)) {
-			// Handle backwards compatibility
+			// Handle backwards compatibility 2017-03
 			zesk()->deprecated();
 			$args = func_get_args();
 			$sql_type = $options;
@@ -148,8 +148,26 @@ class Database_Column extends Options {
 				$that->is_increment()
 			);
 		}
+		$result = $db->column_differences($this, $that, $diffs);
+		if (is_array($result)) {
+			$diffs = $result + $diffs;
+		}
+		return $diffs;
+	}
+	
+	/**
+	 * 
+	 * @param Database $db
+	 * @param Database_Column $that
+	 * @return array
+	 */
+	public function attributes_differences(Database $db, Database_Column $that, $filter = null) {
 		$this_extras = $db->column_attributes($this);
 		$that_extras = $db->column_attributes($that);
+		$diffs = array();
+		if ($filter) {
+			$this_extras = arr::filter($this_extras, $filter);
+		}
 		foreach ($this_extras as $extra => $default) {
 			$this_value = $this->option($extra, $default);
 			$that_value = $that->option($extra, avalue($that_extras, $extra, $default));

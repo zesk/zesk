@@ -1,4 +1,13 @@
 -- Database: mysql
+-- COLUMN: ID -> id
+-- COLUMN: MIMEType -> mime
+-- COLUMN: Original -> original
+-- COLUMN: Name -> name
+-- COLUMN: Content_Data -> data
+-- COLUMN: Description -> description
+-- COLUMN: User -> user
+-- COLUMN: Created -> created
+-- COLUMN: Modified -> modified
 CREATE TABLE `{table}` (
 	`id` integer unsigned NOT NULL AUTO_INCREMENT,
 	`mime` varchar(128) NULL,

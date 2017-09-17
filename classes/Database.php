@@ -1515,4 +1515,13 @@ abstract class Database extends Hookable {
 			"code_name" => $this->code_name()
 		);
 	}
+	
+	/**
+	 * Handle database-specific differences between two columns
+	 * @param Database_Column $self Database column being compared
+	 * @param Database_Column $that Database column being compared to
+	 * @param array $diffs Existing differences bewteen the two columns, which you may add to, and then return.
+	 * @return array Any additional diffs
+	 */
+	abstract public function column_differences(Database_Column $self, Database_Column $that, array $diffs);
 }
