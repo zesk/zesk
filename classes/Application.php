@@ -1777,8 +1777,19 @@ class Application extends Hookable implements Interface_Theme {
 	public function application_root($suffix = null) {
 		return $this->paths->application($suffix);
 	}
+	
+		/**
+	 * Return the application root path.
+	 *
+	 * @param string $suffix
+	 *        	Optional path to add to the application path
+	 * @return string
+	 */
+	public function application_class() {
+		return $this->zesk->application_class();
+	}
 
-	/**
+/**
 	 *
 	 * @param string $path
 	 * @return \zesk\Application
