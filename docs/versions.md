@@ -1,3 +1,8 @@
+## Release v0.12.1
+
+- Fixing `MySQL\Database_Parser` of `COLLATE` in tables to support `_` in names
+- `zesk\Database::create_database` now contains `$hosts` and uses less assumptions
+- `zesk\World_Bootstrap_Country` now quieter unless `::debug` option is set
 ## Release v0.12.0
 
 - Adding back in `zesk\Application::application_class`
