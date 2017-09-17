@@ -426,19 +426,11 @@ class Session_Database extends Object implements Interface_Session {
 	public function variables() {
 		return $this->members['data'];
 	}
+	
 	/**
-	 * Delete the session
-	 *
-	 * @see Object::delete()
+	 * 
+	 * @return self
 	 */
-	// 	public function delete() {
-	// 		$master = self::instance();
-	// 		$master_id = $master ? $master->id() : null;
-	// 		if ($master_id === $this->id()) {
-	// 			$master->set_member('cookie', null);
-	// 		}
-	// 		parent::delete();
-	// 	}
 	public function found_session() {
 		return $this;
 	}
@@ -463,25 +455,6 @@ class Session_Database extends Object implements Interface_Session {
 	 */
 	public function cookie_options() {
 		return $this->option_array("cookie");
-	}
-	
-	/**
-	 * Set sessions enabled or not (default are enabled)
-	 *
-	 * @deprecated 2017-08 Probably should set implementation to NULL or something
-	 *
-	 * @param boolean $set
-	 *        	Optional
-	 * @return boolean
-	 */
-	public static function enabled($set = null) {
-		zesk()->deprecated();
-		if ($set === null) {
-			return zesk()->configuration->path("session")->disabled;
-		}
-		$set = !to_bool($set);
-		zesk()->configuration->path("session")->disabled = $set;
-		return $set;
 	}
 }
 

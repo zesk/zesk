@@ -184,7 +184,7 @@ function endsi($haystack, $needle) {
 }
 
 /**
- * Set or get the newline character.
+ * Set or get the newline character. Probably should deprecate this for an output class.
  *
  * @param string $set
  * @return string

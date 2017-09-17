@@ -792,7 +792,7 @@ class Timestamp extends Temporal {
 	 */
 	function format($format_string = null, array $options = array()) {
 		if ($format_string === null) {
-			$format_string = zesk()->configuration->path_get(array(
+			$format_string = Kernel::singleton()->configuration->path_get(array(
 				__CLASS__,
 				"format_string"
 			), self::default_format);

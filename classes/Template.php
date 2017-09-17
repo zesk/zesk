@@ -638,7 +638,7 @@ class Template implements Interface_Theme {
 		if (!self::$profile) {
 			return '';
 		}
-		echo zesk()->application()->theme('template/profile', self::$_stats);
+		echo Kernel::singleton()->application()->theme('template/profile', self::$_stats);
 	}
 	
 	/*

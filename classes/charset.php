@@ -13,12 +13,19 @@ namespace zesk;
 use \DirectoryIterator;
 
 class charset {
+	/**
+	 * 
+	 */
 	private static $tables = array();
-	public static $debug = false;
-	public static function to_utf8($data, $charset) {
+	
+	/**
+	 * Convert an array of strings or a string from the given charset to UTF-8. 
+	 *   
+	 */
+	public static function to_utf8($data, $charset, &$missing = array()) {
 		if (is_array($data)) {
 			foreach ($data as $k => $v) {
-				$data[$k] = self::to_utf8($v, $charset);
+				$data[$k] = self::to_utf8($v, $charset, $missing);
 			}
 			return $data;
 		}
@@ -35,7 +42,7 @@ class charset {
 		for ($i = 0; $i < $length; $i++) {
 			$c = ord($data[$i]);
 			if (!array_key_exists($c, $table)) {
-				self::debug("Char $c not found in $charset");
+				$missing[$c] = isset($missing[$c]) ? $missing[$c] + 1 : 1;
 				continue;
 			}
 			$u = $table[$c];
@@ -117,10 +124,5 @@ class charset {
 			}
 		}
 		return $result;
-	}
-	private static function debug($message) {
-		if (self::$debug) {
-			zesk()->logger->debug($message);
-		}
 	}
 }

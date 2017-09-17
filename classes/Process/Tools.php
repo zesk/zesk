@@ -54,10 +54,15 @@ class Process_Tools {
 	 *
 	 * @return boolean
 	 */
-	static function process_code_changed() {
-		return zesk()->objects->singleton(__NAMESPACE__ . "\\" . "File_Monitor_Includes")->changed();
+	static function process_code_changed(Application $application) {
+		return $application->objects->singleton(__NAMESPACE__ . "\\" . "File_Monitor_Includes")->changed();
 	}
-	static function process_code_changed_files() {
-		return zesk()->objects->singleton(__NAMESPACE__ . "\\" . "File_Monitor_Includes")->changed_files();
+	
+	/**
+	 * 
+	 * @return unknown
+	 */
+	static function process_code_changed_files(Application $application) {
+		return $application->objects->singleton(__NAMESPACE__ . "\\" . "File_Monitor_Includes")->changed_files();
 	}
 }
