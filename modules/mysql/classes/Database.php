@@ -86,6 +86,15 @@ class Database extends \zesk\Database {
 	const attribute_engine = "engine";
 	
 	// utf8 is the future
+	//
+	// After MySQL 5.5.2 use:
+	// ALTER DATABASE databasename CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+	// ALTER TABLE tablename CONVERT TO CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+	//
+	// Before or using MySQL 5.5.2 use: 
+	// ALTER DATABASE databasename CHARACTER SET utf8 COLLATE utf8_unicode_ci;
+	// ALTER TABLE tablename CONVERT TO CHARACTER SET utf8 COLLATE utf8_unicode_ci;
+	
 	/**
 	 *
 	 * @var string
