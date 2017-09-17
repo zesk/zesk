@@ -10,8 +10,6 @@ namespace zesk;
 
 class CharSet_Test extends Test_Unit {
 	function test_supported() {
-		charset::$debug = true;
-		
 		$charset = null;
 		$result = charset::supported($charset);
 		$this->application->development(true);
@@ -23,8 +21,6 @@ class CharSet_Test extends Test_Unit {
 		}
 	}
 	function to_utf8() {
-		charset::$debug = true;
-		
 		$every_char = "";
 		for ($i = 32; $i <= 127; $i++) {
 			$every_char .= chr($i);

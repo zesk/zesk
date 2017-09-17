@@ -1501,7 +1501,7 @@ class Class_Object extends Hookable {
 		if ($result === null) {
 			return $result;
 		}
-		return $this->_database_schema($result);
+		return $this->_database_schema($object, $result);
 	}
 	
 	/**

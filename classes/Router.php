@@ -223,9 +223,9 @@ class Router extends Hookable {
 	 * @return string
 	 */
 	private static function cache_path(Application $app, $cache_file = null) {
-		$app = PHP::parse_class(get_class($app));
+		$name = PHP::parse_class(get_class($app));
 		if ($cache_file === null) {
-			$cache_file = $app->configuration->path_get(__CLASS__ . "::cache_file", $app->configuration->path_get("Router::cache_file", "$app.cache"));
+			$cache_file = $app->configuration->path_get(__CLASS__ . "::cache_file", $app->configuration->path_get("Router::cache_file", "$name.cache"));
 		}
 		return $app->paths->cache(array(
 			"routers",
@@ -488,7 +488,7 @@ class Router extends Hookable {
 			}
 		}
 		if (count($paths) > 0 && count($options) === 0) {
-			$zesk->logger->error("Router {path} has no valid options {options_string}", array(
+			$this->application->logger->error("Router {path} has no valid options {options_string}", array(
 				"path" => $path,
 				"options" => $options,
 				"options_string" => json_encode($options)

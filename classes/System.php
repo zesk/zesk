@@ -50,8 +50,8 @@ class System {
 	 *
 	 * @return array of interface => $ip
 	 */
-	public static function ip_addresses() {
-		$ifconfig = self::ifconfig("inet;ether");
+	public static function ip_addresses(Application $application) {
+		$ifconfig = self::ifconfig($application, "inet;ether");
 		$ips = array();
 		foreach ($ifconfig as $interface => $values) {
 			if (array_key_exists('inet', $values)) {
@@ -69,8 +69,8 @@ class System {
 	 *
 	 * @return array of interface => $ip
 	 */
-	public static function mac_addresses() {
-		$ifconfig = self::ifconfig("inet;ether");
+	public static function mac_addresses(Application $application) {
+		$ifconfig = self::ifconfig($application, "inet;ether");
 		$macs = array();
 		foreach ($ifconfig as $interface => $values) {
 			if (array_key_exists('ether', $values)) {

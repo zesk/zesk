@@ -47,6 +47,6 @@ class Router_Test extends Test_Unit {
 	}
 	function test_cached() {
 		$mtime = null;
-		Router::cached($mtime);
+		Router::cached($this->application, $mtime);
 	}
 }

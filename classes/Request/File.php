@@ -2,7 +2,7 @@
 namespace zesk\Request;
 
 use zesk\Application;
-use zesk\File;
+use zesk\File as zeskFile;
 use zesk\Directory;
 use zesk\Exception_File_Permission;
 use zesk\Exception_Parameter;
@@ -50,7 +50,7 @@ class File {
 			throw new Exception_File_Permission($this->tmp_path, "Not an uploaded file");
 		}
 		$this->name = avalue($upload_array, "name", basename($this->tmp_path));
-		$this->ext = File::extension($this->name);
+		$this->ext = zeskFile::extension($this->name);
 	}
 	
 	/**

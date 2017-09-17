@@ -101,12 +101,26 @@ class charset {
 	private static function charset_path($charset = null) {
 		return ZESK_ROOT . 'etc/charset-data/' . ($charset === null ? '' : strtolower($charset) . '.txt');
 	}
+	
+	/**
+	 * Do we support the given charset conversion? If null passed in, returns the list
+	 * of all of the supported charsets.
+	 * 
+	 * @param string $charset
+	 * @return string[]|boolean
+	 */
 	public static function supported($charset = null) {
 		if ($charset === null) {
 			return self::list_all();
 		}
 		return file_exists(self::charset_path($charset));
 	}
+	
+	/**
+	 * Return a list of the available charsets.
+	 * 
+	 * @return string[]
+	 */
 	private static function list_all() {
 		$iter = new DirectoryIterator(self::charset_path());
 		$result = array();

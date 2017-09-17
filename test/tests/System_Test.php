@@ -1,7 +1,7 @@
 <?php
 namespace zesk;
 
-class Test_System extends Test_Unit {
+class System_Test extends Test_Unit {
 	function test_host_id() {
 		System::host_id();
 	}
@@ -12,13 +12,13 @@ class Test_System extends Test_Unit {
 		System::process_id();
 	}
 	function test_ip_addresses() {
-		System::ip_addresses();
+		System::ip_addresses($this->application);
 	}
 	function test_mac_addresses() {
-		System::mac_addresses();
+		System::mac_addresses($this->application);
 	}
 	function test_ifconfig() {
-		$ifconfig = System::ifconfig();
+		$ifconfig = System::ifconfig($this->application);
 	}
 	function test_load_averages() {
 		$default = null;
@@ -52,7 +52,5 @@ class Test_System extends Test_Unit {
 		$info = System::volume_info('/not-a-volume');
 		assert(is_array($info));
 		assert(count($info) === 0);
-		
-		echo basename(__FILE__) . ": success\n";
 	}
 }

@@ -1,4 +1,4 @@
-A<?php
+<?php
 
 /**
  * $URL: https://code.marketacumen.com/zesk/trunk/classes/request.inc $

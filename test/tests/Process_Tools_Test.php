@@ -37,13 +37,13 @@ class Process_Tools_Test extends Test_Unit {
 		
 		require_once $php_file;
 		
-		$this->assert(Process_Tools::process_code_changed() === false);
+		$this->assert(Process_Tools::process_code_changed($this->application) === false);
 		sleep(1);
 		file_put_contents($php_file, "<?php\ndefine('TEST_PGT',false);\n");
 		clearstatcache();
 		echo filemtime($php_file) . "\n";
 		
-		$this->assert(Process_Tools::process_code_changed() === true);
+		$this->assert(Process_Tools::process_code_changed($this->application) === true);
 		
 		unlink($php_file);
 		
@@ -54,8 +54,8 @@ class Process_Tools_Test extends Test_Unit {
 		echo basename(__FILE__) . ": success\n";
 	}
 	function test_code_changed() {
-		$result = Process_Tools::process_code_changed();
-		$this->assert_false($result, "Process code did not change: " . implode(",", Process_tools::process_code_changed_files()));
+		$result = Process_Tools::process_code_changed($this->application);
+		$this->assert_false($result, "Process code did not change: " . implode(",", Process_tools::process_code_changed_files($this->application)));
 		
 		$files = get_included_files();
 		$include = $this->test_sandbox("process_code_changed.php");
@@ -69,7 +69,7 @@ class Process_Tools_Test extends Test_Unit {
 		
 		$this->assert_in_array($files, $include, "test file is already included");
 		
-		$result = Process_Tools::process_code_changed();
+		$result = Process_Tools::process_code_changed($this->application);
 		
 		$this->assert_false($result, "New include does not mean process code changed");
 		
@@ -77,7 +77,7 @@ class Process_Tools_Test extends Test_Unit {
 		
 		File::put($include, "<?php\n//Hello");
 		
-		$result = Process_Tools::process_code_changed();
+		$result = Process_Tools::process_code_changed($this->application);
 		
 		$this->assert_true($result, "Changed include means process code changed");
 	}
