@@ -9,7 +9,12 @@ pause() {
 	read
 }
 
-echo 'Function `zesk\Kernel::sort_weight_array` has been renamed to `zesk_sort_weight_array`'
+echo 'Function `zesk\Kernel::sort_weight_array[_reverse]` has been renamed to `zesk_sort_weight_array[_reverse]`'
 php-find.sh sort_weight_array | grep -v 'zesk_sort_weight_array'
 pause
 
+echo 'Function `zesk\Process_Tools::process_code[_...]` now takes `$application` as the first parameter'
+php-find.sh Process_Tools::process_code | grep -v 'app'
+pause
+
+process_code_changed
