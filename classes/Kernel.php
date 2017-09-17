@@ -93,13 +93,6 @@ class Kernel {
 			'time' => array()
 		)
 	);
-	public static $weight_specials = array(
-		'zesk-first' => -1e300,
-		'first' => -1e299,
-		'last' => 1e299,
-		'zesk-last' => 1e300
-	);
-
 	/**
 	 *
 	 * @var double
@@ -192,6 +185,7 @@ class Kernel {
 	protected $application = null;
 
 	/**
+	 *
 	 * @deprecated 2017-09 Moved to `\is_windows()` for now
 	 * @var boolean
 	 */
@@ -495,51 +489,6 @@ class Kernel {
 		}
 	}
 
-	/**
-	 * Sort an array based on the weight array index
-	 * Support special terms such as "first" and "last"
-	 *
-	 * use like:
-	 *
-	 * `usort` does not maintain index association:
-	 *
-	 * usort($this->links_sorted, array(zesk(), "sort_weight_array"));
-	 *
-	 * `uasort` DOES maintain index association:
-	 *
-	 * uasort($this->links_sorted, array(zesk(), "sort_weight_array"));
-	 *
-	 * @param array $a
-	 * @param array $b
-	 * @see usort
-	 * @see uasort
-	 * @return integer
-	 */
-	public function sort_weight_array(array $a, array $b) {
-		// Get weight a, convert to double
-		$aw = array_key_exists('weight', $a) ? $a['weight'] : 0;
-		$aw = doubleval(array_key_exists("$aw", self::$weight_specials) ? self::$weight_specials[$aw] : $aw);
-
-		// Get weight b, convert to double
-		$bw = array_key_exists('weight', $b) ? $b['weight'] : 0;
-		$bw = doubleval(array_key_exists("$bw", self::$weight_specials) ? self::$weight_specials[$bw] : $bw);
-
-		// a < b -> -1
-		// a > b -> 1
-		// a === b -> 0
-		return $aw < $bw ? -1 : ($aw > $bw ? 1 : 0);
-	}
-
-	/**
-	 * Same as sort_weight_array but highest values are FIRST, not LAST.
-	 *
-	 * @param array $a
-	 * @param array $b
-	 * @return integer
-	 */
-	public function sort_weight_array_reverse(array $a, array $b) {
-		return $this->sort_weight_array($b, $a);
-	}
 	/**
 	 * Internal call to initialize profiler structure
 	 */

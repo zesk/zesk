@@ -823,7 +823,8 @@ function map($mixed, array $map, $insensitive = false, $prefix_char = "{", $suff
  * Clean map tokens from a string
  *
  * @test_inline $this->assert_equal(map_clean("He wanted {n} days"), "He wanted days");
- * @test_inline $this->assert_equal(map_clean("{}{}{}{}{}{all}{of}{this}{is}{removed}except}{}"),"except}");
+ * @test_inline
+ * $this->assert_equal(map_clean("{}{}{}{}{}{all}{of}{this}{is}{removed}except}{}"),"except}");
  *
  * @param mixed $mixed
  * @param string $prefix_char
@@ -923,7 +924,7 @@ function _W($phrase) {
 		}
 		$phrase = substr($phrase, 0, $match_off) . $replace_value . substr($phrase, $match_off + $match_len);
 	}
-	
+
 	if (count($skip_s) === 0) {
 		return $phrase;
 	}
@@ -1337,6 +1338,50 @@ function &apath_set(array &$array, $path, $value = null, $separator = ".") {
 }
 
 /**
+ * Sort an array based on the weight array index
+ * Support special terms such as "first" and "last"
+ *
+ * use like:
+ *
+ * `usort` does not maintain index association:
+ *
+ * usort($this->links_sorted, "zesk_sort_weight_array"));
+ *
+ * `uasort` DOES maintain index association:
+ *
+ * uasort($this->links_sorted, "zesk_sort_weight_array"));
+ *
+ * @param array $a
+ * @param array $b
+ * @see usort
+ * @see uasort
+ * @return integer
+ */
+function zesk_sort_weight_array(array $a, array $b) {
+	static $weight_specials = array(
+		'zesk-first' => -1e300,
+		'first' => -1e299,
+		'last' => 1e299,
+		'zesk-last' => 1e300
+	);
+
+	// Get weight a, convert to double
+	$aw = array_key_exists('weight', $a) ? $a['weight'] : 0;
+	$aw = doubleval(array_key_exists("$aw", $weight_specials) ? $weight_specials[$aw] : $aw);
+
+	// Get weight b, convert to double
+	$bw = array_key_exists('weight', $b) ? $b['weight'] : 0;
+	$bw = doubleval(array_key_exists("$bw", $weight_specials) ? $weight_specials[$bw] : $bw);
+
+	// a < b -> -1
+	// a > b -> 1
+	// a === b -> 0
+	return $aw < $bw ? -1 : ($aw > $bw ? 1 : 0);
+}
+function zesk_sort_weight_array_reverse($a, $b) {
+	return zesk_sort_weight_array($b, $a);
+}
+/**
  * Convert a global name to a standard internal format.
  *
  * @param string $key
@@ -1365,7 +1410,7 @@ function zesk_global_key_normalize($key) {
 
 /**
  * Do we need to deal with platform issues on Windows?
- * 
+ *
  * @return boolean
  */
 function is_windows() {
