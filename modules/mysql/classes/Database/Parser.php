@@ -36,7 +36,7 @@ define('MYSQL_PATTERN_CREATE_TABLE', '/\s*CREATE\s+TABLE\s+(`[^`]+`|[A-Za-z][A-Z
  * @var string
  * @see preg_match
  */
-define("MYSQL_PATTERN_CREATE_TABLE_OPTIONS", '/(ENGINE|DEFAULT CHARSET|COLLATE)=([A-Za-z0-9]+)/i');
+define("MYSQL_PATTERN_CREATE_TABLE_OPTIONS", '/(ENGINE|DEFAULT CHARSET|COLLATE)=([A-Za-z0-9_]+)/i');
 
 /**
  * Pattern to capture `Name's alive` or Name_Of_Column in MySQL
