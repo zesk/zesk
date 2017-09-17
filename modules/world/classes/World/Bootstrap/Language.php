@@ -29,6 +29,16 @@ class World_Bootstrap_Language extends Options {
 	private $include_language = null;
 	
 	/**
+	 *
+	 * @param Application $application
+	 * @param array $options
+	 * @return self
+	 */
+	public static function factory(Application $application, array $options = array()) {
+		return $application->factory(__CLASS__, $application, $options);
+	}
+	
+	/**
 	 * @global Module_World::include_language List of language codes to include
 	 *
 	 * @param mixed $options

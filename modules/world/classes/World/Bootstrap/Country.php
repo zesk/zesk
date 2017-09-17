@@ -35,6 +35,15 @@ class World_Bootstrap_Country extends Options {
 	private $include_country = null;
 	
 	/**
+	 * 
+	 * @param Application $application
+	 * @param array $options
+	 * @return self
+	 */
+	public static function factory(Application $application, array $options = array()) {
+		return $application->factory(__CLASS__, $application, $options);
+	}
+	/**
 	 *
 	 * @global Module_World::include_country List of country codes to include
 	 *
@@ -49,7 +58,8 @@ class World_Bootstrap_Country extends Options {
 			$this->include_country = array_change_key_case(arr::flip_assign(to_list($include_country), true));
 		}
 	}
-	public function bootstrap(Application $application) {
+	public function bootstrap() {
+		$application = $this->application;
 		$prefix = __NAMESPACE__ . "\\";
 		$x = $application->objects->factory($prefix . str::unprefix(__CLASS__, $prefix . "World_Bootstrap_"), $application);
 		if ($this->option_bool("drop")) {

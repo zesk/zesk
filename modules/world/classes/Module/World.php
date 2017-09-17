@@ -46,15 +46,15 @@ class Module_World extends Module_JSLib {
 		$this->application->logger->debug("{method} begin", $__);
 		if ($bootstrap || $bootstrap_country) {
 			$this->application->logger->debug("{method} World_Bootstrap_Country", $__);
-			World_Bootstrap_Country::factory()->bootstrap($this->application);
+			World_Bootstrap_Country::factory($this->application)->bootstrap();
 		}
 		if ($bootstrap || $bootstrap_language) {
 			$this->application->logger->debug("{method} World_Bootstrap_Language", $__);
-			World_Bootstrap_Language::factory()->bootstrap($this->application);
+			World_Bootstrap_Language::factory($this->application)->bootstrap();
 		}
 		if ($bootstrap || $bootstrap_currency) {
 			$this->application->logger->debug("{method} World_Bootstrap_Currency", $__);
-			World_Bootstrap_Currency::factory()->bootstrap($this->application);
+			World_Bootstrap_Currency::factory($this->application)->bootstrap();
 		}
 		$this->application->logger->debug("{method} ended", $__);
 		

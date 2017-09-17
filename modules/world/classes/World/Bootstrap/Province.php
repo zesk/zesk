@@ -32,14 +32,15 @@ class World_Bootstrap_Province extends Options {
 	
 	/**
 	 *
+	 * @param Application $application
 	 * @param array $options
-	 * @return World_Bootstrap_Province
+	 * @return self
 	 */
-	public static function factory(array $options = array()) {
-		return zesk()->objects->factory(__CLASS__, $options);
+	public function factory(Application $application, array $options) {
+		return $application->factory(__CLASS__, $application, $options);
 	}
 	
-	/**
+		/**
 	 *
 	 * @global Module_World::include_country List of country codes to include
 	 *

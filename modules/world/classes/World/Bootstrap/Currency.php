@@ -33,6 +33,16 @@ class World_Bootstrap_Currency extends Options {
 	private $include_country = null;
 	
 	/**
+	 *
+	 * @param Application $application
+	 * @param array $options
+	 * @return self
+	 */
+	public static function factory(Application $application, array $options = array()) {
+		return $application->factory(__CLASS__, $application, $options);
+	}
+	
+	/**
 	 * @global Module_World::include_currency List of currency codes to include
 	 * @global Module_World::include_country List of country codes to include
 	 *
