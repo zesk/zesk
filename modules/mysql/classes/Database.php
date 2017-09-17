@@ -20,7 +20,6 @@ use zesk\Database_Exception_Table_NotFound;
 use zesk\Database_Exception_SQL;
 use zesk\Database_Table;
 use zesk\Database_Column;
-use zesk\IPv4;
 use zesk\arr;
 use zesk\Text;
 use zesk\PHP;
@@ -151,10 +150,25 @@ class Database extends \zesk\Database {
 		// Is this here for backwards compatibility?
 		$this->set_option("tabletype", $this->option(self::attribute_engine, $this->default_engine()));
 	}
+	
+	/**
+	 * Remove comments from a block of SQL statements
+	 * 
+	 * @param string $sql
+	 * @return string
+	 */
 	public function remove_comments($sql) {
 		$sql = Text::remove_line_comments($sql, "--");
 		return $sql;
 	}
+	
+	/**
+	 * Retrieve a database setting and store it locally as an option
+	 * 
+	 * @param unknown $attribute
+	 * @throws Exception_Semantics
+	 * @return mixed|string|array|string
+	 */
 	private function _fetch_setting($attribute) {
 		if ($this->has_option($attribute)) {
 			return $this->option($attribute);
@@ -243,9 +257,9 @@ class Database extends \zesk\Database {
 	 */
 	function table_attributes() {
 		return array(
-			self::attribute_engine => $this->default_engine(),
+			self::attribute_engine => $this->option(self::attribute_engine, $this->default_engine()),
 			self::attribute_default_charset => $this->option(self::attribute_default_charset, $this->default_character_set()),
-			self::attribute_collation => $this->default_collation()
+			self::attribute_collation => $this->option(self::attribute_collation, $this->default_collation())
 		);
 	}
 	
@@ -256,7 +270,7 @@ class Database extends \zesk\Database {
 	 */
 	public function select_database($name = null) {
 		if ($name === null) {
-			$name = $this->DatabaseName;
+			$name = $this->database_name();
 		}
 		if ($this->change_database === $name) {
 			return $this;
@@ -519,7 +533,7 @@ class Database extends \zesk\Database {
 	 *
 	 * @see zesk\Database::create_database()
 	 */
-	function create_database($url) {
+	function create_database($url, array $hosts) {
 		$parts = parse_url($url);
 		
 		$server = avalue($parts, "host");
@@ -528,25 +542,19 @@ class Database extends \zesk\Database {
 		$database = substr(avalue($parts, "path"), 1);
 		
 		$query = "CREATE DATABASE IF NOT EXISTS $database;";
-		if (!$this->query($query))
+		if (!$this->query($query)) {
 			return false;
-		$ip = IPv4::remote();
-		$query = "GRANT ALL PRIVILEGES ON `$database`.* TO `$user`@`$ip` IDENTIFIED BY '" . addslashes($password) . "' WITH GRANT
-OPTION;";
-		if (!$this->logQuery($query))
+		}
+		foreach ($hosts as $host) {
+			$query = "GRANT ALL PRIVILEGES ON `$database`.* TO `$user`@`$host` IDENTIFIED BY '" . addslashes($password) . "' WITH GRANT OPTION;";
+			if (!$this->query($query)) {
+				return false;
+			}
+		}
+		$query = "FLUSH PRIVILEGES;";
+		if (!$this->query($query)) {
 			return false;
-		$query = "GRANT ALL PRIVILEGES ON `$database`.* TO `$user`@`$server` IDENTIFIED BY '" . addslashes($password) . "' WITH GRANT
-OPTION;";
-		if (!$this->logQuery($query))
-			return false;
-		$query = "GRANT ALL PRIVILEGES ON `$database`.* TO `$user`@`localhost` IDENTIFIED BY '" . addslashes($password) . "' WITH GRANT
-OPTION;";
-		if (!$this->logQuery($query))
-			return false;
-		$query = "FLUSH
-PRIVILEGES;";
-		if (!$this->logQuery($query))
-			return false;
+		}
 		return true;
 	}
 	
@@ -571,6 +579,13 @@ PRIVILEGES;";
 		}
 		return $tables;
 	}
+	
+	/**
+	 * 
+	 * @param string $table
+	 * @param string $sql SQL used to show the table
+	 * @return boolean|string
+	 */
 	private function show_create_table($table, &$sql = null) {
 		$sql = "SHOW CREATE TABLE " . $this->quote_table($table);
 		$result = $this->query($sql);
@@ -1266,4 +1281,5 @@ PRIVILEGES;";
 		$sql = $success ? "COMMIT" : "ROLLBACK";
 		return $this->query($sql);
 	}
+	
 }

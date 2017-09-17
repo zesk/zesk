@@ -718,7 +718,7 @@ abstract class Database extends Hookable {
 	 *
 	 * @param string $url
 	 */
-	function create_database($url) {
+	function create_database($url, array $hosts) {
 		throw new Exception_Unimplemented(get_class($this) . "::create_database($url)");
 	}
 	
