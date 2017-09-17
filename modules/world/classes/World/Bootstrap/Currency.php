@@ -163,7 +163,9 @@ class World_Bootstrap_Currency extends Options {
 		foreach ($codes as $index => $row) {
 			$code = strtolower($row[2]);
 			if (!isset($missing_ones[$code])) {
-				$this->application->logger->error("Code {2} ({1}) no longer valid, remove it", $row);
+				if ($this->option_bool("debug")) {
+					$this->application->logger->debug("Code {2} ({1}) no longer valid, remove it", $row);
+				}
 				unset($codes[$index]);
 				continue;
 			}
