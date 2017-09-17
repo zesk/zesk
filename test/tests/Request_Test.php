@@ -46,8 +46,7 @@ class Request_Test extends Test_Unit {
 		);
 		$this->assert(file_exists($source));
 		$dest_path = $this->test_sandbox(__FUNCTION__ . '-dest.txt');
-		$file_mode = false;
-		$hash_image = false;
-		Request::file_migrate($upload_array, $dest_path, $file_mode, $hash_image);
+		$options = array();
+		$filename = Request\File::instance($upload_array)->migrate($this->application, $dest_path, $options);
 	}
 }

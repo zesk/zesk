@@ -1,4 +1,4 @@
-<?php
+A<?php
 
 /**
  * $URL: https://code.marketacumen.com/zesk/trunk/classes/request.inc $
@@ -851,44 +851,6 @@ class Request extends Hookable {
 			"component" => $component,
 			"url" => $this->url()
 		));
-	}
-
-	/**
-	 * Migrate a file from the upload location to a destination path
-	 *
-	 * @param array $upload_array
-	 *        	An entry in $_FILES
-	 * @param string $dest_path
-	 *        	The directory to store the destination file
-	 * @param boolean $hash_image
-	 *        	Generate a md5 hash of the file and store as this destination name
-	 * @param unknown_type $file_mode
-	 * @return unknown
-	 */
-	public static function file_migrate(array $upload_array, $dest_path, $hash_image = false, $file_mode = null, $dir_mode = null) {
-		$tmp_path = avalue($upload_array, "tmp_name");
-		if (!is_uploaded_file($tmp_path)) {
-			throw new Exception_File_Permission($tmp_path, "Not an uploaded file");
-		}
-		if (empty($dest_path)) {
-			throw new Exception_Parameter("\$dest_path is required to be a valid path or filename");
-		}
-
-		$dest_dir = is_dir($dest_path) ? $dest_path : dirname($dest_path);
-
-		Directory::depend($dest_dir, $dir_mode);
-
-		if ($hash_image) {
-			$x = md5_file($tmp_path);
-			$ext = file::extension($upload_array['name']);
-			$dest_path = path($dest_dir, "$x.$ext");
-		}
-		move_uploaded_file($tmp_path, $dest_path);
-		if ($file_mode) {
-			@chmod($dest_path, $file_mode);
-		}
-		zesk()->hooks->call("upload", $dest_path);
-		return $dest_path;
 	}
 
 	/**

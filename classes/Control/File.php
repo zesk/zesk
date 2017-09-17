@@ -145,10 +145,11 @@ class Control_File extends Control {
 		$file = $this->_file();
 		if (is_array($file)) {
 			$dest_path = $this->object->apply_map($this->option("dest_path"));
-			$file_mode = $this->option_integer("file_mode", 0640);
-			$dir_mode = $this->option_integer("dir_mode", 0750);
-			$hash_file = $this->option_bool("hash_file", false);
-			$path = $this->request->file_migrate($file, $dest_path, $hash_file, $file_mode, $dir_mode);
+			$options = array();
+			$options['file_mode'] = $this->option_integer("file_mode", 0640);
+			$options['dir_mode'] = $this->option_integer("dir_mode", 0750);
+			$options['hash'] = $this->option_bool("hash_file", false);
+			$path = Request\File::instance($file)->migrate($this->application, $dest_path, $options);
 			$this->path($path);
 			$this->object->set($filecolumn, basename($path));
 		}
