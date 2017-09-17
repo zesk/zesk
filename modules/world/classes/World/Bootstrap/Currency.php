@@ -173,7 +173,7 @@ class World_Bootstrap_Currency extends Options {
 		}
 		if (count($missing_ones) > 0) {
 			$this->application->logger->error("Currency codes {missing_ones} need to be added", array(
-				"missing_oens" => $missing_ones
+				"missing_ones" => $missing_ones
 			));
 		}
 		return $codes;
