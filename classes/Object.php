@@ -1030,7 +1030,7 @@ class Object extends Model {
 			$options = array();
 		}
 		$class = aevalue($options, "iterator_class", "zesk\Object_Iterator");
-		$iterator = new $class(get_class($this), $query, $this->inherit_options() + $options);
+		$iterator = $this->application->factory($class, get_class($this), $query, $this->inherit_options() + $options);
 		return $iterator;
 	}
 	
@@ -1062,7 +1062,7 @@ class Object extends Model {
 		$iterator = $object->iterator($query, array(
 			"class" => avalue($has_many, "iterator_class")
 		) + $this->inherit_options());
-		if (!avalue($has_many, 'table')) {
+		if (!avalue($has_many, 'link_class')) {
 			$iterator->set_parent($this, $has_many['foreign_key']);
 		}
 		return $iterator;

@@ -167,7 +167,7 @@ class Database_Query {
 	 * @return Object
 	 */
 	function object_factory($class, $mixed = null, array $options = array()) {
-		return $this->db->application->object_factory($class, $mixed, $options);
+		return $this->application->object_factory($class, $mixed, $options);
 	}
 	
 	/**

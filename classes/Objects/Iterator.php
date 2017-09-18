@@ -40,7 +40,7 @@ class Objects_Iterator extends Object_Iterator {
 			foreach ($this->objects_prefixes as $prefix => $class_name) {
 				list($alias, $class) = $class_name;
 				$members = arr::kunprefix($this->_row, $prefix, true);
-				$object = $result[$alias] = Object::factory($class, $members, array(
+				$object = $result[$alias] = $this->query->object_factory($class, $members, array(
 					'initialize' => true
 				) + $this->class_options);
 				if (!$first) {
