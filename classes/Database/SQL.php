@@ -210,10 +210,10 @@ abstract class Database_SQL extends Hookable {
 	 * @return string
 	 */
 	public function function_max($target, $expression = false) {
-		return "MAX(" . $expression ? $target : $this->quote_column($target) . ")";
+		return "MAX(" . ($expression ? $target : $this->quote_column($target)) . ")";
 	}
 	public function function_min($target, $expression = false) {
-		return "MIN(" . $expression ? $target : $this->quote_column($target) . ")";
+		return "MIN(" . ($expression ? $target : $this->quote_column($target)) . ")";
 	}
 	/**
 	 * Absolute value of a number
