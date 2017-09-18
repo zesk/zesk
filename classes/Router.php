@@ -174,10 +174,20 @@ class Router extends Hookable {
 	}
 	
 	/**
-	 *
-	 * @param unknown $options
+	 * Create a new Router
+	 * 
+	 * @param Application $application
+	 * @param array $options
+	 * @return self
 	 */
-	function __construct(Application $application, $options = null) {
+	static function factory(Application $application, array $options = array()) {
+		return $application->factory(__CLASS__, $application, $options);
+	}
+	/**
+	 *
+	 * @param array $options
+	 */
+	function __construct(Application $application, array $options = array()) {
 		parent::__construct($options);
 		$this->application_class = get_class($application);
 		$this->application = $application;
@@ -204,25 +214,12 @@ class Router extends Hookable {
 	}
 	
 	/**
-	 * Return singleton Router
-	 *
-	 * @deprecated 2017-08
-	 * @return Router
-	 */
-	static function singleton(Application $application) {
-		$application->deprecated();
-		if (!self::$singleton instanceof Router) {
-			self::$singleton = new Router($application);
-		}
-		return self::$singleton;
-	}
-	
-	/**
 	 * Returns the cache path for this router
 	 *
 	 * @return string
 	 */
-	private static function cache_path(Application $app, $cache_file = null) {
+	private function cache_path($cache_file = null) {
+		$app = $this->application;
 		$name = PHP::parse_class(get_class($app));
 		if ($cache_file === null) {
 			$cache_file = $app->configuration->path_get(__CLASS__ . "::cache_file", $app->configuration->path_get("Router::cache_file", "$name.cache"));
@@ -238,8 +235,8 @@ class Router extends Hookable {
 	 *
 	 * @return Router or null if not cached
 	 */
-	static function cached(Application $application, $mtime = null) {
-		$path = self::cache_path($application);
+	function cached($mtime = null) {
+		$path = $this->cache_path();
 		if (!file_exists($path)) {
 			return null;
 		}
@@ -249,8 +246,7 @@ class Router extends Hookable {
 		if (filemtime($path) < filemtime(__FILE__)) {
 			return null;
 		}
-		self::$singleton = unserialize(file_get_contents($path));
-		return self::$singleton;
+		return unserialize(file_get_contents($path));
 	}
 	
 	/**
