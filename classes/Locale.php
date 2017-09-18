@@ -757,24 +757,26 @@ class Locale {
 		
 		$filename = path($path, $locale . '-auto.inc');
 		$csv_append = self::translation_file_append($application, $filename, self::$locale_phrases);
-		$application->logger->debug("{class}::shutdown - Appended {n} entries to {filename}", array(
-			"filename" => $filename,
-			"n" => count($csv_append),
-			"class" => __CLASS__
-		));
-		if ($do_csv && count($csv_append) > 0) {
-			$csv_filename = path($path, $locale . '-auto.csv');
-			$csv = str::csv_quote_row(array(
-				"en_US",
-				$locale
+		if (count($csv_append) > 0) {
+			$application->logger->debug("{class}::shutdown - Appended {n} entries to {filename}", array(
+				"filename" => $filename,
+				"n" => count($csv_append),
+				"class" => __CLASS__
 			));
-			foreach ($csv_append as $k => $v) {
-				$csv .= str::csv_quote_row(array(
-					$k,
-					$v
+			if ($do_csv) {
+				$csv_filename = path($path, $locale . '-auto.csv');
+				$csv = str::csv_quote_row(array(
+					"en_US",
+					$locale
 				));
+				foreach ($csv_append as $k => $v) {
+					$csv .= str::csv_quote_row(array(
+						$k,
+						$v
+					));
+				}
+				File::append($csv_filename, $csv);
 			}
-			File::append($csv_filename, $csv);
 		}
 	}
 	public static function first_day_of_week() {
