@@ -17,4 +17,3 @@ echo 'Function `zesk\Process_Tools::process_code[_...]` now takes `$application`
 php-find.sh Process_Tools::process_code | grep -v 'app'
 pause
 
-process_code_changed

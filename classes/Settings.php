@@ -56,7 +56,6 @@ class Settings extends Object implements Interface_Data, Interface_Settings {
 	 * @return \zesk\Interface_Settings
 	 */
 	public static function singleton(Application $application) {
-		/* @var $zesk Kernel */
 		if ($application->objects->settings instanceof Interface_Settings) {
 			return $application->objects->settings;
 		}
@@ -251,7 +250,7 @@ class Settings extends Object implements Interface_Data, Interface_Settings {
 			$this->application->logger->debug("{method}: Database is down, can not save changes {changes} because of {e}", array(
 				"method" => __METHOD__,
 				"class" => __CLASS__,
-				"changes" => self::$changes,
+				"changes" => $this->changes,
 				"e" => $this->db_down_why
 			));
 			return;
@@ -304,9 +303,7 @@ class Settings extends Object implements Interface_Data, Interface_Settings {
 	 * @return mixed
 	 */
 	public function __get($name) {
-		global $zesk;
-		/* @var $zesk zesk\Kernel */
-		return $zesk->configuration->path_get($name);
+		return $this->application->configuration->path_get($name);
 	}
 	
 	/**
@@ -315,9 +312,7 @@ class Settings extends Object implements Interface_Data, Interface_Settings {
 	 * @see Object::get($mixed, $default)
 	 */
 	public function get($name = null, $default = null) {
-		global $zesk;
-		/* @var $zesk zesk\Kernel */
-		return $zesk->configuration->path_get($name, $default);
+		return $this->application->configuration->path_get($name, $default);
 	}
 	
 	/**
@@ -336,14 +331,12 @@ class Settings extends Object implements Interface_Data, Interface_Settings {
 	 * @see Object::__set($member, $value)
 	 */
 	public function __set($name, $value) {
-		global $zesk;
-		$old_value = $zesk->configuration->path_get($name);
+		$old_value = $this->application->configuration->path_get($name);
 		if ($old_value === $value) {
 			return;
 		}
-		/* @var $zesk zesk\Kernel */
-		self::$changes[zesk_global_key_normalize($name)] = $value;
-		$zesk->configuration->path_set($name, $value);
+		$this->changes[zesk_global_key_normalize($name)] = $value;
+		$this->application->path_set($name, $value);
 	}
 	
 	/**
