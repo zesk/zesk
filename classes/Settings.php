@@ -51,12 +51,11 @@ class Settings extends Object implements Interface_Data, Interface_Settings {
 	
 	/**
 	 *
-	 * @param Application $application
+	 * @param Application $application        	
 	 * @throws Exception_Configuration
 	 * @return \zesk\Interface_Settings
 	 */
 	public static function singleton(Application $application) {
-		/* @var $zesk Kernel */
 		if ($application->objects->settings instanceof Interface_Settings) {
 			return $application->objects->settings;
 		}
@@ -96,8 +95,8 @@ class Settings extends Object implements Interface_Data, Interface_Settings {
 	
 	/**
 	 *
-	 * @param Application $application
-	 * @param string $serialized
+	 * @param Application $application        	
+	 * @param string $serialized        	
 	 * @throws Exception_Syntax
 	 * @return mixed|null
 	 */
@@ -116,8 +115,8 @@ class Settings extends Object implements Interface_Data, Interface_Settings {
 	
 	/**
 	 *
-	 * @param Application $application
-	 * @param boolean $fix_bad_globals
+	 * @param Application $application        	
+	 * @param boolean $fix_bad_globals        	
 	 * @return array
 	 */
 	private static function load_globals_from_database(Application $application, $debug_load = false) {
@@ -251,7 +250,7 @@ class Settings extends Object implements Interface_Data, Interface_Settings {
 			$this->application->logger->debug("{method}: Database is down, can not save changes {changes} because of {e}", array(
 				"method" => __METHOD__,
 				"class" => __CLASS__,
-				"changes" => self::$changes,
+				"changes" => $this->changes,
 				"e" => $this->db_down_why
 			));
 			return;
@@ -304,9 +303,7 @@ class Settings extends Object implements Interface_Data, Interface_Settings {
 	 * @return mixed
 	 */
 	public function __get($name) {
-		global $zesk;
-		/* @var $zesk zesk\Kernel */
-		return $zesk->configuration->path_get($name);
+		return $this->application->configuration->path_get($name);
 	}
 	
 	/**
@@ -315,9 +312,7 @@ class Settings extends Object implements Interface_Data, Interface_Settings {
 	 * @see Object::get($mixed, $default)
 	 */
 	public function get($name = null, $default = null) {
-		global $zesk;
-		/* @var $zesk zesk\Kernel */
-		return $zesk->configuration->path_get($name, $default);
+		return $this->application->configuration->path_get($name, $default);
 	}
 	
 	/**
@@ -340,7 +335,6 @@ class Settings extends Object implements Interface_Data, Interface_Settings {
 		if ($old_value === $value) {
 			return;
 		}
-		/* @var $zesk zesk\Kernel */
 		$this->changes[zesk_global_key_normalize($name)] = $value;
 		$this->application->configuration->path_set($name, $value);
 	}
@@ -362,10 +356,7 @@ class Settings extends Object implements Interface_Data, Interface_Settings {
 	 */
 	public function data($name, $value = null) {
 		if ($value === null) {
-			$value = $this->application->query_select(__CLASS__)
-				->where("name", $name)
-				->what("value", "value")
-				->one("value");
+			$value = $this->application->query_select(__CLASS__)->where("name", $name)->what("value", "value")->one("value");
 			if ($value === null) {
 				return null;
 			}
@@ -393,8 +384,8 @@ class Settings extends Object implements Interface_Data, Interface_Settings {
 	/**
 	 * Call this when you change your setting names
 	 *
-	 * @param unknown $old_setting
-	 * @param unknown $new_setting
+	 * @param unknown $old_setting        	
+	 * @param unknown $new_setting        	
 	 */
 	public function deprecated($old_setting, $new_setting) {
 		if (!$this->__isset($old_setting)) {

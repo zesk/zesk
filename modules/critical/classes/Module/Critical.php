@@ -75,7 +75,7 @@ class Module_Critical extends Module {
 	 * @return array
 	 */
 	private function _fetch_alerts() {
-		$settings = Settings::instance();
+		$settings = Settings::singleton($this->application);
 		return to_array($settings->get(self::setting_critical_alerts, array()));
 	}
 	
@@ -85,7 +85,7 @@ class Module_Critical extends Module {
 	 * @param array $alerts
 	 */
 	private function _store_alerts(array $alerts) {
-		$settings = Settings::instance();
+		$settings = Settings::singleton($this->application);
 		$settings->set(self::setting_critical_alerts, $alerts)->flush();
 	}
 	
