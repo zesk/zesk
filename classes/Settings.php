@@ -336,14 +336,13 @@ class Settings extends Object implements Interface_Data, Interface_Settings {
 	 * @see Object::__set($member, $value)
 	 */
 	public function __set($name, $value) {
-		global $zesk;
-		$old_value = $zesk->configuration->path_get($name);
+		$old_value = $this->application->configuration->path_get($name);
 		if ($old_value === $value) {
 			return;
 		}
 		/* @var $zesk zesk\Kernel */
-		self::$changes[zesk_global_key_normalize($name)] = $value;
-		$zesk->configuration->path_set($name, $value);
+		$this->changes[zesk_global_key_normalize($name)] = $value;
+		$this->application->configuration->path_set($name, $value);
 	}
 	
 	/**
