@@ -14,7 +14,17 @@ namespace zesk;
  * @author kent
  */
 class Debug {
-	const dump_spacer = "    ";
+	/**
+	 * 
+	 * @var string
+	 */
+	const dump_spacer = "  ";
+	
+	/**
+	 *
+	 * @var integer
+	 */
+	public static $indent_limit = 2;
 	
 	/**
 	 * Set up PHP errors to output on web pages
@@ -98,27 +108,31 @@ class Debug {
 			return "(resource) $x";
 		} else if (is_array($x)) {
 			$result = array();
-			$indent++;
-			$max_len = 0;
-			foreach ($x as $k => $v) {
-				$max_len = max($max_len, strlen("$k"));
-			}
-			foreach ($x as $k => $v) {
-				$result[] = self::dump_spacer . "[$k] " . str_repeat(" ", $max_len - strlen("$k")) . "= " . self::dump($v);
-			}
-			$indent--;
-			$prefix = str_repeat(self::dump_spacer, $indent);
-			if (is_object($x)) {
-				$type = get_class($x);
+			if ($indent < self::$indent_limit) {
+				$indent++;
+				$max_len = 0;
+				foreach ($x as $k => $v) {
+					$max_len = max($max_len, strlen("$k"));
+				}
+				foreach ($x as $k => $v) {
+					$result[] = self::dump_spacer . "[$k] " . str_repeat(" ", $max_len - strlen("$k")) . "= " . self::_dump($v);
+				}
+				$indent--;
+				$prefix = str_repeat(self::dump_spacer, $indent);
+				if (is_object($x)) {
+					$type = get_class($x);
+				} else {
+					$type = "array";
+				}
+				return $prefix . "$type(" . (count($result) === 0 ? "" : ("\n$prefix" . implode(",\n$prefix", $result) . "\n$prefix")) . ")";
 			} else {
-				$type = "array";
+				return "(recursion limit " . self::$indent_limit . ")";
 			}
-			return $prefix . "$type(" . (count($result) === 0 ? "" : ("\n$prefix" . implode(",\n$prefix", $result) . "\n$prefix")) . ")";
 		} else if (is_object($x)) {
 			if (method_exists($x, "_debug_dump")) {
 				return $x->_debug_dump();
 			}
-			return implode("\n" . str_repeat(self::dump_spacer, $indent), explode("\n", print_r($x, true)));
+			return implode("\n" . str_repeat(self::dump_spacer, $indent), explode("\n", self::_dump($x, true)));
 		}
 		return strval($x);
 	}

@@ -355,5 +355,9 @@ class Controller extends Hookable implements Interface_Theme {
 		$cache->n_paths = count($paths);
 		return $found;
 	}
+	
+	public function _to_php() {
+		return '$application, ' . PHP::dump($this->options);
+	}
 }
 
