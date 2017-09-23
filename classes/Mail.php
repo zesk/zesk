@@ -10,17 +10,42 @@
 namespace zesk;
 
 /**
- * 
- * @author kent
  *
+ * @author kent
+ *        
  */
 class Mail extends Hookable {
+	/**
+	 *
+	 * @var string
+	 */
 	const header_content_type = 'Content-Type';
+	/**
+	 *
+	 * @var string
+	 */
 	const header_message_id = "Message-ID";
+	/**
+	 *
+	 * @var string
+	 */
 	const header_to = "To";
+	/**
+	 *
+	 * @var string
+	 */
 	const header_from = "From";
+	/**
+	 *
+	 * @var string
+	 */
 	const header_subject = "Subject";
 	
+	/**
+	 *
+	 * @var Application
+	 */
+	public $application = null;
 	/**
 	 *
 	 * @var array
@@ -45,25 +70,25 @@ class Mail extends Hookable {
 	public $method = null;
 	
 	/**
-	 * 
+	 *
 	 * @var boolean
 	 */
 	private static $debug = false;
 	
 	/**
-	 * 
+	 *
 	 * @var string
 	 */
 	private static $log = null;
 	
 	/**
-	 * 
+	 *
 	 * @var resource
 	 */
 	private static $fp = null;
 	
 	/**
-	 * 
+	 *
 	 * @var boolean
 	 */
 	private static $disabled = null;
@@ -71,9 +96,9 @@ class Mail extends Hookable {
 	/**
 	 * Create a Mail object
 	 *
-	 * @param array $headers
-	 * @param string $body
-	 * @param array $options
+	 * @param array $headers        	
+	 * @param string $body        	
+	 * @param array $options        	
 	 */
 	public function __construct(Application $application, array $headers, $body, array $options = array()) {
 		$this->application = $application;
@@ -87,9 +112,9 @@ class Mail extends Hookable {
 	/**
 	 * Create a Mail object
 	 *
-	 * @param array $headers
-	 * @param string $body
-	 * @param array $options
+	 * @param array $headers        	
+	 * @param string $body        	
+	 * @param array $options        	
 	 * @return Mail
 	 */
 	public static function factory(Application $application, array $headers, $body, array $options = array()) {
@@ -99,10 +124,10 @@ class Mail extends Hookable {
 	/**
 	 * Get/Set a header
 	 *
-	 * @param string $name
+	 * @param string $name        	
 	 * @param string $set
 	 *        	Value to set
-	 *
+	 *        	
 	 * @return self
 	 */
 	public function header($name, $set = null) {
@@ -115,7 +140,7 @@ class Mail extends Hookable {
 	
 	/**
 	 *
-	 * @param zesk\Kernel $zesk
+	 * @param zesk\Kernel $zesk        	
 	 */
 	public static function hooks(Kernel $zesk) {
 		$zesk->hooks->add("zesk\Application::configured", __CLASS__ . "::configured");
@@ -123,7 +148,7 @@ class Mail extends Hookable {
 	
 	/**
 	 *
-	 * @param zesk\Application $application
+	 * @param zesk\Application $application        	
 	 */
 	public static function configured(Application $application) {
 		global $zesk;
@@ -132,6 +157,7 @@ class Mail extends Hookable {
 		$config = $zesk->configuration;
 		
 		/**
+		 *
 		 * @deprecated 2016-08
 		 */
 		$config->deprecated("mail::debug", array(
@@ -230,7 +256,7 @@ class Mail extends Hookable {
 		$from = avalue($this->headers, 'From', null);
 		$body = str_replace("\r\n", "\n", $this->body);
 		$body = str_replace("\n", "\r\n", $body);
-		$smtp = new Net_SMTP_Client($smtp_send, $this->option_array('SMTP_OPTIONS'));
+		$smtp = new Net_SMTP_Client($this->application, $smtp_send, $this->option_array('SMTP_OPTIONS'));
 		$this->method = "smtp";
 		if ($smtp->send($from, $to, self::render_headers($this->headers), $body)) {
 			$this->sent = time();
@@ -240,6 +266,7 @@ class Mail extends Hookable {
 	}
 	
 	/**
+	 *
 	 * @return Mail
 	 */
 	private function _send_mail() {
@@ -274,8 +301,8 @@ class Mail extends Hookable {
 	
 	/**
 	 * Set/get Mail debugging
-	 * 
-	 * @param boolean $set
+	 *
+	 * @param boolean $set        	
 	 * @return boolean
 	 */
 	public static function debug($set = null) {
@@ -495,11 +522,14 @@ class Mail extends Hookable {
 	/**
 	 * Send a text or HTML email, with optional attachments
 	 *
-	 * @param array $mail_options Options for the mail, required: From, To
-	 * @param array $attachments Array of arrays containing keys
-	 *  - "file" The file name to attach (required)
-	 *  - "name" The name to use in the email for the attachment (uses basename otherwise)
-	 *  - "content_type" - The content type to use for this attachment (uses MIME detection otherwise)
+	 * @param array $mail_options
+	 *        	Options for the mail, required: From, To
+	 * @param array $attachments
+	 *        	Array of arrays containing keys
+	 *        	- "file" The file name to attach (required)
+	 *        	- "name" The name to use in the email for the attachment (uses basename otherwise)
+	 *        	- "content_type" - The content type to use for this attachment (uses MIME
+	 *        	detection otherwise)
 	 * @return Mail
 	 */
 	public static function mulitpart_send(Application $application, array $mail_options, $attachments = null) {
@@ -615,10 +645,10 @@ class Mail extends Hookable {
 	 * Render an email using a theme
 	 *
 	 * @todo Probably should split $theme_variables and $map_variables, eh? 2016-03-10
-	 *
-	 * @param Application $application
-	 * @param unknown $theme
-	 * @param unknown $variables
+	 *      
+	 * @param Application $application        	
+	 * @param unknown $theme        	
+	 * @param unknown $variables        	
 	 */
 	public static function load_theme(Application $application, $theme, $variables = null) {
 		$variables = to_array($variables);
@@ -629,7 +659,7 @@ class Mail extends Hookable {
 	/**
 	 * Load and parse mail from a string
 	 *
-	 * @param string $contents
+	 * @param string $contents        	
 	 * @return array
 	 */
 	public static function load($contents) {
@@ -680,7 +710,7 @@ class Mail extends Hookable {
 	 *
 	 * =?<charset>?<encoding>?<data>?=
 	 *
-	 * @param string $subject
+	 * @param string $subject        	
 	 */
 	public static function is_encoded_header($header) {
 		// e.g. =?utf-8?q?Re=3a=20ConversionRuler=20Support=3a=204D09EE9A=20=2d=20Re=3a=20ConversionRuler=20Support=3a=204D078032=20=2d=20Wordpress=20Plugin?=
@@ -690,7 +720,7 @@ class Mail extends Hookable {
 	
 	/**
 	 *
-	 * @param string $header
+	 * @param string $header        	
 	 * @return array
 	 */
 	public static function header_charsets($header) {
@@ -732,8 +762,8 @@ class Mail extends Hookable {
 	/**
 	 * Simple utility to skip mail headers
 	 *
-	 * @param string $content
-	 * @param array $options
+	 * @param string $content        	
+	 * @param array $options        	
 	 * @return Ambigous <mixed, array>
 	 */
 	public static function skip_headers($content, array $options = array()) {

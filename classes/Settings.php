@@ -51,7 +51,7 @@ class Settings extends Object implements Interface_Data, Interface_Settings {
 	
 	/**
 	 *
-	 * @param Application $application
+	 * @param Application $application        	
 	 * @throws Exception_Configuration
 	 * @return \zesk\Interface_Settings
 	 */
@@ -95,8 +95,8 @@ class Settings extends Object implements Interface_Data, Interface_Settings {
 	
 	/**
 	 *
-	 * @param Application $application
-	 * @param string $serialized
+	 * @param Application $application        	
+	 * @param string $serialized        	
 	 * @throws Exception_Syntax
 	 * @return mixed|null
 	 */
@@ -115,8 +115,8 @@ class Settings extends Object implements Interface_Data, Interface_Settings {
 	
 	/**
 	 *
-	 * @param Application $application
-	 * @param boolean $fix_bad_globals
+	 * @param Application $application        	
+	 * @param boolean $fix_bad_globals        	
 	 * @return array
 	 */
 	private static function load_globals_from_database(Application $application, $debug_load = false) {
@@ -356,10 +356,7 @@ class Settings extends Object implements Interface_Data, Interface_Settings {
 	 */
 	public function data($name, $value = null) {
 		if ($value === null) {
-			$value = $this->application->query_select(__CLASS__)
-				->where("name", $name)
-				->what("value", "value")
-				->one("value");
+			$value = $this->application->query_select(__CLASS__)->where("name", $name)->what("value", "value")->one("value");
 			if ($value === null) {
 				return null;
 			}
@@ -387,8 +384,8 @@ class Settings extends Object implements Interface_Data, Interface_Settings {
 	/**
 	 * Call this when you change your setting names
 	 *
-	 * @param unknown $old_setting
-	 * @param unknown $new_setting
+	 * @param unknown $old_setting        	
+	 * @param unknown $new_setting        	
 	 */
 	public function deprecated($old_setting, $new_setting) {
 		if (!$this->__isset($old_setting)) {

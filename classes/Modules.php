@@ -295,12 +295,7 @@ class Modules {
 			}
 			$result['zesk_command_path'] = $path;
 			$prefix = "Command_";
-			if (!$zesk_command_path_class_prefix) {
-				$this->application->logger->warning("No zesk_command_path_class_prefix specified in module {name} configuration, using default \"{default_prefix}\"", array(
-					"name" => $current['name'],
-					'default_prefix' => $prefix
-				));
-			} else {
+			if ($zesk_command_path_class_prefix) {
 				$prefix = $zesk_command_path_class_prefix;
 				if ($prefix !== PHP::clean_class($prefix)) {
 					$this->application->logger->error("zesk_command_path_class_prefix specified in module {name} configuration is not a valid class prefix \"{prefix}\"", array(
@@ -334,7 +329,7 @@ class Modules {
 	/**
 	 * Load module based on setup options
 	 *
-	 * @param array $module_data
+	 * @param array $module_data        	
 	 *
 	 * @return number
 	 */
@@ -731,7 +726,8 @@ class Modules {
 	 * Get full path to module
 	 *
 	 * @param string $module        	
-	 * @param mixed $append Value to append to path using path()
+	 * @param mixed $append
+	 *        	Value to append to path using path()
 	 * @return string|null Returns null if module not loaded
 	 */
 	public final function path($module, $append = null) {
