@@ -655,7 +655,7 @@ class Router extends Hookable {
 		$result = array();
 		$objects = $this->application->objects;
 		foreach ($controllers as $controller => $settings) {
-			$result[$controller] = $objects->factory($controller, $app);
+			$result[$controller] = $objects->factory($controller, $this->application);
 		}
 		return $result;
 	}

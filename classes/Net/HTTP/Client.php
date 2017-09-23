@@ -179,6 +179,12 @@ class Net_HTTP_Client extends Options {
 	const Error_SSL_Connect = "Error_SSL_Connect";
 	
 	/**
+	 * 
+	 * @var Application
+	 */
+	private $application = null;
+	
+	/**
 	 * Create a new Net_HTTP_Client
 	 *
 	 * @param string $url        	
@@ -186,6 +192,7 @@ class Net_HTTP_Client extends Options {
 	 */
 	public function __construct(Application $application, $url = null, $options = false) {
 		parent::__construct($options);
+		$this->application = $application;
 		$this->inherit_global_options($application);
 		$this->load_from_options();
 		if (!empty($url)) {
@@ -194,6 +201,10 @@ class Net_HTTP_Client extends Options {
 		if (!$this->user_agent) {
 			$this->user_agent($this->default_user_agent());
 		}
+	}
+	
+	public function application() {
+		return $this->application;
 	}
 	private function load_from_options() {
 		if ($this->has_option("timeout")) {

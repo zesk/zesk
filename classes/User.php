@@ -220,7 +220,6 @@ class User extends Object {
 		$changed = false;
 		$session = $this->application->session();
 		$session->authenticate($this->id(), $_SERVER['REMOTE_ADDR']);
-		User::set_current($this);
 		$this->call_hook("authenticated", $session);
 		$this->application->call_hook("user_authenticated", $this, $session);
 		$this->application->modules->all_hook("user_authenticated", $this, $session);
@@ -441,19 +440,16 @@ class User extends Object {
 	 *             necessary. This should be included in application state, not here.
 	 */
 	static function current($want_object = true) {
-		global $zesk;
-		/* @var $zesk Kernel */
-		
-		$zesk->deprecated();
-		$user = $zesk->objects->user;
+		zesk()->deprecated();
+		$user = zesk()->objects->user;
 		if ($user instanceof User) {
 			return $user;
 		}
-		$class = $zesk->configuration->path_get_first(array(
+		$class = zesk()->configuration->path_get_first(array(
 			"zesk\\User::class",
 			"User::class"
 		), __CLASS__);
-		$user = $zesk->objects->factory($class);
+		$user = zesk()->objects->factory($class);
 		/* @var $user \zesk\User */
 		if (!$user->_from_session()) {
 			if (!$want_object) {
@@ -473,10 +469,9 @@ class User extends Object {
 	 *             necessary. This should be included in application state, not here.
 	 */
 	static function set_current(User $user) {
-		global $zesk;
-		$zesk->deprecated();
+		zesk()->deprecated();
 		/* @var $zesk Kernel */
-		$zesk->objects->user = $user;
+		zesk()->objects->user = $user;
 		return $user;
 	}
 	

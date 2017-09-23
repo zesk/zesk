@@ -31,6 +31,7 @@ class Net_Sync extends Options {
 	/**
 	 * Sync a local file with a destination file, optionally checking checksums
 	 *
+	 * @param Application $application The current application context.
 	 * @param string $url
 	 *        	URL of remote file to download
 	 * @param string $path
@@ -42,7 +43,7 @@ class Net_Sync extends Options {
 	 *        	- timeout - Seconds to timeout remote retrieval
 	 *        	- user_agent - User agent to use
 	 *
-	 * @return boolean true if file has changed, false if not
+	 * @return boolean true if file has changed, false if not, null if time-to-live has not expired
 	 */
 	public static function url_to_file(Application $application, $url, $path, array $options = array()) {
 		if (!isset($options['timeout'])) {
@@ -53,7 +54,7 @@ class Net_Sync extends Options {
 		if (is_file($path) && $time_to_live > 0) {
 			$mtime = filemtime($path);
 			if (time() - $mtime < $time_to_live) {
-				return false;
+				return null;
 			}
 		}
 		list($temp, $server_name) = self::_fetch_url($application, $url, $options);
@@ -73,7 +74,7 @@ class Net_Sync extends Options {
 	
 	/**
 	 *
-	 * @param unknown $url
+	 * @param string $url
 	 * @param array $options
 	 * @return string[]|string[]
 	 */
@@ -251,6 +252,8 @@ class Net_Sync extends Options {
 	 * @throws Exception
 	 */
 	function go() {
+		$logger = $this->src->application()->logger;
+		
 		$src = $this->src;
 		$dst = $this->dst;
 		
@@ -294,7 +297,7 @@ class Net_Sync extends Options {
 				$rel_path = substr($full_src_path, $src_root_length);
 				$full_dst_path = path($dst_root, $rel_path);
 				
-				zesk()->logger->debug("sync $full_src_path");
+				$logger->debug("sync $full_src_path");
 				
 				$dst_entry = $dst->stat($full_dst_path);
 				$dst_type = avalue($dst_entry, 'type');
@@ -306,7 +309,7 @@ class Net_Sync extends Options {
 							throw new Exception_Directory_Create($full_dst_path, $dst_url);
 						} else {
 							$stats['mkdir']++;
-							zesk()->logger->debug("mkdir $full_dst_path at $dst_url");
+							$logger->debug("mkdir $full_dst_path at $dst_url");
 						}
 					}
 					if ($this->_dir_allow($full_src_path)) {
@@ -318,7 +321,7 @@ class Net_Sync extends Options {
 					$stats['files']++;
 					if ($this->_should_sync($src_entry, $dst_entry, $check_mtime)) {
 						$temp = file::temporary();
-						zesk()->logger->debug("Temporary file: $temp");
+						$logger->debug("Temporary file: $temp");
 						try {
 							$src->download($full_src_path, $temp);
 							$dst->upload($temp, $full_dst_path, true);
@@ -339,7 +342,7 @@ class Net_Sync extends Options {
 						$stats['skip']++;
 					}
 				} else {
-					zesk()->logger->debug("Unhandled type: $type $full_dst_path");
+					$logger->debug("Unhandled type: $type $full_dst_path");
 				}
 			}
 		}

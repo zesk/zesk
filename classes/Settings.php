@@ -336,7 +336,7 @@ class Settings extends Object implements Interface_Data, Interface_Settings {
 			return;
 		}
 		$this->changes[zesk_global_key_normalize($name)] = $value;
-		$this->application->path_set($name, $value);
+		$this->application->configuration->path_set($name, $value);
 	}
 	
 	/**

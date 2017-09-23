@@ -281,7 +281,7 @@ class Server extends Object implements Interface_Data {
 			$this->name_external = $host;
 		}
 		if (!isset($this->ip4_internal)) {
-			$ips = System::ip_addresses();
+			$ips = System::ip_addresses($this->application);
 			$ips = arr::remove_values($ips, "127.0.0.1");
 			if (count($ips) >= 1) {
 				$this->ip4_internal = first(array_values($ips));

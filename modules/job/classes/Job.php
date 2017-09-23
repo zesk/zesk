@@ -63,14 +63,6 @@ class Job extends Object implements Interface_Process, Interface_Progress {
 	private $last_progress = null;
 	
 	/**
-	 *
-	 * @param unknown $code
-	 * @param
-	 * @throws Exception_Parameter
-	 * @throws Exception_Semantics
-	 * @return Job
-	 */
-	/**
 	 * Hook should be a function like:
 	 *
 	 * 	class MyClass {
@@ -81,7 +73,7 @@ class Job extends Object implements Interface_Process, Interface_Progress {
 	 * 
 	 * You would call this:
 	 * 
-	 *		$job = \zesk\Job::instance("Doing something interesting", "interesting-532", "MyClass::do_work", array(array(42,53)));
+	 *		$job = \zesk\Job::instance($app, "Doing something interesting", "interesting-532", "MyClass::do_work", array(array(42,53)));
 	 *		$job->start();     		
 	 *
 	 * Job execute depends heavily on the fact that a daemon is running to process jobs.
@@ -96,7 +88,7 @@ class Job extends Object implements Interface_Process, Interface_Progress {
 	 * @throws Exception_Semantics
 	 * @return \zesk\Job
 	 */
-	public static function instance($name, $code, $hook, array $arguments = array(), $priority = self::priority_normal) {
+	public static function instance(Application $application, $name, $code, $hook, array $arguments = array(), $priority = self::priority_normal) {
 		if (!is_string($hook)) {
 			throw new Exception_Parameter("Hook must be a string: {hook}", array(
 				"hook" => _dump($hook)
@@ -114,7 +106,7 @@ class Job extends Object implements Interface_Process, Interface_Progress {
 			"priority" => $priority,
 			"hook_args" => $arguments
 		);
-		$job = new Job($members);
+		$job = $application->object_factory(__CLASS__, $members);
 		$job->find();
 		return $job->set_member($members)->store();
 	}

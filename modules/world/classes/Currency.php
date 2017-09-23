@@ -113,8 +113,8 @@ class Currency extends Object {
 	 * @param string $code
 	 * @return Currency|null
 	 */
-	static function from_code($code) {
-		return Object::factory(__CLASS__)->find(array(
+	static function from_code(Application $application, $code) {
+		return $application->object_factory(__CLASS__)->find(array(
 			'code' => $code
 		));
 	}
