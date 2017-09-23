@@ -3,6 +3,11 @@ namespace zesk;
 
 interface Net_FileSystem {
 	const feature_mtime = 'mtime';
+	
+	/**
+	 * @return Application
+	 */
+	function application();
 	function url($component = null);
 	function ls($path = null);
 	function cd($path);

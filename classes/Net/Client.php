@@ -47,8 +47,7 @@ abstract class Net_Client extends Options {
 			$object = new $class($application, $url, $options);
 			return $object;
 		} catch (Exception_Class_NotFound $e) {
-			global $zesk;
-			$zesk->hooks->call("exception", $e);
+			$application->hooks->call("exception", $e);
 			return null;
 		}
 	}
@@ -68,6 +67,14 @@ abstract class Net_Client extends Options {
 	}
 	public function __toString() {
 		return $this->url;
+	}
+	
+	/**
+	 * 
+	 * @return Application
+	 */
+	final public function application() {
+		return $this->application;
 	}
 	/**
 	 * Connect
