@@ -1,4 +1,5 @@
 <?php
+
 /**
  * @version $Id: Preference.php 4555 2017-04-06 18:32:10Z kent $
  * @package zesk
@@ -9,6 +10,7 @@
 namespace zesk;
 
 /**
+ *
  * @see Class_Preference
  *
  * @author kent
@@ -35,8 +37,8 @@ class Preference extends Object {
 	/**
 	 * Does the user have a perference value?
 	 *
-	 * @param user $user
-	 * @param string $name
+	 * @param user $user        	
+	 * @param string $name        	
 	 * @return boolean
 	 */
 	static function user_has(User $user, $name) {
@@ -44,14 +46,9 @@ class Preference extends Object {
 		return !empty($pref);
 	}
 	static function user_has_one(User $user, $name) {
-		return $user->application->query_select(__CLASS__)
-			->join('zesk\\Preference_Type', array(
+		return $user->application->query_select(__CLASS__)->join('zesk\\Preference_Type', array(
 			'alias' => 'T'
-		))
-			->where('T.code', $name)
-			->where('X.user', $user)
-			->what('value', 'COUNT(X.value)')
-			->one_integer('value') !== 0;
+		))->where('T.code', $name)->where('X.user', $user)->what('value', 'COUNT(X.value)')->one_integer('value') !== 0;
 	}
 	
 	/**
@@ -59,7 +56,7 @@ class Preference extends Object {
 	 *
 	 * @todo Replace user_has and userGet to use this instead for query basis - write test to ensure
 	 *       it works identically first!
-	 * @param user $user
+	 * @param user $user        	
 	 * @return Ambigous <zesk\Database_Query_Select, zesk\Database_Query_Select>
 	 */
 	private static function _value_query(User $user, $name) {
@@ -78,38 +75,32 @@ class Preference extends Object {
 			));
 		}
 		$pref_name = strtolower($pref_name);
-		$row = $user->application->query_select(__CLASS__)
-			->link(self::type_class, array(
+		$row = $user->application->query_select(__CLASS__)->link(self::type_class, array(
 			"alias" => "T"
-		))
-			->what("value", "X.value")
-			->what("id", "X.id")
-			->where('T.code', $pref_name)
-			->where('X.user', $user)
-			->one();
+		))->what("value", "X.value")->what("id", "X.id")->where('T.code', $pref_name)->where('X.user', $user)->one();
+		if (!is_array($row)) {
+			return $default;
+		}
 		$value = $row['value'];
 		$vlen = strlen($value);
 		if ($vlen >= 4 && $value[1] === ':' && $value[$vlen - 1] === ';') {
 			return PHP::unserialize($value);
 		} else {
-			$user->application->logger->warning("Invalid preference string for {user}: {key}={value} - deleting", array(
+			$user->application->logger->warning("Invalid preference string for {user}: {key}={value} ({vlen} chars) - deleting ({debug})", array(
 				"user" => $user,
 				"key" => $pref_name,
-				"value" => $value
+				"value" => $value,
+				"debug" => PHP::dump($row),
+				"vlen" => $vlen
 			));
 			$user->application->query_delete("zesk\\Preference")->where("id", $row['id'])->execute();
 		}
 		return $default;
 	}
 	static function user_get_single(User $user, $name, $default) {
-		$result = $user->application->query_select(__CLASS__)
-			->join(self::type_class, array(
+		$result = $user->application->query_select(__CLASS__)->join(self::type_class, array(
 			'alias' => 'T'
-		))
-			->where('T.code', $name)
-			->where('X.user', $user)
-			->what('value', 'X.value')
-			->one('value');
+		))->where('T.code', $name)->where('X.user', $user)->what('value', 'X.value')->one('value');
 		if ($result === null) {
 			return $default;
 		}
@@ -142,20 +133,12 @@ class Preference extends Object {
 	private static function _register(User $user, $type, $value) {
 		$app = $user->application;
 		$dbvalue = serialize($value);
-		$result = $app->query_select(__CLASS__)
-			->what('id', 'id')
-			->what('value', 'value')
-			->where('user', $user)
-			->where('type', $type)
-			->one();
+		$result = $app->query_select(__CLASS__)->what('id', 'id')->what('value', 'value')->where('user', $user)->where('type', $type)->one();
 		if ($result) {
 			if ($result['value'] === $dbvalue) {
 				return $result['id'];
 			}
-			$app->query_update(__CLASS__)
-				->value("value", $dbvalue)
-				->where('id', $result['id'])
-				->execute();
+			$app->query_update(__CLASS__)->value("value", $dbvalue)->where('id', $result['id'])->execute();
 			return $result['id'];
 		}
 		return $app->object_factory(__CLASS__, array(
