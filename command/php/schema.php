@@ -1,8 +1,10 @@
 <?php
+
 namespace zesk;
 
 /**
  * Display a list of all included files so far
+ *
  * @category Debugging
  */
 class Command_PHP_Schema extends Command {
@@ -11,7 +13,7 @@ class Command_PHP_Schema extends Command {
 	);
 	function run() {
 		$db = $this->application->database_factory();
-		
+
 		$class = $this->option('class');
 		if (!$class) {
 			echo "/* No class specified */\n";
@@ -34,7 +36,7 @@ class Command_PHP_Schema extends Command {
 			echo "/* $class: Schema empty */\n";
 			exit(1);
 		} else {
-			echo Template::instance('command/php/schema.tpl', array(
+			echo $this->application->theme('command/php/schema', array(
 				'class_name' => 'Schema_' . get_class($object),
 				'schema' => $schema
 			));

@@ -159,12 +159,10 @@ class Response_Text_HTML extends Response_Text {
 	 * @param array $options
 	 */
 	public function __construct(Application $application, $options = null) {
-		global $zesk;
-		/* @var $zesk Kernel */
 		parent::__construct($application, $options);
 		$this->script_settings = array(
 			'zesk' => array(
-				'inited' => $zesk->initialization_time
+				'inited' => $application->initialization_time()
 			)
 		);
 		$this->page_theme = $this->option("page_theme", $this->page_theme);
@@ -172,10 +170,11 @@ class Response_Text_HTML extends Response_Text {
 
 	/**
 	 *
-	 * @param Kernel $zesk
+	 * @param Kernel $kernel
 	 */
-	public static function hooks(Kernel $zesk) {
-		$zesk->configuration->deprecated("body-attributes", array(
+	public static function hooks(Kernel $kernel) {
+		// TODO 2017-01
+		$kernel->configuration->deprecated("body-attributes", array(
 			__CLASS__,
 			"body_attributes"
 		));
@@ -226,13 +225,11 @@ class Response_Text_HTML extends Response_Text {
 	 */
 	function title($set = null, $overwrite = true) {
 		if ($set !== null) {
-			global $zesk;
-			/* @var $zesk Kernel */
 			if ($overwrite || $this->title === "") {
 				$this->title = (string) $set;
-				$zesk->logger->debug("Set title to \"$set\"");
+				$this->application->logger->debug("Set title to \"$set\"");
 			} else {
-				$zesk->logger->debug("Failed to set title to \"$set\"");
+				$this->application->logger->debug("Failed to set title to \"$set\"");
 			}
 		}
 		return $this->title;
@@ -544,8 +541,6 @@ class Response_Text_HTML extends Response_Text {
 	 * @return array
 	 */
 	function link_tags(array $options = array()) {
-		global $zesk;
-		/* @var $zesk Kernel */
 		$result = array();
 		$stylesheets_inline = to_bool(avalue($options, 'stylesheets_inline'));
 		if (!$this->links_sorted) {
@@ -567,7 +562,7 @@ class Response_Text_HTML extends Response_Text {
 			if ($stylesheets_inline && $rel === 'stylesheet') {
 				$dest = self::resource_path($attrs['href'], $attrs);
 				if (!is_file($dest)) {
-					$zesk->logger->error("Inline stylesheet path {dest} not found: {attributes}", array(
+					$this->application->logger->error("Inline stylesheet path {dest} not found: {attributes}", array(
 						"dest" => $dest,
 						"attributes" => serialize($attrs)
 					));
@@ -598,7 +593,7 @@ class Response_Text_HTML extends Response_Text {
 						}
 					}
 				} else {
-					$zesk->logger->error("Unable to find {href} in {root_dir}", $attrs);
+					$this->application->logger->error("Unable to find {href} in {root_dir}", $attrs);
 					continue;
 				}
 				$tag = array(
@@ -623,8 +618,6 @@ class Response_Text_HTML extends Response_Text {
 	 * @param unknown $route_expire
 	 */
 	private function resource_path_route($resource_path, $route_expire) {
-		global $zesk;
-		/* @var $zesk Kernel */
 		$path = $this->application->cache_path(array(
 			"resources",
 			$resource_path
@@ -717,8 +710,6 @@ class Response_Text_HTML extends Response_Text {
 	 * @return string
 	 */
 	protected function hook_process_cached_css($src, $file, $dest, $contents) {
-		global $zesk;
-		/* @var $zesk Kernel */
 		$matches = null;
 		$contents = preg_replace('|/\*.+?\*/|m', '', $contents);
 		$contents = preg_replace('|\s+|', ' ', $contents);
@@ -740,7 +731,7 @@ class Response_Text_HTML extends Response_Text {
 						continue;
 					}
 				} else {
-					$zesk->logger->debug("Unknown @import syntax in {file}: {import}", array(
+					$this->application->logger->debug("Unknown @import syntax in {file}: {import}", array(
 						"file" => $file,
 						"import" => $match[0]
 					));
@@ -776,7 +767,7 @@ class Response_Text_HTML extends Response_Text {
 			$src_dir = implode("/", $src_dir);
 			$rel_image = implode("/", $rel_image);
 			$new_href = path($src_dir, $rel_image);
-			$zesk->logger->debug("hook_process_cached_css: $file: $rel_image => $new_href");
+			$this->application->logger->debug("hook_process_cached_css: $file: $rel_image => $new_href");
 			$map[$full_match] = strtr($full_match, array(
 				$match[1] => '"' . $new_href . '"'
 			));
@@ -810,8 +801,6 @@ class Response_Text_HTML extends Response_Text {
 	 * @param string $extension
 	 */
 	public function clean_resource_caches($extension = null) {
-		global $zesk;
-		/* @var $zesk Kernel */
 		$path = $this->resource_cache_path($extension);
 		$files = Directory::list_recursive($path, array(
 			"rules_directory_walk" => array(
@@ -832,7 +821,7 @@ class Response_Text_HTML extends Response_Text {
 				}
 				$filemtime = filemtime($file);
 				if ($filemtime < $modified_after) {
-					$zesk->logger->debug("Deleting old file {file} modified on {when}, more than {delta} seconds ago", array(
+					$this->application->logger->debug("Deleting old file {file} modified on {when}, more than {delta} seconds ago", array(
 						"file" => $file,
 						"when" => date("Y-m-d H:i:s"),
 						"delta" => $now - $filemtime
@@ -842,7 +831,7 @@ class Response_Text_HTML extends Response_Text {
 				}
 			}
 		}
-		$zesk->logger->notice("Deleted {deleted} files from cache directory at {path} (Expire after {expire_seconds} seconds)", array(
+		$this->application->logger->notice("Deleted {deleted} files from cache directory at {path} (Expire after {expire_seconds} seconds)", array(
 			"deleted" => count($deleted),
 			"path" => $path,
 			"expire_seconds" => $expire_seconds
@@ -1026,8 +1015,6 @@ class Response_Text_HTML extends Response_Text {
 	 * @return string
 	 */
 	public function script_tags($cache_scripts = null) {
-		global $zesk;
-		/* @var $zesk \zesk\Kernel */
 		// Sort them by weight if they're not sorted
 		if (!$this->scripts_sorted) {
 			uasort($this->scripts, "zesk_sort_weight_array");
@@ -1447,8 +1434,6 @@ class Response_Text_HTML extends Response_Text {
 	 * @return array
 	 */
 	public function to_json() {
-		global $zesk;
-		/* @var $zesk Kernel */
 		$script_tags = $this->script_tags(false);
 		$scripts = array();
 		$ready = $this->jquery_ready();
@@ -1476,7 +1461,7 @@ class Response_Text_HTML extends Response_Text {
 			}
 		}
 		return arr::clean(parent::to_json() + array(
-			'elapsed' => microtime(true) - $zesk->initialization_time,
+			'elapsed' => microtime(true) - $this->application->initialization_time(),
 			'scripts' => count($scripts) ? $scripts : null,
 			'stylesheets' => count($stylesheets) ? $stylesheets : null,
 			'head_tags' => count($head_tags) ? $head_tags : null,
