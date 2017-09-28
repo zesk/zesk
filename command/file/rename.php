@@ -1,26 +1,68 @@
 <?php
+
+/**
+ *
+ */
 namespace zesk;
 
 use \SplFileInfo;
 
 /**
  * Convert file names using a search/replace string
+ *
  * @category Tools
  * @author kent
  *
  */
 class Command_File_Rename extends Command_Iterator_File {
+	/**
+	 *
+	 * @var array
+	 */
 	protected $extensions = array();
+
+	/**
+	 *
+	 * @var array
+	 */
 	protected $option_types = array(
 		'from' => 'string',
 		'to' => 'string',
 		'dry-run' => 'boolean'
 	);
+
+	/**
+	 *
+	 * @var string
+	 */
 	private $from = null;
+
+	/**
+	 *
+	 * @var string
+	 */
 	private $to = null;
+
+	/**
+	 *
+	 * @var integer
+	 */
 	private $failed = null;
+
+	/**
+	 *
+	 * @var integer
+	 */
 	private $suceed = null;
+
+	/**
+	 *
+	 * @var integer
+	 */
 	private $ignored = null;
+
+	/**
+	 */
 	protected function start() {
 		if (!$this->has_option('from')) {
 			$this->set_option("from", $this->prompt(" Search? "));
@@ -34,6 +76,11 @@ class Command_File_Rename extends Command_Iterator_File {
 		$this->succeed = 0;
 		$this->ignored = 0;
 	}
+
+	/**
+	 *
+	 * @param SplFileInfo $file
+	 */
 	protected function process_file(SplFileInfo $file) {
 		$name = $file->getFilename();
 		$newname = str_replace($this->from, $this->to, $name);
@@ -57,6 +104,9 @@ class Command_File_Rename extends Command_Iterator_File {
 			$this->ignored++;
 		}
 	}
+
+	/**
+	 */
 	protected function finish() {
 		$this->log("Completed \"{from}\" => \"{to}\": {failed} failed, {succeed} succeeded, {ignored} ignored.", array(
 			"failed" => $this->failed,
