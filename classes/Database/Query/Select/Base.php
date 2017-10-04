@@ -1,4 +1,5 @@
 <?php
+
 /**
  * $URL: https://code.marketacumen.com/zesk/trunk/classes/Database/Query/Select/Base.php $
  * @package zesk
@@ -11,20 +12,21 @@ namespace zesk;
 use \DateTimeZone;
 
 /**
- * 
- * @author kent
  *
+ * @author kent
+ *        
  */
 abstract class Database_Query_Select_Base extends Database_Query {
 	/**
-	 * 
+	 *
 	 * @var array
 	 */
 	protected $objects_prefixes = array();
 	
 	/**
-	 * 
-	 * {@inheritDoc}
+	 *
+	 * {@inheritdoc}
+	 *
 	 * @see \zesk\Database_Query::__sleep()
 	 */
 	function __sleep() {
@@ -34,8 +36,9 @@ abstract class Database_Query_Select_Base extends Database_Query {
 	}
 	
 	/**
-	 * 
-	 * {@inheritDoc}
+	 *
+	 * {@inheritdoc}
+	 *
 	 * @see \zesk\Database_Query::copy_from()
 	 */
 	protected function _copy_from_base(Database_Query_Select_Base $from) {
@@ -65,7 +68,7 @@ abstract class Database_Query_Select_Base extends Database_Query {
 	 *        	Options passed to each object upon creation
 	 * @return Object_Iterator
 	 */
-	function object_iterator($class = null, $options = false) {
+	function object_iterator($class = null, $options = null) {
 		$this->object_class($class);
 		return new Object_Iterator($this->class, $this, $options);
 	}
@@ -86,11 +89,11 @@ abstract class Database_Query_Select_Base extends Database_Query {
 	/**
 	 * Execute query and retrieve a single field or row
 	 *
-	 * @param unknown_type $field
-	 * @param unknown_type $default
+	 * @param unknown_type $field        	
+	 * @param unknown_type $default        	
 	 * @return unknown
 	 */
-	function one($field = false, $default = false) {
+	function one($field = null, $default = null) {
 		return $this->database()->query_one($this->__toString(), $field, $default);
 	}
 	
@@ -117,7 +120,7 @@ abstract class Database_Query_Select_Base extends Database_Query {
 	 *
 	 * @param string $class
 	 *        	Class of object
-	 * @param unknown_type $default
+	 * @param unknown_type $default        	
 	 * @return unknown
 	 */
 	function object($class = null, array $options = array()) {
@@ -133,7 +136,7 @@ abstract class Database_Query_Select_Base extends Database_Query {
 	/**
 	 * This method should be overriden in subclasses if it has class_object support
 	 *
-	 * @param string $class
+	 * @param string $class        	
 	 * @return string
 	 */
 	public function class_alias($class) {
@@ -246,9 +249,9 @@ abstract class Database_Query_Select_Base extends Database_Query {
 	
 	/**
 	 *
-	 * @param string $key
-	 * @param string $value
-	 * @param unknown $default
+	 * @param string $key        	
+	 * @param string $value        	
+	 * @param unknown $default        	
 	 * @return Ambigous <multitype:, mixed, multitype:mixed unknown >
 	 */
 	function to_array($key = null, $value = null, $default = array()) {

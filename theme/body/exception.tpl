@@ -1,19 +1,19 @@
 <?php
-/* @var $application zesk\Application */
-/* @var $response zesk\Response_Text_HTML */
+
+namespace zesk;
+
+/* @var $application Application */
+/* @var $response Response_Text_HTML */
 $response = $this->response;
 if (!$response) {
 	$response = $application->response();
 }
 $response->jquery();
 $response->css('/share/zesk/css/exception.css', array(
-	'root_dir' => $application->zesk_root()
+	'share' => true
 ));
 $response->javascript('/share/zesk/js/exception.js', array(
-	'root_dir' => $application->zesk_root()
+	'share' => true
 ));
 
-?>
-<div class="exception">
-	<?php echo $this->content; ?>
-</div>
+echo HTML::div(".exception", $this->content);

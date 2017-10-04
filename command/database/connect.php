@@ -1,7 +1,8 @@
 <?php
+
 /**
- * 
- * @copyright &copy; 2017 Market Acumen, Inc. 
+ *
+ * @copyright &copy; 2017 Market Acumen, Inc.
  * @author kent
  *
  */
@@ -10,15 +11,17 @@ namespace zesk;
 /**
  * Connect to the database for this application.
  * Optionally set a non-default database by adding --db-connect=alt_db_name
- * @category Database
- * @global boolean debug.db-connect Set this global to true to show command that would be executed (--set
- * debug.db-connect=1)
- * @global boolean db-connect Set this global to alternate database
+ *
  * @aliases db-connect connect conn
+ *
+ * @category Database
+ * @global boolean debug.db-connect Set this global to true to show command that would be executed
+ *         (--set debug.db-connect=1)
+ * @global boolean db-connect Set this global to alternate database
  */
 class Command_Database_Connect extends Command_Base {
 	/**
-	 * 
+	 *
 	 * @var array
 	 */
 	protected $option_types = array(
@@ -32,7 +35,7 @@ class Command_Database_Connect extends Command_Base {
 		'db-name' => 'boolean'
 	);
 	/**
-	 * 
+	 *
 	 * @var array
 	 */
 	protected $option_help = array(
@@ -44,34 +47,33 @@ class Command_Database_Connect extends Command_Base {
 		'test' => 'Test to make sure all connections work',
 		'db-name' => 'Output the database name or names'
 	);
-	
+
 	/**
-	 * @return integer 
+	 *
+	 * @return integer
 	 */
 	function run() {
-		global $zesk;
-		/* @var $zesk zesk\Kernel */
 		if ($this->option_bool("db-name") || $this->option_bool('db-url')) {
 			return $this->handle_info();
 		}
 		if ($this->option_bool("test")) {
 			return $this->handle_test();
 		}
-		
+
 		if ($this->option_bool("grants")) {
 			return $this->handle_grants();
 		}
-		
+
 		$name = $this->option('name');
 		$db = $this->application->database_factory($name);
 		list($command, $args) = $db->shell_command($this->options);
-		
+
 		if ($this->option_bool('debug-connect')) {
 			echo "$command " . implode(" ", $args) . "\n";
 		}
-		$full_command_path = is_file($command) ? $command : $zesk->paths->which($command);
+		$full_command_path = is_file($command) ? $command : $this->application->paths->which($command);
 		if (!$full_command_path) {
-			die("Unable to find shell $command in system path:" . implode(", ", $zesk->paths->command()) . "\n");
+			die("Unable to find shell $command in system path:" . implode(", ", $this->application->paths->command()) . "\n");
 		}
 		if ($this->option_bool('echo')) {
 			echo $full_command_path . implode("", arr::prefix($args, " ")) . "\n";
@@ -82,9 +84,9 @@ class Command_Database_Connect extends Command_Base {
 		}
 		return 0;
 	}
-	
+
 	/**
-	 * 
+	 *
 	 * @return number
 	 */
 	private function handle_info() {
@@ -112,9 +114,9 @@ class Command_Database_Connect extends Command_Base {
 		echo Text::format_pairs($db);
 		return 0;
 	}
-	
+
 	/**
-	 * 
+	 *
 	 * @return number
 	 */
 	private function handle_test() {
@@ -130,7 +132,7 @@ class Command_Database_Connect extends Command_Base {
 		echo Text::format_pairs($db);
 		return 0;
 	}
-	
+
 	/**
 	 * TODO
 	 */
