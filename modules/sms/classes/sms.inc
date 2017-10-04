@@ -1,4 +1,7 @@
 <?php
+
+namespace zesk\SMS;
+
 /**
  * $URL: https://code.marketacumen.com/zesk/trunk/modules/sms/classes/sms.inc $
  * @package zesk

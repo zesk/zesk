@@ -1,0 +1,9 @@
+{
+	"name": "SMS Module for Zesk",
+	"description": "Provides interfaces for sending and receiving SMS messages to cell phones",
+	"autoload_options": {
+		"prefix": "zesk\\SMS\\",
+		"lower": false
+	},
+	"module_class": "zesk\\SMS\\Module"
+}

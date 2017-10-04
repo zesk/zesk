@@ -2257,6 +2257,7 @@ class Application extends Hookable implements Interface_Theme {
 	 * @return void
 	 */
 	public function deprecated($message, array $arguments = array()) {
+		$arguments['depth'] = to_integer(avalue($arguments, 'depth', 0)) + 1;
 		$this->zesk->deprecated($message, $arguments);
 	}
 	

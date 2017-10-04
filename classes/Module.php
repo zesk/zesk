@@ -104,7 +104,6 @@ abstract class Module extends Hookable {
 		$this->zesk = $application->zesk;
 		$this->application = $application;
 		$this->application_class = get_class($application);
-		$this->inherit_global_options($application);
 		$this->path = avalue($module_data, 'path');
 		if (!$this->codename) {
 			$codename = str::unprefix(PHP::parse_class(get_class($this)), "Module_");
@@ -118,6 +117,8 @@ abstract class Module extends Hookable {
 		if (count($this->object_aliases)) {
 			$this->application->objects->map($this->object_aliases);
 		}
+		$this->call_hook("construct");
+		$this->inherit_global_options($application);
 	}
 	/**
 	 *

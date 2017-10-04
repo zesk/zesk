@@ -5,6 +5,8 @@
 namespace zesk;
 
 /**
+ * 2017-10 All Hookables must pass an $application as the first parameter for __construct now.
+ * 
  * The reason this can't be called "Hook" as a class is because we want the method "hook" to work.
  * But PHP 4.x supports same-name constructors, so, we're stuck with Hookable for now. Much easier
  * to deprecate class names than method names, IMHO.
@@ -14,6 +16,22 @@ namespace zesk;
  * @author kent
  */
 class Hookable extends Options {
+	/**
+	 * 
+	 * @var Application
+	 */
+	public $application = null;
+	
+	/**
+	 * 
+	 * @param Application $application
+	 * @param array $options
+	 */
+	function __construct(Application $application, array $options = array()) {
+		$this->application = $application;
+		parent::__construct($options);
+	}
+	
 	/**
 	 * Invoke a hook on this object if it exists.
 	 * Arguments should be passed after the type.
@@ -27,7 +45,7 @@ class Hookable extends Options {
 	 * @param string $type        	
 	 */
 	public final function hook($type) {
-		zesk()->deprecated();
+		$this->application->deprecated();
 		if (empty($type)) {
 			return $this;
 		}
@@ -48,7 +66,7 @@ class Hookable extends Options {
 	 * @param unknown $result_callback
 	 */
 	public final function hook_array($types, $args = array(), $default = null, $hook_callback = null, $result_callback = null, $return_hint = null) {
-		zesk()->deprecated();
+		$this->application->deprecated();
 		return $this->call_hook_arguments($types, $args, $default, $hook_callback, $result_callback, $return_hint);
 	}
 	
@@ -121,7 +139,7 @@ class Hookable extends Options {
 		/*
 		 * For each hook, call internal hook, then options-based hook, then system hook.
 		 */
-		$zesk = zesk();
+		$app = $this->application;
 		$result = null;
 		foreach ($types as $type) {
 			$method = PHP::clean_function($type);
@@ -135,8 +153,8 @@ class Hookable extends Options {
 			if ($func) {
 				$result = self::hook_results($result, $func, $args, $hook_callback, $result_callback, $return_hint);
 			}
-			$hooks = arr::suffix($zesk->classes->hierarchy($this, __CLASS__), "::$type");
-			$result = $zesk->hooks->call_arguments($hooks, $zesk_hook_args, $result, $hook_callback, $result_callback, $return_hint);
+			$hooks = arr::suffix($app->classes->hierarchy($this, __CLASS__), "::$type");
+			$result = $app->hooks->call_arguments($hooks, $zesk_hook_args, $result, $hook_callback, $result_callback, $return_hint);
 		}
 		return ($result === null) ? $default : $result;
 	}
