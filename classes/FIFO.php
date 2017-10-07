@@ -1,17 +1,22 @@
 <?php
 /**
- * FIFO is a simple mechanism to support inter-process communication
- * 
- * This particular one allows the passing of arbitrary PHP data between processes, without a lot of extra baggage.
- * 
- * You can also pass back "wakeup" messages which wake up the server.
- * 
+ * @copyright &copy; 2017 Zesk Foundation 
  * @author kent
  * @category Management
  */
 namespace zesk;
 
-class FIFO extends Hookable {
+/**
+ * FIFO is a simple mechanism to support inter-process communication
+ *
+ * This particular one allows the passing of arbitrary PHP data between processes, without a lot of extra baggage.
+ *
+ * You can also pass back "wakeup" messages which wake up the server.
+ *
+ * @author kent
+ * @category Management
+ */
+class FIFO {
 	
 	/**
 	 * FP to fifo: Reader
@@ -54,7 +59,7 @@ class FIFO extends Hookable {
 	 * @throws Exception_File_Permission
 	 */
 	public function __construct($name, $create = false, $mode = 0600) {
-		$this->path = file::absolute_path($name, zesk()->paths->data_path());
+		$this->path = File::absolute_path($name, zesk()->paths->data_path());
 		if ($create) {
 			$dir = dirname($this->path);
 			if (!is_dir($dir)) {

@@ -46,13 +46,6 @@ class Widget extends Hookable {
 	protected $parent = null;
 	
 	/**
-	 * Our application
-	 *
-	 * @var Application
-	 */
-	protected $application = null;
-	
-	/**
 	 * Request associated with this widget
 	 *
 	 * @var Request
@@ -230,15 +223,14 @@ class Widget extends Hookable {
 	 * @param mixed $options
 	 */
 	public function __construct(Application $application, $options = false) {
-		$this->application = $application;
-		$this->request = $this->application->request();
-		$this->response = $this->application->response();
+		$this->request = $application->request();
+		$this->response = $application->response();
 		
 		if (!is_array($options)) {
 			$options = array();
 		}
 		$options = $options + self::default_options($application, get_class($this));
-		parent::__construct($options);
+		parent::__construct($application, $options);
 		$this->options += array(
 			"column" => avalue($this->options, 'id')
 		);

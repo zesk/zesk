@@ -21,7 +21,7 @@ class Request_Test extends Test_Unit {
 		$settings = array(
 			"url" => "https://ex.to/"
 		);
-		$testx = new Request($settings);
+		$testx = new Request($this->application, $settings);
 		
 		$testx->is_post();
 		

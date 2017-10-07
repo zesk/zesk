@@ -25,3 +25,7 @@ echo 'Function `Job::instance` now takes `$application` as the first parameter'
 php-find.sh Job::instance | grep -v 'app'
 pause
 
+echo 'Function `zesk\Application::application_root` renamed to `zesk\Application::path`'
+zesk cannon '>application_root(' '>path('
+pause
+

@@ -325,7 +325,7 @@ class Application extends Hookable implements Interface_Theme {
 	 *
 	 * @param unknown $options
 	 */
-	public function __construct(Kernel $zesk, $options = null) {
+	public function __construct(Kernel $zesk, array $options = array()) {
 		$this->_initialize($zesk, $options);
 	}
 
@@ -334,7 +334,7 @@ class Application extends Hookable implements Interface_Theme {
 	 * @param array $options
 	 * @throws Exception_Unimplemented
 	 */
-	protected function _initialize(Kernel $zesk, $options = null) {
+	protected function _initialize(Kernel $zesk, array $options = array()) {
 		$this->zesk = $zesk;
 		$this->paths = $zesk->paths;
 		$this->hooks = $zesk->hooks;
@@ -385,7 +385,7 @@ class Application extends Hookable implements Interface_Theme {
 			$this->objects->map($requested, $resolved);
 		}
 
-		parent::__construct($options);
+		parent::__construct($this, $options);
 
 		$this->_init_document_root();
 
@@ -422,9 +422,7 @@ class Application extends Hookable implements Interface_Theme {
 	 * @return string
 	 */
 	private function path_theme_default() {
-		global $zesk;
-		/* @var $zesk Kernel */
-		return $zesk->paths->zesk('theme');
+		return $this->paths->zesk('theme');
 	}
 
 	/**
@@ -432,9 +430,7 @@ class Application extends Hookable implements Interface_Theme {
 	 * @return string
 	 */
 	private function path_share_default() {
-		global $zesk;
-		/* @var $zesk Kernel */
-		return $zesk->paths->zesk('share');
+		return $this->paths->zesk('share');
 	}
 
 	/**
@@ -561,7 +557,6 @@ class Application extends Hookable implements Interface_Theme {
 	private function _configure_files(array $options) {
 		$configuration = $this->configuration;
 
-		/* @var $zesk Kernel */
 		if (count($this->includes) === 0 || array_key_exists('file', $options)) {
 			$this->configure_include(avalue($options, 'file', $this->default_includes()));
 		}
@@ -750,7 +745,6 @@ class Application extends Hookable implements Interface_Theme {
 	 * @return boolean Ambigous array, string, number>
 	 */
 	final public function maintenance($set = null) {
-		/* @var $zesk Kernel */
 		$maintenance_file = $this->maintenance_file();
 		if ($set === null) {
 			return file_exists($maintenance_file);
@@ -952,7 +946,7 @@ class Application extends Hookable implements Interface_Theme {
 	 * @return Request
 	 */
 	protected function hook_request() {
-		$request = new Request();
+		$request = new Request($this);
 		if ($this->zesk->console()) {
 			$request->initialize_from_settings("http://console/");
 		} else {
@@ -1173,7 +1167,7 @@ class Application extends Hookable implements Interface_Theme {
 			$url = "http://localhost/";
 		}
 		$url = rtrim(URL::left_host($url), "/") . $path;
-		$this->request = new Request();
+		$this->request = new Request($this);
 		$this->request->initialize_from_settings(array(
 			"url" => $url,
 			"method" => Net_HTTP::Method_GET,
@@ -1440,6 +1434,8 @@ class Application extends Hookable implements Interface_Theme {
 	/**
 	 * When zesk\Hooks::all_hook is called, this is called first to collect all objects
 	 * in the system.
+	 *
+	 * @todo PHP7 Add Closure here to avoid global usage
 	 */
 	public static function hooks(Kernel $zesk) {
 		$zesk->hooks->add(__NAMESPACE__ . '\\' . 'Object::register_all_hooks', __CLASS__ . "::object_register_all_hooks");
@@ -2265,6 +2261,7 @@ class Application extends Hookable implements Interface_Theme {
 	 * @return void
 	 */
 	public function deprecated($message, array $arguments = array()) {
+		$arguments['depth'] = to_integer(avalue($arguments, 'depth', 0)) + 1;
 		$this->zesk->deprecated($message, $arguments);
 	}
 

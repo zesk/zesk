@@ -5,16 +5,10 @@ abstract class Repository extends Hookable {
 	
 	/**
 	 * 
-	 * @var Application
-	 */
-	protected $application = null;
-	
-	/**
-	 * 
 	 * @param Application $application
 	 */
 	public function __construct(Application $application) {
-		$this->application = $application;
+		parent::__construct($application);
 		$this->initialize();
 	}
 	

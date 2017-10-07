@@ -12,12 +12,6 @@ namespace zesk;
 class Server_Base extends Hookable {
 	/**
 	 *
-	 * @var Application
-	 */
-	protected $application = null;
-	
-	/**
-	 *
 	 * @var Server_Platform
 	 */
 	protected $platform = null;
@@ -34,10 +28,9 @@ class Server_Base extends Hookable {
 	 * @param Server_Platform $platform        	
 	 */
 	function __construct(Server_Platform $platform) {
-		parent::__construct($platform);
-		$this->platform = $platform;
-		$this->application = $platform->application;
+		parent::__construct($platform->application);
 		
+		$this->platform = $platform;
 		$this->config = $platform->config;
 	}
 	

@@ -76,12 +76,6 @@ class Router extends Hookable {
 	
 	/**
 	 *
-	 * @var Application
-	 */
-	public $application = null;
-	
-	/**
-	 *
 	 * @var array of class => Route
 	 */
 	protected $reverse_routes = array();
@@ -188,9 +182,8 @@ class Router extends Hookable {
 	 * @param array $options
 	 */
 	function __construct(Application $application, array $options = array()) {
-		parent::__construct($options);
+		parent::__construct($application, $options);
 		$this->application_class = get_class($application);
-		$this->application = $application;
 		$this->call_hook("new");
 	}
 	

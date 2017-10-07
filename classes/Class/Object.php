@@ -185,11 +185,6 @@ class Class_Object extends Hookable {
 	public $application_class = null;
 	
 	/**
-	 * @var Application
-	 */
-	public $application = null;
-	
-	/**
 	 * PHP Class which created this (type Object)
 	 *
 	 * @var string
@@ -781,11 +776,9 @@ class Class_Object extends Hookable {
 	 * @throws Exception_Semantics
 	 */
 	public function __construct(Object $object, array $options = array()) {
-		global $zesk;
-		/* @var $zesk \zesk\Kernel */
-		parent::__construct($options);
-		$this->inherit_global_options($object->application);
-		$this->application = $object->application;
+		$app = $object->application;
+		parent::__construct($app, $options);
+		$this->inherit_global_options($app);
 		$this_class = $object->class_object();
 		// Handle polymorphic classes - create correct Class and use correct base class
 		$this_class = $this->class = is_string($this_class) ? $this_class : get_class($object);
@@ -868,7 +861,7 @@ class Class_Object extends Hookable {
 			$this->has_one_flip = array();
 			foreach ($this->has_one as $member => $class) {
 				if ($class[0] !== '*') {
-					$this->has_one[$member] = $class = $zesk->objects->resolve($class);
+					$this->has_one[$member] = $class = $app->objects->resolve($class);
 					arr::append($this->has_one_flip, $class, $member);
 				}
 			}
@@ -878,10 +871,10 @@ class Class_Object extends Hookable {
 			$this->utc_timestamps = $this->option_bool("utc_timestamps");
 		}
 		if (count($this->columns) > 0) {
-			$zesk->logger->warning("{class} public \$columns is deprecated, use \$column_types", array(
+			$app->logger->warning("{class} public \$columns is deprecated, use \$column_types", array(
 				"class" => get_class($this)
 			));
-			zesk()->deprecated();
+			$app->deprecated();
 		}
 		$this->init_columns(null);
 		$this->_column_defaults();

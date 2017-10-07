@@ -864,6 +864,9 @@ class Modules {
 			}
 			return $module;
 		}
+		if (strpos($module, "\\") !== false) {
+			return PHP::clean_class($module);
+		}
 		return preg_replace('|[^-/_0-9a-z]|', '', strtolower($module));
 	}
 	

@@ -124,7 +124,7 @@ class Options implements \ArrayAccess {
 	}
 	
 	/**
-	 * Load options for this object based on globals loaded
+	 * Load options for this object based on globals loaded. Only overwrites values which are NOT set.
 	 *
 	 * @param string $class Inherit globals from this class
 	 * @return Command

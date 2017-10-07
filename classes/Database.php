@@ -55,12 +55,6 @@ abstract class Database extends Hookable {
 	const feature_time_zone_relative_timestamp = "time_zone_relative_timestamp";
 	
 	/**
-	 *
-	 * @var Application
-	 */
-	public $application = null;
-	
-	/**
 	 * Debug database connections
 	 *
 	 * @var boolean
@@ -165,8 +159,7 @@ abstract class Database extends Hookable {
 	 * @param string $url        	
 	 */
 	public function __construct(Application $application, $url = null, array $options = array()) {
-		$this->application = $application;
-		parent::__construct($options);
+		parent::__construct($application, $options);
 		$this->inherit_global_options($application);
 		// TODO Pass this in __construct and propagate
 		$application->hooks->register_class(__CLASS__);

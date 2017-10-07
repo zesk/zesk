@@ -26,19 +26,12 @@ class Model extends Hookable implements \ArrayAccess {
 	
 	/**
 	 *
-	 * @var Application
-	 */
-	public $application = null;
-	
-	/**
-	 *
 	 * @param mixed $mixed
 	 * @param array $options
 	 * @param Application $application
 	 */
-	function __construct(Application $application, $mixed = null, $options = null) {
-		$this->application = $application;
-		parent::__construct($options);
+	function __construct(Application $application, $mixed = null, array $options = array()) {
+		parent::__construct($application, $options);
 		if (is_array($mixed)) {
 			foreach ($mixed as $k => $v) {
 				$this->__set($k, $v);
@@ -60,7 +53,7 @@ class Model extends Hookable implements \ArrayAccess {
 	 * @throws Exception_Semantics
 	 * @return Model
 	 */
-	public static function factory(Application $application, $class, $value = null, $options = null) {
+	public static function factory(Application $application, $class, $value = null, array $options = array()) {
 		$object = $application->factory($class, $application, $value, $options);
 		if (!$object instanceof Model) {
 			throw new Exception_Semantics("Class {class} is not of type Model", array(

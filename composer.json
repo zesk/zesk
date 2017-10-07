@@ -13,7 +13,9 @@
 	},
 	"authors": [
 		{
-			"name": "Kent Davidson"
+			"name": "Kent Davidson",
+			"url": "https://marketacumen.com",
+			"email": "getsupport@marketacumen.com"
 		}
 	],
 	"scripts": {

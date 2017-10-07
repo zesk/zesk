@@ -1,12 +1,19 @@
 <?php
 /**
+ * 
+ */
+namespace zesk\SMS\Mail;
+
+use zesk\Exception_Unimplemented;
+
+/**
  * $URL: https://code.marketacumen.com/zesk/trunk/modules/sms/classes/sms.inc $
  * @package zesk
  * @subpackage system
  * @author Kent Davidson <kent@marketacumen.com>
  * @copyright Copyright &copy; 2007, Market Acumen, Inc.
  */
-class sms {
+class Message extends \zesk\SMS\Message {
 	public static function select_options() {
 		return array(
 			"phonenumber@tmomail.net" => "T-Mobile",
@@ -18,7 +25,12 @@ class sms {
 			"phonenumber@txt.att.net" => "AT & T"
 		);
 	}
+	function send() {
+		throw new Exception_Unimplemented(__METHOD__);
+	}
 }
+
+/* See this: https://martinfitzpatrick.name/list-of-email-to-sms-gateways/ */
 
 /*
 

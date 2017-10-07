@@ -14,8 +14,14 @@ class Service extends Hookable {
 	 * @var unknown
 	 */
 	private static $valid_types = null;
+	
+	/**
+	 * 
+	 * @param Application $application
+	 * @param array $options
+	 */
 	public function __construct(Application $application, array $options = array()) {
-		parent::__construct($options);
+		parent::__construct($application, $options);
 		$this->inherit_global_options($application);
 	}
 	/**

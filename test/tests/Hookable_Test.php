@@ -19,7 +19,7 @@ class Hookable_Test extends Test_Unit {
 			'dude' => 'as in the'
 		);
 		
-		$a = new hookable_test_a();
+		$a = new hookable_test_a($this->application);
 		$result = $a->hookit($data);
 		
 		var_dump($result);

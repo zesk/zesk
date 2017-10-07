@@ -40,12 +40,7 @@ class Mail extends Hookable {
 	 * @var string
 	 */
 	const header_subject = "Subject";
-	
-	/**
-	 *
-	 * @var Application
-	 */
-	public $application = null;
+
 	/**
 	 *
 	 * @var array
@@ -101,8 +96,7 @@ class Mail extends Hookable {
 	 * @param array $options        	
 	 */
 	public function __construct(Application $application, array $headers, $body, array $options = array()) {
-		$this->application = $application;
-		parent::__construct($options);
+		parent::__construct($application, $options);
 		$this->inherit_global_options($application);
 		$this->headers = $headers;
 		$this->body = $body;
