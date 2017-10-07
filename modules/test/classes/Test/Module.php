@@ -12,7 +12,7 @@ class Test_Module extends Module {
 	 */
 	public function initialize() {
 		parent::initialize();
-		$this->phpunit = $this->application->application_root("vendor/bin/phpunit");
+		$this->phpunit = $this->application->path("vendor/bin/phpunit");
 	}
 	
 	/**

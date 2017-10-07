@@ -27,7 +27,7 @@ class Compiler_Less {
 	 */
 	private $vars = array();
 	public function __construct(Application $application) {
-		$cache_dir = $application->application_root('cache/iless');
+		$cache_dir = $application->path('cache/iless');
 		Directory::depend($cache_dir);
 		$cache = new FileSystemCache($cache_dir);
 		$this->iless = new Parser(array(

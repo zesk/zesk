@@ -100,7 +100,7 @@ class Module_jQPlot extends zesk\Module implements zesk\Interface_Module_Head {
 	 * @return string
 	 */
 	public function plugin_path() {
-		return $this->application->application_root('vendor/components/jqplot/plugins');
+		return $this->application->path('vendor/components/jqplot/plugins');
 	}
 	
 	/**

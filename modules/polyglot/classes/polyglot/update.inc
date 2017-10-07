@@ -36,7 +36,7 @@ class PolyGlot_Update extends Object {
 	 */
 	public static function cron_minute(Application $application) {
 		$server = Server::singleton($application);
-		$path = $application->configuration->path_get("zesk\\Module_PolyGlot::update_path", $application->application_root("etc/language"));
+		$path = $application->configuration->path_get("zesk\\Module_PolyGlot::update_path", $application->path("etc/language"));
 		if (!is_dir($path)) {
 			$application->logger->warning("zesk\\Module_PolyGlot::update_path is not a directory ({path}) on {server}", array(
 				"path" => $path,

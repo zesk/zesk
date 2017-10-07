@@ -131,8 +131,8 @@ class Command_Configure extends Command_Base {
 		$this->variable_map['uname'] = $this->uname;
 		$this->variable_map['low_uname'] = $this->low_uname;
 		$this->variable_map['user'] = $this->username;
-		$this->variable_map['zesk_application_root'] = $this->application->application_root(); // Deprecated
-		$this->variable_map['application_root'] = $this->application->application_root();
+		$this->variable_map['zesk_application_root'] = $this->application->path(); // Deprecated
+		$this->variable_map['application_root'] = $this->application->path();
 		$this->variable_map['zesk_root'] = $this->application->zesk_root();
 
 		$this->log("Configuration synchronization for: {uname}, user: {user}", $this->variable_map);

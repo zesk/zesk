@@ -4,7 +4,7 @@ class Module_GoogleAPI extends zesk\Module {
 	public function initialize() {
 		global $zesk;
 		/* @var $zesk zesk\Kernel */
-		$path = $this->application->application_root("vendor/google/apiclient");
+		$path = $this->application->path("vendor/google/apiclient");
 		if (!is_dir($path)) {
 			throw new Exception_Directory_NotFound($path);
 		}

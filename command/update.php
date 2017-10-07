@@ -116,7 +116,7 @@ class Command_Update extends Command_Base {
 		}
 
 		$this->app_data = array(
-			'application_root' => $this->application->application_root()
+			'application_root' => $this->application->path()
 		);
 		$modules = $this->modules_to_update();
 
@@ -258,7 +258,7 @@ class Command_Update extends Command_Base {
 		$this->composer_packages = array();
 
 		// TODO Is this a bad idea to depend on the structure of composer.lock?
-		$composer_lock = $this->application->application_root("composer.json");
+		$composer_lock = $this->application->path("composer.json");
 		if (!file_exists($composer_lock)) {
 			return 0;
 		}
@@ -304,7 +304,7 @@ class Command_Update extends Command_Base {
 	 * @return mixed
 	 */
 	private function update_database(array $set = null) {
-		$path = $this->application->application_root(".update.json");
+		$path = $this->application->path(".update.json");
 		if ($set === null) {
 			if (file_exists($path)) {
 				try {
@@ -452,7 +452,7 @@ class Command_Update extends Command_Base {
 		$composer_require = to_list(avalue($composer, 'require', null));
 		$composer_require_dev = to_list(avalue($composer, 'require-dev', null));
 		$pwd = getcwd();
-		chdir($application->application_root());
+		chdir($application->path());
 		$do_updates = $this->option_bool("composer-update");
 
 		$changed = false;

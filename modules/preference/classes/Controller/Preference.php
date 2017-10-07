@@ -34,7 +34,7 @@ class Controller_Preference extends Controller {
 	 * @return string
 	 */
 	public function _whitelist() {
-		return $this->application->application_root("etc/preference-whitelist.txt");
+		return $this->application->path("etc/preference-whitelist.txt");
 	}
 	
 	/**

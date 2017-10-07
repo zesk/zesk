@@ -4,7 +4,7 @@ namespace zesk;
 class Module_PHP_WebDriver_Facebook extends Module {
 	private $lib_path = null;
 	public function initialize() {
-		$this->lib_path = $this->application->application_root("vendor/php-webdriver-facebook");
+		$this->lib_path = $this->application->path("vendor/php-webdriver-facebook");
 		if (!is_dir($this->lib_path)) {
 			throw new Exception_Directory_NotFound($this->lib_path, "Initializing selenium/php-webdriver-facebook");
 		}

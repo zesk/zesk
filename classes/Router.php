@@ -420,7 +420,7 @@ class Router extends Hookable {
 		$whites = to_list(" ;\t");
 		$tr = array(
 			'$zesk_root' => $app->zesk_root(),
-			'$zesk_application_root' => $app->application_root()
+			'$zesk_application_root' => $app->path()
 		);
 		foreach ($lines as $lineno => $line) {
 			$firstc = substr($line, 0, 1);

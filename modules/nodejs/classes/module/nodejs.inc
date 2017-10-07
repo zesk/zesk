@@ -15,7 +15,7 @@ namespace zesk;
 class Module_NodeJS extends Module {
 	public function hook_build(Command $command) {
 		$app = $this->application;
-		$node_modules_path = $this->option("node_modules_path", $app->application_root("node_modules"));
+		$node_modules_path = $this->option("node_modules_path", $app->path("node_modules"));
 		if (empty($node_modules_path)) {
 			$command->error("No node_modules_path configured in {class}", array(
 				"class" => __CLASS__
@@ -78,7 +78,7 @@ class Module_NodeJS extends Module {
 		}
 	}
 	private function convert_application_path(Logger\Handler $handler, array $items, $context = null) {
-		$app_path = $this->application->application_root();
+		$app_path = $this->application->path();
 		$map = array(
 			"{application_root}" => $app_path,
 			"{zesk_root}" => $this->application->zesk_root()

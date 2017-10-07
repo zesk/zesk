@@ -45,7 +45,7 @@ Translation are PHP files which simply populate an array and return them. The fi
 	
 Or you can call any function available and loaded into the system. (Although loading language translations should be really, really fast.)
 
-	return JSON::decode(File::contents($application->application_root("etc/language/en_GB.json")));
+	return JSON::decode(File::contents($application->path("etc/language/en_GB.json")));
 
 There is currently no mechanism to segment language files into distinct sections of the site, so it's all or nothing.
 

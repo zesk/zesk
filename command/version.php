@@ -208,7 +208,7 @@ class Command_Version extends Command_Base {
 	 * @return string
 	 */
 	private function version_schema_path() {
-		return $this->application->application_root("etc/version-schema.json");
+		return $this->application->path("etc/version-schema.json");
 	}
 	/**
 	 *
@@ -241,7 +241,7 @@ class Command_Version extends Command_Base {
 				"schema_file_path" => $schema_file_path
 			]);
 			
-			$fullpath = $this->application->application_root($version_file_path);
+			$fullpath = $this->application->path($version_file_path);
 			if (file_exists($fullpath)) {
 				$this->log("{fullpath} exists already, not overwriting");
 			} else {
@@ -307,7 +307,7 @@ class Command_Version extends Command_Base {
 		];
 		$json = null;
 		extract($__reader, EXTR_IF_EXISTS);
-		$application_root = $this->application->application_root();
+		$application_root = $this->application->path();
 		if ($json) {
 			return function ($schema) use ($json, $path, $application_root) {
 				$file = File::is_absolute($schema['file']) ? $schema['file'] : path($application_root, $schema['file']);
@@ -337,7 +337,7 @@ class Command_Version extends Command_Base {
 	private function version_writer(array $__writer) {
 		$json = null;
 		extract($__writer, EXTR_IF_EXISTS);
-		$application_root = $this->application->application_root();
+		$application_root = $this->application->path();
 		if ($json) {
 			return function ($schema, $new_version) use ($json, $application_root) {
 				$file = File::is_absolute($schema['file']) ? $schema['file'] : path($application_root, $schema['file']);

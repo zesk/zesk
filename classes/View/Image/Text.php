@@ -94,7 +94,7 @@ class View_Image_Text extends View {
 		}
 	}
 	function render() {
-		$rootdir = $this->option("root_directory", $this->application->application_root());
+		$rootdir = $this->option("root_directory", $this->application->path());
 		
 		$col = $this->column();
 		

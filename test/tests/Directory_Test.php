@@ -102,7 +102,7 @@ class Directory_Test extends Test_Unit {
 		$this->assert_equal($result, $expect);
 	}
 	function test_list_recursive() {
-		$path = $this->application->application_root();
+		$path = $this->application->path();
 		$options = array();
 		Directory::list_recursive($path, $options);
 		

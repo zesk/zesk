@@ -83,7 +83,7 @@ class Control_reCAPTCHA extends Control {
 			$debug .= "Result: $result\n";
 			$debug .= "Response: " . $http->response_code_type() . "\n";
 			$debug .= "Data: " . _dump(JSON::decode($result)) . "\n";
-			file_put_contents($app->application_root('recaptcha.log'), $debug);
+			file_put_contents($app->path('recaptcha.log'), $debug);
 		}
 		$code_type = $http->response_code_type();
 		if ($code_type === Net_HTTP::response_type_success) {

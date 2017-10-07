@@ -22,7 +22,7 @@ class Module_Cleaner extends Module {
 				));
 				continue;
 			}
-			$path = File::is_absolute($path) ? $path : $this->application->application_root($path);
+			$path = File::is_absolute($path) ? $path : $this->application->path($path);
 			if (!$extensions) {
 				$extensions = null;
 			} else {

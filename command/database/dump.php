@@ -109,7 +109,7 @@ class Command_Database_Dump extends Command_Base {
 		$suffix = "";
 		$where = "";
 		if ($this->option_bool('file') || $this->has_option('dir') || $this->has_option('target')) {
-			$app_root = $this->application->application_root();
+			$app_root = $this->application->path();
 			$map = array(
 				'database_name' => $path,
 				"database_host" => $host,

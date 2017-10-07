@@ -40,7 +40,7 @@ class Command_PHPUnit_Generate extends Command_Iterator_File {
 		if (Directory::is_absolute($destination)) {
 			$this->destination = $destination;
 		} else {
-			$this->destination = $this->application->application_root($destination);
+			$this->destination = $this->application->path($destination);
 		}
 		Directory::depend($this->destination);
 	}

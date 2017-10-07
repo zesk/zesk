@@ -473,7 +473,7 @@ class Command_Test extends Command_Base {
 	 * @return array|mixed|array
 	 */
 	private function _parse_path_info($contents) {
-		$app_root = $this->application->application_root();
+		$app_root = $this->application->path();
 		$php_extensions = $this->option("automatic_open_extensions", "inc|tpl|php|php5|phpt");
 		$pattern = "#PHP-ERROR:.*?(?P<files>(?:" . ZESK_ROOT . "|$app_root)[A-Za-z_0-9./-]*\.(?:$php_extensions))#s";
 		$pattern = "#(?P<files>(?:" . ZESK_ROOT . "|$app_root)[A-Za-z_0-9./-]*\.(?:$php_extensions))#s";
@@ -813,7 +813,7 @@ class Command_Test extends Command_Base {
 	 */
 	private function _run_test_sandbox($file, $class, array $options) {
 		$command = self::_run_sandbox_command();
-		$options['prefix'] = $command . " " . ZESK_ROOT . "bin/zesk-command.php --search \"" . $this->application->application_root() . "\" ";
+		$options['prefix'] = $command . " " . ZESK_ROOT . "bin/zesk-command.php --search \"" . $this->application->path() . "\" ";
 		if (is_file($this->config)) {
 			$options['prefix'] .= '--config \'' . addslashes($this->config) . '\' ';
 		}

@@ -52,7 +52,7 @@ class Overhead_Test extends Test_Unit {
 		$raw_usage = intval($result);
 		$this->log("Raw PHP usage is $raw_usage");
 		
-		file_put_contents($sandbox, "<?php\nrequire_once '" . $this->application->application_root("zesk.application.php") . "';\necho memory_get_usage();");
+		file_put_contents($sandbox, "<?php\nrequire_once '" . $this->application->path("zesk.application.php") . "';\necho memory_get_usage();");
 		$result = $this->run_php_sandbox($sandbox);
 		$this->assert_is_numeric($result);
 		$zesk_usage = intval($result);

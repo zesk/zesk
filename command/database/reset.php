@@ -37,7 +37,7 @@ class Command_Database_Reset extends Command {
 		parent::__construct($argv);
 	}
 	function default_dump_directory() {
-		return $this->application->application_root('sql-dumps/');
+		return $this->application->path('sql-dumps/');
 	}
 	function run() {
 		PHP::requires('pcntl', true);

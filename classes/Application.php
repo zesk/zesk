@@ -672,7 +672,7 @@ class Application extends Hookable implements Interface_Theme {
 	 */
 	private function configure_cache_paths() {
 		$cache_path = $this->option("cache_path", $this->paths->cache());
-		$this->cache_path = Directory::is_absolute($cache_path) ? $cache_path : $this->application_root($cache_path);
+		$this->cache_path = Directory::is_absolute($cache_path) ? $cache_path : $this->path($cache_path);
 		if ($this->has_option('document_cache')) {
 			$this->document_cache = $this->option('document_cache');
 		}
@@ -787,7 +787,7 @@ class Application extends Hookable implements Interface_Theme {
 	 * @return string
 	 */
 	final private function maintenance_file() {
-		return $this->option("maintenance_file", $this->application_root("etc/maintenance.json"));
+		return $this->option("maintenance_file", $this->path("etc/maintenance.json"));
 	}
 
 	/**
@@ -927,7 +927,7 @@ class Application extends Hookable implements Interface_Theme {
 		$list = array_unique(array(
 			'/etc',
 			$this->zesk_root('etc'),
-			$this->application_root('etc')
+			$this->path('etc')
 		));
 		return $list;
 	}
@@ -1390,7 +1390,7 @@ class Application extends Hookable implements Interface_Theme {
 	public function repositories() {
 		$repos = array(
 			'zesk' => $this->zesk_root(),
-			get_class($this) => $this->application_root()
+			get_class($this) => $this->path()
 		);
 		return $this->call_hook_arguments("repositories", array(
 			$repos
@@ -1771,11 +1771,19 @@ class Application extends Hookable implements Interface_Theme {
 	 * @param string $suffix
 	 *        	Optional path to add to the application path
 	 * @return string
+	 * @deprecated 2017-10
+	 * @see self::path()
 	 */
 	public function application_root($suffix = null) {
 		return $this->paths->application($suffix);
 	}
 
+	/**
+	 * Return a path relative to the application root
+	 */
+	public function path($suffix = null) {
+		return $this->paths->application($suffix);
+	}
 	/**
 	 * Return the application root path.
 	 *

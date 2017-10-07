@@ -15,7 +15,7 @@ class Controller_Markdown extends Controller_Template {
 		$content = $this->route->option('content');
 		if ($file) {
 			$search_path = $this->route->option_list('search_path', array(
-				$this->application->application_root(),
+				$this->application->path(),
 				$this->application->zesk_root()
 			));
 			$found_file = File::find_first($search_path, $file);

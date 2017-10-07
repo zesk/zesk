@@ -745,7 +745,7 @@ class Locale {
 			return;
 		}
 		if (!Directory::is_absolute($path)) {
-			$path = $application->application_root($path);
+			$path = $application->path($path);
 		}
 		if (!is_dir($path)) {
 			$application->logger->warning("{class}::auto_path {path} is not a directory", array(

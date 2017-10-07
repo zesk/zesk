@@ -971,7 +971,7 @@ class Test extends Options {
 	/**
 	 */
 	final public function sandbox($file = null, $auto_delete = true) {
-		$cache_dir = $this->application->application_root("cache/test/" . $this->application->process->id());
+		$cache_dir = $this->application->path("cache/test/" . $this->application->process->id());
 		if (!is_dir($cache_dir)) {
 			if (!mkdir($cache_dir, 0777, true)) {
 				$this->fail("test_sandbox: Can't create $cache_dir");

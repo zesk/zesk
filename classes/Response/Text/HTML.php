@@ -890,7 +890,7 @@ class Response_Text_HTML extends Response_Text {
 			}
 		}
 		if ($this->option_bool("debug_resource_cache")) {
-			file_put_contents($this->application->application_root("/resource_cache-" . date("Y-m-d-H-i-s") . ".txt"), implode("\n", $hash));
+			file_put_contents($this->application->path("/resource_cache-" . date("Y-m-d-H-i-s") . ".txt"), implode("\n", $hash));
 		}
 		$hash = md5(implode("|", $hash));
 		$cache_path = $this->resource_cache_path($extension);

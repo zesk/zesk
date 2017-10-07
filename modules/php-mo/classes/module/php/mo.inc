@@ -19,7 +19,7 @@ class Module_PHP_MO extends zesk\Module {
 	 * @throws Exception_Configuration
 	 */
 	public function initialize() {
-		$inc = path($this->application->application_root(), $this->option("destination"), "php-mo.php");
+		$inc = path($this->application->path(), $this->option("destination"), "php-mo.php");
 		if (!is_readable($inc)) {
 			throw new Exception_Configuration("php-mo", "Need to run: zesk update php-mo");
 		}

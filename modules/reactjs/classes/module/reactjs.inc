@@ -88,7 +88,7 @@ class Module_ReactJS extends Module implements Interface_Module_Routes, Interfac
 		}
 		$app = $this->application;
 		$config = $app->configuration->path_set(__CLASS__);
-		$dotenv = $app->application_root(".env");
+		$dotenv = $app->path(".env");
 		if (!file_exists($dotenv)) {
 			$this->application->logger->error("{dotenv} needs to be created to support ReactJS proxy", array(
 				"dotenv" => $dotenv
@@ -154,7 +154,7 @@ class Module_ReactJS extends Module implements Interface_Module_Routes, Interfac
 				$response->cache_for(5);
 			} else {
 				$path = $request->path();
-				$response->file($app->application_root(path("build", $path)));
+				$response->file($app->path(path("build", $path)));
 				$response->cache_forever();
 			}
 		} catch (Exception_File_NotFound $e) {

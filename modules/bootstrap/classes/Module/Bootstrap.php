@@ -171,14 +171,14 @@ class Module_Bootstrap extends Module implements Interface_Module_Foot, Interfac
 			return;
 		}
 		if (!!Directory::is_absolute($source_location)) {
-			$source_location = $this->application->application_root($source_location);
+			$source_location = $this->application->path($source_location);
 		}
 		$this->application->logger->debug("{class}::hook_updated: source_location={source_location}", array(
 			'class' => get_class($this),
 			"source_location" => $source_location
 		));
 		if (is_dir($source_location) || is_dir(dirname($source_location))) {
-			$master = path($this->application->application_root(), dirname($this->option("share_path")), "less");
+			$master = path($this->application->path(), dirname($this->option("share_path")), "less");
 			if (!is_dir($master)) {
 				$this->application->logger->error("Bootstrap master directory moved from \"{master}\" to {source_location} - update Module_Bootstrap code", compact("master", "source_location"));
 				return;

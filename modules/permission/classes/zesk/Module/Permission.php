@@ -334,7 +334,7 @@ class Module_Permission extends Module {
 	}
 	private function _role_permissions($code) {
 		$application = $this->application;
-		$paths = $this->option_list('role_paths', $application->application_root('etc/role'));
+		$paths = $this->option_list('role_paths', $application->path('etc/role'));
 		$filename = $code . ".role.conf";
 		$config = array();
 		$loader = new Configuration_Loader($paths, array(

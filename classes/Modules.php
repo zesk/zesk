@@ -365,7 +365,7 @@ class Modules {
 		$share_path = apath($module_data, 'configuration.share_path');
 		if ($share_path) {
 			if (!Directory::is_absolute($share_path)) {
-				$share_path = $this->application->application_root($share_path);
+				$share_path = $this->application->path($share_path);
 			}
 			$name = $module_data['name'];
 			if (!is_dir($share_path)) {

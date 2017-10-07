@@ -46,7 +46,7 @@ class File_Cache_Local implements Interface_File_Cache {
 		if ($this->cache_dir !== null) {
 			return $this->cache_dir;
 		}
-		$this->cache_dir = $this->application->configuration->path_get('File_Cache::path', $this->application->application_root('cache/file_cache'));
+		$this->cache_dir = $this->application->configuration->path_get('File_Cache::path', $this->application->path('cache/file_cache'));
 		Directory::depend($this->cache_dir, 0770);
 	}
 	

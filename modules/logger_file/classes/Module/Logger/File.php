@@ -84,7 +84,7 @@ class Module_Logger_File extends Module {
 	 */
 	private function _filename_path($filename) {
 		if (!File::is_absolute($filename)) {
-			$filename = $this->application->application_root($filename);
+			$filename = $this->application->path($filename);
 		}
 		return $filename;
 	}

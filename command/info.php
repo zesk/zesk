@@ -124,7 +124,7 @@ class Command_Info extends Command {
 		$info[self::zesk_version_release] = Version::release();
 		$info[self::zesk_version_string] = Version::string();
 		$info[self::zesk_root] = ZESK_ROOT;
-		$info[self::zesk_application_root] = $app->application_root();
+		$info[self::zesk_application_root] = $app->path();
 		$info[self::zesk_application_class] = $app->application_class();
 		$info[self::database_default] = $default = Database::database_default();
 		$info[self::database_url] = URL::remove_password(Database::register($default));

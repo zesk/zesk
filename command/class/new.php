@@ -55,7 +55,7 @@ class Command_Class_New extends Command {
 	// 		if (!$app && !$option_zesk) {
 	// 			$app = true;
 	// 		}
-	// 		$app_root = $this->application->application_root();
+	// 		$app_root = $this->application->path();
 	// 		$zesk_root = zesk::root();
 	// 		$module_paths = zesk::module_path();
 	// 		foreach ($module_paths as $module_path) {
