@@ -22,11 +22,6 @@ abstract class Module extends Hookable {
 	 * @var zesk\Kernel
 	 */
 	protected $zesk = null;
-	/**
-	 *
-	 * @var Application
-	 */
-	protected $application = null;
 	
 	/**
 	 *
@@ -100,9 +95,8 @@ abstract class Module extends Hookable {
 	 * @param string $options
 	 */
 	public final function __construct(Application $application, $options = null, array $module_data = array()) {
-		parent::__construct($options);
+		parent::__construct($application, $options);
 		$this->zesk = $application->zesk;
-		$this->application = $application;
 		$this->application_class = get_class($application);
 		$this->path = avalue($module_data, 'path');
 		if (!$this->codename) {

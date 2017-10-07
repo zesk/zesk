@@ -129,7 +129,7 @@ abstract class Route extends Hookable {
 	 * @param array $options
 	 */
 	function __construct(Router $router, $pattern, array $options) {
-		parent::__construct($options);
+		parent::__construct($router->application, $options);
 		$this->router = $router;
 		$this->original_pattern = $pattern;
 		$this->compile_route_pattern($pattern);

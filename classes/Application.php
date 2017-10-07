@@ -325,7 +325,7 @@ class Application extends Hookable implements Interface_Theme {
 	 *
 	 * @param unknown $options
 	 */
-	public function __construct(Kernel $zesk, $options = null) {
+	public function __construct(Kernel $zesk, array $options = array()) {
 		$this->_initialize($zesk, $options);
 	}
 
@@ -334,7 +334,7 @@ class Application extends Hookable implements Interface_Theme {
 	 * @param array $options
 	 * @throws Exception_Unimplemented
 	 */
-	protected function _initialize(Kernel $zesk, $options = null) {
+	protected function _initialize(Kernel $zesk, array $options = array()) {
 		$this->zesk = $zesk;
 		$this->paths = $zesk->paths;
 		$this->hooks = $zesk->hooks;
@@ -385,7 +385,7 @@ class Application extends Hookable implements Interface_Theme {
 			$this->objects->map($requested, $resolved);
 		}
 
-		parent::__construct($options);
+		parent::__construct($this, $options);
 
 		$this->_init_document_root();
 
@@ -952,7 +952,7 @@ class Application extends Hookable implements Interface_Theme {
 	 * @return Request
 	 */
 	protected function hook_request() {
-		$request = new Request();
+		$request = new Request($this);
 		if ($this->zesk->console()) {
 			$request->initialize_from_settings("http://console/");
 		} else {
@@ -1173,7 +1173,7 @@ class Application extends Hookable implements Interface_Theme {
 			$url = "http://localhost/";
 		}
 		$url = rtrim(URL::left_host($url), "/") . $path;
-		$this->request = new Request();
+		$this->request = new Request($this);
 		$this->request->initialize_from_settings(array(
 			"url" => $url,
 			"method" => Net_HTTP::Method_GET,

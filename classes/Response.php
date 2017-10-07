@@ -73,13 +73,6 @@ class Response extends Hookable {
 	private $cache_settings = null;
 
 	/**
-	 * Application associated with this response
-	 *
-	 * @var Application
-	 */
-	public $application = null;
-
-	/**
 	 * Request associated with this response
 	 *
 	 * @var Request
@@ -219,9 +212,8 @@ class Response extends Hookable {
 	 * @param unknown $options
 	 */
 	function __construct(Application $application, $options = null) {
-		$this->application = $application;
 		$this->request = $application->request;
-		parent::__construct($options);
+		parent::__construct($application, $options);
 		$this->inherit_global_options($application);
 	}
 

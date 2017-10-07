@@ -205,7 +205,7 @@ class Object extends Model {
 	 *        	Additional options for object
 	 * @return Object
 	 */
-	public static function factory(Application $application, $class, $mixed = null, $options = false) {
+	public static function factory(Application $application, $class, $mixed = null, array $options = array()) {
 		if (!is_string($class)) {
 			throw new Exception_Semantics("$class is not a class name");
 		}
@@ -231,7 +231,7 @@ class Object extends Model {
 	 *        	Additional options for object
 	 * @return Object
 	 */
-	public function object_factory($class, $mixed = null, $options = null) {
+	public function object_factory($class, $mixed = null, array $options = array()) {
 		return Object::factory($this->application, $class, $mixed, $options);
 	}
 	
@@ -243,7 +243,7 @@ class Object extends Model {
 	 * @param array $options
 	 *        	List of Options to set before initialization
 	 */
-	function __construct(Application $application, $mixed = null, $options = false) {
+	function __construct(Application $application, $mixed = null, array $options = array()) {
 		parent::__construct($application, null, $options);
 		$this->inherit_global_options($application);
 		$this->initialize_specification();

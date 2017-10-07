@@ -146,7 +146,8 @@ class Request extends Hookable {
 	 * @param string $headers
 	 *        	(Optional) HTTP Headers sent
 	 */
-	function __construct($settings = null) {
+	function __construct(Application $application, $settings = null) {
+		parent::__construct($application);
 		$this->user_agent = null;
 		$this->call_hook("construct");
 		if ($settings instanceof Request) {
@@ -160,6 +161,7 @@ class Request extends Hookable {
 				"method" => __METHOD__
 			));
 		}
+		$this->inherit_global_options($application);
 	}
 
 	/**

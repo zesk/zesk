@@ -13,11 +13,6 @@ namespace zesk;
 class Deploy extends Hookable {
 	/**
 	 *
-	 * @var Application
-	 */
-	protected $application = null;
-	/**
-	 *
 	 * @var string
 	 */
 	protected $path = null;
@@ -55,9 +50,8 @@ class Deploy extends Hookable {
 	 * @param unknown $options
 	 */
 	public function __construct(Application $application, $path, $options = null) {
-		$this->application = $application;
+		parent::__construct($application, $options);
 		$this->path = $path;
-		parent::__construct($options);
 		$this->call_hook('construct');
 	}
 	

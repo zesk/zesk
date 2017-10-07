@@ -15,7 +15,7 @@ namespace zesk;
  * @author kent
  *
  */
-class PHP_Formatter extends Hookable {
+class PHP_Formatter extends Options {
 	static $OPERATORS = array(
 		'=',
 		'.',

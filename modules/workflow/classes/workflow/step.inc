@@ -54,9 +54,9 @@ abstract class Workflow_Step extends Hookable {
 	 * @param array $options
 	 */
 	public function __construct(Workflow $workflow, array $options = array()) {
-		parent::__construct($options);
+		parent::__construct($workflow->application, $options);
 		$this->workflow = $workflow;
-		$this->inherit_global_options($workflow->application);
+		$this->inherit_global_options($this->application);
 		if (empty($this->title)) {
 			$this->title = $this->option('title');
 		}

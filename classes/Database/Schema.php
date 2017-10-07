@@ -105,10 +105,8 @@ abstract class Database_Schema extends Hookable {
 	 * @param Class_Object $class_object
 	 * @param string $options
 	 */
-	function __construct(Class_Object $class_object, Object $object = null, $options = null) {
-		global $zesk;
-		/* @var $zesk zesk\Kernel */
-		parent::__construct($options);
+	function __construct(Class_Object $class_object, Object $object = null, array $options = array()) {
+		parent::__construct($class_object->application, $options);
 		$this->class_object = $class_object;
 		$this->object = $object;
 	}
@@ -127,9 +125,7 @@ abstract class Database_Schema extends Hookable {
 	 * @param zesk\Application $application
 	 */
 	public static function configured(Application $application) {
-		global $zesk;
-		/* @var $zesk zesk\Kernel */
-		if ($zesk->configuration->debug || $zesk->configuration->path_get(array(
+		if ($application->configuration->debug || $application->configuration->path_get(array(
 			__CLASS__,
 			"debug"
 		))) {

@@ -32,7 +32,7 @@ class Directory extends Hookable {
 	 * configured hook
 	 */
 	public static function configured(Application $application) {
-		self::$debug = zesk()->configuration->path(__CLASS__)->debug;
+		self::$debug = $application->configuration->path(__CLASS__)->debug;
 	}
 	
 	/**

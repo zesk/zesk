@@ -24,6 +24,7 @@ abstract class Database_SQL extends Hookable {
 	 * @param Database $database
 	 */
 	public function __construct(Database $database) {
+		parent::__construct($database->application);
 		$this->database = $database;
 	}
 	

@@ -32,12 +32,6 @@ class Controller extends Hookable implements Interface_Theme {
 	protected $method_default_arguments = null;
 	
 	/**
-	 * The Application
-	 *
-	 * @var Application
-	 */
-	public $application = null;
-	/**
 	 * Request associated with this controller
 	 *
 	 * @var Request
@@ -72,11 +66,10 @@ class Controller extends Hookable implements Interface_Theme {
 	 * @param array $options        	
 	 */
 	public function __construct(Application $app, $options = null) {
-		parent::__construct($options);
+		parent::__construct($app, $options);
 		
 		$this->inherit_global_options($app);
 		
-		$this->application = $app;
 		$this->router = $app->router;
 		$this->route = $this->router ? $this->router->route : null;
 		$this->request = $app->request;

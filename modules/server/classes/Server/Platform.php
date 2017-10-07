@@ -98,8 +98,8 @@ abstract class Server_Platform extends Hookable {
 	 *
 	 * @throws Exception_Unimplemented
 	 */
-	function __construct($options = null) {
-		parent::__construct($options);
+	function __construct(Application $application, array $options = array()) {
+		parent::__construct($application, $options);
 		if ($this->root_group === null) {
 			throw new Exception_Unimplemented("\$this->root_group is null");
 		}

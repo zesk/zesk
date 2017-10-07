@@ -21,14 +21,14 @@ class Router_Test extends Test_Unit {
 			"theme" => 'Router-Test'
 		));
 		
-		$request = new Request(array(
+		$request = new Request($this->application, array(
 			"url" => "http://test/"
 		));
 		$this->assert($testx->match($request) === null);
 		
 		$app = $this->application;
 		$app->request();
-		$app->request = $request = new Request(array(
+		$app->request = $request = new Request($this->application, array(
 			"url" => 'http://www.example.com/foo'
 		));
 		$app->response = $response = Response::instance($this->application);
@@ -47,6 +47,8 @@ class Router_Test extends Test_Unit {
 	}
 	function test_cached() {
 		$mtime = null;
-		Router::cached($this->application, $mtime);
+		$router = new Router($this->application);
+		$result = $router->cached($mtime);
+		$this->assert_null($result);
 	}
 }
