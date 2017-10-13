@@ -1,0 +1,9 @@
+{
+	"name": "zesk Whois",
+	"description": "zesk\\Objects related to Whois queries and parsed result data. Useful to build a cached library of whois information.",
+	"autoload_options": {
+		"class_prefix": "zesk\\Whois",
+		"lower": false
+	},
+	"module_class": "zesk\\Whois\\Module"
+}

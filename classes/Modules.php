@@ -9,7 +9,8 @@
 namespace zesk;
 
 /**
- *
+ * Module loading and management
+ * 
  * @see Module
  * @author kent
  *        

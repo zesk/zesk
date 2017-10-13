@@ -3,6 +3,7 @@ namespace DNSMadeEasy;
 
 use zesk\Exception_Configuration;
 use zesk\Net_HTTP_Client;
+use zesk\Application;
 
 class Client extends \zesk\Net_HTTP_Client {
 	/**
@@ -36,8 +37,8 @@ class Client extends \zesk\Net_HTTP_Client {
 	 * @param unknown $options
 	 * @throws Exception_Configuration
 	 */
-	function __construct($options = null) {
-		parent::__construct(null, $options);
+	function __construct(Application $application, array $options = array()) {
+		parent::__construct($application, $options);
 		$this->api_key = strtolower(trim($this->option('api_key')));
 		$this->secret_key = strtolower(trim($this->option('secret_key')));
 		if (!self::valid_key($this->api_key)) {

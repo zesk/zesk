@@ -22,7 +22,7 @@ class Service extends Hookable {
 	 */
 	public function __construct(Application $application, array $options = array()) {
 		parent::__construct($application, $options);
-		$this->inherit_global_options($application);
+		$this->inherit_global_options();
 	}
 	/**
 	 * Valid service type

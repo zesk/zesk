@@ -6,18 +6,11 @@
  * @subpackage whois
  * @copyright Copyright &copy; 2005, Market Acumen, Inc.
  */
-class Whois_Search extends Object {
-	protected $columns = array(
-		"ID",
-		"Search",
-		"TLDs"
-	);
-	protected $column_types = array();
-	protected $has_many = array(
-		"Queries" => array(
-			"class" => "Whois_Query"
-		)
-	);
+namespace zesk\Whois;
+
+use zesk\Exception_Parameter;
+
+class Search extends Object {
 	private $Extrapolated;
 	private $Matches;
 	private $TLDs;

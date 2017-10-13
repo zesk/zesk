@@ -53,7 +53,7 @@ class CSV_Reader_Iterator extends Options implements \Iterator {
 	 * @var boolean
 	 */
 	private $is_valid;
-	public function __construct(CSV_Reader $csv, $options = false) {
+	public function __construct(CSV_Reader $csv, array $options = array()) {
 		parent::__construct($options);
 		$this->csv = $csv;
 		$this->csv_tell = $csv->tell();

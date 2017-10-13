@@ -26,7 +26,7 @@ class Module_DKIM extends Module {
 			}
 		}
 		if ($mapped_any) {
-			$this->inherit_global_options($this->application);
+			$this->inherit_global_options();
 		}
 	}
 	public function enabled() {

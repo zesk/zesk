@@ -34,7 +34,7 @@ class Database_Column extends Options {
 	 * @param unknown $name
 	 * @param unknown $options
 	 */
-	function __construct(Database_Table $table, $name, $options = null) {
+	function __construct(Database_Table $table, $name, array $options = array()) {
 		$this->table = $table;
 		if (is_string($options)) {
 			// Handle backwards compatibility 2017-03

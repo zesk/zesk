@@ -10,8 +10,7 @@
 namespace zesk;
 
 /**
- * /**
- * Module loading and management
+ * Module base class for all extensions to Zesk
  *
  * @see Modules
  * @author kent
@@ -94,7 +93,7 @@ abstract class Module extends Hookable {
 	 *
 	 * @param string $options
 	 */
-	public final function __construct(Application $application, $options = null, array $module_data = array()) {
+	public final function __construct(Application $application, array $options = array(), array $module_data = array()) {
 		parent::__construct($application, $options);
 		$this->zesk = $application->zesk;
 		$this->application_class = get_class($application);
@@ -112,7 +111,7 @@ abstract class Module extends Hookable {
 			$this->application->objects->map($this->object_aliases);
 		}
 		$this->call_hook("construct");
-		$this->inherit_global_options($application);
+		$this->inherit_global_options();
 	}
 	/**
 	 *

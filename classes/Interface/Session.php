@@ -18,7 +18,7 @@ interface Interface_Session extends Interface_Settings {
 	 * @param array $options
 	 * @param Application $application
 	 */
-	function __construct(Application $application, $mixed = null, $options = false);
+	function __construct(Application $application, $mixed = null, array $options = array());
 	
 	/**
 	 * Singleton interface to retrieve current session

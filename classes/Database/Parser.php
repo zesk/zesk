@@ -33,7 +33,7 @@ abstract class Database_Parser extends Hookable {
 	 * @param Database $database        	
 	 * @param array $options        	
 	 */
-	public function __construct(Database $database, $options = null) {
+	public function __construct(Database $database, array $options = array()) {
 		$this->database = $database;
 		parent::__construct($database->application, $options);
 	}

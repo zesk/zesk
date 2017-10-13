@@ -52,7 +52,7 @@ class World_Bootstrap_Country extends Options {
 	public function __construct(Application $application, array $options = array()) {
 		$this->application = $application;
 		parent::__construct($options);
-		$this->inherit_global_options($application, "zesk\\Module_World");
+		$this->inherit_global_options("zesk\\Module_World");
 		$include_country = $this->option("include_country");
 		if ($include_country) {
 			$this->include_country = array_change_key_case(arr::flip_assign(to_list($include_country), true));

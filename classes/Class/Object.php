@@ -778,7 +778,7 @@ class Class_Object extends Hookable {
 	public function __construct(Object $object, array $options = array()) {
 		$app = $object->application;
 		parent::__construct($app, $options);
-		$this->inherit_global_options($app);
+		$this->inherit_global_options();
 		$this_class = $object->class_object();
 		// Handle polymorphic classes - create correct Class and use correct base class
 		$this_class = $this->class = is_string($this_class) ? $this_class : get_class($object);

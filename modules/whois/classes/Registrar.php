@@ -7,5 +7,9 @@
  * @copyright Copyright &copy; 2011, Market Acumen, Inc.
  * Created on Mon,Aug 1, 11 at 5:06 PM
  */
-class Whois_Registrar extends Object {}
+namespace zesk\Whois;
+
+use zesk\Object;
+
+class Registrar extends Object {}
 

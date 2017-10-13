@@ -46,7 +46,7 @@ class View_Image_Test extends Test_Widget {
 		$width = false;
 		$height = false;
 		$alt = "";
-		$extras = false;
+		$extras = array();
 		View_Image::scaled($this->application, $src, $width, $height, $alt, $extras);
 		
 		newline("\n");
@@ -160,7 +160,7 @@ class View_Image_Test extends Test_Widget {
 		$width = false;
 		$height = false;
 		$alt = "";
-		$extras = false;
+		$extras = array();
 		View_Image::scaled_path($this->application, $src, $width, $height, $alt, $extras);
 		
 		newline("\n");
@@ -277,7 +277,7 @@ class View_Image_Test extends Test_Widget {
 		$width = false;
 		$height = false;
 		$alt = "";
-		$extras = false;
+		$extras = array();
 		View_Image::scaled_widget($this->application, $width, $height, $alt, $extras);
 	}
 	function test_debug() {

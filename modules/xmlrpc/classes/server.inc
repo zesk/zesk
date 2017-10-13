@@ -16,6 +16,7 @@ use zesk\Exception_Semantics;
 use zesk\Exception_Unimplemented;
 use zesk\Options;
 use zesk\Application;
+use zesk\Hookable;
 
 /**
  * Server
@@ -25,7 +26,7 @@ use zesk\Application;
  * @package zesk
  * @subpackage xmlrpc
  */
-class Server extends Options {
+class Server extends Hookable {
 
 	/**
 	 *
@@ -75,9 +76,8 @@ class Server extends Options {
 	 * @param string $methods
 	 */
 	function __construct(Application $application, array $options = array()) {
-		$this->application = $application;
-		parent::__construct($options);
-		$this->inherit_global_options($application);
+		parent::__construct($application, $options);
+		$this->inherit_global_options();
 
 		$this->Methods = array();
 

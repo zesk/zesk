@@ -161,7 +161,7 @@ class Request extends Hookable {
 				"method" => __METHOD__
 			));
 		}
-		$this->inherit_global_options($application);
+		$this->inherit_global_options();
 	}
 
 	/**

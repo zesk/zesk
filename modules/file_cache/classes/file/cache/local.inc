@@ -2,6 +2,7 @@
 /**
  * 
  */
+use zesk\Application;
 use zesk\Directory;
 use zesk\Timestamp;
 use zesk\URL;
@@ -11,7 +12,6 @@ use zesk\Exception_NotFound;
 use zesk\Net_HTTP_Client;
 use zesk\File;
 use zesk\Net_HTTP;
-use zesk\Application;
 
 /**
  * 
@@ -126,7 +126,7 @@ class File_Cache_Local implements Interface_File_Cache {
 			if ($delta < $wait_minimum) {
 				$wait_for = $wait_minimum - $delta;
 				$microseconds = intval($wait_for * 1000000);
-				zesk()->logger->notice("Sleeping for $wait_for seconds ...");
+				$this->application->logger->notice("Sleeping for $wait_for seconds ...");
 				usleep($microseconds);
 			}
 		}
@@ -139,7 +139,7 @@ class File_Cache_Local implements Interface_File_Cache {
 		$client->follow_location(true);
 		$client->user_agent(avalue($options, "user_agent", 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10.7; rv:12.0) Gecko/20100101 Firefox/12.0'));
 		$client->destination($temp_file_name);
-		zesk()->logger->notice("Downloading $url");
+		$this->application->logger->notice("Downloading $url");
 		$client->go();
 		$this->last_request = microtime(true);
 		return array(
@@ -160,7 +160,7 @@ class File_Cache_Local implements Interface_File_Cache {
 		$url = URL::normalize($url);
 		$this->_init();
 		$url_hash = md5($url);
-		return self::settings($url);
+		return $this->settings($url);
 	}
 	public function _iterator() {
 		$this->_init();
@@ -177,8 +177,6 @@ class File_Cache_Local implements Interface_File_Cache {
 		return path($dir, $hash);
 	}
 	public function _url($url, array $options = array()) {
-		global $zesk;
-		/* @var $zesk zesk\Kernel */
 		$url = URL::normalize($url);
 		$this->_init();
 		
@@ -193,7 +191,7 @@ class File_Cache_Local implements Interface_File_Cache {
 		
 		$ttl = intval(avalue($options, "ttl", $ttl));
 		if ($ttl <= 0) {
-			$ttl = $zesk->configuration->path_get('File_Cache::ttl', Timestamp::units_translation_table("week"));
+			$ttl = $this->application->configuration->path_get('File_Cache::ttl', Timestamp::units_translation_table("week"));
 		}
 		$expire = $now + $ttl;
 		
@@ -206,7 +204,7 @@ class File_Cache_Local implements Interface_File_Cache {
 			}
 		}
 		if (!$need_check && $now > $checked + $ttl) {
-			zesk()->logger->debug("File_Cache_Local::_url({url}) TTL expired ({now} > {expire})", compact("now", "expire", "url"));
+			$this->application->logger->debug("File_Cache_Local::_url({url}) TTL expired ({now} > {expire})", compact("now", "expire", "url"));
 			$need_check = true;
 		}
 		if ($need_check) {

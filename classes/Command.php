@@ -308,7 +308,7 @@ abstract class Command extends Hookable implements Logger\Handler {
 
 		$this->configuration = $app->reconfigure();
 
-		$this->inherit_global_options($this->application);
+		$this->inherit_global_options();
 		$this->config = $config = $configure_options['default'];
 		$config_settings = null;
 		$exists = file_exists($config);

@@ -45,7 +45,7 @@ class Trie extends Options {
 	 * 
 	 * @param unknown $options
 	 */
-	function __construct($options = null) {
+	function __construct(array $options = array()) {
 		parent::__construct($options);
 		$this->lower = $this->option_bool('lower');
 		$this->root = new Trie_Node();

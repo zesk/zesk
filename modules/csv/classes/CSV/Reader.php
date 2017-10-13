@@ -30,7 +30,7 @@ class CSV_Reader extends CSV {
 	 * @param unknown $filename
 	 * @param unknown $options
 	 */
-	function __construct($filename = null, $options = null) {
+	function __construct($filename = null, array $options = array()) {
 		parent::__construct($options);
 		$this->FileBuffer = "";
 		if ($filename) {

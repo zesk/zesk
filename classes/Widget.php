@@ -222,15 +222,16 @@ class Widget extends Hookable {
 	 *
 	 * @param mixed $options
 	 */
-	public function __construct(Application $application, $options = false) {
+	public function __construct(Application $application, array $options = null) {
 		$this->request = $application->request();
 		$this->response = $application->response();
 		
 		if (!is_array($options)) {
 			$options = array();
 		}
-		$options = $options + self::default_options($application, get_class($this));
 		parent::__construct($application, $options);
+		$this->inherit_global_options(__CLASS__);
+		
 		$this->options += array(
 			"column" => avalue($this->options, 'id')
 		);
@@ -564,7 +565,7 @@ class Widget extends Hookable {
 			$widget = $application->factory_arguments($class, $args);
 		} catch (Exception_Class_NotFound $e) {
 			if (strpos($class, "\\") === false && class_exists("zesk\\$class")) {
-				$widget = $application->objects->factory_arguments("zesk\\" . $class, $args);
+				$widget = $application->factory_arguments("zesk\\" . $class, $args);
 			} else {
 				throw $e;
 			}

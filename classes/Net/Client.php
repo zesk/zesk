@@ -57,13 +57,13 @@ abstract class Net_Client extends Options {
 	 * @param array $options Options which change the behavior of this SMTP_Client connection
 	 * @return SMTP_Client
 	 */
-	public function __construct(Application $application, $url, $options = false) {
+	public function __construct(Application $application, $url, array $options = array()) {
 		$this->application = $application;
 		$this->url = $url;
 		$this->url_parts = URL::parse($url);
 		
 		parent::__construct($options);
-		$this->inherit_global_options($this->application);
+		$this->inherit_global_options();
 	}
 	public function __toString() {
 		return $this->url;

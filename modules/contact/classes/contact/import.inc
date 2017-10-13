@@ -42,7 +42,7 @@ abstract class Contact_Import extends Options {
 	 * @var unknown
 	 */
 	private $tag = null;
-	function __construct(Interface_Process $process, $filename, $options = null) {
+	function __construct(Interface_Process $process, $filename, array $options = array()) {
 		parent::__construct($options);
 		$this->process = $process;
 		$this->filename = $filename;

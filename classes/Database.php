@@ -160,7 +160,7 @@ abstract class Database extends Hookable {
 	 */
 	public function __construct(Application $application, $url = null, array $options = array()) {
 		parent::__construct($application, $options);
-		$this->inherit_global_options($application);
+		$this->inherit_global_options();
 		// TODO Pass this in __construct and propagate
 		$application->hooks->register_class(__CLASS__);
 		$application->hooks->register_class(get_class($this));

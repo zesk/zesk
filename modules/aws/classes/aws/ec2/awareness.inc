@@ -15,7 +15,7 @@ use zesk\Net_HTTP_Client;
  * @author kent
  *
  */
-class AWS_EC2_Awareness extends Options {
+class AWS_EC2_Awareness extends Hookable {
 
 	/**
 	 *
@@ -114,9 +114,8 @@ class AWS_EC2_Awareness extends Options {
 	 *
 	 * @param array $options
 	 */
-	public function __construct(Application $application, array $options = null) {
-		parent::__construct($options);
-		$this->application = $application;
+	public function __construct(Application $application, array $options = array()) {
+		parent::__construct($application, $options);
 		$this->inherit_global_options();
 		$this->cache = Cache::register(__CLASS__)->expire_after($this->option("cache_expire_seconds", self::default_cache_expire_seconds));
 	}

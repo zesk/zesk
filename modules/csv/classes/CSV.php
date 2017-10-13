@@ -88,7 +88,7 @@ abstract class CSV extends Options {
 	 *
 	 * @param mixed $options Array of options
 	 */
-	function __construct($options = null) {
+	function __construct(array $options = array()) {
 		parent::__construct($options);
 		
 		$this->RowIndex = 0;

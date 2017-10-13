@@ -29,3 +29,20 @@ echo 'Function `zesk\Application::application_root` renamed to `zesk\Application
 zesk cannon '>application_root(' '>path('
 pause
 
+echo 'Function `zesk\Options::inherit_global_options` moved `zesk\Hookable::inherit_global_options` and `$application` parameter removed'
+zesk cannon '>inherit_global_options($this->application,' '>inherit_global_options('
+zesk cannon '>inherit_global_options($this->application)' '>inherit_global_options()'
+zesk cannon '>inherit_global_options($application,' '>inherit_global_options('
+zesk cannon '>inherit_global_options($application)' '>inherit_global_options()'
+pause
+
+echo '`zesk\Options::__construct` now requires an array parameter'
+php-find.sh 'extends Options'
+pause
+echo '`zesk\Hookable::__construct` now requires an array parameter'
+php-find.sh 'extends Hookable'
+pause
+echo '`zesk\Model::__construct` now requires an array parameter'
+php-find.sh 'extends Model'
+pause
+

@@ -76,7 +76,7 @@ class PHP_Formatter extends Options {
 	public $index = 0;
 	public $next = 0;
 	public $n_tokens = 0;
-	public function __construct($options = null) {
+	public function __construct(array $options = array()) {
 		parent::__construct($options);
 		$this->whitespace_before = self::$WHITESPACE_BEFORE;
 		$this->whitespace_after = self::$WHITESPACE_AFTER;

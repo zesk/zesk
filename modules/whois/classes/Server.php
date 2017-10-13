@@ -8,57 +8,42 @@
  */
 namespace zesk\Whois;
 
-use zesk\Object;
 use zesk\IPv4;
+use zesk\Application;
 
+/**
+ * @see Class_Server
+ * @author kent
+ *
+ */
 class Server extends Object {
-	protected $columns = array(
-		"ID",
-		"TLD",
-		"Host"
-	);
 	function _textFormat() {
 		return '{TLD} ({Host})';
 	}
-	function bootstrap() {
-		$tlds = array(
-			"com",
-			"net",
-			"edu"
-		);
-		return true;
-	}
-	public static function register_server($name, $tld = "") {
+	public static function register_server(Application $application, $tld, $name) {
 		$fields = array();
-		if (!empty($name)) {
-			$fields["Host"] = $name;
-		}
-		if (!empty($tld)) {
-			$fields["TLD"] = $tld;
-		}
-		if (empty($fields)) {
-			return null;
-		}
-		return Object::factory(__CLASS__)->register($fields);
+		$fields["tld"] = $tld;
+		$fields["name"] = $name;
+		return $application->object_factory(__CLASS__, $fields)->register();
 	}
-	public static function find_server($tld) {
-		$foo = new self();
+	public static function find_server(Application $application, $tld) {
+		$foo = $application->object_factory(__CLASS__);
 		if (IPv4::valid($tld)) {
 			$tld = "." . array_pop(explode(".", $tld)) . ".in-addr.arpa";
 			if ($foo->find(array(
-				"TLD" => $tld
+				"tld" => $tld
 			))) {
 				return $foo;
 			}
 			return $foo->find(array(
-				"TLD" => ".in-addr.arpa"
+				"tld" => ".in-addr.arpa"
 			));
 		}
 		if (substr($tld, 0, 1) !== ".") {
 			$tld = ".$tld";
 		}
 		return $foo->find(array(
-			"TLD" => $tld
+			"tld" => $tld
 		));
 	}
 }

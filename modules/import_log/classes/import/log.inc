@@ -18,7 +18,7 @@ abstract class Import_Log extends Options implements \Iterator {
 	protected $valid = true;
 	protected $rewind_tell = 0;
 	protected $line_number = 0;
-	function __construct($filename, $options = null) {
+	function __construct($filename, array $options = array()) {
 		$this->_filename = $filename;
 		parent::__construct($options);
 	}

@@ -31,7 +31,7 @@ abstract class Contact_Builder_Base extends Options {
 	 * @param array $data
 	 * @param array $options
 	 */
-	function __construct($data = null, $options = null) {
+	function __construct($data = null, array $options = array()) {
 		parent::__construct($options);
 		$this->data = is_array($data) ? $data : array();
 	}

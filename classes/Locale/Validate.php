@@ -20,10 +20,10 @@ class Locale_Validate extends Options {
 	 * 
 	 * @param array $options
 	 */
-	public function __construct(Application $application, $options = null) {
+	public function __construct(Application $application, array $options = array()) {
 		$this->application = $application;
 		parent::__construct($options);
-		$this->inherit_global_options($application);
+		$this->inherit_global_options();
 	}
 	
 	/**

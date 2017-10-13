@@ -12,7 +12,7 @@ use zesk\Timestamp;
 /* @var $response \zesk\Response_Text_HTML */
 /* @var $current_user \User */
 /* @var $module_class string */
-$settings = Settings::instance();
+$settings = $application->object_singleton("zesk\\Settings");
 
 $now = Timestamp::now("UTC");
 

@@ -326,6 +326,7 @@ class Application extends Hookable implements Interface_Theme {
 	 * @param unknown $options
 	 */
 	public function __construct(Kernel $zesk, array $options = array()) {
+		parent::__construct($this, $options);
 		$this->_initialize($zesk, $options);
 	}
 
@@ -384,8 +385,6 @@ class Application extends Hookable implements Interface_Theme {
 		foreach ($this->object_aliases as $requested => $resolved) {
 			$this->objects->map($requested, $resolved);
 		}
-
-		parent::__construct($this, $options);
 
 		$this->_init_document_root();
 
@@ -617,7 +616,7 @@ class Application extends Hookable implements Interface_Theme {
 		$this->modules->load($this->load_modules);
 
 		// Reload application options
-		$this->inherit_global_options($this);
+		$this->inherit_global_options();
 
 		// Load dynamic modules now
 		$modules = $this->option_list('modules');

@@ -63,7 +63,7 @@ class CSV_Writer extends CSV {
 	 *
 	 * @param array $options
 	 */
-	public function __construct($options = false) {
+	public function __construct(array $options = array()) {
 		parent::__construct($options);
 		$this->WroteHeaders = false;
 		$this->WriteMapGroup = array();

@@ -271,4 +271,81 @@ class Hookable extends Options {
 		// No way to combine
 		return $new_result;
 	}
+	
+	/**
+	 * @todo global remove
+	 * @var array
+	 */
+	private static $option_references = array();
+	
+	/**
+	 * Loading references
+	 *
+	 * @param unknown $class
+	 * @return mixed
+	 */
+	private function _default_options($class) {
+		$references = array();
+		// Class hierarchy is given from child -> parent
+		$config = $this->application->configuration;
+		foreach ($this->application->classes->hierarchy($class) as $subclass) {
+			// Child options override parent options
+			$references[$subclass] = $config->path($subclass);
+		}
+		return $references;
+	}
+	
+	/**
+	 * Load default options for an object. Leaf-class options override parent options.
+	 *
+	 * For class Control_Thing_Example, loads globals from:
+	 *
+	 * zesk::geta("Control_Thing_Example::name1");
+	 * zesk::geta("Control_Thing::name1");
+	 * zesk::geta("Control::name1");
+	 * zesk::geta("Options::name1");
+	 *
+	 * @param string $class
+	 * @return array
+	 */
+	function default_options($class) {
+		$class = strtolower($class);
+		$opts = array();
+		// Class hierarchy is given from child -> parent
+		$config = new Configuration();
+		foreach ($this->_default_options($class) as $subclass => $configuration) {
+			// Child options override parent options
+			$config->merge($configuration, false);
+		}
+		return $config->to_array();
+	}
+	
+	/**
+	 * Load options for this object based on globals loaded. Only overwrites values which are NOT set.
+	 *
+	 * @param string $class Inherit globals from this class
+	 * @return Command
+	 */
+	final function inherit_global_options($class = null) {
+		if ($class instanceof Application) {
+			$this->application->deprecated("{method} no longer takes application", array(
+				"method" => __METHOD__
+			));
+			$class = func_get_arg(1);
+		}
+		if ($class === null) {
+			$class = get_class($this);
+		}
+		if (is_object($class)) {
+			$class = get_class($class);
+		}
+		$options = $this->default_options($class);
+		foreach ($options as $key => $value) {
+			$key = self::_option_key($key);
+			if (!isset($this->options[$key])) {
+				$this->options[$key] = $value;
+			}
+		}
+		return $this;
+	}
 }

@@ -70,7 +70,7 @@ class Database_Table extends Options {
 	 * @param unknown $table_name
 	 * @param string $type
 	 */
-	function __construct(Database $db, $table_name, $type = null, array $options = null) {
+	function __construct(Database $db, $table_name, $type = null, array $options = array()) {
 		parent::__construct($options);
 		$this->database = $db;
 		$this->name = $table_name;

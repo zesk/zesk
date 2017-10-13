@@ -7,13 +7,14 @@
  */
 use zesk\Application;
 use zesk\Options;
+use zesk\Hookable;
 
 /**
  * 
  * @author kent
  *
  */
-class AWS extends Options {
+class AWS extends Hookable {
 	/**
 	 * 
 	 * @var Application
@@ -26,8 +27,7 @@ class AWS extends Options {
 	 * @param array $options
 	 */
 	function __construct(Application $application, array $options = array()) {
-		parent::__construct($options);
-		$this->application = $application;
-		$this->inherit_global_options($application);
+		parent::__construct($application, $options);
+		$this->inherit_global_options();
 	}
 }

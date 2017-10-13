@@ -151,7 +151,7 @@ class View_Image extends View {
 		$this->application->logger->notice("Output image path is file_path=$file_path value=$value");
 		return $this->output_image($file_path, $value);
 	}
-	protected function output_image($file_path, $value, $extras = "") {
+	protected function output_image($file_path, $value, $options = "") {
 		$attrs = array();
 		
 		$attrs["width"] = $this->option_integer("ScaledWidth", $this->option_integer("Width"));
@@ -178,7 +178,7 @@ class View_Image extends View {
 		
 		$result = HTML::tag("img", $attrs, null);
 		
-		return $result . $extras;
+		return $result . $options;
 	}
 	public function didCreateFile() {
 		return $this->option_bool("created_file", true);
@@ -192,30 +192,30 @@ class View_Image extends View {
 	 * @param integer $width
 	 * @param integer $height
 	 * @param string $alt
-	 * @param array $extras
+	 * @param array $options
 	 * @return View_Image
 	 */
-	public static function scaled_widget(Application $application, $width = false, $height = false, $alt = "", $extras = false) {
+	public static function scaled_widget(Application $application, $width = false, $height = false, $alt = "", array $options = array()) {
 		if ($width) {
-			$extras['width'] = $width;
+			$options['width'] = $width;
 		}
 		if ($height) {
-			$extras['height'] = $height;
+			$options['height'] = $height;
 		}
 		if ($alt) {
-			$extras['alt'] = $alt;
+			$options['alt'] = $alt;
 		}
-		$w = new View_Image($application, $extras);
+		$w = new View_Image($application, $options);
 		return $w;
 	}
-	public static function scaled(Application $application, $src, $width = false, $height = false, $alt = "", $extras = false) {
-		$w = self::scaled_widget($application, $width, $height, $alt, $extras);
+	public static function scaled(Application $application, $src, $width = false, $height = false, $alt = "", array $options = array()) {
+		$w = self::scaled_widget($application, $width, $height, $alt, $options);
 		$x = new Model($application);
 		$x->src = $src;
 		return $w->execute($x);
 	}
-	public static function scaled_path(Application $application, $src, $width = false, $height = false, $alt = "", $extras = false) {
-		$w = self::scaled_widget($application, $width, $height, $alt, $extras);
+	public static function scaled_path(Application $application, $src, $width = false, $height = false, $alt = "", array $options = array()) {
+		$w = self::scaled_widget($application, $width, $height, $alt, $options);
 		$x = new Model($application);
 		$x->src = $src;
 		$w->execute($x);

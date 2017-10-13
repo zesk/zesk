@@ -31,7 +31,8 @@ abstract class Metafile extends Options {
 	 * @var array
 	 */
 	protected $warnings = array();
-	function __construct(Stream $stream) {
+	function __construct(Stream $stream, array $options = array()) {
+		parent::__construct($options);
 		$this->stream = $stream;
 	}
 	function read_byte($count = 1) {

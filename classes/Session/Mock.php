@@ -7,7 +7,7 @@ namespace zesk;
 /**
  * 
  */
-class Session_Mock extends Options implements Interface_Session {
+class Session_Mock extends Hookable implements Interface_Session {
 	/**
 	 *
 	 * @var Application
@@ -31,9 +31,9 @@ class Session_Mock extends Options implements Interface_Session {
 	 * @param unknown $mixed
 	 * @param string $options
 	 */
-	function __construct(Application $application, $mixed = null, $options = false) {
-		parent::__construct($options);
-		$this->inherit_global_options($application);
+	function __construct(Application $application, $mixed = null, array $options = array()) {
+		parent::__construct($application, $options);
+		$this->inherit_global_options();
 		$this->application = $application;
 		$this->id = md5(microtime(false));
 		if (is_array($mixed)) {

@@ -2,15 +2,6 @@
 namespace zesk;
 
 class Test_Widget extends Test_Unit {
-	function test_default_options() {
-		$class = null;
-		Widget::default_options($this->application, $class);
-	}
-	function test_inherit_options() {
-		$options = null;
-		$class = null;
-		Widget::inherit_options($this->application, $options, $class);
-	}
 	function widget_tests(Widget $testx) {
 		$column = "col";
 		$label = "label";

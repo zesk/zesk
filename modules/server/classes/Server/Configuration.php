@@ -8,14 +8,7 @@ namespace zesk;
 /**
  * Array of settings and values used to configure this system
  */
-abstract class Server_Configuration extends Options {
-
-	/**
-	 *
-	 * @var Application
-	 */
-	public $application = null;
-
+abstract class Server_Configuration extends Hookable {
 	/**
 	 *
 	 * @var Server_Platform
@@ -60,10 +53,9 @@ abstract class Server_Configuration extends Options {
 		return $platform->application->factory($class, $platform, $options);
 	}
 	function __construct(Server_Platform $platform, $options = null) {
-		parent::__construct($options);
 		$this->platform = $platform;
-		$this->application = $platform->application;
-		$this->inherit_global_options($this->application);
+		parent::__construct($platform->application, $options);
+		$this->inherit_global_options();
 	}
 	final public function verbose_log($message, array $args = array()) {
 		return $this->platform->verbose_log($message, $args);

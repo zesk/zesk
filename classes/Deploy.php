@@ -49,7 +49,7 @@ class Deploy extends Hookable {
 	 * @param unknown $path
 	 * @param unknown $options
 	 */
-	public function __construct(Application $application, $path, $options = null) {
+	public function __construct(Application $application, $path, array $options = array()) {
 		parent::__construct($application, $options);
 		$this->path = $path;
 		$this->call_hook('construct');

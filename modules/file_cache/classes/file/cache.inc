@@ -20,7 +20,7 @@ class File_Cache {
 		if ($singleton instanceof Interface_File_Cache) {
 			return $singleton;
 		}
-		$singleton = $application->factory($application, $application->configuration->path_get(__CLASS__ . "::class", "File_Cache_Local"));
+		$singleton = $application->factory($application->configuration->path_get(__CLASS__ . "::class", "File_Cache_Local"), $application);
 		return $singleton;
 	}
 	/**

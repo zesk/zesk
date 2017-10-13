@@ -67,7 +67,7 @@ class Workflow extends Model {
 	 */
 	function __construct(Application $application, array $variables = array(), array $options = array()) {
 		parent::__construct($application, $options);
-		$this->inherit_global_options($this->application);
+		$this->inherit_global_options();
 		$this->initialize();
 		$this->variable($variables);
 		$this->_init_steps();

@@ -6,48 +6,22 @@
  * @subpackage whois
  * @copyright Copyright &copy; 2005, Market Acumen, Inc.
  */
-class Whois_Query extends Object {
+namespace zesk\Whois;
+
+use zesk\Object;
+
+/**
+ * @see Class_Query
+ * @author kent
+ *
+ */
+class Query extends Object {
 	const PORT = 43;
-	protected $columns = array(
-		"ID",
-		"Name",
-		"Whois_Server",
-		"Created",
-		"Fetched",
-		"Results",
-		"Taken",
-		"Whois_Registrar"
-	);
-	protected $column_types = array(
-		"Taken" => "boolean"
-	);
-	protected $has_one = array(
-		"Whois_Server" => "Whois_Server",
-		"Whois_Registrar" => "Whois_Registrar"
-	);
-	protected $has_many = array(
-		"NameServers" => array(
-			"class" => "Whois_NameServer"
-		)
-	);
-	function task() {
-		$limit = zesk::geti("WhoisQuery", "CronTaskLimit", 100);
-		
-		//		$query = CModelClass::queryFromType("WhoisQuery");
-		//		$query->setLimit(0,$limit);
-		//		$query->setWhere(array("RawResults" => null));
-		//		$query->setOrderBy("ID");
-		//		$queries = Object::databaseQuery($query);
-		//		foreach ($queries as $q)
-		//		{
-		//			$q->whois();
-		//		}
-		//		if (count($queries) < $limit)
-		//		{
-		//			// Must be done. Wait until we're woken
-		//			$task->sleep();
-		//		}
-	}
+	
+	/**
+	 * 
+	 * @param unknown $obj
+	 */
 	function setSearchID($obj) {
 		$this->set_member("WhoisSearchID", $obj);
 	}
@@ -71,8 +45,8 @@ class Whois_Query extends Object {
 		return $result;
 	}
 	private function whois_server_refresh() {
-		$server = $this->Whois_Server;
-		if ($server instanceof Whois_Server) {
+		$server = $this->server;
+		if ($server instanceof Server) {
 			return $server;
 		}
 		$name = $this->Name;
@@ -81,17 +55,17 @@ class Whois_Query extends Object {
 		if (count($words) > 2) {
 			$off = count($words) - 2;
 			$tld = $words[$off] . "." . $words[$off + 1];
-			$server = Whois_Server::find_server($tld);
+			$server = Server::find_server($this->application, $tld);
 		} else {
 			$off = count($words) - 1;
 			$tld = $words[$off];
-			$server = Whois_Server::find_server($tld);
+			$server = Server::find_server($this->application, $tld);
 		}
 		return $server;
 	}
 	public function whois() {
 		$server = $this->whois_server_refresh();
-		if ($server instanceof Whois_Server) {
+		if ($server instanceof Server) {
 			$serverName = $server->name();
 			$result = self::protocol($serverName, $name);
 			if ($result === false) {

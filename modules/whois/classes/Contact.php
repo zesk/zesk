@@ -6,7 +6,9 @@
  * @package zesk
  * @subpackage whois
  */
-class Whois_Contact extends Object {
+namespace zesk\Whois;
+
+class Contact extends Object {
 	protected $columns = array(
 		"ID",
 		"Contact",

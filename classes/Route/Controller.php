@@ -49,7 +49,7 @@ class Route_Controller extends Route {
 	public function initialize() {
 		// To allow modules to set defaults in child controllers.
 		$app = $this->router->application;
-		$this->inherit_global_options($app);
+		$this->inherit_global_options();
 		foreach (to_list("controller prefix;controller prefixes") as $option) {
 			if ($this->has_option($option)) {
 				$app->zesk->deprecated(map("Option {option} in route {name} is deprecated 2017-02", array(

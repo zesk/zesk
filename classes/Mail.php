@@ -97,7 +97,7 @@ class Mail extends Hookable {
 	 */
 	public function __construct(Application $application, array $headers, $body, array $options = array()) {
 		parent::__construct($application, $options);
-		$this->inherit_global_options($application);
+		$this->inherit_global_options();
 		$this->headers = $headers;
 		$this->body = $body;
 		$this->sent = null;

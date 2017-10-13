@@ -53,15 +53,11 @@ class Options implements \ArrayAccess {
 	 * @return Options
 	 * @param array $options An array of options to set up, or false for no options.
 	 */
-	function __construct($options = null) {
+	function __construct(array $options = array()) {
 		if (count($this->options) > 0) {
 			$this->options = self::_option_key($this->options);
 		}
-		if (is_array($options)) {
-			$this->options = self::_option_key(array_change_key_case($options) + $this->options);
-		} else if ($options instanceof self) {
-			$this->options = $options->options + self::_option_key($this->options);
-		}
+		$this->options = self::_option_key($options) + $this->options;
 	}
 	
 	/**
@@ -71,79 +67,6 @@ class Options implements \ArrayAccess {
 		return array(
 			"options"
 		);
-	}
-	
-	/**
-	 * @todo global remove
-	 * @var array
-	 */
-	private static $option_references = array();
-	
-	/**
-	 * Loading references
-	 *
-	 * @param unknown $class
-	 * @return mixed
-	 */
-	private static function _default_options(Application $application, $class) {
-		if (!isset(self::$option_references[$class])) {
-			$references = array();
-			// Class hierarchy is given from child -> parent
-			foreach ($application->classes->hierarchy($class) as $subclass) {
-				// Child options override parent options
-				$references[$subclass] = $application->configuration->path($subclass);
-			}
-			self::$option_references[$class] = $references;
-		}
-		return self::$option_references[$class];
-	}
-	
-	/**
-	 * Load default options for an object. Leaf-class options override parent options.
-	 *
-	 * For class Control_Thing_Example, loads globals from:
-	 *
-	 * zesk::geta("Control_Thing_Example::name1");
-	 * zesk::geta("Control_Thing::name1");
-	 * zesk::geta("Control::name1");
-	 * zesk::geta("Options::name1");
-	 *
-	 * @param string $class
-	 * @return array
-	 */
-	static function default_options(Application $application, $class) {
-		$class = strtolower($class);
-		$opts = array();
-		// Class hierarchy is given from child -> parent
-		$config = new Configuration();
-		foreach (self::_default_options($application, $class) as $subclass => $configuration) {
-			// Child options override parent options
-			$config->merge($configuration, false);
-		}
-		return $config->to_array();
-	}
-	
-	/**
-	 * Load options for this object based on globals loaded. Only overwrites values which are NOT set.
-	 *
-	 * @param string $class Inherit globals from this class
-	 * @return Command
-	 */
-	final function inherit_global_options(Application $application, $class = null) {
-		if ($class === null) {
-			$class = get_class($this);
-		}
-		if (is_object($class)) {
-			$class = get_class($class);
-		}
-		$options = self::default_options($application, $class);
-		foreach ($options as $key => $value) {
-			$key = self::_option_key($key);
-			if (!isset($this->options[$key])) {
-				$this->options[$key] = $value;
-			}
-		}
-		return $this;
 	}
 	
 	/**

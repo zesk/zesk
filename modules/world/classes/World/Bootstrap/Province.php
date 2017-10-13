@@ -40,7 +40,7 @@ class World_Bootstrap_Province extends Options {
 		return $application->factory(__CLASS__, $application, $options);
 	}
 	
-		/**
+	/**
 	 *
 	 * @global Module_World::include_country List of country codes to include
 	 *
@@ -50,7 +50,7 @@ class World_Bootstrap_Province extends Options {
 		$this->application = $application;
 		parent::__construct($options);
 		$object = $application->modules->object("world");
-		$this->inherit_global_options($application, $object);
+		$this->inherit_global_options($object);
 		$include_country = $this->option("include_country");
 		if ($include_country) {
 			$this->include_country = array_change_key_case(arr::flip_assign(to_list($include_country), true));

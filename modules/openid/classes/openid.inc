@@ -7,7 +7,7 @@
  * @author kent
  *
  */
-class OpenID extends Options {
+class OpenID {
 	public $returnUrl, $required = array(), $optional = array(), $verify_peer = null, $capath = null, $cainfo = null, $data;
 	private $identity, $claimed_id;
 	protected $server, $version, $trustRoot, $aliases, $identifier_select = false, $ax = false, $sreg = false, $setup_url = null, $headers = array();

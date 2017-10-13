@@ -211,10 +211,10 @@ class Response extends Hookable {
 	 * @param Application $application
 	 * @param unknown $options
 	 */
-	function __construct(Application $application, $options = null) {
+	function __construct(Application $application, array $options = array()) {
 		$this->request = $application->request;
 		parent::__construct($application, $options);
-		$this->inherit_global_options($application);
+		$this->inherit_global_options();
 	}
 
 	/**

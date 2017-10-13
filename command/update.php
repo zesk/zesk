@@ -88,7 +88,7 @@ class Command_Update extends Command_Base {
 	function run() {
 		$this->configure("update");
 
-		$this->inherit_global_options($this->application);
+		$this->inherit_global_options();
 
 		if ($this->help) {
 			$this->usage();

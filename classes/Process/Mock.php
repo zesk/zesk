@@ -37,7 +37,7 @@ class Process_Mock extends Hookable implements Interface_Process {
 	 * @param Application $application
 	 * @param array $options
 	 */
-	function __construct(Application $application, $options = null) {
+	function __construct(Application $application, array $options = array()) {
 		parent::__construct($application, $options);
 		$this->timer = new Timer();
 		$this->quit_after = $this->option_integer("quit_after", 60); // 60 seconds should be good, right?

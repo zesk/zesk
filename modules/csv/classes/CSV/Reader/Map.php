@@ -51,7 +51,7 @@ class CSV_Reader_Map extends CSV_Reader {
 	 * @param unknown $filename
 	 * @param unknown $options
 	 */
-	function __construct($filename = null, $options = null) {
+	function __construct($filename = null, array $options = array()) {
 		parent::__construct($filename, $options);
 		$this->ReadMapGroup = array();
 		$this->ReadMapGroupDefault = array();

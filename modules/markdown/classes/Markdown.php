@@ -61,7 +61,7 @@ class Markdown extends Options {
 	# Used to track when we're inside an ordered or unordered list
 	# (see _ProcessListItems() for details):
 	private $g_list_level = 0;
-	function __construct($text = null, $options = null) {
+	function __construct($text = null, array $options = array()) {
 		parent::__construct($options);
 		$this->text = $text;
 		$this->_initialize();

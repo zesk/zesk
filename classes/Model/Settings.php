@@ -36,7 +36,7 @@ class Model_Settings extends Model {
 	public function construct() {
 		parent::construct();
 		$this->configuration = $this->application->configuration;
-		$this->inherit_global_options($this->application);
+		$this->inherit_global_options();
 	}
 	
 	/**

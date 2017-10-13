@@ -13,7 +13,7 @@ namespace zesk;
  * @package zesk
  * @subpackage system
  */
-class Net_HTTP_Client extends Options {
+class Net_HTTP_Client extends Hookable {
 	
 	/*
 	 * Sample user agent for FireFox
@@ -179,21 +179,14 @@ class Net_HTTP_Client extends Options {
 	const Error_SSL_Connect = "Error_SSL_Connect";
 	
 	/**
-	 * 
-	 * @var Application
-	 */
-	private $application = null;
-	
-	/**
 	 * Create a new Net_HTTP_Client
 	 *
 	 * @param string $url        	
 	 * @param string $options        	
 	 */
-	public function __construct(Application $application, $url = null, $options = false) {
-		parent::__construct($options);
-		$this->application = $application;
-		$this->inherit_global_options($application);
+	public function __construct(Application $application, $url = null, array $options = array()) {
+		parent::__construct($application, $options);
+		$this->inherit_global_options();
 		$this->load_from_options();
 		if (!empty($url)) {
 			$this->set_option("URL", $url);
@@ -202,7 +195,6 @@ class Net_HTTP_Client extends Options {
 			$this->user_agent($this->default_user_agent());
 		}
 	}
-	
 	public function application() {
 		return $this->application;
 	}

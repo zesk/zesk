@@ -15,7 +15,7 @@ use zesk\Test\Method;
  * @author kent
  *
  */
-class Test extends Options {
+class Test extends Hookable {
 	/**
 	 * Statistics for test run
 	 *
@@ -28,32 +28,27 @@ class Test extends Options {
 		'skip' => 0,
 		'assert' => 0
 	);
-	/**
-	 *
-	 * @var Application $application
-	 */
-	protected $application = null;
-
+	
 	/**
 	 *
 	 * @var array
 	 */
 	protected $load_modules = array();
-
+	
 	/**
 	 * Method => settings
 	 *
 	 * @var array[string]
 	 */
 	private $tests = array();
-
+	
 	/**
 	 * Keys to tests/tests_status/test_results
 	 *
 	 * @var string[]
 	 */
 	private $test_queue = array();
-
+	
 	/**
 	 * Pass/fail status
 	 *
@@ -62,7 +57,7 @@ class Test extends Options {
 	 * @var mixed[string]
 	 */
 	private $test_status = array();
-
+	
 	/**
 	 * Method return value storage.
 	 * Failed tests do not return anything so their values will be empty.
@@ -72,42 +67,42 @@ class Test extends Options {
 	 * @var mixed[string]
 	 */
 	private $test_results = array();
-
+	
 	/**
 	 * Current test method
 	 *
 	 * @var Method
 	 */
 	private $test = null;
-
+	
 	/**
 	 * Current test method arguments
 	 *
 	 * @var array
 	 */
 	private $test_args = null;
-
+	
 	/**
 	 * Last test result
 	 *
 	 * @var boolean
 	 */
 	private $test_result = true;
-
+	
 	/**
 	 * Previous test output
 	 *
 	 * @var string
 	 */
 	protected $last_test_output = null;
-
+	
 	/**
 	 * Cache directory for this test
 	 *
 	 * @var string
 	 */
 	private $cache_dir = null;
-
+	
 	/**
 	 * Constructs a new Test_Unit object
 	 *
@@ -115,9 +110,8 @@ class Test extends Options {
 	 */
 	function __construct(Application $application, array $options = array()) {
 		self::init();
-		parent::__construct($options);
-		$this->application = $application;
-		$this->inherit_global_options($application);
+		parent::__construct($application, $options);
+		$this->inherit_global_options();
 		if ($this->load_modules) {
 			$this->log("Loading modules: {load_modules}", array(
 				"load_modules" => $this->load_modules
@@ -126,7 +120,7 @@ class Test extends Options {
 		}
 	}
 	const PHP_ERROR_MARIAH = "PHP-ERROR";
-
+	
 	/**
 	 * Make sure we're initialized with basic error reporting
 	 */
@@ -135,14 +129,14 @@ class Test extends Options {
 		if (!$inited) {
 			//echo "Error reporting enabled...";
 			$inited = true;
-			error_reporting(E_ALL | E_STRICT);
+			error_reporting(E_ALL | E_STRICT | E_DEPRECATED);
 			ini_set("display_errors", true);
 			$line = str_repeat("=", 80) . "\n";
 			ini_set("error_prepend_string", $line . self::PHP_ERROR_MARIAH . ":\n");
 			ini_set("error_append_string", "\n" . $line);
 		}
 	}
-
+	
 	/**
 	 * Parse DocComment for a test
 	 *
@@ -152,7 +146,7 @@ class Test extends Options {
 	private function parse_doccomment($comment) {
 		return DocComment::parse($comment);
 	}
-
+	
 	/**
 	 * Begin a test
 	 *
@@ -176,7 +170,7 @@ class Test extends Options {
 			ob_start();
 		}
 	}
-
+	
 	/**
 	 * Finish a test
 	 *
@@ -192,7 +186,7 @@ class Test extends Options {
 			}
 			return;
 		}
-
+		
 		$name = $test->name();
 		$expected_exception = $test->option('expectedException', $test->option('expected_exception'));
 		$error_class = is_object($error) ? get_class($error) : gettype($error);
@@ -229,7 +223,7 @@ class Test extends Options {
 				$this->test_status[$name] = null;
 			}
 		}
-
+		
 		$this->test = null;
 		$this->test_args = null;
 		$no_buffer = $test->option("no_buffer", $this->option("no_buffer"));
@@ -239,19 +233,19 @@ class Test extends Options {
 			$this->last_test_output = null;
 		}
 	}
-
+	
 	/**
 	 * Internal override method to set up a suite of tests
 	 */
 	protected function initialize() {
 	}
-
+	
 	/**
 	 * Internal override method to cleanup after suite of tests is completed
 	 */
 	protected function cleanup() {
 	}
-
+	
 	/**
 	 * Log a message
 	 *
@@ -276,7 +270,7 @@ class Test extends Options {
 		$this->application->logger->log(avalue($arguments, "severity", "info"), $message, $arguments);
 		return $this;
 	}
-
+	
 	/**
 	 * Log an error
 	 *
@@ -289,7 +283,7 @@ class Test extends Options {
 			"severity" => "error"
 		) + $arguments);
 	}
-
+	
 	/**
 	 * Check if a test should actually run, given its doccomment settings
 	 *
@@ -315,7 +309,7 @@ class Test extends Options {
 		}
 		return true;
 	}
-
+	
 	/**
 	 * Given a class, determine the methods which are eligible test methods
 	 *
@@ -334,7 +328,7 @@ class Test extends Options {
 				if ($this->option_bool('debug_test_settings')) {
 					if (count($settings) > 0) {
 						echo "$method_name:\n";
-
+						
 						echo Text::format_pairs($settings, "    ");
 					} else {
 						echo "$method_name: no settings\n";
@@ -351,7 +345,7 @@ class Test extends Options {
 			return array();
 		}
 	}
-
+	
 	/**
 	 *
 	 * @param string $name
@@ -360,7 +354,7 @@ class Test extends Options {
 	final public function has_test($name) {
 		return array_key_exists($name, $this->tests);
 	}
-
+	
 	/**
 	 *
 	 * @param string $name
@@ -368,7 +362,7 @@ class Test extends Options {
 	final public function get_test_result($name) {
 		return avalue($this->test_results, $name);
 	}
-
+	
 	/**
 	 *
 	 * @param string $name
@@ -376,7 +370,7 @@ class Test extends Options {
 	final public function has_test_result($name) {
 		return array_key_exists($name, $this->test_results);
 	}
-
+	
 	/**
 	 * Getter/setter for last test output
 	 *
@@ -389,7 +383,7 @@ class Test extends Options {
 		$this->last_test_output = $set;
 		return $this;
 	}
-
+	
 	/**
 	 *
 	 * @param unknown $name
@@ -412,7 +406,7 @@ class Test extends Options {
 		}
 		return true;
 	}
-
+	
 	/**
 	 *
 	 * @param string $name
@@ -421,7 +415,7 @@ class Test extends Options {
 	final public function is_test_queued($name) {
 		return in_array($name, $this->test_queue);
 	}
-
+	
 	/**
 	 * Should we put off this test until later (dependencies?)
 	 *
@@ -441,7 +435,7 @@ class Test extends Options {
 		}
 		return false;
 	}
-
+	
 	/**
 	 *
 	 * @param Method $method
@@ -459,7 +453,7 @@ class Test extends Options {
 			$this->end_test($e);
 		}
 	}
-
+	
 	/**
 	 * Main loop
 	 */
@@ -486,12 +480,12 @@ class Test extends Options {
 		$this->test_queue = array_keys($tests);
 		$this->test_status = array();
 		$this->test_results = array();
-
+		
 		$deferred = array();
 		while (count($this->test_queue) > 0) {
 			$name = array_shift($this->test_queue);
 			$test = $this->tests[$name];
-
+			
 			if ($this->can_run_test($name)) {
 				// 				$this->log(__("# Running {class}::{name}", array(
 				// 					'class' => get_class($this),
@@ -534,11 +528,11 @@ class Test extends Options {
 				$this->stats['skip']++;
 			}
 		}
-
+		
 		$this->cleanup();
 		return $this->stats['fail'] === 0;
 	}
-
+	
 	/**
 	 *
 	 * @param \Exception $e
@@ -565,7 +559,7 @@ class Test extends Options {
 				$descriptor = "main";
 			}
 			$method = "$class$type$function";
-
+			
 			$left = $descriptor;
 			$right = $method;
 			$left = $method;
@@ -598,7 +592,7 @@ class Test extends Options {
 		}
 		throw new TestException($message, $arguments);
 	}
-
+	
 	/**
 	 *
 	 * @param string $message
@@ -609,7 +603,7 @@ class Test extends Options {
 		$this->test_result = null;
 		throw new Exception_Incomplete($message);
 	}
-
+	
 	/**
 	 *
 	 * @param string $message
@@ -620,7 +614,7 @@ class Test extends Options {
 		$this->test_result = null;
 		throw new Exception_Skipped($message);
 	}
-
+	
 	/**
 	 *
 	 * @param boolean|string $condition
@@ -652,7 +646,7 @@ class Test extends Options {
 			$this->fail("Test failed $condition ($message)");
 		}
 	}
-
+	
 	/**
 	 *
 	 * @param string $module
@@ -664,7 +658,7 @@ class Test extends Options {
 		$this->assert_true($app_module->loaded($module), "Module $module is not found");
 		return $app_module->object($module);
 	}
-
+	
 	/**
 	 *
 	 * @param unknown $modules
@@ -676,7 +670,7 @@ class Test extends Options {
 			$this->assert_true($app_module->loaded($module), "Module $module is not found");
 		}
 	}
-
+	
 	/**
 	 * Assert a value is false
 	 *
@@ -686,7 +680,7 @@ class Test extends Options {
 	final public function assert_false($condition, $message = null) {
 		return $this->assert($condition, $message, true);
 	}
-
+	
 	/**
 	 * Assert a value is true
 	 *
@@ -696,7 +690,7 @@ class Test extends Options {
 	final public function assert_true($condition, $message = null) {
 		$this->assert($condition, $message, false);
 	}
-
+	
 	/**
 	 * Assert a value is a string
 	 *
@@ -706,7 +700,7 @@ class Test extends Options {
 	final public function assert_is_string($mixed, $message = null) {
 		$this->assert(is_string($mixed), "!is_string(" . type($mixed) . " $mixed) $message", false);
 	}
-
+	
 	/**
 	 * Assert a value is numeric
 	 *
@@ -716,7 +710,7 @@ class Test extends Options {
 	final public function assert_is_numeric($mixed, $message = null) {
 		$this->assert(is_numeric($mixed), "!is_numeric(" . type($mixed) . " $mixed) $message", false);
 	}
-
+	
 	/**
 	 * Assert a value is an integer
 	 *
@@ -726,7 +720,7 @@ class Test extends Options {
 	final public function assert_is_integer($mixed, $message = null) {
 		$this->assert(is_integer($mixed), "!is_integer(" . type($mixed) . " $mixed) $message", false);
 	}
-
+	
 	/**
 	 * Assert a value is an array
 	 *
@@ -736,7 +730,7 @@ class Test extends Options {
 	final public function assert_is_array($mixed, $message = null) {
 		$this->assert(is_array($mixed), "!is_array(" . type($mixed) . ") $message", false);
 	}
-
+	
 	/**
 	 * Assert a value is an instanceof a class
 	 *
@@ -765,7 +759,7 @@ class Test extends Options {
 		$interfaces = class_implements($mixed);
 		$this->assert(in_array($instanceof, $interfaces), "!" . type($mixed) . " implements $instanceof (does implement " . implode(", ", $interfaces) . ") $message", false);
 	}
-
+	
 	/**
 	 * Assert a value is a positive number
 	 *
@@ -775,7 +769,7 @@ class Test extends Options {
 	final public function assert_positive($value, $message = null) {
 		$this->assert($value > 0, "$value > 0 : $message", false);
 	}
-
+	
 	/**
 	 * Assert a value is not NULL
 	 *
@@ -785,7 +779,7 @@ class Test extends Options {
 	final public function assert_not_null($value, $message = null) {
 		$this->assert($value !== null, "Asserted not NULL failed: $message", false);
 	}
-
+	
 	/**
 	 * Assert a value is a negative number
 	 *
@@ -795,7 +789,7 @@ class Test extends Options {
 	final public function assert_negative($value, $message = null) {
 		$this->assert($value < 0, "$value < 0 : $message", false);
 	}
-
+	
 	/**
 	 * Assert a value is null
 	 *
@@ -805,7 +799,7 @@ class Test extends Options {
 	final public function assert_null($value, $message = null) {
 		$this->assert($value === null, "$value === null : $message", false);
 	}
-
+	
 	/**
 	 * Assert two arrays are equal
 	 *
@@ -956,7 +950,7 @@ class Test extends Options {
 			}
 		}
 	}
-
+	
 	/**
 	 * Create a sandbox folder to test with
 	 *
@@ -967,7 +961,7 @@ class Test extends Options {
 	final protected function test_sandbox($file = null, $auto_delete = true) {
 		return $this->sandbox($file, $auto_delete);
 	}
-
+	
 	/**
 	 */
 	final public function sandbox($file = null, $auto_delete = true) {
@@ -987,7 +981,7 @@ class Test extends Options {
 		}
 		return path($cache_dir, $file);
 	}
-
+	
 	/**
 	 * Delete cache dir after test runs
 	 */
@@ -999,7 +993,7 @@ class Test extends Options {
 			Directory::delete($cache_dir);
 		}
 	}
-
+	
 	/**
 	 * @not_test
 	 *
@@ -1022,7 +1016,7 @@ class Test extends Options {
 		$create_sql = "CREATE TABLE `$name` ( $cols )";
 		$this->test_table_sql($name, $create_sql);
 	}
-
+	
 	/**
 	 * @not_test
 	 *
@@ -1034,7 +1028,7 @@ class Test extends Options {
 		$this->test_table_sql($object->table(), $object->schema());
 		$object->schema_changed();
 	}
-
+	
 	/**
 	 * @not_test
 	 *
@@ -1053,7 +1047,7 @@ class Test extends Options {
 			), "DROP TABLE IF EXISTS `$name`");
 		}
 	}
-
+	
 	/**
 	 *
 	 * @param string $table
@@ -1088,7 +1082,7 @@ class Test extends Options {
 		$rows = $db->query_array("SELECT " . implode(",", $headers) . " FROM $table");
 		$this->assert_arrays_equal($rows, $dbrows, "Matching $table to row values", false);
 	}
-
+	
 	/**
 	 * Run a unit test usually externally.
 	 * This is called using
@@ -1109,10 +1103,10 @@ class Test extends Options {
 			throw new Exception_Invalid("$class is not an instance of Test_Unit");
 		}
 		$object->set_option($options);
-		$object->inherit_global_options($application);
+		$object->inherit_global_options();
 		return $object->run();
 	}
-
+	
 	/**
 	 * Run a unit test usually externally.
 	 * This is called using
@@ -1139,7 +1133,7 @@ class Test extends Options {
 		}
 		exit(self::run_one_class($application, $class, $settings, $object) ? 0 : 1);
 	}
-
+	
 	/**
 	 *
 	 * @param unknown $class
@@ -1157,7 +1151,7 @@ class Test extends Options {
 		include $include;
 		return class_exists($class, false);
 	}
-
+	
 	/**
 	 * Given a class and a method, make the available method not-private to do blackbox testing
 	 *
@@ -1183,7 +1177,7 @@ class Test extends Options {
 		}
 		return $results;
 	}
-
+	
 	/**
 	 * Synchronize the given classes with the database schema
 	 *
@@ -1205,14 +1199,15 @@ class Test extends Options {
 		}
 		return $results;
 	}
-
+	
 	/**
 	 *
 	 * @return array
 	 */
 	private static function _configuration_load(Application $application) {
+		$test_command = new Command_Test($application, array());
 		$configuration = $application->configuration;
-		$config = $configuration->path_get('zesk\\Test_Unit::config', Command::default_configuration_file('test'));
+		$config = $configuration->path_get('zesk\\Test_Unit::config', $test_command->default_configuration_file('test'));
 		if (!$config) {
 			return array();
 		}
@@ -1221,9 +1216,9 @@ class Test extends Options {
 		$loader = new Configuration_Loader($application->configure_include_path(), array(
 			$config
 		), new Adapter_Settings_Array($settings));
-
+		
 		$loader->load();
-
+		
 		if (to_bool($configuration->path_get('zesk\\Command_Test::debug_config'))) {
 			echo "Loaded configuration file:\n";
 			echo Text::format_pairs($settings);
