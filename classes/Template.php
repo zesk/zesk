@@ -136,6 +136,18 @@ class Template implements Interface_Theme {
 	/**
 	 * Construct a new template
 	 *
+	 * @param Application $app
+	 * @param string $path
+	 * @param array|Template| $variables
+	 * @return \zesk\Template
+	 */
+	static function factory(Application $app, $path = null, $variables = null) {
+		return new self($app, $path, $variables);
+	}
+	
+	/**
+	 * Construct a new template
+	 *
 	 * @param string $path
 	 *        	Relative or absolute path to template
 	 * @param array $variables
