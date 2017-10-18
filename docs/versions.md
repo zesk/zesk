@@ -1,3 +1,7 @@
+## Release v0.12.3
+
+- removed deprecated `modulename.module.php` files in 3 modules
+
 ## Release v0.12.2
 
 - Fixing `zesk\Database_SQL::function_max` and `zesk\Database_SQL::function_min`
