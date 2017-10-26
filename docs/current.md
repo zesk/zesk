@@ -1,5 +1,6 @@
 ## Release {version}
 
-- removed deprecated `modulename.module.php` files in 3 modules
+- Fixing `zesk\Configuration_Editor_CONF` constructor
+- Adding module dependency which requires `PHPUnit`
 
 <!-- Generated automatically by release-zesk.sh, beware editing! -->
