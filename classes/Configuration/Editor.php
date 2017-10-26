@@ -4,7 +4,7 @@ namespace zesk;
 abstract class Configuration_Editor extends Options {
 	protected $content = null;
 	public function __construct($content = "", array $options = array()) {
-		parent::__construt($options);
+		parent::__construct($options);
 		$this->content = $content;
 	}
 	
