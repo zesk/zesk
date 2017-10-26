@@ -24,7 +24,7 @@ class Configuration_Editor_CONF extends Configuration_Editor {
 	 * @param array $options
 	 */
 	public function edit(array $edits) {
-		$parser = new Configuration_Parser_CONF("", $this->options);
+		$parser = new Configuration_Parser_CONF("", null, $this->options);
 		$low_edits = arr::flip_copy(array_keys($edits), true);
 		$new_lines = array();
 		$lines = explode("\n", $this->content);
