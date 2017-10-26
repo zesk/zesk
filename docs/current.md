@@ -1,6 +1,5 @@
 ## Release {version}
 
-- Fixing `zesk\Configuration_Editor_CONF` constructor
-- Adding module dependency which requires `PHPUnit`
+- fixing `zesk\Configuration_Editor_CONF` constructor
 
 <!-- Generated automatically by release-zesk.sh, beware editing! -->

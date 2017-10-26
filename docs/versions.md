@@ -1,3 +1,7 @@
+## Release v0.12.5
+
+- fixing `zesk\Configuration_Editor_CONF` constructor
+
 ## Release v0.12.4
 
 - Fixing `zesk\Configuration_Editor_CONF` constructor
