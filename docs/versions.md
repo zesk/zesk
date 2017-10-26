@@ -1,3 +1,9 @@
+## Release v0.12.6
+
+- Adding `zesk\Adapter_Settings_ArrayNoCase` class
+- Fixing issue with `zesk\Command_Configure and case-insensitive variables in global conf`
+
+
 ## Release v0.12.5
 
 - fixing `zesk\Configuration_Editor_CONF` constructor
