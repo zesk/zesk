@@ -493,10 +493,11 @@ class Command_Configure extends Command_Base {
 	
 	/**
 	 *
-	 * @param unknown $source
-	 * @param unknown $destination
+	 * @param string $source
+	 * @param string $destination
 	 */
-	private function _command_file_catenate($source, $destination) {
+	private function _command_file_catenate($source, $destination, $flags = null) {
+		$flags = ($flags !== null) ? arr::flip_assign(explode(",", strtolower(strtr($flags, ";", ","))), true) : array();
 		$sources = File::find_all($this->host_paths, $source);
 		$__ = array(
 			"source" => $source,
@@ -527,8 +528,17 @@ class Command_Configure extends Command_Base {
 			));
 		}
 		$content = "";
+		$no_map = avalue($flags, "no-map", false);
+		$no_trim = avalue($flags, "no-trim", false);
 		foreach ($sources as $file) {
-			$content .= trim(map(File::contents($file), $this->variable_map)) . "\n";
+			$file_content = File::contents($file);
+			if (!$no_map) {
+				$file_content = map($file_content, $this->variable_map);
+			}
+			if (!$no_trim) {
+				$file_content = trim($file_content) . "\n";
+			}
+			$content .= $file_content;
 		}
 		if (trim(File::contents($destination)) === trim($content)) {
 			return true;
