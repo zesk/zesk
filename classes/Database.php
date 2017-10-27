@@ -1306,7 +1306,11 @@ abstract class Database extends Hookable {
 			$old_style = arr::kunprefix($application->configuration->to_array(), "db_url", true);
 			foreach ($old_style as $name => $url) {
 				$name = empty($name) ? "default" : str::unprefix($name, '_');
-				self::register($name, $url);
+				try {
+					self::register($name, $url);
+				} catch (Exception_Semantics $e) {
+					$application->logger->critical($e->raw_message, $e->variables());
+				}
 			}
 		}
 		$config->deprecated("Database::database_names", __CLASS__ . "::names");
@@ -1317,7 +1321,11 @@ abstract class Database extends Hookable {
 		)));
 		foreach ($databases as $name => $database) {
 			$name = strtolower($name);
-			self::register($name, $database);
+			try {
+				self::register($name, $database);
+			} catch (Exception_Semantics $e) {
+				$application->logger->critical($e->raw_message, $e->variables());
+			}
 		}
 		$database_default_config_path = array(
 			__CLASS__,
@@ -1325,7 +1333,7 @@ abstract class Database extends Hookable {
 		);
 		$config->deprecated("Database::default", $database_default_config_path);
 		if ($config->path_exists($database_default_config_path)) {
-			Database::database_default($config->path_get($database_default_config_path));
+			self::database_default($config->path_get($database_default_config_path));
 		}
 	}
 	
