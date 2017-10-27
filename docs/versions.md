@@ -1,3 +1,8 @@
+## Release v0.12.7
+
+- `zesk update` supports finding composer binary
+
+
 ## Release v0.12.6
 
 - Adding `zesk\Adapter_Settings_ArrayNoCase` class
