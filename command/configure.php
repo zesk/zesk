@@ -131,6 +131,8 @@ class Command_Configure extends Command_Base {
 		$this->variable_map['zesk_application_root'] = $this->application->path(); // Deprecated
 		$this->variable_map['application_root'] = $this->application->path();
 		$this->variable_map['zesk_root'] = $this->application->zesk_root();
+		$this->variable_map['user'] = $this->username;
+		$this->variable_map['username'] = $this->username; // Deprecate?
 		
 		$this->log("Configuration synchronization for: {uname}, user: {user}", $this->variable_map);
 		$this->determine_environment_file();
@@ -207,7 +209,7 @@ class Command_Configure extends Command_Base {
 	}
 	private function load_dirs($output = false) {
 		$env = $this->load_conf($this->environment_file);
-		$this->variable_map += $env;
+		$this->variable_map += array_change_key_case($env);
 		$dirs = array();
 		foreach ($env as $name => $value) {
 			if ((begins($value, "/") || begins($value, ".")) && is_dir($value)) {
@@ -292,10 +294,8 @@ class Command_Configure extends Command_Base {
 		)));
 		$this->host_paths = $paths;
 		
-		$pattern = $this->option("user_configuration_file", "users/{username}/configure");
-		$suffix = map($pattern, array(
-			"username" => $username
-		));
+		$pattern = $this->option("user_configuration_file", "users/{user}/configure");
+		$suffix = $this->map($pattern);
 		$files = File::find_all($paths, $suffix);
 		$this->log(__("Configuration files:\n\t{files}", array(
 			"files" => implode("\n\t", $files)
@@ -315,7 +315,7 @@ class Command_Configure extends Command_Base {
 				list($command, $raw_arguments) = pair($line, " ", $line, null);
 				$command = PHP::clean_function($command);
 				$raw_arguments = preg_replace("/\s+/", " ", trim($raw_arguments));
-				$arguments = map($raw_arguments, $this->variable_map, true);
+				$arguments = $this->map($raw_arguments);
 				$method = "_command_$command";
 				$__ = compact("command", "raw_arguments", "arguments");
 				if (method_exists($this, $method)) {
@@ -537,7 +537,7 @@ class Command_Configure extends Command_Base {
 		foreach ($sources as $file) {
 			$file_content = File::contents($file);
 			if (!$no_map) {
-				$file_content = map($file_content, $this->variable_map);
+				$file_content = $this->map($file_content);
 			}
 			if (!$no_trim) {
 				$file_content = trim($file_content) . "\n";
@@ -560,6 +560,9 @@ class Command_Configure extends Command_Base {
 		return null;
 	}
 	
+	private function map($string) {
+		return map($string, $this->variable_map, true);
+	}
 	/**
 	 *
 	 * @param unknown $source
@@ -698,8 +701,9 @@ class Command_Configure extends Command_Base {
 			}
 		}
 		if (count($not_defined) > 0) {
-			$this->error("Configure {self} requires the following defined, which are not: {not_defined}", array(
-				"not_defined" => $not_defined
+			$this->error("Configure {self} requires the following defined, which are not: {not_defined}\nAll variables: {all_vars}", array(
+				"not_defined" => $not_defined,
+				"all_vars" => array_keys($this->variable_map)
 			) + $this->variable_map);
 		} else {
 			$this->verbose_log("defined {args} - success", array(
