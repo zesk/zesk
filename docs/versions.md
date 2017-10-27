@@ -1,3 +1,7 @@
+## Release v0.12.11
+
+- Adding {home} variable to `zesk configure`
+
 ## Release v0.12.10
 
 - Allow invalid `zesk\Database::names::foo` urls while configuration is being set up

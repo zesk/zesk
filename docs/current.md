@@ -1,6 +1,5 @@
 ## Release {version}
 
-- Allow invalid `zesk\Database::names::foo` urls while configuration is being set up
-
+- Adding {home} variable to `zesk configure`
 
 <!-- Generated automatically by release-zesk.sh, beware editing! -->
