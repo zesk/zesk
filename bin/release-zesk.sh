@@ -133,7 +133,7 @@ $GIT push --tags
 $ZESK github --tag --description-file $current_log
 
 #
-# Pull from remote
+# Push to remote
 #
-git pull
+git push
 echo "Release $ZESK_CURRENT_VERSION completed"
