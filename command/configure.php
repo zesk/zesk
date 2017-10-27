@@ -124,6 +124,7 @@ class Command_Configure extends Command_Base {
 		$this->low_uname = strtolower($this->uname);
 		$this->username = avalue($_SERVER, 'USER');
 		
+		$this->variable_map['home'] = $this->application->paths->home();
 		$this->variable_map['uname'] = $this->uname;
 		$this->variable_map['low_uname'] = $this->low_uname;
 		$this->variable_map['user'] = $this->username;

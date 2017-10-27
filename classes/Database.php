@@ -533,7 +533,7 @@ abstract class Database extends Hookable {
 			$codename = $mixed;
 			$databases = self::register();
 			if (count($databases) === 0) {
-				throw new Exception_Configuration("Database::names", "No default database URL configured: \"{default}\"", array(
+				throw new Exception_Configuration(__CLASS__ . "::names", "No default database URL configured: \"{default}\"", array(
 					"default" => self::database_default()
 				));
 			}
