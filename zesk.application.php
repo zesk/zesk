@@ -18,7 +18,7 @@ if (!isset($GLOBALS['__composer_autoload_files'])) {
 } else {
 	$zesk = require_once dirname(__FILE__) . '/autoload.php';
 }
-/* @var $zesk zesk\Kernel */
+/* @var $zesk Kernel */
 $zesk->paths->set_application(dirname(__FILE__));
 
 $application = $zesk->create_application();

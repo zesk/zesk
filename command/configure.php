@@ -293,16 +293,19 @@ class Command_Configure extends Command_Base {
 		$this->host_paths = $paths;
 		
 		$pattern = $this->option("user_configuration_file", "users/{username}/configure");
-		$files = File::find_all($paths, map($pattern, array(
+		$suffix = map($pattern, array(
 			"username" => $username
-		)));
+		));
+		$files = File::find_all($paths, $suffix);
 		$this->log(__("Configuration files:\n\t{files}", array(
 			"files" => implode("\n\t", $files)
 		)));
 		list($this->current_uid, $this->current_gid) = $this->current_uid_gid();
 		
 		foreach ($files as $file) {
-			$this->variable_map['current_host_path'] = dirname(dirname(dirname($file)));
+			$this->variable_map['current_host_path'] = rtrim(str::unsuffix($file, $suffix), "/");
+			$this->variable_map['self_path'] = dirname($file);
+			$this->variable_map['self'] = $file;
 			$this->verbose_log("Processing file {file}", compact("file"));
 			$contents = File::contents($file);
 			$contents = Text::remove_line_comments($contents, "#", false);
@@ -684,9 +687,31 @@ class Command_Configure extends Command_Base {
 	}
 	
 	/**
+	 * Pass a list of variables which MUST be defined to continue
+	 */
+	private function _command_defined() {
+		$args = func_get_args();
+		$not_defined = array();
+		foreach ($args as $arg) {
+			if (!array_key_exists($arg, $this->variable_map)) {
+				$not_defined[] = $arg;
+			}
+		}
+		if (count($not_defined) > 0) {
+			$this->error("Configure {self} requires the following defined, which are not: {not_defined}", array(
+				"not_defined" => $not_defined
+			) + $this->variable_map);
+		} else {
+			$this->verbose_log("defined {args} - success", array(
+				"args" => implode(" ", $args)
+			));
+		}
+	}
+	
+	/**
 	 *
-	 * @param unknown $repo
-	 * @param unknown $target
+	 * @param URL $repo Subversion repository URL
+	 * @param string $target Directory to check out to
 	 */
 	private function _command_subversion($repo, $target) {
 		global $zesk;
