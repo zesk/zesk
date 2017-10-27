@@ -696,7 +696,7 @@ class Command_Configure extends Command_Base {
 		$args = func_get_args();
 		$not_defined = array();
 		foreach ($args as $arg) {
-			if (!array_key_exists($arg, $this->variable_map)) {
+			if (!array_key_exists(strtolower($arg), $this->variable_map)) {
 				$not_defined[] = $arg;
 			}
 		}
