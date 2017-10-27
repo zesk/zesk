@@ -1,3 +1,7 @@
+## Release v0.12.9
+
+- Adding flags to `zesk configure` for `file_catenate` command
+
 ## Release v0.12.8
 
 - Updated `zesk configure` documentation

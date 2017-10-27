@@ -1,6 +1,5 @@
 ## Release {version}
 
-- Updated `zesk configure` documentation
-- Fixed missing command error message in `zesk update`
+- Adding flags to `zesk configure` for `file_catenate` command
 
 <!-- Generated automatically by release-zesk.sh, beware editing! -->
