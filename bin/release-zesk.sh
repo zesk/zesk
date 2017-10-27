@@ -131,4 +131,9 @@ $GIT push --tags
 # Tag automatically
 #
 $ZESK github --tag --description-file $current_log
+
+#
+# Pull from remote
+#
+git pull
 echo "Release $ZESK_CURRENT_VERSION completed"
