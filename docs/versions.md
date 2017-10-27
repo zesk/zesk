@@ -1,3 +1,8 @@
+## Release v0.12.13
+
+- `git push` at end of `bin\release-zesk.sh` (not `pull`)
+- `zesk configure` now supports only case-insensitive variables in `configure` files
+
 ## Release v0.12.12
 
 - `zesk configure` added `defined` command to ensure variables are defined first
