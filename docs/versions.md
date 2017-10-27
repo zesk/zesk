@@ -1,3 +1,8 @@
+## Release v0.12.8
+
+- Updated `zesk configure` documentation
+- Fixed missing command error message in `zesk update`
+
 ## Release v0.12.7
 
 - `zesk update` supports finding composer binary
