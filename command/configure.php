@@ -1,16 +1,12 @@
 <?php
-
 /**
  *
  */
 namespace zesk;
 
-use \conf;
-
 /**
  * Automatically keep a series of files and directories in sync between users, with security checks
- * for superusers, and simplify version control of
- * remote systems.
+ * for superusers, and simplify version control of remote systems.
  *
  * Basically, if you deploy software to remote systems, this lets you keep your configuration files
  * in a source repository and copy them into the
@@ -157,7 +153,7 @@ class Command_Configure extends Command_Base {
 		$this->completions = Directory::ls("/etc/", "/(.conf|.sh)$/", true);
 		while (empty($value) || !is_file($value)) {
 			if ($times > 2) {
-				echo __("System settings file is a BASH and Zesk conf::load parsable file which contains\na global which points to this hosts configuration directory.\n\n");
+				echo __("System settings file is a BASH and Zesk conf::load parsable file which contains\na global which points to this host's configuration directory.\n\n");
 			}
 			$value = trim($this->prompt(__("Path to system settings file: ")));
 			++$times;
@@ -307,7 +303,7 @@ class Command_Configure extends Command_Base {
 		foreach ($files as $file) {
 			$this->variable_map['current_host_path'] = dirname(dirname(dirname($file)));
 			$this->verbose_log("Processing file {file}", compact("file"));
-			$contents = file::contents($file);
+			$contents = File::contents($file);
 			$contents = Text::remove_line_comments($contents, "#", false);
 			$lines = arr::trim_clean(explode("\n", $contents));
 			foreach ($lines as $line) {
@@ -356,7 +352,7 @@ class Command_Configure extends Command_Base {
 	private function handle_owner_mode($target, $want_owner = null, $want_mode = null) {
 		$new_user = null;
 		$new_group = null;
-		$stats = file::stat($target, "");
+		$stats = File::stat($target, "");
 		$__['target'] = $target;
 		$__['want_owner'] = $want_owner;
 		$__['want_mode'] = $want_mode;
@@ -469,7 +465,7 @@ class Command_Configure extends Command_Base {
 				if (!$this->prompt_yes_no(__("Symlink to create \"{symlink}\" exists ({bytes} bytes), delete?", $__))) {
 					return false;
 				}
-				file::unlink($symlink);
+				File::unlink($symlink);
 			} else if (is_dir($symlink)) {
 				if (!$this->prompt_yes_no(__("Symlink to create \"{symlink}\" is already a directory, delete?", $__))) {
 					return false;
@@ -486,7 +482,7 @@ class Command_Configure extends Command_Base {
 			if (!$this->prompt_yes_no(__("Symlink {symlink} points to {oldfile}, update to point to correct {file}?", compact("old_file") + $__))) {
 				return false;
 			}
-			file::unlink($symlink);
+			File::unlink($symlink);
 		}
 		if (!symlink($file, $symlink)) {
 			$this->error("Creating symlink {symlink} to {file} failed?", $__);
@@ -520,7 +516,7 @@ class Command_Configure extends Command_Base {
 				$this->log("Writing {conf} with empty file for {source}", $__);
 				self::file_put_contents_inherit($conf, "");
 				try {
-					file::copy_uid_gid(dirname($conf), $conf);
+					File::copy_uid_gid(dirname($conf), $conf);
 				} catch (Exception $e) {
 				}
 			}
@@ -532,12 +528,12 @@ class Command_Configure extends Command_Base {
 		}
 		$content = "";
 		foreach ($sources as $file) {
-			$content .= trim(map(file::contents($file), $this->variable_map)) . "\n";
+			$content .= trim(map(File::contents($file), $this->variable_map)) . "\n";
 		}
-		if (trim(file::contents($destination)) === trim($content)) {
+		if (trim(File::contents($destination)) === trim($content)) {
 			return true;
 		}
-		$temp_file = file::temporary("temp");
+		$temp_file = File::temporary("temp");
 		file_put_contents($temp_file, $content);
 		switch ($this->_files_differ_helper($temp_file, $destination, $source)) {
 			case "source":
@@ -560,7 +556,7 @@ class Command_Configure extends Command_Base {
 			return false;
 		}
 		try {
-			file::copy_uid_gid(dirname($destination), $destination);
+			File::copy_uid_gid(dirname($destination), $destination);
 		} catch (Exception $e) {
 		}
 		return true;
@@ -576,7 +572,7 @@ class Command_Configure extends Command_Base {
 			return false;
 		}
 		try {
-			file::copy_uid_gid(dirname($destination), $destination);
+			File::copy_uid_gid(dirname($destination), $destination);
 		} catch (Exception $e) {
 		}
 		return true;
@@ -593,7 +589,7 @@ class Command_Configure extends Command_Base {
 			if (!$this->prompt_yes_no(__("Target {destination} is a link, replace with {source} as a file?", $__))) {
 				return false;
 			}
-			file::unlink($destination);
+			File::unlink($destination);
 			if (!self::copy_file_inherit($source, $destination)) {
 				return false;
 			}

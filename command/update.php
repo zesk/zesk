@@ -760,7 +760,7 @@ class Command_Update extends Command_Base {
 			"command" => $cmd,
 			"path" => implode(":", $this->application->command_path())
 		);
-		throw new Exception_File_NotFound($cmd, map(theme('error/update-command-not-found'), $args));
+		throw new Exception_File_NotFound($cmd, map($this->application->theme('error/update-command-not-found'), $args));
 	}
 	private function is_unpack($filename) {
 		if (str::ends($filename, array(
