@@ -133,7 +133,8 @@ $GIT push --tags
 $ZESK github --tag --description-file $current_log
 
 #
-# Push to remote
+# Push to remote to post updated pointers, pull new tag from remote
 #
 git push
+git pull
 echo "Release $ZESK_CURRENT_VERSION completed"
