@@ -1,3 +1,8 @@
+## Release v0.12.10
+
+- Allow invalid `zesk\Database::names::foo` urls while configuration is being set up
+
+
 ## Release v0.12.9
 
 - Adding flags to `zesk configure` for `file_catenate` command
