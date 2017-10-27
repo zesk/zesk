@@ -1,3 +1,8 @@
+## Release v0.12.12
+
+- `zesk configure` added `defined` command to ensure variables are defined first
+- `git pull` at end of `bin/release-zesk.sh`
+
 ## Release v0.12.11
 
 - Adding {home} variable to `zesk configure`
