@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Implementation of iCalendar RRULE
  *
@@ -6,9 +7,9 @@
  * @copyright &copy; 2016 Market Acumen, Inc.
  *
  * http://www.ietf.org/rfc/rfc2445.txt
- * 
+ *
  * Based on python-dateutil rrule.py, just like everyone else's version
- * 
+ *
  * https://pypi.python.org/pypi/python-dateutil/2.5.3
  */
 namespace RRule;
@@ -20,12 +21,12 @@ use zesk\Exception_Parameter;
 
 class Parser {
 	/**
-	 * 
+	 *
 	 * @var array
 	 */
 	protected $errors = array();
 	/**
-	 * 
+	 *
 	 * @param unknown $s
 	 * @param Timestamp $dtstart
 	 * @param boolean $unfold
@@ -122,17 +123,17 @@ class Parser {
 			$dtstart = Timestamp::now();
 		}
 		$rset = new Set();
-		
+
 		$this->add_rules_mixed($rset, $dtstart, $rrulevals, "rrule");
-		$this->add_timestamps_mixed($rset, $rdatevals, "rdate");
+		$this->add_timestamps_mixed($rset, $rdatevals, "rdate", $time_zone);
 		$this->add_rules_mixed($rset, $dtstart, $exrulevals, "exrule");
-		$this->add_timestamps_mixed($rset, $exdatevals, "exdate");
-		
+		$this->add_timestamps_mixed($rset, $exdatevals, "exdate", $time_zone);
+
 		return $rset;
 	}
-	
+
 	/**
-	 * 
+	 *
 	 * @param Set $rset
 	 * @param Timestamp $dtstart
 	 * @param array $values
@@ -145,13 +146,14 @@ class Parser {
 		}
 	}
 	/**
-	 * Add a mixed list of timestamps/integers/strings to 
+	 * Add a mixed list of timestamps/integers/strings to
+	 *
 	 * @param Set $rset
 	 * @param array $values
 	 * @param string $method
 	 * @throws Exception_Syntax
 	 */
-	private function add_timestamps_mixed(Set $rset, array $values, $method) {
+	private function add_timestamps_mixed(Set $rset, array $values, $method, $time_zone = null) {
 		foreach ($values as $value) {
 			foreach (to_list($value) as $mixed) {
 				if ($mixed instanceof Timestamp) {
@@ -178,7 +180,7 @@ class Parser {
 		}
 	}
 	/**
-	 * 
+	 *
 	 * @param array $lines
 	 * @return string[]
 	 */
@@ -201,4 +203,3 @@ class Parser {
 		return $newlines;
 	}
 }
-				

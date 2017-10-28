@@ -1,4 +1,5 @@
 <?php
+
 /**
  * $URL: https://code.marketacumen.com/zesk/trunk/modules/whois/classes/whois/query.inc $
  * @author $Author: kent $
@@ -11,15 +12,16 @@ namespace zesk\Whois;
 use zesk\Object;
 
 /**
+ *
  * @see Class_Query
  * @author kent
  *
  */
 class Query extends Object {
 	const PORT = 43;
-	
+
 	/**
-	 * 
+	 *
 	 * @param unknown $obj
 	 */
 	function setSearchID($obj) {
@@ -50,7 +52,7 @@ class Query extends Object {
 			return $server;
 		}
 		$name = $this->Name;
-		
+
 		$words = explode(".", $name);
 		if (count($words) > 2) {
 			$off = count($words) - 2;
@@ -67,7 +69,7 @@ class Query extends Object {
 		$server = $this->whois_server_refresh();
 		if ($server instanceof Server) {
 			$serverName = $server->name();
-			$result = self::protocol($serverName, $name);
+			$result = self::protocol($serverName, $this->name);
 			if ($result === false) {
 				$result = "Connection failed to $serverName";
 			} else {
@@ -101,7 +103,7 @@ class Query extends Object {
 				}
 			}
 		}
-		
+
 		$token = "registrar";
 		if (!empty($attr[$token])) {
 			$this->_setObject("CDomainRegistrar", "Name", $attr[$token], "Registrar");

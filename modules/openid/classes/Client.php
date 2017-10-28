@@ -1,13 +1,17 @@
 <?php
 
+namespace zesk\OpenID;
+
+use \ErrorException;
+
 /**
- * Rewrite of LightOpenID
+ * Rewrite of LightOpenID (TODO)
  *
  * @see https://gitorious.org/lightopenid/lightopenid/source/9d42dc24e4dd34121c98a6491bc3ef7933a68a19:openid.php
  * @author kent
  *
  */
-class OpenID {
+class Module {
 	public $returnUrl, $required = array(), $optional = array(), $verify_peer = null, $capath = null, $cainfo = null, $data;
 	private $identity, $claimed_id;
 	protected $server, $version, $trustRoot, $aliases, $identifier_select = false, $ax = false, $sreg = false, $setup_url = null, $headers = array();
@@ -27,16 +31,16 @@ class OpenID {
 		if ((!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] != 'off') || (isset($_SERVER['HTTP_X_FORWARDED_PROTO']) && $_SERVER['HTTP_X_FORWARDED_PROTO'] == 'https')) {
 			$this->trustRoot = (strpos($host, '://') ? $host : 'https://' . $host);
 		}
-		
+
 		if (($host_end = strpos($this->trustRoot, '/', 8)) !== false) {
 			$this->trustRoot = substr($this->trustRoot, 0, $host_end);
 		}
-		
+
 		$uri = rtrim(preg_replace('#((?<=\?)|&)openid\.[^&]+#', '', $_SERVER['REQUEST_URI']), '?');
 		$this->returnUrl = $this->trustRoot . $uri;
-		
+
 		$this->data = ($_SERVER['REQUEST_METHOD'] === 'POST') ? $_POST : $_GET;
-		
+
 		if (!function_exists('curl_init') && !in_array('https', stream_get_wrappers())) {
 			throw new ErrorException('You must have either https wrappers or curl enabled.');
 		}
@@ -75,11 +79,12 @@ class OpenID {
 				return empty($this->data['openid_mode']) ? null : $this->data['openid_mode'];
 		}
 	}
-	
+
 	/**
 	 * Checks if the server specified in the url exists.
 	 *
-	 * @param $url url to check
+	 * @param $url url
+	 *        	to check
 	 * @return true, if the server exists; false otherwise
 	 */
 	function hostExists($url) {
@@ -88,11 +93,11 @@ class OpenID {
 		} else {
 			$server = @parse_url($url, PHP_URL_HOST);
 		}
-		
+
 		if (!$server) {
 			return false;
 		}
-		
+
 		return !!gethostbynamel($server);
 	}
 	protected function request_curl($url, $method = 'GET', $params = array(), $update_claimed_id) {
@@ -105,18 +110,18 @@ class OpenID {
 		curl_setopt($curl, CURLOPT_HTTPHEADER, array(
 			'Accept: application/xrds+xml, */*'
 		));
-		
+
 		if ($this->verify_peer !== null) {
 			curl_setopt($curl, CURLOPT_SSL_VERIFYPEER, $this->verify_peer);
 			if ($this->capath) {
 				curl_setopt($curl, CURLOPT_CAPATH, $this->capath);
 			}
-			
+
 			if ($this->cainfo) {
 				curl_setopt($curl, CURLOPT_CAINFO, $this->cainfo);
 			}
 		}
-		
+
 		if ($method == 'POST') {
 			curl_setopt($curl, CURLOPT_POST, true);
 			curl_setopt($curl, CURLOPT_POSTFIELDS, $params);
@@ -128,21 +133,21 @@ class OpenID {
 			curl_setopt($curl, CURLOPT_HTTPGET, true);
 		}
 		$response = curl_exec($curl);
-		
+
 		if ($method == 'HEAD' && curl_getinfo($curl, CURLINFO_HTTP_CODE) == 405) {
 			curl_setopt($curl, CURLOPT_HTTPGET, true);
 			$response = curl_exec($curl);
 			$response = substr($response, 0, strpos($response, "\r\n\r\n"));
 		}
-		
+
 		if ($method == 'HEAD' || $method == 'GET') {
 			$header_response = $response;
-			
+
 			# If it's a GET request, we want to only parse the header part.
 			if ($method == 'GET') {
 				$header_response = substr($response, 0, strpos($response, "\r\n\r\n"));
 			}
-			
+
 			$headers = array();
 			foreach (explode("\n", $header_response) as $header) {
 				$pos = strpos($header, ':');
@@ -151,7 +156,7 @@ class OpenID {
 					$headers[$name] = trim(substr($header, $pos + 1));
 				}
 			}
-			
+
 			if ($update_claimed_id) {
 				# Updating claimed_id in case of redirections.
 				$effective_url = curl_getinfo($curl, CURLINFO_EFFECTIVE_URL);
@@ -159,18 +164,18 @@ class OpenID {
 					$this->identity = $this->claimed_id = $effective_url;
 				}
 			}
-			
+
 			if ($method == 'HEAD') {
 				return $headers;
 			} else {
 				$this->headers = $headers;
 			}
 		}
-		
+
 		if (curl_errno($curl)) {
 			throw new ErrorException(curl_error($curl), curl_errno($curl));
 		}
-		
+
 		return $response;
 	}
 	protected function parse_header_array($array, $update_claimed_id) {
@@ -180,7 +185,7 @@ class OpenID {
 			if ($pos !== false) {
 				$name = strtolower(trim(substr($header, 0, $pos)));
 				$headers[$name] = trim(substr($header, $pos + 1));
-				
+
 				# Following possible redirections. The point is just to have
 				# claimed_id change with them, because the redirections
 				# are followed automatically.
@@ -202,7 +207,7 @@ class OpenID {
 		if (!$this->hostExists($url)) {
 			throw new ErrorException("Could not connect to $url.", 404);
 		}
-		
+
 		$params = http_build_query($params, '', '&');
 		switch ($method) {
 			case 'GET':
@@ -246,13 +251,13 @@ class OpenID {
 						'CN_match' => parse_url($url, PHP_URL_HOST)
 					)
 				));
-				
+
 				$url = $url . ($params ? '?' . $params : '');
 				$headers = get_headers($url);
 				if (!$headers) {
 					return array();
 				}
-				
+
 				if (intval(substr($headers[0], strlen('HTTP/1.1 '))) == 405) {
 					# The server doesn't support HEAD, so let's emulate it with
 					# a GET.
@@ -264,14 +269,14 @@ class OpenID {
 					), $args);
 					return $this->headers;
 				}
-				
+
 				$headers = $this->parse_header_array($headers, $update_claimed_id);
-				
+
 				# And restore them.
 				stream_context_get_default($default);
 				return $headers;
 		}
-		
+
 		if ($this->verify_peer) {
 			$opts['ssl'] += array(
 				'verify_peer' => true,
@@ -279,15 +284,9 @@ class OpenID {
 				'cafile' => $this->cainfo
 			);
 		}
-		
+
 		$context = stream_context_create($opts);
 		$data = file_get_contents($url, false, $context);
-		# This is a hack for providers who don't support HEAD requests.
-		# It just creates the headers array for the last request in $this->headers.
-		if (isset($http_response_header)) {
-			$this->headers = $this->parse_header_array($http_response_header, $update_claimed_id);
-		}
-		
 		return $data;
 	}
 	protected function request($url, $method = 'GET', $params = array(), $update_claimed_id = false) {
@@ -300,12 +299,12 @@ class OpenID {
 		if (isset($url['query'], $parts['query'])) {
 			$parts['query'] = $url['query'] . '&' . $parts['query'];
 		}
-		
+
 		$url = $parts + $url;
 		$url = $url['scheme'] . '://' . (empty($url['username']) ? '' : (empty($url['password']) ? "{$url['username']}@" : "{$url['username']}:{$url['password']}@")) . $url['host'] . (empty($url['port']) ? '' : ":{$url['port']}") . (empty($url['path']) ? '' : $url['path']) . (empty($url['query']) ? '' : "?{$url['query']}") . (empty($url['fragment']) ? '' : "#{$url['fragment']}");
 		return $url;
 	}
-	
+
 	/**
 	 * Helper function used to scan for <meta>/<link> tags and extract information
 	 * from them
@@ -313,15 +312,17 @@ class OpenID {
 	protected function htmlTag($content, $tag, $attrName, $attrValue, $valueName) {
 		preg_match_all("#<{$tag}[^>]*$attrName=['\"].*?$attrValue.*?['\"][^>]*$valueName=['\"](.+?)['\"][^>]*/?>#i", $content, $matches1);
 		preg_match_all("#<{$tag}[^>]*$valueName=['\"](.+?)['\"][^>]*$attrName=['\"].*?$attrValue.*?['\"][^>]*/?>#i", $content, $matches2);
-		
+
 		$result = array_merge($matches1[1], $matches2[1]);
 		return empty($result) ? false : $result[0];
 	}
-	
+
 	/**
-	 * Performs Yadis and HTML discovery. Normally not used.
+	 * Performs Yadis and HTML discovery.
+	 * Normally not used.
 	 *
-	 * @param $url Identity URL.
+	 * @param $url Identity
+	 *        	URL.
 	 * @return String OP Endpoint (i.e. OpenID provider address).
 	 * @throws ErrorException
 	 */
@@ -332,26 +333,26 @@ class OpenID {
 		if (!preg_match('#^https?:#', $url)) {
 			$url = "https://xri.net/$url";
 		}
-		
+
 		# We save the original url in case of Yadis discovery failure.
 		# It can happen when we'll be lead to an XRDS document
 		# which does not have any OpenID2 services.
 		$originalUrl = $url;
-		
+
 		# A flag to disable yadis discovery in case of failure in headers.
 		$yadis = true;
-		
+
 		# We'll jump a maximum of 5 times, to avoid endless redirections.
 		for ($i = 0; $i < 5; $i++) {
 			if ($yadis) {
 				$headers = $this->request($url, 'HEAD', array(), true);
-				
+
 				$next = false;
 				if (isset($headers['x-xrds-location'])) {
 					$url = $this->build_url(parse_url($url), parse_url(trim($headers['x-xrds-location'])));
 					$next = true;
 				}
-				
+
 				if (isset($headers['content-type']) && (strpos($headers['content-type'], 'application/xrds+xml') !== false || strpos($headers['content-type'], 'text/xml') !== false)) {
 					# Apparently, some providers return XRDS documents as text/html.
 					# While it is against the spec, allowing this here shouldn't break
@@ -359,17 +360,17 @@ class OpenID {
 					# ---
 					# Found an XRDS document, now let's find the server, and optionally delegate.
 					$content = $this->request($url, 'GET');
-					
+
 					preg_match_all('#<Service.*?>(.*?)</Service>#s', $content, $m);
 					foreach ($m[1] as $content) {
 						$content = ' ' . $content; # The space is added, so that strpos doesn't return 0.
-						
+
 						# OpenID 2
 						$ns = preg_quote('http://specs.openid.net/auth/2.0/', '#');
 						if (preg_match('#<Type>\s*' . $ns . '(server|signon)\s*</Type>#s', $content, $type)) {
 							if ($type[1] == 'server')
 								$this->identifier_select = true;
-							
+
 							preg_match('#<URI.*?>(.*)</URI>#', $content, $server);
 							preg_match('#<(Local|Canonical)ID>(.*)</\1ID>#', $content, $delegate);
 							if (empty($server)) {
@@ -378,20 +379,20 @@ class OpenID {
 							# Does the server advertise support for either AX or SREG?
 							$this->ax = (bool) strpos($content, '<Type>http://openid.net/srv/ax/1.0</Type>');
 							$this->sreg = strpos($content, '<Type>http://openid.net/sreg/1.0</Type>') || strpos($content, '<Type>http://openid.net/extensions/sreg/1.1</Type>');
-							
+
 							$server = $server[1];
 							if (isset($delegate[2]))
 								$this->identity = trim($delegate[2]);
 							$this->version = 2;
-							
+
 							$this->server = $server;
 							return $server;
 						}
-						
+
 						# OpenID 1.1
 						$ns = preg_quote('http://openid.net/signon/1.1', '#');
 						if (preg_match('#<Type>\s*' . $ns . '\s*</Type>#s', $content)) {
-							
+
 							preg_match('#<URI.*?>(.*)</URI>#', $content, $server);
 							preg_match('#<.*?Delegate>(.*)</.*?Delegate>#', $content, $delegate);
 							if (empty($server)) {
@@ -399,17 +400,17 @@ class OpenID {
 							}
 							# AX can be used only with OpenID 2.0, so checking only SREG
 							$this->sreg = strpos($content, '<Type>http://openid.net/sreg/1.0</Type>') || strpos($content, '<Type>http://openid.net/extensions/sreg/1.1</Type>');
-							
+
 							$server = $server[1];
 							if (isset($delegate[1]))
 								$this->identity = $delegate[1];
 							$this->version = 1;
-							
+
 							$this->server = $server;
 							return $server;
 						}
 					}
-					
+
 					$next = true;
 					$yadis = false;
 					$url = $originalUrl;
@@ -418,38 +419,38 @@ class OpenID {
 				}
 				if ($next)
 					continue;
-				
+
 				# There are no relevant information in headers, so we search the body.
 				$content = $this->request($url, 'GET', array(), true);
-				
+
 				if (isset($this->headers['x-xrds-location'])) {
 					$url = $this->build_url(parse_url($url), parse_url(trim($this->headers['x-xrds-location'])));
 					continue;
 				}
-				
+
 				$location = $this->htmlTag($content, 'meta', 'http-equiv', 'X-XRDS-Location', 'content');
 				if ($location) {
 					$url = $this->build_url(parse_url($url), parse_url($location));
 					continue;
 				}
 			}
-			
+
 			if (!$content)
 				$content = $this->request($url, 'GET');
-			
+
 			# At this point, the YADIS Discovery has failed, so we'll switch
 			# to openid2 HTML discovery, then fallback to openid 1.1 discovery.
 			$server = $this->htmlTag($content, 'link', 'rel', 'openid2.provider', 'href');
 			$delegate = $this->htmlTag($content, 'link', 'rel', 'openid2.local_id', 'href');
 			$this->version = 2;
-			
+
 			if (!$server) {
 				# The same with openid 1.1
 				$server = $this->htmlTag($content, 'link', 'rel', 'openid.server', 'href');
 				$delegate = $this->htmlTag($content, 'link', 'rel', 'openid.delegate', 'href');
 				$this->version = 1;
 			}
-			
+
 			if ($server) {
 				# We found an OpenID2 OP Endpoint
 				if ($delegate) {
@@ -459,7 +460,7 @@ class OpenID {
 				$this->server = $server;
 				return $server;
 			}
-			
+
 			throw new ErrorException("No OpenID Server found at $url", 404);
 		}
 		throw new ErrorException('Endless redirection!', 500);
@@ -479,7 +480,7 @@ class OpenID {
 			}
 			$params['openid.sreg.required'] = implode(',', $params['openid.sreg.required']);
 		}
-		
+
 		if ($this->optional) {
 			$params['openid.sreg.optional'] = array();
 			foreach ($this->optional as $optional) {
@@ -522,7 +523,7 @@ class OpenID {
 					continue;
 				$params['openid.ax.count.' . $alias] = $count;
 			}
-			
+
 			# Don't send empty ax.requied and ax.if_available.
 			# Google and possibly other providers refuse to support ax when one of these is empty.
 			if ($required) {
@@ -542,14 +543,14 @@ class OpenID {
 		if ($this->identity != $this->claimed_id) {
 			$returnUrl .= (strpos($returnUrl, '?') ? '&' : '?') . 'openid.claimed_id=' . $this->claimed_id;
 		}
-		
+
 		$params = array(
 			'openid.return_to' => $returnUrl,
 			'openid.mode' => $immediate ? 'checkid_immediate' : 'checkid_setup',
 			'openid.identity' => $this->identity,
 			'openid.trust_root' => $this->trustRoot
 		) + $this->sregParams();
-		
+
 		return $this->build_url(parse_url($this->server), array(
 			'query' => http_build_query($params, '', '&')
 		));
@@ -572,23 +573,27 @@ class OpenID {
 			# in worst case we don't get anything in return.
 			$params += $this->axParams() + $this->sregParams();
 		}
-		
+
 		if ($this->identifier_select) {
 			$params['openid.identity'] = $params['openid.claimed_id'] = 'http://specs.openid.net/auth/2.0/identifier_select';
 		} else {
 			$params['openid.identity'] = $this->identity;
 			$params['openid.claimed_id'] = $this->claimed_id;
 		}
-		
+
 		return $this->build_url(parse_url($this->server), array(
 			'query' => http_build_query($params, '', '&')
 		));
 	}
-	
+
 	/**
-	 * Returns authentication url. Usually, you want to redirect your user to it.
+	 * Returns authentication url.
+	 * Usually, you want to redirect your user to it.
+	 *
 	 * @return String The authentication url.
-	 * @param String $select_identifier Whether to request OP to select identity for an user in OpenID 2. Does not affect OpenID 1.
+	 * @param String $select_identifier
+	 *        	Whether to request OP to select identity for an user in OpenID 2. Does not affect
+	 *        	OpenID 1.
 	 * @throws ErrorException
 	 */
 	function authUrl($immediate = false) {
@@ -596,15 +601,16 @@ class OpenID {
 			return $this->setup_url;
 		if (!$this->server)
 			$this->discover($this->identity);
-		
+
 		if ($this->version == 2) {
 			return $this->authUrl_v2($immediate);
 		}
 		return $this->authUrl_v1($immediate);
 	}
-	
+
 	/**
 	 * Performs OpenID verification with the OP.
+	 *
 	 * @return Bool Whether the verification was successful.
 	 * @throws ErrorException
 	 */
@@ -620,14 +626,14 @@ class OpenID {
 		if ($this->mode != 'id_res') {
 			return false;
 		}
-		
+
 		$this->claimed_id = isset($this->data['openid_claimed_id']) ? $this->data['openid_claimed_id'] : $this->data['openid_identity'];
 		$params = array(
 			'openid.assoc_handle' => $this->data['openid_assoc_handle'],
 			'openid.signed' => $this->data['openid_signed'],
 			'openid.sig' => $this->data['openid_sig']
 		);
-		
+
 		if (isset($this->data['openid_ns'])) {
 			# We're dealing with an OpenID 2.0 server, so let's set an ns
 			# Even though we should know location of the endpoint,
@@ -638,15 +644,15 @@ class OpenID {
 			# we have to append it to the returnUrl, like authUrl_v1 does.
 			$this->returnUrl .= (strpos($this->returnUrl, '?') ? '&' : '?') . 'openid.claimed_id=' . $this->claimed_id;
 		}
-		
+
 		if ($this->data['openid_return_to'] != $this->returnUrl) {
 			# The return_to url must match the url of current request.
 			# I'm assuing that noone will set the returnUrl to something that doesn't make sense.
 			return false;
 		}
-		
+
 		$server = $this->discover($this->claimed_id);
-		
+
 		foreach (explode(',', $this->data['openid_signed']) as $item) {
 			# Checking whether magic_quotes_gpc is turned on, because
 			# the function may fail if it is. For example, when fetching
@@ -657,11 +663,11 @@ class OpenID {
 			$value = $this->data['openid_' . str_replace('.', '_', $item)];
 			$params['openid.' . $item] = function_exists('get_magic_quotes_gpc') && get_magic_quotes_gpc() ? stripslashes($value) : $value;
 		}
-		
+
 		$params['openid.mode'] = 'check_authentication';
-		
+
 		$response = $this->request($server, 'POST', $params);
-		
+
 		return preg_match('/is_valid\s*:\s*true/i', $response);
 	}
 	protected function getAxAttributes() {
@@ -683,7 +689,7 @@ class OpenID {
 			# so there is no AX data in the OP's response
 			return array();
 		}
-		
+
 		$attributes = array();
 		foreach (explode(',', $this->data['openid_signed']) as $key) {
 			$keyMatch = $alias . '.value.';
@@ -699,7 +705,7 @@ class OpenID {
 			}
 			$value = $this->data['openid_' . $alias . '_value_' . $key];
 			$key = substr($this->data['openid_' . $alias . '_type_' . $key], strlen('http://axschema.org/'));
-			
+
 			$attributes[$key] = $value;
 		}
 		return $attributes;
@@ -721,14 +727,16 @@ class OpenID {
 		}
 		return $attributes;
 	}
-	
+
 	/**
-	 * Gets AX/SREG attributes provided by OP. should be used only after successful validaton.
+	 * Gets AX/SREG attributes provided by OP.
+	 * should be used only after successful validaton.
 	 * Note that it does not guarantee that any of the required/optional parameters will be present,
 	 * or that there will be no other attributes besides those specified.
 	 * In other words. OP may provide whatever information it wants to.
-	 *     * SREG names will be mapped to AX names.
-	 *     * @return Array Array of attributes with keys being the AX schema names, e.g. 'contact/email'
+	 * * SREG names will be mapped to AX names.
+	 * * @return Array Array of attributes with keys being the AX schema names, e.g. 'contact/email'
+	 *
 	 * @see http://www.axschema.org/types/
 	 */
 	function getAttributes() {

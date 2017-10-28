@@ -1,4 +1,7 @@
 <?php
+
+namespace zesk;
+
 class Controller_Home extends Controller_Template {
 	public $template = "body/default.tpl";
 	function _action_default($action = null) {

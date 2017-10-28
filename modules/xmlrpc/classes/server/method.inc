@@ -1,4 +1,5 @@
 <?php
+
 /**
  * $URL: https://code.marketacumen.com/zesk/trunk/modules/xmlrpc/classes/xmlrpc/server/method.inc $
  * @package zesk
@@ -25,9 +26,9 @@ class Server_Method {
 	public $ReturnType;
 	public $Help;
 	public $ParameterHelp;
-	
+
 	/**
-	 * 
+	 *
 	 * @param unknown $name
 	 * @param unknown $returnType
 	 * @param unknown $phpMethod
@@ -41,7 +42,7 @@ class Server_Method {
 		$this->ReturnType = $returnType;
 		$this->PHPMethod = $phpMethod;
 		$this->ParameterTypes = to_array($parameterTypes);
-		
+
 		$this->Help = $help;
 		$this->ParameterHelp = $parameterHelp;
 		if (is_array($parameterTypes) !== is_array($parameterHelp)) {
@@ -88,7 +89,7 @@ class Server_Method {
 		}
 		$php_method = $this->PHPMethod;
 		$method = $this->Method;
-		
+
 		$object->log("php_method is $php_method");
 		// Are we dealing with a function or a method?
 		if (begins($php_method, 'this:', true)) {
@@ -102,11 +103,11 @@ class Server_Method {
 				$safeMethod
 			), $arguments);
 		}
-		
+
 		if (!function_exists($method)) {
 			return new Exception(Exception::ERROR_SERVER_METHOD_PARAMETERS, "Server error. Requested function \"$method\" does not exist. ($method)");
 		}
-		
+
 		return call_user_func_array($method, $arguments);
 	}
 	function methodSignature() {
@@ -118,19 +119,8 @@ class Server_Method {
 	}
 	function getDocumentation() {
 		$doc_path = zesk()->configuration->path_get('xmlrpc\Server::documentation_path');
-		if (!$doc_path) {
-			return false;
-		}
-		// TODO: Use application theme path instead
-		require_once (ZESK_ROOT . 'system/html.inc');
-		$doc_file = path($doc_path, $this->Method . ".tpl");
-		$t = new Template($doc_file, array(
-			"XMLPCServerMethod" => $this
-		));
-		if ($t->exists()) {
-			return $t->output();
-		}
-		return false;
+		$doc_file = path($doc_path, $this->Method);
+		return app()->theme($doc_file);
 	}
 	function methodHelp() {
 		$methodName = $this->Method;
@@ -165,7 +155,7 @@ class Server_Method {
 		$html[] = "<h2>Return Value</h2>";
 		$html[] = $this->ReturnType;
 		//$this->getReturnDocumentation();
-		
+
 		$html[] = "<h2>Description</h2>";
 		$doc = $this->getDocumentation();
 		if ($doc) {

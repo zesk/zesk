@@ -1,4 +1,5 @@
 <?php
+
 namespace zesk;
 
 /* @var $this \zesk\Template */
@@ -10,6 +11,7 @@ namespace zesk;
 /* @var $response \zesk\Response_HTML */
 /* @var $current_user \zesk\User */
 /* @var $object Object */
+/* @var $action string */
 if (!$this->getb('show_' . $action)) {
 	return;
 }

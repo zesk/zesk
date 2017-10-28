@@ -17,6 +17,8 @@ use zesk\Exception_Unimplemented;
 use zesk\Options;
 use zesk\Application;
 use zesk\Hookable;
+use zesk\Object;
+use zesk\str;
 
 /**
  * Server
@@ -234,15 +236,15 @@ class Server extends Hookable {
 	}
 	private static function _rpc_typecast($type, $hint = "") {
 		static $type_map = array(
-			'array' => XML_RPC::type_object,
-			'Timestamp' => XML_RPC::type_date,
-			'integer' => XML_RPC::type_integer,
-			'int' => XML_RPC::type_integer,
-			'bool' => XML_RPC::type_boolean,
-			'object' => XML_RPC::type_object
+			'array' => Base::type_object,
+			'Timestamp' => Base::type_date,
+			'integer' => Base::type_integer,
+			'int' => Base::type_integer,
+			'bool' => Base::type_boolean,
+			'object' => Base::type_object
 		);
 		$type = avalue($type_map, $type, $type);
-		if (!XML_RPC::type_valid($type)) {
+		if (!Base::type_valid($type)) {
 			throw new Exception_Semantics("$type is not a valid type ($hint)");
 		}
 		return $type;
@@ -271,7 +273,7 @@ class Server extends Hookable {
 			$raw_method = $method;
 		}
 		$class = get_class($this);
-		$refl = new ReflectionClass($class);
+		$refl = new \ReflectionClass($class);
 		$rmethod = $refl->getMethod($real_method);
 		/* @var $rmethod ReflectionMethod */
 		$params = $rmethod->getParameters();

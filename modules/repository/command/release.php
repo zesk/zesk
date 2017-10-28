@@ -1,4 +1,5 @@
 <?php
+
 namespace zesk;
 
 class Command_Release extends Command_Base {
@@ -8,7 +9,7 @@ class Command_Release extends Command_Base {
 		"release-notes" => "file"
 	);
 	/**
-	 * 
+	 *
 	 * @var array
 	 */
 	protected $load_modules = array(
@@ -16,13 +17,14 @@ class Command_Release extends Command_Base {
 		"GitHub",
 		"Subversion"
 	);
-	
+
 	/**
-	 * 
-	 * {@inheritDoc}
+	 *
+	 * {@inheritdoc}
+	 *
 	 * @see \zesk\Command::run()
 	 */
 	function run() {
-		$source_control =
+		$source_control = "TODO";
 	}
 }

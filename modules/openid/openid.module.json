@@ -1,0 +1,8 @@
+{
+	"name": "OpenID",
+	"autoload_options": {
+		"lower": false,
+		"class_prefix": "zesk\\OpenID\\"
+	},
+	"module_class": "zesk\\OpenID\\Module"
+}

@@ -1,4 +1,5 @@
 <?php
+
 namespace sqlite3;
 
 // PHP classes
@@ -27,6 +28,7 @@ use zesk\dir;
 use zesk\File;
 use zesk\Kernel;
 use zesk\arr;
+use zesk\Database_Column;
 
 /**
  * SQLite Implementation
@@ -1073,5 +1075,15 @@ class Database extends \zesk\Database {
 	function transaction_end($success = true) {
 		$sql = $success ? "COMMIT TRANSACTION" : "ROLLBACK TRANSACTION";
 		return $this->query($sql);
+	}
+
+	/**
+	 *
+	 * {@inheritdoc}
+	 *
+	 * @see \zesk\Database::column_differences()
+	 */
+	function column_differences(Database_Column $a, Database_Column $b, array $differences) {
+		return $differences;
 	}
 }

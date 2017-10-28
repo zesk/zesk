@@ -1,4 +1,5 @@
 <?php
+
 namespace zesk;
 
 /* @var $this Template */
@@ -39,6 +40,9 @@ ob_start();
 		this.i = null;
 		this.te = null;
 		this.init();
+
+		this.timeout = parseInt('{timeout}', 10);
+		this.over_stop = false;
 	}
 	ZeskOverlay.prototype = {
 		close: function() {
@@ -47,7 +51,7 @@ ob_start();
 			}
 		},
 		start: function () {
-			this.t = parseInt(new Date().getTime() / 1000) + <?php echo $timeout ?>;
+			this.t = parseInt(new Date().getTime() / 1000) + this.timeout;
 			this.i = setTimeout("zesk_overlay.timer()", 1000);
 		},
 		stop: function () {
@@ -93,16 +97,16 @@ ob_start();
 				}
 				return e;
 			}
-			function iframe_add(u) {
+			function iframe_add(u, over_stop) {
 				var e = d.createElement('iframe');
 				e.setAttribute('frameBorder','0');
 				e.setAttribute('src',u);
 				e.setAttribute('scrolling','no');
-				e.setAttribute('allowTransparency','allowtransparency');<?php
-				if ($this->get('over_stop')) {
-					?>e.setAttribute('onmouseover','zesk_overlay.stop()');<?
+				e.setAttribute('allowTransparency','allowtransparency');
+				if (over_stop) {
+					e.setAttribute('onmouseover','zesk_overlay.stop()');
 				}
-				?>e.id = '<?php echo $id ?>';
+				e.id = '{id}';
 				return e;
 			}
 			function css_add(u) {
@@ -119,12 +123,10 @@ ob_start();
 				e.innerHTML = content;
 				return e;
 			}
-			t.add(css_add('<?php echo URL::query_format($this->css_url, $qs) ?>'));
-			t.add(iframe_add('<?php echo $this->iframe_url_prefix ?>'+escape(d.URL)+'&title='+escape(d.title)));
-			t.add(div_add('<?php echo $id ?>-close', '
-<a href="javascript:zesk_overlay.close()"></a>
-'));
-			t.te = t.add(div_add('<?php echo $id ?>-timer', '&nbsp;'));
+			t.add(css_add('{css_url}'));
+			t.add(iframe_add('{iframe_url_prefix}'+escape(d.URL)+'&title='+escape(d.title)), this.over_stop);
+			t.add(div_add('{id}-close', '<a href="javascript:zesk_overlay.close()"></a>'));
+			t.te = t.add(div_add('{id}-timer', '&nbsp;'));
 			t.start();
 		}
 	};
@@ -132,4 +134,9 @@ ob_start();
 }(window));
 </script>
 <?php
-echo HTML::extract_tag("script", ob_get_clean());
+$map['css_url'] = URL::query_format($this->css_url, $qs);
+$map['iframe_url_prefix'] = $this->iframe_url_prefix;
+$map['timeout'] = $timeout;
+$map['id'] = $id;
+
+echo HTML::extract_tag_contents("script", map(ob_get_clean(), $map));
