@@ -559,7 +559,6 @@ class Command_Configure extends Command_Base {
 		}
 		return null;
 	}
-	
 	private function map($string) {
 		return map($string, $this->variable_map, true);
 	}
@@ -718,8 +717,8 @@ class Command_Configure extends Command_Base {
 	 * @param string $target Directory to check out to
 	 */
 	private function _command_subversion($repo, $target) {
-		global $zesk;
 		/* @var $zesk \zesk\Kernel */
+		$app = $this->application;
 		$__ = compact("repo", "target");
 		try {
 			if (!is_dir($target)) {
@@ -732,13 +731,13 @@ class Command_Configure extends Command_Base {
 				}
 				$this->verbose_log("Created {target}", $__);
 			}
-			$config_dir = $zesk->paths->home(".subversion");
+			$config_dir = $app->paths->home(".subversion");
 			$this->verbose_log("Subversion configuration path is {config_dir}", compact("config_dir"));
 			if (!is_dir(path($target, ".svn"))) {
 				if (!$this->prompt_yes_no(__("Checkout subversion {repo} to {target}", $__))) {
 					return false;
 				}
-				$zesk->process->execute_arguments("svn --non-interactive --config-dir {0} co {1} {2}", array(
+				$app->process->execute_arguments("svn --non-interactive --config-dir {0} co {1} {2}", array(
 					$config_dir,
 					$repo,
 					$target
@@ -746,7 +745,7 @@ class Command_Configure extends Command_Base {
 				$this->changed = true;
 				return true;
 			} else {
-				$results = $zesk->process->execute_arguments("svn --non-interactive --config-dir {0} status --show-updates {1}", array(
+				$results = $app->process->execute_arguments("svn --non-interactive --config-dir {0} status --show-updates {1}", array(
 					$config_dir,
 					$target
 				));
@@ -755,7 +754,7 @@ class Command_Configure extends Command_Base {
 					if (!$this->prompt_yes_no(__("Update subversion {target} from {repo}", $__))) {
 						return false;
 					}
-					$zesk->process->execute_arguments("svn --non-interactive --config-dir {0} up --force {1}", array(
+					$app->process->execute_arguments("svn --non-interactive --config-dir {0} up --force {1}", array(
 						$config_dir,
 						$target
 					), true);
