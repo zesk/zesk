@@ -1,4 +1,5 @@
 <?php
+
 /**
  * @version $URL: https://code.marketacumen.com/zesk/trunk/classes/command/iterator/file.inc $
  * @package zesk
@@ -10,11 +11,16 @@
 namespace zesk;
 
 /**
- * 
+ *
  * @author kent
  *
  */
 abstract class Command_Iterator_File extends Command_Base {
+	/**
+	 * Override in subclasses to include/exclude certain extensions
+	 *
+	 * @var array
+	 */
 	protected $extensions = array(
 		"php",
 		"phpt",
@@ -23,42 +29,44 @@ abstract class Command_Iterator_File extends Command_Base {
 		"php4",
 		"php5"
 	);
-	
+
 	/**
 	 *
 	 * @var boolean
 	 */
 	protected $include_hidden = false;
-	
+
 	/**
 	 *
 	 * @var boolean
 	 */
 	protected $show_skipped = false;
-	
+
 	/**
 	 *
 	 * @var boolean
 	 */
 	protected $dry_run = false;
-	
+
 	/**
 	 * (non-PHPdoc)
+	 *
 	 * @see Command_Base::initialize()
 	 */
 	function initialize() {
 		$this->option_types += array(
 			"no-recurse" => 'boolean',
-			"directory" => "directory",
+			"directory" => "dir",
 			"include-hidden" => "boolean",
 			"show-skipped" => "boolean",
 			'*' => 'string'
 		);
 		parent::initialize();
 	}
-	
+
 	/**
 	 * (non-PHPdoc)
+	 *
 	 * @see Command::run()
 	 */
 	function run() {
@@ -90,25 +98,24 @@ abstract class Command_Iterator_File extends Command_Base {
 		}
 		$this->finish();
 	}
-	
+
 	/**
-	 * 
 	 */
 	abstract protected function start();
-	
+
 	/**
-	 * 
+	 *
 	 * @param SplFileInfo $file
+	 * @return boolean Return false to stop processing
 	 */
 	abstract protected function process_file(\SplFileInfo $file);
-	
+
 	/**
-	 * 
 	 */
 	abstract protected function finish();
-	
+
 	/**
-	 * 
+	 *
 	 * @param string $dir
 	 */
 	private function recurse_directory($dir) {
@@ -133,9 +140,13 @@ abstract class Command_Iterator_File extends Command_Base {
 						$this->log("Skipping $name");
 					}
 				} else {
-					$this->process_file($fileinfo);
+					$result = $this->process_file($fileinfo);
+					if ($result === false) {
+						return $result;
+					}
 				}
 			}
 		}
+		return true;
 	}
 }
