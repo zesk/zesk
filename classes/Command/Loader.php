@@ -548,7 +548,7 @@ class Command_Loader {
 		if ($arg === null) {
 			$this->usage("--cd missing argument");
 		}
-		if (!is_dir($arg)) {
+		if (!is_dir($arg) && !is_link($arg)) {
 			$this->usage("$arg is not a directory to --cd to");
 		}
 		chdir($arg);
