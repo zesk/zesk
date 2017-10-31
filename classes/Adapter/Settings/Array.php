@@ -25,7 +25,7 @@ class Adapter_Settings_Array implements Interface_Settings {
 	 * @return boolean
 	 */
 	public function __isset($name) {
-		return isset($this->data[$name]);
+		return apath($this->data, $name, null, ZESK_GLOBAL_KEY_SEPARATOR) !== null;
 	}
 	/**
 	 * Is a value set in this object?
@@ -50,7 +50,7 @@ class Adapter_Settings_Array implements Interface_Settings {
 	 * @return mixed The value of the session variable, or $default if nothing set
 	 */
 	public function get($name = null, $default = null) {
-		return strpos($name, ZESK_GLOBAL_KEY_SEPARATOR) !== false ? apath($this->data, $name, $default, ZESK_GLOBAL_KEY_SEPARATOR) : (isset($this->data[$name]) ? $this->data[$name] : $default);
+		return apath($this->data, $name, $default, ZESK_GLOBAL_KEY_SEPARATOR);
 	}
 	
 	/**
@@ -71,11 +71,7 @@ class Adapter_Settings_Array implements Interface_Settings {
 	 * @param mixed $value Value to save. As a general rule, best to use scalar types
 	 */
 	public function __set($name, $value) {
-		if (strpos($name, ZESK_GLOBAL_KEY_SEPARATOR) !== false) {
-			apath_set($this->data, $name, $value, ZESK_GLOBAL_KEY_SEPARATOR);
-		} else {
-			$this->data[$name] = $value;
-		}
+		apath_set($this->data, $name, $value, ZESK_GLOBAL_KEY_SEPARATOR);
 	}
 	
 	/**
