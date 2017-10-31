@@ -41,7 +41,7 @@ class Adapter_Settings_Array implements Interface_Settings {
 	 * @return mixed The value of the session variable, or null if nothing set
 	 */
 	public function __get($name) {
-		return isset($this->data[$name]) ? $this->data[$name] : null;
+		return $this->get($name);
 	}
 	/**
 	 * Retrieve a value from the settings, returning a default value if not set
@@ -50,7 +50,7 @@ class Adapter_Settings_Array implements Interface_Settings {
 	 * @return mixed The value of the session variable, or $default if nothing set
 	 */
 	public function get($name = null, $default = null) {
-		return isset($this->data[$name]) ? $this->data[$name] : $default;
+		return strpos($name, ZESK_GLOBAL_KEY_SEPARATOR) !== false ? apath($this->data, $name, $default, ZESK_GLOBAL_KEY_SEPARATOR) : (isset($this->data[$name]) ? $this->data[$name] : $default);
 	}
 	
 	/**
@@ -60,7 +60,8 @@ class Adapter_Settings_Array implements Interface_Settings {
 	 * @return mixed The value of the session variable, or $default if nothing set
 	 */
 	public function eget($name, $default = null) {
-		return isset($this->data[$name]) && !empty($this->data[$name]) ? $this->data[$name] : $default;
+		$value = $this->get($name);
+		return empty($value) ? $default : $value;
 	}
 	
 	/**
@@ -70,7 +71,11 @@ class Adapter_Settings_Array implements Interface_Settings {
 	 * @param mixed $value Value to save. As a general rule, best to use scalar types
 	 */
 	public function __set($name, $value) {
-		$this->data[$name] = $value;
+		if (strpos($name, ZESK_GLOBAL_KEY_SEPARATOR) !== false) {
+			apath_set($this->data, $name, $value, ZESK_GLOBAL_KEY_SEPARATOR);
+		} else {
+			$this->data[$name] = $value;
+		}
 	}
 	
 	/**
@@ -81,7 +86,7 @@ class Adapter_Settings_Array implements Interface_Settings {
 	 * @return Interface_Settings
 	 */
 	public function set($name, $value = null) {
-		$this->data[$name] = $value;
+		$this->__set($name, $value);
 	}
 	
 	/**
