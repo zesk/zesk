@@ -26,7 +26,7 @@ class Session_PHP implements Interface_Session {
 	 * @param unknown $mixed
 	 * @param string $options
 	 */
-	function __construct(Application $application, $mixed = null, $options = false) {
+	function __construct(Application $application, $mixed = null, array $options = array()) {
 		$this->application = $application;
 		$this->started = false;
 	}
