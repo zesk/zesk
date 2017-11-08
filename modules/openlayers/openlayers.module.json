@@ -1,7 +1,6 @@
 {
 	"name": "OpenLayers 3",
-	"url": "https://github.com/openlayers/openlayers/archive/v3.0.0.zip",
-	"source_url": "https://github.com/openlayers/openlayers/archive/master.zip",
+	"url": "https://github.com/openlayers/openlayers/releases/download/v4.4.2/v4.4.2.zip",
 	"strip_components": 1,
 	"github": "openlayers/openlayers",
 	"destination": "vendor/components/openlayers",

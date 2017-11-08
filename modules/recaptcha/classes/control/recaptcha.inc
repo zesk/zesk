@@ -116,10 +116,6 @@ class Control_reCAPTCHA extends Control {
 				"ip" => $ip
 			);
 			$app->logger->critical($message, $message_args);
-			try {
-				$app->modules->object("critical")->alert(map($message, $message_args));
-			} catch (Exception_NotFound $e) {
-			}
 		}
 		return false;
 	}

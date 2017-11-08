@@ -10,7 +10,6 @@ use zesk\arr;
  * TODO Consider merging the two to have consistency?
  *
  */
-$variables = $this->variables;
 $results = array();
 $hidden = "";
 foreach ($this->children as $child) {

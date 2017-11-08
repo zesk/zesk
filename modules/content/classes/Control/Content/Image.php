@@ -98,7 +98,7 @@ class Control_Content_Image extends Control {
 			$name = $type = $size = $tmp_name = null;
 			extract($data, EXTR_IF_EXISTS);
 			
-			$image = Content_Image::register_from_file($tmp_name, array(
+			$image = Content_Image::register_from_file($this->application, $tmp_name, array(
 				'path' => File::name_clean($name)
 			));
 			$this->value($image->id());

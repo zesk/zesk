@@ -28,7 +28,7 @@ $response->css("/share/polyglot/css/polyglot.css", array(
 	"share" => true
 ));
 
-$object = new Model();
+$object = new Model($application);
 $object->locale = Locale::current();
 $object->status = $this->request->get("s", PolyGlot_Token::status_todo);
 
@@ -38,7 +38,7 @@ $widget = $this->widget_factory("zesk\\Control_Select")
 	->names("locale", __("Locale"))
 	->control_options($locale_options)
 	->hide_single(false)
-	->default_value(first(array_keys($locale_options)));
+	->default_value($object->locale);
 $widget->required(true);
 
 $status = $this->widget_factory("zesk\\Control_Select")
