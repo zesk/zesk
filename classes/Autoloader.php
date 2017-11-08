@@ -131,9 +131,9 @@ class Autoloader {
 	 * @global define:ZESK_NO_CONFLICT
 	 */
 	public function load($class, $no_exception = false) {
-		if ($class === "Class_Settings") {
-			backtrace();
-		}
+
+
+
 		$lowclass = strtolower($class);
 		$cache = $this->_autoload_cache();
 		$include = null;
