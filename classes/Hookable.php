@@ -32,6 +32,11 @@ class Hookable extends \zesk\Options {
 		$this->application = $application;
 		parent::__construct($options);
 	}
+	
+	function __wakeup() {
+		// Only case where this is OK
+		$this->application = zesk()->application();
+	}
 
 	/**
 	 * Invoke a hook on this object if it exists.
