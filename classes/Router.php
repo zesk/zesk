@@ -160,6 +160,7 @@ class Router extends Hookable {
 		$this->route = null;
 		$this->application = Kernel::singleton()->application();
 		foreach ($this->routes as $route) {
+			$route->application = $this->application;
 			$route->router = $this;
 			$this->_add_route_id($route);
 		}
@@ -567,7 +568,7 @@ class Router extends Hookable {
 	 *        	"inherit_current_route" => (boolean). Use variables from current route when
 	 *        	generating this route.
 	 *
-	 * @return string|Ambigous <string, mixed, number>
+	 * @return string|null
 	 */
 	function get_route($action, $object = null, $options = null) {
 		$app = $this->application;
