@@ -103,6 +103,7 @@ class PHP_Inspector {
 		}
 		if (!$this->included) {
 			require_once $this->file;
+			$this->included = true;
 		}
 		if (!class_exists($class, false)) {
 			throw new Exception_Class_NotFound($class, "Class {class} is not defined in file {file} after include", array(
@@ -123,6 +124,12 @@ class PHP_Inspector {
 		}
 		return $this->functions;
 	}
+
+	/**
+	 *
+	 * @param integer $index
+	 * @return array
+	 */
 	private function token($index) {
 		$token = $this->tokens[$index];
 		return is_string($token) ? array(
@@ -282,11 +289,15 @@ class PHP_Inspector {
 		));
 		return $capture;
 	}
+
+	/**
+	 * Output all tokens
+	 */
 	public function dump_tokens() {
 		$i = 0;
 		while ($i < $this->tokens_length) {
 			list($type, $text) = $this->token($i);
-			echo token_name($type) . ": " . str::ellipsis_word($value) . "\n";
+			echo token_name($type) . ": " . str::ellipsis_word($text) . "\n";
 		}
 	}
 }
