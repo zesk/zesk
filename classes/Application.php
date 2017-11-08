@@ -87,7 +87,7 @@ class Application extends Hookable implements Interface_Theme {
 	 *
 	 * @var Classes
 	 */
-	public $classes = array();
+	public $classes = null;
 
 	/**
 	 * Inherited directly from zesk().
