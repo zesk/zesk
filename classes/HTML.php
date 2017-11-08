@@ -837,6 +837,16 @@ class HTML {
 	}
 	
 	/**
+	 * Common tag_open case
+	 *
+	 * @param string $attributes
+	 * @return string
+	 */
+	public static function span_open($attributes = null) {
+		return self::tag_open('span', $attributes);
+	}
+	
+	/**
 	 * Like etag but for divs
 	 *
 	 * @return string
@@ -873,6 +883,14 @@ class HTML {
 	 */
 	public static function div_close() {
 		return self::tag_close('div');
+	}
+	/**
+	 * Common tag_close case
+	 *
+	 * @return string
+	 */
+	public static function span_close() {
+		return self::tag_close('span');
 	}
 	/**
 	 * Extract the first tag contents of given type from HTML
