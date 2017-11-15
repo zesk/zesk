@@ -51,7 +51,7 @@ abstract class Controller_Template extends Controller {
 	 * @param Application $app
 	 * @param array $options
 	 */
-	public function __construct(Application $app, $options = null) {
+	public function __construct(Application $app, array $options = array()) {
 		parent::__construct($app, $options);
 		if ($this->template === null) {
 			// TODO: template option is deprecated

@@ -230,7 +230,7 @@ class Widget extends Hookable {
 			$options = array();
 		}
 		parent::__construct($application, $options);
-		$this->inherit_global_options(__CLASS__);
+		$this->inherit_global_options();
 		
 		$this->options += array(
 			"column" => avalue($this->options, 'id')

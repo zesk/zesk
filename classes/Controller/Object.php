@@ -164,7 +164,7 @@ abstract class Controller_Object extends Controller_Template_Login {
 	 * @param Application $app
 	 * @param array $options
 	 */
-	function __construct(Application $app, $options = null) {
+	function __construct(Application $app, array $options = array()) {
 		parent::__construct($app, $options);
 		if ($this->class === null) {
 			$controller_class = get_class($this);
