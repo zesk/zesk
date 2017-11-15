@@ -50,8 +50,8 @@ class Test_Generator extends Options {
 	 * @param array $options
 	 * @return self
 	 */
-	public static function factory(Application $app, $source, $target, array $options = array()) {
-		return $app->factory(__CLASS__, $app, $source, $target, $options);
+	public static function factory(Application $app, $target, array $options = array()) {
+		return $app->factory(__CLASS__, $app, $target, $options);
 	}
 
 	/**
@@ -61,13 +61,10 @@ class Test_Generator extends Options {
 	 * @param unknown $target
 	 * @param array $options
 	 */
-	function __construct(Application $app, $source, $target, array $options = array()) {
+	function __construct(Application $app, $target, array $options = array()) {
 		parent::__construct($options);
 
 		$this->application = $app;
-
-		$this->source = $source;
-		$this->source_inspector = PHP_Inspector::factory($app, $source);
 
 		$this->target = $target;
 		$this->target_inspector = null;
@@ -79,23 +76,51 @@ class Test_Generator extends Options {
 
 	/**
 	 *
-	 * @param unknown $file
-	 * @param unknown $dest_file
-	 * @param string $do_include
-	 * @return string[]
+	 * @return boolean true if file was created
 	 */
-	function test_file_header($file, $dest_file, $do_include = true) {
-		$contents = array();
-		$contents[] = "<" . "?php";
-		$contents[] = "/**";
-		$contents[] = " * @package " . $this->option("package", "zesk");
-		$contents[] = " * @subpackage " . $this->option("subpackage", "test");
-		$contents[] = " * @author " . $this->option("author", $this->option("author", $this->application->configuration->user));
-		$contents[] = " * @copyright Copyright &copy; " . date('Y') . ", " . $this->option("copyright", "Market Acumen, Inc.");
-		$contents[] = " */";
-		$contents[] = "";
-
-		return $contents;
+	public function create_if_not_exists() {
+		if (!file_exists($this->target) || strpos(File::contents($this->target), "<?php") === false) {
+			$this->create();
+			return true;
+		}
+		return false;
+	}
+	public function create() {
+		$namespace = $this->option("namespace", __NAMESPACE__);
+		$parent = $this->option("parent", 'zesk\\PHPUnit_TestCase');
+		list($ns, $cl) = PHP::parse_namespace_class($parent);
+		if ($ns !== $namespace) {
+			$use = "use $parent;\n";
+			$parent_class = $parent;
+		} else {
+			$use = "// use - remove me";
+			$parent_class = $cl;
+		}
+		$example = File::contents($this->application->modules->path("test", "classes/Test/Example.php"));
+		$classname = basename($this->target, ".php");
+		$example = strtr($example, array(
+			"// use\n" => $use,
+			"namespace zesk" => "namespace $namespace",
+			"Example_Test" => $classname,
+			"PHPUnit_TestCase" => $parent_class
+		));
+		$map = array(
+			"year" => date("Y")
+		) + $this->option(array(
+			"author" => $this->application->process->user(),
+			"package" => __NAMESPACE__,
+			"subpackage" => "test",
+			"copyright" => $this->application->zesk->copyright_holder()
+		));
+		$example = Text::remove_line_comments($example, "//", true);
+		file_put_contents($this->target, map($example, $map));
+		$this->target_inspector = PHP_Inspector::factory($this->application, $this->target);
+		if (first($this->target_inspector->defined_classes()) !== $namespace . "\\" . $classname) {
+			throw new Exception_System("Created target {target} but does not declare class {classname}", array(
+				"target" => $this->target,
+				"classname" => $classname
+			));
+		}
 	}
 	function clean_function_parameters($params) {
 		$params = explode(",", $params);
@@ -431,7 +456,7 @@ class Test_Generator extends Options {
 			if (!Directory::is_absolute($dir)) {
 				$dir = path(getcwd(), $dir);
 			}
-			$dir_files = new DirectoryIterator($dir);
+			$dir_files = new \DirectoryIterator($dir);
 			foreach ($dir_files as $fileInfo) {
 				if ($fileInfo->isDot()) {
 					continue;

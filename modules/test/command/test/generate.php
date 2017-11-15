@@ -18,6 +18,11 @@ class Command_Test_Generate extends Command_Iterator_File {
 
 	/**
 	 *
+	 * @var boolean
+	 */
+	private $first = null;
+	/**
+	 *
 	 * @var array
 	 */
 	private $autoload_paths = null;
@@ -57,23 +62,26 @@ class Command_Test_Generate extends Command_Iterator_File {
 		$filename = $file->getFilename();
 		$fullpath = $file->getRealPath();
 		$suffix = $this->in_autoload_path($fullpath);
+		$__ = array(
+			"fullpath" => $fullpath
+		);
 		if (!$suffix) {
-			$this->verbose_log("{fullpath} not in autoload path", array(
-				"fullpath" => $fullpath
-			));
+			$this->verbose_log("{fullpath} not in autoload path", $__);
 			return true;
 		}
-		include_once $fullpath;
-		$target_file = path($this->target, $suffix);
-		$target_dir = dirname($target_file);
-		$target_file = basename($target_file);
-		$target_file = File::extension_change($target_file, null);
-		$target_file = path($target_dir, File::extension_change($target_file . '_Test', "php"));
-		echo "Would create $target_file\n";
+		$this->verbose_log("Processing {fullpath}", $__);
+		$inspector = PHP_Inspector::factory($this->application, $fullpath);
 
-		Test_Generator::factory($this->application, $fullpath, $target_file);
+		foreach ($inspector->defined_classes() as $class) {
+			list($ns, $cl) = PHP::parse_namespace_class($class);
+			$target_file = path($this->target, $cl . "_Test.php");
+			$target_generator = Test_Generator::factory($this->application, $target_file);
+			if ($target_generator->create_if_not_exists()) {
+				$this->log("Created {target_file}", compact("target_file"));
+			}
+		}
 
-		return true;
+		return false;
 	}
 
 	/**
