@@ -78,6 +78,7 @@ class Controller extends Hookable implements Interface_Theme {
 		$this->response = $app->response;
 
 		$this->initialize();
+		$this->call_hook("initialize");
 	}
 
 	/**
