@@ -74,6 +74,14 @@ class Database_Query_Select extends Database_Query_Select_Base {
 	 * @var array
 	 */
 	protected $conditions = array();
+	
+	/**
+	 * This is here solely for debugging purposes only.
+	 * 
+	 * @var string
+	 */
+	protected $generated_sql = null;
+	
 	/**
 	 * Construct a new Select query
 	 *
@@ -470,7 +478,7 @@ class Database_Query_Select extends Database_Query_Select_Base {
 	 * @return string
 	 */
 	function __toString() {
-		return $this->db->sql()->select(array(
+		return $this->generated_sql = $this->db->sql()->select(array(
 			'what' => $this->what,
 			'distinct' => $this->distinct,
 			'tables' => $this->tables,
