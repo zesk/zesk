@@ -2599,12 +2599,19 @@ class Object extends Model {
 		$options += $this->class->json_options;
 		$depth = avalue($options, 'depth', 1);
 		$members_only = avalue($options, 'members_only', false);
+		$class_info = to_bool(avalue($options, "class_info", false));
+		$include_members = avalue($options, 'members', null);
+		$skip_members = array_flip(avalue($options, "skip_members", array()));
+		if (is_string($include_members) || is_array($include_members)) {
+			$include_members = to_list($include_members);
+		}
+		$resolve_objects = to_list(avalue($options, "resolve_objects"), null);
 		/* Convert to JSONable structure */
-		$object = array(
+		$object = $class_info ? array(
 			"_class" => get_class($this),
 			"_parent_class" => get_parent_class($this),
 			"_primary_keys" => $this->members($this->primary_keys())
-		);
+		) : array();
 		if ($depth === 0) {
 			$result = $members_only ? $object['primary_keys'] : $object;
 		} else {
@@ -2612,7 +2619,6 @@ class Object extends Model {
 			$options['depth'] = $depth - 1;
 			
 			/* Handle "resolve_objects" list and "allow_resolve_objects" checks */
-			$resolve_objects = to_list(avalue($options, "resolve_objects"), null);
 			$resolve_object_match = array();
 			if (is_array($resolve_objects)) {
 				$allow_resolve_objects = to_list(avalue($options, "allow_resolve_objects", null), null);
@@ -2631,9 +2637,8 @@ class Object extends Model {
 				}
 			}
 			
-			$skip_members = array_flip(avalue($options, "skip_members", array()));
 			/* Copy things to JSON */
-			foreach ($this->members() as $member => $value) {
+			foreach ($this->members($include_members) as $member => $value) {
 				if (array_key_exists($member, $skip_members)) {
 					continue;
 				}
