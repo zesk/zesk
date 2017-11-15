@@ -65,7 +65,7 @@ class CSV_Reader_Map extends CSV_Reader {
 	 * @param string $options
 	 * @return self
 	 */
-	public static function factory($filename, $options = null) {
+	public static function factory($filename, array $options = array()) {
 		global $zesk;
 		/* @var $zesk zesk\Kernel */
 		return $zesk->objects->factory(__CLASS__, $filename, $options);

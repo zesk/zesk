@@ -45,7 +45,7 @@ class CSV_Reader extends CSV {
 	 * @param string $options
 	 * @return CSV_Reader
 	 */
-	public static function factory($filename, $options = null) {
+	public static function factory($filename, array $options = array()) {
 		global $zesk;
 		/* @var $zesk zesk\Kernel */
 		return $zesk->objects->factory(__CLASS__, $filename, $options);
@@ -57,7 +57,7 @@ class CSV_Reader extends CSV {
 	 * @param string $options
 	 * @return CSV_Reader_Iterator
 	 */
-	public function iterator($options = null) {
+	public function iterator(array $options = array()) {
 		return new CSV_Reader_Iterator($this, $options);
 	}
 	
