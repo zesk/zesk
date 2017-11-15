@@ -32,35 +32,35 @@ class Controller extends Hookable implements Interface_Theme {
 	 * @var string
 	 */
 	protected $method_default_arguments = null;
-
+	
 	/**
 	 * Request associated with this controller
 	 *
 	 * @var Request
 	 */
 	public $request = null;
-
+	
 	/**
 	 * Response associated with this controller
 	 *
 	 * @var Response_Text_HTML
 	 */
 	public $response = null;
-
+	
 	/**
 	 * Router associatd with this controller
 	 *
 	 * @var Router
 	 */
 	public $router = null;
-
+	
 	/**
 	 * Route which brought us here
 	 *
 	 * @var Route
 	 */
 	public $route = null;
-
+	
 	/**
 	 *
 	 * @param Request $request
@@ -69,18 +69,18 @@ class Controller extends Hookable implements Interface_Theme {
 	 */
 	public function __construct(Application $app, array $options = array()) {
 		parent::__construct($app, $options);
-
+		
 		$this->inherit_global_options();
-
+		
 		$this->router = $app->router;
 		$this->route = $this->router ? $this->router->route : null;
 		$this->request = $app->request;
 		$this->response = $app->response;
-
+		
 		$this->initialize();
 		$this->call_hook("initialize");
 	}
-
+	
 	/**
 	 * Shortcut for subclass methods
 	 *
@@ -95,25 +95,25 @@ class Controller extends Hookable implements Interface_Theme {
 	public function theme($types, $arguments = array(), array $options = array()) {
 		return $this->application->theme($types, $arguments, $options);
 	}
-
+	
 	/**
 	 */
 	public function class_actions() {
 		return array();
 	}
-
+	
 	/**
 	 */
 	protected function hook_classes() {
 		return $this->option_list("classes", array());
 	}
-
+	
 	/**
 	 * Stub for override - initialize the controller - called after __construct is done.
 	 */
 	protected function initialize() {
 	}
-
+	
 	/**
 	 * Get/set request
 	 *
@@ -139,7 +139,7 @@ class Controller extends Hookable implements Interface_Theme {
 		zesk()->deprecated();
 		return new $class($app, $options);
 	}
-
+	
 	/**
 	 * Executed before the controller action
 	 *
@@ -150,7 +150,7 @@ class Controller extends Hookable implements Interface_Theme {
 	public function _action_default($action = null) {
 		$this->error_404();
 	}
-
+	
 	/**
 	 * Executed after the controller action
 	 *
@@ -158,7 +158,7 @@ class Controller extends Hookable implements Interface_Theme {
 	 */
 	public function after() {
 	}
-
+	
 	/**
 	 * Returns an array of name/value pairs for a template
 	 */
@@ -170,7 +170,7 @@ class Controller extends Hookable implements Interface_Theme {
 			'response' => $this->response
 		);
 	}
-
+	
 	/**
 	 * Update all settings to return a JSON response
 	 *
@@ -179,7 +179,7 @@ class Controller extends Hookable implements Interface_Theme {
 	public function json($mixed = null) {
 		return $this->response->json($mixed);
 	}
-
+	
 	/**
 	 * Render response
 	 *
@@ -188,7 +188,7 @@ class Controller extends Hookable implements Interface_Theme {
 	public function render() {
 		return $this->response->render();
 	}
-
+	
 	/**
 	 * Page not found error
 	 *
@@ -197,7 +197,7 @@ class Controller extends Hookable implements Interface_Theme {
 	public function error_404($message = null) {
 		$this->error(Net_HTTP::Status_File_Not_Found, "Page not found $message");
 	}
-
+	
 	/**
 	 * Generic page error
 	 *
@@ -211,7 +211,7 @@ class Controller extends Hookable implements Interface_Theme {
 		$this->response->content_type("text/html");
 		$this->response->content = $message;
 	}
-
+	
 	/**
 	 * Execute an optional method
 	 *
@@ -228,7 +228,7 @@ class Controller extends Hookable implements Interface_Theme {
 		}
 		return $arguments;
 	}
-
+	
 	/**
 	 *
 	 * @param string $name
@@ -237,7 +237,7 @@ class Controller extends Hookable implements Interface_Theme {
 	public final function has_method($name) {
 		return method_exists($this, $name);
 	}
-
+	
 	/**
 	 *
 	 * @param string $name
@@ -251,7 +251,7 @@ class Controller extends Hookable implements Interface_Theme {
 			$name
 		), $arguments);
 	}
-
+	
 	/**
 	 *
 	 * @param array $arguments
@@ -270,7 +270,7 @@ class Controller extends Hookable implements Interface_Theme {
 			$this->method_default_action
 		), $arguments);
 	}
-
+	
 	/**
 	 *
 	 * @param string $action
@@ -281,7 +281,7 @@ class Controller extends Hookable implements Interface_Theme {
 	public function get_route_map($action = null, $object = null, $options = null) {
 		return array();
 	}
-
+	
 	/**
 	 * Create a widget
 	 *
@@ -290,7 +290,7 @@ class Controller extends Hookable implements Interface_Theme {
 	public function widget_factory($class, array $options = array()) {
 		return $this->application->widget_factory($class, $options);
 	}
-
+	
 	/**
 	 * Create an object
 	 *
@@ -299,7 +299,7 @@ class Controller extends Hookable implements Interface_Theme {
 	public function object_factory($class, $mixed = null, array $options = array()) {
 		return $this->application->object_factory($class, $mixed, $options);
 	}
-
+	
 	/**
 	 * Possibly very slow
 	 *

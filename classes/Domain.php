@@ -135,19 +135,15 @@ class Domain extends Object {
 	/**
 	 * @return string
 	 */
-	private static function public_suffix_list_file() {
-		global $zesk;
-		/* @var $zesk Kernel */
-		return $zesk->paths->zesk("etc/db/public-tlds.txt");
+	private static function public_suffix_list_file(Paths $paths) {
+		return $paths->zesk("etc/db/public-tlds.txt");
 	}
 	
 	/**
 	 * @return string
 	 */
-	private static function tlds_by_alpha_file() {
-		global $zesk;
-		/* @var $zesk Kernel */
-		return $zesk->paths->zesk("etc/db/tlds.txt");
+	private static function tlds_by_alpha_file(Paths $paths) {
+		return $paths->zesk("etc/db/tlds.txt");
 	}
 	
 	/**
@@ -155,8 +151,8 @@ class Domain extends Object {
 	 */
 	private static function update_data_files(Application $application) {
 		foreach (array(
-			self::url_public_suffix_list => self::public_suffix_list_file(),
-			self::url_tlds_by_alpha => self::tlds_by_alpha_file()
+			self::url_public_suffix_list => self::public_suffix_list_file($application->paths),
+			self::url_tlds_by_alpha => self::tlds_by_alpha_file($application->paths)
 		) as $url => $path) {
 			Net_Sync::url_to_file($application, $url, $path);
 		}

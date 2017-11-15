@@ -120,7 +120,6 @@ abstract class Route extends Hookable {
 			"named"
 		));
 	}
-	
 	function __wakeup() {
 		parent::__wakeup();
 		$this->router = $this->application->router;

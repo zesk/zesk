@@ -22,7 +22,7 @@ class Hookable extends \zesk\Options {
 	 * @var Application
 	 */
 	public $application = null;
-
+	
 	/**
 	 *
 	 * @param Application $application
@@ -32,12 +32,11 @@ class Hookable extends \zesk\Options {
 		$this->application = $application;
 		parent::__construct($options);
 	}
-	
 	function __wakeup() {
 		// Only case where this is OK
 		$this->application = zesk()->application();
 	}
-
+	
 	/**
 	 * Invoke a hook on this object if it exists.
 	 * Arguments should be passed after the type.
@@ -61,7 +60,7 @@ class Hookable extends \zesk\Options {
 		$result = $this->call_hook_arguments($type, $args, $default);
 		return $result;
 	}
-
+	
 	/**
 	 *
 	 * @deprecated 2016-08
@@ -76,7 +75,7 @@ class Hookable extends \zesk\Options {
 		$this->application->deprecated();
 		return $this->call_hook_arguments($types, $args, $default, $hook_callback, $result_callback, $return_hint);
 	}
-
+	
 	/**
 	 * Invoke a hook on this object if it exists.
 	 * Arguments should be passed after the type.
@@ -98,7 +97,7 @@ class Hookable extends \zesk\Options {
 		$result = $this->call_hook_arguments($type, $args, $default);
 		return $result;
 	}
-
+	
 	/**
 	 * Invoke a hook on this object if it exists.
 	 *
@@ -142,7 +141,7 @@ class Hookable extends \zesk\Options {
 		 */
 		$zesk_hook_args = $args;
 		array_unshift($zesk_hook_args, $this);
-
+		
 		/*
 		 * For each hook, call internal hook, then options-based hook, then system hook.
 		 */
@@ -165,7 +164,7 @@ class Hookable extends \zesk\Options {
 		}
 		return ($result === null) ? $default : $result;
 	}
-
+	
 	/**
 	 * Does a hook exist for this object?
 	 *
@@ -177,7 +176,7 @@ class Hookable extends \zesk\Options {
 		$hooks = $this->hook_list($types, $object_only);
 		return count($hooks) !== 0;
 	}
-
+	
 	/**
 	 * List functions to be invoked by a hook on this object if it exists.
 	 * Arguments passed as an array
@@ -220,7 +219,7 @@ class Hookable extends \zesk\Options {
 		}
 		return $result;
 	}
-
+	
 	/**
 	 * Combine hook results in a consistent manner when more than one hook applies to a call.
 	 *
@@ -248,7 +247,7 @@ class Hookable extends \zesk\Options {
 		}
 		return self::combine_hook_results($previous_result, $new_result, $arguments, $return_hint);
 	}
-
+	
 	/**
 	 * Combine hook results in chained/filter hooks in a predictable manner
 	 *
@@ -278,14 +277,14 @@ class Hookable extends \zesk\Options {
 		// No way to combine
 		return $new_result;
 	}
-
+	
 	/**
 	 *
 	 * @todo global remove
 	 * @var array
 	 */
 	private static $option_references = array();
-
+	
 	/**
 	 * Loading references
 	 *
@@ -302,7 +301,7 @@ class Hookable extends \zesk\Options {
 		}
 		return $references;
 	}
-
+	
 	/**
 	 * Load default options for an object.
 	 * Leaf-class options override parent options.
@@ -328,7 +327,7 @@ class Hookable extends \zesk\Options {
 		}
 		return $config->to_array();
 	}
-
+	
 	/**
 	 * Load options for this object based on globals loaded.
 	 * Only overwrites values which are NOT set.

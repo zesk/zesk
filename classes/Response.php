@@ -14,7 +14,7 @@ namespace zesk;
  * @subpackage system
  */
 class Response extends Hookable {
-
+	
 	/**
 	 * Singleton instance of the Response
 	 *
@@ -22,7 +22,7 @@ class Response extends Hookable {
 	 * @var Response
 	 */
 	static $instance = null;
-
+	
 	/**
 	 *
 	 * @var string
@@ -53,7 +53,7 @@ class Response extends Hookable {
 	 * @var integer
 	 */
 	const cache_path = 3;
-
+	
 	/**
 	 * Ordered from most specific to least specific
 	 *
@@ -64,63 +64,63 @@ class Response extends Hookable {
 		self::cache_query => "any/{host}_{port}{path}/{query}",
 		self::cache_path => "any/{host}_{port}{path}"
 	);
-
+	
 	/**
 	 * Cache responses to the request
 	 *
 	 * @var unknown
 	 */
 	private $cache_settings = null;
-
+	
 	/**
 	 * Request associated with this response
 	 *
 	 * @var Request
 	 */
 	public $request = null;
-
+	
 	/**
 	 * Content to return (if small enough)
 	 *
 	 * @var string
 	 */
 	public $content = null;
-
+	
 	/**
 	 * File to return (for big stuff)
 	 *
 	 * @var string
 	 */
 	protected $content_file = null;
-
+	
 	/**
 	 * Status code
 	 *
 	 * @var integer
 	 */
 	public $status_code = Net_HTTP::Status_OK;
-
+	
 	/**
 	 * Status message
 	 *
 	 * @var string
 	 */
 	public $status_message = "OK";
-
+	
 	/**
 	 * Content-Type header
 	 *
 	 * @var string
 	 */
 	public $content_type = null;
-
+	
 	/**
 	 * Content-Type header
 	 *
 	 * @var string
 	 */
 	public $charset = null;
-
+	
 	/**
 	 * Headers.
 	 * Key is always properly cased header. Values may be multi-array or string.
@@ -128,14 +128,14 @@ class Response extends Hookable {
 	 * @var array
 	 */
 	protected $headers = array();
-
+	
 	/**
 	 * Name/value data passed back to client if response type supports it.
 	 *
 	 * @var array
 	 */
 	protected $response_data = array();
-
+	
 	/**
 	 * Map of low-header to properly cased headers
 	 *
@@ -145,7 +145,7 @@ class Response extends Hookable {
 		'p3p' => "P3P",
 		'content-disposition' => "Content-Disposition"
 	);
-
+	
 	/**
 	 * Flag to indicate that this object is currently rendering.
 	 * Avoids infinite loops.
@@ -153,7 +153,7 @@ class Response extends Hookable {
 	 * @var boolean
 	 */
 	private $rendering = false;
-
+	
 	/**
 	 * Retrieve global Response instance
 	 *
@@ -172,7 +172,7 @@ class Response extends Hookable {
 		$application->response = self::factory($application, $content_type);
 		return $application->response;
 	}
-
+	
 	/**
 	 * Handle deprecated configuration
 	 *
@@ -205,7 +205,7 @@ class Response extends Hookable {
 			return new Response_Text_HTML($application, self::content_type_html);
 		}
 	}
-
+	
 	/**
 	 *
 	 * @param Application $application
@@ -216,7 +216,7 @@ class Response extends Hookable {
 		parent::__construct($application, $options);
 		$this->inherit_global_options();
 	}
-
+	
 	/**
 	 *
 	 * @param unknown $error_code
@@ -233,7 +233,7 @@ class Response extends Hookable {
 		$this->status_message = $error_string;
 		return $this;
 	}
-
+	
 	/**
 	 *
 	 * @todo Move this elsewhere. Response addon?
@@ -241,7 +241,7 @@ class Response extends Hookable {
 	public function redirect_message_clear() {
 		$this->application->session()->redirect_message = null;
 	}
-
+	
 	/**
 	 *
 	 * @todo Move this elsewhere. Response addon?
@@ -276,7 +276,7 @@ class Response extends Hookable {
 		$session->redirect_message = $messages;
 		return $this;
 	}
-
+	
 	/**
 	 * Set up redirect debugging
 	 *
@@ -289,7 +289,7 @@ class Response extends Hookable {
 		}
 		return $this->set_option('debug_redirect', to_bool($set));
 	}
-
+	
 	/**
 	 * Output a header
 	 *
@@ -302,7 +302,7 @@ class Response extends Hookable {
 		}
 		header($string);
 	}
-
+	
 	/**
 	 *
 	 * @todo Should this be Response_Redirect extends Response_Text_HTML?
@@ -349,7 +349,7 @@ class Response extends Hookable {
 		ob_flush_all();
 		exit();
 	}
-
+	
 	/**
 	 * If ref is passed in by request, redirect to that location, otherwise, redirect to passed in
 	 * URL
@@ -365,14 +365,14 @@ class Response extends Hookable {
 		}
 		$this->redirect($url, $message);
 	}
-
+	
 	/**
 	 *
 	 * @throws Exception_Semantics
 	 */
 	private function response_headers() {
 		static $called = false;
-
+		
 		$this->call_hook('headers');
 		if ($this->option_bool("skip_response_headers")) {
 			return;
@@ -427,7 +427,7 @@ class Response extends Hookable {
 			}
 		}
 	}
-
+	
 	/**
 	 * Is this content type text/html?
 	 *
@@ -441,7 +441,7 @@ class Response extends Hookable {
 		}
 		return $this->content_type === 'text/html';
 	}
-
+	
 	/**
 	 * Output a file
 	 *
@@ -463,7 +463,7 @@ class Response extends Hookable {
 		$this->content_file = $file;
 		return $this;
 	}
-
+	
 	/**
 	 *
 	 * @param unknown $policyref
@@ -479,7 +479,7 @@ class Response extends Hookable {
 		}
 		return $this->header("P3P", "policyref=\"$policyref\", $compact_p3p");
 	}
-
+	
 	/**
 	 * Do not cache this page
 	 *
@@ -492,7 +492,7 @@ class Response extends Hookable {
 		$this->header("Expires", "-1");
 		return $this;
 	}
-
+	
 	/**
 	 * Download a file
 	 *
@@ -516,7 +516,7 @@ class Response extends Hookable {
 		}
 		return $this->file($file)->header("Content-Disposition", "$type; filename=\"$name\"")->nocache();
 	}
-
+	
 	/**
 	 * Getter/setter for content type of this response
 	 *
@@ -530,7 +530,7 @@ class Response extends Hookable {
 		}
 		return $this->content_type;
 	}
-
+	
 	/**
 	 * Return "extra" json data, only passed back to client on request types which support it.
 	 *
@@ -555,7 +555,7 @@ class Response extends Hookable {
 		$this->response_data = $add ? $data + $this->response_data : $data;
 		return $this;
 	}
-
+	
 	/**
 	 * Return JSON data
 	 *
@@ -581,7 +581,7 @@ class Response extends Hookable {
 		}
 		return $this->content_type === self::content_type_json;
 	}
-
+	
 	/**
 	 * Set a date header
 	 *
@@ -596,7 +596,7 @@ class Response extends Hookable {
 		}
 		return $this->header($name, gmdate('D, d M Y H:i:s \G\M\T', $value));
 	}
-
+	
 	/**
 	 * Setter/Getter for headers
 	 *
@@ -633,7 +633,7 @@ class Response extends Hookable {
 		$this->headers[$name] = $value;
 		return $this;
 	}
-
+	
 	/**
 	 *
 	 * @return string
@@ -644,7 +644,7 @@ class Response extends Hookable {
 		}
 		return $this->content;
 	}
-
+	
 	/**
 	 * Return response
 	 *
@@ -670,7 +670,7 @@ class Response extends Hookable {
 		$this->rendering = false;
 		return $result;
 	}
-
+	
 	/**
 	 * Echo response
 	 *
@@ -711,7 +711,7 @@ class Response extends Hookable {
 	public function to_json() {
 		return $this->response_data;
 	}
-
+	
 	/**
 	 * Cache settings for this request
 	 *
@@ -732,7 +732,7 @@ class Response extends Hookable {
 		$this->cache_settings = $append ? $options + $this->cache_settings : $options;
 		return $this;
 	}
-
+	
 	/**
 	 *
 	 * @return \zesk\Response
@@ -742,7 +742,7 @@ class Response extends Hookable {
 			"seconds" => 1576800000
 		));
 	}
-
+	
 	/**
 	 * Cache for n seconds
 	 *
@@ -758,7 +758,7 @@ class Response extends Hookable {
 			"level" => $level
 		));
 	}
-
+	
 	/**
 	 * Convert URL into standard parts with defaults
 	 *
@@ -776,7 +776,7 @@ class Response extends Hookable {
 		);
 		return $parts;
 	}
-
+	
 	/**
 	 * Is content type?
 	 *
@@ -803,7 +803,7 @@ class Response extends Hookable {
 		if ($this->cache_settings === null) {
 			return false;
 		}
-
+		
 		$parts = self::_cache_parts($this->request->url());
 		$level = self::cache_scheme;
 		$seconds = $expires = null;
@@ -821,7 +821,7 @@ class Response extends Hookable {
 		}
 		return true;
 	}
-
+	
 	/**
 	 * If content for URL is cached, invoke headers and return content.
 	 *
@@ -847,7 +847,7 @@ class Response extends Hookable {
 		}
 		return null;
 	}
-
+	
 	/**
 	 *
 	 * @param string $name

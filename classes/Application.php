@@ -20,14 +20,14 @@ use Psr\Cache\CacheItemPoolInterface;
  *
  */
 class Application extends Hookable implements Interface_Theme {
-
+	
 	/**
 	 * Equivalent of zesk()
 	 *
 	 * @var Kernel
 	 */
 	public $zesk = null;
-
+	
 	/**
 	 * Inherited directly from zesk().
 	 * Do not edit the value here.
@@ -35,7 +35,7 @@ class Application extends Hookable implements Interface_Theme {
 	 * @var Paths
 	 */
 	public $paths = null;
-
+	
 	/**
 	 * Inherited directly from zesk().
 	 * Do not edit.
@@ -43,7 +43,7 @@ class Application extends Hookable implements Interface_Theme {
 	 * @var Hooks
 	 */
 	public $hooks = null;
-
+	
 	/**
 	 * Inherited directly from zesk().
 	 * Do not edit.
@@ -51,7 +51,7 @@ class Application extends Hookable implements Interface_Theme {
 	 * @var Autoloader
 	 */
 	public $autoloader = null;
-
+	
 	/**
 	 * Inherited directly from zesk().
 	 * Do not edit.
@@ -59,7 +59,7 @@ class Application extends Hookable implements Interface_Theme {
 	 * @var CacheItemPoolInterface
 	 */
 	public $cache = null;
-
+	
 	/**
 	 * Inherited directly from zesk().
 	 * Do not edit.
@@ -67,7 +67,7 @@ class Application extends Hookable implements Interface_Theme {
 	 * @var Configuration
 	 */
 	public $configuration = null;
-
+	
 	/**
 	 *
 	 * @var Configuration_Loader
@@ -80,7 +80,7 @@ class Application extends Hookable implements Interface_Theme {
 	 * @var Logger
 	 */
 	public $logger = null;
-
+	
 	/**
 	 * Inherited directly from zesk().
 	 * Do not edit.
@@ -88,7 +88,7 @@ class Application extends Hookable implements Interface_Theme {
 	 * @var Classes
 	 */
 	public $classes = null;
-
+	
 	/**
 	 * Inherited directly from zesk().
 	 * Do not edit.
@@ -96,7 +96,7 @@ class Application extends Hookable implements Interface_Theme {
 	 * @var Objects
 	 */
 	public $objects = null;
-
+	
 	/**
 	 * Inherited directly from zesk().
 	 * Do not edit.
@@ -104,51 +104,51 @@ class Application extends Hookable implements Interface_Theme {
 	 * @var Process
 	 */
 	public $process = null;
-
+	
 	/**
 	 *
 	 * @var Command
 	 */
 	public $command = null;
-
+	
 	/**
 	 *
 	 * @var Request
 	 */
 	public $request = null;
-
+	
 	/**
 	 *
 	 * @var Router
 	 */
 	public $router = null;
-
+	
 	/**
 	 *
 	 * @var Route
 	 */
 	public $route = null;
-
+	
 	/**
 	 *
 	 * @var Response_Text_HTML
 	 */
 	public $response = null;
-
+	
 	/**
 	 * List of search paths to find modules for loading
 	 *
 	 * @var string[]
 	 */
 	private $module_path = array();
-
+	
 	/**
 	 * Modules object interface
 	 *
 	 * @var Modules
 	 */
 	public $modules = null;
-
+	
 	/**
 	 * Array of external modules to load
 	 *
@@ -156,7 +156,7 @@ class Application extends Hookable implements Interface_Theme {
 	 * @see $this->load_modules
 	 */
 	protected $load_modules = array();
-
+	
 	/**
 	 * Array of parent => child mappings for object creation/instantiation.
 	 *
@@ -165,13 +165,13 @@ class Application extends Hookable implements Interface_Theme {
 	 * @var array
 	 */
 	protected $object_aliases = array();
-
+	
 	/**
 	 *
 	 * @var array
 	 */
 	protected $class_cache = array();
-
+	
 	/**
 	 * File where the application class resides.
 	 * Override this in subclasses with
@@ -180,33 +180,33 @@ class Application extends Hookable implements Interface_Theme {
 	 * @var string
 	 */
 	public $file = null;
-
+	
 	/**
 	 *
 	 * @var Interface_Session
 	 */
 	public $session = null;
-
+	
 	/**
 	 *
 	 * @var User
 	 */
 	public $user = null;
-
+	
 	/**
 	 * Variables for templates
 	 *
 	 * @var unknown_type
 	 */
 	private $variables = array();
-
+	
 	/**
 	 * Array of classes to register hooks automatically
 	 *
 	 * @var array of string
 	 */
 	protected $register_hooks = array();
-
+	
 	/**
 	 * Array of starting list of Objects which are a part of this application.
 	 * Used to sync schema and generate dependency classes.
@@ -215,62 +215,62 @@ class Application extends Hookable implements Interface_Theme {
 	 * @var array of string
 	 */
 	protected $object_classes = array();
-
+	
 	/**
 	 * Configuration files to include
 	 *
 	 * @var array of string
 	 */
 	protected $includes = array();
-
+	
 	/**
 	 * Configuration file paths to search
 	 *
 	 * @var array of string
 	 */
 	protected $include_paths = array();
-
+	
 	/**
 	 * Configuration options
 	 *
 	 * @var array
 	 */
 	static $configuration_options = null;
-
+	
 	/**
 	 * Configuration options
 	 *
 	 * @var array
 	 */
 	protected $template_variables = array();
-
+	
 	/**
 	 * Zesk Command paths for loading zesk-command.php commands
 	 *
 	 * @var array
 	 */
 	protected $zesk_command_path = array();
-
+	
 	/**
 	 * Paths to search for themes
 	 *
 	 * @var string $theme_path
 	 */
 	protected $theme_path = array();
-
+	
 	/**
 	 * Paths to search for shared content
 	 *
 	 * @var string[]
 	 */
 	protected $share_path = array();
-
+	
 	/**
 	 *
 	 * @var string
 	 */
 	protected $cache_path = null;
-
+	
 	/**
 	 *
 	 * @var string
@@ -281,46 +281,46 @@ class Application extends Hookable implements Interface_Theme {
 	 * @var string
 	 */
 	private $document_prefix = '';
-
+	
 	/**
 	 *
 	 * @var string
 	 */
 	private $document_cache = null;
-
+	
 	/**
 	 * Top template
 	 *
 	 * @var Template
 	 */
 	public $template = null;
-
+	
 	/**
 	 * Template stack
 	 *
 	 * @var Template_Stack
 	 */
 	public $template_stack = null;
-
+	
 	/**
 	 *
 	 * @var string[]
 	 */
 	private $theme_stack = array();
-
+	
 	/**
 	 * Boolean
 	 *
 	 * @var boolean
 	 */
 	private $configured_was_run = false;
-
+	
 	/**
 	 *
 	 * @var array:string
 	 */
 	private $content_recursion = false;
-
+	
 	/**
 	 *
 	 * @param unknown $options
@@ -329,7 +329,7 @@ class Application extends Hookable implements Interface_Theme {
 		parent::__construct($this, $options);
 		$this->_initialize($zesk, $options);
 	}
-
+	
 	/**
 	 *
 	 * @param array $options
@@ -346,7 +346,7 @@ class Application extends Hookable implements Interface_Theme {
 		$this->classes = $zesk->classes;
 		$this->objects = $zesk->objects;
 		$this->process = $zesk->process;
-
+		
 		$this->module_path = array();
 		$this->zesk_command_path = array();
 		$this->theme_path = array();
@@ -359,16 +359,16 @@ class Application extends Hookable implements Interface_Theme {
 		$this->template = null;
 		$this->theme_stack = null;
 		$this->configured_was_run = false;
-
+		
 		$this->command = null;
 		$this->request = null;
 		$this->router = null;
 		$this->route = null;
 		$this->response = null;
 		$this->session = null;
-
+		
 		$this->class_cache = array();
-
+		
 		// $this->load_modules is set in subclasses
 		// $this->object_aliases is set in subclasses
 		// $this->file is set in subclasses
@@ -376,38 +376,38 @@ class Application extends Hookable implements Interface_Theme {
 		// $this->register_hooks is set in subclasses
 		// $this->object_classes is set in subclasses
 		//
-
+		
 		// $this->includes is set in subclasses?
 		// $this->include_paths is set in subclasses?
 		// $this->template_variables is set in application itself?
 		$this->template_variables = array();
-
+		
 		foreach ($this->object_aliases as $requested => $resolved) {
 			$this->objects->map($requested, $resolved);
 		}
-
+		
 		$this->_init_document_root();
-
+		
 		$this->zesk_command_path = array(
 			ZESK_ROOT . 'command' => 'zesk\Command_'
 		);
 		if (is_array($this->modules)) {
 			throw new Exception_Unimplemented("Application::\$modules no longer supported");
 		}
-
+		
 		$this->module_path($this->path_module_default());
-
+		
 		$this->modules = new Modules($this);
-
+		
 		$this->template_stack = new Template_Stack();
 		$this->template = new Template($this);
 		$this->template_stack->push($this->template);
 		$this->theme_stack = array();
-
+		
 		$this->theme_path($this->path_theme_default());
 		$this->share_path($this->path_share_default(), 'zesk');
 	}
-
+	
 	/**
 	 *
 	 * @return string
@@ -415,7 +415,7 @@ class Application extends Hookable implements Interface_Theme {
 	private function path_module_default() {
 		return $this->paths->zesk('modules');
 	}
-
+	
 	/**
 	 *
 	 * @return string
@@ -423,7 +423,7 @@ class Application extends Hookable implements Interface_Theme {
 	private function path_theme_default() {
 		return $this->paths->zesk('theme');
 	}
-
+	
 	/**
 	 *
 	 * @return string
@@ -431,7 +431,7 @@ class Application extends Hookable implements Interface_Theme {
 	private function path_share_default() {
 		return $this->paths->zesk('share');
 	}
-
+	
 	/**
 	 * Clone application
 	 */
@@ -455,7 +455,7 @@ class Application extends Hookable implements Interface_Theme {
 			$this->template_stack = clone $this->template_stack;
 		}
 	}
-
+	
 	/**
 	 * Override in subclasses if it is stored in a different way.
 	 *
@@ -464,7 +464,7 @@ class Application extends Hookable implements Interface_Theme {
 	public function version() {
 		return $this->option("version");
 	}
-
+	
 	/**
 	 * Getter/setter to configure a file name to load (from path)
 	 *
@@ -481,7 +481,7 @@ class Application extends Hookable implements Interface_Theme {
 		}
 		return $this;
 	}
-
+	
 	/**
 	 * Add a path to load configuration files from, or return currentl path list
 	 *
@@ -505,7 +505,7 @@ class Application extends Hookable implements Interface_Theme {
 		}
 		return $this;
 	}
-
+	
 	/**
 	 * Loads a bunch of configuration files, in the following order:
 	 * 1.
@@ -534,20 +534,20 @@ class Application extends Hookable implements Interface_Theme {
 		$this->_configure(self::$configuration_options);
 		return $this;
 	}
-
+	
 	/**
 	 * Run preconfiguration setup
 	 */
 	protected function preconfigure(array $options) {
 		return $options;
 	}
-
+	
 	/**
 	 * Run post configuration setup
 	 */
 	protected function postconfigure() {
 	}
-
+	
 	/**
 	 * Load configuration files
 	 *
@@ -555,7 +555,7 @@ class Application extends Hookable implements Interface_Theme {
 	 */
 	private function _configure_files(array $options) {
 		$configuration = $this->configuration;
-
+		
 		if (count($this->includes) === 0 || array_key_exists('file', $options)) {
 			$this->configure_include(avalue($options, 'file', $this->default_includes()));
 		}
@@ -563,14 +563,14 @@ class Application extends Hookable implements Interface_Theme {
 			$this->configure_include_path(avalue($options, 'path', $this->default_include_path()));
 		}
 		$this->loader = new Configuration_Loader($this->include_paths, $this->includes, new Adapter_Settings_Configuration($configuration));
-
+		
 		$this->loader->load();
-
+		
 		$configuration->deprecated("host_aliases");
 		$configuration->deprecated(__CLASS__ . "::host_aliases");
 		$configuration->deprecated("maintenance_file");
 	}
-
+	
 	/**
 	 * Complete configuration process
 	 *
@@ -579,7 +579,7 @@ class Application extends Hookable implements Interface_Theme {
 	 */
 	private function _configure(array $options) {
 		$skip_configured_hook = avalue($options, 'skip_configured', false);
-
+		
 		// Load hooks
 		$this->hooks->register_class(array(
 			"zesk\\Cache",
@@ -587,16 +587,16 @@ class Application extends Hookable implements Interface_Theme {
 			"zesk\\Settings"
 		));
 		$this->hooks->register_class($this->register_hooks);
-
+		
 		$this->call_hook('configure');
-
+		
 		$this->configure_cache_paths(); // Initial cache paths are set up
-
+		
 		$new_options = $this->preconfigure($options);
 		if (is_array($new_options)) {
 			$options = $new_options;
 		}
-
+		
 		$profile = false;
 		if ($profile) {
 			$mtime = microtime(true);
@@ -610,27 +610,27 @@ class Application extends Hookable implements Interface_Theme {
 		if ($profile) {
 			$this->zesk->profile_timer("_configure_files", microtime(true) - $mtime);
 		}
-
+		
 		$this->call_hook('configured_files');
-
+		
 		$this->modules->load($this->load_modules);
-
+		
 		// Reload application options
 		$this->inherit_global_options();
-
+		
 		// Load dynamic modules now
 		$modules = $this->option_list('modules');
 		if (count($modules) > 0) {
 			$this->modules->load($modules);
 		}
-
+		
 		// Final cache paths are set up from application options
 		$this->configure_cache_paths();
-
+		
 		if (!$skip_configured_hook) {
 			$this->configured();
 		}
-
+		
 		return $result;
 	}
 	/**
@@ -652,16 +652,16 @@ class Application extends Hookable implements Interface_Theme {
 		// Now run all configurations: System, Modules, then Application
 		$this->configured_hooks();
 		$this->postconfigure();
-
+		
 		$this->configured_was_run = true;
 	}
-
+	
 	/**
 	 */
 	private function configured_compatibility() {
 		$this->configuration->deprecated("Router::cache", __CLASS__ . "::cache_router");
 	}
-
+	
 	/**
 	 */
 	private function configure_cache_paths() {
@@ -671,12 +671,12 @@ class Application extends Hookable implements Interface_Theme {
 			$this->document_cache = $this->option('document_cache');
 		}
 	}
-
+	
 	/**
 	 */
 	private function configured_hooks() {
 		$hook_callback = $result_callback = null;
-
+		
 		$this->hooks->call_arguments(Hooks::hook_database_configure, array(
 			$this
 		), null, $hook_callback, $result_callback);
@@ -686,7 +686,7 @@ class Application extends Hookable implements Interface_Theme {
 		$this->modules->all_hook_arguments("configured", array(), null, $hook_callback, $result_callback); // Modules
 		$this->call_hook_arguments('configured', array(), null, $hook_callback, $result_callback); // Application level
 	}
-
+	
 	/**
 	 * Runs configuration again, using same options as previous configuration.
 	 *
@@ -698,7 +698,7 @@ class Application extends Hookable implements Interface_Theme {
 		$this->_configured();
 		return $result;
 	}
-
+	
 	/**
 	 * Clear application cache
 	 */
@@ -773,7 +773,7 @@ class Application extends Hookable implements Interface_Theme {
 		}
 		return $result;
 	}
-
+	
 	/**
 	 * Return file, which when exists, puts the site into maintenance mode
 	 *
@@ -782,7 +782,7 @@ class Application extends Hookable implements Interface_Theme {
 	final private function maintenance_file() {
 		return $this->option("maintenance_file", $this->path("etc/maintenance.json"));
 	}
-
+	
 	/**
 	 * Override this in child classes to manipulate creation of these objects
 	 *
@@ -798,13 +798,13 @@ class Application extends Hookable implements Interface_Theme {
 		}
 		return $this->objects->singleton_arguments($class, $args);
 	}
-
+	
 	/**
 	 *
 	 * @var string[]
 	 */
 	private $cached_classes = null;
-
+	
 	/**
 	 * Retrieve the list of classes associated with an application
 	 *
@@ -846,7 +846,7 @@ class Application extends Hookable implements Interface_Theme {
 		ksort($all_classes);
 		return $all_classes;
 	}
-
+	
 	/**
 	 *
 	 * @param unknown $add
@@ -863,7 +863,7 @@ class Application extends Hookable implements Interface_Theme {
 		}
 		return array_values($this->cached_classes);
 	}
-
+	
 	/**
 	 * Retrieve all classes with additional fields
 	 *
@@ -924,7 +924,7 @@ class Application extends Hookable implements Interface_Theme {
 		));
 		return $list;
 	}
-
+	
 	/**
 	 * Default list of files to be loaded as part of this application configuration
 	 *
@@ -939,7 +939,7 @@ class Application extends Hookable implements Interface_Theme {
 		$files_default[] = strtolower(System::uname()) . ".conf";
 		return $files_default;
 	}
-
+	
 	/**
 	 *
 	 * @return Request
@@ -953,7 +953,7 @@ class Application extends Hookable implements Interface_Theme {
 		}
 		return $request;
 	}
-
+	
 	/**
 	 *
 	 * @return Request
@@ -961,7 +961,7 @@ class Application extends Hookable implements Interface_Theme {
 	protected function hook_response(Request $request) {
 		return Response::instance($this);
 	}
-
+	
 	/**
 	 *
 	 * @return Router
@@ -970,7 +970,7 @@ class Application extends Hookable implements Interface_Theme {
 		$router_file = File::extension_change($this->file, 'router');
 		$exists = is_file($router_file);
 		$cache = $this->option("cache_router", null);
-
+		
 		$router = Router::factory($this);
 		if (!$exists) {
 			$this->logger->debug("No router file {router_file} to load - creating blank router", array(
@@ -989,7 +989,7 @@ class Application extends Hookable implements Interface_Theme {
 		$this->modules->all_hook("routes", $result);
 		return $result;
 	}
-
+	
 	/**
 	 * When an exception happens in the main loop, generate content related to the exception.
 	 *
@@ -1011,7 +1011,7 @@ class Application extends Hookable implements Interface_Theme {
 		$this->call_hook('main_exception', $exception);
 		$this->hooks->call("exception", $exception);
 	}
-
+	
 	/**
 	 *
 	 * @return Request
@@ -1022,7 +1022,7 @@ class Application extends Hookable implements Interface_Theme {
 		}
 		return $this->request = $this->call_hook("request");
 	}
-
+	
 	/**
 	 *
 	 * @return Response
@@ -1033,7 +1033,7 @@ class Application extends Hookable implements Interface_Theme {
 		}
 		return $this->response = $this->call_hook("response", $this->request());
 	}
-
+	
 	/**
 	 * Load router
 	 *
@@ -1046,22 +1046,22 @@ class Application extends Hookable implements Interface_Theme {
 		try {
 			/* @var $request Request */
 			$request = $this->request();
-
+			
 			// TODO Investigate creating response via Router instead of here
 			/* @var $response Response_Text_HTML */
 			$response = $this->response();
-
+			
 			/* @var $router Router */
 			$router = $this->router = $this->call_hook("router");
 			$this->call_hook("router_loaded", $router);
-
+			
 			return $router;
 		} catch (\Exception $exception) {
 			$this->_main_exception($exception);
 			return null;
 		}
 	}
-
+	
 	/**
 	 * Return all known/discerable Controllers for the application.
 	 *
@@ -1072,7 +1072,7 @@ class Application extends Hookable implements Interface_Theme {
 	final public function controllers() {
 		return $this->router()->controllers($this);
 	}
-
+	
 	/**
 	 * Initialize variables
 	 *
@@ -1092,7 +1092,7 @@ class Application extends Hookable implements Interface_Theme {
 		$this->template->set($variables);
 		return $this->template;
 	}
-
+	
 	/**
 	 * Initialize template variables
 	 *
@@ -1116,7 +1116,7 @@ class Application extends Hookable implements Interface_Theme {
 		$router->execute($this->request);
 		$this->call_hook('router_postprocess', $router);
 	}
-
+	
 	/**
 	 * Application main execution:
 	 *
@@ -1127,9 +1127,9 @@ class Application extends Hookable implements Interface_Theme {
 	 */
 	public function main() {
 		$this->call_hook("main");
-
+		
 		$this->variables = array();
-
+		
 		if (($router = $this->router()) !== null) {
 			try {
 				$this->logger->debug("App bootstrap took {seconds} seconds", array(
@@ -1144,7 +1144,7 @@ class Application extends Hookable implements Interface_Theme {
 			$this->response->output();
 		}
 	}
-
+	
 	/**
 	 * Utility for index.php file for all public-served content.
 	 */
@@ -1154,12 +1154,12 @@ class Application extends Hookable implements Interface_Theme {
 		}
 		$this->content_recursion[$path] = true;
 		$this->call_hook("content");
-
+		
 		$router = $this->router();
 		$old_request = $this->request;
 		$old_response = $this->response;
 		$old_route = $router->route;
-
+		
 		if ($old_request) {
 			$url = $old_request->url();
 		} else {
@@ -1174,24 +1174,24 @@ class Application extends Hookable implements Interface_Theme {
 			"variables" => URL::query_parse_url($path)
 		));
 		$this->response = Response::factory($this);
-
+		
 		ob_start();
 		$this->_main_route($this->router->reset());
 		$this->response->output(array(
 			"skip-headers" => true
 		));
 		$content = ob_get_clean();
-
+		
 		$this->router->route = $old_route;
 		$this->route = $old_route;
 		$this->request = $old_request;
 		$this->response = $old_response;
-
+		
 		unset($this->content_recursion[$path]);
-
+		
 		return $content;
 	}
-
+	
 	/**
 	 * Hook for taking old `.php` URLs and converting to router-based URLs
 	 *
@@ -1212,7 +1212,7 @@ class Application extends Hookable implements Interface_Theme {
 		$state->url = URL::query_append($u, $qs);
 		return true;
 	}
-
+	
 	/**
 	 * While developing, check schema every minute
 	 */
@@ -1221,7 +1221,7 @@ class Application extends Hookable implements Interface_Theme {
 			$application->_schema_check();
 		}
 	}
-
+	
 	/**
 	 * While an out-of-sync schema may cause issues, it often does not.
 	 * Check hourly on production to avoid
@@ -1232,7 +1232,7 @@ class Application extends Hookable implements Interface_Theme {
 			$application->_schema_check();
 		}
 	}
-
+	
 	/**
 	 * Internal function - check the schema and notify someone
 	 *
@@ -1265,7 +1265,7 @@ class Application extends Hookable implements Interface_Theme {
 		}
 		return $results;
 	}
-
+	
 	/**
 	 * Synchronzie the schema
 	 *
@@ -1374,7 +1374,7 @@ class Application extends Hookable implements Interface_Theme {
 		}
 		return $results;
 	}
-
+	
 	/**
 	 * Get a list of repositories for this application (dependencies)
 	 *
@@ -1389,13 +1389,13 @@ class Application extends Hookable implements Interface_Theme {
 			$repos
 		), $repos);
 	}
-
+	
 	/**
 	 * Utility for index.php file for all public-served content.
 	 */
 	public function index() {
 		$final_map = array();
-
+		
 		$request = $this->request();
 		if (($content = Response::cached($request->url())) === null) {
 			ob_start();
@@ -1420,7 +1420,7 @@ class Application extends Hookable implements Interface_Theme {
 		}
 		echo $content;
 	}
-
+	
 	/**
 	 * Called once before a $zesk->hooks->all_hook("zesk\\Object::method");
 	 */
@@ -1429,7 +1429,7 @@ class Application extends Hookable implements Interface_Theme {
 		$classes = $app->all_classes();
 		$app->classes->register(arr::collapse($classes, "class"));
 	}
-
+	
 	/**
 	 * When zesk\Hooks::all_hook is called, this is called first to collect all objects
 	 * in the system.
@@ -1439,7 +1439,7 @@ class Application extends Hookable implements Interface_Theme {
 	public static function hooks(Kernel $zesk) {
 		$zesk->hooks->add(__NAMESPACE__ . '\\' . 'Object::register_all_hooks', __CLASS__ . "::object_register_all_hooks");
 	}
-
+	
 	/**
 	 * Template or logging variables
 	 *
@@ -1454,7 +1454,7 @@ class Application extends Hookable implements Interface_Theme {
 		$parameters['url'] = $request ? $this->request->url() : null;
 		return $parameters;
 	}
-
+	
 	/**
 	 * Retrieve the list of theme file paths, or add one.
 	 *
@@ -1478,7 +1478,7 @@ class Application extends Hookable implements Interface_Theme {
 		}
 		return $this->theme_path;
 	}
-
+	
 	/**
 	 * Add or retrieve the share path for this application - used to serve
 	 * shared content via Controller_Share as well as populate automatically with files within the
@@ -1500,7 +1500,7 @@ class Application extends Hookable implements Interface_Theme {
 		}
 		return $this->share_path;
 	}
-
+	
 	/**
 	 * Add or retrieve the data path for this application
 	 *
@@ -1511,7 +1511,7 @@ class Application extends Hookable implements Interface_Theme {
 	public function data_path($suffix = null) {
 		return $this->paths->data($suffix);
 	}
-
+	
 	/**
 	 * Get or set the zesk command path, which is where Zesk searches for commands from the
 	 * command-line tool.
@@ -1560,7 +1560,7 @@ class Application extends Hookable implements Interface_Theme {
 		}
 		return $this->zesk_command_path;
 	}
-
+	
 	/**
 	 *
 	 * @return NULL|mixed
@@ -1683,7 +1683,7 @@ class Application extends Hookable implements Interface_Theme {
 		array_pop($this->theme_stack);
 		return $content;
 	}
-
+	
 	/**
 	 * Does one or more themes exist?
 	 *
@@ -1703,7 +1703,7 @@ class Application extends Hookable implements Interface_Theme {
 		}
 		return true;
 	}
-
+	
 	/**
 	 * Returns similar result as _theme_arguments except just tests to see if theme would
 	 * possibly generate content
@@ -1726,7 +1726,7 @@ class Application extends Hookable implements Interface_Theme {
 		}
 		return false;
 	}
-
+	
 	/**
 	 * Set autoload path for the application.
 	 *
@@ -1737,7 +1737,7 @@ class Application extends Hookable implements Interface_Theme {
 	public function autoload_path($add = null, $options = true) {
 		return $this->zesk->autoloader->path($add, $options);
 	}
-
+	
 	/**
 	 * Set command path for the application.
 	 *
@@ -1748,7 +1748,7 @@ class Application extends Hookable implements Interface_Theme {
 	public function command_path($add = null) {
 		return $this->paths->command($add);
 	}
-
+	
 	/**
 	 * Register a class with the application
 	 *
@@ -1759,7 +1759,7 @@ class Application extends Hookable implements Interface_Theme {
 		$this->hooks->register_class($class);
 		return $this->classes->register($class);
 	}
-
+	
 	/**
 	 * Return the application root path.
 	 *
@@ -1772,7 +1772,7 @@ class Application extends Hookable implements Interface_Theme {
 	public function application_root($suffix = null) {
 		return $this->paths->application($suffix);
 	}
-
+	
 	/**
 	 * Return a path relative to the application root
 	 */
@@ -1789,7 +1789,7 @@ class Application extends Hookable implements Interface_Theme {
 	public function application_class() {
 		return $this->zesk->application_class();
 	}
-
+	
 	/**
 	 *
 	 * @param string $path
@@ -1809,7 +1809,7 @@ class Application extends Hookable implements Interface_Theme {
 	public function zesk_root($suffix = null) {
 		return $this->paths->zesk($suffix);
 	}
-
+	
 	/**
 	 * Get the cache path for the application
 	 *
@@ -1819,7 +1819,7 @@ class Application extends Hookable implements Interface_Theme {
 	public function cache_path($suffix = null) {
 		return path($this->cache_path, $suffix);
 	}
-
+	
 	/**
 	 * Initialize web root to enable non-rooted web sites.
 	 * This should be called from any script which interacts with
@@ -1845,7 +1845,7 @@ class Application extends Hookable implements Interface_Theme {
 		}
 		$this->document_cache = $this->document ? path($this->document, "cache") : null;
 	}
-
+	
 	/**
 	 * Your web root is the directory in the file system which contains our application and other
 	 * files.
@@ -1869,7 +1869,7 @@ class Application extends Hookable implements Interface_Theme {
 		}
 		return $this->document;
 	}
-
+	
 	/**
 	 * Your web root is the directory in the file system which contains our application and other
 	 * files.
@@ -1896,7 +1896,7 @@ class Application extends Hookable implements Interface_Theme {
 		}
 		return $this;
 	}
-
+	
 	/**
 	 * Your web root may be served from an aliased or shared directory and as such may not appear at
 	 * the web server's root.
@@ -1917,7 +1917,7 @@ class Application extends Hookable implements Interface_Theme {
 		}
 		return $this->document_prefix;
 	}
-
+	
 	/**
 	 * Directory of the path to files which can be served from the webserver.
 	 * Used for caching CSS or
@@ -1932,7 +1932,7 @@ class Application extends Hookable implements Interface_Theme {
 	public function document_cache($suffix = null) {
 		return path($this->document_cache, $suffix);
 	}
-
+	
 	/**
 	 * Get or set the module search path
 	 *
@@ -1948,7 +1948,7 @@ class Application extends Hookable implements Interface_Theme {
 		}
 		return $this->module_path;
 	}
-
+	
 	/**
 	 * Return the development status of this application
 	 *
@@ -1962,7 +1962,7 @@ class Application extends Hookable implements Interface_Theme {
 		}
 		return $this->option_bool("development");
 	}
-
+	
 	/**
 	 * Retrieve the database for this application.
 	 * This call is meant to deprecate the global Database::factory eventually.
@@ -1987,7 +1987,7 @@ class Application extends Hookable implements Interface_Theme {
 	public function widget_factory($class, array $options = array()) {
 		return Widget::factory($this, $class, $options);
 	}
-
+	
 	/**
 	 * Create an Object
 	 *
@@ -1999,7 +1999,7 @@ class Application extends Hookable implements Interface_Theme {
 	public function object_factory($class, $mixed = null, array $options = array()) {
 		return Object::factory($this, $class, $mixed, $options);
 	}
-
+	
 	/**
 	 * Create a model
 	 *
@@ -2022,7 +2022,7 @@ class Application extends Hookable implements Interface_Theme {
 		$class = array_shift($arguments);
 		return $this->objects->factory_arguments($class, $arguments);
 	}
-
+	
 	/**
 	 * This loads an include without any variables defined, except super globals Handy when the file
 	 * is meant to return a value, or has its own "internal" variables which may corrupt the global
@@ -2043,7 +2043,7 @@ class Application extends Hookable implements Interface_Theme {
 	public function factory_arguments($class, array $arguments = array()) {
 		return $this->objects->factory_arguments($class, $arguments);
 	}
-
+	
 	/**
 	 * Access a class_object
 	 *
@@ -2052,7 +2052,7 @@ class Application extends Hookable implements Interface_Theme {
 	public function class_object($class) {
 		return $this->_class_cache($this->objects->resolve($class), "class");
 	}
-
+	
 	/**
 	 * Retrieve the database for a specific object class
 	 *
@@ -2062,7 +2062,7 @@ class Application extends Hookable implements Interface_Theme {
 	public final function class_object_database($class) {
 		return $this->class_object($class)->database();
 	}
-
+	
 	/**
 	 *
 	 * @param unknown $class
@@ -2091,7 +2091,7 @@ class Application extends Hookable implements Interface_Theme {
 		}
 		return $this;
 	}
-
+	
 	/**
 	 * Retrieve object or classes from cache
 	 *
@@ -2126,7 +2126,7 @@ class Application extends Hookable implements Interface_Theme {
 		$result = $this->class_cache[$lowclass];
 		return avalue($result, $component, $result);
 	}
-
+	
 	/**
 	 * Access an Object by class name
 	 *
@@ -2139,7 +2139,7 @@ class Application extends Hookable implements Interface_Theme {
 		}
 		return $result;
 	}
-
+	
 	/**
 	 * Determine object table name based on class and optional initialization parameters
 	 *
@@ -2151,7 +2151,7 @@ class Application extends Hookable implements Interface_Theme {
 	public final function object_table_name($class, $mixed = null, $options = null) {
 		return $this->object($class, $mixed, $options)->table();
 	}
-
+	
 	/**
 	 * Determine object table columns based on class and optional initialization parameters
 	 *
@@ -2163,7 +2163,7 @@ class Application extends Hookable implements Interface_Theme {
 	public final function object_table_columns($class, $mixed = null, $options = null) {
 		return $this->object($class, $mixed, $options)->columns();
 	}
-
+	
 	/**
 	 * Determine object database based on class and optional initialization parameters
 	 *
@@ -2175,7 +2175,7 @@ class Application extends Hookable implements Interface_Theme {
 	public final function object_database($class, $mixed = null, $options = null) {
 		return $this->object($class, $mixed, $options)->database();
 	}
-
+	
 	/**
 	 *
 	 * @return Database_Query_Select
@@ -2204,7 +2204,7 @@ class Application extends Hookable implements Interface_Theme {
 	public function query_insert_select($class, $alias = null) {
 		return $this->object($class)->query_insert_select($alias);
 	}
-
+	
 	/**
 	 *
 	 * @return Database_Query_Delete
@@ -2212,7 +2212,7 @@ class Application extends Hookable implements Interface_Theme {
 	public function query_delete($class) {
 		return $this->object($class)->query_delete();
 	}
-
+	
 	/**
 	 *
 	 * @param string $require
@@ -2233,7 +2233,7 @@ class Application extends Hookable implements Interface_Theme {
 		}
 		return $this->session;
 	}
-
+	
 	/**
 	 *
 	 * @return User
@@ -2252,7 +2252,7 @@ class Application extends Hookable implements Interface_Theme {
 		}
 		return $this->user = null;
 	}
-
+	
 	/**
 	 *
 	 * @param string $message
@@ -2263,7 +2263,7 @@ class Application extends Hookable implements Interface_Theme {
 		$arguments['depth'] = to_integer(avalue($arguments, 'depth', 0)) + 1;
 		$this->zesk->deprecated($message, $arguments);
 	}
-
+	
 	/**
 	 * Console status getter/setter
 	 *
@@ -2282,7 +2282,7 @@ class Application extends Hookable implements Interface_Theme {
 		// TODO Remove this
 		return $uri;
 	}
-
+	
 	/**
 	 *
 	 * @return double Microseconds initialization time
@@ -2301,7 +2301,7 @@ class Application extends Hookable implements Interface_Theme {
 		$this->deprecated();
 		return $this->object_singleton($class);
 	}
-
+	
 	/**
 	 * Load the Application singleton
 	 *

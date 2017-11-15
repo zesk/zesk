@@ -40,7 +40,7 @@ class Mail extends Hookable {
 	 * @var string
 	 */
 	const header_subject = "Subject";
-
+	
 	/**
 	 *
 	 * @var array

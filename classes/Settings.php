@@ -356,7 +356,10 @@ class Settings extends Object implements Interface_Data, Interface_Settings {
 	 */
 	public function data($name, $value = null) {
 		if ($value === null) {
-			$value = $this->application->query_select(__CLASS__)->where("name", $name)->what("value", "value")->one("value");
+			$value = $this->application->query_select(__CLASS__)
+				->where("name", $name)
+				->what("value", "value")
+				->one("value");
 			if ($value === null) {
 				return null;
 			}

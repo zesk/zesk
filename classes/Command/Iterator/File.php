@@ -29,25 +29,25 @@ abstract class Command_Iterator_File extends Command_Base {
 		"php4",
 		"php5"
 	);
-
+	
 	/**
 	 *
 	 * @var boolean
 	 */
 	protected $include_hidden = false;
-
+	
 	/**
 	 *
 	 * @var boolean
 	 */
 	protected $show_skipped = false;
-
+	
 	/**
 	 *
 	 * @var boolean
 	 */
 	protected $dry_run = false;
-
+	
 	/**
 	 * (non-PHPdoc)
 	 *
@@ -63,7 +63,7 @@ abstract class Command_Iterator_File extends Command_Base {
 		);
 		parent::initialize();
 	}
-
+	
 	/**
 	 * (non-PHPdoc)
 	 *
@@ -98,22 +98,22 @@ abstract class Command_Iterator_File extends Command_Base {
 		}
 		$this->finish();
 	}
-
+	
 	/**
 	 */
 	abstract protected function start();
-
+	
 	/**
 	 *
 	 * @param SplFileInfo $file
 	 * @return boolean Return false to stop processing
 	 */
 	abstract protected function process_file(\SplFileInfo $file);
-
+	
 	/**
 	 */
 	abstract protected function finish();
-
+	
 	/**
 	 *
 	 * @param string $dir

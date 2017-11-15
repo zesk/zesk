@@ -47,7 +47,7 @@ define("ZESK_GLOBAL_KEY_SEPARATOR", "::");
 
 /**
  * Get our global Zesk kernel.
- * Avoids having global $zesk overwritten.
+ * Avoids having global variable $zesk overwritten.
  *
  * @return Kernel
  */
