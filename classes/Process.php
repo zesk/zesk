@@ -1,13 +1,25 @@
 <?php
+
+/**
+ * @package zesk
+ * @subpackage kernel
+ * @copyright &copy; 2017 Market Acumen, Inc.
+ */
 namespace zesk;
 
+/**
+ * Current and other process status, process creation
+ *
+ * @author kent
+ *
+ */
 class Process {
 	/**
-	 * 
+	 *
 	 * @var boolean
 	 */
 	public $debug = false;
-	
+
 	/**
 	 * Create object
 	 */
@@ -17,18 +29,26 @@ class Process {
 			"configured"
 		));
 	}
-	
+
 	/**
 	 * Current process id
-	 * 
+	 *
 	 * @return integer
 	 */
 	function id() {
 		return intval(getmypid());
 	}
-	
+
 	/**
-	 * 
+	 * Return current process owner user name
+	 *
+	 * @return string
+	 */
+	function user() {
+		return posix_getlogin();
+	}
+	/**
+	 *
 	 * @param Application $application
 	 */
 	public function configured(Application $application) {
@@ -39,9 +59,9 @@ class Process {
 		$application->configuration->deprecated("zesk::debug_execute", $key);
 		$this->debug = $application->configuration->path_get($key);
 	}
-	
+
 	/**
-	 * 
+	 *
 	 * @param integer $pid
 	 * @throws \Exception_Unimplemented
 	 * @return boolean
@@ -52,7 +72,7 @@ class Process {
 		}
 		return posix_kill($pid, 0) ? true : false;
 	}
-	
+
 	/**
 	 * Execute a shell command.
 	 *
@@ -60,19 +80,39 @@ class Process {
 	 * <pre>
 	 * zesk::execute("ls -d {0}", $dir);
 	 * </pre>
-	 * Arguments are indexed and passed through. If you'd prefer named arguments, use execute_arguments
+	 * Arguments are indexed and passed through. If you'd prefer named arguments, use
+	 * execute_arguments.
+	 * You can pass in a pipe character as the first character of the command to enable the passthru
+	 * flag, so
+	 *
+	 * <code>
+	 * $process->execute("|ls -lad {0}", $dir);
+	 * </code>
+	 *
+	 * is equivalent to:
+	 *
+	 * <code>
+	 * $process->execute_arguments("ls -lad {0}", array($dir), true);
+	 * </code>
 	 *
 	 * @param string $command
 	 * @return array Lines output by the command (returned by exec)
 	 * @see exec
-	 * @see zesk::execute_array
+	 * @see self::execute_arguments
+	 * @throws Exception_Command
 	 */
 	public function execute($command) {
 		$args = func_get_args();
 		array_shift($args);
-		return $this->execute_arguments($command, $args);
+		if ($command[0] === "|") {
+			$command = substr($command, 1);
+			$passthru = true;
+		} else {
+			$passthru = false;
+		}
+		return $this->execute_arguments($command, $args, $passthru);
 	}
-	
+
 	/**
 	 * Execute a shell command with arguments supplied as an array
 	 *
