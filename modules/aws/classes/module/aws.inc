@@ -1,37 +1,40 @@
 <?php
 /**
- * 
+ *
  */
 use zesk\Server;
 use zesk\Module;
 use zesk\Exception_File_Permission;
 
 /**
- * 
+ *
  * @author kent
  *
  */
-class Module_AWS extends zesk\Module {
+class Module_AWS extends Module {
 	/**
 	 * Path to magic file which gives the hypervisor as belonging to ec2
-	 * 
+	 *
 	 * @var string
 	 */
 	const path_system_hypervisor_uuid = '/sys/hypervisor/uuid';
-	
+
 	/**
-	 * 
+	 *
 	 * @var boolean
 	 */
 	private $is_ec2 = null;
-	
+
 	/**
-	 * 
+	 *
 	 * @var AWS_EC2_Awareness
 	 */
 	private $awareness;
 	/**
-	 * 
+	 *
+	 * {@inheritdoc}
+	 *
+	 * @see \zesk\Module::initialize()
 	 */
 	public function initialize() {
 		parent::initialize();
@@ -46,10 +49,16 @@ class Module_AWS extends zesk\Module {
 		}
 		if (!$this->option_bool("disable_uname_integration")) {
 			$this->application->hooks->add("uname", function () {
-				return zesk()->objects->factory("AWS_EC2_Awareness")->get(AWS_EC2_Awareness::setting_mac);
+				return $this->application->factory("AWS_EC2_Awareness")->get(AWS_EC2_Awareness::setting_mac);
 			});
 		}
 	}
+
+	/**
+	 *
+	 * @param array $options
+	 * @return AWS_EC2_Awareness
+	 */
 	public function awareness(array $options = array()) {
 		if ($this->awareness) {
 			return $this->awareness;
@@ -57,10 +66,10 @@ class Module_AWS extends zesk\Module {
 		$this->awareness = new AWS_EC2_Awareness($options);
 		return $this->awareness;
 	}
-	
+
 	/**
 	 * Hook to initialize a server's name
-	 * 
+	 *
 	 * @param Server $server
 	 */
 	public function server_initialize_names(Server $server) {
@@ -73,10 +82,11 @@ class Module_AWS extends zesk\Module {
 		$server->name_internal = $awareness->get(AWS_EC2_Awareness::setting_local_hostname);
 		$server->name_external = $awareness->get(AWS_EC2_Awareness::setting_public_hostname);
 	}
-	
+
 	/**
-	 * Adapted from http://serverfault.com/questions/462903/how-to-know-if-a-machine-is-an-ec2-instance
-	 * 
+	 * Adapted from
+	 * http://serverfault.com/questions/462903/how-to-know-if-a-machine-is-an-ec2-instance
+	 *
 	 * @return boolean
 	 */
 	public function is_ec2() {
