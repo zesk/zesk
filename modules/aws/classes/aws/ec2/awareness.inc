@@ -5,6 +5,7 @@
 use zesk\Application;
 use zesk\Options;
 use zesk\Cache;
+use zesk\Hookable;
 use zesk\arr;
 use zesk\Net_HTTP_Client;
 
