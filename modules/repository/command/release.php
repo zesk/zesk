@@ -1,5 +1,4 @@
 <?php
-
 namespace zesk;
 
 class Command_Release extends Command_Base {
@@ -17,7 +16,7 @@ class Command_Release extends Command_Base {
 		"GitHub",
 		"Subversion"
 	);
-
+	
 	/**
 	 *
 	 * {@inheritdoc}

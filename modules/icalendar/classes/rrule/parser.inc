@@ -123,15 +123,15 @@ class Parser {
 			$dtstart = Timestamp::now();
 		}
 		$rset = new Set();
-
+		
 		$this->add_rules_mixed($rset, $dtstart, $rrulevals, "rrule");
 		$this->add_timestamps_mixed($rset, $rdatevals, "rdate", $time_zone);
 		$this->add_rules_mixed($rset, $dtstart, $exrulevals, "exrule");
 		$this->add_timestamps_mixed($rset, $exdatevals, "exdate", $time_zone);
-
+		
 		return $rset;
 	}
-
+	
 	/**
 	 *
 	 * @param Set $rset

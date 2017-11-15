@@ -19,20 +19,20 @@ use zesk\Exception_Unimplemented;
 use \PDO;
 
 class Database extends \zesk\Database {
-
+	
 	/**
 	 *
 	 * @var PDO
 	 */
 	private $pdo = null;
-
+	
 	/**
 	 * Actual driver
 	 *
 	 * @var string
 	 */
 	private $driver = null;
-
+	
 	/**
 	 * Actual DSN string
 	 *
@@ -115,7 +115,7 @@ class Database extends \zesk\Database {
 	public function connection() {
 		return $this->pdo;
 	}
-
+	
 	/**
 	 * Does this table exist?
 	 *
@@ -141,7 +141,7 @@ class Database extends \zesk\Database {
 	public function select_database($name) {
 		throw new Exception_Unimplemented(__CLASS__ . "::" . __METHOD__);
 	}
-
+	
 	/**
 	 * Create a Database_Table object from the database's schema
 	 *
@@ -152,7 +152,7 @@ class Database extends \zesk\Database {
 	public function database_table($table) {
 		throw new Exception_Unimplemented(__CLASS__ . "::" . __METHOD__);
 	}
-
+	
 	/**
 	 * Clean up any loose data from a database query.
 	 * Frees any resources from the query.
@@ -165,7 +165,7 @@ class Database extends \zesk\Database {
 	public function free($result) {
 		throw new Exception_Unimplemented(__CLASS__ . "::" . __METHOD__);
 	}
-
+	
 	/**
 	 * Execute a SQL statment with this database
 	 *
@@ -176,7 +176,7 @@ class Database extends \zesk\Database {
 	public function query($query) {
 		throw new Exception_Unimplemented(__CLASS__ . "::" . __METHOD__);
 	}
-
+	
 	/**
 	 * After an insert statement, retrieves the most recent statement's insertion ID
 	 *
@@ -185,7 +185,7 @@ class Database extends \zesk\Database {
 	public function insert_id() {
 		throw new Exception_Unimplemented(__CLASS__ . "::" . __METHOD__);
 	}
-
+	
 	/**
 	 * Enter description here...
 	 *
@@ -194,7 +194,7 @@ class Database extends \zesk\Database {
 	public function fetch_array($result) {
 		throw new Exception_Unimplemented(__CLASS__ . "::" . __METHOD__);
 	}
-
+	
 	/**
 	 * Enter description here...
 	 *
@@ -203,7 +203,7 @@ class Database extends \zesk\Database {
 	public function fetch_assoc($result) {
 		throw new Exception_Unimplemented(__CLASS__ . "::" . __METHOD__);
 	}
-
+	
 	/**
 	 * Retrieve table columns
 	 *
@@ -213,7 +213,7 @@ class Database extends \zesk\Database {
 	public function table_columns($table) {
 		throw new Exception_Unsupported();
 	}
-
+	
 	/**
 	 * Get lock
 	 *
@@ -223,7 +223,7 @@ class Database extends \zesk\Database {
 	public function get_lock($name, $wait_seconds = 0) {
 		throw new Exception_Unimplemented(__CLASS__ . "::" . __METHOD__);
 	}
-
+	
 	/**
 	 * Release lock
 	 *
@@ -233,7 +233,7 @@ class Database extends \zesk\Database {
 	public function release_lock($name) {
 		throw new Exception_Unimplemented(__CLASS__ . "::" . __METHOD__);
 	}
-
+	
 	/**
 	 * Get or set a feature of the database.
 	 * See const feature_foo defined above.
@@ -247,7 +247,7 @@ class Database extends \zesk\Database {
 	public function feature($feature, $set = null) {
 		throw new Exception_Unimplemented(__CLASS__ . "::" . __METHOD__);
 	}
-
+	
 	/**
 	 * Return the number of rows affected by the most recent insert/update/delete
 	 *
@@ -257,7 +257,7 @@ class Database extends \zesk\Database {
 	function affected_rows($result = null) {
 		throw new Exception_Unimplemented(__CLASS__ . "::" . __METHOD__);
 	}
-
+	
 	/**
 	 * Quote text
 	 *
@@ -266,7 +266,7 @@ class Database extends \zesk\Database {
 	public function native_quote_text($text) {
 		throw new Exception_Unimplemented(__CLASS__ . "::" . __METHOD__);
 	}
-
+	
 	/**
 	 * Quote text
 	 *
@@ -275,7 +275,7 @@ class Database extends \zesk\Database {
 	public function bytes_used($table = null) {
 		throw new Exception_Unimplemented(__CLASS__ . "::" . __METHOD__);
 	}
-
+	
 	/**
 	 * Handle database-specific differences between two columns
 	 *

@@ -21,45 +21,45 @@ class Workflow extends Model {
 	 * @var array
 	 */
 	protected $steps = array();
-
+	
 	/**
 	 *
 	 * @var array
 	 */
 	protected $variables = array();
-
+	
 	/**
 	 * Computed from steps
 	 *
 	 * @var array of Workflow_Step
 	 */
 	protected $sorted_steps = null;
-
+	
 	/**
 	 *
 	 * @var boolean
 	 */
 	public $completed = true;
-
+	
 	/**
 	 *
 	 * @var integer
 	 */
 	public $steps_completed = 0;
-
+	
 	/**
 	 *
 	 * @var integer
 	 */
 	public $steps_total = 0;
-
+	
 	/**
 	 * Whether the above are computed or not
 	 *
 	 * @var unknown
 	 */
 	private $dirty = true;
-
+	
 	/**
 	 *
 	 * @param array $variables
@@ -97,7 +97,7 @@ class Workflow extends Model {
 		$this->_clean_completed();
 		return $this;
 	}
-
+	
 	/**
 	 * Clean the steps
 	 */
@@ -179,7 +179,7 @@ class Workflow extends Model {
 		$this->dirty = false;
 		$this->call_hook($this->completed ? 'completed' : "incomplete");
 	}
-
+	
 	/**
 	 * Return variables
 	 *
@@ -239,7 +239,7 @@ class Workflow extends Model {
 	public function __toString() {
 		return PHP::dump($this->variables);
 	}
-
+	
 	/*
 	 * Only place to access ->$name is here
 	 */

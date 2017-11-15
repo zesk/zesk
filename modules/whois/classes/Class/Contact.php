@@ -20,10 +20,10 @@ class Class_Contact extends Class_Object {
 		"id" => self::type_id,
 		"contact" => self::type_object,
 		"type" => self::type_string,
-		"result" => self::type_object,
+		"result" => self::type_object
 	);
 	protected $has_one = array(
 		"contact" => "zesk\\Contact",
-		"result" => "zesk\\Whois\\Result",
+		"result" => "zesk\\Whois\\Result"
 	);
 }

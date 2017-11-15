@@ -26,7 +26,7 @@ class Server_Method {
 	public $ReturnType;
 	public $Help;
 	public $ParameterHelp;
-
+	
 	/**
 	 *
 	 * @param unknown $name
@@ -42,7 +42,7 @@ class Server_Method {
 		$this->ReturnType = $returnType;
 		$this->PHPMethod = $phpMethod;
 		$this->ParameterTypes = to_array($parameterTypes);
-
+		
 		$this->Help = $help;
 		$this->ParameterHelp = $parameterHelp;
 		if (is_array($parameterTypes) !== is_array($parameterHelp)) {
@@ -89,7 +89,7 @@ class Server_Method {
 		}
 		$php_method = $this->PHPMethod;
 		$method = $this->Method;
-
+		
 		$object->log("php_method is $php_method");
 		// Are we dealing with a function or a method?
 		if (begins($php_method, 'this:', true)) {
@@ -103,11 +103,11 @@ class Server_Method {
 				$safeMethod
 			), $arguments);
 		}
-
+		
 		if (!function_exists($method)) {
 			return new Exception(Exception::ERROR_SERVER_METHOD_PARAMETERS, "Server error. Requested function \"$method\" does not exist. ($method)");
 		}
-
+		
 		return call_user_func_array($method, $arguments);
 	}
 	function methodSignature() {
@@ -155,7 +155,7 @@ class Server_Method {
 		$html[] = "<h2>Return Value</h2>";
 		$html[] = $this->ReturnType;
 		//$this->getReturnDocumentation();
-
+		
 		$html[] = "<h2>Description</h2>";
 		$doc = $this->getDocumentation();
 		if ($doc) {

@@ -29,7 +29,7 @@ use zesk\str;
  * @subpackage xmlrpc
  */
 class Server extends Hookable {
-
+	
 	/**
 	 *
 	 * @var Application
@@ -60,19 +60,19 @@ class Server extends Hookable {
 	 * @var unknown
 	 */
 	private $LogPath;
-
+	
 	/**
 	 *
 	 * @var array
 	 */
 	protected $export_methods = array();
-
+	
 	/**
 	 *
 	 * @var array
 	 */
 	protected $rpc_methods = array();
-
+	
 	/**
 	 *
 	 * @param string $methods
@@ -80,12 +80,12 @@ class Server extends Hookable {
 	function __construct(Application $application, array $options = array()) {
 		parent::__construct($application, $options);
 		$this->inherit_global_options();
-
+		
 		$this->Methods = array();
-
+		
 		$this->setupCapabilities();
 		$this->registerSystemMethods();
-
+		
 		if (is_array($this->rpc_methods)) {
 			$this->registerMethods($this->rpc_methods);
 		}
@@ -93,7 +93,7 @@ class Server extends Hookable {
 			$this->register_reflection_method($this->export_methods);
 		}
 	}
-
+	
 	/**
 	 *
 	 * @param unknown $value
@@ -104,7 +104,7 @@ class Server extends Hookable {
 		$xml = $xml->toXML();
 		return "<methodResponse><params><param><value>$xml</value></param></params></methodResponse>";
 	}
-
+	
 	/**
 	 *
 	 * @todo convert to zesk logger, or add zesk\Logger member
@@ -114,7 +114,7 @@ class Server extends Hookable {
 	public function log($data) {
 		$this->application->logger->log("debug", $data);
 	}
-
+	
 	/**
 	 *
 	 * @param string $data
@@ -132,10 +132,10 @@ class Server extends Hookable {
 			}
 			$this->log($data);
 		}
-
+		
 		$response = new Parser($data);
 		$this->Response = $response;
-
+		
 		$result = $response->parse();
 		if (!$result) {
 			$this->error(Exception::ERROR_PARSE_NOT_WELL_FORMED, 'Parse error: Malformed XML request.');
@@ -153,7 +153,7 @@ class Server extends Hookable {
 		} catch (Exception $e) {
 			$result = new Exception(Exception::ERROR_APPLICATION, $e->getMessage());
 		}
-
+		
 		// Is the result an error?
 		if (is_a($result, 'Exception')) {
 			$this->error($result);
@@ -161,7 +161,7 @@ class Server extends Hookable {
 			$this->response(self::methodResponseXML($result));
 		}
 	}
-
+	
 	/**
 	 *
 	 * @param string $methodName
@@ -177,7 +177,7 @@ class Server extends Hookable {
 				$args
 			);
 		}
-
+		
 		/* @var $method Server_Method */
 		$method = avalue($this->Methods, $methodName);
 		if (!$method instanceof Server_Method) {
@@ -186,12 +186,12 @@ class Server extends Hookable {
 			$this->log("Avaliable methods: " . implode(", ", array_keys($this->Methods)));
 			throw new Exception(Exception::ERROR_SERVER_METHOD_NOT_FOUND, 'Server error. Requested method "' . $methodName . '" does not exist.');
 		}
-
+		
 		// Check the arguments
 		$this->log("$methodName checkArguments");
 		$method->checkArguments($methodName, $args);
 		$result = $method->invoke($this, $args);
-
+		
 		return $result;
 	}
 	function error($error, $message = false) {
@@ -249,7 +249,7 @@ class Server extends Hookable {
 		}
 		return $type;
 	}
-
+	
 	/**
 	 *
 	 *
@@ -280,7 +280,7 @@ class Server extends Hookable {
 		$doccomment = DocComment::parse($rmethod->getDocComment());
 		$doc_return = avalue($doccomment, 'return', '');
 		$doc_params = to_array(aevalue($doccomment, 'param'), array());
-
+		
 		$returnType = self::_rpc_type($doc_return, str::field($doc_return, 0));
 		$parameterTypes = array();
 		$parameterHelp = array();
@@ -292,7 +292,7 @@ class Server extends Hookable {
 			if ($is_optional) {
 				$param_default = $param->getDefaultValue();
 			}
-
+			
 			$param_doc = avalue($doc_params, '$' . $param_name);
 			if (!$param_doc) {
 				throw new Exception_Unimplemented("Function $method missing parameter doccomment for \$$param_name");
@@ -311,7 +311,7 @@ class Server extends Hookable {
 			'specVersion' => $specVersion
 		);
 	}
-
+	
 	/*====================================================================================*\
 	 *	RPC Initialization Methods
 	 \*------------------------------------------------------------------------------------*/
@@ -382,14 +382,14 @@ class Server extends Hookable {
 			)
 		));
 	}
-
+	
 	/*====================================================================================*\
 	 *	RPC Server Methods
 	 \*------------------------------------------------------------------------------------*/
 	function rpc_getCapabilities() {
 		return $this->Capabilities;
 	}
-
+	
 	/**
 	 */
 	function rpc_listMethods() {
@@ -397,7 +397,7 @@ class Server extends Hookable {
 		sort($methods);
 		return $methods;
 	}
-
+	
 	/**
 	 *
 	 * @param array $methodCalls
@@ -429,7 +429,7 @@ class Server extends Hookable {
 		}
 		return $results;
 	}
-
+	
 	/**
 	 *
 	 * @param unknown $method
@@ -444,7 +444,7 @@ class Server extends Hookable {
 		/* @var $methodObject Server_Method */
 		return $methodObject->methodSignature();
 	}
-
+	
 	/**
 	 *
 	 * @param unknown $method

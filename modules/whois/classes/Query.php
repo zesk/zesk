@@ -19,7 +19,7 @@ use zesk\Object;
  */
 class Query extends Object {
 	const PORT = 43;
-
+	
 	/**
 	 *
 	 * @param unknown $obj
@@ -52,7 +52,7 @@ class Query extends Object {
 			return $server;
 		}
 		$name = $this->Name;
-
+		
 		$words = explode(".", $name);
 		if (count($words) > 2) {
 			$off = count($words) - 2;
@@ -103,7 +103,7 @@ class Query extends Object {
 				}
 			}
 		}
-
+		
 		$token = "registrar";
 		if (!empty($attr[$token])) {
 			$this->_setObject("CDomainRegistrar", "Name", $attr[$token], "Registrar");

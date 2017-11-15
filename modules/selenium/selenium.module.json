@@ -4,5 +4,7 @@
 		"class_prefix": "zesk\\",
 		"lower": false
 	},
-	"requires": [ "PHPUnit" ]
+	"requires": [
+		"PHPUnit"
+	]
 }

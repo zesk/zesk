@@ -1290,5 +1290,4 @@ class Database extends \zesk\Database {
 		$sql = $success ? "COMMIT" : "ROLLBACK";
 		return $this->query($sql);
 	}
-	
 }

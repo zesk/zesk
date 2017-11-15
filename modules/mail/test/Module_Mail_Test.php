@@ -25,8 +25,8 @@ class Module_Mail_Test extends Test_Unit {
 		$database = $this->application->database_factory();
 		$this->assert_instanceof($database, "MySQL\\Database");
 		/* @var $database \MySQL\Database */
-// 		$database->set_option(\MySQL\Database::attribute_default_charset, \MySQL\Database::default_character_set);
-// 		$database->set_option(\MySQL\Database::attribute_collation, \MySQL\Database::default_collation);
+		// 		$database->set_option(\MySQL\Database::attribute_default_charset, \MySQL\Database::default_character_set);
+		// 		$database->set_option(\MySQL\Database::attribute_collation, \MySQL\Database::default_collation);
 		$module = $this->application->modules->object("Mail");
 		$classes = $module->classes();
 		$this->log("Synchronizing schema of {classes}", array(

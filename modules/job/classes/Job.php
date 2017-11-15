@@ -249,10 +249,13 @@ class Job extends Object implements Interface_Process, Interface_Progress {
 		 *
 		 * Deals with the situation below where this process grabs them and then crashes. (you never know)
 		 */
-		$application->query_update(__CLASS__)->values(array(
+		$application->query_update(__CLASS__)
+			->values(array(
 			"pid" => null,
 			"server" => null
-		))->where($server_pid)->execute();
+		))
+			->where($server_pid)
+			->execute();
 		/*
 		 * Find Server records with processes which no longer are running and free them up
 		 */
@@ -262,24 +265,34 @@ class Job extends Object implements Interface_Process, Interface_Progress {
 			/*
 			 * Now iterate through available Jobs, and re-sort each iteration in case stuff changes between jobs
 			 */
-			$query = $application->query_select(__CLASS__)->what_object()->where(array(
+			$query = $application->query_select(__CLASS__)
+				->what_object()
+				->where(array(
 				"start|<=" => Timestamp::now('UTC'),
 				"pid" => null,
 				"completed" => null,
 				'died|<=' => self::retry_attempts()
-			))->order_by("priority DESC,died,start");
+			))
+				->order_by("priority DESC,died,start");
 			$logger->debug($query->__toString());
 			$iterator = $query->object_iterator();
 			$found_job = false;
 			foreach ($iterator as $job) {
 				/* @var $job Job */
 				// Tag the Job as "ours" - this avoids race conditions between multiple servers
-				$application->query_update(__CLASS__)->values($server_pid)->where(array(
+				$application->query_update(__CLASS__)
+					->values($server_pid)
+					->where(array(
 					"pid" => null,
 					"id" => $job->id()
-				))->execute();
+				))
+					->execute();
 				// Race condition if we crash before this executes
-				if (!to_bool($application->query_select(__CLASS__)->what("*X", "COUNT(id)")->where($server_pid)->where("id", $job->id())->one_integer("X"))) {
+				if (!to_bool($application->query_select(__CLASS__)
+					->what("*X", "COUNT(id)")
+					->where($server_pid)
+					->where("id", $job->id())
+					->one_integer("X"))) {
 					// Someone else grabbed it.
 					continue;
 				}
@@ -325,13 +338,22 @@ class Job extends Object implements Interface_Process, Interface_Progress {
 	 * @param Server $server        	
 	 */
 	private static function clean_dead_pids(Application $application, Server $server) {
-		foreach ($application->query_select(__CLASS__)->what("pid", "pid")->what('id', 'id')->where(array(
+		foreach ($application->query_select(__CLASS__)
+			->what("pid", "pid")
+			->what('id', 'id')
+			->where(array(
 			"pid|!=" => null,
 			"server" => $server
-		))->to_array("id", "pid") as $id => $pid) {
+		))
+			->to_array("id", "pid") as $id => $pid) {
 			if (!$application->process->alive($pid)) {
 				$application->logger->debug("Removing stale PID {pid} from Job # {id}", compact("pid", "id"));
-				$application->query_update(__CLASS__)->value('pid', null)->value("server", null)->value('*died', 'died+1')->where('id', $id)->execute();
+				$application->query_update(__CLASS__)
+					->value('pid', null)
+					->value("server", null)
+					->value('*died', 'died+1')
+					->where('id', $id)
+					->execute();
 			}
 		}
 	}
@@ -365,7 +387,10 @@ class Job extends Object implements Interface_Process, Interface_Progress {
 		
 		$this->process = null;
 		
-		$this->query_update()->values($values)->where("id", $this->id())->execute();
+		$this->query_update()
+			->values($values)
+			->where("id", $this->id())
+			->execute();
 	}
 	function progress_push($name) {
 		// TODO		
@@ -382,8 +407,11 @@ class Job extends Object implements Interface_Process, Interface_Progress {
 		if ($this->last_progress === null || $now - $this->last_progress > 0.1) {
 			$this->last_progress = $now;
 			$query = $this->query_update()->values(array(
-				"*updated" => $this->database()->sql()->now_utc()
-			))->where('id', $this->id());
+				"*updated" => $this->database()
+					->sql()
+					->now_utc()
+			))
+				->where('id', $this->id());
 			if (is_numeric($percent)) {
 				$query->value('progress', $percent);
 			}
@@ -452,10 +480,13 @@ class Job extends Object implements Interface_Process, Interface_Progress {
 		return $this->store();
 	}
 	private function release() {
-		$this->query_update()->value(array(
+		$this->query_update()
+			->value(array(
 			"server" => null,
 			"pid" => null
-		))->where("id", $this->id())->execute();
+		))
+			->where("id", $this->id())
+			->execute();
 		return $this;
 	}
 	

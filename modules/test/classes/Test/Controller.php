@@ -1,5 +1,4 @@
 <?php
-
 namespace zesk;
 
 class Controller_Home extends Controller_Template {

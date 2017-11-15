@@ -57,7 +57,7 @@ use zesk\Exception_Parameter;
  * @author kent
  */
 class Logger extends \zesk\Logger implements LoggerInterface {
-
+	
 	/**
 	 *
 	 * @var integer
@@ -218,13 +218,13 @@ class Logger extends \zesk\Logger implements LoggerInterface {
 	 * @var integer
 	 */
 	const severity_debug = 7;
-
+	
 	/**
 	 *
 	 * @var integer
 	 */
 	protected $facility = self::facility_local0;
-
+	
 	/**
 	 * Convert from LogLevel to internal severity
 	 *
@@ -240,7 +240,7 @@ class Logger extends \zesk\Logger implements LoggerInterface {
 		LogLevel::INFO => self::severity_info,
 		LogLevel::DEBUG => self::severity_debug
 	);
-
+	
 	/**
 	 *
 	 * @param array $hosts
@@ -261,7 +261,7 @@ class Logger extends \zesk\Logger implements LoggerInterface {
 			$this->facility = self::facility_local0;
 		}
 	}
-
+	
 	/**
 	 *
 	 * {@inheritdoc}
@@ -272,12 +272,12 @@ class Logger extends \zesk\Logger implements LoggerInterface {
 		$facility = isset($context['syslog_facility']) ? intval($context['syslog_facility']) : $this->facility;
 		$hosts = isset($context['syslog_host']) ? to_list($context['syslog_host']) : $this->hosts;
 		$severity = avalue(self::$level_map, $level, self::severity_emergency);
-
+		
 		$prefix = "<" . ($facility * 8 + $severity) . ">";
-
+		
 		$now = time();
 		$timestamp = date("M", $now) . " " . substr(" " . date("j", $now), -2) . " " . date("H:i:s", $now);
-
+		
 		$msg = substr("$prefix$timestamp $message", 0, 1024);
 		foreach ($hosts as $host) {
 			$errno = false;
@@ -288,7 +288,7 @@ class Logger extends \zesk\Logger implements LoggerInterface {
 			fwrite($fp, $msg);
 			fclose($fp);
 		}
-
+		
 		return $msg;
 	}
 }

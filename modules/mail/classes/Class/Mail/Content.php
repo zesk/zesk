@@ -6,7 +6,6 @@
  */
 namespace zesk;
 
-
 /**
  * 
  * @author kent

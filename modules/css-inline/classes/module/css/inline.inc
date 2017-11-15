@@ -7,7 +7,7 @@
 	use zesk\Module;
 	use zesk\Exception_Class_NotFound;
 	use zesk\Exception_Semantics;
-
+	
 	/**
 	 *
 	 * @author kent
@@ -22,7 +22,7 @@
 		public function process_html($content, $css = null) {
 			// create instance
 			$cssToInlineStyles = new CssToInlineStyles();
-
+			
 			$html = $content;
 			if ($css === null) {
 				$css_tags = HTML::extract_tags("style", $content);
@@ -35,7 +35,7 @@
 					$css .= $tag->inner_html() . "\n";
 				}
 			}
-
+			
 			// output
 			return $cssToInlineStyles->convert($html, $css);
 		}

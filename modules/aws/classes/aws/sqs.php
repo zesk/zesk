@@ -65,7 +65,7 @@ class SQS {
 	}
 	protected $__verifyHost = true;
 	protected $__verifyPeer = true;
-
+	
 	// verifyHost and verifyPeer determine whether curl verifies ssl certificates.
 	// It may be necessary to disable these checks on certain systems.
 	public function verifyHost() {
@@ -80,7 +80,7 @@ class SQS {
 	public function enableVerifyPeer($enable = true) {
 		$this->__verifyPeer = $enable;
 	}
-
+	
 	/**
 	 * Constructor - this class cannot be used statically
 	 *
@@ -98,7 +98,7 @@ class SQS {
 		}
 		$this->__host = $host;
 	}
-
+	
 	/**
 	 * Set AWS access key and secret key
 	 *
@@ -112,7 +112,7 @@ class SQS {
 		$this->__accessKey = $accessKey;
 		$this->__secretKey = $secretKey;
 	}
-
+	
 	/**
 	 * Create a queue
 	 *
@@ -124,13 +124,13 @@ class SQS {
 	 */
 	public function createQueue($queue, $visibility_timeout = null) {
 		$rest = new SQSRequest($this, $this->__host, 'CreateQueue', 'POST');
-
+		
 		$rest->setParameter('QueueName', $queue);
-
+		
 		if ($visibility_timeout !== null) {
 			$rest->setParameter('DefaultVisibilityTimeout', $visibility_timeout);
 		}
-
+		
 		$rest = $rest->getResponse();
 		if ($rest->error === false && $rest->code !== 200)
 			$rest->error = array(
@@ -141,13 +141,13 @@ class SQS {
 			$this->__triggerError(__FUNCTION__, $rest->error);
 			return null;
 		}
-
+		
 		$result = array();
 		$result['QueueUrl'] = (string) $rest->body->CreateQueueResult->QueueUrl;
 		$result['RequestId'] = (string) $rest->body->ResponseMetadata->RequestId;
 		return $result;
 	}
-
+	
 	/**
 	 * Delete a queue
 	 *
@@ -167,12 +167,12 @@ class SQS {
 			$this->__triggerError(__FUNCTION__, $rest->error);
 			return null;
 		}
-
+		
 		$result = array();
 		$result['RequestId'] = (string) $rest->body->ResponseMetadata->RequestId;
 		return $result;
 	}
-
+	
 	/**
 	 * Get a list of queues
 	 *
@@ -182,11 +182,11 @@ class SQS {
 	 */
 	public function listQueues($prefix = null) {
 		$rest = new SQSRequest($this, $this->__host, 'ListQueues', 'GET');
-
+		
 		if ($prefix !== null) {
 			$rest->setParameter('QueueNamePrefix', $prefix);
 		}
-
+		
 		$rest = $rest->getResponse();
 		if ($rest->error === false && $rest->code !== 200)
 			$rest->error = array(
@@ -197,7 +197,7 @@ class SQS {
 			$this->__triggerError(__FUNCTION__, $rest->error);
 			return null;
 		}
-
+		
 		$results = array();
 		$results['RequestId'] = (string) $rest->body->ResponseMetadata->RequestId;
 		$queues = array();
@@ -209,7 +209,7 @@ class SQS {
 		$results['Queues'] = $queues;
 		return $results;
 	}
-
+	
 	/**
 	 * Get a queue's attributes
 	 *
@@ -221,9 +221,9 @@ class SQS {
 	 */
 	public function getQueueAttributes($queue, $attribute = 'All') {
 		$rest = new SQSRequest($this, $queue, 'GetQueueAttributes', 'GET');
-
+		
 		$rest->setParameter('AttributeName', $attribute);
-
+		
 		$rest = $rest->getResponse();
 		if ($rest->error === false && $rest->code !== 200)
 			$rest->error = array(
@@ -234,7 +234,7 @@ class SQS {
 			$this->__triggerError(__FUNCTION__, $rest->error);
 			return null;
 		}
-
+		
 		$results = array();
 		$results['RequestId'] = (string) $rest->body->ResponseMetadata->RequestId;
 		$attributes = array();
@@ -246,7 +246,7 @@ class SQS {
 		$results['Attributes'] = $attributes;
 		return $results;
 	}
-
+	
 	/**
 	 * Set attributes on a queue
 	 *
@@ -258,14 +258,14 @@ class SQS {
 	 */
 	public function setQueueAttributes($queue, $attributes) {
 		$rest = new SQSRequest($this, $queue, 'SetQueueAttributes', 'POST');
-
+		
 		$i = 1;
 		foreach ($attributes as $attribute => $value) {
 			$rest->setParameter('Attribute.' . $i . '.Name', $attribute);
 			$rest->setParameter('Attribute.' . $i . '.Value', $value);
 			$i++;
 		}
-
+		
 		$rest = $rest->getResponse();
 		if ($rest->error === false && $rest->code !== 200)
 			$rest->error = array(
@@ -276,12 +276,12 @@ class SQS {
 			$this->__triggerError(__FUNCTION__, $rest->error);
 			return null;
 		}
-
+		
 		$results = array();
 		$results['RequestId'] = (string) $rest->body->ResponseMetadata->RequestId;
 		return $results;
 	}
-
+	
 	/**
 	 * Send a message to a queue
 	 *
@@ -294,9 +294,9 @@ class SQS {
 	 */
 	public function sendMessage($queue, $message) {
 		$rest = new SQSRequest($this, $queue, 'SendMessage', 'POST');
-
+		
 		$rest->setParameter('MessageBody', $message);
-
+		
 		$rest = $rest->getResponse();
 		if ($rest->error === false && $rest->code !== 200)
 			$rest->error = array(
@@ -307,7 +307,7 @@ class SQS {
 			$this->__triggerError(__FUNCTION__, $rest->error);
 			return null;
 		}
-
+		
 		$results = array();
 		$results['RequestId'] = (string) $rest->body->ResponseMetadata->RequestId;
 		if (isset($rest->body->SendMessageResult)) {
@@ -316,7 +316,7 @@ class SQS {
 		}
 		return $results;
 	}
-
+	
 	/**
 	 * Receive a message from a queue
 	 *
@@ -332,20 +332,20 @@ class SQS {
 	 */
 	public function receiveMessage($queue, $num_messages = null, $visibility_timeout = null, $attributes = array()) {
 		$rest = new SQSRequest($this, $queue, 'ReceiveMessage', 'GET');
-
+		
 		if ($num_messages !== null) {
 			$rest->setParameter('MaxNumberOfMessages', $num_messages);
 		}
 		if ($visibility_timeout !== null) {
 			$rest->setParameter('VisibilityTimeout', $visibility_timeout);
 		}
-
+		
 		$i = 1;
 		foreach ($attributes as $attribute) {
 			$rest->setParameter('AttributeName.' . $i, $attribute);
 			$i++;
 		}
-
+		
 		$rest = $rest->getResponse();
 		if ($rest->error === false && $rest->code !== 200)
 			$rest->error = array(
@@ -356,7 +356,7 @@ class SQS {
 			$this->__triggerError(__FUNCTION__, $rest->error);
 			return null;
 		}
-
+		
 		$results = array();
 		$results['RequestId'] = (string) $rest->body->ResponseMetadata->RequestId;
 		$messages = array();
@@ -367,7 +367,7 @@ class SQS {
 				$message['ReceiptHandle'] = (string) ($m->ReceiptHandle);
 				$message['MD5OfBody'] = (string) ($m->MD5OfBody);
 				$message['Body'] = (string) ($m->Body);
-
+				
 				if (isset($m->Attribute)) {
 					$attributes = array();
 					foreach ($m->Attribute as $a) {
@@ -375,14 +375,14 @@ class SQS {
 					}
 					$message['Attributes'] = $attributes;
 				}
-
+				
 				$messages[] = $message;
 			}
 		}
 		$results['Messages'] = $messages;
 		return $results;
 	}
-
+	
 	/**
 	 * Change the visibility timeout setting for a specific message
 	 *
@@ -396,10 +396,10 @@ class SQS {
 	 */
 	public function changeMessageVisibility($queue, $receipt_handle, $visibility_timeout) {
 		$rest = new SQSRequest($this, $queue, 'ChangeMessageVisibility', 'POST');
-
+		
 		$rest->setParameter('ReceiptHandle', $receipt_handle);
 		$rest->setParameter('VisibilityTimeout', $visibility_timeout);
-
+		
 		$rest = $rest->getResponse();
 		if ($rest->error === false && $rest->code !== 200)
 			$rest->error = array(
@@ -410,12 +410,12 @@ class SQS {
 			$this->__triggerError(__FUNCTION__, $rest->error);
 			return null;
 		}
-
+		
 		$results = array();
 		$results['RequestId'] = (string) $rest->body->ResponseMetadata->RequestId;
 		return $results;
 	}
-
+	
 	/**
 	 * Delete a message from a queue
 	 *
@@ -427,9 +427,9 @@ class SQS {
 	 */
 	public function deleteMessage($queue, $receipt_handle) {
 		$rest = new SQSRequest($this, $queue, 'DeleteMessage', 'POST');
-
+		
 		$rest->setParameter('ReceiptHandle', $receipt_handle);
-
+		
 		$rest = $rest->getResponse();
 		if ($rest->error === false && $rest->code !== 200)
 			$rest->error = array(
@@ -440,12 +440,12 @@ class SQS {
 			$this->__triggerError(__FUNCTION__, $rest->error);
 			return null;
 		}
-
+		
 		$results = array();
 		$results['RequestId'] = (string) $rest->body->ResponseMetadata->RequestId;
 		return $results;
 	}
-
+	
 	/**
 	 * Add access permissions to a queue, for sharing access to queues with other users
 	 *
@@ -459,7 +459,7 @@ class SQS {
 	 */
 	public function addPermission($queue, $label, $permissions) {
 		$rest = new SQSRequest($this, $queue, 'AddPermission', 'POST');
-
+		
 		$rest->setParameter('Label', $label);
 		$i = 1;
 		foreach ($permissions as $account => $action) {
@@ -467,7 +467,7 @@ class SQS {
 			$rest->setParameter('ActionName.' . $i, $action);
 			$i++;
 		}
-
+		
 		$rest = $rest->getResponse();
 		if ($rest->error === false && $rest->code !== 200)
 			$rest->error = array(
@@ -478,12 +478,12 @@ class SQS {
 			$this->__triggerError(__FUNCTION__, $rest->error);
 			return null;
 		}
-
+		
 		$results = array();
 		$results['RequestId'] = (string) $rest->body->ResponseMetadata->RequestId;
 		return $results;
 	}
-
+	
 	/**
 	 * Remove a permission from a queue
 	 *
@@ -495,9 +495,9 @@ class SQS {
 	 */
 	public function removePermission($queue, $label) {
 		$rest = new SQSRequest($this, $queue, 'RemvoePermission', 'POST');
-
+		
 		$rest->setParameter('Label', $label);
-
+		
 		$rest = $rest->getResponse();
 		if ($rest->error === false && $rest->code !== 200)
 			$rest->error = array(
@@ -508,12 +508,12 @@ class SQS {
 			$this->__triggerError(__FUNCTION__, $rest->error);
 			return null;
 		}
-
+		
 		$results = array();
 		$results['RequestId'] = (string) $rest->body->ResponseMetadata->RequestId;
 		return $results;
 	}
-
+	
 	/**
 	 * Trigger an error message
 	 *
@@ -538,7 +538,7 @@ class SQS {
 final class SQSRequest {
 	private $sqs, $queue, $verb, $expires, $parameters = array();
 	public $response;
-
+	
 	/**
 	 * Constructor
 	 *
@@ -562,7 +562,7 @@ final class SQSRequest {
 		$this->parameters['SignatureVersion'] = '2';
 		$this->parameters['SignatureMethod'] = 'HmacSHA256';
 		$this->parameters['AWSAccessKeyId'] = $sqs->getAccessKey();
-
+		
 		$this->sqs = $sqs;
 		$this->queue = $queue;
 		$this->verb = $verb;
@@ -570,7 +570,7 @@ final class SQSRequest {
 		$this->response = new STDClass();
 		$this->response->error = false;
 	}
-
+	
 	/**
 	 * Set request parameter
 	 *
@@ -583,7 +583,7 @@ final class SQSRequest {
 	public function setParameter($key, $value) {
 		$this->parameters[$key] = $value;
 	}
-
+	
 	/**
 	 * Get the response
 	 *
@@ -595,36 +595,36 @@ final class SQSRequest {
 		} else {
 			$this->parameters['Timestamp'] = gmdate('Y-m-d\TH:i:s\Z');
 		}
-
+		
 		$params = array();
 		foreach ($this->parameters as $var => $value) {
 			$params[] = $var . '=' . rawurlencode($value);
 		}
-
+		
 		sort($params, SORT_STRING);
-
+		
 		$query = implode('&', $params);
-
+		
 		$queue_minus_http = substr($this->queue, strpos($this->queue, '/') + 2);
 		$host = substr($queue_minus_http, 0, strpos($queue_minus_http, '/'));
 		$uri = substr($queue_minus_http, strpos($queue_minus_http, '/'));
-
+		
 		$headers = array();
 		$headers[] = 'Host: ' . $host;
-
+		
 		$strtosign = $this->verb . "\n" . $host . "\n" . $uri . "\n" . $query;
-
+		
 		$query .= '&Signature=' . rawurlencode($this->__getSignature($strtosign));
-
+		
 		// Basic setup
 		$curl = curl_init();
 		curl_setopt($curl, CURLOPT_USERAGENT, 'SQS/php');
-
+		
 		if (substr($this->queue, 0, 5) == "https") {
 			curl_setopt($curl, CURLOPT_SSL_VERIFYHOST, ($this->sqs->verifyHost() ? 1 : 0));
 			curl_setopt($curl, CURLOPT_SSL_VERIFYPEER, ($this->sqs->verifyPeer() ? 1 : 0));
 		}
-
+		
 		// Request types
 		switch ($this->verb) {
 			case 'GET':
@@ -636,7 +636,7 @@ final class SQSRequest {
 			default :
 				break;
 		}
-
+		
 		curl_setopt($curl, CURLOPT_URL, $this->queue . '?' . $query);
 		curl_setopt($curl, CURLOPT_HTTPHEADER, $headers);
 		curl_setopt($curl, CURLOPT_HEADER, false);
@@ -646,7 +646,7 @@ final class SQSRequest {
 			'__responseWriteCallback'
 		));
 		curl_setopt($curl, CURLOPT_FOLLOWLOCATION, true);
-
+		
 		// Execute, grab errors
 		if (curl_exec($curl))
 			$this->response->code = curl_getinfo($curl, CURLINFO_HTTP_CODE);
@@ -656,13 +656,13 @@ final class SQSRequest {
 				'code' => curl_errno($curl),
 				'message' => curl_error($curl)
 			);
-
+		
 		@curl_close($curl);
-
+		
 		// Parse body into XML
 		if ($this->response->error === false && isset($this->response->body)) {
 			$this->response->body = simplexml_load_string($this->response->body);
-
+			
 			// Grab SQS errors
 			if (!in_array($this->response->code, array(
 				200,
@@ -678,10 +678,10 @@ final class SQSRequest {
 				unset($this->response->body);
 			}
 		}
-
+		
 		return $this->response;
 	}
-
+	
 	/**
 	 * CURL write callback
 	 *
@@ -695,7 +695,7 @@ final class SQSRequest {
 		$this->response->body .= $data;
 		return strlen($data);
 	}
-
+	
 	/**
 	 * Generate the auth string using Hmac-SHA256
 	 *

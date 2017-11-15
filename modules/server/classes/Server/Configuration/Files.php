@@ -21,7 +21,7 @@ class Server_Configuration_Files extends Server_Configuration {
 	protected $variables = array();
 	function __construct(Server_Platform $platform, $options = null) {
 		parent::__construct($platform, $options);
-
+		
 		$this->_configure_host_path();
 		$this->_load_aliases();
 		$this->_load_configuration();
@@ -60,7 +60,7 @@ class Server_Configuration_Files extends Server_Configuration {
 		$searched_paths = array();
 		$this->search_path("all $alias_hostname");
 		$files = $this->option_list('files', $app->configuration->get('server_configuration_file', 'environment.sh'));
-
+		
 		$search_path = $this->search_path();
 		$result = array();
 		while (count($searched_paths) < count($search_path)) {
@@ -136,7 +136,7 @@ class Server_Configuration_Files extends Server_Configuration {
 		if (!file_exists($alias_file)) {
 			return $this->host_aliases;
 		}
-
+		
 		foreach (file($alias_file) as $line) {
 			list($line) = pair(trim($line), "#", $line);
 			$line = trim($line);

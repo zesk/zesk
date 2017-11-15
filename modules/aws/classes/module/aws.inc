@@ -18,13 +18,13 @@ class Module_AWS extends Module {
 	 * @var string
 	 */
 	const path_system_hypervisor_uuid = '/sys/hypervisor/uuid';
-
+	
 	/**
 	 *
 	 * @var boolean
 	 */
 	private $is_ec2 = null;
-
+	
 	/**
 	 *
 	 * @var AWS_EC2_Awareness
@@ -53,7 +53,7 @@ class Module_AWS extends Module {
 			});
 		}
 	}
-
+	
 	/**
 	 *
 	 * @param array $options
@@ -66,7 +66,7 @@ class Module_AWS extends Module {
 		$this->awareness = new AWS_EC2_Awareness($options);
 		return $this->awareness;
 	}
-
+	
 	/**
 	 * Hook to initialize a server's name
 	 *
@@ -82,7 +82,7 @@ class Module_AWS extends Module {
 		$server->name_internal = $awareness->get(AWS_EC2_Awareness::setting_local_hostname);
 		$server->name_external = $awareness->get(AWS_EC2_Awareness::setting_public_hostname);
 	}
-
+	
 	/**
 	 * Adapted from
 	 * http://serverfault.com/questions/462903/how-to-know-if-a-machine-is-an-ec2-instance
