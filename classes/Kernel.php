@@ -608,6 +608,17 @@ class Kernel {
 	}
 	
 	/**
+	 * Provide similar call to $application->path() for $zesk->path()
+	 *  
+	 * Returns path to Zesk root
+	 * 
+	 * @param string $suffix
+	 * @return string
+	 */
+	public function path($suffix = null) {
+		return $this->paths->zesk($suffix);
+	}
+	/**
 	 * Who owns the copyright on the Zesk Application Framework for PHP
 	 *
 	 * @return string
