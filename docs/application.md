@@ -19,28 +19,33 @@ Your application file solely handles setting up the context (configuration) for 
 	 * Application root - all code/resources for the app is below here
 	 * @var string
 	 */
-	define("ZESK_APPLICATION_ROOT", __DIR__ . "/");
+	namespace awesome;
 
+	use zesk\Kernel;
+	
 	require_once __DIR__ . '/vendor/autoload.php';
 	/*
 	 * Load Zesk
 	 */
-	$zesk = zesk\Kernel::singleton();
+	$zesk = Kernel::singleton();
 
 	/*
 	 * Allow our application to be found
 	 */
-	$zesk->autoloader->path(ZESK_APPLICATION_ROOT . 'classes');
-
-	/*
-	 * Configure our application
-	 */
-	return Application::instance()->configure();
+	$zesk->autoloader->path(__DIR__ . '/classes');
+	$zesk->application_class(__NAMESPACE__ . "\\" . "Application");
+	
+	$application = $zesk->create_application();
+	$application->set_application_root(__DIR__);
+	
+	return $application->configure();
 
 
 ### Determining which files will configure an application
 
 Zesk application configuration was built to simplify the complexities of multiple environments where an application will run. Development, staging, and live configuration are inherently different, and particularly when development spans multiple developers on different hardware.
+
+> Documentation TODO 2017-11: This is too complex to configure the app - remove the global options which are never used and remove `APPLICATION_NAME`
 
 Configuration of your application should be easily customizable within all of these environments. As such, default configuration of Zesk applications will load [configuration files](/configuration-file-format), by default as follows:
 
@@ -50,8 +55,8 @@ Configuration of your application should be easily customizable within all of th
 The default values for `Application::configuration_path` are 
 
 1. "/etc"
-1. `zesk::root("etc")` (e.g. "/usr/local/zesk/etc", "/publish/live/zesk/etc")
-1. `zesk::application_root("etc")` (e.g. "/var/www/awesome/etc", "/publish/live/sites/awesome/etc")
+1. `$zesk->path("etc")` (e.g. "/usr/local/zesk/etc", "/publish/live/zesk/etc")
+1. `$application->path("etc")` (e.g. "/var/www/awesome/etc", "/publish/live/sites/awesome/etc")
 
 The default values for `Application::configuration_file` are:
 
@@ -67,32 +72,28 @@ So, how would you use this?
 
 Matt is a developer working on Mac OS X, his computer name is `basura` and he also works on a laptop named `kermit`. He creates the following files:
 
-	awesome.application.com
-	etc/
-		awe
-
+	awesome.application.php
+	etc/awesome.json
+	etc/platform/basura.json
+		
 ## Application flow
 
-Most applications will require modifications to the base `Application` class, so all `Application` instances inherit from the class `Zesk_Application` which contains most of the actual application logic.
+Most applications will require modifications to the base `zesk\Application` class, so all `zesk\Application` instances inherit from the class `zesk\Application` which contains most of the actual application logic.
 
-For web applications, you should create an `index.php` file with the following content:
+For web applications, you should create an `index.php` file with the following content, typically inside the `public/` directory within your application:
 
 	<?php
+	$application = require_once dirname(dirname(__FILE__)) . '/awesome.application.php';
 	try {
-		require_once dirname(dirname(__FILE__)) . '/awesome.application.php';
-		$application = Application::instance();
 		$application->index();
-	} catch (Exception $e) {
-		global $zesk;
-		$application = Application::instance();
+	} catch (\Exception $e) {
 		echo $application->theme("page", $application->theme($zesk->classes->hierarchy($e), array(
 			"exception" => $e
 		)));
 		exit(1);
 	}
-	
 
-## How applications are initialized
+## How applications are initialized; TODO Outdated 2017-11
 
 Applications are created upon each web request and generally destroyed at the end of that request. The creation process and ordering of components becomes important in that you may want modules to execute certain functions prior to other setup tasks.
 

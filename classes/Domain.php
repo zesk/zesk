@@ -163,8 +163,8 @@ class Domain extends Object {
 	 * @return string[]
 	 * Load the public TLDs from the file
 	 */
-	private static function load_public_tlds() {
-		$contents = strtolower(File::contents(self::public_suffix_list_file(), self::default_public_suffix_list_file));
+	private function load_public_tlds() {
+		$contents = strtolower(File::contents(self::public_suffix_list_file($this->application->paths), self::default_public_suffix_list_file));
 		self::$public_tlds = arr::flip_copy(arr::trim_clean(explode("\n", Text::remove_line_comments($contents, '//'))));
 	}
 }
