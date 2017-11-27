@@ -375,7 +375,7 @@ class Model extends Hookable implements \ArrayAccess {
 			return array();
 		}
 		$result = array();
-		$hier = zesk()->classes->hierarchy(get_class($this), __CLASS__);
+		$hier = $this->application->classes->hierarchy(get_class($this), __CLASS__);
 		foreach ($hier as $class) {
 			$result = array_merge($result, arr::prefix($theme_names, $class . "/"));
 		}
@@ -388,7 +388,7 @@ class Model extends Hookable implements \ArrayAccess {
 	}
 	
 	/**
-	 * Temporarily deprecated until we can make this our renamed version of "render"
+	 * Output this 
 	 *
 	 * @param string $theme_name
 	 *        	Theme or list of themes to invoke (first found is used)
