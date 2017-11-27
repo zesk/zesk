@@ -946,7 +946,7 @@ class Application extends Hookable implements Interface_Theme {
 	 */
 	protected function hook_request() {
 		$request = new Request($this);
-		if ($this->zesk->console()) {
+		if ($this->console()) {
 			$request->initialize_from_settings("http://console/");
 		} else {
 			$request->initialize_from_globals();
@@ -1508,7 +1508,7 @@ class Application extends Hookable implements Interface_Theme {
 	 *        	Value to set
 	 * @return string Current data_path value
 	 */
-	public function data_path($suffix = null) {
+	final public function data_path($suffix = null) {
 		return $this->paths->data($suffix);
 	}
 	
@@ -1533,7 +1533,7 @@ class Application extends Hookable implements Interface_Theme {
 	 * @return string[string]
 	 * @throws Exception_Directory_NotFound
 	 */
-	public function zesk_command_path($add = null, $prefix = null) {
+	final public function zesk_command_path($add = null, $prefix = null) {
 		if ($add !== null) {
 			if (!$prefix) {
 				$prefix = "zesk\Command_";
@@ -1565,7 +1565,7 @@ class Application extends Hookable implements Interface_Theme {
 	 *
 	 * @return NULL|mixed
 	 */
-	public function theme_current() {
+	final public function theme_current() {
 		return last($this->theme_stack);
 	}
 	/**
@@ -1574,7 +1574,7 @@ class Application extends Hookable implements Interface_Theme {
 	 * @param string $type
 	 * @return string
 	 */
-	public function theme($types, $arguments = array(), array $options = array()) {
+	final public function theme($types, $arguments = array(), array $options = array()) {
 		if (!is_array($arguments)) {
 			$arguments = array(
 				"content" => $arguments
@@ -1691,7 +1691,7 @@ class Application extends Hookable implements Interface_Theme {
 	 *        	List of themes
 	 * @return boolean If all exist, returns true, otherwise false
 	 */
-	public function theme_exists($types, array $args = array(), array $options = array()) {
+	final public function theme_exists($types, array $args = array(), array $options = array()) {
 		if (empty($types)) {
 			return false;
 		}
@@ -1734,7 +1734,7 @@ class Application extends Hookable implements Interface_Theme {
 	 * @param array $options
 	 * @return array The ordered list of paths to search for class names
 	 */
-	public function autoload_path($add = null, $options = true) {
+	final public function autoload_path($add = null, $options = true) {
 		return $this->zesk->autoloader->path($add, $options);
 	}
 	
@@ -1745,7 +1745,7 @@ class Application extends Hookable implements Interface_Theme {
 	 * @param string $options
 	 * @return array The ordered list of paths to search for class names
 	 */
-	public function command_path($add = null) {
+	final public function command_path($add = null) {
 		return $this->paths->command($add);
 	}
 	
@@ -1755,7 +1755,7 @@ class Application extends Hookable implements Interface_Theme {
 	 * @param string $class
 	 * @return array This class name and parent classes
 	 */
-	public function register_class($class) {
+	final public function register_class($class) {
 		$this->hooks->register_class($class);
 		return $this->classes->register($class);
 	}
@@ -1769,14 +1769,14 @@ class Application extends Hookable implements Interface_Theme {
 	 * @deprecated 2017-10
 	 * @see self::path()
 	 */
-	public function application_root($suffix = null) {
+	final public function application_root($suffix = null) {
 		return $this->paths->application($suffix);
 	}
 	
 	/**
 	 * Return a path relative to the application root
 	 */
-	public function path($suffix = null) {
+	final public function path($suffix = null) {
 		return $this->paths->application($suffix);
 	}
 	/**
@@ -1786,7 +1786,7 @@ class Application extends Hookable implements Interface_Theme {
 	 *        	Optional path to add to the application path
 	 * @return string
 	 */
-	public function application_class() {
+	final public function application_class() {
 		return $this->zesk->application_class();
 	}
 	
@@ -1795,7 +1795,7 @@ class Application extends Hookable implements Interface_Theme {
 	 * @param string $path
 	 * @return \zesk\Application
 	 */
-	public function set_application_root($path) {
+	final public function set_application_root($path) {
 		$this->paths->set_application($path, true);
 		return $this;
 	}
@@ -1806,7 +1806,7 @@ class Application extends Hookable implements Interface_Theme {
 	 *        	Optional path to add to the application path
 	 * @return string
 	 */
-	public function zesk_root($suffix = null) {
+	final public function zesk_root($suffix = null) {
 		return $this->paths->zesk($suffix);
 	}
 	
@@ -1816,7 +1816,7 @@ class Application extends Hookable implements Interface_Theme {
 	 * @return string
 	 * @param unknown $add
 	 */
-	public function cache_path($suffix = null) {
+	final public function cache_path($suffix = null) {
 		return path($this->cache_path, $suffix);
 	}
 	
@@ -1862,7 +1862,7 @@ class Application extends Hookable implements Interface_Theme {
 	 * @throws Exception_Directory_NotFound
 	 * @return string The directory
 	 */
-	public function document_root($set = null, $prefix = null) {
+	final public function document_root($set = null, $prefix = null) {
 		if ($set !== null) {
 			$this->deprecated("Convert " . __METHOD__ . " method to append-style method, use set_document_root()");
 			$this->set_document_root($set, $prefix);
@@ -1885,7 +1885,7 @@ class Application extends Hookable implements Interface_Theme {
 	 * @throws Exception_Directory_NotFound
 	 * @return self
 	 */
-	public function set_document_root($set, $prefix = null) {
+	final public function set_document_root($set, $prefix = null) {
 		if (!is_dir($set)) {
 			throw new Exception_Directory_NotFound($set);
 		}
@@ -1910,7 +1910,7 @@ class Application extends Hookable implements Interface_Theme {
 	 * @return string The directory
 	 * @todo should this be urlescpaed by web_root_prefix function to avoid & and + to be set?
 	 */
-	public function document_root_prefix($set = null) {
+	final public function document_root_prefix($set = null) {
 		if ($set !== null) {
 			$this->document_prefix = rtrim($set, '/');
 			return $this;
@@ -1929,7 +1929,7 @@ class Application extends Hookable implements Interface_Theme {
 	 *        	Set the document cache
 	 * @return string
 	 */
-	public function document_cache($suffix = null) {
+	final public function document_cache($suffix = null) {
 		return path($this->document_cache, $suffix);
 	}
 	
