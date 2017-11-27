@@ -2181,7 +2181,7 @@ class Object extends Model {
 		return true;
 	}
 	function fetch($mixed = null) {
-		$mixed = $this->call_hook("fetch-enter", $mixed);
+		$mixed = $this->call_hook("fetch_enter", $mixed);
 		if ($mixed !== null) {
 			$this->initialize($mixed)->_polymorphic();
 		}
