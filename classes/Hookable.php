@@ -16,7 +16,7 @@ namespace zesk;
  *
  * @author kent
  */
-class Hookable extends \zesk\Options {
+class Hookable extends Options {
 	/**
 	 *
 	 * @var Application
@@ -32,6 +32,10 @@ class Hookable extends \zesk\Options {
 		$this->application = $application;
 		parent::__construct($options);
 	}
+	
+	/**
+	 * 
+	 */
 	function __wakeup() {
 		// Only case where this is OK
 		$this->application = zesk()->application();
@@ -149,6 +153,9 @@ class Hookable extends \zesk\Options {
 		$result = null;
 		foreach ($types as $type) {
 			$method = PHP::clean_function($type);
+			if ($method !== $type) {
+				zesk()->deprecated("Hook \"{type}\" cleaned to \"{method}\" - please fix", compact("method", "type"));
+			}
 			if (method_exists($this, "hook_$method")) {
 				$result = self::hook_results($result, array(
 					$this,
