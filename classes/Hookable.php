@@ -286,13 +286,6 @@ class Hookable extends Options {
 	}
 	
 	/**
-	 *
-	 * @todo global remove
-	 * @var array
-	 */
-	private static $option_references = array();
-	
-	/**
 	 * Loading references
 	 *
 	 * @param unknown $class
