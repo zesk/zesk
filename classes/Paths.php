@@ -394,7 +394,8 @@ class Paths {
 			'data' => $this->data,
 			'cache' => $this->cache,
 			'home' => $this->home,
-			'uid' => $this->uid
+			'uid' => $this->uid,
+			'command' => $this->command_path
 		);
 	}
 }
