@@ -5,7 +5,7 @@
 namespace zesk;
 
 /**
- * 
+ * @see Repository
  * @author kent
  *
  */
@@ -14,12 +14,12 @@ class Module_Repository extends Module {
 	 * 
 	 * @var array
 	 */
-	private static $repository_types = array();
+	private $repository_types = array();
 	/**
 	 * 
 	 * @var array
 	 */
-	private static $repository_classes = array();
+	private $repository_classes = array();
 	
 	/**
 	 *
@@ -49,13 +49,20 @@ class Module_Repository extends Module {
 	}
 	
 	/**
+	 * Return master module
+	 * @return self
+	 */
+	public function singleton() {
+		return $this->application->modules->object("Repository");
+	}
+	/**
 	 * 
 	 * @param string $class
 	 * @param array $aliases
 	 * @return Module_Repository
 	 */
 	public function register_repository($class, array $aliases = array()) {
-		return $this->application->modules->object("Repository")->_register_repository($class, $aliases);
+		return $this->singleton()->_register_repository($class, $aliases);
 	}
 	
 	/**
@@ -64,6 +71,24 @@ class Module_Repository extends Module {
 	 * @return string|NULL
 	 */
 	public function find_repository($type) {
-		return $this->application->modules->object("Repository")->_find_repository($type);
+		return $this->singleton()->_find_repository($type);
+	}
+	
+	/**
+	 * Determine whether a directory can be treated as a repository.
+	 * 
+	 * @param string $directory
+	 * @return Repository[]
+	 */
+	public function determine_repository($directory) {
+		$repos = array();
+		foreach ($this->singleton()->repository_classes as $class => $aliases) {
+			/* @var $repo Repository */
+			$repo = $this->application->factory($class, $this->application);
+			if ($repo->validate($directory)) {
+				$repos[$repo->code()] = $repo;
+			}
+		}
+		return $repos;
 	}
 }

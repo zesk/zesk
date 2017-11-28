@@ -1,13 +1,25 @@
 <?php
-namespace zesk;
+namespace zesk\Git;
 
-class Repository_Git extends Repository_Command {
+class Repository extends \zesk\Repository_Command {
+	
+	/**
+	 * @var string
+	 */
+	protected $code = "git";
 	
 	/**
 	 *
 	 * @var string
 	 */
 	protected $executable = "git";
+	
+	/**
+	 * Used in validate function
+	 *
+	 * @var string
+	 */
+	protected $dot_directory = ".svn";
 	
 	/**
 	 * Fetch a list of repository status for a target

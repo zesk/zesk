@@ -4,8 +4,8 @@
 		"Repository"
 	],
 	"autoload_options": {
-		"class_prefix": "zesk\\",
+		"class_prefix": "zesk\\Git\\",
 		"lower": false
 	},
-	"module_class": "zesk\\Module_Git"
+	"module_class": "zesk\\Git\\Module"
 }

@@ -1,8 +1,23 @@
 <?php
+/**
+ * @package zesk
+ * @subpackage repository
+ * @author kent
+ * @copyright &copy; 2017 Market Acumen, Inc.
+ */
 namespace zesk;
 
+/**
+ * @author kent
+ */
 abstract class Repository extends Hookable {
 	
+	/**
+	 * Override in subclasses
+	 * 
+	 * @var string
+	 */
+	protected $code = null;
 	/**
 	 * 
 	 * @param Application $application
@@ -18,6 +33,14 @@ abstract class Repository extends Hookable {
 	protected function initialize() {
 	}
 	
+	/**
+	 * Code name for this repository
+	 * 
+	 * @return string
+	 */
+	public final function code() {
+		return $this->code;
+	}
 	/**
 	 * 
 	 * @param Application $application
@@ -39,11 +62,19 @@ abstract class Repository extends Hookable {
 	}
 	
 	/**
+	 * Check if the directory is a valid directory for this repository
+	 * 
+	 * @param string $directory
+	 * @return boolean
+	 */
+	abstract public function validate($directory);
+	
+	/**
 	 * Fetch a list of repository status for a target
-	 * 
-	 * @param unknown $target
-	 * @param string $updates
-	 * 
+	 *
+	 * @param string $target
+	 * @param boolean $updates
+	 *
 	 * @return array[]
 	 */
 	abstract public function status($target, $updates = false);

@@ -1,11 +1,23 @@
 <?php
+/**
+ * @package zesk
+ * @subpackage repository
+ * @author kent
+ * @copyright &copy; 2017 Market Acumen, Inc.
+ */
+namespace zesk;
+
+/**
+ * @author kent
+ */
 namespace zesk;
 
 /**
  * For repository tools which are invoked via an external command
  * 
  * @author kent
- *
+ * @see Git\Repository
+ * @see Subversion\Repository
  */
 abstract class Repository_Command extends Repository {
 	
@@ -26,6 +38,13 @@ abstract class Repository_Command extends Repository {
 	 * @var string
 	 */
 	protected $executable = null;
+	
+	/**
+	 * Used in validate function
+	 * 
+	 * @var string
+	 */
+	protected $dot_directory = null;
 	
 	/**
 	 *
@@ -54,5 +73,26 @@ abstract class Repository_Command extends Repository {
 	 */
 	protected function run_command($suffix, array $arguments, $passthru = false) {
 		return $this->process->execute_arguments($this->command . " $suffix", $arguments, $passthru);
+	}
+	
+	/**
+	 * 
+	 * {@inheritDoc}
+	 * @see \zesk\Repository::validate()
+	 */
+	public function validate($directory) {
+		if (!$this->dot_directory) {
+			throw new Exception_Unimplemented("{method} does not support dot_directory setting", array(
+				"method" => __METHOD__
+			));
+		}
+		$directory = realpath($directory);
+		while (!empty($directory) && $directory !== ".") {
+			if (is_dir(path($directory, $this->dot_directory))) {
+				return true;
+			}
+			$directory = dirname($directory);
+		}
+		return false;
 	}
 }
