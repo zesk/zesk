@@ -24,6 +24,7 @@ abstract class Repository extends Hookable {
 	 */
 	public function __construct(Application $application) {
 		parent::__construct($application);
+		$this->inherit_global_options();
 		$this->initialize();
 	}
 	

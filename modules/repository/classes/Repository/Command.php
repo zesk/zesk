@@ -13,7 +13,7 @@ namespace zesk;
 namespace zesk;
 
 /**
- * For repository tools which are invoked via an external command
+ * For repository tools which are invoked via an external command (e.g. most of them)
  * 
  * @author kent
  * @see Git\Repository
