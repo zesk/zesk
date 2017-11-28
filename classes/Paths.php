@@ -162,11 +162,13 @@ class Paths {
 	/**
 	 * configured hook
 	 */
-	public function configured() {
-		global $zesk;
+	public function configured(Application $application) {
+		$configuration = $application->configuration;
 		
-		$configuration = $zesk->configuration;
-		$paths = $configuration->zesk->paths;
+		$configuration->deprecated("zesk::paths", array(
+			__CLASS__
+		));
+		$paths = $configuration->path(__CLASS__);
 		
 		if ($paths->has('command_path')) {
 			$this->command($paths->command_path);
@@ -178,17 +180,13 @@ class Paths {
 		if ($paths->cache) {
 			$this->cache = $paths->cache;
 		} else if ($configuration->cache && $configuration->cache->path) {
+			zesk()->deprecated("Cache::path is deprecated");
 			// TODO Cache::path deprecated - used in existing apps
 			$this->cache = $configuration->cache->path;
 		}
 		// data
 		if (isset($paths->data)) {
 			$this->data = $paths->data;
-		}
-		if (isset($paths->document_cache)) {
-			$this->document_cache = $paths->document_cache;
-		} else if (isset($configuration->document_cache)) {
-			$this->document_cache = $configuration->document_cache;
 		}
 		if (isset($paths->home)) {
 			$this->home = $paths->home;
@@ -218,7 +216,7 @@ class Paths {
 		} else if (ZESK_ROOT !== $zesk_root) {
 			die("Two versions of zesk: First \"" . ZESK_ROOT . "\", then us \"$zesk_root\"\n");
 		}
-		$config->zesk->root = ZESK_ROOT;
+		$config->path(__CLASS__)->root = ZESK_ROOT;
 	}
 	public function set_application($set, $update = true) {
 		$this->application = rtrim($set, "/");
