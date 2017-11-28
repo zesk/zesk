@@ -1,7 +1,9 @@
 <?php
-
 /**
- * 
+ * @package zesk
+ * @subpackage core
+ * @author kent
+ * @copyright &copy; 2017 Market Acumen, Inc.
  */
 namespace zesk;
 
@@ -52,9 +54,15 @@ class Autoloader {
 	);
 	
 	/**
+	 * 
+	 * @var Kernel
+	 */
+	private $kernel = null;
+	/**
 	 * Create default autoloader for most of Zesk
 	 */
 	public function __construct(Kernel $kernel) {
+		$this->kernel = $kernel;
 		$this->path(ZESK_ROOT . 'classes', array(
 			'last' => true,
 			"lower" => false,
@@ -63,18 +71,7 @@ class Autoloader {
 			),
 			"class_prefix" => "zesk\\"
 		));
-		// 		$this->path(ZESK_ROOT . 'classes-stubs', array(
-		// 			'last' => true,
-		// 			"lower" => false,
-		// 			"extensions" => array(
-		// 				"php"
-		// 			)
-		// 		));
 		$this->autoload_register();
-		// 		$kernel->hooks->add(Hooks::hook_exit, array(
-		// 			$this,
-		// 			"save"
-		// 		));
 	}
 	
 	/**
@@ -95,10 +92,10 @@ class Autoloader {
 	 * @return CacheItemInterface
 	 */
 	private function _autoload_cache() {
-		return zesk()->cache->getItem("autoload_cache");
+		return $this->kernel->cache->getItem("autoload_cache");
 	}
 	private function _autoload_cache_save(CacheItemInterface $item) {
-		zesk()->cache->saveDeferred($item);
+		$this->kernel->cache->saveDeferred($item);
 	}
 	/**
 	 * PHP Autoloader call.
@@ -109,10 +106,9 @@ class Autoloader {
 	 * @return boolean
 	 */
 	public function php_autoloader($class) {
-		global $zesk;
 		if ($this->load($class)) {
-			$zesk->hooks->register_class($class);
-			$zesk->classes->register($class);
+			$this->kernel->hooks->register_class($class);
+			$this->kernel->classes->register($class);
 			return true;
 		}
 		return false;
