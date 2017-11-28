@@ -2,15 +2,14 @@
 /**
  * 
  */
-namespace zesk;
+namespace zesk\Subversion;
 
 /**
  * 
  * @author kent
  *
  */
-class Module_Subversion extends Module_Repository {
-	
+class Module extends \zesk\Module_Repository {
 	/**
 	 * 
 	 * {@inheritDoc}
@@ -18,9 +17,9 @@ class Module_Subversion extends Module_Repository {
 	 */
 	function initialize() {
 		parent::initialize();
-		$this->register_repository("zesk\\Repository_Subversion", array(
-			"subversion",
-			"svn"
+		$this->register_repository(Repository::class, array(
+			"svn",
+			"subversion"
 		));
 	}
 }

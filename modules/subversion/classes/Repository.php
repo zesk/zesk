@@ -1,18 +1,37 @@
 <?php
 /**
- * 
+ * @package zesk
+ * @subpackage subversion
+ * @author kent
+ * @copyright &copy; 2017 Market Acumen, Inc.
  */
-namespace zesk;
+namespace zesk\Subversion;
+
+use zesk\arr;
 
 /**
  * 
  * @author kent
  *
  */
-class Repository_Subversion extends Repository_Command {
+class Repository extends \zesk\Repository_Command {
+	
+	
+	/**
+	 * Used in validate function
+	 *
+	 * @var string
+	 */
+	protected $dot_directory = ".svn";
 	
 	/**
 	 * 
+	 * @var string
+	 */
+	protected $code = "svn";
+	
+	/**
+	 *
 	 * @var string
 	 */
 	protected $executable = "svn";
@@ -157,7 +176,7 @@ class Repository_Subversion extends Repository_Command {
 			}
 		}
 		if (count($status) > 0) {
-			zesk()->logger->error("SVN working copy at {target} has local modifications: {files}", array(
+			$this->application->logger->error("SVN working copy at {target} has local modifications: {files}", array(
 				"target" => $target,
 				"files" => array_keys($status)
 			));
@@ -165,7 +184,7 @@ class Repository_Subversion extends Repository_Command {
 		}
 		$status = $this->status($target, true);
 		if (count($status) > 0) {
-			zesk()->logger->error("SVN working copy at {target} is out of date with the repository: {files}", array(
+			$this->application->logger->error("SVN working copy at {target} is out of date with the repository: {files}", array(
 				"target" => $target,
 				"files" => array_keys($status)
 			));
@@ -189,7 +208,7 @@ class Repository_Subversion extends Repository_Command {
 			"target" => $target
 		));
 		if (!empty($result)) {
-			zesk()->logger->error("SVN revert failed for {target}:\n{output}", array(
+			$this->application->logger->error("SVN revert failed for {target}:\n{output}", array(
 				'target' => $target,
 				'output' => $result
 			));
@@ -228,7 +247,7 @@ class Repository_Subversion extends Repository_Command {
 			}
 		}
 		if (!empty($errors)) {
-			zesk()->logger->error("SVN synchronization failed for {target}:\n{output}", array(
+			$this->application->logger->error("SVN synchronization failed for {target}:\n{output}", array(
 				'target' => $target,
 				'output' => $errors
 			));
