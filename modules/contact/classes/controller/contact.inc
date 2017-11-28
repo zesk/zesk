@@ -1,9 +1,8 @@
 <?php
 /**
  *
- * @version $Id: contact.inc 4481 2017-03-24 18:21:48Z kent $
  * @package zesk
- * @subpackage controllers
+ * @subpackage contact
  * @author kent
  * @copyright Copyright &copy; 2010, Market Acumen, Inc.
  */

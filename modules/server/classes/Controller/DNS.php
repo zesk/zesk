@@ -6,12 +6,12 @@ namespace zesk;
  * @author kent
  *
  */
-class Controller_DNS extends Controller_Template {
+class Controller_DNS extends Controller_Theme {
 	/**
 	 * 
 	 * @var string
 	 */
-	protected $template = "body/default.tpl";
+	protected $template = "body/default";
 	
 	/**
 	 * 
@@ -124,9 +124,9 @@ class Controller_DNS extends Controller_Template {
 	 */
 	function action_index($domain) {
 		// 		$control = new Control_Object_Edit();
-		// 		$control->child(widgets::control_text("old", "Old Server", true));
-		// 		$control->child(widgets::control_text("new", "New Server", true));
-		// 		$control->child($w = widgets::control_textarea("lookup", "Name", true));
+		// 		$control->child($this->widget_factory("zesk\\Control_Text")->names("old", "Old Server", true));
+		// 		$control->child($this->widget_factory("zesk\\Control_Text")->names("new", "New Server", true));
+		// 		$control->child($w = $this->widget_factory("zesk\\Control_Text")->textarea(true)->names("lookup", "Name", true));
 		// 		$w->set_option('rows', 20);
 		// 		$w->set_option('cols', 80);
 		// 		$w->suffix(HTML::tag('label', "One per line. Domain names, optionally prefixed by query type and a space."));
@@ -137,6 +137,6 @@ class Controller_DNS extends Controller_Template {
 		// 			$content .= $this->run_test($model);
 		// 		}
 		$content = "TODO FIX THIS";
-		$this->template->content = $content;
+		return $content;
 	}
 }

@@ -10,33 +10,33 @@
 namespace zesk;
 
 /**
- * @deprecated 2017-11
+ * 
  * @author kent
  * @todo Convert to theme
  */
-abstract class Controller_Template extends Controller {
+abstract class Controller_Theme extends Controller {
+	
+	/**
+	 * @deprecated 2017-11 Is here so shows up in child classes
+	 * @var unknown
+	 */
+	protected $template = null;
 	
 	/**
 	 * 
 	 * @var string
 	 */
-	const DEFAULT_TEMPLATE = 'body/default.tpl';
+	protected $theme = null;
+	/**
+	 * 
+	 * @var string
+	 */
+	const DEFAULT_THEME = 'body/default';
 	/**
 	 * 
 	 * @var boolean
 	 */
 	private $auto_render = true;
-	
-	/**
-	 * 
-	 * @var string
-	 */
-	protected $template_pushed = false;
-	
-	/**
-	 * @var Template
-	 */
-	protected $template = null;
 	
 	/**
 	 * zesk\Template variables to pass
@@ -53,9 +53,13 @@ abstract class Controller_Template extends Controller {
 	 */
 	public function __construct(Application $app, array $options = array()) {
 		parent::__construct($app, $options);
-		if ($this->template === null) {
-			// TODO: template option is deprecated
-			$this->template = $this->first_option('theme;template', $this->template);
+		if ($this->has_option("template")) {
+			zesk()->deprecated("{class} is using option template - should not @deprecated 2017-11", array(
+				"class" => get_class($this)
+			));
+		}
+		if ($this->theme === null) {
+			$this->theme = $this->first_option('theme');
 		}
 		$this->auto_render = $this->option_bool('auto_render', $this->auto_render);
 		$this->template_pushed = false;
@@ -69,8 +73,8 @@ abstract class Controller_Template extends Controller {
 	 */
 	public function auto_render($set = null) {
 		if (is_bool($set)) {
-			if ($set === false && $this->template) {
-				$this->template = null;
+			if ($set === false && $this->theme) {
+				$this->theme = null;
 			}
 			$this->auto_render = $set;
 			return $this;
@@ -103,70 +107,13 @@ abstract class Controller_Template extends Controller {
 	 */
 	public function before() {
 		if ($this->auto_render) {
-			if ($this->template === null) {
-				$this->template = $this->call_hook('template');
-				if ($this->template === null) {
-					$this->template = $this->option("template", self::DEFAULT_TEMPLATE);
+			if ($this->theme === null) {
+				$this->theme = $this->call_hook('theme');
+				if ($this->theme === null) {
+					$this->theme = $this->option("theme", self::DEFAULT_THEME);
 				}
 			}
-			if ($this->template !== null) {
-				$this->template($this->template);
-			}
-			$this->_push_template();
 		}
-	}
-	
-	/**
-	 * Handle setting template and handling state
-	 * 
-	 * @param Template $template
-	 */
-	private function _set_template(Template $template) {
-		if ($this->template_pushed) {
-			$this->template->pop();
-		}
-		$this->template = $template;
-		if ($this->template_pushed) {
-			$this->template->push();
-		}
-	}
-	private function _push_template() {
-		if ($this->template instanceof Template) {
-			$this->template->push();
-			$this->template_pushed = true;
-		}
-	}
-	private function _pop_template() {
-		if ($this->template instanceof Template) {
-			$this->template->pop();
-			$this->template_pushed = false;
-		}
-	}
-	/**
-	 *
-	 * @param string $template
-	 * @return Template
-	 */
-	public function template($template = null) {
-		if ($template === null) {
-			return $this->template;
-		}
-		if (is_string($template)) {
-			// TODO: zesk\Template suffix .tpl removal is deprecated
-			$template = str::unsuffix($template, ".tpl") . ".tpl";
-			if ($this->template instanceof Template) {
-				$this->template->path($template);
-			} else {
-				$this->_set_template(new Template($this->application, $template, $this->variables()));
-			}
-		} else {
-			if (!$template instanceof Template) {
-				$template = new Template($this->application, $template, $this->variables());
-			}
-			$this->_set_template($template);
-		}
-		
-		return $this->template;
 	}
 	
 	/**
@@ -174,7 +121,10 @@ abstract class Controller_Template extends Controller {
 	 * @param Exception $e
 	 */
 	public function exception(\Exception $e) {
-		if ($this->auto_render && $this->template instanceof Template) {
+		if ($this->auto_render && $this->theme) {
+			$this->application->logger->error("Exception in controller {this-class} {class}: {message}", array(
+				"this-class" => get_class($this)
+			) + Exception::exception_variables($e));
 		}
 	}
 	
@@ -183,20 +133,19 @@ abstract class Controller_Template extends Controller {
 	 * @see Controller::after()
 	 */
 	public function after($result = null, $output = null) {
-		if ($this->auto_render && $this->template) {
-			$this->_pop_template();
+		if ($this->auto_render && $this->theme) {
 			if ($this->response->json()) {
 				$this->auto_render(false);
 			} else {
+				$content = null;
 				if (is_string($result)) {
-					$this->template->content = $result;
+					$content = $result;
 				} else if (is_string($output) && !empty($output)) {
-					$this->template->content = $output;
+					$content = $output;
 				}
-				$this->response->content = $this->template->render();
-				if ($this->template->has('content_type')) {
-					$this->response->content_type($this->template->content_type);
-				}
+				$this->response->content = $this->theme($this->theme, array(
+					"content" => $content
+				) + $this->variables(), $this->option_array("theme_options"));
 			}
 		}
 	}
@@ -207,12 +156,13 @@ abstract class Controller_Template extends Controller {
 	 */
 	public function variables() {
 		return array(
-			'template' => $this->template
+			'theme' => $this->theme
 		) + parent::variables() + $this->variables;
 	}
 	
 	/**
-	 *
+	 * TODO Clean this up
+	 * 
 	 * @param Control $control
 	 * @param Model $object
 	 * @param array $options
@@ -236,7 +186,7 @@ abstract class Controller_Template extends Controller {
 				'message' => array_values($control->children_errors())
 			) + $this->response->to_json());
 		} else if ($this->response->content_type === "text/html") {
-			$this->template->content = $content;
+			$this->response->content = $content;
 		} else {
 			$this->auto_render(false);
 			$this->response->content = $content;

@@ -1,4 +1,7 @@
 <?php
+/**
+ * @copyright &copy; 2017 Market Acumen, Inc.
+ */
 namespace zesk;
 
 /**
@@ -6,12 +9,12 @@ namespace zesk;
  * @author kent
  *
  */
-class Controller_Forgot extends Controller_Template {
+class Controller_Forgot extends Controller_Theme {
 	/**
 	 * 
 	 */
 	function action_index() {
-		$this->control($this->widget_factory("zesk\\Control_Forgot"));
+		$this->control($this->widget_factory(Control_Forgot::class));
 	}
 	
 	/**
@@ -41,7 +44,7 @@ class Controller_Forgot extends Controller_Template {
 			return;
 		}
 		/* @var $forgot Forgot */
-		$forgot = $this->object_factory('zesk\\Forgot', array(
+		$forgot = $this->object_factory(Forgot::class, array(
 			"code" => $hash
 		))->find();
 		if (!$forgot) {

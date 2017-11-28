@@ -8,12 +8,12 @@
 namespace zesk;
 
 /**
- * @deprecated 2017-11
+ * @see Controller_Template_Login
  * @see Controller_Theme
  * @author kent
  *
  */
-class Controller_Template_Login extends Controller_Template {
+class Controller_Authenticated extends Controller_Theme {
 	
 	/**
 	 * Page to redirect to if not logged in

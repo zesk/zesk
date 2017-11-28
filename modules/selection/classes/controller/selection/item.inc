@@ -1,6 +1,6 @@
 <?php
 /**
- * 
+ * @copyright &copy; 2017 Market Acumen, Inc.
  */
 namespace zesk;
 
@@ -81,7 +81,7 @@ class Controller_Selection_Item extends Controller_Object {
 	/**
 	 * 
 	 * {@inheritDoc}
-	 * @see \zesk\Controller_Template::control()
+	 * @see \zesk\Controller_Theme::control()
 	 */
 	protected function control(Control $control, Model $object = null, array $options = array()) {
 		if (method_exists($control, "selection_type")) {

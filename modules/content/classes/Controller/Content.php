@@ -1,4 +1,9 @@
 <?php
+/**
+ * @package zesk
+ * @subpackage content
+ * @copyright &copy; 2017 Market Acumen, Inc.
+ */
 namespace zesk;
 
 class Controller_Content extends Controller_Template_Login {

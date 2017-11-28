@@ -15,7 +15,7 @@ namespace zesk;
  * @author kent
  *
  */
-abstract class Controller_Object extends Controller_Template_Login {
+abstract class Controller_Object extends Controller_Authenticated {
 	
 	/**
 	 *

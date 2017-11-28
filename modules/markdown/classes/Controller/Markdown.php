@@ -9,7 +9,7 @@ namespace zesk;
  * @author kent
  *
  */
-class Controller_Markdown extends Controller_Template {
+class Controller_Markdown extends Controller_Theme {
 	function _action_default($action = null) {
 		$file = $this->route->option('file');
 		$content = $this->route->option('content');
@@ -30,7 +30,7 @@ class Controller_Markdown extends Controller_Template {
 		$content = $this->call_hook_arguments('content_process', array(
 			$content
 		), $content);
-		echo $this->theme('markdown', array(
+		return $this->theme('markdown', array(
 			'content' => $content,
 			'process' => true
 		));

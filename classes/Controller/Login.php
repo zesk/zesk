@@ -9,7 +9,7 @@ namespace zesk;
  * @author kent
  *
  */
-class Controller_Login extends Controller_Template {
+class Controller_Login extends Controller_Theme {
 	function _action_default($action = null) {
 		return $this->action_login();
 	}
