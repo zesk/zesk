@@ -175,8 +175,17 @@ class Control_Edit extends Control {
 	function model() {
 		return $this->object_factory($this->_class());
 	}
+	
+	/**
+	 * 
+	 * @param array $ww
+	 * @return array
+	 */
 	private function _filter_widgets(array $ww) {
-		$filter = $this->option_list('widgets_filter', null);
+		if ($this->has_option("widgets_filter")) {
+			$this->application->deprecated("{class} has deprecated widgets_filter option, use widgets_include only");
+		}
+		$filter = $this->option_list('widgets_include', $this->option_list('widgets_filter'));
 		$exclude = $this->option_list('widgets_exclude', null);
 		foreach ($ww as $i => $w) {
 			$col = $w->column();
