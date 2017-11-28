@@ -133,8 +133,6 @@ class Server extends Object implements Interface_Data {
 	 * @param Kernel $zesk
 	 */
 	public static function hooks(Kernel $zesk) {
-		global $zesk;
-		/* @var $zesk Kernel */
 		$zesk->hooks->add(Hooks::hook_configured, array(
 			__CLASS__,
 			"configured"
@@ -144,9 +142,7 @@ class Server extends Object implements Interface_Data {
 	/**
 	 */
 	public static function configured(Application $application) {
-		global $zesk;
-		/* @var $zesk Kernel */
-		$zesk->configuration->deprecated("FDISK_PRIMARY", __CLASS__ . "::free_disk_volume");
+		$application->configuration->deprecated("FDISK_PRIMARY", __CLASS__ . "::free_disk_volume");
 	}
 	/**
 	 * Once a minute, update the state
@@ -487,7 +483,7 @@ class Server extends Object implements Interface_Data {
 	 * @param mixed $value
 	 * @return Database_Query_Select
 	 */
-	public static function data_query($name, $value = null) {
+	public function data_query($name, $value = null) {
 		if (!is_array($name)) {
 			$where = array(
 				$name => $value
