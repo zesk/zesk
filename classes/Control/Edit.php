@@ -183,7 +183,7 @@ class Control_Edit extends Control {
 	 */
 	private function _filter_widgets(array $ww) {
 		if ($this->has_option("widgets_filter")) {
-			$this->application->deprecated("{class} has deprecated widgets_filter option, use widgets_include only");
+			$this->application->deprecated("{class} has deprecated widgets_filter option, use widgets_include only 2017-11");
 		}
 		$filter = $this->option_list('widgets_include', $this->option_list('widgets_filter'));
 		$exclude = $this->option_list('widgets_exclude', null);
