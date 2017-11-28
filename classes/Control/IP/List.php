@@ -1,15 +1,40 @@
 <?php
 /**
- * $URL: https://code.marketacumen.com/zesk/trunk/classes/Control/IP/List.php $
  * @package zesk
  * @subpackage default
  * @author Kent Davidson <kent@marketacumen.com>
- * @copyright Copyright &copy; 2009, Market Acumen, Inc.
+ * @copyright Copyright &copy; 2017, Market Acumen, Inc.
  */
 namespace zesk;
 
+/**
+ * 
+ * @author kent
+ *
+ */
 class Control_IP_List extends Control {
-	private $ErrorIPs;
+	const OPTION_ALLOW_MASKS_bool = "allow_ip_masks";
+	
+	/**
+	 * 
+	 * @var array
+	 */
+	private $ErrorIPs = array();
+	
+	/**
+	 * 
+	 * @param boolean $set
+	 * @return self|boolean
+	 */
+	public function allow_ip_masks($set = null) {
+		return $set === null ? $this->option_bool(self::OPTION_ALLOW_MASKS_bool) : $this->set_option(self::OPTION_ALLOW_MASKS_bool);
+	}
+	
+	/**
+	 * 
+	 * {@inheritDoc}
+	 * @see \zesk\Widget::load()
+	 */
 	function load() {
 		$name = $this->name();
 		$value = trim($this->request->get($name, "") . ' ' . $this->request->get($name . '_errors', ''));
@@ -17,6 +42,12 @@ class Control_IP_List extends Control {
 		$this->value($value);
 		return parent::load();
 	}
+	
+	/**
+	 * 
+	 * {@inheritDoc}
+	 * @see \zesk\Widget::validate()
+	 */
 	function validate() {
 		$allow_ip_masks = $this->option("allow_ip_masks", false);
 		$col = $this->column();
@@ -42,6 +73,12 @@ class Control_IP_List extends Control {
 		}
 		return true;
 	}
+	
+	/**
+	 * @todo Move to template
+	 * {@inheritDoc}
+	 * @see \zesk\Widget::render()
+	 */
 	function render() {
 		$col = $this->column();
 		$name = $this->name();
