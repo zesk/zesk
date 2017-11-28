@@ -21,9 +21,25 @@ class Process {
 	public $debug = false;
 	
 	/**
+	 * 
+	 * @var unknown
+	 */
+	private $zesk = null;
+	
+	/**
+	 * 
+	 * @throws Exception_System
+	 */
+	function __sleep() {
+		throw new Exception_System("Should not serialize {class}", array(
+			"class" => __CLASS__
+		));
+	}
+	/**
 	 * Create object
 	 */
 	function __construct(Kernel $zesk) {
+		$this->zesk = $zesk;
 		$zesk->hooks->add(Hooks::hook_configured, array(
 			$this,
 			"configured"
@@ -150,7 +166,7 @@ class Process {
 		$result = 0;
 		$output = array();
 		if ($this->debug) {
-			zesk()->logger->debug("Running command: {raw_command}", compact("raw_command"));
+			$this->zesk->logger->debug("Running command: {raw_command}", compact("raw_command"));
 		}
 		if ($passthru) {
 			passthru($raw_command, $result);
