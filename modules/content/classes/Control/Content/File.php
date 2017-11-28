@@ -1,6 +1,15 @@
 <?php
+/**
+ * @package zesk
+ * @subpackage content
+ * @author kent
+ * @copyright &copy; 2017 Market Acumen, Inc.
+ */
 namespace zesk;
 
+/**
+ * @author kent
+ */
 class Control_Content_File extends Control_Widgets {
 	/*
 	 * @var Control_File
@@ -16,7 +25,6 @@ class Control_Content_File extends Control_Widgets {
 			'hash_file' => true
 		) + $this->options);
 		$w->column = $prefix . "upload";
-		// $this->child(widgets::control_text($prefix . "name"), __("Name"));
 		
 		$this->child($w);
 		
