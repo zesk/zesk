@@ -86,11 +86,8 @@ class Kernel {
 	 * @var array
 	 */
 	public static $configuration_defaults = array(
-		'zesk' => array(
-			'paths' => array(),
-			'timestamp' => array(),
-			'date' => array(),
-			'time' => array()
+		__CLASS__ => array(
+			'application_class' => 'zesk\\Application'
 		)
 	);
 	/**
@@ -209,7 +206,6 @@ class Kernel {
 		require_once $here . "/Classes.php";
 		require_once $here . "/Objects.php";
 		
-		require_once $here . "/Paths.php";
 		require_once $here . "/Compatibility.php";
 		require_once $here . "/PHP.php";
 		
@@ -281,7 +277,6 @@ class Kernel {
 		 */
 		$this->hooks = new Hooks($this);
 		
-		$this->application_class = __NAMESPACE__ . "\\" . "Application";
 		$this->construct($configuration);
 	}
 	
@@ -290,7 +285,10 @@ class Kernel {
 	 *
 	 * @see zesk\Application::reset()
 	 * @category DEVELOPMENT
-	 * @deprecated 2017-08 Not sure if allowing this is really a good idea at all
+	 * @deprecated 2017-08 Not sure if allowing this is really a good idea at allm largely because
+	 * 		autoloading is not a reversible operation and Zesk depends largely upon class registration to 
+	 *      build knowledge of the class hierarchy as well as to hook classes into the system.
+	 * 
 	 */
 	public function reset(array $configuration) {
 		zesk()->deprecated();
@@ -320,13 +318,12 @@ class Kernel {
 		 */
 		$this->configuration = Configuration::factory(self::$configuration_defaults)->merge(Configuration::factory($configuration));
 		
+		$this->application_class = $this->configuration->path_get(array(
+			__CLASS__,
+			"application_class"
+		), __NAMESPACE__ . "\\" . "Application");
+		
 		//$this->caches = new Caches();
-		/*
-		 * Add default nodes to zesk globals
-		 */
-		$this->configuration->zesk = array(
-			"paths" => array()
-		);
 		
 		/*
 		 * Current process interface. Depends on ->hooks
@@ -452,12 +449,10 @@ class Kernel {
 	 * Load configuration
 	 */
 	public final function configured() {
-		global $zesk;
-		/* @var $zesk zesk\Kernel */
-		$configuration = $this->configuration->zesk;
+		$configuration = $this->configuration->path(__CLASS__);
 		if (isset($configuration->deprecated)) {
 			$deprecated = $configuration->deprecated;
-			$zesk->logger->debug("Setting deprecated handling to {deprecated}", compact("deprecated"));
+			$this->logger->debug("Setting deprecated handling to {deprecated}", compact("deprecated"));
 			$this->deprecated = $configuration->deprecated;
 		}
 		if (isset($configuration->assert)) {
@@ -486,7 +481,7 @@ class Kernel {
 			assert_options(ASSERT_CALLBACK, $configuration->assert_callback);
 		}
 		if ($this->configuration->path_exists("zesk\Logger::utc_time")) {
-			$zesk->logger->utc_time = to_bool($this->configuration->path_get("zesk\Logger::utc_time"));
+			$this->logger->utc_time = to_bool($this->configuration->path_get("zesk\Logger::utc_time"));
 		}
 	}
 	
