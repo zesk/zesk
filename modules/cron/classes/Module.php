@@ -10,14 +10,32 @@
  * @author kent
  * @copyright Copyright &copy; 2013, Market Acumen, Inc.
  */
-namespace zesk;
+namespace zesk\Cron;
+
+use zesk\Request;
+use zesk\Lock;
+use zesk\Application;
+use zesk\Hookable;
+use zesk\Locale;
+use zesk\System;
+use zesk\Router;
+use zesk\Response_Text_HTML;
+use zesk\Interface_Data;
+use zesk\Interface_Settings;
+use zesk\Timestamp;
+use zesk\arr;
+use zesk\Exception;
+use zesk\Exception_Parameter;
+use zesk\Settings;
+use zesk\Server;
+use zesk\PHP;
 
 /**
  *
  * @author kent
  *
  */
-class Module_Cron extends Module {
+class Module extends \zesk\Module {
 	
 	/**
 	 * List of associated classes
@@ -469,11 +487,10 @@ class Module_Cron extends Module {
 	 * @param integer $minute_to_hit
 	 *        	Minute of the hour to hit
 	 */
-	public static function hourly($prefix, $minute_to_hit = 0) {
+	public static function hourly(Interface_Settings $settings, $prefix, $minute_to_hit = 0) {
 		if (empty($prefix)) {
 			throw new Exception_Parameter("Prefix mus be non-empty to hourly");
 		}
-		$settings = Settings::instance();
 		/*
 		 * last_check - last time this script checked if it should run
 		 * last_run - last time this cron task was actually ran
@@ -535,12 +552,10 @@ class Module_Cron extends Module {
 	 * @param integer $hour_to_hit
 	 *        	Hour of the day to hit, 0 ... 23
 	 */
-	public static function daily_hour_of_day($prefix, $hour_to_hit) {
+	public static function daily_hour_of_day(Interface_Settings $settings, $prefix, $hour_to_hit) {
 		if (empty($prefix)) {
 			throw new Exception_Parameter("Prefix mus be non-empty to daily_hour_of_day");
 		}
-		$settings = Settings::instance();
-		
 		$hour_to_hit = intval($hour_to_hit);
 		/*
 		 * last_check - last time this script checked if it should run
@@ -586,7 +601,7 @@ class Module_Cron extends Module {
 	 * @param Template $template
 	 * @return string[][]
 	 */
-	protected function hook_system_panel(Template $template) {
+	protected function hook_system_panel() {
 		return array(
 			"system/panel/cron" => array(
 				"title" => __("Cron Tasks"),
@@ -596,7 +611,7 @@ class Module_Cron extends Module {
 	}
 	protected function hook_schema_updated() {
 		// Changed class structure on 2016-11-23
-		$update = $this->application->query_update("zesk\\Settings");
+		$update = $this->application->query_update(Settings::class);
 		$nrows = $update->value("*name", "REPLACE(name, 'Module_Cron::', " . $update->database()
 			->quote_text(__CLASS__ . "::") . ")")
 			->where("name|LIKE", 'Module_Cron::%')

@@ -1,8 +1,8 @@
 {
-	"module_class": "zesk\\Module_Cron",
 	"name": "Cron",
+	"module_class": "zesk\\Cron\\Module",
 	"autoload_options": {
-		"class_prefix": "zesk\\"
+		"class_prefix": "zesk\\Cron\\"
 	},
-	"zesk_command_class_prefix": "zesk\\Command_"
+	"zesk_command_path_class_prefix": "zesk\\Cron\\Command_"
 }

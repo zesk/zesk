@@ -2,7 +2,9 @@
 /**
  * 
  */
-namespace zesk;
+namespace zesk\Cron;
+
+use zesk\Exception_NotFound;
 
 /**
  * Run zesk cron hooks
@@ -10,7 +12,7 @@ namespace zesk;
  * @category Management
  * @author kent
  */
-class Command_Cron extends Command_Base {
+class Command_Cron extends \zesk\Command_Base {
 	protected $help = "Run zesk cron hooks";
 	protected $option_types = array(
 		'list' => 'boolean'
@@ -20,7 +22,7 @@ class Command_Cron extends Command_Base {
 	);
 	function run() {
 		try {
-			/* @var $cron Module_Cron */
+			/* @var $cron Module */
 			$cron = $this->application->modules->object("cron");
 		} catch (Exception_NotFound $e) {
 			$this->error("Cron module is not enabled");
@@ -28,7 +30,7 @@ class Command_Cron extends Command_Base {
 		}
 		if ($this->option_bool('list')) {
 			$list_status = $cron->list_status();
-			echo Text::format_pairs($list_status);
+			$this->render_format($list_status);
 			return 0;
 		}
 		$result = $cron->run();
