@@ -26,7 +26,7 @@ Version 1.0 of Zesk will have:
 - Zesk will now adopt the usage of using `ClassName::class` instead of the more complex `__NAMESPACE__ . "\\" . "ClassName"` or strings.
 - The external usage of `zesk\Template` objects is now discouraged and all applications are encouraged to use `zesk\Application::theme` only to render content.
 
-## Release [v0.12.15][]
+## [v0.12.15][]
 
 - Add protected member `$generated_sql` to `zesk\Database_Query_Select` to aid in debugging
 - Added `zesk\HTML::span_open` and `zesk\HTML::span_close` for convenience
@@ -55,7 +55,7 @@ Version 1.0 of Zesk will have:
 - `zesk\Widget` should inherit all subclass global options upon creation
 - `zesk` command - support `--cd` to a link
 
-## Release [v0.12.14][]
+## [v0.12.14][]
 
 - Adding `zesk\PHP_Inspector` tool which given a file, returns declared classes and functions and provides simple access to `\ReflectionClass` factories.
 - Removed instances of `global $zesk` from `zesk configure` command
@@ -74,59 +74,59 @@ Version 1.0 of Zesk will have:
 - Whitespace comment cleanup
 
 
-## Release [v0.12.13][]
+## [v0.12.13][]
 
 - `git push` at end of `bin\release-zesk.sh` (not `pull`)
 - `zesk configure` now supports only case-insensitive variables in `configure` files
 
-## Release [v0.12.12][]
+## [v0.12.12][]
 
 - `zesk configure` added `defined` command to ensure variables are defined first
 - `git pull` at end of `bin/release-zesk.sh`
 
-## Release [v0.12.11][]
+## [v0.12.11][]
 
 - Adding {home} variable to `zesk configure`
 
-## Release [v0.12.10][]
+## [v0.12.10][]
 
 - Allow invalid `zesk\Database::names::foo` urls while configuration is being set up
 
 
-## Release [v0.12.9][]
+## [v0.12.9][]
 
 - Adding flags to `zesk configure` for `file_catenate` command
 
-## Release [v0.12.8][]
+## [v0.12.8][]
 
 - Updated `zesk configure` documentation
 - Fixed missing command error message in `zesk update`
 
-## Release [v0.12.7][]
+## [v0.12.7][]
 
 - `zesk update` supports finding composer binary
 
 
-## Release [v0.12.6][]
+## [v0.12.6][]
 
 - Adding `zesk\Adapter_Settings_ArrayNoCase` class
 - Fixing issue with `zesk\Command_Configure and case-insensitive variables in global conf`
 
 
-## Release [v0.12.5][]
+## [v0.12.5][]
 
 - fixing `zesk\Configuration_Editor_CONF` constructor
 
-## Release [v0.12.4][]
+## [v0.12.4][]
 
 - Fixing `zesk\Configuration_Editor_CONF` constructor
 - Adding module dependency which requires `PHPUnit`
 
-## Release [v0.12.3][]
+## [v0.12.3][]
 
 - removed deprecated `modulename.module.php` files in 3 modules
 
-## Release [v0.12.2][]
+## [v0.12.2][]
 
 - Fixing `zesk\Database_SQL::function_max` and `zesk\Database_SQL::function_min`
 - Fixing and removing references to `zesk()` and `global $zesk`
@@ -147,7 +147,7 @@ Version 1.0 of Zesk will have:
 - zesk\Module\SMS work
 
 
-## Release [v0.12.2][]
+## [v0.12.2][]
 
 - Increase `$application` passing around
 - Fixing `zesk\Database_SQL::function_max` and `zesk\Database_SQL::function_min`
@@ -166,13 +166,13 @@ Version 1.0 of Zesk will have:
 - reduce `_dump` verbosity
 - `zesk\Module\SMS` work
 
-## Release [v0.12.1][]
+## [v0.12.1][]
 
 - Fixing `MySQL\Database_Parser` of `COLLATE` in tables to support `_` in names
 - `zesk\Database::create_database` now contains `$hosts` and uses less assumptions
 - `zesk\World_Bootstrap_Country` now quieter unless `::debug` option is set
 
-## Release [v0.12.0][]
+## [v0.12.0][]
 
 - Adding back in `zesk\Application::application_class`
 - Changes to allow subclasses to extend indexes. Probably should use `zesk\Schema` or something instead
@@ -190,11 +190,11 @@ Version 1.0 of Zesk will have:
 - removed `zesk\\Kernel::sort_weight_array` and moved to `functions.php`
 
 
-## Release [v0.11.1][]
+## [v0.11.1][]
 
 - `zesk\Server`: fixing UTC support in database.
 
-## Release [v0.11.0][]
+## [v0.11.0][]
 
 - Adding `\is_windows()` instead of `zesk()->is_windows`
 - Fixing parsing for `zesk\System::volume_info()` and `zesk\Text::parse_columns()`
@@ -229,12 +229,12 @@ Version 1.0 of Zesk will have:
 - support for `ALLOW_INVALID_DATES=false` in MySQL 5.7+
 - tests now fail if output `PHP-ERROR` string
 
-## Release v0.10.13
+## v0.10.13
 
 - Fixed `zesk world-bootstrap --all` so it works properly without error
 - Fixing final tests - everything should pass now on development systems
 
-## Release v0.10.12
+## v0.10.12
 
 - Fixed a variety of tests so they pass
 - Fixing `zesk\Contact_Address_Parser` processing for `zesk\Contact_Address::store()`
@@ -251,7 +251,7 @@ Version 1.0 of Zesk will have:
 - `zesk\\Options::inherit_global_options` now takes `$application` as first parameter.
 
 
-## Release v0.10.12
+## v0.10.12
 
 - Fixing `zesk\Contact_Address_Parser` processing for `zesk\Contact_Address::store()`
 - `Country::find_country` now takes `$application` as first parameter for context
@@ -261,7 +261,7 @@ Version 1.0 of Zesk will have:
 - `zesk\Module_World` command `world-bootstrap` now properly creates bootstrap objects
 - `zesk\\Options::inherit_global_options` now takes `$application` as first parameter.
 
-## Release v0.10.11
+## v0.10.11
 
 - `zesk\Configuration_Loader::load_one` does not emit error with file name which does not exist is passed in.
 - Adding `Exception_Parameter` in `zesk\Objects::resolve`
@@ -284,7 +284,7 @@ Version 1.0 of Zesk will have:
 - `zesk\Deploy`: 	Fixing logger invocation issue when deployment is already running
 - `zesk\Text::head` and `zesk\Text::tail` methods similar to shell tools `head` and `tail` for strings with newlines
 
-## Release v0.10.10
+## v0.10.10
 
 - `MySQL\Database`: `@@storage_engine` is deprecated https://github.com/pimcore/pimcore/issues/490
 - Conditional debugging
@@ -302,32 +302,32 @@ Version 1.0 of Zesk will have:
 - `tr` checks `can_iterate` for first param
 - updating test for `@depends`, updating tests
 
-## Release v0.10.9
+## v0.10.9
 
 - fixing `View_Errors::html` call
 - fixing `cron` errors
 - pass non-array back as-is in `Route::_map_variables`
 
-## Release v0.10.8
+## v0.10.8
 
 - fixing `Control_Checklist` widgets creation call
 
 
-## Release v0.10.7
+## v0.10.7
 
 - Deploy fixes, removal of app()
 
-## Release v0.10.6
+## v0.10.6
 
 - Lock API changes
 - Removal of globals and fixing of `Server::singleton()` calls in Zesk
 
 
-## Release v0.10.5
+## v0.10.5
 
 - Lock API changes, now `Lock::instance($application, $name)` then arrow functions to operate.
 
-## Release v0.10.4
+## v0.10.4
 
 - Adding `zesk\Application::model_factory` method
 - Fixing `Model::__construct` takes `$application` as first parameter issues
@@ -340,18 +340,18 @@ Version 1.0 of Zesk will have:
 - `zesk\Logger` used to die when log handler threw an exception; now silently continues.
 - `zesk\Model` remove redundant initialization code in factory method
 
-## Release v0.10.3
+## v0.10.3
 
 - Updates to tests, renamed exceptions in test system
 - patch `zesk\Application::application_class` to work correctly
 
 
-## Release v0.10.2
+## v0.10.2
 
 - `zesk\Application::application_class()` called old-style `zesk()->application_class`, now fixed
 
 
-## Release v0.10.1
+## v0.10.1
 
 - `zesk` command line now MUNGES input date to support easier invocation using namespaces. Specifically, the token `___` (triple underscore) is converted in **ALL** command-line arguments to backslash `\`. This mimics similar functionality in the `Configuration_Loader_CONF` class. If your scripts depend on variables with triple-underscores, you may need to revise them.
 - SECURITY: `Preference::user_get` and `Preference::user_set` no longer check if user is authenticated before returning values
@@ -418,7 +418,7 @@ Version 1.0 of Zesk will have:
 - version notes
 
 
-## Release v0.10.0
+## v0.10.0
 
 - Removed usage of global state
  - `Application::instance` removal across the system, reduced usage of `zesk()`
@@ -443,7 +443,7 @@ Version 1.0 of Zesk will have:
  - Moved `ipban` to its own repository
  - Moved `zest` to its own repository
 
-## Release v0.9.30
+## v0.9.30
 
 Removed as many references as possible to `app()` and `zesk\Application::instance()` in the code. Removed the `CDN` class.
 
@@ -453,7 +453,7 @@ Removed as many references as possible to `app()` and `zesk\Application::instanc
 - `Database_Query::__construct` now requires the `zesk\Database` to be non-null
 - `Controller_Share::realpath` now takes the application as the first parameter
 
-## Release v0.9.29
+## v0.9.29
 
 - Allow reinitialization of app, fixing up reset. Note that `zesk()->reset()` is not production-ready yet, and may possibly be removed in a future version. Likely add an "Application"-level reset instead and will migrate any values from `zesk()` global to Application level if necessary.
 - Deprecated module variable `$classes`
@@ -461,7 +461,7 @@ Removed as many references as possible to `app()` and `zesk\Application::instanc
 - `Options::inherit_global_options` now can inherit from passed in object (uses `get_class`)
 - Adding back in `update.conf` to `zesk update` command
 
-## Release v0.9.28
+## v0.9.28
 
 - Adding maintenance tag as default version `1.2.{maintenance}.0`
 - Controls related to `Database_Query_Select` Avoids `query_column` warnings that field didn't modify where clause
@@ -473,31 +473,31 @@ Removed as many references as possible to `app()` and `zesk\Application::instanc
 - `Controller_Content_Cache` fixing issue with `Content_Image` data being `null`
 - Updating the `version` command to support custom version layouts properly
 
-## Release v0.9.27
+## v0.9.27
 
 - Version parse fixes to support A.B.C.D versions (fixing version parsing)
 - `Request::ip()` returns `array()` incorrectly
 
-## Release v0.9.26
+## v0.9.26
 
 - Module `openlayers` URL updates
 
-## Release v0.9.25
+## v0.9.25
 
 - Fixing issue with `split_sql_commands` which did not work for large strings due to limits to PREG backtracking in PHP7. Modified algorithm to use alternate parsing mechanism.
 - Release v0.9.24
 - `zesk\Request::default_request` may read `zesk\Request::data()` and initialize it, so needs to have object (mostly) initialized before calling.
 
-## Release v0.9.24
+## v0.9.24
 
 - allow setting console state in `zesk()` superglobal via `zesk()->console(true)`
 - fixing `zesk\Command` `prefix` option feature
 
-## Release v0.9.23
+## v0.9.23
 
 - adding prefix/suffix to `zesk\Command` as options for stdout decoration
 
-## Release v0.9.22
+## v0.9.22
 
 - Zesk `release-zesk.sh` script updates
 - catch errors updating Server state
