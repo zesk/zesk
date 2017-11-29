@@ -96,7 +96,7 @@ function last(array $a, $default = null) {
  *
  * Equivalent to || or && in JavaScript.
  *
- * @deprecated zesk-php-7-only
+ * @deprecated zesk-php-7-only When Zesk is PHP7 only (and PHP5 support is bye-bye)
  * @return mixed|NULL
  * @see https://wiki.php.net/rfc/isset_ternary
  */
@@ -311,36 +311,6 @@ if (!function_exists("dump")) {
  */
 function _dump($x) {
 	return Debug::dump($x);
-}
-
-/**
- * Another sane object type output
- *
- * @param unknown $x
- * @return string
- */
-function vartype($x) {
-	$t = gettype($x);
-	if ($t === "object") {
-		$t .= ":" . get_class($x);
-	}
-	return $t;
-}
-
-/**
- * Flushes all of the output buffers and pops any buffers off of the stack.
- * Generally useful if you are going to die on the page and want to dump something and ensure it's
- * visible.
- * This can mess up any output buffering being done without your knowledge, so in general, useful
- * for just debugging.
- *
- * @return void
- * @see ob_end_flush, ob_get_level
- */
-function ob_flush_all() {
-	while (ob_get_level() > 0) {
-		ob_end_flush();
-	}
 }
 
 /**

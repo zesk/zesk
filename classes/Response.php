@@ -346,7 +346,11 @@ class Response extends Hookable {
 		}
 		echo $content;
 		$this->cache_save($content);
-		ob_flush_all();
+		// flush all output buffering
+		while (ob_get_level() > 0) {
+			ob_end_flush();
+		}
+		// TODO - Should we unplug the app like this?
 		exit();
 	}
 	
