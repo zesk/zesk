@@ -338,8 +338,6 @@ class Modules {
 		$name = $path = $include = null;
 		extract($module_data, EXTR_IF_EXISTS);
 		
-		global $zesk;
-		
 		$this->modules[$name] = $module_data + array(
 			'loading' => true
 		);
@@ -384,6 +382,7 @@ class Modules {
 		// Load dependent modules
 		$result = array();
 		foreach (to_array($requires) as $required_module) {
+			$required_module = self::clean_name($required_module);
 			if (!apath($this->modules, array(
 				$required_module,
 				"loaded"
@@ -519,8 +518,7 @@ class Modules {
 					'module' => $module_object
 				);
 			} catch (\Exception $e) {
-				global $zesk;
-				$zesk->hooks->call("exception", $e);
+				$this->application->hooks->call("exception", $e);
 				return $result + array(
 					"status" => "failed",
 					"initialize_exception" => $e
@@ -885,17 +883,5 @@ class Modules {
 	 */
 	private static function module_base_name($module) {
 		return basename(self::clean_name($module));
-	}
-	
-	/**
-	 * Clean a class name
-	 *
-	 * @deprecated 2016-01-13
-	 * @param string $name        	
-	 * @return string
-	 */
-	private static function clean_class($name) {
-		zesk()->deprecated();
-		return trim(preg_replace('/-_+/', '_', preg_replace('/[^a-z0-9]/i', '_', $name)), "_");
 	}
 }
