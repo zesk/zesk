@@ -18,6 +18,21 @@ class PHPUnit_TestCase extends TestCase {
 	protected $configuration = null;
 	
 	/**
+	 * Ensures our zesk variables above are properly populated
+	 */
+	function initialize() {
+		/*
+		 * Set up our state
+		 */
+		if (!$this->application) {
+			/* zesk() ok */
+			$this->application = Kernel::singleton()->application();
+		}
+		if (!$this->configuration) {
+			$this->configuration = $this->application->configuration;
+		}
+	}
+	/**
 	 *
 	 * {@inheritdoc}
 	 *
@@ -27,13 +42,7 @@ class PHPUnit_TestCase extends TestCase {
 		/*
 		 * Set up our state
 		 */
-		if (!$this->application) {
-			/* zesk() ok */
-			$this->application = zesk()->application();
-		}
-		if (!$this->configuration) {
-			$this->configuration = $this->application->configuration;
-		}
+		$this->initialize();
 		parent::setUp();
 	}
 	
