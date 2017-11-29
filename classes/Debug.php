@@ -24,7 +24,7 @@ class Debug {
 	 *
 	 * @var integer
 	 */
-	public static $indent_limit = 2;
+	public static $indent_limit = 4;
 	
 	/**
 	 * Set up PHP errors to output on web pages
