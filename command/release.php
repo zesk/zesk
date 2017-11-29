@@ -78,26 +78,24 @@ class Command_Release extends Command_Base {
 		
 		$this->log("Synchronizing with remote ...");
 		$repo->update($path);
-		//		$this->exec("$git pull --tags > /dev/null 2>&1");
-		// 		$this->exec("$git push --tags > /dev/null 2>&1");
-		
 		$status = $repo->status($path, true);
-		$lines = $this->exec("$git status --short");
-		if (count($lines) > 0) {
-			$this->log($lines);
+		if (count($status) > 0) {
+			$this->log_status($status);
 			$this->prompt_yes_no("Git status ok?");
 		}
 		
-		$last_version = $this->last_version($git);
+		$current_version = $this->application->version();
+		$latest_version = $repo->latest_version();
+		
+		if (!$this->prompt_yes_no(__("{name} {last_version} -> {current_version} Versions ok?", array(
+			"name" => get_class($this->application),
+			"last_version" => $last_version,
+			"current_version" => $current_version
+		)))) {
+			return 1;
+		}
 	}
-	
-	/**
-	 * 
-	 * @param unknown $git
-	 * @return mixed|array
-	 */
-	function last_version() {
-		$lines = $this->exec($this->git . " tag | sort -t. -k 1.2,1n -k 2,2n -k 3,3n -k 4,4n | tail -1");
-		return avalue($lines, 0, "");
+	private function log_status($status) {
+		$this->log(Text::format_table($status));
 	}
 }
