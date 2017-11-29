@@ -1,6 +1,6 @@
 {
 	"name": "Git source code control",
-	"depends": [
+	"requires": [
 		"Repository"
 	],
 	"autoload_options": {
