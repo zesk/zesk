@@ -7,6 +7,7 @@
  */
 namespace zesk\Subversion;
 
+use zesk\str;
 use zesk\arr;
 
 /**
@@ -15,6 +16,11 @@ use zesk\arr;
  *
  */
 class Repository extends \zesk\Repository_Command {
+	/**
+	 * 
+	 * @var array
+	 */
+	protected $info = null;
 	
 	/**
 	 * Used in validate function
@@ -33,7 +39,7 @@ class Repository extends \zesk\Repository_Command {
 	 *
 	 * @var string
 	 */
-	protected $executable = "svn";
+	protected $executable = "svn --non-interactive";
 	
 	/**
 	 * First column: Says if item was added, deleted, or otherwise changed
@@ -104,11 +110,12 @@ class Repository extends \zesk\Repository_Command {
 	 * ?       underscorejs
 	 * ?       yellow_text
 	 */
-	public function status($target, $updates = false) {
+	public function status($target = null, $updates = false) {
 		$extras = $this->option('status_arguments', '');
 		if ($extras) {
 			$extras = " $extras";
 		}
+		$target = $this->path($target);
 		$command = $updates ? "status -u$extras {target}" : "status$extras {target}";
 		$result = $this->run_command($command, array(
 			'target' => $target
@@ -140,7 +147,7 @@ class Repository extends \zesk\Repository_Command {
 	 * {@inheritDoc}
 	 * @see \zesk\Repository::commit()
 	 */
-	public function commit($target, $message = null) {
+	public function commit($target = null, $message = null) {
 		$this->sync($target);
 		$this->run_command("commit -m {message}", array(
 			"message" => escapeshellarg($message)
@@ -152,9 +159,9 @@ class Repository extends \zesk\Repository_Command {
 	 * {@inheritDoc}
 	 * @see \zesk\Repository::update()
 	 */
-	public function update($target) {
+	public function update($target = null) {
 		$this->run_command("update {target}", array(
-			"target" => $target
+			"target" => $this->path($target)
 		));
 	}
 	
@@ -164,7 +171,7 @@ class Repository extends \zesk\Repository_Command {
 	 * (non-PHPdoc)
 	 * @see Repository::pre_update()
 	 */
-	function pre_update($target) {
+	function pre_update($target = null) {
 		$status = $this->status($target);
 		$my_status = array();
 		if (array_key_exists($target, $status)) {
@@ -181,7 +188,7 @@ class Repository extends \zesk\Repository_Command {
 			));
 			return false;
 		}
-		$status = $this->status($target, true);
+		$status = $this->status($target = null, true);
 		if (count($status) > 0) {
 			$this->application->logger->error("SVN working copy at {target} is out of date with the repository: {files}", array(
 				"target" => $target,
@@ -253,5 +260,67 @@ class Repository extends \zesk\Repository_Command {
 			return false;
 		}
 		return true;
+	}
+	public function _info() {
+		if ($this->info) {
+			return $this->info;
+		}
+		$xml = implode("\n", $this->run_command("info --xml"));
+		$parsed = new \SimpleXMLElement($xml);
+		dump($parsed);
+		die(__FILE__);
+		return $this->info;
+	}
+	
+	/**
+	 * 
+	 * @param unknown $url
+	 * @return NULL|string
+	 */
+	public function tags_from_url($url) {
+		$trunk_directory = $this->option("trunk_directory", "trunk");
+		$trunk_directory = "/$trunk_directory/";
+		
+		$branches_directory = $this->option("branches_directory", "branches");
+		$branches_directory = "/$branches_directory/";
+		
+		$tags_directory = $this->option("tags_directory", "tags");
+		$tags_directory = "/$tags_directory/";
+		
+		// Make sure we end with a slash
+		$url = rtrim($url, "/") . "/";
+		$min = $mintoken = null;
+		foreach (array(
+			$trunk_directory,
+			$tags_directory,
+			$branches_directory
+		) as $token) {
+			$pos = strpos($url, $token);
+			if ($pos !== false) {
+				if ($min === null || $pos < $min) {
+					$min = $pos;
+					$mintoken = $token;
+				}
+			}
+		}
+		if ($min === null) {
+			return null;
+		}
+		return str::left($url, $mintoken) . $tags_directory;
+	}
+	
+	/**
+	 * Determine the latest version of this repository by scanning the tags directory.
+	 * 
+	 * {@inheritDoc}
+	 * @see \zesk\Repository::latest_version()
+	 */
+	public function latest_version() {
+		$info = $this->_info();
+		$tags = $this->tags_from_url($info['url']);
+		$versions = $this->run_command("list {tags}", array(
+			"tags" => $tags
+		));
+		return $this->compute_latest_version($versions);
 	}
 }

@@ -1,6 +1,15 @@
 <?php
+/**
+ * @package zesk
+ * @subpackage git
+ * @author kent
+ * @copyright &copy; 2017 Market Acumen, Inc.
+ */
 namespace zesk\Git;
 
+/**
+ * @author kent
+ */
 class Repository extends \zesk\Repository_Command {
 	
 	/**
@@ -19,7 +28,7 @@ class Repository extends \zesk\Repository_Command {
 	 *
 	 * @var string
 	 */
-	protected $dot_directory = ".svn";
+	protected $dot_directory = ".git";
 	
 	/**
 	 * Fetch a list of repository status for a target
@@ -29,7 +38,7 @@ class Repository extends \zesk\Repository_Command {
 	 *
 	 * @return array[]
 	 */
-	public function status($target, $updates = false) {
+	public function status($target = null, $updates = false) {
 	}
 	
 	/**
@@ -38,7 +47,7 @@ class Repository extends \zesk\Repository_Command {
 	 * @param string $target
 	 * @param string $message
 	 */
-	public function commit($target, $message = null) {
+	public function commit($target = null, $message = null) {
 	}
 	
 	/**
@@ -46,7 +55,7 @@ class Repository extends \zesk\Repository_Command {
 	 *
 	 * @param string $target
 	 */
-	public function update($target) {
+	public function update($target = null) {
 	}
 	
 	/**
@@ -55,7 +64,7 @@ class Repository extends \zesk\Repository_Command {
 	 * @param string $target
 	 * @return boolean True if update should continue
 	 */
-	public function pre_update($target) {
+	public function pre_update($target = null) {
 	}
 	
 	/**
@@ -64,7 +73,7 @@ class Repository extends \zesk\Repository_Command {
 	 * @param string $target Directory of target directory
 	 * @return boolean
 	 */
-	public function rollback($target) {
+	public function rollback($target = null) {
 	}
 	
 	/**
@@ -73,9 +82,17 @@ class Repository extends \zesk\Repository_Command {
 	 * @param string $target
 	 * @return boolean
 	 */
-	public function post_update($target) {
+	public function post_update($target = null) {
 	}
-	
+	/**
+	 *
+	 * @param unknown $git
+	 * @return mixed|array
+	 */
+	public function latest_version() {
+		$versions = $this->run_command("tag");
+		return $this->compute_latest_version($versions);
+	}
 	/**
 	 * 
 	 * In the short-format, the status of each path is shown as

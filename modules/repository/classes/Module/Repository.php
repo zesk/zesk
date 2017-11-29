@@ -5,9 +5,10 @@
 namespace zesk;
 
 /**
+ * Registry for repositories and aliases.
+ * 
  * @see Repository
  * @author kent
- *
  */
 class Module_Repository extends Module {
 	/**
@@ -83,12 +84,35 @@ class Module_Repository extends Module {
 	public function determine_repository($directory) {
 		$repos = array();
 		foreach ($this->singleton()->repository_classes as $class => $aliases) {
+			echo "Trying $class\n";
 			/* @var $repo Repository */
-			$repo = $this->application->factory($class, $this->application);
-			if ($repo->validate($directory)) {
+			$repo = $this->application->factory($class, $this->application, $directory);
+			if ($repo->validate()) {
 				$repos[$repo->code()] = $repo;
 			}
 		}
 		return $repos;
+	}
+	
+	/**
+	 * 
+	 * @param string $directory
+	 */
+	public function factory($directory) {
+		$repos = $this->determine_repository($directory);
+		if (count($repos) > 1) {
+			$this->application->logger->warning("{method} multiple repositories detected ({repos}), using first {repo}", array(
+				"method" => __METHOD__,
+				"repos" => array_keys($repos),
+				"repo" => first(array_keys($repos))
+			));
+			return first($repos);
+		}
+		if (count($repos) > 0) {
+			return first($repos);
+		}
+		throw new Exception_NotFound("No repository marker found at {directory}", array(
+			"directory" => $directory
+		));
 	}
 }

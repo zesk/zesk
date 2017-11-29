@@ -8,6 +8,9 @@
 namespace zesk;
 
 /**
+ * @see \zesk\Repository_Command
+ * @see \zesk\Subversion\Repository
+ * @see \zesk\Git\Repository
  * @author kent
  */
 abstract class Repository extends Hookable {
@@ -18,16 +21,47 @@ abstract class Repository extends Hookable {
 	 * @var string
 	 */
 	protected $code = null;
+	
+	/**
+	 * 
+	 * @var string
+	 */
+	protected $path = null;
+	
 	/**
 	 * 
 	 * @param Application $application
+	 * @param string $root Path to repository root directory or a file within the repository
+	 * @param array $options
 	 */
-	public function __construct(Application $application) {
-		parent::__construct($application);
+	final public function __construct(Application $application, $root = null, array $options = array()) {
+		parent::__construct($application, $options);
 		$this->inherit_global_options();
+		if (is_string($root)) {
+			$this->set_path($root);
+		}
 		$this->initialize();
 	}
 	
+	/**
+	 * 
+	 * @param string $suffix
+	 * @return string
+	 */
+	public function path($suffix = null) {
+		if (!$this->path) {
+			throw new Exception_Semantics("Need to set the path before using path call");
+		}
+		return path($this->path, $suffix);
+	}
+	/**
+	 * @param string $path
+	 * @return \zesk\Repository
+	 */
+	public function set_path($path) {
+		$this->path = $path;
+		return $this;
+	}
 	/**
 	 * 
 	 */
@@ -68,7 +102,7 @@ abstract class Repository extends Hookable {
 	 * @param string $directory
 	 * @return boolean
 	 */
-	abstract public function validate($directory);
+	abstract public function validate();
 	
 	/**
 	 * Fetch a list of repository status for a target
@@ -78,7 +112,7 @@ abstract class Repository extends Hookable {
 	 *
 	 * @return array[]
 	 */
-	abstract public function status($target, $updates = false);
+	abstract public function status($target = null, $updates = false);
 	
 	/**
 	 * Synchronizes all files beneath $target with repository.
@@ -86,14 +120,14 @@ abstract class Repository extends Hookable {
 	 * @param string $target
 	 * @param string $message
 	 */
-	abstract public function commit($target, $message = null);
+	abstract public function commit($target = null, $message = null);
 	
 	/**
 	 * Update repository target at target, and get changes from remote
 	 * 
 	 * @param string $target
 	 */
-	abstract public function update($target);
+	abstract public function update($target = null);
 	
 	/**
 	 * Check a target prior to updating it
@@ -101,7 +135,7 @@ abstract class Repository extends Hookable {
 	 * @param string $target
 	 * @return boolean True if update should continue
 	 */
-	abstract public function pre_update($target);
+	abstract public function pre_update($target = null);
 	
 	/**
 	 * Undo changes to a target and reset to current branch/tag
@@ -109,7 +143,7 @@ abstract class Repository extends Hookable {
 	 * @param string $target Directory of target directory
 	 * @return boolean
 	 */
-	abstract public function rollback($target);
+	abstract public function rollback($target = null);
 	
 	/**
 	 * Run before target is updated with new data
@@ -117,5 +151,12 @@ abstract class Repository extends Hookable {
 	 * @param string $target
 	 * @return boolean
 	 */
-	abstract public function post_update($target);
+	abstract public function post_update($target = null);
+	
+	/**
+	 * Return the latest version string for this repository. Should mimic `zesk version` formatting.
+	 * 
+	 * @return string
+	 */
+	abstract public function latest_version();
 }
