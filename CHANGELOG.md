@@ -25,6 +25,7 @@ Version 1.0 of Zesk will have:
 - `Controller_Forgot`, `Controller_Object`, ``, `` and `` all now inherit from `Controller_Theme`
 - Zesk will now adopt the usage of using `ClassName::class` instead of the more complex `__NAMESPACE__ . "\\" . "ClassName"` or strings.
 - The external usage of `zesk\Template` objects is now discouraged and all applications are encouraged to use `zesk\Application::theme` only to render content.
+- `zesk\Module::$classes` has been deprecated permanently.
 
 ## [v0.12.15][]
 

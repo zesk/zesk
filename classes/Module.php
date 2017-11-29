@@ -15,7 +15,7 @@ namespace zesk;
  * @see Modules
  * @author kent
  */
-abstract class Module extends Hookable {
+class Module extends Hookable {
 	/**
 	 *
 	 * @var zesk\Kernel
@@ -41,17 +41,6 @@ abstract class Module extends Hookable {
 	 * @var string
 	 */
 	protected $path = null;
-	
-	/**
-	 * List of associated classes
-	 *
-	 * Matches Application pattern of using "object_classes" member instead for consistency
-	 *
-	 * @deprecated 2017-03
-	 * @see $this->object_classes
-	 * @var array
-	 */
-	protected $classes = array();
 	
 	/**
 	 * List of associated Object classes
@@ -82,9 +71,15 @@ abstract class Module extends Hookable {
 			"classes"
 		);
 	}
+	
+	/**
+	 * 
+	 * {@inheritDoc}
+	 * @see \zesk\Hookable::__wakeup()
+	 */
 	function __wakeup() {
-		$this->zesk = zesk();
-		$this->application = $this->zesk->application();
+		parent::__wakeup();
+		$this->zesk = $this->application->zesk;
 		$this->initialize();
 	}
 	
@@ -99,12 +94,14 @@ abstract class Module extends Hookable {
 		$this->application_class = get_class($application);
 		$this->path = avalue($module_data, 'path');
 		if (!$this->codename) {
-			$codename = str::unprefix(PHP::parse_class(get_class($this)), "Module_");
-			// Code name used in JavaScript settings
-			$this->codename = strtolower($codename);
+			$this->codename = avalue($module_data, 'name');
+			if (!$this->codename) {
+				// Code name used in JavaScript settings
+				$this->codename = strtolower(str::unprefix(PHP::parse_class(get_class($this)), "Module_"));
+			}
 		}
-		if (count($this->classes) !== 0) {
-			$this->zesk->deprecated(get_class($this) . "->classes is deprecated, use ->object_classes");
+		if (isset($this->classes)) {
+			$this->application->deprecated(get_class($this) . "->classes is deprecated, use ->object_classes");
 		}
 		$this->application->register_class($this->classes());
 		if (count($this->object_aliases)) {
@@ -120,6 +117,12 @@ abstract class Module extends Hookable {
 	public final function register_paths($path) {
 		return $this->application->modules->register_paths($path, $this->codename);
 	}
+	
+	/**
+	 * 
+	 * {@inheritDoc}
+	 * @see \zesk\Options::__toString()
+	 */
 	public function __toString() {
 		$php = new PHP();
 		$php->settings_one();
@@ -130,14 +133,22 @@ abstract class Module extends Hookable {
 	 */
 	public function initialize() {
 	}
+	
+	/**
+	 * Retrieve the codename of this module
+	 * 
+	 * @return string
+	 */
 	public final function codename() {
 		return $this->codename;
 	}
+	
 	/**
 	 * Override in subclasses - called upon Application::classes
+	 * @return string[]
 	 */
 	public function classes() {
-		return array_merge($this->object_classes, $this->classes);
+		return $this->object_classes;
 	}
 	
 	/**
