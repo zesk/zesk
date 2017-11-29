@@ -38,7 +38,7 @@ class Hookable extends Options {
 	 */
 	function __wakeup() {
 		// Only case where this is OK
-		$this->application = zesk()->application();
+		$this->application = Kernel::singleton()->application();
 	}
 	
 	/**
