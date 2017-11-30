@@ -6,9 +6,5 @@
  * @subpackage {subpackage}
  * @copyright Copyright (C) 2016, {company}. All rights reserved.
  */
-if (0) {
-	?>
-<?php
-}
 ?>
 Zesk Share Home

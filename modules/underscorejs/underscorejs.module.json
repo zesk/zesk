@@ -9,5 +9,10 @@
 	"github": "jashkenas/underscore",
 	"url_project": "http://underscorejs.org/",
 	"destination": "vendor/components/underscorejs",
-	"share_path": "vendor/components/underscorejs"
+	"share_path": "vendor/components/underscorejs",
+	"autoload_options": {
+		"class_prefix": "zesk\\UnderscoreJS\\",
+		"lower": false
+	},
+	"module_class": "zesk\\UnderscoreJS\\Module"
 }

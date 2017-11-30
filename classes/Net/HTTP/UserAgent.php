@@ -239,33 +239,38 @@ class Net_HTTP_UserAgent {
 		//     Opera/9.80 (Macintosh; Intel Mac OS X 10.7.5; U; en) Presto/2.10.289 Version/12.02
 		$result['user_agent'] = $user_agent;
 		
-		$ua = strtolower($user_agent);
+		$result['string'] = $ua = strtolower($user_agent);
 		
 		$result['opera'] = (strpos($ua, "opera") !== false);
+		
 		$result['iphone'] = (strpos($ua, "iphone") !== false);
 		$result['ipad'] = (strpos($ua, "ipad") !== false);
 		$result['ios'] = $result['iphone'] || $result['ipad'] || (strpos($ua, "ios") !== false);
-		foreach (to_list("5;6;7") as $v) {
+		foreach (to_list("5;6;7;8;9;10") as $v) {
 			$result["ios${v}"] = $result['ios'] && (strpos($ua, "os ${v}_") !== false);
 		}
 		$result['webkit'] = strpos($ua, "applewebkit") !== false;
 		$result['chrome'] = strpos($ua, "chrome/") !== false;
+		
 		$result['ie10'] = !$result['opera'] && (strpos($ua, "msie 10") !== false);
 		$result['ie9'] = !$result['opera'] && (strpos($ua, "msie 9") !== false);
 		$result['ie8'] = !$result['opera'] && (strpos($ua, "msie 8") !== false);
 		$result['ie7'] = !$result['opera'] && (strpos($ua, "msie 7") !== false) && !$result['ie8'];
 		$result['ie6'] = !$result['opera'] && (strpos($ua, "msie 6") !== false) && !$result['ie7'] && !$result['ie8'];
 		$result['ie'] = !$result['opera'] && (strpos($ua, "msie") !== false);
+		
 		$result['kindle'] = (strpos($ua, "kindle") !== false);
 		$result['surface'] = (strpos($ua, "surface") !== false);
+		
 		$result['firefox'] = (strpos($ua, "firefox") !== false);
 		$result['safari'] = (strpos($ua, "safari") !== false) && !$result['chrome'];
 		$result['mac'] = (strpos($ua, "macintosh") !== false);
+		
 		$result['linux'] = (strpos($ua, "linux") !== false);
 		$result['windows'] = (strpos($ua, "windows") !== false);
 		$result['mac_intel'] = $result['mac'] && (strpos($ua, "intel") !== false);
 		$result['mac_ppc'] = $result['mac'] && (strpos($ua, "intel") === false);
-		$result['string'] = $ua;
+		
 		$result['mobile'] = $result['ios'] || (strpos($ua, "mobile") !== false);
 		$result['phone'] = $result['iphone'];
 		$result['tablet'] = !$result['phone'] && ($result['ipad'] || $result['kindle'] || $result['surface']);
