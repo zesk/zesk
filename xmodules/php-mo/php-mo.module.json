@@ -1,7 +1,0 @@
-{
-	"name": "PHP_MO",
-	"url": "https://github.com/josscrowcroft/php.mo/archive/master.zip",
-	"destination": "vendor/josscrowcroft/php.mo/",
-	"strip_components": 1,
-	"description": "Converts gettext translation '.po' files to binary '.mo' files in PHP."
-}

@@ -82,6 +82,11 @@ class Module_ReactJS extends Module implements Interface_Module_Routes, Interfac
 			)
 		));
 	}
+	
+	/**
+	 * 
+	 * @return string
+	 */
 	private function _proxy_prefix() {
 		if ($this->proxy_prefix) {
 			return $this->proxy_prefix;
