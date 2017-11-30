@@ -26,6 +26,10 @@ Version 1.0 of Zesk will have:
 - Zesk will now adopt the usage of using `ClassName::class` instead of the more complex `__NAMESPACE__ . "\\" . "ClassName"` or strings.
 - The external usage of `zesk\Template` objects is now discouraged and all applications are encouraged to use `zesk\Application::theme` only to render content.
 - `zesk\Module::$classes` has been deprecated permanently.
+- **Zesk Share directory**
+ - The zesk share directory has been completely pruned, leaving only a handful of `.js` and `.css` files
+ - Remaining dangling images and stylesheets will be replaced with Bootstrap-themed variations as needed
+ - See `share/readme.md` for more details
 
 ## [v0.12.15][]
 

@@ -1,15 +1,35 @@
 <?php
 /**
- * 
+ * @package zesk
+ * @subpackage cleaner
+ * @author kent
+ * @copyright &copy; 2017 Market Acumen, Inc.
  */
-namespace zesk;
+namespace zesk\Cleaner;
+
+use zesk\File;
+use zesk\Directory;
 
 /**
  * 
  * @author kent
  *
  */
-class Module_Cleaner extends Module {
+class Module extends \zesk\Module {
+	public function initialize() {
+		parent::initialize();
+	}
+	
+	/**
+	 * Support old class name
+	 */
+	public function hook_configured() {
+		$this->application->configuration->deprecated("zesk\\Module_Cleaner", self::class);
+	}
+	
+	/**
+	 * Run every hour and clean things up
+	 */
 	public function hook_cron_hour() {
 		$directories = $this->option_array("directories");
 		foreach ($directories as $code => $settings) {

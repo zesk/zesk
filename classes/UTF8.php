@@ -1,10 +1,9 @@
 <?php
 /**
- * $URL: https://code.marketacumen.com/zesk/trunk/classes/UTF8.php $
  * @package zesk
  * @subpackage system
  * @author kent
- * @copyright Copyright &copy; 2014, Market Acumen, Inc.
+ * @copyright Copyright &copy; 2017, Market Acumen, Inc.
  */
 namespace zesk;
 
