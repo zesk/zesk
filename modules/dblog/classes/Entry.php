@@ -13,6 +13,6 @@ namespace zesk;
  * The object in the database
  *
  * @author kent
- *        
+ * @see Class_Entry
  */
-class DBLog extends Object {}
+class Entry extends Object {}

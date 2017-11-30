@@ -1,7 +1,7 @@
 {
 	"autoload_options": {
-		"class_prefix": "zesk\\",
+		"class_prefix": "zesk\\EmailEncrypt",
 		"lower": true
 	},
-	"module_class": "zesk\\Module_Email_Encrypt"
+	"module_class": "zesk\\EmailEncrypt\\Module"
 }

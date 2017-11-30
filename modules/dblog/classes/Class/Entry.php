@@ -1,10 +1,21 @@
 <?php
 /**
- * 
+ * @package zesk
+ * @subpackage DBLog
+ * @author kent
+ * @copyright &copy; 2017 Market Acumen, Inc.
  */
-namespace zesk;
+namespace zesk\DBLog;
 
-class Class_DBLog extends Class_Object {
+/**
+ * @author kent
+ */
+class Class_Entry extends \zesk\Class_Object {
+	
+	/**
+	 * @var string
+	 */
+	protected $table = "Log";
 	/**
 	 * Our ID column
 	 *

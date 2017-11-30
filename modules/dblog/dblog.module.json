@@ -2,10 +2,10 @@
 	"name": "DBLog",
 	"description": "Enables logging to a database. Useful for multi-server installations.",
 	"autoload_options": {
-		"class_prefix": "zesk\\",
+		"class_prefix": "zesk\\DBLog\\",
 		"lower": false
 	},
-	"module_class": "zesk\\Module_DBLog"
+	"module_class": "zesk\\DBLog\\Module"
 }
 
 
