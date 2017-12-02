@@ -1462,15 +1462,21 @@ class Application extends Hookable implements Interface_Theme {
 	 *        	(Optional) Path to add to the theme path. Pass in null to do nothing.
 	 * @return array The ordered list of paths to search for theme files.
 	 */
-	final public function theme_path($add = null, $first = true) {
+	final public function theme_path($add = null, $prefix = null) {
 		if (is_array($add)) {
-			foreach ($add as $a) {
-				$this->theme_path($a, $first);
+			foreach ($add as $k => $v) {
+				if (is_numeric($k)) {
+					$this->theme_path($v, $prefix === true ? true : null);
+				} else {
+					$this->theme_path($v, $k);
+				}
 			}
 			return $this->theme_path;
 		}
 		if ($add && !in_array($add, $this->theme_path)) {
-			if ($first) {
+			if (is_string($prefix)) {
+				$this->theme_path[$prefix] = $add;
+			} else if ($prefix === true) {
 				array_unshift($this->theme_path, $add);
 			} else {
 				$this->theme_path[] = $add;
@@ -1750,7 +1756,8 @@ class Application extends Hookable implements Interface_Theme {
 	}
 	
 	/**
-	 * Register a class with the application
+	 * Register a class with the application to make it discoverable and
+	 * to register any hooks.
 	 *
 	 * @param string $class
 	 * @return array This class name and parent classes
@@ -1770,6 +1777,7 @@ class Application extends Hookable implements Interface_Theme {
 	 * @see self::path()
 	 */
 	final public function application_root($suffix = null) {
+		$this->deprecated();
 		return $this->paths->application($suffix);
 	}
 	
@@ -2259,7 +2267,7 @@ class Application extends Hookable implements Interface_Theme {
 	 * @param array $arguments
 	 * @return void
 	 */
-	public function deprecated($message, array $arguments = array()) {
+	public function deprecated($message = null, array $arguments = array()) {
 		$arguments['depth'] = to_integer(avalue($arguments, 'depth', 0)) + 1;
 		$this->zesk->deprecated($message, $arguments);
 	}

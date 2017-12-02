@@ -24,14 +24,6 @@ abstract class Command extends Hookable implements Logger\Handler {
 	/**
 	 * Application running this command
 	 *
-	 * @deprecated 2017-10
-	 * @var Kernel
-	 */
-	protected $zesk = null;
-	
-	/**
-	 * Application running this command
-	 *
 	 * @var Application
 	 */
 	public $application = null;
@@ -221,8 +213,6 @@ abstract class Command extends Hookable implements Logger\Handler {
 				"args" => var_export($argv, true)
 			));
 		}
-		$application->console(true);
-		$application->zesk->newline = "\n"; // TODO Something better
 		
 		if ($this->has_errors()) {
 			$this->usage(implode("\n", $this->errors()));
@@ -1080,14 +1070,12 @@ abstract class Command extends Hookable implements Logger\Handler {
 	 * @return array
 	 */
 	protected function exec($command) {
-		global $zesk;
-		/* @var $zesk Kernel */
 		$args = func_get_args();
 		array_shift($args);
 		if (count($args) === 1 && is_array($args[0])) {
 			$args = $args[0];
 		}
-		return $zesk->process->execute_arguments($command, $args);
+		return $this->application->process->execute_arguments($command, $args);
 	}
 	
 	/**
@@ -1098,8 +1086,8 @@ abstract class Command extends Hookable implements Logger\Handler {
 	 */
 	protected function zesk_cli($command, array $arguments = array()) {
 		$app = $this->application;
-		$zesk_bin = $app->zesk_root("bin/zesk.sh");
-		return $app->process->execute_arguments("$zesk_bin --search {app_root} $command", array(
+		$bin = $app->zesk_root("bin/zesk.sh");
+		return $app->process->execute_arguments("$bin --search {app_root} $command", array(
 			"app_root" => $app->path()
 		) + $arguments);
 	}

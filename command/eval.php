@@ -96,8 +96,8 @@ class Command_Eval extends Command_Base {
 			$prefix = "";
 		}
 		try {
-			$command = $this;
-			$application = $this->application;
+			$command = $_ = $this;
+			$application = $app = $this->application;
 			$result = eval("?" . "><" . "?php\n$prefix " . $string . ";\n");
 			return $result;
 		} catch (Exception $e) {

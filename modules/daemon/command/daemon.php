@@ -149,16 +149,13 @@ class Command_Daemon extends Command_Base implements Interface_Process {
 	 * @see Command::run()
 	 */
 	function run() {
-		global $zesk;
-		/* @var $zesk Kernel */
-		
 		$this->module = $this->application->modules->object("daemon");
 		
 		PHP::requires('pcntl', true);
 		
 		$this->configure("daemon", true);
 		if ($this->option_bool('debug-log')) {
-			echo Text::format_pairs(arr::filter_prefix($zesk->configuration->to_array(), "log"));
+			echo Text::format_pairs(arr::filter_prefix($this->application->configuration->to_array(), "log"));
 		}
 		
 		$this->fifo_path = path($this->module->rundir, "daemon-controller");
@@ -228,29 +225,27 @@ class Command_Daemon extends Command_Base implements Interface_Process {
 	 * @return number
 	 */
 	public final function command_stop($signal = SIGTERM) {
-		global $zesk;
-		/* @var $zesk Kernel */
 		$database = $this->_process_database();
 		if (count($database) === 0) {
-			$zesk->logger->error("Not running.");
+			$this->application->logger->error("Not running.");
 			return 1;
 		}
 		$signal_name = avalue(self::$signals, $signal, $signal);
 		$me = avalue($database, 'me');
 		if (!$me) {
 			$changed = false;
-			$zesk->logger->error("Parent process has been terminated - killing children");
+			$this->application->logger->error("Parent process has been terminated - killing children");
 			var_dump($database);
 			foreach ($database as $name => $settings) {
 				$pid = $status = $time = null;
 				extract($settings, EXTR_IF_EXISTS);
 				if ($status === "up") {
 					if (!posix_kill($pid, $signal)) {
-						$zesk->logger->notice("Dead process {name} ({pid})", compact("name", "pid"));
+						$this->application->logger->notice("Dead process {name} ({pid})", compact("name", "pid"));
 						unset($database[$name]);
 						$changed = true;
 					} else {
-						$zesk->logger->notice("Sent {signal_name} to {name} ({pid})", compact("name", "pid"));
+						$this->application->logger->notice("Sent {signal_name} to {name} ({pid})", compact("name", "pid"));
 					}
 				} else {
 					unset($database[$name]);
@@ -264,7 +259,7 @@ class Command_Daemon extends Command_Base implements Interface_Process {
 		}
 		
 		$pid = $me['pid'];
-		$zesk->logger->notice("Sent {signal} to process {pid}", array(
+		$this->application->logger->notice("Sent {signal} to process {pid}", array(
 			"pid" => $pid,
 			"signal" => $signal_name
 		));
@@ -272,9 +267,7 @@ class Command_Daemon extends Command_Base implements Interface_Process {
 		return 0;
 	}
 	private function daemons() {
-		global $zesk;
-		/* @var $zesk Kernel */
-		$daemons = $zesk->hooks->find_all(array(
+		$daemons = $this->application->hooks->find_all(array(
 			"zesk\Application::daemon",
 			"zesk\Module::daemon",
 			"zesk\Object::daemon"
@@ -336,8 +329,6 @@ class Command_Daemon extends Command_Base implements Interface_Process {
 	 * @return number
 	 */
 	public final function command_state($name, $want, $newstate = null) {
-		global $zesk;
-		/* @var $zesk Kernel */
 		$database = $this->_process_database();
 		if ($name === "all") {
 			foreach ($database as $name => $settings) {
@@ -350,7 +341,7 @@ class Command_Daemon extends Command_Base implements Interface_Process {
 			$found = false;
 			foreach ($database as $procname => $settings) {
 				if (stripos($procname, $name) !== false) {
-					$zesk->logger->notice("Matched process name {procname}", compact("procname"));
+					$this->application->logger->notice("Matched process name {procname}", compact("procname"));
 					$this->_command_state($database, $procname, $settings, $want, $newstate);
 					$found = true;
 				}
@@ -361,7 +352,7 @@ class Command_Daemon extends Command_Base implements Interface_Process {
 			$settings = null;
 		}
 		if (!is_array($settings)) {
-			$zesk->logger->error("Unknown process {name}", array(
+			$this->application->logger->error("Unknown process {name}", array(
 				"name" => $name
 			));
 			return 2;
@@ -379,8 +370,6 @@ class Command_Daemon extends Command_Base implements Interface_Process {
 	 * @return number
 	 */
 	private function _command_state(array $database, $name, array $settings, $want, $newstate = null) {
-		global $zesk;
-		/* @var $zesk Kernel */
 		$pid = $status = null;
 		extract($settings, EXTR_IF_EXISTS);
 		if ($status === $want) {
@@ -403,7 +392,7 @@ class Command_Daemon extends Command_Base implements Interface_Process {
 					$killed = true;
 				}
 				if ($timer->elapsed() > 10) {
-					$zesk->logger->error("Unable to kill process {name} ({pid})", array(
+					$this->application->logger->error("Unable to kill process {name} ({pid})", array(
 						"name" => $name,
 						"pid" => $pid
 					));
@@ -574,7 +563,6 @@ class Command_Daemon extends Command_Base implements Interface_Process {
 				}
 				return unserialize(fread($this->fifo_r, $n));
 			}
-			//$zesk->logger->debug("stream_select timed out after $sec sec $usec usec");
 			return null;
 		}
 	}
@@ -613,8 +601,6 @@ class Command_Daemon extends Command_Base implements Interface_Process {
 	 * @return number
 	 */
 	public final function command_run() {
-		global $zesk;
-		/* @var $zesk Kernel */
 		$database = $this->_process_database();
 		assert(is_array($database));
 		$my_db_pid = apath($database, 'me.pid');
@@ -635,17 +621,17 @@ class Command_Daemon extends Command_Base implements Interface_Process {
 			}
 		}
 		$database['me'] = array(
-			'pid' => $zesk->process->id(),
+			'pid' => $this->application->process->id(),
 			'status' => 'up',
 			'time' => microtime(true)
 		);
 		$this->_process_database($database);
-		$zesk->logger->notice("Daemon run successfully.");
+		$this->application->logger->notice("Daemon run successfully.");
 		self::instance($this);
 		
 		PHP::feature("time_limit", $this->option_integer("time_limit", 0));
 		$daemons = $this->daemons();
-		$zesk->logger->debug("Daemons to run: " . implode(", ", $daemons));
+		$this->application->logger->debug("Daemons to run: " . implode(", ", $daemons));
 		
 		if (file_exists($this->fifo_path)) {
 			if (!unlink($this->fifo_path)) {
@@ -672,7 +658,7 @@ class Command_Daemon extends Command_Base implements Interface_Process {
 				}
 				if ($elapsed > $alive_notices) {
 					$alive_notices = $elapsed + $this->option('alive-interval', 600);
-					$zesk->logger->notice("Daemon is running at {date}", array(
+					$this->application->logger->notice("Daemon is running at {date}", array(
 						"date" => Timestamp::now()->format()
 					));
 				}
@@ -682,31 +668,28 @@ class Command_Daemon extends Command_Base implements Interface_Process {
 		return 0;
 	}
 	private function run_child($name) {
-		global $zesk;
-		
-		$pid = $zesk->process->id();
-		/* @var $zesk Kernel */
-		$zesk->logger->debug("FORKING for process {name} me={pid}", array(
+		$pid = $this->application->process->id();
+		$this->application->logger->debug("FORKING for process {name} me={pid}", array(
 			"name" => $name,
 			"pid" => $pid
 		));
 		$nofork = $this->option_bool("nofork");
 		if ($nofork) {
-			$zesk->logger->warning("Not forking for child process because of --nofork");
+			$this->application->logger->warning("Not forking for child process because of --nofork");
 			$child = 0;
 		} else {
 			$child = pcntl_fork();
 		}
 		if ($child < 0) {
-			$zesk->logger->error("Unable to fork to run {name}", array(
+			$this->application->logger->error("Unable to fork to run {name}", array(
 				"name" => $name
 			));
 			return null;
 		} else if ($child === 0) {
 			$this->application->hooks->call('pcntl_fork-child');
-			$zesk->logger->notice("Running {name} as process id {pid}", array(
+			$this->application->logger->notice("Running {name} as process id {pid}", array(
 				"name" => $name,
-				"pid" => $zesk->process->id()
+				"pid" => $this->application->process->id()
 			));
 			$this->name = $name;
 			$this->method = str::left($name, "^", $name);
@@ -716,7 +699,7 @@ class Command_Daemon extends Command_Base implements Interface_Process {
 		}
 		$this->application->hooks->call('pcntl_fork-parent');
 		
-		$zesk->logger->debug("PARENT FORKED for process {name} me={pid} child={child}", array(
+		$this->application->logger->debug("PARENT FORKED for process {name} me={pid} child={child}", array(
 			"name" => $name,
 			"pid" => $pid,
 			"child" => $child
@@ -743,16 +726,14 @@ class Command_Daemon extends Command_Base implements Interface_Process {
 	 * @param unknown $timeout
 	 */
 	private function read_fifo($timeout) {
-		global $zesk;
-		/* @var $zesk Kernel */
 		if ($this->debug) {
-			$zesk->logger->debug("Server waiting for data in FIFO (timeout is {timeout} seconds)", array(
+			$this->application->logger->debug("Server waiting for data in FIFO (timeout is {timeout} seconds)", array(
 				"timeout" => $timeout
 			));
 		}
 		$result = $this->read($timeout);
 		if ($this->debug) {
-			$zesk->logger->debug("Server read: {data}", array(
+			$this->application->logger->debug("Server read: {data}", array(
 				'data' => var_export($result, true)
 			));
 		}
@@ -763,11 +744,11 @@ class Command_Daemon extends Command_Base implements Interface_Process {
 		foreach ($result as $name => $pid) {
 			if (is_numeric($pid)) {
 				if (!array_key_exists($name, $database)) {
-					$zesk->logger->error("Child sent name which isn't in our database? {name}", array(
+					$this->application->logger->error("Child sent name which isn't in our database? {name}", array(
 						"name" => $name
 					));
 				} else if ($database[$name]['pid'] !== $pid) {
-					$zesk->logger->error("Child sent PID which doesn't match our database (Child sent {childpid}, we have {pid}?", $database[$name] + array(
+					$this->application->logger->error("Child sent PID which doesn't match our database (Child sent {childpid}, we have {pid}?", $database[$name] + array(
 						"childpid" => $pid
 					));
 				}
@@ -781,12 +762,12 @@ class Command_Daemon extends Command_Base implements Interface_Process {
 				pcntl_waitpid($childpid, $status);
 				if ($pid === "down") {
 					$database[$name]['status'] = "down";
-					$zesk->logger->error("Service {name} requested to go down", array(
+					$this->application->logger->error("Service {name} requested to go down", array(
 						"name" => $name
 					));
 				}
 			} else {
-				$zesk->logger->debug("Unknown message from child: {child_pid}", array(
+				$this->application->logger->debug("Unknown message from child: {child_pid}", array(
 					'data' => serialize($pid)
 				));
 			}
@@ -798,8 +779,6 @@ class Command_Daemon extends Command_Base implements Interface_Process {
 	 * Run all of our children
 	 */
 	private function run_children() {
-		global $zesk;
-		/* @var $zesk Kernel */
 		$daemons = $this->daemons();
 		$database = $this->_process_database();
 		foreach ($daemons as $name) {
@@ -815,14 +794,14 @@ class Command_Daemon extends Command_Base implements Interface_Process {
 				extract($settings, EXTR_IF_EXISTS);
 				$pcntl_status = null;
 				if (($wait = pcntl_waitpid($pid, $pcntl_status, WNOHANG)) > 0) {
-					$zesk->logger->debug("Child process {name} {pid} exited with {pcntl_status} (result = {wait})", compact("name", "wait", "pcntl_status", "pid"));
+					$this->application->logger->debug("Child process {name} {pid} exited with {pcntl_status} (result = {wait})", compact("name", "wait", "pcntl_status", "pid"));
 					unset($database[$name]);
 					$this->_process_database($database);
 					continue;
 				}
 				if (posix_kill($pid, 0)) {
 					if ($status === 'down') {
-						$zesk->logger->debug("Sending TERM to {name} ({pid}) - want down", array(
+						$this->application->logger->debug("Sending TERM to {name} ({pid}) - want down", array(
 							"pid" => $pid,
 							"name" => $name
 						));
@@ -830,7 +809,7 @@ class Command_Daemon extends Command_Base implements Interface_Process {
 						continue;
 					}
 					if ($this->debug) {
-						$zesk->logger->debug("Checking {name} {pid}: Running", array(
+						$this->application->logger->debug("Checking {name} {pid}: Running", array(
 							"name" => $name,
 							"pid" => $pid
 						));
@@ -846,7 +825,7 @@ class Command_Daemon extends Command_Base implements Interface_Process {
 					}
 				} else {
 					$errno = posix_get_last_error();
-					$zesk->logger->debug("{name} REMOVED {pid} NOT RUNNING {errno}: {strerror}", array(
+					$this->application->logger->debug("{name} REMOVED {pid} NOT RUNNING {errno}: {strerror}", array(
 						"name" => $name,
 						"pid" => $database[$name],
 						"errno" => $errno,
@@ -858,7 +837,7 @@ class Command_Daemon extends Command_Base implements Interface_Process {
 			}
 		}
 		while (($wait = pcntl_waitpid(-1, $status, WNOHANG)) > 0) {
-			$zesk->logger->debug("Child process {wait} exited with {status}", compact("wait", "status"));
+			$this->application->logger->debug("Child process {wait} exited with {status}", compact("wait", "status"));
 		}
 	}
 	
@@ -868,14 +847,12 @@ class Command_Daemon extends Command_Base implements Interface_Process {
 	 * @throws Exception_File_Permission
 	 */
 	private function _fifo_write() {
-		global $zesk;
-		/* @var $zesk Kernel */
 		if (is_resource($this->fifo_w)) {
 			return;
 		}
 		$this->fifo_w = fopen($this->fifo_path, "w");
 		if (!$this->fifo_w) {
-			$zesk->logger->error("Can not open fifo {fifo} for writing", array(
+			$this->application->logger->error("Can not open fifo {fifo} for writing", array(
 				"fifo" => $this->fifo_path
 			));
 			throw new Exception_File_Permission($this->fifo_path, "fopen('{filename}', 'w')");
@@ -888,11 +865,9 @@ class Command_Daemon extends Command_Base implements Interface_Process {
 	 * @throws Exception_File_Permission
 	 */
 	private function _fifo_read() {
-		global $zesk;
-		/* @var $zesk Kernel */
 		$this->fifo_r = fopen($this->fifo_path, "r+");
 		if (!$this->fifo_r) {
-			$zesk->logger->error("Can not open fifo {fifo} for reading", array(
+			$this->application->logger->error("Can not open fifo {fifo} for reading", array(
 				"fifo" => $this->fifo_path
 			));
 			throw new Exception_File_Permission($this->fifo_path, "fopen('{filename}', 'r')");
@@ -932,8 +907,6 @@ class Command_Daemon extends Command_Base implements Interface_Process {
 	 * Run child process, then exit
 	 */
 	private function child() {
-		global $zesk;
-		/* @var $zesk Kernel */
 		$this->parent = false;
 		if ($this->option_bool("nofork")) {
 			$this->_fifos_close();
@@ -942,11 +915,11 @@ class Command_Daemon extends Command_Base implements Interface_Process {
 			$this->_fifo_write();
 		}
 		$this->install_signals();
-		$pid = $zesk->process->id();
+		$pid = $this->application->process->id();
 		$this->send(array(
 			$this->name => $pid
 		));
-		$zesk->logger->debug("Running {name} as part of {pid}", array(
+		$this->application->logger->debug("Running {name} as part of {pid}", array(
 			"name" => $this->name,
 			"pid" => $pid
 		));
@@ -1025,13 +998,11 @@ class Command_Daemon extends Command_Base implements Interface_Process {
 	 * @param array $database
 	 */
 	private function shutdown_children(array $database) {
-		global $zesk;
-		/* @var $zesk Kernel */
 		foreach ($database as $name => $settings) {
 			$pid = $status = null;
 			extract($settings, EXTR_IF_EXISTS);
 			if ($status === 'up' && $pid) {
-				$zesk->logger->debug("Sending SIGINT to {pid}", array(
+				$this->application->logger->debug("Sending SIGINT to {pid}", array(
 					'pid' => $pid
 				));
 				posix_kill($pid, SIGINT);
@@ -1042,7 +1013,7 @@ class Command_Daemon extends Command_Base implements Interface_Process {
 			foreach ($database as $name => $settings) {
 				$pid = $status = null;
 				extract($settings, EXTR_IF_EXISTS);
-				if ($pid === $zesk->process->id()) {
+				if ($pid === $this->application->process->id()) {
 					continue;
 				}
 				if ($status === 'down') {
@@ -1052,14 +1023,14 @@ class Command_Daemon extends Command_Base implements Interface_Process {
 				$status = null;
 				$result = pcntl_waitpid($pid, $status, WNOHANG);
 				if ($result === -1) {
-					$zesk->logger->error("pcntl_waitpid({pid}, {status}, WNOHANG) returned -1, child died? {name}", array(
+					$this->application->logger->error("pcntl_waitpid({pid}, {status}, WNOHANG) returned -1, child died? {name}", array(
 						"name" => $name,
 						"pid" => $pid,
 						"status" => $status
 					));
 					unset($database[$name]);
 				} else if ($result === 0) {
-					$zesk->logger->debug("pcntl_waitpid({pid}, {status}, WNOHANG) returned 0, no child available. {name}.", array(
+					$this->application->logger->debug("pcntl_waitpid({pid}, {status}, WNOHANG) returned 0, no child available. {name}.", array(
 						"name" => $name,
 						"pid" => $pid,
 						"status" => $status
@@ -1085,13 +1056,11 @@ class Command_Daemon extends Command_Base implements Interface_Process {
 	 * Nice way to do it.
 	 */
 	function terminate($message = null) {
-		global $zesk;
-		/* @var $zesk Kernel */
 		if ($this->quitting) {
 			return;
 		}
 		if ($message) {
-			$zesk->logger->notice($message);
+			$this->application->logger->notice($message);
 		}
 		$this->quitting = true;
 		if ($this->parent) {
@@ -1099,10 +1068,10 @@ class Command_Daemon extends Command_Base implements Interface_Process {
 			if (count($database) > 0) {
 				$this->shutdown_children($database);
 			} else {
-				$zesk->logger->error("Database is empty on termination? ...");
+				$this->application->logger->error("Database is empty on termination? ...");
 			}
 			usleep(0.1 * 1000000);
-			$zesk->logger->debug("Deleting FIFO and database ...");
+			$this->application->logger->debug("Deleting FIFO and database ...");
 			unlink($this->fifo_path);
 			$this->module->unlink_database();
 		} else {
@@ -1110,7 +1079,7 @@ class Command_Daemon extends Command_Base implements Interface_Process {
 			if ($this->has_option("terminate-wait")) {
 				sleep($this->option_integer("terminate-wait", 1));
 			}
-			$zesk->logger->notice("Daemon child terminated ...");
+			$this->application->logger->notice("Daemon child terminated ...");
 			exit();
 		}
 	}
@@ -1148,8 +1117,6 @@ class Command_Daemon extends Command_Base implements Interface_Process {
 	 * @param string $level
 	 */
 	function warning($message, array $args = array()) {
-		global $zesk;
-		/* @var $zesk Kernel */
-		$zesk->logger->warning($message, $args);
+		$this->application->logger->warning($message, $args);
 	}
 }

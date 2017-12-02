@@ -31,10 +31,9 @@ class Model_Settings extends Model {
 	/**
 	 * 
 	 * {@inheritDoc}
-	 * @see \zesk\Model::construct()
 	 */
-	public function construct() {
-		parent::construct();
+	public function initialize() {
+		parent::initialize();
 		$this->configuration = $this->application->configuration;
 		$this->inherit_global_options();
 	}

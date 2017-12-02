@@ -110,7 +110,7 @@ class Content_Data extends Object {
 			}
 		}
 		if ($type === 'path') {
-			$data = self::_copy_data($path, $copy, $md5);
+			$data = self::_copy_data($app, $path, $copy, $md5);
 		} else {
 			$data = file_get_contents($path);
 		}
@@ -131,13 +131,11 @@ class Content_Data extends Object {
 	 * @throws Exception_Directory_Create
 	 * @return multitype:string unknown Ambigous <string, mixed>
 	 */
-	private static function _copy_data($source_path, $copy, $md5, $data = null) {
-		global $zesk;
-		/* @var $zesk Kernel */
+	private static function _copy_data(Application $app, $source_path, $copy, $md5, $data = null) {
 		$result = array();
-		$result['data_path'] = $zesk->paths->data();
+		$result['data_path'] = $app->paths->data();
 		$result['original_path'] = $source_path;
-		$result['path'] = 'content/data/' . $md5 . "." . file::extension($source_path);
+		$result['path'] = 'content/data/' . $md5 . "." . File::extension($source_path);
 		
 		$dest = path($result['data_path'], $result['path']);
 		
@@ -319,8 +317,6 @@ class Content_Data extends Object {
 	 * Internal validation function, attempts to repair files when filesystem changes, etc.
 	 */
 	protected function validate_and_repair() {
-		global $zesk;
-		/* @var $zesk Kernel */
 		if ($this->type === 'path') {
 			if (!is_array($this->data)) {
 				$this->application->logger->error("Content_data({ID}) has non array data", $this->members());
@@ -337,7 +333,7 @@ class Content_Data extends Object {
 							'old_path' => $old_path,
 							"new_path" => $this_path
 						) + $this->members());
-						$this->data['data_path'] = $zesk->paths->data();
+						$this->data['data_path'] = $this->application->paths->data();
 					} else {
 						$this->application->logger->error("Content_data({ID}) Unable to move {old_path} to {new_path}", array(
 							'old_path' => $old_path,
@@ -383,7 +379,7 @@ class Content_Data extends Object {
 		} else {
 			$this->type = 'path';
 			$data = $this->data();
-			$data = $this->_copy_data('db.data', false, md5($data), $data);
+			$data = self::_copy_data($this->application, 'db.data', false, md5($data), $data);
 		}
 		$this->data = $data;
 		return $this->store();

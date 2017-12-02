@@ -164,8 +164,6 @@ class Command_Update extends Command_Base {
 	 * Retrieve a list of modules from available paths
 	 */
 	private function modules_from_module_paths($module_options) {
-		global $zesk;
-		/* @var $zesk Kernel */
 		$modules = array();
 		$paths = $this->application->module_path();
 		if (count($paths) === 0) {
@@ -190,7 +188,7 @@ class Command_Update extends Command_Base {
 						$modules[$module] = $data;
 						$this->verbose_log("Module {name} loaded configuration {configuration_file}", $debug + $data);
 					} else {
-						$zesk->logger->warning("{name} does not have an associated configuration file", $debug + $data);
+						$this->application->logger->warning("{name} does not have an associated configuration file", $debug + $data);
 					}
 				}
 			} else {

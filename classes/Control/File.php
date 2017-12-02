@@ -78,8 +78,7 @@ class Control_File extends Control {
 		try {
 			$file = $this->request->file($name . '_file');
 		} catch (Exception_Upload $e) {
-			global $zesk;
-			$zesk->hooks->call("exception", $e);
+			$this->application->hooks->call("exception", $e);
 			$this->error($e->getMessage());
 			return false;
 		}

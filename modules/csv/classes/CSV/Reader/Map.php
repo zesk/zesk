@@ -66,9 +66,7 @@ class CSV_Reader_Map extends CSV_Reader {
 	 * @return self
 	 */
 	public static function factory($filename, array $options = array()) {
-		global $zesk;
-		/* @var $zesk zesk\Kernel */
-		return $zesk->objects->factory(__CLASS__, $filename, $options);
+		return new self($filename, $options);
 	}
 	
 	/**
@@ -233,16 +231,13 @@ class CSV_Reader_Map extends CSV_Reader {
 	 * @return self
 	 */
 	private function _add_translation_map_type(array $columns, $type) {
-		global $zesk;
-		/* @var $zesk zesk\Kernel */
 		foreach ($columns as $column) {
 			if (!in_array($column, $this->Headers)) {
-				$zesk->logger->warning("Unknown header key {key} in CSV reader for file {file} (type {type})", array(
+				throw new Exception_Key("Unknown header key {key} in CSV reader for file {file} (type {type})", array(
 					"key" => $column,
 					"type" => $type,
 					"file" => $this->FileName
 				));
-				continue;
 			}
 			$this->translation_map[$column] = $type;
 		}

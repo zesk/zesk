@@ -146,7 +146,7 @@ class Database extends \zesk\Database {
 	 * Register schemes this class support
 	 */
 	public static function hooks(Kernel $zesk) {
-		// Kernel shoudl find some way to store this registration data instead of per-class
+		// Kernel should find some way to store this registration data instead of per-class
 		// TODO
 		\zesk\Database::register_scheme("mysql", __CLASS__);
 		\zesk\Database::register_scheme("mysqli", __CLASS__);
@@ -338,8 +338,6 @@ class Database extends \zesk\Database {
 	 * @see zesk\Database::dump()
 	 */
 	function dump($filename, array $options = array()) {
-		global $zesk;
-		/* @var $zesk zesk\Kernel */
 		$parts = $this->url_parts;
 		
 		$parts['port'] = avalue($parts, "port", 3306);
@@ -363,7 +361,7 @@ class Database extends \zesk\Database {
 		$cmd_options[] = implode(" ", $tables);
 		$result = 0;
 		$cmd = "mysqldump " . implode(" ", $cmd_options) . " > {filename}";
-		$zesk->process->execute_arguments($cmd, $parts + array(
+		$this->application->process->execute_arguments($cmd, $parts + array(
 			'filename' => $filename
 		));
 		return file_exists($filename);
@@ -377,8 +375,6 @@ class Database extends \zesk\Database {
 	 * @see zesk\Database::dump()
 	 */
 	function restore($filename, array $options = array()) {
-		global $zesk;
-		/* @var $zesk Kernel */
 		if (!file_exists($filename)) {
 			throw new Exception_File_NotFound($filename);
 		}
@@ -396,7 +392,7 @@ class Database extends \zesk\Database {
 		$cmd_options[] = $database;
 		$result = 0;
 		$cmd = "mysql " . implode(" ", $cmd_options) . " < {filename}";
-		$zesk->process->execute_arguments($cmd, $parts + array(
+		$this->application->process->execute_arguments($cmd, $parts + array(
 			'filename' => $filename
 		));
 		return file_exists($filename);

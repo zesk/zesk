@@ -73,6 +73,15 @@ class Module extends Hookable {
 	}
 	
 	/**
+	 * The path to the module root
+	 * 
+	 * @return string
+	 */
+	final public function path() {
+		return $this->path;
+	}
+	
+	/**
 	 * 
 	 * {@inheritDoc}
 	 * @see \zesk\Hookable::__wakeup()

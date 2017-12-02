@@ -110,9 +110,9 @@ class CDN {
 		} else {
 			if (!is_dir($root_dir)) {
 				if ($create) {
-					global $zesk;
 					Directory::create($root_dir, 0775);
-					$zesk->hooks->call("directory_created", $root_dir);
+					// DEPRECATED So breaking this is OK
+					//$  ze s k-> h o o k s ->c a ll("directory_created", $root_dir);
 				}
 				throw new Exception_Directory_NotFound($root_dir);
 			}

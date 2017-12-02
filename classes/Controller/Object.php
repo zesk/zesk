@@ -361,11 +361,6 @@ abstract class Controller_Object extends Controller_Authenticated {
 	function before() {
 		if ($this->request->getb('ajax')) {
 			$this->is_ajax = true;
-			// TODO Possible security issue here, invoking themes without any checks whatsoever
-			$theme = $this->request->get("theme");
-			if ($theme) {
-				$this->template = $theme . ".tpl";
-			}
 		}
 		parent::before();
 	}
@@ -378,7 +373,7 @@ abstract class Controller_Object extends Controller_Authenticated {
 	function after($result = null, $output = null) {
 		if ($this->is_ajax) {
 			if (!$this->response->json()) {
-				$content = $this->template->content;
+				$content = $this->response->content;
 				if (!empty($result)) {
 					$content .= $result;
 				}
@@ -397,7 +392,7 @@ abstract class Controller_Object extends Controller_Authenticated {
 		} else if ($this->response->json()) {
 			$this->auto_render(false);
 		}
-		parent::after();
+		parent::after($result, $output);
 	}
 	
 	/**
@@ -542,18 +537,17 @@ abstract class Controller_Object extends Controller_Authenticated {
 				$title = $action_prefix . $this->class_name;
 			}
 			$widget->set_option("class_name", $this->class_name);
-			$this->control($widget, $object, array(
+			return $this->control($widget, $object, array(
 				'title' => $title,
 				"action" => $action,
 				"route_action" => $action
 			));
 		} catch (Exception_Class_NotFound $e) {
-			global $zesk;
-			$zesk->hooks->call("exception", $e);
+			$this->application->hooks->call("exception", $e);
 			if ($this->not_found_url) {
 				$this->response->redirect($this->not_found_url, $this->not_found_message);
 			} else {
-				$this->template->content = $this->not_found_content . HTML::tag("div", ".error", $e->getMessage());
+				return $this->not_found_content . HTML::tag("div", ".error", $e->getMessage());
 			}
 		}
 	}

@@ -83,8 +83,6 @@ class Control_Login extends Control_Edit {
 	 * @see Control_Edit::validate()
 	 */
 	public function validate() {
-		global $zesk;
-		/* @var $zesk zesk\Kernel */
 		if (!parent::validate()) {
 			return false;
 		}
@@ -116,7 +114,7 @@ class Control_Login extends Control_Edit {
 			}
 		}
 		if ($failed) {
-			$zesk->logger->warning("User login failed for user {login}", array(
+			$this->application->logger->warning("User login failed for user {login}", array(
 				"login" => $login,
 				"password_hash" => $object->login_password_hash
 			));

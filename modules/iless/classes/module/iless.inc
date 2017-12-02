@@ -109,8 +109,6 @@ class Module_iLess extends zesk\Module {
 	 * @param array $variables
 	 */
 	private function _compile_css_theme(array $variables = array()) {
-		global $zesk;
-		/* @var $zesk zesk\Kernel */
 		$doc_root = $this->application->document_root();
 		$site_css = $this->_css_path();
 		$full_path = $this->_full_css_path();
@@ -123,18 +121,18 @@ class Module_iLess extends zesk\Module {
 		foreach ($types as $name => $settings) {
 			$settings['name'] = $name;
 			$type = avalue($settings, 'type', 'normal');
-			$value = $zesk->configuration->path_get($name, avalue($settings, 'default', null));
+			$value = $this->application->configuration->path_get($name, avalue($settings, 'default', null));
 			$variables[$name] = $this->call_hook_arguments("process_variables_$type", array(
 				$value,
 				$settings
 			), $value);
 		}
-		$zesk->logger->debug("LESS Vars: {vars}", array(
+		$this->application->logger->debug("LESS Vars: {vars}", array(
 			"vars" => _dump($variables)
 		));
 		$compiler->variables($variables);
 		$compiler->compile_file($source, $full_path);
-		$zesk->logger->notice("Write css theme {path}", array(
+		$this->application->logger->notice("Write css theme {path}", array(
 			"path" => $full_path
 		));
 	}

@@ -151,13 +151,11 @@ class Permission extends Object {
 	 * @return boolean unknown NULL
 	 */
 	public function check(User $user, $action, Model $context = null, array $options) {
-		global $zesk;
-		/* @var $zesk \zesk\Kernel */
 		$class = $this->member('class');
 		if ($class !== null) {
 			if (!$context instanceof $class) {
 				if (self::$debug) {
-					$zesk->logger->debug("Permission::check: {context} not instanceof {class}", array(
+					$this->application->logger->debug("Permission::check: {context} not instanceof {class}", array(
 						"context" => get_class($context),
 						"class" => $class
 					));
@@ -168,7 +166,7 @@ class Permission extends Object {
 			$result = $this->before_hook($user, $options);
 			if (is_bool($result)) {
 				if (self::$debug) {
-					$zesk->logger->debug("Permission::check: before hook for {action} returned {value}", array(
+					$this->application->logger->debug("Permission::check: before hook for {action} returned {value}", array(
 						"action" => $action,
 						"value" => $result ? "true" : "false"
 					));
@@ -182,7 +180,7 @@ class Permission extends Object {
 			), null);
 			if (is_bool($result)) {
 				if (self::$debug) {
-					$zesk->logger->debug("Permission::check: hook_array {hook} for {action} returned {value}", array(
+					$this->application->logger->debug("Permission::check: hook_array {hook} for {action} returned {value}", array(
 						"action" => $action,
 						"value" => $result ? "true" : "false",
 						"hook" => $hook

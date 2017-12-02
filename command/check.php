@@ -71,9 +71,6 @@ class Command_Check extends Command_Iterator_File {
 	protected $show = false;
 	protected $changed = 0;
 	function initialize() {
-		global $zesk;
-		/* @var $zesk zesk\Kernel */
-
 		parent::initialize();
 
 		$this->option_types['prefix'] = 'string';

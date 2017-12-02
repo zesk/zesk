@@ -68,10 +68,10 @@ class Workflow extends Model {
 	function __construct(Application $application, array $variables = array(), array $options = array()) {
 		parent::__construct($application, $options);
 		$this->inherit_global_options();
-		$this->initialize();
 		$this->variable($variables);
 		$this->_init_steps();
 		$this->_clean_completed();
+		$this->initialize();
 	}
 	public final function percent() {
 		return 100 * ($this->steps_total === 0 ? 1 : $this->steps_completed / $this->steps_total);

@@ -22,7 +22,7 @@ class Command_Build extends Command_Base {
 			"callable" => $this->application->hooks->callable_string($callable)
 		));
 	}
-	function build_result_callback($callable, $previous_result, $new_result, $return_hint) {
+	function build_result_callback($callable, $previous_result, $new_result) {
 		$callable_string = $this->application->hooks->callable_string($callable);
 		$this->log("Completed build step {callable}", array(
 			"callable" => $callable_string

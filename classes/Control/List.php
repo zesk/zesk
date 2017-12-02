@@ -290,8 +290,7 @@ class Control_List extends Control_Widgets_Filter {
 	 * @return void
 	 */
 	protected function initialize_theme_paths() {
-		global $zesk;
-		$hierarchy = $zesk->classes->hierarchy($this, __CLASS__);
+		$hierarchy = $this->application->classes->hierarchy($this, __CLASS__);
 		foreach ($hierarchy as $index => $class) {
 			$hierarchy[$index] = strtr(strtolower($class), "_", "/") . "/";
 		}

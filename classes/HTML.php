@@ -225,8 +225,6 @@ class HTML {
 	 * @return string
 	 */
 	public static function href(Application $application, $src) {
-		global $zesk;
-		/* @var $zesk \zesk\Kernel */
 		if (URL::valid($src)) {
 			return $src;
 		}
@@ -449,8 +447,8 @@ class HTML {
 			backtrace();
 		}
 		if (array_key_exists($name, self::$attributes_alter)) {
-			global $zesk;
-			$result = $zesk->hooks->call_arguments(__METHOD__ . "::$name", array(
+			// TODO - avoid globals, but this is used EVERYWHERE without a context
+			$result = Kernel::singleton()->hooks->call_arguments(__METHOD__ . "::$name", array(
 				$attributes,
 				$content
 			), $attributes);

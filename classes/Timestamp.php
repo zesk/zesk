@@ -130,28 +130,33 @@ class Timestamp extends Temporal {
 	}
 	
 	/**
-	 *
-	 * @param Kernel $zesk
+	 * Copy kernel upon hook intiailization to avoid globals later. Is this a good pattern?
+	 * 
+	 * @var Kernel
 	 */
-	public static function hooks(Kernel $zesk) {
-		$zesk->configuration->path('Timestamp');
-	}
+	private static $kernel = null;
 	/**
 	 *
+	 * @param Kernel $kernel
+	 */
+	public static function hooks(Kernel $kernel) {
+		$kernel->configuration->deprecated('Timestamp', __CLASS__);
+		$kernel->hooks->alias("Timestamp::formatting", __CLASS__ . '::formatting');
+		
+		self::$kernel = $kernel;
+	}
+	/**
+	 * @todo Global settings evaluation
 	 * @return \DateTimeZone
 	 */
 	public static function timezone_local() {
-		global $zesk;
-		/* @var $zesk \zesk\Kernel */
-		static $locals = array();
-		$tz = $zesk->configuration->path_get(array(
-			'timestamp',
+		// Global settings ok?
+		// @todo
+		$tz = self::$kernel->configuration->path_get(array(
+			__CLASS__,
 			'timezone_local'
 		), date_default_timezone_get());
-		if (!array_key_exists($tz, $locals)) {
-			$locals[$tz] = new DateTimeZone($tz);
-		}
-		return $locals[$tz];
+		return new DateTimeZone($tz);
 	}
 	
 	/**
@@ -792,7 +797,7 @@ class Timestamp extends Temporal {
 	 */
 	function format($format_string = null, array $options = array()) {
 		if ($format_string === null) {
-			$format_string = Kernel::singleton()->configuration->path_get(array(
+			$format_string = self::$kernel->configuration->path_get(array(
 				__CLASS__,
 				"format_string"
 			), self::default_format);
@@ -809,6 +814,7 @@ class Timestamp extends Temporal {
 	 *        	'zero_string' => string. What to display when closer to the unit_minimum to the
 	 *        	time
 	 *        	'nohook' => boolean. Do not invoke the formatting hook
+	 * @todo Evaluation global usage
 	 * @see Locale::now_string
 	 * @return string
 	 * @global string Timestamp::formatting::unit_minumum
@@ -816,11 +822,9 @@ class Timestamp extends Temporal {
 	 *         @hook Timestamp::formatting
 	 */
 	function formatting(array $options = array()) {
-		global $zesk;
-		/* @var $zesk zesk\Kernel */
-		
-		$config_timestamp = $zesk->configuration->path(array(
-			"timestamp",
+		$kernel = self::$kernel;
+		$config_timestamp = $kernel->configuration->path(array(
+			__CLASS__,
 			"formatting"
 		));
 		$locale = avalue($options, "locale", null);
@@ -847,7 +851,7 @@ class Timestamp extends Temporal {
 			) + $formatting;
 		}
 		if (!avalue($options, "nohook", false)) {
-			$formatting = $zesk->hooks->call_arguments('Timestamp::formatting', array(
+			$formatting = $kernel->hooks->call_arguments(__CLASS__ . '::formatting', array(
 				$this,
 				$formatting,
 				$options

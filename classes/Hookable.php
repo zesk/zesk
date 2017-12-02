@@ -31,6 +31,9 @@ class Hookable extends Options {
 	function __construct(Application $application, array $options = array()) {
 		$this->application = $application;
 		parent::__construct($options);
+		// Decided to NOT place a ->initialize() call here, largely because subclasses who override
+		// the constructor of this class need to control the ordering of their initialization such that any method
+		// called is operating on initialized object state
 	}
 	
 	/**
@@ -75,9 +78,9 @@ class Hookable extends Options {
 	 * @param unknown $hook_callback
 	 * @param unknown $result_callback
 	 */
-	public final function hook_array($types, $args = array(), $default = null, $hook_callback = null, $result_callback = null, $return_hint = null) {
+	public final function hook_array($types, $args = array(), $default = null, $hook_callback = null, $result_callback = null) {
 		$this->application->deprecated();
-		return $this->call_hook_arguments($types, $args, $default, $hook_callback, $result_callback, $return_hint);
+		return $this->call_hook_arguments($types, $args, $default, $hook_callback, $result_callback);
 	}
 	
 	/**
@@ -130,7 +133,7 @@ class Hookable extends Options {
 	 *        	Optional. A callable in the form `function ($callable, $previous_result,
 	 *        	$new_result) { ... }`
 	 */
-	public final function call_hook_arguments($types, $args = array(), $default = null, $hook_callback = null, $result_callback = null, $return_hint = null) {
+	public final function call_hook_arguments($types, $args = array(), $default = null, $hook_callback = null, $result_callback = null) {
 		if (empty($types)) {
 			return $default;
 		}
@@ -164,10 +167,10 @@ class Hookable extends Options {
 			}
 			$func = apath($this->options, "hooks.$method");
 			if ($func) {
-				$result = self::hook_results($result, $func, $args, $hook_callback, $result_callback, $return_hint);
+				$result = self::hook_results($result, $func, $args, $hook_callback, $result_callback);
 			}
 			$hooks = arr::suffix($app->classes->hierarchy($this, __CLASS__), "::$type");
-			$result = $app->hooks->call_arguments($hooks, $zesk_hook_args, $result, $hook_callback, $result_callback, $return_hint);
+			$result = $app->hooks->call_arguments($hooks, $zesk_hook_args, $result, $hook_callback, $result_callback);
 		}
 		return ($result === null) ? $default : $result;
 	}
@@ -239,9 +242,10 @@ class Hookable extends Options {
 	 *        	A function to call for each hook called.
 	 * @param string $result_callback
 	 *        	A function to process hook results
+	 * @param mixed $return_hint deprecated 2017-11
 	 * @return mixed
 	 */
-	public static final function hook_results($previous_result, $callable, array &$arguments, $hook_callback = null, $result_callback = null, $return_hint = null) {
+	public static final function hook_results($previous_result, $callable, array $arguments, $hook_callback = null, $result_callback = null, $return_hint = null) {
 		if ($hook_callback) {
 			call_user_func_array($hook_callback, array(
 				$callable,
@@ -249,10 +253,15 @@ class Hookable extends Options {
 			));
 		}
 		$new_result = call_user_func_array($callable, $arguments);
-		if ($result_callback !== null) {
-			return call_user_func($result_callback, $callable, $previous_result, $new_result, $arguments, $return_hint);
+		if ($return_hint !== null) {
+			zesk()->deprecated("Return hint passed to {method}", array(
+				"method" => $method
+			));
 		}
-		return self::combine_hook_results($previous_result, $new_result, $arguments, $return_hint);
+		if ($result_callback !== null) {
+			return call_user_func($result_callback, $callable, $previous_result, $new_result, $arguments);
+		}
+		return self::combine_hook_results($previous_result, $new_result, $arguments);
 	}
 	
 	/**
@@ -260,15 +269,10 @@ class Hookable extends Options {
 	 *
 	 * @param mixed $previous_result
 	 * @param mixed $new_result
-	 * @param mixed $return_hint
 	 * @return mixed
 	 */
-	public static function combine_hook_results($previous_result, $new_result, array &$arguments, $return_hint = null) {
+	public static function combine_hook_results($previous_result, $new_result, array &$arguments) {
 		if ($previous_result === null) {
-			return $new_result;
-		}
-		if (is_numeric($return_hint)) {
-			$arguments[$return_hint] = $previous_result;
 			return $new_result;
 		}
 		if (is_string($previous_result) && is_string($new_result)) {

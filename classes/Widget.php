@@ -529,7 +529,6 @@ class Widget extends Hookable {
 	 * @return Widget
 	 */
 	public function widget_factory($class, $options = null) {
-		/* @var $zesk \zesk\Kernel */
 		$app = $this->application;
 		$args = array(
 			$app,
@@ -1916,11 +1915,9 @@ class Widget extends Hookable {
 	 * @return Model
 	 */
 	protected function model() {
-		global $zesk;
-		/* @var $zesk \zesk\Kernel */
 		$model = $this->call_hook("model_new", $this);
 		if (!$model instanceof Model) {
-			$model = $zesk->objects->factory(__NAMESPACE__ . "\\" . "Model", $this->application);
+			$model = $this->application->factory(__NAMESPACE__ . "\\" . "Model", $this->application);
 			$model = $this->call_hook('model_alter', $model);
 		}
 		return $model;

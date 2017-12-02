@@ -222,8 +222,8 @@ class Hooks {
 	 * Generally, classes will do:
 	 * <code>
 	 * class foo {
-	 * public static function hooks(zesk\Kernel $zesk) {
-	 * $zesk->hooks->add('configured', __CLASS__ . "::configured");
+	 * public static function hooks(zesk\Kernel $kernel) {
+	 * $kernel->hooks->add('configured', __CLASS__ . "::configured");
 	 * }
 	 * public static function configured() {
 	 * if ($this->getb('foo::enabled')) {
@@ -335,14 +335,20 @@ class Hooks {
 	
 	/**
 	 * Hooks are very flexible, and each hook determines how it is combined with the next hook.
+	 * 
+	 * Valid options are:
+	 * 
+	 * - 'first' - boolean. Optional. Invoke this hook first before all other hooks
+	 * - 'last' - boolean. Optional. Invoke this hook last after all other hooks
+	 * - 'arguments' - array. A list of arguments to pass to the hook. Any additional argments are passed after these. 
 	 *
 	 * @param string $hook
 	 *        	Hook name. Can be any string. Typically of the form CLASS::method
 	 * @param mixed $function
 	 *        	A function or class name, or an array to specify an object method or object static
 	 *        	method.
-	 * @param array $options
-	 *        	Return value handling
+	 * @param array $options Return value handling, ordering, arguments.
+	 *        
 	 */
 	public function add($hook, $function = null, $options = array()) {
 		if ($hook === null) {
@@ -414,7 +420,7 @@ class Hooks {
 				try {
 					$refl = new \ReflectionClass($class);
 				} catch (\Exception $e) {
-					zesk()->logger->warning("{class} not found {eclass}: {emessage}", array(
+					$this->zesk->logger->warning("{class} not found {eclass}: {emessage}", array(
 						"class" => $class,
 						"eclass" => get_class($e),
 						"emessage" => $e->getMessage()
@@ -466,23 +472,23 @@ class Hooks {
 	 * Allow easy migration from old names to new
 	 * Retrieve all aliases:
 	 * <code>
-	 * $all_aliases = zesk()->hooks->alias();
+	 * $all_aliases = $application->hooks->alias();
 	 * </code>
 	 * Retrieve a single alias:
 	 * <code>
-	 * $alias = zesk()->hooks->alias('aliasname');
+	 * $alias = $application->hooks->alias('aliasname');
 	 * </code>
 	 * Delete an alias:
 	 * <code>
-	 * $old_alias = zesk()->hooks->alias('aliasname', false);
+	 * $old_alias = $application->hooks->alias('aliasname', false);
 	 * </code>
 	 * Add an alias:
 	 * <code>
-	 * $previous_alias = zesk()->hooks->alias('oldname', 'newname');
+	 * $previous_alias = $application->hooks->alias('oldname', 'newname');
 	 * </code>
 	 * Bulk actions:
 	 * <code>
-	 * $results = zesk()->hooks->alias(
+	 * $results = $application->hooks->alias(
 	 * array(
 	 * 'setone' => 'newvalue',
 	 * 'getone' => null,
@@ -496,7 +502,7 @@ class Hooks {
 	 * @param string $newname
 	 * @return mixed
 	 */
-	public static function alias($oldname = null, $newname = null) {
+	public function alias($oldname = null, $newname = null) {
 		if (is_array($oldname)) {
 			$result = array();
 			foreach ($oldname as $old => $new) {
@@ -566,9 +572,15 @@ class Hooks {
 	 * @param unknown $default
 	 * @param unknown $hook_callback
 	 * @param unknown $result_callback
+	 * @param unknown $return_hint deprecated 2017-11
 	 * @return string|NULL
 	 */
 	public function call_arguments($hooks, $arguments = array(), $default = null, $hook_callback = null, $result_callback = null, $return_hint = null) {
+		if ($return_hint !== null) {
+			zesk()->deprecated("\$return_hint passed to {method}", array(
+				"method" => $method
+			));
+		}
 		$definitions = $this->hook_load_definitions($hooks);
 		if (count($definitions) === 0) {
 			return $default;
@@ -579,8 +591,8 @@ class Hooks {
 		// 			"def" => $definitions
 		// 		));
 		foreach ($definitions as $callable_string => $options) {
-			$return = $return_hint !== null ? $return_hint : (array_key_exists('return', $options) ? $options['return'] : '+');
-			$result = Hookable::hook_results($result, $options['callable'], $arguments, $hook_callback, $result_callback, $return);
+			$options_arguments = to_array(avalue($options, 'arguments'));
+			$result = Hookable::hook_results($result, $options['callable'], array_merge($options_arguments, $arguments), $hook_callback, $result_callback);
 		}
 		return $result;
 	}
@@ -639,6 +651,13 @@ class Hooks {
 		}
 		return "Unknown: " . type($callable);
 	}
+	
+	/**
+	 * Utility function to convert an array of callable strings into an array of strings
+	 * 
+	 * @param Callable[] $callables
+	 * @return string[]
+	 */
 	public static function callable_strings(array $callables) {
 		$result = array();
 		foreach ($callables as $callable) {

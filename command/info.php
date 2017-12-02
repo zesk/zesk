@@ -88,6 +88,11 @@ class Command_Info extends Command {
 	const database_default = "zesk\\Database::default";
 	
 	/**
+	 * 
+	 * @var string
+	 */
+	const zesk_autoload_path = "zesk\\Autoloader::path";
+	/**
 	 *
 	 * @var array
 	 */
@@ -103,7 +108,7 @@ class Command_Info extends Command {
 		'php_ini' => 'php.ini Path',
 		self::command_path => 'Shell Command Path',
 		'zesk_command_path' => 'Zesk Command Path',
-		'zesk_autoload_path' => 'Zesk Autoload Path',
+		self::zesk_autoload_path => 'Zesk Autoload Path',
 		'display_startup_errors' => 'Display Startup Errors',
 		'error_log' => 'PHP Error Log',
 		self::zesk_application_class => 'Zesk Application Class',
@@ -117,8 +122,6 @@ class Command_Info extends Command {
 	 * @see Command::run()
 	 */
 	function run() {
-		global $zesk;
-		/* @var $zesk Kernel */
 		$app = $this->application;
 		
 		$info[self::zesk_version_release] = Version::release();
@@ -131,7 +134,7 @@ class Command_Info extends Command {
 		$info[self::command_path] = $app->command_path();
 		$info[self::zesk_application_theme_path] = $app->theme_path();
 		$info['zesk_command_path'] = $app->zesk_command_path();
-		$info['zesk_autoload_path'] = $zesk->autoloader->path();
+		$info[self::zesk_autoload_path] = $app->autoloader->path();
 		$info['enable_dl'] = ini_get('enable_dl') ? 'true' : 'false';
 		$info['php_ini'] = get_cfg_var('cfg_file_path');
 		$info['display_startup_errors'] = to_bool(ini_get('display_startup_errors')) ? 'true' : 'false';

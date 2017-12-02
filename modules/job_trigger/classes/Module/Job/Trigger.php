@@ -138,8 +138,6 @@ class Module_Job_Trigger extends Module implements Interface_Module_Routes {
 	 * @param Application $application
 	 */
 	public static function web_job_trigger(Application $application, Request $request) {
-		global $zesk;
-		/* @var $zesk zesk\Kernel */
 		$module = $application->modules->object("job_trigger");
 		$result = $module->check_security($request->get("hash"), $request->get("timestamp"));
 		if (!is_array($result)) {
@@ -150,7 +148,7 @@ class Module_Job_Trigger extends Module implements Interface_Module_Routes {
 			);
 		}
 		return $result + array(
-			"elapsed" => microtime(true) - $zesk->initialization_time,
+			"elapsed" => microtime(true) - $application->initialization_time(),
 			"now" => Timestamp::now()->format()
 		);
 	}
@@ -159,8 +157,6 @@ class Module_Job_Trigger extends Module implements Interface_Module_Routes {
 	 * Send a notice to all servers that jobs are waiting
 	 */
 	public function trigger_send() {
-		global $zesk;
-		/* @var $zesk \zesk\Kernel */
 		$server = $this->application->object_singleton("zesk\\Server");
 		$servers = $server->query_select()->where("alive|>=", Timestamp::now()->add_unit(-1, Timestamp::UNIT_MINUTE))->object_iterator();
 		foreach ($servers as $other_server) {
@@ -169,9 +165,9 @@ class Module_Job_Trigger extends Module implements Interface_Module_Routes {
 			} else {
 				$url = $this->trigger_send_pattern($other_server);
 				if ($url) {
-					$zesk->logger->debug("Notifying job trigger for {url}", compact("url"));
+					$this->application->logger->debug("Notifying job trigger for {url}", compact("url"));
 					$url = $this->add_security($url);
-					$zesk->process->execute("curl --connect-timeout 2 {0} > /dev/null 2>&1 &", $url);
+					$this->application->process->execute("curl --connect-timeout 2 {0} > /dev/null 2>&1 &", $url);
 				}
 			}
 		}

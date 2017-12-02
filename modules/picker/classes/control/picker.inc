@@ -116,8 +116,7 @@ class Control_Picker extends Control {
 		return $options;
 	}
 	protected function initialize() {
-		global $zesk;
-		$this->class = $zesk->objects->resolve($this->class);
+		$this->class = $this->application->objects->resolve($this->class);
 		parent::initialize();
 		$this->class_object = $this->application->class_object($this->class);
 		if (count($this->search_columns) === 0) {
@@ -128,7 +127,7 @@ class Control_Picker extends Control {
 		if (!$this->has_option('order_by') && $this->class_object->name_column) {
 			$this->set_option('order_by', "X." . $this->class_object->name_column);
 		}
-		$hierarchy = $zesk->classes->hierarchy($this, __CLASS__);
+		$hierarchy = $this->application->classes->hierarchy($this, __CLASS__);
 		if ($this->theme_item_selector === null) {
 			$this->theme_item_selector = arr::suffix($hierarchy, '/selector');
 		}

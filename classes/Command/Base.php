@@ -84,15 +84,14 @@ abstract class Command_Base extends Command {
 	/**
 	 */
 	protected function configure_logging() {
-		global $zesk;
-		/* @var $zesk \zesk\Kernel */
 		if ($this->option_bool("quiet")) {
 			$this->quiet = true;
 			return;
 		}
 		$debug = $this->option_bool("debug");
 		$severity = $this->option("severity", $this->option("log-level", $debug ? "debug" : "info"));
-		$all_levels = $zesk->logger->levels_select($severity);
+		$logger = $this->application->logger;
+		$all_levels = $logger->levels_select($severity);
 		
 		if (($filename = $this->option("log")) !== null) {
 			$modules = $this->application->modules->load("Logger_File");
@@ -102,14 +101,14 @@ abstract class Command_Base extends Command {
 			} else {
 				$log_file->fp(self::stdout());
 			}
-			$zesk->logger->register_handler("Command", $log_file, $all_levels);
+			$logger->register_handler("Command", $log_file, $all_levels);
 			if ($this->option("debug_log_file")) {
-				$zesk->logger->info("Registered {log_file} for {all_levels}", compact("log_file", "all_levels"));
+				$logger->info("Registered {log_file} for {all_levels}", compact("log_file", "all_levels"));
 			}
 		} else {
-			$zesk->logger->register_handler("Command", $this, $all_levels);
+			$logger->register_handler("Command", $this, $all_levels);
 			if ($this->option("debug_log_file")) {
-				$zesk->logger->info("Registered generic logger {all_levels}", compact("all_levels"));
+				$logger->info("Registered generic logger {all_levels}", compact("all_levels"));
 			}
 		}
 	}

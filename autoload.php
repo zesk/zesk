@@ -32,9 +32,9 @@ class Loader {
 		self::$init = microtime(true);
 		require_once dirname(__FILE__) . "/classes/Kernel.php";
 	}
-	public static function singleton() {
+	public static function factory() {
 		global $_ZESK;
-		return \zesk\Kernel::singleton((is_array($_ZESK) ? $_ZESK : array()) + array(
+		return \zesk\Kernel::factory((is_array($_ZESK) ? $_ZESK : array()) + array(
 			"init" => self::$init
 		));
 	}
@@ -42,4 +42,4 @@ class Loader {
 
 Loader::kernel();
 
-return Loader::singleton();
+return Loader::factory();

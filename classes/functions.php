@@ -47,12 +47,11 @@ define("ZESK_GLOBAL_KEY_SEPARATOR", "::");
 
 /**
  * Get our global Zesk kernel.
- * Avoids having global variable $zesk overwritten.
  *
  * @return Kernel
  */
 function zesk() {
-	return Kernel::zesk();
+	return Kernel::singleton();
 }
 
 /**
@@ -357,7 +356,7 @@ function to_bool($value, $default = false) {
  *        	Value to convert to integer
  * @param mixed $def
  *        	The default value. Not converted to integer.
- * @return mixed The integer value, or $def if it can not be converted to an integer
+ * @return integer The integer value, or $def if it can not be converted to an integer
  */
 function to_integer($s, $def = null) {
 	return is_numeric($s) ? intval($s) : $def;
@@ -371,7 +370,7 @@ function to_integer($s, $def = null) {
  *        	Value to convert to double
  * @param mixed $def
  *        	The default value. Not converted to double.
- * @return mixed The double value, or $def if it can not be converted to an integer
+ * @return double The double value, or $def if it can not be converted to an integer
  */
 function to_double($s, $def = null) {
 	return is_numeric($s) ? doubleval($s) : $def;
@@ -1306,6 +1305,34 @@ function &apath_set(array &$array, $path, $value = null, $separator = ".") {
 		return $current[$key];
 	}
 }
+
+if (!function_exists('sgn')) {
+	/**
+	 * Thought this was a part of the PHP core, but apparently not.
+	 * 
+	 * @param number $value
+	 * @return number|NULL
+	 */
+	function sgn($value) {
+		if ($value > 0) {
+			return 1;
+		}
+		if ($value < 0) {
+			return -1;
+		}
+		if (is_numeric($value)) {
+			return 0;
+		}
+		return null;
+	}
+}
+
+/**
+ * Convert our special weights into a number
+ * 
+ * @param mixed $weight
+ * @return number
+ */
 function zesk_weight($weight = null) {
 	static $weight_specials = array(
 		'zesk-first' => -1e300,
@@ -1318,6 +1345,7 @@ function zesk_weight($weight = null) {
 	}
 	return doubleval(avalue($weight_specials, strval($weight), $weight));
 }
+
 /**
  * Sort an array based on the weight array index
  * Support special terms such as "first" and "last"
@@ -1350,9 +1378,18 @@ function zesk_sort_weight_array(array $a, array $b) {
 	// a === b -> 0
 	return $aw < $bw ? -1 : ($aw > $bw ? 1 : 0);
 }
-function zesk_sort_weight_array_reverse($a, $b) {
+
+/**
+ * Revers sorting a weight array so highest weights are at the top
+ * 
+ * @param array $a
+ * @param array $b
+ * @return number
+ */
+function zesk_sort_weight_array_reverse(array $a, array $b) {
 	return zesk_sort_weight_array($b, $a);
 }
+
 /**
  * Convert a global name to a standard internal format.
  *
@@ -1371,7 +1408,7 @@ function _zesk_global_key($key) {
 }
 
 /**
- * Normalize a zesk global key
+ * Normalize a zesk global key and return a string
  *
  * @param string $key
  * @return string
@@ -1381,7 +1418,7 @@ function zesk_global_key_normalize($key) {
 }
 
 /**
- * Do we need to deal with platform issues on Windows?
+ * Do we need to deal with platform issues on Windows? Probably, you know, because.
  *
  * @return boolean
  */

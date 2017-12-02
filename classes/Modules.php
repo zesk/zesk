@@ -221,11 +221,11 @@ class Modules {
 	 * During module registration, register system paths automatically.
 	 * Either a specified path
 	 * or uses the current module's path, looks for the following directories and registers:
-	 * classes/ - $zesk->autoloader->path
+	 * classes/ - $application->autoloader->path
 	 * theme/ - Application::theme_path
 	 * share/ - Application::share_path
 	 * command/ - Application::zesk_command_path
-	 * bin/ - $zesk->paths->command_path
+	 * bin/ - $application->paths->command_path
 	 *
 	 * @param string $module_path
 	 *        	Directory to search for system paths
@@ -316,18 +316,6 @@ class Modules {
 	}
 	
 	/**
-	 *
-	 * @param unknown $include        	
-	 * @param array $module_data        	
-	 */
-	private function _load_module_include($include, array $module_data) {
-		$application = $this->application;
-		$zesk = $application->zesk;
-		$module_directory = dirname($include);
-		assert($application instanceof Application);
-		return require_once $include;
-	}
-	/**
 	 * Load module based on setup options
 	 *
 	 * @param array $module_data        	
@@ -335,19 +323,15 @@ class Modules {
 	 * @return number
 	 */
 	private function _load_module_configuration(array $module_data) {
-		$name = $path = $include = null;
+		$name = $path = null;
 		extract($module_data, EXTR_IF_EXISTS);
 		
 		$this->modules[$name] = $module_data + array(
 			'loading' => true
 		);
 		array_unshift($this->module_loader, $name);
-		if ($include) {
-			// This may be called recursively
-			$this->_load_module_include($include, $module_data);
-		} else {
-			$this->register_paths();
-		}
+		$this->register_paths();
+		
 		array_shift($this->module_loader);
 		unset($this->modules[$name]['loading']);
 		
@@ -405,6 +389,10 @@ class Modules {
 	 * @return array
 	 */
 	private function _load_one($name, array $options) {
+		if (strpos($name, "\\") !== false) {
+			return $this->_autoload_one($name, $options);
+		}
+		
 		$result = array();
 		$base = self::module_base_name($name);
 		$module_data = array(
@@ -412,6 +400,7 @@ class Modules {
 			'name' => $name,
 			'base' => $base
 		);
+		
 		$module_data['path'] = $module_path = Directory::find_first($this->application->module_path(), $base);
 		if ($module_path === null) {
 			throw new Exception_Directory_NotFound(__CLASS__ . "::module($name) was not found");
@@ -421,7 +410,6 @@ class Modules {
 			return $result;
 		}
 		$module_data += self::_find_module_include($module_data);
-		
 		if (to_bool(avalue($options, 'load', true))) {
 			$module_data = $this->_load_module_configuration($module_data);
 			$module_data = $this->_apply_module_configuration($module_data);
@@ -433,12 +421,42 @@ class Modules {
 			}
 			
 			$this->modules[$name] = $module_data = $this->_load_module_object($module_data) + $module_data;
+			
+			$module_data = $this->_initialize_module_object($module_data);
 		}
 		
 		$result[$name] = $module_data;
 		return $result;
 	}
-	
+	private function _autoload_one($name, array $options) {
+		$module_data = array(
+			'loaded' => false,
+			'name' => $name,
+			'class' => $name
+		);
+		if (avalue($options, "check exists")) {
+			if (class_exists($name, true)) {
+				return $module_data;
+			}
+			throw new Exception_Class_NotFound($name, "Loading module");
+		}
+		if (to_bool(avalue($options, 'load', true))) {
+			$this->modules[$name] = $module_data = $this->_load_module_object($module_data) + $module_data;
+			/* @var $object Module */
+			$object = $module_data['object'];
+			if ($object) {
+				$module_data['path'] = $object->path();
+				$module_data += self::_find_module_include($module_data);
+				$module_data = $this->_load_module_configuration($module_data);
+				$module_data = $this->_apply_module_configuration($module_data);
+				
+				$module_data = $this->_initialize_module_object($module_data);
+			}
+		}
+		return array(
+			$name => $module_data
+		);
+	}
 	/**
 	 * Finds the module configuration file and loads it.
 	 *
@@ -449,15 +467,6 @@ class Modules {
 	private static function _find_module_include(array $module_data) {
 		$name = $base = $path = null;
 		extract($module_data, EXTR_IF_EXISTS);
-		$module_data['include'] = $module_include = File::find_first(array(
-			$path
-		), array(
-			"$base.module.php",
-			"$base.module.inc"
-		));
-		if ($module_include) {
-			zesk()->deprecated("Module loader file ($module_include) is deprecated in Zesk 0.9, use subclass of \zesk\Module::initialize instead");
-		}
 		$module_variables = array(
 			'module_path' => $path,
 			'module' => $name
@@ -482,7 +491,8 @@ class Modules {
 	}
 	
 	/**
-	 * Instantiate the module object
+	 * Instantiate the module object. Does NOT call initialize, calling function MUST call initialize when object
+	 * is ready to be initialized.
 	 *
 	 * @param array $module_data        	
 	 * @throws Exception_Semantics
@@ -496,10 +506,8 @@ class Modules {
 			$class = avalue($configuration, "module_class", $this->module_class_prefix . PHP::clean_class($module_data['base']));
 		}
 		try {
-			global $zesk;
-			/* @var $zesk Kernel */
 			/* @var $module_object Module */
-			$module_object = $zesk->objects->factory($class, $this->application, $configuration, $module_data);
+			$module_object = $this->application->factory($class, $this->application, $configuration, $module_data);
 			if (!$module_object instanceof Module) {
 				throw new Exception_Semantics("Module {class} must be a subclass of Module - skipping", array(
 					"class" => get_class($module_object)
@@ -512,27 +520,39 @@ class Modules {
 			$result = array(
 				'class' => $class
 			);
-			try {
-				$module_object->initialize();
-				return $result + array(
-					'module' => $module_object
-				);
-			} catch (\Exception $e) {
-				$this->application->hooks->call("exception", $e);
-				return $result + array(
-					"status" => "failed",
-					"initialize_exception" => $e
-				);
-			}
+			// @deprecated 2017-11-30 `module`
+			return $result + array(
+				'path' => $module_object->path(),
+				'module' => $module_object,
+				'object' => $module_object
+			);
 		} catch (Exception_Class_NotFound $e) {
+			// @deprecated 2017-11-30 `module` 
 			return array(
 				'module' => null,
+				'object' => null,
 				'class' => null,
 				'missing_class' => $e->class
 			);
 		}
 	}
-	
+	private function _initialize_module_object(array $module_data) {
+		$object = $module_data['object'];
+		try {
+			if ($object) {
+				$object->initialize();
+			}
+			return $module_data;
+		} catch (\Exception $e) {
+			$this->application->hooks->call("exception", $e);
+			return array(
+				"module" => null,
+				"object" => null,
+				"status" => "failed",
+				"initialize_exception" => $e
+			) + $module_data;
+		}
+	}
 	/**
 	 * Given a list of:
 	 * <code>
@@ -790,7 +810,7 @@ class Modules {
 	 * @param mixed $default        	
 	 * @return mixed
 	 */
-	public final function all_hook_arguments($hook, array $arguments, $default = null, $hook_callback = null, $result_callback = null, $return_hint = null) {
+	public final function all_hook_arguments($hook, array $arguments, $default = null, $hook_callback = null, $result_callback = null) {
 		$result = $default;
 		$module_names = isset($this->modules_with_hook[$hook]) ? $this->modules_with_hook[$hook] : null;
 		if (!is_array($module_names)) {
@@ -809,8 +829,8 @@ class Modules {
 		foreach ($module_names as $module_name) {
 			$module = $this->modules[$module_name]['module'];
 			if ($module instanceof Module) {
-				$new_result = $module->call_hook_arguments($hook, $arguments, $result, $hook_callback, $result_callback, $return_hint);
-				$result = Hookable::combine_hook_results($result, $new_result, $arguments, $return_hint);
+				$new_result = $module->call_hook_arguments($hook, $arguments, $result, $hook_callback, $result_callback);
+				$result = Hookable::combine_hook_results($result, $new_result, $arguments);
 			} else {
 				$this->application->logger->error("While calling hook {hook} for module for {module_name} is not of type zesk\Module ({value} is of type {type})", array(
 					"hook" => $hook,
@@ -834,9 +854,7 @@ class Modules {
 	 * @return mixed
 	 */
 	public final function all_hook_list($hook) {
-		global $zesk;
-		/* @var $zesk \zesk\Kernel */
-		$result = $zesk->hooks->find_all("zesk\\Module::$hook");
+		$result = $this->application->hooks->find_all("zesk\\Module::$hook");
 		if (count($result) > 0) {
 			zesk()->deprecated("Static cache clear hook is deprecated: " . _dump($result));
 		}

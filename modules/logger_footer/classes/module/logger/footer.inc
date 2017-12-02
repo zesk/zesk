@@ -23,11 +23,9 @@ class Module_Logger_Footer extends Module implements Interface_Module_Head, Inte
 	 * @see Module::initialize()
 	 */
 	public function initialize() {
-		global $zesk;
-		/* @var $zesk Kernel */
 		parent::initialize();
-		if (!$zesk->console) {
-			$zesk->logger->register_handler(__CLASS__, $this);
+		if (!$this->application->console()) {
+			$this->application->logger->register_handler(__CLASS__, $this);
 		}
 	}
 	
@@ -54,13 +52,11 @@ class Module_Logger_Footer extends Module implements Interface_Module_Head, Inte
 	public function hook_foot(Request $request, Response_Text_HTML $response, Template $template) {
 		$result = array();
 		if ($this->enabled() && count($this->log) > 0) {
-			global $zesk;
-			/* @var $zesk \Kernel */
 			$result[] = HTML::tag_open("div", "#logger_footer");
 			$result[] = HTML::tag_open("ul");
 			$this->log[] = array(
 				"_level_string" => "info",
-				"_formatted" => sprintf("%.3f", microtime(true) - $zesk->initialization_time) . " seconds elapsed"
+				"_formatted" => sprintf("%.3f", microtime(true) - $this->application->initialization_time()) . " seconds elapsed"
 			);
 			foreach ($this->log as $entry) {
 				$level_class = strtolower($entry['_level_string']);

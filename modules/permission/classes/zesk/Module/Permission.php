@@ -69,9 +69,6 @@ class Module_Permission extends Module {
 	 *         <The, mixed, boolean> >
 	 */
 	public function user_can(User $user, $action, Model $context = null, $options) {
-		global $zesk;
-		/* @var $zesk Kernel */
-		
 		$application = $this->application;
 		$this->prepare_user($user);
 		
@@ -97,7 +94,7 @@ class Module_Permission extends Module {
 		}
 		$perms = $this->permissions();
 		
-		$parent_classes = empty($class) ? array() : arr::change_value_case($zesk->classes->hierarchy($class, "Model"));
+		$parent_classes = empty($class) ? array() : arr::change_value_case($application->classes->hierarchy($class, "Model"));
 		$parent_classes[] = "*";
 		foreach ($parent_classes as $parent_class) {
 			$perm = apath($perms, array(
@@ -130,7 +127,7 @@ class Module_Permission extends Module {
 			));
 			if (is_bool($result)) {
 				if ($result === false) {
-					$zesk->logger->info("{user} denied {permission} (role)", array(
+					$application->logger->info("{user} denied {permission} (role)", array(
 						"user" => $user->login(),
 						"permission" => $class . "::" . $permission
 					));
@@ -139,12 +136,12 @@ class Module_Permission extends Module {
 				return $result;
 			}
 		}
-		$result = boolval($zesk->configuration->path_get_first([
+		$result = boolval($application->configuration->path_get_first([
 			'zesk\\User::can',
 			'User::can'
 		]));
 		if ($result === false) {
-			$zesk->logger->info("{user} denied {permission} (not granted) called from {calling_function} (Roles: {roles})", array(
+			$application->logger->info("{user} denied {permission} (not granted) called from {calling_function} (Roles: {roles})", array(
 				"user" => $user->login(),
 				"permission" => $class . "::" . $permission,
 				"calling_function" => calling_function(5),
@@ -296,8 +293,6 @@ class Module_Permission extends Module {
 	 * @return array
 	 */
 	private function _permissions_computed() {
-		global $zesk;
-		
 		$application = $this->application;
 		$lock = Lock::instance($this->application, __CLASS__);
 		try {

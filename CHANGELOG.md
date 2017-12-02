@@ -21,18 +21,32 @@ Version 1.0 of Zesk will have:
 
 ## [Unreleased][]
 
+### Deprecated 
+
 - `zesk\Paths::document*`, `zesk\Paths::module_path`, `zesk\Paths::share_path`, and `zesk\Paths::zesk_command_path` were removed (deprecated 2016)`
 - `Controller_Forgot`, `Controller_Object`, ``, `` and `` all now inherit from `Controller_Theme`
 - Zesk will now adopt the usage of using `ClassName::class` instead of the more complex `__NAMESPACE__ . "\\" . "ClassName"` or strings.
 - The external usage of `zesk\Template` objects is now discouraged and all applications are encouraged to use `zesk\Application::theme` only to render content.
 - `zesk\Module::$classes` has been deprecated permanently.
+
+### New features
+
+- `zesk\Hooks::add` now supports the passing of an `'arguments'` key in the `$options` parameter to allow each invokation to have starting paramters which are added upon registration. This is equivalent to JavaScript's `.bind` functionality.
+
+### Module changes
+
 - Module `DBLog`: The default table name for this module is now `Log`. 
-- **Zesk Modules Directory** 
- - The `modules` directory has been significantly pruned, with most of the modules moved to a [staging project](https://github.com/zesk/xmodules)
-- **Zesk Share directory**
- - The zesk share directory has been completely pruned, leaving only a handful of `.js` and `.css` files
- - Remaining dangling images and stylesheets will be replaced with Bootstrap-themed variations as needed
- - See `share/readme.md` for more details
+- The internal `zesk\Modules` structure used to have the key `module` which held the `zesk\Module` object; it is being moved to the `object` key instead; both keys will be populated for the deprecation period.
+
+### **Zesk Modules Directory** 
+
+- The `modules` directory has been significantly pruned, with most of the modules moved to a [staging project](https://github.com/zesk/xmodules)
+
+### **Zesk Share directory**
+
+- The zesk share directory has been completely pruned, leaving only a handful of `.js` and `.css` files
+- Remaining dangling images and stylesheets will be replaced with Bootstrap-themed variations as needed
+- See `share/readme.md` for more details
 
 ## [v0.12.15][]
 

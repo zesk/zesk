@@ -736,8 +736,6 @@ class Command_Test extends Command_Base {
 		return $final_result;
 	}
 	private function _run_sandbox_command() {
-		global $zesk;
-		/* @var $zesk \zesk\Kernel */
 		static $command = null;
 		if ($command !== null) {
 			return $command;
@@ -749,11 +747,11 @@ class Command_Test extends Command_Base {
 			}
 			return $command;
 		}
-		$env = $zesk->paths->which('env');
-		$php = $zesk->paths->which('php');
+		$env = $this->application->paths->which('env');
+		$php = $this->application->paths->which('php');
 		if (!$env) {
 			if (!$php) {
-				throw new Exception_Configuration("No env or php found in path, is PATH invalid?\n" . implode("\n\t", $zesk->paths->command()) . "\n");
+				throw new Exception_Configuration("No env or php found in path, is PATH invalid?\n" . implode("\n\t", $this->application->paths->command()) . "\n");
 			}
 			$command = $php;
 		} else {

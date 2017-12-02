@@ -55,6 +55,15 @@ abstract class Workflow_Step extends Hookable {
 	public function __construct(Workflow $workflow, array $options = array()) {
 		parent::__construct($workflow->application, $options);
 		$this->workflow = $workflow;
+		$this->initialize();
+	}
+	
+	/**
+	 * 
+	 * {@inheritDoc}
+	 * @see \zesk\Hookable::initialize()
+	 */
+	protected function initialize() {
 		$this->inherit_global_options();
 		if (empty($this->title)) {
 			$this->title = $this->option('title');
@@ -69,27 +78,48 @@ abstract class Workflow_Step extends Hookable {
 			$this->description = __($this->description);
 		}
 		$this->dependencies = array_merge($this->dependencies, $this->option_list('dependencies'));
-		$this->initialize();
-	}
-	protected function initialize() {
 		if ($this->theme === null) {
 			$this->theme = zesk()->classes->hierarchy(get_class($this), __CLASS__);
 		}
 	}
+	
+	/**
+	 * 
+	 * @return mixed|array
+	 */
 	public function dependencies() {
 		return $this->dependencies;
 	}
+	
+	/**
+	 * 
+	 */
 	public function refresh() {
 		if ($this->completed === null) {
 			$this->completed = $this->is_completed();
 		}
 	}
+	
+	/**
+	 * 
+	 * @return number
+	 */
 	public function substeps_total() {
 		return 1;
 	}
+	
+	/**
+	 * 
+	 * @return number
+	 */
 	public function substeps_completed() {
 		return $this->completed ? 1 : 0;
 	}
+	
+	/**
+	 * 
+	 * @return string
+	 */
 	public function hash() {
 		return __CLASS__;
 	}

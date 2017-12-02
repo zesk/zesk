@@ -93,8 +93,6 @@ class Module_PolyGlot extends Module implements Interface_Module_Routes {
 	 * @return array
 	 */
 	public function load_locale($locale = null) {
-		global $zesk;
-		/* @var $zesk Kernel */
 		$user = $this->application->user();
 		$source_files = $this->option_list("source_files");
 		$table = array();
@@ -102,7 +100,7 @@ class Module_PolyGlot extends Module implements Interface_Module_Routes {
 			if (!is_file($source_file)) {
 				continue;
 			}
-			$tt = $zesk->load($source_file);
+			$tt = $this->application->load($source_file);
 			if (!is_array($tt)) {
 				throw new Exception_File_Format($source_file, "Source file {basename} does not return the correct format", array(
 					"basename" => basename($source_file)

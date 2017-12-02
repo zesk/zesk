@@ -127,10 +127,9 @@ class Module extends \zesk\Module {
 	 * @param mixed $method
 	 * @param mixed $previous_result
 	 * @param mixed $new_result
-	 * @param numeric|string $return_hint
 	 * @return mixed
 	 */
-	public function _result_callback($method, $previous_result, $new_result, array $arguments, $return_hint) {
+	public function _result_callback($method, $previous_result, $new_result, array $arguments) {
 		$elapsed = microtime(true) - $this->start;
 		if ($elapsed > ($elapsed_warn = $this->option_double("elapsed_warn", 2))) {
 			$this->application->logger->warning("Cron: {method} took {elapsed} {seconds} (exceeded {elapsed_warn} {elapsed_warn_seconds})", array(
@@ -141,7 +140,7 @@ class Module extends \zesk\Module {
 				"method" => $this->application->hooks->callable_string($method)
 			));
 		}
-		return Hookable::combine_hook_results($previous_result, $new_result, $arguments, $return_hint);
+		return Hookable::combine_hook_results($previous_result, $new_result, $arguments);
 	}
 	public function lock_name($set = null) {
 		if ($set !== null) {

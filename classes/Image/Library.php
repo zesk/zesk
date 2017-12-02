@@ -4,39 +4,66 @@ namespace zesk;
 abstract class Image_Library {
 	
 	/**
-	 *
+	 * 
+	 * @var string
+	 */
+	const width = "width";
+	
+	/**
+	 * 
+	 * @var string
+	 */
+	const height = "height";
+	
+	/**
+	 * 
+	 * @var Application
+	 */
+	public $application = null;
+	final public function __construct(Application $application) {
+		$this->application = $application;
+		$this->construct();
+	}
+	/**
+	 * Create one of the available image libraries to manipulate images
+	 * 
 	 * @return NULL|Image_Library
 	 */
-	public static function singleton(Image_Library $set = null) {
-		static $singleton = null;
-		if ($set !== null) {
-			return $singleton = $set;
-		}
-		if ($singleton !== null) {
-			return $singleton;
-		}
-		global $zesk;
+	public static function factory(Application $application) {
 		foreach (array(
 			"GD",
 			"imagick"
 		) as $type) {
 			try {
 				$class = __CLASS__ . '_' . $type;
-				if (call_user_func("$class::installed")) {
-					return $singleton = $zesk->objects->factory($class);
+				if (!call_user_func("$class::installed")) {
+					continue;
 				}
-			} catch (Exception $e) {
-				$zesk->logger->error("{class}::installed resulted in {error}", array(
-					"class" => $class,
-					"error" => $e
-				));
-				$zesk->hooks->call("exception", $e);
+			} catch (\Exception $e) {
+				$application->logger->error("{class}::installed resulted in {e.class}: {e.message}", array(
+					"class" => $class
+				) + arr::kprefix(Exception::exception_variables($e), "e."));
+				$application->hooks->call("exception", $e);
+				continue;
+			}
+			try {
+				return $singleton = $application->factory($class, $application);
+			} catch (\Exception $e) {
+				$application->logger->error("Create instance of {class} resulted in {e.class}: {e.message}", array(
+					"class" => $class
+				) + arr::kprefix(Exception::exception_variables($e), "e."));
+				$application->hooks->call("exception", $e);
 			}
 		}
+		
 		return null;
 	}
-	const width = "width";
-	const height = "height";
+	
+	/**
+	 * Override in subclasses to hook into constructor
+	 */
+	public function construct() {
+	}
 	
 	/**
 	 * Scale an image and save to disk

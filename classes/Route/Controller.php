@@ -67,6 +67,7 @@ class Route_Controller extends Route {
 	 * @see Route::__wakeup()
 	 */
 	public function __wakeup() {
+		parent::__wakeup();
 		$this->class = null;
 		$this->class_name = null;
 		$this->controller = null;

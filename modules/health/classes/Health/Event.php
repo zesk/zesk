@@ -88,7 +88,6 @@ class Health_Event extends Object {
 	 * @param string $name Name of type of event to defer (reason)
 	 */
 	public static function event_defer(Application $application, $path, $file, $name) {
-		/* @var $zesk Kernel */
 		$defer_event_path = path($path, $name);
 		Directory::depend($defer_event_path);
 		rename($file, path($defer_event_path, basename($file)));
@@ -164,8 +163,6 @@ class Health_Event extends Object {
 	 * @return Health_Event
 	 */
 	public function deduplicate() {
-		global $zesk;
-		/* @var $zesk Kernel */
 		$n_samples = $this->option_integer("keep_duplicates", 10);
 		$n_found = $this->application->query_select(__CLASS__)
 			->what("*n", "COUNT(id)")
@@ -181,8 +178,8 @@ class Health_Event extends Object {
 				->to_array(null, "id");
 			$delete_query = $this->application->query_delete(__CLASS__);
 			$delete_query->where("id", $ids_to_delete);
-			$delete_query->execute();
-			$zesk->logger->notice("Deleted {n} {rows} related to health event {message} (Health Events #{id}) - total {total}", array(
+			$delete_query->exec();
+			$this->application->logger->notice("Deleted {n} {rows} related to health event {message} (Health Events #{id}) - total {total}", array(
 				"n" => $nrows = $delete_query->affected_rows(),
 				"rows" => Locale::plural("row", $nrows),
 				"message" => $this->message,

@@ -45,9 +45,6 @@ class Command_Module_New extends Command {
 		}
 	}
 	function new_module_path($module) {
-		global $zesk;
-		/* @var $zesk \zesk\Kernel */
-
 		$is_zesk = $this->option_bool("zesk");
 		$is_app = $this->option_bool("app", !$is_zesk);
 

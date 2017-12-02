@@ -334,8 +334,7 @@ class Control_Edit extends Control {
 	 * @return void
 	 */
 	protected function initialize_theme_paths() {
-		global $zesk;
-		$hierarchy = $zesk->classes->hierarchy($this, __CLASS__);
+		$hierarchy = $this->application->classes->hierarchy($this, __CLASS__);
 		foreach ($hierarchy as $index => $class) {
 			$hierarchy[$index] = strtr(strtolower($class), array(
 				"_" => "/",
@@ -351,7 +350,7 @@ class Control_Edit extends Control {
 				$debug_type = "default";
 			}
 			if ($this->option_bool("debug_theme_paths")) {
-				$zesk->logger->debug("{class}->{theme_var} theme ({debug_type}) is {paths}", array(
+				$this->application->logger->debug("{class}->{theme_var} theme ({debug_type}) is {paths}", array(
 					"debug_type" => $debug_type,
 					"class" => get_class($this),
 					"theme_var" => $theme_var,

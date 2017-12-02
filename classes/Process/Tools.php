@@ -21,8 +21,6 @@ class Process_Tools {
 	 * @return boolean
 	 */
 	static function reset_dead_processes(Application $application, $class, $where = false, $pid_field = "PID") {
-		global $zesk;
-		/* @var $zesk Kernel */
 		$where["$pid_field|!="] = null;
 		$ids = $application->query_select($class)
 			->what('pid', $pid_field)
@@ -30,7 +28,7 @@ class Process_Tools {
 			->to_array('pid', 'pid');
 		$dead_pids = array();
 		foreach ($ids as $id) {
-			if (!$zesk->process->alive($id)) {
+			if (!$application->process->alive($id)) {
 				$dead_pids[] = $id;
 			}
 		}
@@ -38,7 +36,7 @@ class Process_Tools {
 			return false;
 		}
 		$dead_pids = implode(", ", $dead_pids);
-		$zesk->logger->warning("Resetting dead pids {dead_pids}", array(
+		$application->logger->warning("Resetting dead pids {dead_pids}", array(
 			"dead_pids" => $dead_pids
 		));
 		$application->query_update($class)

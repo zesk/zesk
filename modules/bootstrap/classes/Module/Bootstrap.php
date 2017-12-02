@@ -62,7 +62,7 @@ class Module_Bootstrap extends Module implements Interface_Module_Foot, Interfac
 	public function hook_head(Request $request, Response_Text_HTML $response, Template $template) {
 		// Lazy eval
 		if ($this->option_bool('enabled')) {
-			if (!self::source_location()) {
+			if (!$this->source_location()) {
 				$response->css("/share/bootstrap/css/bootstrap.css", array(
 					'share' => true
 				));
@@ -109,17 +109,8 @@ class Module_Bootstrap extends Module implements Interface_Module_Foot, Interfac
 	 * @param string $set        	
 	 * @return string
 	 */
-	public static function source_location($set = null) {
-		global $zesk;
-		/* @var $zesk Kernel */
-		if ($set !== null) {
-			$zesk->configuration->path(__CLASS__)->source_location = $set;
-			return $set;
-		}
-		return $zesk->configuration->path_get(array(
-			__CLASS__,
-			"source_location"
-		));
+	public function source_location($set = null) {
+		return $set !== null ? $this->set_option("source_location", $set) : $this->option("source_location");
 	}
 	
 	/**

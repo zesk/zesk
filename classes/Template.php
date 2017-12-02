@@ -370,14 +370,21 @@ class Template implements Interface_Theme {
 		$paths = array();
 		$found = false;
 		$theme_paths = $this->application->theme_path();
-		foreach ($theme_paths as $prefix) {
-			$temp = path($prefix, $path);
-			$paths[$temp] = $exists = file_exists($temp);
-			if (!$all && $exists) {
-				return $temp;
+		foreach ($theme_paths as $prefix => $theme_path) {
+			$temp = null;
+			if (is_numeric($prefix)) {
+				$temp = path($theme_path, $path);
+			} else if (begins($path, $prefix)) {
+				$temp = path($theme_path, substr($path, strlen($prefix)));
 			}
-			if ($exists) {
-				$found = true;
+			if ($temp) {
+				$paths[$temp] = $exists = file_exists($temp);
+				if (!$all && $exists) {
+					return $temp;
+				}
+				if ($exists) {
+					$found = true;
+				}
 			}
 		}
 		if (!$found) {
@@ -591,7 +598,6 @@ class Template implements Interface_Theme {
 	 * @return string
 	 */
 	function render() {
-		global $zesk;
 		if (!$this->_path) {
 			return null;
 		}
@@ -599,7 +605,7 @@ class Template implements Interface_Theme {
 		ob_start();
 		$this->push();
 		extract(array(
-			"zesk" => $zesk
+			"zesk" => $this->application->zesk
 		) + $this->_vars, EXTR_SKIP); // Avoid overwriting $this
 		// This name is fairly unique to avoid conflicts with variables set in our include.
 		$_template_exception = null;
@@ -633,18 +639,16 @@ class Template implements Interface_Theme {
 		return strtolower($key);
 	}
 	public static function configured(Application $application) {
-		global $zesk;
-		$config = $zesk->configuration->path("template");
-		/* @var $zesk Kernel */
+		$config = $application->configuration->path("template");
 		self::$profile = to_bool($config->profile);
 		self::$wrap = to_bool($config->wrap);
 	}
 	/**
 	 * Implements ::hooks
 	 */
-	public static function hooks(Kernel $zesk) {
-		$zesk->hooks->add('</html>', 'Template::profile_output');
-		$zesk->hooks->add('configured', 'Template::configured');
+	public static function hooks(Kernel $kernel) {
+		$kernel->hooks->add('</html>', 'Template::profile_output');
+		$kernel->hooks->add('configured', 'Template::configured');
 	}
 	public static function profile_output() {
 		if (!self::$profile) {

@@ -707,9 +707,8 @@ class Date extends Temporal {
 	 */
 	function format($format_string = null, array $options = array()) {
 		if ($format_string === null) {
-			global $zesk;
-			/* @var $zesk zesk\Kernel */
-			$format_string = zesk()->configuration->path_get(array(
+			// TODO
+			$format_string = Kernel::singleton()->configuration->path_get(array(
 				__CLASS__,
 				"format_string"
 			), "{YYYY}-{MM}-{DD}");

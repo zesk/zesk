@@ -165,6 +165,7 @@ class Command_Loader {
 				}
 				require_once $first_command;
 				$this->application = $this->zesk_loaded($first_command);
+				$this->application->console(true);
 				if (zesk()->configuration->debug || $this->debug) {
 					$this->debug = true;
 				}

@@ -39,9 +39,8 @@ class Command_Globals extends Command_Base {
 	 * @see Command::run()
 	 */
 	function run() {
-		global $zesk;
 		PHP::dump_settings_one();
-		$globals = $zesk->configuration->to_array();
+		$globals = $this->application->configuration->to_array();
 		ksort($globals);
 		$args = $this->arguments_remaining(true);
 		if (count($args) > 0) {

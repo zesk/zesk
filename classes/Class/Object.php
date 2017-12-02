@@ -609,10 +609,14 @@ class Class_Object extends Hookable {
 		list($namespace, $suffix) = pairr($classname, "\\", null, $classname, "left");
 		return $namespace . 'Class_' . $suffix;
 	}
-	public static function classes_exit() {
+	
+	/**
+	 * @deprecated 2017-11?
+	 * @todo remove this probably
+	 */
+	public static function classes_exit(Application $application) {
 		if (self::$classes_dirty) {
-			global $zesk;
-			$zesk->hooks->call("Class_Object::classes_save", self::$classes);
+			$application->hooks->call("Class_Object::classes_save", self::$classes);
 		}
 	}
 	/**
@@ -622,20 +626,24 @@ class Class_Object extends Hookable {
 	 * @return Zesk_Class
 	 */
 	public static function instance(Object $object, array $options = array(), $class = null) {
-		global $zesk;
 		if ($class === null) {
 			$class = get_class($object);
 		}
+		$application = $object->application;
 		$lowclass = strtolower($class);
 		if (!is_array(self::$classes)) {
-			self::$classes = $zesk->hooks->call_arguments("Class_Object::classes_load", array(), array());
-			$zesk->hooks->add("exit", "Class_Object::classes_exit");
+			self::$classes = $application->hooks->call_arguments("Class_Object::classes_load", array(), array());
+			$application->hooks->add("exit", "Class_Object::classes_exit", array(
+				'arguments' => array(
+					$application
+				)
+			));
 		}
 		if (array_key_exists($lowclass, self::$classes)) {
 			return self::$classes[$lowclass];
 		}
 		$class_class = self::object_to_class($class);
-		$instance = self::$classes[$lowclass] = $zesk->objects->factory($class_class, $object);
+		$instance = self::$classes[$lowclass] = $application->objects->factory($class_class, $object);
 		self::$classes_dirty = true;
 		return $instance;
 	}
@@ -1369,13 +1377,11 @@ class Class_Object extends Hookable {
 	 * @return array
 	 */
 	private function has_many_init(Object $object, array $has_many) {
-		global $zesk;
-		/* @var $zesk zesk\Kernel */
 		$class = $has_many['class'];
 		$my_class = $this->class;
 		$link_class = avalue($has_many, 'link_class');
 		if ($link_class) {
-			$zesk->classes->register($link_class);
+			$this->application->classes->register($link_class);
 			$table = $this->application->object_table_name($link_class);
 			if (!$table) {
 				throw new Exception_Configuration("$link_class::table", "Link class for {class} {link_class} table is empty", array(
@@ -1384,7 +1390,7 @@ class Class_Object extends Hookable {
 				));
 			}
 			if (array_key_exists("table", $has_many)) {
-				$zesk->logger->warning("Key \"table\" is ignored in has many definition: {table}", $has_many);
+				$this->application->logger->warning("Key \"table\" is ignored in has many definition: {table}", $has_many);
 			}
 			$has_many['table'] = $table;
 		} else {
@@ -1454,20 +1460,18 @@ class Class_Object extends Hookable {
 	 * @return Database_Schema
 	 */
 	final private function _database_schema(Object $object = null, $sql = null) {
-		global $zesk;
-		/* @var $zesk Kernel */
 		try {
 			list($namespace, $class) = PHP::parse_namespace_class($this->class);
 			if ($namespace) {
 				$namespace .= "\\";
 			}
-			return $zesk->objects->factory($namespace . "Schema_" . $class, $this, $object);
+			return $this->application->objects->factory($namespace . "Schema_" . $class, $this, $object);
 		} catch (Exception_Class_NotFound $e) {
 			$schema = new Database_Schema_File($this, $object, $sql);
 			if ($schema->exists() || $schema->has_sql()) {
 				return $schema;
 			}
-			$zesk->logger->warning("Can not find schema for {class} in {searches}, or schema object {exception}", array(
+			$this->application->logger->warning("Can not find schema for {class} in {searches}, or schema object {exception}", array(
 				"class" => $this->class,
 				"searches" => "\n" . implode("\n\t", $schema->searches()) . "\n",
 				"exception" => $e
@@ -1475,7 +1479,7 @@ class Class_Object extends Hookable {
 			return null;
 		} catch (Exception $e) {
 			$this->application->hooks->call("exception", $e);
-			$zesk->logger->error("Schema error for " . $this->class . " (" . get_class($e) . ": " . $e->getMessage() . ")");
+			$this->application->logger->error("Schema error for " . $this->class . " (" . get_class($e) . ": " . $e->getMessage() . ")");
 			return null;
 		}
 	}
@@ -1647,8 +1651,6 @@ class Class_Object extends Hookable {
 	 * @return multitype:string
 	 */
 	private function member_from_database(Object $object, $column, $type, array &$data) {
-		global $zesk;
-		/* @var $zesk \zesk\Kernel */
 		$result = array();
 		$v = $data[$column];
 		switch ($type) {
@@ -1689,7 +1691,7 @@ class Class_Object extends Hookable {
 			case self::type_serialize:
 				$data[$column] = $result = empty($v) ? null : @unserialize($v);
 				if ($result === false && $v !== 'b:0;') {
-					$zesk->logger->error("unserialize of {n} bytes failed: {data}", array(
+					$this->application->logger->error("unserialize of {n} bytes failed: {data}", array(
 						"n" => strlen($v),
 						"data" => substr($v, 0, 100)
 					));
@@ -1699,7 +1701,7 @@ class Class_Object extends Hookable {
 				try {
 					$data[$column] = empty($v) ? null : JSON::decode($v);
 				} catch (Exception_Parse $e) {
-					$zesk->logger->error("Unable to parse JSON in {class}->{column} {json}", array(
+					$this->application->logger->error("Unable to parse JSON in {class}->{column} {json}", array(
 						"class" => get_class($object),
 						"column" => $column,
 						"json" => $v
@@ -1725,14 +1727,14 @@ class Class_Object extends Hookable {
 			case self::type_polymorph:
 				if ($v) {
 					if ($this->polymorphic === null) {
-						$zesk->logger->error("{class} has polymorph member {column} but is not polymorphic", array(
+						$this->application->logger->error("{class} has polymorph member {column} but is not polymorphic", array(
 							'class' => get_class($this),
 							'column' => $column
 						));
 						break;
 					}
 					$full_class = $this->polymorphic_class_generate($v);
-					// 					$zesk->logger->debug("Setting object {class} polymorphic to {full_class} (polymorphic={polymorphic}, v={v})", array(
+					// 					$this->application->logger->debug("Setting object {class} polymorphic to {full_class} (polymorphic={polymorphic}, v={v})", array(
 					// 						"class" => get_class($object),
 					// 						"polymorphic" => $this->polymorphic,
 					// 						"v" => $v,

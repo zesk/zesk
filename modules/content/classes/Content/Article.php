@@ -250,9 +250,7 @@ class Content_Article extends Object {
 	 * @return number
 	 */
 	private function _compute_image_size($name, $global_prefix, $default_value) {
-		global $zesk;
-		/* @var $zesk zesk\Kernel */
-		return $this->option_integer("image_${global_prefix}${name}_default", $zesk->configuration->path_get("Image::image_${global_prefix}${name}_default", $default_value));
+		return $this->option_integer("image_${global_prefix}${name}_default", $this->application->configuration->path_get("Image::image_${global_prefix}${name}_default", $default_value));
 	}
 	
 	/**

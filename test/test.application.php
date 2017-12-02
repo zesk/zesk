@@ -8,7 +8,7 @@
  */
 require_once __DIR__ . '/vendor/autoload.php';
 
-$zesk = zesk\Kernel::singleton();
+$zesk = zesk\Kernel::factory();
 
 $zesk->autoloader->no_exception = true;
 

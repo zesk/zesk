@@ -25,7 +25,7 @@ class PHPUnit_TestCase extends TestCase {
 		 * Set up our state
 		 */
 		if (!$this->application) {
-			/* zesk() ok */
+			/* singleton ok */
 			$this->application = Kernel::singleton()->application();
 		}
 		if (!$this->configuration) {

@@ -1,4 +1,10 @@
 <?php
+/**
+ * @package zesk
+ * @subpackage kernel
+ * @author kent
+ * @copyright &copy; 2017 Market Acumen, Inc.
+ */
 namespace zesk;
 
 /**
@@ -12,7 +18,14 @@ abstract class Version {
 	 *
 	 * @var string
 	 */
-	const path_version_release = "etc/db/release";
+	const PATH_RELEASE = "etc/db/release";
+	
+	/**
+	 * Location of the Zesk current release date
+	 * 
+	 * @var string
+	 */
+	const PATH_RELEASE_DATE = "etc/db/release-date";
 	
 	/**
 	 * Cached release version
@@ -22,35 +35,21 @@ abstract class Version {
 	private static $release = null;
 	
 	/**
+	 * Cached release date
+	 *
+	 * @var string
+	 */
+	private static $date = null;
+	
+	/**
 	 * Return the SVN version number of this library
 	 *
 	 * @return integer version of this library
 	 */
-	private static function _version_string() {
-		// WAS: zesk.inc 3942 2016-08-04 21:14:54Z kent on 2016-08-04
-		// WAS: Version.php 4306 2017-03-03 01:32:59Z kent on 2017-03-23
-		// WAS: Version.php 4485 2017-03-24 18:58:00Z kent on 2017-06-08
-		// WAS: Version.php 4611 2017-06-08 20:42:51Z kent on 2017-06-21
-		return explode(' ', '$Id: Version.php 4633 2017-06-22 01:53:39Z kent $', 5);
+	private static function _file($name, $default) {
+		return trim(File::contents(path(ZESK_ROOT, self::PATH_RELEASE), $default));
 	}
 	
-	/**
-	 *
-	 * @return string
-	 */
-	private static function _release() {
-		return trim(File::contents(path(ZESK_ROOT, self::path_version_release), "-no-release-file-"));
-	}
-	
-	/**
-	 * Return the build index of this file
-	 *
-	 * @return integer
-	 */
-	public static function build() {
-		$result = self::_version_string();
-		return intval($result[2]);
-	}
 	/**
 	 * Zesk version
 	 *
@@ -58,7 +57,13 @@ abstract class Version {
 	 */
 	public static function release() {
 		if (self::$release === null) {
-			self::$release = self::_release();
+			self::$release = self::$_file(self::PATH_RELEASE, "-no-release-file-");
+		}
+		return self::$release;
+	}
+	public static function date() {
+		if (self::$date === null) {
+			self::$date = self::$_file(self::PATH_RELEASE_DATE, "-no-release-date-");
 		}
 		return self::$release;
 	}
@@ -67,15 +72,7 @@ abstract class Version {
 	 * Zesk version
 	 */
 	public static function string() {
-		return __(__METHOD__ . ":={release} (Build {build} on {date})", self::variables());
-	}
-	
-	/**
-	 * Zesk version date
-	 */
-	public static function date() {
-		$result = self::_version_string();
-		return $result[3];
+		return __(__METHOD__ . ":={release} (on {date})", self::variables());
 	}
 	
 	/**
@@ -84,7 +81,6 @@ abstract class Version {
 	 */
 	public static function variables() {
 		return array(
-			"build" => self::build(),
 			"release" => self::release(),
 			"date" => self::date()
 		);

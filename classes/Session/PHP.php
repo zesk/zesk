@@ -145,9 +145,7 @@ class Session_PHP implements Interface_Session {
 	 * @return mixed|mixed[]|\zesk\Configuration
 	 */
 	private function global_session_user_id() {
-		global $zesk;
-		/* @var $zesk zesk\Kernel */
-		return $zesk->configuration->path("session")->get("user_id_variable", "user");
+		return $this->application->configuration->path("session")->get("user_id_variable", "user");
 	}
 	
 	/**
@@ -228,9 +226,7 @@ class Session_PHP implements Interface_Session {
 	 * @see Interface_Session::delete()
 	 */
 	public function delete() {
-		global $zesk;
-		/* @var $zesk zesk\Kernel */
-		if (!$zesk->console) {
+		if (!$this->application->console()) {
 			session_destroy();
 		}
 	}

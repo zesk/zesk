@@ -16,7 +16,7 @@ if (!defined("ZESK_LOCALE_DEFAULT")) {
 
 /**
  *
- * @todo Turn this into an object $zesk->locale-> and remove most static usage
+ * @todo Turn this into an object $application->locale-> and remove most static usage
  *
  * @author kent
  * @see Controller_Locale
@@ -291,6 +291,15 @@ class Locale {
 	}
 	
 	/**
+	 * Load a file without extraneous variables
+	 * 
+	 * @param string $path
+	 * @return mixed
+	 */
+	private static function _require($path) {
+		return require $path;
+	}
+	/**
 	 * Load a locale file
 	 *
 	 * @param string $locale
@@ -298,8 +307,6 @@ class Locale {
 	 * @return array Translation table
 	 */
 	public static function load($locale) {
-		global $zesk;
-		/* @var $zesk zesk\Kernel */
 		$locale = self::normalize($locale);
 		$paths = self::$paths;
 		array_unshift($paths, ZESK_ROOT . 'etc/language');
@@ -318,7 +325,7 @@ class Locale {
 			foreach ($files as $file) {
 				$inc_path = path($path, $file . ".inc");
 				if (file_exists($inc_path)) {
-					$tt_add = $zesk->load($inc_path);
+					$tt_add = self::_require($inc_path);
 					if (is_array($tt_add)) {
 						$tt = $tt_add + $tt;
 					}

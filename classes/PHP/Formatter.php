@@ -4,9 +4,8 @@
  *
  * http://stackoverflow.com/questions/149600/php-code-formatter-beautifier-and-php-beautification-in-general
  *
- * @version $URL: https://code.marketacumen.com/zesk/trunk/classes/PHP/Formatter.php $
  * @author kent
- * @copyright &copy; 2012 Market Acumen, Inc.
+ * @copyright &copy; 2017 Market Acumen, Inc.
  */
 namespace zesk;
 
@@ -103,8 +102,10 @@ class PHP_Formatter extends Options {
 		$this->index = 0;
 		
 		// First pass - filter out unwanted tokens
+		ob_start();
 		$this->filter_tokens();
 		$this->add_white();
+		return ob_get_clean();
 	}
 	private function next_token() {
 		$this->next_index = $this->index;

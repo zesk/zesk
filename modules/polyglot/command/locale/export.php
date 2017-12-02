@@ -21,9 +21,7 @@ class Command_Locale_Export extends Command_Base {
 		'no-exclude' => 'Do not exclude database values which have been deleted already'
 	);
 	protected function run() {
-		global $zesk;
-		/* @var $zesk zesk\Kernel */
-		$source_language_file = $this->option("language-file", $zesk->configuration->path_get("zesk\\Module_PolyGlot::source_file"));
+		$source_language_file = $this->option("language-file", $this->application->configuration->path_get("zesk\\Module_PolyGlot::source_file"));
 		if (!$source_language_file) {
 			$this->usage("Need a source --language-file to determine source strings");
 		}
@@ -32,7 +30,7 @@ class Command_Locale_Export extends Command_Base {
 			$this->usage("Need a file --destination {destination}");
 		}
 		$exclusions = $this->option_bool("no-exclude") ? array() : $this->load_exclusions();
-		$source_locale = $zesk->load($source_language_file) + Locale::load("en_US");
+		$source_locale = $this->application->load($source_language_file) + Locale::load("en_US");
 		$csv = new CSV_Writer();
 		$csv->file($destination);
 		$csv->set_headers(array(

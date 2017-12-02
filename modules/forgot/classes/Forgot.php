@@ -32,14 +32,12 @@ class Forgot extends Object {
 	 * @param Application $application        	
 	 */
 	public static function cron_cluster_minute(Application $application) {
-		global $zesk;
-		/* @var $zesk zesk\Kernel */
-		$expire_seconds = -abs(to_integer($zesk->configuration->path_get("Module_Forgot::expire_seconds"), 3600));
+		$expire_seconds = -abs(to_integer($application->configuration->path_get("Module_Forgot::expire_seconds"), 3600));
 		$query = $application->query_delete(__CLASS__)->where("Created|<=", Timestamp::now()->add_unit($expire_seconds, Timestamp::UNIT_SECOND));
 		$query->execute();
 		$affected_rows = $query->affected_rows();
 		if ($affected_rows > 0) {
-			$zesk->logger->notice("Forgot::cron_minute deleted {affected_rows} forgotten rows", compact("affected_rows"));
+			$application->logger->notice("Forgot::cron_minute deleted {affected_rows} forgotten rows", compact("affected_rows"));
 		}
 	}
 	

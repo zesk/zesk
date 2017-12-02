@@ -15,19 +15,26 @@ namespace zesk;
  * @subpackage contact
  */
 class Contact_Phone_Bootstrap {
-	static $bootAreaCode = false;
-	static function bootstrap() {
-		self::bootstrap_area_codes();
-		self::bootstrap_country_codes();
+	/**
+	 * 
+	 * @var string
+	 */
+	private $bootAreaCode = false;
+	
+	/**
+	 * 
+	 * @param string $drop
+	 */
+	function bootstrap($drop = false) {
+		$this->bootstrap_area_codes($drop);
+		$this->bootstrap_country_codes($drop);
 	}
-	static function bootstrap_area_codes() {
-		global $zesk;
-		/* @var $zesk zesk\Kernel */
-		if (self::$bootAreaCode) {
+	function bootstrap_area_codes($drop = false) {
+		if ($this->bootAreaCode) {
 			return;
 		}
 		$x = new Contact_Phone_AreaCode();
-		if ($zesk->configuration->get('bootstrap-drop-all')) {
+		if ($drop) {
 			$x->database()->query_select('TRUNCATE ' . $x->table());
 		}
 		
@@ -106,13 +113,11 @@ class Contact_Phone_Bootstrap {
 		}
 		self::$bootAreaCode = true;
 	}
-	static function bootstrap_country_codes() {
-		global $zesk;
-		/* @var $zesk zesk\Kernel */
+	static function bootstrap_country_codes($drop) {
 		self::bootstrap_area_codes();
 		
 		$x = new Contact_Phone_CountryCode();
-		if ($zesk->configuration->get('bootstrap-drop-all'))
+		if ($drop)
 			$x->database()->query('TRUNCATE ' . $x->table());
 		
 		$csv = new CSV_Reader(dirname(__FILE__) . "/../bootstrap-data/PhoneCountryCode.csv");

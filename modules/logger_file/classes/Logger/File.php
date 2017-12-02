@@ -292,8 +292,6 @@ class File implements Handler {
 			$this->fp = fopen($this->filename, $this->mode);
 			$this->opened = true;
 			if (!$this->fp) {
-				global $zesk;
-				/* @var $zesk \zesk\Kernel */
 				$this->fp = false;
 				$this->error_log("Unable to open file {filename} with {mode} for log file", $this->variables());
 				return;

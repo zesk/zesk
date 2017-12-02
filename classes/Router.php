@@ -61,13 +61,7 @@ class Router extends Hookable {
 	 * @var boolean
 	 */
 	public $debug = false;
-	
-	/**
-	 *
-	 * @var Router
-	 */
-	private static $singleton = null;
-	
+
 	/**
 	 *
 	 * @var string

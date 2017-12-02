@@ -64,8 +64,6 @@ class Command_Database_Dump extends Command_Base {
 	 * @see Command::run()
 	 */
 	function run() {
-		global $zesk;
-		/* @var $zesk zesk\Kernel */
 		$dbname = $this->option('name');
 		$db = $this->application->database_factory($dbname);
 		if (!$db) {
@@ -100,9 +98,9 @@ class Command_Database_Dump extends Command_Base {
 			$url = URL::remove_password($url);
 			$this->usage("No command-line shell command found for database type $scheme (URL: $url)");
 		}
-		$full_command_path = $zesk->paths->which($command);
+		$full_command_path = $this->application->paths->which($command);
 		if (!$full_command_path) {
-			$this->error("Unable to find shell $command in system path:" . implode(", ", $zesk->paths->command()) . "\n");
+			$this->error("Unable to find shell $command in system path:" . implode(", ", $this->application->paths->command()) . "\n");
 			return false;
 		}
 		

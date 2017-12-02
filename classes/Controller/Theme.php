@@ -12,7 +12,6 @@ namespace zesk;
 /**
  * 
  * @author kent
- * @todo Convert to theme
  */
 abstract class Controller_Theme extends Controller {
 	
@@ -173,7 +172,7 @@ abstract class Controller_Theme extends Controller {
 		$title = $control->option('title', avalue($options, 'title'));
 		$this->response->title($title, false); // Do not overwrite existing values
 		if ($this->response->json()) {
-			return;
+			return null;
 		}
 		$ajax = $this->request->is_ajax();
 		if ($ajax) {
@@ -185,11 +184,12 @@ abstract class Controller_Theme extends Controller {
 				'content' => $content,
 				'message' => array_values($control->children_errors())
 			) + $this->response->to_json());
+			return null;
 		} else if ($this->response->content_type === "text/html") {
-			$this->response->content = $content;
+			return $content;
 		} else {
 			$this->auto_render(false);
-			$this->response->content = $content;
+			return $content;
 		}
 	}
 }

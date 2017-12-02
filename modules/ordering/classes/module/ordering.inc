@@ -18,9 +18,7 @@ class Module_Ordering extends zesk\Module {
 	 * @see Module::initialize()
 	 */
 	public function initialize() {
-		global $zesk;
-		/* @var $zesk zesk\Kernel */
-		$zesk->hooks->add('zesk\Object::pre_insert', array(
+		$this->application->hooks->add(Object::class . '::pre_insert', array(
 			$this,
 			'object_pre_insert'
 		));
@@ -92,7 +90,14 @@ class Module_Ordering extends zesk\Module {
 	public function object_pre_insert(Object $object, array $members) {
 		$order_column = $this->order_column($object);
 		if ($object->has_member($order_column) && $object->member_is_empty($order_column)) {
-			$members[$order_column] = $this->query_ordering($object)->what("*X", "MAX(`$order_column`)")->one_integer("X") + 1;
+			list($func, $delta) = $object->option_bool("ordering_first") ? array(
+				"MIN",
+				-1
+			) : array(
+				"MAX",
+				1
+			);
+			$members[$order_column] = $this->query_ordering($object)->what("*X", "$func(`$order_column`)")->one_integer("X") + $delta;
 			$object->store_member($order_column, true);
 		}
 		return $members;

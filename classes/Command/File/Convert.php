@@ -28,6 +28,13 @@ abstract class Command_File_Convert extends Command_Base {
 	protected $destination_extension = null;
 	
 	/**
+	 * Overwrite files (when true, implies destination_extension is null)
+	 * 
+	 * @var boolean
+	 */
+	protected $overwrite = false;
+	
+	/**
 	 * Override in subclasses to modify the configuration file loaded by this command.
 	 * 
 	 * @var string
@@ -54,7 +61,7 @@ abstract class Command_File_Convert extends Command_Base {
 		$this->option_help += array(
 			'nomtime' => 'Ignore destination file modification time when determining whether to generate',
 			'noclobber' => 'Do not overwrite existing files',
-			'extension' => 'Use this extenstion for the generated markdown files instead of .html (the default)',
+			'extension' => 'Use this extenstion for the generated files instead of the default',
 			'dry-run' => 'Don\'t make any changes, just show what would happen.',
 			'force' => 'Always write files',
 			'*' => 'A list of files to process'
@@ -76,6 +83,9 @@ abstract class Command_File_Convert extends Command_Base {
 			'response' => $app->response(),
 			'stylesheets_inline' => true
 		));
+		if ($this->overwrite && $this->option_bool("no-clobber")) {
+			$this->error("The --no-clobber option is not compatible with this command, it can only overwrite existing files.");
+		}
 		$dry_run = $this->option_bool('dry-run');
 		if ($dry_run) {
 			$this->set_option('verbose', true);
@@ -97,7 +107,8 @@ abstract class Command_File_Convert extends Command_Base {
 					'add_path' => true
 				));
 			}
-			$force = $this->option_bool("force");
+			$overwrite = $this->overwrite;
+			$force = $this->option_bool("force") || $overwrite;
 			$noclobber = $this->option_bool("noclobber");
 			$nomtime = $this->option_bool("nomtime");
 			$extension = trim($this->option("extension", $this->destination_extension), ".");
@@ -105,7 +116,7 @@ abstract class Command_File_Convert extends Command_Base {
 				if (!file_exists($file)) {
 					continue;
 				}
-				$new_file = File::extension_change($file, ".$extension");
+				$new_file = $overwrite ? $file : File::extension_change($file, ".$extension");
 				if (!$force && is_file($new_file) && filesize($new_file) > 0) {
 					if ($noclobber) {
 						$this->application->logger->debug("noclobber: Will not overwrite: $new_file");

@@ -59,7 +59,7 @@ class Kernel {
 	 *
 	 * @var \zesk\Kernel
 	 */
-	private static $zesk = null;
+	private static $singleton = null;
 	
 	/**
 	 *
@@ -194,6 +194,7 @@ class Kernel {
 	public static function includes() {
 		$here = dirname(__FILE__);
 		
+		require_once $here . "/Exception.php";
 		require_once $here . "/Process.php";
 		require_once $here . "/Logger.php";
 		
@@ -218,36 +219,44 @@ class Kernel {
 	 * @return \zesk\Kernel
 	 */
 	static function zesk() {
-		return self::$zesk;
+		return self::$singleton;
 	}
-	
+	public static function factory(array $configuration = array()) {
+		if (self::$singleton) {
+			throw new Exception("{method} should only be called once {backtrace}", array(
+				"method" => __METHOD__,
+				"backtrace" => _backtrace()
+			));
+		}
+		global $zesk; // TODO @deprecated 2017-11
+		self::$singleton = $zesk = new self($configuration);
+		self::$singleton->bootstrap();
+		return self::$singleton;
+	}
 	/**
 	 *
 	 * @param array $configuration
 	 * @return \zesk\Kernel
 	 */
 	public static function singleton(array $configuration = array()) {
-		if (self::$zesk) {
-			return self::$zesk;
+		if (self::$singleton) {
+			return self::$singleton;
 		}
-		
-		global $zesk;
-		
-		self::$zesk = $zesk = new self($configuration);
-		
-		$zesk->bootstrap();
-		
-		return $zesk;
+		$result = self::factory($configuration);
+		if (count($configuration) > 0) {
+			self::$singleton->deprecated("{method} with configuration options is deprecated, use {class}::factory for creation", array(
+				"method" => __METHOD__,
+				"class" => self::class
+			));
+		}
+		return $result;
 	}
 	/**
 	 *
 	 * @param array $configuration
 	 */
 	function __construct(array $configuration = array()) {
-		if (!defined('E_DEPRECATED')) {
-			define('E_DEPRECATED', 0);
-		}
-		error_reporting(E_ALL | E_STRICT | E_DEPRECATED);
+		error_reporting(E_ALL | E_STRICT);
 		
 		$this->initialize_configuration = $configuration;
 		
@@ -300,8 +309,6 @@ class Kernel {
 	/**
 	 */
 	private function construct(array $configuration) {
-		Compatibility::install();
-		
 		if (isset($configuration['cache']) && $configuration['cache'] instanceof CacheItemPoolInterface) {
 			$this->cache = $configuration['cache'];
 		} else {
@@ -353,6 +360,8 @@ class Kernel {
 		$this->classes = Classes::instance($this);
 		
 		$this->initialize();
+		
+		Compatibility::install();
 		
 		if (PHP_VERSION_ID < 50000) {
 			die("Zesk works in PHP 5 only.");

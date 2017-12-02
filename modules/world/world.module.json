@@ -1,7 +1,7 @@
 {
 	"name": "World - Internationalization and related (Country, Locale, Currency, Time Zone)",
 	"requires": [
-		"file_cache"
+		"zesk\\WebCache"
 	],
 	"autoload_options": {
 		"lower": false,
