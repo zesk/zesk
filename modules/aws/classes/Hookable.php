@@ -2,27 +2,25 @@
 
 /**
  * Base class for inheriting options across all AWS classes
- * 
+ *
  * @author kent
  */
 use zesk\Application;
-use zesk\Options;
-use zesk\Hookable;
 
 /**
- * 
+ *
  * @author kent
  *
  */
-class AWS extends Hookable {
+class Hookable extends \zesk\Hookable {
 	/**
-	 * 
+	 *
 	 * @var Application
 	 */
 	public $application = null;
-	
+
 	/**
-	 * 
+	 *
 	 * @param Application $application
 	 * @param array $options
 	 */

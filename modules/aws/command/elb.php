@@ -8,8 +8,9 @@ use Aws\ElasticLoadBalancing\ElasticLoadBalancingClient as ElasticLoadBalancingC
 
 /**
  *
- * @author kent
+ * @aliases elb
  *
+ * @author kent
  */
 class Command_ELB extends Command {
 	protected $option_types = array(
