@@ -32,6 +32,7 @@ Version 1.0 of Zesk will have:
 ### New features
 
 - `zesk\Hooks::add` now supports the passing of an `'arguments'` key in the `$options` parameter to allow each invokation to have starting paramters which are added upon registration. This is equivalent to JavaScript's `.bind` functionality.
+- `zesk\Version::date()` was added and is included as part of the release
 
 ### Module changes
 

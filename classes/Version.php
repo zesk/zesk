@@ -1,4 +1,5 @@
 <?php
+
 /**
  * @package zesk
  * @subpackage kernel
@@ -19,28 +20,28 @@ abstract class Version {
 	 * @var string
 	 */
 	const PATH_RELEASE = "etc/db/release";
-	
+
 	/**
 	 * Location of the Zesk current release date
-	 * 
+	 *
 	 * @var string
 	 */
 	const PATH_RELEASE_DATE = "etc/db/release-date";
-	
+
 	/**
 	 * Cached release version
 	 *
 	 * @var string
 	 */
 	private static $release = null;
-	
+
 	/**
 	 * Cached release date
 	 *
 	 * @var string
 	 */
 	private static $date = null;
-	
+
 	/**
 	 * Return the SVN version number of this library
 	 *
@@ -49,7 +50,7 @@ abstract class Version {
 	private static function _file($name, $default) {
 		return trim(File::contents(path(ZESK_ROOT, self::PATH_RELEASE), $default));
 	}
-	
+
 	/**
 	 * Zesk version
 	 *
@@ -57,24 +58,31 @@ abstract class Version {
 	 */
 	public static function release() {
 		if (self::$release === null) {
-			self::$release = self::$_file(self::PATH_RELEASE, "-no-release-file-");
+			self::$release = self::_file(self::PATH_RELEASE, "-no-release-file-");
 		}
 		return self::$release;
 	}
+
+	/**
+	 * Zesk release date
+	 *
+	 * @since 0.13.0
+	 * @return string
+	 */
 	public static function date() {
 		if (self::$date === null) {
-			self::$date = self::$_file(self::PATH_RELEASE_DATE, "-no-release-date-");
+			self::$date = self::_file(self::PATH_RELEASE_DATE, "-no-release-date-");
 		}
 		return self::$release;
 	}
-	
+
 	/**
 	 * Zesk version
 	 */
 	public static function string() {
 		return __(__METHOD__ . ":={release} (on {date})", self::variables());
 	}
-	
+
 	/**
 	 *
 	 * @return array
