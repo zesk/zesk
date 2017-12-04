@@ -8,7 +8,7 @@ use Aws\ElasticLoadBalancing\ElasticLoadBalancingClient as ElasticLoadBalancingC
 
 /**
  *
- * @aliases elb
+ * @aliases aws-elb
  *
  * @author kent
  */
@@ -24,7 +24,7 @@ class Command_ELB extends Command {
 		);
 		$this->log("Instance ID is {instance_id}", $__);
 
-		$elbc = $this->application->factory('ElasticLoadBalancingClient');
+		$elbc = $this->application->factory(ElasticLoadBalancingClient::class);
 		$load_balancers = $elbc->describeLoadBalancers();
 		var_dump($load_balancers);
 	}

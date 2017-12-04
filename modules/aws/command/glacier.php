@@ -1,17 +1,20 @@
 <?php
+
 /**
  * @copyright &copy; 2016 Market Acumen, Inc.
  */
+namespace zesk\AWS;
+
 use zesk\Text;
 
 /**
  * Glacier command to store, retrieve, list, and manage glacier files
  *
- * @aliases glacier
+ * @aliases aws-glacier
  *
  * @author kent
  */
-class Command_AWS_Glacier extends zesk\Command_Base {
+class Command_Glacier extends \zesk\Command_Base {
 
 	/**
 	 * Help string output for usage
