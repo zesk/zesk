@@ -22,10 +22,16 @@ class Directory extends Hookable {
 	public static $debug = false;
 	
 	/**
+	 * 
+	 * @var integer
+	 */
+	public static $default_mode = 0770;
+	
+	/**
 	 * Implement hooks
 	 */
-	public static function hooks(Kernel $zesk) {
-		$zesk->hooks->add('configured', __CLASS__ . '::configured');
+	public static function hooks(Kernel $kernel) {
+		$kernel->hooks->add('configured', __CLASS__ . '::configured');
 	}
 	
 	/**
@@ -33,6 +39,7 @@ class Directory extends Hookable {
 	 */
 	public static function configured(Application $application) {
 		self::$debug = $application->configuration->path(__CLASS__)->debug;
+		self::$default_mode = $application->configuration->path(__CLASS__)->default_mode;
 	}
 	
 	/**
@@ -68,18 +75,7 @@ class Directory extends Hookable {
 	 * @return integer
 	 */
 	public static function default_mode() {
-		global $zesk;
-		/* @var $zesk zesk\Kernel */
-		$mode = to_integer($zesk->configuration->path(__CLASS__)->directory_mode, 0770);
-		return $mode;
-	}
-	public static function temporary($name = null, $mode = null) {
-		global $zesk;
-		/* @var $zesk Kernel */
-		if ($name === null) {
-			$name = md5(microtime());
-		}
-		return self::depend($zesk->paths->temporary($name), $mode);
+		return self::$default_mode;
 	}
 	
 	/**
@@ -115,8 +111,6 @@ class Directory extends Hookable {
 	 * @throws Exception_Directory_NotFound
 	 */
 	public static function duplicate($source, $destination, $recursive = true, $file_copy_function = null) {
-		global $zesk;
-		/* @var $zesk zesk\Kernel */
 		if (empty($source)) {
 			throw new Exception_Parameter("self::duplicate: Source is empty");
 		}
@@ -664,6 +658,20 @@ class Directory extends Hookable {
 	}
 	private static function octal_equal($a, $b) {
 		return intval($a) === intval($b);
+	}
+	
+	/**
+	 * @deprecated 2017-12 Use Directory::Depend($application->paths->temporary(md5(microtime()))) instead
+	 *
+	 * @param unknown $name
+	 * @param unknown $mode
+	 * @return \zesk\unknown
+	 */
+	public static function temporary($name = null, $mode = null) {
+		if ($name === null) {
+			$name = md5(microtime());
+		}
+		return self::depend(Kernel::singleton()->paths->temporary($name), $mode);
 	}
 }
 

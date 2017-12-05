@@ -21,13 +21,20 @@ Version 1.0 of Zesk will have:
 
 ## [Unreleased][]
 
-### Deprecated 
+### Marked as deprecated 
 
-- `zesk\Paths::document*`, `zesk\Paths::module_path`, `zesk\Paths::share_path`, and `zesk\Paths::zesk_command_path` were removed (deprecated 2016)`
-- `Controller_Forgot`, `Controller_Object`, ``, `` and `` all now inherit from `Controller_Theme`
-- Zesk will now adopt the usage of using `ClassName::class` instead of the more complex `__NAMESPACE__ . "\\" . "ClassName"` or strings.
 - The external usage of `zesk\Template` objects is now discouraged and all applications are encouraged to use `zesk\Application::theme` only to render content.
 - `zesk\Module::$classes` has been deprecated permanently.
+- `zesk\Directory::temporary` has just been marked as deprecated
+
+### Deprecated and removed
+
+- `zesk\Paths::document*`, `zesk\Paths::module_path`, `zesk\Paths::share_path`, and `zesk\Paths::zesk_command_path` were removed (deprecated 2016)`
+
+### Changed functionality
+
+- `Controller_Forgot`, `Controller_Object`, ``, `` and `` all now inherit from `Controller_Theme`
+- Zesk will now adopt the usage of using `ClassName::class` instead of the more complex `__NAMESPACE__ . "\\" . "ClassName"` or strings.
 
 ### New features
 
