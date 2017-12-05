@@ -859,7 +859,6 @@ class Object extends Model {
 	 * @return Object|mixed
 	 */
 	function id($set = null) {
-		/* @var $zesk \zesk\Kernel */
 		if (!$this->class) {
 			$this->application->logger->critical("Calling {method} on uninitialized Object {class} {backtrace}", array(
 				"method" => __METHOD__,

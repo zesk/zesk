@@ -57,13 +57,13 @@ abstract class Version {
 	 */
 	public static function release() {
 		if (self::$release === null) {
-			self::$release = self::$_file(self::PATH_RELEASE, "-no-release-file-");
+			self::$release = self::_file(self::PATH_RELEASE, "-no-release-file-");
 		}
 		return self::$release;
 	}
 	public static function date() {
 		if (self::$date === null) {
-			self::$date = self::$_file(self::PATH_RELEASE_DATE, "-no-release-date-");
+			self::$date = self::_file(self::PATH_RELEASE_DATE, "-no-release-date-");
 		}
 		return self::$release;
 	}
