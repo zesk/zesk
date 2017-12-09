@@ -37,6 +37,7 @@ class Model extends Hookable implements \ArrayAccess {
 				$this->__set($k, $v);
 			}
 		}
+		$this->call_hook("construct");
 	}
 	
 	/**
