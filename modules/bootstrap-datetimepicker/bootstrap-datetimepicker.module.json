@@ -9,5 +9,8 @@
 	"depends": [
 		"moment"
 	],
-	"module_class": "Module_Bootstrap_DateTimePicker"
+	"autoload_options": {
+		"class_prefix": "zesk\\Bootstrap3\\DateTimePicker\\"
+	},
+	"module_class": "zesk\\Bootstrap3\\DateTimePicker\\Module"
 }

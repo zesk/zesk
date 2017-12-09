@@ -86,3 +86,4 @@ if ($inline) {
 $jquery .= ";";
 
 $this->response->jquery($jquery);
+
