@@ -27,8 +27,8 @@ if ($value[0] !== '#') {
 }
 
 $name = $widget->name();
-$response->javascript("/share/zesk/jquery/farbtastic/farbtastic.js");
-$response->css("/share/zesk/jquery/farbtastic/farbtastic.css");
+$response->javascript("/share/zesk/farbtastic/farbtastic.js");
+$response->css("/share/zesk/farbtastic/farbtastic.css");
 $response->jquery("\$('#colorpicker_$name').farbtastic('#$name'); \$('#$name').on('default', function () {
 		var \$this = \$(this), container = \$('#colorpicker_$name').get(0);
 		container.farbtastic.setColor(\$this.val());

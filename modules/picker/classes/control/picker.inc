@@ -155,7 +155,7 @@ class Control_Picker extends Control {
 		}
 		foreach ($value as $key => $id) {
 			try {
-				$value[$key] = Object::factory($this->class, $id)->fetch();
+				$value[$key] = $this->application->object_factory($this->class, $id)->fetch();
 			} catch (Exception $e) {
 				unset($value[$key]);
 			}

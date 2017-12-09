@@ -1,5 +1,7 @@
 <?php
-class Module_OpenLayers extends zesk\Module_JSLib {
+namespace zesk\OpenLayers4;
+
+class Module extends \zesk\Module_JSLib {
 	protected $css_paths = array(
 		'/share/openlayers/css/ol.css'
 	);

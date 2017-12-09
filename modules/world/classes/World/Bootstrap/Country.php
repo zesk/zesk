@@ -14,13 +14,8 @@ namespace zesk;
  * @author kent
  *
  */
-class World_Bootstrap_Country extends Options {
+class World_Bootstrap_Country extends Hookable {
 	
-	/**
-	 *
-	 * @var Application
-	 */
-	private $application = null;
 	/**
 	 * Source http://download.geonames.org/export/dump/countryInfo.txt
 	 *
@@ -50,9 +45,8 @@ class World_Bootstrap_Country extends Options {
 	 * @param mixed $options
 	 */
 	public function __construct(Application $application, array $options = array()) {
-		$this->application = $application;
-		parent::__construct($options);
-		$this->inherit_global_options("zesk\\Module_World");
+		parent::__construct($application, $options);
+		$this->inherit_global_options(Module_World::class);
 		$include_country = $this->option("include_country");
 		if ($include_country) {
 			$this->include_country = array_change_key_case(arr::flip_assign(to_list($include_country), true));

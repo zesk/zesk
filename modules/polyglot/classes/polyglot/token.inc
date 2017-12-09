@@ -106,8 +106,8 @@ class PolyGlot_Token extends Object {
 		}
 		return $result;
 	}
-	public static function create($language, $dialect, $original, $translation, $status = null) {
-		$token = Object::factory(__CLASS__, array(
+	public static function create(Application $app, $language, $dialect, $original, $translation, $status = null) {
+		$token = $app->object_factory(__CLASS__, array(
 			"language" => $language,
 			"dialect" => $dialect,
 			"original" => $original,
@@ -146,7 +146,7 @@ class PolyGlot_Token extends Object {
 		if ($dialect === null) {
 			return $result;
 		}
-		return $result + self::fetch_all($language, null);
+		return $result + self::fetch_all($app, $language, null);
 	}
 	public function to_json() {
 		$members = $this->members(array(

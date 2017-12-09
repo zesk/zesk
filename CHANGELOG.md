@@ -27,6 +27,7 @@ Version 1.0 of Zesk will have:
 - The external usage of `zesk\Template` objects is now discouraged and all applications are encouraged to use `zesk\Application::theme` only to render content.
 - `zesk\Module::$classes` has been deprecated permanently.
 - `zesk\Directory::temporary` has just been marked as deprecated
+- `zesk\Request::url_parts` is marked as deprecated
 
 ### Deprecated and removed
 
@@ -38,11 +39,17 @@ Version 1.0 of Zesk will have:
 - `Controller_Forgot`, `Controller_Object`, ``, `` and `` all now inherit from `Controller_Theme`
 - Zesk will now adopt the usage of using `ClassName::class` instead of the more complex `__NAMESPACE__ . "\\" . "ClassName"` or strings.
 - `zesk\Timestamp::parse` would **fail** for dates before 1970 as `strtotime` returned a negative number for those dates.
+- `zesk\Application::theme_path` now supports a prefix for each theme to prevent deep directories for classes which override sections of the theme tree.
+- `zesk\Request::url_parts` is now `zesk\Request::url_variables`
 
 ### New features
 
 - `zesk\Settings::prefix_updated` Allows for automatic renaming of settings when class names change. Use with caution, usually in `hook_schema_updated`
 - `zesk\Hooks::add` now supports the passing of an `'arguments'` key in the `$options` parameter to allow each invokation to have starting paramters which are added upon registration. This is equivalent to JavaScript's `.bind` functionality.
+- `zesk\Application::theme_variable` added to set state of current `Template` stack
+- `zesk\Application::theme_find` added to find final path for a theme
+- Pesky gremlin in one of your files outputting whitespace and you're not sure where? `zesk\Autoloader::debug` now sets debugging to check for whitespace output on autoload. Try it out!
+- `zesk\Route` file formats now support `GET|POST:path/to/url` for specifying paths to support HTTP Method support.
 
 ### Module changes
 

@@ -1,11 +1,10 @@
 <?php
 /**
- * 
+ * @copyright &copy; 2017 Market Acumen, Inc. 
  */
 namespace zesk;
 
 /**
- * @module selenium/php-webdriver-facebook
  * @author kent
  *
  */

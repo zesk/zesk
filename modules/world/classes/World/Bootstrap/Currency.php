@@ -12,13 +12,7 @@ namespace zesk;
  * @author kent
  *
  */
-class World_Bootstrap_Currency extends Options {
-	
-	/**
-	 *
-	 * @var Application
-	 */
-	private $application = null;
+class World_Bootstrap_Currency extends Hookable {
 	
 	/**
 	 *
@@ -49,9 +43,8 @@ class World_Bootstrap_Currency extends Options {
 	 * @param mixed $options
 	 */
 	public function __construct(Application $application, array $options = array()) {
-		$this->application = $application;
-		parent::__construct($options);
-		$this->inherit_global_options("zesk\\Module_World");
+		parent::__construct($application, $options);
+		$this->inherit_global_options(Module_World::class);
 		$include_currency = $this->option("include_currency");
 		if ($include_currency) {
 			$this->include_currency = array_change_key_case(arr::flip_assign(to_list($include_currency), true));

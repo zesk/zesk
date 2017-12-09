@@ -4,28 +4,13 @@
  */
 namespace zesk;
 
-if (false) {
-	/* @var $this Template */
-	
-	$zesk = $this->zesk;
-	/* @var $zesk \zesk\Kernel */
-	
-	$application = $this->application;
-	/* @var $application \zesk\Application */
-	
-	$session = $this->session;
-	/* @var $session \zesk\Session */
-	
-	$router = $this->router;
-	/* @var $request \zesk\Router */
-	
-	$request = $this->request;
-	/* @var $request \zesk\Request */
-	
-	$response = $this->response;
-	/* @var $response \zesk\Response_Text_HTML */
-}
-
+/* @var $this \zesk\Template */
+/* @var $zesk \zesk\Kernel */
+/* @var $application \zesk\Application */
+/* @var $session \zesk\Session */
+/* @var $request \zesk\Router */
+/* @var $request \zesk\Request */
+/* @var $response \zesk\Response_Text_HTML */
 $latitude = $this->latitude;
 $longitude = $this->longitude;
 $zoom = $this->geti('zoom', 14);
@@ -79,8 +64,8 @@ $(document).ready(function () {
 	$popup.popover({
 		html: true,
 		content: <?php echo JSON::encode($this->message); ?>,
-		viewport: overlay.element,
-		placement: 'bottom'
+		placement: 'bottom',
+		delay: 200,
 	}).popover('show');
 });
 </script>

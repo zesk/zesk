@@ -28,6 +28,7 @@ if (!$limit_widget) {
 if (!$limit_widget->is_visible()) {
 	return;
 }
+$limit_widget->add_class("pager-limit-widget");
 echo HTML::tag("div", array(
-	"class" => 'pager-limits form-group'
-), HTML::tag("label", false, __('Control_Pager:=Show') . $limit_widget->render()));
+	"class" => 'pager-limits btn-group'
+), HTML::tag("a", ".btn disabled pager-limits-label pager-text btn-sm", __('Control_Pager:=Show')) . $limit_widget->render());

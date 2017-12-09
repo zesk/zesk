@@ -8,13 +8,7 @@
  */
 namespace zesk;
 
-class World_Bootstrap_Language extends Options {
-	
-	/**
-	 *
-	 * @var Application
-	 */
-	private $application = null;
+class World_Bootstrap_Language extends Hookable {
 	
 	/**
 	 *
@@ -44,9 +38,8 @@ class World_Bootstrap_Language extends Options {
 	 * @param mixed $options
 	 */
 	public function __construct(Application $application, array $options = array()) {
-		$this->application = $application;
-		parent::__construct($options);
-		$this->inherit_global_options("zesk\\Module_World");
+		parent::__construct($application, $options);
+		$this->inherit_global_options(Module_World::class);
 		$include_language = $this->option("include_language");
 		if ($include_language) {
 			$this->include_language = array_change_key_case(arr::flip_assign(to_list($include_language), true));

@@ -30,7 +30,7 @@ class Controller_PolyGlot extends Controller_Authenticated {
 				"message" => __("Not allowed to do translations.")
 			));
 		}
-		$this->template->content = $this->application->theme('polyglot/translate', array(
+		return $this->application->theme('polyglot/translate', array(
 			"locale_options" => $this->module->locale_options()
 		));
 	}

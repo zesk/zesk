@@ -1,6 +1,7 @@
 <?php
 namespace zesk\NoJS;
 
+use zesk\Request;
 use zesk\Response_Text_HTML;
 use zesk\HTML;
 use zesk\Template;

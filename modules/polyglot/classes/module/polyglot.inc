@@ -126,7 +126,7 @@ class Module_PolyGlot extends Module implements Interface_Module_Routes {
 				$object = $tokens[$original];
 				$table[$original] = $object;
 			} else {
-				$table[$original] = PolyGlot_Token::create($language, $dialect, $original, $translation, array_key_exists($original, $existing) ? PolyGlot_Token::status_done : PolyGlot_Token::status_todo);
+				$table[$original] = PolyGlot_Token::create($this->application, $language, $dialect, $original, $translation, array_key_exists($original, $existing) ? PolyGlot_Token::status_done : PolyGlot_Token::status_todo);
 			}
 		}
 		return array_values($table);

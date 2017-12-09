@@ -10,28 +10,28 @@ namespace zesk;
 /* @var $request \zesk\Request */
 /* @var $response \zesk\Response_Text_HTML */
 /* @var $current_user \User */
-$url = $this->url;
-$offset = $this->offset;
-$current = $this->current;
-$total = $this->total;
-$image = $this->image;
-$name = $this->name;
-$disabled_name = $this->disabled_name;
-$direction = $this->direction;
-$last_index = $this->last_index;
 
+/* @var $url string */
+/* @var $offset integer */
+/* @var $current integer */
+/* @var $total integer */
+/* @var $icon string */
+/* @var $title string */
+/* @var $disabled_title string */
+/* @var $direction integer */
+/* @var $last_index integer */
 $disabled = true;
 if ($direction < 0) {
 	if ($current > 0) {
 		$disabled = false;
 	} else {
-		$name = $disabled_name;
+		$title = $disabled_title;
 	}
 } else {
 	if ($last_index < $total) {
 		$disabled = false;
 	} else {
-		$name = $disabled_name;
+		$title = $disabled_title;
 	}
 }
 
@@ -39,7 +39,6 @@ if ($disabled) {
 	$attrs = array(
 		'class' => 'disabled'
 	);
-	$image .= "-off";
 } else {
 	$href = URL::query_format($url, array(
 		"offset" => $offset
@@ -57,4 +56,9 @@ if ($disabled) {
 		);
 	}
 }
-echo HTML::tag("a", $attrs, HTML::img($application, "/share/zesk/images/pager/$image.gif", $name));
+$attrs['title'] = $title;
+$attrs = HTML::add_class($attrs, "btn btn-sm btn-pager");
+echo HTML::tag("a", $attrs, HTML::span(array(
+	"class" => "glyphicon glyphicon-$icon",
+	"disabled" => $disabled
+), null));
