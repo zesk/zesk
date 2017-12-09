@@ -1,0 +1,41 @@
+{
+	"Type": "Notification",
+	"MessageId": "a2c173bf-cbcd-50c9-a502-211a5a82997a",
+	"TopicArn": "arn:aws:sns:us-west-2:699804065576:TBUSA-Bounces",
+	"Message": {
+		"notificationType": "Bounce",
+		"bounce": {
+			"bounceType": "Permanent",
+			"bounceSubType": "General",
+			"bouncedRecipients": [
+				{
+					"emailAddress": "bounce@simulator.amazonses.com",
+					"action": "failed",
+					"status": "5.1.1",
+					"diagnosticCode": "smtp; 550 5.1.1 user unknown"
+				}
+			],
+			"timestamp": "2017-12-09T07:21:51.343Z",
+			"feedbackId": "010101603a26d3b5-6498f99e-864d-4b83-8213-836e53053edb-000000",
+			"remoteMtaIp": "207.171.163.188",
+			"reportingMTA": "dsn; a27-56.smtp-out.us-west-2.amazonses.com"
+		},
+		"mail": {
+			"timestamp": "2017-12-09T07:21:50.000Z",
+			"source": "no-reply@community.timebanks.org",
+			"sourceArn": "arn:aws:ses:us-west-2:699804065576:identity/community.timebanks.org",
+			"sourceIp": "54.218.9.121",
+			"sendingAccountId": "699804065576",
+			"messageId": "010101603a26cf04-43434a3c-3505-4526-9978-5ef137c9a160-000000",
+			"destination": ["bounce@simulator.amazonses.com"]
+		}
+	},
+	"Timestamp": "2017-12-09T07:21:51.377Z",
+	"SignatureVersion": "1",
+	"Signature":
+		"cl26KYo/NaSDAqFE1zA4urNnuGt3Wpdj3eFYVGa88lbXKidMUDK8EVm4iwXEtyq3sBW1OT1kDBxoBUEaj7qVn0gKjw5lu2e8pOE3ZN8LsJwHq3rwugrjNhufc//o25wWT9n/wD6h9KoKThndclvBm5BRC769TdDV99Sab1yx/ZdV5rQpG+E1NsqZgeeHDEN1KUH81qygroIDsVFdBIRClILD2NgKDNiyYABUcN1wHUfSvtPwHm020k0PNvw2YJMc17c35VNOD2tFLBUALiNVX3SMmirGGPkB5+HzfoBiFhn7aCdVbCSV3xnkEh1CmLmEQ0HWHpcRY8ZnxAsdMLHGhA==",
+	"SigningCertURL":
+		"https://sns.us-west-2.amazonaws.com/SimpleNotificationService-433026a4050d206028891664da859041.pem",
+	"UnsubscribeURL":
+		"https://sns.us-west-2.amazonaws.com/?Action=Unsubscribe&SubscriptionArn=arn:aws:sns:us-west-2:699804065576:TBUSA-Bounces:b50625f1-5058-4bc9-aa0a-29d16b725978"
+}
