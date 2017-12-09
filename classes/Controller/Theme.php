@@ -58,10 +58,9 @@ abstract class Controller_Theme extends Controller {
 			));
 		}
 		if ($this->theme === null) {
-			$this->theme = $this->first_option('theme');
+			$this->theme = $this->option('theme');
 		}
 		$this->auto_render = $this->option_bool('auto_render', $this->auto_render);
-		$this->template_pushed = false;
 	}
 	
 	/**
@@ -106,6 +105,9 @@ abstract class Controller_Theme extends Controller {
 	 */
 	public function before() {
 		if ($this->auto_render) {
+			if ($this->route->option("json")) {
+				$this->response->content_type(Response::content_type_json);
+			}
 			if ($this->theme === null) {
 				$this->theme = $this->call_hook('theme');
 				if ($this->theme === null) {
