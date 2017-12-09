@@ -4,6 +4,11 @@
  */
 namespace zesk;
 
+/**
+ * 
+ * @author kent
+ *
+ */
 class Model_Settings extends Model {
 	protected $_changed = array();
 	protected $_accessor = array();
@@ -32,8 +37,7 @@ class Model_Settings extends Model {
 	 * 
 	 * {@inheritDoc}
 	 */
-	public function initialize() {
-		parent::initialize();
+	public function hook_construct() {
 		$this->configuration = $this->application->configuration;
 		$this->inherit_global_options();
 	}
