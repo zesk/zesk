@@ -166,11 +166,11 @@ class Command_Loader {
 				require_once $first_command;
 				$this->application = $this->zesk_loaded($first_command);
 				$this->application->console(true);
-				if (zesk()->configuration->debug || $this->debug) {
+				if ($this->application->configuration->debug || $this->debug) {
 					$this->debug = true;
 				}
 				$this->debug("Loaded application file $first_command\n");
-				zesk()->objects->singleton($this);
+				$this->application->objects->singleton($this);
 			}
 			if (substr($arg, 0, 1) === '/' && is_file($arg)) {
 				require_once $arg;
