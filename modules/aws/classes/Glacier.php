@@ -1,4 +1,5 @@
 <?php
+
 /**
  * $URL: https://code.marketacumen.com/zesk/trunk/modules/aws/classes/aws/glacier.inc $
  * @package zesk-modules
@@ -6,26 +7,27 @@
  * @author Kent Davidson <kent@marketacumen.com>
  * @copyright Copyright &copy; 2013, Market Acumen, Inc.
  */
-use zesk\Exception_NotFound;
+namespace zesk\AWS;
 
+use zesk\Exception_NotFound;
 use Aws\Glacier\GlacierClient;
 use Aws\Glacier\Exception\ResourceNotFoundException;
 
 /**
  * Class wrapper around Aws\Glacier\GlacierClient
- * 
+ *
  * Converts most AWS internal objects into PHP-friendly and platform neutral data types
- * 
+ *
  * @author kent
  * @copyright &copy; 2013 Market Acumen, Inc.
  */
-class AWS_Glacier extends AWS {
+class Glacier extends Hookable {
 	/**
 	 *
 	 * @var Aws\Glacier\GlacierClient
 	 */
 	protected $glacier_client = null;
-	
+
 	/**
 	 * Lazy create client
 	 */
@@ -36,10 +38,10 @@ class AWS_Glacier extends AWS {
 		$options = $this->options_include("key;secret;credentials;token;credentials;region");
 		$this->glacier_client = GlacierClient::factory($options);
 	}
-	
+
 	/**
 	 * List vaults
-	 * 
+	 *
 	 * @return array of array
 	 */
 	public function vaults_list() {
@@ -49,10 +51,10 @@ class AWS_Glacier extends AWS {
 		$result = $response->get("VaultList");
 		return $result;
 	}
-	
+
 	/**
 	 * Upload a file to a vault
-	 * 
+	 *
 	 * @param string $vault
 	 * @param string $filename
 	 * @return string Archive ID

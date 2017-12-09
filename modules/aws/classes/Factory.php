@@ -1,4 +1,5 @@
 <?php
+
 /**
  * @version $URL: https://code.marketacumen.com/zesk/trunk/modules/aws/classes/aws/factory.inc $
  * @package ruler
@@ -6,7 +7,9 @@
  * @author $Author: kent $
  * @copyright Copyright &copy; 2011, Market Ruler, LLC
  */
-class AWS_Factory {
+namespace zesk\AWS;
+
+class Factory {
 	/*
 	 * See lib/aws/config-sample.inc.php for explanations
 	 */
@@ -25,13 +28,16 @@ class AWS_Factory {
 			'AWS_ENABLE_EXTENSIONS' => 'false'
 		);
 	}
-}
-
-/*
- * Must define the following globals prior to including the SDK class below
- */
-foreach (AWS_Factory::globals() as $define => $default) {
-	if (!defined($define)) {
-		define($define, $default);
+	static function defines() {
+		/*
+		 * Must define the following globals prior to including the SDK class below
+		 * @todo 2017 - is this still required by AWS library?
+		 */
+		foreach (Factory::globals() as $define => $default) {
+			if (!defined($define)) {
+				define($define, $default);
+			}
+		}
 	}
 }
+

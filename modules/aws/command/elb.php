@@ -1,12 +1,18 @@
 <?php
+
+namespace zesk\AWS;
+
+/**
+ */
 use Aws\ElasticLoadBalancing\ElasticLoadBalancingClient as ElasticLoadBalancingClient;
 
 /**
- * 
- * @author kent
  *
+ * @aliases aws-elb
+ *
+ * @author kent
  */
-class Command_AWS_ELB extends Command_AWS_Base {
+class Command_ELB extends Command {
 	protected $option_types = array(
 		"add" => "boolean",
 		"remove" => "boolean"
@@ -17,15 +23,15 @@ class Command_AWS_ELB extends Command_AWS_Base {
 			"instance_id" => $instance_id
 		);
 		$this->log("Instance ID is {instance_id}", $__);
-		
-		$elbc = $this->application->factory('ElasticLoadBalancingClient');
+
+		$elbc = $this->application->factory(ElasticLoadBalancingClient::class);
 		$load_balancers = $elbc->describeLoadBalancers();
 		var_dump($load_balancers);
 	}
 }
 
 /*
- * Obfuscated numbers below for Market Ruler, LLC
+ * Obfuscated numbers below:
 {
     "LoadBalancerDescriptions": [
         {
@@ -35,7 +41,7 @@ class Command_AWS_ELB extends Command_AWS_Base {
                 "subnet-b00008cf"
             ],
             "CanonicalHostedZoneNameID": "Z00000000000U",
-            "CanonicalHostedZoneName": "conversionruler-1234567890.us-west-2.elb.amazonaws.com",
+            "CanonicalHostedZoneName": "productcodename-1234567890.us-west-2.elb.amazonaws.com",
             "ListenerDescriptions": [
                 {
                     "Listener": {
@@ -45,20 +51,20 @@ class Command_AWS_ELB extends Command_AWS_Base {
                         "InstanceProtocol": "HTTP"
                     },
                     "PolicyNames": [
-                        "AWSConsole-LBCookieStickinessPolicy-conversionruler-1234567890"
+                        "AWSConsole-LBCookieStickinessPolicy-productcodename-1234567890"
                     ]
                 },
                 {
                     "Listener": {
                         "InstancePort": 80,
-                        "SSLCertificateId": "arn:aws:iam::1234567890:server-certificate/www.conversionruler.com",
+                        "SSLCertificateId": "arn:aws:iam::1234567890:server-certificate/www.productcodename.com",
                         "LoadBalancerPort": 443,
                         "Protocol": "HTTPS",
                         "InstanceProtocol": "HTTP"
                     },
                     "PolicyNames": [
-                        "AWSConsole-LBCookieStickinessPolicy-conversionruler-1234567890",
-                        "AWSConsole-SSLNegotiationPolicy-conversionruler-1234567890"
+                        "AWSConsole-LBCookieStickinessPolicy-productcodename-1234567890",
+                        "AWSConsole-SSLNegotiationPolicy-productcodename-1234567890"
                     ]
                 }
             ],
@@ -79,28 +85,28 @@ class Command_AWS_ELB extends Command_AWS_Base {
                     "InstanceId": "i-7000000b"
                 }
             ],
-            "DNSName": "conversionruler-1234567890.us-west-2.elb.amazonaws.com",
+            "DNSName": "productcodename-1234567890.us-west-2.elb.amazonaws.com",
             "SecurityGroups": [
                 "sg-40000001"
             ],
             "Policies": {
                 "LBCookieStickinessPolicies": [
                     {
-                        "PolicyName": "AWSConsole-LBCookieStickinessPolicy-conversionruler-0123456789012",
+                        "PolicyName": "AWSConsole-LBCookieStickinessPolicy-productcodename-0123456789012",
                         "CookieExpirationPeriod": 600
                     },
                     {
-                        "PolicyName": "AWSConsole-LBCookieStickinessPolicy-conversionruler-0123456789012",
+                        "PolicyName": "AWSConsole-LBCookieStickinessPolicy-productcodename-0123456789012",
                         "CookieExpirationPeriod": 600
                     }
                 ],
                 "AppCookieStickinessPolicies": [],
                 "OtherPolicies": [
                     "ELBSecurityPolicy-2015-05",
-                    "AWSConsole-SSLNegotiationPolicy-conversionruler-0123456789012"
+                    "AWSConsole-SSLNegotiationPolicy-productcodename-0123456789012"
                 ]
             },
-            "LoadBalancerName": "conversionruler",
+            "LoadBalancerName": "productcodename",
             "CreatedTime": "2016-01-30T20:42:41.810Z",
             "AvailabilityZones": [
                 "us-west-2a",
@@ -110,7 +116,7 @@ class Command_AWS_ELB extends Command_AWS_Base {
             "Scheme": "internet-facing",
             "SourceSecurityGroup": {
                 "OwnerAlias": "9123456789013",
-                "GroupName": "ruler-lb-web"
+                "GroupName": "codename-lb-web"
             }
         },
         {
@@ -120,7 +126,7 @@ class Command_AWS_ELB extends Command_AWS_Base {
                 "subnet-b00008cf"
             ],
             "CanonicalHostedZoneNameID": "Z30000000000U",
-            "CanonicalHostedZoneName": "marketruler-012345678.us-west-2.elb.amazonaws.com",
+            "CanonicalHostedZoneName": "companyname-012345678.us-west-2.elb.amazonaws.com",
             "ListenerDescriptions": [
                 {
                     "Listener": {
@@ -130,20 +136,20 @@ class Command_AWS_ELB extends Command_AWS_Base {
                         "InstanceProtocol": "HTTP"
                     },
                     "PolicyNames": [
-                        "AWSConsole-LBCookieStickinessPolicy-marketruler-0123456789012"
+                        "AWSConsole-LBCookieStickinessPolicy-companyname-0123456789012"
                     ]
                 },
                 {
                     "Listener": {
                         "InstancePort": 80,
-                        "SSLCertificateId": "arn:aws:iam::0123456789012:server-certificate/marketruler.com",
+                        "SSLCertificateId": "arn:aws:iam::0123456789012:server-certificate/companyname.com",
                         "LoadBalancerPort": 443,
                         "Protocol": "HTTPS",
                         "InstanceProtocol": "HTTP"
                     },
                     "PolicyNames": [
-                        "AWSConsole-LBCookieStickinessPolicy-marketruler-0123456789012",
-                        "AWSConsole-SSLNegotiationPolicy-marketruler-0123456789012"
+                        "AWSConsole-LBCookieStickinessPolicy-companyname-0123456789012",
+                        "AWSConsole-SSLNegotiationPolicy-companyname-0123456789012"
                     ]
                 }
             ],
@@ -164,28 +170,28 @@ class Command_AWS_ELB extends Command_AWS_Base {
                     "InstanceId": "i-7000000b"
                 }
             ],
-            "DNSName": "marketruler-012345678.us-west-2.elb.amazonaws.com",
+            "DNSName": "companyname-012345678.us-west-2.elb.amazonaws.com",
             "SecurityGroups": [
                 "sg-460dc821"
             ],
             "Policies": {
                 "LBCookieStickinessPolicies": [
                     {
-                        "PolicyName": "AWSConsole-LBCookieStickinessPolicy-marketruler-0123456789012",
+                        "PolicyName": "AWSConsole-LBCookieStickinessPolicy-companyname-0123456789012",
                         "CookieExpirationPeriod": 600
                     },
                     {
-                        "PolicyName": "AWSConsole-LBCookieStickinessPolicy-marketruler-0123456789012",
+                        "PolicyName": "AWSConsole-LBCookieStickinessPolicy-companyname-0123456789012",
                         "CookieExpirationPeriod": 600
                     }
                 ],
                 "AppCookieStickinessPolicies": [],
                 "OtherPolicies": [
-                    "AWSConsole-SSLNegotiationPolicy-marketruler-0123456789012",
+                    "AWSConsole-SSLNegotiationPolicy-companyname-0123456789012",
                     "ELBSecurityPolicy-2015-05"
                 ]
             },
-            "LoadBalancerName": "marketruler",
+            "LoadBalancerName": "companyname",
             "CreatedTime": "2016-02-05T19:00:34.810Z",
             "AvailabilityZones": [
                 "us-west-2a",
@@ -195,7 +201,7 @@ class Command_AWS_ELB extends Command_AWS_Base {
             "Scheme": "internet-facing",
             "SourceSecurityGroup": {
                 "OwnerAlias": "9123456789013",
-                "GroupName": "ruler-lb-web"
+                "GroupName": "codename-lb-web"
             }
         }
     ]

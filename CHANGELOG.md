@@ -50,6 +50,7 @@ Version 1.0 of Zesk will have:
 - `zesk\Application::theme_find` added to find final path for a theme
 - Pesky gremlin in one of your files outputting whitespace and you're not sure where? `zesk\Autoloader::debug` now sets debugging to check for whitespace output on autoload. Try it out!
 - `zesk\Route` file formats now support `GET|POST:path/to/url` for specifying paths to support HTTP Method support.
+- `zesk\Settings::prefix_updated` added to support mapping old settings to new upon hook `schema_updated` or other triggers
 
 ### Module changes
 

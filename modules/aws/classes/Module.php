@@ -1,33 +1,36 @@
 <?php
+
 /**
  *
  */
+namespace zesk\AWS;
+
 use zesk\Server;
-use zesk\Module;
 use zesk\Exception_File_Permission;
+use zesk\AWS\EC2\Awareness;
 
 /**
  *
  * @author kent
  *
  */
-class Module_AWS extends Module {
+class Module extends \zesk\Module {
 	/**
 	 * Path to magic file which gives the hypervisor as belonging to ec2
 	 *
 	 * @var string
 	 */
-	const path_system_hypervisor_uuid = '/sys/hypervisor/uuid';
-	
+	const PATH_SYSTEM_HYPERVISOR_UUID_PATH = '/sys/hypervisor/uuid';
+
 	/**
 	 *
 	 * @var boolean
 	 */
 	private $is_ec2 = null;
-	
+
 	/**
 	 *
-	 * @var AWS_EC2_Awareness
+	 * @var Awareness
 	 */
 	private $awareness;
 	/**
@@ -48,25 +51,26 @@ class Module_AWS extends Module {
 			));
 		}
 		if (!$this->option_bool("disable_uname_integration")) {
-			$this->application->hooks->add("uname", function () {
-				return $this->application->factory("AWS_EC2_Awareness")->get(AWS_EC2_Awareness::setting_mac);
+			$self = $this;
+			$this->application->hooks->add("uname", function () use ($self) {
+				return $self->awareness()->get(Awareness::setting_mac);
 			});
 		}
 	}
-	
+
 	/**
 	 *
 	 * @param array $options
-	 * @return AWS_EC2_Awareness
+	 * @return Awareness
 	 */
 	public function awareness(array $options = array()) {
 		if ($this->awareness) {
 			return $this->awareness;
 		}
-		$this->awareness = new AWS_EC2_Awareness($options);
+		$this->awareness = new Awareness($this->application, $options);
 		return $this->awareness;
 	}
-	
+
 	/**
 	 * Hook to initialize a server's name
 	 *
@@ -77,12 +81,12 @@ class Module_AWS extends Module {
 		if ($this->option_bool("disable_uname_integration")) {
 			$server->name = php_uname('n');
 		}
-		$server->ip4_internal = $awareness->get(AWS_EC2_Awareness::setting_local_ipv4);
-		$server->ip4_external = $awareness->get(AWS_EC2_Awareness::setting_public_ipv4);
-		$server->name_internal = $awareness->get(AWS_EC2_Awareness::setting_local_hostname);
-		$server->name_external = $awareness->get(AWS_EC2_Awareness::setting_public_hostname);
+		$server->ip4_internal = $awareness->get(Awareness::setting_local_ipv4);
+		$server->ip4_external = $awareness->get(Awareness::setting_public_ipv4);
+		$server->name_internal = $awareness->get(Awareness::setting_local_hostname);
+		$server->name_external = $awareness->get(Awareness::setting_public_hostname);
 	}
-	
+
 	/**
 	 * Adapted from
 	 * http://serverfault.com/questions/462903/how-to-know-if-a-machine-is-an-ec2-instance
@@ -93,7 +97,7 @@ class Module_AWS extends Module {
 		if ($this->is_ec2 !== null) {
 			return $this->is_ec2;
 		}
-		$f = self::path_system_hypervisor_uuid;
+		$f = self::PATH_SYSTEM_HYPERVISOR_UUID_PATH;
 		if (!file_exists($f)) {
 			return $this->is_ec2 = false;
 		}

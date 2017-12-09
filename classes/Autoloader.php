@@ -1,4 +1,5 @@
 <?php
+
 /**
  * @package zesk
  * @subpackage core
@@ -16,7 +17,7 @@ use Psr\Cache\CacheItemInterface;
  */
 class Autoloader {
 	/**
-	 * 
+	 *
 	 * @var string
 	 */
 	const autoload_option_class_prefix_default = "";
@@ -25,7 +26,7 @@ class Autoloader {
 	 * @var boolean
 	 */
 	const autoload_option_lower_default = true;
-	
+
 	/**
 	 *
 	 * @var boolean
@@ -36,14 +37,14 @@ class Autoloader {
 	 * @var boolean
 	 */
 	public $debug = false;
-	
+
 	/**
 	 * Set to true to NOT throw an Exception_Class_NotFound from autoloader
 	 *
 	 * @var boolean
 	 */
 	public $no_exception = false;
-	
+
 	/**
 	 *
 	 * @var array
@@ -52,9 +53,9 @@ class Autoloader {
 		"php",
 		"inc"
 	);
-	
+
 	/**
-	 * 
+	 *
 	 * @var Kernel
 	 */
 	private $kernel = null;
@@ -73,7 +74,7 @@ class Autoloader {
 		));
 		$this->autoload_register();
 	}
-	
+
 	/**
 	 * Should be called once and only once.
 	 * Registers zesk's autoloader.
@@ -84,7 +85,7 @@ class Autoloader {
 			"php_autoloader"
 		), false, false);
 	}
-	
+
 	/**
 	 * Retrieve the autoload cache structure, optionally creating the autoload cache directory if
 	 * needed.
@@ -102,7 +103,7 @@ class Autoloader {
 	 * Used in case PHP extends the autoloader to add a 2nd parameter - don't want
 	 * it to conflict with our self::load 2nd parameter.
 	 *
-	 * @param string $class        	
+	 * @param string $class
 	 * @return boolean
 	 */
 	public function php_autoloader($class) {
@@ -113,13 +114,13 @@ class Autoloader {
 		}
 		return false;
 	}
-	
+
 	/**
 	 * Zesk's autoloader.
 	 * When a PHP class is encountered which can't be found, this function tries to find it and
 	 * include the file.
 	 *
-	 * @param string $class        	
+	 * @param string $class
 	 * @param boolean $no_exception
 	 *        	Do not throw an exception if class is not found
 	 * @return string|null
@@ -174,7 +175,7 @@ class Autoloader {
 		}
 		return $include;
 	}
-	
+
 	/**
 	 * Search for a file in the given paths, converting filename to a directory path by converting _
 	 * to /, and look for
@@ -185,16 +186,17 @@ class Autoloader {
 	 * @param array $extensions
 	 *        	A list of extensions to search for in each target path. If supplied, is forced.
 	 * @param array $tried_path
-	 *        	A list of paths which were tried to find the file, ending with the one which was found
+	 *        	A list of paths which were tried to find the file, ending with the one which was
+	 *        	found
 	 * @return string The found path, or null if not found
-	 * @deprecated 2017-03 
+	 * @deprecated 2017-03
 	 * @see self::search
 	 */
 	public function file_search($file_prefix, array $extensions = null, &$tried_path = null) {
 		zesk()->deprecated();
 		return $this->search($file_prefix, $extensions, $tried_path);
 	}
-	
+
 	/**
 	 * Search for a file in the given paths, converting filename to a directory path by converting _
 	 * to /, and look for
@@ -251,14 +253,14 @@ class Autoloader {
 		}
 		return $result;
 	}
-	
+
 	/**
 	 * Search for a file in the autoload path (::path), looking for files with
 	 * "extesion"
 	 *
-	 * @param unknown_type $class        	
-	 * @param array $extensions        	
-	 * @param unknown_type $tried_path        	
+	 * @param unknown_type $class
+	 * @param array $extensions
+	 * @param unknown_type $tried_path
 	 * @return unknown
 	 */
 	public function search($class, array $extensions = null, &$tried_path = null) {
@@ -277,7 +279,7 @@ class Autoloader {
 	/**
 	 * Add/remove an extension
 	 *
-	 * @param unknown $add        	
+	 * @param unknown $add
 	 * @return string[]
 	 */
 	public function extension($add = null) {
@@ -291,29 +293,29 @@ class Autoloader {
 		return $this->autoload_extensions;
 	}
 	/**
-	 * 
+	 *
 	 * @var array[]
 	 */
 	private $first = array();
 	/**
-	 * 
+	 *
 	 * @var array[]
 	 */
 	private $paths = array();
 	/**
-	 * 
+	 *
 	 * @var array[]
 	 */
 	private $last = array();
 	/**
-	 * 
+	 *
 	 * @var array[]
 	 */
 	private $cached = null;
-	
+
 	/**
 	 * Retrieve the list of autoload paths, or add one.
-	 * 
+	 *
 	 * 2017-03 Autoload paths support PSR-4 by default, so lowercase is not ON anymore by default.
 	 *
 	 * @param string $add
@@ -321,22 +323,23 @@ class Autoloader {
 	 * @param mixed $options
 	 *        	(Optional) Boolean value, string or array. If you pass in a string, it sets that
 	 *        	flag to true.
-	 *        	
+	 *
 	 *        	So:
-	 *        	
+	 *
 	 *        	<code>
 	 *        	$zesk->autoloader->path($zesk->paths->application('classes','first');
 	 *        	</code>
-	 *        	
+	 *
 	 *        	Is a very common usage pattern.
-	 *        	
+	 *
 	 *        	Options are:
-	 *        	- lower - Lowercase the class name (defaults to false) to find the files for this   	path only
+	 *        	- lower - Lowercase the class name (defaults to false) to find the files for this
+	 *        	path only
 	 *        	- first - Set as first autoload path. If first and last are set, first wins, last
 	 *        	is ignored.
 	 *        	- last - Set as last autoload path.
 	 *        	- extensions - Array or ;-separated string containing extensions to look for
-	 *        	
+	 *
 	 * @return array The ordered list of paths to search for class names.
 	 */
 	public function path($add = null, $options = false) {

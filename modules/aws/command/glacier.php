@@ -1,23 +1,28 @@
 <?php
+
 /**
  * @copyright &copy; 2016 Market Acumen, Inc.
  */
+namespace zesk\AWS;
+
 use zesk\Text;
 
 /**
  * Glacier command to store, retrieve, list, and manage glacier files
- * 
+ *
+ * @aliases aws-glacier
+ *
  * @author kent
  */
-class Command_AWS_Glacier extends zesk\Command_Base {
-	
+class Command_Glacier extends \zesk\Command_Base {
+
 	/**
 	 * Help string output for usage
 	 *
 	 * @var string
 	 */
 	protected $help = "Glacier command to store, retrieve, list, and manage glacier files. Specify no parameters to list all vaults.\n\nYou can specify archives and vaults together by using vault-name:archive-id for parameters and avoid specifying the --vault parameter.";
-	
+
 	/**
 	 * Option types to be passed to this command
 	 *
@@ -31,7 +36,7 @@ class Command_AWS_Glacier extends zesk\Command_Base {
 		"wait" => "boolean",
 		"*" => "string"
 	);
-	
+
 	/**
 	 * Help string associated with each option
 	 *
@@ -43,14 +48,14 @@ class Command_AWS_Glacier extends zesk\Command_Base {
 		"vault" => "Specify which vault to access",
 		"list" => "List files within the specified vault"
 	);
-	
+
 	/**
 	 * Client reference
 	 *
 	 * @var AWS_Glacier
 	 */
 	private $glacier = null;
-	
+
 	/**
 	 * Require the --vault parameter
 	 *
@@ -63,16 +68,16 @@ class Command_AWS_Glacier extends zesk\Command_Base {
 		}
 		return $vault;
 	}
-	
+
 	/**
 	 * Main entry point
-	 * 
+	 *
 	 * @return integer
 	 */
 	function run() {
 		try {
 			$this->glacier = new AWS_Glacier();
-			
+
 			if ($this->has_option("store")) {
 				return $this->run_archive_store();
 			}
@@ -87,10 +92,10 @@ class Command_AWS_Glacier extends zesk\Command_Base {
 			$this->error($e->getMessage());
 		}
 	}
-	
+
 	/**
 	 * Save a file
-	 * 
+	 *
 	 * @return integer
 	 */
 	private function run_archive_store() {
@@ -105,7 +110,7 @@ class Command_AWS_Glacier extends zesk\Command_Base {
 	}
 	/**
 	 * Delete an archive
-	 * 
+	 *
 	 * @return integer
 	 */
 	private function run_archive_delete() {
@@ -120,7 +125,7 @@ class Command_AWS_Glacier extends zesk\Command_Base {
 	}
 	/**
 	 * List a vault
-	 * 
+	 *
 	 * @return integer
 	 */
 	private function run_vault_list() {
@@ -139,9 +144,8 @@ class Command_AWS_Glacier extends zesk\Command_Base {
 		} while ($status['StatusCode'] === "InProgress");
 		return 0;
 	}
-	
+
 	/**
-	 * 
 	 */
 	private function run_list() {
 		$result = $this->glacier->vaults_list();
