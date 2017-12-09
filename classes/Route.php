@@ -44,6 +44,13 @@ abstract class Route extends Hookable {
 	public $clean_pattern = null;
 	
 	/**
+	 * HTTP Methods to match
+	 *
+	 * @var array
+	 */
+	protected $methods = null;
+	
+	/**
 	 * Pattern to match the URL, compiled
 	 *
 	 * @var string
@@ -97,6 +104,7 @@ abstract class Route extends Hookable {
 			"original_pattern" => $this->original_pattern,
 			"clean_pattern" => $this->clean_pattern,
 			"pattern" => $this->pattern,
+			"methods" => array_keys($this->methods),
 			"types" => $this->types,
 			"url_args" => $this->url_args,
 			"named" => $this->named,
@@ -114,6 +122,7 @@ abstract class Route extends Hookable {
 			"original_pattern",
 			"clean_pattern",
 			"pattern",
+			"methods",
 			"types",
 			"url_args",
 			"args",
@@ -224,16 +233,20 @@ abstract class Route extends Hookable {
 	 * @return Route
 	 */
 	public static function factory(Router $router, $pattern, array $options) {
+		/**
+		 * Ordering of this array is important. "method" is a parameter to "controller" and others, so it should go last.
+		 * @var array $types
+		 */
 		$types = array(
-			'method' => 'Route_Method',
-			'controller' => 'Route_Controller',
-			'command' => 'Route_Command',
-			'theme' => 'Route_Theme',
-			'template' => 'Route_Theme'
+			'controller' => Route_Controller::class,
+			'command' => Route_Command::class,
+			'theme' => Route_Theme::class,
+			'template' => Route_Theme::class,
+			'method' => Route_Method::class
 		);
 		foreach ($types as $k => $class) {
 			if (array_key_exists($k, $options)) {
-				return $router->application->objects->factory("zesk\\$class", $router, $pattern, $options);
+				return $router->application->objects->factory($class, $router, $pattern, $options);
 			}
 		}
 		return $router->application->objects->factory("zesk\\Route_Content", $router, $pattern, $options);
@@ -256,6 +269,8 @@ abstract class Route extends Hookable {
 	 * @return void
 	 */
 	private function compile_route_pattern($pattern) {
+		list($methods, $pattern) = pair($pattern, ":", "GET|POST", $pattern);
+		$this->methods = arr::flip_assign(to_list($methods, array(), "|"), true);
 		$replace = array();
 		$parameters = array();
 		$parameter_names = array();
@@ -374,7 +389,10 @@ abstract class Route extends Hookable {
 	 * @param unknown_type $url
 	 * @throws Exception_NotFound
 	 */
-	final function match($url) {
+	final function match($url, $method = "GET") {
+		if (!isset($this->methods[$method]) || !$this->methods[$method]) {
+			return false;
+		}
 		if (!preg_match($this->pattern, $url, $matches)) {
 			return false;
 		}

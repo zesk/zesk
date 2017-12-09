@@ -61,7 +61,7 @@ class Router extends Hookable {
 	 * @var boolean
 	 */
 	public $debug = false;
-
+	
 	/**
 	 *
 	 * @var string
@@ -323,13 +323,14 @@ class Router extends Hookable {
 	function match(Request $request) {
 		$this->request = $request;
 		$path = strval($request->path());
+		$method = strval($request->method());
 		if ($this->prefix) {
 			$path = str::unprefix($path, $this->prefix);
 		}
 		$path = avalue($this->aliases, $path, $path);
 		$routes = $this->routes(); /* @var $route Route */
 		foreach ($this->routes as $route) {
-			if ($route->match($path)) {
+			if ($route->match($path, $method)) {
 				$this->log("debug", "Matched {path} to {route}", compact("path", "route"));
 				$this->route = $route;
 				return $route;
