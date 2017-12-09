@@ -86,7 +86,7 @@ class View_Image extends View {
 			return $scaled_result;
 		}
 		
-		if (Image_Library::singleton()->image_scale($source, $target_full_path, $this->options)) {
+		if (Image_Library::factory($this->application)->image_scale($source, $target_full_path, $this->options)) {
 			list($this->width, $this->height) = getimagesize($target_full_path);
 			$this->set_option("created_file", true);
 		}
