@@ -610,19 +610,9 @@ class Module extends \zesk\Module {
 	}
 	protected function hook_schema_updated() {
 		// Changed class structure on 2016-11-23
-		$update = $this->application->query_update(Settings::class);
-		$nrows = $update->value("*name", "REPLACE(name, 'Module_Cron::', " . $update->database()
-			->quote_text(__CLASS__ . "::") . ")")
-			->where("name|LIKE", 'Module_Cron::%')
-			->exec()
-			->affected_rows();
-		if ($nrows > 0) {
-			$this->application->logger->notice("Updated {nrows} settings to use new prefix {class}", array(
-				"nrows" => $nrows,
-				"class" => __CLASS__
-			));
-		}
-		$nrows = $this->application->query_delete("zesk\\Settings")
+		$this->application->settings()->prefix_updated("Module_Cron::", __CLASS__ . "::");
+		$this->application->settings()->prefix_updated("zesk\\Module_Cron::", __CLASS__ . "::");
+		$nrows = $this->application->query_delete(Settings::class)
 			->where("name|LIKE", array(
 			'Module_Cron::%',
 			'cron::%'
