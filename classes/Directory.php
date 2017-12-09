@@ -39,7 +39,7 @@ class Directory extends Hookable {
 	 */
 	public static function configured(Application $application) {
 		self::$debug = $application->configuration->path(__CLASS__)->debug;
-		self::$default_mode = $application->configuration->path(__CLASS__)->default_mode;
+		self::$default_mode = $application->configuration->path(__CLASS__)->get("default_mode", self::$default_mode);
 	}
 	
 	/**
