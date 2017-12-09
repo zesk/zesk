@@ -246,7 +246,7 @@ class Kernel {
 		if (count($configuration) > 0) {
 			self::$singleton->deprecated("{method} with configuration options is deprecated, use {class}::factory for creation", array(
 				"method" => __METHOD__,
-				"class" => self::class
+				"class" => __CLASS__
 			));
 		}
 		return $result;
