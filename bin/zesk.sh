@@ -44,14 +44,15 @@ if [ -z "$app_root" ]; then
 	cd ..
 	app_root=`pwd`
 	cd $start
-elif [ ! -d "$app_root/vendor/bin/" ]; then
-	echo "No vendor directory exists, run: composer require zesk/zesk && composer update" 1>&2
-	exit 1002
 fi
 for binary in "$app_root/bin/zesk-command.php" "$app_root/vendor/bin/zesk-command.php"; do
 	if [ -x "$binary" ]; then
 		exec "$php" "$binary" "$@"
 	fi
 done
+if [ ! -d "$app_root/vendor/bin/" ]; then
+	echo "No vendor directory exists, run: composer install zesk/zesk" 1>&2
+	exit 1002
+fi
 echo "No zesk command file, run: composer require zesk/zesk && composer update" 1>&2
 exit 1003
