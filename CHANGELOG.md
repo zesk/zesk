@@ -20,6 +20,11 @@ Version 1.0 of Zesk will have:
 - All modules use **namespaces**
 - Merging of `Response` and `Response_Text_HTML` into a single, unified polymorphic `Response` which changes behavior depending on content-type but allows typed API calls for specific response handling. May move `Response_Text_HTML` into a sub-object (e.g. `$response->html()->add_body_class()` for example)
 
+## [v0.13.1][]
+
+- Adding `"lower": boolean` setting to `autoload_options` in modules
+- Fixed issues with Cron module loading
+
 ## [v0.13.0][]
 
 ### Marked as deprecated 
@@ -898,7 +903,8 @@ Settling of `zesk\Kernel` and `zesk\` namespace changes, added additional compon
  - `zesk::class_hierarchy` -> `zesk()->classes->hierarchy`
 - Removed growl module (no longer relevant on Mac OS X)
 
-[v0.13.0]: https://github.com/zesk/zesk/compare/v0.12.15...HEAD
+[v0.13.1]: https://github.com/zesk/zesk/compare/v0.13.0...HEAD
+[v0.13.0]: https://github.com/zesk/zesk/compare/v0.12.15...v0.13.0
 [v0.12.15]: https://github.com/zesk/zesk/compare/v0.12.14...v0.12.15
 [v0.12.14]: https://github.com/zesk/zesk/compare/v0.12.13...v0.12.14
 [v0.12.13]: https://github.com/zesk/zesk/compare/v0.12.13...v0.12.14
