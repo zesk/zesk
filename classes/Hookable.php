@@ -157,7 +157,7 @@ class Hookable extends Options {
 		foreach ($types as $type) {
 			$method = PHP::clean_function($type);
 			if ($method !== $type) {
-				zesk()->deprecated("Hook \"{type}\" cleaned to \"{method}\" - please fix", compact("method", "type"));
+				$this->application->deprecated("Hook \"{type}\" cleaned to \"{method}\" - please fix", compact("method", "type"));
 			}
 			if (method_exists($this, "hook_$method")) {
 				$result = self::hook_results($result, array(
