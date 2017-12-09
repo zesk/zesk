@@ -72,12 +72,12 @@ class Controller_Authenticated extends Controller_Theme {
 		}
 	}
 	function before() {
+		parent::before();
 		if (!$this->session || !$this->user) {
 			$this->login_redirect();
 		} else if ($this->option_bool('login_redirect', true)) {
 			$this->login_redirect();
 		}
-		parent::before();
 	}
 	
 	/**
@@ -85,8 +85,18 @@ class Controller_Authenticated extends Controller_Theme {
 	 */
 	protected function login_redirect() {
 		if (!$this->user || !$this->user->authenticated()) {
-			$url = URL::add_ref($this->login_redirect, $this->request->uri());
-			$this->response->redirect($url, __($this->login_redirect_message));
+			if ($this->response->json()) {
+				$this->json(array(
+					"status" => false,
+					"message" => $this->login_redirect_message,
+					"route" => $this->login_redirect,
+					"referrer" => $this->request->uri()
+				));
+				$this->response->status(Net_HTTP::Status_Unauthorized, "Need to authenticate");
+			} else {
+				$url = URL::add_ref($this->login_redirect, $this->request->uri());
+				$this->response->redirect($url, $this->login_redirect_message);
+			}
 		}
 	}
 	
