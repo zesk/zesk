@@ -1,10 +1,11 @@
 <?php
-
 /**
  * Class for module loading, management, and configuration
  *
  * Ideally we should be able to serialize this entire structure and load again from cache so side-effects should be
  * tracked when loading modules (hooks, etc.) or repeated upon __wakeup() in your module itself.
+ * 
+ * @copyright &copy; 2017 Market Acumen, Inc.
  */
 namespace zesk;
 
@@ -259,6 +260,7 @@ class Modules {
 		$autoload_path = avalue($configuration, "autoload_path", "classes");
 		$autoload_options = to_array(avalue($configuration, "autoload_options", array()));
 		$theme_path = avalue($configuration, "theme_path", "theme");
+		$theme_path_prefix = avalue($configuration, "theme_path_prefix", null);
 		$zesk_command_path = avalue($configuration, "zesk_command_path", "command");
 		$zesk_command_path_class_prefix = apath($configuration, "zesk_command_path_class_prefix");
 		$locale_path = apath($configuration, "locale_path", "etc/language");
@@ -279,7 +281,8 @@ class Modules {
 		$path = path($module_path, $theme_path);
 		if (is_dir($path)) {
 			$result['theme_path'] = $path;
-			$this->application->theme_path($path);
+			$result['theme_path_prefix'] = $theme_path_prefix;
+			$this->application->theme_path($path, $theme_path_prefix);
 		}
 		if (!$module) {
 			return $result;
@@ -401,9 +404,13 @@ class Modules {
 			'base' => $base
 		);
 		
-		$module_data['path'] = $module_path = Directory::find_first($this->application->module_path(), $base);
+		$module_data['path'] = $module_path = Directory::find_first($this->application->module_path(), $name);
 		if ($module_path === null) {
-			throw new Exception_Directory_NotFound(__CLASS__ . "::module($name) was not found");
+			throw new Exception_Directory_NotFound($base, "{class}::module({name}) was not found at {name}", array(
+				"class" => get_class($this),
+				"name" => $name,
+				"base" => $base
+			));
 		}
 		if (avalue($options, "check exists")) {
 			$result[$name] = $module_data;
@@ -787,20 +794,20 @@ class Modules {
 		return $this->all_hook_arguments($hook, $arguments);
 	}
 	
-	/**
-	 *
-	 * @deprecated 2016-09
-	 * @param unknown $hook        	
-	 * @param array $arguments        	
-	 * @param unknown $default        	
-	 * @param unknown $hook_callback        	
-	 * @param unknown $result_callback        	
-	 * @return mixed|unknown|string|number
-	 */
-	public final function all_hook_array($hook, array $arguments, $default = null, $hook_callback = null, $result_callback = null) {
-		zesk()->deprecated();
-		return $this->all_hook_arguments($hook, $arguments, $default, $hook_callback, $result_callback);
-	}
+// 	/**
+// 	 *
+// 	 * @deprecated 2016-09
+// 	 * @param unknown $hook        	
+// 	 * @param array $arguments        	
+// 	 * @param unknown $default        	
+// 	 * @param unknown $hook_callback        	
+// 	 * @param unknown $result_callback        	
+// 	 * @return mixed|unknown|string|number
+// 	 */
+// 	public final function all_hook_array($hook, array $arguments, $default = null, $hook_callback = null, $result_callback = null) {
+// 		zesk()->deprecated();
+// 		return $this->all_hook_arguments($hook, $arguments, $default, $hook_callback, $result_callback);
+// 	}
 	/**
 	 * Partner to hook_all - runs with an arguments array command and a default return value
 	 * Used for filters where a specific result should be returned by each function
