@@ -907,7 +907,7 @@ class Object extends Model {
 		if (is_string($set) || arr::is_list($set)) {
 			$ids = to_list($set);
 			if (count($ids) !== count($pk)) {
-				$zesk->logger->warning("{class}::id(\"{set}\") mismatches primary keys (expected {npk})", array(
+				$this->application->logger->warning("{class}::id(\"{set}\") mismatches primary keys (expected {npk})", array(
 					"class" => get_class($this),
 					"set" => $set,
 					"npk" => count($pk)
@@ -931,7 +931,7 @@ class Object extends Model {
 				}
 			}
 			if (count($missing) > 0) {
-				$zesk->logger->warning("{class}::id(\"{set}\") missing primary keys: {k}", array(
+				$this->application->logger->warning("{class}::id(\"{set}\") missing primary keys: {k}", array(
 					"class" => get_class($this),
 					"set" => JSON::encode($set),
 					"ks" => implode(",", $missing)
