@@ -403,4 +403,32 @@ class Settings extends Object implements Interface_Data, Interface_Settings {
 		$this->__set($old_setting, null);
 		return $this;
 	}
+	
+	/**
+	 * 
+	 * @param string $old_prefix
+	 * @param string $new_prefix
+	 * @return integer
+	 */
+	public function prefix_updated($old_prefix, $new_prefix) {
+		$update = $this->application->query_update(Settings::class);
+		$old_prefix_quoted = $update->sql()->quote_text($old_prefix);
+		$old_prefix_like_quoted = tr($old_prefix, array(
+			"\\" => "\\\\",
+			"_" => "\\_"
+		));
+		$nrows = $update->value("*name", "REPLACE(name, $old_prefix_quoted, " . $update->database()
+			->quote_text(strtolower($new_prefix)) . ")")
+			->where("name|LIKE", "$old_prefix_like_quoted%")
+			->exec()
+			->affected_rows();
+		if ($nrows > 0) {
+			$this->application->logger->notice("Updated {nrows} settings from {old_prefix} to use new prefix {new_prefix}", array(
+				"nrows" => $nrows,
+				"old_prefix" => $old_prefix,
+				"new_prefix" => $new_prefix
+			));
+		}
+		return $nrows;
+	}
 }
