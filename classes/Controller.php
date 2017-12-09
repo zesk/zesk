@@ -97,6 +97,17 @@ class Controller extends Hookable implements Interface_Theme {
 	}
 	
 	/**
+	 * Getter/Setter for theme variables. Affects the current TOP template only by default.
+	 * 
+	 * @param string $name
+	 * @param mixed $value
+	 * @return mixed
+	 */
+	public function theme_variable($name = null, $value = null) {
+		return $this->application->theme_variable($name, $value);
+	}
+	
+	/**
 	 */
 	public function class_actions() {
 		return array();
@@ -147,6 +158,10 @@ class Controller extends Hookable implements Interface_Theme {
 	 */
 	public function before() {
 	}
+	
+	/**
+	 * 
+	 */
 	public function _action_default($action = null) {
 		$this->error_404();
 	}
@@ -351,6 +366,12 @@ class Controller extends Hookable implements Interface_Theme {
 		$cache->n_paths = count($paths);
 		return $found;
 	}
+	
+	/**
+	 * Output to a PHP constructor parameters
+	 * 
+	 * @return string
+	 */
 	public function _to_php() {
 		return '$application, ' . PHP::dump($this->options);
 	}

@@ -582,9 +582,9 @@ class Application extends Hookable implements Interface_Theme {
 		
 		// Load hooks
 		$this->hooks->register_class(array(
-			"zesk\\Cache",
-			"zesk\\Database",
-			"zesk\\Settings"
+			Cache::class,
+			Database::class,
+			Settings::class
 		));
 		$this->hooks->register_class($this->register_hooks);
 		
@@ -876,10 +876,11 @@ class Application extends Hookable implements Interface_Theme {
 		$rows = array();
 		while (count($classes) > 0) {
 			$class = array_shift($classes);
-			if (!is_subclass_of($class, __NAMESPACE__ . "\\Object")) {
-				$this->logger->warning("{method} {class} is not a subclass of zesk\\Object", array(
+			if (!is_subclass_of($class, Object::class)) {
+				$this->logger->warning("{method} {class} is not a subclass of {parent}", array(
 					"method" => __METHOD__,
-					"class" => $class
+					"class" => $class,
+					"parent" => Object::class
 				));
 				continue;
 			}
@@ -1107,7 +1108,7 @@ class Application extends Hookable implements Interface_Theme {
 		if (!$this->route) {
 			$this->call_hook("router_no_match");
 			$this->response->status(Net_HTTP::Status_File_Not_Found, "No route found");
-			throw new Exception_NotFound("The resource does not exist on this server: {url}", $this->request->variables());
+			throw new Exception_NotFound("The resource does not exist on this server: {url}", $this->request->url_variables());
 		}
 		if ($this->option_bool("debug_route")) {
 			$this->logger->debug("Matched route {class} Pattern: \"{clean_pattern}\" {options}", $this->route->variables());
@@ -1456,35 +1457,76 @@ class Application extends Hookable implements Interface_Theme {
 	}
 	
 	/**
-	 * Retrieve the list of theme file paths, or add one.
+	 * Retrieve the list of theme file paths, or add a path to be searched before existing paths (first in the list).
 	 *
-	 * @param string $add
-	 *        	(Optional) Path to add to the theme path. Pass in null to do nothing.
-	 * @return array The ordered list of paths to search for theme files.
+	 * @param string $add (Optional) Path to add to the theme path. Pass in null to do nothing.
+	 * @param string $prefix (Optional) Handle theme requests which begin with this prefix. Saves having deep directories. 
+	 * @return array The ordered list of paths to search for theme files as prefix => search list.
 	 */
 	final public function theme_path($add = null, $prefix = null) {
+		if (is_bool($prefix)) {
+			throw new Exception_Parameter("theme_path now takes a string as the 2nd parameter");
+		}
 		if (is_array($add)) {
 			foreach ($add as $k => $v) {
 				if (is_numeric($k)) {
-					$this->theme_path($v, $prefix === true ? true : null);
+					$this->theme_path($v);
 				} else {
 					$this->theme_path($v, $k);
 				}
 			}
 			return $this->theme_path;
 		}
-		if ($add && !in_array($add, $this->theme_path)) {
-			if (is_string($prefix)) {
-				$this->theme_path[$prefix] = $add;
-			} else if ($prefix === true) {
-				array_unshift($this->theme_path, $add);
-			} else {
-				$this->theme_path[] = $add;
+		if ($add) {
+			$prefix = strval($prefix);
+			if (!isset($this->theme_path[$prefix])) {
+				$this->theme_path[$prefix] = array();
+			}
+			if (!in_array($add, $this->theme_path[$prefix])) {
+				array_unshift($this->theme_path[$prefix], $add);
 			}
 		}
 		return $this->theme_path;
 	}
 	
+	/**
+	 * Search the theme paths for a target file
+	 * 
+	 * @param string $file
+	 * @param boolean $first
+	 * @return string|string[]
+	 */
+	final public function theme_find($theme, array $options = array()) {
+		$extension = to_bool(avalue($options, "no_extension")) ? "" : $this->option("theme_extension", ".tpl");
+		$all = to_bool(avalue($options, "all"));
+		$theme = $this->clean_template_path($theme) . $extension;
+		$theme_path = $this->theme_path();
+		$prefixes = array_keys($theme_path);
+		usort($prefixes, function ($a, $b) {
+			return strlen($b) - strlen($a);
+		});
+		$result = array();
+		foreach ($prefixes as $prefix) {
+			if ($prefix === "" || strpos($theme, $prefix) === 0) {
+				$suffix = substr($theme, strlen($prefix));
+				foreach ($theme_path[$prefix] as $path) {
+					$path = path($path, $suffix);
+					if (file_exists($path)) {
+						if (!$all) {
+							return $path;
+						}
+						$result[] = $path;
+					} else {
+						$tried_path[] = $path;
+					}
+				}
+			}
+		}
+		if (!$all && count($result) === 0) {
+			return null;
+		}
+		return $result;
+	}
 	/**
 	 * Add or retrieve the share path for this application - used to serve
 	 * shared content via Controller_Share as well as populate automatically with files within the
@@ -1574,6 +1616,24 @@ class Application extends Hookable implements Interface_Theme {
 	final public function theme_current() {
 		return last($this->theme_stack);
 	}
+	
+	/**
+	 * 
+	 * @param unknown $name
+	 * @param unknown $value
+	 * @return mixed|self
+	 */
+	final public function theme_variable($name = null, $value = null) {
+		if ($name === null) {
+			return $this->template_stack->top()->variables();
+		}
+		if ($value === null) {
+			return $this->template_stack->top()->get($name);
+		}
+		$this->template_stack->top()->set($name, $value);
+		return $this;
+	}
+	
 	/**
 	 * theme an element
 	 *
@@ -1723,11 +1783,11 @@ class Application extends Hookable implements Interface_Theme {
 		if (is_object($object) && method_exists($object, "hook_theme")) {
 			return true;
 		}
+		// TODO is this called?
 		if ($this->hooks->has("theme_${type}")) {
 			return true;
 		}
-		$extension = to_bool(avalue($options, "no_extension")) ? "" : ".tpl";
-		if ($this->template->would_exist($this->clean_template_path($type) . $extension)) {
+		if ($this->theme_find($type)) {
 			return true;
 		}
 		return false;
@@ -2247,7 +2307,7 @@ class Application extends Hookable implements Interface_Theme {
 	 * @return User
 	 */
 	public function user($require = true) {
-		$user_class = $this->objects->resolve("zesk\\User");
+		$user_class = $this->objects->resolve(User::class);
 		if ($this->user instanceof $user_class) {
 			return $this->user;
 		}
@@ -2298,22 +2358,11 @@ class Application extends Hookable implements Interface_Theme {
 	final public function initialization_time() {
 		return $this->zesk->initialization_time;
 	}
-	/**
-	 *
-	 * @see self::object_singleton
-	 * @deprecated 2016-12
-	 * @param unknown $class
-	 * @return \zesk\Object
-	 */
-	final public function singleton($class) {
-		$this->deprecated();
-		return $this->object_singleton($class);
-	}
 	
 	/**
 	 * Load the Application singleton
 	 *
-	 * @deprecated 2017-08 Globals are bod.
+	 * @deprecated 2017-08 Globals are bad.
 	 * @param array $options
 	 * @throws Exception_Configuration
 	 * @return Application

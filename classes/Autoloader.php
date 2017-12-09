@@ -161,9 +161,17 @@ class Autoloader {
 			$this->_autoload_cache_save($cache);
 		}
 		if ($this->debug) {
-			echo "Include $include" . newline();
+			ob_start();
 		}
 		require_once $include;
+		if ($this->debug) {
+			$content = ob_get_clean();
+			if ($content !== "") {
+				throw new Exception_Semantics("Include file {include} should not output text", array(
+					"include" => $include
+				));
+			}
+		}
 		return $include;
 	}
 	
