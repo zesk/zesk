@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 Version 1.0 of Zesk will have:
 
+- Renaming of `zesk\Object` to something non-reserved in PHP 7.2 (Candidates are `zesk\ORM` `zesk\Model` - reuse)
 - Elimination of most globals, moving from `zesk::` to `Application::` in places where it makes sense
 - Ability to initialize the application context and then serialize the configuration in a way which allows for faster startup (maybe)
 - PSR-4?
@@ -17,7 +18,7 @@ Version 1.0 of Zesk will have:
 - Support for `Psr/Cache` for caching within Zesk
 - Support for `Monolog` within Zesk core
 - All modules use **namespaces**
-- Merging of `Response` and `Response_Text_HTML` into a single, unified polymorphic `Response` which changes behavior depending on content-type but allows typed API calls for specific response handling.
+- Merging of `Response` and `Response_Text_HTML` into a single, unified polymorphic `Response` which changes behavior depending on content-type but allows typed API calls for specific response handling. May move `Response_Text_HTML` into a sub-object (e.g. `$response->html()->add_body_class()` for example)
 
 ## [Unreleased][]
 
@@ -30,14 +31,17 @@ Version 1.0 of Zesk will have:
 ### Deprecated and removed
 
 - `zesk\Paths::document*`, `zesk\Paths::module_path`, `zesk\Paths::share_path`, and `zesk\Paths::zesk_command_path` were removed (deprecated 2016)`
+- `zesk\Application::singleton` has been removed (use `object_singleton`)
 
 ### Changed functionality
 
 - `Controller_Forgot`, `Controller_Object`, ``, `` and `` all now inherit from `Controller_Theme`
 - Zesk will now adopt the usage of using `ClassName::class` instead of the more complex `__NAMESPACE__ . "\\" . "ClassName"` or strings.
+- `zesk\Timestamp::parse` would **fail** for dates before 1970 as `strtotime` returned a negative number for those dates.
 
 ### New features
 
+- `zesk\Settings::prefix_updated` Allows for automatic renaming of settings when class names change. Use with caution, usually in `hook_schema_updated`
 - `zesk\Hooks::add` now supports the passing of an `'arguments'` key in the `$options` parameter to allow each invokation to have starting paramters which are added upon registration. This is equivalent to JavaScript's `.bind` functionality.
 
 ### Module changes
