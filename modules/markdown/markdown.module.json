@@ -1,7 +1,7 @@
 {
 	"name": "Markdown",
 	"version_data": {
-		"file": "${MODULE_PATH}/classes/markdown.inc",
+		"file": "${MODULE_PATH}/classes/Markdown.php",
 		"pattern": "/\\$Revision: ([0-9]+) \\$/"
 	},
 	"share_path": "${MODULE_PATH}/share",

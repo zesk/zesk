@@ -2,8 +2,8 @@
 	"name": "Nominatim Geocoding API",
 	"url_geocode": "http://open.mapquestapi.com/nominatim/v1/search",
 	"autoload_options": {
-		"lower": false,
-		"class_prefix": "zesk\\"
+		"class_prefix": "zesk\\",
+		"lower": false
 	},
 	"module_class": "zesk\\Module_Nominatim",
 	"depends": [

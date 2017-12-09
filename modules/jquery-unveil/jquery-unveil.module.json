@@ -14,6 +14,7 @@
 	"share_path": "vendor/components/jquery-unveil",
 	"module_class": "zesk\\Module_jQuery_Unveil",
 	"autoload_options": {
-		"class_prefix": "zesk\\"
+		"class_prefix": "zesk\\",
+		"lower": true
 	}
 }		

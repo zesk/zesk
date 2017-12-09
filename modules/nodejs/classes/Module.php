@@ -3,16 +3,20 @@
 /**
  * 
  */
-namespace zesk;
+namespace zesk\NodeJS;
 
 //use \SplFileInfo;
+use zesk\Command;
+use zesk\arr;
+use zesk\Logger\Handler;
+use zesk\Directory;
 
 /**
  *
  * @author kent
  *        
  */
-class Module_NodeJS extends Module {
+class Module extends \zesk\Module {
 	public function hook_build(Command $command) {
 		$app = $this->application;
 		$node_modules_path = $this->option("node_modules_path", $app->path("node_modules"));
@@ -77,7 +81,7 @@ class Module_NodeJS extends Module {
 			}
 		}
 	}
-	private function convert_application_path(Logger\Handler $handler, array $items, $context = null) {
+	private function convert_application_path(Handler $handler, array $items, $context = null) {
 		$app_path = $this->application->path();
 		$map = array(
 			"{application_root}" => $app_path,

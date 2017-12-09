@@ -3,7 +3,20 @@
 /**
  *
  */
-namespace zesk;
+namespace zesk\Developer;
+
+use zesk\Database_Schema;
+use zesk\arr;
+use zesk\Application;
+use zesk\HTML;
+use zesk\Interface_Module_Routes;
+use zesk\IPv4;
+use zesk\Net_HTTP;
+use zesk\Response;
+use zesk\Response_Text_HTML;
+use zesk\Request;
+use zesk\Router;
+use zesk\Exception;
 
 /**
  * Add developer tools and expose items based on IP
@@ -11,7 +24,7 @@ namespace zesk;
  * @author kent
  *
  */
-class Module_Developer extends Module implements Interface_Module_Routes {
+class Moduel extends \zesk\Module implements Interface_Module_Routes {
 	/**
 	 * List of request parameters/HTTP headers to allow for mocking AJAX and other types of
 	 * calls for debugging and/or testing
@@ -270,7 +283,7 @@ class Module_Developer extends Module implements Interface_Module_Routes {
 				$results[$index] = HTML::tag('span', '.alert alert-danger', $results[$index]);
 			}
 		}
-		$result = $exception ? theme('exception', array(
+		$result = $exception ? $this->theme('exception', array(
 			'content' => $exception
 		)) : "";
 		$result .= HTML::tag('ul', ".sql", HTML::tags('li', array_merge(array(

@@ -10,7 +10,8 @@
 		"moment"
 	],
 	"autoload_options": {
-		"class_prefix": "zesk\\Bootstrap3\\DateTimePicker\\"
+		"class_prefix": "zesk\\Bootstrap3\\DateTimePicker\\",
+		"lower": false
 	},
 	"module_class": "zesk\\Bootstrap3\\DateTimePicker\\Module"
 }

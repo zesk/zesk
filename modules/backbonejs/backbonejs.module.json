@@ -12,6 +12,7 @@
 	"share_path": "vendor/components/backbonejs",
 	"module_class": "zesk\\Module_BackboneJS",
 	"autoload_options": {
-		"class_prefix": "zesk\\"
+		"class_prefix": "zesk\\",
+		"lower": true
 	}
 }

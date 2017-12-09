@@ -2,7 +2,8 @@
 	"name": "Developer",
 	"description": "Developer-related tools",
 	"autoload_options": {
-		"class_prefix": "zesk\\"
+		"class_prefix": "zesk\\Developer\\",
+		"lower": false
 	},
-	"module_class": "zesk\\Module_Developer"
+	"module_class": "zesk\\Developer\\Module"
 }
