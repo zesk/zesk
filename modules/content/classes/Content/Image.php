@@ -311,11 +311,11 @@ class Content_Image extends Object {
 	public function rotate($degrees) {
 		$this->_force_to_disk();
 		$path = $this->path();
-		$result = Image_Library::singleton()->image_rotate($path, $path, $degrees);
+		$result = Image_Library::factory($this->application)->image_rotate($path, $path, $degrees);
 		if (!$result) {
 			return null;
 		}
-		$this->data = Content_Data::from_path($path, true, true);
+		$this->data = Content_Data::from_path($this->application, $path, true, true);
 		$this->_update_sizes();
 		return $this->store();
 	}
@@ -323,7 +323,7 @@ class Content_Image extends Object {
 	/**
 	 * Returns an array of (width, height) with the new image constrained the the box size.
 	 *
-	 * Image result width is guaranteed to be <= $eidth
+	 * Image result width is guaranteed to be <= $width
 	 * Image result height is guaranteed to be <= $height
 	 *
 	 * @param integer $width
@@ -343,7 +343,7 @@ class Content_Image extends Object {
 	 * @param string $file
 	 * @return NULL|string|boolean
 	 */
-	public static function correct_orientation($file) {
+	public static function correct_orientation(Application $application, $file) {
 		if (!function_exists('exif_read_data')) {
 			return null;
 		}
@@ -369,7 +369,7 @@ class Content_Image extends Object {
 		if ($rotate === null) {
 			return false;
 		}
-		$result = Image_Library::singleton()->image_rotate($file, $file, $rotate);
+		$result = Image_Library::factory($application)->image_rotate($file, $file, $rotate);
 		if (!$result) {
 			return "failed";
 		}

@@ -191,7 +191,7 @@ class Controller_Content_Cache extends Controller_Cache {
 	protected function hook_image_scale(array $command) {
 		$width = $height = null;
 		extract($command, EXTR_IF_EXISTS);
-		return Image_Library::singleton()->image_scale_data($command['data'], array(
+		return Image_Library::factory($this->application)->image_scale_data($command['data'], array(
 			'zoom' => true,
 			'width' => $width,
 			'height' => $height

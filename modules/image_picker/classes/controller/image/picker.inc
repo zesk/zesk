@@ -52,7 +52,7 @@ class Controller_Image_Picker extends \zesk\Controller_Object {
 			));
 			return;
 		}
-		$fix_result = Content_Image::correct_orientation($file['tmp_name']);
+		$fix_result = Content_Image::correct_orientation($this->application, $file['tmp_name']);
 		$image = Content_Image::register_from_file($this->application, $file['tmp_name'], array(
 			"path" => $file['name']
 		));
