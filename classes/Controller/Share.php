@@ -86,7 +86,7 @@ class Controller_Share extends Controller {
 		$target = path($this->application->document_root(), $path);
 		Directory::depend(dirname($target), 0775);
 		$status = copy($file, $target);
-		zesk()->logger->notice("Copied {file} to {target} - {status}", array(
+		$this->application->logger->notice("Copied {file} to {target} - {status}", array(
 			"file" => $file,
 			"target" => $target,
 			"status" => $status ? "true" : "false"
