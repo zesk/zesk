@@ -480,7 +480,7 @@ class Timestamp extends Temporal {
 			return $this;
 		}
 		$parsed = strtotime($value, time());
-		if ($parsed === false || $parsed < 0) {
+		if ($parsed === false) {
 			throw new Exception_Convert(__("Timestamp::parse({0})", $value));
 		}
 		$datetime = new DateTime($value, $this->tz);
