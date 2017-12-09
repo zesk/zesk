@@ -312,7 +312,7 @@ class Template implements Interface_Theme {
 			return $this->paths_cache;
 		}
 		$this->paths_cache = $cache = Cache::register(get_class($this->application) . "-Template::paths");
-		$path = implode("|", $this->application->theme_path());
+		$path = serialize($this->application->theme_path());
 		if ($cache->has("theme_path")) {
 			if ($cache->theme_path !== $path) {
 				$cache->erase();
@@ -369,32 +369,20 @@ class Template implements Interface_Theme {
 		}
 		$paths = array();
 		$found = false;
-		$theme_paths = $this->application->theme_path();
-		foreach ($theme_paths as $prefix => $theme_path) {
-			$temp = null;
-			if (is_numeric($prefix)) {
-				$temp = path($theme_path, $path);
-			} else if (begins($path, $prefix)) {
-				$temp = path($theme_path, substr($path, strlen($prefix)));
-			}
-			if ($temp) {
-				$paths[$temp] = $exists = file_exists($temp);
-				if (!$all && $exists) {
-					return $temp;
-				}
-				if ($exists) {
-					$found = true;
-				}
-			}
-		}
-		if (!$found) {
+		
+		$result = $this->application->theme_find($path, array(
+			"all" => $all,
+			"no_extension" => true
+		));
+		if ($result === null || count($result) === 0) {
+			$theme_paths = $this->application->theme_path();
 			if ($this->application->configuration->path_get(array(
 				__CLASS__,
 				'debug_theme_path'
 			))) {
 				static $template_path = false;
 				if (!$template_path) {
-					$this->application->logger->debug("theme_path is\n\t" . implode("\n", $theme_paths));
+					$this->application->logger->debug("theme_path is\n\t" . JSON::encode_pretty($theme_paths));
 					$template_path = true;
 				}
 			}
@@ -407,7 +395,7 @@ class Template implements Interface_Theme {
 				return null;
 			}
 		}
-		return $paths;
+		return $result;
 	}
 	
 	/**
@@ -430,7 +418,7 @@ class Template implements Interface_Theme {
 	 */
 	function path($set = null) {
 		if ($set !== null) {
-			$this->_path = self::find_path($set);
+			$this->_path = $this->find_path($set);
 			return $this;
 		}
 		return $this->_path;
