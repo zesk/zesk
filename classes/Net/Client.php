@@ -8,11 +8,7 @@
  */
 namespace zesk;
 
-abstract class Net_Client extends Options {
-	/**
-	 * @var Application
-	 */
-	public $application = null;
+abstract class Net_Client extends Hookable {
 	/**
 	 * Connection string
 	 * @var string
@@ -58,11 +54,9 @@ abstract class Net_Client extends Options {
 	 * @return SMTP_Client
 	 */
 	public function __construct(Application $application, $url, array $options = array()) {
-		$this->application = $application;
+		parent::__construct($application, $options);
 		$this->url = $url;
 		$this->url_parts = URL::parse($url);
-		
-		parent::__construct($options);
 		$this->inherit_global_options();
 	}
 	public function __toString() {
