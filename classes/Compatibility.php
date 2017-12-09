@@ -3,7 +3,9 @@
 /**
  * Place functions needed to maintain compatibility with previous versions of PHP
  * 
- * Currently we depend on PHP version 5.4.0 or greater
+ * Currently we depend on PHP version 5.5.0 or greater
+ * 
+ * PHP version 5.5 - support for ClassName::class constants introduced
  * 
  * @package zesk
  * @subpackage core
@@ -13,7 +15,7 @@
 namespace zesk;
 
 class Compatibility {
-	const PHP_VERSION_MINIMUM = 50400;
+	const PHP_VERSION_MINIMUM = 50500;
 	public static function install() {
 		$v = self::PHP_VERSION_MINIMUM;
 		if (!defined('PHP_VERSION_ID') || PHP_VERSION_ID < $v) {
