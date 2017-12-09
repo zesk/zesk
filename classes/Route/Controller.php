@@ -119,31 +119,36 @@ class Route_Controller extends Route {
 			
 			$arguments_method = $this->option('arguments method', $this->option('arguments method prefix', 'arguments_') . $action_method);
 			$method = $this->option('method', $this->option('method prefix', 'action_') . $action_method);
-			
-			$try_default = false;
-			ob_start();
-			if ($controller->has_method($method)) {
-				$args = $controller->optional_method($arguments_method, $this->args);
-				$result = $controller->invoke_method($method, $args);
-			} else {
-				if ($action !== "index") {
-					$app->logger->warning("No such method {method} in {class}", array(
-						"method" => $method,
-						"class" => get_class($controller)
-					));
-				}
-				$result = $controller->invoke_default_method(array_merge(array(
-					$action
-				), $this->args));
-			}
-			$contents = ob_get_clean();
-			$controller->optional_method(array(
-				'after_' . $action_method,
-				"after"
-			), array(
-				$result,
-				$contents
+			$method = map($method, array(
+				"method" => $this->application->request->method()
 			));
+			
+			$response = $app->response();
+			if ($response->status_code === Net_HTTP::Status_OK) {
+				ob_start();
+				if ($controller->has_method($method)) {
+					$args = $controller->optional_method($arguments_method, $this->args);
+					$result = $controller->invoke_method($method, $args);
+				} else {
+					if ($action !== "index") {
+						$app->logger->warning("No such method {method} in {class}", array(
+							"method" => $method,
+							"class" => get_class($controller)
+						));
+					}
+					$result = $controller->invoke_default_method(array_merge(array(
+						$action
+					), $this->args));
+				}
+				$contents = ob_get_clean();
+				$controller->optional_method(array(
+					'after_' . $action_method,
+					"after"
+				), array(
+					$result,
+					$contents
+				));
+			}
 		} catch (Exception $e) {
 			$app->hooks->call("exception", $e);
 			$controller->optional_method(array(
