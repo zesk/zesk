@@ -836,12 +836,24 @@ class Request extends Hookable {
 	
 	/**
 	 * Retrieve the URL component
-	 *
+	 * @see Request::url_variables()
+	 * @deprecated 2017-12
 	 * @param string $component
 	 * @return string
 	 * @throws Exception_Key
 	 */
 	function url_parts($component = null) {
+		return $this->url_variables($component);
+	}
+	
+	/**
+	 * Retrieve the URL component
+	 *
+	 * @param string $component
+	 * @return string
+	 * @throws Exception_Key
+	 */
+	function url_variables($component = null) {
 		$this->_valid_url_parts();
 		if ($component === null) {
 			return $this->url_parts;
