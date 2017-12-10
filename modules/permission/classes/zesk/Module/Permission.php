@@ -1,6 +1,7 @@
 <?php
+
 /**
- * 
+ *
  */
 namespace zesk;
 
@@ -10,31 +11,31 @@ namespace zesk;
  * @author kent
  */
 class Module_Permission extends Module {
-	
+
 	/**
 	 * Permissions cache
 	 *
 	 * @var array
 	 */
 	private $_permissions = null;
-	
+
 	/**
 	 * Role Permissions cache
 	 *
 	 * @var array of [rid][action] => boolean
 	 */
 	private $_role_permissions = null;
-	
+
 	/**
-	 * 
+	 *
 	 * @var array
 	 */
 	static $hook_methods = array(
-		"zesk\Application::permissions",
-		"zesk\Module::permissions", // TODO rename to zesk\Module when \Module is deprecated
-		"zesk\Object::permissions"
+		"zesk\\Application::permissions",
+		"zesk\\Module::permissions",
+		"zesk\\Object::permissions"
 	);
-	
+
 	/**
 	 * Implement Module::classes
 	 *
@@ -71,7 +72,7 @@ class Module_Permission extends Module {
 	public function user_can(User $user, $action, Model $context = null, $options) {
 		$application = $this->application;
 		$this->prepare_user($user);
-		
+
 		if ($user->is_root) {
 			return true;
 		}
@@ -86,14 +87,14 @@ class Module_Permission extends Module {
 		$default_class = $context ? $this->model_permission_class($context) : null;
 		list($class, $permission) = pair($a, "::", $default_class, $a);
 		$lowclass = strtolower($class);
-		
+
 		$cache_key = "$lowclass::$permission";
 		$user_cache = $user->object_cache("permissions");
 		if (!$context && $user_cache->has($cache_key)) {
 			return $user_cache->$cache_key;
 		}
 		$perms = $this->permissions();
-		
+
 		$parent_classes = empty($class) ? array() : arr::change_value_case($application->classes->hierarchy($class, "Model"));
 		$parent_classes[] = "*";
 		foreach ($parent_classes as $parent_class) {
@@ -117,13 +118,14 @@ class Module_Permission extends Module {
 				}
 			}
 		}
-		
+
 		$rids = $this->user_roles($user);
 		foreach ($rids as $rid) {
 			$result = apath($perms, array(
 				'role',
 				$rid,
-				"$lowclass::$permission"
+				$lowclass,
+				$permission
 			));
 			if (is_bool($result)) {
 				if ($result === false) {
@@ -151,9 +153,9 @@ class Module_Permission extends Module {
 		$user_cache->$cache_key = $result;
 		return $result;
 	}
-	
+
 	/**
-	 * 
+	 *
 	 * @param User $user
 	 */
 	private function prepare_user(User $user) {
@@ -161,10 +163,7 @@ class Module_Permission extends Module {
 			return;
 		}
 		if ($user->is_new()) {
-			$roles = $this->application->query_select('Role')
-				->where('is_default', true)
-				->object_iterator()
-				->to_array('id');
+			$roles = $this->application->query_select('Role')->where('is_default', true)->object_iterator()->to_array('id');
 		} else {
 			// Load user role settings into user before checking
 			$roles = $user->member_query("roles")->object_iterator()->to_array("id");
@@ -191,13 +190,10 @@ class Module_Permission extends Module {
 		if (is_array($user->_roles)) {
 			return $user->_roles;
 		}
-		$user->_roles = $this->application->query_select("User_Role")
-			->what("Role", "Role")
-			->where("User", $user)
-			->to_array(null, "Role", array());
+		$user->_roles = $this->application->query_select("User_Role")->what("Role", "Role")->where("User", $user)->to_array(null, "Role", array());
 		return $user->_roles;
 	}
-	
+
 	/**
 	 * Refresh the permissions cache as often as needed
 	 */
@@ -220,7 +216,7 @@ class Module_Permission extends Module {
 			$application->logger->debug("Cache matches computed");
 		}
 	}
-	
+
 	/**
 	 *
 	 * @return Cache
@@ -232,7 +228,7 @@ class Module_Permission extends Module {
 		}
 		return $cache;
 	}
-	
+
 	/**
 	 *
 	 * @return array
@@ -249,7 +245,7 @@ class Module_Permission extends Module {
 		$perms = $cache->__get(__CLASS__);
 		return is_array($perms) ? $perms : null;
 	}
-	
+
 	/**
 	 * Retrieve
 	 *
@@ -267,6 +263,12 @@ class Module_Permission extends Module {
 		$this->_permissions_cached($this->_permissions);
 		return $this->_permissions;
 	}
+
+	/**
+	 *
+	 * @param mixed $mixed
+	 * @return mixed
+	 */
 	public static function normalize_permission($mixed) {
 		if (is_bool($mixed) || $mixed === null || is_numeric($mixed)) {
 			return $mixed;
@@ -285,6 +287,11 @@ class Module_Permission extends Module {
 			"-" => "_"
 		));
 	}
+
+	/**
+	 *
+	 * @return array|string
+	 */
 	public function hook_methods() {
 		return $this->application->hooks->find_all(self::$hook_methods);
 	}
@@ -308,13 +315,10 @@ class Module_Permission extends Module {
 			$this,
 			'_combine_permissions'
 		));
-		$roles = $application->query_select('Role', 'X')
-			->what(array(
+		$roles = $application->query_select('Role', 'X')->what(array(
 			"id" => "X.id",
 			"code" => "X.code"
-		))
-			->order_by("X.id")
-			->to_array("id", "code", array());
+		))->order_by("X.id")->to_array("id", "code", array());
 		$options = array(
 			'overwrite' => true,
 			'trim' => true,
@@ -327,6 +331,12 @@ class Module_Permission extends Module {
 		$lock->release();
 		return $result;
 	}
+
+	/**
+	 *
+	 * @param string $code
+	 * @return unknown|string|unknown[]|string[]
+	 */
 	private function _role_permissions($code) {
 		$application = $this->application;
 		$paths = $this->option_list('role_paths', $application->path('etc/role'));
@@ -343,7 +353,7 @@ class Module_Permission extends Module {
 		));
 		return $config;
 	}
-	
+
 	/**
 	 * Hook call to add up permissions and create the permissions structure from the hooks in the
 	 * system.
@@ -392,13 +402,18 @@ class Module_Permission extends Module {
 		$state[strtolower($class)] = $class_perms; // + array("*class" => $class);
 		return $state;
 	}
-	
+
 	/**
-	 * 
 	 */
 	protected function hook_cache_clear() {
 		$this->application->query_delete('zesk\\Permission')->truncate(true)->execute();
 	}
+
+	/**
+	 *
+	 * @param Model $context
+	 * @return string
+	 */
 	private function model_permission_class(Model $context) {
 		$default = get_class($context);
 		if ($context instanceof Object) {
