@@ -85,7 +85,7 @@ class Markdown extends Options {
 			);
 		}
 	}
-	public static function filter($text, $options = null) {
+	public static function filter($text, array $options = array()) {
 		$x = new self($text, $options);
 		return $x->_filter();
 	}
