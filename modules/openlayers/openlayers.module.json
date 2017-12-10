@@ -8,7 +8,8 @@
 	"share_path": "vendor/components/openlayers",
 	"url_license": "https://raw.githubusercontent.com/openlayers/openlayers/master/LICENSE.md",
 	"autoload_options": {
-		"class_prefix": "zesk\\OpenLayers4\\"
+		"class_prefix": "zesk\\OpenLayers4\\",
+		"lower": false
 	},
 	"theme_path_prefix": "openlayers",
 	"module_class": "zesk\\OpenLayers4\\Module"
