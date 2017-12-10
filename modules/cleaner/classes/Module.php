@@ -1,4 +1,5 @@
 <?php
+
 /**
  * @package zesk
  * @subpackage cleaner
@@ -9,11 +10,12 @@ namespace zesk\Cleaner;
 
 use zesk\File;
 use zesk\Directory;
+use zesk\TimeSpan;
 
 /**
- * 
- * @author kent
  *
+ * @author kent
+ *        
  */
 class Module extends \zesk\Module {
 	public function initialize() {
@@ -48,8 +50,9 @@ class Module extends \zesk\Module {
 			} else {
 				$extensions = to_list($extensions);
 			}
-			if (is_numeric($lifetime) || $lifetime < 0) {
-				$this->application->logger->warning("{class}::directories::{code}::lifetime is not an integer or negative ({lifetime} is type {lifetime-type}), skipping entry", array(
+			$span = new TimeSpan($lifetime);
+			if (!$span->valid()) {
+				$this->application->logger->warning("{class}::directories::{code}::lifetime is not a valid time span value ({lifetime} is type {lifetime-type}), skipping entry", array(
 					"class" => $this->class,
 					"code" => $code,
 					"lifetime" => $lifetime,
@@ -57,14 +60,14 @@ class Module extends \zesk\Module {
 				));
 				continue;
 			}
-			$this->clean_path($path, $extensions, $lifetime);
+			$this->clean_path($path, $extensions, $span->seconds());
 		}
 	}
 	
 	/**
 	 * Remove old files in a path
-	 * 
-	 * @param string $extension
+	 *
+	 * @param string $extension        	
 	 */
 	public function clean_path($path, $extensions = null, $lifetime_seconds = 604800) {
 		$list_attributes = array(
