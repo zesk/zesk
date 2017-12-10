@@ -20,6 +20,18 @@ Version 1.0 of Zesk will have:
 - All modules use **namespaces**
 - Merging of `Response` and `Response_Text_HTML` into a single, unified polymorphic `Response` which changes behavior depending on content-type but allows typed API calls for specific response handling. May move `Response_Text_HTML` into a sub-object (e.g. `$response->html()->add_body_class()` for example)
 
+## [v0.13.2][]
+
+### New features
+
+- `zesk\TimeSpan` class added to assist in parsing time spans (e.g. 3 weeks)
+
+### Cleaner Module
+
+The cleaner module cleans files or log files after a certain period of time elapses, and is run via cron.
+
+- `zesk\Cleaner\Module::directories::cleaner_name::lifetime` Now supports conversion of time units, e.g. "2 hours", "4 days", "2 weeks". It uses `strtotime` relative to the current time to determine the time period.
+
 ## [v0.13.1][]
 
 - Adding `"lower": boolean` setting to `autoload_options` in modules
