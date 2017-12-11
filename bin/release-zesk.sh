@@ -130,7 +130,7 @@ mv $temp $permanent_log
 while true; do
 	if [ ! -z "$EDITOR" ]; then
 		echo "Opening editor for $permanent_log"
-		$EDITOR $current_log
+		$EDITOR $permanent_log
 	fi
 	if yes_continue "Commit $permanent_log?"; then
 		break
