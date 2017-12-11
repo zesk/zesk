@@ -24,20 +24,16 @@ Version 1.0 of Zesk will have:
 
 - ... -->
 
-## [v0.13.3][]
-
-- Zesk now only supports PHP version 5.5 and higher as we use `ClassName::class`
-- Static permissions check fix added
-- `zesk\Cleaner\Module::directories::cleaner_name::lifetime` Now supports conversion of time units, e.g. "2 hours", "4 days", "2 weeks". It uses `strtotime` relative to the current time to determine the time period.
-- adding JSON examples for SNS
-- adding `zesk\TimeSpan`
-- Fixing a variety of issues in the Markdown, OpenLayers, and release scripts
-
 ## [v0.13.2][]
 
-### New features
+### Incompatibilities
 
-- `zesk\TimeSpan` class added to assist in parsing time spans (e.g. 3 weeks)
+- Zesk now only supports PHP version 5.5 and higher as we use `ClassName::class`
+
+### Bug fixes
+
+- Static permissions check fix added in `permission` module
+- Fixing a variety of issues in the Markdown, OpenLayers, and release scripts
 
 ### Cleaner Module
 
@@ -928,8 +924,7 @@ Settling of `zesk\Kernel` and `zesk\` namespace changes, added additional compon
  - `zesk::class_hierarchy` -> `zesk()->classes->hierarchy`
 - Removed growl module (no longer relevant on Mac OS X)
 
-[v0.13.3]: https://github.com/zesk/zesk/compare/v0.13.2...HEAD
-[v0.13.2]: https://github.com/zesk/zesk/compare/v0.13.1...v0.13.2
+[v0.13.2]: https://github.com/zesk/zesk/compare/v0.13.1...HEAD
 [v0.13.1]: https://github.com/zesk/zesk/compare/v0.13.0...v0.13.1
 [v0.13.0]: https://github.com/zesk/zesk/compare/v0.12.15...v0.13.0
 [v0.12.15]: https://github.com/zesk/zesk/compare/v0.12.14...v0.12.15
