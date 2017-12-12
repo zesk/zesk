@@ -512,24 +512,24 @@ class Router extends Hookable {
 	/**
 	 *
 	 * @param array $by_class
-	 * @param Object $add
+	 * @param Model $add
 	 * @param string $stop_class
-	 * @return \zesk\Object|mixed
+	 * @return \zesk\Model|mixed
 	 */
-	public static function add_derived_classes(array $by_class, Object $add, $stop_class = null) {
+	public static function add_derived_classes(array $by_class, Model $add, $stop_class = null) {
 		$id = $add->id();
-		foreach ($add->application->classes->hierarchy($add, $stop_class ? $stop_class : "zesk\\Object") as $class) {
+		foreach ($add->application->classes->hierarchy($add, $stop_class ? $stop_class : "zesk\\Model") as $class) {
 			$by_class[$class] = $id;
 		}
 		return $by_class;
 	}
-	private function derived_classes(Object $object) {
+	private function derived_classes(Model $object) {
 		$by_class = array();
 		$class_object = $object->class_object();
 		if (is_array($class_object->has_one) && $class_object->id_column) {
 			foreach ($class_object->has_one as $member => $class) {
 				$member_object = $object->__get($member);
-				if (!$member_object instanceof Object) {
+				if (!$member_object instanceof Model) {
 					$this->application->logger->error("Member {member} of object {class} should be an object of {expected_class}, returned {type} with value {value}", array(
 						"member" => $member,
 						"class" => get_class($object),
@@ -541,7 +541,7 @@ class Router extends Hookable {
 				}
 				if ($member_object) {
 					$id = $member_object->id();
-					foreach ($this->application->classes->hierarchy($member_object, "zesk\\Object") as $class) {
+					foreach ($this->application->classes->hierarchy($member_object, "zesk\\Model") as $class) {
 						$by_class[$class] = $id;
 					}
 				}
@@ -584,7 +584,7 @@ class Router extends Hookable {
 			), array()) + array(
 				"derived_classes" => array()
 			);
-			if ($object instanceof Object) {
+			if ($object instanceof Model) {
 				$options['derived_classes'] += $this->derived_classes($object);
 			}
 		} else if (is_string($object)) {

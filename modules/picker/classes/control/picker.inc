@@ -9,9 +9,9 @@
 use zesk\arr;
 use zesk\HTML;
 use zesk\URL;
-use zesk\Object;
+use zesk\ORM;
 use zesk\Database_Query_Select;
-use zesk\Object_Iterator;
+use zesk\ORMIterator;
 use zesk\Control;
 
 /**
@@ -87,7 +87,7 @@ class Control_Picker extends Control {
 	
 	/**
 	 *
-	 * @var Class_Object
+	 * @var Class_ORM
 	 */
 	protected $class_object = null;
 	
@@ -150,12 +150,12 @@ class Control_Picker extends Control {
 	}
 	private function to_objects($value) {
 		$value = to_iterator($value);
-		if ($value instanceof Object_Iterator) {
+		if ($value instanceof ORMIterator) {
 			return $value;
 		}
 		foreach ($value as $key => $id) {
 			try {
-				$value[$key] = $this->application->object_factory($this->class, $id)->fetch();
+				$value[$key] = $this->application->orm_factory($this->class, $id)->fetch();
 			} catch (Exception $e) {
 				unset($value[$key]);
 			}

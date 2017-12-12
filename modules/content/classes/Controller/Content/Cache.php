@@ -86,9 +86,9 @@ class Controller_Content_Cache extends Controller_Cache {
 		$prefix = preg_quote(self::cache_prefix());
 		if (preg_match('#^' . $prefix . '([0-9]+)/.*#', $url, $matches)) {
 			try {
-				$image = Object::factory('zesk\\Content_Image', $matches[1])->fetch();
+				$image = ORM::factory('zesk\\Content_Image', $matches[1])->fetch();
 				return $image;
-			} catch (Exception_Object_NotFound $e) {
+			} catch (Exception_ORM_NotFound $e) {
 			}
 		}
 		return null;
@@ -103,7 +103,7 @@ class Controller_Content_Cache extends Controller_Cache {
 	protected function action_image($id, $styles = null, $file = null) {
 		try {
 			/* @var $image Content_Image */
-			$image = $this->object_factory('zesk\\Content_Image', $id)->fetch();
+			$image = $this->orm_factory('zesk\\Content_Image', $id)->fetch();
 			$image_file = basename($image->path());
 			$commands = $this->parse_commands($image, $styles);
 			if ($file === null || $file !== $image_file || empty($styles) || $commands === null) {
@@ -123,7 +123,7 @@ class Controller_Content_Cache extends Controller_Cache {
 				$data = $this->apply_commands($commands, $data);
 			}
 			$this->request_to_file($data);
-		} catch (Exception_Object_NotFound $e) {
+		} catch (Exception_ORM_NotFound $e) {
 			$this->response->status(404, "Not Found");
 			$this->response->cache_for(60, Response::cache_path);
 			return;

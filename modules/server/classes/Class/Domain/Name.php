@@ -9,4 +9,4 @@ namespace zesk;
  * @author kent
  *
  */
-class Class_Domain_Name extends Class_Object {}
+class Class_Domain_Name extends Class_ORM {}

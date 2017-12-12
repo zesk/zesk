@@ -50,7 +50,7 @@ class Database_Query {
 	
 	/**
 	 *
-	 * @var zesk\Object[]
+	 * @var zesk\ORM[]
 	 */
 	private $classes_cached = array();
 	
@@ -152,10 +152,24 @@ class Database_Query {
 	
 	/**
 	 *
-	 * @return \zesk\Class_Object
+	 * @return \zesk\Class_ORM
 	 */
 	function class_object() {
 		return $this->db->application->class_object($this->class);
+	}
+	
+	/**
+	 * Create objects in the current application context
+	 *
+	 * @deprecated 2017-12
+	 * @param string $class
+	 * @param mixed $mixed
+	 * @param array $options
+	 * @return Object
+	 */
+	function object_factory($class, $mixed = null, array $options = array()) {
+		$this->application->deprecated();
+		return $this->orm_factory($class, $mixed, $options);
 	}
 	
 	/**
@@ -166,15 +180,15 @@ class Database_Query {
 	 * @param array $options
 	 * @return Object
 	 */
-	function object_factory($class, $mixed = null, array $options = array()) {
-		return $this->application->object_factory($class, $mixed, $options);
+	function orm_factory($class, $mixed = null, array $options = array()) {
+		return $this->application->orm_factory($class, $mixed, $options);
 	}
 	
 	/**
 	 * Cache for Object definitions, do not modify these objects
 	 *
 	 * @param string $class
-	 * @return \zesk\Object
+	 * @return \zesk\ORM
 	 */
 	protected function object_cache($class) {
 		if (isset($this->objects_cached[$class])) {

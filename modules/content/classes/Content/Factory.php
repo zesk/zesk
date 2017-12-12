@@ -116,7 +116,7 @@ class Content_Factory {
 			default :
 				try {
 					$try_type = self::_map_legacy_content_types($type);
-					$object = $this->object_factory($try_type);
+					$object = $this->orm_factory($try_type);
 					return $object;
 				} catch (Exception_Class_NotFound $e) {
 					zesk()->logger->error("Unknown attribute code: [$type]");

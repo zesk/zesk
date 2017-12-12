@@ -1,0 +1,8 @@
+{
+	"name": "Object Relational Mapping",
+	"autoload_options": {
+		"class_prefix": "zesk\\",
+		"lower": false
+	},
+	"module_class": "zesk\\Module_ORM"
+}

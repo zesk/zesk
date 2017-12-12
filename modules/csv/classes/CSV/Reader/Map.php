@@ -21,7 +21,7 @@ namespace zesk;
 class CSV_Reader_Map extends CSV_Reader {
 	/**
 	 * A read map group allows you to read a subset of a row and map the column names into new names. This is useful when
-	 * mapping a CSV row into one or more zesk\Object subclasses.
+	 * mapping a CSV row into one or more zesk\ORM subclasses.
 	 * 
 	 * @var array[readmapname]
 	 */
@@ -220,14 +220,14 @@ class CSV_Reader_Map extends CSV_Reader {
 	 * @return self
 	 */
 	function add_translation_map_boolean($columns) {
-		return $this->_add_translation_map_type(to_list($columns), Class_Object::type_boolean);
+		return $this->_add_translation_map_type(to_list($columns), Class_ORM::type_boolean);
 	}
 	
 	/**
 	 * Add translation map for a specific type
 	 *
 	 * @param array $columns
-	 * @param string $type Class_Object::type_foo type
+	 * @param string $type Class_ORM::type_foo type
 	 * @return self
 	 */
 	private function _add_translation_map_type(array $columns, $type) {

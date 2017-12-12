@@ -15,7 +15,7 @@ namespace zesk;
  * @property User $user
  * @property Timestamp $created
  */
-class Selection_Type extends Object {
+class Selection_Type extends ORM {
 	
 	/**
 	 * Modify the current selection list using the queries
@@ -55,7 +55,7 @@ class Selection_Type extends Object {
 	
 	/**
 	 *
-	 * @return Object_Iterator
+	 * @return ORMIterator
 	 */
 	public function items_selected() {
 		return $this->member_query('items')
@@ -79,7 +79,7 @@ class Selection_Type extends Object {
 	 *
 	 * {@inheritdoc}
 	 *
-	 * @see Object::delete()
+	 * @see ORM::delete()
 	 */
 	public function delete() {
 		$this->application->query_delete('zesk\\Selection_Query')->where('type', $this->id)->execute();
@@ -92,7 +92,7 @@ class Selection_Type extends Object {
 	 *
 	 * {@inheritdoc}
 	 *
-	 * @see Object::duplicate($options)
+	 * @see ORM::duplicate($options)
 	 */
 	public function duplicate(Options_Duplicate &$options = null) {
 		$dup = parent::duplicate($options);

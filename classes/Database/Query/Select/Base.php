@@ -60,33 +60,6 @@ abstract class Database_Query_Select_Base extends Database_Query {
 	}
 	
 	/**
-	 * Convert this query into an Object Iterator
-	 *
-	 * @param string $class
-	 *        	Class to iterate on (inherited from default settings for this query)
-	 * @param array $options
-	 *        	Options passed to each object upon creation
-	 * @return Object_Iterator
-	 */
-	function object_iterator($class = null, $options = null) {
-		$this->object_class($class);
-		return new Object_Iterator($this->class, $this, $options);
-	}
-	
-	/**
-	 * Convert this query into an Objects Iterator
-	 *
-	 * @param string $class
-	 *        	Class to iterate on (inherited from default settings for this query)
-	 * @param array $options
-	 *        	Options passed to each object upon creation
-	 * @return Object_Iterator
-	 */
-	function objects_iterator(array $options = array()) {
-		return new Objects_Iterator($this->class, $this, $this->objects_prefixes);
-	}
-	
-	/**
 	 * Execute query and retrieve a single field or row
 	 *
 	 * @param unknown_type $field        	
@@ -95,42 +68,6 @@ abstract class Database_Query_Select_Base extends Database_Query {
 	 */
 	function one($field = null, $default = null) {
 		return $this->database()->query_one($this->__toString(), $field, $default);
-	}
-	
-	/**
-	 * Execute query and return the first returned row as an object
-	 *
-	 * @param string $class
-	 *        	An optional class to return the first row as
-	 * @param array $options
-	 *        	Optional options to be passed to the object upon instantiation
-	 * @return Object
-	 */
-	function one_object($class = null, $options = null) {
-		$columns = $this->one(false, null);
-		if ($columns === null) {
-			return null;
-		}
-		$options['from_database'] = true;
-		return $this->object_factory($this->object_class($class), $columns, $options);
-	}
-	
-	/**
-	 * Execute query and convert to an object
-	 *
-	 * @param string $class
-	 *        	Class of object
-	 * @param unknown_type $default        	
-	 * @return unknown
-	 */
-	function object($class = null, array $options = array()) {
-		$result = $this->one(false, null);
-		if ($result === null) {
-			return $result;
-		}
-		$object = $this->object_factory($this->object_class($class), null, $options);
-		$object->initialize($result, true);
-		return $object;
 	}
 	
 	/**
@@ -261,4 +198,79 @@ abstract class Database_Query_Select_Base extends Database_Query {
 	/**
 	 */
 	abstract function __toString();
+	
+	/**
+	 * Convert this query into an ORM Iterator
+	 *
+	 * @deprecated 2017-12 Blame PHP 7.2
+	 * @param string $class
+	 *        	Class to iterate on (inherited from default settings for this query)
+	 * @param array $options
+	 *        	Options passed to each object upon creation
+	 * @return ORMIterator
+	 */
+	function object_iterator($class = null, array $options = array()) {
+		$this->object_class($class);
+		return new ORMIterator($this->class, $this, $options);
+	}
+	
+	/**
+	 * Convert this query into an ORMs Iterator
+	 *
+	 * @deprecated 2017-12 Blame PHP 7.2
+	 * @param string $class
+	 *        	Class to iterate on (inherited from default settings for this query)
+	 * @param array $options
+	 *        	Options passed to each object upon creation
+	 * @return ORMIterators
+	 */
+	function objects_iterator(array $options = array()) {
+		return new ORMIterators($this->class, $this, $this->objects_prefixes);
+	}
+	
+	/**
+	 * Execute query and return the first returned row as an object
+	 *
+	 * @deprecated 2017-12
+	 * @param string $class
+	 *        	An optional class to return the first row as
+	 * @param array $options
+	 *        	Optional options to be passed to the object upon instantiation
+	 * @return ORM
+	 */
+	function one_object($class = null, array $options = array()) {
+		return $this->object($class, $optiosn);
+	}
+	
+	/**
+	 * Execute query and convert to an object
+	 *
+	 * @deprecated 2017-12
+	 * @param string $class
+	 *        	Class of object
+	 * @param unknown_type $default
+	 * @return unknown
+	 */
+	function object($class = null, array $options = array()) {
+		return $this->orm($class, $options);
+	}
+	
+	/**
+	 * Execute query and convert to an object
+	 *
+	 * @param string $class
+	 *        	Class of object
+	 * @param unknown_type $default
+	 * @return unknown
+	 */
+	function orm($class = null, array $options = array()) {
+		$result = $this->one(false, null);
+		if ($result === null) {
+			return $result;
+		}
+		$options['from_database'] = true;
+		$object = $this->orm_factory($this->object_class($class), null, $options);
+		$object->initialize($result, true);
+		return $object;
+	}
 }

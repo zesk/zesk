@@ -87,12 +87,12 @@ $show_links = $this->get('show_links', true);
 	</div>
 <?php
 
-$label_table = Object::class_table_name("Contact_Label");
+$label_table = ORM::class_table_name("Contact_Label");
 foreach ($sections as $section => $variables) {
 	$object_class = $head_label = null;
 	extract($variables, EXTR_IF_EXISTS);
 	$values = array();
-	$query = Object::class_query($object_class)->link("Contact_Label", array(
+	$query = ORM::class_query($object_class)->link("Contact_Label", array(
 		"alias" => "L"
 	))->what('label_name', 'L.name')->where('contact', $id);
 	$values = $query->to_array();

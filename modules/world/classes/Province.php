@@ -7,4 +7,4 @@
  */
 namespace zesk;
 
-class Province extends Object {}
+class Province extends ORM {}

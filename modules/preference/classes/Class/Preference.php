@@ -8,7 +8,7 @@
  */
 namespace zesk;
 
-class Class_Preference extends Class_Object {
+class Class_Preference extends Class_ORM {
 	public $id_column = "id";
 	
 	/**

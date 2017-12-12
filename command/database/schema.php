@@ -75,8 +75,8 @@ class Command_Database_Schema extends Command_Base {
 	/**
 	 * Invoke
 	 *
-	 * Object::schema_updated
-	 * Object::schema_update
+	 * ORM::schema_updated
+	 * ORM::schema_update
 	 *
 	 * Module::schema_updated
 	 * Module::schema_update
@@ -91,7 +91,7 @@ class Command_Database_Schema extends Command_Base {
 		
 		$app = $this->application;
 		
-		$hook_type = "zesk\Object::schema_$suffix";
+		$hook_type = "zesk\ORM::schema_$suffix";
 		$all_hooks = $this->application->hooks->find_all($hook_type);
 		
 		$app->logger->notice("Running all $suffix hooks {hooks}", array(

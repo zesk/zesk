@@ -17,7 +17,7 @@ namespace zesk;
  * @property Timestamp $checked
  * @property Timestamp $missing
  */
-class Content_Data extends Object {
+class Content_Data extends ORM {
 	
 	/**
 	 * Whether we checked the database for max allowed packet size
@@ -102,7 +102,7 @@ class Content_Data extends Object {
 		if ($register) {
 			$fields = array();
 			$fields['md5hash'] = $md5;
-			$object = $app->object_factory(__CLASS__, $fields);
+			$object = $app->orm_factory(__CLASS__, $fields);
 			$row = $object->exists();
 			if ($row) {
 				$object->object_status(self::status_exists);
@@ -187,7 +187,7 @@ class Content_Data extends Object {
 		$fields['data'] = $data;
 		$fields['size'] = $size === null ? strlen($data) : $size;
 		$fields['md5hash'] = $hash === null ? md5($data) : $hash;
-		$object = $application->object_factory(__CLASS__, $fields);
+		$object = $application->orm_factory(__CLASS__, $fields);
 		return ($register) ? $object->register() : $object;
 	}
 	

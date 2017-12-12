@@ -8,4 +8,4 @@
  */
 namespace zesk;
 
-class Contact_Phone_CountryCode extends Object {}
+class Contact_Phone_CountryCode extends ORM {}

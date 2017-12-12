@@ -139,7 +139,7 @@ Hook names within a class are [Lower Underscore](naming-styles-definitions.md) a
 
 The `Hookable` class invokes `hook_`*`message`* first, then calls the class hierarchy version of a hook. By way of example, given the following class:
 
-	class MenuItem extends \zesk\Object {
+	class MenuItem extends \zesk\ORM {
 		...
 	}
 	class FoodItem extends MenuItem {
@@ -168,7 +168,7 @@ When we call `$pizza->check_delivered()`, and our hook is called, the following 
  - `Pizza::delivered`
  - `FoodItem::delivered`
  - `MenuItem::delivered`
- - `zesk\Object::delivered`
+ - `zesk\ORM::delivered`
  - `zesk\Model::delivered`
  - `zesk\Hookable::delivered`
 

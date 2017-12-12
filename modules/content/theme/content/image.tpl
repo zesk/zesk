@@ -9,8 +9,8 @@ if (!$image instanceof Content_Image) {
 	$id = $this->id;
 	if (is_numeric($id) && !empty($id)) {
 		try {
-			$image = $this->application->object_factory('zesk\\Content_Image', $id)->fetch();
-		} catch (Exception_Object_NotFound $e) {
+			$image = $this->application->orm_factory('zesk\\Content_Image', $id)->fetch();
+		} catch (Exception_ORM_NotFound $e) {
 			$image = null;
 		}
 	}

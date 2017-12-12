@@ -369,11 +369,11 @@ abstract class Cache implements \ArrayAccess {
 	 *
 	 * Cron assists with cleaning out these objects in the background.
 	 *
-	 * @param Object $object        	
+	 * @param ORM $object        	
 	 * @param unknown $member_names        	
 	 * @return Cache
 	 */
-	final public function invalidate_changed(Object $object, $member_names) {
+	final public function invalidate_changed(ORM $object, $member_names) {
 		if ($this->_load) {
 			$this->load();
 		}
@@ -410,8 +410,8 @@ abstract class Cache implements \ArrayAccess {
 		$class = strtolower($class);
 		$value = apath($this->_internal, 'check_table_changed', $class);
 		if (!$value) {
-			/* @var $class_object Class_Object */
-			$class_object = Object::cache_class($class, 'class');
+			/* @var $class_object Class_ORM */
+			$class_object = ORM::cache_class($class, 'class');
 			if (!$class_object) {
 				throw new Exception_Class_NotFound($class, "No Class cache found");
 			}

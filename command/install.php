@@ -2,7 +2,7 @@
 
 /**
  * Run through all classes and ensure they are installed correctly
- * Walks through the dependencies of classes using Object::dependencies and ensures all 'requires' values are
+ * Walks through the dependencies of classes using ORM::dependencies and ensures all 'requires' values are
  * included as well.
  * Takes a command parameter afterwards which is the application class to instantiate
  * @global boolean debug.db Turn database debugging on or off
@@ -25,19 +25,19 @@ class Command_Install extends Command_Base {
 		 * Load the classes for the appliation, and create all of the objects Check to make sure all database schemas
 		 * are up to date. If not, exit.
 		 */
-		$classes = $application->classes();
+		$classes = $application->orm_classes();
 		$objects_by_class = array();
 		$errors = array();
 		while (count($classes) > 0) {
 			$class = array_shift($classes);
-			$objects_by_class[$class] = $object = $this->application->object_factory($class);
-			if (!$object instanceof Object) {
-				$this->application->logger->error("{class} is not instance of Object", array(
+			$objects_by_class[$class] = $object = $this->application->orm_factory($class);
+			if (!$object instanceof ORM) {
+				$this->application->logger->error("{class} is not instance of ORM", array(
 					"class" => $class
 				));
 				continue;
 			}
-			$result = Database_Schema::updateObject($object);
+			$result = Database_Schema::updateORM($object);
 			if (count($result) > 0) {
 				var_dump($result);
 				$errors[] = $class;
@@ -100,7 +100,7 @@ class Command_Install extends Command_Base {
 		}
 		
 		if (count($errors) > 0) {
-			fwrite(STDERR, "Object_Errors: Conflicts and errors found\n");
+			fwrite(STDERR, "ORM_Errors: Conflicts and errors found\n");
 			echo implode("\n", $errors) . "\n";
 			exit(1);
 		}
@@ -110,7 +110,7 @@ class Command_Install extends Command_Base {
 			$errors = $this->order_walk_object($object, $ordered_objects);
 		}
 		if (count($errors) > 0) {
-			fwrite(STDERR, "Object_Cycle: Object instllation order can not be resolved\n");
+			fwrite(STDERR, "ORM_Cycle: ORM instllation order can not be resolved\n");
 			echo implode("\n", $errors) . "\n";
 			exit(1);
 		}
@@ -135,7 +135,7 @@ class Command_Install extends Command_Base {
 			$application->call_hook($method_name . "_end");
 		}
 	}
-	function order_walk_object(Object $object, array &$ordered_objects) {
+	function order_walk_object(ORM $object, array &$ordered_objects) {
 		if ($object->option('installed_tag')) {
 			return true;
 		}

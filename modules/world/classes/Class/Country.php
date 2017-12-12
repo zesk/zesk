@@ -1,7 +1,7 @@
 <?php
 namespace zesk;
 
-class Class_Country extends Class_Object {
+class Class_Country extends Class_ORM {
 	public $id_column = "id";
 	public $find_keys = array(
 		"code"

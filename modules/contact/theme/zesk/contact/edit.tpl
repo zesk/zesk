@@ -107,7 +107,7 @@ function contact_edit_post(Template $object, Contact $contact) {
 			$label_custom = avalue($labels_custom, $index);
 			$subobject = $contact->find_linked_data($member_name, $value);
 			if (!$subobject) {
-				$subobject = Object::factory("Contact_" . $value_name);
+				$subobject = ORM::factory("Contact_" . $value_name);
 			} else {
 				$subobject_id = $subobject->id();
 				unset($linked_ids[$subobject_id]);
@@ -124,7 +124,7 @@ function contact_edit_post(Template $object, Contact $contact) {
 		}
 		$linked_ids = array_keys($linked_ids);
 		foreach ($linked_ids as $id) {
-			$delete_list[] = Object::factory("Contact_" . $value_name, $id);
+			$delete_list[] = ORM::factory("Contact_" . $value_name, $id);
 		}
 	}
 	$contact->Notes = $request->get("Contact_Notes");

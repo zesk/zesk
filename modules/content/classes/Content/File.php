@@ -21,7 +21,7 @@ namespace zesk;
  * @property Timestamp $created
  * @property Timestamp $modified
  */
-class Content_File extends Object {
+class Content_File extends ORM {
 	/**
 	 * User-configurable settings
 	 *
@@ -40,7 +40,7 @@ class Content_File extends Object {
 	/**
 	 * (non-PHPdoc)
 	 *
-	 * @see Object::store()
+	 * @see ORM::store()
 	 */
 	function store() {
 		if (!$this->mime) {

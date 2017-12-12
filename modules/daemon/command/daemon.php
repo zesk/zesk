@@ -270,7 +270,7 @@ class Command_Daemon extends Command_Base implements Interface_Process {
 		$daemons = $this->application->hooks->find_all(array(
 			"zesk\Application::daemon",
 			"zesk\Module::daemon",
-			"zesk\Object::daemon"
+			"zesk\ORM::daemon"
 		));
 		$daemons = $this->daemons_expand($daemons);
 		return $daemons;

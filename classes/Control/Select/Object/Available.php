@@ -13,7 +13,7 @@ class Control_Select_Object_Available extends Control_Select_Object {
 	/**
 	 * 
 	 * {@inheritDoc}
-	 * @see Control_Select_Object::hook_options()
+	 * @see Control_Select_ORM::hook_options()
 	 */
 	protected function hook_options() {
 		$sql = $this->class_object->database()->sql();

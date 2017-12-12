@@ -4,7 +4,7 @@ namespace MySQL;
 use zesk\Database_Column;
 use zesk\Exception_Unimplemented;
 use zesk\Exception_Semantics;
-use zesk\Class_Object;
+use zesk\Class_ORM;
 
 class Database_Type extends \zesk\Database_Data_Type {
 	/**
@@ -66,12 +66,12 @@ class Database_Type extends \zesk\Database_Data_Type {
 			));
 		}
 		switch (strtolower($typeName)) {
-			case Class_Object::type_character:
+			case Class_ORM::type_character:
 				$size = !is_numeric($size) ? 1 : $size;
 				$bin_suffix = ($is_bin) ? " BINARY" : "";
 				$type->set_option("sql_type", "char($size)$bin_suffix");
 				return true;
-			case Class_Object::type_boolean:
+			case Class_ORM::type_boolean:
 				$type->set_option("sql_type", "tinyint");
 				return true;
 			default :

@@ -4,7 +4,7 @@ namespace zesk;
 /**
  * Class_Content_Link
  */
-class Class_Content_Link extends Class_Object {
+class Class_Content_Link extends Class_ORM {
 	public $find_keys = array(
 		"Hash",
 		"Parent"

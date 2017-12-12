@@ -1,7 +1,7 @@
 <?php
 namespace zesk;
 
-class Class_Filter_State extends Class_Object {
+class Class_Filter_State extends Class_ORM {
 	public $id_column = "id";
 	public $has_one = array(
 		"user" => "zesk\\User"

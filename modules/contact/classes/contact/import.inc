@@ -219,7 +219,7 @@ abstract class Contact_Import extends Options {
 				continue;
 			}
 			foreach ($items as $item) {
-				$object = Object::factory($contact_class, $item);
+				$object = ORM::factory($contact_class, $item);
 				if (array_key_exists('Label', $item)) {
 					$object->label = $this->registerLabel($object, $item['Label']);
 				}

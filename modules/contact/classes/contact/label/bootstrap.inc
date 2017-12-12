@@ -112,7 +112,7 @@ class Contact_Label_Bootstrap {
 				Contact_Label::LabelType_Date
 			)
 		);
-		if (!Object::class_table_exists('Contact_Label_Group') || !Object::class_table_exists('Contact_Label')) {
+		if (!ORM::class_table_exists('Contact_Label_Group') || !ORM::class_table_exists('Contact_Label')) {
 			return "";
 		}
 		$result = array();

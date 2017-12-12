@@ -15,13 +15,13 @@ namespace zesk;
  *
  * @author kent
  */
-class Preference extends Object {
+class Preference extends ORM {
 	const type_class = "zesk\\Preference_Type";
 	
 	/**
 	 * Store - check requirements
 	 *
-	 * @see Object::store()
+	 * @see ORM::store()
 	 * @return boolean
 	 */
 	function store() {
@@ -165,7 +165,7 @@ class Preference extends Object {
 				->execute();
 			return $result['id'];
 		}
-		return $app->object_factory(__CLASS__, array(
+		return $app->orm_factory(__CLASS__, array(
 			'type' => $type,
 			'value' => $value,
 			"user" => $user

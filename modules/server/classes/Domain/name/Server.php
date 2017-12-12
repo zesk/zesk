@@ -6,7 +6,7 @@ namespace zesk;
  * @author kent
  *
  */
-class Domain_Name_Server extends Object {}
+class Domain_Name_Server extends ORM {}
 
 /*
 object(stdClass)#1 (9) {

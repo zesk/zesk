@@ -79,7 +79,7 @@ class World_Bootstrap_Province extends Options {
 		$province_class = __NAMESPACE__ . '\\' . 'Province';
 		$country_class = __NAMESPACE__ . '\\' . 'Country';
 		
-		$x = $application->object_factory($province_class);
+		$x = $application->orm_factory($province_class);
 		if ($this->option_bool("drop")) {
 			$x->database()->query('TRUNCATE ' . $x->table());
 		}
@@ -89,7 +89,7 @@ class World_Bootstrap_Province extends Options {
 			"CA" => self::_province_ca()
 		);
 		foreach ($countries as $country_code => $map) {
-			$country = $application->object_factory($country_class, array(
+			$country = $application->orm_factory($country_class, array(
 				'code' => $country_code
 			))->find();
 			if (!$country) {
@@ -97,7 +97,7 @@ class World_Bootstrap_Province extends Options {
 			}
 			if ($this->is_included($country)) {
 				foreach ($map as $name => $code) {
-					$application->object_factory($province_class, array(
+					$application->orm_factory($province_class, array(
 						"country" => $country,
 						"code" => strtoupper($code),
 						"name" => $name

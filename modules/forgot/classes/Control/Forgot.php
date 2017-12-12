@@ -100,7 +100,7 @@ class Control_Forgot extends Control_Edit {
 			return false;
 		}
 		/* @var $user User */
-		$this->auth_user = $this->object_factory("zesk\\User")->login($this->object->login)->find();
+		$this->auth_user = $this->orm_factory("zesk\\User")->login($this->object->login)->find();
 		$this->auth_user = $this->call_hook_arguments("find_user", array(
 			$this->auth_user
 		), $this->auth_user);

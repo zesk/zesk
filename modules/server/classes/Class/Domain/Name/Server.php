@@ -9,7 +9,7 @@ namespace zesk;
  * @author kent
  *
  */
-class Class_Domain_Name_Server extends Class_Object {
+class Class_Domain_Name_Server extends Class_ORM {
 	protected $column_types = array(
 		"IP" => "ip"
 	);

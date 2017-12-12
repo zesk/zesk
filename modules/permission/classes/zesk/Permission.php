@@ -22,7 +22,7 @@ namespace zesk;
  * @property string $hook
  * @property array $options
  */
-class Permission extends Object {
+class Permission extends ORM {
 	
 	/**
 	 * 
@@ -204,7 +204,7 @@ class Permission extends Object {
 		if (array_key_exists($name, $cache)) {
 			return $cache[$name];
 		}
-		return $cache[$name] = $application->object_factory(__CLASS__, $fields)->register();
+		return $cache[$name] = $application->orm_factory(__CLASS__, $fields)->register();
 	}
 	
 	/**

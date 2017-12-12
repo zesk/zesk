@@ -24,7 +24,7 @@ class Contact_Email extends Contact_Info {
 		$this->store();
 	}
 	public static function find_email(Application $app, $email) {
-		return $app->object_factory(__CLASS__, array(
+		return $app->orm_factory(__CLASS__, array(
 			'value' => $email
 		))->find();
 	}

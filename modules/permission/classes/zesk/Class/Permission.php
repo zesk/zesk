@@ -9,9 +9,9 @@ namespace zesk;
  * @author kent
  *
  */
-class Class_Permission extends Class_Object {
+class Class_Permission extends Class_ORM {
 	/**
-	 * Object id column
+	 * ORM id column
 	 *
 	 * @var string
 	 */

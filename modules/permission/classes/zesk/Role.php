@@ -15,7 +15,7 @@ namespace zesk;
  * @see Class_Role
  * @author kent
  */
-class Role extends Object {
+class Role extends ORM {
 	/**
 	 *
 	 * @param Application $application

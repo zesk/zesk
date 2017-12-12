@@ -8,7 +8,7 @@
  */
 namespace zesk;
 
-class Contact_Label_Group extends Object {
+class Contact_Label_Group extends ORM {
 	public static function register_group($name) {
 		if (empty($name)) {
 			return null;

@@ -9,7 +9,7 @@ namespace zesk;
  * @author kent
  *
  */
-class User_Role extends Object {
+class User_Role extends ORM {
 	public function store() {
 		if ($this->member_is_empty("creator")) {
 			$this->creator = $this->application->user();

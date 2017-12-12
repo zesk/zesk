@@ -13,7 +13,7 @@ namespace zesk;
  * @author kent
  *
  */
-class Preference_Type extends Object {
+class Preference_Type extends ORM {
 	/**
 	 * Find a preference type with the given name
 	 *
@@ -26,7 +26,7 @@ class Preference_Type extends Object {
 			"name" => $name ? $name : $code_name,
 			"code" => $code_name
 		);
-		$pref = $application->object_factory(__CLASS__, $fields);
+		$pref = $application->orm_factory(__CLASS__, $fields);
 		return $pref->register();
 	}
 }

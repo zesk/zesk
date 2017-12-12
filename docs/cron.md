@@ -18,7 +18,7 @@ Specific examples of cron tasks which run within Zesk:
 
 ## Cron features
 
-Cron will run any **static function** in any class of type `zesk\Module`, `zesk\Application`, or `zesk\Object` which has the one of the following function names:
+Cron will run any **static function** in any class of type `zesk\Module`, `zesk\Application`, or `zesk\ORM` which has the one of the following function names:
 
 - `cron` - Runs every cron run, on all servers
 - `cron_minute` - Runs every minute, on all servers
@@ -39,7 +39,7 @@ All methods take a single parameter, the application. If you know your cron task
 
 These methods should be declared as
 
-	class Vehicle extends Object {
+	class Vehicle extends ORM {
 		public static function cron(zesk\Application $application) {
 		
 		}
@@ -51,7 +51,7 @@ The suffix indicates the frequency that the cron task will be run.
 
 So, if I have an object, which requires regular maintenance or checking, I could write:
 
-	class Automobile extends Object {
+	class Automobile extends ORM {
 		...
 		public static function cron_cluster_month(zesk\Application $application) {
 			foreach ($application->query_select("Automobile")->where("IsActive", true)->object_iterator() as $auto) {

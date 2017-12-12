@@ -22,7 +22,7 @@ namespace zesk;
  * @property timestamp $show_recent
  * @property integer $show_count
  */
-class Help extends Object {
+class Help extends ORM {
 	public function show() {
 		$query = $this->query_update();
 		$query->value('*show_first', $query->sql()

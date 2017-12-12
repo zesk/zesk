@@ -43,8 +43,9 @@ class Module extends Hookable {
 	protected $path = null;
 	
 	/**
-	 * List of associated Object classes
-	 *
+	 * List of associated  classes
+	 * 
+	 * @deprecated 2017-12 Use $orm_classes instead
 	 * @var array
 	 */
 	protected $object_classes = array();
@@ -58,6 +59,13 @@ class Module extends Hookable {
 	 */
 	protected $object_aliases = array();
 	
+	/**
+	 * List of associated  classes
+	 *
+	 * @var array
+	 */
+	protected $orm_classes = array();
+		
 	/**
 	 *
 	 * @ignore
@@ -157,7 +165,7 @@ class Module extends Hookable {
 	 * @return string[]
 	 */
 	public function classes() {
-		return $this->object_classes;
+		return array_merge($this->orm_classes, $this->object_classes);
 	}
 	
 	/**
@@ -165,9 +173,21 @@ class Module extends Hookable {
 	 * @param string $class
 	 * @param mixed $mixed
 	 * @param array $options
-	 * @return \zesk\Object
+	 * @return \zesk\ORM
+	 */
+	final public function orm_factory($class, $mixed = null, array $options = array()) {
+		return $this->application->orm_factory($class, $mixed, $options);
+	}
+
+	/**
+	 * @deprecated 2017-12 Blame PHP 7.2
+	 * @param string $class
+	 * @param mixed $mixed
+	 * @param array $options
+	 * @return \zesk\ORM
 	 */
 	final public function object_factory($class, $mixed = null, array $options = array()) {
-		return $this->application->object_factory($class, $mixed, $options);
+		$this->application->deprecated();
+		return $this->application->orm_factory($class, $mixed, $options);
 	}
 }

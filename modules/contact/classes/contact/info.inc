@@ -12,7 +12,7 @@ namespace zesk;
  * Contact_Info
  * @property \zesk\Contact $contact
  */
-abstract class Contact_Info extends Object {
+abstract class Contact_Info extends ORM {
 	
 	/**
 	 * @see Contact_Label::LabelType_Foo
@@ -28,7 +28,7 @@ abstract class Contact_Info extends Object {
 	 */
 	private function _update_contact() {
 		// 		if ($this->class->contact_object_field !== null) {
-		// 			$table = Object::class_table_name('Contact');
+		// 			$table = ORM::class_table_name('Contact');
 		// 			$this->query_update()->values(array(
 		// 				$this->class->contact_object_field => $this->id()
 		// 			))->where(array(
@@ -43,7 +43,7 @@ abstract class Contact_Info extends Object {
 	 * @todo
 	 * 
 	 * {@inheritDoc}
-	 * @see \zesk\Object::store()
+	 * @see \zesk\ORM::store()
 	 */
 	public function store() {
 		$result = parent::store();
@@ -58,7 +58,7 @@ abstract class Contact_Info extends Object {
 	 * Effective no-op
 	 * 
 	 * {@inheritDoc}
-	 * @see \zesk\Object::register()
+	 * @see \zesk\ORM::register()
 	 */
 	public function register($where = null) {
 		$result = parent::register($where);

@@ -69,27 +69,27 @@ class Options_Duplicate extends Options {
 	}
 	
 	/**
-	 * Object $old is now $new in new object, so map appropriate fields
+	 *  $old is now $new in new object, so map appropriate fields
 	 * 
 	 * @param string $member
-	 * @param Object $old
-	 * @param Object $new
+	 * @param  $old
+	 * @param  $new
 	 * @return self
 	 */
-	public function map($member, Object $old, Object $new) {
+	public function map($member,  $old,  $new) {
 		$this->map[$member][$old->id()] = $new->id();
 		return $this;
 	}
 	
 	/**
-	 * Apply Options_Duplicate to Object
+	 * Apply Options_Duplicate to 
 	 *
 	 * Sets all inherited members, and maps all object IDs from one copy to another
 	 *
-	 * @param Object $object
+	 * @param  $object
 	 * @return self
 	 */
-	public function process_duplicate(Object $object) {
+	public function process_duplicate( $object) {
 		$members = array();
 		foreach ($this->members as $member => $new_value) {
 			if ($object->has_member($member)) {

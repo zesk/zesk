@@ -299,7 +299,7 @@ class Widget extends Hookable {
 	/**
 	 * Retrieve the class object for this widget
 	 *
-	 * @return zesk\Class_Object
+	 * @return zesk\Class_ORM
 	 */
 	function class_object() {
 		return $this->application->class_object($this->class);
@@ -512,13 +512,26 @@ class Widget extends Hookable {
 	
 	/**
 	 * Create an object in the application context
-	 *
+	 * 
+	 * @deprecated 2017-12
 	 * @param string $class
 	 * @param mixed $mixed
 	 * @param array $options
 	 */
 	public function object_factory($class, $mixed = null, array $options = array()) {
-		return $this->application->object_factory($class, $mixed, $options);
+		$this->application->deprecated();
+		return $this->model_factory($class, $mixed, $options);
+	}
+	
+	/**
+	 * Create a model in the application context
+	 *
+	 * @param string $class
+	 * @param mixed $mixed
+	 * @param array $options
+	 */
+	public function model_factory($class, $mixed = null, array $options = array()) {
+		return $this->application->model_factory($class, $mixed, $options);
 	}
 	
 	/**
@@ -758,7 +771,7 @@ class Widget extends Hookable {
 		}
 		try {
 			return $this->object->get($column, $this->default_value());
-		} catch (Exception_Object_NotFound $e) {
+		} catch (Exception_ORM_NotFound $e) {
 			return null;
 		}
 	}

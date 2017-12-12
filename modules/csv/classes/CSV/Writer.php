@@ -188,15 +188,15 @@ class CSV_Writer extends CSV {
 	/**
 	 * Enter description here...
 	 *
-	 * @param string $name Name of an existing object map (createObjectMap)
-	 * @param array $fields Object to write to row
+	 * @param string $name Name of an existing object map 
+	 * @param array $fields ORM to write to row
 	 * @return array Written row
-	 * @see createObjectMap
+	 * @see createORMMap
 	 */
 	function set_object($name, $fields) {
 		$lowname = strtolower($name);
 		if (!isset($this->WriteMapGroup[$lowname])) {
-			throw new Exception_Key("CSV::setObject($name) doesn't exist");
+			throw new Exception_Key("CSV::set_object($name) doesn't exist");
 		}
 		
 		$g = $this->WriteMapGroup[$lowname];

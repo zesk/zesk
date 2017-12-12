@@ -2,7 +2,7 @@
 /**
  * 
  */
-use zesk\Object;
+use zesk\ORM;
 use zesk\Database_Query_Select;
 
 /**
@@ -18,24 +18,24 @@ class Module_Ordering extends zesk\Module {
 	 * @see Module::initialize()
 	 */
 	public function initialize() {
-		$this->application->hooks->add(Object::class . '::pre_insert', array(
+		$this->application->hooks->add(ORM::class . '::pre_insert', array(
 			$this,
 			'object_pre_insert'
 		));
 	}
 	/**
-	 * @param Object $object
+	 * @param ORM $object
 	 * @return zesk\Database_Query_Select
 	 */
-	private function query_ordering(Object $object) {
+	private function query_ordering(ORM $object) {
 		return $object->call_hook("query_ordering", $object->query_select("X"));
 	}
 	/**
 	 * Name of the column used for ordering (must be an integer field)
-	 * @param Object $object
+	 * @param ORM $object
 	 * @return string
 	 */
-	private function order_column(Object $object) {
+	private function order_column(ORM $object) {
 		return $object->class_option('order_column', $this->option('default_order_column', 'order_index'));
 	}
 	/**
@@ -45,11 +45,11 @@ class Module_Ordering extends zesk\Module {
 	 *
 	 * Uses an ordering/weight column in $object to reorder. Updates
 	 *
-	 * @param Object $object Object to move
+	 * @param ORM $object ORM to move
 	 * @param mixed $previous_id ID of object which, after updating, will be before $object in the list
 	 * @param mixed $next_id ID of object which, after updating, will be after $object in the list
 	 */
-	public function move(Object $object, $previous_id, $next_id) {
+	public function move(ORM $object, $previous_id, $next_id) {
 		$query = $this->query_ordering($object);
 		$order_column = $this->order_column($object);
 		$id_column = $object->id_column();
@@ -81,13 +81,13 @@ class Module_Ordering extends zesk\Module {
 	}
 	
 	/**
-	 * Implements Object::hook_pre_insert
+	 * Implements ORM::hook_pre_insert
 	 *
-	 * @param Object $object
+	 * @param ORM $object
 	 * @param array $members
 	 * @return array
 	 */
-	public function object_pre_insert(Object $object, array $members) {
+	public function object_pre_insert(ORM $object, array $members) {
 		$order_column = $this->order_column($object);
 		if ($object->has_member($order_column) && $object->member_is_empty($order_column)) {
 			list($func, $delta) = $object->option_bool("ordering_first") ? array(

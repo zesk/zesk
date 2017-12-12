@@ -1,2 +1,2 @@
 <?php
-class Class_Workflow extends zesk\Class_Object {}
+class Class_Workflow extends zesk\Class_ORM {}

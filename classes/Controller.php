@@ -311,8 +311,8 @@ class Controller extends Hookable implements Interface_Theme {
 	 *
 	 * @return Object
 	 */
-	public function object_factory($class, $mixed = null, array $options = array()) {
-		return $this->application->object_factory($class, $mixed, $options);
+	public function orm_factory($class, $mixed = null, array $options = array()) {
+		return $this->application->orm_factory($class, $mixed, $options);
 	}
 	
 	/**

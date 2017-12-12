@@ -14,7 +14,7 @@ namespace zesk;
  * @see Class_Content_Article
  * @author kent
  */
-class Content_Article extends Object {
+class Content_Article extends ORM {
 	
 	/**
 	 * 
@@ -38,7 +38,7 @@ class Content_Article extends Object {
 	/**
 	 * 
 	 * {@inheritDoc}
-	 * @see Object::store()
+	 * @see ORM::store()
 	 */
 	function store() {
 		if (empty($this->parent)) {

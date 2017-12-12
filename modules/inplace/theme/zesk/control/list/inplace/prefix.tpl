@@ -3,7 +3,7 @@ namespace zesk;
 
 /* @var $parent Widget */
 $parent = $this->widget->parent();
-/* @var $class_object Class_Object */
+/* @var $class_object Class_ORM */
 $class_object = $this->list_class_object;
 
 $name = __($class_object->name);

@@ -71,7 +71,7 @@ class Control_Select_Object_Dynamic extends Control_Select_Object {
 	/**
 	 * 
 	 * {@inheritDoc}
-	 * @see Control_Select_Object::initialize()
+	 * @see Control_Select_ORM::initialize()
 	 */
 	public function initialize() {
 		$this->control = new Control_Text($this->option());

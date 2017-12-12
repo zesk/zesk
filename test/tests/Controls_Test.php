@@ -186,7 +186,7 @@ class Controls_Test extends Test_Widget {
 		$db->query("DROP TABLE IF EXISTS $table");
 	}
 }
-class Class_Test_COLT_Object extends Class_Object {
+class Class_Test_COLT_Object extends Class_ORM {
 	public $table = 'Test_COLT_Object';
 	public $id_column = "ID";
 	public $column_types = array(
@@ -194,12 +194,12 @@ class Class_Test_COLT_Object extends Class_Object {
 		'Foo' => self::type_string
 	);
 }
-class Test_COLT_Object extends Object {
+class Test_COLT_Object extends ORM {
 	function schema() {
 		return "CREATE TABLE `" . $this->table() . "` ( ID int(11) unsigned PRIMARY KEY AUTO_INCREMENT NOT NULL, Foo varchar(23) NOT NULL )";
 	}
 }
-class Class_Test_COL_Object extends Class_Object {
+class Class_Test_COL_Object extends Class_ORM {
 	public $table = __CLASS__;
 	public $id_column = "ID";
 	public $column_types = array(
@@ -207,5 +207,5 @@ class Class_Test_COL_Object extends Class_Object {
 		'Foo' => self::type_string
 	);
 }
-class Test_COL_Object extends Object {}
+class Test_COL_Object extends ORM {}
 

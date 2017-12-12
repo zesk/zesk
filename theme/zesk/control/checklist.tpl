@@ -13,7 +13,7 @@ if (count($this->children) === 0) {
 }
 
 $name = $widget->name();
-/* @var $object Object */
+/* @var $object ORM */
 $object = $this->object;
 
 echo HTML::input_hidden($name . '_sv', 1);

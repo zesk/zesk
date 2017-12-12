@@ -24,7 +24,7 @@ namespace zesk;
  * @property array $backtrace
  * @property array $data
  */
-class Health_Event extends Object {
+class Health_Event extends ORM {
 	
 	/**
 	 * 
@@ -35,7 +35,7 @@ class Health_Event extends Object {
 	/**
 	 * 
 	 * {@inheritDoc}
-	 * @see Object::store()
+	 * @see ORM::store()
 	 */
 	public function store() {
 		if ($this->member_is_empty('when_msec')) {
@@ -133,7 +133,7 @@ class Health_Event extends Object {
 				$settings['when_msec'] = $settings['msec'];
 				unset($settings['msec']);
 			}
-			$event = $application->object_factory(__CLASS__);
+			$event = $application->orm_factory(__CLASS__);
 			if ($event->initialize($settings)
 				->collate()
 				->store()

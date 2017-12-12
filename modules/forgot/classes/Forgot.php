@@ -18,7 +18,7 @@ namespace zesk;
  * @property Timestamp $updated
  * @see Schema_Forgot
  */
-class Forgot extends Object {
+class Forgot extends ORM {
 	/**
 	 * List of variables in email
 	 *

@@ -202,8 +202,8 @@ class Model_Settings extends Model {
 			$value = $this->_internal_get($name);
 			if (is_numeric($value) && intval($value) !== 0) {
 				try {
-					return $this->_access_cache[$name] = Object::factory($class, $value)->fetch();
-				} catch (Exception_Object_NotFound $e) {
+					return $this->_access_cache[$name] = ORM::factory($class, $value)->fetch();
+				} catch (Exception_ORM_NotFound $e) {
 				}
 				return $this->_access_cache[$name] = null;
 			}

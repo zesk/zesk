@@ -9,7 +9,7 @@ namespace zesk;
  * @author kent
  * @see User_Role
  */
-class Class_User_Role extends Class_Object {
+class Class_User_Role extends Class_ORM {
 	/**
 	 * 
 	 * @var array

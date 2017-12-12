@@ -8,7 +8,7 @@ namespace sqlite3;
  * 
  */
 use zesk\Database_Column;
-use zesk\Class_Object;
+use zesk\Class_ORM;
 use zesk\Exception_Semantics;
 
 /**
@@ -64,7 +64,7 @@ class Database_Type extends \zesk\Database_Data_Type {
 	protected $pattern_native_type = '/([a-z]+)\(([^)]*)\)( unsigned)?/';
 	
 	/*
-	 * Type Manipulation Class_Object::type_foo conversion to SQL Type
+	 * Type Manipulation Class_ORM::type_foo conversion to SQL Type
 	 */
 	public function type_set_sql_type(Database_Column $type) {
 		$type_name = $type->option("type", false);
@@ -77,7 +77,7 @@ class Database_Type extends \zesk\Database_Data_Type {
 		$is_bin = $type->option_bool("binary");
 		$size = $type->option_integer("size");
 		switch (strtolower($type_name)) {
-			case Class_Object::type_integer:
+			case Class_ORM::type_integer:
 				switch ($size) {
 					case 1:
 						$type->set_option("sql_type", "tinyint");
@@ -95,7 +95,7 @@ class Database_Type extends \zesk\Database_Data_Type {
 						$type->set_option("sql_type", "integer");
 						return true;
 				}
-			case Class_Object::type_boolean:
+			case Class_ORM::type_boolean:
 				$type->set_option("sql_type", "tinyint");
 				return true;
 			default :
