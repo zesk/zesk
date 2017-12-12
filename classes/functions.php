@@ -16,10 +16,8 @@ use zesk\Debug;
 use zesk\JSON;
 use zesk\Locale;
 use zesk\Application;
-use zesk\Configuration;
 use zesk\arr;
 use zesk\Hookable;
-use zesk\ORMIterator;
 
 /**
  * A regular expression pattern for matching email addresses anywhere (should delimit both ends in
@@ -763,12 +761,6 @@ function map($mixed, array $map, $insensitive = false, $prefix_char = "{", $suff
 				$v = JSON::encode($v);
 			}
 		} else if (is_object($v)) {
-			if ($v instanceof ORMIterator) {
-				backtrace();
-			}
-			if ($v instanceof Configuration) {
-				backtrace();
-			}
 			if (method_exists($v, '__toString')) {
 				$v = strval($v);
 			} else {

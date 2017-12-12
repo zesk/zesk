@@ -158,7 +158,7 @@ class Application extends Hookable implements Interface_Theme {
 	protected $load_modules = array();
 	
 	/**
-	 * Array of parent => child mappings for ORM creation/instantiation.
+	 * Array of parent => child mappings for model creation/instantiation.
 	 *
 	 * Allows you to set your own user class which extends \zesk\User, for example.
 	 *
@@ -208,22 +208,13 @@ class Application extends Hookable implements Interface_Theme {
 	protected $register_hooks = array();
 	
 	/**
-	 * Array of starting list of Objects which are a part of this application.
+	 * Array of starting list of ORM subclasses which are a part of this application.
 	 * Used to sync schema and generate dependency classes.
-	 * @deprecated 2017-12
+	 * @deprecated 2017-12 use hook_orm_classes instead
 	 *
 	 * @var array of string
 	 */
 	protected $object_classes = array();
-	
-	/**
-	 * Array of starting list of ORMs which are a part of this application.
-	 * Used to sync schema and generate dependency classes.
-	 *
-	 *
-	 * @var array of string
-	 */
-	protected $orm_classes = array();
 	
 	/**
 	 * Configuration files to include
@@ -791,7 +782,7 @@ class Application extends Hookable implements Interface_Theme {
 	}
 	
 	/**
-	 * @deprecated 2017-12
+	 * @deprecated 2017-12 use model_singleton
 	 * @param unknown $class
 	 * @return unknown|object|\zesk\NULL|mixed
 	 */
@@ -815,7 +806,7 @@ class Application extends Hookable implements Interface_Theme {
 	 * @param string $class
 	 * @return ORM
 	 */
-	final public function application_singleton($class) {
+	final public function model_singleton($class) {
 		$args = func_get_args();
 		$args[0] = $this;
 		$object = $this->call_hook_arguments("singleton_$class", $args, null);
@@ -851,8 +842,8 @@ class Application extends Hookable implements Interface_Theme {
 		} else {
 			$classes = array();
 		}
-		$orm_classes = array_merge($this->orm_classes, $this->object_classes);
-		$this->logger->debug("Classes from {class}->orm_classes = {value}", array(
+		$orm_classes = array_merge($this->object_classes);
+		$this->logger->debug("Classes from {class}->object_classes = {value}", array(
 			"class" => get_class($this),
 			"value" => $orm_classes
 		));
@@ -1295,7 +1286,7 @@ class Application extends Hookable implements Interface_Theme {
 	}
 	
 	/**
-	 * Synchronzie the schema
+	 * Synchronzie the schema. TODO move this elsewhere
 	 *
 	 * @return multitype:
 	 */
@@ -1852,20 +1843,6 @@ class Application extends Hookable implements Interface_Theme {
 	final public function register_class($class) {
 		$this->hooks->register_class($class);
 		return $this->classes->register($class);
-	}
-	
-	/**
-	 * Return the application root path.
-	 *
-	 * @param string $suffix
-	 *        	Optional path to add to the application path
-	 * @return string
-	 * @deprecated 2017-10
-	 * @see self::path()
-	 */
-	final public function application_root($suffix = null) {
-		$this->deprecated();
-		return $this->paths->application($suffix);
 	}
 	
 	/**
@@ -2445,6 +2422,20 @@ class Application extends Hookable implements Interface_Theme {
 	public final function class_object_database($class) {
 		$this->deprecated();
 		return $this->class_orm($class)->database();
+	}
+	
+	/**
+	 * Return the application root path.
+	 *
+	 * @param string $suffix
+	 *        	Optional path to add to the application path
+	 * @return string
+	 * @deprecated 2017-10
+	 * @see self::path()
+	 */
+	final public function application_root($suffix = null) {
+		$this->deprecated();
+		return $this->paths->application($suffix);
 	}
 }
 
