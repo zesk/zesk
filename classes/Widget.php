@@ -520,18 +520,18 @@ class Widget extends Hookable {
 	 */
 	public function object_factory($class, $mixed = null, array $options = array()) {
 		$this->application->deprecated();
-		return $this->application->orm_factory($class, $mixed, $options);
+		return $this->model_factory($class, $mixed, $options);
 	}
 	
 	/**
-	 * Create an object in the application context
+	 * Create a model in the application context
 	 *
 	 * @param string $class
 	 * @param mixed $mixed
 	 * @param array $options
 	 */
-	public function orm_factory($class, $mixed = null, array $options = array()) {
-		return $this->application->orm_factory($class, $mixed, $options);
+	public function model_factory($class, $mixed = null, array $options = array()) {
+		return $this->application->model_factory($class, $mixed, $options);
 	}
 	
 	/**
