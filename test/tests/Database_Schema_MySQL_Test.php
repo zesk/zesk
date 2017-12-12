@@ -366,7 +366,7 @@ class Database_Schema_MySQL_Test extends Test_Unit {
 		echo basename(__FILE__) . ": Success.\n";
 	}
 }
-class Class_DBSchemaTest4 extends Class_Object {
+class Class_DBSchemaTest4 extends Class_ORM {
 	public function initialize() {
 		parent::initialize();
 		$this->table = DBSchemaTest4::$test_table;
@@ -378,7 +378,7 @@ class Class_DBSchemaTest4 extends Class_Object {
 		"Name" => self::type_string
 	);
 }
-class DBSchemaTest4 extends Object {
+class DBSchemaTest4 extends ORM {
 	public static $test_table = "";
 	public static $test_table2 = "";
 	function schema() {
@@ -404,7 +404,7 @@ class DBSchemaTest4 extends Object {
 		INSERT INTO $table ( Depth, CodeName, Name ) VALUES ( 3, 'foo', 'bar');";
 	}
 }
-class Class_DBSchemaTest5 extends Class_Object {
+class Class_DBSchemaTest5 extends Class_ORM {
 	public function initialize() {
 		parent::initialize();
 		$this->table = DBSchemaTest5::$test_table;
@@ -420,7 +420,7 @@ class Class_DBSchemaTest5 extends Class_Object {
 		"LastUsed" => self::type_timestamp
 	);
 }
-class DBSchemaTest5 extends Object {
+class DBSchemaTest5 extends ORM {
 	public static $test_table = null;
 	function schema() {
 		return "CREATE TABLE `{table}` (
@@ -438,7 +438,7 @@ class DBSchemaTest5 extends Object {
 		);";
 	}
 }
-class Class_DBSchemaTest6 extends Class_Object {
+class Class_DBSchemaTest6 extends Class_ORM {
 	public $column_types = array(
 		"ID" => self::type_id,
 		"Hash" => self::type_string,
@@ -457,7 +457,7 @@ class Class_DBSchemaTest6 extends Class_Object {
 		$this->table = DBSchemaTest6::$test_table;
 	}
 }
-class DBSchemaTest6 extends Object {
+class DBSchemaTest6 extends ORM {
 	public static $test_table = null;
 	function schema() {
 		return "CREATE TABLE `{table}` (
@@ -478,7 +478,7 @@ class DBSchemaTest6 extends Object {
 		);";
 	}
 }
-class Class_DBSchemaTest7 extends Class_Object {
+class Class_DBSchemaTest7 extends Class_ORM {
 	public $column_types = array(
 		"ID" => self::type_id,
 		"Hash" => self::type_string,
@@ -497,7 +497,7 @@ class Class_DBSchemaTest7 extends Class_Object {
 		$this->table = DBSchemaTest7::$test_table;
 	}
 }
-class DBSchemaTest7 extends Object {
+class DBSchemaTest7 extends ORM {
 	public static $test_table = null;
 	function schema() {
 		return "CREATE TABLE `{table}` (
@@ -519,7 +519,7 @@ class DBSchemaTest7 extends Object {
 	);";
 	}
 }
-class Class_DBSchemaTest8 extends Class_Object {
+class Class_DBSchemaTest8 extends Class_ORM {
 	public $column_types = array(
 		"ID" => self::type_id,
 		"Hash" => self::type_string,
@@ -530,7 +530,7 @@ class Class_DBSchemaTest8 extends Class_Object {
 		$this->table = DBSchemaTest8::$test_table;
 	}
 }
-class DBSchemaTest8 extends Object {
+class DBSchemaTest8 extends ORM {
 	public static $test_table = null;
 	function schema() {
 		return "CREATE TABLE `{table}` (

@@ -1,7 +1,7 @@
 <?php
 namespace zesk;
 
-class Class_Database_Snapshot extends Class_Object {
+class Class_Database_Snapshot extends Class_ORM {
 	public $id_column = "id";
 	public $column_types = array(
 		'id' => self::type_id,

@@ -19,7 +19,7 @@ namespace zesk;
  * @property string $dialect
  * @property string $name
  */
-class Language extends Object {
+class Language extends ORM {
 	public function locale_string() {
 		if ($this->member_is_empty("dialect")) {
 			return strtolower($this->code);

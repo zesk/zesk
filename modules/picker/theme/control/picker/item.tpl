@@ -1,7 +1,7 @@
 <?php
 use zesk\HTML;
 
-/* @var $object Object */
+/* @var $object ORM */
 $object = $this->object;
 $id = $object->id();
 echo HTML::div(HTML::add_class(array(

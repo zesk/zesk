@@ -28,7 +28,7 @@ namespace zesk;
  * @property array $data
  * @property string $status
  */
-class Job extends Object implements Interface_Process, Interface_Progress {
+class Job extends ORM implements Interface_Process, Interface_Progress {
 	/**
 	 *
 	 * @var integer
@@ -117,7 +117,7 @@ class Job extends Object implements Interface_Process, Interface_Progress {
 			"priority" => $priority,
 			"hook_args" => $arguments
 		);
-		$job = $application->object_factory(__CLASS__, $members);
+		$job = $application->orm_factory(__CLASS__, $members);
 		$job->find();
 		return $job->set_member($members)->store();
 	}
@@ -130,7 +130,7 @@ class Job extends Object implements Interface_Process, Interface_Progress {
 	 */
 	public static function mock_run(Application $application, $id, array $options = array()) {
 		/* @var $job Job */
-		$job = $application->object_factory(__CLASS__, $id)->fetch();
+		$job = $application->orm_factory(__CLASS__, $id)->fetch();
 		$process = new Process_Mock($application, $options);
 		return $job->execute($process);
 	}
@@ -297,7 +297,7 @@ class Job extends Object implements Interface_Process, Interface_Progress {
 					continue;
 				}
 				// We got it. Update our members so it reflects what's in the database
-				$job = $application->object_factory(__CLASS__, $job->id)->fetch();
+				$job = $application->orm_factory(__CLASS__, $job->id)->fetch();
 				if ($job) {
 					$found_job = true;
 					$logger->info("Server ID # {id}: Running Job # {job_id} - {job_name}", array(
@@ -556,7 +556,7 @@ class Job extends Object implements Interface_Process, Interface_Progress {
 	 *
 	 * @param string $mixed        	
 	 * @param mixed $value        	
-	 * @return \zesk\Object|mixed
+	 * @return \zesk\ORM|mixed
 	 */
 	public function data($mixed = null, $value = null) {
 		return $this->member_data("data", $mixed, $value);

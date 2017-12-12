@@ -315,7 +315,7 @@ class Database_Query_Select extends Database_Query_Select_Base {
 	 */
 	function join_object($join_type, $class, $alias = null, array $on, $table = null) {
 		$object = null;
-		if ($class instanceof Object) {
+		if ($class instanceof ORM) {
 			$object = $class;
 			$class = get_class($class);
 		} else {
@@ -403,7 +403,7 @@ class Database_Query_Select extends Database_Query_Select_Base {
 		}
 		return $object->link_walk($this, $mixed);
 		
-		//		return Object::cache_object($class)->link($this, $mixed);
+		//		return ORM::cache_object($class)->link($this, $mixed);
 	}
 	
 	/**
@@ -506,7 +506,7 @@ class Database_Query_Select extends Database_Query_Select_Base {
 	 * @return string
 	 */
 	function title() {
-		/* @var $class Class_Object */
+		/* @var $class Class_ORM */
 		$class_name = $this->class;
 		$class = $this->object_cache($class_name)->class_object();
 		$map = array(

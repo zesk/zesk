@@ -24,7 +24,7 @@ namespace zesk;
  * @property integer $width
  * @property integer $height
  */
-class Content_Image extends Object {
+class Content_Image extends ORM {
 	/**
 	 * Register from a known file - will copy to database
 	 *
@@ -43,7 +43,7 @@ class Content_Image extends Object {
 			}
 			$members['path'] = basename($path);
 		}
-		$image = $application->object_factory(__CLASS__, $members);
+		$image = $application->orm_factory(__CLASS__, $members);
 		return $register ? $image->register() : $image->store();
 	}
 	public function is_portrait() {
@@ -74,7 +74,7 @@ class Content_Image extends Object {
 		$add = array();
 		if ($get_data) {
 			$add = array(
-				'data' => $this->object_factory('Content_Data')->initialize(arr::kunprefix($result, "data_", true), true)
+				'data' => $this->orm_factory('Content_Data')->initialize(arr::kunprefix($result, "data_", true), true)
 			);
 		}
 		return $add + arr::kunprefix($result, "image_", true);
@@ -89,7 +89,7 @@ class Content_Image extends Object {
 	/**
 	 * (non-PHPdoc)
 	 *
-	 * @see Object::store()
+	 * @see ORM::store()
 	 */
 	function store() {
 		$this->_update_sizes();

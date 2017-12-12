@@ -11,20 +11,20 @@ namespace zesk;
  * @author kent
  *
  */
-class PolyGlot_Update extends Object {
+class PolyGlot_Update extends ORM {
 	/**
 	 *
 	 * @param unknown $locale
 	 * @param User $user
-	 * @return \zesk\Object
+	 * @return \zesk\ORM
 	 */
 	public static function register_update(Application $application, $locale, User $user = null) {
-		$object = $application->object_factory(__CLASS__, array(
+		$object = $application->orm_factory(__CLASS__, array(
 			"locale" => Locale::normalize($locale)
 		));
 		try {
 			$object->fetch();
-		} catch (Exception_Object_NotFound $e) {
+		} catch (Exception_ORM_NotFound $e) {
 			$object->user = $user;
 		}
 		$object->updated = "now";

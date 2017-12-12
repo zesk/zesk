@@ -10,7 +10,7 @@ abstract class Database_Data_Type {
 	public $database = null;
 	
 	/**
-	 * Object references
+	 * ORM references
 	 * @var string
 	 */
 	const sql_type_id = "id";
@@ -257,7 +257,7 @@ abstract class Database_Data_Type {
 	 */
 	/**
 	 * Given an internal type and size settings on a database column, generate the database SQL type
-	 * for the column. Uses Class_Object::type_foo constants for base type definitions.
+	 * for the column. Uses Class_ORM::type_foo constants for base type definitions.
 	 *
 	 * @param Database_Column $type
 	 */
@@ -269,42 +269,42 @@ abstract class Database_Data_Type {
 			throw new Exception_Semantics(__CLASS__ . "::type_set_sql_type(...): \"Type\" is not set! " . print_r($type, true));
 		}
 		switch (strtolower($type_name)) {
-			case Class_Object::type_id:
+			case Class_ORM::type_id:
 				$type->set_option("primary_key", true);
 				$type->set_option("sql_type", "integer");
 				$type->increment(true);
 				$type->set_option("unsigned", true);
 				return true;
-			case Class_Object::type_object:
+			case Class_ORM::type_object:
 				$type->set_option("sql_type", "integer");
 				$type->set_option("unsigned", true);
 				return true;
-			case Class_Object::type_integer:
+			case Class_ORM::type_integer:
 				$type->set_option("sql_type", "integer");
 				return true;
-			case Class_Object::type_character:
+			case Class_ORM::type_character:
 				$size = !is_numeric($size) ? 1 : $size;
 				$type->set_option("sql_type", "char($size)");
 				return true;
-			case Class_Object::type_text:
+			case Class_ORM::type_text:
 				$type->set_option("sql_type", "text");
 				return true;
 			case "varchar":
 				zesk()->deprecated();
 			// fall through
-			case Class_Object::type_string:
+			case Class_ORM::type_string:
 				if (!is_numeric($size)) {
 					$type->set_option("sql_type", $is_bin ? "blob" : "text");
 				} else {
 					$type->set_option("sql_type", $is_bin ? "varbinary($size)" : "varchar($size)");
 				}
 				return true;
-			case Class_Object::type_boolean:
+			case Class_ORM::type_boolean:
 				$type->set_option("sql_type", "bit(1)");
 				return true;
 			case "varbinary":
-			case Class_Object::type_serialize:
-			case Class_Object::type_binary:
+			case Class_ORM::type_serialize:
+			case Class_ORM::type_binary:
 				if (!is_numeric($size)) {
 					$type->set_option("sql_type", "blob");
 				} else {
@@ -312,32 +312,32 @@ abstract class Database_Data_Type {
 				}
 				$type->binary(true);
 				return true;
-			case Class_Object::type_byte:
+			case Class_ORM::type_byte:
 				$type->set_option("sql_type", "tinyint(1)");
 				$type->set_option("Unsigned", true);
 				return true;
-			case Class_Object::type_decimal:
+			case Class_ORM::type_decimal:
 				$intP = $type->first_option("integer_precision", 10);
 				$decP = $type->first_option("decimal_precision", 2);
 				$width = $intP + $decP;
 				$type->set_option("sql_type", "decimal($width,$decP)");
 				return true;
-			case Class_Object::type_real:
+			case Class_ORM::type_real:
 				$type->set_option("sql_type", "real");
 				return true;
-			case Class_Object::type_double:
+			case Class_ORM::type_double:
 				$type->set_option("sql_type", "double");
 				return true;
-			case Class_Object::type_date:
+			case Class_ORM::type_date:
 				$type->set_option("sql_type", "date");
 				return true;
-			case Class_Object::type_time:
+			case Class_ORM::type_time:
 				$type->set_option("sql_type", "time");
 				return true;
-			case Class_Object::type_datetime:
-			case Class_Object::type_modified:
-			case Class_Object::type_created:
-			case Class_Object::type_timestamp:
+			case Class_ORM::type_datetime:
+			case Class_ORM::type_modified:
+			case Class_ORM::type_created:
+			case Class_ORM::type_timestamp:
 				$type->set_option("sql_type", "timestamp");
 				return true;
 			case "checksum":

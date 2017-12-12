@@ -4,7 +4,7 @@ namespace zesk;
 /**
  * @see Forgot
  */
-class Class_Forgot extends Class_Object {
+class Class_Forgot extends Class_ORM {
 	public $id_column = "id";
 	public $find_keys = array(
 		'code'

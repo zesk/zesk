@@ -33,18 +33,18 @@ class Module_Object_Cache extends Module {
 			$cache,
 			"invalidate"
 		);
-		$hooks->add("zesk\Object::cache-load", array(
+		$hooks->add("zesk\ORM::cache-load", array(
 			$cache,
 			"load"
 		));
-		$hooks->add("zesk\Object::cache-save", array(
+		$hooks->add("zesk\ORM::cache-save", array(
 			$cache,
 			"save"
 		));
-		$hooks->add("zesk\Object::cache-dirty", $invalidate);
-		$hooks->add("zesk\Object::insert", $invalidate);
-		$hooks->add("zesk\Object::delete", $invalidate);
-		$hooks->add("zesk\Object::update", $invalidate);
+		$hooks->add("zesk\ORM::cache-dirty", $invalidate);
+		$hooks->add("zesk\ORM::insert", $invalidate);
+		$hooks->add("zesk\ORM::delete", $invalidate);
+		$hooks->add("zesk\ORM::update", $invalidate);
 	}
 }
 

@@ -26,7 +26,7 @@ class Control_Settings extends Control {
 	 * @see Widget::model()
 	 */
 	public function model() {
-		return $this->application->objects->factory(__NAMESPACE__ . "\\Model_Settings");
+		return $this->application->model_factory(__NAMESPACE__ . "\\Model_Settings");
 	}
 	protected function initialize() {
 		if (!$this->submit_url()) {

@@ -96,7 +96,6 @@ class Control_Order extends Control {
 		$db->query("UPDATE `$table` SET `$col`=" . ($nextOrder + $delta) . " WHERE ID=$ID");
 	}
 	private function moveUpDown($ID, $verb) {
-		/* @var $object Object */
 		$table = $this->option("table", "no_table");
 		$col = $this->column();
 		if ($verb == "up") {

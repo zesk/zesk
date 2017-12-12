@@ -12,7 +12,7 @@ class Control_Button_Delete extends Control_Button {
 		return $this->user_can("delete", $this->object);
 	}
 	function theme_variables() {
-		/* @var $object Object */
+		/* @var $object Model */
 		$object = $this->object;
 		$href = $this->option('href');
 		if (!$href) {

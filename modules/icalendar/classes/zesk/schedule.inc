@@ -16,7 +16,7 @@ namespace zesk;
  * @property integer $monthday
  * @property integer $hour
  */
-class Schedule extends Object {
+class Schedule extends ORM {
 	/**
 	 * 
 	 * @param Timestamp $last

@@ -6,4 +6,4 @@
  */
 namespace zesk;
 
-class City extends Object {}
+class City extends ORM {}

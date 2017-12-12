@@ -7,7 +7,7 @@ namespace zesk;
  * @author kent
  *
  */
-class Selection_Item extends Object {
+class Selection_Item extends ORM {
 	/**
 	 * Value in "add" for items which should be removed from the query
 	 *
@@ -27,8 +27,8 @@ class Selection_Item extends Object {
 	 */
 	public function item($class) {
 		try {
-			return $this->object_factory($class, $this->id)->fetch();
-		} catch (Exception_Object_NotFound $e) {
+			return $this->orm_factory($class, $this->id)->fetch();
+		} catch (Exception_ORM_NotFound $e) {
 			return null;
 		}
 	}
@@ -40,7 +40,7 @@ class Selection_Item extends Object {
 	 * @param array $mapping
 	 */
 	public static function copy_duplicate(Application $application, $old_type, $new_type, array $mapping) {
-		/* @var $class Class_Object */
+		/* @var $class Class_ORM */
 		$members = $application->class_object(__CLASS__)->column_types;
 		unset($members['type']);
 		$what = arr::flip_copy(array_keys($members));

@@ -173,7 +173,7 @@ class Control_Edit extends Control {
 	 * @see Widget::model()
 	 */
 	function model() {
-		return $this->object_factory($this->_class());
+		return $this->orm_factory($this->_class());
 	}
 	
 	/**
@@ -276,7 +276,7 @@ class Control_Edit extends Control {
 		return $set === null ? $this->option(self::option_duplicate_message) : $this->set_option(self::option_duplicate_message, $set);
 	}
 	private function _get_duplicate_message() {
-		$message = $this->option(self::option_duplicate_message, 'Another {Class_Object::name} with the same name already exists.');
+		$message = $this->option(self::option_duplicate_message, 'Another {_class_name} with the same name already exists.');
 		$message = $this->call_hook_arguments("duplicate_message", array(
 			$message
 		), $message);
@@ -296,7 +296,7 @@ class Control_Edit extends Control {
 		} catch (Database_Exception_Duplicate $dup) {
 			$this->error($this->_get_duplicate_message());
 			return $this->call_hook_arguments("store_failed", array(), false);
-		} catch (Exception_Object_Duplicate $dup) {
+		} catch (Exception_ORM_Duplicate $dup) {
 			$this->error($this->_get_duplicate_message());
 			return $this->call_hook_arguments("store_failed", array(), false);
 		}

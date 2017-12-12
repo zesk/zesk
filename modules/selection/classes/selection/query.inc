@@ -11,7 +11,7 @@ namespace zesk;
  * @author kent
  *
  */
-class Selection_Query extends Object {
+class Selection_Query extends ORM {
 	
 	/**
 	 * Fetch or create a query
@@ -23,7 +23,7 @@ class Selection_Query extends Object {
 	 */
 	public static function instance(Selection_Type $type, Database_Query_Select $total, Database_Query_Select $list) {
 		$code = md5(serialize(strval($list)));
-		$object = $type->application->object_factory(__CLASS__, array(
+		$object = $type->application->orm_factory(__CLASS__, array(
 			"type" => $type,
 			"code" => $code
 		));

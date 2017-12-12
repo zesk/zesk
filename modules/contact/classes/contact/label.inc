@@ -11,7 +11,7 @@ namespace zesk;
  *
  * @see Class_Contact_Label
  */
-class Contact_Label extends Object {
+class Contact_Label extends ORM {
 	const LabelType_Address = 1;
 	const LabelType_Company = 2;
 	const LabelType_Date = 3;

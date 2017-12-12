@@ -6,7 +6,7 @@ namespace zesk;
  * @author kent
  *
  */
-class Class_Health_Event extends Class_Object {
+class Class_Health_Event extends Class_ORM {
 	public $id_column = "id";
 	public $has_one = array(
 		"events" => "zesk\\Health_Events",

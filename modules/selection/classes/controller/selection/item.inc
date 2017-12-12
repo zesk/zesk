@@ -9,7 +9,7 @@ namespace zesk;
  * @author kent
  *
  */
-class Controller_Selection_Item extends Controller_Object {
+class Controller_Selection_Item extends Controller_ORM {
 	protected $class = "zesk\\Selection_Item";
 	
 	/**
@@ -21,7 +21,7 @@ class Controller_Selection_Item extends Controller_Object {
 	/**
 	 * 
 	 * {@inheritDoc}
-	 * @see \zesk\Controller_Object::widget_control_classes()
+	 * @see \zesk\Controller_ORM::widget_control_classes()
 	 */
 	protected function widget_control_classes($action) {
 		if ($action === "list") {

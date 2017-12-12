@@ -6,7 +6,7 @@ namespace zesk;
  * @author kent
  *
  */
-class Class_PolyGlot_Token extends Class_Object {
+class Class_PolyGlot_Token extends Class_ORM {
 	public $id_column = "id";
 	public $has_one = array(
 		"user" => "zesk\\User"

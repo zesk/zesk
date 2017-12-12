@@ -26,7 +26,7 @@ class Database_Schema_Test extends Test_Unit {
 		Database_Schema::debug($value);
 	}
 	function test_update_objects() {
-		$object = $this->application->object_factory(__NAMESPACE__ . "\\" . "Test_Database_Schema_User");
+		$object = $this->application->orm_factory(__NAMESPACE__ . "\\" . "Test_Database_Schema_User");
 		Database_Schema::update_object($object);
 	}
 }

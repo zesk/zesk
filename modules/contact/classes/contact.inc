@@ -15,7 +15,7 @@ namespace zesk;
  * @author kent
  *
  */
-class Contact extends Object {
+class Contact extends ORM {
 	/**
 	 *
 	 * @param Application $application

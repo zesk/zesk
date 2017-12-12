@@ -8,7 +8,7 @@ namespace zesk;
  * @see Selection_Query
  * @author kent
  */
-class Class_Selection_Query extends Class_Object {
+class Class_Selection_Query extends Class_ORM {
 	public $id_column = "id";
 	public $has_one = array(
 		'type' => 'zesk\\Selection_Type'

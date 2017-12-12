@@ -1,7 +1,7 @@
 <?php
 namespace zesk;
 
-class Class_County extends Class_Object {
+class Class_County extends Class_ORM {
 	public $name = "County";
 	public $id_column = "id";
 	public $name_column = "name";

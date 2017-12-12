@@ -8,7 +8,7 @@
  */
 namespace zesk;
 
-class Class_Test_SiteMonitor extends Class_Object {
+class Class_Test_SiteMonitor extends Class_ORM {
 	public $id_column = "ID";
 	public $has_one = array(
 		'Site' => __NAMESPACE__ . "\\" . 'Test_Site'
@@ -19,8 +19,8 @@ class Class_Test_SiteMonitor extends Class_Object {
 		"Site" => self::type_object
 	);
 }
-class Test_SiteMonitor extends Object {}
-class Class_Test_Site extends Class_Object {
+class Test_SiteMonitor extends ORM {}
+class Class_Test_Site extends Class_ORM {
 	public $id_column = "ID";
 	public $has_one = array(
 		'Account' => __NAMESPACE__ . '\\' . 'Test_Account'
@@ -31,8 +31,8 @@ class Class_Test_Site extends Class_Object {
 		"Account" => self::type_object
 	);
 }
-class Test_Site extends Object {}
-class Class_Test_Account extends Class_Object {
+class Test_Site extends ORM {}
+class Class_Test_Account extends Class_ORM {
 	public $id_column = "ID";
 	public $has_one = array(
 		'Primary_Test_Site' => __NAMESPACE__ . '\\' . "Test_Site",
@@ -46,8 +46,8 @@ class Class_Test_Account extends Class_Object {
 		"Cancelled" => self::type_timestamp
 	);
 }
-class Test_Account extends Object {}
-class Class_TestPerson extends Class_Object {
+class Test_Account extends ORM {}
+class Class_TestPerson extends Class_ORM {
 	public $id_column = "PersonID";
 	public $has_many = array(
 		'Favorite_Pets' => array(
@@ -69,20 +69,20 @@ class Class_TestPerson extends Class_Object {
 		)
 	);
 	public $column_types = array(
-		'PersonID' => Class_Object::type_id,
-		"Name" => Class_Object::type_string,
-		"Parent" => Class_Object::type_object
+		'PersonID' => Class_ORM::type_id,
+		"Name" => Class_ORM::type_string,
+		"Parent" => Class_ORM::type_object
 	);
 }
-class TestPersonPet extends Object {}
-class Class_TestPersonPet extends Class_Object {
+class TestPersonPet extends ORM {}
+class Class_TestPersonPet extends Class_ORM {
 	public $column_types = array(
 		'Person' => self::type_object,
 		'Pet' => self::type_object
 	);
 }
-class TestPerson extends Object {}
-class Class_TestPet extends Class_Object {
+class TestPerson extends ORM {}
+class Class_TestPet extends Class_ORM {
 	public $id_column = "PetID";
 	public $column_types = array(
 		'PetID' => self::type_id,
@@ -90,7 +90,7 @@ class Class_TestPet extends Class_Object {
 		'Type' => self::type_object
 	);
 }
-class TestPet extends Object {}
+class TestPet extends ORM {}
 class Database_Query_Select_Links_Test extends Test_Unit {
 	protected $load_modules = array(
 		"MySQL"
@@ -210,7 +210,7 @@ WHERE `A`.`Cancelled` IS NULL';
 			"PersonID" => 1
 		));
 		
-		/* @var $iterator Object_Iterator */
+		/* @var $iterator ORMIterator */
 		$iterator = $person->Children;
 		
 		$result = strval($iterator->query());
@@ -224,7 +224,7 @@ WHERE `Children`.`Parent` = 1';
 			"PersonID" => 1
 		));
 		
-		/* @var $iterator Object_Iterator */
+		/* @var $iterator ORMIterator */
 		$iterator = $person->Pets;
 		
 		$result = strval($iterator->query());

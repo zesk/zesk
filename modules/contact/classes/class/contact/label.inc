@@ -4,7 +4,7 @@ namespace zesk;
 /**
  * @see Contact_Label
  */
-class Class_Contact_Label extends Class_Object {
+class Class_Contact_Label extends Class_ORM {
 	/**
 	 * 
 	 * @var string

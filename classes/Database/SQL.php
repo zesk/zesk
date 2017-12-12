@@ -780,7 +780,7 @@ abstract class Database_SQL extends Hookable {
 			return $this->quote_text($v);
 		} else if (is_bool($v)) {
 			return $v ? "1" : "0";
-		} else if ($v instanceof Object) {
+		} else if ($v instanceof Model) {
 			return $v->id();
 		} else if (is_object($v)) {
 			if ($v instanceof Iterator) {
@@ -800,14 +800,14 @@ abstract class Database_SQL extends Hookable {
 	/**
 	 * @return array
 	 */
-	public function to_database(Object $object, array $data, $insert = false) {
+	public function to_database(Model $object, array $data, $insert = false) {
 		return $data;
 	}
 	
 	/**
 	 * @return array
 	 */
-	public function from_database(Object $object, array $data) {
+	public function from_database(Model $object, array $data) {
 		return $data;
 	}
 }

@@ -24,7 +24,7 @@ class Control_List extends Control_Widgets_Filter {
 	
 	/**
 	 *
-	 * @var Class_Object
+	 * @var Class_ORM
 	 */
 	protected $class_object = null;
 	
@@ -239,7 +239,7 @@ class Control_List extends Control_Widgets_Filter {
 		return $set === null ? $this->option('list_default_order_by') : $this->set_option('list_default_order_by', $set);
 	}
 	protected function initialize() {
-		//$this->object = Object::cache_object($this->class);
+		//$this->object = ORM::cache_object($this->class);
 		$this->initialize_theme_paths();
 		
 		$this->class_object = $this->application->class_object($this->class);

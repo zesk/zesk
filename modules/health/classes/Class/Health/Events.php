@@ -6,10 +6,10 @@ namespace zesk;
  * @author kent
  *
  */
-class Class_Health_Events extends Class_Object {
+class Class_Health_Events extends Class_ORM {
 	
 	/**
-	 * Name of the Object which should share this database with.
+	 * Name of the ORM which should share this database with.
 	 *
 	 * Allows objects to be grouped into a database (by module) or functionality, for example.
 	 *

@@ -158,7 +158,7 @@ class Application extends Hookable implements Interface_Theme {
 	protected $load_modules = array();
 	
 	/**
-	 * Array of parent => child mappings for object creation/instantiation.
+	 * Array of parent => child mappings for ORM creation/instantiation.
 	 *
 	 * Allows you to set your own user class which extends \zesk\User, for example.
 	 *
@@ -210,11 +210,20 @@ class Application extends Hookable implements Interface_Theme {
 	/**
 	 * Array of starting list of Objects which are a part of this application.
 	 * Used to sync schema and generate dependency classes.
-	 *
+	 * @deprecated 2017-12
 	 *
 	 * @var array of string
 	 */
 	protected $object_classes = array();
+	
+	/**
+	 * Array of starting list of ORMs which are a part of this application.
+	 * Used to sync schema and generate dependency classes.
+	 *
+	 *
+	 * @var array of string
+	 */
+	protected $orm_classes = array();
 	
 	/**
 	 * Configuration files to include
@@ -582,9 +591,7 @@ class Application extends Hookable implements Interface_Theme {
 		
 		// Load hooks
 		$this->hooks->register_class(array(
-			Cache::class,
-			Database::class,
-			Settings::class
+			Database::class
 		));
 		$this->hooks->register_class($this->register_hooks);
 		
@@ -784,12 +791,31 @@ class Application extends Hookable implements Interface_Theme {
 	}
 	
 	/**
-	 * Override this in child classes to manipulate creation of these objects
-	 *
-	 * @param string $class
-	 * @return Object
+	 * @deprecated 2017-12
+	 * @param unknown $class
+	 * @return unknown|object|\zesk\NULL|mixed
 	 */
 	final public function object_singleton($class) {
+		zesk()->deprecated();
+		$args = func_get_args();
+		$args[0] = $this;
+		$object = $this->call_hook_arguments("singleton_$class", $args, null);
+		if ($object instanceof $class) {
+			return $object;
+		}
+		return $this->objects->singleton_arguments($class, $args);
+	}
+	
+	/**
+	 * Override this in child classes to manipulate creation of these objects. Creates objects which take the application
+	 * as the first parameter, and handles passing that on.
+	 * 
+	 * Also optionally calls `zesk\Application::singleton_$class`
+	 *
+	 * @param string $class
+	 * @return ORM
+	 */
+	final public function application_singleton($class) {
 		$args = func_get_args();
 		$args[0] = $this;
 		$object = $this->call_hook_arguments("singleton_$class", $args, null);
@@ -825,11 +851,12 @@ class Application extends Hookable implements Interface_Theme {
 		} else {
 			$classes = array();
 		}
-		$this->logger->debug("Classes from {class}->object_classes = {value}", array(
+		$orm_classes = array_merge($this->orm_classes, $this->object_classes);
+		$this->logger->debug("Classes from {class}->orm_classes = {value}", array(
 			"class" => get_class($this),
-			"value" => $this->object_classes
+			"value" => $orm_classes
 		));
-		$classes = $classes + arr::flip_copy($this->object_classes, true);
+		$classes = $classes + arr::flip_copy($$orm_classes, true);
 		$all_classes = $this->call_hook_arguments('classes', array(
 			$classes
 		), $classes);
@@ -851,7 +878,7 @@ class Application extends Hookable implements Interface_Theme {
 	 *
 	 * @param unknown $add
 	 */
-	final public function classes($add = null) {
+	final public function orm_classes($add = null) {
 		if ($this->cached_classes === null) {
 			$this->cached_classes = $this->_classes();
 		}
@@ -870,17 +897,17 @@ class Application extends Hookable implements Interface_Theme {
 	 * @return array
 	 */
 	final public function all_classes() {
-		$classes = $this->classes();
+		$classes = $this->orm_classes();
 		$objects_by_class = array();
 		$is_table = false;
 		$rows = array();
 		while (count($classes) > 0) {
 			$class = array_shift($classes);
-			if (!is_subclass_of($class, Object::class)) {
+			if (!is_subclass_of($class, ORM::class)) {
 				$this->logger->warning("{method} {class} is not a subclass of {parent}", array(
 					"method" => __METHOD__,
 					"class" => $class,
-					"parent" => Object::class
+					"parent" => ORM::class
 				));
 				continue;
 			}
@@ -891,7 +918,7 @@ class Application extends Hookable implements Interface_Theme {
 			$result = array();
 			$result['class'] = $class;
 			try {
-				$result['object'] = $object = $this->object_factory($class);
+				$result['object'] = $object = $this->orm_factory($class);
 				$result['database'] = $object->database_name();
 				$result['table'] = $object->table();
 			} catch (\Exception $e) {
@@ -1286,7 +1313,7 @@ class Application extends Hookable implements Interface_Theme {
 			$db = $this->database_factory();
 		}
 		if ($classes === null) {
-			$classes = $this->classes();
+			$classes = $this->orm_classes();
 		} else {
 			$options['follow'] = avalue($options, 'follow', false);
 		}
@@ -1302,7 +1329,7 @@ class Application extends Hookable implements Interface_Theme {
 		while (count($classes) > 0) {
 			$class = array_shift($classes);
 			if (stripos($class, 'user_role')) {
-				$logger->debug("{method}: Object map is: {map}", array(
+				$logger->debug("{method}: ORM map is: {map}", array(
 					"method" => __METHOD__,
 					"map" => _dump($this->objects->map()),
 					"class" => $class
@@ -1323,7 +1350,7 @@ class Application extends Hookable implements Interface_Theme {
 			$logger->debug("Parsing $class");
 			$objects_by_class[$lowclass] = true;
 			try {
-				$object = $this->object_factory($class);
+				$object = $this->orm_factory($class);
 				$object_db_name = $object->database()->code_name();
 				$updates = Database_Schema::update_object($object);
 			} catch (Exception $e) {
@@ -1423,7 +1450,7 @@ class Application extends Hookable implements Interface_Theme {
 	}
 	
 	/**
-	 * Called once before a $zesk->hooks->all_hook("zesk\\Object::method");
+	 * Called once before a $zesk->hooks->all_hook("zesk\\ORM::method");
 	 */
 	public static final function object_register_all_hooks() {
 		$app = zesk()->application();
@@ -1438,7 +1465,7 @@ class Application extends Hookable implements Interface_Theme {
 	 * @todo PHP7 Add Closure here to avoid global usage
 	 */
 	public static function hooks(Kernel $zesk) {
-		$zesk->hooks->add(__NAMESPACE__ . '\\' . 'Object::register_all_hooks', __CLASS__ . "::object_register_all_hooks");
+		$zesk->hooks->add(__NAMESPACE__ . '\\' . 'ORM::register_all_hooks', __CLASS__ . "::object_register_all_hooks");
 	}
 	
 	/**
@@ -2057,15 +2084,15 @@ class Application extends Hookable implements Interface_Theme {
 	}
 	
 	/**
-	 * Create an Object
+	 * Create an ORM
 	 *
 	 * @param string $class
 	 * @param array $options
 	 * @todo Pass application as part of creation call
-	 * @return Object
+	 * @return ORM
 	 */
-	public function object_factory($class, $mixed = null, array $options = array()) {
-		return Object::factory($this, $class, $mixed, $options);
+	public function orm_factory($class, $mixed = null, array $options = array()) {
+		return ORM::factory($this, $class, $mixed, $options);
 	}
 	
 	/**
@@ -2074,7 +2101,7 @@ class Application extends Hookable implements Interface_Theme {
 	 * @param string $class
 	 * @param array $options
 	 * @todo Pass application as part of creation call
-	 * @return Object
+	 * @return ORM
 	 */
 	public function model_factory($class, $mixed = null, array $options = array()) {
 		return Model::factory($this, $class, $mixed, $options);
@@ -2115,9 +2142,9 @@ class Application extends Hookable implements Interface_Theme {
 	/**
 	 * Access a class_object
 	 *
-	 * @return Class_Object
+	 * @return Class_ORM
 	 */
-	public function class_object($class) {
+	public function class_orm($class) {
 		return $this->_class_cache($this->objects->resolve($class), "class");
 	}
 	
@@ -2127,8 +2154,8 @@ class Application extends Hookable implements Interface_Theme {
 	 * @param string $class
 	 * @return \zesk\Database
 	 */
-	public final function class_object_database($class) {
-		return $this->class_object($class)->database();
+	public final function class_orm_database($class) {
+		return $this->class_orm($class)->database();
 	}
 	
 	/**
@@ -2137,9 +2164,9 @@ class Application extends Hookable implements Interface_Theme {
 	 * @throws Exception_Parameter
 	 */
 	public function clear_class_cache($class = null) {
-		if ($class instanceof Object) {
+		if ($class instanceof ORM) {
 			$class = get_class($class);
-		} else if ($class instanceof Class_Object) {
+		} else if ($class instanceof Class_ORM) {
 			$class = $class->class;
 		}
 		if ($class === null) {
@@ -2179,8 +2206,8 @@ class Application extends Hookable implements Interface_Theme {
 			$object = $this->objects->factory($class, $this, null, array(
 				"immutable" => true
 			));
-			if (!$object instanceof Object) {
-				throw new Exception_Semantics("$class is not an Object");
+			if (!$object instanceof ORM) {
+				throw new Exception_Semantics("$class is not an ORM");
 			}
 			$this->class_cache[$lowclass] = array(
 				'table' => $object->table(),
@@ -2196,9 +2223,9 @@ class Application extends Hookable implements Interface_Theme {
 	}
 	
 	/**
-	 * Access an Object by class name
+	 * Access an ORM by class name
 	 *
-	 * @return Object
+	 * @return ORM
 	 */
 	public final function object($class, $mixed = null, $options = null) {
 		$result = $this->_class_cache($this->objects->resolve($class), "object");
@@ -2372,6 +2399,52 @@ class Application extends Hookable implements Interface_Theme {
 	public static function instance(array $options = array()) {
 		zesk()->deprecated();
 		return zesk()->application();
+	}
+	
+	/**
+	 * @deprecated 2017-12
+	 * @param mixed $add
+	 * @see orm_classes
+	 */
+	final public function classes($add = null) {
+		$this->deprecated();
+		return $this->orm_classes($add);
+	}
+	
+	/**
+	 * Create an ORM
+	 *
+	 * @deprecated 2017-12 Blame PHP 7.2
+	 * @param string $class
+	 * @param array $options
+	 * @todo Pass application as part of creation call
+	 * @return ORM
+	 */
+	public function object_factory($class, $mixed = null, array $options = array()) {
+		$this->deprecated();
+		return ORM::factory($this, $class, $mixed, $options);
+	}
+	
+	/**
+	 * Access a class_object
+	 * @deprecated 2017-12
+	 * @return Class_ORM
+	 */
+	public function class_object($class) {
+		$this->deprecated();
+		return $this->_class_cache($this->objects->resolve($class), "class");
+	}
+	
+	/**
+	 * Retrieve the database for a specific object class
+	 *
+	 * @deprecated 2017-12
+	 * @param string $class
+	 * @return \zesk\Database
+	 */
+	public final function class_object_database($class) {
+		$this->deprecated();
+		return $this->class_orm($class)->database();
 	}
 }
 

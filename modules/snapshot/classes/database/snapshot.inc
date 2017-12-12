@@ -15,7 +15,7 @@ namespace zesk;
  * @property string $created
  * @property string $data
  */
-class Database_Snapshot extends Object {
+class Database_Snapshot extends ORM {
 	/**
 	 *
 	 * @param Application $application
@@ -46,7 +46,7 @@ class Database_Snapshot extends Object {
 			$timer = new Timer();
 			$db->dump($temp);
 			$elapsed = $timer->elapsed();
-			$snap = $app->object_factory(__CLASS__, array(
+			$snap = $app->orm_factory(__CLASS__, array(
 				'name' => __('{db_name} snapshot saved on {date}', array(
 					'db_name' => $dbname,
 					'date' => $date

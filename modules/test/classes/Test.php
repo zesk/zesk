@@ -1024,7 +1024,7 @@ class Test extends Hookable {
 	 * @param unknown_type $extra_cols
 	 * @param unknown_type $uniq
 	 */
-	final protected function test_table_object(Object $object) {
+	final protected function test_table_object(ORM $object) {
 		$this->test_table_sql($object->table(), $object->schema());
 		$object->schema_changed();
 	}

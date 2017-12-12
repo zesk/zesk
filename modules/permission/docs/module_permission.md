@@ -36,7 +36,7 @@ So, each permission name has a class associated with it. When checking permissio
 Then the parent classes of Account::view are also checked, in order:
 
 	Account::view
-	Object::view
+	ORM::view
 	Model::view
 	Hookable::view
 	Options::view
@@ -67,7 +67,7 @@ Permissions are implemented by implementing a few hooks:
 
 - `Application::permissions`
 - `Module::permissions`
-- `Object::permissions`
+- `ORM::permissions`
 
 These callbacks are implemented similarly, and should return an array structure which defines the permission for that particular object in the form:
 

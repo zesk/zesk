@@ -24,7 +24,7 @@ namespace zesk;
  *
  * @property integer $total
  */
-class Health_Events extends Object {
+class Health_Events extends ORM {
 	public function store() {
 		if ($this->member_is_empty('first_msec')) {
 			$this->first_msec = 0;

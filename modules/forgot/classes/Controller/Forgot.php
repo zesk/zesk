@@ -44,7 +44,7 @@ class Controller_Forgot extends Controller_Theme {
 			return;
 		}
 		/* @var $forgot Forgot */
-		$forgot = $this->object_factory(Forgot::class, array(
+		$forgot = $this->orm_factory(Forgot::class, array(
 			"code" => $hash
 		))->find();
 		if (!$forgot) {

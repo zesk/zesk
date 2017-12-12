@@ -1,7 +1,7 @@
 <?php
 namespace zesk;
 
-class Class_Time_Zone extends Class_Object {
+class Class_Time_Zone extends Class_ORM {
 	public $table = "time_zone_name";
 	public $database_name = "mysql";
 	public $id_column = "Time_zone_id";

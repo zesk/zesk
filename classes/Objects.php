@@ -106,7 +106,7 @@ class Objects {
 	 *        	When this class is requested, then ...
 	 * @param string $target_class
 	 *        	Use this class instead
-	 * @return \zesk\Objects
+	 * @return \zesk\ORMs
 	 */
 	public function map($requested_class = null, $target_class = null) {
 		if ($requested_class === null) {

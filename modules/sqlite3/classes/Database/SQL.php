@@ -1,8 +1,8 @@
 <?php
 namespace sqlite3;
 
-use zesk\Object;
-use zesk\Class_Object;
+use zesk\ORM;
+use zesk\Class_ORM;
 use zesk\Exception_Unimplemented;
 use zesk\Exception_Invalid;
 use zesk\Database_Table;
@@ -503,7 +503,7 @@ class Database_SQL extends \zesk\Database_SQL {
 	/**
 	 * @return array
 	 */
-	public function to_database(Object $object, array $data, $insert = false) {
+	public function to_database(ORM $object, array $data, $insert = false) {
 		if ($insert) {
 			if (is_string($auto_column = $object->class_object()->auto_column)) {
 				unset($data[$auto_column]);

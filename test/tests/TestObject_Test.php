@@ -1,11 +1,11 @@
 <?php
 namespace zesk;
 
-class TestObject_Test extends Test_Object {
+class TestORM_Test extends Test_ORM {
 	protected $load_modules = array(
 		"MySQL"
 	);
-	public static function object_tests(Object $x) {
+	public static function object_tests(ORM $x) {
 		$x->schema();
 		
 		$x->table();
@@ -154,13 +154,13 @@ class TestObject_Test extends Test_Object {
 		$x->option_list($name, $default, $delimiter);
 	}
 	function test_object() {
-		$sTable = "TestObject";
+		$sTable = "TestORM";
 		
 		$this->test_table($sTable);
 		
 		$mixed = null;
 		$options = false;
-		$x = new TestObject($this->application, $mixed, $options);
+		$x = new TestORM($this->application, $mixed, $options);
 		
 		$this->object_tests($x);
 		
@@ -171,16 +171,16 @@ class TestObject_Test extends Test_Object {
 	 * @no_test
 	 * @expectedException Exception_Semantics
 	 *
-	 * @param Object $object
+	 * @param ORM $object
 	 */
-	function test_object_ordering_fail(Object $object) {
+	function test_object_ordering_fail(ORM $object) {
 		$id0 = null;
 		$id1 = null;
 		$order_column = 'OrderIndex';
 		$object->reorder($id0, $id1, $order_column);
 	}
 }
-class Class_TestObject extends Class_Object {
+class Class_TestORM extends Class_ORM {
 	public $id_column = "ID";
 	public $column_types = array(
 		"ID" => self::type_id,
@@ -189,7 +189,7 @@ class Class_TestObject extends Class_Object {
 		'Foo' => self::type_integer
 	);
 }
-class TestObject extends Object {
+class TestORM extends ORM {
 	function schema() {
 		$table = $this->table;
 		return array(

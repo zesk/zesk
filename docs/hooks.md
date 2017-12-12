@@ -102,7 +102,7 @@ registering your class will you be able to be called at the appropriate place.
 		}
 	}
 	
-	$product = Object::factory('Product')->fetch(23);
+	$product = ORM::factory('Product')->fetch(23);
 	zesk()->hooks->call_all("Module::add_to_cart", $product);
 	
 Calls method "add_to_cart" in all classes of type "Module" (if the method exists)

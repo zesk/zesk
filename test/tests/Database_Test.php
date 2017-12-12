@@ -775,14 +775,14 @@ class Database_Test extends Test_Unit {
 		$db->url($name, $url, $is_default);
 	}
 }
-class Class_DBQueryObjectTest extends Class_Object {
+class Class_DBQueryObjectTest extends Class_ORM {
 	public $id_column = "id";
 	public $column_types = array(
 		"id" => self::type_id,
 		"foo" => self::type_string
 	);
 }
-class DBQueryObjectTest extends Object {
+class DBQueryObjectTest extends ORM {
 	function validate() {
 		$test = Database_Test::$test;
 		$test->assert(!$this->member_is_empty("id"));

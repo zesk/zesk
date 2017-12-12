@@ -16,7 +16,7 @@ namespace zesk;
  * @property Timestamp $created
  * @property timestamp $parsed
  */
-class Browser extends Object {
+class Browser extends ORM {
 	
 	/**
 	 * Register a browser based on a string user agent
@@ -30,7 +30,7 @@ class Browser extends Object {
 		}
 		$md5 = md5($name);
 		/* @var $browser Browser */
-		$browser = $application->object_factory(__CLASS__, array(
+		$browser = $application->orm_factory(__CLASS__, array(
 			'md5' => $md5,
 			"name" => $name
 		));

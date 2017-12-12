@@ -6,7 +6,7 @@ namespace zesk;
  * @author kent
  *
  */
-class Class_PolyGlot_Update extends Class_Object {
+class Class_PolyGlot_Update extends Class_ORM {
 	public $id_column = "locale";
 	public $auto_column = false;
 	public $column_types = array(

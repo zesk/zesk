@@ -13,7 +13,7 @@ namespace zesk;
  * @author kent
  *
  */
-class Class_Preference_Type extends Class_Object {
+class Class_Preference_Type extends Class_ORM {
 	public $id_column = "id";
 	public $column_types = array(
 		"id" => self::type_id,

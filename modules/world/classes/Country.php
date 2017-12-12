@@ -13,7 +13,7 @@ namespace zesk;
  * @property string $code
  * @property string $name
  */
-class Country extends Object {
+class Country extends ORM {
 	public static function find_country(Application $application, $mixed) {
 		if (is_numeric($mixed)) {
 			$c = new Country($application, $mixed);

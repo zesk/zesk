@@ -13,7 +13,7 @@ namespace zesk;
  * @author kent
  *
  */
-class Content_Menu extends Object {
+class Content_Menu extends ORM {
 	
 	/**
 	 * Handles ContentObjects specification details; should probably subclass

@@ -9,7 +9,7 @@ namespace zesk;
  * @author kent
  *
  */
-class Class_Help extends Class_Object {
+class Class_Help extends Class_ORM {
 	public $id_column = 'id';
 	public $find_keys = array(
 		'target'

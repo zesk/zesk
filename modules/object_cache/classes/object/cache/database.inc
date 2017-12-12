@@ -15,7 +15,7 @@ class Object_Cache_Database extends Object_Cache {
 	 * @param Object $object
 	 * @return Database
 	 */
-	private function cache_database(Object $object) {
+	private function cache_database(ORM $object) {
 		return $object->database();
 	}
 	private function _object_database_table(Database $database, Object $object, $table) {
@@ -39,10 +39,10 @@ class Object_Cache_Database extends Object_Cache {
 		);
 		return Database_Schema::schema_to_database_table($database, $table, $table_schema);
 	}
-	private function object_table_name(Object $object) {
+	private function object_table_name(ORM $object) {
 		return "Cache_" . $object->table();
 	}
-	private function object_table(Object $object, $create = false) {
+	private function object_table(ORM $object, $create = false) {
 		$table_name = $this->object_table_name($object);
 		$database = $this->cache_database($object);
 		if ($create) {
@@ -51,7 +51,7 @@ class Object_Cache_Database extends Object_Cache {
 		}
 		return $database->table_exists($table_name) ? $table_name : null;
 	}
-	public function load(Object $object, $key) {
+	public function load(ORM $object, $key) {
 		$table = $this->object_table($object);
 		if (!$table) {
 			return;
@@ -65,7 +65,7 @@ class Object_Cache_Database extends Object_Cache {
 		$query->what("data");
 		return unserialize($query->one("data", null));
 	}
-	public function save(Object $object, $key, $data) {
+	public function save(ORM $object, $key, $data) {
 		$database = $this->cache_database($object);
 		$table = $this->object_table($object, ($data !== null));
 		if (!$table) {
@@ -84,7 +84,7 @@ class Object_Cache_Database extends Object_Cache {
 		));
 		$database->query($sql);
 	}
-	public function invalidate(Object $object, $key = null) {
+	public function invalidate(ORM $object, $key = null) {
 		$table = $this->object_table($object);
 		if (!$table) {
 			return;

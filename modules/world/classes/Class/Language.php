@@ -6,7 +6,7 @@ namespace zesk;
  * @author kent
  *
  */
-class Class_Language extends Class_Object {
+class Class_Language extends Class_ORM {
 	public $id_column = 'id';
 	public $name_column = 'name';
 	public $name = "Language";

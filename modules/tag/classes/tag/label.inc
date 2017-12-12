@@ -16,7 +16,7 @@ namespace zesk;
  * @property Timestamp $modified
  * @property timestamp $last_used
  */
-class Tag_Label extends Object {
+class Tag_Label extends ORM {
 	/**
 	 *
 	 * @return Cache

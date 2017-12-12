@@ -8,4 +8,4 @@ namespace zesk;
  * @author kent
  *
  */
-class Help_User extends Object {}
+class Help_User extends ORM {}

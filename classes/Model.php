@@ -45,18 +45,48 @@ class Model extends Hookable implements \ArrayAccess {
 	 * @param string $class
 	 * @param mixed $value
 	 * @throws Exception_Semantics
-	 * @return Model
+	 * @return self
 	 */
 	public static function factory(Application $application, $class, $value = null, array $options = array()) {
+		if (!is_string($class)) {
+			throw new Exception_Semantics("$class is not a class name");
+		}
 		$object = $application->factory($class, $application, $value, $options);
 		if (!$object instanceof Model) {
-			throw new Exception_Semantics("Class {class} is not of type Model", array(
-				"class" => $class
+			throw new Exception_Semantics("{method}({class}) is not a subclass of {object_class}", array(
+				"method" => __METHOD__,
+				"class" => $class,
+				"object_class" => __CLASS__
 			));
 		}
-		return $object;
+		return $object->polymorphic_child();
 	}
 	
+	/**
+	 * Create a model in the context of the current model
+	 *
+	 * @param $class string
+	 *        	ORM class to create
+	 * @param $mixed mixed
+	 *        	ID or array to intialize object
+	 * @param $options array
+	 *        	Additional options for object
+	 * @return self
+	 */
+	public function model_factory($class, $mixed = null, array $options = array()) {
+		return self::factory($this->application, $class, $mixed, $options);
+	}
+	
+	/**
+	 * Convert to true form, should be subclass of current class.
+	 * 
+	 * Override in subclasses to get custom polymorphic behavior.
+	 *
+	 * @return self
+	 */
+	protected function polymorphic_child() {
+		return $this;
+	}
 	/**
 	 * Get/set the ID for this model
 	 *
@@ -170,7 +200,7 @@ class Model extends Hookable implements \ArrayAccess {
 	 *
 	 * @param mixed $mixed
 	 *        	Settings to retrieve a model from somewhere
-	 * @return Model Or null if can not be found
+	 * @return self Or null if can not be found
 	 */
 	function fetch($mixed = null) {
 		return $this;
@@ -236,7 +266,7 @@ class Model extends Hookable implements \ArrayAccess {
 	 *        	Model value to set
 	 * @param mixed $value
 	 *        	Value to set
-	 * @return Model $this
+	 * @return self $this
 	 */
 	public function set($mixed, $value = null) {
 		if (is_array($mixed)) {

@@ -429,13 +429,13 @@ abstract class Route extends Hookable {
 					$arg = $this->$method($arg, $name);
 				} else {
 					$object = $application->model_factory($type);
-					if ($object instanceof Object) {
+					if ($object instanceof ORM) {
 						$object = $object->call_hook_arguments("router_argument", array(
 							$this,
 							$arg
 						), $object);
 						if (!$object) {
-							throw new Exception_NotFound("Object $type $arg not found");
+							throw new Exception_NotFound("ORM $type $arg not found");
 						}
 					}
 					$arg = $object;
@@ -757,7 +757,7 @@ abstract class Route extends Hookable {
 	 * @return array
 	 */
 	protected function get_route_map($action, $object = null, $options = null) {
-		$object_hierarchy = is_object($object) ? $this->application->classes->hierarchy($object, "zesk\\Object") : array();
+		$object_hierarchy = is_object($object) ? $this->application->classes->hierarchy($object, "zesk\\ORM") : array();
 		$derived_classes = avalue($options, 'derived_classes', array());
 		$options = to_array($options, array());
 		$map = array(
@@ -771,12 +771,12 @@ abstract class Route extends Hookable {
 				}
 				list($part_class, $part_name) = $type;
 				if (in_array($part_class, $object_hierarchy)) {
-					$map[$part_name] = $object instanceof Object ? $object->id() : avalue($options, $part_name, "");
+					$map[$part_name] = $object instanceof ORM ? $object->id() : avalue($options, $part_name, "");
 				} else if (array_key_exists($part_class, $derived_classes)) {
 					$map[$part_name] = $derived_classes[$part_class];
 				} else {
 					$option = avalue($options, $part_name);
-					if ($option instanceof Object) {
+					if ($option instanceof ORM) {
 						$id = $option->id();
 						if (is_scalar($id)) {
 							$map[$part_name] = $id;
@@ -784,7 +784,7 @@ abstract class Route extends Hookable {
 					}
 				}
 			}
-			if ($object instanceof Object && !array_key_exists("id", $map)) {
+			if ($object instanceof ORM && !array_key_exists("id", $map)) {
 				$map['id'] = $object->id();
 			}
 		}

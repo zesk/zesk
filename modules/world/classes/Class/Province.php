@@ -6,7 +6,7 @@ namespace zesk;
  * @author kent
  * Copyright &copy; 2013 Market Acumen, Inc.
  */
-class Class_Province extends Class_Object {
+class Class_Province extends Class_ORM {
 	public $id_column = "id";
 	public $name = "Province:=State";
 	public $column_types = array(

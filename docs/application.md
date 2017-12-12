@@ -109,7 +109,7 @@ Now, broken into smaller sections:
 
 1. Zesk initialization, autoload configuration to find application class
 1. Set `zesk()->application_class` to class of application (e.g. `amazing\Application`)
-1. `\zesk\Application::instance()` or `app()` creates our application singleton. The application singleton contains most global objects from `zesk()` by reference (`zesk\Paths`,`zesk\Hooks`,`zesk\Configuration`,`zesk\Logger`,`zesk\Classes`,`zesk\Objects`,`zesk\Process`)
+1. `\zesk\Application::instance()` or `app()` creates our application singleton. The application singleton contains most global objects from `zesk()` by reference (`zesk\Paths`,`zesk\Hooks`,`zesk\Configuration`,`zesk\Logger`,`zesk\Classes`,`zesk\ORMs`,`zesk\Process`)
 
 ### 2. Application and module initialization
 

@@ -6,5 +6,6 @@
 	"autoload_options": {
 		"lower": false
 	},
-	"module_class": "zesk\\Module_Permission"
+	"module_class": "zesk\\Module_Permission",
+	"requires": [ "orm" ]
 }

@@ -311,10 +311,10 @@ EOF;
 		$this->assert_is_string($db->table_prefix());
 	}
 	function test_schema0() {
-		$updates = Database_Schema::update_object($this->application->object_factory(__NAMESPACE__ . "\\" . 'DBSchemaTest_columns_0'));
+		$updates = Database_Schema::update_object($this->application->orm_factory(__NAMESPACE__ . "\\" . 'DBSchemaTest_columns_0'));
 		dump($updates);
 		//TODO - not sure what this is testing but perhaps the SQL caused errors previously?
-		$updates = Database_Schema::update_object($this->application->object_factory(__NAMESPACE__ . "\\" . 'DBSchemaTest_columns_1'));
+		$updates = Database_Schema::update_object($this->application->orm_factory(__NAMESPACE__ . "\\" . 'DBSchemaTest_columns_1'));
 		dump($updates);
 		//TODO - not sure what this is testing but perhaps the SQL caused errors previously?
 	}
@@ -325,7 +325,7 @@ EOF;
 		$db->estimate_rows($sql);
 	}
 }
-class Class_DBSchemaTest_columns_0 extends Class_Object {
+class Class_DBSchemaTest_columns_0 extends Class_ORM {
 	public $column_types = array(
 		"ID" => self::type_id,
 		"Hash" => self::type_string,
@@ -338,7 +338,7 @@ class Class_DBSchemaTest_columns_0 extends Class_Object {
 		"Frag" => self::type_object
 	);
 }
-class DBSchemaTest_columns_0 extends Object {
+class DBSchemaTest_columns_0 extends ORM {
 	function schema() {
 		return "CREATE TABLE `{table}` (
 					`ID` int(11) unsigned NOT NULL auto_increment,
@@ -358,7 +358,7 @@ class DBSchemaTest_columns_0 extends Object {
 				);";
 	}
 }
-class Class_DBSchemaTest_columns_1 extends Class_Object {
+class Class_DBSchemaTest_columns_1 extends Class_ORM {
 	public $column_types = array(
 		"ID" => self::type_id,
 		"Hash" => self::type_string,
@@ -368,7 +368,7 @@ class Class_DBSchemaTest_columns_1 extends Class_Object {
 		"URI" => self::type_object
 	);
 }
-class DBSchemaTest_columns_1 extends Object {
+class DBSchemaTest_columns_1 extends ORM {
 	function schema() {
 		return "CREATE TABLE `{table}` (
 					`ID` int(11) unsigned NOT NULL auto_increment,

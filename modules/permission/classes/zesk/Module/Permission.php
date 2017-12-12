@@ -32,7 +32,7 @@ class Module_Permission extends Module {
 	static $hook_methods = array(
 		"zesk\Application::permissions",
 		"zesk\Module::permissions", // TODO rename to zesk\Module when \Module is deprecated
-		"zesk\Object::permissions"
+		"zesk\ORM::permissions"
 	);
 	
 	/**
@@ -50,7 +50,7 @@ class Module_Permission extends Module {
 			$this,
 			"user_can"
 		));
-		Class_Object::link_many("zesk\\User", 'roles', array(
+		Class_ORM::link_many("zesk\\User", 'roles', array(
 			'link_class' => 'zesk\\User_Role',
 			'far_key' => 'role',
 			'foreign_key' => 'user',

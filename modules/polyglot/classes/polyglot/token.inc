@@ -24,7 +24,7 @@ namespace zesk;
  * @property string $status
  * @property timestamp $updated
  */
-class PolyGlot_Token extends Object {
+class PolyGlot_Token extends ORM {
 	
 	/**
 	 *
@@ -77,7 +77,7 @@ class PolyGlot_Token extends Object {
 	 *
 	 * {@inheritdoc}
 	 *
-	 * @see Object::store()
+	 * @see ORM::store()
 	 */
 	public function store() {
 		$this->md5 = md5($this->original);
@@ -107,7 +107,7 @@ class PolyGlot_Token extends Object {
 		return $result;
 	}
 	public static function create(Application $app, $language, $dialect, $original, $translation, $status = null) {
-		$token = $app->object_factory(__CLASS__, array(
+		$token = $app->orm_factory(__CLASS__, array(
 			"language" => $language,
 			"dialect" => $dialect,
 			"original" => $original,

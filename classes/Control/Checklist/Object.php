@@ -50,7 +50,7 @@ class Control_Checklist_Object extends Control_Checklist {
 		}
 		return $control_options;
 	}
-	protected function object_format_option_label(Object $object) {
+	protected function object_format_option_label(ORM $object) {
 		return $object->member($object->name_column());
 	}
 	/**

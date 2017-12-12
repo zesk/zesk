@@ -10,13 +10,13 @@ use zesk\Exception_Upload;
  * @author kent
  *
  */
-class Controller_Image_Picker extends \zesk\Controller_Object {
+class Controller_Image_Picker extends \zesk\Controller_ORM {
 	protected $class = "zesk\\Content_Image";
 	
 	/**
 	 * 
 	 * {@inheritDoc}
-	 * @see Controller_Object::_action_default()
+	 * @see Controller_ORM::_action_default()
 	 */
 	function _action_default($action = null, $object = null, $options = array()) {
 		$control = $this->widget_factory('Control_Picker_Content_Image')->names('image');

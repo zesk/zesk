@@ -72,8 +72,8 @@ abstract class Database_Query_Edit extends Database_Query {
 	 * @return Database_Query_Edit
 	 */
 	function class_table($class, $alias = null) {
-		$object_class = Object::cache_class($class, "class");
-		/* @var $object_class Class_Object */
+		$object_class = ORM::cache_class($class, "class");
+		/* @var $object_class Class_ORM */
 		if (count($this->table) === 0) {
 			$this->default_alias = "$alias";
 		}

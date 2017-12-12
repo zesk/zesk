@@ -7,5 +7,6 @@
 		],
 		"class_prefix": "zesk\\"
 	},
-	"module_class": "zesk\\Module_Health"
+	"module_class": "zesk\\Module_Health",
+	"requires": [ "ORM" ]
 }

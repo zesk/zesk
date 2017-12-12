@@ -19,7 +19,7 @@ use zesk\Application;
 use zesk\Configuration;
 use zesk\arr;
 use zesk\Hookable;
-use zesk\Object_Iterator;
+use zesk\ORMIterator;
 
 /**
  * A regular expression pattern for matching email addresses anywhere (should delimit both ends in
@@ -763,7 +763,7 @@ function map($mixed, array $map, $insensitive = false, $prefix_char = "{", $suff
 				$v = JSON::encode($v);
 			}
 		} else if (is_object($v)) {
-			if ($v instanceof Object_Iterator) {
+			if ($v instanceof ORMIterator) {
 				backtrace();
 			}
 			if ($v instanceof Configuration) {

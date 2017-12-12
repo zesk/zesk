@@ -124,9 +124,9 @@ class Controller_PolyGlot extends Controller_Authenticated {
 			));
 		}
 		if ($id) {
-			$object = $this->application->object_factory("zesk\\PolyGlot_Token", $id)->fetch();
+			$object = $this->application->orm_factory("zesk\\PolyGlot_Token", $id)->fetch();
 		} else {
-			$object = $this->application->object_factory("zesk\\PolyGlot_Token");
+			$object = $this->application->orm_factory("zesk\\PolyGlot_Token");
 		}
 		$object->set_member($fields);
 		$errors = ($fields['status'] === 'delete') ? array() : $object->validate();

@@ -13,11 +13,11 @@ namespace zesk;
  * @author kent
  *
  */
-abstract class Content_Group extends Object {
+abstract class Content_Group extends ORM {
 	/**
 	 * 
 	 * {@inheritDoc}
-	 * @see \zesk\Object::store()
+	 * @see \zesk\ORM::store()
 	 */
 	function store() {
 		if (empty($this->CodeName)) {
@@ -30,10 +30,10 @@ abstract class Content_Group extends Object {
 	 * 
 	 * @param unknown $mixed
 	 * @param unknown $options
-	 * @return \zesk\Object
+	 * @return \zesk\ORM
 	 */
 	public function group_object($mixed = null, $options = null) {
-		return $this->object_factory($this->group_class, $mixed, $options);
+		return $this->orm_factory($this->group_class, $mixed, $options);
 	}
 	protected function order_methods() {
 		return array(
@@ -52,7 +52,7 @@ abstract class Content_Group extends Object {
 		$alias = $query->alias();
 		switch ($this->OrderMethod) {
 			case "name":
-				$object = Object::cache_object($this->group_class);
+				$object = ORM::cache_object($this->group_class);
 				return $query->order_by("$alias." . $object->name_column());
 			case "order":
 				return $query->order_by("$alias.OrderIndex");

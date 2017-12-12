@@ -13,7 +13,7 @@ namespace zesk;
  * @author kent
  *
  */
-class Contact_Tag extends Object {
+class Contact_Tag extends ORM {
 	public static function register_tag($name, $user) {
 		$x = new self(array(
 			"name" => $name,

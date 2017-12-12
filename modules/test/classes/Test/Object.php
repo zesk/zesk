@@ -20,7 +20,7 @@ class Test_Object extends Test_Unit {
 			$object = $this->application->object($class);
 			$table = $object->table();
 			if (!$object->database()->table_exists($table)) {
-				$this->test_table_sql($table, $this->application->object_factory($class)->schema());
+				$this->test_table_sql($table, $this->application->orm_factory($class)->schema());
 			}
 		}
 	}
@@ -37,7 +37,7 @@ class Test_Object extends Test_Unit {
 	/**
 	 * @not_test
 	 */
-	final function run_test_an_object(Object $object, $test_field = "ID") {
+	final function run_test_an_object(ORM $object, $test_field = "ID") {
 		$this->log(get_class($object) . " members: " . PHP::dump($object->members()));
 		
 		$table = $object->table();
@@ -143,8 +143,8 @@ class Test_Object extends Test_Unit {
 		
 		try {
 			$object->fetch();
-			$this->fail("Should throw Exception_Object_Empty");
-		} catch (Exception_Object_Empty $e) {
+			$this->fail("Should throw Exception_ORM_Empty");
+		} catch (Exception_ORM_Empty $e) {
 		}
 		
 		$columns = $object->columns();

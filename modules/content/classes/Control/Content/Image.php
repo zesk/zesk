@@ -32,8 +32,8 @@ class Control_Content_Image extends Control {
 		$value = $this->value();
 		if (is_numeric($value)) {
 			try {
-				$value = $this->object_factory('zesk\Content_Image', $value)->fetch();
-			} catch (Exception_Object_NotFound $e) {
+				$value = $this->orm_factory('zesk\Content_Image', $value)->fetch();
+			} catch (Exception_ORM_NotFound $e) {
 				return null;
 			}
 		} else if (!$value instanceof Content_Image) {

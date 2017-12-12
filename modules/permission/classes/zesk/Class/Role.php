@@ -11,7 +11,7 @@ namespace zesk;
  * @see Class_Zesk_Role
  * @see Role
  */
-class Class_Role extends Class_Object {
+class Class_Role extends Class_ORM {
 	public $id_column = "id";
 	public $name_column = "name";
 	public $find_keys = array(

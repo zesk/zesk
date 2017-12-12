@@ -82,7 +82,7 @@ class Module_Help extends Module_JSLib {
 		));
 		foreach ($helps as $target => $settings) {
 			if ($settings === null) {
-				$item = $application->object_factory('zesk\\Help')->find(array(
+				$item = $application->orm_factory('zesk\\Help')->find(array(
 					'target' => $target
 				));
 				if ($item) {
@@ -101,9 +101,9 @@ class Module_Help extends Module_JSLib {
 				}
 			}
 			$settings['target'] = $target;
-			$help = $application->object_factory('zesk\\Help', $settings)->register();
+			$help = $application->orm_factory('zesk\\Help', $settings)->register();
 			/* @var $help Help */
-			if ($help->object_status() === Object::object_status_insert) {
+			if ($help->object_status() === ORM::object_status_insert) {
 				$this->application->logger->notice("Registered help item for {target}", array(
 					'target' => $target
 				));
@@ -268,7 +268,7 @@ class Module_Help extends Module_JSLib {
 		$application = $this->application;
 		$ids = $request->geta('id', array());
 		foreach ($ids as $id) {
-			$application->object_factory('zesk\\Help', $id)->show();
+			$application->orm_factory('zesk\\Help', $id)->show();
 		}
 		$response->json(array(
 			'status' => true,
@@ -288,9 +288,9 @@ class Module_Help extends Module_JSLib {
 		$application = $this->application;
 		$ids = $request->geta('id', array());
 		foreach ($ids as $id) {
-			$help = $application->object_factory('zesk\\Help', $id)->fetch();
+			$help = $application->orm_factory('zesk\\Help', $id)->fetch();
 			if ($help) {
-				$application->object_factory('zesk\\Help_User', array(
+				$application->orm_factory('zesk\\Help_User', array(
 					'help' => $help,
 					'user' => $user,
 					'dismissed' => 'now'

@@ -7,10 +7,10 @@
  */
 namespace zesk;
 
-class County extends Object {
+class County extends ORM {
 	public function reassign($new) {
 		$old_id = intval($this->id);
-		$new_id = empty($new) ? null : Object::mixed_to_id($new);
+		$new_id = empty($new) ? null : ORM::mixed_to_id($new);
 		$this->application->query_update('zesk\\Contact_Address')
 			->ignore_constraints(true)
 			->value("county", $new_id)

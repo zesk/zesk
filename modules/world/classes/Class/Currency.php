@@ -4,7 +4,7 @@ namespace zesk;
 /**
  * Class_Currency
  */
-class Class_Currency extends Class_Object {
+class Class_Currency extends Class_ORM {
 	public $id_column = "id";
 	public $auto_column = false;
 	public $find_keys = array(

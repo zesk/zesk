@@ -18,7 +18,7 @@ class Preference_Type_Test extends Test_Unit {
 		$this->schema_synchronize(__NAMESPACE__ . "\\" . "Preference_Type");
 	}
 	function test_object() {
-		$x = $this->application->object_factory(__NAMESPACE__ . "\\" . "Preference_Type");
+		$x = $this->application->orm_factory(__NAMESPACE__ . "\\" . "Preference_Type");
 		
 		$code_name = "Poore";
 		$name = false;

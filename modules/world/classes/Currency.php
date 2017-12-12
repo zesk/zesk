@@ -35,7 +35,7 @@ namespace zesk;
  * @property string $format
  * @property integer $precision
  */
-class Currency extends Object {
+class Currency extends ORM {
 	/**
 	 * Format a currency for output
 	 *
@@ -70,7 +70,7 @@ class Currency extends Object {
 		if ($cached) {
 			return $cached;
 		}
-		return $cached = $application->object_factory(__CLASS__, array(
+		return $cached = $application->orm_factory(__CLASS__, array(
 			'name' => 'Euro',
 			'code' => 'EUR',
 			'id' => 978,
@@ -91,7 +91,7 @@ class Currency extends Object {
 		if ($cached) {
 			return $cached;
 		}
-		return $cached = $application->object_factory(__CLASS__, array(
+		return $cached = $application->orm_factory(__CLASS__, array(
 			'name' => 'US Dollar',
 			'code' => 'USD',
 			'bank_country' => Country::find_country($application, 'us'),
@@ -114,7 +114,7 @@ class Currency extends Object {
 	 * @return Currency|null
 	 */
 	static function from_code(Application $application, $code) {
-		return $application->object_factory(__CLASS__)->find(array(
+		return $application->orm_factory(__CLASS__)->find(array(
 			'code' => $code
 		));
 	}

@@ -1,7 +1,7 @@
 <?php
 namespace server;
 
-use zesk\Object;
+use zesk\ORM;
 use zesk\Exception_Parameter;
 use zesk\arr;
 use zesk\IPv4;
@@ -48,13 +48,13 @@ class Server_Configuration_Server extends \xmlrpc\Server {
 		$fields = arr::clean($fields, null);
 		
 		/* @var $server Server */
-		$server = Object::factory("Server", $fields + array(
+		$server = ORM::factory("Server", $fields + array(
 			"Name" => $fields['PublicName']
 		))->register();
 		if (!$server) {
 			throw new \zesk\Exception("Register failed");
 		}
-		if ($server->object_status() == Object::object_status_exists) {
+		if ($server->object_status() == ORM::object_status_exists) {
 			$server->set_member($fields)->store();
 			$key = $server->data(self::data_key);
 		} else {
@@ -75,7 +75,7 @@ class Server_Configuration_Server extends \xmlrpc\Server {
 	 */
 	function rpc_server_data($key, array $values) {
 		$FreeDisk = $Load = $Alive = $Uptodate = null;
-		$server = Object::factory("Server");
+		$server = ORM::factory("Server");
 		/* @var $server Server */
 		if (!$server->data_find(array(
 			self::data_key => $key

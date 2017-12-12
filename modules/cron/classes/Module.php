@@ -244,7 +244,7 @@ class Module extends \zesk\Module {
 		return $object->data(self::_last_cron_variable($unit), $when->unix_timestamp());
 	}
 	private function _cron_hooks($method) {
-		$classes = to_list($this->application->configuration->path_get(__CLASS__ . '::classes', 'zesk\Application;zesk\Object'));
+		$classes = to_list($this->application->configuration->path_get(__CLASS__ . '::classes', 'zesk\Application;zesk\ORM'));
 		return arr::suffix($classes, "::$method");
 	}
 	

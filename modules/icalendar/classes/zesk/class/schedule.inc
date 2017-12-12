@@ -6,7 +6,7 @@ namespace zesk;
  * @author kent
  *
  */
-class Class_Schedule extends Class_Object {
+class Class_Schedule extends Class_ORM {
 	public $id_column = "id";
 	
 	/**
