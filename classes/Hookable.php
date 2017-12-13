@@ -115,7 +115,8 @@ class Hookable extends Options {
 	 * Any zesk hooks registered as (in order):
 	 * 1. User::hello
 	 * 2. zesk\User::hello
-	 * 3. ORM::hello
+	 * 3. zesk\ORM::hello
+	 * 3. zesk\Model::hello
 	 * 4. Hookable::hello
 	 *
 	 * Arguments passed as an array
