@@ -225,6 +225,7 @@ abstract class Database_Query_Select_Base extends Database_Query {
 	 * @return ORMIterators
 	 */
 	function objects_iterator(array $options = array()) {
+		zesk()->deprecated();
 		return new ORMIterators($this->class, $this, $this->objects_prefixes);
 	}
 	
@@ -239,7 +240,8 @@ abstract class Database_Query_Select_Base extends Database_Query {
 	 * @return ORM
 	 */
 	function one_object($class = null, array $options = array()) {
-		return $this->object($class, $optiosn);
+		zesk()->deprecated();
+		return $this->object($class, $options);
 	}
 	
 	/**
@@ -252,7 +254,8 @@ abstract class Database_Query_Select_Base extends Database_Query {
 	 * @return unknown
 	 */
 	function object($class = null, array $options = array()) {
-		return $this->orm($class, $options);
+		zesk()->deprecated();
+		return $this->model($class, $options);
 	}
 	
 	/**
@@ -263,14 +266,13 @@ abstract class Database_Query_Select_Base extends Database_Query {
 	 * @param unknown_type $default
 	 * @return unknown
 	 */
-	function orm($class = null, array $options = array()) {
+	function model($class = null, array $options = array()) {
 		$result = $this->one(false, null);
 		if ($result === null) {
 			return $result;
 		}
 		$options['from_database'] = true;
-		$object = $this->orm_factory($this->object_class($class), null, $options);
-		$object->initialize($result, true);
+		$object = $this->model_factory($this->object_class($class), $result, $options);
 		return $object;
 	}
 }

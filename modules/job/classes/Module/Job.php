@@ -15,7 +15,7 @@ class Module_Job extends Module implements Interface_Module_Routes {
 	 * 
 	 * @var array
 	 */
-	protected $object_classes = array(
+	protected $model_classes = array(
 		'zesk\\Job'
 	);
 	

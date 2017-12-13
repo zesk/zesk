@@ -409,12 +409,12 @@ abstract class Database_Schema extends Hookable {
 	/**
 	 * Given a list of objects, generate array of SQL statements to bring database up to date.
 	 *
-	 * @param array $object_classes
+	 * @param array $model_classes
 	 * @return array
 	 */
-	static function objects_synchronize(array $object_classes) {
+	static function objects_synchronize(array $model_classes) {
 		$results = array();
-		foreach ($object_classes as $class) {
+		foreach ($model_classes as $class) {
 			$object = ORM::factory($class);
 			$results[$class]['sql'] = $sqls = Database_Schema::update_object($object);
 			if (self::$debug) {

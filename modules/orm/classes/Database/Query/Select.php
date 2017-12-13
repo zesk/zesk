@@ -508,7 +508,7 @@ class Database_Query_Select extends Database_Query_Select_Base {
 	function title() {
 		/* @var $class Class_ORM */
 		$class_name = $this->class;
-		$class = $this->object_cache($class_name)->class_object();
+		$class = $this->class_object($class_name);
 		$map = array(
 			"noun" => $class->name,
 			"nouns" => Locale::plural($class->name)

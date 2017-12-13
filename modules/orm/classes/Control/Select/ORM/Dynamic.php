@@ -14,7 +14,7 @@ namespace zesk;
  * @author kent
  *
  */
-class Control_Select_Object_Dynamic extends Control_Select_Object {
+class Control_Select_ORM_Dynamic extends Control_Select_ORM {
 	/**
 	 *
 	 * @var Control
@@ -91,7 +91,7 @@ class Control_Select_Object_Dynamic extends Control_Select_Object {
 			$this->response->javascript("/share/zesk/js/zesk.js", array(
 				'weight' => 'first'
 			));
-			$this->response->jquery('$(".control-select-object-dynamic .csod-button").keydown(Control_Select_Object_Dynamic_KeyDown);');
+			$this->response->jquery('$(".control-select-object-dynamic .csod-button").keydown(Control_Select_ORM_Dynamic_KeyDown);');
 			return $this->control->validate();
 		}
 		return parent::validate();

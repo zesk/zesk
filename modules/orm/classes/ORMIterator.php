@@ -117,10 +117,10 @@ class ORMIterator extends Database_Result_Iterator {
 				$this->object->__set($this->parent_member, $this->parent);
 			} else {
 				$object->application->logger->error("ORM iterator for {class}, mismatched parent member {member} #{id} (expecting #{expect_id})", array(
-						'class' => $this->class,
-						'member' => $this->parent_member,
-						'id' => $check_id,
-						'expect_id' => $this->parent->id()
+					'class' => $this->class,
+					'member' => $this->parent_member,
+					'id' => $check_id,
+					'expect_id' => $this->parent->id()
 				));
 			}
 		}
@@ -135,8 +135,8 @@ class ORMIterator extends Database_Result_Iterator {
 		parent::next();
 		if ($this->_valid) {
 			// We do create, then fetch to support polymorphism - if ORM supports factory polymorphism, then shorten this to single factory call
-			$this->object = $this->query->orm_factory($this->class, $this->_row, array(
-					'initialize' => true
+			$this->object = $this->query->model_factory($this->class, $this->_row, array(
+				'initialize' => true
 			) + $this->class_options);
 			$this->id = $this->object->id();
 			$this->parent_support($this->object);

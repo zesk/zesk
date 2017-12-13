@@ -330,7 +330,10 @@ class Database_Table extends Options {
 				"table" => $this->name
 			));
 		}
-		if (!$dbCol->has_sql_type() && !$this->database->data_type()->type_set_sql_type($dbCol)) {
+		// 		if (!$dbCol->has_sql_type() && !$this->database->data_type()->type_set_sql_type($dbCol)) {
+		// 			throw new Exception_Semantics("Database_Table::column_add($column): Can not set SQLType");
+		// 		}
+		if (!$dbCol->has_sql_type()) {
 			throw new Exception_Semantics("Database_Table::column_add($column): Can not set SQLType");
 		}
 		$after_column = $dbCol->option("after_column");

@@ -49,10 +49,10 @@ class Database_Query {
 	protected $class;
 	
 	/**
-	 *
-	 * @var zesk\ORM[]
+	 * 
+	 * @var array
 	 */
-	private $classes_cached = array();
+	private $objects_cached = array();
 	
 	/**
 	 * Create a new query
@@ -169,7 +169,7 @@ class Database_Query {
 	 */
 	function object_factory($class, $mixed = null, array $options = array()) {
 		$this->application->deprecated();
-		return $this->orm_factory($class, $mixed, $options);
+		return $this->model_factory($class, $mixed, $options);
 	}
 	
 	/**
@@ -180,20 +180,19 @@ class Database_Query {
 	 * @param array $options
 	 * @return Object
 	 */
-	function orm_factory($class, $mixed = null, array $options = array()) {
-		return $this->application->orm_factory($class, $mixed, $options);
+	function model_factory($class, $mixed = null, array $options = array()) {
+		return $this->application->model_factory($class, $mixed, $options);
 	}
 	
 	/**
 	 * Cache for Object definitions, do not modify these objects
 	 *
+	 * @deprecated 2017-12 use class_object above
 	 * @param string $class
 	 * @return \zesk\ORM
 	 */
 	protected function object_cache($class) {
-		if (isset($this->objects_cached[$class])) {
-			return $this->objects_cached[$class];
-		}
-		return $this->objects_cached[$class] = $this->db->application->object($class);
+		zesk()->deprecated();
+		return $this->db->application->object($class);
 	}
 }

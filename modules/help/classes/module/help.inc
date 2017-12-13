@@ -37,7 +37,7 @@ class Module_Help extends Module_JSLib {
 	 * 
 	 * @return array
 	 */
-	protected $object_classes = array(
+	protected $model_classes = array(
 		'zesk\\Help',
 		'zesk\\Help_User'
 	);

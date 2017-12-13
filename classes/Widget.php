@@ -1,12 +1,11 @@
 <?php
 
 /**
- * $URL: https://code.marketacumen.com/zesk/trunk/classes/Widget.php $
  *
  * @package zesk
  * @subpackage widget
  * @author kent
- * @copyright Copyright &copy; 2012, Market Acumen, Inc.
+ * @copyright Copyright &copy; 2017, Market Acumen, Inc.
  */
 namespace zesk;
 
@@ -636,7 +635,7 @@ class Widget extends Hookable {
 	/**
 	 * Retrieve the user, if any, associated with permissions for this control.
 	 *
-	 * @return \User
+	 * @return \zesk\User
 	 */
 	function user($require = true) {
 		return $this->application()->user($require);
@@ -645,10 +644,10 @@ class Widget extends Hookable {
 	/**
 	 * Retrieve the account, if any, associated with permissions for this control.
 	 *
-	 * @return \Account
+	 * @return \zesk\Account
 	 */
 	function account() {
-		return $this->application->object_singleton("Account");
+		return $this->application->model_singleton("zesk\\Account");
 	}
 	
 	/**

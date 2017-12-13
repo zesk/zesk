@@ -1977,13 +1977,13 @@ function arrow_down_right_load(iid, url) {
 		arrow_down_right(id);
 	}
 }
-function Control_Select_Object_Dynamic_KeyDown(e) {
+function Control_Select_ORM_Dynamic_KeyDown(e) {
 	if (e.keyCode === 13) {
 		alert($(e).serialize());
 	}
 }
 
-function Control_Select_Object_Dynamic_Update(name, url) {
+function Control_Select_ORM_Dynamic_Update(name, url) {
 	var id = name;
 	var form = $('#' + id + '_widget :input');
 	form = form[0].form;
@@ -2025,7 +2025,7 @@ function Control_Select_Object_Dynamic_Update(name, url) {
 	});
 }
 
-function Control_Select_Object_Dynamic_Reset(id) {
+function Control_Select_ORM_Dynamic_Reset(id) {
 	var p = '#' + id + '_widget ';
 	$(p + '.csod-input input').val('');
 	$(p + '.csod-select').html(

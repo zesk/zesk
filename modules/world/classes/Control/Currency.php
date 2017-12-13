@@ -1,7 +1,7 @@
 <?php
 namespace zesk;
 
-class Control_Currency extends Control_Select_Object {
+class Control_Currency extends Control_Select_ORM {
 	protected $class = "zesk\\Currency";
 	protected $options = array(
 		'escape_values' => false

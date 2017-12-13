@@ -165,7 +165,7 @@ abstract class Database_Parser extends Hookable {
 	}
 	
 	/**
-	 * Reverses an order by clause as passed into a Database_Query_Select
+	 * Reverses an order by clause as passed into a select query
 	 *
 	 * @param mixed $order_by        	
 	 * @return array

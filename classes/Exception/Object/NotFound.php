@@ -10,4 +10,4 @@ zesk()->deprecated();
  * @author kent
  *
  */
-class Exception_ORM_NotFound extends Exception_ORM_NotFound {}
+class Exception_Object_NotFound extends Exception_ORM_NotFound {}

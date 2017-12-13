@@ -43,17 +43,6 @@ class Route_Theme extends Route {
 		if ($application->theme_exists($theme, $args, $theme_options)) {
 			return $this;
 		}
-		/**
-		 *
-		 * @todo Remove this 2016-10
-		 */
-		$theme = str::unsuffix($this->option("template"), ".tpl");
-		if ($application->theme_exists($theme)) {
-			// TODO Remove this
-			$application->zesk->deprecated("Theme ending with .tpl are no longer allowed $theme");
-			$this->set_option("theme", $theme);
-			return $this;
-		}
 		throw new Exception_File_NotFound("No theme {theme} found in {theme_paths}", array(
 			"theme" => $theme,
 			"theme_paths" => $application->theme_path()
@@ -82,8 +71,8 @@ class Route_Theme extends Route {
 				$application->response->content = "Theme $mapped_theme not found";
 				return;
 			}
+			$application->logger->debug("Executing theme={theme} mapped_theme={mapped_theme} args={args}", compact("theme", "mapped_theme", "args"));
 		}
-		$application->logger->debug("Executing theme={theme} mapped_theme={mapped_theme} args={args}", compact("theme", "mapped_theme", "args"));
 		$content = $application->theme($mapped_theme, $args, $theme_options); //TODO
 		if ($application->response->json()) {
 			return;

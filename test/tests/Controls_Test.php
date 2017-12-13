@@ -131,15 +131,15 @@ class Controls_Test extends Test_Widget {
 		
 		$this->test_basics($x);
 	}
-	function test_Control_Select_Object_Hierarchy_Test() {
-		$table = 'Control_Select_Object_Hierarchy_Test';
+	function test_Control_Select_ORM_Hierarchy_Test() {
+		$table = 'Control_Select_ORM_Hierarchy_Test';
 		$this->test_table($table, 'Parent int(11) unsigned NOT NULL');
 		
 		$options = array(
 			'table' => $table,
 			'textcolumn' => "Foo"
 		);
-		$x = new Control_Select_Object_Hierarchy($this->application, $options);
+		$x = new Control_Select_ORM_Hierarchy($this->application, $options);
 		
 		$this->test_basics($x);
 	}
@@ -151,14 +151,14 @@ class Controls_Test extends Test_Widget {
 		
 		$this->test_basics($x);
 	}
-	function test_Control_Select_Object() {
+	function test_Control_Select_ORM() {
 		$this->test_table('Control_Select_Test_Object');
 		
 		$options = array(
 			'table' => 'Control_Select_Test_Object',
 			'textcolumn' => "Foo"
 		);
-		$x = new Control_Select_Object($this->application, $options);
+		$x = new Control_Select_ORM($this->application, $options);
 		$x->object_class(__NAMESPACE__ . "\\" . "User");
 		$this->test_basics($x);
 	}

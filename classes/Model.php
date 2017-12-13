@@ -66,7 +66,7 @@ class Model extends Hookable implements \ArrayAccess {
 	 * Create a model in the context of the current model
 	 *
 	 * @param $class string
-	 *        	ORM class to create
+	 *        	Class to create
 	 * @param $mixed mixed
 	 *        	ID or array to intialize object
 	 * @param $options array
@@ -434,5 +434,18 @@ class Model extends Hookable implements \ArrayAccess {
 			"default" => $default,
 			"first" => true
 		));
+	}
+	
+	/**
+	 * Convert a variable to an ID
+	 *
+	 * @param $mixed mixed
+	 * @return integer or null if can't be converted to integer
+	 */
+	public static function mixed_to_id($mixed) {
+		if ($mixed instanceof Model) {
+			return $mixed->id();
+		}
+		return to_integer($mixed, null);
 	}
 }

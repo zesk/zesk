@@ -2516,19 +2516,6 @@ class ORM extends Model {
 	}
 	
 	/**
-	 * Convert a variable to an ID
-	 *
-	 * @param $mixed mixed
-	 * @return integer or null if can't be converted to integer
-	 */
-	public static function mixed_to_id($mixed) {
-		if ($mixed instanceof ORM) {
-			return $mixed->id();
-		}
-		return to_integer($mixed, null);
-	}
-	
-	/**
 	 * Given a class $class, determine the default path to another class
 	 *
 	 * @param $class string

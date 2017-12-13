@@ -2,14 +2,28 @@
 /**
  * 
  */
-namespace zesk;
+namespace zesk\ReactJS;
+
+use zesk\Request;
+use zesk\Response;
+use zesk\Response_Text_HTML;
+use zesk\Template;
+use zesk\HTML;
+use zesk\Router;
+use zesk\Configuration_Parser;
+use zesk\File;
+use zesk\Net_HTTP_Client;
+use zesk\Net_HTTP;
+use zesk\Exception_File_NotFound;
+use zesk\Net_HTTP_Client_Exception;
+use zesk\arr;
 
 /**
  * 
  * @author kent
  *
  */
-class Module_ReactJS extends Module implements Interface_Module_Routes, Interface_Module_Head {
+class Module extends \zesk\Module implements \zesk\Interface_Module_Routes, \zesk\Interface_Module_Head {
 	
 	/**
 	 * 

@@ -9,7 +9,7 @@
  *
  * @see Control_Select
  * @see Control_Select_Other
- * @see Control_Select_Object
+ * @see Control_Select_ORM
  */
 namespace zesk;
 

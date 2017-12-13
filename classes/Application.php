@@ -164,7 +164,7 @@ class Application extends Hookable implements Interface_Theme {
 	 *
 	 * @var array
 	 */
-	protected $object_aliases = array();
+	protected $class_aliases = array();
 	
 	/**
 	 *
@@ -208,13 +208,12 @@ class Application extends Hookable implements Interface_Theme {
 	protected $register_hooks = array();
 	
 	/**
-	 * Array of starting list of ORM subclasses which are a part of this application.
+	 * Array of starting list of model subclasses which are a part of this application.
 	 * Used to sync schema and generate dependency classes.
-	 * @deprecated 2017-12 use hook_orm_classes instead
-	 *
+	 * 
 	 * @var array of string
 	 */
-	protected $object_classes = array();
+	protected $model_classes = array();
 	
 	/**
 	 * Configuration files to include
@@ -370,11 +369,11 @@ class Application extends Hookable implements Interface_Theme {
 		$this->class_cache = array();
 		
 		// $this->load_modules is set in subclasses
-		// $this->object_aliases is set in subclasses
+		// $this->class_aliases is set in subclasses
 		// $this->file is set in subclasses
 		// $this->variables is set in subclasses
 		// $this->register_hooks is set in subclasses
-		// $this->object_classes is set in subclasses
+		// $this->model_classes is set in subclasses
 		//
 		
 		// $this->includes is set in subclasses?
@@ -382,7 +381,7 @@ class Application extends Hookable implements Interface_Theme {
 		// $this->template_variables is set in application itself?
 		$this->template_variables = array();
 		
-		foreach ($this->object_aliases as $requested => $resolved) {
+		foreach ($this->class_aliases as $requested => $resolved) {
 			$this->objects->map($requested, $resolved);
 		}
 		
@@ -804,7 +803,7 @@ class Application extends Hookable implements Interface_Theme {
 	 * Also optionally calls `zesk\Application::singleton_$class`
 	 *
 	 * @param string $class
-	 * @return ORM
+	 * @return Model
 	 */
 	final public function model_singleton($class) {
 		$args = func_get_args();
@@ -830,24 +829,13 @@ class Application extends Hookable implements Interface_Theme {
 	 * @return array
 	 */
 	private function _classes($add = null) {
-		$schema_file = File::extension_change($this->file, ".classes");
-		if (is_file($schema_file)) {
-			$this->deprecated("$schema_file support will end on 2017-09, use Application->object_classes instead");
-			$classes = arr::trim_clean(explode("\n", Text::remove_line_comments(file_get_contents($schema_file), '#', false)));
-			$classes = arr::flip_copy($classes, true);
-			$this->logger->debug("Classes from {schema_file} = {value}", array(
-				"schema_file" => $schema_file,
-				"value" => array_keys($classes)
-			));
-		} else {
-			$classes = array();
-		}
-		$orm_classes = array_merge($this->object_classes);
-		$this->logger->debug("Classes from {class}->object_classes = {value}", array(
+		$classes = array();
+		$model_classes = array_merge($this->model_classes, $this->model_classes);
+		$this->logger->debug("Classes from {class}->model_classes = {value}", array(
 			"class" => get_class($this),
-			"value" => $orm_classes
+			"value" => $model_classes
 		));
-		$classes = $classes + arr::flip_copy($$orm_classes, true);
+		$classes = $classes + arr::flip_copy($model_classes, true);
 		$all_classes = $this->call_hook_arguments('classes', array(
 			$classes
 		), $classes);
@@ -2117,7 +2105,7 @@ class Application extends Hookable implements Interface_Theme {
 	}
 	
 	/**
-	 * Access a class_object
+	 * Access a Class_ORM
 	 *
 	 * @return Class_ORM
 	 */
@@ -2180,7 +2168,7 @@ class Application extends Hookable implements Interface_Theme {
 		}
 		$lowclass = strtolower($class);
 		if (!array_key_exists($lowclass, $this->class_cache)) {
-			$object = $this->objects->factory($class, $this, null, array(
+			$object = $this->model_factory($class, null, array(
 				"immutable" => true
 			));
 			if (!$object instanceof ORM) {

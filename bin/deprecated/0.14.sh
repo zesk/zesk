@@ -17,7 +17,11 @@ zesk cannon '(Object $' '(ORM $'
 zesk cannon '(zesk\Object $' '(zesk\ORM $'
 zesk cannon '(\zesk\Object $' '(\zesk\ORM $'
 zesk cannon '>_polymorphic(' '>polymorphic_child('
-
+zesk cannon '>object_factory(' '>model_factory('
+zesk cannon 'protected function _polymorphic(' 'protected function polymorphic_child('
+zesk cannon object_aliases class_aliases
+zesk cannon object_classes model_classes
+zesk cannon Control_Select_Object Control_Select_ORM
 
 # echo 'Function `zesk\Kernel::sort_weight_array[_reverse]` has been renamed to `zesk_sort_weight_array[_reverse]`'
 # php-find.sh sort_weight_array | grep -v 'zesk_sort_weight_array'

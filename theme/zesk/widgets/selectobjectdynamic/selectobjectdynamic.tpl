@@ -47,7 +47,7 @@ namespace zesk;
 			title="Loading ..." alt="Loading ..." style="display: none;" />
 	</div>
 	<div class="csod-search csod-button csod-some search"
-		onclick="Control_Select_Object_Dynamic_Update('<?php
+		onclick="Control_Select_ORM_Dynamic_Update('<?php
 		echo $this->column;
 		?>','<?php
 		echo $this->url_update;
@@ -64,7 +64,7 @@ namespace zesk;
 			?>" />
 	</div>
 	<div class="csod-reset csod-button csod-some search-reset"
-		onclick="Control_Select_Object_Dynamic_Reset('<?php
+		onclick="Control_Select_ORM_Dynamic_Reset('<?php
 		echo $this->column;
 		?>')">
 		<img

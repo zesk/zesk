@@ -1,7 +1,7 @@
 <?php
 namespace zesk;
 
-class Control_Role extends Control_Select_Object {
+class Control_Role extends Control_Select_ORM {
 	protected $class = "Role";
 	protected $options = array(
 		"id_column" => "id",

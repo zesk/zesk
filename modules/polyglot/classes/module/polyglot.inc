@@ -16,7 +16,7 @@ class Module_PolyGlot extends Module implements Interface_Module_Routes {
 	 *
 	 * @var array
 	 */
-	protected $object_classes = array(
+	protected $model_classes = array(
 		"zesk\\PolyGlot_Token",
 		"zesk\\PolyGlot_Update"
 	);

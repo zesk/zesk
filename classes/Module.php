@@ -43,12 +43,11 @@ class Module extends Hookable {
 	protected $path = null;
 	
 	/**
-	 * List of associated  classes
-	 * 
-	 * @deprecated 2017-12 Use $orm_classes instead
+	 * List of associated model classes
+	 *
 	 * @var array
 	 */
-	protected $object_classes = array();
+	protected $model_classes = array();
 	
 	/**
 	 * Array of old_class => new_class
@@ -57,15 +56,8 @@ class Module extends Hookable {
 	 *
 	 * @var array
 	 */
-	protected $object_aliases = array();
+	protected $class_aliases = array();
 	
-	/**
-	 * List of associated  classes
-	 *
-	 * @var array
-	 */
-	protected $orm_classes = array();
-		
 	/**
 	 *
 	 * @ignore
@@ -118,11 +110,11 @@ class Module extends Hookable {
 			}
 		}
 		if (isset($this->classes)) {
-			$this->application->deprecated(get_class($this) . "->classes is deprecated, use ->object_classes");
+			$this->application->deprecated(get_class($this) . "->classes is deprecated, use ->model_classes");
 		}
 		$this->application->register_class($this->classes());
-		if (count($this->object_aliases)) {
-			$this->application->objects->map($this->object_aliases);
+		if (count($this->class_aliases)) {
+			$this->application->objects->map($this->class_aliases);
 		}
 		$this->call_hook("construct");
 		$this->inherit_global_options();
@@ -152,6 +144,13 @@ class Module extends Hookable {
 	}
 	
 	/**
+	 * 
+	 * @return string
+	 */
+	public final function name() {
+		return $this->option("name", $this->codename);
+	}
+	/**
 	 * Retrieve the codename of this module
 	 * 
 	 * @return string
@@ -165,7 +164,7 @@ class Module extends Hookable {
 	 * @return string[]
 	 */
 	public function classes() {
-		return array_merge($this->orm_classes, $this->object_classes);
+		return array_merge($this->model_classes, $this->model_classes);
 	}
 	
 	/**
@@ -173,21 +172,21 @@ class Module extends Hookable {
 	 * @param string $class
 	 * @param mixed $mixed
 	 * @param array $options
-	 * @return \zesk\ORM
+	 * @return \zesk\Model
 	 */
-	final public function orm_factory($class, $mixed = null, array $options = array()) {
-		return $this->application->orm_factory($class, $mixed, $options);
+	final public function model_factory($class, $mixed = null, array $options = array()) {
+		return $this->application->model_factory($class, $mixed, $options);
 	}
-
+	
 	/**
 	 * @deprecated 2017-12 Blame PHP 7.2
 	 * @param string $class
 	 * @param mixed $mixed
 	 * @param array $options
-	 * @return \zesk\ORM
+	 * @return \zesk\Model
 	 */
 	final public function object_factory($class, $mixed = null, array $options = array()) {
 		$this->application->deprecated();
-		return $this->application->orm_factory($class, $mixed, $options);
+		return $this->model_factory($class, $mixed, $options);
 	}
 }

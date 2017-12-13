@@ -44,7 +44,7 @@ class Control_Selection extends Control {
 		if ($this->type) {
 			return $this->type;
 		}
-		return $this->type = $this->orm_factory(__NAMESPACE__ . "\\Selection_Type", array(
+		return $this->type = $this->application->orm_factory(Selection_Type::class, array(
 			"session" => $this->session(),
 			"user" => $this->user(),
 			"code" => $this->selection_code(),

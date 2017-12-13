@@ -24,7 +24,7 @@ use zesk\Exception;
  * @author kent
  *
  */
-class Moduel extends \zesk\Module implements Interface_Module_Routes {
+class Module extends \zesk\Module implements Interface_Module_Routes {
 	/**
 	 * List of request parameters/HTTP headers to allow for mocking AJAX and other types of
 	 * calls for debugging and/or testing
@@ -176,6 +176,9 @@ class Moduel extends \zesk\Module implements Interface_Module_Routes {
 		) + $extras);
 		$router->add_route('developer/routes', array(
 			'theme' => 'system/routes'
+		) + $extras);
+		$router->add_route('developer/modules', array(
+			'theme' => 'system/modules'
 		) + $extras);
 		$router->add_route('developer/ip', array(
 			'method' => 'zesk\\IPv4::remote',

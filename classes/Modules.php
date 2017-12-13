@@ -794,20 +794,6 @@ class Modules {
 		return $this->all_hook_arguments($hook, $arguments);
 	}
 	
-// 	/**
-// 	 *
-// 	 * @deprecated 2016-09
-// 	 * @param unknown $hook        	
-// 	 * @param array $arguments        	
-// 	 * @param unknown $default        	
-// 	 * @param unknown $hook_callback        	
-// 	 * @param unknown $result_callback        	
-// 	 * @return mixed|unknown|string|number
-// 	 */
-// 	public final function all_hook_array($hook, array $arguments, $default = null, $hook_callback = null, $result_callback = null) {
-// 		zesk()->deprecated();
-// 		return $this->all_hook_arguments($hook, $arguments, $default, $hook_callback, $result_callback);
-// 	}
 	/**
 	 * Partner to hook_all - runs with an arguments array command and a default return value
 	 * Used for filters where a specific result should be returned by each function
@@ -863,7 +849,7 @@ class Modules {
 	public final function all_hook_list($hook) {
 		$result = $this->application->hooks->find_all("zesk\\Module::$hook");
 		if (count($result) > 0) {
-			zesk()->deprecated("Static cache clear hook is deprecated: " . _dump($result));
+			$this->application->deprecated("Static cache clear hook is deprecated: " . _dump($result));
 		}
 		foreach ($this->modules as $name => $data) {
 			$module = avalue($data, 'module');

@@ -41,13 +41,6 @@ class Template implements Interface_Theme {
 	public $stack = null;
 	
 	/**
-	 * Set to true to debug the push/pop stack
-	 *
-	 * @var boolean
-	 */
-	public static $debug_stack = false;
-	
-	/**
 	 * Stack of Template for begin/end
 	 *
 	 * @var array of Template
@@ -132,6 +125,20 @@ class Template implements Interface_Theme {
 	 * @var boolean
 	 */
 	private static $wrap = false;
+	
+	/**
+	 * Debugging on
+	 *
+	 * @var boolean
+	 */
+	private static $debug = false;
+	
+	/**
+	 * Set to true to debug the push/pop stack
+	 *
+	 * @var boolean
+	 */
+	public static $debug_stack = false;
 	
 	/**
 	 * Construct a new template
@@ -368,7 +375,6 @@ class Template implements Interface_Theme {
 			return $path;
 		}
 		$paths = array();
-		$found = false;
 		
 		$result = $this->application->theme_find($path, array(
 			"all" => $all,
@@ -376,21 +382,18 @@ class Template implements Interface_Theme {
 		));
 		if ($result === null || count($result) === 0) {
 			$theme_paths = $this->application->theme_path();
-			if ($this->application->configuration->path_get(array(
-				__CLASS__,
-				'debug_theme_path'
-			))) {
+			if (self::$debug) {
 				static $template_path = false;
 				if (!$template_path) {
 					$this->application->logger->debug("theme_path is\n\t" . JSON::encode_pretty($theme_paths));
 					$template_path = true;
 				}
+				$this->application->logger->warning(__("Template::path(\"{path}\") not found in theme_path ({n_paths} paths).", array(
+					'path' => $path,
+					'theme_paths' => $theme_paths,
+					'n_paths' => count($theme_paths)
+				)));
 			}
-			$this->application->logger->warning(__("Template::path(\"{path}\") not found in theme_path ({n_paths} paths).", array(
-				'path' => $path,
-				'theme_paths' => $theme_paths,
-				'n_paths' => count($paths)
-			)));
 			if (!$all) {
 				return null;
 			}
@@ -627,16 +630,24 @@ class Template implements Interface_Theme {
 		return strtolower($key);
 	}
 	public static function configured(Application $application) {
-		$config = $application->configuration->path("template");
+		$config = $application->configuration->path(__CLASS__);
 		self::$profile = to_bool($config->profile);
 		self::$wrap = to_bool($config->wrap);
+		self::$debug = to_bool($config->debug);
+		self::$debug_stack = to_bool($config->debug_stack);
 	}
 	/**
 	 * Implements ::hooks
 	 */
 	public static function hooks(Kernel $kernel) {
-		$kernel->hooks->add('</html>', 'Template::profile_output');
-		$kernel->hooks->add('configured', 'Template::configured');
+		$kernel->hooks->add('</html>', array(
+			__CLASS__,
+			'profile_output'
+		));
+		$kernel->hooks->add('configured', array(
+			__CLASS__,
+			'configured'
+		));
 	}
 	public static function profile_output() {
 		if (!self::$profile) {

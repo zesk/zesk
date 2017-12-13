@@ -42,7 +42,7 @@ class Module extends \zesk\Module {
 	 *
 	 * @var array
 	 */
-	protected $object_classes = array(
+	protected $model_classes = array(
 		"zesk\\Server",
 		"zesk\\Lock",
 		"zesk\\Settings"

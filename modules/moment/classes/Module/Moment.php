@@ -18,7 +18,7 @@ class Module_Moment extends Module_JSLib implements Interface_Module_Head {
 		"/share/moment/moment.js",
 		"/share/moment/moment-with-locales.js"
 	);
-	protected $object_aliases = array(
+	protected $class_aliases = array(
 		"Module_Moment" => __CLASS__
 	);
 	

@@ -1,11 +1,9 @@
 <?php
 /**
- * $URL: https://code.marketacumen.com/zesk/trunk/classes/Control.php $
  * @package zesk
  * @subpackage widgets
  * @author Kent Davidson <kent@marketacumen.com>
- * @copyright Copyright &copy; 2008, Market Acumen, Inc.
- *            Created on Tue Jul 15 16:39:10 EDT 2008
+ * @copyright Copyright &copy; 2017, Market Acumen, Inc.
  */
 namespace zesk;
 
@@ -228,6 +226,13 @@ class Control extends Widget {
 	protected function sanitize_allow_tags($set = null) {
 		return $set === null ? $this->option('sanitize_allow_tags', self::$default_allow_tags) : $this->set_option('sanitize_allow_tags', $set);
 	}
+	
+	/**
+	 * 
+	 * @param string $value
+	 * @param list $tags
+	 * @return string
+	 */
 	private static function _sanitize_strip($value, $tags) {
 		if (is_string($tags)) {
 			$tags = to_list($tags);

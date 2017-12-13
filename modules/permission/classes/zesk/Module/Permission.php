@@ -41,7 +41,7 @@ class Module_Permission extends Module {
 	 *
 	 * @return array
 	 */
-	protected $object_classes = array(
+	protected $model_classes = array(
 		"zesk\\Role",
 		"zesk\\User_Role",
 		"zesk\\Permission"

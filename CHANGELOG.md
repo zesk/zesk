@@ -9,20 +9,32 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 Version 1.0 of Zesk will have:
 
-- Renaming of `zesk\ORM` to something non-reserved in PHP 7.2 (Candidates are `zesk\ORM` `zesk\Model` - reuse)
-- Elimination of most globals, moving from `zesk::` to `Application::` in places where it makes sense
+- Elimination of most globals, moving from `zesk::` to `Application::` in places where it makes sense - **in progress**
 - Ability to initialize the application context and then serialize the configuration in a way which allows for faster startup (maybe)
-- PSR-4?
-- `zesk\` namespace for most objects in the system
-- Full composer support for both Zesk as well as commonly used modules
-- Support for `Psr/Cache` for caching within Zesk
-- Support for `Monolog` within Zesk core
-- All modules use **namespaces**
+- PSR-4? - **Yes, for zesk core.**
+- Full composer support for both Zesk as well as commonly used modules - **still need module tested**
+- Support for `Psr/Cache` for caching within Zesk - **needs to be tested**
+- Support for `Monolog` within Zesk core - **needs to be tested**
+- All modules use **namespaces** - **in progress**
 - Merging of `Response` and `Response_Text_HTML` into a single, unified polymorphic `Response` which changes behavior depending on content-type but allows typed API calls for specific response handling. May move `Response_Text_HTML` into a sub-object (e.g. `$response->html()->add_body_class()` for example)
 
-<!-- ## [Unreleased][]
+### Completed
 
-- ... -->
+- <strike>Renaming of `zesk\ORM` to something non-reserved in PHP 7.2 (Candidates are `zesk\ORM` `zesk\Model` - reuse)</strike>
+- `zesk\` namespace for all `classes` in the system
+
+## [Unreleased][]
+
+### ORM Rename
+
+Yes, we've renamed the `zesk\Object` class to `zesk\ORM` because PHP 7.2 makes the term `Object` a reserved word for class or namespace names. So... Major changes in how system is organized:
+
+- `modules/orm` added and all `Object` and `Class_Object` funtcionality moved into there and renamed `ORM` and `Class_ORM` respectively.
+- Refactored `Session` and moved to its own module. Likely will need future detachment from the `zesk\Application` class
+- Refactored references to `ORM`-related classes and moved into `ORM` module (`User`, `Lock`, `Domain`, `Meta`, )
+- References to `ORM` will be detached from zesk core in this and upcoming releases
+- When possible `zesk\ORM` references are migrated to `zesk\Model` references instead
+
 
 ## [v0.13.2][]
 
@@ -745,7 +757,7 @@ Removed as many references as possible to `app()` and `zesk\Application::instanc
 
 ## Version 0.9.6
 
-- Fixing path of `zesk\\Control_Select_Object_Available` to be case-sensitive
+- Fixing path of `zesk\\Control_Select_ORM_Available` to be case-sensitive
 
 ## v0.9.5
 
