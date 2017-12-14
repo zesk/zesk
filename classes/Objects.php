@@ -30,13 +30,6 @@ class Objects {
 	
 	/**
 	 *
-	 * @deprecated 2017-08
-	 * @var User
-	 */
-	private $user = null;
-	
-	/**
-	 *
 	 * @var array
 	 */
 	private $singletons = array();
@@ -87,10 +80,13 @@ class Objects {
 	 */
 	public function __construct(Kernel $zesk) {
 	}
+	
+	/**
+	 * 
+	 */
 	public function reset() {
 		$this->settings = null;
 		$this->databases = array();
-		$this->user = null;
 		$this->singletons = array();
 		$this->debug = array();
 		$this->mapping = array();
@@ -106,7 +102,7 @@ class Objects {
 	 *        	When this class is requested, then ...
 	 * @param string $target_class
 	 *        	Use this class instead
-	 * @return \zesk\ORMs
+	 * @return self
 	 */
 	public function map($requested_class = null, $target_class = null) {
 		if ($requested_class === null) {

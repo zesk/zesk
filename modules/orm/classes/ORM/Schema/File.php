@@ -15,7 +15,7 @@ namespace zesk;
  * @author kent
  * @see Database_Schema
  */
-class Database_Schema_File extends Database_Schema {
+class ORM_Schema_File extends ORM_Schema {
 	/**
 	 * Path of sql file loaded
 	 *

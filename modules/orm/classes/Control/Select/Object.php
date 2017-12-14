@@ -14,4 +14,4 @@ namespace zesk;
  * @author kent
  *
  */
-class Control_Select_ORM extends Control_Select_ORM {}
+class Control_Select_Object extends Control_Select_ORM {}

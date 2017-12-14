@@ -1459,46 +1459,48 @@ abstract class Database extends Hookable {
 			"feature" => self::feature_time_zone_relative_timestamp
 		));
 	}
+
+	// KMD: O R M -only, see if can remove them safely
 	
-	/**
-	 *
-	 * @return Database_Query_Select
-	 */
-	public function query_select() {
-		return new Database_Query_Select($this);
-	}
+// 	/**
+// 	 *
+// 	 * @return Database____Query_Select
+// 	 */
+// 	public function query_select() {
+// 		return new Database____Query_Select($this);
+// 	}
 	
-	/**
-	 *
-	 * @return Database_Query_Update
-	 */
-	public function query_update() {
-		return new Database_Query_Update($this);
-	}
+// 	/**
+// 	 *
+// 	 * @return Database____Query_Update
+// 	 */
+// 	public function query_update() {
+// 		return new Database____Query_Update($this);
+// 	}
 	
-	/**
-	 *
-	 * @return Database_Query_Insert
-	 */
-	public function query_insert() {
-		return new Database_Query_Insert($this);
-	}
+// 	/**
+// 	 *
+// 	 * @return Database____Query_Insert
+// 	 */
+// 	public function query_insert() {
+// 		return new Database____Query_Insert($this);
+// 	}
 	
-	/**
-	 *
-	 * @return Database_Query_Delete
-	 */
-	public function query_delete() {
-		return new Database_Query_Delete($this);
-	}
+// 	/**
+// 	 *
+// 	 * @return Database____Query_Delete
+// 	 */
+// 	public function query_delete() {
+// 		return new Database____Query_Delete($this);
+// 	}
 	
-	/**
-	 *
-	 * @return Database_Query_Union
-	 */
-	public function query_union() {
-		return new Database_Query_Union($this);
-	}
+// 	/**
+// 	 *
+// 	 * @return Database____Query_Union
+// 	 */
+// 	public function query_union() {
+// 		return new Database____Query_Union($this);
+// 	}
 	
 	/**
 	 * Return the total bytes used by the database, or the bytes used by a particular table

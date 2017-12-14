@@ -529,7 +529,7 @@ class Router extends Hookable {
 		if (is_array($class_object->has_one) && $class_object->id_column) {
 			foreach ($class_object->has_one as $member => $class) {
 				$member_object = $object->__get($member);
-				if (!$member_object instanceof Model) {
+				if ($member_object !== null && !$member_object instanceof Model) {
 					$this->application->logger->error("Member {member} of object {class} should be an object of {expected_class}, returned {type} with value {value}", array(
 						"member" => $member,
 						"class" => get_class($object),

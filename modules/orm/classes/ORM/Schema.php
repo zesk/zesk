@@ -9,7 +9,7 @@
  */
 namespace zesk;
 
-abstract class Database_Schema extends Hookable {
+abstract class ORM_Schema extends Hookable {
 	const type_id = Class_ORM::type_id;
 	
 	/**
