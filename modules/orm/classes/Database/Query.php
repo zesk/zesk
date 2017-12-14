@@ -187,12 +187,22 @@ class Database_Query {
 	/**
 	 * Cache for Object definitions, do not modify these objects
 	 *
-	 * @deprecated 2017-12 use class_object above
+	 * @deprecated 2017-12 use orm_registry above
 	 * @param string $class
 	 * @return \zesk\ORM
 	 */
 	protected function object_cache($class) {
 		zesk()->deprecated();
-		return $this->db->application->object($class);
+		return $this->orm_registry($class);
+	}
+	
+	/**
+	 * Cache for Object definitions, do not modify these objects
+	 *
+	 * @param string $class
+	 * @return \zesk\ORM
+	 */
+	protected function orm_registry($class) {
+		return $this->application->orm_registry($class);
 	}
 }
