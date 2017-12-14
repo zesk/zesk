@@ -11,4 +11,4 @@ zesk()->deprecated();
  * @author kent
  *
  */
-class Control_Checklist_Object extends Control_Checklist_ORM {}
+class Control_Checklist_Object extends Control_ORM_Checklist {}

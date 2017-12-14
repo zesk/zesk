@@ -136,7 +136,6 @@ class Functions_Test extends Test_Unit {
 	function test_theme() {
 		$app = $this->application;
 		$theme_path = $app->theme_path();
-		echo "theme path is: \n" . implode("\n    ", $app->theme_path()) . "\n";
 		$type = null;
 		$this->assert_equal($app->theme("microsecond", 42.512312), "42.5123");
 		$this->assert_equal($app->theme("percent", array(
@@ -232,8 +231,16 @@ class Functions_Test extends Test_Unit {
 		clamp($minValue, $value, $maxValue);
 	}
 	function test_vartype() {
-		$x = null;
-		vartype($x);
+		$this->assert_equal("NULL", type(null));
+		$this->assert_equal("stdClass", type(new \stdClass()));
+		$this->assert_equal("zesk\\Date", type(new Date()));
+		$this->assert_equal("integer", type(223));
+		$this->assert_equal("double", type(223.2));
+		$this->assert_equal("string", type(""));
+		$this->assert_equal("string", type("dude"));
+		$this->assert_equal("boolean", type(false));
+		$this->assert_equal("boolean", type(true
+				));
 	}
 	function test_to_list() {
 		$mixed = null;

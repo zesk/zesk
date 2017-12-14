@@ -12,6 +12,9 @@ namespace zesk;
  *
  */
 class Overhead_Test extends Test_Unit {
+	protected $load_modules = array(
+		"ORM"
+	);
 	function test_usage() {
 		$test_limit = 10 * 1024 * 1024; // 10M
 		$users = array();

@@ -120,7 +120,7 @@ class Controller extends Hookable implements Interface_Theme {
 	}
 	
 	/**
-	 * Stub for override - initialize the controller - called after __construct is done.
+	 * Stub for override - initialize the controller - called after __construct is done but before hook_initialize
 	 */
 	protected function initialize() {
 	}
@@ -307,9 +307,9 @@ class Controller extends Hookable implements Interface_Theme {
 	}
 	
 	/**
-	 * Create an object
+	 * Create a model
 	 *
-	 * @return Object
+	 * @return Model
 	 */
 	public function model_factory($class, $mixed = null, array $options = array()) {
 		return $this->application->model_factory($class, $mixed, $options);

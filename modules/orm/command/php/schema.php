@@ -1,5 +1,4 @@
 <?php
-
 namespace zesk;
 
 /**
@@ -13,7 +12,7 @@ class Command_PHP_Schema extends Command {
 	);
 	function run() {
 		$db = $this->application->database_factory();
-
+		
 		$class = $this->option('class');
 		if (!$class) {
 			echo "/* No class specified */\n";

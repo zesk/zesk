@@ -1,12 +1,10 @@
 <?php
 
 /**
- * $URL: https://code.marketacumen.com/zesk/trunk/classes/Application.php $
  * @package zesk
  * @subpackage core
- * @author $Author: kent $
- * @copyright Copyright &copy; 2011, Market Acumen, Inc.
- *            Created on Mon,Aug 1, 11 at 5:06 PM
+ * @author kent
+ * @copyright Copyright &copy; 2018, Market Acumen, Inc.
  */
 namespace zesk;
 
@@ -14,12 +12,19 @@ use Psr\Cache\CacheItemPoolInterface;
 
 /**
  * Core web application object for Zesk.
+ * 
  * If you're doing something useful, it's probably a simple application.
  *
  * @author kent
- *
+ * 
+ * @method ORM orm_factory($class, $mixed, array $options = array())
+ * @method Widget widget_factory($class, array $options = array())
+ * 
+ * @method Database database_registry($name)
+ * @method Class_ORM class_orm_registry($class)
+ * @method ORM orm_registry($class)
  */
-class Application extends Hookable implements Interface_Theme {
+class Application extends Hookable implements Interface_Theme, Interface_Factory {
 	
 	/**
 	 * Equivalent of zesk()
@@ -201,6 +206,13 @@ class Application extends Hookable implements Interface_Theme {
 	private $variables = array();
 	
 	/**
+	 * Array of calls to create stuff
+	 *
+	 * @var Closure[string]
+	 */
+	private $factories = array();
+	
+	/**
 	 * Array of classes to register hooks automatically
 	 *
 	 * @var array of string
@@ -358,6 +370,8 @@ class Application extends Hookable implements Interface_Theme {
 		$this->template = null;
 		$this->theme_stack = null;
 		$this->configured_was_run = false;
+		
+		$this->factories = array();
 		
 		$this->command = null;
 		$this->request = null;
@@ -816,109 +830,6 @@ class Application extends Hookable implements Interface_Theme {
 	}
 	
 	/**
-	 *
-	 * @var string[]
-	 */
-	private $cached_classes = null;
-	
-	/**
-	 * Retrieve the list of classes associated with an application
-	 *
-	 * @param mixed $add
-	 *        	Class to add, or array of classes to add
-	 * @return array
-	 */
-	private function _classes($add = null) {
-		$classes = array();
-		$model_classes = array_merge($this->model_classes, $this->model_classes);
-		$this->logger->debug("Classes from {class}->model_classes = {value}", array(
-			"class" => get_class($this),
-			"value" => $model_classes
-		));
-		$classes = $classes + arr::flip_copy($model_classes, true);
-		$all_classes = $this->call_hook_arguments('classes', array(
-			$classes
-		), $classes);
-		/* @var $module Module */
-		foreach ($this->modules->all_modules() as $name => $module) {
-			$module_classes = $module->classes();
-			$this->logger->debug("Classes for module {name} = {value}", array(
-				"name" => $name,
-				"value" => $module_classes
-			));
-			$all_classes = array_merge($all_classes, arr::flip_copy($module_classes, true));
-		}
-		$this->classes->register(array_values($all_classes));
-		ksort($all_classes);
-		return $all_classes;
-	}
-	
-	/**
-	 *
-	 * @param unknown $add
-	 */
-	final public function orm_classes($add = null) {
-		if ($this->cached_classes === null) {
-			$this->cached_classes = $this->_classes();
-		}
-		if ($add !== null) {
-			foreach (to_list($add) as $class) {
-				$this->cached_classes[strtolower($class)] = $class;
-			}
-			return $this;
-		}
-		return array_values($this->cached_classes);
-	}
-	
-	/**
-	 * Retrieve all classes with additional fields
-	 *
-	 * @return array
-	 */
-	final public function all_classes() {
-		$classes = $this->orm_classes();
-		$objects_by_class = array();
-		$is_table = false;
-		$rows = array();
-		while (count($classes) > 0) {
-			$class = array_shift($classes);
-			if (!is_subclass_of($class, ORM::class)) {
-				$this->logger->warning("{method} {class} is not a subclass of {parent}", array(
-					"method" => __METHOD__,
-					"class" => $class,
-					"parent" => ORM::class
-				));
-				continue;
-			}
-			$lowclass = strtolower($class);
-			if (array_key_exists($lowclass, $objects_by_class)) {
-				continue;
-			}
-			$result = array();
-			$result['class'] = $class;
-			try {
-				$result['object'] = $object = $this->orm_factory($class);
-				$result['database'] = $object->database_name();
-				$result['table'] = $object->table();
-			} catch (\Exception $e) {
-				$result['object'] = $object = null;
-			}
-			$objects_by_class[$lowclass] = $result;
-			if ($object) {
-				$dependencies = $object->dependencies();
-				$requires = avalue($dependencies, 'requires', array());
-				foreach ($requires as $require) {
-					$require = strtolower($require);
-					if (array_key_exists($require, $objects_by_class)) {
-						continue;
-					}
-					$classes[] = $require;
-				}
-			}
-		}
-		return $objects_by_class;
-	}
-	/**
 	 * Default include path
 	 *
 	 * @return array
@@ -1221,168 +1132,6 @@ class Application extends Hookable implements Interface_Theme {
 	}
 	
 	/**
-	 * While developing, check schema every minute
-	 */
-	public static function cron_cluster_minute(Application $application) {
-		if ($application->development()) {
-			$application->_schema_check();
-		}
-	}
-	
-	/**
-	 * While an out-of-sync schema may cause issues, it often does not.
-	 * Check hourly on production to avoid
-	 * checking the database incessantly.
-	 */
-	public static function cron_cluster_hour(Application $application) {
-		if (!$application->development()) {
-			$application->_schema_check();
-		}
-	}
-	
-	/**
-	 * Internal function - check the schema and notify someone
-	 *
-	 * @todo some sort of communication, a hook?
-	 */
-	protected function _schema_check() {
-		/* @var $application Application */
-		$results = $this->schema_synchronize();
-		if (count($results) === 0) {
-			return false;
-		}
-		$logger = $this->zesk->logger;
-		if ($this->option_bool('schema_sync')) {
-			$db = $this->database_factory();
-			$logger->warning("The database schema was out of sync, updating: {sql}", array(
-				"sql" => implode(";\n", $results) . ";\n"
-			));
-			$db->query($results);
-		} else {
-			$logger->warning("The database schema is out of sync, please update: {sql}", array(
-				"sql" => implode(";\n", $results) . ";\n"
-			));
-			//TODO How to communicate with main UI?
-			// 				$router = $this->router();
-			// 				$url = $router->get_route("schema_synchronize", $application);
-			// 				$message = $url ? _W(__("The database schema is out of sync, please [update it immediately.]"), HTML::a($url, '[]')) : __("The database schema is out of sync, please update it immediately.");
-			// 				Response::instance($application)->redirect_message($message, array(
-			// 					"url" => $url
-			// 				));
-		}
-		return $results;
-	}
-	
-	/**
-	 * Synchronzie the schema. TODO move this elsewhere
-	 *
-	 * @return multitype:
-	 */
-	public function schema_synchronize(Database $db = null, array $classes = null, array $options = array()) {
-		if ($this->objects !== $this->zesk->objects) {
-			// KMD: I assume this must have happened once and should not ever happen again.
-			// If it does it's a SNAFU
-			$this->logger->emergency("App objects mismatch kernel {file}:{line}", array(
-				"file" => __FILE__,
-				"line" => __LINE__
-			));
-			exit(131);
-		}
-		if (!$db) {
-			$db = $this->database_factory();
-		}
-		if ($classes === null) {
-			$classes = $this->orm_classes();
-		} else {
-			$options['follow'] = avalue($options, 'follow', false);
-		}
-		$logger = $this->logger;
-		$logger->debug("{method}: Synchronizing classes: {classes}", array(
-			"method" => __METHOD__,
-			"classes" => $classes
-		));
-		$results = array();
-		$objects_by_class = array();
-		$other_updates = array();
-		$follow = avalue($options, 'follow', true);
-		while (count($classes) > 0) {
-			$class = array_shift($classes);
-			if (stripos($class, 'user_role')) {
-				$logger->debug("{method}: ORM map is: {map}", array(
-					"method" => __METHOD__,
-					"map" => _dump($this->objects->map()),
-					"class" => $class
-				));
-			}
-			$resolved_class = $this->objects->resolve($class);
-			if ($resolved_class !== $class) {
-				$logger->debug("{resolved_class} resolved to {class}", array(
-					"resolved_class" => $resolved_class,
-					"class" => $class
-				));
-			}
-			$class = $resolved_class;
-			$lowclass = strtolower($class);
-			if (avalue($objects_by_class, $lowclass)) {
-				continue;
-			}
-			$logger->debug("Parsing $class");
-			$objects_by_class[$lowclass] = true;
-			try {
-				$object = $this->orm_factory($class);
-				$object_db_name = $object->database()->code_name();
-				$updates = Database_Schema::update_object($object);
-			} catch (Exception $e) {
-				$logger->error("Unable to synchronize {class} because of {exception_class} {message}", array(
-					"class" => $class,
-					"message" => $e->getMessage(),
-					"exception_class" => get_class($e),
-					"exception" => $e
-				));
-				throw $e;
-				continue;
-			}
-			if (count($updates) > 0) {
-				$updates = array_merge(array(
-					"-- Synchronizing schema for class: $class"
-				), $updates);
-				if ($object_db_name !== $db->code_name()) {
-					$other_updates[$object_db_name] = true;
-					$updates = array();
-					$logger->debug("Result of schema parse for {class}: {n} changes - Database {dbname}", array(
-						"class" => $class,
-						"n" => count($updates),
-						"updates" => $updates,
-						"dbname" => $object_db_name
-					));
-				} else {
-					$logger->debug("Result of schema parse for {class}: {n} updates", array(
-						"class" => $class,
-						"n" => count($updates),
-						"updates" => $updates
-					));
-				}
-			}
-			$results = array_merge($results, $updates);
-			if ($follow) {
-				$dependencies = $object->dependencies();
-				$requires = avalue($dependencies, 'requires', array());
-				foreach ($requires as $require) {
-					if (avalue($objects_by_class, $require)) {
-						continue;
-					}
-					$logger->debug("$class: Adding dependent class $require");
-					$classes[] = $require;
-				}
-			}
-		}
-		if (count($other_updates) > 0) {
-			$results[] = "-- Other database updates:\n" . arr::join_wrap(array_keys($other_updates), "-- zesk database-schema --name ", " --update;\n");
-		}
-		return $results;
-	}
-	
-	/**
 	 * Get a list of repositories for this application (dependencies)
 	 *
 	 * @return array
@@ -1426,25 +1175,6 @@ class Application extends Hookable implements Interface_Theme {
 			$content = strtr($content, $final_map);
 		}
 		echo $content;
-	}
-	
-	/**
-	 * Called once before a $zesk->hooks->all_hook("zesk\\ORM::method");
-	 */
-	public static final function object_register_all_hooks() {
-		$app = zesk()->application();
-		$classes = $app->all_classes();
-		$app->classes->register(arr::collapse($classes, "class"));
-	}
-	
-	/**
-	 * When zesk\Hooks::all_hook is called, this is called first to collect all objects
-	 * in the system.
-	 *
-	 * @todo PHP7 Add Closure here to avoid global usage
-	 */
-	public static function hooks(Kernel $zesk) {
-		$zesk->hooks->add(__NAMESPACE__ . '\\' . 'ORM::register_all_hooks', __CLASS__ . "::object_register_all_hooks");
 	}
 	
 	/**
@@ -2037,36 +1767,13 @@ class Application extends Hookable implements Interface_Theme {
 		// Call non-deprecated version, for now. Move this elsewhere?
 		return Database::_factory($this, $mixed, $options);
 	}
-	/**
-	 * Create a widget
-	 *
-	 * @param string $class
-	 * @param array $options
-	 * @return Widget
-	 */
-	public function widget_factory($class, array $options = array()) {
-		return Widget::factory($this, $class, $options);
-	}
-	
-	/**
-	 * Create an ORM
-	 *
-	 * @param string $class
-	 * @param array $options
-	 * @todo Pass application as part of creation call
-	 * @return ORM
-	 */
-	public function orm_factory($class, $mixed = null, array $options = array()) {
-		return ORM::factory($this, $class, $mixed, $options);
-	}
 	
 	/**
 	 * Create a model
 	 *
 	 * @param string $class
 	 * @param array $options
-	 * @todo Pass application as part of creation call
-	 * @return ORM
+	 * @return Model
 	 */
 	public function model_factory($class, $mixed = null, array $options = array()) {
 		return Model::factory($this, $class, $mixed, $options);
@@ -2102,175 +1809,6 @@ class Application extends Hookable implements Interface_Theme {
 	 */
 	public function factory_arguments($class, array $arguments = array()) {
 		return $this->objects->factory_arguments($class, $arguments);
-	}
-	
-	/**
-	 * Access a Class_ORM
-	 *
-	 * @return Class_ORM
-	 */
-	public function class_orm($class) {
-		return $this->_class_cache($this->objects->resolve($class), "class");
-	}
-	
-	/**
-	 * Retrieve the database for a specific object class
-	 *
-	 * @param string $class
-	 * @return \zesk\Database
-	 */
-	public final function class_orm_database($class) {
-		return $this->class_orm($class)->database();
-	}
-	
-	/**
-	 *
-	 * @param unknown $class
-	 * @throws Exception_Parameter
-	 */
-	public function clear_class_cache($class = null) {
-		if ($class instanceof ORM) {
-			$class = get_class($class);
-		} else if ($class instanceof Class_ORM) {
-			$class = $class->class;
-		}
-		if ($class === null) {
-			$this->class_cache = array();
-			return $this;
-		}
-		if (!is_string($class)) {
-			throw new Exception_Parameter("Invalid class passed to {method}: {value} ({type})", array(
-				"method" => __METHOD__,
-				"type" => type($class),
-				"value" => $class
-			));
-		}
-		$lowclass = strtolower($class);
-		if (array_key_exists($lowclass, $this->class_cache)) {
-			unset($this->class_cache[$lowclass]);
-		}
-		return $this;
-	}
-	
-	/**
-	 * Retrieve object or classes from cache
-	 *
-	 * @param string $class
-	 * @param string $component
-	 *        	Optional component to retrieve
-	 * @throws Exception_Semantics
-	 * @return Ambigous <mixed, array>
-	 */
-	public function _class_cache($class, $component = "") {
-		if (!is_string($class) && !is_integer($class)) {
-			var_dump($class);
-			backtrace();
-		}
-		$lowclass = strtolower($class);
-		if (!array_key_exists($lowclass, $this->class_cache)) {
-			$object = $this->model_factory($class, null, array(
-				"immutable" => true
-			));
-			if (!$object instanceof ORM) {
-				throw new Exception_Semantics("$class is not an ORM");
-			}
-			$this->class_cache[$lowclass] = array(
-				'table' => $object->table(),
-				'dbname' => $object->database_name(),
-				'database_name' => $object->database_name(),
-				'object' => $object,
-				'class' => $object->class_object(),
-				'id_column' => $object->id_column()
-			);
-		}
-		$result = $this->class_cache[$lowclass];
-		return avalue($result, $component, $result);
-	}
-	
-	/**
-	 * Access an ORM by class name
-	 *
-	 * @return ORM
-	 */
-	public final function object($class, $mixed = null, $options = null) {
-		$result = $this->_class_cache($this->objects->resolve($class), "object");
-		if (!$result) {
-			throw new Exception_Class_NotFound($class);
-		}
-		return $result;
-	}
-	
-	/**
-	 * Determine object table name based on class and optional initialization parameters
-	 *
-	 * @param string $class
-	 * @param mixed $mixed
-	 * @param array $options
-	 * @return string|\zesk\Ambigous
-	 */
-	public final function object_table_name($class, $mixed = null, $options = null) {
-		return $this->object($class, $mixed, $options)->table();
-	}
-	
-	/**
-	 * Determine object table columns based on class and optional initialization parameters
-	 *
-	 * @param string $class
-	 * @param mixed $mixed
-	 * @param array $options
-	 * @return string|\zesk\Ambigous
-	 */
-	public final function object_table_columns($class, $mixed = null, $options = null) {
-		return $this->object($class, $mixed, $options)->columns();
-	}
-	
-	/**
-	 * Determine object database based on class and optional initialization parameters
-	 *
-	 * @param string $class
-	 * @param mixed $mixed
-	 * @param array $options
-	 * @return \zesk\Database
-	 */
-	public final function object_database($class, $mixed = null, $options = null) {
-		return $this->object($class, $mixed, $options)->database();
-	}
-	
-	/**
-	 *
-	 * @return Database_Query_Select
-	 */
-	public function query_select($class, $alias = null) {
-		return $this->object($class)->query_select($alias);
-	}
-	/**
-	 *
-	 * @return Database_Query_Update
-	 */
-	public function query_update($class, $alias = null) {
-		return $this->object($class)->query_update($alias);
-	}
-	/**
-	 *
-	 * @return Database_Query_Insert
-	 */
-	public function query_insert($class) {
-		return $this->object($class)->query_insert();
-	}
-	/**
-	 *
-	 * @return Database_Query_Insert
-	 */
-	public function query_insert_select($class, $alias = null) {
-		return $this->object($class)->query_insert_select($alias);
-	}
-	
-	/**
-	 *
-	 * @return Database_Query_Delete
-	 */
-	public function query_delete($class) {
-		return $this->object($class)->query_delete();
 	}
 	
 	/**
@@ -2334,11 +1872,12 @@ class Application extends Hookable implements Interface_Theme {
 		return $this->zesk->console($set);
 	}
 	/**
-	 *
+	 * @deprecated 2017-12
 	 * @param string $uri
 	 * @return string
 	 */
 	public function url($uri) {
+		zesk()->deprecated();
 		// TODO Remove this
 		return $uri;
 	}
@@ -2351,6 +1890,55 @@ class Application extends Hookable implements Interface_Theme {
 		return $this->zesk->initialization_time;
 	}
 	
+	/**
+	 * Add support for generic extension calls
+	 * 
+	 * @param string $code
+	 * @param callable $callable
+	 * @return callable
+	 */
+	private function _register_factory($code, $callable) {
+		$old_factory = isset($this->factories[$code]) ? $this->factories[$code] : null;
+		$this->factories[$code] = $callable;
+		return $old_factory;
+	}
+	/**
+	 * Register a factory function
+	 *
+	 * @param string $code
+	 * @param callable $callable
+	 * @return callable
+	 */
+	final public function register_factory($code, $callable) {
+		return $this->_register_factory($code . '_factory', $callable);
+	}
+	
+	/**
+	 * Register a factory function. Returns previous factory registered if ya want to use it.
+	 * 
+	 * @param string $code
+	 * @param callable $callable
+	 * @return callable
+	 */
+	final public function register_registry($code, $callable) {
+		return $this->_register_factory($code . '_registry', $callable);
+	}
+	
+	/**
+	 * Support foo_factory and foo_registry calls
+	 * 
+	 * @param string $name Method called
+	 * @return \object
+	 */
+	final public function __call($name, array $args) {
+		if (isset($this->factories[$name])) {
+			array_unshift($args, $this);
+			return call_user_func_array($this->factories[$name], $args);
+		}
+		throw new Exception_Unsupported("Application call {method} is not supported. Do you need to register the module which adds this functionality?", array(
+			"method" => $name
+		));
+	}
 	/**
 	 * Load the Application singleton
 	 *
@@ -2391,13 +1979,14 @@ class Application extends Hookable implements Interface_Theme {
 	}
 	
 	/**
+	 * 
 	 * Access a class_object
-	 * @deprecated 2017-12
+	 * @deprecated 2017-12 use $this->class_orm_registry($class)
 	 * @return Class_ORM
 	 */
 	public function class_object($class) {
 		$this->deprecated();
-		return $this->_class_cache($this->objects->resolve($class), "class");
+		return $this->class_orm_registry($class);
 	}
 	
 	/**
@@ -2424,6 +2013,186 @@ class Application extends Hookable implements Interface_Theme {
 	final public function application_root($suffix = null) {
 		$this->deprecated();
 		return $this->paths->application($suffix);
+	}
+	
+	/**
+	 * Retrieve object or classes from cache
+	 *
+	 * @deprecated immediately
+	 * @param string $class
+	 * @param string $component
+	 *        	Optional component to retrieve
+	 * @throws Exception_Semantics
+	 * @return Ambigous <mixed, array>
+	 */
+	public function _class_cache($class, $component = "") {
+		zesk()->obsolete();
+	}
+	
+	/**
+	 * Access an ORM by class name
+	 * @deprecated 2017-12 Use ->orm_registry($class, $mixed, $options) instead.
+	 *
+	 * @return ORM
+	 */
+	public final function object($class, $mixed = null, $options = null) {
+		zesk()->deprecated();
+		return $this->orm_registry($class, $mixed, $options);
+	}
+	
+	/**
+	 * Determine object table name based on class and optional initialization parameters
+	 *
+	 * @deprecated 2017-12 Use ->orm_registry($class, $mixed, $options)->table() instead.
+	 * @param string $class
+	 * @param mixed $mixed
+	 * @param array $options
+	 * @return string|\zesk\Ambigous
+	 */
+	public final function object_table_name($class, $mixed = null, $options = null) {
+		zesk()->deprecated();
+		return $this->object($class, $mixed, $options)->table();
+	}
+	
+	/**
+	 * Determine object table columns based on class and optional initialization parameters
+	 *
+	 * @deprecated 2017-12 Use ->orm_registry($class, $mixed, $options)->columns() instead.
+	 * @param string $class
+	 * @param mixed $mixed
+	 * @param array $options
+	 * @return string|\zesk\Ambigous
+	 */
+	public final function object_table_columns($class, $mixed = null, $options = null) {
+		zesk()->deprecated();
+		return $this->object($class, $mixed, $options)->columns();
+	}
+	
+	/**
+	 * Determine object database based on class and optional initialization parameters
+	 *
+	 * @deprecated 2017-12 Use ->orm_registry($class, $mixed, $options)->database() instead.
+	 * @param string $class
+	 * @param mixed $mixed
+	 * @param array $options
+	 * @return \zesk\Database
+	 */
+	public final function object_database($class, $mixed = null, $options = null) {
+		zesk()->deprecated();
+		return $this->object($class, $mixed, $options)->database();
+	}
+	
+	/**
+	 *
+	 * @deprecated 2017-12 Use ->orm_registry($class)->query_select($alias) instead.
+	 * @return Database_Query_Select
+	 */
+	public function query_select($class, $alias = null) {
+		zesk()->deprecated();
+		return $this->object($class)->query_select($alias);
+	}
+	/**
+	 * @deprecated 2017-12 Use ->orm_registry($class)->query_update($alias) instead.
+	 * @return Database_Query_Update
+	 */
+	public function query_update($class, $alias = null) {
+		zesk()->deprecated();
+		return $this->object($class)->query_update($alias);
+	}
+	/**
+	 * @deprecated 2017-12 Use ->orm_registry($class)->query_insert() instead.
+	 *
+	 * @return Database_Query_Insert
+	 */
+	public function query_insert($class) {
+		zesk()->deprecated();
+		return $this->object($class)->query_insert();
+	}
+	/**
+	 * @deprecated 2017-12 Use ->orm_registry($class)->query_insert_select($alias) instead.
+	 * @return Database_Query_Insert
+	 */
+	public function query_insert_select($class, $alias = null) {
+		zesk()->deprecated();
+		return $this->object($class)->query_insert_select($alias);
+	}
+	
+	/**
+	 * @deprecated 2017-12 Use ->orm_registry($class)->query_delete() instead.
+	 * @return Database_Query_Delete
+	 */
+	public function query_delete($class) {
+		zesk()->deprecated();
+		return $this->object($class)->query_delete();
+	}
+	
+	/**
+	 * Access a Class_ORM
+	 *
+	 * @deprecated 2017-12 use class_orm_registry
+	 * @return Class_ORM
+	 */
+	public function class_orm($class) {
+		zesk()->deprecated();
+		return $this->class_orm_registry($class);
+	}
+	
+	/**
+	 * Retrieve the database for a specific object class
+	 * @deprecated 2017-12 use orm_regsitry($class)->database()
+	 * @param string $class
+	 * @return \zesk\Database
+	 */
+	public final function class_orm_database($class) {
+		zesk()->deprecated();
+		return $this->orm_registry($class)->database();
+	}
+	
+	/**
+	 * @deprecated 2017-12 use $this->orm_registry()->clear_cache();
+	 * @param unknown $class
+	 * @throws Exception_Parameter
+	 */
+	public function clear_class_cache($class = null) {
+		zesk()->deprecated();
+		
+		return $this->orm_registry()->clear_cache($class);
+	}
+	
+	/**
+	 * @deprecated 2017-12
+	 * @see Module_ORM
+	 * @param unknown $add
+	 */
+	final public function orm_classes($add = null) {
+		zesk()->deprecated();
+		
+		return $this->modules->object("orm")->orm_classes($add);
+	}
+	
+	/**
+	 * Retrieve all classes with additional fields
+	 *
+	 * @todo move ORM related to hooks
+	 * @deprecated 2017-12
+	 * @see Module_ORM
+	 *
+	 * @return array
+	 */
+	final public function all_classes() {
+		zesk()->deprecated();
+		return $this->modules->object("orm")->all_classes();
+	}
+	
+	/**
+	 * Synchronzie the schema. TODO move this elsewhere
+	 * @deprecated 2017-12
+	 * @see Module_ORM::schema_synchronize
+	 * @return multitype:
+	 */
+	public function schema_synchronize(Database $db = null, array $classes = null, array $options = array()) {
+		zesk()->deprecated();
+		return $this->modules->object("orm")->schema_synchronize($db, $classes, $options);
 	}
 }
 

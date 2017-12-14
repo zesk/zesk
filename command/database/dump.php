@@ -136,7 +136,7 @@ class Command_Database_Dump extends Command_Base {
 			$suffix = "";
 			if ($compress || file::extension($where) === "gz") {
 				if (!$compress) {
-					$zesk->logger->warning("target dump file has .gz extension, so ignoring --compress flag");
+					$this->application->logger->warning("target dump file has .gz extension, so ignoring --compress flag");
 				} else {
 					$where .= ".gz";
 				}

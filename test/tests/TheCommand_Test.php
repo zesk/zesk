@@ -18,10 +18,6 @@ class TheCommand_Test extends Test_Unit {
 		$f = $this->test_sandbox("test-file.txt");
 		file_put_contents($f, "test");
 		
-		$optFormat = false;
-		$optDefaults = false;
-		$optionHelp = false;
-		
 		$_SERVER['argv'] = $argv = array(
 			__CLASS__,
 			"--file",
@@ -34,11 +30,7 @@ class TheCommand_Test extends Test_Unit {
 		
 		$file = $testx->option("FILE");
 		
-		$this->assert_equal($file, $f, "File option mismatch ($file !== $f) found: " . _dump($testx));
-		
-		// 		$message = null;
-		// 		$testx->usage($message);
-		
+		$this->assert_equal($file, $f, "File option mismatch ($file !== $f) found: " . $testx->__toString());
 		$testx->arguments_remaining();
 		
 		$testx->has_errors();

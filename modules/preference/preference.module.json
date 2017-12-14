@@ -5,7 +5,7 @@
 		"class_prefix": "zesk\\"
 	},
 	"module_class": "zesk\\Module_Preference",
-	"depends": [
+	"requires": [
 		"ORM",
 		"MySQL"
 	]

@@ -1,7 +1,7 @@
 <?php
 namespace zesk;
 
-class World_Test extends Test_Object {
+class World_Test extends Test_ORM {
 	protected $load_modules = array(
 		"World",
 		"MySQL"
@@ -14,19 +14,19 @@ class World_Test extends Test_Object {
 	function classes_to_test() {
 		return array(
 			array(
-				__NAMESPACE__ . "\\" . "City",
+				City::class,
 				array()
 			),
 			array(
-				__NAMESPACE__ . "\\" . "Country",
+				Country::class,
 				array()
 			),
 			array(
-				__NAMESPACE__ . "\\" . "Province",
+				Province::class,
 				array()
 			),
 			array(
-				__NAMESPACE__ . "\\" . "Currency",
+				Currency::class,
 				array()
 			)
 		);

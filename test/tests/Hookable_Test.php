@@ -43,4 +43,40 @@ class Hookable_Test extends Test_Unit {
 		$data['nice'] = "pony";
 		return $data;
 	}
+	function test_options_inherit() {
+		$options = new hookable_test_a($this->application);
+		
+		$conf = $this->application->configuration;
+		
+		$conf->path_set(hookable_test_a::class . "::test1", "test1");
+		$conf->path_set(hookable_test_a::class . "::test2", "test2");
+		$conf->path_set(hookable_test_a::class . "::test3array", array(
+			0,
+			false,
+			null
+		));
+		
+		// No longer honored/merged as of 2016-01-01
+		$conf->path_set(hookable_test_a::class . "::options", $optoptions = array(
+			"test1" => "test2",
+			"more" => "dude"
+		));
+		
+		$options->inherit_global_options();
+		
+		$options = $options->option();
+		$this->assert_array_key_exists($options, "test1");
+		$this->assert_array_key_not_exists($options, "more");
+		
+		$this->assert_equal($options, array(
+			"test1" => "test1",
+			"test2" => "test2",
+			"test3array" => array(
+				0,
+				false,
+				null
+			),
+			"options" => $optoptions
+		));
+	}
 }

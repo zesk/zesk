@@ -10,7 +10,7 @@ namespace zesk;
  * @author kent
  *
  */
-class View_Image_Text_Test extends Test_Widget {
+class View_Image_Text_Test extends TestWidget {
 	function test_horizontal() {
 		View_Image_Text::$debug = true;
 		

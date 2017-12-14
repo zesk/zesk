@@ -1,7 +1,10 @@
 <?php
 namespace zesk;
 
-class Test_Widget extends Test_Unit {
+class TestWidget extends Test_Unit {
+	protected $load_modules = array(
+		"Widget"
+	);
 	function widget_tests(Widget $testx) {
 		$column = "col";
 		$label = "label";

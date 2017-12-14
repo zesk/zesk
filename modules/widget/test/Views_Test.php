@@ -6,24 +6,23 @@ namespace zesk;
  * @author kent
  *
  */
-class Views_Test extends Test_Widget {
+class Views_Test extends TestWidget {
 	function test_view() {
 		$controls = array(
-			"View_Tooltip",
-			"View_Actions" => array(
-				"test_object" => "User"
+			View_Tooltip::class,
+			View_Actions::class => array(
+				"test_object" => User::class
 			),
-			"View_Checkbox",
-			"View_Checklist",
-			"View_Email",
-			"View_IP",
-			"View_Link",
-			"View_Object",
-			"View_OrderBy",
-			"View_Real",
-			"View_Section",
-			"View_Select",
-			"View_Static",
+			View_Checkbox::class,
+			View_Checklist::class,
+			View_Email::class,
+			View_IP::class,
+			View_Link::class,
+			View_ORM::class,
+			View_Real::class,
+			View_Section::class,
+			View_Select::class,
+			View_Static::class,
 			"View_Template",
 			"View_Text",
 			"View_Video",

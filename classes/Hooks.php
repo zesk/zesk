@@ -409,7 +409,7 @@ class Hooks {
 			$lowclass = strtolower($class);
 			if (!array_key_exists($lowclass, $this->all_hook_classes) && $method !== "hooks") {
 				$this->all_hook_classes[$lowclass] = true;
-				$this->_register_all_hooks($class);
+				$this->_register_all_hooks($class, $this->zesk->application());
 			}
 			$classes = $this->zesk->classes->subclasses($class);
 			if ($classes === null) {
@@ -541,11 +541,13 @@ class Hooks {
 	 *
 	 * @param unknown $class
 	 */
-	private function _register_all_hooks($class) {
+	private function _register_all_hooks($class, Application $application) {
 		$refl = new \ReflectionClass($class);
 		$method = 'register_all_hooks';
 		if ($refl->hasMethod($method)) {
-			$refl->getMethod($method)->invoke(null);
+			$refl->getMethod($method)->invokeArgs(null, array(
+				$application
+			));
 		}
 		$this->call("$class::register_all_hooks");
 	}

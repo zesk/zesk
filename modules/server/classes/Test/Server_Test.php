@@ -8,21 +8,21 @@ namespace zesk;
  */
 class Server_Test extends Test_Unit {
 	protected $load_modules = array(
+		"ORM",
 		"MySQL"
 	);
 	protected function initialize() {
-		$this->schema_synchronize("zesk\\Server");
+		$this->schema_synchronize(Server::class);
 	}
 	function test_Server() {
 		$this->application->configuration->HOST = "localhost";
 		
-		$mixed = null;
-		$options = false;
-		$testx = new Server($this->application, $mixed, $options);
+		$testx = new Server($this->application);
+		$this->assert_instanceof($testx, Server::class);
 		
 		$testx = Server::singleton($this->application);
 		
-		$this->assert_instanceof($testx, __NAMESPACE__ . "\\" . "Server");
+		$this->assert_instanceof($testx, Server::class);
 		$path = "/";
 		$testx->id = 1;
 		$testx->update_state($path);

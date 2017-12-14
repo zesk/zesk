@@ -9,7 +9,7 @@ namespace zesk;
  * @author kent
  *
  */
-class Control_Checklist_ORM extends Control_Checklist {
+class Control_ORM_Checklist extends Control_Checklist {
 	protected $class = null;
 	protected $objects = array();
 	

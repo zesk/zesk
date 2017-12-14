@@ -310,7 +310,7 @@ class Locale_Test extends Test_Unit {
 		$this->assert(Locale::translate('cuddle', 'xy') === 'boink');
 	}
 	function test_shutdown() {
-		Locale::shutdown();
+		Locale::shutdown($this->application);
 	}
 	function test_time_format() {
 		$locale = null;

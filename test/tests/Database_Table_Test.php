@@ -53,7 +53,9 @@ class Database_Table_Test extends Test_Unit {
 		$indexes = array();
 		$table->set_indexes($indexes);
 		
-		$dbCol = new Database_Column($table, "IDs", "varchar(32)");
+		$dbCol = new Database_Column($table, "IDs", array(
+			"sql_type" => "varchar(32)"
+		));
 		$exception_reserved = false;
 		$table->column_add($dbCol, $exception_reserved);
 		
@@ -112,7 +114,8 @@ class Database_Table_Test extends Test_Unit {
 		);
 		$testx->set_indexes($indexes);
 		
-		$dbCol = new Database_Column($testx, "ID", "bigint");
+		$dbCol = new Database_Column($testx, "ID");
+		$dbCol->sql_type("bigint");
 		$exception_reserved = false;
 		$testx->column_add($dbCol, $exception_reserved);
 		

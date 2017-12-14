@@ -1,5 +1,9 @@
-NAME="ObjectX"
-DESCRIPTION="Enables users to extend any object in the system with user-defined extra fields."
-module_class="zesk\Module_ObjectX"
-autoload_options::class_prefix="zesk\"
-autoload_options::lower=true
+{
+"NAME": "ObjectX",
+"DESCRIPTION": "Enables users to extend any object in the system with user-defined extra fields.",
+"module_class": "zesk\\Module_ObjectX",
+"autoload_options": {
+	"class_prefix": "zesk\\",
+	"lower": true
+}
+}

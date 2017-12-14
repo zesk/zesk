@@ -43,7 +43,7 @@ class Control_Select_ORM extends Control_Select {
 			// Do not use "class" option - is also attribute on HTML tags. Use object_class
 			$this->class = $this->option("object_class");
 		}
-		$class = $this->class_object = $this->application->class_object($this->class);
+		$class = $this->class_object = $this->application->class_orm_registry($this->class);
 		if (!$this->has_option('text_column')) {
 			$this->set_option('text_column', $class->text_column);
 		}
@@ -80,7 +80,7 @@ class Control_Select_ORM extends Control_Select {
 	}
 	protected function hook_options() {
 		$db = $this->class_object->database();
-		$query = $this->application->query_select($this->class);
+		$query = $this->application->orm_registry($this->class)->query_select();
 		$prefix = $query->alias() . ".";
 		
 		$text_column = $this->text_columns();

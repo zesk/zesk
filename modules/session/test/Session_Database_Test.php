@@ -7,7 +7,7 @@
  */
 namespace zesk;
 
-class Session_Database_Test extends Test_Object {
+class Session_Database_Test extends Test_ORM {
 	protected $load_modules = array(
 		"MySQL"
 	);

@@ -11,7 +11,7 @@ namespace zesk;
  */
 class Options_Test extends Test_Unit {
 	function test_options() {
-		$options = false;
+		$options = array();
 		$testx = new Options($options);
 		
 		$testx->__sleep();
@@ -124,42 +124,6 @@ class Options_Test extends Test_Unit {
 		}
 		
 		$this->assert_null($opts->option_path("a.a.c", null));
-	}
-	function test_options_inherit() {
-		$options = new Options();
-		
-		$conf = $this->application->configuration;
-		
-		$conf->path_set("zesk\\Options::test1", "test1");
-		$conf->path_set("zesk\\Options::test2", "test2");
-		$conf->path_set("zesk\\Options::test3array", array(
-			0,
-			false,
-			null
-		));
-		
-		// No longer honored/merged as of 2016-01-01
-		$conf->path_set("zesk\\Options::options", $optoptions = array(
-			"test1" => "test2",
-			"more" => "dude"
-		));
-		
-		$options->inherit_global_options();
-		
-		$options = $options->option();
-		$this->assert_array_key_exists($options, "test1");
-		$this->assert_array_key_not_exists($options, "more");
-		
-		$this->assert_equal($options, array(
-			"test1" => "test1",
-			"test2" => "test2",
-			"test3array" => array(
-				0,
-				false,
-				null
-			),
-			"options" => $optoptions
-		));
 	}
 }
 

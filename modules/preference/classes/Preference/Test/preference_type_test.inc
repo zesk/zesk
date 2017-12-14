@@ -11,14 +11,14 @@ namespace zesk;
  */
 class Preference_Type_Test extends Test_Unit {
 	protected $load_modules = array(
-		"preference",
+		"Preference",
 		"MySQL"
 	);
 	protected function initialize() {
-		$this->schema_synchronize(__NAMESPACE__ . "\\" . "Preference_Type");
+		$this->schema_synchronize(Preference_Type::class);
 	}
 	function test_object() {
-		$x = $this->application->orm_factory(__NAMESPACE__ . "\\" . "Preference_Type");
+		$x = $this->application->model_factory(Preference_Type::class);
 		
 		$code_name = "Poore";
 		$name = false;

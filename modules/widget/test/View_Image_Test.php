@@ -5,7 +5,7 @@
  */
 namespace zesk;
 
-class View_Image_Test extends Test_Widget {
+class View_Image_Test extends TestWidget {
 	private $test_dir = null;
 	function validate_image_size_tag($img_tag, $width, $height) {
 		dump($img_tag);

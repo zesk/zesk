@@ -19,16 +19,16 @@ class Database_Column_Test extends Test_Unit {
 		$table = new Database_Table($db, __METHOD__);
 		
 		$name = "dude";
-		$sqlType = null;
-		$options = false;
-		$x = new Database_Column($table, $name, $sqlType, $options);
+		$x = new Database_Column($table, $name);
 		
 		$name = 'dude';
 		$x->name($name);
 		
 		$x->previous_name();
 		
-		$that = new Database_Column($table, "name", "varchar(16)");
+		$that = new Database_Column($table, "name", array(
+			"sql_type" => "varchar(16)"
+		));
 		$debug = false;
 		$x->is_similar($db, $that, $debug);
 		

@@ -4,5 +4,6 @@
 		"class_prefix": "zesk\\",
 		"lower": false
 	},
-	"module_class": "zesk\\Module_ORM"
+	"module_class": "zesk\\Module_ORM",
+	"theme_path_prefix": "zesk"
 }

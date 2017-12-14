@@ -9,12 +9,14 @@ namespace zesk;
  * @author kent
  *
  */
-class Controls_Test extends Test_Widget {
+class Controls_Test extends TestWidget {
 	protected $load_modules = array(
-		"MySQL"
+		"MySQL",
+		"Session",
+		"Widget"
 	);
 	function _test_session() {
-		$this->application->set_option("session_class", "zesk\Session_Test");
+		$this->application->set_option("session_class", Session_Mock::class);
 	}
 	/**
 	 * @data_provider controls_to_test
@@ -22,76 +24,79 @@ class Controls_Test extends Test_Widget {
 	function test_control($widget_class, $options = array()) {
 		$this->_test_session();
 		$control = $this->application->widget_factory($widget_class, $options);
-		$this->assert_instanceof($control, "zesk\\Widget", "$widget_class is not an instanceof of zesk\\Widget (" . type($control) . ")");
+		$this->assert_instanceof($control, Widget::class, "$widget_class is not an instanceof of zesk\\Widget (" . type($control) . ")");
 		$this->widget_tests($control);
 	}
 	function controls_to_test() {
 		$controls = array(
 			array(
-				__NAMESPACE__ . "\\" . "Control_Button"
+				Control_Button::class
 			),
 			array(
-				__NAMESPACE__ . "\\" . "Control_Checkbox"
+				Control_Checkbox::class
 			),
 			array(
-				__NAMESPACE__ . "\\" . "Control_Checklist"
+				Control_Checklist::class
 			),
 			array(
-				__NAMESPACE__ . "\\" . "Control_Color"
+				Control_Color::class
 			),
 			array(
-				__NAMESPACE__ . "\\" . "Control_Email"
+				Control_Email::class
 			),
 			array(
-				__NAMESPACE__ . "\\" . "Control_File"
+				Control_File::class
 			),
 			array(
-				__NAMESPACE__ . "\\" . "Control_Filter"
+				Control_Filter::class
 			),
 			array(
-				__NAMESPACE__ . "\\" . "Control_Hidden"
+				Control_Hidden::class
 			),
 			array(
-				__NAMESPACE__ . "\\" . "Control_IP"
+				Control_IP::class
 			),
 			array(
-				__NAMESPACE__ . "\\" . "Control_Icon"
+				Control_Icon::class
 			),
 			array(
-				__NAMESPACE__ . "\\" . "Control_Login"
+				Control_Login::class
 			),
 			array(
-				__NAMESPACE__ . "\\" . "Control_Order"
+				Control_Order::class
 			),
 			array(
-				__NAMESPACE__ . "\\" . "Control_Pager"
+				Control_Pager::class
 			),
 			array(
-				__NAMESPACE__ . "\\" . "Control_Password"
+				Control_Password::class
 			),
 			array(
-				__NAMESPACE__ . "\\" . "Control_Phone"
+				Control_Phone::class
 			),
 			array(
-				__NAMESPACE__ . "\\" . "Control_Radio"
+				Control_Radio::class
 			),
 			array(
-				__NAMESPACE__ . "\\" . "Control_RichText"
+				Control_RichText::class
 			),
 			array(
-				__NAMESPACE__ . "\\" . "Control_Select"
+				Control_Select::class
 			),
 			array(
-				__NAMESPACE__ . "\\" . "Control_Text"
+				Control_Text::class
 			),
 			array(
-				__NAMESPACE__ . "\\" . "Control_URL"
+				Control_URL::class
 			),
 			array(
-				__NAMESPACE__ . "\\" . "Control_Image_Toggle"
+				Control_Image_Toggle::class
 			),
 			array(
-				__NAMESPACE__ . "\\" . "Control_IP_List"
+				Control_IP_List::class
+			),
+			array(
+				Control_OrderBy::class
 			)
 		);
 		return $controls;
@@ -131,18 +136,6 @@ class Controls_Test extends Test_Widget {
 		
 		$this->test_basics($x);
 	}
-	function test_Control_Select_ORM_Hierarchy_Test() {
-		$table = 'Control_Select_ORM_Hierarchy_Test';
-		$this->test_table($table, 'Parent int(11) unsigned NOT NULL');
-		
-		$options = array(
-			'table' => $table,
-			'textcolumn' => "Foo"
-		);
-		$x = new Control_Select_ORM_Hierarchy($this->application, $options);
-		
-		$this->test_basics($x);
-	}
 	function test_Control_Select_File() {
 		$options = array(
 			"path" => $this->sandbox()
@@ -152,10 +145,10 @@ class Controls_Test extends Test_Widget {
 		$this->test_basics($x);
 	}
 	function test_Control_Select_ORM() {
-		$this->test_table('Control_Select_Test_Object');
+		$this->test_table('Control_Select_Test_ORM');
 		
 		$options = array(
-			'table' => 'Control_Select_Test_Object',
+			'table' => 'Control_Select_Test_ORM',
 			'textcolumn' => "Foo"
 		);
 		$x = new Control_Select_ORM($this->application, $options);

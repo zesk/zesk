@@ -1,14 +1,15 @@
 <?php
 namespace zesk;
 
-class Currency_Test extends Test_Object {
+class Currency_Test extends Test_ORM {
 	protected $load_modules = array(
-		"Commerce",
+		"World",
+		"ORM",
 		"MySQL"
 	);
 	function initialize() {
 		$this->application->schema_synchronize(null, array(
-			__NAMESPACE__ . "\\" . "Currency"
+			Currency::class
 		), array(
 			"follow" => true
 		));
@@ -17,7 +18,7 @@ class Currency_Test extends Test_Object {
 	function classes_to_test() {
 		return array(
 			array(
-				__NAMESPACE__ . "\\" . "Currency",
+				Currency::class,
 				array()
 			)
 		);

@@ -775,7 +775,9 @@ class Response extends Hookable {
 	 * @return array
 	 */
 	private static function _cache_parts($url) {
-		$parts = URL::parse($url);
+		$parts = to_array(URL::parse($url)) + array(
+			"scheme" => "none"
+		);
 		$parts += array(
 			"port" => URL::protocol_default_port($parts['scheme']),
 			"scheme" => 'none',
