@@ -557,7 +557,7 @@ class Command_Test extends Command_Base {
 		$result = true;
 		do {
 			if ($repeated) {
-				if (Process_Tools::process_code_changed()) {
+				if (Process_Tools::process_code_changed($this->application)) {
 					$this->log("Code changed, exiting to run again.");
 					exit(1);
 				}

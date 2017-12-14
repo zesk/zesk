@@ -103,32 +103,36 @@ class Kernel_Test extends Test_Unit {
 	}
 	function test_autoload_search() {
 		$autoloader = zesk()->autoloader;
-		$class = "zesk\\User";
+		$class = "zesk\\Kernel";
 		$extension = "php";
 		$tried_path = null;
 		$result = $autoloader->search($class, array(
 			$extension
 		), $tried_path);
-		$this->assert_equal($result, ZESK_ROOT . 'classes/User.php');
+		$this->assert_equal($result, ZESK_ROOT . 'classes/Kernel.php');
 		
-		$class = "zesk\\Class_User";
+		$class = "zesk\\Database_Table";
 		
 		$result = $autoloader->search($class, array(
 			$extension,
 			"sql"
 		), $tried_path);
-		$this->assert_equal($result, ZESK_ROOT . 'classes/Class/User.php');
+		$this->assert_equal($result, ZESK_ROOT . 'classes/Database/Table.php');
 		
+		$class = "zesk\\Class_User";
+		$this->application->modules->load("orm");
 		$result = $autoloader->search($class, array(
-			"sql"
+			"sql",
+			"php"
 		), $tried_path);
-		$this->assert_equal($result, ZESK_ROOT . 'classes/Class/User.sql');
+		$this->assert_equal($result, $this->application->modules->path("orm", 'classes/Class/User.sql'));
 		
 		$result = $autoloader->search($class, array(
 			"other",
+			"inc",
 			"sql"
 		), $tried_path);
-		$this->assert_equal($result, ZESK_ROOT . 'classes/Class/User.sql');
+		$this->assert_equal($result, $this->application->modules->path("orm", 'classes/Class/User.sql'));
 		
 		$result = $autoloader->search($class, array(
 			"other",

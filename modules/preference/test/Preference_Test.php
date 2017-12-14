@@ -1,7 +1,15 @@
 <?php
+/**
+ * 
+ */
 namespace zesk;
 
-class Preference_Test extends Test_Object {
+/**
+ * 
+ * @author kent
+ *
+ */
+class Preference_Test extends Test_ORM {
 	protected $load_modules = array(
 		"Preference",
 		'MySQL'
@@ -19,7 +27,7 @@ class Preference_Test extends Test_Object {
 	/**
 	 * @expectedException zesk\Exception_Parameter
 	 */
-	function test_userGet() {
+	function test_user_get() {
 		$user = new User($this->application);
 		$name = null;
 		$default = false;
@@ -29,7 +37,7 @@ class Preference_Test extends Test_Object {
 	/**
 	 * @expectedException zesk\Exception_Parameter
 	 */
-	function test_userSet() {
+	function test_user_set() {
 		$user = new User($this->application);
 		$name = null;
 		$value = false;

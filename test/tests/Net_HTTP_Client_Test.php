@@ -12,8 +12,7 @@ namespace zesk;
 class Net_HTTP_Client_Test extends Test_Unit {
 	function test_all() {
 		$url = "http://www.marketacumen.com/";
-		$options = false;
-		$x = new Net_HTTP_Client($this->application, $url, $options);
+		$x = new Net_HTTP_Client($this->application, $url);
 		
 		$default = false;
 		$x->user_agent($default);

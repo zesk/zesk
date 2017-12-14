@@ -6,6 +6,7 @@
 	},
 	"module_class": "zesk\\Module_Preference",
 	"depends": [
+		"ORM",
 		"MySQL"
 	]
 }
