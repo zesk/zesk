@@ -1,7 +1,7 @@
 <?php
 namespace zesk;
 
-class Schema_Contact extends Database_Schema {
+class Schema_Contact extends ORM_Schema {
 	function schema() {
 		return array(
 			'{table}' => array(

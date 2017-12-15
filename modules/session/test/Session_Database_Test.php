@@ -9,12 +9,11 @@ namespace zesk;
 
 class Session_Database_Test extends Test_ORM {
 	protected $load_modules = array(
-		"MySQL"
+		"MySQL",
+		"Session"
 	);
 	function test_main() {
-		$value = null;
-		$options = false;
-		$testx = new Session_Database($this->application, $value, $options);
+		$testx = new Session_Database($this->application);
 		
 		$user = new User($this->application);
 		$user_table = $user->table();
@@ -26,8 +25,8 @@ class Session_Database_Test extends Test_ORM {
 		$db->query("DROP TABLE IF EXISTS `$user_table`");
 		
 		$db->query($this->application->schema_synchronize($db, array(
-			__NAMESPACE__ . "\\" . "User",
-			__NAMESPACE__ . "\\" . "Session_Database"
+			User::class,
+			Session_Database::class
 		), array(
 			"follow" => true
 		)));

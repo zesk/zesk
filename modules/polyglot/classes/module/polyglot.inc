@@ -30,7 +30,8 @@ class Module_PolyGlot extends Module implements Interface_Module_Routes {
 	public function locale_options() {
 		$list = $this->call_hook_arguments("locale_options", array(), $this->option_array("locale_options"));
 		$options = array();
-		$locales = $this->application->query_select("zesk\\Language")
+		$locales = $this->application->orm_registry("zesk\\Language")
+			->query_select()
 			->what(array(
 			"code" => "code",
 			"dialect" => "dialect",

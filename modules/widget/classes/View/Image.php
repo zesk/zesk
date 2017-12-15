@@ -21,7 +21,7 @@ class View_Image extends View {
 	}
 	static function debug($set = null) {
 		if (is_bool($set)) {
-			self::$debug = true;
+			self::$debug = $set;
 			return;
 		}
 		return self::$debug;

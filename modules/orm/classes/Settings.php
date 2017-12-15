@@ -126,7 +126,7 @@ class Settings extends ORM implements Interface_Data, Interface_Settings {
 		$object = $application->object(__CLASS__);
 		$fix_bad_globals = $object->option_bool("fix_bad_globals");
 		
-		foreach ($application->query_select(__CLASS__)->to_array("name", "value") as $name => $value) {
+		foreach ($application->orm_registry(__CLASS__)->query_select()->to_array("name", "value") as $name => $value) {
 			++$n_loaded;
 			$size_loaded += strlen($value);
 			if (is_string($value)) {
@@ -356,7 +356,8 @@ class Settings extends ORM implements Interface_Data, Interface_Settings {
 	 */
 	public function data($name, $value = null) {
 		if ($value === null) {
-			$value = $this->application->query_select(__CLASS__)
+			$value = $this->application->orm_registry(__CLASS__)
+				->query_select()
 				->where("name", $name)
 				->what("value", "value")
 				->one("value");

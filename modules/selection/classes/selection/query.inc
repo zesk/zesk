@@ -62,7 +62,10 @@ class Selection_Query extends ORM {
 	public static function copy_duplicate(Application $application, $old_type, $new_type) {
 		$map = array();
 		/* @var $query Selection_Query */
-		foreach ($application->query_select(__CLASS__)->where('type', $old_type)->object_iterator() as $query) {
+		foreach ($application->orm_registry(__CLASS__)
+			->query_select()
+			->where('type', $old_type)
+			->object_iterator() as $query) {
 			$old_id = $query->id;
 			$query->id = null;
 			$query->type = $new_type;

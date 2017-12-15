@@ -1,4 +1,7 @@
 <?php
+/**
+ * @test_module Widget
+ */
 namespace zesk;
 
 /**
@@ -23,14 +26,14 @@ class Views_Test extends TestWidget {
 			View_Section::class,
 			View_Select::class,
 			View_Static::class,
-			"View_Template",
-			"View_Text",
-			"View_Video",
-			"View_Bytes",
-			"View_Checkbox",
-			"View_Time_Span",
-			"View_Time_Zone",
-			"View_Email"
+			View_Template::class,
+			View_Text::class,
+			View_Video::class,
+			View_Bytes::class,
+			View_Checkbox::class,
+			View_Time_Span::class,
+			View_Time_Zone::class,
+			View_Email::class
 		);
 		
 		$this->application->configuration->path_set(array(

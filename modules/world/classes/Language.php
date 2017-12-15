@@ -31,7 +31,8 @@ class Language extends ORM {
 		if (empty($dialect)) {
 			$dialect = null;
 		}
-		$lang_en = $application->query_select(__CLASS__)
+		$lang_en = $application->orm_registry(__CLASS__)
+			->query_select()
 			->what("name", "name")
 			->where(array(
 			"code" => $language,

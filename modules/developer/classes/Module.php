@@ -5,7 +5,7 @@
  */
 namespace zesk\Developer;
 
-use zesk\Database_Schema;
+use zesk\ORM_Schema;
 use zesk\arr;
 use zesk\Application;
 use zesk\HTML;
@@ -260,7 +260,7 @@ class Module extends \zesk\Module implements Interface_Module_Routes {
 	 * @param unknown $arg
 	 */
 	public function schema(Application $app, Request $request, Response_Text_HTML $response, $arg = null) {
-		Database_Schema::debug(true);
+		ORM_Schema::debug(true);
 		$db = null;
 		$classes = null;
 		if ($request->has("classes")) {

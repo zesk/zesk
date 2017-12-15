@@ -40,7 +40,8 @@ class Tag extends ORM {
 	 * @param Application $application
 	 */
 	public static function cull(Application $application) {
-		$classes = $application->query_select(__CLASS__)
+		$classes = $application->orm_registry(__CLASS__)
+			->query_select()
 			->what("object_class", "object_class")
 			->distinct(true)
 			->to_array(null, "object_class");
@@ -48,7 +49,8 @@ class Tag extends ORM {
 			/* @var $class_object Class_ORM */
 			$class_object = $application->class_object($class);
 			$id_column = $class_object->id_column;
-			$id_iterator = $application->query_select(__CLASS__, "X")
+			$id_iterator = $application->orm_registry(__CLASS__)
+				->query_select("X")
 				->what("X.object_id")
 				->distinct(true)
 				->join("LEFT OUTER JOIN {table} linked ON X.object_id=linked.$id_column")

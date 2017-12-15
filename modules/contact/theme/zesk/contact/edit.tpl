@@ -371,7 +371,8 @@ foreach ($sections as $section => $variables) {
 	extract($variables, EXTR_IF_EXISTS);
 	$values = array();
 	if ($id) {
-		$values = $application->query_select($object_name)
+		$values = $application->orm_registry($object_name)
+			->query_select()
 			->what(array(
 			"Label" => "Label",
 			"Value" => "Value"

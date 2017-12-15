@@ -29,7 +29,8 @@ class Contact_Label extends ORM {
 			'CodeName' => $name,
 			"Type" => $type
 		);
-		return $application->query_select(__CLASS__)
+		return $application->orm_registry(__CLASS__)
+			->query_select()
 			->what("ID", "ID")
 			->where($fields)
 			->one("ID", null);
@@ -50,7 +51,8 @@ class Contact_Label extends ORM {
 			"Type" => $type
 		);
 		
-		$id = $app->query_select(__CLASS__)
+		$id = $app->orm_registry(__CLASS__)
+			->query_select()
 			->what("ID", "ID")
 			->where($fields)
 			->one("ID", null);
@@ -80,7 +82,8 @@ class Contact_Label extends ORM {
 				null
 			);
 		}
-		return $application->query_select(__CLASS__)
+		return $application->orm_registry(__CLASS__)
+			->query_select()
 			->what(array(
 			"id" => "ID",
 			"name" => "Name"
@@ -138,7 +141,8 @@ class Contact_Label extends ORM {
 		if ($types !== null) {
 			$where['Type'] = $types;
 		}
-		$rows = $app->query_select(__CLASS__)
+		$rows = $app->orm_registry(__CLASS__)
+			->query_select()
 			->what(array(
 			"id" => "ID",
 			"name" => "Name",

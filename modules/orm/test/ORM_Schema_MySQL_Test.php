@@ -10,15 +10,25 @@ namespace zesk;
  * @author kent
  *
  */
-class Database_Schema_MySQL_Test extends Test_Unit {
+class ORM_Schema_MySQL_Test extends Test_Unit {
 	/**
 	 *
 	 * @var array
 	 */
 	protected $load_modules = array(
-		"MySQL"
+		"MySQL",
+		"ORM"
 	);
 	
+	/**
+	 * 
+	 * {@inheritDoc}
+	 * @see \zesk\PHPUnit_TestCase::initialize()
+	 */
+	function initialize() {
+		parent::initialize();
+		include_once __DIR__ . '/ORM_Schema_MySQL_Test_Objects.php';
+	}
 	/**
 	 *
 	 * @return mysql\Database
@@ -40,7 +50,7 @@ class Database_Schema_MySQL_Test extends Test_Unit {
 		// 		$this->log(JSON::encode($table0->option()));
 		// 		$this->log(JSON::encode($table1->option()));
 		
-		$result = Database_Schema::update($db, $table0, $table1, false);
+		$result = ORM_Schema::update($db, $table0, $table1, false);
 		
 		$datatype = $db->data_type();
 		
@@ -76,7 +86,7 @@ class Database_Schema_MySQL_Test extends Test_Unit {
 		$this->assert_true(!$db->table_exists($table), "$table should not exist");
 		
 		foreach ($sql as $key => $create) {
-			$result = Database_Schema::table_synchronize($db, $create, false);
+			$result = ORM_Schema::table_synchronize($db, $create, false);
 			$db->query($result);
 		}
 	}
@@ -99,7 +109,7 @@ class Database_Schema_MySQL_Test extends Test_Unit {
 		KEY `phrase` (`Phrase`(64))
 		);";
 		
-		Database_Schema::debug(true);
+		ORM_Schema::debug(true);
 		
 		/* @var $db Database */
 		$db = $this->application->database_factory();
@@ -117,7 +127,7 @@ class Database_Schema_MySQL_Test extends Test_Unit {
 		
 		$db_table = $db->database_table($table_name);
 		
-		$result = Database_Schema::update($db, $db_table, $object_table);
+		$result = ORM_Schema::update($db, $db_table, $object_table);
 		
 		$this->assert_equal($result, array());
 	}
@@ -138,7 +148,7 @@ class Database_Schema_MySQL_Test extends Test_Unit {
 		INDEX phrase ( Phrase(64) )
 		);";
 		
-		Database_Schema::debug(true);
+		ORM_Schema::debug(true);
 		
 		$db = $this->application->database_factory();
 		
@@ -156,7 +166,7 @@ class Database_Schema_MySQL_Test extends Test_Unit {
 		
 		$db_table = $db->database_table($table_name);
 		
-		$result = Database_Schema::update($db, $db_table, $object_table);
+		$result = ORM_Schema::update($db, $db_table, $object_table);
 		
 		$this->assert($result === array(), PHP::dump($result) . ' === array()');
 		
@@ -187,7 +197,7 @@ class Database_Schema_MySQL_Test extends Test_Unit {
 		KEY `time` (`ActionTime`)
 		) AUTO_INCREMENT=1426";
 		
-		Database_Schema::debug(true);
+		ORM_Schema::debug(true);
 		
 		$db = $this->application->database_factory();
 		
@@ -205,7 +215,7 @@ class Database_Schema_MySQL_Test extends Test_Unit {
 		
 		$db_table = $db->database_table($table_name);
 		
-		$result = Database_Schema::update($db, $db_table, $object_table);
+		$result = ORM_Schema::update($db, $db_table, $object_table);
 		
 		$this->assert($result === array(), PHP::dump($result) . ' === array()');
 	}
@@ -222,7 +232,7 @@ class Database_Schema_MySQL_Test extends Test_Unit {
 		);
 		";
 		
-		Database_Schema::debug(true);
+		ORM_Schema::debug(true);
 		
 		$db = $this->application->database_factory();
 		
@@ -240,7 +250,7 @@ class Database_Schema_MySQL_Test extends Test_Unit {
 		
 		$db_table = $db->database_table($table_name);
 		
-		$result = Database_Schema::update($db, $db_table, $object_table);
+		$result = ORM_Schema::update($db, $db_table, $object_table);
 		
 		$this->assert($result === array(), PHP::dump($result) . ' === array()');
 		
@@ -260,7 +270,7 @@ class Database_Schema_MySQL_Test extends Test_Unit {
 		
 		$object = new DBSchemaTest4($this->application);
 		
-		$result = Database_Schema::update_object($object);
+		$result = ORM_Schema::update_object($object);
 		$this->log($result);
 		$db->query($result);
 		
@@ -275,7 +285,7 @@ class Database_Schema_MySQL_Test extends Test_Unit {
 		$this->assert(!$db->table_exists($table2));
 		
 		$object = new DBSchemaTest4($this->application);
-		$result = Database_Schema::update_object($object);
+		$result = ORM_Schema::update_object($object);
 		$db->query($result);
 		
 		$this->assert($db->table_exists($table));
@@ -295,15 +305,15 @@ class Database_Schema_MySQL_Test extends Test_Unit {
 		$db->query("DROP TABLE IF EXISTS $table");
 		
 		$object = new DBSchemaTest5($this->application);
-		$result = Database_Schema::update_object($object);
+		$result = ORM_Schema::update_object($object);
 		$db->query($result);
 		
 		$this->assert($db->table_exists($table));
 		
-		Database_Schema::debug(true);
+		ORM_Schema::debug(true);
 		
 		$object = new DBSchemaTest5($this->application);
-		$result = Database_Schema::update_object($object);
+		$result = ORM_Schema::update_object($object);
 		$this->assert($result === array(), gettype($result));
 		
 		//$db->query("DROP TABLE IF EXISTS $table");
@@ -319,16 +329,16 @@ class Database_Schema_MySQL_Test extends Test_Unit {
 		
 		DBSchemaTest6::$test_table = $table;
 		$object = new DBSchemaTest6($this->application);
-		$result = Database_Schema::update_object($object);
+		$result = ORM_Schema::update_object($object);
 		$db->query($result);
 		
 		$this->assert($db->table_exists($table));
 		
-		Database_Schema::debug(true);
+		ORM_Schema::debug(true);
 		
 		DBSchemaTest7::$test_table = $table;
 		$object = new DBSchemaTest7($this->application);
-		$result = Database_Schema::update_object($object);
+		$result = ORM_Schema::update_object($object);
 		
 		$check_result = array(
 			"ALTER TABLE `keywords_test` ADD COLUMN `Proto` tinyint NOT NULL DEFAULT 0 AFTER `Protocol`"
@@ -349,15 +359,15 @@ class Database_Schema_MySQL_Test extends Test_Unit {
 		
 		DBSchemaTest8::$test_table = $table;
 		$object = new DBSchemaTest8($this->application);
-		$result = Database_Schema::update_object($object);
+		$result = ORM_Schema::update_object($object);
 		$db->query($result);
 		
 		$this->assert($db->table_exists($table));
 		
-		Database_Schema::debug(true);
+		ORM_Schema::debug(true);
 		
 		$object = new DBSchemaTest8($this->application);
-		$result = Database_Schema::update_object($object);
+		$result = ORM_Schema::update_object($object);
 		
 		$this->assert_arrays_equal($result, array());
 		
@@ -365,180 +375,12 @@ class Database_Schema_MySQL_Test extends Test_Unit {
 		
 		echo basename(__FILE__) . ": Success.\n";
 	}
-}
-class Class_DBSchemaTest4 extends Class_ORM {
-	public function initialize() {
-		parent::initialize();
-		$this->table = DBSchemaTest4::$test_table;
-	}
-	public $column_types = array(
-		"ID" => self::type_id,
-		"Depth" => self::type_integer,
-		"CodeName" => self::type_string,
-		"Name" => self::type_string
-	);
-}
-class DBSchemaTest4 extends ORM {
-	public static $test_table = "";
-	public static $test_table2 = "";
-	function schema() {
-		$table = self::$test_table;
-		$table2 = self::$test_table2;
-		return "CREATE TABLE `$table` (
-		`ID` int(11) unsigned NOT NULL auto_increment,
-		`Depth` tinyint(4) default '0',
-		`CodeName` varbinary(80) NOT NULL default '',
-		`Name` varchar(128) NOT NULL default '',
-		PRIMARY KEY  (`ID`),
-		UNIQUE KEY `codename` (`Depth`,`CodeName`)
-		);
-
-		CREATE TABLE `$table2` (
-		`ID` int(11) unsigned NOT NULL auto_increment,
-		`Depth` tinyint(4) default '0',
-		`CodeName` varbinary(80) NOT NULL default '',
-		`Name` varchar(128) NOT NULL default '',
-		PRIMARY KEY  (`ID`),
-		UNIQUE KEY `codename` (`Depth`,`CodeName`)
-		);
-		INSERT INTO $table ( Depth, CodeName, Name ) VALUES ( 3, 'foo', 'bar');";
+	function test_schema0() {
+		$updates = ORM_Schema::update_object($this->application->orm_factory(__NAMESPACE__ . "\\" . 'DBSchemaTest_columns_0'));
+		dump($updates);
+		//TODO - not sure what this is testing but perhaps the SQL caused errors previously?
+		$updates = ORM_Schema::update_object($this->application->orm_factory(__NAMESPACE__ . "\\" . 'DBSchemaTest_columns_1'));
+		dump($updates);
+		//TODO - not sure what this is testing but perhaps the SQL caused errors previously?
 	}
 }
-class Class_DBSchemaTest5 extends Class_ORM {
-	public function initialize() {
-		parent::initialize();
-		$this->table = DBSchemaTest5::$test_table;
-	}
-	public $column_types = array(
-		"ID" => self::type_id,
-		"Hash" => self::type_string,
-		"Phrase" => self::type_string,
-		"Created" => self::type_created,
-		"Modified" => self::type_modified,
-		"Status" => self::type_integer,
-		"IsOrganic" => self::type_string,
-		"LastUsed" => self::type_timestamp
-	);
-}
-class DBSchemaTest5 extends ORM {
-	public static $test_table = null;
-	function schema() {
-		return "CREATE TABLE `{table}` (
-		`ID` int(11) NOT NULL PRIMARY KEY AUTO_INCREMENT,
-		`Hash` binary(16) NOT NULL,
-		`Phrase` varchar(255) NOT NULL,
-		`Created` timestamp NOT NULL DEFAULT 0,
-		`Modified` timestamp NOT NULL DEFAULT 0,
-		`Status` smallint(1) DEFAULT '0',
-		`IsOrganic` enum('false','true') DEFAULT 'false',
-		`LastUsed` timestamp NOT NULL DEFAULT 0,
-		UNIQUE Hash (Hash) USING HASH,
-		INDEX created ( Created ),
-		INDEX phrase ( Phrase(64) )
-		);";
-	}
-}
-class Class_DBSchemaTest6 extends Class_ORM {
-	public $column_types = array(
-		"ID" => self::type_id,
-		"Hash" => self::type_string,
-		"Protocol" => self::type_string,
-		"Proto" => self::type_object,
-		"Domain" => self::type_object,
-		"Port" => self::type_integer,
-		"URI" => self::type_object,
-		"QueryString" => self::type_object,
-		"Title" => self::type_object,
-		"Fragment" => self::type_string,
-		"Frag" => self::type_object
-	);
-	public function initialize() {
-		parent::initialize();
-		$this->table = DBSchemaTest6::$test_table;
-	}
-}
-class DBSchemaTest6 extends ORM {
-	public static $test_table = null;
-	function schema() {
-		return "CREATE TABLE `{table}` (
-		`ID` int(11) unsigned NOT NULL auto_increment,
-		`Hash` char(32) NOT NULL,
-		`Protocol` varchar(7) NOT NULL default '',
-		`Domain` int(11) unsigned default NULL,
-		`Port` smallint(11) unsigned NULL,
-		`URI` int(11) unsigned default NULL,
-		`QueryString` int(11) unsigned default NULL,
-		`Title` int(11) unsigned NULL,
-		`Fragment` text,
-		`Frag` int(11) unsigned NULL,
-		PRIMARY KEY  (`ID`),
-		UNIQUE KEY `Hash` (`Hash`) USING HASH,
-		KEY `domain` (`Domain`),
-		KEY `title` (`Title`)
-		);";
-	}
-}
-class Class_DBSchemaTest7 extends Class_ORM {
-	public $column_types = array(
-		"ID" => self::type_id,
-		"Hash" => self::type_string,
-		"Protocol" => self::type_string,
-		"Proto" => self::type_object,
-		"Domain" => self::type_object,
-		"Port" => self::type_integer,
-		"URI" => self::type_object,
-		"QueryString" => self::type_object,
-		"Title" => self::type_object,
-		"Fragment" => self::type_string,
-		"Frag" => self::type_object
-	);
-	public function initialize() {
-		parent::initialize();
-		$this->table = DBSchemaTest7::$test_table;
-	}
-}
-class DBSchemaTest7 extends ORM {
-	public static $test_table = null;
-	function schema() {
-		return "CREATE TABLE `{table}` (
-	`ID` int(11) unsigned NOT NULL auto_increment,
-	`Hash` char(32) NOT NULL,
-	`Protocol` varchar(7) NOT NULL default '',
-	`Proto` tinyint NOT NULL default '0',
-	`Domain` int(11) unsigned default NULL,
-	`Port` smallint(11) unsigned NULL,
-	`URI` int(11) unsigned default NULL,
-	`QueryString` int(11) unsigned default NULL,
-	`Title` int(11) unsigned NULL,
-	`Fragment` text,
-	`Frag` int(11) unsigned NULL,
-	PRIMARY KEY  (`ID`),
-	UNIQUE KEY `Hash` (`Hash`) USING HASH,
-	KEY `domain` (`Domain`),
-	KEY `title` (`Title`)
-	);";
-	}
-}
-class Class_DBSchemaTest8 extends Class_ORM {
-	public $column_types = array(
-		"ID" => self::type_id,
-		"Hash" => self::type_string,
-		"Size" => self::type_integer
-	);
-	public function initialize() {
-		parent::initialize();
-		$this->table = DBSchemaTest8::$test_table;
-	}
-}
-class DBSchemaTest8 extends ORM {
-	public static $test_table = null;
-	function schema() {
-		return "CREATE TABLE `{table}` (
-			`ID` int(11) unsigned NOT NULL auto_increment,
-			`Hash` char(32) NOT NULL,
-			`Size` bigint unsigned NOT NULL,
-			PRIMARY KEY (ID)
-		);";
-	}
-}
-

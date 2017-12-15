@@ -108,8 +108,11 @@ class Lock extends ORM {
 	public static function delete_unlinked_locks(Application $application) {
 		// Deleting unlinked locks
 		$n_rows = 0;
-		$server_ids = $application->query_select("zesk\\Server")->to_array(null, "id");
-		$iterator = $application->query_select(__CLASS__)->where("X.server|!=|AND", $server_ids)->object_iterator();
+		$server_ids = $application->orm_registry(Server::class)->query_select()->to_array(null, "id");
+		$iterator = $application->orm_registry(__CLASS__)
+			->query_select()
+			->where("X.server|!=|AND", $server_ids)
+			->object_iterator();
 		foreach ($iterator as $lock) {
 			/* @var $lock Lock */
 			$server_id = $lock->member_integer("server");
@@ -129,10 +132,13 @@ class Lock extends ORM {
 	public static function delete_dead_pids(Application $application) {
 		$timeout_seconds = -abs($application->configuration->path_get(__CLASS__ . "::timeout_seconds", 100));
 		$you_are_dead_to_me = Timestamp::now()->add_unit($timeout_seconds, Timestamp::UNIT_SECOND);
-		$iterator = $application->query_select(__CLASS__)->where(array(
+		$iterator = $application->orm_registry(__CLASS__)
+			->query_select()
+			->where(array(
 			'server' => Server::singleton($application),
 			'locked|<=' => $you_are_dead_to_me
-		))->object_iterator();
+		))
+			->object_iterator();
 		/* @var $lock Lock */
 		foreach ($iterator as $lock) {
 			if (!$lock->is_process_alive()) {

@@ -68,7 +68,8 @@ class Database_Snapshot extends ORM {
 		$dbname = $db->database_name();
 		
 		/* @var $snapshot Database_Snapshot */
-		$snapshot = $db->application->query_select(__CLASS__)
+		$snapshot = $db->application->orm_registry(__CLASS__)
+			->query_select()
 			->what_object()
 			->where(array(
 			"dbname" => $dbname

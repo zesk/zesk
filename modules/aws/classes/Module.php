@@ -21,13 +21,13 @@ class Module extends \zesk\Module {
 	 * @var string
 	 */
 	const PATH_SYSTEM_HYPERVISOR_UUID_PATH = '/sys/hypervisor/uuid';
-
+	
 	/**
 	 *
 	 * @var boolean
 	 */
 	private $is_ec2 = null;
-
+	
 	/**
 	 *
 	 * @var Awareness
@@ -57,7 +57,7 @@ class Module extends \zesk\Module {
 			});
 		}
 	}
-
+	
 	/**
 	 *
 	 * @param array $options
@@ -70,7 +70,7 @@ class Module extends \zesk\Module {
 		$this->awareness = new Awareness($this->application, $options);
 		return $this->awareness;
 	}
-
+	
 	/**
 	 * Hook to initialize a server's name
 	 *
@@ -86,7 +86,7 @@ class Module extends \zesk\Module {
 		$server->name_internal = $awareness->get(Awareness::setting_local_hostname);
 		$server->name_external = $awareness->get(Awareness::setting_public_hostname);
 	}
-
+	
 	/**
 	 * Adapted from
 	 * http://serverfault.com/questions/462903/how-to-know-if-a-machine-is-an-ec2-instance

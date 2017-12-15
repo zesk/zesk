@@ -303,7 +303,7 @@ class Class_ORM extends Hookable {
 	 * <code>
 	 * protected $schema_file = 'MyORM.sql';
 	 * </code>
-	 * File which contains the schema for this object, found in: Database_Schema_File::template_schema_paths()
+	 * File which contains the schema for this object, found in: ORM_Schema_File::template_schema_paths()
 	 * If not specified, it's get_class($this) . ".sql"
 	 *
 	 * @var string
@@ -1467,7 +1467,7 @@ class Class_ORM extends Hookable {
 	 *
 	 * @param string $sql
 	 *        	Optional SQL
-	 * @return Database_Schema
+	 * @return ORM_Schema
 	 */
 	final private function _database_schema(ORM $object = null, $sql = null) {
 		try {
@@ -1477,7 +1477,7 @@ class Class_ORM extends Hookable {
 			}
 			return $this->application->objects->factory($namespace . "Schema_" . $class, $this, $object);
 		} catch (Exception_Class_NotFound $e) {
-			$schema = new Database_Schema_File($this, $object, $sql);
+			$schema = new ORM_Schema_File($this, $object, $sql);
 			if ($schema->exists() || $schema->has_sql()) {
 				return $schema;
 			}
@@ -1496,11 +1496,11 @@ class Class_ORM extends Hookable {
 	
 	/**
 	 *
-	 * @return Database_Schema
+	 * @return ORM_Schema
 	 */
 	final public function database_schema(ORM $object = null) {
 		$result = $object ? $object->schema() : $this->schema();
-		if ($result instanceof Database_Schema) {
+		if ($result instanceof ORM_Schema) {
 			return $result;
 		} else if (is_array($result)) {
 			return $this->_database_schema($object, implode(";\n", $result));
@@ -1514,7 +1514,7 @@ class Class_ORM extends Hookable {
 	/**
 	 * Override this in subclasses to provide an alternate schema
 	 *
-	 * @return Database_Schema
+	 * @return ORM_Schema
 	 */
 	public function schema(ORM $object) {
 		return $this->_database_schema($object);

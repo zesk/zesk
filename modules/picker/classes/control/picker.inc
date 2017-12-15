@@ -298,14 +298,15 @@ class Control_Picker extends Control {
 		)));
 	}
 	private function _query() {
-		return $this->application->query_select($this->class)
+		return $this->application->orm_registry($this->class)
+			->query_select()
 			->what_object($this->class, "X")
 			->limit(0, $this->option_integer('limit', 25))
 			->order_by($this->option('order_by'));
 	}
 	private function search_results(array $variables, $q) {
 		$query = $this->_query();
-		$total = $this->application->query_select($this->class);
+		$total = $this->application->orm_registry($this->class)->query_select();
 		$this->call_hook('query_list;query', $query);
 		$this->call_hook('query_total;query', $total);
 		$total->what(array(

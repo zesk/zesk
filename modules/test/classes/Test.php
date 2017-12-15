@@ -17,6 +17,12 @@ use zesk\Test\Method;
  */
 class Test extends Hookable {
 	/**
+	 *
+	 * @var string
+	 */
+	const PHP_ERROR_MARIAH = "PHP-ERROR";
+	
+	/**
 	 * Statistics for test run
 	 *
 	 * @var array
@@ -112,6 +118,7 @@ class Test extends Hookable {
 		self::init();
 		parent::__construct($application, $options);
 		$this->inherit_global_options();
+		$this->call_hook("construct");
 		if ($this->load_modules) {
 			$this->log("Loading modules: {load_modules}", array(
 				"load_modules" => $this->load_modules
@@ -119,7 +126,6 @@ class Test extends Hookable {
 			$this->application->modules->load($this->load_modules);
 		}
 	}
-	const PHP_ERROR_MARIAH = "PHP-ERROR";
 	
 	/**
 	 * Make sure we're initialized with basic error reporting
@@ -487,10 +493,12 @@ class Test extends Hookable {
 			$test = $this->tests[$name];
 			
 			if ($this->can_run_test($name)) {
-				// 				$this->log(__("# Running {class}::{name}", array(
-				// 					'class' => get_class($this),
-				// 					'name' => $name
-				// 				)));
+				if ($this->option_bool("debug_test_method")) {
+					$this->log(__("# Running {class}::{name}", array(
+						'class' => get_class($this),
+						'name' => $name
+					)));
+				}
 				$test->run();
 				$failed = avalue($this->test_status, $name) !== true;
 				if (!$failed) {
@@ -1099,8 +1107,10 @@ class Test extends Hookable {
 	public static function run_one_class(Application $application, $class, array $options, &$object = null) {
 		$object = $application->objects->factory($class, $application);
 		/* @var $object Test_Unit */
-		if (!$object instanceof Test_Unit) {
-			throw new Exception_Invalid("$class is not an instance of Test_Unit");
+		if (!$object instanceof Interface_Testable) {
+			throw new Exception_Invalid("$class is not an instance of {class}", array(
+				"class" => Interface_Testable::class
+			));
 		}
 		$object->set_option($options);
 		$object->inherit_global_options();

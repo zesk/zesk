@@ -85,25 +85,25 @@ class Client {
 	 * @var string
 	 */
 	const INSECURE_ENDPOINT_AP_SOUTHEAST = 'http://sqs.ap-southeast-1.amazonaws.com/';
-
+	
 	/**
 	 *
 	 * @var string
 	 */
 	protected $__accessKey; // AWS Access key
-
+	
 	/**
 	 *
 	 * @var string
 	 */
 	protected $__secretKey; // AWS Secret key
-
+	
 	/**
 	 *
 	 * @var string
 	 */
 	protected $__host;
-
+	
 	/**
 	 *
 	 * @return string
@@ -111,7 +111,7 @@ class Client {
 	public function getAccessKey() {
 		return $this->__accessKey;
 	}
-
+	
 	/**
 	 *
 	 * @return string
@@ -119,7 +119,7 @@ class Client {
 	public function getSecretKey() {
 		return $this->__secretKey;
 	}
-
+	
 	/**
 	 *
 	 * @return string
@@ -127,7 +127,7 @@ class Client {
 	public function getHost() {
 		return $this->__host;
 	}
-
+	
 	/**
 	 * Constructor - this class cannot be used statically
 	 *
@@ -145,7 +145,7 @@ class Client {
 		}
 		$this->__host = $host;
 	}
-
+	
 	/**
 	 * Set AWS access key and secret key
 	 *
@@ -159,7 +159,7 @@ class Client {
 		$this->__accessKey = $accessKey;
 		$this->__secretKey = $secretKey;
 	}
-
+	
 	/**
 	 * Create a queue
 	 *
@@ -171,13 +171,13 @@ class Client {
 	 */
 	public function createQueue($queue, $visibility_timeout = null) {
 		$rest = new Request($this, $this->__host, 'CreateQueue', 'POST');
-
+		
 		$rest->setParameter('QueueName', $queue);
-
+		
 		if ($visibility_timeout !== null) {
 			$rest->setParameter('DefaultVisibilityTimeout', $visibility_timeout);
 		}
-
+		
 		$rest = $rest->getResponse();
 		if ($rest->error === false && $rest->code !== 200)
 			$rest->error = array(
@@ -188,13 +188,13 @@ class Client {
 			$this->__triggerError(__FUNCTION__, $rest->error);
 			return null;
 		}
-
+		
 		$result = array();
 		$result['QueueUrl'] = (string) $rest->body->CreateQueueResult->QueueUrl;
 		$result['RequestId'] = (string) $rest->body->ResponseMetadata->RequestId;
 		return $result;
 	}
-
+	
 	/**
 	 * Delete a queue
 	 *
@@ -214,12 +214,12 @@ class Client {
 			$this->__triggerError(__FUNCTION__, $rest->error);
 			return null;
 		}
-
+		
 		$result = array();
 		$result['RequestId'] = (string) $rest->body->ResponseMetadata->RequestId;
 		return $result;
 	}
-
+	
 	/**
 	 * Get a list of queues
 	 *
@@ -229,11 +229,11 @@ class Client {
 	 */
 	public function listQueues($prefix = null) {
 		$rest = new Request($this, $this->__host, 'ListQueues', 'GET');
-
+		
 		if ($prefix !== null) {
 			$rest->setParameter('QueueNamePrefix', $prefix);
 		}
-
+		
 		$rest = $rest->getResponse();
 		if ($rest->error === false && $rest->code !== 200)
 			$rest->error = array(
@@ -244,7 +244,7 @@ class Client {
 			$this->__triggerError(__FUNCTION__, $rest->error);
 			return null;
 		}
-
+		
 		$results = array();
 		$results['RequestId'] = (string) $rest->body->ResponseMetadata->RequestId;
 		$queues = array();
@@ -256,7 +256,7 @@ class Client {
 		$results['Queues'] = $queues;
 		return $results;
 	}
-
+	
 	/**
 	 * Get a queue's attributes
 	 *
@@ -268,9 +268,9 @@ class Client {
 	 */
 	public function getQueueAttributes($queue, $attribute = 'All') {
 		$rest = new Request($this, $queue, 'GetQueueAttributes', 'GET');
-
+		
 		$rest->setParameter('AttributeName', $attribute);
-
+		
 		$rest = $rest->getResponse();
 		if ($rest->error === false && $rest->code !== 200)
 			$rest->error = array(
@@ -281,7 +281,7 @@ class Client {
 			$this->__triggerError(__FUNCTION__, $rest->error);
 			return null;
 		}
-
+		
 		$results = array();
 		$results['RequestId'] = (string) $rest->body->ResponseMetadata->RequestId;
 		$attributes = array();
@@ -293,7 +293,7 @@ class Client {
 		$results['Attributes'] = $attributes;
 		return $results;
 	}
-
+	
 	/**
 	 * Set attributes on a queue
 	 *
@@ -305,14 +305,14 @@ class Client {
 	 */
 	public function setQueueAttributes($queue, $attributes) {
 		$rest = new Request($this, $queue, 'SetQueueAttributes', 'POST');
-
+		
 		$i = 1;
 		foreach ($attributes as $attribute => $value) {
 			$rest->setParameter('Attribute.' . $i . '.Name', $attribute);
 			$rest->setParameter('Attribute.' . $i . '.Value', $value);
 			$i++;
 		}
-
+		
 		$rest = $rest->getResponse();
 		if ($rest->error === false && $rest->code !== 200)
 			$rest->error = array(
@@ -323,12 +323,12 @@ class Client {
 			$this->__triggerError(__FUNCTION__, $rest->error);
 			return null;
 		}
-
+		
 		$results = array();
 		$results['RequestId'] = (string) $rest->body->ResponseMetadata->RequestId;
 		return $results;
 	}
-
+	
 	/**
 	 * Send a message to a queue
 	 *
@@ -341,9 +341,9 @@ class Client {
 	 */
 	public function sendMessage($queue, $message) {
 		$rest = new Request($this, $queue, 'SendMessage', 'POST');
-
+		
 		$rest->setParameter('MessageBody', $message);
-
+		
 		$rest = $rest->getResponse();
 		if ($rest->error === false && $rest->code !== 200)
 			$rest->error = array(
@@ -354,7 +354,7 @@ class Client {
 			$this->__triggerError(__FUNCTION__, $rest->error);
 			return null;
 		}
-
+		
 		$results = array();
 		$results['RequestId'] = (string) $rest->body->ResponseMetadata->RequestId;
 		if (isset($rest->body->SendMessageResult)) {
@@ -363,7 +363,7 @@ class Client {
 		}
 		return $results;
 	}
-
+	
 	/**
 	 * Receive a message from a queue
 	 *
@@ -379,20 +379,20 @@ class Client {
 	 */
 	public function receiveMessage($queue, $num_messages = null, $visibility_timeout = null, $attributes = array()) {
 		$rest = new Request($this, $queue, 'ReceiveMessage', 'GET');
-
+		
 		if ($num_messages !== null) {
 			$rest->setParameter('MaxNumberOfMessages', $num_messages);
 		}
 		if ($visibility_timeout !== null) {
 			$rest->setParameter('VisibilityTimeout', $visibility_timeout);
 		}
-
+		
 		$i = 1;
 		foreach ($attributes as $attribute) {
 			$rest->setParameter('AttributeName.' . $i, $attribute);
 			$i++;
 		}
-
+		
 		$rest = $rest->getResponse();
 		if ($rest->error === false && $rest->code !== 200)
 			$rest->error = array(
@@ -403,7 +403,7 @@ class Client {
 			$this->__triggerError(__FUNCTION__, $rest->error);
 			return null;
 		}
-
+		
 		$results = array();
 		$results['RequestId'] = (string) $rest->body->ResponseMetadata->RequestId;
 		$messages = array();
@@ -414,7 +414,7 @@ class Client {
 				$message['ReceiptHandle'] = (string) ($m->ReceiptHandle);
 				$message['MD5OfBody'] = (string) ($m->MD5OfBody);
 				$message['Body'] = (string) ($m->Body);
-
+				
 				if (isset($m->Attribute)) {
 					$attributes = array();
 					foreach ($m->Attribute as $a) {
@@ -422,14 +422,14 @@ class Client {
 					}
 					$message['Attributes'] = $attributes;
 				}
-
+				
 				$messages[] = $message;
 			}
 		}
 		$results['Messages'] = $messages;
 		return $results;
 	}
-
+	
 	/**
 	 * Change the visibility timeout setting for a specific message
 	 *
@@ -443,10 +443,10 @@ class Client {
 	 */
 	public function changeMessageVisibility($queue, $receipt_handle, $visibility_timeout) {
 		$rest = new Request($this, $queue, 'ChangeMessageVisibility', 'POST');
-
+		
 		$rest->setParameter('ReceiptHandle', $receipt_handle);
 		$rest->setParameter('VisibilityTimeout', $visibility_timeout);
-
+		
 		$rest = $rest->getResponse();
 		if ($rest->error === false && $rest->code !== 200)
 			$rest->error = array(
@@ -457,12 +457,12 @@ class Client {
 			$this->__triggerError(__FUNCTION__, $rest->error);
 			return null;
 		}
-
+		
 		$results = array();
 		$results['RequestId'] = (string) $rest->body->ResponseMetadata->RequestId;
 		return $results;
 	}
-
+	
 	/**
 	 * Delete a message from a queue
 	 *
@@ -474,9 +474,9 @@ class Client {
 	 */
 	public function deleteMessage($queue, $receipt_handle) {
 		$rest = new Request($this, $queue, 'DeleteMessage', 'POST');
-
+		
 		$rest->setParameter('ReceiptHandle', $receipt_handle);
-
+		
 		$rest = $rest->getResponse();
 		if ($rest->error === false && $rest->code !== 200)
 			$rest->error = array(
@@ -487,12 +487,12 @@ class Client {
 			$this->__triggerError(__FUNCTION__, $rest->error);
 			return null;
 		}
-
+		
 		$results = array();
 		$results['RequestId'] = (string) $rest->body->ResponseMetadata->RequestId;
 		return $results;
 	}
-
+	
 	/**
 	 * Add access permissions to a queue, for sharing access to queues with other users
 	 *
@@ -506,7 +506,7 @@ class Client {
 	 */
 	public function addPermission($queue, $label, $permissions) {
 		$rest = new Request($this, $queue, 'AddPermission', 'POST');
-
+		
 		$rest->setParameter('Label', $label);
 		$i = 1;
 		foreach ($permissions as $account => $action) {
@@ -514,7 +514,7 @@ class Client {
 			$rest->setParameter('ActionName.' . $i, $action);
 			$i++;
 		}
-
+		
 		$rest = $rest->getResponse();
 		if ($rest->error === false && $rest->code !== 200)
 			$rest->error = array(
@@ -525,12 +525,12 @@ class Client {
 			$this->__triggerError(__FUNCTION__, $rest->error);
 			return null;
 		}
-
+		
 		$results = array();
 		$results['RequestId'] = (string) $rest->body->ResponseMetadata->RequestId;
 		return $results;
 	}
-
+	
 	/**
 	 * Remove a permission from a queue
 	 *
@@ -542,9 +542,9 @@ class Client {
 	 */
 	public function removePermission($queue, $label) {
 		$rest = new Request($this, $queue, 'RemvoePermission', 'POST');
-
+		
 		$rest->setParameter('Label', $label);
-
+		
 		$rest = $rest->getResponse();
 		if ($rest->error === false && $rest->code !== 200)
 			$rest->error = array(
@@ -555,12 +555,12 @@ class Client {
 			$this->__triggerError(__FUNCTION__, $rest->error);
 			return null;
 		}
-
+		
 		$results = array();
 		$results['RequestId'] = (string) $rest->body->ResponseMetadata->RequestId;
 		return $results;
 	}
-
+	
 	/**
 	 * Trigger an error message
 	 *

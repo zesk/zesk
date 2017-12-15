@@ -45,19 +45,26 @@ class PolyGlot_Update extends ORM {
 			return;
 		}
 		$server_variable_name = __CLASS__ . "::last_update";
-		$update_requested = $application->query_select(__CLASS__)->what("*updated", "MAX(updated)")->one_timestamp("updated");
+		$update_requested = $application->orm_registry(__CLASS__)
+			->query_select()
+			->what("*updated", "MAX(updated)")
+			->one_timestamp("updated");
 		$server_updated = $server->data($server_variable_name);
 		$update_locales = array();
 		if ($server_updated) {
 			$server_updated = Timestamp::factory($server_updated);
 			if ($server_updated->before($update_requested)) {
-				$update_locales = $application->query_select(__CLASS__)
+				$update_locales = $application->orm_registry(__CLASS__)
+					->query_select()
 					->what("locale", "locale")
 					->where("updated|>=", $server_updated)
 					->to_array(null, "locale");
 			}
 		} else {
-			$update_locales = $application->query_select(__CLASS__)->what("locale", "locale")->to_array(null, "locale");
+			$update_locales = $application->orm_registry(__CLASS__)
+				->query_select()
+				->what("locale", "locale")
+				->to_array(null, "locale");
 		}
 		if (count($update_locales) === 0) {
 			$application->logger->debug("No locale updates needed on {server}", array(
@@ -69,7 +76,8 @@ class PolyGlot_Update extends ORM {
 		foreach ($update_locales as $update_locale) {
 			$dialect = Locale::dialect($update_locale);
 			if (!$dialect) {
-				$expanded_locales = $application->query_select('zesk\\PolyGlot_Token')
+				$expanded_locales = $application->orm_registry('zesk\\PolyGlot_Token')
+					->query_select()
 					->distinct(true)
 					->what("*locale", "CONCAT(language,'_',dialect)")
 					->where(array(

@@ -10,7 +10,10 @@ namespace zesk;
 /* @var $request \zesk\Request */
 /* @var $response \zesk\Response_Text_HTML */
 /* @var $current_user \User */
-$servers = $application->query_select("zesk\\Server")->order_by("name_internal")->object_iterator();
+$servers = $application->orm_registry("zesk\\Server")
+	->query_select()
+	->order_by("name_internal")
+	->object_iterator();
 
 $output_header = false;
 /* @var $server zesk\Server */

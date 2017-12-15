@@ -59,7 +59,7 @@ class Selection_Item extends ORM {
 				->execute();
 		}
 	}
-	protected function hook_schema_update_alter(Database_Schema $schema, Database_Table $table, array $changes) {
+	protected function hook_schema_update_alter(ORM_Schema $schema, Database_Table $table, array $changes) {
 		$before_changes = array();
 		foreach ($changes as $change) {
 			if (strpos($change, 'tid') !== false && strpos($change, 'UNIQUE') !== false) {

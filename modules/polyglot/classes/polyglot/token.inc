@@ -129,7 +129,7 @@ class PolyGlot_Token extends ORM {
 			"language" => $language,
 			"dialect" => $dialect
 		);
-		$query = $app->query_select(__CLASS__);
+		$query = $app->orm_registry(__CLASS__)->query_select();
 		$where = array(
 			array(
 				$where,
@@ -167,7 +167,10 @@ class PolyGlot_Token extends ORM {
 	 * @return Database_Query_Select
 	 */
 	public static function locale_query(Application $application, $locale) {
-		return $application->query_select(__CLASS__)->what_object()->where(array(
+		return $application->orm_registry(__CLASS__)
+			->query_select()
+			->what_object()
+			->where(array(
 			"dialect" => Locale::dialect($locale),
 			"language" => Locale::language($locale)
 		));
@@ -193,10 +196,13 @@ class PolyGlot_Token extends ORM {
 	 * @param Application $app
 	 */
 	public static function htmlentities_all(Application $app) {
-		$iterator = $app->query_select(__CLASS__)->what(array(
+		$iterator = $app->orm_registry(__CLASS__)
+			->query_select()
+			->what(array(
 			"id" => "id",
 			"translation" => "translation"
-		))->iterator("id", "translation");
+		))
+			->iterator("id", "translation");
 		foreach ($iterator as $id => $translation) {
 			$entities = htmlentities($translation);
 			if ($entities !== $translation) {

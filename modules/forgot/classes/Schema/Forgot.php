@@ -9,12 +9,12 @@ namespace zesk;
  * @author kent
  * @copyright &copy; 2014 Market Acumen, Inc.
  */
-class Schema_Forgot extends Database_Schema {
+class Schema_Forgot extends ORM_Schema {
 	/**
 	 * @todo if updated default value isn't 0000-00-00 00:00:00 then Forgot schema is always updated. Need to check.
 	 * 
 	 * {@inheritDoc}
-	 * @see Database_Schema::schema()
+	 * @see ORM_Schema::schema()
 	 */
 	function schema() {
 		$result = array(

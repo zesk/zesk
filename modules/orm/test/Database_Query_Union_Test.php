@@ -10,7 +10,8 @@ namespace zesk;
 
 class Database_Query_Union_Test extends Test_Unit {
 	protected $load_modules = array(
-		"MySQL"
+		"MySQL",
+		"ORM"
 	);
 	function test_main() {
 		$table_name = "Database_Query_Union";
@@ -53,7 +54,7 @@ class Database_Query_Union_Test extends Test_Unit {
 		$testx->iterator();
 		
 		$class = "U";
-		$options = false;
+		$options = array();
 		$testx->object_iterator($class, $options);
 		
 		$field = false;

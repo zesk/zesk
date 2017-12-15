@@ -10,7 +10,8 @@ namespace zesk;
 
 class Database_Query_Select_Test extends Test_Unit {
 	protected $load_modules = array(
-		"MySQL"
+		"MySQL",
+		"ORM"
 	);
 	function test_main() {
 		$table_name = "Database_Query_Select";
@@ -51,8 +52,7 @@ class Database_Query_Select_Test extends Test_Unit {
 		$testx->iterator();
 		
 		$class = null;
-		$options = false;
-		$testx->object_iterator($class, $options);
+		$testx->object_iterator($class);
 		
 		$field = false;
 		$default = false;

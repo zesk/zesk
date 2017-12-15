@@ -9,7 +9,7 @@ namespace zesk;
  * @author kent
  *
  */
-class Schema_Contact_Email extends Database_Schema {
+class Schema_Contact_Email extends ORM_Schema {
 	function schema() {
 		return array(
 			'{table}' => array(

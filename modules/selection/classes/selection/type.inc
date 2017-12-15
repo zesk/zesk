@@ -185,7 +185,8 @@ class Selection_Type extends ORM {
 				"action" => $query->add ? __('Selection_Type:=Added to selection') : __('Selection_Type:=Removed from selection')
 			)), HTML::span(".query-action " . ($query->add ? ".query-action-add" : ".query-action-remove"), "[]"));
 		}
-		$n_added = $this->application->query_select("zesk\\Selection_Item")
+		$n_added = $this->application->orm_registry("zesk\\Selection_Item")
+			->query_select()
 			->where(array(
 			"type" => $this,
 			"query" => null,
@@ -198,7 +199,8 @@ class Selection_Type extends ORM {
 				"n" => $n_added
 			));
 		}
-		$n_excluded = $this->application->query_select("zesk\\Selection_Item")
+		$n_excluded = $this->application->orm_registry("zesk\\Selection_Item")
+			->query_select()
 			->where(array(
 			"type" => $this,
 			"query" => null,

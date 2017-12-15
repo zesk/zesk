@@ -15,7 +15,7 @@ namespace zesk;
  *        	application Pass the application name after this parameter in order to invoke an
  *        	alternate application
  */
-class Command_Database_Schema extends Command_Base {
+class Command_ORM_Schema extends Command_Base {
 	/**
 	 *
 	 * @var array
@@ -133,7 +133,7 @@ class Command_Database_Schema extends Command_Base {
 	 */
 	protected function initialize() {
 		parent::initialize();
-		$this->application->register_class("zesk\Database_Schema_File");
+		$this->application->register_class("zesk\ORM_Schema_File");
 	}
 	
 	/**
@@ -146,7 +146,7 @@ class Command_Database_Schema extends Command_Base {
 		$application = $this->application;
 		
 		if ($this->option_bool("debug")) {
-			Database_Schema::$debug = true;
+			ORM_Schema::$debug = true;
 		}
 		$url = null;
 		if ($this->has_option("url")) {

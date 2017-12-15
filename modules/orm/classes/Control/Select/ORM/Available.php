@@ -23,7 +23,7 @@ class Control_Select_ORM_Available extends Control_Select_ORM {
 		
 		$column = $sql->unquote_column($column);
 		
-		$query = $this->application->query_select($this->class);
+		$query = $this->application->orm_registry($this->class)->query_select();
 		$query->what("id", $column);
 		$query->distinct(true);
 		$query->order_by($this->option('order_by', $column));

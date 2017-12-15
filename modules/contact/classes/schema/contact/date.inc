@@ -9,7 +9,7 @@ namespace zesk;
  * @author kent
  *
  */
-class Schema_Contact_Date extends Database_Schema {
+class Schema_Contact_Date extends ORM_Schema {
 	function schema() {
 		return $this->map(array(
 			'{table}' => array(

@@ -83,7 +83,8 @@ class Controller_Contact extends Controller_Template_Login {
 		$content = $widget->execute();
 		
 		$vars = array();
-		$n_contacts = $this->application->query_select('Contact')
+		$n_contacts = $this->application->orm_registry('Contact')
+			->query_select()
 			->where('User', $this->user)
 			->what("*n_contacts", 'COUNT(X.ID)')
 			->integer('n_contacts');

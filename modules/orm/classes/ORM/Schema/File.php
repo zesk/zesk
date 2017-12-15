@@ -13,7 +13,7 @@ namespace zesk;
  * Handle schema definitions which are SQL files on disk
  *
  * @author kent
- * @see Database_Schema
+ * @see ORM_Schema
  */
 class ORM_Schema_File extends ORM_Schema {
 	/**
@@ -62,7 +62,7 @@ class ORM_Schema_File extends ORM_Schema {
 		if ($sql !== null) {
 			$this->_set_sql($sql);
 			$this->parser = Database_Parser::parse_factory($this->database(), $this->sql, calling_function());
-			zesk()->logger->debug("Parsing SQL {sql} using {parse_class} for class {class}", array(
+			$this->application->logger->debug("Parsing SQL {sql} using {parse_class} for class {class}", array(
 				"sql" => $sql,
 				"parse_class" => get_class($this->parser),
 				"class" => get_class($class_object)
@@ -73,7 +73,7 @@ class ORM_Schema_File extends ORM_Schema {
 				$this->sql_file_path = $path;
 				$this->_set_sql(file_get_contents($path));
 				$this->parser = Database_Parser::parse_factory($this->database(), $this->sql, $path);
-				zesk()->logger->debug("Parsing {path} using {parse_class} for class {class}\nSQL:\n{sql}\n", array(
+				$this->application->logger->debug("Parsing {path} using {parse_class} for class {class}\nSQL:\n{sql}\n", array(
 					"path" => $path,
 					"sql" => $this->mapped_sql,
 					"parse_class" => get_class($this->parser),
@@ -133,7 +133,7 @@ class ORM_Schema_File extends ORM_Schema {
 	protected function schema_path() {
 		$result = $this->_schema_path();
 		if ($this->option_bool('debug')) {
-			zesk()->logger->debug("{class_object} found file {result}", array(
+			$this->application->logger->debug("{class_object} found file {result}", array(
 				"class_object" => get_class($this->class_object),
 				"result" => $result
 			));
@@ -147,13 +147,11 @@ class ORM_Schema_File extends ORM_Schema {
 	 * @return string Path to schema file
 	 */
 	private function _schema_path() {
-		global $zesk;
-		
 		$all_searches = array();
 		$class_object = $this->class_object;
-		foreach ($zesk->classes->hierarchy($class_object, "zesk\\Class_ORM") as $class_name) {
+		foreach ($this->application->classes->hierarchy($class_object, Class_ORM::class) as $class_name) {
 			$searches = array();
-			$schema_path = $zesk->autoloader->search($class_name, array(
+			$schema_path = $this->application->autoloader->search($class_name, array(
 				'sql'
 			), $searches);
 			if ($schema_path) {
@@ -161,7 +159,7 @@ class ORM_Schema_File extends ORM_Schema {
 			}
 			$all_searches = array_merge($all_searches, $searches);
 		}
-		$schema_path = $zesk->autoloader->search($class_object->class, array(
+		$schema_path = $this->application->autoloader->search($class_object->class, array(
 			'sql'
 		), $searches);
 		if ($schema_path) {
@@ -170,14 +168,6 @@ class ORM_Schema_File extends ORM_Schema {
 		$all_searches = array_merge($all_searches, $searches);
 		// Old-style way of finding - deprecate the template_schema_paths method
 		$file = $class_object->schema_file ? $class_object->schema_file : $class_object->class . ".sql";
-		$schema_paths = to_array($this->template_schema_paths());
-		foreach ($schema_paths as $schema_path) {
-			$path = path($schema_path, $file);
-			if (file_exists($path)) {
-				zesk()->deprecated();
-				return $path;
-			}
-		}
 		$this->searched = $all_searches;
 		return null;
 	}
@@ -196,58 +186,9 @@ class ORM_Schema_File extends ORM_Schema {
 	}
 	
 	/**
-	 *
-	 * @var array
-	 */
-	private static $schema_paths = null;
-	/**
-	 *
-	 * @param zesk\Kernel $zesk        	
-	 */
-	public static function hooks(Kernel $zesk) {
-		$zesk->hooks->add("configured", __CLASS__ . '::configured');
-	}
-	
-	/**
-	 *
-	 * @param zesk\Application $application        	
-	 */
-	public static function configured(Application $application) {
-		self::initialize_schema_paths($application);
-	}
-	
-	/**
-	 * 
-	 */
-	private static function initialize_schema_paths(Application $application) {
-		if (self::$schema_paths === null) {
-			/* @var $zesk zesk\Kernel */
-			self::$schema_paths = to_list($application->configuration->path_get(ORM::class . "::schema_path", array(
-				$application->path('sql/schema'),
-				$application->zesk->path('sql/schema')
-			)));
-		}
-	}
-	/**
-	 * Retrieve a list of paths where schema files are stored
-	 *
-	 * @param string $add
-	 *        	Optionally add a path
-	 *        	
-	 * @return array
-	 */
-	public function template_schema_paths($add = null) {
-		self::initialize_schema_paths();
-		if ($add !== null) {
-			self::$schema_paths[] = $add;
-		}
-		return self::$schema_paths;
-	}
-	
-	/**
 	 * Convert this schema object into the array-based schema
 	 *
-	 * @see Database_Schema::schema()
+	 * @see ORM_Schema::schema()
 	 * @return array
 	 */
 	public function schema() {
@@ -299,11 +240,11 @@ class ORM_Schema_File extends ORM_Schema {
 			} else if ($statement === "insert" || $statement === "drop table") {
 				if (!$table) {
 					$table = first(array_values($tables));
-					zesk()->logger->warning("{statement} \"{sql}\" on unknown table {table} in {file}", $__);
+					$this->application->logger->warning("{statement} \"{sql}\" on unknown table {table} in {file}", $__);
 				}
 				$table->option_append_list("on create", $sql);
 			} else if ($statement !== "none") {
-				zesk()->logger->error("Unknown SQL statement ({statement}) found in file {file}: {sql}", $__);
+				$this->application->logger->error("Unknown SQL statement ({statement}) found in file {file}: {sql}", $__);
 			}
 		}
 		

@@ -7,5 +7,7 @@
 		"lower": false
 	},
 	"module_class": "zesk\\Module_Permission",
-	"requires": [ "orm" ]
+	"requires": [
+		"orm"
+	]
 }

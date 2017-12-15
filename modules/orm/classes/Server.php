@@ -491,11 +491,11 @@ class Server extends ORM implements Interface_Data {
 		} else {
 			$where = $name;
 		}
-		$query = $this->application->query_select("zesk\\Server");
+		$query = $this->application->orm_registry(Server::class)->query_select();
 		$query->what_object();
 		foreach ($where as $name => $value) {
 			$alias = "data_$name";
-			$query->link("zesk\\Server_Data", array(
+			$query->link(Server_Data::class, array(
 				"alias" => $alias,
 				"on" => array(
 					"name" => $name

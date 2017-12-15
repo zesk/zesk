@@ -14,7 +14,7 @@ namespace zesk;
 /* @var $response \zesk\Response_Text_HTML */
 /* @var $current_user \User */
 /* @var $server_data_key string */
-$servers = $application->query_select("zesk\\Server")->object_iterator();
+$servers = $application->orm_registry("zesk\\Server")->query_select()->object_iterator();
 foreach ($servers as $server) {
 	/* @var $server \Server */
 	$data = $server->data($server_data_key);

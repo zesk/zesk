@@ -903,7 +903,6 @@ class URL {
 		$parts['path'] = $path;
 		return self::unparse($parts);
 	}
-
 	
 	/**
 	 * Does this URL have a reference parameter already?
@@ -938,7 +937,7 @@ class URL {
 			$ref = self::current_uri();
 		}
 		return self::query_append(self::query_remove($href, $key), array(
-				$key => $ref
+			$key => $ref
 		));
 	}
 	/**

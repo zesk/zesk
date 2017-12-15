@@ -22,7 +22,8 @@ class Role extends ORM {
 	 * @return integer
 	 */
 	static function root_id(Application $application) {
-		return $application->query_select(__CLASS__)
+		return $application->orm_registry(__CLASS__)
+			->query_select()
 			->what('id')
 			->where('is_root', true)
 			->integer('id', null);
@@ -33,7 +34,8 @@ class Role extends ORM {
 	 * @return integer
 	 */
 	static function default_id(Application $application) {
-		return $application->query_select(__CLASS__)
+		return $application->orm_registry(__CLASS__)
+			->query_select()
 			->what('id')
 			->where('is_default', true)
 			->integer('id', null);

@@ -1,43 +1,41 @@
 {
-    "Type": "Notification",
-    "MessageId": "7c1d97f2-25ce-5fbb-8504-c5579e9bbb09",
-    "TopicArn": "arn:aws:sns:us-west-2:699804065576:Company-Bounces",
-    "Message": {
-        "notificationType": "Bounce",
-        "bounce": {
-            "bounceType": "Permanent",
-            "bounceSubType": "Suppressed",
-            "bouncedRecipients": [
-                {
-                    "emailAddress": "bad@address.org",
-                    "action": "failed",
-                    "status": "5.1.1",
-                    "diagnosticCode": "Amazon SES has suppressed sending to this address because it has a recent history of bouncing as an invalid address. For more information about how to remove an address from the suppression
-list, see the Amazon SES Developer Guide: http://docs.aws.amazon.com/ses/latest/DeveloperGuide/remove-from-suppressionlist.html "
-                }
-            ],
-            "timestamp": "2017-12-09T10:21:09.293Z",
-            "feedbackId": "010101603acafafb-721a78b2-e2f1-491f-9ad1-653831b85337-000000",
-            "reportingMTA": "dns; amazonses.com"
-        },
-        "mail": {
-            "timestamp": "2017-12-09T10:21:08.000Z",
-            "source": "publish@primary.timebanks.org",
-            "sourceArn": "arn:aws:ses:us-west-2:699804065576:identity/timebanks.org",
-            "sourceIp": "54.181.20.96",
-            "sendingAccountId": "699804065576",
-            "messageId": "010101603acaf9a9-4b192c26-14c9-480e-8c2e-7a67e1abb1b2-000000",
-            "destination": [
-                "bad@address.org"
-            ]
-        }
-    },
-    "Timestamp": "2017-12-09T10:21:09.322Z",
-    "SignatureVersion": "1",
-    "Signature": "Z1/8GriNPWRR2lYv6/rYXU9rokRl+AHjvMXJqSyQ4hZ1wmLirLj4Odk8gDv24olTTLbc2GCCDFrnfGHAAwAdWqlM73QeDUwHIBPwA5TuGLLZMFlGEKAXFTQZRbw0VMr2uKyEPkif6vRtJPDL9sVFyEKye02IxFBckCP4GsNdxIcw9rr1vtIHpB7d+P1TneGtkTijvFU/2Ah7p8hm2WG
-NANuT4EQRJOSjukow0lETRoUvpj9dnS2dCY5KmuvqN3y3HH8R9JMEMpQz3CH9m2fGUBdLbB7heieReVrYaZ/G1FiKC2YD/eL8gpVrIzwEbPPJF65TIp8osVENdCKD4PTZ2g==",
-    "SigningCertURL": "https://sns.us-west-2.amazonaws.com/SimpleNotificationService-433026a4050d206028891664da859041.pem",
-    "UnsubscribeURL": "https://sns.us-west-2.amazonaws.com/?Action=Unsubscribe&SubscriptionArn=arn:aws:sns:us-west-2:699804065576:Company-Bounces:b50625f1-5058-4bc9-aa0a-29d16b725978",
-    "bounceType": "Permanent",
-    "emails": []
+	"Type": "Notification",
+	"MessageId": "7c1d97f2-25ce-5fbb-8504-c5579e9bbb09",
+	"TopicArn": "arn:aws:sns:us-west-2:699804065576:Company-Bounces",
+	"Message": {
+		"notificationType": "Bounce",
+		"bounce": {
+			"bounceType": "Permanent",
+			"bounceSubType": "Suppressed",
+			"bouncedRecipients": [
+				{
+					"emailAddress": "bad@address.org",
+					"action": "failed",
+					"status": "5.1.1",
+					"diagnosticCode": "AmazonSEShassuppressedsendingtothisaddressbecauseithasarecenthistoryofbouncingasaninvalidaddress.Formoreinformationabouthowtoremoveanaddressfromthesuppressionlist
+				}
+			],
+			"timestamp": "2017-12-09T10:21:09.293Z",
+			"feedbackId": "010101603acafafb-721a78b2-e2f1-491f-9ad1-653831b85337-000000",
+			"reportingMTA": "dns; amazonses.com"
+		},
+		"mail": {
+			"timestamp": "2017-12-09T10:21:08.000Z",
+			"source": "publish@primary.timebanks.org",
+			"sourceArn": "arn:aws:ses:us-west-2:699804065576:identity/timebanks.org",
+			"sourceIp": "54.181.20.96",
+			"sendingAccountId": "699804065576",
+			"messageId": "010101603acaf9a9-4b192c26-14c9-480e-8c2e-7a67e1abb1b2-000000",
+			"destination": [
+				"bad@address.org"
+			]
+		}
+	},
+	"Timestamp": "2017-12-09T10:21:09.322Z",
+	"SignatureVersion": "1",
+	"Signature": "Z1/8GriNPWRR2lYv6/rYXU9rokRl+AHjvMXJqSyQ4hZ1wmLirLj4Odk8gDv24olTTLbc2GCCDFrnfGHAAwAdWqlM73QeDUwHIBPwA5TuGLLZMFlGEKAXFTQZRbw0VMr2uKyEPkif6vRtJPDL9sVFyEKye02IxFBckCP4GsNdxIcw9rr1vtIHpB7d+P1TneGtkTijvFU/2Ah7p8hm2WGNANuT4EQRJOSjukow0lETRoUvpj9dnS2dCY5KmuvqN3y3HH8R9JMEMpQz3CH9m2fGUBdLbB7heieReVrYaZ/G1FiKC2YD/eL8gpVrIzwEbPPJF65TIp8osVENdCKD4PTZ2g==",
+	"SigningCertURL": "https://sns.us-west-2.amazonaws.com/SimpleNotificationService-433026a4050d206028891664da859041.pem",
+	"UnsubscribeURL": "https://sns.us-west-2.amazonaws.com/?Action=Unsubscribe&SubscriptionArn=arn:aws:sns:us-west-2:699804065576:Company-Bounces:b50625f1-5058-4bc9-aa0a-29d16b725978",
+	"bounceType": "Permanent",
+	"emails": []
 }

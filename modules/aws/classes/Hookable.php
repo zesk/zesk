@@ -18,7 +18,7 @@ class Hookable extends \zesk\Hookable {
 	 * @var Application
 	 */
 	public $application = null;
-
+	
 	/**
 	 *
 	 * @param Application $application

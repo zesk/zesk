@@ -11,7 +11,8 @@ namespace zesk;
 
 class Database_Query_Insert_Select_Test extends Test_Unit {
 	protected $load_modules = array(
-		"MySQL"
+		"MySQL",
+		"ORM"
 	);
 	function test_main() {
 		$db = $this->application->database_factory();

@@ -23,7 +23,7 @@ ob_start();
 
 // TODO Indent below to inherit settings above
 ?>
-class <?php echo $this->class_name; ?> extends Database_Schema {
+class <?php echo $this->class_name; ?> extends ORM_Schema {
 	function schema() {
 		return <?php echo ltrim($php->render($this->schema, 2)); ?>;
 	}

@@ -1,9 +1,8 @@
 <?php
-
 namespace zesk\AWS\SQS;
 
 final class Request {
-
+	
 	/**
 	 *
 	 * @var unknown $sqs
@@ -13,13 +12,13 @@ final class Request {
 	 * @var array $parameters
 	 */
 	private $sqs, $queue, $verb, $expires, $parameters = array();
-
+	
 	/**
 	 *
 	 * @var unknown
 	 */
 	public $response;
-
+	
 	/**
 	 * Constructor
 	 *
@@ -43,7 +42,7 @@ final class Request {
 		$this->parameters['SignatureVersion'] = '2';
 		$this->parameters['SignatureMethod'] = 'HmacSHA256';
 		$this->parameters['AWSAccessKeyId'] = $sqs->getAccessKey();
-
+		
 		$this->sqs = $sqs;
 		$this->queue = $queue;
 		$this->verb = $verb;
@@ -51,7 +50,7 @@ final class Request {
 		$this->response = new \stdClass();
 		$this->response->error = false;
 	}
-
+	
 	/**
 	 * Set request parameter
 	 *
@@ -64,7 +63,7 @@ final class Request {
 	public function setParameter($key, $value) {
 		$this->parameters[$key] = $value;
 	}
-
+	
 	/**
 	 * Get the response
 	 *
@@ -76,36 +75,36 @@ final class Request {
 		} else {
 			$this->parameters['Timestamp'] = gmdate('Y-m-d\TH:i:s\Z');
 		}
-
+		
 		$params = array();
 		foreach ($this->parameters as $var => $value) {
 			$params[] = $var . '=' . rawurlencode($value);
 		}
-
+		
 		sort($params, SORT_STRING);
-
+		
 		$query = implode('&', $params);
-
+		
 		$queue_minus_http = substr($this->queue, strpos($this->queue, '/') + 2);
 		$host = substr($queue_minus_http, 0, strpos($queue_minus_http, '/'));
 		$uri = substr($queue_minus_http, strpos($queue_minus_http, '/'));
-
+		
 		$headers = array();
 		$headers[] = 'Host: ' . $host;
-
+		
 		$strtosign = $this->verb . "\n" . $host . "\n" . $uri . "\n" . $query;
-
+		
 		$query .= '&Signature=' . rawurlencode($this->__getSignature($strtosign));
-
+		
 		// Basic setup
 		$curl = curl_init();
 		curl_setopt($curl, CURLOPT_USERAGENT, 'SQS/php');
-
+		
 		if (substr($this->queue, 0, 5) == "https") {
 			curl_setopt($curl, CURLOPT_SSL_VERIFYHOST, ($this->sqs->verifyHost() ? 1 : 0));
 			curl_setopt($curl, CURLOPT_SSL_VERIFYPEER, ($this->sqs->verifyPeer() ? 1 : 0));
 		}
-
+		
 		// Request types
 		switch ($this->verb) {
 			case 'GET':
@@ -117,7 +116,7 @@ final class Request {
 			default :
 				break;
 		}
-
+		
 		curl_setopt($curl, CURLOPT_URL, $this->queue . '?' . $query);
 		curl_setopt($curl, CURLOPT_HTTPHEADER, $headers);
 		curl_setopt($curl, CURLOPT_HEADER, false);
@@ -127,7 +126,7 @@ final class Request {
 			'__responseWriteCallback'
 		));
 		curl_setopt($curl, CURLOPT_FOLLOWLOCATION, true);
-
+		
 		// Execute, grab errors
 		if (curl_exec($curl))
 			$this->response->code = curl_getinfo($curl, CURLINFO_HTTP_CODE);
@@ -137,13 +136,13 @@ final class Request {
 				'code' => curl_errno($curl),
 				'message' => curl_error($curl)
 			);
-
+		
 		@curl_close($curl);
-
+		
 		// Parse body into XML
 		if ($this->response->error === false && isset($this->response->body)) {
 			$this->response->body = simplexml_load_string($this->response->body);
-
+			
 			// Grab SQS errors
 			if (!in_array($this->response->code, array(
 				200,
@@ -159,10 +158,10 @@ final class Request {
 				unset($this->response->body);
 			}
 		}
-
+		
 		return $this->response;
 	}
-
+	
 	/**
 	 * CURL write callback
 	 *
@@ -176,7 +175,7 @@ final class Request {
 		$this->response->body .= $data;
 		return strlen($data);
 	}
-
+	
 	/**
 	 * Generate the auth string using Hmac-SHA256
 	 *

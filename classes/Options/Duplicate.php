@@ -76,7 +76,7 @@ class Options_Duplicate extends Options {
 	 * @param  $new
 	 * @return self
 	 */
-	public function map($member,  $old,  $new) {
+	public function map($member, $old, $new) {
 		$this->map[$member][$old->id()] = $new->id();
 		return $this;
 	}
@@ -89,7 +89,7 @@ class Options_Duplicate extends Options {
 	 * @param  $object
 	 * @return self
 	 */
-	public function process_duplicate( $object) {
+	public function process_duplicate($object) {
 		$members = array();
 		foreach ($this->members as $member => $new_value) {
 			if ($object->has_member($member)) {

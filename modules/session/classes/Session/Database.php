@@ -219,7 +219,10 @@ class Session_Database extends ORM implements Interface_Session {
 	public static function cron_cluster_minute(Application $application) {
 		$now = Timestamp::now();
 		$where['expires|<'] = $now;
-		$iter = $application->query_select(__CLASS__)->where($where)->object_iterator();
+		$iter = $application->orm_registry(__CLASS__)
+			->query_select()
+			->where($where)
+			->object_iterator();
 		/* @var $session Session_Database */
 		foreach ($iter as $session) {
 			$session->logout_expire();

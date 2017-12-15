@@ -92,7 +92,10 @@ class Control_Login extends Control_Edit {
 		$user = $this->application->orm_factory("zesk\\User");
 		$column_login = $this->option('column_login', $user->column_login());
 		if ($this->option("no_password")) {
-			$user = $this->application->query_select("zesk\\User")->where($column_login, $object->login)->one_object();
+			$user = $this->application->orm_registry("zesk\\User")
+				->query_select()
+				->where($column_login, $object->login)
+				->one_object();
 			if ($user) {
 				$this->user = $user;
 				return true;

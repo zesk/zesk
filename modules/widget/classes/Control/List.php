@@ -387,7 +387,7 @@ class Control_List extends Control_Widgets_Filter {
 	 * @return Database_Query_Select
 	 */
 	private function _query() {
-		$query = $this->application->query_select($this->class)->what_object($this->class);
+		$query = $this->application->orm_registry($this->class)->query_select()->what_object($this->class);
 		if ($this->has_option('where')) {
 			$query->where($this->option_array('where'));
 		}

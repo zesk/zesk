@@ -275,7 +275,7 @@ class Command_Test extends Command_Base {
 				echo $e->getMessage();
 			}
 			if (!$success) {
-				$result = 1;
+				$result++;
 			}
 			$this->test_results[$test] = $success ? $test_mtime : false;
 			$this->save_test_database();
@@ -330,7 +330,6 @@ class Command_Test extends Command_Base {
 		
 		$matches = array();
 		$tests = array();
-		$this->test_results = array();
 		while ($this->has_arg()) {
 			$arg = $this->get_arg("test");
 			if (is_file($arg)) {
@@ -368,28 +367,44 @@ class Command_Test extends Command_Base {
 		}
 		$file = $this->test_database_file;
 		if (file_exists($file)) {
-			$this->verbose_log("Loading test database $this->test_database_file");
+			$this->verbose_log("Loading test database {file}", array(
+				"file" => $file
+			));
 			try {
 				$this->test_results = JSON::decode(File::contents($file));
 			} catch (Exception_Parse $e) {
 				$this->error("Unable to parse {file} - likely corrupt", array(
 					"file" => $file
 				));
+				$this->test_results = array();
 			}
-			if ($this->option_bool('debug_test_database')) {
-				$this->log("Test database:");
-				$this->log($this->test_results);
-			}
+			$this->log_db("After Load");
 			return true;
 		}
 		$dir = dirname($this->test_database_file);
 		if (!is_dir($dir)) {
 			throw new Exception_Directory_NotFound($dir, "Can not write test database to $dir");
 		}
-		$this->verbose_log("Will save to new test database $this->test_database_file");
+		$this->verbose_log("Will save to new test database {file}", array(
+			"file" => $file
+		));
 		return true;
 	}
 	
+	/**
+	 * Output the database test results to the log
+	 * 
+	 * @param string $message Optional context message
+	 */
+	private function log_db($message = null) {
+		if ($this->option_bool('debug_test_database')) {
+			$this->log("Test database {message}: {type}", array(
+				"message" => strval($message),
+				"type" => type($this->test_results)
+			));
+			$this->log($this->test_results);
+		}
+	}
 	/**
 	 * Save the test database
 	 */
@@ -398,6 +413,7 @@ class Command_Test extends Command_Base {
 			return;
 		}
 		if ($this->test_database_file) {
+			$this->log_db("Before Save");
 			file_put_contents($this->test_database_file, JSON::encode_pretty($this->test_results));
 		}
 	}
@@ -607,7 +623,11 @@ class Command_Test extends Command_Base {
 		if (count($comments) === 0) {
 			return array();
 		}
-		return array_change_key_case(arr::kunprefix(to_array(DocComment::parse($comments[0])), "test_", true));
+		return array_change_key_case(arr::kunprefix(to_array(DocComment::parse($comments[0], array(
+			"list_keys" => array(
+				"test_module"
+			)
+		))), "test_", true));
 	}
 	
 	/**
@@ -687,6 +707,13 @@ class Command_Test extends Command_Base {
 	 * @return boolean
 	 */
 	private function run_test_php($file, array $options) {
+		$modules = to_list(avalue($options, "module", array()));
+		if (count($modules)) {
+			$this->log("Preloading modules {modules}", array(
+				"modules" => $modules
+			));
+			$this->application->modules->load($modules);
+		}
 		$options += $this->options;
 		try {
 			$run_class = $this->include_file_classes($file);

@@ -26,7 +26,8 @@ $id = 'control-picker-' . $this->column . '-q';
 	?></div>
 <div
 	class="control-picker-results class-<?php echo $this->object_class_css_class; ?>"><?php
-	$query = $application->query_select('zesk\\User_Content_Image')
+	$query = $application->orm_registry('zesk\\User_Content_Image')
+		->query_select()
 		->link('zesk\\Content_Image', array(
 		'alias' => 'ucimage'
 	))

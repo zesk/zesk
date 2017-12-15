@@ -46,7 +46,7 @@ class Domain extends ORM {
 	}
 	/**
 	 * 
-	 * @param Command_Database_Schema $command
+	 * @param Command_ORM_Schema $command
 	 */
 	public static function schema_updated(Application $application) {
 		self::update_data_files($application);

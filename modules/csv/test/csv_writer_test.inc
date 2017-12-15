@@ -13,8 +13,7 @@ class CSV_Writer_Test extends Test_Unit {
 		"csv"
 	);
 	function test_main() {
-		$options = false;
-		$x = new CSV_Writer($options);
+		$x = new CSV_Writer();
 		
 		$f = $this->test_sandbox("csv_writer.csv");
 		$x->file($f);

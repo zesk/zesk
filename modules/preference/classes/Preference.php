@@ -46,7 +46,8 @@ class Preference extends ORM {
 		return !empty($pref);
 	}
 	static function user_has_one(User $user, $name) {
-		return $user->application->query_select(__CLASS__)
+		return $user->application->orm_registry(__CLASS__)
+			->query_select()
 			->join('zesk\\Preference_Type', array(
 			'alias' => 'T'
 		))
@@ -65,7 +66,10 @@ class Preference extends ORM {
 	 * @return Ambigous <zesk\Database_Query_Select, zesk\Database_Query_Select>
 	 */
 	private static function _value_query(User $user, $name) {
-		$query = $user->application->query_select(__CLASS__)->link(self::type_class, "type")->where(array(
+		$query = $user->application->orm_registry(__CLASS__)
+			->query_select()
+			->link(self::type_class, "type")
+			->where(array(
 			'X.user' => $user,
 			'type.code' => $name
 		));
@@ -80,7 +84,8 @@ class Preference extends ORM {
 			));
 		}
 		$pref_name = strtolower($pref_name);
-		$row = $user->application->query_select(__CLASS__)
+		$row = $user->application->orm_registry(__CLASS__)
+			->query_select()
 			->link(self::type_class, array(
 			"alias" => "T"
 		))
@@ -109,7 +114,8 @@ class Preference extends ORM {
 		return $default;
 	}
 	static function user_get_single(User $user, $name, $default) {
-		$result = $user->application->query_select(__CLASS__)
+		$result = $user->application->orm_registry(__CLASS__)
+			->query_select()
 			->join(self::type_class, array(
 			'alias' => 'T'
 		))
@@ -149,7 +155,8 @@ class Preference extends ORM {
 	private static function _register(User $user, $type, $value) {
 		$app = $user->application;
 		$dbvalue = serialize($value);
-		$result = $app->query_select(__CLASS__)
+		$result = $app->orm_registry(__CLASS__)
+			->query_select()
 			->what('id', 'id')
 			->what('value', 'value')
 			->where('user', $user)

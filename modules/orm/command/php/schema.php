@@ -24,7 +24,7 @@ class Command_PHP_Schema extends Command {
 			echo "/* $class: No such class $class */\n";
 			exit(2);
 		}
-		/* @var $schema Database_Schema */
+		/* @var $schema ORM_Schema */
 		$schema = $object->schema();
 		if (!$schema) {
 			echo "/* $class: No schema */\n";

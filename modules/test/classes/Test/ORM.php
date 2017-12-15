@@ -17,7 +17,7 @@ class Test_ORM extends Test_Unit {
 	function require_tables($classes) {
 		$classes = to_list($classes);
 		foreach ($classes as $class) {
-			$object = $this->application->object($class);
+			$object = $this->application->orm_registry($class);
 			$table = $object->table();
 			if (!$object->database()->table_exists($table)) {
 				$this->test_table_sql($table, $this->application->orm_factory($class)->schema());
@@ -31,7 +31,7 @@ class Test_ORM extends Test_Unit {
 	 *        	@data_provider classes_to_test
 	 */
 	function run_test_class($class, array $options = array()) {
-		return $this->test_an_object($this->application->objects->factory($class, $options));
+		return $this->run_test_an_object($this->application->orm_factory($class, $options));
 	}
 	
 	/**
@@ -46,7 +46,7 @@ class Test_ORM extends Test_Unit {
 		$options = array(
 			"follow" => true
 		);
-		$results = $this->application->schema_synchronize($db, array(
+		$results = $this->application->orm_registry()->schema_synchronize($db, array(
 			get_class($object)
 		), $options);
 		if (count($results) > 0) {

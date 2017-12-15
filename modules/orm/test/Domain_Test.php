@@ -8,7 +8,8 @@ namespace zesk;
  */
 class Domain_Test extends Test_Unit {
 	protected $load_modules = array(
-		"MySQL"
+		"MySQL",
+		"ORM"
 	);
 	/**
 	 * 

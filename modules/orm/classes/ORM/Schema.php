@@ -294,7 +294,7 @@ abstract class ORM_Schema extends Hookable {
 					throw new Exception_Syntax(get_class($this) . " should contain an array of table schemas\n" . var_export($table_schema));
 				}
 				if (self::$debug) {
-					$logger->debug("Database_Schema: " . $this->class_object->class . " \"$table_name\"");
+					$logger->debug("ORM_Schema: " . $this->class_object->class . " \"$table_name\"");
 				}
 				/* @var $table Database_Table */
 				try {
@@ -366,8 +366,8 @@ abstract class ORM_Schema extends Hookable {
 		}
 		$object_class = get_class($object);
 		$schema = $object->database_schema();
-		if (!$schema instanceof Database_Schema) {
-			$logger->warning("{class} did not return a Database_Schema ({type})", array(
+		if (!$schema instanceof ORM_Schema) {
+			$logger->warning("{class} did not return a ORM_Schema ({type})", array(
 				"class" => $object_class,
 				"type" => type($schema)
 			));
@@ -416,7 +416,7 @@ abstract class ORM_Schema extends Hookable {
 		$results = array();
 		foreach ($model_classes as $class) {
 			$object = ORM::factory($class);
-			$results[$class]['sql'] = $sqls = Database_Schema::update_object($object);
+			$results[$class]['sql'] = $sqls = ORM_Schema::update_object($object);
 			if (self::$debug) {
 				zesk()->logger->debug($sqls);
 			}
@@ -471,7 +471,7 @@ abstract class ORM_Schema extends Hookable {
 		$generator = $db->sql();
 		
 		if (self::$debug) {
-			$logger->debug("Database_Schema::debug is enabled");
+			$logger->debug("ORM_Schema::debug is enabled");
 		}
 		$table = $db_table_old->name();
 		if ($db_table_new->is_similar($db_table_old, self::$debug)) {
@@ -486,7 +486,7 @@ abstract class ORM_Schema extends Hookable {
 		}
 		
 		if (self::$debug) {
-			$logger->debug("Database_Schema::update: \"{table}\" tables differ:\nDatabase: \n{dbOld}\nCode:\n{dbNew}", array(
+			$logger->debug("ORM_Schema::update: \"{table}\" tables differ:\nDatabase: \n{dbOld}\nCode:\n{dbNew}", array(
 				'table' => $table,
 				'dbOld' => Text::indent($db_table_old->source()),
 				'dbNew' => Text::indent($db_table_new->source())

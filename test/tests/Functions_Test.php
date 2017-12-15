@@ -239,8 +239,7 @@ class Functions_Test extends Test_Unit {
 		$this->assert_equal("string", type(""));
 		$this->assert_equal("string", type("dude"));
 		$this->assert_equal("boolean", type(false));
-		$this->assert_equal("boolean", type(true
-				));
+		$this->assert_equal("boolean", type(true));
 	}
 	function test_to_list() {
 		$mixed = null;

@@ -4,6 +4,11 @@
  */
 namespace zesk;
 
+/**
+ * @see Class_ORM
+ * @see ORM
+ * @author kent
+ */
 class Module_ORM extends Module {
 	
 	/**
@@ -32,7 +37,10 @@ class Module_ORM extends Module {
 	 */
 	public function initialize() {
 		parent::initialize();
-		$this->application->register_factory("orm", ORM::class . "::factory");
+		$this->application->register_factory("orm", array(
+			$this,
+			"orm_factory"
+		));
 		$this->application->register_registry("orm", array(
 			$this,
 			"orm_registry"
@@ -43,6 +51,17 @@ class Module_ORM extends Module {
 		));
 	}
 	
+	/**
+	 * 
+	 * @param Application $application
+	 * @param string $class
+	 * @param mixed $mixed
+	 * @param array $options
+	 * @return \zesk\ORM
+	 */
+	public function orm_factory(Application $application, $class = null, $mixed = null, $options = null) {
+		return ORM::factory($application, $class, $mixed, to_array($options));
+	}
 	/**
 	 *
 	 * @param string $class
@@ -141,24 +160,24 @@ class Module_ORM extends Module {
 	 * @return multitype:
 	 */
 	public function schema_synchronize(Database $db = null, array $classes = null, array $options = array()) {
-		if ($this->objects !== $this->zesk->objects) {
+		if ($this->application->objects !== $this->application->zesk->objects) {
 			// KMD: I assume this must have happened once and should not ever happen again.
 			// If it does it's a SNAFU
-			$this->logger->emergency("App objects mismatch kernel {file}:{line}", array(
+			$this->application->logger->emergency("App objects mismatch kernel {file}:{line}", array(
 				"file" => __FILE__,
 				"line" => __LINE__
 			));
 			exit(131);
 		}
 		if (!$db) {
-			$db = $this->database_factory();
+			$db = $this->application->database_factory();
 		}
 		if ($classes === null) {
 			$classes = $this->orm_classes();
 		} else {
 			$options['follow'] = avalue($options, 'follow', false);
 		}
-		$logger = $this->logger;
+		$logger = $this->application->logger;
 		$logger->debug("{method}: Synchronizing classes: {classes}", array(
 			"method" => __METHOD__,
 			"classes" => $classes
@@ -191,7 +210,7 @@ class Module_ORM extends Module {
 			$logger->debug("Parsing $class");
 			$objects_by_class[$lowclass] = true;
 			try {
-				$object = $this->orm_factory($class);
+				$object = $this->application->orm_registry($class);
 				$object_db_name = $object->database()->code_name();
 				$updates = ORM_Schema::update_object($object);
 			} catch (Exception $e) {

@@ -10,7 +10,7 @@ namespace zesk;
  */
 class Test_Selenium extends Test_Unit {
 	protected $load_modules = array(
-		"php-webdriver-facebook"
+		"selenium/php-webdriver-facebook"
 	);
 	
 	/**

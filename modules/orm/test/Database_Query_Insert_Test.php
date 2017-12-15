@@ -11,7 +11,8 @@ namespace zesk;
  */
 class Database_Query_Insert_Test extends Test_Unit {
 	protected $load_modules = array(
-		"MySQL"
+		"MySQL",
+		"ORM"
 	);
 	function test_Database_Query_Insert() {
 		/**

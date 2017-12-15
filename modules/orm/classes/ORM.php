@@ -210,7 +210,7 @@ class ORM extends Model {
 	 * @param array $options
 	 * @return \zesk\ORM
 	 */
-	public function orm_factory($class, $mixed, array $options = array()) {
+	public function orm_factory($class, $mixed = null, array $options = array()) {
 		return self::model_factory($class, $mixed, $options);
 	}
 	/**
@@ -433,7 +433,7 @@ class ORM extends Model {
 	
 	/**
 	 *
-	 * @return Database_Schema
+	 * @return ORM_Schema
 	 */
 	final public function database_schema() {
 		return $this->class->database_schema($this);
@@ -441,7 +441,7 @@ class ORM extends Model {
 	
 	/**
 	 *
-	 * @return Database_Schema
+	 * @return ORM_Schema
 	 */
 	function schema() {
 		return $this->class->schema($this);
@@ -2431,7 +2431,8 @@ class ORM extends Model {
 				));
 				continue;
 			}
-			$ids = $ids + $this->application->query_select($class)
+			$ids = $ids + $this->application->orm_registry($class)
+				->query_select()
 				->link($member, array(
 				"required" => false,
 				"alias" => "ref"

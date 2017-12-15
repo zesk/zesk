@@ -11,6 +11,9 @@ namespace zesk;
  *
  */
 class Session_PHP_Test extends Test_Unit {
+	protected $load_modules = array(
+		"session"
+	);
 	function test_main() {
 		$class = __NAMESPACE__ . "\\" . "Session_PHP";
 		

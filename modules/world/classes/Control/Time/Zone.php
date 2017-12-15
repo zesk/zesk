@@ -36,7 +36,7 @@ class Control_Time_Zone extends Control_Select {
 	 * @see \zesk\Control_Select::initialize()
 	 */
 	function initialize() {
-		$query = $this->application->query_select("zesk\\Time_Zone")->where($this->where);
+		$query = $this->application->orm_registry("zesk\\Time_Zone")->query_select()->where($this->where);
 		if ($this->prefixes_only()) {
 			$query->what("*Name", "DISTINCT LEFT(Name,LOCATE('/',Name)-1)");
 			$tzs = arr::clean(arr::ksuffix($query->to_array("Name", "Name"), "/"), '');

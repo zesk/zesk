@@ -19,7 +19,8 @@ class County extends ORM {
 	}
 	public function usage_statistics() {
 		return array(
-			'Contact_Address' => $this->application->query_select('zesk\\Contact_Address')
+			'Contact_Address' => $this->application->orm_registry('zesk\\Contact_Address')
+				->query_select()
 				->where("county", $this->id)
 				->what("*total", "COUNT(X.id)")
 				->one_integer("total")

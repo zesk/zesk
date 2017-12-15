@@ -227,8 +227,10 @@ EOF;
 		$this->assert_equal($sql, "ALTER TABLE `Foo` ADD PRIMARY KEY (`ID`)");
 		
 		$table = new Database_Table($db, $table_name = "TestLine_" . __LINE__);
-		$dbColOld = new Database_Column($table, "Foo", "varchar(32)");
-		$dbColNew = new Database_Column($table, "Foo", "varchar(33)");
+		$dbColOld = new Database_Column($table, "Foo");
+		$dbColOld->sql_type("varchar(32)");
+		$dbColNew = new Database_Column($table, "Foo");
+		$dbColNew->sql_type("varchar(33)");
 		$sql = $db->sql()->alter_table_change_column($table, $dbColOld, $dbColNew);
 		$this->assert_equal($sql, "ALTER TABLE `$table_name` CHANGE COLUMN `Foo` `Foo` varchar(33) NULL");
 		
@@ -283,14 +285,17 @@ EOF;
 		$this->assert(strpos($safe_url, $filler) !== false, "Safe URL $safe_url does not contain $filler");
 		
 		$table = new Database_Table($db, $table_name = "TestTable" . __LINE__);
-		$column = new Database_Column($table, "hello", "varchar(2)");
+		$column = new Database_Column($table, "hello");
+		$column->sql_type("varchar(2)");
 		$sqlType = null;
 		$after_col = false;
 		$sql = $db->sql()->alter_table_column_add($table, $column);
 		$this->assert_equal($sql, "ALTER TABLE `$table_name` ADD COLUMN `hello` varchar(2) NULL");
 		
 		$table = new Database_Table($db, $table_name = "TestTable" . __LINE__);
-		$column = new Database_Column($table, "hello", "varchar(2)");
+		$column = new Database_Column($table, "hello");
+		$column->sql_type("varchar(2)");
+		
 		$sql = $db->sql()->alter_table_column_drop($table, $column);
 		$this->assert_equal($sql, "ALTER TABLE `$table_name` DROP COLUMN `hello`");
 		
@@ -310,74 +315,11 @@ EOF;
 		
 		$this->assert_is_string($db->table_prefix());
 	}
-	function test_schema0() {
-		$updates = Database_Schema::update_object($this->application->orm_factory(__NAMESPACE__ . "\\" . 'DBSchemaTest_columns_0'));
-		dump($updates);
-		//TODO - not sure what this is testing but perhaps the SQL caused errors previously?
-		$updates = Database_Schema::update_object($this->application->orm_factory(__NAMESPACE__ . "\\" . 'DBSchemaTest_columns_1'));
-		dump($updates);
-		//TODO - not sure what this is testing but perhaps the SQL caused errors previously?
-	}
 	public function test_estimate_rows() {
 		$db = $this->database();
 		$this->assert_true($db->table_exists("test_table"));
 		$sql = "SELECT * FROM test_table";
 		$db->estimate_rows($sql);
-	}
-}
-class Class_DBSchemaTest_columns_0 extends Class_ORM {
-	public $column_types = array(
-		"ID" => self::type_id,
-		"Hash" => self::type_string,
-		"Protocol" => self::type_string,
-		"Domain" => self::type_object,
-		"Port" => self::type_integer,
-		"URI" => self::type_object,
-		"QueryString" => self::type_object,
-		"Fragment" => self::type_string,
-		"Frag" => self::type_object
-	);
-}
-class DBSchemaTest_columns_0 extends ORM {
-	function schema() {
-		return "CREATE TABLE `{table}` (
-					`ID` int(11) unsigned NOT NULL auto_increment,
-					`Hash` char(32) NOT NULL,
-					`Protocol` varchar(7) NOT NULL default '',
-					`Domain` int(11) unsigned default NULL,
-					`Port` smallint(11) unsigned NULL,
-					`URI` int(11) unsigned default NULL,
-					`QueryString` int(11) unsigned default NULL,
-					`Title` int(11) unsigned NULL,
-					`Fragment` text,
-					`Frag` int(11) unsigned NULL,
-					PRIMARY KEY  (`ID`),
-					UNIQUE KEY `Hash` (`Hash`) USING HASH,
-					KEY `domain` (`Domain`),
-					KEY `title` (`Title`)
-				);";
-	}
-}
-class Class_DBSchemaTest_columns_1 extends Class_ORM {
-	public $column_types = array(
-		"ID" => self::type_id,
-		"Hash" => self::type_string,
-		"Protocol" => self::type_string,
-		"Domain" => self::type_object,
-		"Port" => self::type_integer,
-		"URI" => self::type_object
-	);
-}
-class DBSchemaTest_columns_1 extends ORM {
-	function schema() {
-		return "CREATE TABLE `{table}` (
-					`ID` int(11) unsigned NOT NULL auto_increment,
-					`Hash` char(32) NOT NULL,
-					`Protocol` varchar(7) NOT NULL default '',
-					`Domain` int(11) unsigned default NULL,
-					`Port` smallint(11) unsigned NULL,
-					`URI` int(11) unsigned default NULL
-				);";
 	}
 }
 

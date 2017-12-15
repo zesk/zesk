@@ -37,7 +37,7 @@ class Command_Install extends Command_Base {
 				));
 				continue;
 			}
-			$result = Database_Schema::updateORM($object);
+			$result = ORM_Schema::updateORM($object);
 			if (count($result) > 0) {
 				var_dump($result);
 				$errors[] = $class;

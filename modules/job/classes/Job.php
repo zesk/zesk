@@ -265,7 +265,8 @@ class Job extends ORM implements Interface_Process, Interface_Progress {
 			/*
 			 * Now iterate through available Jobs, and re-sort each iteration in case stuff changes between jobs
 			 */
-			$query = $application->query_select(__CLASS__)
+			$query = $application->orm_registry(__CLASS__)
+				->query_select()
 				->what_object()
 				->where(array(
 				"start|<=" => Timestamp::now('UTC'),
@@ -288,7 +289,8 @@ class Job extends ORM implements Interface_Process, Interface_Progress {
 				))
 					->execute();
 				// Race condition if we crash before this executes
-				if (!to_bool($application->query_select(__CLASS__)
+				if (!to_bool($application->orm_registry(__CLASS__)
+					->query_select()
 					->what("*X", "COUNT(id)")
 					->where($server_pid)
 					->where("id", $job->id())
@@ -338,7 +340,8 @@ class Job extends ORM implements Interface_Process, Interface_Progress {
 	 * @param Server $server        	
 	 */
 	private static function clean_dead_pids(Application $application, Server $server) {
-		foreach ($application->query_select(__CLASS__)
+		foreach ($application->orm_registry(__CLASS__)
+			->query_select()
 			->what("pid", "pid")
 			->what('id', 'id')
 			->where(array(

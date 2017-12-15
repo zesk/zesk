@@ -28,7 +28,8 @@ class Control_Select_ORM_Dynamic extends Control_Select_ORM {
 	 */
 	private function count_results() {
 		$where = $this->_where();
-		return $this->application->query_select($this->class)
+		return $this->application->orm_registry($this->class)
+			->query_select()
 			->what("*X", "COUNT(" . $this->id_column() . ")")
 			->where($where)
 			->one_integer("X");

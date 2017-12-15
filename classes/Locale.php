@@ -22,14 +22,14 @@ if (!defined("ZESK_LOCALE_DEFAULT")) {
  * @see Controller_Locale
  */
 class Locale {
-
+	
 	/**
 	 * Automatically save language to translation file (development)
 	 *
 	 * @var boolean
 	 */
 	public static $auto = false;
-
+	
 	/**
 	 * Current locale (e.g.
 	 * en_US, en_GB, fr_FR, es_ES)
@@ -37,21 +37,21 @@ class Locale {
 	 * @var string
 	 */
 	private static $locale = ZESK_LOCALE_DEFAULT;
-
+	
 	/**
 	 * Translation tables
 	 *
 	 * @var array
 	 */
 	private static $tt = array();
-
+	
 	/**
 	 * Locale load paths
 	 *
 	 * @var array
 	 */
 	private static $paths = array();
-
+	
 	/**
 	 * Array of lang_en which handle language specific stuff which
 	 * basic lookup tables can't handle
@@ -59,14 +59,14 @@ class Locale {
 	 * @var array:lang
 	 */
 	private static $classes = array();
-
+	
 	/**
 	 * Used only when zesk global Locale::auto is set to true
 	 *
 	 * @var array
 	 */
 	static $locale_phrases = array();
-
+	
 	/**
 	 * Set/get current locale
 	 *
@@ -80,7 +80,7 @@ class Locale {
 		self::$locale = self::normalize($set);
 		return self::$locale;
 	}
-
+	
 	/**
 	 * Translate a phrase
 	 *
@@ -141,7 +141,7 @@ class Locale {
 		}
 		return $text;
 	}
-
+	
 	/**
 	 * Hook "configured"
 	 */
@@ -166,7 +166,7 @@ class Locale {
 			));
 		}
 	}
-
+	
 	/**
 	 * Register all hooks
 	 */
@@ -202,7 +202,7 @@ class Locale {
 	public static function sentence_first($word) {
 		return \ucfirst($word);
 	}
-
+	
 	/**
 	 * Extract the language from a locale
 	 *
@@ -216,7 +216,7 @@ class Locale {
 		list($lang) = pair($locale, "_", $locale, "");
 		return strtolower(substr($lang, 0, 2));
 	}
-
+	
 	/**
 	 * Extract the dialect from the locale
 	 *
@@ -230,7 +230,7 @@ class Locale {
 		list($lang, $dialect) = \pair($locale, "_", $locale, "");
 		return strtoupper(substr($dialect, 0, 2));
 	}
-
+	
 	/**
 	 * Normalize a locale so it is properly formatted
 	 *
@@ -248,7 +248,7 @@ class Locale {
 		}
 		return $lang . "_" . strtoupper(substr($region, 0, 2));
 	}
-
+	
 	/**
 	 * Register a translation table for a locale
 	 *
@@ -265,7 +265,7 @@ class Locale {
 		// Later entries override earlier ones
 		self::$tt[$locale] = $tt + self::$tt[$locale];
 	}
-
+	
 	/**
 	 * Has a locale been loaded yet?
 	 *
@@ -275,7 +275,7 @@ class Locale {
 	public static function loaded($locale) {
 		return isset(self::$tt[$locale]) ? self::$tt[$locale] : false;
 	}
-
+	
 	/**
 	 * Get or add to the list of locale paths to load
 	 *
@@ -290,7 +290,7 @@ class Locale {
 		}
 		return self::$paths;
 	}
-
+	
 	/**
 	 * Load a file without extraneous variables
 	 *
@@ -311,7 +311,7 @@ class Locale {
 		$locale = self::normalize($locale);
 		$paths = self::$paths;
 		array_unshift($paths, ZESK_ROOT . 'etc/language');
-
+		
 		list($language, $region) = pair($locale, '_', $locale, null);
 		$files = array(
 			"all",
@@ -336,7 +336,7 @@ class Locale {
 		self::register($locale, $tt);
 		return self::loaded($locale);
 	}
-
+	
 	/**
 	 * Formatting string for a date in the locale
 	 *
@@ -347,7 +347,7 @@ class Locale {
 		$obj = self::load_language($locale);
 		return $obj->date_format();
 	}
-
+	
 	/**
 	 * Formatting string for a datetime in the locale
 	 *
@@ -378,7 +378,7 @@ class Locale {
 		$obj = self::load_language($locale);
 		return $obj->ordinal($n, $locale);
 	}
-
+	
 	/**
 	 * Returns the indefinite article (A or An) for word
 	 *
@@ -395,7 +395,7 @@ class Locale {
 		$obj = self::load_language($locale);
 		return $obj->indefinite_article($word, $context);
 	}
-
+	
 	/**
 	 * Load a language subclass
 	 *
@@ -421,7 +421,7 @@ class Locale {
 		self::$classes[$lang] = $object;
 		return $object;
 	}
-
+	
 	/**
 	 * Join a phrase together with a conjuction, e.g.
 	 *
@@ -446,7 +446,7 @@ class Locale {
 		$obj = self::load_language($locale);
 		return $obj->conjunction($words, $conjunction);
 	}
-
+	
 	/**
 	 * Pluralize words including the number itself, prefixed by locale
 	 *
@@ -463,7 +463,7 @@ class Locale {
 		$obj = self::load_language($locale);
 		return $obj->plural_number($noun, $number);
 	}
-
+	
 	/**
 	 * Convert a string to lowercase in a language
 	 *
@@ -473,7 +473,7 @@ class Locale {
 	public static function lower($word) {
 		return strtolower($word);
 	}
-
+	
 	/**
 	 * Output a word's plural based on the number given
 	 *
@@ -501,7 +501,7 @@ class Locale {
 		}
 		return $result;
 	}
-
+	
 	/**
 	 * Returns the possessive form of a word
 	 *
@@ -521,7 +521,7 @@ class Locale {
 		$obj = self::load_language($locale);
 		return $obj->possessive($owner, $object);
 	}
-
+	
 	/**
 	 * English self::pluralize, prefixes with number or "no"
 	 *
@@ -550,7 +550,7 @@ class Locale {
 			'singular_word' => $word
 		));
 	}
-
+	
 	/**
 	 * Retrieve an array of number of seconds and english units string,
 	 * used for duration_string only (Month is NOT accurate)
@@ -567,7 +567,7 @@ class Locale {
 			1 => "second"
 		);
 	}
-
+	
 	/**
 	 * Output a string like "in 3 days", "5 hours ago"
 	 *
@@ -606,7 +606,7 @@ class Locale {
 			'zero_string' => $zero_string
 		));
 	}
-
+	
 	/**
 	 * Output a duration of time as a string
 	 *
@@ -638,7 +638,7 @@ class Locale {
 		$number = $delta;
 		return self::plural_number($unit, $delta, $locale);
 	}
-
+	
 	/**
 	 * Return the negative of a word "Unstoppable" => "Stoppable"
 	 *
@@ -652,7 +652,7 @@ class Locale {
 		$obj = self::load_language($locale);
 		return $obj->negate_word($word, $preferred_prefix);
 	}
-
+	
 	/**
 	 * Output our locale translation files for JavaScript to use
 	 *
@@ -670,7 +670,7 @@ class Locale {
 			"route_expire" => 3600 /* once an hour */
 		));
 	}
-
+	
 	/**
 	 * Format currency values
 	 *
@@ -719,7 +719,7 @@ class Locale {
 		}
 		return $result;
 	}
-
+	
 	/**
 	 * Dump untranslated phrases
 	 */
@@ -759,7 +759,7 @@ class Locale {
 			));
 			return;
 		}
-
+		
 		$filename = path($path, $locale . '-auto.inc');
 		$csv_append = self::translation_file_append($application, $filename, self::$locale_phrases);
 		if (count($csv_append) > 0) {
@@ -791,7 +791,7 @@ class Locale {
 		}
 		return 0;
 	}
-
+	
 	/**
 	 * Format number
 	 *

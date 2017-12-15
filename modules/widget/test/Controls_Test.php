@@ -1,12 +1,13 @@
 <?php
 /**
- * 
+ * @test_module Widget
+ * @test_module ORM
+ * @test_no_buffer false
+ * @author kent
  */
 namespace zesk;
 
 /**
- * @test_no_buffer false
- * @author kent
  *
  */
 class Controls_Test extends TestWidget {
@@ -129,7 +130,7 @@ class Controls_Test extends TestWidget {
 	function test_Control_Edit() {
 		$this->_test_session();
 		
-		$options = false;
+		$options = array();
 		$x = new Control_Edit($this->application, $options);
 		$object = new User($this->application);
 		$x->object($object);

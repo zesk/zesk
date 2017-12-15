@@ -92,13 +92,25 @@ button.pill-r span {
 *
 
 
+
+
 <
 a
+
  
+
 class
-="btn"
+
+
+="
+btn
+"
+
  
+
 href
+
+
 ="#"
 >
 <
@@ -108,7 +120,10 @@ span
 span
 >
 button
-</span
+
+
+</
+span
 >
 </
 span
@@ -118,15 +133,27 @@ a
 >
 <
 button
+
  
+
 class
-="btn
+
+
+="
+btn
+
  
+
 pill-l
+
+
 "
- 
 type
-="button"
+
+
+="
+button
+"
 >
 <
 span
@@ -135,7 +162,10 @@ span
 span
 >
 Left
-</span
+
+
+</
+span
 >
 </
 span
@@ -145,15 +175,27 @@ button
 >
 <
 button
+
  
+
 class
-="btn
+
+
+="
+btn
+
  
+
 pill-c
+
+
 "
- 
 type
-="button"
+
+
+="
+button
+"
 >
 <
 span
@@ -162,7 +204,10 @@ span
 span
 >
 Center
-</span
+
+
+</
+span
 >
 </
 span
@@ -172,15 +217,27 @@ button
 >
 <
 button
+
  
+
 class
-="btn
+
+
+="
+btn
+
  
+
 pill-r
+
+
 "
- 
 type
-="button"
+
+
+="
+button
+"
 >
 <
 span
@@ -189,7 +246,10 @@ span
 span
 >
 Right
-</span
+
+
+</
+span
 >
 </
 span
@@ -199,15 +259,27 @@ button
 >
 <
 button
+
  
+
 class
-="btn
+
+
+="
+btn
+
  
+
 primary
+
+
 "
- 
 type
-="button"
+
+
+="
+button
+"
 >
 <
 span
@@ -216,7 +288,10 @@ span
 span
 >
 Save
-</span
+
+
+</
+span
 >
 </
 span
@@ -226,13 +301,28 @@ button
 >
 &
 nbsp
-;<button
+
+
+;<
+button
+
  
+
 class
-="btn"
+
+
+="
+btn
+"
+
  
+
 type
-="button"
+
+
+="
+button
+"
 >
 <
 span
@@ -241,7 +331,10 @@ span
 span
 >
 Cancel
-</span
+
+
+</
+span
 >
 </
 span

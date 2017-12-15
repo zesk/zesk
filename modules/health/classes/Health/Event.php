@@ -164,13 +164,15 @@ class Health_Event extends ORM {
 	 */
 	public function deduplicate() {
 		$n_samples = $this->option_integer("keep_duplicates", 10);
-		$n_found = $this->application->query_select(__CLASS__)
+		$n_found = $this->application->orm_registry(__CLASS__)
+			->query_select()
 			->what("*n", "COUNT(id)")
 			->where("events", $this->events)
 			->one_integer("n");
 		if ($n_found > $n_samples) {
 			$sample_offset = intval($n_samples / 2);
-			$ids_to_delete = $this->application->query_select(__CLASS__)
+			$ids_to_delete = $this->application->orm_registry(__CLASS__)
+				->query_select()
 				->what("id", "X.id")
 				->where("X.events", $this->events)
 				->limit($sample_offset, $n_found - $n_samples)

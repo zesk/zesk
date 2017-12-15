@@ -170,13 +170,16 @@ class Module_Help extends Module_JSLib {
 	public function user_targets(Request $request, Response $response) {
 		$application = $this->application;
 		$user = $this->_help_auth($request, $response);
-		$query = $this->application->query_select('zesk\\Help')->link('zesk\\Help_User', array(
+		$query = $this->application->orm_registry('zesk\\Help')
+			->query_select()
+			->link('zesk\\Help_User', array(
 			'require' => false,
 			"alias" => "hu",
 			"on" => array(
 				'user' => $user
 			)
-		))->where(array(
+		))
+			->where(array(
 			"X.active" => true,
 			"hu.user" => null
 		));

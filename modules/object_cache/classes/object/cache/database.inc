@@ -37,7 +37,7 @@ class Object_Cache_Database extends Object_Cache {
 				'key'
 			)
 		);
-		return Database_Schema::schema_to_database_table($database, $table, $table_schema);
+		return ORM_Schema::schema_to_database_table($database, $table, $table_schema);
 	}
 	private function object_table_name(ORM $object) {
 		return "Cache_" . $object->table();
@@ -46,7 +46,7 @@ class Object_Cache_Database extends Object_Cache {
 		$table_name = $this->object_table_name($object);
 		$database = $this->cache_database($object);
 		if ($create) {
-			$database->query(Database_Schema::synchronize($database, $this->_object_database_table($database, $object, $table_name)));
+			$database->query(ORM_Schema::synchronize($database, $this->_object_database_table($database, $object, $table_name)));
 			return $table_name;
 		}
 		return $database->table_exists($table_name) ? $table_name : null;

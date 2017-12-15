@@ -1,7 +1,7 @@
 <?php
 
 /**
- *
+ * @test_module Widget
  */
 namespace zesk;
 

@@ -5,5 +5,7 @@
 		"autoload_options::lower": true
 	},
 	"module_class": "zesk\\Module_InPlace",
-	"requires": ["ORM"]
+	"requires": [
+		"ORM"
+	]
 }

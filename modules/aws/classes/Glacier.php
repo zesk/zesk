@@ -27,7 +27,7 @@ class Glacier extends Hookable {
 	 * @var Aws\Glacier\GlacierClient
 	 */
 	protected $glacier_client = null;
-
+	
 	/**
 	 * Lazy create client
 	 */
@@ -38,7 +38,7 @@ class Glacier extends Hookable {
 		$options = $this->options_include("key;secret;credentials;token;credentials;region");
 		$this->glacier_client = GlacierClient::factory($options);
 	}
-
+	
 	/**
 	 * List vaults
 	 *
@@ -51,7 +51,7 @@ class Glacier extends Hookable {
 		$result = $response->get("VaultList");
 		return $result;
 	}
-
+	
 	/**
 	 * Upload a file to a vault
 	 *
