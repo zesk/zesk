@@ -24,7 +24,23 @@ Version 1.0 of Zesk will have:
 - <strike>Renaming of `zesk\ORM` to something non-reserved in PHP 7.2 (Candidates are `zesk\ORM` `zesk\Model` - reuse)</strike>
 - `zesk\` namespace for all `classes` in the system
 
-## [Unreleased][]
+## [v0.14.0][]
+
+### Deprecated functionality
+
+- `zesk\URL` marked deprecated `current_*` calls for future removal, added comments.
+- `zesk\Application::query_foo` calls are all deprecated
+
+### New modules
+
+- `ORM`, `Session` and `Widget` are now modules.
+- `Database_Query_*` have been moved to `ORM` (including comments such as `database-schema` etc.)
+- `Widget` classes amoved to `Widget` module and depends on `ORM`
+
+### Renamed classes
+
+- Anything which had the term `Object` as a namespace or related has been renamed to `ORM` or possibly `Model`
+- `Database_Schema` has been renamed to `ORM_Schema`
 
 ### ORM Rename
 
@@ -52,7 +68,31 @@ The `zesk\Application` is the center of your application, naturally, but it has 
 		}
 	}
 
-There are a variety of new patterns, b
+There are a variety of new patterns, largely those which remove `ORM` functionality from the `zesk\Application` core.
+
+The main point here is that shortcuts which previously pulled a bit of data from the `Class_Object` (now `Class_ORM`) should use the full call, so:
+
+OLD method:
+
+	$application->query_select(User::class, "user");
+	$application->class_object_table(User::class);
+	$application->class_object(User::class);
+	$application->synchronize_schema();
+	
+NEW method:
+
+	$application->orm_registry(User::class)->query_select("user")
+	$application->class_orm_registry(User::class)->table()
+	$application->class_orm_registry(User::class);
+	$application->orm_registry()->schema_synchronize();
+
+Two calls are available now from the `zesk\Application`:
+
+	$application->orm_factory($class = null, $mixed = null, array $options = array())
+	$application->class_orm_registry($class = null)
+	$application->orm_registry($class = null)
+
+The main difference between a `registry` and `factory` call is that the `registry` call returns the same object each time.
 
 ## [v0.13.2][]
 
@@ -954,7 +994,7 @@ Settling of `zesk\Kernel` and `zesk\` namespace changes, added additional compon
  - `zesk::class_hierarchy` -> `zesk()->classes->hierarchy`
 - Removed growl module (no longer relevant on Mac OS X)
 
-[Unreleased]: https://github.com/zesk/zesk/compare/v0.13.2...HEAD
+[v0.14.0]: https://github.com/zesk/zesk/compare/v0.13.2...HEAD
 [v0.13.2]: https://github.com/zesk/zesk/compare/v0.13.1...v0.13.2
 [v0.13.1]: https://github.com/zesk/zesk/compare/v0.13.0...v0.13.1
 [v0.13.0]: https://github.com/zesk/zesk/compare/v0.12.15...v0.13.0
