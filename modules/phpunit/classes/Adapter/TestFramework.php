@@ -1,8 +1,23 @@
 <?php
+/**
+ * 
+ */
 namespace zesk;
 
+/**
+ * Glue for old tests
+ *
+ */
 class Adapter_TestFramework extends PHPUnit_TestCase implements Interface_Testable {
 	
+	/**
+	 * 
+	 * @param boolean $condition
+	 * @param string $message
+	 */
+	final public function assert($condition, $message = null) {
+		$this->assertTrue($condition, $message);
+	}
 	/**
 	 * Assert a value is false
 	 *
@@ -183,7 +198,6 @@ class Adapter_TestFramework extends PHPUnit_TestCase implements Interface_Testab
 	}
 	final protected function assert_equal($actual, $expected, $message = null, $strict = true) {
 		$this->assertEquals($expected, $actual, $message);
-		$this->stats['assert']++;
 		$message .= "\nassert_equal failed:\n  Actual: " . gettype($actual) . ": " . $this->dump($actual) . "\nExpected: " . gettype($expected) . ": " . $this->dump($expected);
 		if (is_scalar($actual) && is_scalar($expected)) {
 			if (is_double($actual) && is_double($expected)) {
@@ -231,7 +245,6 @@ class Adapter_TestFramework extends PHPUnit_TestCase implements Interface_Testab
 		return PHP::singleton()->settings_one()->render($value);
 	}
 	final protected function assert_equal_array($actual, $expected, $message = "", $strict = true, $order_matters = false) {
-		$this->stats['assert']++;
 		if (!is_array($actual)) {
 			$this->fail("$message: \$actual is not an array: " . $this->dump($actual, false));
 		}

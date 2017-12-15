@@ -38,6 +38,22 @@ Yes, we've renamed the `zesk\Object` class to `zesk\ORM` because PHP 7.2 makes t
 
 Due to the fact that `Database_Query` subclasses all depend on `ORM` and all `zesk\Widget` support `Database_Query_Select`, so all widgets have been moved to their own module `widget` which depends on `orm` as well.
 
+### Application registry and factory calls
+
+The `zesk\Application` is the center of your application, naturally, but it has evolved to the central point for object creation. To allow distrubution of the factory resposibilities, `zesk\Application` now allows modules (or anything) to register a central factory method. So:
+
+	class MyInvoiceModule extends \zesk\Module {
+		public function initialize() {
+			// This adds the method "invoice_factory" to the zesk\Application
+			$application->register_factory("invoice", array($this, "invoice_factory"));
+		}
+		public function invoice_factory(Application $application, $code) {
+			return new Invoice($application, $code);
+		}
+	}
+
+There are a variety of new patterns, b
+
 ## [v0.13.2][]
 
 ### Incompatibilities

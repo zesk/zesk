@@ -14,6 +14,10 @@ class ORM_Schema_Test extends Test_Unit {
 		"MySQL",
 		"ORM"
 	);
+	function initialize() {
+		require_once __DIR__ . '/ORM_Schema_Test_Objects.php';
+		parent::initialize();
+	}
 	function test_debug() {
 		$value = ORM_Schema::debug();
 		
@@ -34,14 +38,3 @@ class ORM_Schema_Test extends Test_Unit {
 		ORM_Schema::update_object($object);
 	}
 }
-
-/**
- * 
- */
-class Class_Test_ORM_Schema_User extends \zesk\Class_User {}
-
-/**
- * 
- */
-class Test_ORM_Schema_User extends \zesk\User {}
-

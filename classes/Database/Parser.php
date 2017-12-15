@@ -101,7 +101,13 @@ abstract class Database_Parser extends Hookable {
 	 */
 	static function parse_factory(Database $db, $sql, $source) {
 		if ($db->application->development() && empty($source)) {
-			backtrace();
+			throw new Exception_Parameter("{method} missing source {args}", array(
+				"method" => __METHOD__,
+				"args" => array(
+					$sql,
+					$source
+				)
+			));
 		}
 		$matches = null;
 		if (preg_match(self::pattern_database_hint, $sql, $matches)) {

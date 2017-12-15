@@ -28,6 +28,13 @@ class Command_Test extends Command_Base {
 	public $has_configuration = true;
 	
 	/**
+	 * If the tests matched were explicitly asked for
+	 * 
+	 * @var boolean
+	 */
+	private $testing_everything = null;
+	
+	/**
 	 * Load these modules prior to running command
 	 *
 	 * $var array
@@ -261,7 +268,7 @@ class Command_Test extends Command_Base {
 			try {
 				$test_succeeded_mtime = avalue($this->test_results, $test);
 				$test_mtime = filemtime($test);
-				if ($test_mtime === $test_succeeded_mtime) {
+				if ($this->testing_everything && $test_mtime === $test_succeeded_mtime) {
 					continue;
 				}
 				$this->verbose_log("Running $test ...");
@@ -325,6 +332,7 @@ class Command_Test extends Command_Base {
 		}
 		
 		if (!$this->has_arg()) {
+			$this->testing_everything = true;
 			return Directory::list_recursive($path, $this->_test_list_options());
 		}
 		
@@ -352,6 +360,7 @@ class Command_Test extends Command_Base {
 				}
 			}
 		}
+		$this->testing_everything = false;
 		return $tests;
 	}
 	

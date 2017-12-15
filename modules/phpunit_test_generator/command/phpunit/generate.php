@@ -9,8 +9,8 @@ use \SplFileInfo;
 
 /**
  *
+ * @alias testgen phpugen
  * @author kent
- *         @alias testgen
  */
 class Command_PHPUnit_Generate extends Command_Iterator_File {
 	

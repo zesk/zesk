@@ -20,7 +20,7 @@ class PHPUnit_TestCase extends TestCase {
 	/**
 	 * Ensures our zesk variables above are properly populated
 	 */
-	function initialize() {
+	function assertPreConditions() {
 		/*
 		 * Set up our state
 		 */
@@ -31,19 +31,8 @@ class PHPUnit_TestCase extends TestCase {
 		if (!$this->configuration) {
 			$this->configuration = $this->application->configuration;
 		}
-	}
-	/**
-	 *
-	 * {@inheritdoc}
-	 *
-	 * @see \PHPUnit\Framework\TestCase::setUp()
-	 */
-	function setUp() {
-		/*
-		 * Set up our state
-		 */
-		$this->initialize();
-		parent::setUp();
+		$this->assertInstanceOf(Configuration::class, $this->configuration);
+		$this->assertInstanceOf(Application::class, $this->application);
 	}
 	
 	/**

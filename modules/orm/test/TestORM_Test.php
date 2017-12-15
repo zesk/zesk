@@ -3,9 +3,14 @@ namespace zesk;
 
 class TestORM_Test extends Test_ORM {
 	protected $load_modules = array(
-		"MySQL"
+		"MySQL",
+		"ORM"
 	);
-	public static function object_tests(ORM $x) {
+	public function initialize() {
+		require_once __DIR__ . '/TestORM_Test_Objects.php';
+		parent::initialize();
+	}
+	public function object_tests(ORM $x) {
 		$x->schema();
 		
 		$x->table();
@@ -159,7 +164,7 @@ class TestORM_Test extends Test_ORM {
 		$this->test_table($sTable);
 		
 		$mixed = null;
-		$options = false;
+		$options = array();
 		$x = new TestORM($this->application, $mixed, $options);
 		
 		$this->object_tests($x);
@@ -180,30 +185,3 @@ class TestORM_Test extends Test_ORM {
 		$object->reorder($id0, $id1, $order_column);
 	}
 }
-class Class_TestORM extends Class_ORM {
-	public $id_column = "ID";
-	public $column_types = array(
-		"ID" => self::type_id,
-		'Name' => self::type_string,
-		'Price' => self::type_double,
-		'Foo' => self::type_integer
-	);
-}
-class TestORM extends ORM {
-	function schema() {
-		$table = $this->table;
-		return array(
-			"CREATE TABLE $table ( ID integer unsigned NOT NULL AUTO_INCREMENT PRIMARY KEY, Name varchar(32) NOT NULL, Price decimal(12,2), Foo integer NULL )"
-		);
-	}
-	function specification() {
-		return array(
-			"table" => get_class($this),
-			"fields" => "Foo",
-			"find_keys" => array(
-				"Foo"
-			)
-		);
-	}
-}
-

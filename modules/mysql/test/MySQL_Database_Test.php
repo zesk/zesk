@@ -68,7 +68,7 @@ CREATE TABLE `tracking_1999` (
 );
 EOF;
 		
-		$table = $db->parse_create_table($sql);
+		$table = $db->parse_create_table($sql, __METHOD__);
 		
 		$this->assert_instanceof($table, "zesk\\Database_Table");
 		
@@ -135,7 +135,7 @@ EOF;
 			$this->assert_string_begins($sql, "CREATE TABLE");
 			$this->assert(strpos($sql, "$table") !== false);
 			
-			$dbTableObject = $db->parse_create_table($sql);
+			$dbTableObject = $db->parse_create_table($sql, __METHOD__);
 			$sql = $db->sql()->create_table($dbTableObject);
 			if (!is_array($sql)) {
 				$sqls = array(
@@ -272,7 +272,7 @@ EOF;
 		$db->is_reserved_word($word);
 		
 		$sql = "CREATE TABLE Foo ( ID integer )";
-		$db->parse_create_table($sql);
+		$db->parse_create_table($sql, __METHOD__);
 		
 		$db = $this->application->database_factory();
 		
