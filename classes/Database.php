@@ -15,7 +15,43 @@ namespace zesk;
  * @subpackage system
  */
 abstract class Database extends Hookable {
-	
+
+	/**
+	 *
+	 * @var string
+	 */
+	const TABLE_INFO_ENGINE = "engine";
+	/**
+	 *
+	 * @var string
+	 */
+	const TABLE_INFO_ROW_COUNT = "row_count";
+	/**
+	 *
+	 * @var string
+	 */
+	const TABLE_INFO_DATA_SIZE = "data_size";
+	/**
+	 *
+	 * @var string
+	 */
+	const TABLE_INFO_FREE_SIZE = "free_size";
+	/**
+	 *
+	 * @var string
+	 */
+	const TABLE_INFO_INDEX_SIZE = "index_size";
+	/**
+	 *
+	 * @var string
+	 */
+	const TABLE_INFO_CREATED = "created";
+	/**
+	 *
+	 * @var string
+	 */
+	const TABLE_INFO_UPDATED = "updated";
+
 	/**
 	 * Setting this option on a database will convert all SQL to automatically set the table names
 	 * from class names
@@ -53,110 +89,110 @@ abstract class Database extends Hookable {
 	 * @var string
 	 */
 	const feature_time_zone_relative_timestamp = "time_zone_relative_timestamp";
-	
+
 	/**
 	 * Debug database connections
 	 *
 	 * @var boolean
 	 */
 	public static $debug = false;
-	
+
 	/**
 	 *
 	 * @var Database_Parser
 	 */
 	protected $parser = null;
-	
+
 	/**
 	 * SQL Generation
 	 *
 	 * @var Database_SQL
 	 */
 	protected $sql = null;
-	
+
 	/**
 	 * Data Type
 	 *
 	 * @var Database_Data_Type
 	 */
 	protected $data_type = null;
-	
+
 	/**
 	 *
 	 * @var string
 	 */
 	private $internal_name = null;
-	
+
 	/**
 	 * Internal query timer
 	 *
 	 * @var Timer
 	 */
 	protected $timer = null;
-	
+
 	/**
 	 * URL for the current connection
 	 *
 	 * @var string
 	 */
 	protected $URL = null;
-	
+
 	/**
 	 * Parsed URL
 	 */
 	protected $url_parts = array();
-	
+
 	/**
 	 * URL without password
 	 *
 	 * @var string
 	 */
 	protected $safe_url = null;
-	
+
 	/**
 	 * Class to use for singleton creation
 	 *
 	 * @var string
 	 */
 	protected $singleton_prefix = null;
-	
+
 	/**
 	 * Global database name => url mapping
 	 *
 	 * @var array
 	 */
 	private static $database_names = array();
-	
+
 	/**
 	 * Global databases
 	 *
 	 * @var array
 	 */
 	private static $databases = array();
-	
+
 	/**
 	 * Default database name
 	 */
 	private static $database_name_default = '';
-	
+
 	/**
 	 * For auto table, cache of class name -> table name
 	 *
 	 * @var array of string => string
 	 */
 	private $table_name_cache = array();
-	
+
 	/**
 	 * Options to be passed to new objects when generating table names.
 	 *
 	 * @var array
 	 */
 	private $auto_table_names_options = array();
-	
+
 	/**
 	 * Construct a new Database
 	 *
-	 * @param string $url        	
+	 * @param string $url
 	 */
 	public function __construct(Application $application, $url = null, array $options = array()) {
 		parent::__construct($application, $options);
@@ -168,12 +204,12 @@ abstract class Database extends Hookable {
 			$this->_init_url($url);
 		}
 	}
-	
+
 	/**
 	 * Internal function to manage factories for Database functionality
 	 *
-	 * @param string $var        	
-	 * @param string $suffix        	
+	 * @param string $var
+	 * @param string $suffix
 	 * @return Ambigous <stdClass, object>
 	 */
 	private function _singleton($var, $suffix) {
@@ -188,7 +224,7 @@ abstract class Database extends Hookable {
 	function parser() {
 		return $this->_singleton("parser", '_Parser');
 	}
-	
+
 	/**
 	 * Factory for native code generator
 	 *
@@ -197,7 +233,7 @@ abstract class Database extends Hookable {
 	function sql() {
 		return $this->_singleton("sql", '_SQL');
 	}
-	
+
 	/**
 	 * Factory for native data type handler
 	 *
@@ -206,7 +242,7 @@ abstract class Database extends Hookable {
 	function data_type() {
 		return $this->_singleton("data_type", '_Type');
 	}
-	
+
 	/**
 	 * Retrieve additional column attributes which are supported by this database, in the form
 	 * array("attribute1" => "default_value1")
@@ -216,7 +252,7 @@ abstract class Database extends Hookable {
 	function column_attributes(Database_Column $column) {
 		return array();
 	}
-	
+
 	/**
 	 * Retrieve additional table attributes which are supported by this database, in the form
 	 * array("attribute1" => "default_value1")
@@ -226,7 +262,7 @@ abstract class Database extends Hookable {
 	function table_attributes() {
 		return array();
 	}
-	
+
 	/**
 	 * Generator utilities - native NOW string for database
 	 *
@@ -251,13 +287,13 @@ abstract class Database extends Hookable {
 	function tables_case_sensitive() {
 		return $this->option_bool("tables_case_sensitive", true);
 	}
-	
+
 	/**
 	 * Select a single row from a table
 	 *
-	 * @param string $table        	
-	 * @param array $where        	
-	 * @param string $order_by        	
+	 * @param string $table
+	 * @param array $where
+	 * @param string $order_by
 	 * @return array
 	 */
 	public function select_one_where($table, $where, $order_by = false) {
@@ -271,11 +307,11 @@ abstract class Database extends Hookable {
 		));
 		return $this->query_one($sql);
 	}
-	
+
 	/**
 	 * Change URL associated with this database and related settings
 	 *
-	 * @param string $url        	
+	 * @param string $url
 	 */
 	private function _init_url($url) {
 		$this->url_parts = $parts = self::url_parse($url);
@@ -285,22 +321,22 @@ abstract class Database extends Hookable {
 		$this->URL = $url;
 		$this->Safe_URL = URL::remove_password($url);
 	}
-	
+
 	/**
 	 * Register system-wide hooks
 	 */
 	public static function hooks(Kernel $zesk) {
 		$zesk->hooks->add(Hooks::hook_database_configure, __CLASS__ . "::_configured", "first");
 		$zesk->hooks->add('exit', __CLASS__ . "::disconnect_all", "last");
-		
+
 		//		$zesk->hooks->add('pcntl_fork-parent', "Database::reconnect_all");
 		$zesk->hooks->add('pcntl_fork-child', __CLASS__ . "::reconnect_all");
 	}
-	
+
 	/**
 	 * Parse SQL to determine type of command
 	 *
-	 * @param string $sql        	
+	 * @param string $sql
 	 * @param string $field
 	 *        	Optional desired field.
 	 * @return multitype:string NULL |Ambigous <mixed, array>
@@ -308,21 +344,21 @@ abstract class Database extends Hookable {
 	public function parse_sql($sql, $field = null) {
 		return $this->parser()->parse_sql($sql, $field);
 	}
-	
+
 	/**
 	 * Retrieve just the comand from a SQL statement
 	 *
-	 * @param string $sql        	
+	 * @param string $sql
 	 * @return string or NULL
 	 */
 	public function parse_sql_command($sql) {
 		return $this->parse_sql($sql, 'command');
 	}
-	
+
 	/**
 	 * Given a list of SQL commands separated by ;, extract individual statements
 	 *
-	 * @param string $sql        	
+	 * @param string $sql
 	 * @return array
 	 */
 	public function split_sql_commands($sql) {
@@ -336,7 +372,7 @@ abstract class Database extends Hookable {
 	public function __toString() {
 		return $this->Safe_URL;
 	}
-	
+
 	/**
 	 * Internal name of Database
 	 *
@@ -345,11 +381,11 @@ abstract class Database extends Hookable {
 	public function code_name() {
 		return $this->internal_name;
 	}
-	
+
 	/**
 	 * Retrieve URL or url component
 	 *
-	 * @param string $component        	
+	 * @param string $component
 	 * @return string
 	 */
 	public function url($component = null) {
@@ -359,7 +395,7 @@ abstract class Database extends Hookable {
 		}
 		return avalue($this->url_parts, $component);
 	}
-	
+
 	/**
 	 * Database Type (specifically, the URI scheme)
 	 *
@@ -368,7 +404,7 @@ abstract class Database extends Hookable {
 	final public function type() {
 		return $this->url('scheme');
 	}
-	
+
 	/**
 	 * Name of the database
 	 *
@@ -377,12 +413,12 @@ abstract class Database extends Hookable {
 	public function database_name() {
 		return ltrim($this->url('path'), '/');
 	}
-	
+
 	/**
 	 * Synonym for factory
 	 *
-	 * @param string $url        	
-	 * @param array $options        	
+	 * @param string $url
+	 * @param array $options
 	 * @return Database
 	 */
 	public static function instance(Application $application, $url = null, array $options = array()) {
@@ -392,10 +428,10 @@ abstract class Database extends Hookable {
 	/**
 	 * Parse a Database URL into components
 	 *
-	 * @param string $url        	
+	 * @param string $url
 	 * @param string $component
 	 *        	Optional component to return
-	 *        	
+	 *
 	 * @return string
 	 */
 	public static function url_parse($url, $component = null) {
@@ -406,7 +442,7 @@ abstract class Database extends Hookable {
 		$parts['name'] = trim(avalue($parts, 'path'), '/ ');
 		return $component === null ? $parts : avalue($parts, $component);
 	}
-	
+
 	/**
 	 * Return all connected databases in the system
 	 *
@@ -415,7 +451,7 @@ abstract class Database extends Hookable {
 	public static function databases() {
 		return self::$databases;
 	}
-	
+
 	/**
 	 * Reconned databases on fork
 	 */
@@ -426,7 +462,7 @@ abstract class Database extends Hookable {
 			$database->reconnect();
 		}
 	}
-	
+
 	/**
 	 * Reconned databases on fork
 	 */
@@ -437,11 +473,11 @@ abstract class Database extends Hookable {
 		}
 	}
 	static $scheme_to_class = array();
-	
+
 	/**
 	 * Does this database support URL schemes as passed in?
 	 *
-	 * @param string $scheme        	
+	 * @param string $scheme
 	 * @return boolean
 	 */
 	public function supports_scheme($scheme) {
@@ -457,8 +493,8 @@ abstract class Database extends Hookable {
 	/**
 	 * Register or retrieve a class for a database scheme prefic
 	 *
-	 * @param string $scheme        	
-	 * @param string $classname        	
+	 * @param string $scheme
+	 * @param string $classname
 	 * @return string
 	 */
 	public static function register_scheme($scheme, $classname = null) {
@@ -473,12 +509,12 @@ abstract class Database extends Hookable {
 		self::$scheme_to_class[$scheme] = $classname;
 		return $classname;
 	}
-	
+
 	/**
 	 *
-	 * @param Application $application        	
-	 * @param unknown $scheme        	
-	 * @param array $options        	
+	 * @param Application $application
+	 * @param unknown $scheme
+	 * @param array $options
 	 * @throws Exception_NotFound
 	 * @return object|\zesk\stdClass
 	 */
@@ -492,7 +528,7 @@ abstract class Database extends Hookable {
 		}
 		return $application->factory($class, $application, null, $options);
 	}
-	
+
 	/**
 	 * Create a new database
 	 *
@@ -507,7 +543,7 @@ abstract class Database extends Hookable {
 		zesk()->deprecated();
 		return self::_factory($application, $mixed, $options);
 	}
-	
+
 	/**
 	 * Create a new database
 	 *
@@ -590,12 +626,12 @@ abstract class Database extends Hookable {
 		}
 		return $db;
 	}
-	
+
 	/**
 	 * Change the URL for this database.
 	 * Useful for pointing an existing Database instance to a slave for read-only operations, etc.
 	 *
-	 * @param unknown $url        	
+	 * @param unknown $url
 	 * @return self
 	 */
 	public function change_url($url) {
@@ -609,7 +645,7 @@ abstract class Database extends Hookable {
 		}
 		return $this;
 	}
-	
+
 	/**
 	 * Returns the connection URL with the password removed
 	 *
@@ -627,7 +663,7 @@ abstract class Database extends Hookable {
 		}
 		return URL::unparse($parts);
 	}
-	
+
 	/**
 	 * Connect to the database
 	 *
@@ -649,19 +685,19 @@ abstract class Database extends Hookable {
 	 * @return boolean true if the connection is successful, false if not
 	 */
 	abstract protected function _connect();
-	
+
 	/**
 	 * Get or set a feature of the database.
 	 * See const feature_foo defined above.
 	 *
 	 * Also can use custom database strings.
 	 *
-	 * @param string $feature        	
-	 * @param mixed $set        	
+	 * @param string $feature
+	 * @param mixed $set
 	 * @return mixed Database
 	 */
 	abstract public function feature($feature, $set = null);
-	
+
 	/**
 	 * Disconnect from database
 	 */
@@ -673,7 +709,7 @@ abstract class Database extends Hookable {
 		}
 		$this->call_hook('disconnect');
 	}
-	
+
 	/**
 	 * Retrieve raw database connection.
 	 * Return null if not connected.
@@ -681,14 +717,14 @@ abstract class Database extends Hookable {
 	 * @return mixed|null
 	 */
 	abstract public function connection();
-	
+
 	/**
 	 * Run a database shell command to perform various actions
 	 *
-	 * @param array $options        	
+	 * @param array $options
 	 */
 	abstract public function shell_command(array $options = array());
-	
+
 	/**
 	 * Reconnect the database
 	 */
@@ -696,7 +732,7 @@ abstract class Database extends Hookable {
 		$this->disconnect();
 		return $this->connect();
 	}
-	
+
 	/**
 	 * Can I create another database in the current connection?
 	 *
@@ -705,23 +741,23 @@ abstract class Database extends Hookable {
 	public function can($permission) {
 		return false;
 	}
-	
+
 	/**
 	 * Create a new database with the current connection
 	 *
-	 * @param string $url        	
+	 * @param string $url
 	 */
 	function create_database($url, array $hosts) {
 		throw new Exception_Unimplemented(get_class($this) . "::create_database($url)");
 	}
-	
+
 	/**
 	 * Does this table exist?
 	 *
 	 * @return boolean
 	 */
 	abstract function table_exists($table_name);
-	
+
 	/**
 	 * Retrieve a list of tables from the databse
 	 *
@@ -733,7 +769,7 @@ abstract class Database extends Hookable {
 			"class" => get_class($this)
 		));
 	}
-	
+
 	/**
 	 * Output a file which is a database dump of the database
 	 *
@@ -744,7 +780,7 @@ abstract class Database extends Hookable {
 	 * @return boolean Whether the operation succeeded (true) or not (false)
 	 */
 	abstract public function dump($filename, array $options = array());
-	
+
 	/**
 	 * Given a database file, restore the database
 	 *
@@ -755,17 +791,17 @@ abstract class Database extends Hookable {
 	 * @return boolean Whether the operation succeeded (true) or not (false)
 	 */
 	abstract public function restore($filename, array $options = array());
-	
+
 	/**
 	 * Switches to another database in this connection.
 	 *
 	 * Not supported by all databases.
 	 *
 	 * @return Database
-	 * @param string $name        	
+	 * @param string $name
 	 */
 	abstract public function select_database($name);
-	
+
 	/**
 	 * Create a Database_Table object from the database's schema
 	 *
@@ -774,7 +810,7 @@ abstract class Database extends Hookable {
 	 * @return Database_Table The database table parsed from the database's definition of a table
 	 */
 	abstract public function database_table($table);
-	
+
 	/**
 	 * Create a Database_Table object from a create table SQL statement
 	 *
@@ -788,7 +824,7 @@ abstract class Database extends Hookable {
 		$parser = Database_Parser::parse_factory($this, $sql, $source);
 		return $parser->create_table($sql);
 	}
-	
+
 	/**
 	 * Execute a SQL statment with this database
 	 *
@@ -796,19 +832,19 @@ abstract class Database extends Hookable {
 	 *        	A SQL statement
 	 * @param array $options
 	 *        	Settings, options for this query
-	 *        	
+	 *
 	 * @return mixed A resource or boolean value which represents the result of the query
 	 */
 	abstract public function query($query, array $options = array());
-	
+
 	/**
 	 * Replace functionality
 	 *
-	 * @param string $table        	
-	 * @param array $columns        	
+	 * @param string $table
+	 * @param array $columns
 	 * @param array $options
 	 *        	Database-specific options
-	 *        	
+	 *
 	 * @return integer
 	 */
 	public function replace($table, array $values, array $options = array()) {
@@ -822,7 +858,7 @@ abstract class Database extends Hookable {
 		}
 		return $this->insert_id();
 	}
-	
+
 	/**
 	 * Execute a SQL statment with this database
 	 *
@@ -840,7 +876,7 @@ abstract class Database extends Hookable {
 		}
 		return avalue($options, 'id', true) ? $this->insert_id() : true;
 	}
-	
+
 	/**
 	 * Clean up any loose data from a database query.
 	 * Frees any resources from the query.
@@ -851,37 +887,37 @@ abstract class Database extends Hookable {
 	 * @see Database::query
 	 */
 	abstract public function free($result);
-	
+
 	/**
 	 * After an insert statement, retrieves the most recent statement's insertion ID
 	 *
 	 * @return mixed The most recent insertion ID
 	 */
 	abstract public function insert_id();
-	
+
 	/**
 	 * Given a database select result, fetch a row as a 0-indexed array
 	 *
-	 * @param mixed $result        	
+	 * @param mixed $result
 	 * @return array
 	 */
 	abstract public function fetch_array($result);
-	
+
 	/**
 	 * Given a database select result, fetch a row as a name/value array
 	 *
-	 * @param mixed $result        	
+	 * @param mixed $result
 	 * @return array
 	 */
 	abstract public function fetch_assoc($result);
-	
+
 	/**
 	 * Retrieve a single field or fields from the database
 	 *
-	 * @param string $sql        	
+	 * @param string $sql
 	 * @param string $field
 	 *        	A named field, or an integer index to retrieve
-	 * @param string $default        	
+	 * @param string $default
 	 * @return string
 	 */
 	final public function query_one($sql, $field = null, $default = null, array $options = array()) {
@@ -899,13 +935,13 @@ abstract class Database extends Hookable {
 		}
 		return avalue($row, $field, $default);
 	}
-	
+
 	/**
 	 * Retrieve a single row which should contain an integer
 	 *
-	 * @param string $sql        	
-	 * @param string $field        	
-	 * @param number $default        	
+	 * @param string $sql
+	 * @param string $field
+	 * @param number $default
 	 * @return number
 	 */
 	final public function query_integer($sql, $field = null, $default = 0) {
@@ -915,7 +951,7 @@ abstract class Database extends Hookable {
 		}
 		return intval($result);
 	}
-	
+
 	/**
 	 * Internal implementation of query_array and query_array_index
 	 *
@@ -961,7 +997,7 @@ abstract class Database extends Hookable {
 		$this->free($res);
 		return $result;
 	}
-	
+
 	/**
 	 * Retrieve rows as name-based array and index keys or values
 	 *
@@ -978,7 +1014,7 @@ abstract class Database extends Hookable {
 	final public function query_array($sql, $k = null, $v = null, $default = array()) {
 		return $this->_query_array("fetch_assoc", $sql, $k, $v, $default);
 	}
-	
+
 	/**
 	 * Retrieve rows as order-based array and index keys or values
 	 *
@@ -995,28 +1031,28 @@ abstract class Database extends Hookable {
 	final public function query_array_index($sql, $k = null, $v = null, $default = array()) {
 		return $this->_query_array("fetch_array", $sql, $k, $v, $default);
 	}
-	
+
 	/**
 	 * Enter description here...
 	 *
-	 * @param unknown_type $word        	
+	 * @param unknown_type $word
 	 * @return unknown
 	 */
 	function is_reserved_word($word) {
 		$word = strtolower($word);
 		return false;
 	}
-	
+
 	/**
 	 * Enter description here...
 	 *
-	 * @param unknown_type $value        	
+	 * @param unknown_type $value
 	 * @return unknown
 	 */
 	function sql_parse_boolean($value) {
 		return $value ? "1" : "0";
 	}
-	
+
 	/**
 	 * Begin a transaction in the database
 	 *
@@ -1027,7 +1063,7 @@ abstract class Database extends Hookable {
 		// TODO Move to subclasses
 		return $this->query("START TRANSACTION");
 	}
-	
+
 	/**
 	 * Finish transaction in the database
 	 *
@@ -1046,7 +1082,7 @@ abstract class Database extends Hookable {
 	public function default_index_structure($table_type) {
 		return $this->option("index_structure_default");
 	}
-	
+
 	/**
 	 * Factory method to allow subclasses of Database to create Database_Table subclasses
 	 *
@@ -1059,7 +1095,7 @@ abstract class Database extends Hookable {
 	public function new_database_table($table, $type = false) {
 		return new Database_Table($this, $table, $type);
 	}
-	
+
 	/**
 	 * Retrieve the database table prefix
 	 *
@@ -1071,10 +1107,10 @@ abstract class Database extends Hookable {
 	/**
 	 * Update a table
 	 *
-	 * @param string $table        	
-	 * @param array $values        	
-	 * @param array $where        	
-	 * @param array $options        	
+	 * @param string $table
+	 * @param array $values
+	 * @param array $where
+	 * @param array $options
 	 * @return mixed
 	 */
 	public function update($table, array $values, array $where = array(), array $options = array()) {
@@ -1085,12 +1121,12 @@ abstract class Database extends Hookable {
 		) + $options);
 		return $this->query($sql);
 	}
-	
+
 	/**
 	 * Run a delete query
 	 *
-	 * @param string $table        	
-	 * @param array $where        	
+	 * @param string $table
+	 * @param array $where
 	 * @return mixed
 	 */
 	public function delete($table, array $where = array()) {
@@ -1126,11 +1162,11 @@ abstract class Database extends Hookable {
 	 *        	string$text
 	 */
 	abstract public function native_quote_text($text);
-	
+
 	/**
 	 * Utility function to unquote a table
 	 *
-	 * @param string $name        	
+	 * @param string $name
 	 * @return string
 	 */
 	public function unquote_table($name) {
@@ -1145,21 +1181,21 @@ abstract class Database extends Hookable {
 	public function valid_column_name($name) {
 		return self::valid_sql_name($name);
 	}
-	
+
 	/**
 	 * Retrieve table columns
 	 *
-	 * @param string $table        	
+	 * @param string $table
 	 * @throws Exception_Unsupported
 	 */
 	public function table_columns($table) {
 		throw new Exception_Unsupported();
 	}
-	
+
 	/**
 	 * Retrieve table column, if exists
 	 *
-	 * @param string $table        	
+	 * @param string $table
 	 * @throws Exception_Unsupported
 	 */
 	public function table_column($table, $column = null) {
@@ -1169,7 +1205,7 @@ abstract class Database extends Hookable {
 		}
 		return avalue($columns, $column);
 	}
-	
+
 	/**
 	 * Should be called before running queries in subclasses
 	 *
@@ -1200,11 +1236,11 @@ abstract class Database extends Hookable {
 		}
 		return $query;
 	}
-	
+
 	/**
 	 * Should be called after running queries in subclasses
 	 *
-	 * @param string $query        	
+	 * @param string $query
 	 */
 	final protected function _query_after($query, array $options) {
 		if (avalue($options, 'log', $this->option_bool("log"))) {
@@ -1220,27 +1256,27 @@ abstract class Database extends Hookable {
 			$this->Database = $this->change_database;
 		}
 	}
-	
+
 	/**
 	 * Get lock
 	 *
-	 * @param string $name        	
+	 * @param string $name
 	 * @return boolean
 	 */
 	abstract public function get_lock($name, $wait_seconds = 0);
-	
+
 	/**
 	 * Release lock
 	 *
-	 * @param string $name        	
+	 * @param string $name
 	 * @return boolean
 	 */
 	abstract public function release_lock($name);
-	
+
 	/**
 	 * Set or get the default internal database name
 	 *
-	 * @param string $set        	
+	 * @param string $set
 	 * @return string
 	 */
 	public static function database_default($set = null) {
@@ -1258,9 +1294,9 @@ abstract class Database extends Hookable {
 	/**
 	 * Register a database name, or get a database url
 	 *
-	 * @param unknown $name        	
-	 * @param unknown $url        	
-	 * @param string $is_default        	
+	 * @param unknown $name
+	 * @param unknown $url
+	 * @param string $is_default
 	 */
 	public static function register($name = null, $url = null, $is_default = false) {
 		global $zesk;
@@ -1292,7 +1328,7 @@ abstract class Database extends Hookable {
 		}
 		return $name;
 	}
-	
+
 	/**
 	 * Internal function to load database settings from globals
 	 */
@@ -1336,7 +1372,7 @@ abstract class Database extends Hookable {
 			self::database_default($config->path_get($database_default_config_path));
 		}
 	}
-	
+
 	/**
 	 * Remove all single-quote-delimited strings in a series of SQL statements, taking care of
 	 * backslash-quotes in strings
@@ -1344,7 +1380,7 @@ abstract class Database extends Hookable {
 	 *
 	 * @todo Note, this doesn't work on arbitrary binary data if passed through, should probably
 	 *       handle that case - use PDO interface
-	 * @param string $sql        	
+	 * @param string $sql
 	 * @param mixed $state
 	 *        	A return value to save undo information
 	 * @return string SQL with strings removed
@@ -1370,12 +1406,12 @@ abstract class Database extends Hookable {
 		}
 		return $sql;
 	}
-	
+
 	/**
 	 * Undo the "unstring" step, exactly
 	 *
-	 * @param string $sql        	
-	 * @param mixed $state        	
+	 * @param string $sql
+	 * @param mixed $state
 	 * @return string SQL after strings are put back in
 	 */
 	public static function restring($sql, $state) {
@@ -1384,22 +1420,22 @@ abstract class Database extends Hookable {
 		}
 		return strtr($sql, $state);
 	}
-	
+
 	/**
 	 * Getter/setter for whether SQL is converted to use table names from class names in {} in SQL
 	 *
-	 * @param boolean $set        	
+	 * @param boolean $set
 	 * @return boolean|self
 	 */
 	public function auto_table_names($set = null) {
 		return ($set !== null) ? $this->set_option(self::option_auto_table_names, to_bool($set)) : $this->option_bool(self::option_auto_table_names);
 	}
-	
+
 	/**
 	 * Getter/setter for auto_table_names options, passed to object creation for ALL tables for
 	 * table
 	 *
-	 * @param array $set        	
+	 * @param array $set
 	 * @return \zesk\Database
 	 */
 	public function auto_table_names_options(array $set = null) {
@@ -1412,7 +1448,7 @@ abstract class Database extends Hookable {
 	/**
 	 * Convert SQL and replace table names magically.
 	 *
-	 * @param string $sql        	
+	 * @param string $sql
 	 * @return string SQL with table names replaced magically
 	 */
 	public function auto_table_names_replace($sql, array $options = array()) {
@@ -1444,7 +1480,7 @@ abstract class Database extends Hookable {
 		$sql = strtr($sql, $map);
 		return self::restring($sql, $state);
 	}
-	
+
 	/**
 	 * Get/set time zone
 	 *
@@ -1459,9 +1495,9 @@ abstract class Database extends Hookable {
 			"feature" => self::feature_time_zone_relative_timestamp
 		));
 	}
-	
+
 	// KMD: O R M -only, see if can remove them safely
-	
+
 	// 	/**
 	// 	 *
 	// 	 * @return Database____Query_Select
@@ -1469,7 +1505,7 @@ abstract class Database extends Hookable {
 	// 	public function query_select() {
 	// 		return new Database____Query_Select($this);
 	// 	}
-	
+
 	// 	/**
 	// 	 *
 	// 	 * @return Database____Query_Update
@@ -1477,7 +1513,7 @@ abstract class Database extends Hookable {
 	// 	public function query_update() {
 	// 		return new Database____Query_Update($this);
 	// 	}
-	
+
 	// 	/**
 	// 	 *
 	// 	 * @return Database____Query_Insert
@@ -1485,7 +1521,7 @@ abstract class Database extends Hookable {
 	// 	public function query_insert() {
 	// 		return new Database____Query_Insert($this);
 	// 	}
-	
+
 	// 	/**
 	// 	 *
 	// 	 * @return Database____Query_Delete
@@ -1493,7 +1529,7 @@ abstract class Database extends Hookable {
 	// 	public function query_delete() {
 	// 		return new Database____Query_Delete($this);
 	// 	}
-	
+
 	// 	/**
 	// 	 *
 	// 	 * @return Database____Query_Union
@@ -1501,11 +1537,11 @@ abstract class Database extends Hookable {
 	// 	public function query_union() {
 	// 		return new Database____Query_Union($this);
 	// 	}
-	
+
 	/**
 	 * Return the total bytes used by the database, or the bytes used by a particular table
 	 *
-	 * @param string $table        	
+	 * @param string $table
 	 * @return integer
 	 */
 	abstract public function bytes_used($table = null);
@@ -1518,10 +1554,10 @@ abstract class Database extends Hookable {
 			"code_name" => $this->code_name()
 		);
 	}
-	
+
 	/**
 	 * Handle database-specific differences between two columns
-	 * 
+	 *
 	 * @param Database_Column $self
 	 *        	Database column being compared
 	 * @param Database_Column $that
@@ -1532,4 +1568,11 @@ abstract class Database extends Hookable {
 	 * @return array Any additional diffs
 	 */
 	abstract public function column_differences(Database_Column $self, Database_Column $that, array $diffs);
-}
+
+	/**
+	 * Returns an array of TABLE_INFO constants, or null if not found
+	 *
+	 * @param string $table
+	 * @return array
+	 */
+	abstract public function table_information($table);
