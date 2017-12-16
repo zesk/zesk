@@ -4,7 +4,7 @@
  * @package zesk
  * @subpackage objects
  */
-zesk()->obsolete();
+namespace zesk\Cron;
 
 use zesk\HTML;
 use zesk\str;
@@ -14,21 +14,96 @@ use zesk\Date;
 use zesk\Timestamp;
 use zesk\Locale;
 use zesk\Exception_Parse;
+use zesk\Exception_Semantics;
 
 /**
+ * This needs to be cleaned up and probably broken into pieces.
  * 
  * @author kent
  *
  */
-class Schedule {
-	const cron_minute = 0;
-	const cron_hour = 1;
-	const cron_monthday = 2;
-	const cron_month = 3;
-	const cron_weekday = 4;
-	private static function cron_add($cron, $index, $add) {
+class Parser {
+	
+	/**
+	 * 
+	 * @var boolean
+	 */
+	private $debug = false;
+	
+	/**
+	 * 
+	 * @var string
+	 */
+	private $locale = null;
+	
+	/**
+	 * String formatted 
+	 * @var string
+	 */
+	private $cron_codes = array();
+	
+	/**
+	 * 
+	 * @var string
+	 */
+	private $phrase = null;
+	
+	/**
+	 * 
+	 * @var integer
+	 */
+	const CRON_MINUTE = 0;
+	
+	/**
+	 * 
+	 * @var integer
+	 */
+	const CRON_HOUR = 1;
+	
+	/**
+	 * 
+	 * @var integer
+	 */
+	const CRON_MONTHDAY = 2;
+	
+	/**
+	 * 
+	 * @var integer
+	 */
+	const CRON_MONTH = 3;
+	
+	/**
+	 * 
+	 * @var integer
+	 */
+	const CRON_WEEKDAY = 4;
+	
+	/**
+	 * Parse a string and convert it into a schedule
+	 *
+	 * @param string $text Some text in the locale's language
+	 * @param string $locale The locale. If null, uses the current global locale.
+	 */
+	function __construct($phrase, $locale = null) {
+		$this->locale = $locale ? $locale : Locale::current();
+		switch (strtolower(substr($this->locale, 0, 2))) {
+			default :
+				break;
+		}
+		$this->phrase = $phrase;
+		$this->cron_codes = array_fill(0, self::CRON_WEEKDAY + 1, null);
+		$this->parse_language_en($phrase);
+	}
+	
+	/**
+	 * 
+	 * @param integer $index
+	 * @param mixed $add
+	 * @return self
+	 */
+	private function cron_add($index, $add) {
 		if ($add === null) {
-			return $cron;
+			return $this;
 		}
 		list($low, $high) = avalue(array(
 			array(
@@ -56,58 +131,64 @@ class Schedule {
 			null
 		));
 		if ($low === null) {
-			return $cron;
+			return $this;
 		}
 		if (is_numeric($add) && $add < $low || $add > $high) {
-			return $cron;
+			return $this;
 		}
-		$old = avalue($cron, $index, "*");
+		$old = avalue($this->cron_codes, $index, "*");
 		if ($old === "*") {
-			$cron[$index] = $add;
-			return $cron;
+			$this->cron_codes[$index] = $add;
+			return $this;
 		}
 		$old = explode(",", $old);
 		$old[] = $add;
 		$old = array_unique($old);
 		sort($old);
-		$cron[$index] = implode(",", $old);
-		return $cron;
+		$this->cron_codes[$index] = implode(",", $old);
+		return $this;
 	}
-	private static function compute_next_cron(Timestamp $now, $data) {
-		list($cron_minute, $cron_hour, $cron_monthday, $cron_month, $cron_weekday) = explode(" ", $data);
-		
+	
+	/**
+	 * 
+	 * @param Timestamp $now
+	 * @throws Exception_Semantics
+	 * @return \zesk\Timestamp
+	 */
+	public function compute_next(Timestamp $now) {
+		list($cron_minute, $cron_hour, $cron_monthday, $cron_month, $cron_weekday) = $this->cron_codes;
 		$match_list = array(
 			array(
 				$cron_minute,
-				self::cron_minute,
+				self::CRON_MINUTE,
 				"minute",
 				"hour",
 				60
 			),
 			array(
 				$cron_hour,
-				self::cron_hour,
+				self::CRON_HOUR,
 				"hour",
 				"day",
 				3600
 			),
 			array(
 				$cron_weekday,
-				self::cron_weekday,
+				self::CRON_WEEKDAY,
 				"weekday",
 				null,
 				-2
 			),
 			array(
 				$cron_monthday,
-				self::cron_monthday,
+				self::CRON_MONTHDAY,
 				"day",
 				"month",
 				86400
 			),
 			array(
 				$cron_month,
-				self::cron_month,
+				self::CRON_MONTH,
 				"month",
 				"year",
 				-1
@@ -124,10 +205,8 @@ class Schedule {
 		);
 		$match = $default_match;
 		$loops = 0;
-		$debug = zesk()->configuration->path_get(__CLASS__ . '::debug_schedule_next');
-		if ($debug) {
-			dump($data);
-		}
+		
+		$debug = false;
 		while (implode("", $match) !== "11111") {
 			$loops++;
 			$lower_units = array();
@@ -136,7 +215,7 @@ class Schedule {
 				if ($match[$cindex] === "0") {
 					if ($cron_value === "*") {
 						$match[$cindex] = "1";
-					} else if (($interval = self::is_time_repeat($cron_value)) !== false) {
+					} else if (($interval = $this->is_time_repeat($cron_value)) !== false) {
 						assert($unit !== 'weekday');
 						if ($divisor < 0) {
 							$next_value = $next->getMonth() + ($next->getYear() * 12);
@@ -194,23 +273,10 @@ class Schedule {
 				}
 			}
 			if ($loops > 100) {
-				throw new Exception("Infinite loop in Schedule next");
+				throw new Exception_Semantics("Infinite loop in Schedule next");
 			}
 		}
 		return $next;
-	}
-	static function compute_next($code, $relative_time = "now") {
-		$now = new Timestamp();
-		$now->set($relative_time);
-		$codes = explode(";", $code);
-		foreach ($codes as $code) {
-			list($schema, $data) = pair($code, ":", null, $code);
-			switch ($schema) {
-				case "cron":
-					return self::compute_next_cron($now, $data);
-			}
-		}
-		return null;
 	}
 	
 	/**
@@ -219,7 +285,7 @@ class Schedule {
 	 * @param string $text Some text in the locale's language
 	 * @param string $locale The locale. If null, uses the current global locale.
 	 */
-	private static function parse_language_en($text) {
+	private function parse_language_en($text) {
 		// Examples:
 		// 	Every [night|day|morning|afternoon|evening] at [midnight|noon|time-value]
 		//  Every Monday
@@ -262,7 +328,7 @@ class Schedule {
 			"years" => "([0-9]{4})"
 		);
 		
-		$debug = zesk()->configuration->path_get("Schedule::debug_parsing");
+		$debug = false;
 		if ($debug) {
 			echo HTML::tag("h1", false, "$text");
 		}
@@ -322,8 +388,7 @@ class Schedule {
 								}
 							}
 						}
-						//$cron = self::cron_add($cron, self::cron_minute, $mm);
-						$cron = self::cron_add($cron, self::cron_hour, "$hh.$mm");
+						$cron = $this->cron_add(self::CRON_HOUR, "$hh.$mm");
 						$have_time = true;
 					}
 					break;
@@ -359,8 +424,8 @@ class Schedule {
 							null
 						));
 						if ($hh !== null) {
-							$cron = self::cron_add($cron, self::cron_minute, $mm);
-							$cron = self::cron_add($cron, self::cron_hour, $hh);
+							$this->cron_add(self::CRON_MINUTE, $mm);
+							$this->cron_add(self::CRON_HOUR, $hh);
 							$have_time = true;
 						}
 					}
@@ -370,26 +435,26 @@ class Schedule {
 					foreach ($matches as $match) {
 						$x = array_search(substr($match[1], 0, 3), $short_dow);
 						if ($x !== false) {
-							$cron = self::cron_add($cron, self::cron_weekday, $x);
+							$this->cron_add(self::CRON_WEEKDAY, $x);
 							$need_time = true;
 						}
 					}
 					break;
 				case "weekday":
 					for ($i = 1; $i <= 5; $i++) {
-						$cron = self::cron_add($cron, self::cron_weekday, $i);
+						$this->cron_add(self::CRON_WEEKDAY, $i);
 					}
 					break;
 				case "weekend":
-					$cron = self::cron_add($cron, self::cron_weekday, 0);
-					$cron = self::cron_add($cron, self::cron_weekday, 6);
+					$this->cron_add(self::CRON_WEEKDAY, 0);
+					$this->cron_add(self::CRON_WEEKDAY, 6);
 					break;
 				case "months":
 				case "short-months":
 					foreach ($matches as $match) {
 						$mm = array_search(substr($match[1], 0, 3), $short_months);
 						if ($mm) {
-							$cron = self::cron_add($cron, self::cron_month, $mm);
+							$this->cron_add(self::CRON_MONTH, $mm);
 							$need_time = true;
 						}
 					}
@@ -399,7 +464,7 @@ class Schedule {
 					break;
 				case "month-days":
 					foreach ($matches as $match) {
-						$cron = self::cron_add($cron, self::cron_monthday, $match[1]);
+						$this->cron_add(self::CRON_MONTHDAY, $match[1]);
 						$have_dayofmonth = true;
 					}
 					break;
@@ -417,24 +482,24 @@ class Schedule {
 							switch ($match[2]) {
 								case "minute":
 								case "min":
-									$cron = self::cron_add($cron, self::cron_minute, "*/$n");
+									$this->cron_add(self::CRON_MINUTE, "*/$n");
 									$have_time = true;
 									break;
 								case "hr":
 								case "hour":
-									$cron = self::cron_add($cron, self::cron_hour, "*/$n");
+									$this->cron_add(self::CRON_HOUR, "*/$n");
 									$have_time = true;
 									break;
 								case "day":
-									$cron = self::cron_add($cron, self::cron_monthday, "*/$n");
+									$this->cron_add(self::CRON_MONTHDAY, "*/$n");
 									$need_time = true;
 									break;
 								case "week":
-									$cron = self::cron_add($cron, self::cron_monthday, "*/" . ($n * 7));
+									$this->cron_add(self::CRON_MONTHDAY, "*/" . ($n * 7));
 									$need_time = true;
 									break;
 								case "month":
-									$cron = self::cron_add($cron, self::cron_month, "*/$n");
+									$this->cron_add(self::CRON_MONTH, "*/$n");
 									$need_time = true;
 									break;
 							}
@@ -445,19 +510,19 @@ class Schedule {
 					foreach ($matches as $match) {
 						switch ($match[1]) {
 							case "hourly":
-								$cron = self::cron_add($cron, self::cron_minute, 0);
+								$this->cron_add(self::CRON_MINUTE, 0);
 								break;
 							case "weekly":
-								$cron = self::cron_add($cron, self::cron_weekday, 0);
+								$this->cron_add(self::CRON_WEEKDAY, 0);
 								$need_time = true;
 								break;
 							case "monthly":
-								$cron = self::cron_add($cron, self::cron_monthday, 1);
+								$this->cron_add(self::CRON_MONTHDAY, 1);
 								$need_time = true;
 								break;
 							case "daily":
-								$cron = self::cron_add($cron, self::cron_hour, 0);
-								$cron = self::cron_add($cron, self::cron_minute, 0);
+								$this->cron_add(self::CRON_HOUR, 0);
+								$this->cron_add(self::CRON_MINUTE, 0);
 								break;
 						}
 					}
@@ -473,17 +538,17 @@ class Schedule {
 			return implode(";", $extra_strings);
 		}
 		if ($need_time && !$have_time) {
-			$cron = self::cron_add($cron, self::cron_hour, 0);
-			$cron = self::cron_add($cron, self::cron_minute, 0);
+			$this->cron_add(self::CRON_HOUR, 0);
+			$this->cron_add(self::CRON_MINUTE, 0);
 		}
 		if ($need_dayofmonth && !$have_dayofmonth) {
-			$cron = self::cron_add($cron, self::cron_monthday, 1);
+			$this->cron_add(self::CRON_MONTHDAY, 1);
 		}
 		if ($cron[0] === '*') {
 			$cron[0] = "0";
 		}
-		if (is_numeric($cron[self::cron_month]) && is_numeric($cron[self::cron_monthday])) {
-			$cron[self::cron_weekday] = "*";
+		if (is_numeric($cron[self::CRON_MONTH]) && is_numeric($cron[self::CRON_MONTHDAY])) {
+			$cron[self::CRON_WEEKDAY] = "*";
 		}
 		$extra_strings[] = "cron:" . implode(" ", $cron);
 		$result = implode(";", $extra_strings);
@@ -492,24 +557,7 @@ class Schedule {
 		}
 		return $result;
 	}
-	
-	/**
-	 * Parse a string and convert it into a schedule
-	 *
-	 * @param string $text Some text in the locale's language
-	 * @param string $locale The locale. If null, uses the current global locale.
-	 */
-	static function parse($text, $locale = null) {
-		if (!$locale) {
-			$locale = Locale::current();
-		}
-		switch (strtolower(substr($locale, 0, 2))) {
-			default :
-				break;
-		}
-		return self::parse_language_en($text);
-	}
-	private static function days_to_language($code, $locale) {
+	private function days_to_language($code, $locale) {
 		$items = explode(",", $code);
 		$result = array();
 		foreach ($items as $item) {
@@ -519,7 +567,7 @@ class Schedule {
 		}
 		return Locale::conjunction($result, __('and', $locale));
 	}
-	private static function months_to_language($code, $locale) {
+	private function months_to_language($code, $locale) {
 		$items = explode(",", $code);
 		$result = array();
 		$months = Date::monthNames($locale);
@@ -530,7 +578,7 @@ class Schedule {
 		}
 		return Locale::conjunction($result, __('and', $locale));
 	}
-	private static function dow_to_language($code, $locale, $plural = false) {
+	private function dow_to_language($code, $locale, $plural = false) {
 		if ($code === "1,2,3,4,5") {
 			return $plural ? __('weekdays', $locale) : __('weekday', $locale);
 		}
@@ -554,8 +602,8 @@ class Schedule {
 		}
 		return Locale::conjunction($result, __('and', $locale));
 	}
-	private static function time_repeat_to_language($item, $unit, $locale) {
-		if (($number = self::is_time_repeat($item)) !== false) {
+	private function time_repeat_to_language($item, $unit, $locale) {
+		if (($number = $this->is_time_repeat($item)) !== false) {
 			$translate = Locale::translate($number === 1 ? 'Schedule:=Every {1}' : 'Schedule:=Every {0} {1}', $locale);
 			return map($translate, array(
 				$number,
@@ -564,14 +612,14 @@ class Schedule {
 		}
 		return false;
 	}
-	private static function is_time_repeat($item) {
+	private function is_time_repeat($item) {
 		$matches = false;
 		if (preg_match('/\*\/([0-9]+)/', $item, $matches)) {
 			return intval($matches[1]);
 		}
 		return false;
 	}
-	private static function time_to_language($min, $hour, $locale) {
+	private function time_to_language($min, $hour, $locale) {
 		$min = explode(",", $min);
 		$hour = explode(",", $hour);
 		$times = array();
@@ -596,19 +644,26 @@ class Schedule {
 		}
 		return Locale::conjunction($times, __("and", $locale));
 	}
-	private static function code_to_language_cron($data, $locale) {
-		list($min, $hour, $day, $month, $dow) = explode(" ", $data, 5);
+	
+	/**
+	 * 
+	 * @param unknown $data
+	 * @param unknown $locale
+	 * @return mixed|string|\zesk\Hookable|NULL|\zesk\NULL
+	 */
+	private function code_to_language_cron() {
+		list($min, $hour, $day, $month, $dow) = $this->cron_codes;
 		$month_language = "";
 		$dow_language = "";
 		$time_every = false;
 		$day_every = false;
 		$plural_dow = false;
-		if (($time_language = self::time_repeat_to_language($min, "minute", $locale)) !== false) {
+		if (($time_language = $this->time_repeat_to_language($min, "minute")) !== false) {
 			$time_every = true;
-		} else if (($time_language = self::time_repeat_to_language($hour, "hour", $locale)) !== false) {
+		} else if (($time_language = $this->time_repeat_to_language($hour, "hour")) !== false) {
 			$time_every = true;
 		}
-		if (($day_language = self::time_repeat_to_language($day, "day", $locale)) !== false) {
+		if (($day_language = $this->time_repeat_to_language($day, "day")) !== false) {
 			$day_every = true;
 		}
 		switch (($day === "*" ? "*" : " ") . ($month === "*" ? "*" : " ") . ($dow === "*" ? "*" : " ")) {
@@ -616,43 +671,43 @@ class Schedule {
 				$translate_string = $time_every ? "{time}" : 'Schedule:=Every day at {time}';
 				break;
 			case "** ":
-				$translate_string = $time_every ? "{time} on {weekday}" : "Schedule:=Every {weekday} at {time}";
+				$translate_string = $time_every ? "{time} on {weekday}" : __CLASS__ . ":=Every {weekday} at {time}";
 				break;
 			case "* *":
-				$translate_string = "Schedule:=Every day in {month} at {time}";
+				$translate_string = __CLASS__ . ":=Every day in {month} at {time}";
 				break;
 			case "*  ":
 				$plural_dow = true;
-				$translate_string = $time_every ? "Schedule:={time} on {weekday} in {month}" : "Schedule:=At {time} on {weekday} in {month}";
+				$translate_string = $time_every ? __CLASS__ . ":={time} on {weekday} in {month}" : __CLASS__ . ":=At {time} on {weekday} in {month}";
 				break;
 			case " **":
-				$translate_string = $day_every ? "Schedule:={day} at {time}" : "Schedule:=Every month on the {day} at {time}";
+				$translate_string = $day_every ? __CLASS__ . ":={day} at {time}" : __CLASS__ . ":=Every month on the {day} at {time}";
 				break;
 			case " * ":
-				$translate_string = "Schedule:=Every month on the {day} at {time}, only on {weekday}";
+				$translate_string = __CLASS__ . ":=Every month on the {day} at {time}, only on {weekday}";
 				$plural_dow = true;
 				break;
 			case "  *":
-				$translate_string = $day_every ? "Schedule:={day} in {month} at {time}" : "Schedule:={month} {day} at {time}";
+				$translate_string = $day_every ? __CLASS__ . ":={day} in {month} at {time}" : __CLASS__ . ":={month} {day} at {time}";
 				break;
 			case "   ":
-				$translate_string = "Schedule:={day} in {month}, on {weekday}, at {time}";
+				$translate_string = __CLASS__ . ":={day} in {month}, on {weekday}, at {time}";
 				$plural_dow = true;
 				break;
 		}
 		if (!$time_language) {
-			$time_language = self::time_to_language($min, $hour, $locale);
+			$time_language = $this->time_to_language($min, $hour);
 		}
 		if (!$day_language && $day !== "*") {
-			$day_language = self::days_to_language($day, $locale);
+			$day_language = $this->days_to_language($day);
 		}
 		if ($month !== "*") {
-			$month_language = self::months_to_language($month, $locale);
+			$month_language = $this->months_to_language($month);
 		}
 		if ($dow !== "*") {
-			$dow_language = self::dow_to_language($dow, $locale, $plural_dow);
+			$dow_language = $this->dow_to_language($dow, $plural_dow);
 		}
-		$phrase = Locale::translate($translate_string, $locale);
+		$phrase = Locale::translate($translate_string);
 		return map($phrase, array(
 			'time' => $time_language,
 			'day' => $day_language,
@@ -665,19 +720,8 @@ class Schedule {
 	//
 	// minute hour day-of-month month day-of-week
 	//
-	static function format($code, $locale = null) {
-		$codes = explode(";", $code);
-		$result = array();
-		foreach ($codes as $code) {
-			list($schema, $data) = pair($code, ":", null, $code);
-			switch ($schema) {
-				case "cron":
-					$result[] = self::code_to_language_cron($data, $locale);
-					break;
-			}
-		}
-		
-		return implode(";", $result);
+	function format() {
+		return $this->code_to_language_cron();
 	}
 }
 

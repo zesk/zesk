@@ -259,7 +259,7 @@ class Module_TinyMCE extends zesk\Module_JSLib implements Interface_Module_Route
 			$doc_root = $this->application->document_root();
 			$full_path = path($doc_root, $language_url_path);
 			if (!is_dir($full_path)) {
-				zesk()->logger->error("Directory {class}::language_url_path specifies {full_path} which is not a directory", array(
+				$this->application->logger->error("Directory {class}::language_url_path specifies {full_path} which is not a directory", array(
 					"class" => __CLASS__,
 					"full_path" => $full_path
 				));

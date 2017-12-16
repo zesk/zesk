@@ -363,7 +363,7 @@ class Database_Parser extends \zesk\Database_Parser {
 			if ($col) {
 				$col->previous_name($previous_name);
 			} else {
-				zesk()->logger->notice($table->name() . " contains rename tip for non-existent new column: $previous_name => $column");
+				$this->application->logger->notice($table->name() . " contains rename tip for non-existent new column: $previous_name => $column");
 			}
 		}
 		
@@ -373,7 +373,7 @@ class Database_Parser extends \zesk\Database_Parser {
 			if ($col) {
 				$col->set_option("add_sql", $add_sql);
 			} else {
-				zesk()->logger->notice($table->name() . " contains add tip for non-existent new column: $column => $add_sql");
+				$this->application->logger->notice($table->name() . " contains add tip for non-existent new column: $column => $add_sql");
 			}
 		}
 		$remove_tips = avalue($tips, 'add', array());

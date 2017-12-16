@@ -8,12 +8,9 @@ namespace zesk;
 /**
  * Scan all application database files and output any changes needed to the schema
  *
- * @aliases schema
+ * @aliases database-schema
  *
  * @category Database
- * @param
- *        	application Pass the application name after this parameter in order to invoke an
- *        	alternate application
  */
 class Command_ORM_Schema extends Command_Base {
 	/**

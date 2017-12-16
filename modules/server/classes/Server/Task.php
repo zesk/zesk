@@ -65,7 +65,7 @@ class Server_Task {
 		if ($this->pid === null) {
 			return false;
 		}
-		if (zesk()->process->alive($this->pid)) {
+		if ($this->application->process->alive($this->pid)) {
 			return true;
 		}
 		$this->pid = null;

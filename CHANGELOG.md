@@ -19,14 +19,25 @@ Version 1.0 of Zesk will have:
 - Merging of `Response` and `Response_Text_HTML` into a single, unified polymorphic `Response` which changes behavior depending on content-type but allows typed API calls for specific response handling. May move `Response_Text_HTML` into a sub-object (e.g. `$response->html()->add_body_class()` for example)
 - Migrate `Database_Result_Iterator` to remove dependency on `Database_Query_Select_Base` 
 
-### Completed
+### 1.0 Things Completed
 
 - <strike>Renaming of `zesk\ORM` to something non-reserved in PHP 7.2 (Candidates are `zesk\ORM` `zesk\Model` - reuse)</strike>
 - `zesk\` namespace for all `classes` in the system
 
 ## [Unreleased][]
 
-- `zesk\Application` now supports the function calls like `codename_module()` to retrieve module objects. So, `$application->csv_module()` is equivalent to `$application->modules->object("csv")`. You can decorate your application with `@method` doccomments to support types and return values in Eclipse-based editors. See `zesk\Application` doc comment for examples.
+### New features
+
+- `zesk\Application` now supports the function calls like `codename_module()` to retrieve module objects. So, `$application->csv_module()` is equivalent to `$application->modules->object("csv")`. You can decorate your application with `@method` doccomments to support types and return values in Eclipse-based editors. See `zesk\Application` class DocComment for examples.
+
+### Deprecated functionality
+
+### Removed functionality
+
+- `zesk\User::current`, `zesk\User::set_current`, `zesk\User::current_id` have all been removed
+- `zesk\Application::instance` was removed
+- `zesk\Application::_class_cache` is obsolete
+- `zesk\Settings::instance` was removed
 
 ## [v0.14.0][]
 

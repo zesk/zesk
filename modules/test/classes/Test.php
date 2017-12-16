@@ -1221,7 +1221,7 @@ class Test extends Hookable {
 		if (!$config) {
 			return array();
 		}
-		zesk()->logger->debug("Loading configuration file $config");
+		$this->application->logger->debug("Loading configuration file $config");
 		$settings = array();
 		$loader = new Configuration_Loader($application->configure_include_path(), array(
 			$config

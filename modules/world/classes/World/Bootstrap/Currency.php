@@ -98,7 +98,7 @@ class World_Bootstrap_Currency extends Hookable {
 		))) !== null) {
 			return $found;
 		}
-		zesk()->logger->warning("Unable to find country {name} in database", array(
+		$this->application->logger->warning("Unable to find country {name} in database", array(
 			"name" => $name
 		));
 		return null;
@@ -128,7 +128,7 @@ class World_Bootstrap_Currency extends Hookable {
 		$fields["format"] = "{symbol}{amount}";
 		
 		if (empty($id)) {
-			zesk()->logger->debug("Unknown id for currency {code} {name}", $fields);
+			$this->application->logger->debug("Unknown id for currency {code} {name}", $fields);
 			return null;
 		}
 		

@@ -44,8 +44,19 @@ class Tag_Label extends ORM {
 			"name" => $name
 		);
 		$members['code'] = self::clean_code_name($members['code']);
-		$object = self::factory(__CLASS__, $members)->register();
+		$cache = $application->cache->getItem(__CLASS__ . "-" . $members['code']);
+		if ($cache->isHit()) {
+			$object = $cache->get();
+			if ($object instanceof Tag_Label) {
+				$object->seen();
+				return $object;
+			}
+		}
+		$object = $application->orm_factory(__CLASS__, $members)->register();
 		$object->seen();
+
+		$cache->set($object);
+		$application->cache->saveDeferred($cache);
 		return $object;
 	}
 

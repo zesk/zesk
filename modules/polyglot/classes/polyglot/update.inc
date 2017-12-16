@@ -141,14 +141,11 @@ class PolyGlot_Update extends ORM {
 	 * @return boolean
 	 */
 	public static function update_locale(Application $application, $path, $locale) {
-		$zesk = zesk();
-		/* @var $zesk Kernel */
-		
 		$iterator = PolyGlot_Token::locale_query($application, $locale)->where("status", PolyGlot_Token::status_done)->order_by("updated DESC,original")->iterator("original", "translation");
 		
 		$target_file = path($path, "$locale.inc");
 		
-		$pid = $zesk->process_id();
+		$pid = $application->process->id();
 		$temp_file = path($path, "$locale.inc.$pid");
 		$f = fopen($temp_file, "w");
 		if (!$f) {
@@ -157,7 +154,7 @@ class PolyGlot_Update extends ORM {
 		fwrite($f, "<?php\n\n// This file was automatically generated on " . date("Y-m-d H:i:s") . " by " . __METHOD__ . "\n\n");
 		$original_tt = array();
 		if (file_exists($target_file)) {
-			$original_tt = $zesk->load($target_file);
+			$original_tt = $application->load($target_file);
 		}
 		if (!is_array($original_tt)) {
 			$original_tt = array();

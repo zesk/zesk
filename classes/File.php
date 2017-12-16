@@ -190,7 +190,7 @@ class File {
 		return true;
 	}
 	/**
-	 * Clean a filename of invalid characters
+	 * Clean a filename of invalid characters, restrictively
 	 *
 	 * @param string $mixed
 	 *        	Filename to clean
@@ -201,7 +201,7 @@ class File {
 	public static function name_clean($mixed, $sep_char = "-") {
 		if (is_array($mixed)) {
 			foreach ($mixed as $k => $v) {
-				$mixed[$k] = self::name_clean($v);
+				$mixed[$k] = self::name_clean($v, $sep_char);
 			}
 			return $mixed;
 		}

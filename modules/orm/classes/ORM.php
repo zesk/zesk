@@ -200,7 +200,7 @@ class ORM extends Model {
 	 */
 	public function object_factory($class, $mixed = null, array $options = array()) {
 		$this->application->deprecated();
-		return self::orm_factory($class, $mixed, $options);
+		return $this->orm_factory($class, $mixed, $options);
 	}
 
 	/**
@@ -212,8 +212,9 @@ class ORM extends Model {
 	 * @return \zesk\ORM
 	 */
 	public function orm_factory($class, $mixed = null, array $options = array()) {
-		return self::model_factory($class, $mixed, $options);
+		return $this->model_factory($class, $mixed, $options);
 	}
+
 	/**
 	 * Create a new object
 	 *
@@ -244,7 +245,7 @@ class ORM extends Model {
 	 * Wakeup functionality
 	 */
 	public function __wakeup() {
-		$this->application = zesk()->application();
+		$this->application = Kernel::singleton()->application();
 		$this->initialize_specification();
 		$this->initialize($this->members, 'raw');
 	}
@@ -2871,7 +2872,7 @@ class ORM extends Model {
 	 * @return Database_Query_Select
 	 */
 	function query($alias = null) {
-		zesk()->deprecated();
+		$this->application->deprecated();
 		return $this->query_select($alias);
 	}
 

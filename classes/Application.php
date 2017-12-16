@@ -28,14 +28,15 @@ use Psr\Cache\CacheItemPoolInterface;
 class Application extends Hookable implements Interface_Theme, Interface_Factory {
 
 	/**
-	 * Equivalent of zesk()
+	 * Probably should discourage use of this.
+	 * Zesk singleton.
 	 *
 	 * @var Kernel
 	 */
 	public $zesk = null;
 
 	/**
-	 * Inherited directly from zesk().
+	 * Inherited directly from zesk\Kernel.
 	 * Do not edit the value here.
 	 *
 	 * @var Paths
@@ -43,7 +44,7 @@ class Application extends Hookable implements Interface_Theme, Interface_Factory
 	public $paths = null;
 
 	/**
-	 * Inherited directly from zesk().
+	 * Inherited directly from zesk\Kernel.
 	 * Do not edit.
 	 *
 	 * @var Hooks
@@ -51,7 +52,7 @@ class Application extends Hookable implements Interface_Theme, Interface_Factory
 	public $hooks = null;
 
 	/**
-	 * Inherited directly from zesk().
+	 * Inherited directly from zesk\Kernel.
 	 * Do not edit.
 	 *
 	 * @var Autoloader
@@ -59,7 +60,7 @@ class Application extends Hookable implements Interface_Theme, Interface_Factory
 	public $autoloader = null;
 
 	/**
-	 * Inherited directly from zesk().
+	 * Inherited directly from zesk\Kernel.
 	 * Do not edit.
 	 *
 	 * @var CacheItemPoolInterface
@@ -67,7 +68,7 @@ class Application extends Hookable implements Interface_Theme, Interface_Factory
 	public $cache = null;
 
 	/**
-	 * Inherited directly from zesk().
+	 * Inherited directly from zesk\Kernel.
 	 * Do not edit.
 	 *
 	 * @var Configuration
@@ -80,7 +81,7 @@ class Application extends Hookable implements Interface_Theme, Interface_Factory
 	 */
 	public $loader = null;
 	/**
-	 * Inherited directly from zesk().
+	 * Inherited directly from zesk\Kernel.
 	 * Do not edit.
 	 *
 	 * @var Logger
@@ -88,7 +89,7 @@ class Application extends Hookable implements Interface_Theme, Interface_Factory
 	public $logger = null;
 
 	/**
-	 * Inherited directly from zesk().
+	 * Inherited directly from zesk\Kernel.
 	 * Do not edit.
 	 *
 	 * @var Classes
@@ -96,7 +97,7 @@ class Application extends Hookable implements Interface_Theme, Interface_Factory
 	public $classes = null;
 
 	/**
-	 * Inherited directly from zesk().
+	 * Inherited directly from zesk\Kernel.
 	 * Do not edit.
 	 *
 	 * @var Objects
@@ -104,7 +105,7 @@ class Application extends Hookable implements Interface_Theme, Interface_Factory
 	public $objects = null;
 
 	/**
-	 * Inherited directly from zesk().
+	 * Inherited directly from zesk\Kernel.
 	 * Do not edit.
 	 *
 	 * @var Process
@@ -802,7 +803,7 @@ class Application extends Hookable implements Interface_Theme, Interface_Factory
 	 * @return unknown|object|\zesk\NULL|mixed
 	 */
 	final public function object_singleton($class) {
-		zesk()->deprecated();
+		$this->deprecated();
 		$args = func_get_args();
 		$args[0] = $this;
 		$object = $this->call_hook_arguments("singleton_$class", $args, null);
@@ -1885,7 +1886,7 @@ class Application extends Hookable implements Interface_Theme, Interface_Factory
 	 * @return string
 	 */
 	public function url($uri) {
-		zesk()->deprecated();
+		$this->deprecated();
 		// TODO Remove this
 		return $uri;
 	}
@@ -1952,20 +1953,6 @@ class Application extends Hookable implements Interface_Theme, Interface_Factory
 		throw new Exception_Unsupported("Application call {method} is not supported. Do you need to register the module which adds this functionality?", array(
 			"method" => $name
 		));
-	}
-	/**
-	 * Load the Application singleton
-	 *
-	 * @deprecated 2017-08 Globals are bad.
-	 * @param array $options
-	 * @throws Exception_Configuration
-	 * @return Application
-	 * @todo this should be called "singleton" but that call is used for creating singleton objects
-	 *       in the application. So deprecate that first, then deprecate this once that's gone.
-	 */
-	public static function instance(array $options = array()) {
-		zesk()->deprecated();
-		return zesk()->application();
 	}
 
 	/**
@@ -2042,7 +2029,7 @@ class Application extends Hookable implements Interface_Theme, Interface_Factory
 	 * @return Ambigous <mixed, array>
 	 */
 	public function _class_cache($class, $component = "") {
-		zesk()->obsolete();
+		$this->zesk->obsolete();
 	}
 
 	/**
@@ -2053,7 +2040,7 @@ class Application extends Hookable implements Interface_Theme, Interface_Factory
 	 * @return ORM
 	 */
 	public final function object($class, $mixed = null, $options = null) {
-		zesk()->deprecated();
+		$this->deprecated();
 		return $this->orm_registry($class, $mixed, $options);
 	}
 
@@ -2067,7 +2054,7 @@ class Application extends Hookable implements Interface_Theme, Interface_Factory
 	 * @return string|\zesk\Ambigous
 	 */
 	public final function object_table_name($class, $mixed = null, $options = null) {
-		zesk()->deprecated();
+		$this->deprecated();
 		return $this->object($class, $mixed, $options)->table();
 	}
 
@@ -2081,7 +2068,7 @@ class Application extends Hookable implements Interface_Theme, Interface_Factory
 	 * @return string|\zesk\Ambigous
 	 */
 	public final function object_table_columns($class, $mixed = null, $options = null) {
-		zesk()->deprecated();
+		$this->deprecated();
 		return $this->object($class, $mixed, $options)->columns();
 	}
 
@@ -2095,7 +2082,7 @@ class Application extends Hookable implements Interface_Theme, Interface_Factory
 	 * @return \zesk\Database
 	 */
 	public final function object_database($class, $mixed = null, $options = null) {
-		zesk()->deprecated();
+		$this->deprecated();
 		return $this->object($class, $mixed, $options)->database();
 	}
 
@@ -2105,7 +2092,7 @@ class Application extends Hookable implements Interface_Theme, Interface_Factory
 	 * @return Database_Query_Select
 	 */
 	public function query_select($class, $alias = null) {
-		zesk()->deprecated();
+		$this->deprecated();
 		return $this->object($class)->query_select($alias);
 	}
 	/**
@@ -2114,7 +2101,7 @@ class Application extends Hookable implements Interface_Theme, Interface_Factory
 	 * @return Database_Query_Update
 	 */
 	public function query_update($class, $alias = null) {
-		zesk()->deprecated();
+		$this->deprecated();
 		return $this->object($class)->query_update($alias);
 	}
 	/**
@@ -2124,7 +2111,7 @@ class Application extends Hookable implements Interface_Theme, Interface_Factory
 	 * @return Database_Query_Insert
 	 */
 	public function query_insert($class) {
-		zesk()->deprecated();
+		$this->deprecated();
 		return $this->object($class)->query_insert();
 	}
 	/**
@@ -2133,7 +2120,7 @@ class Application extends Hookable implements Interface_Theme, Interface_Factory
 	 * @return Database_Query_Insert
 	 */
 	public function query_insert_select($class, $alias = null) {
-		zesk()->deprecated();
+		$this->deprecated();
 		return $this->object($class)->query_insert_select($alias);
 	}
 
@@ -2143,7 +2130,7 @@ class Application extends Hookable implements Interface_Theme, Interface_Factory
 	 * @return Database_Query_Delete
 	 */
 	public function query_delete($class) {
-		zesk()->deprecated();
+		$this->deprecated();
 		return $this->object($class)->query_delete();
 	}
 
@@ -2154,7 +2141,7 @@ class Application extends Hookable implements Interface_Theme, Interface_Factory
 	 * @return Class_ORM
 	 */
 	public function class_orm($class) {
-		zesk()->deprecated();
+		$this->deprecated();
 		return $this->class_orm_registry($class);
 	}
 
@@ -2166,7 +2153,7 @@ class Application extends Hookable implements Interface_Theme, Interface_Factory
 	 * @return \zesk\Database
 	 */
 	public final function class_orm_database($class) {
-		zesk()->deprecated();
+		$this->deprecated();
 		return $this->orm_registry($class)->database();
 	}
 
@@ -2177,8 +2164,7 @@ class Application extends Hookable implements Interface_Theme, Interface_Factory
 	 * @throws Exception_Parameter
 	 */
 	public function clear_class_cache($class = null) {
-		zesk()->deprecated();
-
+		$this->deprecated();
 		return $this->orm_registry()->clear_cache($class);
 	}
 
@@ -2189,8 +2175,7 @@ class Application extends Hookable implements Interface_Theme, Interface_Factory
 	 * @param unknown $add
 	 */
 	final public function orm_classes($add = null) {
-		zesk()->deprecated();
-
+		$this->deprecated();
 		return $this->modules->object("orm")->orm_classes($add);
 	}
 
@@ -2204,7 +2189,7 @@ class Application extends Hookable implements Interface_Theme, Interface_Factory
 	 * @return array
 	 */
 	final public function all_classes() {
-		zesk()->deprecated();
+		$this->deprecated();
 		return $this->modules->object("orm")->all_classes();
 	}
 
@@ -2217,7 +2202,7 @@ class Application extends Hookable implements Interface_Theme, Interface_Factory
 	 * @return multitype:
 	 */
 	public function schema_synchronize(Database $db = null, array $classes = null, array $options = array()) {
-		zesk()->deprecated();
+		$this->deprecated();
 		return $this->modules->object("orm")->schema_synchronize($db, $classes, $options);
 	}
 }

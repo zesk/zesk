@@ -54,7 +54,7 @@ class Controller_Preference extends Controller {
 		if ($this->whitelist === null) {
 			$path = $this->whitelist = array_flip(arr::clean(explode("\n", File::contents($this->_whitelist(), "")), ""));
 			if ($this->application->development()) {
-				zesk()->hooks->add("exit", array(
+				$this->application->hooks->add("exit", array(
 					$this,
 					'save_preferences'
 				));
