@@ -22,7 +22,7 @@ class Hookable extends Options {
 	 * @var Application
 	 */
 	public $application = null;
-	
+
 	/**
 	 *
 	 * @param Application $application
@@ -35,15 +35,14 @@ class Hookable extends Options {
 		// the constructor of this class need to control the ordering of their initialization such that any method
 		// called is operating on initialized object state
 	}
-	
+
 	/**
-	 * 
 	 */
 	function __wakeup() {
 		// Only case where this is OK
 		$this->application = Kernel::singleton()->application();
 	}
-	
+
 	/**
 	 * Invoke a hook on this object if it exists.
 	 * Arguments should be passed after the type.
@@ -67,7 +66,7 @@ class Hookable extends Options {
 		$result = $this->call_hook_arguments($type, $args, $default);
 		return $result;
 	}
-	
+
 	/**
 	 *
 	 * @deprecated 2016-08
@@ -82,7 +81,7 @@ class Hookable extends Options {
 		$this->application->deprecated();
 		return $this->call_hook_arguments($types, $args, $default, $hook_callback, $result_callback);
 	}
-	
+
 	/**
 	 * Invoke a hook on this object if it exists.
 	 * Arguments should be passed after the type.
@@ -104,7 +103,7 @@ class Hookable extends Options {
 		$result = $this->call_hook_arguments($type, $args, $default);
 		return $result;
 	}
-	
+
 	/**
 	 * Invoke a hook on this object if it exists.
 	 *
@@ -149,7 +148,7 @@ class Hookable extends Options {
 		 */
 		$zesk_hook_args = $args;
 		array_unshift($zesk_hook_args, $this);
-		
+
 		/*
 		 * For each hook, call internal hook, then options-based hook, then system hook.
 		 */
@@ -175,7 +174,7 @@ class Hookable extends Options {
 		}
 		return ($result === null) ? $default : $result;
 	}
-	
+
 	/**
 	 * Does a hook exist for this object?
 	 *
@@ -187,7 +186,7 @@ class Hookable extends Options {
 		$hooks = $this->hook_list($types, $object_only);
 		return count($hooks) !== 0;
 	}
-	
+
 	/**
 	 * List functions to be invoked by a hook on this object if it exists.
 	 * Arguments passed as an array
@@ -230,7 +229,7 @@ class Hookable extends Options {
 		}
 		return $result;
 	}
-	
+
 	/**
 	 * Combine hook results in a consistent manner when more than one hook applies to a call.
 	 *
@@ -243,7 +242,8 @@ class Hookable extends Options {
 	 *        	A function to call for each hook called.
 	 * @param string $result_callback
 	 *        	A function to process hook results
-	 * @param mixed $return_hint deprecated 2017-11
+	 * @param mixed $return_hint
+	 *        	deprecated 2017-11
 	 * @return mixed
 	 */
 	public static final function hook_results($previous_result, $callable, array $arguments, $hook_callback = null, $result_callback = null, $return_hint = null) {
@@ -256,7 +256,7 @@ class Hookable extends Options {
 		$new_result = call_user_func_array($callable, $arguments);
 		if ($return_hint !== null) {
 			zesk()->deprecated("Return hint passed to {method}", array(
-				"method" => $method
+				"method" => __METHOD__
 			));
 		}
 		if ($result_callback !== null) {
@@ -264,7 +264,7 @@ class Hookable extends Options {
 		}
 		return self::combine_hook_results($previous_result, $new_result, $arguments);
 	}
-	
+
 	/**
 	 * Combine hook results in chained/filter hooks in a predictable manner
 	 *
@@ -289,7 +289,7 @@ class Hookable extends Options {
 		// No way to combine
 		return $new_result;
 	}
-	
+
 	/**
 	 * Loading references
 	 *
@@ -306,7 +306,7 @@ class Hookable extends Options {
 		}
 		return $references;
 	}
-	
+
 	/**
 	 * Load default options for an object.
 	 * Leaf-class options override parent options.
@@ -332,7 +332,7 @@ class Hookable extends Options {
 		}
 		return $config->to_array();
 	}
-	
+
 	/**
 	 * Load options for this object based on globals loaded.
 	 * Only overwrites values which are NOT set.
