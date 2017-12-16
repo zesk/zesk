@@ -1,4 +1,8 @@
 <?php
+
+/**
+ *
+ */
 namespace zesk;
 
 /**
@@ -19,15 +23,7 @@ namespace zesk;
 class Tag_Label extends ORM {
 	/**
 	 *
-	 * @return Cache
-	 */
-	private static function label_cache() {
-		return Cache::register(__CLASS__);
-	}
-	
-	/**
-	 *
-	 * @param unknown $code        	
+	 * @param unknown $code
 	 * @return zesk\Tag_Label
 	 */
 	public static function label_find($code) {
@@ -37,30 +33,22 @@ class Tag_Label extends ORM {
 	}
 	/**
 	 *
-	 * @param string $name        	
-	 * @param array $attributes        	
+	 * @param string $name
+	 * @param array $attributes
 	 * @return zesk\Tag_Label
 	 */
-	public static function label_register($name = null, array $attributes = array()) {
-		$cache = self::label_cache();
+	public static function label_register(Application $application, $name = null, array $attributes = array()) {
+		$tag_label = $application->orm_factory(__CLASS__);
 		$members = arr::filter($attributes, "code;is_internal;is_translated;owner") + array(
 			"code" => $name,
 			"name" => $name
 		);
 		$members['code'] = self::clean_code_name($members['code']);
-		if ($cache->has($members['code'])) {
-			$object = $cache->get($members['code']);
-			if ($object instanceof Tag_Label) {
-				$object->seen();
-				return $object;
-			}
-		}
 		$object = self::factory(__CLASS__, $members)->register();
-		$cache->set($members['code'], $object);
 		$object->seen();
 		return $object;
 	}
-	
+
 	/**
 	 * Report this tag as being seen recently
 	 */
