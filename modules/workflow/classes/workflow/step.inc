@@ -79,7 +79,7 @@ abstract class Workflow_Step extends Hookable {
 		}
 		$this->dependencies = array_merge($this->dependencies, $this->option_list('dependencies'));
 		if ($this->theme === null) {
-			$this->theme = zesk()->classes->hierarchy(get_class($this), __CLASS__);
+			$this->theme = $this->application->classes->hierarchy(get_class($this), __CLASS__);
 		}
 	}
 	

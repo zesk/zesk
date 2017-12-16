@@ -10,37 +10,7 @@ namespace zesk;
  *
  */
 class Functions_Test extends Test_Unit {
-	function test_zesk_global_access_time() {
-		/*
-		 *
-		 * Test using global $zesk
-		 */
-		$nsamples = 100000;
-		$start = microtime(true);
-		$result = array();
-		for ($i = 0; $i < $nsamples; $i++) {
-			global $zesk;
-			$result[] = $zesk->paths->application();
-		}
-		$time_global = microtime(true) - $start;
-		$this->log("global \$zesk x {nsamples} time {time}", array(
-			"time" => $time_global,
-			"nsamples" => $nsamples
-		));
-		
-		$start = microtime(true);
-		$result = array();
-		for ($i = 0; $i < $nsamples; $i++) {
-			$result[] = zesk()->paths->application();
-		}
-		$time_zesk_call = microtime(true) - $start;
-		$this->log("zesk() x {nsamples} time {time}", array(
-			"time" => $time_zesk_call,
-			"nsamples" => $nsamples
-		));
-		
-		$this->assert($time_zesk_call > $time_global, "zesk() ($time_zesk_call) > global \$zesk ($time_global) FAILED");
-	}
+
 	function test_path() {
 		path();
 		

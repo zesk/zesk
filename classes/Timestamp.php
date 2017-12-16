@@ -1003,6 +1003,11 @@ class Timestamp extends Temporal {
 	 * @return Timestamp
 	 */
 	function add($years = 0, $months = 0, $days = 0, $hours = 0, $minutes = 0, $seconds = 0) {
+		if ($years instanceof \DateInterval) {
+			$di = $years;
+			/* @var $di \DateInterval */
+			return $this->add($di->format('%y'), $di->format('%m'), $di->format('%d'), $di->format('%h'), $di->format('%i'), $di->format('%s'));
+		}
 		if ($this->datetime === null) {
 			throw new Exception_Semantics("Adding to a empty Timestamp");
 		}

@@ -735,7 +735,7 @@ class Class_ORM extends Hookable {
 		if (count(self::$defer_class_links) === 0) {
 			return;
 		}
-		foreach (zesk()->classes->hierarchy($class) as $parent_class) {
+		foreach ($this->application->classes->hierarchy($class) as $parent_class) {
 			$lowclass = strtolower($parent_class);
 			if (array_key_exists($lowclass, self::$defer_class_links)) {
 				foreach (self::$defer_class_links[$lowclass] as $member => $many_spec) {
@@ -778,10 +778,11 @@ class Class_ORM extends Hookable {
 	}
 	
 	/**
-	 *
+	 * @deprecated 2017-08
 	 * @param unknown $class
 	 */
 	public static function cache_dirty($class = null) {
+		zesk()->deprecated();
 		return zesk()->application()->clear_class_cache($class);
 	}
 	

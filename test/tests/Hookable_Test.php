@@ -11,9 +11,9 @@ class hookable_test_a extends Hookable {
 class Hookable_Test extends Test_Unit {
 	public static $counter = 0;
 	function test_hook_series() {
-		zesk()->hooks->add('zesk\\hookable_test_a::test', __CLASS__ . '::hook_test1');
-		zesk()->hooks->add('zesk\\hookable_test_a::test', __CLASS__ . '::hook_test2');
-		zesk()->hooks->add('zesk\\hookable_test_a::test', __CLASS__ . '::hook_test3');
+		$this->application->hooks->add('zesk\\hookable_test_a::test', __CLASS__ . '::hook_test1');
+		$this->application->hooks->add('zesk\\hookable_test_a::test', __CLASS__ . '::hook_test2');
+		$this->application->hooks->add('zesk\\hookable_test_a::test', __CLASS__ . '::hook_test3');
 		
 		$data = array(
 			'dude' => 'as in the'

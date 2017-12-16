@@ -12,7 +12,7 @@ class Kernel_Test extends Test_Unit {
 		$test->order++;
 	}
 	function test_hook_order() {
-		$hooks = zesk()->hooks;
+		$hooks = $this->application->hooks;
 		// Nothing registered
 		$this->order = 0;
 		$hooks->call("test_hook_order", $this);
@@ -49,20 +49,20 @@ class Kernel_Test extends Test_Unit {
 		$k = "a";
 		$k1 = "b";
 		$v = md5(microtime());
-		zesk()->configuration->path_set(array(
+		$this->application->configuration->path_set(array(
 			$k,
 			"b"
 		), $v);
-		zesk()->configuration->path_set(array(
+		$this->application->configuration->path_set(array(
 			$k,
 			"c"
 		), $v);
-		zesk()->configuration->path_set(array(
+		$this->application->configuration->path_set(array(
 			$k,
 			"d"
 		), $v);
 		
-		$this->assert_arrays_equal(zesk()->configuration->path_get($k), array(
+		$this->assert_arrays_equal($this->application->configuration->path_get($k), array(
 			"b" => $v,
 			"c" => $v,
 			"d" => $v
@@ -86,23 +86,23 @@ class Kernel_Test extends Test_Unit {
 		$this->application->hooks->add($hook, $function, $args);
 	}
 	function test_application_class() {
-		$this->assert_is_string(zesk()->application_class());
-		$this->assert_class_exists(zesk()->application_class());
-		$this->assert_instanceof(zesk()->application(), zesk()->application_class());
+		$this->assert_is_string($this->application->application_class());
+		$this->assert_class_exists($this->application->application_class());
+		$this->assert_instanceof($this->application, $this->application->application_class());
 	}
 	function test_autoload_extension() {
-		zesk()->autoloader->extension("dude");
+		$this->application->autoloader->extension("dude");
 	}
 	function test_autoload_path() {
 		$add = null;
 		$lower_class = true;
-		zesk()->autoloader->path($this->test_sandbox("lower-prefix"), array(
+		$this->application->autoloader->path($this->test_sandbox("lower-prefix"), array(
 			"lower" => true,
 			"class_prefix" => "zesk\\Autoloader"
 		));
 	}
 	function test_autoload_search() {
-		$autoloader = zesk()->autoloader;
+		$autoloader = $this->application->autoloader;
 		$class = "zesk\\Kernel";
 		$extension = "php";
 		$tried_path = null;
@@ -201,11 +201,11 @@ class Kernel_Test extends Test_Unit {
 	}
 	function test_console() {
 		$set = null;
-		zesk()->console($set);
+		$this->application->console($set);
 	}
 	function test_deprecated() {
 		$set = null;
-		zesk()->deprecated();
+		$this->application->deprecated();
 	}
 	function test_development() {
 		$app = $this->application;
@@ -248,17 +248,17 @@ class Kernel_Test extends Test_Unit {
 	}
 	function test_has_hook() {
 		$hook = null;
-		zesk()->hooks->has($hook);
+		$this->application->hooks->has($hook);
 	}
 	function test_hook() {
 		$hook = null;
-		zesk()->hooks->call($hook);
+		$this->application->hooks->call($hook);
 	}
 	function test_hook_array() {
 		$hook = "random";
 		$arguments = array();
 		$default = null;
-		zesk()->hooks->call_arguments($hook, $arguments, $default);
+		$this->application->hooks->call_arguments($hook, $arguments, $default);
 	}
 	function test_load_globals() {
 		$paths = array(
@@ -302,9 +302,9 @@ class Kernel_Test extends Test_Unit {
 		$this->application->process->id();
 	}
 	function test_running() {
-		$process = zesk()->process;
-		$pid = zesk()->process->id();
-		$this->assert_equal(zesk()->process_id(), $pid);
+		$process = $this->application->process;
+		$pid = $this->application->process->id();
+		$this->assert_equal($this->application->process_id(), $pid);
 		$this->assert_true($process->alive($pid));
 		$this->assert_false($process->alive(32766));
 	}
@@ -354,7 +354,7 @@ class Kernel_Test extends Test_Unit {
 	}
 	function test_which() {
 		$command = "ls";
-		zesk()->paths->which($command);
+		$this->application->paths->which($command);
 	}
 	function test_zesk_command_path() {
 		$add = null;

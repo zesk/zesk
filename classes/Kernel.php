@@ -210,8 +210,8 @@ class Kernel {
 		require_once $here . "/Compatibility.php";
 		require_once $here . "/PHP.php";
 		
-		require_once $here . "/CacheItemPool/NULL.php";
-		require_once $here . "/CacheItem/NULL.php";
+		require_once $here . "/CacheItem.php";
+		require_once $here . "/CacheItemPool/Array.php";
 	}
 	
 	/**
@@ -312,7 +312,7 @@ class Kernel {
 		if (isset($configuration['cache']) && $configuration['cache'] instanceof CacheItemPoolInterface) {
 			$this->cache = $configuration['cache'];
 		} else {
-			$this->cache = new CacheItemPool_NULL();
+			$this->cache = new CacheItemPool_Array();
 		}
 		
 		/*

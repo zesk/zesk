@@ -232,7 +232,7 @@ class Database extends \zesk\Database {
 			$db = $this->application->objects->factory(__CLASS__, $url);
 			$db->connect();
 		} catch (Exception $e) {
-			zesk()->hooks->call("exception", $e);
+			$this->application->hooks->call("exception", $e);
 			return false;
 		}
 		return true;
@@ -1015,7 +1015,7 @@ class Database extends \zesk\Database {
 		do {
 			if (flock($f, LOCK_EX | LOCK_NB)) {
 				if (count($this->locks) === 0) {
-					zesk()->hooks->add('exit', array(
+					$this->application->hooks->add('exit', array(
 						$this,
 						'release_all_locks'
 					));

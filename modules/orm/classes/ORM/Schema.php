@@ -219,7 +219,7 @@ abstract class ORM_Schema extends Hookable {
 	 * @return Database_Table
 	 */
 	public static function schema_to_database_table(Database $db, $table_name, array $table_schema, $context = null) {
-		$logger = zesk()->logger;
+		$logger = $db->application->logger;
 		
 		$table = new Database_Table($db, $table_name, avalue($table_schema, 'engine'));
 		$table->source(avalue($table_schema, 'source'));
@@ -284,7 +284,7 @@ abstract class ORM_Schema extends Hookable {
 	 * @return array of Database_Table
 	 */
 	function tables() {
-		$logger = zesk()->logger;
+		$logger = $this->application->logger;
 		$schema = $this->schema();
 		$tables = array();
 		$db = $this->database();
@@ -357,7 +357,7 @@ abstract class ORM_Schema extends Hookable {
 	 * @return multitype:
 	 */
 	static function update_object(ORM $object) {
-		$logger = zesk()->logger;
+		$logger = $object->application->logger;
 		
 		/* @var $db Database */
 		$db = $object->database();
@@ -407,24 +407,6 @@ abstract class ORM_Schema extends Hookable {
 	}
 	
 	/**
-	 * Given a list of objects, generate array of SQL statements to bring database up to date.
-	 *
-	 * @param array $model_classes
-	 * @return array
-	 */
-	static function objects_synchronize(array $model_classes) {
-		$results = array();
-		foreach ($model_classes as $class) {
-			$object = ORM::factory($class);
-			$results[$class]['sql'] = $sqls = ORM_Schema::update_object($object);
-			if (self::$debug) {
-				zesk()->logger->debug($sqls);
-			}
-			$results[$class]['result'] = $object->database()->query($sqls);
-		}
-	}
-	
-	/**
 	 * Given a database table definition, synchronize it with given definition
 	 *
 	 * @param Database $db
@@ -436,6 +418,14 @@ abstract class ORM_Schema extends Hookable {
 		$table = $db->parse_create_table($create_sql, __METHOD__);
 		return self::synchronize($db, $table, $change_permanently);
 	}
+	
+	/**
+	 * 
+	 * @param Database $db
+	 * @param Database_Table $table
+	 * @param boolean $change_permanently
+	 * @return string[]
+	 */
 	static function synchronize(Database $db, Database_Table $table, $change_permanently = true) {
 		$name = $table->name();
 		if (!$db->table_exists($name)) {
@@ -466,7 +456,7 @@ abstract class ORM_Schema extends Hookable {
 	 * @return array
 	 */
 	static function update(Database $db, Database_Table $db_table_old, Database_Table $db_table_new, $change_permanently = false) {
-		$logger = zesk()->logger;
+		$logger = $db->application->logger;
 		
 		$generator = $db->sql();
 		

@@ -17,13 +17,6 @@ namespace zesk;
  * @property timestamp $last_used
  */
 class Tag_Label extends ORM {
-	/**
-	 *
-	 * @return Cache
-	 */
-	private static function label_cache() {
-		return Cache::register(__CLASS__);
-	}
 	
 	/**
 	 *
@@ -41,23 +34,25 @@ class Tag_Label extends ORM {
 	 * @param array $attributes        	
 	 * @return zesk\Tag_Label
 	 */
-	public static function label_register($name = null, array $attributes = array()) {
-		$cache = self::label_cache();
+	public static function label_register(Application $application, $name = null, array $attributes = array()) {
 		$members = arr::filter($attributes, "code;is_internal;is_translated;owner") + array(
 			"code" => $name,
 			"name" => $name
 		);
 		$members['code'] = self::clean_code_name($members['code']);
-		if ($cache->has($members['code'])) {
-			$object = $cache->get($members['code']);
+		$cache = $application->cache->getItem(__CLASS__ . "-" . $members['code']);
+		if ($cache->isHit()) {
+			$object = $cache->get();
 			if ($object instanceof Tag_Label) {
 				$object->seen();
 				return $object;
 			}
 		}
-		$object = self::factory(__CLASS__, $members)->register();
-		$cache->set($members['code'], $object);
+		$object = $application->orm_factory(__CLASS__, $members)->register();
 		$object->seen();
+		
+		$cache->set($object);
+		$application->cache->saveDeferred($cache);
 		return $object;
 	}
 	

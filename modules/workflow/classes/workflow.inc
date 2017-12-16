@@ -154,7 +154,7 @@ class Workflow extends Model {
 				}
 			}
 			if (!$changed) {
-				zesk()->logger->error("Unable to resolve dependencies in {class}: {deps}", array(
+				$this->application->logger->error("Unable to resolve dependencies in {class}: {deps}", array(
 					"class" => get_class($this),
 					"deps" => array_keys($dependencies)
 				));

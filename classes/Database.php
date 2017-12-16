@@ -1460,48 +1460,6 @@ abstract class Database extends Hookable {
 		));
 	}
 	
-	// KMD: O R M -only, see if can remove them safely
-	
-	// 	/**
-	// 	 *
-	// 	 * @return Database____Query_Select
-	// 	 */
-	// 	public function query_select() {
-	// 		return new Database____Query_Select($this);
-	// 	}
-	
-	// 	/**
-	// 	 *
-	// 	 * @return Database____Query_Update
-	// 	 */
-	// 	public function query_update() {
-	// 		return new Database____Query_Update($this);
-	// 	}
-	
-	// 	/**
-	// 	 *
-	// 	 * @return Database____Query_Insert
-	// 	 */
-	// 	public function query_insert() {
-	// 		return new Database____Query_Insert($this);
-	// 	}
-	
-	// 	/**
-	// 	 *
-	// 	 * @return Database____Query_Delete
-	// 	 */
-	// 	public function query_delete() {
-	// 		return new Database____Query_Delete($this);
-	// 	}
-	
-	// 	/**
-	// 	 *
-	// 	 * @return Database____Query_Union
-	// 	 */
-	// 	public function query_union() {
-	// 		return new Database____Query_Union($this);
-	// 	}
-	
 	/**
 	 * Return the total bytes used by the database, or the bytes used by a particular table
 	 *
@@ -1509,6 +1467,12 @@ abstract class Database extends Hookable {
 	 * @return integer
 	 */
 	abstract public function bytes_used($table = null);
+	
+	/**
+	 * Return variables related to the Database object
+	 * 
+	 * @return array
+	 */
 	public function variables() {
 		return $this->url_parts + array(
 			"type" => $this->type(),

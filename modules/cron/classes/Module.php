@@ -326,7 +326,7 @@ class Module extends \zesk\Module {
 			"backtrace" => $e->getTraceAsString(),
 			"exception" => $e
 		));
-		zesk()->hooks->call("exception", $e);
+		$this->application->hooks->call("exception", $e);
 	}
 	/**
 	 * Internal function to run tasks

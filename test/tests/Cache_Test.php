@@ -4,14 +4,9 @@ namespace zesk;
 class Cache_Test extends Test_Unit {
 	function test_register() {
 		$name = 'test';
-		$x = Cache::register($name);
-		
-		$x->cache_file_path();
-		
-		$x->dump();
-		
-		$x->flush();
-		
+		$x = $this->application->cache->getItem(__CLASS__);
+
+		$x->
 		$k = null;
 		$x->__get($k);
 		

@@ -144,6 +144,13 @@ class Directory extends Hookable {
 		unset($d);
 		return $destination;
 	}
+	
+	/**
+	 * 
+	 * @param string $path
+	 * @throws Exception_Directory_NotFound
+	 * @return boolean
+	 */
 	public static function is_empty($path) {
 		if (!is_dir($path)) {
 			return true;

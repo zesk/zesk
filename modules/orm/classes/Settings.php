@@ -9,6 +9,8 @@
  */
 namespace zesk;
 
+use Psr\Cache\CacheItemInterface;
+
 /**
  * Base class for global settings to be retrieved/stored from permanent storage
  *
@@ -16,6 +18,13 @@ namespace zesk;
  * @see Class_Settings
  */
 class Settings extends ORM implements Interface_Data, Interface_Settings {
+	
+	/**
+	 * Default cache expiration
+	 * 
+	 * @var integer
+	 */
+	const SETTINGS_CACHE_EXPIRE_AFTER = 60;
 	
 	/**
 	 * Is the database down?
@@ -37,17 +46,6 @@ class Settings extends ORM implements Interface_Data, Interface_Settings {
 	 * @var string
 	 */
 	private $changes = array();
-	
-	/**
-	 * Retrieve the Settings singleton.
-	 *
-	 * @deprecated 2017-08
-	 * @see self::singleton
-	 * @return NULL|Settings
-	 */
-	public static function instance() {
-		return self::singleton(app());
-	}
 	
 	/**
 	 *
@@ -87,10 +85,17 @@ class Settings extends ORM implements Interface_Data, Interface_Settings {
 	/**
 	 * Cache for the settings
 	 *
-	 * @return Cache
+	 * @return CacheItemInterface
 	 */
-	public static function _cache() {
-		return Cache::register(__CLASS__)->expire_after(60);
+	private static function _cache_item(Application $application, CacheItemInterface $item = null) {
+		if ($item) {
+			$application->cache->saveDeferred($item);
+			return $this;
+		}
+		return $application->cache->getItem(__CLASS__)->expiresAfter($application->path_get(array(
+			__CLASS__,
+			"cache_expire_after"
+		), self::SETTINGS_CACHE_EXPIRE_AFTER));
 	}
 	
 	/**
@@ -200,18 +205,19 @@ class Settings extends ORM implements Interface_Data, Interface_Settings {
 				}
 				$globals = self::load_globals_from_database($application, $debug_load);
 			} else {
-				$cache = self::_cache();
-				if (!$cache->has('globals')) {
+				$cache = self::_cache_item($application);
+				if (!$cache->isHit()) {
 					if ($debug_load) {
 						$application->logger->debug("{method} does not have cached globals .. loading", $__);
 					}
 					$globals = self::load_globals_from_database($application, $debug_load);
-					$cache->globals = $globals;
+					$cache->set($globals);
+					self::_cache_item($application, $cache);
 				} else {
 					if ($debug_load) {
 						$application->logger->debug("{method} - loading globals from cache", $__);
 					}
-					$globals = $cache->globals;
+					$globals = $cache->get();
 				}
 			}
 			$n_loaded = 0;
@@ -291,7 +297,7 @@ class Settings extends ORM implements Interface_Data, Interface_Settings {
 		$this->application->logger->debug("Deleted {class} cache", array(
 			"class" => __CLASS__
 		));
-		$this->_cache()->delete();
+		$this->_cache_item()->delete();
 		$this->changes = array();
 	}
 	

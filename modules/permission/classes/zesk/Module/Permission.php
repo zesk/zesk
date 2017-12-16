@@ -47,11 +47,11 @@ class Module_Permission extends Module {
 		"zesk\\Permission"
 	);
 	public function initialize() {
-		$this->application->hooks->add("zesk\\User::can", array(
+		$this->application->hooks->add(User::class . "::can", array(
 			$this,
 			"user_can"
 		));
-		Class_ORM::link_many("zesk\\User", 'roles', array(
+		Class_ORM::link_many(User::class, 'roles', array(
 			'link_class' => 'zesk\\User_Role',
 			'far_key' => 'role',
 			'foreign_key' => 'user',
