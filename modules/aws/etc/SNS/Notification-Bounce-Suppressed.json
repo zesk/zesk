@@ -12,7 +12,7 @@
 					"emailAddress": "bad@address.org",
 					"action": "failed",
 					"status": "5.1.1",
-					"diagnosticCode": "AmazonSEShassuppressedsendingtothisaddressbecauseithasarecenthistoryofbouncingasaninvalidaddress.Formoreinformationabouthowtoremoveanaddressfromthesuppressionlist
+					"diagnosticCode": "Amazon SES has suppressed sending to this address because it has a recent history of bouncing as an invalid address. For more information about how to remove an address from the suppression list ..."
 				}
 			],
 			"timestamp": "2017-12-09T10:21:09.293Z",
