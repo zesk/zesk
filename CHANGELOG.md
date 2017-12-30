@@ -24,13 +24,27 @@ Version 1.0 of Zesk will have:
 - <strike>Renaming of `zesk\ORM` to something non-reserved in PHP 7.2 (Candidates are `zesk\ORM` `zesk\Model` - reuse)</strike>
 - `zesk\` namespace for all `classes` in the system
 
-## [Unreleased][]
+## [v0.14.1][]
 
 ### New features
 
 - `zesk\Application` now supports the function calls like `codename_module()` to retrieve module objects. So, `$application->csv_module()` is equivalent to `$application->modules->object("csv")`. You can decorate your application with `@method` doccomments to support types and return values in Eclipse-based editors. See `zesk\Application` class DocComment for examples.
+- Added `Database::TABLE_INFO` constants and new `zesk\Database` class abstract `zesk\Database::table_information` call
+- adding basic CacheItemPool and CacheItem classes
+
+### Fixed bugs
+
+- Fixing `zesk\Process_Tools::process_code_changed` calls in `zesk daemon`
+- Fixed SES test file
+- Fixing linked classes using `Foo::class` constant instead of strings
+- Fixed some ORM minor issues
 
 ### Deprecated functionality
+
+- Rewriting `cache` calls in `zesk\ORM` to support `CacheItemInterface` instead of `zesk\Cache`
+- `Cache::` removal
+- removed `zesk()` globals
+- Removing deprecated configuration path `zesk::paths::`
 
 ### Removed functionality
 
@@ -1009,7 +1023,7 @@ Settling of `zesk\Kernel` and `zesk\` namespace changes, added additional compon
  - `zesk::class_hierarchy` -> `zesk()->classes->hierarchy`
 - Removed growl module (no longer relevant on Mac OS X)
 
-[Unreleased]: https://github.com/zesk/zesk/compare/v0.14.0...HEAD
+[v0.14.1]: https://github.com/zesk/zesk/compare/v0.14.0...HEAD
 [v0.14.0]: https://github.com/zesk/zesk/compare/v0.13.2...v0.14.0
 [v0.13.2]: https://github.com/zesk/zesk/compare/v0.13.1...v0.13.2
 [v0.13.1]: https://github.com/zesk/zesk/compare/v0.13.0...v0.13.1
