@@ -957,7 +957,7 @@ class Command_Daemon extends Command_Base implements Interface_Process {
 		$now = microtime(true);
 		if ($this->last_tick === null || $now - $this->last_tick > 1.0) {
 			$this->last_tick = $now;
-			if (Process_Tools::process_code_changed()) {
+			if (Process_Tools::process_code_changed($this->application)) {
 				$this->warning("Code changed - exiting.");
 				$this->quitting = true;
 			}
