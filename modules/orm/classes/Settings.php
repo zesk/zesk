@@ -90,9 +90,9 @@ class Settings extends ORM implements Interface_Data, Interface_Settings {
 	private static function _cache_item(Application $application, CacheItemInterface $item = null) {
 		if ($item) {
 			$application->cache->saveDeferred($item);
-			return $this;
+			return $item;
 		}
-		return $application->cache->getItem(__CLASS__)->expiresAfter($application->path_get(array(
+		return $application->cache->getItem(__CLASS__)->expiresAfter($application->configuration->path_get(array(
 			__CLASS__,
 			"cache_expire_after"
 		), self::SETTINGS_CACHE_EXPIRE_AFTER));

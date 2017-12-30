@@ -132,7 +132,7 @@ class Module_ORM extends Module {
 	private function _classes($add = null) {
 		$classes = array();
 		$model_classes = array_merge($this->model_classes, $this->model_classes);
-		$this->logger->debug("Classes from {class}->model_classes = {value}", array(
+		$this->application->logger->debug("Classes from {class}->model_classes = {value}", array(
 			"class" => get_class($this),
 			"value" => $model_classes
 		));
@@ -141,15 +141,15 @@ class Module_ORM extends Module {
 			$classes
 		), $classes);
 		/* @var $module Module */
-		foreach ($this->modules->all_modules() as $name => $module) {
+		foreach ($this->application->modules->all_modules() as $name => $module) {
 			$module_classes = $module->classes();
-			$this->logger->debug("Classes for module {name} = {value}", array(
+			$this->application->logger->debug("Classes for module {name} = {value}", array(
 				"name" => $name,
 				"value" => $module_classes
 			));
 			$all_classes = array_merge($all_classes, arr::flip_copy($module_classes, true));
 		}
-		$this->classes->register(array_values($all_classes));
+		$this->application->classes->register(array_values($all_classes));
 		ksort($all_classes);
 		return $all_classes;
 	}
@@ -308,7 +308,7 @@ class Module_ORM extends Module {
 			$result = array();
 			$result['class'] = $class;
 			try {
-				$result['object'] = $object = $this->orm_factory($class);
+				$result['object'] = $object = $this->orm_factory($this->application, $class);
 				$result['database'] = $object->database_name();
 				$result['table'] = $object->table();
 			} catch (\Exception $e) {

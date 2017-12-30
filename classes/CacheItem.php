@@ -136,7 +136,7 @@ class CacheItem implements CacheItemInterface {
 	 *   The called object.
 	 */
 	public function expiresAfter($time) {
-		$this->expiration = $time ? Timestamp::factory()->add($time) : null;
+		$this->expiration = $time ? Timestamp::now()->add($time) : null;
 		return $this;
 	}
 	
