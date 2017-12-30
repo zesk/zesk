@@ -1,43 +1,44 @@
 <?php
 
 /**
- * 
+ *
  */
 namespace zesk;
 
 use Psr\Cache\CacheItemPoolInterface;
 
 /**
+ *
  * @deprecated 2017-06
  * @see zesk()->cache
  * @see CacheItemPoolInterface
  * @see Adapter_CachePool
  * @author kent
- *        
+ *
  */
 abstract class Cache implements \ArrayAccess {
-	
+
 	/**
 	 * Bump when incompatibilities arise
 	 *
 	 * @var integer
 	 */
 	const version = 1;
-	
+
 	/**
 	 */
 	abstract protected function exists();
-	
+
 	/**
 	 */
 	abstract protected function fetch();
-	
+
 	/**
 	 *
-	 * @param mixed $data        	
+	 * @param mixed $data
 	 */
 	abstract protected function store($data);
-	
+
 	/**
 	 * Expire this cache entry after the specified amount of time (in seconds)
 	 *
@@ -45,78 +46,78 @@ abstract class Cache implements \ArrayAccess {
 	 *        	Seconds after initial creation that this cache object should be deleted
 	 */
 	abstract public function expire_after($n_seconds);
-	
+
 	/**
 	 * Delete cache
 	 */
 	abstract protected function delete();
-	
+
 	/**
 	 *
 	 * @var boolean
 	 */
 	public static $disabled = false;
-	
+
 	/**
 	 *
 	 * @var boolean
 	 */
 	public static $bucket = null;
-	
+
 	/**
 	 *
 	 * @var array
 	 */
 	protected static $caches = array();
-	
+
 	/**
 	 * Name of cache
-	 * 
+	 *
 	 * @var string
 	 */
 	protected $_name;
-	
+
 	/**
 	 * Whether this cache has changed and needs to be written at the end of the request
-	 * 
+	 *
 	 * @var boolean
 	 */
 	protected $_dirty;
-	
+
 	/**
 	 * Whether this cache object has been loaded from disk
-	 * 
+	 *
 	 * @var boolean
 	 */
 	protected $_load;
-	
+
 	/**
 	 * The cache data
-	 * 
+	 *
 	 * @var array
 	 */
 	protected $_data;
-	
+
 	/**
 	 * The cache internal data
-	 * 
+	 *
 	 * @var array
 	 */
 	protected $_internal = array();
-	
+
 	/**
 	 * The time() this was created
-	 * 
+	 *
 	 * @var integer
 	 */
 	protected $_created;
-	
+
 	/**
 	 *
 	 * @var boolean
 	 */
 	private $_is_hit = false;
-	
+
 	/**
 	 * Registered Cache interfaces
 	 *
@@ -125,20 +126,20 @@ abstract class Cache implements \ArrayAccess {
 	static $interfaces = array(
 		"file" => "zesk\\Cache_File"
 	);
-	
+
 	/**
 	 * Class to create for caches
-	 * 
+	 *
 	 * @var string
 	 */
 	static $instance_class = null;
-	
+
 	/**
 	 * A global identifier to segment one application from another on shared systems.
 	 *
 	 * All cache operations are restricted to within a bucket.
 	 *
-	 * @param string $set        	
+	 * @param string $set
 	 * @return string
 	 */
 	public static function bucket($set = null) {
@@ -149,7 +150,7 @@ abstract class Cache implements \ArrayAccess {
 		}
 		return self::$bucket;
 	}
-	
+
 	/**
 	 * Disable cache, or get disabled state of cache
 	 *
@@ -166,19 +167,19 @@ abstract class Cache implements \ArrayAccess {
 		}
 		return self::$disabled;
 	}
-	
+
 	/**
 	 * Register a cache interface
 	 *
-	 * @param string $name        	
-	 * @param string $class        	
+	 * @param string $name
+	 * @param string $class
 	 * @return array
 	 */
 	public static function register_interface($name, $class) {
 		self::$interfaces[$name] = $class;
 		return self::$interfaces;
 	}
-	
+
 	/**
 	 *
 	 * @return Cache_Interface
@@ -202,22 +203,22 @@ abstract class Cache implements \ArrayAccess {
 			self::$instance_class = "zesk\\Cache_File";
 		}
 	}
-	
+
 	/**
 	 * Retrieve the instance class
 	 *
-	 * @param string $name        	
+	 * @param string $name
 	 * @return Cache
 	 */
 	private static function instance($name) {
 		self::init_instance();
 		return new self::$instance_class($name);
 	}
-	
+
 	/**
 	 * Create a new cache object.
 	 * Used internally. Use Cache::register to create a Cache object.
-	 * 
+	 *
 	 * @see Cache::register
 	 * @param string $name
 	 *        	The name of this cache
@@ -227,15 +228,15 @@ abstract class Cache implements \ArrayAccess {
 		$this->_name = path(self::$bucket, $name);
 		$this->initialize();
 	}
-	
+
 	/**
-	 * 
+	 *
 	 * @return string
 	 */
 	public function name() {
 		return $this->_name;
 	}
-	
+
 	/**
 	 * Reset object to no data
 	 */
@@ -279,7 +280,7 @@ abstract class Cache implements \ArrayAccess {
 	 * $b = Cache::register("A");
 	 * </code>
 	 * Are, in fact, the same object.
-	 * 
+	 *
 	 * @param string $name
 	 *        	This cache's name
 	 * @return Cache
@@ -307,10 +308,10 @@ abstract class Cache implements \ArrayAccess {
 		$this->_is_hit = false;
 		return $this;
 	}
-	
+
 	/**
 	 * Load the cache file if it exists
-	 * 
+	 *
 	 * @return void
 	 */
 	final protected function load() {
@@ -336,7 +337,7 @@ abstract class Cache implements \ArrayAccess {
 	}
 	/**
 	 * Write the cache file to disk if necessary
-	 * 
+	 *
 	 * @return void
 	 */
 	final public function flush() {
@@ -355,22 +356,23 @@ abstract class Cache implements \ArrayAccess {
 			}
 		}
 	}
-	
+
 	/**
-	 * 
+	 *
 	 * @return boolean
 	 */
 	final public function is_hit() {
 		return $this->_is_hit;
 	}
-	
+
 	/**
 	 * Invalidate this cache object when an object changes
 	 *
 	 * Cron assists with cleaning out these objects in the background.
 	 *
-	 * @param ORM $object        	
-	 * @param unknown $member_names        	
+	 * @deprecated 2017-12
+	 * @param ORM $object
+	 * @param unknown $member_names
 	 * @return Cache
 	 */
 	final public function invalidate_changed(ORM $object, $member_names) {
@@ -403,6 +405,14 @@ abstract class Cache implements \ArrayAccess {
 		$this->_dirty = true;
 		return $this;
 	}
+
+	/**
+	 *
+	 * @deprecated 2017-12
+	 * @param unknown $class
+	 * @throws Exception_Class_NotFound
+	 * @return \zesk\Cache
+	 */
 	final public function invalidate_table_changed($class) {
 		if ($this->_load) {
 			$this->load();
@@ -425,10 +435,10 @@ abstract class Cache implements \ArrayAccess {
 		}
 		return $this;
 	}
-	
+
 	/**
 	 * Dump the cache file to standard out
-	 * 
+	 *
 	 * @return void
 	 * @see dump
 	 */
@@ -436,11 +446,11 @@ abstract class Cache implements \ArrayAccess {
 		$this->load();
 		dump($this->_data);
 	}
-	
+
 	/**
 	 * Retrieve just certain keys from the cache object
 	 *
-	 * @param string $list        	
+	 * @param string $list
 	 * @return array
 	 */
 	final public function filter($list = null) {
@@ -449,7 +459,7 @@ abstract class Cache implements \ArrayAccess {
 		}
 		return arr::filter($this->_data, $list);
 	}
-	
+
 	/**
 	 * Override of PHP 5 built-in "get" accessor.
 	 * Enables the following:
@@ -457,7 +467,7 @@ abstract class Cache implements \ArrayAccess {
 	 * $a = Cache::register("foo");
 	 * echo $a->Value;
 	 * </code>
-	 * 
+	 *
 	 * @param string $x
 	 *        	Name of value to get
 	 * @return mixed null if value doesn't exist
@@ -482,7 +492,7 @@ abstract class Cache implements \ArrayAccess {
 	 * $a = Cache::register("foo");
 	 * $a->Value = "Hello, world!";
 	 * </code>
-	 * 
+	 *
 	 * @param string $x
 	 *        	A value name to set
 	 * @param mixed $v
@@ -532,7 +542,7 @@ abstract class Cache implements \ArrayAccess {
 		$this->_dirty = true;
 		return $this;
 	}
-	
+
 	/**
 	 * Set a named value in this cache
 	 *
@@ -546,7 +556,7 @@ abstract class Cache implements \ArrayAccess {
 		$this->__set($name, $value);
 		return $this;
 	}
-	
+
 	/**
 	 * Called when class is loaded
 	 */
@@ -556,7 +566,7 @@ abstract class Cache implements \ArrayAccess {
 		$zesk->hooks->add('reset', __CLASS__ . "::reset");
 		$zesk->hooks->add('exit', __CLASS__ . "::at_exit");
 	}
-	
+
 	/**
 	 * Cache shutdown function, called at end of request after all data has been sent to client
 	 * Flushes all Cache objects to save them to disk
@@ -568,7 +578,7 @@ abstract class Cache implements \ArrayAccess {
 			$cache->flush();
 		}
 	}
-	
+
 	/**
 	 * Cache shutdown function, called at end of request after all data has been sent to client
 	 * Flushes all Cache objects to save them to disk
@@ -576,7 +586,7 @@ abstract class Cache implements \ArrayAccess {
 	final static public function reset() {
 		self::$caches = array();
 	}
-	
+
 	/**
 	 *
 	 * @param
@@ -585,7 +595,7 @@ abstract class Cache implements \ArrayAccess {
 	final public function offsetExists($offset) {
 		return $this->has($offset);
 	}
-	
+
 	/**
 	 *
 	 * @param
@@ -594,7 +604,7 @@ abstract class Cache implements \ArrayAccess {
 	final public function offsetGet($offset) {
 		return $this->get($offset);
 	}
-	
+
 	/**
 	 *
 	 * @param
@@ -605,7 +615,7 @@ abstract class Cache implements \ArrayAccess {
 	final public function offsetSet($offset, $value) {
 		$this->set($offset, $value);
 	}
-	
+
 	/**
 	 *
 	 * @param

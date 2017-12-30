@@ -1,4 +1,8 @@
 <?php
+
+/**
+ *
+ */
 namespace zesk;
 
 /**
@@ -17,10 +21,9 @@ namespace zesk;
  * @property timestamp $last_used
  */
 class Tag_Label extends ORM {
-	
 	/**
 	 *
-	 * @param unknown $code        	
+	 * @param unknown $code
 	 * @return zesk\Tag_Label
 	 */
 	public static function label_find($code) {
@@ -30,11 +33,12 @@ class Tag_Label extends ORM {
 	}
 	/**
 	 *
-	 * @param string $name        	
-	 * @param array $attributes        	
+	 * @param string $name
+	 * @param array $attributes
 	 * @return zesk\Tag_Label
 	 */
 	public static function label_register(Application $application, $name = null, array $attributes = array()) {
+		$tag_label = $application->orm_factory(__CLASS__);
 		$members = arr::filter($attributes, "code;is_internal;is_translated;owner") + array(
 			"code" => $name,
 			"name" => $name
@@ -50,12 +54,12 @@ class Tag_Label extends ORM {
 		}
 		$object = $application->orm_factory(__CLASS__, $members)->register();
 		$object->seen();
-		
+
 		$cache->set($object);
 		$application->cache->saveDeferred($cache);
 		return $object;
 	}
-	
+
 	/**
 	 * Report this tag as being seen recently
 	 */

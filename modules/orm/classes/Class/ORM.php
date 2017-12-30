@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Class abstraction for ORM Relational Map 
+ * Class abstraction for ORM Relational Map
  *
  * This is where the magic happens for ORMs
  *
@@ -12,17 +12,18 @@
 namespace zesk;
 
 /**
+ *
  * @see ORM
  */
 class Class_ORM extends Hookable {
-	
+
 	/**
 	 * For ID columns
 	 *
 	 * @var string
 	 */
 	const type_id = "id";
-	
+
 	/**
 	 * Plain old text data in the database
 	 *
@@ -35,7 +36,7 @@ class Class_ORM extends Hookable {
 	 * @var string
 	 */
 	const type_string = "string";
-	
+
 	/**
 	 * This column serves as text data for polymorphic objects
 	 *
@@ -45,69 +46,72 @@ class Class_ORM extends Hookable {
 	 * @var string
 	 */
 	const type_polymorph = "polymorph";
-	
+
 	/**
 	 * Refers to a system object (usually by ID)
 	 *
 	 * @var string
 	 */
 	const type_object = "orm";
-	
+
 	/**
 	 * Refers to a system object (usually by ID)
 	 *
 	 * @var string
 	 */
 	const type_orm = "orm";
-	
+
 	/**
 	 * Upon initial save, set to current date
 	 *
 	 * @var string
 	 */
 	const type_created = "created";
-	
+
 	/**
 	 * Upon all saves, updates to current date
 	 *
 	 * @var string
 	 */
 	const type_modified = "modified";
-	
+
 	/**
-	 * String information called using serialize/unserialize. Column should be a blob (not text)
+	 * String information called using serialize/unserialize.
+	 * Column should be a blob (not text)
 	 *
 	 * @var string
 	 */
 	const type_serialize = "serialize";
-	
+
 	/**
-	 * Convert data to/from a JSON string in the database. Column should be a blob (not text)
+	 * Convert data to/from a JSON string in the database.
+	 * Column should be a blob (not text)
+	 *
 	 * @var string
 	 */
 	const type_json = "json";
-	
+
 	/**
 	 * Convert data to/from an integer
 	 *
 	 * @var string
 	 */
 	const type_integer = "integer";
-	
+
 	/**
 	 * Database string (char)
 	 *
 	 * @var string
 	 */
 	const type_character = "character";
-	
+
 	/**
 	 * Single-precision floating point number
 	 *
 	 * @var string
 	 */
 	const type_real = "real";
-	
+
 	/**
 	 *
 	 * @var string
@@ -183,58 +187,59 @@ class Class_ORM extends Hookable {
 	 * @var string
 	 */
 	const type_hex = "hex";
-	
+
 	/**
 	 * Application class associated with this Class_ORM
 	 *
 	 * @var string
 	 */
 	public $application_class = null;
-	
+
 	/**
 	 * PHP Class which created this (type ORM)
 	 *
 	 * @var string
 	 */
 	public $class = null;
-	
+
 	/**
 	 * String name of the database to use
 	 *
 	 * @var string
 	 */
 	public $database_name = null;
-	
+
 	/**
-	 * Name of the ORM which should share this database with. String must contain namespace prefix, if any.
+	 * Name of the ORM which should share this database with.
+	 * String must contain namespace prefix, if any.
 	 *
 	 * Allows objects to be grouped into a database (by module) or functionality, for example.
 	 *
 	 * @var string
 	 */
 	protected $database_group = null;
-	
+
 	/**
 	 * Database name where this object resides.
 	 * If not specified, the default database.
 	 * <code>
-	 * protected	$database = "tracker";
+	 * protected $database = "tracker";
 	 * </code>
 	 *
 	 * @var Database
 	 */
 	private $database = null;
-	
+
 	/**
 	 * Database table name
 	 * <code>
-	 * protected	$table = "TArticleComment";
+	 * protected $table = "TArticleComment";
 	 * </code>
 	 *
 	 * @var string
 	 */
 	public $table = null;
-	
+
 	/**
 	 * English name of this object for possible display (sorry...)
 	 *
@@ -242,17 +247,18 @@ class Class_ORM extends Hookable {
 	 *
 	 * e.g.
 	 * <code>
-	 * protected	$name = "Article Comment";
+	 * protected $name = "Article Comment";
 	 * </code>
 	 *
 	 * @var string
 	 */
 	public $name = null;
-	
+
 	/**
 	 * Data structure implemented March 2014
 	 * Merges column_defaults, column_types, and Schema_classname into a single
-	 * structure. If this is empty, it is generated based on other settings.
+	 * structure.
+	 * If this is empty, it is generated based on other settings.
 	 * If it is not empty, it overwrites all other entries
 	 *
 	 * Structure of each column is:
@@ -264,29 +270,31 @@ class Class_ORM extends Hookable {
 	 * @var array
 	 */
 	public $members = array();
-	
+
 	/**
 	 * Specify the base polymorphic class here, or true if it uses a method
 	 *
 	 * @var mixed
 	 */
 	public $polymorphic = null;
-	
+
 	/**
 	 * Will an object's Class representation change depending on polymorphic state?
 	 *
 	 * e.g.
 	 * set to true for Bear, Bear_Fuzzy, Bear_Bare all sharing Class_Bear.
-	 * set to false for Bear, Bear_Fuzzy, Bear_Bare all using respective Class_Bear, Class_Bear_Fuzzy, Class_Bear_Bare depending on polymorphic state.
+	 * set to false for Bear, Bear_Fuzzy, Bear_Bare all using respective Class_Bear,
+	 * Class_Bear_Fuzzy, Class_Bear_Bare depending on polymorphic state.
 	 *
-	 * The latter (false) allows you to have objects whose data representation (linked objects) changes depending on polymorphic class setup.
+	 * The latter (false) allows you to have objects whose data representation (linked objects)
+	 * changes depending on polymorphic class setup.
 	 *
 	 * Class_Bear_Fuzzy could link to different has_many values as Class_Bear_Bare.
 	 *
 	 * @var boolean
 	 */
 	public $polymorphic_inherit_class = true;
-	
+
 	/**
 	 * Unique internal, programmer name for this object.
 	 * If not specified, class name.
@@ -298,18 +306,19 @@ class Class_ORM extends Hookable {
 	 * @var string
 	 */
 	public $code_name = null;
-	
+
 	/**
 	 * <code>
 	 * protected $schema_file = 'MyORM.sql';
 	 * </code>
-	 * File which contains the schema for this object, found in: ORM_Schema_File::template_schema_paths()
+	 * File which contains the schema for this object, found in:
+	 * ORM_Schema_File::template_schema_paths()
 	 * If not specified, it's get_class($this) . ".sql"
 	 *
 	 * @var string
 	 */
 	public $schema_file = null;
-	
+
 	/**
 	 * List of columns in this object.
 	 * If not specified, automatically determined from database table.
@@ -325,7 +334,7 @@ class Class_ORM extends Hookable {
 	 * @var array
 	 */
 	public $columns = array();
-	
+
 	/**
 	 * <code>
 	 * protected $column_types = array("column" => "type",...)
@@ -340,33 +349,33 @@ class Class_ORM extends Hookable {
 	 * @var array
 	 */
 	public $column_types = array();
-	
+
 	/**
 	 * Whether to dynamically load the object columns from the database
 	 *
 	 * @var boolean
 	 */
 	public $load_database_columns = false;
-	
+
 	/**
 	 * Member defaults: fill in only defaults you want to set
 	 */
 	public $column_defaults = null;
-	
+
 	/**
 	 * Which column to use in a CRC checksum
 	 *
 	 * @var string
 	 */
 	public $crc_column = null;
-	
+
 	/**
 	 * The default column for displaying this object's name
 	 *
 	 * @var string
 	 */
 	public $name_column = null;
-	
+
 	/**
 	 * Name of the column which uniquely identifies this object in the table.
 	 * Default is "id"
@@ -374,14 +383,14 @@ class Class_ORM extends Hookable {
 	 * @var string
 	 */
 	public $id_column = null;
-	
+
 	/**
 	 * Name of the columns which uniquely identifies this object in the table.
 	 *
 	 * @var array
 	 */
 	public $primary_keys = null;
-	
+
 	/**
 	 * Name of the column which is automatically incremented upon saves
 	 * Set to the blank string if no column exists.
@@ -389,35 +398,35 @@ class Class_ORM extends Hookable {
 	 * @var string
 	 */
 	public $auto_column = null;
-	
+
 	/**
 	 * List of columns used by default to look up an object for a match
 	 *
 	 * @var array
 	 */
 	public $find_keys = null;
-	
+
 	/**
 	 * When finding, order results this way and retrieve the first item
 	 *
 	 * @var array
 	 */
 	public $find_order_by = null;
-	
+
 	/**
 	 * Add this to the where clause when searching for duplicates
 	 *
 	 * @var array
 	 */
 	public $duplicate_where = array();
-	
+
 	/**
 	 * List of columns which are used to determine if a duplicate exists in the database.
 	 *
 	 * @var array
 	 */
 	public $duplicate_keys = null;
-	
+
 	/**
 	 * Use UTC timestamps for Created and Modified columns.
 	 * Default value is set to boolean option "utc_timestamps", then
@@ -426,7 +435,7 @@ class Class_ORM extends Hookable {
 	 * @var boolean
 	 */
 	public $utc_timestamps = null;
-	
+
 	/**
 	 * Whether this object has its columns determined programmatically.
 	 * Set by ORM class, read-only by subclasses
@@ -434,23 +443,25 @@ class Class_ORM extends Hookable {
 	 * @var boolean
 	 */
 	public $dynamic_columns = false;
-	
+
 	/**
 	 * Function to call to get a field as implemented in ORM subclass (not Class_ORM subclass!)
-	 * Method should be identical to __get prototype. (Allows reuse.)
+	 * Method should be identical to __get prototype.
+	 * (Allows reuse.)
 	 *
 	 * @var array
 	 */
 	public $getters = array();
-	
+
 	/**
 	 * Function to call to set a field as implemented in ORM subclass (not Class_ORM subclass!)
-	 * Method should be identical to __set prototype. (Allows reuse.)
+	 * Method should be identical to __set prototype.
+	 * (Allows reuse.)
 	 *
 	 * @var array
 	 */
 	public $setters = array();
-	
+
 	/**
 	 * Specify one-to-many or many-to-many relationships
 	 * <code>
@@ -479,8 +490,8 @@ class Class_ORM extends Hookable {
 	 * So this table:
 	 * <code>
 	 * CREATE TABLE Article_Referrer (
-	 * Article				integer unsigned NOT NULL,
-	 * Blog_Host			integer unsigned NOT NULL
+	 * Article integer unsigned NOT NULL,
+	 * Blog_Host integer unsigned NOT NULL
 	 * INDEX aac (Article,ArticleComment)
 	 * );
 	 * </code>
@@ -489,14 +500,15 @@ class Class_ORM extends Hookable {
 	 * @var array
 	 */
 	public $has_many = array();
-	
+
 	/**
 	 * <code>
-	 * protected	$has_one = array("column" => "class name",...)
+	 * protected $has_one = array("column" => "class name",...)
 	 * </code>
 	 * Will automatically convert members to objects with ID of column.
 	 *
-	 * You can dynamically set the class using another member by specifying a "*" before the other member name instead of a class
+	 * You can dynamically set the class using another member by specifying a "*" before the other
+	 * member name instead of a class
 	 * name.
 	 *
 	 * So:
@@ -511,8 +523,8 @@ class Class_ORM extends Hookable {
 	 *
 	 * <code>
 	 * public $has_one = array(
-	 * 		"Comment" => "Article_Comment",
-	 * 		"Related" => "*Related_Class"
+	 * "Comment" => "Article_Comment",
+	 * "Related" => "*Related_Class"
 	 * );
 	 * </code>
 	 *
@@ -522,14 +534,14 @@ class Class_ORM extends Hookable {
 	 * @var array
 	 */
 	public $has_one = array();
-	
+
 	/**
 	 * $this->has_one flipped with identical columns as arrays
 	 *
 	 * @var array
 	 */
 	public $has_one_flip = array();
-	
+
 	/**
 	 * List of options in this object which should be passed to sub-objects
 	 * Can be an array or a semicolon separated list.
@@ -537,23 +549,24 @@ class Class_ORM extends Hookable {
 	 * @var array
 	 */
 	public $inherit_options = null;
-	
+
 	/**
 	 * The deleted column to support soft deletions
 	 *
 	 * @var string
 	 */
 	public $column_deleted = null;
-	
+
 	/**
 	 * List of columns, which, when they change, will invalidate the cache for this object.
 	 *
 	 * @var array|string
 	 */
 	public $cache_column_names = null;
-	
+
 	/**
-	 * When converting to JSON, use these options by default. Parameter options take precedence over these.
+	 * When converting to JSON, use these options by default.
+	 * Parameter options take precedence over these.
 	 *
 	 * @var array
 	 */
@@ -562,62 +575,68 @@ class Class_ORM extends Hookable {
 	 *  Lookup list of class => member
 	 */
 	private $has_many_objects = array();
-	
+
 	/*
 	 *  Cached table columns
 	 */
 	private $table_columns = array();
-	
+
 	/**
 	 * Class cache
 	 *
 	 * @var array:ORM_Class
 	 */
 	static $classes = array();
-	
+
 	/**
 	 * Class cache
 	 *
 	 * @var boolean
 	 */
 	static $classes_dirty = false;
-	
+
 	/**
 	 * List of deferrable class linkages
 	 *
 	 * @var
+	 *
 	 */
 	static $defer_class_links = array();
-	
+
 	/**
 	 * Cache database columns here
 	 *
 	 * @var array:array
 	 */
 	static $column_cache = array();
-	
+
 	/**
-	 * If you modify the database structure dynamically, you should call this to force column recomputation
+	 * If you modify the database structure dynamically, you should call this to force column
+	 * recomputation
 	 */
 	public static function dirty() {
 		self::$classes = array();
 		self::$defer_class_links = array();
 		self::_column_cache()->erase()->delete();
 	}
-	
+
 	/**
-	 * Handle namespace objects intelligently and preserve namespace (\ group), prefixing class name (_ group)
+	 * Handle namespace objects intelligently and preserve namespace (\ group), prefixing class name
+	 * (_ group)
 	 *
 	 * @inline_test assertEqual(Class_ORM::object_to_class('zesk\Dude'), 'zesk\Class_Dude');
-	 * @inline_test assertEqual(Class_ORM::object_to_class('a\b\c\d\e\f\g\Dude'), 'a\b\c\d\e\f\g\Class_Dude');
+	 * @inline_test assertEqual(Class_ORM::object_to_class('a\b\c\d\e\f\g\Dude'),
+	 * 'a\b\c\d\e\f\g\Class_Dude');
+	 *
 	 * @param unknown $classname
 	 */
 	public static function object_to_class($classname) {
 		list($namespace, $suffix) = pairr($classname, "\\", null, $classname, "left");
 		return $namespace . 'Class_' . $suffix;
 	}
-	
+
 	/**
+	 *
 	 * @deprecated 2017-11?
 	 * @todo remove this probably
 	 */
@@ -654,9 +673,11 @@ class Class_ORM extends Hookable {
 		self::$classes_dirty = true;
 		return $instance;
 	}
-	
+
 	/**
+	 *
 	 * @ignore
+	 *
 	 */
 	public function __sleep() {
 		return array_merge(array(
@@ -694,21 +715,24 @@ class Class_ORM extends Hookable {
 			'cache_column_names'
 		), parent::__sleep());
 	}
-	
+
 	/**
+	 *
 	 * @see wakeup
 	 */
 	public function __wakeup() {
 		$this->application = zesk()->application();
 		$this->application->hooks->register_class($this->class);
 	}
-	
+
 	/**
 	 * Lazy link classes together with has_many functionality
 	 *
 	 * @param string $class
-	 * @param string $member Member name to use for iteration, etc.
-	 * @param array $many_spec Many specification
+	 * @param string $member
+	 *        	Member name to use for iteration, etc.
+	 * @param array $many_spec
+	 *        	Many specification
 	 * @throws Exception_Semantics
 	 */
 	public static function link_many($class, $member, array $many_spec) {
@@ -726,9 +750,10 @@ class Class_ORM extends Hookable {
 			self::$defer_class_links[$lowclass][$member] = $many_spec;
 		}
 	}
-	
+
 	/**
 	 * When registering the object, add deferred
+	 *
 	 * @param unknown $class
 	 */
 	private function _add_defer_link_many($class) {
@@ -761,7 +786,7 @@ class Class_ORM extends Hookable {
 		));
 		return $this;
 	}
-	
+
 	/**
 	 * Retrieve object or classes from cache
 	 *
@@ -776,7 +801,7 @@ class Class_ORM extends Hookable {
 		zesk()->deprecated();
 		return zesk()->application()->_class_cache($class, $component);
 	}
-	
+
 	/**
 	 * @deprecated 2017-08
 	 * @param unknown $class
@@ -785,7 +810,7 @@ class Class_ORM extends Hookable {
 		zesk()->deprecated();
 		return zesk()->application()->clear_class_cache($class);
 	}
-	
+
 	/**
 	 * Constructor
 	 *
@@ -798,7 +823,7 @@ class Class_ORM extends Hookable {
 		$this_class = $object->class_object();
 		// Handle polymorphic classes - create correct Class and use correct base class
 		$this_class = $this->class = is_string($this_class) ? $this_class : get_class($object);
-		
+
 		$this->configure($object);
 		// In case configure changes it
 		$this_class = $this->class;
@@ -898,7 +923,7 @@ class Class_ORM extends Hookable {
 		if (count($this->column_types) === 0 && count($this->table_columns) > 0) {
 			$this->imply_column_types();
 		}
-		
+
 		$this->application->hooks->register_class($this->class);
 	}
 	protected function initialize_database(ORM $object) {
@@ -925,7 +950,7 @@ class Class_ORM extends Hookable {
 	 */
 	protected function initialize() {
 	}
-	
+
 	/**
 	 * Load columns from database
 	 *
@@ -950,7 +975,7 @@ class Class_ORM extends Hookable {
 		}
 		return true;
 	}
-	
+
 	/**
 	 * Column cache
 	 *
@@ -974,7 +999,7 @@ class Class_ORM extends Hookable {
 		}
 		$cache = $this->_column_cache();
 		$cache_key = $this->table;
-		
+
 		$columns = $cache->get($cache_key);
 		if (is_array($columns)) {
 			$this->columns = $columns;
@@ -1006,7 +1031,7 @@ class Class_ORM extends Hookable {
 		}
 		return $return;
 	}
-	
+
 	/**
 	 * Given a class $class, determine the default path to the class
 	 *
@@ -1044,7 +1069,7 @@ class Class_ORM extends Hookable {
 				$to_class = $object->member(substr($to_class, 1));
 			}
 			$to_object = $this->application->object($to_class);
-			
+
 			if ($path === null) {
 				$alias = aevalue($mixed, 'alias', $segment);
 			} else {
@@ -1099,22 +1124,22 @@ class Class_ORM extends Hookable {
 			$mixed['path_walked'][] = $segment;
 			$mixed['path'] = $path;
 			$mixed['previous_alias'] = $segment;
-			
+
 			return $to_object->link_walk($query, $mixed);
 		}
 		$has_alias = $query->find_alias($segment);
 		if ($has_alias) {
 			$to_object = $this->application->object($has_alias);
-			
+
 			$mixed['path_walked'][] = $segment;
 			$mixed['path'] = $path;
 			$mixed['previous_alias'] = $segment;
-			
+
 			return $to_object->link_walk($query, $mixed);
 		}
 		throw new Exception_Semantics("No path $segment found in " . $this->class . "::link_walk");
 	}
-	
+
 	/**
 	 * Adds an intermediate join clause to a query for the has_many specified
 	 *
@@ -1155,7 +1180,7 @@ class Class_ORM extends Hookable {
 					'*' . $gen->column_alias($foreign_key, $alias) => $gen->column_alias($id_column, $link_alias)
 				);
 			}
-			
+
 			$query->join_object($join_type, $object, $alias, $on, $table);
 		}
 		$logger = $this_object->application->logger;
@@ -1171,13 +1196,13 @@ class Class_ORM extends Hookable {
 				$logger->notice(get_class($this_object) . " is  new");
 			}
 		}
-		
+
 		if (array_key_exists("order_by", $many_spec)) {
 			$query->order_by(arr::prefix(to_list($many_spec['order_by']), "$this_alias."));
 		}
 		return $result;
 	}
-	
+
 	/**
 	 * Adds an intermediate join clause to a query for the has_many specified
 	 *
@@ -1193,7 +1218,7 @@ class Class_ORM extends Hookable {
 	final public function _has_many_query_update(ORM $this_object, Database_Query_Update $query, array $many_spec, &$alias = "J", $link_alias = null, $join_type = true, $reverse = false) {
 		throw new Exception_Unimplemented(__METHOD__);
 	}
-	
+
 	/**
 	 *
 	 * @param ORM $object
@@ -1206,7 +1231,7 @@ class Class_ORM extends Hookable {
 		$this->_has_many_query($object, $query, $many_spec, $alias, null, true, $reverse);
 		return $query;
 	}
-	
+
 	/**
 	 *
 	 * @param ORM $object
@@ -1239,7 +1264,7 @@ class Class_ORM extends Hookable {
 		}
 		return $this->has_many($this, $member);
 	}
-	
+
 	/**
 	 * Returns valid member names for this database table
 	 *
@@ -1262,13 +1287,14 @@ class Class_ORM extends Hookable {
 		$this->has_many[$member] = $this->has_many_init($object, $has_many);
 		return $this->has_many[$member];
 	}
-	
+
 	/**
 	 * Generate a query for a member
 	 *
 	 * @param ORM $this_object
 	 * @param string $member
-	 * @param ORM $object Returned object class which represents the target object type
+	 * @param ORM $object
+	 *        	Returned object class which represents the target object type
 	 * @return Database_Query_Select
 	 * @throws Exception_Semantics
 	 */
@@ -1281,13 +1307,14 @@ class Class_ORM extends Hookable {
 		$object = $many_spec['object'];
 		return $query;
 	}
-	
+
 	/**
 	 * Generate a query for a member
 	 *
 	 * @param ORM $this_object
 	 * @param string $member
-	 * @param ORM $object Returned object class which represents the target object type
+	 * @param ORM $object
+	 *        	Returned object class which represents the target object type
 	 * @return Database_Query_Update
 	 * @throws Exception_Semantics
 	 */
@@ -1300,7 +1327,7 @@ class Class_ORM extends Hookable {
 		$object = $many_spec['object'];
 		return $query;
 	}
-	
+
 	/**
 	 *
 	 * @param unknown $member
@@ -1347,7 +1374,7 @@ class Class_ORM extends Hookable {
 			throw new Exception_Semantics(__CLASS__ . "::member_foreign_add($member) called on non-many member");
 		}
 		$many_spec = $this->has_many($this_object, $member);
-		
+
 		$class = $many_spec['class'];
 		if (!$link instanceof $class) {
 			throw new Exception_Semantics(get_class($link) . " is not an instanceof $class");
@@ -1377,7 +1404,7 @@ class Class_ORM extends Hookable {
 			);
 		}
 	}
-	
+
 	/**
 	 * Ensure our has_many structure has all fields, add implied/default fields here.
 	 *
@@ -1444,7 +1471,7 @@ class Class_ORM extends Hookable {
 			$join_column => $foreign_key
 		);
 	}
-	
+
 	/**
 	 * Retrieve the database for this object
 	 *
@@ -1454,7 +1481,7 @@ class Class_ORM extends Hookable {
 		if ($set !== null) {
 			$this->database = $set;
 			$this->database_name = $set->code_name();
-			self::cache_dirty($this);
+			$set->application->orm_module()->clear_cache($this->class);
 			return $this;
 		}
 		if ($this->database instanceof Database) {
@@ -1462,7 +1489,7 @@ class Class_ORM extends Hookable {
 		}
 		return $this->database = $this->application->database_factory($this->database_name);
 	}
-	
+
 	/**
 	 * Get the schema for this object
 	 *
@@ -1494,7 +1521,7 @@ class Class_ORM extends Hookable {
 			return null;
 		}
 	}
-	
+
 	/**
 	 *
 	 * @return ORM_Schema
@@ -1511,7 +1538,7 @@ class Class_ORM extends Hookable {
 		}
 		return $this->_database_schema($object, $result);
 	}
-	
+
 	/**
 	 * Override this in subclasses to provide an alternate schema
 	 *
@@ -1520,7 +1547,7 @@ class Class_ORM extends Hookable {
 	public function schema(ORM $object) {
 		return $this->_database_schema($object);
 	}
-	
+
 	/**
 	 * Member defaults
 	 *
@@ -1539,7 +1566,7 @@ class Class_ORM extends Hookable {
 		}
 		return $this->column_defaults;
 	}
-	
+
 	/**
 	 * Take a database result and convert it into the internal data array
 	 *
@@ -1559,7 +1586,7 @@ class Class_ORM extends Hookable {
 		}
 		return $data;
 	}
-	
+
 	/**
 	 * Take an external array and convert it into the internal data array
 	 *
@@ -1577,7 +1604,7 @@ class Class_ORM extends Hookable {
 		}
 		return $data;
 	}
-	
+
 	/**
 	 * Take internal data and convert into a form consumable by database calls
 	 *
@@ -1598,7 +1625,7 @@ class Class_ORM extends Hookable {
 		}
 		return $data;
 	}
-	
+
 	/**
 	 *
 	 * @param unknown $column
@@ -1619,7 +1646,7 @@ class Class_ORM extends Hookable {
 				break;
 		}
 	}
-	
+
 	/**
 	 * Generate the desired zesk ORM class name to instantiate this object
 	 *
@@ -1631,14 +1658,15 @@ class Class_ORM extends Hookable {
 	protected function polymorphic_class_generate($value) {
 		return strtolower($this->polymorphic . "_" . $value);
 	}
-	
+
 	/**
 	 * Convert the existing ORM class name to the preferred code used in the database
 	 *
 	 * Override in subclasses to get different polymorphic behavior.
 	 *
 	 * @param ORM $object
-	 * @param string $column Column which is generating this value
+	 * @param string $column
+	 *        	Column which is generating this value
 	 * @return string
 	 */
 	protected function polymorphic_class_parse(ORM $object, $column) {
@@ -1648,7 +1676,7 @@ class Class_ORM extends Hookable {
 		), true);
 		return strtolower($class);
 	}
-	
+
 	/**
 	 * Convert member from database to internal format.
 	 * Result value is hints to calling function about additional properties to set in the object.
@@ -1758,7 +1786,7 @@ class Class_ORM extends Hookable {
 				throw new Exception_Semantics("Invalid column type $type");
 		}
 	}
-	
+
 	/**
 	 * Convert member into to internal format.
 	 * Result value is hints to calling function about additional properties to set in the object.
@@ -1789,7 +1817,7 @@ class Class_ORM extends Hookable {
 				break;
 		}
 	}
-	
+
 	/**
 	 * Return the SQL version for now
 	 *
@@ -1800,7 +1828,7 @@ class Class_ORM extends Hookable {
 		$generator = $object->database()->sql();
 		return $this->utc_timestamps ? $generator->now_utc() : $generator->now();
 	}
-	
+
 	/**
 	 * Retrieve members matching a given type
 	 *
@@ -1810,7 +1838,7 @@ class Class_ORM extends Hookable {
 	public function members_of_type($type) {
 		return arr::filter_value($this->column_types, $type, true);
 	}
-	
+
 	/**
 	 * Convert a member into format suitable for the database
 	 *
@@ -1933,7 +1961,7 @@ class Class_ORM extends Hookable {
 				throw new Exception_Semantics("Invalid column type $type");
 		}
 	}
-	
+
 	/**
 	 * Guess column types
 	 *
@@ -1945,7 +1973,7 @@ class Class_ORM extends Hookable {
 			$this->column_types[$name] = $data_type->native_type_to_data_type($sql_type);
 		}
 	}
-	
+
 	/**
 	 * Name/value pairs used to generate the schema for this object
 	 *
@@ -1962,7 +1990,7 @@ class Class_ORM extends Hookable {
 			"primary_keys" => implode(",", $this->primary_keys)
 		);
 	}
-	
+
 	/**
 	 * Does this object have the following column?
 	 *
@@ -1972,7 +2000,7 @@ class Class_ORM extends Hookable {
 	public function has_column($name) {
 		return array_key_exists($name, $this->column_types);
 	}
-	
+
 	/**
 	 * Class variables
 	 */
