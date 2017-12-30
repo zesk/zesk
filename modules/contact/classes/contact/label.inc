@@ -43,7 +43,7 @@ class Contact_Label extends ORM {
 	 * @param Account $account
 	 * @return \zesk\unknown
 	 */
-	public static function register_local(Account $account, $type, $name) {
+	public static function register_local(ORM $account, $type, $name) {
 		$app = $account->application;
 		$fields = array(
 			'Account' => $account,
@@ -65,7 +65,10 @@ class Contact_Label extends ORM {
 			"Name" => $name,
 			'Type' => $type
 		);
-		return $app->query_update(__CLASS__)->values($fields)->execute();
+		return $app->orm_registry(__CLASS__)
+			->query_update()
+			->values($fields)
+			->execute();
 	}
 	
 	/**
@@ -127,7 +130,7 @@ class Contact_Label extends ORM {
 	 * @return \zesk\Ambigous
 	 */
 	public static function label_type_options(Application $app, $types = null, $account = null) {
-		$table = $app->object_table_name(__CLASS__);
+		$table = $app->orm_registry(__CLASS__)->table();
 		$account_where = null;
 		if (!empty($account)) {
 			$account_where = array(
