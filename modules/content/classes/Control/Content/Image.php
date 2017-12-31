@@ -1,11 +1,11 @@
 <?php
 /**
- * 
+ *
  */
 namespace zesk;
 
 /**
- * 
+ *
  * @author kent
  *
  */
@@ -26,13 +26,13 @@ class Control_Content_Image extends Control {
 		));
 	}
 	protected function model() {
-		return new Content_Image();
+		return new Content_Image($this->application);
 	}
 	protected function normalize() {
 		$value = $this->value();
 		if (is_numeric($value)) {
 			try {
-				$value = $this->orm_factory('zesk\Content_Image', $value)->fetch();
+				$value = $this->application->orm_factory(Content_Image::class, $value)->fetch();
 			} catch (Exception_ORM_NotFound $e) {
 				return null;
 			}
@@ -51,7 +51,7 @@ class Control_Content_Image extends Control {
 	protected function defaults() {
 		$this->value($this->normalize());
 	}
-	
+
 	/**
 	 * (non-PHPdoc)
 	 * @see Widget::validate()
@@ -73,7 +73,7 @@ class Control_Content_Image extends Control {
 		}
 		$name = $type = $size = $tmp_name = null;
 		extract($data, EXTR_IF_EXISTS);
-		
+
 		$allowed = $this->allowed_mime_types();
 		if (!in_array($type, $allowed)) {
 			$type = MIME::from_filename($name);
@@ -84,7 +84,7 @@ class Control_Content_Image extends Control {
 		}
 		return true;
 	}
-	
+
 	/**
 	 * (non-PHPdoc)
 	 * @see Widget::submit()
@@ -97,7 +97,7 @@ class Control_Content_Image extends Control {
 			}
 			$name = $type = $size = $tmp_name = null;
 			extract($data, EXTR_IF_EXISTS);
-			
+
 			$image = Content_Image::register_from_file($this->application, $tmp_name, array(
 				'path' => File::name_clean($name)
 			));
@@ -108,7 +108,7 @@ class Control_Content_Image extends Control {
 				$e
 			));
 		}
-		
+
 		return parent::submit();
 	}
 	public function theme_variables() {
