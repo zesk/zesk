@@ -1455,7 +1455,7 @@ class Application extends Hookable implements Interface_Theme, Interface_Factory
 	 * @return mixed
 	 */
 	private function clean_template_path($path) {
-		return preg_replace("%[^-_./a-zA-Z0-9]%", '_', strtr($path, array(
+		return preg_replace("%[^-_./a-zA-Z0-9]%", '_', strtr(strtolower($path), array(
 			"_" => "/",
 			"\\" => "/"
 		)));
