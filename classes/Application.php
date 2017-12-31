@@ -601,6 +601,14 @@ class Application extends Hookable implements Interface_Theme, Interface_Factory
 		));
 		$this->hooks->register_class($this->register_hooks);
 
+		$application = $this;
+		$this->hooks->add(Hooks::hook_exit, function () use ($application) {
+			if ($application->cache) {
+				$application->cache->commit();
+			}
+		}, array(
+			"last" => true
+		));
 		$this->call_hook('configure');
 
 		$this->configure_cache_paths(); // Initial cache paths are set up

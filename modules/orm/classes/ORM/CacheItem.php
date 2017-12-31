@@ -1,5 +1,4 @@
 <?php
-
 namespace zesk;
 
 use Psr\Cache\CacheItemInterface;
@@ -144,7 +143,7 @@ class ORM_CacheItem implements CacheItemInterface {
 			$value['class_depends'] = $this->compute_class_depends();
 		}
 		$value['object'] = $value;
-		$this->set($value);
+		$this->item->set($value);
 		return $this;
 	}
 

@@ -18,37 +18,37 @@ echo HTML::tag_open("ul", ".dropdown-menu");
 if ($current_user) {
 	$dropdown = $current_user->filter_actions($dropdown);
 }
-foreach ($dropdown as $url => $item) {
-	if ($item === "-") {
+foreach ($dropdown as $url => $cache_item) {
+	if ($cache_item === "-") {
 		echo HTML::tag('li', array(
 			'role' => 'separator',
 			'class' => 'divider'
 		), '');
 	} else if (begins($url, "*")) {
-		if (is_string($item)) {
-			$item = array(
-				'header-text' => $item
+		if (is_string($cache_item)) {
+			$cache_item = array(
+				'header-text' => $cache_item
 			);
 		}
-		$li_attr = HTML::tag_attributes('li', $item);
+		$li_attr = HTML::tag_attributes('li', $cache_item);
 		echo HTML::tag('li', $li_attr + array(
 			'role' => "presentation",
 			"class" => "dropdown-header"
-		), $item['header-text']);
+		), $cache_item['header-text']);
 	} else {
 		$li_attr = array();
-		if (is_string($item)) {
-			$item = array(
-				'link-text' => $item
+		if (is_string($cache_item)) {
+			$cache_item = array(
+				'link-text' => $cache_item
 			);
-		} else if (isset($item['li_attributes'])) {
-			$li_attr = to_array($item['li_attributes']);
+		} else if (isset($cache_item['li_attributes'])) {
+			$li_attr = to_array($cache_item['li_attributes']);
 		}
 		$li_attr = HTML::tag_attributes('li', $li_attr);
-		$attr = HTML::tag_attributes("a", $item);
+		$attr = HTML::tag_attributes("a", $cache_item);
 		echo HTML::tag('li', $li_attr, HTML::tag('a', $attr + array(
 			'href' => $url
-		), $item['link-text']));
+		), $cache_item['link-text']));
 	}
 }
 echo HTML::tag_close("ul");

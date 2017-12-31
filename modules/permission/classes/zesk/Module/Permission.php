@@ -89,9 +89,10 @@ class Module_Permission extends Module {
 		$lowclass = strtolower($class);
 
 		$cache_key = "$lowclass::$permission";
-		$user_cache = $user->object_cache("permissions");
-		if (!$context && $user_cache->has($cache_key)) {
-			return $user_cache->$cache_key;
+		$user_cache = $user->object_cache("permission");
+		$user_cached_permissions = $user_cache->isHit() ? $user_cache->get() : array();
+		if (!$context && array_key_exists($cache_key, $user_cached_permissions)) {
+			return $user_cached_permissions[$cache_key];
 		}
 		$perms = $this->permissions();
 
@@ -134,7 +135,8 @@ class Module_Permission extends Module {
 						"permission" => $class . "::" . $permission
 					));
 				}
-				$user_cache->$cache_key = $result;
+				$user_cached_permissions[$cache_key] = $result;
+				$application->cache->saveDeferred($user_cache->set($user_cached_permissions));
 				return $result;
 			}
 		}
@@ -163,7 +165,11 @@ class Module_Permission extends Module {
 			return;
 		}
 		if ($user->is_new()) {
-			$roles = $this->application->orm_registry(Role::class)->query_select()->where('is_default', true)->object_iterator()->to_array('id');
+			$roles = $this->application->orm_registry(Role::class)
+				->query_select()
+				->where('is_default', true)
+				->object_iterator()
+				->to_array('id');
 		} else {
 			// Load user role settings into user before checking
 			$roles = $user->member_query("roles")->object_iterator()->to_array("id");
@@ -190,7 +196,11 @@ class Module_Permission extends Module {
 		if (is_array($user->_roles)) {
 			return $user->_roles;
 		}
-		$user->_roles = $this->application->orm_registry("User_Role")->query_select()->what("Role", "Role")->where("User", $user)->to_array(null, "Role", array());
+		$user->_roles = $this->application->orm_registry("User_Role")
+			->query_select()
+			->what("Role", "Role")
+			->where("User", $user)
+			->to_array(null, "Role", array());
 		return $user->_roles;
 	}
 
@@ -315,10 +325,14 @@ class Module_Permission extends Module {
 			$this,
 			'_combine_permissions'
 		));
-		$roles = $application->orm_registry('Role')->query_select('X')->what(array(
+		$roles = $application->orm_registry('Role')
+			->query_select('X')
+			->what(array(
 			"id" => "X.id",
 			"code" => "X.code"
-		))->order_by("X.id")->to_array("id", "code", array());
+		))
+			->order_by("X.id")
+			->to_array("id", "code", array());
 		$options = array(
 			'overwrite' => true,
 			'trim' => true,

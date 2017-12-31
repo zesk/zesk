@@ -1,42 +1,42 @@
 <?php
 /**
- * 
+ *
  */
 namespace zesk;
 
 use Psr\Cache\CacheItemInterface;
 
 /**
- * Generic cache item 
- * 
+ * Generic cache item
+ *
  * @author kent
  */
 class CacheItem implements CacheItemInterface {
 	/**
-	 * 
+	 *
 	 * @var string
 	 */
 	private $key = null;
-	
+
 	/**
 	 *
 	 * @var mixed
 	 */
 	private $value = null;
 	/**
-	 * 
+	 *
 	 * @var mixed
 	 */
 	private $is_hit = null;
-	
+
 	/**
-	 * 
+	 *
 	 * @var Timestamp
 	 */
 	private $expiration = null;
-	
+
 	/**
-	 * 
+	 *
 	 * @param string $key
 	 */
 	public function __construct($key, $value = null, $isHit = true) {
@@ -56,7 +56,7 @@ class CacheItem implements CacheItemInterface {
 	public function getKey() {
 		return $this->key;
 	}
-	
+
 	/**
 	 * Retrieves the value of the item from the cache associated with this object's key.
 	 *
@@ -72,7 +72,7 @@ class CacheItem implements CacheItemInterface {
 	public function get() {
 		return $this->is_hit ? $this->value : null;
 	}
-	
+
 	/**
 	 * Confirms if the cache item lookup resulted in a cache hit.
 	 *
@@ -85,7 +85,7 @@ class CacheItem implements CacheItemInterface {
 	public function isHit() {
 		return $this->is_hit;
 	}
-	
+
 	/**
 	 * Sets the value represented by this cache item.
 	 *
@@ -104,7 +104,7 @@ class CacheItem implements CacheItemInterface {
 		$this->value = $value;
 		return $this;
 	}
-	
+
 	/**
 	 * Sets the expiration time for this cache item.
 	 *
@@ -121,7 +121,7 @@ class CacheItem implements CacheItemInterface {
 		$this->expiration = $expiration ? Timestamp::factory($expiration) : null;
 		return $this;
 	}
-	
+
 	/**
 	 * Sets the expiration time for this cache item.
 	 *
@@ -139,11 +139,21 @@ class CacheItem implements CacheItemInterface {
 		$this->expiration = $time ? Timestamp::now()->add($time) : null;
 		return $this;
 	}
-	
+
 	/**
 	 * @return Timestamp|null
 	 */
 	public function expiration() {
 		return $this->expiration;
+	}
+
+	/**
+	 * @return boolean
+	 */
+	public function expired() {
+		if (!$this->expiration instanceof Timestamp) {
+			return false;
+		}
+		return $this->expiration->beforeNow();
 	}
 }
