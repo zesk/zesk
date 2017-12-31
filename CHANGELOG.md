@@ -24,7 +24,7 @@ Version 1.0 of Zesk will have:
 - <strike>Renaming of `zesk\ORM` to something non-reserved in PHP 7.2 (Candidates are `zesk\ORM` `zesk\Model` - reuse)</strike>
 - `zesk\` namespace for all `classes` in the system
 
-## [Unreleased][]
+## [v0.14.3][]
 
 - Made some bug fixes to `zesk\CacheItemPool_File` which caused files to not be saved
 - `zesk\Application` adds an exit hook to call `$application->cache->commit()` upon exit
@@ -1034,7 +1034,8 @@ Settling of `zesk\Kernel` and `zesk\` namespace changes, added additional compon
  - `zesk::class_hierarchy` -> `zesk()->classes->hierarchy`
 - Removed growl module (no longer relevant on Mac OS X)
 
-[v0.14.2]: https://github.com/zesk/zesk/compare/v0.14.2...HEAD
+[v0.14.3]: https://github.com/zesk/zesk/compare/v0.14.2...HEAD
+[v0.14.2]: https://github.com/zesk/zesk/compare/v0.14.1...v0.14.2
 [v0.14.1]: https://github.com/zesk/zesk/compare/v0.14.0...v0.14.1
 [v0.14.0]: https://github.com/zesk/zesk/compare/v0.13.2...v0.14.0
 [v0.13.2]: https://github.com/zesk/zesk/compare/v0.13.1...v0.13.2
@@ -1042,10 +1043,10 @@ Settling of `zesk\Kernel` and `zesk\` namespace changes, added additional compon
 [v0.13.0]: https://github.com/zesk/zesk/compare/v0.12.15...v0.13.0
 [v0.12.15]: https://github.com/zesk/zesk/compare/v0.12.14...v0.12.15
 [v0.12.14]: https://github.com/zesk/zesk/compare/v0.12.13...v0.12.14
-[v0.12.13]: https://github.com/zesk/zesk/compare/v0.12.13...v0.12.14
-[v0.12.12]: https://github.com/zesk/zesk/compare/v0.12.13...v0.12.14
-[v0.12.11]: https://github.com/zesk/zesk/compare/v0.12.13...v0.12.14
-[v0.12.10]: https://github.com/zesk/zesk/compare/v0.12.13...v0.12.14
+[v0.12.13]: https://github.com/zesk/zesk/compare/v0.12.12...v0.12.13
+[v0.12.12]: https://github.com/zesk/zesk/compare/v0.12.11...v0.12.12
+[v0.12.11]: https://github.com/zesk/zesk/compare/v0.12.10...v0.12.11
+[v0.12.10]: https://github.com/zesk/zesk/compare/v0.12.9...v0.12.10
 [v0.12.9]: https://github.com/zesk/zesk/compare/v0.12.8...v0.12.9
 [v0.12.8]: https://github.com/zesk/zesk/compare/v0.12.7...v0.12.8
 [v0.12.7]: https://github.com/zesk/zesk/compare/v0.12.6...v0.12.7
