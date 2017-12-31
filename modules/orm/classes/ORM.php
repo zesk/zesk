@@ -5,8 +5,6 @@
  */
 namespace zesk;
 
-use Psr\Cache\CacheItemInterface;
-
 /**
  *
  * @author kent
@@ -417,7 +415,7 @@ class ORM extends Model {
 		if ($cache_id !== null) {
 			$name[] = $cache_id;
 		}
-		/* @var $cache \CacheItemInterface */
+		/* @var $cache \Psr\Cache\CacheItemInterface */
 		$cache = $this->application->cache->getItem(implode("/", $name));
 		return new ORM_CacheItem($this->application, $cache);
 	}
@@ -435,7 +433,7 @@ class ORM extends Model {
 		if ($cache_id !== null) {
 			$name[] = $cache_id;
 		}
-		/* @var $cache CacheItemInterface */
+		/* @var $cache \Psr\Cache\CacheItemInterface */
 		$cache = $this->application->cache->getItem(implode("/", $name));
 		$item = new ORM_CacheItem($this->application, $cache);
 		$item->depends($this);
