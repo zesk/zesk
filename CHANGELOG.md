@@ -24,6 +24,11 @@ Version 1.0 of Zesk will have:
 - <strike>Renaming of `zesk\ORM` to something non-reserved in PHP 7.2 (Candidates are `zesk\ORM` `zesk\Model` - reuse)</strike>
 - `zesk\` namespace for all `classes` in the system
 
+## [Unreleased][]
+
+- Made some bug fixes to `zesk\CacheItemPool_File` which caused files to not be saved
+- `zesk\Application` adds an exit hook to call `$application->cache->commit()` upon exit
+
 ## [v0.14.2][]
 
 ### Fixed bugs
