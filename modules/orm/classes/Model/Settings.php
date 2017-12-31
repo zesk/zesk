@@ -5,7 +5,7 @@
 namespace zesk;
 
 /**
- * 
+ *
  * @author kent
  *
  */
@@ -14,36 +14,36 @@ class Model_Settings extends Model {
 	protected $_accessor = array();
 	protected $_access_cache = array();
 	protected $ignore_variables = array();
-	
+
 	/**
 	 * Array of key => default
-	 * 
+	 *
 	 * @var array $variables
 	 */
 	protected $variables = array();
-	
+
 	/**
-	 * 
+	 *
 	 * @var Configuration
 	 */
 	protected $configuration = null;
-	
+
 	/**
-	 * 
+	 *
 	 * @var array
 	 */
 	protected $state = array();
 	/**
-	 * 
+	 *
 	 * {@inheritDoc}
 	 */
 	public function hook_construct() {
 		$this->configuration = $this->application->configuration;
 		$this->inherit_global_options();
 	}
-	
+
 	/**
-	 * 
+	 *
 	 * @param mixed $mixed
 	 */
 	public function ignore_variable($mixed = null) {
@@ -59,7 +59,7 @@ class Model_Settings extends Model {
 		return $this;
 	}
 	/**
-	 * 
+	 *
 	 * @param mixed $mixed
 	 */
 	public function allow_variable($mixed = null) {
@@ -123,10 +123,10 @@ class Model_Settings extends Model {
 		}
 		return $this;
 	}
-	
+
 	/**
 	 * Get a value from this model
-	 * 
+	 *
 	 * @param string $key
 	 * @return mixed
 	 */
@@ -179,7 +179,7 @@ class Model_Settings extends Model {
 		$this->application->logger->debug("{method} called", array(
 			"method" => __METHOD__
 		));
-		$settings = Settings::instance();
+		$settings = $this->application->model_singleton(Settings::class);
 		foreach ($this->_changed as $key => $value) {
 			if ($this->option_bool("debug_save")) {
 				$this->application->logger->debug("{method} Saving {key}={value} ({type})", array(
