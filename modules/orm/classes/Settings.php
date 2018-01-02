@@ -74,12 +74,13 @@ class Settings extends ORM implements Interface_Data, Interface_Settings {
 	/**
 	 * Hook ORM::hooks
 	 */
-	public static function hooks(Kernel $zesk) {
+	public static function hooks(Kernel $kernel) {
+		$hooks = $kernel->hooks;
 		// Ensure Database gets a chance to register first
-		$zesk->hooks->register_class("zesk\\Database");
-		$zesk->configuration->path(__CLASS__);
-		$hooks = $zesk->hooks;
+		$hooks->register_class("zesk\\Database");
 		$hooks->add('configured', __CLASS__ . '::configured', 'first');
+
+		$kernel->configuration->path(__CLASS__);
 	}
 
 	/**
@@ -128,10 +129,10 @@ class Settings extends ORM implements Interface_Data, Interface_Settings {
 		$globals = array();
 		$size_loaded = 0;
 		$n_loaded = 0;
-		$object = $application->object(__CLASS__);
+		$object = $application->orm_registry(__CLASS__);
 		$fix_bad_globals = $object->option_bool("fix_bad_globals");
 
-		foreach ($application->orm_registry(__CLASS__)->query_select()->to_array("name", "value") as $name => $value) {
+		foreach ($object->query_select()->to_array("name", "value") as $name => $value) {
 			++$n_loaded;
 			$size_loaded += strlen($value);
 			if (is_string($value)) {
@@ -150,7 +151,10 @@ class Settings extends ORM implements Interface_Data, Interface_Settings {
 							"method" => __METHOD__,
 							"name" => $name
 						));
-						$application->query_delete(__CLASS__)->where("name", $name)->execute();
+						$application->orm_registry(__CLASS__)
+							->query_delete()
+							->where("name", $name)
+							->execute();
 					} else {
 						$application->logger->error("{method}: Bad global {name} can not be unserialized, please fix manually", array(
 							"method" => __METHOD__,
@@ -297,7 +301,7 @@ class Settings extends ORM implements Interface_Data, Interface_Settings {
 		$this->application->logger->debug("Deleted {class} cache", array(
 			"class" => __CLASS__
 		));
-		$this->_cache_item($this->application)->delete();
+		$this->application->cache->deleteItem($this->_cache_item($this->application)->getKey());
 		$this->changes = array();
 	}
 
@@ -418,7 +422,7 @@ class Settings extends ORM implements Interface_Data, Interface_Settings {
 	 * @return integer
 	 */
 	public function prefix_updated($old_prefix, $new_prefix) {
-		$update = $this->application->query_update(Settings::class);
+		$update = $this->application->orm_registry(Settings::class)->query_update();
 		$old_prefix_quoted = $update->sql()->quote_text($old_prefix);
 		$old_prefix_like_quoted = tr($old_prefix, array(
 			"\\" => "\\\\",
