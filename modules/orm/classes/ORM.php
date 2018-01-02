@@ -1222,10 +1222,10 @@ class ORM extends Model {
 		try {
 			$object = $this->member_orm_factory($member, $class, $data, $options + $this->inherit_options());
 		} catch (Exception_ORM_NotFound $e) {
-			if ($this->option_bool("fix_member_objects")) {
-				global $zesk;
-				$zesk->hooks->call("exception", $e);
-				$zesk->logger->error("Fixing not found {member} {member_class} (#{data}) in {class} (#{id})", array(
+			if ($this->option_bool("fix_orm_members") || $this->option_bool("fix_member_objects")) {
+				$application = $this->application;
+				$application->hooks->call("exception", $e);
+				$application->logger->error("Fixing not found {member} {member_class} (#{data}) in {class} (#{id})", array(
 					"member" => $member,
 					"member_class" => $class,
 					"data" => $data,
@@ -1233,7 +1233,7 @@ class ORM extends Model {
 					"id" => $this->id()
 				));
 				$this->members[$member] = null;
-				// TODO - add option to store?
+				$this->store();
 				return null;
 			} else {
 				throw $e;

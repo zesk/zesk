@@ -12,7 +12,7 @@ namespace zesk;
  *
  * @category Database
  */
-class Command_ORM_Schema extends Command_Base {
+class Command_Schema extends Command_Base {
 	/**
 	 *
 	 * @var array
@@ -24,19 +24,19 @@ class Command_ORM_Schema extends Command_Base {
 		"update" => "boolean",
 		"*" => "string"
 	);
-	
+
 	/**
 	 *
 	 * @var array
 	 */
 	protected $register_classes = array();
-	
+
 	/**
 	 *
 	 * @var array
 	 */
 	protected $results = array();
-	
+
 	/**
 	 *
 	 * @return \zesk\multitype:
@@ -44,13 +44,13 @@ class Command_ORM_Schema extends Command_Base {
 	public function results() {
 		return $this->results;
 	}
-	
+
 	/**
 	 */
 	protected function synchronize_before() {
 		self::_synchronize_suffix("update");
 	}
-	
+
 	/**
 	 */
 	protected function synchronize_after() {
@@ -85,19 +85,19 @@ class Command_ORM_Schema extends Command_Base {
 			$this,
 			"hook_callback"
 		);
-		
+
 		$app = $this->application;
-		
+
 		$hook_type = "zesk\ORM::schema_$suffix";
 		$all_hooks = $this->application->hooks->find_all($hook_type);
-		
+
 		$app->logger->notice("Running all $suffix hooks {hooks}", array(
 			"hooks" => ($all = implode(", ", array_values($all_hooks))) ? $all : "- no hooks found"
 		));
 		$this->application->hooks->all_call_arguments($hook_type, array(
 			$this->application
 		), null, $hook_callback);
-		
+
 		$hook_type = "schema_$suffix";
 		$all = $app->modules->all_hook_list($hook_type);
 		$hooks_strings = array();
@@ -113,7 +113,7 @@ class Command_ORM_Schema extends Command_Base {
 		$app->modules->all_hook_arguments($hook_type, array(
 			$this->application
 		), null, $hook_callback);
-		
+
 		$app_hooks = $app->hook_list($hook_type);
 		$app->logger->notice("Running application $suffix hooks {hooks}", array(
 			"hooks" => $app_hooks ? $app_hooks : "- no hooks found"
@@ -122,9 +122,9 @@ class Command_ORM_Schema extends Command_Base {
 			$this->application
 		), null, $hook_callback);
 	}
-	
+
 	/**
-	 * 
+	 *
 	 * {@inheritDoc}
 	 * @see \zesk\Command_Base::initialize()
 	 */
@@ -132,7 +132,7 @@ class Command_ORM_Schema extends Command_Base {
 		parent::initialize();
 		$this->application->register_class("zesk\ORM_Schema_File");
 	}
-	
+
 	/**
 	 *
 	 * {@inheritdoc}
@@ -141,7 +141,7 @@ class Command_ORM_Schema extends Command_Base {
 	 */
 	protected function run() {
 		$application = $this->application;
-		
+
 		if ($this->option_bool("debug")) {
 			ORM_Schema::$debug = true;
 		}
@@ -159,9 +159,9 @@ class Command_ORM_Schema extends Command_Base {
 			$classes = $this->arguments_remaining(true);
 			$this->verbose_log("Running on classes {classes}", compact("classes"));
 		}
-		
+
 		$this->synchronize_before();
-		
+
 		$database = $application->database_factory($url);
 		$this->results = $results = $application->schema_synchronize($database, $classes, array(
 			"check" => $this->option_bool('check')

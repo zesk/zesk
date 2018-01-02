@@ -10,10 +10,10 @@ namespace zesk;
  * @author kent
  */
 class Module_ORM extends Module {
-	
+
 	/**
 	 * Your basic ORM classes.
-	 * 
+	 *
 	 * @var array
 	 */
 	public $orm_classes = array(
@@ -23,13 +23,19 @@ class Module_ORM extends Module {
 		Domain::class,
 		Lock::class
 	);
-	
+
 	/**
 	 *
 	 * @var ORM[string]
 	 */
 	private $class_cache = array();
-	
+
+	/**
+	 *
+	 * @var ORM_Database_Adapter[string]
+	 */
+	private $database_adapters = array();
+
 	/**
 	 *
 	 * {@inheritDoc}
@@ -37,22 +43,67 @@ class Module_ORM extends Module {
 	 */
 	public function initialize() {
 		parent::initialize();
+		/**
+		 * @deprecated 2018-01-02
+		 */
+		$this->application->configuration->deprecated(ORM::class . '::fix_member_objects', ORM::class . "::fix_orm_members");
+
+		/**
+		 * $application->orm_factory(...)
+		 */
 		$this->application->register_factory("orm", array(
 			$this,
 			"orm_factory"
 		));
+		/**
+		 * $application->orm_registry(...)
+		 */
 		$this->application->register_registry("orm", array(
 			$this,
 			"orm_registry"
 		));
+		/**
+		 * $application->class_orm_registry(...)
+		 */
 		$this->application->register_registry("class_orm", array(
 			$this,
 			"class_orm_registry"
 		));
+
+		/**
+		 * Hook into database table
+		 */
+		$this->application->hooks->add(Database_Table::class . '::column_add', array(
+			$this,
+			"database_table_add_column"
+		));
+
+		/**
+		 * Support MySQL database adapter
+		 */
+		$this->database_adapters['mysql'] = $mysql = $this->application->factory(ORM_Database_Adapter_MySQL::class);
+		$this->database_adapters['mysqli'] = $mysql;
 	}
-	
+
 	/**
-	 * 
+	 * Getter/setter for database adapters
+	 *
+	 * @param string $code
+	 * @param ORM_Database_Adapter $adapter
+	 * @return \zesk\Module_ORM|\zesk\ORM_Database_Adapter|\zesk\ORM_Database_Adapter[string]
+	 */
+	public function database_adapter($code = null, ORM_Database_Adapter $adapter = null) {
+		if ($code === null) {
+			return $this->database_adapters;
+		}
+		if ($adapter === null) {
+			return avalue($this->database_adapters, strtolower($code));
+		}
+		$this->database_adapter[strtolower($code)] = $adapter;
+		return $this;
+	}
+	/**
+	 *
 	 * @param Application $application
 	 * @param string $class
 	 * @param mixed $mixed
@@ -96,7 +147,7 @@ class Module_ORM extends Module {
 		}
 		return $result;
 	}
-	
+
 	/**
 	 * When zesk\Hooks::all_hook is called, this is called first to collect all objects
 	 * in the system.
@@ -106,22 +157,22 @@ class Module_ORM extends Module {
 	public static function hooks(Kernel $zesk) {
 		$zesk->hooks->add(ORM::class . '::register_all_hooks', __CLASS__ . "::object_register_all_hooks");
 	}
-	
+
 	/**
-	 * 
+	 *
 	 * @param Application $app
 	 */
 	public static function object_register_all_hooks(Application $app) {
 		$classes = $app->modules->object("orm")->all_classes();
 		$app->classes->register(arr::collapse($classes, "class"));
 	}
-	
+
 	/**
 	 *
 	 * @var string[]
 	 */
 	private $cached_classes = null;
-	
+
 	/**
 	 * Retrieve the list of classes associated with an application
 	 *
@@ -153,9 +204,9 @@ class Module_ORM extends Module {
 		ksort($all_classes);
 		return $all_classes;
 	}
-	
+
 	/**
-	 * Synchronzie the schema. 
+	 * Synchronzie the schema.
 	 *
 	 * @return multitype:
 	 */
@@ -191,7 +242,7 @@ class Module_ORM extends Module {
 			if (stripos($class, 'user_role')) {
 				$logger->debug("{method}: ORM map is: {map}", array(
 					"method" => __METHOD__,
-					"map" => _dump($this->objects->map()),
+					"map" => _dump($this->application->objects->map()),
 					"class" => $class
 				));
 			}
@@ -278,7 +329,7 @@ class Module_ORM extends Module {
 		}
 		return array_values($this->cached_classes);
 	}
-	
+
 	/**
 	 * Retrieve all classes with additional fields
 	 *
@@ -352,7 +403,7 @@ class Module_ORM extends Module {
 		}
 		return $this;
 	}
-	
+
 	/**
 	 * Retrieve object or classes from cache
 	 *
@@ -380,14 +431,14 @@ class Module_ORM extends Module {
 				'dbname' => $object->database_name(),
 				'database_name' => $object->database_name(),
 				'object' => $object,
-				'class' => $object->class_object(),
+				'class' => $object->class_orm(),
 				'id_column' => $object->id_column()
 			);
 		}
 		$result = $this->class_cache[$lowclass];
 		return avalue($result, $component, $result);
 	}
-	
+
 	/**
 	 * While developing, check schema every minute
 	 */
@@ -396,7 +447,7 @@ class Module_ORM extends Module {
 			$this->_schema_check();
 		}
 	}
-	
+
 	/**
 	 * While an out-of-sync schema may cause issues, it often does not.
 	 * Check hourly on production to avoid
@@ -407,7 +458,7 @@ class Module_ORM extends Module {
 			$this->_schema_check();
 		}
 	}
-	
+
 	/**
 	 * Internal function - check the schema and notify someone
 	 *
@@ -439,5 +490,30 @@ class Module_ORM extends Module {
 			// 				));
 		}
 		return $results;
+	}
+
+	/**
+	 * Automatically set a SQL type for a database column if it just has a Class_ORM::type_FOO set
+	 *
+	 * @param Database_Table $table
+	 * @param Database_Column $column
+	 */
+	public function database_table_add_column(Database_Table $table, Database_Column $column) {
+		if ($column->has_sql_type()) {
+			return;
+		}
+		$database = $table->database();
+		$code = strtolower($database->type());
+		if (!array_key_exists($code, $this->database_adapters)) {
+			$this->application->logger->error("{method} {table} {column} - no adapter for database {code}", array(
+				"method" => __METHOD__,
+				"table" => $table,
+				"column" => $column,
+				"code" => $code
+			));
+			return;
+		}
+		$adapter = $this->database_adapters[$code];
+		$adapter->database_column_set_type($column);
 	}
 }
