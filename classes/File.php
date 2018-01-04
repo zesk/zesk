@@ -810,7 +810,7 @@ class File {
 			'perms' => array( /* Permissions */
 				'umask' => sprintf("%04o", @umask()),  /* umask */
 				'string' => $mode_string,  /* drwxrwxrwx */
-				'octal' => sprintf("%o", ($p & 000777)),  /* Octal without a zero prefix */
+				'octal' => sprintf("%o", ($p & 0777)),  /* Octal without a zero prefix */
 				'octal0' => self::mode_to_octal($p),  /* Octal with a zero prefix */
 				'decimal' => sprintf("%04o", $p),  /* Decimal value */
 				'fileperms' => $is_res ? null : @fileperms($path),  /* Permissions */

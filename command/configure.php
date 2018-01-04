@@ -430,17 +430,44 @@ class Command_Configure extends Command_Base {
 	 *
 	 * @param unknown $target
 	 * @param unknown $want_owner
-	 * @param unknown $want_mode
+	 * @param string|number $want_mode Decimal string or octal string
 	 * @return boolean
 	 */
 	private function handle_owner_mode($target, $want_owner = null, $want_mode = null) {
+		$original_want_mode = $want_mode;
+		if (is_string($want_mode)) {
+			if (preg_match('/^0[0-9]+/', $want_mode)) {
+				$want_mode = octdec($want_mode);
+			} else {
+				$want_mode = intval($want_mode);
+			}
+		} else if (is_integer($want_mode)) {
+			$want_mode = intval($want_mode);
+		}
+		if ($want_mode === 0) {
+			$this->error("{method} invalid \$want_mode with value {original}", array(
+				"method" => __METHOD__,
+				"original" => $original_want_mode
+			));
+			return false;
+		} else if ($want_mode !== null) {
+			$this->error("{method} invalid \$want_mode {type} with value {original}", array(
+				"method" => __METHOD__,
+				"original" => $original_want_mode,
+				"type" => type($original_want_mode)
+			));
+			return false;
+		}
 		$new_user = null;
 		$new_group = null;
 		$stats = File::stat($target, "");
 		$__['target'] = $target;
 		$__['want_owner'] = $want_owner;
-		$__['want_mode'] = is_integer($want_mode) ? '0' . decoct($want_mode) : $want_mode;
-		$__['old_mode'] = $old_mode = $stats['perms']['octal0'];
+		$__['want_mode_octal'] = "0" . decoct($want_mode);
+		$__['want_mode'] = $want_mode;
+
+		$__['old_mode'] = $old_mode = $stats['perms']['mode'];
+		$__['old_mode_octal'] = $stats['perms']['octal0'];
 		$__['old_user'] = $stats['owner']['owner'];
 		$__['old_group'] = $stats['owner']['group'];
 		if (!empty($want_owner)) {
@@ -499,11 +526,11 @@ class Command_Configure extends Command_Base {
 		if (!empty($want_mode)) {
 			$this->verbose_log("Want mode of {target} to be {want_mode} ...", $__);
 			if ($old_mode !== $want_mode) {
-				if (!$this->prompt_yes_no(__("Change permissions of {target} to {want_mode} (old mode {old_mode})?", $__))) {
+				if (!$this->prompt_yes_no(__("Change permissions of {target} to {want_mode_octal} (old mode {old_mode_octal})?", $__))) {
 					return false;
 				}
-				if (!chmod($target, $__['decimal_want_mode'] = octdec($want_mode))) {
-					$this->error("Unable to chmod {target} to {want_mode} (decimal: {decimal_want_mode})", $__);
+				if (!chmod($target, $want_mode)) {
+					$this->error("Unable to chmod {target} to {want_mode_octal} (decimal: {decimal_want_mode})", $__);
 					return false;
 				}
 			}
