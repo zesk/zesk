@@ -151,6 +151,12 @@ class Command_Configure extends Command_Base {
 		$this->verbose_log("Success");
 		return 0;
 	}
+
+	/**
+	 * If the environment_file option is not set, interactively set it
+	 *
+	 * @return string
+	 */
 	private function determine_environment_file() {
 		$value = $this->environment_file;
 		$times = 0;
@@ -166,6 +172,12 @@ class Command_Configure extends Command_Base {
 		$this->variable_map['environment_file'] = $this->environment_file;
 		return $this->environment_file = $value;
 	}
+
+	/**
+	 * If the host_setting_name option is not set, interactively set it
+	 *
+	 * @return NULL|string
+	 */
 	private function determine_host_path_setting_name() {
 		$value = $this->host_setting_name;
 		$times = 0;
@@ -194,6 +206,13 @@ class Command_Configure extends Command_Base {
 		}
 		return $value;
 	}
+
+	/**
+	 * Load a configuration file and return the loaded configuration as an array
+	 *
+	 * @param string $path
+	 * @return array
+	 */
 	private function load_conf($path) {
 		$conf = array();
 		Configuration_Parser::factory(File::extension($path), File::contents($path), new Adapter_Settings_Array($conf), array(
@@ -201,6 +220,13 @@ class Command_Configure extends Command_Base {
 		))->process();
 		return $conf;
 	}
+	/**
+	 * Write out a configuration file to path
+	 *
+	 * @param string $path
+	 * @param array $settings
+	 * @return boolean
+	 */
 	private function save_conf($path, array $settings) {
 		$conf = array();
 		$contents = File::contents($path);
@@ -208,6 +234,13 @@ class Command_Configure extends Command_Base {
 		$editor = $parser->editor($contents);
 		return File::put($path, $editor->edit($settings));
 	}
+
+	/**
+	 * Fetch our environment file and determine which entries point to directories on this system
+	 *
+	 * @param string $output
+	 * @return unknown[]
+	 */
 	private function load_dirs($output = false) {
 		$env = $this->load_conf($this->environment_file);
 		$this->variable_map += array_change_key_case($env);
@@ -229,6 +262,12 @@ class Command_Configure extends Command_Base {
 		}
 		return $dirs;
 	}
+
+	/**
+	 * Determine host path (an ordered list of strings) to traverse when finding inherited files
+	 *
+	 * @return mixed|array
+	 */
 	private function determine_host_name() {
 		$this->possible_host_configurations = arr::unsuffix(Directory::ls($this->host_path), "/", true);
 		$this->alias_file = path($this->host_path, "aliases.conf");
@@ -257,6 +296,12 @@ class Command_Configure extends Command_Base {
 		$this->host_configurations = $host_configs;
 		return $host_configs;
 	}
+
+	/**
+	 * Interactively request a list of host configurations
+	 *
+	 * @return array
+	 */
 	private function determine_host_configurations() {
 		$this->completions = $possible_host_configurations = $this->possible_host_configurations;
 		do {
@@ -273,6 +318,10 @@ class Command_Configure extends Command_Base {
 		));
 		return $host_configurations;
 	}
+
+	/**
+	 * Save configuration changes to the configuration file associated with this command
+	 */
 	private function save_configuration_changes() {
 		if ($this->changed) {
 			$__ = array(
@@ -284,6 +333,12 @@ class Command_Configure extends Command_Base {
 			}
 		}
 	}
+
+	/**
+	 * Configure particular user
+	 *
+	 * @return boolean
+	 */
 	private function configure_user() {
 		$username = $this->username;
 		$paths = array();
@@ -312,32 +367,52 @@ class Command_Configure extends Command_Base {
 			$contents = Text::remove_line_comments($contents, "#", false);
 			$lines = arr::trim_clean(explode("\n", $contents));
 			foreach ($lines as $line) {
-				$line = preg_replace("/\s+/", " ", $line);
-				list($command, $raw_arguments) = pair($line, " ", $line, null);
-				$command = PHP::clean_function($command);
-				$raw_arguments = preg_replace("/\s+/", " ", trim($raw_arguments));
-				$arguments = $this->map($raw_arguments);
-				$method = "_command_$command";
-				$__ = compact("command", "raw_arguments", "arguments");
-				if (method_exists($this, $method)) {
-					$this->verbose_log("Running command {command} {raw_arguments} => {arguments}", $__);
-					$result = call_user_func_array(array(
-						$this,
-						$method
-					), explode(" ", $arguments));
-					if (is_bool($result) && $result === false) {
-						$this->error("Command failed ... aborting.");
-						return false;
-					} else {
-						$this->verbose_log("Command {command} was successful.", $__);
-					}
-				} else {
-					$this->error("Unknown command {command} ({raw_arguments})", $__);
+				if (!$this->process_configuration_line($line)) {
+					return false;
 				}
 			}
 		}
 		return true;
 	}
+
+	/**
+	 * Process a command file configuration line
+	 *
+	 * @param string $line
+	 * @return boolean
+	 */
+	private function process_configuration_line($line) {
+		$line = preg_replace("/\s+/", " ", $line);
+		list($command, $raw_arguments) = pair($line, " ", $line, null);
+		$command = PHP::clean_function($command);
+		$raw_arguments = preg_replace("/\s+/", " ", trim($raw_arguments));
+		$arguments = $this->map($raw_arguments);
+		$method = "command_$command";
+		$__ = compact("command", "raw_arguments", "arguments");
+		if (method_exists($this, $method)) {
+			$this->verbose_log("Running command {command} {raw_arguments} => {arguments}", $__);
+			$result = call_user_func_array(array(
+				$this,
+				$method
+			), explode(" ", $arguments));
+			if (is_bool($result) && $result === false) {
+				$this->error("Command failed ... aborting.");
+				return false;
+			} else {
+				$this->verbose_log("Command {command} was successful.", $__);
+			}
+		} else {
+			if (!$this->call_hook_arguments($method, array(), null)) {
+				$this->error("Unknown command {command} ({raw_arguments})", $__);
+				return false;
+			}
+		}
+		return true;
+	}
+	/**
+	 *
+	 * @return number[]
+	 */
 	private function current_uid_gid() {
 		return array(
 			intval(implode("\n", $this->application->process->execute("id -u"))),
@@ -431,12 +506,13 @@ class Command_Configure extends Command_Base {
 	}
 
 	/**
+	 * Create a directory on the system with a specified owner and mode
 	 *
-	 * @param unknown $target
-	 * @param unknown $owner
-	 * @param unknown $mode
+	 * @param string $target Directory to create
+	 * @param unknown $owner Owner of the directory (enforced)
+	 * @param unknown $mode Permissions mode for the directory (optional)
 	 */
-	private function _command_mkdir($target, $owner = null, $mode = null) {
+	public function command_mkdir($target, $owner = null, $mode = null) {
 		$__['target'] = $target;
 		if (!is_dir($target)) {
 			if (!$this->prompt_yes_no(__("Create directory {target}?", $__))) {
@@ -451,11 +527,12 @@ class Command_Configure extends Command_Base {
 	}
 
 	/**
+	 * Symlink should link to file
 	 *
-	 * @param unknown $symlink
-	 * @param unknown $file
+	 * @param string $symlink
+	 * @param string $file
 	 */
-	private function _command_symlink($symlink, $file) {
+	public function command_symlink($symlink, $file) {
 		$__ = compact("symlink", "file");
 		if (!is_dir($file) && !is_file($file)) {
 			$this->error("Symlink {symlink} => {file}: File does not exist", $__);
@@ -499,7 +576,7 @@ class Command_Configure extends Command_Base {
 	 * @param string $source
 	 * @param string $destination
 	 */
-	private function _command_file_catenate($source, $destination, $flags = null) {
+	public function command_file_catenate($source, $destination, $flags = null) {
 		$flags = ($flags !== null) ? arr::flip_assign(explode(",", strtolower(strtr($flags, ";", ","))), true) : array();
 		$sources = File::find_all($this->host_paths, $source);
 		$__ = array(
@@ -558,15 +635,24 @@ class Command_Configure extends Command_Base {
 		}
 		return null;
 	}
-	private function map($string) {
+
+	/**
+	 * Map a string using the current variable map
+	 *
+	 * @param string $string
+	 * @return string
+	 */
+	public function map($string) {
 		return map($string, $this->variable_map, true);
 	}
 	/**
+	 * Copy a file from source to destination and inherit parent directory owner and group
 	 *
-	 * @param unknown $source
-	 * @param unknown $destination
+	 * @param string $source Filename of source file
+	 * @param string $destination Filename of destination file
+	 * @return boolean
 	 */
-	private static function copy_file_inherit($source, $destination) {
+	public static function copy_file_inherit($source, $destination) {
 		if (!copy($source, $destination)) {
 			return false;
 		}
@@ -578,11 +664,13 @@ class Command_Configure extends Command_Base {
 	}
 
 	/**
+	 * Copy content to a destination file and inherit parent directory owner and group
 	 *
-	 * @param unknown $destination
-	 * @param unknown $content
+	 * @param string $source Filename of source file
+	 * @param string $content File contents (string)
+	 * @return boolean
 	 */
-	private static function file_put_contents_inherit($destination, $content) {
+	public static function file_put_contents_inherit($destination, $content) {
 		if (!file_put_contents($destination, $content)) {
 			return false;
 		}
@@ -598,7 +686,7 @@ class Command_Configure extends Command_Base {
 	 * @param unknown $source
 	 * @param unknown $destination
 	 */
-	private function _command_file($source, $destination, $want_owner = null, $want_mode = null) {
+	public function command_file($source, $destination, $want_owner = null, $want_mode = null) {
 		$__ = compact("source", "destination", "want_owner", "want_mode");
 		if (is_link($destination)) {
 			if (!$this->prompt_yes_no(__("Target {destination} is a link, replace with {source} as a file?", $__))) {
@@ -689,8 +777,11 @@ class Command_Configure extends Command_Base {
 
 	/**
 	 * Pass a list of variables which MUST be defined to continue
+	 *
+	 * @param $variable Pass one or more variables to test that they are defined
+	 * @return boolean
 	 */
-	private function _command_defined() {
+	public function command_defined() {
 		$args = func_get_args();
 		$not_defined = array();
 		foreach ($args as $arg) {
@@ -703,10 +794,12 @@ class Command_Configure extends Command_Base {
 				"not_defined" => $not_defined,
 				"all_vars" => array_keys($this->variable_map)
 			) + $this->variable_map);
+			return false;
 		} else {
 			$this->verbose_log("defined {args} - success", array(
 				"args" => implode(" ", $args)
 			));
+			return true;
 		}
 	}
 
@@ -717,7 +810,7 @@ class Command_Configure extends Command_Base {
 	 * @param string $target
 	 *        	Directory to check out to
 	 */
-	private function _command_subversion($repo, $target) {
+	public function command_subversion($repo, $target) {
 		/* @var $zesk \zesk\Kernel */
 		$app = $this->application;
 		$__ = compact("repo", "target");
