@@ -499,11 +499,11 @@ class Command_Configure extends Command_Base {
 		if (!empty($want_mode)) {
 			$this->verbose_log("Want mode of {target} to be {want_mode} ...", $__);
 			if ($old_mode !== $want_mode) {
-				if (!$this->prompt_yes_no(__("Change permissions of {target} to {want_mode_octal} (old mode {old_mode})?", $__))) {
+				if (!$this->prompt_yes_no(__("Change permissions of {target} to {want_mode} (old mode {old_mode})?", $__))) {
 					return false;
 				}
 				if (!chmod($target, $__['decimal_want_mode'] = octdec($want_mode))) {
-					$this->error("Unable to chmod {target} to {want_mode_octal} (decimal: {decimal_want_mode})", $__);
+					$this->error("Unable to chmod {target} to {want_mode} (decimal: {decimal_want_mode})", $__);
 					return false;
 				}
 			}
