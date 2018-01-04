@@ -402,7 +402,7 @@ class Command_Configure extends Command_Base {
 				$this->verbose_log("Command {command} was successful.", $__);
 			}
 		} else {
-			if (!$this->call_hook_arguments($method, array(), null)) {
+			if (!$this->call_hook_arguments($method, $arguments, null)) {
 				$this->error("Unknown command {command} ({raw_arguments})", $__);
 				return false;
 			}
