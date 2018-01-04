@@ -403,7 +403,8 @@ class Command_Configure extends Command_Base {
 			}
 		} else {
 			if (!$this->call_hook_arguments($method, array(
-				$arguments
+				$arguments,
+				"Hello"
 			), null)) {
 				$this->error("Unknown command {command} ({raw_arguments})", $__);
 				return false;
