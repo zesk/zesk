@@ -436,7 +436,7 @@ class Command_Configure extends Command_Base {
 	private function handle_owner_mode($target, $want_owner = null, $want_mode = null) {
 		$original_want_mode = $want_mode;
 		if (is_string($want_mode)) {
-			if (preg_match('/^0[0-9]+/', $want_mode)) {
+			if (preg_match('/^0[0-9]+$/', $want_mode)) {
 				$want_mode = intval(octdec($want_mode));
 			} else {
 				$want_mode = intval($want_mode);
@@ -450,7 +450,7 @@ class Command_Configure extends Command_Base {
 				"original" => $original_want_mode
 			));
 			return false;
-		} else if ($want_mode !== null) {
+		} else if ($want_mode !== null && !is_integer($want_mode)) {
 			$this->error("{method} invalid \$want_mode {type} with value {original} -> {final}", array(
 				"method" => __METHOD__,
 				"original" => $original_want_mode,
