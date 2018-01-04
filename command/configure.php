@@ -386,7 +386,7 @@ class Command_Configure extends Command_Base {
 		list($command, $raw_arguments) = pair($line, " ", $line, null);
 		$command = PHP::clean_function($command);
 		$raw_arguments = preg_replace("/\s+/", " ", trim($raw_arguments));
-		$arguments = $this->map($raw_arguments);
+		$arguments = $this->map(explode(" ", $raw_arguments));
 		$method = "command_$command";
 		$__ = compact("command", "raw_arguments", "arguments");
 		if (method_exists($this, $method)) {
@@ -394,7 +394,7 @@ class Command_Configure extends Command_Base {
 			$result = call_user_func_array(array(
 				$this,
 				$method
-			), explode(" ", $arguments));
+			), $arguments);
 			if (is_bool($result) && $result === false) {
 				$this->error("Command failed ... aborting.");
 				return false;
@@ -404,7 +404,7 @@ class Command_Configure extends Command_Base {
 		} else {
 			if (!$this->call_hook_arguments($method, array(
 				$arguments,
-				"Hello"
+				$command
 			), null)) {
 				$this->error("Unknown command {command} ({raw_arguments})", $__);
 				return false;
