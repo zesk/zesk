@@ -431,7 +431,7 @@ class Command_Configure extends Command_Base {
 	 * @param unknown $target
 	 * @param unknown $want_owner
 	 * @param string|number $want_mode Decimal string or octal string
-	 * @return boolean
+	 * @return boolean|null Returns true if changes made successfully, false if failed, or null if no changes required
 	 */
 	private function handle_owner_mode($target, $want_owner = null, $want_mode = null) {
 		$original_want_mode = $want_mode;
@@ -459,6 +459,7 @@ class Command_Configure extends Command_Base {
 			));
 			return false;
 		}
+		$changed = null;
 		$new_user = null;
 		$new_group = null;
 		$stats = File::stat($target, "");
@@ -514,6 +515,7 @@ class Command_Configure extends Command_Base {
 						return false;
 					}
 					$this->verbose_log("Changed owner of {target} to {new_user} (old user {old_user})", $__);
+					$changed = true;
 				}
 				if ($new_group) {
 					if (!chgrp($target, $new_group)) {
@@ -521,6 +523,7 @@ class Command_Configure extends Command_Base {
 						return false;
 					}
 					$this->verbose_log("Changed group of {target} to {new_group} (old group {old_group})", $__);
+					$changed = true;
 				}
 			}
 		}
@@ -534,9 +537,10 @@ class Command_Configure extends Command_Base {
 					$this->error("Unable to chmod {target} to {want_mode_octal} (decimal: {decimal_want_mode})", $__);
 					return false;
 				}
+				$changed = true;
 			}
 		}
-		return true;
+		return $changed;
 	}
 
 	/**
