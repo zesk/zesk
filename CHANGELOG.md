@@ -27,6 +27,7 @@ Version 1.0 of Zesk will have:
 ## [Unreleased][]
 
 - `zesk\Command::exec` is now public
+- `zesk\File::stat` returns `["perms"]["decimal"]` which is actually a decimal value (was octal previously), and is truncated to the bottom 9 bits
 
 ## [v0.14.4][]
 
