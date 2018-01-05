@@ -467,7 +467,7 @@ class Command_Configure extends Command_Base {
 		$__['want_mode_octal'] = "0" . decoct($want_mode);
 		$__['want_mode'] = $want_mode;
 
-		$__['old_mode'] = $old_mode = $stats['perms']['mode'];
+		$__['old_mode'] = $old_mode = $stats['perms']['decimal'];
 		$__['old_mode_octal'] = $stats['perms']['octal0'];
 		$__['old_user'] = $stats['owner']['owner'];
 		$__['old_group'] = $stats['owner']['group'];
