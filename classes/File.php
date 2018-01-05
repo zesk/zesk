@@ -812,9 +812,9 @@ class File {
 				'string' => $mode_string,  /* drwxrwxrwx */
 				'octal' => sprintf("%o", ($p & 0777)),  /* Octal without a zero prefix */
 				'octal0' => self::mode_to_octal($p),  /* Octal with a zero prefix */
-				'decimal' => sprintf("%04o", $p),  /* Decimal value */
+				'decimal' => intval($p & 0777),  /* Decimal value, truncated */
 				'fileperms' => $is_res ? null : @fileperms($path),  /* Permissions */
-				'mode' => $p /* Permissions */
+				'mode' => $p /* Raw permissions value returned by fstat */
 			),
 			'owner' => array(
 				'uid' => $ss['uid'],
