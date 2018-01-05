@@ -153,7 +153,7 @@ class Hookable extends Options {
 		 * For each hook, call internal hook, then options-based hook, then system hook.
 		 */
 		$app = $this->application;
-		$result = null;
+		$result = $default;
 		foreach ($types as $type) {
 			$method = PHP::clean_function($type);
 			if ($method !== $type) {
@@ -172,7 +172,7 @@ class Hookable extends Options {
 			$hooks = arr::suffix($app->classes->hierarchy($this, __CLASS__), "::$type");
 			$result = $app->hooks->call_arguments($hooks, $zesk_hook_args, $result, $hook_callback, $result_callback);
 		}
-		return ($result === null) ? $default : $result;
+		return $result;
 	}
 
 	/**

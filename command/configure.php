@@ -547,10 +547,12 @@ class Command_Configure extends Command_Base {
 	 * Create a directory on the system with a specified owner and mode
 	 *
 	 * @param string $target Directory to create
-	 * @param unknown $owner Owner of the directory (enforced)
-	 * @param unknown $mode Permissions mode for the directory (optional)
+	 * @param string $owner Owner of the directory (enforced)
+	 * @param string|number $want_mode Decimal value or octal string
+	 * @return boolean|null Returns true if changes made successfully, false if failed, or null if no changes required
 	 */
 	public function command_mkdir($target, $owner = null, $mode = null) {
+		$changed = null;
 		$__['target'] = $target;
 		if (!is_dir($target)) {
 			if (!$this->prompt_yes_no(__("Create directory {target}?", $__))) {
@@ -560,8 +562,13 @@ class Command_Configure extends Command_Base {
 				$this->error("Unable to create directory {target}", $__);
 				return false;
 			}
+			$changed = true;
 		}
-		return $this->handle_owner_mode($target, $owner, $mode);
+		$result = $this->handle_owner_mode($target, $owner, $mode);
+		if (is_bool($result)) {
+			return $result;
+		}
+		return $changed;
 	}
 
 	/**
@@ -569,6 +576,7 @@ class Command_Configure extends Command_Base {
 	 *
 	 * @param string $symlink
 	 * @param string $file
+	 * @return boolean|null Returns true if changes made successfully, false if failed, or null if no changes required
 	 */
 	public function command_symlink($symlink, $file) {
 		$__ = compact("symlink", "file");
@@ -595,7 +603,7 @@ class Command_Configure extends Command_Base {
 			}
 		} else {
 			if (($oldlink = readlink($symlink)) === $file) {
-				return true;
+				return null;
 			}
 			if (!$this->prompt_yes_no(__("Symlink {symlink} points to {old_file}, update to point to correct {file}?", compact("old_file") + $__))) {
 				return false;
@@ -613,6 +621,7 @@ class Command_Configure extends Command_Base {
 	 *
 	 * @param string $source
 	 * @param string $destination
+	 * @return boolean|null Returns true if changes made successfully, false if failed, or null if no changes made
 	 */
 	public function command_file_catenate($source, $destination, $flags = null) {
 		$flags = ($flags !== null) ? arr::flip_assign(explode(",", strtolower(strtr($flags, ";", ","))), true) : array();
@@ -659,7 +668,7 @@ class Command_Configure extends Command_Base {
 			$content .= $file_content;
 		}
 		if (trim(File::contents($destination)) === trim($content)) {
-			return true;
+			return null;
 		}
 		$temp_file = File::temporary("temp");
 		file_put_contents($temp_file, $content);
@@ -671,7 +680,7 @@ class Command_Configure extends Command_Base {
 				$this->verbose_log("Copy {source} to {default_source}", compact("source", "default_source"));
 				return self::copy_file_inherit($destination, $default_source);
 		}
-		return null;
+		return false;
 	}
 
 	/**
