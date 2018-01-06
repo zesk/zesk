@@ -27,7 +27,7 @@ class Module extends \zesk\Module {
 	 */
 	public function initialize() {
 		parent::initialize();
-		$this->hooks->add('zesk\\Command_Configure::command_daemontools_service', array(
+		$this->application->hooks->add('zesk\\Command_Configure::command_daemontools_service', array(
 			$this,
 			"command_daemontools_service"
 		));
