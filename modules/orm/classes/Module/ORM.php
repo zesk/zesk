@@ -78,6 +78,11 @@ class Module_ORM extends Module {
 			"database_table_add_column"
 		));
 
+		$this->application->hooks->add('zesk\\Command_Daemon::daemon_hooks', array(
+			$this,
+			"daemon_hooks"
+		));
+
 		/**
 		 * Support MySQL database adapter
 		 */
@@ -85,6 +90,16 @@ class Module_ORM extends Module {
 		$this->database_adapters['mysqli'] = $mysql;
 	}
 
+	/**
+	 * Collect hooks used to invoke daemons
+	 *
+	 * @param array $daemon_hooks
+	 * @return string
+	 */
+	public function daemon_hooks(array $daemon_hooks) {
+		$daemon_hooks[] = ORM::class . '::daemon';
+		return $daemon_hooks;
+	}
 	/**
 	 * Getter/setter for database adapters
 	 *
@@ -182,7 +197,7 @@ class Module_ORM extends Module {
 	 */
 	private function _classes($add = null) {
 		$classes = array();
-		$model_classes = array_merge($this->model_classes, $this->model_classes);
+		$model_classes = $this->application->call_hook_arguments("orm_classes", array(), array());
 		$this->application->logger->debug("Classes from {class}->model_classes = {value}", array(
 			"class" => get_class($this),
 			"value" => $model_classes
@@ -193,7 +208,7 @@ class Module_ORM extends Module {
 		), $classes);
 		/* @var $module Module */
 		foreach ($this->application->modules->all_modules() as $name => $module) {
-			$module_classes = $module->classes();
+			$module_classes = $module->model_classes();
 			$this->application->logger->debug("Classes for module {name} = {value}", array(
 				"name" => $name,
 				"value" => $module_classes
