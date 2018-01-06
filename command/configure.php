@@ -804,21 +804,22 @@ class Command_Configure extends Command_Base {
 			"destination",
 			"skip"
 		);
-		switch (trim($this->prompt("Which is right?\n< source, > destination, or skip? (<,source,>,destination,skip) "))) {
-			case "<":
-			case "source":
-				$this->log("Copying {source_name} to {destination_name}", compact("source_name", "destination_name"));
-				$this->changed = true;
-				return "source";
+		switch (trim($this->prompt("Which is right?\n< source, > destination, or skip? (<,source,>,destination,skip) Default: source", "source"))) {
 			case ">":
 			case "destination":
 				$this->log("Copying {destination_name} to {source_name}", compact("source_name", "destination_name"));
 				$this->changed = true;
 				return "destination";
-			default :
+			case "skip":
 				$this->log("skipping ...");
 				$this->incomplete++;
 				return null;
+			default :
+			case "<":
+			case "source":
+				$this->log("Copying {source_name} to {destination_name}", compact("source_name", "destination_name"));
+				$this->changed = true;
+				return "source";
 		}
 	}
 
@@ -847,65 +848,6 @@ class Command_Configure extends Command_Base {
 				"args" => implode(" ", $args)
 			));
 			return true;
-		}
-	}
-
-	/**
-	 *
-	 * @param URL $repo
-	 *        	Subversion repository URL
-	 * @param string $target
-	 *        	Directory to check out to
-	 */
-	public function command_subversion($repo, $target) {
-		/* @var $zesk \zesk\Kernel */
-		$app = $this->application;
-		$__ = compact("repo", "target");
-		try {
-			if (!is_dir($target)) {
-				if (!$this->prompt_yes_no(__("Create subversion directory {target} for {repo}", $__))) {
-					return false;
-				}
-				if (!Directory::create($target)) {
-					$this->error(__("Unable to create {target}", $__));
-					return false;
-				}
-				$this->verbose_log("Created {target}", $__);
-			}
-			$config_dir = $app->paths->home(".subversion");
-			$this->verbose_log("Subversion configuration path is {config_dir}", compact("config_dir"));
-			if (!is_dir(path($target, ".svn"))) {
-				if (!$this->prompt_yes_no(__("Checkout subversion {repo} to {target}", $__))) {
-					return false;
-				}
-				$app->process->execute_arguments("svn --non-interactive --config-dir {0} co {1} {2}", array(
-					$config_dir,
-					$repo,
-					$target
-				), true);
-				$this->changed = true;
-				return true;
-			} else {
-				$results = $app->process->execute_arguments("svn --non-interactive --config-dir {0} status --show-updates {1}", array(
-					$config_dir,
-					$target
-				));
-				if (count($results) > 1) {
-					$this->log($results);
-					if (!$this->prompt_yes_no(__("Update subversion {target} from {repo}", $__))) {
-						return false;
-					}
-					$app->process->execute_arguments("svn --non-interactive --config-dir {0} up --force {1}", array(
-						$config_dir,
-						$target
-					), true);
-				}
-			}
-			$this->changed = true;
-			return true;
-		} catch (Exception $e) {
-			$this->error("Command failed: {e}", compact("e"));
-			return false;
 		}
 	}
 }
