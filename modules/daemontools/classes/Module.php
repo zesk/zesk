@@ -143,8 +143,19 @@ class Module extends \zesk\Module {
 
 	/**
 	 *
+	 * @return \zesk\DaemonTools\Service[]
 	 */
-	public function list_services() {
+	public function services() {
+		$names = $this->list_service_names();
+		foreach ($this->application->process->execute_arguments("svstat {*}", $names) as $line) {
+			$services[] = Service::from_svstat($this, $line);
+		}
+		return $services;
+	}
+	/**
+	 *
+	 */
+	public function list_service_names() {
 		$files = Directory::list_recursive($this->services_path(), array(
 			"rules_file" => array(
 				'#/run$#' => true,
