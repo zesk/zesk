@@ -56,6 +56,33 @@ abstract class Command extends Hookable implements Logger\Handler {
 	private $errors = array();
 
 	/**
+	 * Does the terminal support ANSI colors?
+	 *
+	 * @var array
+	 */
+	protected $ansi = false;
+
+	/**
+	 *
+	 * @var string
+	 */
+	const ANSI_ESCAPE = "\033[";
+	/**
+	 *
+	 * @var array
+	 */
+	public static $ansi_styles = array(
+		'emergency' => "31;31m",
+		'critical' => "31;31m",
+		'error' => "31;31m",
+		'warning' => "0;32m",
+		'success' => "0;32m",
+		'info' => "33;33m",
+		'debug' => "37;40m",
+		"reset" => "0m"
+	);
+
+	/**
 	 * Help string
 	 *
 	 * @var string
@@ -218,6 +245,8 @@ abstract class Command extends Hookable implements Logger\Handler {
 			$this->usage(implode("\n", $this->errors()));
 			exit(1);
 		}
+
+		$this->determine_ansi();
 	}
 
 	/**
@@ -628,6 +657,7 @@ abstract class Command extends Hookable implements Logger\Handler {
 		if ($this->has_option("suffix")) {
 			$suffix = " " . $this->option("suffix") . $suffix;
 		}
+		list($prefix, $suffix) = $this->ansi_annotate($prefix, $suffix, $severity);
 		if (isset(self::$severity_is_error[$severity])) {
 			fwrite(self::stderr(), $prefix . $message . $suffix);
 			$this->errors[] = $message;
@@ -635,6 +665,34 @@ abstract class Command extends Hookable implements Logger\Handler {
 			echo $prefix . implode("\n" . str_repeat(" ", strlen($prefix)), explode("\n", $message)) . $suffix;
 			flush();
 		}
+	}
+
+	/**
+	 * Is the terminal an ANSI terminal?
+	 */
+	private function determine_ansi() {
+		if ($this->option_bool('no-ansi')) {
+			$this->ansi = false;
+		} elseif ($this->option_bool('ansi')) {
+			$this->ansi = true;
+		} else {
+			// On Windows, enable ANSI for ANSICON and ConEmu only
+			$this->ansi = is_windows() ? (false !== getenv('ANSICON') || 'ON' === getenv('ConEmuANSI')) : function_exists('posix_isatty') && posix_isatty(1);
+		}
+	}
+	private function ansi_annotate($prefix, $suffix, $severity = "info") {
+		if (!$this->ansi || !array_key_exists($severity, self::$ansi_styles)) {
+			return array(
+				$prefix,
+				$suffix
+			);
+		}
+		$prefix = self::ANSI_ESCAPE . self::$ansi_styles[$severity] . $prefix;
+		$suffix .= self::ANSI_ESCAPE . self::$ansi_styles['reset'];
+		return array(
+			$prefix,
+			$suffix
+		);
 	}
 
 	/**

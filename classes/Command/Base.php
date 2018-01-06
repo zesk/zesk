@@ -1,24 +1,24 @@
 <?php
 
 /**
- * 
+ *
  */
 namespace zesk;
 
 /**
  *
  * @author kent
- *        
+ *
  */
 abstract class Command_Base extends Command {
 	/**
-	 * 
+	 *
 	 * @var boolean
 	 */
 	protected $quiet = false;
-	
+
 	/**
-	 * 
+	 *
 	 * @var array
 	 */
 	private static $quiet_levels = array(
@@ -26,9 +26,9 @@ abstract class Command_Base extends Command {
 		"notice" => true,
 		"debug" => true
 	);
-	
+
 	/**
-	 * 
+	 *
 	 * {@inheritDoc}
 	 * @see \zesk\Command::log()
 	 */
@@ -41,7 +41,7 @@ abstract class Command_Base extends Command {
 		}
 		return parent::log($message, $arguments);
 	}
-	
+
 	/**
 	 * Pre-flight, and add standard options
 	 *
@@ -54,18 +54,22 @@ abstract class Command_Base extends Command {
 		$this->option_types['debug'] = 'boolean';
 		$this->option_types['debug-config'] = 'boolean';
 		$this->option_types['verbose'] = 'boolean';
+		$this->option_types['ansi'] = 'boolean';
+		$this->option_types['no-ansi'] = 'boolean';
 		$this->option_types['quiet'] = 'boolean';
 		$this->option_types['help'] = 'boolean';
-		
+
 		$this->option_help['log'] = "Name of the log file to output log messages to (default is stdout, use - to use stdout)";
 		$this->option_help['log-level'] = "(Deprecated) Use --severity.";
 		$this->option_help['severity'] = "Maximum log severity to output";
 		$this->option_help['debug'] = "Debugging logging enabled";
 		$this->option_help['debug-config'] = "Output the configuration load order similar to the zesk config command.";
 		$this->option_help['verbose'] = 'Output more messages to assist in debugging problems, or just for fun.';
+		$this->option_help['ansi'] = 'Force ANSI colors in output';
+		$this->option_help['no-ansi'] = 'Disable ANSI colors in output';
 		$this->option_help['quiet'] = 'Supress all log messages to stdout overriding --verbose and --debug.';
 		$this->option_help['help'] = "This help.";
-		
+
 		if (isset($this->option_types['format']) && !isset($this->option_help['format'])) {
 			$this->option_help['format'] = "Output format: JSON, Text, Serialize, PHP";
 		}
@@ -92,7 +96,7 @@ abstract class Command_Base extends Command {
 		$severity = $this->option("severity", $this->option("log-level", $debug ? "debug" : "info"));
 		$logger = $this->application->logger;
 		$all_levels = $logger->levels_select($severity);
-		
+
 		if (($filename = $this->option("log")) !== null) {
 			$modules = $this->application->modules->load("Logger_File");
 			$log_file = new Logger\File();
@@ -112,7 +116,7 @@ abstract class Command_Base extends Command {
 			}
 		}
 	}
-	
+
 	/**
 	 */
 	protected function hook_run_before() {
@@ -132,7 +136,7 @@ abstract class Command_Base extends Command {
 			return $this->action_debug_configured(false);
 		}
 	}
-	
+
 	/**
 	 */
 	public function action_debug_configured($exit = true) {
