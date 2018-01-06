@@ -20,11 +20,11 @@ class Module extends \zesk\Module_Repository {
 	 */
 	function initialize() {
 		parent::initialize();
-		$this->register_repository(Repository::class, array(
+		$this->application->register_repository(Repository::class, array(
 			"svn",
 			"subversion"
 		));
-		$this->hooks->add('zesk\\Command_Configure::command_subversion', array(
+		$this->application->hooks->add('zesk\\Command_Configure::command_subversion', array(
 			$this,
 			"command_subversion"
 		));

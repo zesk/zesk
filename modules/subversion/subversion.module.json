@@ -1,6 +1,6 @@
 {
 	"name": "Subversion source code repository",
-	"depends": [
+	"requires": [
 		"Repository"
 	],
 	"autoload_options": {
