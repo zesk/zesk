@@ -31,6 +31,10 @@ class Module extends \zesk\Module {
 			$this,
 			"command_daemontools_service"
 		));
+		$this->application->hooks->add('zesk\\Command_Configure::command_daemontools_service_remove', array(
+			$this,
+			"command_daemontools_service_remove"
+		));
 	}
 	/**
 	 * Hook for daemontools_service
