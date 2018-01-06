@@ -75,7 +75,7 @@ abstract class Command extends Hookable implements Logger\Handler {
 		'emergency' => "31;31m",
 		'critical' => "31;31m",
 		'error' => "31;31m",
-		'warning' => "0;32m",
+		'warning' => "40;33m",
 		'success' => "0;32m",
 		'info' => "33;33m",
 		'debug' => "37;40m",
@@ -688,7 +688,8 @@ abstract class Command extends Hookable implements Logger\Handler {
 			);
 		}
 		$prefix = self::ANSI_ESCAPE . self::$ansi_styles[$severity] . $prefix;
-		$suffix .= self::ANSI_ESCAPE . self::$ansi_styles['reset'];
+		$suffix = explode("\n", $suffix);
+		$suffix = implode(self::ANSI_ESCAPE . self::$ansi_styles['reset'] . "\n", $suffix);
 		return array(
 			$prefix,
 			$suffix
