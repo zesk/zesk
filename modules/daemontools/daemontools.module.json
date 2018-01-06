@@ -5,7 +5,5 @@
 		"class_prefix": "zesk\\DaemonTools\\",
 		"lower": false
 	},
-	"module_class": {
-		"zesk\\DaemonTools\\Module"
-	}
+	"module_class": "zesk\\DaemonTools\\Module"
 }
