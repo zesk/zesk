@@ -25,7 +25,7 @@ use Psr\Cache\CacheItemPoolInterface;
  * @method ORM|Module_ORM orm_registry($class = null, $mixed = null, array $options = null)
  * @method Module_ORM orm_module()
  */
-class Application extends Hookable implements Interface_Theme, Interface_Factory {
+class Application extends Hookable implements Interface_Theme {
 
 	/**
 	 * Probably should discourage use of this.
@@ -237,18 +237,11 @@ class Application extends Hookable implements Interface_Theme, Interface_Factory
 	protected $includes = array();
 
 	/**
-	 * Configuration file paths to search
-	 *
-	 * @var array of string
-	 */
-	protected $include_paths = array();
-
-	/**
 	 * Configuration options
 	 *
 	 * @var array
 	 */
-	static $configuration_options = null;
+	private $configuration_options = null;
 
 	/**
 	 * Configuration options
@@ -393,7 +386,6 @@ class Application extends Hookable implements Interface_Theme, Interface_Factory
 		//
 
 		// $this->includes is set in subclasses?
-		// $this->include_paths is set in subclasses?
 		// $this->template_variables is set in application itself?
 		$this->template_variables = array();
 
@@ -498,30 +490,6 @@ class Application extends Hookable implements Interface_Theme, Interface_Factory
 	}
 
 	/**
-	 * Add a path to load configuration files from, or return currentl path list
-	 *
-	 * @param string $path
-	 * @return Application|array
-	 */
-	final public function configure_include_path($path = null) {
-		if ($path === null) {
-			return $this->include_paths;
-		}
-		foreach (to_list($path) as $path) {
-			if (!is_dir($path)) {
-				$this->logger->error("{class}::{method}: {path} is not a valid directory, ignoring", array(
-					"path" => $path,
-					"class" => get_class($this),
-					"method" => __METHOD__
-				));
-				continue;
-			}
-			$this->include_paths[$path] = $path;
-		}
-		return $this;
-	}
-
-	/**
 	 * Loads a bunch of configuration files, in the following order:
 	 * 1.
 	 * application.conf
@@ -539,14 +507,14 @@ class Application extends Hookable implements Interface_Theme, Interface_Factory
 	 * continues to load
 	 */
 	final public function configure(array $options = array()) {
-		if (self::$configuration_options !== null) {
+		if ($this->configuration_options !== null) {
 			$this->logger->warning("Reconfiguring application {class}", array(
 				"class" => get_class($this)
 			));
 		}
 		$this->configuration->deprecated("Application::configure_options", __CLASS__ . "::configure_options");
-		self::$configuration_options = $options + to_array($this->configuration->path(__CLASS__)->configure_options);
-		$this->_configure(self::$configuration_options);
+		$this->configuration_options = $options + to_array($this->configuration->path(__CLASS__)->configure_options);
+		$this->_configure($this->configuration_options);
 		return $this;
 	}
 
@@ -572,12 +540,32 @@ class Application extends Hookable implements Interface_Theme, Interface_Factory
 		$configuration = $this->configuration;
 
 		if (count($this->includes) === 0 || array_key_exists('file', $options)) {
-			$this->configure_include(avalue($options, 'file', $this->default_includes()));
+			$this->configure_include(avalue($options, 'includes', avalue($options, 'file', $this->default_includes())));
 		}
 		if (count($this->include_paths) === 0 || array_key_exists('path', $options)) {
 			$this->configure_include_path(avalue($options, 'path', $this->default_include_path()));
 		}
-		$this->loader = new Configuration_Loader($this->include_paths, $this->includes, new Adapter_Settings_Configuration($configuration));
+		$includes = $this->includes;
+		$files = array();
+		foreach ($includes as $index => $file) {
+			if (File::is_absolute($file) && is_file($file)) {
+				$files[] = $file;
+				unset($includes[$index]);
+			}
+		}
+		if (count($includes) > 0 && count($this->include_paths)) {
+			$this->deprecated("Include files {files} and include paths deprecated in {class}", array(
+				"files" => $includes,
+				"class" => get_class($this)
+			));
+			foreach ($this->include_paths as $path) {
+				foreach ($includes as $file) {
+					$files[] = path($path, $file);
+				}
+			}
+		}
+
+		$this->loader = new Configuration_Loader($files, new Adapter_Settings_Configuration($configuration));
 
 		$this->loader->load();
 
@@ -715,7 +703,7 @@ class Application extends Hookable implements Interface_Theme, Interface_Factory
 	 */
 	public function reconfigure() {
 		$this->_initialize($this->zesk);
-		$result = $this->_configure(to_array(self::$configuration_options));
+		$result = $this->_configure(to_array($this->configuration_options));
 		$this->_configured();
 		return $result;
 	}
@@ -842,31 +830,14 @@ class Application extends Hookable implements Interface_Theme, Interface_Factory
 	}
 
 	/**
-	 * Default include path
-	 *
-	 * @return array
-	 */
-	private function default_include_path() {
-		$list = array_unique(array(
-			'/etc',
-			$this->zesk_root('etc'),
-			$this->path('etc')
-		));
-		return $list;
-	}
-
-	/**
 	 * Default list of files to be loaded as part of this application configuration
 	 *
 	 * @return array
 	 */
 	private function default_includes() {
 		$files_default = array();
-		$files_default[] = 'application.conf';
-		if (defined('APPLICATION_NAME')) {
-			$files_default[] = APPLICATION_NAME . '.conf';
-		}
-		$files_default[] = strtolower(System::uname()) . ".conf";
+		$files_default[] = $this->path('etc/application.json');
+		$files_default[] = $this->path('etc/host/' . strtolower(System::uname()) . ".json");
 		return $files_default;
 	}
 
@@ -2212,6 +2183,51 @@ class Application extends Hookable implements Interface_Theme, Interface_Factory
 	public function schema_synchronize(Database $db = null, array $classes = null, array $options = array()) {
 		$this->deprecated();
 		return $this->modules->object("orm")->schema_synchronize($db, $classes, $options);
+	}
+
+	/**
+	 * @deprecated 2018-01 Better to use list of files
+	 * @var array
+	 */
+	protected $include_paths = array();
+	/**
+	 * Add a path to load configuration files from, or return currentl path list
+	 *
+	 * @deprecated 2018-01 Use configure_include with absolute paths instead
+	 * @param string $path
+	 * @return Application|array
+	 */
+	final public function configure_include_path($path = null) {
+		if ($path === null) {
+			return $this->include_paths;
+		}
+		foreach (to_list($path) as $path) {
+			if (!is_dir($path)) {
+				$this->logger->error("{class}::{method}: {path} is not a valid directory, ignoring", array(
+					"path" => $path,
+					"class" => get_class($this),
+					"method" => __METHOD__
+				));
+				continue;
+			}
+			$this->include_paths[$path] = $path;
+		}
+		return $this;
+	}
+
+	/**
+	 * Default include path
+	 *
+	 * @deprecated 2018-01
+	 * @return array
+	 */
+	private function default_include_path() {
+		$list = array_unique(array(
+			'/etc',
+			$this->zesk_root('etc'),
+			$this->path('etc')
+		));
+		return $list;
 	}
 }
 
