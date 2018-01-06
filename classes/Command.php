@@ -278,14 +278,18 @@ abstract class Command extends Hookable implements Logger\Handler {
 	 * @return string Path of configuration file
 	 */
 	private function _configuration_config($name) {
-		$path = $this->configuration_path();
+		$file = File::name_clean(strtolower($name)) . '.conf';
+		$files = array();
+		$paths = $this->configuration_path();
+		foreach ($paths as $path) {
+			$files[] = path($path, $file);
+		}
 		$result = array(
-			'path' => $path,
-			'file' => $file = File::name_clean(strtolower($name)) . '.conf',
-			'default' => $default = File::find_first($path, $file)
+			'files' => $files,
+			'default' => $default = File::find_first($paths, $file)
 		);
 		if (empty($default)) {
-			$result['default'] = path(first($path), $file);
+			$result['default'] = path(first($paths), $file);
 		}
 		return $result;
 	}
@@ -322,8 +326,7 @@ abstract class Command extends Hookable implements Logger\Handler {
 
 		// Load global include
 		$app = $this->application;
-		$app->configure_include($configure_options['file']);
-		$app->configure_include_path($configure_options['path']);
+		$app->configure_include($configure_options['files']);
 
 		$this->configuration = $app->reconfigure();
 
