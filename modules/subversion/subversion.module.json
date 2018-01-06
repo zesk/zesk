@@ -4,8 +4,8 @@
 		"Repository"
 	],
 	"autoload_options": {
-		"class_prefix": "zesk\\",
+		"class_prefix": "zesk\\Subversion\\",
 		"lower": false
 	},
-	"module_class": "zesk\\Module_Subversion"
+	"module_class": "zesk\\Subversion\\Module"
 }
