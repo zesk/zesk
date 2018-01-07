@@ -41,7 +41,9 @@ Version 1.0 of Zesk will have:
 
 ### Deprecated functionality
 
-- `zesk\Session` will be deprecated and instead will move to modules `session-database` and `session-php`
+- `zesk\Session` will be deprecated and instead will move to modules `session-orm` and `session-php`
+- `zesk\Application::model_classes` is deprecated and is now ignored
+
 ## [v0.14.4][]
 
 ### Fixed bugs
