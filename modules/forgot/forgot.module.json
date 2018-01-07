@@ -4,5 +4,9 @@
 		"class_prefix": "zesk\\",
 		"lower": false
 	},
-	"module_class": "zesk\\Module_Forgot"
+	"module_class": "zesk\\Module_Forgot",
+	"requires": [
+		"Session",
+		"ORM"
+	]
 }
