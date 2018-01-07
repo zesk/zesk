@@ -52,6 +52,12 @@ class Configuration_Loader {
 	private $dependency = null;
 
 	/**
+	 * Current file being processed
+	 *
+	 * @var string
+	 */
+	private $current = null;
+	/**
 	 *
 	 * @param array $files
 	 * @param array $paths
@@ -85,6 +91,9 @@ class Configuration_Loader {
 		}
 		return $this;
 	}
+	public function current() {
+		return $this->current;
+	}
 	/**
 	 *
 	 * @return number|unknown
@@ -93,10 +102,13 @@ class Configuration_Loader {
 		while (count($this->files) > 0) {
 			$file = array_shift($this->files);
 			try {
+				$this->current = $file;
 				$this->load_one($file);
+				$this->current = null;
 			} catch (Exception_File_Format $e) {
 				zesk()->logger->error("Unable to parse configuration file {file} - no parser", compact("file"));
 			}
+			$this->current = null;
 		}
 	}
 
