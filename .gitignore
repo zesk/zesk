@@ -14,3 +14,4 @@ vendor/
 .update.json
 .svn/
 composer.lock
+CHANGELOG.md.backup
