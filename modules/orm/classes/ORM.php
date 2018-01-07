@@ -188,23 +188,6 @@ class ORM extends Model {
 	}
 
 	/**
-	 * Create an object in the context of the current object
-	 *
-	 * @param $class string
-	 *        	ORM class to create
-	 * @param $mixed mixed
-	 *        	ID or array to intialize object
-	 * @param $options array
-	 *        	Additional options for object
-	 * @return ORM
-	 * @deprecated 2017-12
-	 */
-	public function object_factory($class, $mixed = null, array $options = array()) {
-		$this->application->deprecated();
-		return $this->orm_factory($class, $mixed, $options);
-	}
-
-	/**
 	 * Syntactic sugar - returns ORM not a Model
 	 *
 	 * @param string $class
@@ -260,19 +243,6 @@ class ORM extends Model {
 	 */
 	public function class_option($name, $default = null) {
 		return $this->class->option($name, $default);
-	}
-
-	/**
-	 * Retrieve the Class_ORM associated with this object.
-	 * Often matches "Class_" . get_class($this), but not always.
-	 *
-	 * @deprecated 2017-12
-	 * @see class_orm
-	 * @return Class_ORM
-	 */
-	public function class_object() {
-		zesk()->deprecated();
-		return $this->class_orm();
 	}
 
 	/**
@@ -494,7 +464,7 @@ class ORM extends Model {
 	 * Cache object data
 	 */
 	public function cache_dirty($key = null) {
-		$this->call_hook('cache-dirty', $key);
+		$this->call_hook('cache_dirty', $key);
 	}
 
 	/**
@@ -1914,7 +1884,7 @@ class ORM extends Model {
 					$this->set_member($this->class->auto_column, $auto_id);
 					$this->call_hook('insert');
 				} else {
-					$this->call_hook('insert-failed');
+					$this->call_hook('insert_failed');
 				}
 				return $auto_id;
 			}
@@ -1926,7 +1896,7 @@ class ORM extends Model {
 			throw new Exception_ORM_Duplicate(get_class($this), $e->getMessage());
 		}
 		if (!$result) {
-			$this->call_hook('insert-failed');
+			$this->call_hook('insert_failed');
 		} else {
 			$this->call_hook('insert');
 		}
@@ -1986,7 +1956,7 @@ class ORM extends Model {
 			$this->call_hook('update', $members);
 			$this->original = $this->members + $this->original;
 		} else {
-			$this->call_hook('update-failed');
+			$this->call_hook('update_failed');
 		}
 		return $result;
 	}
@@ -2518,7 +2488,7 @@ class ORM extends Model {
 		$this->select_database();
 		$this->database()->delete($this->table, $where);
 		if (!$this->database()->affected_rows()) {
-			$this->call_hook('delete-already');
+			$this->call_hook('delete_already');
 			return false;
 		}
 		$this->call_hook('delete');
@@ -3009,5 +2979,35 @@ class ORM extends Model {
 	public static function cache_object($class) {
 		zesk()->deprecated();
 		return Class_ORM::cache($class, "object");
+	}
+
+	/**
+	 * Create an object in the context of the current object
+	 *
+	 * @param $class string
+	 *        	ORM class to create
+	 * @param $mixed mixed
+	 *        	ID or array to intialize object
+	 * @param $options array
+	 *        	Additional options for object
+	 * @return ORM
+	 * @deprecated 2017-12
+	 */
+	public function object_factory($class, $mixed = null, array $options = array()) {
+		$this->application->deprecated();
+		return $this->orm_factory($class, $mixed, $options);
+	}
+
+	/**
+	 * Retrieve the Class_ORM associated with this object.
+	 * Often matches "Class_" . get_class($this), but not always.
+	 *
+	 * @deprecated 2017-12
+	 * @see class_orm
+	 * @return Class_ORM
+	 */
+	public function class_object() {
+		zesk()->deprecated();
+		return $this->class_orm();
 	}
 }
