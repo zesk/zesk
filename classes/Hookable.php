@@ -134,8 +134,47 @@ class Hookable extends Options {
 	 *        	$new_result) { ... }`
 	 */
 	public final function call_hook_arguments($types, $args = array(), $default = null, $hook_callback = null, $result_callback = null) {
+		$hooks = $this->collect_hooks($types, $args);
+		$result = $default;
+		foreach ($hooks as $hook) {
+			list($callable, $arguments) = $hook;
+			$result = self::hook_results($result, $callable, $arguments, $hook_callback, $result_callback);
+		}
+		return $result;
+	}
+
+	/**
+	 * Invoke a hook on this object if it exists.
+	 *
+	 * Example of functions called for $user->call_hook_arguments("hello") is a User:
+	 *
+	 * $user->hook_hello (if it exists)
+	 * callable stored in $this->options['hooks']['hello'] (if it exists)
+	 * Any zesk hooks registered as (in order):
+	 * 1. User::hello
+	 * 2. zesk\User::hello
+	 * 3. zesk\ORM::hello
+	 * 3. zesk\Model::hello
+	 * 4. Hookable::hello
+	 *
+	 * Arguments passed as an array
+	 *
+	 * @param mixed $type
+	 *        	An array of hooks to call, all hooks found are executed, and you can repeat if
+	 *        	necessary.
+	 * @param array $args
+	 *        	Optional. An array of parameters to pass to the hook.
+	 * @param mixed $default
+	 *        	Optional. The value to return if the final result returned by a hook is NULL.
+	 * @param callable $hook_callback
+	 *        	Optional. A callable in the form `function ($callable, array $arguments) { ... }`
+	 * @param callable $result_callback
+	 *        	Optional. A callable in the form `function ($callable, $previous_result,
+	 *        	$new_result) { ... }`
+	 */
+	public final function collect_hooks($types, $args = array()) {
 		if (empty($types)) {
-			return $default;
+			return array();
 		}
 		if (!is_array($args)) {
 			$args = array(
@@ -153,26 +192,32 @@ class Hookable extends Options {
 		 * For each hook, call internal hook, then options-based hook, then system hook.
 		 */
 		$app = $this->application;
-		$result = $default;
+		$hooks = array();
 		foreach ($types as $type) {
 			$method = PHP::clean_function($type);
 			if ($method !== $type) {
 				$this->application->deprecated("Hook \"{type}\" cleaned to \"{method}\" - please fix", compact("method", "type"));
 			}
 			if (method_exists($this, "hook_$method")) {
-				$result = self::hook_results($result, array(
-					$this,
-					"hook_$method"
-				), $args, $hook_callback, $result_callback);
+				$hooks[] = array(
+					array(
+						$this,
+						"hook_$method"
+					),
+					$args
+				);
 			}
 			$func = apath($this->options, "hooks.$method");
 			if ($func) {
-				$result = self::hook_results($result, $func, $args, $hook_callback, $result_callback);
+				$hooks[] = array(
+					$func,
+					$args
+				);
 			}
-			$hooks = arr::suffix($app->classes->hierarchy($this, __CLASS__), "::$type");
-			$result = $app->hooks->call_arguments($hooks, $zesk_hook_args, $result, $hook_callback, $result_callback);
+			$hook_names = arr::suffix($app->classes->hierarchy($this, __CLASS__), "::$type");
+			$hooks = array_merge($hooks, $app->hooks->collect_hooks($hook_names, $zesk_hook_args));
 		}
-		return $result;
+		return $hooks;
 	}
 
 	/**
