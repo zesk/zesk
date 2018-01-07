@@ -176,9 +176,12 @@ class Controller_Content_Cache extends Controller_Cache {
 			}
 			$command['original'] = $original;
 			$command['data'] = $data;
-			$data = $this->call_hook_arguments("image_" . $hook, array(
+			$new_data = $this->call_hook_arguments("image_" . $hook, array(
 				$command
-			), $data);
+			), null);
+			if ($new_data) {
+				$data = $new_data;
+			}
 		}
 		return $data;
 	}
