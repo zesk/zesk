@@ -24,6 +24,10 @@ Version 1.0 of Zesk will have:
 - <strike>Renaming of `zesk\ORM` to something non-reserved in PHP 7.2 (Candidates are `zesk\ORM` `zesk\Model` - reuse)</strike>
 - `zesk\` namespace for all `classes` in the system
 
+## [v0.15.1][]
+
+- Adding release date
+
 ## [v0.15.0][]
 
 ### New features
@@ -1123,7 +1127,8 @@ Settling of `zesk\Kernel` and `zesk\` namespace changes, added additional compon
  - `zesk::class_hierarchy` -> `zesk()->classes->hierarchy`
 - Removed growl module (no longer relevant on Mac OS X)
 
-[v0.15.0]: https://github.com/zesk/zesk/compare/v0.15.0...HEAD
+[v0.15.1]: https://github.com/zesk/zesk/compare/v0.15.1...HEAD
+[v0.15.0]: https://github.com/zesk/zesk/compare/v0.15.0...v0.15.1
 [v0.14.4]: https://github.com/zesk/zesk/compare/v0.14.3...v0.15.0
 [v0.14.3]: https://github.com/zesk/zesk/compare/v0.14.2...v0.14.3
 [v0.14.2]: https://github.com/zesk/zesk/compare/v0.14.1...v0.14.2
