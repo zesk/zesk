@@ -96,7 +96,7 @@ class Module_ORM extends Module {
 	 * @param array $daemon_hooks
 	 * @return string
 	 */
-	public function daemon_hooks(array $daemon_hooks) {
+	public function daemon_hooks(Command_Daemon $daemon, array $daemon_hooks) {
 		$daemon_hooks[] = ORM::class . '::daemon';
 		return $daemon_hooks;
 	}
@@ -360,7 +360,7 @@ class Module_ORM extends Module {
 		while (count($classes) > 0) {
 			$class = array_shift($classes);
 			if (!is_subclass_of($class, ORM::class)) {
-				$this->logger->warning("{method} {class} is not a subclass of {parent}", array(
+				$this->application->logger->warning("{method} {class} is not a subclass of {parent}", array(
 					"method" => __METHOD__,
 					"class" => $class,
 					"parent" => ORM::class
