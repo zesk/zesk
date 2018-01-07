@@ -1,6 +1,6 @@
 <?php
 /**
- * 
+ *
  */
 namespace zesk;
 
@@ -11,7 +11,7 @@ namespace zesk;
  * @property id $id
  * @property string $login
  * @property User $user
- * @property Session_Database $session
+ * @property Session_ORM $session
  * @property string $new_password
  * @property hex $code
  * @property Timestamp $created
@@ -27,23 +27,10 @@ class Forgot extends ORM {
 	private static $mappable_variables = array(
 		"subject"
 	);
+
 	/**
 	 *
-	 * @param Application $application        	
-	 */
-	public static function cron_cluster_minute(Application $application) {
-		$expire_seconds = -abs(to_integer($application->configuration->path_get("Module_Forgot::expire_seconds"), 3600));
-		$query = $application->query_delete(__CLASS__)->where("Created|<=", Timestamp::now()->add_unit($expire_seconds, Timestamp::UNIT_SECOND));
-		$query->execute();
-		$affected_rows = $query->affected_rows();
-		if ($affected_rows > 0) {
-			$application->logger->notice("Forgot::cron_minute deleted {affected_rows} forgotten rows", compact("affected_rows"));
-		}
-	}
-	
-	/**
-	 *
-	 * @param Request $request        	
+	 * @param Request $request
 	 * @return Mail
 	 */
 	public function notify(Request $request) {
@@ -55,25 +42,25 @@ class Forgot extends ORM {
 			"user" => $user,
 			"forgot" => $this
 		);
-		
+
 		$variables += arr::kprefix($this->members(), "forgot_");
 		$variables += arr::kprefix($user->members(), "user_");
 		$variables += arr::kprefix($request->variables(), "request_");
-		$variables += arr::kprefix($request->url_parts(), "url_");
-		
+		$variables += arr::kprefix($request->url_variables(), "url_");
+
 		$variables = $this->call_hook_arguments("notify_variables", array(
 			$variables
 		), $variables);
-		
+
 		$variables = arr::kunprefix($this->options, "notify_", true) + $variables;
-		
+
 		/*
-		 * Map subject again 
+		 * Map subject again
 		 */
 		foreach (self::$mappable_variables as $key) {
 			$variables[$key] = map($variables[$key], $variables);
 		}
-		
+
 		$mail = $this->call_hook("notify", $variables);
 		if ($mail instanceof Mail) {
 			return $mail;
@@ -81,7 +68,7 @@ class Forgot extends ORM {
 		$mail_options = Mail::load_theme($this->application, "object/zesk/forgot/notify", $variables);
 		return Mail::mulitpart_send($mail_options);
 	}
-	
+
 	/**
 	 *
 	 * @return Forgot
@@ -101,5 +88,11 @@ class Forgot extends ORM {
 		));
 		$query->exec();
 		return $this;
+	}
+	public function delete_older(Timestamp $older) {
+		return $this->query_delete()
+			->where("Created|<=", $older)
+			->exec()
+			->affected_rows();
 	}
 }
