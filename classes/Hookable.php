@@ -331,7 +331,7 @@ class Hookable extends Options {
 				return $new_result + $previous_result;
 			}
 		}
-		// No way to combine
+		// No way to combine?
 		return $new_result;
 	}
 
