@@ -35,9 +35,13 @@ Version 1.0 of Zesk will have:
 
 ### Incompatible changes
 
+- `zesk\Application` default include files are now: `etc/application.json` and `etc/host/uname.json`
 - `zesk\File::stat` returns `["perms"]["decimal"]` which is actually a decimal value (was octal previously), and is truncated to the bottom 9 bits
 - `zesk\Configuration_Loader::__construct` now only takes a single list of configuration files and does not do any path expansion
 
+### Deprecated functionality
+
+- `zesk\Session` will be deprecated and instead will move to modules `session-database` and `session-php`
 ## [v0.14.4][]
 
 ### Fixed bugs
@@ -109,7 +113,7 @@ Version 1.0 of Zesk will have:
 
 Yes, we've renamed the `zesk\Object` class to `zesk\ORM` because PHP 7.2 makes the term `Object` a reserved word for class or namespace names. So... Major changes in how system is organized:
 
-- `modules/orm` added and all `Object` and `Class_Object` funtcionality moved into there and renamed `ORM` and `Class_ORM` respectively.
+- `modules/orm` added and all `Object` and `Class_ORM` funtcionality moved into there and renamed `ORM` and `Class_ORM` respectively.
 - Refactored `Session` and moved to its own module. Likely will need future detachment from the `zesk\Application` class
 - Refactored references to `ORM`-related classes and moved into `ORM` module (`User`, `Lock`, `Domain`, `Meta`, )
 - References to `ORM` will be detached from zesk core in this and upcoming releases
@@ -133,7 +137,7 @@ The `zesk\Application` is the center of your application, naturally, but it has 
 
 There are a variety of new patterns, largely those which remove `ORM` functionality from the `zesk\Application` core.
 
-The main point here is that shortcuts which previously pulled a bit of data from the `Class_Object` (now `Class_ORM`) should use the full call, so:
+The main point here is that shortcuts which previously pulled a bit of data from the `Class_ORM` (now `Class_ORM`) should use the full call, so:
 
 OLD method:
 
