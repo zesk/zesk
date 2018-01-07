@@ -48,7 +48,7 @@ abstract class Version {
 	 * @return integer version of this library
 	 */
 	private static function _file($name, $default) {
-		return trim(File::contents(path(ZESK_ROOT, self::PATH_RELEASE), $default));
+		return trim(File::contents(path(ZESK_ROOT, $name), $default));
 	}
 
 	/**

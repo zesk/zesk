@@ -138,7 +138,7 @@ while true; do
 done
 
 release_date=$ZESK_ROOT/etc/db/release-date
-date >> $release_date
+date > $release_date
 $GIT commit -m "Release $ZESK_CURRENT_VERSION" $current_log $permanent_log $release_date
 
 #
