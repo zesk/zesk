@@ -175,12 +175,6 @@ class Application extends Hookable implements Interface_Theme {
 	protected $class_aliases = array();
 
 	/**
-	 *
-	 * @var array
-	 */
-	protected $class_cache = array();
-
-	/**
 	 * File where the application class resides.
 	 * Override this in subclasses with
 	 * public $file = __FILE__;
@@ -221,14 +215,6 @@ class Application extends Hookable implements Interface_Theme {
 	 * @var array of string
 	 */
 	protected $register_hooks = array();
-
-	/**
-	 * Array of starting list of model subclasses which are a part of this application.
-	 * Used to sync schema and generate dependency classes.
-	 *
-	 * @var array of string
-	 */
-	protected $model_classes = array();
 
 	/**
 	 * Configuration files to include
@@ -383,7 +369,6 @@ class Application extends Hookable implements Interface_Theme {
 		// $this->file is set in subclasses
 		// $this->variables is set in subclasses
 		// $this->register_hooks is set in subclasses
-		// $this->model_classes is set in subclasses
 		//
 
 		// $this->includes is set in subclasses?
