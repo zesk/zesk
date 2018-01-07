@@ -28,7 +28,7 @@ namespace zesk;
  * @property array $data
  * @author kent
  */
-class Session_Database extends ORM implements Interface_Session {
+class Session_ORM extends ORM implements Interface_Session {
 
 	/**
 	 * Original session data (to see if things change)
@@ -289,7 +289,7 @@ class Session_Database extends ORM implements Interface_Session {
 	 *
 	 * @param unknown $user
 	 * @param unknown $expire_seconds
-	 * @return Session_Database
+	 * @return Session_ORM
 	 */
 	public static function one_time_create(User $user, $expire_seconds = null) {
 		$app = $user->application;
@@ -297,7 +297,8 @@ class Session_Database extends ORM implements Interface_Session {
 			/* @var $zesk Kernel */
 			$expire_seconds = to_integer($app->configuration->path_get(__CLASS__ . "::one_time_expire_seconds", 86400));
 		}
-		$app->query_delete(__CLASS__)
+		$app->orm_registry(__CLASS__)
+			->query_delete()
 			->where('is_one_time', true)
 			->where('user', $user)
 			->execute();

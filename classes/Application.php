@@ -24,6 +24,7 @@ use Psr\Cache\CacheItemPoolInterface;
  * @method Class_ORM class_orm_registry($class = null)
  * @method ORM|Module_ORM orm_registry($class = null, $mixed = null, array $options = null)
  * @method Module_ORM orm_module()
+ * @method Interface_Session session_factory()
  */
 class Application extends Hookable implements Interface_Theme {
 
@@ -1809,8 +1810,8 @@ class Application extends Hookable implements Interface_Theme {
 		if ($this->session) {
 			return $this->session;
 		}
-		$this->session = Session::factory($this);
-		if (!$this->session) {
+		$this->session = $this->session_factory();
+		if (!$this->session instanceof Interface_Session) {
 			if ($require) {
 				throw new Exception_NotFound("No session");
 			}
