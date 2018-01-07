@@ -31,6 +31,6 @@ if (md5($web_key . $u) !== $uc) {
 	$m = "Invalid http::redirect URL.";
 }
 if (strlen($s) === 32) {
-	$session = Session_Database::one_time_find($s);
+	$session = Session_ORM::one_time_find($s);
 }
 $response->redirect($u, $m);
