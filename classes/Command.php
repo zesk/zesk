@@ -1224,7 +1224,7 @@ abstract class Command extends Hookable implements Logger\Handler {
 	 * @param string $content
 	 * @param string $format
 	 * @param string $default_format
-	 * @return void|boolean
+	 * @return boolean
 	 */
 	public function render_format($content, $format = null, $default_format = "text") {
 		if ($format === null) {
@@ -1233,16 +1233,16 @@ abstract class Command extends Hookable implements Logger\Handler {
 		switch ($format) {
 			case "html":
 				echo $this->application->theme("dl", $content);
-				return;
+				break;
 			case "php":
 				echo PHP::dump($content);
-				return;
+				break;
 			case "serialize":
 				echo serialize($content);
-				return;
+				break;
 			case "json":
 				echo json_encode($content, JSON_PRETTY_PRINT);
-				return;
+				break;
 			case "text":
 				echo Text::format_pairs($content);
 				break;
@@ -1273,6 +1273,16 @@ abstract class Command extends Hookable implements Logger\Handler {
 			aevalue($parsed, "description")
 		)));
 	}
+
+	/**
+	 * Is a terminal?
+	 *
+	 * @return boolean
+	 */
+	public function is_terminal() {
+		return $this->ansi;
+	}
+
 	/**
 	 * Main run code
 	 */
