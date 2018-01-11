@@ -313,16 +313,29 @@ class Hookable extends Options {
 	/**
 	 * Combine hook results in chained/filter hooks in a predictable manner
 	 *
+	 *
+	 *
 	 * @param mixed $previous_result
 	 * @param mixed $new_result
 	 * @return mixed
 	 */
 	public static function combine_hook_results($previous_result, $new_result, array &$arguments) {
+		// If our old result was empty/void, then return new result
 		if ($previous_result === null) {
 			return $new_result;
 		}
-		if (is_string($previous_result) && is_string($new_result)) {
-			return $previous_result . $new_result;
+		//
+		// KMD 2018-01: Handle when a hook returns NOTHING and a default value is supplied to call_hook_arguments.
+		// Will use previous result.
+		//
+		if ($new_result === null && $previous_result !== null) {
+			return $previous_result;
+		}
+		// Catenate strings
+		if (is_string($new_result)) {
+			if (is_string($previous_result)) {
+				return $previous_result . $new_result;
+			}
 		}
 		if (is_array($previous_result) && is_array($new_result)) {
 			if (arr::is_list($previous_result)) {
@@ -331,7 +344,6 @@ class Hookable extends Options {
 				return $new_result + $previous_result;
 			}
 		}
-		// No way to combine?
 		return $new_result;
 	}
 
