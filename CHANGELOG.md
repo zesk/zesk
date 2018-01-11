@@ -24,9 +24,17 @@ Version 1.0 of Zesk will have:
 - <strike>Renaming of `zesk\ORM` to something non-reserved in PHP 7.2 (Candidates are `zesk\ORM` `zesk\Model` - reuse)</strike>
 - `zesk\` namespace for all `classes` in the system
 
+## [v0.15.5][]
+
+### Bugs fixed
+
+- `zesk\Module_Permission` fixing cron task to properly recompute permissions if needed
+
 ## [v0.15.4][]
 
-Main change is to fix a bug with login where the `zesk\User::hook_login` hook, if it returns NULL, would prevent authentication from succeeding. Modified how hooks are invoked such that when combining two results, the hook chain will choose the non-NULL value and will accumulate values as strings or arrays, depending
+### Bugs fixed
+
+Main changes were to fix a bug with login where the `zesk\User::hook_login` hook, if it returns NULL, would prevent authentication from succeeding. Modified how hooks are invoked such that when combining two results, the hook chain will choose the non-NULL value and will accumulate values as strings or arrays, depending on previous values.
 
 - Fixing `zesk\User::authenticate()` to permit deferring authentication to application decision
 - Fixing incompatible `zesk\Hookable::combine_hook_results` to enable hook chaining where hooks which return NULL are ignored.
@@ -1144,8 +1152,9 @@ Settling of `zesk\Kernel` and `zesk\` namespace changes, added additional compon
  - `zesk::class_hierarchy` -> `zesk()->classes->hierarchy`
 - Removed growl module (no longer relevant on Mac OS X)
 
-[v0.15.4]: https://github.com/zesk/zesk/compare/v0.15.3...HEAD
-[v0.15.3]: https://github.com/zesk/zesk/compare/v0.15.4...v0.15.3
+[v0.15.5]: https://github.com/zesk/zesk/compare/v0.15.5...HEAD
+[v0.15.4]: https://github.com/zesk/zesk/compare/v0.15.4...v0.15.5
+[v0.15.3]: https://github.com/zesk/zesk/compare/v0.15.3...v0.15.4
 [v0.15.2]: https://github.com/zesk/zesk/compare/v0.15.2...v0.15.3
 [v0.15.1]: https://github.com/zesk/zesk/compare/v0.15.1...v0.15.2
 [v0.15.0]: https://github.com/zesk/zesk/compare/v0.15.0...v0.15.1
