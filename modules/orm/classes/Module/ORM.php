@@ -178,7 +178,7 @@ class Module_ORM extends Module {
 	 * @param Application $app
 	 */
 	public static function object_register_all_hooks(Application $app) {
-		$classes = $app->modules->object("orm")->all_classes();
+		$classes = $app->orm_module()->all_classes();
 		$app->classes->register(arr::collapse($classes, "class"));
 	}
 

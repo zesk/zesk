@@ -234,7 +234,7 @@ class Module_Permission extends Module {
 	 * @return CacheItemInterface
 	 */
 	private function _cache() {
-		return $this->application->cache->getItem(__MODULE__);
+		return $this->application->cache->getItem(__CLASS__);
 	}
 
 	/**
