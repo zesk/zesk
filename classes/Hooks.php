@@ -106,6 +106,12 @@ class Hooks {
 	private $hooks_called = array();
 
 	/**
+	 *
+	 * @var array
+	 */
+	private $hook_cache = array();
+
+	/**
 	 * Used to track which top-level classes have been gathered yet
 	 *
 	 * @var array
@@ -139,6 +145,11 @@ class Hooks {
 	public function _app_call($hook) {
 		$this->call(self::hook_exit, $this->zesk->application());
 	}
+
+	/**
+	 *
+	 * @return array
+	 */
 	public function initialize() {
 		$this->hooks = array();
 		$this->hook_aliases = array();
@@ -148,6 +159,11 @@ class Hooks {
 		$this->all_hook_classes = array();
 		return $all_hook_classes;
 	}
+
+	/**
+	 * @todo does this work?
+	 *
+	 */
 	public function reset() {
 		$this->call(Hooks::hook_reset);
 		foreach ($this->initialize() as $class) {
@@ -170,6 +186,7 @@ class Hooks {
 				"type" => type($name)
 			));
 		}
+		// For now, we just make it lower case
 		$name = strtolower($name);
 		return !$alias ? $name : (isset($this->hook_aliases[$name]) ? $this->hook_aliases[$name] : $name);
 	}
@@ -280,13 +297,6 @@ class Hooks {
 		}
 		return $result;
 	}
-
-	/**
-	 *
-	 * @var array
-	 */
-	private $hook_cache = array();
-
 	/**
 	 * Does a hook exist? Logs all hook name requests.
 	 * To retrieve them just call $hook->has() to get the currently
