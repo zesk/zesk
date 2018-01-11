@@ -191,7 +191,7 @@ class User extends ORM {
 			$auth_test = $case_sensitive ? ($password === $this_password) : strcasecmp($password, $this_password) === 0;
 		}
 		if ($auth_test) {
-			$this->authenticated(true);
+			//$this->authenticated(true);
 			return true;
 		}
 		return false;
