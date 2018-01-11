@@ -5,6 +5,8 @@
  */
 namespace zesk;
 
+use Psr\Cache\CacheItemInterface;
+
 /**
  * Module to handle per-object, role-based permissions
  *
@@ -33,7 +35,7 @@ class Module_Permission extends Module {
 	static $hook_methods = array(
 		"zesk\\Application::permissions",
 		"zesk\\Module::permissions",
-		"zesk\\Object::permissions"
+		"zesk\\ORM::permissions"
 	);
 
 	/**
@@ -42,9 +44,9 @@ class Module_Permission extends Module {
 	 * @return array
 	 */
 	protected $model_classes = array(
-		"zesk\\Role",
-		"zesk\\User_Role",
-		"zesk\\Permission"
+		Role::class,
+		User_Role::class,
+		Permission::class
 	);
 	public function initialize() {
 		$this->application->hooks->add(User::class . "::can", array(
@@ -229,30 +231,41 @@ class Module_Permission extends Module {
 
 	/**
 	 *
-	 * @return Cache
+	 * @return CacheItemInterface
 	 */
 	private function _cache() {
-		$cache = Cache::register(__CLASS__);
-		if ($this->application->configuration->path_get(__CLASS__ . '::disable_cache')) {
-			return $cache->erase();
+		return $this->application->cache->getItem(__MODULE__);
+	}
+
+	/**
+	 * Optionally save cached item
+	 * @param CacheItemInterface $item
+	 */
+	private function _cache_changed(CacheItemInterface $item) {
+		if ($this->option_bool('disable_cache')) {
+			return;
 		}
-		return $cache;
+		$this->application->cache->saveDeferred($item);
 	}
 
 	/**
 	 *
-	 * @return array
+	 * @return array|null
 	 */
 	private function _permissions_cached(array $set = null) {
 		$cache = $this->_cache();
-		if (!$cache) {
-			return null;
-		}
-		if ($set) {
-			$cache->__set(__CLASS__, $set);
+		if (is_array($set)) {
+			$cache->set($set);
+			$this->_cache_changed($cache);
 			return;
 		}
-		$perms = $cache->__get(__CLASS__);
+		if ($this->option_bool('disable_cache')) {
+			return null;
+		}
+		if (!$cache->isHit()) {
+			return null;
+		}
+		$perms = $cache->get();
 		return is_array($perms) ? $perms : null;
 	}
 
@@ -389,7 +402,7 @@ class Module_Permission extends Module {
 		$default_class = str::left($method, "::");
 		$class_perms = array();
 		/* @var $perm_class \zesk\Class_Permission */
-		$perm_class = $this->application->class_object("zesk\\Permission");
+		$perm_class = $this->application->class_orm_registry(Permission::class);
 		$perm_columns = $perm_class->column_types;
 		foreach ($result as $action => $permission_options) {
 			if (is_string($permission_options)) {
