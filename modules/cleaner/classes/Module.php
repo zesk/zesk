@@ -15,20 +15,20 @@ use zesk\TimeSpan;
 /**
  *
  * @author kent
- *        
+ *
  */
 class Module extends \zesk\Module {
 	public function initialize() {
 		parent::initialize();
 	}
-	
+
 	/**
 	 * Support old class name
 	 */
 	public function hook_configured() {
 		$this->application->configuration->deprecated("zesk\\Module_Cleaner", self::class);
 	}
-	
+
 	/**
 	 * Run every hour and clean things up
 	 */
@@ -53,7 +53,7 @@ class Module extends \zesk\Module {
 			$span = new TimeSpan($lifetime);
 			if (!$span->valid()) {
 				$this->application->logger->warning("{class}::directories::{code}::lifetime is not a valid time span value ({lifetime} is type {lifetime-type}), skipping entry", array(
-					"class" => $this->class,
+					"class" => __CLASS__,
 					"code" => $code,
 					"lifetime" => $lifetime,
 					"lifetime-type" => type($lifetime)
@@ -63,11 +63,11 @@ class Module extends \zesk\Module {
 			$this->clean_path($path, $extensions, $span->seconds());
 		}
 	}
-	
+
 	/**
 	 * Remove old files in a path
 	 *
-	 * @param string $extension        	
+	 * @param string $extension
 	 */
 	public function clean_path($path, $extensions = null, $lifetime_seconds = 604800) {
 		$list_attributes = array(
@@ -83,7 +83,7 @@ class Module extends \zesk\Module {
 		} else {
 			$list_attributes['rules_file'] = true;
 		}
-		
+
 		$files = Directory::list_recursive($path, $list_attributes);
 		$now = time();
 		$modified_after = $now - $lifetime_seconds;
