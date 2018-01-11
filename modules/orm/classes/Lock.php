@@ -112,7 +112,7 @@ class Lock extends ORM {
 		$iterator = $application->orm_registry(__CLASS__)
 			->query_select()
 			->where("X.server|!=|AND", $server_ids)
-			->object_iterator();
+			->orm_iterator();
 		foreach ($iterator as $lock) {
 			/* @var $lock Lock */
 			$server_id = $lock->member_integer("server");
@@ -138,7 +138,7 @@ class Lock extends ORM {
 			'server' => Server::singleton($application),
 			'locked|<=' => $you_are_dead_to_me
 		))
-			->object_iterator();
+			->orm_iterator();
 		/* @var $lock Lock */
 		foreach ($iterator as $lock) {
 			if (!$lock->is_process_alive()) {

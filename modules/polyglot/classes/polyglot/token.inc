@@ -142,7 +142,7 @@ class PolyGlot_Token extends ORM {
 		$query->distinct(true);
 		$query->what_object();
 		$query->order_by("updated ASC,original");
-		$result = $query->object_iterator()->to_array("original");
+		$result = $query->orm_iterator()->to_array("original");
 		if ($dialect === null) {
 			return $result;
 		}

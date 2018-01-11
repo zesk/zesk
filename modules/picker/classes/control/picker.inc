@@ -255,7 +255,7 @@ class Control_Picker extends Control {
 		return null;
 	}
 	function submit_results(array $variables, array $ids) {
-		$iter = $this->_query()->where("X." . $this->class_object->id_column, $ids)->object_iterator();
+		$iter = $this->_query()->where("X." . $this->class_object->id_column, $ids)->orm_iterator();
 		$content = "";
 		foreach ($iter as $object) {
 			$content .= $this->application->theme($this->theme_item, array(
@@ -313,7 +313,7 @@ class Control_Picker extends Control {
 			"*total" => "COUNT(DISTINCT X." . $this->class_object->id_column . ")"
 		));
 		$results = array();
-		foreach ($query->object_iterator() as $id => $object) {
+		foreach ($query->orm_iterator() as $id => $object) {
 			$results[$id] = $this->application->theme($this->theme_item, array(
 				"object" => $object,
 				"id" => $id

@@ -222,7 +222,7 @@ class Session_ORM extends ORM implements Interface_Session {
 		$iter = $application->orm_registry(__CLASS__)
 			->query_select()
 			->where($where)
-			->object_iterator();
+			->orm_iterator();
 		/* @var $session Session_Database */
 		foreach ($iter as $session) {
 			$session->logout_expire();

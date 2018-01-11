@@ -276,7 +276,7 @@ class Job extends ORM implements Interface_Process, Interface_Progress {
 			))
 				->order_by("priority DESC,died,start");
 			$logger->debug($query->__toString());
-			$iterator = $query->object_iterator();
+			$iterator = $query->orm_iterator();
 			$found_job = false;
 			foreach ($iterator as $job) {
 				/* @var $job Job */

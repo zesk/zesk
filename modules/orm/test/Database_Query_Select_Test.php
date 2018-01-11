@@ -52,7 +52,7 @@ class Database_Query_Select_Test extends Test_Unit {
 		$testx->iterator();
 		
 		$class = null;
-		$testx->object_iterator($class);
+		$testx->orm_iterator($class);
 		
 		$field = false;
 		$default = false;

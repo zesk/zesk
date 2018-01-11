@@ -14,7 +14,7 @@ use \DateTimeZone;
 /**
  *
  * @author kent
- *        
+ *
  */
 abstract class Database_Query_Select_Base extends Database_Query {
 	/**
@@ -22,7 +22,7 @@ abstract class Database_Query_Select_Base extends Database_Query {
 	 * @var array
 	 */
 	protected $objects_prefixes = array();
-	
+
 	/**
 	 *
 	 * {@inheritdoc}
@@ -34,7 +34,7 @@ abstract class Database_Query_Select_Base extends Database_Query {
 			"objects_prefixes"
 		));
 	}
-	
+
 	/**
 	 *
 	 * {@inheritdoc}
@@ -58,28 +58,28 @@ abstract class Database_Query_Select_Base extends Database_Query {
 	function iterator($key = null, $value = null) {
 		return new Database_Result_Iterator($this, $key, $value);
 	}
-	
+
 	/**
 	 * Execute query and retrieve a single field or row
 	 *
-	 * @param unknown_type $field        	
-	 * @param unknown_type $default        	
+	 * @param unknown_type $field
+	 * @param unknown_type $default
 	 * @return unknown
 	 */
 	function one($field = null, $default = null) {
 		return $this->database()->query_one($this->__toString(), $field, $default);
 	}
-	
+
 	/**
 	 * This method should be overriden in subclasses if it has class_object support
 	 *
-	 * @param string $class        	
+	 * @param string $class
 	 * @return string
 	 */
 	public function class_alias($class) {
 		return "";
 	}
-	
+
 	/**
 	 * Append "what" fields for an entire object class, with $prefix before it, using alias $alias
 	 *
@@ -98,12 +98,12 @@ abstract class Database_Query_Select_Base extends Database_Query {
 	 */
 	function what_object($class = null, $alias = null, $prefix = null, $object_mixed = null, $object_options = null) {
 		if (!$class) {
-			$class = $this->object_class();
+			$class = $this->orm_class();
 		}
 		if ($alias === null) {
 			$alias = $this->class_alias($class);
 		}
-		$columns = $this->application->object_table_columns($class, $object_mixed, $object_options);
+		$columns = $this->application->orm_registry($class, $object_mixed, $object_options)->columns();
 		$what = array();
 		foreach ($columns as $column) {
 			$what[$prefix . $column] = "$alias.$column";
@@ -114,7 +114,7 @@ abstract class Database_Query_Select_Base extends Database_Query {
 		);
 		return $this->what($what, true);
 	}
-	
+
 	/**
 	 * Execute query and retrieve a single field, a Timestamp
 	 *
@@ -127,7 +127,7 @@ abstract class Database_Query_Select_Base extends Database_Query {
 	function one_integer($field = 0, $default = 0) {
 		return $this->integer($field, $default);
 	}
-	
+
 	/**
 	 * Execute query and retrieve a single field, an integer
 	 *
@@ -140,7 +140,7 @@ abstract class Database_Query_Select_Base extends Database_Query {
 	function one_timestamp($field = 0, $default = null) {
 		return $this->timestamp($field, $default);
 	}
-	
+
 	/**
 	 * Execute query and retrieve a single field, a double
 	 *
@@ -153,7 +153,7 @@ abstract class Database_Query_Select_Base extends Database_Query {
 	function double($field = 0, $default = null) {
 		return to_double($this->one($field), $default);
 	}
-	
+
 	/**
 	 * Execute query and retrieve a single field, an integer
 	 *
@@ -166,7 +166,7 @@ abstract class Database_Query_Select_Base extends Database_Query {
 	function integer($field = 0, $default = 0) {
 		return $this->database()->query_integer($this->__toString(), $field, $default);
 	}
-	
+
 	/**
 	 * Execute query and retrieve a single field, a Timestamp
 	 *
@@ -183,81 +183,46 @@ abstract class Database_Query_Select_Base extends Database_Query {
 		}
 		return new Timestamp($value, $timezone);
 	}
-	
+
 	/**
 	 *
-	 * @param string $key        	
-	 * @param string $value        	
-	 * @param unknown $default        	
+	 * @param string $key
+	 * @param string $value
+	 * @param unknown $default
 	 * @return Ambigous <multitype:, mixed, multitype:mixed unknown >
 	 */
 	function to_array($key = null, $value = null, $default = array()) {
 		return $this->database()->query_array($this->__toString(), $key, $value, $default);
 	}
-	
+
 	/**
 	 */
 	abstract function __toString();
-	
+
 	/**
-	 * Convert this query into an ORM Iterator
 	 *
-	 * @deprecated 2017-12 Blame PHP 7.2
-	 * @param string $class
-	 *        	Class to iterate on (inherited from default settings for this query)
-	 * @param array $options
-	 *        	Options passed to each object upon creation
-	 * @return ORMIterator
+	 * @param string $class Optional ORM class to use as target for iteration (overrides `$this->orm_class()`)
+	 * @param array $options Options passed to each ORM class upon creation
+	 * @return \zesk\ORMIterator
 	 */
-	function object_iterator($class = null, array $options = array()) {
-		$this->object_class($class);
+	function orm_iterator($class = null, array $options = array()) {
+		$this->orm_class($class);
 		return new ORMIterator($this->class, $this, $options);
 	}
-	
+
 	/**
-	 * Convert this query into an ORMs Iterator
+	 * Convert this query into an ORMs Iterator (returns multiple objects per row)
 	 *
-	 * @deprecated 2017-12 Blame PHP 7.2
 	 * @param string $class
 	 *        	Class to iterate on (inherited from default settings for this query)
 	 * @param array $options
 	 *        	Options passed to each object upon creation
 	 * @return ORMIterators
 	 */
-	function objects_iterator(array $options = array()) {
-		zesk()->deprecated();
+	function orms_iterator(array $options = array()) {
 		return new ORMIterators($this->class, $this, $this->objects_prefixes);
 	}
-	
-	/**
-	 * Execute query and return the first returned row as an object
-	 *
-	 * @deprecated 2017-12
-	 * @param string $class
-	 *        	An optional class to return the first row as
-	 * @param array $options
-	 *        	Optional options to be passed to the object upon instantiation
-	 * @return ORM
-	 */
-	function one_object($class = null, array $options = array()) {
-		zesk()->deprecated();
-		return $this->object($class, $options);
-	}
-	
-	/**
-	 * Execute query and convert to an object
-	 *
-	 * @deprecated 2017-12
-	 * @param string $class
-	 *        	Class of object
-	 * @param unknown_type $default
-	 * @return unknown
-	 */
-	function object($class = null, array $options = array()) {
-		zesk()->deprecated();
-		return $this->model($class, $options);
-	}
-	
+
 	/**
 	 * Execute query and convert to an object
 	 *
@@ -272,7 +237,68 @@ abstract class Database_Query_Select_Base extends Database_Query {
 			return $result;
 		}
 		$options['from_database'] = true;
-		$object = $this->model_factory($this->object_class($class), $result, $options);
+		$object = $this->model_factory($this->orm_class($class), $result, $options);
 		return $object;
+	}
+
+	/**
+	 * Convert this query into an ORM Iterator (returns single object per row)
+	 *
+	 * @see Database_Query_Select_Base::orm_iterator
+	 * @deprecated 2017-12 Blame PHP 7.2
+	 * @param string $class
+	 *        	Class to iterate on (inherited from default settings for this query)
+	 * @param array $options
+	 *        	Options passed to each object upon creation
+	 * @return ORMIterator
+	 */
+	function object_iterator($class = null, array $options = array()) {
+		$this->application->deprecated();
+		return $this->orm_iterator($class, $options);
+	}
+
+	/**
+	 * Convert this query into an ORMs Iterator
+	 *
+	 * @see Database_Query_Select_Base::orms_iterator
+	 * @deprecated 2017-12 Blame PHP 7.2
+	 * @param string $class
+	 *        	Class to iterate on (inherited from default settings for this query)
+	 * @param array $options
+	 *        	Options passed to each object upon creation
+	 * @return ORMIterators
+	 */
+	function objects_iterator(array $options = array()) {
+		$this->application->deprecated();
+		return $this->orms_iterator($options);
+	}
+
+	/**
+	 * Execute query and return the first returned row as an object
+	 *
+	 * @deprecated 2017-12
+	 * @param string $class
+	 *        	An optional class to return the first row as
+	 * @param array $options
+	 *        	Optional options to be passed to the object upon instantiation
+	 * @return ORM
+	 */
+	function one_object($class = null, array $options = array()) {
+		$this->application->deprecated();
+		return $this->object($class, $options);
+	}
+
+	/**
+	 * Execute query and convert to an object
+	 *
+	 * @deprecated 2017-12
+	 * @param string $class
+	 *        	Class of object
+	 * @param unknown_type $default
+	 * @return unknown
+	 */
+	function object($class = null, array $options = array()) {
+		zesk()->deprecated();
+		return $this->model($class, $options);
 	}
 }

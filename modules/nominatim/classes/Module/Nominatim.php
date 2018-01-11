@@ -91,7 +91,7 @@ class Module_Nominatim extends Module {
 		/* @var $item Contact_Address */
 		$run_time = $this->option("run_time", 60);
 		$timer = new Timer();
-		$items = $query->object_iterator();
+		$items = $query->orm_iterator();
 		try {
 			foreach ($items as $item) {
 				$now = time();

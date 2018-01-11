@@ -183,7 +183,7 @@ class Module_Help extends Module_JSLib {
 			"X.active" => true,
 			"hu.user" => null
 		));
-		$helps = $query->object_iterator();
+		$helps = $query->orm_iterator();
 		$result = array();
 		$mappables = $application->modules->all_hook_arguments("module_help_map", array(), array());
 		if (count($mappables) === 0) {

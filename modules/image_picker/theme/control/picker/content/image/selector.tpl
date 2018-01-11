@@ -34,7 +34,7 @@ $id = 'control-picker-' . $this->column . '-q';
 		->what_object('zesk\\Content_Image')
 		->where('X.user', $this->current_user);
 	//echo $query->__toString();
-	$iterator = $query->object_iterator('zesk\Content_Image');
+	$iterator = $query->orm_iterator('zesk\Content_Image');
 	foreach ($iterator as $image) {
 		echo $this->theme('control/picker/content/image/item', array(
 			'object' => $image

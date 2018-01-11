@@ -1,6 +1,6 @@
 <?php
 /**
- * 
+ *
  */
 namespace zesk;
 
@@ -16,10 +16,10 @@ namespace zesk;
  * @property mixed $value
  */
 class Tag extends ORM {
-	
+
 	/**
 	 * Delete items matching the class and IDs passed
-	 * 
+	 *
 	 * @param unknown $class
 	 * @param array $ids
 	 * @return integer
@@ -33,10 +33,10 @@ class Tag extends ORM {
 			"object_id" => $ids
 		))->execute();
 	}
-	
+
 	/**
 	 * Delete tags linked to deleted rows
-	 * 
+	 *
 	 * @param Application $application
 	 */
 	public static function cull(Application $application) {
@@ -68,10 +68,10 @@ class Tag extends ORM {
 			}
 		}
 	}
-	
+
 	/**
 	 * Can I apply tags to this object?
-	 * 
+	 *
 	 * @param ORM $object
 	 * @param boolean $throw Throw exception in case of error
 	 * @throws \Exception_Semantics
@@ -99,10 +99,10 @@ class Tag extends ORM {
 		}
 		return true;
 	}
-	
+
 	/**
 	 * Set a tag to an object
-	 * 
+	 *
 	 * @param ORM $object
 	 * @param string $name
 	 * @param mixed $value
@@ -123,22 +123,22 @@ class Tag extends ORM {
 		}
 		return $object->store();
 	}
-	
+
 	/**
-	 * Retrieve a value 
+	 * Retrieve a value
 	 * @param ORM $object
 	 * @param string|Tag_Label $name
 	 * @param mixed $default
-	 * @return mixed 
+	 * @return mixed
 	 */
 	public static function tag_get_value(ORM $object, $code, $default = null) {
 		$tag = self::tag_get($object, $code);
 		return $tag ? $tag->value : $default;
 	}
-	
+
 	/**
 	 * Retrieve all tags for an object
-	 * 
+	 *
 	 * @param ORM $object
 	 * @param string|Tag_Label $name
 	 * @return zesk\Tag
@@ -164,16 +164,16 @@ class Tag extends ORM {
 		}
 		return null;
 	}
-	
+
 	/**
-	 * 
+	 *
 	 * @param ORM $object
 	 * @param array $where
 	 * @return ORMIterator
 	 */
 	public static function tags(ORM $object, array $where = array()) {
 		self::can_tag_object($object, true);
-		$query = self::class_query(__CLASS__, "X")->where(array(
+		$query = $object->application->orm_registry(__CLASS__)->query_select("X")->where(array(
 			"object_class" => get_class($object),
 			"object_id" => $object->id()
 		));
@@ -183,6 +183,6 @@ class Tag extends ORM {
 		if (count($where) > 0) {
 			$query->where($where);
 		}
-		return $query->object_iterator("link.code");
+		return $query->orm_iterator(); // TODO used to take parameter "link.code" - where is this used and are results OK as is?
 	}
 }

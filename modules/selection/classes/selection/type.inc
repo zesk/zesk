@@ -62,7 +62,7 @@ class Selection_Type extends ORM {
 			->where("add", true)
 			->distinct(true)
 			->group_by("id")
-			->object_iterator();
+			->orm_iterator();
 	}
 	
 	/**

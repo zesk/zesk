@@ -13,7 +13,7 @@ namespace zesk;
 $servers = $application->orm_registry("zesk\\Server")
 	->query_select()
 	->order_by("name_internal")
-	->object_iterator();
+	->orm_iterator();
 
 $output_header = false;
 /* @var $server zesk\Server */

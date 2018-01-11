@@ -22,6 +22,6 @@ $object->call_hook("query_alter", $query);
 
 $theme = $object->option("group_item_theme", "view");
 
-foreach ($query->object_iterator() as $object) {
+foreach ($query->orm_iterator() as $object) {
 	echo $object->theme($theme);
 }

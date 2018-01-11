@@ -13,7 +13,7 @@ class Control_Currency extends Control_Select_ORM {
 			->query_select()
 			->what_object()
 			->order_by("name")
-			->object_iterator() as $object) {
+			->orm_iterator() as $object) {
 			$options[$object->id()] = $object->apply_map(array(
 				'label' => '{name} ({symbol})',
 				'data-symbol' => '{symbol}',

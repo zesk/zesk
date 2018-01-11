@@ -8,7 +8,7 @@ $odd = 0;
 $total = 0;
 /* @var $query Database_Query_Select */
 $query = $this->query;
-foreach ($query->object_iterator() as $key => $object) {
+foreach ($query->orm_iterator() as $key => $object) {
 	
 	$this_row = clone $row_widget;
 	
