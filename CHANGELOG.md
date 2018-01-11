@@ -24,6 +24,22 @@ Version 1.0 of Zesk will have:
 - <strike>Renaming of `zesk\ORM` to something non-reserved in PHP 7.2 (Candidates are `zesk\ORM` `zesk\Model` - reuse)</strike>
 - `zesk\` namespace for all `classes` in the system
 
+## [v0.15.7][]
+
+### Deprecated calls
+
+- Deprecated `zesk\Database_Query_Select::object_iterator` and `zesk\Database_Query_Select::objects_iterator` and related calls to use new term `ORM`
+ - `zesk\ORMIterator zesk\Database_Query_Select_Base::orm_iterator($class = null, array $options = array())`
+ - `zesk\ORMSIterator zesk\Database_Query_Select_Base::orms_iterator($class = null, array $options = array())`
+ - `zesk\Class_ORM zesk\Database_Query_Select_Base::class_orm()`
+ - `string|self zesk\Database_Query_Select_Base::orm_class($class = null)`
+- Updated `bin/deprecated/0.15.sh` to make above changes automatically
+
+### Bugs fixed
+
+- Fixing `zesk\Cleaner\Module` configuration errors when instance `lifetime` is `NULL`
+- `zesk\Module_Permission` - Fixing cache saving to actually save it
+
 ## [v0.15.6][]
 
 - Last version didn't pick up change in file for some reason, trying again.
@@ -1156,7 +1172,8 @@ Settling of `zesk\Kernel` and `zesk\` namespace changes, added additional compon
  - `zesk::class_hierarchy` -> `zesk()->classes->hierarchy`
 - Removed growl module (no longer relevant on Mac OS X)
 
-[v0.15.6]: https://github.com/zesk/zesk/compare/v0.15.6...HEAD
+[v0.15.7]: https://github.com/zesk/zesk/compare/v0.15.7...HEAD
+[v0.15.6]: https://github.com/zesk/zesk/compare/v0.15.6...v0.15.7
 [v0.15.5]: https://github.com/zesk/zesk/compare/v0.15.5...v0.15.6
 [v0.15.4]: https://github.com/zesk/zesk/compare/v0.15.4...v0.15.5
 [v0.15.3]: https://github.com/zesk/zesk/compare/v0.15.3...v0.15.4
