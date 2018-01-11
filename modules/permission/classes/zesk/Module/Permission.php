@@ -213,7 +213,7 @@ class Module_Permission extends Module {
 		$application = $this->application;
 		$cache = $this->_cache();
 		// Is there a cache? If not, don't bother - may be disabled, etc.
-		if (!$cache->exists()) {
+		if (!$cache->isHit()) {
 			$application->logger->debug("No cache");
 			return;
 		}
@@ -222,7 +222,7 @@ class Module_Permission extends Module {
 		$computed = $this->_permissions_computed();
 		if ($cached !== $computed) {
 			// Nope. Update it.
-			$cache->__set(__CLASS__, $computed);
+			$this->_permissions_cached($computed);
 			$application->logger->notice("Refreshed permissions cache");
 		} else {
 			$application->logger->debug("Cache matches computed");
