@@ -142,10 +142,7 @@ class Module_Permission extends Module {
 				return $result;
 			}
 		}
-		$result = boolval($application->configuration->path_get_first([
-			'zesk\\User::can',
-			'User::can'
-		]));
+		$result = boolval($user->option("can"));
 		if ($result === false) {
 			$application->logger->info("{user} denied {permission} (not granted) called from {calling_function} (Roles: {roles})", array(
 				"user" => $user->login(),
@@ -154,7 +151,8 @@ class Module_Permission extends Module {
 				"roles" => $user->_roles
 			));
 		}
-		$user_cache->$cache_key = $result;
+		$user_cached_permissions[$cache_key] = $result;
+		$application->cache->saveDeferred($user_cache->set($user_cached_permissions));
 		return $result;
 	}
 
@@ -170,11 +168,11 @@ class Module_Permission extends Module {
 			$roles = $this->application->orm_registry(Role::class)
 				->query_select()
 				->where('is_default', true)
-				->object_iterator()
+				->orm_iterator()
 				->to_array('id');
 		} else {
 			// Load user role settings into user before checking
-			$roles = $user->member_query("roles")->object_iterator()->to_array("id");
+			$roles = $user->member_query("roles")->orm_iterator()->to_array("id");
 		}
 		$role_ids = array();
 		/* @var $role Role */
@@ -257,7 +255,7 @@ class Module_Permission extends Module {
 		if (is_array($set)) {
 			$cache->set($set);
 			$this->_cache_changed($cache);
-			return;
+			return $this;
 		}
 		if ($this->option_bool('disable_cache')) {
 			return null;
