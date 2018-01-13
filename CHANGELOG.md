@@ -26,14 +26,26 @@ Version 1.0 of Zesk will have:
 
 ## [Unreleased][]
 
+### `zesk\Locale` refactored
+
+The `zesk\Locale` module has been refactored to support object-based management and avoiding `static` calls.
+
+- `zesk\`
 ### New features
 
 - `zesk\Application` now supports the function calls like `codename_module()` to retrieve module objects. So, `$application->csv_module()` is equivalent to `$application->modules->object("csv")`. You can decorate your application with `@method` doccomments to support types and return values in Eclipse-based editors. See `zesk\Application` class DocComment for examples.
 
+### Broken features
+
+- `zesk\Locale` has been rewritten to avoid static calls and instead is an object within `zesk\Application`
+- `zesk\File::temporary($path, $extension="tmp")` has been re-parameterized to remove global references, and now takes a path and a file extension. It has been updated in all Zesk internal code.
+
 ### Deprecated functionality
+
 
 ### Removed functionality
 
+- `zesk\HTML::input_attributes` has been removed
 - `zesk\User::current`, `zesk\User::set_current`, `zesk\User::current_id` have all been removed
 - `zesk\Application::instance` was removed
 - `zesk\Application::_class_cache` is obsolete
