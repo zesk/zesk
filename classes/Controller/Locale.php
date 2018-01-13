@@ -1,6 +1,6 @@
 <?php
 /**
- * 
+ *
  */
 namespace zesk;
 
@@ -11,7 +11,7 @@ namespace zesk;
  */
 class Controller_Locale extends Controller {
 	/**
-	 * 
+	 *
 	 */
 	function action_js() {
 		$locale = $this->request->get('ll');
@@ -21,18 +21,21 @@ class Controller_Locale extends Controller {
 		$locale = to_list($locale);
 		$locales = array();
 		foreach ($locale as $l) {
-			$tt = Locale::load($l);
-			if (count($tt) !== 0) {
-				$locales[$l] = $tt;
+			$locale = Locale::factory($this->application, $l);
+			if ($locale) {
+				$locales[$l] = $locale;
 			} else {
-				$lang = Locale::language($l);
-				if ($lang !== $l) {
-					$locales[$lang] = Locale::load($lang);
+				list($lang, $dialect) = Locale::parse_locale_string($l);
+				if ($dialect === null) {
+					$locale = Locale::factory($this->application, $lang);
+					if ($locale) {
+						$locales[$lang] = $locale;
+					}
 				}
 			}
 		}
 		$load_lines = array();
-		$load_lines[] = 'exports.Locale.locale(' . JavaScript::arguments(Locale::current()) . ');';
+		$load_lines[] = 'exports.Locale.locale(' . JavaScript::arguments($this->application->locale->id()) . ');';
 		foreach ($locales as $code => $tt) {
 			if (count($tt) > 0) {
 				$load_lines[] = 'exports.Locale.load(' . JavaScript::arguments($code, $tt) . ');';

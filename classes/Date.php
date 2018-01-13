@@ -18,63 +18,63 @@ namespace zesk;
  */
 class Date extends Temporal {
 	/**
-	 * 
+	 *
 	 * @var integer
 	 */
 	const seconds_in_day = 86400;
-	
+
 	/**
 	 * Year 2000+
 	 *
 	 * @var integer
 	 */
 	protected $year;
-	
+
 	/**
 	 * Month 1-12
 	 *
 	 * @var integer
 	 */
 	protected $month;
-	
+
 	/**
 	 * Day 1-31
 	 *
 	 * @var integer
 	 */
 	protected $day;
-	
+
 	/**
 	 * Day of the week 0-6
 	 *
 	 * @var integer
 	 */
 	private $_weekday = null;
-	
+
 	/**
 	 * Yearday 0-365
 	 *
 	 * @var integer
 	 */
 	private $_yearday = null;
-	
+
 	/**
 	 * Construct a new Date object
 	 *
-	 * @param mixed $value        	
+	 * @param mixed $value
 	 * @see Date::set
 	 */
 	function __construct($value = null) {
 		$this->_weekday = null;
 		$this->_yearday = null;
-		
+
 		$this->set($value);
 	}
-	
+
 	/**
 	 * Create a Date object
 	 *
-	 * @param mixed $value        	
+	 * @param mixed $value
 	 * @return Date
 	 */
 	public static function factory($value = null) {
@@ -83,14 +83,14 @@ class Date extends Temporal {
 	public function duplicate() {
 		return clone $this;
 	}
-	
+
 	/**
 	 * Construct a new date instance with specific Year/Month/Day
 	 * Pass a negative value to use current year/month/date
 	 *
-	 * @param integer $year        	
-	 * @param integer $month        	
-	 * @param integer $day        	
+	 * @param integer $year
+	 * @param integer $month
+	 * @param integer $day
 	 * @return Date
 	 */
 	public static function instance($year = null, $month = null, $day = null) {
@@ -98,7 +98,7 @@ class Date extends Temporal {
 		$d->ymd($year, $month, $day);
 		return $d;
 	}
-	
+
 	/**
 	 * Return a new Date object with the current date
 	 *
@@ -108,7 +108,7 @@ class Date extends Temporal {
 		$d = new Date();
 		return $d->set_now();
 	}
-	
+
 	/**
 	 * Return a new Date object with the current date
 	 *
@@ -118,7 +118,7 @@ class Date extends Temporal {
 		$d = new Date();
 		return $d->set_utc_now();
 	}
-	
+
 	/**
 	 * Is this date empty? e.g.
 	 * not set to any value
@@ -128,7 +128,7 @@ class Date extends Temporal {
 	function is_empty() {
 		return ($this->year === null);
 	}
-	
+
 	/**
 	 * Make this Date value empty
 	 *
@@ -138,11 +138,11 @@ class Date extends Temporal {
 		$this->year = null;
 		return $this;
 	}
-	
+
 	/**
 	 * Set the date with a variety of values
 	 *
-	 * @param mixed $value        	
+	 * @param mixed $value
 	 * @throws Exception_Convert
 	 * @return boolean
 	 */
@@ -169,7 +169,7 @@ class Date extends Temporal {
 		}
 		return $this->set(strval($value));
 	}
-	
+
 	/**
 	 * Convert a Date to a standard string representation
 	 *
@@ -181,7 +181,7 @@ class Date extends Temporal {
 		}
 		return $this->year() . "-" . str::zero_pad($this->month()) . "-" . str::zero_pad($this->day());
 	}
-	
+
 	/**
 	 * Parse a Date from a variety of formats
 	 *
@@ -239,7 +239,7 @@ class Date extends Temporal {
 		$this->month = $set;
 		return $this;
 	}
-	
+
 	/**
 	 * Set or get 1-based quarter number
 	 *
@@ -260,7 +260,7 @@ class Date extends Temporal {
 		if ($quarter === $set) {
 			return $this;
 		}
-		
+
 		// ($set - $quarter)
 		// ========+====+====+====+====+
 		// | 0 | 1 | 2 | 3 | $set
@@ -271,7 +271,7 @@ class Date extends Temporal {
 		// 3 | -3 | -2 | -1 | X |
 		// ========+====+====+====+====+
 		// $quarter
-		
+
 		/*
 		 * if ($quarter < $set) { // positive #s $this->add(0, ($set - $quarter) * 3); } if ($quarter > $set) { //
 		 * negative #s $this->add(0, (4 - ($quarter - $set)) * 3); }
@@ -295,7 +295,7 @@ class Date extends Temporal {
 		return $this;
 	}
 	/**
-	 * 
+	 *
 	 * @param integer $set
 	 * @throws Exception_Range
 	 * @return number|\zesk\Date
@@ -341,19 +341,19 @@ class Date extends Temporal {
 		$yearday = $this->yearday();
 		return $this->add(0, 0, $set - $yearday);
 	}
-	
+
 	/**
 	 * Returns the last day of the month (or number of days in the month)
-	 * 
+	 *
 	 * @see self::days_in_month
 	 * @return integer
 	 */
 	function lastday() {
 		return self::days_in_month($this->month, $this->year);
 	}
-	
+
 	/**
-	 * 
+	 *
 	 * @param integer $month
 	 * @param integer $year
 	 * @return NULL|integer
@@ -386,13 +386,13 @@ class Date extends Temporal {
 		}
 		return 28;
 	}
-	
+
 	/**
 	 * Compare two dates
 	 * $this->compare($value) < 0 analagous to $this < $value
 	 * $this->compare($value) > 0 analagous to $this > $value
 	 *
-	 * @param Date $value        	
+	 * @param Date $value
 	 * @return integer
 	 */
 	function compare(Date $value) {
@@ -405,11 +405,11 @@ class Date extends Temporal {
 		}
 		return $result;
 	}
-	
+
 	/**
 	 * Returns true if $date is before $this
 	 *
-	 * @param Date $date        	
+	 * @param Date $date
 	 * @param boolean $equal
 	 *        	Returns true if $date === $this
 	 * @return boolean
@@ -422,11 +422,11 @@ class Date extends Temporal {
 			return ($result < 0) ? true : false;
 		}
 	}
-	
+
 	/**
 	 * Returns true if $date is after $this
 	 *
-	 * @param Date $date        	
+	 * @param Date $date
 	 * @param boolean $equal
 	 *        	Returns true if $date === $this
 	 * @return boolean
@@ -439,21 +439,21 @@ class Date extends Temporal {
 			return ($result > 0) ? true : false;
 		}
 	}
-	
+
 	/**
 	 * Returns difference in seconds between two dates
 	 *
-	 * @param Date $date        	
+	 * @param Date $date
 	 * @return integer
 	 */
 	function subtract(Date $value) {
 		return $this->unix_timestamp() - $value->unix_timestamp();
 	}
-	
+
 	/**
 	 * Returns difference in seconds between two dates
 	 *
-	 * @param Date $date        	
+	 * @param Date $date
 	 * @param boolean $equal
 	 *        	Returns true if $date === $this
 	 * @return boolean
@@ -461,7 +461,7 @@ class Date extends Temporal {
 	function subtract_days(Date $value) {
 		return round($this->subtract($value) / self::seconds_in_day);
 	}
-	
+
 	/**
 	 * Clamp a date to a range.
 	 * Does not check that $min_date and $max_date are in the correct order.
@@ -483,25 +483,25 @@ class Date extends Temporal {
 		}
 		return false;
 	}
-	
+
 	/**
 	 * Add years, months, or days to a Date
 	 *
-	 * @param integer $years        	
-	 * @param integer $months        	
-	 * @param integer $days        	
+	 * @param integer $years
+	 * @param integer $months
+	 * @param integer $days
 	 * @return Date
 	 */
 	function add($years = 0, $months = 0, $days = 0) {
 		$foo = mktime(0, 0, 0, $this->month + $months, $this->day + $days, $this->year + $years);
 		return $this->_set_date(getdate($foo));
 	}
-	
+
 	/**
 	 * Add units to a date or time
 	 *
 	 * @param string $units Use self::UNIT_FOO for units
-	 * @param integer $n_units        	
+	 * @param integer $n_units
 	 * @throws Exception_Parameter
 	 * @return Date
 	 */
@@ -548,10 +548,10 @@ class Date extends Temporal {
 				));
 		}
 	}
-	
+
 	/**
 	 * Month names in English
-	 * 
+	 *
 	 * @var array
 	 */
 	private static $months = array(
@@ -568,14 +568,14 @@ class Date extends Temporal {
 		"November",
 		"December"
 	);
-	
+
 	/**
 	 * Month names translated
-	 * 
+	 *
 	 * @var array
 	 */
 	private static $translated_months = array();
-	
+
 	/**
 	 * Weekday names in English
 	 *
@@ -590,14 +590,14 @@ class Date extends Temporal {
 		5 => "Friday",
 		6 => "Saturday"
 	);
-	
+
 	/**
 	 * Weekday names translated
-	 * 
+	 *
 	 * @var array
 	 */
 	private static $translated_weekdays = array();
-	
+
 	/**
 	 * Return a localized list of month dates, 1-index based
 	 *
@@ -607,10 +607,7 @@ class Date extends Temporal {
 	 *        	Short dates
 	 * @return string
 	 */
-	static function month_names($locale = null, $short = false) {
-		if ($locale === null) {
-			$locale = Locale::current();
-		}
+	static function month_names(Locale $locale, $short = false) {
 		$short = intval(boolval($short));
 		if (isset(self::$translated_months[$locale][$short])) {
 			return self::$translated_months[$locale][$short];
@@ -637,17 +634,17 @@ class Date extends Temporal {
 		self::$translated_weekdays[$locale][$short] = $locale_weekdays;
 		return $locale_weekdays;
 	}
-	
+
 	/**
 	 * Format YYYY${sep}MM${sep}DD
 	 *
-	 * @param string $sep        	
+	 * @param string $sep
 	 * @return string
 	 */
 	private function _ymd_format($sep = "-") {
 		return $this->year() . $sep . str::zero_pad($this->month()) . $sep . str::zero_pad($this->day());
 	}
-	
+
 	/**
 	 *
 	 * {@inheritdoc}
@@ -657,7 +654,7 @@ class Date extends Temporal {
 	function sql() {
 		return $this->_ymd_format();
 	}
-	
+
 	/**
 	 *
 	 * {@inheritdoc}
@@ -666,39 +663,39 @@ class Date extends Temporal {
 	 */
 	function formatting(array $options = array()) {
 		$locale = avalue($options, "locale", null);
-		
+
 		// $old_locale = setlocale(LC_TIME,0);
 		// setlocale(LC_TIME, $locale);
 		// $ts = $this->toTimestamp();
 		$m = $this->month();
 		$w = $this->weekday();
 		$d = $this->day();
-		
+
 		$x = array();
 		$x['M'] = $m;
 		$x['D'] = $this->day();
 		$x['W'] = $w;
-		
+
 		foreach ($x as $k => $v) {
 			$x[$k . $k] = str::zero_pad($v, 2);
 		}
-		
+
 		$x['YYYY'] = $this->year();
 		$x['YY'] = substr($this->year(), -2);
-		
+
 		$x['MMMM'] = avalue($this->month_names($locale), $m, "?");
 		$x['MMM'] = avalue($this->month_names($locale, true), $m, "?");
-		
+
 		$x['DDD'] = Locale::ordinal($d, $locale);
-		
+
 		if ($w !== null) {
 			$x['WWWW'] = avalue($this->weekday_names($locale), $w, "?");
 			$x['WWW'] = avalue($this->weekday_names($locale, true), $w, "?");
 		}
-		
+
 		return $x;
 	}
-	
+
 	/**
 	 *
 	 * {@inheritdoc}
@@ -716,11 +713,11 @@ class Date extends Temporal {
 		$formatting = $this->formatting($options);
 		return map($format_string, $formatting);
 	}
-	
+
 	/**
 	 * Set/get date as an integer (UNIX timestamp)
 	 *
-	 * @param unknown $set        	
+	 * @param unknown $set
 	 * @return number|\zesk\Date
 	 */
 	function integer($set = null) {
@@ -747,9 +744,9 @@ class Date extends Temporal {
 		$this->_yearday = $date["yday"];
 		return true;
 	}
-	
+
 	/**
-	 * 
+	 *
 	 * @param integer $year
 	 * @return boolean
 	 */
@@ -759,16 +756,16 @@ class Date extends Temporal {
 		}
 		return ((($year % 4) == 0) && ((($year % 100) != 0) || (($year % 400) == 0)));
 	}
-	
+
 	/**
-	 * 
+	 *
 	 * @var integer
 	 */
 	private static $gregorian_offset = null;
-	
+
 	/**
 	 * Get or set the gregorgian offset from year 1
-	 * 
+	 *
 	 * @param integer $set
 	 * @return \zesk\Date|number
 	 */

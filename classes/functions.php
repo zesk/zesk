@@ -181,8 +181,10 @@ function endsi($haystack, $needle) {
 }
 
 /**
- * Set or get the newline character. Probably should deprecate this for an output class.
+ * Set or get the newline character.
+ * Probably should deprecate this for an output class.
  *
+ * @deprecated 2017-12
  * @param string $set
  * @return string
  */
@@ -508,11 +510,12 @@ function to_bytes($mixed, $default = null) {
  * @param string $phrase
  *        	Phrase to translate
  * @return string
- * @see Locale::translate
+ * @deprecated 2017-12 Use $application->locale($phrase) instead.
+ * @see Locale::__invoke
  */
 function __($phrase) {
 	$args = func_get_args();
-	$phrase = Locale::translate($phrase);
+	$phrase = Kernel::singleton()->application()->locale($phrase);
 	if (count($args) > 1) {
 		array_shift($args);
 		if (count($args) === 1 && is_array($args[0])) {
@@ -885,7 +888,7 @@ function _W($phrase) {
 		}
 		$phrase = substr($phrase, 0, $match_off) . $replace_value . substr($phrase, $match_off + $match_len);
 	}
-	
+
 	if (count($skip_s) === 0) {
 		return $phrase;
 	}
@@ -1301,7 +1304,7 @@ function &apath_set(array &$array, $path, $value = null, $separator = ".") {
 if (!function_exists('sgn')) {
 	/**
 	 * Thought this was a part of the PHP core, but apparently not.
-	 * 
+	 *
 	 * @param number $value
 	 * @return number|NULL
 	 */
@@ -1321,7 +1324,7 @@ if (!function_exists('sgn')) {
 
 /**
  * Convert our special weights into a number
- * 
+ *
  * @param mixed $weight
  * @return number
  */
@@ -1361,10 +1364,10 @@ function zesk_weight($weight = null) {
 function zesk_sort_weight_array(array $a, array $b) {
 	// Get weight a, convert to double
 	$aw = array_key_exists('weight', $a) ? zesk_weight($a['weight']) : 0;
-	
+
 	// Get weight b, convert to double
 	$bw = array_key_exists('weight', $b) ? zesk_weight($b['weight']) : 0;
-	
+
 	// a < b -> -1
 	// a > b -> 1
 	// a === b -> 0
@@ -1373,7 +1376,7 @@ function zesk_sort_weight_array(array $a, array $b) {
 
 /**
  * Revers sorting a weight array so highest weights are at the top
- * 
+ *
  * @param array $a
  * @param array $b
  * @return number
