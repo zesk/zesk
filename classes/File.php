@@ -1,7 +1,7 @@
 <?php
 /**
  * $URL: https://code.marketacumen.com/zesk/trunk/classes/File.php $
- * 
+ *
  * @package zesk
  * @subpackage system
  * @author $Author: kent $
@@ -11,152 +11,152 @@ namespace zesk;
 
 /**
  * File abstraction, lots of file tools
- * 
+ *
  * @author kent
  */
 class File {
 	/**
-	 * 
+	 *
 	 * @var integer
 	 */
 	const mask_file = 0100000;
 	/**
-	 * 
+	 *
 	 * @var integer
 	 */
 	const mask_socket = 0140000;
 	/**
-	 * 
+	 *
 	 * @var integer
 	 */
 	const mask_link = 0120000;
 	/**
-	 * 
+	 *
 	 * @var integer
 	 */
 	const mask_block = 0060000;
 	/**
-	 * 
+	 *
 	 * @var integer
 	 */
 	const mask_dir = 0040000;
 	/**
-	 * 
+	 *
 	 * @var integer
 	 */
 	const mask_char = 0020000;
 	/**
-	 * 
+	 *
 	 * @var integer
 	 */
 	const mask_fifo = 0010000;
 	/**
-	 * 
+	 *
 	 * @var integer
 	 */
 	const mask_ftype = 0170000;
-	
+
 	/**
-	 * 
+	 *
 	 * @var string
 	 */
 	const type_socket = "socket";
 	/**
-	 * 
+	 *
 	 * @var string
 	 */
 	const type_link = "link";
 	/**
-	 * 
+	 *
 	 * @var string
 	 */
 	const type_file = "file";
 	/**
-	 * 
+	 *
 	 * @var string
 	 */
 	const type_block = "block";
 	/**
-	 * 
+	 *
 	 * @var string
 	 */
 	const type_dir = "dir";
 	/**
-	 * 
+	 *
 	 * @var string
 	 */
 	const type_char = "char";
 	/**
-	 * 
+	 *
 	 * @var string
 	 */
 	const type_fifo = "fifo";
 	/**
-	 * 
+	 *
 	 * @var string
 	 */
 	const type_unknown = "unknown";
 	/**
-	 * 
+	 *
 	 * @var string
 	 */
 	const char_socket = "s";
 	/**
-	 * 
+	 *
 	 * @var string
 	 */
 	const char_link = "l";
 	/**
-	 * 
+	 *
 	 * @var string
 	 */
 	const char_file = "-";
 	/**
-	 * 
+	 *
 	 * @var string
 	 */
 	const char_block = "b";
 	/**
-	 * 
+	 *
 	 * @var string
 	 */
 	const char_dir = "d";
 	/**
-	 * 
+	 *
 	 * @var string
 	 */
 	const char_char = "c";
 	/**
-	 * 
+	 *
 	 * @var string
 	 */
 	const char_fifo = "p";
 	/**
-	 * 
+	 *
 	 * @var string
 	 */
 	const char_unknown = "u";
-	
+
 	/**
-	 * 
+	 *
 	 * @param Kernel $zesk
 	 */
 	public static function hooks(Kernel $zesk) {
 		$zesk->hooks->add("configured", __CLASS__ . '::configured');
 	}
-	
+
 	/**
-	 * 
+	 *
 	 * @param Application $application
 	 */
 	public static function configured(Application $application) {
 	}
-	
+
 	/**
 	 * Return an absolute path given a filename and a working directory
 	 *
-	 * @param string $filename        	
-	 * @param string $cwd        	
+	 * @param string $filename
+	 * @param string $cwd
 	 * @return string null
 	 */
 	public static function absolute_path($filename, $cwd = null) {
@@ -171,7 +171,7 @@ class File {
 		}
 		return path($cwd, $filename);
 	}
-	
+
 	/**
 	 * Require a file or files to exist
 	 *
@@ -209,12 +209,12 @@ class File {
 		$mixed = preg_replace("/$sep_char$sep_char+/", $sep_char, $mixed);
 		return $mixed;
 	}
-	
+
 	/**
 	 * Convert a string into a valid path suitable for all platforms.
 	 * Useful for cleaning user input for conversion to a
 	 * path or file name.
-	 * 
+	 *
 	 * @todo deprecate this, where used?
 	 *
 	 * @param string $func
@@ -224,7 +224,7 @@ class File {
 	public static function clean_path($path) {
 		return preg_replace("%[^-_./a-zA-Z0-9]%", '_', str_replace("_", "/", $path));
 	}
-	
+
 	/**
 	 * Check a path name of attempted hacking attempts
 	 *
@@ -244,7 +244,7 @@ class File {
 		}
 		return true;
 	}
-	
+
 	/**
 	 * Generate an MD5 checksum for a file
 	 *
@@ -270,7 +270,7 @@ class File {
 		fclose($f);
 		return md5($data);
 	}
-	
+
 	/**
 	 * Convert a file path to another string using the map call
 	 *
@@ -285,17 +285,17 @@ class File {
 			'/' => DIRECTORY_SEPARATOR
 		));
 	}
-	
+
 	/**
 	 * Strip extension off of filename
-	 * 
+	 *
 	 * @param string $filename
 	 * @return string
 	 */
 	public static function strip_extension($filename) {
 		return self::map_pathinfo($filename, "{dirname}{/}{filename}");
 	}
-	
+
 	/**
 	 * Extract a file extension from a file path
 	 *
@@ -323,7 +323,7 @@ class File {
 		}
 		return strtolower($fname);
 	}
-	
+
 	/**
 	 * Use a file as a semaphore counter
 	 *
@@ -352,7 +352,7 @@ class File {
 		fclose($fp);
 		return $id;
 	}
-	
+
 	/**
 	 * Put a file atomically
 	 *
@@ -380,7 +380,7 @@ class File {
 		fclose($fp);
 		return true;
 	}
-	
+
 	/**
 	 * Put a file atomically
 	 *
@@ -403,17 +403,18 @@ class File {
 		}
 		return null;
 	}
-	
+
 	/**
-	 * Create a temporary file
+	 * Create a unique temporary file name
 	 *
-	 * @param unknown_type $ext        	
+	 * @param string $path Directory for temporary file
+	 * @param string $ext Extension to place on temporary file
 	 * @return Ambigous <string, mixed>
 	 */
-	public static function temporary($ext = "tmp") {
-		return path(Directory::depend(zesk()->paths->temporary()), md5(microtime()) . ".$ext");
+	public static function temporary($path, $ext = "tmp", $mode = null) {
+		return path(Directory::depend($path, $mode), md5(microtime()) . "." . ltrim($ext, "."));
 	}
-	
+
 	/**
 	 * Extract a file name excluding extension from a file path
 	 *
@@ -436,10 +437,10 @@ class File {
 			return $filename;
 		return strtolower($filename);
 	}
-	
+
 	/**
 	 * Change file mode (if file exists)
-	 * 
+	 *
 	 * @param string $file_name
 	 * @param number $mode
 	 * @return boolean
@@ -450,7 +451,7 @@ class File {
 		}
 		return false;
 	}
-	
+
 	/**
 	 * Like file_get_contents but allows the return of a default string when file doesn't exist
 	 *
@@ -466,10 +467,10 @@ class File {
 		}
 		return $default;
 	}
-	
+
 	/**
 	 * Create or append a file with content provided
-	 * 
+	 *
 	 * @param string $filename
 	 * @param string $content
 	 * @throws Exception_File_Permission
@@ -488,7 +489,7 @@ class File {
 		fclose($f);
 		return true;
 	}
-	
+
 	/**
 	 * Like file_put_contents, but does some sanity checks and throws errors
 	 *
@@ -524,11 +525,11 @@ class File {
 		zesk()->hooks->call("File::put", $path);
 		return true;
 	}
-	
+
 	/**
 	 * Like unlink, but does some sanity tets and throws errors
 	 *
-	 * @param string $path        	
+	 * @param string $path
 	 * @throws Exception_File_Permission
 	 * @return boolean
 	 */
@@ -559,11 +560,11 @@ class File {
 		}
 		return $default;
 	}
-	
+
 	/**
 	 * Wrapper around file() to throw a file not found execption
 	 *
-	 * @param string $filename        	
+	 * @param string $filename
 	 * @throws Exception_File_NotFound
 	 * @return array Lines in the file
 	 */
@@ -573,9 +574,9 @@ class File {
 		}
 		return file($filename);
 	}
-	
+
 	/**
-	 * 
+	 *
 	 * @var array
 	 */
 	private static $fchars = array(
@@ -588,9 +589,9 @@ class File {
 		self::mask_fifo => self::char_fifo,
 		0 => self::char_unknown
 	);
-	
+
 	/**
-	 * 
+	 *
 	 * @var array
 	 */
 	private static $mtypes = array(
@@ -602,9 +603,9 @@ class File {
 		self::char_char => self::mask_char,
 		self::char_fifo => self::mask_fifo
 	);
-	
+
 	/**
-	 * 
+	 *
 	 * @return number[][]
 	 */
 	private static function _mode_map() {
@@ -654,23 +655,23 @@ class File {
 			)
 		);
 	}
-	
+
 	/**
 	 * Given a character type in the Unix "ls" command, convert it to our
 	 * internal string type names (e.g self::type_foo)
 	 *
-	 * @param string $char        	
+	 * @param string $char
 	 * @return string
 	 */
 	public static function ls_type($char) {
 		$char = substr($char, 0, 1);
 		return avalue(self::$fchars, avalue(self::$mtypes, $char, 0), self::type_unknown);
 	}
-	
+
 	/**
 	 * Convert an octal or decimal file mode to a string
 	 *
-	 * @param integer $mode        	
+	 * @param integer $mode
 	 * @return string
 	 */
 	public static function mode_to_string($mode) {
@@ -690,12 +691,12 @@ class File {
 		}
 		return $result;
 	}
-	
+
 	/**
 	 * Convert a ls-style mode string (e.g.
 	 * -rw-rw-rw) to a bitwide file mode
 	 *
-	 * @param string $mode_string        	
+	 * @param string $mode_string
 	 * @throws Exception_Unimplemented
 	 * @return integer
 	 */
@@ -715,11 +716,11 @@ class File {
 		}
 		return $mode;
 	}
-	
+
 	/**
 	 * Change a file extension from one extension to another (string manipulation)
 	 *
-	 * @param string $file        	
+	 * @param string $file
 	 * @param string $new_extension Extension with or without a "." in it (it's removed). If null, then extension is removed completely (no dot, either.)
 	 * @return string
 	 */
@@ -734,19 +735,19 @@ class File {
 		}
 		return $prefix . $base;
 	}
-	
+
 	/**
 	 * Octal with a zero prefix
 	 *
-	 * @param integer $mode        	
+	 * @param integer $mode
 	 * @return string
 	 */
 	public static function mode_to_octal($mode) {
 		return sprintf("0%o", 0777 & $mode);
 	}
-	
+
 	/**
-	 * 
+	 *
 	 * @param string $id
 	 * @param string $method Callable function to convert id to name
 	 * @return NULL|string
@@ -761,25 +762,25 @@ class File {
 		}
 		return avalue($result, 'name');
 	}
-	
+
 	/**
-	 * 
+	 *
 	 * @param unknown $uid
 	 * @return NULL|mixed|array
 	 */
 	private static function name_from_uid($uid) {
 		return self::_name_from_id($uid, 'posix_getpwuid');
 	}
-	
+
 	/**
-	 * 
+	 *
 	 * @param unknown $gid
 	 * @return NULL|mixed|array
 	 */
 	private static function name_from_gid($gid) {
 		return self::_name_from_id($gid, 'posix_getgrgid');
 	}
-	
+
 	/**
 	 * Thanks webmaster at askapache dot com
 	 * Souped up fstat.
@@ -802,7 +803,7 @@ class File {
 		if (!$ss) {
 			throw new Exception_File_NotFound($is_res ? _dump($path) : $path);
 		}
-		
+
 		$p = $ss['mode'];
 		$mode_string = self::mode_to_string($p);
 		$type = self::$fchars[$p & self::mask_ftype];
@@ -859,7 +860,7 @@ class File {
 				'created' => @date('Y M D H:i:s', $ss['ctime'])
 			)
 		);
-		
+
 		if (!$is_res) {
 			clearstatcache(null, $path);
 		}
@@ -868,12 +869,12 @@ class File {
 		}
 		return $s;
 	}
-	
+
 	/**
 	 * Max file size to trim files in memory
-	 * 
+	 *
 	 * Performance-related setting
-	 * 
+	 *
 	 * @global integer file::trim::maximum_file_size Size of file to use alternate method for
 	 * @return integer
 	 */
@@ -891,12 +892,12 @@ class File {
 		$memory_limit = ini_get("memory_limit");
 		return intval($memory_limit / 2);
 	}
-	
+
 	/**
 	 * Max memory size to read while trimming files
-	 * 
+	 *
 	 * Performance-related setting
-	 * 
+	 *
 	 * @global integer file::trim::read_buffer_size Size of file to use alternate method for
 	 * @return integer
 	 */
@@ -915,7 +916,7 @@ class File {
 		$default_trim_read_buffer_size = clamp(10240, $memory_limit / 4, 1048576);
 		return intval($default_trim_read_buffer_size);
 	}
-	
+
 	/**
 	 * Trim a file similarly to how you would trim a string.
 	 *
@@ -998,12 +999,12 @@ class File {
 		}
 		return $result;
 	}
-	
+
 	/**
 	 * Retrieve the first part of a file
 	 *
-	 * @param string $filename        	
-	 * @param number $length        	
+	 * @param string $filename
+	 * @param number $length
 	 * @throws Exception_File_NotFound
 	 * @throws Exception_File_Permission
 	 * @return string
@@ -1020,14 +1021,14 @@ class File {
 		fclose($f);
 		return $result;
 	}
-	
+
 	/**
 	 * Handle log rotation
 	 *
-	 * @param unknown $path        	
-	 * @param number $size_limit        	
-	 * @param number $keep_count        	
-	 * @param string $suffix        	
+	 * @param unknown $path
+	 * @param number $size_limit
+	 * @param number $keep_count
+	 * @param string $suffix
 	 * @return boolean
 	 */
 	public static function rotate($path, $size_limit = 10485760, $keep_count = 7, $suffix = "") {
@@ -1046,7 +1047,7 @@ class File {
 		}
 		return false;
 	}
-	
+
 	/**
 	 * Is the path an absolute path?
 	 *
@@ -1076,13 +1077,13 @@ class File {
 			return $f[0] === '/';
 		}
 	}
-	
+
 	/**
 	 * Rename a file to another file atomically - and delete file.
 	 * Handles rollback, locking, etc.
 	 *
-	 * @param string $source        	
-	 * @param string $target        	
+	 * @param string $source
+	 * @param string $target
 	 */
 	public static function move_atomic($source, $target, $new_target = null) {
 		global $zesk;
@@ -1130,10 +1131,10 @@ class File {
 		}
 		return true;
 	}
-	
+
 	/**
 	 * Copy uid and gid
-	 * 
+	 *
 	 * @param string $source
 	 *        	Source file or folder to copy uid/gid from
 	 * @param string $target
@@ -1144,10 +1145,10 @@ class File {
 	public static function copy_uid_gid($source, $target) {
 		return self::copy_gid($source, self::copy_uid($source, $target));
 	}
-	
+
 	/**
 	 * Copy uid
-	 * 
+	 *
 	 * @param string $source
 	 *        	Source file or folder to copy uid from
 	 * @param string $target
@@ -1170,7 +1171,7 @@ class File {
 	}
 	/**
 	 * Copy uid and gid
-	 * 
+	 *
 	 * @param string $source
 	 *        	Source file or folder to copy gid from
 	 * @param string $target
@@ -1191,11 +1192,11 @@ class File {
 		}
 		return $target;
 	}
-	
+
 	/**
 	 * Check that file is writable
 	 *
-	 * @param string $file        	
+	 * @param string $file
 	 * @throws Exception_Directory_NotFound
 	 * @throws Exception_File_Permission
 	 * @return string
@@ -1219,7 +1220,7 @@ class File {
 			"dir" => $dir
 		));
 	}
-	
+
 	/**
 	 * Given a list of paths and a file name, find the first occurrance of the file.
 	 *
@@ -1250,7 +1251,7 @@ class File {
 		}
 		return null;
 	}
-	
+
 	/**
 	 * Given a list of paths and a file name, find all occurrance of the named file.
 	 *
