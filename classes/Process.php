@@ -19,15 +19,15 @@ class Process {
 	 * @var boolean
 	 */
 	public $debug = false;
-	
+
 	/**
-	 * 
-	 * @var unknown
+	 *
+	 * @var Application
 	 */
-	private $zesk = null;
-	
+	private $application = null;
+
 	/**
-	 * 
+	 *
 	 * @throws Exception_System
 	 */
 	function __sleep() {
@@ -38,14 +38,14 @@ class Process {
 	/**
 	 * Create object
 	 */
-	function __construct(Kernel $zesk) {
-		$this->zesk = $zesk;
-		$zesk->hooks->add(Hooks::hook_configured, array(
+	function __construct(Application $application) {
+		$this->application = $application;
+		$application->hooks->add(Hooks::hook_configured, array(
 			$this,
 			"configured"
 		));
 	}
-	
+
 	/**
 	 * Current process id
 	 *
@@ -54,7 +54,7 @@ class Process {
 	function id() {
 		return intval(getmypid());
 	}
-	
+
 	/**
 	 * Return current process owner user name
 	 *
@@ -75,7 +75,7 @@ class Process {
 		$application->configuration->deprecated("zesk::debug_execute", $key);
 		$this->debug = $application->configuration->path_get($key);
 	}
-	
+
 	/**
 	 *
 	 * @param integer $pid
@@ -88,7 +88,7 @@ class Process {
 		}
 		return posix_kill($pid, 0) ? true : false;
 	}
-	
+
 	/**
 	 * Execute a shell command.
 	 *
@@ -128,7 +128,7 @@ class Process {
 		}
 		return $this->execute_arguments($command, $args, $passthru);
 	}
-	
+
 	/**
 	 * Execute a shell command with arguments supplied as an array
 	 *
@@ -166,7 +166,7 @@ class Process {
 		$result = 0;
 		$output = array();
 		if ($this->debug) {
-			$this->zesk->logger->debug("Running command: {raw_command}", compact("raw_command"));
+			$this->application->logger->debug("Running command: {raw_command}", compact("raw_command"));
 		}
 		if ($passthru) {
 			passthru($raw_command, $result);

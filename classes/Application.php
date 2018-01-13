@@ -358,7 +358,13 @@ class Application extends Hookable implements Interface_Theme, Interface_Factory
 		$this->logger = $zesk->logger;
 		$this->classes = $zesk->classes;
 		$this->objects = $zesk->objects;
-		$this->process = $zesk->process;
+
+		/*
+		 * Current process interface. Depends on ->hooks
+		 */
+		$this->process = new Process($this);
+
+		$this->locale = Locale::factory($this);
 
 		$this->module_path = array();
 		$this->zesk_command_path = array();
