@@ -1540,3 +1540,5 @@ abstract class Database extends Hookable {
 	 * @return array
 	 */
 	abstract public function table_information($table);
+}
+
