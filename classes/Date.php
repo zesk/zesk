@@ -19,6 +19,19 @@ namespace zesk;
 class Date extends Temporal {
 	/**
 	 *
+	 * @var string
+	 */
+	const DEFAULT_FORMAT_STRING = "{YYYY}-{MM}-{DD}";
+
+	/**
+	 * Set up upon load
+	 *
+	 * @var string
+	 */
+	private static $default_format_string = self::DEFAULT_FORMAT_STRING;
+
+	/**
+	 *
 	 * @var integer
 	 */
 	const seconds_in_day = 86400;
@@ -59,29 +72,26 @@ class Date extends Temporal {
 	private $_yearday = null;
 
 	/**
-	 * Construct a new Date object
+	 * Add global configuration
 	 *
-	 * @param mixed $value
-	 * @see Date::set
+	 * @param Kernel $kernel
 	 */
-	function __construct($value = null) {
-		$this->_weekday = null;
-		$this->_yearday = null;
-
-		$this->set($value);
+	public static function hooks(Kernel $kernel) {
+		$kernel->hooks->add(Hooks::hook_configured, array(
+			__CLASS__,
+			"configured"
+		));
 	}
 
 	/**
-	 * Create a Date object
 	 *
-	 * @param mixed $value
-	 * @return Date
+	 * @param Application $application
 	 */
-	public static function factory($value = null) {
-		return new Date($value);
-	}
-	public function duplicate() {
-		return clone $this;
+	public static function configured(Application $application) {
+		self::$default_format_string = $application->configuration->path_get(array(
+			__CLASS__,
+			"format_string"
+		), self::DEFAULT_FORMAT_STRING);
 	}
 
 	/**
@@ -97,6 +107,37 @@ class Date extends Temporal {
 		$d = new Date();
 		$d->ymd($year, $month, $day);
 		return $d;
+	}
+
+	/**
+	 * Create a Date object
+	 *
+	 * @param mixed $value
+	 * @return Date
+	 */
+	public static function factory($value = null) {
+		return new Date($value);
+	}
+
+	/**
+	 * Construct a new Date object
+	 *
+	 * @param mixed $value
+	 * @see Date::set
+	 */
+	function __construct($value = null) {
+		$this->_weekday = null;
+		$this->_yearday = null;
+
+		$this->set($value);
+	}
+
+	/**
+	 *
+	 * @return self
+	 */
+	public function duplicate() {
+		return clone $this;
 	}
 
 	/**
@@ -704,11 +745,7 @@ class Date extends Temporal {
 	 */
 	function format($format_string = null, array $options = array()) {
 		if ($format_string === null) {
-			// TODO
-			$format_string = Kernel::singleton()->configuration->path_get(array(
-				__CLASS__,
-				"format_string"
-			), "{YYYY}-{MM}-{DD}");
+			$format_string = self::$default_format_string;
 		}
 		$formatting = $this->formatting($options);
 		return map($format_string, $formatting);

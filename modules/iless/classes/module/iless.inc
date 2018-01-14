@@ -1,67 +1,67 @@
 <?php
 /**
- * 
+ *
  */
 use zesk\File;
 use zesk\Directory;
 use zesk\CSS;
 
 /**
- * 
+ *
  * @author kent
  *
  */
 class Module_iLess extends zesk\Module {
-	
+
 	/**
-	 * 
+	 *
 	 * @return Compiler_Less
 	 */
 	public function compiler() {
 		return new Compiler_Less($this->application);
 	}
-	
+
 	/**
-	 * 
+	 *
 	 * @param unknown $set
 	 * @return void|mixed|string
 	 */
 	public function style_name($set = null) {
 		return $set === null ? $this->set_option('style_name', $set) : $this->option('style_name', strtolower($this->application->application_class()));
 	}
-	
+
 	/**
-	 * 
+	 *
 	 * @return string
 	 */
 	private function _default_css_path() {
 		return $this->option('default_css_path', "/css/" . $this->style_name() . ".css");
 	}
-	
+
 	/**
-	 * 
+	 *
 	 * @return string
 	 */
 	private function _css_path() {
 		return $this->option('css_path', '/cache/css/' . $this->style_name() . '.css');
 	}
-	
+
 	/**
-	 * 
+	 *
 	 * @return string
 	 */
 	private function _less_path() {
 		return $this->option('less_path', path($this->application->document_root(), '/less/' . $this->style_name() . '.less'));
 	}
-	
+
 	/**
-	 * 
+	 *
 	 * @return string
 	 */
 	private function _full_css_path() {
 		return path($this->application->document_root(), $this->_css_path());
 	}
-	
+
 	/**
 	 * CSS changed, dirty compiled less file
 	 */
@@ -71,9 +71,9 @@ class Module_iLess extends zesk\Module {
 	public function css_theme_changed(array $variables = array()) {
 		$this->_compile_css_theme($variables);
 	}
-	
+
 	/**
-	 * 
+	 *
 	 * @param unknown $value
 	 * @param array $settings
 	 * @return string
@@ -85,15 +85,15 @@ class Module_iLess extends zesk\Module {
 		}
 		return '#' . $value;
 	}
-	
+
 	/**
-	 * 
+	 *
 	 * @param unknown $value
 	 * @param array $settings
 	 * @return \ILess\Variable
 	 */
 	protected function hook_process_variable_font($value, array $settings) {
-		$objects = zesk()->objects;
+		$objects = $this->application->objects;
 		$fonts = explode(",", $value);
 		$values = array();
 		foreach ($fonts as $font) {
@@ -103,9 +103,9 @@ class Module_iLess extends zesk\Module {
 		$value_node = $objects->factory("ILess\Node\ValueNode", $values);
 		return $objects->factory("ILess\Variable", 'site_theme_font', $value_node);
 	}
-	
+
 	/**
-	 * 
+	 *
 	 * @param array $variables
 	 */
 	private function _compile_css_theme(array $variables = array()) {
@@ -115,7 +115,7 @@ class Module_iLess extends zesk\Module {
 		$source = $this->_less_path();
 		Directory::depend(dirname($full_path));
 		$compiler = $this->compiler();
-		
+
 		$types = $variables + $this->call_hook_arguments("less_variables", array(), array());
 		$variables = array();
 		foreach ($types as $name => $settings) {
@@ -136,7 +136,7 @@ class Module_iLess extends zesk\Module {
 			"path" => $full_path
 		));
 	}
-	
+
 	/**
 	 * Get compiled CSS file
 	 *

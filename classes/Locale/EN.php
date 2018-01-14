@@ -10,11 +10,11 @@
 namespace zesk;
 
 /**
- * 
+ *
  * @author kent
  *
  */
-class Locale_EN extends Locale_Base {
+class Locale_EN extends Locale {
 	public function date_format() {
 		return "{MMMM} {DDD}, {YYYY}";
 	}
@@ -54,11 +54,11 @@ class Locale_EN extends Locale_Base {
 		}
 		return null;
 	}
-	public function plural($word, $count = 2) {
+	public function noun_semantic_plural($word, $count = 2) {
 		if ($count > 0 && $count <= 1) {
 			return $word;
 		}
-		$ess = self::plural_en_exception($word);
+		$ess = $this->plural_en_exception($word);
 		if ($ess) {
 			return str::case_match($ess, $word);
 		}

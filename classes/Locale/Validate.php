@@ -1,23 +1,23 @@
 <?php
 /**
- * 
+ *
  */
 namespace zesk;
 
 /**
- * 
+ *
  * @author kent
  *
  */
 class Locale_Validate extends Options {
-	
+
 	/**
-	 * 
+	 *
 	 * @var Application
 	 */
 	public $application = null;
 	/**
-	 * 
+	 *
 	 * @param array $options
 	 */
 	public function __construct(Application $application, array $options = array()) {
@@ -25,7 +25,7 @@ class Locale_Validate extends Options {
 		parent::__construct($options);
 		$this->inherit_global_options();
 	}
-	
+
 	/**
 	 * Verifies if the source variables exist in the translation
 	 *
@@ -63,14 +63,14 @@ class Locale_Validate extends Options {
 			if (method_exists($this, $full_method)) {
 				$errors = array_merge($errors, $this->$full_method($source, $translation));
 			} else {
-				zesk()->logger->error("Invalid translation check method: {method} for group {group}", compact("method", "group"));
+				$this->application->logger->error("Invalid translation check method: {method} for group {group}", compact("method", "group"));
 			}
 		}
 		return $errors;
 	}
-	
+
 	/**
-	 * 
+	 *
 	 * @param string $string
 	 * @return string[]
 	 */
@@ -81,10 +81,10 @@ class Locale_Validate extends Options {
 		sort($matches);
 		return $matches;
 	}
-	
+
 	/**
 	 * Match braces in a stirng and return all matches
-	 * 
+	 *
 	 * @param string $string
 	 * @return array
 	 */
@@ -94,10 +94,10 @@ class Locale_Validate extends Options {
 		$matches = $matches[0];
 		return $matches;
 	}
-	
+
 	/**
 	 * Check the token count in the source and translation are the same
-	 * 
+	 *
 	 * @param string $source
 	 * @param string $translation
 	 * @return string[] An array of errors found in the two strings when compared
@@ -119,10 +119,10 @@ class Locale_Validate extends Options {
 		}
 		return $errors;
 	}
-	
+
 	/**
 	 * Check that the token names match between source and translation
-	 * 
+	 *
 	 * @param string $source
 	 * @param string $translation
 	 * @return string[] An array of errors found in the two strings when compared
@@ -148,10 +148,10 @@ class Locale_Validate extends Options {
 		}
 		return $errors;
 	}
-	
+
 	/**
 	 * Check that the braces in the pattern ar balanced and match between source and translation
-	 * 
+	 *
 	 * @param string $source
 	 * @param string $translation
 	 * @return string[] An array of errors found when the two strings are compared

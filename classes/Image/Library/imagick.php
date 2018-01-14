@@ -6,19 +6,19 @@ namespace zesk;
 
 class Image_Library_imagick extends Image_Library {
 	/**
-	 * 
+	 *
 	 * @var string
 	 */
 	const command_default = "convert";
-	
+
 	/**
-	 * 
+	 *
 	 * @var string
 	 */
 	const command_scale = '{command} -antialias -matte -geometry "{width}x{height}" {source} {destination}';
-	
+
 	/**
-	 * 
+	 *
 	 * @return string|\zesk\NULL
 	 */
 	private static function shell_command() {
@@ -30,9 +30,9 @@ class Image_Library_imagick extends Image_Library {
 		), self::command_default));
 		return $which;
 	}
-	
+
 	/**
-	 * 
+	 *
 	 * @return string|\zesk\NULL
 	 */
 	private static function shell_command_scale() {
@@ -45,7 +45,7 @@ class Image_Library_imagick extends Image_Library {
 		), self::command_scale), compact("command"));
 		return $scale_command;
 	}
-	
+
 	/**
 	 *
 	 * @return boolean
@@ -57,9 +57,9 @@ class Image_Library_imagick extends Image_Library {
 		}
 		return false;
 	}
-	
+
 	/**
-	 * 
+	 *
 	 * @param unknown $source
 	 * @return resource
 	 */
@@ -80,8 +80,8 @@ class Image_Library_imagick extends Image_Library {
 	}
 	function image_scale_data($data, array $options) {
 		$extension = Content_Image::determine_extension_simple_data($data);
-		$source = File::temporary($extension);
-		$dest = File::temporary($extension);
+		$source = File::temporary($this->application->paths->temporary(), $extension);
+		$dest = File::temporary($this->application->paths->temporary(), $extension);
 		file_put_contents($source, $data);
 		$result = null;
 		if (self::image_scale($source, $dest, $options)) {
@@ -110,16 +110,16 @@ class Image_Library_imagick extends Image_Library {
 			"width" => $width,
 			"height" => $height
 		);
-		
+
 		$cmd = self::shell_command_scale();
 		if (empty($cmd)) {
 			die("ViewImage::scaleCommand($source, $dest, $width, $height): System doesn't contain ViewImage::system_scale_command");
 		}
-		
+
 		$cmd = map($cmd, $map);
-		
+
 		$result = false;
-		
+
 		$lastline = system($cmd, $result);
 		if ($result == 0 && file_exists($dest)) {
 			global $zesk;

@@ -1,60 +1,143 @@
 <?php
 /**
- * @version $URL: https://code.marketacumen.com/zesk/trunk/classes/Net/Server/Driver.php $
  * @author Kent Davidson <kent@marketacumen.com>
- * @copyright Copyright &copy; 2011, Market Acumen, Inc.
  * @package zesk
  * @subpackage system
+ * @copyright Copyright &copy; 2017, Market Acumen, Inc.
  */
 namespace zesk;
 
-abstract class Net_Server_Driver {
+/**
+ *
+ * @author kent
+ *
+ */
+abstract class Net_Server_Driver extends Hookable {
+
+	/**
+	 * Port to listen on
+	 *
+	 * @var integer
+	 */
 	private $port = 10000;
+
+	/**
+	 *
+	 * @var string
+	 */
 	private $host = "localhost";
+
+	/**
+	 *
+	 * @var integer
+	 */
 	private $protocol = AF_INET;
+
+	/**
+	 *
+	 * @var boolean
+	 */
 	public $debug = true;
+
+	/**
+	 *
+	 * @var integer
+	 */
 	private $backlog = 500;
+
+	/**
+	 *
+	 * @var integer
+	 */
 	private $max_clients = null;
+
+	/**
+	 *
+	 * @var string
+	 */
 	private $read_buffer = null;
+
+	/**
+	 *
+	 * @var integer
+	 */
 	private $read_buffer_size = 128;
+
+	/**
+	 *
+	 * @var string
+	 */
 	private $read_end_char = "\n";
+
+	/**
+	 * Number of seconds after a client is idle where it will be disconnected.
+	 *
+	 * @var integer
+	 */
 	private $idle_timeout = null;
+
+	/**
+	 *
+	 * @var integer
+	 */
 	private $idle_time = null;
-	
+
 	/**
 	 * Main socket for listening
-	 * 
+	 *
 	 * @var resource
 	 */
 	protected $socket = null;
-	
+
 	/**
 	 * Array of socket descriptors of clients (some may be null)
-	 * 
+	 *
 	 * Do not reorder to maintain client_id persistence
 	 *
 	 * @var array
 	 */
 	protected $clients = array();
+
+	/**
+	 * Clients which are empty/unused
+	 *
+	 * @var array
+	 */
 	protected $empty_clients = array();
-	
+
 	/**
 	 * Array of data associated with clients
-	 * 
+	 *
 	 * @var array
 	 */
 	protected $client_data = array();
-	
+
 	/**
 	 * @var Net_Server
 	 */
 	protected $server = null;
+
+	/**
+	 *
+	 * @param Net_Server $server
+	 * @param string $host
+	 * @param number $port
+	 * @param string $protocol
+	 */
 	function __construct(Net_Server $server, $host = "localhost", $port = 10000, $protocol = AF_INET) {
+		parent::__construct($server->application);
 		$this->host = $host;
 		$this->port = $port;
 		$this->protocol = (int) $protocol;
 		$this->server = $server;
 	}
+
+	/**
+	 * Getter/setter for max clients
+	 *
+	 * @param integer|null $max_clients
+	 * @return number|\zesk\Net_Server_Driver
+	 */
 	final function max_clients($max_clients = null) {
 		if ($max_clients === null) {
 			return $this->max_clients;
@@ -62,6 +145,13 @@ abstract class Net_Server_Driver {
 		$this->max_clients = intval($max_clients);
 		return $this;
 	}
+
+	/**
+	 * Getter/setter for read end character
+	 *
+	 * @param string $char
+	 * @return string|\zesk\Net_Server_Driver
+	 */
 	final function read_end_char($char = null) {
 		if ($char === null) {
 			return $this->read_end_char;
@@ -69,6 +159,13 @@ abstract class Net_Server_Driver {
 		$this->read_end_char = $char;
 		return $this;
 	}
+
+	/**
+	 * Getter/setter for idle_timeout
+	 *
+	 * @param integer $set
+	 * @return integer|\zesk\Net_Server_Driver
+	 */
 	final function idle_timeout($set = null) {
 		if ($set === null) {
 			return $this->idle_timeout;
@@ -76,9 +173,17 @@ abstract class Net_Server_Driver {
 		$this->idle_timeout = $set;
 		return $this;
 	}
+
+	/**
+	 * Destructor
+	 */
 	function __destruct() {
 		$this->shutdown();
 	}
+
+	/**
+	 * Close all connections
+	 */
 	final public function shutdown() {
 		if (count($this->clients) === 0 && $this->socket === null) {
 			return;
@@ -95,35 +200,49 @@ abstract class Net_Server_Driver {
 		$this->message("shutdown");
 		exit();
 	}
+
+	/**
+	 * Open listen socket
+	 *
+	 * @param string $reuse
+	 * @throws Net_Server_Exception
+	 */
 	final protected function listen($reuse = true) {
 		$this->socket = @socket_create($this->protocol, SOCK_STREAM, SOL_TCP);
 		if (!$this->socket) {
 			throw new Net_Server_Exception("Could not create socket.");
 		}
-		
+
 		if ($reuse) {
 			//    adress may be reused
 			socket_setopt($this->socket, SOL_SOCKET, SO_REUSEADDR, 1);
 		}
-		
+
 		//    bind the socket
 		if (!socket_bind($this->socket, $this->host, $this->port)) {
 			$error = $this->last_socket_error($this->socket);
 			socket_close($this->socket);
 			throw new Net_Server_Exception("Could not bind socket to " . $this->host . " on port " . $this->port . " (" . $error . ").");
 		}
-		
+
 		//    listen on selected port
 		if (!@socket_listen($this->socket, $this->backlog)) {
 			$error = $this->last_socket_error($this->socket);
 			socket_close($this->socket);
 			throw new Net_Server_Exception("Could not listen (" . $error . ").");
 		}
-		
+
 		$this->message("Listening on port " . $this->port . ". Server started at " . date("H:i:s", time()));
-		
+
 		$this->server_hook('start');
 	}
+
+	/**
+	 * Choose network endppoints which have something to do.
+	 *
+	 * @param array $fds
+	 * @return boolean|number|unknown
+	 */
 	final protected function select(array &$fds) {
 		if ($this->idle_time === null) {
 			$this->idle_time = time();
@@ -142,6 +261,13 @@ abstract class Net_Server_Driver {
 		}
 		return $ready;
 	}
+
+	/**
+	 * Read from connection client_id
+	 *
+	 * @param string $client_id
+	 * @return boolean
+	 */
 	final protected function read_connection($client_id) {
 		$data = $this->read($client_id);
 		if ($data === false) {
@@ -154,6 +280,12 @@ abstract class Net_Server_Driver {
 			return true;
 		}
 	}
+
+	/**
+	 * Accept a connection
+	 *
+	 * @return NULL|number
+	 */
 	final protected function accept_connection() {
 		$client_id = count($this->empty_clients) === 0 ? count($this->clients) : array_pop($this->empty_clients);
 		$accept = socket_accept($this->socket);
@@ -176,7 +308,7 @@ abstract class Net_Server_Driver {
 			'l_linger' => 1
 		));
 		socket_set_block($accept);
-		
+
 		$peer_host = $peer_port = "";
 		socket_getpeername($accept, $peer_host, $peer_port);
 		$this->client_data[$client_id] = array(
@@ -184,19 +316,44 @@ abstract class Net_Server_Driver {
 			"port" => $peer_port,
 			"time" => time()
 		);
-		
+
 		$this->message("New connection #$client_id from $peer_host on port $peer_port");
 		$this->clients[$client_id] = $accept;
 		$this->server_hook("connect", $client_id);
 		return $client_id;
 	}
+
+	/**
+	 * Total connected clients
+	 *
+	 * @return integer
+	 */
 	final public function connected_clients() {
 		return count($this->clients) - count($this->empty_clients);
 	}
+
+	/**
+	 * After accept, call this method
+	 *
+	 * @param resource $socket
+	 */
 	abstract protected function _after_accept($socket);
+
+	/**
+	 * Is the client ID connected?
+	 *
+	 * @param string $client_id
+	 * @return boolean
+	 */
 	final public function is_connected($client_id = 0) {
 		return is_resource(avalue($this->clients, $client_id));
 	}
+
+	/**
+	 * Close the connection specified
+	 *
+	 * @param number $client_id
+	 */
 	final public function close_connection($client_id = 0) {
 		static $recursion = false;
 		if ($recursion) {
@@ -209,33 +366,59 @@ abstract class Net_Server_Driver {
 		$recursion = true;
 		$this->server_hook("close", $client_id);
 		$recursion = false;
-		
+
 		$this->empty_clients[] = $client_id;
-		
+
 		$data = $this->client_data[$client_id];
 		$this->message("Closed connection #$client_id from " . $data["host"] . " on port " . $data["port"]);
-		
+
 		$this->clients[$client_id] = null;
 		unset($this->client_data[$client_id]);
-		
+
 		socket_set_block($fd);
 		socket_shutdown($fd, 2);
 		socket_close($fd);
 	}
+
+	/**
+	 * Retrieve a list of connected clients
+	 *
+	 * @return array
+	 */
 	final function clients() {
 		return $this->clients;
 	}
+
+	/**
+	 * Fetch data structure associated with a client
+	 *
+	 * @param string $client_id
+	 * @param unknown $default
+	 * @return mixed|array
+	 */
 	final function client_data($client_id = 0, $default = null) {
 		return avalue($this->client_data, $client_id, $default);
 	}
+
+	/**
+	 *
+	 * @param unknown $client_id
+	 * @return string
+	 */
 	final public function client_string($client_id) {
 		$data = avalue($this->client_data, $client_id);
-		$pid = zesk()->process->id();
+		$pid = $this->application->process->id();
 		if (!is_array($data)) {
 			return "No connection data (pid: $pid)";
 		}
 		return $data['host'] . ':' . $data['port'] . " (pid: $pid)";
 	}
+
+	/**
+	 * Read from client ID
+	 * @param number $client_id
+	 * @return boolean|string|unknown|boolean|NULL
+	 */
 	final protected function read($client_id = 0) {
 		$data = '';
 		$buf = false;
@@ -268,7 +451,7 @@ abstract class Net_Server_Driver {
 				}
 			}
 		}
-		
+
 		if ($buf === false) {
 			$this->message("Could not read from client " . $client_id . " (" . $this->last_socket_error($this->clients[$client_id]) . ").");
 			return false;
@@ -278,6 +461,14 @@ abstract class Net_Server_Driver {
 		}
 		return $data;
 	}
+
+	/**
+	 * Write to client
+	 *
+	 * @param string $client_id
+	 * @param string $data
+	 * @throws Net_Server_Exception
+	 */
 	final public function write($client_id = 0, $data) {
 		$fd = avalue($this->clients, $client_id);
 		if ($fd === null) {
@@ -293,13 +484,25 @@ abstract class Net_Server_Driver {
 		}
 		$this->message("Wrote " . Number::format_bytes($wrote) . "\n" . trim(substr($data, 0, 1024)) . "\n");
 	}
+
+	/**
+	 *
+	 * @param unknown $message
+	 * @return boolean
+	 */
 	final public function message($message) {
 		if (!$this->debug) {
 			return false;
 		}
-		zesk()->logger->debug($message);
+		$this->application->logger->debug($message);
 		return true;
 	}
+
+	/**
+	 * Run a hook on the Net_Server
+	 * @param string $method
+	 * @return mixed|NULL
+	 */
 	final protected function server_hook($method) {
 		$method = "hook_$method";
 		if ($this->server && method_exists($this->server, $method)) {
@@ -312,6 +515,14 @@ abstract class Net_Server_Driver {
 		}
 		return null;
 	}
+
+	/**
+	 * Change the server
+	 *
+	 * @param Net_Server $object
+	 * @throws Exception_Parameter
+	 * @return \zesk\Net_Server|\zesk\Net_Server_Driver
+	 */
 	final function server(Net_Server $object = null) {
 		if ($object === null) {
 			return $this->server;
@@ -325,11 +536,17 @@ abstract class Net_Server_Driver {
 		}
 		return $this;
 	}
+
+	/**
+	 * Retrieve the most recent socket error from resource $fd as a string
+	 *
+	 * @param resource $fd
+	 * @return string
+	 */
 	final private function last_socket_error($fd) {
 		if (!is_resource($fd)) {
 			return '';
 		}
-		
 		$error = socket_last_error($fd);
 		return '$error: ' . socket_strerror($error);
 	}

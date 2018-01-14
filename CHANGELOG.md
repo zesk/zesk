@@ -30,7 +30,15 @@ Version 1.0 of Zesk will have:
 
 The `zesk\Locale` module has been refactored to support object-based management and avoiding `static` calls.
 
-- `zesk\`
+#### Static methods are now instance methods
+
+- `zesk\Locale::loaded`
+
+#### Removed
+
+- `zesk\Locale::loaded`
+- `ZESK_LOCALE_DEFAULT`
+
 ### New features
 
 - `zesk\Application` now supports the function calls like `codename_module()` to retrieve module objects. So, `$application->csv_module()` is equivalent to `$application->modules->object("csv")`. You can decorate your application with `@method` doccomments to support types and return values in Eclipse-based editors. See `zesk\Application` class DocComment for examples.

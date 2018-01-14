@@ -116,9 +116,6 @@ class Paths {
 	public function configured(Application $application) {
 		$configuration = $application->configuration;
 
-		$configuration->deprecated("zesk::paths", array(
-			__CLASS__
-		));
 		$paths = $configuration->path(__CLASS__);
 
 		if ($paths->has('command_path')) {
@@ -251,7 +248,7 @@ class Paths {
 	}
 
 	/**
-	 * Get/Set temporary path
+	 * Get temporary path, optionally adding a suffix to the path
 	 *
 	 * @param string $suffix
 	 * @return string

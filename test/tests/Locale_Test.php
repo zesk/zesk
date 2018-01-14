@@ -1,11 +1,11 @@
 <?php
 /**
- * 
+ *
  */
 namespace zesk;
 
 /**
- * 
+ *
  * @author kent
  *
  */
@@ -34,7 +34,7 @@ class Locale_Test extends Test_Unit {
 			'FOX' => 'FOXES',
 			'box' => 'boxes'
 		);
-		
+
 		$n = 2;
 		$language = "en";
 		foreach ($tests as $test => $result) {
@@ -50,7 +50,7 @@ class Locale_Test extends Test_Unit {
 		$result = Locale::conjunction($x, $c, $locale);
 		echo "$result\n";
 		$this->assert($result === 'one thing');
-		
+
 		$x = array(
 			'one',
 			'two'
@@ -58,7 +58,7 @@ class Locale_Test extends Test_Unit {
 		$result = Locale::conjunction($x, $c, $locale);
 		echo "$result\n";
 		$this->assert($result === 'one or two');
-		
+
 		$x = array(
 			'one',
 			'two',
@@ -67,7 +67,7 @@ class Locale_Test extends Test_Unit {
 		$result = Locale::conjunction($x, $c, $locale);
 		echo "$result\n";
 		$this->assert($result === 'one, two or three');
-		
+
 		$x = array(
 			"lions",
 			"tigers",
@@ -75,7 +75,7 @@ class Locale_Test extends Test_Unit {
 		);
 		$c = "or";
 		$this->assert(Locale::conjunction($x, $c) === "lions, tigers or bears");
-		
+
 		$x = array(
 			"lions",
 			"tigers",
@@ -83,14 +83,14 @@ class Locale_Test extends Test_Unit {
 		);
 		$c = "and";
 		$this->assert(Locale::conjunction($x, $c) === "lions, tigers and bears");
-		
+
 		$x = array(
 			"lions",
 			"tigers"
 		);
 		$c = "and";
 		$this->assert(Locale::conjunction($x, $c) === "lions and tigers");
-		
+
 		$x = array(
 			"lions"
 		);
@@ -108,7 +108,7 @@ class Locale_Test extends Test_Unit {
 	function test_dialect() {
 		$locale = null;
 		Locale::dialect($locale);
-		
+
 		$this->assert_equal(Locale::dialect("en_us"), "US");
 		$this->assert_equal(Locale::dialect("EN_US"), "US");
 		$this->assert_equal(Locale::dialect("EN_US_Southern"), "US");
@@ -136,23 +136,11 @@ class Locale_Test extends Test_Unit {
 	function test_language() {
 		$locale = null;
 		Locale::language($locale);
-		
+
 		$this->assert(Locale::language("EN_US") === "en");
 		$this->assert(Locale::language("EN_US_Southern") === "en");
 		$this->assert(Locale::language("En") === "en");
 		$this->assert(Locale::language("") === "");
-	}
-	function test_load() {
-		$locale = null;
-		Locale::load($locale);
-	}
-	function test_loaded() {
-		$locale = null;
-		Locale::loaded($locale);
-	}
-	function test_locale_path() {
-		$add = null;
-		Locale::locale_path($add);
 	}
 	function test_negate_word() {
 		$word = null;
@@ -188,7 +176,7 @@ class Locale_Test extends Test_Unit {
 		$this->assert_equal(Locale::ordinal(111, "en_US"), "111th");
 		$this->assert_equal(Locale::ordinal(112, "en_US"), "112th");
 		$this->assert_equal(Locale::ordinal(113, "en_US"), "113th");
-		
+
 		$this->assert_equal(Locale::ordinal(1, "fr"), "1r");
 		$this->assert_equal(Locale::ordinal(2, "fr"), "2e");
 		$this->assert_equal(Locale::ordinal(21, "fr"), "21e");
@@ -217,13 +205,13 @@ class Locale_Test extends Test_Unit {
 			'FOX' => 'FOXES',
 			'box' => 'boxes'
 		);
-		
+
 		$n = 2;
 		$language = "en";
 		foreach ($tests as $test => $result) {
 			$this->assert(Locale::plural($test, $n) === $result, Locale::plural($test, $n, $language) . " !== " . $result);
 		}
-		
+
 		echo basename(__FILE__) . ": success\n";
 	}
 	function test_plural_number() {
@@ -251,7 +239,7 @@ class Locale_Test extends Test_Unit {
 			'FOX' => 'FOXES',
 			'box' => 'boxes'
 		);
-		
+
 		$locales = array(
 			"en",
 			"en_US",
@@ -292,7 +280,7 @@ class Locale_Test extends Test_Unit {
 			'FOX' => 'FOXES',
 			'box' => 'boxes'
 		);
-		
+
 		$n = null;
 		foreach ($tests as $test => $plural) {
 			$n = mt_rand(2, 1000);
