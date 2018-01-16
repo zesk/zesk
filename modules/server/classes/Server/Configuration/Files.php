@@ -183,7 +183,7 @@ class Server_Configuration_Files extends Server_Configuration {
 		$files = to_list($files);
 		foreach ($files as $mixed) {
 			$source_prefix = path($type, $mixed);
-			if (str::ends($source_prefix, "/")) {
+			if (StringTools::ends($source_prefix, "/")) {
 				$source = Directory::find_first($search_path, $source_prefix);
 			} else {
 				$source = File::find_first($search_path, $source_prefix);

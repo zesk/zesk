@@ -36,7 +36,7 @@ class Permission extends ORM {
 	 */
 	public function action() {
 		$name = $this->member('name');
-		return str::right($name, "::", $name);
+		return StringTools::right($name, "::", $name);
 	}
 	
 	/**
@@ -45,7 +45,7 @@ class Permission extends ORM {
 	 */
 	public function object_class() {
 		$name = $this->member('name');
-		return str::left($name, "::", $name);
+		return StringTools::left($name, "::", $name);
 	}
 	/**
 	 * Hook for testing if another permission is allowed, then this permission is allowed.

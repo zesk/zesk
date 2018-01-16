@@ -18,9 +18,9 @@ namespace zesk;
  * @subpackage system
  */
 class World_Bootstrap_Province extends Options {
-	
+
 	/**
-	 * 
+	 *
 	 * @var Application
 	 */
 	public $application = null;
@@ -29,7 +29,7 @@ class World_Bootstrap_Province extends Options {
 	 * @var array
 	 */
 	private $include_country = null;
-	
+
 	/**
 	 *
 	 * @param Application $application
@@ -39,7 +39,7 @@ class World_Bootstrap_Province extends Options {
 	public function factory(Application $application, array $options) {
 		return $application->factory(__CLASS__, $application, $options);
 	}
-	
+
 	/**
 	 *
 	 * @global Module_World::include_country List of country codes to include
@@ -56,9 +56,9 @@ class World_Bootstrap_Province extends Options {
 			$this->include_country = array_change_key_case(ArrayTools::flip_assign(to_list($include_country), true));
 		}
 	}
-	
+
 	/**
-	 * 
+	 *
 	 * @param Country $country
 	 * @return boolean
 	 */
@@ -68,22 +68,22 @@ class World_Bootstrap_Province extends Options {
 		}
 		return true;
 	}
-	
+
 	/**
-	 * 
+	 *
 	 * @throws Exception
 	 */
 	public function bootstrap() {
 		$application = $this->application;
-		
-		$province_class = __NAMESPACE__ . '\\' . 'Province';
-		$country_class = __NAMESPACE__ . '\\' . 'Country';
-		
+
+		$province_class = Province::class;
+		$country_class = Country::class;
+
 		$x = $application->orm_factory($province_class);
 		if ($this->option_bool("drop")) {
 			$x->database()->query('TRUNCATE ' . $x->table());
 		}
-		
+
 		$countries = array(
 			"US" => self::_province_us(),
 			"CA" => self::_province_ca()

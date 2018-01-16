@@ -306,7 +306,7 @@ class Repository extends \zesk\Repository_Command {
 		if ($min === null) {
 			return null;
 		}
-		return str::left($url, $mintoken) . $tags_directory;
+		return StringTools::left($url, $mintoken) . $tags_directory;
 	}
 
 	/**

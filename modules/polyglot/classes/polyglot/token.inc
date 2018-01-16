@@ -9,6 +9,8 @@
  */
 namespace zesk;
 
+use zesk\Locale\Validate;
+
 /**
  *
  * @author kent
@@ -206,7 +208,8 @@ class PolyGlot_Token extends ORM {
 		foreach ($iterator as $id => $translation) {
 			$entities = htmlentities($translation);
 			if ($entities !== $translation) {
-				$app->query_update(__CLASS__)
+				$app->orm_registry(__CLASS__)
+					->query_update()
 					->value("translation", $entities)
 					->where("id", $id)
 					->exec();
@@ -217,14 +220,19 @@ class PolyGlot_Token extends ORM {
 
 	/**
 	 *
-	 * @return Locale_Validate
+	 * @return Validate
 	 */
 	private function validator() {
 		if ($this->validator === null) {
-			$this->validator = new Locale_Validate($this->application);
+			$this->validator = new Validate($this->application);
 		}
 		return $this->validator;
 	}
+
+	/**
+	 *
+	 * @return array
+	 */
 	public function validate() {
 		return $this->validator()->check_translation($this->original, $this->translation);
 	}

@@ -75,7 +75,7 @@ class Net_SFTP_Client extends Net_Client implements Net_FileSystem {
 		return $result;
 	}
 	private function one_liner($command) {
-		return trim(str::rright(trim($this->command($command)), ":"));
+		return trim(StringTools::rright(trim($this->command($command)), ":"));
 	}
 	function pwd() {
 		return $this->one_liner('pwd');

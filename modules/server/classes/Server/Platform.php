@@ -114,7 +114,7 @@ abstract class Server_Platform extends Hookable {
 		$this->host_name = $this->option("host-name", php_uname('n'));
 	}
 	function name() {
-		return str::unprefix(get_class($this), __CLASS__);
+		return StringTools::unprefix(get_class($this), __CLASS__);
 	}
 	/**
 	 * Default load options for conf::load

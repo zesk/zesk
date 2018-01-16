@@ -301,7 +301,7 @@ class Directory extends Hookable {
 	 *  (file|directory|directory_walk)_(include_pattern|exclude_pattern|default)
 	 *
 	 * Exclude patterns take precedence
-	 * It uses str::filter to check a path against the patterns. All patterns/defaults are true.
+	 * It uses StringTools::filter to check a path against the patterns. All patterns/defaults are true.
 	 *
 	 * @param string $path
 	 * @param array $options
@@ -332,10 +332,10 @@ class Directory extends Hookable {
 			}
 			$full_path = path($path, $x);
 			if (is_dir($full_path)) {
-				if (str::filter($full_path, $rules_dir)) {
+				if (StringTools::filter($full_path, $rules_dir)) {
 					$r[] = ($addpath) ? "$prefix$x/" : "$x/";
 				}
-				if (!str::filter($full_path, $rules_dir_walk)) {
+				if (!StringTools::filter($full_path, $rules_dir_walk)) {
 					continue;
 				}
 				if ($progress) {
@@ -349,7 +349,7 @@ class Directory extends Hookable {
 					$r = array_merge($r, $result);
 				}
 			} else {
-				if (!str::filter($full_path, $rules_file)) {
+				if (!StringTools::filter($full_path, $rules_file)) {
 					continue;
 				}
 				$r[] = ($addpath) ? "$prefix$x" : "$x";

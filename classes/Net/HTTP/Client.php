@@ -400,7 +400,7 @@ class Net_HTTP_Client extends Hookable {
 	 */
 	public function content_type() {
 		$header = avalue($this->response_headers, 'content-type');
-		$header = trim(str::left($header, ';', $header));
+		$header = trim(StringTools::left($header, ';', $header));
 		return $header;
 	}
 	
@@ -859,7 +859,7 @@ class Net_HTTP_Client extends Hookable {
 		foreach ($cookies as $cookie) {
 			$parts = explode(";", $cookie);
 			$cookie_item = array_shift($parts);
-			list($cookieName, $cookieValue) = str::pair($cookie_item, "=", $cookie_item, null);
+			list($cookieName, $cookieValue) = StringTools::pair($cookie_item, "=", $cookie_item, null);
 			$cookieName = trim($cookieName);
 			if (empty($cookieName)) {
 				continue;
@@ -869,7 +869,7 @@ class Net_HTTP_Client extends Hookable {
 			$domain = $this->domain();
 			$expireString = false;
 			foreach ($parts as $cname) {
-				list($cname, $cvalue) = str::pair($cname, "=", $cname);
+				list($cname, $cvalue) = StringTools::pair($cname, "=", $cname);
 				$cname = strtolower(trim($cname));
 				$cvalue = trim($cvalue);
 				switch ($cname) {

@@ -111,8 +111,8 @@ class Module_Apache extends Module {
 	// $format = "%d/%b/%Y:%H:%M:%S";
 	// $x = strptime($time_string, $format);
 	// $dt = ($x['tm_year'] + 1900)
-	// ."-".str::zero_pad($x['tm_mon']+1)."-".str::zero_pad($x['tm_mday']).'
-	// '.str::zero_pad($x['tm_hour']).':'.str::zero_pad($x['tm_min']).':'.str::zero_pad($x['tm_sec']);
+	// ."-".StringTools::zero_pad($x['tm_mon']+1)."-".StringTools::zero_pad($x['tm_mday']).'
+	// '.StringTools::zero_pad($x['tm_hour']).':'.StringTools::zero_pad($x['tm_min']).':'.StringTools::zero_pad($x['tm_sec']);
 	// $ts = utc_parse_time($dt);
 	// $tz = trim($x['unparsed']);
 	// if (empty($tz)) return $ts;

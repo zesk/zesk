@@ -831,7 +831,7 @@ class Class_ORM extends Hookable {
 			$this->dynamic_columns = true;
 		}
 		if (empty($this->code_name)) {
-			$this->code_name = str::rright($this_class, "\\");
+			$this->code_name = StringTools::rright($this_class, "\\");
 		}
 		if (empty($this->name)) {
 			$this->name = $this_class;
@@ -1670,7 +1670,7 @@ class Class_ORM extends Hookable {
 	 * @return string
 	 */
 	protected function polymorphic_class_parse(ORM $object, $column) {
-		$class = str::unprefix(get_class($object), array(
+		$class = StringTools::unprefix(get_class($object), array(
 			$this->polymorphic . "_",
 			get_class($object)
 		), true);

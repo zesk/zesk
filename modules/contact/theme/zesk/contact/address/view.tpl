@@ -9,7 +9,7 @@ $object = $this->get1('object;content');
 /* @var $object Contact_Address  */
 $members = $object->members();
 foreach (to_list('street;city;province') as $k) {
-	$members[$k] = str::capitalize(avalue($members, $k));
+	$members[$k] = StringTools::capitalize(avalue($members, $k));
 }
 $street = $city = $province = $postalcode = $country = null;
 extract($members, EXTR_IF_EXISTS);
@@ -23,8 +23,8 @@ if ($this->getb('show_street', true)) {
 if ($city && $province) {
 	echo HTML::tag("span", ".contact-address-city-province", __("contact/address/view:={city}, {province}", $members));
 } else {
-	echo HTML::etag('span', '.contact-address-city', str::capitalize($city));
-	echo HTML::etag('span', '.contact-address-province', str::capitalize($province));
+	echo HTML::etag('span', '.contact-address-city', StringTools::capitalize($city));
+	echo HTML::etag('span', '.contact-address-province', StringTools::capitalize($province));
 }
 echo HTML::etag('span', '.contact-address-postalcode', $postalcode);
 if ($object->county) {

@@ -805,7 +805,7 @@ class Timestamp extends Temporal {
 	 *        	Locale to use, if any
 	 * @return string
 	 */
-	function format(Locale $locale, $format_string = null, array $options = array()) {
+	function format(Locale $locale = null, $format_string = null, array $options = array()) {
 		if ($format_string === null) {
 			$format_string = self::$default_format_string;
 		}
@@ -828,34 +828,38 @@ class Timestamp extends Temporal {
 	 * @global string Timestamp::formatting::zero_string
 	 *         @hook Timestamp::formatting
 	 */
-	function formatting(Locale $locale, array $options = array()) {
-		$config_timestamp = $locale->application->configuration->path(array(
-			__CLASS__,
-			"formatting"
-		));
+	function formatting(Locale $locale = null, array $options = array()) {
 		$ts = $this->unix_timestamp();
 		$formatting = $this->date()->formatting($locale, $options) + $this->time()->formatting($locale, $options);
-
-		// Support $unit_minimum and $zero_string strings which include formatting
-		$unit_minimum = avalue($options, "unit_minimum", $config_timestamp->get("unit_minumum", null));
-		$zero_string = avalue($options, "zero_string", $config_timestamp->get("zero_string", null));
-		$unit_minimum = map($unit_minimum, $formatting);
-		$zero_string = map($zero_string, $formatting);
 
 		$formatting += array(
 			'seconds' => $ts,
 			'unix_timestamp' => $ts,
-			'delta' => $locale->now_string($this, $unit_minimum, $zero_string),
 			'Z' => '-',
 			'ZZZ' => '---'
 		);
+
+		if ($locale) {
+			$config_timestamp = $locale->application->configuration->path(array(
+				__CLASS__,
+				"formatting"
+			));
+			$unit_minimum = avalue($options, "unit_minimum", $config_timestamp->get("unit_minumum", null));
+			$zero_string = avalue($options, "zero_string", $config_timestamp->get("zero_string", null));
+			// Support $unit_minimum and $zero_string strings which include formatting
+			$unit_minimum = map($unit_minimum, $formatting);
+			$zero_string = map($zero_string, $formatting);
+
+			$formatting['delta'] = $locale->now_string($this, $unit_minimum, $zero_string);
+		}
 		if ($this->datetime) {
+			// TODO This doesn't actually honor the current locale
 			$formatting = array(
 				'Z' => $this->datetime->format('e'),
 				'ZZZ' => $this->datetime->format('T')
 			) + $formatting;
 		}
-		if (!avalue($options, "nohook", false)) {
+		if ($locale && !avalue($options, "nohook", false)) {
 			$formatting = $locale->application->hooks->call_arguments(__CLASS__ . '::formatting', array(
 				$this,
 				$locale,
@@ -1248,7 +1252,7 @@ class Timestamp extends Temporal {
 	 * @return string
 	 */
 	private function _ymd_format($sep = "-") {
-		return $this->year() . $sep . str::zero_pad($this->month()) . $sep . str::zero_pad($this->day());
+		return $this->year() . $sep . StringTools::zero_pad($this->month()) . $sep . StringTools::zero_pad($this->day());
 	}
 
 	/**
@@ -1258,7 +1262,7 @@ class Timestamp extends Temporal {
 	 * @return string
 	 */
 	private function _hms_format($sep = ":") {
-		return str::zero_pad($this->hour()) . $sep . str::zero_pad($this->minute()) . $sep . str::zero_pad($this->second());
+		return StringTools::zero_pad($this->hour()) . $sep . StringTools::zero_pad($this->minute()) . $sep . StringTools::zero_pad($this->second());
 	}
 
 	/**

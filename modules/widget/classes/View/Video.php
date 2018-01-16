@@ -18,7 +18,7 @@ namespace zesk;
 class View_Video extends View {
 	static function html_param_tag($name, $value) {
 		if (is_bool($value)) {
-			$value = str::from_bool($value);
+			$value = StringTools::from_bool($value);
 		}
 		return HTML::tag("param", array(
 			"name" => $name,
@@ -28,7 +28,7 @@ class View_Video extends View {
 	private function fpOption($key, $default) {
 		if (is_bool($default)) {
 			$var = $this->option_bool($key, $default);
-			$var = str::from_bool($var);
+			$var = StringTools::from_bool($var);
 		} else {
 			$var = $this->option($key, $default);
 			$var = strval($var);
@@ -104,7 +104,7 @@ width="' . $width . '" height="' . $height . '" autostart="' . intval($autostart
 		$result = '<object id="MediaPlayer1"
 classid="CLSID:22d6f312-b0f6-11d0-94ab-0080c74c7e95"
 codebase="http://activex.microsoft.com/activex/controls/mplayer/en/nsmp2inf.cab#Version=5,1,52,701"
-standby="' . $standby_string . '" type="application/x-oleobject" width="' . $width . '" height="' . $height . '">' . self::html_param_tag("fileName", $path) . self::html_param_tag("animationatStart", 'true') . self::html_param_tag("transparentatStart", 'true') . self::html_param_tag("AutoSize", intval($AutoSize)) . self::html_param_tag("ShowDisplay", intval($ShowDisplay)) . self::html_param_tag("autoStart", str::from_bool($autostart)) . self::html_param_tag("ShowControls", intval($showcontrols)) . self::html_param_tag("Volume", $volume) . $embed . '</object>';
+standby="' . $standby_string . '" type="application/x-oleobject" width="' . $width . '" height="' . $height . '">' . self::html_param_tag("fileName", $path) . self::html_param_tag("animationatStart", 'true') . self::html_param_tag("transparentatStart", 'true') . self::html_param_tag("AutoSize", intval($AutoSize)) . self::html_param_tag("ShowDisplay", intval($ShowDisplay)) . self::html_param_tag("autoStart", StringTools::from_bool($autostart)) . self::html_param_tag("ShowControls", intval($showcontrols)) . self::html_param_tag("Volume", $volume) . $embed . '</object>';
 		
 		return $result;
 	}

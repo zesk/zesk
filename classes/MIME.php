@@ -806,7 +806,7 @@ class MIME {
 	}
 	public static function from_filename($filename, $default = "application/octet-stream") {
 		self::_init();
-		$type = str::rright($filename, ".");
+		$type = StringTools::rright($filename, ".");
 		return avalue(self::$extension_to_mime, strtolower(strval($type)), $default);
 	}
 	public static function to_extension($mime_type, $default = null) {

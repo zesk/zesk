@@ -33,18 +33,16 @@ class System {
 		$zesk->configuration->uname = $name;
 		return $name;
 	}
-	
+
 	/**
 	 * Get current process ID
 	 *
 	 * @return integer
 	 */
 	public static function process_id() {
-		global $zesk;
-		/* @var $zesk Kernel */
-		return $zesk->process->id();
+		return getmypid();
 	}
-	
+
 	/**
 	 * Load IP addresses for this sytem
 	 *
@@ -63,7 +61,7 @@ class System {
 		}
 		return $ips;
 	}
-	
+
 	/**
 	 * Load MAC addresses for this sytem
 	 *
@@ -80,7 +78,7 @@ class System {
 		}
 		return $macs;
 	}
-	
+
 	/**
 	 * Run ifconfig configuration utility and parse results
 	 *
@@ -110,7 +108,7 @@ class System {
 					$line = trim($line);
 					$pairs = explode(" ", $line);
 					$type = rtrim(array_shift($pairs), ":");
-					$id = str::unprefix(array_shift($pairs), "addr:");
+					$id = StringTools::unprefix(array_shift($pairs), "addr:");
 					$result[$interface][$type][$id] = array(
 						"value" => $id,
 						$type => $id
@@ -143,7 +141,7 @@ class System {
 		}
 		return $result;
 	}
-	
+
 	/**
 	 * Determine system current load averages using /proc/loadavg or system call to uptime
 	 *
@@ -171,7 +169,7 @@ class System {
 		);
 		return $loads;
 	}
-	
+
 	/**
 	 * Retrieve volume information in a parsed manner from system call to "df"
 	 *
@@ -225,7 +223,7 @@ class System {
 		}
 		return $result;
 	}
-	
+
 	/**
 	 * Based on http://www.novell.com/coolsolutions/feature/11251.html
 	 *
@@ -295,7 +293,7 @@ class System {
 		}
 		return $result;
 	}
-	
+
 	/**
 	 *
 	 * @return number

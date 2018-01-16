@@ -226,12 +226,12 @@ class Database_Query_Select extends Database_Query_Select_Base {
 		}
 		if (is_string($mixed)) {
 			if ($value === null) {
-				$mixed = str::unprefix($mixed, "*");
+				$mixed = StringTools::unprefix($mixed, "*");
 				unset($this->what[$mixed]);
 				unset($this->what["*$mixed"]);
 				return $this;
 			}
-			$unmixed = str::unprefix($mixed, "*");
+			$unmixed = StringTools::unprefix($mixed, "*");
 			unset($this->what[$unmixed]);
 			unset($this->what["*$unmixed"]);
 			$this->what[$mixed] = $value;

@@ -106,7 +106,7 @@ class Module extends Hookable {
 			$this->codename = avalue($module_data, 'name');
 			if (!$this->codename) {
 				// Code name used in JavaScript settings
-				$this->codename = strtolower(str::unprefix(PHP::parse_class(get_class($this)), "Module_"));
+				$this->codename = strtolower(StringTools::unprefix(PHP::parse_class(get_class($this)), "Module_"));
 			}
 		}
 		if (isset($this->classes)) {

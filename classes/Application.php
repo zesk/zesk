@@ -121,6 +121,11 @@ class Application extends Hookable implements Interface_Theme {
 	public $locale = null;
 	/**
 	 *
+	 * @var Locale[string]
+	 */
+	private $locales = null;
+	/**
+	 *
 	 * @var Command
 	 */
 	public $command = null;
@@ -1118,7 +1123,7 @@ class Application extends Hookable implements Interface_Theme {
 			return true;
 		}
 		list($u, $qs) = pair($state->url, '?', $state->url, '');
-		if (!str::ends($u, "/")) {
+		if (!StringTools::ends($u, "/")) {
 			$u .= ".php";
 		}
 		if ($u[0] !== '/') {
@@ -1790,6 +1795,7 @@ class Application extends Hookable implements Interface_Theme {
 	}
 
 	/**
+	 * Create a new `zesk\Locale`
 	 *
 	 * @param string $code
 	 * @param array $extensions
@@ -1798,6 +1804,22 @@ class Application extends Hookable implements Interface_Theme {
 	 */
 	public function locale_factory($code = null, array $extensions = array(), array $options = array()) {
 		return Reader::factory($this->locale_path(), $code, $extensions)->locale($this, $options);
+	}
+
+	/**
+	 * Create a `zesk\Locale` if it has not been encountered in this process and cache it as part of the `Application`
+	 *
+	 * @param string $code
+	 * @param array $extensions
+	 * @param array $options
+	 * @return \zesk\Locale
+	 */
+	public function locale_registry($code = null, array $extensions = array(), array $options = array()) {
+		$code = Locale::normalize($code);
+		if (isset($this->locales[$code])) {
+			return $this->locales[$code];
+		}
+		return $this->locales[$code] = $this->locale_factory($code);
 	}
 	/**
 	 * Create a model

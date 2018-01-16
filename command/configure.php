@@ -359,7 +359,7 @@ class Command_Configure extends Command_Base {
 		list($this->current_uid, $this->current_gid) = $this->current_uid_gid();
 
 		foreach ($files as $file) {
-			$this->variable_map['current_host_path'] = rtrim(str::unsuffix($file, $suffix), "/");
+			$this->variable_map['current_host_path'] = rtrim(StringTools::unsuffix($file, $suffix), "/");
 			$this->variable_map['self_path'] = dirname($file);
 			$this->variable_map['self'] = $file;
 			$this->verbose_log("Processing file {file}", compact("file"));
@@ -632,7 +632,7 @@ class Command_Configure extends Command_Base {
 		);
 		if (count($sources) === 0) {
 			$this->verbose_log("No file {source} found in {host_paths}", $__);
-			$this->completions = ArrayTools::suffix($this->host_paths, "/" . str::unprefix($source, "/"));
+			$this->completions = ArrayTools::suffix($this->host_paths, "/" . StringTools::unprefix($source, "/"));
 			$__ = array(
 				"source" => $source,
 				"completions" => implode(" ", $this->completions)

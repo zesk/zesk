@@ -237,6 +237,13 @@ class Widget extends Hookable {
 		$this->options += array(
 			'name' => avalue($this->options, 'column')
 		);
+
+		if ($this->has_option("locale")) {
+			$this->locale($this->application->locale_registry($this->option("locale")));
+		}
+		if (!$this->locale) {
+			$this->locale = $application->locale;
+		}
 		$this->hierarchy = $application->classes->hierarchy($this, __CLASS__);
 		if ($this->theme === null) {
 			$this->theme = ArrayTools::change_value_case(tr($this->hierarchy, array(
@@ -246,7 +253,7 @@ class Widget extends Hookable {
 		}
 		if ($this->context_class() === null) {
 			$cl = get_class($this);
-			$cl = str::rright($cl, "\\", $cl);
+			$cl = StringTools::rright($cl, "\\", $cl);
 			$this->context_class(strtr(strtolower($cl), '_', '-'));
 		}
 		$this->call_hook("construct");
@@ -970,15 +977,19 @@ class Widget extends Hookable {
 	 * @return string
 	 */
 	public function language() {
-		return $this->option("language", Locale::language($this->locale()));
+		return $this->locale->language();
 	}
 	/**
-	 * Retrieve the locale of this widget
+	 * Get/set the locale of this widget
 	 *
-	 * @return string
+	 * @return Locale|self
 	 */
-	public function locale() {
-		return $this->option("locale", Locale::current());
+	public function locale(Locale $set = null) {
+		if ($set) {
+			$this->locale = $set;
+			return $this;
+		}
+		return $this->locale;
 	}
 
 	/**
@@ -1220,7 +1231,7 @@ class Widget extends Hookable {
 	 * @return Widget
 	 */
 	function error_required() {
-		$this->error($this->first_option("error_required;required_error", $this->application->locale("{label} is a required field.")));
+		$this->error($this->first_option("error_required;required_error", ($this->application->locale)("{label} is a required field.")));
 		return $this;
 	}
 
@@ -1384,7 +1395,7 @@ class Widget extends Hookable {
 			return true;
 		}
 		$byte_length = strlen($v);
-		$glyph_length = str::length($v, $this->option("encoding"));
+		$glyph_length = StringTools::length($v, $this->option("encoding"));
 
 		list($min_byte_length, $max_byte_length) = $this->size();
 		list($min_glyph_length, $max_glyph_length) = $this->glyphs();
@@ -1549,7 +1560,7 @@ class Widget extends Hookable {
 			}
 			$input_name = $object->apply_map($this->name());
 			if ($this->request_index !== null) {
-				$input_name = str::unsuffix($input_name, '[]');
+				$input_name = StringTools::unsuffix($input_name, '[]');
 				if ($this->request->has($input_name, false)) {
 					$new_value = $this->request->geta($input_name);
 					$new_value = $this->sanitize($new_value);
@@ -1659,7 +1670,7 @@ class Widget extends Hookable {
 	public function controller() {
 		$this->response->json(array(
 			"status" => false,
-			"message" => $this->application->locale("{class} does not implement controller method", array(
+			"message" => $this->application->locale->__("{class} does not implement controller method", array(
 				"class" => get_class($this)
 			))
 		));

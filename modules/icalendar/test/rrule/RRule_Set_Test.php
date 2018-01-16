@@ -1,13 +1,13 @@
 <?php
 /**
- * 
+ *
  */
 use zesk\preg;
 use zesk\Text;
 use zesk\Test_Unit;
 
 /**
- * 
+ *
  * @author kent
  *
  */
@@ -60,17 +60,18 @@ class RRule_Set_Test extends Test_Unit {
 		return $tests;
 	}
 	function test_rrules() {
+		$locale = $this->application->locale_registry("en");
 		$tests_path = $this->application->modules->path("icalendar", "test/test-data/rrule-tests.txt");
 		$tests = $this->load_rrule_tests($tests_path);
 		foreach ($tests as $test_index => $test) {
 			$description = $rrule = $result = null;
 			extract($test, EXTR_IF_EXISTS);
-			
+
 			if ($test_index === 36) {
 				// KMD TODO DEBUGGING
 				$forever = false;
 			}
-			
+
 			$parser = new RRule\Parser();
 			$ruleset = $parser->parse($rrule);
 			$results = $this->parse_results($result);
@@ -84,7 +85,7 @@ class RRule_Set_Test extends Test_Unit {
 					$forever = true;
 					break;
 				}
-				$this->assert_equal($ts->format('{YYYY}-{MM}-{DD} {hh}:{mm}:{ss} {ZZZ}'), $expected, "Test #$test_index, result #$index: $description\n$rrule");
+				$this->assert_equal($ts->format($locale, '{YYYY}-{MM}-{DD} {hh}:{mm}:{ss} {ZZZ}'), $expected, "Test #$test_index, result #$index: $description\n$rrule");
 			}
 			if (!$forever) {
 				$this->assert_equal($index, $total, "Test #$test_index: $description\n\nIterator stopped before results used up: \n\n\t" . implode("\n\t", $results) . "\n\nRule:\n\n$rrule\n");

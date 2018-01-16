@@ -4,6 +4,8 @@
  */
 namespace zesk;
 
+use zesk\Lists;
+
 /**
  *
  * @author kent
@@ -47,8 +49,8 @@ class Locale_Test extends Test_Unit {
 			'one thing'
 		);
 		$c = null;
-		$locale = null;
-		$result = $locale->conjunction($x, $c, $locale);
+		$locale = $this->application->locale_registry("en");
+		$result = $locale->conjunction($x, $c);
 		echo "$result\n";
 		$this->assert($result === 'one thing');
 
@@ -56,18 +58,17 @@ class Locale_Test extends Test_Unit {
 			'one',
 			'two'
 		);
-		$result = $locale->conjunction($x, $c, $locale);
-		echo "$result\n";
-		$this->assert($result === 'one or two');
+		$result = $locale->conjunction($x, $c);
+		$this->assertEquals("one or two", $result);
 
 		$x = array(
 			'one',
 			'two',
 			'three'
 		);
-		$result = $locale->conjunction($x, $c, $locale);
+		$result = $locale->conjunction($x, $c);
 		echo "$result\n";
-		$this->assert($result === 'one, two or three');
+		$this->assertEquals('one, two, or three', $result);
 
 		$x = array(
 			"lions",
@@ -75,7 +76,17 @@ class Locale_Test extends Test_Unit {
 			"bears"
 		);
 		$c = "or";
-		$this->assert($locale->conjunction($x, $c) === "lions, tigers or bears");
+		$this->assert($locale->conjunction($x, $c) === "lions, tigers, or bears");
+
+		$x = array(
+			"lions",
+			"tigers",
+			"bears",
+			"campers",
+			"zebras"
+		);
+		$c = "or";
+		$this->assert($locale->conjunction($x, $c) === "lions, tigers, bears, campers, or zebras");
 
 		$x = array(
 			"lions",
@@ -83,7 +94,7 @@ class Locale_Test extends Test_Unit {
 			"bears"
 		);
 		$c = "and";
-		$this->assert($locale->conjunction($x, $c) === "lions, tigers and bears");
+		$this->assert($locale->conjunction($x, $c) === "lions, tigers, and bears");
 
 		$x = array(
 			"lions",
@@ -98,47 +109,94 @@ class Locale_Test extends Test_Unit {
 		$c = "and";
 		$this->assert($locale->conjunction($x, $c) === "lions");
 	}
-	function test_date_format() {
-		$locale = null;
-		$locale->date_format($locale);
+	function to_locale_list($id_list) {
+		$args = array();
+		foreach (Lists::unique(to_list($id_list)) as $id) {
+			$args[] = array(
+				$this->application->locale_factory($id)
+			);
+		}
+		return $args;
 	}
-	function test_datetime_format() {
-		$locale = null;
-		$locale->datetime_format($locale);
-	}
-	function test_dialect() {
-		$locale = null;
-		$locale->dialect($locale);
 
-		$this->assert_equal($locale->dialect("en_us"), "US");
-		$this->assert_equal($locale->dialect("EN_US"), "US");
-		$this->assert_equal($locale->dialect("EN_US_Southern"), "US");
-		$this->assert_equal($locale->dialect("En"), "");
-		$this->assert_equal($locale->dialect(""), "");
-		$this->assert_equal($locale->dialect(null), "US");
+	/**
+	 * Data provider for generic tests across English locales
+	 *
+	 * @return \zesk\Locale[][]
+	 */
+	function en_locales() {
+		return $this->to_locale_list("en;en_US;en_GB;en_CA");
 	}
-	function test_duration_string() {
+
+	/**
+	 * Data provider for generic tests across locales
+	 *
+	 * @return \zesk\Locale[][]
+	 */
+	function locales() {
+		return $this->to_locale_list("en_US;en_GB;fr_FR;de_DE;es_ES");
+	}
+	/**
+	 * @dataProvider locales
+	 * @param Locale $locale
+	 */
+	function test_date_format(Locale $locale) {
+		$this->assert_is_string($locale->date_format($locale));
+	}
+	/**
+	 * @dataProvider locales
+	 * @param Locale $locale
+	 */
+	function test_datetime_format(Locale $locale) {
+		$this->assert_is_string($locale->datetime_format());
+	}
+	/**
+	 * @dataProvider locales
+	 * @param Locale $locale
+	 */
+	function test_parse_dialect(Locale $locale) {
+		$this->assert_equal(Locale::parse_dialect("en_us"), "US");
+		$this->assert_equal(Locale::parse_dialect("EN_US"), "US");
+		$this->assert_equal(Locale::parse_dialect("EN_US_Southern"), "US");
+		$this->assert_equal(Locale::parse_dialect("En"), null);
+		$this->assert_equal(Locale::parse_dialect(""), null);
+		$this->assert_equal(Locale::parse_dialect(false), null);
+		$this->assert_equal(Locale::parse_dialect(0), null);
+		$this->assert_equal(Locale::parse_dialect(0.0), null);
+		$this->assert_equal(Locale::parse_dialect(null), null);
+	}
+
+	/**
+	 * @dataProvider en_locales
+	 * @param Locale $locale
+	 */
+	function test_duration_string(Locale $locale) {
 		$number = null;
-		$locale = "en_US";
-		$this->assert_equal($locale->duration_string(1, "second", $number, $locale), "1 second");
-		$this->assert_equal($locale->duration_string(2, "second", $number, $locale), "2 seconds");
-		$this->assert_equal($locale->duration_string(60, "second", $number, $locale), "60 seconds");
-		$this->assert_equal($locale->duration_string(120, "second", $number, $locale), "2 minutes");
-		$this->assert_equal($locale->duration_string(120, "second", $number, $locale), "2 minutes");
+		$this->assert_equal($locale->duration_string(1, "second", $number), "1 second");
+		$this->assert_equal($locale->duration_string(2, "second", $number), "2 seconds");
+		$this->assert_equal($locale->duration_string(60, "second", $number), "60 seconds");
+		$this->assert_equal($locale->duration_string(120, "second", $number), "2 minutes");
+		$this->assert_equal($locale->duration_string(120, "second", $number), "2 minutes");
 	}
-	function test_indefinite_article() {
+	/**
+	 * @dataProvider en_locales
+	 * @param Locale $locale
+	 */
+	function test_indefinite_article(Locale $locale) {
 		$word = null;
 		$caps = false;
-		$locale = null;
 		$this->assert_equal($locale->indefinite_article("euro", false), "a");
 		$this->assert_equal($locale->indefinite_article("honor", false), "an");
-		echo basename(__FILE__) . ": success\n";
 	}
 	function test_language() {
 		$this->assert_equal(Locale::parse_language("EN_US"), "en");
 		$this->assert_equal(Locale::parse_language("EN_US_Southern"), "en");
 		$this->assert_equal(Locale::parse_language("En"), "en");
-		$this->assert_equal(Locale::parse_language(""), "");
+		$this->assert_equal(Locale::parse_language(""), null);
+		$this->assert_equal(Locale::parse_language(0), null);
+		$this->assert_equal(Locale::parse_language(0.0), null);
+		$this->assert_equal(Locale::parse_language(false), null);
+		$this->assert_equal(Locale::parse_language(null), null);
 	}
 	function test_negate_word() {
 		$locale = $this->application->locale;
@@ -147,16 +205,20 @@ class Locale_Test extends Test_Unit {
 		$locale->negate_word($word, $language);
 	}
 	function test_normalize() {
-		$this->assert_equal(Locale::normalize("EN_us"));
+		$this->assert_equal(Locale::normalize("EN_us"), 'en_US');
+		$this->assert_equal(Locale::normalize("ABCD_EFGH_IJ"), 'ab_EF');
 		$this->assert_equal(Locale::normalize("Fr_Fr"), "fr_FR");
 	}
-	function test_now_string() {
+	/**
+	 * @dataProvider en_locales
+	 * @param Locale $locale
+	 */
+	function test_now_string(Locale $locale) {
 		$ts = null;
 		$min_unit = false;
 		$zero_string = false;
-		$locale = null;
-		$locale->now_string($ts, $min_unit, $zero_string, $locale);
-		echo basename(__FILE__) . ": success\n";
+		$result = $locale->now_string($ts, $min_unit, $zero_string);
+		$this->assert_is_string($result);
 	}
 
 	/**
@@ -219,7 +281,12 @@ class Locale_Test extends Test_Unit {
 
 		echo basename(__FILE__) . ": success\n";
 	}
-	function test_plural_number() {
+
+	/**
+	 * @dataProvider en_locales
+	 * @param Locale $locale
+	 */
+	function test_plural_number(Locale $locale) {
 		$tests = array(
 			'woman' => 'women',
 			'Jazz' => 'Jazzes',
@@ -245,27 +312,22 @@ class Locale_Test extends Test_Unit {
 			'box' => 'boxes'
 		);
 
-		$locales = array(
-			"en",
-			"en_US",
-			"en_GB"
-		);
-		foreach ($locales as $locale) {
-			$n = null;
-			foreach ($tests as $test => $plural) {
+		$n = null;
+		foreach ($tests as $test => $plural) {
+			for ($i = 0; $i < 100; $i++) {
 				$n = mt_rand(2, 1000);
-				$this->assert($locale->plural_number($test, $n, $locale) === $n . " " . $plural, $locale->plural_number($test, $n, $locale) . " === $n $plural");
-				$this->assert($locale->plural_number($test, 0, $locale) === "0 " . $plural, $locale->plural_number($test, 0, $locale) . " === 0 $plural");
-				$this->assert($locale->plural_number($test, 1, $locale) === "1 " . $test, $locale->plural_number($test, 1, $locale) . " === 1 $test");
-				$this->assert($locale->plural_number($test, 2, $locale) === "2 " . $plural, $locale->plural_number($test, 2, $locale) . " === 2 $plural");
+				$this->assertEquals("$n $plural", $locale->plural_number($test, $n));
 			}
+			$this->assertEquals("0 $plural", $locale->plural_number($test, 0));
+			$this->assertEquals("1 $test", $locale->plural_number($test, 1));
+			$this->assertEquals("2 $plural", $locale->plural_number($test, 2));
 		}
 	}
 	function en_locale() {
-		if ($this->application->locale->language() === "en") {
-			return $this->application->locale;
-		}
-		return $this->application->locale_factory("en");
+		return $this->application->locale_registry("en");
+	}
+	function fr_locale() {
+		return $this->application->locale_registry("fr");
 	}
 	function test_plural_word() {
 		$locale = $this->en_locale();
@@ -295,40 +357,65 @@ class Locale_Test extends Test_Unit {
 
 		$n = null;
 		foreach ($tests as $test => $plural) {
-			$n = mt_rand(2, 1000);
-			$this->assert($locale->plural_word($test, $n, "en") === $n . " " . $plural, $locale->plural_word($test, $n, "en") . " === $n $plural");
-			$this->assert($locale->plural_word($test, 0, "en") === "no " . $plural, $locale->plural_word($test, 0, "en") . " === no $plural");
-			$this->assert($locale->plural_word($test, 1, "en") === "one " . $test, $locale->plural_word($test, 1, "en") . " === 1 $test");
+			for ($i = 0; $i < 100; $i++) {
+				$n = mt_rand(2, 1000);
+				$this->assertEquals($locale->plural_word($test, $n, "en"), $n . " " . $plural);
+			}
+			$this->assertEquals($locale->plural_word($test, 0, "en"), "no " . $plural);
+			$this->assertEquals($locale->plural_word($test, 1, "en"), "one " . $test);
 		}
 	}
-	function test___() {
-		$tt = array(
+	function translation_tests() {
+		$id = 'xy';
+		$xy = Locale::factory($this->application, $id);
+		$xy->translations(array(
 			'cuddle' => 'boink'
-		);
-		$locale = 'xy';
-		$x = new Locale($this->application, $locale);
-		$x->translations($tt);
-
-		$this->assertEquals($x->__('cuddle', 'xy'), 'boink');
-	}
-
-	/**
-	 *
-	 */
-	function test_time_format() {
-		$locale = null;
-		$include_seconds = false;
-		$locale->time_format($locale, $include_seconds);
-	}
-	function testLocales() {
+		));
+		$this->assertInstanceOf(Locale_Default::class, $xy);
 		return array(
 			array(
-				$this->application->locale
+				$xy,
+				'cuddle',
+				'boink'
+			),
+			array(
+				$xy,
+				'Cuddle',
+				'Boink'
+			),
+			array(
+				$xy,
+				'CUddle',
+				'BOINK'
+			),
+			array(
+				$xy,
+				'CUDDLE',
+				'BOINK'
 			)
 		);
 	}
+
 	/**
-	 * @dataProvider testLocales
+	 * @dataProvider translation_tests
+	 * @param Locale $locale
+	 * @param string $expected
+	 * @param string $test
+	 */
+	function test_locale_translation(Locale $locale, $test, $expected) {
+		$this->assertEquals($expected, $locale->__($test));
+	}
+
+	/**
+	 * @dataProvider locales
+	 */
+	function test_time_format(Locale $locale) {
+		$include_seconds = false;
+		$this->assert_is_string($locale->time_format($include_seconds));
+	}
+
+	/**
+	 * @dataProvider locales
 	 * @param Locale $locale
 	 */
 	function test_translate(Locale $locale) {

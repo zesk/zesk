@@ -710,7 +710,7 @@ class Command_Daemon extends Command_Base implements Interface_Process {
 				"pid" => $this->application->process->id()
 			));
 			$this->name = $name;
-			$this->method = str::left($name, "^", $name);
+			$this->method = StringTools::left($name, "^", $name);
 			$this->child();
 			// ->child() exits process always - exit here for documentation
 			exit(0);

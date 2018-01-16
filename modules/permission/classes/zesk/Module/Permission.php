@@ -397,7 +397,7 @@ class Module_Permission extends Module {
 		}
 		$method = User::clean_permission($method);
 		// Use calling function as a hint when class not supplied (deprecated in 0.8.2)
-		$default_class = str::left($method, "::");
+		$default_class = StringTools::left($method, "::");
 		$class_perms = array();
 		/* @var $perm_class \zesk\Class_Permission */
 		$perm_class = $this->application->class_orm_registry(Permission::class);

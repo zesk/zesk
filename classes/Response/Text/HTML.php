@@ -752,7 +752,7 @@ class Response_Text_HTML extends Response_Text {
 		foreach ($matches as $match) {
 			list($full_match, $rel_image) = $match;
 			$rel_image = unquote($rel_image);
-			if (URL::valid($rel_image) || str::begins($rel_image, array(
+			if (URL::valid($rel_image) || StringTools::begins($rel_image, array(
 				"/",
 				"data:"
 			))) {

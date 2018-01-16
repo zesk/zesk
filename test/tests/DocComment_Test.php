@@ -1,17 +1,17 @@
 <?php
 /**
- * 
+ *
  */
 namespace zesk;
 
 /**
- * 
+ *
  * @author kent
  *
  */
 class DocComment_Test extends Test_Unit {
 	function test_extract() {
-		$content = file_get_contents(ZESK_ROOT . 'classes/arr.php');
+		$content = file_get_contents(ZESK_ROOT . 'classes/ArrayTools.php');
 		$comments = DocComment::extract($content);
 		$this->assert_is_array($comments);
 		$this->assert(count($comments) > 8, "More than 8 doccomments in arr.php");
@@ -45,9 +45,9 @@ class DocComment_Test extends Test_Unit {
 	function test_clean($test, $expected) {
 		$this->assert_equal(DocComment::clean($test), $expected);
 	}
-	
+
 	/**
-	 * 
+	 *
 	 * @return array
 	 */
 	function data_provider_parse() {

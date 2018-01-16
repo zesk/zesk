@@ -273,7 +273,7 @@ class Database_SQL extends \zesk\Database_SQL {
 			case "integer":
 				return " DEFAULT " . intval($default);
 			case "boolean":
-				$sql = str::from_bool($default);
+				$sql = StringTools::from_bool($default);
 				break;
 			default :
 				$sql = $default;

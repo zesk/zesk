@@ -185,14 +185,14 @@ abstract class Test_Website extends Test_Selenium {
 					if (begins($href, "javascript:")) {
 						// echo "$logprefix skipping $href\n";
 					} elseif (begins($href, "http")) {
-						$href = str::left($href, "?");
+						$href = StringTools::left($href, "?");
 						$external_links[$href] = $href;
 						// echo "$logprefix skipping external link $href\n";
 					} elseif (ends($href, ".zip")) {
 						$download_links[$href] = $href;
 						// echo "$logprefix skipping download link $href\n";
 					} else {
-						$href_norm = str::left(str::left($href, "?"), "#");
+						$href_norm = StringTools::left(StringTools::left($href, "?"), "#");
 						if (empty($href_norm)) {
 							// echo "$logprefix BLANK LINK: $href\n";
 							continue;
@@ -202,7 +202,7 @@ abstract class Test_Website extends Test_Selenium {
 								$mailto_links[$href_norm] = $href_norm;
 								continue;
 							}
-							$cur_path = str::ends($visited_link_norm, "/") ? $visited_link_norm : dirname($visited_link_norm);
+							$cur_path = StringTools::ends($visited_link_norm, "/") ? $visited_link_norm : dirname($visited_link_norm);
 							// echo "$logprefix visited_link_norm is $cur_path\n";
 							// echo "$logprefix $href_norm becomes dirname(" . $cur_path . ") => ";
 							$href_norm = path($cur_path, $href_norm);
@@ -279,7 +279,7 @@ abstract class Test_Website extends Test_Selenium {
 		$files = array_flip($files);
 		$files_names = array_keys($files);
 		foreach ($files_names as $k) {
-			if (str::ends($k, "/index.php")) {
+			if (StringTools::ends($k, "/index.php")) {
 				$k = substr($k, 0, -strlen("index.php"));
 			}
 			$files[$k] = false;
@@ -320,7 +320,7 @@ abstract class Test_Website extends Test_Selenium {
 						$download_links[$href] = $href;
 						echo "$logprefix skipping download link $href\n";
 					} else {
-						$href_norm = str::left(str::left($href, "?"), "#");
+						$href_norm = StringTools::left(StringTools::left($href, "?"), "#");
 						if (empty($href_norm)) {
 							// echo "$logprefix BLANK LINK: $href\n";
 							continue;
@@ -330,7 +330,7 @@ abstract class Test_Website extends Test_Selenium {
 								echo "$logprefix MAILTO link: $href_norm\n";
 								continue;
 							}
-							$cur_path = str::ends($visited_link_norm, "/") ? $visited_link_norm : dirname($visited_link_norm);
+							$cur_path = StringTools::ends($visited_link_norm, "/") ? $visited_link_norm : dirname($visited_link_norm);
 							// echo "$logprefix visited_link_norm is $cur_path\n";
 							// echo "$logprefix $href_norm becomes dirname(" . $cur_path . ") => ";
 							$href_norm = path($cur_path, $href_norm);

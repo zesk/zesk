@@ -297,7 +297,7 @@ class PHP_Inspector {
 		$i = 0;
 		while ($i < $this->tokens_length) {
 			list($type, $text) = $this->token($i);
-			echo token_name($type) . ": " . str::ellipsis_word($text) . "\n";
+			echo token_name($type) . ": " . StringTools::ellipsis_word($text) . "\n";
 		}
 	}
 }

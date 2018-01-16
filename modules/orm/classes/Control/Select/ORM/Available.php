@@ -19,7 +19,7 @@ class Control_Select_ORM_Available extends Control_Select_ORM {
 		$sql = $this->class_object->database()->sql();
 		
 		$column = $this->query_column();
-		$column = str::right($column, ".", $column);
+		$column = StringTools::right($column, ".", $column);
 		
 		$column = $sql->unquote_column($column);
 		

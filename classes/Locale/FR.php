@@ -9,7 +9,7 @@
  */
 namespace zesk;
 
-class Locale_FR extends Locale_Base {
+class Locale_FR extends Locale {
 	public function date_format() {
 		return "le {DDD} {MMMM} {YYYY}";
 	}
@@ -19,11 +19,12 @@ class Locale_FR extends Locale_Base {
 	public function time_format($include_seconds = false) {
 		return $include_seconds ? "{hh}:{mm}:{ss}" : "{hh}:{mm}";
 	}
-	public function plural($word, $count = 2) {
+	public function noun_semantic_plural($word, $count = 2) {
 		return $count !== 1 ? "$word" . "s" : $word;
 	}
 	public function indefinite_article($word, $caps = false, $gender = "n") {
-		$gender = __("$word.gender");
+		// TODO Standarize this syntax for all languages which have gender and use standard tokens; add to API in Locale!
+		$gender = $this->__("$word.gender");
 		if (!$gender) {
 			$gender = "m";
 		}
@@ -44,6 +45,6 @@ class Locale_FR extends Locale_Base {
 		if ($preferred_prefix === null) {
 			$preferred_prefix = "pas de";
 		}
-		return str::case_match("pas de " . $word, $word);
+		return StringTools::case_match("pas de " . $word, $word);
 	}
 }

@@ -50,15 +50,26 @@ class Number {
 	 */
 	public static function format_bytes(Locale $locale, $n, $precision = 1) {
 		if ($n >= 1099511627776) {
-			return $locale("Number::format_bytes:={0} TB", round(($n / self::$magnitudes['T']), $precision));
+			return $locale("Number::format_bytes:={0} TB", array(
+				round(($n / self::$magnitudes['T']), $precision)
+			));
 		} else if ($n >= 1073741824) {
-			return $locale("Number::format_bytes:={0} GB", round(($n / self::$magnitudes['G']), $precision));
+			return $locale("Number::format_bytes:={0} GB", array(
+				round(($n / self::$magnitudes['G']), $precision)
+			));
 		} else if ($n >= 1048576) {
-			return $locale("Number::format_bytes:={0} MB", round(($n / self::$magnitudes['M']), $precision));
+			return $locale("Number::format_bytes:={0} MB", array(
+				round(($n / self::$magnitudes['M']), $precision)
+			));
 		} else if ($n >= 1024) {
-			return $locale("Number::format_bytes:={0} KB", round($n / self::$magnitudes['K'], $precision));
+			return $locale("Number::format_bytes:={0} KB", array(
+				round($n / self::$magnitudes['K'], $precision)
+			));
 		} else {
-			return $locale("Number::format_bytes:={0} {1}", intval($n), $locale->plural(__("byte"), intval($n)));
+			return $locale("Number::format_bytes:={0} {1}", array(
+				intval($n),
+				$locale->plural($locale("byte"), intval($n))
+			));
 		}
 	}
 	/**

@@ -3,13 +3,13 @@ namespace zesk;
 
 class Control_Time_Zone extends Control_Select {
 	/**
-	 * 
+	 *
 	 * @var array
 	 */
 	protected $where = array();
-	
+
 	/**
-	 * 
+	 *
 	 * @param array $where
 	 * @return \zesk\Control_Time_Zone
 	 */
@@ -20,18 +20,18 @@ class Control_Time_Zone extends Control_Select {
 		$this->where = $where;
 		return $this;
 	}
-	
+
 	/**
-	 * 
+	 *
 	 * @param unknown $set
 	 * @return void|mixed|boolean
 	 */
 	public function prefixes_only($set = null) {
 		return $set === null ? $this->option_bool('prefixes_only', false) : $this->set_option('prefixes_only', to_bool($set));
 	}
-	
+
 	/**
-	 * 
+	 *
 	 * {@inheritDoc}
 	 * @see \zesk\Control_Select::initialize()
 	 */

@@ -24,7 +24,7 @@ if (isset($route) && $route instanceof Route) {
 // Output
 if ($wrap_html && $page_template) {
 	// TODO Remove this (deprecated)
-	$page_template = str::unsuffix($page_template, ".tpl");
+	$page_template = StringTools::unsuffix($page_template, ".tpl");
 	echo $this->theme($page_template, array(
 		'content' => $this->content
 	));

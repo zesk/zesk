@@ -135,7 +135,7 @@ class Contact extends ORM {
 
 		$contact_person = new Contact_Person();
 		$contact_person->contact = $contact;
-		$contact_person->nickname = str::left($email, '@');
+		$contact_person->nickname = StringTools::left($email, '@');
 		if (!$contact_person->store()) {
 			$contact_email->delete();
 			$contact->delete();

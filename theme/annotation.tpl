@@ -16,7 +16,7 @@ $message = $this->message;
 
 list($x, $y) = pair($this->position, ",", 0, 0);
 
-if (!str::ends($x, array(
+if (!StringTools::ends($x, array(
 	"em",
 	"ex",
 	"px",
@@ -24,7 +24,7 @@ if (!str::ends($x, array(
 ))) {
 	$x .= "px";
 }
-if (!str::ends($y, array(
+if (!StringTools::ends($y, array(
 	"em",
 	"ex",
 	"px",

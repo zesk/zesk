@@ -103,7 +103,7 @@ The corresponding file names which contain these classes use the [PSR-4][] stand
 Class names for purely static, utility classes are lower-case:
 
     echo HTML::tag('div', '#customer-name', $content);
-    echo str::unprefix("Company.Name", "Company.");
+    echo StringTools::unprefix("Company.Name", "Company.");
     JavaScript::obfuscate_begin();
 
 ## Functions and Methods

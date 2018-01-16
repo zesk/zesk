@@ -294,10 +294,10 @@ abstract class CSV extends Options {
 	 *
 	 * @param string $x A value to write to a CSV file
 	 * @return string A correctly quoted CSV value
-	 * @see str::csv_quote
+	 * @see StringTools::csv_quote
 	 */
 	public static function quote($x) {
-		return str::csv_quote($x);
+		return StringTools::csv_quote($x);
 	}
 	
 	/**
@@ -305,10 +305,10 @@ abstract class CSV extends Options {
 	 *
 	 * @param array $x
 	 * @return string
-	 * @see str::csv_quote_row
+	 * @see StringTools::csv_quote_row
 	 */
 	public static function quote_row($x) {
-		return str::csv_quote_row($x);
+		return StringTools::csv_quote_row($x);
 	}
 	
 	/**
@@ -316,10 +316,10 @@ abstract class CSV extends Options {
 	 *
 	 * @param array $x of arrays of strings
 	 * @return string
-	 * @see str::csv_quote_rows
+	 * @see StringTools::csv_quote_rows
 	 */
 	public static function quote_rows($x) {
-		return str::csv_quote_rows($x);
+		return StringTools::csv_quote_rows($x);
 	}
 }
 

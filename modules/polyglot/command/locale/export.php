@@ -57,7 +57,7 @@ class Command_Locale_Export extends Command_Base {
 			"n_written" => $n_written,
 			"rows" => $this->application->locale->plural("row", $n_written),
 			"n_excluded" => $n_excluded,
-			"phrases" => Locale::plural("phrase", $n_excluded)
+			"phrases" => $this->application->locale->plural("phrase", $n_excluded)
 		));
 		return 0;
 	}

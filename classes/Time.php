@@ -500,7 +500,7 @@ class Time extends Temporal {
 	 * @return array
 	 * @see Time::format
 	 */
-	function formatting(Locale $locale, array $options = array()) {
+	function formatting(Locale $locale = null, array $options = array()) {
 		$x = array();
 		$x['h'] = $this->hour();
 		$x['12h'] = $this->hour12();
@@ -511,9 +511,11 @@ class Time extends Temporal {
 		}
 		$x['day_seconds'] = $this->seconds;
 		$ampm = $this->ampm();
-		$x['ampm'] = $locale("Time:=$ampm");
-		$ampm = strtoupper($ampm);
-		$x['AMPM'] = $locale("Time:=$ampm");
+		if ($locale) {
+			$x['ampm'] = $locale("Time:=$ampm");
+			$ampm = strtoupper($ampm);
+			$x['AMPM'] = $locale("Time:=$ampm");
+		}
 		return $x;
 	}
 
@@ -526,7 +528,7 @@ class Time extends Temporal {
 	 *        	Optional locale string
 	 * @return string
 	 */
-	function format(Locale $locale, $format_string = null, array $options = array()) {
+	function format(Locale $locale = null, $format_string = null, array $options = array()) {
 		if ($format_string === null) {
 			$format_string = self::$default_format_string;
 		}

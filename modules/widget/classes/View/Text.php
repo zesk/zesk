@@ -41,7 +41,7 @@ class View_Text extends View {
 				$v = HTML::strip($v);
 				break;
 			case "camel":
-				$v = str::capitalize($v);
+				$v = StringTools::capitalize($v);
 				break;
 		}
 		$close_ellip = "";

@@ -145,7 +145,7 @@ EOF;
 				$sqls = $sql;
 			}
 			foreach ($sqls as $sql) {
-				$this->assert(str::begins($sql, "CREATE TABLE"));
+				$this->assert(StringTools::begins($sql, "CREATE TABLE"));
 				$this->assert(strpos($sql, "$table") !== false);
 			}
 			

@@ -40,7 +40,7 @@ class Lang_en_test extends Test_Unit {
 			"bears"
 		);
 		$conj = "and";
-		$this->assert_equal($testx->conjunction($x, $conj), "lions, tigers and bears");
+		$this->assert_equal($testx->conjunction($x, $conj), "lions, tigers, and bears");
 
 		$s = "word";
 		$n = 3;
@@ -104,7 +104,7 @@ class Lang_en_test extends Test_Unit {
 	 * @data_provider ordinal_tests
 	 */
 	function test_ordinal($input, $result) {
-		$testx = new Locale_EN();
+		$testx = $this->application->locale_registry("en");
 		$this->assert_equal($testx->ordinal($input), $result);
 	}
 }

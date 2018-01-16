@@ -153,7 +153,7 @@ abstract class Controller_Template extends Controller {
 		}
 		if (is_string($template)) {
 			// TODO: zesk\Template suffix .tpl removal is deprecated
-			$template = str::unsuffix($template, ".tpl") . ".tpl";
+			$template = StringTools::unsuffix($template, ".tpl") . ".tpl";
 			if ($this->template instanceof Template) {
 				$this->template->path($template);
 			} else {

@@ -182,7 +182,7 @@ class Command_Update extends Command_Base {
 				));
 				$debug = array();
 				foreach ($globbed as $glob) {
-					$module = str::unprefix(dirname($glob), rtrim($path, "/") . "/");
+					$module = StringTools::unprefix(dirname($glob), rtrim($path, "/") . "/");
 					$data = $this->application->modules->load($module, $module_options);
 					//					$debug['debug'] = _dump($data);
 					if (is_array($data) && array_key_exists('configuration_file', $data)) {
@@ -764,14 +764,14 @@ class Command_Update extends Command_Base {
 		throw new Exception_File_NotFound($cmd, map($this->application->theme('error/update-command-not-found'), $args));
 	}
 	private function is_unpack($filename) {
-		if (str::ends($filename, array(
+		if (StringTools::ends($filename, array(
 			".tar.gz",
 			".tgz",
 			".tar"
 		))) {
 			return true;
 		}
-		if (str::ends($filename, array(
+		if (StringTools::ends($filename, array(
 			".zip"
 		))) {
 			return true;
@@ -784,7 +784,7 @@ class Command_Update extends Command_Base {
 			"filename" => $filename
 		));
 		extract($data, EXTR_IF_EXISTS);
-		if (str::ends($filename, array(
+		if (StringTools::ends($filename, array(
 			".tar.gz",
 			".tgz",
 			".tar"
@@ -793,7 +793,7 @@ class Command_Update extends Command_Base {
 				"filename" => $filename
 			));
 			$result = self::unpack_tar($data);
-		} else if (str::ends($filename, array(
+		} else if (StringTools::ends($filename, array(
 			".zip"
 		))) {
 			$this->debug_log("Unpacking ZIP file {filename}", array(
@@ -959,10 +959,10 @@ class Command_Update extends Command_Base {
 		$name = $data['name'];
 		if (begins($destination, $path)) {
 			$this->application->logger->error("Module {name} uses module path for updates - deprecated! Use application_root instead.", compact("name"));
-			$destination = str::unprefix($destination, $path);
+			$destination = StringTools::unprefix($destination, $path);
 		}
 		if (begins($destination, $application_root)) {
-			$destination = str::unprefix($destination, $application_root);
+			$destination = StringTools::unprefix($destination, $application_root);
 		}
 		/* Disable share-path for now */
 		// 		if (trim($destination, '/') === 'share' && $this->has_option('share-path')) {
@@ -983,7 +983,7 @@ class Command_Update extends Command_Base {
 		extract($data, EXTR_IF_EXISTS);
 		$args = array();
 		$args[] = $this->_which_command('tar');
-		$args[] = str::ends($filename, "gz") ? "zxf" : "xf";
+		$args[] = StringTools::ends($filename, "gz") ? "zxf" : "xf";
 		$args[] = $temp_file_name;
 		$actual_destination = $destination;
 		if ($strip_components) {

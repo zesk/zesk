@@ -266,7 +266,7 @@ class Test extends Hookable {
 		}
 		if (empty($message)) {
 			$message = "*empty message from {calling_function}*";
-			$arguments['calling_function'] = calling_function();
+			$arguments['calling_function'] = calling_function(0);
 		}
 		if ($this->option_bool("debug-logger-config")) {
 			if (method_exists($this->application->logger, "dump_config")) {
@@ -398,6 +398,12 @@ class Test extends Hookable {
 	final public function find_test($name) {
 		return avalue($this->tests, $name, null);
 	}
+
+	/**
+	 *
+	 * @param string $name
+	 * @return boolean
+	 */
 	final public function can_run_test($name) {
 		if (!$this->has_test($name)) {
 			return false;
@@ -1150,7 +1156,7 @@ class Test extends Hookable {
 	 * @return boolean
 	 */
 	private static function _find_test(Application $application, $class) {
-		$low_class = str::unsuffix(strtolower($class), "_test");
+		$low_class = StringTools::unsuffix(strtolower($class), "_test");
 		$parts = explode("_", $low_class);
 		array_pop($parts);
 		$path = path(implode("/", $parts), "test", $low_class . "_test.inc");
@@ -1199,9 +1205,9 @@ class Test extends Hookable {
 		$app = $this->application;
 		$results = array();
 		foreach (to_list($classes) as $class) {
-			$class_object = $this->application->class_object($class);
+			$class_object = $this->application->class_orm_registry($class);
 			$db = $class_object->database();
-			$results[$class] = $db->query($app->schema_synchronize($db, array(
+			$results[$class] = $db->query($app->orm_module()->schema_synchronize($db, array(
 				$class
 			), $options + array(
 				"follow" => true
@@ -1221,7 +1227,7 @@ class Test extends Hookable {
 		if (!$config) {
 			return array();
 		}
-		$this->application->logger->debug("Loading configuration file $config");
+		$application->logger->debug("Loading configuration file $config");
 		$settings = array();
 		$loader = new Configuration_Loader(array(
 			$config

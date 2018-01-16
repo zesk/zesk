@@ -62,6 +62,7 @@ abstract class Locale extends Hookable {
 	 * @param Application $application
 	 * @param string $locale_string
 	 * @param array $options
+	 * @return self
 	 */
 	static public function factory(Application $application, $locale_string = null, array $options = array()) {
 		if (!$locale_string) {
@@ -76,7 +77,7 @@ abstract class Locale extends Hookable {
 			"${lang}_${dialect}",
 			"${lang}_Default",
 			$lang,
-			"Universal"
+			"Default"
 		), __CLASS__ . "_");
 		foreach ($classes as $class_name) {
 			try {
@@ -196,7 +197,7 @@ abstract class Locale extends Hookable {
 		);
 		$tt_lang = $this->translation_table;
 		foreach ($try_phrases as $try_phrase) {
-			if (array_key_exists($phrase, $tt_lang)) {
+			if (array_key_exists($try_phrase, $tt_lang)) {
 				return $try_phrase;
 			}
 		}
@@ -209,7 +210,6 @@ abstract class Locale extends Hookable {
 	 * @param array $arguments
 	 */
 	public function __($phrase, array $arguments = array()) {
-		$text = null;
 		if (is_array($phrase)) {
 			$result = array();
 			foreach ($phrase as $k => $v) {
@@ -230,9 +230,16 @@ abstract class Locale extends Hookable {
 			if ($this->auto) {
 				$this->locale_phrases[$phrase] = time();
 			}
-			return $text;
+			$translated = StringTools::right($phrase, ":=");
+			$translated = map($translated, $arguments);
+		} else {
+			$translated = $this->translation_table[$key_phrase];
+			$translated = map($translated, $arguments);
+			if ($key_phrase !== $phrase) {
+				$translated = StringTools::case_match($translated, $phrase);
+			}
 		}
-		return StringTools::case_match($this->translation_table[$key_phrase], $phrase);
+		return $translated;
 	}
 
 	/**
@@ -375,7 +382,8 @@ abstract class Locale extends Hookable {
 			return implode("", $words);
 		}
 		$ll = array_pop($words);
-		return implode(", ", $words) . ", $conj $ll";
+		$oxford = (count($words) > 1) ? "," : "";
+		return implode(", ", $words) . $oxford . " $conj $ll";
 	}
 
 	/**
@@ -657,13 +665,13 @@ abstract class Locale extends Hookable {
 	 * Extract the language from a locale
 	 *
 	 * @param string $locale
-	 * @return string
+	 * @return string|null
 	 */
 	public static function parse_language($locale = null) {
 		if (empty($locale)) {
 			return null;
 		}
-		list($lang) = pair($locale, "_", $locale, "");
+		list($lang) = pair($locale, "_", $locale);
 		return strtolower(substr($lang, 0, 2));
 	}
 
@@ -671,14 +679,14 @@ abstract class Locale extends Hookable {
 	 * Extract the dialect from the locale
 	 *
 	 * @param string $locale
-	 * @return string
+	 * @return string|null
 	 */
 	public static function parse_dialect($locale = null) {
 		if (empty($locale)) {
 			return null;
 		}
-		list($lang, $dialect) = \pair($locale, "_", $locale, "");
-		return strtoupper(substr($dialect, 0, 2));
+		list($lang, $dialect) = \pair($locale, "_", $locale, null);
+		return is_string($dialect) ? strtoupper(substr($dialect, 0, 2)) : null;
 	}
 
 	/**
@@ -734,7 +742,7 @@ abstract class Locale extends Hookable {
 	public static function translate($phrase, $locale = null) {
 		// TODO add this once most have been removed
 		zesk()->deprecated();
-		return app()->locale($phrase);
+		return app()->locale->__($phrase);
 	}
 
 	/**

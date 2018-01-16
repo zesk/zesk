@@ -79,7 +79,7 @@ abstract class Server_Configuration extends Hookable {
 		return $this->_validate_type_before($type, $name, $value);
 	}
 	private function validate_type_after($type, $name, $value) {
-		if (str::ends($type, " list")) {
+		if (StringTools::ends($type, " list")) {
 			if (!is_array($value)) {
 				throw new Exception_Semantics("Setting $name of type $type should be an array: " . gettype($value));
 			}

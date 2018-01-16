@@ -291,15 +291,15 @@ class CSV_Reader extends CSV {
 		$tell = ftell($this->File);
 		$file_sample = fread($this->File, 1024);
 		fseek($this->File, $tell);
-		if (str::is_utf8($file_sample, $this->EncodingBigEndian)) {
+		if (StringTools::is_utf8($file_sample, $this->EncodingBigEndian)) {
 			$this->Encoding = "UTF-8";
 			$this->EncodingSuffix = ".UTF8";
 			$file_sample = UTF8::to_iso8859($file_sample);
-		} else if (str::is_utf16($file_sample, $this->EncodingBigEndian)) {
+		} else if (StringTools::is_utf16($file_sample, $this->EncodingBigEndian)) {
 			$this->Encoding = "UTF-16";
 			$this->EncodingSuffix = ".UTF16";
 			$file_sample = UTF16::to_iso8859($file_sample, $this->EncodingBigEndian);
-		} else if (str::is_ascii($file_sample)) {
+		} else if (StringTools::is_ascii($file_sample)) {
 			$this->Encoding = "ISO-8859-1";
 			$this->EncodingSuffix = ".ISO8859";
 		} else {

@@ -161,7 +161,7 @@ class Control_Edit extends Control {
 	 */
 	private function _class() {
 		if ($this->class === null) {
-			$this->class = str::unprefix(get_class($this), __CLASS__ . '_');
+			$this->class = StringTools::unprefix(get_class($this), __CLASS__ . '_');
 			zesk()->deprecated(get_class($this) . "->class auto-generation is deprecated 2017-03-05, please supply explict class name in leaf class: protected \$class = \"" . $this->class . "\";");
 		}
 		return $this->class;

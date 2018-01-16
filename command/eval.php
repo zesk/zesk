@@ -89,7 +89,7 @@ class Command_Eval extends Command_Base {
 		$string = trim($string, " \n\r\t;");
 		$string = preg_replace('/^return\s/', '', $string);
 		$prefix = "return";
-		if (str::begins($string, array(
+		if (StringTools::begins($string, array(
 			'echo ',
 			'print '
 		)) || strpos($string, ";") !== false) {

@@ -262,7 +262,7 @@ class IPv4_Test extends Test_Unit {
 		
 		foreach ($tests as $parms) {
 			list($ip, $network, $result) = $parms;
-			$this->assert(IPv4::within_network($ip, $network) === $result, "IPv4::within_network($ip, $network) === " . str::from_bool($result));
+			$this->assert(IPv4::within_network($ip, $network) === $result, "IPv4::within_network($ip, $network) === " . StringTools::from_bool($result));
 		}
 	}
 }

@@ -462,7 +462,7 @@ class Test_Generator extends Options {
 					continue;
 				}
 				$file = $fileInfo->getFilename();
-				if (!str::ends($file, $extensions)) {
+				if (!StringTools::ends($file, $extensions)) {
 					continue;
 				}
 				$file = path($dir, $file);
@@ -486,7 +486,7 @@ class Test_Generator extends Options {
 			if (!Directory::is_absolute($file)) {
 				$file_full = path($cwd, $file);
 			}
-			if (!str::ends($file, $extensions)) {
+			if (!StringTools::ends($file, $extensions)) {
 				$this->verbose_log("Skipping $file because extension doesn't match");
 				continue;
 			}

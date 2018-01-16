@@ -8,7 +8,7 @@
  */
 namespace zesk;
 
-class Locale_DE extends Locale_Base {
+class Locale_DE extends Locale {
 	public function date_format() {
 		// TODO
 		return "die {DDD} {MMMM} {YYYY}";
@@ -20,11 +20,11 @@ class Locale_DE extends Locale_Base {
 	public function time_format($include_seconds = false) {
 		return $include_seconds ? "{hh}:{mm}:{ss}" : "{hh}:{mm}";
 	}
-	public function plural($word, $count = 2) {
+	public function noun_semantic_plural($word, $count = 2) {
 		return $count !== 1 ? "$word" . "s" : $word;
 	}
 	public function indefinite_article($word, $caps = false) {
-		$gender = __("$word.gender");
+		$gender = $this->__("$word.gender");
 		if (!$gender) {
 			$gender = "n";
 		}
@@ -45,6 +45,6 @@ class Locale_DE extends Locale_Base {
 		if ($preferred_prefix === null) {
 			$preferred_prefix = "Kein";
 		}
-		return str::case_match($preferred_prefix . $word, $word);
+		return StringTools::case_match($preferred_prefix . $word, $word);
 	}
 }

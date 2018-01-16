@@ -146,7 +146,7 @@ abstract class Net_Client extends Hookable {
 		if (empty($name) || ($name == ".") || ($name == "..")) {
 			return null;
 		}
-		$entry['name'] = $name = trim(str::left($name, "->", $name));
+		$entry['name'] = $name = trim(StringTools::left($name, "->", $name));
 		$entry['type'] = file::ls_type($entry['mode']);
 		return $this->_parse_date($entry);
 	}

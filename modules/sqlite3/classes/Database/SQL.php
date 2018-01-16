@@ -264,7 +264,7 @@ class Database_SQL extends \zesk\Database_SQL {
 		$bt = $data_type->native_type_to_sql_type($type);
 		switch ($bt) {
 			case "boolean":
-				$sql = str::from_bool($default);
+				$sql = StringTools::from_bool($default);
 				break;
 			default :
 				$sql = $default;

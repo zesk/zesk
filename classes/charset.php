@@ -77,7 +77,7 @@ class charset {
 				if (strpos($oline, '#UNDEFINED') !== false) {
 					continue;
 				}
-				$line = preg_replace('/\s+/', ' ', trim(str::left($oline, "#")));
+				$line = preg_replace('/\s+/', ' ', trim(StringTools::left($oline, "#")));
 				if (empty($line)) {
 					continue;
 				}

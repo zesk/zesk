@@ -119,7 +119,7 @@ class Command_Help extends Command_Base {
 			return;
 		}
 		$command_file = $refl->getFileName();
-		$command = str::unprefix($command_file, $this->command_paths);
+		$command = StringTools::unprefix($command_file, $this->command_paths);
 		$command = File::extension_change(ltrim($command, "/"), null);
 		$command = strtr($command, "/", "-");
 		$doccomment = $refl->getDocComment();

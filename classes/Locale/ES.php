@@ -8,7 +8,7 @@
  */
 namespace zesk;
 
-class Locale_ES extends Locale_Base {
+class Locale_ES extends Locale {
 	public function date_format() {
 		// TODO
 		return "el {DDD} {MMMM} {YYYY}";
@@ -21,7 +21,7 @@ class Locale_ES extends Locale_Base {
 		// TODO
 		return $include_seconds ? "{hh}:{mm}:{ss}" : "{hh}:{mm}";
 	}
-	public function plural($word, $count = 2) {
+	public function noun_semantic_plural($word, $count = 2) {
 		if (ends($word, "s")) {
 			return $word . 'es';
 		}
@@ -50,6 +50,6 @@ class Locale_ES extends Locale_Base {
 		if ($preferred_prefix === null) {
 			$preferred_prefix = "pas de";
 		}
-		return str::case_match("pas de " . $word, $word);
+		return StringTools::case_match("pas de " . $word, $word);
 	}
 }

@@ -6,43 +6,43 @@ class str_Test extends Test_Unit {
 		$haystack = null;
 		$needle = null;
 		$lower = false;
-		str::begins($haystack, $needle, $lower);
+		StringTools::begins($haystack, $needle, $lower);
 	}
 	function test_capitalize() {
 		$phrase = null;
-		str::capitalize($phrase);
+		StringTools::capitalize($phrase);
 	}
 	function test_case_match() {
 		$string = null;
 		$pattern = null;
-		str::case_match($string, $pattern);
+		StringTools::case_match($string, $pattern);
 	}
 	function test_ellipsis_word() {
 		$s = null;
 		$n = 20;
 		$dot_dot_dot = "...";
-		str::ellipsis_word($s, $n, $dot_dot_dot);
+		StringTools::ellipsis_word($s, $n, $dot_dot_dot);
 	}
 	function test_ends() {
 		$haystack = null;
 		$needle = null;
 		$lower = false;
-		str::ends($haystack, $needle, $lower);
+		StringTools::ends($haystack, $needle, $lower);
 	}
 	function test_from_bool() {
 		$bool = null;
-		str::from_bool($bool);
+		StringTools::from_bool($bool);
 	}
 	function test_is_ascii() {
 		$str = "string";
-		$this->assert(str::is_ascii($str));
+		$this->assert(StringTools::is_ascii($str));
 		$str = chr(255) . chr(254) . "Hello";
-		$this->assert(!str::is_ascii($str));
+		$this->assert(!StringTools::is_ascii($str));
 	}
 	function test_is_utf16() {
 		$str = null;
 		$be = null;
-		str::is_utf16($str, $be);
+		StringTools::is_utf16($str, $be);
 	}
 	function test_is_utf8() {
 		$test_dir = $this->application->zesk_root('test/test-data');
@@ -57,121 +57,121 @@ class str_Test extends Test_Unit {
 			"utf16.data" => false
 		);
 		$str = null;
-		$this->assert(str::is_utf8('') === true);
-		$this->assert(str::is_utf8('????, ???') === true);
-		$this->assert(str::is_utf8('????, ???') === true);
+		$this->assert(StringTools::is_utf8('') === true);
+		$this->assert(StringTools::is_utf8('????, ???') === true);
+		$this->assert(StringTools::is_utf8('????, ???') === true);
 		foreach ($files as $f => $isutf8) {
 			$content = file_get_contents(path($test_dir, $f));
 			echo "Testing file $f\n";
 			Debug::output(urlencode($content));
 			echo "\n--END--\n";
-			$this->assert(str::is_utf8($content) === $isutf8);
+			$this->assert(StringTools::is_utf8($content) === $isutf8);
 		}
 	}
 	function test_left() {
 		$str = null;
 		$find = null;
 		$default = null;
-		str::left($str, $find, $default);
+		StringTools::left($str, $find, $default);
 	}
 	function test_pair() {
 		$string = null;
 		$delim = '.';
 		$left = null;
 		$right = null;
-		str::pair($string, $delim, $left, $right);
+		StringTools::pair($string, $delim, $left, $right);
 	}
 	function test_pairr() {
 		$string = null;
 		$delim = '.';
 		$left = null;
 		$right = null;
-		str::pairr($string, $delim, $left, $right);
+		StringTools::pairr($string, $delim, $left, $right);
 	}
 	function test_replace_first() {
 		$search = "is";
 		$replace = "at";
 		$content = "This is a test";
-		$this->assert(str::replace_first($search, $replace, $content) === "That is a test");
+		$this->assert(StringTools::replace_first($search, $replace, $content) === "That is a test");
 	}
 	function test_right() {
 		$str = null;
 		$find = null;
 		$default = null;
-		str::right($str, $find, $default);
+		StringTools::right($str, $find, $default);
 	}
 	function test_rleft() {
 		$str = null;
 		$find = null;
 		$default = null;
-		str::rleft($str, $find, $default);
+		StringTools::rleft($str, $find, $default);
 	}
 	function test_rright() {
 		$str = null;
 		$find = null;
 		$default = null;
-		str::rright($str, $find, $default);
+		StringTools::rright($str, $find, $default);
 	}
 	function test_to_bool() {
 		$value = null;
 		$default = false;
-		str::to_bool($value, $default);
-		$this->assert(str::to_bool(true, null) === true);
-		$this->assert(str::to_bool("t", null) === true);
-		$this->assert(str::to_bool("T", null) === true);
-		$this->assert(str::to_bool("y", null) === true);
-		$this->assert(str::to_bool("Y", null) === true);
-		$this->assert(str::to_bool("Yes", null) === true);
-		$this->assert(str::to_bool("yES", null) === true);
-		$this->assert(str::to_bool("oN", null) === true);
-		$this->assert(str::to_bool("on", null) === true);
-		$this->assert(str::to_bool("enabled", null) === true);
-		$this->assert(str::to_bool("trUE", null) === true);
-		$this->assert(str::to_bool("true", null) === true);
+		StringTools::to_bool($value, $default);
+		$this->assert(StringTools::to_bool(true, null) === true);
+		$this->assert(StringTools::to_bool("t", null) === true);
+		$this->assert(StringTools::to_bool("T", null) === true);
+		$this->assert(StringTools::to_bool("y", null) === true);
+		$this->assert(StringTools::to_bool("Y", null) === true);
+		$this->assert(StringTools::to_bool("Yes", null) === true);
+		$this->assert(StringTools::to_bool("yES", null) === true);
+		$this->assert(StringTools::to_bool("oN", null) === true);
+		$this->assert(StringTools::to_bool("on", null) === true);
+		$this->assert(StringTools::to_bool("enabled", null) === true);
+		$this->assert(StringTools::to_bool("trUE", null) === true);
+		$this->assert(StringTools::to_bool("true", null) === true);
 		
-		$this->assert(str::to_bool("f", null) === false);
-		$this->assert(str::to_bool("F", null) === false);
-		$this->assert(str::to_bool("n", null) === false);
-		$this->assert(str::to_bool("N", null) === false);
-		$this->assert(str::to_bool("no", null) === false);
-		$this->assert(str::to_bool("NO", null) === false);
-		$this->assert(str::to_bool("OFF", null) === false);
-		$this->assert(str::to_bool("off", null) === false);
-		$this->assert(str::to_bool("disabled", null) === false);
-		$this->assert(str::to_bool("DISABLED", null) === false);
-		$this->assert(str::to_bool("false", null) === false);
-		$this->assert(str::to_bool("null", null) === false);
-		$this->assert(str::to_bool("", null) === false);
+		$this->assert(StringTools::to_bool("f", null) === false);
+		$this->assert(StringTools::to_bool("F", null) === false);
+		$this->assert(StringTools::to_bool("n", null) === false);
+		$this->assert(StringTools::to_bool("N", null) === false);
+		$this->assert(StringTools::to_bool("no", null) === false);
+		$this->assert(StringTools::to_bool("NO", null) === false);
+		$this->assert(StringTools::to_bool("OFF", null) === false);
+		$this->assert(StringTools::to_bool("off", null) === false);
+		$this->assert(StringTools::to_bool("disabled", null) === false);
+		$this->assert(StringTools::to_bool("DISABLED", null) === false);
+		$this->assert(StringTools::to_bool("false", null) === false);
+		$this->assert(StringTools::to_bool("null", null) === false);
+		$this->assert(StringTools::to_bool("", null) === false);
 		
-		$this->assert(str::to_bool(0, null) === null);
-		$this->assert(str::to_bool("0", null) === null);
+		$this->assert(StringTools::to_bool(0, null) === null);
+		$this->assert(StringTools::to_bool("0", null) === null);
 		
-		$this->assert(str::to_bool(1, null) === null);
-		$this->assert(str::to_bool("1", null) === null);
+		$this->assert(StringTools::to_bool(1, null) === null);
+		$this->assert(StringTools::to_bool("1", null) === null);
 		
-		$this->assert(str::to_bool("01", null) === null);
-		$this->assert(str::to_bool(array(), null) === null);
-		$this->assert(str::to_bool(new \stdClass(), null) === null);
+		$this->assert(StringTools::to_bool("01", null) === null);
+		$this->assert(StringTools::to_bool(array(), null) === null);
+		$this->assert(StringTools::to_bool(new \stdClass(), null) === null);
 	}
 	function test_unprefix() {
 		$string = null;
 		$prefix = null;
-		str::unprefix($string, $prefix);
+		StringTools::unprefix($string, $prefix);
 	}
 	function test_unsuffix() {
 		$string = null;
 		$suffix = null;
-		str::unsuffix($string, $suffix);
+		StringTools::unsuffix($string, $suffix);
 	}
 	function test_zero_pad() {
 		$s = null;
-		str::zero_pad($s);
-		$this->assert_equal(str::zero_pad('0'), '00');
-		$this->assert_equal(str::zero_pad('00'), '00');
+		StringTools::zero_pad($s);
+		$this->assert_equal(StringTools::zero_pad('0'), '00');
+		$this->assert_equal(StringTools::zero_pad('00'), '00');
 		
-		$this->assert_equal(str::zero_pad('1'), '01');
-		$this->assert_equal(str::zero_pad('01'), '01');
-		$this->assert_equal(str::zero_pad('xx', 4), '00xx');
+		$this->assert_equal(StringTools::zero_pad('1'), '01');
+		$this->assert_equal(StringTools::zero_pad('01'), '01');
+		$this->assert_equal(StringTools::zero_pad('xx', 4), '00xx');
 	}
 	function test_lalign() {
 		$text = null;
@@ -190,8 +190,8 @@ class str_Test extends Test_Unit {
 	function test_filter() {
 		$name = null;
 		$default = true;
-		$this->assert(str::filter($name, array(), true) === true);
-		$this->assert(str::filter($name, array(), false) === false);
+		$this->assert(StringTools::filter($name, array(), true) === true);
+		$this->assert(StringTools::filter($name, array(), false) === false);
 		$tests = array(
 			array(
 				'foo.php',
@@ -229,7 +229,7 @@ class str_Test extends Test_Unit {
 		);
 		foreach ($tests as $index => $test) {
 			list($name, $rules, $default, $result) = $test;
-			$this->assert_equal(str::filter($name, $rules, $default), $result, "Test #$index failed: $name");
+			$this->assert_equal(StringTools::filter($name, $rules, $default), $result, "Test #$index failed: $name");
 		}
 	}
 	function test_substr() {
@@ -246,8 +246,8 @@ class str_Test extends Test_Unit {
 		}
 	}
 	function test_replace_first1() {
-		$this->assert(str::replace_first("a", "b", "abracadabra") === "bbracadabra");
-		$this->assert(str::replace_first("bra", "strap", "abracadabra") === "astrapcadabra");
+		$this->assert(StringTools::replace_first("a", "b", "abracadabra") === "bbracadabra");
+		$this->assert(StringTools::replace_first("bra", "strap", "abracadabra") === "astrapcadabra");
 	}
 }
 

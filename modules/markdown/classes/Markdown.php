@@ -115,7 +115,7 @@ class Markdown extends Options {
 		$text .= "\n\n";
 		
 		# Convert all tabs to spaces.
-		$text = str::detab($text, $this->g_tab_width);
+		$text = StringTools::detab($text, $this->g_tab_width);
 		
 		# Strip any lines consisting only of spaces and tabs.
 		# This makes subsequent regexen easier to write, because we can
@@ -629,7 +629,7 @@ class Markdown extends Options {
 			$list = preg_replace('/\n{2,}/', "\n\n\n", $list);
 			$result = $this->_ProcessListItems($list, $marker_any);
 			$result = "<$list_type>\n" . $result . "</$list_type>\n";
-			$text = str::replace_first($full_match, $result, $text);
+			$text = StringTools::replace_first($full_match, $result, $text);
 		}
 		
 		return $text;
@@ -686,7 +686,7 @@ class Markdown extends Options {
 				$item = $this->_RunSpanGamut($item);
 			}
 			
-			$list_str = str::replace_first($whole_string, "<li>" . $item . "</li>\n", $list_str);
+			$list_str = StringTools::replace_first($whole_string, "<li>" . $item . "</li>\n", $list_str);
 		}
 		
 		$this->g_list_level--;
@@ -713,13 +713,13 @@ class Markdown extends Options {
 			$codeblock = $match[1];
 			
 			$codeblock = $this->_EncodeCode($this->_Outdent($codeblock));
-			$codeblock = str::detab($codeblock, $this->g_tab_width);
+			$codeblock = StringTools::detab($codeblock, $this->g_tab_width);
 			$codeblock = preg_replace('/\A\n+/', '', $codeblock); # trim leading newlines
 			$codeblock = preg_replace('/\s+\z/', '', $codeblock); # trim trailing whitespace
 			
 			$result = "\n\n<pre><code>" . $codeblock . "\n</code></pre>\n\n";
 			
-			$text = str::replace_first($match[0], $result, $text);
+			$text = StringTools::replace_first($match[0], $result, $text);
 		}
 		
 		return $text;
@@ -931,7 +931,7 @@ class Markdown extends Options {
 			$eaddr .= $c;
 		}
 		
-		$addr = "<a href=\"$eaddr\">" . str::right($eaddr, ":") . "</a>";
+		$addr = "<a href=\"$eaddr\">" . StringTools::right($eaddr, ":") . "</a>";
 		
 		return $addr;
 	}

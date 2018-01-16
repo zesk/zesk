@@ -1,7 +1,9 @@
 <?php
-
 /**
- *
+ * @package zesk
+ * @subpackage kernel
+ * @author kent
+ * @copyright &copy; 2018 Market Acumen, Inc.
  */
 namespace zesk;
 
@@ -41,45 +43,6 @@ class Hookable extends Options {
 	function __wakeup() {
 		// Only case where this is OK
 		$this->application = Kernel::singleton()->application();
-	}
-
-	/**
-	 * Invoke a hook on this object if it exists.
-	 * Arguments should be passed after the type.
-	 *
-	 * Using this invokation method, you can not pass a hook callback or a result callback to
-	 * process results, so this is
-	 * best used for triggers which do not require a result.
-	 *
-	 * @see Hookable::hook_array
-	 * @deprecated 2016-09
-	 * @param string $type
-	 */
-	public final function hook($type) {
-		$this->application->deprecated();
-		if (empty($type)) {
-			return $this;
-		}
-		$args = func_get_args();
-		array_shift($args);
-		$default = avalue($args, 0);
-		$result = $this->call_hook_arguments($type, $args, $default);
-		return $result;
-	}
-
-	/**
-	 *
-	 * @deprecated 2016-08
-	 * @see zesk\Hookable::call_hook_arguments
-	 * @param unknown $types
-	 * @param array $args
-	 * @param unknown $default
-	 * @param unknown $hook_callback
-	 * @param unknown $result_callback
-	 */
-	public final function hook_array($types, $args = array(), $default = null, $hook_callback = null, $result_callback = null) {
-		$this->application->deprecated();
-		return $this->call_hook_arguments($types, $args, $default, $hook_callback, $result_callback);
 	}
 
 	/**
@@ -400,7 +363,7 @@ class Hookable extends Options {
 	 */
 	final function inherit_global_options($class = null) {
 		if ($class instanceof Application) {
-			$this->application->deprecated("{method} no longer takes application", array(
+			$this->application->deprecated("{method} no longer takes application @deprecated 2017-08", array(
 				"method" => __METHOD__
 			));
 			$class = func_get_arg(1);

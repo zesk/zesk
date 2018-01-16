@@ -2567,7 +2567,7 @@ class ORM extends Model {
 			if (is_array($resolve_objects)) {
 				$allow_resolve_objects = to_list(avalue($options, "allow_resolve_objects", null), null);
 				foreach ($resolve_objects as $member_path) {
-					if (is_array($allow_resolve_objects) && !str::begins($allow_resolve_objects, $member_path)) {
+					if (is_array($allow_resolve_objects) && !StringTools::begins($allow_resolve_objects, $member_path)) {
 						$this->application->logger->warning("Not allowed to traverse {member_path} as it is not included in {allow_resolve_objects}", compact("allow_resolve_objects", "member_path"));
 						continue;
 					}
@@ -2762,7 +2762,7 @@ class ORM extends Model {
 		$spec['class_name-context-object-plural'] = $locale->plural($locale_class_name, $this->locale);
 		$spec['class_name-context-subject'] = $spec['class_name-context-subject-singular'] = ucfirst($locale_class_name);
 		$spec['class_name-context-subject-plural'] = ucfirst($spec['class_name-context-object-plural']);
-		$spec['class_name-context-title'] = str::capitalize($spec['class_name-context-object']);
+		$spec['class_name-context-title'] = StringTools::capitalize($spec['class_name-context-object']);
 		$spec["class_name-context-subject-indefinite-article"] = $locale->indefinite_article($name, true);
 		$spec['class_name-plural'] = $locale->plural($name, $this->locale);
 

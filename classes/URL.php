@@ -94,8 +94,8 @@ class URL {
 	 */
 	public static function query_parse_url($url, $qmark = true, $simple = false) {
 		if ($qmark) {
-			$url = str::right($url, "?");
-			$url = str::left($url, "#");
+			$url = StringTools::right($url, "?");
+			$url = StringTools::left($url, "#");
 		}
 		if (empty($url)) {
 			return array();
@@ -915,7 +915,7 @@ class URL {
 	 */
 	public static function has_ref($href, $key = "ref") {
 		zesk()->deprecated();
-		return self::query_parse(str::right($href, "?", ""), $key) !== null;
+		return self::query_parse(StringTools::right($href, "?", ""), $key) !== null;
 	}
 	
 	/**
@@ -959,7 +959,7 @@ class URL {
 	public static function current_host() {
 		zesk()->deprecated();
 		$host = avalue($_SERVER, 'HTTP_HOST', "localhost");
-		return strtolower(str::left($host, ":", $host));
+		return strtolower(StringTools::left($host, ":", $host));
 	}
 	/**
 	 * @deprecated 2017-12
@@ -992,7 +992,7 @@ class URL {
 	public static function current_path() {
 		zesk()->deprecated();
 		$uri = self::current_uri();
-		return str::left($uri, "?", $uri);
+		return StringTools::left($uri, "?", $uri);
 	}
 	/**
 	 * @deprecated 2017-12

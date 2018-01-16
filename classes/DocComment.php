@@ -23,8 +23,8 @@ class DocComment {
 	 */
 	static function clean($string) {
 		$string = trim($string);
-		$string = str::unprefix($string, "/*");
-		$string = str::unsuffix($string, "*/");
+		$string = StringTools::unprefix($string, "/*");
+		$string = StringTools::unsuffix($string, "*/");
 		$string = explode("\n", $string);
 		$string = ArrayTools::trim($string);
 		$string = ArrayTools::unprefix($string, "*");

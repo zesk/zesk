@@ -69,12 +69,12 @@ abstract class Server_Feature extends Server_Base {
 	public function __construct(Server_Platform $platform) {
 		parent::__construct($platform);
 		
-		$this->code = strtolower(str::unsuffix(get_class($this), __CLASS__));
+		$this->code = strtolower(StringTools::unsuffix(get_class($this), __CLASS__));
 		if ($this->configure_root === null) {
 			$class = $this->application->zesk->autoloader->search($class, array(
 				"inc"
 			));
-			$this->configure_root = str::unsuffix($class, ".inc");
+			$this->configure_root = StringTools::unsuffix($class, ".inc");
 		}
 		
 		$this->call_hook("construct");

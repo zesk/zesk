@@ -369,7 +369,7 @@ abstract class Database_SQL extends Hookable {
 			"AND",
 			"OR"
 		) as $token) {
-			if (str::ends($key, "|$token", true)) {
+			if (StringTools::ends($key, "|$token", true)) {
 				return array(
 					substr($key, 0, -(strlen($token) + 1)),
 					$token

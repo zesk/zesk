@@ -22,7 +22,7 @@ class ArrayTools {
 	 * @var string
 	 */
 	const TRIM_WHITESPACE = " \t\r\n\0\x0B";
-	
+
 	/**
 	 * Capitalize all values in an array
 	 *
@@ -34,7 +34,7 @@ class ArrayTools {
 			if (is_array($v)) {
 				$array[$k] = self::capitalize($v);
 			} else if (is_string($v)) {
-				$array[$k] = str::capitalize($v);
+				$array[$k] = StringTools::capitalize($v);
 			}
 		}
 		return $array;
@@ -99,7 +99,7 @@ class ArrayTools {
 		}
 		return $a;
 	}
-	
+
 	/**
 	 * Calls PHP trim() on each element of an array.
 	 * If $a is not an array, returns trim($a)
@@ -115,7 +115,7 @@ class ArrayTools {
 		}
 		return $a;
 	}
-	
+
 	/**
 	 * Trim array values, then remove ones which match the empty string.
 	 *
@@ -129,7 +129,7 @@ class ArrayTools {
 	static function trim_clean(array $arr, $charlist = self::TRIM_WHITESPACE, $value = "") {
 		return self::clean(self::trim($arr, $charlist), $value);
 	}
-	
+
 	/**
 	 * Calls PHP rtrim() on each element of an array.
 	 * If $a is not an array, returns rtrim($a)
@@ -148,7 +148,7 @@ class ArrayTools {
 		}
 		return $a;
 	}
-	
+
 	/**
 	 * Calls PHP ltrim() on each element of an array.
 	 * If $a is not an array, returns ltrim($a)
@@ -167,7 +167,7 @@ class ArrayTools {
 		}
 		return $a;
 	}
-	
+
 	/**
 	 * Calls PHP ltrim() on each key of an array.
 	 * If $a is not an array, returns ltrim($a)
@@ -187,7 +187,7 @@ class ArrayTools {
 		}
 		return $b;
 	}
-	
+
 	/**
 	 * Calls PHP trim() on each key of an array.
 	 * If $a is not an array, returns trim($a)
@@ -207,7 +207,7 @@ class ArrayTools {
 		}
 		return $b;
 	}
-	
+
 	/**
 	 * Prefix each value in an array with a string
 	 *
@@ -221,7 +221,7 @@ class ArrayTools {
 		}
 		return $arr;
 	}
-	
+
 	/**
 	 * Suffix each value in an array with a string
 	 *
@@ -235,7 +235,7 @@ class ArrayTools {
 		}
 		return $arr;
 	}
-	
+
 	/**
 	 * Wrap each value in an array with a string (prefix and suffix)
 	 *
@@ -250,7 +250,7 @@ class ArrayTools {
 		}
 		return $arr;
 	}
-	
+
 	/**
 	 * Prefix each key in an array with a string
 	 *
@@ -265,7 +265,7 @@ class ArrayTools {
 		}
 		return $result;
 	}
-	
+
 	/**
 	 * Suffix each key in an array with a string
 	 *
@@ -280,7 +280,7 @@ class ArrayTools {
 		}
 		return $result;
 	}
-	
+
 	/**
 	 * Wrap each key in an array with a string (prefix and suffix)
 	 *
@@ -296,7 +296,7 @@ class ArrayTools {
 		}
 		return $result;
 	}
-	
+
 	/**
 	 * Remove a string prefix from each value in an array.
 	 * Works recursivly on arrays in arrays.
@@ -322,7 +322,7 @@ class ArrayTools {
 		}
 		return $arr;
 	}
-	
+
 	/**
 	 * Remove a string suffix from each value in an array.
 	 * Works recursivly on arrays in arrays.
@@ -348,7 +348,7 @@ class ArrayTools {
 		}
 		return $arr;
 	}
-	
+
 	/**
 	 * Remove a string prefix and suffix from each value in an array.
 	 * Works recursivly on arrays in arrays.
@@ -376,7 +376,7 @@ class ArrayTools {
 		}
 		return $arr;
 	}
-	
+
 	/**
 	 * Remove a string prefix from each key in an array
 	 *
@@ -398,7 +398,7 @@ class ArrayTools {
 		}
 		return $result;
 	}
-	
+
 	/**
 	 * Remove a string suffix from each key in an array
 	 *
@@ -420,7 +420,7 @@ class ArrayTools {
 		}
 		return $result;
 	}
-	
+
 	/**
 	 * Remove keys from an array
 	 *
@@ -436,7 +436,7 @@ class ArrayTools {
 		}
 		return $arr;
 	}
-	
+
 	/**
 	 * Remove values from an array
 	 *
@@ -454,7 +454,7 @@ class ArrayTools {
 		}
 		return $arr;
 	}
-	
+
 	/**
 	 * Merges one or more arrays recursively and preserves all keys.
 	 * Note that this does not work the same the PHP function array_merge_recursive()!
@@ -490,7 +490,7 @@ class ArrayTools {
 		}
 		return $result;
 	}
-	
+
 	/**
 	 * Partner of path - sets an array path to a specific value
 	 *
@@ -506,7 +506,7 @@ class ArrayTools {
 	public static function path_set(array &$array, $path, $value, $separator = ".") {
 		return apath_set($array, $path, $value, $separator);
 	}
-	
+
 	/**
 	 * Gets a value from an array using a delimited separated path.
 	 * // Get the value of $array['foo']['bar']
@@ -525,7 +525,7 @@ class ArrayTools {
 	public static function path(array $array, $path, $default = null, $separator = ".") {
 		return apath($array, $path, $default, $separator);
 	}
-	
+
 	/**
 	 * Take a list of arrays and create a new array using values found in it.
 	 *
@@ -547,7 +547,7 @@ class ArrayTools {
 		}
 		return $result;
 	}
-	
+
 	/**
 	 * Convert array("col1","col2","col3"), array("zero", 1, false)) to
 	 * array("col1" => "zero", "col2" => 1, "col3" => false);
@@ -571,7 +571,7 @@ class ArrayTools {
 		}
 		return $result;
 	}
-	
+
 	/**
 	 * Convert key names in this array to new key names
 	 *
@@ -597,7 +597,7 @@ class ArrayTools {
 		}
 		return $new_array;
 	}
-	
+
 	/**
 	 * Convert values in this array to new values
 	 *
@@ -618,7 +618,7 @@ class ArrayTools {
 		}
 		return $array;
 	}
-	
+
 	/**
 	 * Kind of like UNIX "awk '{ print $index }'"
 	 * Null for index means return the whole list as an array
@@ -631,14 +631,14 @@ class ArrayTools {
 	public static function field(array $array, $index = null, $delim = " \t", $max_fields = null) {
 		foreach ($array as $k => $v) {
 			if (is_string($v)) {
-				$array[$k] = str::field($v, $index, $delim, $max_fields);
+				$array[$k] = StringTools::field($v, $index, $delim, $max_fields);
 			} else if (is_array($v)) {
 				$array[$k] = self::field($v, $index, $delim, $max_fields);
 			}
 		}
 		return $array;
 	}
-	
+
 	/**
 	 * Convert a list of strings to a set of key pairs
 	 *
@@ -655,7 +655,7 @@ class ArrayTools {
 		}
 		return $result;
 	}
-	
+
 	/**
 	 * Returns whether an array is an associative array (true) or a simple list (false).
 	 *
@@ -672,7 +672,7 @@ class ArrayTools {
 		}
 		return false;
 	}
-	
+
 	/**
 	 * Returns whether an array is an associative array (false) or a simple list (true).
 	 *
@@ -685,7 +685,7 @@ class ArrayTools {
 		}
 		return !self::is_assoc($mixed);
 	}
-	
+
 	/**
 	 * Return true if an array has all keys specified
 	 *
@@ -704,7 +704,7 @@ class ArrayTools {
 		}
 		return true;
 	}
-	
+
 	/**
 	 * Return true if an array has all values specified
 	 *
@@ -723,7 +723,7 @@ class ArrayTools {
 		}
 		return true;
 	}
-	
+
 	/**
 	 * Return true if an array has any keys specified
 	 *
@@ -742,7 +742,7 @@ class ArrayTools {
 		}
 		return false;
 	}
-	
+
 	/**
 	 * Return true if an array has any keys specified
 	 *
@@ -761,7 +761,7 @@ class ArrayTools {
 		}
 		return false;
 	}
-	
+
 	/**
 	 * Finds the minimum numerical value in an array.
 	 * Note that no type conversion happens; if you want an integer, then call intval on the result
@@ -786,7 +786,7 @@ class ArrayTools {
 		}
 		return ($min === null) ? $default : $min;
 	}
-	
+
 	/**
 	 * Finds the maximum numerical value in an array.
 	 * Note that no type conversion happens; if you want an integer, then call intval on the result
@@ -811,7 +811,7 @@ class ArrayTools {
 		}
 		return ($max === null) ? $default : $max;
 	}
-	
+
 	/**
 	 * Like array_change_key_case, but for values.
 	 * Only converts string values, numbers, booleans and objects are left alone.
@@ -830,7 +830,7 @@ class ArrayTools {
 		}
 		return $r;
 	}
-	
+
 	/**
 	 * Include only certain entries in an array
 	 *
@@ -857,7 +857,7 @@ class ArrayTools {
 		}
 		return $r;
 	}
-	
+
 	/**
 	 * Extract certain key values which have a certain prefix from one array into a new array
 	 *
@@ -874,13 +874,13 @@ class ArrayTools {
 		}
 		$r = array();
 		foreach ($a as $k => $v) {
-			if (str::begins($k, $prefixes, $lower)) {
+			if (StringTools::begins($k, $prefixes, $lower)) {
 				$r[$k] = $v;
 			}
 		}
 		return $r;
 	}
-	
+
 	/**
 	 * Includes or excludes array values from an array.
 	 *
@@ -927,7 +927,7 @@ class ArrayTools {
 		}
 		return $newa;
 	}
-	
+
 	/**
 	 * Includes or excludes array keys from an array.
 	 *
@@ -957,7 +957,7 @@ class ArrayTools {
 		if (!is_array($include) && !is_array($exclude)) {
 			return $a;
 		}
-		
+
 		$ak = array_keys($a);
 		if (is_array($exclude)) {
 			$exclude = array_flip($exclude);
@@ -994,7 +994,7 @@ class ArrayTools {
 		}
 		return $a;
 	}
-	
+
 	/**
 	 * Modifies an array value in the following manner, when adding a key multiple times:
 	 * <ol>
@@ -1048,7 +1048,7 @@ class ArrayTools {
 			}
 		}
 	}
-	
+
 	/**
 	 * Modifies an array value in the following manner, when adding a key multiple times:
 	 * <ol>
@@ -1102,7 +1102,7 @@ class ArrayTools {
 			}
 		}
 	}
-	
+
 	/**
 	 * Given an array with just values, converts it to an associative array with the keys and the
 	 * values identical (or
@@ -1138,7 +1138,7 @@ class ArrayTools {
 		}
 		return $result;
 	}
-	
+
 	/**
 	 * Flips array but when identical keys exist, keeps all duplicate values, so:
 	 *
@@ -1195,7 +1195,7 @@ class ArrayTools {
 		}
 		return $result;
 	}
-	
+
 	/**
 	 * Find a series of keys in an array and return the first found key.
 	 * If the found value is empty, return the default value.
@@ -1219,7 +1219,7 @@ class ArrayTools {
 		}
 		return false;
 	}
-	
+
 	/**
 	 * inserts values from $arr2 after (or before) $key in $arr1
 	 * if $key is not found, values from $arr2 are appended to the end of $arr1
@@ -1258,7 +1258,7 @@ class ArrayTools {
 		}
 		return $result;
 	}
-	
+
 	/**
 	 * Tests for a key in an array, if not available, sets to 1, otherwise increments
 	 *
@@ -1276,7 +1276,7 @@ class ArrayTools {
 		}
 		return $arr[$k] = $amount;
 	}
-	
+
 	/**
 	 * Given a string and an array of strings, find if string $needles exists in $haystack.
 	 * <em>Performs a
@@ -1296,7 +1296,7 @@ class ArrayTools {
 		}
 		return false;
 	}
-	
+
 	/**
 	 * Given a string and an array of strings, find if string $haystack exists in $needles.
 	 * <em>Case sensitive.</em>
@@ -1314,7 +1314,7 @@ class ArrayTools {
 		}
 		return false;
 	}
-	
+
 	/**
 	 * Given arrays and string inputs, find if any needles appear in haystack.
 	 * <em>Case sensitive.</em>
@@ -1343,7 +1343,7 @@ class ArrayTools {
 		}
 		return (strpos($haystack, $needles) !== false);
 	}
-	
+
 	/**
 	 * Given arrays and string inputs, find if any needles appear in haystack.
 	 * <em>Case sensitive.</em>
@@ -1368,7 +1368,7 @@ class ArrayTools {
 		}
 		return $result;
 	}
-	
+
 	/**
 	 * Given arrays and string inputs, find if any needles appear in haystack.
 	 * <em>Case insensitive.</em>
@@ -1393,7 +1393,7 @@ class ArrayTools {
 		}
 		return $result;
 	}
-	
+
 	/**
 	 * Run preg_quote on an array of values
 	 *
@@ -1435,7 +1435,7 @@ class ArrayTools {
 		}
 		return $new;
 	}
-	
+
 	/**
 	 * Return the topmost element
 	 *
@@ -1448,7 +1448,7 @@ class ArrayTools {
 		}
 		return $array[count($array) - 1];
 	}
-	
+
 	/**
 	 * Collapse a keyed array containing arrays
 	 * e.g.
@@ -1478,7 +1478,7 @@ class ArrayTools {
 		}
 		return $array;
 	}
-	
+
 	/**
 	 * Convert all values in an array to integers
 	 *
@@ -1493,7 +1493,7 @@ class ArrayTools {
 		}
 		return $arr;
 	}
-	
+
 	/**
 	 * Replace string with another string in keys for this array
 	 *
@@ -1511,7 +1511,7 @@ class ArrayTools {
 		}
 		return $new;
 	}
-	
+
 	/**
 	 * Add up two vectors
 	 *
@@ -1526,7 +1526,7 @@ class ArrayTools {
 		$term += $add;
 		return $term;
 	}
-	
+
 	/**
 	 * Scale an array of numbers by a value.
 	 * Can be associative or a single value.
@@ -1550,7 +1550,7 @@ class ArrayTools {
 		}
 		return $target;
 	}
-	
+
 	/**
 	 * Add an array of numbers by a value.
 	 * Can be associative or a single value.
@@ -1574,7 +1574,7 @@ class ArrayTools {
 		}
 		return $target;
 	}
-	
+
 	/**
 	 * Join an array to a string, and wrap each value with a prefix and suffix.
 	 * Returns the empty string if array is empty.
@@ -1590,7 +1590,7 @@ class ArrayTools {
 		}
 		return $prefix . implode($suffix . $prefix, $array) . $suffix;
 	}
-	
+
 	/**
 	 * Join an array to a string, and prefix each value
 	 * Returns the empty string if array is empty.
@@ -1602,7 +1602,7 @@ class ArrayTools {
 	public static function join_prefix(array $array, $prefix) {
 		return self::join_wrap($array, $prefix);
 	}
-	
+
 	/**
 	 * Join an array to a string, and adds a suffix to each value
 	 * Returns the empty string if array is empty.
@@ -1614,7 +1614,7 @@ class ArrayTools {
 	public static function join_suffix(array $array, $suffix) {
 		return self::join_wrap($array, "", $suffix);
 	}
-	
+
 	/**
 	 * Convert all values within an array to scalar values
 	 *
@@ -1631,7 +1631,7 @@ class ArrayTools {
 		}
 		return $array;
 	}
-	
+
 	/**
 	 * Filter an array by one or more values
 	 *
@@ -1658,7 +1658,7 @@ class ArrayTools {
 		}
 		return $result;
 	}
-	
+
 	/**
 	 * Filter an array by one or more values
 	 *
@@ -1676,7 +1676,7 @@ class ArrayTools {
 		}
 		return $result;
 	}
-	
+
 	/**
 	 * Retrieve the maximum string length of all keys in the array
 	 *
@@ -1690,7 +1690,7 @@ class ArrayTools {
 		}
 		return $len;
 	}
-	
+
 	/**
 	 * Retrieve the minimum length of all keys in the array
 	 *
@@ -1704,7 +1704,7 @@ class ArrayTools {
 		}
 		return $len;
 	}
-	
+
 	/**
 	 * Convert multi-dimensional arrays to a single-dimension array, using separator to separate
 	 * entities

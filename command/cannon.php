@@ -199,11 +199,11 @@ class Command_Cannon extends Command_Base {
 			$this->debug_log("$file: No matches");
 			return 0;
 		}
-		if (is_array($this->skip_when_matches) && str::contains($contents, $this->skip_when_matches)) {
+		if (is_array($this->skip_when_matches) && StringTools::contains($contents, $this->skip_when_matches)) {
 			return -1;
 		}
 
-		if (is_array($this->also_match) && !str::contains($contents, $this->also_match)) {
+		if (is_array($this->also_match) && !StringTools::contains($contents, $this->also_match)) {
 			return -1;
 		}
 

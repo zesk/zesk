@@ -230,7 +230,7 @@ class Module_Help extends Module_JSLib {
 		$user = $this->application->user(false);
 		if (!$user || !$user->authenticated()) {
 			$response->status(Net_HTTP::Status_Unauthorized, "Requires user")->json(array(
-				'error' => $this->application->locale('Requires user')
+				'error' => $this->application->locale->__('Requires user')
 			));
 			return null;
 		}
@@ -252,7 +252,7 @@ class Module_Help extends Module_JSLib {
 		}
 		if (!$this->application->development() && !$request->is_post()) {
 			$response->status(Net_HTTP::Status_Method_Not_Allowed, "Requires POST")->json(array(
-				'error' => $this->application->locale('Requires POST data')
+				'error' => $this->application->locale->__('Requires POST data')
 			));
 			return null;
 		}

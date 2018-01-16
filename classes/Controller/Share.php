@@ -19,12 +19,12 @@ class Controller_Share extends Controller {
 	 * @return string
 	 */
 	function path_to_file($path) {
-		$uri = str::unprefix($path, "/");
+		$uri = StringTools::unprefix($path, "/");
 		list($ignore, $uri) = pair($uri, "/", null, $uri);
 		$share_paths = $this->application->share_path();
 		foreach ($share_paths as $name => $path) {
 			if (empty($name) || begins($uri, "$name/")) {
-				$file = path($path, str::unprefix($uri, "$name/"));
+				$file = path($path, StringTools::unprefix($uri, "$name/"));
 				if (!is_dir($file) && file_exists($file)) {
 					return $file;
 				}
@@ -40,7 +40,7 @@ class Controller_Share extends Controller {
 	 * @see Controller::_action_default()
 	 */
 	function _action_default($action = null) {
-		$uri = str::unprefix($original_uri = $this->request->path(), "/");
+		$uri = StringTools::unprefix($original_uri = $this->request->path(), "/");
 		if ($this->application->development() && $uri === "share/debug") {
 			$this->response->content = self::share_debug();
 			return;

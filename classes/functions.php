@@ -122,7 +122,7 @@ function type($mixed) {
  * @param string $string
  * @param string $prefix
  * @return boolean
- * @see \zesk\str::begins
+ * @see \zesk\StringTools::begins
  */
 function begins($haystack, $needle) {
 	$n = strlen($needle);
@@ -138,7 +138,7 @@ function begins($haystack, $needle) {
  * @param string $string
  * @param string $prefix
  * @return boolean
- * @see \zesk\str::beginsi
+ * @see \zesk\StringTools::beginsi
  */
 function beginsi($haystack, $needle) {
 	$n = strlen($needle);
@@ -154,7 +154,7 @@ function beginsi($haystack, $needle) {
  * @param string $string
  * @param string $prefix
  * @return boolean
- * @see \zesk\str::ends
+ * @see \zesk\StringTools::ends
  */
 function ends($haystack, $needle) {
 	$n = strlen($needle);
@@ -170,7 +170,7 @@ function ends($haystack, $needle) {
  * @param string $string
  * @param string $prefix
  * @return boolean
- * @see \zesk\str::endsi
+ * @see \zesk\StringTools::endsi
  */
 function endsi($haystack, $needle) {
 	$n = strlen($needle);
@@ -500,21 +500,14 @@ function to_bytes($mixed, $default = null) {
  * @param string $phrase
  *        	Phrase to translate
  * @return string
- * @deprecated 2017-12 Use $application->locale($phrase) instead.
+ * @deprecated 2017-12 Use $application->locale->__($phrase) instead.
  * @see Locale::__invoke
  */
 function __($phrase) {
 	$args = func_get_args();
-	$phrase = Kernel::singleton()->application()->locale->__($phrase);
-	if (count($args) > 1) {
-		array_shift($args);
-		if (count($args) === 1 && is_array($args[0])) {
-			$phrase = map($phrase, $args[0]);
-		} else {
-			$phrase = map($phrase, $args);
-		}
-	}
-	return $phrase;
+	$locale = Kernel::singleton()->application()->locale;
+	array_shift($args);
+	return count($args) === 1 && is_array($args[0]) ? $locale($phrase, $args[0]) : $locale($phrase, $args);
 }
 
 if (!function_exists('debugger_start_debug')) {

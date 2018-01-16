@@ -107,7 +107,7 @@ class Controller_PolyGlot extends Controller_Authenticated {
 		))) {
 			return $this->json(array(
 				"status" => false,
-				"message" => $this->application->locale("No permission to update {lang_name}.", $__)
+				"message" => $this->application->locale->__("No permission to update {lang_name}.", $__)
 			));
 		}
 		$id = $this->request->geti("id");
@@ -121,7 +121,7 @@ class Controller_PolyGlot extends Controller_Authenticated {
 		if (empty($language)) {
 			return $this->json(array(
 				"status" => false,
-				"message" => $this->application->locale("No language? {locale} ({language})", compact("locale", "language"))
+				"message" => $this->application->locale->__("No language? {locale} ({language})", compact("locale", "language"))
 			));
 		}
 		if ($id) {

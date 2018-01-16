@@ -102,7 +102,7 @@ class Server_Platform_Darwin extends Server_Platform_UNIX {
 				continue;
 			}
 			if (substr($line, 0, 1) === " ") {
-				if (str::begins($line, ' <?xml')) {
+				if (StringTools::begins($line, ' <?xml')) {
 					$is_xml = true;
 					$last_value = substr($line, 1);
 				} else if ($last_key) {

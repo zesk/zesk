@@ -600,7 +600,7 @@ class Parser {
 	}
 	private function time_repeat_to_language($item, $unit, $locale) {
 		if (($number = $this->is_time_repeat($item)) !== false) {
-			$translate = $this->locale($number === 1 ? 'Schedule:=Every {1}' : 'Schedule:=Every {0} {1}', $locale);
+			$translate = ($this->locale)($number === 1 ? 'Schedule:=Every {1}' : 'Schedule:=Every {0} {1}', $locale);
 			return map($translate, array(
 				$number,
 				$this->locale->plural($unit, $number, $locale)
@@ -628,7 +628,7 @@ class Parser {
 				} else {
 					$t = new Time();
 					if ($m == 0 && $h != intval($h)) {
-						$t->minute(str::right($h, "."));
+						$t->minute(StringTools::right($h, "."));
 						$t->hour(intval($h));
 					} else {
 						$t->minute($m);
@@ -638,7 +638,7 @@ class Parser {
 				}
 			}
 		}
-		return $this->locale->conjunction($times, $this->locale("and"));
+		return $this->locale->conjunction($times, ($this->locale)("and"));
 	}
 
 	/**
@@ -703,7 +703,7 @@ class Parser {
 		if ($dow !== "*") {
 			$dow_language = $this->dow_to_language($dow, $plural_dow);
 		}
-		$phrase = $this->locale($translate_string);
+		$phrase = $this->locale->__($translate_string);
 		return map($phrase, array(
 			'time' => $time_language,
 			'day' => $day_language,

@@ -31,6 +31,9 @@ Version 1.0 of Zesk will have:
 
 - `zesk\\Number::format_bytes` now requries `zesk\Locale` as the first parameter
 - `zesk\\(Date|Timestapm|Time)::(format|formatting)`` now require `zesk\Locale` as the first parameter
+- `zesk\Widget::locale()` now takes a `zesk\Locale` object to set and get the locale
+- `zesk\Widget::__construct()` now uses the `locale` option to set up the locale object, if present
+- `zesk\Locale::conjunction` for English languages now inserts the Oxford comma: "Lions, Tigers, and Bears"
 
 ### Deprecated functionality
 
@@ -39,6 +42,8 @@ Version 1.0 of Zesk will have:
 
 ### Removed functionality
 
+- `zesk\Hookable::hook`
+- `zesk\Hookable::hook_array`
 - `zesk\ORM::cache_object`
 - `zesk\ORM::cache_class`
 - `zesk\ORM::class_primary_keys`
@@ -1181,9 +1186,9 @@ More `zesk\` namespace changes, cleanup of `instance` static calls.
 - Obsoleted classes:
  - `gzip`, `sql`, `widgets`
 - module `server` class `cluster` obsoleted
-- function `zesk\str::matches` removed
-- function `zesk\str::cexplode` removed
-- function `zesk\str::explode_chars` removed
+- function `zesk\StringTools::matches` removed
+- function `zesk\StringTools::cexplode` removed
+- function `zesk\StringTools::explode_chars` removed
 - `array_stddev` removed (use `zesk\Number::stddev`)
 - `array_mean` removed (use `zesk\Number::mean`)
 - `Net_SMTP_Client::go` removed (use `Net_SMTP_Client::send`)

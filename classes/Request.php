@@ -1152,7 +1152,7 @@ class Request extends Hookable {
 	}
 	private function current_host() {
 		$host = $this->header("Host");
-		return strtolower(str::left($host, ":", $host));
+		return strtolower(StringTools::left($host, ":", $host));
 	}
 	private function current_port(array $server) {
 		// Amazon load balancers

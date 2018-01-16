@@ -325,7 +325,7 @@ class Router extends Hookable {
 		$path = strval($request->path());
 		$method = strval($request->method());
 		if ($this->prefix) {
-			$path = str::unprefix($path, $this->prefix);
+			$path = StringTools::unprefix($path, $this->prefix);
 		}
 		$path = avalue($this->aliases, $path, $path);
 		$routes = $this->routes(); /* @var $route Route */
@@ -430,7 +430,7 @@ class Router extends Hookable {
 							$value = null;
 						} else if ($trimvalue === "true" || $trimvalue === "false") {
 							$value = to_bool($trimvalue);
-						} else if (str::begins($trimvalue, str_split("\"'{[", 1))) {
+						} else if (StringTools::begins($trimvalue, str_split("\"'{[", 1))) {
 							try {
 								$decoded = JSON::decode($value, null);
 								$value = $decoded;

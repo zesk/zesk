@@ -167,7 +167,7 @@ class View_Image_Text extends View {
 			$text,
 			strval($background),
 			strval($foreground),
-			str::from_bool($transparency),
+			StringTools::from_bool($transparency),
 			$width,
 			$height,
 			$xoff,

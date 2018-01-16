@@ -294,7 +294,7 @@ class Control_Picker extends Control {
 			$where
 		));
 		$query->where($this->where());
-		$query->condition($query->application->locale("match the string \"{q}\"", array(
+		$query->condition($query->application->locale->__("match the string \"{q}\"", array(
 			"q" => $value
 		)));
 	}

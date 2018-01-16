@@ -15,7 +15,7 @@ $emails_id = 0;
 
 $client_email = $this->client_email;
 $from_email = $this->from_email;
-$email_host = strtolower(str::right($from_email, "@"));
+$email_host = strtolower(StringTools::right($from_email, "@"));
 ?>
 
 <?php echo Control_Arrow::open('BlackBerry', $email_host === 'blackberry.com'); ?>

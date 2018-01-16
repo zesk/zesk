@@ -152,7 +152,7 @@ class Content_Menu extends ORM {
 		if ($x === "/") {
 			return ($uri === "/");
 		}
-		return str::begins($uri, $x);
+		return StringTools::begins($uri, $x);
 	}
 	
 	/**
@@ -183,7 +183,7 @@ class Content_Menu extends ORM {
 			if ($sub === "") {
 				return $uri === "$top";
 			} else {
-				return str::begins("$uri/", "$top/$sub/");
+				return StringTools::begins("$uri/", "$top/$sub/");
 			}
 		}
 	}
@@ -204,7 +204,7 @@ class Content_Menu extends ORM {
 		$max_len = -1;
 		$max_menu = null;
 		foreach ($content as $k => $menu) {
-			if (str::begins($uri, "$k/")) {
+			if (StringTools::begins($uri, "$k/")) {
 				if ($max_len < 0 || strlen($k) > $max_len) {
 					$max_len = strlen($k);
 					$max_menu = $menu;

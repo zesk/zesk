@@ -160,7 +160,7 @@ class Text {
 			}
 		} else {
 			foreach (explode("\n", $data) as $line) {
-				$new_data[] = str::left($line, $line_comment, $line);
+				$new_data[] = StringTools::left($line, $line_comment, $line);
 			}
 		}
 		return implode("\n", $new_data);

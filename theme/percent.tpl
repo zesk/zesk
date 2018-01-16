@@ -1,7 +1,14 @@
 <?php
+/**
+ * @package zesk
+ * @subpackage theme
+ * @author kent
+ * @copyright &copy; 2018 Market Acumen, Inc.
+ */
 namespace zesk;
 
 /* @var $this \zesk\Template */
+/* @var $zesk \zesk\Kernel */
 /* @var $application \zesk\Application */
 /* @var $session \zesk\Session */
 /* @var $router \zesk\Router */

@@ -242,7 +242,7 @@ class Command_Check extends Command_Iterator_File {
 	}
 	private function fix_suffix(&$contents) {
 		$contents = rtrim($contents);
-		$contents = rtrim(str::unsuffix($contents, "?>")) . "\n";
+		$contents = rtrim(StringTools::unsuffix($contents, "?>")) . "\n";
 		return true;
 	}
 	private function fix_author($value) {
@@ -317,7 +317,7 @@ class Command_Check extends Command_Iterator_File {
 		$prefix = avalue($this->option_bool("gremlins") ? $this->prefixes_gremlins : $this->prefixes, $ext);
 		if ($prefix !== null) {
 			$prefix = to_array($prefix);
-			if (!str::begins($contents, $prefix)) {
+			if (!StringTools::begins($contents, $prefix)) {
 				$details = substr($contents, 0, 40);
 				$this->verbose_log("Incorrect prefix: \"{details}\"\n should be one of: {prefix}", compact("details") + array(
 					"prefix" => ArrayTools::join_wrap($prefix, "\"", "\"\n")
@@ -334,7 +334,7 @@ class Command_Check extends Command_Iterator_File {
 		if ($multi_tag) {
 			$this->verbose_log("Multi-tag file");
 		}
-		if (str::ends(trim($contents), "?>")) {
+		if (StringTools::ends(trim($contents), "?>")) {
 			$this->verbose_log("Need to trim PHP closing tag");
 			$details = substr($contents, 0, 40);
 			if ($this->option_bool('fix') && $this->fix_suffix($contents)) {
@@ -344,7 +344,7 @@ class Command_Check extends Command_Iterator_File {
 				$errors['suffix'] = $details;
 			}
 		}
-		if ($this->option_bool('fix') && !str::ends($contents, "\n")) {
+		if ($this->option_bool('fix') && !StringTools::ends($contents, "\n")) {
 			$this->verbose_log("Terminate with newline");
 			$contents .= "\n";
 			$changed = true;
@@ -378,7 +378,7 @@ class Command_Check extends Command_Iterator_File {
 				'show-copyright'
 			) as $option) {
 				if ($this->option_bool($option)) {
-					$results = array_merge($results, $this->show_comments($contents, str::unprefix($option, 'show-', $prefix)));
+					$results = array_merge($results, $this->show_comments($contents, StringTools::unprefix($option, 'show-', $prefix)));
 				}
 			}
 			if (count($results) > 0) {
@@ -408,7 +408,7 @@ class Command_Check extends Command_Iterator_File {
 				}
 			} else if ($this->option_bool('safe')) {
 				$ext = file::extension($path);
-				$path = str::unsuffix($path, ".$ext") . ".new.$ext";
+				$path = StringTools::unsuffix($path, ".$ext") . ".new.$ext";
 			}
 			$this->verbose_log("Writing $path");
 			file_put_contents($path, $contents);

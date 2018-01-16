@@ -10,7 +10,7 @@
 namespace zesk;
 
 /**
- * 
+ *
  * @author kent
  *
  */
@@ -20,6 +20,6 @@ class View_Time_Span extends View {
 		if (empty($v)) {
 			return avalue($this->options, 'empty_string', "Immediately.");
 		}
-		return Locale::duration_string($v);
+		return $this->locale->duration_string($v);
 	}
 }

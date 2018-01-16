@@ -161,7 +161,7 @@ abstract class Temporal {
 	 * @param array $options
 	 * @return string
 	 */
-	abstract function format(Locale $locale, $format_string = null, array $options = array());
+	abstract function format(Locale $locale = null, $format_string = null, array $options = array());
 
 	/**
 	 * Fetch formatting for this object
@@ -169,7 +169,7 @@ abstract class Temporal {
 	 * @param array $options
 	 * @return array
 	 */
-	abstract function formatting(Locale $locale, array $options = array());
+	abstract function formatting(Locale $locale = null, array $options = array());
 
 	/**
 	 * Return an array of unit => seconds (integer)

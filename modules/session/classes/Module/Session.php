@@ -95,6 +95,6 @@ class Module_Session extends Module {
 		if (array_key_exists($class, $this->instances)) {
 			return $this->instances[$class];
 		}
-		return $this->instances[$class] = $this->application->model_factory($class)->initialize_session($this->application->request());
+		return $this->instances[$class] = $this->application->factory($class, $application)->initialize_session($this->application->request());
 	}
 }

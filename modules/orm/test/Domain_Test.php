@@ -90,7 +90,7 @@ class Domain_Test extends Test_Unit {
 //	"mhtml:///https://C:Documents and SettingsstarvisionMy DocumentsThank You for Your Order - LakeChamplainChocolates_com.mht" => false,
 //);
 //foreach ($URL::is_tests as $u => $r) {
-//	$this->assert("URL::is('$u') === " . str::from_bool($r), $u);
+//	$this->assert("URL::is('$u') === " . StringTools::from_bool($r), $u);
 //}
 //
 //test_status("URL::protocol_default_port");
@@ -125,7 +125,7 @@ class Domain_Test extends Test_Unit {
 //	"FTP://Kent:PaSsWoRd@localhost/usr/local/etc/php.ini" => "ftp://Kent:PaSsWoRd@localhost/usr/local/etc/php.ini",
 //);
 //foreach ($urls as $u => $u_final) {
-//	$this->assert("URL::is('$u') === " . str::from_bool(is_string($u_final)));
+//	$this->assert("URL::is('$u') === " . StringTools::from_bool(is_string($u_final)));
 //		$parts = URL::parse($u);
 //	if ($u_final === false) {
 //		$this->assert($u_final === $parts, $u);
@@ -140,7 +140,7 @@ class Domain_Test extends Test_Unit {
 //
 //test_status("URL::normalize");
 //foreach ($urls as $u => $r) {
-//	$this->assert("URL::is('$u') === " . str::from_bool(is_string($r)));
+//	$this->assert("URL::is('$u') === " . StringTools::from_bool(is_string($r)));
 //	if (is_string($r)) { $r = "'$r'"; } else { $r = "false"; }
 //	$this->assert("URL::normalize('$u') === $r");
 //}
@@ -160,7 +160,7 @@ class Domain_Test extends Test_Unit {
 //test_status("URL::normalize");
 //foreach ($norm_urls as $u => $r) {
 //	if (is_string($r)) { $r = "'$r'"; } else { $r = "false"; }
-//	$this->assert("URL::is('$u') === " . str::from_bool(is_string($r)));
+//	$this->assert("URL::is('$u') === " . StringTools::from_bool(is_string($r)));
 //	$this->assert("URL::normalize('$u') === $r", URL::normalize($u));
 //}
 //$URL::left_host_tests = array(
