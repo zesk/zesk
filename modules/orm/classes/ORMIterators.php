@@ -39,7 +39,7 @@ class ORMIterators extends ORMIterator {
 			$first = null;
 			foreach ($this->objects_prefixes as $prefix => $class_name) {
 				list($alias, $class) = $class_name;
-				$members = arr::kunprefix($this->_row, $prefix, true);
+				$members = ArrayTools::kunprefix($this->_row, $prefix, true);
 				$object = $result[$alias] = $this->query->model_factory($class, $members, array(
 					'initialize' => true
 				) + $this->class_options);

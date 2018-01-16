@@ -1,11 +1,11 @@
 <?php
 /**
- * 
+ *
  */
 namespace zesk;
 
 /**
- * 
+ *
  * @author kent
  *
  */
@@ -15,26 +15,26 @@ class Schema_Contact_Date extends ORM_Schema {
 			'{table}' => array(
 				'columns' => array(
 					'id' => array(
-						'type' => 'id'
+						'type' => self::type_id
 					),
 					'contact' => array(
-						'type' => 'object'
+						'type' => self::type_object
 					),
 					'label' => array(
-						'type' => 'object'
+						'type' => self::type_object
 					),
 					'value' => array(
 						'not null' => true,
 						'default' => '0000-00-00',
-						'type' => 'date'
+						'type' => self::type_date
 					),
 					'created' => array(
 						'not null' => true,
-						'type' => 'timestamp',
+						'type' => self::type_timestamp,
 						'default' => '0000-00-00 00:00:00'
 					),
 					'modified' => array(
-						'type' => 'timestamp',
+						'type' => self::type_timestamp,
 						'not null' => true,
 						'default' => '0000-00-00 00:00:00'
 					)

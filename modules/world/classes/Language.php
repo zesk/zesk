@@ -26,7 +26,7 @@ class Language extends ORM {
 		}
 		return strtolower($this->code) . "_" . strtoupper($this->dialect);
 	}
-	public static function lang_name(Application $application, $code, $locale = null) {
+	public static function lang_name(Application $application, $code, Locale $locale = null) {
 		list($language, $dialect) = pair($code, "_", $code, null);
 		if (empty($dialect)) {
 			$dialect = null;
@@ -40,14 +40,21 @@ class Language extends ORM {
 		))
 			->one("name");
 		if ($lang_en) {
-			return Locale::translate("Locale:=$lang_en", $locale);
+			if (!$locale) {
+				$locale = $application->locale;
+			}
+			return $locale("Locale:=$lang_en", $locale);
 		}
 		return "[$code]";
 	}
+	/**
+	 *
+	 * @param Application $application
+	 */
 	public static function clean_table(Application $application) {
-		$query = $application->query_update(__CLASS__);
+		$query = $application->orm_registry(__CLASS__)->query_update();
 		$query->value("dialect", null)->where("dialect", "");
-		$query->execute();
+		$query->exec();
 		if ($query->affected_rows() > 0) {
 			$this->application->logger->warning("{method} updated {n} non-NULL rows", array(
 				"method" => __METHOD__,

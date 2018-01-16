@@ -1,0 +1,9 @@
+{
+	"name": "DaemonTools Utilities",
+	"description": "[D.J. Bertstein's Daemontools](http://cr.yp.to/daemontools.html) interface to allow installation and modification of services via PHP",
+	"autoload_options": {
+		"class_prefix": "zesk\\DaemonTools\\",
+		"lower": false
+	},
+	"module_class": "zesk\\DaemonTools\\Module"
+}

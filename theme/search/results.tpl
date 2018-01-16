@@ -2,7 +2,7 @@
 namespace zesk;
 
 /* @var $response Response_Text_HTML */
-$response->title($title = __('Search results for &ldquo;{query}&rdquo;', array(
+$response->title($title = $locale('Search results for &ldquo;{query}&rdquo;', array(
 	"query" => $this->query
 )));
 echo HTML::tag('h1', $title);
@@ -15,7 +15,7 @@ foreach ($this->results as $name => $result) {
 	$total = $shown = $more_href = $noun = $more_text = $title = $content = null;
 	extract($result, EXTR_IF_EXISTS);
 	$__ = array(
-		'nouns' => Locale::plural($noun, $total),
+		'nouns' => $locale->plural($noun, $total),
 		'shown' => $shown,
 		'total' => $total
 	);
@@ -26,18 +26,18 @@ foreach ($this->results as $name => $result) {
 			'name' => $name
 		), ""));
 		if ($total === $shown) {
-			echo HTML::tag('p', '.small', __('Showing {shown} matching {nouns}', $__));
+			echo HTML::tag('p', '.small', $locale('Showing {shown} matching {nouns}', $__));
 			echo $content;
 		} else {
-			echo HTML::tag('p', '.small', __('Showing first {shown} of {total} matching {nouns}', $__));
+			echo HTML::tag('p', '.small', $locale('Showing first {shown} of {total} matching {nouns}', $__));
 			echo $content;
 			echo HTML::tag('a', array(
 				'href' => $more_href,
 				'class' => 'show-all'
-			), __('Show all {total} matching {nouns}', $__));
+			), $locale('Show all {total} matching {nouns}', $__));
 		}
 	} else {
-		$none_found[] = HTML::tag('h2', '.not-found', __('No {nouns} found.', $__));
+		$none_found[] = HTML::tag('h2', '.not-found', $locale('No {nouns} found.', $__));
 	}
 }
 echo implode("\n", $none_found);

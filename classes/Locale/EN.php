@@ -15,15 +15,38 @@ namespace zesk;
  *
  */
 class Locale_EN extends Locale {
+	/**
+	 *
+	 * {@inheritDoc}
+	 * @see \zesk\Locale::date_format()
+	 */
 	public function date_format() {
 		return "{MMMM} {DDD}, {YYYY}";
 	}
+
+	/**
+	 *
+	 * {@inheritDoc}
+	 * @see \zesk\Locale::datetime_format()
+	 */
 	public function datetime_format() {
 		return "{MMMM} {DDD}, {YYYY} {12hh}:{mm} {AMPM}";
 	}
+
+	/**
+	 *
+	 * {@inheritDoc}
+	 * @see \zesk\Locale::time_format()
+	 */
 	public function time_format($include_seconds = false) {
 		return $include_seconds ? "{12h}:{mm}:{ss} {ampm}" : "{12h}:{mm} {AMPM}";
 	}
+
+	/**
+	 *
+	 * {@inheritDoc}
+	 * @see \zesk\Locale::possessive()
+	 */
 	public function possessive($owner, $object) {
 		if (ends($owner, "s")) {
 			return "$owner' $object";
@@ -31,11 +54,12 @@ class Locale_EN extends Locale {
 			return "$owner's $object";
 		}
 	}
+
 	/**
-	 * English Locale::plural exceptions
+	 * English plural exceptions
 	 *
-	 * @param string $s Word to Locale::pluralize
-	 * @return Locale::pluralized string, case matched to input, or null if not an exception
+	 * @param string $s Word to pluralize
+	 * @return plural string, case matched to input, or null if not an exception
 	 */
 	private function plural_en_exception($s) {
 		$exceptions = array(
@@ -50,34 +74,47 @@ class Locale_EN extends Locale {
 		);
 		$ss = avalue($exceptions, strtolower($s));
 		if ($ss) {
-			return str::case_match($ss, $s);
+			return StringTools::case_match($ss, $s);
 		}
 		return null;
 	}
+
+	/**
+	 * Given a noun, compute the plural given cues from the language
+	 *
+	 * {@inheritDoc}
+	 * @see \zesk\Locale::noun_semantic_plural()
+	 */
 	public function noun_semantic_plural($word, $count = 2) {
 		if ($count > 0 && $count <= 1) {
 			return $word;
 		}
 		$ess = $this->plural_en_exception($word);
 		if ($ess) {
-			return str::case_match($ess, $word);
+			return StringTools::case_match($ess, $word);
 		}
 		$s2 = strtolower(substr($word, -2));
 		switch ($s2) {
 			case "ay":
-				return str::case_match($word . "s", $word);
+				return StringTools::case_match($word . "s", $word);
 		}
 		$s1 = $s2[1];
 		switch ($s1) {
 			case 'z':
 			case 's':
 			case 'x':
-				return str::case_match($word . "es", $word);
+				return StringTools::case_match($word . "es", $word);
 			case 'y':
-				return str::case_match(substr($word, 0, -1) . "ies", $word);
+				return StringTools::case_match(substr($word, 0, -1) . "ies", $word);
 		}
 		return $word . 's';
 	}
+
+	/**
+	 *
+	 * {@inheritDoc}
+	 * @see \zesk\Locale::indefinite_article()
+	 */
 	public function indefinite_article($word, $context = false) {
 		if (strlen($word) === 0) {
 			return '';
@@ -86,7 +123,7 @@ class Locale_EN extends Locale {
 		$first_letter = substr($check_word, 0, 1);
 		$article = "a";
 		if (strpos("aeiouh", $first_letter) !== false) {
-			if (str::begins($check_word, explode(";", "eur;un;uni;use;u.;one-"))) {
+			if (StringTools::begins($check_word, explode(";", "eur;un;uni;use;u.;one-"))) {
 				$article = "a";
 			} else { // Removed hon for honor, honest
 				$article = "an";
@@ -94,6 +131,12 @@ class Locale_EN extends Locale {
 		}
 		return ($context ? ucfirst($article) : $article);
 	}
+
+	/**
+	 *
+	 * {@inheritDoc}
+	 * @see \zesk\Locale::ordinal()
+	 */
 	public function ordinal($n) {
 		$n = doubleval($n);
 		$mod_100 = $n % 100;
@@ -107,6 +150,13 @@ class Locale_EN extends Locale {
 			3 => "rd"
 		), $mod_10, "th");
 	}
+
+	/**
+	 * @todo Probably should remove this 2018-01
+	 *
+	 * {@inheritDoc}
+	 * @see \zesk\Locale::negate_word()
+	 */
 	public function negate_word($word, $preferred_prefix = null) {
 		if ($preferred_prefix === null) {
 			$preferred_prefix = "Non-";
@@ -122,7 +172,7 @@ class Locale_EN extends Locale {
 		);
 		foreach ($negative_prefixes as $prefix) {
 			if (begins($word, $prefix, true)) {
-				return str::case_match(trim(substr($word, strlen($prefix))), $word);
+				return StringTools::case_match(trim(substr($word, strlen($prefix))), $word);
 			}
 		}
 		return $preferred_prefix . $word;

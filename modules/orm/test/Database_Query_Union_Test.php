@@ -55,7 +55,7 @@ class Database_Query_Union_Test extends Test_Unit {
 		
 		$class = "U";
 		$options = array();
-		$testx->object_iterator($class, $options);
+		$testx->orm_iterator($class, $options);
 		
 		$field = false;
 		$default = false;

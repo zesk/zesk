@@ -13,5 +13,6 @@
 		"class_prefix": "zesk\\Bootstrap3\\DateTimePicker\\",
 		"lower": false
 	},
-	"module_class": "zesk\\Bootstrap3\\DateTimePicker\\Module"
+	"module_class": "zesk\\Bootstrap3\\DateTimePicker\\Module",
+	"theme_path_prefix": "zesk/control"
 }

@@ -2,11 +2,11 @@
 namespace zesk;
 
 /**
- * @see Session_Database
+ * @see Session_ORM
  * @author kent
  *
  */
-class Class_Session_Database extends Class_ORM {
+class Class_Session_ORM extends Class_ORM {
 	/**
 	 * ID Column
 	 *

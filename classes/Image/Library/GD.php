@@ -246,7 +246,7 @@ class Image_Library_GD extends Image_Library {
 	 */
 	private function parse_color($value) {
 		if (is_array($value)) {
-			if (arr::is_list($value)) {
+			if (ArrayTools::is_list($value)) {
 				return $value;
 			}
 			return array(

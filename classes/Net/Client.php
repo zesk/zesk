@@ -131,7 +131,7 @@ abstract class Net_Client extends Hookable {
 		if (count($fields) !== 9) {
 			throw new Exception_Syntax("Improper listing line: $line");
 		}
-		$entry = arr::map_keys($fields, array(
+		$entry = ArrayTools::map_keys($fields, array(
 			0 => 'mode',
 			1 => 'links',
 			2 => 'owner',

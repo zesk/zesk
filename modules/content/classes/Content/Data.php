@@ -417,20 +417,20 @@ class Content_Data extends ORM {
 	 * Run cron hourly to check files in file system to make sure they are still consistent.
 	 */
 	public static function cron_hourly(Application $application) {
-		foreach ($application->class_query(__CLASS__)->where("*checked|<=", 'DATE_SUB(UTC_TIMESTAMP(),INTERVAL 1 DAY)')->object_iterator() as $object) {
+		foreach ($application->class_query(__CLASS__)->where("*checked|<=", 'DATE_SUB(UTC_TIMESTAMP(),INTERVAL 1 DAY)')->orm_iterator() as $object) {
 			$object->validate_and_repair();
 		}
 		$threshold = self::database_size_threshold($application);
 		foreach ($application->class_query(__CLASS__)
 			->where("*size|<=", $threshold)
 			->where('type', 'path')
-			->object_iterator() as $object) {
+			->orm_iterator() as $object) {
 			$object->switch_storage();
 		}
 		foreach ($application->class_query(__CLASS__)
 			->where("*size|>", $threshold)
 			->where('type', 'data')
-			->object_iterator() as $object) {
+			->orm_iterator() as $object) {
 			$object->switch_storage();
 		}
 	}

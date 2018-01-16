@@ -878,7 +878,7 @@ class Markdown extends Options {
 		#   Returns:    The string, with after processing the following backslash
 		#               escape sequences.
 		#
-		return strtr($text, arr::kprefix(self::$g_escape_table, '\\'));
+		return strtr($text, ArrayTools::kprefix(self::$g_escape_table, '\\'));
 	}
 	private function _DoAutoLinks($text) {
 		$text = preg_replace('@<((https?|ftp):[^\'">\s]+)>@i', '<a href="$1">$1</a>', $text);

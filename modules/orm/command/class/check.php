@@ -24,7 +24,7 @@ class Command_Class_Check extends Command_Base {
 		'modified' => 'Timestamp'
 	);
 	private function all_classes() {
-		return arr::key_value($this->application->all_classes(), null, "class");
+		return ArrayTools::key_value($this->application->all_classes(), null, "class");
 	}
 	function run() {
 		$logger = $this->application->logger;

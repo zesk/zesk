@@ -32,6 +32,13 @@ class Timestamp extends Temporal {
 	const DEFAULT_FORMAT_STRING = "{YYYY}-{MM}-{DD} {hh}:{mm}:{ss}";
 
 	/**
+	 * Set up upon load
+	 *
+	 * @var string
+	 */
+	private static $default_format_string = self::DEFAULT_FORMAT_STRING;
+
+	/**
 	 * https://en.wikipedia.org/wiki/Year_2038_problem
 	 *
 	 * @var integer
@@ -104,53 +111,38 @@ class Timestamp extends Temporal {
 	 */
 	const DATETIME_FORMAT_YEARDAY = 'z';
 
-	// 	/**
-	// 	 *
-	// 	 * {@inheritDoc}
-	// 	 * @see DateTimeInterface::getTimezone()
-	// 	 */
-	// 	public function getTimezone() {
-	// 		return $this->tz;
-	// 	}
+	/**
+	 * Copy kernel upon hook intiailization to avoid globals later. Is this a good pattern? KMD 2018-01
+	 *
+	 * @var Kernel
+	 */
+	private static $kernel = null;
 
-	// 	/**
-	// 	 *
-	// 	 * {@inheritDoc}
-	// 	 * @see DateTimeInterface::getOffset()
-	// 	 */
-	// 	public function getOffset() {
-	// 		return $this->tz->getOffset();
-	// 	}
+	/**
+	 * Add global configuration
+	 *
+	 * @param Kernel $kernel
+	 */
+	public static function hooks(Kernel $kernel) {
+		$kernel->hooks->add(Hooks::hook_configured, array(
+			__CLASS__,
+			"configured"
+		));
+		$kernel->configuration->deprecated('Timestamp', __CLASS__);
+		$kernel->hooks->alias("Timestamp::formatting", __CLASS__ . '::formatting');
+		self::$kernel = $kernel;
+	}
 
-	// 	/**
-	// 	 *
-	// 	 * {@inheritDoc}
-	// 	 * @see DateTimeInterface::__wakeup()
-	// 	 */
-	// 	public function __wakeup() {
-	// 		return parent::__wakeup();
-	// 	}
-	// 	/**
-	// 	 *
-	// 	 * {@inheritDoc}
-	// 	 * @see DateTimeInterface::getTimestamp()
-	// 	 */
-	// 	public function getTimestamp() {
-	// 		return $this->unix_timestamp();
-	// 	}
-
-	// 	/**
-	// 	 * @param \DateTimeInterface $object
-	// 	 * @param $absolute [optional]
-	// 	 */
-	// 	public function diff($object, $absolute = NULL) {
-	// 		$object_ts = Timestamp::factory($object);
-
-	// 		$diff = $object_ts->difference($this, self::UNIT_SECOND);
-
-	// 		$interval = new DateInterval("P0S");
-	// 		return $interval->fromSeconds($absolute ? abs($diff) : $diff);
-	// 	}
+	/**
+	 *
+	 * @param Application $application
+	 */
+	public static function configured(Application $application) {
+		self::$default_format_string = $application->configuration->path_get(array(
+			__CLASS__,
+			"format_string"
+		), self::DEFAULT_FORMAT_STRING);
+	}
 
 	/**
 	 *
@@ -165,23 +157,6 @@ class Timestamp extends Temporal {
 	}
 
 	/**
-	 * Copy kernel upon hook intiailization to avoid globals later. Is this a good pattern?
-	 *
-	 * @var Kernel
-	 */
-	private static $kernel = null;
-	/**
-	 *
-	 * @param Kernel $kernel
-	 */
-	public static function hooks(Kernel $kernel) {
-		$kernel->configuration->deprecated('Timestamp', __CLASS__);
-		$kernel->hooks->alias("Timestamp::formatting", __CLASS__ . '::formatting');
-
-		self::$kernel = $kernel;
-	}
-	/**
-	 * @todo Global settings evaluation
 	 * @return \DateTimeZone
 	 */
 	public static function timezone_local() {
@@ -594,7 +569,7 @@ class Timestamp extends Temporal {
 			$this->_datetime()->setDate($this->year(), $this->month(), $set);
 			return $this;
 		}
-		return $this->datetime ? intval($this->datetime->format(self:format_day¨¨)) : null;
+		return $this->datetime ? intval($this->datetime->format(self::DATETIME_FORMAT_DAY¨)) : null;
 	}
 	function today($set = null) {
 		if ($set === null) {
@@ -671,7 +646,7 @@ class Timestamp extends Temporal {
 	 */
 	function minute($set = null) {
 		if ($set === null) {
-			return $this->datetime ? intval($this->datetime->format(self::Dformat_minute) : null;
+			return $this->datetime ? intval($this->datetime->format(self::DATETIME_FORMAT_MINUTE)) : null;
 		}
 		$this->_datetime()->setTime($this->hour(), $set, $this->second());
 		return $this;
@@ -830,14 +805,11 @@ class Timestamp extends Temporal {
 	 *        	Locale to use, if any
 	 * @return string
 	 */
-	function format($format_string = null, array $options = array()) {
+	function format(Locale $locale, $format_string = null, array $options = array()) {
 		if ($format_string === null) {
-			$format_string = self::$kernel->configuration->path_get(array(
-				__CLASS__,
-				"format_string"
-			), self::DEFAULT_FORMAT_STRING);
+			$format_string = self::$default_format_string;
 		}
-		return map($format_string, $this->formatting($options));
+		return map($format_string, $this->formatting($locale, $options));
 	}
 
 	/**
@@ -856,15 +828,13 @@ class Timestamp extends Temporal {
 	 * @global string Timestamp::formatting::zero_string
 	 *         @hook Timestamp::formatting
 	 */
-	function formatting(array $options = array()) {
-		$kernel = self::$kernel;
-		$config_timestamp = $kernel->configuration->path(array(
+	function formatting(Locale $locale, array $options = array()) {
+		$config_timestamp = $locale->application->configuration->path(array(
 			__CLASS__,
 			"formatting"
 		));
-		$locale = avalue($options, "locale", null);
 		$ts = $this->unix_timestamp();
-		$formatting = $this->date()->formatting($options) + $this->time()->formatting($options);
+		$formatting = $this->date()->formatting($locale, $options) + $this->time()->formatting($locale, $options);
 
 		// Support $unit_minimum and $zero_string strings which include formatting
 		$unit_minimum = avalue($options, "unit_minimum", $config_timestamp->get("unit_minumum", null));
@@ -875,7 +845,7 @@ class Timestamp extends Temporal {
 		$formatting += array(
 			'seconds' => $ts,
 			'unix_timestamp' => $ts,
-			'delta' => Locale::now_string($this, $unit_minimum, $zero_string, $locale),
+			'delta' => $locale->now_string($this, $unit_minimum, $zero_string),
 			'Z' => '-',
 			'ZZZ' => '---'
 		);
@@ -886,8 +856,9 @@ class Timestamp extends Temporal {
 			) + $formatting;
 		}
 		if (!avalue($options, "nohook", false)) {
-			$formatting = $kernel->hooks->call_arguments(__CLASS__ . '::formatting', array(
+			$formatting = $locale->application->hooks->call_arguments(__CLASS__ . '::formatting', array(
 				$this,
+				$locale,
 				$formatting,
 				$options
 			), $formatting);

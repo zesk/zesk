@@ -85,15 +85,19 @@ class Lock extends ORM {
 	 * Delete Locks which have not been used in the past 24 hours
 	 */
 	public static function delete_unused_locks(Application $application) {
-		$n_rows = $application->query_delete(__CLASS__)->where(array(
+		$n_rows = $application->orm_registry(__CLASS__)
+			->query_delete()
+			->where(array(
 			'used|<=' => Timestamp::now()->add_unit(-1, Timestamp::UNIT_DAY),
 			"server" => null,
 			"pid" => null
-		))->execute()->affected_rows();
+		))
+			->execute()
+			->affected_rows();
 		if ($n_rows > 0) {
 			$application->logger->notice("Deleted {n_rows} {locks} which were unused in the past 24 hours.", array(
 				"n_rows" => $n_rows,
-				"locks" => Locale::plural(__CLASS__, $n_rows)
+				"locks" => $this->application->locale->plural(__CLASS__, $n_rows)
 			));
 		}
 		return $n_rows;
@@ -106,7 +110,10 @@ class Lock extends ORM {
 		// Deleting unlinked locks
 		$n_rows = 0;
 		$server_ids = $application->orm_registry(Server::class)->query_select()->to_array(null, "id");
-		$iterator = $application->orm_registry(__CLASS__)->query_select()->where("X.server|!=|AND", $server_ids)->object_iterator();
+		$iterator = $application->orm_registry(__CLASS__)
+			->query_select()
+			->where("X.server|!=|AND", $server_ids)
+			->orm_iterator();
 		foreach ($iterator as $lock) {
 			/* @var $lock Lock */
 			$server_id = $lock->member_integer("server");
@@ -126,10 +133,13 @@ class Lock extends ORM {
 	public static function delete_dead_pids(Application $application) {
 		$timeout_seconds = -abs($application->configuration->path_get(__CLASS__ . "::timeout_seconds", 100));
 		$you_are_dead_to_me = Timestamp::now()->add_unit($timeout_seconds, Timestamp::UNIT_SECOND);
-		$iterator = $application->orm_registry(__CLASS__)->query_select()->where(array(
+		$iterator = $application->orm_registry(__CLASS__)
+			->query_select()
+			->where(array(
 			'server' => Server::singleton($application),
 			'locked|<=' => $you_are_dead_to_me
-		))->object_iterator();
+		))
+			->orm_iterator();
 		/* @var $lock Lock */
 		foreach ($iterator as $lock) {
 			if (!$lock->is_process_alive()) {
@@ -253,11 +263,14 @@ class Lock extends ORM {
 		/* @var $zesk Kernel */
 		self::$locks = array();
 		try {
-			$application->orm_registry(__CLASS__)->query_update()->values(array(
+			$application->orm_registry(__CLASS__)
+				->query_update()
+				->values(array(
 				'pid' => null,
 				'server' => null,
 				'locked' => null
-			))->where(array(
+			))
+				->where(array(
 				'pid' => $application->process->id(),
 				'server' => Server::singleton($application)
 			));
@@ -274,12 +287,12 @@ class Lock extends ORM {
 	 */
 	public static function server_delete(Server $server) {
 		$application = $server->application;
-		$query = $application->query_delete(__CLASS__)->where('server', $server);
+		$query = $application->orm_registry(__CLASS__)->query_delete()->where('server', $server);
 		$query->execute();
 		if (($n_rows = $query->affected_rows()) > 0) {
 			$application->logger->warning("Deleted {n} {locks} associated with server {name} (#{id})", array(
 				"n" => $n_rows,
-				"locks" => Locale::plural(__CLASS__, $n_rows)
+				"locks" => $this->application->locale->plural(__CLASS__, $n_rows)
 			) + $server->members());
 		}
 	}
@@ -311,13 +324,16 @@ class Lock extends ORM {
 	 * @return Lock
 	 */
 	public function release() {
-		$this->query_update()->values(array(
+		$this->query_update()
+			->values(array(
 			'pid' => null,
 			'server' => null,
 			'locked' => null
-		))->where(array(
+		))
+			->where(array(
 			"id" => $this->id
-		))->execute();
+		))
+			->execute();
 		$this->application->logger->debug("Released lock $this->code");
 		$this->pid = null;
 		$this->server = null;
@@ -391,9 +407,11 @@ class Lock extends ORM {
 			'server' => Server::singleton($this->application),
 			'*locked' => $sql->now(),
 			'*used' => $sql->now()
-		))->where(array(
+		))
+			->where(array(
 			'id' => $this->id
-		) + $where)->execute();
+		) + $where)
+			->execute();
 		if ($this->fetch()->_is_mine()) {
 			$this->application->logger->debug("Acquired lock $this->code");
 			return $this;

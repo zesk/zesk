@@ -66,14 +66,14 @@ class Command_Help extends Command_Base {
 			if ($commands) {
 				$command_files[$path] = array(
 					$prefix,
-					arr::ltrim($commands, "./")
+					ArrayTools::ltrim($commands, "./")
 				);
 			}
 		}
 		return $command_files;
 	}
 	function load_commands(array $command_files) {
-		$declared_classes_before = arr::flip_assign(get_declared_classes(), true);
+		$declared_classes_before = ArrayTools::flip_assign(get_declared_classes(), true);
 		foreach ($command_files as $path => $structure) {
 			list($prefix, $commands) = $structure;
 			foreach ($commands as $command) {

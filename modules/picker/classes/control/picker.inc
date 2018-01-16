@@ -6,7 +6,7 @@
  * @subpackage {subpackage}
  * @copyright Copyright (C) 2016, {company}. All rights reserved.
  */
-use zesk\arr;
+use zesk\ArrayTools;
 use zesk\HTML;
 use zesk\URL;
 use zesk\ORM;
@@ -15,12 +15,12 @@ use zesk\ORMIterator;
 use zesk\Control;
 
 /**
- * 
+ *
  * @author kent
  *
  */
 class Control_Picker extends Control {
-	
+
 	/**
 	 * Tag wrapped around all items
 	 *
@@ -28,20 +28,20 @@ class Control_Picker extends Control {
 	 */
 	protected $list_tag = 'div';
 	protected $list_attributes = ".control-picker-state";
-	
+
 	/**
 	 * Tag wrapped around each item displayed
 	 *
 	 * @var string
 	 */
 	protected $item_tag = "li";
-	
+
 	/**
 	 * Attributes for tag around each item displayed
 	 * @var mixed
 	 */
 	protected $item_attributes = null;
-	
+
 	/**
 	 * Renders an item in our list
 	 *
@@ -50,11 +50,11 @@ class Control_Picker extends Control {
 	 * subclass_class_name/item
 	 * control/picker/item
 	 *
-	 
+
 	 * @var string
 	 */
 	protected $theme_item = null;
-	
+
 	/**
 	 * Renders the actual selection tool for items
 	 *
@@ -64,7 +64,7 @@ class Control_Picker extends Control {
 	 * @var string
 	 */
 	protected $theme_item_selector = null;
-	
+
 	/**
 	 * Renders the actual selection tool for items
 	 *
@@ -77,20 +77,20 @@ class Control_Picker extends Control {
 	 */
 	protected $theme_item_search = null;
 	protected $search_columns = array();
-	
+
 	/**
 	 * Added to the form for the selector
 	 *
 	 * @var array
 	 */
 	public $form_attributes = array();
-	
+
 	/**
 	 *
 	 * @var Class_ORM
 	 */
 	protected $class_object = null;
-	
+
 	/**
 	 * Data which should be passed to controller calls by the widget
 	 *
@@ -129,13 +129,13 @@ class Control_Picker extends Control {
 		}
 		$hierarchy = $this->application->classes->hierarchy($this, __CLASS__);
 		if ($this->theme_item_selector === null) {
-			$this->theme_item_selector = arr::suffix($hierarchy, '/selector');
+			$this->theme_item_selector = ArrayTools::suffix($hierarchy, '/selector');
 		}
 		if ($this->theme_item === null) {
-			$this->theme_item = arr::suffix($hierarchy, '/item');
+			$this->theme_item = ArrayTools::suffix($hierarchy, '/item');
 		}
 		if ($this->theme_item_search === null) {
-			$this->theme_item_search = arr::suffix($hierarchy, '/search');
+			$this->theme_item_search = ArrayTools::suffix($hierarchy, '/search');
 		}
 	}
 	function inline_picker($set = null) {
@@ -195,9 +195,10 @@ class Control_Picker extends Control {
 		));
 	}
 	public function theme_variables() {
-		$class_object = $this->application->class_object($this->class);
-		$name = zesk\Locale::lower(__($class_object->name));
-		$names = zesk\Locale::plural($name);
+		$locale = $this->application->locale;
+		$class_object = $this->application->class_orm_registry($this->class);
+		$name = $locale->lower($locale($class_object->name));
+		$names = $locale->plural($name);
 		return array(
 			'title' => $this->option('title'),
 			'target' => $this->inline_picker() ? null : $this->request->get('target'),
@@ -217,10 +218,10 @@ class Control_Picker extends Control {
 			'list_attributes' => $this->list_attributes,
 			'data_search' => $this->data_search,
 			'where' => $this->option_array('where'),
-			'label_save' => __('Add selected {names}', array(
+			'label_save' => $locale('Add selected {names}', array(
 				'names' => $names
 			)),
-			'label_search' => __('Search {names}', array(
+			'label_search' => $locale('Search {names}', array(
 				"names" => $names
 			))
 		) + $this->options_include(array(
@@ -255,7 +256,7 @@ class Control_Picker extends Control {
 		return null;
 	}
 	function submit_results(array $variables, array $ids) {
-		$iter = $this->_query()->where("X." . $this->class_object->id_column, $ids)->object_iterator();
+		$iter = $this->_query()->where("X." . $this->class_object->id_column, $ids)->orm_iterator();
 		$content = "";
 		foreach ($iter as $object) {
 			$content .= $this->application->theme($this->theme_item, array(
@@ -293,7 +294,7 @@ class Control_Picker extends Control {
 			$where
 		));
 		$query->where($this->where());
-		$query->condition(__("match the string \"{q}\"", array(
+		$query->condition($query->application->locale("match the string \"{q}\"", array(
 			"q" => $value
 		)));
 	}
@@ -313,7 +314,7 @@ class Control_Picker extends Control {
 			"*total" => "COUNT(DISTINCT X." . $this->class_object->id_column . ")"
 		));
 		$results = array();
-		foreach ($query->object_iterator() as $id => $object) {
+		foreach ($query->orm_iterator() as $id => $object) {
 			$results[$id] = $this->application->theme($this->theme_item, array(
 				"object" => $object,
 				"id" => $id

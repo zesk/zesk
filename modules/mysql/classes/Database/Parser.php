@@ -13,7 +13,7 @@ use zesk\Database_Table;
 use zesk\Database_Column;
 use zesk\Database_Index;
 use zesk\Exception_Parse;
-use zesk\arr;
+use zesk\ArrayTools;
 
 /**
  * Pattern to capture an enture CREATE TABLE sql command
@@ -311,7 +311,7 @@ class Database_Parser extends \zesk\Database_Parser {
 		foreach ($index_matches as $index_match) {
 			$index_type = $index_match[1];
 			$index_name = unquote($index_match[3], '``');
-			$index_columns = unquote(arr::trim(explode(",", $index_match[4])), '``');
+			$index_columns = unquote(ArrayTools::trim(explode(",", $index_match[4])), '``');
 			$index_structure = avalue($index_match, 5, null);
 
 			$indexes_state[] = compact("index_type", "index_name", "index_columns", "index_structure");

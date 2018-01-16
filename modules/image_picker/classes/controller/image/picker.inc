@@ -1,20 +1,20 @@
 <?php
 /**
- * 
+ *
  */
 use zesk\Content_Image;
 use zesk\Exception_Upload;
 
 /**
- * 
+ *
  * @author kent
  *
  */
 class Controller_Image_Picker extends \zesk\Controller_ORM {
 	protected $class = "zesk\\Content_Image";
-	
+
 	/**
-	 * 
+	 *
 	 * {@inheritDoc}
 	 * @see Controller_ORM::_action_default()
 	 */
@@ -27,6 +27,7 @@ class Controller_Image_Picker extends \zesk\Controller_ORM {
 	}
 	function action_upload() {
 		$request = $this->request;
+		$file = null;
 		try {
 			$file = $request->file($this->request->get('name', 'file'));
 		} catch (Exception_Upload $e) {

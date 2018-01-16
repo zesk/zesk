@@ -2,7 +2,7 @@
 /**
  *
  */
-use zesk\arr;
+use zesk\ArrayTools;
 use zesk\PHP;
 use zesk\Exception_Parameter;
 use zesk\Model;
@@ -137,8 +137,8 @@ class Workflow extends Model {
 			 * If we have no dependencies, or all of our dependencies are already in our list, then add it.
 			 */
 			$dep_ids = $step->dependencies();
-			$dep_ids = arr::filter($dep_ids, $step_ids);
-			if (count($dep_ids) === 0 || arr::has($this->sorted_steps, $dep_ids)) {
+			$dep_ids = ArrayTools::filter($dep_ids, $step_ids);
+			if (count($dep_ids) === 0 || ArrayTools::has($this->sorted_steps, $dep_ids)) {
 				$this->sorted_steps[$id] = $step;
 			} else {
 				$dependencies[$id] = $dep_ids;
@@ -147,7 +147,7 @@ class Workflow extends Model {
 		while (count($dependencies) !== 0) {
 			$changed = false;
 			foreach ($dependencies as $id => $dep_ids) {
-				if (arr::has($this->sorted_steps, $dep_ids)) {
+				if (ArrayTools::has($this->sorted_steps, $dep_ids)) {
 					$this->sorted_steps[$id] = $steps[$id];
 					unset($dependencies[$id]);
 					$changed = true;
@@ -224,7 +224,7 @@ class Workflow extends Model {
 			$theme_name = "steps";
 		}
 		$this->_clean_completed();
-		$themes = arr::suffix($this->application->classes->hierarchy(get_class($this), __CLASS__), "/$theme_name");
+		$themes = ArrayTools::suffix($this->application->classes->hierarchy(get_class($this), __CLASS__), "/$theme_name");
 		return $this->application->theme($themes, array(
 			'workflow' => $this,
 			'completed' => $this->completed,

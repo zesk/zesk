@@ -137,7 +137,9 @@ while true; do
 	fi
 done
 
-$GIT commit -m "Release $ZESK_CURRENT_VERSION" $current_log $permanent_log
+release_date=$ZESK_ROOT/etc/db/release-date
+date > $release_date
+$GIT commit -m "Release $ZESK_CURRENT_VERSION" $current_log $permanent_log $release_date
 
 #
 # Push to remote
@@ -152,6 +154,6 @@ $ZESK github --tag --description-file $current_log
 #
 # Push to remote to post updated pointers, pull new tag from remote
 #
-git push
-git pull
+$GIT push
+$GIT pull
 echo "Release $ZESK_CURRENT_VERSION completed"

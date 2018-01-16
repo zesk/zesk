@@ -2,17 +2,17 @@
 namespace zesk;
 
 abstract class Configuration_Parser extends Options {
-	
+
 	/**
 	 * @var Display name
 	 */
 	protected $name;
-	
+
 	/**
 	 * @var string
 	 */
 	protected $content = null;
-	
+
 	/**
 	 * @var Interface_Settings
 	 */
@@ -27,9 +27,9 @@ abstract class Configuration_Parser extends Options {
 	 * @var Configuration_Loader
 	 */
 	protected $loader = null;
-	
+
 	/**
-	 * 
+	 *
 	 * @param unknown $type
 	 * @param unknown $content
 	 * @param Interface_Settings $settings
@@ -37,17 +37,15 @@ abstract class Configuration_Parser extends Options {
 	 * @return Configuration_Parser
 	 */
 	public static function factory($type, $content, Interface_Settings $settings = null, array $options = array()) {
-		global $zesk;
 		try {
-			/* @var $zesk Kernel */
-			return $zesk->objects->factory(__CLASS__ . "_" . PHP::clean_function(strtoupper($type)), $content, $settings, $options);
+			return Kernel::singleton()->objects->factory(__CLASS__ . "_" . PHP::clean_function(strtoupper($type)), $content, $settings, $options);
 		} catch (Exception_Class_NotFound $e) {
 			return null;
 		}
 	}
-	
+
 	/**
-	 * 
+	 *
 	 * @param unknown $content
 	 * @param Interface_Settings $settings
 	 * @param array $options
@@ -62,10 +60,10 @@ abstract class Configuration_Parser extends Options {
 		$this->content($content);
 		$this->initialize();
 	}
-	
+
 	/**
 	 * Getter/setter for settings
-	 * 
+	 *
 	 * @param Interface_Settings $settings
 	 * @return Interface_Settings
 	 */
@@ -78,7 +76,7 @@ abstract class Configuration_Parser extends Options {
 	}
 	/**
 	 * Getter/setter for settings
-	 * 
+	 *
 	 * @param Interface_Settings $settings
 	 * @return Interface_Settings
 	 */
@@ -91,7 +89,7 @@ abstract class Configuration_Parser extends Options {
 	}
 	/**
 	 * Getter/setter for settings
-	 * 
+	 *
 	 * @param Interface_Settings $settings
 	 * @return Interface_Settings
 	 */
@@ -103,7 +101,7 @@ abstract class Configuration_Parser extends Options {
 		return $this->loader;
 	}
 	/**
-	 * 
+	 *
 	 * @param string $set
 	 * @return string|\zesk\Configuration_Parser
 	 */
@@ -114,22 +112,22 @@ abstract class Configuration_Parser extends Options {
 		$this->content = $set;
 		return $this;
 	}
-	
+
 	/**
-	 * 
+	 *
 	 */
 	abstract function initialize();
-	
+
 	/**
-	 * 
+	 *
 	 */
 	abstract public function validate();
-	
+
 	/**
 	 * @return Interface_Settings
 	 */
 	abstract public function process();
-	
+
 	/**
 	 * @return Configuration_Editor
 	 */

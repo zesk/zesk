@@ -42,7 +42,7 @@ class Module_Chosen extends Module_JSLib {
 				$widget->add_class("chosen-select");
 				$widget->response()->jquery(map(self::$jquery_ready_pattern, array(
 					"selector" => $widget->jquery_target_expression(),
-					"json_options" => arr::kunprefix($widget->option(arr::kprefix($chosen->javascript_settings(), "chosen_")), "chosen_")
+					"json_options" => ArrayTools::kunprefix($widget->option(ArrayTools::kprefix($chosen->javascript_settings(), "chosen_")), "chosen_")
 				)));
 			});
 		}

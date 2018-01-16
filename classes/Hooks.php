@@ -1,5 +1,4 @@
 <?php
-
 namespace zesk;
 
 class HookGroup {
@@ -107,6 +106,12 @@ class Hooks {
 	private $hooks_called = array();
 
 	/**
+	 *
+	 * @var array
+	 */
+	private $hook_cache = array();
+
+	/**
 	 * Used to track which top-level classes have been gathered yet
 	 *
 	 * @var array
@@ -140,6 +145,11 @@ class Hooks {
 	public function _app_call($hook) {
 		$this->call(self::hook_exit, $this->zesk->application());
 	}
+
+	/**
+	 *
+	 * @return array
+	 */
 	public function initialize() {
 		$this->hooks = array();
 		$this->hook_aliases = array();
@@ -149,6 +159,11 @@ class Hooks {
 		$this->all_hook_classes = array();
 		return $all_hook_classes;
 	}
+
+	/**
+	 * @todo does this work?
+	 *
+	 */
 	public function reset() {
 		$this->call(Hooks::hook_reset);
 		foreach ($this->initialize() as $class) {
@@ -171,6 +186,7 @@ class Hooks {
 				"type" => type($name)
 			));
 		}
+		// For now, we just make it lower case
 		$name = strtolower($name);
 		return !$alias ? $name : (isset($this->hook_aliases[$name]) ? $this->hook_aliases[$name] : $name);
 	}
@@ -281,13 +297,6 @@ class Hooks {
 		}
 		return $result;
 	}
-
-	/**
-	 *
-	 * @var array
-	 */
-	private $hook_cache = array();
-
 	/**
 	 * Does a hook exist? Logs all hook name requests.
 	 * To retrieve them just call $hook->has() to get the currently
@@ -552,7 +561,7 @@ class Hooks {
 				$application
 			));
 		}
-		$this->call("$class::register_all_hooks");
+		$this->call("$class::register_all_hooks", $application);
 	}
 
 	/**
@@ -587,20 +596,42 @@ class Hooks {
 				"method" => __METHOD__
 			));
 		}
-		$definitions = $this->hook_load_definitions($hooks);
-		if (count($definitions) === 0) {
-			return $default;
-		}
-		$result = null;
-		// 		$this->zesk->logger->debug("hook definitions: {hooks} => {def}", array(
-		// 			"hooks" => $hooks,
-		// 			"def" => $definitions
-		// 		));
-		foreach ($definitions as $callable_string => $options) {
-			$options_arguments = to_array(avalue($options, 'arguments'));
-			$result = Hookable::hook_results($result, $options['callable'], array_merge($options_arguments, $arguments), $hook_callback, $result_callback);
+		$hooks = $this->collect_hooks($hooks, $arguments);
+		$result = $default;
+		foreach ($hooks as $hook) {
+			list($callable, $arguments) = $hook;
+			$result = Hookable::hook_results($result, $callable, $arguments, $hook_callback, $result_callback);
 		}
 		return $result;
+	}
+
+	/**
+	 *
+	 * @param string|list $hooks
+	 *        	Hooks to call
+	 * @param array $arguments
+	 *        	Arguments to pass to the first hook
+	 * @param unknown $default
+	 * @param unknown $hook_callback
+	 * @param unknown $result_callback
+	 * @param unknown $return_hint
+	 *        	deprecated 2017-11
+	 * @return string|NULL
+	 */
+	public function collect_hooks($hooks, $arguments = array()) {
+		$definitions = $this->hook_load_definitions($hooks);
+		$hooks = array();
+		if (count($definitions) === 0) {
+			return $hooks;
+		}
+		foreach ($definitions as $callable_string => $options) {
+			$options_arguments = to_array(avalue($options, 'arguments'));
+			$hooks[] = array(
+				$options['callable'],
+				count($options_arguments) > 0 ? array_merge($options_arguments, $arguments) : $arguments
+			);
+		}
+		return $hooks;
 	}
 
 	/**

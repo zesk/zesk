@@ -174,10 +174,11 @@ class Command_Update extends Command_Base {
 			$globbed = array_merge(glob(path($path, "*/*.module.conf")), glob(path($path, "*/*/*.module.conf")), glob(path($path, "*/*.module.json")), glob(path($path, "*/*/*.module.json")));
 			if (is_array($globbed)) {
 				$count = count($globbed);
-				$this->verbose_log("Module path {path}: {count} {modules}", array(
+				$locale = $this->application->locale;
+				$this->verbose_log($locale("Module path {path}: {count} {modules}"), array(
 					"path" => $path,
 					"count" => $count,
-					"modules" => Locale::plural(__("module"), $count)
+					"modules" => $locale->plural($locale("module"), $count)
 				));
 				$debug = array();
 				foreach ($globbed as $glob) {
@@ -221,9 +222,10 @@ class Command_Update extends Command_Base {
 			$this->error("No modules found to update");
 			return array();
 		}
+		$locale = $this->application->locale;
 		$this->verbose_log("Will update {count} {modules}", array(
 			"count" => count($modules),
-			"modules" => Locale::plural(__("module"), count($modules))
+			"modules" => $locale->plural($locale("module"), count($modules))
 		));
 		return $modules;
 	}
@@ -334,7 +336,7 @@ class Command_Update extends Command_Base {
 			));
 			return true;
 		}
-		if (!arr::has_any($data, 'url;urls;versions;composer')) {
+		if (!ArrayTools::has_any($data, 'url;urls;versions;composer')) {
 			return true;
 		}
 		if ($this->option_bool('list')) {
@@ -344,16 +346,17 @@ class Command_Update extends Command_Base {
 		$this->log("Updating $module");
 		$edits = array();
 		$composer_updates = false;
-		if (arr::has($data, "composer")) {
+		if (ArrayTools::has($data, "composer")) {
 			$composer_updates = $this->composer_update($data);
 		}
+		$locale = $this->application->locale;
 		$state_data = avalue($this->update_db, $module, array());
 		if (!$force) {
 			$checked = avalue($state_data, 'checked', null);
 			$checked_time = strtotime($checked);
 			$interval = $this->option_integer('check_interval', 24 * 60 * 60);
 			if ($checked_time > $now - $interval) {
-				$this->verbose_log("$module checked less than " . Locale::duration_string($interval, "hour") . " ago" . ($force_check ? "- checking anyway" : ""));
+				$this->verbose_log("$module checked less than " . $locale->duration_string($interval, "hour") . " ago" . ($force_check ? "- checking anyway" : ""));
 				if (!$force_check) {
 					return true;
 				}
@@ -451,7 +454,7 @@ class Command_Update extends Command_Base {
 			return;
 		}
 		$composer_command = $this->composer_command();
-		if (!arr::has_any($composer, "require;require-dev")) {
+		if (!ArrayTools::has_any($composer, "require;require-dev")) {
 			return true;
 		}
 		$composer_version = to_array($application->modules->configuration($name, "composer_version"));

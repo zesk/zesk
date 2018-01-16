@@ -29,7 +29,7 @@ class Kernel {
 	 *
 	 * @var string
 	 */
-	const deprecated_exception = "exception";
+	const DEPRECATED_EXCEPTION = "exception";
 
 	/**
 	 * Log all deprecated function calls.
@@ -37,7 +37,7 @@ class Kernel {
 	 *
 	 * @var string
 	 */
-	const deprecated_log = "log";
+	const DEPRECATED_LOG = "log";
 
 	/**
 	 * Terminate execution and output a backtrace when a deprecated function is called.
@@ -45,7 +45,7 @@ class Kernel {
 	 *
 	 * @var string
 	 */
-	const deprecated_backtrace = "backtrace";
+	const DEPRECATED_BACKTRACE = "backtrace";
 
 	/**
 	 * Do nothing when deprecated functions are called.
@@ -53,7 +53,7 @@ class Kernel {
 	 *
 	 * @var null
 	 */
-	const deprecated_ignore = null;
+	const DEPRECATED_IGNORE = null;
 
 	/**
 	 *
@@ -388,7 +388,7 @@ class Kernel {
 	 *        	and exit immediately
 	 */
 	public function set_deprecated($set) {
-		$this->deprecated = is_string($set) ? strtolower($set) : self::deprecated_ignore;
+		$this->deprecated = is_string($set) ? strtolower($set) : self::DEPRECATED_IGNORE;
 	}
 	/**
 	 * Enables a method to be tagged as "deprecated"
@@ -400,20 +400,20 @@ class Kernel {
 		if ($this->deprecated) {
 			$depth = avalue($arguments, "depth", 0);
 			switch ($this->deprecated) {
-				case self::deprecated_exception:
+				case self::DEPRECATED_EXCEPTION:
 					throw new Exception_Deprecated("${reason} Deprecated: {calling_function}\n{backtrace}", array(
 						"reason" => $reason,
 						"calling_function" => calling_function(),
 						"backtrace" => _backtrace(4 + $depth)
 					) + $arguments);
-				case self::deprecated_log:
+				case self::DEPRECATED_LOG:
 					$this->logger->error("${reason} Deprecated: {calling_function}\n{backtrace}", array(
 						"reason" => $reason ? $reason : "DEPRECATED",
 						"calling_function" => calling_function(),
 						"backtrace" => _backtrace(4 + $depth)
 					) + $arguments);
 					break;
-				case self::deprecated_backtrace:
+				case self::DEPRECATED_BACKTRACE:
 				default :
 					backtrace();
 					exit();

@@ -14,7 +14,7 @@ class Configuration_Loader {
 	 * @var \string[]
 	 */
 	private $files = array();
-	
+
 	/**
 	 * Files which could be loaded, but do not exist
 	 *
@@ -38,60 +38,46 @@ class Configuration_Loader {
 	 * @var File_Monitor_List
 	 */
 	private $file_monitor = null;
-	
+
 	/**
 	 *
 	 * @var Interface_Settings
 	 */
 	private $settings = null;
-	
+
 	/**
 	 *
 	 * @var Configuration_Dependency
 	 */
 	private $dependency = null;
-	
+
+	/**
+	 * Current file being processed
+	 *
+	 * @var string
+	 */
+	private $current = null;
 	/**
 	 *
 	 * @param array $files
 	 * @param array $paths
 	 * @param Interface_Settings $context
 	 */
-	public function __construct(array $paths, array $files, Interface_Settings $settings) {
+	public function __construct(array $files, Interface_Settings $settings) {
 		$available_targets = array();
-		$possible_targets = array();
-		$this->paths = $paths;
-		foreach ($paths as $path) {
-			if (!is_dir($path)) {
-				foreach ($files as $file) {
-					$this->missing_files[] = path($path, $file);
-				}
+		foreach ($files as $file) {
+			if (is_readable($file)) {
+				$available_targets[] = $file;
 			} else {
-				foreach ($files as $file) {
-					$file = path($path, $file);
-					$possible_targets[] = $file;
-					if (is_readable($file)) {
-						$available_targets[] = $file;
-					} else {
-						$this->missing_files[] = $file;
-					}
-				}
+				$this->missing_files[] = $file;
 			}
 		}
 		$this->settings = $settings;
 		$this->files = $available_targets;
-		$this->file_monitor = new File_Monitor_List($files);
+		$this->file_monitor = new File_Monitor_List($this->files);
 		$this->dependency = new Configuration_Dependency();
 	}
-	
-	/**
-	 *
-	 * @return string[]
-	 */
-	public function paths() {
-		return $this->paths;
-	}
-	
+
 	/**
 	 * Add additional files to load
 	 *
@@ -105,6 +91,9 @@ class Configuration_Loader {
 		}
 		return $this;
 	}
+	public function current() {
+		return $this->current;
+	}
 	/**
 	 *
 	 * @return number|unknown
@@ -113,13 +102,16 @@ class Configuration_Loader {
 		while (count($this->files) > 0) {
 			$file = array_shift($this->files);
 			try {
+				$this->current = $file;
 				$this->load_one($file);
+				$this->current = null;
 			} catch (Exception_File_Format $e) {
 				zesk()->logger->error("Unable to parse configuration file {file} - no parser", compact("file"));
 			}
+			$this->current = null;
 		}
 	}
-	
+
 	/**
 	 * Load a single file
 	 *
@@ -145,7 +137,7 @@ class Configuration_Loader {
 		$this->processed_files[] = $file;
 		return $this;
 	}
-	
+
 	/**
 	 *
 	 * @return array[]

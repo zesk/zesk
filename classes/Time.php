@@ -500,22 +500,20 @@ class Time extends Temporal {
 	 * @return array
 	 * @see Time::format
 	 */
-	function formatting(array $options = array()) {
-		$locale = avalue($options, "locale", null);
-
+	function formatting(Locale $locale, array $options = array()) {
 		$x = array();
 		$x['h'] = $this->hour();
 		$x['12h'] = $this->hour12();
 		$x['m'] = $this->minute();
 		$x['s'] = $this->second();
 		foreach ($x as $k => $v) {
-			$x[$k . substr($k, -1)] = str::zero_pad($v);
+			$x[$k . substr($k, -1)] = StringTools::zero_pad($v);
 		}
 		$x['day_seconds'] = $this->seconds;
 		$ampm = $this->ampm();
-		$x['ampm'] = Locale::translate("Time:=$ampm", $locale);
+		$x['ampm'] = $locale("Time:=$ampm");
 		$ampm = strtoupper($ampm);
-		$x['AMPM'] = Locale::translate("Time:=$ampm", $locale);
+		$x['AMPM'] = $locale("Time:=$ampm");
 		return $x;
 	}
 
@@ -528,11 +526,11 @@ class Time extends Temporal {
 	 *        	Optional locale string
 	 * @return string
 	 */
-	function format($format_string = null, array $options = array()) {
+	function format(Locale $locale, $format_string = null, array $options = array()) {
 		if ($format_string === null) {
 			$format_string = self::$default_format_string;
 		}
-		$x = $this->formatting($options);
+		$x = $this->formatting($locale, $options);
 		return map($format_string, $x);
 	}
 
@@ -543,7 +541,7 @@ class Time extends Temporal {
 	 * @return string
 	 */
 	private function _hms_format($sep = ":") {
-		return str::zero_pad($this->hour()) . $sep . str::zero_pad($this->minute()) . $sep . str::zero_pad($this->second());
+		return StringTools::zero_pad($this->hour()) . $sep . StringTools::zero_pad($this->minute()) . $sep . StringTools::zero_pad($this->second());
 	}
 
 	/**

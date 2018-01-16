@@ -220,7 +220,7 @@ class Date extends Temporal {
 		if ($this->is_empty()) {
 			return "";
 		}
-		return $this->year() . "-" . str::zero_pad($this->month()) . "-" . str::zero_pad($this->day());
+		return $this->year() . "-" . StringTools::zero_pad($this->month()) . "-" . StringTools::zero_pad($this->day());
 	}
 
 	/**
@@ -655,22 +655,26 @@ class Date extends Temporal {
 		}
 		$locale_months = array();
 		foreach (self::$months as $i => $month) {
-			$locale_months[$i] = Locale::translate($short ? "Date-short:=" . substr($month, 0, 3) : "Date:=" . $month, $locale);
+			$locale_months[$i] = $locale($short ? "Date-short:=" . substr($month, 0, 3) : "Date:=" . $month, $locale);
 		}
 		self::$translated_months[$locale][$short] = $locale_months;
 		return $locale_months;
 	}
-	static function weekday_names($locale = null, $short = false) {
-		if ($locale === null) {
-			$locale = Locale::current();
-		}
+
+	/**
+	 *
+	 * @param Locale $locale
+	 * @param string $short
+	 * @return string[]
+	 */
+	static function weekday_names(Locale $locale, $short = false) {
 		$short = intval(boolval($short));
 		if (isset(self::$translated_weekdays[$locale][$short])) {
 			return self::$translated_weekdays[$locale][$short];
 		}
 		$locale_weekdays = array();
 		foreach (self::$weekday_names as $k => $v) {
-			$locale_weekdays[$k] = Locale::translate($short ? 'Date-short:=' . substr($v, 0, 3) : 'Date:=' . $v, $locale);
+			$locale_weekdays[$k] = $locale($short ? 'Date-short:=' . substr($v, 0, 3) : 'Date:=' . $v);
 		}
 		self::$translated_weekdays[$locale][$short] = $locale_weekdays;
 		return $locale_weekdays;
@@ -683,7 +687,7 @@ class Date extends Temporal {
 	 * @return string
 	 */
 	private function _ymd_format($sep = "-") {
-		return $this->year() . $sep . str::zero_pad($this->month()) . $sep . str::zero_pad($this->day());
+		return $this->year() . $sep . StringTools::zero_pad($this->month()) . $sep . StringTools::zero_pad($this->day());
 	}
 
 	/**
@@ -702,9 +706,7 @@ class Date extends Temporal {
 	 *
 	 * @see Temporal::formatting()
 	 */
-	function formatting(array $options = array()) {
-		$locale = avalue($options, "locale", null);
-
+	function formatting(Locale $locale, array $options = array()) {
 		// $old_locale = setlocale(LC_TIME,0);
 		// setlocale(LC_TIME, $locale);
 		// $ts = $this->toTimestamp();
@@ -718,7 +720,7 @@ class Date extends Temporal {
 		$x['W'] = $w;
 
 		foreach ($x as $k => $v) {
-			$x[$k . $k] = str::zero_pad($v, 2);
+			$x[$k . $k] = StringTools::zero_pad($v, 2);
 		}
 
 		$x['YYYY'] = $this->year();
@@ -727,7 +729,7 @@ class Date extends Temporal {
 		$x['MMMM'] = avalue($this->month_names($locale), $m, "?");
 		$x['MMM'] = avalue($this->month_names($locale, true), $m, "?");
 
-		$x['DDD'] = Locale::ordinal($d, $locale);
+		$x['DDD'] = $locale->ordinal($d);
 
 		if ($w !== null) {
 			$x['WWWW'] = avalue($this->weekday_names($locale), $w, "?");
@@ -743,11 +745,11 @@ class Date extends Temporal {
 	 *
 	 * @see Temporal::format()
 	 */
-	function format($format_string = null, array $options = array()) {
+	function format(Locale $locale, $format_string = null, array $options = array()) {
 		if ($format_string === null) {
 			$format_string = self::$default_format_string;
 		}
-		$formatting = $this->formatting($options);
+		$formatting = $this->formatting($locale, $options);
 		return map($format_string, $formatting);
 	}
 

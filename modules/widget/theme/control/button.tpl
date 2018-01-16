@@ -15,7 +15,7 @@ $object = $this->object;
 
 $attrs = $this->input_attributes + $this->data_attributes;
 
-$attrs = arr::clean($attrs, array(
+$attrs = ArrayTools::clean($attrs, array(
 	"",
 	null
 ));

@@ -494,7 +494,7 @@ class HTML {
 			$types = "core;events;input";
 		}
 		$attr_list = "";
-		$types = is_array($types) ? arr::change_value_case($types) : explode(";", strtolower($types));
+		$types = is_array($types) ? ArrayTools::change_value_case($types) : explode(";", strtolower($types));
 		if (in_array("core", $types)) {
 			$attr_list = Lists::append($attr_list, "id;class;style;title;placeholder");
 		}
@@ -513,7 +513,7 @@ class HTML {
 			'button' => null
 		);
 		$tag_filter = self::input_attribute_names(avalue($tag_types, $tag, 'core'));
-		return arr::kfilter($attributes, $tag_filter) + arr::kprefix(array_merge(arr::kunprefix($attributes, "data_", true), arr::kunprefix($attributes, "data-", true)), "data-");
+		return ArrayTools::kfilter($attributes, $tag_filter) + ArrayTools::kprefix(array_merge(ArrayTools::kunprefix($attributes, "data_", true), ArrayTools::kunprefix($attributes, "data-", true)), "data-");
 	}
 	static function specialchars($mixed) {
 		if (is_array($mixed)) {
@@ -558,7 +558,7 @@ class HTML {
 		$class = to_list($class);
 		$add = to_list($add);
 		$remove = to_list($remove);
-		return implode(" ", arr::include_exclude($class, $add, $remove));
+		return implode(" ", ArrayTools::include_exclude($class, $add, $remove));
 	}
 	/**
 	 * Extract Data attributes, supporting data_id formats (converted to data-id)
@@ -567,7 +567,7 @@ class HTML {
 	 * @return array Data attributes
 	 */
 	static function data_attributes(array $attributes) {
-		return arr::flatten(arr::filter_prefix(arr::kreplace(array_change_key_case($attributes), "_", "-"), "data-", true));
+		return ArrayTools::flatten(ArrayTools::filter_prefix(ArrayTools::kreplace(array_change_key_case($attributes), "_", "-"), "data-", true));
 	}
 
 	/**
@@ -588,7 +588,7 @@ class HTML {
 		} else {
 			$allowed = self::$tag_attributes_cache[$tag];
 		}
-		return arr::filter($attributes, $allowed) + self::data_attributes($attributes);
+		return ArrayTools::filter($attributes, $allowed) + self::data_attributes($attributes);
 	}
 	/**
 	 * Add a class to an array of attributes
@@ -1095,11 +1095,11 @@ class HTML {
 		return preg_replace('/ +/', ' ', trim(preg_replace("/<[^>]+>/", " ", $x)));
 	}
 	public static function style_clean(array $attr, $allowed = null, $disallowed = null) {
-		return arr::kfilter($attr, $allowed, $disallowed, true);
+		return ArrayTools::kfilter($attr, $allowed, $disallowed, true);
 	}
 	public static function clean_tags_without_attributes($tags, $html) {
 		$empty_tags = explode(";", $tags);
-		$empty_tags = implode("|", arr::preg_quote($empty_tags));
+		$empty_tags = implode("|", ArrayTools::preg_quote($empty_tags));
 		$html = preg_replace('|<(' . $empty_tags . ')>([^<>]*)</\2>|i', '$2', $html);
 		return $html;
 	}
@@ -1118,7 +1118,7 @@ class HTML {
 				$attr = array();
 			} else {
 				$attr = self::parse_attributes($match[2]);
-				$attr = arr::include_exclude($attr, $include, $exclude, false);
+				$attr = ArrayTools::include_exclude($attr, $include, $exclude, false);
 			}
 			$ss = $match[0];
 			$single = ends($match[0], "/>") ? "/" : "";
@@ -1159,7 +1159,7 @@ class HTML {
 				if ($styles) {
 					$styles = self::parse_styles($styles);
 					if ($styles) {
-						$styles = arr::include_exclude($styles, $include, $exclude, true);
+						$styles = ArrayTools::include_exclude($styles, $include, $exclude, true);
 						if (count($styles) == 0) {
 							unset($attr['style']);
 						} else {
@@ -1185,10 +1185,10 @@ class HTML {
 		$allowed_tags = to_list($allowed_tags, true);
 		$remove_tags = to_list($remove_tags, false);
 		if (is_array($allowed_tags)) {
-			$allowed_tags = arr::change_value_case($allowed_tags);
+			$allowed_tags = ArrayTools::change_value_case($allowed_tags);
 		}
 		if (is_array($remove_tags)) {
-			$remove_tags = arr::change_value_case($remove_tags);
+			$remove_tags = ArrayTools::change_value_case($remove_tags);
 		}
 		$found_tags = self::parse_tags($string);
 		if (!$found_tags) {
@@ -1539,7 +1539,7 @@ class HTML {
 	public static function input_hidden($name, $value, $attributes = null) {
 		if (is_array($value)) {
 			$result = "";
-			$no_key = arr::is_list($value);
+			$no_key = ArrayTools::is_list($value);
 			$attributes['id'] = null;
 			foreach ($value as $k => $v) {
 				$suffix = $no_key ? '[]' : '[' . $k . ']';

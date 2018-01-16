@@ -11,7 +11,7 @@
 namespace zesk;
 
 /**
- * 
+ *
  * @author kent
  *
  */
@@ -67,21 +67,21 @@ class Database_Query_Select extends Database_Query_Select_Base {
 	 * @var array
 	 */
 	protected $join_objects = array();
-	
+
 	/**
 	 * List of locale-specific conditions for outputting to the user
 	 *
 	 * @var array
 	 */
 	protected $conditions = array();
-	
+
 	/**
 	 * This is here solely for debugging purposes only.
-	 * 
+	 *
 	 * @var string
 	 */
 	protected $generated_sql = null;
-	
+
 	/**
 	 * Construct a new Select query
 	 *
@@ -90,9 +90,9 @@ class Database_Query_Select extends Database_Query_Select_Base {
 	function __construct(Database $db) {
 		parent::__construct("SELECT", $db);
 	}
-	
+
 	/**
-	 * 
+	 *
 	 * {@inheritDoc}
 	 * @see \zesk\Database_Query_Select_Base::__sleep()
 	 */
@@ -111,15 +111,15 @@ class Database_Query_Select extends Database_Query_Select_Base {
 			"conditions"
 		));
 	}
-	
+
 	/**
-	 * 
+	 *
 	 * {@inheritDoc}
 	 * @see \zesk\Database_Query_Select_Base::copy_from()
 	 */
 	public function copy_from(Database_Query_Select $query) {
 		parent::_copy_from_base($query);
-		
+
 		$this->what = $query->what;
 		$this->tables = $query->tables;
 		$this->alias = $query->alias;
@@ -132,12 +132,12 @@ class Database_Query_Select extends Database_Query_Select_Base {
 		$this->distinct = $query->distinct;
 		$this->join_objects = $query->join_objects;
 		$this->conditions = $query->conditions;
-		
+
 		return $this;
 	}
-	
+
 	/**
-	 * 
+	 *
 	 * @param unknown $column
 	 * @return boolean
 	 */
@@ -162,7 +162,7 @@ class Database_Query_Select extends Database_Query_Select_Base {
 	public static function factory(Database $db = null) {
 		return new Database_Query_Select($db);
 	}
-	
+
 	/**
 	 * Set as a distinct or non-distinct query
 	 *
@@ -179,7 +179,7 @@ class Database_Query_Select extends Database_Query_Select_Base {
 		if ($class === null || $this->class === $class) {
 			return $this->alias;
 		}
-		$result = avalue(arr::flip_multiple($this->join_objects), $class, array());
+		$result = avalue(ArrayTools::flip_multiple($this->join_objects), $class, array());
 		return last($result);
 	}
 	function alias($set = null) {
@@ -190,7 +190,7 @@ class Database_Query_Select extends Database_Query_Select_Base {
 		return $this->alias;
 	}
 	function columns() {
-		return arr::unprefix(array_keys($this->what), "*");
+		return ArrayTools::unprefix(array_keys($this->what), "*");
 	}
 	function has_what($column) {
 		return in_array($column, $this->columns());
@@ -261,7 +261,7 @@ class Database_Query_Select extends Database_Query_Select_Base {
 		}
 		throw new Exception_Parameter("Unknown parameter passed to Database_Query_Select::what(" . gettype($mixed) . ")");
 	}
-	
+
 	/**
 	 * Select from what
 	 *
@@ -274,7 +274,7 @@ class Database_Query_Select extends Database_Query_Select_Base {
 		$this->alias = $alias;
 		return $this;
 	}
-	
+
 	/**
 	 * Join tables
 	 *
@@ -292,7 +292,7 @@ class Database_Query_Select extends Database_Query_Select_Base {
 		}
 		return $this;
 	}
-	
+
 	/**
 	 * Given a table alias, find the associated class
 	 *
@@ -305,7 +305,7 @@ class Database_Query_Select extends Database_Query_Select_Base {
 		}
 		return avalue($this->join_objects, $alias, null);
 	}
-	
+
 	/**
 	 * Join tables
 	 *
@@ -325,7 +325,7 @@ class Database_Query_Select extends Database_Query_Select_Base {
 			throw new Exception_Semantics(__CLASS__ . "::join_object: Same alias $alias added twice");
 		}
 		$this->join_objects[$alias] = $class;
-		
+
 		$sql = $this->sql();
 		if ($table === null) {
 			$table = $object->table();
@@ -336,11 +336,11 @@ class Database_Query_Select extends Database_Query_Select_Base {
 		/*
 		 * $object->database_name() is sometimes blank, sometimes "default" here so it uses the more complex
 		 * database name to join tables here, which is not what we want.
-		 * 
+		 *
 		 * Using $object->database()->code_name() means it fetches it from the actual database.
-		 * 
+		 *
 		 * You can also try and fix this with logic:
-		 * 
+		 *
 		 * empty "database_name" means value of configuration zesk\Database::default
 		 */
 		if ($object->database()->code_name() !== $this->database_name()) {
@@ -364,7 +364,7 @@ class Database_Query_Select extends Database_Query_Select_Base {
 		}
 		return $this->join("$join_type JOIN $table_as ON " . $this->sql()->where_clause($on, null));
 	}
-	
+
 	/**
 	 * Link to another object
 	 *
@@ -402,10 +402,10 @@ class Database_Query_Select extends Database_Query_Select_Base {
 			$mixed['path'] = $path;
 		}
 		return $object->link_walk($this, $mixed);
-		
+
 		//		return ORM::cache_object($class)->link($this, $mixed);
 	}
-	
+
 	/**
 	 * Add where clause. Pass in false for $k to reset where to nothing.
 	 *
@@ -428,7 +428,7 @@ class Database_Query_Select extends Database_Query_Select_Base {
 		}
 		return $this;
 	}
-	
+
 	/**
 	 * Set order by clause
 	 *
@@ -442,7 +442,7 @@ class Database_Query_Select extends Database_Query_Select_Base {
 		$this->order_by = $order_by;
 		return $this;
 	}
-	
+
 	/**
 	 * Set group by clause
 	 *
@@ -453,7 +453,7 @@ class Database_Query_Select extends Database_Query_Select_Base {
 		$this->group_by = $group_by;
 		return $this;
 	}
-	
+
 	/**
 	 * Set limit
 	 *
@@ -471,7 +471,7 @@ class Database_Query_Select extends Database_Query_Select_Base {
 		}
 		return $this;
 	}
-	
+
 	/**
 	 * Compile SQL statement
 	 *
@@ -500,7 +500,7 @@ class Database_Query_Select extends Database_Query_Select_Base {
 		}
 		return $this->conditions;
 	}
-	
+
 	/**
 	 *
 	 * @return string
@@ -508,15 +508,16 @@ class Database_Query_Select extends Database_Query_Select_Base {
 	function title() {
 		/* @var $class Class_ORM */
 		$class_name = $this->class;
-		$class = $this->class_object($class_name);
+		$locale = $this->application->locale;
+		$class = $this->application->orm_registry($class_name);
 		$map = array(
 			"noun" => $class->name,
-			"nouns" => Locale::plural($class->name)
+			"nouns" => $locale->plural($class->name)
 		);
 		if (count($this->conditions) === 0) {
 			return __("Database_Query_Select-$class_name-title-all:=All {nouns}", $map);
 		}
-		$map['conditions'] = map(Locale::conjunction($this->conditions, __("and")), $map);
-		return __("Database_Query_Select-$class_name-title:={nouns} which {conditions}", $map);
+		$map['conditions'] = map($locale->conjunction($this->conditions, __("and")), $map);
+		return $locale->__("Database_Query_Select-$class_name-title:={nouns} which {conditions}", $map);
 	}
 }

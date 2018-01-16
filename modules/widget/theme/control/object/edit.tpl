@@ -60,7 +60,7 @@ if ($widgets) {
 		/* @var $w Widget */
 		$this->child = $child;
 		if ($child->is_visible($object)) {
-			echo $this->theme(arr::suffix($zesk->classes->hierarchy($this->widget), "/child"));
+			echo $this->theme(ArrayTools::suffix($zesk->classes->hierarchy($this->widget), "/child"));
 		} else {
 			$invisibles .= $child->content;
 		}

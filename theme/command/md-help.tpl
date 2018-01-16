@@ -36,14 +36,14 @@ foreach ($this->categories as $category => $commands) {
 	echo "## $category ##\n\n";
 	foreach ($commands as $command => $info) {
 		echo "### `$command`\n\n";
-		$desc = avalue($info, "desc", __("No description provided."));
+		$desc = avalue($info, "desc", $locale("No description provided."));
 		$parameters = array();
 		foreach (avalue($info, 'global', array()) as $global => $foo) {
 			$parameters[] = "- `$global` (" . $foo[0] . ")" . "\n" . Text::indent(rtrim($foo[2]), 1, false, " - ");
 		}
 		$parameters = implode("\n", $parameters);
 		if ($parameters) {
-			$parameters = "$tab$tab" . __("#### Globals:") . "\n\n" . $parameters . "\n";
+			$parameters = "$tab$tab" . $locale("#### Globals:") . "\n\n" . $parameters . "\n";
 		}
 		$desc .= "\n\n";
 		echo rtrim(Text::indent($desc, 2, true, $tab)) . "\n\n$parameters";

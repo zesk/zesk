@@ -54,7 +54,7 @@ class Net_HTTP_Server_Request {
 			throw new Net_HTTP_Server_Exception(Net_HTTP::Status_Bad_Request, "Bad header", $raw_header);
 		}
 		$name = strtolower($name);
-		arr::append($this->headers, $name, ltrim($value));
+		ArrayTools::append($this->headers, $name, ltrim($value));
 	}
 	function header($name) {
 		return avalue($this->headers, strtolower($name));

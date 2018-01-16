@@ -42,7 +42,7 @@ abstract class Image_Library {
 			} catch (\Exception $e) {
 				$application->logger->error("{class}::installed resulted in {e.class}: {e.message}", array(
 					"class" => $class
-				) + arr::kprefix(Exception::exception_variables($e), "e."));
+				) + ArrayTools::kprefix(Exception::exception_variables($e), "e."));
 				$application->hooks->call("exception", $e);
 				continue;
 			}
@@ -51,7 +51,7 @@ abstract class Image_Library {
 			} catch (\Exception $e) {
 				$application->logger->error("Create instance of {class} resulted in {e.class}: {e.message}", array(
 					"class" => $class
-				) + arr::kprefix(Exception::exception_variables($e), "e."));
+				) + ArrayTools::kprefix(Exception::exception_variables($e), "e."));
 				$application->hooks->call("exception", $e);
 			}
 		}

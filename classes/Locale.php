@@ -10,7 +10,6 @@
  */
 namespace zesk;
 
-use zesk\Locale\Reader;
 use zesk\Locale\Writer;
 
 /**
@@ -71,9 +70,9 @@ abstract class Locale extends Hookable {
 				"default"
 			), "en_US");
 		}
-		list($lang, $dialect) = self::parse_locale_string($locale_string);
+		list($lang, $dialect) = self::parse($locale_string);
 		$lang = strtoupper($lang);
-		$classes = arr::prefix(array(
+		$classes = ArrayTools::prefix(array(
 			"${lang}_${dialect}",
 			"${lang}_Default",
 			$lang,
@@ -102,7 +101,7 @@ abstract class Locale extends Hookable {
 	public function __construct(Application $application, $locale_string, array $options = array()) {
 		parent::__construct($application, $options);
 		$this->locale_string = $locale_string;
-		list($this->language, $this->dialect) = self::parse_locale_string($locale_string);
+		list($this->language, $this->dialect) = self::parse($locale_string);
 		$this->inherit_global_options();
 		$auto = $this->option("auto");
 		if ($auto === true || $auto === $this->language || $auto === $this->locale_string) {
@@ -114,7 +113,6 @@ abstract class Locale extends Hookable {
 				"shutdown"
 			));
 		}
-		$this->_load();
 	}
 
 	/**
@@ -143,43 +141,15 @@ abstract class Locale extends Hookable {
 	}
 
 	/**
-	 * Translation tables
 	 *
-	 * @var array
+	 * @return array
 	 */
-	private static $tt = array();
-
-	/**
-	 * Locale load paths
-	 *
-	 * @var array
-	 */
-	private static $paths = array();
-
-	/**
-	 * Array of lang_en which handle language specific stuff which
-	 * basic lookup tables can't handle
-	 *
-	 * @var array:lang
-	 */
-	private static $classes = array();
-
-	/**
-	 * Set/get current locale
-	 *
-	 * @deprecated 2017-12 Use $application->locale = $application->locale_factory("fr_FR");
-	 * @param string $set
-	 * @return string
-	 */
-	public static function current($set = null) {
-		zesk()->deprecated();
-
-		$app = app();
-		if ($set === null) {
-			return $app->locale->id();
+	public function translations(array $set = null) {
+		if ($set !== null) {
+			$this->translation_table = $set;
+			return $this;
 		}
-		$app->locale = self::factory($app, $set);
-		return $app->locale->id();
+		return $this->translation_table;
 	}
 
 	/**
@@ -196,6 +166,42 @@ abstract class Locale extends Hookable {
 		return $this->__($phrase, $arguments);
 	}
 
+	/**
+	 * Does this locale have a translation for $phrase?
+	 *
+	 * @param string $phrase
+	 * @return boolean
+	 */
+	public function has($phrase) {
+		return $this->find($phrase) !== null;
+	}
+
+	/**
+	 * Find the key in the translation table for $phrase
+	 *
+	 * @param string $phrase
+	 * @return string|null
+	 */
+	public function find($phrase) {
+		$phrase = strval($phrase);
+		list($group, $text) = explode(":=", $phrase, 2) + array(
+			null,
+			$phrase
+		);
+		$try_phrases = array(
+			$phrase,
+			strtolower($phrase),
+			$text,
+			strtolower($text)
+		);
+		$tt_lang = $this->translation_table;
+		foreach ($try_phrases as $try_phrase) {
+			if (array_key_exists($phrase, $tt_lang)) {
+				return $try_phrase;
+			}
+		}
+		return null;
+	}
 	/**
 	 * Translate a phrase
 	 *
@@ -219,29 +225,14 @@ abstract class Locale extends Hookable {
 			));
 			return "";
 		}
-		list($group, $text) = explode(":=", $phrase, 2) + array(
-			null,
-			$phrase
-		);
-		$tt_lang = $this->translation_table;
-		if (array_key_exists($phrase, $tt_lang)) {
-			return $tt_lang[$phrase];
+		$key_phrase = $this->find($phrase);
+		if ($key_phrase === null) {
+			if ($this->auto) {
+				$this->locale_phrases[$phrase] = time();
+			}
+			return $text;
 		}
-		$low_phrase = strtolower($phrase);
-		if (array_key_exists($low_phrase, $tt_lang)) {
-			return str::case_match($tt_lang[$low_phrase], $text);
-		}
-		if (array_key_exists($text, $tt_lang)) {
-			return $tt_lang[$text];
-		}
-		$low_phrase = strtolower($text);
-		if (array_key_exists($low_phrase, $tt_lang)) {
-			return str::case_match($tt_lang[$low_phrase], $text);
-		}
-		if ($this->auto) {
-			$this->locale_phrases[$phrase] = time();
-		}
-		return $text;
+		return StringTools::case_match($this->translation_table[$key_phrase], $phrase);
 	}
 
 	/**
@@ -272,91 +263,8 @@ abstract class Locale extends Hookable {
 	 * @param string $word
 	 * @return string
 	 */
-	public static function sentence_first($word) {
+	public function sentence_first($word) {
 		return \ucfirst($word);
-	}
-
-	/**
-	 * Extract the language from a locale
-	 *
-	 * @param string $locale
-	 * @return string
-	 */
-	public static function parse_language($locale = null) {
-		if (empty($locale)) {
-			return null;
-		}
-		list($lang) = pair($locale, "_", $locale, "");
-		return strtolower(substr($lang, 0, 2));
-	}
-
-	/**
-	 * Extract the dialect from the locale
-	 *
-	 * @param string $locale
-	 * @return string
-	 */
-	public static function parse_dialect($locale = null) {
-		if (empty($locale)) {
-			return null;
-		}
-		list($lang, $dialect) = \pair($locale, "_", $locale, "");
-		return strtoupper(substr($dialect, 0, 2));
-	}
-
-	/**
-	 * Convert a locale string into an array of locale, dialog
-	 * @param string $locale
-	 * @return string[]
-	 */
-	public static function parse_locale_string($locale) {
-		list($lang, $region) = explode("_", $locale, 2) + array(
-			$locale,
-			null
-		);
-		$lang = strtolower(substr($lang, 0, 2));
-		if ($region === null) {
-			return array(
-				$lang,
-				null
-			);
-		}
-		return array(
-			$lang,
-			$region
-		);
-	}
-	/**
-	 * Normalize a locale so it is properly formatted
-	 *
-	 * @param string $locale
-	 * @return string
-	 */
-	public static function normalize($locale) {
-		list($lang, $region) = explode("_", $locale, 2) + array(
-			$locale,
-			null
-		);
-		$lang = strtolower(substr($lang, 0, 2));
-		if ($region === null) {
-			return $lang;
-		}
-		return $lang . "_" . strtoupper(substr($region, 0, 2));
-	}
-
-	/**
-	 * Get or add to the list of locale paths to load
-	 *
-	 * @param string $add
-	 *        	Path to locale directory containing language.inc and language_DIALECT.inc files
-	 *
-	 * @return array
-	 */
-	public static function locale_path($add = null) {
-		if ($add !== null) {
-			self::$paths[] = $add;
-		}
-		return self::$paths;
 	}
 
 	/**
@@ -449,32 +357,6 @@ abstract class Locale extends Hookable {
 	abstract public function indefinite_article($word, $context = null);
 
 	/**
-	 * Load a language subclass
-	 *
-	 * @todo move to Locale_Foo
-	 * @param string $locale
-	 * @return Locale_Base
-	 */
-	protected static function load_language($locale) {
-		if (!$locale) {
-			$locale = self::current();
-		}
-		$lang = self::language($locale);
-		if (array_key_exists($lang, self::$classes)) {
-			return self::$classes[$lang];
-		}
-		$lang = $lang ? $lang : "en";
-		try {
-			$class_name = "zesk\\Locale_" . strtoupper($lang);
-			$object = new $class_name();
-		} catch (\Exception $e) {
-			$object = new Locale_EN();
-		}
-		self::$classes[$lang] = $object;
-		return $object;
-	}
-
-	/**
 	 * Join a phrase together with a conjuction, e.g.
 	 *
 	 * @assert_true $app->locale->conjunction(array("Apples","Pears","Frogs"), "and") === "Apples, Pears, and Frogs"
@@ -522,9 +404,11 @@ abstract class Locale extends Hookable {
 	}
 
 	/**
-	 * Generate a plural for a word if does not exist
+	 * Given a noun, compute the plural given cues from the language. Returns null if not able to compute it.
+	 *
 	 * @param unknown $noun
 	 * @param number $number
+	 * @return string|null
 	 */
 	abstract protected function noun_semantic_plural($noun, $number = 2);
 
@@ -538,13 +422,17 @@ abstract class Locale extends Hookable {
 	 * @return string
 	 */
 	final function plural($noun, $number = 2) {
-		$k = "Locale::plural::" . $noun;
-		if ($this->has_translation($k)) {
-			return $this->__($k);
+		foreach (array(
+			__CLASS__ . "::plural::" . $noun,
+			"Locale::plural::" . $noun
+		) as $k) {
+			if ($this->has($k)) {
+				return $this->__($k);
+			}
 		}
 		$result = $this->noun_semantic_plural($noun, $number);
-		if (self::$auto) {
-			self::$locale_phrases[$k] = $result;
+		if ($this->auto) {
+			$this->locale_phrases[$k] = $result;
 		}
 		return $result;
 	}
@@ -577,12 +465,11 @@ abstract class Locale extends Hookable {
 		}
 		$phrase = null;
 		if ($number === 0) {
-			// TODO Fix this in translation files Locale:: -> Locale::
-			$phrase = 'Locale::plural_word:=no {word}';
+			$phrase = __CLASS__ . '::plural_word:=no {word}';
 		} else if ($number === 1) {
-			$phrase = 'Locale::plural_word:=one {word}';
+			$phrase = __CLASS__ . '::plural_word:=one {word}';
 		} else {
-			$phrase = 'Locale::plural_word:={number} {word}';
+			$phrase = __CLASS__ . '::plural_word:={number} {word}';
 		}
 		return map($this->__($phrase), array(
 			'number' => $number,
@@ -636,10 +523,9 @@ abstract class Locale extends Hookable {
 		if ($number === 0 && is_string($zero_string)) {
 			$phrase = $zero_string;
 		} else if ($delta < 0) {
-			// TODO Fix this in translation files Locale:: -> Locale::
-			$phrase = "Locale::now_string:=in {duration}";
+			$phrase = __CLASS__ . "::now_string:=in {duration}";
 		} else {
-			$phrase = "Locale::now_string:={duration} ago";
+			$phrase = __CLASS__ . "::now_string:={duration} ago";
 		}
 		return $this->__($phrase, array(
 			'duration' => $duration,
@@ -683,29 +569,12 @@ abstract class Locale extends Hookable {
 	/**
 	 * Return the negative of a word "Unstoppable" => "Stoppable"
 	 *
+	 * @deprecated 2018-01
 	 * @todo clarify the use of this grammatically
 	 * @param string $word "Stoppable"
 	 * @param string $preferred_prefix "Un"
 	 */
 	abstract public function negate_word($word, $preferred_prefix = null);
-
-	/**
-	 * Output our locale translation files for JavaScript to use
-	 *
-	 * @param \Request $request
-	 * @param \zesk\Response_Text_HTML $response
-	 */
-	public function hook_head(Request $request, Response_Text_HTML $response) {
-		$response->javascript("/share/zesk/js/locale.js", array(
-			"weight" => -20,
-			"share" => true
-		));
-		$response->javascript("/locale/js?ll=" . $this->id(), array(
-			"weight" => -10,
-			"is_route" => true,
-			"route_expire" => 3600 /* once an hour */
-		));
-	}
 
 	/**
 	 * Format currency values
@@ -785,6 +654,74 @@ abstract class Locale extends Hookable {
 	}
 
 	/**
+	 * Extract the language from a locale
+	 *
+	 * @param string $locale
+	 * @return string
+	 */
+	public static function parse_language($locale = null) {
+		if (empty($locale)) {
+			return null;
+		}
+		list($lang) = pair($locale, "_", $locale, "");
+		return strtolower(substr($lang, 0, 2));
+	}
+
+	/**
+	 * Extract the dialect from the locale
+	 *
+	 * @param string $locale
+	 * @return string
+	 */
+	public static function parse_dialect($locale = null) {
+		if (empty($locale)) {
+			return null;
+		}
+		list($lang, $dialect) = \pair($locale, "_", $locale, "");
+		return strtoupper(substr($dialect, 0, 2));
+	}
+
+	/**
+	 * Convert a locale string into an array of locale, dialog
+	 * @param string $locale
+	 * @return string[]
+	 */
+	public static function parse($locale) {
+		list($lang, $region) = explode("_", $locale, 2) + array(
+			$locale,
+			null
+		);
+		$lang = strtolower(substr($lang, 0, 2));
+		if ($region === null) {
+			return array(
+				$lang,
+				null
+			);
+		}
+		return array(
+			$lang,
+			$region
+		);
+	}
+	/**
+	 * Normalize a locale so it is properly formatted
+	 *
+	 * @param string $locale
+	 * @return string
+	 */
+	public static function normalize($locale) {
+		list($lang, $region) = explode("_", $locale, 2) + array(
+			$locale,
+			null
+		);
+		$lang = strtolower(substr($lang, 0, 2));
+		if ($region === null) {
+			return $lang;
+		}
+		return $lang . "_" . strtoupper(substr($region, 0, 2));
+	}
+
+	/**
 	 * Translate a phrase
 	 *
 	 * @deprecated 2017-12 Use $this->__ instead
@@ -796,8 +733,40 @@ abstract class Locale extends Hookable {
 	 */
 	public static function translate($phrase, $locale = null) {
 		// TODO add this once most have been removed
-		// zesk()->deprecated();
+		zesk()->deprecated();
 		return app()->locale($phrase);
+	}
+
+	/**
+	 * Get or add to the list of locale paths to load
+	 *
+	 * @deprecated 2018-01
+	 * @param string $add
+	 *        	Path to locale directory containing language.inc and language_DIALECT.inc files
+	 * @return array
+	 */
+	public static function locale_path($add = null) {
+		$app = app();
+		$app->deprecated();
+		return $app->locale_path($add);
+	}
+
+	/**
+	 * Set/get current locale
+	 *
+	 * @deprecated 2017-12 Use $application->locale = $application->locale_factory("fr_FR");
+	 * @param string $set
+	 * @return string
+	 */
+	public static function current($set = null) {
+		zesk()->deprecated();
+
+		$app = app();
+		if ($set === null) {
+			return $app->locale->id();
+		}
+		$app->locale = self::factory($app, $set);
+		return $app->locale->id();
 	}
 }
 

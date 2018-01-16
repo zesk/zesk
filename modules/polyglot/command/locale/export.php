@@ -1,11 +1,13 @@
 <?php
 /**
- * 
+ *
  */
 namespace zesk;
 
+use zesk\Locale\Reader;
+
 /**
- * 
+ *
  * @author kent
  *
  */
@@ -30,7 +32,7 @@ class Command_Locale_Export extends Command_Base {
 			$this->usage("Need a file --destination {destination}");
 		}
 		$exclusions = $this->option_bool("no-exclude") ? array() : $this->load_exclusions();
-		$source_locale = $this->application->load($source_language_file) + Locale::load("en_US");
+		$source_locale = $this->application->load($source_language_file) + Reader::factory($this->application->locale_path(), "en_US")->execute();
 		$csv = new CSV_Writer();
 		$csv->file($destination);
 		$csv->set_headers(array(
@@ -53,7 +55,7 @@ class Command_Locale_Export extends Command_Base {
 		$csv->close();
 		$this->log("Wrote {destination} {n_written} {rows}, excluded {n_excluded} {phrases}.", compact("destination") + array(
 			"n_written" => $n_written,
-			"rows" => Locale::plural("row", $n_written),
+			"rows" => $this->application->locale->plural("row", $n_written),
 			"n_excluded" => $n_excluded,
 			"phrases" => Locale::plural("phrase", $n_excluded)
 		));

@@ -47,11 +47,11 @@ class World_Bootstrap_Currency extends Hookable {
 		$this->inherit_global_options(Module_World::class);
 		$include_currency = $this->option("include_currency");
 		if ($include_currency) {
-			$this->include_currency = array_change_key_case(arr::flip_assign(to_list($include_currency), true));
+			$this->include_currency = array_change_key_case(ArrayTools::flip_assign(to_list($include_currency), true));
 		}
 		$include_country = $this->option("include_country");
 		if ($include_country) {
-			$this->include_country = array_change_key_case(arr::flip_assign(to_list($include_country), true));
+			$this->include_country = array_change_key_case(ArrayTools::flip_assign(to_list($include_country), true));
 		}
 	}
 	public function bootstrap() {
@@ -152,7 +152,7 @@ class World_Bootstrap_Currency extends Hookable {
 	private function _codes() {
 		$codes = $this->_somewhat_dated_codes();
 		$valid_ones = self::_valid_codes();
-		$missing_ones = arr::flip_copy($valid_ones, true);
+		$missing_ones = ArrayTools::flip_copy($valid_ones, true);
 		foreach ($codes as $index => $row) {
 			$code = strtolower($row[2]);
 			if (!isset($missing_ones[$code])) {
@@ -185,7 +185,7 @@ class World_Bootstrap_Currency extends Hookable {
 		$codes = self::_somewhat_dated_codes();
 		$result = array();
 		foreach ($codes as $row) {
-			$item = arr::map_keys($row, array(
+			$item = ArrayTools::map_keys($row, array(
 				"country_name",
 				"name",
 				"code",

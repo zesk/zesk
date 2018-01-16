@@ -165,6 +165,6 @@ class Domain extends ORM {
 	 */
 	private function load_public_tlds() {
 		$contents = strtolower(File::contents(self::public_suffix_list_file($this->application->paths), self::default_public_suffix_list_file));
-		self::$public_tlds = arr::flip_copy(arr::trim_clean(explode("\n", Text::remove_line_comments($contents, '//'))));
+		self::$public_tlds = ArrayTools::flip_copy(ArrayTools::trim_clean(explode("\n", Text::remove_line_comments($contents, '//'))));
 	}
 }

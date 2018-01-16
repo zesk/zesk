@@ -53,7 +53,7 @@ class World_Bootstrap_Province extends Options {
 		$this->inherit_global_options($object);
 		$include_country = $this->option("include_country");
 		if ($include_country) {
-			$this->include_country = array_change_key_case(arr::flip_assign(to_list($include_country), true));
+			$this->include_country = array_change_key_case(ArrayTools::flip_assign(to_list($include_country), true));
 		}
 	}
 	

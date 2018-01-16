@@ -84,14 +84,14 @@ class Control_Select_ORM extends Control_Select {
 		$prefix = $query->alias() . ".";
 		
 		$text_column = $this->text_columns();
-		$what = arr::prefix(arr::flip_copy($text_column), $prefix);
+		$what = ArrayTools::prefix(ArrayTools::flip_copy($text_column), $prefix);
 		$query->what("id", $prefix . $this->class_object->id_column);
 		$query->what($what, true);
 		$query->order_by($this->option('order_by', $text_column));
 		$query->where($this->_where());
 		
 		if (!$this->has_option('format')) {
-			$this->set_option('format', implode(" ", arr::wrap(array_keys($what), '{', '}')));
+			$this->set_option('format', implode(" ", ArrayTools::wrap(array_keys($what), '{', '}')));
 		}
 		$this->call_hook("options_query", $query);
 		return $this->call_hook("options_query_format", $query);

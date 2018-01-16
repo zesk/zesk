@@ -9,11 +9,11 @@ echo HTML::tag('form', array(
 	'type' => 'text',
 	'name' => 'q',
 	'value' => $this->request->get('q'),
-	'placeholder' => $this->get('title', __('Search')),
+	'placeholder' => $this->get('title', $locale('Search')),
 	'class' => 'form-control'
 ), null) . HTML::div('.input-group-btn', HTML::tag('button', array(
 	'class' => 'btn btn-default tip',
 	'data-container' => 'body',
-	'title' => $this->get('search_title', __('Search'))
+	'title' => $this->get('search_title', $locale('Search'))
 ), HTML::span('.glyphicon .glyphicon-search', '')))));
 

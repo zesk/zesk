@@ -1,6 +1,6 @@
 <?php
 /**
- * 
+ *
  */
 namespace zesk;
 
@@ -44,30 +44,30 @@ class Command_Cannon extends Command_Base {
 	protected $options = array(
 		'max_file_size' => 8388608
 	);
-	
+
 	/**
 	 * Set to true in subclasses to skip Application configuration until ->go
 	 *
 	 * @var boolean
 	 */
 	public $has_configuration = true;
-	
+
 	/**
 	 * @var array
 	 */
 	private $skip_when_matches = null;
-	
+
 	/**
-	 * 
+	 *
 	 */
 	private $also_match = null;
-	
+
 	/**
-	 * 
+	 *
 	 */
 	function run() {
 		$this->configure('cannon');
-		
+
 		$dir = $this->first_option("dir;directory");
 		if ($dir && !is_dir($dir)) {
 			$this->usage("$dir is not a directory");
@@ -76,7 +76,7 @@ class Command_Cannon extends Command_Base {
 		$backup = $this->option_bool('backup');
 		$duplicate = $this->option_bool('duplicate');
 		$show = $this->option_bool('show');
-		
+
 		$this->verbose_log("Verbose enabled.");
 		if ($this->option_bool('dry-run')) {
 			$this->verbose_log("Dry run - nothing will change.");
@@ -127,8 +127,9 @@ class Command_Cannon extends Command_Base {
 			}
 			$this->verbose_log("Backing up files with matches");
 		}
-		$this->log(" Search: $search (" . Locale::plural_word("character", strlen($search)) . ")");
-		$this->log("Replace: $replace (" . Locale::plural_word("character", strlen($replace)) . ")");
+		$locale = $this->application->locale;
+		$this->log(" Search: $search (" . $locale->plural_word("character", strlen($search)) . ")");
+		$this->log("Replace: $replace (" . $locale->plural_word("character", strlen($replace)) . ")");
 		$stats = array(
 			'files' => 0,
 			'lines' => 0
@@ -147,7 +148,7 @@ class Command_Cannon extends Command_Base {
 			$this->verbose_log("Replacement files MUST contain one of: \n\t\"" . implode("\"\n\t\"", $this->also_match) . "\"\n\n");
 			$stats['skipped'] = 0;
 		}
-		
+
 		foreach ($files as $file) {
 			$result = $this->_replace_file($file, $search, $replace);
 			if ($result > 0) {
@@ -159,7 +160,7 @@ class Command_Cannon extends Command_Base {
 		}
 		$this->log(Text::format_pairs($stats));
 	}
-	
+
 	/**
 	 * List files
 	 */
@@ -178,7 +179,7 @@ class Command_Cannon extends Command_Base {
 			false
 		);
 		$options['add_path'] = true;
-		
+
 		return Directory::list_recursive($dir, $options);
 	}
 	private function _replace_file($file, $search, $replace) {
@@ -201,11 +202,11 @@ class Command_Cannon extends Command_Base {
 		if (is_array($this->skip_when_matches) && str::contains($contents, $this->skip_when_matches)) {
 			return -1;
 		}
-		
+
 		if (is_array($this->also_match) && !str::contains($contents, $this->also_match)) {
 			return -1;
 		}
-		
+
 		$rabbit = "\x01";
 		$search_tr = array(
 			$search => $rabbit
@@ -213,15 +214,16 @@ class Command_Cannon extends Command_Base {
 		$replace_tr = array(
 			$rabbit => $replace
 		);
-		
+
 		$lines = explode("\n", strtr($contents, $search_tr));
 		foreach ($lines as $lineno => $line) {
 			if (strpos($line, $rabbit) === false) {
 				unset($lines[$lineno]);
 			}
 		}
+		$locale = $this->application->locale;
 		if ($dry_run || $show) {
-			echo "$file: " . Locale::plural_word("match", count($lines)) . "\n";
+			echo "$file: " . $locale->plural_word("match", count($lines)) . "\n";
 			$carrots_tr = array(
 				$rabbit => str_repeat("^", strlen($replace))
 			);
@@ -241,7 +243,7 @@ class Command_Cannon extends Command_Base {
 		if ($duplicate) {
 			$ext = file::extension($file);
 			$dupfile = file::extension_change($file, ".cannon.$ext");
-			$this->verbose_log("Writing $dupfile: " . Locale::plural_word("change", count($lines)));
+			$this->verbose_log("Writing $dupfile: " . $locale->plural_word("change", count($lines)));
 			file_put_contents($dupfile, strtr($contents, array(
 				$search => $replace
 			)));

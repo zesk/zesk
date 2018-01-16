@@ -76,7 +76,7 @@ class Command_Database_Connect extends Command_Base {
 			die("Unable to find shell $command in system path:" . implode(", ", $this->application->paths->command()) . "\n");
 		}
 		if ($this->option_bool('echo')) {
-			echo $full_command_path . implode("", arr::prefix($args, " ")) . "\n";
+			echo $full_command_path . implode("", ArrayTools::prefix($args, " ")) . "\n";
 		} else {
 			PHP::requires('pcntl', true);
 			$method = 'pcntl_exec';

@@ -1,6 +1,6 @@
 <?php
 /**
- * 
+ *
  */
 namespace zesk;
 
@@ -25,15 +25,15 @@ namespace zesk;
  * @property array $data
  */
 class Health_Event extends ORM {
-	
+
 	/**
-	 * 
+	 *
 	 * @var string
 	 */
 	const updated_file = ".updated";
-	
+
 	/**
-	 * 
+	 *
 	 * {@inheritDoc}
 	 * @see ORM::store()
 	 */
@@ -43,9 +43,9 @@ class Health_Event extends ORM {
 		}
 		return parent::store();
 	}
-	
+
 	/**
-	 * 
+	 *
 	 * @param array $event
 	 * @param unknown $path
 	 */
@@ -60,7 +60,7 @@ class Health_Event extends ORM {
 			$event['server'] = null;
 		}
 		$event['application'] = get_class($application);
-		
+
 		/* @var $class Class_Health_Event */
 		$class = $application->class_object(__CLASS__);
 		$data = array();
@@ -71,7 +71,7 @@ class Health_Event extends ORM {
 			}
 		}
 		$event['data'] = $data;
-		
+
 		$hash = md5($application->process->id() . "-" . mt_rand() . "-" . $microtime);
 		$msec = Text::ralign("$msec", 3, "0");
 		$filename = strtr("$when.$msec-$hash.event", array(
@@ -80,9 +80,9 @@ class Health_Event extends ORM {
 		file_put_contents(path($path, $filename), serialize($event));
 		file_put_contents(path($path, self::updated_file), strval($microtime));
 	}
-	
+
 	/**
-	 * 
+	 *
 	 * @param string $path Directory for all deferred events
 	 * @param string $file Full path to file to defer
 	 * @param string $name Name of type of event to defer (reason)
@@ -93,9 +93,9 @@ class Health_Event extends ORM {
 		rename($file, path($defer_event_path, basename($file)));
 		Directory::cull_contents($defer_event_path, $application->configuration->path_get(__CLASS__ . '::defer_max_files', 100));
 	}
-	
+
 	/**
-	 * 
+	 *
 	 * @param string $path
 	 * @return boolean
 	 */
@@ -145,7 +145,7 @@ class Health_Event extends ORM {
 		}
 		return true;
 	}
-	
+
 	/**
 	 * Generate Health_Events link
 	 *
@@ -156,7 +156,7 @@ class Health_Event extends ORM {
 		$this->events = $events->register_from_event($this);
 		return $this;
 	}
-	
+
 	/**
 	 * Delete all but n of a particular Health_Event (based on Health_Events pointer)
 	 *
@@ -183,7 +183,7 @@ class Health_Event extends ORM {
 			$delete_query->exec();
 			$this->application->logger->notice("Deleted {n} {rows} related to health event {message} (Health Events #{id}) - total {total}", array(
 				"n" => $nrows = $delete_query->affected_rows(),
-				"rows" => Locale::plural("row", $nrows),
+				"rows" => $this->application->locale->plural("row", $nrows),
 				"message" => $this->message,
 				"id" => $this->member_integer("events"),
 				"total" => $this->events->total

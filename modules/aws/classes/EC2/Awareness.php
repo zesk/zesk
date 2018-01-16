@@ -9,7 +9,7 @@ use zesk\Application;
 use zesk\Options;
 use zesk\Cache;
 use zesk\Hookable;
-use zesk\arr;
+use zesk\ArrayTools;
 use zesk\Net_HTTP_Client;
 use zesk\System;
 use Psr\Cache\CacheItemInterface;
@@ -208,7 +208,7 @@ class Awareness extends Hookable {
 			return $this->mock_settings;
 		}
 		$host = php_uname('n');
-		$ips = array_values(arr::clean(System::ip_addresses($this->application), "127.0.0.1"));
+		$ips = array_values(ArrayTools::clean(System::ip_addresses($this->application), "127.0.0.1"));
 		$macs = array_values(System::mac_addresses($this->application));
 		
 		$settings = array(
@@ -227,7 +227,7 @@ class Awareness extends Hookable {
 				$settings[$setting] = $this->option("mock_" . $setting);
 			}
 		}
-		$settings = arr::map_keys($settings, self::$setting_to_suffix);
+		$settings = ArrayTools::map_keys($settings, self::$setting_to_suffix);
 		return $this->mock_settings = $settings;
 	}
 	/**

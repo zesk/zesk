@@ -1,11 +1,11 @@
 <?php
 /**
- * 
+ *
  */
 namespace zesk;
 
 /**
- * 
+ *
  * @author kent
  *
  */
@@ -20,29 +20,29 @@ class Configuration_Parser_CONF extends Configuration_Parser {
 		"multiline" => true,
 		"unquote" => '\'\'""'
 	);
-	
+
 	/**
 	 */
 	public function initialize() {
 	}
-	
+
 	/**
 	 */
 	public function validate() {
 		return true;
 	}
-	
+
 	/**
-	 * 
+	 *
 	 * {@inheritDoc}
 	 * @see \zesk\Configuration_Parser::editor()
 	 */
 	public function editor($content = null, array $options = array()) {
 		return new Configuration_Editor_CONF($content, $options);
 	}
-	
+
 	/**
-	 * 
+	 *
 	 * {@inheritDoc}
 	 * @see \zesk\Configuration_Parser::process()
 	 * @return Interface_Settings
@@ -50,10 +50,10 @@ class Configuration_Parser_CONF extends Configuration_Parser {
 	public function process() {
 		$separator = $lower = $trim_key = $unquote = $trim_value = $autotype = $overwrite = $multiline = null;
 		extract($this->options, EXTR_IF_EXISTS);
-		
+
 		$settings = $this->settings;
 		$dependency = $this->dependency;
-		
+
 		$lines = explode("\n", $this->content);
 		if ($multiline) {
 			$lines = self::join_lines($lines);
@@ -92,7 +92,7 @@ class Configuration_Parser_CONF extends Configuration_Parser {
 					$value = PHP::autotype($value);
 				}
 			}
-			
+
 			/**
 			 * Now apply to back to our settings, or handle special values
 			 */
@@ -116,7 +116,7 @@ class Configuration_Parser_CONF extends Configuration_Parser {
 		}
 		return $settings;
 	}
-	
+
 	/**
 	 * Handle include files specially
 	 *
@@ -131,22 +131,20 @@ class Configuration_Parser_CONF extends Configuration_Parser {
 			return;
 		}
 		$files = $missing = array();
-		$paths = $this->loader->paths();
-		foreach ($paths as $path) {
-			$conf_path = path($path, $file);
-			if (file_exists($conf_path)) {
-				$files[] = $conf_path;
-			} else {
-				$missing[] = $conf_path;
-			}
+		$path = dirname($this->loader->current());
+		$conf_path = path($path, $file);
+		if (file_exists($conf_path)) {
+			$files[] = $conf_path;
+		} else {
+			$missing[] = $conf_path;
 		}
 		$this->loader->append_files($files, $missing);
 	}
-	
+
 	/**
 	 * Allow multi-line settings by placing additional lines beginning with whitespace
 	 *
-	 * @param array $lines        	
+	 * @param array $lines
 	 */
 	private static function join_lines(array $lines) {
 		$result = array(
@@ -166,17 +164,17 @@ class Configuration_Parser_CONF extends Configuration_Parser {
 		}
 		return $result;
 	}
-	
+
 	/**
 	 * Shared by Configuration_Editor_CONF
 	 *
-	 * @param string $line        	
+	 * @param string $line
 	 * @return array
 	 */
 	public function parse_line($line) {
 		$separator = $trim_key = $trim_value = $lower = null;
 		extract($this->options, EXTR_IF_EXISTS);
-		
+
 		$line = trim($line);
 		if (substr($line, 0, 1) == "#") {
 			return null;

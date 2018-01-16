@@ -75,7 +75,7 @@ class JSON {
 				return '"Recursion ' . type($mixed) . '"';
 			}
 			$result = array();
-			if (!is_object($mixed) && !arr::is_assoc($mixed)) {
+			if (!is_object($mixed) && !ArrayTools::is_assoc($mixed)) {
 				foreach ($mixed as $v) {
 					$recursion++;
 					$result[] = self::encode($v);
@@ -138,7 +138,7 @@ class JSON {
 	public static function encodex($mixed) {
 		if (is_array($mixed) || is_object($mixed)) {
 			$result = array();
-			if (!is_object($mixed) && !arr::is_assoc($mixed)) {
+			if (!is_object($mixed) && !ArrayTools::is_assoc($mixed)) {
 				foreach ($mixed as $v) {
 					$result[] = self::encodex($v);
 				}

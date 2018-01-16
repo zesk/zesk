@@ -170,7 +170,7 @@ class Server_Platform_Darwin extends Server_Platform_UNIX {
 		try {
 			$result = $this->exec("dscl . -read /Users/{0} " . implode(" ", array_keys($map)), $user);
 			$result = self::_parse_dscl_output($result);
-			return self::$users[$user] = arr::map_keys($result, $map);
+			return self::$users[$user] = ArrayTools::map_keys($result, $map);
 		} catch (Server_Exception $e) {
 		}
 		return null;
@@ -193,7 +193,7 @@ class Server_Platform_Darwin extends Server_Platform_UNIX {
 		$map = self::darwin_group_map();
 		try {
 			$result = $this->exec("dscl . -read /Groups/{0} " . implode(" ", array_keys($map)), $group);
-			$data = arr::map_keys(self::_parse_dscl_output($result), $map);
+			$data = ArrayTools::map_keys(self::_parse_dscl_output($result), $map);
 			$data[self::f_group_members] = to_list($data[self::f_group_members], array(), " ");
 			return self::$groups[$group] = $data;
 		} catch (Server_Exception $e) {
@@ -206,7 +206,7 @@ class Server_Platform_Darwin extends Server_Platform_UNIX {
 	 * @see Server_Platform::user_create()
 	 */
 	public function user_create($user, $group, $home = null, $options = null) {
-		$options = arr::filter(is_array($options) ? $options : array(), array(
+		$options = ArrayTools::filter(is_array($options) ? $options : array(), array(
 			self::f_user_shell,
 			self::f_user_full_name,
 			self::f_user_id
@@ -259,10 +259,10 @@ class Server_Platform_Darwin extends Server_Platform_UNIX {
 	 * @see Server_Platform::group_create()
 	 */
 	public function group_create($group, $members = null, $options = null) {
-		$options = arr::filter(is_array($options) ? $options : array(), 'gid');
+		$options = ArrayTools::filter(is_array($options) ? $options : array(), 'gid');
 		$params = array(
 			'members' => to_list($members)
-		) + arr::filter($options, 'gid');
+		) + ArrayTools::filter($options, 'gid');
 		try {
 			$this->exec("dscl . -create /Groups/{0}", $group);
 		} catch (Server_Exception_Command $e) {

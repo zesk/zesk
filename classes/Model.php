@@ -401,10 +401,10 @@ class Model extends Hookable implements \ArrayAccess {
 		$result = array();
 		$hier = $this->application->classes->hierarchy(get_class($this), __CLASS__);
 		foreach ($hier as $class) {
-			$result = array_merge($result, arr::prefix($theme_names, $class . "/"));
+			$result = array_merge($result, ArrayTools::prefix($theme_names, $class . "/"));
 		}
 		if ($this->has_option(self::option_theme_path_prefix)) {
-			$result_prefix = arr::prefix($result, rtrim($this->option(self::option_theme_path_prefix), "/") . "/");
+			$result_prefix = ArrayTools::prefix($result, rtrim($this->option(self::option_theme_path_prefix), "/") . "/");
 			$result = array_merge($result_prefix, $result);
 		}
 		

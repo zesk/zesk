@@ -371,7 +371,7 @@ class ArrayTools {
 					unset($arr[$k]);
 				}
 			} else if (is_array($v)) {
-				$arr[$k] = arr::$n_suffix($v, $prefix, $suffix, $remove);
+				$arr[$k] = ArrayTools::$n_suffix($v, $prefix, $suffix, $remove);
 			}
 		}
 		return $arr;
@@ -519,7 +519,7 @@ class ArrayTools {
 	 * @param
 	 *        	mixed default value if the path is not set
 	 * @return mixed
-	 * @see arr::path_set
+	 * @see ArrayTools::path_set
 	 * @deprecated Use apath
 	 */
 	public static function path(array $array, $path, $default = null, $separator = ".") {
@@ -1028,12 +1028,12 @@ class ArrayTools {
 	 *        	A key value for the array
 	 * @param mixed $v
 	 *        	The value to store in the array
-	 * @see arr::prepend
+	 * @see ArrayTools::prepend
 	 */
 	public static function append(&$arr, $k, $v = null) {
 		if (is_array($k)) {
 			foreach ($k as $k0 => $v) {
-				arr::append($arr, $k0, $v);
+				ArrayTools::append($arr, $k0, $v);
 			}
 		} else {
 			if (!isset($arr[$k])) {
@@ -1082,12 +1082,12 @@ class ArrayTools {
 	 *        	A key value for the array
 	 * @param mixed $v
 	 *        	The value to store in the array
-	 * @see arr::append
+	 * @see ArrayTools::append
 	 */
 	public static function prepend(&$arr, $k, $v = null) {
 		if (is_array($k)) {
 			foreach ($k as $k0 => $v) {
-				arr::append($arr, $k0, $v);
+				ArrayTools::append($arr, $k0, $v);
 			}
 		} else {
 			if (!isset($arr[$k])) {
@@ -1143,7 +1143,7 @@ class ArrayTools {
 	 * Flips array but when identical keys exist, keeps all duplicate values, so:
 	 *
 	 * <code>
-	 * arr::flip_multiple(array(
+	 * ArrayTools::flip_multiple(array(
 	 * 'a' => '1',
 	 * 'b' => '2',
 	 * 'c' => '1',
@@ -1463,9 +1463,9 @@ class ArrayTools {
 	 * 'max' => 5,
 	 * )
 	 * );
-	 * arr::collapse($array, 'min') === array(1,4)
-	 * arr::collapse($array, 'max') === array(2,5)
-	 * arr::collapse($array, 'dude') === array(null,null)
+	 * ArrayTools::collapse($array, 'min') === array(1,4)
+	 * ArrayTools::collapse($array, 'max') === array(2,5)
+	 * ArrayTools::collapse($array, 'dude') === array(null,null)
 	 * Not sure if this is the best name for this.
 	 *
 	 * @param array $array
@@ -1624,7 +1624,7 @@ class ArrayTools {
 	public static function scalars(array $array) {
 		foreach ($array as $k => $v) {
 			if (is_array($v)) {
-				$array[$k] = arr::scalars($v);
+				$array[$k] = ArrayTools::scalars($v);
 			} else if ($v !== null && !is_scalar($v)) {
 				$array[$k] = strval($v);
 			}

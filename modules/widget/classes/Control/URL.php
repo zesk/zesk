@@ -9,7 +9,7 @@
 namespace zesk;
 
 /**
- * 
+ *
  * @author kent
  *
  */
@@ -35,9 +35,9 @@ class Control_URL extends Control_Text {
 		$this->error($this->option('error_syntax', $this->_error_default()));
 	}
 	private function _error_default() {
-		$protocols = arr::suffix($this->protocol_list(), "://");
+		$protocols = ArrayTools::suffix($this->protocol_list(), "://");
 		return __('{label} must begin with {protocol_phrase}', array(
-			"protocol_phrase" => Locale::conjunction($protocols)
+			"protocol_phrase" => $this->application->locale->conjunction($protocols)
 		));
 	}
 	private function error_protocol() {
@@ -48,7 +48,7 @@ class Control_URL extends Control_Text {
 	}
 	protected function error_map() {
 		return parent::error_map() + array(
-			'protocol_phrase' => Locale::conjunction($this->protocol_list())
+			'protocol_phrase' => $this->application->locale->conjunction($this->protocol_list())
 		);
 	}
 	function multiple($set = null) {
@@ -103,7 +103,7 @@ class Control_URL extends Control_Text {
 			$this->value($urls);
 			return true;
 		}
-		
+
 		$new_value = $this->_url_check($value);
 		if (!$new_value) {
 			if ($this->required()) {

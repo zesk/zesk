@@ -35,7 +35,7 @@ foreach ($this->objects as $object) {
 // $n = count($results);
 // echo HTML::tag('span', '.badge', __('{n} {nouns} selected', array(
 // 	"n" => $n,
-// 	"nouns" => Locale::plural($this->class_object_name)
+// 	"nouns" => $locale->plural($this->class_object_name)
 // )));
 
 $list_attributes = HTML::to_attributes($this->list_attributes);

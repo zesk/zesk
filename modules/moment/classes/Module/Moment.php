@@ -1,17 +1,17 @@
 <?php
 /**
- * 
+ *
  */
 namespace zesk;
 
 /**
- * 
+ *
  * @author kent
  *
  */
 class Module_Moment extends Module_JSLib implements Interface_Module_Head {
 	/**
-	 * 
+	 *
 	 * @var array
 	 */
 	protected $javascript_paths = array(
@@ -21,9 +21,9 @@ class Module_Moment extends Module_JSLib implements Interface_Module_Head {
 	protected $class_aliases = array(
 		"Module_Moment" => __CLASS__
 	);
-	
+
 	/**
-	 * 
+	 *
 	 * {@inheritDoc}
 	 * @see Module::initialize()
 	 */
@@ -35,18 +35,17 @@ class Module_Moment extends Module_JSLib implements Interface_Module_Head {
 		}
 		parent::initialize();
 	}
-	
+
 	/**
-	 * 
+	 *
 	 * {@inheritDoc}
 	 * @see Module_JSLib::hook_head()
 	 */
 	public function hook_head(Request $request, Response_Text_HTML $response, Template $template) {
-		$locale = Locale::current();
-		$language = Locale::language($locale);
+		$locale = $this->application->locale;
 		$this->jquery_ready[] = "try {\n\tmoment.locale(" . JavaScript::arguments(array(
-			$locale,
-			$language
+			$locale->id(),
+			$locale->language()
 		)) . ");\n} catch (e) {\n\twindow.zesk && window.zesk.log(\"Moment locale $locale failed to load\");\n}";
 		parent::hook_head($request, $response, $template);
 	}

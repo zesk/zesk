@@ -158,7 +158,7 @@ class Command_Daemon extends Command_Base implements Interface_Process {
 
 		$this->configure("daemon", true);
 		if ($this->option_bool('debug-log')) {
-			echo Text::format_pairs(arr::filter_prefix($this->application->configuration->to_array(), "log"));
+			echo Text::format_pairs(ArrayTools::filter_prefix($this->application->configuration->to_array(), "log"));
 		}
 
 		$this->fifo_path = path($this->module->rundir, "daemon-controller");
@@ -269,12 +269,24 @@ class Command_Daemon extends Command_Base implements Interface_Process {
 		posix_kill($pid, $signal);
 		return 0;
 	}
+
+	/**
+	 * Fetch list of daemons
+	 *
+	 * @return Closure[string]
+	 */
 	private function daemons() {
-		$daemons = $this->application->hooks->find_all(array(
+		$daemon_hooks = array(
 			"zesk\Application::daemon",
-			"zesk\Module::daemon",
-			"zesk\ORM::daemon"
+			"zesk\Module::daemon"
+		);
+		$daemon_hooks = $this->call_hook_arguments("daemon_hooks", array(
+			$daemon_hooks
+		), $daemon_hooks);
+		$this->debug_log("Daemon hooks are {daemon_hooks}", array(
+			"daemon_hooks" => $daemon_hooks
 		));
+		$daemons = $this->application->hooks->find_all($daemon_hooks);
 		$daemons = $this->daemons_expand($daemons);
 		return $daemons;
 	}
@@ -451,7 +463,7 @@ class Command_Daemon extends Command_Base implements Interface_Process {
 						$suffix = "";
 					}
 				}
-				$pairs[$name] = "$status_text$suffix, " . Locale::plural_number("second", $delta) . $want;
+				$pairs[$name] = "$status_text$suffix, " . $this->application->locale->plural_number("second", $delta) . $want;
 			}
 			echo Text::format_pairs($pairs);
 		}
@@ -651,6 +663,9 @@ class Command_Daemon extends Command_Base implements Interface_Process {
 		$terminate_after = $this->option_integer('terminate-after', 0);
 		$timer = new Timer();
 		$alive_notices = 0;
+		if (count($daemons) === 0) {
+			$this->warning("No daemons found to run");
+		}
 		declare(ticks = 1) {
 			do {
 				$this->run_children();
@@ -960,7 +975,7 @@ class Command_Daemon extends Command_Base implements Interface_Process {
 		$now = microtime(true);
 		if ($this->last_tick === null || $now - $this->last_tick > 1.0) {
 			$this->last_tick = $now;
-			if (Process_Tools::process_code_changed()) {
+			if (Process_Tools::process_code_changed($this->application)) {
 				$this->warning("Code changed - exiting.");
 				$this->quitting = true;
 			}

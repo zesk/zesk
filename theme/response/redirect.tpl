@@ -34,7 +34,7 @@ $response->css_inline($styles);
 $this->begin('response/html.tpl');
 $this->begin('body/exception.tpl');
 
-echo HTML::div('.redirect', HTML::tag('label', __('Redirect:')) . $this->content);
+echo HTML::div('.redirect', HTML::tag('label', $locale('Redirect:')) . $this->content);
 
 if ($zesk->configuration->path_get('Response::redirect_show_backtrace', $this->application->development())) {
 	echo HTML::div('.backtrace', $this->theme('exception/trace', array(

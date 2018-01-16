@@ -16,7 +16,7 @@ namespace zesk;
  * @author kent
  */
 class Module_Forgot extends Module implements Interface_Module_Routes {
-	
+
 	/**
 	 *
 	 * @var array
@@ -24,9 +24,9 @@ class Module_Forgot extends Module implements Interface_Module_Routes {
 	protected $model_classes = array(
 		"zesk\\Forgot"
 	);
-	
+
 	/**
-	 * 
+	 *
 	 * {@inheritDoc}
 	 * @see Module::initialize()
 	 */
@@ -34,11 +34,11 @@ class Module_Forgot extends Module implements Interface_Module_Routes {
 		parent::initialize();
 		$this->zesk->configuration->path("zesk\\Forgot")->theme_path_prefix = "object";
 	}
-	
+
 	/**
 	 * Implements Module::routes
 	 *
-	 * @param Router $router        	
+	 * @param Router $router
 	 */
 	public function hook_routes(Router $router) {
 		$router->add_route("forgot(/{option action}(/{hash}))", array(
@@ -52,5 +52,20 @@ class Module_Forgot extends Module implements Interface_Module_Routes {
 			"login" => false,
 			"id" => "forgot"
 		));
+	}
+
+	/**
+	 *
+	 * @param Application $application
+	 */
+	public function cron_cluster_minute() {
+		$expire_seconds = -abs(to_integer($this->option("expire_seconds"), 3600));
+		$older = Timestamp::now()->add_unit($expire_seconds, Timestamp::UNIT_SECOND);
+		$affected_rows = $this->application->orm_registry(Forgot::class)->delete_older($older);
+		if ($affected_rows > 0) {
+			$this->application->logger->notice("{method} deleted {affected_rows} forgotten rows", compact("affected_rows") + array(
+				"method" => __METHOD__
+			));
+		}
 	}
 }

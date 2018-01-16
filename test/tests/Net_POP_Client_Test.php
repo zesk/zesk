@@ -108,7 +108,7 @@ class Net_POP_Client_Test extends Test_Unit {
 	 * @expectedException zesk\Exception_Authentication
 	 */
 	function test_bad_password() {
-		$parts = arr::filter($this->parts, 'scheme;host;user');
+		$parts = ArrayTools::filter($this->parts, 'scheme;host;user');
 		$parts['pass'] = "bad-password";
 		$test_url = URL::unparse($parts);
 		

@@ -50,7 +50,7 @@ if ($this->getb("refresh")) {
 }
 
 if ($this->label_checkbox) {
-	$label_attr = arr::map_keys(arr::filter($attr, "id"), array(
+	$label_attr = ArrayTools::map_keys(ArrayTools::filter($attr, "id"), array(
 		"id" => "for"
 	));
 	$label_attr['class'] = $this->get('checkbox_label_class', null);

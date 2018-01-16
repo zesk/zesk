@@ -18,38 +18,38 @@ use Psr\Cache\CacheItemInterface;
  * @see Class_Settings
  */
 class Settings extends ORM implements Interface_Data, Interface_Settings {
-	
+
 	/**
 	 * Default cache expiration
-	 * 
+	 *
 	 * @var integer
 	 */
 	const SETTINGS_CACHE_EXPIRE_AFTER = 60;
-	
+
 	/**
 	 * Is the database down?
 	 *
 	 * @var boolean
 	 */
 	private $db_down = false;
-	
+
 	/**
 	 * Reason why the database is down
 	 *
 	 * @var Exception
 	 */
 	private $db_down_why = null;
-	
+
 	/**
 	 * List of global changes to settings to be saved
 	 *
 	 * @var string
 	 */
 	private $changes = array();
-	
+
 	/**
 	 *
-	 * @param Application $application        	
+	 * @param Application $application
 	 * @throws Exception_Configuration
 	 * @return \zesk\Interface_Settings
 	 */
@@ -70,18 +70,19 @@ class Settings extends ORM implements Interface_Data, Interface_Settings {
 		));
 		return $application->objects->settings = $settings;
 	}
-	
+
 	/**
 	 * Hook ORM::hooks
 	 */
-	public static function hooks(Kernel $zesk) {
+	public static function hooks(Kernel $kernel) {
+		$hooks = $kernel->hooks;
 		// Ensure Database gets a chance to register first
-		$zesk->hooks->register_class("zesk\\Database");
-		$zesk->configuration->path(__CLASS__);
-		$hooks = $zesk->hooks;
+		$hooks->register_class("zesk\\Database");
 		$hooks->add('configured', __CLASS__ . '::configured', 'first');
+
+		$kernel->configuration->path(__CLASS__);
 	}
-	
+
 	/**
 	 * Cache for the settings
 	 *
@@ -90,18 +91,18 @@ class Settings extends ORM implements Interface_Data, Interface_Settings {
 	private static function _cache_item(Application $application, CacheItemInterface $item = null) {
 		if ($item) {
 			$application->cache->saveDeferred($item);
-			return $this;
+			return $item;
 		}
-		return $application->cache->getItem(__CLASS__)->expiresAfter($application->path_get(array(
+		return $application->cache->getItem(__CLASS__)->expiresAfter($application->configuration->path_get(array(
 			__CLASS__,
 			"cache_expire_after"
 		), self::SETTINGS_CACHE_EXPIRE_AFTER));
 	}
-	
+
 	/**
 	 *
-	 * @param Application $application        	
-	 * @param string $serialized        	
+	 * @param Application $application
+	 * @param string $serialized
 	 * @throws Exception_Syntax
 	 * @return mixed|null
 	 */
@@ -117,21 +118,21 @@ class Settings extends ORM implements Interface_Data, Interface_Settings {
 			return null;
 		}
 	}
-	
+
 	/**
 	 *
-	 * @param Application $application        	
-	 * @param boolean $fix_bad_globals        	
+	 * @param Application $application
+	 * @param boolean $fix_bad_globals
 	 * @return array
 	 */
 	private static function load_globals_from_database(Application $application, $debug_load = false) {
 		$globals = array();
 		$size_loaded = 0;
 		$n_loaded = 0;
-		$object = $application->object(__CLASS__);
+		$object = $application->orm_registry(__CLASS__);
 		$fix_bad_globals = $object->option_bool("fix_bad_globals");
-		
-		foreach ($application->orm_registry(__CLASS__)->query_select()->to_array("name", "value") as $name => $value) {
+
+		foreach ($object->query_select()->to_array("name", "value") as $name => $value) {
 			++$n_loaded;
 			$size_loaded += strlen($value);
 			if (is_string($value)) {
@@ -150,7 +151,10 @@ class Settings extends ORM implements Interface_Data, Interface_Settings {
 							"method" => __METHOD__,
 							"name" => $name
 						));
-						$application->query_delete(__CLASS__)->where("name", $name)->execute();
+						$application->orm_registry(__CLASS__)
+							->query_delete()
+							->where("name", $name)
+							->execute();
 					} else {
 						$application->logger->error("{method}: Bad global {name} can not be unserialized, please fix manually", array(
 							"method" => __METHOD__,
@@ -172,7 +176,7 @@ class Settings extends ORM implements Interface_Data, Interface_Settings {
 		), $globals);
 		return $globals;
 	}
-	
+
 	/**
 	 * configured Hook
 	 */
@@ -264,7 +268,7 @@ class Settings extends ORM implements Interface_Data, Interface_Settings {
 		$this->db_down = false;
 		$this->flush();
 	}
-	
+
 	/**
 	 * Internal function to write all settings store in this object to the database instantly.
 	 */
@@ -297,10 +301,10 @@ class Settings extends ORM implements Interface_Data, Interface_Settings {
 		$this->application->logger->debug("Deleted {class} cache", array(
 			"class" => __CLASS__
 		));
-		$this->_cache_item()->delete();
+		$this->application->cache->deleteItem($this->_cache_item($this->application)->getKey());
 		$this->changes = array();
 	}
-	
+
 	/**
 	 * Override get to retrieve from global state
 	 *
@@ -311,7 +315,7 @@ class Settings extends ORM implements Interface_Data, Interface_Settings {
 	public function __get($name) {
 		return $this->application->configuration->path_get($name);
 	}
-	
+
 	/**
 	 * Same as __get with a default
 	 *
@@ -320,7 +324,7 @@ class Settings extends ORM implements Interface_Data, Interface_Settings {
 	public function get($name = null, $default = null) {
 		return $this->application->configuration->path_get($name, $default);
 	}
-	
+
 	/**
 	 *
 	 * {@inheritdoc}
@@ -330,7 +334,7 @@ class Settings extends ORM implements Interface_Data, Interface_Settings {
 	public function __isset($member) {
 		return $this->application->configuration->path_exists($member);
 	}
-	
+
 	/**
 	 * Global to save
 	 *
@@ -344,7 +348,7 @@ class Settings extends ORM implements Interface_Data, Interface_Settings {
 		$this->changes[zesk_global_key_normalize($name)] = $value;
 		$this->application->configuration->path_set($name, $value);
 	}
-	
+
 	/**
 	 * Global to save
 	 *
@@ -355,7 +359,7 @@ class Settings extends ORM implements Interface_Data, Interface_Settings {
 		$this->__set($name, $value);
 		return $this;
 	}
-	
+
 	/**
 	 *
 	 * @see Interface_Data::data()
@@ -376,7 +380,7 @@ class Settings extends ORM implements Interface_Data, Interface_Settings {
 		$this->flush();
 		return $this;
 	}
-	
+
 	/**
 	 * (non-PHPdoc)
 	 *
@@ -390,12 +394,12 @@ class Settings extends ORM implements Interface_Data, Interface_Settings {
 		$this->flush();
 		return $this;
 	}
-	
+
 	/**
 	 * Call this when you change your setting names
 	 *
-	 * @param unknown $old_setting        	
-	 * @param unknown $new_setting        	
+	 * @param unknown $old_setting
+	 * @param unknown $new_setting
 	 */
 	public function deprecated($old_setting, $new_setting) {
 		if (!$this->__isset($old_setting)) {
@@ -410,15 +414,15 @@ class Settings extends ORM implements Interface_Data, Interface_Settings {
 		$this->__set($old_setting, null);
 		return $this;
 	}
-	
+
 	/**
-	 * 
+	 *
 	 * @param string $old_prefix
 	 * @param string $new_prefix
 	 * @return integer
 	 */
 	public function prefix_updated($old_prefix, $new_prefix) {
-		$update = $this->application->query_update(Settings::class);
+		$update = $this->application->orm_registry(Settings::class)->query_update();
 		$old_prefix_quoted = $update->sql()->quote_text($old_prefix);
 		$old_prefix_like_quoted = tr($old_prefix, array(
 			"\\" => "\\\\",

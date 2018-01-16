@@ -178,7 +178,7 @@ class PHP {
 			$indent_level = avalue($args, 1, 0);
 			$result = ($no_first_line_indent ? '' : str_repeat($this->indent_char, $indent_level * $this->indent_multiple)) . "array" . $this->array_open_parenthesis_prefix . "(" . $this->array_open_parenthesis_suffix;
 			$items = array();
-			if (arr::is_list($x)) {
+			if (ArrayTools::is_list($x)) {
 				foreach ($x as $k => $v) {
 					$items[] = str_repeat($this->indent_char, ($indent_level + 1) * $this->indent_multiple) . $this->render($v, $indent_level + 1, true);
 				}

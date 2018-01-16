@@ -26,7 +26,7 @@ if ($image instanceof Content_Image) {
 		$attributes = $this->geta('attributes') + array(
 			'src' => $src
 		) + $this->variables;
-		echo HTML::div('.content-image', HTML::tag('img', arr::filter($attributes, 'id;class;src;width;height;alt;title')));
+		echo HTML::div('.content-image', HTML::tag('img', ArrayTools::filter($attributes, 'id;class;src;width;height;alt;title')));
 	} else {
 		$image->sync();
 		$unique_id = $image->id . '-' . $image->data;

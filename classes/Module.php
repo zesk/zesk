@@ -21,34 +21,34 @@ class Module extends Hookable {
 	 * @var zesk\Kernel
 	 */
 	protected $zesk = null;
-	
+
 	/**
 	 *
 	 * @var Application
 	 */
 	protected $application_class = null;
-	
+
 	/**
 	 * Module code name
 	 *
 	 * @var string
 	 */
 	protected $codename = null;
-	
+
 	/**
 	 * Path to this module
 	 *
 	 * @var string
 	 */
 	protected $path = null;
-	
+
 	/**
 	 * List of associated model classes
 	 *
 	 * @var array
 	 */
 	protected $model_classes = array();
-	
+
 	/**
 	 * Array of old_class => new_class
 	 *
@@ -57,7 +57,7 @@ class Module extends Hookable {
 	 * @var array
 	 */
 	protected $class_aliases = array();
-	
+
 	/**
 	 *
 	 * @ignore
@@ -71,18 +71,18 @@ class Module extends Hookable {
 			"classes"
 		);
 	}
-	
+
 	/**
 	 * The path to the module root
-	 * 
+	 *
 	 * @return string
 	 */
 	final public function path() {
 		return $this->path;
 	}
-	
+
 	/**
-	 * 
+	 *
 	 * {@inheritDoc}
 	 * @see \zesk\Hookable::__wakeup()
 	 */
@@ -91,7 +91,7 @@ class Module extends Hookable {
 		$this->zesk = $this->application->zesk;
 		$this->initialize();
 	}
-	
+
 	/**
 	 * Create Module
 	 *
@@ -126,9 +126,9 @@ class Module extends Hookable {
 	public final function register_paths($path) {
 		return $this->application->modules->register_paths($path, $this->codename);
 	}
-	
+
 	/**
-	 * 
+	 *
 	 * {@inheritDoc}
 	 * @see \zesk\Options::__toString()
 	 */
@@ -142,9 +142,9 @@ class Module extends Hookable {
 	 */
 	public function initialize() {
 	}
-	
+
 	/**
-	 * 
+	 *
 	 * @return string
 	 */
 	public final function name() {
@@ -152,21 +152,31 @@ class Module extends Hookable {
 	}
 	/**
 	 * Retrieve the codename of this module
-	 * 
+	 *
 	 * @return string
 	 */
 	public final function codename() {
 		return $this->codename;
 	}
-	
+
 	/**
+	 * @deprecated 2018-01 Use ->model_classes instead
 	 * Override in subclasses - called upon Application::classes
 	 * @return string[]
 	 */
 	public function classes() {
-		return array_merge($this->model_classes, $this->model_classes);
+		$this->application->deprecated();
+		return $this->model_classes();
 	}
-	
+
+	/**
+	 * Override in subclasses - called upon Application::classes
+	 * @return string[]
+	 */
+	public function model_classes() {
+		return $this->model_classes;
+	}
+
 	/**
 	 *
 	 * @param string $class
@@ -177,7 +187,7 @@ class Module extends Hookable {
 	final public function model_factory($class, $mixed = null, array $options = array()) {
 		return $this->application->model_factory($class, $mixed, $options);
 	}
-	
+
 	/**
 	 * @deprecated 2017-12 Blame PHP 7.2
 	 * @param string $class

@@ -4,28 +4,13 @@
  */
 namespace zesk;
 
-if (false) {
-	/* @var $this Template */
-	
-	$zesk = $this->zesk;
-	/* @var $zesk \zesk\Kernel */
-	
-	$application = $this->application;
-	/* @var $application \zesk\Application */
-	
-	$session = $this->session;
-	/* @var $session \zesk\Session */
-	
-	$router = $this->router;
-	/* @var $request \zesk\Router */
-	
-	$request = $this->request;
-	/* @var $request \zesk\Request */
-	
-	$response = $this->response;
-	/* @var $response \zesk\Response_Text_HTML */
-}
-
+/* @var $this Template */
+/* @var $application \zesk\Application */
+/* @var $locale \zesk\Locale */
+/* @var $session \zesk\Session */
+/* @var $request \zesk\Router */
+/* @var $request \zesk\Request */
+/* @var $response \zesk\Response_Text_HTML */
 $id = $this->id;
 if (empty($id)) {
 	$this->id = $id = "datetimepicker-" . $response->id_counter();
@@ -78,7 +63,7 @@ foreach (array(
 	"defaultDate" => $ts_defaultdate
 ) as $option_key => $ts) {
 	if ($ts) {
-		$options[$option_key] = $ts->format($zformat);
+		$options[$option_key] = $ts->format($locale, $zformat);
 	}
 }
 
@@ -92,10 +77,10 @@ foreach (array(
 		$options[$js_option] = $this->get($template_key);
 	}
 }
-$locale = $this->get("locale", Locale::language());
 
+$locale_code = $locale->id();
 // https://github.com/Eonasdan/bootstrap-datetimepicker/issues/1718
-$js_language = "moment.localeData(\"$locale\") ? \"$locale\" : \"en\"";
+$js_language = "moment.localeData(\"$locale_code\") ? \"$locale_code\" : \"en\"";
 
 $options['*locale'] = $js_language;
 

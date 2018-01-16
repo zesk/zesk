@@ -13,40 +13,40 @@
 namespace zesk;
 
 /**
- * 
+ *
  * @author kent
  *
  */
 class Module_Help extends Module_JSLib {
 	/**
-	 * 
+	 *
 	 * @var unknown
 	 */
 	private $authenticated = null;
-	
+
 	/**
-	 * 
+	 *
 	 * @var array
 	 */
 	protected $javascript_settings_inherit = array(
 		'show_count' => 3
 	);
-	
+
 	/**
 	 * Associated classes
-	 * 
+	 *
 	 * @return array
 	 */
 	protected $model_classes = array(
 		'zesk\\Help',
 		'zesk\\Help_User'
 	);
-	
+
 	/**
 	 * We inject our JavaScript on pages; it loads
-	 * 
-	 * @param Request $requset        	
-	 * @param Response_Text_HTML $response        	
+	 *
+	 * @param Request $requset
+	 * @param Response_Text_HTML $response
 	 */
 	public function hook_head(Request $request, Response_Text_HTML $response, Template $template) {
 		if (!$this->option_bool("disabled")) {
@@ -69,7 +69,7 @@ class Module_Help extends Module_JSLib {
 		}
 		parent::hook_head($request, $response, $template);
 	}
-	
+
 	/**
 	 * Registers all help text in the system
 	 */
@@ -93,15 +93,15 @@ class Module_Help extends Module_JSLib {
 				}
 				continue;
 			}
-			$locale = Locale::current();
+			$locale = $this->application->locale;
 			foreach (to_list("title", "content") as $translation_key) {
 				if (array_key_exists($translation_key, $settings)) {
 					// Will register with localization. Is there a more explicit way to do this?
-					Locale::translate($settings[$translation_key], $locale);
+					$locale->__($settings[$translation_key], $locale);
 				}
 			}
 			$settings['target'] = $target;
-			$help = $application->orm_factory('zesk\\Help', $settings)->register();
+			$help = $application->orm_factory(Help::class, $settings)->register();
 			/* @var $help Help */
 			if ($help->object_status() === ORM::object_status_insert) {
 				$this->application->logger->notice("Registered help item for {target}", array(
@@ -112,11 +112,11 @@ class Module_Help extends Module_JSLib {
 			}
 		}
 	}
-	
+
 	/**
 	 * Adds needed routes to our router
-	 * 
-	 * @param Router $router        	
+	 *
+	 * @param Router $router
 	 */
 	public function hook_routes(Router $router) {
 		$router->add_route('help/user-targets', array(
@@ -160,12 +160,12 @@ class Module_Help extends Module_JSLib {
 			)
 		));
 	}
-	
+
 	/**
 	 * List user targets
 	 *
-	 * @param Request $request        	
-	 * @param Response $response        	
+	 * @param Request $request
+	 * @param Response $response
 	 */
 	public function user_targets(Request $request, Response $response) {
 		$application = $this->application;
@@ -183,12 +183,13 @@ class Module_Help extends Module_JSLib {
 			"X.active" => true,
 			"hu.user" => null
 		));
-		$helps = $query->object_iterator();
+		$helps = $query->orm_iterator();
 		$result = array();
 		$mappables = $application->modules->all_hook_arguments("module_help_map", array(), array());
 		if (count($mappables) === 0) {
 			$mappables = array();
 		}
+		$__ = $this->application->locale;
 		foreach ($helps as $id => $help) {
 			/* @var $help Help */
 			$additional_map = $help->map;
@@ -196,19 +197,19 @@ class Module_Help extends Module_JSLib {
 				$additional_map = array();
 			}
 			$help_map = $additional_map + $mappables;
-			
+
 			$help_entry = map($help->members('target;placement'), $help_map);
-			
-			$help_entry['title'] = __($help->title, $help_map);
-			
+
+			$help_entry['title'] = $__($help->title, $help_map);
+
 			$content_wraps = $help->content_wraps;
-			$content = __($help->content, $help_map);
+			$content = $__($help->content, $help_map);
 			if (is_array($content_wraps)) {
 				$content = _W($content, $content_wraps);
 			}
-			
+
 			$help_entry['content'] = $content;
-			
+
 			$result[$id] = $help_entry;
 		}
 		if ($application->development()) {
@@ -216,12 +217,12 @@ class Module_Help extends Module_JSLib {
 		}
 		$response->json($result);
 	}
-	
+
 	/**
 	 * Require user authentication
 	 *
-	 * @param Request $request        	
-	 * @param Response $response        	
+	 * @param Request $request
+	 * @param Response $response
 	 *
 	 * @return User
 	 */
@@ -229,19 +230,19 @@ class Module_Help extends Module_JSLib {
 		$user = $this->application->user(false);
 		if (!$user || !$user->authenticated()) {
 			$response->status(Net_HTTP::Status_Unauthorized, "Requires user")->json(array(
-				'error' => __('Requires user')
+				'error' => $this->application->locale('Requires user')
 			));
 			return null;
 		}
 		return $user;
 	}
-	
+
 	/**
 	 * Require user authentication, and require POST (e.g.
 	 * this is help call which "updates" things)
 	 *
-	 * @param Request $request        	
-	 * @param Response $response        	
+	 * @param Request $request
+	 * @param Response $response
 	 * @return NULL|User
 	 */
 	private function _help_update(Request $request, Response $response) {
@@ -251,18 +252,18 @@ class Module_Help extends Module_JSLib {
 		}
 		if (!$this->application->development() && !$request->is_post()) {
 			$response->status(Net_HTTP::Status_Method_Not_Allowed, "Requires POST")->json(array(
-				'error' => __('Requires POST data')
+				'error' => $this->application->locale('Requires POST data')
 			));
 			return null;
 		}
 		return $user;
 	}
-	
+
 	/**
 	 * Show help to a user and mark Help record
 	 *
-	 * @param Request $request        	
-	 * @param Response $response        	
+	 * @param Request $request
+	 * @param Response $response
 	 */
 	public function user_show(Request $request, Response $response) {
 		if (($user = $this->_help_update($request, $response)) === null) {
@@ -278,11 +279,11 @@ class Module_Help extends Module_JSLib {
 			'message' => 'Marked'
 		));
 	}
-	
+
 	/**
 	 *
-	 * @param Request $request        	
-	 * @param Response $response        	
+	 * @param Request $request
+	 * @param Response $response
 	 */
 	public function user_dismiss(Request $request, Response $response) {
 		if (($user = $this->_help_update($request, $response)) === null) {
@@ -310,31 +311,32 @@ class Module_Help extends Module_JSLib {
 		}
 		$response->json($result);
 	}
-	
+
 	/**
 	 * Remote call to reset all help for a user
 	 *
-	 * @param Request $request        	
-	 * @param Response $response        	
+	 * @param Request $request
+	 * @param Response $response
 	 */
 	public function user_reset(Request $request, Response $response) {
 		if (($user = $this->_help_auth($request, $response)) === null) {
 			return;
 		}
 		$n = $this->reset_user($user);
+		$locale = $this->application->locale;
 		$response->json(array(
 			'status' => true,
-			'message' => __('Removed {n} {entries}', array(
+			'message' => $locale->__('Removed {n} {entries}', array(
 				'n' => $n,
-				'entries' => Locale::plural(__('entry'), $n)
+				'entries' => $locale->plural($locale->__('entry'), $n)
 			))
 		));
 	}
-	
+
 	/**
 	 * Internal function to reset a user's help
 	 *
-	 * @param User $user        	
+	 * @param User $user
 	 * @return number Number of affected records (number previous marked as "dismissed")
 	 */
 	public function reset_user(User $user) {

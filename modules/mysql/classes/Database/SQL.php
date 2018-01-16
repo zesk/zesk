@@ -8,7 +8,7 @@ use zesk\Database_Exception_Schema as Database_Exception_Schema;
 use zesk\Exception_Invalid;
 use zesk\Exception_Semantics as Exception_Semantics;
 use zesk\Text as text;
-use zesk\arr as arr;
+use zesk\ArrayTools as arr;
 use zesk\str as str;
 
 /**
@@ -57,7 +57,7 @@ class Database_SQL extends \zesk\Database_SQL {
 	function alter_table_attributes(Database_Table $table, array $attributes) {
 		$defaults = $this->database->table_attributes();
 		$attributes = $this->database->normalize_attributes($attributes);
-		$attributes = arr::filter($attributes, array_keys($defaults)) + $defaults;
+		$attributes = ArrayTools::filter($attributes, array_keys($defaults)) + $defaults;
 		foreach ($attributes as $type => $value) {
 			$suffix[] = strtoupper($type) . "=$value";
 		}
@@ -589,7 +589,7 @@ class Database_SQL extends \zesk\Database_SQL {
 				array_unshift($sql_list, $alter_combine_prefix . implode(",\n", $alters));
 			}
 		}
-		$sql_list = arr::rtrim($sql_list, " \t\r\n;");
+		$sql_list = ArrayTools::rtrim($sql_list, " \t\r\n;");
 		return $sql_list;
 	}
 }

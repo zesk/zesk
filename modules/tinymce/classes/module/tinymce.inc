@@ -3,7 +3,7 @@
  * @copyright &copy; 2016 Market Acumen, Inc.
  */
 use zesk\JSON;
-use zesk\arr;
+use zesk\ArrayTools;
 use zesk\Locale;
 use zesk\JavaScript;
 use zesk\PHP;
@@ -16,7 +16,7 @@ use zesk\Response_Text_HTML;
 use zesk\Interface_Module_Routes;
 
 /**
- * 
+ *
  * @author kent
  *
  */
@@ -53,26 +53,26 @@ class Module_TinyMCE extends zesk\Module_JSLib implements Interface_Module_Route
 			"paste"
 		)
 	);
-	
+
 	/**
 	 * Insertion menu
 	 *
 	 * @var array
 	 */
 	private $insertion_menus = array();
-	
+
 	/**
 	 *
 	 * @var string
 	 */
 	protected $tinymce_toolbar = "insertfile undo redo | styleselect | bold italic | alignleft aligncenter alignright alignjustify | bullist numlist outdent indent | link image";
-	
+
 	/**
 	 *
 	 * @var array
 	 */
 	private $setup_js = array();
-	
+
 	/**
 	 * Spelling dictionaries
 	 *
@@ -108,7 +108,7 @@ class Module_TinyMCE extends zesk\Module_JSLib implements Interface_Module_Route
 			));
 			return;
 		}
-		$lang = avalue($params, 'lang', Locale::language());
+		$lang = avalue($params, 'lang', $this->application->locale->language());
 		$words = to_list(avalue($params, 'words'));
 		if (!function_exists('pspell_new')) {
 			$response->json(array(
@@ -116,7 +116,7 @@ class Module_TinyMCE extends zesk\Module_JSLib implements Interface_Module_Route
 			));
 			return;
 		}
-		
+
 		if (!array_key_exists($lang, $this->spellers)) {
 			$this->spellers[$lang] = pspell_new($lang);
 		}
@@ -142,7 +142,7 @@ class Module_TinyMCE extends zesk\Module_JSLib implements Interface_Module_Route
 	protected function hook_configured() {
 		$this->tinymce_options = $this->options_include(array_keys($this->tinymce_options)) + $this->tinymce_options;
 	}
-	
+
 	/**
 	 */
 	public function hook_ready() {
@@ -180,7 +180,7 @@ class Module_TinyMCE extends zesk\Module_JSLib implements Interface_Module_Route
 	 * @return string
 	 */
 	public function jquery_ready() {
-		$json = JSON::encodex(arr::clean($this->tinymce_options, null));
+		$json = JSON::encodex(ArrayTools::clean($this->tinymce_options, null));
 		return $this->application->theme("tinymce/ready.js", array(
 			"json" => $json,
 			"base_url" => "/share/tinymce/"
@@ -188,11 +188,11 @@ class Module_TinyMCE extends zesk\Module_JSLib implements Interface_Module_Route
 			"no_extension" => true
 		));
 	}
-	
+
 	/**
 	 *
-	 * @param array $set        	
-	 * @param string $append        	
+	 * @param array $set
+	 * @param string $append
 	 * @return Module_TinyMCE multitype:string NULL multitype:string
 	 */
 	public function tinymce_options(array $set = null, $append = true) {
@@ -226,9 +226,9 @@ class Module_TinyMCE extends zesk\Module_JSLib implements Interface_Module_Route
 	}
 	private function update_options() {
 		$js = $this->setup_js;
-		
+
 		$js[] = "editor.on('change', function () { editor.save(); });";
-		
+
 		foreach ($this->insertion_menus as $code => $settings) {
 			$title = $settings['title'];
 			$menu = $settings['menu'];
@@ -252,9 +252,9 @@ class Module_TinyMCE extends zesk\Module_JSLib implements Interface_Module_Route
 		}
 		$this->tinymce_options['*setup'] = 'function (editor) {' . implode("\n", $js) . "}";
 		$this->tinymce_options['toolbar'] = $this->tinymce_toolbar;
-		
+
 		if ($this->has_option("language_url_path")) {
-			// Language file is specified relative to document root, currently. 
+			// Language file is specified relative to document root, currently.
 			$language_url_path = $this->option("language_url_path");
 			$doc_root = $this->application->document_root();
 			$full_path = path($doc_root, $language_url_path);
@@ -264,11 +264,11 @@ class Module_TinyMCE extends zesk\Module_JSLib implements Interface_Module_Route
 					"full_path" => $full_path
 				));
 			} else {
-				$locale = Locale::current();
-				$language = Locale::language($locale);
+				$locale = $this->application->locale;
+				$language = $locale->language();
 				foreach (array(
-					path($language_url_path, "$locale.js"),
-					path($language_url_path, "$language.js")
+					path($language_url_path, $locale->id() . ".js"),
+					path($language_url_path, $locale->language() . ".js")
 				) as $uri) {
 					if (file_exists(path($doc_root, $uri))) {
 						$this->tinymce_options['language_url'] = $uri;

@@ -9,7 +9,7 @@
  */
 use zesk\URL;
 use zesk\HTML;
-use zesk\Session_Database;
+use zesk\Session_ORM;
 /* @var $this \zesk\Template */
 /* @var $zesk \zesk\Kernel */
 /* @var $application \zesk\Application */
@@ -33,7 +33,7 @@ if ($this->has("URL")) {
 			"ref" => $this->request->url()
 		));
 	} else {
-		$session = Session_Database::instance(true);
+		$session = Session_ORM::instance(true);
 		$uk = md5($web_key . $u);
 		$out_u = URL::query_format("/out/", array(
 			"u" => $u,
@@ -61,7 +61,7 @@ if (md5($web_key . $u) !== $uk) {
 	}
 }
 
-$session = Session_Database::instance(true);
+$session = Session_ORM::instance(true);
 $session = $session->one_time_create();
 $in_url = URL::query_format(URL::left_host($u) . "in/", array(
 	"u" => $u,

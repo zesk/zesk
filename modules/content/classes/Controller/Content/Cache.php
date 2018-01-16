@@ -16,7 +16,7 @@ class Controller_Content_Cache extends Controller_Cache {
 	 * @var string
 	 */
 	const image_variation_default = "default";
-	
+
 	/**
 	 *
 	 * @return mixed|mixed[]|\zesk\Configuration
@@ -24,7 +24,7 @@ class Controller_Content_Cache extends Controller_Cache {
 	public static function cache_prefix(Configuration $configuration) {
 		return $configuration->path_get(__CLASS__ . '::cache_prefix', '/cache/image/');
 	}
-	
+
 	/**
 	 *
 	 * @param Content_Image $image
@@ -36,7 +36,7 @@ class Controller_Content_Cache extends Controller_Cache {
 			Directory::delete_contents($path);
 		}
 	}
-	
+
 	/**
 	 *
 	 * @param unknown $image_file
@@ -50,7 +50,7 @@ class Controller_Content_Cache extends Controller_Cache {
 		)));
 		return;
 	}
-	
+
 	/**
 	 * Return the url for an image
 	 *
@@ -64,7 +64,7 @@ class Controller_Content_Cache extends Controller_Cache {
 		}
 		return path(self::cache_prefix($image->application->configuration), $image->id(), $style, basename($image->path));
 	}
-	
+
 	/**
 	 *
 	 * @param Content_Image $image
@@ -76,24 +76,24 @@ class Controller_Content_Cache extends Controller_Cache {
 		$style = "c${width}x${height}";
 		return self::url_content_image($image, $style);
 	}
-	
+
 	/**
 	 *
 	 * @param string $url
 	 * @return Content_Image|null
 	 */
-	public static function image_from_url($url) {
-		$prefix = preg_quote(self::cache_prefix());
+	public static function image_from_url(Application $application, $url) {
+		$prefix = preg_quote(self::cache_prefix($application->configuration));
 		if (preg_match('#^' . $prefix . '([0-9]+)/.*#', $url, $matches)) {
 			try {
-				$image = ORM::factory('zesk\\Content_Image', $matches[1])->fetch();
+				$image = $application->orm_factory(Content_Image::class, $matches[1])->fetch();
 				return $image;
 			} catch (Exception_ORM_NotFound $e) {
 			}
 		}
 		return null;
 	}
-	
+
 	/**
 	 *
 	 * @param integer $id
@@ -129,7 +129,7 @@ class Controller_Content_Cache extends Controller_Cache {
 			return;
 		}
 	}
-	
+
 	/**
 	 *
 	 * @param unknown $styles
@@ -160,7 +160,7 @@ class Controller_Content_Cache extends Controller_Cache {
 		}
 		return null;
 	}
-	
+
 	/**
 	 *
 	 * @param array $commands
@@ -176,13 +176,16 @@ class Controller_Content_Cache extends Controller_Cache {
 			}
 			$command['original'] = $original;
 			$command['data'] = $data;
-			$data = $this->call_hook_arguments("image_" . $hook, array(
+			$new_data = $this->call_hook_arguments("image_" . $hook, array(
 				$command
-			), $data);
+			), null);
+			if ($new_data) {
+				$data = $new_data;
+			}
 		}
 		return $data;
 	}
-	
+
 	/**
 	 *
 	 * @param array $command
@@ -197,7 +200,7 @@ class Controller_Content_Cache extends Controller_Cache {
 			'height' => $height
 		));
 	}
-	
+
 	/**
 	 *
 	 * {@inheritdoc}

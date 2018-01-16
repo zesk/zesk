@@ -35,7 +35,7 @@ class Command_Classes extends Command_Base {
 			$filters[] = "table";
 		}
 		foreach ($classes as $data) {
-			$result = arr::filter($data, $filters);
+			$result = ArrayTools::filter($data, $filters);
 			if (array_key_exists("database", $result)) {
 				$result['database'] = aevalue($result, 'database', __('-default-'));
 			}

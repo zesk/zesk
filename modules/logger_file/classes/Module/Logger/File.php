@@ -49,7 +49,7 @@ class Module_Logger_File extends Module {
 	public function configured() {
 		/* @var $zesk Kernel */
 		$defaults = $this->option_array("defaults");
-		$defaults = arr::remove($defaults, array(
+		$defaults = ArrayTools::remove($defaults, array(
 			"name",
 			"linkname"
 		));

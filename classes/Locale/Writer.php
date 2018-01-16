@@ -8,6 +8,10 @@
 namespace zesk\Locale;
 
 use zesk\Application;
+use zesk\File;
+use zesk\StringTools;
+use zesk\ArrayTools;
+use zesk\Directory;
 
 /**
  * @author kent
@@ -46,7 +50,7 @@ class Writer {
 		$additional_tt = "";
 		$result = array();
 		foreach ($phrases as $k => $value) {
-			$v = is_string($value) ? $value : str::right($k, ":=", $k);
+			$v = is_string($value) ? $value : StringTools::right($k, ":=", $k);
 			$k = str_replace("'", "\\'", $k);
 			if (strpos($contents, "\$tt['$k']") === false) {
 				$v = str_replace("'", "\\'", $v);
@@ -79,7 +83,7 @@ class Writer {
 			return;
 		}
 		$app = $this->application;
-		$formats = arr::change_value_case(to_list($this->option("formats")));
+		$formats = ArrayTools::change_value_case(to_list($this->option("formats")));
 		$do_csv = in_array("csv", $formats);
 		if (!$path) {
 			$app->logger->warning("No {class}::auto_path specified in {class}::shutdown", array(
@@ -108,12 +112,12 @@ class Writer {
 			));
 			if ($do_csv) {
 				$csv_filename = path($path, $this->locale_string . '-auto.csv');
-				$csv = str::csv_quote_row(array(
+				$csv = StringTools::csv_quote_row(array(
 					"en_US",
 					$this->locale_string
 				));
 				foreach ($csv_append as $k => $v) {
-					$csv .= str::csv_quote_row(array(
+					$csv .= StringTools::csv_quote_row(array(
 						$k,
 						$v
 					));

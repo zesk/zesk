@@ -16,7 +16,7 @@ namespace zesk;
 /* @var $object \Server */
 $n_secs = Timestamp::now('UTC')->difference($object->alive, "second");
 
-echo HTML::tag('div', '.col-xs-4 .server-name', __("Name"));
-echo HTML::tag('div', '.col-xs-2 .server-load', __("Load"));
-echo HTML::tag('div', '.col-xs-3 .server-free-disk', __("Free Disk"));
-echo HTML::tag('div', '.col-xs-3 .server-alive', __("Last alive (secs)"));
+echo HTML::tag('div', '.col-xs-4 .server-name', $locale("Name"));
+echo HTML::tag('div', '.col-xs-2 .server-load', $locale("Load"));
+echo HTML::tag('div', '.col-xs-3 .server-free-disk', $locale("Free Disk"));
+echo HTML::tag('div', '.col-xs-3 .server-alive', $locale("Last alive (secs)"));

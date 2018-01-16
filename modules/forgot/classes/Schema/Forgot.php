@@ -12,7 +12,7 @@ namespace zesk;
 class Schema_Forgot extends ORM_Schema {
 	/**
 	 * @todo if updated default value isn't 0000-00-00 00:00:00 then Forgot schema is always updated. Need to check.
-	 * 
+	 *
 	 * {@inheritDoc}
 	 * @see ORM_Schema::schema()
 	 */
@@ -25,41 +25,41 @@ class Schema_Forgot extends ORM_Schema {
 						'previous_name' => 'ID'
 					),
 					'login' => array(
-						'type' => 'string',
+						'type' => self::type_string,
 						'not null' => false,
 						'size' => 128
 					),
 					'user' => array(
-						'type' => 'object',
-						'class' => 'zesk\\User',
+						'type' => self::type_object,
+						'class' => User::class,
 						'not null' => true,
 						'previous_name' => 'User'
 					),
 					'session' => array(
-						'type' => 'object',
+						'type' => self::type_object,
 						'class' => 'zesk\\Session',
 						'not null' => true,
 						'previous_name' => 'Session'
 					),
 					'code' => array(
-						'type' => 'varbinary',
+						'type' => self::type_binary, //'varbinary',
 						'size' => 16,
 						'not null' => true,
 						'previous_name' => 'Code'
 					),
 					'new_password' => array(
-						'type' => 'varbinary',
+						'type' => self::type_binary, // varbinary
 						'size' => 16,
 						'not null' => true
 					),
 					'created' => array(
-						'type' => 'timestamp',
+						'type' => self::type_timestamp,
 						'not null' => true,
 						'default' => 'CURRENT_TIMESTAMP',
 						'previous_name' => 'Created'
 					),
 					'updated' => array(
-						'type' => 'timestamp',
+						'type' => self::type_timestamp,
 						'not null' => false,
 						'previous_name' => 'Updated'
 					)

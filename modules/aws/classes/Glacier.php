@@ -9,9 +9,10 @@
  */
 namespace zesk\AWS;
 
+use zesk\Hookable;
 use zesk\Exception_NotFound;
 use Aws\Glacier\GlacierClient;
-use Aws\Glacier\Exception\ResourceNotFoundException;
+use Aws\Glacier\Exception\GlacierException;
 
 /**
  * Class wrapper around Aws\Glacier\GlacierClient
@@ -27,7 +28,7 @@ class Glacier extends Hookable {
 	 * @var Aws\Glacier\GlacierClient
 	 */
 	protected $glacier_client = null;
-	
+
 	/**
 	 * Lazy create client
 	 */
@@ -38,7 +39,7 @@ class Glacier extends Hookable {
 		$options = $this->options_include("key;secret;credentials;token;credentials;region");
 		$this->glacier_client = GlacierClient::factory($options);
 	}
-	
+
 	/**
 	 * List vaults
 	 *
@@ -51,7 +52,7 @@ class Glacier extends Hookable {
 		$result = $response->get("VaultList");
 		return $result;
 	}
-	
+
 	/**
 	 * Upload a file to a vault
 	 *
@@ -81,7 +82,7 @@ class Glacier extends Hookable {
 				"job_id" => $result->get("jobId"),
 				"uri" => $result->get("location")
 			);
-		} catch (ResourceNotFoundException $e) {
+		} catch (GlacierException $e) {
 			throw new Exception_NotFound($e->getMessage());
 		}
 	}

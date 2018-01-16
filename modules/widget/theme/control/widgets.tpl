@@ -3,7 +3,7 @@
  * 
  */
 use zesk\HTML;
-use zesk\arr;
+use zesk\ArrayTools;
 
 /**
  * Note similarities here and zesk/control/edit.tpl
@@ -56,6 +56,6 @@ foreach ($this->children as $child) {
 	}
 }
 if ($this->theme_widgets) {
-	echo map($this->theme($this->theme_widgets), arr::flatten(arr::kprefix($results, 'widget.') + arr::kprefix($this->variables, 'template.') + arr::kprefix($this->object->variables(), 'object.')));
+	echo map($this->theme($this->theme_widgets), ArrayTools::flatten(ArrayTools::kprefix($results, 'widget.') + ArrayTools::kprefix($this->variables, 'template.') + ArrayTools::kprefix($this->object->variables(), 'object.')));
 }
 echo $hidden;

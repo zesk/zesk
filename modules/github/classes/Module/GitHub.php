@@ -9,19 +9,19 @@ namespace zesk;
  */
 class Module_GitHub extends Module {
 	/**
-	 * @see https://developer.github.com/v3/repos/releases/#create-a-release 
+	 * @see https://developer.github.com/v3/repos/releases/#create-a-release
 	 * @var string
 	 */
 	const API_ENDPOINT_RELEASE = "https://api.github.com/repos/{owner}/{repository}/releases?access_token={access_token}";
-	
+
 	/**
-	 * 
+	 *
 	 * @param array $settings
 	 * @return array
 	 */
 	public function hook_version_updated(array $settings) {
 		if (!$this->option_bool("tag-on-version-update")) {
-			return;
+			return $settings;
 		}
 		$version = null;
 		$previous_version = null;
@@ -48,18 +48,19 @@ class Module_GitHub extends Module {
 				) + $this->options);
 			}
 		}
+		return $settings;
 	}
-	
+
 	/**
-	 * 
+	 *
 	 * @return boolean
 	 */
 	public function has_credentials() {
 		return $this->has_option("owner") && $this->has_option("repository") && $this->has_option("access_token");
 	}
-	
+
 	/**
-	 * 
+	 *
 	 * @param unknown $version
 	 * @return boolean
 	 */

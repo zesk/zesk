@@ -270,7 +270,7 @@ class Job extends ORM implements Interface_Process, Interface_Progress {
 				'died|<=' => self::retry_attempts($application)
 			))->order_by("priority DESC,died,start");
 			$logger->debug($query->__toString());
-			$iterator = $query->object_iterator();
+			$iterator = $query->orm_iterator();
 			$found_job = false;
 			foreach ($iterator as $job) {
 				/* @var $job Job */
@@ -296,7 +296,7 @@ class Job extends ORM implements Interface_Process, Interface_Progress {
 					try {
 						$job->execute($process);
 					} catch (\Exception $e) {
-						$job->data("execute_exception", arr::flatten(Exception::exception_variables($e)));
+						$job->data("execute_exception", ArrayTools::flatten(Exception::exception_variables($e)));
 						$job->died(); // Stops permanently
 					}
 					$job->release();

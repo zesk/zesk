@@ -19,138 +19,123 @@ class File {
 	 *
 	 * @var integer
 	 */
-	const mask_file = 0100000;
+	const MASK_FILE = 0100000;
 	/**
 	 *
 	 * @var integer
 	 */
-	const mask_socket = 0140000;
+	const MASK_SOCKET = 0140000;
 	/**
 	 *
 	 * @var integer
 	 */
-	const mask_link = 0120000;
+	const MASK_LINK = 0120000;
 	/**
 	 *
 	 * @var integer
 	 */
-	const mask_block = 0060000;
+	const MASK_BLOCK = 0060000;
 	/**
 	 *
 	 * @var integer
 	 */
-	const mask_dir = 0040000;
+	const MASK_DIR = 0040000;
 	/**
 	 *
 	 * @var integer
 	 */
-	const mask_char = 0020000;
+	const MASK_CHAR = 0020000;
 	/**
 	 *
 	 * @var integer
 	 */
-	const mask_fifo = 0010000;
+	const MASK_FIFO = 0010000;
 	/**
 	 *
 	 * @var integer
 	 */
-	const mask_ftype = 0170000;
+	const MASK_FTYPE = 0170000;
 
 	/**
 	 *
 	 * @var string
 	 */
-	const type_socket = "socket";
+	const TYPE_SOCKET = "socket";
 	/**
 	 *
 	 * @var string
 	 */
-	const type_link = "link";
+	const TYPE_LINK = "link";
 	/**
 	 *
 	 * @var string
 	 */
-	const type_file = "file";
+	const TYPE_FILE = "file";
 	/**
 	 *
 	 * @var string
 	 */
-	const type_block = "block";
+	const TYPE_BLOCK = "block";
 	/**
 	 *
 	 * @var string
 	 */
-	const type_dir = "dir";
+	const TYPE_DIR = "dir";
 	/**
 	 *
 	 * @var string
 	 */
-	const type_char = "char";
+	const TYPE_CHAR = "char";
 	/**
 	 *
 	 * @var string
 	 */
-	const type_fifo = "fifo";
+	const TYPE_FIFO = "fifo";
 	/**
 	 *
 	 * @var string
 	 */
-	const type_unknown = "unknown";
+	const TYPE_UNKNOWN = "unknown";
 	/**
 	 *
 	 * @var string
 	 */
-	const char_socket = "s";
+	const CHAR_SOCKET = "s";
 	/**
 	 *
 	 * @var string
 	 */
-	const char_link = "l";
+	const CHAR_LINK = "l";
 	/**
 	 *
 	 * @var string
 	 */
-	const char_file = "-";
+	const CHAR_FILE = "-";
 	/**
 	 *
 	 * @var string
 	 */
-	const char_block = "b";
+	const CHAR_BLOCK = "b";
 	/**
 	 *
 	 * @var string
 	 */
-	const char_dir = "d";
+	const CHAR_DIR = "d";
 	/**
 	 *
 	 * @var string
 	 */
-	const char_char = "c";
+	const CHAR_CHAR = "c";
 	/**
 	 *
 	 * @var string
 	 */
-	const char_fifo = "p";
+	const CHAR_FIFO = "p";
 	/**
 	 *
 	 * @var string
 	 */
-	const char_unknown = "u";
-
-	/**
-	 *
-	 * @param Kernel $zesk
-	 */
-	public static function hooks(Kernel $zesk) {
-		$zesk->hooks->add("configured", __CLASS__ . '::configured');
-	}
-
-	/**
-	 *
-	 * @param Application $application
-	 */
-	public static function configured(Application $application) {
-	}
+	const CHAR_UNKNOWN = "u";
 
 	/**
 	 * Return an absolute path given a filename and a working directory
@@ -236,7 +221,7 @@ class File {
 		if (preg_match('|[^-~/A-Za-z0-9_. ()@&]|', $x)) {
 			return false;
 		}
-		if (arr::strstr($x, array(
+		if (ArrayTools::strstr($x, array(
 			"..",
 			"/./"
 		)) !== false) {
@@ -580,14 +565,14 @@ class File {
 	 * @var array
 	 */
 	private static $fchars = array(
-		self::mask_file => self::char_file,
-		self::mask_socket => self::char_socket,
-		self::mask_link => self::char_link,
-		self::mask_block => self::char_block,
-		self::mask_dir => self::char_dir,
-		self::mask_char => self::char_char,
-		self::mask_fifo => self::char_fifo,
-		0 => self::char_unknown
+		self::MASK_FILE => self::CHAR_FILE,
+		self::MASK_SOCKET => self::CHAR_SOCKET,
+		self::MASK_LINK => self::CHAR_LINK,
+		self::MASK_BLOCK => self::CHAR_BLOCK,
+		self::MASK_DIR => self::CHAR_DIR,
+		self::MASK_CHAR => self::CHAR_CHAR,
+		self::MASK_FIFO => self::CHAR_FIFO,
+		0 => self::CHAR_UNKNOWN
 	);
 
 	/**
@@ -595,13 +580,13 @@ class File {
 	 * @var array
 	 */
 	private static $mtypes = array(
-		self::char_file => self::mask_file,
-		self::char_socket => self::mask_socket,
-		self::char_link => self::mask_link,
-		self::char_block => self::mask_block,
-		self::char_dir => self::mask_dir,
-		self::char_char => self::mask_char,
-		self::char_fifo => self::mask_fifo
+		self::CHAR_FILE => self::MASK_FILE,
+		self::CHAR_SOCKET => self::MASK_SOCKET,
+		self::CHAR_LINK => self::MASK_LINK,
+		self::CHAR_BLOCK => self::MASK_BLOCK,
+		self::CHAR_DIR => self::MASK_DIR,
+		self::CHAR_CHAR => self::MASK_CHAR,
+		self::CHAR_FIFO => self::MASK_FIFO
 	);
 
 	/**
@@ -665,7 +650,7 @@ class File {
 	 */
 	public static function ls_type($char) {
 		$char = substr($char, 0, 1);
-		return avalue(self::$fchars, avalue(self::$mtypes, $char, 0), self::type_unknown);
+		return avalue(self::$fchars, avalue(self::$mtypes, $char, 0), self::TYPE_UNKNOWN);
 	}
 
 	/**
@@ -679,7 +664,7 @@ class File {
 		$result = "";
 		foreach ($map as $i => $items) {
 			if ($i === 0) {
-				$result .= avalue(self::$fchars, $mode & self::mask_ftype, self::char_unknown);
+				$result .= avalue(self::$fchars, $mode & self::MASK_FTYPE, self::CHAR_UNKNOWN);
 			} else {
 				foreach ($items as $char => $bits) {
 					if ($mode & $bits === $bits) {
@@ -806,16 +791,16 @@ class File {
 
 		$p = $ss['mode'];
 		$mode_string = self::mode_to_string($p);
-		$type = self::$fchars[$p & self::mask_ftype];
+		$type = self::$fchars[$p & self::MASK_FTYPE];
 		$s = array(
 			'perms' => array( /* Permissions */
 				'umask' => sprintf("%04o", @umask()),  /* umask */
 				'string' => $mode_string,  /* drwxrwxrwx */
-				'octal' => sprintf("%o", ($p & 000777)),  /* Octal without a zero prefix */
+				'octal' => sprintf("%o", ($p & 0777)),  /* Octal without a zero prefix */
 				'octal0' => self::mode_to_octal($p),  /* Octal with a zero prefix */
-				'decimal' => sprintf("%04o", $p),  /* Decimal value */
+				'decimal' => intval($p) & 0777,  /* Decimal value, truncated */
 				'fileperms' => $is_res ? null : @fileperms($path),  /* Permissions */
-				'mode' => $p /* Permissions */
+				'mode' => $p /* Raw permissions value returned by fstat */
 			),
 			'owner' => array(
 				'uid' => $ss['uid'],

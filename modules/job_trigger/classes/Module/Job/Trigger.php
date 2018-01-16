@@ -158,7 +158,7 @@ class Module_Job_Trigger extends Module implements Interface_Module_Routes {
 	 */
 	public function trigger_send() {
 		$server = $this->application->object_singleton("zesk\\Server");
-		$servers = $server->query_select()->where("alive|>=", Timestamp::now()->add_unit(-1, Timestamp::UNIT_MINUTE))->object_iterator();
+		$servers = $server->query_select()->where("alive|>=", Timestamp::now()->add_unit(-1, Timestamp::UNIT_MINUTE))->orm_iterator();
 		foreach ($servers as $other_server) {
 			if ($other_server->id() === $server->id()) {
 				$this->write_marker();

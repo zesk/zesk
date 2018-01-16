@@ -65,7 +65,7 @@ class Selection_Query extends ORM {
 		foreach ($application->orm_registry(__CLASS__)
 			->query_select()
 			->where('type', $old_type)
-			->object_iterator() as $query) {
+			->orm_iterator() as $query) {
 			$old_id = $query->id;
 			$query->id = null;
 			$query->type = $new_type;

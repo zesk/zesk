@@ -16,7 +16,7 @@ namespace zesk;
  */
 class Database_Query {
 	/**
-	 * 
+	 *
 	 * @var Application
 	 */
 	public $application = null;
@@ -26,34 +26,34 @@ class Database_Query {
 	 * @var string
 	 */
 	protected $type;
-	
+
 	/**
 	 * Database
 	 *
 	 * @var Database
 	 */
 	protected $db;
-	
+
 	/**
 	 * Database code
 	 *
 	 * @var string
 	 */
 	protected $dbname;
-	
+
 	/**
 	 * Object class used when iterating
 	 *
 	 * @var string
 	 */
 	protected $class;
-	
+
 	/**
-	 * 
+	 *
 	 * @var array
 	 */
 	private $objects_cached = array();
-	
+
 	/**
 	 * Create a new query
 	 *
@@ -62,12 +62,12 @@ class Database_Query {
 	 */
 	function __construct($type = "SELECT", Database $db) {
 		$this->application = $db->application;
-		$this->type = strtoupper($type);
 		$this->db = $db;
+		$this->type = strtoupper($type);
 		$this->dbname = $this->db->code_name();
 		$this->class = null;
 	}
-	
+
 	/**
 	 *
 	 * @return string[]
@@ -79,13 +79,13 @@ class Database_Query {
 			"class"
 		);
 	}
-	
+
 	/**
 	 */
 	function __wakeup() {
 		$this->db = zesk()->application()->database_factory($this->dbname);
 	}
-	
+
 	/**
 	 *
 	 * @param Database_Query $from
@@ -105,7 +105,7 @@ class Database_Query {
 	public function duplicate() {
 		return clone $this;
 	}
-	
+
 	/**
 	 *
 	 * @return Database
@@ -113,7 +113,7 @@ class Database_Query {
 	function database() {
 		return $this->db;
 	}
-	
+
 	/**
 	 *
 	 * @return string
@@ -121,7 +121,7 @@ class Database_Query {
 	function database_name() {
 		return $this->db->code_name();
 	}
-	
+
 	/**
 	 *
 	 * @return Database_SQL
@@ -142,22 +142,78 @@ class Database_Query {
 	 * @param string $class
 	 * @return Database_Query string
 	 */
-	function object_class($class = null) {
+	function orm_class($class = null) {
 		if ($class !== null) {
 			$this->class = $class;
 			return $this;
 		}
 		return $this->class;
 	}
-	
+
 	/**
 	 *
 	 * @return \zesk\Class_ORM
 	 */
-	function class_object() {
-		return $this->db->application->class_object($this->class);
+	function class_orm() {
+		return $this->application->class_orm_registry($this->class);
 	}
-	
+
+	/**
+	 * Create objects in the current application context
+	 *
+	 * @param string $class
+	 * @param mixed $mixed
+	 * @param array $options
+	 * @return Object
+	 */
+	function model_factory($class, $mixed = null, array $options = array()) {
+		return $this->application->model_factory($class, $mixed, $options);
+	}
+
+	/**
+	 * Cache for Object definitions, do not modify these objects
+	 *
+	 * @param string $class
+	 * @return \zesk\ORM
+	 */
+	protected function orm_registry($class) {
+		return $this->application->orm_registry($class);
+	}
+
+	/**
+	 * Cache for Object definitions, do not modify these objects
+	 *
+	 * @deprecated 2017-12 use orm_registry above
+	 * @param string $class
+	 * @return \zesk\ORM
+	 */
+	protected function object_cache($class) {
+		zesk()->deprecated();
+		return $this->orm_registry($class);
+	}
+
+	/**
+	 * Set or get a class associated with this query
+	 *
+	 * @deprecated 2018-01
+	 * @param string $class
+	 * @return Database_Query string
+	 */
+	function object_class($class = null) {
+		$this->application->deprecated();
+		return $this->orm_class($class);
+	}
+
+	/**
+	 *
+	 * @deprecated 2018-01
+	 * @return \zesk\Class_ORM
+	 */
+	function class_object() {
+		$this->application->deprecated();
+		return $this->class_orm();
+	}
+
 	/**
 	 * Create objects in the current application context
 	 *
@@ -170,39 +226,5 @@ class Database_Query {
 	function object_factory($class, $mixed = null, array $options = array()) {
 		$this->application->deprecated();
 		return $this->model_factory($class, $mixed, $options);
-	}
-	
-	/**
-	 * Create objects in the current application context
-	 *
-	 * @param string $class
-	 * @param mixed $mixed
-	 * @param array $options
-	 * @return Object
-	 */
-	function model_factory($class, $mixed = null, array $options = array()) {
-		return $this->application->model_factory($class, $mixed, $options);
-	}
-	
-	/**
-	 * Cache for Object definitions, do not modify these objects
-	 *
-	 * @deprecated 2017-12 use orm_registry above
-	 * @param string $class
-	 * @return \zesk\ORM
-	 */
-	protected function object_cache($class) {
-		zesk()->deprecated();
-		return $this->orm_registry($class);
-	}
-	
-	/**
-	 * Cache for Object definitions, do not modify these objects
-	 *
-	 * @param string $class
-	 * @return \zesk\ORM
-	 */
-	protected function orm_registry($class) {
-		return $this->application->orm_registry($class);
 	}
 }

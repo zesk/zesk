@@ -63,7 +63,7 @@ class Contact extends ORM {
 		$is_new = $this->is_new();
 		if ($is_new) {
 			if ($this->member_is_empty('account')) {
-				$this->account = Account::instance();
+				$this->account = $this->application->model_singleton($this->option("account_model_singleton_class", 'zesk\\Account'));
 			}
 			if ($this->member_is_empty('user')) {
 				$this->user = $this->application->user();
@@ -87,7 +87,7 @@ class Contact extends ORM {
 		// TODO: Clean Contact_Email table
 		return null;
 	}
-	
+
 	/**
 	 * Returns an array of contacts
 	 *
@@ -104,7 +104,7 @@ class Contact extends ORM {
 	// 			->where("UCT.User", $user_id)
 	// 			->where("Tag.ID", $tag);
 	// 	}
-	
+
 	/**
 	 * Create a contact with just an email
 	 *
@@ -115,24 +115,24 @@ class Contact extends ORM {
 	public static function from_email(User $user, $email, $tag = null) {
 		$contact = new Contact();
 		$contact->user = $user;
-		$contact->account = $user->memberInteger('Account');
+		$contact->account = $user->member_integer('account');
 		if ($tag instanceof Contact_Tag) {
 			$contact->Tags = $tag;
 		}
 		if (!$contact->store()) {
 			return null;
 		}
-		
+
 		$contact_email = new Contact_Email();
 		$contact_email->contact = $contact;
 		$contact_email->label = Contact_Label::find_global(Contact_Label::LabelType_Email, 'Home');
 		$contact_email->value = $email;
-		
+
 		if (!$contact_email->store()) {
 			$contact->delete();
 			return null;
 		}
-		
+
 		$contact_person = new Contact_Person();
 		$contact_person->contact = $contact;
 		$contact_person->nickname = str::left($email, '@');
@@ -141,7 +141,7 @@ class Contact extends ORM {
 			$contact->delete();
 			return null;
 		}
-		
+
 		return $contact_email;
 	}
 	public function is_verified() {
@@ -159,13 +159,13 @@ class Contact extends ORM {
 	}
 	public function has_labels($labels) {
 		$objects = array(
-			"zesk\\Contact_Address",
-			"zesk\\Contact_Date",
-			"zesk\\Contact_Email",
-			"zesk\\Contact_Other",
-			"zesk\\Contact_Person",
-			"zesk\\Contact_Phone",
-			"zesk\\Contact_URL"
+			Contact_Address::class,
+			Contact_Date::class,
+			Contact_Email::class,
+			Contact_Other::class,
+			Contact_Person::class,
+			Contact_Phone::class,
+			Contact_URL::class
 		);
 		$found_labels = array();
 		foreach ($objects as $object) {

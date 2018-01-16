@@ -16,7 +16,7 @@ use zesk\Debug;
 use zesk\JSON;
 use zesk\Locale;
 use zesk\Application;
-use zesk\arr;
+use zesk\ArrayTools;
 use zesk\Hookable;
 
 /**
@@ -496,16 +496,6 @@ function to_bytes($mixed, $default = null) {
 
 /**
  * Localize a string to the current locale.
- * You can use it by passing numeric parameters after the localized string, like:
- *
- * $result = __("Don't forget to {0} the {1}.", "feed", "bears");
- *
- * Or by passing an associative array as the first parameter, like:
- *
- * $result = __("Don't forget to {action} the {noun}.", array("action" => "feed", "noun" =>
- * "bears"));
- *
- * Uses the currently set locale. If you want to mix and match locales, use Locale::translate.
  *
  * @param string $phrase
  *        	Phrase to translate
@@ -515,7 +505,7 @@ function to_bytes($mixed, $default = null) {
  */
 function __($phrase) {
 	$args = func_get_args();
-	$phrase = Kernel::singleton()->application()->locale($phrase);
+	$phrase = Kernel::singleton()->application()->locale->__($phrase);
 	if (count($args) > 1) {
 		array_shift($args);
 		if (count($args) === 1 && is_array($args[0])) {
@@ -587,7 +577,7 @@ function aevalue($a, $k, $default = null) {
  */
 function flatten($mixed) {
 	if (is_array($mixed)) {
-		$mixed = arr::flatten($mixed);
+		$mixed = ArrayTools::flatten($mixed);
 	}
 	if ($mixed === null) {
 		return "";
@@ -618,7 +608,7 @@ function tr($mixed, array $map) {
 		}
 		return $mixed;
 	} else if (is_string($mixed)) {
-		$map = arr::flatten($map);
+		$map = ArrayTools::flatten($map);
 		return strtr($mixed, $map);
 	} else if (is_object($mixed)) {
 		return $mixed instanceof Hookable ? $mixed->call_hook_arguments('tr', array(
@@ -758,8 +748,8 @@ function map($mixed, array $map, $insensitive = false, $prefix_char = "{", $suff
 	$s = array();
 	foreach ($map as $k => $v) {
 		if (is_array($v)) {
-			if (arr::is_list($v)) {
-				$v = implode(";", arr::flatten($v));
+			if (ArrayTools::is_list($v)) {
+				$v = implode(";", ArrayTools::flatten($v));
 			} else {
 				$v = JSON::encode($v);
 			}
@@ -1428,7 +1418,8 @@ function is_windows() {
  * @return Application
  */
 function app() {
-	zesk()->deprecated();
-	return Application::instance();
+	$kernel = zesk();
+	$kernel->deprecated();
+	return $kernel->application();
 }
 

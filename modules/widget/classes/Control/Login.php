@@ -10,20 +10,35 @@
 namespace zesk;
 
 /**
- * 
+ *
  * @author kent
  *
  */
 class Control_Login extends Control_Edit {
+
+	/**
+	 *
+	 * @var string
+	 */
 	protected $class = "User";
+
+	/**
+	 *
+	 * @var boolean
+	 */
 	protected $render_children = false;
-	
+
 	/**
 	 * User being authenticated
 	 *
 	 * @var User
 	 */
 	public $user = null;
+
+	/**
+	 *
+	 * @var array
+	 */
 	protected $options = array(
 		'no_buttons' => true,
 		'form_name' => 'login_form',
@@ -32,7 +47,7 @@ class Control_Login extends Control_Edit {
 		'column' => 'login_button',
 		'class' => ''
 	);
-	
+
 	/**
 	 * Default model
 	 *
@@ -41,7 +56,7 @@ class Control_Login extends Control_Edit {
 	public function model() {
 		return new Model_Login($this->application);
 	}
-	
+
 	/**
 	 * (non-PHPdoc)
 	 *
@@ -49,25 +64,25 @@ class Control_Login extends Control_Edit {
 	 */
 	protected function initialize() {
 		$f = $this->widget_factory("zesk\\Control_Text")->names("login", $this->option("label_login", __("Email")))->required(true);
-		
+
 		$this->child($f);
-		
+
 		if (!$this->option("no_password")) {
 			$f = $this->widget_factory("zesk\\Control_Password")->names("login_password", $this->option("label_password", __("Password")))->required(true);
 			$f->set_option("encrypted_column", "login_password_hash");
-			
+
 			$this->child($f);
 		}
-		
+
 		$f = $this->widget_factory('zesk\\Control_Button')
 			->names('login_button', false)
 			->set_option('button_label', __("Login"))
 			->add_class('btn-primary btn-block');
 		$this->child($f);
-		
+
 		parent::initialize();
 	}
-	
+
 	/**
 	 * (non-PHPdoc)
 	 *
@@ -76,7 +91,7 @@ class Control_Login extends Control_Edit {
 	public function submitted() {
 		return $this->request->get("login_button", "") !== "";
 	}
-	
+
 	/**
 	 * (non-PHPdoc)
 	 *
@@ -86,7 +101,7 @@ class Control_Login extends Control_Edit {
 		if (!parent::validate()) {
 			return false;
 		}
-		
+
 		$object = $this->object;
 		$login = $object->login;
 		$user = $this->application->orm_factory("zesk\\User");
@@ -134,7 +149,7 @@ class Control_Login extends Control_Edit {
 		}
 		return false;
 	}
-	
+
 	/**
 	 * (non-PHPdoc)
 	 *

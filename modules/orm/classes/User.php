@@ -24,20 +24,20 @@ class User extends ORM {
 	 * @var string
 	 */
 	const option_debug_permission = "debug_permission";
-	
+
 	/**
 	 *
 	 * @var string
 	 */
 	public static $debug_permission = false;
-	
+
 	/**
 	 * Syntactic sygar; types this member.
 	 *
 	 * @var Class_User
 	 */
 	protected $class = null;
-	
+
 	/**
 	 *
 	 * @param Kernel $kernel
@@ -46,7 +46,7 @@ class User extends ORM {
 		$kernel->configuration->path(__CLASS__);
 		$kernel->hooks->add("configured", __CLASS__ . "::configured");
 	}
-	
+
 	/**
 	 *
 	 * @param Application $application
@@ -63,7 +63,7 @@ class User extends ORM {
 			)
 		)));
 	}
-	
+
 	/**
 	 * Session user ID
 	 *
@@ -81,7 +81,7 @@ class User extends ORM {
 		}
 		return $session->user_id();
 	}
-	
+
 	/**
 	 * Retrieve the column used for logging in
 	 *
@@ -90,7 +90,7 @@ class User extends ORM {
 	function column_login() {
 		return $this->class->column_login;
 	}
-	
+
 	/**
 	 * Retrieve the password column name
 	 *
@@ -99,7 +99,7 @@ class User extends ORM {
 	function column_password() {
 		return $this->class->column_password;
 	}
-	
+
 	/**
 	 * Retrieve the email column name
 	 *
@@ -108,7 +108,7 @@ class User extends ORM {
 	function column_email() {
 		return $this->class->column_email;
 	}
-	
+
 	/**
 	 * Get or set the login column value
 	 *
@@ -123,7 +123,7 @@ class User extends ORM {
 		}
 		return $this->member($column);
 	}
-	
+
 	/**
 	 * Get or set the email column value
 	 *
@@ -143,7 +143,7 @@ class User extends ORM {
 		}
 		return $this->member($column);
 	}
-	
+
 	/**
 	 * Override in subclasses to perform a final check before loading a user from the Session
 	 *
@@ -152,7 +152,7 @@ class User extends ORM {
 	function check_user() {
 		return true;
 	}
-	
+
 	/**
 	 * Get/set the password field
 	 *
@@ -166,7 +166,7 @@ class User extends ORM {
 		}
 		return $this->member($column);
 	}
-	
+
 	/**
 	 * Check a username and password.
 	 * Will not authenticate user until ->authenticated(true) is called.
@@ -196,7 +196,7 @@ class User extends ORM {
 		}
 		return false;
 	}
-	
+
 	/**
 	 * Get/set authentication status
 	 *
@@ -228,7 +228,7 @@ class User extends ORM {
 		}
 		return $this;
 	}
-	
+
 	/**
 	 * Similar to $user->can(...) but instead throws an Exception_Permission on failure
 	 *
@@ -254,7 +254,7 @@ class User extends ORM {
 			'__' => '::'
 		)));
 	}
-	
+
 	/**
 	 * The core of the permissions system
 	 *
@@ -304,7 +304,7 @@ class User extends ORM {
 			));
 			$context = null;
 		}
-		
+
 		$result = false; // By default, don't allow anything
 		// Allow multiple actions
 		$is_or = is_string($actions) && strpos($actions, '|');
@@ -339,7 +339,7 @@ class User extends ORM {
 		}
 		return $result;
 	}
-	
+
 	/**
 	 * Check if a user can edit an object
 	 *
@@ -358,7 +358,7 @@ class User extends ORM {
 	function can_view($object) {
 		return $this->can("view", $object);
 	}
-	
+
 	/**
 	 *
 	 * {@inheritdoc}
@@ -368,7 +368,7 @@ class User extends ORM {
 	function display_name() {
 		return $this->member($this->column_login());
 	}
-	
+
 	/**
 	 * Check if a user can delete an object
 	 *
@@ -378,7 +378,7 @@ class User extends ORM {
 	function can_delete($object) {
 		return $this->can("delete", $object);
 	}
-	
+
 	/**
 	 * Implement ORM::permissions
 	 *
@@ -392,7 +392,7 @@ class User extends ORM {
 			)
 		);
 	}
-	
+
 	/**
 	 * Takes an array which can be formatted with $application->theme("actions") and filters based on permissions.
 	 * Use the key "permission" in value to specify a permission to check. It can be a string, or an

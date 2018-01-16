@@ -25,7 +25,7 @@ class Controller_Control extends Controller {
 	private static $allowed = null;
 	public function allowed_control($control) {
 		if (!is_array(self::$allowed)) {
-			self::$allowed = array_change_key_case(arr::flip_assign($this->option_list("allowed_controls"), true));
+			self::$allowed = array_change_key_case(ArrayTools::flip_assign($this->option_list("allowed_controls"), true));
 		}
 		return avalue(self::$allowed, strtolower($control), false);
 	}

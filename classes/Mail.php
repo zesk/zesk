@@ -534,7 +534,7 @@ class Mail extends Hookable {
 		unset($mail_options['charset']);
 
 		# Common Headers
-		$headers = arr::filter($mail_options, "From;To;Reply-To;Return-Path;Cc;Bcc;Return-Receipt-To;Subject");
+		$headers = ArrayTools::filter($mail_options, "From;To;Reply-To;Return-Path;Cc;Bcc;Return-Receipt-To;Subject");
 		if (!array_key_exists("From", $headers)) {
 			throw new Exception_Semantics("Need to have a From header: {keys} {debug}", array(
 				"keys" => array_keys($headers),
@@ -798,7 +798,7 @@ class Mail extends Hookable {
 				if (strpos($whitespace, substr($line, 0, 1)) !== false) {
 					$curv .= $newline . trim($line);
 				} else {
-					arr::append($headers, $curh, $curv);
+					ArrayTools::append($headers, $curh, $curv);
 					$curh = $curv = null;
 				}
 			}
@@ -809,7 +809,7 @@ class Mail extends Hookable {
 			}
 		}
 		if ($curh !== null) {
-			arr::append($headers, $curh, $curv);
+			ArrayTools::append($headers, $curh, $curv);
 		}
 		return $headers;
 	}

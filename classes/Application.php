@@ -9,6 +9,7 @@
 namespace zesk;
 
 use Psr\Cache\CacheItemPoolInterface;
+use zesk\Locale\Reader;
 
 /**
  * Core web application object for Zesk.
@@ -24,8 +25,9 @@ use Psr\Cache\CacheItemPoolInterface;
  * @method Class_ORM class_orm_registry($class = null)
  * @method ORM|Module_ORM orm_registry($class = null, $mixed = null, array $options = null)
  * @method Module_ORM orm_module()
+ * @method Interface_Session session_factory()
  */
-class Application extends Hookable implements Interface_Theme, Interface_Factory {
+class Application extends Hookable implements Interface_Theme {
 
 	/**
 	 * Probably should discourage use of this.
@@ -114,6 +116,11 @@ class Application extends Hookable implements Interface_Theme, Interface_Factory
 
 	/**
 	 *
+	 * @var Locale
+	 */
+	public $locale = null;
+	/**
+	 *
 	 * @var Command
 	 */
 	public $command = null;
@@ -174,12 +181,6 @@ class Application extends Hookable implements Interface_Theme, Interface_Factory
 	protected $class_aliases = array();
 
 	/**
-	 *
-	 * @var array
-	 */
-	protected $class_cache = array();
-
-	/**
 	 * File where the application class resides.
 	 * Override this in subclasses with
 	 * public $file = __FILE__;
@@ -222,14 +223,6 @@ class Application extends Hookable implements Interface_Theme, Interface_Factory
 	protected $register_hooks = array();
 
 	/**
-	 * Array of starting list of model subclasses which are a part of this application.
-	 * Used to sync schema and generate dependency classes.
-	 *
-	 * @var array of string
-	 */
-	protected $model_classes = array();
-
-	/**
 	 * Configuration files to include
 	 *
 	 * @var array of string
@@ -237,18 +230,11 @@ class Application extends Hookable implements Interface_Theme, Interface_Factory
 	protected $includes = array();
 
 	/**
-	 * Configuration file paths to search
-	 *
-	 * @var array of string
-	 */
-	protected $include_paths = array();
-
-	/**
 	 * Configuration options
 	 *
 	 * @var array
 	 */
-	static $configuration_options = null;
+	private $configuration_options = null;
 
 	/**
 	 * Configuration options
@@ -277,6 +263,13 @@ class Application extends Hookable implements Interface_Theme, Interface_Factory
 	 * @var string[]
 	 */
 	protected $share_path = array();
+
+	/**
+	 * Paths to search for locale files
+	 *
+	 * @var string[]
+	 */
+	protected $locale_path = array();
 
 	/**
 	 *
@@ -364,7 +357,7 @@ class Application extends Hookable implements Interface_Theme, Interface_Factory
 		 */
 		$this->process = new Process($this);
 
-		$this->locale = Locale::factory($this);
+		$this->locale = $this->locale_factory();
 
 		$this->module_path = array();
 		$this->zesk_command_path = array();
@@ -395,11 +388,9 @@ class Application extends Hookable implements Interface_Theme, Interface_Factory
 		// $this->file is set in subclasses
 		// $this->variables is set in subclasses
 		// $this->register_hooks is set in subclasses
-		// $this->model_classes is set in subclasses
 		//
 
 		// $this->includes is set in subclasses?
-		// $this->include_paths is set in subclasses?
 		// $this->template_variables is set in application itself?
 		$this->template_variables = array();
 
@@ -427,6 +418,7 @@ class Application extends Hookable implements Interface_Theme, Interface_Factory
 
 		$this->theme_path($this->path_theme_default());
 		$this->share_path($this->path_share_default(), 'zesk');
+		$this->locale_path($this->path_locale_default());
 	}
 
 	/**
@@ -451,6 +443,14 @@ class Application extends Hookable implements Interface_Theme, Interface_Factory
 	 */
 	private function path_share_default() {
 		return $this->paths->zesk('share');
+	}
+
+	/**
+	 *
+	 * @return string
+	 */
+	private function path_locale_default() {
+		return $this->paths->zesk('etc/language');
 	}
 
 	/**
@@ -504,30 +504,6 @@ class Application extends Hookable implements Interface_Theme, Interface_Factory
 	}
 
 	/**
-	 * Add a path to load configuration files from, or return currentl path list
-	 *
-	 * @param string $path
-	 * @return Application|array
-	 */
-	final public function configure_include_path($path = null) {
-		if ($path === null) {
-			return $this->include_paths;
-		}
-		foreach (to_list($path) as $path) {
-			if (!is_dir($path)) {
-				$this->logger->error("{class}::{method}: {path} is not a valid directory, ignoring", array(
-					"path" => $path,
-					"class" => get_class($this),
-					"method" => __METHOD__
-				));
-				continue;
-			}
-			$this->include_paths[$path] = $path;
-		}
-		return $this;
-	}
-
-	/**
 	 * Loads a bunch of configuration files, in the following order:
 	 * 1.
 	 * application.conf
@@ -545,14 +521,14 @@ class Application extends Hookable implements Interface_Theme, Interface_Factory
 	 * continues to load
 	 */
 	final public function configure(array $options = array()) {
-		if (self::$configuration_options !== null) {
+		if ($this->configuration_options !== null) {
 			$this->logger->warning("Reconfiguring application {class}", array(
 				"class" => get_class($this)
 			));
 		}
 		$this->configuration->deprecated("Application::configure_options", __CLASS__ . "::configure_options");
-		self::$configuration_options = $options + to_array($this->configuration->path(__CLASS__)->configure_options);
-		$this->_configure(self::$configuration_options);
+		$this->configuration_options = $options + to_array($this->configuration->path(__CLASS__)->configure_options);
+		$this->_configure($this->configuration_options);
 		return $this;
 	}
 
@@ -578,12 +554,32 @@ class Application extends Hookable implements Interface_Theme, Interface_Factory
 		$configuration = $this->configuration;
 
 		if (count($this->includes) === 0 || array_key_exists('file', $options)) {
-			$this->configure_include(avalue($options, 'file', $this->default_includes()));
+			$this->configure_include(avalue($options, 'includes', avalue($options, 'file', $this->default_includes())));
 		}
 		if (count($this->include_paths) === 0 || array_key_exists('path', $options)) {
 			$this->configure_include_path(avalue($options, 'path', $this->default_include_path()));
 		}
-		$this->loader = new Configuration_Loader($this->include_paths, $this->includes, new Adapter_Settings_Configuration($configuration));
+		$includes = $this->includes;
+		$files = array();
+		foreach ($includes as $index => $file) {
+			if (File::is_absolute($file) && is_file($file)) {
+				$files[] = $file;
+				unset($includes[$index]);
+			}
+		}
+		if (count($includes) > 0 && count($this->include_paths)) {
+			$this->deprecated("Include files {files} and include paths deprecated in {class}", array(
+				"files" => $includes,
+				"class" => get_class($this)
+			));
+			foreach ($this->include_paths as $path) {
+				foreach ($includes as $file) {
+					$files[] = path($path, $file);
+				}
+			}
+		}
+
+		$this->loader = new Configuration_Loader($files, new Adapter_Settings_Configuration($configuration));
 
 		$this->loader->load();
 
@@ -607,6 +603,14 @@ class Application extends Hookable implements Interface_Theme, Interface_Factory
 		));
 		$this->hooks->register_class($this->register_hooks);
 
+		$application = $this;
+		$this->hooks->add(Hooks::hook_exit, function () use ($application) {
+			if ($application->cache) {
+				$application->cache->commit();
+			}
+		}, array(
+			"last" => true
+		));
 		$this->call_hook('configure');
 
 		$this->configure_cache_paths(); // Initial cache paths are set up
@@ -713,7 +717,7 @@ class Application extends Hookable implements Interface_Theme, Interface_Factory
 	 */
 	public function reconfigure() {
 		$this->_initialize($this->zesk);
-		$result = $this->_configure(to_array(self::$configuration_options));
+		$result = $this->_configure(to_array($this->configuration_options));
 		$this->_configured();
 		return $result;
 	}
@@ -840,31 +844,14 @@ class Application extends Hookable implements Interface_Theme, Interface_Factory
 	}
 
 	/**
-	 * Default include path
-	 *
-	 * @return array
-	 */
-	private function default_include_path() {
-		$list = array_unique(array(
-			'/etc',
-			$this->zesk_root('etc'),
-			$this->path('etc')
-		));
-		return $list;
-	}
-
-	/**
 	 * Default list of files to be loaded as part of this application configuration
 	 *
 	 * @return array
 	 */
 	private function default_includes() {
 		$files_default = array();
-		$files_default[] = 'application.conf';
-		if (defined('APPLICATION_NAME')) {
-			$files_default[] = APPLICATION_NAME . '.conf';
-		}
-		$files_default[] = strtolower(System::uname()) . ".conf";
+		$files_default[] = $this->path('etc/application.json');
+		$files_default[] = $this->path('etc/host/' . strtolower(System::uname()) . ".json");
 		return $files_default;
 	}
 
@@ -1300,6 +1287,26 @@ class Application extends Hookable implements Interface_Theme, Interface_Factory
 	}
 
 	/**
+	 * Add or retrieve the locale path for this application - used to load locales
+	 *
+	 * By default, it's /share/
+	 *
+	 * @param unknown $add
+	 * @param unknown $name
+	 * @return array
+	 */
+	final public function locale_path($add = null) {
+		$list = $this->locale_path;
+		if ($add) {
+			if (!is_dir($add)) {
+				throw new Exception_Directory_NotFound($add);
+			}
+			$this->locale_path[] = $add;
+		}
+		return $this->locale_path;
+	}
+
+	/**
 	 * Add or retrieve the data path for this application
 	 *
 	 * @param string $add
@@ -1368,7 +1375,7 @@ class Application extends Hookable implements Interface_Theme, Interface_Factory
 	}
 
 	/**
-	 *
+	 * Getter/setter for top theme variable
 	 * @param unknown $name
 	 * @param unknown $value
 	 * @return mixed|self
@@ -1453,7 +1460,7 @@ class Application extends Hookable implements Interface_Theme, Interface_Factory
 	 * @return mixed
 	 */
 	private function clean_template_path($path) {
-		return preg_replace("%[^-_./a-zA-Z0-9]%", '_', strtr($path, array(
+		return preg_replace("%[^-_./a-zA-Z0-9]%", '_', strtr(strtolower($path), array(
 			"_" => "/",
 			"\\" => "/"
 		)));
@@ -1783,6 +1790,16 @@ class Application extends Hookable implements Interface_Theme, Interface_Factory
 	}
 
 	/**
+	 *
+	 * @param string $code
+	 * @param array $extensions
+	 * @param array $options
+	 * @return \zesk\Locale
+	 */
+	public function locale_factory($code = null, array $extensions = array(), array $options = array()) {
+		return Reader::factory($this->locale_path(), $code, $extensions)->locale($this, $options);
+	}
+	/**
 	 * Create a model
 	 *
 	 * @param string $class
@@ -1836,8 +1853,8 @@ class Application extends Hookable implements Interface_Theme, Interface_Factory
 		if ($this->session) {
 			return $this->session;
 		}
-		$this->session = Session::factory($this);
-		if (!$this->session) {
+		$this->session = $this->session_factory();
+		if (!$this->session instanceof Interface_Session) {
 			if ($require) {
 				throw new Exception_NotFound("No session");
 			}
@@ -1956,8 +1973,9 @@ class Application extends Hookable implements Interface_Theme, Interface_Factory
 		if (ends($name, $suffix)) {
 			return $this->modules->object(substr($name, 0, -strlen($suffix)));
 		}
-		throw new Exception_Unsupported("Application call {method} is not supported. Do you need to register the module which adds this functionality?", array(
-			"method" => $name
+		throw new Exception_Unsupported("Application call {method} is not supported.\n\n\tCalled from: {calling}\n\nDo you need to register the module which adds this functionality?", array(
+			"method" => $name,
+			"calling" => calling_function()
 		));
 	}
 
@@ -2210,6 +2228,51 @@ class Application extends Hookable implements Interface_Theme, Interface_Factory
 	public function schema_synchronize(Database $db = null, array $classes = null, array $options = array()) {
 		$this->deprecated();
 		return $this->modules->object("orm")->schema_synchronize($db, $classes, $options);
+	}
+
+	/**
+	 * @deprecated 2018-01 Better to use list of files
+	 * @var array
+	 */
+	protected $include_paths = array();
+	/**
+	 * Add a path to load configuration files from, or return currentl path list
+	 *
+	 * @deprecated 2018-01 Use configure_include with absolute paths instead
+	 * @param string $path
+	 * @return Application|array
+	 */
+	final public function configure_include_path($path = null) {
+		if ($path === null) {
+			return $this->include_paths;
+		}
+		foreach (to_list($path) as $path) {
+			if (!is_dir($path)) {
+				$this->logger->error("{class}::{method}: {path} is not a valid directory, ignoring", array(
+					"path" => $path,
+					"class" => get_class($this),
+					"method" => __METHOD__
+				));
+				continue;
+			}
+			$this->include_paths[$path] = $path;
+		}
+		return $this;
+	}
+
+	/**
+	 * Default include path
+	 *
+	 * @deprecated 2018-01
+	 * @return array
+	 */
+	private function default_include_path() {
+		$list = array_unique(array(
+			'/etc',
+			$this->zesk_root('etc'),
+			$this->path('etc')
+		));
+		return $list;
 	}
 }
 

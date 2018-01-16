@@ -8,39 +8,39 @@
 namespace zesk\Subversion;
 
 use zesk\str;
-use zesk\arr;
+use zesk\ArrayTools;
 
 /**
- * 
+ *
  * @author kent
  *
  */
 class Repository extends \zesk\Repository_Command {
 	/**
-	 * 
+	 *
 	 * @var array
 	 */
 	protected $info = null;
-	
+
 	/**
 	 * Used in validate function
 	 *
 	 * @var string
 	 */
 	protected $dot_directory = ".svn";
-	
+
 	/**
-	 * 
+	 *
 	 * @var string
 	 */
 	protected $code = "svn";
-	
+
 	/**
 	 *
 	 * @var string
 	 */
 	protected $executable = "svn --non-interactive";
-	
+
 	/**
 	 * First column: Says if item was added, deleted, or otherwise changed
 	 *
@@ -126,7 +126,7 @@ class Repository extends \zesk\Repository_Command {
 		}
 		$results = array();
 		foreach ($matches as $match) {
-			$result = arr::map_keys($match, array(
+			$result = ArrayTools::map_keys($match, array(
 				0 => "raw_status_line",
 				1 => "changed",
 				2 => "directory-properties-changed",
@@ -137,13 +137,13 @@ class Repository extends \zesk\Repository_Command {
 				7 => "conflict",
 				8 => "path"
 			));
-			$results[$result['path']] = arr::clean($result, " ");
+			$results[$result['path']] = ArrayTools::clean($result, " ");
 		}
 		return $results;
 	}
-	
+
 	/**
-	 * 
+	 *
 	 * {@inheritDoc}
 	 * @see \zesk\Repository::commit()
 	 */
@@ -153,9 +153,9 @@ class Repository extends \zesk\Repository_Command {
 			"message" => escapeshellarg($message)
 		));
 	}
-	
+
 	/**
-	 * 
+	 *
 	 * {@inheritDoc}
 	 * @see \zesk\Repository::update()
 	 */
@@ -164,7 +164,7 @@ class Repository extends \zesk\Repository_Command {
 			"target" => $this->path($target)
 		));
 	}
-	
+
 	/**
 	 * Run before target is updated with new data
 	 *
@@ -198,13 +198,13 @@ class Repository extends \zesk\Repository_Command {
 		}
 		return true;
 	}
-	
+
 	/**
-	 * 
+	 *
 	 * {@inheritDoc}
 	 * @see \zesk\Repository::rollback()
 	 */
-	function rollback($target) {
+	function rollback($target = null) {
 		$extras = $this->option('revert_arguments', '');
 		if ($extras) {
 			$extras = " $extras";
@@ -222,19 +222,19 @@ class Repository extends \zesk\Repository_Command {
 		}
 		return true;
 	}
-	
+
 	/**
 	 * Run before target is updated with new data
 	 *
 	 * (non-PHPdoc)
 	 * @see Repository::pre_update()
 	 */
-	function post_update($target) {
+	function post_update($target = null) {
 		$this->sync($target);
 	}
-	
+
 	/**
-	 * 
+	 *
 	 * @param unknown $target
 	 * @return boolean
 	 */
@@ -271,22 +271,22 @@ class Repository extends \zesk\Repository_Command {
 		die(__FILE__);
 		return $this->info;
 	}
-	
+
 	/**
-	 * 
+	 *
 	 * @param unknown $url
 	 * @return NULL|string
 	 */
 	public function tags_from_url($url) {
 		$trunk_directory = $this->option("trunk_directory", "trunk");
 		$trunk_directory = "/$trunk_directory/";
-		
+
 		$branches_directory = $this->option("branches_directory", "branches");
 		$branches_directory = "/$branches_directory/";
-		
+
 		$tags_directory = $this->option("tags_directory", "tags");
 		$tags_directory = "/$tags_directory/";
-		
+
 		// Make sure we end with a slash
 		$url = rtrim($url, "/") . "/";
 		$min = $mintoken = null;
@@ -308,10 +308,10 @@ class Repository extends \zesk\Repository_Command {
 		}
 		return str::left($url, $mintoken) . $tags_directory;
 	}
-	
+
 	/**
 	 * Determine the latest version of this repository by scanning the tags directory.
-	 * 
+	 *
 	 * {@inheritDoc}
 	 * @see \zesk\Repository::latest_version()
 	 */

@@ -43,7 +43,7 @@ class Control_ORM_Checklist extends Control_Checklist {
 		$query->where($this->option_array("where"));
 		$query->order_by($this->option('order_by', $name_col));
 		$this->call_hook("options_query", $query);
-		$iterator = $query->object_iterator();
+		$iterator = $query->orm_iterator();
 		foreach ($iterator as $id => $object) {
 			$this->objects[$id] = $object;
 			$control_options[$id] = $this->object_format_option_label($object);

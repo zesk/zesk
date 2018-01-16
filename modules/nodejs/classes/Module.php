@@ -7,7 +7,7 @@ namespace zesk\NodeJS;
 
 //use \SplFileInfo;
 use zesk\Command;
-use zesk\arr;
+use zesk\ArrayTools;
 use zesk\Logger\Handler;
 use zesk\Directory;
 
@@ -40,7 +40,7 @@ class Module extends \zesk\Module {
 				$result += $this->gather_node_modules_paths($path);
 			}
 			$node_modules_map = apath($module, "configuration.node_modules", array());
-			if (is_array($node_modules_map) && count($node_modules_map) > 0 && arr::is_assoc($node_modules_map)) {
+			if (is_array($node_modules_map) && count($node_modules_map) > 0 && ArrayTools::is_assoc($node_modules_map)) {
 				$result += $this->convert_application_path($command, $node_modules_map, "module $name");
 			}
 		}

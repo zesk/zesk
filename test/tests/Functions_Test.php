@@ -475,9 +475,9 @@ EOF;
 			"d" => "e"
 		);
 		$contents = "{dudea}{a}{dudeb}{b}{duDeC}{c}{dudeD}{d}";
-		$v = map($contents, arr::kprefix($a, $prefix), true);
+		$v = map($contents, ArrayTools::kprefix($a, $prefix), true);
 		$this->assert($v === "b{a}c{b}d{c}e{d}", $v . "=== \"b{a}c{b}d{c}e{d}\"");
-		$v = map($contents, arr::kprefix($a, $prefix), false);
+		$v = map($contents, ArrayTools::kprefix($a, $prefix), false);
 		$this->assert($v === "b{a}c{b}{duDeC}{c}{dudeD}{d}", $v . " === \"b{a}c{b}{duDeC}{c}{dudeD}{d}\"");
 	}
 	function test_integer_between() {

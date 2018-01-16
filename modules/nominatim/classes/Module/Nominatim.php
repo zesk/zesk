@@ -8,7 +8,7 @@ namespace zesk;
 /**
  *
  * @author kent
- *        
+ *
  */
 class Module_Nominatim extends Module {
 	/**
@@ -21,15 +21,15 @@ class Module_Nominatim extends Module {
 	 * @var integer
 	 */
 	private $request_delay = null;
-	
+
 	/**
-	 * 
+	 *
 	 */
 	public function hook_configured() {
 		// Value is modified in hook_cron
 		$this->application->configuration->deprecated("Module_Nominatim");
 	}
-	
+
 	/**
 	 * cron every minute
 	 */
@@ -40,12 +40,12 @@ class Module_Nominatim extends Module {
 		$settings = Settings::singleton($this->application);
 		$last_request_var = __CLASS__ . "::last_request";
 		$settings->deprecated("Module_Nominatim::last_request", $last_request_var);
-		
+
 		$url = $this->url = $this->option('url_geocode');
 		$rph = $this->option('geocode_requests_per_hour', 60);
-		
+
 		$this->request_delay = intval(3600 / $rph);
-		
+
 		if (!URL::valid($url)) {
 			$this->application->logger->notice("{class}::cron - no URL_GEOCODE configured");
 			return;
@@ -66,7 +66,7 @@ class Module_Nominatim extends Module {
 			'longitude|!=' => null
 		));
 		$update->execute();
-		
+
 		// Set geocoded date to created date when lat/long are set
 		$update = $this->application->query_update("zesk\\Contact_Address")->values(array(
 			'*geocoded' => 'created'
@@ -78,20 +78,20 @@ class Module_Nominatim extends Module {
 			'geocoded' => null
 		));
 		$update->execute();
-		
+
 		$query = $this->application->orm_registry('zesk\\Contact_Address')->query_select()->where(array(
 			array(
 				'geocoded' => null,
 				'geocoded|<=' => Timestamp::now()->add_unit(-abs($this->option_integer("geocode_refresh_days", 30)), Timestamp::UNIT_DAY)
 			)
 		));
-		
+
 		$http = new Net_HTTP_Client($this->application);
 		$http->user_agent("Module_Nominatum in Zesk Library http://zesk.com/ v" . Version::release());
 		/* @var $item Contact_Address */
 		$run_time = $this->option("run_time", 60);
 		$timer = new Timer();
-		$items = $query->object_iterator();
+		$items = $query->orm_iterator();
 		try {
 			foreach ($items as $item) {
 				$now = time();
@@ -127,17 +127,17 @@ class Module_Nominatim extends Module {
 			));
 		}
 	}
-	
+
 	/**
 	 *
-	 * @param Net_HTTP_Client $http        	
-	 * @param Contact_Address $item        	
+	 * @param Net_HTTP_Client $http
+	 * @param Contact_Address $item
 	 * @return boolean
 	 */
 	private function geocode_address(Net_HTTP_Client $http, Contact_Address $item) {
 		$query = $this->option_array("url_geocode_query", array());
 		$query['format'] = 'json';
-		$query['q'] = implode(", ", arr::clean(array(
+		$query['q'] = implode(", ", ArrayTools::clean(array(
 			$item->street,
 			$item->additional,
 			$item->city,
@@ -145,7 +145,7 @@ class Module_Nominatim extends Module {
 			$item->postal_code,
 			$item->country_code
 		)));
-		
+
 		$alt_query = $query;
 		$alt_query['street'] = trim("$item->street $item->additional");
 		$alt_query['city'] = $item->city;
@@ -153,8 +153,8 @@ class Module_Nominatim extends Module {
 		$alt_query['state'] = $item->province;
 		$alt_query['country'] = $item->country_code;
 		$alt_query['postalcode'] = $item->postal_code;
-		$alt_query = arr::trim_clean($alt_query);
-		
+		$alt_query = ArrayTools::trim_clean($alt_query);
+
 		$this_url = URL::query_append($this->url, $query);
 		$http->url($this_url);
 		$raw = $http->go();
@@ -165,6 +165,7 @@ class Module_Nominatim extends Module {
 			));
 			$item->geocode_data = $result = JSON::decode($raw);
 			$item->geocoded = Timestamp::now();
+			$locale = $this->application->locale;
 			if (count($result) > 0) {
 				$result = first($result);
 				$lat = avalue($result, 'lat');
@@ -175,12 +176,12 @@ class Module_Nominatim extends Module {
 				if ($lon) {
 					$item->longitude = doubleval($lon);
 				}
-				$message = __('Geocoding successful, found {n} {results}.', array(
+				$message = $locale('Geocoding successful, found {n} {results}.', array(
 					"n" => count($result),
-					"results" => Locale::plural(__('results'), count($result))
+					"results" => $locale->plural($locale('results'), count($result))
 				));
 			} else {
-				$message = __('Module_Nominatim:=Unable to map your address. Is it a valid street address?');
+				$message = $locale('Module_Nominatim:=Unable to map your address. Is it a valid street address?');
 			}
 			$item->geocode_data = to_array($item->geocode_data) + array(
 				'message' => $message,
@@ -200,10 +201,10 @@ class Module_Nominatim extends Module {
 		$item->store();
 		return false;
 	}
-	
+
 	/**
 	 * Show credits
-	 * 
+	 *
 	 * @todo This should probably be a configuration option
 	 * @return string
 	 */

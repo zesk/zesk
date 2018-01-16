@@ -9,48 +9,40 @@
 namespace zesk;
 
 /**
- * 
+ *
  * @author kent
  *
  */
 class Database_Column extends Options {
-	
+
 	/**
 	 *
 	 * @var Database_Table
 	 */
 	protected $table;
-	
+
 	/**
 	 * Column name
 	 *
 	 * @var string
 	 */
 	protected $name = null;
-	
+
 	/**
-	 * 
+	 *
 	 * @param Database_Table $table
 	 * @param unknown $name
 	 * @param unknown $options
 	 */
 	function __construct(Database_Table $table, $name, array $options = array()) {
-		$this->table = $table;
-		if (is_string($options)) {
-			// Handle backwards compatibility 2017-03
-			zesk()->deprecated();
-			$args = func_get_args();
-			$sql_type = $options;
-			$options = avalue($args, 2, array());
-			$options = array(
-				'sql_type' => $sql_type
-			) + (array) $options;
-		}
 		parent::__construct($options);
+		$this->table = $table;
 		$this->name($name);
-		$this->sql_type($this->option("sql_type"));
+		if ($this->has_option("sql_type")) {
+			$this->sql_type($this->option("sql_type"));
+		}
 	}
-	
+
 	/**
 	 * @return Database_Table
 	 */
@@ -81,7 +73,7 @@ class Database_Column extends Options {
 		$this->set_option('previous_name', $name);
 		return $this;
 	}
-	
+
 	/**
 	 * Get/set column name
 	 * @param string $set
@@ -94,7 +86,7 @@ class Database_Column extends Options {
 		}
 		return $this->name;
 	}
-	
+
 	/**
 	 * Detect differences between database columns
 	 *
@@ -154,9 +146,9 @@ class Database_Column extends Options {
 		}
 		return $diffs;
 	}
-	
+
 	/**
-	 * 
+	 *
 	 * @param Database $db
 	 * @param Database_Column $that
 	 * @return array
@@ -166,7 +158,7 @@ class Database_Column extends Options {
 		$that_extras = $db->column_attributes($that);
 		$diffs = array();
 		if ($filter) {
-			$this_extras = arr::filter($this_extras, $filter);
+			$this_extras = ArrayTools::filter($this_extras, $filter);
 		}
 		foreach ($this_extras as $extra => $default) {
 			$this_value = $this->option($extra, $default);

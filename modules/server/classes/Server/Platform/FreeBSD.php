@@ -32,7 +32,7 @@ class Server_Platform_FreeBSD extends Server_Platform_UNIX {
 		try {
 			$result = $this->exec_one("pw user show {0}", $user);
 			// publish:*:1001:1001::0:0:Publish User:/publish:/usr/local/bin/bash
-			return self::$users[$user] = arr::rekey(array(
+			return self::$users[$user] = ArrayTools::rekey(array(
 				self::f_user_name,
 				"x-password",
 				self::f_user_id,
@@ -55,7 +55,7 @@ class Server_Platform_FreeBSD extends Server_Platform_UNIX {
 		try {
 			$result = $this->exec_one("pw group show {0}", $group);
 			// publish:*:1001:
-			$data = arr::rekey(array(
+			$data = ArrayTools::rekey(array(
 				self::f_group_name,
 				null,
 				self::f_group_id,
@@ -88,7 +88,7 @@ class Server_Platform_FreeBSD extends Server_Platform_UNIX {
 	function group_create($group, $members = null, $gid = null) {
 		$ma = "";
 		if ($members !== null) {
-			$members = arr::trim_clean(to_list($members, array()));
+			$members = ArrayTools::trim_clean(to_list($members, array()));
 			if (count($members) > 0) {
 				foreach ($members as $member) {
 					if (!$this->group_exists($member)) {

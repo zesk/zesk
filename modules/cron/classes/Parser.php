@@ -8,7 +8,7 @@ namespace zesk\Cron;
 
 use zesk\HTML;
 use zesk\str;
-use zesk\arr;
+use zesk\ArrayTools;
 use zesk\Time;
 use zesk\Date;
 use zesk\Timestamp;
@@ -299,8 +299,8 @@ class Parser {
 		//  Every 3 days
 		$short_months = Date::month_names("en", true);
 		$short_dow = Date::weekday_names("en", true);
-		$short_months = arr::change_value_case($short_months);
-		$short_dow = arr::change_value_case($short_dow);
+		$short_months = ArrayTools::change_value_case($short_months);
+		$short_dow = ArrayTools::change_value_case($short_dow);
 		//		$original_text = $text;
 		$text = preg_replace("/[,-]/", " ", strtolower(trim($text)));
 		$text = preg_replace('/\s+/', " ", $text);
@@ -576,13 +576,13 @@ class Parser {
 	}
 	private function dow_to_language($code, $locale, $plural = false) {
 		if ($code === "1,2,3,4,5") {
-			return $plural ? __('weekdays', $locale) : __('weekday', $locale);
+			return $plural ? $this->locale->__('weekdays', $locale) : $this->locale->__('weekday', $locale);
 		}
 		if ($code === "0,6") {
-			return $plural ? __('weekends', $locale) : __('weekend', $locale);
+			return $plural ? $this->locale->__('weekends', $locale) : $this->locale->__('weekend', $locale);
 		}
 		if ($code === "0,1,2,3,4,5,6") {
-			return __('day', $locale);
+			return $this->locale->__('day', $locale);
 		}
 		$items = explode(",", $code);
 		$result = array();
@@ -590,20 +590,20 @@ class Parser {
 		foreach ($items as $item) {
 			if (is_numeric($item)) {
 				if ($plural) {
-					$result[] = Locale::plural($daysOfWeek[$item]);
+					$result[] = $this->locale->plural($daysOfWeek[$item]);
 				} else {
 					$result[] = $daysOfWeek[$item];
 				}
 			}
 		}
-		return Locale::conjunction($result, __('and', $locale));
+		return $this->locale->conjunction($result, $this->locale->__('and', $locale));
 	}
 	private function time_repeat_to_language($item, $unit, $locale) {
 		if (($number = $this->is_time_repeat($item)) !== false) {
 			$translate = $this->locale($number === 1 ? 'Schedule:=Every {1}' : 'Schedule:=Every {0} {1}', $locale);
 			return map($translate, array(
 				$number,
-				Locale::plural($unit, $number, $locale)
+				$this->locale->plural($unit, $number, $locale)
 			));
 		}
 		return false;
@@ -622,9 +622,9 @@ class Parser {
 		foreach ($hour as $h) {
 			foreach ($min as $m) {
 				if ($m == 0 && $h == 0) {
-					$times[] = __('midnight');
+					$times[] = $this->locale->__('midnight');
 				} else if ($m == 0 && $h == 12) {
-					$times[] = __('noon');
+					$times[] = $this->locale->__('noon');
 				} else {
 					$t = new Time();
 					if ($m == 0 && $h != intval($h)) {
@@ -703,7 +703,7 @@ class Parser {
 		if ($dow !== "*") {
 			$dow_language = $this->dow_to_language($dow, $plural_dow);
 		}
-		$phrase = Locale::translate($translate_string);
+		$phrase = $this->locale($translate_string);
 		return map($phrase, array(
 			'time' => $time_language,
 			'day' => $day_language,

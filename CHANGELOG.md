@@ -18,13 +18,192 @@ Version 1.0 of Zesk will have:
 - All modules use **namespaces** - **in progress**
 - Merging of `Response` and `Response_Text_HTML` into a single, unified polymorphic `Response` which changes behavior depending on content-type but allows typed API calls for specific response handling. May move `Response_Text_HTML` into a sub-object (e.g. `$response->html()->add_body_class()` for example)
 - Migrate `Database_Result_Iterator` to remove dependency on `Database_Query_Select_Base` 
+- Migration of `zesk\Locale` to be object-based and not-static-based invocation **in progress**
 
 ### 1.0 Things Completed
 
 - <strike>Renaming of `zesk\ORM` to something non-reserved in PHP 7.2 (Candidates are `zesk\ORM` `zesk\Model` - reuse)</strike>
-- `zesk\` namespace for all `classes` in the system
+- <strike>`zesk\` namespace for all `classes` in the system</strike>
 
 ## [Unreleased][]
+
+### Broken functionality
+
+- `zesk\\Number::format_bytes` now requries `zesk\Locale` as the first parameter
+- `zesk\\(Date|Timestapm|Time)::(format|formatting)`` now require `zesk\Locale` as the first parameter
+
+### Deprecated functionality
+
+- `zesk\str` is now `zesk\StringTools`
+- `zesk\arr` is now `zesk\ArrayTools`
+
+### Removed functionality
+
+- `zesk\ORM::cache_object`
+- `zesk\ORM::cache_class`
+- `zesk\ORM::class_primary_keys`
+- `zesk\ORM::class_id_column`
+- `zesk\ORM::query`
+- `zesk\ORM::class_query`
+- `zesk\ORM::class_query_delete`
+- `zesk\ORM::class_query_update`
+- `zesk\ORM::class_query_insert_select`
+- `zesk\ORM::class_query_insert`
+- `zesk\ORM::status_exists`
+- `zesk\ORM::status_insert`
+- `zesk\ORM::status_unknown`
+
+
+## [v0.15.7][]
+
+### Deprecated calls
+
+- Deprecated `zesk\Database_Query_Select::object_iterator` and `zesk\Database_Query_Select::objects_iterator` and related calls to use new term `ORM`
+ - `zesk\ORMIterator zesk\Database_Query_Select_Base::orm_iterator($class = null, array $options = array())`
+ - `zesk\ORMSIterator zesk\Database_Query_Select_Base::orms_iterator($class = null, array $options = array())`
+ - `zesk\Class_ORM zesk\Database_Query_Select_Base::class_orm()`
+ - `string|self zesk\Database_Query_Select_Base::orm_class($class = null)`
+- Updated `bin/deprecated/0.15.sh` to make above changes automatically
+
+### Bugs fixed
+
+- Fixing `zesk\Cleaner\Module` configuration errors when instance `lifetime` is `NULL`
+- `zesk\Module_Permission` - Fixing cache saving to actually save it
+
+## [v0.15.6][]
+
+- Last version didn't pick up change in file for some reason, trying again.
+
+## [v0.15.5][]
+
+### Bugs fixed
+
+- `zesk\Module_Permission` fixing cron task to properly recompute permissions if needed
+
+## [v0.15.4][]
+
+### Bugs fixed
+
+Main changes were to fix a bug with login where the `zesk\User::hook_login` hook, if it returns NULL, would prevent authentication from succeeding. Modified how hooks are invoked such that when combining two results, the hook chain will choose the non-NULL value and will accumulate values as strings or arrays, depending on previous values.
+
+- Fixing `zesk\User::authenticate()` to permit deferring authentication to application decision
+- Fixing incompatible `zesk\Hookable::combine_hook_results` to enable hook chaining where hooks which return NULL are ignored.
+
+## [v0.15.3][]
+
+- `zesk\Command::render_format` now returns true or false
+- `zesk\Control_Select::hide_single_text` option should be a string - fixes display of `select.tpl`
+- `zesk\Module_Permission` fixing PSR API for caching of permissions, fixing `cache_disable` option
+
+## [v0.15.2][]
+
+- Fixing release date output and fixing date generation
+
+## [v0.15.1][]
+
+- Adding release date
+
+## [v0.15.0][]
+
+### New features
+
+#### Configure Command enhancements
+
+- Added ability to hook into Configure command to extend commands with Modules
+- Moved `zesk configure subversion` command to `subversion` module
+- `zesk\Command_Configure::handle_owner_mode` `$want_mode` validation
+- `zesk\Command_Configure` adding comments and ability to hook for custom commands
+
+#### DaemonTools Module and Daemon changes
+
+- Added Daemontools Module and interface
+- `zesk daemon` enhancements
+- Adding hook `zesk\Command_Daemon::daemon_hooks` to allow collection of daemon processes from any class in the system
+- DaemonTools module work
+
+#### Command ANSI colors
+
+- `zesk\Command` supports basic ANSI coloring
+- `zesk\Command::exec` is now public
+- Updating `zesk\Command` ANSI output
+
+#### Hookable call chains
+
+- `zesk\Hookable::call_hook_arguments` now uses the `$default` value as the initial `$result`
+- `zesk\Hookable::collect_hooks` to treat all hooks identically or support alternate accumulation strategies
+
+#### Documentation and Release
+
+- Added `zesk\Directory::list_recursive` documentation
+- Adding automatic `etc/db/release-date` generation to Zesk release script
+
+### Improvements
+
+#### `Database_Table`
+
+- `zesk\Database_Table` is now subclass of `zesk\Hookable` to enable hooks for database manipulation calls
+
+#### ORM
+
+- Fixing `zesk\ORM` hook invocation for cache hooks (use `_` not `-`)
+- Adding per-database adapters to ORM for mapping from ORM types to SQL types - see `zesk\ORM_Database_Adapter_MySQL`
+- Adding support for `zesk\Class_ORM::type_binary` and fixing existing `Schema_Foo` class types for new `ORM`
+
+### Incompatible changes
+
+#### Application configuration changes
+
+- Support `zesk\Configuration_Loader::current` to allow include in same directory
+- `zesk\Application` default include files are now: `etc/application.json` and `etc/host/uname.json`
+- `zesk\Configuration_Loader::__construct` now only takes a single list of configuration files and does not do any path expansion
+- `zesk\Application::configure_include_paths` is now deprecated
+- `zesk\Configuration_Loader` API change to only take a list of files, not a list of paths+file extensions to concatenate
+
+#### `zesk\File`
+
+- `zesk\File::stat` returns `["perms"]["decimal"]` which is actually a decimal value (was octal previously), and is truncated to the bottom 9 bits
+
+### Deprecated functionality
+
+- `zesk\Session` will be deprecated and instead will move to modules `session-orm` and `session-php`
+- Adding `zesk\Application::session_factory` support, removing `zesk\Session` class permanently
+- `zesk\Application::model_classes` is deprecated and is now ignored
+- `zesk\Database` splitting out deprecated configuration options
+- `zesk\Module::classes` is deprecated, use `zesk\Module::model_classes` to collect models (usually for `zesk\ORM`)
+
+### Fixes
+
+- `zesk\Forgot` cron updates
+- Fixing image hook
+- Fixing subversion module
+- fixing JSON
+- fixing `Repository` subclasses
+- fixing `Settings` cache delete
+- fixing dependency issues
+- fixing `version` callback
+- support non-string environment variables
+
+## [v0.14.4][]
+
+### Fixed bugs
+
+- Fixing `Bootstrap-DateTimePicker` theme precedence
+- Fixing `app()` use of global calls
+- Fixing `zesk\Model_Settings` usage of `zesk\Settings` global
+- `zesk\Controller_Content_Cache::image_from_url` should take `$application` as first parameter
+
+## [v0.14.3][]
+
+- Made some bug fixes to `zesk\CacheItemPool_File` which caused files to not be saved
+- `zesk\Application` adds an exit hook to call `$application->cache->commit()` upon exit
+
+## [v0.14.2][]
+
+### Fixed bugs
+
+- Hook `ClassName::register_all_hooks` must take `zesk\Application` as first parameter and did not. Fixed.
+
+## [v0.14.1][]
 
 ### `zesk\Locale` refactored
 
@@ -42,6 +221,15 @@ The `zesk\Locale` module has been refactored to support object-based management 
 ### New features
 
 - `zesk\Application` now supports the function calls like `codename_module()` to retrieve module objects. So, `$application->csv_module()` is equivalent to `$application->modules->object("csv")`. You can decorate your application with `@method` doccomments to support types and return values in Eclipse-based editors. See `zesk\Application` class DocComment for examples.
+- Added `Database::TABLE_INFO` constants and new `zesk\Database` class abstract `zesk\Database::table_information` call
+- adding basic CacheItemPool and CacheItem classes
+
+### Fixed bugs
+
+- Fixing `zesk\Process_Tools::process_code_changed` calls in `zesk daemon`
+- Fixed SES test file
+- Fixing linked classes using `Foo::class` constant instead of strings
+- Fixed some ORM minor issues
 
 ### Broken features
 
@@ -50,6 +238,10 @@ The `zesk\Locale` module has been refactored to support object-based management 
 
 ### Deprecated functionality
 
+- Rewriting `cache` calls in `zesk\ORM` to support `CacheItemInterface` instead of `zesk\Cache`
+- `Cache::` removal
+- removed `zesk()` globals
+- Removing deprecated configuration path `zesk::paths::`
 
 ### Removed functionality
 
@@ -81,7 +273,7 @@ The `zesk\Locale` module has been refactored to support object-based management 
 
 Yes, we've renamed the `zesk\Object` class to `zesk\ORM` because PHP 7.2 makes the term `Object` a reserved word for class or namespace names. So... Major changes in how system is organized:
 
-- `modules/orm` added and all `Object` and `Class_Object` funtcionality moved into there and renamed `ORM` and `Class_ORM` respectively.
+- `modules/orm` added and all `Object` and `Class_ORM` funtcionality moved into there and renamed `ORM` and `Class_ORM` respectively.
 - Refactored `Session` and moved to its own module. Likely will need future detachment from the `zesk\Application` class
 - Refactored references to `ORM`-related classes and moved into `ORM` module (`User`, `Lock`, `Domain`, `Meta`, )
 - References to `ORM` will be detached from zesk core in this and upcoming releases
@@ -105,7 +297,7 @@ The `zesk\Application` is the center of your application, naturally, but it has 
 
 There are a variety of new patterns, largely those which remove `ORM` functionality from the `zesk\Application` core.
 
-The main point here is that shortcuts which previously pulled a bit of data from the `Class_Object` (now `Class_ORM`) should use the full call, so:
+The main point here is that shortcuts which previously pulled a bit of data from the `Class_ORM` (now `Class_ORM`) should use the full call, so:
 
 OLD method:
 
@@ -1029,17 +1221,28 @@ Settling of `zesk\Kernel` and `zesk\` namespace changes, added additional compon
  - `zesk::class_hierarchy` -> `zesk()->classes->hierarchy`
 - Removed growl module (no longer relevant on Mac OS X)
 
-[Unreleased]: https://github.com/zesk/zesk/compare/v0.14.0...HEAD
+[v0.15.7]: https://github.com/zesk/zesk/compare/v0.15.7...HEAD
+[v0.15.6]: https://github.com/zesk/zesk/compare/v0.15.6...v0.15.7
+[v0.15.5]: https://github.com/zesk/zesk/compare/v0.15.5...v0.15.6
+[v0.15.4]: https://github.com/zesk/zesk/compare/v0.15.4...v0.15.5
+[v0.15.3]: https://github.com/zesk/zesk/compare/v0.15.3...v0.15.4
+[v0.15.2]: https://github.com/zesk/zesk/compare/v0.15.2...v0.15.3
+[v0.15.1]: https://github.com/zesk/zesk/compare/v0.15.1...v0.15.2
+[v0.15.0]: https://github.com/zesk/zesk/compare/v0.15.0...v0.15.1
+[v0.14.4]: https://github.com/zesk/zesk/compare/v0.14.3...v0.15.0
+[v0.14.3]: https://github.com/zesk/zesk/compare/v0.14.2...v0.14.3
+[v0.14.2]: https://github.com/zesk/zesk/compare/v0.14.1...v0.14.2
+[v0.14.1]: https://github.com/zesk/zesk/compare/v0.14.0...v0.14.1
 [v0.14.0]: https://github.com/zesk/zesk/compare/v0.13.2...v0.14.0
 [v0.13.2]: https://github.com/zesk/zesk/compare/v0.13.1...v0.13.2
 [v0.13.1]: https://github.com/zesk/zesk/compare/v0.13.0...v0.13.1
 [v0.13.0]: https://github.com/zesk/zesk/compare/v0.12.15...v0.13.0
 [v0.12.15]: https://github.com/zesk/zesk/compare/v0.12.14...v0.12.15
 [v0.12.14]: https://github.com/zesk/zesk/compare/v0.12.13...v0.12.14
-[v0.12.13]: https://github.com/zesk/zesk/compare/v0.12.13...v0.12.14
-[v0.12.12]: https://github.com/zesk/zesk/compare/v0.12.13...v0.12.14
-[v0.12.11]: https://github.com/zesk/zesk/compare/v0.12.13...v0.12.14
-[v0.12.10]: https://github.com/zesk/zesk/compare/v0.12.13...v0.12.14
+[v0.12.13]: https://github.com/zesk/zesk/compare/v0.12.12...v0.12.13
+[v0.12.12]: https://github.com/zesk/zesk/compare/v0.12.11...v0.12.12
+[v0.12.11]: https://github.com/zesk/zesk/compare/v0.12.10...v0.12.11
+[v0.12.10]: https://github.com/zesk/zesk/compare/v0.12.9...v0.12.10
 [v0.12.9]: https://github.com/zesk/zesk/compare/v0.12.8...v0.12.9
 [v0.12.8]: https://github.com/zesk/zesk/compare/v0.12.7...v0.12.8
 [v0.12.7]: https://github.com/zesk/zesk/compare/v0.12.6...v0.12.7

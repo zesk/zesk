@@ -7,6 +7,16 @@
  */
 namespace zesk;
 
+/* @var $this \zesk\Template */
+/* @var $zesk \zesk\Kernel */
+/* @var $application \zesk\Application */
+/* @var $session \zesk\Session */
+/* @var $locale \zesk\Locale */
+/* @var $router \zesk\Router */
+/* @var $route \zesk\Route */
+/* @var $request \zesk\Request */
+/* @var $response \zesk\Response_Text_HTML */
+/* @var $current_user \zesk\User */
 $is_empty = false;
 try {
 	$timestamp = new Timestamp($this->value);
@@ -30,7 +40,7 @@ if (!$format) {
 
 /* @var $timestamp Timestamp */
 $map = array();
-$map["delta"] = Locale::now_string($timestamp, $this->get('relative_min_unit', 'second'), $this->zero_string);
+$map["delta"] = $locale->now_string($timestamp, $this->get('relative_min_unit', 'second'), $this->zero_string);
 $format = map($format, $map);
 
 $result = $timestamp->format($format, $this->locale ? array(

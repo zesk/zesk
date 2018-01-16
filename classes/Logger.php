@@ -1,6 +1,6 @@
 <?php
 /**
- * 
+ *
  */
 namespace zesk;
 
@@ -13,7 +13,7 @@ use Psr\Log\LoggerInterface as LoggerInterface;
  */
 class Logger implements LoggerInterface {
 	/**
-	 * 
+	 *
 	 * @var array
 	 */
 	private static $levels = array(
@@ -26,37 +26,37 @@ class Logger implements LoggerInterface {
 		LogLevel::INFO => LogLevel::INFO,
 		LogLevel::DEBUG => LogLevel::DEBUG
 	);
-	
+
 	/**
-	 * 
+	 *
 	 * @var boolean
 	 */
 	private $sending = false;
-	
+
 	/**
-	 * 
+	 *
 	 * @var boolean
 	 */
 	public $utc_time = false;
-	
+
 	/**
-	 * 
+	 *
 	 * @var string[]
 	 */
 	private $handler_names = array();
-	
+
 	/**
-	 * 
+	 *
 	 * @var \zesk\Logger\Processor[name]
 	 */
 	private $processors = array();
-	
+
 	/**
-	 * 
+	 *
 	 * @var array
 	 */
 	private $handlers = array();
-	
+
 	/**
 	 * Output configuration
 	 */
@@ -90,7 +90,7 @@ class Logger implements LoggerInterface {
 	public function emergency($message, array $context = array()) {
 		$this->log(LogLevel::EMERGENCY, $message, $context);
 	}
-	
+
 	/**
 	 * Action must be taken immediately.
 	 *
@@ -104,7 +104,7 @@ class Logger implements LoggerInterface {
 	public function alert($message, array $context = array()) {
 		$this->log(LogLevel::ALERT, $message, $context);
 	}
-	
+
 	/**
 	 * Critical conditions.
 	 *
@@ -117,7 +117,7 @@ class Logger implements LoggerInterface {
 	public function critical($message, array $context = array()) {
 		$this->log(LogLevel::CRITICAL, $message, $context);
 	}
-	
+
 	/**
 	 * Runtime errors that do not require immediate action but should typically
 	 * be logged and monitored.
@@ -129,7 +129,7 @@ class Logger implements LoggerInterface {
 	public function error($message, array $context = array()) {
 		$this->log(LogLevel::ERROR, $message, $context);
 	}
-	
+
 	/**
 	 * Exceptional occurrences that are not errors.
 	 *
@@ -143,7 +143,7 @@ class Logger implements LoggerInterface {
 	public function warning($message, array $context = array()) {
 		$this->log(LogLevel::WARNING, $message, $context);
 	}
-	
+
 	/**
 	 * Normal but significant events.
 	 *
@@ -154,7 +154,7 @@ class Logger implements LoggerInterface {
 	public function notice($message, array $context = array()) {
 		$this->log(LogLevel::NOTICE, $message, $context);
 	}
-	
+
 	/**
 	 * Interesting events.
 	 *
@@ -167,7 +167,7 @@ class Logger implements LoggerInterface {
 	public function info($message, array $context = array()) {
 		$this->log(LogLevel::INFO, $message, $context);
 	}
-	
+
 	/**
 	 * Detailed debug information.
 	 *
@@ -178,7 +178,7 @@ class Logger implements LoggerInterface {
 	public function debug($message, array $context = array()) {
 		$this->log(LogLevel::DEBUG, $message, $context);
 	}
-	
+
 	/**
 	 * Logs with an arbitrary level.
 	 *
@@ -188,8 +188,6 @@ class Logger implements LoggerInterface {
 	 * @return null
 	 */
 	public function log($level, $message, array $context = array()) {
-		global $zesk;
-		/* @var $zesk zesk\Kernel */
 		if ($this->sending) {
 			// Doh.
 			return;
@@ -197,7 +195,7 @@ class Logger implements LoggerInterface {
 		if (!isset($this->handlers[$level])) {
 			return;
 		}
-		
+
 		if (is_object($message)) {
 			$message_args = method_exists($message, "log_variables") ? $message->log_variables() : array();
 			$message = method_exists($message, "log_message") ? $message->log_message() : strval($message);
@@ -213,10 +211,10 @@ class Logger implements LoggerInterface {
 			}
 			return;
 		}
-		$pid = $zesk->process->id();
+		$pid = intval(getmypid());
 		$time = microtime(true);
 		$int_time = intval($time);
-		
+
 		$extras = array();
 		$date = $this->utc_time ? "gmdate" : "date";
 		$extras['_date'] = $date("Y-m-d", $int_time);
@@ -228,9 +226,9 @@ class Logger implements LoggerInterface {
 		$extras['_severity'] = $level;
 		$extras['_message'] = $message;
 		$extras['_formatted'] = map($message, $context);
-		
+
 		$context += $extras;
-		
+
 		$this->sending = true;
 		$handlers = $this->handlers[$level];
 		foreach ($handlers as $name => $handler) {
@@ -249,9 +247,9 @@ class Logger implements LoggerInterface {
 	public function handler_names() {
 		return array_values($this->handler_names);
 	}
-	
+
 	/**
-	 * 
+	 *
 	 * @param unknown $name
 	 */
 	public function unregister_handler($name, $levels = null) {
@@ -277,7 +275,7 @@ class Logger implements LoggerInterface {
 		return $nfound;
 	}
 	/**
-	 * 
+	 *
 	 * @param unknown $name
 	 * @param unknown $function
 	 * @param unknown $levels
@@ -294,9 +292,9 @@ class Logger implements LoggerInterface {
 		$this->handler_names[$lowname] = $name;
 		return $this;
 	}
-	
+
 	/**
-	 * 
+	 *
 	 * @param string $name
 	 * @param \zesk\Logger\Processor $processor
 	 * @return \zesk\Logger
@@ -305,9 +303,9 @@ class Logger implements LoggerInterface {
 		$this->processors[$name] = $processor;
 		return $this;
 	}
-	
+
 	/**
-	 * 
+	 *
 	 * @param string $name
 	 * @param \zesk\Logger\Processor $processor
 	 * @return \zesk\Logger
@@ -316,21 +314,21 @@ class Logger implements LoggerInterface {
 		unset($this->processors[$name]);
 		return $this;
 	}
-	
+
 	/**
 	 * @return string[]
 	 */
 	public function processor_names() {
 		return array_keys($this->processors);
 	}
-	
+
 	/**
 	 * @return array
 	 */
 	public function levels() {
 		return self::$levels;
 	}
-	
+
 	/**
 	 * @return array
 	 */

@@ -105,6 +105,6 @@ class Database_Query_Union extends Database_Query_Select_Base {
 			/* @var $query Database_Query_Select */
 			$sqls[] = $query->__toString();
 		}
-		return implode(" UNION ", arr::wrap($sqls, "(", ")")) . $this->sql()->order_by($this->order_by);
+		return implode(" UNION ", ArrayTools::wrap($sqls, "(", ")")) . $this->sql()->order_by($this->order_by);
 	}
 }

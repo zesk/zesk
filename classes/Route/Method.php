@@ -124,7 +124,7 @@ class Route_Method extends Route {
 		}
 		if ($content !== null) {
 			if (is_array($content)) {
-				$content = arr::join_wrap($content, $this->option("join_prefix", ""), $this->option("join_suffix", ""));
+				$content = ArrayTools::join_wrap($content, $this->option("join_prefix", ""), $this->option("join_suffix", ""));
 			}
 			$app->response->content = $this->option("prefix", "") . $content . $this->option("suffix", "");
 		}

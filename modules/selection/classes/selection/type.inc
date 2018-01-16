@@ -62,7 +62,7 @@ class Selection_Type extends ORM {
 			->where("add", true)
 			->distinct(true)
 			->group_by("id")
-			->object_iterator();
+			->orm_iterator();
 	}
 	
 	/**
@@ -120,7 +120,7 @@ class Selection_Type extends ORM {
 	 */
 	public function items_update(array $add_items, array $remove_items) {
 		$found = $this->member_query("items")->where("id", array_merge($add_items, $remove_items))->to_array("id");
-		$items = arr::flip_assign($add_items, true) + arr::flip_assign($remove_items, false);
+		$items = ArrayTools::flip_assign($add_items, true) + ArrayTools::flip_assign($remove_items, false);
 		foreach ($found as $id => $row) {
 			$op = $items[$id];
 			$add = to_bool($row['add']);

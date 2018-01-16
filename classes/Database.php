@@ -1280,7 +1280,6 @@ abstract class Database extends Hookable {
 	 * @return string
 	 */
 	public static function database_default($set = null) {
-		zesk()->hooks->register_class(__CLASS__);
 		if ($set === null) {
 			return self::$database_name_default;
 		}
@@ -1330,16 +1329,17 @@ abstract class Database extends Hookable {
 	}
 
 	/**
-	 * Internal function to load database settings from globals
+	 * @deprecated 2017-10
+	 * @param Application $application
 	 */
-	public static function _configured(Application $application) {
+	private static function _legacy_configured(Application $application) {
 		$config = $application->configuration;
 		if ($config->has("table_prefix")) {
 			zesk()->deprecated("Using table_prefix - no longer supported n 2017");
 		}
 		if ($config->has("db_url")) {
 			zesk()->deprecated("Using DB_URL - no longer supported after 2016");
-			$old_style = arr::kunprefix($application->configuration->to_array(), "db_url", true);
+			$old_style = ArrayTools::kunprefix($application->configuration->to_array(), "db_url", true);
 			foreach ($old_style as $name => $url) {
 				$name = empty($name) ? "default" : str::unprefix($name, '_');
 				try {
@@ -1351,6 +1351,17 @@ abstract class Database extends Hookable {
 		}
 		$config->deprecated("Database::database_names", __CLASS__ . "::names");
 		$config->deprecated(__CLASS__ . "::database_names", __CLASS__ . "::names");
+		$config->deprecated("Database::default", __CLASS__ . '::default');
+	}
+
+	/**
+	 * Internal function to load database settings from globals
+	 */
+	public static function _configured(Application $application) {
+		self::_legacy_configured($application);
+
+		$config = $application->configuration;
+
 		$databases = to_array($config->path(array(
 			__CLASS__,
 			'names'
@@ -1367,7 +1378,6 @@ abstract class Database extends Hookable {
 			__CLASS__,
 			"default"
 		);
-		$config->deprecated("Database::default", $database_default_config_path);
 		if ($config->path_exists($database_default_config_path)) {
 			self::database_default($config->path_get($database_default_config_path));
 		}
@@ -1471,7 +1481,7 @@ abstract class Database extends Hookable {
 			list($full_match, $class, $no_cache) = $match;
 			// Possible bug: How do we NOT cache table name replacements which are parameterized?, e.g Site_5343 - table {Site} should not cache this result, right?
 			// TODO
-			$table = $this->application->object_table_name($class, null, $options);
+			$table = $this->application->orm_registry(__CLASS__, null, $options)->table();
 			if (count($options) === 0 && $no_cache !== "*") {
 				$this->table_name_cache[$full_match] = $table;
 			}

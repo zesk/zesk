@@ -25,7 +25,7 @@ namespace zesk;
 			echo $this->column;
 			?>_query"
 				class="overlabel"><?php
-				echo $this->get("search_label", __('Search'));
+				echo $this->get("search_label", $locale('Search'));
 				?></label> <input type="text"
 				size="<?php
 				echo $this->get('show_size', 20);
@@ -57,10 +57,10 @@ namespace zesk;
 			echo $application->url("/share/images/search/search.png");
 			?>"
 			width="16" height="16" alt="<?php
-			echo __('Search');
+			echo $locale('Search');
 			?>"
 			title="<?php
-			echo __('Search');
+			echo $locale('Search');
 			?>" />
 	</div>
 	<div class="csod-reset csod-button csod-some search-reset"
@@ -72,10 +72,10 @@ namespace zesk;
 			echo $application->url("/share/images/search/x.png");
 			?>"
 			width="16" height="16" alt="<?php
-			echo __('Reset');
+			echo $locale('Reset');
 			?>"
 			title="<?php
-			echo __('Reset');
+			echo $locale('Reset');
 			?>" />
 	</div>
 	<div class="csod-message csod-none" style="display: none;">

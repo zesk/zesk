@@ -14,55 +14,55 @@ namespace zesk;
  * @package zesk
  * @subpackage system
  */
-class Database_Table extends Options {
-	
+class Database_Table extends Hookable {
+
 	/**
 	 *
 	 * @var Database
 	 */
 	private $database = null;
-	
+
 	/**
 	 *
 	 * @var string
 	 */
 	private $name = '';
-	
+
 	/**
 	 *
 	 * @var string
 	 */
 	private $type = null;
-	
+
 	/**
 	 *
 	 * @var array
 	 */
 	public $columns = array();
-	
+
 	/**
 	 *
 	 * @var Database_Index
 	 */
 	private $primary = null;
-	
+
 	/**
 	 *
 	 * @var array
 	 */
 	public $indexes = array();
-	
+
 	/**
 	 *
 	 * @var array
 	 */
 	public $on = array();
-	
+
 	/**
 	 * @var string
 	 */
 	protected $source = null;
-	
+
 	/**
 	 * Create a table
 	 *
@@ -71,14 +71,14 @@ class Database_Table extends Options {
 	 * @param string $type
 	 */
 	function __construct(Database $db, $table_name, $type = null, array $options = array()) {
-		parent::__construct($options);
+		parent::__construct($db->application, $options);
 		$this->database = $db;
 		$this->name = $table_name;
 		$this->type = $type;
 	}
-	
+
 	/**
-	 * 
+	 *
 	 */
 	function __clone() {
 		foreach ($this->columns as $name => $column) {
@@ -102,7 +102,7 @@ class Database_Table extends Options {
 	function primary() {
 		return $this->primary;
 	}
-	
+
 	/**
 	 * Destroy table
 	 */
@@ -132,7 +132,7 @@ class Database_Table extends Options {
 	function database() {
 		return $this->database;
 	}
-	
+
 	/**
 	 * Has column
 	 *
@@ -153,7 +153,7 @@ class Database_Table extends Options {
 		}
 		return $this->type;
 	}
-	
+
 	/**
 	 * Default index structure for table (e.g.
 	 * BTREE, etc.)
@@ -161,7 +161,7 @@ class Database_Table extends Options {
 	function default_index_structure() {
 		return $this->database->default_index_structure($this->type);
 	}
-	
+
 	/**
 	 * Table name
 	 *
@@ -174,7 +174,7 @@ class Database_Table extends Options {
 		$this->name = $set;
 		return $this;
 	}
-	
+
 	/**
 	 * Array of Database_Column
 	 *
@@ -183,7 +183,7 @@ class Database_Table extends Options {
 	function columns() {
 		return $this->columns;
 	}
-	
+
 	/**
 	 * Return array of column names
 	 *
@@ -197,7 +197,7 @@ class Database_Table extends Options {
 		}
 		return $result;
 	}
-	
+
 	/**
 	 * Retrieve the column from the table
 	 *
@@ -207,7 +207,7 @@ class Database_Table extends Options {
 	function column($name) {
 		return avalue($this->columns, $name, null);
 	}
-	
+
 	/**
 	 * Retieve the previous column definition for a column
 	 *
@@ -226,7 +226,7 @@ class Database_Table extends Options {
 		}
 		return null;
 	}
-	
+
 	/**
 	 * Index exists in table?
 	 *
@@ -237,7 +237,7 @@ class Database_Table extends Options {
 		$name = strtolower($name);
 		return array_key_exists($name, $this->indexes);
 	}
-	
+
 	/**
 	 * Retrieve the index for the table
 	 *
@@ -251,9 +251,9 @@ class Database_Table extends Options {
 		$name = strtolower($name);
 		return avalue($this->indexes, $name);
 	}
-	
+
 	/**
-	 * 
+	 *
 	 */
 	function indexes() {
 		if (is_array($this->indexes)) {
@@ -275,9 +275,9 @@ class Database_Table extends Options {
 		$this->indexes = $indexes;
 		return $this->indexes;
 	}
-	
+
 	/**
-	 * 
+	 *
 	 * @param Database_Index $index
 	 */
 	public function index_add(Database_Index $index) {
@@ -294,7 +294,7 @@ class Database_Table extends Options {
 			}
 		}
 	}
-	
+
 	/**
 	 *
 	 * @param array $indexes
@@ -304,7 +304,7 @@ class Database_Table extends Options {
 			$this->index_add($v);
 		}
 	}
-	
+
 	/**
 	 * @deprecated 2017-08
 	 * @param array $indexes
@@ -312,7 +312,7 @@ class Database_Table extends Options {
 	public function setIndexes(array $indexes) {
 		return $this->set_indexes($indexes);
 	}
-	
+
 	/**
 	 *
 	 * @param Database_Column $dbCol
@@ -330,15 +330,22 @@ class Database_Table extends Options {
 				"table" => $this->name
 			));
 		}
+		$this->call_hook("column_add", $dbCol);
+
 		// 		if (!$dbCol->has_sql_type() && !$this->database->data_type()->type_set_sql_type($dbCol)) {
 		// 			throw new Exception_Semantics("Database_Table::column_add($column): Can not set SQLType");
 		// 		}
 		if (!$dbCol->has_sql_type()) {
-			throw new Exception_Semantics("Database_Table::column_add($column): Can not set SQLType");
+			throw new Exception_Semantics("{method}: No SQL type for column {column} in table {table}\noptions: {options}", array(
+				"method" => __METHOD__,
+				"options" => json_encode($dbCol->option()),
+				"column" => $column,
+				"table" => $dbCol->table()->name()
+			));
 		}
 		$after_column = $dbCol->option("after_column");
 		if ($after_column) {
-			$this->columns = arr::insert($this->columns, $after_column, array(
+			$this->columns = ArrayTools::insert($this->columns, $after_column, array(
 				$column => $dbCol
 			));
 		} else {
@@ -355,9 +362,9 @@ class Database_Table extends Options {
 		}
 		return $this;
 	}
-	
+
 	/**
-	 * 
+	 *
 	 * @param unknown $mixed
 	 */
 	public function column_remove($mixed) {
@@ -365,7 +372,7 @@ class Database_Table extends Options {
 			return $this->column_remove($mixed->name());
 		}
 	}
-	
+
 	/**
 	 * Return statements to alter a table to a new setup
 	 *
@@ -377,7 +384,7 @@ class Database_Table extends Options {
 		$oldTableType = $old_table->type();
 		$newTableType = $this->type();
 		$tableName = $this->Name();
-		
+
 		zesk()->logger->debug("Table sql_alter {old} {new}", array(
 			"old" => $oldTableType,
 			"new" => $newTableType
@@ -406,7 +413,7 @@ class Database_Table extends Options {
 		return true;
 	}
 	/**
-	 * 
+	 *
 	 * @param Database_Table $that
 	 * @param string $debug
 	 * @return boolean
@@ -428,7 +435,7 @@ class Database_Table extends Options {
 			}
 			return false;
 		}
-		
+
 		/*
 		 * Columns
 		 */
@@ -450,7 +457,7 @@ class Database_Table extends Options {
 				return false;
 			}
 		}
-		
+
 		/*
 		 * Indexes
 		 */
@@ -470,7 +477,7 @@ class Database_Table extends Options {
 				return false;
 			}
 		}
-		
+
 		$extras = $this->database->table_attributes();
 		foreach ($extras as $extra => $default) {
 			$this_value = $this->option($extra, $default);
@@ -482,12 +489,12 @@ class Database_Table extends Options {
 				return false;
 			}
 		}
-		
+
 		return true;
 	}
-	
+
 	/**
-	 * 
+	 *
 	 */
 	function create_sql() {
 		$result = $this->database->sql()->create_table($this);
@@ -496,9 +503,9 @@ class Database_Table extends Options {
 		$result = array_merge($result, $this->on_action("create"));
 		return $result;
 	}
-	
+
 	/**
-	 * 
+	 *
 	 * @param unknown $action
 	 * @param array $sqls
 	 * @throws Exception_Semantics
@@ -525,18 +532,18 @@ class Database_Table extends Options {
 		}
 		return $this->on[$action] = array_merge($this->on[$action], $sqls);
 	}
-	
+
 	/**
-	 * 
+	 *
 	 * {@inheritDoc}
 	 * @see Options::__toString()
 	 */
 	public function __toString() {
 		return $this->name();
 	}
-	
+
 	/**
-	 * 
+	 *
 	 * @return string
 	 */
 	public function _debug_dump() {

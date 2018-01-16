@@ -5,7 +5,7 @@ use \SplFileInfo;
 
 /**
  * Convert a .conf file to a .json configuration file
- * 
+ *
  * @category Tools
  * @author kent
  *
@@ -30,11 +30,11 @@ class Command_CONF2JSON extends Command_Iterator_File {
 	protected function process_file(SplFileInfo $file) {
 		$source_name = $file->getPathname();
 		$target_name = File::extension_change($source_name, "json");
-		
+
 		$result = array();
 		$adapter = new Adapter_Settings_Array($result);
 		Configuration_Parser::factory("conf", file_get_contents($source_name), $adapter)->process();
-		
+
 		$target_exists = file_exists($target_name);
 		$n = count($result);
 		if ($this->dry_run) {
@@ -49,7 +49,7 @@ class Command_CONF2JSON extends Command_Iterator_File {
 				"source_name" => $source_name,
 				"target_name" => $target_name,
 				"n" => $n,
-				"entries" => Locale::plural("entry", $n)
+				"entries" => $this->application->locale->plural("entry", $n)
 			));
 			return;
 		}

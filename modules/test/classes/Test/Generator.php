@@ -450,7 +450,7 @@ class Test_Generator extends Options {
 		if ($dry_run) {
 			$this->verbose_log("Dry run: No files will be created.\n");
 		}
-		$extensions = arr::prefix(arr::unprefix(".", $this->option_list("extensions")), ".");
+		$extensions = ArrayTools::prefix(ArrayTools::unprefix(".", $this->option_list("extensions")), ".");
 		foreach ($dirs as $dir) {
 			$this->verbose_log("Processing directory $dir ...");
 			if (!Directory::is_absolute($dir)) {

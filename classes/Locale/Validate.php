@@ -2,14 +2,19 @@
 /**
  *
  */
-namespace zesk;
+namespace zesk\Locale;
+
+use zesk\Options;
+use zesk\Application;
+use zesk\StringTools;
+use zesk\JSON;
 
 /**
  *
  * @author kent
  *
  */
-class Locale_Validate extends Options {
+class Validate extends Options {
 
 	/**
 	 *
@@ -29,11 +34,11 @@ class Locale_Validate extends Options {
 	/**
 	 * Verifies if the source variables exist in the translation
 	 *
-	 * Uses global Locale::group_check_methods which is an array of group prefixes for special checking.
+	 * Uses global zesk\Locale_Validate::group_check_methods which is an array of group prefixes for special checking.
 	 *
 	 * e.g.
 	 *
-	 * Locale::group_check_methods={"Timestamp": "braces"}
+	 * zesk\Locale::group_check_methods={"Timestamp": "braces"}
 	 *
 	 * Values should be an array of semicolon list of one of
 	 *
@@ -103,18 +108,18 @@ class Locale_Validate extends Options {
 	 * @return string[] An array of errors found in the two strings when compared
 	 */
 	public function check_translation_token_count($source, $translation) {
-		$source = str::right($source, ":=", $source);
+		$source = StringTools::right($source, ":=", $source);
 		$source_matches = $this->extract_tokens($source);
 		$translation_matches = $this->extract_tokens($translation);
 		$errors = array();
 		$n = count($source_matches) - count($translation_matches);
 		if ($n > 0) {
 			$errors[] = __("Missing {n_tokens} in translation", array(
-				"n_tokens" => Locale::plural_word("token", $n)
+				"n_tokens" => $this->locale->plural_word("token", $n)
 			));
 		} else if ($n < 0) {
 			$errors[] = __("You have an additional {n_tokens} in your translation", array(
-				"n_tokens" => Locale::plural_word("token", -$n)
+				"n_tokens" => $this->locale->plural_word("token", -$n)
 			));
 		}
 		return $errors;
@@ -128,7 +133,7 @@ class Locale_Validate extends Options {
 	 * @return string[] An array of errors found in the two strings when compared
 	 */
 	public function check_translation_token_names($source, $translation) {
-		$source = str::right($source, ":=", $source);
+		$source = StringTools::right($source, ":=", $source);
 		$source_matches = $this->extract_tokens($source);
 		$translation_matches = $this->extract_tokens($translation);
 		$errors = array();
@@ -157,7 +162,7 @@ class Locale_Validate extends Options {
 	 * @return string[] An array of errors found when the two strings are compared
 	 */
 	public function check_translation_braces($source, $translation) {
-		$source = str::right($source, ":=", $source);
+		$source = StringTools::right($source, ":=", $source);
 		$source_matches = $this->extract_braces($source);
 		$translation_matches = $this->extract_braces($translation);
 		$stack = 0;
@@ -175,7 +180,7 @@ class Locale_Validate extends Options {
 			$translation_bracket = $translation_matches[$index];
 			if ($translation_bracket !== $bracket) {
 				$errors[] = __("The {nth} brace in the translation ({translation_bracket}) does not match the source string bracket ({bracket})", array(
-					"nth" => Locale::ordinal($index + 1),
+					"nth" => $this->locale->ordinal($index + 1),
 					"debug" => JSON::encode($source_matches) . " " . JSON::encode($translation_matches)
 				) + compact("translation_bracket", "bracket"));
 				return $errors;
@@ -184,7 +189,7 @@ class Locale_Validate extends Options {
 		if (count($translation_matches) > count($source_matches)) {
 			$errors[] = __("The translation has an extra {num_braces} than the source phrase.", array(
 				"n" => $n = count($translation_matches) - count($source_matches),
-				"num_braces" => Locale::plural_word("brace", $n)
+				"num_braces" => $this->locale->plural_word("brace", $n)
 			));
 		}
 		return $errors;

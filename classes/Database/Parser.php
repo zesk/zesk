@@ -88,7 +88,7 @@ abstract class Database_Parser extends Hookable {
 				$from => $to
 			));
 		}
-		$sqls = arr::trim_clean(explode(";", $sql));
+		$sqls = ArrayTools::trim_clean(explode(";", $sql));
 		// Now convert everything back to what it is supposed to be
 		$sqls = tr($sqls, array_flip($map));
 		return $sqls;
@@ -165,7 +165,7 @@ abstract class Database_Parser extends Hookable {
 		// Remove tokens from order clause
 		$order_by = tr($order_by, array_flip($map));
 		// Split at commas
-		$order_by = arr::trim_clean(explode(",", $order_by));
+		$order_by = ArrayTools::trim_clean(explode(",", $order_by));
 		// Convert resulting array and replace removed tokens
 		return tr($order_by, $map);
 	}

@@ -21,7 +21,7 @@ class Class_Forgot extends Class_ORM {
 	);
 	public $has_one = array(
 		"user" => "zesk\\User",
-		"session" => "zesk\\Session_Database"
+		"session" => "zesk\\Session_ORM"
 	);
 	public $database_group = "zesk\\User";
 }

@@ -3,7 +3,7 @@ namespace server;
 
 use zesk\ORM;
 use zesk\Exception_Parameter;
-use zesk\arr;
+use zesk\ArrayTools;
 use zesk\IPv4;
 
 class Server_Configuration_Server extends \xmlrpc\Server {
@@ -45,7 +45,7 @@ class Server_Configuration_Server extends \xmlrpc\Server {
 			throw new Exception_Parameter("Public IP is not an IP address: $PublicIP");
 		}
 		$fields = compact("PublicIP4", "PublicName", "LocalIP4", "LocalName");
-		$fields = arr::clean($fields, null);
+		$fields = ArrayTools::clean($fields, null);
 		
 		/* @var $server Server */
 		$server = ORM::factory("Server", $fields + array(
@@ -83,8 +83,8 @@ class Server_Configuration_Server extends \xmlrpc\Server {
 			return false;
 		}
 		$fields = $server->columns();
-		$object_values = arr::include_exclude($values, $fields);
-		$data_values = arr::include_exclude($values, null, $fields);
+		$object_values = ArrayTools::include_exclude($values, $fields);
+		$data_values = ArrayTools::include_exclude($values, null, $fields);
 		if (count($object_values) > 0) {
 			$server->set_member($object_values)->store();
 		}

@@ -22,7 +22,7 @@ class Control_Email extends Control_Text {
 		$temp = parent::validate();
 		$v = $this->value();
 		if ($this->accept_list()) {
-			$emails = arr::trim_clean(to_list($v, array(), ','));
+			$emails = ArrayTools::trim_clean(to_list($v, array(), ','));
 			$bad_email = array();
 			foreach ($emails as $email) {
 				if (!is_email($email)) {
