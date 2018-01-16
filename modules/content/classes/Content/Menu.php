@@ -14,13 +14,6 @@ namespace zesk;
  *
  */
 class Content_Menu extends ORM {
-	
-	/**
-	 * Handles ContentObjects specification details; should probably subclass
-	 *
-	 * @var Content_Factory
-	 */
-	private $factory;
 	function store() {
 		$this->cleanCodeName();
 		if ($this->Parent === 0 || $this->Parent === "0" || $this->Parent === "") {
@@ -52,30 +45,30 @@ class Content_Menu extends ORM {
 		return parent::store();
 	}
 	/**
-	 * 
+	 *
 	 * @var array
 	 */
 	private static $menus = null;
 	/**
-	 * 
+	 *
 	 * @var array
 	 */
 	private static $menus_content = null;
-	
+
 	/**
-	 * 
+	 *
 	 * @return array
 	 */
 	private function _menus() {
 		if (is_array(self::$menus)) {
 			return self::$menus;
 		}
-		
+
 		$first = true;
 		$parent_to_code = array();
 		$menus = $this->query_select()->what("ID,Name,CodeName,Parent,ContentObjects,ContentTemplate,ContentLayout,IsActive,IsHome");
 		$menus->order_by("Parent,OrderIndex");
-		
+
 		$result = array();
 		$old_parent = -1;
 		$menus_content = array();
@@ -112,7 +105,7 @@ class Content_Menu extends ORM {
 		self::$menus_content = $menus_content;
 		return $result;
 	}
-	
+
 	/**
 	 * @return array
 	 */
@@ -120,19 +113,19 @@ class Content_Menu extends ORM {
 		$this->_menus();
 		return self::$menus_content;
 	}
-	
+
 	/**
 	 * Return first menu
-	 * 
+	 *
 	 * @return array
 	 */
 	function menu() {
 		$menus = $this->_menus();
 		return $menus[0];
 	}
-	
+
 	/**
-	 * 
+	 *
 	 * @param mixed $x
 	 * @return array
 	 */
@@ -140,9 +133,9 @@ class Content_Menu extends ORM {
 		$menus = $this->_menus();
 		return avalue($menus, $x);
 	}
-	
+
 	/**
-	 * 
+	 *
 	 * @param Request $request
 	 * @param unknown $x
 	 * @return boolean
@@ -154,9 +147,9 @@ class Content_Menu extends ORM {
 		}
 		return StringTools::begins($uri, $x);
 	}
-	
+
 	/**
-	 * 
+	 *
 	 * @param Request $request
 	 * @param unknown $top
 	 * @param unknown $sub
@@ -187,9 +180,9 @@ class Content_Menu extends ORM {
 			}
 		}
 	}
-	
+
 	/**
-	 * 
+	 *
 	 * @param unknown $uri
 	 * @return mixed|array|NULL|unknown
 	 */
@@ -215,9 +208,9 @@ class Content_Menu extends ORM {
 		}
 		return $max_menu;
 	}
-	
+
 	/**
-	 * 
+	 *
 	 * @param unknown $uri
 	 * @param unknown $default
 	 * @return string
@@ -229,9 +222,9 @@ class Content_Menu extends ORM {
 		}
 		return $this->layout($menu);
 	}
-	
+
 	/**
-	 * 
+	 *
 	 * @param array $menu
 	 * @param array $options
 	 * @return string
@@ -240,38 +233,25 @@ class Content_Menu extends ORM {
 		$objects_string = $menu['ContentObjects'];
 		$template = aevalue($menu, 'ContentTemplate', 'default');
 		$layout_string = avalue($menu, 'ContentLayout');
-		
+
 		$layout = HTML::parse_attributes($layout_string);
-		
+
 		$factory = $this->content_factory();
 		$objects_ids = $factory->objects_parse($objects_string);
 		$objects = $factory->content_instantiate($objects_ids);
-		
+
 		$options['object_ids'] = $objects_ids;
 		$options['objects'] = $objects;
 		$options['layout'] = $layout;
 		$options['menu'] = $menu;
-		
+
 		$content = $factory->content_layout($options, $template);
-		
+
 		return $content;
 	}
-	
+
 	/**
-	 * 
-	 * @param Content_Factory $set
-	 * @return Content_Menu|Content_Factory
-	 */
-	public function content_factory(Content_Factory $set = null) {
-		if ($set !== null) {
-			$this->factory = $set;
-			return $this;
-		}
-		return $this->factory;
-	}
-	
-	/**
-	 * 
+	 *
 	 * @return boolean
 	 */
 	function register_content() {
@@ -280,7 +260,7 @@ class Content_Menu extends ORM {
 			return true;
 		}
 		$this->ContentObjects = $this->content_factory()->content_register($this, $code);
-		
+
 		return true;
 	}
 }
