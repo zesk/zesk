@@ -31,7 +31,7 @@ class Module_Content extends Module implements Interface_Module_Head {
 	 */
 	public function initialize() {
 		if ($this->has_option("content_classes")) {
-			$types = arr::flip_multiple(self::$all_classes);
+			$types = ArrayTools::flip_multiple(self::$all_classes);
 			$this->classes = array_merge($this->classes, $types['data']);
 			foreach ($this->option_list("content_classes") as $type) {
 				if (!array_key_exists($type, $types)) {

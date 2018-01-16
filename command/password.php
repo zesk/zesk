@@ -3,7 +3,7 @@ namespace zesk;
 
 /**
  * Update user password in the system.
- * 
+ *
  * If not supplied via the command-line, password is read from console.
  * @author kent
  * @category Management
@@ -32,7 +32,7 @@ class Command_Password extends Command_Base {
 			fprintf(STDOUT, "$login\n");
 			++$n;
 		}
-		fprintf(STDERR, "# " . Locale::plural_word("user", $n) . "\n");
+		fprintf(STDERR, "# " . $this->application->locale->plural_word("user", $n) . "\n");
 		return true;
 	}
 	function run() {

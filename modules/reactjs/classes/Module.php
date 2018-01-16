@@ -16,7 +16,7 @@ use zesk\Net_HTTP_Client;
 use zesk\Net_HTTP;
 use zesk\Exception_File_NotFound;
 use zesk\Net_HTTP_Client_Exception;
-use zesk\arr;
+use zesk\ArrayTools;
 
 /**
  * 
@@ -140,7 +140,7 @@ class Module extends \zesk\Module implements \zesk\Interface_Module_Routes, \zes
 				"method" => __METHOD__,
 				"proxy_prefix" => $proxy_prefix,
 				"message" => $e->getMessage()
-			) + $request->variables() + arr::kprefix($request->url_parts(), "url::"));
+			) + $request->variables() + ArrayTools::kprefix($request->url_parts(), "url::"));
 		}
 		return $http;
 	}

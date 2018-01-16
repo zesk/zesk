@@ -70,7 +70,7 @@ if (!empty($no_name)) {
 	), $escape_values ? htmlspecialchars($no_name) : $no_name);
 }
 $max_option_length = $widget->option_integer('max_option_length', 100);
-$values = $multiple ? arr::flatten(to_list($value)) : array(
+$values = $multiple ? ArrayTools::flatten(to_list($value)) : array(
 	$value
 );
 foreach ($options as $k => $v) {

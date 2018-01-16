@@ -81,7 +81,7 @@ class Lists_Test extends Test_Unit {
 				foreach ($lists as $list) {
 					foreach ($adds as $add) {
 						foreach ($seps as $sep) {
-							$add_cleaned = count($add) === 0 ? array() : ($add_is_array ? arr::clean($add, null) : explode($sep, implode($sep, $add)));
+							$add_cleaned = count($add) === 0 ? array() : ($add_is_array ? ArrayTools::clean($add, null) : explode($sep, implode($sep, $add)));
 							$expected = $list_is_array ? array_merge($list, $add_cleaned) : implode($sep, array_merge($list, $add_cleaned));
 							
 							$datum[] = array(

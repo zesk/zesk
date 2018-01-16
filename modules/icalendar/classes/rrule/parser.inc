@@ -14,7 +14,7 @@
  */
 namespace RRule;
 
-use zesk\arr;
+use zesk\ArrayTools;
 use zesk\Timestamp;
 use zesk\Exception_Syntax;
 use zesk\Exception_Parameter;
@@ -55,7 +55,7 @@ class Parser {
 				continue;
 			}
 			list($name, $value) = pair($line, ":", "RRULE", $line);
-			$parameters = arr::clean(explode(";", $name), "");
+			$parameters = ArrayTools::clean(explode(";", $name), "");
 			if (count($parameters) === 0) {
 				$this->errors[] = __(__CLASS__ . ":=Empty property name: {line}", compact("line"));
 				continue;

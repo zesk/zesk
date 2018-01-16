@@ -423,7 +423,7 @@ class Session_ORM extends ORM implements Interface_Session {
 		if ($list === null) {
 			return $this->members['data'];
 		}
-		return arr::filter($this->members['data'], $list);
+		return ArrayTools::filter($this->members['data'], $list);
 	}
 	/**
 	 * Rerieve all of the variables

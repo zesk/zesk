@@ -70,7 +70,7 @@ foreach ($this->widgets as $widget) {
 	$odd = 1 - $odd;
 }
 if ($theme_widgets) {
-	$theme_variables += arr::kprefix(arr::kreplace($map, ".", "_"), "widget_");
+	$theme_variables += ArrayTools::kprefix(ArrayTools::kreplace($map, ".", "_"), "widget_");
 	echo map($this->theme($theme_widgets, $theme_variables), $map);
 }
 // TODO: 2016-09-26 KMD Is this wrong? Should $theme_footer go after $theme_widgets, below?

@@ -381,7 +381,7 @@ abstract class Cache implements \ArrayAccess {
 		}
 		$member_names = to_list($member_names);
 		sort($member_names);
-		$members = arr::flatten($object->members($member_names));
+		$members = ArrayTools::flatten($object->members($member_names));
 		$class = get_class($object);
 		$id = $object->id();
 		$args = apath($this->_internal, array(
@@ -457,7 +457,7 @@ abstract class Cache implements \ArrayAccess {
 		if ($list === null) {
 			return $this->_data;
 		}
-		return arr::filter($this->_data, $list);
+		return ArrayTools::filter($this->_data, $list);
 	}
 
 	/**
@@ -538,7 +538,7 @@ abstract class Cache implements \ArrayAccess {
 		if ($this->_load) {
 			$this->load();
 		}
-		arr::path_set($this->_data, $path, $value);
+		ArrayTools::path_set($this->_data, $path, $value);
 		$this->_dirty = true;
 		return $this;
 	}

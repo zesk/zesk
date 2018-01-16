@@ -73,11 +73,11 @@ class Kernel_Test extends Test_Unit {
 
 		$mixed = null;
 		$nsprefix = __NAMESPACE__ . "\\";
-		$this->assert_arrays_equal($app->classes->hierarchy(__NAMESPACE__ . "\\A"), arr::prefix(to_list('A;Hookable;Options'), $nsprefix));
-		$this->assert_arrays_equal($app->classes->hierarchy(__NAMESPACE__ . "\\B"), arr::prefix(to_list('B;A;Hookable;Options'), $nsprefix));
-		$this->assert_arrays_equal($app->classes->hierarchy(__NAMESPACE__ . "\\C"), arr::prefix(to_list('C;B;A;Hookable;Options'), $nsprefix));
+		$this->assert_arrays_equal($app->classes->hierarchy(__NAMESPACE__ . "\\A"), ArrayTools::prefix(to_list('A;Hookable;Options'), $nsprefix));
+		$this->assert_arrays_equal($app->classes->hierarchy(__NAMESPACE__ . "\\B"), ArrayTools::prefix(to_list('B;A;Hookable;Options'), $nsprefix));
+		$this->assert_arrays_equal($app->classes->hierarchy(__NAMESPACE__ . "\\C"), ArrayTools::prefix(to_list('C;B;A;Hookable;Options'), $nsprefix));
 		$this->assert_arrays_equal($app->classes->hierarchy(__NAMESPACE__ . "\\" . "HTML"), to_list(__NAMESPACE__ . "\\" . "HTML"));
-		$this->assert_arrays_equal($app->classes->hierarchy(new A($this->application)), arr::prefix(to_list('A;Hookable;Options'), __NAMESPACE__ . "\\"));
+		$this->assert_arrays_equal($app->classes->hierarchy(new A($this->application)), ArrayTools::prefix(to_list('A;Hookable;Options'), __NAMESPACE__ . "\\"));
 	}
 	function test_add_hook() {
 		$hook = null;

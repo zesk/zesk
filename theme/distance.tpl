@@ -2,18 +2,15 @@
 namespace zesk;
 
 /* @var $this \zesk\Template */
-/* @var $zesk \zesk\Kernel */
 /* @var $application \zesk\Application */
+/* @var $locale \zesk\Locale */
 /* @var $session \zesk\Session */
 /* @var $router \zesk\Router */
 /* @var $route \zesk\Route */
 /* @var $request \zesk\Request */
 /* @var $response \zesk\Response_Text_HTML */
 /* @var $current_user \zesk\User */
-$application = $this->application;
-/* @var $application Application */
-
-$configuration = $zesk->configuration;
+$configuration = $application->configuration;
 
 $units = $this->get('units', $configuration->path_get('distance::units', 'km'));
 // By default, all units in kilometers
@@ -25,7 +22,7 @@ if (!is_numeric($distance)) {
 }
 $epsilon = isset($this->epsilon) ? $this->epsilon : $configuration->path_get('distance::epsilon', 0.2);
 if (abs($distance) < $epsilon) {
-	echo HTML::tag('span', '.distance nearby', __('Nearby'));
+	echo HTML::tag('span', '.distance nearby', $locale('Nearby'));
 	return;
 }
 switch ($units) {
@@ -62,7 +59,7 @@ $map = array();
 $map['raw_number'] = round($distance, 1);
 $map['number'] = $this->theme('vulgar-fraction', round($distance, 1));
 $map['unit'] = $units;
-$map['units'] = __(Locale::plural($units, $distance));
+$map['units'] = $locale($locale->plural($units, $distance));
 $map['distance'] = $map['number'] . ' ' . $map['units'];
 
 $format = $this->get("format", "{number} {units}");

@@ -8,6 +8,7 @@ namespace zesk;
 /* @var $this \zesk\Template */
 /* @var $zesk \zesk\Kernel */
 /* @var $application \zesk\Application */
+/* @var $locale \zesk\Locale */
 /* @var $session \zesk\Session */
 /* @var $router \zesk\Router */
 /* @var $route \zesk\Route */
@@ -29,7 +30,7 @@ $response->css("/share/polyglot/css/polyglot.css", array(
 ));
 
 $object = new Model($application);
-$object->locale = Locale::current();
+$object->locale = $locale;
 $object->status = $this->request->get("s", PolyGlot_Token::status_todo);
 
 $locale_options = to_array($this->locale_options);
@@ -83,7 +84,7 @@ $widget->required(true);
 				<?php
 				if ($can_update_live) {
 					?><button id="translate-save" class="btn btn-warning pull-right"><?php
-					
+
 					echo __("Update Live");
 					?></button><?php
 				}
@@ -116,7 +117,7 @@ $widget->required(true);
 		<div class="collapse clearfix" id="translate-help">
 			<div class="well">
 				<?php
-				
+
 				echo $this->theme("polyglot/translate-help-header");
 				?>
 				<h3>Keyboard</h3>
@@ -167,7 +168,7 @@ $widget->required(true);
 							Deleting a phrase will remove it from all available translations.</strong></li>
 				</ul>
 				<?php
-				
+
 				echo $this->theme("polyglot/translate-help-footer");
 				?>
 

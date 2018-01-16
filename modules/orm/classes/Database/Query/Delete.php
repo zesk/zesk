@@ -1,11 +1,12 @@
 <?php
+
 /**
- * 
+ *
  */
 namespace zesk;
 
 /**
- * 
+ *
  * @author kent
  *
  */
@@ -16,27 +17,27 @@ class Database_Query_Delete extends Database_Query {
 	 * @var array
 	 */
 	protected $where = array();
-	
+
 	/**
 	 * Store affected rows after execute
 	 *
 	 * @var integer
 	 */
 	protected $affected_rows = null;
-	
+
 	/**
 	 * Store affected rows after execute
 	 *
 	 * @var integer
 	 */
 	protected $truncate = false;
-	
+
 	/**
-	 * 
+	 *
 	 * @var mixed
 	 */
 	protected $result = null;
-	
+
 	/**
 	 * Construct a delete query
 	 *
@@ -49,7 +50,7 @@ class Database_Query_Delete extends Database_Query {
 		if ($set !== null) {
 			$set = to_bool($set);
 			if ($set === true && (count($this->where) > 0)) {
-				zesk()->logger->warning("Failed to add truncate with a where clause", array(
+				$this->application->logger->warning("Failed to add truncate with a where clause", array(
 					"query" => $this
 				));
 				return null;
@@ -75,15 +76,20 @@ class Database_Query_Delete extends Database_Query {
 			$this->where[$k] = $v;
 		}
 		if ($this->truncate) {
-			zesk()->logger->warning("Adding where clause de-activates truncate", array(
+			$this->application->logger->warning("Adding where clause de-activates truncate", array(
 				"query" => $this
 			));
 			$this->truncate = false;
 		}
 		return $this;
 	}
+
+	/**
+	 *
+	 * @return string
+	 */
 	function __toString() {
-		$table = $this->application->object_table_name($this->class);
+		$table = $this->application->orm_registry($this->class)->table();
 		return $this->sql()->delete(array(
 			'table' => $table,
 			'truncate' => $this->truncate,
@@ -93,9 +99,9 @@ class Database_Query_Delete extends Database_Query {
 	function affected_rows() {
 		return $this->affected_rows;
 	}
-	
+
 	/**
-	 * 
+	 *
 	 * @throws Database_Exception
 	 * @return \zesk\Database_Query_Delete
 	 */
@@ -107,19 +113,20 @@ class Database_Query_Delete extends Database_Query {
 		}
 		return $this;
 	}
-	
+
 	/**
-	 * 
+	 *
 	 * @return mixed
 	 */
 	function result() {
 		return $this->result;
 	}
-	
+
 	/**
-	 * Prefer this function name, but need to change semantics so will remove and then rename ->exec to ->execute later.
+	 * Prefer this function name, but need to change semantics so will remove and then rename ->exec
+	 * to ->execute later.
 	 * Use ->exec()->result() to get similar behavior in the short term
-	 * 
+	 *
 	 * @deprecated 2016-11
 	 * @return \zesk\Database_Query_Delete|NULL|mixed
 	 */

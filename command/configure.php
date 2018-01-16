@@ -269,7 +269,7 @@ class Command_Configure extends Command_Base {
 	 * @return mixed|array
 	 */
 	private function determine_host_name() {
-		$this->possible_host_configurations = arr::unsuffix(Directory::ls($this->host_path), "/", true);
+		$this->possible_host_configurations = ArrayTools::unsuffix(Directory::ls($this->host_path), "/", true);
 		$this->alias_file = path($this->host_path, "aliases.conf");
 		$__ = array(
 			"alias_file" => $this->alias_file
@@ -328,7 +328,7 @@ class Command_Configure extends Command_Base {
 				"config" => $this->config
 			);
 			if ($this->prompt_yes_no(__("Save changes to {config}? ", $__))) {
-				$this->save_conf($this->config, arr::kprefix($this->options_include("environment_file;host_setting_name"), __CLASS__ . "::"));
+				$this->save_conf($this->config, ArrayTools::kprefix($this->options_include("environment_file;host_setting_name"), __CLASS__ . "::"));
 				$this->log("Wrote {config}", $__);
 			}
 		}
@@ -365,7 +365,7 @@ class Command_Configure extends Command_Base {
 			$this->verbose_log("Processing file {file}", compact("file"));
 			$contents = File::contents($file);
 			$contents = Text::remove_line_comments($contents, "#", false);
-			$lines = arr::trim_clean(explode("\n", $contents));
+			$lines = ArrayTools::trim_clean(explode("\n", $contents));
 			foreach ($lines as $line) {
 				if (!$this->process_configuration_line($line)) {
 					return false;
@@ -624,7 +624,7 @@ class Command_Configure extends Command_Base {
 	 * @return boolean|null Returns true if changes made successfully, false if failed, or null if no changes made
 	 */
 	public function command_file_catenate($source, $destination, $flags = null) {
-		$flags = ($flags !== null) ? arr::flip_assign(explode(",", strtolower(strtr($flags, ";", ","))), true) : array();
+		$flags = ($flags !== null) ? ArrayTools::flip_assign(explode(",", strtolower(strtr($flags, ";", ","))), true) : array();
 		$sources = File::find_all($this->host_paths, $source);
 		$__ = array(
 			"source" => $source,
@@ -632,7 +632,7 @@ class Command_Configure extends Command_Base {
 		);
 		if (count($sources) === 0) {
 			$this->verbose_log("No file {source} found in {host_paths}", $__);
-			$this->completions = arr::suffix($this->host_paths, "/" . str::unprefix($source, "/"));
+			$this->completions = ArrayTools::suffix($this->host_paths, "/" . str::unprefix($source, "/"));
 			$__ = array(
 				"source" => $source,
 				"completions" => implode(" ", $this->completions)
@@ -670,7 +670,7 @@ class Command_Configure extends Command_Base {
 		if (trim(File::contents($destination)) === trim($content)) {
 			return null;
 		}
-		$temp_file = File::temporary("temp");
+		$temp_file = File::temporary($this->application->paths->temporary(), "temp");
 		file_put_contents($temp_file, $content);
 		switch ($this->_files_differ_helper($temp_file, $destination, $source)) {
 			case "source":

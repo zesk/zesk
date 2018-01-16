@@ -49,7 +49,7 @@ class World_Bootstrap_Country extends Hookable {
 		$this->inherit_global_options(Module_World::class);
 		$include_country = $this->option("include_country");
 		if ($include_country) {
-			$this->include_country = array_change_key_case(arr::flip_assign(to_list($include_country), true));
+			$this->include_country = array_change_key_case(ArrayTools::flip_assign(to_list($include_country), true));
 		}
 	}
 	public function bootstrap() {
@@ -94,11 +94,11 @@ class World_Bootstrap_Country extends Hookable {
 		while (is_array($row = fgetcsv($fp, null, "\t"))) {
 			if ($headers === null) {
 				if (in_array("#ISO", $row)) {
-					$headers = arr::change_value_case(arr::unprefix($row, "#"));
+					$headers = ArrayTools::change_value_case(ArrayTools::unprefix($row, "#"));
 				}
 				continue;
 			} else {
-				$row = arr::rekey($headers, $row);
+				$row = ArrayTools::rekey($headers, $row);
 			}
 			$name = $row['country'];
 			$code2 = $row['iso'];

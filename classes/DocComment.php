@@ -26,9 +26,9 @@ class DocComment {
 		$string = str::unprefix($string, "/*");
 		$string = str::unsuffix($string, "*/");
 		$string = explode("\n", $string);
-		$string = arr::trim($string);
-		$string = arr::unprefix($string, "*");
-		$string = arr::trim($string);
+		$string = ArrayTools::trim($string);
+		$string = ArrayTools::unprefix($string, "*");
+		$string = ArrayTools::trim($string);
 		$string = implode("\n", $string);
 		
 		return $string;
@@ -57,7 +57,7 @@ class DocComment {
 		$multi_keys = array_unique($multi_keys);
 		foreach ($multi_keys as $key) {
 			if (array_key_exists($key, $result)) {
-				$result[$key] = arr::kpair(arr::clean(explode("\n", $result[$key])), " ");
+				$result[$key] = ArrayTools::kpair(ArrayTools::clean(explode("\n", $result[$key])), " ");
 			}
 		}
 		$param_keys = to_list(avalue($options, 'param_keys'));
@@ -69,10 +69,10 @@ class DocComment {
 			if (!array_key_exists($key, $result)) {
 				continue;
 			}
-			$lines = arr::clean(explode("\n", $result[$key]));
-			$keys = arr::field($lines, 1, " \t");
-			$values = arr::field($lines, null, " \t", 3);
-			$result[$key] = arr::rekey($keys, $values);
+			$lines = ArrayTools::clean(explode("\n", $result[$key]));
+			$keys = ArrayTools::field($lines, 1, " \t");
+			$values = ArrayTools::field($lines, null, " \t", 3);
+			$result[$key] = ArrayTools::rekey($keys, $values);
 		}
 		// Convert values to arrays
 		$list_keys = to_list(avalue($options, 'list_keys'));
@@ -80,10 +80,10 @@ class DocComment {
 		$list_keys = array_unique($list_keys);
 		foreach ($list_keys as $key) {
 			if (array_key_exists($key, $result)) {
-				$result[$key] = arr::clean(explode("\n", $result[$key]));
+				$result[$key] = ArrayTools::clean(explode("\n", $result[$key]));
 			}
 		}
-		return arr::trim($result);
+		return ArrayTools::trim($result);
 	}
 	
 	/**

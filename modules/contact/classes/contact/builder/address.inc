@@ -38,7 +38,7 @@ class Contact_Builder_Address extends Contact_Builder_Base {
 			if (!is_array($item)) {
 				$item = array();
 			}
-			if (arr::has($item, 'Street')) {
+			if (ArrayTools::has($item, 'Street')) {
 				$item .= "\n" . $data['Street_Line'];
 			} else {
 				$item['Street'] = $data['Street_Line'];

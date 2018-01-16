@@ -52,7 +52,7 @@ class Controller_Preference extends Controller {
 	 */
 	public function arguments_getset($action, $arg) {
 		if ($this->whitelist === null) {
-			$path = $this->whitelist = array_flip(arr::clean(explode("\n", File::contents($this->_whitelist(), "")), ""));
+			$path = $this->whitelist = array_flip(ArrayTools::clean(explode("\n", File::contents($this->_whitelist(), "")), ""));
 			if ($this->application->development()) {
 				$this->application->hooks->add("exit", array(
 					$this,

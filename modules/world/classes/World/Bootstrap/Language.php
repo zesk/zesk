@@ -42,7 +42,7 @@ class World_Bootstrap_Language extends Hookable {
 		$this->inherit_global_options(Module_World::class);
 		$include_language = $this->option("include_language");
 		if ($include_language) {
-			$this->include_language = array_change_key_case(arr::flip_assign(to_list($include_language), true));
+			$this->include_language = array_change_key_case(ArrayTools::flip_assign(to_list($include_language), true));
 		}
 	}
 	private function is_included(Language $language) {

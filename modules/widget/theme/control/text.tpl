@@ -15,7 +15,7 @@ if (false) {
 	$value = $this->value;
 	$variables = $this->variables;
 }
-$ia = arr::filter($variables, "style;class;onclick;onchange;ondblclick;onmousedown;onmouseup;onmousemove;onmouseout;onmouseover;onkeypress;onkeydown;onkeyup;onfocus;onblur");
+$ia = ArrayTools::filter($variables, "style;class;onclick;onchange;ondblclick;onmousedown;onmouseup;onmousemove;onmouseout;onmouseover;onkeypress;onkeydown;onkeyup;onfocus;onblur");
 
 $ia += $widget->data_attributes();
 

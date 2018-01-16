@@ -43,16 +43,16 @@ class Forgot extends ORM {
 			"forgot" => $this
 		);
 
-		$variables += arr::kprefix($this->members(), "forgot_");
-		$variables += arr::kprefix($user->members(), "user_");
-		$variables += arr::kprefix($request->variables(), "request_");
-		$variables += arr::kprefix($request->url_variables(), "url_");
+		$variables += ArrayTools::kprefix($this->members(), "forgot_");
+		$variables += ArrayTools::kprefix($user->members(), "user_");
+		$variables += ArrayTools::kprefix($request->variables(), "request_");
+		$variables += ArrayTools::kprefix($request->url_variables(), "url_");
 
 		$variables = $this->call_hook_arguments("notify_variables", array(
 			$variables
 		), $variables);
 
-		$variables = arr::kunprefix($this->options, "notify_", true) + $variables;
+		$variables = ArrayTools::kunprefix($this->options, "notify_", true) + $variables;
 
 		/*
 		 * Map subject again

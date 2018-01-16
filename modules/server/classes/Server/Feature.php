@@ -95,7 +95,7 @@ abstract class Server_Feature extends Server_Base {
 			$this->defaults = $this->platform->conf_load($platform_conf_file) + $this->defaults;
 		}
 		
-		$this->config->register_types(arr::kprefix($this->settings, $this->code . '::'), arr::kprefix($this->defaults, $this->code));
+		$this->config->register_types(ArrayTools::kprefix($this->settings, $this->code . '::'), ArrayTools::kprefix($this->defaults, $this->code));
 		
 		// $this->platform->register_path($this->command_paths);
 		
@@ -110,22 +110,22 @@ abstract class Server_Feature extends Server_Base {
 		$errors = array();
 		foreach ($this->settings as $name => $type) {
 			if (!$this->config->check_type_before($name)) {
-				arr::append($errors, "configuration", $name);
+				ArrayTools::append($errors, "configuration", $name);
 			}
 		}
 		foreach ($this->commands as $command) {
 			if (!$this->has_shell_command($command)) {
-				arr::append($errors, "commands", $command);
+				ArrayTools::append($errors, "commands", $command);
 			}
 		}
 		foreach ($this->packages as $package) {
 			if (!$this->platform->package_exists($package)) {
-				arr::append($errors, "packages", $package);
+				ArrayTools::append($errors, "packages", $package);
 			}
 		}
 		foreach ($this->dependencies as $feature) {
 			if (!$this->feature_exists($feature)) {
-				arr::append($errors, "features", $feature);
+				ArrayTools::append($errors, "features", $feature);
 			}
 		}
 		return $errors;
@@ -137,7 +137,7 @@ abstract class Server_Feature extends Server_Base {
 		$errors = $this->installable();
 		foreach ($this->settings as $name => $type) {
 			if (!$this->config->check_type_after($name)) {
-				arr::append($errors, "configuration", $name);
+				ArrayTools::append($errors, "configuration", $name);
 			}
 		}
 		return $errors;

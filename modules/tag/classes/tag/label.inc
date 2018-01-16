@@ -39,7 +39,7 @@ class Tag_Label extends ORM {
 	 */
 	public static function label_register(Application $application, $name = null, array $attributes = array()) {
 		$tag_label = $application->orm_factory(__CLASS__);
-		$members = arr::filter($attributes, "code;is_internal;is_translated;owner") + array(
+		$members = ArrayTools::filter($attributes, "code;is_internal;is_translated;owner") + array(
 			"code" => $name,
 			"name" => $name
 		);

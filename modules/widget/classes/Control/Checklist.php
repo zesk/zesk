@@ -149,7 +149,7 @@ class Control_Checklist extends Control_Optionss {
 	 */
 	protected function hook_object_value() {
 		if ($this->value_is_list()) {
-			return arr::flip_copy(to_list($this->value(), to_list($this->default_value(), array()), $this->option_separator()));
+			return ArrayTools::flip_copy(to_list($this->value(), to_list($this->default_value(), array()), $this->option_separator()));
 		}
 		return $this->value();
 	}

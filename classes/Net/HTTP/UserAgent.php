@@ -180,7 +180,7 @@ class Net_HTTP_UserAgent {
 		if (!is_array($this->classify)) {
 			$this->classify = $this->_classify();
 		}
-		return $translate ? arr::map_keys(arr::map_values($this->classify, self::$lang_classifications), self::$lang_classifications) : $this->classify;
+		return $translate ? ArrayTools::map_keys(ArrayTools::map_values($this->classify, self::$lang_classifications), self::$lang_classifications) : $this->classify;
 	}
 	
 	/**

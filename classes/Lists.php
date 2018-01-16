@@ -71,7 +71,7 @@ class Lists {
 		if ($item === null) {
 			return $list;
 		}
-		$items = arr::clean(to_list($item, array(), $sep), null);
+		$items = ArrayTools::clean(to_list($item, array(), $sep), null);
 		if (count($items) === 0) {
 			return $list;
 		}
@@ -96,7 +96,7 @@ class Lists {
 		if ($item === null) {
 			return $list;
 		}
-		$items = array_unique(arr::clean(to_list($item, array(), $sep), null));
+		$items = array_unique(ArrayTools::clean(to_list($item, array(), $sep), null));
 		if (is_array($list)) {
 			return array_unique(array_merge($list, $items));
 		} else if ($list === "") {

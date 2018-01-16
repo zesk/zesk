@@ -9,6 +9,7 @@
 namespace zesk;
 
 use Psr\Cache\CacheItemPoolInterface;
+use zesk\Locale\Reader;
 
 /**
  * Core web application object for Zesk.
@@ -113,6 +114,11 @@ class Application extends Hookable implements Interface_Theme {
 	 */
 	public $process = null;
 
+	/**
+	 *
+	 * @var Locale
+	 */
+	public $locale = null;
 	/**
 	 *
 	 * @var Command
@@ -259,6 +265,13 @@ class Application extends Hookable implements Interface_Theme {
 	protected $share_path = array();
 
 	/**
+	 * Paths to search for locale files
+	 *
+	 * @var string[]
+	 */
+	protected $locale_path = array();
+
+	/**
 	 *
 	 * @var string
 	 */
@@ -338,7 +351,13 @@ class Application extends Hookable implements Interface_Theme {
 		$this->logger = $zesk->logger;
 		$this->classes = $zesk->classes;
 		$this->objects = $zesk->objects;
-		$this->process = $zesk->process;
+
+		/*
+		 * Current process interface. Depends on ->hooks
+		 */
+		$this->process = new Process($this);
+
+		$this->locale = $this->locale_factory();
 
 		$this->module_path = array();
 		$this->zesk_command_path = array();
@@ -399,6 +418,7 @@ class Application extends Hookable implements Interface_Theme {
 
 		$this->theme_path($this->path_theme_default());
 		$this->share_path($this->path_share_default(), 'zesk');
+		$this->locale_path($this->path_locale_default());
 	}
 
 	/**
@@ -423,6 +443,14 @@ class Application extends Hookable implements Interface_Theme {
 	 */
 	private function path_share_default() {
 		return $this->paths->zesk('share');
+	}
+
+	/**
+	 *
+	 * @return string
+	 */
+	private function path_locale_default() {
+		return $this->paths->zesk('etc/language');
 	}
 
 	/**
@@ -1259,6 +1287,26 @@ class Application extends Hookable implements Interface_Theme {
 	}
 
 	/**
+	 * Add or retrieve the locale path for this application - used to load locales
+	 *
+	 * By default, it's /share/
+	 *
+	 * @param unknown $add
+	 * @param unknown $name
+	 * @return array
+	 */
+	final public function locale_path($add = null) {
+		$list = $this->locale_path;
+		if ($add) {
+			if (!is_dir($add)) {
+				throw new Exception_Directory_NotFound($add);
+			}
+			$this->locale_path[] = $add;
+		}
+		return $this->locale_path;
+	}
+
+	/**
 	 * Add or retrieve the data path for this application
 	 *
 	 * @param string $add
@@ -1327,7 +1375,7 @@ class Application extends Hookable implements Interface_Theme {
 	}
 
 	/**
-	 *
+	 * Getter/setter for top theme variable
 	 * @param unknown $name
 	 * @param unknown $value
 	 * @return mixed|self
@@ -1742,6 +1790,16 @@ class Application extends Hookable implements Interface_Theme {
 	}
 
 	/**
+	 *
+	 * @param string $code
+	 * @param array $extensions
+	 * @param array $options
+	 * @return \zesk\Locale
+	 */
+	public function locale_factory($code = null, array $extensions = array(), array $options = array()) {
+		return Reader::factory($this->locale_path(), $code, $extensions)->locale($this, $options);
+	}
+	/**
 	 * Create a model
 	 *
 	 * @param string $class
@@ -1915,8 +1973,9 @@ class Application extends Hookable implements Interface_Theme {
 		if (ends($name, $suffix)) {
 			return $this->modules->object(substr($name, 0, -strlen($suffix)));
 		}
-		throw new Exception_Unsupported("Application call {method} is not supported. Do you need to register the module which adds this functionality?", array(
-			"method" => $name
+		throw new Exception_Unsupported("Application call {method} is not supported.\n\n\tCalled from: {calling}\n\nDo you need to register the module which adds this functionality?", array(
+			"method" => $name,
+			"calling" => calling_function()
 		));
 	}
 

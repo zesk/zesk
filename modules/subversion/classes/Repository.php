@@ -8,7 +8,7 @@
 namespace zesk\Subversion;
 
 use zesk\str;
-use zesk\arr;
+use zesk\ArrayTools;
 
 /**
  *
@@ -126,7 +126,7 @@ class Repository extends \zesk\Repository_Command {
 		}
 		$results = array();
 		foreach ($matches as $match) {
-			$result = arr::map_keys($match, array(
+			$result = ArrayTools::map_keys($match, array(
 				0 => "raw_status_line",
 				1 => "changed",
 				2 => "directory-properties-changed",
@@ -137,7 +137,7 @@ class Repository extends \zesk\Repository_Command {
 				7 => "conflict",
 				8 => "path"
 			));
-			$results[$result['path']] = arr::clean($result, " ");
+			$results[$result['path']] = ArrayTools::clean($result, " ");
 		}
 		return $results;
 	}

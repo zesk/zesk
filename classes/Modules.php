@@ -155,7 +155,7 @@ class Modules {
 				$result[$module] = avalue($this->modules, $module, array());
 			}
 		}
-		$result = arr::collapse($result, self::status_loaded, false);
+		$result = ArrayTools::collapse($result, self::status_loaded, false);
 		if ($mixed !== null && count($modules) === 1) {
 			return $result[$modules[0]];
 		}
@@ -211,7 +211,7 @@ class Modules {
 			}
 			$result += self::_load_one($name, $options);
 		}
-		$result = arr::filter($result, $passed_modules);
+		$result = ArrayTools::filter($result, $passed_modules);
 		if (count($passed_modules) === 1) {
 			return $result[strtolower($passed_modules[0])];
 		}
@@ -313,7 +313,7 @@ class Modules {
 		$path = path($module_path, $locale_path);
 		if (is_dir($path)) {
 			$result['locale_path'] = $path;
-			Locale::locale_path($path);
+			$this->application->locale_path($path);
 		}
 		return $result;
 	}

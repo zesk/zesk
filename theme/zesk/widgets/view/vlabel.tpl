@@ -15,7 +15,7 @@ $cache_path = $application->cache_path("vlabels");
 
 $allowed_vlabel_fields = $this->get('vlabel_allowed_options', 'font-size;width;height;align;angle;title;text');
 
-$attributes = arr::filter($request->variables(), $allowed_vlabel_fields);
+$attributes = ArrayTools::filter($request->variables(), $allowed_vlabel_fields);
 $text = $attributes['text'];
 
 ksort($attributes);

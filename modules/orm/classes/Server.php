@@ -278,7 +278,7 @@ class Server extends ORM implements Interface_Data {
 		}
 		if (!isset($this->ip4_internal)) {
 			$ips = System::ip_addresses($this->application);
-			$ips = arr::remove_values($ips, "127.0.0.1");
+			$ips = ArrayTools::remove_values($ips, "127.0.0.1");
 			if (count($ips) >= 1) {
 				$this->ip4_internal = first(array_values($ips));
 			}

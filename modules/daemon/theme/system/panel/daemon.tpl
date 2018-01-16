@@ -1,12 +1,13 @@
 <?php
 /**
- * 
+ *
  */
 namespace zesk;
 
 /* @var $this \zesk\Template */
 /* @var $zesk \zesk\Kernel */
 /* @var $application \zesk\Application */
+/* @var $locale \zesk\Locale */
 /* @var $session \zesk\Session */
 /* @var $router \zesk\Router */
 /* @var $route \zesk\Route */
@@ -25,16 +26,16 @@ foreach ($servers as $server) {
 		$now = microtime(true);
 		foreach ($data as $process => $settings) {
 			$nunits = intval($now - $settings['time']);
-			$units = Locale::plural(__("second"), $nunits);
+			$units = $locale->plural($locale("second"), $nunits);
 			$class = $settings['alive'] ? "" : '.error';
 			if ($process === "me") {
-				$process = __('Master Daemon Process');
+				$process = $locale('Master Daemon Process');
 			} else {
 				$process = preg_replace_callback('#\^([0-9]+)#', function ($match) {
 					return " (#" . (intval($match[1]) + 1) . ")";
 				}, $process);
 			}
-			$items[] = HTML::tag('li', $class, _W(__("[{process}] {status} for {nunits} {units}", array(
+			$items[] = HTML::tag('li', $class, _W($locale("[{process}] {status} for {nunits} {units}", array(
 				"process" => $process,
 				"status" => $settings['status'],
 				"nunits" => $nunits,

@@ -158,7 +158,7 @@ class Database_Column extends Options {
 		$that_extras = $db->column_attributes($that);
 		$diffs = array();
 		if ($filter) {
-			$this_extras = arr::filter($this_extras, $filter);
+			$this_extras = ArrayTools::filter($this_extras, $filter);
 		}
 		foreach ($this_extras as $extra => $default) {
 			$this_value = $this->option($extra, $default);

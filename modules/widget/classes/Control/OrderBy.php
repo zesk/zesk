@@ -82,7 +82,7 @@ class Control_OrderBy extends Control {
 		if ($list_order_by === true) {
 			$this->list_order_by($this->column());
 		}
-		$cur_sort_names = arr::clean($this->request->geta($this->list_order_variable(), array(), ";"));
+		$cur_sort_names = ArrayTools::clean($this->request->geta($this->list_order_variable(), array(), ";"));
 		$k = $this->list_order_column();
 		$order_var = $this->list_order_variable();
 		$new_order = array();

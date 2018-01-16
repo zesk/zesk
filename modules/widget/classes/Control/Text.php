@@ -16,7 +16,7 @@ namespace zesk;
  */
 class Control_Text extends Control {
 	protected function initialize() {
-		$this->options += arr::map_keys($this->options, array(
+		$this->options += ArrayTools::map_keys($this->options, array(
 			"integer_minimum" => "value_minimum",
 			"integer_minimum_error" => "value_minimum_error",
 			"integer_maximum" => "value_maximum",

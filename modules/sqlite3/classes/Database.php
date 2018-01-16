@@ -26,7 +26,7 @@ use zesk\Timestamp;
 use zesk\dir;
 use zesk\File;
 use zesk\Kernel;
-use zesk\arr;
+use zesk\ArrayTools;
 use zesk\Database_Column;
 
 /**
@@ -114,7 +114,7 @@ class Database extends \zesk\Database {
 				"class" => __CLASS__
 			));
 		}
-		$path = map($path, arr::kprefix($this->application->paths->variables(), "zesk::paths::"));
+		$path = map($path, ArrayTools::kprefix($this->application->paths->variables(), "zesk::paths::"));
 		$dir = dirname($path);
 		if (!is_dir($dir)) {
 			throw new Exception_Directory_NotFound($dir, "{path} not found", array(

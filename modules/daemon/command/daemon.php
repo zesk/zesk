@@ -1,11 +1,13 @@
 <?php
+
 /**
  * @copyright &copy; 2016 Market Acumen, Inc.
  */
 namespace zesk;
 
 /**
- * Run daemons associated with an application. Runs a continual process for each daemon hook encountered, and restarts daemons
+ * Run daemons associated with an application.
+ * Runs a continual process for each daemon hook encountered, and restarts daemons
  * as needed when they fail.
  *
  * @author kent
@@ -97,7 +99,8 @@ class Command_Daemon extends Command_Base implements Interface_Process {
 	private $parent = true;
 
 	/**
-	 * Name of this daemon. May have a ^ suffix for processes which should have multiple instances.
+	 * Name of this daemon.
+	 * May have a ^ suffix for processes which should have multiple instances.
 	 *
 	 * @var boolean
 	 */
@@ -155,7 +158,7 @@ class Command_Daemon extends Command_Base implements Interface_Process {
 
 		$this->configure("daemon", true);
 		if ($this->option_bool('debug-log')) {
-			echo Text::format_pairs(arr::filter_prefix($this->application->configuration->to_array(), "log"));
+			echo Text::format_pairs(ArrayTools::filter_prefix($this->application->configuration->to_array(), "log"));
 		}
 
 		$this->fifo_path = path($this->module->rundir, "daemon-controller");
@@ -460,7 +463,7 @@ class Command_Daemon extends Command_Base implements Interface_Process {
 						$suffix = "";
 					}
 				}
-				$pairs[$name] = "$status_text$suffix, " . Locale::plural_number("second", $delta) . $want;
+				$pairs[$name] = "$status_text$suffix, " . $this->application->locale->plural_number("second", $delta) . $want;
 			}
 			echo Text::format_pairs($pairs);
 		}
@@ -995,7 +998,7 @@ class Command_Daemon extends Command_Base implements Interface_Process {
 	 */
 	function kill() {
 		$this->quitting = true;
-		$pid = zesk()->process->id();
+		$pid = $this->application->process->id();
 		if ($this->parent) {
 			$database = $this->_process_database();
 			foreach ($database as $name => $pid) {

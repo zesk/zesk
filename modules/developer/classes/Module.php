@@ -6,7 +6,7 @@
 namespace zesk\Developer;
 
 use zesk\ORM_Schema;
-use zesk\arr;
+use zesk\ArrayTools;
 use zesk\Application;
 use zesk\HTML;
 use zesk\Interface_Module_Routes;
@@ -291,7 +291,7 @@ class Module extends \zesk\Module implements Interface_Module_Routes {
 		)) : "";
 		$result .= HTML::tag('ul', ".sql", HTML::tags('li', array_merge(array(
 			"-- " . $arg . ";\n"
-		), arr::suffix($results, ";\n"))));
+		), ArrayTools::suffix($results, ";\n"))));
 		return $result;
 	}
 	public function development_includes() {

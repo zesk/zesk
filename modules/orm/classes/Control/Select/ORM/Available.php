@@ -29,6 +29,6 @@ class Control_Select_ORM_Available extends Control_Select_ORM {
 		$query->order_by($this->option('order_by', $column));
 		$query->where($this->_where());
 		$query->where("$column|!=", "");
-		return arr::capitalize(array_change_key_case($query->to_array("id", "id")));
+		return ArrayTools::capitalize(array_change_key_case($query->to_array("id", "id")));
 	}
 }

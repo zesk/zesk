@@ -18,11 +18,41 @@ Version 1.0 of Zesk will have:
 - All modules use **namespaces** - **in progress**
 - Merging of `Response` and `Response_Text_HTML` into a single, unified polymorphic `Response` which changes behavior depending on content-type but allows typed API calls for specific response handling. May move `Response_Text_HTML` into a sub-object (e.g. `$response->html()->add_body_class()` for example)
 - Migrate `Database_Result_Iterator` to remove dependency on `Database_Query_Select_Base` 
+- Migration of `zesk\Locale` to be object-based and not-static-based invocation **in progress**
 
 ### 1.0 Things Completed
 
 - <strike>Renaming of `zesk\ORM` to something non-reserved in PHP 7.2 (Candidates are `zesk\ORM` `zesk\Model` - reuse)</strike>
-- `zesk\` namespace for all `classes` in the system
+- <strike>`zesk\` namespace for all `classes` in the system</strike>
+
+## [Unreleased][]
+
+### Broken functionality
+
+- `zesk\\Number::format_bytes` now requries `zesk\Locale` as the first parameter
+- `zesk\\(Date|Timestapm|Time)::(format|formatting)`` now require `zesk\Locale` as the first parameter
+
+### Deprecated functionality
+
+- `zesk\str` is now `zesk\StringTools`
+- `zesk\arr` is now `zesk\ArrayTools`
+
+### Removed functionality
+
+- `zesk\ORM::cache_object`
+- `zesk\ORM::cache_class`
+- `zesk\ORM::class_primary_keys`
+- `zesk\ORM::class_id_column`
+- `zesk\ORM::query`
+- `zesk\ORM::class_query`
+- `zesk\ORM::class_query_delete`
+- `zesk\ORM::class_query_update`
+- `zesk\ORM::class_query_insert_select`
+- `zesk\ORM::class_query_insert`
+- `zesk\ORM::status_exists`
+- `zesk\ORM::status_insert`
+- `zesk\ORM::status_unknown`
+
 
 ## [v0.15.7][]
 
@@ -175,6 +205,19 @@ Main changes were to fix a bug with login where the `zesk\User::hook_login` hook
 
 ## [v0.14.1][]
 
+### `zesk\Locale` refactored
+
+The `zesk\Locale` module has been refactored to support object-based management and avoiding `static` calls.
+
+#### Static methods are now instance methods
+
+- `zesk\Locale::loaded`
+
+#### Removed
+
+- `zesk\Locale::loaded`
+- `ZESK_LOCALE_DEFAULT`
+
 ### New features
 
 - `zesk\Application` now supports the function calls like `codename_module()` to retrieve module objects. So, `$application->csv_module()` is equivalent to `$application->modules->object("csv")`. You can decorate your application with `@method` doccomments to support types and return values in Eclipse-based editors. See `zesk\Application` class DocComment for examples.
@@ -188,6 +231,11 @@ Main changes were to fix a bug with login where the `zesk\User::hook_login` hook
 - Fixing linked classes using `Foo::class` constant instead of strings
 - Fixed some ORM minor issues
 
+### Broken features
+
+- `zesk\Locale` has been rewritten to avoid static calls and instead is an object within `zesk\Application`
+- `zesk\File::temporary($path, $extension="tmp")` has been re-parameterized to remove global references, and now takes a path and a file extension. It has been updated in all Zesk internal code.
+
 ### Deprecated functionality
 
 - Rewriting `cache` calls in `zesk\ORM` to support `CacheItemInterface` instead of `zesk\Cache`
@@ -197,6 +245,7 @@ Main changes were to fix a bug with login where the `zesk\User::hook_login` hook
 
 ### Removed functionality
 
+- `zesk\HTML::input_attributes` has been removed
 - `zesk\User::current`, `zesk\User::set_current`, `zesk\User::current_id` have all been removed
 - `zesk\Application::instance` was removed
 - `zesk\Application::_class_cache` is obsolete

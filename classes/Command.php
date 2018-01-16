@@ -491,9 +491,9 @@ abstract class Command extends Hookable implements Logger\Handler {
 		$maxlen = 0;
 		$types = array();
 		$commands = array();
-		$aliases = arr::flip_multiple(arr::kprefix($this->option_chars, "-"));
+		$aliases = ArrayTools::flip_multiple(ArrayTools::kprefix($this->option_chars, "-"));
 		foreach ($this->option_types as $k => $type) {
-			$cmd = "--$k" . arr::join_prefix(avalue($aliases, $k, array()), "|");
+			$cmd = "--$k" . ArrayTools::join_prefix(avalue($aliases, $k, array()), "|");
 			switch ($type) {
 				case "dir":
 				case "dir+":
@@ -634,7 +634,7 @@ abstract class Command extends Hookable implements Logger\Handler {
 		}
 		$newline = to_bool(avalue($arguments, "newline", true));
 		if (is_array($message)) {
-			if (arr::is_list($message)) {
+			if (ArrayTools::is_list($message)) {
 				foreach ($message as $m) {
 					$this->log($m, $arguments);
 				}
@@ -1268,7 +1268,7 @@ abstract class Command extends Hookable implements Logger\Handler {
 		if (!$parsed) {
 			return null;
 		}
-		return implode("\n", arr::clean(array(
+		return implode("\n", ArrayTools::clean(array(
 			aevalue($parsed, 'desc'),
 			aevalue($parsed, "description")
 		)));

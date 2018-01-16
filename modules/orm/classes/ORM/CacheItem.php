@@ -182,7 +182,7 @@ class ORM_CacheItem implements CacheItemInterface {
 		$class_orm = $depend->class_orm();
 		$columns = $class_orm->cache_column_names;
 		sort($columns);
-		$result = arr::flatten($depend->members($columns)) + array(
+		$result = ArrayTools::flatten($depend->members($columns)) + array(
 			"_columns" => $columns
 		);
 		$result['_hash'] = md5(serialize($result));
@@ -201,13 +201,13 @@ class ORM_CacheItem implements CacheItemInterface {
 		if (!is_array($info)) {
 			return null;
 		}
-		$result = arr::filter($info, array(
+		$result = ArrayTools::filter($info, array(
 			Database::TABLE_INFO_CREATED,
 			Database::TABLE_INFO_DATA_SIZE,
 			Database::TABLE_INFO_ROW_COUNT,
 			Database::TABLE_INFO_UPDATED
 		));
-		$result = arr::trim_clean(arr::flatten($result));
+		$result = ArrayTools::trim_clean(ArrayTools::flatten($result));
 		if (count($result) === 0) {
 			return null;
 		}

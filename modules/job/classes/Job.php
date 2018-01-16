@@ -1,7 +1,7 @@
 <?php
 
 /**
- * 
+ *
  */
 namespace zesk;
 
@@ -34,37 +34,37 @@ class Job extends ORM implements Interface_Process, Interface_Progress {
 	 * @var integer
 	 */
 	const priority_urgent = 255;
-	
+
 	/**
 	 *
 	 * @var integer
 	 */
 	const priority_important = 240;
-	
+
 	/**
 	 *
 	 * @var integer
 	 */
 	const priority_normal = 0;
-	
+
 	/**
 	 *
 	 * @var Interface_Process
 	 */
 	private $process = null;
-	
+
 	/**
 	 *
 	 * @var Application
 	 */
 	public $application = null;
-	
+
 	/**
 	 *
 	 * @var unknown
 	 */
 	private $last_progress = null;
-	
+
 	/**
 	 *
 	 * Hook should be a function like:
@@ -76,9 +76,10 @@ class Job extends ORM implements Interface_Process, Interface_Progress {
 	 * }
 	 *
 	 * You would call this:
-	 * 
-	 *		$job = \zesk\Job::instance($app, "Doing something interesting", "interesting-532", "MyClass::do_work", array(array(42,53)));
-	 *		$job->start();     		
+	 *
+	 * $job = \zesk\Job::instance($app, "Doing something interesting", "interesting-532",
+	 * "MyClass::do_work", array(array(42,53)));
+	 * $job->start();
 	 *
 	 * Job execute depends heavily on the fact that a daemon is running to process jobs.
 	 *
@@ -121,12 +122,12 @@ class Job extends ORM implements Interface_Process, Interface_Progress {
 		$job->find();
 		return $job->set_member($members)->store();
 	}
-	
+
 	/**
 	 *
-	 * @param Application $application        	
-	 * @param unknown $id        	
-	 * @param array $options        	
+	 * @param Application $application
+	 * @param unknown $id
+	 * @param array $options
 	 */
 	public static function mock_run(Application $application, $id, array $options = array()) {
 		/* @var $job Job */
@@ -134,11 +135,11 @@ class Job extends ORM implements Interface_Process, Interface_Progress {
 		$process = new Process_Mock($application, $options);
 		return $job->execute($process);
 	}
-	
+
 	/**
 	 * Getter/setter for Priority
 	 *
-	 * @param integer $set        	
+	 * @param integer $set
 	 * @return integer|self
 	 */
 	public function priority($set = null) {
@@ -155,7 +156,7 @@ class Job extends ORM implements Interface_Process, Interface_Progress {
 	public function priority_urgent() {
 		return $this->priority(self::priority_urgent);
 	}
-	
+
 	/**
 	 * Determine how soon this job will be updated in the UI.
 	 * Return milliseconds.
@@ -171,7 +172,7 @@ class Job extends ORM implements Interface_Process, Interface_Progress {
 		}
 		return min($mag * 100, 5000);
 	}
-	
+
 	/**
 	 * Does the job appear to be in a running state? (May not be)
 	 *
@@ -180,7 +181,7 @@ class Job extends ORM implements Interface_Process, Interface_Progress {
 	public function is_running() {
 		return $this->completed ? false : $this->start ? true : false;
 	}
-	
+
 	/**
 	 * Support application context
 	 *
@@ -195,12 +196,12 @@ class Job extends ORM implements Interface_Process, Interface_Progress {
 		}
 		return $this->application;
 	}
-	
+
 	/**
 	 * Start a job.
 	 * Sets start to $when, completed to null.
 	 *
-	 * @param string $when        	
+	 * @param string $when
 	 * @throws Exception_Parameter
 	 * @return Object
 	 */
@@ -221,20 +222,20 @@ class Job extends ORM implements Interface_Process, Interface_Progress {
 		$this->call_hook("start");
 		return $this->store();
 	}
-	
+
 	/**
 	 * Run jobs as part of a process
 	 *
-	 * @param Interface_Process $process        	
+	 * @param Interface_Process $process
 	 * @return NULL
 	 */
 	public static function execute_jobs(Interface_Process $process) {
 		$application = $process->application();
 		$logger = $application->logger;
-		
+
 		$server = Server::singleton($application);
 		$pid = $application->process->id();
-		
+
 		if ($process->done()) {
 			return null;
 		}
@@ -242,59 +243,44 @@ class Job extends ORM implements Interface_Process, Interface_Progress {
 			"pid" => $pid,
 			"server" => $server
 		);
-		
+
 		$jobs = 0;
 		/*
 		 * If any processes are held by this process, free them.
 		 *
 		 * Deals with the situation below where this process grabs them and then crashes. (you never know)
 		 */
-		$application->query_update(__CLASS__)
-			->values(array(
+		$application->query_update(__CLASS__)->values(array(
 			"pid" => null,
 			"server" => null
-		))
-			->where($server_pid)
-			->execute();
+		))->where($server_pid)->execute();
 		/*
 		 * Find Server records with processes which no longer are running and free them up
 		 */
 		self::clean_dead_pids($application, $server);
-		
+
 		do {
 			/*
 			 * Now iterate through available Jobs, and re-sort each iteration in case stuff changes between jobs
 			 */
-			$query = $application->orm_registry(__CLASS__)
-				->query_select()
-				->what_object()
-				->where(array(
+			$query = $application->orm_registry(__CLASS__)->query_select()->what_object()->where(array(
 				"start|<=" => Timestamp::now('UTC'),
 				"pid" => null,
 				"completed" => null,
-				'died|<=' => self::retry_attempts()
-			))
-				->order_by("priority DESC,died,start");
+				'died|<=' => self::retry_attempts($application)
+			))->order_by("priority DESC,died,start");
 			$logger->debug($query->__toString());
 			$iterator = $query->orm_iterator();
 			$found_job = false;
 			foreach ($iterator as $job) {
 				/* @var $job Job */
 				// Tag the Job as "ours" - this avoids race conditions between multiple servers
-				$application->query_update(__CLASS__)
-					->values($server_pid)
-					->where(array(
+				$application->orm_registry(__CLASS__)->query_update()->values($server_pid)->where(array(
 					"pid" => null,
 					"id" => $job->id()
-				))
-					->execute();
+				))->execute();
 				// Race condition if we crash before this executes
-				if (!to_bool($application->orm_registry(__CLASS__)
-					->query_select()
-					->what("*X", "COUNT(id)")
-					->where($server_pid)
-					->where("id", $job->id())
-					->one_integer("X"))) {
+				if (!to_bool($application->orm_factory(__CLASS__)->query_select()->what("*X", "COUNT(id)")->where($server_pid)->where("id", $job->id())->one_integer("X"))) {
 					// Someone else grabbed it.
 					continue;
 				}
@@ -310,7 +296,7 @@ class Job extends ORM implements Interface_Process, Interface_Progress {
 					try {
 						$job->execute($process);
 					} catch (\Exception $e) {
-						$job->data("execute_exception", arr::flatten(Exception::exception_variables($e)));
+						$job->data("execute_exception", ArrayTools::flatten(Exception::exception_variables($e)));
 						$job->died(); // Stops permanently
 					}
 					$job->release();
@@ -325,44 +311,34 @@ class Job extends ORM implements Interface_Process, Interface_Progress {
 				}
 			}
 		} while (!$process->done() && $found_job === true);
-		
+
 		if ($jobs === 0) {
 			$logger->debug("Server ID # {id}: No jobs", array(
 				"id" => $server
 			));
 		}
 	}
-	
+
 	/**
 	 * Find all process IDs on this server, and see if they are still alive.
 	 * If they're not, mark them as dead and set the PID back to null.
 	 *
-	 * @param Server $server        	
+	 * @param Server $server
 	 */
 	private static function clean_dead_pids(Application $application, Server $server) {
-		foreach ($application->orm_registry(__CLASS__)
-			->query_select()
-			->what("pid", "pid")
-			->what('id', 'id')
-			->where(array(
+		foreach ($application->orm_registry(__CLASS__)->query_select()->what("pid", "pid")->what('id', 'id')->where(array(
 			"pid|!=" => null,
 			"server" => $server
-		))
-			->to_array("id", "pid") as $id => $pid) {
+		))->to_array("id", "pid") as $id => $pid) {
 			if (!$application->process->alive($pid)) {
 				$application->logger->debug("Removing stale PID {pid} from Job # {id}", compact("pid", "id"));
-				$application->query_update(__CLASS__)
-					->value('pid', null)
-					->value("server", null)
-					->value('*died', 'died+1')
-					->where('id', $id)
-					->execute();
+				$application->orm_registry(__CLASS__)->query_update()->value('pid', null)->value("server", null)->value('*died', 'died+1')->where('id', $id)->execute();
 			}
 		}
 	}
 	public function execute(Interface_Process $process) {
 		$this->process = $process;
-		
+
 		$timer = new Timer();
 		try {
 			list($class, $method) = pair($this->hook, "::", null, $this->hook);
@@ -387,16 +363,13 @@ class Job extends ORM implements Interface_Process, Interface_Progress {
 			"*updated" => $this->sql()->now_utc(),
 			"*duration" => "duration+$elapsed"
 		);
-		
+
 		$this->process = null;
-		
-		$this->query_update()
-			->values($values)
-			->where("id", $this->id())
-			->execute();
+
+		$this->query_update()->values($values)->where("id", $this->id())->execute();
 	}
 	function progress_push($name) {
-		// TODO		
+		// TODO
 	}
 	function progress_pop() {
 		// TODO
@@ -410,11 +383,8 @@ class Job extends ORM implements Interface_Process, Interface_Progress {
 		if ($this->last_progress === null || $now - $this->last_progress > 0.1) {
 			$this->last_progress = $now;
 			$query = $this->query_update()->values(array(
-				"*updated" => $this->database()
-					->sql()
-					->now_utc()
-			))
-				->where('id', $this->id());
+				"*updated" => $this->database()->sql()->now_utc()
+			))->where('id', $this->id());
 			if (is_numeric($percent)) {
 				$query->value('progress', $percent);
 			}
@@ -428,7 +398,7 @@ class Job extends ORM implements Interface_Process, Interface_Progress {
 	/**
 	 * Complete job and set exit status
 	 *
-	 * @param boolean $set        	
+	 * @param boolean $set
 	 * @return \zesk\Job|boolean
 	 */
 	function completed($set = null) {
@@ -440,11 +410,11 @@ class Job extends ORM implements Interface_Process, Interface_Progress {
 		}
 		return !$this->member_is_empty("completed");
 	}
-	
+
 	/**
 	 * Getter/Setter for successful job termination
 	 *
-	 * @param boolean $set        	
+	 * @param boolean $set
 	 * @return \zesk\Job|boolean
 	 */
 	function succeeded($set = false) {
@@ -456,7 +426,7 @@ class Job extends ORM implements Interface_Process, Interface_Progress {
 	/**
 	 * Getter/Setter for failed job termination
 	 *
-	 * @param boolean $set        	
+	 * @param boolean $set
 	 * @return \zesk\Job|boolean
 	 */
 	function failed($set = false) {
@@ -465,55 +435,70 @@ class Job extends ORM implements Interface_Process, Interface_Progress {
 		}
 		return $this->completed() && !$this->last_exit;
 	}
-	
+
 	/**
 	 *
 	 * @return mixed|\zesk\Configuration|array
 	 */
-	static function retry_attempts() {
-		return zesk()->configuration->path_get("zesk\Job::retry_attempts", 100);
+	static function retry_attempts(Application $application) {
+		return $application->configuration->path_get(__METHOD__, 100);
 	}
+
+	/**
+	 * Is this job dead?
+	 *
+	 * @return boolean
+	 */
 	function dead() {
-		return $this->died > $this->option_integer("retry_attempts", self::retry_attempts());
+		return $this->died > $this->option_integer("retry_attempts", self::retry_attempts($this->application));
 	}
+
+	/**
+	 * Mark this job as dead.
+	 *
+	 * @return \zesk\Job
+	 */
 	function died() {
 		$this->last_exit = false;
 		$this->died = $this->died + 1;
 		$this->completed(false);
 		return $this->store();
 	}
+
+	/**
+	 * Release the job so others can process
+	 *
+	 * @return \zesk\Job
+	 */
 	private function release() {
-		$this->query_update()
-			->value(array(
+		$this->query_update()->value(array(
 			"server" => null,
 			"pid" => null
-		))
-			->where("id", $this->id())
-			->execute();
+		))->where("id", $this->id())->execute();
 		return $this;
 	}
-	
+
 	/**
 	 * (non-PHPdoc)
-	 * 
+	 *
 	 * @see Interface_Process::done()
 	 */
 	public function done() {
 		return $this->process ? $this->process->done() : true;
 	}
-	
+
 	/**
 	 * (non-PHPdoc)
-	 * 
+	 *
 	 * @see Interface_Process::sleep()
 	 */
 	public function sleep($seconds = 1.0) {
 		return $this->process ? $this->process->sleep($seconds) : true;
 	}
-	
+
 	/**
 	 * (non-PHPdoc)
-	 * 
+	 *
 	 * @see Interface_Process::terminate()
 	 */
 	public function terminate() {
@@ -521,10 +506,10 @@ class Job extends ORM implements Interface_Process, Interface_Progress {
 			$this->process->terminate();
 		}
 	}
-	
+
 	/**
 	 * (non-PHPdoc)
-	 * 
+	 *
 	 * @see Interface_Process::kill()
 	 */
 	public function kill() {
@@ -532,10 +517,10 @@ class Job extends ORM implements Interface_Process, Interface_Progress {
 			$this->process->kill();
 		}
 	}
-	
+
 	/**
 	 * (non-PHPdoc)
-	 * 
+	 *
 	 * @see Interface_Process::log()
 	 */
 	function log($message, array $args = array(), $level = null) {
@@ -543,32 +528,32 @@ class Job extends ORM implements Interface_Process, Interface_Progress {
 			$this->process->log($message, $args, $level);
 		}
 	}
-	
+
 	/**
 	 * Getter/setter for content
 	 *
-	 * @param mixed $set        	
+	 * @param mixed $set
 	 * @return Job|mixed
 	 */
 	public function content($set = null) {
 		return $this->data("content", $set);
 	}
-	
+
 	/**
 	 * Data getter/setter
 	 *
-	 * @param string $mixed        	
-	 * @param mixed $value        	
+	 * @param string $mixed
+	 * @param mixed $value
 	 * @return \zesk\ORM|mixed
 	 */
 	public function data($mixed = null, $value = null) {
 		return $this->member_data("data", $mixed, $value);
 	}
-	
+
 	/**
 	 * Does this Job have the data key?
 	 *
-	 * @param string $mixed        	
+	 * @param string $mixed
 	 * @return boolean
 	 */
 	public function has_data($mixed = null) {

@@ -135,7 +135,7 @@ class System {
 		if ($filter !== null) {
 			foreach ($result as $interface => $values) {
 				if (is_array($values)) {
-					if (!arr::has_any($values, $filter)) {
+					if (!ArrayTools::has_any($values, $filter)) {
 						unset($result[$interface]);
 					}
 				}

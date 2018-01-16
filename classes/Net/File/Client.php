@@ -9,7 +9,7 @@
 namespace zesk;
 
 /**
- * 
+ *
  * @author kent
  *
  */
@@ -19,7 +19,7 @@ class Net_File_Client extends Net_Client implements Net_FileSystem {
 	 * @var boolean
 	 */
 	private $connected = false;
-	
+
 	/**
 	 * Connect to the remote host
 	 * @see Net_Client::connect()
@@ -88,7 +88,7 @@ class Net_File_Client extends Net_Client implements Net_FileSystem {
 		if ($temporary) {
 			$temp = null;
 			if (is_file($remote_path)) {
-				$temp = $remote_path . '.rename-' . zesk()->process->id();
+				$temp = $remote_path . '.rename-' . $this->application->process->id();
 				if (!rename($remote_path, $temp)) {
 					throw new Exception_File_Permission($remote_path);
 				}

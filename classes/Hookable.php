@@ -214,7 +214,7 @@ class Hookable extends Options {
 					$args
 				);
 			}
-			$hook_names = arr::suffix($app->classes->hierarchy($this, __CLASS__), "::$type");
+			$hook_names = ArrayTools::suffix($app->classes->hierarchy($this, __CLASS__), "::$type");
 			$hooks = array_merge($hooks, $app->hooks->collect_hooks($hook_names, $zesk_hook_args));
 		}
 		return $hooks;
@@ -262,7 +262,7 @@ class Hookable extends Options {
 				$result[] = $func;
 			}
 			if (!$object_only) {
-				$hook_names = arr::suffix($zesk->classes->hierarchy($this, __CLASS__), "::$type");
+				$hook_names = ArrayTools::suffix($zesk->classes->hierarchy($this, __CLASS__), "::$type");
 				if ($hooks->has($hook_names)) {
 					foreach ($hook_names as $hook_name) {
 						if ($hooks->has($hook_name)) {
@@ -338,7 +338,7 @@ class Hookable extends Options {
 			}
 		}
 		if (is_array($previous_result) && is_array($new_result)) {
-			if (arr::is_list($previous_result)) {
+			if (ArrayTools::is_list($previous_result)) {
 				return array_merge($previous_result, $new_result);
 			} else {
 				return $new_result + $previous_result;

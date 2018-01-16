@@ -217,7 +217,7 @@ class URL {
 			unset($qs[$k]);
 		}
 		if (is_array($add)) {
-			$qs = arr::merge($qs, $add);
+			$qs = ArrayTools::merge($qs, $add);
 		}
 		return $uri . self::query_unparse($qs);
 	}
@@ -254,7 +254,7 @@ class URL {
 			return "";
 		}
 		if ($include !== null) {
-			zesk()->deprecated("\$include parameter is @deprecated 2017-12 use arr::filter");
+			zesk()->deprecated("\$include parameter is @deprecated 2017-12 use ArrayTools::filter");
 		}
 		$item = array();
 		foreach ($qs as $k => $v) {
@@ -349,7 +349,7 @@ class URL {
 		$newu = substr($url, 0, $x);
 		$qs = array();
 		parse_str($q, $qs);
-		$names = arr::change_value_case($names);
+		$names = ArrayTools::change_value_case($names);
 		foreach ($qs as $k => $v) {
 			if (in_array(strtolower($k), $names)) {
 				unset($qs[$k]);

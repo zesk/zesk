@@ -33,13 +33,13 @@ class Template implements Interface_Theme {
 	 * @var Application
 	 */
 	public $application = null;
-	
+
 	/**
 	 *
 	 * @var Template_Stack
 	 */
 	public $stack = null;
-	
+
 	/**
 	 * Stack of Template for begin/end
 	 *
@@ -47,60 +47,60 @@ class Template implements Interface_Theme {
 	 * @see Template::inherited_variables
 	 */
 	private $wrappers = array();
-	
+
 	/**
 	 *
 	 * @var string
 	 */
 	private $_original_path = null;
-	
+
 	/**
 	 *
 	 * @var string
 	 */
 	public $_path = null;
-	
+
 	/**
 	 * Template variables
 	 *
 	 * @var array
 	 */
 	private $_vars = array();
-	
+
 	/**
 	 * Template variables which have changed
 	 *
 	 * @var array
 	 */
 	private $_vars_changed = array();
-	
+
 	/**
 	 * Number of pushes to this template
 	 *
 	 * @var integer
 	 */
 	private $_running = 0;
-	
+
 	/**
 	 * Parent template
 	 *
 	 * @var Template
 	 */
 	public $_parent = null;
-	
+
 	/**
 	 * The return value of the template
 	 *
 	 * @var mixed
 	 */
 	public $return = null;
-	
+
 	/**
 	 *
 	 * @var Cache
 	 */
 	protected $paths_cache = null;
-	
+
 	/**
 	 * Template statistics
 	 *
@@ -110,7 +110,7 @@ class Template implements Interface_Theme {
 		'counts' => array(),
 		'times' => array()
 	);
-	
+
 	/**
 	 * Whether to profile all templates.
 	 * Set via global Template::profile
@@ -118,28 +118,28 @@ class Template implements Interface_Theme {
 	 * @var boolean
 	 */
 	private static $profile = false;
-	
+
 	/**
 	 * Whether to wrap all non-empty templates with HTML comments (caution!)
 	 *
 	 * @var boolean
 	 */
 	private static $wrap = false;
-	
+
 	/**
 	 * Debugging on
 	 *
 	 * @var boolean
 	 */
 	private static $debug = false;
-	
+
 	/**
 	 * Set to true to debug the push/pop stack
 	 *
 	 * @var boolean
 	 */
 	public static $debug_stack = false;
-	
+
 	/**
 	 * Construct a new template
 	 *
@@ -151,7 +151,7 @@ class Template implements Interface_Theme {
 	static function factory(Application $app, $path = null, $variables = null) {
 		return new self($app, $path, $variables);
 	}
-	
+
 	/**
 	 * Construct a new template
 	 *
@@ -163,7 +163,7 @@ class Template implements Interface_Theme {
 	function __construct(Application $app, $path = null, $variables = null) {
 		$this->application = $app;
 		$this->stack = $app->template_stack;
-		
+
 		$this->_vars = array();
 		if ($variables instanceof Template) {
 			$this->_vars = $variables->variables() + $this->_vars;
@@ -182,10 +182,10 @@ class Template implements Interface_Theme {
 			$this->path($path);
 		}
 		if (self::$profile) {
-			arr::increment(self::$_stats['counts'], $this->_path);
+			ArrayTools::increment(self::$_stats['counts'], $this->_path);
 		}
 	}
-	
+
 	/**
 	 * Begin output buffering for a \"theme\", push it on the stack.
 	 *
@@ -209,7 +209,7 @@ class Template implements Interface_Theme {
 		}
 		return $t;
 	}
-	
+
 	/**
 	 * Complete output buffering, passing additional variables to be added to the template,
 	 * and pass an optional variable name for the output content to be applied to the template.
@@ -233,7 +233,7 @@ class Template implements Interface_Theme {
 		$t->set($variables);
 		return $t->render();
 	}
-	
+
 	/**
 	 *
 	 * @return Template
@@ -241,7 +241,7 @@ class Template implements Interface_Theme {
 	public function top() {
 		return $this->stack->top();
 	}
-	
+
 	/**
 	 * Push the variable stack
 	 *
@@ -259,7 +259,7 @@ class Template implements Interface_Theme {
 		$this->_running++;
 		return $this;
 	}
-	
+
 	/**
 	 * Pop the variable stack
 	 *
@@ -291,7 +291,7 @@ class Template implements Interface_Theme {
 		$stack->variables($this->_vars_changed);
 		return $this;
 	}
-	
+
 	/**
 	 * Retrieve the current Template's variables
 	 *
@@ -300,7 +300,7 @@ class Template implements Interface_Theme {
 	public function variables() {
 		return $this->_vars;
 	}
-	
+
 	/**
 	 * Retrieve the current Template's values
 	 *
@@ -309,7 +309,7 @@ class Template implements Interface_Theme {
 	public function values() {
 		return $this->_vars;
 	}
-	
+
 	/**
 	 *
 	 * @return Cache
@@ -330,7 +330,7 @@ class Template implements Interface_Theme {
 		}
 		return $cache;
 	}
-	
+
 	/**
 	 *
 	 * @param unknown $path
@@ -375,7 +375,7 @@ class Template implements Interface_Theme {
 			return $path;
 		}
 		$paths = array();
-		
+
 		$result = $this->application->theme_find($path, array(
 			"all" => $all,
 			"no_extension" => true
@@ -400,7 +400,7 @@ class Template implements Interface_Theme {
 		}
 		return $result;
 	}
-	
+
 	/**
 	 * Would this template exist?
 	 *
@@ -411,7 +411,7 @@ class Template implements Interface_Theme {
 		$path = $this->find_path($path);
 		return file_exists($path);
 	}
-	
+
 	/**
 	 * Set or get the template path.
 	 * If setting, finds it in the file system and returns $this.
@@ -426,7 +426,7 @@ class Template implements Interface_Theme {
 		}
 		return $this->_path;
 	}
-	
+
 	/**
 	 * Does this template exist?
 	 *
@@ -435,7 +435,7 @@ class Template implements Interface_Theme {
 	function exists() {
 		return file_exists($this->_path);
 	}
-	
+
 	/**
 	 *
 	 * @return string
@@ -443,7 +443,7 @@ class Template implements Interface_Theme {
 	function className() {
 		return "Template";
 	}
-	
+
 	/**
 	 *
 	 * @return mixed
@@ -459,7 +459,7 @@ class Template implements Interface_Theme {
 		}
 		return $matches[1];
 	}
-	
+
 	/**
 	 * Did anything change in this Template?
 	 *
@@ -468,7 +468,7 @@ class Template implements Interface_Theme {
 	function changed() {
 		return $this->_vars_changed;
 	}
-	
+
 	/**
 	 * Is a variable set in this template (and non-null)?
 	 *
@@ -477,7 +477,7 @@ class Template implements Interface_Theme {
 	function has($k) {
 		return $this->__isset($k);
 	}
-	
+
 	/**
 	 * Set a variable to the template
 	 *
@@ -497,7 +497,7 @@ class Template implements Interface_Theme {
 			$this->__set($k, $v);
 		}
 	}
-	
+
 	/**
 	 * Get a variable name, with a default
 	 *
@@ -518,7 +518,7 @@ class Template implements Interface_Theme {
 		}
 		return $default;
 	}
-	
+
 	/**
 	 * Get first key value matching, or default
 	 *
@@ -534,7 +534,7 @@ class Template implements Interface_Theme {
 		}
 		return $default;
 	}
-	
+
 	/**
 	 * Get a value and convert it to an integer, or return $default
 	 *
@@ -545,7 +545,7 @@ class Template implements Interface_Theme {
 	function geti($k, $default = null) {
 		return to_integer($this->__get($k), $default);
 	}
-	
+
 	/**
 	 * Get a value and convert it to an boolean, or return $default
 	 *
@@ -556,7 +556,7 @@ class Template implements Interface_Theme {
 	function getb($k, $default = null) {
 		return to_bool($this->__get($k), $default);
 	}
-	
+
 	/**
 	 * Get a value if it's an array, or return $default
 	 *
@@ -571,7 +571,7 @@ class Template implements Interface_Theme {
 		}
 		return $default;
 	}
-	
+
 	/**
 	 * Get a value if it's an array, or return $default
 	 *
@@ -582,7 +582,7 @@ class Template implements Interface_Theme {
 	function get_list($k, $default = array(), $delimiter = ";") {
 		return to_list($this->__get($k), $default, $delimiter);
 	}
-	
+
 	/**
 	 * Output
 	 *
@@ -596,7 +596,8 @@ class Template implements Interface_Theme {
 		ob_start();
 		$this->push();
 		extract(array(
-			"zesk" => $this->application->zesk
+			"zesk" => $this->application->zesk,
+			"kernel" => $this->application->zesk
 		) + $this->_vars, EXTR_SKIP); // Avoid overwriting $this
 		// This name is fairly unique to avoid conflicts with variables set in our include.
 		$_template_exception = null;
@@ -612,14 +613,14 @@ class Template implements Interface_Theme {
 			throw $_template_exception;
 		}
 		if (self::$profile) {
-			arr::increment(self::$_stats['times'], $this->_path, microtime(true) - $__start);
+			ArrayTools::increment(self::$_stats['times'], $this->_path, microtime(true) - $__start);
 		}
 		if (self::$wrap && !empty($contents)) {
 			$contents = "<!-- $this->_path { -->" . $contents . "<!-- } $this->_path -->";
 		}
 		return $contents;
 	}
-	
+
 	/**
 	 * Convert a key to a template key
 	 *
@@ -629,37 +630,47 @@ class Template implements Interface_Theme {
 	private static function _template_key($key) {
 		return strtolower($key);
 	}
+
+	/**
+	 *
+	 * @param Application $application
+	 */
 	public static function configured(Application $application) {
 		$config = $application->configuration->path(__CLASS__);
 		self::$profile = to_bool($config->profile);
 		self::$wrap = to_bool($config->wrap);
 		self::$debug = to_bool($config->debug);
 		self::$debug_stack = to_bool($config->debug_stack);
+		$application->hooks->add('</html>', array(
+			__CLASS__,
+			'profile_output'
+		));
 	}
 	/**
 	 * Implements ::hooks
 	 */
 	public static function hooks(Kernel $kernel) {
-		$kernel->hooks->add('</html>', array(
-			__CLASS__,
-			'profile_output'
-		));
 		$kernel->hooks->add('configured', array(
 			__CLASS__,
 			'configured'
 		));
 	}
+
+	/**
+	 *
+	 * @return string
+	 */
 	public static function profile_output() {
 		if (!self::$profile) {
 			return '';
 		}
 		echo Kernel::singleton()->application()->theme('template/profile', self::$_stats);
 	}
-	
+
 	/*
 	 * ==== Functions Below Here have access to _vars by key ====
 	 */
-	
+
 	/**
 	 * Apply variables set and inherit to parents
 	 *
@@ -678,7 +689,7 @@ class Template implements Interface_Theme {
 			$this->_vars_changed[$k] = $value;
 		}
 	}
-	
+
 	/**
 	 *
 	 * @see stdClass::__set
@@ -694,7 +705,7 @@ class Template implements Interface_Theme {
 		}
 		$this->_vars[$k] = $v;
 	}
-	
+
 	/**
 	 *
 	 * @see stdClass::__get
@@ -711,7 +722,7 @@ class Template implements Interface_Theme {
 			'self' => $this
 		), $k, null);
 	}
-	
+
 	/**
 	 *
 	 * @see stdClass::__isset
@@ -733,7 +744,7 @@ class Template implements Interface_Theme {
 	function __toString() {
 		return PHP::dump($this->_original_path);
 	}
-	
+
 	/**
 	 * Output theme within a template.
 	 *
@@ -751,7 +762,7 @@ class Template implements Interface_Theme {
 	final function theme($types, $arguments = array(), array $options = array()) {
 		return $this->application->theme($types, $arguments, $options);
 	}
-	
+
 	/**
 	 * Create a widget
 	 *

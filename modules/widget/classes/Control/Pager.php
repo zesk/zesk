@@ -79,7 +79,7 @@ class Control_Pager extends Control {
 	private function _limit_widget() {
 		$pager_limit_list = $this->pager_limit_list();
 		
-		$pager_limit_list = arr::flip_copy($pager_limit_list);
+		$pager_limit_list = ArrayTools::flip_copy($pager_limit_list);
 		
 		$ajax_id = $this->option('ajax_id');
 		$onchange = $ajax_id ? "pager_limit_change.call(this,'$ajax_id')" : "this.form.submit()";

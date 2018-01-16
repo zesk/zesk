@@ -1,24 +1,25 @@
 <?php
+
 /**
- * 
+ *
  */
 namespace zesk;
 
 /**
  * Job module for running background jobs in a somewhat reliable manner
- * 
+ *
  * @author kent
  */
 class Module_Job extends Module implements Interface_Module_Routes {
-	
+
 	/**
-	 * 
+	 *
 	 * @var array
 	 */
 	protected $model_classes = array(
 		'zesk\\Job'
 	);
-	
+
 	/**
 	 * For testing, call this statically from zesk eval, a web request, or a debugger
 	 */
@@ -31,17 +32,18 @@ class Module_Job extends Module implements Interface_Module_Routes {
 		));
 		Job::execute_jobs($process);
 	}
-	
+
 	/**
 	 * Run daemon
-	 * 
+	 *
 	 * @param Interface_Process $process
 	 */
 	private function run_daemon(Interface_Process $process) {
 		$has_hook = $this->has_hook("wait_for_job");
 		$seconds = $this->option("execute_jobs_wait", 10);
+		$app = $process->application();
 		if (!$has_hook) {
-			zesk()->logger->debug("No hook exists for wait_for_job, sleeping interval is {seconds} seconds", compact("seconds"));
+			$app->logger->debug("No hook exists for wait_for_job, sleeping interval is {seconds} seconds", compact("seconds"));
 		}
 		declare(ticks = 1) {
 			while (!$process->done()) {
@@ -59,7 +61,7 @@ class Module_Job extends Module implements Interface_Module_Routes {
 	}
 	/**
 	 * Daemon hook
-	 * 
+	 *
 	 * @param Interface_Process $process
 	 */
 	public static function daemon(Interface_Process $process) {
@@ -67,11 +69,12 @@ class Module_Job extends Module implements Interface_Module_Routes {
 		$module = $application->modules->object("job");
 		$module->run_daemon($process);
 	}
-	
+
 	/**
 	 * Add routes to Router
-	 * 
-	 * {@inheritDoc}
+	 *
+	 * {@inheritdoc}
+	 *
 	 * @see \Interface_Module_Routes::hook_routes()
 	 */
 	public function hook_routes(Router $router) {

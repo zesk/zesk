@@ -54,7 +54,7 @@ class Control_Filter_Query extends Control_Select {
 	}
 	protected function _filter_where(Database_Query_Select $query, $value) {
 		$map = $this->filter_map();
-		$value = arr::scalars($value);
+		$value = ArrayTools::scalars($value);
 		$query->where(amap($value, $map));
 	}
 	protected function _filter_condition(Database_Query_Select $query, $value) {

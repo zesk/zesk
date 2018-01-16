@@ -16,19 +16,19 @@ class Command_Translate extends Command_Base {
 	 * @var integer
 	 */
 	const error_parameters = 1;
-	
+
 	/**
 	 *
 	 * @var integer
 	 */
 	const error_service_translate = 2;
-	
+
 	/**
 	 *
 	 * @var integer
 	 */
 	const error_file_formats = 3;
-	
+
 	/**
 	 *
 	 * @var array
@@ -42,7 +42,7 @@ class Command_Translate extends Command_Base {
 		'language-file' => 'file',
 		'interactive' => 'boolean'
 	);
-	
+
 	/**
 	 *
 	 * @var array
@@ -53,13 +53,13 @@ class Command_Translate extends Command_Base {
 		'interactive' => 'boolean',
 		'list' => 'boolean'
 	);
-	
+
 	/**
 	 *
 	 * @var Service_Translate
 	 */
 	protected $service_object;
-	
+
 	/**
 	 *
 	 * {@inheritdoc}
@@ -72,7 +72,7 @@ class Command_Translate extends Command_Base {
 		if (!$source_language_file) {
 			$this->usage("Need a source --language-file to determine source strings");
 		}
-		$destination = $this->option("destination", $app->configuration->path_get("Locale::auto_path"));
+		$destination = $this->option("destination", $app->configuration->path_get(Locale::class . "::auto_path"));
 		if (!$destination) {
 			$this->usage("Need a directory --destination {destination} is not a directory");
 		}
@@ -81,7 +81,7 @@ class Command_Translate extends Command_Base {
 		}
 		$classes = Service::service_classes("translate");
 		if ($this->option_bool("list")) {
-			echo arr::ksuffix($classes, "\n");
+			echo ArrayTools::ksuffix($classes, "\n");
 			return 0;
 		}
 		$target_language = $this->option("target");
@@ -89,13 +89,13 @@ class Command_Translate extends Command_Base {
 			$this->error("Please supply a --target language");
 			return self::error_parameters;
 		}
-		$source_language = $this->option("source", Locale::language());
-		
+		$source_language = $this->option("source", $app->locale->language());
+
 		$target_language = strtolower($target_language);
 		$source_language = strtolower($source_language);
-		
+
 		$default_class = first($classes);
-		$classes = arr::flip_copy($classes, true);
+		$classes = ArrayTools::flip_copy($classes, true);
 		/* @var $service_object Service_Translate */
 		try {
 			$service_object = $this->service_object = Service_Translate::factory_translate($target_language, $source_language);
@@ -107,7 +107,7 @@ class Command_Translate extends Command_Base {
 			"class" => get_class($service_object)
 		));
 		$target_file = path($destination, "$target_language.inc");
-		
+
 		if (!is_file($target_file)) {
 			$target_file = file_put_contents($target_file, map('<' . "?php\n// Generated file by {class}, editing OK\n\$tt = array();\n\nreturn \$tt;\n"));
 		}
@@ -125,17 +125,17 @@ class Command_Translate extends Command_Base {
 			$this->error("translation file {translation_file} is empty", compact("translation_file"));
 			return self::error_file_formats;
 		}
-		
+
 		$tt = array();
 		foreach ($translation_file as $key => $phrase) {
 			$mapping = $this->preprocess_phrase($phrase);
 			$translation = $service_object->translate($phrase);
 			$translation = $this->postprocess_phrase($translation, $mapping);
-			
+
 			$tt[$key] = $translation;
 		}
 	}
-	
+
 	/**
 	 * Remove tokens from the phrase so they are not automatically translated (and left alone by
 	 * remote service)
@@ -153,7 +153,7 @@ class Command_Translate extends Command_Base {
 		$phrase = tr($phrase, $map);
 		return array_flip($map);
 	}
-	
+
 	/**
 	 * Replace mapped tokens with originals
 	 *

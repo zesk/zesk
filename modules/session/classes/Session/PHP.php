@@ -137,7 +137,7 @@ class Session_PHP implements Interface_Session {
 		if ($list === null) {
 			return $_SESSION;
 		}
-		return arr::filter($_SESSION, $list);
+		return ArrayTools::filter($_SESSION, $list);
 	}
 	
 	/**

@@ -53,7 +53,7 @@ class Control_IP_List extends Control {
 		$col = $this->column();
 		$name = $this->name();
 		$value = $this->value();
-		$iplist = arr::trim(explode(' ', preg_replace('/[\s, ]+/', ' ', $value)));
+		$iplist = ArrayTools::trim(explode(' ', preg_replace('/[\s, ]+/', ' ', $value)));
 		//		sort($iplist, SORT_NUMERIC);
 		$check_func = $allow_ip_masks ? "IPv4::is_mask" : "IPv4::valid";
 		foreach ($iplist as $k => $ip) {

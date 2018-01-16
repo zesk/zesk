@@ -18,7 +18,7 @@ namespace zesk;
 class Number {
 	/**
 	 * Kilobytes, Megabytes, Gigabytes, Terabytes
-	 * 
+	 *
 	 * @var array
 	 */
 	private static $magnitudes = array(
@@ -27,7 +27,7 @@ class Number {
 		'G' => 1073741824,
 		'T' => 1099511627776
 	);
-	
+
 	/**
 	 *
 	 * @param string $string
@@ -40,30 +40,30 @@ class Number {
 		list($whole, $int, $magnitude) = $matches;
 		return intval($int) * self::$magnitudes[strtoupper($magnitude)];
 	}
-	
+
 	/**
 	 * Format bytes
-	 * 
+	 *
 	 * @param unknown $n
 	 * @param number $precision
 	 * @return string
 	 */
-	public static function format_bytes($n, $precision = 1) {
+	public static function format_bytes(Locale $locale, $n, $precision = 1) {
 		if ($n >= 1099511627776) {
-			return __("Number::format_bytes:={0} TB", round(($n / self::$magnitudes['T']), $precision));
+			return $locale("Number::format_bytes:={0} TB", round(($n / self::$magnitudes['T']), $precision));
 		} else if ($n >= 1073741824) {
-			return __("Number::format_bytes:={0} GB", round(($n / self::$magnitudes['G']), $precision));
+			return $locale("Number::format_bytes:={0} GB", round(($n / self::$magnitudes['G']), $precision));
 		} else if ($n >= 1048576) {
-			return __("Number::format_bytes:={0} MB", round(($n / self::$magnitudes['M']), $precision));
+			return $locale("Number::format_bytes:={0} MB", round(($n / self::$magnitudes['M']), $precision));
 		} else if ($n >= 1024) {
-			return __("Number::format_bytes:={0} KB", round($n / self::$magnitudes['K'], $precision));
+			return $locale("Number::format_bytes:={0} KB", round($n / self::$magnitudes['K'], $precision));
 		} else {
-			return __("Number::format_bytes:={0} {1}", intval($n), Locale::plural(__("byte"), intval($n)));
+			return $locale("Number::format_bytes:={0} {1}", intval($n), $locale->plural(__("byte"), intval($n)));
 		}
 	}
 	/**
 	 * Compute the standard deviation of an array of numbers
-	 * 
+	 *
 	 * @param array $a
 	 * @param double $mean Use this value as the computed mean, otherwise compute it
 	 * @return double
@@ -89,7 +89,7 @@ class Number {
 	}
 	/**
 	 * Compute the mean of an array of numbers
-	 * 
+	 *
 	 * @param array $a
 	 * @param number $zero What to return if array is empty
 	 * @return double

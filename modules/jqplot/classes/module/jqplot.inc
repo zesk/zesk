@@ -1,5 +1,5 @@
 <?php
-use zesk\arr;
+use zesk\ArrayTools;
 use zesk\Module;
 use zesk\Interface_Module_Head;
 use zesk\Exception_Directory_NotFound;
@@ -112,7 +112,7 @@ class Module_jQPlot extends zesk\Module implements zesk\Interface_Module_Head {
 	 */
 	public function plugin_exists($plugin) {
 		if (self::$plugins_flip === null) {
-			self::$plugins_flip = arr::flip_copy(self::$plugins, true);
+			self::$plugins_flip = ArrayTools::flip_copy(self::$plugins, true);
 		}
 		$path = $this->plugin_path();
 		if (!is_dir($path)) {

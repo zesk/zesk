@@ -23,7 +23,7 @@ class Control_Data extends Control {
 		$value = $this->request->geta($column);
 		if (is_array($value)) {
 			if ($this->has_option("allow_keys")) {
-				$value = arr::filter($value, $this->allow_keys());
+				$value = ArrayTools::filter($value, $this->allow_keys());
 			}
 			if (count($value) > 0) {
 				if ($this->option_merge()) {

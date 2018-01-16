@@ -1,35 +1,37 @@
 <?php
+
 /**
- * 
+ *
  */
 namespace zesk;
 
 /**
- * 
+ *
  * @author kent
  *
  */
 class Module_Daemon extends Module {
 	/**
-	 * 
+	 *
 	 * @var string
 	 */
 	public $rundir = null;
-	
+
 	/**
-	 * 
-	 * {@inheritDoc}
+	 *
+	 * {@inheritdoc}
+	 *
 	 * @see \zesk\Module::initialize()
 	 */
 	public function initialize() {
 		parent::initialize();
-		$runpath = zesk()->paths->data("run");
+		$runpath = $this->application->data_path("run");
 		$this->rundir = path($runpath, 'daemon');
 		Directory::depend($this->rundir, 0700);
 	}
-	
+
 	/**
-	 * 
+	 *
 	 * @param Template $template
 	 * @return string[][]
 	 */
@@ -57,7 +59,7 @@ class Module_Daemon extends Module {
 		} catch (\Exception $e) {
 		}
 	}
-	
+
 	/**
 	 * Unlock database
 	 */
@@ -65,10 +67,10 @@ class Module_Daemon extends Module {
 		$path = $this->_database_path();
 		flock($path, LOCK_UN);
 	}
-	
+
 	/**
 	 * Retrieve database path
-	 * 
+	 *
 	 * @return string
 	 */
 	private function _database_path() {
@@ -77,10 +79,10 @@ class Module_Daemon extends Module {
 	public function unlink_database() {
 		unlink($this->_database_path());
 	}
-	
+
 	/**
 	 * Get/set daemon database
-	 * 
+	 *
 	 * @param array $set
 	 */
 	public function process_database(array $database = null) {

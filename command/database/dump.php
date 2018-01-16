@@ -10,7 +10,7 @@
 namespace zesk;
 
 use zesk\Exception_NotFound;
-use zesk\arr;
+use zesk\ArrayTools;
 use zesk\PHP;
 use zesk\URL;
 
@@ -150,7 +150,7 @@ class Command_Database_Dump extends Command_Base {
 			$args = array_merge($args, explode(" ", $this->option('arg-suffix')));
 		}
 		
-		$command_line = $full_command_path . implode("", arr::prefix($args, " ")) . $suffix;
+		$command_line = $full_command_path . implode("", ArrayTools::prefix($args, " ")) . $suffix;
 		if ($this->option_bool('echo')) {
 			echo $command_line . "\n";
 			return true;

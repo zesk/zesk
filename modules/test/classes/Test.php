@@ -163,7 +163,7 @@ class Test extends Hookable {
 	 */
 	private function begin_test(Method $test, array $arguments = array()) {
 		if ($this->test !== null) {
-			throw new Exception_Semantics("{method}({name}): Already started test {this_name}", $test->variables() + arr::kprefix($this->test->variables(), "this_") + array(
+			throw new Exception_Semantics("{method}({name}): Already started test {this_name}", $test->variables() + ArrayTools::kprefix($this->test->variables(), "this_") + array(
 				"method" => __METHOD__
 			));
 		}

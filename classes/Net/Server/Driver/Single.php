@@ -1,13 +1,17 @@
 <?php
 /**
- * @version $URL: https://code.marketacumen.com/zesk/trunk/classes/Net/Server/Driver/Single.php $
  * @author Kent Davidson <kent@marketacumen.com>
- * @copyright Copyright &copy; 2011, Market Acumen, Inc.
  * @package zesk
  * @subpackage system
+ * @copyright Copyright &copy; 2017, Market Acumen, Inc.
  */
 namespace zesk;
 
+/**
+ *
+ * @author kent
+ *
+ */
 class Net_Server_Driver_Single extends Net_Server_Driver {
 	public function start() {
 		$this->listen();

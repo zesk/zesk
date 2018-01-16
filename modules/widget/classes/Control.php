@@ -268,10 +268,10 @@ class Control extends Widget {
 			return $value;
 		}
 		if (is_string($allow)) {
-			return strip_tags($value, implode("", arr::wrap(to_list($allow), '<', '>')));
+			return strip_tags($value, implode("", ArrayTools::wrap(to_list($allow), '<', '>')));
 		}
 		if (is_array($allow)) {
-			return strip_tags($value, implode("", arr::wrap($allow, '<', '>')));
+			return strip_tags($value, implode("", ArrayTools::wrap($allow, '<', '>')));
 		}
 		return $value;
 	}

@@ -130,7 +130,7 @@ class Session_Mock extends Hookable implements Interface_Session {
 		if ($list === null) {
 			return $this->data;
 		}
-		return arr::filter($this->data, $list);
+		return ArrayTools::filter($this->data, $list);
 	}
 	
 	/**

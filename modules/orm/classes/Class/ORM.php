@@ -777,9 +777,9 @@ class Class_ORM extends Hookable {
 		}
 		$class = $this->application->objects->resolve($many_spec['class']);
 		if (avalue($many_spec, 'default')) {
-			arr::prepend($this->has_many_objects, $class, $member);
+			ArrayTools::prepend($this->has_many_objects, $class, $member);
 		} else {
-			arr::append($this->has_many_objects, $class, $member);
+			ArrayTools::append($this->has_many_objects, $class, $member);
 		}
 		$this->has_many[$member] = map($many_spec, array(
 			'table' => $this->table
@@ -889,9 +889,9 @@ class Class_ORM extends Hookable {
 				}
 				$class = $many_spec['class'];
 				if (avalue($many_spec, 'default')) {
-					arr::prepend($this->has_many_objects, $class, $member);
+					ArrayTools::prepend($this->has_many_objects, $class, $member);
 				} else {
-					arr::append($this->has_many_objects, $class, $member);
+					ArrayTools::append($this->has_many_objects, $class, $member);
 				}
 			}
 			$this->has_many = map($this->has_many, array(
@@ -903,7 +903,7 @@ class Class_ORM extends Hookable {
 			foreach ($this->has_one as $member => $class) {
 				if ($class[0] !== '*') {
 					$this->has_one[$member] = $class = $app->objects->resolve($class);
-					arr::append($this->has_one_flip, $class, $member);
+					ArrayTools::append($this->has_one_flip, $class, $member);
 				}
 			}
 		}
@@ -1198,7 +1198,7 @@ class Class_ORM extends Hookable {
 		}
 
 		if (array_key_exists("order_by", $many_spec)) {
-			$query->order_by(arr::prefix(to_list($many_spec['order_by']), "$this_alias."));
+			$query->order_by(ArrayTools::prefix(to_list($many_spec['order_by']), "$this_alias."));
 		}
 		return $result;
 	}
@@ -1836,7 +1836,7 @@ class Class_ORM extends Hookable {
 	 * @return array List of matching members as keys, type as a value
 	 */
 	public function members_of_type($type) {
-		return arr::filter_value($this->column_types, $type, true);
+		return ArrayTools::filter_value($this->column_types, $type, true);
 	}
 
 	/**
@@ -2007,7 +2007,7 @@ class Class_ORM extends Hookable {
 	public function variables() {
 		return array(
 			"name" => $class_name = __($this->name),
-			"names" => Locale::plural($class_name),
+			"names" => $this->application->locale->plural($class_name),
 			"name_column" => $this->name_column,
 			"id_column" => $this->id_column,
 			"primary_keys" => $this->primary_keys,

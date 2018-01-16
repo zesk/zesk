@@ -244,7 +244,7 @@ class Directory extends Hookable {
 	 * @param unknown $prefix
 	 */
 	private static function _legacy_parse_options(array $options, $prefix) {
-		$options = arr::kunprefix($options, $prefix . "_", true);
+		$options = ArrayTools::kunprefix($options, $prefix . "_", true);
 		$include_pattern = $exclude_pattern = null;
 		$default = true;
 		extract($options, EXTR_IF_EXISTS);
@@ -345,7 +345,7 @@ class Directory extends Hookable {
 				}
 				$result = self::list_recursive($full_path, $options);
 				if (is_array($result)) {
-					$result = arr::prefix($result, "$prefix$x/");
+					$result = ArrayTools::prefix($result, "$prefix$x/");
 					$r = array_merge($r, $result);
 				}
 			} else {
@@ -444,7 +444,7 @@ class Directory extends Hookable {
 	 *
 	 * Try:
 	 *
-	 * 		$dirs = arr::unsuffix(self::ls($path), "/", true)
+	 * 		$dirs = ArrayTools::unsuffix(self::ls($path), "/", true)
 	 *
 	 * To strip the / and return only directories, for example.
 	 *
@@ -580,7 +580,7 @@ class Directory extends Hookable {
 			$order_by = "name";
 		}
 		if ($order_by === "name") {
-			$target_files = arr::flip_copy($files);
+			$target_files = ArrayTools::flip_copy($files);
 			$sort_flags = SORT_STRING;
 		} else if ($order_by === "date") {
 			foreach ($files as $i => $file) {

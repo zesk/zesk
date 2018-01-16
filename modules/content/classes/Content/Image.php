@@ -74,10 +74,10 @@ class Content_Image extends ORM {
 		$add = array();
 		if ($get_data) {
 			$add = array(
-				'data' => $this->orm_factory('Content_Data')->initialize(arr::kunprefix($result, "data_", true), true)
+				'data' => $this->orm_factory('Content_Data')->initialize(ArrayTools::kunprefix($result, "data_", true), true)
 			);
 		}
-		return $add + arr::kunprefix($result, "image_", true);
+		return $add + ArrayTools::kunprefix($result, "image_", true);
 	}
 	/**
 	 * Force files to disk

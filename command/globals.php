@@ -44,7 +44,7 @@ class Command_Globals extends Command_Base {
 		ksort($globals);
 		$args = $this->arguments_remaining(true);
 		if (count($args) > 0) {
-			$globals = arr::filter($globals, $args);
+			$globals = ArrayTools::filter($globals, $args);
 		}
 		$this->render_format($globals);
 	}

@@ -7,6 +7,7 @@ namespace zesk;
 /* @var $this Template */
 /* @var $zesk \zesk\Kernel */
 /* @var $application \zesk\Application */
+/* @var $locale \zesk\Locale */
 /* @var $session \zesk\Session */
 /* @var $request \zesk\Router */
 /* @var $request \zesk\Request */
@@ -64,7 +65,7 @@ if ($minDate) {
 if ($maxDate) {
 	$options['maxDate'] = $maxDate->format($zformat);
 }
-$locale = $this->get("locale", Locale::language());
+$locale = $this->get("locale", $locale->language());
 
 // https://github.com/Eonasdan/bootstrap-datetimepicker/issues/1718
 $js_language = "moment.localeData(\"$locale\") ? \"$locale\" : \"en\"";

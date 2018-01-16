@@ -1,6 +1,21 @@
 <?php
+/**
+ * @package zesk
+ * @subpackage theme
+ * @author kent
+ * @copyright &copy; 2018 Market Acumen, Inc.
+ */
 namespace zesk;
 
+/* @var $this \zesk\Template */
+/* @var $application \zesk\Application */
+/* @var $locale \zesk\Locale */
+/* @var $session \zesk\Session */
+/* @var $router \zesk\Router */
+/* @var $route \zesk\Route */
+/* @var $request \zesk\Request */
+/* @var $response \zesk\Response_Text_HTML */
+/* @var $current_user \zesk\User */
 $content = $this->content instanceof Timestamp ? $this->content : new Timestamp($this->content);
 
 $now = Timestamp::now();
@@ -16,10 +31,10 @@ $strings = array(
 foreach ($strings as $unit => $format) {
 	if (($n = $now->difference($content, $unit)) > 0) {
 		$map['n'] = $n;
-		$map['units'] = Locale::plural($unit, $n);
-		$format = __($format, $map);
+		$map['units'] = $locale->plural($unit, $n);
+		$format = $locale($format, $map);
 		echo $content->format($format);
 		return;
 	}
 }
-echo HTML::span(".currently-online", __('Currently online'));
+echo HTML::span(".currently-online", $locale('Currently online'));

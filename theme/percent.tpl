@@ -12,8 +12,14 @@ namespace zesk;
 $decimals = $this->get1("1;decimals");
 if (!$decimals) {
 	$decimals = $application->configuration->path_get_first(array(
-		"zesk\Locale::percent_decimals",
-		"zesk\Locale::numeric_decimals"
+		array(
+			Locale::class,
+			"percent_decimals"
+		),
+		array(
+			Locale::class,
+			"numeric_decimals"
+		)
 	), 0);
 }
 echo sprintf("%.${decimals}f", $this->get1("0;content")) . "%";

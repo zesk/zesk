@@ -8,7 +8,7 @@ class Control_Form extends Control {
 	 * @see Control::initialize($object)
 	 */
 	function initialize() {
-		$form_options = arr::kunprefix($this->options_include("action;method;enctype;form_name;form_id;id;name"), "form_");
+		$form_options = ArrayTools::kunprefix($this->options_include("action;method;enctype;form_name;form_id;id;name"), "form_");
 		if (!array_key_exists("id", $form_options)) {
 			$form_options['id'] = "form-" . md5(microtime());
 		}

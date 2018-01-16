@@ -189,7 +189,7 @@ class Command_Schema extends Command_Base {
 			if (count($results) === 0) {
 				return;
 			}
-			echo implode($suffix, arr::rtrim($results, $suffix)) . $suffix;
+			echo implode($suffix, ArrayTools::rtrim($results, $suffix)) . $suffix;
 		}
 	}
 }

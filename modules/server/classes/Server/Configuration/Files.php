@@ -43,7 +43,7 @@ class Server_Configuration_Files extends Server_Configuration {
 		$this->host_aliases = array();
 		try {
 			$alias_file = file::lines(path($this->host_path, "aliases"));
-			$this->host_aliases = arr::trim_clean(arr::ktrim(arr::kpair($alias_file), " \t"));
+			$this->host_aliases = ArrayTools::trim_clean(ArrayTools::ktrim(ArrayTools::kpair($alias_file), " \t"));
 		} catch (Exception_File_NotFound $e) {
 		}
 	}
@@ -95,7 +95,7 @@ class Server_Configuration_Files extends Server_Configuration {
 		));
 	}
 	function feature_list() {
-		return arr::trim_clean($this->option_list("FEATURES", $this->option_list("SERVICES", array(), " "), " "));
+		return ArrayTools::trim_clean($this->option_list("FEATURES", $this->option_list("SERVICES", array(), " "), " "));
 	}
 	function search_path($set = null) {
 		if ($set !== null) {

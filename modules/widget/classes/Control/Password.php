@@ -30,7 +30,7 @@ class Control_Password extends Control_Text {
 	public function label_confirm($set = null) {
 		return $set === null ? $this->option('label_confirm') : $this->set_option('label_confirm', $set);
 	}
-	
+
 	/**
 	 * (non-PHPdoc)
 	 * @see Widget::initialize($object)
@@ -108,7 +108,7 @@ class Control_Password extends Control_Text {
 			}
 		}
 		if (count($requirements) > 0) {
-			$this->error(__("Your password is required to have {0}", Locale::conjunction($requirements, __("and"))));
+			$this->error(__("Your password is required to have {0}", $this->application->locale->conjunction($requirements, __("and"))));
 			return false;
 		}
 		return true;

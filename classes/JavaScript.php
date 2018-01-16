@@ -120,7 +120,7 @@ class JavaScript {
 	 */
 	public static function clean_code($mixed) {
 		if (is_array($mixed)) {
-			$mixed = implode(";\n", arr::unsuffix(arr::trim_clean($mixed, " ", ""), ";"));
+			$mixed = implode(";\n", ArrayTools::unsuffix(ArrayTools::trim_clean($mixed, " ", ""), ";"));
 		}
 		return $mixed;
 	}

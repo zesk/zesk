@@ -184,7 +184,7 @@ class Command_Test extends Command_Base {
 	private $last_result = null;
 	protected function show_options() {
 		$this->log("All options:\n{options}", array(
-			"options" => Text::format_pairs(arr::clean($this->option(), false))
+			"options" => Text::format_pairs(ArrayTools::clean($this->option(), false))
 		));
 	}
 	/**
@@ -350,7 +350,7 @@ class Command_Test extends Command_Base {
 		if (count($matches) > 0) {
 			$potential_tests = Directory::list_recursive($path, $this->_test_list_options());
 			foreach ($matches as $match) {
-				$found = arr::match($potential_tests, $match);
+				$found = ArrayTools::match($potential_tests, $match);
 				if (count($found) > 0) {
 					$tests = array_merge($tests, $found);
 				} else {
@@ -632,7 +632,7 @@ class Command_Test extends Command_Base {
 		if (count($comments) === 0) {
 			return array();
 		}
-		return array_change_key_case(arr::kunprefix(to_array(DocComment::parse($comments[0], array(
+		return array_change_key_case(ArrayTools::kunprefix(to_array(DocComment::parse($comments[0], array(
 			"list_keys" => array(
 				"test_module"
 			)
@@ -659,7 +659,7 @@ class Command_Test extends Command_Base {
 		if ($debug_class_discovery) {
 			ksort($classes);
 			echo "# Class discovery: Declared classes\n";
-			echo implode("", arr::wrap(array_keys($classes), "- `", "`\n"));
+			echo implode("", ArrayTools::wrap(array_keys($classes), "- `", "`\n"));
 		}
 		require_once $file;
 		if ($debug_class_discovery) {
@@ -757,7 +757,7 @@ class Command_Test extends Command_Base {
 					if ($this->stats === null) {
 						$this->stats = $object->stats;
 					} else {
-						$this->stats = arr::sum($this->stats, $object->stats);
+						$this->stats = ArrayTools::sum($this->stats, $object->stats);
 					}
 				}
 				if (!$result) {

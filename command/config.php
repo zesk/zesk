@@ -90,7 +90,7 @@ class Command_Config extends Command_Base {
 				return $result;
 			}
 		}
-		return arr::kprefix(arr::flip_assign($flags, true), "show_");
+		return ArrayTools::kprefix(ArrayTools::flip_assign($flags, true), "show_");
 	}
 	/**
 	 * 

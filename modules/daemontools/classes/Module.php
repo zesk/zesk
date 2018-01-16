@@ -10,7 +10,7 @@ namespace zesk\DaemonTools;
 /**
  *
  */
-use zesk\arr;
+use zesk\ArrayTools;
 use zesk\Command_Configure;
 use zesk\File;
 use zesk\Directory;
@@ -171,6 +171,6 @@ class Module extends \zesk\Module {
 				true
 			)
 		));
-		return arr::unsuffix($files, "/run");
+		return ArrayTools::unsuffix($files, "/run");
 	}
 }

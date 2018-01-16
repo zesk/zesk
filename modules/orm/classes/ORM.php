@@ -263,7 +263,7 @@ class ORM extends Model {
 	 * @see Model::variables()
 	 */
 	function variables() {
-		return $this->members() + arr::kprefix($this->class->variables(), "_class_") + array(
+		return $this->members() + ArrayTools::kprefix($this->class->variables(), "_class_") + array(
 			"ORM::class" => get_class($this)
 		);
 	}
@@ -354,7 +354,7 @@ class ORM extends Model {
 		if (!$this->database_name) {
 			$this->database_name = $this->class->database_name;
 		}
-		$this->store_columns = arr::flip_assign(array_keys($this->class->column_types), true);
+		$this->store_columns = ArrayTools::flip_assign(array_keys($this->class->column_types), true);
 		$this->store_queue = array();
 		$this->original = array();
 	}
@@ -861,7 +861,7 @@ class ORM extends Model {
 		/**
 		 * Passing a string or list of values to load
 		 */
-		if (is_string($set) || arr::is_list($set)) {
+		if (is_string($set) || ArrayTools::is_list($set)) {
 			$ids = to_list($set);
 			if (count($ids) !== count($pk)) {
 				$this->application->logger->warning("{class}::id(\"{set}\") mismatches primary keys (expected {npk})", array(
@@ -1010,7 +1010,7 @@ class ORM extends Model {
 		$object = null;
 		$query = $this->member_query($member, $object);
 		if ($where) {
-			$query->where(arr::kprefix($where, $query->alias() . "."));
+			$query->where(ArrayTools::kprefix($where, $query->alias() . "."));
 		}
 		/*
 		 * @var $object ORM
@@ -1561,7 +1561,7 @@ class ORM extends Model {
 		if (!is_array($mixed)) {
 			return $this->members;
 		}
-		$temp_data = arr::filter($this->members, $mixed);
+		$temp_data = ArrayTools::filter($this->members, $mixed);
 		return $temp_data;
 	}
 
@@ -1811,7 +1811,7 @@ class ORM extends Model {
 		if ($options === null) {
 			$options = new Options_Duplicate($this->inherit_options());
 		}
-		$member_names = arr::remove_values(array_keys($this->class->column_types), $this->class->id_column);
+		$member_names = ArrayTools::remove_values(array_keys($this->class->column_types), $this->class->id_column);
 		$zesk->logger->debug("member_names={names}", array(
 			"names" => $member_names
 		));
@@ -2014,7 +2014,7 @@ class ORM extends Model {
 		$query = $this->query_select("X")->where($members)->what("*n", "COUNT(*)");
 		if (!$this->is_new()) {
 			$not_ids = $this->members($this->primary_keys());
-			$not_ids = arr::ksuffix($not_ids, "|!=");
+			$not_ids = ArrayTools::ksuffix($not_ids, "|!=");
 			$query->where($not_ids);
 		}
 		$result = to_bool($query->one_integer("n"));
@@ -2230,7 +2230,7 @@ class ORM extends Model {
 					"duplicate_keys" => $this->class->duplicate_keys,
 					"name" => $this->class_name(),
 					"id" => $this->id(),
-					"indefinite_article" => Locale::indefinite_article($this->class->name)
+					"indefinite_article" => $this->application->locale->indefinite_article($this->class->name)
 				));
 			}
 			$this->store_object_members();
@@ -2463,7 +2463,7 @@ class ORM extends Model {
 		}
 		if (is_array($id)) {
 			ksort($id);
-			$id = arr::flatten($id);
+			$id = ArrayTools::flatten($id);
 		}
 		return PHP::dump($id);
 	}
@@ -2678,9 +2678,9 @@ class ORM extends Model {
 	 * @return array
 	 */
 	static function default_permissions(Application $application, $class) {
-		$object = $application->object($class);
+		$object = $application->orm_registry($class);
 		$name = $object->class->name;
-		$names = Locale::plural($name);
+		$names = $this->application->locale->plural($name);
 		$__ = array(
 			"object" => $name,
 			"objects" => $names
@@ -2754,16 +2754,17 @@ class ORM extends Model {
 	 * @return array string
 	 */
 	public function words($string = null) {
+		$locale = $this->application->locale;
 		$name = $this->class->name;
 		$spec['class_name-raw'] = $name;
-		$spec['class_name'] = $spec['class_name-singular'] = Locale::translate($name, $this->locale);
+		$spec['class_name'] = $spec['class_name-singular'] = $locale->__($name, $this->locale);
 		$spec['class_name-context-object'] = $spec['class_name-context-object-singular'] = $locale_class_name = strtolower($spec['class_name']);
-		$spec['class_name-context-object-plural'] = Locale::plural($locale_class_name, $this->locale);
+		$spec['class_name-context-object-plural'] = $locale->plural($locale_class_name, $this->locale);
 		$spec['class_name-context-subject'] = $spec['class_name-context-subject-singular'] = ucfirst($locale_class_name);
 		$spec['class_name-context-subject-plural'] = ucfirst($spec['class_name-context-object-plural']);
 		$spec['class_name-context-title'] = str::capitalize($spec['class_name-context-object']);
-		$spec["class_name-context-subject-indefinite-article"] = Locale::indefinite_article($name, true);
-		$spec['class_name-plural'] = Locale::plural($name, $this->locale);
+		$spec["class_name-context-subject-indefinite-article"] = $locale->indefinite_article($name, true);
+		$spec['class_name-plural'] = $locale->plural($name, $this->locale);
 
 		$name = $this->display_name();
 		$spec['display_name'] = $name;
@@ -2804,183 +2805,6 @@ class ORM extends Model {
 	 /*==================================================================================================================================*/
 	/*==================================================================================================================================*/
 	/*==================================================================================================================================*/
-	/**
-	 * status_foo is too generic, may want to use this in subclasses, so go overly specific for this
-	 * constant as its inherited by all objects.
-	 *
-	 * @deprecated 2016-12
-	 * @see ORM::register
-	 * @see ORM::fetch_if_exists
-	 * @var string
-	 */
-	const status_exists = self::object_status_exists;
-
-	/**
-	 * status_foo is too generic, may want to use this in subclasses, so go overly specific for this
-	 * constant as its inherited by all objects.
-	 *
-	 * @deprecated 2016-12
-	 * @see ORM::register
-	 * @see ORM::fetch_if_exists
-	 * @var string
-	 */
-	const status_insert = self::object_status_insert;
-	/**
-	 * status_foo is too generic, may want to use this in subclasses, so go overly specific for this
-	 * constant as its inherited by all objects.
-	 *
-	 * @deprecated 2016-12
-	 *
-	 * @see ORM::register
-	 * @see ORM::fetch_if_exists
-	 * @var string
-	 */
-	const status_unknown = self::object_status_unknown;
-
-	/**
-	 * Retrieve a query for the current object
-	 *
-	 * @deprecated 2016-10
-	 * @see ORM::query_select()
-	 * @param $alias string
-	 * @return Database_Query_Select
-	 */
-	function query($alias = null) {
-		$this->application->deprecated();
-		return $this->query_select($alias);
-	}
-
-	/**
-	 * Retrieve the query object for an object by class name
-	 *
-	 * @param $class string
-	 * @return Database_Query_Select
-	 * @deprecated 2016-08
-	 */
-	public static function class_query($class, $alias = null) {
-		zesk()->deprecated();
-		/* @var $object ORM */
-		$object = self::cache_class($class, "object");
-		return $object->query_select($alias);
-	}
-
-	/**
-	 * Retrieve the query object for an object by class name
-	 *
-	 * @param $class string
-	 * @return Database_Query_Insert
-	 * @deprecated 2016-08
-	 */
-	public static function class_query_insert($class) {
-		/* @var $object ORM */
-		zesk()->deprecated();
-		$object = Class_ORM::cache($class, "object");
-		return $object->query_insert();
-	}
-
-	/**
-	 * Retrieve the query object for an object by class name
-	 *
-	 * @param $class string
-	 * @return Database_Query_Insert_Select
-	 * @deprecated 2016-08
-	 */
-	public static function class_query_insert_select($class) {
-		zesk()->deprecated();
-		/* @var $object ORM */
-		$object = Class_ORM::cache($class, "object");
-		return $object->query_insert_select();
-	}
-
-	/**
-	 * Retrieve the query object for an object by class name
-	 *
-	 * @param $class string
-	 * @return Database_Query_Update
-	 * @deprecated 2016-08
-	 */
-	public static function class_query_update($class, $alias = null) {
-		zesk()->deprecated();
-		/* @var $object ORM */
-		$object = Class_ORM::cache($class, "object");
-		return $object->query_update($alias);
-	}
-
-	/**
-	 * Retrieve the query object for an object by class name
-	 *
-	 * @param $class string
-	 * @return Database_Query_Delete
-	 * @deprecated 2016-08
-	 */
-	public static function class_query_delete($class) {
-		zesk()->deprecated();
-		/* @var $object ORM */
-		$object = Class_ORM::cache($class, "object");
-		return $object->query_delete();
-	}
-
-	/**
-	 * Retrieve the id column for an object by class name
-	 *
-	 * @param $class string
-	 * @param $mixed mixed
-	 *        	Initialize the object with this (for dynamic tables)
-	 * @param $options mixed
-	 *        	Initialize the object with this (for dynamic tables)
-	 * @return string The table name
-	 * @deprecated 2016-10
-	 */
-	public static function class_id_column($class) {
-		zesk()->deprecated();
-		$object = self::cache_class($class, "object");
-		return $object->id_column();
-	}
-
-	/**
-	 * Retrieve the id column for an object by class name
-	 *
-	 * @param $class string
-	 * @param $mixed mixed
-	 *        	Initialize the object with this (for dynamic tables)
-	 * @param $options mixed
-	 *        	Initialize the object with this (for dynamic tables)
-	 * @return string The table name
-	 * @deprecated 2016-10
-	 */
-	public static function class_primary_keys($class) {
-		zesk()->deprecated();
-		$object = self::cache_class($class, "object");
-		return $object->primary_keys();
-	}
-
-	/**
-	 * Load a cached version of this class
-	 *
-	 * @deprecated 2016-10 use $application->class_object, etc.
-	 * @param string $class
-	 * @param string $component
-	 *        	Optional component to return (usually "table", "dbname", "object", "class"
-	 * @return Class_ORM|mixed
-	 */
-	static function cache_class($class, $component = "") {
-		zesk()->deprecated();
-		return Class_ORM::cache($class, $component);
-	}
-
-	/**
-	 * Retrieve a cached object instance.
-	 * Do not edit, please.
-	 *
-	 * @deprecated 2016-10 use $application->object, etc.
-	 * @param $class string
-	 * @return ORM
-	 */
-	public static function cache_object($class) {
-		zesk()->deprecated();
-		return Class_ORM::cache($class, "object");
-	}
-
 	/**
 	 * Create an object in the context of the current object
 	 *

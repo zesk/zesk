@@ -40,7 +40,7 @@ $fonts = array(
 	"MS Serif4, New York6, serif"
 );
 foreach ($fonts as $font) {
-	$font = arr::trim(to_list($font, array(), ","));
+	$font = ArrayTools::trim(to_list($font, array(), ","));
 	foreach ($font as $index => $face) {
 		if (strpos($face, " ") !== false) {
 			$font[$index] = "\"$face\"";

@@ -26,7 +26,7 @@ class View_OrderBy extends View {
 		}
 		$order_var = $this->option("list_order_variable", "o");
 		$cur_sort_names = explode(";", $this->request->get($order_var, $this->option('default')));
-		$cur_sort_names = arr::clean($cur_sort_names);
+		$cur_sort_names = ArrayTools::clean($cur_sort_names);
 		$new_order = array();
 		$new_key = null;
 		$sort_index = null;

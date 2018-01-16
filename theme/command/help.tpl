@@ -14,7 +14,7 @@ namespace zesk;
 /* @var $response \zesk\Response_Text_HTML */
 /* @var $current_user \zesk\User */
 $aliases = to_array($this->aliases);
-$aliases = arr::flip_multiple($aliases);
+$aliases = ArrayTools::flip_multiple($aliases);
 
 ?># Zesk Command
 
@@ -38,14 +38,14 @@ foreach ($this->categories as $category => $commands) {
 			$extras = " (aliases: " . implode($aliases[$command], ", ") . ")";
 		}
 		echo "$tab$command$extras\n";
-		$desc = avalue($info, "desc", __("No description provided."));
+		$desc = avalue($info, "desc", $locale("No description provided."));
 		$parameters = array();
 		foreach (avalue($info, 'global', array()) as $global => $foo) {
 			$parameters[] = "$global (" . $foo[0] . ")" . "\n" . Text::indent($foo[2], 1, true, $tab);
 		}
 		$parameters = implode("\n", $parameters);
 		if ($parameters) {
-			$parameters = "$tab$tab" . __("Globals:") . "\n" . Text::indent($parameters, 3, false, $tab) . "\n";
+			$parameters = "$tab$tab" . $locale("Globals:") . "\n" . Text::indent($parameters, 3, false, $tab) . "\n";
 		}
 		$desc .= "\n\n";
 		echo rtrim(Text::indent($desc, 2, true, $tab)) . "\n$parameters";

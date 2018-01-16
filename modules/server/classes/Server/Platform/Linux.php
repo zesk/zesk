@@ -99,7 +99,7 @@ class Server_Platform_Linux extends Server_Platform_Unix {
 	function group_create($group, $members = null, $gid = null) {
 		$ma = "";
 		if ($members !== null) {
-			$members = arr::trim_clean(to_list($members, array()));
+			$members = ArrayTools::trim_clean(to_list($members, array()));
 			if (count($members) > 0) {
 				foreach ($members as $member) {
 					if (!$this->group_exists($member)) {

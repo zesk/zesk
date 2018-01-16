@@ -33,7 +33,7 @@ $response = $this->response;
 /* @var $request Request */
 $query_string = to_list($request->query(), null);
 if ($query_string) {
-	$result = arr::filter($result, $query_string);
+	$result = ArrayTools::filter($result, $query_string);
 }
 $result['elpased'] = microtime(true) - $zesk->initialization_time;
 $response->json($result);

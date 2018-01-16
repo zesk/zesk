@@ -74,7 +74,7 @@ class PolyGlot_Update extends ORM {
 		}
 		$additional_locales = array();
 		foreach ($update_locales as $update_locale) {
-			$dialect = Locale::dialect($update_locale);
+			$dialect = Locale::parse_dialect($update_locale);
 			if (!$dialect) {
 				$expanded_locales = $application->orm_registry('zesk\\PolyGlot_Token')
 					->query_select()
@@ -117,7 +117,7 @@ class PolyGlot_Update extends ORM {
 			$server->data($server_variable_name, time());
 		}
 	}
-	
+
 	/**
 	 *
 	 * @param resource $f
@@ -131,7 +131,7 @@ class PolyGlot_Update extends ORM {
 			throw new Exception_FileSystem($filename, "Unable to write to {filename}");
 		}
 	}
-	
+
 	/**
 	 *
 	 * @param string $path
@@ -142,9 +142,9 @@ class PolyGlot_Update extends ORM {
 	 */
 	public static function update_locale(Application $application, $path, $locale) {
 		$iterator = PolyGlot_Token::locale_query($application, $locale)->where("status", PolyGlot_Token::status_done)->order_by("updated DESC,original")->iterator("original", "translation");
-		
+
 		$target_file = path($path, "$locale.inc");
-		
+
 		$pid = $application->process->id();
 		$temp_file = path($path, "$locale.inc.$pid");
 		$f = fopen($temp_file, "w");

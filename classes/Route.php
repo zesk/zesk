@@ -270,7 +270,7 @@ abstract class Route extends Hookable {
 	 */
 	private function compile_route_pattern($pattern) {
 		list($methods, $pattern) = pair($pattern, ":", "GET|POST", $pattern);
-		$this->methods = arr::flip_assign(to_list($methods, array(), "|"), true);
+		$this->methods = ArrayTools::flip_assign(to_list($methods, array(), "|"), true);
 		$replace = array();
 		$parameters = array();
 		$parameter_names = array();
@@ -589,10 +589,10 @@ abstract class Route extends Hookable {
 				'{route}' => $this,
 				'{router}' => $this->router
 			);
-			$this->map_variables += arr::kwrap($request->variables(), '{request.', '}');
-			$this->map_variables += arr::kwrap($request->url_parts(), '{url.', '}');
+			$this->map_variables += ArrayTools::kwrap($request->variables(), '{request.', '}');
+			$this->map_variables += ArrayTools::kwrap($request->url_parts(), '{url.', '}');
 		}
-		return arr::map_values($mixed, $this->map_variables);
+		return ArrayTools::map_values($mixed, $this->map_variables);
 	}
 	
 	/**

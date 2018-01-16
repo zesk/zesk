@@ -43,7 +43,7 @@ class Selection_Item extends ORM {
 		/* @var $class Class_ORM */
 		$members = $application->class_object(__CLASS__)->column_types;
 		unset($members['type']);
-		$what = arr::flip_copy(array_keys($members));
+		$what = ArrayTools::flip_copy(array_keys($members));
 		$what['*type'] = $new_type;
 		$application->query_insert_select(__CLASS__)
 			->what($what)

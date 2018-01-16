@@ -365,7 +365,7 @@ class Net_HTTP_Client extends Hookable {
 	 */
 	public function request_header($name = null, $set = null) {
 		if ($name === null) {
-			return arr::map_keys($this->request_headers, Net_HTTP::$request_headers);
+			return ArrayTools::map_keys($this->request_headers, Net_HTTP::$request_headers);
 		}
 		if (is_array($name)) {
 			foreach ($name as $k => $v) {
@@ -845,7 +845,7 @@ class Net_HTTP_Client extends Hookable {
 		if (!$path) {
 			$path = "/";
 		}
-		arr::append($this->response_cookies, $cookieName, new Net_HTTP_Client_Cookie($cookieName, $cookieValue, $domain, $path, $expires, $secure));
+		ArrayTools::append($this->response_cookies, $cookieName, new Net_HTTP_Client_Cookie($cookieName, $cookieValue, $domain, $path, $expires, $secure));
 	}
 	private function parseCookies() {
 		if (!isset($this->response_headers["set-cookie"])) {
@@ -942,7 +942,7 @@ class Net_HTTP_Client extends Hookable {
 			list($h, $v) = pair($h, ":");
 			$h = trim($h);
 			$lowh = strtolower($h);
-			arr::append($this->response_headers, $lowh, ltrim($v));
+			ArrayTools::append($this->response_headers, $lowh, ltrim($v));
 		}
 		$this->parseCookies();
 		if ($content === null) {
@@ -959,7 +959,7 @@ class Net_HTTP_Client extends Hookable {
 	 */
 	public function response_header($name = null, $default = null) {
 		if ($name === null) {
-			return arr::map_keys($this->response_headers, Net_HTTP::$response_headers);
+			return ArrayTools::map_keys($this->response_headers, Net_HTTP::$response_headers);
 		}
 		return avalue($this->response_headers, strtolower($name), $default);
 	}
@@ -997,7 +997,7 @@ class Net_HTTP_Client extends Hookable {
 	 */
 	public function filename() {
 		// Content-Disposition: attachment; filename=foo.tar.gz
-		$dispositions = arr::trim_clean(explode(";", $this->response_header(Net_HTTP::response_Content_Disposition)));
+		$dispositions = ArrayTools::trim_clean(explode(";", $this->response_header(Net_HTTP::response_Content_Disposition)));
 		while (($disposition = array_shift($dispositions)) !== null) {
 			list($name, $value) = pair($disposition, "=", null, null);
 			if ($name === "filename") {

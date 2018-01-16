@@ -64,8 +64,8 @@ $tt['last 180 days'] = 'depuis 180 jours';
 $tt['this year'] = 'cette ann&eacute;e';
 $tt['last year'] = 'l\'ann&eacute;e derni&egrave;re';
 
-$tt['Locale::now_string:=in {0}'] = "en {0}";
-$tt['Locale::now_string:={0} ago'] = "il y a {0}";
+$tt['zesk\\Locale::now_string:=in {0}'] = "en {0}";
+$tt['zesk\\Locale::now_string:={0} ago'] = "il y a {0}";
 
 $tt['seconds'] = "secondes";
 $tt['second'] = "seconde";
@@ -103,10 +103,10 @@ $tt['October'] = 'octobre';
 $tt['November'] = 'novembre';
 $tt['December'] = 'd&eacute;cembre';
 
-$tt['Locale::plural_word:=no {0}'] = 'Pas de {0}';
-$tt['Locale::plural_word:=1 {0}'] = '1 {0}';
+$tt['zesk\\Locale::plural_word:=no {0}'] = 'Pas de {0}';
+$tt['zesk\\Locale::plural_word:=1 {0}'] = '1 {0}';
 
-$tt['Control_Pager:=Showing {0} - {1} of {2}'] = "Afficher {0} &aacute; {1} de {2}";
-$tt['Control_Pager:=Show'] = "Afficher";
+$tt['zesk\\Control_Pager:=Showing {0} - {1} of {2}'] = "Afficher {0} &aacute; {1} de {2}";
+$tt['zesk\\Control_Pager:=Show'] = "Afficher";
 
 return $tt;

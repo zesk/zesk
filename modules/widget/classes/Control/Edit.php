@@ -246,7 +246,7 @@ class Control_Edit extends Control {
 	 */
 	protected function delete_redirect() {
 		$redirect = avalue($this->options, "delete_redirect");
-		$vars = arr::kprefix($this->object->variables(), "object.") + arr::kprefix($this->request->variables(), "request.");
+		$vars = ArrayTools::kprefix($this->object->variables(), "object.") + ArrayTools::kprefix($this->request->variables(), "request.");
 		$url = null;
 		if ($redirect) {
 			$redirect = map($redirect, $vars);
@@ -346,7 +346,7 @@ class Control_Edit extends Control {
 			$theme_var = "theme_$var";
 			$debug_type = "overridden";
 			if (!$this->$theme_var) {
-				$this->$theme_var = arr::suffix($hierarchy, $var);
+				$this->$theme_var = ArrayTools::suffix($hierarchy, $var);
 				$debug_type = "default";
 			}
 			if ($this->option_bool("debug_theme_paths")) {

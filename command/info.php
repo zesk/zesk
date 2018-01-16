@@ -142,13 +142,13 @@ class Command_Info extends Command {
 		$info[self::configuration_files_loaded] = to_array(avalue($app->loader->variables(), 'processed', array()));
 		
 		$module_info = $app->modules->all_hook_arguments("info", array(), array());
-		$info = array_merge($info, arr::key_value($module_info, null, "value"));
+		$info = array_merge($info, ArrayTools::key_value($module_info, null, "value"));
 		foreach ($module_info as $code_name => $settings) {
 			$human_names[$code_name] = avalue($settings, "title", $code_name);
 		}
 		
 		if (!$this->option_bool('computer-labels')) {
-			$info = arr::map_keys($info, self::$human_names);
+			$info = ArrayTools::map_keys($info, self::$human_names);
 		}
 		echo $this->render_format($info, $this->option("format"));
 	}

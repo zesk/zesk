@@ -51,7 +51,7 @@ $attempted = $data->data($prefix . 'attempted');
 if ($attempted instanceof Timestamp && $attempted->add_unit(60, Timestamp::UNIT_SECOND)->after($now)) {
 	$application->logger->warning("Only attempt download once a minute - waiting {n_seconds} {seconds}", array(
 		"n_seconds" => $n_seconds = $attempted->difference($now),
-		"seconds" => Locale::plural(__("second"), $n_seconds)
+		"seconds" => $locale->plural(__("second"), $n_seconds)
 	));
 } else {
 	if ($object->execute()) {

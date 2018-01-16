@@ -132,7 +132,7 @@ abstract class Server_Platform_UNIX extends Server_Platform {
 			if (empty($line)) {
 				continue;
 			}
-			$data = arr::rekey(array(
+			$data = ArrayTools::rekey(array(
 				self::f_group_name,
 				null,
 				self::f_group_id,
@@ -161,7 +161,7 @@ abstract class Server_Platform_UNIX extends Server_Platform {
 			if (empty($line)) {
 				continue;
 			}
-			$data = arr::rekey($columns, explode(":", $line, $n_columns) + array_fill(0, $n_columns));
+			$data = ArrayTools::rekey($columns, explode(":", $line, $n_columns) + array_fill(0, $n_columns));
 			$users[$data[self::f_user_name]] = $data;
 		}
 		return $users;

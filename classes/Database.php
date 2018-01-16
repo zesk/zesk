@@ -1339,7 +1339,7 @@ abstract class Database extends Hookable {
 		}
 		if ($config->has("db_url")) {
 			zesk()->deprecated("Using DB_URL - no longer supported after 2016");
-			$old_style = arr::kunprefix($application->configuration->to_array(), "db_url", true);
+			$old_style = ArrayTools::kunprefix($application->configuration->to_array(), "db_url", true);
 			foreach ($old_style as $name => $url) {
 				$name = empty($name) ? "default" : str::unprefix($name, '_');
 				try {

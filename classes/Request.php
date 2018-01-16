@@ -431,7 +431,7 @@ class Request extends Hookable {
 	 */
 	public function header($key = null, $value = null) {
 		if ($key === null) {
-			return arr::map_keys($this->headers, Net_HTTP::$request_headers);
+			return ArrayTools::map_keys($this->headers, Net_HTTP::$request_headers);
 		}
 		if ($value === null) {
 			return avalue($this->headers, strtolower($key), null);
@@ -570,7 +570,7 @@ class Request extends Hookable {
 	 */
 	function get_not_empty($name = null, $default = null) {
 		if ($name === null) {
-			return arr::clean($this->variables, array(
+			return ArrayTools::clean($this->variables, array(
 				"",
 				null
 			));
@@ -1117,7 +1117,7 @@ class Request extends Hookable {
 	 * @return array
 	 */
 	private static function http_headers_from_server(array $server) {
-		$server = arr::kreplace(array_change_key_case($server), "_", '-');
+		$server = ArrayTools::kreplace(array_change_key_case($server), "_", '-');
 		$headers = array();
 		foreach ($server as $key => $value) {
 			foreach (array(

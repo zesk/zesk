@@ -20,7 +20,7 @@ use zesk\Database_Exception_Table_NotFound;
 use zesk\Database_Exception_SQL;
 use zesk\Database_Table;
 use zesk\Database_Column;
-use zesk\arr;
+use zesk\ArrayTools;
 use zesk\Text;
 use zesk\PHP;
 use zesk\Kernel;
@@ -1114,7 +1114,7 @@ class Database extends \zesk\Database {
 		if (is_numeric($flags)) {
 			$flags = intval($flags);
 		} else if (is_string($flags) || is_array($flags)) {
-			$flag_tokens = arr::change_value_case(to_list($flags));
+			$flag_tokens = ArrayTools::change_value_case(to_list($flags));
 			$flags = 0;
 			foreach ($flag_tokens as $token) {
 				if (!array_key_exists($token, self::$flag_map)) {

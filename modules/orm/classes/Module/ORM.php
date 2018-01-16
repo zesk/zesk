@@ -179,7 +179,7 @@ class Module_ORM extends Module {
 	 */
 	public static function object_register_all_hooks(Application $app) {
 		$classes = $app->orm_module()->all_classes();
-		$app->classes->register(arr::collapse($classes, "class"));
+		$app->classes->register(ArrayTools::collapse($classes, "class"));
 	}
 
 	/**
@@ -202,7 +202,7 @@ class Module_ORM extends Module {
 			"class" => get_class($this),
 			"value" => $model_classes
 		));
-		$classes = $classes + arr::flip_copy($model_classes, true);
+		$classes = $classes + ArrayTools::flip_copy($model_classes, true);
 		$all_classes = $this->call_hook_arguments('classes', array(
 			$classes
 		), $classes);
@@ -213,7 +213,7 @@ class Module_ORM extends Module {
 				"name" => $name,
 				"value" => $module_classes
 			));
-			$all_classes = array_merge($all_classes, arr::flip_copy($module_classes, true));
+			$all_classes = array_merge($all_classes, ArrayTools::flip_copy($module_classes, true));
 		}
 		$this->application->classes->register(array_values($all_classes));
 		ksort($all_classes);
@@ -324,7 +324,7 @@ class Module_ORM extends Module {
 			}
 		}
 		if (count($other_updates) > 0) {
-			$results[] = "-- Other database updates:\n" . arr::join_wrap(array_keys($other_updates), "-- zesk database-schema --name ", " --update;\n");
+			$results[] = "-- Other database updates:\n" . ArrayTools::join_wrap(array_keys($other_updates), "-- zesk database-schema --name ", " --update;\n");
 		}
 		return $results;
 	}

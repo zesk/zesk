@@ -98,7 +98,7 @@ class Module_Permission extends Module {
 		}
 		$perms = $this->permissions();
 
-		$parent_classes = empty($class) ? array() : arr::change_value_case($application->classes->hierarchy($class, "Model"));
+		$parent_classes = empty($class) ? array() : ArrayTools::change_value_case($application->classes->hierarchy($class, "Model"));
 		$parent_classes[] = "*";
 		foreach ($parent_classes as $parent_class) {
 			$perm = apath($perms, array(

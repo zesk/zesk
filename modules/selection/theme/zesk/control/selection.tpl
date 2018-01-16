@@ -1,12 +1,13 @@
 <?php
 /**
- * 
+ *
  */
 namespace zesk;
 
 /* @var $this \zesk\Template */
 /* @var $zesk \zesk\Kernel */
 /* @var $application \zesk\Application */
+/* @var $locale \zesk\Locale */
 /* @var $session \zesk\Session */
 /* @var $request \zesk\Router */
 /* @var $request \zesk\Request */
@@ -18,7 +19,7 @@ $name = $this->name;
 $session = $this->session;
 /* @var $session Interface_Session */
 
-$plural_noun = Locale::plural($this->label, 2);
+$plural_noun = $locale->plural($this->label, 2);
 $singular_noun = $this->label;
 
 $format = "Control_Selection::selection_menu_title:={n} {nouns} selected";
@@ -29,8 +30,8 @@ echo HTML::tag_open('div', array(
 	'data-limit' => $this->limit,
 	'data-total' => $this->total,
 	'data-name' => $this->name,
-	'data-format' => __($format),
-	'data-zero-format' => __($zero_format),
+	'data-format' => $locale($format),
+	'data-zero-format' => $locale($zero_format),
 	'data-noun' => $this->label,
 	'data-container' => $this->container,
 	'data-target' => $this->target,
@@ -40,7 +41,7 @@ $__ = array(
 	'noun' => $singular_noun,
 	'nouns' => $plural_noun,
 	'total' => $this->total,
-	'nouns_total' => Locale::plural($singular_noun, $this->total)
+	'nouns_total' => $locale->plural($singular_noun, $this->total)
 );
 ?>
 <div class="btn-group control-selection-menu">
@@ -49,9 +50,9 @@ $__ = array(
 		<?php
 		echo HTML::span(array(
 			'class' => 'title'
-		), __($this->count === 0 ? $zero_format : $format, array(
+		), $locale($this->count === 0 ? $zero_format : $format, array(
 			'n' => $this->count,
-			'nouns' => Locale::plural($this->label, $this->count)
+			'nouns' => $locale->plural($this->label, $this->count)
 		)));
 		?>
 		<span class="caret"></span>
@@ -64,13 +65,13 @@ $__ = array(
 	echo HTML::tag('li', array(
 		'role' => 'presentation',
 		'class' => 'dropdown-header'
-	), __('Control_Selection::selection_menu_header:=Modify selection ...', $__));
-	
-	$plural_noun = Locale::plural($this->label, 2);
+	), $locale('Control_Selection::selection_menu_header:=Modify selection ...', $__));
+
+	$plural_noun = $locale->plural($this->label, 2);
 	foreach (array(
-		'none' => __('Control_Selection::clear_selection:=Clear selection', $__),
-		'add-all' => __('Control_Selection::add_all:=Add {total} matching {nouns_total}', $__),
-		'remove-all' => __('Control_Selection::remove_all:=Remove {total} matching {nouns_total}', $__)
+		'none' => $locale('Control_Selection::clear_selection:=Clear selection', $__),
+		'add-all' => $locale('Control_Selection::add_all:=Add {total} matching {nouns_total}', $__),
+		'remove-all' => $locale('Control_Selection::remove_all:=Remove {total} matching {nouns_total}', $__)
 	) as $k => $v) {
 		echo HTML::tag('li', HTML::tag('a', array(
 			'data-select-action' => $k
@@ -79,7 +80,7 @@ $__ = array(
 	echo HTML::tag('li', array(
 		'role' => 'presentation',
 		'class' => 'dropdown-header'
-	), __('... or select individual {nouns} below', array(
+	), $locale('... or select individual {nouns} below', array(
 		'nouns' => $plural_noun
 	)));
 	echo HTML::tag_close('ul');
@@ -94,7 +95,7 @@ if (is_array($this->actions) && count($this->actions) > 0) {
 		<?php
 	echo HTML::span(array(
 		'class' => 'control-selection-actions'
-	), __('Control_Selection::action_menu_title:={noun} actions', $__));
+	), $locale('Control_Selection::action_menu_title:={noun} actions', $__));
 	?>
 		<span class="caret"></span>
 	</button>
