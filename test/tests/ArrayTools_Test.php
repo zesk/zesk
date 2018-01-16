@@ -7,7 +7,7 @@ namespace zesk;
 
 use \stdClass;
 
-class arr_Test extends Test_Unit {
+class ArrayTools_Test extends Test_Unit {
 	function test_change_value_case() {
 		$a = array(
 			"a" => "ABC",
@@ -19,7 +19,7 @@ class arr_Test extends Test_Unit {
 			"b" => "bcd",
 			"c" => "def"
 		));
-		
+
 		$a = array(
 			"a" => "A",
 			"b" => "lowercasething",
@@ -47,7 +47,7 @@ class arr_Test extends Test_Unit {
 			"B" => "B",
 			"C" => "C"
 		));
-		
+
 		$x = array(
 			"one",
 			"two",
@@ -60,7 +60,7 @@ class arr_Test extends Test_Unit {
 			"two" => "two",
 			"three" => "three"
 		));
-		
+
 		$result = ArrayTools::flip_copy(array(
 			"1",
 			"2",
@@ -103,7 +103,7 @@ class arr_Test extends Test_Unit {
 			"a"
 		);
 		$this->assert_arrays_equal(ArrayTools::wrap($a, $prefix, $suffix), $a);
-		
+
 		$prefix = "a";
 		$suffix = null;
 		$a = array(
@@ -113,19 +113,19 @@ class arr_Test extends Test_Unit {
 			"a" => "ab"
 		);
 		$this->assert_arrays_equal(ArrayTools::wrap($a, $prefix, $suffix), $b, "", true, true);
-		
+
 		$prefix = "a";
 		$suffix = "bb";
 		$a = array(
 			"a" => "b"
 		);
-		
+
 		;
 		$b = array(
 			"a" => "abbb"
 		);
 		$this->assert_arrays_equal(ArrayTools::wrap($a, $prefix, $suffix), $b, "", true, true);
-		
+
 		$prefix = "a";
 		$suffix = "cc";
 		$a = array(
@@ -139,7 +139,7 @@ class arr_Test extends Test_Unit {
 			412312 => "a54cc"
 		);
 		$this->assert_arrays_equal(ArrayTools::wrap($a, $prefix, $suffix), $b, "", true, true);
-		
+
 		$arr = array(
 			"a",
 			"b",
@@ -153,7 +153,7 @@ class arr_Test extends Test_Unit {
 			"{b}",
 			"{c}"
 		);
-		
+
 		$this->assert_arrays_equal($result, $result_correct);
 	}
 	function test_kprefix() {
@@ -167,7 +167,7 @@ class arr_Test extends Test_Unit {
 			"Dudeb" => "b",
 			"Dudec" => "c"
 		);
-		
+
 		$this->assert_arrays_equal(ArrayTools::kprefix($source, "Dude"), $dest, "ArrayTools::kprefix");
 	}
 	function test_suffix() {
@@ -245,7 +245,7 @@ class arr_Test extends Test_Unit {
 			2 => 'c',
 			3 => 'd'
 		));
-		
+
 		$a = array(
 			'a',
 			'B',
@@ -309,12 +309,12 @@ class arr_Test extends Test_Unit {
 			"a" => "a",
 			"y" => "y"
 		), "basic before", true, true);
-		
+
 		$arr2 = array(
 			"p" => "p",
 			"q" => "q"
 		);
-		
+
 		$this->assert_arrays_equal(ArrayTools::insert($arr1, $key, $arr2, false), array(
 			"x" => "x",
 			"a" => "a",
@@ -374,7 +374,7 @@ class arr_Test extends Test_Unit {
 		$str = "User";
 		$result = ArrayTools::kunsuffix($arr, $str);
 		$this->assert_arrays_equal($result, $result_correct);
-		
+
 		$arr = array(
 			"UserIDUser" => "UserUser",
 			"UserNameUser" => "UserUser",
@@ -398,23 +398,23 @@ class arr_Test extends Test_Unit {
 			"three" => 3,
 			"four" => 4
 		);
-		
+
 		$key_map = array(
 			"one" => "un",
 			"two" => "deux",
 			"three" => "trois"
 		);
-		
+
 		$result_correct = array(
 			"un" => 1,
 			"deux" => 2,
 			"trois" => 3,
 			"four" => 4
 		);
-		
+
 		$result = ArrayTools::map_keys($array, $key_map);
 		$this->assert_arrays_equal($result, $result_correct);
-		
+
 		$a = array(
 			"a" => "a",
 			"b" => "b",
@@ -456,7 +456,7 @@ class arr_Test extends Test_Unit {
 			"four" => 4
 		);
 		$array = array_flip($array);
-		
+
 		$result_correct = array(
 			"un" => 1,
 			"deux" => 2,
@@ -464,13 +464,13 @@ class arr_Test extends Test_Unit {
 			"four" => 4
 		);
 		$result_correct = array_flip($result_correct);
-		
+
 		$value_map = array(
 			"one" => "un",
 			"two" => "deux",
 			"three" => "trois"
 		);
-		
+
 		$result = ArrayTools::map_values($array, $value_map);
 		$this->assert_arrays_equal($result, $result_correct);
 	}
@@ -500,7 +500,7 @@ class arr_Test extends Test_Unit {
 			)
 		);
 		$result = ArrayTools::merge($a1, $a2);
-		
+
 		$correct_result = array(
 			'hello' => array(
 				'now' => 'yes',
@@ -540,7 +540,7 @@ class arr_Test extends Test_Unit {
 			"Homing-Pigeon-5"
 		);
 		$this->assert_arrays_equal($result, $result_correct);
-		
+
 		$a = array(
 			"Boy",
 			"Girl",
@@ -568,7 +568,7 @@ class arr_Test extends Test_Unit {
 			"Plan",
 			"gooCmon"
 		);
-		
+
 		$this->assert_arrays_equal($result, $result_correct);
 	}
 	function test_unsuffix() {
@@ -637,7 +637,7 @@ class arr_Test extends Test_Unit {
 				"9"
 			)
 		));
-		
+
 		$arr = array(
 			array(
 				"1",
@@ -671,7 +671,7 @@ class arr_Test extends Test_Unit {
 				"8"
 			)
 		));
-		
+
 		$result2 = ArrayTools::transpose($result);
 		$this->assert_arrays_equal($result2, $arr);
 	}
@@ -729,7 +729,7 @@ class arr_Test extends Test_Unit {
 			"1",
 			2 => "4"
 		));
-		
+
 		$include = array(
 			0,
 			2
@@ -739,7 +739,7 @@ class arr_Test extends Test_Unit {
 			"1",
 			2 => "4"
 		));
-		
+
 		$include = array(
 			"0",
 			"2"
@@ -749,7 +749,7 @@ class arr_Test extends Test_Unit {
 			"1",
 			2 => "4"
 		));
-		
+
 		// $x = null;
 		// $keys = null;
 		// $got_exception = false;
@@ -759,20 +759,20 @@ class arr_Test extends Test_Unit {
 		// $got_exception = true;
 		// }
 		// $this->assert($got_exception === true, "Exception should be thrown");
-		
+
 		$x = array(
 			"A" => "Kent",
 			"b" => "Ruler",
 			"C" => "another",
 			3 => "dogs"
 		);
-		
+
 		$a = $x;
 		$b = "A;b;C;3";
 		$c = $x;
 		$r = ArrayTools::filter($a, $b);
 		$this->assert_arrays_equal($r, $c, __FILE__ . ":" . __LINE__);
-		
+
 		$a = $x;
 		$b = "a;B;c;3";
 		$c = array(
@@ -780,7 +780,7 @@ class arr_Test extends Test_Unit {
 		);
 		$r = ArrayTools::filter($a, $b);
 		$this->assert_arrays_equal($r, $c, __FILE__ . ":" . __LINE__);
-		
+
 		$a = $x;
 		$b = "A;3";
 		$c = $x;
@@ -788,7 +788,7 @@ class arr_Test extends Test_Unit {
 		unset($c['b']);
 		$r = ArrayTools::filter($a, $b);
 		$this->assert_arrays_equal($r, $c, __FILE__ . ":" . __LINE__);
-		
+
 		$a = array(
 			"A" => "B",
 			"B",
@@ -805,7 +805,7 @@ class arr_Test extends Test_Unit {
 		$haystack = null;
 		$needles = null;
 		ArrayTools::find($haystack, $needles);
-		
+
 		$exclude_files = array(
 			'cc_form.php',
 			'want-to-be-complete',
@@ -848,7 +848,7 @@ class arr_Test extends Test_Unit {
 		$this->assert(ArrayTools::is_assoc($array) === false);
 		$array[-1] = "";
 		$this->assert(ArrayTools::is_assoc($array) === true);
-		
+
 		$mixed = null;
 		$this->assert(ArrayTools::is_list($mixed) === false);
 		$this->assert(ArrayTools::is_list(false) === false);
@@ -949,7 +949,7 @@ class arr_Test extends Test_Unit {
 			5,
 			9
 		))) === true);
-		
+
 		$faker = new faker();
 		$faker->__set('0', 'zero');
 		$faker->__set('1', 'one');
@@ -983,7 +983,7 @@ class arr_Test extends Test_Unit {
 		$result = ArrayTools::max($a, $default);
 		$this->assert($result === "513234");
 		$this->assert("$result === 513234");
-		
+
 		$a = array(
 			"1",
 			2,
@@ -1010,7 +1010,7 @@ class arr_Test extends Test_Unit {
 		);
 		$default = null;
 		$this->assert(ArrayTools::min($a, $default) === -51235412);
-		
+
 		$a = array(
 			"1",
 			2,
@@ -1056,17 +1056,17 @@ class arr_Test extends Test_Unit {
 			"lonGs",
 			"sentance"
 		);
-		
+
 		$this->assert(ArrayTools::stristr($haystack, $needles) === false);
 		$haystack = "A rather long senaatence";
 		$this->assert(ArrayTools::stristr($haystack, $needles) === 0);
-		
+
 		$haystack = "A rather long sentence rathI";
 		$this->assert(ArrayTools::stristr($haystack, $needles) === 1);
-		
+
 		$haystack = "lonGSA rather long sentence";
 		$this->assert(ArrayTools::stristr($haystack, $needles) === 2);
-		
+
 		$haystack = "A rather long sentance";
 		$this->assert(ArrayTools::stristr($haystack, $needles) === 3);
 	}
@@ -1077,19 +1077,19 @@ class arr_Test extends Test_Unit {
 			"lonGs",
 			"sentance"
 		);
-		
+
 		$haystack = "A rather long sentence";
 		$this->assert(ArrayTools::strstr($haystack, $needles) === false);
-		
+
 		$haystack = "A rather long senaatence";
 		$this->assert(ArrayTools::strstr($haystack, $needles) === false);
-		
+
 		$haystack = "A rather long sentence rathI";
 		$this->assert(ArrayTools::strstr($haystack, $needles) === 1);
-		
+
 		$haystack = "lonGSA rather long sentence";
 		$this->assert(ArrayTools::strstr($haystack, $needles) === false);
-		
+
 		$haystack = "A rather long sentance";
 		$this->assert(ArrayTools::strstr($haystack, $needles) === 3);
 	}
