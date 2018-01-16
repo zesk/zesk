@@ -286,7 +286,7 @@ abstract class Command extends Hookable implements Logger\Handler {
 		}
 		$result = array(
 			'files' => $files,
-			'default' => $default = File::find_first($paths, $file)
+			'default' => $default = File::find_first($files)
 		);
 		if (empty($default)) {
 			$result['default'] = path(first($paths), $file);
@@ -323,39 +323,36 @@ abstract class Command extends Hookable implements Logger\Handler {
 	 */
 	protected function configure($name, $create = false) {
 		$configure_options = $this->_configuration_config($name);
+		$this->config = $filename = $configure_options['default'];
+		if ($this->option_bool("no-config")) {
+			$this->verbose_log("Configuration file {name} not loaded due to --no-config option", array(
+				"name" => $name
+			));
+			return $filename;
+		}
+		if (empty($filename)) {
+			throw new Exception_Parameter("No configuration file name for {name}", array(
+				"name" => $name,
+				"create" => $create
+			));
+		}
 
 		// Load global include
 		$app = $this->application;
 		$app->configure_include($configure_options['files']);
-
 		$this->configuration = $app->reconfigure();
 
 		$this->inherit_global_options();
-		$this->config = $config = $configure_options['default'];
 		$config_settings = null;
-		$exists = file_exists($config);
+		$exists = file_exists($filename);
 		if ($exists || $create) {
-			if (empty($config)) {
-				throw new Exception_Parameter("No configuration file name for {name}", array(
-					"name" => $name,
-					"create" => $create
-				));
-			}
 			if ($exists) {
 				$this->verbose_log("Loading {name} configuration from {config}", array(
 					"name" => $name,
-					"config" => $config
+					"config" => $filename
 				));
 			} else {
-				if (!is_writable(dirname($config))) {
-					$this->error("Can not write {name} configuration file ({config}) - directory is not writable", compact("name", "config"));
-				} else {
-					$this->verbose_log("Creating {name} configuration file ({config})", array(
-						"name" => $name,
-						"config" => $config
-					));
-					file_put_contents($config, "# Created $name on " . date('Y-m-d H:i:s') . "\n");
-				}
+				$this->write_default_configuration($name, $filename);
 			}
 			$this->debug = $this->option_bool('debug', $this->debug);
 		}
@@ -365,7 +362,24 @@ abstract class Command extends Hookable implements Logger\Handler {
 			$this->log($this->configuration);
 		}
 		$app->configured();
-		return $config;
+		return $filename;
+	}
+
+	/**
+	 * Write the default configuration for this command (as requested with $create = true)
+	 * @param unknown $name
+	 * @param unknown $filename
+	 */
+	protected function write_default_configuration($name, $filename) {
+		if (!is_writable(dirname($filename))) {
+			$this->error("Can not write {name} configuration file ({filename}) - directory is not writable", compact("name", "filename"));
+		} else {
+			$this->verbose_log("Creating {name} configuration file ({filename})", array(
+				"name" => $name,
+				"filename" => $filename
+			));
+			file_put_contents($filename, "# Created $name on " . date('Y-m-d H:i:s') . "\n");
+		}
 	}
 
 	/**
@@ -410,17 +424,17 @@ abstract class Command extends Hookable implements Logger\Handler {
 	/**
 	 * Old-school way to supply options
 	 */
-	protected function optHelp() {
+	protected final function optHelp() {
 		return $this->option_help;
 	}
 
 	/**
 	 * Old-school way to supply options
 	 */
-	protected function optFormat() {
+	protected final function optFormat() {
 		return $this->option_types;
 	}
-	protected function optDefaults() {
+	protected final function optDefaults() {
 		return $this->option_defaults;
 	}
 	protected function parse_argument($arg_name, $arg_type) {

@@ -53,6 +53,7 @@ abstract class Command_Base extends Command {
 		$this->option_types['log-level'] = 'string';
 		$this->option_types['debug'] = 'boolean';
 		$this->option_types['debug-config'] = 'boolean';
+		$this->option_types['no-config'] = 'boolean';
 		$this->option_types['verbose'] = 'boolean';
 		$this->option_types['ansi'] = 'boolean';
 		$this->option_types['no-ansi'] = 'boolean';
@@ -64,6 +65,7 @@ abstract class Command_Base extends Command {
 		$this->option_help['severity'] = "Maximum log severity to output";
 		$this->option_help['debug'] = "Debugging logging enabled";
 		$this->option_help['debug-config'] = "Output the configuration load order similar to the zesk config command.";
+		$this->option_help['no-config'] = "Do not load the configuration for this command when $this->configure(\"name\") is called";
 		$this->option_help['verbose'] = 'Output more messages to assist in debugging problems, or just for fun.';
 		$this->option_help['ansi'] = 'Force ANSI colors in output';
 		$this->option_help['no-ansi'] = 'Disable ANSI colors in output';

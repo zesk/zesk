@@ -1216,7 +1216,7 @@ class File {
 	 * @return string Full path of found file, or null if not found
 	 * @see self::find_directory
 	 */
-	public static function find_first(array $paths, $file) {
+	public static function find_first(array $paths, $file = null) {
 		if (is_array($file)) {
 			foreach ($paths as $path) {
 				foreach ($file as $f) {

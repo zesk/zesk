@@ -253,6 +253,7 @@ class Command_Loader {
 				"class" => $class
 			));
 		}
+		$application->command($command_object);
 		$result = $command_object->go();
 		$argv = $command_object->arguments_remaining();
 		$this->debug("Remaining class arguments: " . json_encode($argv));
@@ -448,7 +449,7 @@ class Command_Loader {
 			if ($arg === null) {
 				return false;
 			}
-			$this->usage("Zesk not initialized correctly.\n\n    $arg\n\nmust contain reference to:\n\n    require_once '" . ZESK_ROOT . "zesk.inc';\n\n");
+			$this->usage("Zesk not initialized correctly.\n\n    $arg\n\nmust contain reference to:\n\n    require_once '" . ZESK_ROOT . "autoload.php';\n\n");
 		}
 		$this->zesk_loaded = true;
 		$zesk = zesk();
@@ -595,7 +596,7 @@ class Command_Loader {
 			$this->usage("$arg is not a directory to --search from");
 		}
 		$this->search[] = $arg;
-		if (class_exists('zesk\Kernel')) {
+		if (class_exists('zesk\\Kernel')) {
 			zesk()->logger->warning("--search is ignored - zesk application is already loeded");
 		}
 		return $argv;

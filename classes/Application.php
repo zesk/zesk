@@ -483,6 +483,20 @@ class Application extends Hookable implements Interface_Theme {
 	}
 
 	/**
+	 *
+	 * @param Command $set
+	 * @return \zesk\Application|\zesk\Command
+	 */
+	public function command(Command $set = null) {
+		if ($set !== null) {
+			$this->command = $set;
+			$this->call_hook("command", $set);
+			return $this;
+		}
+		return $this->command;
+	}
+
+	/**
 	 * Override in subclasses if it is stored in a different way.
 	 *
 	 * @return mixed|string|array
