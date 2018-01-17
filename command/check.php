@@ -407,7 +407,7 @@ class Command_Check extends Command_Iterator_File {
 					return;
 				}
 			} else if ($this->option_bool('safe')) {
-				$ext = file::extension($path);
+				$ext = File::extension($path);
 				$path = StringTools::unsuffix($path, ".$ext") . ".new.$ext";
 			}
 			$this->verbose_log("Writing $path");

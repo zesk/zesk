@@ -350,7 +350,7 @@ class File {
 	public static function atomic_put($path, $data) {
 		$fp = fopen($path, "w+");
 		if (!is_resource($fp)) {
-			throw new Exception_File_NotFound($path, "file::atomic_put not found");
+			throw new Exception_File_NotFound($path, "File::atomic_put not found");
 		}
 		$until = time() + 10;
 		while (!flock($fp, LOCK_EX | LOCK_NB)) {
@@ -379,7 +379,7 @@ class File {
 		if ($data !== null) {
 			return self::atomic_put($path, serialize($data));
 		}
-		if (($result = file::contents($path, null)) !== null) {
+		if (($result = File::contents($path, null)) !== null) {
 			$result = unserialize($result);
 			if ($result === false) {
 				return null;
@@ -860,7 +860,7 @@ class File {
 	 *
 	 * Performance-related setting
 	 *
-	 * @global integer file::trim::maximum_file_size Size of file to use alternate method for
+	 * @global integer File::trim::maximum_file_size Size of file to use alternate method for
 	 * @return integer
 	 */
 	public static function trim_maximum_file_size() {
@@ -883,7 +883,7 @@ class File {
 	 *
 	 * Performance-related setting
 	 *
-	 * @global integer file::trim::read_buffer_size Size of file to use alternate method for
+	 * @global integer File::trim::read_buffer_size Size of file to use alternate method for
 	 * @return integer
 	 */
 	public static function trim_read_buffer_size() {
@@ -914,8 +914,8 @@ class File {
 	 * @throws Exception_File_NotFound
 	 * @throws Exception_File_Create
 	 * @throws Exception_File_Permission
-	 * @global integer file::trim::maximum_file_size Size of file to use alternate method for
-	 * @global integer file::trim::read_buffer_size Size of file to use alternate method for
+	 * @global integer File::trim::maximum_file_size Size of file to use alternate method for
+	 * @global integer File::trim::read_buffer_size Size of file to use alternate method for
 	 * @return boolean
 	 */
 	public static function trim($path, $offset = 0, $length = null) {
@@ -1111,7 +1111,7 @@ class File {
 		if (!$new_target) {
 			unlink($target_temp);
 		} else {
-			file::unlink($new_target);
+			File::unlink($new_target);
 			@rename($target_temp, $new_target);
 		}
 		return true;
@@ -1142,11 +1142,11 @@ class File {
 	 * @return string $target returned upon success
 	 */
 	public static function copy_uid($source, $target) {
-		$target_owner = file::stat($target, 'owner');
-		$source_owner = file::stat($source, 'owner');
+		$target_owner = File::stat($target, 'owner');
+		$source_owner = File::stat($source, 'owner');
 		if ($target_owner['uid'] !== $source_owner['uid']) {
 			if (!@chown($target, $source_owner['uid'])) {
-				throw new Exception_File_Permission($target, "file::copy_owner({source}, {target}) chown({target}, {gid})", array(
+				throw new Exception_File_Permission($target, "File::copy_owner({source}, {target}) chown({target}, {gid})", array(
 					"source" => $source,
 					"target" => $target
 				));
@@ -1165,11 +1165,11 @@ class File {
 	 * @return string $target returned upon success
 	 */
 	public static function copy_gid($source, $target) {
-		$target_owner = file::stat($target, 'owner');
-		$source_owner = file::stat($source, 'owner');
+		$target_owner = File::stat($target, 'owner');
+		$source_owner = File::stat($source, 'owner');
 		if ($target_owner['gid'] !== $source_owner['gid']) {
 			if (!@chgrp($target, $source_owner['gid'])) {
-				throw new Exception_File_Permission($target, "file::copy_owner({source}, {target}) chgrp({target}, {gid})", array(
+				throw new Exception_File_Permission($target, "File::copy_owner({source}, {target}) chgrp({target}, {gid})", array(
 					"source" => $source,
 					"target" => $target
 				));

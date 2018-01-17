@@ -142,7 +142,7 @@ standby="' . $standby_string . '" type="application/x-oleobject" width="' . $wid
 		return $result;
 	}
 	function video_html($path) {
-		$ext = strtolower(file::extension($path));
+		$ext = strtolower(File::extension($path));
 		if (in_array($ext, $this->option_list("flash_player_extensions", "flv"))) {
 			return $this->flash_player_html($path);
 		}

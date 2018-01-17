@@ -123,7 +123,7 @@ class Server_Files_Simulate extends Server_Files {
 			return false;
 		}
 		$this->dirs[$path]['mode'] = $mode;
-		$this->simlog("chmod {0} {1}", file::mode_to_octal($mode), $path);
+		$this->simlog("chmod {0} {1}", File::mode_to_octal($mode), $path);
 		return true;
 	}
 	function stat($path, $section = null) {
@@ -133,7 +133,7 @@ class Server_Files_Simulate extends Server_Files {
 		if (array_key_exists($path, $this->dir)) {
 			throw new Exception_Semantics("Can't stat unavailable directory");
 		}
-		return file::stat($path, $section);
+		return File::stat($path, $section);
 	}
 	function copy($source, $dest) {
 		$this->files[$dest] = array(

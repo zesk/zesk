@@ -134,7 +134,7 @@ class Command_Database_Dump extends Command_Base {
 			$where = map($target, $map);
 			$where = Timestamp::now()->format($where);
 			$suffix = "";
-			if ($compress || file::extension($where) === "gz") {
+			if ($compress || File::extension($where) === "gz") {
 				if (!$compress) {
 					$this->application->logger->warning("target dump file has .gz extension, so ignoring --compress flag");
 				} else {

@@ -285,7 +285,7 @@ class Net_HTTP_Client extends Hookable {
 		if ($set === null) {
 			return $this->destination;
 		}
-		$this->destination = file::validate_writable($set);
+		$this->destination = File::validate_writable($set);
 		return $this;
 	}
 	/**
@@ -634,7 +634,7 @@ class Net_HTTP_Client extends Hookable {
 				$this->parseHeaders($headers);
 			}
 			unlink($dest_headers_name);
-			file::trim($this->destination, strlen($all_headers));
+			File::trim($this->destination, strlen($all_headers));
 		} else if ($this->want_headers()) {
 			$this->parseHeaders();
 		}

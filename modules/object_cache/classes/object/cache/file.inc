@@ -35,7 +35,7 @@ class Object_Cache_File extends Object_Cache {
 		}
 		if (is_array($id)) {
 			ksort($id);
-			$id = file::name_clean(JSON::encode($id));
+			$id = File::name_clean(JSON::encode($id));
 		}
 		return $this->cache_path(strtolower(get_class($object)) . "-$id", $create);
 	}
@@ -70,7 +70,7 @@ class Object_Cache_File extends Object_Cache {
 	public function invalidate(ORM $object, $key = null) {
 		$path = $this->object_path($object);
 		if ($key !== null) {
-			file::unlink(path($path, self::hash_from_key($key) . ".cache"));
+			File::unlink(path($path, self::hash_from_key($key) . ".cache"));
 		} else if (is_dir($path)) {
 			Directory::delete($path);
 		}

@@ -42,7 +42,7 @@ class Server_Configuration_Files extends Server_Configuration {
 	private function _load_aliases() {
 		$this->host_aliases = array();
 		try {
-			$alias_file = file::lines(path($this->host_path, "aliases"));
+			$alias_file = File::lines(path($this->host_path, "aliases"));
 			$this->host_aliases = ArrayTools::trim_clean(ArrayTools::ktrim(ArrayTools::kpair($alias_file), " \t"));
 		} catch (Exception_File_NotFound $e) {
 		}

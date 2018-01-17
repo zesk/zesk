@@ -514,7 +514,7 @@ class Response extends Hookable {
 		if ($name === null) {
 			$name = basename($file);
 		}
-		$name = file::name_clean($name);
+		$name = File::name_clean($name);
 		if ($type === null) {
 			$type = "attachment";
 		}

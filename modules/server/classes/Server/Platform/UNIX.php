@@ -126,7 +126,7 @@ abstract class Server_Platform_UNIX extends Server_Platform {
 	}
 	protected function _load_group_file($file = '/etc/group') {
 		$groups = array();
-		foreach (file::lines($file) as $line) {
+		foreach (File::lines($file) as $line) {
 			list($line) = pair($line, "#", $line, null);
 			$line = trim($line);
 			if (empty($line)) {
@@ -154,7 +154,7 @@ abstract class Server_Platform_UNIX extends Server_Platform {
 			self::f_user_shell
 		);
 		$n_columns = count($columns);
-		foreach (file::lines($file) as $line) {
+		foreach (File::lines($file) as $line) {
 			// publish:x:1001:1000:Publish User:/publish:/bin/bash
 			list($line) = pair($line, "#", $line, null);
 			$line = trim($line);

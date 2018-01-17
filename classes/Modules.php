@@ -616,7 +616,7 @@ class Modules {
 						}
 					}
 					if ($key) {
-						switch ($ext = file::extension($file)) {
+						switch ($ext = File::extension($file)) {
 							case "phps":
 								$data = unserialize($contents);
 								break;

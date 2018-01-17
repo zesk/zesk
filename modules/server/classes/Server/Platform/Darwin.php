@@ -382,7 +382,7 @@ class Server_Platform_Darwin extends Server_Platform_UNIX {
 	 */
 	private function _login_script_path($user, $name) {
 		$path = $this->_userdir_launch_agents($user, true);
-		$name = file::name_clean($name);
+		$name = File::name_clean($name);
 		$name = "com.zesk." . $name;
 		
 		return path($path, $name . '.plist');
@@ -428,7 +428,7 @@ class Server_Platform_Darwin extends Server_Platform_UNIX {
 		$filename = $this->_login_script_path($user, $name);
 		
 		$path = $this->_userdir_launch_agents($user);
-		$name = file::name_clean($name);
+		$name = File::name_clean($name);
 		$name = "com.zesk." . $name;
 		
 		$filename = path($path, $name . '.plist');
@@ -457,7 +457,7 @@ class Server_Platform_Darwin extends Server_Platform_UNIX {
 				"filename" => $filename
 			));
 		}
-		file::put($filename, $contents);
+		File::put($filename, $contents);
 		$this->exec("laumchctl load -D user {0}", $path);
 		
 		return true;
@@ -475,12 +475,12 @@ class Server_Platform_Darwin extends Server_Platform_UNIX {
 	}
 	function login_script_uninstall($user, $name) {
 		$path = $this->_userdir_launch_agents($user);
-		$name = file::name_clean($name);
+		$name = File::name_clean($name);
 		$name = "com.zesk." . $name;
 		
 		$filename = path($path, $name . '.plist');
 		
-		return file::unlink($filename);
+		return File::unlink($filename);
 	}
 }
 /*

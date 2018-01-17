@@ -1008,7 +1008,7 @@ class Database extends \zesk\Database {
 	public function get_lock($name, $wait_seconds = 0) {
 		$lock_path = $this->_lock_path();
 		Directory::depend($lock_path);
-		$name = file::name_clean($name);
+		$name = File::name_clean($name);
 		$lock_file = path($lock_path, $name);
 		$f = fopen($lock_file, "w+");
 		$timer = new Timer();
@@ -1040,7 +1040,7 @@ class Database extends \zesk\Database {
 	public function release_lock($name) {
 		$lock_path = self::_lock_path();
 		Directory::depend($lock_path);
-		$name = file::name_clean($name);
+		$name = File::name_clean($name);
 		if (array_key_exists($name, $this->locks)) {
 			$f = $this->locks[$name];
 			flock($f, LOCK_UN);

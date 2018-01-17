@@ -59,7 +59,7 @@ class Net_File_Client extends Net_Client implements Net_FileSystem {
 				continue;
 			}
 			$full_path = path($path, $name);
-			$stats = file::stat($full_path);
+			$stats = File::stat($full_path);
 			$entry['mode'] = $stats['perms']['string'];
 			$entry['type'] = $stats['filetype']['type'];
 			$entry['owner'] = $stats['owner']['owner'];
@@ -119,7 +119,7 @@ class Net_File_Client extends Net_Client implements Net_FileSystem {
 		$entry = array();
 		$entry['name'] = basename($path);
 		try {
-			$stats = file::stat($path);
+			$stats = File::stat($path);
 		} catch (Exception_File_NotFound $e) {
 			return $entry + array(
 				'type' => null

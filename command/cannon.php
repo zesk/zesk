@@ -241,8 +241,8 @@ class Command_Cannon extends Command_Base {
 			return count($lines);
 		}
 		if ($duplicate) {
-			$ext = file::extension($file);
-			$dupfile = file::extension_change($file, ".cannon.$ext");
+			$ext = File::extension($file);
+			$dupfile = File::extension_change($file, ".cannon.$ext");
 			$this->verbose_log("Writing $dupfile: " . $locale->plural_word("change", count($lines)));
 			file_put_contents($dupfile, strtr($contents, array(
 				$search => $replace

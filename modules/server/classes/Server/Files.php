@@ -63,7 +63,7 @@ abstract class Server_Files {
 	/**
 	 * Get file system stats
 	 *
-	 * @see file::stat
+	 * @see File::stat
 	 * @param string $path        	
 	 * @param string $section
 	 *        	Section to retrieve

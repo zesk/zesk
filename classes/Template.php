@@ -452,7 +452,7 @@ class Template implements Interface_Theme {
 		return $this->return;
 	}
 	function object_name() {
-		$contents = file::contents($this->_path, null);
+		$contents = File::contents($this->_path, null);
 		$matches = null;
 		if (!preg_match('/Name:\s*\"([^\"]+)\"/', $contents, $matches)) {
 			return basename($this->_path);

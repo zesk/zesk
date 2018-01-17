@@ -43,7 +43,7 @@ class Server_Configuration_Client extends Server_Configuration {
 		 * Did this expire?
 		 */
 		// 1 day default
-		$expire = intval(file::contents($cache_path, "$file.expire", filemtime($full_path) + 86400));
+		$expire = intval(File::contents($cache_path, "$file.expire", filemtime($full_path) + 86400));
 		if (time() < $expire) {
 			return $full_path;
 		}

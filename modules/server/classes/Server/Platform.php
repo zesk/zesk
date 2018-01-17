@@ -772,12 +772,12 @@ abstract class Server_Platform extends Hookable {
 		if (is_int($permissions)) {
 			if ($permissions !== $options['mode']) {
 				if (!$this->files->chmod($path, $permissions)) {
-					throw new Server_Exception_Permission("Unable to change mode on $path to $permissions (" . file::mode_to_string($permissions) . ")");
+					throw new Server_Exception_Permission("Unable to change mode on $path to $permissions (" . File::mode_to_string($permissions) . ")");
 				}
 			}
 		} else if (is_string($permissions)) {
 			if ($permissions !== $options['string']) {
-				$options_int = file::string_to_mode($permissions);
+				$options_int = File::string_to_mode($permissions);
 				if (!@chmod($path, $options_int)) {
 					throw new Server_Exception_Permission("Unable to change mode on $path to $permissions ($options_int)");
 				}

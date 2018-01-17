@@ -364,7 +364,7 @@ class Database_Test extends Test_Unit {
 	function test_dump() {
 		$db = $this->application->database_factory();
 
-		$db->dump(file::temporary(".dbdump"));
+		$db->dump(File::temporary($this->sandbox(), ".dbdump"));
 	}
 	function test_fetch_array() {
 		$db = $this->application->database_factory();

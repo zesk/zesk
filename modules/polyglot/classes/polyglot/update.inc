@@ -175,12 +175,12 @@ class PolyGlot_Update extends ORM {
 				self::write_translation_line($f, $temp_file, $original, $translation);
 			}
 		} catch (Exception $e) {
-			file::unlink($temp_file);
+			File::unlink($temp_file);
 			throw $e;
 		}
 		fwrite($f, "\nreturn \$tt;\n");
-		file::move_atomic($temp_file, $target_file);
-		file::unlink($temp_file);
+		File::move_atomic($temp_file, $target_file);
+		File::unlink($temp_file);
 		return true;
 	}
 }

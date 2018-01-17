@@ -96,15 +96,15 @@ abstract class Server_Configuration extends Hookable {
 	private function _validate_type_before($type, $name, $value) {
 		switch ($type) {
 			case "path":
-				return file::path_check($value) !== false;
+				return File::path_check($value) !== false;
 			case "file":
-				return file::path_check($value) !== false;
+				return File::path_check($value) !== false;
 			case "package":
 				return $this->packager->package_exists($value);
 			case "feature":
 				return $this->platform->feature_exists($name);
 			case "executable":
-				return file::path_check($value) !== false;
+				return File::path_check($value) !== false;
 			case "user":
 				return $this->platform->validate_user_name($value);
 			case "group":

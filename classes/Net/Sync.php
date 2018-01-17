@@ -49,7 +49,7 @@ class Net_Sync extends Options {
 		if (!isset($options['timeout'])) {
 			$options['timeout'] = 2 * 60 * 1000;
 		}
-		$path = file::validate_writable($path);
+		$path = File::validate_writable($path);
 		$time_to_live = avalue($options, 'time_to_live', 86400); // Once a day
 		if (is_file($path) && $time_to_live > 0) {
 			$mtime = filemtime($path);
@@ -86,7 +86,7 @@ class Net_Sync extends Options {
 		if ($milliseconds) {
 			$client->timeout($milliseconds);
 		}
-		$temp_file_name = file::temporary();
+		$temp_file_name = File::temporary();
 		$client->follow_location(true);
 		if ($user_agent) {
 			$client->user_agent($user_agent);
@@ -320,7 +320,7 @@ class Net_Sync extends Options {
 				} else if ($type === 'file') {
 					$stats['files']++;
 					if ($this->_should_sync($src_entry, $dst_entry, $check_mtime)) {
-						$temp = file::temporary();
+						$temp = File::temporary();
 						$logger->debug("Temporary file: $temp");
 						try {
 							$src->download($full_src_path, $temp);

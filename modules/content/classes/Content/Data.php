@@ -218,7 +218,7 @@ class Content_Data extends ORM {
 			$this->temp_path = null;
 		}
 		if (!$this->temp_path) {
-			$this->temp_path = file::temporary();
+			$this->temp_path = File::temporary();
 			file_put_contents($this->temp_path, $this->data);
 		}
 		return $this->temp_path;
@@ -328,7 +328,7 @@ class Content_Data extends ORM {
 				$data_path = $this->data['data_path'];
 				$old_path = path($data_path, $path);
 				if (file_exists($old_path)) {
-					if (file::fsmove($old_path, $this_path)) {
+					if (File::fsmove($old_path, $this_path)) {
 						$this->application->logger->notice("Content_data({ID}) Moved {old_path} to {new_path}", array(
 							'old_path' => $old_path,
 							"new_path" => $this_path
