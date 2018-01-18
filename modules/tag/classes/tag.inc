@@ -28,10 +28,14 @@ class Tag extends ORM {
 		if (count($ids) === 0) {
 			return 0;
 		}
-		return $application->query_delete(__CLASS__)->where(array(
+		return $application->orm_registry(__CLASS__)
+			->query_delete()
+			->where(array(
 			"object_class" => $class,
 			"object_id" => $ids
-		))->execute();
+		))
+			->exec()
+			->affected_rows();
 	}
 
 	/**
@@ -47,7 +51,7 @@ class Tag extends ORM {
 			->to_array(null, "object_class");
 		foreach ($classes as $class) {
 			/* @var $class_object Class_ORM */
-			$class_object = $application->class_object($class);
+			$class_object = $application->class_orm_registry($class);
 			$id_column = $class_object->id_column;
 			$id_iterator = $application->orm_registry(__CLASS__)
 				->query_select("X")

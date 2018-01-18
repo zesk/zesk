@@ -14,7 +14,7 @@ namespace zesk;
 /**
  * Sessions inherit some options from the global Application object in the initialize() function
  *
- * @see Class_Session_Database
+ * @see Class_Session_ORM
  * @property id $id
  * @property string $cookie
  * @property boolean $is_one_time
@@ -223,7 +223,7 @@ class Session_ORM extends ORM implements Interface_Session {
 			->query_select()
 			->where($where)
 			->orm_iterator();
-		/* @var $session Session_Database */
+		/* @var $session Session_ORM */
 		foreach ($iter as $session) {
 			$session->logout_expire();
 		}

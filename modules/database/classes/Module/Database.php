@@ -190,6 +190,15 @@ class Module_Database extends Module {
 	}
 
 	/**
+	 * Return all connected databases in the system
+	 *
+	 * @return Database[]
+	 */
+	public function databases() {
+		return $this->databases;
+	}
+
+	/**
 	 * Reconned databases on fork
 	 */
 	public function disconnect_all() {
@@ -203,7 +212,7 @@ class Module_Database extends Module {
 	/**
 	 * Reconned databases on fork
 	 */
-	public static function reconnect_all() {
+	public function reconnect_all() {
 		/* @var $database Database */
 		foreach ($this->databases as $url => $database) {
 			$this->application->logger->info("Reconnecting database: {url}", array(
@@ -283,6 +292,9 @@ class Module_Database extends Module {
 	 * @return Database
 	 */
 	public function database_factory($mixed = null, array $options = array()) {
+		return $this->database_registry($mixed, $options);
+	}
+	public function database_registry($mixed = null, array $options = array()) {
 		$application = $this->application;
 		$original = $mixed;
 		if (URL::valid($mixed)) {

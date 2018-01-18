@@ -54,7 +54,7 @@ class Health_Event extends ORM {
 		$event['when'] = $when = gmdate("Y-m-d H:i:s", $microtime);
 		$event['when_msec'] = $msec = ($microtime - intval($microtime)) * 1000;
 		try {
-			$event['server'] = Server::singleton()->id();
+			$event['server'] = Server::singleton($application)->id();
 		} catch (Exception $e) {
 			error_log("Error while logging event " . __METHOD__ . "\n" . $e->getMessage() . "\n" . $e->getTraceAsString());
 			$event['server'] = null;
@@ -62,7 +62,7 @@ class Health_Event extends ORM {
 		$event['application'] = get_class($application);
 
 		/* @var $class Class_Health_Event */
-		$class = $application->class_object(__CLASS__);
+		$class = $application->class_orm_registry(__CLASS__);
 		$data = array();
 		foreach ($event as $k => $value) {
 			if (!array_key_exists($k, $class->column_types)) {

@@ -81,7 +81,7 @@ class Control_Schedule extends Control {
 		for ($i = 0; $i <= 23; $i++) {
 			$timestamp->hour($i);
 			$schedule_hourofday[$i] = $locale->__('Control_Schedule:=at {hourofday}', array(
-				'hourofday' => $timestamp->format($this->option('format_hourofday', __('Control_Schedule::format_hourofday:={12h} {ampm}')))
+				'hourofday' => $timestamp->format($locale, $this->option('format_hourofday', $locale->__('Control_Schedule::format_hourofday:={12h} {ampm}')))
 			));
 		}
 
@@ -94,7 +94,7 @@ class Control_Schedule extends Control {
 		for ($i = $first; $i < $first + 7; $i++) {
 			$timestamp->weekday($i);
 			$schedule_dayofweek[$i] = $locale->__('Control_Schedule:=on {dayofweek}', array(
-				'dayofweek' => $timestamp->format($this->option('format_dayofweek', '{WWWW}'))
+				'dayofweek' => $timestamp->format($locale, $this->option('format_dayofweek', '{WWWW}'))
 			));
 		}
 

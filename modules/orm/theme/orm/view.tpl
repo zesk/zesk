@@ -1,7 +1,18 @@
 <?php
+/**
+ * @package zesk
+ * @subpackage orm
+ * @author kent
+ * @copyright &copy; 2018 Market Acumen, Inc.
+ */
+namespace zesk;
+
+/**
+ * @author kent
+ */
 $object = $this->object;
 /* @var $object ORM */
-if (($name = $object->class_object()->name_column) !== null) {
+if (($name = $object->class_orm()->name_column) !== null) {
 	echo $object->__get($name);
 } else {
 	echo $object->id();

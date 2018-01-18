@@ -20,7 +20,7 @@ class Selection_Item extends ORM {
 	 * @var integer
 	 */
 	const type_add = 1;
-	
+
 	/**
 	 *
 	 * @param unknown $class
@@ -32,7 +32,7 @@ class Selection_Item extends ORM {
 			return null;
 		}
 	}
-	
+
 	/**
 	 *
 	 * @param unknown $old_type
@@ -41,16 +41,17 @@ class Selection_Item extends ORM {
 	 */
 	public static function copy_duplicate(Application $application, $old_type, $new_type, array $mapping) {
 		/* @var $class Class_ORM */
-		$members = $application->class_object(__CLASS__)->column_types;
+		$members = $application->class_orm_registry(__CLASS__)->column_types;
 		unset($members['type']);
 		$what = ArrayTools::flip_copy(array_keys($members));
 		$what['*type'] = $new_type;
-		$application->query_insert_select(__CLASS__)
+		$object = $application->orm_registry(__CLASS__);
+		$object->query_insert_select()
 			->what($what)
 			->where('type', $old_type)
 			->execute();
 		foreach ($mapping as $old_query_id => $new_query_id) {
-			$application->query_update(__CLASS__)
+			$object->query_update()
 				->value('query', $new_query_id)
 				->where(array(
 				'query' => $old_query_id,
@@ -59,6 +60,15 @@ class Selection_Item extends ORM {
 				->execute();
 		}
 	}
+
+	/**
+	 * Fix schema so UNIQUE keys work. MySQL does not silently ignore UNIQUE alters after version 5 at some point.
+	 *
+	 * @param ORM_Schema $schema
+	 * @param Database_Table $table
+	 * @param array $changes
+	 * @return array
+	 */
 	protected function hook_schema_update_alter(ORM_Schema $schema, Database_Table $table, array $changes) {
 		$before_changes = array();
 		foreach ($changes as $change) {

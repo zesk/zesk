@@ -1,6 +1,6 @@
 <?php
 /**
- * 
+ *
  */
 namespace zesk;
 
@@ -11,9 +11,19 @@ namespace zesk;
  * @author kent
  */
 class Command_Class_Properties extends Command_Base {
+
+	/**
+	 *
+	 * @var array
+	 */
 	protected $option_types = array(
 		"*" => "string"
 	);
+
+	/**
+	 *
+	 * @var array
+	 */
 	static $types_map = array(
 		Class_ORM::type_serialize => 'array',
 		Class_ORM::type_ip => 'string',
@@ -26,9 +36,19 @@ class Command_Class_Properties extends Command_Base {
 		Class_ORM::type_text => 'string',
 		Class_ORM::type_id => 'integer'
 	);
+	/**
+	 *
+	 * @return string[]
+	 */
 	private function all_classes() {
-		return ArrayTools::key_value($this->application->all_classes(), null, "class");
+		return ArrayTools::key_value($this->application->orm_module()->all_classes(), null, "class");
 	}
+
+	/**
+	 *
+	 * {@inheritDoc}
+	 * @see \zesk\Command::run()
+	 */
 	function run() {
 		$classes = array();
 		while ($this->has_arg()) {
@@ -40,7 +60,7 @@ class Command_Class_Properties extends Command_Base {
 			}
 		}
 		foreach ($classes as $class) {
-			$class_object = $this->application->class_object($class);
+			$class_object = $this->application->class_orm_registry($class);
 			if (!$class_object) {
 				$this->error("No such class $arg");
 				continue;

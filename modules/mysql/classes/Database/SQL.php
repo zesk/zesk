@@ -9,7 +9,7 @@ use zesk\Exception_Invalid;
 use zesk\Exception_Semantics as Exception_Semantics;
 use zesk\Text as text;
 use zesk\ArrayTools as arr;
-use zesk\str as str;
+use zesk\StringTools as str;
 
 /**
  * 

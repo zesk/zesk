@@ -4,6 +4,9 @@
 		"class_prefix": "zesk\\",
 		"lower": false
 	},
+	"requires": [
+		"Database"
+	],
 	"module_class": "zesk\\Module_ORM",
 	"theme_path_prefix": "zesk"
 }

@@ -15,7 +15,7 @@ use zesk\Database_Table;
 use zesk\Database_Index;
 use zesk\Database_Column;
 use zesk\Text;
-use zesk\str as str;
+use zesk\StringTools as str;
 
 /**
  * TODO bunch more work here

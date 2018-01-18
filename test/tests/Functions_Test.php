@@ -57,23 +57,23 @@ class Functions_Test extends Test_Unit {
 			$this->assert_equal(aevalue($b, $k, "-EMPTY-"), $v, _dump(aevalue($b, $k, "-EMPTY-")) . " === " . _dump($v) . " ($k => " . _dump($v) . ")");
 		}
 	}
-	function test_W() {
+	function testStringTools::wrap() {
 		$phrase = null;
-		_W($phrase);
+		StringTools::wrap($phrase);
 		
-		$this->assert(_W('This is a [simple] example', '<strong>[]</strong>') === 'This is a <strong>simple</strong> example', "'" . _W('This is a [simple] example', '<strong>[]</strong>') . "' === 'This is a <strong>simple</strong> example'");
+		$this->assert(StringTools::wrap('This is a [simple] example', '<strong>[]</strong>') === 'This is a <strong>simple</strong> example', "'" . StringTools::wrap('This is a [simple] example', '<strong>[]</strong>') . "' === 'This is a <strong>simple</strong> example'");
 		
-		$this->assert(_W('This is a [1:simple] example', '<strong>[]</strong>') === 'This is a simple example', _W('This is a [1:simple] example', '<strong>[]</strong>') . " === 'This is a simple example'");
+		$this->assert(StringTools::wrap('This is a [1:simple] example', '<strong>[]</strong>') === 'This is a simple example', StringTools::wrap('This is a [1:simple] example', '<strong>[]</strong>') . " === 'This is a simple example'");
 		
-		$this->assert(_W('This is an example with [two] [items] example', '<strong>[]</strong>', '<em>[]</em>') === 'This is an example with <strong>two</strong> <em>items</em> example');
+		$this->assert(StringTools::wrap('This is an example with [two] [items] example', '<strong>[]</strong>', '<em>[]</em>') === 'This is an example with <strong>two</strong> <em>items</em> example');
 		
-		$this->assert(_W('This is an example with [two] [0:items] example', '<strong>[]</strong>', '<em>[]</em>') === 'This is an example with <strong>two</strong> <strong>items</strong> example');
+		$this->assert(StringTools::wrap('This is an example with [two] [0:items] example', '<strong>[]</strong>', '<em>[]</em>') === 'This is an example with <strong>two</strong> <strong>items</strong> example');
 		
-		$this->assert(_W('This is an example with [1:two] [items] example', '<strong>[]</strong>', '<em>[]</em>') === 'This is an example with <em>two</em> <em>items</em> example', _W('This is an example with [1:two] [items] example', '<strong>[]</strong>', '<em>[]</em>') . ' === This is an example with <em>two</em> <em>items</em> example');
+		$this->assert(StringTools::wrap('This is an example with [1:two] [items] example', '<strong>[]</strong>', '<em>[]</em>') === 'This is an example with <em>two</em> <em>items</em> example', StringTools::wrap('This is an example with [1:two] [items] example', '<strong>[]</strong>', '<em>[]</em>') . ' === This is an example with <em>two</em> <em>items</em> example');
 		
-		$this->assert(_W('This is an example with [1:two] [1:items] example', '<strong>[]</strong>', '<em>[]</em>') === 'This is an example with <em>two</em> <em>items</em> example', _W('This is an example with [1:two] [1:items] example', '<strong>[]</strong>', '<em>[]</em>') . ' === This is an example with <em>two</em> <em>items</em> example');
+		$this->assert(StringTools::wrap('This is an example with [1:two] [1:items] example', '<strong>[]</strong>', '<em>[]</em>') === 'This is an example with <em>two</em> <em>items</em> example', StringTools::wrap('This is an example with [1:two] [1:items] example', '<strong>[]</strong>', '<em>[]</em>') . ' === This is an example with <em>two</em> <em>items</em> example');
 		
-		$this->assert(_W('Nested example with [outernest [nest0] [nest1]] example', '<0>[]</0>', '<1>[]</1>', '<2>[]</2>') === 'Nested example with <2>outernest <0>nest0</0> <1>nest1</1></2> example', _W('Nested example with [outernest [nest0] [nest1]] example', '<0>[]</0>', '<1>[]</1>', '<2>[]</2>') . ' === Nested example with <2>outernest <0>nest0</0> <1>nest1</1></2> example');
+		$this->assert(StringTools::wrap('Nested example with [outernest [nest0] [nest1]] example', '<0>[]</0>', '<1>[]</1>', '<2>[]</2>') === 'Nested example with <2>outernest <0>nest0</0> <1>nest1</1></2> example', StringTools::wrap('Nested example with [outernest [nest0] [nest1]] example', '<0>[]</0>', '<1>[]</1>', '<2>[]</2>') . ' === Nested example with <2>outernest <0>nest0</0> <1>nest1</1></2> example');
 	}
 	function test_avalue() {
 		$a = array();

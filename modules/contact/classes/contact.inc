@@ -25,7 +25,7 @@ class Contact extends ORM {
 	 */
 	public static function find_hash(Application $application, $hash, $where = null) {
 		$query = $application->orm_registry(__CLASS__)->query_select();
-		$class_object = $query->class_object();
+		$class_object = $query->class_orm();
 		$where['*hash'] = $query->sql()->function_unhex($hash);
 		$id_column = $class_object->id_column;
 		if (!$id_column) {

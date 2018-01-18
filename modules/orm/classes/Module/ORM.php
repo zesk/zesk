@@ -83,6 +83,33 @@ class Module_ORM extends Module {
 			"daemon_hooks"
 		));
 
+		$self = $this;
+		$this->application->hooks->add(ORM::class . "::router_derived_classes", function (ORM $object, array $classes) use ($self) {
+			$class_object = $object->class_orm();
+			if (!is_array($class_object->has_one) || !$class_object->id_column) {
+				return $classes;
+			}
+			foreach ($class_object->has_one as $member => $class) {
+				$member_object = $object->__get($member);
+				if ($member_object !== null && !$member_object instanceof ORM) {
+					$this->application->logger->error("Member {member} of object {class} should be an object of {expected_class}, returned {type} with value {value}", array(
+						"member" => $member,
+						"class" => get_class($object),
+						"expected_class" => $class,
+						"type" => type($member_object),
+						"value" => strval($member_object)
+					));
+					continue;
+				}
+				if ($member_object) {
+					$id = $member_object->id();
+					foreach ($this->application->classes->hierarchy($member_object, "zesk\\ORM") as $class) {
+						$classes[$class] = $id;
+					}
+				}
+			}
+			return $classes;
+		});
 		/**
 		 * Support MySQL database adapter
 		 */
@@ -499,7 +526,7 @@ class Module_ORM extends Module {
 			//TODO How to communicate with main UI?
 			// 				$router = $this->router();
 			// 				$url = $router->get_route("schema_synchronize", $application);
-			// 				$message = $url ? _W(__("The database schema is out of sync, please [update it immediately.]"), HTML::a($url, '[]')) : __("The database schema is out of sync, please update it immediately.");
+			// 				$message = $url ? StringTools::wrap(__("The database schema is out of sync, please [update it immediately.]"), HTML::a($url, '[]')) : __("The database schema is out of sync, please update it immediately.");
 			// 				Response::instance($application)->redirect_message($message, array(
 			// 					"url" => $url
 			// 				));

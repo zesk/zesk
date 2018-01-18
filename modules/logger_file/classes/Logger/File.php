@@ -1,6 +1,6 @@
 <?php
 /**
- * 
+ *
  */
 namespace zesk\Logger;
 
@@ -11,33 +11,33 @@ use zesk\File as zeskFile;
 use zesk\Timestamp;
 
 class File implements Handler {
-	
+
 	/**
-	 * 
+	 *
 	 * @var string
 	 */
 	protected $filename = null;
-	
+
 	/**
 	 * @var string
 	 */
 	protected $filename_pattern = null;
-	
+
 	/**
-	 * 
+	 *
 	 * @var string
 	 */
 	protected $linkname = null;
-	
+
 	/**
 	 * When generating log file names, use this time zone
-	 * 
+	 *
 	 * @var string
 	 */
 	protected $time_zone = null;
-	
+
 	/**
-	 * 
+	 *
 	 * @var string
 	 */
 	protected $mode = null;
@@ -51,39 +51,39 @@ class File implements Handler {
 	 * @var string[]
 	 */
 	protected $exclude_patterns = null;
-	
+
 	/**
 	 *
 	 * @var resource
 	 */
 	protected $fp = null;
-	
+
 	/**
 	 *
 	 * @var boolean
 	 */
 	protected $opened = null;
-	
+
 	/**
-	 * 
+	 *
 	 * @var string
 	 */
 	protected $prefix = "";
-	
+
 	/**
-	 * 
+	 *
 	 * @var string
 	 */
 	protected $suffix = "";
-	
+
 	/**
-	 * 
+	 *
 	 * @var string
 	 */
 	protected $middle = "";
-	
+
 	/**
-	 * 
+	 *
 	 * @param string $filename
 	 * @param array $options
 	 */
@@ -117,9 +117,9 @@ class File implements Handler {
 			$this->exclude_patterns = null;
 		}
 	}
-	
+
 	/**
-	 * 
+	 *
 	 * @param string $filename
 	 * @param array $options
 	 * @return \zesk\Logger\File
@@ -127,9 +127,9 @@ class File implements Handler {
 	public static function factory($filename = null, array $options = array()) {
 		return new self($filename, $options);
 	}
-	
+
 	/**
-	 * 
+	 *
 	 * @param string $fp
 	 * @param unknown $name
 	 * @throws Exception_Parameter
@@ -140,9 +140,9 @@ class File implements Handler {
 		$this->filename = $filename;
 		return $this;
 	}
-	
+
 	/**
-	 * 
+	 *
 	 * @param string $fp
 	 * @param unknown $name
 	 * @throws Exception_Parameter
@@ -162,16 +162,17 @@ class File implements Handler {
 		$this->fp = $fp;
 		return $this;
 	}
-	
+
 	/**
 	 * Generate filename from context `_microtime` field
-	 * 
+	 *
 	 * @param array $context
 	 * @return boolean
 	 */
 	private function generate_filename(array $context) {
+		$locale = isset($context['locale']) && $context['locale'] instanceof Locale ? $context['locale'] : null;
 		$ts = Timestamp::factory(intval($context['_microtime']), $this->time_zone);
-		$new_filename = $ts->format($this->filename_pattern, array(
+		$new_filename = $ts->format($locale, $this->filename_pattern, array(
 			'nohook' => true
 		));
 		if ($new_filename === $this->filename) {
@@ -188,7 +189,7 @@ class File implements Handler {
 	}
 	/**
 	 * Inside logging
-	 * 
+	 *
 	 * @return boolean
 	 */
 	private function update_link() {
@@ -239,7 +240,7 @@ class File implements Handler {
 		@unlink($lockfile);
 		return true;
 	}
-	
+
 	/**
 	 * Should this message be included in this log file?
 	 *
@@ -254,10 +255,10 @@ class File implements Handler {
 		}
 		return false;
 	}
-	
+
 	/**
 	 * Should this message be excluded from this log file?
-	 * 
+	 *
 	 * @param string $message
 	 * @return boolean
 	 */
@@ -270,7 +271,7 @@ class File implements Handler {
 		return false;
 	}
 	/**
-	 * 
+	 *
 	 * {@inheritDoc}
 	 * @see \zesk\Logger\Handler::log()
 	 */
@@ -302,12 +303,12 @@ class File implements Handler {
 		$message = $prefix . ltrim(Text::indent($context['_formatted'] . $suffix, strlen($prefix), false, " "));
 		fwrite($this->fp, $message);
 		fflush($this->fp);
-		
+
 		if ($this->linkname) {
 			$this->update_link();
 		}
 	}
-	
+
 	/**
 	 * Close FP upon close
 	 */
@@ -319,16 +320,16 @@ class File implements Handler {
 			$this->fp = null;
 		}
 	}
-	
+
 	/**
 	 * Close FP upon close
 	 */
 	public function __destruct() {
 		$this->close();
 	}
-	
+
 	/**
-	 * 
+	 *
 	 * @return string[]
 	 */
 	public function variables() {

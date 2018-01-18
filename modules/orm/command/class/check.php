@@ -12,9 +12,18 @@ namespace zesk;
  * @author kent
  */
 class Command_Class_Check extends Command_Base {
+	/**
+	 *
+	 * @var array
+	 */
 	protected $option_types = array(
 		"*" => "string"
 	);
+
+	/**
+	 *
+	 * @var array
+	 */
 	static $types_map = array(
 		'serialize' => 'array',
 		'ip' => 'string',
@@ -23,9 +32,20 @@ class Command_Class_Check extends Command_Base {
 		'created' => 'Timestamp',
 		'modified' => 'Timestamp'
 	);
+
+	/**
+	 *
+	 * @return \zesk\Ambigous[]
+	 */
 	private function all_classes() {
-		return ArrayTools::key_value($this->application->all_classes(), null, "class");
+		return ArrayTools::key_value($this->application->orm_module()->all_classes(), null, "class");
 	}
+
+	/**
+	 *
+	 * {@inheritDoc}
+	 * @see \zesk\Command::run()
+	 */
 	function run() {
 		$logger = $this->application->logger;
 		$classes = array();
@@ -46,7 +66,7 @@ class Command_Class_Check extends Command_Base {
 			));
 			/* @var $class_object Class_ORM */
 			/* @var $object \zesk\ORM */
-			$class_object = $this->application->class_object($class);
+			$class_object = $this->application->class_orm_registry($class);
 			if (!$class_object) {
 				$this->error("No such class $arg");
 				continue;
@@ -55,7 +75,7 @@ class Command_Class_Check extends Command_Base {
 				"class" => $class,
 				"table" => $class_object->table
 			);
-			$object = $this->application->object($class);
+			$object = $this->application->orm_registry($class);
 			if (!$object) {
 				$logger->notice("Object class {class} does not have an associated object", array(
 					"class" => $class
@@ -113,6 +133,11 @@ class Command_Class_Check extends Command_Base {
 		}
 		$this->log("Done");
 	}
+
+	/**
+	 *
+	 * @var array
+	 */
 	static $guess_names = array(
 		'timestamp' => array(
 			'created' => 'created',
@@ -122,10 +147,23 @@ class Command_Class_Check extends Command_Base {
 			'id' => 'id'
 		)
 	);
+
+	/**
+	 *
+	 * @var array
+	 */
 	static $guess_types = array(
 		'timestamp' => 'timestamp',
 		'blob' => 'serialize'
 	);
+
+	/**
+	 *
+	 * @param Database $db
+	 * @param unknown $name
+	 * @param unknown $type
+	 * @return mixed|array|mixed|string
+	 */
 	private function guess_type(Database $db, $name, $type) {
 		$schema_type = avalue(avalue(self::$guess_names, $type, array()), strtolower($name));
 		if ($schema_type) {

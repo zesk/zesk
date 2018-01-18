@@ -6,7 +6,7 @@ define("ZESK_ROOT", dirname(dirname(dirname(dirname(__FILE__)))) . "/");
 
 if (file_exists(ZESK_ROOT . 'vendor/autoload.php')) {
 	require_once ZESK_ROOT . 'vendor/autoload.php';
-	$zesk = Kernel::factory();
+	$zesk = Kernel::singleton();
 } else {
 	$zesk = require_once ZESK_ROOT . 'autoload.php';
 }

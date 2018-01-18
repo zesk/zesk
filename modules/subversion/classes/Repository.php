@@ -7,7 +7,7 @@
  */
 namespace zesk\Subversion;
 
-use zesk\str;
+use zesk\StringTools;
 use zesk\ArrayTools;
 
 /**

@@ -33,7 +33,7 @@ foreach ($strings as $unit => $format) {
 		$map['n'] = $n;
 		$map['units'] = $locale->plural($unit, $n);
 		$format = $locale($format, $map);
-		echo $content->format($format);
+		echo $content->format($locale, $format);
 		return;
 	}
 }

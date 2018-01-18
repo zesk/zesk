@@ -7,7 +7,7 @@
 namespace zesk\Cron;
 
 use zesk\HTML;
-use zesk\str;
+use zesk\StringTools;
 use zesk\ArrayTools;
 use zesk\Time;
 use zesk\Date;

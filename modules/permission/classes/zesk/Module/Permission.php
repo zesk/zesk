@@ -430,7 +430,10 @@ class Module_Permission extends Module {
 	/**
 	 */
 	protected function hook_cache_clear() {
-		$this->application->query_delete('zesk\\Permission')->truncate(true)->execute();
+		$this->application->orm_registry(Permission::class)
+			->query_delete()
+			->truncate(true)
+			->exec();
 	}
 
 	/**
@@ -440,8 +443,8 @@ class Module_Permission extends Module {
 	 */
 	private function model_permission_class(Model $context) {
 		$default = get_class($context);
-		if ($context instanceof Object) {
-			return $context->class_object()->option("permission_class", $default);
+		if ($context instanceof ORM) {
+			return $context->class_orm()->option("permission_class", $default);
 		}
 		return $default;
 	}

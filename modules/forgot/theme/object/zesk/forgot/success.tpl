@@ -32,4 +32,4 @@ if (false) {
 	/* @var $object Forgot */
 }
 echo HTML::tag('h1', __('Your password has been updated'));
-echo HTML::tag('p', _W(__('Please [login] to access your account.'), HTML::a($router->get_route("login"), '[]')));
+echo HTML::tag('p', StringTools::wrap(__('Please [login] to access your account.'), HTML::a($router->get_route("login"), '[]')));

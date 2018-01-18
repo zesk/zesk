@@ -35,7 +35,7 @@ foreach ($servers as $server) {
 					return " (#" . (intval($match[1]) + 1) . ")";
 				}, $process);
 			}
-			$items[] = HTML::tag('li', $class, _W($locale("[{process}] {status} for {nunits} {units}", array(
+			$items[] = HTML::tag('li', $class, StringTools::wrap($locale("[{process}] {status} for {nunits} {units}", array(
 				"process" => $process,
 				"status" => $settings['status'],
 				"nunits" => $nunits,

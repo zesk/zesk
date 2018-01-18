@@ -1,5 +1,8 @@
 {
 	"module_class": "sqlite3\\Module",
+	"requires": [
+		"Database"
+	],
 	"autoload_options": {
 		"class_prefix": "sqlite3\\",
 		"lower": false

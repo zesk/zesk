@@ -29,7 +29,7 @@ class View_Actions extends View {
 		$attr = $confirm ? array(
 			"onclick" => "return confirm('Are you sure?')"
 		) : array();
-		
+
 		$image = $use_cdn ? HTML::img($this->application, $src, $x->apply_map($title), array(
 			"width" => $w,
 			"height" => $h
@@ -66,27 +66,27 @@ class View_Actions extends View {
 	}
 	function render() {
 		$html = "";
-		
+
 		if ($this->option("add_div", true)) {
 			$html = $html . "<div class=\"list-actions\">";
 		}
-		
+
 		$format = $this->option("format", "{Name}");
-		
+
 		if ($this->option("show_edit", true)) {
 			$url = $this->_action_href("edit");
 			if ($url) {
 				$html .= $this->actionlink($url, "/share/zesk/images/actions/edit.gif", 18, 18, "Edit \"$format\"", false, true);
 			}
 		}
-		
+
 		if ($this->option("show_delete", true)) {
 			$url = $this->_action_href("delete");
 			if ($url) {
 				$html .= $this->actionlink($url, "/share/zesk/images/actions/delete.gif", 18, 18, "Delete \"$format\"", true, true);
 			}
 		}
-		
+
 		$actions = $this->option_array("actions");
 		if (is_array($actions)) {
 			foreach ($actions as $actSpec) {
@@ -105,11 +105,11 @@ class View_Actions extends View {
 				}
 			}
 		}
-		
+
 		if ($this->option("add_div", true)) {
 			$html = $html . "</div>";
 		}
-		return $html;
+		return $this->object->apply_map($html);
 	}
 }
 

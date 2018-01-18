@@ -2,6 +2,7 @@
 namespace zesk;
 
 /* @var $this Template */
+/* @var $locale Locale */
 /* @var $application Application */
 /* @var $session Session */
 /* @var $request Request */
@@ -51,7 +52,7 @@ $attempted = $data->data($prefix . 'attempted');
 if ($attempted instanceof Timestamp && $attempted->add_unit(60, Timestamp::UNIT_SECOND)->after($now)) {
 	$application->logger->warning("Only attempt download once a minute - waiting {n_seconds} {seconds}", array(
 		"n_seconds" => $n_seconds = $attempted->difference($now),
-		"seconds" => $locale->plural(__("second"), $n_seconds)
+		"seconds" => $locale->plural($locale->__("second"), $n_seconds)
 	));
 } else {
 	if ($object->execute()) {
@@ -65,6 +66,9 @@ if ($attempted instanceof Timestamp && $attempted->add_unit(60, Timestamp::UNIT_
 			}
 		}
 		echo HTML::ediv('.feed-view', implode("\n", $items));
+		echo HTML::div(".last-updated", __("Last updated {when}", array(
+			"when" => $updated->format($locale, "{delta}")
+		)));
 		$content = ob_get_clean();
 		$data->data($prefix . "content", $content);
 		$data->data($prefix . "updated", $now);

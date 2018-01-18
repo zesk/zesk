@@ -66,6 +66,13 @@ class Widget extends Hookable {
 	protected $response = null;
 
 	/**
+	 * Current locale for this widget
+	 *
+	 * @var Locale
+	 */
+	protected $locale = null;
+
+	/**
 	 * Theme hook to use for output
 	 *
 	 * @var string
@@ -301,22 +308,33 @@ class Widget extends Hookable {
 		}
 		return $this->option('context_class');
 	}
-
 	/**
 	 * Retrieve the class object for this widget
 	 *
 	 * @return zesk\Class_ORM
 	 */
-	function class_object() {
-		return $this->application->class_object($this->class);
+	function class_orm() {
+		return $this->application->class_orm_registry($this->class);
 	}
-	function object_class($set = null) {
+
+	/**
+	 * Getter/setter for the zesk\ORM subclass associated with this widget
+	 *
+	 * @param unknown $set
+	 */
+	function orm_class($set = null) {
 		if ($set !== null) {
 			$this->class = $set;
 			return $this;
 		}
 		return $this->class;
 	}
+
+	/**
+	 *
+	 * @param unknown $class
+	 * @return \zesk\Widget
+	 */
 	function add_class($class) {
 		// Some widgets have protected variable called class - always update the options here
 		$this->options = HTML::add_class($this->options, $class);
@@ -2463,6 +2481,27 @@ class Widget extends Hookable {
 			return null;
 		}
 		return "\$(\"#$id\")";
+	}
+
+	/**
+	 * Retrieve the class object for this widget
+	 *
+	 * @deprecated 2018-01
+	 * @return zesk\Class_ORM
+	 */
+	function class_object() {
+		zesk()->deprecated();
+		return $this->class_orm();
+	}
+
+	/**
+	 * @deprecated 2018-01
+	 * @param unknown $set
+	 * @return \zesk\Widget|string
+	 */
+	function object_class($set = null) {
+		zesk()->deprecated();
+		return $this->orm_class($set);
 	}
 }
 

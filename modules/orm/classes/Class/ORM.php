@@ -615,6 +615,7 @@ class Class_ORM extends Hookable {
 	 * recomputation
 	 */
 	public static function dirty() {
+		// TODO Move this to Module_ORM
 		self::$classes = array();
 		self::$defer_class_links = array();
 		self::_column_cache()->erase()->delete();
@@ -635,16 +636,6 @@ class Class_ORM extends Hookable {
 		return $namespace . 'Class_' . $suffix;
 	}
 
-	/**
-	 *
-	 * @deprecated 2017-11?
-	 * @todo remove this probably
-	 */
-	public static function classes_exit(Application $application) {
-		if (self::$classes_dirty) {
-			$application->hooks->call("Class_ORM::classes_save", self::$classes);
-		}
-	}
 	/**
 	 * Create a new class instance - should only be called from ORM
 	 *
@@ -820,7 +811,7 @@ class Class_ORM extends Hookable {
 		$app = $object->application;
 		parent::__construct($app, $options);
 		$this->inherit_global_options();
-		$this_class = $object->class_object();
+		$this_class = $object->class_orm();
 		// Handle polymorphic classes - create correct Class and use correct base class
 		$this_class = $this->class = is_string($this_class) ? $this_class : get_class($object);
 
@@ -1420,7 +1411,7 @@ class Class_ORM extends Hookable {
 		$link_class = avalue($has_many, 'link_class');
 		if ($link_class) {
 			$this->application->classes->register($link_class);
-			$table = $this->application->object_table_name($link_class);
+			$table = $this->application->orm_registry($link_class)->table();
 			if (!$table) {
 				throw new Exception_Configuration("$link_class::table", "Link class for {class} {link_class} table is empty", array(
 					"class" => get_class($object),
@@ -1444,7 +1435,7 @@ class Class_ORM extends Hookable {
 		}
 		if ($table === true) {
 			// Clean up reference
-			$table = avalue($object->class_object()->has_many_object($class), 'table');
+			$table = avalue($object->class_orm()->has_many_object($class), 'table');
 			if (!is_string($table)) {
 				throw new Exception_Semantics("{my_class} references table in {class}, but no table found for have_many", compact("my_class", "class"));
 			}
@@ -1931,7 +1922,7 @@ class Class_ORM extends Hookable {
 					unset($data[$column]);
 					$data["*$column"] = $this->sql_now($object);
 				} else if ($v instanceof Temporal) {
-					$data[$column] = $v->format('{YYYY}-{MM}-{DD}');
+					$data[$column] = $v->format(null, '{YYYY}-{MM}-{DD}');
 				} else if (is_numeric($v)) {
 					$data[$column] = gmdate('Y-m-d', $v);
 				}
@@ -1943,7 +1934,7 @@ class Class_ORM extends Hookable {
 					unset($data[$column]);
 					$data["*$column"] = $this->sql_now($object);
 				} else if ($v instanceof Temporal) {
-					$data[$column] = $v->format('{hh}:{mm}:{ss}');
+					$data[$column] = $v->format(null, '{hh}:{mm}:{ss}');
 				} else if (is_numeric($v)) {
 					$data[$column] = gmdate('H:i:s', $v);
 				}
@@ -2013,5 +2004,16 @@ class Class_ORM extends Hookable {
 			"primary_keys" => $this->primary_keys,
 			"class" => get_class($this)
 		);
+	}
+
+	/**
+	 *
+	 * @deprecated 2017-11?
+	 * @todo remove this probably
+	 */
+	public static function classes_exit(Application $application) {
+		if (self::$classes_dirty) {
+			$application->hooks->call("Class_ORM::classes_save", self::$classes);
+		}
 	}
 }

@@ -1,6 +1,9 @@
 {
 	"name": "MySQL Database",
 	"description": "Database abstraction for MySQL using PHP mysqli APIs.",
+	"requires": [
+		"Database"
+	],
 	"autoload_options": {
 		"class_prefix": "MySQL\\",
 		"lower": false,

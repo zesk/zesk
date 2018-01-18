@@ -210,9 +210,21 @@ class Control_List extends Control_Widgets_Filter {
 	 * @var string
 	 */
 	protected $search_query = null;
+
+	/**
+	 *
+	 * @param array $where
+	 * @return array|void
+	 */
 	public function where(array $where = null) {
 		return $where === null ? $this->option_array('where') : $this->set_option('where', $where);
 	}
+
+	/**
+	 *
+	 * {@inheritDoc}
+	 * @see \zesk\Widget::model()
+	 */
 	function model() {
 		return new Model_List($this->application);
 	}
@@ -239,12 +251,11 @@ class Control_List extends Control_Widgets_Filter {
 		return $set === null ? $this->option('list_default_order_by') : $this->set_option('list_default_order_by', $set);
 	}
 	protected function initialize() {
-		//$this->object = ORM::cache_object($this->class);
 		$this->initialize_theme_paths();
 
-		$this->class_object = $this->application->class_object($this->class);
+		$this->class_object = $this->application->class_orm_registry($this->class);
 
-		$this->row_widget = $row_widget = $this->widget_factory("zesk\\Control_Row");
+		$this->row_widget = $row_widget = $this->widget_factory(Control_Row::class);
 		$row_widget->names($this->name() . '_row');
 		$row_widget->children($this->row_widgets = $this->call_hook_arguments('widgets', array(), array()));
 		$row_widget->row_tag($this->row_tag);
@@ -257,13 +268,7 @@ class Control_List extends Control_Widgets_Filter {
 		$this->initialize_header_widgets();
 		$this->initialize_query();
 		$this->initialize_filter();
-
-		if ($this->show_pager()) {
-			$options = ArrayTools::kunprefix($this->options, "pager_", true);
-			$this->pager = $this->widget_factory('zesk\\' . 'Control_Pager');
-			$this->child($this->pager);
-			$this->children_hook('pager', $this->pager);
-		}
+		$this->initialize_pager();
 
 		parent::initialize();
 	}
@@ -278,7 +283,7 @@ class Control_List extends Control_Widgets_Filter {
 	protected function initialize_pager() {
 		if ($this->show_pager()) {
 			$options = ArrayTools::kunprefix($this->options, "pager_", true);
-			$this->pager = new Control_Pager();
+			$this->pager = $this->widget_factory(Control_Pager::class);
 			$this->child($this->pager);
 			$this->children_hook('pager', $this->pager);
 		}

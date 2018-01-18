@@ -9,7 +9,6 @@
 use zesk\ArrayTools;
 use zesk\HTML;
 use zesk\URL;
-use zesk\ORM;
 use zesk\Database_Query_Select;
 use zesk\ORMIterator;
 use zesk\Control;
@@ -118,7 +117,7 @@ class Control_Picker extends Control {
 	protected function initialize() {
 		$this->class = $this->application->objects->resolve($this->class);
 		parent::initialize();
-		$this->class_object = $this->application->class_object($this->class);
+		$this->class_object = $this->application->class_orm_registry($this->class);
 		if (count($this->search_columns) === 0) {
 			$this->search_columns = array(
 				$this->class_object->name_column

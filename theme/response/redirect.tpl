@@ -1,14 +1,15 @@
 <?php
 namespace zesk;
 
-/* @var $this zesk\Template */
-/* @var $zesk zesk\Kernel */
-/* @var $application TimeBank */
-/* @var $session Session */
-/* @var $request Router */
-/* @var $request Request */
-/* @var $response zesk\Response_Text_HTML */
-/* @var $current_user User */
+/* @var $this \zesk\Template */
+/* @var $application \zesk\Application */
+/* @var $locale \zesk\Locale */
+/* @var $session \zesk\Session */
+/* @var $router \zesk\Router */
+/* @var $route \zesk\Route */
+/* @var $request \zesk\Request */
+/* @var $response \zesk\Response_Text_HTML */
+/* @var $current_user \zesk\User */
 
 /* @var $this zesk\Template */
 $styles = <<<EOF
@@ -36,7 +37,7 @@ $this->begin('body/exception.tpl');
 
 echo HTML::div('.redirect', HTML::tag('label', $locale('Redirect:')) . $this->content);
 
-if ($zesk->configuration->path_get('Response::redirect_show_backtrace', $this->application->development())) {
+if ($application->configuration->path_get('Response::redirect_show_backtrace', $this->application->development())) {
 	echo HTML::div('.backtrace', $this->theme('exception/trace', array(
 		'content' => debug_backtrace(false)
 	)));
