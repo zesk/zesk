@@ -10,6 +10,11 @@ pause() {
 }
 
 
+echo 'Most `Locale::` calls are deprecated'
+php-find.sh Locale::
+pause
+
+
 echo 'Function `Locale::number_format` is deprecated and should be replaced with $locale->number_format()'
 php-find.sh Locale::number_format
 pause
@@ -33,3 +38,5 @@ zesk cannon zesk\\str zesk\\StringTools
 zesk cannon str:: StringTools::
 
 
+echo '_W() -> StringTools::wrap()'
+zesk cannon '_W(' 'StringTools::wrap('

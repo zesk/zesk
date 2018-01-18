@@ -9,6 +9,7 @@ pause() {
 	read
 }
 
+zesk cannon Session_Database Session_ORM
 zesk cannon 'zesk\Object' 'zesk\ORM'
 zesk cannon 'Class_Object' 'Class_ORM'
 zesk cannon 'Exception_Object' 'Exception_ORM'

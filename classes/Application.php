@@ -18,13 +18,18 @@ use zesk\Locale\Reader;
  *
  * @author kent
  *
- * @method ORM orm_factory($class, $mixed, array $options = array())
+ * Methods below require you to actually load the modules for them to work.
+ *
  * @method Widget widget_factory($class, array $options = array())
  *
- * @method Database database_registry($name)
+ * @method Module_ORM orm_module()
  * @method Class_ORM class_orm_registry($class = null)
  * @method ORM|Module_ORM orm_registry($class = null, $mixed = null, array $options = null)
- * @method Module_ORM orm_module()
+ * @method ORM orm_factory($class, $mixed, array $options = array())
+ *
+ * @method Database database_registry($name)
+ * @method Module_Database database_module()
+ *
  * @method Interface_Session session_factory()
  */
 class Application extends Hookable implements Interface_Theme {
@@ -617,9 +622,6 @@ class Application extends Hookable implements Interface_Theme {
 		$skip_configured_hook = avalue($options, 'skip_configured', false);
 
 		// Load hooks
-		$this->hooks->register_class(array(
-			Database::class
-		));
 		$this->hooks->register_class($this->register_hooks);
 
 		$application = $this;
@@ -1306,6 +1308,45 @@ class Application extends Hookable implements Interface_Theme {
 	}
 
 	/**
+	 * Setter for locale - calls hook
+	 *
+	 * @param Locale $set
+	 * @return \zesk\Locale|\zesk\Application
+	 */
+	public function set_locale(Locale $set) {
+		$this->locale = $set;
+		$this->hook("locale", $set);
+		return $this;
+	}
+	/**
+	 * Create a new `zesk\Locale`
+	 *
+	 * @param string $code
+	 * @param array $extensions
+	 * @param array $options
+	 * @return \zesk\Locale
+	 */
+	public function locale_factory($code = null, array $extensions = array(), array $options = array()) {
+		return Reader::factory($this->locale_path(), $code, $extensions)->locale($this, $options);
+	}
+
+	/**
+	 * Create a `zesk\Locale` if it has not been encountered in this process and cache it as part of the `Application`
+	 *
+	 * @param string $code
+	 * @param array $extensions
+	 * @param array $options
+	 * @return \zesk\Locale
+	 */
+	public function locale_registry($code = null, array $extensions = array(), array $options = array()) {
+		$code = Locale::normalize($code);
+		if (isset($this->locales[$code])) {
+			return $this->locales[$code];
+		}
+		return $this->locales[$code] = $this->locale_factory($code);
+	}
+
+	/**
 	 * Add or retrieve the locale path for this application - used to load locales
 	 *
 	 * By default, it's /share/
@@ -1423,6 +1464,8 @@ class Application extends Hookable implements Interface_Theme {
 			);
 		}
 		$arguments['application'] = $this;
+		$arguments['locale'] = $this->locale;
+
 		$types = to_list($types);
 		$extension = avalue($options, "no_extension") ? null : ".tpl";
 		if (count($types) === 1) {
@@ -1804,37 +1847,10 @@ class Application extends Hookable implements Interface_Theme {
 	 * @return Database
 	 */
 	public function database_factory($mixed = null, array $options = array()) {
-		// Call non-deprecated version, for now. Move this elsewhere?
-		return Database::_factory($this, $mixed, $options);
+		zesk()->deprecated();
+		return $this->database_module()->database_registry($mixed, $options);
 	}
 
-	/**
-	 * Create a new `zesk\Locale`
-	 *
-	 * @param string $code
-	 * @param array $extensions
-	 * @param array $options
-	 * @return \zesk\Locale
-	 */
-	public function locale_factory($code = null, array $extensions = array(), array $options = array()) {
-		return Reader::factory($this->locale_path(), $code, $extensions)->locale($this, $options);
-	}
-
-	/**
-	 * Create a `zesk\Locale` if it has not been encountered in this process and cache it as part of the `Application`
-	 *
-	 * @param string $code
-	 * @param array $extensions
-	 * @param array $options
-	 * @return \zesk\Locale
-	 */
-	public function locale_registry($code = null, array $extensions = array(), array $options = array()) {
-		$code = Locale::normalize($code);
-		if (isset($this->locales[$code])) {
-			return $this->locales[$code];
-		}
-		return $this->locales[$code] = $this->locale_factory($code);
-	}
 	/**
 	 * Create a model
 	 *

@@ -278,11 +278,16 @@ abstract class Command extends Hookable implements Logger\Handler {
 	 * @return string Path of configuration file
 	 */
 	private function _configuration_config($name) {
-		$file = File::name_clean(strtolower($name)) . '.conf';
-		$files = array();
+		$file = File::name_clean(strtolower($name));
+		$suffixes = array(
+			"$file.conf",
+			"$file.json"
+		);
 		$paths = $this->configuration_path();
 		foreach ($paths as $path) {
-			$files[] = path($path, $file);
+			foreach ($suffixes as $suffix) {
+				$files[] = path($path, $suffix);
+			}
 		}
 		$result = array(
 			'files' => $files,
@@ -378,7 +383,22 @@ abstract class Command extends Hookable implements Logger\Handler {
 				"name" => $name,
 				"filename" => $filename
 			));
-			file_put_contents($filename, "# Created $name on " . date('Y-m-d H:i:s') . "\n");
+			$extension = File::extension($filename);
+			if ($extension === "conf") {
+				file_put_contents($filename, "# Created $name on " . date('Y-m-d H:i:s') . " at $filename\n");
+			} else if ($extension === "json") {
+				file_put_contents($filename, JSON::encode(array(
+					get_class($this) => array(
+						"configuration_file" => array(
+							"created" => date('Y-m-d H:i:s'),
+							"file" => $filename,
+							"name" => $name
+						)
+					)
+				)));
+			} else {
+				$this->error("Can not write {name} configuration file ({filename}) - unknown file type {extension}", compact("name", "filename", "extension"));
+			}
 		}
 	}
 

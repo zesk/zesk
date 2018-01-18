@@ -16,8 +16,9 @@ use zesk\Debug;
 use zesk\JSON;
 use zesk\Locale;
 use zesk\Application;
-use zesk\ArrayTools;
 use zesk\Hookable;
+use zesk\ArrayTools;
+use zesk\StringTools;
 
 /**
  * A regular expression pattern for matching email addresses anywhere (should delimit both ends in
@@ -44,7 +45,9 @@ define("PREG_PATTERN_EMAIL_STRING", '/^' . PREG_PATTERN_EMAIL . '$/');
 define("ZESK_GLOBAL_KEY_SEPARATOR", "::");
 
 /**
- * Get our global Zesk kernel.
+ * Get our global Zesk kernel. Use is DISCOURAGED, unless you use it like:
+ *
+ * zesk()->deprecated()
  *
  * @return Kernel
  */
@@ -818,13 +821,13 @@ function map_tokens($mixed, $prefix_char = "{", $suffix_char = "}") {
  * a i18n phrase, use brackets
  * to delineate tags to add to the phrase, as follows:
  *
- * <pre>_W(__('This is [0:bold text] and this is [1:italic].'), '<strong>[]</strong>',
+ * <pre>StringTools::wrap(__('This is [0:bold text] and this is [1:italic].'), '<strong>[]</strong>',
  * '<em>[italic]</em>') =
  * "This is <strong>bold text</strong> and this is <em>italic</em>."</pre>
  *
  * Supplying <strong>no</strong> positional information will replace values in order, e.g.
  *
- * <pre>_W(__('This is [bold text] and this is [italic].'), '<strong>[]</strong>',
+ * <pre>StringTools::wrap(__('This is [bold text] and this is [italic].'), '<strong>[]</strong>',
  * '<em>[italic]</em>') =
  * "This is <strong>bold text</strong> and this is <em>italic</em>."</pre>
  *
@@ -832,50 +835,20 @@ function map_tokens($mixed, $prefix_char = "{", $suffix_char = "}") {
  * handles nested brackets, however,
  * the inner brackets is indexed before the outer brackets, e.g.
  *
- * <pre>_W('[[a][b]]','<strong>[]</strong>','<em>[]</em>','<div>[]</div>') =
+ * <pre>StringTools::wrap('[[a][b]]','<strong>[]</strong>','<em>[]</em>','<div>[]</div>') =
  * "<div><strong>a</strong><em>b</em></div>";
  *
+ * @see StringTools::wrap
+ * @deprecated 2018-01
  * @param string $phrase
  *        	Phrase to map
  * @return string The phrase with the links embedded.
  */
-function _W($phrase) {
-	$args = func_get_args();
-	array_shift($args);
-	if (count($args) === 1 && is_array($args[0])) {
-		$args = $args[0];
-	}
-	$skip_s = array();
-	$skip_r = array();
-	$match = false;
-	$global_match_index = 0;
-	while (preg_match('/\[([0-9]+:)?([^\[\]]*)\]/', $phrase, $match, PREG_OFFSET_CAPTURE)) {
-		$match_len = strlen($match[0][0]);
-		$match_off = $match[0][1];
-		$match_string = $match[2][0];
-		$index = null;
-		if ($match[1][1] < 0) {
-			$index = $global_match_index;
-		} else {
-			$index = intval($match[1][0]);
-		}
-		$global_match_index++;
-		$replace_value = avalue($args, $index, '[]');
-		list($left, $right) = pair($replace_value, '[]');
-		if ($left === null) {
-			$replace_value = '(*' . count($skip_s) . '*)';
-			$skip_s[] = $replace_value;
-			$skip_r[] = $match[0][0];
-		} else {
-			$replace_value = $left . $match_string . $right;
-		}
-		$phrase = substr($phrase, 0, $match_off) . $replace_value . substr($phrase, $match_off + $match_len);
-	}
-
-	if (count($skip_s) === 0) {
-		return $phrase;
-	}
-	return str_replace($skip_s, $skip_r, $phrase);
+function StringTools::wrap($phrase) {
+	return call_user_func_array(array(
+		StringTools::class,
+		"wrap"
+	), func_get_args());
 }
 
 /**
