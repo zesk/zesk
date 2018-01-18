@@ -844,7 +844,7 @@ function map_tokens($mixed, $prefix_char = "{", $suffix_char = "}") {
  *        	Phrase to map
  * @return string The phrase with the links embedded.
  */
-function StringTools::wrap($phrase) {
+function _W($phrase) {
 	return call_user_func_array(array(
 		StringTools::class,
 		"wrap"
