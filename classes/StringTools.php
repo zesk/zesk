@@ -1,12 +1,12 @@
 <?php
 /**
- * 
+ *
  */
 namespace zesk;
 
 /**
  * String manipulation functions, largely based on latin languages.
- * 
+ *
  * @todo Check multibyte functionality with PHP7
  */
 class StringTools {
@@ -24,32 +24,32 @@ class StringTools {
 	/**
 	 * Synonym for pair - split a string into a pair with defaults
 	 *
-	 * @param string $string        	
-	 * @param string $delim        	
-	 * @param string $left        	
-	 * @param string $right        	
+	 * @param string $string
+	 * @param string $delim
+	 * @param string $left
+	 * @param string $right
 	 * @return string
 	 * @see pair
 	 */
 	public static function pair($string, $delim = ".", $left = null, $right = null) {
 		return pair($string, $delim, $left, $right);
 	}
-	
+
 	/**
 	 * Synonym for pairr - split a string into a pair with defaults, searching backwards for
 	 * delimiter
 	 *
-	 * @param string $string        	
-	 * @param string $delim        	
-	 * @param string $left        	
-	 * @param string $right        	
+	 * @param string $string
+	 * @param string $delim
+	 * @param string $left
+	 * @param string $right
 	 * @return string
 	 * @see pairr
 	 */
 	public static function pairr($string, $delim = ".", $left = null, $right = null) {
 		return pairr($string, $delim, $left, $right);
 	}
-	
+
 	/**
 	 * Return portion of string to the left of a matched string
 	 *
@@ -68,7 +68,7 @@ class StringTools {
 		}
 		return substr($str, 0, $pos);
 	}
-	
+
 	/**
 	 * Return portion of string to the left of a matched string, searching backwards for $find
 	 *
@@ -87,7 +87,7 @@ class StringTools {
 		}
 		return substr($str, 0, $pos);
 	}
-	
+
 	/**
 	 * Return portion of string to the right of a matched string
 	 *
@@ -106,7 +106,7 @@ class StringTools {
 		}
 		return substr($str, $pos + strlen($find));
 	}
-	
+
 	/**
 	 * Return portion of string to the right of a matched string, searching backwards for $find
 	 *
@@ -125,7 +125,7 @@ class StringTools {
 		}
 		return substr($str, $pos + strlen($find));
 	}
-	
+
 	/**
 	 * Parses boolean values, but does not accept numeric ones.
 	 *
@@ -145,21 +145,21 @@ class StringTools {
 		}
 		return to_bool($value, $default);
 	}
-	
+
 	/**
 	 * Convert a boolean to a string version of it "true" or "false"
 	 *
-	 * @param mixed $bool        	
+	 * @param mixed $bool
 	 * @return string
 	 */
 	public static function from_bool($bool) {
 		return to_bool($bool) ? 'true' : 'false';
 	}
-	
+
 	/**
 	 * Capitalize words in a sentence -> Captialize Words In A Sentence.
 	 *
-	 * @param string $phrase        	
+	 * @param string $phrase
 	 * @return string
 	 */
 	public static function capitalize($phrase) {
@@ -173,7 +173,7 @@ class StringTools {
 			return implode(" ", $items);
 		}
 	}
-	
+
 	/**
 	 * Extract a field from a line, similar to awk.
 	 * Note that any delimiters within the string
@@ -196,7 +196,7 @@ class StringTools {
 		$v = $max_fields !== null ? explode($d, $v, $max_fields) : explode($d, $v);
 		return $index === null ? $v : avalue($v, $index);
 	}
-	
+
 	/**
 	 * Determine if a string begins with another string
 	 *
@@ -229,7 +229,7 @@ class StringTools {
 		$check_string = substr($haystack, 0, strlen($needle));
 		return $case_insensitive ? (strcasecmp($check_string, $needle) === 0 ? true : false) : ($check_string === $needle ? true : false);
 	}
-	
+
 	/**
 	 * Determine if a string contains with another string
 	 *
@@ -261,7 +261,7 @@ class StringTools {
 		}
 		return $case_insensitive ? (stripos($haystack, $needle) !== false ? true : false) : (strpos($haystack, $needle) !== false ? true : false);
 	}
-	
+
 	/**
 	 * Determine if a string ends with another string
 	 *
@@ -305,11 +305,11 @@ class StringTools {
 		}
 		return false;
 	}
-	
+
 	/**
 	 * Unprefix a string (remove a prefix if found at start of a string)
 	 *
-	 * @param string $string        	
+	 * @param string $string
 	 * @param mixed $prefix
 	 *        	A string or an array of strings to unprefix. First matched string is used to
 	 *        	unprefix the string.
@@ -328,11 +328,11 @@ class StringTools {
 			return self::begins($string, $prefix, $case_insensitive) ? strval(substr($string, strlen($prefix))) : $string;
 		}
 	}
-	
+
 	/**
 	 * Unsuffix a string (remove a suffix if found at end of a string)
 	 *
-	 * @param string $string        	
+	 * @param string $string
 	 * @param mixed $suffix
 	 *        	A string or an array of strings to unsuffix. First matched string is used to
 	 *        	unsuffix the string.
@@ -351,12 +351,12 @@ class StringTools {
 			return self::ends($string, $suffix, $case_insensitive) ? strval(substr($string, 0, -strlen($suffix))) : $string;
 		}
 	}
-	
+
 	/**
 	 * Return whether a string is UTF16
 	 * Based on presence of BOM
 	 *
-	 * @param string $str        	
+	 * @param string $str
 	 * @return boolean
 	 */
 	public static function is_utf16($str, &$be = null) {
@@ -374,11 +374,11 @@ class StringTools {
 		}
 		return false;
 	}
-	
+
 	/**
 	 * Return whether a string is ASCII
 	 *
-	 * @param string $str        	
+	 * @param string $str
 	 * @return boolean
 	 */
 	public static function is_ascii($str) {
@@ -393,11 +393,11 @@ class StringTools {
 		}
 		return true;
 	}
-	
+
 	/**
 	 * Is a string valid UTF-8?
 	 *
-	 * @param string $str        	
+	 * @param string $str
 	 * @return boolean
 	 */
 	public static function is_utf8($str) {
@@ -434,7 +434,7 @@ class StringTools {
 		}
 		return true;
 	}
-	
+
 	/**
 	 * StringTools::filter
 	 *
@@ -464,7 +464,7 @@ class StringTools {
 		}
 		return $default;
 	}
-	
+
 	/**
 	 * Replace first occurrance of a strings in another string
 	 *
@@ -485,13 +485,13 @@ class StringTools {
 		}
 		return implode($replace, $x);
 	}
-	
+
 	/**
 	 * Add an ellipsis into a string at a word boundary and at a certain string length.
 	 *
-	 * @param string $text        	
-	 * @param number $length        	
-	 * @param string $dot_dot_dot        	
+	 * @param string $text
+	 * @param number $length
+	 * @param string $dot_dot_dot
 	 * @return string
 	 */
 	public static function ellipsis_word($text, $length = 20, $dot_dot_dot = " ...") {
@@ -520,7 +520,7 @@ class StringTools {
 		}
 		return StringTools::substr($text, 0, $off) . $dot_dot_dot;
 	}
-	
+
 	/**
 	 * Pad a string with zeros up to the length specified.
 	 *
@@ -538,15 +538,15 @@ class StringTools {
 		}
 		return str_repeat("0", $length - $number_length) . $number;
 	}
-	
+
 	/**
 	 * Convert tabs to spaces, intelligently.
 	 *
 	 * If no $tab_width is specified, uses global "tab_width", or 4 for tab width.
 	 *
 	 * @see http://www.nntp.perl.org/group/perl.macperl.anyperl/154
-	 * @param string $text        	
-	 * @param integer $tab_width        	
+	 * @param string $text
+	 * @param integer $tab_width
 	 * @return string
 	 */
 	public static function detab($text, $tab_width = null) {
@@ -559,7 +559,7 @@ class StringTools {
 		$func = create_function('$matches', "{ return \$matches[1] . str_repeat(' ', $tab_width - strlen(\$matches[1]) % $tab_width); }");
 		return preg_replace_callback('@^(.*?)\t@m', $func, $text);
 	}
-	
+
 	/**
 	 * Split a multi-byte string into characters/glyphs
 	 *
@@ -570,7 +570,7 @@ class StringTools {
 	 * FALSE is returned if split_length is less than 1. If the split_length length exceeds the
 	 * length of string, the entire string is returned as the first (and only) array element.
 	 *
-	 * @param string $string        	
+	 * @param string $string
 	 * @return array
 	 */
 	public static function str_split($string, $split_length = 1, $encoding = null) {
@@ -584,7 +584,7 @@ class StringTools {
 		}
 		return $ret;
 	}
-	
+
 	/**
 	 * Quote a CSV field correctly.
 	 * If it contains a quote (") a comma (,), or a newline(\n), then quote it.
@@ -606,11 +606,11 @@ class StringTools {
 		}
 		return $x;
 	}
-	
+
 	/**
 	 * Quote a single CSV row
 	 *
-	 * @param array $x        	
+	 * @param array $x
 	 * @return string
 	 */
 	public static function csv_quote_row($x) {
@@ -620,7 +620,7 @@ class StringTools {
 		}
 		return implode(",", $yy) . "\r\n";
 	}
-	
+
 	/**
 	 * Quote multiple CSV rows
 	 *
@@ -647,12 +647,12 @@ class StringTools {
 		}
 		return $result;
 	}
-	
+
 	/**
 	 * Retreve the length of a mutti-byte string
 	 *
-	 * @param string $string        	
-	 * @param string $encoding        	
+	 * @param string $string
+	 * @param string $encoding
 	 * @see mb_internal_encoding
 	 * @return integer
 	 */
@@ -668,14 +668,14 @@ class StringTools {
 		}
 		return strlen(UTF8::to_iso8859($string));
 	}
-	
+
 	/**
 	 * Retrieve a substring of a multi-byte string
 	 *
-	 * @param string $string        	
-	 * @param integer $start        	
-	 * @param integer $length        	
-	 * @param string $encoding        	
+	 * @param string $string
+	 * @param integer $start
+	 * @param integer $length
+	 * @param string $encoding
 	 * @see mb_internal_encoding
 	 * @see mb_substr
 	 * @return string
@@ -693,5 +693,75 @@ class StringTools {
 		}
 		preg_match_all('/./us', $string, $match);
 		return implode('', $length === null ? array_slice($match[0], $start) : array_slice($match[0], $start, $length));
+	}
+
+	/**
+	 * Wrapping mapping function (_W)
+	 *
+	 * Mapping function which understands tags better. To apply styles or links certain elements within
+	 * a i18n phrase, use brackets
+	 * to delineate tags to add to the phrase, as follows:
+	 *
+	 * <pre>StringTools::wrap(__('This is [0:bold text] and this is [1:italic].'), '<strong>[]</strong>',
+	 * '<em>[italic]</em>') =
+	 * "This is <strong>bold text</strong> and this is <em>italic</em>."</pre>
+	 *
+	 * Supplying <strong>no</strong> positional information will replace values in order, e.g.
+	 *
+	 * <pre>StringTools::wrap(__('This is [bold text] and this is [italic].'), '<strong>[]</strong>',
+	 * '<em>[italic]</em>') =
+	 * "This is <strong>bold text</strong> and this is <em>italic</em>."</pre>
+	 *
+	 * Positional indicators are delimited with a number and a colon after the opening bracket. It also
+	 * handles nested brackets, however,
+	 * the inner brackets is indexed before the outer brackets, e.g.
+	 *
+	 * <pre>StringTools::wrap('[[a][b]]','<strong>[]</strong>','<em>[]</em>','<div>[]</div>') =
+	 * "<div><strong>a</strong><em>b</em></div>";
+	 *
+	 * @param string $phrase
+	 *        	Phrase to map
+	 * @return string The phrase with the links embedded.
+	 */
+	public static function wrap($phrase) {
+		$args = func_get_args();
+		array_shift($args);
+		if (count($args) === 1 && is_array($args[0])) {
+			$args = $args[0];
+		}
+		$skip_s = array();
+		$skip_r = array();
+		$match = false;
+		$global_match_index = 0;
+		while (preg_match('/\[([0-9]+:)?([^\[\]]*)\]/', $phrase, $match, PREG_OFFSET_CAPTURE)) {
+			$match_len = strlen($match[0][0]);
+			$match_off = $match[0][1];
+			$match_string = $match[2][0];
+			$index = null;
+			if ($match[1][1] < 0) {
+				$index = $global_match_index;
+			} else {
+				$index = intval($match[1][0]);
+			}
+			$global_match_index++;
+			$replace_value = avalue($args, $index, '[]');
+			list($left, $right) = explode('[]', $replace_value, 2) + array(
+				null,
+				""
+			);
+			if ($left === null) {
+				$replace_value = '(*' . count($skip_s) . '*)';
+				$skip_s[] = $replace_value;
+				$skip_r[] = $match[0][0];
+			} else {
+				$replace_value = $left . $match_string . $right;
+			}
+			$phrase = substr($phrase, 0, $match_off) . $replace_value . substr($phrase, $match_off + $match_len);
+		}
+
+		if (count($skip_s) === 0) {
+			return $phrase;
+		}
+		return str_replace($skip_s, $skip_r, $phrase);
 	}
 }
