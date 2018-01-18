@@ -103,6 +103,21 @@ class Command_Cannon extends Command_Base {
 			echo implode("\n", $files) . "\n";
 			return;
 		}
+		$this->skip_when_matches = $this->option_array("skip-when-matches");
+		if (count($this->skip_when_matches) === 0) {
+			$this->skip_when_matches = null;
+		} else {
+			$this->verbose_log("Skipping files which contain: \n\t\"" . implode("\"\n\t\"", $this->skip_when_matches) . "\"\n\n");
+			$stats['skipped'] = 0;
+		}
+		$this->also_match = $this->option_array("also-match");
+		if (count($this->also_match) === 0) {
+			$this->also_match = null;
+		} else {
+			$this->verbose_log("Replacement files MUST contain one of: \n\t\"" . implode("\"\n\t\"", $this->also_match) . "\"\n\n");
+			$stats['skipped'] = 0;
+		}
+
 		if ($this->has_arg()) {
 			$search = $this->get_arg("search");
 		} else {
@@ -134,21 +149,6 @@ class Command_Cannon extends Command_Base {
 			'files' => 0,
 			'lines' => 0
 		);
-		$this->skip_when_matches = $this->option_array("skip-when-matches");
-		if (count($this->skip_when_matches) === 0) {
-			$this->skip_when_matches = null;
-		} else {
-			$this->verbose_log("Skipping files which contain: \n\t\"" . implode("\"\n\t\"", $this->skip_when_matches) . "\"\n\n");
-			$stats['skipped'] = 0;
-		}
-		$this->also_match = $this->option_array("also-match");
-		if (count($this->also_match) === 0) {
-			$this->also_match = null;
-		} else {
-			$this->verbose_log("Replacement files MUST contain one of: \n\t\"" . implode("\"\n\t\"", $this->also_match) . "\"\n\n");
-			$stats['skipped'] = 0;
-		}
-
 		foreach ($files as $file) {
 			$result = $this->_replace_file($file, $search, $replace);
 			if ($result > 0) {

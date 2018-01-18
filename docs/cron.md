@@ -14,7 +14,7 @@ Like most application frameworks, it's useful to be able to run tasks intermitte
 Specific examples of cron tasks which run within Zesk:
 
 - `zesk\Application` - Checks if the schema needs to be updated
-- `zesk\Session_Database` - Deletes old sessions every minute
+- `zesk\Session_ORM` - Deletes old sessions every minute
 
 ## Cron features
 
