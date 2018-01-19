@@ -720,7 +720,6 @@ class Application extends Hookable implements Interface_Theme {
 	 */
 	private function configured_hooks() {
 		$hook_callback = $result_callback = null;
-
 		$this->hooks->call_arguments(Hooks::hook_database_configure, array(
 			$this
 		), null, $hook_callback, $result_callback);
@@ -741,6 +740,17 @@ class Application extends Hookable implements Interface_Theme {
 		$result = $this->_configure(to_array($this->configuration_options));
 		$this->_configured();
 		return $result;
+	}
+
+	/**
+	 *
+	 * @param CacheItemPoolInterface $cahe
+	 * @return \zesk\Application
+	 */
+	final public function set_cache(CacheItemPoolInterface $interface) {
+		$this->cache = $interface;
+		$this->call_hook("set_cache");
+		return $this;
 	}
 
 	/**
@@ -1315,7 +1325,7 @@ class Application extends Hookable implements Interface_Theme {
 	 */
 	public function set_locale(Locale $set) {
 		$this->locale = $set;
-		$this->hook("locale", $set);
+		$this->call_hook("set_locale", $set);
 		return $this;
 	}
 	/**
@@ -1834,21 +1844,6 @@ class Application extends Hookable implements Interface_Theme {
 			return $this->set_option("development", to_bool($set));
 		}
 		return $this->option_bool("development");
-	}
-
-	/**
-	 * Retrieve the database for this application.
-	 * This call is meant to deprecate the global Database::factory eventually.
-	 *
-	 * @param string $mixed
-	 *        	Name or URL
-	 * @param array $options
-	 *        	Options for the database
-	 * @return Database
-	 */
-	public function database_factory($mixed = null, array $options = array()) {
-		zesk()->deprecated();
-		return $this->database_module()->database_registry($mixed, $options);
 	}
 
 	/**
