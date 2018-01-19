@@ -1,4 +1,15 @@
 <?php
+/**
+ * @package zesk
+ * @subpackage sqlite3
+ * @author kent
+ * @copyright &copy; 2018 Market Acumen, Inc.
+ */
+namespace zesk;
+
+/**
+ * @author kent
+ */
 namespace sqlite3;
 
 // PHP classes
@@ -25,7 +36,6 @@ use zesk\Time;
 use zesk\Timestamp;
 use zesk\dir;
 use zesk\File;
-use zesk\Kernel;
 use zesk\ArrayTools;
 use zesk\Database_Column;
 
@@ -43,15 +53,6 @@ class Database extends \zesk\Database {
 	 * @var SQLite3
 	 */
 	protected $conn = null;
-
-	/**
-	 * Register schemes this class support
-	 */
-	public static function hooks(Kernel $zesk) {
-		$zesk->classes->register(__CLASS__);
-		Database::register_scheme("sqlite", __CLASS__);
-		Database::register_scheme("sqlite3", __CLASS__);
-	}
 
 	/**
 	 * Support database features

@@ -14,7 +14,7 @@ namespace zesk;
  * @see Widget
  */
 class Control extends Widget {
-	
+
 	/**
 	 *
 	 * @var array
@@ -66,7 +66,7 @@ class Control extends Widget {
 		'tr',
 		'ul'
 	);
-	
+
 	/**
 	 * Retrieve the key used to assign this condition to allow overwriting by subclasses
 	 *
@@ -80,10 +80,10 @@ class Control extends Widget {
 		}
 		return implode(";", $columns);
 	}
-	
+
 	/**
 	 * Retrieve the key used to assign this condition to allow overwriting by subclasses
-	 *  
+	 *
 	 * @param Database_Query_Select $query
 	 * @return NULL|string
 	 */
@@ -151,7 +151,7 @@ class Control extends Widget {
 	public function query_column($set = null) {
 		return ($set !== null) ? $this->set_option('query_column', $set) : $this->option('query_column');
 	}
-	
+
 	/**
 	 * Enable sanitization of inputs to remove dangerous HTML
 	 *
@@ -162,41 +162,41 @@ class Control extends Widget {
 	 *
 	 * Use boolean values to strip/allow all tags
 	 *
-	 * @param boolean $set        	
+	 * @param boolean $set
 	 * @return boolean|Widget
 	 */
 	protected function sanitize_html($set = null) {
 		return $set === null ? $this->option_bool('sanitize_html', true) : $this->set_option('sanitize_html', to_bool($set));
 	}
-	
+
 	/**
 	 * Just strip dangerous tags (script, link)
 	 */
 	protected function sanitize_strip_default_tags() {
 		return $this->sanitize_html(true)->sanitize_allow_tags(false)->sanitize_strip_tags(self::$default_strip_tags);
 	}
-	
+
 	/**
 	 * Just strip dangerous tags (script, link)
 	 */
 	protected function sanitize_strip_all_tags() {
 		return $this->sanitize_html(true)->sanitize_allow_tags(false)->sanitize_strip_tags(true);
 	}
-	
+
 	/**
 	 * Only allow default tags (markup, safe)
 	 */
 	protected function sanitize_allow_default_tags() {
 		return $this->sanitize_html(true)->sanitize_allow_tags(self::$default_allow_tags)->sanitize_strip_tags(false);
 	}
-	
+
 	/**
 	 * Allow all tags (whoo-hoo!)
 	 */
 	protected function sanitize_allow_all_tags() {
 		return $this->sanitize_html(false);
 	}
-	
+
 	/**
 	 * Get/set specific tags to strip
 	 *
@@ -205,13 +205,13 @@ class Control extends Widget {
 	 * string|array is list of HTML tags to strip
 	 *
 	 * @see strip_tags
-	 * @param mixed $set        	
+	 * @param mixed $set
 	 * @return Widget|mixed
 	 */
 	protected function sanitize_strip_tags($set = null) {
 		return $set === null ? $this->option('sanitize_strip_tags', true) : $this->set_option('sanitize_strip_tags', $set);
 	}
-	
+
 	/**
 	 * Get/set specific tags to strip
 	 *
@@ -220,15 +220,15 @@ class Control extends Widget {
 	 * string|array is list of HTML tags to strip
 	 *
 	 * @see strip_tags
-	 * @param mixed $set        	
+	 * @param mixed $set
 	 * @return Widget|mixed
 	 */
 	protected function sanitize_allow_tags($set = null) {
 		return $set === null ? $this->option('sanitize_allow_tags', self::$default_allow_tags) : $this->set_option('sanitize_allow_tags', $set);
 	}
-	
+
 	/**
-	 * 
+	 *
 	 * @param string $value
 	 * @param list $tags
 	 * @return string
@@ -244,41 +244,42 @@ class Control extends Widget {
 		}
 		return $value;
 	}
-	
+
 	/**
 	 * Sanitize a non-iterable value
 	 *
-	 * @param unknown $value        	
+	 * @param unknown $value
 	 */
 	private function _sanitize($value) {
 		if (is_object($value) || $value === null || is_bool($value) || is_numeric($value)) {
 			return $value;
 		}
-		$allow = $this->sanitize_allow_tags();
 		$strip = $this->sanitize_strip_tags();
 		if ($strip === true) {
+			// Strip ALL tags
 			return strip_tags($value);
 		}
-		if (is_string($strip)) {
-			$value = self::_sanitize_strip(to_list($value), $strip);
-		} else if (is_array($strip)) {
-			$value = self::_sanitize_strip($value, $strip);
+		if (is_string($strip) || is_array($strip)) {
+			$value = self::_sanitize_strip($value, to_list($strip));
 		}
+
+		$allow = $this->sanitize_allow_tags();
 		if ($allow === true) {
 			return $value;
 		}
-		if (is_string($allow)) {
+		if (is_string($allow) || is_array($allow)) {
+			// We need to also strip attributes of allowed tags to avoid JavaScript onXXX poisoning, e.g
+			// <p onmouseover="document.location = 'http://bad-place/';">Move your mouse over this word to get a surprise.</p>
+			// strip_tags with values is NOT safe
+			// TODO Security
 			return strip_tags($value, implode("", ArrayTools::wrap(to_list($allow), '<', '>')));
-		}
-		if (is_array($allow)) {
-			return strip_tags($value, implode("", ArrayTools::wrap($allow, '<', '>')));
 		}
 		return $value;
 	}
-	
+
 	/**
 	 * Public function to sanitize HTML-related values before storing in an object.
-	 * 
+	 *
 	 * {@inheritDoc}
 	 *
 	 * @see Widget::sanitize($value)
