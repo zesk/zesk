@@ -2,16 +2,16 @@
 /**
  *
  */
-namespace zesk;
+namespace zesk\Locale;
 
-use zesk\Locale\Reader;
+use zesk\JavaScript;
 
 /**
  * @see Locale
  * @author kent
  *
  */
-class Controller_Locale extends Controller {
+class Controller extends \zesk\Controller {
 	/**
 	 *
 	 */

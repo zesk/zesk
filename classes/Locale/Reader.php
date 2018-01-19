@@ -77,7 +77,7 @@ class Reader {
 	 * @param array $extensions
 	 * @return \zesk\Locale\Reader
 	 */
-	static function factory(array $paths, $id, array $extensions) {
+	static function factory(array $paths, $id, array $extensions = array()) {
 		return new self($paths, $id, $extensions);
 	}
 	/**
@@ -132,7 +132,7 @@ class Reader {
 	 * @param array $options
 	 * @return Locale
 	 */
-	function locale(Application $application, array $options) {
+	function locale(Application $application, array $options = array()) {
 		return Locale::factory($application, $this->id, $options)->translations($this->execute());
 	}
 	/**
