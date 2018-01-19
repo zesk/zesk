@@ -108,7 +108,7 @@ class Selenium_Browsers {
 	 */
 	public function generate_best_match(array $capabilities) {
 		$logger = $this->application->logger;
-		/* @var $zesk \zesk\Kernel */
+		/* @var $locale \zesk\Locale */
 		$os_api_name = $browser_api_name = $screen_resolution = null;
 		extract($capabilities, EXTR_IF_EXISTS);
 		if ($os_api_name === null) {
@@ -182,7 +182,7 @@ class Selenium_Browsers {
 	 */
 	public function browsers_clean_and_fix(array $desired_browsers) {
 		$result = array();
-		/* @var $zesk \zesk\Kernel */
+		/* @var $locale \zesk\Locale */
 		foreach ($desired_browsers as $index => $record) {
 			$caps = avalue($record, "desiredCapabilities", array());
 			$name = self::configuration_name($caps);

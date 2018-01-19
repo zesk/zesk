@@ -11,7 +11,7 @@ use zesk\URL;
 use zesk\HTML;
 use zesk\Session_ORM;
 /* @var $this \zesk\Template */
-/* @var $zesk \zesk\Kernel */
+/* @var $locale \zesk\Locale */
 /* @var $application \zesk\Application */
 /* @var $session \zesk\Interface_Session */
 /* @var $request \zesk\Router */

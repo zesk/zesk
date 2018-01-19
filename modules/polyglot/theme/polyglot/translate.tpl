@@ -6,7 +6,7 @@
 namespace zesk;
 
 /* @var $this \zesk\Template */
-/* @var $zesk \zesk\Kernel */
+/* @var $locale \zesk\Locale */
 /* @var $application \zesk\Application */
 /* @var $locale \zesk\Locale */
 /* @var $session \zesk\Session */

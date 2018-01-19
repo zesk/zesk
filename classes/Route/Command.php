@@ -10,7 +10,7 @@ class Route_Command extends Route {
 	protected function _execute() {
 		global $zesk;
 		$app = $this->router->application;
-		/* @var $zesk \zesk\Kernel */
+		/* @var $locale \zesk\Locale */
 		$response = $app->response;
 		$debug = $this->option_bool('debug');
 		

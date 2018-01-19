@@ -17,6 +17,7 @@ namespace zesk;
  * is deprecated in favor of defining a distinct Class_ORM subclass to define members and
  * structure.
  *
+ * @no-cannon
  * @see Class_ORM
  * @deprecated 2017-12 Blame PHP 7.2
  * @see ORM

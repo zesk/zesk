@@ -1,7 +1,7 @@
 <?php
 
 /* @var $this \zesk\Template */
-/* @var $zesk \zesk\Kernel */
+/* @var $locale \zesk\Locale */
 /* @var $application \zesk\Application */
 /* @var $session \zesk\Session */
 /* @var $router \zesk\Router */
@@ -9,7 +9,7 @@
 /* @var $request \zesk\Request */
 /* @var $response \zesk\Response_Text_HTML */
 /* @var $current_user \zesk\User */
-$configuration = $zesk->configuration;
+$configuration = $application->configuration;
 /**
  * @see Currency
  * @see Currency::format

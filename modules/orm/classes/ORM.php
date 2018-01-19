@@ -923,7 +923,7 @@ class ORM extends Model {
 	 */
 	function query_select($alias = null) {
 		$query = new Database_Query_Select($db = $this->database());
-		$query->object_class(get_class($this));
+		$query->orm_class(get_class($this));
 		if (empty($alias)) {
 			$alias = "X";
 		}
@@ -937,7 +937,7 @@ class ORM extends Model {
 	 */
 	function query_insert() {
 		$query = new Database_Query_Insert($this->database());
-		$query->object_class(get_class($this));
+		$query->orm_class(get_class($this));
 		return $query->into($this->table())->valid_columns($this->columns());
 	}
 
@@ -948,7 +948,7 @@ class ORM extends Model {
 	 */
 	function query_insert_select($alias = "") {
 		$query = new Database_Query_Insert_Select($this->database());
-		$query->object_class(get_class($this));
+		$query->orm_class(get_class($this));
 		$query->from($this->table(), $alias);
 		return $query->into($this->table());
 	}
@@ -960,7 +960,7 @@ class ORM extends Model {
 	 */
 	function query_update($alias = null) {
 		$query = new Database_Query_Update($this->database());
-		return $query->object_class(get_class($this))->table($this->table(), $alias)->valid_columns($this->columns(), $alias);
+		return $query->orm_class(get_class($this))->table($this->table(), $alias)->valid_columns($this->columns(), $alias);
 	}
 
 	/**
@@ -971,7 +971,7 @@ class ORM extends Model {
 	function query_delete() {
 		$db = $this->database();
 		$query = new Database_Query_Delete($db);
-		$query->object_class(get_class($this));
+		$query->orm_class(get_class($this));
 		return $query;
 	}
 
@@ -1807,7 +1807,7 @@ class ORM extends Model {
 	}
 	protected function duplicate(Options_Duplicate &$options = null) {
 		global $zesk;
-		/* @var $zesk \zesk\Kernel */
+		/* @var $locale \zesk\Locale */
 		if ($options === null) {
 			$options = new Options_Duplicate($this->inherit_options());
 		}
@@ -1943,7 +1943,7 @@ class ORM extends Model {
 		if (count($members) === 0) {
 			if (self::$debug) {
 				global $zesk;
-				/* @var $zesk \zesk\Kernel */
+				/* @var $locale \zesk\Locale */
 				$zesk->logger->debug("Update of {class}:{id} - no changes", array(
 					"class" => get_class($this),
 					"id" => $this->id()
@@ -2377,7 +2377,7 @@ class ORM extends Model {
 	 */
 	public static function clean_database_object_members($class, $mixed) {
 		global $zesk;
-		/* @var $zesk \zesk\Kernel */
+		/* @var $locale \zesk\Locale */
 
 		/* @var $class_object Class_ORM */
 		$class_object = ORM::cache_class($class, "class");
