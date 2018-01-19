@@ -10,8 +10,8 @@
 namespace zesk;
 
 /**
- * 
- * @author kent
  *
+ * @author kent
+ * @no-cannon
  */
 class Control_Select_Object extends Control_Select_ORM {}

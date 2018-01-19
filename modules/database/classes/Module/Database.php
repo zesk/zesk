@@ -17,14 +17,14 @@ class Module_Database extends Module {
 	 *
 	 * @var string
 	 */
-	private $database_name_default = null;
+	private $default = null;
 
 	/**
 	 * Global database name => url mapping
 	 *
 	 * @var array
 	 */
-	private $database_names = array();
+	private $names = array();
 	/**
 	 * Global databases
 	 *
@@ -47,11 +47,11 @@ class Module_Database extends Module {
 	public function initialize() {
 		$this->application->register_registry("database", array(
 			$this,
-			"database_factory"
+			"app_database_registry"
 		));
 		$this->application->register_factory("database", array(
 			$this,
-			"database_factory"
+			"app_database_registry"
 		));
 		$hooks = $this->application->hooks;
 		$hooks->add(Hooks::hook_database_configure, array(
@@ -76,10 +76,10 @@ class Module_Database extends Module {
 	 */
 	public function database_default($set = null) {
 		if ($set === null) {
-			return $this->database_name_default;
+			return $this->default;
 		}
 		$set = strtolower($set);
-		$this->database_name_default = $set;
+		$this->default = $set;
 	}
 
 	/**
@@ -91,27 +91,27 @@ class Module_Database extends Module {
 	 */
 	public function register($name = null, $url = null, $is_default = false) {
 		if ($name === null) {
-			return $this->database_names;
+			return $this->names;
 		}
 		$name = strtolower($name);
 		if ($url === null) {
-			return avalue($this->database_names, $name);
+			return avalue($this->names, $name);
 		}
 		if (!URL::valid($url)) {
 			throw new Exception_Semantics("{url} is not a valid database URL ({name})", compact("name", "url"));
 		}
 		$url = URL::normalize($url);
-		if (array_key_exists($name, $this->databases) && $url !== $this->database_names[$name]) {
+		if (array_key_exists($name, $this->databases) && $url !== $this->names[$name]) {
 			$this->application->logger->debug("Changing database url {name} {url} (old is {old})", array(
 				"name" => $name,
 				"url" => $url,
-				"old" => $this->database_names[$name]
+				"old" => $this->names[$name]
 			));
 			$this->databases[$name]->change_url($url);
 		} else {
 			//$zesk->logger->debug("Registering database $name $url");
 		}
-		$this->database_names[$name] = $url;
+		$this->names[$name] = $url;
 		if ($is_default) {
 			$this->database_default($name);
 		}
@@ -124,7 +124,7 @@ class Module_Database extends Module {
 	 */
 	public function unregister($name) {
 		$name = strtolower($name);
-		$this->database_names[$name] = null;
+		$this->names[$name] = null;
 		return $this;
 	}
 
@@ -291,10 +291,27 @@ class Module_Database extends Module {
 	 *        	MySQL and SQLite3 supported.
 	 * @return Database
 	 */
-	public function database_factory($mixed = null, array $options = array()) {
+	public function app_database_registry(Application $application, $mixed = null, $options = array()) {
 		return $this->database_registry($mixed, $options);
 	}
-	public function database_registry($mixed = null, array $options = array()) {
+
+	/**
+	 *
+	 * Create or find a database
+	 *
+	 * @param string $url
+	 *        	Connection URL in the form
+	 *        	dbtype://user:password@host/databasename?option0=value0&option1=value1. Currently
+	 *        	MySQL and SQLite3 supported.
+	 * @throws Exception_Configuration
+	 * @throws Exception_NotFound
+	 * @throws Database_Exception_Unknown_Schema
+	 * @throws Exception
+	 * @throws Exception_Unimplemented
+	 * @return Database
+	 */
+	public function database_registry($mixed = null, $options = array()) {
+		$options = to_array($options);
 		$application = $this->application;
 		$original = $mixed;
 		if (URL::valid($mixed)) {
@@ -309,8 +326,7 @@ class Module_Database extends Module {
 			}
 			$url = $this->register($mixed);
 			$codename = $mixed;
-			$databases = $this->register();
-			if (count($databases) === 0) {
+			if (count($this->names) === 0) {
 				throw new Exception_Configuration(__CLASS__ . "::names", "No default database URL configured: \"{default}\"", array(
 					"default" => $this->database_default()
 				));

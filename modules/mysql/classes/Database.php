@@ -143,15 +143,6 @@ class Database extends \zesk\Database {
 	);
 
 	/**
-	 * Register schemes this class support
-	 */
-	public static function hooks(Kernel $zesk) {
-		// Kernel should find some way to store this registration data instead of per-class
-		// TODO
-		\zesk\Database::register_scheme("mysql", __CLASS__);
-		\zesk\Database::register_scheme("mysqli", __CLASS__);
-	}
-	/**
 	 * Set default table type
 	 */
 	function hook_construct() {

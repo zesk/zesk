@@ -238,6 +238,9 @@ class Settings extends ORM implements Interface_Data, Interface_Settings {
 		} catch (Exception_Semantics $e) {
 			// Columns may have changed
 			$exception = $e;
+		} catch (Exception_Configuration $e) {
+			// App is not configured
+			$exception = $e;
 		}
 		if ($exception) {
 			$application->hooks->call("exception", $exception);
