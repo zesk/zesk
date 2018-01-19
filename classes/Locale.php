@@ -243,28 +243,6 @@ abstract class Locale extends Hookable {
 	}
 
 	/**
-	 * Register all hooks
-	 */
-	public static function hooks(Kernel $zesk) {
-		$zesk->configuration->path(__CLASS__);
-		$zesk->hooks->add('<head>', array(
-			__CLASS__,
-			'hook_head'
-		));
-		$zesk->hooks->add("zesk\Application::router_loaded", array(
-			__CLASS__,
-			"router_loaded"
-		));
-	}
-	public static function router_loaded(\zesk\Application $app, Router $router) {
-		$router->add_route("/locale/{option action}", array(
-			"controller" => "zesk\\Controller_Locale",
-			"arguments" => array(
-				1
-			)
-		));
-	}
-	/**
 	 * When a word appears at the start of a sentence, properly format it.
 	 *
 	 * @param string $word
