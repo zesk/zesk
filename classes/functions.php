@@ -3,6 +3,7 @@
  * Things that should probably just be in PHP, or were added after we added these. Review
  * annually to see if we can deprecate functionality.
  *
+ * @no-cannon Do not cannon this file (for _W)
  * $URL: https://code.marketacumen.com/zesk/trunk/classes/kernel.inc $
  * @package zesk
  * @subpackage system
