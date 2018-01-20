@@ -1,42 +1,42 @@
 <?php
 /**
- * 
+ *
  */
 namespace zesk;
 
 /**
- * 
+ *
  * @author kent
  *
  */
 class Control_OrderBy extends Control {
 	/**
-	 * 
+	 *
 	 * @var string
 	 */
 	const default_order_variable = 'o';
 	/**
-	 * 
+	 *
 	 * @var unknown
 	 */
 	private $active = null;
 	/**
-	 * 
+	 *
 	 * @var unknown
 	 */
 	private $sort_number;
 	/**
-	 * 
+	 *
 	 * @var unknown
 	 */
 	private $sort_order;
 	/**
-	 * 
+	 *
 	 * @var unknown
 	 */
 	private $url = null;
 	/**
-	 * Getter/setter for 
+	 * Getter/setter for
 	 * @param unknown $set
 	 * @return void|mixed|string
 	 */
@@ -69,7 +69,10 @@ class Control_OrderBy extends Control {
 		return $set === null ? $this->option('list_order_column', $this->column()) : $this->set_option('list_order_column', $set);
 	}
 	function list_order_variable($set = null) {
-		return $set === null ? $this->option('list_order_variable', $this->parent ? $this->parent->option('list_order_variable', self::default_order_variable) : self::default_order_variable) : $this->set_option('list_order_variable', $set);
+		if ($set === null) {
+			return $this->option('list_order_variable', $this->parent ? $this->parent->option('list_order_variable', self::default_order_variable) : self::default_order_variable);
+		}
+		return $this->set_option('list_order_variable', $set);
 	}
 	function hook_header(Control_Header $header) {
 		$col = $this->list_order_column();
@@ -140,10 +143,13 @@ class Control_OrderBy extends Control {
 		} else {
 			$sort_number = null;
 		}
-		$this->theme_variables['url'] = URL::query_format($this->option("URI", $this->request->uri()), array(
+		$new_query = array(
 			$order_var => $new_key
-		));
-		
+		);
+		$this->theme_variables['orderby_url'] = URL::query_format($this->option("URI", $this->request->uri()), $new_query);
+
+		$this->theme_variables['list_order_column'] = $k;
+		$this->theme_variables['list_order_variable'] = $order_var;
 		$this->theme_variables['ascending'] = $ascending;
 		$this->theme_variables['selected'] = $selected;
 		$this->theme_variables['sort_order'] = $sort_order;

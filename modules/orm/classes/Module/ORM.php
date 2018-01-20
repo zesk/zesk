@@ -10,7 +10,6 @@ namespace zesk;
  * @author kent
  */
 class Module_ORM extends Module {
-
 	/**
 	 * Your basic ORM classes.
 	 *
@@ -68,6 +67,14 @@ class Module_ORM extends Module {
 		$this->application->register_registry("class_orm", array(
 			$this,
 			"class_orm_registry"
+		));
+
+		/**
+		 * $application->settings_registry(...)
+		 */
+		$this->application->register_registry("settings", array(
+			$this,
+			"settings_registry"
 		));
 
 		/**
@@ -534,6 +541,29 @@ class Module_ORM extends Module {
 		return $results;
 	}
 
+	/**
+	 * Registry of settings, currently
+	 *
+	 * @var Settings[string]
+	 */
+	private $registry = array();
+
+	/**
+	 *
+	 * @param Application $application
+	 * @param string $class
+	 * @return \zesk\Settings[string]
+	 */
+	public function settings_registry(Application $application, $class = null) {
+		if ($class === null) {
+			$class = $this->option("settings_class", Settings::class);
+		}
+		$low_class = strtolower($class);
+		if (isset($this->registry[$low_class])) {
+			return $this->registry[$low_class];
+		}
+		return $this->registry[$low_class] = $this->application->orm_factory($class);
+	}
 	/**
 	 * Automatically set a SQL type for a database column if it just has a Class_ORM::type_FOO set
 	 *

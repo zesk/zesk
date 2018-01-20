@@ -1771,7 +1771,8 @@ class ORM extends Model {
 		$name = $this->get($column);
 		$class = get_class($this);
 		if ($rename_pattern === null) {
-			$rename_pattern = $this->option("duplicate_rename", __("$class:={0} (Copy{1})"));
+			$locale = $this->application->locale;
+			$rename_pattern = $this->option("duplicate_rename", $locale->__("$class:={0} (Copy{1})"));
 		}
 		// Quote all characters but {} which are used in the map call
 		$preg_pattern = '#^' . map(strtr(preg_quote($rename_pattern, "#"), array(
@@ -1923,7 +1924,8 @@ class ORM extends Model {
 			}
 		}
 		if (count($where) === 0) {
-			throw new Exception_Semantics(__("Updating {class} without a where clause {primary_keys}", array(
+			$locale = $this->application->locale;
+			throw new Exception_Semantics($locale->__("Updating {class} without a where clause {primary_keys}", array(
 				"class" => get_class($this),
 				"primary_keys" => implode(", ", $this->class->primary_keys)
 			)));
@@ -2635,8 +2637,9 @@ class ORM extends Model {
 	 * @return string
 	 */
 	protected function hook_control_message_cancel(Control $control) {
-		$cancelMessage = $control->option("cancel_message", __("No changes were made to the {class_name-context-object-singular}."));
-		$cancelNewMessage = $control->option("cancel_new_message", __("{class_name-context-subject-singular} was not created."));
+		$locale = $this->application->locale;
+		$cancelMessage = $control->option("cancel_message", $locale->__("No changes were made to the {class_name-context-object-singular}."));
+		$cancelNewMessage = $control->option("cancel_new_message", $locale->__("{class_name-context-subject-singular} was not created."));
 		return $this->is_new() ? $cancelNewMessage : $cancelMessage;
 	}
 
@@ -2647,8 +2650,9 @@ class ORM extends Model {
 	 * @return Ambigous <Model, Model, mixed, Hookable, string, array, number>
 	 */
 	protected function hook_control_message_store(Control $control) {
+		$locale = $this->application->locale;
 		$is_new = $this->is_new();
-		$default_message = !$is_new ? __('Control:={class_name-context-subject-singular} "{display_name}" was updated.') : __('Control_ORM_Edit:={class_name-context-subject-singular} "{display_name}" was added.');
+		$default_message = !$is_new ? $locale->__('Control:={class_name-context-subject-singular} "{display_name}" was updated.') : $locale->__('Control_ORM_Edit:={class_name-context-subject-singular} "{display_name}" was added.');
 		$store_message = $control->option("store_message", $default_message);
 		if ($is_new) {
 			$store_message = $control->option("store_new_message", $store_message);
@@ -2663,8 +2667,9 @@ class ORM extends Model {
 	 * @return string
 	 */
 	protected function hook_control_message_store_error(Control $control) {
+		$locale = $this->application->locale;
 		$name = strtolower($this->display_name());
-		$message = __("{class_name-context-subject-indefinite-article} with that name already exists");
+		$message = $locale->__("{class_name-context-subject-indefinite-article} with that name already exists");
 		$message = $this->option("store_error", $message);
 		return $message;
 	}
@@ -2680,7 +2685,8 @@ class ORM extends Model {
 	static function default_permissions(Application $application, $class) {
 		$object = $application->orm_registry($class);
 		$name = $object->class->name;
-		$names = $this->application->locale->plural($name);
+		$locale = $application->locale;
+		$names = $locale->plural($name);
 		$__ = array(
 			"object" => $name,
 			"objects" => $names
@@ -2688,7 +2694,7 @@ class ORM extends Model {
 		$prefix = $class . "::";
 		return array(
 			$prefix . 'view' => array(
-				'title' => __('View {object}', $__),
+				'title' => $locale->__('View {object}', $__),
 				'class' => $class,
 				"before_hook" => array(
 					"allowed_if_all" => array(
@@ -2697,10 +2703,10 @@ class ORM extends Model {
 				)
 			),
 			$prefix . 'view all' => array(
-				'title' => __('View all {objects}', $__)
+				'title' => $locale->__('View all {objects}', $__)
 			),
 			$prefix . 'edit' => array(
-				'title' => __('Edit {object}', $__),
+				'title' => $locale->__('Edit {object}', $__),
 				'class' => $class,
 				"before_hook" => array(
 					"allowed_if_all" => array(
@@ -2709,16 +2715,16 @@ class ORM extends Model {
 				)
 			),
 			$prefix . 'edit all' => array(
-				'title' => __('Edit all {objects}', $__)
+				'title' => $locale->__('Edit all {objects}', $__)
 			),
 			$prefix . 'new' => array(
-				'title' => __('Create {objects}', $__)
+				'title' => $locale->__('Create {objects}', $__)
 			),
 			$prefix . 'delete all' => array(
-				'title' => __('Delete any {objects}', $__)
+				'title' => $locale->__('Delete any {objects}', $__)
 			),
 			$prefix . 'delete' => array(
-				'title' => __('Delete {object}', $__),
+				'title' => $locale->__('Delete {object}', $__),
 				"before_hook" => array(
 					"allowed_if_all" => array(
 						"$class::delete all"
@@ -2727,7 +2733,7 @@ class ORM extends Model {
 				'class' => $class
 			),
 			$prefix . 'list' => array(
-				'title' => __('List {objects}', $__)
+				'title' => $locale->__('List {objects}', $__)
 			)
 		);
 	}
@@ -2757,14 +2763,14 @@ class ORM extends Model {
 		$locale = $this->application->locale;
 		$name = $this->class->name;
 		$spec['class_name-raw'] = $name;
-		$spec['class_name'] = $spec['class_name-singular'] = $locale->__($name, $this->locale);
+		$spec['class_name'] = $spec['class_name-singular'] = $locale->__($name);
 		$spec['class_name-context-object'] = $spec['class_name-context-object-singular'] = $locale_class_name = strtolower($spec['class_name']);
-		$spec['class_name-context-object-plural'] = $locale->plural($locale_class_name, $this->locale);
+		$spec['class_name-context-object-plural'] = $locale->plural($locale_class_name);
 		$spec['class_name-context-subject'] = $spec['class_name-context-subject-singular'] = ucfirst($locale_class_name);
 		$spec['class_name-context-subject-plural'] = ucfirst($spec['class_name-context-object-plural']);
 		$spec['class_name-context-title'] = StringTools::capitalize($spec['class_name-context-object']);
 		$spec["class_name-context-subject-indefinite-article"] = $locale->indefinite_article($name, true);
-		$spec['class_name-plural'] = $locale->plural($name, $this->locale);
+		$spec['class_name-plural'] = $locale->plural($name);
 
 		$name = $this->display_name();
 		$spec['display_name'] = $name;

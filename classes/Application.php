@@ -1166,7 +1166,7 @@ class Application extends Hookable implements Interface_Theme {
 	 */
 	public function repositories() {
 		$repos = array(
-			'zesk' => $this->zesk_root(),
+			'zesk' => $this->zesk_home(),
 			get_class($this) => $this->path()
 		);
 		return $this->call_hook_arguments("repositories", array(
@@ -1682,14 +1682,15 @@ class Application extends Hookable implements Interface_Theme {
 		$this->paths->set_application($path, true);
 		return $this;
 	}
+
 	/**
-	 * Return the zesk root path.
+	 * Return the zesk home path, usually used to load built-in themes directly.
 	 *
 	 * @param string $suffix
 	 *        	Optional path to add to the application path
 	 * @return string
 	 */
-	final public function zesk_root($suffix = null) {
+	final public function zesk_home($suffix = null) {
 		return $this->paths->zesk($suffix);
 	}
 
@@ -2316,10 +2317,23 @@ class Application extends Hookable implements Interface_Theme {
 	private function default_include_path() {
 		$list = array_unique(array(
 			'/etc',
-			$this->zesk_root('etc'),
+			$this->zesk_home('etc'),
 			$this->path('etc')
 		));
 		return $list;
+	}
+
+	/**
+	 * Return the zesk root path.
+	 *
+	 * @deprecated 2018-01 Use self::zesk_home
+	 * @param string $suffix
+	 *        	Optional path to add to the application path
+	 * @return string
+	 */
+	final public function zesk_root($suffix = null) {
+		zesk()->deprecated();
+		return $this->zesk_home($suffix);
 	}
 }
 

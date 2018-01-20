@@ -16,7 +16,7 @@ if (!$this->hide_sort_icon) {
 <div class="sort-widget">
 	<?php
 	echo HTML::tag('a', array(
-		'href' => $this->url,
+		'href' => $this->orderby_url,
 		"alt" => $this->alt
 	), HTML::span("title", $english) . $suffix);
 	?>

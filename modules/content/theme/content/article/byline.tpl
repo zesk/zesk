@@ -1,6 +1,6 @@
 <?php
 /**
- * 
+ *
  */
 namespace zesk;
 
@@ -20,8 +20,8 @@ if (empty($object->Byline)) {
 
 $posted_vars = array(
 	'byline' => $object->Byline,
-	'date' => Timestamp::factory($object->Created)->format('{mmmm} {ddd}, {yyyy} {12HH}:{MM} {AMPM}')
+	'date' => Timestamp::factory($object->Created)->format($locale, '{mmmm} {ddd}, {yyyy} {12HH}:{MM} {AMPM}')
 );
 echo HTML::tag("div", array(
 	"class" => "byline"
-), __("Content_Article:=Posted by {byline} on {date}", $posted_vars));
+), $locale->__("Content_Article:=Posted by {byline} on {date}", $posted_vars));

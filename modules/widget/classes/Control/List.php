@@ -315,9 +315,9 @@ class Control_List extends Control_Widgets_Filter {
 		foreach ($this->row_widgets as $widget) {
 			/* @var $widget Widget */
 			if ($widget->has_option("list_order_by", true)) {
-				$w = $this->header_widgets[$widget->name()] = $this->widget_factory("zesk\\Control_OrderBy", $widget->options_include($included))->names("" . $widget->name(), $widget->label());
+				$w = $this->header_widgets[$widget->name()] = $this->widget_factory(Control_OrderBy::class, $widget->options_include($included))->names("" . $widget->name(), $widget->label());
 			} else {
-				$w = $this->header_widgets[$widget->name()] = $this->widget_factory('zesk\View_Text', $widget->options_include($included))
+				$w = $this->header_widgets[$widget->name()] = $this->widget_factory(View_Text::class, $widget->options_include($included))
 					->names($widget->name())
 					->set_option("value", $widget->option("label_header", $widget->label()));
 			}

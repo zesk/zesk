@@ -224,21 +224,37 @@ abstract class Database_Query_Select_Base extends Database_Query {
 	}
 
 	/**
-	 * Execute query and convert to an object
+	 * Execute query and convert to a Model
 	 *
-	 * @param string $class
-	 *        	Class of object
-	 * @param unknown_type $default
-	 * @return unknown
+	 * @param string $class Class of object, pass NULL to use already configured class
+	 * @param array $options Options to pass to object creator
+	 * @return Model
 	 */
 	function model($class = null, array $options = array()) {
 		$result = $this->one(false, null);
 		if ($result === null) {
 			return $result;
 		}
-		$options['from_database'] = true;
-		$object = $this->model_factory($this->orm_class($class), $result, $options);
-		return $object;
+		return $this->application->model_factory($this->orm_class($class), $result, array(
+			'from_database' => true
+		) + $options);
+	}
+
+	/**
+	 * Execute query and convert to an ORM. A bit of syntactic sugar.
+	 *
+	 * @param string $class Class of object, pass NULL to use already configured class
+	 * @param array $options Options to pass to object creator
+	 * @return ORM
+	 */
+	function orm($class = null, array $options = array()) {
+		$result = $this->one(false, null);
+		if ($result === null) {
+			return $result;
+		}
+		return $this->application->orm_factory($this->orm_class($class), $result, array(
+			'from_database' => true
+		) + $options);
 	}
 
 	/**
