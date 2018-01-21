@@ -1,5 +1,8 @@
 <?php
 use zesk\Date;
+use zesk\Control_Select;
+use zesk\Locale;
+
 /**
  *
  * @author kent
@@ -11,15 +14,16 @@ class Control_RRule extends \zesk\Control {
 	protected function initialize() {
 		$name = $this->name();
 		$ww = array();
+		$locale = $this->locale;
 
-		$w = $this->widget_factory("Control_Select")
-			->names($name . '_repeat', __('Repeat'))
-			->control_options(self::repeat_options())
-			->noname(__('None'));
+		$w = $this->widget_factory(Control_Select::class)
+			->names($name . '_repeat', $locale->__('Repeat'))
+			->control_options(self::repeat_options($locale))
+			->noname($locale->__('None'));
 		$this->child($w);
 		$ww['repeat'] = $w;
 
-		$w = $this->widget_factory('Control_Integer')->names($name . '_interval', __('Interval'));
+		$w = $this->widget_factory('Control_Integer')->names($name . '_interval', $locale->__('Interval'));
 		$this->child($w);
 		$ww['interval'] = $w;
 
@@ -61,15 +65,15 @@ class Control_RRule extends \zesk\Control {
 		$this->child($w);
 		$ww['onday'] = $w;
 
-		$w = $this->widget_factory("Control_Date")->names($name . '_enddate', __('End Date'))->set_option('inline', true);
+		$w = $this->widget_factory("Control_Date")->names($name . '_enddate', $locale->__('End Date'))->set_option('inline', true);
 		$this->child($w);
 		$ww['enddate'] = $w;
 
 		$this->child_widgets = $ww;
 		parent::initialize();
 	}
-	static function repeat_options() {
-		return __(array(
+	static function repeat_options(Locale $locale) {
+		return $locale->__(array(
 			'none' => 'No repeat',
 			'daily' => 'Daily',
 			'weekly' => 'Weekly',
@@ -77,8 +81,8 @@ class Control_RRule extends \zesk\Control {
 			'yearly' => 'Yearly'
 		));
 	}
-	static function repeat_custom_options() {
-		return __(array(
+	static function repeat_custom_options(Locale $locale) {
+		return $locale->__(array(
 			'daily' => 'Daily',
 			'weekly' => 'Weekly',
 			'monthly' => 'Monthly',

@@ -1258,7 +1258,9 @@ class Response_Text_HTML extends Response_Text {
 	 */
 	function script_end() {
 		if ($this->script_begin === null) {
-			throw new Exception_Semantics("self::script_begin was not called");
+			throw new Exception_Semantics("{class}::script_begin was not called", array(
+				"class" => __CLASS__
+			));
 		}
 		$options = $this->script_begin;
 		$content = ob_get_clean();
@@ -1377,6 +1379,7 @@ class Response_Text_HTML extends Response_Text {
 	/**
 	 * Set/Get the doctype type
 	 *
+	 * @todo move to theme files
 	 * Valid values are:
 	 *
 	 * xhtml1-strict

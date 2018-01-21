@@ -471,6 +471,7 @@ class Response extends Hookable {
 	}
 
 	/**
+	 * @deprecated 2018-01 P3P is long dead
 	 *
 	 * @param unknown $policyref
 	 * @param unknown $compact_p3p
@@ -493,7 +494,7 @@ class Response extends Hookable {
 	 */
 	final public function nocache() {
 		$this->cache_settings = null;
-		$this->header("Cache-Control", "no-cache");
+		$this->header("Cache-Control", "no-cache, must-revalidate");
 		$this->header("Pragma", "no-cache");
 		$this->header("Expires", "-1");
 		return $this;

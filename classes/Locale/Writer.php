@@ -95,11 +95,6 @@ class Writer {
 		if (count($phrases) === 0) {
 			return array();
 		}
-		$app->logger->debug("{method} - Appended {n} entries to {filename}", array(
-			"filename" => $filename,
-			"n" => count($phrases),
-			"method" => __METHOD__
-		));
 		$csv = StringTools::csv_quote_row(array(
 			"en_US",
 			$this->locale_string
@@ -112,6 +107,11 @@ class Writer {
 			$result[$k] = $v;
 		}
 		File::append($this->file, $csv);
+		$app->logger->debug("{method} - Appended {n} entries to {filename}", array(
+			"filename" => $this->file,
+			"n" => count($phrases),
+			"method" => __METHOD__
+		));
 		return $result;
 	}
 }
