@@ -4,6 +4,7 @@
  * Class abstraction for objects
  *
  * This is where the magic happens for Objects
+ * @no-cannon
  *
  * Copyright &copy; 2015 Market Acumen, Inc.
  * @author kent
@@ -17,4 +18,4 @@ namespace zesk;
  * @see ORM
  * @see Object
  */
-class Class_ORM extends Class_ORM {}
+class Class_Object extends Class_ORM {}

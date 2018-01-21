@@ -194,7 +194,7 @@ class Paths {
 	 */
 	private function _init_command() {
 		global $zesk;
-		/* @var $zesk \zesk\Kernel */
+		/* @var $locale \zesk\Locale */
 		$paths = to_list(avalue($_SERVER, 'PATH'), array(), ':');
 		$this->command_path = array();
 		$this->which_cache = array();
@@ -227,7 +227,7 @@ class Paths {
 	public function command($add = null) {
 		if ($add !== null) {
 			global $zesk;
-			/* @var $zesk \zesk\Kernel */
+			/* @var $locale \zesk\Locale */
 			$add = to_list($add, array());
 			foreach ($add as $path) {
 				if (!in_array($path, $this->command_path)) {

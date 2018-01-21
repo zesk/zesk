@@ -617,7 +617,7 @@ class Command_Loader {
 			$this->usage("$arg is not a file to load configuration");
 		}
 		if ($this->zesk_is_loaded()) {
-			/* @var $zesk \zesk\Kernel */
+			/* @var $locale \zesk\Locale */
 			$this->debug("Loading configuration file {file}", array(
 				"file" => $arg
 			));

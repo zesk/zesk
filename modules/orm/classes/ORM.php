@@ -923,7 +923,7 @@ class ORM extends Model {
 	 */
 	function query_select($alias = null) {
 		$query = new Database_Query_Select($db = $this->database());
-		$query->object_class(get_class($this));
+		$query->orm_class(get_class($this));
 		if (empty($alias)) {
 			$alias = "X";
 		}
@@ -937,7 +937,7 @@ class ORM extends Model {
 	 */
 	function query_insert() {
 		$query = new Database_Query_Insert($this->database());
-		$query->object_class(get_class($this));
+		$query->orm_class(get_class($this));
 		return $query->into($this->table())->valid_columns($this->columns());
 	}
 
@@ -948,7 +948,7 @@ class ORM extends Model {
 	 */
 	function query_insert_select($alias = "") {
 		$query = new Database_Query_Insert_Select($this->database());
-		$query->object_class(get_class($this));
+		$query->orm_class(get_class($this));
 		$query->from($this->table(), $alias);
 		return $query->into($this->table());
 	}
@@ -960,7 +960,7 @@ class ORM extends Model {
 	 */
 	function query_update($alias = null) {
 		$query = new Database_Query_Update($this->database());
-		return $query->object_class(get_class($this))->table($this->table(), $alias)->valid_columns($this->columns(), $alias);
+		return $query->orm_class(get_class($this))->table($this->table(), $alias)->valid_columns($this->columns(), $alias);
 	}
 
 	/**
@@ -971,7 +971,7 @@ class ORM extends Model {
 	function query_delete() {
 		$db = $this->database();
 		$query = new Database_Query_Delete($db);
-		$query->object_class(get_class($this));
+		$query->orm_class(get_class($this));
 		return $query;
 	}
 
@@ -1772,6 +1772,7 @@ class ORM extends Model {
 		$name = $this->get($column);
 		$class = get_class($this);
 		if ($rename_pattern === null) {
+			$locale = $this->application->locale;
 			$rename_pattern = $this->option("duplicate_rename", $locale->__("$class:={0} (Copy{1})"));
 		}
 		// Quote all characters but {} which are used in the map call
@@ -1808,7 +1809,7 @@ class ORM extends Model {
 	}
 	protected function duplicate(Options_Duplicate &$options = null) {
 		global $zesk;
-		/* @var $zesk \zesk\Kernel */
+		/* @var $locale \zesk\Locale */
 		if ($options === null) {
 			$options = new Options_Duplicate($this->inherit_options());
 		}
@@ -1945,7 +1946,7 @@ class ORM extends Model {
 		if (count($members) === 0) {
 			if (self::$debug) {
 				global $zesk;
-				/* @var $zesk \zesk\Kernel */
+				/* @var $locale \zesk\Locale */
 				$zesk->logger->debug("Update of {class}:{id} - no changes", array(
 					"class" => get_class($this),
 					"id" => $this->id()
@@ -2379,7 +2380,7 @@ class ORM extends Model {
 	 */
 	public static function clean_database_object_members($class, $mixed) {
 		global $zesk;
-		/* @var $zesk \zesk\Kernel */
+		/* @var $locale \zesk\Locale */
 
 		/* @var $class_object Class_ORM */
 		$class_object = ORM::cache_class($class, "class");
@@ -2763,14 +2764,14 @@ class ORM extends Model {
 		$locale = $this->application->locale;
 		$name = $this->class->name;
 		$spec['class_name-raw'] = $name;
-		$spec['class_name'] = $spec['class_name-singular'] = $locale->__($name, $this->locale);
+		$spec['class_name'] = $spec['class_name-singular'] = $locale->__($name);
 		$spec['class_name-context-object'] = $spec['class_name-context-object-singular'] = $locale_class_name = strtolower($spec['class_name']);
-		$spec['class_name-context-object-plural'] = $locale->plural($locale_class_name, $this->locale);
+		$spec['class_name-context-object-plural'] = $locale->plural($locale_class_name);
 		$spec['class_name-context-subject'] = $spec['class_name-context-subject-singular'] = ucfirst($locale_class_name);
 		$spec['class_name-context-subject-plural'] = ucfirst($spec['class_name-context-object-plural']);
 		$spec['class_name-context-title'] = StringTools::capitalize($spec['class_name-context-object']);
 		$spec["class_name-context-subject-indefinite-article"] = $locale->indefinite_article($name, true);
-		$spec['class_name-plural'] = $locale->plural($name, $this->locale);
+		$spec['class_name-plural'] = $locale->plural($name);
 
 		$name = $this->display_name();
 		$spec['display_name'] = $name;

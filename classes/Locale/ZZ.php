@@ -10,11 +10,12 @@
 namespace zesk;
 
 /**
+ * Debugging Locale
  *
  * @author kent
  *
  */
-class Locale_Default extends Locale {
+class Locale_ZZ extends Locale {
 	/**
 	 *
 	 * {@inheritDoc}
@@ -48,10 +49,7 @@ class Locale_Default extends Locale {
 	 * @see \zesk\Locale::possessive()
 	 */
 	public function possessive($owner, $noun) {
-		return $this->__("Locale::possessive:={owner}&lsquo;s {noun}", array(
-			"owner" => $owner,
-			"noun" => $noun
-		));
+		return "{possessive(" . JSON::quote($owner) . ", " . JSON::quote($noun) . "}";
 	}
 	/**
 	 * Given a noun, compute the plural given cues from the language
@@ -63,7 +61,7 @@ class Locale_Default extends Locale {
 		if ($count > 0 && $count <= 1) {
 			return $word;
 		}
-		return $word;
+		return "{plural(" . JSON::encode($word) . ", $count)}";
 	}
 
 	/**
@@ -76,7 +74,7 @@ class Locale_Default extends Locale {
 			return '';
 		}
 		$word = JSON::encode($word);
-		return $word;
+		return "{indefinite_article($word)}";
 	}
 
 	/**
@@ -85,7 +83,7 @@ class Locale_Default extends Locale {
 	 * @see \zesk\Locale::ordinal()
 	 */
 	public function ordinal($n) {
-		return $n;
+		return "{ordinal($n)}";
 	}
 
 	/**
@@ -95,6 +93,6 @@ class Locale_Default extends Locale {
 	 * @see \zesk\Locale::negate_word()
 	 */
 	public function negate_word($word, $preferred_prefix = null) {
-		return null;
+		return "{negate_word(" . JSON::encode($word) . "" . JSON::encode($preferred_prefix) . "}";
 	}
 }

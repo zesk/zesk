@@ -1,6 +1,9 @@
 <?php
 /**
- *
+ * @package zesk
+ * @subpackage sqlite3
+ * @author kent
+ * @copyright &copy; 2018 Market Acumen, Inc.
  */
 namespace sqlite3;
 
@@ -15,7 +18,7 @@ use zesk\Database_Table;
 use zesk\Database_Index;
 use zesk\Database_Column;
 use zesk\Text;
-use zesk\StringTools as str;
+use zesk\StringTools;
 
 /**
  * TODO bunch more work here
@@ -26,6 +29,11 @@ use zesk\StringTools as str;
  *
  */
 class Database_SQL extends \zesk\Database_SQL {
+	/**
+	 *
+	 * @var string
+	 */
+	const sql_column_quotes = '``""';
 
 	/**
 	 * @var Database
@@ -464,7 +472,6 @@ class Database_SQL extends \zesk\Database_SQL {
 	final function quote_text($text) {
 		return $this->database->native_quote_text($text);
 	}
-	const sql_column_quotes = '``""';
 
 	/**
 	 * Reverses, exactly, quote_column

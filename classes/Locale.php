@@ -409,7 +409,6 @@ abstract class Locale extends Hookable {
 	 */
 	final function plural($noun, $number = 2) {
 		foreach (array(
-			__CLASS__ . "::plural::" . $noun,
 			"Locale::plural::" . $noun
 		) as $k) {
 			if ($this->has($k)) {
@@ -451,11 +450,11 @@ abstract class Locale extends Hookable {
 		}
 		$phrase = null;
 		if ($number === 0) {
-			$phrase = __CLASS__ . '::plural_word:=no {word}';
+			$phrase = 'Locale::plural_word:=no {word}';
 		} else if ($number === 1) {
-			$phrase = __CLASS__ . '::plural_word:=one {word}';
+			$phrase = 'Locale::plural_word:=one {word}';
 		} else {
-			$phrase = __CLASS__ . '::plural_word:={number} {word}';
+			$phrase = 'Locale::plural_word:={number} {word}';
 		}
 		return map($this->__($phrase), array(
 			'number' => $number,
@@ -509,9 +508,9 @@ abstract class Locale extends Hookable {
 		if ($number === 0 && is_string($zero_string)) {
 			$phrase = $zero_string;
 		} else if ($delta < 0) {
-			$phrase = __CLASS__ . "::now_string:=in {duration}";
+			$phrase = "Locale::now_string:=in {duration}";
 		} else {
-			$phrase = __CLASS__ . "::now_string:={duration} ago";
+			$phrase = "Locale::now_string:={duration} ago";
 		}
 		return $this->__($phrase, array(
 			'duration' => $duration,

@@ -1,6 +1,6 @@
 <?php
 /**
- * 
+ *
  */
 namespace zesk;
 
@@ -27,13 +27,13 @@ namespace zesk;
  */
 class Contact_Address extends Contact_Info {
 	/**
-	 * 
+	 *
 	 * @var unknown
 	 */
 	const earth_radius_semimajor = 6378137.0;
-	
+
 	/**
-	 * 
+	 *
 	 * {@inheritDoc}
 	 * @see \zesk\Contact_Info::store()
 	 */
@@ -59,63 +59,71 @@ class Contact_Address extends Contact_Info {
 		}
 		return parent::store();
 	}
-	
+
 	/**
-	 * 
+	 *
 	 * {@inheritDoc}
 	 * @see \zesk\Contact_Info::label_type()
 	 */
 	function label_type() {
 		return Contact_Label::LabelType_Address;
 	}
-	
+
 	/**
-	 * 
-	 * @return string[]
+	 *
+	 * @return string[string]
 	 */
-	public static function lang_member_names() {
+	public static function lang_member_names(Locale $locale) {
+		return $locale->__(self::en_lang_member_names());
+	}
+
+	/**
+	 *
+	 * @return string[string]
+	 */
+	public static function en_lang_member_names() {
 		return array(
-			"id" => __('ID'),
-			"contact" => __('Contact'),
-			"label" => __('Label'),
-			"country" => __('Country'),
-			'unparsed' => __('Raw Address'),
-			'name' => __('Name'),
-			'street' => __('Street'),
-			'additional' => __('Street (additional)'),
-			'city' => __('City'),
-			'county' => __('County'),
-			'province' => __('Province'),
-			'postal_code' => __('Zip Code'),
-			//			'country_code' => __('Country'),
-			'latitude' => __('Latitude'),
-			'longitude' => __('Longitude'),
-			'geocoded' => __('Geocoded date'),
-			'geocode_data' => __('Geocoded data'),
-			'created' => __('Created'),
-			'modified' => __('Modified'),
-			'data' => __('Data')
+			"id" => 'ID',
+			"contact" => 'Contact',
+			"label" => 'Label',
+			"country" => 'Country',
+			'unparsed' => 'Raw Address',
+			'name' => 'Name',
+			'street' => 'Street',
+			'additional' => 'Street (additional',
+			'city' => 'City',
+			'county' => 'County',
+			'province' => 'Province',
+			'postal_code' => 'Zip Code',
+			//			'country_code' => 'Country',
+			'latitude' => 'Latitude',
+			'longitude' => 'Longitude',
+			'geocoded' => 'Geocoded date',
+			'geocode_data' => 'Geocoded data',
+			'created' => 'Created',
+			'modified' => 'Modified',
+			'data' => 'Data'
 		);
 	}
-	
+
 	/**
-	 * 
+	 *
 	 * @return number
 	 */
 	private static function earth_flattening() {
 		return 1.0 / 298.257223563;
 	}
-	
+
 	/**
-	 * 
+	 *
 	 * @return number
 	 */
 	private static function earth_radius_semiminor() {
 		return self::earth_radius_semimajor * (1 - self::earth_flattening());
 	}
-	
+
 	/**
-	 * 
+	 *
 	 * @return boolean
 	 */
 	public function has_geo() {
@@ -124,9 +132,9 @@ class Contact_Address extends Contact_Info {
 			'longitude'
 		));
 	}
-	
+
 	/**
-	 * 
+	 *
 	 * @param Contact_Address $that
 	 * @return number|NULL
 	 */
@@ -145,9 +153,9 @@ class Contact_Address extends Contact_Info {
 		$y = sin($lat) / self::earth_radius_semiminor();
 		return 1 / (sqrt($x * $x + $y * $y));
 	}
-	
+
 	/**
-	 * 
+	 *
 	 * @param double $A_lon
 	 * @param double $A_lat
 	 * @param double $B_lon
@@ -170,15 +178,15 @@ class Contact_Address extends Contact_Info {
 		$alat = deg2rad($A_lat);
 		$blon = deg2rad($B_lon);
 		$blat = deg2rad($B_lat);
-		
+
 		// Radius at average point of lat/long
 		$radius = self::earth_radius(($A_lat + $B_lat) / 2);
 		$cosangle = cos($alat) * cos($blat) * (cos($alon) * cos($blon) + sin($alon) * sin($blon)) + sin($alat) * sin($blat);
 		return acos($cosangle) * $radius;
 	}
-	
+
 	/**
-	 * 
+	 *
 	 * @param double $lon
 	 * @param double $lat
 	 * @param string $alias
@@ -188,19 +196,19 @@ class Contact_Address extends Contact_Info {
 	static function mysql_geographic_distance($lon, $lat, $alias = '', $null_value = 1e100) {
 		$x = deg2rad($lon);
 		$y = deg2rad($lat);
-		
+
 		$radius = self::earth_radius($lat);
-		
+
 		$alias = empty($alias) ? $alias : ($alias . '.');
-		
+
 		$cosx = cos($x);
 		$cosy = cos($y);
 		$sinx = sin($x);
 		$siny = sin($y);
-		
+
 		return "IFNULL(ACOS($cosy * COS(RADIANS({$alias}latitude)) * ($cosx * COS(RADIANS({$alias}longitude)) + $sinx * SIN(RADIANS({$alias}longitude))) + $siny * SIN(RADIANS({$alias}latitude))), $null_value) * $radius";
 	}
-	
+
 	/**
 	 *
 	 * @return Contact_Address_Parser
@@ -208,9 +216,9 @@ class Contact_Address extends Contact_Info {
 	private function parser() {
 		return $this->application->object_singleton("Contact_Address_Parser");
 	}
-	
+
 	/**
-	 * 
+	 *
 	 * @param unknown $raw
 	 */
 	public function parse($raw) {

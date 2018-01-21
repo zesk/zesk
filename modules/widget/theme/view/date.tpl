@@ -8,7 +8,7 @@
 namespace zesk;
 
 /* @var $this \zesk\Template */
-/* @var $zesk \zesk\Kernel */
+/* @var $locale \zesk\Locale */
 /* @var $application \zesk\Application */
 /* @var $session \zesk\Session */
 /* @var $locale \zesk\Locale */
@@ -43,8 +43,6 @@ $map = array();
 $map["delta"] = $locale->now_string($timestamp, $this->get('relative_min_unit', 'second'), $this->zero_string);
 $format = map($format, $map);
 
-$result = $timestamp->format($format, $this->locale ? array(
-	"locale" => $this->locale
-) : array());
+$result = $timestamp->format($locale, $format);
 
 echo $this->object->apply_map($result);

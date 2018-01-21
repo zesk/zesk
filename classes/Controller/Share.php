@@ -125,7 +125,7 @@ class Controller_Share extends Controller {
 	 */
 	public function hook_cache_clear() {
 		$logger = $this->application->logger;
-		/* @var $zesk \zesk\Kernel */
+		/* @var $locale \zesk\Locale */
 		$logger->debug(__METHOD__);
 		if ($this->option_bool('build')) {
 			$share_dir = path($this->application->document_root(), 'share');

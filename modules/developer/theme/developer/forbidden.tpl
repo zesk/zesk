@@ -7,7 +7,7 @@
  * @copyright Copyright (C) 2016, {company}. All rights reserved.
  */
 /* @var $this \zesk\Template */
-/* @var $zesk \zesk\Kernel */
+/* @var $locale \zesk\Locale */
 /* @var $application \zesk\Application */
 /* @var $session \zesk\Session */
 /* @var $router \zesk\Router */

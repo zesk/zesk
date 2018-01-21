@@ -3,7 +3,7 @@ if (false) {
 	/* @var $this zesk\Template */
 	
 	$zesk = $this->zesk;
-	/* @var $zesk \zesk\Kernel */
+	/* @var $locale \zesk\Locale */
 	
 	$application = $this->application;
 	/* @var $application zesk\Application */

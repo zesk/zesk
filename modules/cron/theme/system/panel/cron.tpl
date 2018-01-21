@@ -3,7 +3,7 @@ use zesk\HTML;
 use zesk\Timestamp;
 
 /* @var $this \zesk\Template */
-/* @var $zesk \zesk\Kernel */
+/* @var $locale \zesk\Locale */
 /* @var $application \zesk\Application */
 /* @var $session \zesk\Session */
 /* @var $router \zesk\Router */
@@ -12,31 +12,31 @@ use zesk\Timestamp;
 /* @var $response \zesk\Response_Text_HTML */
 /* @var $current_user \User */
 /* @var $module_class string */
-$settings = $application->object_singleton("zesk\\Settings");
+$settings = $application->settings_registry();
 
 $now = Timestamp::now("UTC");
 
 foreach (array(
-	Timestamp::UNIT_MINUTE => __("Last minute run"),
-	Timestamp::UNIT_HOUR => __("Last hour run"),
-	Timestamp::UNIT_WEEK => __("Last week run"),
-	Timestamp::UNIT_MONTH => __("Last month run"),
-	Timestamp::UNIT_YEAR => __("Last year run")
+	Timestamp::UNIT_MINUTE => $locale->__("Last minute run"),
+	Timestamp::UNIT_HOUR => $locale->__("Last hour run"),
+	Timestamp::UNIT_WEEK => $locale->__("Last week run"),
+	Timestamp::UNIT_MONTH => $locale->__("Last month run"),
+	Timestamp::UNIT_YEAR => $locale->__("Last year run")
 ) as $unit => $label) {
 	$suffix = "_$unit";
 	$runtime = $settings->get($module_class . '::last' . $suffix);
 	$attributes = array();
 	if (!$runtime) {
-		$value = __("Never");
+		$value = $locale->__("Never");
 		$attributes['class'] = 'error';
 	} else {
 		$last_run = Timestamp::factory($runtime, "UTC");
 		$before_error = $now->duplicate()->add_unit(-1, $unit);
 		if ($last_run->before($before_error)) {
 			$attributes['class'] = 'error';
-			$value = $last_run->format("{delta}");
+			$value = $last_run->format($locale, "{delta}");
 		} else {
-			$value = $last_run->format("{delta}");
+			$value = $last_run->format($locale, "{delta}");
 		}
 	}
 	$items[] = HTML::tag('li', $attributes, HTML::tag("strong", $label) . ": " . $value);

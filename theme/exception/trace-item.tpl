@@ -5,7 +5,7 @@
 namespace zesk;
 
 /* @var $this Template */
-/* @var $zesk \zesk\Kernel */
+/* @var $locale \zesk\Locale */
 /* @var $application \zesk\Application */
 /* @var $session \zesk\Session */
 /* @var $request \zesk\Router */

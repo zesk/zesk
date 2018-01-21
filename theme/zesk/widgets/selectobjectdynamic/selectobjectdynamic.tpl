@@ -2,7 +2,7 @@
 namespace zesk;
 
 /* @var $this \zesk\Template */
-/* @var $zesk \zesk\Kernel */
+/* @var $locale \zesk\Locale */
 /* @var $application \zesk\Application */
 /* @var $session \zesk\Session */
 /* @var $router \zesk\Router */
@@ -11,7 +11,7 @@ namespace zesk;
 /* @var $current_user \User */
 ?><div class="control-select-object-dynamic"
 	id="<?php
-	
+
 	echo $this->column;
 	?>_widget">
 	<div class="csod-select csod-none search" style="display: none">
