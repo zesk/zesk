@@ -28,7 +28,7 @@ class Country extends ORM {
 		}
 		return null;
 	}
-	public static function country_codes($locale = null) {
+	public static function country_codes(Locale $locale = null) {
 		$country_codes = array(
 			'ad' => 'Andorra',
 			'ae' => 'United Arab Emirates',
@@ -277,7 +277,7 @@ class Country extends ORM {
 			'zw' => 'Zimbabwe'
 		);
 		if ($locale !== null) {
-			return __($country_codes);
+			return $locale->__($country_codes);
 		}
 		return $country_codes;
 	}

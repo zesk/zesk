@@ -1229,6 +1229,7 @@ abstract class Database extends Hookable {
 	 * @return string
 	 */
 	public static function database_default($set = null) {
+		zesk()->deprecated();
 		return app()->database_module()->database_default($set);
 	}
 	/**

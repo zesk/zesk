@@ -16,7 +16,6 @@ namespace zesk;
  * @see ORM
  */
 class Class_ORM extends Hookable {
-
 	/**
 	 * For ID columns
 	 *
@@ -604,24 +603,6 @@ class Class_ORM extends Hookable {
 	static $defer_class_links = array();
 
 	/**
-	 * Cache database columns here
-	 *
-	 * @var array:array
-	 */
-	static $column_cache = array();
-
-	/**
-	 * If you modify the database structure dynamically, you should call this to force column
-	 * recomputation
-	 */
-	public static function dirty() {
-		// TODO Move this to Module_ORM
-		self::$classes = array();
-		self::$defer_class_links = array();
-		self::_column_cache()->erase()->delete();
-	}
-
-	/**
 	 * Handle namespace objects intelligently and preserve namespace (\ group), prefixing class name
 	 * (_ group)
 	 *
@@ -968,17 +949,6 @@ class Class_ORM extends Hookable {
 	}
 
 	/**
-	 * Column cache
-	 *
-	 * @return Cache
-	 */
-	private static function _column_cache() {
-		$cache = Cache::register(array(
-			"database-columns"
-		));
-		return $cache;
-	}
-	/**
 	 * Load database columns from database/cache
 	 *
 	 * @param string $force
@@ -988,12 +958,12 @@ class Class_ORM extends Hookable {
 		if (!empty($this->table_columns) && !$force) {
 			return false;
 		}
-		$cache = $this->_column_cache();
-		$cache_key = $this->table;
-
-		$columns = $cache->get($cache_key);
-		if (is_array($columns)) {
-			$this->columns = $columns;
+		$pool = $this->application->cache;
+		$table = $this->table;
+		$cache = $pool->getItem(__CLASS__ . "::column_cache::$table");
+		if ($cache->isHit()) {
+			$this->table_columns = $cache->get();
+			$this->columns = array_keys($this->table_columns);
 			return true;
 		}
 		$return = true;
@@ -1004,22 +974,19 @@ class Class_ORM extends Hookable {
 				$name = $object->name();
 				$this->table_columns[$name] = $object->sql_type();
 			}
-			self::$column_cache[$cache_key] = $this->table_columns;
+			$pool->saveDeferred($cache->set($this->table_columns));
 		} catch (Database_Exception_Table_NotFound $e) {
 			$this->application->hooks->call("exception", $e);
-			unset(self::$column_cache[$cache_key]);
+			$pool->deleteItem($cache->getKey());
 			$this->table_columns = array();
 			$return = false;
 		} catch (Exception $e) {
 			$this->application->hooks->call("exception", $e);
-			unset(self::$column_cache[$cache_key]);
+			$pool->deleteItem($cache->getKey());
 			$this->table_columns = array();
 			$return = false;
 		}
 		$this->columns = array_keys($this->table_columns);
-		if ($return) {
-			$cache->set($cache_key, $this->columns);
-		}
 		return $return;
 	}
 
