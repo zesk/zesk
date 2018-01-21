@@ -896,6 +896,10 @@ function pair($a, $delim = '.', $left = false, $right = false, $include_delimite
  *        	The default left value if delimiter is not found
  * @param string $right
  *        	The default right value if delimiter is not found
+ * @param string $include_delimiter
+ *        	If "left" includes the delimiter in the left value
+ *        	If "right" includes the delimiter in the right value
+ *          Any other value the delimiter is stripped from the results
  * @return A size 2 array containing the left and right portions of the pair
  * @see pair
  */
