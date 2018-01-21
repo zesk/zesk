@@ -1181,7 +1181,7 @@ class Application extends Hookable implements Interface_Theme {
 		$final_map = array();
 
 		$request = $this->request();
-		if (($content = Response::cached($request->url())) === null) {
+		if (($content = Response::cached($this->cache, $request->url())) === null) {
 			ob_start();
 			$this->main();
 			$content = ob_get_clean();
