@@ -197,7 +197,9 @@ class CacheItemPool_File implements CacheItemPoolInterface {
 	 */
 	public function save(CacheItemInterface $item) {
 		$key = $item->getKey();
-		File::put($this->cache_file($key), serialize($item));
+		$file = $this->cache_file($key);
+		Directory::depend(dirname($file), 0770);
+		File::put($file, serialize($item));
 		return false;
 	}
 
@@ -236,7 +238,8 @@ class CacheItemPool_File implements CacheItemPoolInterface {
 	 */
 	private function cache_name($key) {
 		$clean = File::name_clean($key);
-		return substr($clean, 0, 32) . "^" . md5($key);
+		$hash = md5($key);
+		return substr($hash, 0, 1) . "/" . substr($hash, 1) . '^' . substr($clean, 0, 32);
 	}
 	/**
 	 * Return full path to cache file
