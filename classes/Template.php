@@ -314,22 +314,21 @@ class Template implements Interface_Theme {
 	 *
 	 * @return Cache
 	 */
-	private function _paths_cache() {
-		if ($this->paths_cache instanceof Cache) {
-			return $this->paths_cache;
-		}
-		$this->paths_cache = $cache = Cache::register(get_class($this->application) . "-Template::paths");
-		$path = serialize($this->application->theme_path());
-		if ($cache->has("theme_path")) {
-			if ($cache->theme_path !== $path) {
-				$cache->erase();
-				$cache->theme_path = $path;
-			}
-		} else {
-			$cache->theme_path = $path;
-		}
-		return $cache;
-	}
+	// 	private function _paths_cache() {
+	// 		$app = $this->application;
+	// 		$cache = $app->cache->getItem(get_class($app) . "-Template::paths");
+	// 		$path = serialize($this->application->theme_path());
+	// 		if ($cache->isHit()) {
+	// 			HERE
+	// 			if ($cache->theme_path !== $path) {
+	// 				$cache->erase();
+	// 				$cache->theme_path = $path;
+	// 			}
+	// 		} else {
+	// 			$cache->theme_path = $path;
+	// 		}
+	// 		return $cache;
+	// 	}
 
 	/**
 	 *
@@ -343,18 +342,18 @@ class Template implements Interface_Theme {
 		if (begins($path, "/")) {
 			return $path;
 		}
-		$paths = $this->_paths_cache();
-		$cache_path = array(
-			$path,
-			$all ? "all" : "first"
-		);
-		$not_found = 'not-found';
-		$result = $paths->path_get($cache_path, $not_found);
-		if ($result !== $not_found) {
-			return $result;
-		}
+		// 		$paths = $this->_paths_cache();
+		// 		$cache_path = array(
+		// 			$path,
+		// 			$all ? "all" : "first"
+		// 		);
+		// 		$not_found = 'not-found';
+		// 		$result = $paths->path_get($cache_path, $not_found);
+		// 		if ($result !== $not_found) {
+		// 			return $result;
+		// 		}
 		$result = $this->_find_path($path, $all);
-		$paths->path_set($cache_path, $result);
+		// 		$paths->path_set($cache_path, $result);
 		return $result;
 	}
 	/**

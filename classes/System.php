@@ -89,11 +89,12 @@ class System {
 		/* @var $zesk Kernel */
 		$result = array();
 		try {
-			$cache = Cache::register(__METHOD__)->expire_after(60);
-			if ($cache->command) {
-				$command = $cache->command;
+			$cache = $application->cache->getItem(__METHOD__)->expiresAfter(60);
+			if ($cache->isHit()) {
+				$command = $cache->get();
 			} else {
-				$command = $cache->command = $application->process->execute("ifconfig");
+				$command = $application->process->execute("ifconfig");
+				$application->cache->saveDeferred($cache->set($command));
 			}
 			$interface = null;
 			$flags = null;

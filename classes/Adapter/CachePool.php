@@ -1,6 +1,6 @@
 <?php
 /**
- * @copyright &copy; 2017 Market Acumen, Inc. 
+ * @copyright &copy; 2017 Market Acumen, Inc.
  */
 namespace zesk;
 
@@ -8,19 +8,19 @@ use Psr\Cache\CacheItemInterface;
 use Psr\Cache\CacheItemPoolInterface;
 
 /**
- * 
+ * @deprecated ASAP
  * @author kent
  *
  */
 class Adapter_CachePool implements CacheItemPoolInterface {
-	
+
 	/**
-	 * 
+	 *
 	 * @var Cache
 	 */
 	private $cache = null;
 	/**
-	 * 
+	 *
 	 * @param unknown $name
 	 */
 	public function __construct($name) {
@@ -45,7 +45,7 @@ class Adapter_CachePool implements CacheItemPoolInterface {
 	public function getItem($key) {
 		return new Adapter_CacheItem($key, $this->cache->get($key), $this->cache->has($key), $this->cache->get("*expiration-$key"));
 	}
-	
+
 	/**
 	 * Returns a traversable set of cache items.
 	 *
@@ -69,7 +69,7 @@ class Adapter_CachePool implements CacheItemPoolInterface {
 		}
 		return $result;
 	}
-	
+
 	/**
 	 * Confirms if the cache contains specified cache item.
 	 *
@@ -90,7 +90,7 @@ class Adapter_CachePool implements CacheItemPoolInterface {
 	public function hasItem($key) {
 		return $this->getItem($key)->isHit();
 	}
-	
+
 	/**
 	 * Deletes all items in the pool.
 	 *
@@ -100,7 +100,7 @@ class Adapter_CachePool implements CacheItemPoolInterface {
 	public function clear() {
 		$this->cache->erase();
 	}
-	
+
 	/**
 	 * Removes the item from the pool.
 	 *
@@ -119,13 +119,13 @@ class Adapter_CachePool implements CacheItemPoolInterface {
 		$this->cache->set("*expiration-$key", null);
 		return true;
 	}
-	
+
 	/**
 	 * Removes multiple items from the pool.
 	 *
 	 * @param string[] $keys
 	 *   An array of keys that should be removed from the pool.
-	 
+
 	 * @throws InvalidArgumentException
 	 *   If any of the keys in $keys are not a legal value a \Psr\Cache\InvalidArgumentException
 	 *   MUST be thrown.
@@ -139,7 +139,7 @@ class Adapter_CachePool implements CacheItemPoolInterface {
 		}
 		return true;
 	}
-	
+
 	/**
 	 * Persists a cache item immediately.
 	 *
@@ -154,7 +154,7 @@ class Adapter_CachePool implements CacheItemPoolInterface {
 		$this->cache->flush();
 		return true;
 	}
-	
+
 	/**
 	 * Sets a cache item to be persisted later.
 	 *
@@ -171,7 +171,7 @@ class Adapter_CachePool implements CacheItemPoolInterface {
 			$this->cache->set("*expiration-$key", $item->expiration);
 		}
 	}
-	
+
 	/**
 	 * Persists any deferred cache items.
 	 *
