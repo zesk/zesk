@@ -35,6 +35,23 @@ class ORM_CacheItem implements CacheItemInterface {
 
 	/**
 	 *
+	 */
+	public function __wakeup() {
+		$this->application = Kernel::singleton()->application();
+	}
+	/**
+	 *
+	 * @return string[]
+	 */
+	public function __sleep() {
+		return array(
+			"item",
+			"depends",
+			"class_depends"
+		);
+	}
+	/**
+	 *
 	 * @param CacheItemInterface $actual
 	 */
 	public function __construct(Application $application, CacheItemInterface $actual) {
