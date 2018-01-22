@@ -24,7 +24,7 @@ use zesk\Locale\Reader;
  *
  * @method Module_ORM orm_module()
  * @method Class_ORM class_orm_registry($class = null)
- * @method ORM|Module_ORM orm_registry($class = null, $mixed = null, array $options = null)
+ * @method ORM orm_registry($class = null, $mixed = null, array $options = null)
  * @method ORM orm_factory($class, $mixed, array $options = array())
  *
  * @method Database database_registry($name)
