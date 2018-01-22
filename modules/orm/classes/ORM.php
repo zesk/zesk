@@ -1808,13 +1808,12 @@ class ORM extends Model {
 		return null;
 	}
 	protected function duplicate(Options_Duplicate &$options = null) {
-		global $zesk;
 		/* @var $locale \zesk\Locale */
 		if ($options === null) {
 			$options = new Options_Duplicate($this->inherit_options());
 		}
 		$member_names = ArrayTools::remove_values(array_keys($this->class->column_types), $this->class->id_column);
-		$zesk->logger->debug("member_names={names}", array(
+		$this->application->logger->debug("member_names={names}", array(
 			"names" => $member_names
 		));
 		$new_object = $this->orm_factory(get_class($this), $this->members($member_names), array_merge($this->inherit_options(), $options->option()));
@@ -1945,9 +1944,7 @@ class ORM extends Model {
 		$members = $this->call_hook('update_alter', $members);
 		if (count($members) === 0) {
 			if (self::$debug) {
-				global $zesk;
-				/* @var $locale \zesk\Locale */
-				$zesk->logger->debug("Update of {class}:{id} - no changes", array(
+				$this->application->logger->debug("Update of {class}:{id} - no changes", array(
 					"class" => get_class($this),
 					"id" => $this->id()
 				));
@@ -2121,12 +2118,11 @@ class ORM extends Model {
 			) + $this->options);
 			return $result;
 		} catch (Exception_Class_NotFound $e) {
-			global $zesk;
-			$zesk->logger->error("Polymorphic conversion failed to class {polymorphic_leaf} from class {class}", array(
+			$this->application->logger->error("Polymorphic conversion failed to class {polymorphic_leaf} from class {class}", array(
 				"polymorphic_leaf" => $this->polymorphic_leaf,
 				"class" => get_class($this)
 			));
-			$zesk->hooks->call("exception", $e);
+			$this->application->hooks->call("exception", $e);
 			return $this;
 		}
 	}
@@ -2254,8 +2250,7 @@ class ORM extends Model {
 			$this->call_hook("stored");
 			return $this;
 		} catch (Exception $e) {
-			global $zesk;
-			$zesk->hooks->call("exception", $e);
+			$this->application->hooks->call("exception", $e);
 			$this->storing = false;
 			throw $e;
 		}
@@ -2372,76 +2367,44 @@ class ORM extends Model {
 	}
 
 	/**
+	 * Delete rows for this object where
 	 *
-	 * @todo Make this non-static
+	 * @todo ID should not be hardcoded below. Is this used? 2018-01 KMD
 	 *
-	 * @param unknown $class
-	 * @param unknown $mixed
+	 * @param string $column
+	 * @param string $class
+	 * @return Database_Query_Delete
 	 */
-	public static function clean_database_object_members($class, $mixed) {
-		global $zesk;
-		/* @var $locale \zesk\Locale */
-
-		/* @var $class_object Class_ORM */
-		$class_object = ORM::cache_class($class, "class");
-		$members = to_list($mixed);
-		$this_id_column = $class_object->id_column;
-		$__ = array(
-			"class" => $class,
-			"members" => $members
-		);
-		if (!$this_id_column) {
-			$zesk->logger->error("{class}:clean_database_object_members({members}) {class} does not have an ID column", $__);
-			return;
-		}
-		$ids = array();
-		foreach ($members as $member) {
-			$member_class = avalue($class_object->has_one, $member);
-			if ($member_class[0] === '*') {
-				continue;
-			}
-			if (!$member_class) {
-				$zesk->logger->error("{class}:clean_database_object_members({member}) Member {member} is not a has_one", $__ + array(
-					'member' => $member
-				));
-				continue;
-			}
-			$member_id_column = Class_ORM::cache($member_class, 'id_column');
-			if (!$member_id_column) {
-				$zesk->logger->error("{class}:clean_database_object_members({member}) Member {member} does not have an ID column", $__ + array(
-					'member' => $member
-				));
-				continue;
-			}
-			$ids = $ids + $this->application->orm_registry($class)
-				->query_select()
-				->link($member, array(
-				"required" => false,
-				"alias" => "ref"
-			))
-				->where(array(
-				"ref.$member_id_column" => null
-			))
-				->to_array($this_id_column, $this_id_column);
-		}
-		if (count($ids) > 0) {
-			ORM::class_delete(__CLASS__)->where($this_id_column, array_values($ids));
-		}
-	}
 	protected function delete_unlinked_column($column, $class) {
+		$link_class = $this->application->class_orm_registry($class);
+		$link_id_column = $link_class->id_column;
+		if (!$link_id_column) {
+			$__ = array(
+				"method" => __METHOD__,
+				"column" => $column,
+				"class" => $class
+			);
+			throw new Exception_Semantics("{method}({column}, {class}): {class} does not have an id column", $__);
+		}
 		$unlinked = $this->query_select()
 			->link($class, array(
 			"alias" => "Link",
 			"require" => false
 		))
-			->where("Link.ID", null)
+			->where("Link." . $link_id_column, null)
 			->what($column, $column)
 			->to_array(null, $column);
-		return $this->query_delete()->where($column, $unlinked)->execute();
+		if (count($unlinked) === 0) {
+			return 0;
+		}
+		return $this->query_delete()
+			->where($column, $unlinked)
+			->execute()
+			->affected_rows();
 	}
 
 	/**
-	 * For each of the "has_one" - if the target object does not exist, the delete this row
+	 * For each of the "has_one" - if the target object does not exist, then delete this object, too
 	 *
 	 * Use with caution!
 	 */

@@ -23,7 +23,6 @@ use zesk\Database_Column;
 use zesk\ArrayTools;
 use zesk\Text;
 use zesk\PHP;
-use zesk\Kernel;
 use zesk\Timestamp;
 use zesk\Exception_Parameter;
 use zesk\Database_Exception;
