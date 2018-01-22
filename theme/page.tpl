@@ -2,21 +2,21 @@
 namespace zesk;
 
 /* @var $this Template */
-/* @var $zesk zesk\Kernel */
+/* @var $locale \zesk\Locale */
 /* @var $application Application */
 /* @var $route Route */
 /* @var $request Request */
 /* @var $response Response_Text_HTML */
 
 // Setup
-$zesk->hooks->call("page.tpl", $this);
+$application->hooks->call("page.tpl", $this);
 
 if (!$this->response) {
 	$response = $this->response = $application->response();
 }
 
 $wrap_html = $response->content_type === "text/html";
-$page_template = $zesk->configuration->path_get("zesk\Response_Text_HTML::theme", 'response/html');
+$page_template = $application->configuration->path_get("zesk\Response_Text_HTML::theme", 'response/html');
 if (isset($route) && $route instanceof Route) {
 	$wrap_html = $response->option_bool('wrap_html', $route->option_bool('wrap_html', $wrap_html));
 	$page_template = $route->option('page template', $page_template);
@@ -32,4 +32,4 @@ if ($wrap_html && $page_template) {
 	echo $this->content;
 }
 
-$zesk->hooks->call("page.tpl-exit", $this);
+$application->hooks->call("page.tpl-exit", $this);

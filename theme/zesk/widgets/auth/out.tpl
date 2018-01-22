@@ -18,15 +18,15 @@ use zesk\Session_ORM;
 /* @var $request \zesk\Request */
 /* @var $response \zesk\Response_Text_HTML */
 /* @var $current_user User */
-$web_key = $this->get("web_key", $zesk->configuration->web_key);
+$web_key = $this->get("web_key", $application->option("web_key"));
 /* @var $this zesk\Template */
 
 if ($this->has("URL")) {
 	$u = $this->URL;
-	
+
 	$host = URL::host($u);
 	$current_host = $request->host();
-	
+
 	$attr = $this->has("Attributes") ? HTML::parse_attributes($this->Attributes) : array();
 	if ($host === $current_host) {
 		$out_u = URL::query_format($u, array(

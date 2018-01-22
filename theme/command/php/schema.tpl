@@ -11,7 +11,7 @@ namespace zesk;
 /* @var $router \zesk\Router */
 /* @var $request \zesk\Request */
 /* @var $response \zesk\Response_Text_HTML */
-$configuration = $zesk->configuration;
+$configuration = $application->configuration;
 
 echo "<?php\n";
 
@@ -23,8 +23,14 @@ ob_start();
 
 // TODO Indent below to inherit settings above
 ?>
-class <?php echo $this->class_name; ?> extends ORM_Schema {
+class <?php
+
+echo $this->class_name;
+?> extends ORM_Schema {
 	function schema() {
-		return <?php echo ltrim($php->render($this->schema, 2)); ?>;
+		return <?php
+
+echo ltrim($php->render($this->schema, 2));
+		?>;
 	}
 }

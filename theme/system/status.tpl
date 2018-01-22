@@ -1,11 +1,15 @@
 <?php
 namespace zesk;
 
-/* @var $this Template */
-/* @var $zesk Kernel */
-/* @var $application TimeBank */
-/* @var $request Request */
-/* @var $response Response_Text_HTML */
+/* @var $this \zesk\Template */
+/* @var $application \zesk\Application */
+/* @var $locale \zesk\Locale */
+/* @var $session \zesk\Session */
+/* @var $router \zesk\Router */
+/* @var $route \zesk\Route */
+/* @var $request \zesk\Request */
+/* @var $response \zesk\Response_Text_HTML */
+/* @var $current_user \zesk\User */
 $result = array();
 
 $result['time'] = microtime(true);
@@ -23,7 +27,7 @@ $result['System::load_averages'] = System::load_averages();
 $result['System::host_id'] = System::host_id();
 $result['System::volume_info'] = System::volume_info();
 
-$result = $zesk->hooks->call_arguments('system/status', array(
+$result = $application->hooks->call_arguments('system/status', array(
 	$result
 ), $result);
 

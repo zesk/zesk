@@ -1,11 +1,11 @@
 <?php
 /**
- * 
+ *
  */
 namespace zesk;
 
-/* @var $this \Template */
-/* @var $zesk Kernel */
+/* @var $this Template */
+/* @var $application Kernel */
 /* @var $application Application */
 /* @var $request Request */
 /* @var $response Response_Text_HTML */
@@ -23,11 +23,11 @@ $hook_parameters = array(
 	$response,
 	$this
 );
-$zesk->hooks->call_arguments('response_html_start', $hook_parameters);
+$application->hooks->call_arguments('response_html_start', $hook_parameters);
 {
 	$application->modules->all_hook_arguments("headers", $hook_parameters);
-	$zesk->hooks->call_arguments('headers', $hook_parameters);
-	
+	$application->hooks->call_arguments('headers', $hook_parameters);
+
 	$ie6 = false;
 	if ($request->user_agent_is('ie6')) {
 		$response->doctype("xhtml-transitional");
@@ -44,15 +44,15 @@ $zesk->hooks->call_arguments('response_html_start', $hook_parameters);
 	}
 	$application->modules->all_hook_arguments("html", $hook_parameters);
 	echo $response->doctype();
-	$zesk->hooks->call_arguments("<html>", $hook_parameters);
+	$application->hooks->call_arguments("<html>", $hook_parameters);
 	// Next line is @deprecated
-	$zesk->hooks->call_arguments("response/html.tpl", $hook_parameters);
+	$application->hooks->call_arguments("response/html.tpl", $hook_parameters);
 	echo HTML::tag_open('html', $response->html_attributes());
 	{
 		echo HTML::tag_open('head');
 		{
 			$application->modules->all_hook_arguments('head', $hook_parameters);
-			echo $zesk->hooks->call_arguments('<head>', $hook_parameters, '');
+			echo $application->hooks->call_arguments('<head>', $hook_parameters, '');
 			echo $response->head_prefix();
 			echo HTML::etag("title", $response->title());
 			echo $response->metas();
@@ -63,14 +63,14 @@ $zesk->hooks->call_arguments('response_html_start', $hook_parameters);
 			if ($ie6) {
 				echo $response->scripts();
 			}
-			echo $zesk->hooks->call_arguments('</head>', $hook_parameters, '');
+			echo $application->hooks->call_arguments('</head>', $hook_parameters, '');
 			echo $response->head_suffix();
 		}
 		echo HTML::tag_close('head') . "\n";
-		
+
 		echo $response->body_begin();
 		{
-			echo $zesk->hooks->call_arguments('<body>', $hook_parameters, '');
+			echo $application->hooks->call_arguments('<body>', $hook_parameters, '');
 			foreach (array(
 				'content',
 				'page_contents',
@@ -84,14 +84,14 @@ $zesk->hooks->call_arguments('response_html_start', $hook_parameters);
 			if (!$ie6) {
 				echo $response->scripts();
 			}
-			echo $zesk->hooks->call_arguments('</body>', $hook_parameters, "");
+			echo $application->hooks->call_arguments('</body>', $hook_parameters, "");
 		}
 		$application->modules->all_hook_arguments('foot', $hook_parameters);
 		echo "\n" . $response->body_end();
 	}
-	echo $zesk->hooks->call_arguments('</html>', $hook_parameters, "");
+	echo $application->hooks->call_arguments('</html>', $hook_parameters, "");
 	echo "\n" . HTML::tag_close('html');
 }
-$zesk->hooks->call_arguments('response_html_end', $hook_parameters);
+$application->hooks->call_arguments('response_html_end', $hook_parameters);
 
 

@@ -41,7 +41,7 @@ if ($show_values === null) {
 
 $id = $widget->id();
 if (!$id) {
-	$zesk->logger->warning("Template behavior/visibility missing source ID");
+	$application->logger->warning("Template behavior/visibility missing source ID");
 	return;
 }
 $map['id'] = "#$id";

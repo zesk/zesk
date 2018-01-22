@@ -26,7 +26,7 @@ foreach ($pairs as $name => $value) {
 	$result .= HTML::tag('dt', $class, $name);
 	$result .= HTML::tag('dd', $class, is_array($value) ? $this->theme('dl', array(
 		'content' => $value
-	)) : strval($value instanceof \Closure ? $zesk->hooks->callable_string($value) : $value));
+	)) : strval($value instanceof \Closure ? $locale->hooks->callable_string($value) : $value));
 	$index = $index + 1;
 }
 

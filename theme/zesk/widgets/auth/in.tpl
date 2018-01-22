@@ -18,7 +18,7 @@ namespace zesk;
 /* @var $request \zesk\Request */
 /* @var $response \zesk\Response_Text_HTML */
 /* @var $current_user \zesk\User */
-$web_key = $this->get("web_key", $zesk->configuration->web_key);
+$web_key = $this->get("web_key", $application->option("web_key"));
 
 $u = $request->get("u", "/");
 $uc = $request->get("uk");

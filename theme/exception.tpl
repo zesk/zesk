@@ -1,6 +1,6 @@
 <?php
 /**
- * 
+ *
  */
 namespace zesk;
 
@@ -17,7 +17,7 @@ namespace zesk;
 $exception = $this->exception;
 $class = get_class($this->exception);
 
-$zesk->logger->error("Exception: {exception_class}\nMessage: {message}\nServer:\n{server}\nRequest:\n{request}\nException: {exception_class}\nBacktrace:\n{backtrace}\n{exception}", array(
+$application->logger->error("Exception: {exception_class}\nMessage: {message}\nServer:\n{server}\nRequest:\n{request}\nException: {exception_class}\nBacktrace:\n{backtrace}\n{exception}", array(
 	"server" => Text::format_pairs($_SERVER),
 	"request" => Text::format_pairs($_REQUEST),
 	"exception_class" => $class,
@@ -38,8 +38,13 @@ if (!$exception instanceof Exception) {
 $dev = $this->application->development();
 ?>
 <div class="exception-error">
-	<h1><?php echo $dev ? $class : strtr($class, "_", " ")?>
-		<!--  <?php echo $class; ?> -->
+	<h1><?php
+
+	echo $dev ? $class : strtr($class, "_", " ")?>
+		<!--  <?php
+
+		echo $class;
+		?> -->
 	</h1>
 	<p>The computer error given was:</p>
 	<?php

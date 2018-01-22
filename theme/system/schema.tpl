@@ -9,10 +9,8 @@
 /* @var $response \zesk\Response_Text_HTML */
 namespace zesk;
 
-$zesk->newline = "\n";
+$results = $application->orm_module()->schema_synchronize();
 
-$results = $application->schema_synchronize();
-
-echo HTML::tag('ul', HTML::tags('li', $results));
+echo HTML::tag('ol', HTML::tags('li', $results));
 
 $this->response->content_type = "text/plain";
