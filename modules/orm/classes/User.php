@@ -40,11 +40,11 @@ class User extends ORM {
 
 	/**
 	 *
-	 * @param Kernel $kernel
+	 * @param Kernel $application
 	 */
-	public static function hooks(Kernel $kernel) {
-		$kernel->configuration->path(__CLASS__);
-		$kernel->hooks->add("configured", __CLASS__ . "::configured");
+	public static function hooks(Application $application) {
+		$application->configuration->path(__CLASS__);
+		$application->hooks->add(Hooks::hook_configured, __CLASS__ . "::configured");
 	}
 
 	/**

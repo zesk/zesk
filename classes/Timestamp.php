@@ -123,7 +123,7 @@ class Timestamp extends Temporal {
 	 *
 	 * @param Kernel $kernel
 	 */
-	public static function hooks(Kernel $kernel) {
+	public static function hooks(Application $kernel) {
 		$kernel->hooks->add(Hooks::hook_configured, array(
 			__CLASS__,
 			"configured"

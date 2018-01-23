@@ -900,7 +900,7 @@ class Class_ORM extends Hookable {
 	}
 	protected function initialize_database(ORM $object) {
 		if (!empty($this->database_group) && $this->database_group !== $this->class) {
-			$this->database_name = $this->database = $this->application->object($this->database_group)->database_name();
+			$this->database_name = $this->database = $this->application->orm_registry($this->database_group)->database_name();
 		} else {
 			if (empty($this->database)) {
 				$this->database = $this->option("database", $object->option("database"));
@@ -1026,7 +1026,7 @@ class Class_ORM extends Hookable {
 			if ($to_class[0] === '*') {
 				$to_class = $object->member(substr($to_class, 1));
 			}
-			$to_object = $this->application->object($to_class);
+			$to_object = $this->application->orm_registry($to_class);
 
 			if ($path === null) {
 				$alias = aevalue($mixed, 'alias', $segment);
@@ -1113,7 +1113,7 @@ class Class_ORM extends Hookable {
 		$result = false;
 		$table = avalue($many_spec, 'table');
 		$foreign_key = $many_spec['foreign_key'];
-		$query_class = $query->object_class();
+		$query_class = $query->orm_class();
 		$gen = $this->database()->sql();
 		if (is_bool($join_type)) {
 			$join_type = $join_type ? "INNER" : "LEFT OUTER";

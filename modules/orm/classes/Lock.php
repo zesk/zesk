@@ -32,12 +32,12 @@ class Lock extends ORM {
 	/**
 	 * Register all zesk hooks.
 	 */
-	public static function hooks(Kernel $zesk) {
-		$zesk->hooks->add(__NAMESPACE__ . '\\' . 'Server::delete', array(
+	public static function hooks(Application $application) {
+		$application->hooks->add(Server::class . '::delete', array(
 			__CLASS__,
 			'server_delete'
 		));
-		$zesk->hooks->add('exit', array(
+		$application->hooks->add(Hooks::hook_exit, array(
 			__CLASS__,
 			"release_all"
 		));
@@ -200,6 +200,7 @@ class Lock extends ORM {
 			"timeout" => $timeout
 		));
 	}
+
 	/**
 	 * Get a lock or throw an Exception_Lock
 	 *

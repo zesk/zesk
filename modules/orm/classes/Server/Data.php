@@ -19,36 +19,42 @@ namespace zesk;
  */
 class Server_Data extends ORM {
 	/**
-	 * 
-	 * @param Kernel $zesk
+	 *
+	 * @param Kernel $app
 	 */
-	public static function hooks(Kernel $zesk) {
-		$zesk->hooks->add('zesk\Server::delete', array(
+	public static function hooks(Application $app) {
+		$app->hooks->add(Server::class . '::delete', array(
 			__CLASS__,
 			'server_delete'
 		));
 	}
-	
+
 	/**
 	 * Clean up data of servers which have been deleted.
 	 * Could probably use a foreign key constraint to handle this as well.
-	 * 
+	 *
 	 * @param Application $application
 	 */
 	public static function cron_cluster_hour(Application $application) {
-		$deleted_servers = $application->class_object_database(__CLASS__)->query_array("SELECT DISTINCT D.server FROM Server_Data D LEFT OUTER JOIN Server S on S.id=D.server WHERE S.id IS NULL", null, 'server');
+		$deleted_servers = $application->orm_registry(__CLASS__)->database()->query_array("SELECT DISTINCT D.server FROM Server_Data D LEFT OUTER JOIN Server S on S.id=D.server WHERE S.id IS NULL", null, 'server');
 		if (count($deleted_servers) > 0) {
-			$application->query_delete(__CLASS__)->where('server', $deleted_servers)->exec();
+			$application->orm_registry(__CLASS__)
+				->query_delete()
+				->where('server', $deleted_servers)
+				->exec();
 		}
 	}
-	
+
 	/**
 	 * Delete all data associated with server
-	 * 
+	 *
 	 * @param Server $server
 	 */
 	public static function server_delete(Server $server) {
-		$server->application->query_delete(__CLASS__)->where("server", $server)->exec();
+		$server->application->orm_registry(__CLASS__)
+			->query_delete()
+			->where("server", $server)
+			->exec();
 	}
 }
 

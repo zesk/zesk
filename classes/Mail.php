@@ -136,7 +136,7 @@ class Mail extends Hookable {
 	 *
 	 * @param zesk\Kernel $zesk
 	 */
-	public static function hooks(Kernel $zesk) {
+	public static function hooks(Application $zesk) {
 		$zesk->hooks->add("zesk\Application::configured", __CLASS__ . "::configured");
 	}
 

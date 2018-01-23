@@ -63,7 +63,7 @@ class Module_Content extends Module implements Interface_Module_Head {
 	/**
 	 * Register hooks
 	 */
-	public static function hooks(Kernel $zesk) {
+	public static function hooks(Application $zesk) {
 		$zesk->hooks->add(Content_Image::class . '::stored', Controller_Content_Cache::class . "::image_changed");
 	}
 }

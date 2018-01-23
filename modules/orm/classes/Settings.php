@@ -74,13 +74,13 @@ class Settings extends ORM implements Interface_Data, Interface_Settings {
 	/**
 	 * Hook ORM::hooks
 	 */
-	public static function hooks(Kernel $kernel) {
-		$hooks = $kernel->hooks;
+	public static function hooks(Application $application) {
+		$hooks = $application->hooks;
 		// Ensure Database gets a chance to register first
-		$hooks->register_class("zesk\\Database");
+		$hooks->register_class(Database::class);
 		$hooks->add('configured', __CLASS__ . '::configured', 'first');
 
-		$kernel->configuration->path(__CLASS__);
+		$application->configuration->path(__CLASS__);
 	}
 
 	/**

@@ -10,6 +10,7 @@ namespace zesk;
 
 use Psr\Cache\CacheItemPoolInterface;
 use zesk\Locale\Reader;
+use zesk\Router\Parser;
 
 /**
  * Core web application object for Zesk.
@@ -37,6 +38,7 @@ class Application extends Hookable implements Interface_Theme {
 	/**
 	 * Probably should discourage use of this.
 	 * Zesk singleton.
+	 * @deprecated 2018-01 Trying out deprecation
 	 *
 	 * @var Kernel
 	 */
@@ -341,9 +343,9 @@ class Application extends Hookable implements Interface_Theme {
 	 *
 	 * @param unknown $options
 	 */
-	public function __construct(Kernel $zesk, array $options = array()) {
+	public function __construct(Kernel $kernel, array $options = array()) {
 		parent::__construct($this, $options);
-		$this->_initialize($zesk, $options);
+		$this->_initialize($kernel, $options);
 	}
 
 	/**
@@ -351,16 +353,17 @@ class Application extends Hookable implements Interface_Theme {
 	 * @param array $options
 	 * @throws Exception_Unimplemented
 	 */
-	protected function _initialize(Kernel $zesk, array $options = array()) {
-		$this->zesk = $zesk;
-		$this->paths = $zesk->paths;
-		$this->hooks = $zesk->hooks;
-		$this->autoloader = $zesk->autoloader;
-		$this->configuration = $zesk->configuration;
-		$this->cache = $zesk->cache;
-		$this->logger = $zesk->logger;
-		$this->classes = $zesk->classes;
-		$this->objects = $zesk->objects;
+	protected function _initialize(Kernel $kernel, array $options = array()) {
+		// Pretty much just copy references over
+		$this->zesk = $kernel;
+		$this->paths = $kernel->paths;
+		$this->hooks = $kernel->hooks;
+		$this->autoloader = $kernel->autoloader;
+		$this->configuration = $kernel->configuration;
+		$this->cache = $kernel->cache;
+		$this->logger = $kernel->logger;
+		$this->classes = $kernel->classes;
+		$this->objects = $kernel->objects;
 
 		/*
 		 * Current process interface. Depends on ->hooks
@@ -923,14 +926,18 @@ class Application extends Hookable implements Interface_Theme {
 				"router_file" => $router_file
 			));
 			$result = $router;
-		} else if (($result = $router->cached(filemtime($router_file))) === null) {
-			$router->import(file_get_contents($router_file), array(
-				"_source" => $router_file
-			));
-			if ($cache) {
-				$router->cache();
+		} else {
+			$mtime = filemtime($router_file);
+			if (($result = $router->cached($mtime)) === null) {
+				$parser = new Parser(file_get_contents($router_file), $router_file);
+				$parser->execute($router, array(
+					"_source" => $router_file
+				));
+				if ($cache) {
+					$router->cache($mtime);
+				}
+				$result = $router;
 			}
-			$result = $router;
 		}
 		$this->modules->all_hook("routes", $result);
 		return $result;

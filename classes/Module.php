@@ -17,6 +17,7 @@ namespace zesk;
  */
 class Module extends Hookable {
 	/**
+	 * @deprecated 2018-01 - Don't need this, do we?
 	 *
 	 * @var zesk\Kernel
 	 */

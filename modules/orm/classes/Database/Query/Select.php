@@ -151,7 +151,7 @@ class Database_Query_Select extends Database_Query_Select_Base {
 				return false;
 			}
 		}
-		return $this->object_cache($class)->has_member($column);
+		return $this->orm_registry($class)->has_member($column);
 	}
 	/**
 	 * Create an new query
@@ -319,7 +319,7 @@ class Database_Query_Select extends Database_Query_Select_Base {
 			$object = $class;
 			$class = get_class($class);
 		} else {
-			$object = $this->object_cache($class);
+			$object = $this->orm_registry($class);
 		}
 		if (array_key_exists($alias, $this->join_objects)) {
 			throw new Exception_Semantics(__CLASS__ . "::join_object: Same alias $alias added twice");
@@ -389,7 +389,7 @@ class Database_Query_Select extends Database_Query_Select_Base {
 			$mixed = array();
 		}
 		$path = avalue($mixed, 'path', null);
-		$object = $this->object_cache($this->class);
+		$object = $this->orm_registry($this->class);
 		if ($path === null) {
 			$target_class = $this->application->objects->resolve($class);
 			$path = $object->link_default_path_to($target_class);

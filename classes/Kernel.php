@@ -496,7 +496,7 @@ class Kernel {
 			$this->profiler = new \stdClass();
 			$this->profiler->calls = array();
 			$this->profiler->times = array();
-			zesk()->hooks->add("</body>", function () {
+			$this->hooks->add("</body>", function () {
 				echo "<pre>";
 				asort($this->profiler->calls);
 				asort($this->profiler->times);
@@ -606,7 +606,7 @@ class Kernel {
 	}
 
 	/**
-	 * Provide similar call to $application->path() for $zesk->path()
+	 * Return zesk home directory
 	 *
 	 * Returns path to Zesk root
 	 *

@@ -87,10 +87,10 @@ class Session_ORM extends ORM implements Interface_Session {
 		$this->call_hook('seen');
 		return $this;
 	}
-	public static function hooks(Kernel $zesk) {
+	public static function hooks(Application $application) {
 		//		$zesk->hooks->add('zesk\Response::headers', __CLASS__ . '::response_headers');
-		$zesk->hooks->add(Hooks::hook_configured, __CLASS__ . '::configured');
-		$zesk->hooks->add('exit', __CLASS__ . '::save');
+		$application->hooks->add(Hooks::hook_configured, __CLASS__ . '::configured');
+		$application->hooks->add('exit', __CLASS__ . '::save');
 	}
 	public static function configured(Application $application) {
 		// 2017-01-01

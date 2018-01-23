@@ -17,21 +17,50 @@ namespace zesk;
  *
  */
 class System {
-	public static function host_id() {
-		global $zesk;
-		/* @var $zesk zesk\Kernel */
-		return $zesk->configuration->get('HOST', aevalue($_ENV, 'HOST', aevalue($_SERVER, 'HOST', 'localhost')));
+	/**
+	 *
+	 * @param Application $application
+	 */
+	public static function hooks(Application $app) {
+		$app->hooks->add(Hooks::hook_configured, array(
+			__CLASS__,
+			"configured"
+		));
 	}
-	public static function uname() {
-		global $zesk;
-		/* @var $zesk zesk\Kernel */
-		$name = $zesk->configuration->uname;
-		if ($name) {
-			return $name;
+	public static function configured(Application $application) {
+		self::host_id($application->configuration->get('HOST', aevalue($_ENV, 'HOST', aevalue($_SERVER, 'HOST', 'localhost'))));
+		$name = $application->configuration->get("UNAME");
+		if (!$name) {
+			$name = $application->hooks->call_arguments("uname", array(), php_uname('n'));
 		}
-		$name = $zesk->hooks->call_arguments("uname", array(), php_uname('n'));
-		$zesk->configuration->uname = $name;
-		return $name;
+		self::uname($name);
+	}
+	/**
+	 *
+	 * @var string
+	 */
+	private static $host_id = null;
+
+	/**
+	 *
+	 * @var string
+	 */
+	private static $uname = null;
+	/**
+	 *
+	 * @return unknown
+	 */
+	public static function host_id($set = null) {
+		if ($set !== null) {
+			self::$host_id = $set;
+		}
+		return self::$host_id;
+	}
+	public static function uname($set = null) {
+		if ($set !== null) {
+			self::$uname = $set;
+		}
+		return self::$uname;
 	}
 
 	/**
@@ -86,7 +115,6 @@ class System {
 	 * @return array
 	 */
 	public static function ifconfig(Application $application, $filter = null) {
-		/* @var $zesk Kernel */
 		$result = array();
 		try {
 			$cache = $application->cache->getItem(__METHOD__)->expiresAfter(60);

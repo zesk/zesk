@@ -31,7 +31,7 @@ class Command_Loader {
 	 *
 	 * @var string
 	 */
-	private $zesk_loaded = false;
+	private $is_loaded = false;
 
 	/**
 	 * List of config files to load after loading application
@@ -407,19 +407,19 @@ class Command_Loader {
 			$_ZESK,
 			$_SERVER
 		) as $super) {
-			$zesk_root_files = array_key_exists('zesk_root_files', $super) ? $super['zesk_root_files'] : null;
-			if ($zesk_root_files) {
+			$root_files = array_key_exists('zesk_root_files', $super) ? $super['zesk_root_files'] : null;
+			if ($root_files) {
 				break;
 			}
 		}
-		if (!$zesk_root_files) {
-			$zesk_root_files = "*.application.php *.application.inc";
+		if (!$root_files) {
+			$root_files = "*.application.php *.application.inc";
 		}
-		$zesk_root_files = explode(" ", $zesk_root_files);
+		$root_files = explode(" ", $root_files);
 		foreach ($this->search as $dir) {
 			while (!empty($dir)) {
-				foreach ($zesk_root_files as $zesk_root_file) {
-					$found = glob(rtrim($dir, '/') . "/$zesk_root_file");
+				foreach ($root_files as $root_file) {
+					$found = glob(rtrim($dir, '/') . "/$root_file");
 					if (!is_array($found) || count($found) === 0) {
 						continue;
 					}
@@ -432,7 +432,7 @@ class Command_Loader {
 				}
 			}
 		}
-		$this->usage("No zesk " . implode(", ", $zesk_root_files) . " found in: " . implode(", ", $this->search));
+		$this->usage("No zesk " . implode(", ", $root_files) . " found in: " . implode(", ", $this->search));
 		return null;
 	}
 
@@ -442,7 +442,7 @@ class Command_Loader {
 	 * @return boolean
 	 */
 	private function zesk_loaded($arg = null) {
-		if ($this->zesk_loaded) {
+		if ($this->is_loaded) {
 			return true;
 		}
 		if (!$this->zesk_is_loaded()) {
@@ -451,17 +451,17 @@ class Command_Loader {
 			}
 			$this->usage("Zesk not initialized correctly.\n\n    $arg\n\nmust contain reference to:\n\n    require_once '" . ZESK_ROOT . "autoload.php';\n\n");
 		}
-		$this->zesk_loaded = true;
-		$zesk = zesk();
-		$zesk->autoloader->path(ZESK_ROOT . 'command', array(
+		$this->is_loaded = true;
+		$kernel = Kernel::singleton();
+		$kernel->autoloader->path(ZESK_ROOT . 'command', array(
 			"class_prefix" => "zesk\\Command",
 			"lower" => true
 		));
-		$app = $zesk->application();
+		$app = $kernel->application();
 		$this->aliases = array();
 		$loader = new Configuration_Loader(array(
 			$app->path("etc/command-aliases.json"),
-			$app->zesk_root("etc/command-aliases.json")
+			$app->zesk_home("etc/command-aliases.json")
 		), new Adapter_Settings_Array($this->aliases));
 		$loader->load();
 		if (count($this->wait_configs) > 0) {

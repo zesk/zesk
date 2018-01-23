@@ -180,7 +180,7 @@ class Response extends Hookable {
 	 *
 	 * @param Kernel $kernel
 	 */
-	public static function hooks(Kernel $kernel) {
+	public static function hooks(Application $kernel) {
 		// Not sure when, let's say 2017-03
 		$kernel->configuration->deprecated("Response", __CLASS__);
 	}

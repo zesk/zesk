@@ -7,6 +7,7 @@ namespace zesk;
 
 use Psr\Cache\CacheItemPoolInterface;
 
+zesk()->deprecated();
 /**
  *
  * @deprecated 2017-06
@@ -560,7 +561,7 @@ abstract class Cache implements \ArrayAccess {
 	/**
 	 * Called when class is loaded
 	 */
-	final static public function hooks(Kernel $zesk) {
+	final static public function hooks(Application $zesk) {
 		$zesk->configuration->deprecated('Cache::interface', __CLASS__ . "::interface");
 		$zesk->configuration->path(__CLASS__);
 		$zesk->hooks->add('reset', __CLASS__ . "::reset");

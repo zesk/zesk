@@ -21,13 +21,21 @@ class Image_Library_imagick extends Image_Library {
 	 *
 	 * @return string|\zesk\NULL
 	 */
-	private static function shell_command() {
-		global $zesk;
-		/* @var $zesk zesk\Kernel */
-		$which = $zesk->paths->which($zesk->configuration->path_get(array(
+	private function shell_command() {
+		$command = $this->application->configuration->path_get(array(
 			__CLASS__,
 			"command"
-		), self::command_default));
+		), self::command_default);
+		$which = $this->application->paths->which($command);
+		if (!$which) {
+			throw new Exception_Configuration(array(
+				__CLASS__,
+				"command"
+			), "Command {command} not found in path {paths}", array(
+				"command" => $command,
+				"paths" => $this->application->paths->command()
+			));
+		}
 		return $which;
 	}
 
@@ -35,14 +43,21 @@ class Image_Library_imagick extends Image_Library {
 	 *
 	 * @return string|\zesk\NULL
 	 */
-	private static function shell_command_scale() {
-		global $zesk;
-		/* @var $zesk zesk\Kernel */
-		$command = self::shell_command();
-		$scale_command = map($zesk->configuration->path_get(array(
+	private function shell_command_scale() {
+		$command = $this->shell_command();
+		$pattern = $this->application->configuration->path_get(array(
 			__CLASS__,
 			"command_scale"
-		), self::command_scale), compact("command"));
+		), self::command_scale);
+		$scale_command = map($pattern, array(
+			"command" => $command
+		));
+		if (empty($scale_command)) {
+			throw new Exception_Configuration(array(
+				__CLASS__,
+				"command_scale"
+			), "Is an empty string?");
+		}
 		return $scale_command;
 	}
 
@@ -50,8 +65,8 @@ class Image_Library_imagick extends Image_Library {
 	 *
 	 * @return boolean
 	 */
-	public static function installed() {
-		$which = self::shell_command();
+	public function installed() {
+		$which = $this->shell_command();
 		if ($which) {
 			return true;
 		}
@@ -104,6 +119,7 @@ class Image_Library_imagick extends Image_Library {
 			copy($source, $dest);
 			return true;
 		}
+
 		$map = array(
 			"source" => escapeshellarg($source),
 			"destination" => escapeshellarg($dest),
@@ -111,23 +127,21 @@ class Image_Library_imagick extends Image_Library {
 			"height" => $height
 		);
 
-		$cmd = self::shell_command_scale();
-		if (empty($cmd)) {
-			die("ViewImage::scaleCommand($source, $dest, $width, $height): System doesn't contain ViewImage::system_scale_command");
-		}
-
+		$cmd = $this->shell_command_scale();
 		$cmd = map($cmd, $map);
-
-		$result = false;
-
-		$lastline = system($cmd, $result);
-		if ($result == 0 && file_exists($dest)) {
-			global $zesk;
-			@chmod($dest, 0644);
-			$zesk->hooks->call('file_created', $dest);
-			return true;
+		try {
+			$lines = $this->application->process->execute_arguments($cmd);
+			if (file_exists($dest)) {
+				@chmod($dest, 0644);
+				$this->application->hooks->call('file_created', $dest);
+				return true;
+			}
+		} catch (\Exception $e) {
+			if (file_exists($dest)) {
+				@unlink($dest);
+			}
+			throw $e;
 		}
-		die("ViewImage::scaleCommand: System command failed \"$cmd\" returned $result ($lastline)");
 	}
 	function image_rotate($source, $destination, $degrees, array $options = array()) {
 		throw new Exception_Unimplemented("TODO");

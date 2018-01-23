@@ -648,7 +648,7 @@ class Template implements Interface_Theme {
 	/**
 	 * Implements ::hooks
 	 */
-	public static function hooks(Kernel $kernel) {
+	public static function hooks(Application $kernel) {
 		$kernel->hooks->add('configured', array(
 			__CLASS__,
 			'configured'

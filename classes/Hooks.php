@@ -260,33 +260,7 @@ class Hooks {
 			return $this->hooks_called;
 		}
 		if (is_string($class)) {
-			$lowclass = strtolower($class);
-			if (isset($this->hooks_called[$lowclass])) {
-				return false;
-			}
-			if (method_exists($class, "hooks")) {
-				try {
-					call_user_func(array(
-						$class,
-						"hooks"
-					), $this->zesk);
-					$this->hooks_called[$lowclass] = $result[$class] = microtime(true);
-					return true;
-				} catch (\Exception $e) {
-					$this->call("exception", $e);
-					$this->hooks_called[$lowclass] = $result[$class] = $e;
-					return $e;
-				}
-			} else if ($this->debug) {
-				$this->zesk->logger->debug("{__CLASS__}::{__FUNCTION__} Class {class} does not have method hooks", array(
-					"__CLASS__" => __CLASS__,
-					"__FUNCTION__" => __FUNCTION__,
-					"class" => $class
-				));
-				$this->hooks_called[$lowclass] = false;
-				return true;
-			}
-			return false;
+			return $this->_register_class_hooks($class);
 		}
 		$classes = to_list($class, array());
 		$result = true;
@@ -296,6 +270,41 @@ class Hooks {
 			}
 		}
 		return $result;
+	}
+
+	/**
+	 *
+	 * @param unknown $class
+	 * @return boolean|Exception
+	 */
+	private function _register_class_hooks($class) {
+		$lowclass = strtolower($class);
+		if (isset($this->hooks_called[$lowclass])) {
+			return false;
+		}
+		if (method_exists($class, "hooks")) {
+			try {
+				call_user_func(array(
+					$class,
+					"hooks"
+				), $this->zesk->application());
+				$this->hooks_called[$lowclass] = $result[$class] = microtime(true);
+				return true;
+			} catch (\Exception $e) {
+				$this->call("exception", $e);
+				$this->hooks_called[$lowclass] = $result[$class] = $e;
+				return $e;
+			}
+		} else if ($this->debug) {
+			$this->zesk->logger->debug("{__CLASS__}::{__FUNCTION__} Class {class} does not have method hooks", array(
+				"__CLASS__" => __CLASS__,
+				"__FUNCTION__" => __FUNCTION__,
+				"class" => $class
+			));
+			$this->hooks_called[$lowclass] = false;
+			return true;
+		}
+		return false;
 	}
 	/**
 	 * Does a hook exist? Logs all hook name requests.

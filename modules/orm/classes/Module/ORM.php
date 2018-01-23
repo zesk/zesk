@@ -203,8 +203,8 @@ class Module_ORM extends Module {
 	 *
 	 * @todo PHP7 Add Closure here to avoid global usage
 	 */
-	public static function hooks(Kernel $zesk) {
-		$zesk->hooks->add(ORM::class . '::register_all_hooks', __CLASS__ . "::object_register_all_hooks");
+	public static function hooks(Application $application) {
+		$application->hooks->add(ORM::class . '::register_all_hooks', __CLASS__ . "::object_register_all_hooks");
 	}
 
 	/**

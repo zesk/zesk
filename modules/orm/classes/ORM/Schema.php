@@ -125,11 +125,11 @@ abstract class ORM_Schema extends Hookable {
 
 	/**
 	 *
-	 * @param zesk\Kernel $zesk
+	 * @param zesk\Kernel $application
 	 */
-	public static function hooks(Kernel $zesk) {
-		$zesk->hooks->add("configured", __CLASS__ . "::configured");
-		$zesk->configuration->path(__CLASS__);
+	public static function hooks(Application $application) {
+		$application->hooks->add("configured", __CLASS__ . "::configured");
+		$application->configuration->path(__CLASS__);
 	}
 
 	/**

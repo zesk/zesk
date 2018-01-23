@@ -169,17 +169,6 @@ class Response_Text_HTML extends Response_Text {
 	}
 
 	/**
-	 *
-	 * @param Kernel $kernel
-	 */
-	public static function hooks(Kernel $kernel) {
-		// TODO 2017-01
-		$kernel->configuration->deprecated("body-attributes", array(
-			__CLASS__,
-			"body_attributes"
-		));
-	}
-	/**
 	 * Output head attributes for a page.
 	 *
 	 * Allows registering head tags in one place, and have the page do the right thing.

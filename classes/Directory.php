@@ -30,7 +30,7 @@ class Directory extends Hookable {
 	/**
 	 * Implement hooks
 	 */
-	public static function hooks(Kernel $kernel) {
+	public static function hooks(Application $kernel) {
 		$kernel->hooks->add('configured', __CLASS__ . '::configured');
 	}
 

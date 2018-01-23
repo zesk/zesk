@@ -9,6 +9,8 @@
  */
 namespace zesk;
 
+use zesk\Router\Parser;
+
 /**
  * Router
  * Handles converting a URL Path to a method invokation, with a special case for Controller objects.
@@ -184,10 +186,10 @@ class Router extends Hookable {
 
 	/**
 	 *
-	 * @param Kernel $zesk
+	 * @param Kernel $kernel
 	 */
-	public static function hooks(Kernel $zesk) {
-		$zesk->hooks->add(Hooks::hook_configured, array(
+	public static function hooks(Application $kernel) {
+		$kernel->hooks->add(Hooks::hook_configured, array(
 			__CLASS__,
 			"configured"
 		));
@@ -202,20 +204,15 @@ class Router extends Hookable {
 	}
 
 	/**
-	 * Returns the cache path for this router
-	 *
-	 * @return string
+	 * Cache this router
 	 */
-	private function cache_path($cache_file = null) {
-		$app = $this->application;
-		$name = PHP::parse_class(get_class($app));
-		if ($cache_file === null) {
-			$cache_file = $app->configuration->path_get(__CLASS__ . "::cache_file", $app->configuration->path_get("Router::cache_file", "$name.cache"));
-		}
-		return $app->paths->cache(array(
-			"routers",
-			$cache_file
-		));
+	function cache($id) {
+		$item = $this->application->cache->getItem(__CLASS__);
+		$value = new \stdClass();
+		$value->id = $id;
+		$value->router = $this;
+		$this->application->cache->saveDeferred($item->set($value));
+		return $this;
 	}
 
 	/**
@@ -223,18 +220,18 @@ class Router extends Hookable {
 	 *
 	 * @return Router or null if not cached
 	 */
-	function cached($mtime = null) {
-		$path = $this->cache_path();
-		if (!file_exists($path)) {
+	function cached($id = null) {
+		$item = $this->application->cache->getItem(__CLASS__);
+		if (!$item->isHit()) {
 			return null;
 		}
-		if (filemtime($path) < $mtime) {
-			return null;
+		$value = $item->get();
+		if ($id !== null) {
+			if ($id !== $value->id) {
+				return null;
+			}
 		}
-		if (filemtime($path) < filemtime(__FILE__)) {
-			return null;
-		}
-		return unserialize(file_get_contents($path));
+		return $value->router;
 	}
 
 	/**
@@ -285,16 +282,6 @@ class Router extends Hookable {
 			$this->sorted = true;
 		}
 		return $this->routes;
-	}
-
-	/**
-	 * Cache this router, destroy old cache
-	 */
-	function cache() {
-		$path = $this->cache_path();
-		Directory::create(dirname($path));
-		file_put_contents($path, serialize($this));
-		return $this;
 	}
 
 	/**
@@ -382,9 +369,15 @@ class Router extends Hookable {
 		if (!array_key_exists('weight', $options)) {
 			$options['weight'] = ($this->weight_index++) / 1000;
 		}
-		$this->routes[$path] = $this->_add_route_id($this->_register_route(Route::factory($this, $path, $options)));
 		$this->sorted = false;
+		return $this->routes[$path] = $route = $this->_add_route_id($this->_register_route(Route::factory($this, $path, $options)));
 	}
+
+	/**
+	 *
+	 * @param Route $route
+	 * @return \zesk\Route
+	 */
 	private function _add_route_id(Route $route) {
 		$id = $route->option("id");
 		if (!$id) {
@@ -395,88 +388,16 @@ class Router extends Hookable {
 	}
 
 	/**
-	 * TODO move to zesk\Router\Parser
+	 * Load a Router file
 	 *
+	 * @see Parser
 	 * @param string $contents
 	 * @param array $add_options
 	 * @return void
 	 */
 	function import($contents, array $add_options = null) {
-		$app = $this->application;
-		$lines = explode("\n", $contents);
-		$paths = array();
-		$options = array();
-		$whites = to_list(" ;\t");
-		$tr = array(
-			'$zesk_root' => $app->zesk_root(),
-			'$zesk_application_root' => $app->path()
-		);
-		foreach ($lines as $lineno => $line) {
-			$firstc = substr($line, 0, 1);
-			$line = trim($line);
-			if (empty($line) || $line[0] === '#') {
-				continue;
-			}
-			if (in_array($firstc, $whites)) {
-				if (count($paths) === 0) {
-					$app->logger->warning("Line " . ($lineno + 1) . " of router has setting without path");
-				} else {
-					list($name, $value) = pair($line, "=", $line, null);
-					if ($value === null) {
-						$app->logger->warning("Line " . ($lineno + 1) . " of router has no value ($line)");
-					} else {
-						$trimvalue = trim($value);
-						if ($trimvalue === "null") {
-							$value = null;
-						} else if ($trimvalue === "true" || $trimvalue === "false") {
-							$value = to_bool($trimvalue);
-						} else if (StringTools::begins($trimvalue, str_split("\"'{[", 1))) {
-							try {
-								$decoded = JSON::decode($value, null);
-								$value = $decoded;
-							} catch (Exception_Parse $e) {
-								$app->hooks->call("exception", $e);
-							}
-						}
-						if (is_string($value) || is_array($value)) {
-							$value = tr($value, $tr);
-						}
-						if (ends($name, "[]")) {
-							$options[strtolower(substr($name, 0, -2))][] = $value;
-						} else {
-							$options[strtolower($name)] = $value;
-						}
-					}
-				}
-			} else {
-				// Transition to new tag
-				if (count($options) === 0 || count($paths) === 0) {
-					$paths[] = unquote($line);
-				} else {
-					if ($add_options) {
-						$options += $add_options;
-					}
-					foreach ($paths as $path) {
-						$this->add_route($path, $options);
-					}
-					$options = array();
-					$paths = array(
-						unquote($line)
-					);
-				}
-			}
-		}
-		if (count($paths) > 0 && count($options) === 0) {
-			$this->application->logger->error("Router {path} has no valid options {options_string}", array(
-				"path" => $path,
-				"options" => $options,
-				"options_string" => json_encode($options)
-			));
-		} else {
-			foreach ($paths as $path) {
-				$this->add_route($path, $options);
-			}
-		}
+		$parser = new Parser($contents);
+		$parser->load($this, $add_options);
 	}
 	private function _register_route(Route $route) {
 		$class_actions = $route->class_actions();

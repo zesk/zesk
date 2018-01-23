@@ -19,7 +19,7 @@ class Control_Pager extends Control {
 	 * 
 	 * @param Kernel $zesk
 	 */
-	public static function hooks(Kernel $zesk) {
+	public static function hooks(Application $zesk) {
 		$zesk->configuration->deprecated(array(
 			__CLASS__,
 			"pager_limit"
