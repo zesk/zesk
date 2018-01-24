@@ -2,11 +2,12 @@
 namespace zesk;
 
 /**
- * Permission commands: 
- * 
+ * Permission commands:
+ *
  *     zesk permission hooks - Output list of hooks called to generate permissions
- *      
+ *
  * @author kent
+ * @category ORM Module
  */
 class Command_Permission extends Command_Base {
 	protected $option_types = array(
@@ -19,9 +20,9 @@ class Command_Permission extends Command_Base {
 	 * @var Module_Permission
 	 */
 	protected $module = null;
-	
+
 	/**
-	 * 
+	 *
 	 * {@inheritDoc}
 	 * @see \zesk\Command::run()
 	 */

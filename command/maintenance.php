@@ -3,7 +3,8 @@ namespace zesk;
 
 /**
  * Turn maintenance on or off
- * 
+ *
+ * @category Management
  * @author kent
  *
  */
@@ -32,10 +33,10 @@ class Command_Maintenance extends Command_Base {
 			$this->log("Maintenance " . ($bool ? "enabled" : "disabled"));
 		}
 	}
-	
+
 	/**
 	 * Pass values to store as part of the system globals upon maintenance
-	 * 
+	 *
 	 * @param Application $app
 	 * @param array $values
 	 * @return array

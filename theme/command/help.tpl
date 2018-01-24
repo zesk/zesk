@@ -37,18 +37,19 @@ foreach ($this->categories as $category => $commands) {
 		if (array_key_exists($command, $aliases)) {
 			$extras = " (aliases: " . implode($aliases[$command], ", ") . ")";
 		}
-		echo "$tab$command$extras\n";
+		echo "$command$extras\n";
 		$desc = avalue($info, "desc", $locale("No description provided."));
 		$parameters = array();
-		foreach (avalue($info, 'global', array()) as $global => $foo) {
-			$parameters[] = "$global (" . $foo[0] . ")" . "\n" . Text::indent($foo[2], 1, true, $tab);
-		}
+		// // 		foreach (avalue($info, 'global', array()) as $global => $foo) {
+		// // 			$parameters[] = "$global (" . $foo[0] . ")" . (count($foo) > 1 ? "\n" . Text::indent($foo[2], 1, true, $tab) : "");
+		// // 		}
 		$parameters = implode("\n", $parameters);
 		if ($parameters) {
 			$parameters = "$tab$tab" . $locale("Globals:") . "\n" . Text::indent($parameters, 3, false, $tab) . "\n";
 		}
 		$desc .= "\n\n";
-		echo rtrim(Text::indent($desc, 2, true, $tab)) . "\n$parameters";
+		echo rtrim(Text::indent($desc, 1, true, $tab)) . "\n$parameters";
 	}
 	echo "\n";
 }
+echo "To get command-specific options: zesk command --help\n";

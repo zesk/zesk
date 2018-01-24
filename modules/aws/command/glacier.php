@@ -11,7 +11,7 @@ use zesk\Text;
  * Glacier command to store, retrieve, list, and manage glacier files
  *
  * @aliases aws-glacier
- *
+ * @category AWS Tools
  * @author kent
  */
 class Command_Glacier extends \zesk\Command_Base {

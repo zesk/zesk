@@ -1,6 +1,13 @@
 <?php
 namespace zesk;
 
+/**
+ * Register default Country, Currency, Language, and Province data in the database.
+ *
+ * @category ORM Module
+ * @author kent
+ *
+ */
 class Command_World_Bootstrap extends Command_Base {
 	protected $option_types = array(
 		'drop' => 'boolean',

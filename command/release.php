@@ -8,12 +8,13 @@
 namespace zesk;
 
 /**
+ * @category Management
  * @author kent
  */
 class Command_Release extends Command_Base {
 	/**
 	 * Dependencies
-	 * 
+	 *
 	 * @var array
 	 */
 	protected $load_modules = array(
@@ -23,18 +24,18 @@ class Command_Release extends Command_Base {
 	);
 	/**
 	 * Our repository
-	 * 
+	 *
 	 * @var Repository
 	 */
 	protected $repo = null;
-	
+
 	/**
 	 * @var Module_Repository
 	 */
 	protected $repository = null;
-	
+
 	/**
-	 * 
+	 *
 	 * {@inheritDoc}
 	 * @see \zesk\Command_Base::initialize()
 	 */
@@ -43,19 +44,19 @@ class Command_Release extends Command_Base {
 		$this->option_types['repo'] = 'string';
 		$this->option_help['repo'] = "Short name for the repository to use to disambiguate (e.g. --repo git or --repo svn)";
 	}
-	
+
 	/**
-	 * 
+	 *
 	 * {@inheritDoc}
 	 * @see \zesk\Command::run()
 	 */
 	function run() {
 		$this->repository = $this->application->modules->object("Repository");
-		
+
 		$path = $this->application->path();
-		
+
 		chdir($path);
-		
+
 		$repos = $this->repository->determine_repository($path);
 		if (count($repos) === 0) {
 			$this->error("No repository detected at {path}", compact("path"));
@@ -75,7 +76,7 @@ class Command_Release extends Command_Base {
 		} else {
 			$repo = first($repos);
 		}
-		
+
 		$this->log("Synchronizing with remote ...");
 		$repo->update($path);
 		$status = $repo->status($path, true);
@@ -83,10 +84,10 @@ class Command_Release extends Command_Base {
 			$this->log_status($status);
 			$this->prompt_yes_no("Git status ok?");
 		}
-		
+
 		$current_version = $this->application->version();
 		$latest_version = $repo->latest_version();
-		
+
 		if (!$this->prompt_yes_no(__("{name} {last_version} -> {current_version} Versions ok?", array(
 			"name" => get_class($this->application),
 			"last_version" => $last_version,

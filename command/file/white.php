@@ -5,7 +5,7 @@ use \SplFileInfo;
 
 /**
  * Examines all PHP files and lists only those which have whitespace at the top
- *
+ * @category Debugging
  * @author kent
  */
 class Command_File_White extends Command_Iterator_File {

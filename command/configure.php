@@ -16,7 +16,7 @@ namespace zesk;
  * @alias sync
  *
  * @author kent
- *
+ * @category Management
  */
 class Command_Configure extends Command_Base {
 	protected $option_types = array(

@@ -6,9 +6,10 @@ namespace zesk\AWS;
 use Aws\ElasticLoadBalancing\ElasticLoadBalancingClient as ElasticLoadBalancingClient;
 
 /**
+ * Elastic Load Balancer discovery and management
  *
  * @aliases aws-elb
- *
+ * @category AWS Tools
  * @author kent
  */
 class Command_ELB extends Command {
@@ -22,7 +23,7 @@ class Command_ELB extends Command {
 			"instance_id" => $instance_id
 		);
 		$this->log("Instance ID is {instance_id}", $__);
-		
+
 		$elbc = $this->application->factory(ElasticLoadBalancingClient::class);
 		$load_balancers = $elbc->describeLoadBalancers();
 		var_dump($load_balancers);

@@ -10,6 +10,7 @@ namespace zesk;
  *
  * @see http://semver.org/
  * @author kent
+ * @category Management
  */
 class Command_Version extends Command_Base {
 	protected $option_types = array(

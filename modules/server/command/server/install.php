@@ -1,20 +1,25 @@
 <?php
 
 /**
- * Run server software installation and configuration, ensuring this server is up-to-date.
+ *
  *
  * @author kent
  */
 namespace zesk;
 
+/**
+ * Run server software installation and configuration, ensuring this server is up-to-date.
+ * @author kent
+ * @category Management
+ */
 class Command_Server_Install extends Command {
 	protected $load_modules = array(
 		'server'
 	);
-	
+
 	/**
 	 * Help string
-	 * 
+	 *
 	 * @var string
 	 */
 	protected $help = "Run server software installation and configuration, ensuring this server is up-to-date.";
@@ -50,7 +55,7 @@ class Command_Server_Install extends Command {
 	);
 	protected function run() {
 		$this->configure('server-install');
-		
+
 		$this->verbose_log("Running {class}", array(
 			"class" => __CLASS__
 		));
@@ -63,7 +68,7 @@ class Command_Server_Install extends Command {
 		$this->verbose_log("Configuring {class}", array(
 			"class" => get_class($platform)
 		));
-		
+
 		$features = null;
 		if ($this->has_arg()) {
 			$features = array();

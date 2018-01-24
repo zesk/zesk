@@ -7,7 +7,7 @@ namespace zesk;
 /**
  * Generate doccomment @property list for any ORM/Class_ORM pair in the system
  *
- * @category ORM System
+ * @category ORM Module
  * @author kent
  */
 class Command_Class_Properties extends Command_Base {

@@ -1,8 +1,6 @@
 <?php
 
 /**
- * Check PHP code, and repair comments.
- *
  * @version $URL: https://code.marketacumen.com/zesk/trunk/command/check.php $
  * @package zesk
  * @subpackage bin
@@ -15,6 +13,8 @@ namespace zesk;
 use \SplFileInfo;
 
 /**
+ * Check PHP code, and repair comments.
+ * @category Debugging
  */
 class Command_Check extends Command_Iterator_File {
 	/**
