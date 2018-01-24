@@ -36,6 +36,13 @@ use zesk\Router\Parser;
 class Application extends Hookable implements Interface_Theme {
 
 	/**
+	 * Zesk singleton. Do not use anywhere but here.
+	 *
+	 * @var Kernel
+	 */
+	private $kernel = null;
+
+	/**
 	 * Probably should discourage use of this.
 	 * Zesk singleton.
 	 * @deprecated 2018-01 Trying out deprecation
@@ -356,6 +363,7 @@ class Application extends Hookable implements Interface_Theme {
 	protected function _initialize(Kernel $kernel, array $options = array()) {
 		// Pretty much just copy references over
 		$this->zesk = $kernel;
+		$this->kernel = $kernel;
 		$this->paths = $kernel->paths;
 		$this->hooks = $kernel->hooks;
 		$this->autoloader = $kernel->autoloader;
@@ -655,7 +663,7 @@ class Application extends Hookable implements Interface_Theme {
 		}
 		$result = $this->_configure_files($options);
 		if ($profile) {
-			$this->zesk->profile_timer("_configure_files", microtime(true) - $mtime);
+			$this->kernel->profile_timer("_configure_files", microtime(true) - $mtime);
 		}
 
 		$this->call_hook('configured_files');
@@ -949,7 +957,7 @@ class Application extends Hookable implements Interface_Theme {
 	 * @param Exception $e
 	 */
 	final private function _main_exception(\Exception $exception) {
-		$content = $this->theme($this->zesk->classes->hierarchy($exception), array(
+		$content = $this->theme($this->classes->hierarchy($exception), array(
 			"exception" => $exception,
 			"content" => $exception
 		), array(
@@ -1086,7 +1094,7 @@ class Application extends Hookable implements Interface_Theme {
 		if (($router = $this->router()) !== null) {
 			try {
 				$this->logger->debug("App bootstrap took {seconds} seconds", array(
-					"seconds" => sprintf("%.3f", microtime(true) - $this->zesk->initialization_time)
+					"seconds" => sprintf("%.3f", microtime(true) - $this->kernel->initialization_time)
 				));
 				$this->_main_route($router);
 			} catch (Exception $exception) {
@@ -1198,7 +1206,7 @@ class Application extends Hookable implements Interface_Theme {
 			$final_map['{page-is-cached}'] = '1';
 		}
 		$final_map += array(
-			"{page-render-time}" => sprintf("%.3f", microtime(true) - $this->zesk->initialization_time)
+			"{page-render-time}" => sprintf("%.3f", microtime(true) - $this->kernel->initialization_time)
 		);
 		if ($this->response) {
 			$this->response->cache_save($content);
@@ -1637,7 +1645,7 @@ class Application extends Hookable implements Interface_Theme {
 	 * @return array The ordered list of paths to search for class names
 	 */
 	final public function autoload_path($add = null, $options = true) {
-		return $this->zesk->autoloader->path($add, $options);
+		return $this->autoloader->path($add, $options);
 	}
 
 	/**
@@ -1677,7 +1685,7 @@ class Application extends Hookable implements Interface_Theme {
 	 * @return string
 	 */
 	final public function application_class() {
-		return $this->zesk->application_class();
+		return $this->kernel->application_class();
 	}
 
 	/**
@@ -1877,15 +1885,17 @@ class Application extends Hookable implements Interface_Theme {
 	}
 
 	/**
-	 * This loads an include without any variables defined, except super globals Handy when the file
-	 * is meant to return a value, or has its own "internal" variables which may corrupt the global
-	 * or current scope of a function, for example.
+	 * This loads an include without the $application variable defined, and $this which is also an Application.
+	 * is meant to return a value, or has its own "internal" variables which may corrupt the global or current scope of
+	 * a function, for example.
 	 *
-	 * @param string $file
-	 * @return mixed
+	 * @param string $__file__
+	 *        	File to include
+	 * @return mixed Whatever is returned by the include file
 	 */
-	public function load($file) {
-		return $this->zesk->load($file);
+	public function load($__file__) {
+		$application = $this;
+		return include $__file__;
 	}
 	/**
 	 * Create a generic object
@@ -1945,7 +1955,7 @@ class Application extends Hookable implements Interface_Theme {
 	 */
 	public function deprecated($message = null, array $arguments = array()) {
 		$arguments['depth'] = to_integer(avalue($arguments, 'depth', 0)) + 1;
-		$this->zesk->deprecated($message, $arguments);
+		$this->kernel->deprecated($message, $arguments);
 	}
 
 	/**
@@ -1955,7 +1965,7 @@ class Application extends Hookable implements Interface_Theme {
 	 * @return boolean
 	 */
 	public function console($set = null) {
-		return $this->zesk->console($set);
+		return $this->kernel->console($set);
 	}
 	/**
 	 *
@@ -1974,7 +1984,7 @@ class Application extends Hookable implements Interface_Theme {
 	 * @return double Microseconds initialization time
 	 */
 	final public function initialization_time() {
-		return $this->zesk->initialization_time;
+		return $this->kernel->initialization_time;
 	}
 
 	/**
@@ -2108,7 +2118,7 @@ class Application extends Hookable implements Interface_Theme {
 	 * @return Ambigous <mixed, array>
 	 */
 	public function _class_cache($class, $component = "") {
-		$this->zesk->obsolete();
+		$this->kernel->obsolete();
 	}
 
 	/**

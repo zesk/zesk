@@ -2565,8 +2565,12 @@ class ORM extends Model {
 				}
 				if (is_scalar($value)) {
 					$members[$member] = $value;
-				} else if (is_object($value) && method_exists($value, "json")) {
-					$members[$member] = $value->json($child_options);
+				} else if (is_object($value)) {
+					if (method_exists($value, "json")) {
+						$members[$member] = $value->json($child_options);
+					} else if (method_exists($value, '__toString')) {
+						$members[$member] = $value->__toString();
+					}
 				}
 			}
 			$result = ($members_only) ? $members : $object + $members;

@@ -30,6 +30,7 @@ class Timestamp extends Temporal {
 	 * @var string
 	 */
 	const DEFAULT_FORMAT_STRING = "{YYYY}-{MM}-{DD} {hh}:{mm}:{ss}";
+	const FORMAT_JSON = "{YYYY}-{MM}-{DD} {hh}:{mm}:{ss} {ZZZ}";
 
 	/**
 	 * Set up upon load
@@ -374,6 +375,15 @@ class Timestamp extends Temporal {
 			return "";
 		}
 		return $this->format();
+	}
+
+	/**
+	 * Convert to a standard string, suitable for use in databases and for string comparisons
+	 *
+	 * @return string
+	 */
+	function json(array $options = array()) {
+		return $this->format(null, self::FORMAT_JSON);
 	}
 
 	/**
