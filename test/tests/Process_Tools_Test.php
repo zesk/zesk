@@ -18,7 +18,7 @@ class Process_Tools_Test extends Test_Unit {
 	 * @todo this
 	 */
 	function DISABLED_test_reset_dead_processes() {
-		$db = $this->application->database_factory();
+		$db = $this->application->database_registry();
 		$db->query("DROP TABLE IF EXISTS test_PGT");
 		$db->query("CREATE TABLE test_PGT ( ID int(11) unsigned PRIMARY KEY NOT NULL AUTO_INCREMENT, PID int(11) NOT NULL )");
 		$table = 'test_PGT';
@@ -48,7 +48,7 @@ class Process_Tools_Test extends Test_Unit {
 		
 		unlink($php_file);
 		
-		$db = $this->application->database_factory();
+		$db = $this->application->database_registry();
 		
 		$db->query("DROP TABLE IF EXISTS test_PGT");
 		

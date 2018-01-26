@@ -6,7 +6,7 @@ class Database_MySQL_SQL_Test extends Test_Unit {
 		"MySQL"
 	);
 	public function sql() {
-		$db = $this->application->database_factory();
+		$db = $this->application->database_registry();
 		$sql = $db->sql();
 		return $sql;
 	}

@@ -155,6 +155,9 @@ class Command_Cannon extends Command_Base {
 				$stats['files']++;
 				$stats['lines'] += $result;
 			} else if ($result < 0) {
+				if (!isset($stats['skipped'])) {
+					$stats['skipped'] = 0;
+				}
 				$stats['skipped']++;
 			}
 		}

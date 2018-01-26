@@ -18,7 +18,7 @@ class Database_Index_Test extends Test_Unit {
 		"MySQL"
 	);
 	function mytesttable() {
-		$database = $this->application->database_factory();
+		$database = $this->application->database_registry();
 		$table = new Database_Table($database, "new_table");
 		return $table;
 	}

@@ -268,9 +268,9 @@ class Module extends \zesk\Module implements Interface_Module_Routes {
 		}
 		if ($arg) {
 			// TODO Potentical security issue - pass in URL value here
-			$db = $this->application->database_factory($arg);
+			$db = $this->application->database_registry($arg);
 		} else {
-			$db = $this->application->database_factory();
+			$db = $this->application->database_registry();
 		}
 		$results = $app->schema_synchronize($db, $classes, array(
 			"follow" => false

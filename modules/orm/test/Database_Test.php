@@ -29,7 +29,7 @@ class Database_Test extends Test_Unit {
 	// 	function test_table_indexes() {
 	// 		$table = "db_table_indexes_test";
 
-	// 		$db = $this->application->database_factory();
+	// 		$db = $this->application->database_registry();
 	// 		$this->test_table($table);
 
 	// 		$dbname = "";
@@ -46,7 +46,7 @@ class Database_Test extends Test_Unit {
 	// 	}
 	function test_table_columns() {
 		$table = "db_table_indexes_test";
-		$db = $this->application->database_factory();
+		$db = $this->application->database_registry();
 
 		$this->test_table($table);
 
@@ -71,7 +71,7 @@ class Database_Test extends Test_Unit {
 	}
 	public static $test = null;
 	function test_query_object() {
-		$db = $this->application->database_factory();
+		$db = $this->application->database_registry();
 		$table_name = "query_object_test";
 		$this->test_table($table_name);
 
@@ -115,7 +115,7 @@ class Database_Test extends Test_Unit {
 		self::$test = null;
 	}
 	function test_query_array_index() {
-		$db = $this->application->database_factory();
+		$db = $this->application->database_registry();
 		$table = "query_array_index_test";
 
 		$this->test_table($table);
@@ -180,7 +180,7 @@ class Database_Test extends Test_Unit {
 		));
 	}
 	function test_query_array() {
-		$db = $this->application->database_factory();
+		$db = $this->application->database_registry();
 
 		$table = "query_array_test";
 
@@ -278,35 +278,31 @@ class Database_Test extends Test_Unit {
 			)
 		));
 	}
-	function test_configured() {
-		$db = $this->application->database_factory();
-		Database::_configured($this->application);
-	}
 	function test_affected_rows() {
-		$db = $this->application->database_factory();
+		$db = $this->application->database_registry();
 
 		$db->affected_rows();
 	}
 	function test_auto_table_names() {
-		$db = $this->application->database_factory();
+		$db = $this->application->database_registry();
 
 		$set = null;
 		$db->auto_table_names($set);
 	}
 	function test_auto_table_names_options() {
-		$db = $this->application->database_factory();
+		$db = $this->application->database_registry();
 
 		$set = null;
 		$db->auto_table_names_options($set);
 	}
 	function test_auto_table_names_replace() {
-		$db = $this->application->database_factory();
+		$db = $this->application->database_registry();
 
 		$sql = null;
 		$db->auto_table_names_replace($sql);
 	}
 	function test_bytes_used() {
-		$db = $this->application->database_factory();
+		$db = $this->application->database_registry();
 
 		//echo DB_URL ."\n";
 		//$db->debug();
@@ -325,18 +321,18 @@ class Database_Test extends Test_Unit {
 		$this->assert(array_key_exists("Index_length", $status));
 	}
 	function test_connect() {
-		$db = $this->application->database_factory();
+		$db = $this->application->database_registry();
 
 		$name = "";
 		$url = false;
 		$db->connect($name, $url);
 	}
 	function test_reconnect() {
-		$db = $this->application->database_factory();
+		$db = $this->application->database_registry();
 		$db->reconnect();
 	}
 	function test_query_one() {
-		$db = $this->application->database_factory();
+		$db = $this->application->database_registry();
 
 		$table = "select_map_test";
 
@@ -362,18 +358,18 @@ class Database_Test extends Test_Unit {
 		$this->assert(intval($db->query_one("SELECT COUNT(*) AS X FROM $table", "X", 100)) === 1);
 	}
 	function test_dump() {
-		$db = $this->application->database_factory();
+		$db = $this->application->database_registry();
 
 		$db->dump(File::temporary($this->sandbox(), ".dbdump"));
 	}
 	function test_fetch_array() {
-		$db = $this->application->database_factory();
+		$db = $this->application->database_registry();
 
 		$res = $db->query("SELECT 1 AS A,2 AS B,3 as C,4 AS D,5 as E,'string' AS F");
 		$db->fetch_array($res);
 	}
 	function test_get_lock() {
-		$db = $this->application->database_factory();
+		$db = $this->application->database_registry();
 
 		$name = md5(microtime());
 		$wait_seconds = 0;
@@ -383,7 +379,7 @@ class Database_Test extends Test_Unit {
 		$this->assert_true($result, "release_lock(\"$name\") did not return true: " . _dump($result));
 	}
 	function test_insert() {
-		$db = $this->application->database_factory();
+		$db = $this->application->database_registry();
 
 		$table_name = "insert_test";
 
@@ -421,12 +417,12 @@ class Database_Test extends Test_Unit {
 		$this->assert($caught === true);
 	}
 	function test_insert_id() {
-		$db = $this->application->database_factory();
+		$db = $this->application->database_registry();
 
 		$db->insert_id();
 	}
 	function test_query() {
-		$db = $this->application->database_factory();
+		$db = $this->application->database_registry();
 
 		$table_name = "query_test";
 
@@ -442,7 +438,7 @@ class Database_Test extends Test_Unit {
 		$this->assert(is_bool($db->query($sql)));
 	}
 	function test_query_integer() {
-		$db = $this->application->database_factory();
+		$db = $this->application->database_registry();
 
 		$sql = "SELECT 23 * 54 AS X";
 		$field = "X";
@@ -452,7 +448,7 @@ class Database_Test extends Test_Unit {
 		$this->assert($db->query_integer($sql, "Y", null) === null);
 	}
 	function test_query_one1() {
-		$db = $this->application->database_factory();
+		$db = $this->application->database_registry();
 
 		$table_name = "query_object_test";
 
@@ -474,7 +470,7 @@ class Database_Test extends Test_Unit {
 		$this->assert(intval($db->query_one($sql, "X", -1)) === 100);
 	}
 	function test_register() {
-		$db = $this->application->database_factory();
+		$db = $this->application->database_registry();
 
 		$name = null;
 		$url = null;
@@ -486,13 +482,13 @@ class Database_Test extends Test_Unit {
 	 * @always_fail
 	 */
 	function test_release_lock() {
-		$db = $this->application->database_factory();
+		$db = $this->application->database_registry();
 		$name = "fail";
 		$result = $db->release_lock($name);
 		$this->assert_false($result);
 	}
 	function test_locks() {
-		$db = $this->application->database_factory();
+		$db = $this->application->database_registry();
 
 		$name = __FUNCTION__;
 		$this->assert_false($db->release_lock($name));
@@ -519,7 +515,7 @@ class Database_Test extends Test_Unit {
 		$this->assert($db->get_lock($name) === true);
 	}
 	function test_replace() {
-		$db = $this->application->database_factory();
+		$db = $this->application->database_registry();
 
 		$table_name = "replace_test";
 
@@ -559,7 +555,7 @@ class Database_Test extends Test_Unit {
 		$this->assert(intval($db->query_one("SELECT COUNT(*) AS X FROM `$table_name`", "X", 100)) === 2);
 	}
 	function test_select_one_where() {
-		$db = $this->application->database_factory();
+		$db = $this->application->database_registry();
 
 		$where = null;
 		$order_by = false;
@@ -570,13 +566,13 @@ class Database_Test extends Test_Unit {
 		$db->select_one_where($table, $where, $order_by);
 	}
 	function test_table_exists() {
-		$db = $this->application->database_factory();
+		$db = $this->application->database_registry();
 
 		$table = null;
 		$db->table_exists($table);
 	}
 	function test_unstring() {
-		$db = $this->application->database_factory();
+		$db = $this->application->database_registry();
 
 		$sql = "UPDATE `Metric` SET
 	`Model` = '1',
@@ -628,7 +624,7 @@ class Database_Test extends Test_Unit {
 		$this->assert_equal(Database::restring(Database::unstring($sql, $state), $state), $sql);
 	}
 	function test_update() {
-		$db = $this->application->database_factory();
+		$db = $this->application->database_registry();
 
 		$table = "database_update_test";
 
@@ -716,7 +712,7 @@ class Database_Test extends Test_Unit {
 		}
 	}
 	function test_update1() {
-		$db = $this->application->database_factory();
+		$db = $this->application->database_registry();
 
 		$table = "database_update_test";
 
@@ -749,7 +745,7 @@ class Database_Test extends Test_Unit {
 		$this->assert($row["foo"] == 100);
 	}
 	function test_update_id_test() {
-		$db = $this->application->database_factory();
+		$db = $this->application->database_registry();
 		$table = "db_update_id_test";
 
 		$this->test_table($table);
@@ -778,7 +774,7 @@ class Database_Test extends Test_Unit {
 		$this->assert($row["foo"] == 100);
 	}
 	function test_url() {
-		$db = $this->application->database_factory();
+		$db = $this->application->database_registry();
 		$name = '';
 		$url = null;
 		$is_default = false;

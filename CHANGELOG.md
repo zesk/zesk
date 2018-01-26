@@ -33,6 +33,7 @@ Version 1.0 of Zesk will have:
 - `zesk\ORM::delete()` no longer deletes the default `zesk\ORM::object_cache()` associated with the object 
  - this is largely due to creation of cache objects for `zesk\ORM` classes which do not have associated `zesk\Class_ORM` settings so cache-deletion can not configured
  - if you need to clean up caches for your objects, implement `zesk\ORM::hook_delete()` in subclasses to delete object caches. Note this hook occurs after the object has been deleted from the database, but the object state is valid.
+- `zesk\Response_Text_HTML` will be slowly refactored away to a unified `zesk\Response` object which changes behavior based on its content type.
 
 ### New functionality
 
@@ -41,6 +42,7 @@ Version 1.0 of Zesk will have:
  - `zesk\Application::database_module()`, `zesk\Application::database_registry()` are now activated when `zesk\Module_Database` is loaded.
  - `zesk\Application::database_factory()` is a synonym for `zesk\Application::database_registry()` and both behave identically; although the `registry` call is semantically correct as it returns the same object on 2nd identical invocation.
 - `zesk\Command::configure()` now supports JSON-files and extensions
+- `theme/response/text/html/` theme path was added to enable customization of HTML page output.
 
 ### Broken functionality
 
@@ -59,6 +61,12 @@ Version 1.0 of Zesk will have:
 
 ### Removed functionality
 
+- `zesk\Response_Text_HTML::head` 
+- `zesk\Response_Text_HTML::body_begin` 
+- `zesk\Response_Text_HTML::body_end` 
+- `zesk\Response_Text_HTML::head` (use template override to modify this)
+- `zesk\Response_Text_HTML::doctype` (use template override to modify this)
+- `zesk\Response_Text_HTML::cdn_...` all removed
 - `zesk\Hookable::hook`
 - `zesk\Hookable::hook_array`
 - `zesk\ORM::cache_object`

@@ -695,8 +695,14 @@ class Application extends Hookable implements Interface_Theme {
 	public function is_configured() {
 		return $this->configured_was_run;
 	}
-	public function configured() {
-		if (!$this->configured_was_run) {
+
+	/**
+	 * Run fini
+	 * @param string $force
+	 * @return boolean
+	 */
+	public function configured($force = false) {
+		if ($force || !$this->configured_was_run) {
 			$this->_configured();
 			$this->configured_was_run = true;
 			return true;
@@ -747,7 +753,7 @@ class Application extends Hookable implements Interface_Theme {
 	 * @see Application::configure
 	 */
 	public function reconfigure() {
-		$this->_initialize($this->zesk);
+		$this->_initialize($this->kernel);
 		$result = $this->_configure(to_array($this->configuration_options));
 		$this->_configured();
 		return $result;
@@ -1997,6 +2003,9 @@ class Application extends Hookable implements Interface_Theme {
 	private function _register_factory($code, $callable) {
 		$old_factory = isset($this->factories[$code]) ? $this->factories[$code] : null;
 		$this->factories[$code] = $callable;
+		$this->application->logger->debug("Adding factory for {code}", array(
+			"code" => $code
+		));
 		return $old_factory;
 	}
 	/**
@@ -2038,9 +2047,10 @@ class Application extends Hookable implements Interface_Theme {
 		if (ends($name, $suffix)) {
 			return $this->modules->object(substr($name, 0, -strlen($suffix)));
 		}
-		throw new Exception_Unsupported("Application call {method} is not supported.\n\n\tCalled from: {calling}\n\nDo you need to register the module which adds this functionality?", array(
+		throw new Exception_Unsupported("Application call {method} is not supported.\n\n\tCalled from: {calling}\n\nDo you ned to register the module which adds this functionality?\n\nAvailable: {available}", array(
 			"method" => $name,
-			"calling" => calling_function()
+			"calling" => calling_function(),
+			"available" => implode(", ", array_keys($this->factories))
 		));
 	}
 

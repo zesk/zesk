@@ -18,7 +18,7 @@ class Database_Table_Test extends Test_Unit {
 		"MySQL"
 	);
 	function test_main() {
-		$db = $this->application->database_factory();
+		$db = $this->application->database_registry();
 		$table_name = PHP::parse_class(__CLASS__) . '_' . __FUNCTION__;
 		$type = false;
 		$table = new Database_Table($db, $table_name, $type);
@@ -70,7 +70,7 @@ class Database_Table_Test extends Test_Unit {
 		echo basename(__FILE__) . ": success\n";
 	}
 	function test_main2() {
-		$db = $this->application->database_factory();
+		$db = $this->application->database_registry();
 		$table_name = 'test_table';
 		$type = false;
 		$testx = new Database_Table($db, $table_name, $type);

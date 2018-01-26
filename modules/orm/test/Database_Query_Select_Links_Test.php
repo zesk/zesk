@@ -38,7 +38,7 @@ class Database_Query_Select_Links_Test extends Test_Unit {
 		$this->assertEquals($result, $test_result);
 	}
 	function test_main() {
-		$db = $this->application->database_factory();
+		$db = $this->application->database_registry();
 		$db->table_prefix("");
 
 		/*==== Test ===============================================================*/

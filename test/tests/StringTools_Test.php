@@ -44,8 +44,26 @@ class StringTools_Test extends Test_Unit {
 		$be = null;
 		StringTools::is_utf16($str, $be);
 	}
+	function test_wrap() {
+		$phrase = null;
+		StringTools::wrap($phrase);
+
+		$this->assert(StringTools::wrap('This is a [simple] example', '<strong>[]</strong>') === 'This is a <strong>simple</strong> example', "'" . StringTools::wrap('This is a [simple] example', '<strong>[]</strong>') . "' === 'This is a <strong>simple</strong> example'");
+
+		$this->assert(StringTools::wrap('This is a [1:simple] example', '<strong>[]</strong>') === 'This is a simple example', StringTools::wrap('This is a [1:simple] example', '<strong>[]</strong>') . " === 'This is a simple example'");
+
+		$this->assert(StringTools::wrap('This is an example with [two] [items] example', '<strong>[]</strong>', '<em>[]</em>') === 'This is an example with <strong>two</strong> <em>items</em> example');
+
+		$this->assert(StringTools::wrap('This is an example with [two] [0:items] example', '<strong>[]</strong>', '<em>[]</em>') === 'This is an example with <strong>two</strong> <strong>items</strong> example');
+
+		$this->assert(StringTools::wrap('This is an example with [1:two] [items] example', '<strong>[]</strong>', '<em>[]</em>') === 'This is an example with <em>two</em> <em>items</em> example', StringTools::wrap('This is an example with [1:two] [items] example', '<strong>[]</strong>', '<em>[]</em>') . ' === This is an example with <em>two</em> <em>items</em> example');
+
+		$this->assert(StringTools::wrap('This is an example with [1:two] [1:items] example', '<strong>[]</strong>', '<em>[]</em>') === 'This is an example with <em>two</em> <em>items</em> example', StringTools::wrap('This is an example with [1:two] [1:items] example', '<strong>[]</strong>', '<em>[]</em>') . ' === This is an example with <em>two</em> <em>items</em> example');
+
+		$this->assert(StringTools::wrap('Nested example with [outernest [nest0] [nest1]] example', '<0>[]</0>', '<1>[]</1>', '<2>[]</2>') === 'Nested example with <2>outernest <0>nest0</0> <1>nest1</1></2> example', StringTools::wrap('Nested example with [outernest [nest0] [nest1]] example', '<0>[]</0>', '<1>[]</1>', '<2>[]</2>') . ' === Nested example with <2>outernest <0>nest0</0> <1>nest1</1></2> example');
+	}
 	function test_is_utf8() {
-		$test_dir = $this->application->zesk_root('test/test-data');
+		$test_dir = $this->application->zesk_home('test/test-data');
 
 		$files = array(
 			"utf16-le-no-bom.data" => false,

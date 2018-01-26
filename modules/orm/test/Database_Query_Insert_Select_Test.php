@@ -15,7 +15,7 @@ class Database_Query_Insert_Select_Test extends Test_Unit {
 		"ORM"
 	);
 	function test_main() {
-		$db = $this->application->database_factory();
+		$db = $this->application->database_registry();
 		$testx = new Database_Query_Insert_Select($db);
 		
 		$db = null;

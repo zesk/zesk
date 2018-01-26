@@ -31,6 +31,11 @@ class Modules {
 
 	/**
 	 *
+	 * @var boolean
+	 */
+	private $debug = false;
+	/**
+	 *
 	 * @var Application
 	 */
 	private $application = null;
@@ -70,7 +75,14 @@ class Modules {
 	 */
 	public function __construct(Application $application) {
 		$this->application = $application;
-		$this->module_class_prefix = $application->configuration->path_get("zesk\Modules::module_class_prefix", $this->module_class_prefix);
+		$this->module_class_prefix = $application->configuration->path_get(array(
+			__CLASS__,
+			"module_class_prefix"
+		), $this->module_class_prefix);
+		$this->debug = $application->configuration->path_get(array(
+			__CLASS__,
+			"debug"
+		), $this->module_class_prefix);
 	}
 
 	/**
@@ -436,6 +448,7 @@ class Modules {
 		return $result;
 	}
 	private function _autoload_one($name, array $options) {
+		$configure = avalue($options, "configure", false);
 		$module_data = array(
 			'loaded' => false,
 			'name' => $name,
@@ -548,9 +561,18 @@ class Modules {
 		try {
 			if ($object) {
 				$object->initialize();
+				if ($this->debug) {
+					$this->application->logger->debug("Initialized module object {class}", array(
+						"class" => get_class($object)
+					));
+				}
 			}
 			return $module_data;
 		} catch (\Exception $e) {
+			$this->application->logger->error("Failed to initialize module object {class}: {message}", array(
+				"class" => get_class($object),
+				"message" => $e->getMessage()
+			));
 			$this->application->hooks->call("exception", $e);
 			return array(
 				"module" => null,

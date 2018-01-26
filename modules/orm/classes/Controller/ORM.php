@@ -450,6 +450,39 @@ abstract class Controller_ORM extends Controller_Authenticated {
 	}
 
 	/**
+	 * Fetch an ORM from an user input ID
+	 *
+	 * @param string $class
+	 * @param mixed $id
+	 * @throws Exception_Parameter
+	 * @return ORM
+	 */
+	protected function orm_from_id($class, $id) {
+		$locale = $this->application->locale;
+		$object = $this->application->orm_factory($class, $id);
+		$name = $object->class_orm()->name;
+		$__ = array(
+			"name" => $name
+		);
+		if (empty($id)) {
+			throw new Exception_Parameter("Invalid {name} ID", $__);
+		}
+		if (!is_numeric($id) || $id < 0) {
+			throw new Exception_Parameter("Invalid {name} ID", $__);
+		}
+		try {
+			$fetched = $object->fetch();
+		} catch (Exception_ORM_NotFound $e) {
+			throw new Exception_Parameter("{name} not found", $__);
+		} catch (Exception_ORM_NotFound $e) {
+			throw new Exception_Parameter("{name} is empty", $__);
+		} catch (\Exception $e) {
+			throw new Exception_Parameter("{name} unknown error {message}", $__ + array(
+				"message" => $e->getMessage()
+			));
+		}
+	}
+	/**
 	 *
 	 * {@inheritDoc}
 	 * @see \zesk\Controller::_action_default()

@@ -46,7 +46,7 @@ class Preference_Test extends Test_ORM {
 	function test_Preference() {
 		$preference_class = __NAMESPACE__ . "\\" . "Preference";
 		
-		$db = $this->application->database_factory();
+		$db = $this->application->database_registry();
 		$db->query($this->application->schema_synchronize($db, array(
 			$preference_class,
 			__NAMESPACE__ . "\\" . "Preference_Type"

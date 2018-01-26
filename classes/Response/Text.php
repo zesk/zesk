@@ -1,10 +1,20 @@
 <?php
-namespace zesk;
+namespace zesk\Response;
 
-class Response_Text extends Response {
-	/**
-	 * Content-Type header
-	 * @var string
-	 */
-	public $content_type = self::content_type_plaintext;
+use zesk\Response;
+
+class Text extends Response {
+	function initialize() {
+	}
+	function hasFile() {
+		return false;
+	}
+	function headers() {
+	}
+	function render($content) {
+		return $content;
+	}
+	function passthru($content) {
+		echo $this->render($content);
+	}
 }

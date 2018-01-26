@@ -34,7 +34,7 @@ class ORM_Schema_MySQL_Test extends Test_Unit {
 	 * @return mysql\Database
 	 */
 	function db() {
-		$testx = $this->application->database_factory();
+		$testx = $this->application->database_registry();
 		
 		$this->assert($testx->type() === "mysql");
 		return $testx;
@@ -43,7 +43,7 @@ class ORM_Schema_MySQL_Test extends Test_Unit {
 		$sql0 = "CREATE TABLE test ( id integer unsigned NOT NULL, created datetime NULL ) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci";
 		$sql1 = "CREATE TABLE test ( id integer unsigned NOT NULL, created timestamp NULL ) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci";
 		
-		$db = $this->application->database_factory();
+		$db = $this->application->database_registry();
 		$table0 = $db->parse_create_table($sql0, __METHOD__);
 		$table1 = $db->parse_create_table($sql1, __METHOD__);
 		
@@ -78,7 +78,7 @@ class ORM_Schema_MySQL_Test extends Test_Unit {
 		
 		$table = __FUNCTION__;
 		$sql = map($sql, compact("table"));
-		$db = $this->application->database_factory();
+		$db = $this->application->database_registry();
 		
 		$result = $db->query("DROP TABLE IF EXISTS $table");
 		$this->assert_equal($result, true);
@@ -112,7 +112,7 @@ class ORM_Schema_MySQL_Test extends Test_Unit {
 		ORM_Schema::debug(true);
 		
 		/* @var $db Database */
-		$db = $this->application->database_factory();
+		$db = $this->application->database_registry();
 		$db->query("DROP TABLE IF EXISTS $table");
 		$db->query($sql);
 		
@@ -150,7 +150,7 @@ class ORM_Schema_MySQL_Test extends Test_Unit {
 		
 		ORM_Schema::debug(true);
 		
-		$db = $this->application->database_factory();
+		$db = $this->application->database_registry();
 		
 		$db->query("DROP TABLE IF EXISTS $table");
 		$db->query($sql);
@@ -199,7 +199,7 @@ class ORM_Schema_MySQL_Test extends Test_Unit {
 		
 		ORM_Schema::debug(true);
 		
-		$db = $this->application->database_factory();
+		$db = $this->application->database_registry();
 		
 		$db->query("DROP TABLE IF EXISTS $table");
 		$db->query($sql);
@@ -234,7 +234,7 @@ class ORM_Schema_MySQL_Test extends Test_Unit {
 		
 		ORM_Schema::debug(true);
 		
-		$db = $this->application->database_factory();
+		$db = $this->application->database_registry();
 		
 		$db->query("DROP TABLE IF EXISTS $table");
 		$db->query($sql);
@@ -263,7 +263,7 @@ class ORM_Schema_MySQL_Test extends Test_Unit {
 		
 		DBSchemaTest4::$test_table2 = $table2 = 'temp_test_multi_create2';
 		
-		$db = $this->application->database_factory();
+		$db = $this->application->database_registry();
 		
 		$db->query("DROP TABLE IF EXISTS $table");
 		$db->query("DROP TABLE IF EXISTS $table2");
@@ -299,7 +299,7 @@ class ORM_Schema_MySQL_Test extends Test_Unit {
 		echo basename(__FILE__) . ": Success.\n";
 	}
 	function test_5() {
-		$db = $this->application->database_factory();
+		$db = $this->application->database_registry();
 		
 		DBSchemaTest5::$test_table = $table = 'keywords_test';
 		$db->query("DROP TABLE IF EXISTS $table");
@@ -323,7 +323,7 @@ class ORM_Schema_MySQL_Test extends Test_Unit {
 	function test_6() {
 		$table = 'keywords_test';
 		
-		$db = $this->application->database_factory();
+		$db = $this->application->database_registry();
 		
 		$db->query("DROP TABLE IF EXISTS $table");
 		
@@ -353,7 +353,7 @@ class ORM_Schema_MySQL_Test extends Test_Unit {
 	function test_8() {
 		$table = 'bigint_test';
 		
-		$db = $this->application->database_factory();
+		$db = $this->application->database_registry();
 		
 		$db->query("DROP TABLE IF EXISTS $table");
 		

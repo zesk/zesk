@@ -56,7 +56,7 @@ class Command_Database_Dump extends Command_Base {
 	 */
 	function run() {
 		$dbname = $this->option('name');
-		$db = $this->application->database_factory($dbname);
+		$db = $this->application->database_registry($dbname);
 		if (!$db) {
 			$this->error("No such database for \"$dbname\"\n");
 			return false;

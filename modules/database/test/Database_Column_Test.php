@@ -14,7 +14,7 @@ class Database_Column_Test extends Test_Unit {
 		"MySQL"
 	);
 	function test_main() {
-		$db = $this->application->database_factory();
+		$db = $this->application->database_registry();
 		
 		$table = new Database_Table($db, __METHOD__);
 		

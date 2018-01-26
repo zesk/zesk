@@ -65,7 +65,7 @@ class Command_Database_Connect extends Command_Base {
 		}
 		
 		$name = $this->option('name');
-		$db = $this->application->database_factory($name);
+		$db = $this->application->database_registry($name);
 		list($command, $args) = $db->shell_command($this->options);
 		
 		if ($this->option_bool('debug-connect')) {
@@ -123,7 +123,7 @@ class Command_Database_Connect extends Command_Base {
 		$db = Database::register();
 		foreach ($db as $name => $url) {
 			try {
-				$this->application->database_factory($name);
+				$this->application->database_registry($name);
 				$db[$name] = true;
 			} catch (Exception $e) {
 				$db[$name] = false;

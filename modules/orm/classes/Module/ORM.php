@@ -270,7 +270,7 @@ class Module_ORM extends Module {
 			exit(131);
 		}
 		if (!$db) {
-			$db = $this->application->database_factory();
+			$db = $this->application->database_registry();
 		}
 		if ($classes === null) {
 			$classes = $this->orm_classes();
@@ -521,7 +521,7 @@ class Module_ORM extends Module {
 		}
 		$logger = $this->application->logger;
 		if ($this->option_bool('schema_sync')) {
-			$db = $this->application->database_factory();
+			$db = $this->application->database_registry();
 			$logger->warning("The database schema was out of sync, updating: {sql}", array(
 				"sql" => implode(";\n", $results) . ";\n"
 			));

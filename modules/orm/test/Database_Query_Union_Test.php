@@ -18,7 +18,7 @@ class Database_Query_Union_Test extends Test_Unit {
 		
 		$this->test_table($table_name);
 		
-		$db = $this->application->database_factory();
+		$db = $this->application->database_registry();
 		$testx = new Database_Query_Union($db);
 		
 		$select = new Database_Query_Select($db);

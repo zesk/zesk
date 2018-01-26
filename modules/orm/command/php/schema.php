@@ -11,7 +11,7 @@ class Command_PHP_Schema extends Command {
 		'class' => 'string'
 	);
 	function run() {
-		$db = $this->application->database_factory();
+		$db = $this->application->database_registry();
 		
 		$class = $this->option('class');
 		if (!$class) {

@@ -124,6 +124,7 @@ class Test extends Hookable {
 				"load_modules" => $this->load_modules
 			));
 			$this->application->modules->load($this->load_modules);
+			$this->application->configured(true);
 		}
 	}
 
@@ -1051,7 +1052,7 @@ class Test extends Hookable {
 	 * @param unknown_type $uniq
 	 */
 	final public function test_table_sql($name, $create_sql) {
-		$db = $this->application->database_factory();
+		$db = $this->application->database_registry();
 		$db->query("DROP TABLE IF EXISTS `$name`");
 		$db->query($create_sql);
 		if (!$this->option_bool("debug_keep_tables")) {
@@ -1069,7 +1070,7 @@ class Test extends Hookable {
 	 * @param string $dbname
 	 */
 	final protected function test_table_match($table, array $match = array(), $dbname = "") {
-		$db = $this->application->database_factory();
+		$db = $this->application->database_registry();
 		$headers = null;
 		$header_row = null;
 		$dbrows = array();

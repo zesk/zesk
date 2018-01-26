@@ -63,7 +63,7 @@ CREATE TABLE `TestTable` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci
 EOF;
 	function test_schema() {
-		$db = $this->application->database_factory();
+		$db = $this->application->database_registry();
 		$table = $db->parse_create_table(self::$schema, __METHOD__);
 		$this->assert_instanceof($table, 'zesk\\Database_Table');
 		$week = $table->column("Week");

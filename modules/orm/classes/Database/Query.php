@@ -83,7 +83,7 @@ class Database_Query {
 	/**
 	 */
 	function __wakeup() {
-		$this->db = zesk()->application()->database_factory($this->dbname);
+		$this->db = zesk()->application()->database_registry($this->dbname);
 	}
 
 	/**

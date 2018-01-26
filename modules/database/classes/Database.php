@@ -1313,7 +1313,7 @@ abstract class Database extends Hookable {
 	 */
 	public static function _factory(Application $application, $mixed = null, array $options = array()) {
 		$application->deprecated();
-		return $application->database_module()->database_factory($mixed, $options);
+		return $application->database_module()->database_registry($mixed, $options);
 	}
 
 	/**

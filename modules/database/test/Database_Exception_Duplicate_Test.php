@@ -14,7 +14,7 @@ class Database_Exception_Duplicate_Test extends Test_Database_Exception {
 		"MySQL"
 	);
 	function database() {
-		return $this->application->database_factory();
+		return $this->application->database_registry();
 	}
 	/**
 	 * @expectedException zesk\Database_Exception_Duplicate

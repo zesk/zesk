@@ -111,13 +111,13 @@ class Kernel_Test extends Test_Unit {
 		), $tried_path);
 		$this->assert_equal($result, ZESK_ROOT . 'classes/Kernel.php');
 
-		$class = "zesk\\Database_Table";
+		$class = "zesk\\Controller_Theme";
 
 		$result = $autoloader->search($class, array(
 			$extension,
 			"sql"
 		), $tried_path);
-		$this->assert_equal($result, ZESK_ROOT . 'classes/Database/Table.php');
+		$this->assert_equal($result, ZESK_ROOT . 'classes/Controller/Theme.php');
 
 		$class = "zesk\\Class_User";
 		$this->application->modules->load("orm");
@@ -165,7 +165,7 @@ class Kernel_Test extends Test_Unit {
 	 */
 	function test_clean_function($name, $expected) {
 		$result = PHP::clean_function($name);
-		$this->assert_equal($result, $expected, "PHP::clean_function($name) = $result !== $expected");
+		$this->assert_equal($result, $expected, "PHP::clean_function");
 	}
 	function provider_clean_class() {
 		return array(

@@ -520,7 +520,7 @@ class ORM extends Model {
 		if ($this->database instanceof Database) {
 			return $this->database;
 		}
-		return $this->database = $this->application->database_factory($this->database_name);
+		return $this->database = $this->application->database_registry($this->database_name);
 	}
 
 	/**

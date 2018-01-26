@@ -6,7 +6,7 @@ class MySQL_Database_Test extends Test_Unit {
 		"MySQL"
 	);
 	function test_types_compatible() {
-		$mysql = $this->application->database_factory("mysql://root@localhost/mysql", array(
+		$mysql = $this->application->database_registry("mysql://root@localhost/mysql", array(
 			'connect' => false
 		));
 		/* @var $mysql Database_MySQL */
@@ -18,7 +18,7 @@ class MySQL_Database_Test extends Test_Unit {
 	 * @return \mysql\Database
 	 */
 	function database() {
-		$db = $this->application->database_factory();
+		$db = $this->application->database_registry();
 		
 		$this->assert_in_array(array(
 			"mysql",
@@ -274,7 +274,7 @@ EOF;
 		$sql = "CREATE TABLE Foo ( ID integer )";
 		$db->parse_create_table($sql, __METHOD__);
 		
-		$db = $this->application->database_factory();
+		$db = $this->application->database_registry();
 		
 		$url = $db->url();
 		

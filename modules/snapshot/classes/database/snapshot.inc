@@ -84,7 +84,7 @@ class Database_Snapshot extends ORM {
 	}
 	public function restore(Database $db = null) {
 		if ($db === null) {
-			$db = $this->application->database_factory();
+			$db = $this->application->database_registry();
 		}
 		if ($db->database_name() !== $this->dbname) {
 			throw new Exception_Semantics("Restoring incorrect snapshot name {dbname} onto existing database name {db_database_name} - stopping", array(

@@ -71,12 +71,12 @@ li {
 }
 </style>
 <?php
-$content = ob_get_clean();
-
-$response->css_inline(HTML::extract_tag_contents("style", $content));
+$response->html()->css_inline(HTML::extract_tag_contents("style", ob_get_clean()));
 ?>
 <div id="wrapper">
 	<div id="inner-wrap">
-			<?php echo $this->content; ?>
+			<?php
+			echo $this->content;
+			?>
 		</div>
 </div>

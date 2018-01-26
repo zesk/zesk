@@ -18,7 +18,7 @@ class Database_Query_Select_Test extends Test_Unit {
 		
 		$this->test_table($table_name);
 		
-		$db = $this->application->database_factory();
+		$db = $this->application->database_registry();
 		$testx = new Database_Query_Select($db);
 		
 		$db = null;
@@ -78,7 +78,7 @@ class Database_Query_Select_Test extends Test_Unit {
 		$class = null;
 		$testx->object_class($class);
 		
-		$db = $this->application->database_factory();
+		$db = $this->application->database_registry();
 		$x = new Database_Query_Select($db);
 		$x->from($table_name);
 		$x->what(null, "ID");
