@@ -10,7 +10,7 @@ namespace zesk;
 /* @var $session Session */
 /* @var $request Router */
 /* @var $request Request */
-/* @var $response zesk\Response_Text_HTML */
+/* @var $response zesk\Response */
 /* @var $current_user User */
 /* @var $platform Server_Platform */
 $disk_used_percent_error = to_double(isset($this->disk_used_percent_error) ? $this->disk_used_percent_error : $zesk->configuration->path_get("Server::disk_used_percent_error"), 0.9);

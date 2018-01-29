@@ -44,10 +44,6 @@ abstract class Controller_ORM extends Controller_Authenticated {
 	 * @var string
 	 */
 	protected $class_name_locale = null;
-	// /**
-	// * @var Controller
-	// */
-	// protected $controller = null;
 
 	/**
 	 * URL to redirect to if Control_${this->class}_List
@@ -343,11 +339,9 @@ abstract class Controller_ORM extends Controller_Authenticated {
 		$message = $object->words(__($message));
 		$redirect_url = $this->_compute_url($object, $result ? "duplicate_next" : "duplicate_fail", "list", $this->request->get("ref"));
 		return $this->_redirect_response($redirect_url, $message, array(
-			"result" => $result,
-			"result-deprecated" => $result,
 			"status" => $result,
-			"original_object" => $object->json(),
-			"object" => $new_object->json()
+			"original_object" => $object->json(array()),
+			"object" => $new_object->json(array())
 		));
 	}
 
@@ -370,7 +364,7 @@ abstract class Controller_ORM extends Controller_Authenticated {
 	 */
 	function after($result = null, $output = null) {
 		if ($this->is_ajax) {
-			if (!$this->response->json()) {
+			if (!$this->response->is_json()) {
 				$content = $this->response->content;
 				if (!empty($result)) {
 					$content .= $result;
@@ -387,7 +381,7 @@ abstract class Controller_ORM extends Controller_Authenticated {
 				$this->response->json($json);
 			}
 			$this->auto_render(false);
-		} else if ($this->response->json()) {
+		} else if ($this->response->is_json()) {
 			$this->auto_render(false);
 		}
 		parent::after($result, $output);
@@ -493,13 +487,13 @@ abstract class Controller_ORM extends Controller_Authenticated {
 		try {
 			$request = $this->request;
 			$router = $this->router;
-			$route = $router->route;
+			$route = $this->route;
 			$action = strval($action);
 			if (empty($action)) {
 				$action = "index";
 			}
 			if (!array_key_exists($action, $this->actions)) {
-				$url = rtrim($router->url_replace('action', $this->action_default), '/');
+				$url = rtrim($route->url_replace('action', $this->action_default), '/');
 				$query = $this->request->query();
 				if ($query) {
 					$url .= "?$query";

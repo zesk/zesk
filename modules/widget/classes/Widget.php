@@ -61,7 +61,7 @@ class Widget extends Hookable {
 	/**
 	 * Respose associated with this widget
 	 *
-	 * @var zesk\Response_Text_HTML
+	 * @var Response
 	 */
 	protected $response = null;
 
@@ -230,7 +230,6 @@ class Widget extends Hookable {
 	 */
 	public function __construct(Application $application, array $options = null) {
 		$this->request = $application->request();
-		$this->response = $application->response();
 
 		if (!is_array($options)) {
 			$options = array();
@@ -311,14 +310,14 @@ class Widget extends Hookable {
 	/**
 	 * Retrieve the class object for this widget
 	 *
-	 * @return zesk\Class_ORM
+	 * @return Class_ORM
 	 */
 	function class_orm() {
 		return $this->application->class_orm_registry($this->class);
 	}
 
 	/**
-	 * Getter/setter for the zesk\ORM subclass associated with this widget
+	 * Getter/setter for the ORM subclass associated with this widget
 	 *
 	 * @param unknown $set
 	 */
@@ -333,7 +332,7 @@ class Widget extends Hookable {
 	/**
 	 *
 	 * @param unknown $class
-	 * @return \zesk\Widget
+	 * @return Widget
 	 */
 	function add_class($class) {
 		// Some widgets have protected variable called class - always update the options here
@@ -574,20 +573,7 @@ class Widget extends Hookable {
 	 * @return Widget
 	 */
 	public function widget_factory($class, $options = null) {
-		$app = $this->application;
-		$args = array(
-			$app,
-			$options
-		);
-		try {
-			$widget = $app->objects->factory_arguments($class, $args);
-		} catch (Exception_Class_NotFound $e) {
-			$widget = $app->objects->factory_arguments("zesk\\$class", $args);
-		}
-		if (!$widget instanceof Widget) {
-			throw new Exception_Semantics("$class is not a Widget");
-		}
-		return $widget;
+		return self::factory($this->application, $class, $options);
 	}
 
 	/**
@@ -610,6 +596,12 @@ class Widget extends Hookable {
 		} catch (Exception_Class_NotFound $e) {
 			if (strpos($class, "\\") === false && class_exists("zesk\\$class")) {
 				$widget = $application->factory_arguments("zesk\\" . $class, $args);
+				if ($widget) {
+					$application->deprecated("{method} called with unprefixed class {class}", array(
+						"method" => __METHOD__,
+						"class" => $class
+					));
+				}
 			} else {
 				throw $e;
 			}
@@ -651,7 +643,7 @@ class Widget extends Hookable {
 	}
 
 	/**
-	 * Response associated with this widget
+	 * Response associated with this widget. Created if not set.
 	 *
 	 * @param $set Response
 	 *        	to set
@@ -662,7 +654,10 @@ class Widget extends Hookable {
 			$this->response = $set;
 			return $this;
 		}
-		return $this->response;
+		if ($this->response instanceof Response) {
+			return $this->response;
+		}
+		return $this->response = new Response($this->application);
 	}
 
 	/**
@@ -809,16 +804,13 @@ class Widget extends Hookable {
 	}
 
 	/**
-	 * Return a JSON response via the response
+	 * Return a JSON response via the response. Modifies response content type.
 	 *
-	 * @param array $set
-	 * @return Widget|boolean
+	 * @param mixed $set
+	 * @return self
 	 */
-	function json($set = null) {
-		if ($set === null) {
-			return $this->response->json();
-		}
-		$this->response->json($set);
+	function json($set) {
+		$this->response->json()->data($set);
 		return $this;
 	}
 
@@ -1525,7 +1517,7 @@ class Widget extends Hookable {
 	private function _exec_ready() {
 		if ($this->exec_state === null) {
 			$this->exec_state = self::ready;
-			$this->request();
+			$this->response();
 			// Create model for parent object to have something to examine state in
 			if (!$this->object instanceof Model) {
 				$model = $this->model();
@@ -1717,6 +1709,8 @@ class Widget extends Hookable {
 		} else if (is_string($this->exec_state)) {
 			return $this->exec_state;
 		}
+		// Ensure our response is created
+		$this->response();
 		if ($object !== null) {
 			$this->object($object);
 		}
@@ -1996,7 +1990,7 @@ class Widget extends Hookable {
 	protected function initialize() {
 		if (!$this->has_option('column', true)) {
 			$class = get_class($this);
-			$column = strtolower(strtr($class, "_", "-")) . '-' . $this->response->id_counter();
+			$column = strtolower(strtr($class, "_", "-")) . '-' . $this->response()->id_counter();
 			$this->column($column);
 			$this->application->logger->notice("{class} was given a default column name \"{column}\"", array(
 				"class" => $class,
@@ -2132,6 +2126,7 @@ class Widget extends Hookable {
 	 */
 	public function theme_variables() {
 		return $this->application->variables() + array(
+			'response' => $this->response(),
 			'widget' => $this,
 			'input_attributes' => $input_attributes = $this->input_attributes(),
 			'data_attributes' => $data_attributes = $this->data_attributes(),
@@ -2315,7 +2310,9 @@ class Widget extends Hookable {
 		$submit_url = $this->submit_url();
 		$submit_url_default = $this->submit_url_default();
 		if ($this->option_bool('submit_skip_ref')) {
-			$submit_url = $ref ? URL::add_ref($submit_url, $ref) : $submit_url;
+			$submit_url = $ref ? URL::query_format($submit_url, array(
+				"ref" => $ref
+			)) : $submit_url;
 		}
 		$vars = ArrayTools::kprefix($this->object->variables(), "object.") + ArrayTools::kprefix($this->request->variables(), "request.");
 		$url = null;

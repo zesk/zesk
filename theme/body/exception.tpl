@@ -2,11 +2,7 @@
 namespace zesk;
 
 /* @var $application Application */
-/* @var $response Response_Text_HTML */
-$response = $this->response;
-if (!$response) {
-	$response = $application->response();
-}
+/* @var $response Response */
 $response->jquery();
 $response->css('/share/zesk/css/exception.css', array(
 	'share' => true

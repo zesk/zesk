@@ -13,12 +13,12 @@ namespace zesk;
 /* @var $router \zesk\Router */
 /* @var $route \zesk\Route */
 /* @var $request \zesk\Request */
-/* @var $response \zesk\Response_Text_HTML */
+/* @var $response \zesk\Response */
 /* @var $current_user \User */
 $current_user = $this->get1("current_user;user", $application->user(true));
 $can_update_live = $current_user->can("zesk\\Module_PolyGlot::update");
 
-/* @var $response zesk\Response_Text_HTML */
+/* @var $response zesk\Response */
 $response = $this->response;
 
 $response->jquery();

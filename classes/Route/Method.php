@@ -4,7 +4,7 @@ namespace zesk;
 use ReflectionMethod;
 
 /**
- * 
+ *
  * @author kent
  *
  */
@@ -49,10 +49,10 @@ class Route_Method extends Route {
 			));
 		}
 	}
-	
+
 	/**
 	 * Do includes if specified
-	 * 
+	 *
 	 * @return mixed[]|array[]
 	 */
 	private function _do_includues() {
@@ -68,19 +68,19 @@ class Route_Method extends Route {
 			$require
 		);
 	}
-	
+
 	/**
-	 * 
+	 *
 	 * {@inheritDoc}
 	 * @see Route::_execute()
 	 */
 	protected function _execute() {
 		$app = $this->router->application;
 		$this->_do_includues();
-		
+
 		$method = $this->options['method'];
 		$arguments = $this->args;
-		
+
 		$construct_arguments = $this->_map_variables($this->option_array("construct arguments"));
 		$method = $this->_map_variables($method);
 		ob_start();
@@ -106,9 +106,9 @@ class Route_Method extends Route {
 		if ($app->response->content !== null) {
 			return;
 		}
-		if ($this->option_bool('json') || $this->option("content_type") === Response::content_type_json || $app->response->json()) {
+		if ($app->response->is_json()) {
 			if ($content !== null) {
-				$app->response->json($content);
+				$app->response->json()->data($content);
 			}
 			return;
 		}

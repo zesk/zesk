@@ -14,9 +14,8 @@ namespace zesk;
 /* @var $router \zesk\Router */
 /* @var $route \zesk\Route */
 /* @var $request \zesk\Request */
-/* @var $response \zesk\Response_Text_HTML */
+/* @var $response \zesk\Response */
 /* @var $metas array */
-$result = array();
-foreach ($metas as $attrs) {
+foreach ($response->html()->metas() as $attrs) {
 	echo HTML::tag('meta', $attrs) . "\n";
 }

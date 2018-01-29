@@ -16,68 +16,75 @@ abstract class Route extends Hookable {
 	 * @var array
 	 */
 	private $map_variables = null;
-	
+
+	/**
+	 * The request which resulted in this Route
+	 *
+	 * @var Request
+	 */
+	protected $request = null;
+
 	/**
 	 * The router
 	 *
 	 * @var Router
 	 */
 	public $router = null;
-	
+
 	/**
 	 * Original options before being mapped
 	 */
 	protected $original_options = array();
-	
+
 	/**
 	 * Original pattern passed in
 	 *
 	 * @var string
 	 */
 	public $original_pattern = null;
-	
+
 	/**
 	 * Pattern with replaceable variables
 	 *
 	 * @var string
 	 */
 	public $clean_pattern = null;
-	
+
 	/**
 	 * HTTP Methods to match
 	 *
 	 * @var array
 	 */
 	protected $methods = null;
-	
+
 	/**
 	 * Pattern to match the URL, compiled
 	 *
 	 * @var string
 	 */
 	protected $pattern = null;
-	
+
 	/**
 	 * Array of types indexed on URL part
 	 *
 	 * @var array
 	 */
 	protected $types = array();
-	
+
 	/**
 	 * Parts of URL, with null values for unspecified settings
 	 *
 	 * @var array
 	 */
 	protected $url_args = array();
-	
+
 	/**
 	 * Arguments to function/method call
 	 *
 	 * @var array
 	 */
 	protected $args = array();
-	
+
 	/**
 	 * Named arguments (name => value pairs)
 	 * Note unnamed arguments can be accessed as url0 url1 url2 etc.
@@ -85,14 +92,14 @@ abstract class Route extends Hookable {
 	 * @var array
 	 */
 	protected $named = array();
-	
+
 	/**
 	 * arguments by class (lowercase class => array("name" => object))
 	 *
 	 * @var array
 	 */
 	protected $by_class = array();
-	
+
 	/**
 	 * Retrieve variables associated with Route for debugging, etc.
 	 *
@@ -133,7 +140,20 @@ abstract class Route extends Hookable {
 		parent::__wakeup();
 		$this->router = $this->application->router;
 	}
-	
+
+	/**
+	 * Getter/setter for request. Is set to non-null when matched.
+	 *
+	 * @param Request $set
+	 * @return \zesk\Route|\zesk\Request
+	 */
+	function request(Request $set = null) {
+		if ($set) {
+			$this->request = $set;
+			return $this;
+		}
+		return $this->request;
+	}
 	/**
 	 * Create a route which matches $pattern with route options
 	 *
@@ -150,7 +170,7 @@ abstract class Route extends Hookable {
 		$this->inherit_global_options();
 		$this->initialize();
 	}
-	
+
 	/**
 	 * Set up this route
 	 */
@@ -158,7 +178,7 @@ abstract class Route extends Hookable {
 		// Generic initial, override in subclasses
 		// As a policy, always call parent::initialize();
 	}
-	
+
 	/**
 	 * Check that this route is valid.
 	 * Throw exceptions if not.
@@ -168,7 +188,7 @@ abstract class Route extends Hookable {
 	public function validate() {
 		return $this;
 	}
-	
+
 	/**
 	 * Log a message about this Route
 	 *
@@ -177,7 +197,7 @@ abstract class Route extends Hookable {
 	function log($message, array $arguments = array()) {
 		return $this->router->log("info", $message, $arguments);
 	}
-	
+
 	/**
 	 * Take the input pattern and convert it into a simple pattern suitable for
 	 * variable replacement using map().
@@ -195,7 +215,7 @@ abstract class Route extends Hookable {
 		$pattern = preg_replace('/\{[a-z][\\a-z0-9_]*\s+/i', '{', $pattern);
 		return $pattern;
 	}
-	
+
 	/**
 	 * Retrieve the weight of this route for ordering.
 	 *
@@ -204,7 +224,7 @@ abstract class Route extends Hookable {
 	function weight() {
 		return $this->option_double('weight', 0);
 	}
-	
+
 	/**
 	 * Convert to string
 	 *
@@ -213,7 +233,7 @@ abstract class Route extends Hookable {
 	function __toString() {
 		return strval($this->original_pattern);
 	}
-	
+
 	/**
 	 * Compare weights
 	 *
@@ -224,7 +244,7 @@ abstract class Route extends Hookable {
 	public static function compare_weight(Route $a, Route $b) {
 		return zesk_sort_weight_array($a->option(), $b->option());
 	}
-	
+
 	/**
 	 * Create a route from a set of options
 	 *
@@ -251,7 +271,7 @@ abstract class Route extends Hookable {
 		}
 		return $router->application->objects->factory("zesk\\Route_Content", $router, $pattern, $options);
 	}
-	
+
 	/**
 	 * Clean a parameter type
 	 *
@@ -261,7 +281,7 @@ abstract class Route extends Hookable {
 	private static function clean_type($type) {
 		return preg_replace('/[^\\\\0-9A-Za-z_]/i', "_", $type);
 	}
-	
+
 	/**
 	 * Take a pattern and convert it into a Perl REGular expression (PREG)
 	 *
@@ -279,7 +299,7 @@ abstract class Route extends Hookable {
 		$re_pattern = str_replace('(', chr(0x01), $re_pattern);
 		$re_pattern = str_replace(')', chr(0x02), $re_pattern);
 		$re_pattern = str_replace('*', chr(0x03), $re_pattern);
-		
+
 		$matches = false;
 		$types = array();
 		if (preg_match_all('/{([^ }]+ )?([^ }]+)}/', $re_pattern, $matches, PREG_SET_ORDER)) {
@@ -299,21 +319,21 @@ abstract class Route extends Hookable {
 			chr(0x01),
 			chr(0x02)
 		), "", $re_pattern));
-		
+
 		foreach ($parts as $index => $part) {
 			$this->types[$index] = array_key_exists($part, $types) ? $types[$part] : true;
 		}
-		
+
 		$re_pattern = preg_quote($re_pattern);
 		$re_pattern = strtr($re_pattern, $replace);
 		$re_pattern = str_replace(chr(0x01), '(?:', $re_pattern);
 		$re_pattern = str_replace(chr(0x02), ')?', $re_pattern);
 		$re_pattern = str_replace(chr(0x03), '.*', $re_pattern);
 		$re_pattern = str_replace(chr(0x04), '\\*', $re_pattern);
-		
+
 		$this->pattern = '%^' . $re_pattern . '$%';
 	}
-	
+
 	/**
 	 * Retrieve the arguments for this route which have explicit names
 	 *
@@ -342,7 +362,7 @@ abstract class Route extends Hookable {
 		}
 		return avalue($result, $index);
 	}
-	
+
 	/**
 	 * Retrieve the arguments for this route based on position
 	 *
@@ -351,7 +371,7 @@ abstract class Route extends Hookable {
 	function arguments_indexed() {
 		return $this->url_args;
 	}
-	
+
 	/**
 	 * Retrieve the numbered arg
 	 */
@@ -380,7 +400,7 @@ abstract class Route extends Hookable {
 		$url = map($this->clean_pattern, $named + $this->named);
 		return $url;
 	}
-	
+
 	/**
 	 * Determine if a url matches this route.
 	 * If it matches, configure arguments by index as $this->args, and by name as $this->named
@@ -401,7 +421,7 @@ abstract class Route extends Hookable {
 		$this->args = null;
 		return true;
 	}
-	
+
 	/**
 	 * Handle arguments from URL
 	 *
@@ -458,10 +478,10 @@ abstract class Route extends Hookable {
 			}
 		}
 		// echo "<pre>"; var_dump($this->args); var_dump($this->named); echo "</pre>";
-		
+
 		return true;
 	}
-	
+
 	/**
 	 * Convert URL parameter to integer
 	 *
@@ -475,7 +495,7 @@ abstract class Route extends Hookable {
 		}
 		return intval($x);
 	}
-	
+
 	/**
 	 * Convert URL parameter to double
 	 *
@@ -489,7 +509,7 @@ abstract class Route extends Hookable {
 		}
 		return intval($x);
 	}
-	
+
 	/**
 	 * Convert URL parameter to string
 	 *
@@ -500,7 +520,7 @@ abstract class Route extends Hookable {
 	final protected function convert_string($x) {
 		return $x;
 	}
-	
+
 	/**
 	 * Convert URL parameter to string
 	 *
@@ -512,7 +532,7 @@ abstract class Route extends Hookable {
 		$this->set_option($name, $x);
 		return $x;
 	}
-	
+
 	/**
 	 * Convert URL parameter to array
 	 *
@@ -523,7 +543,7 @@ abstract class Route extends Hookable {
 	final protected function convert_array($x) {
 		return $this->convert_list($x);
 	}
-	
+
 	/**
 	 * Convert URL parameter to list
 	 *
@@ -534,7 +554,7 @@ abstract class Route extends Hookable {
 	final protected function convert_list($x) {
 		return to_list($x, array());
 	}
-	
+
 	/**
 	 * Convert URL parameter to list delimited by dashes
 	 *
@@ -545,7 +565,7 @@ abstract class Route extends Hookable {
 	final protected function convert_dash_list($x) {
 		return to_list($x, array(), "-");
 	}
-	
+
 	/**
 	 * Convert URL parameter to list delimited by semicolons
 	 *
@@ -556,7 +576,7 @@ abstract class Route extends Hookable {
 	final protected function convert_semicolon_list($x) {
 		return to_list($x, array(), ";");
 	}
-	
+
 	/**
 	 * Convert URL parameter to list delimited by commas
 	 *
@@ -567,21 +587,20 @@ abstract class Route extends Hookable {
 	final protected function convert_comma_list($x) {
 		return to_list($x, array(), ",");
 	}
-	
+
 	/**
 	 * Convert array values to objects
 	 *
 	 * @param mixed $mixed
 	 * @return mixed
 	 */
-	protected function _map_variables($mixed) {
+	protected function _map_variables($mixed, Response $response = null) {
 		if (!is_array($mixed)) {
 			return $mixed;
 		}
 		$app = $this->router->application;
 		if (!is_array($this->map_variables)) {
-			$response = $app->response;
-			$request = $app->request;
+			$request = $this->request;
 			$this->map_variables = array(
 				'{application}' => $app,
 				'{request}' => $request,
@@ -590,17 +609,19 @@ abstract class Route extends Hookable {
 				'{router}' => $this->router
 			);
 			$this->map_variables += ArrayTools::kwrap($request->variables(), '{request.', '}');
-			$this->map_variables += ArrayTools::kwrap($request->url_parts(), '{url.', '}');
+			$this->map_variables += ArrayTools::kwrap($request->url_variables(), '{url.', '}');
 		}
 		return ArrayTools::map_values($mixed, $this->map_variables);
 	}
-	
+
 	/**
 	 * Overridable method before execution
+	 *
+	 * @return Response
 	 */
 	protected function _before() {
 		$app = $this->router->application;
-		$response = $app->response;
+		$response = $app->response_factory($this->request, $this->option("content_type"));
 		if ($this->has_option('cache')) {
 			$cache = $this->option('cache');
 			if (is_scalar($cache)) {
@@ -616,37 +637,43 @@ abstract class Route extends Hookable {
 				));
 			}
 		}
-		foreach (to_list("content_type;status_code;status_message") as $k) {
-			$v = $this->option($k);
-			if ($v) {
-				$response->$k = $v;
-			}
+		$v = $this->option('status_code');
+		if ($v) {
+			$response->status($v);
 		}
-		$this->args = $this->_map_variables($this->args);
+		$v = $this->option('status_message');
+		if ($v) {
+			$response->status($response->status_code, $v);
+		}
+		if ($this->option_bool("json")) {
+			$response->is_json(true);
+		} else if ($this->option_bool("html")) {
+			$response->is_html(true);
+		}
+		$this->args = $this->_map_variables($this->args, $response);
+		return $response;
 	}
-	
+
 	/**
 	 * Execute the route
 	 *
 	 * @param Application $app
 	 */
 	abstract protected function _execute();
-	
+
 	/**
 	 * Overridable method after execution
 	 *
-	 * @param Request $request
-	 * @param Response $response
 	 */
-	protected function _after() {
+	protected function _after(Response $response) {
 		if (array_key_exists("redirect", $this->options)) {
-			$this->router->application->response->redirect($this->options['redirect']);
+			$response->redirect($this->options['redirect']);
 		}
 	}
-	
+
 	/**
 	 */
-	protected function _permissions() {
+	protected function _permissions(Response $response) {
 		$permission = $this->option("permission");
 		$permissions = array();
 		if ($permission) {
@@ -657,7 +684,7 @@ abstract class Route extends Hookable {
 			);
 		}
 		$permissions = array_merge($permissions, $this->option_array("permissions", array()));
-		$permissions = $this->_map_variables($permissions);
+		$permissions = $this->_map_variables($permissions, $response);
 		$app = $this->router->application;
 		foreach ($permissions as $permission) {
 			$action = $context = null;
@@ -679,7 +706,7 @@ abstract class Route extends Hookable {
 			$app->user(true)->must($action, $context, $options);
 		}
 	}
-	
+
 	/**
 	 *
 	 * @return \zesk\Route
@@ -689,7 +716,7 @@ abstract class Route extends Hookable {
 		$this->options = map($this->options, $this->url_args + $this->named);
 		return $this;
 	}
-	
+
 	/**
 	 *
 	 * @return \zesk\Route
@@ -698,22 +725,24 @@ abstract class Route extends Hookable {
 		$this->options = $this->original_options + $this->options;
 		return $this;
 	}
+
 	/**
-	 * Execute the route
+	 * Execute the route and return a Response
 	 *
 	 * @param Request $request
-	 * @param Response $response
+	 * @return Response
 	 */
 	final function execute() {
 		$this->_process_arguments();
 		$this->_map_options();
-		$this->_permissions();
-		$this->_before();
-		$this->_execute();
-		$this->_after();
+		$response = $this->_before();
+		$this->_permissions($response);
+		$this->_execute($response);
+		$this->_after($response);
 		$this->_unmap_options();
+		return $response;
 	}
-	
+
 	/**
 	 * Return array of class => array(action1, action2, action3)
 	 *
@@ -747,7 +776,7 @@ abstract class Route extends Hookable {
 		}
 		return $result;
 	}
-	
+
 	/**
 	 *
 	 * @param string $action
@@ -763,7 +792,7 @@ abstract class Route extends Hookable {
 		$map = array(
 			"action" => $action
 		) + $options;
-		
+
 		if (count($object_hierarchy) > 0) {
 			foreach ($this->types as $type) {
 				if (!is_array($type)) {
@@ -790,7 +819,7 @@ abstract class Route extends Hookable {
 		}
 		return $map;
 	}
-	
+
 	/**
 	 * Retrieve the reverse route for a particular action
 	 *

@@ -20,7 +20,7 @@ class Module_jGrowl extends Module_JSLib {
 		'position' => 'top-right',
 		'life' => 8000
 	);
-	public function ready(Response_Text_HTML $response) {
+	public function ready(Response $response) {
 		parent::ready($response);
 	}
 }

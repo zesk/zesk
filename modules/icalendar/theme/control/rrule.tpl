@@ -11,7 +11,7 @@ use zesk\HTML;
 /* @var $router \zesk\Router */
 /* @var $route \zesk\Route */
 /* @var $request \zesk\Request */
-/* @var $response \zesk\Response_Text_HTML */
+/* @var $response \zesk\Response */
 /* @var $current_user \User */
 
 $response->javascript('/share/icalendar/js/rrule.js', array(

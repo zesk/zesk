@@ -4,7 +4,7 @@
  */
 namespace zesk;
 
-/* @var $response Response_Text_HTML */
+/* @var $response Response */
 /* @var $widget Widget */
 /* @var $object Model */
 $sum_widgets = array();

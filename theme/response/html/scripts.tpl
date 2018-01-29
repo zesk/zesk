@@ -14,11 +14,11 @@ namespace zesk;
 /* @var $router \zesk\Router */
 /* @var $route \zesk\Route */
 /* @var $request \zesk\Request */
-/* @var $response \zesk\Response_Text_HTML */
+/* @var $response \zesk\Response */
 /* @var $scripts array[] */
 /* @var $jquery_ready string[] */
 $result = array();
-foreach ($scripts as $script_tag) {
+foreach ($response->html()->scripts() as $script_tag) {
 	$name = $attributes = $content = $prefix = $suffix = null;
 	extract($script_tag, EXTR_IF_EXISTS);
 	if (empty($content)) {
@@ -26,6 +26,7 @@ foreach ($scripts as $script_tag) {
 	}
 	echo $prefix . HTML::tag($name, $attributes, $content) . $suffix . "\n";
 }
+$jquery_ready = $response->html()->jquery_ready();
 if (count($jquery_ready)) {
 	echo HTML::tag('script', array(
 		'type' => 'text/javascript'

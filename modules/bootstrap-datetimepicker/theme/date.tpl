@@ -11,7 +11,7 @@ namespace zesk;
 /* @var $session \zesk\Session */
 /* @var $request \zesk\Router */
 /* @var $request \zesk\Request */
-/* @var $response \zesk\Response_Text_HTML */
+/* @var $response \zesk\Response */
 $id = $this->id;
 if (empty($id)) {
 	$this->id = $id = "datetimepicker-" . $response->id_counter();

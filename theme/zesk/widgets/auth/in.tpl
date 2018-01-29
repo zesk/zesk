@@ -16,7 +16,7 @@ namespace zesk;
 /* @var $router \zesk\Router */
 /* @var $route \zesk\Route */
 /* @var $request \zesk\Request */
-/* @var $response \zesk\Response_Text_HTML */
+/* @var $response \zesk\Response */
 /* @var $current_user \zesk\User */
 $web_key = $this->get("web_key", $application->option("web_key"));
 

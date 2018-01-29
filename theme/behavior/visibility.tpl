@@ -11,7 +11,7 @@ namespace zesk;
 /* @var $router \zesk\Router */
 /* @var $route \zesk\Route */
 /* @var $request \zesk\Request */
-/* @var $response \zesk\Response_Text_HTML */
+/* @var $response \zesk\Response */
 /* @var $current_user \zesk\User */
 
 // behavior/visibility
@@ -19,7 +19,7 @@ namespace zesk;
 // - hide_values
 // - show_values
 
-/* @var $response zesk\Response_Text_HTML */
+/* @var $response zesk\Response */
 $response = $this->response;
 /* @var $widget Widget */
 $widget = $this->widget;

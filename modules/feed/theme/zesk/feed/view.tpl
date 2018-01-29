@@ -6,7 +6,7 @@ namespace zesk;
 /* @var $application Application */
 /* @var $session Session */
 /* @var $request Request */
-/* @var $response Response_Text_HTML */
+/* @var $response Response */
 /* @var $current_user User */
 
 /* @var $object Feed */

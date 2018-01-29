@@ -1,6 +1,15 @@
 <?php
 namespace zesk;
 
+/* @var $this \zesk\Template */
+/* @var $application \zesk\Application */
+/* @var $locale \zesk\Locale */
+/* @var $session \zesk\Session */
+/* @var $router \zesk\Router */
+/* @var $route \zesk\Route */
+/* @var $request \zesk\Request */
+/* @var $response \zesk\Response */
+/* @var $current_user \zesk\User */
 $col = $this->column;
 $tpl = $col . "-pairs-template";
 
@@ -19,6 +28,6 @@ echo HTML::tag("script", array(
 	"type" => "text/x-template"
 ), HTML::div(".pair", HTML::input("text", $this->column . "[]", "") . HTML::input("text", $this->column . "_value[]", "")));
 
-$this->response->jquery('$("a.control-pairs-add").on("click", function () {
+$response->jquery('$("a.control-pairs-add").on("click", function () {
 	var $this = $(this); $this.before($("#" + $this.data("template")).html());
 });');

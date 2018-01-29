@@ -435,7 +435,7 @@ class Command_Test extends Command_Base {
 	 * @param Application $app
 	 */
 	private static function _initialize_test_environment(Application $app) {
-		$app->zesk->autoloader->path($app->paths->zesk('test/classes'), array(
+		$app->autoloader->path($app->paths->zesk('test/classes'), array(
 			'class_prefix' => __NAMESPACE__ . '\\Test_'
 		));
 	}

@@ -10,7 +10,7 @@ namespace zesk;
 /* @var $session \Session */
 /* @var $request Router */
 /* @var $request Request */
-/* @var $response Response_Text_HTML */
+/* @var $response Response */
 /* @var $current_user \User */
 
 /* @var $exception Exception */

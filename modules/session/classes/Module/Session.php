@@ -79,6 +79,7 @@ class Module_Session extends Module {
 	}
 
 	/**
+	 * Returns initialized session. You should call initialize_session on result (2018-01).
 	 *
 	 * @param Application $application
 	 * @param string $class
@@ -95,6 +96,6 @@ class Module_Session extends Module {
 		if (array_key_exists($class, $this->instances)) {
 			return $this->instances[$class];
 		}
-		return $this->instances[$class] = $this->application->factory($class, $application)->initialize_session($this->application->request());
+		return $this->instances[$class] = $this->application->factory($class, $application);
 	}
 }

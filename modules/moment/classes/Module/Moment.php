@@ -41,7 +41,7 @@ class Module_Moment extends Module_JSLib implements Interface_Module_Head {
 	 * {@inheritDoc}
 	 * @see Module_JSLib::hook_head()
 	 */
-	public function hook_head(Request $request, Response_Text_HTML $response, Template $template) {
+	public function hook_head(Request $request, Response $response, Template $template) {
 		$locale = $this->application->locale;
 		$this->jquery_ready[] = "try {\n\tmoment.locale(" . JavaScript::arguments(array(
 			$locale->id(),

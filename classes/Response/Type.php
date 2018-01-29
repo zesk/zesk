@@ -26,12 +26,15 @@ abstract class Type extends Hookable {
 	 *
 	 * @return boolean
 	 */
-	abstract protected function hasFile();
+	protected function preferOutput() {
+		return false;
+	}
 
 	/**
 	 * Output any special headers
 	 */
-	abstract protected function headers();
+	protected function headers() {
+	}
 
 	/**
 	 *
@@ -50,5 +53,7 @@ abstract class Type extends Hookable {
 	 * @param mixed $content
 	 * @return void
 	 */
-	abstract public function passthru($content);
+	public function output($content) {
+		echo $this->render($content);
+	}
 }

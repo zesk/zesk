@@ -8,7 +8,7 @@ namespace zesk;
 /* @var $application Kernel */
 /* @var $application Application */
 /* @var $request Request */
-/* @var $response Response_Text_HTML */
+/* @var $response Response */
 /* @var $body_attributes array */
 /* @var $html_attributes array */
 /* @var $html_attributes array */
@@ -16,9 +16,6 @@ $request = $this->request;
 $response = $this->response;
 if (!$request) {
 	$request = $this->request = $application->request();
-}
-if (!$response) {
-	$response = $this->response = $application->response();
 }
 
 $hook_parameters = array(
@@ -31,18 +28,15 @@ $application->hooks->call_arguments('response_html_start', $hook_parameters);
 	$application->modules->all_hook_arguments("headers", $hook_parameters);
 	$application->hooks->call_arguments('headers', $hook_parameters);
 
-	if ($this->has("body_attributes")) {
-		$response->body_attributes($this->body_attributes);
-	}
 	$application->modules->all_hook_arguments("html", $hook_parameters);
 	echo $this->theme("response/html/head/doctype");
 	$application->hooks->call_arguments("<html>", $hook_parameters);
-	echo HTML::tag_open('html', $html_attributes);
+	echo HTML::tag_open('html', $response->html_attributes());
 	{
 		echo $this->theme('response/html/head', array(
 			"hook_parameters" => $hook_parameters
 		));
-		echo HTML::tag_open("body", $body_attributes);
+		echo HTML::tag_open("body", $response->body_attributes());
 		{
 			echo $application->hooks->call_arguments('<body>', $hook_parameters, '');
 			foreach (array(

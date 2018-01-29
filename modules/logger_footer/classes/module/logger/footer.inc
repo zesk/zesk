@@ -49,7 +49,7 @@ class Module_Logger_Footer extends Module implements Interface_Module_Head, Inte
 	 *
 	 * @return string
 	 */
-	public function hook_foot(Request $request, Response_Text_HTML $response, Template $template) {
+	public function hook_foot(Request $request, Response $response, Template $template) {
 		$result = array();
 		if ($this->enabled() && count($this->log) > 0) {
 			$result[] = HTML::tag_open("div", "#logger_footer");
@@ -77,9 +77,9 @@ class Module_Logger_Footer extends Module implements Interface_Module_Head, Inte
 	 * Implement Module::head
 	 *
 	 * @param Request $request
-	 * @param Response_Text_HTML $response
+	 * @param Response $response
 	 */
-	public function hook_head(Request $request, Response_Text_HTML $response, Template $template) {
+	public function hook_head(Request $request, Response $response, Template $template) {
 		if ($this->enabled() && count($this->log) > 0) {
 			$response->jquery();
 			$share = array(

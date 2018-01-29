@@ -4,7 +4,7 @@ use zesk\Module;
 use zesk\Interface_Module_Head;
 use zesk\Exception_Directory_NotFound;
 use zesk\Request;
-use zesk\Response_Text_HTML;
+use zesk\Response;
 use zesk\Template;
 
 /**
@@ -66,10 +66,10 @@ class Module_jQPlot extends zesk\Module implements zesk\Interface_Module_Head {
 	 * Implement Module::head
 	 *
 	 * @param Request $request        	
-	 * @param zesk\Response_Text_HTML $response        	
+	 * @param zesk\Response $response        	
 	 * @param zesk\Template $template        	
 	 */
-	public function hook_head(Request $request, Response_Text_HTML $response, Template $template) {
+	public function hook_head(Request $request, Response $response, Template $template) {
 		$response_option = $this->response_option();
 		if ($response->has_option($response_option) || $this->enabled()) {
 			$response->jquery();
@@ -160,12 +160,12 @@ class Module_jQPlot extends zesk\Module implements zesk\Interface_Module_Head {
 	/**
 	 * Add a plugin to this page.
 	 *
-	 * @param zesk\Response_Text_HTML $response        	
+	 * @param zesk\Response $response        	
 	 * @param string $add        	
 	 * @throws Exception_Directory_NotFound
-	 * @return zesk\Response_Text_HTML|array
+	 * @return zesk\Response|array
 	 */
-	public function plugin(Response_Text_HTML $response, $add = null) {
+	public function plugin(Response $response, $add = null) {
 		$option = self::response_option();
 		if ($add !== null) {
 			$path = $this->plugin_path();

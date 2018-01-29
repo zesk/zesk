@@ -29,7 +29,7 @@ class View_Errors extends View {
 		}
 		return $prefix . HTML::tag('span', '.error', $error_string);
 	}
-	
+
 	/**
 	 *
 	 * @param array $errors
@@ -38,7 +38,7 @@ class View_Errors extends View {
 	public static function html(Application $application, array $errors) {
 		$model = new Model($application);
 		$model->errors = $errors;
-		return $application->widget_factory('View_Errors', array(
+		return $application->widget_factory(__CLASS__, array(
 			'column' => 'errors'
 		))->execute($model);
 	}

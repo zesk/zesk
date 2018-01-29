@@ -6,7 +6,7 @@
 /* @var $router \zesk\Router */
 /* @var $route \zesk\Route */
 /* @var $request \zesk\Request */
-/* @var $response \zesk\Response_Text_HTML */
+/* @var $response \zesk\Response */
 /* @var $current_user \User */
 $id = 'control-picker-' . $this->column . '-q';
 ?>

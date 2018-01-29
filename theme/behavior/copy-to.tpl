@@ -5,7 +5,7 @@
 // - hide_values
 // - show_values
 
-/* @var $response zesk\Response_Text_HTML */
+/* @var $response zesk\Response */
 $response = $this->response;
 /* @var $widget Widget */
 $widget = $this->widget;

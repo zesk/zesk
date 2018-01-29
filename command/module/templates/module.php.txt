@@ -33,13 +33,13 @@ class {module_class} extends \zesk\Module /* implements \zesk\Interface_Module_H
 */
 
 /*
-	protected function hook_foot(zesk\Request $request, zesk\Response_Text_HTML $response, zesk\Template $template) {
+	protected function hook_foot(zesk\Request $request, zesk\Response $response, zesk\Template $template) {
 	
 	}
 */
 
 /*
-	protected function hook_head(zesk\Request $request, zesk\Response_Text_HTML $response, zesk\Template $template) {
+	protected function hook_head(zesk\Request $request, zesk\Response $response, zesk\Template $template) {
 	
 	}
 */

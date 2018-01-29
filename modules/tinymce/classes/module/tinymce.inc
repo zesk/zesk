@@ -12,7 +12,6 @@ use zesk\Request;
 use zesk\Response;
 use zesk\Router;
 use zesk\Template;
-use zesk\Response_Text_HTML;
 use zesk\Interface_Module_Routes;
 
 /**
@@ -84,7 +83,7 @@ class Module_TinyMCE extends zesk\Module_JSLib implements Interface_Module_Route
 	 *
 	 * @see zesk\Module_JSLib::hook_head()
 	 */
-	public function hook_head(Request $request, Response_Text_HTML $response, Template $template) {
+	public function hook_head(Request $request, Response $response, Template $template) {
 		$this->update_options();
 		return parent::hook_head($request, $response, $template);
 	}

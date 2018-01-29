@@ -17,6 +17,7 @@ use zesk\Exception_NotFound;
 use zesk\StringTools;
 use zesk\Controller_Share;
 use zesk\HTML as HTMLTools;
+use zesk\JSON as JSONTools;
 
 /**
  *
@@ -153,7 +154,7 @@ class HTML extends Type {
 	/**
 	 *
 	 * @param unknown $add
-	 * @return \zesk\Response\HTML
+	 * @return \zesk\Response
 	 */
 	final public function body_add_class($add = null) {
 		$this->body_attributes = HTMLTools::add_class($this->body_attributes, $add);
@@ -165,7 +166,7 @@ class HTML extends Type {
 	 *
 	 * @param string $add
 	 * @param string $value
-	 * @return Response_Text_HTML|string
+	 * @return Response|string[string]
 	 */
 	function attributes($add = null, $value = null) {
 		if (is_array($add)) {
@@ -182,7 +183,7 @@ class HTML extends Type {
 	 * Get/set meta keywords
 	 *
 	 * @param string $content
-	 * @return Response_Text_HTML|string
+	 * @return Response|string
 	 */
 	function meta_keywords($content = null) {
 		return $this->meta("keywords", $content);
@@ -192,7 +193,7 @@ class HTML extends Type {
 	 * Get/set meta description text
 	 *
 	 * @param string $content
-	 * @return Response_Text_HTML|string
+	 * @return Response|string
 	 */
 	function meta_description($content = null) {
 		return $this->meta("description", $content);
@@ -227,7 +228,7 @@ class HTML extends Type {
 	 * Get/Set shortcut icon
 	 *
 	 * @param string $path
-	 * @return Response_Text_HTML|string
+	 * @return Response|string
 	 */
 	function shortcut_icon($path = null) {
 		if ($path === null) {
@@ -249,7 +250,7 @@ class HTML extends Type {
 	 * @param string $type
 	 * @param array $attrs
 	 * @throws Exception_Semantics
-	 * @return Response_Text_HTML|array
+	 * @return Response|array
 	 */
 	function link($rel, $path = null, $type = null, $attrs = array()) {
 		if ($path === null) {
@@ -273,7 +274,7 @@ class HTML extends Type {
 		ArrayTools::append($this->links_by_rel, $rel, $path);
 		$this->links[$path] = $arr + $attrs;
 		$this->links_sorted = null;
-		return $this;
+		return $this->parent;
 	}
 
 	/**
@@ -336,7 +337,7 @@ class HTML extends Type {
 	 * Set the page theme to use to render the final HTML output
 	 *
 	 * @param null|string $set
-	 * @return \zesk\Response_Text_HTML|string
+	 * @return \zesk\Response|string
 	 */
 	public function page_theme($set = false) {
 		if ($set !== false) {
@@ -348,21 +349,40 @@ class HTML extends Type {
 
 	/**
 	 *
-	 * @return \zesk\Response_Text_HTML[]|string[]
+	 * @return \zesk\Response[]|string[]
 	 */
 	public function theme_variables() {
 		return array(
-			'page_theme' => $this->page_theme,
-			"body_attributes" => $this->body_attributes(),
-			"html_attributes" => $this->html_attributes(),
-			"styles" => $this->styles,
-			"metas" => $this->meta,
-			"links" => $this->link_tags($this->link_options()),
-			"scripts" => $this->script_tags(),
-			"jquery_ready" => $this->jquery_ready()
+			'page_theme' => $this->page_theme
 		);
 	}
 
+	/**
+	 *
+	 */
+	public function scripts() {
+		return $this->script_tags();
+	}
+	/**
+	 *
+	 */
+	public function links() {
+		return $this->link_tags($this->link_options());
+	}
+	/**
+	 *
+	 * @return array
+	 */
+	public function metas() {
+		return $this->meta;
+	}
+	/**
+	 *
+	 * @return array[]
+	 */
+	public function styles() {
+		return $this->styles;
+	}
 	/**
 	 * Retrieve link tags in unrendered form for output via JSON or other mechanism
 	 *
@@ -389,7 +409,7 @@ class HTML extends Type {
 			$share = avalue($attrs, 'share');
 			$rel = avalue($attrs, 'rel');
 			if ($stylesheets_inline && $rel === 'stylesheet') {
-				$dest = self::resource_path($attrs['href'], $attrs);
+				$dest = $this->resource_path($attrs['href'], $attrs);
 				if (!is_file($dest)) {
 					$this->application->logger->error("Inline stylesheet path {dest} not found: {attributes}", array(
 						"dest" => $dest,
@@ -435,7 +455,7 @@ class HTML extends Type {
 		}
 		if ($cache_links && count($cached_media) > 0) {
 			foreach ($cached_media as $media => $cached) {
-				array_unshift($result, self::resource_cache_css($cached, $media));
+				array_unshift($result, $this->resource_cache_css($cached, $media));
 			}
 		}
 		return $result;
@@ -826,7 +846,7 @@ class HTML extends Type {
 	 */
 	private function resource_cache_css(array $cached, $media = "screen") {
 		$debug = "";
-		$href = self::resource_cache($cached, "css", "compress_css", $debug);
+		$href = $this->resource_cache($cached, "css", "compress_css", $debug);
 		return array(
 			'name' => 'link',
 			'attributes' => array(
@@ -847,7 +867,7 @@ class HTML extends Type {
 	 */
 	private function resource_cache_scripts(array $cached) {
 		$debug = "";
-		$href = self::resource_cache($cached, "js", "compress_script", $debug);
+		$href = $this->resource_cache($cached, "js", "compress_script", $debug);
 		return array(
 			'name' => 'script',
 			'attributes' => array(
@@ -864,7 +884,7 @@ class HTML extends Type {
 	 *
 	 * @return string
 	 */
-	private function jquery_ready() {
+	public function jquery_ready() {
 		if (!$this->jquery) {
 			return array();
 		}
@@ -968,7 +988,7 @@ class HTML extends Type {
 		if (count($cached) > 0) {
 			$cached = array_merge($cached, $cached_append);
 			$result = array_merge(array(
-				self::resource_cache_scripts($cached)
+				$this->resource_cache_scripts($cached)
 			), $result);
 		}
 		return $result;
@@ -989,11 +1009,11 @@ class HTML extends Type {
 	 * @param string $path
 	 * @param array $options
 	 * @throws Exception_Semantics
-	 * @return Response_Text_HTML
+	 * @return Response
 	 */
 	private function script_add($path, array $options) {
 		if (array_key_exists($path, $this->scripts)) {
-			return $this;
+			return $this->parent;
 		}
 		if (!array_key_exists('weight', $options)) {
 			$last_weight = count($this->scripts) * 10;
@@ -1033,7 +1053,7 @@ class HTML extends Type {
 		);
 		$this->scripts[$path] = $options;
 		$this->scripts_sorted = false;
-		return $this;
+		return $this->parent;
 	}
 
 	/**
@@ -1046,14 +1066,14 @@ class HTML extends Type {
 			return $this->script_settings;
 		}
 		$this->script_settings = ArrayTools::merge($this->script_settings, $settings);
-		return $this;
+		return $this->parent;
 	}
 
 	/**
 	 * Return JavaScript code to load JavaScript settings
 	 */
 	public function _javascript_settings() {
-		return '$.extend(true, window.zesk.settings, ' . JSON::encode($this->script_settings) . ');';
+		return '$.extend(true, window.zesk.settings, ' . JSONTools::encode($this->script_settings) . ');';
 	}
 
 	/**
@@ -1065,18 +1085,18 @@ class HTML extends Type {
 	 *        	Optional settings: type (defaults to text/javascript), browser (defaults to all
 	 *        	browsers),
 	 *        	cdn (defaults to false)
-	 * @return Response_Text_HTML
+	 * @return Response
 	 */
 	function javascript($path, array $options = null) {
 		if (empty($path)) {
-			return $this;
+			return $this->parent;
 		}
 		if (is_array($path)) {
 			$result = array();
 			foreach ($path as $index => $path) {
 				$this->javascript($path, $options);
 			}
-			return $this;
+			return $this->parent;
 		}
 		$options['src'] = $path;
 		return $this->script_add($path, $options);
@@ -1087,7 +1107,7 @@ class HTML extends Type {
 	 *
 	 * @param string $script
 	 * @param string $options
-	 * @return Response_Text_HTML
+	 * @return Response
 	 */
 	function javascript_inline($script, $options = null) {
 		$options = to_array($options, array());
@@ -1140,13 +1160,13 @@ class HTML extends Type {
 			foreach ($add_ready_script as $add) {
 				$this->jquery($add, $weight);
 			}
-			return $this;
+			return $this->parent;
 		}
 		if ($add_ready_script !== null) {
 			$hash = md5($add_ready_script);
 			$this->jquery[$weight][$hash] = $add_ready_script;
 		}
-		return $this;
+		return $this->parent;
 	}
 
 	/**

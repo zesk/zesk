@@ -1,12 +1,11 @@
 <?php
 /**
- * 
+ *
  */
 namespace zesk\ReactJS;
 
 use zesk\Request;
 use zesk\Response;
-use zesk\Response_Text_HTML;
 use zesk\Template;
 use zesk\HTML;
 use zesk\Router;
@@ -19,24 +18,24 @@ use zesk\Net_HTTP_Client_Exception;
 use zesk\ArrayTools;
 
 /**
- * 
+ *
  * @author kent
  *
  */
 class Module extends \zesk\Module implements \zesk\Interface_Module_Routes, \zesk\Interface_Module_Head {
-	
+
 	/**
-	 * 
+	 *
 	 * @var Interface_Settings
 	 */
 	private $proxy_prefix = null;
-	
+
 	/**
 	 * List of associated classes
 	 *
 	 * @var array
 	 */
-	public function hook_head(Request $request, Response_Text_HTML $response, Template $template) {
+	public function hook_head(Request $request, Response $response, Template $template) {
 		$app = $this->application;
 		$doc_root = $app->document_root();
 		if (ends($doc_root, "/build")) {
@@ -55,7 +54,7 @@ class Module extends \zesk\Module implements \zesk\Interface_Module_Routes, \zes
 		}
 	}
 	/**
-	 * 
+	 *
 	 * @param string $index_html
 	 * @return string
 	 */
@@ -66,9 +65,9 @@ class Module extends \zesk\Module implements \zesk\Interface_Module_Routes, \zes
 		}
 		return $script_names;
 	}
-	
+
 	/**
-	 * 
+	 *
 	 * {@inheritDoc}
 	 * @see \zesk\Interface_Module_Routes::hook_routes()
 	 */
@@ -96,9 +95,9 @@ class Module extends \zesk\Module implements \zesk\Interface_Module_Routes, \zes
 			)
 		));
 	}
-	
+
 	/**
-	 * 
+	 *
 	 * @return string
 	 */
 	private function _proxy_prefix() {
@@ -121,7 +120,7 @@ class Module extends \zesk\Module implements \zesk\Interface_Module_Routes, \zes
 		return $this->proxy_prefix = "http://$host:$port";
 	}
 	/**
-	 * 
+	 *
 	 * @param Request $request
 	 * @param string $path
 	 * @return Net_HTTP_Client
@@ -140,32 +139,31 @@ class Module extends \zesk\Module implements \zesk\Interface_Module_Routes, \zes
 				"method" => __METHOD__,
 				"proxy_prefix" => $proxy_prefix,
 				"message" => $e->getMessage()
-			) + $request->variables() + ArrayTools::kprefix($request->url_parts(), "url::"));
+			) + $request->variables() + ArrayTools::kprefix($request->url_variables(), "url::"));
 		}
 		return $http;
 	}
-	public function not_found_handler(Request $request, Response_Text_HTML $response) {
+	public function not_found_handler(Request $request, Response $response) {
 		$response->status(Net_HTTP::Status_File_Not_Found);
 	}
 	/**
-	 * 
+	 *
 	 * @param Request $request
-	 * @param Response_Text_HTML $response
+	 * @param Response $response
 	 */
-	public function json_handler(Request $request, Response_Text_HTML $response) {
+	public function json_handler(Request $request, Response $response) {
 		$response->page_theme(null);
 		$this->copy_to_response($this->_proxy_path($request), $response);
 		$response->cache_for(5);
 	}
-	
+
 	/**
-	 * 
+	 *
 	 * @param Request $request
-	 * @param Response_Text_HTML $response
+	 * @param Response $response
 	 */
-	public function static_handler(Request $request, Response_Text_HTML $response) {
+	public function static_handler(Request $request, Response $response) {
 		$app = $this->application;
-		$response->page_theme(null);
 		try {
 			if ($app->development()) {
 				$http = $this->_proxy_path($request);

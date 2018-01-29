@@ -1,6 +1,15 @@
 <?php
 namespace zesk;
 
+/* @var $this \zesk\Template */
+/* @var $application \zesk\Application */
+/* @var $locale \zesk\Locale */
+/* @var $session \zesk\Session */
+/* @var $router \zesk\Router */
+/* @var $route \zesk\Route */
+/* @var $request \zesk\Request */
+/* @var $response \zesk\Response_Text_HTML */
+/* @var $current_user \zesk\User */
 $name = $this->name;
 $value = $this->value;
 $active_classes = "active btn-primary";
@@ -23,7 +32,7 @@ if (!$input_id) {
 echo HTML::input("hidden", $name, $value, array(
 	"id" => $input_id
 ));
-$this->response->jquery("(function() {
+$response->jquery("(function() {
 	var update = function () {
 		var val = \$('#$input_id').val();
 		\$('.pill-group-${name}').removeClass('$active_classes');

@@ -1,6 +1,6 @@
 <?php
 /**
- * 
+ *
  */
 namespace zesk;
 
@@ -11,8 +11,8 @@ namespace zesk;
  */
 class User_Role extends ORM {
 	public function store() {
-		if ($this->member_is_empty("creator")) {
-			$this->creator = $this->application->user();
+		if ($this->member_is_empty("creator") && $this->application->request) {
+			$this->creator = $this->application->user($this->application->request);
 		}
 		return parent::store();
 	}

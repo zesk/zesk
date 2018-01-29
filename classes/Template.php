@@ -595,8 +595,7 @@ class Template implements Interface_Theme {
 		ob_start();
 		$this->push();
 		extract(array(
-			"zesk" => $this->application->zesk,
-			"kernel" => $this->application->zesk
+			"application" => $this->application
 		) + $this->_vars, EXTR_SKIP); // Avoid overwriting $this
 		// This name is fairly unique to avoid conflicts with variables set in our include.
 		$_template_exception = null;

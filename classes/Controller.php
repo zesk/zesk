@@ -43,7 +43,7 @@ class Controller extends Hookable implements Interface_Theme {
 	/**
 	 * Response associated with this controller
 	 *
-	 * @var Response_Text_HTML
+	 * @var Response
 	 */
 	public $response = null;
 
@@ -192,7 +192,7 @@ class Controller extends Hookable implements Interface_Theme {
 	 * @param mixed $mixed
 	 */
 	public function json($mixed = null) {
-		return $this->response->json($mixed);
+		return $this->response->json()->data($mixed);
 	}
 
 	/**

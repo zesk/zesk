@@ -158,7 +158,7 @@ class Control_Login extends Control_Edit {
 	function submit() {
 		if ($this->user instanceof User) {
 			$user = $this->user;
-			$user->authenticated(true);
+			$user->authenticated($this->request(), $this->response);
 			$uref = $this->request->get("ref", null);
 			if (URL::is($uref) && !URL::is_same_server($uref, $this->request->url())) {
 				$uref = false;
@@ -170,7 +170,7 @@ class Control_Login extends Control_Edit {
 				"user" => $user,
 				"uid" => $user->id()
 			));
-			$this->response->redirect($uref, __("You have logged in successfully."));
+			$this->response->redirect($uref, $this->application->locale->__("You have logged in successfully."));
 		}
 		return true;
 	}

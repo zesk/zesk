@@ -15,36 +15,36 @@ namespace zesk;
  * @todo Convert to theme
  */
 abstract class Controller_Template extends Controller {
-	
+
 	/**
-	 * 
+	 *
 	 * @var string
 	 */
 	const DEFAULT_TEMPLATE = 'body/default.tpl';
 	/**
-	 * 
+	 *
 	 * @var boolean
 	 */
 	private $auto_render = true;
-	
+
 	/**
-	 * 
+	 *
 	 * @var string
 	 */
 	protected $template_pushed = false;
-	
+
 	/**
 	 * @var Template
 	 */
 	protected $template = null;
-	
+
 	/**
 	 * zesk\Template variables to pass
 	 *
 	 * @var array
 	 */
 	protected $variables = array();
-	
+
 	/**
 	 * Create a new Controller_Template
 	 *
@@ -60,7 +60,7 @@ abstract class Controller_Template extends Controller {
 		$this->auto_render = $this->option_bool('auto_render', $this->auto_render);
 		$this->template_pushed = false;
 	}
-	
+
 	/**
 	 * Get/set auto render value
 	 *
@@ -77,7 +77,7 @@ abstract class Controller_Template extends Controller {
 		}
 		return $this->auto_render;
 	}
-	
+
 	/**
 	 * (non-PHPdoc)
 	 * @see Controller::json()
@@ -87,7 +87,7 @@ abstract class Controller_Template extends Controller {
 		$this->call_hook("json", $mixed);
 		return parent::json($mixed);
 	}
-	
+
 	/**
 	 * (non-PHPdoc)
 	 * @see Controller::error()
@@ -96,7 +96,7 @@ abstract class Controller_Template extends Controller {
 		$this->auto_render(false);
 		parent::error($code, $message);
 	}
-	
+
 	/**
 	 * (non-PHPdoc)
 	 * @see Controller::before()
@@ -115,10 +115,10 @@ abstract class Controller_Template extends Controller {
 			$this->_push_template();
 		}
 	}
-	
+
 	/**
 	 * Handle setting template and handling state
-	 * 
+	 *
 	 * @param Template $template
 	 */
 	private function _set_template(Template $template) {
@@ -165,10 +165,10 @@ abstract class Controller_Template extends Controller {
 			}
 			$this->_set_template($template);
 		}
-		
+
 		return $this->template;
 	}
-	
+
 	/**
 	 *
 	 * @param Exception $e
@@ -177,7 +177,7 @@ abstract class Controller_Template extends Controller {
 		if ($this->auto_render && $this->template instanceof Template) {
 		}
 	}
-	
+
 	/**
 	 * (non-PHPdoc)
 	 * @see Controller::after()
@@ -185,7 +185,7 @@ abstract class Controller_Template extends Controller {
 	public function after($result = null, $output = null) {
 		if ($this->auto_render && $this->template) {
 			$this->_pop_template();
-			if ($this->response->json()) {
+			if ($this->response->is_json()) {
 				$this->auto_render(false);
 			} else {
 				if (is_string($result)) {
@@ -200,7 +200,7 @@ abstract class Controller_Template extends Controller {
 			}
 		}
 	}
-	
+
 	/**
 	 * (non-PHPdoc)
 	 * @see Controller::variables()
@@ -210,7 +210,7 @@ abstract class Controller_Template extends Controller {
 			'template' => $this->template
 		) + parent::variables() + $this->variables;
 	}
-	
+
 	/**
 	 *
 	 * @param Control $control
@@ -222,7 +222,7 @@ abstract class Controller_Template extends Controller {
 		$this->call_hook(avalue($options, "hook_execute", "control_execute"), $control, $object, $options);
 		$title = $control->option('title', avalue($options, 'title'));
 		$this->response->title($title, false); // Do not overwrite existing values
-		if ($this->response->json()) {
+		if ($this->response->is_json()) {
 			return;
 		}
 		$ajax = $this->request->is_ajax();

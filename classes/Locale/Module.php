@@ -13,7 +13,7 @@ namespace zesk\Locale;
 use zesk\Router;
 use zesk\Request;
 use zesk\Template;
-use zesk\Response_Text_HTML;
+use zesk\Response;
 
 /**
  *
@@ -26,9 +26,9 @@ class Module extends \zesk\Module implements \zesk\Interface_Module_Head, \zesk\
 	 * Output our locale translation files for JavaScript to use
 	 *
 	 * @param \Request $request
-	 * @param \zesk\Response_Text_HTML $response
+	 * @param \zesk\Response $response
 	 */
-	public function hook_head(Request $request, Response_Text_HTML $response, Template $template) {
+	public function hook_head(Request $request, Response $response, Template $template) {
 		$response->javascript("/share/zesk/js/locale.js", array(
 			"weight" => -20,
 			"share" => true

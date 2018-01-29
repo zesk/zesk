@@ -1,7 +1,7 @@
 <?php
 namespace zesk;
 
-/* @var $response Response_Text_HTML */
+/* @var $response Response */
 $response->javascript("https://www.google.com/recaptcha/api.js?onloadCallback=recaptcha_onload", null, array(
 	"cache" => false
 ));

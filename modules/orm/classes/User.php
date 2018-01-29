@@ -69,9 +69,9 @@ class User extends ORM {
 	 *
 	 * @return integer
 	 */
-	function session_user_id() {
+	function session_user_id(Request $request) {
 		try {
-			$session = $this->application->session();
+			$session = $this->application->session($request);
 		} catch (Exception $e) {
 			return null;
 		}
@@ -169,7 +169,7 @@ class User extends ORM {
 
 	/**
 	 * Check a username and password.
-	 * Will not authenticate user until ->authenticated(true) is called.
+	 * Will not authenticate user until ->authenticated($request, $response) is called.
 	 *
 	 * @param string $username
 	 * @param string $password
@@ -191,7 +191,6 @@ class User extends ORM {
 			$auth_test = $case_sensitive ? ($password === $this_password) : strcasecmp($password, $this_password) === 0;
 		}
 		if ($auth_test) {
-			//$this->authenticated(true);
 			return true;
 		}
 		return false;
@@ -200,12 +199,13 @@ class User extends ORM {
 	/**
 	 * Get/set authentication status
 	 *
-	 * @param string $set
-	 * @return boolean User
+	 * @param Request $request Required. Request to match this user against.
+	 * @param Response $response Optional. If supplied, authenticates this user in the associated response (generally, by setting a cookie.)
+	 * @return NULL|\zesk\User
 	 */
-	function authenticated($set = null) {
-		$matches = ($this->session_user_id() === $this->id());
-		if ($set === null) {
+	function authenticated(Request $request, Response $response = null) {
+		$matches = ($this->session_user_id($request) === $this->id());
+		if ($response === null) {
 			if ($this->is_new()) {
 				return null;
 			}
@@ -217,15 +217,11 @@ class User extends ORM {
 		if ($matches) {
 			return $this;
 		}
-		$changed = false;
-		$session = $this->application->session();
-		$session->authenticate($this->id(), $_SERVER['REMOTE_ADDR']);
-		$this->call_hook("authenticated", $session);
-		$this->application->call_hook("user_authenticated", $this, $session);
-		$this->application->modules->all_hook("user_authenticated", $this, $session);
-		if ($changed) {
-			$this->store();
-		}
+		$session = $this->application->session($request);
+		$session->authenticate($this->id(), $request->ip());
+		$this->call_hook("authenticated", $request, $response, $session);
+		$this->application->call_hook("user_authenticated", $this, $request, $response, $session);
+		$this->application->modules->all_hook("user_authenticated", $this, $request, $response, $session);
 		return $this;
 	}
 

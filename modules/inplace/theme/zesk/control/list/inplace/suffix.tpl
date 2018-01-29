@@ -8,7 +8,7 @@ namespace zesk;
 /* @var $router \zesk\Router */
 /* @var $route \zesk\Route */
 /* @var $request \zesk\Request */
-/* @var $response \zesk\Response_Text_HTML */
+/* @var $response \zesk\Response */
 /* @var $current_user \zesk\User */
 // echo HTML::tag("h1", $this->list_class);
 // echo HTML::tag("pre", _dump(array_keys($router->reverse_routes)));

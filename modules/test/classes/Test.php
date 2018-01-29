@@ -1145,7 +1145,7 @@ class Test extends Hookable {
 			));
 		}
 		$settings = self::_configuration_load($application);
-		if (!class_exists($class, false) && !$application->zesk->autoloader->load($class, true) && !self::_find_test($application, $class)) {
+		if (!class_exists($class, false) && !$application->autoloader->load($class, true) && !self::_find_test($application, $class)) {
 			throw new Exception_Class_NotFound($class);
 		}
 		exit(self::run_one_class($application, $class, $settings, $object) ? 0 : 1);
@@ -1161,7 +1161,7 @@ class Test extends Hookable {
 		$parts = explode("_", $low_class);
 		array_pop($parts);
 		$path = path(implode("/", $parts), "test", $low_class . "_test.inc");
-		$include = File::find_first(array_keys($application->zesk->autoloader->path()), $path);
+		$include = File::find_first(array_keys($application->autoloader->path()), $path);
 		if (!$include) {
 			return false;
 		}

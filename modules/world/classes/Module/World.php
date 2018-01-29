@@ -25,7 +25,7 @@ class Module_World extends Module_JSLib {
 		'zesk\\Language',
 		'zesk\\Province'
 	);
-	public function hook_head(Request $request, Response_Text_HTML $response, Template $template) {
+	public function hook_head(Request $request, Response $response, Template $template) {
 		$currency = $this->call_hook_arguments("currency", array(), null);
 		/* @var $currency Currency */
 		if ($currency instanceof Currency) {

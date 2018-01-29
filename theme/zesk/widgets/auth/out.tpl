@@ -16,7 +16,7 @@ use zesk\Session_ORM;
 /* @var $session \zesk\Interface_Session */
 /* @var $request \zesk\Router */
 /* @var $request \zesk\Request */
-/* @var $response \zesk\Response_Text_HTML */
+/* @var $response \zesk\Response */
 /* @var $current_user User */
 $web_key = $this->get("web_key", $application->option("web_key"));
 /* @var $this zesk\Template */

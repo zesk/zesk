@@ -17,7 +17,7 @@ $request = $this->request;
 /* @var $request Request */
 
 $response = $this->response;
-/* @var $response Response_Text_HTML */
+/* @var $response Response */
 
 /* @var $toggle_mode boolean */
 $toggle_mode = $this->toggle_mode;

@@ -15,5 +15,6 @@ zesk()->deprecated();
  * @deprecated 2018-01
  * @author kent
  * @see Response
+ * @no-cannon
  */
 class Response_Text_HTML extends Response {}

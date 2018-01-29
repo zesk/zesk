@@ -11,7 +11,7 @@ namespace zesk;
 /* @var $session \zesk\Session */
 /* @var $request \zesk\Router */
 /* @var $request \zesk\Request */
-/* @var $response \zesk\Response_Text_HTML */
+/* @var $response \zesk\Response */
 /* @var $current_user \User */
 $this->response->javascript('/share/selection/selection.js');
 

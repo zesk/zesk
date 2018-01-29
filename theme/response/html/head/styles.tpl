@@ -14,8 +14,9 @@ namespace zesk;
 /* @var $router \zesk\Router */
 /* @var $route \zesk\Route */
 /* @var $request \zesk\Request */
-/* @var $response \zesk\Response_Text_HTML */
-/* @var $styles array[] */
+/* @var $response \zesk\Response */
+$styles = $response->html()->styles();
+
 foreach ($styles as $attributes) {
 	$content = $attributes['content'];
 	echo HTML::tag("style", ArrayTools::filter($attributes, "type;id;media;dir;lang;title;xml:lang"), $content) . "\n";

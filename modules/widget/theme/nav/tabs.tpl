@@ -4,7 +4,15 @@
  */
 namespace zesk;
 
-$widget = $this->widget;
+/* @var $this \zesk\Template */
+/* @var $application \zesk\Application */
+/* @var $locale \zesk\Locale */
+/* @var $session \zesk\Session */
+/* @var $router \zesk\Router */
+/* @var $route \zesk\Route */
+/* @var $request \zesk\Request */
+/* @var $response \zesk\Response_Text_HTML */
+/* @var $current_user \zesk\User */
 /* @var $widget Widget */
 $upload = $widget ? $widget->upload() : false;
 
@@ -35,7 +43,7 @@ foreach ($this->children as $widget) {
  * This uses the hash in the URL, and prevents the page jump by temporarily
  * removing the id
  */
-$this->response->jquery('$("[data-toggle=tab]").off("click.tabs").on("click.tabs", function (e) {
+$response->jquery('$("[data-toggle=tab]").off("click.tabs").on("click.tabs", function (e) {
 	var
 	$this = $(this),
 	$form = $this.parents("form"),
@@ -100,7 +108,10 @@ $title = $this->response->title();
 	}
 	?>
 	</ul>
-	<div class="tab-content"><?php echo $content; ?></div>
+	<div class="tab-content"><?php
+
+	echo $content;
+	?></div>
 </div>
 <?php
 /* @var $widget Widget */

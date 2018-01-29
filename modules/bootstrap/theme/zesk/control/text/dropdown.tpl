@@ -23,7 +23,7 @@ if (false) {
 	/* @var $request \zesk\Request */
 	
 	$response = $this->response;
-	/* @var $response \zesk\Response_Text_HTML */
+	/* @var $response \zesk\Response */
 }
 
 /**
@@ -33,7 +33,7 @@ if (false) {
 /* @var $this Template */
 if (false) {
 	$response = $this->response;
-	/* @var $response zesk\Response_Text_HTML */
+	/* @var $response zesk\Response */
 	$object = $this->object;
 	/* @var $object Model */
 	$widget = $this->widget;

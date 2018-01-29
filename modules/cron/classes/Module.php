@@ -19,7 +19,7 @@ use zesk\Hookable;
 use zesk\Locale;
 use zesk\System;
 use zesk\Router;
-use zesk\Response_Text_HTML;
+use zesk\Response;
 use zesk\Interface_Data;
 use zesk\Interface_Settings;
 use zesk\Timestamp;
@@ -452,9 +452,9 @@ class Module extends \zesk\Module {
 	 * Update a page to enable it to run cron
 	 *
 	 * @param Request $request
-	 * @param Response_Text_HTML $response
+	 * @param Response $response
 	 */
-	public function page_runner(Request $request, Response_Text_HTML $response) {
+	public function page_runner(Request $request, Response $response) {
 		$response->javascript('/share/zesk/js/zesk.js', array(
 			'weight' => 'first',
 			'share' => true

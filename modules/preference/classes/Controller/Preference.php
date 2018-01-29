@@ -1,6 +1,6 @@
 <?php
 /**
- * 
+ *
  */
 namespace zesk;
 
@@ -22,30 +22,30 @@ class Controller_Preference extends Controller {
 	 * @var string
 	 */
 	protected $method_default_arguments = "arguments_getset";
-	
+
 	/**
-	 * 
+	 *
 	 * @var array
 	 */
 	protected $whitelist = null;
-	
+
 	/**
-	 * 
+	 *
 	 * @return string
 	 */
 	public function _whitelist() {
 		return $this->application->path("etc/preference-whitelist.txt");
 	}
-	
+
 	/**
-	 * 
+	 *
 	 */
 	public function save_preferences() {
 		file_put_contents($this->_whitelist(), implode("\n", array_keys($this->whitelist)));
 	}
-	
+
 	/**
-	 * 
+	 *
 	 * @param string $action
 	 * @param string $arg
 	 * @return NULL[]|unknown[]
@@ -73,9 +73,9 @@ class Controller_Preference extends Controller {
 			$arg
 		);
 	}
-	
+
 	/**
-	 * 
+	 *
 	 * @param string $type
 	 * @return \zesk\Response|boolean
 	 */
@@ -87,7 +87,7 @@ class Controller_Preference extends Controller {
 			));
 		}
 		$user = $this->application->user();
-		if (!$user->authenticated()) {
+		if (!$user->authenticated($this->request)) {
 			return $this->json(array(
 				"status" => false,
 				"message" => __("Not authenticated")

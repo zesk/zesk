@@ -10,6 +10,7 @@ use zesk\Response\HTML as HTMLResponse;
 use zesk\Response\JSON;
 use zesk\Response\Text;
 use zesk\Response\Raw;
+use zesk\Logger\Handler;
 
 /**
  * Abstraction for web server responses to Request
@@ -22,30 +23,6 @@ use zesk\Response\Raw;
  * @subpackage system
  */
 class Response extends Hookable {
-	/**
-	 * @deprecated 2018-01
-	 *
-	 * @var string
-	 */
-	const content_type_json = "application/json";
-	/**
-	 * @deprecated 2018-01
-	 *
-	 * @var string
-	 */
-	const content_type_html = "text/html";
-	/**
-	 * @deprecated 2018-01
-	 *
-	 * @var string
-	 */
-	const content_type_plaintext = "text/plain";
-	/**
-	 * @deprecated 2018-01
-	 * @var string
-	 */
-	const content_type_raw = "application/octet-stream";
-
 	/**
 	 * @var string
 	 */
@@ -139,7 +116,14 @@ class Response extends Hookable {
 	 *
 	 * @var string
 	 */
-	public $content_type = null;
+	public $content_type = self::CONTENT_TYPE_HTML;
+
+	/**
+	 * Optional Content-Type to determine output handler. If null, uses $this->content_type
+	 *
+	 * @var string
+	 */
+	public $output_handler = null;
 
 	/**
 	 * Content-Type header
@@ -147,8 +131,13 @@ class Response extends Hookable {
 	 * @var string
 	 */
 	public $charset = null;
+
+	/**
+	 *
+	 * @var array
+	 */
 	static $type_classes = array(
-		self::content_type_html => HTMLResponse::class,
+		self::CONTENT_TYPE_HTML => HTMLResponse::class,
 		self::CONTENT_TYPE_JSON => JSON::class,
 		self::CONTENT_TYPE_PLAINTEXT => Text::class,
 		self::CONTENT_TYPE_RAW => Raw::class
@@ -206,25 +195,6 @@ class Response extends Hookable {
 	private $rendering = false;
 
 	/**
-	 * Retrieve global Response instance
-	 *
-	 * @return Response
-	 */
-	/**
-	 *
-	 * @param \zesk\Application $application
-	 * @param string $content_type
-	 * @return \zesk\Response_Text_HTML
-	 */
-	public static function instance(Application $application, $content_type = null) {
-		if ($application->response) {
-			return $application->response;
-		}
-		$application->response = self::factory($application, $content_type);
-		return $application->response;
-	}
-
-	/**
 	 * Handle deprecated configuration
 	 *
 	 * @param Kernel $kernel
@@ -232,25 +202,15 @@ class Response extends Hookable {
 	public static function hooks(Application $application) {
 		// Not sure when, let's say 2017-03
 		$application->configuration->deprecated("Response", __CLASS__);
-		$application->configuration->deprecated("Response_Text_HTML", __CLASS__);
 	}
 	/**
 	 *
 	 * @param Application $application
-	 * @param unknown $options
-	 * @return \zesk\stdClass|\zesk\Response_Text_HTML
+	 * @param array $options
+	 * @return \zesk\stdClass|\zesk\Response
 	 */
-	public static function factory(Application $application, $options = null) {
-		$content_type = $application->configuration->path(__CLASS__)->get("content_type", self::content_type_html);
-		if (is_string($options)) {
-			$content_type = $options;
-			$options = array();
-		} else if (is_array($options)) {
-			$content_type = aevalue($options, 'content type', $content_type);
-		} else {
-			$options = array();
-		}
-		return $application->objects->factory(__CLASS__, $application, $options);
+	public static function factory(Application $application, Request $request, array $options = array()) {
+		return $application->objects->factory(__CLASS__, $application, $request, $options);
 	}
 
 	/**
@@ -258,10 +218,13 @@ class Response extends Hookable {
 	 * @param Application $application
 	 * @param unknown $options
 	 */
-	function __construct(Application $application, array $options = array()) {
-		$this->request = $application->request;
+	function __construct(Application $application, Request $request, array $options = array()) {
+		$this->request = $request;
 		parent::__construct($application, $options);
 		$this->inherit_global_options();
+		if (!$this->content_type) {
+			$this->content_type($this->option("content_type", self::CONTENT_TYPE_HTML));
+		}
 	}
 
 	/**
@@ -452,7 +415,7 @@ class Response extends Hookable {
 	private function response_headers() {
 		static $called = false;
 
-		$this->call_hook('headers');
+		$this->call_hook('headers_before');
 		if ($this->option_bool("skip_response_headers")) {
 			return;
 		}
@@ -531,10 +494,10 @@ class Response extends Hookable {
 	 */
 	final function is_html($set = null) {
 		if ($set !== null) {
-			$this->content_type = self::content_type_html;
+			$this->content_type = self::CONTENT_TYPE_HTML;
 			return $this;
 		}
-		return $this->content_type === self::content_type_html;
+		return $this->content_type === self::CONTENT_TYPE_HTML;
 	}
 
 	/**
@@ -565,7 +528,7 @@ class Response extends Hookable {
 	}
 
 	/**
-	 * Getter/setter for content type of this response
+	 * Getter/setter for content type of this response.
 	 *
 	 * @param string $set
 	 * @return \zesk\Response|string
@@ -577,7 +540,21 @@ class Response extends Hookable {
 		}
 		return $this->content_type;
 	}
-
+	/**
+	 * Getter/setter for content type of this response. Generally affects which
+	 * Type handles output. If you want to force a handler, specify it as the 2nd parameter
+	 * to force handler usage upon output. See \zesk\Response\Raw for pattern which uses this.
+	 *
+	 * @param string $set
+	 * @return \zesk\Response|string
+	 */
+	final public function output_handler($set = null) {
+		if ($set !== null) {
+			$this->output_handler = $set;
+			return $this;
+		}
+		return $this->output_handler;
+	}
 	/**
 	 * Set a date header
 	 *
@@ -607,12 +584,18 @@ class Response extends Hookable {
 		if ($name === null) {
 			return $this->headers;
 		}
+		if (is_array($name)) {
+			foreach ($name as $k => $v) {
+				$this->header($k, $v);
+			}
+			return $this;
+		}
 		$lowname = strtolower($name);
 		if ($lowname === "content-type") {
 			if ($value === null) {
-				return $this->content_type;
+				return $this->content_type();
 			}
-			$this->content_type = $value;
+			$this->content_type($value);
 			return $this;
 		}
 		if (!array_key_exists($lowname, $this->headers_cased)) {
@@ -651,14 +634,22 @@ class Response extends Hookable {
 	}
 
 	/**
+	 * Current output handler
 	 *
-	 * @return string
+	 * @throws Exception_Semantics
+	 * @return \zesk\Response\Type
 	 */
-	private function _render_content() {
-		if (isset($this->types[$this->content_type])) {
-			return $this->types[$this->content_type]->render($this->content);
+	private function _output_handler() {
+		$type = $this->output_handler;
+		if (!$type) {
+			$type = $this->content_type;
+			if (!$type) {
+				throw new Exception_Semantics("No content type set in {method}", array(
+					"method" => __METHOD__
+				));
+			}
 		}
-		return $this->content;
+		return $this->_type($type);
 	}
 
 	/**
@@ -666,26 +657,10 @@ class Response extends Hookable {
 	 *
 	 * @return string
 	 */
-	final function render() {
-		if ($this->rendering) {
-			return "";
-		}
-		$this->rendering = true;
-		$this->call_hook("render");
-		if ($this->content_file) {
-			if ($this->content_type === self::content_type_html) {
-				$result = str_replace("\0", " ", file_get_contents($this->content_file));
-			} else {
-				$result = file_get_contents($this->content_file);
-			}
-		} else {
-			$result = $this->_render_content();
-			$result = $this->call_hook("content_postprocess", $result);
-		}
-		$this->response_headers();
-		$this->call_hook("rendered", $result);
-		$this->rendering = false;
-		return $result;
+	final function render(array $options = array()) {
+		ob_start();
+		$this->output_content($options);
+		return ob_get_clean();
 	}
 
 	/**
@@ -702,26 +677,7 @@ class Response extends Hookable {
 			$this->response_headers();
 		}
 		$this->call_hook("output");
-		if ($this->content_file) {
-			/*
-			 * This is an obscure error in MSIE which dies if a null is found mid-stream. Also obscure error where
-			 * fpassthru doesn't passthru everything/terminates
-			 */
-			$f = fopen($this->content_file, "rb");
-			if ($this->content_type === self::content_type_html) {
-				while (!feof($f)) {
-					print str_replace("\0", " ", fread($f, 8192)); // Keep length the same
-				}
-			} else {
-				while (!feof($f)) {
-					print fread($f, 8192);
-				}
-			}
-			flush();
-			fclose($f);
-		} else {
-			echo $this->_render_content();
-		}
+		$this->_output_handler()->output($this->content);
 		$this->call_hook("outputted");
 		$this->rendering = false;
 	}
@@ -834,20 +790,25 @@ class Response extends Hookable {
 	 *        	Contents to save
 	 * @return boolean
 	 */
-	public function cache_save($content) {
+	public function cache_save(CacheItemPoolInterface $pool, $url) {
 		if ($this->cache_settings === null) {
 			return false;
 		}
 
-		$parts = self::_cache_parts($this->request->url());
+		$parts = self::_cache_parts($url);
 		$level = self::CACHE_SCHEME;
 		$seconds = $expires = null;
 		$headers = array();
 		extract($this->cache_settings, EXTR_IF_EXISTS);
 		$pattern = avalue(self::$cache_pattern, $level, self::$cache_pattern[self::CACHE_SCHEME]);
 
-		$item = self::fetch_cache_id($this->application->cache, map($pattern, $parts));
-		$value = new \stdClass();
+		$item = self::fetch_cache_id($pool, map($pattern, $parts));
+		$response = new Response($this->application);
+		$response->output_handler(Response::CONTENT_TYPE_RAW);
+		$response->content_type($this->content_type());
+		$response->header($this->header());
+		$response->content = $this->content;
+
 		$value->headers = $headers;
 		$value->content = $content;
 		if ($seconds !== null) {
@@ -866,7 +827,7 @@ class Response extends Hookable {
 	 * Returns null if cache item not found
 	 *
 	 * @param string $url
-	 * @return NULL|string
+	 * @return NULL|Response
 	 */
 	public static function cached(CacheItemPoolInterface $pool, $url) {
 		$parts = self::_cache_parts($url);
@@ -874,11 +835,7 @@ class Response extends Hookable {
 			$id = map($id, $parts);
 			$item = self::fetch_cache_id($pool, $id);
 			if ($item->isHit()) {
-				$value = $item->get();
-				foreach ($value->headers as $header) {
-					header($header);
-				}
-				return $value->content;
+				return $item->get();
 			}
 		}
 		return null;
@@ -896,6 +853,8 @@ class Response extends Hookable {
 	/**
 	 * Fetches the type to handle this content type
 	 *
+	 * @param string $type String of content type to find/create.
+	 * @throws Exception_Semantics When no content type is set
 	 * @return \zesk\Response\Type
 	 */
 	private function _type($type) {
@@ -917,7 +876,7 @@ class Response extends Hookable {
 	 * @return HTMLResponse
 	 */
 	final public function html() {
-		return $this->_type(self::content_type_html);
+		return $this->_type(self::CONTENT_TYPE_HTML);
 	}
 	/**
 	 * Get/set body attributes
@@ -1004,7 +963,7 @@ class Response extends Hookable {
 	 *        	Optional settings: type (defaults to text/javascript), browser (defaults to all
 	 *        	browsers),
 	 *        	cdn (defaults to false)
-	 * @return Response_Text_HTML
+	 * @return Response
 	 */
 	final function javascript($path, $options = null) {
 		return $this->html()->javascript($path, $options);
@@ -1015,7 +974,7 @@ class Response extends Hookable {
 	 *
 	 * @param string $script
 	 * @param string $options
-	 * @return Response_Text_HTML
+	 * @return Response
 	 */
 	final function javascript_inline($script, $options = null) {
 		return $this->html()->javascript_inline($script, $options);
@@ -1043,6 +1002,15 @@ class Response extends Hookable {
 	/*====================================================================================================*\
 	 * JSON-related
 	 */
+	/**
+	 * Fetch JSON handler
+	 *
+	 * @param string $set
+	 * @return JSON
+	 */
+	final public function json() {
+		return $this->_type(self::CONTENT_TYPE_JSON);
+	}
 
 	/**
 	 * Return "extra" json data, only passed back to client on request types which support it.
@@ -1067,32 +1035,6 @@ class Response extends Hookable {
 		}
 		$this->response_data = $add ? $data + $this->response_data : $data;
 		return $this;
-	}
-
-	/**
-	 * Return JSON data
-	 *
-	 * @param string $set
-	 * @return Response|boolean
-	 */
-	final public function json($set = null) {
-		if ($set !== null) {
-			$this->content_type = self::CONTENT_TYPE_JSON;
-			if (count($this->response_data) === 0) {
-				$content = $set;
-			} else {
-				if (is_array($set)) {
-					$content = $set + $this->response_data;
-				} else {
-					$content = array(
-						'content' => $set
-					) + $this->response_data;
-				}
-			}
-			$this->content = is_array($this->content) ? $content + $this->content : $content;
-			return $this;
-		}
-		return $this->content_type === self::CONTENT_TYPE_JSON;
 	}
 
 	/*====================================================================================================*\

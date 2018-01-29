@@ -28,8 +28,28 @@ Version 1.0 of Zesk will have:
 
 ## [Unreleased][]
 
+### `zesk\Response` Refactored
+
+The majority of `zesk\Response_Text_HTML` have been moved up to glue functions in `zesk\Response` for eventual deprecation. `zesk\Response` HTML rendering has been largedly moved to templates. `zesk\Response` objects are no longer members of `zesk\Application`
+
+#### `zesk\Router` changes
+
+The `Router` no longer allows the `{response}` variable to be passed to `Route` methods.
+
+### `zesk\Application` state changes
+
+We're migrating away from storing request/response state in the `zesk\Application` object and have moved this state deeper into the page generation. 
+
+- Removed `zesk\Application::$session` and modified `zesk\Application::session()` to take `zesk\Request'
+- Removed `zesk\Application::$request` 
+- Removed `zesk\Application::$response`
+- Removed `zesk\Application::$user` and modified `zesk\Application::user()` to take `zesk\Request'`
+- `zesk\User::authenticated` now takes a `zesk\Request` (required) and `zesk\Response` (if you want to authenticate)
+
+
 ### Modified functionality
 
+- `zesk\Module_Session::session_factory` no longer initializes the session; you must initialize the session with the `zesk\Request`
 - `zesk\ORM::delete()` no longer deletes the default `zesk\ORM::object_cache()` associated with the object 
  - this is largely due to creation of cache objects for `zesk\ORM` classes which do not have associated `zesk\Class_ORM` settings so cache-deletion can not configured
  - if you need to clean up caches for your objects, implement `zesk\ORM::hook_delete()` in subclasses to delete object caches. Note this hook occurs after the object has been deleted from the database, but the object state is valid.

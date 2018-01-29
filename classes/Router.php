@@ -153,7 +153,6 @@ class Router extends Hookable {
 	 */
 	function __wakeup() {
 		$this->by_id = array();
-		$this->route = null;
 		$this->application = Kernel::singleton()->application();
 		foreach ($this->routes as $route) {
 			$route->application = $this->application;
@@ -303,10 +302,14 @@ class Router extends Hookable {
 			$this->application->logger->log($level, $message, $arguments);
 		}
 	}
-	function reset() {
-		$this->route = null;
-		return $this;
-	}
+
+	/**
+	 * Match a request to this router. Return a Route. Returned route will have ->request() set to this object.
+	 *
+	 * @param Request $request
+	 * @return \zesk\Route|NULL
+	 * @todo make this not O(n)
+	 */
 	function match(Request $request) {
 		$this->request = $request;
 		$path = strval($request->path());
@@ -318,8 +321,8 @@ class Router extends Hookable {
 		$routes = $this->routes(); /* @var $route Route */
 		foreach ($this->routes as $route) {
 			if ($route->match($path, $method)) {
+				$route->request($request);
 				$this->log("debug", "Matched {path} to {route}", compact("path", "route"));
-				$this->route = $route;
 				return $route;
 			}
 		}
@@ -328,35 +331,25 @@ class Router extends Hookable {
 	}
 
 	/**
-	 * Route the URL and return the response
 	 *
-	 * @throws Exception_NotFound
-	 * @return \zesk\Route
+	 * @param string $name
+	 * @param string $value
+	 * @return NULL|string
 	 */
-	function execute(Request $request = null) {
-		if (!$this->route) {
-			if (!$request) {
-				$request = $this->request;
-				if (!$request) {
-					throw new Exception_Semantics("Need a request to execute");
-				}
-			}
-			if (!$this->match($request)) {
-				$this->route = avalue($this->routes, $this->default_route);
-				if (!$this->route) {
-					throw new Exception_NotFound("No route found");
-				}
-			}
-		}
-		$this->route->execute();
-		return $this->route;
-	}
 	function url_replace($name, $value = null) {
 		if (!$this->route) {
 			return null;
 		}
 		return $this->prefix . $this->route->url_replace($name, $value);
 	}
+
+	/**
+	 * Add a route
+	 *
+	 * @param unknown $path
+	 * @param array $options
+	 * @return void|\zesk\Route
+	 */
 	public function add_route($path, array $options) {
 		if ($path === "<default>") {
 			$this->set_option($options);
@@ -414,9 +407,6 @@ class Router extends Hookable {
 	}
 	private function _find_route(array $routes, $action = null, $object = null, $options = null) {
 		$options = to_array($options, array());
-		if ($this->route) {
-			$options += $this->route->option();
-		}
 		foreach ($routes as $route) {
 			assert($route instanceof Route);
 			$url = $route->get_route($action, $object, $options);
@@ -472,8 +462,8 @@ class Router extends Hookable {
 			);
 		}
 		$options = to_array($options);
-		if ($this->route && to_bool(avalue($options, 'inherit_current_route'))) {
-			$options += $this->route->arguments_named();
+		if (($route = avalue($options, 'current_route')) instanceof Route) {
+			$options += $route->arguments_named();
 		}
 		if (is_object($object)) {
 			$try_classes = $app->classes->hierarchy($object, "zesk\\Model");

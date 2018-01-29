@@ -25,10 +25,10 @@ class Module_Flot extends zesk\Module implements \zesk\Interface_Module_Head {
 	 *
 	 * @see \zesk\Interface_Module_Head::hook_head()
 	 */
-	public function hook_head(zesk\Request $request, zesk\Response_Text_HTML $response, zesk\Template $template) {
+	public function hook_head(zesk\Request $request, zesk\Response $response, zesk\Template $template) {
 		$this->_head($response);
 	}
-	private function _head(zesk\Response_Text_HTML $response) {
+	private function _head(zesk\Response $response) {
 		$response->jquery();
 		$response->javascript("/share/flot/jquery.flot.js", array(
 			"share" => true
@@ -53,7 +53,7 @@ class Module_Flot extends zesk\Module implements \zesk\Interface_Module_Head {
 		}
 		return $this->plugins;
 	}
-	public function plugin(zesk\Response_Text_HTML $response, $plugins = null) {
+	public function plugin(zesk\Response $response, $plugins = null) {
 		if ($plugins === null) {
 			return $this->_plugins();
 		}

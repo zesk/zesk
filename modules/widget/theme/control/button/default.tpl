@@ -11,7 +11,7 @@ echo HTML::tag("button", array(
 	"class" => CSS::add_class("btn btn-default", $this->confirm ? "confirm" : "")
 ) + $this->widget->data_attributes(), HTML::tag('span', '.glyphicon .glyphicon-repeat', '') . ' ' . $this->button_label);
 
-/* $var $response zesk\Response_Text_HTML */
+/* $var $response zesk\Response */
 $response = $this->response;
 
 ob_start();

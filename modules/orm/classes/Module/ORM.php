@@ -260,7 +260,7 @@ class Module_ORM extends Module {
 	 * @return multitype:
 	 */
 	public function schema_synchronize(Database $db = null, array $classes = null, array $options = array()) {
-		if ($this->application->objects !== $this->application->zesk->objects) {
+		if ($this->application->objects !== $this->application->objects) {
 			// KMD: I assume this must have happened once and should not ever happen again.
 			// If it does it's a SNAFU
 			$this->application->logger->emergency("App objects mismatch kernel {file}:{line}", array(

@@ -112,10 +112,10 @@ abstract class Module_JSLib extends Module implements Interface_Module_Head {
 	 * HTML Page head
 	 * 
 	 * @param Request $request
-	 * @param Response_Text_HTML $response
+	 * @param Response $response
 	 * @param Template $template
 	 */
-	public function hook_head(Request $request, Response_Text_HTML $response, Template $template) {
+	public function hook_head(Request $request, Response $response, Template $template) {
 		if (!$this->option_bool("disabled")) {
 			$this->javascript_settings['enabled'] = true;
 			$this->compute_javascript_settings();
@@ -157,9 +157,9 @@ abstract class Module_JSLib extends Module implements Interface_Module_Head {
 	/**
 	 * Able to call this from theme templates for AJAX calls
 	 *
-	 * @param Response_Text_HTML $response
+	 * @param Response $response
 	 */
-	public function ready(Response_Text_HTML $response) {
+	public function ready(Response $response) {
 		$this->call_hook('ready');
 		foreach ($this->jquery_ready as $code) {
 			$response->jquery($code, $this->jquery_ready_weight);

@@ -10,11 +10,7 @@ namespace zesk;
 /* @var $session Session */
 /* @var $request Router */
 /* @var $request Request */
-/* @var $response Response_Text_HTML */
-$response = $this->response;
-if (!$response instanceof Response) {
-	$response = $application->response();
-}
+/* @var $response Response */
 $messages = $response->redirect_message();
 if (count($messages) > 0) {
 	$application->modules->object('jGrowl')->ready($response);

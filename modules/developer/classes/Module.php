@@ -13,7 +13,6 @@ use zesk\Interface_Module_Routes;
 use zesk\IPv4;
 use zesk\Net_HTTP;
 use zesk\Response;
-use zesk\Response_Text_HTML;
 use zesk\Request;
 use zesk\Router;
 use zesk\Exception;
@@ -34,11 +33,11 @@ class Module extends \zesk\Module implements Interface_Module_Routes {
 	static $allowed_mock_headers = array(
 		"mock_accept" => Net_HTTP::request_Accept
 	);
-	public function test_ip() {
+	public function test_ip(Application $application, Request $request) {
 		$application = $this->application;
 		$ips = $this->option_list('ip_allow');
 		$development = null;
-		$ip = $application->request()->ip();
+		$ip = $request->ip();
 		foreach ($ips as $mask) {
 			if ($ip === $mask) {
 				$this->application->logger->debug("{class}::{function}: {ip} === {mask}, development on", array(
@@ -61,22 +60,21 @@ class Module extends \zesk\Module implements Interface_Module_Routes {
 				break;
 			}
 		}
-		if ($this->ip_matches($this->option_list('ip_deny'))) {
+		if ($this->ip_matches($ip, $this->option_list('ip_deny'))) {
 			$development = false;
 		}
 		if ($development !== null) {
 			$application->development($development);
 		}
 	}
-	
+
 	/**
 	 * Does the remote IP address match one of the list of IPs including netmasks?
 	 *
 	 * @param array $ips
 	 * @return boolean
 	 */
-	private function ip_matches(array $ips) {
-		$ip = $this->application->request()->ip();
+	private function ip_matches($ip, array $ips) {
 		foreach ($ips as $mask) {
 			if ($ip === $mask || IPv4::within_network($ip, $mask)) {
 				return true;
@@ -84,7 +82,7 @@ class Module extends \zesk\Module implements Interface_Module_Routes {
 		}
 		return false;
 	}
-	
+
 	/**
 	 * Modify the Request to allow for mock headers
 	 *
@@ -97,9 +95,9 @@ class Module extends \zesk\Module implements Interface_Module_Routes {
 			}
 		}
 	}
-	public function router_prematch() {
+	public function router_prematch(Application $application, Router $router, Request $request) {
 		$app = $this->application;
-		$this->handle_mock_headers($app->request);
+		$this->handle_mock_headers($request);
 		$restricted_ips = $this->option_list('ip_restrict');
 		if (count($restricted_ips) === 0) {
 			return;
@@ -112,18 +110,18 @@ class Module extends \zesk\Module implements Interface_Module_Routes {
 		}
 	}
 	public function initialize() {
-		$zesk = $this->zesk;
-		
-		$zesk->hooks->add("zesk\\Application::configured", array(
+		$app = $this->application;
+
+		$app->hooks->add("zesk\\Application::main", array(
 			$this,
 			'test_ip'
 		));
-		$zesk->hooks->add("zesk\\Application::router_prematch", array(
+		$app->hooks->add("zesk\\Application::router_prematch", array(
 			$this,
 			'router_prematch'
 		));
 	}
-	
+
 	/**
 	 *
 	 * {@inheritdoc}
@@ -153,14 +151,14 @@ class Module extends \zesk\Module implements Interface_Module_Routes {
 		}
 		$router->add_route('developer/opcache_get_configuration', array(
 			'method' => 'opcache_get_configuration',
-			'content type' => Response::content_type_json
+			'content type' => Response::CONTENT_TYPE_JSON
 		));
 		$router->add_route('developer/opcache_get_status', array(
 			'method' => 'opcache_get_status',
 			'arguments' => array(
 				false
 			),
-			'content type' => Response::content_type_json
+			'content type' => Response::CONTENT_TYPE_JSON
 		));
 		$router->add_route('debug', array(
 			'theme' => 'system/debug'
@@ -181,7 +179,10 @@ class Module extends \zesk\Module implements Interface_Module_Routes {
 			'theme' => 'system/modules'
 		) + $extras);
 		$router->add_route('developer/ip', array(
-			'method' => 'zesk\\IPv4::remote',
+			'method' => array(
+				$this,
+				"developer_ip"
+			),
 			'json' => true
 		) + $extras);
 		$router->add_route('development/includes', array(
@@ -228,7 +229,7 @@ class Module extends \zesk\Module implements Interface_Module_Routes {
 			)
 		) + $extras);
 	}
-	
+
 	/**
 	 *
 	 * @param Response $response
@@ -237,7 +238,7 @@ class Module extends \zesk\Module implements Interface_Module_Routes {
 		$session = $app->session();
 		$response->json($session->get());
 	}
-	
+
 	/**
 	 *
 	 * @param Request $request
@@ -251,15 +252,15 @@ class Module extends \zesk\Module implements Interface_Module_Routes {
 			));
 		}
 	}
-	
+
 	/**
 	 *
 	 * @param Application $app
 	 * @param Request $request
-	 * @param Response_Text_HTML $response
+	 * @param Response $response
 	 * @param unknown $arg
 	 */
-	public function schema(Application $app, Request $request, Response_Text_HTML $response, $arg = null) {
+	public function schema(Application $app, Request $request, Response $response, $arg = null) {
 		ORM_Schema::debug(true);
 		$db = null;
 		$classes = null;
@@ -272,7 +273,7 @@ class Module extends \zesk\Module implements Interface_Module_Routes {
 		} else {
 			$db = $this->application->database_registry();
 		}
-		$results = $app->schema_synchronize($db, $classes, array(
+		$results = $app->orm_module()->schema_synchronize($db, $classes, array(
 			"follow" => false
 		));
 		$exception = null;
@@ -296,6 +297,9 @@ class Module extends \zesk\Module implements Interface_Module_Routes {
 	}
 	public function development_includes() {
 		return get_included_files();
+	}
+	public function developer_ip() {
+		return $this->application->request->ip();
 	}
 }
 

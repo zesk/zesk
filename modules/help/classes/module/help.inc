@@ -46,17 +46,17 @@ class Module_Help extends Module_JSLib {
 	 * We inject our JavaScript on pages; it loads
 	 *
 	 * @param Request $requset
-	 * @param Response_Text_HTML $response
+	 * @param Response $response
 	 */
-	public function hook_head(Request $request, Response_Text_HTML $response, Template $template) {
+	public function hook_head(Request $request, Response $response, Template $template) {
 		if (!$this->option_bool("disabled")) {
 			$response->javascript('/share/help/js/help.js', array(
 				'share' => true
 			));
 			$this->javascript_settings['active'] = false;
 			try {
-				$user = $this->application->user(false);
-				$this->authenticated = $user ? $user->authenticated() : false;
+				$user = $this->application->user($request, false);
+				$this->authenticated = $user ? $user->authenticated($request) : false;
 				if ($this->authenticated) {
 					$this->javascript_settings['active'] = true;
 				}
@@ -227,8 +227,8 @@ class Module_Help extends Module_JSLib {
 	 * @return User
 	 */
 	private function _help_auth(Request $request, Response $response) {
-		$user = $this->application->user(false);
-		if (!$user || !$user->authenticated()) {
+		$user = $this->application->user($request, false);
+		if (!$user || !$user->authenticated($request)) {
 			$response->status(Net_HTTP::Status_Unauthorized, "Requires user")->json(array(
 				'error' => $this->application->locale->__('Requires user')
 			));

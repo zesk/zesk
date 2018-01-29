@@ -10,7 +10,7 @@
 namespace zesk;
 
 class Control_Widgets extends Control {
-	
+
 	/**
 	 * Override this method to do a custom widget list for an object
 	 *
@@ -28,7 +28,7 @@ class Control_Widgets extends Control {
 			return;
 			backtrace();
 		}
-		$this->widgets = $widgets = $this->widget_factory("Control")->names($this->name() . "_widgets");
+		$this->widgets = $widgets = $this->widget_factory(Control::class)->names($this->name() . "_widgets");
 		$child_widgets = $this->_widgets();
 		if (count($child_widgets)) {
 			$this->child($widgets);
@@ -88,7 +88,7 @@ class Control_Widgets extends Control {
 		}
 		return true;
 	}
-	
+
 	// 	function submit() {
 	// 		foreach ($this->children as $w) {
 	// 			/* @var $w Widget */

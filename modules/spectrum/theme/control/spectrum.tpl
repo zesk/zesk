@@ -23,7 +23,7 @@ if (false) {
 	/* @var $request \zesk\Request */
 	
 	$response = $this->response;
-	/* @var $response \zesk\Response_Text_HTML */
+	/* @var $response \zesk\Response */
 }
 
 $version = \Module_Spectrum::version;

@@ -68,7 +68,7 @@ class Hooks {
 	 *
 	 * @var Kernel
 	 */
-	public $zesk = null;
+	public $kernel = null;
 
 	/**
 	 * Determine which hooks are looked at/tested for existence.
@@ -123,7 +123,7 @@ class Hooks {
 	 * @param Kernel $kernel
 	 */
 	public function __construct(Kernel $kernel) {
-		$this->zesk = $kernel;
+		$this->kernel = $kernel;
 
 		/*  TODO PHP7 use closure */
 		register_shutdown_function(array(
@@ -143,7 +143,7 @@ class Hooks {
 	 * @param string $hook
 	 */
 	public function _app_call($hook) {
-		$this->call(self::hook_exit, $this->zesk->application());
+		$this->call(self::hook_exit, $this->kernel->application());
 	}
 
 	/**
@@ -287,7 +287,7 @@ class Hooks {
 				call_user_func(array(
 					$class,
 					"hooks"
-				), $this->zesk->application());
+				), $this->kernel->application());
 				$this->hooks_called[$lowclass] = $result[$class] = microtime(true);
 				return true;
 			} catch (\Exception $e) {
@@ -296,7 +296,7 @@ class Hooks {
 				return $e;
 			}
 		} else if ($this->debug) {
-			$this->zesk->logger->debug("{__CLASS__}::{__FUNCTION__} Class {class} does not have method hooks", array(
+			$this->kernel->logger->debug("{__CLASS__}::{__FUNCTION__} Class {class} does not have method hooks", array(
 				"__CLASS__" => __CLASS__,
 				"__FUNCTION__" => __FUNCTION__,
 				"class" => $class
@@ -394,7 +394,7 @@ class Hooks {
 		}
 		$callable_string = $this->callable_string($function);
 		if (array_key_exists($callable_string, $this->hooks[$hook])) {
-			$this->zesk->logger->debug("Duplicate registration of hook {callable}", array(
+			$this->kernel->logger->debug("Duplicate registration of hook {callable}", array(
 				"callable" => $callable_string
 			));
 			return;
@@ -430,9 +430,9 @@ class Hooks {
 			$lowclass = strtolower($class);
 			if (!array_key_exists($lowclass, $this->all_hook_classes) && $method !== "hooks") {
 				$this->all_hook_classes[$lowclass] = true;
-				$this->_register_all_hooks($class, $this->zesk->application());
+				$this->_register_all_hooks($class, $this->kernel->application());
 			}
-			$classes = $this->zesk->classes->subclasses($class);
+			$classes = $this->kernel->classes->subclasses($class);
 			if ($classes === null) {
 				continue;
 			}
@@ -441,7 +441,7 @@ class Hooks {
 				try {
 					$refl = new \ReflectionClass($class);
 				} catch (\Exception $e) {
-					$this->zesk->logger->warning("{class} not found {eclass}: {emessage}", array(
+					$this->kernel->logger->warning("{class} not found {eclass}: {emessage}", array(
 						"class" => $class,
 						"eclass" => get_class($e),
 						"emessage" => $e->getMessage()
@@ -601,7 +601,7 @@ class Hooks {
 	 */
 	public function call_arguments($hooks, $arguments = array(), $default = null, $hook_callback = null, $result_callback = null, $return_hint = null) {
 		if ($return_hint !== null) {
-			$this->zesk->deprecated("\$return_hint passed to {method}", array(
+			$this->kernel->deprecated("\$return_hint passed to {method}", array(
 				"method" => __METHOD__
 			));
 		}

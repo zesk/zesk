@@ -75,8 +75,8 @@ class Module_Filter_Save extends Module_JSLib implements Interface_Module_Routes
 		$request = $widget->request();
 		$response = $widget->response();
 	}
-	public function filter_state_new(Request $request, Response_Text_HTML $response) {
+	public function filter_state_new(Request $request, Response $response) {
 	}
-	public function filter_state_delete(Request $request, Response_Text_HTML $response, Filter_State $filter) {
+	public function filter_state_delete(Request $request, Response $response, Filter_State $filter) {
 	}
 }

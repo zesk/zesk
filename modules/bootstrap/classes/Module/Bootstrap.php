@@ -9,10 +9,10 @@ namespace zesk;
 /**
  *
  * @author kent
- *        
+ *
  */
 class Module_Bootstrap extends Module implements Interface_Module_Foot, Interface_Module_Head {
-	
+
 	/**
 	 */
 	public function initialize() {
@@ -21,11 +21,11 @@ class Module_Bootstrap extends Module implements Interface_Module_Foot, Interfac
 			'_hook_list_row_widget'
 		));
 	}
-	
+
 	/**
 	 *
-	 * @param Control $self        	
-	 * @param Control_Row $row        	
+	 * @param Control $self
+	 * @param Control_Row $row
 	 */
 	public function _hook_list_row_widget(Control $self, Control_Row $row) {
 		$n_columns = $self->option('list_column_count', 12);
@@ -52,48 +52,49 @@ class Module_Bootstrap extends Module implements Interface_Module_Foot, Interfac
 			}
 		}
 	}
-	
+
 	/**
 	 *
-	 * @param Request $request        	
-	 * @param Response_Text_HTML $response        	
-	 * @param Template $template        	
+	 * @param Request $request
+	 * @param Response $response
+	 * @param Template $template
 	 */
-	public function hook_head(Request $request, Response_Text_HTML $response, Template $template) {
+	public function hook_head(Request $request, Response $response, Template $template) {
 		// Lazy eval
 		if ($this->option_bool('enabled')) {
+			$html = $response->html();
 			if (!$this->source_location()) {
 				$response->css("/share/bootstrap/css/bootstrap.css", array(
 					'share' => true
 				));
 			}
 			if ($this->option_bool("responsive", true)) {
-				$response->meta("viewport", "width=device-width, initial-scale=1.0");
+				$html->meta("viewport", "width=device-width, initial-scale=1.0");
 			}
-			$response->meta(array(
+			$html->meta(array(
 				'http-equiv' => 'X-UA-Compatible',
 				'content' => "IE=edge"
 			));
-			$response->meta(array(
+			$html->meta(array(
 				'charset' => 'utf-8'
 			));
-			
-			$response->jquery();
-			$response->javascript(array(
+
+			$html->jquery();
+			$html->javascript(array(
 				$this->application->development() ? "/share/bootstrap/js/bootstrap.js" : "/share/bootstrap/js/bootstrap.min.js"
 			), array(
 				'share' => true
 			));
 		}
 	}
-	
+
 	/**
 	 *
 	 * {@inheritdoc}
 	 *
 	 * @see Interface_Module_Foot::hook_foot()
 	 */
-	public function hook_foot(Request $request, Response_Text_HTML $response, Template $template) {
+	public function hook_foot(Request $request, Response $response, Template $template) {
 		if ($this->application->development()) {
 			echo $this->application->theme("bootstrap/responsive-size");
 		}
@@ -106,13 +107,13 @@ class Module_Bootstrap extends Module implements Interface_Module_Foot, Interfac
 	 * copied into your source tree, where they should be checked in
 	 * to the source as well.
 	 *
-	 * @param string $set        	
+	 * @param string $set
 	 * @return string
 	 */
 	public function source_location($set = null) {
 		return $set !== null ? $this->set_option("source_location", $set) : $this->option("source_location");
 	}
-	
+
 	/**
 	 * map bootstrap file
 	 */
@@ -148,7 +149,7 @@ class Module_Bootstrap extends Module implements Interface_Module_Foot, Interfac
 		}
 		return false;
 	}
-	
+
 	/**
 	 * After this module is updated
 	 */

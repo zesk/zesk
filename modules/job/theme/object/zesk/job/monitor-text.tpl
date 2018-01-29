@@ -3,7 +3,7 @@ namespace zesk;
 
 /* @var $job Job */
 /* @var $object Job */
-/* @var $response Response_Text_HTML */
+/* @var $response Response */
 $object->theme("scripts");
 
 $success = $this->success;

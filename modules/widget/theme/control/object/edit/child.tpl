@@ -1,16 +1,18 @@
 <?php
 namespace zesk;
 
+/* @var $this \zesk\Template */
+/* @var $application \zesk\Application */
+/* @var $locale \zesk\Locale */
+/* @var $session \zesk\Session */
+/* @var $router \zesk\Router */
+/* @var $route \zesk\Route */
+/* @var $request \zesk\Request */
+/* @var $response \zesk\Response_Text_HTML */
+/* @var $current_user \zesk\User */
 /* @var $widget Widget */
-$widget = $this->widget;
-
 /* @var $object Model */
-$object = $this->object;
-
 /* @var $child Widget */
-$child = $this->child;
-
-/* @var $this zesk\Template */
 $name = $widget->name();
 
 $show_required = $widget->show_required;
@@ -23,9 +25,9 @@ $n_cols = $show_required ? 3 : 2;
 if ($overlabel) {
 	// $overlabel_id = "overlabel_". HTML::id_counter();
 	$child->set_option("overlabel", true);
-	$this->response->jquery();
-	$this->response->javascript("/share/zesk/jquery/jquery.overlabel.js");
-	$this->response->jquery("$('label.overlabel').overlabel();");
+	$response->jquery();
+	$response->javascript("/share/zesk/jquery/jquery.overlabel.js");
+	$response->jquery("$('label.overlabel').overlabel();");
 	// $widget->set_option("id", $overlabel_id);
 }
 

@@ -4,7 +4,7 @@
  */
 namespace zesk;
 
-/* @var $response Response_Text_HTML */
+/* @var $response Response */
 $response = $this->response;
 
 $id = $this->id;

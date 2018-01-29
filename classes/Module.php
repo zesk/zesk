@@ -17,13 +17,6 @@ namespace zesk;
  */
 class Module extends Hookable {
 	/**
-	 * @deprecated 2018-01 - Don't need this, do we?
-	 *
-	 * @var zesk\Kernel
-	 */
-	protected $zesk = null;
-
-	/**
 	 *
 	 * @var Application
 	 */
@@ -89,7 +82,6 @@ class Module extends Hookable {
 	 */
 	function __wakeup() {
 		parent::__wakeup();
-		$this->zesk = $this->application->zesk;
 		$this->initialize();
 	}
 
@@ -100,7 +92,6 @@ class Module extends Hookable {
 	 */
 	public final function __construct(Application $application, array $options = array(), array $module_data = array()) {
 		parent::__construct($application, $options);
-		$this->zesk = $application->zesk;
 		$this->application_class = get_class($application);
 		$this->path = avalue($module_data, 'path');
 		if (!$this->codename) {
@@ -113,7 +104,7 @@ class Module extends Hookable {
 		if (isset($this->classes)) {
 			$this->application->deprecated(get_class($this) . "->classes is deprecated, use ->model_classes");
 		}
-		$this->application->register_class($this->classes());
+		$this->application->register_class($this->model_classes());
 		if (count($this->class_aliases)) {
 			$this->application->objects->map($this->class_aliases);
 		}
@@ -161,16 +152,6 @@ class Module extends Hookable {
 	}
 
 	/**
-	 * @deprecated 2018-01 Use ->model_classes instead
-	 * Override in subclasses - called upon Application::classes
-	 * @return string[]
-	 */
-	public function classes() {
-		$this->application->deprecated();
-		return $this->model_classes();
-	}
-
-	/**
 	 * Override in subclasses - called upon Application::classes
 	 * @return string[]
 	 */
@@ -187,6 +168,16 @@ class Module extends Hookable {
 	 */
 	final public function model_factory($class, $mixed = null, array $options = array()) {
 		return $this->application->model_factory($class, $mixed, $options);
+	}
+
+	/**
+	 * @deprecated 2018-01 Use ->model_classes instead
+	 * Override in subclasses - called upon Application::classes
+	 * @return string[]
+	 */
+	public function classes() {
+		$this->application->deprecated();
+		return $this->model_classes();
 	}
 
 	/**

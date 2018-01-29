@@ -34,7 +34,6 @@ use zesk\Router\Parser;
  * @method Interface_Session session_factory()
  */
 class Application extends Hookable implements Interface_Theme {
-
 	/**
 	 * Zesk singleton. Do not use anywhere but here.
 	 *
@@ -146,27 +145,9 @@ class Application extends Hookable implements Interface_Theme {
 
 	/**
 	 *
-	 * @var Request
-	 */
-	public $request = null;
-
-	/**
-	 *
 	 * @var Router
 	 */
 	public $router = null;
-
-	/**
-	 *
-	 * @var Route
-	 */
-	public $route = null;
-
-	/**
-	 *
-	 * @var Response_Text_HTML
-	 */
-	public $response = null;
 
 	/**
 	 * List of search paths to find modules for loading
@@ -209,13 +190,26 @@ class Application extends Hookable implements Interface_Theme {
 	public $file = null;
 
 	/**
+	 * @deprecated 2018-01
+	 * @var Request
+	 */
+	protected $request = null;
+
+	/**
 	 *
+	 * @deprecated 2018-01
+	 * @var Response
+	 */
+	protected $response = null;
+
+	/**
+	 * @deprecated 2018-01
 	 * @var Interface_Session
 	 */
 	public $session = null;
 
 	/**
-	 *
+	 * @deprecated 2018-01
 	 * @var User
 	 */
 	public $user = null;
@@ -396,13 +390,7 @@ class Application extends Hookable implements Interface_Theme {
 		$this->factories = array();
 
 		$this->command = null;
-		$this->request = null;
 		$this->router = null;
-		$this->route = null;
-		$this->response = null;
-		$this->session = null;
-
-		$this->class_cache = array();
 
 		// $this->load_modules is set in subclasses
 		// $this->class_aliases is set in subclasses
@@ -478,17 +466,11 @@ class Application extends Hookable implements Interface_Theme {
 	 * Clone application
 	 */
 	protected function __clone() {
-		if ($this->request) {
-			$this->request = clone $this->request;
-		}
-		if ($this->response) {
-			$this->response = clone $this->response;
+		if ($this->configuration) {
+			$this->configuration = clone $this->configuration;
 		}
 		if ($this->router) {
 			$this->router = clone $this->router;
-		}
-		if ($this->route) {
-			$this->route = clone $this->route;
 		}
 		if ($this->template) {
 			$this->template = clone $this->template;
@@ -907,7 +889,7 @@ class Application extends Hookable implements Interface_Theme {
 	 *
 	 * @return Request
 	 */
-	protected function hook_request() {
+	protected function request_factory() {
 		$request = new Request($this);
 		if ($this->console()) {
 			$request->initialize_from_settings("http://console/");
@@ -958,47 +940,50 @@ class Application extends Hookable implements Interface_Theme {
 	}
 
 	/**
-	 * When an exception happens in the main loop, generate content related to the exception.
 	 *
-	 * @param Exception $e
+	 * @param Request $request
+	 * @param unknown $content_type
+	 * @return \zesk\stdClass|\zesk\Response
 	 */
-	final private function _main_exception(\Exception $exception) {
-		$content = $this->theme($this->classes->hierarchy($exception), array(
+	final public function response_factory(Request $request, $content_type = null) {
+		return Response::factory($this, $request, $content_type ? array(
+			"content_type" => $content_type
+		) : array());
+	}
+
+	/**
+	 *
+	 * @param Request $request
+	 * @param \Exception $exception
+	 * @return \zesk\Response
+	 */
+	final private function _main_exception(Request $request, \Exception $exception) {
+		$response = $this->response_factory($request, Response::CONTENT_TYPE_HTML);
+		$response->content = $this->theme($this->classes->hierarchy($exception), array(
 			"exception" => $exception,
 			"content" => $exception
 		), array(
 			"first" => true
 		));
-		if ($this->response && $this->response->content_type === "text/html") {
-			$this->response->content = $content;
-			// 			$this->theme('page', array(
-			// 				'content' => $content
-			// 			) + $this->template_variables);
-		}
-		$this->call_hook('main_exception', $exception);
+		;
+		$this->call_hook('main_exception', $exception, $response);
 		$this->hooks->call("exception", $exception);
+		return $response;
 	}
-
 	/**
 	 *
 	 * @return Request
 	 */
 	final public function request() {
-		if ($this->request instanceof Request) {
-			return $this->request;
-		}
-		return $this->request = $this->call_hook("request");
+		die(calling_function() . ' => ' . __FILE__ . ":" . __LINE__);
 	}
 
 	/**
-	 *
+	 * @deprecated 2018-01
 	 * @return Response
 	 */
 	final public function response() {
-		if ($this->response instanceof Response) {
-			return $this->response;
-		}
-		return $this->response = $this->call_hook("response", $this->request());
+		die(calling_function() . ' => ' . __FILE__ . ":" . __LINE__);
 	}
 
 	/**
@@ -1010,23 +995,10 @@ class Application extends Hookable implements Interface_Theme {
 		if ($this->router instanceof Router) {
 			return $this->router;
 		}
-		try {
-			/* @var $request Request */
-			$request = $this->request();
-
-			// TODO Investigate creating response via Router instead of here
-			/* @var $response Response_Text_HTML */
-			$response = $this->response();
-
-			/* @var $router Router */
-			$router = $this->router = $this->call_hook("router");
-			$this->call_hook("router_loaded", $router);
-
-			return $router;
-		} catch (\Exception $exception) {
-			$this->_main_exception($exception);
-			return null;
-		}
+		/* @var $router Router */
+		$router = $this->router = $this->call_hook("router");
+		$this->call_hook("router_loaded", $router);
+		return $router;
 	}
 
 	/**
@@ -1045,43 +1017,14 @@ class Application extends Hookable implements Interface_Theme {
 	 *
 	 * @return boolean
 	 */
-	private function _templates_initialize() {
-		$variables = array();
+	private function _templates_initialize(array $variables) {
 		$variables['application'] = $this;
-		$variables['request'] = $this->request;
-		$variables['response'] = $this->response;
-		$variables['router'] = $this->router;
-		$variables['route'] = $this->route;
 		$variables += $this->template_variables;
 		$variables += $this->call_hook_arguments("template_defaults", array(
 			$variables
 		), array());
 		$this->template->set($variables);
 		return $this->template;
-	}
-
-	/**
-	 * Initialize template variables
-	 *
-	 * Execute route
-	 *
-	 * @param Router $router
-	 */
-	private function _main_route(Router $router) {
-		$this->call_hook("router_prematch", $router);
-		$this->route = $router->match($this->request);
-		$this->_templates_initialize();
-		if (!$this->route) {
-			$this->call_hook("router_no_match");
-			$this->response->status(Net_HTTP::Status_File_Not_Found, "No route found");
-			throw new Exception_NotFound("The resource does not exist on this server: {url}", $this->request->url_variables());
-		}
-		if ($this->option_bool("debug_route")) {
-			$this->logger->debug("Matched route {class} Pattern: \"{clean_pattern}\" {options}", $this->route->variables());
-		}
-		$this->call_hook("router_matched", $router, $this->route);
-		$router->execute($this->request);
-		$this->call_hook('router_postprocess', $router);
 	}
 
 	/**
@@ -1092,24 +1035,39 @@ class Application extends Hookable implements Interface_Theme {
 	 * - Execute it
 	 * - Render response
 	 */
-	public function main() {
-		$this->call_hook("main");
-
+	public function main(Request $request) {
+		$this->request = $request;
+		$this->call_hook("main", $request);
 		$this->variables = array();
-
-		if (($router = $this->router()) !== null) {
-			try {
-				$this->logger->debug("App bootstrap took {seconds} seconds", array(
-					"seconds" => sprintf("%.3f", microtime(true) - $this->kernel->initialization_time)
-				));
-				$this->_main_route($router);
-			} catch (Exception $exception) {
-				$this->_main_exception($exception);
+		try {
+			$router = $this->router();
+			$this->logger->debug("App bootstrap took {seconds} seconds", array(
+				"seconds" => sprintf("%.3f", microtime(true) - $this->kernel->initialization_time)
+			));
+			$this->call_hook("router_prematch", $router, $request);
+			$route = $router->match($request);
+			$this->_templates_initialize(array(
+				"router" => $router,
+				"route" => $route,
+				"reqeust" => $request
+			));
+			if (!$route) {
+				$this->call_hook("router_no_match", $request, $router);
+				throw new Exception_NotFound("The resource does not exist on this server: {url}", $request->url_variables());
 			}
-			$this->response->output();
-		} else if ($this->response) {
-			$this->response->output();
+			if ($this->option_bool("debug_route")) {
+				$this->logger->debug("Matched route {class} Pattern: \"{clean_pattern}\" {options}", $route->variables());
+			}
+			$new_route = $this->call_hook("router_matched", $request, $router, $route);
+			if ($new_route instanceof Route) {
+				$route = $new_route;
+			}
+			$response = $route->execute($request);
+		} catch (\Exception $exception) {
+			$response = $this->_main_exception($request, $exception);
 		}
+		$this->request = null;
+		return $response;
 	}
 
 	/**
@@ -1123,39 +1081,22 @@ class Application extends Hookable implements Interface_Theme {
 		$this->call_hook("content");
 
 		$router = $this->router();
-		$old_request = $this->request;
-		$old_response = $this->response;
-		$old_route = $router->route;
-
-		if ($old_request) {
-			$url = $old_request->url();
-		} else {
-			$url = "http://localhost/";
-		}
+		$url = "http://localhost/";
 		$url = rtrim(URL::left_host($url), "/") . $path;
-		$this->request = new Request($this);
-		$this->request->initialize_from_settings(array(
+		$request = new Request($this);
+		$request->initialize_from_settings(array(
 			"url" => $url,
 			"method" => Net_HTTP::Method_GET,
 			"data" => "",
 			"variables" => URL::query_parse_url($path)
 		));
-		$this->response = Response::factory($this);
-
+		$response = $this->main($request);
 		ob_start();
-		$this->_main_route($this->router->reset());
-		$this->response->output(array(
+		$response->output(array(
 			"skip-headers" => true
 		));
 		$content = ob_get_clean();
-
-		$this->router->route = $old_route;
-		$this->route = $old_route;
-		$this->request = $old_request;
-		$this->response = $old_response;
-
 		unset($this->content_recursion[$path]);
-
 		return $content;
 	}
 
@@ -1197,15 +1138,16 @@ class Application extends Hookable implements Interface_Theme {
 
 	/**
 	 * Utility for index.php file for all public-served content.
+	 *
+	 * @todo make this more Response-centric and less content-centric
 	 */
 	public function index() {
 		$final_map = array();
 
-		$request = $this->request();
-		if (($content = Response::cached($this->cache, $request->url())) === null) {
-			ob_start();
-			$this->main();
-			$content = ob_get_clean();
+		$request = $this->request_factory();
+		$this->call_hook("request", $request);
+		if (($response = Response::cached($this->cache, $url = $request->url())) === null) {
+			$response = $this->main($request);
 			$final_map['{page-is-cached}'] = '0';
 		} else {
 			$this->hooks->unhook('exit');
@@ -1214,16 +1156,17 @@ class Application extends Hookable implements Interface_Theme {
 		$final_map += array(
 			"{page-render-time}" => sprintf("%.3f", microtime(true) - $this->kernel->initialization_time)
 		);
-		if ($this->response) {
-			$this->response->cache_save($content);
+		if ($response) {
+			$response->cache_save($this->cache, $url);
 		}
-		if (!$this->response || $this->response->is_content_type(array(
+		if (!$response || $response->is_content_type(array(
 			"text/",
 			"javascript"
 		))) {
-			$content = strtr($content, $final_map);
+			$response->content = strtr($response->content, $final_map);
 		}
-		echo $content;
+		$response->output();
+		return $response;
 	}
 
 	/**
@@ -1233,11 +1176,7 @@ class Application extends Hookable implements Interface_Theme {
 	 */
 	public function variables() {
 		$parameters['application'] = $this;
-		$parameters['request'] = $request = $this->request;
-		$parameters['response'] = $this->response;
 		$parameters['router'] = $this->router;
-		$parameters['route'] = $this->route;
-		$parameters['url'] = $request ? $this->request->url() : null;
 		return $parameters;
 	}
 
@@ -1920,37 +1859,21 @@ class Application extends Hookable implements Interface_Theme {
 	 * @throws Exception_NotFound
 	 * @return \zesk\Interface_Session|NULL
 	 */
-	public function session($require = true) {
-		if ($this->session) {
-			return $this->session;
+	public function session(Request $request, $require = true) {
+		if ($request->has_option(__METHOD__)) {
+			return $request->option(__METHOD__);
 		}
-		$this->session = $this->session_factory();
-		if (!$this->session instanceof Interface_Session) {
-			if ($require) {
-				throw new Exception_NotFound("No session");
-			}
-			return null;
-		}
-		return $this->session;
+		$session = $this->session_factory()->initialize_session($request);
+		$request->set_option(__METHOD__, $session);
+		return $session;
 	}
 
 	/**
 	 *
 	 * @return User
 	 */
-	public function user($require = true) {
-		$user_class = $this->objects->resolve(User::class);
-		if ($this->user instanceof $user_class) {
-			return $this->user;
-		}
-		try {
-			return $this->user = $this->session()->user();
-		} catch (\Exception $e) {
-			if ($require) {
-				throw $e;
-			}
-		}
-		return $this->user = null;
+	public function user(Request $request, $require = true) {
+		return $this->session($request, $require)->user();
 	}
 
 	/**
@@ -1973,17 +1896,6 @@ class Application extends Hookable implements Interface_Theme {
 	public function console($set = null) {
 		return $this->kernel->console($set);
 	}
-	/**
-	 *
-	 * @deprecated 2017-12
-	 * @param string $uri
-	 * @return string
-	 */
-	public function url($uri) {
-		$this->deprecated();
-		// TODO Remove this
-		return $uri;
-	}
 
 	/**
 	 *
@@ -1991,6 +1903,14 @@ class Application extends Hookable implements Interface_Theme {
 	 */
 	final public function initialization_time() {
 		return $this->kernel->initialization_time;
+	}
+
+	/**
+	 *
+	 * @return string
+	 */
+	final public function kernel_copyright_holder() {
+		return $this->kernel->copyright_holder();
 	}
 
 	/**
@@ -2361,6 +2281,18 @@ class Application extends Hookable implements Interface_Theme {
 	final public function zesk_root($suffix = null) {
 		zesk()->deprecated();
 		return $this->zesk_home($suffix);
+	}
+
+	/**
+	 *
+	 * @deprecated 2017-12
+	 * @param string $uri
+	 * @return string
+	 */
+	public function url($uri) {
+		$this->deprecated();
+		// TODO Remove this
+		return $uri;
 	}
 }
 

@@ -10,40 +10,40 @@
 namespace zesk;
 
 /**
- * 
+ *
  * @author kent
  */
 abstract class Controller_Theme extends Controller {
-	
+
 	/**
 	 * @deprecated 2017-11 Is here so shows up in child classes
-	 * @var unknown
+	 * @var string
 	 */
 	protected $template = null;
-	
+
 	/**
-	 * 
+	 *
 	 * @var string
 	 */
 	protected $theme = null;
 	/**
-	 * 
+	 *
 	 * @var string
 	 */
 	const DEFAULT_THEME = 'body/default';
 	/**
-	 * 
+	 *
 	 * @var boolean
 	 */
 	private $auto_render = true;
-	
+
 	/**
 	 * zesk\Template variables to pass
 	 *
 	 * @var array
 	 */
 	protected $variables = array();
-	
+
 	/**
 	 * Create a new Controller_Template
 	 *
@@ -61,8 +61,11 @@ abstract class Controller_Theme extends Controller {
 			$this->theme = $this->option('theme');
 		}
 		$this->auto_render = $this->option_bool('auto_render', $this->auto_render);
+		if (!$this->response->content_type()) {
+			$this->response->content_type(Response::CONTENT_TYPE_HTML);
+		}
 	}
-	
+
 	/**
 	 * Get/set auto render value
 	 *
@@ -79,7 +82,7 @@ abstract class Controller_Theme extends Controller {
 		}
 		return $this->auto_render;
 	}
-	
+
 	/**
 	 * (non-PHPdoc)
 	 * @see Controller::json()
@@ -89,7 +92,7 @@ abstract class Controller_Theme extends Controller {
 		$this->call_hook("json", $mixed);
 		return parent::json($mixed);
 	}
-	
+
 	/**
 	 * (non-PHPdoc)
 	 * @see Controller::error()
@@ -98,7 +101,7 @@ abstract class Controller_Theme extends Controller {
 		$this->auto_render(false);
 		parent::error($code, $message);
 	}
-	
+
 	/**
 	 * (non-PHPdoc)
 	 * @see Controller::before()
@@ -106,7 +109,7 @@ abstract class Controller_Theme extends Controller {
 	public function before() {
 		if ($this->auto_render) {
 			if ($this->route->option("json")) {
-				$this->response->content_type(Response::content_type_json);
+				$this->response->content_type(Response::CONTENT_TYPE_JSON);
 			}
 			if ($this->theme === null) {
 				$this->theme = $this->call_hook('theme');
@@ -116,7 +119,7 @@ abstract class Controller_Theme extends Controller {
 			}
 		}
 	}
-	
+
 	/**
 	 *
 	 * @param Exception $e
@@ -128,14 +131,14 @@ abstract class Controller_Theme extends Controller {
 			) + Exception::exception_variables($e));
 		}
 	}
-	
+
 	/**
 	 * (non-PHPdoc)
 	 * @see Controller::after()
 	 */
 	public function after($result = null, $output = null) {
 		if ($this->auto_render && $this->theme) {
-			if ($this->response->json()) {
+			if ($this->response->is_json()) {
 				$this->auto_render(false);
 			} else {
 				$content = null;
@@ -150,7 +153,7 @@ abstract class Controller_Theme extends Controller {
 			}
 		}
 	}
-	
+
 	/**
 	 * (non-PHPdoc)
 	 * @see Controller::variables()
@@ -160,10 +163,10 @@ abstract class Controller_Theme extends Controller {
 			'theme' => $this->theme
 		) + parent::variables() + $this->variables;
 	}
-	
+
 	/**
 	 * TODO Clean this up
-	 * 
+	 *
 	 * @param Control $control
 	 * @param Model $object
 	 * @param array $options
@@ -173,7 +176,7 @@ abstract class Controller_Theme extends Controller {
 		$this->call_hook(avalue($options, "hook_execute", "control_execute"), $control, $object, $options);
 		$title = $control->option('title', avalue($options, 'title'));
 		$this->response->title($title, false); // Do not overwrite existing values
-		if ($this->response->json()) {
+		if ($this->response->is_json()) {
 			return null;
 		}
 		$ajax = $this->request->is_ajax();
@@ -185,9 +188,9 @@ abstract class Controller_Theme extends Controller {
 				'result' => $status, // Deprecated
 				'content' => $content,
 				'message' => array_values($control->children_errors())
-			) + $this->response->to_json());
+			) + $this->response->html()->to_json());
 			return null;
-		} else if ($this->response->content_type === "text/html") {
+		} else if ($this->response->is_html()) {
 			return $content;
 		} else {
 			$this->auto_render(false);

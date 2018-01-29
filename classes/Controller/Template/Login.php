@@ -14,42 +14,42 @@ namespace zesk;
  *
  */
 class Controller_Template_Login extends Controller_Template {
-	
+
 	/**
 	 * Page to redirect to if not logged in
 	 *
 	 * @var string
 	 */
 	protected $login_redirect = null;
-	
+
 	/**
 	 * Message to display when user not logged in (after redirect)
 	 *
 	 * @var string
 	 */
 	protected $login_redirect_message = null;
-	
+
 	/**
 	 * Current logged in user
 	 *
 	 * @var User
 	 */
 	public $user = null;
-	
+
 	/**
 	 * Current user account
 	 *
 	 * @var Account
 	 */
 	public $account = null;
-	
+
 	/**
 	 * Current session
 	 *
 	 * @var Interface_Session
 	 */
 	public $session = null;
-	
+
 	/**
 	 * Constructor
 	 *
@@ -59,14 +59,14 @@ class Controller_Template_Login extends Controller_Template {
 	protected function initialize() {
 		$this->session = $this->application->session(false);
 		$this->user = $this->application->user(false);
-		
+
 		if ($this->login_redirect === null) {
 			$this->login_redirect = $this->router ? $this->router->get_route("login", "zesk\\User") : null;
 			if (!$this->login_redirect) {
 				$this->login_redirect = '/login';
 			}
 		}
-		
+
 		if ($this->login_redirect_message === null) {
 			$this->login_redirect_message = __($this->option('login_redirect_message', 'Please log in first.'));
 		}
@@ -79,17 +79,17 @@ class Controller_Template_Login extends Controller_Template {
 		}
 		parent::before();
 	}
-	
+
 	/**
 	 * If not logged in, redirect
 	 */
 	protected function login_redirect() {
-		if (!$this->user || !$this->user->authenticated()) {
+		if (!$this->user || !$this->user->authenticated($this->request)) {
 			$url = URL::add_ref($this->login_redirect, $this->request->uri());
 			$this->response->redirect($url, __($this->login_redirect_message));
 		}
 	}
-	
+
 	/**
 	 * Variables for a template
 	 *

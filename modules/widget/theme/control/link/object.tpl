@@ -8,7 +8,7 @@ namespace zesk;
 /* @var $router \zesk\Router */
 /* @var $route \zesk\Route */
 /* @var $request \zesk\Request */
-/* @var $response \zesk\Response_Text_HTML */
+/* @var $response \zesk\Response */
 /* @var $current_user \User */
 
 /* @var $link_widget Widget */
@@ -67,7 +67,7 @@ for ($i = 0; $i < $n_extras; $i++) {
 echo HTML::tag_close('div');
 
 if ($widget->option_bool("show_more", true)) {
-	$this->response->jquery('$(".control-link-object button.more").on("click", function () {
+	$response->jquery('$(".control-link-object button.more").on("click", function () {
 		var $parent = $(this).parents(".control-link-object"),
 		$tpl = $("#"+$parent.data("template")).html();
 		$(".links", $parent).append($tpl);

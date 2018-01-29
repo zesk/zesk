@@ -28,7 +28,7 @@ class Application_Server extends Application {
 		$this->zesk_command_path(path($this->modules->path("server"), "command"));
 		$this->set_document_root("site");
 	}
-	public function hook_head(Request $request, Response_Text_HTML $response, Template $template) {
+	public function hook_head(Request $request, Response $response, Template $template) {
 		$response->css("/css/server.css", array(
 			"root_dir" => $this->document_root()
 		));

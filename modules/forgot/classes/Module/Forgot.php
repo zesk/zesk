@@ -32,7 +32,7 @@ class Module_Forgot extends Module implements Interface_Module_Routes {
 	 */
 	public function initialize() {
 		parent::initialize();
-		$this->zesk->configuration->path("zesk\\Forgot")->theme_path_prefix = "object";
+		$this->application->configuration->path(Forgot::class)->theme_path_prefix = "object";
 	}
 
 	/**
@@ -42,9 +42,9 @@ class Module_Forgot extends Module implements Interface_Module_Routes {
 	 */
 	public function hook_routes(Router $router) {
 		$router->add_route("forgot(/{option action}(/{hash}))", array(
-			"controller" => "zesk\\Controller_Forgot",
+			"controller" => Controller_Forgot::class,
 			"classes" => array(
-				"zesk\\Forgot"
+				Forgot::class
 			),
 			"arguments" => array(
 				2

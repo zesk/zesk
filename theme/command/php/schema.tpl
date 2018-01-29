@@ -10,7 +10,7 @@ namespace zesk;
 /* @var $session \zesk\Session */
 /* @var $router \zesk\Router */
 /* @var $request \zesk\Request */
-/* @var $response \zesk\Response_Text_HTML */
+/* @var $response \zesk\Response */
 $configuration = $application->configuration;
 
 echo "<?php\n";

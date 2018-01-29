@@ -11,14 +11,11 @@ namespace zesk;
 /* @var $router \zesk\Router */
 /* @var $route \zesk\Route */
 /* @var $request \zesk\Request */
-/* @var $response \zesk\Response_Text_HTML */
+/* @var $response \zesk\Response */
 /* @var $current_user \zesk\User */
 $widget = $this->widget;
 /* @var $widget Widget */
 $response = $this->response;
-if (!$response) {
-	$response = $application->response();
-}
 
 $name = $widget->column();
 $value = $this->value;

@@ -10,7 +10,7 @@ namespace zesk;
 /* @var $session \zesk\Session */
 /* @var $router \zesk\Router */
 /* @var $request \zesk\Request */
-/* @var $response \zesk\Response_Text_HTML */
+/* @var $response \zesk\Response */
 $cache_path = $application->cache_path("vlabels");
 
 $allowed_vlabel_fields = $this->get('vlabel_allowed_options', 'font-size;width;height;align;angle;title;text');

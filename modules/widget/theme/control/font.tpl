@@ -13,7 +13,7 @@ echo HTML::div(array(
 	'class' => 'control-font-sample-text'
 ), $this->get('sample_text', __('The quick brown fox jumped over the lazy dog.')));
 
-/* @var $response zesk\Response_Text_HTML */
+/* @var $response zesk\Response */
 $response = $this->response;
 
 $target = "#$id-sample";
