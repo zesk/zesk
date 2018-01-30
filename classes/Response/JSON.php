@@ -43,6 +43,12 @@ class JSON extends Type {
 		}
 		return $this->json;
 	}
+
+	/**
+	 *
+	 * {@inheritDoc}
+	 * @see \zesk\Response\Type::render()
+	 */
 	function render($content) {
 		if (is_array($content)) {
 			$this->json = $content;
@@ -50,5 +56,14 @@ class JSON extends Type {
 			$this->json['content'] = $content;
 		}
 		return $this->application->development() ? zeskJSON::encode_pretty($this->json) : json_encode($this->json);
+	}
+
+	/**
+	 *
+	 * {@inheritDoc}
+	 * @see \zesk\Response\Type::output()
+	 */
+	function output($content) {
+		echo $this->render($content);
 	}
 }

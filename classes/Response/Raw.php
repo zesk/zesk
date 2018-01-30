@@ -39,21 +39,16 @@ class Raw extends Type {
 	/**
 	 *
 	 * {@inheritDoc}
-	 * @see \zesk\Response\Type::render()
-	 */
-	function render($content) {
-		ignore_user_abort(1);
-		ini_set("max_execution_time", 5000 /* seconds */);
-		return $content;
-	}
-
-	/**
-	 *
-	 * {@inheritDoc}
 	 * @see \zesk\Response\Type::passthru()
 	 */
-	function passthru($content) {
-		echo $this->render($content);
+	function output($content) {
+		if ($this->file) {
+			$fp = fopen($this->file, "r");
+			fpassthru($fp);
+			fclose($fp);
+		} else {
+			echo $content;
+		}
 	}
 	/**
 	 *
@@ -65,6 +60,7 @@ class Raw extends Type {
 		if (!file_exists($file)) {
 			throw new Exception_File_NotFound($file);
 		}
+		$this->parent->output_handler(Response::CONTENT_TYPE_RAW);
 		$this->file = $file;
 		return $this->parent;
 	}

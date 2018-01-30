@@ -102,6 +102,9 @@ class Route_Method extends Route {
 				"e" => $e
 			));
 		}
+		if ($content instanceof Response) {
+			return $content;
+		}
 		$buffer = ob_get_clean();
 		if ($response->content !== null) {
 			return;

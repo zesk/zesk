@@ -1042,7 +1042,7 @@ class Application extends Hookable implements Interface_Theme {
 			$this->_templates_initialize(array(
 				"router" => $router,
 				"route" => $route,
-				"reqeust" => $request
+				"request" => $request
 			));
 			if (!$route) {
 				$this->call_hook("router_no_match", $request, $router);
@@ -1086,7 +1086,7 @@ class Application extends Hookable implements Interface_Theme {
 		$response = $this->main($request);
 		ob_start();
 		$response->output(array(
-			"skip-headers" => true
+			"skip_headers" => true
 		));
 		$content = ob_get_clean();
 		unset($this->content_recursion[$path]);
@@ -1132,33 +1132,33 @@ class Application extends Hookable implements Interface_Theme {
 	/**
 	 * Utility for index.php file for all public-served content.
 	 *
-	 * @todo make this more Response-centric and less content-centric
+	 * KMD 2018-01 Made this more Response-centric and less content-centric
 	 */
 	public function index() {
 		$final_map = array();
 
 		$request = $this->request_factory();
 		$this->call_hook("request", $request);
+		$options = array();
 		if (($response = Response::cached($this->cache, $url = $request->url())) === null) {
 			$response = $this->main($request);
+			$response->cache_save($this->cache, $url);
 			$final_map['{page-is-cached}'] = '0';
 		} else {
+			$options['skip_hooks'] = true;
 			$this->hooks->unhook('exit');
 			$final_map['{page-is-cached}'] = '1';
 		}
 		$final_map += array(
 			"{page-render-time}" => sprintf("%.3f", microtime(true) - $this->kernel->initialization_time)
 		);
-		if ($response) {
-			$response->cache_save($this->cache, $url);
-		}
 		if (!$response || $response->is_content_type(array(
 			"text/",
 			"javascript"
 		))) {
 			$response->content = strtr($response->content, $final_map);
 		}
-		$response->output();
+		$response->output($options);
 		return $response;
 	}
 
@@ -1399,8 +1399,8 @@ class Application extends Hookable implements Interface_Theme {
 
 	/**
 	 * Getter/setter for top theme variable
-	 * @param unknown $name
-	 * @param unknown $value
+	 * @param string|array|Traversable $name
+	 * @param mixed|null $value
 	 * @return mixed|self
 	 */
 	final public function theme_variable($name = null, $value = null) {
@@ -1409,6 +1409,12 @@ class Application extends Hookable implements Interface_Theme {
 		}
 		if ($value === null) {
 			return $this->template_stack->top()->get($name);
+		}
+		if (can_iterate($name)) {
+			foreach ($name as $k => $v) {
+				$this->theme_variable($k, $v);
+			}
+			return $this;
 		}
 		$this->template_stack->top()->set($name, $value);
 		return $this;

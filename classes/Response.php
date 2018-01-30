@@ -25,6 +25,18 @@ use zesk\Logger\Handler;
  */
 class Response extends Hookable {
 	/**
+	 *
+	 * @var array
+	 */
+	private static $type_classes = array(
+		self::CONTENT_TYPE_HTML => HTMLResponse::class,
+		self::CONTENT_TYPE_JSON => JSON::class,
+		self::CONTENT_TYPE_PLAINTEXT => Text::class,
+		self::CONTENT_TYPE_RAW => Raw::class,
+		self::HANDLER_REDIRECT => Redirect::class
+	);
+
+	/**
 	 * @var string
 	 */
 	const CONTENT_TYPE_JSON = "application/json";
@@ -140,17 +152,6 @@ class Response extends Hookable {
 
 	/**
 	 *
-	 * @var array
-	 */
-	static $type_classes = array(
-		self::CONTENT_TYPE_HTML => HTMLResponse::class,
-		self::CONTENT_TYPE_JSON => JSON::class,
-		self::CONTENT_TYPE_PLAINTEXT => Text::class,
-		self::CONTENT_TYPE_RAW => Raw::class,
-		self::HANDLER_REDIRECT => Redirect::class
-	);
-	/**
-	 *
 	 * @var zesk\Response\Type[]
 	 */
 	protected $types = array();
@@ -171,16 +172,6 @@ class Response extends Hookable {
 	protected $response_data = array();
 
 	/**
-	 * Map of low-header to properly cased headers
-	 * @todo This exists in Net_HTTP I think -KMD 2018-01
-	 *
-	 * @var array
-	 */
-	protected $headers_cased = array(
-		'content-disposition' => "Content-Disposition"
-	);
-
-	/**
 	 * ID counter for rendering things on the page which should have unique IDs
 	 *
 	 * @var integer
@@ -193,6 +184,25 @@ class Response extends Hookable {
 	 * @var boolean
 	 */
 	private $rendering = false;
+
+	/**
+	 *
+	 * {@inheritDoc}
+	 * @see \zesk\Options::__sleep()
+	 */
+	public function __sleep() {
+		return array_merge(parent::__sleep(), array(
+			"content",
+			"status_code",
+			"status_message",
+			"content_type",
+			"output_handler",
+			"charset",
+			"types",
+			"headers",
+			"response_data"
+		));
+	}
 
 	/**
 	 * Handle deprecated configuration
@@ -318,10 +328,13 @@ class Response extends Hookable {
 	 *
 	 * @throws Exception_Semantics
 	 */
-	private function response_headers() {
+	private function response_headers($skip_hooks = false) {
 		static $called = false;
 
-		$this->call_hook('headers_before');
+		$do_hooks = !$skip_hooks;
+		if ($do_hooks) {
+			$this->call_hook('headers_before');
+		}
 		if ($this->option_bool("skip_response_headers")) {
 			return;
 		}
@@ -339,7 +352,9 @@ class Response extends Hookable {
 				"line" => $line
 			));
 		}
-		$this->call_hook("headers");
+		if ($do_hooks) {
+			$this->call_hook("headers");
+		}
 		if (begins($this->content_type, "text/")) {
 			if (empty($this->charset)) {
 				$this->charset = "utf-8";
@@ -374,22 +389,6 @@ class Response extends Hookable {
 				$this->_header("$name: $value");
 			}
 		}
-	}
-
-	/**
-	 * If ref is passed in by request, redirect to that location, otherwise, redirect to passed in
-	 * URL
-	 *
-	 * @param string $url
-	 * @param string $message
-	 *        	Already-localized message to display to user on redirected page
-	 */
-	function redirect_default($url, $message = null) {
-		$ref = $this->request->get("ref", "");
-		if ($ref != "") {
-			$url = $ref;
-		}
-		$this->redirect($url, $message);
 	}
 
 	/**
@@ -504,14 +503,7 @@ class Response extends Hookable {
 			$this->content_type($value);
 			return $this;
 		}
-		if (!array_key_exists($lowname, $this->headers_cased)) {
-			if ($value === null) {
-				return null;
-			}
-			$this->headers_cased[$lowname] = $name;
-		} else {
-			$name = $this->headers_cased[$lowname];
-		}
+		$name = avalue(Net_HTTP::$response_headers, $lowname, $name);
 		if ($value === null) {
 			return avalue($this->headers, $name);
 		}
@@ -545,7 +537,7 @@ class Response extends Hookable {
 	 */
 	final function render(array $options = array()) {
 		ob_start();
-		$this->output_content($options);
+		$this->output($options);
 		return ob_get_clean();
 	}
 
@@ -559,12 +551,17 @@ class Response extends Hookable {
 			return;
 		}
 		$this->rendering = true;
-		if (!avalue($options, 'skip-headers')) {
-			$this->response_headers();
+		$skip_hooks = to_bool(avalue($options, "skip_hooks"));
+		if (!avalue($options, 'skip_headers')) {
+			$this->response_headers($skip_hooks);
 		}
-		$this->call_hook("output");
+		if (!$skip_hooks) {
+			$this->call_hook("output");
+		}
 		$this->_output_handler()->output($this->content);
-		$this->call_hook("outputted");
+		if (!$skip_hooks) {
+			$this->call_hook("outputted");
+		}
 		$this->rendering = false;
 	}
 
@@ -689,21 +686,30 @@ class Response extends Hookable {
 		$pattern = avalue(self::$cache_pattern, $level, self::$cache_pattern[self::CACHE_SCHEME]);
 
 		$item = self::fetch_cache_id($pool, map($pattern, $parts));
-		$response = new Response($this->application);
+		$response = $this->application->response_factory($this->request);
 		$response->output_handler(Response::CONTENT_TYPE_RAW);
 		$response->content_type($this->content_type());
 		$response->header($this->header());
-		$response->content = $this->content;
+		$response->content = $this->render(array(
+			"skip_headers" => true
+		));
 
-		$value->headers = $headers;
-		$value->content = $content;
 		if ($seconds !== null) {
-			$expires = time() + $seconds;
+			$item->expiresAfter($seconds);
 		}
-		if ($expires !== null) {
-			$item->expiresAfter($expires);
+		if ($expires) {
+			if ($expires instanceof \DateTimeInterface) {
+				$item->expiresAt($expires);
+			} else if ($expires instanceof Timestamp) {
+				$item->expiresAt($expires->datetime());
+			} else {
+				$this->application->logger->error("{method} expires is unhandled type: {type}", array(
+					"method" => __METHOD__,
+					"type" => type($expires)
+				));
+			}
 		}
-		$this->application->cache->save($item->set($value));
+		$this->application->cache->save($item->set($response));
 		return true;
 	}
 
@@ -747,7 +753,7 @@ class Response extends Hookable {
 		if (isset($this->types[$type])) {
 			return $this->types[$type];
 		}
-		if (!isset($type, self::$type_classes)) {
+		if (!isset(self::$type_classes[$type])) {
 			return $this->_type(self::CONTENT_TYPE_RAW);
 		}
 		return $this->types[$type] = $this->application->factory(self::$type_classes[$type], $this);
@@ -939,6 +945,16 @@ class Response extends Hookable {
 	 * Raw-related
 	 */
 	/**
+	 * Fetch JSON handler
+	 *
+	 * @param string $set
+	 * @return Raw
+	 */
+	final public function raw() {
+		return $this->_type(self::CONTENT_TYPE_RAW);
+	}
+
+	/**
 	 * Output a file
 	 *
 	 * @param unknown $file
@@ -987,12 +1003,28 @@ class Response extends Hookable {
 	final public function redirect($url = null, $message = null) {
 		if ($url) {
 			$this->application->deprecated("[method} support for URL and message is deprecated 2018-01", array(
-				"method" => $method
+				"method" => __METHOD__
 			));
 			return $this->redirect()->url($url, $message);
 		}
 		$this->output_handler(self::HANDLER_REDIRECT);
 		return $this->_type(self::HANDLER_REDIRECT);
+	}
+
+	/**
+	 * If ref is passed in by request, redirect to that location, otherwise, redirect to passed in
+	 * URL
+	 *
+	 * @param string $url
+	 * @param string $message
+	 *        	Already-localized message to display to user on redirected page
+	 */
+	function redirect_default($url, $message = null) {
+		$ref = $this->request->get("ref", "");
+		if (!empty($ref)) {
+			$url = $ref;
+		}
+		$this->redirect()->url($url, $message);
 	}
 
 	/**

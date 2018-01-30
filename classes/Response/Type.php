@@ -35,17 +35,18 @@ abstract class Type extends Hookable {
 
 	/**
 	 *
-	 * @param mixed $content
-	 * @return string
+	 * @param unknown $content
+	 * @return boolean
 	 */
-	abstract public function render($content);
-
+	public function render($content) {
+		ob_start();
+		$this->output($content);
+		return ob_end_clean();
+	}
 	/**
 	 * Outputs to stdout the content
 	 * @param mixed $content
 	 * @return void
 	 */
-	public function output($content) {
-		echo $this->render($content);
-	}
+	abstract public function output($content);
 }

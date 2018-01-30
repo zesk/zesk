@@ -77,7 +77,14 @@ class Redirect extends Type {
 	public function render($content) {
 		return $this->parent->html()->render($content);
 	}
-
+	/**
+	 *
+	 * {@inheritDoc}
+	 * @see \zesk\Response\Type::output()
+	 */
+	public function output($content) {
+		echo $this->render($content);
+	}
 	/**
 	 *
 	 * @param string $url

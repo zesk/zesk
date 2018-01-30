@@ -35,6 +35,13 @@ abstract class Locale extends Hookable {
 	private $locale_phrases = array();
 
 	/**
+	 * Used only when $this->auto is true
+	 *
+	 * @var array
+	 */
+	private $locale_phrase_context = null;
+
+	/**
 	 * The locale string, e.g. "en_US", etc.
 	 * @var string
 	 */
@@ -228,7 +235,7 @@ abstract class Locale extends Hookable {
 		$key_phrase = $this->find($phrase);
 		if ($key_phrase === null) {
 			if ($this->auto) {
-				$this->locale_phrases[$phrase] = time();
+				$this->auto_add_phrase($phrase);
 			}
 			$translated = StringTools::right($phrase, ":=");
 			$translated = map($translated, $arguments);
@@ -240,6 +247,20 @@ abstract class Locale extends Hookable {
 			}
 		}
 		return $translated;
+	}
+
+	/**
+	 *
+	 * @param string $phrase
+	 */
+	private function auto_add_phrase($phrase) {
+		$this->locale_phrases[$phrase] = time();
+		if (!$this->locale_phrase_context) {
+			$request = $this->application->request();
+			if ($request) {
+				$this->locale_phrase_context = $request->url();
+			}
+		}
 	}
 
 	/**
@@ -417,7 +438,7 @@ abstract class Locale extends Hookable {
 		}
 		$result = $this->noun_semantic_plural($noun, $number);
 		if ($this->auto) {
-			$this->locale_phrases[$k] = $result;
+			$this->auto_add_phrase($k);
 		}
 		return $result;
 	}
@@ -613,7 +634,7 @@ abstract class Locale extends Hookable {
 			return;
 		}
 		$writer = new Writer($this->application, path($path, $this->id() . "-auto.php"));
-		$writer->append($this->locale_phrases);
+		$writer->append($this->locale_phrases, $this->locale_phrase_context);
 	}
 
 	/**

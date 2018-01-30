@@ -397,6 +397,14 @@ class Timestamp extends Temporal {
 		}
 		return $this->datetime;
 	}
+	/**
+	 * Retrieve the DateTime
+	 *
+	 * @return DateTime
+	 */
+	public function datetime() {
+		return $this->datetime;
+	}
 	function unix_timestamp($set = null) {
 		if ($set !== null) {
 			// 03:14:08 UTC on 19 January 2038 is MAX time using 32-bit integers

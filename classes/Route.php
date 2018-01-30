@@ -744,7 +744,10 @@ abstract class Route extends Hookable {
 			"response" => $response,
 			"route" => $this
 		))->push();
-		$this->_execute($response);
+		$exec_response = $this->_execute($response);
+		if ($exec_response instanceof Response) {
+			$response = $exec_response;
+		}
 		$this->_after($response);
 		$this->_unmap_options();
 		$template->pop();

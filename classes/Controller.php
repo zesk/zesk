@@ -75,14 +75,14 @@ class Controller extends Hookable implements Interface_Theme {
 	 * @param Response $response
 	 * @param array $options
 	 */
-	final public function __construct(Application $app, Route $route, Response $response = null, array $options = array()) {
+	final public function __construct(Application $app, Route $route = null, Response $response = null, array $options = array()) {
 		parent::__construct($app, $options);
 
 		$this->inherit_global_options();
 
 		$this->router = $app->router;
 		$this->route = $route;
-		$this->request = $route->request();
+		$this->request = $route ? $route->request() : null;
 		$this->response = $response;
 
 		$this->initialize();
@@ -129,6 +129,13 @@ class Controller extends Hookable implements Interface_Theme {
 
 	/**
 	 * Stub for override - initialize the controller - called after __construct is done but before hook_initialize
+	 * Note that:
+	 * <code>
+	 * $this->request
+	 * $this->route
+	 * $this->response
+	 * </code>
+	 * May all possibly be NULL upon this function called.
 	 */
 	protected function initialize() {
 	}
@@ -139,7 +146,7 @@ class Controller extends Hookable implements Interface_Theme {
 	 * @param Request $set
 	 * @return Controller|Request
 	 */
-	protected function request(Request $set = null) {
+	public function request(Request $set = null) {
 		if ($set) {
 			$this->request = $set;
 			return $this;

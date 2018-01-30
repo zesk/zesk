@@ -513,6 +513,14 @@ class HTML extends Type {
 	}
 
 	/**
+	 *
+	 * {@inheritDoc}
+	 * @see \zesk\Response\Type::output()
+	 */
+	public function output($content) {
+		echo $this->render($content);
+	}
+	/**
 	 * Convert Response to a JSON object for client-side rendering
 	 *
 	 * Returns an array containing:

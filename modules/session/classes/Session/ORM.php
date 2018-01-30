@@ -246,7 +246,7 @@ class Session_ORM extends ORM implements Interface_Session {
 		$this->set_member('expires', $expires);
 		$this->set_member('ip', $request->ip());
 		$this->set_member('data', to_array($this->data) + array(
-			'uri' => $application->request()->uri()
+			'uri' => $request->uri()
 		));
 		$cookie_options = $this->cookie_options();
 		$application->hooks->add(Response::class . "::headers", function (Response $response) use ($cookie_name, $cookie_value, $cookie_options) {

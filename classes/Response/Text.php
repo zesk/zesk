@@ -14,7 +14,7 @@ class Text extends Response {
 	function render($content) {
 		return $content;
 	}
-	function passthru($content) {
+	function output($content) {
 		echo $this->render($content);
 	}
 }
