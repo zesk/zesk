@@ -20,7 +20,7 @@ class Objects {
 	 *
 	 * @var Interface_Settings
 	 */
-	private $settings = null;
+	public $settings = null;
 
 	/**
 	 *

@@ -61,6 +61,7 @@ class Raw extends Type {
 			throw new Exception_File_NotFound($file);
 		}
 		$this->parent->output_handler(Response::CONTENT_TYPE_RAW);
+		$this->parent->content_type(MIME::from_filename($file));
 		$this->file = $file;
 		return $this->parent;
 	}

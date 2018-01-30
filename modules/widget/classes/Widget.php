@@ -684,7 +684,7 @@ class Widget extends Hookable {
 	 * @return \zesk\Interface_Session
 	 */
 	function session($require = true) {
-		return $this->application()->session($require);
+		return $this->application()->session($this->request, $require);
 	}
 
 	/**
