@@ -7,7 +7,7 @@
 /* @var $router \zesk\Router */
 /* @var $route \zesk\Route */
 /* @var $request \zesk\Request */
-/* @var $response \zesk\Response_Text_HTML */
+/* @var $response \zesk\Response */
 
 /* @var $exception \zesk\Exception_Redirect */
 $response->redirect()->url($exception->url(), $exception->getMessage());
