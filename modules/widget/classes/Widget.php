@@ -2335,8 +2335,6 @@ class Widget extends Hookable {
 		if ($this->request->is_ajax()) {
 			$json = array(
 				"status" => $status,
-				"result-deprecated" => $status,
-				"result" => $status,
 				"message" => $message,
 				"redirect" => $url,
 				"object" => $this->object->json()

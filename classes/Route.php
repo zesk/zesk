@@ -101,24 +101,6 @@ abstract class Route extends Hookable {
 	protected $by_class = array();
 
 	/**
-	 * Retrieve variables associated with Route for debugging, etc.
-	 *
-	 * @return string[]
-	 */
-	function variables() {
-		return array(
-			"class" => get_class($this),
-			"original_pattern" => $this->original_pattern,
-			"clean_pattern" => $this->clean_pattern,
-			"pattern" => $this->pattern,
-			"methods" => array_keys($this->methods),
-			"types" => $this->types,
-			"url_args" => $this->url_args,
-			"named" => $this->named,
-			"options" => $this->options
-		);
-	}
-	/**
 	 * Return list of members to save upon sleep
 	 *
 	 * @see Options::__sleep()
@@ -135,6 +117,25 @@ abstract class Route extends Hookable {
 			"args",
 			"named"
 		));
+	}
+
+	/**
+	 * Retrieve variables associated with Route for debugging, etc.
+	 *
+	 * @return string[]
+	 */
+	function variables() {
+		return array(
+			"class" => get_class($this),
+			"original_pattern" => $this->original_pattern,
+			"clean_pattern" => $this->clean_pattern,
+			"pattern" => $this->pattern,
+			"methods" => array_keys($this->methods),
+			"types" => $this->types,
+			"url_args" => $this->url_args,
+			"named" => $this->named,
+			"options" => $this->options
+		);
 	}
 	function __wakeup() {
 		parent::__wakeup();

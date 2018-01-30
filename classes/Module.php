@@ -62,7 +62,8 @@ class Module extends Hookable {
 			"application_class",
 			"codename",
 			"path",
-			"classes"
+			"model_classes",
+			"class_aliases"
 		);
 	}
 

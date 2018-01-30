@@ -188,8 +188,6 @@ abstract class Controller_Theme extends Controller {
 			$this->json(array(
 				'title' => $title,
 				'status' => $status = $control->status(),
-				'result-deprecated' => $status, // Deprecated
-				'result' => $status, // Deprecated
 				'content' => $content,
 				'message' => array_values($control->children_errors())
 			) + $this->response->html()->to_json());

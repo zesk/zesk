@@ -26,6 +26,13 @@ use zesk\JSON as JSONTools;
  */
 class HTML extends Type {
 	/**
+	 * Page title
+	 *
+	 * @var string
+	 */
+	protected $title = "";
+
+	/**
 	 * head <link tags>
 	 *
 	 * @var array
@@ -131,6 +138,26 @@ class HTML extends Type {
 		$this->body_attributes = $response->option_array("body_attributes");
 
 		$this->page_theme = $response->option("page_theme", $this->page_theme);
+	}
+
+	/**
+	 * Set/get page title
+	 *
+	 * @param string $set
+	 * @param string $overwrite
+	 * @return string
+	 */
+	function title($set = null, $overwrite = true) {
+		if ($set !== null) {
+			if ($overwrite || $this->title === "") {
+				$this->title = (string) $set;
+				$this->application->logger->debug("Set title to \"$set\"");
+			} else {
+				$this->application->logger->debug("Failed to set title to \"$set\"");
+			}
+			return $this;
+		}
+		return $this->title;
 	}
 
 	/**
@@ -524,13 +551,13 @@ class HTML extends Type {
 				$head_tags[] = $tag;
 			}
 		}
-		return ArrayTools::clean(parent::to_json() + array(
+		return ArrayTools::clean($this->parent->to_json() + array(
 			'elapsed' => microtime(true) - $this->application->initialization_time(),
 			'scripts' => count($scripts) ? $scripts : null,
 			'stylesheets' => count($stylesheets) ? $stylesheets : null,
 			'head_tags' => count($head_tags) ? $head_tags : null,
 			'ready' => count($ready) ? $ready : null,
-			'title' => $this->title()
+			'title' => $this->parent->title()
 		), null);
 	}
 

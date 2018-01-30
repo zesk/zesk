@@ -156,13 +156,6 @@ class Response extends Hookable {
 	protected $types = array();
 
 	/**
-	 * Page title
-	 *
-	 * @var string
-	 */
-	protected $title = "";
-
-	/**
 	 * Headers.
 	 * Key is always properly cased header. Values may be multi-array or string.
 	 *
@@ -527,26 +520,6 @@ class Response extends Hookable {
 	}
 
 	/**
-	 * Set/get page title
-	 *
-	 * @param string $set
-	 * @param string $overwrite
-	 * @return string
-	 */
-	function title($set = null, $overwrite = true) {
-		if ($set !== null) {
-			if ($overwrite || $this->title === "") {
-				$this->title = (string) $set;
-				$this->application->logger->debug("Set title to \"$set\"");
-			} else {
-				$this->application->logger->debug("Failed to set title to \"$set\"");
-			}
-			return $this;
-		}
-		return $this->title;
-	}
-
-	/**
 	 * Current output handler
 	 *
 	 * @throws Exception_Semantics
@@ -791,6 +764,18 @@ class Response extends Hookable {
 	final public function html() {
 		return $this->_type(self::CONTENT_TYPE_HTML);
 	}
+
+	/**
+	 * Set/get page title
+	 *
+	 * @param string $set
+	 * @param string $overwrite
+	 * @return string
+	 */
+	function title($set = null, $overwrite = true) {
+		return $this->html()->title($set, $overwrite);
+	}
+
 	/**
 	 * Get/set body attributes
 	 *

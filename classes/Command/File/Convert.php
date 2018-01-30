@@ -78,9 +78,10 @@ abstract class Command_File_Convert extends Command_Base {
 		$this->verbose_log("Configuring using config file: " . $this->configuration_file);
 		$this->configure($this->configuration_file);
 		$app = $this->application;
+		$request = Request::factory($app);
 		$app->template->set(array(
-			"request" => $app->request(),
-			'response' => $app->response(),
+			"request" => $request,
+			'response' => $app->response_factory($request),
 			'stylesheets_inline' => true
 		));
 		if ($this->overwrite && $this->option_bool("no-clobber")) {

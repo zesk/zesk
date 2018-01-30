@@ -305,8 +305,6 @@ abstract class Controller_ORM extends Controller_Authenticated {
 			$this->response->json(array(
 				"message" => $message,
 				"status" => $result,
-				"result" => $result, // Deprecated
-				"result-deprecated" => $result, // Deprecated
 				"redirect_url" => $redirect_url
 			));
 			return;

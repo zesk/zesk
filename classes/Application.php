@@ -958,6 +958,7 @@ class Application extends Hookable implements Interface_Theme {
 	final private function _main_exception(Request $request, \Exception $exception) {
 		$response = $this->response_factory($request, Response::CONTENT_TYPE_HTML);
 		$response->content = $this->theme($this->classes->hierarchy($exception), array(
+			"response" => $response,
 			"exception" => $exception,
 			"content" => $exception
 		), array(
