@@ -353,7 +353,9 @@ class HTML extends Type {
 	 */
 	public function theme_variables() {
 		return array(
-			'page_theme' => $this->page_theme
+			'page_theme' => $this->page_theme,
+			'request' => $this->parent->request,
+			'response' => $this->parent
 		);
 	}
 

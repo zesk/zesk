@@ -22,6 +22,13 @@ abstract class Controller_Theme extends Controller {
 	protected $template = null;
 
 	/**
+	 * Default content type for Response generated upon instantiation.
+	 *
+	 * @var string
+	 */
+	protected $default_content_type = Response::CONTENT_TYPE_HTML;
+
+	/**
 	 *
 	 * @var string
 	 */
@@ -50,10 +57,10 @@ abstract class Controller_Theme extends Controller {
 	 * @param Application $app
 	 * @param array $options
 	 */
-	public function __construct(Application $app, array $options = array()) {
-		parent::__construct($app, $options);
+	protected function initialize() {
+		parent::initialize();
 		if ($this->has_option("template")) {
-			zesk()->deprecated("{class} is using option template - should not @deprecated 2017-11", array(
+			$this->application->deprecated("{class} is using option template - should not @deprecated 2017-11", array(
 				"class" => get_class($this)
 			));
 		}
@@ -61,9 +68,6 @@ abstract class Controller_Theme extends Controller {
 			$this->theme = $this->option('theme');
 		}
 		$this->auto_render = $this->option_bool('auto_render', $this->auto_render);
-		if (!$this->response->content_type()) {
-			$this->response->content_type(Response::CONTENT_TYPE_HTML);
-		}
 	}
 
 	/**

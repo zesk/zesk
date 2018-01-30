@@ -46,19 +46,6 @@ class Route_Controller extends Route {
 	public function __sleep() {
 		return array_merge(array(), parent::__sleep());
 	}
-	public function initialize() {
-		// To allow modules to set defaults in child controllers.
-		$app = $this->router->application;
-		$this->inherit_global_options();
-		foreach (to_list("controller prefix;controller prefixes") as $option) {
-			if ($this->has_option($option)) {
-				$app->deprecated(map("Option {option} in route {name} is deprecated 2017-02", array(
-					"option" => $option,
-					"name" => $this->clean_pattern
-				)));
-			}
-		}
-	}
 
 	/**
 	 *
@@ -78,7 +65,7 @@ class Route_Controller extends Route {
 	 *
 	 * @return multitype:Controller string
 	 */
-	private function _init_controller() {
+	private function _init_controller(Response $response = null) {
 		if ($this->controller instanceof Controller) {
 			return array(
 				$this->controller,
@@ -89,7 +76,7 @@ class Route_Controller extends Route {
 		list($class, $this->controller_action) = $this->_determine_class_action();
 
 		/* @var $controller Controller */
-		$this->controller = $class->newInstance($this->router->application, $this->option_array("controller options") + $this->options);
+		$this->controller = $class->newInstance($this->router->application, $this, $response, $this->option_array("controller options") + $this->options);
 
 		return array(
 			$this->controller,
@@ -102,9 +89,9 @@ class Route_Controller extends Route {
 	 *
 	 * @see Route::_execute()
 	 */
-	function _execute() {
+	function _execute(Response $response) {
 		$app = $this->router->application;
-		list($controller, $action) = $this->_init_controller();
+		list($controller, $action) = $this->_init_controller($response);
 		$__ = array(
 			'class' => get_class($controller),
 			'action' => $action
@@ -120,10 +107,9 @@ class Route_Controller extends Route {
 			$arguments_method = $this->option('arguments method', $this->option('arguments method prefix', 'arguments_') . $action_method);
 			$method = $this->option('method', $this->option('method prefix', 'action_') . $action_method);
 			$method = map($method, array(
-				"method" => $this->application->request->method()
+				"method" => $this->request->method()
 			));
 
-			$response = $app->response();
 			if ($response->status_code === Net_HTTP::Status_OK) {
 				ob_start();
 				if ($controller->has_method($method)) {
@@ -245,27 +231,11 @@ class Route_Controller extends Route {
 			die("pattern didn't match");
 		}
 		$this->_map_options();
-		list($controller) = $this->_init_controller();
+		list($controller) = $this->_init_controller($this->response);
 		if ($controller) {
 			$map = $controller->get_route_map($action, $object, $options) + $map;
 		}
 		$this->_unmap_options();
 		return $map;
-	}
-
-	/**
-	 *
-	 * @return stdClass[]
-	 */
-	protected function hook_controllers() {
-		global $zesk;
-		/* @var $zesk zesk\Kernel */
-		$controller = $this->option('controller');
-		if (map_clean($controller) !== $controller) {
-			return array();
-		}
-		return array(
-			$controller => $zesk->objects->factory("Controller_" . $controller, $this->router->application)
-		);
 	}
 }

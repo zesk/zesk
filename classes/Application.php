@@ -190,6 +190,11 @@ class Application extends Hookable implements Interface_Theme {
 	public $file = null;
 
 	/**
+	 *
+	 * @var Request
+	 */
+	private $current_request = null;
+	/**
 	 * @deprecated 2018-01
 	 * @var Request
 	 */
@@ -213,13 +218,6 @@ class Application extends Hookable implements Interface_Theme {
 	 * @var User
 	 */
 	public $user = null;
-
-	/**
-	 * Variables for templates
-	 *
-	 * @var unknown_type
-	 */
-	private $variables = array();
 
 	/**
 	 * Array of calls to create stuff
@@ -315,8 +313,9 @@ class Application extends Hookable implements Interface_Theme {
 	public $template = null;
 
 	/**
-	 * Template stack
+	 * Template stack. public so it can be copied in Template::__construct
 	 *
+	 * @see Template::__construct
 	 * @var Template_Stack
 	 */
 	public $template_stack = null;
@@ -395,7 +394,6 @@ class Application extends Hookable implements Interface_Theme {
 		// $this->load_modules is set in subclasses
 		// $this->class_aliases is set in subclasses
 		// $this->file is set in subclasses
-		// $this->variables is set in subclasses
 		// $this->register_hooks is set in subclasses
 		//
 
@@ -975,15 +973,7 @@ class Application extends Hookable implements Interface_Theme {
 	 * @return Request
 	 */
 	final public function request() {
-		die(calling_function() . ' => ' . __FILE__ . ":" . __LINE__);
-	}
-
-	/**
-	 * @deprecated 2018-01
-	 * @return Response
-	 */
-	final public function response() {
-		die(calling_function() . ' => ' . __FILE__ . ":" . __LINE__);
+		return $this->current_request;
 	}
 
 	/**
@@ -1019,6 +1009,9 @@ class Application extends Hookable implements Interface_Theme {
 	 */
 	private function _templates_initialize(array $variables) {
 		$variables['application'] = $this;
+		if ($this->current_request) {
+			$variables['request'] = $this->current_request;
+		}
 		$variables += $this->template_variables;
 		$variables += $this->call_hook_arguments("template_defaults", array(
 			$variables
@@ -1036,9 +1029,8 @@ class Application extends Hookable implements Interface_Theme {
 	 * - Render response
 	 */
 	public function main(Request $request) {
-		$this->request = $request;
+		$this->current_request = $request;
 		$this->call_hook("main", $request);
-		$this->variables = array();
 		try {
 			$router = $this->router();
 			$this->logger->debug("App bootstrap took {seconds} seconds", array(
@@ -1066,7 +1058,7 @@ class Application extends Hookable implements Interface_Theme {
 		} catch (\Exception $exception) {
 			$response = $this->_main_exception($request, $exception);
 		}
-		$this->request = null;
+		$this->current_request = null;
 		return $response;
 	}
 
@@ -1857,7 +1849,7 @@ class Application extends Hookable implements Interface_Theme {
 	 * @param string $require
 	 *        	Throw exception if no session found
 	 * @throws Exception_NotFound
-	 * @return \zesk\Interface_Session|NULL
+	 * @return \zesk\Interface_Session
 	 */
 	public function session(Request $request, $require = true) {
 		if ($request->has_option(__METHOD__)) {

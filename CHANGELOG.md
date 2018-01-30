@@ -30,11 +30,20 @@ Version 1.0 of Zesk will have:
 
 ### `zesk\Response` Refactored
 
-The majority of `zesk\Response_Text_HTML` have been moved up to glue functions in `zesk\Response` for eventual deprecation. `zesk\Response` HTML rendering has been largedly moved to templates. `zesk\Response` objects are no longer members of `zesk\Application`
+The majority of `zesk\Response_Text_HTML` have been moved up to glue functions in `zesk\Response` for eventual deprecation. `zesk\Response` HTML rendering has been largedly moved to templates. 
 
-#### `zesk\Router` changes
+- `zesk\Response` contains handlers which handle each distinct output type; HTML being the most complex.
+- `zesk\Response` objects are no longer members of `zesk\Application` and instead is generated via the `zesk\Application::main()`
+- In addition, `zesk\Controller` now takes a `zesk\Route` as a construct parameter, and `zesk\Route`s inherit the `zesk\Request` which they matched.
+- `zesk\Route::_execute` now takes a `zesk\Response` as the first parameter and it is expected to be modified by the route upon execution.
 
-The `Router` no longer allows the `{response}` variable to be passed to `Route` methods.
+A large portion of the relationships and connections between `zesk\Route`, `zesk\Router`, `zesk\Request`, `zesk\Response` and `zesk\Application` have been modified.
+
+#### `zesk\Controller` changes
+
+- `zesk\Controller::__construct` is now a final function and subclasses must use the `::initialize()` parent chain to construct from options.
+- `zesk\Controller::__construct` now takes the `zesk\Route` as its second parameter.
+- `zesk\Controller` now includes `zesk\Request`, `zesk\Response` and `zesk\Route`. `zesk\Response` is (optionally)created upon object creation.
 
 ### `zesk\Application` state changes
 
@@ -45,7 +54,6 @@ We're migrating away from storing request/response state in the `zesk\Applicatio
 - Removed `zesk\Application::$response`
 - Removed `zesk\Application::$user` and modified `zesk\Application::user()` to take `zesk\Request'`
 - `zesk\User::authenticated` now takes a `zesk\Request` (required) and `zesk\Response` (if you want to authenticate)
-
 
 ### Modified functionality
 

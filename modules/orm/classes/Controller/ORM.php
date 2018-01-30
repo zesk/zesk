@@ -153,13 +153,11 @@ abstract class Controller_ORM extends Controller_Authenticated {
 	}
 
 	/**
-	 * Create a Controller_ORM
+	 * Initialize a Controller_ORM
 	 *
-	 * @param Application $app
-	 * @param array $options
 	 */
-	function __construct(Application $app, array $options = array()) {
-		parent::__construct($app, $options);
+	protected function initialize() {
+		parent::initialize();
 		if ($this->class === null) {
 			$controller_class = get_class($this);
 			list($ns, $cl) = pairr($controller_class, "\\", "", $controller_class);

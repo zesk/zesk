@@ -2,14 +2,12 @@
 namespace zesk;
 
 /**
- * 
+ *
  * @author kent
  *
  */
 class Route_Content extends Route {
-	protected function _execute() {
-		$app = $this->router->application;
-		$response = $app->response;
+	protected function _execute(Response $response) {
 		$response->content = $this->option("content", $this->option('default content'));
 	}
 }

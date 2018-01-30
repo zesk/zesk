@@ -1,41 +1,41 @@
 <?php
 /**
- * 
+ *
  */
 namespace zesk;
 
 /**
- * 
+ *
  * @author kent
  *
  */
 class Template_Stack {
-	
+
 	/**
 	 *
 	 * @var array:Template
 	 */
 	protected $stack = array();
-	
+
 	/**
-	 * 
+	 *
 	 * @var array
 	 */
 	protected $log = array();
-	
+
 	/**
 	 * Push template
-	 * 
+	 *
 	 * @param Template $template
 	 */
 	public final function push(Template $template) {
 		$this->stack[] = $template;
 		$this->log[] = "push " . $template->path() . " " . calling_function(2);
 	}
-	
+
 	/**
 	 * Pop template
-	 * 
+	 *
 	 * @throws Exception_Semantics
 	 * @return mixed
 	 */
@@ -49,20 +49,27 @@ class Template_Stack {
 		$this->log[] = "pop " . $template->path();
 		return $template;
 	}
-	
+
 	/**
 	 * @return Template
 	 */
 	public final function top() {
 		return last($this->stack);
 	}
+
+	/**
+	 *
+	 * @param string $name
+	 * @param mixed $value
+	 * @return \zesk\Template_Stack
+	 */
 	public function set($name, $value) {
 		foreach ($this->stack as $template) {
 			$template->set($name, $value);
 		}
 		return $this;
 	}
-	
+
 	/**
 	 * Get/set variables in the top template
 	 *

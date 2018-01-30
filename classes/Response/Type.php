@@ -22,24 +22,16 @@ abstract class Type extends Hookable {
 	}
 
 	/**
-	 * Return true if the result is stored in a file in the file system
-	 *
-	 * @return boolean
-	 */
-	protected function preferOutput() {
-		return false;
-	}
-
-	/**
 	 * Output any special headers
 	 */
 	protected function headers() {
 	}
 
 	/**
-	 *
+	 * Override in subclasses to extend constructor. Make sure to call parent::initialize()!
 	 */
-	abstract protected function initialize();
+	protected function initialize() {
+	}
 
 	/**
 	 *

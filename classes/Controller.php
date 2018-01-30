@@ -32,6 +32,14 @@ class Controller extends Hookable implements Interface_Theme {
 	 * @var string
 	 */
 	protected $method_default_arguments = null;
+	/**
+	 * Default content type for Response generated upon instantiation.
+	 *
+	 * Can be overridden by setting global "default_content_type" option for this class
+	 *
+	 * @var string
+	 */
+	protected $default_content_type = null;
 
 	/**
 	 * Request associated with this controller
@@ -67,15 +75,15 @@ class Controller extends Hookable implements Interface_Theme {
 	 * @param Response $response
 	 * @param array $options
 	 */
-	public function __construct(Application $app, array $options = array()) {
+	final public function __construct(Application $app, Route $route, Response $response = null, array $options = array()) {
 		parent::__construct($app, $options);
 
 		$this->inherit_global_options();
 
 		$this->router = $app->router;
-		$this->route = $this->router ? $this->router->route : null;
-		$this->request = $app->request;
-		$this->response = $app->response;
+		$this->route = $route;
+		$this->request = $route->request();
+		$this->response = $response;
 
 		$this->initialize();
 		$this->call_hook("initialize");
@@ -198,9 +206,11 @@ class Controller extends Hookable implements Interface_Theme {
 	/**
 	 * Render response
 	 *
+	 * @deprecated 2018-01
 	 * @return string
 	 */
 	public function render() {
+		zesk()->deprecated();
 		return $this->response->render();
 	}
 

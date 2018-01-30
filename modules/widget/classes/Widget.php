@@ -657,7 +657,7 @@ class Widget extends Hookable {
 		if ($this->response instanceof Response) {
 			return $this->response;
 		}
-		return $this->response = new Response($this->application);
+		return $this->response = new Response($this->application, $this->request);
 	}
 
 	/**
@@ -666,7 +666,7 @@ class Widget extends Hookable {
 	 * @return \zesk\User
 	 */
 	function user($require = true) {
-		return $this->application()->user($require);
+		return $this->application()->user($this->request, $require);
 	}
 
 	/**

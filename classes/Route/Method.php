@@ -74,7 +74,7 @@ class Route_Method extends Route {
 	 * {@inheritDoc}
 	 * @see Route::_execute()
 	 */
-	protected function _execute() {
+	protected function _execute(Response $response) {
 		$app = $this->router->application;
 		$this->_do_includues();
 
@@ -103,12 +103,12 @@ class Route_Method extends Route {
 			));
 		}
 		$buffer = ob_get_clean();
-		if ($app->response->content !== null) {
+		if ($response->content !== null) {
 			return;
 		}
-		if ($app->response->is_json()) {
+		if ($response->is_json()) {
 			if ($content !== null) {
-				$app->response->json()->data($content);
+				$response->json()->data($content);
 			}
 			return;
 		}
@@ -126,7 +126,7 @@ class Route_Method extends Route {
 			if (is_array($content)) {
 				$content = ArrayTools::join_wrap($content, $this->option("join_prefix", ""), $this->option("join_suffix", ""));
 			}
-			$app->response->content = $this->option("prefix", "") . $content . $this->option("suffix", "");
+			$response->content = $this->option("prefix", "") . $content . $this->option("suffix", "");
 		}
 	}
 }

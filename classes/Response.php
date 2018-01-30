@@ -10,6 +10,7 @@ use zesk\Response\HTML as HTMLResponse;
 use zesk\Response\JSON;
 use zesk\Response\Text;
 use zesk\Response\Raw;
+use zesk\Response\Redirect;
 use zesk\Logger\Handler;
 
 /**
@@ -42,6 +43,11 @@ class Response extends Hookable {
 	 * @var string
 	 */
 	const CONTENT_TYPE_RAW = "application/octet-stream";
+	/**
+	 *
+	 * @var string
+	 */
+	const HANDLER_REDIRECT = "redirect";
 	/**
 	 *
 	 * @var integer
@@ -140,7 +146,8 @@ class Response extends Hookable {
 		self::CONTENT_TYPE_HTML => HTMLResponse::class,
 		self::CONTENT_TYPE_JSON => JSON::class,
 		self::CONTENT_TYPE_PLAINTEXT => Text::class,
-		self::CONTENT_TYPE_RAW => Raw::class
+		self::CONTENT_TYPE_RAW => Raw::class,
+		self::HANDLER_REDIRECT => Redirect::class
 	);
 	/**
 	 *
@@ -289,49 +296,6 @@ class Response extends Hookable {
 	}
 
 	/**
-	 *
-	 * @todo Move this elsewhere. Response addon?
-	 */
-	public function redirect_message_clear() {
-		$this->application->session()->redirect_message = null;
-	}
-
-	/**
-	 *
-	 * @todo Move this elsewhere. Response addon?
-	 * @param string $message
-	 * @return \zesk\Response
-	 */
-	public function redirect_message($message = null) {
-		try {
-			$session = $this->application->session();
-		} catch (\Exception $e) {
-			return array();
-		}
-		if (!$session) {
-			return array();
-		}
-		$messages = to_array($session->redirect_message);
-		if ($message === null) {
-			return $messages;
-		}
-		if (empty($message)) {
-			return $this;
-		}
-		if (is_array($message)) {
-			foreach ($message as $m) {
-				if (!empty($m)) {
-					$messages[md5($m)] = $m;
-				}
-			}
-		} else {
-			$messages[md5($message)] = $message;
-		}
-		$session->redirect_message = $messages;
-		return $this;
-	}
-
-	/**
 	 * Set up redirect debugging
 	 *
 	 * @param mixed $set
@@ -355,57 +319,6 @@ class Response extends Hookable {
 			$this->cache_settings['headers'][] = $string;
 		}
 		header($string);
-	}
-
-	/**
-	 *
-	 *
-	 *       Redirect to a URL, optionally adding a message to the resulting URL
-	 *
-	 * @param string $u
-	 *        	URL to redirect to.
-	 * @param unknown_type $message
-	 * @see Response::redirect_default
-	 * @todo Move this into a plugin or something; shouldn't be here
-	 */
-	public function redirect($url, $message = null) {
-		$saved_url = $url;
-		/* Clean out any unwanted characters from the URL */
-		$url = preg_replace("/[\x01-\x1F\x7F-\xFF]/", '', $url);
-		if ($message !== null) {
-			$this->redirect_message($message);
-		}
-		$url = $this->call_hook('redirect_alter', $url);
-		$content = "";
-		if ($this->option_bool("debug_redirect")) {
-			$content = HTML::a($url, $url);
-			$content = $this->application->theme("response/redirect", array(
-				'request' => $this->request,
-				'response' => $this,
-				'content' => $content,
-				'url' => $url,
-				'original_url' => $saved_url
-			));
-		} else {
-			if ($url) {
-				$this->_header("Location: $url");
-			}
-			// Should do a response/redirect.tpl type thing here, too, in non-dev mode?
-			// TODO
-			$this->application->hooks->call_arguments('headers', array(
-				$this->request,
-				$this,
-				null
-			));
-		}
-		echo $content;
-		$this->cache_save($content);
-		// flush all output buffering
-		while (ob_get_level() > 0) {
-			ob_end_flush();
-		}
-		// TODO - Should we unplug the app like this?
-		exit();
 	}
 
 	/**
@@ -1074,5 +987,44 @@ class Response extends Hookable {
 			->file($file)
 			->header("Content-Disposition", "$type; filename=\"$name\"")
 			->nocache();
+	}
+
+	/*====================================================================================================*\
+	 * Redirect-related
+	 */
+	/**
+	 * Fetch Redirect handler
+	 *
+	 * @param string $url
+	 * @param string $message
+	 * @return Redirect
+	 */
+	final public function redirect($url = null, $message = null) {
+		if ($url) {
+			$this->application->deprecated("[method} support for URL and message is deprecated 2018-01", array(
+				"method" => $method
+			));
+			return $this->redirect()->url($url, $message);
+		}
+		$this->output_handler(self::HANDLER_REDIRECT);
+		return $this->_type(self::HANDLER_REDIRECT);
+	}
+
+	/**
+	 *
+	 * @return \zesk\Response
+	 */
+	public function redirect_message_clear() {
+		$this->redirect()->message_clear();
+		return $this;
+	}
+
+	/**
+	 *
+	 * @param string $message
+	 * @return \zesk\Response
+	 */
+	public function redirect_message($message = null) {
+		return $this->redirect()->message($message);
 	}
 }

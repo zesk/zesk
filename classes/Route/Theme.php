@@ -2,14 +2,14 @@
 namespace zesk;
 
 class Route_Theme extends Route {
-	
+
 	/**
 	 * Whether the theme path is set by variables
 	 *
 	 * @var unknown
 	 */
 	protected $dynamic_theme = false;
-	
+
 	/**
 	 *
 	 * {@inheritdoc}
@@ -24,7 +24,7 @@ class Route_Theme extends Route {
 			return;
 		}
 	}
-	
+
 	/**
 	 * Validate this route
 	 *
@@ -48,14 +48,14 @@ class Route_Theme extends Route {
 			"theme_paths" => $application->theme_path()
 		));
 	}
-	
+
 	/**
 	 *
 	 * {@inheritdoc}
 	 *
 	 * @see Route::_execute()
 	 */
-	function _execute() {
+	function _execute(Response $response) {
 		$application = $this->router->application;
 		$parameters = $application->variables() + array(
 			'route' => $this
@@ -67,23 +67,23 @@ class Route_Theme extends Route {
 		if ($this->dynamic_theme) {
 			$mapped_theme = map($theme, $parameters);
 			if (!$application->theme_exists($mapped_theme, $args, $theme_options)) { //TODO
-				$application->response->status(Net_HTTP::Status_File_Not_Found);
-				$application->response->content = "Theme $mapped_theme not found";
+				$response->status(Net_HTTP::Status_File_Not_Found);
+				$response->content = "Theme $mapped_theme not found";
 				return;
 			}
 			$application->logger->debug("Executing theme={theme} mapped_theme={mapped_theme} args={args}", compact("theme", "mapped_theme", "args"));
 		}
 		$content = $application->theme($mapped_theme, $args, $theme_options); //TODO
-		if ($application->response->is_json()) {
+		if ($response->is_json()) {
 			return;
 		}
 		if ($this->option_bool('json')) {
-			return $application->response->json()->data($application->response->to_json() + array(
+			return $response->json()->data($response->to_json() + array(
 				"content" => $content,
 				"status" => true
 			));
 		} else {
-			$application->response->content = $content;
+			$response->content = $content;
 		}
 	}
 }

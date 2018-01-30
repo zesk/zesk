@@ -613,15 +613,17 @@ abstract class Route extends Hookable {
 		}
 		return ArrayTools::map_values($mixed, $this->map_variables);
 	}
-
+	private function guess_content_type() {
+		$content_type = $this->option("content_type");
+	}
 	/**
 	 * Overridable method before execution
 	 *
 	 * @return Response
 	 */
 	protected function _before() {
-		$app = $this->router->application;
-		$response = $app->response_factory($this->request, $this->option("content_type"));
+		$application = $this->application;
+		$response = $application->response_factory($this->request, $this->guess_content_type());
 		if ($this->has_option('cache')) {
 			$cache = $this->option('cache');
 			if (is_scalar($cache)) {
@@ -631,7 +633,7 @@ abstract class Route extends Hookable {
 			} else if (is_array($cache)) {
 				$response->cache($cache);
 			} else {
-				$app->logger->warning("Invalid cache setting for route {route}: {cache}", array(
+				$application->logger->warning("Invalid cache setting for route {route}: {cache}", array(
 					"route" => $this->clean_pattern,
 					"cache" => _dump($cache)
 				));
@@ -659,7 +661,7 @@ abstract class Route extends Hookable {
 	 *
 	 * @param Application $app
 	 */
-	abstract protected function _execute();
+	abstract protected function _execute(Response $response);
 
 	/**
 	 * Overridable method after execution
@@ -737,9 +739,14 @@ abstract class Route extends Hookable {
 		$this->_map_options();
 		$response = $this->_before();
 		$this->_permissions($response);
+		$template = Template::factory($this->application, null, array(
+			"response" => $response,
+			"route" => $this
+		))->push();
 		$this->_execute($response);
 		$this->_after($response);
 		$this->_unmap_options();
+		$template->pop();
 		return $response;
 	}
 

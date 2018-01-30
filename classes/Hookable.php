@@ -263,7 +263,7 @@ class Hookable extends Options {
 		}
 		$new_result = call_user_func_array($callable, $arguments);
 		if ($return_hint !== null) {
-			zesk()->deprecated("Return hint passed to {method}", array(
+			zesk()->deprecated("Return hint passed to {method} @deprecated 2017-10", array(
 				"method" => __METHOD__
 			));
 		}

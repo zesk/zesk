@@ -235,22 +235,14 @@ class Template implements Interface_Theme {
 	}
 
 	/**
-	 *
-	 * @return Template
-	 */
-	public function top() {
-		return $this->stack->top();
-	}
-
-	/**
 	 * Push the variable stack
 	 *
 	 * @return Template
 	 */
 	public function push() {
-		$this->_parent = $this->stack->top();
+		$top = $this->stack->top();
 		$this->stack->push($this);
-		$this->_vars += $this->_parent->variables();
+		$this->_vars += $top->variables();
 		if (self::$debug_stack) {
 			$this->application->logger->debug("Push {path}", array(
 				"path" => $this->_path
@@ -312,28 +304,8 @@ class Template implements Interface_Theme {
 
 	/**
 	 *
-	 * @return Cache
-	 */
-	// 	private function _paths_cache() {
-	// 		$app = $this->application;
-	// 		$cache = $app->cache->getItem(get_class($app) . "-Template::paths");
-	// 		$path = serialize($this->application->theme_path());
-	// 		if ($cache->isHit()) {
-	// 			HERE
-	// 			if ($cache->theme_path !== $path) {
-	// 				$cache->erase();
-	// 				$cache->theme_path = $path;
-	// 			}
-	// 		} else {
-	// 			$cache->theme_path = $path;
-	// 		}
-	// 		return $cache;
-	// 	}
-
-	/**
-	 *
-	 * @param unknown $path
-	 * @param string $all
+	 * @param strng $path
+	 * @param boolean $all Retrieve all valid paths
 	 */
 	public function find_path($path, $all = false) {
 		if (empty($path)) {
@@ -342,19 +314,7 @@ class Template implements Interface_Theme {
 		if (begins($path, "/")) {
 			return $path;
 		}
-		// 		$paths = $this->_paths_cache();
-		// 		$cache_path = array(
-		// 			$path,
-		// 			$all ? "all" : "first"
-		// 		);
-		// 		$not_found = 'not-found';
-		// 		$result = $paths->path_get($cache_path, $not_found);
-		// 		if ($result !== $not_found) {
-		// 			return $result;
-		// 		}
-		$result = $this->_find_path($path, $all);
-		// 		$paths->path_set($cache_path, $result);
-		return $result;
+		return $this->_find_path($path, $all);
 	}
 	/**
 	 * Find template path
