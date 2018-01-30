@@ -6,8 +6,8 @@
  */
 namespace zesk;
 
-class Controller_Content extends Controller_Template_Login {
+class Controller_Content extends Controller_Authenticated {
 	function _action_default($action = null) {
-		$this->template->content = "$action - " . get_class($this);
+		$this->response->content = "$action - " . get_class($this);
 	}
 }

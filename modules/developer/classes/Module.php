@@ -103,10 +103,10 @@ class Module extends \zesk\Module implements Interface_Module_Routes {
 			return;
 		}
 		if (!$this->ip_matches($restricted_ips)) {
-			if (begins($app->request->path(), "/share")) {
+			if (begins($request->path(), "/share")) {
 				return;
 			}
-			$app->request->path("/developer/forbidden");
+			$request->path("/developer/forbidden");
 		}
 	}
 	public function initialize() {

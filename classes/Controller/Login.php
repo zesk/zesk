@@ -1,11 +1,11 @@
 <?php
 /**
- * 
+ *
  */
 namespace zesk;
 
 /**
- * 
+ *
  * @author kent
  *
  */
@@ -15,7 +15,7 @@ class Controller_Login extends Controller_Theme {
 	}
 	function action_login() {
 		$this->call_hook('login');
-		$w = $this->widget_factory('zesk\\Control_Login');
+		$w = $this->widget_factory(Control_Login::class);
 		return $w->execute();
 	}
 	function action_logout() {

@@ -56,6 +56,12 @@ class Session_ORM extends ORM implements Interface_Session {
 		$this->set_option($this->application->option_array("session"));
 		return $result;
 	}
+
+	/**
+	 *
+	 * {@inheritDoc}
+	 * @see \zesk\ORM::fetch()
+	 */
 	function fetch($mixed = null) {
 		$result = parent::fetch($mixed);
 		if ($result instanceof self) {
@@ -63,6 +69,11 @@ class Session_ORM extends ORM implements Interface_Session {
 		}
 		return $result;
 	}
+
+	/**
+	 *
+	 * @return \zesk\Session_ORM
+	 */
 	function seen() {
 		$query = $this->query_update();
 		$sql = $query->sql();
@@ -75,11 +86,21 @@ class Session_ORM extends ORM implements Interface_Session {
 		$this->call_hook('seen');
 		return $this;
 	}
+
+	/**
+	 * Register hooks
+	 * @param Application $application
+	 */
 	public static function hooks(Application $application) {
 		//		$zesk->hooks->add('zesk\Response::headers', __CLASS__ . '::response_headers');
 		$application->hooks->add(Hooks::hook_configured, __CLASS__ . '::configured');
 		$application->hooks->add('exit', __CLASS__ . '::save');
 	}
+
+	/**
+	 *
+	 * @param Application $application
+	 */
 	public static function configured(Application $application) {
 		// 2017-01-01
 		foreach (array(
@@ -109,12 +130,21 @@ class Session_ORM extends ORM implements Interface_Session {
 		$application->configuration->deprecated("zesk\\Session::cookie_expire_round");
 		$application->configuration->deprecated("zesk\Application::session::cookie::expire_round");
 	}
+
+	/**
+	 * Called before actual store
+	 */
 	function hook_store() {
 		$ip = $this->member("ip");
 		if (!IPv4::valid($ip)) {
 			$this->set_member("ip", "127.0.0.1");
 		}
 	}
+
+	/**
+	 *
+	 * @return integer
+	 */
 	public function cookie_expire() {
 		return to_integer($this->option_path("cookie.expire"), 604800);
 	}
@@ -138,7 +168,11 @@ class Session_ORM extends ORM implements Interface_Session {
 		$cookieExpire = $this->cookie_expire();
 		$this->set_member("user", $user_id);
 		if ($ip === null) {
-			$ip = $this->application->request()->ip();
+			// This is not necessary, probably should remove TODO KMD 2018-01
+			$request = $this->application->request();
+			if ($request) {
+				$ip = $request->ip();
+			}
 		}
 		$this->set_member("ip", $ip);
 		$this->set_member("expires", Timestamp::now()->add_unit($cookieExpire, Timestamp::UNIT_SECOND));
@@ -151,7 +185,7 @@ class Session_ORM extends ORM implements Interface_Session {
 	 * @see Interface_Session::authenticated()
 	 */
 	public function authenticated() {
-		return $this->member_is_empty('User');
+		return $this->member_is_empty('user');
 	}
 
 	/**
@@ -219,6 +253,11 @@ class Session_ORM extends ORM implements Interface_Session {
 		$expires = Timestamp::now()->add_unit($expire, Timestamp::UNIT_SECOND);
 		return $expires;
 	}
+
+	/**
+	 *
+	 * @return string
+	 */
 	private function cookie_name() {
 		return $this->option_path("cookie.name", "ZCOOKIE");
 	}

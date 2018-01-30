@@ -93,6 +93,8 @@ class Route_Method extends Route {
 			} else {
 				$content = call_user_func_array($method, $arguments);
 			}
+		} catch (Exception_Redirect $e) {
+			throw $e;
 		} catch (\Exception $e) {
 			$content = null;
 			$app->hooks->call("exception", $e);

@@ -4,6 +4,11 @@ namespace zesk\Response;
 use zesk\Hookable;
 use zesk\Response;
 
+/**
+ * @see Response
+ * @author kent
+ *
+ */
 abstract class Type extends Hookable {
 	/**
 	 *

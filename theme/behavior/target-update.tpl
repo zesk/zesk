@@ -21,12 +21,8 @@ namespace zesk;
 // - show_values
 
 /* @var $response zesk\Response */
-$response = $this->response;
 /* @var $widget Widget */
-$widget = $this->widget;
 /* @var $object Model */
-$object = $this->object;
-
 $map_values = $this->map_values;
 if (!is_array($map_values)) {
 	return;
@@ -64,4 +60,4 @@ if ($this->not_target) {
 }());
 <?php
 
-$response->jquery(map(ob_get_clean(), $map));
+$response->html()->jquery(map(ob_get_clean(), $map));

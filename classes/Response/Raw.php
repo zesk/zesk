@@ -2,6 +2,7 @@
 namespace zesk\Response;
 
 use zesk\Response;
+use zesk\File;
 use zesk\MIME;
 use zesk\Exception_File_NotFound;
 
@@ -64,5 +65,28 @@ class Raw extends Type {
 		$this->parent->content_type(MIME::from_filename($file));
 		$this->file = $file;
 		return $this->parent;
+	}
+
+	/**
+	 * Download a file
+	 *
+	 * @param string $file
+	 *        	Full path to file to download
+	 * @param string $name
+	 *        	File name given to browser to save the file
+	 * @param string $type
+	 *        	Content disposition type (attachment)
+	 * @return \zesk\Response
+	 */
+	final public function download($file, $name = null, $type = null) {
+		if ($name === null) {
+			$name = basename($file);
+		}
+		$name = File::name_clean($name);
+		if ($type === null) {
+			$type = "attachment";
+		}
+		$this->file($file);
+		return $this->parent->header("Content-Disposition", "$type; filename=\"$name\"")->nocache();
 	}
 }

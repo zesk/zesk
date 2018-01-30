@@ -11,7 +11,7 @@ use zesk\Exception_Upload;
  *
  */
 class Controller_Image_Picker extends \zesk\Controller_ORM {
-	protected $class = "zesk\\Content_Image";
+	protected $class = Content_Image::class;
 
 	/**
 	 *
@@ -19,8 +19,8 @@ class Controller_Image_Picker extends \zesk\Controller_ORM {
 	 * @see Controller_ORM::_action_default()
 	 */
 	function _action_default($action = null, $object = null, $options = array()) {
-		$control = $this->widget_factory('Control_Picker_Content_Image')->names('image');
-		$this->control($control, $object);
+		$control = $this->widget_factory(Control_Picker_Content_Image::class)->names('image');
+		return $this->control($control, $object);
 	}
 	function upload_theme_map(array $set = null) {
 		return $set === null ? $this->option_array('upload_theme_map', array()) : $this->set_option('upload_theme_map', $set);
@@ -35,7 +35,7 @@ class Controller_Image_Picker extends \zesk\Controller_ORM {
 			if (strpos($message, 'upload_max_filesize')) {
 				$max_size = ini_get('upload_max_filesize');
 				$real_size = to_bytes($max_size);
-				$this->response->json(array(
+				$this->json(array(
 					'status' => true,
 					'message' => __('That file is too large. You can only upload files which are less than {bytes}.', array(
 						'bytes' => $this->application->theme('bytes', array(
@@ -47,7 +47,7 @@ class Controller_Image_Picker extends \zesk\Controller_ORM {
 			}
 		}
 		if (!$file) {
-			$this->response->json(array(
+			$this->json(array(
 				"status" => false,
 				"message" => __("No file uploaded.")
 			));
@@ -58,7 +58,7 @@ class Controller_Image_Picker extends \zesk\Controller_ORM {
 			"path" => $file['name']
 		));
 		if (!$image) {
-			$this->response->json(array(
+			$this->json(array(
 				"status" => false,
 				"message" => __("Failed to save new image.")
 			));
@@ -76,7 +76,7 @@ class Controller_Image_Picker extends \zesk\Controller_ORM {
 		}
 		$theme_key = $this->request->get('theme', '');
 		$theme = avalue($this->upload_theme_map(), $theme_key, 'control/picker/content/image/item');
-		$this->response->json(array(
+		$this->json(array(
 			"status" => true,
 			"content" => $this->application->theme($theme, array(
 				"object" => $image,

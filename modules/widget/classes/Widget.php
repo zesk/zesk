@@ -59,11 +59,11 @@ class Widget extends Hookable {
 	protected $request_index = null;
 
 	/**
-	 * Respose associated with this widget
+	 * Respose associated with this widget. Inherited by children, stored only at root Widget.
 	 *
 	 * @var Response
 	 */
-	protected $response = null;
+	private $response = null;
 
 	/**
 	 * Current locale for this widget
@@ -657,6 +657,12 @@ class Widget extends Hookable {
 		if ($this->response instanceof Response) {
 			return $this->response;
 		}
+		/*
+		 * Inherit from the parent first!
+		 */
+		if ($this->parent) {
+			return $this->parent->response();
+		}
 		return $this->response = new Response($this->application, $this->request);
 	}
 
@@ -810,7 +816,7 @@ class Widget extends Hookable {
 	 * @return self
 	 */
 	function json($set) {
-		$this->response->json()->data($set);
+		$this->response()->json()->data($set);
 		return $this;
 	}
 
@@ -1678,7 +1684,7 @@ class Widget extends Hookable {
 	 * @return mixed
 	 */
 	public function controller() {
-		$this->response->json(array(
+		$this->response()->json()->data(array(
 			"status" => false,
 			"message" => $this->application->locale->__("{class} does not implement controller method", array(
 				"class" => get_class($this)
@@ -1718,7 +1724,9 @@ class Widget extends Hookable {
 		$widget = $this->_exec_submit();
 		$content = $widget ? $widget->_exec_render() : null;
 
+		// Return object
 		$object = $this->object;
+
 		return $content;
 	}
 
@@ -2302,6 +2310,7 @@ class Widget extends Hookable {
 	 * @return boolean
 	 */
 	protected function submit_redirect() {
+		$response = $this->response();
 		if ($this->parent && $this->parent->submit_url() !== null) {
 			// Continue
 			return true;
@@ -2344,21 +2353,19 @@ class Widget extends Hookable {
 					"first" => true
 				));
 			}
-			$json += $this->response->to_json();
-			$this->response->json($json);
+			$json += $response->html()->to_json();
+			$response->json()->data($json);
 			// Stop processing
 			return false;
 		}
 		if (!$submit_url) {
 			if ($message) {
-				$this->response->redirect_message($message);
+				$response->redirect()->message($message);
 			}
 			// Continue processing
 			return true;
 		}
-		$this->response->redirect($url, $message);
-		// Stop processing
-		return false;
+		throw new Exception_Redirect($url, $message);
 	}
 
 	/**
@@ -2418,6 +2425,7 @@ class Widget extends Hookable {
 	 * @return string
 	 */
 	private function render_behavior($content) {
+		//		$content .= HTML::tag("pre", _dump($this->behaviors));
 		foreach ($this->behaviors as $item) {
 			list($theme, $options) = $item;
 			$content .= $this->application->theme($theme, $options + array(
@@ -2425,7 +2433,7 @@ class Widget extends Hookable {
 				"object" => $this->object,
 				"content" => $content,
 				"request" => $this->request,
-				"response" => $this->response
+				"response" => $this->response()
 			));
 		}
 		return $content;

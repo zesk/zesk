@@ -29,11 +29,6 @@ class System {
 	}
 	public static function configured(Application $application) {
 		self::host_id($application->configuration->get('HOST', aevalue($_ENV, 'HOST', aevalue($_SERVER, 'HOST', 'localhost'))));
-		$name = $application->configuration->get("UNAME");
-		if (!$name) {
-			$name = $application->hooks->call_arguments("uname", array(), php_uname('n'));
-		}
-		self::uname($name);
 	}
 	/**
 	 *
@@ -41,11 +36,6 @@ class System {
 	 */
 	private static $host_id = null;
 
-	/**
-	 *
-	 * @var string
-	 */
-	private static $uname = null;
 	/**
 	 *
 	 * @return unknown
@@ -56,11 +46,13 @@ class System {
 		}
 		return self::$host_id;
 	}
-	public static function uname($set = null) {
-		if ($set !== null) {
-			self::$uname = $set;
-		}
-		return self::$uname;
+
+	/**
+	 *
+	 * @return string
+	 */
+	public static function uname() {
+		return php_uname('n');
 	}
 
 	/**

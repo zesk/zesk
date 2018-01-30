@@ -577,8 +577,10 @@ class Application extends Hookable implements Interface_Theme {
 		$includes = $this->includes;
 		$files = array();
 		foreach ($includes as $index => $file) {
-			if (File::is_absolute($file) && is_file($file)) {
-				$files[] = $file;
+			if (File::is_absolute($file)) {
+				if (is_file($file)) {
+					$files[] = $file;
+				}
 				unset($includes[$index]);
 			}
 		}
@@ -641,7 +643,7 @@ class Application extends Hookable implements Interface_Theme {
 			// New conf/PHP7
 			// 0.0060791969299316
 		}
-		$result = $this->_configure_files($options);
+		$this->_configure_files($options);
 		if ($profile) {
 			$this->kernel->profile_timer("_configure_files", microtime(true) - $mtime);
 		}
@@ -665,8 +667,6 @@ class Application extends Hookable implements Interface_Theme {
 		if (!$skip_configured_hook) {
 			$this->configured();
 		}
-
-		return $result;
 	}
 	/**
 	 *
@@ -899,14 +899,6 @@ class Application extends Hookable implements Interface_Theme {
 
 	/**
 	 *
-	 * @return Request
-	 */
-	protected function hook_response(Request $request) {
-		return Response::instance($this);
-	}
-
-	/**
-	 *
 	 * @return Router
 	 */
 	protected function hook_router() {
@@ -1027,7 +1019,7 @@ class Application extends Hookable implements Interface_Theme {
 	 * - Load the router
 	 * - Find a matched route
 	 * - Execute it
-	 * - Render response
+	 * - Return response
 	 */
 	public function main(Request $request) {
 		$this->current_request = $request;
@@ -1051,7 +1043,11 @@ class Application extends Hookable implements Interface_Theme {
 			if ($this->option_bool("debug_route")) {
 				$this->logger->debug("Matched route {class} Pattern: \"{clean_pattern}\" {options}", $route->variables());
 			}
-			$new_route = $this->call_hook("router_matched", $request, $router, $route);
+			$new_route = $this->call_hook_arguments("router_matched", array(
+				$request,
+				$router,
+				$route
+			), null);
 			if ($new_route instanceof Route) {
 				$route = $new_route;
 			}
@@ -1862,7 +1858,11 @@ class Application extends Hookable implements Interface_Theme {
 		if ($request->has_option(__METHOD__)) {
 			return $request->option(__METHOD__);
 		}
-		$session = $this->session_factory()->initialize_session($request);
+		if (!$require) {
+			return null;
+		}
+		$session = $this->session_factory();
+		$session->initialize_session($request);
 		$request->set_option(__METHOD__, $session);
 		return $session;
 	}
@@ -1872,7 +1872,17 @@ class Application extends Hookable implements Interface_Theme {
 	 * @return User
 	 */
 	public function user(Request $request, $require = true) {
-		return $this->session($request, $require)->user();
+		$session = $this->session($request, $require);
+		if ($session) {
+			$user = $session->user();
+			if ($user) {
+				return $user;
+			}
+			if (!$require) {
+				return null;
+			}
+		}
+		return $this->model_factory(User::class);
 	}
 
 	/**

@@ -1,34 +1,34 @@
 <?php
 /**
- * 
+ *
  */
 use zesk\JSON;
 use zesk\Lists;
 
 /**
- * 
+ *
  * @author kent
  *
  */
 class Module_Image_Picker extends zesk\Module_JSLib {
 	/**
-	 * 
+	 *
 	 * @var array
 	 */
 	protected $css_paths = array(
 		'/share/image_picker/css/image_picker.css'
 	);
-	
+
 	/**
-	 * 
+	 *
 	 * @var array
 	 */
 	protected $javascript_paths = array(
 		'/share/image_picker/js/image_picker.js'
 	);
-	
+
 	/**
-	 * 
+	 *
 	 * @param zesk\Router $router
 	 */
 	public function hook_routes(zesk\Router $router) {
@@ -43,16 +43,16 @@ class Module_Image_Picker extends zesk\Module_JSLib {
 			)
 		));
 	}
-	
+
 	/**
-	 * 
+	 *
 	 */
 	protected function hook_configured() {
 		try {
 			$module = $this->application->modules->object('tinymce');
 			/* @var $module Module_TinyMCE */
 			$image_picker_button = array(
-				'title' => __('Upload Image'),
+				'title' => $this->application->locale->__('Upload Image'),
 				'image' => '/share/image_picker/image/image-upload.png',
 				'*onclick' => 'function() { $.image_picker(editor); }'
 			);

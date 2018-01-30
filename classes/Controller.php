@@ -85,6 +85,13 @@ class Controller extends Hookable implements Interface_Theme {
 		$this->request = $route ? $route->request() : null;
 		$this->response = $response;
 
+		if ($response) {
+			$this->application->logger->debug("{class}::__construct Response ID {id}", array(
+				"class" => get_class($this),
+				"id" => $response->id()
+			));
+		}
+
 		$this->initialize();
 		$this->call_hook("initialize");
 	}
@@ -205,29 +212,22 @@ class Controller extends Hookable implements Interface_Theme {
 	 * Update all settings to return a JSON response
 	 *
 	 * @param mixed $mixed
+	 * @return self
 	 */
 	public function json($mixed = null) {
-		return $this->response->json()->data($mixed);
-	}
-
-	/**
-	 * Render response
-	 *
-	 * @deprecated 2018-01
-	 * @return string
-	 */
-	public function render() {
-		zesk()->deprecated();
-		return $this->response->render();
+		$this->response->json()->data($mixed);
+		return $this;
 	}
 
 	/**
 	 * Page not found error
 	 *
 	 * @param string $message
+	 * @return self
 	 */
 	public function error_404($message = null) {
 		$this->error(Net_HTTP::Status_File_Not_Found, "Page not found $message");
+		return $this;
 	}
 
 	/**
@@ -237,11 +237,13 @@ class Controller extends Hookable implements Interface_Theme {
 	 *        	Net_HTTP::Status_XXX
 	 * @param string $message
 	 *        	Message
+	 * @return self
 	 */
 	public function error($code, $message = null) {
 		$this->response->status($code);
 		$this->response->content_type("text/html");
 		$this->response->content = $message;
+		return $this;
 	}
 
 	/**
@@ -315,12 +317,16 @@ class Controller extends Hookable implements Interface_Theme {
 	}
 
 	/**
-	 * Create a widget
+	 * Create a widget, and inherit this Controller's response
 	 *
 	 * @return Widget
 	 */
 	public function widget_factory($class, array $options = array()) {
-		return $this->application->widget_factory($class, $options);
+		$widget = $this->application->widget_factory($class, $options);
+		if ($this->response) {
+			$widget->response($this->response);
+		}
+		return $widget;
 	}
 
 	/**
@@ -396,6 +402,17 @@ class Controller extends Hookable implements Interface_Theme {
 	 */
 	public function _to_php() {
 		return '$application, ' . PHP::dump($this->options);
+	}
+
+	/**
+	 * Render response
+	 *
+	 * @deprecated 2018-01
+	 * @return string
+	 */
+	public function render() {
+		zesk()->deprecated();
+		return $this->response->render();
 	}
 }
 

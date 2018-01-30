@@ -19,6 +19,19 @@ class Exception_Redirect extends Exception {
 	public $url = null;
 
 	/**
+	 * Pass as an argument to set the `zesk\Response::status_code()`
+	 *
+	 * @var string
+	 */
+	const RESPONSE_STATUS_CODE = "status_code";
+
+	/**
+	 * Pass as an argument to set the `zesk\Response::status_message()`
+	 * @var string
+	 */
+	const RESPONSE_STATUS_MESSAGE = "status_message";
+
+	/**
 	 * Create a redirect
 	 *
 	 * @param string $url
@@ -40,5 +53,21 @@ class Exception_Redirect extends Exception {
 			return $this;
 		}
 		return $this->url;
+	}
+
+	/**
+	 *
+	 * @return string|NULL
+	 */
+	function status_message() {
+		return avalue($this->arguments, self::RESPONSE_STATUS_MESSAGE);
+	}
+
+	/**
+	 *
+	 * @return integer|NULL
+	 */
+	function status_code() {
+		return avalue($this->arguments, self::RESPONSE_STATUS_CODE);
 	}
 }

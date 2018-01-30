@@ -706,7 +706,7 @@ abstract class Route extends Hookable {
 				));
 				$context = null;
 			}
-			$app->user(true)->must($action, $context, $options);
+			$app->user($response->request, true)->must($action, $context, $options);
 		}
 	}
 

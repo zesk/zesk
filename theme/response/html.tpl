@@ -53,11 +53,11 @@ $application->hooks->call_arguments('response_html_start', $hook_parameters);
 			echo $application->hooks->call_arguments('</body>', $hook_parameters, "");
 		}
 		$application->modules->all_hook_arguments('foot', $hook_parameters);
+
 		echo "\n" . HTML::tag_close("body");
 	}
 	echo $application->hooks->call_arguments('</html>', $hook_parameters, "");
 	echo "\n" . HTML::tag_close('html');
 }
 $application->hooks->call_arguments('response_html_end', $hook_parameters);
-
 

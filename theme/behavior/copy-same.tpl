@@ -1,14 +1,14 @@
 <?php
+namespace zesk;
+
 // behavior/copy-same
 
 // Options:
 // - hide_values
 // - show_values
 
-/* @var $response zesk\Response */
-$response = $this->response;
+/* @var $response Response */
 /* @var $widget Widget */
-$widget = $this->widget;
 /* @var $object Model */
 $object = $this->object;
 
@@ -34,4 +34,4 @@ $('{id}').focus(function () {
 	}
 });
 <?php
-$response->jquery(map(ob_get_clean(), $map));
+$response->html()->jquery(map(ob_get_clean(), $map));

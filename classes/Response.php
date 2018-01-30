@@ -20,10 +20,18 @@ use zesk\Logger\Handler;
  * @see zesk\Response\HTML
  * @see zesk\Response\JSON
  * @see zesk\Response\Text
+ * @see zesk\Response\Redirect
+ * @see zesk\Response\Raw
  * @package zesk
  * @subpackage system
  */
 class Response extends Hookable {
+	/**
+	 * Uniquely ID each Response created to avoid duplicates
+	 *
+	 * @var integer
+	 */
+	private static $response_index = 0;
 	/**
 	 *
 	 * @var array
@@ -94,6 +102,11 @@ class Response extends Hookable {
 	 */
 	private $cache_settings = null;
 
+	/**
+	 *
+	 * @var integer
+	 */
+	private $id = null;
 	/**
 	 * Request associated with this response
 	 *
@@ -203,6 +216,10 @@ class Response extends Hookable {
 			"response_data"
 		));
 	}
+	public function __wakeup() {
+		parent::__wakeup();
+		$this->id = self::$response_index++;
+	}
 
 	/**
 	 * Handle deprecated configuration
@@ -231,10 +248,20 @@ class Response extends Hookable {
 	function __construct(Application $application, Request $request, array $options = array()) {
 		$this->request = $request;
 		parent::__construct($application, $options);
+		$this->id = self::$response_index++;
 		$this->inherit_global_options();
 		if (!$this->content_type) {
 			$this->content_type($this->option("content_type", self::CONTENT_TYPE_HTML));
 		}
+	}
+
+	/**
+	 * Return Response id
+	 *
+	 * @return integer
+	 */
+	final function id() {
+		return $this->id;
 	}
 
 	/**
@@ -440,6 +467,10 @@ class Response extends Hookable {
 	 */
 	final public function content_type($set = null) {
 		if ($set !== null) {
+			$this->application->logger->debug("Set content type to {set} at {where}", array(
+				"set" => $set,
+				"where" => calling_function()
+			));
 			$this->content_type = $set;
 			return $this;
 		}
@@ -556,10 +587,12 @@ class Response extends Hookable {
 			$this->response_headers($skip_hooks);
 		}
 		if (!$skip_hooks) {
+			$this->application->call_hook("response_output", $this);
 			$this->call_hook("output");
 		}
 		$this->_output_handler()->output($this->content);
 		if (!$skip_hooks) {
+			$this->application->call_hook("response_outputted", $this);
 			$this->call_hook("outputted");
 		}
 		$this->rendering = false;
@@ -913,6 +946,11 @@ class Response extends Hookable {
 	 * @return JSON
 	 */
 	final public function json() {
+		if (func_num_args() !== 0) {
+			zesk()->deprecated("{method} takes NO arguments", array(
+				"method" => __METHOD__
+			));
+		}
 		return $this->_type(self::CONTENT_TYPE_JSON);
 	}
 
@@ -977,17 +1015,7 @@ class Response extends Hookable {
 	 * @return \zesk\Response
 	 */
 	final public function download($file, $name = null, $type = null) {
-		if ($name === null) {
-			$name = basename($file);
-		}
-		$name = File::name_clean($name);
-		if ($type === null) {
-			$type = "attachment";
-		}
-		return $this->raw()
-			->file($file)
-			->header("Content-Disposition", "$type; filename=\"$name\"")
-			->nocache();
+		return $this->raw()->download($file, $name, $type);
 	}
 
 	/*====================================================================================================*\

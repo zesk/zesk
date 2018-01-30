@@ -90,7 +90,7 @@ class Route_Controller extends Route {
 	 * @see Route::_execute()
 	 */
 	function _execute(Response $response) {
-		$app = $this->router->application;
+		$app = $this->application;
 		list($controller, $action) = $this->_init_controller($response);
 		$__ = array(
 			'class' => get_class($controller),
@@ -145,6 +145,7 @@ class Route_Controller extends Route {
 			));
 			throw $e;
 		}
+		return $response;
 	}
 
 	/**

@@ -10,7 +10,7 @@
 namespace zesk;
 
 class Control_Button extends Control {
-	
+
 	/**
 	 * Setting this converts the button into an A tag
 	 * @param string $set
@@ -28,7 +28,7 @@ class Control_Button extends Control {
 			$url = URL::query_format($url, array(
 				"ref" => $this->request->uri()
 			));
-			$this->response->redirect($url, $this->object->apply_map($this->option('redirect_message')));
+			throw new Exception_Redirect($url, $this->object->apply_map($this->option('redirect_message')));
 		}
 		return true;
 	}

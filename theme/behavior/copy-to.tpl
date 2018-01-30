@@ -1,4 +1,6 @@
 <?php
+namespace zesk;
+
 // behavior/copy-to
 
 // Options:
@@ -6,12 +8,8 @@
 // - show_values
 
 /* @var $response zesk\Response */
-$response = $this->response;
 /* @var $widget Widget */
-$widget = $this->widget;
 /* @var $object Model */
-$object = $this->object;
-
 $id = $widget->id();
 
 $map['id'] = "#$id";
@@ -31,4 +29,4 @@ $('{id}').focus(function () {
 	});
 });
 <?php
-$response->jquery(map(ob_get_clean(), $map));
+$response->html()->jquery(map(ob_get_clean(), $map));

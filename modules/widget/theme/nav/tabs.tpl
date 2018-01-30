@@ -62,8 +62,8 @@ $response->jquery('$("[data-toggle=tab]").off("click.tabs").on("click.tabs", fun
 	return false;
 });');
 
-$this->response->jquery('$(".nav-tabs li:first a,li a[href=\"#" + document.URL.right("#") + "\"]").tab("show");');
-$title = $this->response->title();
+$response->html()->jquery('$(".nav-tabs li:first a,li a[href=\"#" + document.URL.right("#") + "\"]").tab("show");');
+$title = $response->html()->title();
 ?>
 <div class="nav-tabs">
 	<ul class="nav nav-tabs">

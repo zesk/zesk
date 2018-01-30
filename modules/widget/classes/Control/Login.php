@@ -63,20 +63,23 @@ class Control_Login extends Control_Edit {
 	 * @see Control_Edit::_widgets()
 	 */
 	protected function initialize() {
-		$f = $this->widget_factory("zesk\\Control_Text")->names("login", $this->option("label_login", __("Email")))->required(true);
+		$locale = $this->locale();
+		$f = $this->widget_factory(Control_Text::class)->names("login", $this->option("label_login", $locale->__("Email")))
+			->required(true);
 
 		$this->child($f);
 
 		if (!$this->option("no_password")) {
-			$f = $this->widget_factory("zesk\\Control_Password")->names("login_password", $this->option("label_password", __("Password")))->required(true);
+			$f = $this->widget_factory(Control_Password::class)->names("login_password", $this->option("label_password", $locale->__("Password")))
+				->required(true);
 			$f->set_option("encrypted_column", "login_password_hash");
 
 			$this->child($f);
 		}
 
-		$f = $this->widget_factory('zesk\\Control_Button')
+		$f = $this->widget_factory(Control_Button::class)
 			->names('login_button', false)
-			->set_option('button_label', __("Login"))
+			->set_option('button_label', $locale->__("Login"))
 			->add_class('btn-primary btn-block');
 		$this->child($f);
 
@@ -104,18 +107,19 @@ class Control_Login extends Control_Edit {
 
 		$object = $this->object;
 		$login = $object->login;
+		$locale = $this->locale();
 		$user = $this->application->orm_factory("zesk\\User");
 		$column_login = $this->option('column_login', $user->column_login());
 		if ($this->option("no_password")) {
 			$user = $this->application->orm_registry("zesk\\User")
 				->query_select()
 				->where($column_login, $object->login)
-				->one_object();
+				->orm();
 			if ($user) {
 				$this->user = $user;
 				return true;
 			} else {
-				$this->error(__("User name not found, please try again, or sign up for a new account."));
+				$this->error($locale->__("User name not found, please try again, or sign up for a new account."));
 				return false;
 			}
 		}
@@ -136,7 +140,7 @@ class Control_Login extends Control_Edit {
 				"login" => $login,
 				"password_hash" => $object->login_password_hash
 			));
-			$this->error(__("Username or password is incorrect."));
+			$this->error($locale->__("Username or password is incorrect."));
 			$this->object->user = $this->user = null;
 			$user->call_hook("login_failed", $this);
 			return false;
@@ -158,7 +162,7 @@ class Control_Login extends Control_Edit {
 	function submit() {
 		if ($this->user instanceof User) {
 			$user = $this->user;
-			$user->authenticated($this->request(), $this->response);
+			$user->authenticated($this->request(), $this->response());
 			$uref = $this->request->get("ref", null);
 			if (URL::is($uref) && !URL::is_same_server($uref, $this->request->url())) {
 				$uref = false;
@@ -170,7 +174,7 @@ class Control_Login extends Control_Edit {
 				"user" => $user,
 				"uid" => $user->id()
 			));
-			$this->response->redirect($uref, $this->application->locale->__("You have logged in successfully."));
+			throw new Exception_Redirect($uref, $this->application->locale->__("You have logged in successfully."));
 		}
 		return true;
 	}

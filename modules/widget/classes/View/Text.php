@@ -10,7 +10,7 @@
 namespace zesk;
 
 /**
- * 
+ *
  * @author kent
  *
  */
@@ -51,10 +51,10 @@ class View_Text extends View {
 			$allow_show_all = $this->option_bool("allow_show_all");
 			$ellip = $this->option($is_html ? "html_ellipsis" : "text_ellipsis", '...');
 			if ($allow_show_all) {
-				$this->response->javascript("/share/zesk/js/zesk.js", array(
+				$this->response()->html()->javascript("/share/zesk/js/zesk.js", array(
 					'weight' => 'first'
 				));
-				
+
 				$my_id = HTML::id_counter();
 				$ellip = "<a onclick=\"ellipsis_toggle('$my_id')\">$ellip</a>";
 				$close_ellip = "<a onclick=\"ellipsis_toggle('$my_id')\">&lt;&lt;</a>";

@@ -33,7 +33,7 @@ echo HTML::div(array(
 	"aria-valuemin" => $this->get("minimum", 0),
 	"aria-valuemax" => $maximum,
 	"style" => "width: $percent%"
-), ($label ? __($label, $text_arguments) : HTML::etag("span", ".sr-only", __($this->accessible_label, $text_arguments))));
+), ($label ? __($label, $text_arguments) : HTML::etag("span", ".sr-only", $this->accessible_label ? __($this->accessible_label, $text_arguments) : null)));
 
 echo map($this->suffix, $text_arguments);
 

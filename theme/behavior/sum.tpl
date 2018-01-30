@@ -1,6 +1,6 @@
 <?php
 /**
- * 
+ *
  */
 namespace zesk;
 
@@ -114,4 +114,4 @@ ob_start();
 }());
 </script>
 <?php
-$response->jquery(map(HTML::extract_tag_contents("script", ob_get_clean()), $map));
+$response->html()->jquery(map(HTML::extract_tag_contents("script", ob_get_clean()), $map));

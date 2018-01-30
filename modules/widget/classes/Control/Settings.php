@@ -7,19 +7,19 @@ class Control_Settings extends Control {
 	 * @var integer
 	 */
 	protected $column_count_label = 4;
-	
+
 	/**
 	 *
 	 * @var integer
 	 */
 	protected $column_count_widget = 8;
-	
+
 	/**
 	 *
 	 * @var Model_Settings
 	 */
 	protected $object = null;
-	
+
 	/**
 	 * (non-PHPdoc)
 	 *
@@ -29,15 +29,16 @@ class Control_Settings extends Control {
 		return $this->application->model_factory(__NAMESPACE__ . "\\Model_Settings");
 	}
 	protected function initialize() {
+		$locale = $this->locale();
 		if (!$this->submit_url()) {
 			$this->submit_url($this->request->uri());
 		}
 		if (!$this->submit_message()) {
-			$this->submit_message(__('Your changes have been saved.'));
+			$this->submit_message($locale->__('Your changes have been saved.'));
 		}
 		$title = $this->title();
 		if ($title) {
-			$this->response->title(__($title));
+			$this->response()->html()->title($locale->__($title));
 		}
 		parent::initialize();
 	}

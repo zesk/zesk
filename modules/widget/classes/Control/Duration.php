@@ -24,7 +24,7 @@ class Control_Duration extends Control_Select {
 		parent::initialize();
 
 		if (!$this->has_option('id')) {
-			$this->id('control-duration-' . $this->response->id_counter());
+			$this->id('control-duration-' . $this->response()->id_counter());
 		}
 		$relative_to = $this->relative_to();
 		if ($relative_to) {

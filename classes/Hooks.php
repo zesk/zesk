@@ -51,6 +51,7 @@ class Hooks {
 	 * @var string
 	 */
 	const hook_reset = "reset";
+
 	/**
 	 *
 	 * @var string

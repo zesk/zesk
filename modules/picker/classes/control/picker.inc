@@ -12,6 +12,7 @@ use zesk\URL;
 use zesk\Database_Query_Select;
 use zesk\ORMIterator;
 use zesk\Control;
+use zesk\Response;
 
 /**
  *
@@ -229,6 +230,7 @@ class Control_Picker extends Control {
 		)) + parent::theme_variables();
 	}
 	public function controller() {
+		$response = $this->response();
 		$action = $this->request->get('action');
 		$variables = $this->theme_variables();
 		if ($action === 'selector') {
@@ -237,24 +239,25 @@ class Control_Picker extends Control {
 			) + $variables, array(
 				"first" => true
 			));
-			$this->response->json(array(
+			$response->json()->data(array(
 				"content" => $this->wrap_form($content),
 				"status" => true
-			) + $this->response->to_json());
+			) + $response->html()->to_json());
 		} else if ($action === 'search') {
-			$this->response->json($this->search_results($variables, $this->request->get("q")) + array(
+			$response->json()->data($this->search_results($variables, $this->request->get("q")) + array(
 				"class_object_name" => $variables['class_object_name'],
 				"class_object_names" => $variables['class_object_names'],
 				"status" => true
-			) + $this->response->to_json());
+			) + $response->html()->to_json());
 		} else if ($action === "submit") {
-			$this->response->json($this->submit_results($variables, $this->request->geta($this->column())) + array(
+			$response->json()->data($this->submit_results($response, $variables, $this->request->geta($this->column())) + array(
 				"status" => true
-			) + $this->response->to_json());
+			) + $response->html()
+				->to_json());
 		}
 		return null;
 	}
-	function submit_results(array $variables, array $ids) {
+	private function submit_results(Response $response, array $variables, array $ids) {
 		$iter = $this->_query()->where("X." . $this->class_object->id_column, $ids)->orm_iterator();
 		$content = "";
 		foreach ($iter as $object) {
@@ -266,10 +269,10 @@ class Control_Picker extends Control {
 				"first" => true
 			));
 		}
-		$this->response->javascript('/share/picker/js/picker.js', array(
+		$response->javascript('/share/picker/js/picker.js', array(
 			'share' => true
 		));
-		$this->response->jquery('$.picker();');
+		$response->jquery('$.picker();');
 		return array(
 			"status" => true,
 			"message" => $this->option("submit_message"),

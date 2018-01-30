@@ -168,7 +168,7 @@ class Settings extends ORM implements Interface_Data, Interface_Settings {
 			$application->logger->debug("{method} - loaded {n} globals {size} of data", array(
 				"method" => __METHOD__,
 				"n" => $n_loaded,
-				"size" => Number::format_bytes($size_loaded)
+				"size" => Number::format_bytes($application->locale, $size_loaded)
 			));
 		}
 		$globals = $application->call_hook_arguments("filter_settings", array(

@@ -57,6 +57,7 @@ class Controller_Authenticated extends Controller_Theme {
 	 * @param string $options
 	 */
 	protected function initialize() {
+		parent::initialize();
 		if ($this->login_redirect === null) {
 			$this->login_redirect = $this->router ? $this->router->get_route("login", User::class) : null;
 			if (!$this->login_redirect) {
@@ -67,16 +68,19 @@ class Controller_Authenticated extends Controller_Theme {
 		if ($this->login_redirect_message === null) {
 			$this->login_redirect_message = $this->application->locale->__($this->option('login_redirect_message', 'Please log in first.'));
 		}
-	}
-	function before() {
-		parent::before();
 		$this->session = $this->application->session($this->request, false);
-		$this->user = $this->session->user();
+		$this->user = $this->session ? $this->session->user() : null;
+	}
+	function check_authenticated() {
 		if (!$this->session || !$this->user) {
 			$this->login_redirect();
 		} else if ($this->option_bool('login_redirect', true)) {
 			$this->login_redirect();
 		}
+	}
+	function before() {
+		parent::before();
+		$this->check_authenticated();
 	}
 
 	/**
@@ -84,7 +88,7 @@ class Controller_Authenticated extends Controller_Theme {
 	 */
 	protected function login_redirect() {
 		if (!$this->user || !$this->user->authenticated($this->request)) {
-			if ($this->response->json()) {
+			if ($this->response->is_json()) {
 				$this->json(array(
 					"status" => false,
 					"message" => $this->login_redirect_message,
@@ -96,7 +100,7 @@ class Controller_Authenticated extends Controller_Theme {
 				$url = URL::query_format($this->login_redirect, array(
 					"ref" => $this->request->uri()
 				));
-				$this->response->redirect($url, $this->login_redirect_message);
+				throw new Exception_Redirect($url, $this->login_redirect_message);
 			}
 		}
 	}

@@ -34,10 +34,11 @@ class View_Section extends View {
 	public function controller() {
 		$content = $this->render();
 		if ($this->request->is_ajax()) {
-			$this->response->json(array(
+			$response = $this->response();
+			$response->json()->data(array(
 				'status' => true,
 				'content' => $content,
-				'title' => $this->response->title()
+				'title' => $response->html()->title()
 			));
 			return;
 		}

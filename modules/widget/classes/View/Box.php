@@ -22,7 +22,7 @@ class View_Box extends View {
 		parent::initialize();
 		$column = $this->column();
 		if (!$column) {
-			$column = "box-" . $this->response->id_counter();
+			$column = "box-" . $this->response()->id_counter();
 			$this->column($column);
 		}
 	}
@@ -58,7 +58,7 @@ class View_Box extends View {
 		$model->content = $content;
 		return $b->execute($model);
 	}
-	
+
 	/**
 	 * Start a box
 	 *

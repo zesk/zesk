@@ -49,14 +49,14 @@ class View_Image extends View {
 	private function scale_image($source) {
 		list($width, $height) = getimagesize($source);
 		extract($this->options, EXTR_IF_EXISTS);
-		
+
 		/*
 		 * Deal with the file paths
 		 */
 		$source = realpath($source);
 		$this->debug_log("\$sourceFile = $source");
 		$this->debug_log("\$this->source_directory()  = " . $this->source_directory());
-		
+
 		$cache = $this->cache_directory();
 		try {
 			Directory::depend($cache, 0755);
@@ -64,28 +64,29 @@ class View_Image extends View {
 			$this->application->logger->error($e);
 			return $this->missing_file();
 		}
-		
-		$this->application->logger->notice("Cache directory is $cache");
+
 		$prefix = "";
 		if ($this->has_option('id')) {
 			$prefix = $this->option('id') . '-';
 		}
 		$target_filename = $prefix . File::base($source) . "-${width}x${height}." . File::extension($source);
-		
+
 		$target_full_path = path($cache, $target_filename);
 		$scaled_result = path($this->cache_url_prefix(), $target_filename);
-		
+
 		if (self::$debug) {
 			$this->application->logger->debug("\$scaled_result = {scaled_result}", compact("scaled_result"));
 		}
 		$this->set_option('scale_path', $target_full_path);
 		$this->call_hook('scale_path', $target_full_path);
-		$this->application->logger->notice("\$target_full_path is $target_full_path");
+		if (self::$debug) {
+			$this->application->logger->debug("\$target_full_path is $target_full_path");
+		}
 		if (!$this->option_bool('always_generate') && file_exists($target_full_path)) {
 			list($this->width, $this->height) = getimagesize($target_full_path);
 			return $scaled_result;
 		}
-		
+
 		if (Image_Library::factory($this->application)->image_scale($source, $target_full_path, $this->options)) {
 			list($this->width, $this->height) = getimagesize($target_full_path);
 			$this->set_option("created_file", true);
@@ -113,15 +114,15 @@ class View_Image extends View {
 		$object = $this->object;
 		$actualWidth = $object->get($this->option("WidthColumn", "Width"));
 		$actualHeight = $object->get($this->option("HeightColumn", "Height"));
-		
+
 		$value = $object->apply_map($this->option("src", '{src}'));
 		//avalue($object, $this->column('src'));
-		
+
 		if (empty($value)) {
 			$this->debug_log("Empty value for src...");
 			return "";
 		}
-		
+
 		if ($this->option_bool("is_relative", true)) {
 			$file_path = $this->relative_to_absolute_path($value);
 			$path = $file_path;
@@ -129,7 +130,7 @@ class View_Image extends View {
 			$file_path = $value;
 			$path = path($this->source_directory(), $file_path);
 		}
-		
+
 		if (!file_exists($path) || is_dir($path)) {
 			$this->debug_log("Image path not found: $path");
 			return $this->output_image($object, $file_path, $this->missing_image_path(), "\n<!-- Not a file -->");
@@ -143,17 +144,19 @@ class View_Image extends View {
 		))) {
 			return $this->output_image($object, $file_path, $this->missing_image_path(), "\n<!-- NOT AN IMAGE? $ext -->");
 		}
-		
+
 		$scale_value = $this->scale_image($path);
 		if (is_string($scale_value)) {
 			$value = $scale_value;
 		}
-		$this->application->logger->notice("Output image path is file_path=$file_path value=$value");
+		if (self::$debug) {
+			$this->application->logger->notice("Output image path is file_path=$file_path value=$value");
+		}
 		return $this->output_image($file_path, $value);
 	}
 	protected function output_image($file_path, $value, $options = "") {
 		$attrs = array();
-		
+
 		$attrs["width"] = $this->option_integer("ScaledWidth", $this->option_integer("Width"));
 		$attrs["height"] = $this->option_integer("ScaledHeight", $this->option_integer("Height"));
 		$attrs["border"] = $this->option_integer("Border", 0);
@@ -162,7 +165,7 @@ class View_Image extends View {
 		$attrs["class"] = $this->option("class", null);
 		$attrs["alt"] = $this->option("alt", "");
 		$attrs["title"] = $this->option("title", false);
-		
+
 		$attrs = $this->object->apply_map($attrs);
 		if ($this->has_option('image_host')) {
 			$attrs["src"] = $this->option('image_host') . $file_path;
@@ -173,17 +176,17 @@ class View_Image extends View {
 		if ($this->has_option('query')) {
 			$attrs['src'] = URL::query_format($attrs['src'], $this->option('query'));
 		}
-		
+
 		$this->set_option("scale_src", $attrs['src']);
-		
+
 		$result = HTML::tag("img", $attrs, null);
-		
+
 		return $result . $options;
 	}
 	public function didCreateFile() {
 		return $this->option_bool("created_file", true);
 	}
-	
+
 	/**
 	 * Generate a widget with appropriate options and return it.
 	 *

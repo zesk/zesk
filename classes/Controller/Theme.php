@@ -65,7 +65,7 @@ abstract class Controller_Theme extends Controller {
 			));
 		}
 		if ($this->theme === null) {
-			$this->theme = $this->option('theme');
+			$this->theme = $this->option('theme', self::DEFAULT_THEME);
 		}
 		$this->auto_render = $this->option_bool('auto_render', $this->auto_render);
 	}
@@ -104,24 +104,6 @@ abstract class Controller_Theme extends Controller {
 	public function error($code, $message = null) {
 		$this->auto_render(false);
 		parent::error($code, $message);
-	}
-
-	/**
-	 * (non-PHPdoc)
-	 * @see Controller::before()
-	 */
-	public function before() {
-		if ($this->auto_render) {
-			if ($this->route->option("json")) {
-				$this->response->content_type(Response::CONTENT_TYPE_JSON);
-			}
-			if ($this->theme === null) {
-				$this->theme = $this->call_hook('theme');
-				if ($this->theme === null) {
-					$this->theme = $this->option("theme", self::DEFAULT_THEME);
-				}
-			}
-		}
 	}
 
 	/**
@@ -176,7 +158,12 @@ abstract class Controller_Theme extends Controller {
 	 * @param array $options
 	 */
 	protected function control(Control $control, Model $object = null, array $options = array()) {
+		$control->response($this->response);
 		$content = $control->execute($object);
+		$this->application->logger->error("{method} content_type={content_type}", array(
+			"method" => __METHOD__,
+			"content_type" => $this->response->content_type()
+		));
 		$this->call_hook(avalue($options, "hook_execute", "control_execute"), $control, $object, $options);
 		$title = $control->option('title', avalue($options, 'title'));
 		$this->response->title($title, false); // Do not overwrite existing values

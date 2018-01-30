@@ -19,21 +19,10 @@ class JSON extends Type {
 		$this->json = array();
 	}
 
-	/*
-	 if (count($this->response_data) === 0) {
-	 $content = $set;
-	 } else {
-	 if (is_array($set)) {
-	 $content = $set + $this->response_data;
-	 } else {
-	 $content = array(
-	 'content' => $set
-	 ) + $this->response_data;
-	 }
-	 }
-	 $this->content = is_array($this->content) ? $content + $this->content : $content;
-	 return $this;
-
+	/**
+	 *
+	 * @param mixed $set
+	 * @return \zesk\Response|array
 	 */
 	function data($set = null) {
 		if ($set !== null) {

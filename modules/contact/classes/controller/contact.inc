@@ -9,11 +9,11 @@
 namespace zesk;
 
 /**
- * 
+ *
  * @author kent
  *
  */
-class Controller_Contact extends Controller_Template_Login {
+class Controller_Contact extends Controller_Authenticated {
 	function action_index() {
 		return $this->action_list();
 	}
@@ -33,7 +33,7 @@ class Controller_Contact extends Controller_Template_Login {
 		$vars = array();
 		$vars['title'] = $person->fullName();
 		$vars['content'] = HTML::tag('div', '.contact-edit', $content);
-		
+
 		$this->template->set($vars + $this->variables());
 	}
 	function action_new() {
@@ -72,16 +72,16 @@ class Controller_Contact extends Controller_Template_Login {
 		$vars = array();
 		// $vars['title'] = $person->fullName();
 		$vars['content'] = HTML::tag('div', '.pblist', $content);
-		
+
 		$this->template->body = Template::instance('blocks/section-top.tpl', $vars + $this->variables());
 	}
 	function action_list() {
 		$options = array();
-		
+
 		$options['empty_list_string'] = HTML::tag('div', '.padding', __("No contacts match your query.") . ' ' . HTML::a($this->request->path(), __("View all contacts")));
 		$widget = new Control_Contact_List($options);
 		$content = $widget->execute();
-		
+
 		$vars = array();
 		$n_contacts = $this->application->orm_registry('Contact')
 			->query_select()
@@ -95,12 +95,12 @@ class Controller_Contact extends Controller_Template_Login {
 			$template = new Template("menus/tags.tpl", $this->variables());
 			$this->template->menu = $template->output();
 			$title = $template->get("tag_title", __('All contacts'));
-			
+
 			$vars['title'] = $title;
 			$vars['upper_right'] = HTML::a('/contact/new', __("Add a new contact"));
 			$vars['content'] = HTML::tag('div', '.contact-list', $content);
 		}
-		
+
 		$this->template->set($vars + $this->variables());
 	}
 	function _action_default($action = null) {

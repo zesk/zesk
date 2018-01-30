@@ -19,13 +19,9 @@ namespace zesk;
 // - hide_values
 // - show_values
 
-/* @var $response zesk\Response */
-$response = $this->response;
+/* @var $response Response */
 /* @var $widget Widget */
-$widget = $this->widget;
 /* @var $object Model */
-$object = $this->object;
-
 $hide_values = $this->hide_values;
 $show_values = $this->show_values;
 if ($hide_values === null) {
@@ -120,4 +116,4 @@ if ($hide_values === null && $show_values === null) {
 }(window.jQuery));
 <?php
 }
-$response->jquery(map(ob_get_clean(), $map));
+$response->html()->jquery(map(ob_get_clean(), $map));
