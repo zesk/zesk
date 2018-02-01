@@ -9,25 +9,25 @@
 namespace zesk;
 
 /**
- * 
+ *
  * @author kent
  *
  */
 abstract class Controller_ORM extends Controller_Authenticated {
-	
+
 	/**
 	 *
 	 * @var boolean
 	 */
 	protected $is_ajax = null;
-	
+
 	/**
 	 * ORM class to control
 	 *
 	 * @var string
 	 */
 	protected $class = null;
-	
+
 	/**
 	 * Locale-specific object class name (e.g. "Link", "Page", etc.)
 	 *
@@ -37,7 +37,7 @@ abstract class Controller_ORM extends Controller_Authenticated {
 	 * @var string
 	 */
 	protected $class_name = null;
-	
+
 	/**
 	 * Locale of the class_name for translation
 	 *
@@ -48,34 +48,34 @@ abstract class Controller_ORM extends Controller_Authenticated {
 	// * @var Controller
 	// */
 	// protected $controller = null;
-	
+
 	/**
 	 * URL to redirect to if Control_${this->class}_List
 	 *
 	 * @var string
 	 */
 	protected $not_found_url = null;
-	
+
 	/**
 	 * Message to pass to failed page
 	 *
 	 * @var string
 	 */
 	protected $not_found_message = "Page not found";
-	
+
 	/**
 	 *
 	 * @var string
 	 */
 	protected $not_found_content = "Page not found";
-	
+
 	/**
 	 * Action default (override in subclasses)
 	 *
 	 * @var string
 	 */
 	protected $action_default = '';
-	
+
 	/**
 	 *
 	 * @var array
@@ -102,41 +102,41 @@ abstract class Controller_ORM extends Controller_Authenticated {
 		)
 	);
 	protected $control_options = array();
-	
+
 	/**
 	 * Action which was found from ->actions above
 	 *
 	 * @var string
 	 */
 	protected $actual_action = null;
-	
+
 	/**
 	 * Permissions which are required for this object to continue
 	 *
 	 * @var string
 	 */
 	protected $permission_actions = null;
-	
+
 	/**
 	 * List of widgets tried when loading controller widget
 	 *
 	 * @var array of string
 	 */
 	protected $tried_widgets = array();
-	
+
 	/**
 	 *
 	 * @var Widget
 	 */
 	protected $widget = null;
-	
+
 	/**
 	 * Action related to above widget
 	 *
 	 * @var string
 	 */
 	protected $widget_action = null;
-	
+
 	/**
 	 *
 	 * @return multitype:
@@ -144,7 +144,7 @@ abstract class Controller_ORM extends Controller_Authenticated {
 	function hook_actions() {
 		return array_keys($this->actions);
 	}
-	
+
 	/**
 	 * Classes that are handled by this controller
 	 *
@@ -155,7 +155,7 @@ abstract class Controller_ORM extends Controller_Authenticated {
 			$this->class
 		);
 	}
-	
+
 	/**
 	 * Create a Controller_ORM
 	 *
@@ -185,9 +185,9 @@ abstract class Controller_ORM extends Controller_Authenticated {
 			$this->class_name = __($this->class_name, $this->class_name_locale);
 		}
 	}
-	
+
 	/**
-	 * 
+	 *
 	 * @param unknown $action
 	 * @param unknown $id
 	 * @return \zesk\ORM
@@ -202,9 +202,9 @@ abstract class Controller_ORM extends Controller_Authenticated {
 		}
 		return $args;
 	}
-	
+
 	/**
-	 * 
+	 *
 	 * @param ORM $object
 	 * @param unknown $option
 	 * @param unknown $default_action
@@ -223,9 +223,9 @@ abstract class Controller_ORM extends Controller_Authenticated {
 		}
 		return $url;
 	}
-	
+
 	/**
-	 * 
+	 *
 	 * @param unknown $redirect_url
 	 * @param unknown $message
 	 * @param array $options
@@ -242,9 +242,9 @@ abstract class Controller_ORM extends Controller_Authenticated {
 		}
 		$this->response->redirect_default($redirect_url, $message);
 	}
-	
+
 	/**
-	 * 
+	 *
 	 * @param unknown $parameter
 	 * @return \zesk\ORM[]
 	 */
@@ -258,9 +258,9 @@ abstract class Controller_ORM extends Controller_Authenticated {
 			$this->controller_orm_factory($parameter)
 		);
 	}
-	
+
 	/**
-	 * 
+	 *
 	 * @param unknown $parameter
 	 * @return \zesk\ORM[]
 	 */
@@ -272,16 +272,16 @@ abstract class Controller_ORM extends Controller_Authenticated {
 		return $result;
 	}
 	/**
-	 * 
+	 *
 	 * @param unknown $parameter
 	 * @return \zesk\ORM[]
 	 */
 	function arguments_duplicate($parameter) {
 		return $this->_arguments_load($parameter);
 	}
-	
+
 	/**
-	 * 
+	 *
 	 * @param ORM $object
 	 */
 	function action_delete(ORM $object) {
@@ -319,9 +319,9 @@ abstract class Controller_ORM extends Controller_Authenticated {
 		}
 		$this->response->redirect_default($redirect_url, $message);
 	}
-	
+
 	/**
-	 * 
+	 *
 	 * @param ORM $object
 	 */
 	function action_duplicate(ORM $object) {
@@ -350,9 +350,9 @@ abstract class Controller_ORM extends Controller_Authenticated {
 			"object" => $new_object->json()
 		));
 	}
-	
+
 	/**
-	 * 
+	 *
 	 * {@inheritDoc}
 	 * @see \zesk\Controller_Template_Login::before()
 	 */
@@ -362,9 +362,9 @@ abstract class Controller_ORM extends Controller_Authenticated {
 		}
 		parent::before();
 	}
-	
+
 	/**
-	 * 
+	 *
 	 * {@inheritDoc}
 	 * @see \zesk\Controller_Template::after()
 	 */
@@ -383,7 +383,7 @@ abstract class Controller_ORM extends Controller_Authenticated {
 					'content' => $content,
 					'microtime' => microtime(true)
 				) + $this->response->to_json();
-				
+
 				$this->response->json($json);
 			}
 			$this->auto_render(false);
@@ -392,9 +392,9 @@ abstract class Controller_ORM extends Controller_Authenticated {
 		}
 		parent::after($result, $output);
 	}
-	
+
 	/**
-	 * 
+	 *
 	 * @param string $action
 	 * @return string[]
 	 */
@@ -411,9 +411,9 @@ abstract class Controller_ORM extends Controller_Authenticated {
 		}
 		return $controls;
 	}
-	
+
 	/**
-	 * 
+	 *
 	 * @param unknown $action
 	 * @return \zesk\Widget|NULL
 	 */
@@ -437,7 +437,7 @@ abstract class Controller_ORM extends Controller_Authenticated {
 		}
 		return null;
 	}
-	
+
 	/**
 	 * Override in subclasses to get unique factory behavior (say, dependent on other objects in the route)
 	 *
@@ -446,11 +446,11 @@ abstract class Controller_ORM extends Controller_Authenticated {
 	 * @return ORM
 	 */
 	protected function controller_orm_factory($mixed = null, $options = null) {
-		return $this->orm_factory($this->class, $mixed, to_array($options))->fetch();
+		return $this->application->orm_factory($this->class, $mixed, to_array($options))->fetch();
 	}
-	
+
 	/**
-	 * 
+	 *
 	 * {@inheritDoc}
 	 * @see \zesk\Controller::_action_default()
 	 */
@@ -525,7 +525,7 @@ abstract class Controller_ORM extends Controller_Authenticated {
 				$object = null;
 			}
 			$action_prefix = __(ucfirst($action)) . " ";
-			
+
 			$title = $widget->option('title', $this->option('title', $this->route->option('title')));
 			if ($title) {
 				$title = map($title, array(

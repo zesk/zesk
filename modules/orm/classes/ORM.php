@@ -2475,9 +2475,6 @@ class ORM extends Model {
 		if ($this->is_new()) {
 			return false;
 		}
-		$cache = $this->object_cache();
-		$cache->delete();
-
 		if ($this->option_bool("disable_database")) {
 			return false;
 		}
