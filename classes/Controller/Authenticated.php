@@ -68,8 +68,10 @@ class Controller_Authenticated extends Controller_Theme {
 		if ($this->login_redirect_message === null) {
 			$this->login_redirect_message = $this->application->locale->__($this->option('login_redirect_message', 'Please log in first.'));
 		}
-		$this->session = $this->application->session($this->request, false);
-		$this->user = $this->session ? $this->session->user() : null;
+		if ($this->request) {
+			$this->session = $this->application->session($this->request, false);
+			$this->user = $this->session ? $this->session->user() : null;
+		}
 	}
 	function check_authenticated() {
 		if (!$this->session || !$this->user) {
