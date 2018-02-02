@@ -71,7 +71,7 @@ class Controller extends Hookable implements Interface_Theme {
 
 	/**
 	 *
-	 * @param Request $request
+	 * @param Route $route
 	 * @param Response $response
 	 * @param array $options
 	 */
@@ -215,6 +215,9 @@ class Controller extends Hookable implements Interface_Theme {
 	 * @return self
 	 */
 	public function json($mixed = null) {
+		$mixed = $this->call_hook_arguments("json", array(
+			$mixed
+		), $mixed);
 		$this->response->json()->data($mixed);
 		return $this;
 	}

@@ -947,18 +947,20 @@ class Application extends Hookable implements Interface_Theme {
 	 * @param \Exception $exception
 	 * @return \zesk\Response
 	 */
-	final private function _main_exception(Request $request, \Exception $exception) {
+	final private function main_exception(Request $request, \Exception $exception) {
 		$response = $this->response_factory($request, Response::CONTENT_TYPE_HTML);
 		$response->content = $this->theme($this->classes->hierarchy($exception), array(
+			"request" => $request,
 			"response" => $response,
 			"exception" => $exception,
 			"content" => $exception
 		), array(
 			"first" => true
 		));
-		;
+		if (!$exception instanceof Exception_Redirect) {
+			$this->hooks->call("exception", $exception);
+		}
 		$this->call_hook('main_exception', $exception, $response);
-		$this->hooks->call("exception", $exception);
 		return $response;
 	}
 	/**
@@ -1053,7 +1055,7 @@ class Application extends Hookable implements Interface_Theme {
 			}
 			$response = $route->execute($request);
 		} catch (\Exception $exception) {
-			$response = $this->_main_exception($request, $exception);
+			$response = $this->main_exception($request, $exception);
 		}
 		$this->current_request = null;
 		return $response;
@@ -1452,6 +1454,10 @@ class Application extends Hookable implements Interface_Theme {
 		$arguments['content_previous'] = null;
 		$has_output = false;
 		$content = $this->_theme_arguments($type, $arguments, null, $extension);
+		if (!is_array($types)) {
+			// Something's fucked.
+			return $content;
+		}
 		if ($content !== null) {
 			$arguments['content'] = $content;
 			$has_output = true;
@@ -1868,21 +1874,29 @@ class Application extends Hookable implements Interface_Theme {
 	}
 
 	/**
+	 * Uses current application Request for authentication if not supplied.
 	 *
-	 * @return User
+	 * @param Request $request Request to use for
+	 * @param boolean $require Force object creation if not found. May have side effect of creating a Session_Interface within the Request.
+	 * @return \zesk\User
 	 */
-	public function user(Request $request, $require = true) {
-		$session = $this->session($request, $require);
-		if ($session) {
-			$user = $session->user();
-			if ($user) {
-				return $user;
-			}
-			if (!$require) {
-				return null;
+	public function user(Request $request = null, $require = true) {
+		if ($request === null) {
+			$request = $this->request();
+		}
+		if ($request) {
+			$session = $this->session($request, $require);
+			if ($session) {
+				$user = $session->user();
+				if ($user) {
+					return $user;
+				}
 			}
 		}
-		return $this->model_factory(User::class);
+		if (!$require) {
+			return null;
+		}
+		return $this->model_singleton(User::class);
 	}
 
 	/**
