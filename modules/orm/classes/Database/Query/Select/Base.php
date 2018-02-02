@@ -94,7 +94,7 @@ abstract class Database_Query_Select_Base extends Database_Query {
 	 *        	Pass to class_table_columns for dynamic table objects
 	 * @param string $object_options
 	 *        	Pass to class_table_columns for dynamic table objects
-	 * @return Databasse_Query_Select @ return Databasse_Query_Select_Base
+	 * @return Databasse_Query_Select
 	 */
 	function what_object($class = null, $alias = null, $prefix = null, $object_mixed = null, $object_options = null) {
 		if (!$class) {
@@ -301,7 +301,7 @@ abstract class Database_Query_Select_Base extends Database_Query {
 	 */
 	function one_object($class = null, array $options = array()) {
 		$this->application->deprecated();
-		return $this->object($class, $options);
+		return $this->orm($class, $options);
 	}
 
 	/**

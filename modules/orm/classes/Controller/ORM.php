@@ -436,7 +436,7 @@ abstract class Controller_ORM extends Controller_Authenticated {
 	 * @return ORM
 	 */
 	protected function controller_orm_factory($mixed = null, $options = null) {
-		return $this->orm_factory($this->class, $mixed, to_array($options))->fetch();
+		return $this->application->orm_factory($this->class, $mixed, to_array($options))->fetch();
 	}
 
 	/**
@@ -461,7 +461,7 @@ abstract class Controller_ORM extends Controller_Authenticated {
 			throw new Exception_Parameter("Invalid {name} ID", $__);
 		}
 		try {
-			$fetched = $object->fetch();
+			return $object->fetch();
 		} catch (Exception_ORM_NotFound $e) {
 			throw new Exception_Parameter("{name} not found", $__);
 		} catch (Exception_ORM_NotFound $e) {

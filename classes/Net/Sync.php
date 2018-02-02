@@ -11,7 +11,7 @@ namespace zesk;
  *
  */
 class Net_Sync extends Options {
-	
+
 	/**
 	 *
 	 * @var Net_FileSystem
@@ -22,12 +22,12 @@ class Net_Sync extends Options {
 	 * @var Net_FileSystem
 	 */
 	protected $dst;
-	
+
 	/*
 	 * Synchronization stats
 	 */
 	private $stats = array();
-	
+
 	/**
 	 * Sync a local file with a destination file, optionally checking checksums
 	 *
@@ -71,7 +71,7 @@ class Net_Sync extends Options {
 			return false;
 		}
 	}
-	
+
 	/**
 	 *
 	 * @param string $url
@@ -81,27 +81,28 @@ class Net_Sync extends Options {
 	private static function _fetch_url(Application $application, $url, array $options = array()) {
 		$milliseconds = to_integer(avalue($options, 'timeout'));
 		$user_agent = avalue($options, 'user_agent');
-		
+
 		$client = new Net_HTTP_Client($application, $url);
 		if ($milliseconds) {
 			$client->timeout($milliseconds);
 		}
-		$temp_file_name = File::temporary();
+		$temporary_path = avalue($options, "temporary_path", $application->paths->temporary());
+		$temp_file_name = File::temporary($temporary_path);
 		$client->follow_location(true);
 		if ($user_agent) {
 			$client->user_agent($user_agent);
 		}
 		$client->destination($temp_file_name);
-		
+
 		$result = $client->go();
-		
+
 		$filename = $client->filename();
 		return array(
 			$temp_file_name,
 			$filename
 		);
 	}
-	
+
 	/**
 	 * Utility function to sync two URLs
 	 *
@@ -116,7 +117,7 @@ class Net_Sync extends Options {
 		$sync = new Net_Sync($src_client, $dst_client, $options);
 		return $sync->go();
 	}
-	
+
 	/**
 	 * Create sync object
 	 *
@@ -130,7 +131,7 @@ class Net_Sync extends Options {
 		$this->src = $source;
 		$this->dst = $destination;
 	}
-	
+
 	/**
 	 * Internal function to manage filter values properly.
 	 * If it's a boolean (include all, exclude all), store it.
@@ -162,7 +163,7 @@ class Net_Sync extends Options {
 		$this->option('dir_exclude', self::_set_filter($exclude, false));
 		return $this;
 	}
-	
+
 	/**
 	 * Given a filename, should it be included in this sync?
 	 *
@@ -189,7 +190,7 @@ class Net_Sync extends Options {
 		}
 		return true;
 	}
-	
+
 	/**
 	 * Allow this file to be synced?
 	 *
@@ -199,7 +200,7 @@ class Net_Sync extends Options {
 	private function _file_allow($filename) {
 		return self::_allow($filename, $this->file_include, $this->file_exclude);
 	}
-	
+
 	/**
 	 * Allow this directory to be synced?
 	 *
@@ -209,7 +210,7 @@ class Net_Sync extends Options {
 	private function _dir_allow($filename) {
 		return self::_allow($filename, $this->dir_include, $this->dir_exclude);
 	}
-	
+
 	/**
 	 * Should this file be synced based on entry values?
 	 *
@@ -243,7 +244,7 @@ class Net_Sync extends Options {
 		}
 		return true;
 	}
-	
+
 	/**
 	 * Synchronize two URLs, recursively.
 	 *
@@ -253,17 +254,17 @@ class Net_Sync extends Options {
 	 */
 	function go() {
 		$logger = $this->src->application()->logger;
-		
+
 		$src = $this->src;
 		$dst = $this->dst;
-		
+
 		$src_url = $src->url();
 		$src_root = Directory::add_slash($src->url('path'));
 		$src_root_length = strlen($src_root);
-		
+
 		$dst_url = $dst->url();
 		$dst_root = Directory::add_slash($dst->url('path'));
-		
+
 		if (!$src->cd($src_root)) {
 			throw new Exception_Directory_NotFound("Source \"$src_url\" directory \"$src_root\" not found");
 		}
@@ -292,16 +293,16 @@ class Net_Sync extends Options {
 				$stats['total']++;
 				$name = $src_entry['name'];
 				$type = $src_entry['type'];
-				
+
 				$full_src_path = path($src_path, $name);
 				$rel_path = substr($full_src_path, $src_root_length);
 				$full_dst_path = path($dst_root, $rel_path);
-				
+
 				$logger->debug("sync $full_src_path");
-				
+
 				$dst_entry = $dst->stat($full_dst_path);
 				$dst_type = avalue($dst_entry, 'type');
-				
+
 				if ($type === 'dir') {
 					$stats['dirs']++;
 					if ($dst_type === null) {
@@ -349,7 +350,7 @@ class Net_Sync extends Options {
 		$this->stats = $stats;
 		return $this->stats;
 	}
-	
+
 	/**
 	 * Retrieve the most recent synchronization stats
 	 *

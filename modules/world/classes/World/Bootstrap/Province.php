@@ -17,13 +17,7 @@ namespace zesk;
  * @package zesk
  * @subpackage system
  */
-class World_Bootstrap_Province extends Options {
-
-	/**
-	 *
-	 * @var Application
-	 */
-	public $application = null;
+class World_Bootstrap_Province extends Hookable {
 	/**
 	 *
 	 * @var array
@@ -47,8 +41,7 @@ class World_Bootstrap_Province extends Options {
 	 * @param mixed $options
 	 */
 	public function __construct(Application $application, array $options = array()) {
-		$this->application = $application;
-		parent::__construct($options);
+		parent::__construct($application, $options);
 		$object = $application->modules->object("world");
 		$this->inherit_global_options($object);
 		$include_country = $this->option("include_country");

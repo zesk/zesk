@@ -54,6 +54,8 @@ class Controller_Preference extends Controller {
 		if ($this->whitelist === null) {
 			$path = $this->whitelist = array_flip(ArrayTools::clean(explode("\n", File::contents($this->_whitelist(), "")), ""));
 			if ($this->application->development()) {
+				// TODO Possible security hole here - if someone outside can set development, they could possibly overwrite User preferences how they wish.
+				// Possibly set a global flag instead?
 				$this->application->hooks->add("exit", array(
 					$this,
 					'save_preferences'
@@ -87,10 +89,14 @@ class Controller_Preference extends Controller {
 			));
 		}
 		$user = $this->application->user($this->request);
-		if (!$user->authenticated($this->request)) {
+		if (!$user || !$user->authenticated($this->request)) {
+			$this->response->status(Net_HTTP::Status_Unauthorized, $message_en = "Not authenticated");
 			return $this->json(array(
 				"status" => false,
-				"message" => __("Not authenticated")
+				"actions" => array(
+					"user-not-authenticated"
+				),
+				"message" => __($message_en)
 			));
 		}
 		if ($this->request->is_post()) {

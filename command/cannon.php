@@ -188,7 +188,7 @@ class Command_Cannon extends Command_Base {
 	private function _replace_file($file, $search, $replace) {
 		if (($size = filesize($file)) > $this->option_integer("max_file_size")) {
 			$this->log("Skipping {size} {file}", array(
-				"size" => Number::format_bytes($size),
+				"size" => Number::format_bytes($this->application->locale, $size),
 				"file" => $file
 			));
 			return 0;

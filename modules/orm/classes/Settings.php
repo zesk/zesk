@@ -192,7 +192,8 @@ class Settings extends ORM implements Interface_Data, Interface_Settings {
 			$application->logger->debug("{method} entry", $__);
 		}
 		// If no databases registered, don't bother loading.
-		if (count(Database::register()) === 0) {
+		$databases = $application->database_module()->register();
+		if (count($databases) === 0) {
 			if ($debug_load) {
 				$application->logger->debug("{method} - no databases, not loading configuration", $__);
 			}
