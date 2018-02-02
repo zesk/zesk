@@ -390,7 +390,7 @@ class Router extends Hookable {
 	 */
 	function import($contents, array $add_options = null) {
 		$parser = new Parser($contents);
-		$parser->load($this, $add_options);
+		$parser->execute($this, $add_options);
 	}
 	private function _register_route(Route $route) {
 		$class_actions = $route->class_actions();
