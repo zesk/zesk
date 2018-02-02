@@ -197,7 +197,11 @@ class CacheItemPool_File implements CacheItemPoolInterface {
 	 */
 	public function save(CacheItemInterface $item) {
 		$key = $item->getKey();
-		File::put($this->cache_file($key), serialize($item));
+		$file = $this->cache_file($key);
+		$dir = dirname($file);
+		if (is_dir($dir)) {
+			return File::put($file, serialize($item));
+		}
 		return false;
 	}
 
