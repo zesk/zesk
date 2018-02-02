@@ -13,6 +13,7 @@ use zesk\Response;
 use zesk\Router;
 use zesk\Template;
 use zesk\Interface_Module_Routes;
+use zesk\Exception_Parse;
 
 /**
  *
@@ -20,11 +21,8 @@ use zesk\Interface_Module_Routes;
  *
  */
 class Module_TinyMCE extends zesk\Module_JSLib implements Interface_Module_Routes {
-	protected $javascript_paths = array(
-		'/share/tinymce/tinymce.min.js' => array()
-	);
+	protected $javascript_paths = array();
 	protected $tinymce_options = array(
-		'script_url' => '/share/tinymce/tinymce.min.js',
 		'menubar' => null,
 		'relative_urls' => null,
 		'selector' => 'textarea',
@@ -78,16 +76,106 @@ class Module_TinyMCE extends zesk\Module_JSLib implements Interface_Module_Route
 	 * @var array of resource
 	 */
 	private $spellers = array();
+
+	/**
+	 *
+	 * @var string
+	 */
+	private $share_name = "tinymce";
+
+	/**
+	 * So many things can go wrong determining the version. Really.
+	 *
+	 * @throws Exception_Parse
+	 * @return boolean|\zesk\the
+	 */
+	private function determine_version() {
+		$app = $this->application;
+		$package_json = path($this->vendor_path, "package.json");
+		if (!is_file($package_json)) {
+			$app->logger->warning("{method} missing {file} - non-versioned TinyMCE share path", array(
+				"method" => __METHOD__,
+				"file" => $package_json
+			));
+			return null;
+		}
+		try {
+			$package = JSON::decode(file_get_contents($package_json));
+			if (!is_array($package)) {
+				throw new Exception_Parse("{file} did not return an array, returned a {type}", array(
+					"file" => $package_json,
+					"type" => type($package)
+				));
+			}
+			if (!array_key_exists("version", $package)) {
+				throw new Exception_Parse("{file} does not contain a key called \"version\"", array(
+					"file" => $package_json
+				));
+			}
+			$version = $package['version'];
+			if (is_string($version)) {
+				return $version;
+			}
+			throw new Exception_Parse("{file} version is not a string, returned a {type}", array(
+				"file" => $package_json,
+				"type" => type($version)
+			));
+		} catch (Exception_Parse $e) {
+			$app->logger->warning("{method} invalid JSON found in {file} - using non-versioned TinyMCE share path: {message}", array(
+				"method" => __METHOD__,
+				"file" => $package_json,
+				"message" => $e->getMessage()
+			));
+			return null;
+		}
+	}
+	/**
+	 *
+	 * {@inheritDoc}
+	 * @see \zesk\Module::initialize()
+	 */
+	public function initialize() {
+		parent::initialize();
+
+		$this->vendor_path = $app->path("vendor/tinymce/tinymce");
+		if (!is_dir($vendor_path)) {
+			$app->logger->error("{method} missing {vendor_path} directory - not initialized", array(
+				"method" => __METHOD__,
+				"vendor_path" => $vendor_path
+			));
+			return;
+		}
+
+		$app = $this->application;
+
+		$suffix = $this->determine_version();
+		if ($suffix !== null) {
+			$suffix = "-$suffix";
+		}
+		$this->share_name = "tinymce$suffix";
+
+		$this->tinymce_options['script_url'] = $script_url = "/share/" . $this->share_name . "/tinymce.min.js";
+		$this->javascript_paths[$script_url] = array();
+
+		$app->share_path($vendor_path, $this->share_name);
+	}
+
 	/**
 	 * (non-PHPdoc)
 	 *
 	 * @see zesk\Module_JSLib::hook_head()
 	 */
 	public function hook_head(Request $request, Response $response, Template $template) {
+		if (!$this->share_name) {
+			return;
+		}
 		$this->update_options();
 		return parent::hook_head($request, $response, $template);
 	}
 	public function hook_routes(Router $router) {
+		if (!$this->share_name) {
+			return;
+		}
 		$router->add_route('tinymce/spellchecker', array(
 			'method' => array(
 				$this,
@@ -145,6 +233,9 @@ class Module_TinyMCE extends zesk\Module_JSLib implements Interface_Module_Route
 	/**
 	 */
 	public function hook_ready() {
+		if (!$this->share_name) {
+			return;
+		}
 		$this->jquery_ready['init'] = $this->jquery_ready();
 	}
 	public function tinymce_toolbar($set = null) {
@@ -182,7 +273,7 @@ class Module_TinyMCE extends zesk\Module_JSLib implements Interface_Module_Route
 		$json = JSON::encodex(ArrayTools::clean($this->tinymce_options, null));
 		return $this->application->theme("tinymce/ready.js", array(
 			"json" => $json,
-			"base_url" => "/share/tinymce/"
+			"base_url" => "/share/" . $this->share_name
 		), array(
 			"no_extension" => true
 		));
