@@ -50,9 +50,7 @@ class ORM_CacheItem implements CacheItemInterface {
 	public function __sleep() {
 		return array(
 			"item",
-			"is_hit",
-			"depends",
-			"class_depends"
+			"is_hit"
 		);
 	}
 
@@ -132,9 +130,12 @@ class ORM_CacheItem implements CacheItemInterface {
 		}
 		return true;
 	}
-	private function depends_valid($value) {
-		foreach ($this->depends as $class => $target) {
-		}
+	// TODO this
+	private function depends_valid(array $value) {
+		return true;
+	}
+	private function class_depends_valid(array $compare) {
+		return true;
 	}
 	/**
 	 * Sets the value represented by this cache item.
