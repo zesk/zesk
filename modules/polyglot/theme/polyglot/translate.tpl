@@ -15,8 +15,7 @@ namespace zesk;
 /* @var $request \zesk\Request */
 /* @var $response \zesk\Response */
 /* @var $current_user \User */
-$current_user = $this->get1("current_user;user", $application->user(true));
-$can_update_live = $current_user->can("zesk\\Module_PolyGlot::update");
+$can_update_live = $current_user ? $current_user->can("zesk\\Module_PolyGlot::update") : false;
 
 /* @var $response zesk\Response */
 $response = $this->response;

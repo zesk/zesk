@@ -86,7 +86,7 @@ class Controller_Preference extends Controller {
 				"message" => __("Invalid preference")
 			));
 		}
-		$user = $this->application->user();
+		$user = $this->application->user($this->request);
 		if (!$user->authenticated($this->request)) {
 			return $this->json(array(
 				"status" => false,

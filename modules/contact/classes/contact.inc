@@ -66,7 +66,7 @@ class Contact extends ORM {
 				$this->account = $this->application->model_singleton($this->option("account_model_singleton_class", 'zesk\\Account'));
 			}
 			if ($this->member_is_empty('user')) {
-				$this->user = $this->application->user();
+				$this->user = $this->application->user(null, false);
 			}
 			$this->accounts = $this->account;
 		}

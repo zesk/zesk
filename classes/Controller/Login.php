@@ -20,7 +20,7 @@ class Controller_Login extends Controller_Theme {
 	}
 	function action_logout() {
 		$this->call_hook('logout');
-		$session = $this->application->session(false);
+		$session = $this->application->session($this->request, false);
 		if ($session) {
 			$session->deauthenticate();
 		}

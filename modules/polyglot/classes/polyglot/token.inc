@@ -84,7 +84,10 @@ class PolyGlot_Token extends ORM {
 	public function store() {
 		$this->md5 = md5($this->original);
 		if ($this->member_is_empty("user")) {
-			$this->user = $this->application->user();
+			$request = $this->application->request();
+			if ($request) {
+				$this->user = $this->application->user($request);
+			}
 		}
 		if ($this->member_is_empty("context")) {
 			$this->context = $this->call_hook("context_default");

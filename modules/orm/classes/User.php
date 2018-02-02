@@ -255,7 +255,6 @@ class User extends ORM {
 	 * The core of the permissions system
 	 *
 	 * <code>
-	 * $user = $this->application->user();
 	 * $yes = $user->can("write checks"); // Simple invokation
 	 * // Invoke with an object - the following two lines are identical
 	 * $yes = $yes && $user->can("edit", $account); // ORM invokation
@@ -267,7 +266,6 @@ class User extends ORM {
 	 * so:
 	 *
 	 * <code>
-	 * $user = $this->application->user();
 	 * if ($user->can("edit|view|delete", $other_user)) {
 	 * echo $menus; // User can edit, view, or delete
 	 * }
