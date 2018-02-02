@@ -22,17 +22,17 @@ class Module_Content extends Module implements Interface_Module_Head {
 		'zesk\Content_Menu' => 'menu',
 		'zesk\Content_Video' => 'video'
 	);
-	public $classes = array();
-	
+	public $model_classes = array();
+
 	/**
-	 * 
+	 *
 	 * {@inheritDoc}
 	 * @see Module::initialize()
 	 */
 	public function initialize() {
 		if ($this->has_option("content_classes")) {
 			$types = ArrayTools::flip_multiple(self::$all_classes);
-			$this->classes = array_merge($this->classes, $types['data']);
+			$this->model_classes = array_merge($this->model_classes, $types['data']);
 			foreach ($this->option_list("content_classes") as $type) {
 				if (!array_key_exists($type, $types)) {
 					$this->application->logger->warning("{method} Unknown content class type {type}", array(
@@ -41,16 +41,16 @@ class Module_Content extends Module implements Interface_Module_Head {
 					));
 					continue;
 				}
-				$this->classes = array_merge($this->classes, $types[$type]);
+				$this->model_classes = array_merge($this->model_classes, $types[$type]);
 			}
-			$this->classes = array_unique($this->classes);
+			$this->model_classes = array_unique($this->model_classes);
 		} else {
-			$this->classes = array_keys(self::$all_classes);
+			$this->model_classes = array_keys(self::$all_classes);
 		}
 	}
-	
+
 	/**
-	 * 
+	 *
 	 * @param Request $request
 	 * @param Response $response
 	 */
@@ -59,7 +59,7 @@ class Module_Content extends Module implements Interface_Module_Head {
 			"share" => true
 		));
 	}
-	
+
 	/**
 	 * Register hooks
 	 */
