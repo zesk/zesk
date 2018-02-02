@@ -58,7 +58,13 @@ class Request extends Hookable {
 	 * RAW data as POSTed or PUTted
 	 *
 	 * When this value is "true" then need to load from $this->data_file
-	 * Any other value is just returned
+	 *
+	 * @var mixed
+	 */
+	protected $data_raw = "";
+
+	/**
+	 * Processed data converted to internal structure
 	 *
 	 * @var mixed
 	 */
@@ -174,7 +180,9 @@ class Request extends Hookable {
 	 * @return self
 	 */
 	public function initialize_from_globals() {
-		$this->data = true;
+		$this->data_raw = true;
+		$this->data = null;
+		$this->data_file = self::default_data_file;
 		$this->data_file = self::default_data_file;
 		$this->data_inherit = null;
 
@@ -218,6 +226,7 @@ class Request extends Hookable {
 		$this->files = $request->files;
 		$this->url = $request->url;
 		$this->url_parts = $request->url_parts;
+		$this->data_raw = $request->data_raw; // Note: Loads data once if necessary
 		$this->data = $request->data; // Note: Loads data once if necessary
 		$this->data_inherit = $request;
 		$this->data_file = $request->data_file;
@@ -256,7 +265,7 @@ class Request extends Hookable {
 				"settings" => $settings
 			));
 		}
-		$method = $uri = $url = $data = $data_file = $ip = null;
+		$method = $uri = $url = $data = $data_file = $data_raw = $ip = null;
 		$headers = $cookies = $variables = $files = array();
 		extract($settings, EXTR_IF_EXISTS);
 		$this->set_method(firstarg($method, "GET"));
@@ -277,9 +286,11 @@ class Request extends Hookable {
 				));
 			}
 			$this->data_file = $data_file;
-			$this->data = true;
+			$this->data_raw = true;
+			$this->data = null;
 		} else {
-			$this->data = is_string($data) ? $data : "";
+			$this->data = $data;
+			$this->data_raw = $data_raw;
 			$this->data_file = null;
 		}
 		$this->data_inherit = null;
@@ -410,15 +421,30 @@ class Request extends Hookable {
 	 * Retrieve raw POST or PUT data from this request
 	 *
 	 * @todo Validate method vefore retrieving?
-	 * @return mixed
+	 * @return array
 	 */
 	public function data() {
-		if ($this->data === true) {
+		if ($this->data_raw === true) {
 			if ($this->data_inherit) {
+				$this->data_raw = null;
 				$this->data = $this->data_inherit->data();
-				$this->data_inherit = null;
 			} else {
-				$this->data = file_get_contents($this->data_file);
+				$this->data_raw = file_get_contents($this->data_file);
+			}
+		}
+		if ($this->data === null) {
+			$content_type = StringTools::left($this->content_type(), ";");
+			switch ($content_type) {
+				case "application/json":
+					$this->data = JSON::decode($this->data_raw);
+					break;
+				case "application/x-www-form-urlencoded":
+					$this->data_raw = array();
+					parse_str($this->data_raw, $this->data);
+					break;
+				default :
+					$this->data = array();
+					break;
 			}
 		}
 		return $this->data;
@@ -1047,18 +1073,6 @@ class Request extends Hookable {
 	}
 
 	/**
-	 * Retrieve and parse a PUT/POST request
-	 *
-	 * @return array
-	 */
-	private function put_request() {
-		$content = $this->data();
-		$result = array();
-		parse_str($content, $result);
-		return $result;
-	}
-
-	/**
 	 * Set the method, warning if unknown
 	 *
 	 * @param string $method
@@ -1101,13 +1115,12 @@ class Request extends Hookable {
 	 */
 	private function default_request() {
 		if ($this->method === Net_HTTP::Method_PUT) {
-			return $this->put_request() + $_GET;
+			// Support JSON
+			return $this->data() + $_GET;
 		}
 		if ($this->method === Net_HTTP::Method_POST) {
-			if ($this->content_type() === "application/json") {
-				$data = $this->data();
-				return JSON::decode($data) + $_GET;
-			}
+			// Support JSON
+			return $this->data() + $_GET;
 		}
 		return is_array($_REQUEST) ? $_REQUEST : array();
 	}
