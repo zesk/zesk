@@ -8,6 +8,9 @@
 namespace zesk\Response;
 
 use zesk\Response;
+use zesk\HTML;
+use zesk\Exception_Redirect;
+use zesk\Net_HTTP;
 
 /**
  * @see Type
@@ -91,31 +94,55 @@ class Redirect extends Type {
 	 * @param string $message
 	 */
 	public function url($url, $message = null) {
-		$this->parent->output_handler(Response::HANDLER_REDIRECT);
+		throw new Exception_Redirect($url, $message);
+	}
+
+	/**
+	 *
+	 * @param unknown $url
+	 * @return mixed|string|number|array
+	 */
+	public function process_url($url) {
 		$saved_url = $url;
 		/* Clean out any unwanted characters from the URL */
 		$url = preg_replace("/[\x01-\x1F\x7F-\xFF]/", '', $url);
-		if ($message !== null) {
+		$altered_url = $this->parent->call_hook_arguments('redirect_alter', array(
+			$url
+		), $url);
+		if (is_string($altered_url) && !empty($altered_url)) {
+			$url = $altered_url;
+		}
+		return $url;
+	}
+
+	/**
+	 * Load up an Exception_Redirect for handling
+	 *
+	 * @param Exception_Redirect $exception
+	 * @return string
+	 */
+	public function handle_exception(Exception_Redirect $exception) {
+		$original_url = $exception->url();
+		$message = $exception->getMessage();
+
+		if ($message) {
 			$this->message($message);
 		}
-		$url = $this->parent->call_hook('redirect_alter', $url);
-		if ($this->parent->option_bool("debug_redirect")) {
-			$this->parent->content = $this->application->theme("response/redirect", array(
-				'request' => $this->request,
-				'response' => $this,
-				'content' => HTML::a($url, $url),
-				'url' => $url,
-				'original_url' => $saved_url
-			));
-		} else {
-			if ($url) {
-				$this->parent->header("Location", $url);
-			}
-			$this->application->hooks->call_arguments('headers', array(
-				$this->request,
-				$this->parent,
-				null
-			));
+		$url = $this->process_url($original_url);
+		$this->parent->output_handler(Response::HANDLER_REDIRECT);
+
+		$this->parent->header("Location", $url);
+		$status_code = $exception->status_code();
+		if (!$status_code) {
+			$status_code = Net_HTTP::Status_Moved_Permanently;
+			;
 		}
+		$this->parent->status_code = $status_code;
+		$status_message = $exception->status_message();
+		if (!$status_message) {
+			$status_message = "Moved";
+		}
+		$this->parent->status_message = $status_message;
+		return $url;
 	}
 }

@@ -643,7 +643,7 @@ class Widget extends Hookable {
 	}
 
 	/**
-	 * Response associated with this widget. Created if not set.
+	 * Response associated with this widget. NOT created if not set.
 	 *
 	 * @param $set Response
 	 *        	to set
@@ -663,7 +663,7 @@ class Widget extends Hookable {
 		if ($this->parent) {
 			return $this->parent->response();
 		}
-		return $this->response = new Response($this->application, $this->request);
+		return $this->response; // = new Response($this->application, $this->request);
 	}
 
 	/**

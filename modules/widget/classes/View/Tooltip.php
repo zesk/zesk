@@ -9,32 +9,42 @@
 namespace zesk;
 
 /**
- * 
+ *
  * @author kent
  *
  */
 class View_Tooltip extends View {
 	function render() {
-		$this->response->jquery();
-		$this->response->javascript("/share/zesk/jquery/jquery.hoverIntent.js");
-		$this->response->javascript("/share/zesk/jquery/jquery.corners.min.js");
-		$this->response->javascript("/share/zesk/widgets/hoverbubble/hoverbubble.js");
-		
+		$response = $this->response();
+		$html = $response->html();
+		$html->jquery();
+		$html->javascript("/share/zesk/jquery/jquery.hoverIntent.js");
+		$html->javascript("/share/zesk/jquery/jquery.corners.min.js");
+		$html->javascript("/share/zesk/widgets/hoverbubble/hoverbubble.js");
+
 		$col = $this->column();
-		$id = "hover-bubble-" + $this->response->id_counter();
-		
+		$id = "hover-bubble-" + $response->id_counter();
+
 		/*
 		 *  sensitivity: 7, // number = sensitivity threshold (must be 1 or higher)
 		 *	interval: 100,   // number = milliseconds of polling interval
 		 *	timeout: 0,   // number = milliseconds delay before onMouseOut function call
 		 */
 		$options = $this->options_include("sensitivity;interval;timeout");
-		$this->response->jquery('$(\'#' + $this->option("target_id") + '\').hoverBubble(\'#' + $id + '\',' . json_encode($options) . ");");
+		$html->jquery('$(\'#' + $this->option("target_id") + '\').hoverBubble(\'#' + $id + '\',' . json_encode($options) . ");");
 		return HTML::tag("div", array(
 			"id" => $id,
 			"style" => "display: none"
 		), $this->value());
 	}
+
+	/**
+	 * @deprecated 2018-01
+	 * @param unknown $target_id
+	 * @param unknown $content
+	 * @param array $opts
+	 * @return mixed|\zesk\NULL|string
+	 */
 	public static function tooltip($target_id, $content, array $opts = array()) {
 		$opts['target_id'] = $target_id;
 		$opts['column'] = 'data';
@@ -47,6 +57,7 @@ class View_Tooltip extends View {
 /**
  * @todo Move this elsewhere to get autoloaded
  *
+ * @deprecated 2018-01
  * @param unknown_type $target_id
  * @param unknown_type $content
  * @param unknown_type $opts

@@ -1,4 +1,5 @@
 <?php
+namespace zesk;
 
 /* @var $this \zesk\Template */
 /* @var $application \zesk\Application */
@@ -10,12 +11,17 @@
 /* @var $response \zesk\Response */
 
 /* @var $exception \zesk\Exception_Redirect */
-$response->redirect()->url($exception->url(), $exception->getMessage());
-$status_code = $exception->status_code();
-if ($status_code) {
-	$response->status_code = intval($status_code);
+/* @var $url string */
+if ($response->option_bool("debug_redirect")) {
+	$original_url = $exception->url();
+	$url = $response->redirect()->process_url($original_url);
+	echo $this->theme("zesk/exception/redirect-debug", array(
+		'content' => HTML::a($url, $url),
+		'url' => $url,
+		'original_url' => $original_url
+	));
+} else {
+	$url = $response->redirect()->handle_exception($exception);
+	echo HTML::a($url, $url);
 }
-$status_message = $exception->status_message();
-if ($status_message) {
-	$response->status_message = $status_message;
-}
+

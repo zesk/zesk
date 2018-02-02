@@ -135,6 +135,8 @@ class Route_Controller extends Route {
 					$contents
 				));
 			}
+		} catch (Exception_Redirect $e) {
+			throw $e;
 		} catch (Exception $e) {
 			$app->hooks->call("exception", $e);
 			$controller->optional_method(array(
