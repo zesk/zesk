@@ -1,13 +1,13 @@
 <?php
 if (false) {
 	/* @var $this zesk\Template */
-	
+
 	$zesk = $this->zesk;
 	/* @var $locale \zesk\Locale */
-	
+
 	$application = $this->application;
 	/* @var $application zesk\Application */
-	
+
 	$session = $this->session;
 	/* @var $session \zesk\Session */
 }
@@ -33,6 +33,6 @@ $line[] = "</IfModule>";
 
 $content = implode("\n", $line);
 
-echo $zesk->hooks->call_arguments("Module_Apache::htaccess_alter", array(
+echo $application->hooks->call_arguments("htaccess_alter", array(
 	$content
 ), $content);
