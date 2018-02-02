@@ -42,6 +42,26 @@ class ORM_CacheItem implements CacheItemInterface {
 		$this->item = $actual;
 		$this->is_hit = null;
 	}
+
+	/**
+	 *
+	 * @return string[]
+	 */
+	public function __sleep() {
+		return array(
+			"item",
+			"is_hit",
+			"depends",
+			"class_depends"
+		);
+	}
+
+	/**
+	 *
+	 */
+	public function __wakeup() {
+		$this->application = Kernel::singleton()->application();
+	}
 	/**
 	 * Returns the key for the current cache item.
 	 *
