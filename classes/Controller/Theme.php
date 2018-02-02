@@ -14,13 +14,6 @@ namespace zesk;
  * @author kent
  */
 abstract class Controller_Theme extends Controller {
-
-	/**
-	 * @deprecated 2017-11 Is here so shows up in child classes
-	 * @var string
-	 */
-	protected $template = null;
-
 	/**
 	 * Default content type for Response generated upon instantiation.
 	 *
@@ -93,7 +86,6 @@ abstract class Controller_Theme extends Controller {
 	 */
 	public function json($mixed = null) {
 		$this->auto_render(false);
-		$this->call_hook("json", $mixed);
 		return parent::json($mixed);
 	}
 
@@ -160,10 +152,6 @@ abstract class Controller_Theme extends Controller {
 	protected function control(Control $control, Model $object = null, array $options = array()) {
 		$control->response($this->response);
 		$content = $control->execute($object);
-		$this->application->logger->error("{method} content_type={content_type}", array(
-			"method" => __METHOD__,
-			"content_type" => $this->response->content_type()
-		));
 		$this->call_hook(avalue($options, "hook_execute", "control_execute"), $control, $object, $options);
 		$title = $control->option('title', avalue($options, 'title'));
 		$this->response->title($title, false); // Do not overwrite existing values
