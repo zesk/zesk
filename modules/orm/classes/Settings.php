@@ -90,13 +90,17 @@ class Settings extends ORM implements Interface_Data, Interface_Settings {
 	 */
 	private static function _cache_item(Application $application, CacheItemInterface $item = null) {
 		if ($item) {
+			$expires = $application->configuration->path_get(array(
+				__CLASS__,
+				"cache_expire_after"
+			), self::SETTINGS_CACHE_EXPIRE_AFTER);
+			if ($expires) {
+				$item->expiresAfter($expires);
+			}
 			$application->cache->saveDeferred($item);
 			return $item;
 		}
-		return $application->cache->getItem(__CLASS__)->expiresAfter($application->configuration->path_get(array(
-			__CLASS__,
-			"cache_expire_after"
-		), self::SETTINGS_CACHE_EXPIRE_AFTER));
+		return $application->cache->getItem(self::CACHE_ITEM_KEY);
 	}
 
 	/**
@@ -268,7 +272,7 @@ class Settings extends ORM implements Interface_Data, Interface_Settings {
 		$this->db_down = false;
 		$this->flush();
 	}
-
+	const CACHE_ITEM_KEY = __CLASS__;
 	/**
 	 * Internal function to write all settings store in this object to the database instantly.
 	 */
@@ -301,7 +305,7 @@ class Settings extends ORM implements Interface_Data, Interface_Settings {
 		$this->application->logger->debug("Deleted {class} cache", array(
 			"class" => __CLASS__
 		));
-		$this->application->cache->deleteItem($this->_cache_item($this->application)->getKey());
+		$this->application->cache->deleteItem(self::CACHE_ITEM_KEY);
 		$this->changes = array();
 	}
 

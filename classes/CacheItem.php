@@ -70,7 +70,7 @@ class CacheItem implements CacheItemInterface {
 	 *   The value corresponding to this cache item's key, or null if not found.
 	 */
 	public function get() {
-		return $this->is_hit ? $this->value : null;
+		return $this->is_hit && !$this->expired() ? $this->value : null;
 	}
 
 	/**
@@ -83,7 +83,7 @@ class CacheItem implements CacheItemInterface {
 	 *   True if the request resulted in a cache hit. False otherwise.
 	 */
 	public function isHit() {
-		return $this->is_hit;
+		return $this->is_hit && !$this->expired();
 	}
 
 	/**
