@@ -931,7 +931,7 @@ class Test extends Hookable {
 				$this->fail("$message: $k doesn't exist in 2nd array");
 			}
 			if ($strict && gettype($v) !== gettype($expected[$k])) {
-				$this->fail("$message: types do not match for key $k: $v(" . gettype($v) . ") !== " . $expected[$k] . "(" . gettype($expected[$k]) . ")");
+				$this->fail("$message: types do not match for key $k: (" . gettype($v) . ") !== (" . gettype($expected[$k]) . ")");
 			}
 			if (is_array($v)) {
 				$this->assert_equal($v, $expected[$k], "[$k] $message", $strict);

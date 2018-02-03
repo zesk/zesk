@@ -124,7 +124,7 @@ class DocComment extends Options {
 		foreach ($value as $variable_name => $type_name_etc) {
 			$result[] = "@$key " . implode(" ", $type_name_etc);
 		}
-		return implode("\n", $result);
+		return $result;
 	}
 
 	/**
@@ -216,36 +216,47 @@ class DocComment extends Options {
 	 * @return string
 	 */
 	private function unparse(array $items) {
-		$result = array();
-		foreach ($this->multi_keys() as $key) {
-			if (isset($items[$key])) {
-				$result[$key] = $this->unparse_multi_key($items[$key], $key);
-				unset($items[$key]);
-			}
-		}
-		foreach ($this->param_keys() as $key) {
-			if (isset($items[$key]) && is_array($items[$key])) {
-				$result[$key] = $this->unparse_param_key($items[$key], $key);
-				unset($items[$key]);
-			}
-		}
-		foreach ($items as $key => $value) {
-			$result[$key] = $this->unparse_list_key($items, $key);
-		}
 		$max_length = 0;
 		foreach (array_keys($items) as $name) {
 			$max_length = max($max_length, strlen($name));
 		}
-		$max_length = $max_length + 1;
-		foreach ($items as $name => $value) {
-			if (!is_array($value)) {
-				$value = explode("\n", $value);
+		$multi_keys = ArrayTools::flip_assign($this->multi_keys(), true);
+		$param_keys = ArrayTools::flip_assign($this->param_keys(), true);
+
+		$result = array(
+			"/**\n"
+		);
+		foreach ($items as $key => $value) {
+			if (isset($multi_keys[$key])) {
+				$unparsed = $this->unparse_multi_key($value, $key);
+			} else if (isset($param_keys[$key])) {
+				$unparsed = $this->unparse_param_key($value, $key);
+			} else {
+				$unparsed = $this->unparse_list_key($value, $key);
 			}
-			$value = implode("\n *  " . str_repeat(" ", $max_length), $value);
-			$spaces = str_repeat(" ", $max_length - strlen($name));
-			$result[] = " * @$name$spaces$value";
+			if (is_string($unparsed)) {
+				$result[] = $unparsed;
+			} else if (is_array($unparsed)) {
+				$result[] = implode("\n", $unparsed);
+			}
 		}
-		return "/**\n" . implode("\n", $result) . "\n */";
+		$uncommented = explode("\n", implode("\n", $result));
+		$spaces = str_repeat(" ", $max_length);
+		$max_length = $max_length + 1;
+		foreach ($uncommented as $index => $line) {
+			if (empty($line)) {
+				continue;
+			}
+			$c0 = $line[0];
+			if (in_array($c0, array(
+				" ",
+				"\t"
+			))) {
+				$uncommented[$index] = $spaces . trim($line);
+			}
+		}
+		// Add comments
+		return "/**\n * " . implode("\n * ", $uncommented) . "\n */";
 	}
 
 	/**
