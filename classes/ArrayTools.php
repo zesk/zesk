@@ -640,7 +640,9 @@ class ArrayTools {
 	}
 
 	/**
-	 * Convert a list of strings to a set of key pairs
+	 * Convert a list of strings to a set of key pairs by dividing them along a delimeter
+	 *
+	 * @inline_test ArrayTools::kpair(["dog bark", "cat meow", "child coo"]) === ["dog" => "bark", "cat" => "meow", "child" => "coo"];
 	 *
 	 * @param array $array
 	 *        	Array of strings

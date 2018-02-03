@@ -630,15 +630,16 @@ class Command_Test extends Command_Base {
 	 * @return array|array
 	 */
 	private static function load_test_options($contents) {
-		$comments = DocComment::extract($contents);
-		if (count($comments) === 0) {
-			return array();
-		}
-		return array_change_key_case(ArrayTools::kunprefix(to_array(DocComment::parse($comments[0], array(
+		$comments = DocComment::extract($contents, array(
 			"list_keys" => array(
 				"test_module"
 			)
-		))), "test_", true));
+		));
+		if (count($comments) === 0) {
+			return array();
+		}
+		$first_comment = $comments[0];
+		return array_change_key_case(ArrayTools::kunprefix($first_comment->variables(), "test_", true));
 	}
 
 	/**

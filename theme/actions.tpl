@@ -4,15 +4,27 @@
  */
 namespace zesk;
 
+/* @var $this \zesk\Template */
+/* @var $application \zesk\Application */
+/* @var $locale \zesk\Locale */
+/* @var $session \zesk\Session */
+/* @var $router \zesk\Router */
+/* @var $route \zesk\Route */
+/* @var $request \zesk\Request */
+/* @var $response \zesk\Response_Text_HTML */
+/* @var $current_user \zesk\User */
 $content = $this->content;
 if (!is_array($content)) {
 	return;
 }
 $buttons = array();
+$ref_name = $this->get('referrer_query_string_name', 'ref');
 $add_ref = $this->getb('add_ref');
 foreach ($content as $href => $attrs) {
-	if ($add_ref && !URL::has_ref($href)) {
-		$href = URL::add_ref($href, $this->ref);
+	if ($add_ref && !URL::query_parse($href, $ref_name) !== null) {
+		$href = URL::query_format($href, array(
+			$ref_name => $this->ref
+		));
 	}
 	$tag_attrs = array(
 		'href' => $href

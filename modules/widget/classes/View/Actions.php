@@ -11,105 +11,108 @@
 namespace zesk;
 
 /**
- *
+ * @see theme/zesk/view/actions.tpl
+ * @see theme/zesk/view/action.tpl
+ * @see theme/zesk/view/action/edit.tpl
+ * @see theme/zesk/view/action/delete.tpl
  * @author kent
  *
  */
 class View_Actions extends View {
+	/**
+	 *
+	 * {@inheritDoc}
+	 * @see \zesk\Widget::initialize()
+	 */
 	protected function initialize() {
 		parent::initialize();
 		$this->set_option(array(
 			"list_order_by" => false,
 			"class" => "view-actions",
-			"label" => "Actions"
+			"label" => $this->locale()->__("Actions")
 		), false, false);
+		foreach (array(
+			"edit",
+			"delete"
+		) as $action_code) {
+			// show_edit
+			// show_delete
+			if ($this->option("show_" . $action_code, true)) {
+				$url = $this->_action_href($action_code);
+				if ($url) {
+					$this->action_add($url, array(
+						"theme" => "zesk/view/actions/$action_code",
+						"action_code" => $action_code,
+						"a_attributes" => array(
+							"class" => "action-$action_code"
+						),
+						"add_link" => true
+					));
+				}
+			}
+		}
 	}
-	private function actionlink($href, $src, $w, $h, $title, $confirm = false, $use_cdn = false) {
-		$x = $this->object;
-		$attr = $confirm ? array(
-			"onclick" => "return confirm('Are you sure?')"
-		) : array();
 
-		$image = $use_cdn ? HTML::img($this->application, $src, $x->apply_map($title), array(
-			"width" => $w,
-			"height" => $h
-		)) : HTML::img($this->application, $src, $x->apply_map($title), array(
-			"width" => $w,
-			"height" => $h
-		));
-		return HTML::a($x->apply_map($href), $attr, $image);
-	}
+	/**
+	 * Fetch URL for action by name
+	 *
+	 * @param string $action
+	 * @param boolean $add_ref Add referring page to link
+	 * @return \zesk\Model|mixed|string|\zesk\Hookable|number|array|string|NULL
+	 */
 	private function _action_href($action, $add_ref = true) {
 		$object = $this->object;
 		if ($this->has_option($action . "_href")) {
 			return $object->apply_map($this->option($action . '_href'));
 		}
-		$hr = $this->application->router()->get_route($action, $object, $this->option_array("route_options"));
-		if ($add_ref) {
-			$hr = URL::query_format($hr, array(
-				'ref' => $this->request->uri()
-			));
+		if (!$object) {
+			return null;
 		}
-		return $hr;
+		return $this->application->router()->get_route($action, $object, $this->option_array("route_options"));
 	}
+
+	/**
+	 *
+	 * @param string $set
+	 * @return self|string
+	 */
 	function format($set = null) {
 		return ($set !== null) ? $this->set_option('format', $set) : $this->option('format');
 	}
-	function action_add($url, $text, $src, array $options = array()) {
-		$options['href'] = $url;
-		$options['text'] = $text;
-		$options['src'] = $src;
-		$actions = to_array(avalue($this->options, 'actions', array()));
+
+	/**
+	 *
+	 * @param unknown $url
+	 * @param array $options
+	 * @return \zesk\View_Actions
+	 */
+	function action_add($url, array $options = array()) {
+		$options['url'] = $url;
+		$actions = $this->actions();
 		$actions[] = $options;
-		$this->options['actions'] = $actions;
+		$this->actions($actions);
 		return $this;
 	}
-	function render() {
-		$html = "";
 
-		if ($this->option("add_div", true)) {
-			$html = $html . "<div class=\"list-actions\">";
-		}
+	/**
+	 * Getter/setter for action list (array of arrays with keys: url, add_link, [theme | content | text | title]
+	 * @param array $set
+	 * @return array|void
+	 */
+	function actions(array $set = null) {
+		return $set === null ? $this->option_list("actions") : $this->set_option("actions", $set);
+	}
 
-		$format = $this->option("format", "{Name}");
-
-		if ($this->option("show_edit", true)) {
-			$url = $this->_action_href("edit");
-			if ($url) {
-				$html .= $this->actionlink($url, "/share/zesk/images/actions/edit.gif", 18, 18, "Edit \"$format\"", false, true);
-			}
-		}
-
-		if ($this->option("show_delete", true)) {
-			$url = $this->_action_href("delete");
-			if ($url) {
-				$html .= $this->actionlink($url, "/share/zesk/images/actions/delete.gif", 18, 18, "Delete \"$format\"", true, true);
-			}
-		}
-
-		$actions = $this->option_array("actions");
-		if (is_array($actions)) {
-			foreach ($actions as $actSpec) {
-				if (is_array($actSpec)) {
-					$actSpec = $this->object->apply_map($actSpec);
-					$hr = avalue($actSpec, "href", "");
-					$src = avalue($actSpec, "src", "");
-					$text = avalue($actSpec, "text", "");
-					$add_ref = avalue($actSpec, 'add_ref', false);
-					if ($add_ref) {
-						$hr = URL::query_format($hr, array(
-							'ref' => $this->request->uri()
-						));
-					}
-					$html = $html . $this->actionlink($hr, avalue($actSpec, "prefix", "") . $src, 18, 18, $text, avalue($actSpec, "confirm", false, avalue($actSpec, 'cdn')));
-				}
-			}
-		}
-
-		if ($this->option("add_div", true)) {
-			$html = $html . "</div>";
-		}
-		return $this->object->apply_map($html);
+	/**
+	 *
+	 * {@inheritDoc}
+	 * @see \zesk\View::theme_variables()
+	 */
+	function theme_variables() {
+		return array(
+			"actions" => $this->actions(),
+			"add_href" => $this->option_bool("add_href", true)
+		);
 	}
 }
 

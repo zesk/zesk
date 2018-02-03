@@ -151,7 +151,7 @@ class Test extends Hookable {
 	 * @return array
 	 */
 	private function parse_doccomment($comment) {
-		return DocComment::parse($comment);
+		return DocComment::instance($comment)->variables();
 	}
 
 	/**
@@ -329,13 +329,16 @@ class Test extends Hookable {
 			$methods = $reflection->getMethods(\ReflectionMethod::IS_PUBLIC);
 			$tests = array();
 			foreach ($methods as $method) {
-				/* @var $method ReflectionMethod */
+				/* @var $method \ReflectionMethod */
+				if ($method->getDeclaringClass()->getName() !== $class) {
+					continue;
+				}
 				$method_name = $method->getName();
-				$settings = $this->parse_doccomment($method->getDocComment());
+				$doccomment = $method->getDocComment();
+				$settings = $this->parse_doccomment($doccomment);
 				if ($this->option_bool('debug_test_settings')) {
 					if (count($settings) > 0) {
 						echo "$method_name:\n";
-
 						echo Text::format_pairs($settings, "    ");
 					} else {
 						echo "$method_name: no settings\n";
