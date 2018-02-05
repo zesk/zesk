@@ -10,31 +10,31 @@
 namespace zesk;
 
 /**
- * 
+ *
  * @author kent
  *
  */
 class Control_Forgot extends Control_Edit {
 	/**
-	 * 
+	 *
 	 * @var string
 	 */
 	protected $class = "zesk\\Forgot"; // TODO fix to __NAMESPACE__ when TODO-PHP7 only
-	
+
 	/**
 	 * Header theme
 	 *
 	 * @var string
 	 */
 	protected $theme_prefix = null; //"zesk/control/forgot/prefix";
-	
+
 	/**
 	 * Header theme
 	 *
 	 * @var string
 	 */
 	protected $theme_header = null; //"zesk/control/forgot/header";
-	
+
 	/**
 	 * Footer theme
 	 *
@@ -47,9 +47,9 @@ class Control_Forgot extends Control_Edit {
 	 * @var string
 	 */
 	protected $theme_suffix = null; //"zesk/control/forgot/suffix";
-	
+
 	/**
-	 * 
+	 *
 	 * @var array
 	 */
 	protected $options = array(
@@ -60,36 +60,36 @@ class Control_Forgot extends Control_Edit {
 	 * @var Forgot
 	 */
 	protected $object = null;
-	
+
 	/**
 	 *
 	 * @var User
 	 */
 	private $auth_user = null;
-	
+
 	/**
-	 * 
+	 *
 	 * @return \zesk\Widget[]|boolean[]
 	 */
 	function hook_widgets() {
 		$this->form_name("forgot_form");
-		
+
 		$ww = array();
-		
+
 		$ww[] = $w = $this->widget_factory($this->option("widget_login", 'zesk\\Control_Text'))->names('login', __($this->option("label_login", "Login")));
 		$w->required(true);
 		$w->default_value($this->request->get('login'));
-		
+
 		$ww[] = $w = $this->widget_factory('zesk\\Control_Password')->names('login_password', $this->option("label_password", __("New Password")));
 		$w->set_option('encrypted_column', 'new_password');
 		$w->set_option('confirm', true);
 		$w->required(true);
-		
+
 		$ww[] = $w = $this->widget_factory('zesk\\Control_Button')
 			->names('forgot', $this->option("label_button", __("Send me an email")))
 			->add_class('btn-primary btn-block')
 			->nolabel(true);
-		
+
 		return $ww;
 	}
 	public function submitted() {
@@ -100,7 +100,7 @@ class Control_Forgot extends Control_Edit {
 			return false;
 		}
 		/* @var $user User */
-		$this->auth_user = $this->orm_factory("zesk\\User")->login($this->object->login)->find();
+		$this->auth_user = $this->application->orm_factory("zesk\\User")->login($this->object->login)->find();
 		$this->auth_user = $this->call_hook_arguments("find_user", array(
 			$this->auth_user
 		), $this->auth_user);
@@ -117,9 +117,9 @@ class Control_Forgot extends Control_Edit {
 			$object->session = $session = $this->session();
 			$object->code = md5(microtime() . mt_rand(0, mt_getrandmax()));
 			$object->store();
-			
+
 			$object->notify($this->request);
-			
+
 			$session->forgot = $object->id();
 			$this->response->redirect('/forgot/sent');
 		} else {
