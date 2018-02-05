@@ -472,6 +472,7 @@ abstract class Controller_ORM extends Controller_Authenticated {
 			));
 		}
 	}
+
 	/**
 	 *
 	 * {@inheritDoc}
