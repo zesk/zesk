@@ -54,7 +54,7 @@ class Language extends ORM {
 	public static function clean_table(Application $application) {
 		$query = $application->orm_registry(__CLASS__)->query_update();
 		$query->value("dialect", null)->where("dialect", "");
-		$query->exec();
+		$query->execute();
 		if ($query->affected_rows() > 0) {
 			$this->application->logger->warning("{method} updated {n} non-NULL rows", array(
 				"method" => __METHOD__,
