@@ -164,24 +164,27 @@ class Command_Check extends Command_Iterator_File {
 	}
 	private function recomment(&$contents, $term, $function, $add_function = null) {
 		$translate = array();
-		$comments = DocComment::extract($contents);
+		$comment_options = $this->application->configuration->path(DocComment::class);
+		$comments = DocComment::extract($contents, $comment_options);
 		foreach ($comments as $comment) {
+			/* @var $comment DocComment */
 			$indent_text = "";
 			$match = null;
 			if (preg_match('#$([ \t]*)/\*\*#', $comment, $match)) {
 				$indent_text = $match[1];
 			}
-			$items = DocComment::parse($comment);
+			$source = $comment->content();
+			$items = $comment->variables();
 			if (array_key_exists($term, $items)) {
 				$new_value = call_user_func($function, $items[$term]);
 				if ($new_value !== $items[$term]) {
 					$items[$term] = $new_value;
-					$translate[$comment] = Text::indent(DocComment::unparse($items), $indent_text);
+					$translate[$source] = Text::indent(DocComment::instance($items, $comment_options)->content(), $indent_text);
 				}
 			} else if ($add_function) {
 				$new_value = call_user_func($add_function, $items, $term);
 				if (is_array($new_value)) {
-					$translate[$comment] = DocComment::unparse($new_value);
+					$translate[$source] = DocComment::instance($new_value, $comment_options)->content();
 					$add_function = null; // Just first one
 				}
 			}
@@ -197,7 +200,8 @@ class Command_Check extends Command_Iterator_File {
 		$comments = DocComment::extract($contents);
 		$results = array();
 		foreach ($comments as $comment) {
-			$items = DocComment::parse($comment);
+			/* @var $comment DocComment */
+			$items = $comment->variables();
 			if (array_key_exists($term, $items)) {
 				$results[] = "@$term " . $items[$term];
 			}
@@ -208,7 +212,8 @@ class Command_Check extends Command_Iterator_File {
 		$translate = array();
 		$comments = DocComment::extract($contents);
 		foreach ($comments as $comment) {
-			$items = DocComment::parse($comment);
+			/* @var $comment DocComment */
+			$items = $comment->variables();
 			if (array_key_exists($term, $items)) {
 				return $items[$term];
 			}

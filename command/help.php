@@ -123,10 +123,7 @@ class Command_Help extends Command_Base {
 		$command = File::extension_change(ltrim($command, "/"), null);
 		$command = strtr($command, "/", "-");
 		$doccomment = $refl->getDocComment();
-		$doccomment = DocComment::parse($doccomment);
-		if (!is_array($doccomment)) {
-			$doccomment = array();
-		}
+		$doccomment = DocComment::instance($doccomment)->variables();
 		if (array_key_exists('ignore', $doccomment)) {
 			return;
 		}
