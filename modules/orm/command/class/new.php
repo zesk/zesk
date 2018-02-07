@@ -1,6 +1,6 @@
 <?php
 /**
- * 
+ *
  */
 namespace zesk;
 
@@ -48,27 +48,6 @@ class Command_Class_New extends Command {
 			}
 		}
 	}
-	// 	function new_class_paths($module) {
-	// 		$option_zesk = $this->option_bool("zesk");
-	// 		$app = $this->option_bool("app", !$option_zesk);
-	
-	// 		if (!$app && !$option_zesk) {
-	// 			$app = true;
-	// 		}
-	// 		$app_root = $this->application->path();
-	// 		$zesk_root = zesk::root();
-	// 		$module_paths = zesk::module_path();
-	// 		foreach ($module_paths as $module_path) {
-	// 			$path = path($module_path, $module);
-	// 			if ($app && begins($path, $app_root)) {
-	// 				return $path;
-	// 			}
-	// 			if ($zesk && begins($path, $zesk_root)) {
-	// 				return $path;
-	// 			}
-	// 		}
-	// 		return null;
-	// 	}
 	function questionnaire($class) {
 		throw new Exception_Unimplemented(__METHOD__);
 	}

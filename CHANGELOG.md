@@ -14,19 +14,14 @@ Version 1.0 of Zesk will have:
 - Ability to initialize the application context and then serialize the configuration in a way which allows for faster startup (maybe)
 - PSR-4? - **Yes, for zesk core.**
 - Full composer support for both Zesk as well as commonly used modules - **still need module tested**
-- Support for `Psr/Cache` for caching within Zesk - **needs to be tested**
 - Support for `Monolog` within Zesk core - **needs to be tested**
 - All modules use **namespaces** - **in progress**
-- Merging of `Response` and `Response_Text_HTML` into a single, unified polymorphic `Response` which changes behavior depending on content-type but allows typed API calls for specific response handling. May move `Response_Text_HTML` into a sub-object (e.g. `$response->html()->add_body_class()` for example)
-- Migrate `Database_Result_Iterator` to remove dependency on `Database_Query_Select_Base` 
-- Migration of `zesk\Locale` to be object-based and not-static-based invocation **in progress**
-
-### 1.0 Things Completed
-
-- <strike>Renaming of `zesk\Object` to something non-reserved in PHP 7.2 (Candidates are `zesk\ORM` `zesk\Model` - reuse)</strike>
-- <strike>`zesk\` namespace for all `classes` in the system</strike>
 
 ## [Unreleased][]
+
+
+
+## [v0.16.0][]
 
 ### `zesk\Response` Refactored
 
@@ -38,6 +33,8 @@ The majority of `zesk\Response_Text_HTML` have been moved up to glue functions i
 - `zesk\Route::_execute` now takes a `zesk\Response` as the first parameter and it is expected to be modified by the route upon execution.
 
 A large portion of the relationships and connections between `zesk\Route`, `zesk\Router`, `zesk\Request`, `zesk\Response` and `zesk\Application` have been modified.
+
+- `zesk\Application::session()` and `zesk\Application::user()` now take `zesk\Request` as their first parameter.
 
 #### `zesk\Controller` changes
 
@@ -55,6 +52,14 @@ We're migrating away from storing request/response state in the `zesk\Applicatio
 - Removed `zesk\Application::$user` and modified `zesk\Application::user()` to take `zesk\Request'`
 - `zesk\User::authenticated` now takes a `zesk\Request` (required) and `zesk\Response` (if you want to authenticate)
 
+### Bugs fixed
+
+- Fixing `zesk help` output, improving categories, and updating descriptions
+- Fixing `zesk\Cleaner\Module` configuration errors when instance `lifetime` is `NULL`
+- Fixing cache saving
+- Fixing old deprecated calling APIs
+- Improving comment on `pair()`
+
 ### Modified functionality
 
 - `zesk\Module_Session::session_factory` no longer initializes the session; you must initialize the session with the `zesk\Request`
@@ -62,6 +67,9 @@ We're migrating away from storing request/response state in the `zesk\Applicatio
  - this is largely due to creation of cache objects for `zesk\ORM` classes which do not have associated `zesk\Class_ORM` settings so cache-deletion can not configured
  - if you need to clean up caches for your objects, implement `zesk\ORM::hook_delete()` in subclasses to delete object caches. Note this hook occurs after the object has been deleted from the database, but the object state is valid.
 - `zesk\Response_Text_HTML` will be slowly refactored away to a unified `zesk\Response` object which changes behavior based on its content type.
+- Moving process interface into `zesk\Application` context, not `zesk\Kernel`
+- Now deprecated `$application->zesk_root()` - renamed to `$application->zesk_home()` `zesk\Locale_Default` is now as generic as it can be in generating default, generic values. Fixing various `zesk\(Date|Time|Timestamp)::format` calls which need to take `zesk\Locale` as first parameter. `zesk\Contact_Address::en_lang_member_names()` added, `::lang_member_names()` now requires `zesk\Locale` parameter. Converting `__("phrase")` to `$locale->__("phrase")` `zesk\View_OrderBy` fixing now-overridden local template variable `$url` which is now set in the `$application` level.
+- Pass cache pool to `Response::cached`
 
 ### New functionality
 
@@ -71,6 +79,12 @@ We're migrating away from storing request/response state in the `zesk\Applicatio
  - `zesk\Application::database_factory()` is a synonym for `zesk\Application::database_registry()` and both behave identically; although the `registry` call is semantically correct as it returns the same object on 2nd identical invocation.
 - `zesk\Command::configure()` now supports JSON-files and extensions
 - `theme/response/text/html/` theme path was added to enable customization of HTML page output.
+- Added the ability to add the token @no-cannon to any file to avoid having cannon update it
+- Add ability to add a class to the main `markdown` theme `div`
+- Adding version to `TinyMCE` module share path to avoid caching issues between library versions. Should make this a standard practice among modules which load their own JavaScript via relative paths.
+- Better PUT/POST JSON handling
+- `zesk\Exception_Redirect` can be used anywhere to redirect the current `zesk\Response`
+- Refactored `zesk\Locale` into `zesk\Locale\Module` and related classes
 
 ### Broken functionality
 
@@ -79,6 +93,11 @@ We're migrating away from storing request/response state in the `zesk\Applicatio
 - `zesk\Widget::locale()` now takes a `zesk\Locale` object to set and get the locale
 - `zesk\Widget::__construct()` now uses the `locale` option to set up the locale object, if present
 - `zesk\Locale::conjunction` for English languages now inserts the Oxford comma: "Lions, Tigers, and Bears"
+- Changed hook name `Module_Apache::htaccess_alter` to `htaccess_alter`
+- Removed `zesk\Controller_Template:$template` variable
+- Removed deprecated function `zesk\HTML::input_attributes()` deprecated 2016-12
+- `ClassName::hooks` now takes `zesk\Application` as the first parameter Fixing old `zesk\Application` ORM references to use factory/registry calls in ORM module Reduced the usage of the `$zesk` global within Zesk Refactored `zesk\Router` file parsing to new class `zesk\Router\Parser` and now uses new `CacheItemPool` interfaces `zesk\Cache` is completely deprecated `zesk\System::host_id` and `zesk\System::uname` now are configured upon application configuration and are not based on `zesk\Configuration` settings during runtime. Both calls are now setters.
+- `zesk\Application::set_cache`, `zesk\Application::set_locale` added, removing `zesk\Application::database_factory` and instead use `zesk\Database\Module` installed registry method
 
 ### Deprecated functionality
 
@@ -86,9 +105,15 @@ We're migrating away from storing request/response state in the `zesk\Applicatio
 - `zesk\ArrayTools` is now `zesk\ArrayTools`
 - `zesk\Database::(register|unregister|databases|factory|scheme_factory|register_scheme|valid_scheme|supports_scheme|database_default)` have been moved to `zesk\Module_Database`
 - `_W` global function is deprecated, use `zesk\StringTools::wrap` instead
+- Deprecated `zesk\Application::$zesk` variable to avoid using `zesk\Kernel` except in rare circumstances Added `zesk\Timestamp::json` call for output to JSON responses
+- Deprecated `zesk\Database_Query_Select::object_iterator` and `zesk\Database_Query_Select::objects_iterator` and related calls to use new term `ORM`
+- Removing `Response_Text_HTML`
+- `_W()` deprecated, `->class_object()` deprecated, `zesk\Module_Database` refactor, misc updates
 
 ### Removed functionality
 
+- Removing `Content_Factory`
+- `zesk\Database_Table::setIndexes` was removed.
 - `zesk\Session` and `Session` globals are no longer honored. Use `zesk\Module_Session` to set session defaults.
 - `zesk\Exception_Mail_Send` was removed (not used)
 - `zesk\Exception_Mail_Format` was removed (not used)
@@ -116,6 +141,38 @@ We're migrating away from storing request/response state in the `zesk\Applicatio
 - `zesk\ORM::status_exists`
 - `zesk\ORM::status_insert`
 - `zesk\ORM::status_unknown`
+
+### Miscellaneous Commit Messages
+
+- Removing access to `$zesk`
+- `_W()` moved to `zesk\StringTools::wrap()`
+- `zesk\Cache` is now deprecated
+- `zesk\Controller` should allow initialization without a `zesk\Request`
+- `zesk\Database\Module` and related
+- `zesk\Database_Query_Edit` supports new `->execute()` returning object now `->exec()` is now deprecated.
+- `zesk\DocComment` refactored to use object and manage state and parsing
+- `zesk\File::temporary` API changes
+- `zesk\Locale` changes to support fewer global accessors, and `zesk\Locale` instance invocation
+- `zesk\Locale` updates
+- `zesk\Module::$classes` was deprecated, fixing in `zesk\Module_Content`
+- `zesk\Module` `*.module.json` files now take a new configuration option `share_path_name` to use an alternate share path name than the module codename. (For versioning share resources, for example)
+- `zesk\Response` API changes
+- `zesk\Response` Refactored, `zesk\Application` state changes, `zesk\Locale` updates
+- `zesk\Response` refactoring
+- `zesk\Response` refactoring fixes
+- `zesk\Response` serialization and caching fixes
+- `zesk\Router` fixing `import` function
+- `zesk\Router` removing dependency on `zesk\ORM`
+
+
+### 1.0 Things Completed
+
+- <strike>Renaming of `zesk\Object` to something non-reserved in PHP 7.2 (Candidates are `zesk\ORM` `zesk\Model` - reuse)</strike>
+- <strike>`zesk\` namespace for all `classes` in the system</strike>
+- <strike> Merging of `Response` and `Response_Text_HTML` into a single, unified polymorphic `Response` which changes behavior depending on content-type but allows typed API calls for specific response handling. May move `Response_Text_HTML` into a sub-object (e.g. `$response->html()->add_body_class()` for example)</strike>
+- <strike>Support for `Psr/Cache` for caching within Zesk - **needs to be tested**</strike>
+- <strike>Migrate `Database_Result_Iterator` to remove dependency on `Database_Query_Select_Base`</strike>
+- <strike>Migration of `zesk\Locale` to be object-based and not-static-based invocation</strike>
 
 
 ## [v0.15.7][]
@@ -1285,7 +1342,8 @@ Settling of `zesk\Kernel` and `zesk\` namespace changes, added additional compon
  - `zesk::class_hierarchy` -> `zesk()->classes->hierarchy`
 - Removed growl module (no longer relevant on Mac OS X)
 
-[v0.15.7]: https://github.com/zesk/zesk/compare/v0.15.7...HEAD
+[v0.15.7]: https://github.com/zesk/zesk/compare/v0.16.0...HEAD
+[v0.15.7]: https://github.com/zesk/zesk/compare/v0.15.7...v0.16.0
 [v0.15.6]: https://github.com/zesk/zesk/compare/v0.15.6...v0.15.7
 [v0.15.5]: https://github.com/zesk/zesk/compare/v0.15.5...v0.15.6
 [v0.15.4]: https://github.com/zesk/zesk/compare/v0.15.4...v0.15.5

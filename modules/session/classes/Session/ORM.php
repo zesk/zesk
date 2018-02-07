@@ -92,7 +92,6 @@ class Session_ORM extends ORM implements Interface_Session {
 	 * @param Application $application
 	 */
 	public static function hooks(Application $application) {
-		//		$zesk->hooks->add('zesk\Response::headers', __CLASS__ . '::response_headers');
 		$application->hooks->add(Hooks::hook_configured, __CLASS__ . '::configured');
 		$application->hooks->add('exit', __CLASS__ . '::save');
 	}
@@ -316,7 +315,6 @@ class Session_ORM extends ORM implements Interface_Session {
 	public static function one_time_create(User $user, $expire_seconds = null) {
 		$app = $user->application;
 		if ($expire_seconds === null) {
-			/* @var $zesk Kernel */
 			$expire_seconds = to_integer($app->configuration->path_get(__CLASS__ . "::one_time_expire_seconds", 86400));
 		}
 		$app->orm_registry(__CLASS__)

@@ -1710,6 +1710,9 @@ class Widget extends Hookable {
 	 * @return mixed|NULL|string
 	 */
 	final function execute(Model &$object = null, $reset = false) {
+		if (!$this->request) {
+			throw new Exception_Semantics("Requires request to be set");
+		}
 		if ($reset) {
 			$this->exec_state = $this->content = $this->content_children = null;
 		} else if (is_string($this->exec_state)) {
@@ -2134,6 +2137,7 @@ class Widget extends Hookable {
 	 */
 	public function theme_variables() {
 		return $this->application->variables() + array(
+			'request' => $this->request(),
 			'response' => $this->response(),
 			'widget' => $this,
 			'input_attributes' => $input_attributes = $this->input_attributes(),

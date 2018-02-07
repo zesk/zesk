@@ -864,9 +864,8 @@ class File {
 	 * @return integer
 	 */
 	public static function trim_maximum_file_size() {
-		global $zesk;
-		/* @var $zesk zesk\Kernel */
-		$result = to_integer($zesk->configuration->path_get(array(
+		$app = Kernel::singleton()->application();
+		$result = to_integer($app->configuration->path_get(array(
 			"zesk\file",
 			"trim",
 			"maximum_file_size"
@@ -887,9 +886,8 @@ class File {
 	 * @return integer
 	 */
 	public static function trim_read_buffer_size() {
-		global $zesk;
-		/* @var $zesk zesk\Kernel */
-		$result = to_integer($zesk->configuration->path_get(array(
+		$app = Kernel::singleton()->application();
+		$result = to_integer($app->configuration->path_get(array(
 			"zesk\file",
 			"trim",
 			"read_buffer_size"
@@ -919,8 +917,6 @@ class File {
 	 * @return boolean
 	 */
 	public static function trim($path, $offset = 0, $length = null) {
-		global $zesk;
-		/* @var $zesk zesk\Kernel */
 		if (!is_file($path)) {
 			throw new Exception_File_NotFound($path);
 		}
@@ -1041,8 +1037,6 @@ class File {
 	 * @return boolean
 	 */
 	public static function is_absolute($f) {
-		global $zesk;
-		/* @var $zesk zesk\Kernel */
 		if (!is_string($f)) {
 			throw new Exception_Parameter("{method} First parameter should be string {type} passed", array(
 				"method" => __METHOD__,
@@ -1071,15 +1065,13 @@ class File {
 	 * @param string $target
 	 */
 	public static function move_atomic($source, $target, $new_target = null) {
-		global $zesk;
-		/* @var $zesk zesk\Kernel */
 		if (!is_file($target)) {
 			return @rename($source, $target);
 		}
 		if (!is_file($source)) {
 			throw new Exception_File_NotFound($source);
 		}
-		$pid = $zesk->process->id();
+		$pid = getmypid();
 		$target_lock = $target . ".atomic-lock";
 		$lock = fopen($target_lock, "w+");
 		if (!$lock) {

@@ -58,10 +58,10 @@ class Overhead_Test extends Test_Unit {
 		file_put_contents($sandbox, "<?php\nrequire_once '" . $this->application->path("zesk.application.php") . "';\necho memory_get_usage();");
 		$result = $this->run_php_sandbox($sandbox);
 		$this->assert_is_numeric($result);
-		$zesk_usage = intval($result);
-		$this->log("Zesk PHP usage is $zesk_usage");
+		$usage = intval($result);
+		$this->log("Zesk PHP usage is $usage");
 
-		$delta = $zesk_usage - $raw_usage;
+		$delta = $usage - $raw_usage;
 		$this->log("Zesk Overhead is " . $delta . " " . Number::format_bytes($this->application->locale, $delta));
 	}
 }

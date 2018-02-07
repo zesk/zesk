@@ -1182,7 +1182,7 @@ abstract class Command extends Hookable implements Logger\Handler {
 	 */
 	protected function zesk_cli($command, array $arguments = array()) {
 		$app = $this->application;
-		$bin = $app->zesk_root("bin/zesk.sh");
+		$bin = $app->zesk_home("bin/zesk.sh");
 		return $app->process->execute_arguments("$bin --search {app_root} $command", array(
 			"app_root" => $app->path()
 		) + $arguments);

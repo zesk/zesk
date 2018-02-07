@@ -631,7 +631,7 @@ class Command_Test extends Command_Base {
 	 */
 	private static function load_test_options($contents) {
 		$comments = DocComment::extract($contents, array(
-			"list_keys" => array(
+			DocComment::OPTION_LIST_KEYS => array(
 				"test_module"
 			)
 		));

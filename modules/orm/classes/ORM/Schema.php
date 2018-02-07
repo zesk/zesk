@@ -317,8 +317,7 @@ abstract class ORM_Schema extends Hookable {
 				try {
 					$tables[$table_name] = $table = self::schema_to_database_table($db, $this->map($table_name), $table_schema);
 				} catch (Exception $e) {
-					global $zesk;
-					$zesk->hooks->call("exception", $e);
+					$this->application->hooks->call("exception", $e);
 					$logger->debug("Error with object " . $this->class_object->class);
 					throw $e;
 				}

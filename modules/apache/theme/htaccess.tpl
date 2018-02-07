@@ -1,16 +1,7 @@
 <?php
-if (false) {
-	/* @var $this zesk\Template */
-
-	$zesk = $this->zesk;
-	/* @var $locale \zesk\Locale */
-
-	$application = $this->application;
-	/* @var $application zesk\Application */
-
-	$session = $this->session;
-	/* @var $session \zesk\Session */
-}
+/* @var $this \zesk\Template */
+/* @var $locale \zesk\Locale */
+/* @var $application \zesk\Application */
 $index_file = $this->index_file;
 
 $directory_index = $this->get("directory_index", "index.php");

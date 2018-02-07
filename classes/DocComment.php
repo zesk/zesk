@@ -106,11 +106,9 @@ class DocComment extends Options {
 		}
 		$result = array();
 		foreach ($matches[0] as $index => $match) {
-			$options = array(
-				"index" => $index
-			);
-			list($content, $options['offset']) = $match;
+			$options['index'] = $index;
 			$options['length'] = strlen($content);
+			list($content, $options['offset']) = $match;
 			$result[] = DocComment::instance($content, $options);
 		}
 		return $result;

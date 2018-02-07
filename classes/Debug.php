@@ -15,17 +15,17 @@ namespace zesk;
  */
 class Debug {
 	/**
-	 * 
+	 *
 	 * @var string
 	 */
 	const dump_spacer = "  ";
-	
+
 	/**
 	 *
 	 * @var integer
 	 */
 	public static $indent_limit = 4;
-	
+
 	/**
 	 * Set up PHP errors to output on web pages
 	 */
@@ -35,7 +35,7 @@ class Debug {
 		ini_set('error_append_string', "\n" . str_repeat("*", 80) . "\n");
 		ini_set('display_errors', true);
 	}
-	
+
 	/**
 	 * Returns the file which called this function. Useful for debugging.
 	 *
@@ -47,7 +47,7 @@ class Debug {
 		$top = array_shift($bt);
 		return $top['file'];
 	}
-	
+
 	/**
 	 * Dumps a variable using print_r and surrounds with <pre> tag
 	 *
@@ -64,13 +64,9 @@ class Debug {
 			'zesk\\Debug',
 			"dump"
 		), $args);
-		if (zesk()->console) {
-			echo $result . newline();
-		} else {
-			echo nl2br($result . newline());
-		}
+		echo $result . newline();
 	}
-	
+
 	/**
 	 * Returns what "dump" would print (doesn't echo)
 	 *
@@ -87,7 +83,7 @@ class Debug {
 		}
 		return implode("\n", $result);
 	}
-	
+
 	/**
 	 * Internal dump function
 	 *

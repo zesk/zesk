@@ -151,7 +151,11 @@ class Test extends Hookable {
 	 * @return array
 	 */
 	private function parse_doccomment($comment) {
-		return DocComment::instance($comment)->variables();
+		return DocComment::instance($comment, array(
+			DocComment::OPTION_LIST_KEYS => array(
+				"test_module"
+			)
+		))->variables();
 	}
 
 	/**

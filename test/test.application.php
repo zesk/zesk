@@ -8,11 +8,15 @@
  */
 require_once __DIR__ . '/vendor/autoload.php';
 
-$zesk = zesk\Kernel::factory();
+$kernel = zesk\Kernel::factory();
 
-$zesk->autoloader->no_exception = true;
+$kernel->autoloader->no_exception = true;
 
-return $zesk->create_application()->configure_include_path(array(
-	$zesk->paths->application("etc"),
-	$zesk->paths->uid()
-))->configure();
+$application = $kernel->create_application()->set_application_root(__DIR__);
+$files = array(
+	$application->path("etc/test.json"),
+	$application->path("etc/test.conf"),
+	$application->paths->uid("test.conf"),
+	$application->paths->uid("test.json")
+);
+$application->configure_include($files)->configure();
