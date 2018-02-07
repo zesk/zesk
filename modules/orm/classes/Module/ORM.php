@@ -264,15 +264,6 @@ class Module_ORM extends Module {
 	 * @return multitype:
 	 */
 	public function schema_synchronize(Database $db = null, array $classes = null, array $options = array()) {
-		if ($this->application->objects !== $this->application->objects) {
-			// KMD: I assume this must have happened once and should not ever happen again.
-			// If it does it's a SNAFU
-			$this->application->logger->emergency("App objects mismatch kernel {file}:{line}", array(
-				"file" => __FILE__,
-				"line" => __LINE__
-			));
-			exit(131);
-		}
 		if (!$db) {
 			$db = $this->application->database_registry();
 		}
@@ -318,10 +309,11 @@ class Module_ORM extends Module {
 				$object_db_name = $object->database()->code_name();
 				$updates = ORM_Schema::update_object($object);
 			} catch (Exception $e) {
-				$logger->error("Unable to synchronize {class} because of {exception_class} {message}", array(
+				$logger->error("Unable to synchronize {class} because of {exception_class} {message}\nTRACE: {trace}", array(
 					"class" => $class,
 					"message" => $e->getMessage(),
 					"exception_class" => get_class($e),
+					"trace" => $e->getTraceAsString(),
 					"exception" => $e
 				));
 				throw $e;
