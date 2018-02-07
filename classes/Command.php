@@ -1291,14 +1291,14 @@ abstract class Command extends Hookable implements Logger\Handler {
 
 	/**
 	 * Add help from the doccomment.
-	 * One place for docs is preferred. May not work with eaccelerator, etc.
+	 * One place for docs is preferred.
 	 *
 	 * @return NULL|string
 	 */
 	private function doccomment_help() {
 		$refl = new \ReflectionClass(get_class($this));
 		$comment = $refl->getDocComment();
-		$parsed = DocComment::parse($comment);
+		$parsed = DocComment::instance($comment)->variables();
 		if (!$parsed) {
 			return null;
 		}
