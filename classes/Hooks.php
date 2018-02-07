@@ -1,33 +1,12 @@
 <?php
+/**
+ * @package zesk
+ * @subpackage kernel
+ * @author kent
+ * @copyright &copy; 2018 Market Acumen, Inc.
+ */
 namespace zesk;
 
-class HookGroup {
-	public $first = array();
-	public $middle = array();
-	public $last = array();
-
-	/**
-	 * Merge two groups together
-	 *
-	 * @param HookGroup $merge
-	 * @return \zesk\HookGroup
-	 */
-	public function merge(HookGroup $merge) {
-		$this->first = array_merge($this->first, $merge->first);
-		$this->middle = array_merge($this->middle, $merge->middle);
-		$this->last = array_merge($this->last, $merge->last);
-		return $this;
-	}
-
-	/**
-	 * Combine all three together
-	 *
-	 * @return array
-	 */
-	public function definitions() {
-		return $this->first + $this->middle + $this->last;
-	}
-}
 /**
  *
  * @author kent
@@ -39,6 +18,12 @@ class Hooks {
 	 * @var string
 	 */
 	const hook_database_configure = "database_configure";
+
+	/**
+	 *
+	 * @var string
+	 */
+	const HOOK_CONFIGURED = "configured";
 
 	/**
 	 *
@@ -82,7 +67,7 @@ class Hooks {
 	/**
 	 * System hooks for adding custom functionality throughout the system
 	 *
-	 * @var array
+	 * @var HookGroup[string]
 	 */
 	private $hooks = array();
 

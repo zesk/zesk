@@ -157,11 +157,10 @@ class Kernel {
 
 	/**
 	 *
-	 * @deprecated 2017-05
 	 * @see self::console()
 	 * @var boolean
 	 */
-	public $console = false;
+	private $console = false;
 
 	/**
 	 *
@@ -182,13 +181,6 @@ class Kernel {
 	protected $application = null;
 
 	/**
-	 *
-	 * @deprecated 2017-09 Moved to `\is_windows()` for now
-	 * @var boolean
-	 */
-	public $is_windows = false;
-
-	/**
 	 * Include related classes
 	 */
 	public static function includes() {
@@ -202,6 +194,7 @@ class Kernel {
 		require_once $here . "/Options.php";
 		require_once $here . "/Hookable.php";
 		require_once $here . "/Hooks.php";
+		require_once $here . "/HookGroup.php";
 		require_once $here . "/Paths.php";
 		require_once $here . "/Autoloader.php";
 		require_once $here . "/Classes.php";
@@ -270,12 +263,7 @@ class Kernel {
 		 * Preferred newline character for line-based output
 		 */
 		$this->newline = $this->console ? "\n" : "<br />\n";
-		/*
-		 * Is this on Windows-based OS?
-		 *
-		 * @todo Is this true
-		 */
-		$this->is_windows = \is_windows();
+
 		/*
 		 * Zesk's start time in microseconds
 		 */
@@ -288,25 +276,9 @@ class Kernel {
 
 		$this->construct($configuration);
 	}
-
 	/**
-	 * Reset entrie Zesk global state and start from scratch.
 	 *
-	 * @see zesk\Application::reset()
-	 * @category DEVELOPMENT
-	 * @deprecated 2017-08 Not sure if allowing this is really a good idea at allm largely because
-	 * 		autoloading is not a reversible operation and Zesk depends largely upon class registration to
-	 *      build knowledge of the class hierarchy as well as to hook classes into the system.
-	 *
-	 */
-	public function reset(array $configuration) {
-		zesk()->deprecated();
-		$this->objects->reset();
-		$this->hooks->reset();
-		$this->construct($configuration);
-		$this->bootstrap();
-	}
-	/**
+	 * @param array $configuration
 	 */
 	private function construct(array $configuration) {
 		if (isset($configuration['cache']) && $configuration['cache'] instanceof CacheItemPoolInterface) {

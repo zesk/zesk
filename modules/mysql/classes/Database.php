@@ -633,15 +633,6 @@ class Database extends \zesk\Database {
 		return null;
 	}
 
-	/*
-	 * String Manipulation
-	 * @deprecated 2017-08
-	 */
-	function sql_format_string($sql) {
-		zesk()->deprecated();
-		return "'" . addslashes($sql) . "'";
-	}
-
 	/**
 	 * (non-PHPdoc)
 	 *

@@ -11,7 +11,7 @@
 namespace zesk;
 
 /**
- * 
+ *
  * @author kent
  *
  */
@@ -22,9 +22,9 @@ abstract class Database_Query_Edit extends Database_Query {
 	 * @var boolean
 	 */
 	protected $low_priority = false;
-	
+
 	/**
-	 * 
+	 *
 	 * @var string
 	 */
 	protected $default_alias = "";
@@ -40,18 +40,18 @@ abstract class Database_Query_Edit extends Database_Query {
 	 * @var array
 	 */
 	protected $values = array();
-	
+
 	/**
 	 * Array of columns valid for this table
 	 *
 	 * @var array
 	 */
 	protected $valid_columns = null;
-	
+
 	/**
 	 * Get/Set the table for this query
 	 *
-	 * @param string $table        	
+	 * @param string $table
 	 * @return Database_Query_Edit
 	 */
 	function table($table = null, $alias = null) {
@@ -64,11 +64,11 @@ abstract class Database_Query_Edit extends Database_Query {
 		$this->table["$alias"] = $table;
 		return $this;
 	}
-	
+
 	/**
 	 * Get/Set the table for this query
 	 *
-	 * @param string $table        	
+	 * @param string $table
 	 * @return Database_Query_Edit
 	 */
 	function class_table($class, $alias = null) {
@@ -81,11 +81,11 @@ abstract class Database_Query_Edit extends Database_Query {
 		$this->valid_columns($object_class->column_names(), $alias);
 		return $this;
 	}
-	
+
 	/**
 	 * Internal function to check validity of a column
 	 *
-	 * @param string $name        	
+	 * @param string $name
 	 * @return boolean
 	 */
 	private function valid_column($name) {
@@ -97,14 +97,14 @@ abstract class Database_Query_Edit extends Database_Query {
 		}
 		return true;
 	}
-	
+
 	/**
 	 * Add a name/value pair to be updated in this query
 	 *
 	 * @param string $name
 	 *        	Alternately, pass an array as this value to update multiple values
-	 * @param mixed $value        	
-	 * @return Database_Query_Edit
+	 * @param mixed $value
+	 * @return self
 	 */
 	function value($name, $value = null) {
 		if (is_array($name)) {
@@ -119,12 +119,12 @@ abstract class Database_Query_Edit extends Database_Query {
 		$this->values[$name] = $value;
 		return $this;
 	}
-	
+
 	/**
 	 * Internal function to check a column for vaidity.
 	 * If not, throw an exception.
 	 *
-	 * @param string $name        	
+	 * @param string $name
 	 * @throws Exception_Semantics
 	 */
 	private function check_column($name) {
@@ -137,11 +137,11 @@ abstract class Database_Query_Edit extends Database_Query {
 			));
 		}
 	}
-	
+
 	/**
 	 * Pass multiple values to be inserted/updated
 	 *
-	 * @param array $values        	
+	 * @param array $values
 	 * @return Database_Query_Edit
 	 */
 	function values(array $values = null) {
@@ -153,7 +153,7 @@ abstract class Database_Query_Edit extends Database_Query {
 	/**
 	 * Getter/setter for low priority state of this query
 	 *
-	 * @param boolean $low_priority        	
+	 * @param boolean $low_priority
 	 * @return boolean Database_Query_Edit
 	 */
 	function low_priority($low_priority = null) {
@@ -163,12 +163,12 @@ abstract class Database_Query_Edit extends Database_Query {
 		$this->low_priority = to_bool($low_priority);
 		return $this;
 	}
-	
+
 	/**
 	 * Not sure if need this.
 	 * Right now just stores it.
 	 *
-	 * @param array $columns        	
+	 * @param array $columns
 	 * @return Database_Query_Insert
 	 */
 	function valid_columns(array $columns, $alias = null) {

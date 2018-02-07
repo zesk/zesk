@@ -1,10 +1,20 @@
 <?php
 /**
- * 
- * @deprecated 2017-01 Is this used anywhere?
+ *
+ * For debugging, use
+ *
+ * <code>$application->theme("zesk/has_hook", ["content" => $application->hooks->has()]);</code>
  */
 namespace zesk;
 
+/* @var $this \zesk\Template */
+/* @var $application \zesk\Application */
+/* @var $locale \zesk\Locale */
+/* @var $session \zesk\Session */
+/* @var $router \zesk\Router */
+/* @var $route \zesk\Route */
+/* @var $request \zesk\Request */
+/* @var $response \zesk\Response_Text_HTML */
 $min = $max = null;
 foreach ($this->content as $arr) {
 	list($start, $stop) = $arr;
@@ -23,11 +33,11 @@ foreach ($this->content as $key => $arr) {
 	);
 }
 return $this->theme('table', array(
-	'headers' => array(
+	'headers' => $locale->__(array(
 		"Hook",
 		"First Time",
 		"Last Time",
 		"Number of times"
-	),
+	)),
 	'rows' => $rows
 ));

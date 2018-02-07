@@ -19,24 +19,53 @@ class Mail extends Hookable {
 	 *
 	 * @var string
 	 */
-	const header_content_type = 'Content-Type';
+	const HEADER_CONTENT_TYPE = 'Content-Type';
 	/**
 	 *
+	 * @var string
+	 */
+	const HEADER_MESSAGE_ID = "Message-ID";
+	/**
+	 *
+	 * @var string
+	 */
+	const HEADER_TO = "To";
+	/**
+	 *
+	 * @var string
+	 */
+	const HEADER_FROM = "From";
+	/**
+	 *
+	 * @var string
+	 */
+	const HEADER_SUBJECT = "Subject";
+
+	/**
+	 * @deprecated 2018-02
+	 * @var string
+	 */
+	const header_content_type = 'Content-Type';
+	/**
+	 * @deprecated 2018-02
 	 * @var string
 	 */
 	const header_message_id = "Message-ID";
 	/**
 	 *
+	 * @deprecated 2018-02
 	 * @var string
 	 */
 	const header_to = "To";
 	/**
 	 *
+	 * @deprecated 2018-02
 	 * @var string
 	 */
 	const header_from = "From";
 	/**
 	 *
+	 * @deprecated 2018-02
 	 * @var string
 	 */
 	const header_subject = "Subject";
@@ -134,10 +163,10 @@ class Mail extends Hookable {
 
 	/**
 	 *
-	 * @param zesk\Kernel $zesk
+	 * @param zesk\Application $application
 	 */
-	public static function hooks(Application $zesk) {
-		$zesk->hooks->add("zesk\Application::configured", __CLASS__ . "::configured");
+	public static function hooks(Application $application) {
+		$application->hooks->add(Hooks::HOOK_CONFIGURED, __CLASS__ . "::configured");
 	}
 
 	/**
@@ -145,39 +174,7 @@ class Mail extends Hookable {
 	 * @param zesk\Application $application
 	 */
 	public static function configured(Application $application) {
-		global $zesk;
-		/* @var $zesk Kernel */
-
-		$config = $zesk->configuration;
-
-		/**
-		 *
-		 * @deprecated 2016-08
-		 */
-		$config->deprecated("mail::debug", array(
-			__CLASS__,
-			"debug"
-		));
-		$config->deprecated("mail::log", array(
-			__CLASS__,
-			"log"
-		));
-		$config->deprecated("mail::disabled", array(
-			__CLASS__,
-			"disabled"
-		));
-		$config->deprecated('sms_sendmail::max_characters', array(
-			__CLASS__,
-			"sms_max_characters"
-		));
-		$config->deprecated("SMTP_URL", array(
-			__CLASS__,
-			"SMTP_URL"
-		));
-		$config->deprecated("SMTP_OPTIONS", array(
-			__CLASS__,
-			"SMTP_OPTIONS"
-		));
+		$config = $application->configuration;
 
 		/*
 		 * Load globals
@@ -289,7 +286,6 @@ class Mail extends Hookable {
 		return $this;
 	}
 	private static function mail_eol() {
-		/* @var $zesk zesk\Kernel */
 		return \is_windows() ? "\r\n" : "\n";
 	}
 
@@ -564,10 +560,10 @@ class Mail extends Hookable {
 			}
 		}
 
-		$headers[self::header_message_id] = "<" . $mime_boundary . " mailer@" . avalue($mail_options, "System-ID", avalue($_SERVER, 'SERVER_NAME', '')) . ">";
+		$headers[self::HEADER_MESSAGE_ID] = "<" . $mime_boundary . " mailer@" . avalue($mail_options, "System-ID", avalue($_SERVER, 'SERVER_NAME', '')) . ">";
 		$headers['X-Mailer'] = "zesk v" . Version::release() . "/PHP v" . phpversion();
 		$headers['MIME-Version'] = "1.0";
-		$headers[self::header_content_type] = "multipart/related; boundary=\"" . $mime_boundary . "\"";
+		$headers[self::HEADER_CONTENT_TYPE] = "multipart/related; boundary=\"" . $mime_boundary . "\"";
 
 		$m = "";
 

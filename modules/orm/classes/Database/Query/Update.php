@@ -11,31 +11,31 @@
 namespace zesk;
 
 /**
- * 
+ *
  * @author kent
  *
  */
 class Database_Query_Update extends Database_Query_Edit {
-	
+
 	/**
 	 * Update where clause
 	 *
 	 * @var array
 	 */
 	protected $where = array();
-	
+
 	/**
 	 *
 	 * @var resource
 	 */
 	private $result = null;
-	
+
 	/**
 	 *
 	 * @var boolean
 	 */
 	protected $ignore_constraints = false;
-	
+
 	/**
 	 * Create a new UPDATE query
 	 *
@@ -44,6 +44,13 @@ class Database_Query_Update extends Database_Query_Edit {
 	function __construct(Database $db) {
 		parent::__construct("UPDATE", $db);
 	}
+
+	/**
+	 * Getter/setter for ignore contstraints flag for update
+	 *
+	 * @param boolean|null $set
+	 * @return \zesk\Database_Query_Update|boolean
+	 */
 	function ignore_constraints($set = null) {
 		if (is_bool($set)) {
 			$this->ignore_constraints = true;
@@ -64,30 +71,37 @@ class Database_Query_Update extends Database_Query_Edit {
 			'low_priority' => $this->low_priority
 		));
 	}
+
+	/**
+	 * Return the number of affected rows after query has run
+	 *
+	 * @return integer
+	 */
 	public final function affected_rows() {
 		return $this->database()->affected_rows($this->result);
 	}
-	
+
 	/**
-	 * 
+	 *
 	 * @return resource
 	 */
 	function result() {
 		return $this->result;
 	}
-	
+
 	/**
+	 * @deprecated 2018-02 Use "execute()->result()" instead.
+	 *
 	 * @return self
 	 */
 	function exec() {
-		$this->execute();
-		return $this;
+		zesk()->deprecated();
+		return $this->execute();
 	}
 	/**
 	 * Run this query
 	 *
-	 * @deprecated 2016-10 Use "exec()->result()" instead.
-	 * 
+	 *
 	 * @return boolean
 	 */
 	function execute() {
@@ -95,9 +109,9 @@ class Database_Query_Update extends Database_Query_Edit {
 			"low_priority" => $this->low_priority,
 			"ignore_constraints" => $this->ignore_constraints
 		));
-		return $this->result;
+		return $this;
 	}
-	
+
 	/**
 	 * Add where clause.
 	 * Once traits are standard, make this a trait for SELECT/INSERT

@@ -35,8 +35,9 @@ class Forgot extends ORM {
 	 */
 	public function notify(Request $request) {
 		$user = $this->user;
+		$locale = $this->application->locale;
 		$variables = array(
-			"subject" => __('Forgotten password request for {user_email}'),
+			"subject" => $locale->__('Forgotten password request for {user_email}'),
 			"user_login" => $user->login(),
 			"user_email" => $user->email(),
 			"user" => $user,
@@ -86,13 +87,13 @@ class Forgot extends ORM {
 			"user" => $user,
 			"updated" => null
 		));
-		$query->exec();
+		$query->execute();
 		return $this;
 	}
 	public function delete_older(Timestamp $older) {
 		return $this->query_delete()
 			->where("Created|<=", $older)
-			->exec()
+			->execute()
 			->affected_rows();
 	}
 }

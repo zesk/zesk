@@ -306,14 +306,6 @@ class Database_Table extends Hookable {
 	}
 
 	/**
-	 * @deprecated 2017-08
-	 * @param array $indexes
-	 */
-	public function setIndexes(array $indexes) {
-		return $this->set_indexes($indexes);
-	}
-
-	/**
 	 *
 	 * @param Database_Column $dbCol
 	 * @throws Exception_Semantics

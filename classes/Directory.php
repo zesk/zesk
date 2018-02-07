@@ -7,8 +7,8 @@ namespace zesk;
 /**
  *
  */
-use \DirectoryIterator as DirectoryIterator;
-use \UnexpectedValueException as UnexpectedValueException;
+use \DirectoryIterator;
+use \UnexpectedValueException;
 
 /**
  *
@@ -521,21 +521,6 @@ class Directory extends Hookable {
 			}
 		}
 		return true;
-	}
-
-	/**
-	 * If a directory does not exist, create it. If an error occurs
-	 * @param unknown $path
-	 * @param string $mode
-	 * @throws Exception_Directory_Create
-	 * @throws Exception_Directory_Permission
-	 * @see self::depend
-	 * @deprecated 2016-12
-	 * @return unknown
-	 */
-	public static function must($path, $mode = null) {
-		zesk()->deprecated();
-		return self::depend($path, $mode);
 	}
 
 	/**

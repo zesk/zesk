@@ -180,7 +180,7 @@ class Health_Event extends ORM {
 				->to_array(null, "id");
 			$delete_query = $this->application->query_delete(__CLASS__);
 			$delete_query->where("id", $ids_to_delete);
-			$delete_query->exec();
+			$delete_query->execute();
 			$this->application->logger->notice("Deleted {n} {rows} related to health event {message} (Health Events #{id}) - total {total}", array(
 				"n" => $nrows = $delete_query->affected_rows(),
 				"rows" => $this->application->locale->plural("row", $nrows),

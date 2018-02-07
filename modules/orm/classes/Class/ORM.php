@@ -1439,13 +1439,27 @@ class Class_ORM extends Hookable {
 		if ($set !== null) {
 			$this->database = $set;
 			$this->database_name = $set->code_name();
-			$set->application->orm_module()->clear_cache($this->class);
+			$this->application->orm_module()->clear_cache($this->class);
 			return $this;
 		}
 		if ($this->database instanceof Database) {
 			return $this->database;
 		}
 		return $this->database = $this->application->database_registry($this->database_name);
+	}
+
+	/**
+	 * Retrieve the table for this object
+	 *
+	 * @return self|string
+	 */
+	public function table($set = null) {
+		if ($set !== null) {
+			$this->table = $set;
+			$this->application->orm_module()->clear_cache($this->class);
+			return $this;
+		}
+		return $this->table;
 	}
 
 	/**

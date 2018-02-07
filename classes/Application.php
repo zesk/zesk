@@ -733,7 +733,7 @@ class Application extends Hookable implements Interface_Theme {
 	 * @see Application::configure
 	 */
 	public function reconfigure() {
-		$this->_initialize($this->kernel);
+		//$this->_initialize($this->kernel);
 		$result = $this->_configure(to_array($this->configuration_options));
 		$this->_configured();
 		return $result;

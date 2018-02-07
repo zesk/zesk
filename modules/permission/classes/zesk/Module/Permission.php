@@ -433,7 +433,7 @@ class Module_Permission extends Module {
 		$this->application->orm_registry(Permission::class)
 			->query_delete()
 			->truncate(true)
-			->exec();
+			->execute();
 	}
 
 	/**

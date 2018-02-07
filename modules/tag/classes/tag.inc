@@ -34,7 +34,7 @@ class Tag extends ORM {
 			"object_class" => $class,
 			"object_id" => $ids
 		))
-			->exec()
+			->execute()
 			->affected_rows();
 	}
 

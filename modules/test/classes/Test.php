@@ -869,7 +869,9 @@ class Test extends Hookable {
 	}
 	final protected function assert_equal($actual, $expected, $message = null, $strict = true) {
 		$this->stats['assert']++;
-		$message .= "\nassert_equal failed:\n  Actual: " . gettype($actual) . ": " . $this->dump($actual) . "\nExpected: " . gettype($expected) . ": " . $this->dump($expected);
+		$message .= "\nassert_equal failed:\n";
+		$message .= "- Actual: " . gettype($actual) . ": " . $this->dump($actual) . "\n";
+		$message .= "Expected: " . gettype($expected) . ": " . $this->dump($expected);
 		if (is_scalar($actual) && is_scalar($expected)) {
 			if (is_double($actual) && is_double($expected)) {
 				if (abs($actual - $expected) > 0.00001) {

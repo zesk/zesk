@@ -407,6 +407,9 @@ class Command_Loader {
 			$_ZESK,
 			$_SERVER
 		) as $super) {
+			if (!is_array($super)) {
+				continue;
+			}
 			$root_files = array_key_exists('zesk_root_files', $super) ? $super['zesk_root_files'] : null;
 			if ($root_files) {
 				break;

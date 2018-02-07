@@ -435,7 +435,7 @@ class Settings extends ORM implements Interface_Data, Interface_Settings {
 		$nrows = $update->value("*name", "REPLACE(name, $old_prefix_quoted, " . $update->database()
 			->quote_text(strtolower($new_prefix)) . ")")
 			->where("name|LIKE", "$old_prefix_like_quoted%")
-			->exec()
+			->execute()
 			->affected_rows();
 		if ($nrows > 0) {
 			$this->application->logger->notice("Updated {nrows} settings from {old_prefix} to use new prefix {new_prefix}", array(

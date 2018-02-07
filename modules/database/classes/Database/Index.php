@@ -171,15 +171,6 @@ class Database_Index {
 
 	/**
 	 *
-	 * @deprecated 2016-09
-	 * @return number
-	 */
-	function columnCount() {
-		zesk()->deprecated();
-		return $this->column_count();
-	}
-	/**
-	 *
 	 * @return number
 	 */
 	function column_count() {

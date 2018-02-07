@@ -439,7 +439,7 @@ class Request extends Hookable {
 					$this->data = JSON::decode($this->data_raw);
 					break;
 				case "application/x-www-form-urlencoded":
-					$this->data_raw = array();
+					$this->data = array();
 					parse_str($this->data_raw, $this->data);
 					break;
 				default :

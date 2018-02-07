@@ -117,6 +117,49 @@ class ArrayTools {
 	}
 
 	/**
+	 * Removes items from the beginning or end of the list which are empty.
+	 *
+	 * @param array $a
+	 * @return array
+	 */
+	static function list_trim(array $a) {
+		return self::list_trim_tail(self::list_trim_head($a));
+	}
+	/**
+	 * Removes items from the beginning of the list which are empty.
+	 *
+	 * @param array $a
+	 * @return array
+	 */
+	static function list_trim_head(array $a) {
+		while (count($a) > 0) {
+			$item = first($a);
+			if (trim($item) === "") {
+				array_shift($a);
+			} else {
+				break;
+			}
+		}
+		return $a;
+	}
+	/**
+	 * Removes items from the end of the list which are empty.
+	 *
+	 * @param array $a
+	 * @return array
+	 */
+	static function list_trim_tail(array $a) {
+		while (count($a) > 0) {
+			$item = last($a);
+			if (trim($item) === "") {
+				array_pop($a);
+			} else {
+				break;
+			}
+		}
+		return $a;
+	}
+	/**
 	 * Trim array values, then remove ones which match the empty string.
 	 *
 	 * @param array $arr

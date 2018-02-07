@@ -613,12 +613,13 @@ class Module extends \zesk\Module {
 		// Changed class structure on 2016-11-23
 		$this->application->settings()->prefix_updated("Module_Cron::", __CLASS__ . "::");
 		$this->application->settings()->prefix_updated("zesk\\Module_Cron::", __CLASS__ . "::");
-		$nrows = $this->application->query_delete(Settings::class)
+		$nrows = $this->application->orm_registry(Settings::class)
+			->query_delete()
 			->where("name|LIKE", array(
 			'Module_Cron::%',
 			'cron::%'
 		))
-			->exec()
+			->execute()
 			->affected_rows();
 		if ($nrows > 0) {
 			$this->application->logger->notice("{class}: Deleted {nrows} settings to using old prefixes", array(

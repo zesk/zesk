@@ -101,17 +101,16 @@ class Database_Query_Delete extends Database_Query {
 	}
 
 	/**
+	 * Execute syntax is now identical, stop using this method, use ->execute() with new semantics
 	 *
+	 * @deprecated 2018-02
+	 * @see self::execute()
 	 * @throws Database_Exception
 	 * @return \zesk\Database_Query_Delete
 	 */
 	function exec() {
-		if ($this->execute() === null) {
-			throw new Database_Exception("Delete query failed: {sql}", array(
-				"sql" => $this->__toString()
-			));
-		}
-		return $this;
+		zesk()->deprecated();
+		return $this->execute();
 	}
 
 	/**
@@ -123,14 +122,9 @@ class Database_Query_Delete extends Database_Query {
 	}
 
 	/**
-	 * Prefer this function name, but need to change semantics so will remove and then rename ->exec
-	 * to ->execute later.
-	 * Use ->exec()->result() to get similar behavior in the short term
-	 *
-	 * @deprecated 2016-11
 	 * @return \zesk\Database_Query_Delete|NULL|mixed
 	 */
-	function execute() {
+	private function _execute() {
 		$db = $this->database();
 		$result = $this->result = $db->query($this->__toString());
 		if ($result) {
@@ -142,5 +136,22 @@ class Database_Query_Delete extends Database_Query {
 			return $result ? $this : null;
 		}
 		return $result;
+	}
+
+	/**
+	 * Prefer this function name, but need to change semantics so will remove and then rename ->exec
+	 * to ->execute later.
+	 * Use ->exec()->result() to get similar behavior in the short term
+	 *
+	 * @return \zesk\Database_Query_Delete|NULL|mixed
+	 */
+	function execute() {
+		$db = $this->database();
+		if ($this->_execute() === null) {
+			throw new Database_Exception("Delete query failed: {sql}", array(
+				"sql" => $this->__toString()
+			));
+		}
+		return $this;
 	}
 }

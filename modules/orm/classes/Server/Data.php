@@ -41,7 +41,7 @@ class Server_Data extends ORM {
 			$application->orm_registry(__CLASS__)
 				->query_delete()
 				->where('server', $deleted_servers)
-				->exec();
+				->execute();
 		}
 	}
 
@@ -54,7 +54,7 @@ class Server_Data extends ORM {
 		$server->application->orm_registry(__CLASS__)
 			->query_delete()
 			->where("server", $server)
-			->exec();
+			->execute();
 	}
 }
 

@@ -9,7 +9,7 @@
 namespace zesk;
 
 /**
- * 
+ *
  */
 class Process_Tools {
 	/**
@@ -37,17 +37,19 @@ class Process_Tools {
 			return false;
 		}
 		$dead_pids = implode(", ", $dead_pids);
-		$application->logger->warning("Resetting dead pids {dead_pids}", array(
-			"dead_pids" => $dead_pids
-		));
-		$application->query_update($class)
+		$query = $application->orm_registry($class)
+			->query_update()
 			->value($pid_field, null)
 			->where($pid_field, $dead_pids)
-			->exec()
-			->affected_rows();
+			->execute();
+		$rows = $query->affected_rows();
+		$application->logger->warning("Reset {n} dead pids {dead_pids}", array(
+			"dead_pids" => $dead_pids,
+			"n" => $rows
+		));
 		return true;
 	}
-	
+
 	/**
 	 * Test to see if any files have changed in this process. If so - quit and restart.
 	 *
@@ -56,9 +58,9 @@ class Process_Tools {
 	static function process_code_changed(Application $application) {
 		return $application->objects->singleton(__NAMESPACE__ . "\\" . "File_Monitor_Includes")->changed();
 	}
-	
+
 	/**
-	 * 
+	 *
 	 * @return unknown
 	 */
 	static function process_code_changed_files(Application $application) {

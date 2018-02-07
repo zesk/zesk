@@ -39,11 +39,6 @@ class Module_Session extends Module {
 			"session_factory"
 		));
 		/**
-		 * @deprecated 2017-01
-		 */
-		$this->application->configuration->deprecated("Session", __CLASS__);
-		$this->application->configuration->deprecated("zesk\\Session", __CLASS__);
-		/**
 		 * @deprecated 2018-01
 		 */
 		$this->application->objects->map("zesk\\Session_" . "Database", Session_ORM::class);

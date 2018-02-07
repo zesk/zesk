@@ -1,24 +1,24 @@
 <?php
 
 /**
- * 
+ *
  */
 namespace zesk;
 
 /**
- * 
+ *
  * @author kent
  *
  */
 abstract class Database_Parser extends Hookable {
 	const pattern_database_hint = '/--\s*Database:\s*(\w+)/i';
-	
+
 	/**
 	 *
 	 * @var Database
 	 */
 	protected $database;
-	
+
 	/**
 	 *
 	 * @return Database_SQL
@@ -26,22 +26,22 @@ abstract class Database_Parser extends Hookable {
 	final function sql() {
 		return $this->database->sql();
 	}
-	
+
 	/**
 	 * Create a new database parser
 	 *
-	 * @param Database $database        	
-	 * @param array $options        	
+	 * @param Database $database
+	 * @param array $options
 	 */
 	public function __construct(Database $database, array $options = array()) {
 		$this->database = $database;
 		parent::__construct($database->application, $options);
 	}
-	
+
 	/**
 	 * Parse SQL to determine type of command
 	 *
-	 * @param string $sql        	
+	 * @param string $sql
 	 * @param string $field
 	 *        	Optional desired field.
 	 * @return multitype:string NULL |Ambigous <mixed, array>
@@ -60,14 +60,14 @@ abstract class Database_Parser extends Hookable {
 		}
 		return ($field === null) ? $result : avalue($result, $field, $result);
 	}
-	
+
 	/**
 	 * Divide SQL commands into different distinct commands
-	 * 
+	 *
 	 * Using old pattern "/((?:(?:'[^']*')|[^;])*);/" caused backtrack limit errors in PHP7.
 	 * So changed to remove strings from SQL and replace afterwards
 	 *
-	 * @param string $sql        	
+	 * @param string $sql
 	 * @return array
 	 */
 	public function split_sql_commands($sql) {
@@ -95,12 +95,13 @@ abstract class Database_Parser extends Hookable {
 	}
 	/**
 	 *
-	 * @param Database $db        	
-	 * @param string $sql        	
+	 * @param Database $db
+	 * @param string $sql
 	 * @return Database_Parser
 	 */
 	static function parse_factory(Database $db, $sql, $source) {
-		if ($db->application->development() && empty($source)) {
+		$app = $db->application;
+		if ($app->development() && empty($source)) {
 			throw new Exception_Parameter("{method} missing source {args}", array(
 				"method" => __METHOD__,
 				"args" => array(
@@ -109,14 +110,15 @@ abstract class Database_Parser extends Hookable {
 				)
 			));
 		}
+		$db_module = $app->database_module();
 		$matches = null;
 		if (preg_match(self::pattern_database_hint, $sql, $matches)) {
 			$db_scheme = strtolower($matches[1]);
-			if ($db->supports_scheme($db_scheme)) {
+			if ($db_module->supports_scheme($db_scheme)) {
 				return $db->parser();
 			}
 			try {
-				$db = Database::scheme_factory($db->application, $db_scheme);
+				$db = $db_module->scheme_factory($db_scheme);
 			} catch (Exception_NotFound $e) {
 				zesk()->logger->error("Unable to parse SQL from {source}, halting", array(
 					"source" => $source
@@ -126,20 +128,20 @@ abstract class Database_Parser extends Hookable {
 		}
 		return $db->parser();
 	}
-	
+
 	/**
 	 * Convert from SQL to Database_Table
 	 *
-	 * @param string $sql        	
+	 * @param string $sql
 	 * @return Database_Table
 	 */
 	abstract function create_table($sql);
 	abstract function create_index(Database_Table $table, $sql);
-	
+
 	/**
 	 * Convert an order-by clause into an array, parsing out any functions or other elements
 	 *
-	 * @param string $order_by        	
+	 * @param string $order_by
 	 * @return array
 	 */
 	public function split_order_by($order_by) {
@@ -169,11 +171,11 @@ abstract class Database_Parser extends Hookable {
 		// Convert resulting array and replace removed tokens
 		return tr($order_by, $map);
 	}
-	
+
 	/**
 	 * Reverses an order by clause as passed into a select query
 	 *
-	 * @param mixed $order_by        	
+	 * @param mixed $order_by
 	 * @return array
 	 */
 	public function reverse_order_by($order_by) {

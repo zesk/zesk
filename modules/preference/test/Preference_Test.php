@@ -1,11 +1,11 @@
 <?php
 /**
- * 
+ *
  */
 namespace zesk;
 
 /**
- * 
+ *
  * @author kent
  *
  */
@@ -23,7 +23,7 @@ class Preference_Test extends Test_ORM {
 		$default = false;
 		Preference::user_get($user, $name, $default);
 	}
-	
+
 	/**
 	 * @expectedException zesk\Exception_Parameter
 	 */
@@ -33,7 +33,7 @@ class Preference_Test extends Test_ORM {
 		$default = false;
 		Preference::user_get($user, $name, $default);
 	}
-	
+
 	/**
 	 * @expectedException zesk\Exception_Parameter
 	 */
@@ -45,19 +45,19 @@ class Preference_Test extends Test_ORM {
 	}
 	function test_Preference() {
 		$preference_class = __NAMESPACE__ . "\\" . "Preference";
-		
+
 		$db = $this->application->database_registry();
-		$db->query($this->application->schema_synchronize($db, array(
+		$db->query($this->application->orm_module()->schema_synchronize($db, array(
 			$preference_class,
 			__NAMESPACE__ . "\\" . "Preference_Type"
 		), array(
 			"follow" => true
 		)));
-		
+
 		$user = new User($this->application, 1);
-		
+
 		Preference::user_set($user, "country", "Random");
-		
+
 		$pref = new Preference($this->application, array(
 			"user" => $user,
 			"type" => Preference_Type::register_name($this->application, "country")
@@ -66,18 +66,21 @@ class Preference_Test extends Test_ORM {
 		$this->assert_equal($result, $pref);
 		$this->assert_instanceof($result, $preference_class);
 		$this->run_test_an_object($pref);
-		
-		$result = $this->application->query_delete($preference_class)->where("user", 1)->exec();
+
+		$result = $this->application->orm_registry($preference_class)
+			->query_delete()
+			->where("user", 1)
+			->execute();
 		$this->assert_instanceof($result, __NAMESPACE__ . "\\" . "Database_Query_Delete");
 		$this->log("Deleted {n} rows from {class}", array(
 			"n" => $result->affected_rows(),
 			"class" => $preference_class
 		));
-		
+
 		$name = "test";
 		$default = "Monkey";
 		$this->assert_equal(Preference::user_get($user, $name, $default), $default);
-		
+
 		Preference::user_set($user, $name, "Ape");
 		$this->assert_equal(Preference::user_get($user, $name, $default), "Ape");
 	}

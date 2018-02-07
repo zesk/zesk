@@ -1289,22 +1289,7 @@ abstract class Database extends Hookable {
 
 	/**
 	 * Create a new database
-	 *
-	 * @deprecated 2016-07-06
-	 * @param string $url
-	 *        	Connection URL in the form
-	 *        	dbtype://user:password@host/databasename?option0=value0&option1=value1. Currently
-	 *        	MySQL and SQLite3 supported.
-	 * @return Database
-	 */
-	public static function factory(Application $application, $mixed = null, array $options = array()) {
-		zesk()->deprecated();
-		return self::_factory($application, $mixed, $options);
-	}
-
-	/**
-	 * Create a new database
-	 * @depreacated 2018-01
+	 * @deprecated 2018-01
 	 * @param string $url
 	 *        	Connection URL in the form
 	 *        	dbtype://user:password@host/databasename?option0=value0&option1=value1. Currently

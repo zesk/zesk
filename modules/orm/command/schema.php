@@ -163,7 +163,7 @@ class Command_Schema extends Command_Base {
 		$this->synchronize_before();
 
 		$database = $application->database_registry($url);
-		$this->results = $results = $application->schema_synchronize($database, $classes, array(
+		$this->results = $results = $application->orm_module()->schema_synchronize($database, $classes, array(
 			"check" => $this->option_bool('check')
 		));
 		$suffix = ";\n";

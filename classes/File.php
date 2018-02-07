@@ -950,7 +950,7 @@ class File {
 		if ($length < 0) {
 			$length = $size + $length - $offset;
 		}
-		$temp = $path . '-temp-trim-' . $zesk->process->id();
+		$temp = $path . '-temp-trim-' . getmypid();
 		$temp_mv = $temp . "-rename";
 		$w = fopen($temp, "w");
 		if (!$w) {
@@ -1196,7 +1196,7 @@ class File {
 			}
 			throw new Exception_File_Permission($file, "Unable to write (!is_writable)");
 		}
-		$lockname = "$file.pid=" . zesk()->process->id() . ".writable.temp";
+		$lockname = "$file.pid=" . getmypid() . ".writable.temp";
 		if (file_put_contents($lockname, strval(microtime(true))) !== false) {
 			unlink($lockname);
 			return $file;

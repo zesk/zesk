@@ -215,7 +215,7 @@ class PolyGlot_Token extends ORM {
 					->query_update()
 					->value("translation", $entities)
 					->where("id", $id)
-					->exec();
+					->execute();
 				$app->logger->debug("Updated #{id} {translation} to {entities}", compact("id", "translation", "entities"));
 			}
 		}
