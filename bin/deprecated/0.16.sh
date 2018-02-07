@@ -9,6 +9,12 @@ pause() {
 	read
 }
 
+echo 'Mail constant changes'
+zesk cannon ::header_content_type ::HEADER_CONTENT_TYPE
+zesk cannon ::header_message_id ::HEADER_MESSAGE_ID
+zesk cannon ::header_to ::HEADER_TO
+zesk cannon ::header_from ::HEADER_FROM
+zesk cannon ::header_subject ::HEADER_SUBJECT
 
 echo 'Locale API changes'
 zesk cannon Locale::dialect Locale::parse_dialect

@@ -13,6 +13,7 @@ namespace zesk;
 /**
  * Array tools for pretty much anything you can think of for arrays.
  * @deprecated 2018-01
+ * @no-cannon
  * @author kent
  */
 class arr extends ArrayTools {}

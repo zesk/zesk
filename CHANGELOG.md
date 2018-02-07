@@ -89,6 +89,12 @@ We're migrating away from storing request/response state in the `zesk\Applicatio
 
 ### Removed functionality
 
+- `zesk\Session` and `Session` globals are no longer honored. Use `zesk\Module_Session` to set session defaults.
+- `zesk\Exception_Mail_Send` was removed (not used)
+- `zesk\Exception_Mail_Format` was removed (not used)
+- `zesk\Database_Index::columnCount` was removed (use `zesk\Database_Index::column_count`)
+- `zesk\Database_Index::columnCount` was removed (use `zesk\Database_Index::column_count`)
+- `zesk\Database::factory` was removed (use `$application->database_factory()`)
 - `zesk\Response_Text_HTML::head` 
 - `zesk\Response_Text_HTML::body_begin` 
 - `zesk\Response_Text_HTML::body_end` 
