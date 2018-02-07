@@ -17,10 +17,6 @@ Version 1.0 of Zesk will have:
 - Support for `Monolog` within Zesk core - **needs to be tested**
 - All modules use **namespaces** - **in progress**
 
-## [Unreleased][]
-
-
-
 ## [v0.16.0][]
 
 ### `zesk\Response` Refactored
