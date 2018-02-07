@@ -40,7 +40,21 @@ class DocComment_Test extends Test_Unit {
 			)
 		);
 	}
+	function test_desc_no_tag() {
+		$doc = DocComment::instance([
+			"desc" => "Hello, world",
+			"see" => "\\zesk\\Kernel"
 
+		], [
+			DocComment::OPTION_DESC_NO_TAG => true
+		]);
+		$this->assert_equal($doc->content(), "/**\n * Hello, world\n * \n * @see \zesk\Kernel\n */");
+		$doc->set_option(DocComment::OPTION_DESC_NO_TAG, false);
+		$this->assert_equal($doc->content(), "/**
+ * @desc Hello, world
+ * @see \zesk\Kernel
+ */");
+	}
 	/**
 	 * @dataProvider data_provider_clean
 	 */
@@ -144,22 +158,19 @@ class DocComment_Test extends Test_Unit {
 						)
 					)
 				),
-				'/**
- * @desc Server
- *     Represents a server (virtual or physical)
+				"/**\n * @desc Server\n * \n *       Represents a server (virtual or physical)
  * @see Class_Server
  * @see Server_Data
- * @property id $id
- * @property string $name
- * @property string $name_internal
- * @property string $name_external
- * @property ip4 $ip4_internal
- * @property ip4 $ip4_external
- * @property integer $free_disk
- * @property integer $free_disk
- * @property double $load
- * @property Timestamp $alive
- */'
+ * @property id \$id
+ * @property string \$name
+ * @property string \$name_internal
+ * @property string \$name_external
+ * @property ip4 \$ip4_internal
+ * @property ip4 \$ip4_external
+ * @property integer \$free_disk
+ * @property double \$load
+ * @property Timestamp \$alive
+ */"
 			)
 		);
 	}
@@ -167,20 +178,20 @@ class DocComment_Test extends Test_Unit {
 	 * @dataProvider data_provider_parse
 	 */
 	function test_parse($test, $expected, $unparse_expected) {
-		$this->assert_equal($parsed = DocComment::instance($test)->variables(), $expected);
-		$this->assert_equal(DocComment::instance($parsed)->content(), $unparse_expected);
+		$this->assert_equal($parsed = DocComment::instance($test)->variables(), $expected, JSON::encode_pretty($test));
+		$this->assert_equal(DocComment::instance($parsed)->content(), $unparse_expected, JSON::encode_pretty($parsed));
 	}
 	function data_provider_unparse() {
 		return array(
 			array(
 				array(
-					"param" => array(
+					"see" => array(
 						"line1",
 						"line2"
 					),
 					"desc" => "Description"
 				),
-				"/**\n * @param line1\n *        line2\n * @desc  Description\n */"
+				"/**\n * @see line1\n * @see line2\n * @desc Description\n */"
 			)
 		);
 	}
