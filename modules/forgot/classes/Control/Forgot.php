@@ -103,7 +103,7 @@ class Control_Forgot extends Control_Edit {
 		}
 		$locale = $this->locale();
 		/* @var $user User */
-		$this->auth_user = $this->orm_factory(User::class)->login($this->object->login)->find();
+		$this->auth_user = $this->application->orm_factory(User::class)->login($this->object->login)->find();
 		$this->auth_user = $this->call_hook_arguments("find_user", array(
 			$this->auth_user
 		), $this->auth_user);
