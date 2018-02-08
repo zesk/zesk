@@ -1222,6 +1222,20 @@ abstract class Database extends Hookable {
 	abstract public function table_information($table);
 
 	/**
+	 * Does this database support URL schemes as passed in?
+	 *
+	 * @param string $scheme
+	 * @return boolean
+	 */
+	public function supports_scheme($scheme) {
+		if (empty($scheme)) {
+			return false;
+		}
+		$class = $this->application->orm_module()->register_scheme($scheme);
+		return $this instanceof $class ? true : false;
+	}
+
+	/**
 	 * Set or get the default internal database name
 	 *
 	 * @deprecated 2018-01
@@ -1239,17 +1253,6 @@ abstract class Database extends Hookable {
 	 */
 	public static function unregister($name) {
 		return app()->database_module()->unregister($name);
-	}
-
-	/**
-	 * Does this database support URL schemes as passed in?
-	 * @deprecated 2018-01
-	 * @param string $scheme
-	 * @return boolean
-	 */
-	public static function supports_scheme($scheme) {
-		zesk()->deprecated();
-		return app()->database_module()->supports_scheme($scheme);
 	}
 
 	/**

@@ -223,20 +223,6 @@ class Module_Database extends Module {
 	}
 
 	/**
-	 * Does this database support URL schemes as passed in?
-	 *
-	 * @param string $scheme
-	 * @return boolean
-	 */
-	public function supports_scheme($scheme) {
-		if (empty($scheme)) {
-			return false;
-		}
-		$class = $this->register_scheme($scheme);
-		return $class === get_class($this) ? true : false;
-	}
-
-	/**
 	 *
 	 * @return array
 	 */
