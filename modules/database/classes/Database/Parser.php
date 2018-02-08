@@ -114,7 +114,7 @@ abstract class Database_Parser extends Hookable {
 		$matches = null;
 		if (preg_match(self::pattern_database_hint, $sql, $matches)) {
 			$db_scheme = strtolower($matches[1]);
-			if ($db_module->supports_scheme($db_scheme)) {
+			if ($db->supports_scheme($db_scheme)) {
 				return $db->parser();
 			}
 			try {
