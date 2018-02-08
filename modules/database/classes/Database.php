@@ -1231,7 +1231,7 @@ abstract class Database extends Hookable {
 		if (empty($scheme)) {
 			return false;
 		}
-		$class = $this->application->orm_module()->register_scheme($scheme);
+		$class = $this->application->database_module()->register_scheme($scheme);
 		return $this instanceof $class ? true : false;
 	}
 
