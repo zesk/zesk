@@ -117,7 +117,7 @@ class ORM_CacheItem implements CacheItemInterface {
 		if (!$this->item->isHit()) {
 			return false;
 		}
-		$value = $this->get();
+		$value = $this->item->get();
 		if (!is_array($value)) {
 			return false;
 		}
