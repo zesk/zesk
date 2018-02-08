@@ -384,4 +384,16 @@ class Module_Database extends Module {
 		}
 		return $db;
 	}
+
+	/**
+	 *
+	 * @param array $info
+	 * @return string
+	 */
+	function hook_info(array $info) {
+		$info[__CLASS__ . "::default"] = $default = $this->option("default");
+		$info[__CLASS__ . "::default_url"] = URL::remove_password($this->register("default"));
+
+		return $info;
+	}
 }

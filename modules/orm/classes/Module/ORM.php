@@ -204,8 +204,6 @@ class Module_ORM extends Module {
 	/**
 	 * When zesk\Hooks::all_hook is called, this is called first to collect all objects
 	 * in the system.
-	 *
-	 * @todo PHP7 Add Closure here to avoid global usage
 	 */
 	public static function hooks(Application $application) {
 		$application->hooks->add(ORM::class . '::register_all_hooks', __CLASS__ . "::object_register_all_hooks");
