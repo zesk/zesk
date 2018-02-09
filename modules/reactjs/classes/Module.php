@@ -16,6 +16,7 @@ use zesk\Net_HTTP;
 use zesk\Exception_File_NotFound;
 use zesk\Net_HTTP_Client_Exception;
 use zesk\ArrayTools;
+use zesk\MIME;
 
 /**
  *
@@ -140,6 +141,7 @@ class Module extends \zesk\Module implements \zesk\Interface_Module_Routes, \zes
 				"proxy_prefix" => $proxy_prefix,
 				"message" => $e->getMessage()
 			) + $request->variables() + ArrayTools::kprefix($request->url_variables(), "url::"));
+			throw new Exception_File_NotFound($http->url());
 		}
 		return $http;
 	}
@@ -177,10 +179,11 @@ class Module extends \zesk\Module implements \zesk\Interface_Module_Routes, \zes
 		} catch (Exception_File_NotFound $e) {
 			$debug = "";
 			if ($app->development()) {
-				$debug = "<br />" . $e->filename();
+				$debug = "\n" . $e->filename();
 			}
 			$response->status(Net_HTTP::Status_File_Not_Found, "Not found");
-			$response->content = "ReactJS File not found" . $debug;
+			$response->content_type(MIME::from_filename($request->path()));
+			return "/* ReactJS File not found" . $debug . " */";
 		}
 	}
 	private function copy_to_response(Net_HTTP_Client $client, Response $response) {

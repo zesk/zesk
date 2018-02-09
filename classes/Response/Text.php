@@ -3,18 +3,14 @@ namespace zesk\Response;
 
 use zesk\Response;
 
-class Text extends Response {
-	function initialize() {
-	}
-	function hasFile() {
-		return false;
-	}
-	function headers() {
-	}
-	function render($content) {
-		return $content;
-	}
+/**
+ * The simplest of types
+ *
+ * @author kent
+ *
+ */
+class Text extends Type {
 	function output($content) {
-		echo $this->render($content);
+		echo $content;
 	}
 }

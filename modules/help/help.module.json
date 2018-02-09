@@ -5,7 +5,8 @@
 		"jquery"
 	],
 	"autoload_options": {
-		"class_prefix": "zesk\\"
+		"class_prefix": "zesk\\",
+		"lower": false
 	},
 	"module_class": "zesk\\Module_Help"
 }

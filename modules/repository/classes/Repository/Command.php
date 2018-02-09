@@ -9,39 +9,39 @@ namespace zesk;
 
 /**
  * For repository tools which are invoked via an external command (e.g. most of them)
- * 
+ *
  * @author kent
  * @see Module_Repository
  * @see \zesk\Git\Repository
  * @see \zesk\Subversion\Repository
  */
 abstract class Repository_Command extends Repository {
-	
+
 	/**
 	 *
 	 * @var Process
 	 */
 	protected $process = null;
-	
+
 	/**
-	 * 
+	 *
 	 * @var string
 	 */
 	private $command = null;
-	
+
 	/**
-	 * 
+	 *
 	 * @var string
 	 */
 	protected $executable = null;
-	
+
 	/**
 	 * Used in validate function
-	 * 
+	 *
 	 * @var string
 	 */
 	protected $dot_directory = null;
-	
+
 	/**
 	 *
 	 * @param string $path
@@ -60,7 +60,7 @@ abstract class Repository_Command extends Repository {
 				"path" => $path
 			));
 		} else if ($root !== $path) {
-			$this->application->warning("{method} {code} moved to {root} instead of {path}", array(
+			$this->application->logger->warning("{method} {code} moved to {root} instead of {path}", array(
 				"method" => __METHOD__,
 				"code" => $this->code,
 				"root" => $root,
@@ -70,7 +70,7 @@ abstract class Repository_Command extends Repository {
 		$this->path = $root;
 		return $this;
 	}
-	
+
 	/**
 	 *
 	 * {@inheritDoc}
@@ -89,9 +89,9 @@ abstract class Repository_Command extends Repository {
 			));
 		}
 	}
-	
+
 	/**
-	 * 
+	 *
 	 * @param array $arguments
 	 * @param string $passthru
 	 * @return array
@@ -108,7 +108,7 @@ abstract class Repository_Command extends Repository {
 			throw $e;
 		}
 	}
-	
+
 	/**
 	 *
 	 * {@inheritDoc}
@@ -117,9 +117,9 @@ abstract class Repository_Command extends Repository {
 	public function validate() {
 		return $this->path !== null;
 	}
-	
+
 	/**
-	 * 
+	 *
 	 * {@inheritDoc}
 	 * @see \zesk\Repository::validate()
 	 */
@@ -138,7 +138,7 @@ abstract class Repository_Command extends Repository {
 		}
 		return null;
 	}
-	
+
 	/**
 	 * Given a target parameter, generate a full path
 	 * @param string $target
@@ -150,10 +150,10 @@ abstract class Repository_Command extends Repository {
 		}
 		return $this->path($target);
 	}
-	
+
 	/**
 	 * Sort a list of versions in reverse version order.
-	 *  
+	 *
 	 * Support semantic versioning up to 4 different digits separated by decimal places.
 	 *
 	 * All text is ignored. Utility to be used by find_latest_version.
@@ -172,10 +172,10 @@ abstract class Repository_Command extends Repository {
 		krsort($result, SORT_NUMERIC);
 		return array_values($result);
 	}
-	
+
 	/**
 	 * Retrieve the latest version
-	 * 
+	 *
 	 * @param string[] $versions
 	 * @return string
 	 */

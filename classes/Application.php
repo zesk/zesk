@@ -354,7 +354,7 @@ class Application extends Hookable implements Interface_Theme {
 	 * @throws Exception_Unimplemented
 	 */
 	protected function _initialize(Kernel $kernel, array $options = array()) {
-		// Pretty much just copy references over
+		// Pretty much just copy object references over
 		$this->zesk = $kernel;
 		$this->kernel = $kernel;
 		$this->paths = $kernel->paths;
@@ -371,19 +371,31 @@ class Application extends Hookable implements Interface_Theme {
 		 */
 		$this->process = new Process($this);
 
+		/*
+		 * Speaka-da-language?
+		 */
 		$this->locale = $this->locale_factory();
 
+		/*
+		 * Where various things can be found
+		 */
+		// Find modules here
 		$this->module_path = array();
+		// Find Zesk commands here
 		$this->zesk_command_path = array();
+		// Find theme files (
 		$this->theme_path = array();
+		// Find share files for Controller_Share (move to internal module)
 		$this->share_path = array();
+		// Where to store temporary files
 		$this->cache_path = null;
+		// Where our web server is pointing to
 		$this->document = null;
+		// Web server has a hard-coded prefix
 		$this->document_prefix = '';
+		// Directory where we can store web-accessible resources
 		$this->document_cache = null;
-		$this->template_stack = null;
-		$this->template = null;
-		$this->theme_stack = null;
+
 		$this->configured_was_run = false;
 
 		$this->factories = array();
@@ -418,9 +430,12 @@ class Application extends Hookable implements Interface_Theme {
 
 		$this->modules = new Modules($this);
 
+		// Variable state
 		$this->template_stack = new Template_Stack();
+		// Root template
 		$this->template = new Template($this);
 		$this->template_stack->push($this->template);
+		// Stack of currently rendering themes
 		$this->theme_stack = array();
 
 		$this->theme_path($this->path_theme_default());
@@ -502,18 +517,41 @@ class Application extends Hookable implements Interface_Theme {
 	}
 
 	/**
+	 * Expand a list of include files
+	 *
+	 * @param array $includes
+	 * @return string[]
+	 */
+	private function expand_includes(array $includes) {
+		$result = array();
+		foreach ($includes as $include) {
+			$expand = $this->paths->expand($include);
+			$result[$expand] = $expand;
+		}
+		return $result;
+	}
+	/**
 	 * Getter/setter to configure a file name to load (from path)
 	 *
-	 * @param mixed $includes
+	 * Configuration files can use values which are expanded:
+	 *
+	 *     /etc/app.json Is absolute
+	 *     ./etc/app.json Is application-root relative
+	 *     ~/.app/app.json Is user-home relative
+	 *
+	 * @param mixed $includes An iterator which generates a list of include files to load.
+	 * @param boolean $reset When false, adds to the existing include list
 	 * @return Application
 	 */
-	final public function configure_include($includes = null) {
+	final public function configure_include($includes = null, $reset = false) {
 		if ($includes === null) {
 			return $this->includes;
 		}
-		$includes = to_list($includes);
-		foreach ($includes as $include) {
-			$this->includes[$include] = $include;
+		$includes = $this->expand_includes(to_list($includes));
+		if ($reset) {
+			$this->includes = $includes;
+		} else {
+			$this->includes += $includes;
 		}
 		return $this;
 	}
@@ -577,6 +615,7 @@ class Application extends Hookable implements Interface_Theme {
 		$includes = $this->includes;
 		$files = array();
 		foreach ($includes as $index => $file) {
+			$file = $this->paths->expand($file);
 			if (File::is_absolute($file)) {
 				if (is_file($file)) {
 					$files[] = $file;

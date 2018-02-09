@@ -1138,7 +1138,8 @@ class File {
 		$source_owner = File::stat($source, 'owner');
 		if ($target_owner['uid'] !== $source_owner['uid']) {
 			if (!@chown($target, $source_owner['uid'])) {
-				throw new Exception_File_Permission($target, "File::copy_owner({source}, {target}) chown({target}, {gid})", array(
+				throw new Exception_File_Permission($target, "{method}({source}, {target}) chown({target}, {gid})", array(
+					"method" => __METHOD__,
 					"source" => $source,
 					"target" => $target
 				));
@@ -1161,7 +1162,8 @@ class File {
 		$source_owner = File::stat($source, 'owner');
 		if ($target_owner['gid'] !== $source_owner['gid']) {
 			if (!@chgrp($target, $source_owner['gid'])) {
-				throw new Exception_File_Permission($target, "File::copy_owner({source}, {target}) chgrp({target}, {gid})", array(
+				throw new Exception_File_Permission($target, "{method}({source}, {target}) chgrp({target}, {gid})", array(
+					"method" => __METHOD__,
 					"source" => $source,
 					"target" => $target
 				));

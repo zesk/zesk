@@ -1,27 +1,27 @@
 <?php
 /**
- * 
+ *
  */
 namespace zesk;
 
 /**
  * Registry for repositories and aliases.
- * 
+ *
  * @see Repository
  * @author kent
  */
 class Module_Repository extends Module {
 	/**
-	 * 
+	 *
 	 * @var array
 	 */
 	private $repository_types = array();
 	/**
-	 * 
+	 *
 	 * @var array
 	 */
 	private $repository_classes = array();
-	
+
 	/**
 	 *
 	 * @param string $class
@@ -35,9 +35,9 @@ class Module_Repository extends Module {
 		$this->application->classes->register($class);
 		return $this;
 	}
-	
+
 	/**
-	 * 
+	 *
 	 * @param string $class
 	 * @param array $aliases
 	 */
@@ -48,7 +48,7 @@ class Module_Repository extends Module {
 		}
 		return null;
 	}
-	
+
 	/**
 	 * Return master module
 	 * @return self
@@ -57,7 +57,7 @@ class Module_Repository extends Module {
 		return $this->application->modules->object("Repository");
 	}
 	/**
-	 * 
+	 *
 	 * @param string $class
 	 * @param array $aliases
 	 * @return Module_Repository
@@ -65,7 +65,7 @@ class Module_Repository extends Module {
 	public function register_repository($class, array $aliases = array()) {
 		return $this->singleton()->_register_repository($class, $aliases);
 	}
-	
+
 	/**
 	 *
 	 * @param string $type
@@ -74,17 +74,16 @@ class Module_Repository extends Module {
 	public function find_repository($type) {
 		return $this->singleton()->_find_repository($type);
 	}
-	
+
 	/**
 	 * Determine whether a directory can be treated as a repository.
-	 * 
+	 *
 	 * @param string $directory
 	 * @return Repository[]
 	 */
 	public function determine_repository($directory) {
 		$repos = array();
 		foreach ($this->singleton()->repository_classes as $class => $aliases) {
-			echo "Trying $class\n";
 			/* @var $repo Repository */
 			$repo = $this->application->factory($class, $this->application, $directory);
 			if ($repo->validate()) {
@@ -93,9 +92,9 @@ class Module_Repository extends Module {
 		}
 		return $repos;
 	}
-	
+
 	/**
-	 * 
+	 *
 	 * @param string $directory
 	 */
 	public function factory($directory) {

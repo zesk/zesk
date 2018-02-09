@@ -131,12 +131,15 @@ class Command_Configure extends Command_Base {
 		$this->variable_map['user'] = $this->username;
 		$this->variable_map['zesk_application_root'] = $this->application->path(); // Deprecated
 		$this->variable_map['application_root'] = $this->application->path();
-		$this->variable_map['zesk_root'] = $this->application->zesk_root();
+		$this->variable_map['zesk_home'] = $this->application->zesk_home();
 		$this->variable_map['user'] = $this->username;
 		$this->variable_map['username'] = $this->username; // Deprecate?
 
+		/* @deprecated 2018-01 */
+		$this->variable_map['zesk_root'] = $this->application->zesk_root();
+
 		$this->log("Configuration synchronization for: {uname}, user: {user}", $this->variable_map);
-		$this->determine_environment_file();
+		$this->determine_environment_files();
 		if (!$this->determine_host_path_setting_name()) {
 			return 1;
 		}
@@ -160,10 +163,10 @@ class Command_Configure extends Command_Base {
 	private function determine_environment_file() {
 		$value = $this->environment_file;
 		$times = 0;
-		$this->completions = Directory::ls("/etc/", "/(.conf|.sh)$/", true);
+		$this->completions = Directory::ls("/etc/", "/(.conf|.sh|.json)$/", true);
 		while (empty($value) || !is_file($value)) {
 			if ($times > 2) {
-				echo __("System settings file is a BASH and Zesk conf::load parsable file which contains\na global which points to this host's configuration directory.\n\n");
+				echo __("System settings file is a BASH and Zesk Configuration_Loader parsable file which contains a global which points to this host's configuration directory.\n\n");
 			}
 			$value = trim($this->prompt(__("Path to system settings file: ")));
 			++$times;
@@ -172,7 +175,18 @@ class Command_Configure extends Command_Base {
 		$this->variable_map['environment_file'] = $this->environment_file;
 		return $this->environment_file = $value;
 	}
-
+	private function determine_environment_files() {
+		$value = to_list($this->environment_files);
+		if (count($value) === 0) {
+			$this->environment_files = array(
+				$file = $this->determine_environment_file()
+			);
+			if (file_exists($app_file = $this->application->path($file))) {
+				$this->environment_files[] = $app_file;
+			}
+		}
+		return $this->environment_files;
+	}
 	/**
 	 * If the host_setting_name option is not set, interactively set it
 	 *
@@ -553,6 +567,7 @@ class Command_Configure extends Command_Base {
 	 */
 	public function command_mkdir($target, $owner = null, $mode = null) {
 		$changed = null;
+		$target = $this->application->paths->expand($target);
 		$__['target'] = $target;
 		if (!is_dir($target)) {
 			if (!$this->prompt_yes_no(__("Create directory {target}?", $__))) {
@@ -579,6 +594,8 @@ class Command_Configure extends Command_Base {
 	 * @return boolean|null Returns true if changes made successfully, false if failed, or null if no changes required
 	 */
 	public function command_symlink($symlink, $file) {
+		$symlink = $this->application->paths->expand($symlink);
+		$file = $this->application->paths->expand($file);
 		$__ = compact("symlink", "file");
 		if (!is_dir($file) && !is_file($file)) {
 			$this->error("Symlink {symlink} => {file}: File does not exist", $__);
@@ -624,6 +641,9 @@ class Command_Configure extends Command_Base {
 	 * @return boolean|null Returns true if changes made successfully, false if failed, or null if no changes made
 	 */
 	public function command_file_catenate($source, $destination, $flags = null) {
+		$source = $this->application->paths->expand($source);
+		$destination = $this->application->paths->expand($destination);
+
 		$flags = ($flags !== null) ? ArrayTools::flip_assign(explode(",", strtolower(strtr($flags, ";", ","))), true) : array();
 		$sources = File::find_all($this->host_paths, $source);
 		$__ = array(
@@ -724,6 +744,7 @@ class Command_Configure extends Command_Base {
 		try {
 			File::copy_uid_gid(dirname($destination), $destination);
 		} catch (Exception $e) {
+			throw $e;
 		}
 		return true;
 	}
@@ -734,6 +755,8 @@ class Command_Configure extends Command_Base {
 	 * @param unknown $destination
 	 */
 	public function command_file($source, $destination, $want_owner = null, $want_mode = null) {
+		$source = $this->application->paths->expand($source);
+		$destination = $this->application->paths->expand($destination);
 		$__ = compact("source", "destination", "want_owner", "want_mode");
 		if (is_link($destination)) {
 			if (!$this->prompt_yes_no(__("Target {destination} is a link, replace with {source} as a file?", $__))) {

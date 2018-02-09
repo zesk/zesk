@@ -306,6 +306,33 @@ class Paths {
 	}
 
 	/**
+	 * Expand paths using magic tokens
+	 *
+	 *     "/" Absolute path
+	 *     "~/" User directory (if exists)
+	 *     "./" Application path
+	 *
+	 * @param mixed $file
+	 * @return string
+	 */
+	public function expand($file) {
+		$file = strval($file);
+		if ($file === "") {
+			return $file;
+		}
+		if ($file[0] === '/') {
+			return $file;
+		}
+		if (begins($file, "~/")) {
+			return $this->home(substr($file, 2));
+		}
+		if (begins($file, "./")) {
+			return $this->application(substr($file, 2));
+		}
+		return $file;
+	}
+
+	/**
 	 * Similar to which command-line command.
 	 * Returns executable path for command.
 	 *

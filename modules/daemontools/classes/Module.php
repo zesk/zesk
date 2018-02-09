@@ -37,7 +37,7 @@ class Module extends \zesk\Module {
 		));
 	}
 	/**
-	 * Hook for daemontools_service
+	 * Hook for daemontools_service source_path [service_name]
 	 *
 	 * @param Command_Configure $command
 	 */
