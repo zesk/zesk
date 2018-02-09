@@ -95,7 +95,7 @@ class Module_Bootstrap extends Module implements Interface_Module_Foot, Interfac
 	 * @see Interface_Module_Foot::hook_foot()
 	 */
 	public function hook_foot(Request $request, Response $response, Template $template) {
-		if ($this->application->development()) {
+		if ($this->option_bool('responsive_size_enabled', $this->application->development())) {
 			echo $this->application->theme("bootstrap/responsive-size");
 		}
 	}

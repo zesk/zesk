@@ -97,7 +97,7 @@ class Lock extends ORM {
 		if ($n_rows > 0) {
 			$application->logger->notice("Deleted {n_rows} {locks} which were unused in the past 24 hours.", array(
 				"n_rows" => $n_rows,
-				"locks" => $this->application->locale->plural(__CLASS__, $n_rows)
+				"locks" => $application->locale->plural(__CLASS__, $n_rows)
 			));
 		}
 		return $n_rows;

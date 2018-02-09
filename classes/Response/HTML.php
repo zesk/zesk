@@ -460,7 +460,7 @@ class HTML extends Type {
 					$attrs['file_path'] = $file_path;
 					$attrs['href_original'] = $attrs['href'];
 					$attrs['href'] = $href;
-					$attrs = $this->call_hook_arguments("link_process", array(
+					$attrs = $this->parent->call_hook_arguments("link_process", array(
 						$attrs
 					), $attrs);
 					// Only cache and group stylesheets, for now.
@@ -607,7 +607,7 @@ class HTML extends Type {
 	protected function resource_path($_path, array $attributes) {
 		$debug = false;
 		$root_dir = $cdn = $share = $is_route = null;
-		$route_expire = $this->option('resource_path_route_expire', 600); // 10 minutes
+		$route_expire = $this->parent->option('resource_path_route_expire', 600); // 10 minutes
 		extract($attributes, EXTR_IF_EXISTS);
 		if ($root_dir) {
 			if ($debug) {
@@ -666,7 +666,7 @@ class HTML extends Type {
 	 * @param string $contents
 	 * @return string
 	 */
-	protected function hook_process_cached_css($src, $file, $dest, $contents) {
+	protected function process_cached_css($src, $file, $dest, $contents) {
 		$matches = null;
 		$contents = preg_replace('|/\*.+?\*/|m', '', $contents);
 		$contents = preg_replace('|\s+|', ' ', $contents);
@@ -735,6 +735,7 @@ class HTML extends Type {
 	/**
 	 * Internal function to process cached datatypes (CSS/JavaScript)
 	 *
+	 * @see HTML::process_cached_css
 	 * @param string $src
 	 * @param string $file
 	 * @param string $dest
@@ -742,8 +743,12 @@ class HTML extends Type {
 	 * @return string
 	 */
 	private function process_cached_type($src, $file, $dest, $extension) {
+		$method = "process_cached_$extension";
 		$contents = file_get_contents($file);
-		$contents = $this->call_hook_arguments("process_cached_$extension", array(
+		if (method_exists($this, $method)) {
+			$contents = $this->$method($src, $file, $dest, $contents);
+		}
+		$contents = $this->parent->call_hook_arguments($method, array(
 			$src,
 			$file,
 			$dest,
@@ -767,7 +772,7 @@ class HTML extends Type {
 			),
 			"add_path" => true
 		));
-		$expire_seconds = abs($this->option_integer("resource_cache_lifetime_seconds", 3600)); // 1 hour
+		$expire_seconds = abs($this->parent->option_integer("resource_cache_lifetime_seconds", 3600)); // 1 hour
 		$now = time();
 		$modified_after = $now - $expire_seconds;
 		$deleted = array();
@@ -846,7 +851,7 @@ class HTML extends Type {
 				$debug[] = $key;
 			}
 		}
-		if ($this->option_bool("debug_resource_cache")) {
+		if ($this->parent->option_bool("debug_resource_cache")) {
 			file_put_contents($this->application->path("/resource_cache-" . date("Y-m-d-H-i-s") . ".txt"), implode("\n", $hash));
 		}
 		$hash = md5(implode("|", $hash));
@@ -867,7 +872,7 @@ class HTML extends Type {
 					$srcs[] = $src;
 				}
 			}
-			$content = $this->call_hook($hook, $content);
+			$content = $this->parent->call_hook($hook, $content);
 			file_put_contents($cache_path, $content);
 		}
 		$debug = implode("\n", $debug);
@@ -953,13 +958,13 @@ class HTML extends Type {
 			$this->scripts_sorted = true;
 		}
 		if ($cache_scripts === null) {
-			$cache_scripts = $this->option_bool("cache_scripts", false);
+			$cache_scripts = $this->parent->option_bool("cache_scripts", false);
 		}
 		$cached = $cached_append = array();
 		$result = array();
 		/* Output scripts */
 		$selected_attributes = to_list("src;type;async;defer;id");
-		if ($this->option_bool("debug_weight")) {
+		if ($this->parent->option_bool("debug_weight")) {
 			$selected_attributes[] = "weight";
 		}
 		foreach ($this->scripts as $attrs) {
@@ -978,7 +983,7 @@ class HTML extends Type {
 				assert(array_key_exists('src', $attrs));
 				if (avalue($attrs, 'nocache')) {
 					$resource_path = URL::query_append($attrs['src'], array(
-						$this->option('scripts_nocache_variable', "_r") => md5(microtime())
+						$this->parent->option('scripts_nocache_variable', "_r") => md5(microtime())
 					));
 					$script_attributes['src'] = $resource_path;
 				} else if (URL::valid($attrs['src'])) {
@@ -1082,7 +1087,7 @@ class HTML extends Type {
 		$content = array_key_exists('content', $options);
 		$is_route = avalue($options, 'is_route');
 		$callback = array_key_exists('callback', $options);
-		if (!$is_route && !$callback && !$content && !$share && !$nocache && $this->option_bool("require_root_dir") && !array_key_exists("root_dir", $options)) {
+		if (!$is_route && !$callback && !$content && !$share && !$nocache && $this->parent->option_bool("require_root_dir") && !array_key_exists("root_dir", $options)) {
 			throw new Exception_Semantics("{path} requires a root_dir specified", compact('path'));
 		}
 		$options += array(

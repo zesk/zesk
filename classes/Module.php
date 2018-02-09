@@ -172,6 +172,13 @@ class Module extends Hookable {
 	}
 
 	/**
+	 *
+	 * @return mixed|string|array
+	 */
+	public function version() {
+		return $this->application->modules->version($this->codename);
+	}
+	/**
 	 * @deprecated 2018-01 Use ->model_classes instead
 	 * Override in subclasses - called upon Application::classes
 	 * @return string[]

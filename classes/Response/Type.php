@@ -1,28 +1,34 @@
 <?php
 namespace zesk\Response;
 
-use zesk\Hookable;
 use zesk\Response;
+use zesk\Application;
 
 /**
  * @see Response
  * @author kent
  *
  */
-abstract class Type extends Hookable {
+abstract class Type {
 	/**
 	 *
-	 * @var Response
+	 * @var \zesk\Application
+	 */
+	protected $application = null;
+
+	/**
+	 *
+	 * @var \zesk\Response
 	 */
 	protected $parent = null;
 
 	/**
 	 *
-	 * @param Response $response
+	 * @param \zesk\Response $response
 	 */
 	final public function __construct(Response $response) {
 		$this->parent = $response;
-		parent::__construct($response->application);
+		$this->application = $response->application;
 		$this->initialize();
 	}
 
@@ -48,6 +54,7 @@ abstract class Type extends Hookable {
 		$this->output($content);
 		return ob_end_clean();
 	}
+
 	/**
 	 * Outputs to stdout the content
 	 * @param mixed $content

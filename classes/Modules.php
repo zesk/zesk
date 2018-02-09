@@ -654,13 +654,12 @@ class Modules {
 				}
 			}
 		}
-		if (class_exists("Module_$name", false) && method_exists("Module_${name}", "version")) {
-			return call_user_func(array(
-				"Module_$name",
-				"version"
-			));
+		try {
+			$object = $this->object($name);
+			return $object->option("version");
+		} catch (Exception $e) {
+			return null;
 		}
-		return null;
 	}
 
 	/**
