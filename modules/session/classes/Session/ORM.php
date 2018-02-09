@@ -323,7 +323,8 @@ class Session_ORM extends ORM implements Interface_Session {
 			->where('user', $user)
 			->execute();
 		$session = $app->orm_factory(__CLASS__);
-		$ip = $user->application->request()->ip();
+		$request = $user->application->request();
+		$ip = $request ? $request()->ip() : null;
 		$session->set_member(array(
 			'cookie' => self::_generate_cookie(),
 			'is_one_time' => true,
@@ -331,7 +332,7 @@ class Session_ORM extends ORM implements Interface_Session {
 			'user' => $user,
 			'ip' => $ip
 		));
-		$session->really_store();
+		$session->store();
 		return $session;
 	}
 	public static function one_time_find(Application $application, $hash) {
@@ -352,8 +353,7 @@ class Session_ORM extends ORM implements Interface_Session {
 		$this->cookie = $this->_generate_cookie();
 		$this->is_one_time = false;
 		$this->authenticate($user_id, $ip);
-		$this->really_store();
-		$this->set_master();
+		$this->store();
 		return $this;
 	}
 

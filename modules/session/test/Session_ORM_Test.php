@@ -7,6 +7,11 @@
  */
 namespace zesk;
 
+/**
+ * @see Session_ORM
+ * @author kent
+ *
+ */
 class Session_ORM_Test extends Test_ORM {
 	protected $load_modules = array(
 		"MySQL",

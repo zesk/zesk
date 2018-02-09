@@ -1,6 +1,6 @@
 <?php
 /**
- * 
+ *
  */
 namespace zesk;
 
@@ -14,9 +14,6 @@ namespace zesk;
 /* @var $response \zesk\Response */
 /* @var $current_user \User */
 /* @var $object Model_List */
-if (!$request) {
-	$request = $application->request();
-}
 
 /* @var $widget Control_Pager */
 $widget = $this->widget;
@@ -57,7 +54,7 @@ echo HTML::tag_open("div", array(
 	));
 	{
 		$this->direction = -1;
-		
+
 		echo $this->theme('zesk/control/pager/arrow', array(
 			"icon" => "fast-backward",
 			"offset" => 0,
@@ -85,17 +82,17 @@ echo HTML::tag_open("div", array(
 		));
 	}
 	echo HTML::tag_close('div');
-	
+
 	if ($this->debug) {
 		echo HTML::tag("div", array(
 			"class" => "pager-debug"
 		), "$offset/$limit/$total");
 	}
-	
+
 	echo HTML::tag("div", array(
 		"class" => "pager-state btn-group"
 	), HTML::tag('a', 'btn disabled pager-text btn-pager-stage btn-sm', $showing));
-	
+
 	$attrs = $this->geta("preserve_hidden", array());
 	$attrs += $request->get();
 	$children = $this->children;
@@ -110,7 +107,7 @@ echo HTML::tag_open("div", array(
 			), $child->render());
 		}
 	}
-	
+
 	echo $this->theme("zesk/control/pager/limits");
 }
 echo HTML::tag_close('div');

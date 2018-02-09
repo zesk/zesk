@@ -88,8 +88,10 @@ echo $this->theme($this->theme_footer, array(), array(
 	"first" => true
 ));
 echo $invisible;
-foreach (to_array($this->form_preserve_hidden) as $name) {
-	echo HTML::input_hidden($name, $request->get($name));
+if ($request) {
+	foreach (to_array($this->form_preserve_hidden) as $name) {
+		echo HTML::input_hidden($name, $request->get($name));
+	}
 }
 if ($this->form_tag) {
 	echo HTML::tag_close($this->form_tag);

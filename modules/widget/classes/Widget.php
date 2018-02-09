@@ -645,8 +645,7 @@ class Widget extends Hookable {
 	/**
 	 * Response associated with this widget. NOT created if not set.
 	 *
-	 * @param $set Response
-	 *        	to set
+	 * @param $set Response to set
 	 * @return \zesk\Response
 	 */
 	public function response(Response $set = null) {

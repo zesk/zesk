@@ -157,19 +157,19 @@ class Request extends Hookable {
 	function __construct(Application $application, $settings = null) {
 		parent::__construct($application);
 		$this->user_agent = null;
-		$this->call_hook("construct");
+		$this->inherit_global_options();
+		$settings = $this->call_hook("construct", $settings);
 		if ($settings instanceof Request) {
 			$this->initialize_from_request($settings);
-		} else if (is_array($settings)) {
+		} else if (is_array($settings) || is_string($settings)) {
 			$this->initialize_from_settings($settings);
 		} else if ($settings === null) {
-			$this->initialize_from_globals();
+			$this->init = "not-inited";
 		} else {
 			throw new Exception_Parameter("{method} Requires array, Request, or null", array(
 				"method" => __METHOD__
 			));
 		}
-		$this->inherit_global_options();
 	}
 
 	/**
@@ -183,7 +183,6 @@ class Request extends Hookable {
 		$this->data_raw = true;
 		$this->data = null;
 		$this->data_file = self::default_data_file;
-		$this->data_file = self::default_data_file;
 		$this->data_inherit = null;
 
 		$this->ip = $this->_find_remote_key($_SERVER);
@@ -194,7 +193,6 @@ class Request extends Hookable {
 		$this->headers = self::http_headers_from_server($_SERVER);
 		$this->cookies = $_COOKIE;
 		$this->url = $this->url_from_server($_SERVER);
-
 		$this->files = is_array($_FILES) ? $_FILES : array();
 
 		$this->url_parts = null;

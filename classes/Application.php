@@ -191,9 +191,9 @@ class Application extends Hookable implements Interface_Theme {
 
 	/**
 	 *
-	 * @var Request
+	 * @var Request[]
 	 */
-	private $current_request = null;
+	private $request_stack = array();
 	/**
 	 * @deprecated 2018-01
 	 * @var Request
@@ -923,12 +923,17 @@ class Application extends Hookable implements Interface_Theme {
 	}
 
 	/**
+	 * Creates a default reqeust for the application. Useful in self::main
+	 *
+	 * Returns generic GET http://console/ when in the console.
 	 *
 	 * @return Request
 	 */
-	protected function request_factory() {
+	protected function request_factory(Request $request = null) {
 		$request = new Request($this);
-		if ($this->console()) {
+		if ($request) {
+			$request->initialize_from_request($request);
+		} else if ($this->console()) {
 			$request->initialize_from_settings("http://console/");
 		} else {
 			$request->initialize_from_globals();
@@ -1003,11 +1008,14 @@ class Application extends Hookable implements Interface_Theme {
 		return $response;
 	}
 	/**
+	 * Returns the current executing request. May be NULL if no request running.
+	 *
+	 * If performing sub-requests, this reflects the most-recent request state (a stack).
 	 *
 	 * @return Request
 	 */
 	final public function request() {
-		return $this->current_request;
+		return last($this->request_stack);
 	}
 
 	/**
@@ -1043,9 +1051,8 @@ class Application extends Hookable implements Interface_Theme {
 	 */
 	private function _templates_initialize(array $variables) {
 		$variables['application'] = $this;
-		if ($this->current_request) {
-			$variables['request'] = $this->current_request;
-		}
+		$variables['router'] = $this->router;
+		$variables['request'] = $this->request();
 		$variables += $this->template_variables;
 		$variables += $this->call_hook_arguments("template_defaults", array(
 			$variables
@@ -1063,7 +1070,8 @@ class Application extends Hookable implements Interface_Theme {
 	 * - Return response
 	 */
 	public function main(Request $request) {
-		$this->current_request = $request;
+		$this->request_stack[] = $request;
+		$starting_depth = count($this->request_stack);
 		$this->call_hook("main", $request);
 		try {
 			$router = $this->router();
@@ -1096,7 +1104,22 @@ class Application extends Hookable implements Interface_Theme {
 		} catch (\Exception $exception) {
 			$response = $this->main_exception($request, $exception);
 		}
-		$this->current_request = null;
+		$ending_depth = count($this->request_stack);
+		if ($ending_depth !== $starting_depth) {
+			$this->logger->error("Request ending depth mismatch start {starting_depth} !== end {ending_depth}", array(
+				"starting_depth" => $starting_depth,
+				"ending_depth" => $ending_depth
+			));
+		}
+		if ($ending_depth !== 0) {
+			$popped = array_pop($this->request_stack);
+			if ($popped !== $request) {
+				$this->logger->error("Request changed between push and pop? {origial} => {popped}", array(
+					"original" => $request->variables(),
+					"popped" => $popped->variables()
+				));
+			}
+		}
 		return $response;
 	}
 
@@ -1207,6 +1230,7 @@ class Application extends Hookable implements Interface_Theme {
 	public function variables() {
 		$parameters['application'] = $this;
 		$parameters['router'] = $this->router;
+		// Do not include "request" in here as it may be NULL and it should NOT override subclass values
 		return $parameters;
 	}
 

@@ -209,6 +209,8 @@ class View_Image extends View {
 			$options['alt'] = $alt;
 		}
 		$w = new View_Image($application, $options);
+		$w->request($application->request() ?? Request::factory($application, "http://test/"));
+		$w->response($application->response_factory($w->request()));
 		return $w;
 	}
 	public static function scaled(Application $application, $src, $width = false, $height = false, $alt = "", array $options = array()) {

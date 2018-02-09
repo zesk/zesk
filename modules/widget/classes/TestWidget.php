@@ -11,10 +11,7 @@ class TestWidget extends Test_Unit {
 		$name = "name";
 		$testx->names($column, $label, $name);
 
-		$request = new Request($this->application);
-		$request->initialize_from_settings(array(
-			"url" => "http://localhost/"
-		));
+		$request = new Request($this->application, "http://localhost/");
 		$response = new Response($this->application, $request);
 
 		$object = new Model($this->application);
