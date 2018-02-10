@@ -41,8 +41,9 @@ class Command_Latest extends Command_Base {
 					continue;
 				}
 				/* @var $repo zesk\Git\Repository */
-				if (realpath($repo->path()) === realpath($home)) {
-					$this->exec("git pull origin master");
+				$home = realpath($home);
+				if (realpath($repo->path()) === $home) {
+					$this->exec("git -C {0} pull origin master", $home);
 				} else {
 					$this->error("Found repo above {home} at {path}, ignoring", array(
 						"home" => $home,
