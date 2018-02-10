@@ -68,7 +68,7 @@ abstract class Repository_Command extends Repository {
 				"path" => $path
 			));
 		} else if ($root !== $path) {
-			$this->application->logger->warning("{method} {code} moved to {root} instead of {path}", array(
+			$this->application->logger->debug("{method} {code} moved to {root} instead of {path}", array(
 				"method" => __METHOD__,
 				"code" => $this->code,
 				"root" => $root,
