@@ -36,15 +36,19 @@ class Command_Latest extends Command_Base {
 			$this->exec("git clone https://github.com/zesk/zesk");
 			$this->log("Zesk now linked to the latest");
 		} else {
-			$repo = first($repos);
-			/* @var $repo zesk\Git\Repository */
-			if ($repo->path() === $home) {
-				$this->exec("git pull origin master");
-			} else {
-				$this->error("Found repo above {home} at {path}, ignoring", array(
-					"home" => $home,
-					"path" => $repo->path()
-				));
+			foreach ($repos as $repo) {
+				if (!$repo instanceof Repository) {
+					continue;
+				}
+				/* @var $repo zesk\Git\Repository */
+				if (realpath($repo->path()) === realpath($home)) {
+					$this->exec("git pull origin master");
+				} else {
+					$this->error("Found repo above {home} at {path}, ignoring", array(
+						"home" => $home,
+						"path" => $repo->path()
+					));
+				}
 			}
 		}
 	}
