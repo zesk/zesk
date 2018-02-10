@@ -227,9 +227,9 @@ class Command_Configure extends Command_Base {
 	 * @param string $path
 	 * @return array
 	 */
-	private function load_conf($path) {
+	private function load_conf($path, $extension = null) {
 		$conf = array();
-		Configuration_Parser::factory(File::extension($path), File::contents($path), new Adapter_Settings_Array($conf), array(
+		Configuration_Parser::factory($extension ? $extension : File::extension($path), File::contents($path), new Adapter_Settings_Array($conf), array(
 			"lower" => false
 		))->process();
 		return $conf;
@@ -256,7 +256,13 @@ class Command_Configure extends Command_Base {
 	 * @return unknown[]
 	 */
 	private function load_dirs($output = false) {
-		$env = $this->load_conf($this->environment_file);
+		$this->verbose_log("Loading {environment_files}", array(
+			"environment_files" => $this->environment_files
+		));
+		$env = array();
+		foreach ($this->environment_files as $environment_file) {
+			$env += $this->load_conf($environment_file, File::extension($environment_file) === "sh" ? "conf" : null);
+		}
 		$this->variable_map += array_change_key_case($env);
 		$dirs = array();
 		foreach ($env as $name => $value) {

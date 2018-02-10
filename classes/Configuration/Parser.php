@@ -37,11 +37,8 @@ abstract class Configuration_Parser extends Options {
 	 * @return Configuration_Parser
 	 */
 	public static function factory($type, $content, Interface_Settings $settings = null, array $options = array()) {
-		try {
-			return Kernel::singleton()->objects->factory(__CLASS__ . "_" . PHP::clean_function(strtoupper($type)), $content, $settings, $options);
-		} catch (Exception_Class_NotFound $e) {
-			return null;
-		}
+		$class = __CLASS__ . "_" . PHP::clean_function(strtoupper($type));
+		return new $class($content, $settings, $options);
 	}
 
 	/**
