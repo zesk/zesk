@@ -175,6 +175,12 @@ class Command_Configure extends Command_Base {
 		$this->variable_map['environment_file'] = $this->environment_file;
 		return $this->environment_file = $value;
 	}
+
+	/**
+	 * Determine the environment files for configuration
+	 *
+	 * @return string[]
+	 */
 	private function determine_environment_files() {
 		$value = to_list($this->environment_files);
 		if (count($value) === 0) {
@@ -447,6 +453,328 @@ class Command_Configure extends Command_Base {
 	}
 
 	/**
+	 * Create a directory on the system with a specified owner and mode
+	 *
+	 * @param string $target Directory to create
+	 * @param string $owner Owner of the directory (enforced)
+	 * @param string|number $want_mode Decimal value or octal string
+	 * @return boolean|null Returns true if changes made successfully, false if failed, or null if no changes required
+	 */
+	public function command_mkdir($target, $owner = null, $mode = null) {
+		$changed = null;
+		$target = $this->application->paths->expand($target);
+		$__['target'] = $target;
+		if (!is_dir($target)) {
+			if (!$this->prompt_yes_no(__("Create directory {target}?", $__))) {
+				return false;
+			}
+			if (!mkdir($target, null, true)) {
+				$this->error("Unable to create directory {target}", $__);
+				return false;
+			}
+			$changed = true;
+		}
+		$result = $this->handle_owner_mode($target, $owner, $mode);
+		if (is_bool($result)) {
+			return $result;
+		}
+		return $changed;
+	}
+
+	/**
+	 * Symlink should link to file
+	 *
+	 * @param string $symlink
+	 * @param string $file
+	 * @return boolean|null Returns true if changes made successfully, false if failed, or null if no changes required
+	 */
+	public function command_symlink($symlink, $file) {
+		$symlink = $this->application->paths->expand($symlink);
+		$file = $this->application->paths->expand($file);
+		$__ = compact("symlink", "file");
+		if (!is_dir($file) && !is_file($file)) {
+			$this->error("Symlink {symlink} => {file}: File does not exist", $__);
+			return false;
+		}
+		$this->verbose_log("Symlink {symlink} => {file}", $__);
+		if (!is_link($symlink)) {
+			if (file_exists($symlink)) {
+				$bytes = filesize($symlink);
+				if (!$this->prompt_yes_no(__("Symlink to create \"{symlink}\" exists ({bytes} bytes), delete?", $__))) {
+					return false;
+				}
+				File::unlink($symlink);
+			} else if (is_dir($symlink)) {
+				if (!$this->prompt_yes_no(__("Symlink to create \"{symlink}\" is already a directory, delete?", $__))) {
+					return false;
+				}
+				Directory::delete($symlink);
+			}
+			if (!$this->prompt_yes_no(__("Create symbolic link \n\t{symlink} => {file}\n?", $__))) {
+				return false;
+			}
+		} else {
+			if (($oldlink = readlink($symlink)) === $file) {
+				return null;
+			}
+			if (!$this->prompt_yes_no(__("Symlink {symlink} points to {old_file}, update to point to correct {file}?", compact("old_file") + $__))) {
+				return false;
+			}
+			File::unlink($symlink);
+		}
+		if (!symlink($file, $symlink)) {
+			$this->error("Creating symlink {symlink} to {file} failed?", $__);
+			return false;
+		}
+		return true;
+	}
+
+	/**
+	 * Map a string using the current variable map
+	 *
+	 * @param string $string
+	 * @return string
+	 */
+	public function map($string) {
+		return map($string, $this->variable_map, true);
+	}
+	/**
+	 * Copy a file from source to destination and inherit parent directory owner and group
+	 *
+	 * @param string $source Filename of source file
+	 * @param string $destination Filename of destination file
+	 * @return boolean
+	 */
+	public static function copy_file_inherit($source, $destination) {
+		if (!copy($source, $destination)) {
+			return false;
+		}
+		try {
+			File::copy_uid_gid(dirname($destination), $destination);
+		} catch (Exception $e) {
+		}
+		return true;
+	}
+
+	/**
+	 * Pass a list of variables which MUST be defined to continue
+	 *
+	 * @param $variable Pass one or more variables to test that they are defined
+	 * @return boolean
+	 */
+	public function command_defined() {
+		$args = func_get_args();
+		$not_defined = array();
+		foreach ($args as $arg) {
+			if (!array_key_exists(strtolower($arg), $this->variable_map)) {
+				$not_defined[] = $arg;
+			}
+		}
+		if (count($not_defined) > 0) {
+			$this->error("Configure {self} requires the following defined, which are not: {not_defined}\nAll variables: {all_vars}", array(
+				"not_defined" => $not_defined,
+				"all_vars" => array_keys($this->variable_map)
+			) + $this->variable_map);
+			return false;
+		} else {
+			$this->verbose_log("defined {args} - success", array(
+				"args" => implode(" ", $args)
+			));
+			return true;
+		}
+	}
+
+	/**
+	 *
+	 * @param unknown $source
+	 * @param unknown $destination
+	 */
+	public function command_file($source, $destination, $want_owner = null, $want_mode = null) {
+		$source = $this->application->paths->expand($source);
+		$destination = $this->application->paths->expand($destination);
+		$__ = compact("source", "destination", "want_owner", "want_mode");
+		if (is_link($destination)) {
+			if (!$this->prompt_yes_no(__("Target {destination} is a link, replace with {source} as a file?", $__))) {
+				return false;
+			}
+			File::unlink($destination);
+			if (!self::copy_file_inherit($source, $destination)) {
+				return false;
+			}
+			return $this->handle_owner_mode($destination, $want_owner, $want_mode);
+		}
+		try {
+			$this->application->process->execute("diff -w {0} {1}", $source, $destination);
+			return $this->handle_owner_mode($destination, $want_owner, $want_mode);
+		} catch (Exception_Command $e) {
+			// Not the same
+		}
+		switch ($this->_files_differ_helper($source, $destination)) {
+			case "source":
+				$result = self::copy_file_inherit($source, $destination);
+				if (!$result) {
+					return $result;
+				}
+				return $this->handle_owner_mode($destination, $want_owner, $want_mode);
+			case "destination":
+				$result = self::copy_file_inherit($destination, $source);
+				if (!$result) {
+					return $result;
+				}
+				return $this->handle_owner_mode($destination, $want_owner, $want_mode);
+		}
+		$__ = compact("source", "destination");
+		if (!file_exists($source)) {
+			$this->verbose_log(is_dir(dirname($source)) ? "Source {source} does not exist" : "Source {source} does not exist, nor does its parent directory", $__);
+		}
+		if (!file_exists($destination)) {
+			$this->verbose_log(is_dir(dirname($destination)) ? "Destination {destination} does not exist" : "Destination {destination} does not exist, nor does its parent directory", $__);
+		}
+
+		return null;
+	}
+
+	/**
+	 *
+	 * @param string $source
+	 * @param string $destination
+	 * @return boolean|null Returns true if changes made successfully, false if failed, or null if no changes made
+	 */
+	public function command_file_catenate($source, $destination, $flags = null) {
+		$source = $this->application->paths->expand($source);
+		$destination = $this->application->paths->expand($destination);
+
+		$flags = ($flags !== null) ? ArrayTools::flip_assign(explode(",", strtolower(strtr($flags, ";", ","))), true) : array();
+		$sources = File::find_all($this->host_paths, $source);
+		$__ = array(
+			"source" => $source,
+			"host_paths" => $this->host_paths
+		);
+		if (count($sources) === 0) {
+			$this->verbose_log("No file {source} found in {host_paths}", $__);
+			$this->completions = ArrayTools::suffix($this->host_paths, "/" . StringTools::unprefix($source, "/"));
+			$__ = array(
+				"source" => $source,
+				"completions" => implode(" ", $this->completions)
+			);
+			$conf = trim($this->prompt(__("Create {source}? ({completions})", $__)));
+			if (in_array($conf, $this->completions)) {
+				$__['conf'] = $conf;
+				$this->changed++;
+				$this->log("Writing {conf} with empty file for {source}", $__);
+				self::file_put_contents_inherit($conf, "");
+				try {
+					File::copy_uid_gid(dirname($conf), $conf);
+				} catch (Exception $e) {
+				}
+			}
+			return true;
+		} else {
+			$this->verbose_log("Found files {sources}", array(
+				"sources" => implode(" ", $sources)
+			));
+		}
+		$content = "";
+		$no_map = avalue($flags, "no-map", false);
+		$no_trim = avalue($flags, "no-trim", false);
+		foreach ($sources as $file) {
+			$file_content = File::contents($file);
+			if (!$no_map) {
+				$file_content = $this->map($file_content);
+			}
+			if (!$no_trim) {
+				$file_content = trim($file_content) . "\n";
+			}
+			$content .= $file_content;
+		}
+		if (trim(File::contents($destination)) === trim($content)) {
+			return null;
+		}
+		$temp_file = File::temporary($this->application->paths->temporary(), "temp");
+		file_put_contents($temp_file, $content);
+		switch ($this->_files_differ_helper($temp_file, $destination, $source)) {
+			case "source":
+				return self::file_put_contents_inherit($destination, $content);
+			case "destination":
+				$default_source = path(last($this->host_paths), $source);
+				$this->verbose_log("Copy {source} to {default_source}", compact("source", "default_source"));
+				return self::copy_file_inherit($destination, $default_source);
+		}
+		return false;
+	}
+
+	/**
+	 * List of files which MUST be included in another file, useful for editing system configruation files.
+	 *
+	 * Always appended to file with a newline if does not exist.
+	 *
+	 * @param string $sources One or more source files to incorporate
+	 * @param string $destination The target file to include them int
+	 *
+	 * @return boolean|null Returns true if changes made successfully, false if failed, or null if no changes made
+	 */
+	public function command_file_edit() {
+		$args = func_get_args();
+		foreach ($args as $index => $arg) {
+			$args[$index] = $this->application->paths->expand($args[$index]);
+		}
+		$destination = array_pop($args);
+		if (!file_exists($destination)) {
+			$this->verbose_log("{destination} does not exist, skipping rule", array(
+				"destination" => $destination
+			));
+			return null;
+		}
+		$content = file_get_contents($destination);
+
+		foreach ($args as $arg) {
+			if (!is_file($arg)) {
+				$this->application->logger->warning("{arg} passed to {method} for target {target}, but {arg} not found", array(
+					"arg" => $arg,
+					"method" => __METHOD__,
+					"target" => $target
+				));
+				continue;
+			}
+			$source_content = file_get_contents($arg);
+			if (!strpos($source_content, $content)) {
+				$changed = true;
+				$content .= "\n" . rtrim($source_content) . "\n";
+			}
+		}
+		if ($changed) {
+			$temp_file = File::temporary($this->application->paths->temporary(), "temp");
+			switch ($this->_file_update_helper($temp_file, $destination, "computed")) {
+				case "source":
+					return self::file_put_contents_inherit($destination, $content);
+				case "destination":
+					return null;
+			}
+		}
+
+		return false;
+	}
+
+	/**
+	 * Copy content to a destination file and inherit parent directory owner and group
+	 *
+	 * @param string $source Filename of source file
+	 * @param string $content File contents (string)
+	 * @return boolean
+	 */
+	public static function file_put_contents_inherit($destination, $content) {
+		if (!file_put_contents($destination, $content)) {
+			return false;
+		}
+		try {
+			File::copy_uid_gid(dirname($destination), $destination);
+		} catch (Exception $e) {
+			throw $e;
+		}
+		return true;
+	}
+
+	/**
 	 *
 	 * @param unknown $target
 	 * @param unknown $want_owner
@@ -564,255 +892,15 @@ class Command_Configure extends Command_Base {
 	}
 
 	/**
-	 * Create a directory on the system with a specified owner and mode
-	 *
-	 * @param string $target Directory to create
-	 * @param string $owner Owner of the directory (enforced)
-	 * @param string|number $want_mode Decimal value or octal string
-	 * @return boolean|null Returns true if changes made successfully, false if failed, or null if no changes required
-	 */
-	public function command_mkdir($target, $owner = null, $mode = null) {
-		$changed = null;
-		$target = $this->application->paths->expand($target);
-		$__['target'] = $target;
-		if (!is_dir($target)) {
-			if (!$this->prompt_yes_no(__("Create directory {target}?", $__))) {
-				return false;
-			}
-			if (!mkdir($target, null, true)) {
-				$this->error("Unable to create directory {target}", $__);
-				return false;
-			}
-			$changed = true;
-		}
-		$result = $this->handle_owner_mode($target, $owner, $mode);
-		if (is_bool($result)) {
-			return $result;
-		}
-		return $changed;
-	}
-
-	/**
-	 * Symlink should link to file
-	 *
-	 * @param string $symlink
-	 * @param string $file
-	 * @return boolean|null Returns true if changes made successfully, false if failed, or null if no changes required
-	 */
-	public function command_symlink($symlink, $file) {
-		$symlink = $this->application->paths->expand($symlink);
-		$file = $this->application->paths->expand($file);
-		$__ = compact("symlink", "file");
-		if (!is_dir($file) && !is_file($file)) {
-			$this->error("Symlink {symlink} => {file}: File does not exist", $__);
-			return false;
-		}
-		$this->verbose_log("Symlink {symlink} => {file}", $__);
-		if (!is_link($symlink)) {
-			if (file_exists($symlink)) {
-				$bytes = filesize($symlink);
-				if (!$this->prompt_yes_no(__("Symlink to create \"{symlink}\" exists ({bytes} bytes), delete?", $__))) {
-					return false;
-				}
-				File::unlink($symlink);
-			} else if (is_dir($symlink)) {
-				if (!$this->prompt_yes_no(__("Symlink to create \"{symlink}\" is already a directory, delete?", $__))) {
-					return false;
-				}
-				Directory::delete($symlink);
-			}
-			if (!$this->prompt_yes_no(__("Create symbolic link \n\t{symlink} => {file}\n?", $__))) {
-				return false;
-			}
-		} else {
-			if (($oldlink = readlink($symlink)) === $file) {
-				return null;
-			}
-			if (!$this->prompt_yes_no(__("Symlink {symlink} points to {old_file}, update to point to correct {file}?", compact("old_file") + $__))) {
-				return false;
-			}
-			File::unlink($symlink);
-		}
-		if (!symlink($file, $symlink)) {
-			$this->error("Creating symlink {symlink} to {file} failed?", $__);
-			return false;
-		}
-		return true;
-	}
-
-	/**
+	 * Show differences between two files
 	 *
 	 * @param string $source
 	 * @param string $destination
-	 * @return boolean|null Returns true if changes made successfully, false if failed, or null if no changes made
+	 * @param string|NULL $source_name
+	 * @param string|NULL $destination_name
+	 * @return string[2] List of source/destination names
 	 */
-	public function command_file_catenate($source, $destination, $flags = null) {
-		$source = $this->application->paths->expand($source);
-		$destination = $this->application->paths->expand($destination);
-
-		$flags = ($flags !== null) ? ArrayTools::flip_assign(explode(",", strtolower(strtr($flags, ";", ","))), true) : array();
-		$sources = File::find_all($this->host_paths, $source);
-		$__ = array(
-			"source" => $source,
-			"host_paths" => $this->host_paths
-		);
-		if (count($sources) === 0) {
-			$this->verbose_log("No file {source} found in {host_paths}", $__);
-			$this->completions = ArrayTools::suffix($this->host_paths, "/" . StringTools::unprefix($source, "/"));
-			$__ = array(
-				"source" => $source,
-				"completions" => implode(" ", $this->completions)
-			);
-			$conf = trim($this->prompt(__("Create {source}? ({completions})", $__)));
-			if (in_array($conf, $this->completions)) {
-				$__['conf'] = $conf;
-				$this->changed++;
-				$this->log("Writing {conf} with empty file for {source}", $__);
-				self::file_put_contents_inherit($conf, "");
-				try {
-					File::copy_uid_gid(dirname($conf), $conf);
-				} catch (Exception $e) {
-				}
-			}
-			return true;
-		} else {
-			$this->verbose_log("Found files {sources}", array(
-				"sources" => implode(" ", $sources)
-			));
-		}
-		$content = "";
-		$no_map = avalue($flags, "no-map", false);
-		$no_trim = avalue($flags, "no-trim", false);
-		foreach ($sources as $file) {
-			$file_content = File::contents($file);
-			if (!$no_map) {
-				$file_content = $this->map($file_content);
-			}
-			if (!$no_trim) {
-				$file_content = trim($file_content) . "\n";
-			}
-			$content .= $file_content;
-		}
-		if (trim(File::contents($destination)) === trim($content)) {
-			return null;
-		}
-		$temp_file = File::temporary($this->application->paths->temporary(), "temp");
-		file_put_contents($temp_file, $content);
-		switch ($this->_files_differ_helper($temp_file, $destination, $source)) {
-			case "source":
-				return self::file_put_contents_inherit($destination, $content);
-			case "destination":
-				$default_source = path(last($this->host_paths), $source);
-				$this->verbose_log("Copy {source} to {default_source}", compact("source", "default_source"));
-				return self::copy_file_inherit($destination, $default_source);
-		}
-		return false;
-	}
-
-	/**
-	 * Map a string using the current variable map
-	 *
-	 * @param string $string
-	 * @return string
-	 */
-	public function map($string) {
-		return map($string, $this->variable_map, true);
-	}
-	/**
-	 * Copy a file from source to destination and inherit parent directory owner and group
-	 *
-	 * @param string $source Filename of source file
-	 * @param string $destination Filename of destination file
-	 * @return boolean
-	 */
-	public static function copy_file_inherit($source, $destination) {
-		if (!copy($source, $destination)) {
-			return false;
-		}
-		try {
-			File::copy_uid_gid(dirname($destination), $destination);
-		} catch (Exception $e) {
-		}
-		return true;
-	}
-
-	/**
-	 * Copy content to a destination file and inherit parent directory owner and group
-	 *
-	 * @param string $source Filename of source file
-	 * @param string $content File contents (string)
-	 * @return boolean
-	 */
-	public static function file_put_contents_inherit($destination, $content) {
-		if (!file_put_contents($destination, $content)) {
-			return false;
-		}
-		try {
-			File::copy_uid_gid(dirname($destination), $destination);
-		} catch (Exception $e) {
-			throw $e;
-		}
-		return true;
-	}
-
-	/**
-	 *
-	 * @param unknown $source
-	 * @param unknown $destination
-	 */
-	public function command_file($source, $destination, $want_owner = null, $want_mode = null) {
-		$source = $this->application->paths->expand($source);
-		$destination = $this->application->paths->expand($destination);
-		$__ = compact("source", "destination", "want_owner", "want_mode");
-		if (is_link($destination)) {
-			if (!$this->prompt_yes_no(__("Target {destination} is a link, replace with {source} as a file?", $__))) {
-				return false;
-			}
-			File::unlink($destination);
-			if (!self::copy_file_inherit($source, $destination)) {
-				return false;
-			}
-			return $this->handle_owner_mode($destination, $want_owner, $want_mode);
-		}
-		try {
-			$this->application->process->execute("diff -w {0} {1}", $source, $destination);
-			return $this->handle_owner_mode($destination, $want_owner, $want_mode);
-		} catch (Exception_Command $e) {
-			// Not the same
-		}
-		switch ($this->_files_differ_helper($source, $destination)) {
-			case "source":
-				$result = self::copy_file_inherit($source, $destination);
-				if (!$result) {
-					return $result;
-				}
-				return $this->handle_owner_mode($destination, $want_owner, $want_mode);
-			case "destination":
-				$result = self::copy_file_inherit($destination, $source);
-				if (!$result) {
-					return $result;
-				}
-				return $this->handle_owner_mode($destination, $want_owner, $want_mode);
-		}
-		$__ = compact("source", "destination");
-		if (!file_exists($source)) {
-			$this->verbose_log(is_dir(dirname($source)) ? "Source {source} does not exist" : "Source {source} does not exist, nor does its parent directory", $__);
-		}
-		if (!file_exists($destination)) {
-			$this->verbose_log(is_dir(dirname($destination)) ? "Destination {destination} does not exist" : "Destination {destination} does not exist, nor does its parent directory", $__);
-		}
-
-		return null;
-	}
-
-	/**
-	 *
-	 * @param unknown $source
-	 * @param unknown $destination
-	 * @param unknown $source_name
-	 * @param unknown $destination_name
-	 */
-	private function _files_differ_helper($source, $destination, $source_name = null, $destination_name = null) {
+	private function _show_differences($source, $destination, $source_name = null, $destination_name = null) {
 		if ($source_name === null) {
 			$source_name = $source;
 		}
@@ -827,6 +915,34 @@ class Command_Configure extends Command_Base {
 			), true);
 		} catch (Exception $e) {
 		}
+		return array(
+			$source_name,
+			$destination_name
+		);
+	}
+	/**
+	 * Prompt to update a file (overwrite only)
+	 *
+	 * @param string $source
+	 * @param string $destination
+	 * @param string|NULL $source_name Optional "real" source name
+	 * @param string|NULL $destination_name Optional "real" destination name
+	 */
+	private function _file_update_helper($source, $destination, $source_name = null, $destination_name = null) {
+		list($source_name, $destination_name) = $this->_show_differences($source, $destination, $source_name, $destination_name);
+		return $this->prompt_yes_no("Update destination {destination}?");
+	}
+
+	/**
+	 * Prompt to update a file (bi-directional copy)
+	 *
+	 * @param string $source
+	 * @param string $destination
+	 * @param string|NULL $source_name Optional "real" source name
+	 * @param string|NULL $destination_name Optional "real" destination name
+	 */
+	private function _files_differ_helper($source, $destination, $source_name = null, $destination_name = null) {
+		list($source_name, $destination_name) = $this->_show_differences($source, $destination, $source_name, $destination_name);
 		$this->completions = array(
 			"source",
 			"<",
@@ -849,34 +965,6 @@ class Command_Configure extends Command_Base {
 				$this->log("Copying {source_name} to {destination_name}", compact("source_name", "destination_name"));
 				$this->changed = true;
 				return "source";
-		}
-	}
-
-	/**
-	 * Pass a list of variables which MUST be defined to continue
-	 *
-	 * @param $variable Pass one or more variables to test that they are defined
-	 * @return boolean
-	 */
-	public function command_defined() {
-		$args = func_get_args();
-		$not_defined = array();
-		foreach ($args as $arg) {
-			if (!array_key_exists(strtolower($arg), $this->variable_map)) {
-				$not_defined[] = $arg;
-			}
-		}
-		if (count($not_defined) > 0) {
-			$this->error("Configure {self} requires the following defined, which are not: {not_defined}\nAll variables: {all_vars}", array(
-				"not_defined" => $not_defined,
-				"all_vars" => array_keys($this->variable_map)
-			) + $this->variable_map);
-			return false;
-		} else {
-			$this->verbose_log("defined {args} - success", array(
-				"args" => implode(" ", $args)
-			));
-			return true;
 		}
 	}
 }
