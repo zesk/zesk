@@ -522,7 +522,7 @@ class Mail extends Hookable {
 	 *        	detection otherwise)
 	 * @return Mail
 	 */
-	public static function mulitpart_send(Application $application, array $mail_options, $attachments = null) {
+	public static function multipart_send(Application $application, array $mail_options, $attachments = null) {
 		$eol = mail::mail_eol();
 		$mime_boundary = md5(microtime());
 
@@ -815,5 +815,17 @@ class Mail extends Hookable {
 	 */
 	public function dump() {
 		return Text::format_pairs($this->headers) . "\n\n" . $this->body;
+	}
+
+	/**
+	 * Typo @no-cannon
+	 * @deprecated 2018-02
+	 * @param Application $application
+	 * @param array $mail_options
+	 * @param unknown $attachments
+	 * @return \zesk\Mail
+	 */
+	public static function mulitpart_send(Application $application, array $mail_options, $attachments = null) {
+		return self::multipart_send($application, $mail_options, $attachments);
 	}
 }

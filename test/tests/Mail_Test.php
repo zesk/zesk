@@ -361,7 +361,7 @@ Thanks,
 		$content = null;
 		Mail::parse_headers($content);
 	}
-	function test_mulitpart_send() {
+	function test_multipart_send() {
 		Mail::debug(true);
 		
 		$mail_options = array(
@@ -369,7 +369,7 @@ Thanks,
 			"To" => "no-reply@zesk.com"
 		);
 		$attachments = null;
-		Mail::mulitpart_send($this->application, $mail_options, $attachments);
+		Mail::multipart_send($this->application, $mail_options, $attachments);
 	}
 	/**
 	 * @depends test_outgoing_requirements

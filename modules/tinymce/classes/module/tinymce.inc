@@ -21,7 +21,22 @@ use zesk\Exception_Parse;
  *
  */
 class Module_TinyMCE extends zesk\Module_JSLib implements Interface_Module_Routes {
+
+	/**
+	 *
+	 * @var array
+	 */
 	protected $javascript_paths = array();
+
+	/**
+	 *
+	 * @var unknown
+	 */
+	private $vendor_path = null;
+	/**
+	 *
+	 * @var array
+	 */
 	protected $tinymce_options = array(
 		'menubar' => null,
 		'relative_urls' => null,
@@ -137,7 +152,8 @@ class Module_TinyMCE extends zesk\Module_JSLib implements Interface_Module_Route
 	public function initialize() {
 		parent::initialize();
 
-		$this->vendor_path = $app->path("vendor/tinymce/tinymce");
+		$app = $this->application;
+		$vendor_path = $app->path("vendor/tinymce/tinymce");
 		if (!is_dir($vendor_path)) {
 			$app->logger->error("{method} missing {vendor_path} directory - not initialized", array(
 				"method" => __METHOD__,
@@ -145,7 +161,7 @@ class Module_TinyMCE extends zesk\Module_JSLib implements Interface_Module_Route
 			));
 			return;
 		}
-
+		$this->vendor_path = $vendor_path;
 		$app = $this->application;
 
 		$suffix = $this->determine_version();

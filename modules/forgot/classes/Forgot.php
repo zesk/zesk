@@ -67,7 +67,7 @@ class Forgot extends ORM {
 			return $mail;
 		}
 		$mail_options = Mail::load_theme($this->application, "object/zesk/forgot/notify", $variables);
-		return Mail::mulitpart_send($this->application, $mail_options);
+		return Mail::multipart_send($this->application, $mail_options);
 	}
 
 	/**

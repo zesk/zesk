@@ -26,7 +26,7 @@ class Control_Settings extends Control {
 	 * @see Widget::model()
 	 */
 	public function model() {
-		return $this->application->model_factory(__NAMESPACE__ . "\\Model_Settings");
+		return $this->application->model_factory(Model_Settings::class);
 	}
 	protected function initialize() {
 		$locale = $this->locale();
@@ -38,7 +38,7 @@ class Control_Settings extends Control {
 		}
 		$title = $this->title();
 		if ($title) {
-			$this->response()->html()->title($locale->__($title));
+			$this->title($locale->__($title));
 		}
 		parent::initialize();
 	}

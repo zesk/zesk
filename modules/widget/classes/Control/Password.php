@@ -38,7 +38,7 @@ class Control_Password extends Control_Text {
 	protected function initialize() {
 		// Set up widgets
 		if ($this->confirm) {
-			$w = $this->widget_factory("Control_Password", array(
+			$w = $this->widget_factory(self::class, array(
 				'confirm' => false
 			))->names($this->column() . "_confirm", $this->option('label_confirm', __('Control_Password:={label} (Again)', array(
 				"label" => $this->label()

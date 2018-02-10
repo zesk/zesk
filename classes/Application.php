@@ -903,11 +903,12 @@ class Application extends Hookable implements Interface_Theme {
 	final public function model_singleton($class) {
 		$args = func_get_args();
 		$args[0] = $this;
-		$object = $this->call_hook_arguments("singleton_$class", $args, null);
-		if ($object instanceof $class) {
+		$suffix = PHP::clean_function($desired_class = $this->objects->resolve($class));
+		$object = $this->call_hook_arguments("singleton_$suffix", $args, null);
+		if ($object instanceof $desired_class) {
 			return $object;
 		}
-		return $this->objects->singleton_arguments($class, $args);
+		return $this->objects->singleton_arguments($desired_class, $args);
 	}
 
 	/**
@@ -929,10 +930,10 @@ class Application extends Hookable implements Interface_Theme {
 	 *
 	 * @return Request
 	 */
-	protected function request_factory(Request $request = null) {
+	protected function request_factory(Request $inherit = null) {
 		$request = new Request($this);
-		if ($request) {
-			$request->initialize_from_request($request);
+		if ($inherit) {
+			$request->initialize_from_request($inherit);
 		} else if ($this->console()) {
 			$request->initialize_from_settings("http://console/");
 		} else {
@@ -1761,21 +1762,15 @@ class Application extends Hookable implements Interface_Theme {
 	 * It may be served from an aliased or shared directory and as such may not appear at the web
 	 * server's root.
 	 *
-	 * To ensure all URLs are generated correctly, you can set $this->document_root_prefixstring) to
+	 * To ensure all URLs are generated correctly, you can set $this->set_document_root_prefix() to
 	 * set
 	 * a portion of the URL which is always prefixed to any generated url.
 	 *
-	 * @param string $set
-	 *        	Optionally set the web root
-	 * @throws Exception_Directory_NotFound
-	 * @return string The directory
+	 * @param string $suffix ptionally append to web root
+	 * @return string Path relative to document root
 	 */
-	final public function document_root($set = null, $prefix = null) {
-		if ($set !== null) {
-			$this->deprecated("Convert " . __METHOD__ . " method to append-style method, use set_document_root()");
-			$this->set_document_root($set, $prefix);
-		}
-		return $this->document;
+	final public function document_root($suffix = null) {
+		return path($this->document, $suffix);
 	}
 
 	/**
@@ -1785,7 +1780,7 @@ class Application extends Hookable implements Interface_Theme {
 	 * It may be served from an aliased or shared directory and as such may not appear at the web
 	 * server's root.
 	 *
-	 * To ensure all URLs are generated correctly, you can set $this->web_root_prefix(string) to set
+	 * To ensure all URLs are generated correctly, you can set $this->document_root_prefix(string) to set
 	 * a portion of the URL which is always prefixed to any generated url.
 	 *
 	 * @param string $set

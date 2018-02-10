@@ -800,7 +800,7 @@ class Request extends Hookable {
 			$this->uri = $this->_derive_uri();
 			return $this;
 		}
-		return $this->url_parts('path');
+		return $this->url_variables('path');
 	}
 
 	/**
