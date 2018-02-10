@@ -16,7 +16,7 @@ Configuration occurs on a host based on that hosts `uname -n` value. You can ass
 
 This file contains two settings used to configure your environment:
 
-	zesk\Command_Configure::environment_file="/etc/app.conf"
+	zesk\Command_Configure::environment_files=["/etc/app.conf","./etc/app.conf"]
 	zesk\Command_Configure::host_setting_name="COMMAND_CONFIGURE_ROOT"
 
 Within the `/etc/app.conf` will be a setting `COMMAND_CONFIGURE_ROOT` which contains a path to the host configuration for your site. This path MUST exist and SHOULD contain a file called `aliases.conf`.
@@ -44,11 +44,19 @@ The `configure` file format is a simple `command parameter` line syntax, an exam
 	file				{configure_path}/php/php-cli.ini					/etc/php5/cli/php.ini
 	file_catenate		etc/app.conf										/etc/app.conf				no-map
 
+Variables as defined in the "environment file" above will be replaced (`map()`ped) into each command line. Use the `defined` command to ensure variables are defined.
+
 ## Configure Commands
+
+### `defined var1 var2`
+
+Do not continue unless the variables listed are defined and have a non-empty value.
 
 ### `subversion repository-url directory-path`
 
 The repository `repository-url` is updated or checked out to `directory-path`. Note that authentication is not supported by this command, so any authentication should be set up already in the `$HOME/.subversion` saved configuration.
+
+*Only available when the Subversion module is loaded.*
 
 ### `mkdir target [want-owner [want-mode]]`
 
@@ -81,10 +89,6 @@ Flags can be:
 
 - `no-map` - Do not apply the configuration mapping to the files prior to generating a new source file
 - `no-trim` - Each file is trimmed for whitespace and then catenated with a newline prior to catenation. This skips this step.
-
-### `subversion repo-url target-path`
-
-Check out and update `repo-url` to directory `target-path`. Authentication must be stored already or allow anonymous updates.
 
 ### `symlink symlink target`
 

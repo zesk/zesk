@@ -39,7 +39,7 @@ class Module extends \zesk\Module_Repository {
 	public function command_subversion(Command_Configure $command, array $arguments = array(), $command_name) {
 		$app = $command->application;
 		$repo = array_shift($arguments);
-		$target = array_shift($arguments);
+		$target = $this->application->paths->expand(array_shift($arguments));
 		$__ = compact("repo", "target");
 		try {
 			if (!is_dir($target)) {
