@@ -39,8 +39,14 @@ class Repository extends \zesk\Repository_Command {
 	 *
 	 * @var string
 	 */
-	protected $executable = "svn --non-interactive";
+	protected $executable = "svn";
 
+	/**
+	 * Non-interactive
+	 *
+	 * @var string
+	 */
+	protected $arguments = " --non-interactive";
 	/**
 	 * First column: Says if item was added, deleted, or otherwise changed
 	 *

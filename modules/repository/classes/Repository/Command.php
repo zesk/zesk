@@ -30,10 +30,18 @@ abstract class Repository_Command extends Repository {
 	private $command = null;
 
 	/**
+	 * Which this
 	 *
 	 * @var string
 	 */
 	protected $executable = null;
+
+	/**
+	 * Always right after the executable
+	 *
+	 * @var string
+	 */
+	protected $arguments = null;
 
 	/**
 	 * Used in validate function
@@ -100,7 +108,7 @@ abstract class Repository_Command extends Repository {
 		$cwd = getcwd();
 		chdir($this->path);
 		try {
-			$result = $this->process->execute_arguments($this->command . " $suffix", $arguments, $passthru);
+			$result = $this->process->execute_arguments($this->command . $this->arguments . " $suffix", $arguments, $passthru);
 			chdir($cwd);
 			return $result;
 		} catch (\Exception $e) {
