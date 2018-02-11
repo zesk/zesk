@@ -738,8 +738,17 @@ class Command_Configure extends Command_Base {
 			}
 			$source_content = file_get_contents($arg);
 			if (!strpos($source_content, $content)) {
+				$this->verbose_log("Source fragment {arg} NOT found in {destination}, inserting", array(
+					"arg" => $arg,
+					"destination" => $destination
+				));
 				$changed = true;
 				$content .= "\n" . rtrim($source_content) . "\n";
+			} else {
+				$this->verbose_log("Source fragment {arg} found in {destination}, no action", array(
+					"arg" => $arg,
+					"destination" => $destination
+				));
 			}
 		}
 		if ($changed) {
