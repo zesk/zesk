@@ -829,6 +829,7 @@ class Command_Configure extends Command_Base {
 		}
 		$content = file_get_contents($destination);
 
+		$changed = false;
 		foreach ($args as $arg) {
 			if (!is_file($arg)) {
 				$this->application->logger->warning("{arg} passed to {method} for target {target}, but {arg} not found", array(
