@@ -35,7 +35,8 @@ class Command_Configure extends Command_Base {
 	protected static $file_flags = array(
 		'owner' => true,
 		'mode' => true,
-		'map' => true
+		'map' => true,
+		'trim' => true
 	);
 
 	/**
@@ -650,12 +651,17 @@ class Command_Configure extends Command_Base {
 		$want_owner = avalue($flags, "owner", null);
 		$want_mode = avalue($flags, "mode", null);
 		$map = avalue($flags, "map");
-		$__ = compact("source", "destination", "want_owner", "want_mode", "map");
+		$trim = avalue($flags, "trim");
+		$__ = compact("source", "destination", "want_owner", "want_mode", "map", "trim");
+		$old_source = null;
 		if ($map) {
 			$contents = file_get_contents($source);
 			$new_contents = $this->map($contents);
+			if ($trim) {
+				$new_contents = trim($new_contents);
+			}
 			if ($new_contents === $contents) {
-				$this->application->logger->warning("File {source} unaffected by `map` flag");
+				$this->application->logger->warning("File {source} unaffected by `map` flag (map:{map} trim:{trim})");
 			} else {
 				$old_source = $source;
 				$source = File::temporary($this->application->paths->temporary());
@@ -678,7 +684,7 @@ class Command_Configure extends Command_Base {
 		} catch (Exception_Command $e) {
 			// Not the same
 		}
-		switch ($this->_files_differ_helper($source, $destination)) {
+		switch ($this->_files_differ_helper($source, $destination, $old_source)) {
 			case "source":
 				$result = self::copy_file_inherit($source, $destination);
 				if (!$result) {
@@ -709,11 +715,15 @@ class Command_Configure extends Command_Base {
 	 * @param string $destination
 	 * @return boolean|null Returns true if changes made successfully, false if failed, or null if no changes made
 	 */
-	public function command_file_catenate($source, $destination, $flags = null) {
+	public function command_file_catenate($source, $destination) {
 		$source = $this->application->paths->expand($source);
 		$destination = $this->application->paths->expand($destination);
 
-		$flags = ($flags !== null) ? ArrayTools::flip_assign(explode(",", strtolower(strtr($flags, ";", ","))), true) : array();
+		$flags = func_get_args();
+		array_shift($flags);
+		array_shift($flags);
+		$flags = $this->parse_file_flags($flags);
+
 		$sources = File::find_all($this->host_paths, $source);
 		$__ = array(
 			"source" => $source,
@@ -744,14 +754,14 @@ class Command_Configure extends Command_Base {
 			));
 		}
 		$content = "";
-		$no_map = avalue($flags, "no-map", false);
-		$no_trim = avalue($flags, "no-trim", false);
+		$map = avalue($flags, "map", false);
+		$trim = avalue($flags, "trim", false);
 		foreach ($sources as $file) {
 			$file_content = File::contents($file);
-			if (!$no_map) {
+			if ($map) {
 				$file_content = $this->map($file_content);
 			}
-			if (!$no_trim) {
+			if ($trim) {
 				$file_content = trim($file_content) . "\n";
 			}
 			$content .= $file_content;
