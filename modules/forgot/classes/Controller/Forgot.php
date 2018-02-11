@@ -44,7 +44,7 @@ class Controller_Forgot extends Controller_Theme {
 			return;
 		}
 		/* @var $forgot Forgot */
-		$forgot = $this->orm_factory(Forgot::class, array(
+		$forgot = $this->application->orm_factory(Forgot::class, array(
 			"code" => $hash
 		))->find();
 		if (!$forgot) {
@@ -61,7 +61,7 @@ class Controller_Forgot extends Controller_Theme {
 				"message" => "User not found."
 			));
 		}
-		$session = $this->application->session();
+		$session = $this->application->session($this->request);
 		if ($forgot->id() !== $session->forgot) {
 			return $forgot->theme('same-browser');
 		}
