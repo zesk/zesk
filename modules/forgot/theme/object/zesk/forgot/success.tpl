@@ -12,4 +12,4 @@ namespace zesk;
 /* @var $current_user \zesk\User */
 /* @var $object \zesk\Forgot */
 echo HTML::tag('h1', $locale->__('Your password has been updated'));
-echo HTML::tag('p', StringTools::wrap($locale->__('Please [login] to access your account.'), HTML::a($router->get_route("login"), '[]')));
+echo HTML::tag('p', StringTools::wrap($locale->__('Please [login] to access your account.'), HTML::a($router->get_route("login", Controller_Login::class), '[]')));
