@@ -254,6 +254,7 @@ abstract class Command extends Hookable implements Logger\Handler {
 	 * @return string[]|NULL[]
 	 */
 	private function configuration_path() {
+		$paths[] = "/etc/zesk";
 		$paths = array();
 		if (is_dir(($path = $this->application->path('etc')))) {
 			$paths[] = $path;
@@ -262,7 +263,6 @@ abstract class Command extends Hookable implements Logger\Handler {
 		if ($uid_path) {
 			$paths[] = $uid_path;
 		}
-		$paths[] = "/etc/zesk";
 		return $paths;
 	}
 
@@ -291,7 +291,7 @@ abstract class Command extends Hookable implements Logger\Handler {
 		}
 		$result = array(
 			'files' => $files,
-			'default' => $default = File::find_first($files)
+			'default' => $default = File::find_first(array_reverse($files))
 		);
 		if (empty($default)) {
 			$result['default'] = path(first($paths), $file);
