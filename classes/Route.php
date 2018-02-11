@@ -842,7 +842,7 @@ abstract class Route extends Hookable {
 		$map = $this->call_hook_arguments("get_route_map", array(
 			$route_map
 		), $route_map);
-		$result = map($this->clean_pattern, $map);
+		$result = rtrim(map_clean(map($this->clean_pattern, $map), "/"));
 		return $result;
 	}
 }
