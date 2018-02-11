@@ -826,10 +826,11 @@ class Command_Configure extends Command_Base {
 			}
 			$source_content = file_get_contents($arg);
 			if (!strpos($source_content, $content)) {
-				$this->verbose_log("Source fragment {arg} ({len} bytes) \"{content}\" NOT found in {destination}, inserting", array(
+				$this->verbose_log("Source fragment {arg} ({len} bytes) \"{content}\" NOT found in {destination} ({dlen} bytes), inserting", array(
 					"arg" => $arg,
 					"content" => PHP::dump($source_content),
 					"len" => strlen($source_content),
+					"dlen" => strlen($content),
 					"destination" => $destination
 				));
 				$changed = true;
