@@ -762,9 +762,11 @@ function map($mixed, array $map, $insensitive = false, $prefix_char = "{", $suff
 	if ($insensitive) {
 		static $func = null;
 		if (!$func) {
-			$func = create_function('$matches', 'return strtolower($matches[0]);');
+			$func = function ($matches) {
+				return strtolower($matches[0]);
+			};
 		}
-		$mixed = preg_replace_callback_mixed('/' . $prefix_char . '([-:_ =,.\/\'"A-Za-z0-9]+)' . $suffix_char . '/i', $func, $mixed);
+		$mixed = preg_replace_callback_mixed('/' . preg_quote($prefix_char, '/') . '([-:_ =,.\/\'"A-Za-z0-9]+)' . preg_quote($suffix_char, '/') . '/i', $func, $mixed);
 	}
 	// tr("{a}", array("{a} => null)) = "null"
 	return tr($mixed, $s);
