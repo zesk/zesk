@@ -27,11 +27,11 @@ class Module extends \zesk\Module {
 	 */
 	public function initialize() {
 		parent::initialize();
-		$this->application->hooks->add('zesk\\Command_Configure::command_daemontools_service', array(
+		$this->application->hooks->add(Command_Configure::class . '::command_daemontools_service', array(
 			$this,
 			"command_daemontools_service"
 		));
-		$this->application->hooks->add('zesk\\Command_Configure::command_daemontools_service_remove', array(
+		$this->application->hooks->add(Command_Configure::class . '::command_daemontools_service_remove', array(
 			$this,
 			"command_daemontools_service_remove"
 		));

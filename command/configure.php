@@ -439,12 +439,12 @@ class Command_Configure extends Command_Base {
 				$method
 			), $arguments);
 		} else {
-			$mariah = md5(microtime());
-			$result = $this->call_hook_arguments($method, array(
-				$arguments,
-				$command
-			), $mariah);
-			if ($result === $mariah) {
+			if ($this->has_hook($method)) {
+				$result = $this->call_hook_arguments($method, array(
+					$arguments,
+					$command
+				), null);
+			} else {
 				$this->error("Unknown command {command} ({raw_arguments})", $__);
 				return false;
 			}

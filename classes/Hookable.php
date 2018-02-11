@@ -206,8 +206,7 @@ class Hookable extends Options {
 	 *        	An array of parameters to pass to the hook.
 	 */
 	public final function hook_list($types, $object_only = false) {
-		global $zesk;
-		$hooks = $zesk->hooks;
+		$hooks = $this->application->hooks;
 		$types = to_list($types);
 		$result = array();
 		foreach ($types as $type) {
@@ -225,7 +224,7 @@ class Hookable extends Options {
 				$result[] = $func;
 			}
 			if (!$object_only) {
-				$hook_names = ArrayTools::suffix($zesk->classes->hierarchy($this, __CLASS__), "::$type");
+				$hook_names = ArrayTools::suffix($this->application->classes->hierarchy($this, __CLASS__), "::$type");
 				if ($hooks->has($hook_names)) {
 					foreach ($hook_names as $hook_name) {
 						if ($hooks->has($hook_name)) {
