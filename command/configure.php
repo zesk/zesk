@@ -687,12 +687,18 @@ class Command_Configure extends Command_Base {
 		switch ($this->_files_differ_helper($source, $destination, $old_source)) {
 			case "source":
 				$result = self::copy_file_inherit($source, $destination);
+				if ($old_source) {
+					File::unlink($source);
+				}
 				if (!$result) {
 					return $result;
 				}
 				return $this->handle_owner_mode($destination, $want_owner, $want_mode);
 			case "destination":
 				$result = self::copy_file_inherit($destination, $source);
+				if ($old_source) {
+					File::unlink($source);
+				}
 				if (!$result) {
 					return $result;
 				}
@@ -701,6 +707,9 @@ class Command_Configure extends Command_Base {
 		$__ = compact("source", "destination");
 		if (!file_exists($source)) {
 			$this->verbose_log(is_dir(dirname($source)) ? "Source {source} does not exist" : "Source {source} does not exist, nor does its parent directory", $__);
+		}
+		if ($old_source) {
+			File::unlink($source);
 		}
 		if (!file_exists($destination)) {
 			$this->verbose_log(is_dir(dirname($destination)) ? "Destination {destination} does not exist" : "Destination {destination} does not exist, nor does its parent directory", $__);
@@ -832,7 +841,10 @@ class Command_Configure extends Command_Base {
 		}
 		if ($changed) {
 			$temp_file = File::temporary($this->application->paths->temporary(), "temp");
-			switch ($this->_file_update_helper($temp_file, $destination, "computed")) {
+			file_put_contents($temp_file, $content);
+			$result = $this->_file_update_helper($temp_file, $destination, "computed");
+			File::unlink($temp_file);
+			switch ($result) {
 				case "source":
 					return self::file_put_contents_inherit($destination, $content);
 				case "destination":
@@ -1018,7 +1030,9 @@ class Command_Configure extends Command_Base {
 	 */
 	private function _file_update_helper($source, $destination, $source_name = null, $destination_name = null) {
 		list($source_name, $destination_name) = $this->_show_differences($source, $destination, $source_name, $destination_name);
-		return $this->prompt_yes_no("Update destination {destination}?");
+		return $this->prompt_yes_no("Update destination {destination}? ", array(
+			"destination" => $destination_name
+		));
 	}
 
 	/**
