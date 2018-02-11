@@ -1033,9 +1033,9 @@ class Command_Configure extends Command_Base {
 	 */
 	private function _file_update_helper($source, $destination, $source_name = null, $destination_name = null) {
 		list($source_name, $destination_name) = $this->_show_differences($source, $destination, $source_name, $destination_name);
-		return $this->prompt_yes_no("Update destination {destination} ? ", array(
+		return $this->prompt_yes_no(__("Update destination {destination}?", array(
 			"destination" => $destination_name
-		));
+		)));
 	}
 
 	/**
