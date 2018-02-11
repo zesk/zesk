@@ -854,8 +854,7 @@ class Command_Configure extends Command_Base {
 					return null;
 			}
 		}
-
-		return false;
+		return null;
 	}
 
 	/**
