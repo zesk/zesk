@@ -674,7 +674,7 @@ class Command_Configure extends Command_Base {
 				$new_contents = trim($new_contents);
 			}
 			if ($new_contents === $contents) {
-				$this->application->logger->warning("File {source} unaffected by `map` flag (map:{map} trim:{trim})");
+				$this->application->logger->warning("File {source} unaffected by `map` flag (map:{map} trim:{trim})", $__);
 			} else {
 				$old_source = $source;
 				$source = File::temporary($this->application->paths->temporary());
