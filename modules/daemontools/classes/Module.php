@@ -74,7 +74,7 @@ class Module extends \zesk\Module {
 				} else if ($result === true) {
 					$changed = true;
 				}
-				$result = $command->command_file($source_file, $target_file, "root:root", 0700);
+				$result = $command->command_file($source_file, $target_file, "root:root;0700");
 				if ($result === false) {
 					return false;
 				} else if ($result === true) {
