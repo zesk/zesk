@@ -612,7 +612,8 @@ class Command_Configure extends Command_Base {
 	}
 	public function parse_file_flags(array $flags) {
 		$flags = to_list(strtr(implode(" ", $flags), array(
-			"," => " "
+			"," => " ",
+			";" => " "
 		)), array(), " ");
 		$result = array();
 		foreach ($flags as $flag) {
@@ -622,7 +623,7 @@ class Command_Configure extends Command_Base {
 			}
 			if (strpos($flag, ":") !== false) {
 				$result['owner'] = $flag;
-			} else if (strpos($flag, '0') === 0) {
+			} else if (strpos($flag, '0') === 0 || is_numeric($flag)) {
 				$result['mode'] = $flag;
 			} else {
 				if (!array_key_exists($flag, self::$file_flags)) {
