@@ -85,6 +85,13 @@ class Route_Controller extends Route {
 	}
 
 	/**
+	 *
+	 * @return string
+	 */
+	function action_method_prefix() {
+		return $this->option('method prefix', 'action_');
+	}
+	/**
 	 * Execute this route
 	 *
 	 * @see Route::_execute()
@@ -105,7 +112,7 @@ class Route_Controller extends Route {
 			), array());
 
 			$arguments_method = $this->option('arguments method', $this->option('arguments method prefix', 'arguments_') . $action_method);
-			$method = $this->option('method', $this->option('method prefix', 'action_') . $action_method);
+			$method = $this->option('method', $this->action_method_prefix() . $action_method);
 			$method = map($method, array(
 				"method" => $this->request->method()
 			));
@@ -220,6 +227,27 @@ class Route_Controller extends Route {
 		);
 	}
 
+	/**
+	 *
+	 * {@inheritDoc}
+	 * @see \zesk\Route::class_actions()
+	 */
+	function class_actions() {
+		$actions = parent::class_actions();
+		list($reflection) = $this->_determine_class_action();
+		$action_prefix = $this->action_method_prefix();
+		$action_list = array();
+		/* @var $reflection \ReflectionClass */
+		foreach ($reflection->getMethods(\ReflectionMethod::IS_PROTECTED | \ReflectionMethod::IS_PUBLIC) as $method) {
+			/* @var $method \ReflectionMethod */
+			$name = $method->getName();
+			if (begins($name, $action_prefix)) {
+				$action_list[] = StringTools::unprefix($name, $action_prefix);
+			}
+		}
+		$actions[strtolower($reflection->getName())] = $action_list;
+		return $actions;
+	}
 	/**
 	 *
 	 * @param unknown $action
