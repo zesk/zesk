@@ -26,6 +26,19 @@ class Command_Configure extends Command_Base {
 	);
 
 	/**
+	 * owner - Set owner of the file (root only)
+	 * mode - Set the mode of the file (root only)
+	 * map - Map variables in the file using our environment before copying
+	 *
+	 * @var array
+	 */
+	protected static $file_flags = array(
+		'owner' => true,
+		'mode' => true,
+		'map' => true
+	);
+
+	/**
 	 * Whether the configuration should be saved
 	 *
 	 * @var boolean
@@ -583,16 +596,72 @@ class Command_Configure extends Command_Base {
 			return true;
 		}
 	}
-
+	public function parse_file_flags(array $flags) {
+		$flags = to_list(strtr(implode(" ", $flags), array(
+			"," => " "
+		)), array(), " ");
+		$result = array();
+		foreach ($flags as $flag) {
+			$flag = trim($flag);
+			if (empty($flag)) {
+				continue;
+			}
+			if (strpos($flag, ":") !== false) {
+				$result['owner'] = $flag;
+			} else if (strpos($flag, '0') === 0) {
+				$result['mode'] = $flag;
+			} else {
+				if (!array_key_exists($flag, self::$file_flags)) {
+					$this->application->logger->warning("Unknown flag {flag} found in {flags}", array(
+						"flag" => $flag,
+						"flags" => $flags
+					));
+				}
+				$result[$flag] = true;
+			}
+		}
+		return $result;
+	}
 	/**
 	 *
-	 * @param unknown $source
-	 * @param unknown $destination
+	 * @param string $source
+	 * @param string $destination
+	 * @param ... flags space or comma separated - can be:
+	 *
+	 * owner:,:group,owner:group,0550,map
+	 *
+	 * Where : designates an owner/group pair, leading 0 is an octal mode, and "map" is the flag to map the source file's contents using ${VARIABLES} before copying to destination.
+	 *
+	 *
+	 *
+	 *
 	 */
-	public function command_file($source, $destination, $want_owner = null, $want_mode = null) {
+	public function command_file($source, $destination) {
 		$source = $this->application->paths->expand($source);
 		$destination = $this->application->paths->expand($destination);
-		$__ = compact("source", "destination", "want_owner", "want_mode");
+		$args = func_get_args();
+		array_shift($args);
+		array_shift($args);
+		$this->verbose_log("{method} args is {args}", array(
+			"method" => __METHOD__,
+			"args" => $args
+		));
+		$flags = $this->parse_file_flags($args);
+		$want_owner = avalue($flags, "owner", null);
+		$want_mode = avalue($flags, "mode", null);
+		$map = avalue($flags, "map");
+		$__ = compact("source", "destination", "want_owner", "want_mode", "map");
+		if ($map) {
+			$contents = file_get_contents($source);
+			$new_contents = $this->map($contents);
+			if ($new_contents === $contents) {
+				$this->application->logger->warning("File {source} unaffected by `map` flag");
+			} else {
+				$old_source = $source;
+				$source = File::temporary($this->application->paths->temporary());
+				file_put_contents($source, $new_contents);
+			}
+		}
 		if (is_link($destination)) {
 			if (!$this->prompt_yes_no(__("Target {destination} is a link, replace with {source} as a file?", $__))) {
 				return false;
