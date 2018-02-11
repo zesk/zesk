@@ -183,10 +183,10 @@ class Mail extends Hookable {
 			__CLASS__,
 			"debug"
 		)));
-		self::$log = $config->path_get(array(
+		self::$log = $application->paths->expand($config->path_get(array(
 			__CLASS__,
 			"log"
-		));
+		)));
 		self::$fp = null;
 		self::$disabled = to_bool($config->path_get(array(
 			__CLASS__,

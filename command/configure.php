@@ -145,6 +145,7 @@ class Command_Configure extends Command_Base {
 		$this->variable_map['user'] = $this->username;
 		$this->variable_map['zesk_application_root'] = $this->application->path(); // Deprecated
 		$this->variable_map['application_root'] = $this->application->path();
+		$this->variable_map['application_home'] = $this->application->path();
 		$this->variable_map['zesk_home'] = $this->application->zesk_home();
 		$this->variable_map['user'] = $this->username;
 		$this->variable_map['username'] = $this->username; // Deprecate?

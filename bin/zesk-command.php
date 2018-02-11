@@ -3,12 +3,10 @@
 /**
  * Very important: Do not call any Zesk calls until after application laods.
  *
- * $URL$
- *
  * @package zesk
  * @subpackage bin
  * @author Kent Davidson <kent@marketacumen.com>
- * @copyright Copyright &copy; 2011, Market Acumen, Inc.
+ * @copyright Copyright &copy; 2018, Market Acumen, Inc.
  */
 define('ZESK_ROOT', dirname(dirname(__FILE__)) . '/' . (strpos(__FILE__, 'vendor/bin') !== false ? 'zesk/zesk/' : ''));
 
