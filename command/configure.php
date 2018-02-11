@@ -162,6 +162,7 @@ class Command_Configure extends Command_Base {
 		$this->save_configuration_changes();
 
 		$this->incomplete = 0;
+		$this->debug_log("Variables: {variables}", Text::format_pairs($this->variable_map));
 		if (!$this->configure_user()) {
 			return 99;
 		}
