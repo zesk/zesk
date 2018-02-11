@@ -552,6 +552,16 @@ class Command_Configure extends Command_Base {
 	public function map($string) {
 		return map($string, $this->variable_map, true);
 	}
+
+	/**
+	 * Maps ${foo} for file replacements
+	 *
+	 * @param string $string
+	 * @return string
+	 */
+	public function file_map($string) {
+		return map($string, $this->variable_map, true, '${', '}');
+	}
 	/**
 	 * Copy a file from source to destination and inherit parent directory owner and group
 	 *
@@ -656,7 +666,7 @@ class Command_Configure extends Command_Base {
 		$old_source = null;
 		if ($map) {
 			$contents = file_get_contents($source);
-			$new_contents = $this->map($contents);
+			$new_contents = $this->file_map($contents);
 			if ($trim) {
 				$new_contents = trim($new_contents);
 			}
@@ -768,7 +778,7 @@ class Command_Configure extends Command_Base {
 		foreach ($sources as $file) {
 			$file_content = File::contents($file);
 			if ($map) {
-				$file_content = $this->map($file_content);
+				$file_content = $this->file_map($file_content);
 			}
 			if ($trim) {
 				$file_content = trim($file_content) . "\n";
