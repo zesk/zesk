@@ -446,7 +446,7 @@ class Router extends Hookable {
 	 * Uses current route's context to determine new route.
 	 *
 	 * @param string $action
-	 * @param mixed $object
+	 * @param mixed $object An instance of a Model, a name of a model class, a name of a Controller class
 	 * @param array $options
 	 *        	"query" => (string or array). Append query string to URL
 	 *        	"inherit_current_route" => (boolean). Use variables from current route when
@@ -503,7 +503,7 @@ class Router extends Hookable {
 				}
 				$url = $this->_find_route($try_routes, $action, $object, $options);
 				if ($url) {
-					$url = $app->hooks->call_arguments("Router::get_route_alter", array(
+					$url = $app->hooks->call_arguments(__CLASS__ . "::get_route_alter", array(
 						$action,
 						$object,
 						$options
@@ -512,7 +512,11 @@ class Router extends Hookable {
 				}
 			}
 		}
-		$url = $this->call_hook("get_route", $action, $object, $options);
+		$url = $this->call_hook_arguments("get_route", array(
+			$action,
+			$object,
+			$options
+		), null);
 		if (empty($url)) {
 			$app->logger->warning("No reverse route for {classes}->{action}", array(
 				"classes" => $try_classes,
