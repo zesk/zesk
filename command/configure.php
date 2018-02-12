@@ -40,11 +40,18 @@ class Command_Configure extends Command_Base {
 	);
 
 	/**
-	 * Whether the configuration should be saved
+	 * Whether the configuration was changed
 	 *
 	 * @var boolean
 	 */
 	private $changed = null;
+
+	/**
+	 * Whether the configuration should be saved
+	 *
+	 * @var boolean
+	 */
+	private $need_save = null;
 
 	/**
 	 * Whether anything was skipped (out of sync)
@@ -188,7 +195,7 @@ class Command_Configure extends Command_Base {
 			}
 			$value = trim($this->prompt(__("Path to system settings file: ")));
 			++$times;
-			$this->changed = true;
+			$this->need_save = true;
 		}
 		$this->variable_map['environment_file'] = $this->environment_file;
 		return $this->environment_file = $value;
@@ -230,7 +237,7 @@ class Command_Configure extends Command_Base {
 			$this->completions = array_keys($dirs);
 			$value = trim($this->prompt(__("Name of system setting: ")));
 			++$times;
-			$this->changed = true;
+			$this->need_save = true;
 			$output = true;
 		}
 		$this->host_setting_name = $value;
@@ -367,7 +374,7 @@ class Command_Configure extends Command_Base {
 	 * Save configuration changes to the configuration file associated with this command
 	 */
 	private function save_configuration_changes() {
-		if ($this->changed) {
+		if ($this->need_save) {
 			$__ = array(
 				"config" => $this->config
 			);
@@ -499,6 +506,83 @@ class Command_Configure extends Command_Base {
 		return $changed;
 	}
 
+	/**
+	 * Syntax:
+	 *
+	 * changed command-to-run command-parameters
+	 *
+	 * Run command if changes occurred in previous lines.
+	 *
+	 * @return NULL|boolean
+	 */
+	public function command_changed() {
+		$command = array();
+		$args = func_get_args();
+		foreach ($args as $arg) {
+			$command[] = escapeshellarg($arg);
+		}
+		$root_command = $command[0];
+		$command = implode(" ", $command);
+
+		$__ = array(
+			"command" => $command
+		);
+		$args = func_get_args();
+		if (!$this->changed) {
+			$this->verbose_log("Skipping command {command} as no changes detected", $__);
+			return null;
+		}
+		if (count($args) === 0) {
+			$this->verbose_log("Reset changed flag to false");
+			$this->changed = false;
+			return null;
+		}
+		if (!$this->prompt_yes_no($this->application->locale->__("Run command \"{command}\" ?", $__))) {
+			return false;
+		}
+		try {
+			$this->exec($command);
+			$this->verbose_log("Successfully ran {command}", $__);
+			return true;
+		} catch (Exception_Command $e) {
+			$this->error("Command {command} failed with exit code {code}", $__ + $e->variables());
+			return false;
+		}
+	}
+	public function command_require_services() {
+		if ($this->command_require_binaries("service") === false) {
+			return false;
+		}
+		$args = func_get_args();
+		foreach ($args as $service) {
+			try {
+				$result = $this->exec("service {service} status", array(
+					"service" => $service
+				));
+			} catch (Exception_Command $e) {
+				$this->error("Service {service} failed with output:\n{output}", array(
+					"service" => $service,
+					"output" => implode("\n", $e->output)
+				));
+				return false;
+			}
+		}
+		return null;
+	}
+	public function command_require_binaries() {
+		$args = func_get_args();
+		foreach ($args as $binary) {
+			$which = $this->application->paths->which($binary);
+			if (!$which) {
+				$this->error("Binary {binary} not available in path {path}", array(
+					"binary" => $binary,
+					"path" => $this->application->paths->command()
+				));
+				return false;
+			}
+		}
+		return null;
+	}
 	/**
 	 * Symlink should link to file
 	 *
@@ -763,7 +847,7 @@ class Command_Configure extends Command_Base {
 			$conf = trim($this->prompt(__("Create {source}? ({completions})", $__)));
 			if (in_array($conf, $this->completions)) {
 				$__['conf'] = $conf;
-				$this->changed++;
+				$this->changed = true;
 				$this->log("Writing {conf} with empty file for {source}", $__);
 				self::file_put_contents_inherit($conf, "");
 				try {
