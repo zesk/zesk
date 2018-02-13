@@ -45,9 +45,9 @@ class Module extends \zesk\Module {
 	 * @var array
 	 */
 	protected $model_classes = array(
-		"zesk\\Server",
-		"zesk\\Lock",
-		"zesk\\Settings"
+		Server::class,
+		Lock::class,
+		Settings::class
 	);
 
 	/**
@@ -98,6 +98,13 @@ class Module extends \zesk\Module {
 		"month",
 		"year"
 	);
+
+	/**
+	 * Set up our module
+	 *
+	 * {@inheritDoc}
+	 * @see \zesk\Module::initialize()
+	 */
 	public function initialize() {
 		parent::initialize();
 		$this->application->hooks->add(Command_Configure::class . "::command_crontab", array(
@@ -105,6 +112,12 @@ class Module extends \zesk\Module {
 			"command_crontab"
 		));
 	}
+
+	/**
+	 * command crontab help
+	 * @param string $command_name
+	 * @return string[]
+	 */
 	private function command_crontab_help($command_name) {
 		return array(
 			"example" => "crontab file [flags]",
@@ -115,17 +128,22 @@ class Module extends \zesk\Module {
 			"description" => "Install crontab for current user"
 		);
 	}
+
+	/**
+	 *
+	 * @param Command_Configure $command
+	 * @param array $arguments
+	 * @param unknown $command_name
+	 * @return \zesk\Cron\string[]|boolean
+	 */
 	public function command_crontab(Command_Configure $command, array $arguments, $command_name) {
 		$file = array_shift($arguments);
 		if ($file === "--help") {
 			return $this->command_crontab_help($command_name);
 		}
 		$file = $this->application->paths->expand($file);
-		$flags = func_get_args();
-		array_shift($flags);
-		$flags = $command->parse_file_flags($flags);
+		$flags = $command->parse_file_flags($arguments);
 		$map = to_bool(avalue($flags, "map"));
-
 		if (!file_exists($file)) {
 			$command->error("crontab file not found {file}", array(
 				"file" => $file
