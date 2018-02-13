@@ -220,12 +220,12 @@ class Module extends \zesk\Module {
 			}
 		}
 		$services = array();
-		if (count($svstat_names)) {
+		if (count($svstat_names) > 0) {
 			foreach ($this->application->process->execute_arguments("svstat {*}", $svstat_names) as $line) {
 				$services[] = Service::from_svstat($this->application, $line);
 			}
 		}
-		if (count($unreadable_names)) {
+		if (count($unreadable_names) > 0) {
 			foreach ($unreadable_names as $path) {
 				$stat_helper = path($path, ".svstat");
 				$this->application->logger->debug("Loading {path}", array(
