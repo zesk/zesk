@@ -212,10 +212,11 @@ class Module extends \zesk\Module {
 		$names = $this->list_service_names();
 		$svstat_names = $unreadable_names = array();
 		foreach ($names as $name) {
-			if (is_readable($name . "/supervise/status")) {
-				$svstat_names[] = $name;
+			$path = $this->services_path($name);
+			if (is_readable(path($path, "supervise/status"))) {
+				$svstat_names[] = $path;
 			} else {
-				$unreadable_names[] = $name;
+				$unreadable_names[] = $path;
 			}
 		}
 		$services = array();
@@ -225,8 +226,8 @@ class Module extends \zesk\Module {
 			}
 		}
 		if (count($unreadable_names)) {
-			foreach ($unreadable_names as $service) {
-				$stat_helper = path($service, ".svstat");
+			foreach ($unreadable_names as $path) {
+				$stat_helper = path($path, ".svstat");
 				$this->application->logger->debug("Loading {path}", array(
 					"path" => $stat_helper
 				));
