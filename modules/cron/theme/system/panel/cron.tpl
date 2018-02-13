@@ -12,7 +12,7 @@ use zesk\Timestamp;
 /* @var $response \zesk\Response */
 /* @var $current_user \User */
 /* @var $module_class string */
-$settings = $application->settings_registry();
+$service = $application->settings_registry();
 
 $now = Timestamp::now("UTC");
 
@@ -24,7 +24,7 @@ foreach (array(
 	Timestamp::UNIT_YEAR => $locale->__("Last year run")
 ) as $unit => $label) {
 	$suffix = "_$unit";
-	$runtime = $settings->get($module_class . '::last' . $suffix);
+	$runtime = $service->get($module_class . '::last' . $suffix);
 	$attributes = array();
 	if (!$runtime) {
 		$value = $locale->__("Never");

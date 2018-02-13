@@ -14,6 +14,8 @@ use zesk\ArrayTools;
 use zesk\Command_Configure;
 use zesk\File;
 use zesk\Directory;
+use zesk\Server;
+use zesk\Timestamp;
 
 /**
  * @author kent
@@ -35,7 +37,24 @@ class Module extends \zesk\Module {
 			$this,
 			"command_daemontools_service_remove"
 		));
+		$this->application->theme_path($this->path("theme/system"), "system");
+		$this->application->theme_path($this->path("theme/service"), "zesk/daemontools/service");
 	}
+
+	/**
+	 *
+	 * @param Template $template
+	 * @return string[][]
+	 */
+	protected function hook_system_panel() {
+		return array(
+			"system/panel/daemontools" => array(
+				"title" => $this->application->locale->__("DaemonTools Processes"),
+				"module_class" => __CLASS__
+			)
+		);
+	}
+
 	/**
 	 * Hook for daemontools_service source_path [service_name]
 	 *
@@ -43,6 +62,9 @@ class Module extends \zesk\Module {
 	 */
 	public function command_daemontools_service(Command_Configure $command, array $arguments = array(), $command_name) {
 		$source = avalue($arguments, 0);
+		if ($source === "--help") {
+			return $this->command_daemontools_service_help($command_name);
+		}
 		$service_name = avalue($arguments, 1);
 		if (!is_dir($source)) {
 			$command->error("{command_name} {source} should be a directory", array(
@@ -56,7 +78,7 @@ class Module extends \zesk\Module {
 		} else {
 			$service_name = basename(trim($source, "/"));
 		}
-		$target = "/etc/service/$service_name";
+		$target = $this->services_path($service_name);
 		$command->verbose_log("Service target is {target}", array(
 			"target" => $target
 		));
@@ -95,6 +117,24 @@ class Module extends \zesk\Module {
 		}
 		return null;
 	}
+
+	/**
+	 * Help for daemontools_service
+	 *
+	 * @param string $command_name
+	 * @return string[]
+	 */
+	public function command_daemontools_service_help($command_name) {
+		return $this->application->locale->__(array(
+			"command_syntax" => "$command_name source [service_name]",
+			"arguments" => array(
+				"source" => "Directory which contains a file \"run\" which is the service run command and optionally a log/run for logging.",
+				"service_name" => "The name of the service to create. Uses basename of source if not supplied."
+			),
+			"description" => "Create (or update) a daemontools service"
+		));
+	}
+
 	/**
 	 * Hook for daemontools_service_remove
 	 *
@@ -102,8 +142,11 @@ class Module extends \zesk\Module {
 	 */
 	public function command_daemontools_service_remove(Command_Configure $command, array $arguments = array(), $command_name) {
 		$service_name = avalue($arguments, 0);
+		if ($service_name === "--help") {
+			return $this->command_daemontools_service_remove_help($command_name);
+		}
 		$service_name = File::clean_path($service_name);
-		$target = "/etc/service/$service_name";
+		$target = $this->services_path($service_name);
 		$__ = array(
 			"target" => $target,
 			"command_name" => $command_name
@@ -137,12 +180,28 @@ class Module extends \zesk\Module {
 	}
 
 	/**
+	 * Help for daemontools_service_remove
+	 *
+	 * @param string $command_name
+	 * @return string[]
+	 */
+	public function command_daemontools_service_remove_help($command_name) {
+		return $this->application->locale->__(array(
+			"command_syntax" => "$command_name source",
+			"arguments" => array(
+				"source" => "Name of service as found in /etc/service/[source]"
+			),
+			"description" => "Remove a daemontools service permanently"
+		));
+	}
+
+	/**
 	 * Services path for Daemontools
 	 *
 	 * @return string
 	 */
-	public function services_path() {
-		return $this->option("services_path", "/etc/service");
+	public function services_path($add = null) {
+		return path($this->option("services_path", "/etc/service"), $add);
 	}
 
 	/**
@@ -156,6 +215,79 @@ class Module extends \zesk\Module {
 		}
 		return $services;
 	}
+
+	/**
+	 * Save data for dashboard
+	 */
+	public function cron_minute() {
+		$this->save_services_snapshot(Server::singleton($this->application), $this->services());
+	}
+
+	/**
+	 * Save services snapshot to server data
+	 *
+	 * @param Server $server
+	 * @param Service[] $services
+	 */
+	public function save_services_snapshot(Server $server, array $services) {
+		$snapshot = array();
+		foreach ($services as $service) {
+			$snapshot[$service->name] = $service->variables();
+		}
+		$server->data(__CLASS__, $snapshot);
+		$server->data(__CLASS__ . "::last_updated", Timestamp::now());
+	}
+
+	/**
+	 * For testing, generate some data
+	 *
+	 */
+	public function mock_server_snapshot() {
+		$app = $this->application;
+		$this->save_services_snapshot(Server::singleton($app), array(
+			Service::instance($app, "/etc/service/fake", array(
+				"status" => "up",
+				"ok" => true,
+				"pid" => 1234,
+				"duration" => 100
+			)),
+			Service::instance($app, "/etc/service/not-real", array(
+				"status" => "down",
+				"ok" => true,
+				"duration" => 100
+			)),
+			Service::instance($app, "/etc/service/imaginary", array(
+				"status" => "down",
+				"ok" => false
+			))
+		));
+	}
+	/**
+	 *
+	 * @param Server $object
+	 * @return Service[]
+	 */
+	public function server_services(Server $object) {
+		$result = $object->data(__CLASS__);
+		if (!can_iterate($result)) {
+			return null;
+		}
+		foreach ($result as $key => $variables) {
+			$result[$key] = Service::from_variables($this->application, $variables);
+		}
+		return $result;
+	}
+
+	/**
+	 *
+	 * @param Server $object
+	 * @return Timestamp
+	 */
+	public function server_services_last_updated(Server $object) {
+		$result = $object->data(__CLASS__ . "::last_updated");
+		return $result;
+	}
+
 	/**
 	 *
 	 */

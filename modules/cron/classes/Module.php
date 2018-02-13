@@ -609,6 +609,10 @@ class Module extends \zesk\Module {
 			)
 		);
 	}
+
+	/**
+	 *
+	 */
 	protected function hook_schema_updated() {
 		// Changed class structure on 2016-11-23
 		$this->application->settings()->prefix_updated("Module_Cron::", __CLASS__ . "::");

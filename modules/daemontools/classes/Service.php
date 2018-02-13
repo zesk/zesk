@@ -5,15 +5,15 @@
  * @author kent
  * @copyright &copy; 2018 Market Acumen, Inc.
  */
-namespace zesk;
-
 /**
  * @author kent
  */
 namespace zesk\DaemonTools;
 
+use zesk\Application;
 use zesk\Exception_Syntax;
 use zesk\Options;
+use zesk\Model;
 
 /**
  * @property $duration integer
@@ -22,13 +22,8 @@ use zesk\Options;
  * @author kent
  *
  */
-class Service extends Options {
+class Service extends Model {
 
-	/**
-	 *
-	 * @var Module
-	 */
-	private $module = null;
 	/**
 	 *
 	 * @var string
@@ -44,11 +39,33 @@ class Service extends Options {
 	 * @param string $name
 	 * @param array $options
 	 */
-	public function __construct(Module $module, $name, array $options = array()) {
-		$this->module = $module;
-		parent::__construct($options);
-		$this->path = $name;
-		$this->name = basename($name);
+	public function __construct(Application $application, $path = null, array $options = array()) {
+		unset($options['path']);
+		unset($options['name']);
+		parent::__construct($application, null, $options);
+		$this->path = $path;
+		$this->name = basename($path);
+	}
+
+	/**
+	 * Getter for options
+	 *
+	 * {@inheritDoc}
+	 * @see \zesk\Model::__get()
+	 */
+	public function __get($name) {
+		return $this->option($name);
+	}
+	/**
+	 *
+	 * {@inheritDoc}
+	 * @see \zesk\Model::variables()
+	 */
+	public function variables() {
+		return array(
+			"name" => $this->name,
+			"path" => $this->path
+		) + $this->option();
 	}
 	/**
 	 *
@@ -56,8 +73,19 @@ class Service extends Options {
 	 * @param array $options
 	 * @return self
 	 */
-	public static function factory(Module $module, $name, array $options = array()) {
-		return new self($module, $name, $options);
+	public static function instance(Application $application, $path = null, array $options = array()) {
+		return new self($application, $path, $options);
+	}
+
+	/**
+	 *
+	 * @param Module $application
+	 * @param string $line
+	 * @return \zesk\DaemonTools\Service
+	 */
+	public static function from_svstat(Application $application, $line) {
+		$options = self::svstat_to_options($line);
+		return self::instance($application, $options['path'], $options);
 	}
 
 	/**
@@ -66,9 +94,8 @@ class Service extends Options {
 	 * @param string $line
 	 * @return \zesk\DaemonTools\Service
 	 */
-	public static function from_svstat(Module $module, $line) {
-		$options = self::svstat_to_options();
-		return self::factory($module, $options['name'], $options);
+	public static function from_variables(Application $application, array $variables) {
+		return self::instance($application, $variables['path'], $variables);
 	}
 
 	/**
