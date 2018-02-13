@@ -292,7 +292,7 @@ class Module extends \zesk\Module {
 	 */
 	public function server_services(Server $object) {
 		$data = $object->data(__CLASS__);
-		if (!can_iterate($result)) {
+		if (!can_iterate($data)) {
 			return null;
 		}
 		$result = array();
