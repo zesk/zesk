@@ -47,7 +47,7 @@ foreach ($servers as $server) {
 		if (count($services) === 0) {
 			$items[] = HTML::tag('li', '.error', "No services");
 		} else {
-			foreach ($services as $key => $service) {
+			foreach ($services as $service) {
 				$items[] = $service->theme("system");
 			}
 		}

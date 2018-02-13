@@ -291,11 +291,12 @@ class Module extends \zesk\Module {
 	 * @return Service[]
 	 */
 	public function server_services(Server $object) {
-		$result = $object->data(__CLASS__);
+		$data = $object->data(__CLASS__);
 		if (!can_iterate($result)) {
 			return null;
 		}
-		foreach ($result as $variables) {
+		$result = array();
+		foreach ($data as $variables) {
 			$result[] = Service::from_variables($this->application, $variables);
 		}
 		return $result;
