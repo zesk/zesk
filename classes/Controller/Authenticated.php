@@ -58,12 +58,6 @@ class Controller_Authenticated extends Controller_Theme {
 	 */
 	protected function initialize() {
 		parent::initialize();
-		if ($this->login_redirect === null) {
-			$this->login_redirect = $this->router ? $this->router->get_route("login", User::class) : null;
-			if (!$this->login_redirect) {
-				$this->login_redirect = '/login';
-			}
-		}
 
 		if ($this->login_redirect_message === null) {
 			$this->login_redirect_message = $this->application->locale->__($this->option('login_redirect_message', 'Please log in first.'));
@@ -71,6 +65,14 @@ class Controller_Authenticated extends Controller_Theme {
 		if ($this->request) {
 			$this->session = $this->application->session($this->request, false);
 			$this->user = $this->session ? $this->session->user() : null;
+		}
+	}
+	function default_login_redirect() {
+		if ($this->login_redirect === null) {
+			$this->login_redirect = $this->router ? $this->router->get_route("login", User::class) : null;
+			if (!$this->login_redirect) {
+				$this->login_redirect = '/login';
+			}
 		}
 	}
 	function check_authenticated() {
@@ -89,6 +91,7 @@ class Controller_Authenticated extends Controller_Theme {
 	 * If not logged in, redirect
 	 */
 	protected function login_redirect() {
+		$this->default_login_redirect();
 		if (!$this->user || !$this->user->authenticated($this->request)) {
 			if ($this->response->is_json()) {
 				$this->json(array(

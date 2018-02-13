@@ -40,7 +40,8 @@ class Module_Daemon extends Module {
 			'system/panel/daemon' => array(
 				"title" => __("Daemons"),
 				"module_class" => __CLASS__,
-				"server_data_key" => __CLASS__ . "::process_database"
+				"server_data_key" => __CLASS__ . "::process_database",
+				"server_updated_key" => __CLASS__ . "::process_database_updated"
 			)
 		);
 	}
@@ -55,6 +56,7 @@ class Module_Daemon extends Module {
 					$database[$process]['alive'] = $application->process->alive($pid);
 				}
 				$server->data(__CLASS__ . "::process_database", $database);
+				$server->data(__CLASS__ . "::process_database_updated", Timestamp::now());
 			}
 		} catch (\Exception $e) {
 		}

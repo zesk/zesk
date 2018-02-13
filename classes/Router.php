@@ -455,6 +455,7 @@ class Router extends Hookable {
 	 * @return string|null
 	 */
 	function get_route($action, $object = null, $options = null) {
+		$original_action = $action;
 		$app = $this->application;
 		if (is_string($options) && begins($options, "?")) {
 			$options = array(
@@ -518,9 +519,10 @@ class Router extends Hookable {
 			$options
 		), null);
 		if (empty($url)) {
-			$app->logger->warning("No reverse route for {classes}->{action}", array(
+			$app->logger->warning("No reverse route for {classes}->{action} {backtrace}", array(
 				"classes" => $try_classes,
-				"action" => $action
+				"action" => $original_action,
+				"backtrace" => _backtrace()
 			));
 			return null;
 		}

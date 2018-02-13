@@ -24,8 +24,14 @@ $servers = $application->orm_registry(Server::class)->query_select()->orm_iterat
 foreach ($servers as $server) {
 	$last_updated = $module->server_services_last_updated($server);
 	if ($last_updated instanceof Timestamp) {
-		$updated = $this->theme("system/panel/daemontools/updated", array(
+		$updated = $this->theme(array(
+			"system/panel/daemontools/updated",
+			"system/panel/updated",
+			"updated"
+		), array(
 			"content" => $last_updated
+		), array(
+			"first" => true
 		));
 	} else {
 		$updated = $locale->__("never updated");

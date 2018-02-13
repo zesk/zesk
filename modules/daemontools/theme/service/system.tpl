@@ -13,7 +13,7 @@ namespace zesk;
 
 $ok = $object->option_bool("ok");
 $class = implode(" ", array(
-	"daemontools-service",
+	"daemontools-service processes",
 	$object->status,
 	$ok ? "ok" : "not-ok"
 ));
@@ -24,21 +24,6 @@ echo HTML::tag("strong", ".name", $object->path);
 echo HTML::etag("span", ".pid", $object->pid);
 echo HTML::span(".status", $object->status);
 
-$duration = $object->duration;
-$use_unit = Timestamp::UNIT_SECOND;
-$prefix = "";
-foreach (Timestamp::$UNITS_TRANSLATION_TABLE as $unit => $seconds) {
-	if ($duration > $seconds * 2) {
-		$use_unit = $unit;
-		$duration = floor($duration / $seconds);
-		$prefix = "~";
-		break;
-	}
-}
-echo HTML::span(".duration", $locale->__("{prefix}{n} {units}", array(
-	"prefix" => $prefix,
-	"n" => $duration,
-	"units" => $locale->plural($locale->__($unit), $duration)
-)));
+echo HTML::span(".duration", $this->theme('duration', $object->duration));
 echo HTML::tag_close("li");
 

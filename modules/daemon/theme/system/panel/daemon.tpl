@@ -15,32 +15,38 @@ namespace zesk;
 /* @var $response \zesk\Response */
 /* @var $current_user \User */
 /* @var $server_data_key string */
-$servers = $application->orm_registry("zesk\\Server")->query_select()->orm_iterator();
+/* @var $server_updated_key string */
+$servers = $application->orm_registry(Server::class)->query_select()->orm_iterator();
 foreach ($servers as $server) {
 	/* @var $server \Server */
 	$data = $server->data($server_data_key);
-	$items[] = HTML::tag("li", '.heading', $server->name);
+	$last_updated = $server->data($server_updated_key);
+	if ($last_updated instanceof Timestamp) {
+		$updated = $this->theme(array(
+			"system/panel/daemon/updated",
+			"system/panel/updated",
+			"updated"
+		), array(
+			"content" => $last_updated
+		), array(
+			"first" => true
+		));
+	} else {
+		$updated = $locale->__("never updated");
+	}
+	$items[] = HTML::tag("li", '.heading', $locale->__("{name} ({updated})", array(
+		"name" => $server->name,
+		"updated" => $updated
+	)));
 	if (!$data) {
 		$items[] = HTML::tag('li', '.error', "No process data");
 	} else {
 		$now = microtime(true);
 		foreach ($data as $process => $settings) {
-			$nunits = intval($now - $settings['time']);
-			$units = $locale->plural($locale("second"), $nunits);
-			$class = $settings['alive'] ? "" : '.error';
-			if ($process === "me") {
-				$process = $locale('Master Daemon Process');
-			} else {
-				$process = preg_replace_callback('#\^([0-9]+)#', function ($match) {
-					return " (#" . (intval($match[1]) + 1) . ")";
-				}, $process);
-			}
-			$items[] = HTML::tag('li', $class, StringTools::wrap($locale("[{process}] {status} for {nunits} {units}", array(
-				"process" => $process,
-				"status" => $settings['status'],
-				"nunits" => $nunits,
-				"units" => $units
-			)), HTML::tag("strong", "[]")));
+			$items[] = $this->theme("system/panel/daemon/line", array(
+				"content" => $settings,
+				"process" => $process
+			));
 		}
 	}
 }
