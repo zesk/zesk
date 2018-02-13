@@ -168,12 +168,12 @@ class Module extends \zesk\Module {
 			file_put_contents($compare, "");
 		}
 		try {
-			if ($command->file_update_helper($target, $compare, "crontab")) {
+			$result = $command->file_update_helper($target, $compare, "crontab");
+			if ($result === true) {
 				$command->exec("crontab {target}", array(
 					"target" => $target
 				));
 			}
-			$result = true;
 		} catch (\Exception $e) {
 			$command->error("Installing crontab failed {code} {message}", Exception::exception_variables($e));
 			$result = false;
