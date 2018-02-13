@@ -151,26 +151,35 @@ class Module extends \zesk\Module {
 			return false;
 		}
 		$temp_path = $this->application->paths->temporary();
-		$temp = null;
+		$mapped_target = null;
 		$target = $file;
 		if ($map) {
-			$temp = File::temporary($temp_path);
-			file_put_contents($temp, $command->map(file_get_contents($file)));
-			$target = $temp;
+			$mapped_target = File::temporary($temp_path);
+			file_put_contents($mapped_target, $command->map(file_get_contents($file)));
+			$target = $mapped_target;
 		}
 		$compare = File::temporary($temp_path);
 		try {
 			$command->exec("crontab -l > $compare");
+		} catch (\Exception $e) {
+			file_put_contents($compare, "");
+		}
+		try {
 			if ($command->file_update_helper($target, $compare, "crontab")) {
 				$command->exec("crontab < {target}", array(
 					"target" => $target
 				));
 			}
-			return true;
+			$result = true;
 		} catch (\Exception $e) {
-			$this->error("Installing crontab failed {code} {message}", Exception::exception_variables($e));
-			return false;
+			$command->error("Installing crontab failed {code} {message}", Exception::exception_variables($e));
+			$result = false;
 		}
+		if ($mapped_target) {
+			File::unlink($mapped_target);
+		}
+		File::unlink($compare);
+		return $result;
 	}
 	/**
 	 * Run this before each hook
