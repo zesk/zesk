@@ -461,7 +461,9 @@ class Command_Configure extends Command_Base {
 			$this->error("Command failed ... aborting.");
 			return false;
 		} else {
-			$this->verbose_log("Command {command} was successful.", $__);
+			$this->verbose_log("Command {command} was successful (changed={changed})", $__ + array(
+				"changed" => $this->changed ? "true" : "false"
+			));
 		}
 
 		return true;
