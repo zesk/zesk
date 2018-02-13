@@ -748,10 +748,12 @@ class Command_Configure extends Command_Base {
 		array_shift($args);
 		array_shift($args);
 		$flags = $this->parse_file_flags($args);
-		$this->verbose_log("{method} flags is {args}", array(
-			"method" => __METHOD__,
-			"args" => $flags
-		));
+		if (count($flags) > 0) {
+			$this->verbose_log("{method} flags are: {flags}", array(
+				"method" => __METHOD__,
+				"flags" => $flags
+			));
+		}
 		$want_owner = avalue($flags, "owner", null);
 		$want_mode = avalue($flags, "mode", null);
 		$map = avalue($flags, "map");
