@@ -152,6 +152,6 @@ class Service extends Model {
 			"up" => "{path}: {status} (pid {pid}) {duration} seconds",
 			"down" => "{path}: {status} {duration} seconds, normally up"
 		), $this->status, "{path}: {status}");
-		return map($pattern, $this->options);
+		return map($pattern, $this->variables());
 	}
 }
