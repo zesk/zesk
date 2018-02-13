@@ -162,6 +162,7 @@ class Process {
 		foreach ($args as $i => $arg) {
 			$args[$i] = escapeshellarg($arg);
 		}
+		$args["*"] = implode(" ", $args);
 		$raw_command = map($command, $args);
 		$result = 0;
 		$output = array();
