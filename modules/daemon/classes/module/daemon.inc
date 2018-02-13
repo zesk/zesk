@@ -45,7 +45,7 @@ class Module_Daemon extends Module {
 			)
 		);
 	}
-	protected function hook_cron_minute() {
+	protected function hook_cron() {
 		$application = $this->application;
 		try {
 			$server = Server::singleton($application);
