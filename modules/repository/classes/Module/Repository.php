@@ -76,14 +76,14 @@ class Module_Repository extends Module {
 	}
 
 	/**
-	 * Determine whether a directory can be treated as a repository.
-	 *
-	 * @param string $directory
-	 * @return Repository[]
+	 * Singleton function
+	 * @param unknown $directory
+	 * @return \zesk\Repository[]
 	 */
-	public function determine_repository($directory) {
+	protected function _determine_repositories($directory) {
 		$repos = array();
-		foreach ($this->singleton()->repository_classes as $class => $aliases) {
+		foreach ($this->repository_classes as $class => $aliases) {
+			echo "$class\n";
 			/* @var $repo Repository */
 			$repo = $this->application->factory($class, $this->application, $directory);
 			if ($repo->validate()) {
@@ -91,6 +91,15 @@ class Module_Repository extends Module {
 			}
 		}
 		return $repos;
+	}
+	/**
+	 * Determine whether a directory can be treated as a repository.
+	 *
+	 * @param string $directory
+	 * @return Repository[]
+	 */
+	public function determine_repository($directory) {
+		return $this->singleton()->_determine_repositories();
 	}
 
 	/**
