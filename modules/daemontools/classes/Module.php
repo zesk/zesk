@@ -90,13 +90,13 @@ class Module extends \zesk\Module {
 			$source_file = path($source, $f);
 			$target_file = path($target, $f);
 			if (is_file($source_file)) {
-				$result = $command->command_mkdir(dirname($target_file), "root:root", 0700);
+				$result = $command->command_mkdir(dirname($target_file), "root:root", "0755");
 				if ($result === false) {
 					return false;
 				} else if ($result === true) {
 					$changed = true;
 				}
-				$result = $command->command_file($source_file, $target_file, "root:root", "0700");
+				$result = $command->command_file($source_file, $target_file, "root:root", "0744");
 				if ($result === false) {
 					return false;
 				} else if ($result === true) {

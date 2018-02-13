@@ -485,9 +485,12 @@ class Command_Configure extends Command_Base {
 	 * @param string|number $want_mode Decimal value or octal string
 	 * @return boolean|null Returns true if changes made successfully, false if failed, or null if no changes required
 	 */
-	public function command_mkdir($target, $owner = null, $mode = null) {
+	public function command_mkdir($target, $flags) {
 		$changed = null;
 		$target = $this->application->paths->expand($target);
+		$flags = func_get_args();
+		array_shift($flags);
+		$flags = $this->parse_file_flags($flags);
 		$__['target'] = $target;
 		if (!is_dir($target)) {
 			if (!$this->prompt_yes_no(__("Create directory {target}?", $__))) {
@@ -499,7 +502,7 @@ class Command_Configure extends Command_Base {
 			}
 			$changed = true;
 		}
-		$result = $this->handle_owner_mode($target, $owner, $mode);
+		$result = $this->handle_owner_mode($target, avalue($flags, 'owner'), avalue($flags, 'mode'));
 		if (is_bool($result)) {
 			return $result;
 		}
