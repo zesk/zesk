@@ -532,7 +532,6 @@ class Command_Configure extends Command_Base {
 		$__ = array(
 			"command" => $command
 		);
-		$args = func_get_args();
 		if (!$this->changed) {
 			$this->verbose_log("Skipping command {command} as no changes detected", $__);
 			return null;
@@ -549,7 +548,7 @@ class Command_Configure extends Command_Base {
 			$this->exec($command);
 			$this->verbose_log("Successfully ran {command}", $__);
 			return true;
-		} catch (Exception_Command $e) {
+		} catch (\Exception $e) {
 			$this->error("Command {command} failed with exit code {code}", $__ + $e->variables());
 			return false;
 		}
