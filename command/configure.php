@@ -951,7 +951,7 @@ class Command_Configure extends Command_Base {
 		if ($changed) {
 			$temp_file = File::temporary($this->application->paths->temporary(), "temp");
 			file_put_contents($temp_file, $content);
-			$result = $this->_file_update_helper($temp_file, $destination, "computed");
+			$result = $this->file_update_helper($temp_file, $destination, "computed");
 			File::unlink($temp_file);
 			switch ($result) {
 				case "source":
@@ -1136,8 +1136,8 @@ class Command_Configure extends Command_Base {
 	 * @param string|NULL $source_name Optional "real" source name
 	 * @param string|NULL $destination_name Optional "real" destination name
 	 */
-	private function _file_update_helper($source, $destination, $source_name = null, $destination_name = null) {
-		list($source_name, $destination_name) = $this->_show_differences($source, $destination, $source_name, $destination_name);
+	public function file_update_helper($source, $destination, $destination_name = null) {
+		list($source_name, $destination_name) = $this->_show_differences($source, $destination, null, $destination_name);
 		return $this->prompt_yes_no(__("Update destination {destination}?", array(
 			"destination" => $destination_name
 		)));

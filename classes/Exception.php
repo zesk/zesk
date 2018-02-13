@@ -19,7 +19,7 @@ class Exception extends \Exception {
 	 * @var string
 	 */
 	public $raw_message = '';
-	
+
 	/**
 	 * Arguments for message.
 	 * Uses map()
@@ -28,7 +28,7 @@ class Exception extends \Exception {
 	 * @var array
 	 */
 	public $arguments = array();
-	
+
 	/**
 	 * Construct a new exception
 	 *
@@ -58,7 +58,7 @@ class Exception extends \Exception {
 			parent::__construct($map_message, intval($code), $previous);
 		}
 	}
-	
+
 	/**
 	 * Retrieve variables for a Template
 	 *
@@ -67,18 +67,19 @@ class Exception extends \Exception {
 	function variables() {
 		return array(
 			'exception_class' => get_class($this),
+			'class' => get_class($this),
 			'code' => $this->getCode(),
+			'message' => $this->getMessage(),
 			'file' => $this->getFile(),
 			'line' => $this->getLine(),
-			'message' => $this->getMessage(),
+			'trace' => $this->getTrace(),
+			'backtrace' => $this->getTraceAsString(),
 			'raw_message' => $this->raw_message,
 			'arguments' => $this->arguments,
-			'previous' => $this->getPrevious(),
-			'trace' => $this->getTrace(),
-			'trace_dump' => $this->getTraceAsString()
+			'previous' => $this->getPrevious()
 		) + $this->arguments;
 	}
-	
+
 	/**
 	 * Used by zesk\Logger::log
 	 *
@@ -88,7 +89,7 @@ class Exception extends \Exception {
 	public function log_variables() {
 		return $this->variables();
 	}
-	
+
 	/**
 	 * Used by zesk\Logger::log
 	 *
@@ -98,19 +99,21 @@ class Exception extends \Exception {
 	public function log_message() {
 		return $this->getMessage();
 	}
-	
+
 	/**
 	 * @todo is this used?
 	 * @param \Exception $e
 	 * @return array
 	 */
 	public static function exception_variables(\Exception $e) {
-		return array(
+		return $e instanceof self ? $e->variables() : array(
+			'exception_class' => get_class($e),
 			"class" => get_class($e),
 			"code" => $e->getCode(),
 			"message" => $e->getMessage(),
 			"file" => $e->getFile(),
 			"line" => $e->getLine(),
+			"trace" => $e->getTrace(),
 			"backtrace" => $e->getTraceAsString()
 		);
 	}

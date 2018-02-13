@@ -29,6 +29,8 @@ use zesk\Exception_Parameter;
 use zesk\Settings;
 use zesk\Server;
 use zesk\PHP;
+use zesk\Command_Configure;
+use zesk\File;
 
 /**
  *
@@ -96,7 +98,62 @@ class Module extends \zesk\Module {
 		"month",
 		"year"
 	);
+	public function initialize() {
+		parent::initialize();
+		$this->application->hooks->add(Command_Configure::class . "::command_crontab", array(
+			$this,
+			"command_crontab"
+		));
+	}
+	private function command_crontab_help($command_name) {
+		return array(
+			"example" => "crontab file [flags]",
+			"arguments" => array(
+				"file" => "File to install as crontab",
+				"map" => "list of flags for file, currently suports \"map\" flag"
+			),
+			"description" => "Install crontab for current user"
+		);
+	}
+	public function command_crontab(Command_Configure $command, array $arguments, $command_name) {
+		$file = array_shift($arguments);
+		if ($file === "--help") {
+			return $this->command_crontab_help($command_name);
+		}
+		$file = $this->application->paths->expand($file);
+		$flags = func_get_args();
+		array_shift($flags);
+		$flags = $command->parse_file_flags($flags);
+		$map = to_bool(avalue($flags, "map"));
 
+		if (!file_exists($file)) {
+			$command->error("crontab file not found {file}", array(
+				"file" => $file
+			));
+			return false;
+		}
+		$temp_path = $this->application->paths->temporary();
+		$temp = null;
+		$target = $file;
+		if ($map) {
+			$temp = File::temporary($temp_path);
+			file_put_contents($temp, $command->map(file_get_contents($file)));
+			$target = $temp;
+		}
+		$compare = File::temporary($temp_path);
+		try {
+			$command->exec("crontab -l > $compare");
+			if ($command->file_update_helper($target, $compare, "crontab")) {
+				$command->exec("crontab < {target}", array(
+					"target" => $target
+				));
+			}
+			return true;
+		} catch (\Exception $e) {
+			$this->error("Installing crontab failed {code} {message}", Exception::exception_variables($e));
+			return false;
+		}
+	}
 	/**
 	 * Run this before each hook
 	 *
