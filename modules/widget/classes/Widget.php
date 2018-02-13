@@ -1998,6 +1998,12 @@ class Widget extends Hookable {
 	 * @return void
 	 */
 	protected function initialize() {
+		$response = $this->response();
+		if (!$response) {
+			throw new Exception_Semantics("Widget {class} must be set up with a response prior to initialization", array(
+				"class" => get_class($this)
+			));
+		}
 		if (!$this->has_option('column', true)) {
 			$class = get_class($this);
 			$column = strtolower(strtr($class, "_", "-")) . '-' . $this->response()->id_counter();
