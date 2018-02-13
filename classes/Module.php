@@ -72,8 +72,8 @@ class Module extends Hookable {
 	 *
 	 * @return string
 	 */
-	final public function path() {
-		return $this->path;
+	final public function path($suffix = null) {
+		return $suffix ? path($this->path, $suffix) : $this->path;
 	}
 
 	/**
