@@ -696,72 +696,16 @@ class StringTools {
 	}
 
 	/**
-	 * Wrapping mapping function (_W)
+	 * Moved to HTML::wrap 2018-02. Leave here for now.
 	 *
-	 * Mapping function which understands tags better. To apply styles or links certain elements within
-	 * a i18n phrase, use brackets
-	 * to delineate tags to add to the phrase, as follows:
-	 *
-	 * <pre>StringTools::wrap(__('This is [0:bold text] and this is [1:italic].'), '<strong>[]</strong>',
-	 * '<em>[italic]</em>') =
-	 * "This is <strong>bold text</strong> and this is <em>italic</em>."</pre>
-	 *
-	 * Supplying <strong>no</strong> positional information will replace values in order, e.g.
-	 *
-	 * <pre>StringTools::wrap(__('This is [bold text] and this is [italic].'), '<strong>[]</strong>',
-	 * '<em>[italic]</em>') =
-	 * "This is <strong>bold text</strong> and this is <em>italic</em>."</pre>
-	 *
-	 * Positional indicators are delimited with a number and a colon after the opening bracket. It also
-	 * handles nested brackets, however,
-	 * the inner brackets is indexed before the outer brackets, e.g.
-	 *
-	 * <pre>StringTools::wrap('[[a][b]]','<strong>[]</strong>','<em>[]</em>','<div>[]</div>') =
-	 * "<div><strong>a</strong><em>b</em></div>";
-	 *
+	 * @see HTML::wrap
 	 * @param string $phrase
-	 *        	Phrase to map
-	 * @return string The phrase with the links embedded.
+	 * @return string
 	 */
 	public static function wrap($phrase) {
-		$args = func_get_args();
-		array_shift($args);
-		if (count($args) === 1 && is_array($args[0])) {
-			$args = $args[0];
-		}
-		$skip_s = array();
-		$skip_r = array();
-		$match = false;
-		$global_match_index = 0;
-		while (preg_match('/\[([0-9]+:)?([^\[\]]*)\]/', $phrase, $match, PREG_OFFSET_CAPTURE)) {
-			$match_len = strlen($match[0][0]);
-			$match_off = $match[0][1];
-			$match_string = $match[2][0];
-			$index = null;
-			if ($match[1][1] < 0) {
-				$index = $global_match_index;
-			} else {
-				$index = intval($match[1][0]);
-			}
-			$global_match_index++;
-			$replace_value = avalue($args, $index, '[]');
-			list($left, $right) = explode('[]', $replace_value, 2) + array(
-				null,
-				""
-			);
-			if ($left === null) {
-				$replace_value = '(*' . count($skip_s) . '*)';
-				$skip_s[] = $replace_value;
-				$skip_r[] = $match[0][0];
-			} else {
-				$replace_value = $left . $match_string . $right;
-			}
-			$phrase = substr($phrase, 0, $match_off) . $replace_value . substr($phrase, $match_off + $match_len);
-		}
-
-		if (count($skip_s) === 0) {
-			return $phrase;
-		}
-		return str_replace($skip_s, $skip_r, $phrase);
+		return call_user_func_array(array(
+			HTML::class,
+			"wrap"
+		), func_get_args());
 	}
 }
