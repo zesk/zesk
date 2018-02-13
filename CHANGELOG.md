@@ -17,6 +17,17 @@ Version 1.0 of Zesk will have:
 - Support for `Monolog` within Zesk core - **needs to be tested**
 - All modules use **namespaces** - **in progress**
 
+## [Unreleased][]
+
+## [v0.16.4][]
+
+- `zesk\Widget::initialize` now throws an `Exception_Semantics` if called without a `zesk\Response` set up in the widget for 
+- `zesk\Command_Configure` enhanced ability to compare and skip identical files
+- `daemon` layout panel was added
+- `daemon` system status was added
+- ensure one newline at EOF for `zesk configure` file command `crontab` to avoid re-updates
+- `zesk\Cron\Module` runs every cron, not every minute
+
 ## [v0.16.3][]
 
 ## Release v0.16.3
@@ -1372,7 +1383,9 @@ Settling of `zesk\Kernel` and `zesk\` namespace changes, added additional compon
  - `zesk::class_hierarchy` -> `zesk()->classes->hierarchy`
 - Removed growl module (no longer relevant on Mac OS X)
 
-[v0.16.3]: https://github.com/zesk/zesk/compare/v0.16.3...HEAD
+[Unreleased]: https://github.com/zesk/zesk/compare/HEAD...HEAD
+[v0.16.4]: https://github.com/zesk/zesk/compare/v0.16.4...HEAD
+[v0.16.3]: https://github.com/zesk/zesk/compare/v0.16.3...v0.16.4
 [v0.16.2]: https://github.com/zesk/zesk/compare/v0.16.2...v0.16.3
 [v0.16.1]: https://github.com/zesk/zesk/compare/v0.16.1...v0.16.2
 [v0.16.0]: https://github.com/zesk/zesk/compare/v0.16.0...v0.16.1
