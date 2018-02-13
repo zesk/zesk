@@ -747,11 +747,11 @@ class Command_Configure extends Command_Base {
 		$args = func_get_args();
 		array_shift($args);
 		array_shift($args);
-		$this->verbose_log("{method} args is {args}", array(
-			"method" => __METHOD__,
-			"args" => $args
-		));
 		$flags = $this->parse_file_flags($args);
+		$this->verbose_log("{method} flags is {args}", array(
+			"method" => __METHOD__,
+			"args" => $flags
+		));
 		$want_owner = avalue($flags, "owner", null);
 		$want_mode = avalue($flags, "mode", null);
 		$map = avalue($flags, "map");
