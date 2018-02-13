@@ -83,7 +83,6 @@ class Module_Repository extends Module {
 	protected function _determine_repositories($directory) {
 		$repos = array();
 		foreach ($this->repository_classes as $class => $aliases) {
-			echo "$class\n";
 			/* @var $repo Repository */
 			$repo = $this->application->factory($class, $this->application, $directory);
 			if ($repo->validate()) {
