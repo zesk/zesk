@@ -227,6 +227,9 @@ class Module extends \zesk\Module {
 		if (count($unreadable_names)) {
 			foreach ($unreadable_names as $service) {
 				$stat_helper = path($service, ".svstat");
+				$this->application->logger->debug("Loading {path}", array(
+					"path" => $stat_helper
+				));
 				if (is_readable($stat_helper)) {
 					$services[] = Service::from_svstat($this->application, file_get_contents($stat_helper))->set_option("mtime", filemtime($stat_helper));
 				}
