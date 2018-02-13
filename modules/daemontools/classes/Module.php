@@ -210,8 +210,27 @@ class Module extends \zesk\Module {
 	 */
 	public function services() {
 		$names = $this->list_service_names();
-		foreach ($this->application->process->execute_arguments("svstat {*}", $names) as $line) {
-			$services[] = Service::from_svstat($this->application, $line);
+		$svstat_names = $unreadable_names = array();
+		foreach ($names as $name) {
+			if (is_readable($name . "/supervise/status")) {
+				$svstat_names[] = $name;
+			} else {
+				$unreadable_names[] = $name;
+			}
+		}
+		$services = array();
+		if (count($svstat_names)) {
+			foreach ($this->application->process->execute_arguments("svstat {*}", $svstat_names) as $line) {
+				$services[] = Service::from_svstat($this->application, $line);
+			}
+		}
+		if (count($unreadable_names)) {
+			foreach ($unreadable_names as $service) {
+				$stat_helper = path($service, ".svstat");
+				if (is_readable($stat_helper)) {
+					$services[] = Service::from_svstat($this->application, file_get_contents($stat_helper))->set_option("mtime", filemtime($stat_helper));
+				}
+			}
 		}
 		return $services;
 	}
