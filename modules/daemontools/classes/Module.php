@@ -242,7 +242,7 @@ class Module extends \zesk\Module {
 	/**
 	 * Save data for dashboard
 	 */
-	public function hook_cron_minute() {
+	public function hook_cron() {
 		$this->save_services_snapshot(Server::singleton($this->application), $this->services());
 	}
 
