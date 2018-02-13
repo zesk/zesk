@@ -157,6 +157,9 @@ class Module extends \zesk\Module {
 			$mapped_target = File::temporary($temp_path);
 			file_put_contents($mapped_target, $command->map(file_get_contents($file)));
 			$target = $mapped_target;
+			$this->verbose_log("Mapping crontab file to {mapped_target}", array(
+				"mapped_target" => $mapped_target
+			));
 		}
 		$compare = File::temporary($temp_path);
 		try {
