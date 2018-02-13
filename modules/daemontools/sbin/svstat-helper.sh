@@ -10,14 +10,16 @@ whoops() {
 	echo $* 1>&2
 	exit 1
 }
-
-SVSTAT=$(which svstat)
-if [ -z "$SVSTAT" ]; then
-	whoops svstat is not installed
-fi
+NEED_BIN="svstat find xargs"
+for b in $NEED_BIN; do
+	wh=$(which $b)
+	if [ -z "$wh" ]; then
+		whoops $b is not installed
+	fi
+done
 service_home=/etc
 if [ ! -d "$service_home" ]; then
-	whoops service home ($service_home) is not a directory
+	whoops service home \($service_home\) is not a directory
 fi
 for d in $(find $service_home -name supervise -type d | xargs -n 1 dirname); do 
 	svstat $d > $d/.svstat; 
