@@ -255,7 +255,7 @@ class Module extends \zesk\Module {
 	public function save_services_snapshot(Server $server, array $services) {
 		$snapshot = array();
 		foreach ($services as $service) {
-			$snapshot[$service->name] = $service->variables();
+			$snapshot[] = $service->variables();
 		}
 		$server->data(__CLASS__, $snapshot);
 		$server->data(__CLASS__ . "::last_updated", Timestamp::now());
@@ -295,8 +295,8 @@ class Module extends \zesk\Module {
 		if (!can_iterate($result)) {
 			return null;
 		}
-		foreach ($result as $key => $variables) {
-			$result[$key] = Service::from_variables($this->application, $variables);
+		foreach ($result as $variables) {
+			$result[] = Service::from_variables($this->application, $variables);
 		}
 		return $result;
 	}
