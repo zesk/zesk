@@ -17,9 +17,22 @@ Version 1.0 of Zesk will have:
 - Support for `Monolog` within Zesk core - **needs to be tested**
 - All modules use **namespaces** - **in progress**
 
+## [v0.16.3][]
+
+## Release v0.16.3
+
+- `DaemonTools` system status support
+- Moved `zesk\StringTools::wrap` to `zesk\HTML::wrap`
+- `$module->path()` now supports `$suffix` parameter
+- adding `crontab` command to `zesk configure` in `cron` module
+- `configure` work
+- Fixing issue with `zesk\Repository` generation
+- Fixing `svstat helper` in `DaemonTools` module
+- `zesk\Cron\Module` actually requires `ORM`
+
 ## [v0.16.2][]
 
-## Release {version}
+## Release v0.16.2
 
 - Added `zesk\Paths::expand($file)` which allows for shortcuts for relative paths `["./foo", "~/foo"]` are special Added `zesk\Paths::expand` functionality to application `::include_files()` (NOT to `include_paths`, which is deprecated!) Added `zesk\Paths::expand` functionality to configure core commands. Must be added to individual command implementations. ReactJS better error handling for content types Added `zesk latest` to perform latest updates for `zesk` bleeding edge
 - Adding command `zesk latest` to automatically update zesk to the latest GitHub. For zesk core development only, or if you need bleeding-edge features and lots of volatility. Refactored Help module to use PSR4 paths
@@ -1359,7 +1372,10 @@ Settling of `zesk\Kernel` and `zesk\` namespace changes, added additional compon
  - `zesk::class_hierarchy` -> `zesk()->classes->hierarchy`
 - Removed growl module (no longer relevant on Mac OS X)
 
-[v0.15.7]: https://github.com/zesk/zesk/compare/v0.16.0...HEAD
+[v0.16.3]: https://github.com/zesk/zesk/compare/v0.16.3...HEAD
+[v0.16.2]: https://github.com/zesk/zesk/compare/v0.16.2...v0.16.3
+[v0.16.1]: https://github.com/zesk/zesk/compare/v0.16.1...v0.16.2
+[v0.16.0]: https://github.com/zesk/zesk/compare/v0.16.0...v0.16.1
 [v0.15.7]: https://github.com/zesk/zesk/compare/v0.15.7...v0.16.0
 [v0.15.6]: https://github.com/zesk/zesk/compare/v0.15.6...v0.15.7
 [v0.15.5]: https://github.com/zesk/zesk/compare/v0.15.5...v0.15.6
