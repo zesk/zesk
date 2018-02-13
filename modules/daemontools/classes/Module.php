@@ -211,7 +211,7 @@ class Module extends \zesk\Module {
 	public function services() {
 		$names = $this->list_service_names();
 		foreach ($this->application->process->execute_arguments("svstat {*}", $names) as $line) {
-			$services[] = Service::from_svstat($this, $line);
+			$services[] = Service::from_svstat($this->application, $line);
 		}
 		return $services;
 	}
