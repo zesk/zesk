@@ -783,13 +783,9 @@ class Command_Configure extends Command_Base {
 			}
 			return $this->handle_owner_mode($destination, $want_owner, $want_mode);
 		}
-		try {
-			$this->application->process->execute("diff -w {0} {1}", $source, $destination);
-			return $this->handle_owner_mode($destination, $want_owner, $want_mode);
-		} catch (Exception_Command $e) {
-			// Not the same
-		}
-		switch ($this->_files_differ_helper($source, $destination, $old_source)) {
+		switch ($this->files_differ_helper($source, $destination, $old_source)) {
+			case "=":
+				return $this->handle_owner_mode($destination, $want_owner, $want_mode);
 			case "source":
 				$result = self::copy_file_inherit($source, $destination);
 				if ($old_source) {
@@ -885,7 +881,11 @@ class Command_Configure extends Command_Base {
 		}
 		$temp_file = File::temporary($this->application->paths->temporary(), "temp");
 		file_put_contents($temp_file, $content);
-		switch ($this->_files_differ_helper($temp_file, $destination, $source)) {
+		$result = $this->files_differ_helper($temp_file, $destination, $source);
+		File::unlink($temp_file);
+		switch ($result) {
+			case "=":
+				return null;
 			case "source":
 				return self::file_put_contents_inherit($destination, $content);
 			case "destination":
@@ -1128,6 +1128,15 @@ class Command_Configure extends Command_Base {
 			$destination_name
 		);
 	}
+	public function files_are_identical($source, $destination) {
+		try {
+			$this->application->process->execute("diff -w {0} {1}", $source, $destination);
+			return true;
+		} catch (Exception_Command $e) {
+			// Not the same
+		}
+		return false;
+	}
 	/**
 	 * Prompt to update a file (overwrite only)
 	 *
@@ -1135,8 +1144,12 @@ class Command_Configure extends Command_Base {
 	 * @param string $destination
 	 * @param string|NULL $source_name Optional "real" source name
 	 * @param string|NULL $destination_name Optional "real" destination name
+	 * @return null|boolean null means files are the same, boolean means yes/no update it
 	 */
 	public function file_update_helper($source, $destination, $destination_name = null) {
+		if ($this->files_are_identical($source, $destination)) {
+			return null;
+		}
 		list($source_name, $destination_name) = $this->_show_differences($source, $destination, null, $destination_name);
 		return $this->prompt_yes_no(__("Update destination {destination}?", array(
 			"destination" => $destination_name
@@ -1151,7 +1164,10 @@ class Command_Configure extends Command_Base {
 	 * @param string|NULL $source_name Optional "real" source name
 	 * @param string|NULL $destination_name Optional "real" destination name
 	 */
-	private function _files_differ_helper($source, $destination, $source_name = null, $destination_name = null) {
+	private function files_differ_helper($source, $destination, $source_name = null, $destination_name = null) {
+		if ($this->files_are_identical($source, $destination)) {
+			return "=";
+		}
 		list($source_name, $destination_name) = $this->_show_differences($source, $destination, $source_name, $destination_name);
 		$this->completions = array(
 			"source",
