@@ -166,7 +166,7 @@ class Module extends \zesk\Module {
 		}
 		try {
 			if ($command->file_update_helper($target, $compare, "crontab")) {
-				$command->exec("crontab < {target}", array(
+				$command->exec("crontab {target}", array(
 					"target" => $target
 				));
 			}
