@@ -35,12 +35,12 @@ class View_Errors extends View {
 	 * @param array $errors
 	 * @return mixed|NULL|string
 	 */
-	public static function html(Application $application, array $errors) {
+	public static function html(Application $application, Response $response, array $errors) {
 		$model = new Model($application);
 		$model->errors = $errors;
 		return $application->widget_factory(__CLASS__, array(
 			'column' => 'errors'
-		))->execute($model);
+		))->response($response)->execute($model);
 	}
 }
 

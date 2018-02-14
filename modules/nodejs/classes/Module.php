@@ -1,7 +1,7 @@
 <?php
 
 /**
- * 
+ *
  */
 namespace zesk\NodeJS;
 
@@ -14,7 +14,7 @@ use zesk\Directory;
 /**
  *
  * @author kent
- *        
+ *
  */
 class Module extends \zesk\Module {
 	public function hook_build(Command $command) {
@@ -35,9 +35,12 @@ class Module extends \zesk\Module {
 		}
 		$result = array();
 		foreach (to_list($this->application->modules->load()) as $name => $module) {
-			$path = path($module['path'], "node_modules");
-			if (is_dir($path)) {
-				$result += $this->gather_node_modules_paths($path);
+			$path = avalue($module, 'path');
+			if ($path) {
+				$path = path($module['path'], "node_modules");
+				if (is_dir($path)) {
+					$result += $this->gather_node_modules_paths($path);
+				}
 			}
 			$node_modules_map = apath($module, "configuration.node_modules", array());
 			if (is_array($node_modules_map) && count($node_modules_map) > 0 && ArrayTools::is_assoc($node_modules_map)) {
@@ -84,8 +87,11 @@ class Module extends \zesk\Module {
 	private function convert_application_path(Handler $handler, array $items, $context = null) {
 		$app_path = $this->application->path();
 		$map = array(
+			"{application_home}" => $app_path,
+			"{zesk_home}" => $this->application->zesk_home(),
+			/* @deprecated 2018-02 */
 			"{application_root}" => $app_path,
-			"{zesk_root}" => $this->application->zesk_root()
+			"{zesk_root}" => $this->application->zesk_home()
 		);
 		if ($context === null) {
 			$context = calling_function();

@@ -1893,7 +1893,7 @@ class ORM extends Model {
 				"id" => false
 			));
 		} catch (Database_Exception_Duplicate $e) {
-			$this->call_hook('insert-failed', $e);
+			$this->call_hook('insert_failed', $e);
 			throw new Exception_ORM_Duplicate(get_class($this), $e->getMessage());
 		}
 		if (!$result) {

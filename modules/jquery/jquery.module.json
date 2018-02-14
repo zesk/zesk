@@ -7,7 +7,7 @@
 		"file": "vendor/components/jquery/package.json",
 		"key": "version"
 	},
-	"node_modules": {
+	"IGNORE_node_modules": {
 		"jquery": "vendor/components/jquery"
 	},
 	"share_path": "vendor/components/jquery",
