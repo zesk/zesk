@@ -3,52 +3,57 @@ namespace zesk;
 
 class Classes {
 	/**
-	 * 
+	 *
 	 * @var integer
 	 */
 	const VERSION = 5;
-	
+
 	/**
 	 * Version number of serialized file
-	 * 
+	 *
 	 * @var integer
 	 */
 	protected $version = self::VERSION;
-	
+
 	/**
 	 * Lowercase class name -> capitalized class name
 	 *
 	 * @var array
 	 */
 	protected $class_case = array();
-	
+
 	/**
 	 * Registry of class names
 	 *
 	 * @var array
 	 */
 	protected $classes = array();
-	
+
 	/**
 	 * @var array
 	 */
 	protected $subclasses = array();
-	
+
 	/**
-	 * @var arrayls
+	 * @var array
 	 */
 	protected $hierarchy = array();
-	
+
 	/**
-	 * 
+	 * @var boolean
+	 */
+	protected $dirty = false;
+
+	/**
+	 *
 	 */
 	public function __construct(Kernel $zesk) {
 		$this->initialize($zesk);
 	}
-	
+
 	/**
 	 * Register hooks
-	 * 
+	 *
 	 * @param Kernel $zesk
 	 */
 	public function initialize(Kernel $zesk) {
@@ -57,7 +62,7 @@ class Classes {
 			"on_exit"
 		));
 	}
-	
+
 	/**
 	 * @param Kernel $zesk
 	 * @return \zesk\Classes
@@ -76,9 +81,9 @@ class Classes {
 		}
 		return $classes;
 	}
-	
+
 	/**
-	 * 
+	 *
 	 */
 	public function on_exit() {
 		if ($this->dirty) {
@@ -87,7 +92,7 @@ class Classes {
 		}
 	}
 	/**
-	 * 
+	 *
 	 * @param string $class
 	 */
 	private function _add($class) {
@@ -103,11 +108,11 @@ class Classes {
 			$class = $parent_class;
 		}
 	}
-	
+
 	/**
 	 * Register a global hook by class
-	 * 
-	 * @return 
+	 *
+	 * @return
 	 */
 	public function register($class = null) {
 		if (is_array($class)) {
@@ -131,10 +136,10 @@ class Classes {
 		}
 		return $this->subclasses[$class];
 	}
-	
+
 	/**
 	 * Return all known subclasses of a class including grandchildren and great-grandchildren, etc.
-	 * 
+	 *
 	 * @param string $class
 	 * @return string[]
 	 */
@@ -156,7 +161,7 @@ class Classes {
 		}
 		return $result;
 	}
-	
+
 	/**
 	 * Retrieve a class hierarchy from leaf to base
 	 *
