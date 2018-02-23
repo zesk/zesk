@@ -22,12 +22,25 @@ use zesk\Hookable;
 /**
  * A regular expression pattern for matching email addresses anywhere (should delimit both ends in
  * your own expression).
+ *
+ * @see https://stackoverflow.com/questions/2049502/what-characters-are-allowed-in-an-email-address#2049510
+ * @see https://stackoverflow.com/questions/201323/using-a-regular-expression-to-validate-an-email-address
+ *
+ * User contains:
+ *
+ * - uppercase and lowercase Latin letters A to Z and a to z;
+ * - digits 0 to 9;
+ * - special characters !#$%&'*+-/=?^_`{|}~;
+ * - dot ., provided that it is not the first or last character unless quoted, and provided also that it does not appear consecutively unless quoted (e.g. John..Doe@example.com is not allowed but "John..Doe"@example.com is allowed);
+ * - space and "(),:;<>@[\] characters are allowed with restrictions (they are only allowed inside a quoted string, as described in the paragraph below, and in addition, a backslash or double-quote must be preceded by a backslash);
+ * - comments are allowed with parentheses at either end of the local-part; e.g. john.smith(comment)@example.com and (comment)john.smith@example.com are both equivalent to john.smith@example.com.
+ *
  * Undelimited pattern.
  *
  * @var string
  * @see preg_match
  */
-define("PREG_PATTERN_EMAIL", '[-`~#$%&*\'a-zA-Z0-9_\.+=]+@[a-zA-Z0-9\.-]+\.[a-zA-Z]{2,}');
+define("PREG_PATTERN_EMAIL", '[-{}!`~#$%&*\'a-zA-Z0-9_\.+=]+@[a-zA-Z0-9\.-]+\.[a-zA-Z]{2,}');
 
 /**
  * A regular expression pattern for matching email addresses.
