@@ -1,0 +1,11 @@
+{
+	"name": "Log_Mail",
+	"description": "Logs mail to database, optionally deleting after n days, force to send all mail to single person for testing, and global email disabling for `zesk\\Mail`",
+	"autoload_options": {
+		"class_prefix": "zesk\\"
+	},
+	"requires": [
+		"ORM"
+	],
+	"module_class": "zesk\\Module_Log_Mail"
+}
