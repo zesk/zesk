@@ -37,10 +37,11 @@ class View_Errors extends View {
 	 */
 	public static function html(Application $application, array $errors) {
 		$model = new Model($application);
+		$response = $application->response_factory($application->request());
 		$model->errors = $errors;
 		return $application->widget_factory(__CLASS__, array(
 			'column' => 'errors'
-		))->execute($model);
+		))->response($response)->execute($model);
 	}
 }
 
