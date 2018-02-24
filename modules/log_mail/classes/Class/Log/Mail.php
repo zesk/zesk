@@ -1,6 +1,9 @@
 <?php
 /**
- *
+ * @package zesk
+ * @subpackage Log_Mail
+ * @author kent
+ * @copyright &copy; 2018 Market Acumen, Inc.
  */
 namespace zesk;
 
@@ -10,7 +13,15 @@ namespace zesk;
  *
  */
 class Class_Log_Mail extends Class_ORM {
+	/**
+	 *
+	 * @var string
+	 */
 	public $id_column = "id";
+	/**
+	 *
+	 * @var array
+	 */
 	public $column_types = array(
 		'id' => self::type_id,
 		'session' => self::type_object,

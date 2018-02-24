@@ -109,6 +109,12 @@ class Module_Log_Mail extends Module {
 		}
 		return true;
 	}
+
+	/**
+	 *
+	 * {@inheritDoc}
+	 * @see \zesk\Module::model_classes()
+	 */
 	public function model_classes() {
 		return array(
 			Log_Mail::class
