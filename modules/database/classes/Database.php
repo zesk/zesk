@@ -341,7 +341,11 @@ abstract class Database extends Hookable {
 	 *
 	 * @return string
 	 */
-	public function code_name() {
+	public function code_name($set = null) {
+		if ($set !== null) {
+			$this->internal_name = $set;
+			return $this;
+		}
 		return $this->internal_name;
 	}
 
