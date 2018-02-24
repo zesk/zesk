@@ -34,7 +34,9 @@ class View_Currency extends View {
 		if ($currency) {
 			$view->set_option("currency", $currency);
 		}
-		$view->request($application->request() ?? Request::factory($application, "http://test/"));
+		$request = $application->request() ?? Request::factory($application, "http://test/");
+		$view->response($application->response_factory($request));
+		$view->request($request);
 		return $view->execute($model);
 	}
 }

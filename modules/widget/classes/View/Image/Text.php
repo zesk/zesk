@@ -213,7 +213,9 @@ class View_Image_Text extends View {
 		$attributes['angle'] = 90;
 		$attributes['column'] = 'text';
 		$w = new View_Image_Text($application, $attributes);
-		$w->request($application->request() ?? Request::factory($application, "http://test/"));
+		$request = $application->request() ?? Request::factory($application, "http://test/");
+		$w->request($request);
+		$w->response($application->response_factory($request));
 		return $w->execute($x);
 	}
 	public static function horizontal(Application $application, $text, $attributes = false) {
@@ -221,7 +223,9 @@ class View_Image_Text extends View {
 		$x->text = $text;
 		$attributes['column'] = 'text';
 		$w = new View_Image_Text($application, $attributes);
-		$w->request($application->request() ?? Request::factory($application));
+		$request = $application->request() ?? Request::factory($application, "http://test/");
+		$w->request($request);
+		$w->response($application->response_factory($request));
 		return $w->execute($x);
 	}
 }

@@ -630,16 +630,23 @@ class Command_Test extends Command_Base {
 	 * @return array|array
 	 */
 	private static function load_test_options($contents) {
+		$result = array();
+		if (StringTools::contains($contents, array(
+			"extends PHPUnit_TestCase",
+			"extends \\zesk\\PHPUnit_TestCase"
+		))) {
+			$result['phpunit'] = true;
+		}
 		$comments = DocComment::extract($contents, array(
 			DocComment::OPTION_LIST_KEYS => array(
 				"test_module"
 			)
 		));
 		if (count($comments) === 0) {
-			return array();
+			return $result;
 		}
 		$first_comment = $comments[0];
-		return array_change_key_case(ArrayTools::kunprefix($first_comment->variables(), "test_", true));
+		return $result + array_change_key_case(ArrayTools::kunprefix($first_comment->variables(), "test_", true));
 	}
 
 	/**
@@ -1062,13 +1069,17 @@ class Command_Test extends Command_Base {
 		$stats = array(
 			"total" => count($this->test_results),
 			'pass' => 0,
-			'fail' => 0
+			'fail' => 0,
+			'missing' => 0
 		);
-		$fails = array();
+		$fails = $missing = array();
 		$first = null;
 		$last = null;
 		foreach ($this->test_results as $test => $value) {
-			if ($value === false) {
+			if (!is_file($test)) {
+				$stats['missing']++;
+				$missing[] = $test;
+			} else if ($value === false) {
 				$stats['fail']++;
 				$fails[] = $test;
 			} else {
@@ -1080,6 +1091,9 @@ class Command_Test extends Command_Base {
 		$stats['first'] = $first ? Timestamp::factory($first)->format() : null;
 		$stats['last'] = $last ? Timestamp::factory($last)->format() : null;
 		$stats['failing_tests'] = $fails;
+		if (count($missing) > 0) {
+			$stats['missing_tests'] = $missing;
+		}
 		$this->render_format($stats);
 	}
 }
