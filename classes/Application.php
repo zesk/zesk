@@ -194,6 +194,7 @@ class Application extends Hookable implements Interface_Theme {
 	 * @var Request[]
 	 */
 	private $request_stack = array();
+
 	/**
 	 * @deprecated 2018-01
 	 * @var Request
