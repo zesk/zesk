@@ -34,14 +34,14 @@ $object->status = $this->request->get("s", PolyGlot_Token::status_todo);
 
 $locale_options = to_array($this->locale_options);
 asort($locale_options, SORT_LOCALE_STRING);
-$widget = $this->widget_factory("zesk\\Control_Select")
+$widget = $this->widget_factory(Control_Select::class)
 	->names("locale", __("Locale"))
 	->control_options($locale_options)
 	->hide_single(false)
 	->default_value($object->locale);
 $widget->required(true);
 
-$status = $this->widget_factory("zesk\\Control_Select")
+$status = $this->widget_factory(Control_Select::class)
 	->names("status", __("Status"))
 	->control_options(PolyGlot_Token::lang_status_filters())
 	->noname(__("All"));

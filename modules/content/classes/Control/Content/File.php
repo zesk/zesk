@@ -28,7 +28,7 @@ class Control_Content_File extends Control_Widgets {
 		
 		$this->child($w);
 		
-		$w = $this->widget_factory("Control_Text")->names($prefix . "desc", __("Description"))->textarea(true);
+		$w = $this->widget_factory(Control_Text::class)->names($prefix . "desc", __("Description"))->textarea(true);
 		$this->child($w);
 		$this->upload(true);
 		

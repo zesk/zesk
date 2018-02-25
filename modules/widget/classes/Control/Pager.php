@@ -91,7 +91,7 @@ class Control_Pager extends Control {
 		$options['skip_query_condition'] = true;
 		$options['query_column'] = array();
 		
-		return $this->widget_factory("Control_Select")
+		return $this->widget_factory(Control_Select::class)
 			->names('limit')
 			->required(true)
 			->set_option($options);
