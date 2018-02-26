@@ -1157,7 +1157,6 @@ class Application extends Hookable implements Interface_Theme {
 		$parameters['response'] = $this->response;
 		$parameters['router'] = $this->router;
 		$parameters['route'] = $this->route;
-		$parameters['url'] = $request ? $this->request->url() : null;
 		return $parameters;
 	}
 
