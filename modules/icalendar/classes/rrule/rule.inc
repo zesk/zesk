@@ -450,7 +450,7 @@ class Rule {
 
 		// wkst: Starting day of the week
 		if ($wkst === null) {
-			$this->wkst = avalue($options, "first_day_of_week", $this->locale ? $this->locale->first_day_of_week() : 0);
+			$this->wkst = avalue($options, "first_day_of_week", $locale ? $locale->first_day_of_week() : 1);
 		} else if (is_integer($wkst)) {
 			$this->wkst = $wkst;
 		} else if ($wkst instanceof Weekday) {

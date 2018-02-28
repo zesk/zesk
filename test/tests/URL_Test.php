@@ -293,9 +293,7 @@ class URL_Test extends Test_Unit {
 			"B" => "C",
 			"D" => "E"
 		);
-		$this->assert(URL::query_unparse($m, "A;B") === "?A=A&B=C", URL::query_unparse($m, "A;B") . " === ?A=A&B=C");
-		$this->assert(URL::query_unparse($m, "A;D") === "?A=A&D=E", URL::query_unparse($m, "A;D") . " === ?A=A&D=E");
-		$this->assert(URL::query_unparse($m, "A;E") === "?A=A", URL::query_unparse($m, "A;E") . " === ?A=A");
+		$this->assertEquals("?A=A&B=C&D=E", URL::query_unparse($m));
 	}
 	function test_remove_password() {
 		$this->assert(URL::remove_password("http://joe:password@example.com/") === "http://joe@example.com/");

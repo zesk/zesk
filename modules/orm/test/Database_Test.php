@@ -469,14 +469,6 @@ class Database_Test extends Test_Unit {
 		$sql = "SELECT MIN(Foo) AS X FROM $table_name";
 		$this->assert(intval($db->query_one($sql, "X", -1)) === 100);
 	}
-	function test_register() {
-		$db = $this->application->database_registry();
-
-		$name = null;
-		$url = null;
-		$is_default = false;
-		$db->register($name, $url, $is_default);
-	}
 
 	/**
 	 * @always_fail

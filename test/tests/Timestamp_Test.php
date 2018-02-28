@@ -411,6 +411,13 @@ class Timestamp_Test extends Test_Unit {
 			$this->assert($test_long_date_2->__toString() === $test_long_date->__toString(), $test_long_date_2->__toString() . " === " . $test_long_date->__toString());
 		}
 	}
+	/**
+	 * @expectedException zesk\Exception_Parameter
+	 */
+	function test_add_unit_deprecated() {
+		$t = Timestamp::factory('2000-01-01 00:00:00', 'UTC');
+		$t->add_unit(Timestamp::UNIT_HOUR, 2);
+	}
 	function test_difference() {
 		$now = Timestamp::factory('now');
 		$last_year = Timestamp::factory($now)->add(-1);
