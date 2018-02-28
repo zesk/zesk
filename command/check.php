@@ -164,7 +164,7 @@ class Command_Check extends Command_Iterator_File {
 	}
 	private function recomment(&$contents, $term, $function, $add_function = null) {
 		$translate = array();
-		$comment_options = $this->application->configuration->path(DocComment::class);
+		$comment_options = $this->application->configuration->path(DocComment::class)->to_array();
 		$comments = DocComment::extract($contents, $comment_options);
 		foreach ($comments as $comment) {
 			/* @var $comment DocComment */
@@ -232,7 +232,8 @@ class Command_Check extends Command_Iterator_File {
 	}
 	private function fix_prefix(&$contents) {
 		$contents = ltrim($contents);
-		$new_prefix = map("<?php\n/**\n * @version \$URL\$\n * @author \$Author\$\n * @package {package}\n * @subpackage {subpackage}\n * @copyright " . $this->copyright_pattern() . "\n */\n", $this->option());
+		$author = $this->application->process->user();
+		$new_prefix = map("<?php\n/**\n * @author $author\n * @package {package}\n * @subpackage {subpackage}\n * @copyright " . $this->copyright_pattern() . "\n */\n", $this->option());
 		foreach (array(
 			'#^(<\?php)#',
 			'#^(<\?)[^=]#'
