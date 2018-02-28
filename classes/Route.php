@@ -351,6 +351,7 @@ abstract class Route extends Hookable {
 	 * @return array
 	 */
 	function arguments_by_class($class = null, $index = null) {
+		$this->_process_arguments();
 		if ($class === null) {
 			return $this->by_class;
 		}
