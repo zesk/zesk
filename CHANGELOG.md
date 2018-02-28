@@ -17,7 +17,9 @@ Version 1.0 of Zesk will have:
 - All modules use **namespaces** - **in progress**
 - Website `https://zesk.com` with basic documentation
 
-## [Unreleased][]
+<!-- ## [Un released][] -->
+
+## [v0.17.0][]
 
 ### New features
 
@@ -1478,8 +1480,9 @@ Settling of `zesk\Kernel` and `zesk\` namespace changes, added additional compon
  - `zesk::class_hierarchy` -> `zesk()->classes->hierarchy`
 - Removed growl module (no longer relevant on Mac OS X)
 
-[Unreleased]: https://github.com/zesk/zesk/compare/HEAD...HEAD
-[v0.16.5]: https://github.com/zesk/zesk/compare/v0.16.5...HEAD
+[HEAD]: https://github.com/zesk/zesk/compare/HEAD...HEAD
+[v0.17.0]: https://github.com/zesk/zesk/compare/v0.17.0...HEAD
+[v0.16.5]: https://github.com/zesk/zesk/compare/v0.16.5...v0.17.0
 [v0.16.4]: https://github.com/zesk/zesk/compare/v0.16.4...v0.16.5
 [v0.16.3]: https://github.com/zesk/zesk/compare/v0.16.3...v0.16.4
 [v0.16.2]: https://github.com/zesk/zesk/compare/v0.16.2...v0.16.3

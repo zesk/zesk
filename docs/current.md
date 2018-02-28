@@ -13,7 +13,6 @@
 - `zesk\Route_Template` has been removed
 - adding constant OPTION_DESCRIPTION to `zesk\Command_GitHub`
 
-
 ### Bugs fixed
 
 - Fixing `zesk\Locale_EN` plural implementation to avoid PHP warnings for short words
