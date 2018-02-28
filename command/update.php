@@ -317,6 +317,25 @@ class Command_Update extends Command_Base {
 			file_put_contents($path, json_encode($set, JSON_PRETTY_PRINT));
 		}
 	}
+	private function _run_module_hook($module, $hook_name) {
+		$logger = $this->application->logger;
+		try {
+			$module_object = $this->application->modules->object($module);
+			if ($module_object instanceof Module) {
+				$logger->debug("Running {class}::hook_{name}", array(
+					"class" => get_class($module_object),
+					"name" => $hook_name
+				));
+				$module_object->call_hook($hook_name);
+			}
+		} catch (\ReflectionException $e) {
+			$logger->debug("Module object for $module was not found ... skipping");
+		} catch (Exception_NotFound $e) {
+			$logger->debug("Module object for $module was not found ... skipping");
+		} catch (Exception_Class_NotFound $e) {
+			$logger->debug("Module object for $module was not found ... skipping");
+		}
+	}
 	/**
 	 * Update a single module
 	 *
@@ -358,6 +377,7 @@ class Command_Update extends Command_Base {
 			if ($checked_time > $now - $interval) {
 				$this->verbose_log("$module checked less than " . $locale->duration_string($interval, "hour") . " ago" . ($force_check ? "- checking anyway" : ""));
 				if (!$force_check) {
+					$this->_run_module_hook($module, "update");
 					return true;
 				}
 			} else {
@@ -366,20 +386,8 @@ class Command_Update extends Command_Base {
 		}
 		$edits = $this->fetch($this->app_data + $state_data + $module_data + $data);
 		$did_updates = $composer_updates || count($edits) > 0 ? true : false;
+		$this->_run_module_hook($module, $did_updates ? "updated" : "update");
 		if ($did_updates) {
-			try {
-				$module_object = $this->application->modules->object($module);
-				if ($module_object instanceof Module) {
-					$this->log("Running " . get_class($module_object) . "::hook_updated");
-					$module_object->call_hook('updated');
-				}
-			} catch (\ReflectionException $e) {
-				$logger->debug("Module object for $module was not found ... skipping");
-			} catch (Exception_NotFound $e) {
-				$logger->debug("Module object for $module was not found ... skipping");
-			} catch (Exception_Class_NotFound $e) {
-				$logger->debug("Module object for $module was not found ... skipping");
-			}
 			$this->log("{name} updated to latest version.", array(
 				"name" => $module
 			));
