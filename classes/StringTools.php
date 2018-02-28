@@ -542,7 +542,7 @@ class StringTools {
 	/**
 	 * Convert tabs to spaces, intelligently.
 	 *
-	 * If no $tab_width is specified, uses global "tab_width", or 4 for tab width.
+	 * If no $tab_width is specified, uses 4 for tab width.
 	 *
 	 * @see http://www.nntp.perl.org/group/perl.macperl.anyperl/154
 	 * @param string $text
@@ -551,9 +551,7 @@ class StringTools {
 	 */
 	public static function detab($text, $tab_width = null) {
 		if ($tab_width === null) {
-			global $zesk;
-			/* @var $zesk zesk\Kernel */
-			$tab_width = to_integer($zesk->configuration->get('tab_width', 4));
+			$tab_width = 4;
 		}
 		//	$text =~ s{(.*?)\t}{$1.(' ' x ($g_tab_width - length($1) % $g_tab_width))}ge;
 		$func = create_function('$matches', "{ return \$matches[1] . str_repeat(' ', $tab_width - strlen(\$matches[1]) % $tab_width); }");

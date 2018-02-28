@@ -39,7 +39,7 @@ class Controller_Search extends Controller_Theme {
 							$total += $result['total'];
 						}
 					} else {
-						zesk()->logger->error("Controller_Search::action_index {class} does not have method {method}", array(
+						$this->application->logger->error("Controller_Search::action_index {class} does not have method {method}", array(
 							"class" => $class,
 							"method" => $method
 						));

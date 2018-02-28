@@ -153,7 +153,7 @@ class Router extends Hookable {
 	 */
 	function __wakeup() {
 		$this->by_id = array();
-		$this->application = Kernel::singleton()->application();
+		$this->application = __wakeup_application();
 		foreach ($this->routes as $route) {
 			$route->application = $this->application;
 			$route->router = $this;

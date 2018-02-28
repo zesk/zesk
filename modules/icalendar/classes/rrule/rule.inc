@@ -65,11 +65,6 @@ class Rule {
 
 	/**
 	 *
-	 * @var \zesk\Locale
-	 */
-	private $locale = null;
-	/**
-	 *
 	 * @var boolean
 	 */
 	private static $inited = false;
@@ -413,7 +408,10 @@ class Rule {
 	function __construct($frequency, array $options = array()) {
 		self::_init();
 
-		$this->locale = app()->locale;
+		$locale = avalue($options, 'locale');
+		if (!$locale instanceof Locale) {
+			$locale = null;
+		}
 
 		/* @var $dtstart Timestamp */
 		$interval = 1;
@@ -452,7 +450,7 @@ class Rule {
 
 		// wkst: Starting day of the week
 		if ($wkst === null) {
-			$this->wkst = avalue($options, "first_day_of_week", $this->locale->first_day_of_week());
+			$this->wkst = avalue($options, "first_day_of_week", $this->locale ? $this->locale->first_day_of_week() : 0);
 		} else if (is_integer($wkst)) {
 			$this->wkst = $wkst;
 		} else if ($wkst instanceof Weekday) {

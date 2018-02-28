@@ -37,7 +37,7 @@ class ORM_CacheItem implements CacheItemInterface {
 	 *
 	 */
 	public function __wakeup() {
-		$this->application = Kernel::singleton()->application();
+		$this->application = __wakeup_application();
 	}
 	/**
 	 *

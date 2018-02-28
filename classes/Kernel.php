@@ -208,12 +208,12 @@ class Kernel {
 	}
 
 	/**
+	 * Create a Kernel (once)
 	 *
+	 * @param array $configuration
+	 * @throws Exception
 	 * @return \zesk\Kernel
 	 */
-	static function zesk() {
-		return self::$singleton;
-	}
 	public static function factory(array $configuration = array()) {
 		if (self::$singleton) {
 			throw new Exception("{method} should only be called once {backtrace}", array(
@@ -227,8 +227,9 @@ class Kernel {
 		return self::$singleton;
 	}
 	/**
+	 * Fetch the kernel singleton. Avoid this call whenever possible.
 	 *
-	 * @param array $configuration
+	 * @param array $configuration parameter @deprecated 2017-10
 	 * @return \zesk\Kernel
 	 */
 	public static function singleton(array $configuration = array()) {
@@ -301,8 +302,6 @@ class Kernel {
 			__CLASS__,
 			"application_class"
 		), __NAMESPACE__ . "\\" . "Application");
-
-		//$this->caches = new Caches();
 
 		/*
 		 * Initialize system paths and set up default paths for interacting with the file system

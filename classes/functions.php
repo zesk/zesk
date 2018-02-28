@@ -1411,3 +1411,10 @@ function app() {
 	return $kernel->application();
 }
 
+/**
+ * For classes which are serialized but do not want to serialize the Application, use this
+ * to restore it upon __wakeup
+ */
+function __wakeup_application() {
+	return Kernel::singleton()->application();
+}

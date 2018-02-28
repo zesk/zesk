@@ -344,8 +344,8 @@ class Database_Query_Select extends Database_Query_Select_Base {
 		 * empty "database_name" means value of configuration zesk\Database::default
 		 */
 		if ($object->database()->code_name() !== $this->database_name()) {
-			$cross_db_this = $this->database()->feature(Database::feature_cross_database_queries);
-			$cross_db_object = $object->database()->feature(Database::feature_cross_database_queries);
+			$cross_db_this = $this->database()->feature(Database::FEATURE_CROSS_DATABASE_QUERIES);
+			$cross_db_object = $object->database()->feature(Database::FEATURE_CROSS_DATABASE_QUERIES);
 			if ($cross_db_this !== true) {
 				throw new Exception_Semantics("Database {name} ({class}) does not support cross-database queries, join is not possible", array(
 					"name" => $this->database_name(),

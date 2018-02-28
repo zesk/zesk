@@ -164,54 +164,22 @@ class Route_Controller extends Route {
 	 * @return array
 	 */
 	private function _determine_class_action() {
-		$controller = $this->option("controller");
-		if (strpos($controller, "\\") !== false || strpos($controller, "Controller_") !== false) {
-			$try_classes = array(
-				$controller
-			);
-			$options = $this->named + $this->options;
-		} else {
-			/**
-			 *
-			 * @deprecated 2017-02
-			 */
-			if ($this->has_option('controller prefix')) {
-				$prefixes = array(
-					$this->option('controller prefix')
-				);
-			} else {
-				$prefixes = $this->option_list('controller prefixes', array(
-					"Controller_"
-				));
-			}
-			$options = $this->named + $this->options;
-			$default_controller = avalue($options, "default controller", "index");
-			$controller = ucfirst(aevalue($options, "controller", $default_controller));
-			$try_classes = array();
-			$default_classes = array();
-			foreach ($prefixes as $prefix) {
-				$try_classes[] = begins($controller, $prefix) ? $controller : $prefix . $controller;
-				$default_classes[] = $prefix . $default_controller;
-			}
-			$try_classes = array_unique(array_merge($try_classes, $default_classes));
-		}
+		$class_name = $this->option("controller");
+		$options = $this->named + $this->options;
 
 		$this->class = $reflectionClass = null;
-		foreach ($try_classes as $class_name) {
-			try {
-				$this->class = $reflectionClass = new ReflectionClass($class_name);
-				$this->class_name = $class_name;
-				$this->log("Controller $class_name created");
-				break;
-			} catch (\ReflectionException $e) {
-			} catch (Exception_Class_NotFound $e) {
-			}
+		try {
+			$this->class = $reflectionClass = new ReflectionClass($class_name);
+			$this->class_name = $class_name;
+			$this->log("Controller {class_name} created", array(
+				"class_name" => $class_name
+			));
+		} catch (\ReflectionException $e) {
+		} catch (Exception_Class_NotFound $e) {
 		}
 		if (!$reflectionClass) {
-			$classes = implode(", ", $try_classes);
-			throw new Exception_Class_NotFound($classes, __("Controller {controller} not found: {classes}", array(
-				'controller' => $controller,
-				'classes' => $classes
+			throw new Exception_Class_NotFound($class_name, __("Controller {controller} not found", array(
+				'controller' => $class_name
 			)));
 		}
 		if ($reflectionClass->isAbstract()) {
@@ -220,7 +188,6 @@ class Route_Controller extends Route {
 			));
 		}
 		$action = aevalue($options, "action", $this->option("default action", "index"));
-
 		return array(
 			$reflectionClass,
 			$action

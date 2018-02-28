@@ -62,7 +62,7 @@ class Controller_Authenticated extends Controller_Theme {
 	}
 	function default_login_redirect() {
 		if ($this->login_redirect === null) {
-			$this->login_redirect = $this->router ? $this->router->get_route("login", User::class) : null;
+			$this->login_redirect = $this->router ? $this->router->get_route("login", Controller_Login::class) : null;
 			if (!$this->login_redirect) {
 				$this->login_redirect = '/login';
 			}

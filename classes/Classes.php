@@ -3,37 +3,37 @@ namespace zesk;
 
 class Classes {
 	/**
-	 * 
+	 *
 	 * @var integer
 	 */
 	const VERSION = 5;
-	
+
 	/**
 	 * Version number of serialized file
-	 * 
+	 *
 	 * @var integer
 	 */
 	protected $version = self::VERSION;
-	
+
 	/**
 	 * Lowercase class name -> capitalized class name
 	 *
 	 * @var array
 	 */
 	protected $class_case = array();
-	
+
 	/**
 	 * Registry of class names
 	 *
 	 * @var array
 	 */
 	protected $classes = array();
-	
+
 	/**
 	 * @var array
 	 */
 	protected $subclasses = array();
-	
+
 	/**
 	 * @var array
 	 */
@@ -43,26 +43,30 @@ class Classes {
 	 * @var boolean
 	 */
 	protected $dirty = false;
-	
+
 	/**
-	 * 
+	 *
 	 */
 	public function __construct(Kernel $zesk) {
 		$this->initialize($zesk);
 	}
-	
+
 	/**
 	 * Register hooks
-	 * 
-	 * @param Kernel $zesk
+	 *
+	 * @param Kernel $kernel
 	 */
-	public function initialize(Kernel $zesk) {
-		$zesk->hooks->add("exit", array(
+	public function initialize(Kernel $kernel) {
+		$kernel->hooks->add("exit", array(
 			$this,
 			"on_exit"
+		), array(
+			"arguments" => array(
+				$kernel
+			)
 		));
 	}
-	
+
 	/**
 	 * @param Kernel $zesk
 	 * @return \zesk\Classes
@@ -81,18 +85,18 @@ class Classes {
 		}
 		return $classes;
 	}
-	
+
 	/**
-	 * 
+	 *
 	 */
-	public function on_exit() {
+	public function on_exit(Kernel $kernel) {
 		if ($this->dirty) {
 			$this->dirty = false;
-			zesk()->cache->saveDeferred(zesk()->cache->getItem(__CLASS__)->set($this->classes));
+			$kernel->cache->saveDeferred($kernel->cache->getItem(__CLASS__)->set($this));
 		}
 	}
 	/**
-	 * 
+	 *
 	 * @param string $class
 	 */
 	private function _add($class) {
@@ -108,11 +112,11 @@ class Classes {
 			$class = $parent_class;
 		}
 	}
-	
+
 	/**
 	 * Register a global hook by class
-	 * 
-	 * @return 
+	 *
+	 * @return
 	 */
 	public function register($class = null) {
 		if (is_array($class)) {
@@ -136,10 +140,10 @@ class Classes {
 		}
 		return $this->subclasses[$class];
 	}
-	
+
 	/**
 	 * Return all known subclasses of a class including grandchildren and great-grandchildren, etc.
-	 * 
+	 *
 	 * @param string $class
 	 * @return string[]
 	 */
@@ -161,7 +165,7 @@ class Classes {
 		}
 		return $result;
 	}
-	
+
 	/**
 	 * Retrieve a class hierarchy from leaf to base
 	 *

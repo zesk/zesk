@@ -629,14 +629,7 @@ class Class_ORM extends Hookable {
 		}
 		$application = $object->application;
 		$lowclass = strtolower($class);
-		if (!is_array(self::$classes)) {
-			self::$classes = $application->hooks->call_arguments("Class_ORM::classes_load", array(), array());
-			$application->hooks->add("exit", "Class_ORM::classes_exit", array(
-				'arguments' => array(
-					$application
-				)
-			));
-		}
+
 		if (array_key_exists($lowclass, self::$classes)) {
 			return self::$classes[$lowclass];
 		}
@@ -693,7 +686,7 @@ class Class_ORM extends Hookable {
 	 * @see wakeup
 	 */
 	public function __wakeup() {
-		$this->application = zesk()->application();
+		$this->application = __wakeup_application();
 		$this->application->hooks->register_class($this->class);
 	}
 
@@ -757,30 +750,6 @@ class Class_ORM extends Hookable {
 			'table' => $this->table
 		));
 		return $this;
-	}
-
-	/**
-	 * Retrieve object or classes from cache
-	 *
-	 * @deprecated 2017-08 Use application functions for this
-	 * @param string $class
-	 * @param string $component
-	 *        	Optional component to retrieve
-	 * @throws Exception_Semantics
-	 * @return Ambigous <mixed, array>
-	 */
-	public static function cache($class, $component = "") {
-		zesk()->deprecated();
-		return zesk()->application()->_class_cache($class, $component);
-	}
-
-	/**
-	 * @deprecated 2017-08
-	 * @param unknown $class
-	 */
-	public static function cache_dirty($class = null) {
-		zesk()->deprecated();
-		return zesk()->application()->clear_class_cache($class);
 	}
 
 	/**
@@ -1986,16 +1955,5 @@ class Class_ORM extends Hookable {
 			"primary_keys" => $this->primary_keys,
 			"class" => get_class($this)
 		);
-	}
-
-	/**
-	 *
-	 * @deprecated 2017-11?
-	 * @todo remove this probably
-	 */
-	public static function classes_exit(Application $application) {
-		if (self::$classes_dirty) {
-			$application->hooks->call("Class_ORM::classes_save", self::$classes);
-		}
 	}
 }

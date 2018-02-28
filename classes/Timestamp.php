@@ -1196,13 +1196,6 @@ class Timestamp extends Temporal {
 	/**
 	 * Add a unit to this Timestamp.
 	 *
-	 * As of 2017-06-21, Zesk 0.9.9, this call now taks the integer as the first argument and a
-	 * string as the 2nd argument.
-	 * The call detects the legacy way of calling it and fires off a deprecated trigger, but
-	 * everything
-	 * should work unless you're doing stupid things like
-	 * ->add_unit(self::UNIT_SECOND,self::UNIT_SECOND) which you should probably fix anyway.
-	 *
 	 * @param integer $n_units
 	 *        	Number of units to add (may be negative)
 	 * @param string $units
@@ -1211,29 +1204,6 @@ class Timestamp extends Temporal {
 	 * @return Timestamp
 	 */
 	function add_unit($n_units = 1, $units = self::UNIT_SECOND) {
-		/**
-		 * Support legacy call syntax
-		 *
-		 * function add_unit($unit = self::UNIT_SECOND, $n = 1)
-		 *
-		 * @deprecated 2017-06
-		 */
-		if (is_string($n_units) && array_key_exists($n_units, self::$UNITS_TRANSLATION_TABLE)) {
-			// Handle 2nd parameter defaults correctly
-			if ($units === self::UNIT_SECOND) {
-				$units = 1;
-			}
-			zesk()->deprecated("{method}({n_units}, {units}) - reversing parameter order", array(
-				"method" => __METHOD__,
-				"n_units" => $n_units,
-				"units" => $units
-			));
-			/* Swap */
-			list($n_units, $units) = array(
-				$units,
-				$n_units
-			);
-		}
 		switch ($units) {
 			case self::UNIT_MILLISECOND:
 				return $this->add(0, 0, 0, 0, 0, round($n_units * self::MILLISECONDS_PER_SECONDS));

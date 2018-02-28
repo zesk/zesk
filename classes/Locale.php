@@ -726,54 +726,6 @@ abstract class Locale extends Hookable {
 		}
 		return $lang . "_" . strtoupper(substr($region, 0, 2));
 	}
-
-	/**
-	 * Translate a phrase
-	 *
-	 * @deprecated 2017-12 Use $this->__ instead
-	 * @param array|string $phrase
-	 *        	Phrase or phrases
-	 * @param string $locale
-	 *        	Locale to translate to. If not specified, uses current locale.
-	 * @return array|string
-	 */
-	public static function translate($phrase, $locale = null) {
-		// TODO add this once most have been removed
-		zesk()->deprecated();
-		return app()->locale->__($phrase);
-	}
-
-	/**
-	 * Get or add to the list of locale paths to load
-	 *
-	 * @deprecated 2018-01
-	 * @param string $add
-	 *        	Path to locale directory containing language.inc and language_DIALECT.inc files
-	 * @return array
-	 */
-	public static function locale_path($add = null) {
-		$app = app();
-		$app->deprecated();
-		return $app->locale_path($add);
-	}
-
-	/**
-	 * Set/get current locale
-	 *
-	 * @deprecated 2017-12 Use $application->locale = $application->locale_factory("fr_FR");
-	 * @param string $set
-	 * @return string
-	 */
-	public static function current($set = null) {
-		zesk()->deprecated();
-
-		$app = app();
-		if ($set === null) {
-			return $app->locale->id();
-		}
-		$app->locale = self::factory($app, $set);
-		return $app->locale->id();
-	}
 }
 
 if (false) {

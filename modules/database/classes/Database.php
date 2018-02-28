@@ -58,37 +58,37 @@ abstract class Database extends Hookable {
 	 *
 	 * @var string
 	 */
-	const option_auto_table_names = 'auto_table_names';
+	const OPTION_AUTO_TABLE_NAMES = 'auto_table_names';
 	/**
 	 * Does this database support creation of other databases?
 	 *
 	 * @var string
 	 */
-	const feature_create_database = "create_database";
+	const FEATURE_CREATE_DATABASE = "create_database";
 	/**
 	 * Does this database support listing of tables?
 	 *
 	 * @var string
 	 */
-	const feature_list_tables = "list_tables";
+	const FEATURE_LIST_TABLES = "list_tables";
 	/**
 	 *
 	 * @var string
 	 */
-	const feature_max_blob_size = "max_blob_size";
+	const FEATURE_MAX_BLOB_SIZE = "max_blob_size";
 	/**
 	 * Can this database perform queries across databases on the same connection?
 	 *
 	 * @var string
 	 */
-	const feature_cross_database_queries = "cross_database_queries";
+	const FEATURE_CROSS_DATABASE_QUERIES = "cross_database_queries";
 	/**
 	 * Does the database support timestamps which are relative to a session or global time zone
 	 * setting?
 	 *
 	 * @var string
 	 */
-	const feature_time_zone_relative_timestamp = "time_zone_relative_timestamp";
+	const FEATURE_TIME_ZONE_RELATIVE_TIMESTAMP = "time_zone_relative_timestamp";
 
 	/**
 	 *
@@ -171,7 +171,7 @@ abstract class Database extends Hookable {
 	public function __construct(Application $application, $url = null, array $options = array()) {
 		parent::__construct($application, $options);
 		$this->inherit_global_options();
-		// TODO Pass this in __construct and propagate
+		// TODO is this needed? Pass this in __construct and propagate
 		$application->hooks->register_class(__CLASS__);
 		$application->hooks->register_class(get_class($this));
 		if ($url) {
@@ -1046,17 +1046,6 @@ abstract class Database extends Hookable {
 	abstract public function release_lock($name);
 
 	/**
-	 * Register a database name, or get a database url
-	 *
-	 * @param unknown $name
-	 * @param unknown $url
-	 * @param string $is_default
-	 */
-	public static function register($name = null, $url = null, $is_default = false) {
-		return app()->database_module()->register($name, $url, $is_default);
-	}
-
-	/**
 	 * Remove all single-quote-delimited strings in a series of SQL statements, taking care of
 	 * backslash-quotes in strings
 	 * assuming the SQL is well-formed.
@@ -1111,7 +1100,7 @@ abstract class Database extends Hookable {
 	 * @return boolean|self
 	 */
 	public function auto_table_names($set = null) {
-		return ($set !== null) ? $this->set_option(self::option_auto_table_names, to_bool($set)) : $this->option_bool(self::option_auto_table_names);
+		return ($set !== null) ? $this->set_option(self::OPTION_AUTO_TABLE_NAMES, to_bool($set)) : $this->option_bool(self::OPTION_AUTO_TABLE_NAMES);
 	}
 
 	/**
@@ -1176,7 +1165,7 @@ abstract class Database extends Hookable {
 	public function time_zone($set = null) {
 		throw new Exception_Unsupported("Database {class} does not support {feature}", array(
 			"class" => get_class($this),
-			"feature" => self::feature_time_zone_relative_timestamp
+			"feature" => self::FEATURE_TIME_ZONE_RELATIVE_TIMESTAMP
 		));
 	}
 
@@ -1237,99 +1226,6 @@ abstract class Database extends Hookable {
 		}
 		$class = $this->application->database_module()->register_scheme($scheme);
 		return $this instanceof $class ? true : false;
-	}
-
-	/**
-	 * Set or get the default internal database name
-	 *
-	 * @deprecated 2018-01
-	 * @param string $set
-	 * @return string
-	 */
-	public static function database_default($set = null) {
-		zesk()->deprecated();
-		return app()->database_module()->database_default($set);
-	}
-	/**
-	 * @deprecated 2018-01
-	 * @param unknown $name
-	 * @return unknown
-	 */
-	public static function unregister($name) {
-		return app()->database_module()->unregister($name);
-	}
-
-	/**
-	 * @deprecated 2018-01
-	 * @return array
-	 */
-	public static function valid_schemes() {
-		zesk()->deprecated();
-		return app()->database_module()->valid_schemes();
-	}
-	/**
-	 * Register or retrieve a class for a database scheme prefic
-	 *
-	 * @deprecated 2018-01
-	 * @param string $scheme
-	 * @param string $classname
-	 * @return string
-	 */
-	public static function register_scheme($scheme, $classname = null) {
-		zesk()->deprecated();
-		return app()->database_module()->register_scheme($scheme, $classname);
-	}
-
-	/**
-	 *
-	 * @deprecated 2018-01
-	 * @param Application $application
-	 * @param unknown $scheme
-	 * @param array $options
-	 * @throws Exception_NotFound
-	 * @return object|\zesk\stdClass
-	 */
-	public static function scheme_factory(Application $application, $scheme, array $options = array()) {
-		zesk()->deprecated();
-		return $application->database_module()->scheme_factory($scheme, $options);
-	}
-
-	/**
-	 * Create a new database
-	 * @deprecated 2018-01
-	 * @param string $url
-	 *        	Connection URL in the form
-	 *        	dbtype://user:password@host/databasename?option0=value0&option1=value1. Currently
-	 *        	MySQL and SQLite3 supported.
-	 * @return Database
-	 */
-	public static function _factory(Application $application, $mixed = null, array $options = array()) {
-		$application->deprecated();
-		return $application->database_module()->database_registry($mixed, $options);
-	}
-
-	/**
-	 * Synonym for factory
-	 *
-	 * @deprecated 2018-01
-	 * @param string $url
-	 * @param array $options
-	 * @return Database
-	 */
-	public static function instance(Application $application, $url = null, array $options = array()) {
-		zesk()->deprecated();
-		return self::factory($application, $url, $options);
-	}
-
-	/**
-	 * Return all connected databases in the system
-	 *
-	 * @deprecated 2018-01
-	 * @return multitype:
-	 */
-	public static function databases() {
-		zesk()->deprecated();
-		return app()->database_module()->databases();
 	}
 }
 

@@ -10,27 +10,24 @@
 namespace zesk;
 
 if (!isset($GLOBALS['__composer_autoload_files'])) {
-	$zesk_root = dirname(__FILE__);
+	$zesk_root = __DIR__;
 	if (is_file($zesk_root . '/vendor/autoload.php')) {
 		require_once $zesk_root . '/vendor/autoload.php';
 	}
 	$zesk = Kernel::singleton();
 } else {
-	$zesk = require_once dirname(__FILE__) . '/autoload.php';
+	$zesk = require_once __DIR__ . '/autoload.php';
 }
 /* @var $zesk Kernel */
-$zesk->paths->set_application(dirname(__FILE__));
+$zesk->paths->set_application(__DIR__);
 
 $application = $zesk->create_application();
 
-$application->configure_include_path(array(
-	'/etc',
-	$zesk->paths->application('etc'),
-	$zesk->paths->uid()
-));
 $application->configure_include(array(
-	"zesk.json",
-	"host/" . System::uname() . ".json"
+	"/etc/zesk.json",
+	$application->path("/etc/zesk.json"),
+	$application->path("etc/host/" . System::uname() . ".json"),
+	$application->paths->uid("zesk.json")
 ));
 $application->set_option("modules", array(
 	"GitHub"

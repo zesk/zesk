@@ -9,18 +9,12 @@ namespace zesk;
  */
 use \DirectoryIterator;
 use \UnexpectedValueException;
+use Psr;
 
 /**
  *
  */
 class Directory extends Hookable {
-	/**
-	 * Set this to true to log debug messages
-	 *
-	 * @var boolean
-	 */
-	public static $debug = false;
-
 	/**
 	 *
 	 * @var integer
@@ -30,15 +24,14 @@ class Directory extends Hookable {
 	/**
 	 * Implement hooks
 	 */
-	public static function hooks(Application $kernel) {
-		$kernel->hooks->add('configured', __CLASS__ . '::configured');
+	public static function hooks(Application $application) {
+		$application->hooks->add('configured', __CLASS__ . '::configured');
 	}
 
 	/**
 	 * configured hook
 	 */
 	public static function configured(Application $application) {
-		self::$debug = $application->configuration->path(__CLASS__)->debug;
 		self::$default_mode = $application->configuration->path(__CLASS__)->get("default_mode", self::$default_mode);
 	}
 
@@ -62,13 +55,14 @@ class Directory extends Hookable {
 			if (!chmod($path, $mode)) {
 				throw new Exception_Directory_Permission($path, __("Setting {filename} to mode {0}", sprintf("%04o", $mode)));
 			}
-			if (self::$debug) {
-				zesk()->logger->debug(__("Changed mode of {0} from {1} to {2}", $path, $perms['octal'], sprintf("%04o", $mode)));
-			}
 		}
 		return $path;
 	}
-
+	public static function debug($message, array $args = array()) {
+		if (self::$debug) {
+			self::$application->logger->debug($message, $args);
+		}
+	}
 	/**
 	 * The default directory mode for new directories
 	 *
@@ -94,9 +88,6 @@ class Directory extends Hookable {
 		if (!@mkdir($path, $mode, true)) {
 			clearstatcache();
 			throw new Exception_Directory_Create($path);
-		}
-		if (self::$debug) {
-			zesk()->logger->debug("Created directory $path");
 		}
 		return $path;
 	}
@@ -338,8 +329,8 @@ class Directory extends Hookable {
 				if (!StringTools::filter($full_path, $rules_dir_walk)) {
 					continue;
 				}
-				if ($progress) {
-					zesk()->logger->notice("Listing {full_path}", array(
+				if ($progress && $progress instanceof Psr\Log\LoggerInterface) {
+					$progress->notice("Listing {full_path}", array(
 						"full_path" => $full_path
 					));
 				}
@@ -512,9 +503,6 @@ class Directory extends Hookable {
 				self::depend($f_dest);
 			} else {
 				self::depend(dirname($f_dest));
-				if (self::$debug) {
-					zesk()->logger->debug("Copy {f_source} to {f_dest}", compact("f_source", "f_dest"));
-				}
 				if (!copy($f_source, $f_dest)) {
 					throw new Exception_File_Permission($f_dest, "copying from $f_source");
 				}
@@ -651,22 +639,16 @@ class Directory extends Hookable {
 		}
 		return $result;
 	}
-	private static function octal_equal($a, $b) {
-		return intval($a) === intval($b);
-	}
 
 	/**
-	 * @deprecated 2017-12 Use Directory::Depend($application->paths->temporary(md5(microtime()))) instead
+	 * Utility function to compare two octal values
 	 *
-	 * @param unknown $name
-	 * @param unknown $mode
-	 * @return \zesk\unknown
+	 * @param mixed $a
+	 * @param mixed $b
+	 * @return boolean
 	 */
-	public static function temporary($name = null, $mode = null) {
-		if ($name === null) {
-			$name = md5(microtime());
-		}
-		return self::depend(Kernel::singleton()->paths->temporary($name), $mode);
+	private static function octal_equal($a, $b) {
+		return intval($a) === intval($b);
 	}
 }
 

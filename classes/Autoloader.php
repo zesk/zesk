@@ -186,27 +186,6 @@ class Autoloader {
 	 * @param array $extensions
 	 *        	A list of extensions to search for in each target path. If supplied, is forced.
 	 * @param array $tried_path
-	 *        	A list of paths which were tried to find the file, ending with the one which was
-	 *        	found
-	 * @return string The found path, or null if not found
-	 * @deprecated 2017-03
-	 * @see self::search
-	 */
-	public function file_search($file_prefix, array $extensions = null, &$tried_path = null) {
-		zesk()->deprecated();
-		return $this->search($file_prefix, $extensions, $tried_path);
-	}
-
-	/**
-	 * Search for a file in the given paths, converting filename to a directory path by converting _
-	 * to /, and look for
-	 * files with the given extensions, in order.
-	 *
-	 * @param string $file_prefix
-	 *        	The file name to search for, without the extension
-	 * @param array $extensions
-	 *        	A list of extensions to search for in each target path. If supplied, is forced.
-	 * @param array $tried_path
 	 *        	A list of paths which were tried to find the file
 	 * @return string The found path, or null if not found
 	 */

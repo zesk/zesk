@@ -507,7 +507,6 @@ class File {
 				"n" => strlen($contents)
 			));
 		}
-		zesk()->hooks->call("File::put", $path);
 		return true;
 	}
 

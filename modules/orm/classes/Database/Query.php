@@ -64,7 +64,7 @@ class Database_Query {
 		$this->application = $db->application;
 		$this->db = $db;
 		$this->type = strtoupper($type);
-		$this->dbname = $this->db->code_name();
+		$this->dbname = $db->code_name();
 		$this->class = null;
 	}
 
@@ -83,7 +83,9 @@ class Database_Query {
 	/**
 	 */
 	function __wakeup() {
-		$this->db = zesk()->application()->database_registry($this->dbname);
+		// Reconnect upon wakeup
+		$this->application = __wakeup_application();
+		$this->db = $this->application->database_registry($this->dbname);
 	}
 
 	/**

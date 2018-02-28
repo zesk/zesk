@@ -160,18 +160,6 @@ class Controller extends Hookable implements Interface_Theme {
 		}
 		return $this->request;
 	}
-	/**
-	 *
-	 * @deprecated 2017-08
-	 * @param string $class
-	 * @param Application $application
-	 * @param array $options
-	 * @return self
-	 */
-	public static function factory($class, Application $app, $options = null) {
-		zesk()->deprecated();
-		return new $class($app, $options);
-	}
 
 	/**
 	 * Executed before the controller action

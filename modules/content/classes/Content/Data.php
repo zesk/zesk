@@ -394,7 +394,7 @@ class Content_Data extends ORM {
 		$data = $application->object(__CLASS__);
 		$result = $data->option_integer('database_size_threshold', 8 * 1024 * 1024); // Handles most images, which is what we want.
 		if (!self::$checked_db) {
-			$size = $application->object_database(__CLASS__)->feature(Database::feature_max_blob_size);
+			$size = $application->object_database(__CLASS__)->feature(Database::FEATURE_MAX_BLOB_SIZE);
 			if ($size < $result) {
 				$data->set_option("database_size_threshold", $result);
 				$application->configuration->path_set(array(

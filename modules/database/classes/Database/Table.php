@@ -377,7 +377,7 @@ class Database_Table extends Hookable {
 		$newTableType = $this->type();
 		$tableName = $this->Name();
 
-		zesk()->logger->debug("Table sql_alter {old} {new}", array(
+		$this->application->logger->debug("Table sql_alter {old} {new}", array(
 			"old" => $oldTableType,
 			"new" => $newTableType
 		));
@@ -387,7 +387,7 @@ class Database_Table extends Hookable {
 		return $result;
 	}
 	private function table_attributes_is_similar(Database_Table $that, $debug = false) {
-		$logger = zesk()->logger;
+		$logger = $this->application->logger;
 		$defaults = $this->database->table_attributes();
 		$this_attributes = $this->option($defaults);
 		$that_attributes = $that->option($defaults);
@@ -411,7 +411,7 @@ class Database_Table extends Hookable {
 	 * @return boolean
 	 */
 	function is_similar(Database_Table $that, $debug = false) {
-		$logger = zesk()->logger;
+		$logger = $this->application->logger;
 		if (!$this->table_attributes_is_similar($that, $debug)) {
 			return false;
 		}

@@ -97,6 +97,12 @@ foreach ($options as $k => $v) {
 				) + $attributes, ($escape_values ? htmlspecialchars($content) : $content));
 			}
 			echo HTML::tag_close("optgroup");
+		} else if (isset($v['content'])) {
+			$content = $v['content'];
+			echo HTML::tag('option', array(
+				'value' => $k,
+				'selected' => in_array(strval($k), $values)
+			) + $v, ($escape_values ? htmlspecialchars($content) : $content));
 		} else {
 			echo $this->theme('zesk/control/select/option', array(
 				"value" => $k,

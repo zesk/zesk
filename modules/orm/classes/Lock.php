@@ -202,62 +202,6 @@ class Lock extends ORM {
 	}
 
 	/**
-	 * Get a lock or throw an Exception_Lock
-	 *
-	 * @param string $code
-	 * @param integer $timeout
-	 *        	Optional timeout
-	 * @throws Exception_Lock
-	 * @return Lock
-	 * @deprecated 2017-08 use require()
-	 * @see
-	 *
-	 */
-	public static function require_lock($code, $timeout = null) {
-		zesk()->deprecated();
-		$lock = self::get_lock($code, $timeout);
-		if (!$lock) {
-			throw new Exception_Lock("Unable to obtain lock {code} (timeout={timeout}", compact("code", "timeout"));
-		}
-		return $lock;
-	}
-	/**
-	 * Fetch a lock by code, optionally waiting for availability.
-	 *
-	 * <code>
-	 * $lock = Lock::get_lock("foo"); // Returns null immediately if can't get lock
-	 * $lock = Lock::get_lock("foo", null); // Returns null immediately if can't get lock
-	 * $lock = Lock::get_lock("foo", 0); // Waits forever
-	 * $lock = Lock::get_lock("foo", 1); // Tries to get lock for one second, then throws
-	 * Exception_Timeout
-	 * </code>
-	 *
-	 * @param string $code
-	 * @param double $timeout
-	 *        	Time, in seconds, to wait until
-	 * @return Lock|null
-	 * @deprecated 2017-08 see self::acquire
-	 */
-	public static function get_lock($code, $timeout = null) {
-		zesk()->deprecated();
-		$lock = self::instance(app(), $code);
-		if ($lock->_is_mine()) {
-			return $lock;
-		}
-		if ($lock->_is_my_server() && !$lock->is_process_alive()) {
-			return $lock->_acquire_dead();
-		}
-		if ($timeout === null) {
-			$lock->_is_locked();
-			return $lock->_acquire_once();
-		}
-		if (!is_integer($timeout) || $timeout < 0) {
-			return null;
-		}
-		return $lock->_acquire(intval($timeout));
-	}
-
-	/**
 	 * Release all locks from my server/process
 	 */
 	public static function release_all(Application $application) {

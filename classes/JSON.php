@@ -262,9 +262,9 @@ class JSON {
 			if ($length === strlen($string)) {
 				return $result;
 			}
-		} catch (Exception $e) {
-			global $zesk;
-			$zesk->hooks->call("exception", $e);
+		} catch (\Exception $e) {
+			// Not worthy of a hook here, methinks - KMD 2018-02
+			// Kernel::singleton()->hooks->call("exception", $e);
 			self::$last_error = $e;
 		}
 		return null;

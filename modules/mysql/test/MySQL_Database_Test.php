@@ -112,8 +112,8 @@ EOF;
 		
 		$db->tables_case_sensitive();
 		
-		$this->assert($db->can(Database::feature_list_tables) === true);
-		$this->assert($db->can(Database::feature_create_database) === true);
+		$this->assert($db->can(Database::FEATURE_LIST_TABLES) === true);
+		$this->assert($db->can(Database::FEATURE_CREATE_DATABASE) === true);
 		
 		$tables = $db->list_tables();
 		

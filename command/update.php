@@ -995,7 +995,7 @@ class Command_Update extends Command_Base {
 		$args[] = $temp_file_name;
 		$actual_destination = $destination;
 		if ($strip_components) {
-			$destination = Directory::temporary($name . '-' . $this->application->process->id());
+			$destination = Directory::depend($this->application->paths->temporary($name . '-' . $this->application->process->id()));
 		}
 		$args[] = "-C '$destination'";
 		return $this->_unpack($args, $destination, $actual_destination, $strip_components);
@@ -1016,7 +1016,7 @@ class Command_Update extends Command_Base {
 		$args[] = $temp_file_name;
 		$actual_destination = $destination;
 		if ($strip_components) {
-			$destination = Directory::temporary($name . '-' . $this->application->process->id());
+			$destination = Directory::depend($this->application->paths->temporary($name . '-' . $this->application->process->id()));
 		}
 		$args[] = "-d '$destination'";
 		return $this->_unpack($args, $destination, $actual_destination, $strip_components);

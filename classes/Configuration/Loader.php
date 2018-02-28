@@ -106,7 +106,7 @@ class Configuration_Loader {
 				$this->load_one($file);
 				$this->current = null;
 			} catch (Exception_File_Format $e) {
-				zesk()->logger->error("Unable to parse configuration file {file} - no parser", compact("file"));
+				error_log(map("Unable to parse configuration file {file} - no parser", compact("file")));
 			}
 			$this->current = null;
 		}

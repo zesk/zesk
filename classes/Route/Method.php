@@ -41,10 +41,8 @@ class Route_Method extends Route {
 				));
 			}
 		} else if (!is_callable($function)) {
-			global $zesk;
-			/* @var $zesk zesk\Kernel */
 			throw new Exception_Parameter("Not callable: {callable} for {pattern}", array(
-				"callable" => $zesk->hooks->callable_string($function),
+				"callable" => Hooks::callable_string($function),
 				"pattern" => $this->pattern
 			));
 		}

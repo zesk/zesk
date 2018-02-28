@@ -193,14 +193,13 @@ class Paths {
 	 * Initialize the command path
 	 */
 	private function _init_command() {
-		global $zesk;
 		/* @var $locale \zesk\Locale */
 		$paths = to_list(avalue($_SERVER, 'PATH'), array(), ':');
 		$this->command_path = array();
 		$this->which_cache = array();
 		foreach ($paths as $path) {
 			if (!is_dir($path) && $this->debug) {
-				$zesk->logger->debug(__CLASS__ . "::command_path: system path \"{path}\" was not found", array(
+				$this->application->logger->debug(__CLASS__ . "::command_path: system path \"{path}\" was not found", array(
 					"path" => $path
 				));
 			} else {
@@ -226,20 +225,19 @@ class Paths {
 	 */
 	public function command($add = null) {
 		if ($add !== null) {
-			global $zesk;
 			/* @var $locale \zesk\Locale */
 			$add = to_list($add, array());
 			foreach ($add as $path) {
 				if (!in_array($path, $this->command_path)) {
 					if (!is_dir($path) && $this->debug) {
-						$zesk->logger->warning(__CLASS__ . "::command_path: adding path \"{path}\" was not found", array(
+						$this->application->logger->warning(__CLASS__ . "::command_path: adding path \"{path}\" was not found", array(
 							"path" => $path
 						));
 					}
 					$this->command_path[] = $add;
 					$this->which_cache = array();
 				} else if ($this->debug) {
-					$zesk->logger->debug(__CLASS__ . "::command_path: did not add \"{path}\" because it already exists", array(
+					$this->application->logger->debug(__CLASS__ . "::command_path: did not add \"{path}\" because it already exists", array(
 						"path" => $path
 					));
 				}

@@ -258,7 +258,6 @@ class Objects {
 			if ($use_static) {
 				$static_methods = array(
 					"singleton",
-					"instance",
 					"master"
 				);
 				foreach ($static_methods as $method) {
@@ -266,12 +265,6 @@ class Objects {
 						$refl_method = $rc->getMethod($method);
 						/* @var $method ReflectionMethod */
 						if ($refl_method->isStatic()) {
-							if ($method === "instance") {
-								/**
-								 * @deprecated 2017-01
-								 */
-								zesk()->deprecated("$resolve_class::$method will no longer be allowed for singleton creation");
-							}
 							return $this->_set_singleton($refl_method->invokeArgs(null, $arguments));
 						}
 					}

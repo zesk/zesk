@@ -1,10 +1,15 @@
 <?php
 namespace zesk;
 
-if (0) {
-	$value = $this->value;
-}
-/* @var $value Selection_Type */
+/* @var $this \zesk\Template */
+/* @var $application \zesk\Application */
+/* @var $locale \zesk\Locale */
+/* @var $session \zesk\Session */
+/* @var $router \zesk\Router */
+/* @var $route \zesk\Route */
+/* @var $request \zesk\Request */
+/* @var $response \zesk\Response */
+/* @var $value \zesk\Selection_Type */
 if (!$value instanceof Selection_Type) {
 	echo $this->empty_string;
 	return;
@@ -23,7 +28,9 @@ foreach ($tags as $key => $line) {
 echo HTML::tag('ul', '.selection-type', implode("\n", $lines));
 
 if ($this->show_editor) {
-	$href = URL::add_ref('/selection/' . $value->id . '/list');
+	$href = URL::query_format('/selection/' . $value->id . '/list', array(
+		"ref" => $request->uri()
+	));
 	echo HTML::tag('a', array(
 		'class' => 'btn btn-default',
 		'data-modal-url' => $href,

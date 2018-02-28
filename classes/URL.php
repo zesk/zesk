@@ -11,7 +11,7 @@ namespace zesk;
 class URL {
 	/**
 	 * Convert a non-secure protocol into a more secure one.
-	 * 
+	 *
 	 * @var array
 	 */
 	protected static $secure_protocols = array(
@@ -19,10 +19,10 @@ class URL {
 		'ftp' => 'sftp',
 		'telnet' => 'ssh'
 	);
-	
+
 	/**
 	 * What's the order for items in a URL (typically http URLs)?
-	 * 
+	 *
 	 * @var array
 	 */
 	static $url_ordering = array(
@@ -35,7 +35,7 @@ class URL {
 		'query',
 		'fragment'
 	);
-	
+
 	/**
 	 * Query string parsing (case-sensitive)
 	 *
@@ -55,7 +55,7 @@ class URL {
 		}
 		return $res;
 	}
-	
+
 	/**
 	 * Case-insensitive query string parsing
 	 *
@@ -76,7 +76,7 @@ class URL {
 		}
 		return avalue($res, $name, $default);
 	}
-	
+
 	/**
 	 * Similar to parse_str.
 	 * Returns false if the query string or URL is empty. Because we're not parsing to
@@ -113,7 +113,7 @@ class URL {
 		}
 		return $urlVars;
 	}
-	
+
 	/**
 	 * Utility function for URL::query_parse.
 	 * Given a result array, a starting key, and a set of keys formatted like "[a][b][c]"
@@ -155,16 +155,16 @@ class URL {
 			$temp[urldecode($last)] = $value;
 		}
 	}
-	
+
 	/**
 	 * Parse a query string from a URL or a query string.
-	 * 
+	 *
 	 * Takes an array, a URL, or a string and converts it into an array.
-	 * 
+	 *
 	 * If no query string variables found in anything above, returns `false`.
-	 * 
+	 *
 	 * @todo Is this used by anyone anymore? Purpose?
-	 * 
+	 *
 	 * @param string $url
 	 * @param boolean $lower
 	 * @return array|false
@@ -197,9 +197,9 @@ class URL {
 		$qs = array_change_key_case($qs);
 		return $qs;
 	}
-	
+
 	/**
-	 * 
+	 *
 	 * @param unknown $path
 	 * @param unknown $add
 	 * @param unknown $remove
@@ -221,10 +221,10 @@ class URL {
 		}
 		return $uri . self::query_unparse($qs);
 	}
-	
+
 	/**
 	 * Unparse multi-dimentional arrays into a query string which PHP supports for reconstruction.
-	 * 
+	 *
 	 * @param string $key_name
 	 * @param array $qs
 	 * @return string
@@ -241,26 +241,20 @@ class URL {
 		}
 		return implode("&", $item);
 	}
-	
+
 	/**
 	 * Convert an array into a query string
-	 * 
+	 *
 	 * @param array $qs
 	 * @param unknown $include
 	 * @return string
 	 */
-	static function query_unparse(array $qs, $include = null) {
+	static function query_unparse(array $qs) {
 		if (count($qs) === 0) {
 			return "";
 		}
-		if ($include !== null) {
-			zesk()->deprecated("\$include parameter is @deprecated 2017-12 use ArrayTools::filter");
-		}
 		$item = array();
 		foreach ($qs as $k => $v) {
-			if ($include !== null && !Lists::contains($include, $k)) {
-				continue;
-			}
 			if (is_array($v)) {
 				$item[] = self::query_unparse_arr($k, $v);
 			} else {
@@ -300,10 +294,10 @@ class URL {
 		$sep = (strpos($u, "?") === false) ? "?" : $amp;
 		return $u . $sep . $qs_append;
 	}
-	
+
 	/**
 	 * Remove items from a query string
-	 * 
+	 *
 	 * @param string $u
 	 * @param list|string $names A ;-separated list of query string names to remove, case-sensitive.
 	 * @return A|string
@@ -330,11 +324,11 @@ class URL {
 		}
 		return $newu . "?" . implode("&", $nq) . $m;
 	}
-	
+
 	/**
 	 * Remove items from a query string using case-insensitive string matching
-	 * 
-	 * @param string $url URL to remove query string variables from 
+	 *
+	 * @param string $url URL to remove query string variables from
 	 * @param array|string $names ;-separated list or array of strings of query string variables to remove
 	 * @return string The URL with the query string variables removed
 	 */
@@ -367,7 +361,7 @@ class URL {
 		}
 		return $newu . "?" . implode("&", $nq) . $m;
 	}
-	
+
 	/**
 	 * Parse a URL without choking on non-URLs
 	 *
@@ -418,7 +412,7 @@ class URL {
 		}
 		return avalue($result, $component, $default);
 	}
-	
+
 	/**
 	 * Takes a URL or url parts (array) and adds useful variables helpful in generating URLs as
 	 * variables
@@ -440,10 +434,10 @@ class URL {
 		}
 		return $parts;
 	}
-	
+
 	/**
 	 * Take a URL parsed into parts and convert it back to a string
-	 * 
+	 *
 	 * @param array $parts
 	 * @return NULL|string
 	 */
@@ -453,26 +447,26 @@ class URL {
 		}
 		$scheme = strtolower($parts["scheme"]);
 		$url = $scheme . (($scheme === "mailto") ? ":" : "://");
-		
+
 		$temp = avalue($parts, "user");
 		if ($temp !== null) {
 			$url .= urlencode($temp);
-			
+
 			$temp = avalue($parts, "pass");
 			if ($temp !== null) {
 				$url .= ":" . urlencode($parts["pass"]);
 			}
-			
+
 			$url .= "@";
 		}
-		
+
 		$url .= strtolower(avalue($parts, "host"));
-		
+
 		$temp = intval(avalue($parts, "port"));
 		if ($temp && ($temp !== self::protocol_default_port($scheme))) {
 			$url .= ":" . $parts["port"];
 		}
-		
+
 		$temp = avalue($parts, "path");
 		if (!empty($temp)) {
 			if ($temp[0] !== '/') {
@@ -486,18 +480,18 @@ class URL {
 		if ($temp) {
 			$url .= "?" . $temp;
 		}
-		
+
 		$temp = avalue($parts, "fragment");
 		if ($temp) {
 			$url .= "#" . urlencode($temp);
 		}
-		
+
 		return $url;
 	}
-	
+
 	/**
 	 * Is this a valid URL? a.k.a. URL::is
-	 * 
+	 *
 	 * @see URL::is
 	 * @param string $url
 	 * @return boolean
@@ -505,10 +499,10 @@ class URL {
 	public static function valid($url) {
 		return self::is($url);
 	}
-	
+
 	/**
-	 * Is this a valid URL? 
-	 * 
+	 * Is this a valid URL?
+	 *
 	 * @param string $url
 	 * @return boolean
 	 */
@@ -527,10 +521,10 @@ class URL {
 		}
 		return true;
 	}
-	
+
 	/**
 	 * Remove the password from a URL if it exists
-	 * 
+	 *
 	 * @param string $x A URL with a password in it, or not.
 	 * @return string The URL without a password
 	 */
@@ -539,12 +533,12 @@ class URL {
 		unset($parts['pass']);
 		return self::unparse($parts);
 	}
-	
+
 	/**
 	 * Return URL scheme default port. Just uses the obvious ones. (gopher:// anyone?)
-	 * 
+	 *
 	 * So you can be a good programmer and avoid using constants.
-	 * 
+	 *
 	 * @param string $x
 	 * @return false|integer
 	 */
@@ -560,7 +554,7 @@ class URL {
 		);
 		return avalue($protocols, strtolower($x), false);
 	}
-	
+
 	/**
 	 * Converts a URL into its normalized form for comparison.
 	 * The following is done:
@@ -585,20 +579,20 @@ class URL {
 			return false;
 		}
 		$proto = strtolower($proto);
-		
+
 		$host = avalue($p, 'host');
 		if (!empty($host)) {
 			$p['host'] = trim(strtolower(urldecode($host)));
 		}
-		
+
 		$p['scheme'] = $proto;
 		if ($proto !== "mailto") {
 			$p['path'] = avalue($p, 'path', '/');
 		}
-		
+
 		return self::unparse($p);
 	}
-	
+
 	/**
 	 * Return the left-hand portion of the URL up to the specified part
 	 *
@@ -635,7 +629,7 @@ class URL {
 		}
 		return self::unparse($new_parts);
 	}
-	
+
 	/**
 	 * Returns everything in the URL prior to the path, query string, and fragment
 	 * e.g.
@@ -651,7 +645,7 @@ class URL {
 	public static function left_host($u) {
 		return self::left($u, 'port');
 	}
-	
+
 	/**
 	 * Returns everything in the URL prior to the query string, and fragment
 	 * e.g.
@@ -667,7 +661,7 @@ class URL {
 	public static function left_path($u) {
 		return self::left($u, 'path');
 	}
-	
+
 	/**
 	 * Fix common issues with URL formatting, particularly when passed in via query strings, etc.
 	 *
@@ -696,7 +690,7 @@ class URL {
 		}
 		return $u;
 	}
-	
+
 	/**
 	 * Returns the scheme of the url
 	 *
@@ -710,7 +704,7 @@ class URL {
 		$result = self::parse($url, 'scheme');
 		return ($result === false) ? $default : strtolower($result);
 	}
-	
+
 	/**
 	 * Returns the host of a URL)
 	 *
@@ -724,7 +718,7 @@ class URL {
 		$result = self::parse($url, 'host');
 		return ($result === false) ? $default : $result;
 	}
-	
+
 	/**
 	 * Returns the query string of a URL (a=b&c=d)
 	 *
@@ -740,7 +734,7 @@ class URL {
 		}
 		return self::parse($url, 'query');
 	}
-	
+
 	/**
 	 * Returns the path of a URL (/path/to/index.php)
 	 *
@@ -754,7 +748,7 @@ class URL {
 		$result = self::parse($url, 'path');
 		return ($result === false) ? $default : $result;
 	}
-	
+
 	/**
 	 * Convert the current request URL and make it secure
 	 *
@@ -772,7 +766,7 @@ class URL {
 		}
 		return $u;
 	}
-	
+
 	/**
 	 * Change http://server1/whatever?qs=1#thinig to http://server2/whatever?qs=1#thinig
 	 *
@@ -789,7 +783,7 @@ class URL {
 		$parts['host'] = $host;
 		return self::unparse($parts);
 	}
-	
+
 	/**
 	 * Returns true if the URL is secure (https)
 	 *
@@ -800,7 +794,7 @@ class URL {
 	public static function is_secure($url) {
 		return in_array(self::scheme($url, ""), array_values(self::$secure_protocols));
 	}
-	
+
 	/**
 	 * Returns true if the URL is secure (https)
 	 *
@@ -816,7 +810,7 @@ class URL {
 		$parts['scheme'] = avalue(self::$secure_protocols, $parts['scheme'], $parts['scheme']);
 		return self::unparse($parts);
 	}
-	
+
 	/**
 	 * Returns true if a url is an absolute URL (for testing href links)
 	 *
@@ -828,7 +822,7 @@ class URL {
 		$url = trim($url);
 		return begins($url, "https://", true) || begins($url, "http://", true);
 	}
-	
+
 	/**
 	 * Determines if TWO urls reside on the same "server"
 	 *
@@ -841,14 +835,14 @@ class URL {
 	public static function is_same_server($url1, $url2) {
 		$p1 = self::parse(strtolower($url1));
 		$p2 = self::parse(strtolower($url2));
-		
+
 		if (!is_array($p1) || !is_array($p2)) {
 			return false;
 		}
-		
+
 		$p1proto = avalue($p1, "scheme", "http");
 		$p2proto = avalue($p2, "scheme", "http");
-		
+
 		$p1port = avalue($p1, "port", self::protocol_default_port($p1proto));
 		$p2port = avalue($p2, "port", self::protocol_default_port($p2proto));
 		if (($p1proto == $p2proto) && (trim(avalue($p1, "host", "")) === trim(avalue($p2, "host", ""))) && ($p1port == $p2port)) {
@@ -856,7 +850,7 @@ class URL {
 		}
 		return false;
 	}
-	
+
 	/**
 	 * Given a page URL and a href that exists on the page, return the full URL of the href.
 	 * Handles relative, absolute, and full URL hrefs
@@ -902,149 +896,5 @@ class URL {
 		$path = Directory::undot($path);
 		$parts['path'] = $path;
 		return self::unparse($parts);
-	}
-	
-	/**
-	 * Does this URL have a reference parameter already?
-	 *
-	 * DEPRECATED: Use your own version of this, or move to Request?
-	 * @deprecated 2017-12
-	 * @param string $href
-	 * @param string $key
-	 * @return boolean
-	 */
-	public static function has_ref($href, $key = "ref") {
-		zesk()->deprecated();
-		return self::query_parse(StringTools::right($href, "?", ""), $key) !== null;
-	}
-	
-	/**
-	 * DEPRECATED: Use your own version of this, or move to Request?
-	 *
-	 * @deprecated 2017-12
-	 * @param unknown $href
-	 * @param unknown $ref
-	 * @param string $key
-	 * @return string
-	 */
-	public static function add_ref($href, $ref = null, $key = "ref") {
-		zesk()->deprecated();
-		if ($ref) {
-			if (substr($ref, 0, 1) === '#') {
-				$ref = self::current_uri() . $ref;
-			}
-		} else {
-			$ref = self::current_uri();
-		}
-		return self::query_append(self::query_remove($href, $key), array(
-			$key => $ref
-		));
-	}
-	/**
-	 * @deprecated 2017-12
-	 * @return unknown|string
-	 */
-	public static function current_scheme() {
-		zesk()->deprecated();
-		// Amazon load balancers
-		if (array_key_exists('HTTP_X_FORWARDED_PROTO', $_SERVER)) {
-			return $_SERVER['HTTP_X_FORWARDED_PROTO'];
-		}
-		return avalue($_SERVER, 'HTTPS') === "on" ? "https" : "http";
-	}
-	/**
-	 * @deprecated 2017-12
-	 * @return unknown|string
-	 */
-	public static function current_host() {
-		zesk()->deprecated();
-		$host = avalue($_SERVER, 'HTTP_HOST', "localhost");
-		return strtolower(StringTools::left($host, ":", $host));
-	}
-	/**
-	 * @deprecated 2017-12
-	 * @return unknown|string
-	 */
-	public static function current_port() {
-		zesk()->deprecated();
-		return intval(avalue($_SERVER, 'HTTP_X_FORWARDED_PORT', avalue($_SERVER, 'SERVER_PORT', 80)));
-	}
-	/**
-	 * @deprecated 2017-12
-	 * @return unknown|string
-	 */
-	public static function current_uri() {
-		zesk()->deprecated();
-		return avalue($_SERVER, 'REQUEST_URI');
-	}
-	/**
-	 * @deprecated 2017-12
-	 * @return unknown|string
-	 */
-	public static function current_query_remove($names) {
-		zesk()->deprecated();
-		return self::query_remove(self::current_uri(), $names);
-	}
-	/**
-	 * @deprecated 2017-12
-	 * @return unknown|string
-	 */
-	public static function current_path() {
-		zesk()->deprecated();
-		$uri = self::current_uri();
-		return StringTools::left($uri, "?", $uri);
-	}
-	/**
-	 * @deprecated 2017-12
-	 * @return unknown|string
-	 */
-	public static function current() {
-		zesk()->deprecated();
-		$parts['scheme'] = self::current_scheme();
-		$parts['host'] = self::current_host();
-		$parts['port'] = self::current_port();
-		$parts['path'] = self::current_path();
-		$parts['query'] = avalue($_SERVER, 'QUERY_STRING', '');
-		return self::unparse($parts);
-	}
-	
-	/**
-	 *
-	 * @deprecated 2017-03
-	 * @param unknown $part
-	 * @return string
-	 */
-	public static function current_left($part) {
-		zesk()->deprecated();
-		return self::left(self::current(), $part);
-	}
-	/**
-	 *
-	 * @deprecated 2017-03
-	 *
-	 * @return string
-	 */
-	public static function current_left_host() {
-		zesk()->deprecated();
-		return self::left_host(self::current());
-	}
-	/**
-	 *
-	 * @deprecated 2017-03
-	 * @return string
-	 */
-	public static function current_left_path() {
-		zesk()->deprecated();
-		return self::left(self::current(), 'path');
-	}
-	
-	/**
-	 *
-	 * @deprecated 2017-03
-	 * @return boolean
-	 */
-	public static function current_is_secure() {
-		zesk()->deprecated();
-		return self::is_secure(self::current());
 	}
 }

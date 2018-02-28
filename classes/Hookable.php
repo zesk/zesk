@@ -361,12 +361,6 @@ class Hookable extends Options {
 	 * @return Command
 	 */
 	final function inherit_global_options($class = null) {
-		if ($class instanceof Application) {
-			$this->application->deprecated("{method} no longer takes application @deprecated 2017-08", array(
-				"method" => __METHOD__
-			));
-			$class = func_get_arg(1);
-		}
 		if ($class === null) {
 			$class = get_class($this);
 		}

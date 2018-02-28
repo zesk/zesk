@@ -120,7 +120,7 @@ abstract class Database_Parser extends Hookable {
 			try {
 				$db = $db_module->scheme_factory($db_scheme);
 			} catch (Exception_NotFound $e) {
-				zesk()->logger->error("Unable to parse SQL from {source}, halting", array(
+				$app->logger->error("Unable to parse SQL from {source}, halting", array(
 					"source" => $source
 				));
 				throw $e;

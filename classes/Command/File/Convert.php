@@ -183,7 +183,7 @@ abstract class Command_File_Convert extends Command_Base {
 	 * @return number
 	 */
 	final protected function default_convert_file($file, $new_file) {
-		zesk()->logger->notice("Writing {new_file}", compact("new_file"));
+		$this->application->logger->notice("Writing {new_file}", compact("new_file"));
 		return File::put($new_file, $this->convert_raw(file_get_contents($file)));
 	}
 

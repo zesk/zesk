@@ -291,7 +291,7 @@ class Command_Loader {
 				if (File::extension($file) === "inc") {
 					/**
 					 *
-					 * @deprecated 2017-013
+					 * @deprecated 2017-01
 					 */
 					$new_file = File::extension_change($file, "php");
 					$this->error("Command files ending with .inc are deprecated in Zesk 0.9.0, please rename\n\n\tmv $file $new_file\n\nto use the .php extension\n");
@@ -508,7 +508,7 @@ class Command_Loader {
 		}
 		if ($this->zesk_is_loaded()) {
 			$this->debug("Set global $key to $value");
-			zesk()->configuration->path_set($key, $value);
+			$this->application->configuration->path_set($key, $value);
 		} else {
 			global $_ZESK;
 			$key = _zesk_global_key($key);
@@ -533,7 +533,7 @@ class Command_Loader {
 			$this->usage("--unset missing argument");
 		}
 		if ($this->zesk_is_loaded()) {
-			zesk()->configuration->path_set($key, null);
+			$this->application->configuration->path_set($key, null);
 		} else {
 			global $_ZESK;
 			$key = _zesk_global_key($key);
@@ -599,8 +599,8 @@ class Command_Loader {
 			$this->usage("$arg is not a directory to --search from");
 		}
 		$this->search[] = $arg;
-		if (class_exists('zesk\\Kernel')) {
-			zesk()->logger->warning("--search is ignored - zesk application is already loeded");
+		if ($this->application) {
+			$this->application->logger->warning("--search is ignored - zesk application is already loeded");
 		}
 		return $argv;
 	}
@@ -633,6 +633,12 @@ class Command_Loader {
 		}
 		return $argv;
 	}
+
+	/**
+	 *
+	 * @param string[] $array
+	 * @return string[]
+	 */
 	public static function wrap_brackets($array) {
 		$result = array();
 		foreach ($array as $k => $v) {
@@ -644,6 +650,7 @@ class Command_Loader {
 	 * Output a debug message
 	 *
 	 * @param string $message
+	 * @return void
 	 */
 	private function debug($message, array $context = array()) {
 		if ($this->debug) {

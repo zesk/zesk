@@ -1,6 +1,6 @@
 <?php
 /**
- * @copyright &copy; 2017 Zesk Foundation 
+ * @copyright &copy; 2017 Zesk Foundation
  * @author kent
  * @category Management
  */
@@ -17,40 +17,40 @@ namespace zesk;
  * @category Management
  */
 class FIFO {
-	
+
 	/**
 	 * FP to fifo: Reader
 	 *
 	 * @var resource
 	 */
 	private $r = null;
-	
+
 	/**
 	 * FP to fifo: Writer
 	 *
 	 * @var resource
 	 */
 	private $w = null;
-	
+
 	/**
 	 * Path to fifo
 	 *
 	 * @var string
 	 */
 	private $path = null;
-	
+
 	/**
 	 * Whether this object created the FIFO (and therefore should destroy it!)
 	 *
 	 * @var boolean
 	 */
 	private $created = false;
-	
+
 	/**
 	 * Create the FIFO
 	 *
 	 * @param string $name
-	 *        	Partial or full path name (uses zesk::run_path directory if just a file)
+	 *        	Full path name
 	 * @param string $create
 	 *        	Create the FIFO if it doesn't exist (assumes READER)
 	 * @param number $mode
@@ -58,8 +58,8 @@ class FIFO {
 	 * @throws Exception_Directory_NotFound
 	 * @throws Exception_File_Permission
 	 */
-	public function __construct($name, $create = false, $mode = 0600) {
-		$this->path = File::absolute_path($name, zesk()->paths->data_path());
+	public function __construct($path, $create = false, $mode = 0600) {
+		$this->path = $path;
 		if ($create) {
 			$dir = dirname($this->path);
 			if (!is_dir($dir)) {
@@ -79,7 +79,7 @@ class FIFO {
 			$this->_before_read();
 		}
 	}
-	
+
 	/**
 	 * Delete the FIFO
 	 *
@@ -91,7 +91,7 @@ class FIFO {
 			unlink($this->path);
 		}
 	}
-	
+
 	/**
 	 * FIFO path
 	 *
@@ -100,11 +100,11 @@ class FIFO {
 	public function path() {
 		return $this->path;
 	}
-	
+
 	/**
 	 * Send a message to parent process
 	 *
-	 * @param mixed $message        	
+	 * @param mixed $message
 	 */
 	public function write($message = null) {
 		if (!$this->_before_write()) {
@@ -121,7 +121,7 @@ class FIFO {
 		fflush($this->w);
 		return true;
 	}
-	
+
 	/**
 	 * Read a message from client process
 	 *
@@ -145,7 +145,7 @@ class FIFO {
 		}
 		return null;
 	}
-	
+
 	/**
 	 * Open write FIFO
 	 *
@@ -153,21 +153,18 @@ class FIFO {
 	 */
 	private function _before_write() {
 		if (!file_exists($this->path)) {
-			zesk()->logger->error("FIFO does not exist at {path}", array(
+			error_log(map("FIFO does not exist at {path}", array(
 				"path" => $this->path
-			));
+			)));
 			return false;
 		}
 		$this->w = fopen($this->path, "w");
 		if (!$this->w) {
-			zesk()->logger->error("Can not open fifo {fifo} for writing", array(
-				"fifo" => $this->path
-			));
 			throw new Exception_File_Permission($this->path, "fopen('{filename}', 'w')");
 		}
 		return true;
 	}
-	
+
 	/**
 	 * Open read FIFO (used by parent process only)
 	 *
@@ -176,13 +173,10 @@ class FIFO {
 	private function _before_read() {
 		$this->r = fopen($this->path, "r+");
 		if (!$this->r) {
-			zesk()->logger->error("Can not open fifo {fifo} for reading", array(
-				"fifo" => $this->path
-			));
 			throw new Exception_File_Permission($this->path, "fopen('{filename}', 'r')");
 		}
 	}
-	
+
 	/**
 	 * Close read FIFO
 	 */
@@ -192,7 +186,7 @@ class FIFO {
 			$this->r = null;
 		}
 	}
-	
+
 	/**
 	 * Close write FIFO
 	 */
@@ -202,7 +196,7 @@ class FIFO {
 			$this->w = null;
 		}
 	}
-	
+
 	/**
 	 * Close all FIFOs
 	 */

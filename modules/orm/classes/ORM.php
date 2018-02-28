@@ -229,7 +229,7 @@ class ORM extends Model {
 	 * Wakeup functionality
 	 */
 	public function __wakeup() {
-		$this->application = Kernel::singleton()->application();
+		$this->application = __wakeup_application();
 		$this->initialize_specification();
 		$this->initialize($this->members, 'raw');
 	}

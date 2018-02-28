@@ -599,7 +599,7 @@ class Template implements Interface_Theme {
 		self::$wrap = to_bool($config->wrap);
 		self::$debug = to_bool($config->debug);
 		self::$debug_stack = to_bool($config->debug_stack);
-		$application->hooks->add('</html>', array(
+		$application->hooks->add('</body>', array(
 			__CLASS__,
 			'profile_output'
 		));
@@ -618,11 +618,12 @@ class Template implements Interface_Theme {
 	 *
 	 * @return string
 	 */
-	public static function profile_output() {
+	public static function profile_output($request, Response $response) {
 		if (!self::$profile) {
 			return '';
 		}
-		echo Kernel::singleton()->application()->theme('template/profile', self::$_stats);
+		$app = $response->application;
+		echo $app->theme('template/profile', self::$_stats);
 	}
 
 	/*

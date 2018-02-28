@@ -498,11 +498,11 @@ class Database extends \zesk\Database {
 	 */
 	function can($feature) {
 		switch ($feature) {
-			case self::feature_create_database:
+			case self::FEATURE_CREATE_DATABASE:
 				return true;
-			case self::feature_list_tables:
+			case self::FEATURE_LIST_TABLES:
 				return true;
-			case self::feature_time_zone_relative_timestamp:
+			case self::FEATURE_TIME_ZONE_RELATIVE_TIMESTAMP:
 				return true;
 		}
 		return false;
@@ -1027,9 +1027,9 @@ class Database extends \zesk\Database {
 	}
 	public function feature($feature, $set = null) {
 		switch ($feature) {
-			case self::feature_max_blob_size:
+			case self::FEATURE_MAX_BLOB_SIZE:
 				return to_integer($this->_variable('max_allowed_packet', $set === null ? null : intval($set)), null);
-			case self::feature_cross_database_queries:
+			case self::FEATURE_CROSS_DATABASE_QUERIES:
 				return true;
 		}
 		throw new Exception_NotFound("Feature {feature} not available in database {name}", array(

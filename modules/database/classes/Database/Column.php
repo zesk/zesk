@@ -176,7 +176,7 @@ class Database_Column extends Options {
 		$diffs = $this->differences($db, $that);
 		if (count($diffs) > 0 && $debug) {
 			$name = $this->name();
-			zesk()->logger->debug("Database_Column::is_similar($name): Incompatible: {dump}", array(
+			$this->table->application->logger->debug("Database_Column::is_similar($name): Incompatible: {dump}", array(
 				"dump" => PHP::dump($diffs),
 				"diffs" => $diffs
 			));

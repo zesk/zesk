@@ -82,7 +82,7 @@ echo HTML::tag('strong', $application->database_module()->database_default());
 <pre>
 <?php
 
-echo Text::format_pairs(Database::register())?>
+echo Text::format_pairs($application->database_module()->register())?>
 </pre>
 <h1>Hooks</h1>
 <pre>

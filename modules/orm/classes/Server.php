@@ -343,7 +343,7 @@ class Server extends ORM implements Interface_Data {
 	 */
 	private function push_utc() {
 		$db = $this->database();
-		if ($db->can(Database::feature_time_zone_relative_timestamp)) {
+		if ($db->can(Database::FEATURE_TIME_ZONE_RELATIVE_TIMESTAMP)) {
 			$old_tz = $db->time_zone();
 			if (!$this->_db_tz_is_utc($old_tz)) {
 				// From https://stackoverflow.com/questions/2934258/how-do-i-get-the-current-time-zone-of-mysql#2934271
@@ -370,7 +370,7 @@ class Server extends ORM implements Interface_Data {
 	private function pop_utc(array $pushed) {
 		list($old_tz, $old_php_tz) = $pushed;
 		$db = $this->database();
-		if ($db->can(Database::feature_time_zone_relative_timestamp)) {
+		if ($db->can(Database::FEATURE_TIME_ZONE_RELATIVE_TIMESTAMP)) {
 			if (!$this->_db_tz_is_utc($old_tz)) {
 				$db->time_zone($old_tz);
 			}
