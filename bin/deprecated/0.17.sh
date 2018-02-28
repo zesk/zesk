@@ -20,6 +20,9 @@ heading() {
 	echo -ne $IBlack
 }
 
+heading "StringTools::wrap is now HTML::wrap"
+zesk cannon StringTools::wrap HTML::wrap
+
 heading "Fixing database constant case"
 zesk cannon option_auto_table_names OPTION_AUTO_TABLE_NAMES
 zesk cannon feature_create_database FEATURE_CREATE_DATABASE
