@@ -5,7 +5,7 @@
 namespace zesk;
 
 /**
- *
+ * @see classes/functions.php
  * @author kent
  *
  */
@@ -152,17 +152,49 @@ class Functions_Test extends Test_Unit {
 	function test_is_date_not($bad_date) {
 		$this->assert(!is_date($bad_date));
 	}
-	function test_is_email() {
-		$email = null;
-		is_email($email);
-
-		$this->assert(is_email('info@conversionruler.com') === true);
-		$this->assert(is_email('info@conversionr$uler.com') === false);
-		$this->assert(is_email('John-Doe`#arasdf@conversionruler.com') === true);
-		$this->assert(is_email('John-Doe`#arasdf@conversionruler.co.uk') === true);
-
-		$this->assert(is_email('John-Doe`#arasdf@conversionruler.co') === true);
-		$this->assert(is_email('John-Doe`#arasdf@conversionruler.o') === false);
+	function is_email_data() {
+		return array(
+			array(
+				'info@conversionruler.com'
+			),
+			array(
+				'John-Doearasdf@conversionruler.com'
+			),
+			array(
+				'John-Doe#arasdf@conversionruler.com'
+			),
+			array(
+				'John-Doe`arasdf@conversionruler.co.uk'
+			),
+			array(
+				'John-Doe`#arasdf@conversionruler.co.uk'
+			)
+		);
+	}
+	function not_is_email_data() {
+		return array(
+			array(
+				'info@conversion$ruler.com'
+			),
+			array(
+				'.NotAGoodOne@example.com'
+			),
+			array(
+				'NotAGoodOne@-example.com'
+			)
+		);
+	}
+	/**
+	 * @dataProvider is_email_data
+	 */
+	function test_is_email($email) {
+		$this->assertTrue(is_email($email), "is_email($email)");
+	}
+	/**
+	 * @dataProvider not_is_email_data
+	 */
+	function test_is_not_email($email) {
+		$this->assertFalse(is_email($email), "is_email($email)");
 	}
 	function test_is_phone() {
 		$phone = null;
