@@ -9,24 +9,24 @@
 namespace zesk;
 
 /**
- * 
+ *
  * @author kent
  *
  */
 class JSON {
 	/**
 	 * Is the name passed a valid member name which does not require quotes in JavaScript?
-	 * 
+	 *
 	 * @param string $name
 	 * @return boolean
 	 */
 	public static function valid_member_name($name) {
 		return preg_match('/^[$A-Za-z_][$A-Za-z_0-9]*$/', $name) !== 0;
 	}
-	
+
 	/**
 	 * Quote a member name if necessary
-	 * 
+	 *
 	 * @param string $name
 	 * @return string
 	 */
@@ -36,20 +36,20 @@ class JSON {
 		}
 		return self::quote($name);
 	}
-	
+
 	/**
 	 * Quote a JSON token properly
-	 * 
+	 *
 	 * @param string $name
 	 * @return string
 	 */
 	public static function quote($name) {
 		return '"' . addcslashes($name, "\t\n\r\"\\") . '"';
 	}
-	
+
 	/**
 	 * Pretty output of JSON
-	 * 
+	 *
 	 * @param mixed $mixed
 	 * @return string
 	 */
@@ -118,11 +118,13 @@ class JSON {
 			return '"' . strval($mixed) . '"';
 		} else if ($mixed === null) {
 			return 'null';
+		} else if ($mixed instanceof \__PHP_Incomplete_Class) {
+			return null;
 		} else {
 			die("Unknown type: $mixed " . gettype($mixed));
 		}
 	}
-	
+
 	/**
 	 * Like json_encode, except removes unnecessary quotes in keys
 	 *
@@ -170,7 +172,7 @@ class JSON {
 			die("Unknown type: $mixed " . gettype($mixed));
 		}
 	}
-	
+
 	/**
 	 * Like json_decode, except if the decoding fails throw an exception
 	 *
@@ -201,9 +203,9 @@ class JSON {
 			return self::zesk_decode($string, $assoc);
 		}
 	}
-	
+
 	/**
-	 * 
+	 *
 	 * @param unknown $code
 	 * @return string|mixed|array
 	 */
@@ -237,19 +239,19 @@ class JSON {
 		}
 		return null;
 	}
-	
+
 	/**
 	 * Used to track state for Zesk's internal JSON decoder
-	 * 
+	 *
 	 * @var Exception
 	 */
 	static $last_error = null;
-	
+
 	/**
 	 * Like json_decode except use Zesk's internal parser (slow)
 	 *
-	 * @param string $string        	
-	 * @param string $assoc        	
+	 * @param string $string
+	 * @param string $assoc
 	 * @return mixed
 	 */
 	static function zesk_decode($string, $assoc = false) {
@@ -267,7 +269,7 @@ class JSON {
 		}
 		return null;
 	}
-	
+
 	/**
 	 * Decode JSON string starting with white space, then a value
 	 *
@@ -297,10 +299,10 @@ class JSON {
 	 * assume PHP 5.2 and json will
 	 * be core of PHP in the near future.
 	 *
-	 * @param string $string        	
+	 * @param string $string
 	 * @param integer $offset
 	 *        	Current offset in the total string - for debugging only
-	 * @param boolean $assoc        	
+	 * @param boolean $assoc
 	 * @throws Exception_Parse
 	 * @return array
 	 */
@@ -340,11 +342,11 @@ class JSON {
 			"offset" => $offset
 		));
 	}
-	
+
 	/**
 	 * JSON parse number
 	 *
-	 * @param string $string        	
+	 * @param string $string
 	 * @param integer $offset
 	 *        	Current offset in the total string - for debugging only
 	 * @throws Exception_Parse
@@ -369,11 +371,11 @@ class JSON {
 			"offset" => $offset
 		));
 	}
-	
+
 	/**
 	 * JSON decode array
 	 *
-	 * @param string $string        	
+	 * @param string $string
 	 * @param integer $offset
 	 *        	Current offset in the total string - for debugging only
 	 * @throws Exception_Parse
@@ -423,11 +425,11 @@ class JSON {
 			"offset" => $offset
 		));
 	}
-	
+
 	/**
 	 * JSON decode object
 	 *
-	 * @param string $string        	
+	 * @param string $string
 	 * @param integer $offset
 	 *        	Current offset in the total string - for debugging only
 	 * @throws Exception_Parse
@@ -501,11 +503,11 @@ class JSON {
 			"offset" => $offset
 		));
 	}
-	
+
 	/**
 	 * JSON decode string
 	 *
-	 * @param string $string        	
+	 * @param string $string
 	 * @param integer $offset
 	 *        	Current offset in the total string - for debugging only
 	 * @throws Exception_Parse
@@ -522,7 +524,7 @@ class JSON {
 			'r' => "\r",
 			't' => "\t"
 		);
-		
+
 		$len = strlen($string);
 		$result = '';
 		$i = 1;
@@ -539,7 +541,7 @@ class JSON {
 				$result .= $c;
 				continue;
 			}
-			
+
 			if ($i >= $len) {
 				throw new Exception_Parse("Unterminated string at offset {offset}", array(
 					"offset" => $offset + $i
