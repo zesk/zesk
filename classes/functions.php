@@ -24,21 +24,36 @@ use zesk\StringTools;
 /**
  * A regular expression pattern for matching email addresses anywhere (should delimit both ends in
  * your own expression).
- * Undelimited pattern.
+ *
+ * @see https://stackoverflow.com/questions/201323/using-a-regular-expression-to-validate-an-email-address
+ * @see https://stackoverflow.com/questions/2049502/what-characters-are-allowed-in-an-email-address#2049510
+ *
+ * User contains:
+ *
+ * - uppercase and lowercase Latin letters A to Z and a to z;
+ * - digits 0 to 9;
+ * - special characters !#$%&'*+-/=?^_`{|}~;
+ * - dot ., provided that it is not the first or last character unless quoted, and provided also that it does not appear consecutively unless quoted (e.g. John..Doe@example.com is not allowed but "John..Doe"@example.com is allowed);
+ * - space and "(),:;<>@[\] characters are allowed with restrictions (they are only allowed inside a quoted string, as described in the paragraph below, and in addition, a backslash or double-quote must be preceded by a backslash);
+ * - comments are allowed with parentheses at either end of the local-part; e.g. john.smith(comment)@example.com and (comment)john.smith@example.com are both equivalent to john.smith@example.com.
+ *
+ * Patterns depend on using the / for the delimiter as shown in the PREG_PATTERN_EMAIL_USERNAME_CHAR with the \\ prefixing the / to ensure the pattern does not stop
  *
  * @var string
  * @see preg_match
  */
-define("PREG_PATTERN_EMAIL", '[-`~#$%&*\'a-zA-Z0-9_\.+=]+@[a-zA-Z0-9\.-]+\.[a-zA-Z]{2,}');
+define("PREG_PATTERN_EMAIL_USERNAME_CHAR", '[-a-z0-9!#$%&\'*+\\/=?^_`{|}~]');
+define("PREG_PATTERN_EMAIL_USERNAME", '(?:' . PREG_PATTERN_EMAIL_USERNAME_CHAR . '+(?:\\.' . PREG_PATTERN_EMAIL_USERNAME_CHAR . '+)*|"(?:[\x01-\x08\x0b\x0c\x0e-\x1f\x21\x23-\x5b\x5d-\x7f]|\\[\x01-\x09\x0b\x0c\x0e-\x7f])*")');
+define("PREG_PATTERN_EMAIL_DOMAIN", '(?:(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?|\[(?:(?:(2(5[0-5]|[0-4][0-9])|1[0-9][0-9]|[1-9]?[0-9]))\.){3}(?:(2(5[0-5]|[0-4][0-9])|1[0-9][0-9]|[1-9]?[0-9])|[a-z0-9-]*[a-z0-9]:(?:[\x01-\x08\x0b\x0c\x0e-\x1f\x21-\x5a\x53-\x7f]|\\[\x01-\x09\x0b\x0c\x0e-\x7f])+)\])');
 
 /**
- * A regular expression pattern for matching email addresses.
- * Delimited pattern, use for trimmed complete string.
+ * A regular expression pattern for matching email addresses, undelimited. Should run case-insensitive.
  *
  * @var string
  * @see preg_match
  */
-define("PREG_PATTERN_EMAIL_STRING", '/^' . PREG_PATTERN_EMAIL . '$/');
+
+define("PREG_PATTERN_EMAIL", PREG_PATTERN_EMAIL_USERNAME . '@' . PREG_PATTERN_EMAIL_DOMAIN);
 
 /**
  * Key used to seaparate paths in the globals array
@@ -1168,7 +1183,7 @@ function is_date($x) {
  * @return boolean
  */
 function is_email($email) {
-	return (preg_match(PREG_PATTERN_EMAIL_STRING, $email) !== 0) ? true : false;
+	return (preg_match('/^' . PREG_PATTERN_EMAIL . '$/i', $email) !== 0) ? true : false;
 }
 
 /**
