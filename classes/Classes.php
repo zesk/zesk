@@ -35,9 +35,14 @@ class Classes {
 	protected $subclasses = array();
 	
 	/**
-	 * @var arrayls
+	 * @var array
 	 */
 	protected $hierarchy = array();
+
+	/**
+	 * @var boolean
+	 */
+	protected $dirty = false;
 	
 	/**
 	 * 
