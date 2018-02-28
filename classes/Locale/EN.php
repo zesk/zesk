@@ -98,7 +98,7 @@ class Locale_EN extends Locale {
 			case "ay":
 				return StringTools::case_match($word . "s", $word);
 		}
-		$s1 = $s2[1];
+		$s1 = substr($s2, 1, 1);
 		switch ($s1) {
 			case 'z':
 			case 's':
