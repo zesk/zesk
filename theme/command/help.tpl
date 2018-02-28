@@ -41,7 +41,7 @@ foreach ($this->categories as $category => $commands) {
 		$desc = avalue($info, "desc", $locale("No description provided."));
 		$parameters = array();
 		// // 		foreach (avalue($info, 'global', array()) as $global => $foo) {
-		// // 			$parameters[] = "$global (" . $foo[0] . ")" . (count($foo) > 1 ? "\n" . Text::indent($foo[2], 1, true, $tab) : "");
+		// // 			$parameters[] = "$global (" . $foo[0] . ")" . (count($foo) > 1 ? "\n" . Text::indent(avalue($foo, 2), 1, true, $tab) : "");
 		// // 		}
 		$parameters = implode("\n", $parameters);
 		if ($parameters) {
