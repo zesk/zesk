@@ -262,15 +262,14 @@ abstract class Route extends Hookable {
 			'controller' => Route_Controller::class,
 			'command' => Route_Command::class,
 			'theme' => Route_Theme::class,
-			'template' => Route_Theme::class,
 			'method' => Route_Method::class
 		);
 		foreach ($types as $k => $class) {
 			if (array_key_exists($k, $options)) {
-				return $router->application->objects->factory($class, $router, $pattern, $options);
+				return $router->application->factory($class, $router, $pattern, $options);
 			}
 		}
-		return $router->application->objects->factory("zesk\\Route_Content", $router, $pattern, $options);
+		return $router->application->factory(Route_Content::class, $router, $pattern, $options);
 	}
 
 	/**
