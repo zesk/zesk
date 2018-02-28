@@ -960,8 +960,8 @@ abstract class Command extends Hookable implements Logger\Handler {
 					case "file":
 						$param = $this->get_arg($arg);
 						if ($param !== null) {
-							if (!is_file($param)) {
-								$this->error("Argument $arg $param is not a file.");
+							if (!$this->validate_file($param)) {
+								$this->error("Argument $arg $param is not a file or link.");
 							} else {
 								$option_values[$arg] = true;
 								$this->set_option($arg, $param);
@@ -973,7 +973,7 @@ abstract class Command extends Hookable implements Logger\Handler {
 					case "file[]":
 						$param = $this->get_arg($arg);
 						if ($param !== null) {
-							if (!is_file($param)) {
+							if (!$this->validate_file($param)) {
 								$this->error("Argument $arg $param is not a file.");
 							} else {
 								$option_values[$arg] = true;
@@ -1317,6 +1317,15 @@ abstract class Command extends Hookable implements Logger\Handler {
 		return $this->ansi;
 	}
 
+	/**
+	 * Validate a file parameter
+	 *
+	 * @param string $file
+	 * @return boolean
+	 */
+	public function validate_file($file) {
+		return is_file($file) || is_link($file);
+	}
 	/**
 	 * Main run code
 	 */
