@@ -205,7 +205,7 @@ class Module_Help extends Module_JSLib {
 			$content_wraps = $help->content_wraps;
 			$content = $__($help->content, $help_map);
 			if (is_array($content_wraps)) {
-				$content = StringTools::wrap($content, $content_wraps);
+				$content = HTML::wrap($content, $content_wraps);
 			}
 
 			$help_entry['content'] = $content;

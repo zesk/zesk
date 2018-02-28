@@ -178,7 +178,7 @@ class Selection_Type extends ORM {
 		$line = array();
 		/* @var $query Selection_Query */
 		foreach ($this->queries as $query) {
-			$line[] = StringTools::wrap(__("[{action}] {title} ({operation}{count})", array(
+			$line[] = HTML::wrap(__("[{action}] {title} ({operation}{count})", array(
 				"title" => $query->title,
 				"count" => $query->count(),
 				"operation" => $query->add ? "+" : "-",

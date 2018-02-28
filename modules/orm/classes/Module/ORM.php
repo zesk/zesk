@@ -527,7 +527,7 @@ class Module_ORM extends Module {
 			//TODO How to communicate with main UI?
 			// 				$router = $this->router();
 			// 				$url = $router->get_route("schema_synchronize", $application);
-			// 				$message = $url ? StringTools::wrap(__("The database schema is out of sync, please [update it immediately.]"), HTML::a($url, '[]')) : __("The database schema is out of sync, please update it immediately.");
+			// 				$message = $url ? HTML::wrap(__("The database schema is out of sync, please [update it immediately.]"), HTML::a($url, '[]')) : __("The database schema is out of sync, please update it immediately.");
 			// 				Response::instance($application)->redirect_message($message, array(
 			// 					"url" => $url
 			// 				));

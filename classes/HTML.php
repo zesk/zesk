@@ -1630,13 +1630,13 @@ class HTML {
 	 * a i18n phrase, use brackets
 	 * to delineate tags to add to the phrase, as follows:
 	 *
-	 * <pre>StringTools::wrap(__('This is [0:bold text] and this is [1:italic].'), '<strong>[]</strong>',
+	 * <pre>HTML::wrap(__('This is [0:bold text] and this is [1:italic].'), '<strong>[]</strong>',
 	 * '<em>[italic]</em>') =
 	 * "This is <strong>bold text</strong> and this is <em>italic</em>."</pre>
 	 *
 	 * Supplying <strong>no</strong> positional information will replace values in order, e.g.
 	 *
-	 * <pre>StringTools::wrap(__('This is [bold text] and this is [italic].'), '<strong>[]</strong>',
+	 * <pre>HTML::wrap(__('This is [bold text] and this is [italic].'), '<strong>[]</strong>',
 	 * '<em>[italic]</em>') =
 	 * "This is <strong>bold text</strong> and this is <em>italic</em>."</pre>
 	 *
@@ -1644,7 +1644,7 @@ class HTML {
 	 * handles nested brackets, however,
 	 * the inner brackets is indexed before the outer brackets, e.g.
 	 *
-	 * <pre>StringTools::wrap('[[a][b]]','<strong>[]</strong>','<em>[]</em>','<div>[]</div>') =
+	 * <pre>HTML::wrap('[[a][b]]','<strong>[]</strong>','<em>[]</em>','<div>[]</div>') =
 	 * "<div><strong>a</strong><em>b</em></div>";
 	 *
 	 * @param string $phrase
