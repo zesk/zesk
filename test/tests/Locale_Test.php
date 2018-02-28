@@ -34,7 +34,9 @@ class Locale_Test extends Test_Unit {
 			'OCTOPUS' => 'OCTOPI',
 			'OcToPuS' => 'Octopi',
 			'FOX' => 'FOXES',
-			'box' => 'boxes'
+			'box' => 'boxes',
+			'z' => 'zs',
+			'w' => 'ws'
 		);
 
 		$n = 2;
