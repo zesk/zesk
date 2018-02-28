@@ -23,6 +23,12 @@ class Command_Daemon extends Command_Base implements Interface_Process {
 
 	/**
 	 *
+	 * @var File_Monitor_List
+	 */
+	private $watch_monitor = null;
+
+	/**
+	 *
 	 * @var array
 	 */
 	protected $option_types = array(
@@ -39,7 +45,8 @@ class Command_Daemon extends Command_Base implements Interface_Process {
 		"bounce" => "string",
 		"terminate-after" => "integer",
 		"alive-interval" => "integer",
-		"terminate-wait" => "integer"
+		"terminate-wait" => "integer",
+		"watch" => "file[]"
 	);
 
 	/**
@@ -60,7 +67,8 @@ class Command_Daemon extends Command_Base implements Interface_Process {
 		"bounce" => "Restart a single method within a server",
 		"terminate-after" => "Quit after the number of seconds specified; often assists with processes which work for a while then seize up.",
 		"terminate-wait" => "Wait number of seconds after termination before re-launching.",
-		"alive-interval" => "Number of seconds after which to output a message, to prove server is alive."
+		"alive-interval" => "Number of seconds after which to output a message, to prove server is alive.",
+		"watch" => "One or more files which, when their attributes change, should trigger the daemon to exit."
 	);
 
 	/**
@@ -666,8 +674,10 @@ class Command_Daemon extends Command_Base implements Interface_Process {
 		if (count($daemons) === 0) {
 			$this->warning("No daemons found to run");
 		}
+		$this->load_watch();
 		declare(ticks = 1) {
 			do {
+				$this->check_watch();
 				$this->run_children();
 				$this->read_fifo($timeout);
 				$elapsed = $timer->elapsed();
@@ -684,6 +694,23 @@ class Command_Daemon extends Command_Base implements Interface_Process {
 		}
 
 		return 0;
+	}
+
+	/**
+	 *
+	 */
+	private function load_watch() {
+		$files = $this->option_list("watch");
+		if (count($files) > 0) {
+			$this->watch_monitor = new File_Monitor_List($files);
+		}
+	}
+	private function check_watch() {
+		if ($this->watch_monitor) {
+			if ($this->watch_monitor->changed()) {
+				$this->quitting = true;
+			}
+		}
 	}
 	private function run_child($name) {
 		$pid = $this->application->process->id();
