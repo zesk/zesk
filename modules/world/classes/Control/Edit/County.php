@@ -9,7 +9,7 @@ class Control_Edit_County extends Control_Edit {
 		$this->options['submit_redirect_message'] = __('"{object.name}" was saved.');
 	}
 	protected function hook_widgets() {
-		$ww[] = $this->widget_factory("zesk\\Control_Text")
+		$ww[] = $this->widget_factory(Control_Text::class)
 			->names('name', __('Name'))
 			->add_class("input-lg")
 			->required(true);

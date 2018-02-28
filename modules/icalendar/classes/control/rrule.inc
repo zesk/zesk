@@ -1,7 +1,17 @@
 <?php
+/**
+ * @package zesk-module
+ * @subpackage icalendar
+ * @author kent
+ * @copyright &copy; 2018 Market Acumen, Inc.
+ */
+namespace zesk;
+
 use zesk\Date;
+use zesk\Control_Date;
 use zesk\Control_Select;
 use zesk\Locale;
+use zesk\Control_Pills;
 
 /**
  *
@@ -27,7 +37,7 @@ class Control_RRule extends \zesk\Control {
 		$this->child($w);
 		$ww['interval'] = $w;
 
-		$w = $this->widget_factory('Control_Pills')
+		$w = $this->widget_factory(Control_Pills::class)
 			->names($name . '_weekday')
 			->control_options($this->weekday_options())
 			->multiple(true)
@@ -35,7 +45,7 @@ class Control_RRule extends \zesk\Control {
 		$this->child($w);
 		$ww['weekday'] = $w;
 
-		$w = $this->widget_factory('Control_Pills')
+		$w = $this->widget_factory(Control_Pills::class)
 			->names($name . '_monthday')
 			->control_options($this->monthday_options())
 			->multiple(true)
@@ -43,7 +53,7 @@ class Control_RRule extends \zesk\Control {
 		$this->child($w);
 		$ww['monthday'] = $w;
 
-		$w = $this->widget_factory('Control_Pills')
+		$w = $this->widget_factory(Control_Pills::class)
 			->names($name . '_yearly')
 			->control_options($this->monthly_options())
 			->multiple(true)
@@ -51,21 +61,21 @@ class Control_RRule extends \zesk\Control {
 		$this->child($w);
 		$ww['month'] = $w;
 
-		$w = $this->widget_factory('Control_Select')
+		$w = $this->widget_factory(Control_Select::class)
 			->names($name . '_on_which')
 			->control_options($this->which_day_options())
 			->noname("");
 		$this->child($w);
 		$ww['onwhich'] = $w;
 
-		$w = $this->widget_factory('Control_Select')
+		$w = $this->widget_factory(Control_Select::class)
 			->names($name . '_on_day')
 			->control_options($this->day_choice_options())
 			->noname("");
 		$this->child($w);
 		$ww['onday'] = $w;
 
-		$w = $this->widget_factory("Control_Date")->names($name . '_enddate', $locale->__('End Date'))->set_option('inline', true);
+		$w = $this->widget_factory(Control_Date::class)->names($name . '_enddate', $locale->__('End Date'))->set_option('inline', true);
 		$this->child($w);
 		$ww['enddate'] = $w;
 

@@ -47,6 +47,13 @@ class View_Image_Test extends TestWidget {
 		$this->assertEquals($w_img, $width, "$src image should be width $width");
 		$this->assertEquals($h_img, $height, "$src image should be height $height");
 	}
+	// 	function validate_image_size($path, $width, $height) {
+	// 		global $test_dir;
+	// 		list($w, $h) = getimagesize("$test_dir/$path");
+	// 		echo "$path is $w x $h\n";
+	// 		$this->assert("$w === $width", "$path should be width $width");
+	// 		$this->assert("$h === $height", "$path should be height $height");
+	// 	}
 	function validate_image_size($image_path, $width, $height) {
 		list($w_img, $h_img) = getimagesize($image_path);
 		$this->assert_equal($w_img, $width, "$image_path image should be width $width (actual $w_img)");
@@ -55,7 +62,7 @@ class View_Image_Test extends TestWidget {
 	function test_scaled() {
 		$this->test_dir = $this->test_sandbox();
 
-		$this->application->document_root($this->test_dir);
+		$this->application->set_document_root($this->test_dir);
 
 		$src = null;
 		$width = false;
@@ -279,15 +286,9 @@ class View_Image_Test extends TestWidget {
 				list($s0x, $s0y, $s1x, $s1y) = $test;
 				$rel_path = View_Image::scaled_path($this->application, $src, $s0x, $s0y, "", $extras);
 				$full_path = path($this->application->document_root(), $rel_path);
+				$this->assert_true(file_exists($full_path), "File does not exist $full_path");
 				$this->validate_image_size($full_path, $s1x, $s1y);
 			}
-		}
-		function validate_image_size($path, $width, $height) {
-			global $test_dir;
-			list($w, $h) = getimagesize("$test_dir/$path");
-			echo "$path is $w x $h\n";
-			$this->assert("$w === $width", "$path should be width $width");
-			$this->assert("$h === $height", "$path should be height $height");
 		}
 	}
 	function test_scaled_widget() {

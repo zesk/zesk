@@ -356,16 +356,16 @@ class Module_Database extends Module {
 				"scheme" => $scheme
 			));
 		}
-		$db->internal_name = $codename;
+		$db->code_name($codename);
 		$db->set_option("internal_name", $codename);
 		$this->databases[$codename] = $db;
 		if (avalue($options, 'connect', true)) {
 			if (!$db->connect()) {
-				zesk()->logger->warning("Failed to connect to database: $safe_url");
+				$this->application->logger->warning("Failed to connect to database: $safe_url");
 				return null;
 			}
 			if ($db->option_bool("debug")) {
-				zesk()->logger->debug("Connected to database: $safe_url");
+				$this->application->logger->debug("Connected to database: $safe_url");
 			}
 		}
 		return $db;

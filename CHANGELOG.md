@@ -23,6 +23,10 @@ Version 1.0 of Zesk will have:
 - `zesk daemon` now has a `--watch` directive to set up a list of files to monitor and quit when they change
 - `zesk` commands which take `file` option now accept links as well
 
+## [v0.16.5][]
+
+- Detect PHPUnit tests, fixing test suite
+
 ## [v0.16.4][]
 
 - `zesk\Widget::initialize` now throws an `Exception_Semantics` if called without a `zesk\Response` set up in the widget for 
@@ -1388,7 +1392,8 @@ Settling of `zesk\Kernel` and `zesk\` namespace changes, added additional compon
 - Removed growl module (no longer relevant on Mac OS X)
 
 [Unreleased]: https://github.com/zesk/zesk/compare/HEAD...HEAD
-[v0.16.4]: https://github.com/zesk/zesk/compare/v0.16.4...HEAD
+[v0.16.5]: https://github.com/zesk/zesk/compare/v0.16.5...HEAD
+[v0.16.4]: https://github.com/zesk/zesk/compare/v0.16.4...v0.16.5
 [v0.16.3]: https://github.com/zesk/zesk/compare/v0.16.3...v0.16.4
 [v0.16.2]: https://github.com/zesk/zesk/compare/v0.16.2...v0.16.3
 [v0.16.1]: https://github.com/zesk/zesk/compare/v0.16.1...v0.16.2

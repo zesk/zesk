@@ -877,6 +877,7 @@ class Class_ORM extends Hookable {
 					$this->has_one[$member] = $class = $app->objects->resolve($class);
 					ArrayTools::append($this->has_one_flip, $class, $member);
 				}
+				$this->column_types[$member] = self::type_object;
 			}
 		}
 		$this->initialize_database($object);

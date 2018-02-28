@@ -207,7 +207,7 @@ function contact_edit_pair($label, $class, $name, $data, $labels, $section, $sec
 		)));
 	} else {
 		$labels['...'] = __('Custom ...');
-		$w = $this->widget_factory("Control_Select")
+		$w = $this->widget_factory(Control_Select::class)
 			->names($field_name)
 			->control_options($labels)
 			->required(true);

@@ -2,23 +2,24 @@
 namespace zesk;
 
 /**
- * 
+ *
  * @author kent
  *
  */
 class Command_GitHub extends Command_Base {
+	const OPTION_DESCRIPTION = "description";
 	/**
-	 * 
+	 *
 	 * @var array
 	 */
 	protected $option_types = array(
 		"tag" => "boolean",
 		"description-file" => "file",
-		"description" => "string",
+		self::OPTION_DESCRIPTION => "string",
 		"commitish" => "string"
 	);
 	/**
-	 * 
+	 *
 	 * @var array
 	 */
 	protected $option_defaults = array(
@@ -26,24 +27,24 @@ class Command_GitHub extends Command_Base {
 		"commitish" => "master"
 	);
 	/**
-	 * 
+	 *
 	 * @var integer
 	 */
 	const EXIT_CODE_NO_DESCRIPTION = 1;
-	
+
 	/**
-	 * 
+	 *
 	 * @var integer
 	 */
 	const EXIT_CODE_GITHUB_MODULE = 2;
 	/**
-	 * 
+	 *
 	 * @var integer
 	 */
 	const EXIT_CODE_TAG_FAILED = 3;
-	
+
 	/**
-	 * 
+	 *
 	 * {@inheritDoc}
 	 * @see \zesk\Command::run()
 	 */
@@ -54,14 +55,14 @@ class Command_GitHub extends Command_Base {
 		$this->usage("Need to specify --tag");
 		return 0;
 	}
-	
+
 	/**
-	 * 
+	 *
 	 * @return string|number
 	 */
 	function command_tag() {
 		$file = $this->option("description-file");
-		$description = File::contents($file, $this->option("decription"));
+		$description = File::contents($file, $this->option(self::OPTION_DESCRIPTION));
 		if (!$description) {
 			$this->error("Need a non-blank description");
 			return self::EXIT_CODE_NO_DESCRIPTION;

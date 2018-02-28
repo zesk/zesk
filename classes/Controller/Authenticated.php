@@ -37,13 +37,6 @@ class Controller_Authenticated extends Controller_Theme {
 	public $user = null;
 
 	/**
-	 * Current user account
-	 *
-	 * @var Account
-	 */
-	public $account = null;
-
-	/**
 	 * Current session
 	 *
 	 * @var Interface_Session

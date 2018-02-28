@@ -701,11 +701,11 @@ class Module extends \zesk\Module {
 	 *
 	 */
 	protected function hook_schema_updated() {
+		$settings = $this->application->orm_registry(Settings::class);
 		// Changed class structure on 2016-11-23
-		$this->application->settings()->prefix_updated("Module_Cron::", __CLASS__ . "::");
-		$this->application->settings()->prefix_updated("zesk\\Module_Cron::", __CLASS__ . "::");
-		$nrows = $this->application->orm_registry(Settings::class)
-			->query_delete()
+		$settings->prefix_updated("Module_Cron::", __CLASS__ . "::");
+		$settings->prefix_updated("zesk\\Module_Cron::", __CLASS__ . "::");
+		$nrows = $settings->query_delete()
 			->where("name|LIKE", array(
 			'Module_Cron::%',
 			'cron::%'

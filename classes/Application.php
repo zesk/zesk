@@ -194,6 +194,7 @@ class Application extends Hookable implements Interface_Theme {
 	 * @var Request[]
 	 */
 	private $request_stack = array();
+
 	/**
 	 * @deprecated 2018-01
 	 * @var Request
@@ -1052,8 +1053,6 @@ class Application extends Hookable implements Interface_Theme {
 	 */
 	private function _templates_initialize(array $variables) {
 		$variables['application'] = $this;
-		$variables['router'] = $this->router;
-		$variables['request'] = $this->request();
 		$variables += $this->template_variables;
 		$variables += $this->call_hook_arguments("template_defaults", array(
 			$variables
