@@ -19,6 +19,10 @@ Version 1.0 of Zesk will have:
 
 ## [Unreleased][]
 
+- `zesk\Command` has a method called `validate_file` which can be implemented by subclasses if desired to validate any arguments which are a `file` or `file[]`.
+- `zesk daemon` now has a `--watch` directive to set up a list of files to monitor and quit when they change
+- `zesk` commands which take `file` option now accept links as well
+
 ## [v0.16.4][]
 
 - `zesk\Widget::initialize` now throws an `Exception_Semantics` if called without a `zesk\Response` set up in the widget for 

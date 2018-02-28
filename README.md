@@ -1,4 +1,4 @@
-# zesk
+# Zesk
 
 **Zesk Application Framework**: All the good stuff, none of the bad.
 
@@ -8,7 +8,7 @@ It also has a modular interface to all extension via modules, a powerful hook sy
 
 It also has a Model-View-Controller architecture, and a form and object editing system using Controls and Views (for form elements and UI generation).
 
-Zesk is a toolkit and a platform, and attempts to adhere to the DRY (Don't Repeat Yourself) principle. In addition, it generates no errors, warnings, or notices within the code, and encourages applications to be written using `E_ALL | E_STRICT` error reporting.
+Zesk is a toolkit and a platform, and attempts to adhere to the DRY (Don't Repeat Yourself) principle. In addition, it generates no errors, warnings, or notices within the code, and encourages applications to be written using `E_ALL | E_STRICT` error reporting. It also attempts to avoid many of the PHP language inconsistences.
 
 Module integration is meant to be straightforward, seamless, and easy to manage.
 
@@ -22,6 +22,10 @@ Zesk was re-written to be leaner and meaner and the good ideas were taken out of
 
 We like to think that we took the good parts of all of these technologies and left out most of the bad parts. From Kohana, some of its elegance, object-oriented approach, and strict PHP 5 support. From Zend Framework, the autoloader and class naming. From Drupal the method space hook system, and seamless module extension interface. From Wordpress, the hook registration system.
 
-In short, this software was heavily influenced by much of the PHP frameworks out there, and hopefully presents a robust and powerful tool for building your web applications in PHP 5 or greater.
+With the advent of PHP Standards, we've adopted PSR-4 and some other naming standards in the core APIs, including `Psr/Log` and `Psr/Cache`.
 
-Visit [Zesk.com](http://zesk.com) for up-to-date information.
+Strict PHP 7 support is planned for 2019 with traits, return types, and its faster performance.
+
+In short, this software was heavily influenced by much of the PHP frameworks out there, and hopefully presents a robust and powerful tool for building your web applications in modern PHP development.
+
+Visit [Zesk.com](https://zesk.com) for up-to-date information.
