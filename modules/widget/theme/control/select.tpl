@@ -6,7 +6,7 @@
 namespace zesk;
 
 /* @var $object Model */
-/* @var $widget \zesk\Control_Select */
+/* @var $widget Control_Select */
 /* @var $column string */
 /* @var $name string */
 /* @var $value string|array */
@@ -52,7 +52,11 @@ if ($widget->is_single()) {
 			$single_tag_contents = HTML::tag($single_tag, $widget->option_array("single_tag_attributes", array()), $single_tag_contents);
 		}
 	}
-	echo HTML::hidden($name, key($options)) . $single_tag_contents;
+	echo HTML::hidden($name, $value);
+	if (is_array($single_tag_contents)) {
+		$single_tag_contents = $single_tag_contents['content'];
+	}
+	echo $single_tag_contents;
 	return;
 }
 $escape_values = $this->escape_values;
