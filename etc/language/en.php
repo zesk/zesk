@@ -162,4 +162,5 @@ $tt += array(
 	'Language:=French (Canada)' => 'French (Canada)',
 	'Language:=French (France)' => 'French (France)'
 );
+
 return $tt;

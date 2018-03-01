@@ -128,8 +128,8 @@ class Control_Checklist extends Control_Optionss {
 		$values = $this->call_hook_arguments("object_value", array(), array());
 		if (can_iterate($values)) {
 			foreach ($values as $id => $item) {
-				if (array_key_exists($id, $this->widgets_id)) {
-					$this->widgets_id[$id]->set_option("checked", true);
+				if (array_key_exists($item, $this->widgets_id)) {
+					$this->widgets_id[$item]->set_option("checked", true);
 				}
 			}
 		}
@@ -186,4 +186,9 @@ class Control_Checklist extends Control_Optionss {
 		}
 		return true;
 	}
+	// Debugging only
+	// 	private $debug = "";
+	// 	public function render() {
+	// 		return parent::render() . $this->debug;
+	// 	}
 }

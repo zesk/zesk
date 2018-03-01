@@ -8,7 +8,7 @@
 
 ;(function(exports, $) {
 	"use strict";
-	$('.confirm[data-confirm]').on('click', function (e) {
+	$('.confirm[data-confirm]').off('click.data-confirm').on('click.data-confirm', function (e) {
 		var $this = $(this);
 		if (exports.confirm($this.data('confirm'))) {
 			return true;

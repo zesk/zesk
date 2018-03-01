@@ -41,7 +41,6 @@ class Controller_Forgot extends Controller_Theme {
 				"message_type" => "invalid-token",
 				"message" => "Validation key is not valid."
 			));
-			return;
 		}
 		/* @var $forgot Forgot */
 		$forgot = $this->application->orm_factory(Forgot::class, array(

@@ -162,6 +162,11 @@ class Image_Library_GD extends Image_Library {
 	}
 
 	/**
+	 * @todo Fix error
+	 *
+	 * PHP Fatal error:  imagecreatefromstring(): gd-png: fatal libpng error: invalid literal/length code in /publish/apps/zesk-0.15.6a/classes/Image/Library/GD.php on line 174
+	 *
+	 * Validate beforehand?
 	 *
 	 * {@inheritDoc}
 	 * @see Image_Library::image_scale_data()

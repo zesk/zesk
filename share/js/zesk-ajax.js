@@ -15,7 +15,7 @@
 		$($this.data('hide')).toggle(!checked);
 	};
 	zesk.add_hook('document::ready', function (context) {
-		$('[data-confirm]', context).off("click.confirm_zesk_ajax").on("click.confirm_zesk_ajax", function (e) {
+		$('[data-confirm]', context).off("click.data-confirm").on("click.data-confirm", function (e) {
 			if (exports.confirm($(this).data("confirm"))) {
 				return true;
 			}

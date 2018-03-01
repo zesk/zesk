@@ -59,6 +59,24 @@ class ORM_CacheItem implements CacheItemInterface {
 		$this->item = $actual;
 		$this->is_hit = null;
 	}
+
+	/**
+	 *
+	 * @return string[]
+	 */
+	public function __sleep() {
+		return array(
+			"item",
+			"is_hit"
+		);
+	}
+
+	/**
+	 *
+	 */
+	public function __wakeup() {
+		$this->application = Kernel::singleton()->application();
+	}
 	/**
 	 * Returns the key for the current cache item.
 	 *
@@ -129,9 +147,12 @@ class ORM_CacheItem implements CacheItemInterface {
 		}
 		return true;
 	}
-	private function depends_valid($value) {
-		foreach ($this->depends as $class => $target) {
-		}
+	// TODO this
+	private function depends_valid(array $value) {
+		return true;
+	}
+	private function class_depends_valid(array $compare) {
+		return true;
 	}
 	/**
 	 * Sets the value represented by this cache item.

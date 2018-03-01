@@ -14,20 +14,13 @@ use zesk\JSON;
  * @author kent
  *
  */
-class Validate extends Options {
-
-	/**
-	 *
-	 * @var Application
-	 */
-	public $application = null;
+class Locale_Validate extends Hookable {
 	/**
 	 *
 	 * @param array $options
 	 */
 	public function __construct(Application $application, array $options = array()) {
-		$this->application = $application;
-		parent::__construct($options);
+		parent::__construct($application, $options);
 		$this->inherit_global_options();
 	}
 

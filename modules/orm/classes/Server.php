@@ -225,6 +225,7 @@ class Server extends ORM implements Interface_Data {
 		if ($cache) {
 			$item->set($server);
 			$item->expiresAfter(60);
+			$cache->saveDeferred($item);
 		}
 		return $server;
 	}
