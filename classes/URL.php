@@ -200,9 +200,9 @@ class URL {
 
 	/**
 	 *
-	 * @param unknown $path
-	 * @param unknown $add
-	 * @param unknown $remove
+	 * @param string $path
+	 * @param string[string] $add Name/value pairs to replace
+	 * @param string[] $remove List of items to remove
 	 * @return string
 	 */
 	static function query_format($path, $add = null, $remove = null) {

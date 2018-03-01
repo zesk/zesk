@@ -7,7 +7,7 @@ namespace zesk;
 /* @var $session \zesk\Session */
 /* @var $router \zesk\Router */
 /* @var $request \zesk\Request */
-/* @var $response \zesk\Response_Text_HTML */
+/* @var $response \zesk\Response */
 
 // For some bizarre reason, when outputting frames beyond 10, the output is immediately rendered to
 // STDOUT and the outer page.tpl is NOT rendered; like

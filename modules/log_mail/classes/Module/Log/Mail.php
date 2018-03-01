@@ -72,7 +72,7 @@ class Module_Log_Mail extends Module {
 				$user = null;
 			}
 		}
-		$code = $mail->header(Mail::header_message_id);
+		$code = $mail->header(Mail::HEADER_MESSAGE_ID);
 		if ($code === null) {
 			$code = "";
 		}
@@ -80,9 +80,9 @@ class Module_Log_Mail extends Module {
 			'code' => $code,
 			'user' => $user,
 			'session' => $session,
-			'from' => $mail->header(Mail::header_from),
-			'to' => $mail->header(Mail::header_to),
-			'subject' => $subject = $mail->header(Mail::header_subject),
+			'from' => $mail->header(Mail::HEADER_FROM),
+			'to' => $mail->header(Mail::HEADER_TO),
+			'subject' => $subject = $mail->header(Mail::HEADER_SUBJECT),
 			'body' => $mail->body
 		));
 		$table_name = $log_mail->table();
@@ -101,9 +101,9 @@ class Module_Log_Mail extends Module {
 				// Prevent sending
 				$mail->sent = time();
 			} else if ($log_mail->option('force_to')) {
-				$to = $mail->header(Mail::header_to);
+				$to = $mail->header(Mail::HEADER_TO);
 				if (strpos($to, "bounce-test") === false && strpos($to, "bounce@") === false) {
-					$mail->header(Mail::header_to, $log_mail->option('force_to'));
+					$mail->header(Mail::HEADER_TO, $log_mail->option('force_to'));
 				}
 			}
 		}
