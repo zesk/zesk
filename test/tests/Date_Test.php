@@ -1,6 +1,5 @@
 <?php
 /**
- * $URL: https://code.marketacumen.com/zesk/trunk/test/classes/date.inc $
  * @package zesk
  * @subpackage test
  * @author Kent Davidson <kent@marketacumen.com>

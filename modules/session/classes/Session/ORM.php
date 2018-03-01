@@ -3,7 +3,6 @@
 /**
  * Session object is a more powerful, multi-server, database session storage.
  * Dates and times are stored using UTC.
- * $URL: https://code.marketacumen.com/zesk/trunk/classes/session/database.inc $
  * @package zesk
  * @subpackage session
  * @author Kent Davidson <kent@marketacumen.com>

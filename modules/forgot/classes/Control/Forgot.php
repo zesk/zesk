@@ -1,6 +1,5 @@
 <?php
 /**
- * $URL: https://code.marketacumen.com/zesk/trunk/modules/forgot/classes/Control/Forgot.php $
  * @package zesk
  * @subpackage widgets
  * @author Kent Davidson <kent@marketacumen.com>

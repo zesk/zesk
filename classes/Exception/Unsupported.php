@@ -1,7 +1,6 @@
 <?php
 
 /**
- * $URL: https://code.marketacumen.com/zesk/trunk/classes/Exception/Unsupported.php $
  * @package zesk
  * @subpackage system
  * @author kent

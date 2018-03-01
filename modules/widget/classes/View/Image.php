@@ -5,7 +5,6 @@
  * Too many options, needs to support most common case easily.
  * Add setter/getters for relative path options, etc.
  *
- * $URL: https://code.marketacumen.com/zesk/trunk/classes/View/Image.php $
  * @package zesk
  * @subpackage widgets
  * @author Kent Davidson <kent@marketacumen.com>

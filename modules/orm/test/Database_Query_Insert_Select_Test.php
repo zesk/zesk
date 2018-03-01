@@ -1,6 +1,5 @@
 <?php
 /**
- * $URL: https://code.marketacumen.com/zesk/trunk/test/classes/database/query/insert/Database_Query_Insert_Select_test.inc $
  * @package zesk
  * @test_sandbox true
  * @subpackage test

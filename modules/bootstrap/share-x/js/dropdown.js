@@ -1,5 +1,4 @@
 /**
- * $URL$
  * 
  * @package zesk
  * @subpackage Control_Dropdown

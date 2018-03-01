@@ -1,6 +1,5 @@
 <?php
 /**
- * $URL: https://code.marketacumen.com/zesk/trunk/classes/View/Static.php $
  * @package zesk
  * @subpackage view
  * @author kent

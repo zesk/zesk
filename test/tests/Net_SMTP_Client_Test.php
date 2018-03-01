@@ -1,7 +1,6 @@
 <?php
 
 /**
- * $URL: https://code.marketacumen.com/zesk/trunk/test/classes/net/smtp/Net_SMTP_Client_Test.inc $
  * @package zesk
  * @subpackage test
  * @author Kent Davidson <kent@marketacumen.com>

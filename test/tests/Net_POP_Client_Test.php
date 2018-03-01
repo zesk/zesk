@@ -1,6 +1,5 @@
 <?php
 /**
- * $URL: https://code.marketacumen.com/zesk/trunk/test/classes/net/pop/client.inc $
  *
  * @test_sandbox true
  *

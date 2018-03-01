@@ -1,6 +1,5 @@
 <?php
 /**
- * $URL: https://code.marketacumen.com/zesk/trunk/modules/contact/classes/contact/builder/tag.inc $
  * @package zesk
  * @subpackage contact
  * @author kent

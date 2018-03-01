@@ -4,7 +4,6 @@
  * Handles running of intermittent tasks
  *
  * @documentation docs/cron.md
- * $URL: https://code.marketacumen.com/zesk/trunk/modules/cron/classes/module/cron.inc $
  * @package zesk
  * @subpackage system
  * @author kent

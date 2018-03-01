@@ -1,7 +1,6 @@
 <?php
 
 /**
- * $URL: https://code.marketacumen.com/zesk/trunk/modules/csv/classes/CSV/Writer.php $
  * @package zesk
  * @subpackage tools
  * @author Kent Davidson <kent@marketacumen.com>

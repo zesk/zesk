@@ -1,6 +1,5 @@
 <?php
 /**
- * $URL: https://code.marketacumen.com/zesk/trunk/classes/Database/Result/Iterator.php $
  * @package zesk
  * @subpackage system
  * @author kent

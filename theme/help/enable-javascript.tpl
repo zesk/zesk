@@ -1,6 +1,5 @@
 <?php
 /**
- * $URL$
  * @package zesk
  * @subpackage help
  * @author Kent Davidson <kent@marketacumen.com>

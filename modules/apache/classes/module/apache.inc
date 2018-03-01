@@ -1,6 +1,5 @@
 <?php
 /**
- * $URL: https://code.marketacumen.com/zesk/trunk/modules/apache/classes/module/apache.inc $
  * 
  * @package zesk
  * @subpackage system

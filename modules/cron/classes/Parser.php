@@ -1,6 +1,5 @@
 <?php
 /**
- * $URL: https://code.marketacumen.com/zesk/trunk/modules/cron/classes/legacy/schedule.inc $
  * @package zesk
  * @subpackage objects
  */

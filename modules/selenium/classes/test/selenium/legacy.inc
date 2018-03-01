@@ -24,7 +24,6 @@
  * @author     Shin Ohno <ganchiku at gmail dot com>
  * @author     Bjoern Schotte <schotte at mayflower dot de>
  * @license    http://www.apache.org/licenses/LICENSE-2.0  Apache License, Version 2.0
- * $URL: https://code.marketacumen.com/zesk/trunk/modules/selenium/classes/test/selenium/legacy.inc $
  * @see        http://www.openqa.org/selenium-rc/
  * @since      0.1
  */

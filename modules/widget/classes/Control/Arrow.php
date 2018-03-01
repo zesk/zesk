@@ -1,7 +1,6 @@
 <?php
 
 /**
- * $URL: https://code.marketacumen.com/zesk/trunk/classes/Control/Arrow.php $
  * @package zesk
  * @subpackage control
  * @author kent

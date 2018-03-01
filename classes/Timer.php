@@ -2,7 +2,6 @@
 /**
  * Provides a simple Timer
  *  
- * $URL: https://code.marketacumen.com/zesk/trunk/classes/timer.inc $
  * @author Kent M. Davidson <kent@marketacumen.com>
  * @package zesk
  * @subpackage kernel

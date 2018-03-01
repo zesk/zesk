@@ -1,6 +1,5 @@
 <?php
 /**
- * $URL: https://code.marketacumen.com/zesk/trunk/modules/content/classes/Content/File.php $
  * @package zesk
  * @subpackage file
  * @author Kent Davidson <kent@marketacumen.com>

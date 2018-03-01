@@ -1,6 +1,5 @@
 <?php
 /**
- * $URL: https://code.marketacumen.com/zesk/trunk/modules/icalendar/classes/icalendar.inc $
  * @package zesk
  * @subpackage system
  * @author Kent Davidson <kent@marketacumen.com>

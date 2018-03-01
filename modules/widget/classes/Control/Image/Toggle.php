@@ -1,7 +1,6 @@
 <?php
 
 /**
- * $URL: https://code.marketacumen.com/zesk/trunk/classes/Control/Image/Toggle.php $
  * @package zesk
  * @subpackage widgets
  * @author Kent Davidson <kent@marketacumen.com>

@@ -5,7 +5,6 @@
  *
  * TODO Move this into a url filter and remove CDN from zesk API
  *
- * $URL: https://code.marketacumen.com/zesk/trunk/classes/CDN.php $
  * @package zesk
  * @subpackage system
  * @author kent

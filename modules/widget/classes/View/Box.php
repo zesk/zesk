@@ -1,7 +1,6 @@
 <?php
 
 /**
- * $URL: https://code.marketacumen.com/zesk/trunk/classes/View/Box.php $
  * @package zesk
  * @subpackage widgets
  * @author kent

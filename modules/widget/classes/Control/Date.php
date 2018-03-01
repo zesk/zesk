@@ -1,6 +1,5 @@
 <?php
 /**
- * $URL: http://code.marketacumen.com/zesk/trunk/classes/control/date.inc $
  * @package zesk
  * @subpackage widgets
  * @author Kent Davidson <kent@marketacumen.com>

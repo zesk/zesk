@@ -4,7 +4,6 @@
  * annually to see if we can deprecate functionality.
  *
  * @no-cannon Do not cannon this file (for _W)
- * $URL: https://code.marketacumen.com/zesk/trunk/classes/kernel.inc $
  * @package zesk
  * @subpackage system
  * @author Kent Davidson <kent@marketacumen.com>

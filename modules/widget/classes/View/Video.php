@@ -2,7 +2,6 @@
 /**
  * Adding support for http://www.jeroenwijering.com/extras/readme.html
  *
- * $URL: https://code.marketacumen.com/zesk/trunk/classes/View/Video.php $
  * @package zesk
  * @subpackage default
  * @author Kent Davidson <kent@marketacumen.com>

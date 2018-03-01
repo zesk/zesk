@@ -1,6 +1,5 @@
 <?php
 /**
- * $URL: https://code.marketacumen.com/zesk/trunk/classes/Net/HTTP/Client/Exception.php $
  * @package zesk
  * @subpackage system
  * @author kent

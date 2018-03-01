@@ -1,6 +1,5 @@
 <?php
 /**
- * $URL$
  *
  * @author kent
  * @copyright &copy; 2012 Market Acumen, Inc.

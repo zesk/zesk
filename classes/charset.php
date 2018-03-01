@@ -2,7 +2,6 @@
 /**
  * Convert from one charset to another
  *
- * $URL: https://code.marketacumen.com/zesk/trunk/classes/charset.php $
  * @package zesk
  * @subpackage system
  * @author kent

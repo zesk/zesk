@@ -9,7 +9,6 @@ use \ReflectionClass;
 use \ReflectionException;
 
 /**
- * $URL: https://code.marketacumen.com/zesk/trunk/classes/controller.inc $
  *
  * @package zesk
  * @subpackage objects

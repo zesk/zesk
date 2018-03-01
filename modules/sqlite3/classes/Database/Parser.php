@@ -1,7 +1,6 @@
 <?php
 
 /**
- * $URL: http://code.marketacumen.com/zesk/trunk/classes/database/mysql.inc $
  * @author Kent M. Davidson <kent@marketacumen.com>
  * @copyright Copyright &copy; 2012, Market Acumen, Inc.
  * @package zesk

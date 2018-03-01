@@ -1,6 +1,5 @@
 <?php
 /**
- * $URL$
  * @package zesk
  * @subpackage system
  * @author kent

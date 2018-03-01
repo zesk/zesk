@@ -1,6 +1,5 @@
 <?php
 /**
- * $URL: https://code.marketacumen.com/zesk/trunk/test/classes/website.inc $
  * @package ruler
  * @subpackage test
  * @author Kent Davidson <kent@marketacumen.com>

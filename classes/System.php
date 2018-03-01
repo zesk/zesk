@@ -3,7 +3,6 @@
 /**
  * Integration with operating system. Host name, process ID, system services, load averages, volume info.
  *
- * $URL: https://code.marketacumen.com/zesk/trunk/classes/System.php $
  * @package zesk
  * @subpackage default
  * @author Kent Davidson <kent@marketacumen.com>

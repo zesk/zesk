@@ -3,7 +3,6 @@
 /**
  * Loads Zesk and allows access to all functionality.
  *
- * $URL: https://code.marketacumen.com/zesk/trunk/autoload.php $
  * @package zesk
  * @subpackage core
  * @author Kent Davidson <kent@marketacumen.com>

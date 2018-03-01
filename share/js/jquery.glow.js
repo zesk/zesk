@@ -1,5 +1,4 @@
 /**
- * $URL$
  * 
  * @package zesk
  * @subpackage jquery

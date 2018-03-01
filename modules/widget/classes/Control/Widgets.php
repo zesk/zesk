@@ -1,7 +1,6 @@
 <?php
 /**
  * Abstraction for widgets which contain multiple other widgets
- * $URL: https://code.marketacumen.com/zesk/trunk/classes/Control/Widgets.php $
  * @package zesk
  * @subpackage control
  * @author kent

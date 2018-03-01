@@ -1,6 +1,5 @@
 <?php
 /**
- * $URL: https://code.marketacumen.com/zesk/trunk/etc/language/es.inc $
  * @package zesk
  * @subpackage locale
  * @author kent

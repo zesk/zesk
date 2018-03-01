@@ -1,6 +1,5 @@
 <?php
 /**
- * $URL: https://code.marketacumen.com/zesk/trunk/classes/Net/SMTP/Client.php $
  * @package zesk
  * @subpackage system
  * @author Kent Davidson <kent@marketacumen.com>

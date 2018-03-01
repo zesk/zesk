@@ -1,7 +1,6 @@
 <?php
 
 /**
- * $URL$
  * Date
  * @author Kent M. Davidson <kent@marketacumen.com>
  * @package zesk

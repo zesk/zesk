@@ -1,6 +1,5 @@
 <?php
 /**
- * $URL$
  * @package ruler
  * @subpackage page
  * @author kent

@@ -1,7 +1,6 @@
 <?php
 
 /**
- * $URL: https://code.marketacumen.com/zesk/trunk/modules/aws/classes/aws/glacier.inc $
  * @package zesk-modules
  * @subpackage aws
  * @author Kent Davidson <kent@marketacumen.com>

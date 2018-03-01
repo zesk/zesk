@@ -1,7 +1,6 @@
 <?php
 
 /**
- * $URL: https://code.marketacumen.com/zesk/trunk/classes/mail.inc $
  * @package zesk
  * @subpackage email
  * @author Kent Davidson <kent@marketacumen.com>

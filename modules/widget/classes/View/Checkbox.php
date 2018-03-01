@@ -1,6 +1,5 @@
 <?php
 /**
- * $URL: https://code.marketacumen.com/zesk/trunk/classes/View/Checkbox.php $
  * @package zesk
  * @subpackage widgets
  * @author kent

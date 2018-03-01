@@ -1,6 +1,5 @@
 <?php
 /**
- * $URL: https://code.marketacumen.com/zesk/trunk/classes/Database/Query/Insert/Select.php $
  * @package zesk
  * @subpackage database
  * @author Kent Davidson <kent@marketacumen.com>

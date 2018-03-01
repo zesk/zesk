@@ -1,6 +1,5 @@
 <?php
 /**
- * $URL: https://code.marketacumen.com/zesk/trunk/classes/Control/ButtonBar.php $
  * @package zesk
  * @subpackage control
  * @author kent

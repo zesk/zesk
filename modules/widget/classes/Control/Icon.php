@@ -1,7 +1,6 @@
 <?php
 
 /**
- * $URL: https://code.marketacumen.com/zesk/trunk/classes/Control/Icon.php $
  * @package zesk
  * @subpackage default
  * @author Kent Davidson <kent@marketacumen.com>

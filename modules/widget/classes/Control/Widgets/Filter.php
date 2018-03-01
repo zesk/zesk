@@ -1,6 +1,5 @@
 <?php
 /**
- * $URL: https://code.marketacumen.com/zesk/trunk/classes/Control/Widgets/Filter.php $
  * @package zesk
  * @subpackage control
  * @author kent

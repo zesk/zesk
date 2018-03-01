@@ -2,7 +2,6 @@
 /**
  * Edit
  *
- * $URL: http://code.marketacumen.com/zesk/trunk/classes/database/query/insert.inc $
  * @package zesk
  * @subpackage database
  * @author kent
