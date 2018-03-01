@@ -12,7 +12,7 @@ namespace zesk;
  * @see docs/share.md
  */
 class Controller_Share extends Controller {
-
+	
 	/**
 	 *
 	 * @param unknown $path
@@ -32,7 +32,7 @@ class Controller_Share extends Controller {
 		}
 		return null;
 	}
-
+	
 	/**
 	 *
 	 * {@inheritdoc}
@@ -61,7 +61,7 @@ class Controller_Share extends Controller {
 			}
 			return;
 		}
-
+		
 		$this->response->header("X-Debug", "Mod - " . strtotime($mod) . " FMod - " . $fmod);
 		$request = $this->request;
 		if ($request->get("_ver")) {
@@ -75,7 +75,7 @@ class Controller_Share extends Controller {
 			$this->build($original_uri, $file);
 		}
 	}
-
+	
 	/**
 	 * Copy file to destination so web server serves it directly next time
 	 *
@@ -92,7 +92,7 @@ class Controller_Share extends Controller {
 			"status" => $status ? "true" : "false"
 		));
 	}
-
+	
 	/**
 	 * Output debug information during development
 	 */
@@ -103,7 +103,7 @@ class Controller_Share extends Controller {
 		$content .= HTML::tag("h1", "Shares") . HTML::tag('pre', PHP::dump($this->application->share_path()));
 		return $content;
 	}
-
+	
 	/**
 	 *
 	 * @param string $path
@@ -119,7 +119,7 @@ class Controller_Share extends Controller {
 		}
 		return null;
 	}
-
+	
 	/**
 	 * Clear the share build path upon cache clear
 	 */

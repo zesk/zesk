@@ -16,40 +16,40 @@ namespace zesk;
  * @see \zesk\Subversion\Repository
  */
 abstract class Repository_Command extends Repository {
-
+	
 	/**
 	 *
 	 * @var Process
 	 */
 	protected $process = null;
-
+	
 	/**
 	 *
 	 * @var string
 	 */
 	private $command = null;
-
+	
 	/**
 	 * Which this
 	 *
 	 * @var string
 	 */
 	protected $executable = null;
-
+	
 	/**
 	 * Always right after the executable
 	 *
 	 * @var string
 	 */
 	protected $arguments = null;
-
+	
 	/**
 	 * Used in validate function
 	 *
 	 * @var string
 	 */
 	protected $dot_directory = null;
-
+	
 	/**
 	 *
 	 * @param string $path
@@ -78,7 +78,7 @@ abstract class Repository_Command extends Repository {
 		$this->path = $root;
 		return $this;
 	}
-
+	
 	/**
 	 *
 	 * {@inheritDoc}
@@ -97,7 +97,7 @@ abstract class Repository_Command extends Repository {
 			));
 		}
 	}
-
+	
 	/**
 	 *
 	 * @param array $arguments
@@ -116,7 +116,7 @@ abstract class Repository_Command extends Repository {
 			throw $e;
 		}
 	}
-
+	
 	/**
 	 *
 	 * {@inheritDoc}
@@ -125,7 +125,7 @@ abstract class Repository_Command extends Repository {
 	public function validate() {
 		return $this->path !== null;
 	}
-
+	
 	/**
 	 *
 	 * {@inheritDoc}
@@ -146,7 +146,7 @@ abstract class Repository_Command extends Repository {
 		}
 		return null;
 	}
-
+	
 	/**
 	 * Given a target parameter, generate a full path
 	 * @param string $target
@@ -158,7 +158,7 @@ abstract class Repository_Command extends Repository {
 		}
 		return $this->path($target);
 	}
-
+	
 	/**
 	 * Sort a list of versions in reverse version order.
 	 *
@@ -180,7 +180,7 @@ abstract class Repository_Command extends Repository {
 		krsort($result, SORT_NUMERIC);
 		return array_values($result);
 	}
-
+	
 	/**
 	 * Retrieve the latest version
 	 *

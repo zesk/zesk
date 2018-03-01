@@ -24,7 +24,7 @@ class CSV_Writer extends CSV {
 	 * @var boolean
 	 */
 	protected $WroteHeaders;
-
+	
 	/**
 	 * An array containing "map_name" => array("input_column" => "header_index", "input_column2" =>
 	 * "header_index2")
@@ -45,7 +45,7 @@ class CSV_Writer extends CSV {
 	 * @var array
 	 */
 	protected $WriteMapGroupDefault;
-
+	
 	/**
 	 * Translation tables for output
 	 * Form is: "index" => translation array (old => new)
@@ -53,14 +53,14 @@ class CSV_Writer extends CSV {
 	 * @var array
 	 */
 	protected $WriteTranslationMap;
-
+	
 	/**
 	 * Hooks to call on name/value pair row before writing
 	 *
 	 * @var array of callable
 	 */
 	protected $write_hooks = array();
-
+	
 	/*====================================================================================*\
 	 Instance
 	 \*------------------------------------------------------------------------------------*/
@@ -76,7 +76,7 @@ class CSV_Writer extends CSV {
 		$this->WriteMapGroupDefault = array();
 		$this->WriteTranslationMap = array();
 	}
-
+	
 	/*====================================================================================*\
 	 CSV
 	 \*------------------------------------------------------------------------------------*/
@@ -93,7 +93,7 @@ class CSV_Writer extends CSV {
 		}
 		return parent::_set_file($f, "w", true);
 	}
-
+	
 	/*====================================================================================*\
 	 * CSV Writing to current row
 	 \*------------------------------------------------------------------------------------*/
@@ -105,7 +105,7 @@ class CSV_Writer extends CSV {
 	private function _writeNewRow() {
 		return array_fill(0, count($this->Headers), "");
 	}
-
+	
 	/**
 	 * Add a mapping from an object member names to CSV file header names.
 	 *
@@ -143,7 +143,7 @@ class CSV_Writer extends CSV {
 		}
 		return true;
 	}
-
+	
 	/**
 	 * Add a translation map for a column which is a boolean value
 	 *
@@ -152,7 +152,7 @@ class CSV_Writer extends CSV {
 	function object_names() {
 		return array_keys($this->WriteMapGroup);
 	}
-
+	
 	/**
 	 * Add an output translation map for boolean values
 	 *
@@ -198,7 +198,7 @@ class CSV_Writer extends CSV {
 		}
 		return $this;
 	}
-
+	
 	/**
 	 * Enter description here...
 	 *
@@ -214,22 +214,22 @@ class CSV_Writer extends CSV {
 		if (!isset($this->WriteMapGroup[$lowname])) {
 			throw new Exception_Key("CSV::set_object($name) doesn't exist");
 		}
-
+		
 		$g = $this->WriteMapGroup[$lowname];
-
+		
 		$fields = array_change_key_case($fields);
-
+		
 		if (isset($this->WriteMapGroupDefault[$lowname])) {
 			foreach ($fields as $k => $v) {
 				if (!isset($fields[$k]) || ($fields[$k] === ""))
 					$fields[$k] = $v;
 			}
 		}
-
+		
 		if (!is_array($this->Row)) {
 			$this->Row = $this->_writeNewRow();
 		}
-
+		
 		foreach ($fields as $k => $v) {
 			$k = strtolower($k);
 			if (isset($g[$k])) {
@@ -244,7 +244,7 @@ class CSV_Writer extends CSV {
 		}
 		return $this->Row;
 	}
-
+	
 	/**
 	 * Enter description here...
 	 *
@@ -272,7 +272,7 @@ class CSV_Writer extends CSV {
 			$this->Row = array_values($row);
 		}
 	}
-
+	
 	/**
 	 * Enter description here...
 	 *
@@ -288,7 +288,7 @@ class CSV_Writer extends CSV {
 		$this->Row[$i] = $data;
 		return true;
 	}
-
+	
 	/**
 	 */
 	public function write_row() {
@@ -314,7 +314,7 @@ class CSV_Writer extends CSV {
 		$this->RowIndex += 1;
 		$this->Row = array();
 	}
-
+	
 	/**
 	 * Enter description here...
 	 *
@@ -334,7 +334,7 @@ class CSV_Writer extends CSV {
 		}
 		return implode($d, $rowOut) . "\n";
 	}
-
+	
 	/**
 	 *
 	 * @param callable $callable

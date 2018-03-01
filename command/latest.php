@@ -19,14 +19,14 @@ class Command_Latest extends Command_Base {
 	function run() {
 		/* @var $git \zesk\Git\Module */
 		$git = $this->application->git_module();
-
+		
 		$home = $this->application->zesk_home();
 		$vendor_zesk = dirname($home);
 		if (!is_dir("$vendor_zesk/zesk")) {
 			$this->error("$vendor_zesk/zesk must be a directory. Stopping.");
 			return 1;
 		}
-
+		
 		chdir($vendor_zesk);
 		$repos = $git->determine_repository($home);
 		if (count($repos) === 0) {

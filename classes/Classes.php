@@ -7,50 +7,50 @@ class Classes {
 	 * @var integer
 	 */
 	const VERSION = 5;
-
+	
 	/**
 	 * Version number of serialized file
 	 *
 	 * @var integer
 	 */
 	protected $version = self::VERSION;
-
+	
 	/**
 	 * Lowercase class name -> capitalized class name
 	 *
 	 * @var array
 	 */
 	protected $class_case = array();
-
+	
 	/**
 	 * Registry of class names
 	 *
 	 * @var array
 	 */
 	protected $classes = array();
-
+	
 	/**
 	 * @var array
 	 */
 	protected $subclasses = array();
-
+	
 	/**
 	 * @var array
 	 */
 	protected $hierarchy = array();
-
+	
 	/**
 	 * @var boolean
 	 */
 	protected $dirty = false;
-
+	
 	/**
 	 *
 	 */
 	public function __construct(Kernel $zesk) {
 		$this->initialize($zesk);
 	}
-
+	
 	/**
 	 * Register hooks
 	 *
@@ -66,7 +66,7 @@ class Classes {
 			)
 		));
 	}
-
+	
 	/**
 	 * @param Kernel $zesk
 	 * @return \zesk\Classes
@@ -85,7 +85,7 @@ class Classes {
 		}
 		return $classes;
 	}
-
+	
 	/**
 	 *
 	 */
@@ -112,7 +112,7 @@ class Classes {
 			$class = $parent_class;
 		}
 	}
-
+	
 	/**
 	 * Register a global hook by class
 	 *
@@ -140,7 +140,7 @@ class Classes {
 		}
 		return $this->subclasses[$class];
 	}
-
+	
 	/**
 	 * Return all known subclasses of a class including grandchildren and great-grandchildren, etc.
 	 *
@@ -165,7 +165,7 @@ class Classes {
 		}
 		return $result;
 	}
-
+	
 	/**
 	 * Retrieve a class hierarchy from leaf to base
 	 *

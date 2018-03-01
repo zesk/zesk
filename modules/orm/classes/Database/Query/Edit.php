@@ -22,7 +22,7 @@ abstract class Database_Query_Edit extends Database_Query {
 	 * @var boolean
 	 */
 	protected $low_priority = false;
-
+	
 	/**
 	 *
 	 * @var string
@@ -40,14 +40,14 @@ abstract class Database_Query_Edit extends Database_Query {
 	 * @var array
 	 */
 	protected $values = array();
-
+	
 	/**
 	 * Array of columns valid for this table
 	 *
 	 * @var array
 	 */
 	protected $valid_columns = null;
-
+	
 	/**
 	 * Get/Set the table for this query
 	 *
@@ -64,7 +64,7 @@ abstract class Database_Query_Edit extends Database_Query {
 		$this->table["$alias"] = $table;
 		return $this;
 	}
-
+	
 	/**
 	 * Get/Set the table for this query
 	 *
@@ -81,7 +81,7 @@ abstract class Database_Query_Edit extends Database_Query {
 		$this->valid_columns($object_class->column_names(), $alias);
 		return $this;
 	}
-
+	
 	/**
 	 * Internal function to check validity of a column
 	 *
@@ -97,7 +97,7 @@ abstract class Database_Query_Edit extends Database_Query {
 		}
 		return true;
 	}
-
+	
 	/**
 	 * Add a name/value pair to be updated in this query
 	 *
@@ -119,7 +119,7 @@ abstract class Database_Query_Edit extends Database_Query {
 		$this->values[$name] = $value;
 		return $this;
 	}
-
+	
 	/**
 	 * Internal function to check a column for vaidity.
 	 * If not, throw an exception.
@@ -137,7 +137,7 @@ abstract class Database_Query_Edit extends Database_Query {
 			));
 		}
 	}
-
+	
 	/**
 	 * Pass multiple values to be inserted/updated
 	 *
@@ -163,7 +163,7 @@ abstract class Database_Query_Edit extends Database_Query {
 		$this->low_priority = to_bool($low_priority);
 		return $this;
 	}
-
+	
 	/**
 	 * Not sure if need this.
 	 * Right now just stores it.

@@ -20,7 +20,7 @@ class Selection_Item extends ORM {
 	 * @var integer
 	 */
 	const type_add = 1;
-
+	
 	/**
 	 *
 	 * @param unknown $class
@@ -32,7 +32,7 @@ class Selection_Item extends ORM {
 			return null;
 		}
 	}
-
+	
 	/**
 	 *
 	 * @param unknown $old_type
@@ -60,7 +60,7 @@ class Selection_Item extends ORM {
 				->execute();
 		}
 	}
-
+	
 	/**
 	 * Fix schema so UNIQUE keys work. MySQL does not silently ignore UNIQUE alters after version 5 at some point.
 	 *

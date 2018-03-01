@@ -32,14 +32,14 @@ class Module_Job_Trigger extends Module implements Interface_Module_Routes {
 		));
 		// We don't care about completion because all that means is a job is completed, not that new jobs are ready to go
 	}
-
+	
 	/**
 	 * Get/Set wait max seconds before dinging the database again
 	 */
 	public function wait_max_seconds() {
 		return $this->option_integer("wait_max_seconds", 600);
 	}
-
+	
 	/**
 	 * Create the directory for the marker file if it does not exist and return the path to the marker file
 	 */
@@ -48,7 +48,7 @@ class Module_Job_Trigger extends Module implements Interface_Module_Routes {
 		Directory::depend($path);
 		return path($path, "trigger");
 	}
-
+	
 	/**
 	 * Given a server, provide the URL to contact that server
 	 */
@@ -62,14 +62,14 @@ class Module_Job_Trigger extends Module implements Interface_Module_Routes {
 		$code[] = $this->option("key");
 		return md5(implode("|", $code));
 	}
-
+	
 	/**
 	 * Write the marker to disk
 	 */
 	public function write_marker() {
 		file_put_contents($this->marker_file(), microtime(true));
 	}
-
+	
 	/**
 	 * Add security to a URL if a key exists. For single server-systems, this isn't necessary so only
 	 * warn when we're in multi-server environments.
@@ -86,10 +86,10 @@ class Module_Job_Trigger extends Module implements Interface_Module_Routes {
 		}
 		$query['timestamp'] = $timestamp = strval(microtime(true));
 		$query['hash'] = $this->compute_hash($timestamp);
-
+		
 		return URL::query_append($url, $query);
 	}
-
+	
 	/**
 	 * Check the security tokens passed to us
 	 *
@@ -112,7 +112,7 @@ class Module_Job_Trigger extends Module implements Interface_Module_Routes {
 				"message" => "Require query string parameters hash and timestamp"
 			);
 		}
-
+		
 		$skew_seconds = abs($timestamp - microtime(true));
 		if ($skew_seconds > $server_clock_skew_seconds = $this->option("server_clock_skew_seconds", 30)) {
 			return array(
@@ -128,10 +128,10 @@ class Module_Job_Trigger extends Module implements Interface_Module_Routes {
 				"message" => "Hash does not validate"
 			);
 		}
-
+		
 		return null;
 	}
-
+	
 	/**
 	 * When we are notified via web, just write the marker file
 	 *
@@ -152,7 +152,7 @@ class Module_Job_Trigger extends Module implements Interface_Module_Routes {
 			"now" => Timestamp::now()->format()
 		);
 	}
-
+	
 	/**
 	 * Send a notice to all servers that jobs are waiting
 	 */
@@ -172,7 +172,7 @@ class Module_Job_Trigger extends Module implements Interface_Module_Routes {
 			}
 		}
 	}
-
+	
 	/**
 	 * Wait for the job by seeing if our marker file exists
 	 */
@@ -200,7 +200,7 @@ class Module_Job_Trigger extends Module implements Interface_Module_Routes {
 			File::unlink($marker);
 		}
 	}
-
+	
 	/**
 	 * Add routes to do our job
 	 *

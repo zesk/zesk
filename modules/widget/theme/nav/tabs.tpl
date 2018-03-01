@@ -109,7 +109,7 @@ $title = $response->html()->title();
 	?>
 	</ul>
 	<div class="tab-content"><?php
-
+	
 	echo $content;
 	?></div>
 </div>

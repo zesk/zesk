@@ -14,7 +14,7 @@
 namespace zesk;
 
 abstract class Test_Website extends Test_Selenium {
-
+	
 	/**
 	 * Prefix for urls (for /admin)
 	 * @var string
@@ -25,13 +25,13 @@ abstract class Test_Website extends Test_Selenium {
 		$options['test_host'] = "192.168.0.113";
 		$options['test_port'] = 14444;
 		parent::__construct($options);
-
+		
 		$parts = URL::parse($this->browserUrl);
-
+		
 		$this->url_prefix = rtrim(avalue($parts, 'path', ''), "/");
 	}
 	abstract function tests();
-
+	
 	/**
 	 * Options in environemnt which are honored:
 	 * single_test Test to run without the "test_" prefix
@@ -44,9 +44,9 @@ abstract class Test_Website extends Test_Selenium {
 	 */
 	function test() {
 		echo "Testing site: " . $this->browserUrl . "\n";
-
+		
 		$this->start();
-
+		
 		$single_test = $this->option("single_test");
 		$begin_test = $this->option("begin_test");
 		$run_default = $this->option_bool("run_default", true);
@@ -110,7 +110,7 @@ abstract class Test_Website extends Test_Selenium {
 		if ($exception) {
 			throw $exception;
 		}
-
+		
 		return self::TEST_RESULT_OK;
 	}
 	function open_url($url) {
@@ -119,7 +119,7 @@ abstract class Test_Website extends Test_Selenium {
 	}
 	public function waitForPageToLoad($timeout = "30000", $reverse_test = false) {
 		parent::waitForPageToLoad($timeout);
-
+		
 		if ($reverse_test) {
 			$this->assertHTMLContains('PHP-ERROR');
 		} else {
@@ -162,14 +162,14 @@ abstract class Test_Website extends Test_Selenium {
 		$links = array();
 		do {
 			$visited_link = $this->getLocation();
-
+			
 			if ($validate_method) {
 				$error = $this->$validate_method();
 				if ($error !== true) {
 					$errors[] = $error;
 				}
 			}
-
+			
 			$visited_link_norm = URL::path($visited_link);
 			$handled_links[$visited_link_norm] = true;
 			// if (!array_key_exists($visited_link_norm, $files)) {
@@ -253,7 +253,7 @@ abstract class Test_Website extends Test_Selenium {
 		}
 		$this->application->logger->error("$logprefix _click_all_linkable_pages DONE");
 	}
-
+	
 	/**
 	 *
 	 * @deprecated
@@ -264,7 +264,7 @@ abstract class Test_Website extends Test_Selenium {
 	}
 	protected function walk_all_pages($directory_root, $skip_links = null, $exclude_files = null) {
 		$validate_method = $this->option('validate_method', 'validate_method_default');
-
+		
 		$options['file_include_pattern'] = '/\.php$/';
 		$options['file_exclude_pattern'] = false;
 		$options['directory_walk_exclude_pattern'] = '/\.svn/';
@@ -272,9 +272,9 @@ abstract class Test_Website extends Test_Selenium {
 		$options['directory_exclude_pattern'] = '/\.svn/';
 		echo "Files path is $directory_root ...\n";
 		$files = Directory::list_recursive($directory_root, $options);
-
+		
 		$links = array();
-
+		
 		$files = ArrayTools::prefix($files, "/");
 		$files = array_flip($files);
 		$files_names = array_keys($files);
@@ -291,12 +291,12 @@ abstract class Test_Website extends Test_Selenium {
 		$errors = array();
 		do {
 			$visited_link = $this->getLocation();
-
+			
 			$error = $this->$validate_method();
 			if ($error !== true) {
 				$errors[] = $error;
 			}
-
+			
 			$visited_link_norm = URL::path($visited_link);
 			$handled_links[$visited_link_norm] = true;
 			if (!array_key_exists($visited_link_norm, $files)) {
@@ -365,7 +365,7 @@ abstract class Test_Website extends Test_Selenium {
 				$this->open($link);
 			}
 		} while (count($links) > 0);
-
+		
 		if (!is_array($exclude_files)) {
 			$this->message("\$exclude_files is not an array");
 			$exclude_files = array();
@@ -392,13 +392,13 @@ abstract class Test_Website extends Test_Selenium {
 				$errors[] = $error;
 			}
 		}
-
+		
 		echo "\n";
 		echo "#################\n";
 		echo "### COMPLETED ###\n";
 		echo "#################\n";
 		echo "\n";
-
+		
 		$this->assert(count($errors) === 0, implode("\n", $errors));
 	}
 }

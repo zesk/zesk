@@ -7,4 +7,5 @@
 /* @var $route \zesk\Route */
 /* @var $request \zesk\Request */
 /* @var $response \zesk\Response */
-?><!DOCTYPE html>
+?>
+<!DOCTYPE html>

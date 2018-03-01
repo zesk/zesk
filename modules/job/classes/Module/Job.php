@@ -11,7 +11,7 @@ namespace zesk;
  * @author kent
  */
 class Module_Job extends Module implements Interface_Module_Routes {
-
+	
 	/**
 	 *
 	 * @var array
@@ -19,7 +19,7 @@ class Module_Job extends Module implements Interface_Module_Routes {
 	protected $model_classes = array(
 		'zesk\\Job'
 	);
-
+	
 	/**
 	 * For testing, call this statically from zesk eval, a web request, or a debugger
 	 */
@@ -32,7 +32,7 @@ class Module_Job extends Module implements Interface_Module_Routes {
 		));
 		Job::execute_jobs($process);
 	}
-
+	
 	/**
 	 * Run daemon
 	 *
@@ -69,7 +69,7 @@ class Module_Job extends Module implements Interface_Module_Routes {
 		$module = $application->modules->object("job");
 		$module->run_daemon($process);
 	}
-
+	
 	/**
 	 * Add routes to Router
 	 *

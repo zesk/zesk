@@ -16,13 +16,13 @@ class Deploy extends Hookable {
 	 * @var string
 	 */
 	protected $path = null;
-
+	
 	/**
 	 *
 	 * @var array
 	 */
 	protected $skipped = array();
-
+	
 	/**
 	 * Our options
 	 *
@@ -31,7 +31,7 @@ class Deploy extends Hookable {
 	protected $options = array(
 		"last_tag" => "-none-"
 	);
-
+	
 	/**
 	 *
 	 * @param Application $application
@@ -42,7 +42,7 @@ class Deploy extends Hookable {
 	public static function factory(Application $application, $path, $options = null) {
 		return new Deploy($application, $path, $options);
 	}
-
+	
 	/**
 	 *
 	 * @param Application $application
@@ -54,7 +54,7 @@ class Deploy extends Hookable {
 		$this->path = $path;
 		$this->call_hook('construct');
 	}
-
+	
 	/**
 	 *
 	 * Run a deployment check, using path for deployment state
@@ -69,7 +69,7 @@ class Deploy extends Hookable {
 		$setting_name = __CLASS__ . "::state";
 		$settings->deprecated("deploy", $setting_name);
 		$options = to_array($settings->get($setting_name));
-
+		
 		$deploy = new Deploy($app, $path, $options);
 		if ($deploy->failed()) {
 			$deploy->reset(true);
@@ -86,7 +86,7 @@ class Deploy extends Hookable {
 		}
 		return $deploy;
 	}
-
+	
 	/**
 	 *
 	 * @param string $skip
@@ -107,7 +107,7 @@ class Deploy extends Hookable {
 			'last_tag' => $skip ? $failed_tag : $last_tag
 		));
 	}
-
+	
 	/**
 	 * Did the deploy fail?
 	 *
@@ -116,7 +116,7 @@ class Deploy extends Hookable {
 	public function failed() {
 		return !$this->option_bool('status', true);
 	}
-
+	
 	/**
 	 *
 	 * @param unknown $subpath
@@ -139,7 +139,7 @@ class Deploy extends Hookable {
 		$tag['name'] = $filename;
 		return $tag;
 	}
-
+	
 	/**
 	 * Can we handle a file extension in the deployment directory
 	 *
@@ -149,7 +149,7 @@ class Deploy extends Hookable {
 	private function extension_is_handled($extension) {
 		return method_exists($this, "hook_extension_$extension");
 	}
-
+	
 	/**
 	 *
 	 * @return array
@@ -177,7 +177,7 @@ class Deploy extends Hookable {
 		ksort($tags);
 		return $tags;
 	}
-
+	
 	/**
 	 *
 	 * @return self|array
@@ -231,7 +231,7 @@ class Deploy extends Hookable {
 		$this->set_option($results);
 		return $this;
 	}
-
+	
 	/**
 	 * Run a deployment script which is a PHP include script
 	 *
@@ -242,7 +242,7 @@ class Deploy extends Hookable {
 	protected function hook_extension_inc(array $tag) {
 		return $this->hook_extension_php($tag);
 	}
-
+	
 	/**
 	 * Run a deployment script which is a PHP include script
 	 *
@@ -271,7 +271,7 @@ class Deploy extends Hookable {
 			'content' => $content
 		);
 	}
-
+	
 	/**
 	 * Run a deployment script which is a TPL file (include)
 	 *
@@ -294,7 +294,7 @@ class Deploy extends Hookable {
 			'status' => $status
 		);
 	}
-
+	
 	/**
 	 * Run a deployment script which is a SQL file
 	 *
@@ -308,7 +308,7 @@ class Deploy extends Hookable {
 		$result = array(
 			'type' => 'sql'
 		);
-
+		
 		while (count($sqls) > 0) {
 			$sql = array_shift($sqls);
 			try {

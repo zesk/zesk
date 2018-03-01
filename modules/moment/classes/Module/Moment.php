@@ -21,7 +21,7 @@ class Module_Moment extends Module_JSLib implements Interface_Module_Head {
 	protected $class_aliases = array(
 		"Module_Moment" => __CLASS__
 	);
-
+	
 	/**
 	 *
 	 * {@inheritDoc}
@@ -35,7 +35,7 @@ class Module_Moment extends Module_JSLib implements Interface_Module_Head {
 		}
 		parent::initialize();
 	}
-
+	
 	/**
 	 *
 	 * {@inheritDoc}

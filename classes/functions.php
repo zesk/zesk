@@ -1342,10 +1342,10 @@ function zesk_weight($weight = null) {
 function zesk_sort_weight_array(array $a, array $b) {
 	// Get weight a, convert to double
 	$aw = array_key_exists('weight', $a) ? zesk_weight($a['weight']) : 0;
-
+	
 	// Get weight b, convert to double
 	$bw = array_key_exists('weight', $b) ? zesk_weight($b['weight']) : 0;
-
+	
 	// a < b -> -1
 	// a > b -> 1
 	// a === b -> 0

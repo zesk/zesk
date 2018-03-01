@@ -10,7 +10,7 @@
 namespace zesk;
 
 class Control_Widgets extends Control {
-
+	
 	/**
 	 * Override this method to do a custom widget list for an object
 	 *
@@ -88,7 +88,7 @@ class Control_Widgets extends Control {
 		}
 		return true;
 	}
-
+	
 	// 	function submit() {
 	// 		foreach ($this->children as $w) {
 	// 			/* @var $w Widget */

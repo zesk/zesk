@@ -16,7 +16,7 @@ class Module_Daemon extends Module {
 	 * @var string
 	 */
 	public $rundir = null;
-
+	
 	/**
 	 *
 	 * {@inheritdoc}
@@ -29,7 +29,7 @@ class Module_Daemon extends Module {
 		$this->rundir = path($runpath, 'daemon');
 		Directory::depend($this->rundir, 0700);
 	}
-
+	
 	/**
 	 *
 	 * @param Template $template
@@ -61,7 +61,7 @@ class Module_Daemon extends Module {
 		} catch (\Exception $e) {
 		}
 	}
-
+	
 	/**
 	 * Unlock database
 	 */
@@ -69,7 +69,7 @@ class Module_Daemon extends Module {
 		$path = $this->_database_path();
 		flock($path, LOCK_UN);
 	}
-
+	
 	/**
 	 * Retrieve database path
 	 *
@@ -81,7 +81,7 @@ class Module_Daemon extends Module {
 	public function unlink_database() {
 		unlink($this->_database_path());
 	}
-
+	
 	/**
 	 * Get/set daemon database
 	 *

@@ -29,21 +29,21 @@ namespace zesk;
  * @author kent
  */
 class Session_ORM extends ORM implements Interface_Session {
-
+	
 	/**
 	 * Original session data (to see if things change)
 	 *
 	 * @var array
 	 */
 	private $original = array();
-
+	
 	/**
 	 * Something changed?
 	 *
 	 * @var boolean
 	 */
 	private $changed = false;
-
+	
 	/**
 	 *
 	 * {@inheritdoc}
@@ -56,7 +56,7 @@ class Session_ORM extends ORM implements Interface_Session {
 		$this->set_option($this->application->option_array("session"));
 		return $result;
 	}
-
+	
 	/**
 	 *
 	 * {@inheritDoc}
@@ -69,7 +69,7 @@ class Session_ORM extends ORM implements Interface_Session {
 		}
 		return $result;
 	}
-
+	
 	/**
 	 *
 	 * @return \zesk\Session_ORM
@@ -86,7 +86,7 @@ class Session_ORM extends ORM implements Interface_Session {
 		$this->call_hook('seen');
 		return $this;
 	}
-
+	
 	/**
 	 * Register hooks
 	 * @param Application $application
@@ -95,7 +95,7 @@ class Session_ORM extends ORM implements Interface_Session {
 		$application->hooks->add(Hooks::hook_configured, __CLASS__ . '::configured');
 		$application->hooks->add('exit', __CLASS__ . '::save');
 	}
-
+	
 	/**
 	 *
 	 * @param Application $application
@@ -129,7 +129,7 @@ class Session_ORM extends ORM implements Interface_Session {
 		$application->configuration->deprecated("zesk\\Session::cookie_expire_round");
 		$application->configuration->deprecated("zesk\Application::session::cookie::expire_round");
 	}
-
+	
 	/**
 	 * Called before actual store
 	 */
@@ -139,7 +139,7 @@ class Session_ORM extends ORM implements Interface_Session {
 			$this->set_member("ip", "127.0.0.1");
 		}
 	}
-
+	
 	/**
 	 *
 	 * @return integer
@@ -147,7 +147,7 @@ class Session_ORM extends ORM implements Interface_Session {
 	public function cookie_expire() {
 		return to_integer($this->option_path("cookie.expire"), 604800);
 	}
-
+	
 	/**
 	 * Set Session cookie
 	 *
@@ -157,7 +157,7 @@ class Session_ORM extends ORM implements Interface_Session {
 	private static function _generate_cookie() {
 		return md5("" . mt_rand(0, 999999999) . microtime());
 	}
-
+	
 	/**
 	 * Authenticate user at IP
 	 *
@@ -177,7 +177,7 @@ class Session_ORM extends ORM implements Interface_Session {
 		$this->set_member("expires", Timestamp::now()->add_unit($cookieExpire, Timestamp::UNIT_SECOND));
 		return $this->store();
 	}
-
+	
 	/**
 	 * Are we authenticated?
 	 *
@@ -186,7 +186,7 @@ class Session_ORM extends ORM implements Interface_Session {
 	public function authenticated() {
 		return $this->member_is_empty('user');
 	}
-
+	
 	/**
 	 * De-authenticate
 	 *
@@ -199,7 +199,7 @@ class Session_ORM extends ORM implements Interface_Session {
 		$this->set_member("user", null);
 		return $this->store();
 	}
-
+	
 	/**
 	 * Is this session expired?
 	 *
@@ -209,7 +209,7 @@ class Session_ORM extends ORM implements Interface_Session {
 	public function expires() {
 		return $this->member_timestamp("expires");
 	}
-
+	
 	/**
 	 * Logout expired, run hook
 	 */
@@ -242,7 +242,7 @@ class Session_ORM extends ORM implements Interface_Session {
 			->where($where)
 			->execute();
 	}
-
+	
 	/**
 	 *
 	 * @return Timestamp
@@ -252,7 +252,7 @@ class Session_ORM extends ORM implements Interface_Session {
 		$expires = Timestamp::now()->add_unit($expire, Timestamp::UNIT_SECOND);
 		return $expires;
 	}
-
+	
 	/**
 	 *
 	 * @return string
@@ -260,7 +260,7 @@ class Session_ORM extends ORM implements Interface_Session {
 	private function cookie_name() {
 		return $this->option_path("cookie.name", "ZCOOKIE");
 	}
-
+	
 	/**
 	 *
 	 * {@inheritdoc}
@@ -294,10 +294,10 @@ class Session_ORM extends ORM implements Interface_Session {
 		$application->hooks->add(Hooks::hook_exit, function () use ($session) {
 			$session->store();
 		});
-
+		
 		return $this;
 	}
-
+	
 	/**
 	 *
 	 * @return string
@@ -305,7 +305,7 @@ class Session_ORM extends ORM implements Interface_Session {
 	function hash() {
 		return $this->member("cookie");
 	}
-
+	
 	/**
 	 *
 	 * @param unknown $user
@@ -356,7 +356,7 @@ class Session_ORM extends ORM implements Interface_Session {
 		$this->store();
 		return $this;
 	}
-
+	
 	/**
 	 * Count all other sessions seen within the seconds window provided
 	 *
@@ -371,7 +371,7 @@ class Session_ORM extends ORM implements Interface_Session {
 			->where($where)
 			->one_integer("X");
 	}
-
+	
 	/*
 	 * Get/Set session valuesfrom Object
 	 *
@@ -382,7 +382,7 @@ class Session_ORM extends ORM implements Interface_Session {
 		}
 		$this->original = $this->members['data'];
 	}
-
+	
 	/**
 	 *
 	 * @return Object
@@ -414,7 +414,7 @@ class Session_ORM extends ORM implements Interface_Session {
 		}
 		return $default;
 	}
-
+	
 	/**
 	 * Session variables are special
 	 *
@@ -423,7 +423,7 @@ class Session_ORM extends ORM implements Interface_Session {
 	public function __get($name) {
 		return avalue($this->members['data'], $name);
 	}
-
+	
 	/**
 	 * (non-PHPdoc)
 	 *
@@ -446,7 +446,7 @@ class Session_ORM extends ORM implements Interface_Session {
 	public function changed($members = null) {
 		return $this->changed;
 	}
-
+	
 	/**
 	 * Retrieve some of the values
 	 *
@@ -466,7 +466,7 @@ class Session_ORM extends ORM implements Interface_Session {
 	public function variables() {
 		return $this->members['data'];
 	}
-
+	
 	/**
 	 *
 	 * @return self
@@ -474,7 +474,7 @@ class Session_ORM extends ORM implements Interface_Session {
 	public function found_session() {
 		return $this;
 	}
-
+	
 	/**
 	 *
 	 * @return array

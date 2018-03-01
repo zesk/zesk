@@ -27,7 +27,7 @@ class Number {
 		'G' => 1073741824,
 		'T' => 1099511627776
 	);
-
+	
 	/**
 	 *
 	 * @param string $string
@@ -40,7 +40,7 @@ class Number {
 		list($whole, $int, $magnitude) = $matches;
 		return intval($int) * self::$magnitudes[strtoupper($magnitude)];
 	}
-
+	
 	/**
 	 * Format bytes
 	 *

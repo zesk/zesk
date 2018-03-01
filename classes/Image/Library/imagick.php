@@ -10,13 +10,13 @@ class Image_Library_imagick extends Image_Library {
 	 * @var string
 	 */
 	const command_default = "convert";
-
+	
 	/**
 	 *
 	 * @var string
 	 */
 	const command_scale = '{command} -antialias -matte -geometry "{width}x{height}" {source} {destination}';
-
+	
 	/**
 	 *
 	 * @return string|\zesk\NULL
@@ -38,7 +38,7 @@ class Image_Library_imagick extends Image_Library {
 		}
 		return $which;
 	}
-
+	
 	/**
 	 *
 	 * @return string|\zesk\NULL
@@ -60,7 +60,7 @@ class Image_Library_imagick extends Image_Library {
 		}
 		return $scale_command;
 	}
-
+	
 	/**
 	 *
 	 * @return boolean
@@ -72,7 +72,7 @@ class Image_Library_imagick extends Image_Library {
 		}
 		return false;
 	}
-
+	
 	/**
 	 *
 	 * @param unknown $source
@@ -119,14 +119,14 @@ class Image_Library_imagick extends Image_Library {
 			copy($source, $dest);
 			return true;
 		}
-
+		
 		$map = array(
 			"source" => escapeshellarg($source),
 			"destination" => escapeshellarg($dest),
 			"width" => $width,
 			"height" => $height
 		);
-
+		
 		$cmd = $this->shell_command_scale();
 		$cmd = map($cmd, $map);
 		try {

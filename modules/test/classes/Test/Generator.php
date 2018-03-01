@@ -18,13 +18,13 @@ class Test_Generator extends Options {
 	 * @var Application
 	 */
 	public $application = null;
-
+	
 	/**
 	 *
 	 * @var string
 	 */
 	protected $source = null;
-
+	
 	/**
 	 *
 	 * @var PHP_Inspector
@@ -35,13 +35,13 @@ class Test_Generator extends Options {
 	 * @var string
 	 */
 	protected $target = null;
-
+	
 	/**
 	 *
 	 * @var PHP_Inspector
 	 */
 	protected $target_inspector = null;
-
+	
 	/**
 	 *
 	 * @param Application $app
@@ -53,7 +53,7 @@ class Test_Generator extends Options {
 	public static function factory(Application $app, $target, array $options = array()) {
 		return $app->factory(__CLASS__, $app, $target, $options);
 	}
-
+	
 	/**
 	 *
 	 * @param Application $app
@@ -63,17 +63,17 @@ class Test_Generator extends Options {
 	 */
 	function __construct(Application $app, $target, array $options = array()) {
 		parent::__construct($options);
-
+		
 		$this->application = $app;
-
+		
 		$this->target = $target;
 		$this->target_inspector = null;
-
+		
 		if (file_exists($target)) {
 			$this->target_inspector = PHP_Inspector::factory($app, $target);
 		}
 	}
-
+	
 	/**
 	 *
 	 * @return boolean true if file was created
@@ -138,7 +138,7 @@ class Test_Generator extends Options {
 	}
 	function generate_function_test_code($func, $params) {
 		$contents = array();
-
+		
 		$clean_params = array();
 		foreach ($params as $k => $v) {
 			if ($v instanceof \ReflectionParameter) {
@@ -155,12 +155,12 @@ class Test_Generator extends Options {
 			$contents[] = '$' . $k . ' = ' . $v . ";";
 		}
 		$contents[] = "$func(" . implode(", ", $clean_params) . ");";
-
+		
 		return implode("\n", $contents);
 	}
 	function generate_function_tests($file, $dest_path, $func, $params) {
 		global $verbose;
-
+		
 		$old_dest_file = path($dest_path, "function.$func.phpt");
 		$dest_file = path($dest_path, "$func.phpt");
 		if (file_exists($old_dest_file) && !file_exists($dest_file)) {
@@ -176,11 +176,11 @@ class Test_Generator extends Options {
 				return;
 			}
 		}
-
+		
 		$contents = $this->test_file_header($file, $dest_file);
-
+		
 		$contents[] = $this->generate_function_test_code($func, $params);
-
+		
 		if (!$this->option_bool('dry-run')) {
 			file_put_contents($dest_file, implode("\n", $contents));
 			chmod($dest_file, 0775);
@@ -191,7 +191,7 @@ class Test_Generator extends Options {
 	}
 	function generate_static_class_method_test($file, $dest_path, $class, $method, $params) {
 		global $verbose;
-
+		
 		$dest_file = path($dest_path, "$class-$method.phpt");
 		if (file_exists($dest_file)) {
 			if ($this->option_bool('force-create') || $this->option_bool('force-create-functions')) {
@@ -205,12 +205,12 @@ class Test_Generator extends Options {
 				return;
 			}
 		}
-
+		
 		$contents = test_file_header($file, $dest_file, false);
-
+		
 		$contents[] = generate_function_test_code("$class::$method", $params);
 		$contents[] = "echo basename(__FILE__) . \": success\\n\";";
-
+		
 		if (!$this->option_bool('dry-run')) {
 			file_put_contents($dest_file, implode("\n", $contents));
 			chmod($dest_file, 0775);
@@ -250,9 +250,9 @@ class Test_Generator extends Options {
 	}
 	function generate_class_tests($file, $dest_path, $class) {
 		global $verbose;
-
+		
 		include_once ($file);
-
+		
 		$x = new \ReflectionClass("$class");
 		if ($x->isAbstract() || $x->isInternal() || $x->isInterface()) {
 			if ($verbose) {
@@ -280,15 +280,15 @@ class Test_Generator extends Options {
 				$class_test_file = false;
 			}
 		}
-
+		
 		$contents = test_file_header($file, $dest_file, false);
-
+		
 		$functions = extract_class_functions($x, $class);
-
+		
 		$exclude_functions = array();
-
+		
 		$has_non_static_methods = false;
-
+		
 		foreach ($functions as $method => $params) {
 			if (in_array($method, $exclude_functions)) {
 				continue;
@@ -305,7 +305,7 @@ class Test_Generator extends Options {
 				$method_name = str_replace('::', '', $method);
 				$method_object = $x->getMethod($method_name);
 				$methodParams = $method_object->getParameters();
-
+				
 				self::generate_static_class_method_test($file, $dest_path, $class, $method_name, $methodParams);
 				continue;
 			} else if (begins($method, "->")) {
@@ -324,7 +324,7 @@ class Test_Generator extends Options {
 			return;
 		}
 		$contents[] = "echo basename(__FILE__) . \": success\\n\";";
-
+		
 		if (!$this->option_bool('dry-run')) {
 			file_put_contents($dest_file, implode("\n", $contents));
 			chmod($dest_file, 0775);
@@ -344,7 +344,7 @@ class Test_Generator extends Options {
 		$content = str_replace("\r", "\n", $content);
 		$content = str_replace("\n\n", "\n", $content);
 		$iter = 0;
-
+		
 		$debug_parsing_path = path($dest_path, basename($file));
 		/* Strip away quoted strings (to eliminate stray {}) */
 		do {
@@ -352,17 +352,17 @@ class Test_Generator extends Options {
 			$content = preg_replace("/'[^'\n]*'/", "", $content);
 			$content = preg_replace('/"[^"\n]*"/', "", $content);
 		} while ($content !== $old_content);
-
+		
 		if ($debug_parsing) {
 			file_put_contents($debug_parsing_path . "." . ($iter++), $content);
 		}
-
+		
 		/* Strip away all // comments */
 		do {
 			$old_content = $content;
 			$content = preg_replace("|//[^\n]*\n|", "\n", $content);
 		} while ($content !== $old_content);
-
+		
 		if ($debug_parsing) {
 			file_put_contents($debug_parsing_path . "." . ($iter++), $content);
 		}
@@ -371,7 +371,7 @@ class Test_Generator extends Options {
 			$old_content = $content;
 			$content = preg_replace("|/\\*[^~]*?\\*/|m", "", $content);
 		} while ($content !== $old_content);
-
+		
 		if ($debug_parsing) {
 			file_put_contents($debug_parsing_path . "." . ($iter++), $content);
 		}
@@ -383,7 +383,7 @@ class Test_Generator extends Options {
 				file_put_contents($debug_parsing_path . "." . ($iter++), $content);
 			}
 		} while ($content !== $old_content);
-
+		
 		$matches = false;
 		if (preg_match_all('|function\s+([A-Za-z_][A-Za-z_0-9]*)\s*\(([^\)]*)\)|', $content, $matches, PREG_SET_ORDER)) {
 			foreach ($matches as $match) {
@@ -419,7 +419,7 @@ class Test_Generator extends Options {
 			'php'
 		)
 	);
-
+	
 	/**
 	 *
 	 * @see Command::run()
@@ -428,7 +428,7 @@ class Test_Generator extends Options {
 		$cwd = getcwd();
 		$dirs = array();
 		$files = array();
-
+		
 		while (($arg = $this->get_arg("target")) !== null) {
 			if (Directory::is_absolute($arg)) {
 				$dirs[] = $arg;

@@ -29,7 +29,7 @@ class Controller extends \zesk\Controller {
 				$locales[$code] = Reader::factory($app->locale_path(), $code)->locale($app);
 			}
 		}
-
+		
 		$translations = array();
 		foreach ($locales as $id => $locale) {
 			/* @var $locale Locale  */
@@ -45,11 +45,11 @@ class Controller extends \zesk\Controller {
 		}
 		$this->response->content_type("text/javascript");
 		$load_lines[] = 'exports.Locale.locale(' . JavaScript::arguments($app->locale->id()) . ');';
-
+		
 		$load_lines = implode("\n\t", $load_lines);
 		$content = "/* elapsed: {page-render-time}, is_cached: {page-is-cached} */\n";
 		$content .= "(function (exports) {\n\t$load_lines\n}(this));\n";
-
+		
 		$this->response->cache_for($this->option_integer("cache_seconds", 600));
 		$this->response->content = $content;
 	}

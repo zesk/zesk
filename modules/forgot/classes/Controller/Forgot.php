@@ -16,21 +16,21 @@ class Controller_Forgot extends Controller_Theme {
 	function action_index() {
 		return $this->control($this->widget_factory(Control_Forgot::class));
 	}
-
+	
 	/**
 	 *
 	 */
 	function action_unknown() {
 		return $this->application->theme('forgot/unknown');
 	}
-
+	
 	/**
 	 *
 	 */
 	function action_sent() {
 		return $this->application->theme('forgot/sent');
 	}
-
+	
 	/**
 	 *
 	 * @param unknown $hash
@@ -67,9 +67,9 @@ class Controller_Forgot extends Controller_Theme {
 		if (!$forgot->member_is_empty('updated')) {
 			return $forgot->theme("already");
 		}
-
+		
 		$forgot->validated();
-
+		
 		return $forgot->theme("success");
 	}
 }

@@ -23,7 +23,7 @@ class World_Bootstrap_Province extends Hookable {
 	 * @var array
 	 */
 	private $include_country = null;
-
+	
 	/**
 	 *
 	 * @param Application $application
@@ -33,7 +33,7 @@ class World_Bootstrap_Province extends Hookable {
 	public function factory(Application $application, array $options) {
 		return $application->factory(__CLASS__, $application, $options);
 	}
-
+	
 	/**
 	 *
 	 * @global Module_World::include_country List of country codes to include
@@ -49,7 +49,7 @@ class World_Bootstrap_Province extends Hookable {
 			$this->include_country = array_change_key_case(ArrayTools::flip_assign(to_list($include_country), true));
 		}
 	}
-
+	
 	/**
 	 *
 	 * @param Country $country
@@ -61,22 +61,22 @@ class World_Bootstrap_Province extends Hookable {
 		}
 		return true;
 	}
-
+	
 	/**
 	 *
 	 * @throws Exception
 	 */
 	public function bootstrap() {
 		$application = $this->application;
-
+		
 		$province_class = Province::class;
 		$country_class = Country::class;
-
+		
 		$x = $application->orm_factory($province_class);
 		if ($this->option_bool("drop")) {
 			$x->database()->query('TRUNCATE ' . $x->table());
 		}
-
+		
 		$countries = array(
 			"US" => self::_province_us(),
 			"CA" => self::_province_ca()

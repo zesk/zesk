@@ -17,35 +17,35 @@ namespace zesk;
  * @category Management
  */
 class FIFO {
-
+	
 	/**
 	 * FP to fifo: Reader
 	 *
 	 * @var resource
 	 */
 	private $r = null;
-
+	
 	/**
 	 * FP to fifo: Writer
 	 *
 	 * @var resource
 	 */
 	private $w = null;
-
+	
 	/**
 	 * Path to fifo
 	 *
 	 * @var string
 	 */
 	private $path = null;
-
+	
 	/**
 	 * Whether this object created the FIFO (and therefore should destroy it!)
 	 *
 	 * @var boolean
 	 */
 	private $created = false;
-
+	
 	/**
 	 * Create the FIFO
 	 *
@@ -79,7 +79,7 @@ class FIFO {
 			$this->_before_read();
 		}
 	}
-
+	
 	/**
 	 * Delete the FIFO
 	 *
@@ -91,7 +91,7 @@ class FIFO {
 			unlink($this->path);
 		}
 	}
-
+	
 	/**
 	 * FIFO path
 	 *
@@ -100,7 +100,7 @@ class FIFO {
 	public function path() {
 		return $this->path;
 	}
-
+	
 	/**
 	 * Send a message to parent process
 	 *
@@ -121,7 +121,7 @@ class FIFO {
 		fflush($this->w);
 		return true;
 	}
-
+	
 	/**
 	 * Read a message from client process
 	 *
@@ -145,7 +145,7 @@ class FIFO {
 		}
 		return null;
 	}
-
+	
 	/**
 	 * Open write FIFO
 	 *
@@ -164,7 +164,7 @@ class FIFO {
 		}
 		return true;
 	}
-
+	
 	/**
 	 * Open read FIFO (used by parent process only)
 	 *
@@ -176,7 +176,7 @@ class FIFO {
 			throw new Exception_File_Permission($this->path, "fopen('{filename}', 'r')");
 		}
 	}
-
+	
 	/**
 	 * Close read FIFO
 	 */
@@ -186,7 +186,7 @@ class FIFO {
 			$this->r = null;
 		}
 	}
-
+	
 	/**
 	 * Close write FIFO
 	 */
@@ -196,7 +196,7 @@ class FIFO {
 			$this->w = null;
 		}
 	}
-
+	
 	/**
 	 * Close all FIFOs
 	 */

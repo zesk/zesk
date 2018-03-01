@@ -21,7 +21,7 @@ class Module_Nominatim extends Module {
 	 * @var integer
 	 */
 	private $request_delay = null;
-
+	
 	/**
 	 *
 	 */
@@ -29,7 +29,7 @@ class Module_Nominatim extends Module {
 		// Value is modified in hook_cron
 		$this->application->configuration->deprecated("Module_Nominatim");
 	}
-
+	
 	/**
 	 * cron every minute
 	 */
@@ -40,12 +40,12 @@ class Module_Nominatim extends Module {
 		$settings = Settings::singleton($this->application);
 		$last_request_var = __CLASS__ . "::last_request";
 		$settings->deprecated("Module_Nominatim::last_request", $last_request_var);
-
+		
 		$url = $this->url = $this->option('url_geocode');
 		$rph = $this->option('geocode_requests_per_hour', 60);
-
+		
 		$this->request_delay = intval(3600 / $rph);
-
+		
 		if (!URL::valid($url)) {
 			$this->application->logger->notice("{class}::cron - no URL_GEOCODE configured");
 			return;
@@ -66,7 +66,7 @@ class Module_Nominatim extends Module {
 			'longitude|!=' => null
 		));
 		$update->execute();
-
+		
 		// Set geocoded date to created date when lat/long are set
 		$update = $this->application->query_update("zesk\\Contact_Address")->values(array(
 			'*geocoded' => 'created'
@@ -78,14 +78,14 @@ class Module_Nominatim extends Module {
 			'geocoded' => null
 		));
 		$update->execute();
-
+		
 		$query = $this->application->orm_registry('zesk\\Contact_Address')->query_select()->where(array(
 			array(
 				'geocoded' => null,
 				'geocoded|<=' => Timestamp::now()->add_unit(-abs($this->option_integer("geocode_refresh_days", 30)), Timestamp::UNIT_DAY)
 			)
 		));
-
+		
 		$http = new Net_HTTP_Client($this->application);
 		$http->user_agent("Module_Nominatum in Zesk Library http://zesk.com/ v" . Version::release());
 		/* @var $item Contact_Address */
@@ -127,7 +127,7 @@ class Module_Nominatim extends Module {
 			));
 		}
 	}
-
+	
 	/**
 	 *
 	 * @param Net_HTTP_Client $http
@@ -145,7 +145,7 @@ class Module_Nominatim extends Module {
 			$item->postal_code,
 			$item->country_code
 		)));
-
+		
 		$alt_query = $query;
 		$alt_query['street'] = trim("$item->street $item->additional");
 		$alt_query['city'] = $item->city;
@@ -154,7 +154,7 @@ class Module_Nominatim extends Module {
 		$alt_query['country'] = $item->country_code;
 		$alt_query['postalcode'] = $item->postal_code;
 		$alt_query = ArrayTools::trim_clean($alt_query);
-
+		
 		$this_url = URL::query_append($this->url, $query);
 		$http->url($this_url);
 		$raw = $http->go();
@@ -201,7 +201,7 @@ class Module_Nominatim extends Module {
 		$item->store();
 		return false;
 	}
-
+	
 	/**
 	 * Show credits
 	 *

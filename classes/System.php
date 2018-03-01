@@ -35,7 +35,7 @@ class System {
 	 * @var string
 	 */
 	private static $host_id = null;
-
+	
 	/**
 	 *
 	 * @return unknown
@@ -46,7 +46,7 @@ class System {
 		}
 		return self::$host_id;
 	}
-
+	
 	/**
 	 *
 	 * @return string
@@ -54,7 +54,7 @@ class System {
 	public static function uname() {
 		return php_uname('n');
 	}
-
+	
 	/**
 	 * Get current process ID
 	 *
@@ -63,7 +63,7 @@ class System {
 	public static function process_id() {
 		return getmypid();
 	}
-
+	
 	/**
 	 * Load IP addresses for this sytem
 	 *
@@ -82,7 +82,7 @@ class System {
 		}
 		return $ips;
 	}
-
+	
 	/**
 	 * Load MAC addresses for this sytem
 	 *
@@ -99,7 +99,7 @@ class System {
 		}
 		return $macs;
 	}
-
+	
 	/**
 	 * Run ifconfig configuration utility and parse results
 	 *
@@ -162,7 +162,7 @@ class System {
 		}
 		return $result;
 	}
-
+	
 	/**
 	 * Determine system current load averages using /proc/loadavg or system call to uptime
 	 *
@@ -190,7 +190,7 @@ class System {
 		);
 		return $loads;
 	}
-
+	
 	/**
 	 * Retrieve volume information in a parsed manner from system call to "df"
 	 *
@@ -244,7 +244,7 @@ class System {
 		}
 		return $result;
 	}
-
+	
 	/**
 	 * Based on http://www.novell.com/coolsolutions/feature/11251.html
 	 *
@@ -314,7 +314,7 @@ class System {
 		}
 		return $result;
 	}
-
+	
 	/**
 	 *
 	 * @return number

@@ -20,7 +20,7 @@ use zesk\Response;
  *
  */
 class Control_Picker extends Control {
-
+	
 	/**
 	 * Tag wrapped around all items
 	 *
@@ -28,20 +28,20 @@ class Control_Picker extends Control {
 	 */
 	protected $list_tag = 'div';
 	protected $list_attributes = ".control-picker-state";
-
+	
 	/**
 	 * Tag wrapped around each item displayed
 	 *
 	 * @var string
 	 */
 	protected $item_tag = "li";
-
+	
 	/**
 	 * Attributes for tag around each item displayed
 	 * @var mixed
 	 */
 	protected $item_attributes = null;
-
+	
 	/**
 	 * Renders an item in our list
 	 *
@@ -50,11 +50,11 @@ class Control_Picker extends Control {
 	 * subclass_class_name/item
 	 * control/picker/item
 	 *
-
+	 
 	 * @var string
 	 */
 	protected $theme_item = null;
-
+	
 	/**
 	 * Renders the actual selection tool for items
 	 *
@@ -64,7 +64,7 @@ class Control_Picker extends Control {
 	 * @var string
 	 */
 	protected $theme_item_selector = null;
-
+	
 	/**
 	 * Renders the actual selection tool for items
 	 *
@@ -77,20 +77,20 @@ class Control_Picker extends Control {
 	 */
 	protected $theme_item_search = null;
 	protected $search_columns = array();
-
+	
 	/**
 	 * Added to the form for the selector
 	 *
 	 * @var array
 	 */
 	public $form_attributes = array();
-
+	
 	/**
 	 *
 	 * @var Class_ORM
 	 */
 	protected $class_object = null;
-
+	
 	/**
 	 * Data which should be passed to controller calls by the widget
 	 *

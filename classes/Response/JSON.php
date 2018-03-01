@@ -10,7 +10,7 @@ class JSON extends Type {
 	 * @var array
 	 */
 	private $json = array();
-
+	
 	/**
 	 *
 	 * @param \zesk\Response $response
@@ -18,7 +18,7 @@ class JSON extends Type {
 	function initialize() {
 		$this->json = array();
 	}
-
+	
 	/**
 	 *
 	 * @param mixed $set
@@ -32,7 +32,7 @@ class JSON extends Type {
 		}
 		return $this->json;
 	}
-
+	
 	/**
 	 *
 	 * {@inheritDoc}
@@ -46,7 +46,7 @@ class JSON extends Type {
 		}
 		return $this->application->development() ? zeskJSON::encode_pretty($this->json) : json_encode($this->json);
 	}
-
+	
 	/**
 	 *
 	 * {@inheritDoc}

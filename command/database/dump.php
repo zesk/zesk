@@ -48,7 +48,7 @@ class Command_Database_Dump extends Command_Base {
 		}
 		return null;
 	}
-
+	
 	/**
 	 *
 	 * {@inheritDoc}
@@ -82,7 +82,7 @@ class Command_Database_Dump extends Command_Base {
 		}
 		$path = substr($path, 1);
 		$args[] = $path;
-
+		
 		try {
 			$command = self::map_db_scheme($scheme);
 		} catch (Exception $e) {
@@ -94,7 +94,7 @@ class Command_Database_Dump extends Command_Base {
 			$this->error("Unable to find shell $command in system path:" . implode(", ", $this->application->paths->command()) . "\n");
 			return false;
 		}
-
+		
 		$suffix = "";
 		$where = "";
 		if ($this->option_bool('file') || $this->has_option('dir') || $this->has_option('target')) {
@@ -136,11 +136,11 @@ class Command_Database_Dump extends Command_Base {
 			$where = Directory::make_absolute($app_root, $where);
 			$suffix .= " > $where";
 		}
-
+		
 		if ($this->has_option("arg-suffix")) {
 			$args = array_merge($args, explode(" ", $this->option('arg-suffix')));
 		}
-
+		
 		$command_line = $full_command_path . implode("", ArrayTools::prefix($args, " ")) . $suffix;
 		if ($this->option_bool('echo')) {
 			echo $command_line . "\n";

@@ -56,51 +56,51 @@ use zesk\Router\Parser;
  * {controller}/{action}(/{ID:+})
  */
 class Router extends Hookable {
-
+	
 	/**
 	 * Debugging is enabled
 	 *
 	 * @var boolean
 	 */
 	public $debug = false;
-
+	
 	/**
 	 *
 	 * @var string
 	 */
 	protected $application_class = null;
-
+	
 	/**
 	 *
 	 * @var array of class => Route
 	 */
 	protected $reverse_routes = array();
-
+	
 	/**
 	 *
 	 * @var Route[]
 	 */
 	protected $routes = array();
-
+	
 	/**
 	 *
 	 * @var array of Route
 	 */
 	protected $by_id = array();
-
+	
 	/**
 	 *
 	 * @var string
 	 */
 	protected $prefix = "/";
-
+	
 	/**
 	 * State variable - should be reset
 	 *
 	 * @var Route
 	 */
 	public $route = null;
-
+	
 	/**
 	 * State variable - should be reset
 	 *
@@ -112,25 +112,25 @@ class Router extends Hookable {
 	 * @var integer
 	 */
 	protected $default_route = 0;
-
+	
 	/**
 	 *
 	 * @var array
 	 */
 	protected $aliases = array();
-
+	
 	/**
 	 * Whether the routes have been sorted by weight yet
 	 *
 	 * @var boolean
 	 */
 	private $sorted = false;
-
+	
 	/**
 	 * Index to ensure routes are sorted by added order.
 	 */
 	protected $weight_index = 0;
-
+	
 	/**
 	 *
 	 * {@inheritdoc}
@@ -148,7 +148,7 @@ class Router extends Hookable {
 		), parent::__sleep());
 		return $result;
 	}
-
+	
 	/**
 	 */
 	function __wakeup() {
@@ -162,7 +162,7 @@ class Router extends Hookable {
 		$this->request = $this->application->request();
 		$this->sorted = false;
 	}
-
+	
 	/**
 	 * Create a new Router
 	 *
@@ -182,7 +182,7 @@ class Router extends Hookable {
 		$this->application_class = get_class($application);
 		$this->call_hook("new");
 	}
-
+	
 	/**
 	 *
 	 * @param Kernel $kernel
@@ -193,7 +193,7 @@ class Router extends Hookable {
 			"configured"
 		));
 	}
-
+	
 	/**
 	 *
 	 * @param Application $application
@@ -201,7 +201,7 @@ class Router extends Hookable {
 	public static function configured(Application $application) {
 		$application->configuration->deprecated(("Router::debug"), "zesk\Router::debug");
 	}
-
+	
 	/**
 	 * Cache this router
 	 */
@@ -213,7 +213,7 @@ class Router extends Hookable {
 		$this->application->cache->saveDeferred($item->set($value));
 		return $this;
 	}
-
+	
 	/**
 	 * Whether this router is cached; performance optimization
 	 *
@@ -232,7 +232,7 @@ class Router extends Hookable {
 		}
 		return $value->router;
 	}
-
+	
 	/**
 	 *
 	 * @param Route $a
@@ -253,13 +253,13 @@ class Router extends Hookable {
 		}
 		return 1;
 	}
-
+	
 	/**
 	 */
 	private function _sort() {
 		uasort($this->routes, __CLASS__ . "::compare_weight");
 	}
-
+	
 	/**
 	 * Fetch a route by ID.
 	 * ID is an attribute associated with each route, or the clean URL.
@@ -270,7 +270,7 @@ class Router extends Hookable {
 	function route($id) {
 		return avalue($this->by_id, strtolower($id));
 	}
-
+	
 	/**
 	 *
 	 * @return Route[]
@@ -282,7 +282,7 @@ class Router extends Hookable {
 		}
 		return $this->routes;
 	}
-
+	
 	/**
 	 *
 	 * @param unknown $set
@@ -302,7 +302,7 @@ class Router extends Hookable {
 			$this->application->logger->log($level, $message, $arguments);
 		}
 	}
-
+	
 	/**
 	 * Match a request to this router. Return a Route. Returned route will have ->request() set to this object.
 	 *
@@ -329,7 +329,7 @@ class Router extends Hookable {
 		$this->log("warning", "No matches for {path}", compact("path"));
 		return null;
 	}
-
+	
 	/**
 	 *
 	 * @param string $name
@@ -342,7 +342,7 @@ class Router extends Hookable {
 		}
 		return $this->prefix . $this->route->url_replace($name, $value);
 	}
-
+	
 	/**
 	 * Add a route
 	 *
@@ -365,7 +365,7 @@ class Router extends Hookable {
 		$this->sorted = false;
 		return $this->routes[$path] = $route = $this->_add_route_id($this->_register_route(Route::factory($this, $path, $options)));
 	}
-
+	
 	/**
 	 *
 	 * @param Route $route
@@ -379,7 +379,7 @@ class Router extends Hookable {
 		$this->by_id[strtolower($id)] = $route;
 		return $route;
 	}
-
+	
 	/**
 	 * Load a Router file
 	 *
@@ -419,7 +419,7 @@ class Router extends Hookable {
 		}
 		return null;
 	}
-
+	
 	/**
 	 *
 	 * @param array $by_class
@@ -528,7 +528,7 @@ class Router extends Hookable {
 		}
 		return URL::query_append($this->prefix . $url, avalue($options, 'query', array()));
 	}
-
+	
 	/**
 	 * Retrieve a list of all known controllers
 	 *

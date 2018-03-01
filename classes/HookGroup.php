@@ -17,7 +17,7 @@ class HookGroup {
 	public $first = array();
 	public $middle = array();
 	public $last = array();
-
+	
 	/**
 	 * Merge two groups together
 	 *
@@ -30,7 +30,7 @@ class HookGroup {
 		$this->last = array_merge($this->last, $merge->last);
 		return $this;
 	}
-
+	
 	/**
 	 * Combine all three together
 	 *

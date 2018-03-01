@@ -19,47 +19,47 @@ class Session_ORM_Test extends Test_ORM {
 	);
 	function test_main() {
 		$testx = new Session_ORM($this->application);
-
+		
 		$user = new User($this->application);
 		$user_table = $user->table();
-
+		
 		$table = $testx->table();
-
+		
 		$db = $testx->database();
 		$db->query("DROP TABLE IF EXISTS `$table`");
 		$db->query("DROP TABLE IF EXISTS `$user_table`");
-
+		
 		$db->query($this->application->orm_module()->schema_synchronize($db, array(
 			User::class,
 			Session_ORM::class
 		), array(
 			"follow" => true
 		)));
-
+		
 		//$this->test_an_object($testx, "ID");
-
+		
 		$testx->set_member('cookie', md5(microtime()));
 		$user_id = 1;
 		$ip = '10.0.0.1';
 		$testx->authenticate($user_id, $ip);
-
+		
 		$testx->deauthenticate();
-
+		
 		$testx->hash();
-
+		
 		$hash = "ABC";
 		$find = Session_ORM::one_time_find($this->application, $hash);
-
+		
 		$testx->user_id();
-
+		
 		$user = new User($this->application, 1);
 		$user->fetch();
-
+		
 		$resx = $testx->one_time_create($user, 2);
 		$this->assert($resx instanceof Session_ORM);
 		$this->assert_true($resx->member_boolean('is_one_time'));
 		$this->assert_not_equal($resx->member('cookie'), $testx->member('cookie'));
-
+		
 		$testx->A = "A";
 		$testx->B = "B";
 		$testx->Dog = "Cat";
@@ -67,7 +67,7 @@ class Session_ORM_Test extends Test_ORM {
 		$testx->Wildebeast = "Grawp";
 		$testx->Wild_thing = "Grawp1";
 		$testx->Wilder_thang = "Grawp2";
-
+		
 		$result = $testx->filter(array(
 			"A" => "B",
 			"B" => "A",
@@ -75,7 +75,7 @@ class Session_ORM_Test extends Test_ORM {
 			"Cat" => "Dog-like",
 			"Wilder_thang"
 		));
-
+		
 		$this->assert_arrays_equal($result, array(
 			"A" => "B",
 			"B" => "A",

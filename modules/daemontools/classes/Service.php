@@ -23,7 +23,7 @@ use zesk\Model;
  *
  */
 class Service extends Model {
-
+	
 	/**
 	 *
 	 * @var string
@@ -46,7 +46,7 @@ class Service extends Model {
 		$this->path = $path;
 		$this->name = basename($path);
 	}
-
+	
 	/**
 	 * Getter for options
 	 *
@@ -76,7 +76,7 @@ class Service extends Model {
 	public static function instance(Application $application, $path = null, array $options = array()) {
 		return new self($application, $path, $options);
 	}
-
+	
 	/**
 	 *
 	 * @param Module $application
@@ -87,7 +87,7 @@ class Service extends Model {
 		$options = self::svstat_to_options($line);
 		return self::instance($application, $options['path'], $options);
 	}
-
+	
 	/**
 	 *
 	 * @param Module $module
@@ -97,7 +97,7 @@ class Service extends Model {
 	public static function from_variables(Application $application, array $variables) {
 		return self::instance($application, $variables['path'], $variables);
 	}
-
+	
 	/**
 	 *
 	 * @param string $line
@@ -142,7 +142,7 @@ class Service extends Model {
 			"line" => $line
 		));
 	}
-
+	
 	/**
 	 *
 	 * @return string

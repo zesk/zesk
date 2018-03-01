@@ -21,81 +21,81 @@ class Control_List extends Control_Widgets_Filter {
 	 * @var string
 	 */
 	protected $class = null;
-
+	
 	/**
 	 *
 	 * @var Class_ORM
 	 */
 	protected $class_object = null;
-
+	
 	/**
 	 * Options to create the object we're listing, per row
 	 *
 	 * @var string
 	 */
 	protected $class_options = null;
-
+	
 	/**
 	 *
 	 * @var Control_Pager
 	 */
 	protected $pager = null;
-
+	
 	/**
 	 * Query
 	 *
 	 * @var Database_Query_Select
 	 */
 	protected $query = null;
-
+	
 	/**
 	 * Total query
 	 *
 	 * @var Database_Query_Select
 	 */
 	protected $query_total = null;
-
+	
 	/**
 	 * Theme when no content exists/filter is empty
 	 *
 	 * @var string
 	 */
 	protected $theme_empty = null;
-
+	
 	/**
 	 * Header theme
 	 *
 	 * @var string
 	 */
 	protected $theme_prefix = null;
-
+	
 	/**
 	 * Header theme
 	 *
 	 * @var string
 	 */
 	protected $theme_header = null;
-
+	
 	/**
 	 * Main list content, iterates and creates rows
 	 *
 	 * @var string
 	 */
 	protected $theme_content = null;
-
+	
 	/**
 	 * Row theme
 	 *
 	 * @var string
 	 */
 	protected $theme_row = null;
-
+	
 	/**
 	 *
 	 * @var string
 	 */
 	protected $theme_widgets = null;
-
+	
 	/**
 	 * Footer theme
 	 *
@@ -108,7 +108,7 @@ class Control_List extends Control_Widgets_Filter {
 	 * @var string
 	 */
 	protected $theme_suffix = null;
-
+	
 	/**
 	 * Row tag
 	 */
@@ -133,20 +133,20 @@ class Control_List extends Control_Widgets_Filter {
 	protected $row_attributes = array(
 		"class" => "row"
 	);
-
+	
 	/**
 	 *
 	 * @var array
 	 */
 	protected $widgets = array();
-
+	
 	/**
 	 * Cell tag
 	 *
 	 * @var array
 	 */
 	protected $widget_tag = "div";
-
+	
 	/**
 	 * Cell attributes
 	 *
@@ -155,27 +155,27 @@ class Control_List extends Control_Widgets_Filter {
 	protected $widget_attributes = array(
 		"class" => "cell"
 	);
-
+	
 	/**
 	 * Total of list, cached
 	 *
 	 * @var integer
 	 */
 	protected $cache_total = null;
-
+	
 	/**
 	 *
 	 * @var boolean
 	 */
 	protected $query_hooked = false;
-
+	
 	/**
 	 * Widget for row
 	 *
 	 * @var Control_Row
 	 */
 	protected $row_widget = null;
-
+	
 	/**
 	 * Widgets to execute per-output row
 	 * Deprecate this and place into row_widget, eventually
@@ -183,7 +183,7 @@ class Control_List extends Control_Widgets_Filter {
 	 * @var array
 	 */
 	protected $row_widgets = array();
-
+	
 	/**
 	 * Widgets to execute for header
 	 *
@@ -196,21 +196,21 @@ class Control_List extends Control_Widgets_Filter {
 	 * @var Control_Header
 	 */
 	protected $header_widget = null;
-
+	
 	/**
 	 * Widget which does a generic text search
 	 *
 	 * @var string
 	 */
 	protected $search_widget = null;
-
+	
 	/**
 	 * Text search query
 	 *
 	 * @var string
 	 */
 	protected $search_query = null;
-
+	
 	/**
 	 *
 	 * @param array $where
@@ -219,7 +219,7 @@ class Control_List extends Control_Widgets_Filter {
 	public function where(array $where = null) {
 		return $where === null ? $this->option_array('where') : $this->set_option('where', $where);
 	}
-
+	
 	/**
 	 *
 	 * {@inheritDoc}
@@ -228,7 +228,7 @@ class Control_List extends Control_Widgets_Filter {
 	function model() {
 		return new Model_List($this->application);
 	}
-
+	
 	/**
 	 * Set/get title
 	 *
@@ -238,7 +238,7 @@ class Control_List extends Control_Widgets_Filter {
 	public function title($set = null) {
 		return $set === null ? $this->option('title') : $this->set_option('title', $set);
 	}
-
+	
 	/**
 	 *
 	 * @param string $set
@@ -252,9 +252,9 @@ class Control_List extends Control_Widgets_Filter {
 	}
 	protected function initialize() {
 		$this->initialize_theme_paths();
-
+		
 		$this->class_object = $this->application->class_orm_registry($this->class);
-
+		
 		$this->row_widget = $row_widget = $this->widget_factory(Control_Row::class);
 		$row_widget->names($this->name() . '_row');
 		$row_widget->children($this->row_widgets = $this->call_hook_arguments('widgets', array(), array()));
@@ -262,14 +262,14 @@ class Control_List extends Control_Widgets_Filter {
 		$row_widget->row_attributes($this->row_attributes);
 		$row_widget->set_theme($this->theme_row);
 		$this->child($row_widget);
-
+		
 		$this->call_hook("row_widget", $this->row_widget);
-
+		
 		$this->initialize_header_widgets();
 		$this->initialize_query();
 		$this->initialize_filter();
 		$this->initialize_pager();
-
+		
 		parent::initialize();
 	}
 	protected function initialize_query() {
@@ -288,7 +288,7 @@ class Control_List extends Control_Widgets_Filter {
 			$this->children_hook('pager', $this->pager);
 		}
 	}
-
+	
 	/**
 	 * Set up theme paths
 	 *
@@ -330,14 +330,14 @@ class Control_List extends Control_Widgets_Filter {
 		if (!$this->query_hooked) {
 			$this->children_hook("before_query;before_query_list", $this->query);
 			$this->children_hook("before_query;before_query_total", $this->query_total);
-
+			
 			$this->children_hook("query;query_list", $this->query);
 			$this->children_hook("query;query_total", $this->query_total);
-
+			
 			$this->children_hook("after_query;after_query_list", $this->query);
 			$this->children_hook("after_query;after_query_total", $this->query_total);
 			$this->query_hooked = true;
-
+			
 			$this->cache_total = $this->total();
 			$this->children_hook("total", $this->cache_total);
 			if ($this->has_option('force_limit')) {
@@ -386,7 +386,7 @@ class Control_List extends Control_Widgets_Filter {
 			'theme_widgets' => $this->theme_widgets
 		) + parent::theme_variables() + $this->options;
 	}
-
+	
 	/**
 	 * Retrieve select query for list
 	 *
@@ -399,7 +399,7 @@ class Control_List extends Control_Widgets_Filter {
 		}
 		return $query;
 	}
-
+	
 	/**
 	 * Create the total query
 	 *
@@ -418,7 +418,7 @@ class Control_List extends Control_Widgets_Filter {
 		$what = $pk ? implode(",", ArrayTools::prefix($pk, "X.")) : "*";
 		return $what;
 	}
-
+	
 	/**
 	 * Return total elements in this query
 	 *
@@ -440,7 +440,7 @@ class Control_List extends Control_Widgets_Filter {
 		$this->_prepare_queries();
 		return $this->query;
 	}
-
+	
 	/**
 	 *
 	 * @return Database_Query_Select
@@ -495,7 +495,7 @@ class Control_List extends Control_Widgets_Filter {
 			'shown' => min($total, $force_limit)
 		);
 	}
-
+	
 	/**
 	 * Get/set/append list attributes
 	 *

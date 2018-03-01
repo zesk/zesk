@@ -29,7 +29,7 @@ class Module extends \zesk\Module_Repository {
 			"command_subversion"
 		));
 	}
-
+	
 	/**
 	 * Support configuration command for subversion
 	 *

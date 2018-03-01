@@ -22,19 +22,19 @@ class Module_ORM extends Module {
 		Domain::class,
 		Lock::class
 	);
-
+	
 	/**
 	 *
 	 * @var ORM[string]
 	 */
 	private $class_cache = array();
-
+	
 	/**
 	 *
 	 * @var ORM_Database_Adapter[string]
 	 */
 	private $database_adapters = array();
-
+	
 	/**
 	 *
 	 * {@inheritDoc}
@@ -46,7 +46,7 @@ class Module_ORM extends Module {
 		 * @deprecated 2018-01-02
 		 */
 		$this->application->configuration->deprecated(ORM::class . '::fix_member_objects', ORM::class . "::fix_orm_members");
-
+		
 		/**
 		 * $application->orm_factory(...)
 		 */
@@ -68,7 +68,7 @@ class Module_ORM extends Module {
 			$this,
 			"class_orm_registry"
 		));
-
+		
 		/**
 		 * $application->settings_registry(...)
 		 */
@@ -76,7 +76,7 @@ class Module_ORM extends Module {
 			$this,
 			"settings_registry"
 		));
-
+		
 		/**
 		 * Hook into database table
 		 */
@@ -84,12 +84,12 @@ class Module_ORM extends Module {
 			$this,
 			"database_table_add_column"
 		));
-
+		
 		$this->application->hooks->add('zesk\\Command_Daemon::daemon_hooks', array(
 			$this,
 			"daemon_hooks"
 		));
-
+		
 		$self = $this;
 		$this->application->hooks->add(ORM::class . "::router_derived_classes", function (ORM $object, array $classes) use ($self) {
 			$class_object = $object->class_orm();
@@ -127,7 +127,7 @@ class Module_ORM extends Module {
 		$this->database_adapters['mysql'] = $mysql = $this->application->factory(ORM_Database_Adapter_MySQL::class);
 		$this->database_adapters['mysqli'] = $mysql;
 	}
-
+	
 	/**
 	 * Collect hooks used to invoke daemons
 	 *
@@ -200,7 +200,7 @@ class Module_ORM extends Module {
 		}
 		return $result;
 	}
-
+	
 	/**
 	 * When zesk\Hooks::all_hook is called, this is called first to collect all objects
 	 * in the system.
@@ -208,7 +208,7 @@ class Module_ORM extends Module {
 	public static function hooks(Application $application) {
 		$application->hooks->add(ORM::class . '::register_all_hooks', __CLASS__ . "::object_register_all_hooks");
 	}
-
+	
 	/**
 	 *
 	 * @param Application $app
@@ -217,13 +217,13 @@ class Module_ORM extends Module {
 		$classes = $app->orm_module()->all_classes();
 		$app->classes->register(ArrayTools::collapse($classes, "class"));
 	}
-
+	
 	/**
 	 *
 	 * @var string[]
 	 */
 	private $cached_classes = null;
-
+	
 	/**
 	 * Retrieve the list of classes associated with an application
 	 *
@@ -255,7 +255,7 @@ class Module_ORM extends Module {
 		ksort($all_classes);
 		return $all_classes;
 	}
-
+	
 	/**
 	 * Synchronzie the schema.
 	 *
@@ -372,7 +372,7 @@ class Module_ORM extends Module {
 		}
 		return array_values($this->cached_classes);
 	}
-
+	
 	/**
 	 * Retrieve all classes with additional fields
 	 *
@@ -446,7 +446,7 @@ class Module_ORM extends Module {
 		}
 		return $this;
 	}
-
+	
 	/**
 	 * Retrieve object or classes from cache
 	 *
@@ -481,7 +481,7 @@ class Module_ORM extends Module {
 		$result = $this->class_cache[$lowclass];
 		return avalue($result, $component, $result);
 	}
-
+	
 	/**
 	 * While developing, check schema every minute
 	 */
@@ -490,7 +490,7 @@ class Module_ORM extends Module {
 			$this->_schema_check();
 		}
 	}
-
+	
 	/**
 	 * While an out-of-sync schema may cause issues, it often does not.
 	 * Check hourly on production to avoid
@@ -501,7 +501,7 @@ class Module_ORM extends Module {
 			$this->_schema_check();
 		}
 	}
-
+	
 	/**
 	 * Internal function - check the schema and notify someone
 	 *
@@ -534,14 +534,14 @@ class Module_ORM extends Module {
 		}
 		return $results;
 	}
-
+	
 	/**
 	 * Registry of settings, currently
 	 *
 	 * @var Settings[string]
 	 */
 	private $registry = array();
-
+	
 	/**
 	 *
 	 * @param Application $application

@@ -14,25 +14,25 @@ class ORM_CacheItem implements CacheItemInterface {
 	 * @var CacheItemInterface
 	 */
 	private $item;
-
+	
 	/**
 	 *
 	 * @var boolean
 	 */
 	private $is_hit = null;
-
+	
 	/**
 	 *
 	 * @var array
 	 */
 	private $depends = array();
-
+	
 	/**
 	 *
 	 * @var array
 	 */
 	private $class_depends = array();
-
+	
 	/**
 	 *
 	 */
@@ -59,7 +59,7 @@ class ORM_CacheItem implements CacheItemInterface {
 		$this->item = $actual;
 		$this->is_hit = null;
 	}
-
+	
 	/**
 	 *
 	 * @return string[]
@@ -70,7 +70,7 @@ class ORM_CacheItem implements CacheItemInterface {
 			"is_hit"
 		);
 	}
-
+	
 	/**
 	 *
 	 */
@@ -88,7 +88,7 @@ class ORM_CacheItem implements CacheItemInterface {
 	public function getKey() {
 		return $this->item->getKey();
 	}
-
+	
 	/**
 	 * Retrieves the value of the item from the cache associated with this object's key.
 	 *
@@ -110,7 +110,7 @@ class ORM_CacheItem implements CacheItemInterface {
 		}
 		return null;
 	}
-
+	
 	/**
 	 * Confirms if the cache item lookup resulted in a cache hit.
 	 *
@@ -126,7 +126,7 @@ class ORM_CacheItem implements CacheItemInterface {
 		}
 		return $this->is_hit = $this->_isHit();
 	}
-
+	
 	/**
 	 *
 	 * @return boolean|unknown
@@ -184,7 +184,7 @@ class ORM_CacheItem implements CacheItemInterface {
 		$this->item->set($value);
 		return $this;
 	}
-
+	
 	/**
 	 *
 	 * @return array[]
@@ -197,7 +197,7 @@ class ORM_CacheItem implements CacheItemInterface {
 		}
 		return $result;
 	}
-
+	
 	/**
 	 *
 	 * @return array[]
@@ -210,7 +210,7 @@ class ORM_CacheItem implements CacheItemInterface {
 		}
 		return $result;
 	}
-
+	
 	/**
 	 *
 	 * @param ORM $depend
@@ -226,7 +226,7 @@ class ORM_CacheItem implements CacheItemInterface {
 		$result['_hash'] = md5(serialize($result));
 		return $result;
 	}
-
+	
 	/**
 	 *
 	 * @param ORM $depend
@@ -252,7 +252,7 @@ class ORM_CacheItem implements CacheItemInterface {
 		$result['_hash'] = md5(serialize($result));
 		return $result;
 	}
-
+	
 	/**
 	 * Sets the expiration time for this cache item.
 	 *
@@ -267,7 +267,7 @@ class ORM_CacheItem implements CacheItemInterface {
 	public function expiresAt($expiration) {
 		return $this->item->expiresAt($expiration);
 	}
-
+	
 	/**
 	 * Sets the expiration time for this cache item.
 	 *
@@ -283,7 +283,7 @@ class ORM_CacheItem implements CacheItemInterface {
 	public function expiresAfter($time) {
 		return $this->item->expiresAfter($time);
 	}
-
+	
 	/**
 	 * Invalidate this cache object when an object changes
 	 *
@@ -307,7 +307,7 @@ class ORM_CacheItem implements CacheItemInterface {
 		$this->is_hit = null;
 		return $this;
 	}
-
+	
 	/**
 	 *
 	 * @param Class_ORM $class

@@ -15,13 +15,13 @@ abstract class Type {
 	 * @var \zesk\Application
 	 */
 	protected $application = null;
-
+	
 	/**
 	 *
 	 * @var \zesk\Response
 	 */
 	protected $parent = null;
-
+	
 	/**
 	 *
 	 * @param \zesk\Response $response
@@ -31,19 +31,19 @@ abstract class Type {
 		$this->application = $response->application;
 		$this->initialize();
 	}
-
+	
 	/**
 	 * Output any special headers
 	 */
 	protected function headers() {
 	}
-
+	
 	/**
 	 * Override in subclasses to extend constructor. Make sure to call parent::initialize()!
 	 */
 	protected function initialize() {
 	}
-
+	
 	/**
 	 *
 	 * @param unknown $content
@@ -54,7 +54,7 @@ abstract class Type {
 		$this->output($content);
 		return ob_end_clean();
 	}
-
+	
 	/**
 	 * Outputs to stdout the content
 	 * @param mixed $content

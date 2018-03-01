@@ -21,26 +21,26 @@ class Repository extends \zesk\Repository_Command {
 	 * @var array
 	 */
 	protected $info = null;
-
+	
 	/**
 	 * Used in validate function
 	 *
 	 * @var string
 	 */
 	protected $dot_directory = ".svn";
-
+	
 	/**
 	 *
 	 * @var string
 	 */
 	protected $code = "svn";
-
+	
 	/**
 	 *
 	 * @var string
 	 */
 	protected $executable = "svn";
-
+	
 	/**
 	 * Non-interactive
 	 *
@@ -147,7 +147,7 @@ class Repository extends \zesk\Repository_Command {
 		}
 		return $results;
 	}
-
+	
 	/**
 	 *
 	 * {@inheritDoc}
@@ -159,7 +159,7 @@ class Repository extends \zesk\Repository_Command {
 			"message" => escapeshellarg($message)
 		));
 	}
-
+	
 	/**
 	 *
 	 * {@inheritDoc}
@@ -170,7 +170,7 @@ class Repository extends \zesk\Repository_Command {
 			"target" => $this->path($target)
 		));
 	}
-
+	
 	/**
 	 * Run before target is updated with new data
 	 *
@@ -204,7 +204,7 @@ class Repository extends \zesk\Repository_Command {
 		}
 		return true;
 	}
-
+	
 	/**
 	 *
 	 * {@inheritDoc}
@@ -228,7 +228,7 @@ class Repository extends \zesk\Repository_Command {
 		}
 		return true;
 	}
-
+	
 	/**
 	 * Run before target is updated with new data
 	 *
@@ -238,7 +238,7 @@ class Repository extends \zesk\Repository_Command {
 	function post_update($target = null) {
 		$this->sync($target);
 	}
-
+	
 	/**
 	 *
 	 * @param unknown $target
@@ -277,7 +277,7 @@ class Repository extends \zesk\Repository_Command {
 		die(__FILE__);
 		return $this->info;
 	}
-
+	
 	/**
 	 *
 	 * @param unknown $url
@@ -286,13 +286,13 @@ class Repository extends \zesk\Repository_Command {
 	public function tags_from_url($url) {
 		$trunk_directory = $this->option("trunk_directory", "trunk");
 		$trunk_directory = "/$trunk_directory/";
-
+		
 		$branches_directory = $this->option("branches_directory", "branches");
 		$branches_directory = "/$branches_directory/";
-
+		
 		$tags_directory = $this->option("tags_directory", "tags");
 		$tags_directory = "/$tags_directory/";
-
+		
 		// Make sure we end with a slash
 		$url = rtrim($url, "/") . "/";
 		$min = $mintoken = null;
@@ -314,7 +314,7 @@ class Repository extends \zesk\Repository_Command {
 		}
 		return StringTools::left($url, $mintoken) . $tags_directory;
 	}
-
+	
 	/**
 	 * Determine the latest version of this repository by scanning the tags directory.
 	 *

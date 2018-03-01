@@ -14,54 +14,54 @@ namespace zesk;
  * @author kent
  */
 abstract class Command extends Hookable implements Logger\Handler {
-
+	
 	/**
 	 *
 	 * @var integer
 	 */
 	protected $wordwrap = 120;
-
+	
 	/**
 	 * Application running this command
 	 *
 	 * @var Application
 	 */
 	public $application = null;
-
+	
 	/**
 	 * Set to true in subclasses to skip Application configuration until ->go
 	 *
 	 * @var boolean
 	 */
 	public $has_configuration = false;
-
+	
 	/**
 	 *
 	 * @var string
 	 */
 	private $program;
-
+	
 	/**
 	 * Original arguments passed to command, unchanged, unedited.
 	 *
 	 * @var array
 	 */
 	private $arguments = array();
-
+	
 	/**
 	 * errors encountered during command processing.
 	 *
 	 * @var array
 	 */
 	private $errors = array();
-
+	
 	/**
 	 * Does the terminal support ANSI colors?
 	 *
 	 * @var array
 	 */
 	protected $ansi = false;
-
+	
 	/**
 	 *
 	 * @var string
@@ -81,21 +81,21 @@ abstract class Command extends Hookable implements Logger\Handler {
 		'debug' => "37;40m",
 		"reset" => "0m"
 	);
-
+	
 	/**
 	 * Help string
 	 *
 	 * @var string
 	 */
 	protected $help = null;
-
+	
 	/**
 	 * Debugging enabled for this command
 	 *
 	 * @var boolean
 	 */
 	protected $debug = false;
-
+	
 	/**
 	 * Current state of the argument parsing.
 	 * Should be modified by subclasses when parsing custom arguments
@@ -103,7 +103,7 @@ abstract class Command extends Hookable implements Logger\Handler {
 	 * @var array
 	 */
 	protected $argv;
-
+	
 	/**
 	 * Array of character => option name
 	 *
@@ -112,89 +112,89 @@ abstract class Command extends Hookable implements Logger\Handler {
 	 * @var array
 	 */
 	protected $option_chars = array();
-
+	
 	/**
 	 * Array of option name => option type
 	 *
 	 * @var array
 	 */
 	protected $option_types = array();
-
+	
 	/**
 	 * Array of option name => option default value
 	 *
 	 * @var array
 	 */
 	protected $option_defaults = array();
-
+	
 	/**
 	 * Array of option name => value as passed and parsed on the command line
 	 *
 	 * @var array
 	 */
 	protected $option_values = array();
-
+	
 	/**
 	 * Array of option name => option help string
 	 *
 	 * @var array
 	 */
 	protected $option_help = array();
-
+	
 	/**
 	 * File name of the configuration file for this command (if any)
 	 *
 	 * @var string
 	 */
 	protected $config = null;
-
+	
 	/**
 	 * Configuration for this command (if any)
 	 *
 	 * @var array
 	 */
 	protected $configuration = array();
-
+	
 	/**
 	 * Running commands (currently)
 	 *
 	 * @var array of Command
 	 */
 	static $commands = array();
-
+	
 	/**
 	 * Path for the history file for ->prompt (set in subclasses to keep history)
 	 *
 	 * @var string
 	 */
 	protected $history_file_path = null;
-
+	
 	/**
 	 *
 	 * @var resource
 	 */
 	private $history_file = null;
-
+	
 	/**
 	 * Autocomplete possibilities - set before prompt for default behavior
 	 *
 	 * $var array
 	 */
 	protected $completions = array();
-
+	
 	/**
 	 * Load these modules prior to running command
 	 *
 	 * $var array
 	 */
 	protected $load_modules = array();
-
+	
 	/**
 	 *
 	 * @var array
 	 */
 	protected $register_classes = array();
-
+	
 	/**
 	 * Create a new Command.
 	 * Command line arguments can be passed in. If null, uses command-line arguments from
@@ -204,18 +204,18 @@ abstract class Command extends Hookable implements Logger\Handler {
 	 */
 	function __construct(Application $application, $argv = null, array $options = array()) {
 		parent::__construct($application, $options);
-
+		
 		if ($argv === null) {
 			$argv = avalue($_SERVER, 'argv', null);
 		}
 		$this->option_types = $this->optFormat();
 		$this->option_defaults = $this->optDefaults();
 		$this->option_help = $this->optHelp();
-
+		
 		$defaults = $this->parse_option_defaults($this->option_defaults);
-
+		
 		$this->set_option($defaults, null, false);
-
+		
 		if (is_array($argv) || $application->console()) {
 			$this->program = array_shift($argv);
 			$this->arguments = $argv;
@@ -227,28 +227,28 @@ abstract class Command extends Hookable implements Logger\Handler {
 				$this->argv[] = "--$k=$v";
 			}
 		}
-
+		
 		$this->initialize();
-
+		
 		$this->application->register_class($this->register_classes);
-
+		
 		$this->_parse_options();
-
+		
 		if ($this->debug) {
 			$application->logger->debug("{class}({args})", array(
 				"class" => get_class($this),
 				"args" => var_export($argv, true)
 			));
 		}
-
+		
 		if ($this->has_errors()) {
 			$this->usage(implode("\n", $this->errors()));
 			exit(1);
 		}
-
+		
 		$this->determine_ansi();
 	}
-
+	
 	/**
 	 *
 	 * @return string[]|NULL[]
@@ -265,7 +265,7 @@ abstract class Command extends Hookable implements Logger\Handler {
 		}
 		return $paths;
 	}
-
+	
 	/**
 	 * Load command options from a configuration file.
 	 *
@@ -298,7 +298,7 @@ abstract class Command extends Hookable implements Logger\Handler {
 		}
 		return $result;
 	}
-
+	
 	/**
 	 * Retrieve the full path of the default configuration file, using user and system configuration
 	 * paths.
@@ -311,14 +311,14 @@ abstract class Command extends Hookable implements Logger\Handler {
 		$path = $this->configuration_path();
 		return File::find_first($path, $name . ".conf");
 	}
-
+	
 	/**
 	 * Load global values which affect the operation of this command
 	 */
 	protected function hook_construct() {
 		$this->debug = $this->option('debug', $this->debug);
 	}
-
+	
 	/**
 	 * Load a configuration file for this command
 	 *
@@ -341,12 +341,12 @@ abstract class Command extends Hookable implements Logger\Handler {
 				"create" => $create
 			));
 		}
-
+		
 		// Load global include
 		$app = $this->application;
 		$app->configure_include($configure_options['files']);
 		$this->configuration = $app->reconfigure();
-
+		
 		$this->inherit_global_options();
 		$config_settings = null;
 		$exists = file_exists($filename);
@@ -369,7 +369,7 @@ abstract class Command extends Hookable implements Logger\Handler {
 		$app->configured();
 		return $filename;
 	}
-
+	
 	/**
 	 * Write the default configuration for this command (as requested with $create = true)
 	 * @param unknown $name
@@ -401,7 +401,7 @@ abstract class Command extends Hookable implements Logger\Handler {
 			}
 		}
 	}
-
+	
 	/**
 	 * Save new configuration settings in file
 	 *
@@ -423,7 +423,7 @@ abstract class Command extends Hookable implements Logger\Handler {
 		$editor = Configuration_Parser::factory(File::extension($config), "")->editor($contents);
 		return File::put($config, $editor->edit($edits));
 	}
-
+	
 	/**
 	 *
 	 * {@inheritdoc}
@@ -435,19 +435,19 @@ abstract class Command extends Hookable implements Logger\Handler {
 			$this->program
 		), $this->arguments));
 	}
-
+	
 	/**
 	 */
 	protected function initialize() {
 	}
-
+	
 	/**
 	 * Old-school way to supply options
 	 */
 	protected final function optHelp() {
 		return $this->option_help;
 	}
-
+	
 	/**
 	 * Old-school way to supply options
 	 */
@@ -472,7 +472,7 @@ abstract class Command extends Hookable implements Logger\Handler {
 		}
 		return new Date($arg);
 	}
-
+	
 	/**
 	 *
 	 * @param unknown $type
@@ -511,7 +511,7 @@ abstract class Command extends Hookable implements Logger\Handler {
 		}
 		return "Unkown type: $type";
 	}
-
+	
 	/**
 	 * Output the usage information
 	 *
@@ -583,7 +583,7 @@ abstract class Command extends Hookable implements Logger\Handler {
 			$result[] = wordwrap($this->help, $this->wordwrap, "\n");
 			$result[] = "";
 		}
-
+		
 		$maxlen += 4;
 		$wrap_len = $this->wordwrap - $maxlen - 1;
 		foreach ($commands as $k => $cmd) {
@@ -602,7 +602,7 @@ abstract class Command extends Hookable implements Logger\Handler {
 		$this->error(implode("\n", $result) . "\n");
 		exit(($message === null) ? 0 : 1);
 	}
-
+	
 	/**
 	 * Did errors occur?
 	 *
@@ -611,7 +611,7 @@ abstract class Command extends Hookable implements Logger\Handler {
 	function has_errors() {
 		return count($this->errors) !== 0;
 	}
-
+	
 	/**
 	 * Return the errors
 	 *
@@ -620,7 +620,7 @@ abstract class Command extends Hookable implements Logger\Handler {
 	function errors() {
 		return $this->errors;
 	}
-
+	
 	/**
 	 * Parse the option default values
 	 *
@@ -644,7 +644,7 @@ abstract class Command extends Hookable implements Logger\Handler {
 		}
 		return $options;
 	}
-
+	
 	/**
 	 *
 	 * @var boolean[severity]
@@ -703,7 +703,7 @@ abstract class Command extends Hookable implements Logger\Handler {
 			flush();
 		}
 	}
-
+	
 	/**
 	 * Is the terminal an ANSI terminal?
 	 */
@@ -732,7 +732,7 @@ abstract class Command extends Hookable implements Logger\Handler {
 			$suffix
 		);
 	}
-
+	
 	/**
 	 *
 	 * @return string|NULL|resource
@@ -761,7 +761,7 @@ abstract class Command extends Hookable implements Logger\Handler {
 			"severity" => "error"
 		) + $arguments);
 	}
-
+	
 	/**
 	 * Debug message, only when debugging is turned on
 	 *
@@ -772,7 +772,7 @@ abstract class Command extends Hookable implements Logger\Handler {
 			$this->log($message, $arguments);
 		}
 	}
-
+	
 	/**
 	 * Log messages to the logger at $level
 	 *
@@ -785,7 +785,7 @@ abstract class Command extends Hookable implements Logger\Handler {
 			$this->log($message, $arguments);
 		}
 	}
-
+	
 	/**
 	 * Peek at the next argument to be processed
 	 *
@@ -794,7 +794,7 @@ abstract class Command extends Hookable implements Logger\Handler {
 	protected function peek_arg() {
 		return avalue($this->argv, 0);
 	}
-
+	
 	/**
 	 * Return original arguments passed to this command (not affected by parsing, etc)
 	 *
@@ -803,7 +803,7 @@ abstract class Command extends Hookable implements Logger\Handler {
 	public function arguments() {
 		return $this->arguments;
 	}
-
+	
 	/**
 	 * Retrieve remaining arguments to be processed, optionally deleting them
 	 *
@@ -817,7 +817,7 @@ abstract class Command extends Hookable implements Logger\Handler {
 		}
 		return $argv;
 	}
-
+	
 	/**
 	 * Is there an argument waiting to be processed?
 	 *
@@ -826,7 +826,7 @@ abstract class Command extends Hookable implements Logger\Handler {
 	protected function has_arg() {
 		return count($this->argv) > 0;
 	}
-
+	
 	/**
 	 * Assumes "has_arg()" is true
 	 *
@@ -841,7 +841,7 @@ abstract class Command extends Hookable implements Logger\Handler {
 		}
 		return array_shift($this->argv);
 	}
-
+	
 	/**
 	 * Parse command-line options for this command
 	 */
@@ -849,7 +849,7 @@ abstract class Command extends Hookable implements Logger\Handler {
 		$this->argv = $this->arguments;
 		$optional_arguments = isset($this->option_types["*"]);
 		$eatExtras = isset($this->option_types["+"]) || $optional_arguments;
-
+		
 		$option_values = array();
 		while (($arg = array_shift($this->argv)) !== null) {
 			if (is_array($arg)) {
@@ -885,7 +885,7 @@ abstract class Command extends Hookable implements Logger\Handler {
 					array_unshift($this->argv, $saveArg);
 					break;
 				}
-
+				
 				$format = $this->option_types[$arg];
 				$this->debug_log("Found arg \"$saveArg\" with format \"$format\"");
 				switch (strtolower($this->option_types[$arg])) {
@@ -1012,7 +1012,7 @@ abstract class Command extends Hookable implements Logger\Handler {
 				break;
 			}
 		}
-
+		
 		if ($eatExtras) {
 			if (count($this->argv) === 0) {
 				if (!$optional_arguments) {
@@ -1024,10 +1024,10 @@ abstract class Command extends Hookable implements Logger\Handler {
 				$this->error("Unhandled arguments starting at " . $this->argv[0]);
 			}
 		}
-
+		
 		$this->option_values = $this->options_include(array_keys($option_values));
 	}
-
+	
 	/**
 	 * Quote a variable for use in the shell
 	 *
@@ -1093,7 +1093,7 @@ abstract class Command extends Hookable implements Logger\Handler {
 		}
 		return $command;
 	}
-
+	
 	/**
 	 * Prompt for arbitrary input
 	 *
@@ -1124,7 +1124,7 @@ abstract class Command extends Hookable implements Logger\Handler {
 		}
 		return null;
 	}
-
+	
 	/**
 	 * Prompt yes or no
 	 *
@@ -1156,7 +1156,7 @@ abstract class Command extends Hookable implements Logger\Handler {
 		} while ($result === null);
 		return $result;
 	}
-
+	
 	/**
 	 * Execute a shell command - Danger: security implications.
 	 * Sanitizes input for the shell.
@@ -1173,7 +1173,7 @@ abstract class Command extends Hookable implements Logger\Handler {
 		}
 		return $this->application->process->execute_arguments($command, $args);
 	}
-
+	
 	/**
 	 * Run a zesk command using the CLI
 	 *
@@ -1187,7 +1187,7 @@ abstract class Command extends Hookable implements Logger\Handler {
 			"app_root" => $app->path()
 		) + $arguments);
 	}
-
+	
 	/**
 	 * Execute a shell command and output to STDOUT - Danger: security implications.
 	 * Sanitizes input for the shell.
@@ -1201,7 +1201,7 @@ abstract class Command extends Hookable implements Logger\Handler {
 		array_shift($args);
 		return $this->application->process->execute_arguments($command, $args, true);
 	}
-
+	
 	/**
 	 * Main entry point for running a command
 	 *
@@ -1243,7 +1243,7 @@ abstract class Command extends Hookable implements Logger\Handler {
 		array_pop(self::$commands);
 		return $result;
 	}
-
+	
 	/**
 	 * Is a command running?
 	 *
@@ -1252,7 +1252,7 @@ abstract class Command extends Hookable implements Logger\Handler {
 	public static function running() {
 		return last(self::$commands);
 	}
-
+	
 	/**
 	 *
 	 * @param string $content
@@ -1288,7 +1288,7 @@ abstract class Command extends Hookable implements Logger\Handler {
 		}
 		return true;
 	}
-
+	
 	/**
 	 * Add help from the doccomment.
 	 * One place for docs is preferred.
@@ -1307,7 +1307,7 @@ abstract class Command extends Hookable implements Logger\Handler {
 			aevalue($parsed, "description")
 		)));
 	}
-
+	
 	/**
 	 * Is a terminal?
 	 *
@@ -1316,7 +1316,7 @@ abstract class Command extends Hookable implements Logger\Handler {
 	public function is_terminal() {
 		return $this->ansi;
 	}
-
+	
 	/**
 	 * Validate a file parameter
 	 *

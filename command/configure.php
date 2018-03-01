@@ -24,7 +24,7 @@ class Command_Configure extends Command_Base {
 		"environment-file" => "string",
 		"host-setting-name" => "string"
 	);
-
+	
 	/**
 	 * owner - Set owner of the file (root only)
 	 * mode - Set the mode of the file (root only)
@@ -38,99 +38,99 @@ class Command_Configure extends Command_Base {
 		'map' => true,
 		'trim' => true
 	);
-
+	
 	/**
 	 * Whether the configuration was changed
 	 *
 	 * @var boolean
 	 */
 	private $changed = null;
-
+	
 	/**
 	 * Whether the configuration should be saved
 	 *
 	 * @var boolean
 	 */
 	private $need_save = null;
-
+	
 	/**
 	 * Whether anything was skipped (out of sync)
 	 *
 	 * @var integer
 	 */
 	private $incomplete = 0;
-
+	
 	/**
 	 *
 	 * @var string
 	 */
 	private $host_path = null;
-
+	
 	/**
 	 *
 	 * @var string
 	 */
 	private $uname = null;
-
+	
 	/**
 	 *
 	 * @var string
 	 */
 	private $low_uname = null;
-
+	
 	/**
 	 *
 	 * @var string
 	 */
 	private $username = null;
-
+	
 	/**
 	 * List of known host configurations
 	 *
 	 * @var array
 	 */
 	private $possible_host_configurations = array();
-
+	
 	/**
 	 * Map from uname => host configurations
 	 *
 	 * @var array
 	 */
 	private $alias_file = null;
-
+	
 	/**
 	 * List of host configurations
 	 *
 	 * @var array
 	 */
 	private $host_configurations = array();
-
+	
 	/**
 	 * List of host paths for this host
 	 *
 	 * @var array
 	 */
 	private $host_paths = array();
-
+	
 	/**
 	 * Variables to map when copying files around, etc.
 	 *
 	 * @var array
 	 */
 	private $variable_map = array();
-
+	
 	/**
 	 *
 	 * @var integer
 	 */
 	protected $current_uid = null;
-
+	
 	/**
 	 *
 	 * @var integer
 	 */
 	protected $current_gid = null;
-
+	
 	/**
 	 *
 	 * {@inheritdoc}
@@ -139,13 +139,13 @@ class Command_Configure extends Command_Base {
 	 */
 	protected function run() {
 		$this->completion_function();
-
+		
 		$this->configure("configure", true);
-
+		
 		$this->uname = System::uname();
 		$this->low_uname = strtolower($this->uname);
 		$this->username = avalue($_SERVER, 'USER');
-
+		
 		$this->variable_map['home'] = $this->application->paths->home();
 		$this->variable_map['uname'] = $this->uname;
 		$this->variable_map['low_uname'] = $this->low_uname;
@@ -156,19 +156,19 @@ class Command_Configure extends Command_Base {
 		$this->variable_map['zesk_home'] = $this->application->zesk_home();
 		$this->variable_map['user'] = $this->username;
 		$this->variable_map['username'] = $this->username; // Deprecate?
-
+		
 		/* @deprecated 2018-01 */
 		$this->variable_map['zesk_root'] = $this->application->zesk_root();
-
+		
 		$this->log("Configuration synchronization for: {uname}, user: {user}", $this->variable_map);
 		$this->determine_environment_files();
 		if (!$this->determine_host_path_setting_name()) {
 			return 1;
 		}
 		$this->determine_host_name();
-
+		
 		$this->save_configuration_changes();
-
+		
 		$this->incomplete = 0;
 		$this->debug_log("Variables: {variables}", array(
 			"variables" => Text::format_pairs($this->variable_map)
@@ -179,7 +179,7 @@ class Command_Configure extends Command_Base {
 		$this->verbose_log("Success");
 		return 0;
 	}
-
+	
 	/**
 	 * If the environment_file option is not set, interactively set it
 	 *
@@ -200,7 +200,7 @@ class Command_Configure extends Command_Base {
 		$this->variable_map['environment_file'] = $this->environment_file;
 		return $this->environment_file = $value;
 	}
-
+	
 	/**
 	 * Determine the environment files for configuration
 	 *
@@ -251,7 +251,7 @@ class Command_Configure extends Command_Base {
 		}
 		return $value;
 	}
-
+	
 	/**
 	 * Load a configuration file and return the loaded configuration as an array
 	 *
@@ -279,7 +279,7 @@ class Command_Configure extends Command_Base {
 		$editor = $parser->editor($contents);
 		return File::put($path, $editor->edit($settings));
 	}
-
+	
 	/**
 	 * Fetch our environment file and determine which entries point to directories on this system
 	 *
@@ -313,7 +313,7 @@ class Command_Configure extends Command_Base {
 		}
 		return $dirs;
 	}
-
+	
 	/**
 	 * Determine host path (an ordered list of strings) to traverse when finding inherited files
 	 *
@@ -335,7 +335,7 @@ class Command_Configure extends Command_Base {
 		while (!is_array($host_configs = avalue($aliases = $this->load_conf($this->alias_file), $this->low_uname)) || count(array_diff($host_configs, $this->possible_host_configurations)) !== 0) {
 			$configs = $this->determine_host_configurations();
 			if ($this->prompt_yes_no(__("Save changes to {alias_file} for {uname}? ", $__ + $this->variable_map))) {
-
+				
 				$this->save_conf($this->alias_file, array(
 					$uname => $configs
 				));
@@ -347,7 +347,7 @@ class Command_Configure extends Command_Base {
 		$this->host_configurations = $host_configs;
 		return $host_configs;
 	}
-
+	
 	/**
 	 * Interactively request a list of host configurations
 	 *
@@ -369,7 +369,7 @@ class Command_Configure extends Command_Base {
 		));
 		return $host_configurations;
 	}
-
+	
 	/**
 	 * Save configuration changes to the configuration file associated with this command
 	 */
@@ -384,7 +384,7 @@ class Command_Configure extends Command_Base {
 			}
 		}
 	}
-
+	
 	/**
 	 * Configure particular user
 	 *
@@ -400,7 +400,7 @@ class Command_Configure extends Command_Base {
 			"paths" => implode("\n\t", $paths)
 		)));
 		$this->host_paths = $paths;
-
+		
 		$pattern = $this->option("user_configuration_file", "users/{user}/configure");
 		$suffix = $this->map($pattern);
 		$files = File::find_all($paths, $suffix);
@@ -408,7 +408,7 @@ class Command_Configure extends Command_Base {
 			"files" => implode("\n\t", $files)
 		)));
 		list($this->current_uid, $this->current_gid) = $this->current_uid_gid();
-
+		
 		foreach ($files as $file) {
 			$this->variable_map['current_host_path'] = rtrim(StringTools::unsuffix($file, $suffix), "/");
 			$this->variable_map['self_path'] = dirname($file);
@@ -425,7 +425,7 @@ class Command_Configure extends Command_Base {
 		}
 		return true;
 	}
-
+	
 	/**
 	 * Process a command file configuration line
 	 *
@@ -465,7 +465,7 @@ class Command_Configure extends Command_Base {
 				"changed" => $this->changed ? "true" : "false"
 			));
 		}
-
+		
 		return true;
 	}
 	/**
@@ -478,7 +478,7 @@ class Command_Configure extends Command_Base {
 			intval(implode("\n", $this->application->process->execute("id -g")))
 		);
 	}
-
+	
 	/**
 	 * Create a directory on the system with a specified owner and mode
 	 *
@@ -510,7 +510,7 @@ class Command_Configure extends Command_Base {
 		}
 		return $changed;
 	}
-
+	
 	/**
 	 * Syntax:
 	 *
@@ -528,7 +528,7 @@ class Command_Configure extends Command_Base {
 		}
 		$root_command = $command[0];
 		$command = implode(" ", $command);
-
+		
 		$__ = array(
 			"command" => $command
 		);
@@ -634,7 +634,7 @@ class Command_Configure extends Command_Base {
 		}
 		return true;
 	}
-
+	
 	/**
 	 * Map a string using the current variable map
 	 *
@@ -644,7 +644,7 @@ class Command_Configure extends Command_Base {
 	public function map($string) {
 		return map($string, $this->variable_map, true);
 	}
-
+	
 	/**
 	 * Maps ${foo} for file replacements
 	 *
@@ -671,7 +671,7 @@ class Command_Configure extends Command_Base {
 		}
 		return true;
 	}
-
+	
 	/**
 	 * Pass a list of variables which MUST be defined to continue
 	 *
@@ -815,10 +815,10 @@ class Command_Configure extends Command_Base {
 		if (!file_exists($destination)) {
 			$this->verbose_log(is_dir(dirname($destination)) ? "Destination {destination} does not exist" : "Destination {destination} does not exist, nor does its parent directory", $__);
 		}
-
+		
 		return null;
 	}
-
+	
 	/**
 	 *
 	 * @param string $source
@@ -828,12 +828,12 @@ class Command_Configure extends Command_Base {
 	public function command_file_catenate($source, $destination) {
 		$source = $this->application->paths->expand($source);
 		$destination = $this->application->paths->expand($destination);
-
+		
 		$flags = func_get_args();
 		array_shift($flags);
 		array_shift($flags);
 		$flags = $this->parse_file_flags($flags);
-
+		
 		$sources = File::find_all($this->host_paths, $source);
 		$__ = array(
 			"source" => $source,
@@ -895,7 +895,7 @@ class Command_Configure extends Command_Base {
 		}
 		return false;
 	}
-
+	
 	/**
 	 * List of files which MUST be included in another file, useful for editing system configruation files.
 	 *
@@ -919,7 +919,7 @@ class Command_Configure extends Command_Base {
 			return null;
 		}
 		$content = file_get_contents($destination);
-
+		
 		$changed = false;
 		foreach ($args as $arg) {
 			if (!is_file($arg)) {
@@ -962,7 +962,7 @@ class Command_Configure extends Command_Base {
 		}
 		return null;
 	}
-
+	
 	/**
 	 * Copy content to a destination file and inherit parent directory owner and group
 	 *
@@ -981,7 +981,7 @@ class Command_Configure extends Command_Base {
 		}
 		return true;
 	}
-
+	
 	/**
 	 *
 	 * @param unknown $target
@@ -1023,7 +1023,7 @@ class Command_Configure extends Command_Base {
 		$__['want_owner'] = $want_owner;
 		$__['want_mode_octal'] = "0" . decoct($want_mode);
 		$__['want_mode'] = $want_mode;
-
+		
 		$__['old_mode'] = $old_mode = $stats['perms']['decimal'];
 		$__['old_mode_octal'] = $stats['perms']['octal0'];
 		$__['old_user'] = $stats['owner']['owner'];
@@ -1098,7 +1098,7 @@ class Command_Configure extends Command_Base {
 		}
 		return $changed;
 	}
-
+	
 	/**
 	 * Show differences between two files
 	 *
@@ -1155,7 +1155,7 @@ class Command_Configure extends Command_Base {
 			"destination" => $destination_name
 		)));
 	}
-
+	
 	/**
 	 * Prompt to update a file (bi-directional copy)
 	 *

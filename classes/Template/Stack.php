@@ -10,19 +10,19 @@ namespace zesk;
  *
  */
 class Template_Stack {
-
+	
 	/**
 	 *
 	 * @var array:Template
 	 */
 	protected $stack = array();
-
+	
 	/**
 	 *
 	 * @var array
 	 */
 	protected $log = array();
-
+	
 	/**
 	 * Push template
 	 *
@@ -32,7 +32,7 @@ class Template_Stack {
 		$this->stack[] = $template;
 		$this->log[] = "push " . $template->path() . " " . calling_function(2);
 	}
-
+	
 	/**
 	 * Pop template
 	 *
@@ -49,14 +49,14 @@ class Template_Stack {
 		$this->log[] = "pop " . $template->path();
 		return $template;
 	}
-
+	
 	/**
 	 * @return Template
 	 */
 	public final function top() {
 		return last($this->stack);
 	}
-
+	
 	/**
 	 *
 	 * @param string $name
@@ -69,7 +69,7 @@ class Template_Stack {
 		}
 		return $this;
 	}
-
+	
 	/**
 	 * Get/set variables in the top template
 	 *

@@ -29,8 +29,8 @@ echo $this->class_name;
 ?> extends ORM_Schema {
 	function schema() {
 		return <?php
-
-echo ltrim($php->render($this->schema, 2));
+		
+		echo ltrim($php->render($this->schema, 2));
 		?>;
 	}
 }

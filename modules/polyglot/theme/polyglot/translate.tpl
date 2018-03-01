@@ -83,7 +83,7 @@ $widget->required(true);
 				<?php
 				if ($can_update_live) {
 					?><button id="translate-save" class="btn btn-warning pull-right"><?php
-
+					
 					echo __("Update Live");
 					?></button><?php
 				}
@@ -116,7 +116,7 @@ $widget->required(true);
 		<div class="collapse clearfix" id="translate-help">
 			<div class="well">
 				<?php
-
+				
 				echo $this->theme("polyglot/translate-help-header");
 				?>
 				<h3>Keyboard</h3>
@@ -167,7 +167,7 @@ $widget->required(true);
 							Deleting a phrase will remove it from all available translations.</strong></li>
 				</ul>
 				<?php
-
+				
 				echo $this->theme("polyglot/translate-help-footer");
 				?>
 

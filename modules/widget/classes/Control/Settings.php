@@ -7,19 +7,19 @@ class Control_Settings extends Control {
 	 * @var integer
 	 */
 	protected $column_count_label = 4;
-
+	
 	/**
 	 *
 	 * @var integer
 	 */
 	protected $column_count_widget = 8;
-
+	
 	/**
 	 *
 	 * @var Model_Settings
 	 */
 	protected $object = null;
-
+	
 	/**
 	 * (non-PHPdoc)
 	 *

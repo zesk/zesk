@@ -27,49 +27,49 @@ class Reader {
 	 * @var string
 	 */
 	private $id = null;
-
+	
 	/**
 	 *
 	 * @var string
 	 */
 	private $language = null;
-
+	
 	/**
 	 *
 	 * @var string
 	 */
 	private $dialect = null;
-
+	
 	/**
 	 *
 	 * @var array
 	 */
 	private $paths = array();
-
+	
 	/**
 	 *
 	 * @var array
 	 */
 	private $extensions = array();
-
+	
 	/**
 	 *
 	 * @var array
 	 */
 	private $errors = array();
-
+	
 	/**
 	 *
 	 * @var array
 	 */
 	private $loaded = array();
-
+	
 	/**
 	 *
 	 * @var array
 	 */
 	private $missing = array();
-
+	
 	/**
 	 *
 	 * @param array $paths
@@ -115,7 +115,7 @@ class Reader {
 	function loaded() {
 		return $this->loaded;
 	}
-
+	
 	/**
 	 * Return list of files which produced errors upon execute.
 	 * Returns file => error
@@ -125,7 +125,7 @@ class Reader {
 	function errors() {
 		return $this->errors;
 	}
-
+	
 	/**
 	 *
 	 * @param Application $application
@@ -163,7 +163,7 @@ class Reader {
 		}
 		return $results;
 	}
-
+	
 	/**
 	 *
 	 * @return string[]
@@ -173,7 +173,7 @@ class Reader {
 		$prefixes = array(
 			"all",
 			$this->language
-
+		
 		);
 		if ($this->dialect) {
 			$prefixes[] = $this->language . "_" . $this->dialect;
@@ -187,7 +187,7 @@ class Reader {
 		}
 		return $files;
 	}
-
+	
 	/**
 	 * Load a file
 	 * @param string $file
@@ -211,7 +211,7 @@ class Reader {
 			"extension" => $extension
 		));
 	}
-
+	
 	/**
 	 *
 	 * @param unknown $file

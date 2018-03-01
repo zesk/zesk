@@ -27,7 +27,7 @@ use zesk\Locale\Validate;
  * @property timestamp $updated
  */
 class PolyGlot_Token extends ORM {
-
+	
 	/**
 	 *
 	 * @var Locale_Validate
@@ -39,42 +39,42 @@ class PolyGlot_Token extends ORM {
 	 * @var string
 	 */
 	const status_todo = "todo";
-
+	
 	/**
 	 * Draft version of a token translation
 	 *
 	 * @var string
 	 */
 	const status_draft = "draft";
-
+	
 	/**
 	 * Developer needs to review
 	 *
 	 * @var string
 	 */
 	const status_dev = "dev";
-
+	
 	/**
 	 * Question about translation
 	 *
 	 * @var string
 	 */
 	const status_question = "question";
-
+	
 	/**
 	 * Done
 	 *
 	 * @var string
 	 */
 	const status_done = "done";
-
+	
 	/**
 	 * Delete
 	 *
 	 * @var string
 	 */
 	const status_delete = "delete";
-
+	
 	/**
 	 *
 	 * {@inheritdoc}
@@ -121,7 +121,7 @@ class PolyGlot_Token extends ORM {
 		$token->status = ($status === null) ? self::status_todo : $status;
 		return $token;
 	}
-
+	
 	/**
 	 * Fetch all locale strings for the dialect/language
 	 *
@@ -165,7 +165,7 @@ class PolyGlot_Token extends ORM {
 		$members['user'] = $this->member_integer("user");
 		return $members;
 	}
-
+	
 	/**
 	 *
 	 * @param string $locale
@@ -180,7 +180,7 @@ class PolyGlot_Token extends ORM {
 			"language" => Locale::parse_language($locale)
 		));
 	}
-
+	
 	/**
 	 *
 	 * @return string
@@ -195,7 +195,7 @@ class PolyGlot_Token extends ORM {
 			"done" => "Translated"
 		));
 	}
-
+	
 	/**
 	 *
 	 * @param Application $app
@@ -220,7 +220,7 @@ class PolyGlot_Token extends ORM {
 			}
 		}
 	}
-
+	
 	/**
 	 *
 	 * @return Validate
@@ -231,7 +231,7 @@ class PolyGlot_Token extends ORM {
 		}
 		return $this->validator;
 	}
-
+	
 	/**
 	 *
 	 * @return array

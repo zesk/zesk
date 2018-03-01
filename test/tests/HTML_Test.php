@@ -26,7 +26,7 @@ class HTML_Test extends Test_Unit {
 			'src' => 'style.css'
 		));
 	}
-
+	
 	/**
 	 *
 	 */
@@ -45,7 +45,7 @@ class HTML_Test extends Test_Unit {
 		$this->assert_equal(HTML::parse_attributes(null), array());
 		$this->assert_equal(HTML::parse_attributes(true), array());
 		$this->assert_equal(HTML::parse_attributes(false), array());
-
+		
 		$this->assert_arrays_equal(HTML::parse_attributes('template="volunteer-help" article="12"'), array(
 			"article" => "12",
 			"template" => "volunteer-help"
@@ -57,11 +57,11 @@ class HTML_Test extends Test_Unit {
 			$html = $tag->inner_html();
 			$html = preg_replace("/\s+/", " ", $html);
 			$tag->inner_html($html);
-
+			
 			$html = $tag->outer_html();
 			$html = preg_replace("/\s+/", " ", $html);
 			$tag->outer_html($html);
-
+			
 			$tags[$index] = $tag;
 		}
 		return $tags;
@@ -71,7 +71,7 @@ class HTML_Test extends Test_Unit {
 		$contents = file_get_contents(dirname(__DIR__) . '/test-data/html-extract_tags.html');
 		$recursive = true;
 		$tags = HTML::extract_tags($tag, $contents, $recursive);
-
+		
 		$result_tags = array(
 			new HTML_Tag('a', array(
 				'href' => '/'
@@ -136,16 +136,16 @@ class HTML_Test extends Test_Unit {
 		);
 		$tags = $this->clean_tag_whitespace($tags);
 		$result_tags = $this->clean_tag_whitespace($result_tags);
-
+		
 		foreach ($result_tags as $index => $result_tag) {
 			$tags[$index]->offset = $result_tag->offset;
 		}
-
+		
 		$this->assert_arrays_equal($tags, $result_tags);
-
+		
 		// 		$contents = str_repeat('_', 22) . $contents;
 		// 		$tags = HTML::extract_tags($tag, $contents, $recursive);
-
+		
 		// 		$this->assert_arrays_equal($tags, $result_tags);
 	}
 	/**
@@ -167,16 +167,16 @@ class HTML_Test extends Test_Unit {
 		));
 		HTML::body_attributes("dee", "actual");
 		HTML::body_attributes("loo", "actual");
-
+		
 		$attrs = HTML::body_attributes();
-
+		
 		$compare_result = array(
 			"goo" => "actual",
 			"poo" => "actual",
 			"dee" => "actual",
 			"loo" => "actual"
 		);
-
+		
 		dump($attrs, $compare_result);
 		$this->assert_arrays_equal($attrs, $compare_result);
 	}
@@ -361,7 +361,7 @@ class HTML_Test extends Test_Unit {
 		$string = null;
 		HTML::is_end_tag($string);
 	}
-
+	
 	/**
 	 * @todo move to zesk\Response_Test after HTML merged into parent
 	 */
@@ -371,14 +371,14 @@ class HTML_Test extends Test_Unit {
 		HTML::javascript_inline($script, array(
 			'browser' => 'ie'
 		));
-
+		
 		$scripts = HTML::scripts();
-
+		
 		$this->assert(strpos($scripts, $script) !== false);
 		$this->assert(strpos($scripts, "<!--") !== false);
 		$this->assert(strpos($scripts, "[if IE]") !== false);
 		$this->assert(strpos($scripts, "<![endif]-->") !== false);
-
+		
 		$this->assert_equal($scripts, '<!--[if IE]><script type="text/javascript">alert(\'Hello, world!\');</script><![endif]-->');
 	}
 	function test_match_tags() {
@@ -416,7 +416,7 @@ class HTML_Test extends Test_Unit {
 	function test_specialchars() {
 		$mixed = null;
 		HTML::specialchars($mixed);
-
+		
 		$string = 'o	The second step in the checkout process where the customer reviews the information they entered before placing the order
 		o	Action Page: “Preview Order” page...can’t see the URL
 		o	Thank You page: It would be the “Order Confirmation” page…can’t see the URL';
@@ -449,7 +449,7 @@ class HTML_Test extends Test_Unit {
 		$mixed = null;
 		HTML::tag($name, $mixed);
 	}
-
+	
 	/**
 	 * @expectedException zesk\Exception_Semantics
 	 */

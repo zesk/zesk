@@ -24,13 +24,13 @@ use zesk\MIME;
  *
  */
 class Module extends \zesk\Module implements \zesk\Interface_Module_Routes, \zesk\Interface_Module_Head {
-
+	
 	/**
 	 *
 	 * @var Interface_Settings
 	 */
 	private $proxy_prefix = null;
-
+	
 	/**
 	 * List of associated classes
 	 *
@@ -66,7 +66,7 @@ class Module extends \zesk\Module implements \zesk\Interface_Module_Routes, \zes
 		}
 		return $script_names;
 	}
-
+	
 	/**
 	 *
 	 * {@inheritDoc}
@@ -96,7 +96,7 @@ class Module extends \zesk\Module implements \zesk\Interface_Module_Routes, \zes
 			)
 		));
 	}
-
+	
 	/**
 	 *
 	 * @return string
@@ -158,7 +158,7 @@ class Module extends \zesk\Module implements \zesk\Interface_Module_Routes, \zes
 		$this->copy_to_response($this->_proxy_path($request), $response);
 		$response->cache_for(5);
 	}
-
+	
 	/**
 	 *
 	 * @param Request $request

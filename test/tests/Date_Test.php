@@ -64,7 +64,7 @@ class Test_Date extends Test_Unit {
 			)
 		);
 	}
-
+	
 	/**
 	 * @expectedException zesk\Exception_Range
 	 * @data_provider _test_range_fail_parameters
@@ -91,16 +91,16 @@ class Test_Date extends Test_Unit {
 		$value = null;
 		$options = false;
 		$x = new Date($value, $options);
-
+		
 		Date::instance();
-
+		
 		Date::now();
-
+		
 		$x->parse("2008-08-20");
 		$this->assert($x->year() === 2008);
 		$this->assert($x->month() === 8);
 		$this->assert($x->day() === 20);
-
+		
 		foreach (array(
 			'{YYYY}-{MM}-{DD}' => "2008-08-20",
 			'{YY}-{MM}-{DD}' => "08-08-20",
@@ -112,7 +112,7 @@ class Test_Date extends Test_Unit {
 		) as $format_string => $expected) {
 			$this->assertEquals($expected, $x->format($this->application->locale, $format_string));
 		}
-
+		
 		$x->parse("1999-12-01");
 		foreach (array(
 			'{YYYY}-{MM}-{DD}' => "1999-12-01",

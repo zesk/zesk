@@ -39,10 +39,10 @@ $dev = $this->application->development();
 ?>
 <div class="exception-error">
 	<h1><?php
-
+	
 	echo $dev ? $class : strtr($class, "_", " ")?>
 		<!--  <?php
-
+		
 		echo $class;
 		?> -->
 	</h1>

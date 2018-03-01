@@ -21,7 +21,7 @@ use zesk\Response;
  *
  */
 class Module extends \zesk\Module implements \zesk\Interface_Module_Head, \zesk\Interface_Module_Routes {
-
+	
 	/**
 	 * Output our locale translation files for JavaScript to use
 	 *
@@ -39,7 +39,7 @@ class Module extends \zesk\Module implements \zesk\Interface_Module_Head, \zesk\
 			"route_expire" => 3600 /* once an hour */
 		));
 	}
-
+	
 	/**
 	 * Register all hooks
 	 */
@@ -52,7 +52,7 @@ class Module extends \zesk\Module implements \zesk\Interface_Module_Head, \zesk\
 			"router_loaded"
 		));
 	}
-
+	
 	/**
 	 *
 	 * @param \zesk\Application $app

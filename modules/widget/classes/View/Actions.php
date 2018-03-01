@@ -52,7 +52,7 @@ class View_Actions extends View {
 			}
 		}
 	}
-
+	
 	/**
 	 * Fetch URL for action by name
 	 *
@@ -70,7 +70,7 @@ class View_Actions extends View {
 		}
 		return $this->application->router()->get_route($action, $object, $this->option_array("route_options"));
 	}
-
+	
 	/**
 	 *
 	 * @param string $set
@@ -79,7 +79,7 @@ class View_Actions extends View {
 	function format($set = null) {
 		return ($set !== null) ? $this->set_option('format', $set) : $this->option('format');
 	}
-
+	
 	/**
 	 *
 	 * @param unknown $url
@@ -93,7 +93,7 @@ class View_Actions extends View {
 		$this->actions($actions);
 		return $this;
 	}
-
+	
 	/**
 	 * Getter/setter for action list (array of arrays with keys: url, add_link, [theme | content | text | title]
 	 * @param array $set
@@ -102,7 +102,7 @@ class View_Actions extends View {
 	function actions(array $set = null) {
 		return $set === null ? $this->option_list("actions") : $this->set_option("actions", $set);
 	}
-
+	
 	/**
 	 *
 	 * {@inheritDoc}

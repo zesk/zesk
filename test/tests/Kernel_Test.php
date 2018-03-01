@@ -17,29 +17,29 @@ class Kernel_Test extends Test_Unit {
 		$this->order = 0;
 		$hooks->call("test_hook_order", $this);
 		$this->assert_equal($this->order, 0);
-
+		
 		// Add hooks
 		$hooks->add("test_hook_order", __CLASS__ . "::_test_hook_order_1st");
 		$hooks->add("test_hook_order", __CLASS__ . "::_test_hook_order_2nd");
-
+		
 		// Test ordering
 		$this->order = 0;
 		$hooks->call("test_hook_order", $this);
 		$this->assert_equal($this->order, 2);
-
+		
 		// Test clearing
 		$hooks->remove("test_hook_order");
-
+		
 		$this->order = 0;
 		$hooks->call("test_hook_order", $this);
 		$this->assert_equal($this->order, 0);
-
+		
 		// Test "first"
 		$hooks->add("test_hook_order", __CLASS__ . "::_test_hook_order_2nd");
 		$hooks->add("test_hook_order", __CLASS__ . "::_test_hook_order_1st", array(
 			"first" => true
 		));
-
+		
 		// Test ordering
 		$this->order = 0;
 		$hooks->call("test_hook_order", $this);
@@ -61,7 +61,7 @@ class Kernel_Test extends Test_Unit {
 			$k,
 			"d"
 		), $v);
-
+		
 		$this->assert_arrays_equal($this->application->configuration->path_get($k), array(
 			"b" => $v,
 			"c" => $v,
@@ -70,7 +70,7 @@ class Kernel_Test extends Test_Unit {
 	}
 	function test_class_hierarchy() {
 		$app = $this->application;
-
+		
 		$mixed = null;
 		$nsprefix = __NAMESPACE__ . "\\";
 		$this->assert_arrays_equal($app->classes->hierarchy(__NAMESPACE__ . "\\A"), ArrayTools::prefix(to_list('A;Hookable;Options'), $nsprefix));
@@ -110,15 +110,15 @@ class Kernel_Test extends Test_Unit {
 			$extension
 		), $tried_path);
 		$this->assert_equal($result, ZESK_ROOT . 'classes/Kernel.php');
-
+		
 		$class = "zesk\\Controller_Theme";
-
+		
 		$result = $autoloader->search($class, array(
 			$extension,
 			"sql"
 		), $tried_path);
 		$this->assert_equal($result, ZESK_ROOT . 'classes/Controller/Theme.php');
-
+		
 		$class = "zesk\\Class_User";
 		$this->application->modules->load("orm");
 		$result = $autoloader->search($class, array(
@@ -126,14 +126,14 @@ class Kernel_Test extends Test_Unit {
 			"php"
 		), $tried_path);
 		$this->assert_equal($result, $this->application->modules->path("orm", 'classes/Class/User.sql'));
-
+		
 		$result = $autoloader->search($class, array(
 			"other",
 			"inc",
 			"sql"
 		), $tried_path);
 		$this->assert_equal($result, $this->application->modules->path("orm", 'classes/Class/User.sql'));
-
+		
 		$result = $autoloader->search($class, array(
 			"other",
 			"none"
@@ -156,7 +156,7 @@ class Kernel_Test extends Test_Unit {
 			)
 		);
 	}
-
+	
 	/**
 	 * @dataProvider provider_clean_function
 	 *
@@ -179,7 +179,7 @@ class Kernel_Test extends Test_Unit {
 			)
 		);
 	}
-
+	
 	/**
 	 * @dataProvider provider_clean_class
 	 *
@@ -269,14 +269,14 @@ class Kernel_Test extends Test_Unit {
 		file_put_contents($file, "TEST_VAR=\"\$DUDE move\"\nVAR_2=\"Ha ha! \${TEST_VAR} ex-lax\"\nVAR_3=\"\${DUDE:-default value}\"\nVAR_4=\"\${DOOD:-default value}\"");
 		$overwrite = false;
 		$this->application->loader->load_one($file);
-
+		
 		$globals = array(
 			'TEST_VAR' => "smooth move",
 			'VAR_2' => "Ha ha! smooth move ex-lax",
 			'VAR_3' => "smooth",
 			'VAR_4' => "default value"
 		);
-
+		
 		foreach ($globals as $v => $result) {
 			$g = $this->application->configuration->$v;
 			$this->assert_equal($g, $result, "$v: $g === $result");
@@ -323,14 +323,14 @@ class Kernel_Test extends Test_Unit {
 		$add = null;
 		$this->application->theme_path($add);
 	}
-
+	
 	/**
 	 */
 	function test_theme_fail() {
 		$type = null;
 		$this->assert_null($this->application->theme($type));
 	}
-
+	
 	/**
 	 */
 	function test_theme() {

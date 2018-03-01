@@ -12,7 +12,7 @@ namespace zesk;
  *
  */
 class Module_Bootstrap extends Module implements Interface_Module_Foot, Interface_Module_Head {
-
+	
 	/**
 	 */
 	public function initialize() {
@@ -21,7 +21,7 @@ class Module_Bootstrap extends Module implements Interface_Module_Foot, Interfac
 			'_hook_list_row_widget'
 		));
 	}
-
+	
 	/**
 	 *
 	 * @param Control $self
@@ -52,7 +52,7 @@ class Module_Bootstrap extends Module implements Interface_Module_Foot, Interfac
 			}
 		}
 	}
-
+	
 	/**
 	 *
 	 * @param Request $request
@@ -78,7 +78,7 @@ class Module_Bootstrap extends Module implements Interface_Module_Foot, Interfac
 			$html->meta(array(
 				'charset' => 'utf-8'
 			));
-
+			
 			$html->jquery();
 			$html->javascript(array(
 				$this->application->development() ? "/share/bootstrap/js/bootstrap.js" : "/share/bootstrap/js/bootstrap.min.js"
@@ -87,7 +87,7 @@ class Module_Bootstrap extends Module implements Interface_Module_Foot, Interfac
 			));
 		}
 	}
-
+	
 	/**
 	 *
 	 * {@inheritdoc}
@@ -113,7 +113,7 @@ class Module_Bootstrap extends Module implements Interface_Module_Foot, Interfac
 	public function source_location($set = null) {
 		return $set !== null ? $this->set_option("source_location", $set) : $this->option("source_location");
 	}
-
+	
 	/**
 	 * map bootstrap file
 	 */
@@ -149,7 +149,7 @@ class Module_Bootstrap extends Module implements Interface_Module_Foot, Interfac
 		}
 		return false;
 	}
-
+	
 	/**
 	 * After this module is updated
 	 */

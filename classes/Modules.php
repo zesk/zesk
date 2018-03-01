@@ -22,13 +22,13 @@ class Modules {
 	 * @var string
 	 */
 	const status_failed = "failed";
-
+	
 	/**
 	 *
 	 * @var string
 	 */
 	const status_loaded = "loaded";
-
+	
 	/**
 	 *
 	 * @var boolean
@@ -39,7 +39,7 @@ class Modules {
 	 * @var Application
 	 */
 	private $application = null;
-
+	
 	/**
 	 * Stack of currently loading modules.
 	 * Top item is current module loading. First item is top of stack.
@@ -47,27 +47,27 @@ class Modules {
 	 * @var array
 	 */
 	private $module_loader = array();
-
+	
 	/**
 	 * Loaded modules in the system
 	 *
 	 * @var array of module name => array of module information (class of Module)
 	 */
 	private $modules = array();
-
+	
 	/**
 	 * Loaded modules in the system
 	 *
 	 * @var array of hook name => list of module names (ordered)
 	 */
 	private $modules_with_hook = array();
-
+	
 	/**
 	 *
 	 * @var string
 	 */
 	private $module_class_prefix = "Module_";
-
+	
 	/**
 	 * Create the Modules
 	 *
@@ -84,7 +84,7 @@ class Modules {
 			"debug"
 		), $this->module_class_prefix);
 	}
-
+	
 	/**
 	 * Dynamically determine the module version
 	 *
@@ -106,7 +106,7 @@ class Modules {
 		}
 		return $result;
 	}
-
+	
 	/**
 	 * Return list of available modules
 	 *
@@ -147,7 +147,7 @@ class Modules {
 		}
 		return $available;
 	}
-
+	
 	/**
 	 * What modules are loaded?
 	 *
@@ -173,7 +173,7 @@ class Modules {
 		}
 		return $result;
 	}
-
+	
 	/**
 	 * Load one or more modules
 	 * Module load array is an array with the following keys:
@@ -229,7 +229,7 @@ class Modules {
 		}
 		return $result;
 	}
-
+	
 	/**
 	 * During module registration, register system paths automatically.
 	 * Either a specified path
@@ -329,7 +329,7 @@ class Modules {
 		}
 		return $result;
 	}
-
+	
 	/**
 	 * Load module based on setup options
 	 *
@@ -340,22 +340,22 @@ class Modules {
 	private function _load_module_configuration(array $module_data) {
 		$name = $path = null;
 		extract($module_data, EXTR_IF_EXISTS);
-
+		
 		$this->modules[$name] = $module_data + array(
 			'loading' => true
 		);
 		array_unshift($this->module_loader, $name);
 		$this->register_paths();
-
+		
 		array_shift($this->module_loader);
 		unset($this->modules[$name]['loading']);
-
+		
 		$module_data['loaded'] = true;
 		$module_data['loaded_time'] = microtime(true);
 		$module_data += array(
 			'status' => self::status_loaded
 		);
-
+		
 		return $module_data;
 	}
 	private function _handle_share_path(array $module_data) {
@@ -407,7 +407,7 @@ class Modules {
 		if (strpos($name, "\\") !== false) {
 			return $this->_autoload_one($name, $options);
 		}
-
+		
 		$result = array();
 		$base = self::module_base_name($name);
 		$module_data = array(
@@ -415,7 +415,7 @@ class Modules {
 			'name' => $name,
 			'base' => $base
 		);
-
+		
 		$module_data['path'] = $module_path = Directory::find_first($this->application->module_path(), $name);
 		if ($module_path === null) {
 			throw new Exception_Directory_NotFound($base, "{class}::module({name}) was not found at {name}", array(
@@ -433,17 +433,17 @@ class Modules {
 			$module_data = $this->_load_module_configuration($module_data);
 			$module_data = $this->_apply_module_configuration($module_data);
 			$this->modules[$name] = $module_data;
-
+			
 			$requires = to_list(apath($module_data, 'configuration.requires'));
 			if ($requires) {
 				$result += $this->_handle_requires($requires, $options);
 			}
-
+			
 			$this->modules[$name] = $module_data = $this->_load_module_object($module_data) + $module_data;
-
+			
 			$module_data = $this->_initialize_module_object($module_data);
 		}
-
+		
 		$result[$name] = $module_data;
 		return $result;
 	}
@@ -469,7 +469,7 @@ class Modules {
 				$module_data += self::_find_module_include($module_data);
 				$module_data = $this->_load_module_configuration($module_data);
 				$module_data = $this->_apply_module_configuration($module_data);
-
+				
 				$module_data = $this->_initialize_module_object($module_data);
 			}
 		}
@@ -493,7 +493,7 @@ class Modules {
 		);
 		$module_config = self::module_configuration_options($module_variables);
 		$module_config['settings'] = $settings = new Adapter_Settings_Array($module_variables);
-
+		
 		$module_confs = array(
 			'json' => path($path, "$base.module.json"),
 			'conf' => path($path, "$base.module.conf")
@@ -509,7 +509,7 @@ class Modules {
 		}
 		return $module_data;
 	}
-
+	
 	/**
 	 * Instantiate the module object. Does NOT call initialize, calling function MUST call initialize when object
 	 * is ready to be initialized.
@@ -607,7 +607,7 @@ class Modules {
 		}
 		return $result;
 	}
-
+	
 	/**
 	 * Given a module, find its version
 	 *
@@ -661,7 +661,7 @@ class Modules {
 			return null;
 		}
 	}
-
+	
 	/**
 	 * Module conf::load settings
 	 *
@@ -676,7 +676,7 @@ class Modules {
 		);
 		return $options;
 	}
-
+	
 	/**
 	 * Is a module loaded?
 	 *
@@ -717,7 +717,7 @@ class Modules {
 		}
 		return $result;
 	}
-
+	
 	/**
 	 * Retrieve
 	 * Used for filters where a specific result should be returned by each function
@@ -741,7 +741,7 @@ class Modules {
 		}
 		return $result;
 	}
-
+	
 	/**
 	 * Retrieve information about a loaded module
 	 *
@@ -756,7 +756,7 @@ class Modules {
 			'not loaded' => array()
 		)), $option, $default);
 	}
-
+	
 	/**
 	 * Retrieve configuration information about a loaded module
 	 *
@@ -768,7 +768,7 @@ class Modules {
 	public final function configuration($module, $option_path, $default = null) {
 		return apath($this->data($module, "configuration", array()), $option_path, $default);
 	}
-
+	
 	/**
 	 * Get full path to module
 	 *
@@ -784,7 +784,7 @@ class Modules {
 		}
 		return path($path, $append);
 	}
-
+	
 	/**
 	 * Get Module
 	 *
@@ -801,7 +801,7 @@ class Modules {
 		}
 		throw new Exception_NotFound("No module object for {module} found", compact("module"));
 	}
-
+	
 	/**
 	 * Run hooks across all modules loaded
 	 *
@@ -814,7 +814,7 @@ class Modules {
 		array_shift($arguments);
 		return $this->all_hook_arguments($hook, $arguments);
 	}
-
+	
 	/**
 	 * Partner to hook_all - runs with an arguments array command and a default return value
 	 * Used for filters where a specific result should be returned by each function
@@ -833,7 +833,7 @@ class Modules {
 		}
 		return $result;
 	}
-
+	
 	/**
 	 * Collects all hooks
 	 *
@@ -872,7 +872,7 @@ class Modules {
 		}
 		return $hooks;
 	}
-
+	
 	/**
 	 * List all hooks which would be called by all modules.
 	 *
@@ -897,7 +897,7 @@ class Modules {
 		}
 		return $result;
 	}
-
+	
 	/**
 	 * Clean a module name
 	 *
@@ -916,7 +916,7 @@ class Modules {
 		}
 		return preg_replace('|[^-/_0-9a-z]|', '', strtolower($module));
 	}
-
+	
 	/**
 	 * Return the file name for the modules files
 	 *

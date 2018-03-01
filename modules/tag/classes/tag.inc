@@ -16,7 +16,7 @@ namespace zesk;
  * @property mixed $value
  */
 class Tag extends ORM {
-
+	
 	/**
 	 * Delete items matching the class and IDs passed
 	 *
@@ -37,7 +37,7 @@ class Tag extends ORM {
 			->execute()
 			->affected_rows();
 	}
-
+	
 	/**
 	 * Delete tags linked to deleted rows
 	 *
@@ -72,7 +72,7 @@ class Tag extends ORM {
 			}
 		}
 	}
-
+	
 	/**
 	 * Can I apply tags to this object?
 	 *
@@ -103,7 +103,7 @@ class Tag extends ORM {
 		}
 		return true;
 	}
-
+	
 	/**
 	 * Set a tag to an object
 	 *
@@ -127,7 +127,7 @@ class Tag extends ORM {
 		}
 		return $object->store();
 	}
-
+	
 	/**
 	 * Retrieve a value
 	 * @param ORM $object
@@ -139,7 +139,7 @@ class Tag extends ORM {
 		$tag = self::tag_get($object, $code);
 		return $tag ? $tag->value : $default;
 	}
-
+	
 	/**
 	 * Retrieve all tags for an object
 	 *
@@ -168,7 +168,7 @@ class Tag extends ORM {
 		}
 		return null;
 	}
-
+	
 	/**
 	 *
 	 * @param ORM $object

@@ -23,7 +23,7 @@ div.redirect, div.backtrace {
 }
 
 div.redirect {
-
+	
 }
 
 div.redirect label {

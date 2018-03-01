@@ -16,7 +16,7 @@ namespace zesk;
  * @author kent
  */
 class Module_Forgot extends Module implements Interface_Module_Routes {
-
+	
 	/**
 	 *
 	 * @var array
@@ -24,7 +24,7 @@ class Module_Forgot extends Module implements Interface_Module_Routes {
 	protected $model_classes = array(
 		"zesk\\Forgot"
 	);
-
+	
 	/**
 	 *
 	 * {@inheritDoc}
@@ -34,7 +34,7 @@ class Module_Forgot extends Module implements Interface_Module_Routes {
 		parent::initialize();
 		$this->application->configuration->path(Forgot::class)->theme_path_prefix = "object";
 	}
-
+	
 	/**
 	 * Implements Module::routes
 	 *
@@ -53,7 +53,7 @@ class Module_Forgot extends Module implements Interface_Module_Routes {
 			"id" => "forgot"
 		));
 	}
-
+	
 	/**
 	 *
 	 * @param Application $application

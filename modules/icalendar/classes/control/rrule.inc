@@ -25,18 +25,18 @@ class Control_RRule extends \zesk\Control {
 		$name = $this->name();
 		$ww = array();
 		$locale = $this->locale;
-
+		
 		$w = $this->widget_factory(Control_Select::class)
 			->names($name . '_repeat', $locale->__('Repeat'))
 			->control_options(self::repeat_options($locale))
 			->noname($locale->__('None'));
 		$this->child($w);
 		$ww['repeat'] = $w;
-
+		
 		$w = $this->widget_factory('Control_Integer')->names($name . '_interval', $locale->__('Interval'));
 		$this->child($w);
 		$ww['interval'] = $w;
-
+		
 		$w = $this->widget_factory(Control_Pills::class)
 			->names($name . '_weekday')
 			->control_options($this->weekday_options())
@@ -44,7 +44,7 @@ class Control_RRule extends \zesk\Control {
 			->one_or_more(true);
 		$this->child($w);
 		$ww['weekday'] = $w;
-
+		
 		$w = $this->widget_factory(Control_Pills::class)
 			->names($name . '_monthday')
 			->control_options($this->monthday_options())
@@ -52,7 +52,7 @@ class Control_RRule extends \zesk\Control {
 			->one_or_more(true);
 		$this->child($w);
 		$ww['monthday'] = $w;
-
+		
 		$w = $this->widget_factory(Control_Pills::class)
 			->names($name . '_yearly')
 			->control_options($this->monthly_options())
@@ -60,25 +60,25 @@ class Control_RRule extends \zesk\Control {
 			->one_or_more(true);
 		$this->child($w);
 		$ww['month'] = $w;
-
+		
 		$w = $this->widget_factory(Control_Select::class)
 			->names($name . '_on_which')
 			->control_options($this->which_day_options())
 			->noname("");
 		$this->child($w);
 		$ww['onwhich'] = $w;
-
+		
 		$w = $this->widget_factory(Control_Select::class)
 			->names($name . '_on_day')
 			->control_options($this->day_choice_options())
 			->noname("");
 		$this->child($w);
 		$ww['onday'] = $w;
-
+		
 		$w = $this->widget_factory(Control_Date::class)->names($name . '_enddate', $locale->__('End Date'))->set_option('inline', true);
 		$this->child($w);
 		$ww['enddate'] = $w;
-
+		
 		$this->child_widgets = $ww;
 		parent::initialize();
 	}

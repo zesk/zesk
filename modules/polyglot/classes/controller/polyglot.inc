@@ -5,7 +5,7 @@
 namespace zesk;
 
 class Controller_PolyGlot extends Controller_Authenticated {
-
+	
 	/**
 	 *
 	 * @var Module_PolyGlot
@@ -34,7 +34,7 @@ class Controller_PolyGlot extends Controller_Authenticated {
 			"locale_options" => $this->module->locale_options()
 		));
 	}
-
+	
 	/**
 	 * Load a locale for translation
 	 *
@@ -59,7 +59,7 @@ class Controller_PolyGlot extends Controller_Authenticated {
 			"message" => __("You do not have permission to do translations.")
 		));
 	}
-
+	
 	/**
 	 * Update a locale on all servers with current translations
 	 *
@@ -90,7 +90,7 @@ class Controller_PolyGlot extends Controller_Authenticated {
 			"message" => $locale("Locale {lang_name} was not updated.", $__)
 		));
 	}
-
+	
 	/**
 	 * Save a token
 	 *

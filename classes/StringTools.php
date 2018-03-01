@@ -34,7 +34,7 @@ class StringTools {
 	public static function pair($string, $delim = ".", $left = null, $right = null) {
 		return pair($string, $delim, $left, $right);
 	}
-
+	
 	/**
 	 * Synonym for pairr - split a string into a pair with defaults, searching backwards for
 	 * delimiter
@@ -49,7 +49,7 @@ class StringTools {
 	public static function pairr($string, $delim = ".", $left = null, $right = null) {
 		return pairr($string, $delim, $left, $right);
 	}
-
+	
 	/**
 	 * Return portion of string to the left of a matched string
 	 *
@@ -68,7 +68,7 @@ class StringTools {
 		}
 		return substr($str, 0, $pos);
 	}
-
+	
 	/**
 	 * Return portion of string to the left of a matched string, searching backwards for $find
 	 *
@@ -87,7 +87,7 @@ class StringTools {
 		}
 		return substr($str, 0, $pos);
 	}
-
+	
 	/**
 	 * Return portion of string to the right of a matched string
 	 *
@@ -106,7 +106,7 @@ class StringTools {
 		}
 		return substr($str, $pos + strlen($find));
 	}
-
+	
 	/**
 	 * Return portion of string to the right of a matched string, searching backwards for $find
 	 *
@@ -125,7 +125,7 @@ class StringTools {
 		}
 		return substr($str, $pos + strlen($find));
 	}
-
+	
 	/**
 	 * Parses boolean values, but does not accept numeric ones.
 	 *
@@ -145,7 +145,7 @@ class StringTools {
 		}
 		return to_bool($value, $default);
 	}
-
+	
 	/**
 	 * Convert a boolean to a string version of it "true" or "false"
 	 *
@@ -155,7 +155,7 @@ class StringTools {
 	public static function from_bool($bool) {
 		return to_bool($bool) ? 'true' : 'false';
 	}
-
+	
 	/**
 	 * Capitalize words in a sentence -> Captialize Words In A Sentence.
 	 *
@@ -173,7 +173,7 @@ class StringTools {
 			return implode(" ", $items);
 		}
 	}
-
+	
 	/**
 	 * Extract a field from a line, similar to awk.
 	 * Note that any delimiters within the string
@@ -196,7 +196,7 @@ class StringTools {
 		$v = $max_fields !== null ? explode($d, $v, $max_fields) : explode($d, $v);
 		return $index === null ? $v : avalue($v, $index);
 	}
-
+	
 	/**
 	 * Determine if a string begins with another string
 	 *
@@ -229,7 +229,7 @@ class StringTools {
 		$check_string = substr($haystack, 0, strlen($needle));
 		return $case_insensitive ? (strcasecmp($check_string, $needle) === 0 ? true : false) : ($check_string === $needle ? true : false);
 	}
-
+	
 	/**
 	 * Determine if a string contains with another string
 	 *
@@ -261,7 +261,7 @@ class StringTools {
 		}
 		return $case_insensitive ? (stripos($haystack, $needle) !== false ? true : false) : (strpos($haystack, $needle) !== false ? true : false);
 	}
-
+	
 	/**
 	 * Determine if a string ends with another string
 	 *
@@ -305,7 +305,7 @@ class StringTools {
 		}
 		return false;
 	}
-
+	
 	/**
 	 * Unprefix a string (remove a prefix if found at start of a string)
 	 *
@@ -328,7 +328,7 @@ class StringTools {
 			return self::begins($string, $prefix, $case_insensitive) ? strval(substr($string, strlen($prefix))) : $string;
 		}
 	}
-
+	
 	/**
 	 * Unsuffix a string (remove a suffix if found at end of a string)
 	 *
@@ -351,7 +351,7 @@ class StringTools {
 			return self::ends($string, $suffix, $case_insensitive) ? strval(substr($string, 0, -strlen($suffix))) : $string;
 		}
 	}
-
+	
 	/**
 	 * Return whether a string is UTF16
 	 * Based on presence of BOM
@@ -374,7 +374,7 @@ class StringTools {
 		}
 		return false;
 	}
-
+	
 	/**
 	 * Return whether a string is ASCII
 	 *
@@ -393,7 +393,7 @@ class StringTools {
 		}
 		return true;
 	}
-
+	
 	/**
 	 * Is a string valid UTF-8?
 	 *
@@ -434,7 +434,7 @@ class StringTools {
 		}
 		return true;
 	}
-
+	
 	/**
 	 * StringTools::filter
 	 *
@@ -464,7 +464,7 @@ class StringTools {
 		}
 		return $default;
 	}
-
+	
 	/**
 	 * Replace first occurrance of a strings in another string
 	 *
@@ -485,7 +485,7 @@ class StringTools {
 		}
 		return implode($replace, $x);
 	}
-
+	
 	/**
 	 * Add an ellipsis into a string at a word boundary and at a certain string length.
 	 *
@@ -520,7 +520,7 @@ class StringTools {
 		}
 		return StringTools::substr($text, 0, $off) . $dot_dot_dot;
 	}
-
+	
 	/**
 	 * Pad a string with zeros up to the length specified.
 	 *
@@ -538,7 +538,7 @@ class StringTools {
 		}
 		return str_repeat("0", $length - $number_length) . $number;
 	}
-
+	
 	/**
 	 * Convert tabs to spaces, intelligently.
 	 *
@@ -557,7 +557,7 @@ class StringTools {
 		$func = create_function('$matches', "{ return \$matches[1] . str_repeat(' ', $tab_width - strlen(\$matches[1]) % $tab_width); }");
 		return preg_replace_callback('@^(.*?)\t@m', $func, $text);
 	}
-
+	
 	/**
 	 * Split a multi-byte string into characters/glyphs
 	 *
@@ -582,7 +582,7 @@ class StringTools {
 		}
 		return $ret;
 	}
-
+	
 	/**
 	 * Quote a CSV field correctly.
 	 * If it contains a quote (") a comma (,), or a newline(\n), then quote it.
@@ -604,7 +604,7 @@ class StringTools {
 		}
 		return $x;
 	}
-
+	
 	/**
 	 * Quote a single CSV row
 	 *
@@ -618,7 +618,7 @@ class StringTools {
 		}
 		return implode(",", $yy) . "\r\n";
 	}
-
+	
 	/**
 	 * Quote multiple CSV rows
 	 *
@@ -645,7 +645,7 @@ class StringTools {
 		}
 		return $result;
 	}
-
+	
 	/**
 	 * Retreve the length of a mutti-byte string
 	 *
@@ -666,7 +666,7 @@ class StringTools {
 		}
 		return strlen(UTF8::to_iso8859($string));
 	}
-
+	
 	/**
 	 * Retrieve a substring of a multi-byte string
 	 *
@@ -692,7 +692,7 @@ class StringTools {
 		preg_match_all('/./us', $string, $match);
 		return implode('', $length === null ? array_slice($match[0], $start) : array_slice($match[0], $start, $length));
 	}
-
+	
 	/**
 	 * Moved to HTML::wrap 2018-02. Leave here for now.
 	 *

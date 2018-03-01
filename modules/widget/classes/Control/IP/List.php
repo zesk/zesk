@@ -14,13 +14,13 @@ namespace zesk;
  */
 class Control_IP_List extends Control {
 	const OPTION_ALLOW_MASKS_bool = "allow_ip_masks";
-
+	
 	/**
 	 *
 	 * @var array
 	 */
 	private $ErrorIPs = array();
-
+	
 	/**
 	 *
 	 * @param boolean $set
@@ -29,7 +29,7 @@ class Control_IP_List extends Control {
 	public function allow_ip_masks($set = null) {
 		return $set === null ? $this->option_bool(self::OPTION_ALLOW_MASKS_bool) : $this->set_option(self::OPTION_ALLOW_MASKS_bool);
 	}
-
+	
 	/**
 	 *
 	 * {@inheritDoc}
@@ -42,7 +42,7 @@ class Control_IP_List extends Control {
 		$this->value($value);
 		return parent::load();
 	}
-
+	
 	/**
 	 *
 	 * {@inheritDoc}
@@ -73,7 +73,7 @@ class Control_IP_List extends Control {
 		}
 		return true;
 	}
-
+	
 	/**
 	 * @todo Move to template
 	 * {@inheritDoc}
@@ -93,7 +93,7 @@ class Control_IP_List extends Control {
 		$response = $this->response();
 		$response->html()->javascript('/share/zesk/widgets/iplist/iplist.js');
 		$response->html()->css('/share/zesk/widgets/iplist/iplist.css');
-
+		
 		$add_ip = "<a class=\"ip-list-add\" id=\"${name}\" onclick=\"iplist_add('${col}_ip_list', '${ip}')\">" . __('Add current IP') . ": $ip</a>";
 		if (count($this->ErrorIPs)) {
 			$err_attrs = $attrs;

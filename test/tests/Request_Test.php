@@ -24,19 +24,19 @@ class Request_Test extends Test_Unit {
 			"url" => "https://ex.to/"
 		);
 		$testx = new Request($this->application, $settings);
-
+		
 		$testx->is_post();
-
+		
 		$name = null;
 		$value = null;
 		$testx->set($name, $value);
-
+		
 		$default = null;
 		$testx->get("Hello", $default);
-
+		
 		$testx->path();
 	}
-
+	
 	/**
 	 * @expectedException zesk\Exception_File_Permission
 	 */

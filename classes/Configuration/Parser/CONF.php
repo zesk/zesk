@@ -20,18 +20,18 @@ class Configuration_Parser_CONF extends Configuration_Parser {
 		"multiline" => true,
 		"unquote" => '\'\'""'
 	);
-
+	
 	/**
 	 */
 	public function initialize() {
 	}
-
+	
 	/**
 	 */
 	public function validate() {
 		return true;
 	}
-
+	
 	/**
 	 *
 	 * {@inheritDoc}
@@ -40,7 +40,7 @@ class Configuration_Parser_CONF extends Configuration_Parser {
 	public function editor($content = null, array $options = array()) {
 		return new Configuration_Editor_CONF($content, $options);
 	}
-
+	
 	/**
 	 *
 	 * {@inheritDoc}
@@ -50,10 +50,10 @@ class Configuration_Parser_CONF extends Configuration_Parser {
 	public function process() {
 		$separator = $lower = $trim_key = $unquote = $trim_value = $autotype = $overwrite = $multiline = null;
 		extract($this->options, EXTR_IF_EXISTS);
-
+		
 		$settings = $this->settings;
 		$dependency = $this->dependency;
-
+		
 		$lines = explode("\n", $this->content);
 		if ($multiline) {
 			$lines = self::join_lines($lines);
@@ -92,7 +92,7 @@ class Configuration_Parser_CONF extends Configuration_Parser {
 					$value = PHP::autotype($value);
 				}
 			}
-
+			
 			/**
 			 * Now apply to back to our settings, or handle special values
 			 */
@@ -116,7 +116,7 @@ class Configuration_Parser_CONF extends Configuration_Parser {
 		}
 		return $settings;
 	}
-
+	
 	/**
 	 * Handle include files specially
 	 *
@@ -140,7 +140,7 @@ class Configuration_Parser_CONF extends Configuration_Parser {
 		}
 		$this->loader->append_files($files, $missing);
 	}
-
+	
 	/**
 	 * Allow multi-line settings by placing additional lines beginning with whitespace
 	 *
@@ -164,7 +164,7 @@ class Configuration_Parser_CONF extends Configuration_Parser {
 		}
 		return $result;
 	}
-
+	
 	/**
 	 * Shared by Configuration_Editor_CONF
 	 *
@@ -174,7 +174,7 @@ class Configuration_Parser_CONF extends Configuration_Parser {
 	public function parse_line($line) {
 		$separator = $trim_key = $trim_value = $lower = null;
 		extract($this->options, EXTR_IF_EXISTS);
-
+		
 		$line = trim($line);
 		if (substr($line, 0, 1) == "#") {
 			return null;

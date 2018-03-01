@@ -13,69 +13,69 @@ namespace zesk;
  *
  */
 class Paths {
-
+	
 	/**
 	 * Debug various aspects of Paths
 	 *
 	 * @var boolean
 	 */
 	public $debug = false;
-
+	
 	/**
 	 * Root application directory
 	 *
 	 * @var string
 	 */
 	public $application = null;
-
+	
 	/**
 	 * Temporary files directory
 	 *
 	 * @var string
 	 */
 	public $temporary = null;
-
+	
 	/**
 	 * Data files directory
 	 *
 	 * @var string
 	 */
 	public $data = null;
-
+	
 	/**
 	 * Cache files directory
 	 *
 	 * @var string
 	 */
 	public $cache = null;
-
+	
 	/**
 	 * Current user home directory
 	 *
 	 * @var string
 	 */
 	public $home = null;
-
+	
 	/**
 	 * Current user home directory
 	 *
 	 * @var string
 	 */
 	public $uid = null;
-
+	
 	/**
 	 * System command path for shell
 	 *
 	 * @var array
 	 */
 	private $command_path = null;
-
+	
 	/**
 	 *
 	 * @var array
 	 */
 	private $which_cache = array();
-
+	
 	/**
 	 * Constuct a new Paths manager
 	 *
@@ -88,19 +88,19 @@ class Paths {
 	 */
 	public function __construct(Kernel $zesk) {
 		$config = $zesk->configuration;
-
+		
 		$this->_init_zesk_root($config);
-
+		
 		$this->_init_system_paths();
-
+		
 		$config->home = $this->home;
-
+		
 		$zesk->hooks->add(Hooks::hook_configured, array(
 			$this,
 			"configured"
 		));
 	}
-
+	
 	/**
 	 * Get/Set data storage path
 	 *
@@ -110,15 +110,15 @@ class Paths {
 	public function application($suffix = null) {
 		return path($this->application, $suffix);
 	}
-
+	
 	/**
 	 * configured hook
 	 */
 	public function configured(Application $application) {
 		$configuration = $application->configuration;
-
+		
 		$paths = $configuration->path(__CLASS__);
-
+		
 		if ($paths->has('command_path')) {
 			$this->command($paths->command_path);
 		}
@@ -149,7 +149,7 @@ class Paths {
 	public function zesk($suffix = null) {
 		return path(ZESK_ROOT, $suffix);
 	}
-
+	
 	/**
 	 *
 	 * @param Configuration $config
@@ -170,7 +170,7 @@ class Paths {
 		}
 		return $this;
 	}
-
+	
 	/**
 	 */
 	private function _init_system_paths() {
@@ -178,7 +178,7 @@ class Paths {
 		$this->home = avalue($_SERVER, 'HOME');
 		$this->uid = $this->home(".zesk");
 	}
-
+	
 	/**
 	 */
 	private function _init_app_paths() {
@@ -188,7 +188,7 @@ class Paths {
 			$this->cache = path($this->application, "cache");
 		}
 	}
-
+	
 	/**
 	 * Initialize the command path
 	 */
@@ -207,7 +207,7 @@ class Paths {
 			}
 		}
 	}
-
+	
 	/**
 	 * Get or set the system command path, usually defined by the system environment variable PATH
 	 * On *nix systems, the
@@ -245,7 +245,7 @@ class Paths {
 		}
 		return $this->command_path;
 	}
-
+	
 	/**
 	 * Get temporary path, optionally adding a suffix to the path
 	 *
@@ -255,7 +255,7 @@ class Paths {
 	public function temporary($suffix = null) {
 		return path($this->temporary, $suffix);
 	}
-
+	
 	/**
 	 * Get/Set data storage path
 	 *
@@ -265,7 +265,7 @@ class Paths {
 	public function data($suffix = null) {
 		return path($this->data, $suffix);
 	}
-
+	
 	/**
 	 * Directory for storing temporary cache files
 	 *
@@ -276,7 +276,7 @@ class Paths {
 	public function cache($suffix = null) {
 		return path($this->cache, $suffix);
 	}
-
+	
 	/**
 	 * Home directory of current process user, generally passed via the $_SERVER['HOME']
 	 * superglobal.
@@ -290,7 +290,7 @@ class Paths {
 	public function home($suffix = null) {
 		return $this->home ? path($this->home, $suffix) : null;
 	}
-
+	
 	/**
 	 * User configuration path - place to put configuration files, etc.
 	 * for this user
@@ -302,7 +302,7 @@ class Paths {
 	public function uid($suffix = null) {
 		return $this->uid ? path($this->uid, $suffix) : null;
 	}
-
+	
 	/**
 	 * Expand paths using magic tokens
 	 *
@@ -329,7 +329,7 @@ class Paths {
 		}
 		return $file;
 	}
-
+	
 	/**
 	 * Similar to which command-line command.
 	 * Returns executable path for command.
@@ -349,7 +349,7 @@ class Paths {
 		}
 		return null;
 	}
-
+	
 	/**
 	 * Retrieve path settings as variables
 	 *

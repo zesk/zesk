@@ -13,19 +13,19 @@ use \ReflectionClass;
  *
  */
 class Route_Controller extends Route {
-
+	
 	/**
 	 *
 	 * @var ReflectionClass
 	 */
 	protected $class = null;
-
+	
 	/**
 	 *
 	 * @var string The class which was instantiated.
 	 */
 	protected $class_name = null;
-
+	
 	/**
 	 *
 	 * @var Controller
@@ -36,7 +36,7 @@ class Route_Controller extends Route {
 	 * @var string
 	 */
 	protected $controller_action = null;
-
+	
 	/**
 	 *
 	 * {@inheritdoc}
@@ -46,7 +46,7 @@ class Route_Controller extends Route {
 	public function __sleep() {
 		return array_merge(array(), parent::__sleep());
 	}
-
+	
 	/**
 	 *
 	 * {@inheritdoc}
@@ -60,7 +60,7 @@ class Route_Controller extends Route {
 		$this->controller = null;
 		$this->controller_action = null;
 	}
-
+	
 	/**
 	 *
 	 * @return multitype:Controller string
@@ -72,18 +72,18 @@ class Route_Controller extends Route {
 				$this->controller_action
 			);
 		}
-
+		
 		list($class, $this->controller_action) = $this->_determine_class_action();
-
+		
 		/* @var $controller Controller */
 		$this->controller = $class->newInstance($this->application, $this, $response, $this->option_array("controller options") + $this->options);
-
+		
 		return array(
 			$this->controller,
 			$this->controller_action
 		);
 	}
-
+	
 	/**
 	 *
 	 * @return string
@@ -110,13 +110,13 @@ class Route_Controller extends Route {
 				'before_' . $action_method,
 				"before"
 			), array());
-
+			
 			$arguments_method = $this->option('arguments method', $this->option('arguments method prefix', 'arguments_') . $action_method);
 			$method = $this->option('method', $this->action_method_prefix() . $action_method);
 			$method = map($method, array(
 				"method" => $this->request->method()
 			));
-
+			
 			if ($response->status_code === Net_HTTP::Status_OK) {
 				ob_start();
 				if ($controller->has_method($method)) {
@@ -156,7 +156,7 @@ class Route_Controller extends Route {
 		}
 		return $response;
 	}
-
+	
 	/**
 	 * Determine the class of the controller and the action to run
 	 *
@@ -166,7 +166,7 @@ class Route_Controller extends Route {
 	private function _determine_class_action() {
 		$class_name = $this->option("controller");
 		$options = $this->named + $this->options;
-
+		
 		$this->class = $reflectionClass = null;
 		try {
 			$this->class = $reflectionClass = new ReflectionClass($class_name);
@@ -193,7 +193,7 @@ class Route_Controller extends Route {
 			$action
 		);
 	}
-
+	
 	/**
 	 *
 	 * {@inheritDoc}

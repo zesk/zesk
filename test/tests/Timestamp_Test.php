@@ -33,7 +33,7 @@ class Timestamp_Test extends Test_Unit {
 		$other = clone $now;
 		$now->add($Years, $Months, $Days, $Hours, $Minutes, $Seconds);
 		$this->assert_equal($now, $other);
-
+		
 		$now->add(0, 0, 0, 0, 0, 1);
 		$this->assert_not_equal($now, $other);
 	}
@@ -48,7 +48,7 @@ class Timestamp_Test extends Test_Unit {
 		$this->assert_equal(Timestamp::units_translation_table('minute'), 60);
 		$this->assert_equal(Timestamp::units_translation_table('second'), 1);
 	}
-
+	
 	/**
 	 * @dataProvider good_months
 	 */
@@ -84,7 +84,7 @@ class Timestamp_Test extends Test_Unit {
 			12
 		);
 	}
-
+	
 	/**
 	 * @dataProvider bad_months
 	 * @expectedException zesk\Exception_Range
@@ -93,7 +93,7 @@ class Timestamp_Test extends Test_Unit {
 		$x = new Timestamp();
 		$x->month($month);
 	}
-
+	
 	/**
 	 */
 	function test_month_range_high() {
@@ -106,7 +106,7 @@ class Timestamp_Test extends Test_Unit {
 			$success = true;
 		}
 		$this->assert($success);
-
+		
 		$value = 0;
 		$success = false;
 		try {
@@ -115,7 +115,7 @@ class Timestamp_Test extends Test_Unit {
 			$success = true;
 		}
 		$this->assert($success);
-
+		
 		$value = 13;
 		$success = false;
 		try {
@@ -124,7 +124,7 @@ class Timestamp_Test extends Test_Unit {
 			$success = true;
 		}
 		$this->assert($success);
-
+		
 		$value = 11;
 		$x->month($value);
 		$value = 12;
@@ -132,7 +132,7 @@ class Timestamp_Test extends Test_Unit {
 		$value = 1;
 		$x->month($value);
 	}
-
+	
 	/**
 	 * @expectedException zesk\Exception_Range
 	 */
@@ -140,7 +140,7 @@ class Timestamp_Test extends Test_Unit {
 		$x = new Timestamp();
 		$x->quarter(0);
 	}
-
+	
 	/**
 	 * @expectedException zesk\Exception_Range
 	 */
@@ -152,7 +152,7 @@ class Timestamp_Test extends Test_Unit {
 		$value = null;
 		$options = null;
 		$x = new Timestamp($value, $options);
-
+		
 		$year = null;
 		$month = null;
 		$day = null;
@@ -162,11 +162,11 @@ class Timestamp_Test extends Test_Unit {
 		Timestamp::instance($year, $month, $day, $hour, $minute, $second);
 		$year = 1999;
 		Timestamp::instance($year, $month, $day, $hour, $minute, $second);
-
+		
 		Timestamp::now();
-
+		
 		$x->set_now();
-
+		
 		$Years = 0;
 		$Months = 0;
 		$Days = 0;
@@ -174,27 +174,27 @@ class Timestamp_Test extends Test_Unit {
 		$Minutes = 0;
 		$Seconds = 0;
 		Timestamp::now()->add($Years, $Months, $Days, $Hours, $Minutes, $Seconds);
-
+		
 		$x->date();
-
+		
 		$x->time();
-
+		
 		$x->is_empty();
-
+		
 		$x->set_empty();
-
+		
 		$value = null;
 		$x->set($value);
-
+		
 		$x->unix_timestamp();
-
+		
 		$ts = 1231204;
 		$this->assert($x->unix_timestamp($ts) === $x);
-
+		
 		$x->__toString();
-
+		
 		$x->unix_timestamp();
-
+		
 		$success = false;
 		$value = null;
 		$locale_format = 'MDY;MD;MY;_';
@@ -204,7 +204,7 @@ class Timestamp_Test extends Test_Unit {
 			$success = true;
 		}
 		$this->assert($success);
-
+		
 		$success = true;
 		$value = "10/2/1922";
 		$locale_format = 'MDY;MD;MY;_';
@@ -215,27 +215,27 @@ class Timestamp_Test extends Test_Unit {
 		}
 		$this->assert($success);
 		$this->assert_equal($x->year("2012")->year(), 2012);
-
+		
 		$this->assert_equal($x->quarter("3")->quarter(), 3);
-
+		
 		$x->month();
-
+		
 		$x->day();
-
+		
 		$x->weekday();
-
+		
 		$x->yearday();
-
+		
 		$x->hour();
-
+		
 		$x->minute();
-
+		
 		$x->second();
-
+		
 		$x->hour12();
-
+		
 		$x->ampm();
-
+		
 		$locale = $this->application->locale_registry("en_US");
 		$year = 2012;
 		$month = 10;
@@ -243,12 +243,12 @@ class Timestamp_Test extends Test_Unit {
 		$x->ymd($year, $month, $day);
 		$locale = $this->application->locale_registry("en_US");
 		$this->assert_equal($x->format($locale, "{YYYY}:{MM}:{DD}"), "2012:10:11");
-
+		
 		$value = 2011;
 		$this->assert_equal($x->year($value), $x);
 		$this->assert_equal($x->year(null), $value);
 		$this->assert_equal($x->year(), $value);
-
+		
 		$success = false;
 		try {
 			$value = -1;
@@ -257,7 +257,7 @@ class Timestamp_Test extends Test_Unit {
 			$success = true;
 		}
 		$this->assert($success);
-
+		
 		$success = false;
 		try {
 			$value = 32;
@@ -266,7 +266,7 @@ class Timestamp_Test extends Test_Unit {
 			$success = true;
 		}
 		$this->assert($success);
-
+		
 		$success = true;
 		try {
 			$value = 30;
@@ -277,7 +277,7 @@ class Timestamp_Test extends Test_Unit {
 		}
 		// Lazy evaluation of
 		$this->assert($success);
-
+		
 		$success = false;
 		try {
 			$value = -1;
@@ -286,13 +286,13 @@ class Timestamp_Test extends Test_Unit {
 			$success = true;
 		}
 		$this->assert_true($success, "Day range exception failed");
-
+		
 		$value = 4;
 		$x->weekday($value);
-
+		
 		$value = 3;
 		$x->quarter($value);
-
+		
 		$hour = 22;
 		$minute = 23;
 		$second = 24;
@@ -305,7 +305,7 @@ class Timestamp_Test extends Test_Unit {
 		$this->assert_equal($x->format($locale, "{12hh}:{mm}:{ss} {AMPM}"), "10:23:24 AM");
 		$this->assert_equal($x->format($locale, "{hh}:{mm}:{ss} {AMPM}"), "10:23:24 AM");
 		$this->assert_equal($x->format($locale, "{hh}:{mm}:{ss} {ampm}"), "10:23:24 am");
-
+		
 		$year = 2011;
 		$month = 12;
 		$day = 31;
@@ -313,47 +313,47 @@ class Timestamp_Test extends Test_Unit {
 		$minute = 59;
 		$second = 59;
 		$x->ymdhms($year, $month, $day, $hour, $minute, $second);
-
+		
 		$value = null;
 		$x->hour($value);
-
+		
 		$value = null;
 		$x->minute($value);
-
+		
 		$value = null;
 		$x->second($value);
-
+		
 		$value = new Timestamp();
 		$x->compare($value);
-
+		
 		$flip = false;
 		Timestamp::units_translation_table();
-
+		
 		$seconds = null;
 		$divide = false;
 		$stopAtUnit = 'second';
 		Timestamp::seconds_to_unit($seconds, $divide, $stopAtUnit);
-
+		
 		$value = new Timestamp();
 		$x->subtract($value);
-
+		
 		$format_string = '{YYYY}-{MM}-{DD} {hh}:{mm}:{ss}';
 		$x->format($locale, $format_string);
-
+		
 		$model = new Timestamp();
 		$equal = false;
 		$x->before($model, $equal);
-
+		
 		$model = new Timestamp();
 		$equal = false;
 		$x->after($model, $equal);
-
+		
 		$model = new Timestamp();
 		$x->later($model);
-
+		
 		$model = new Timestamp();
 		$x->earlier($model);
-
+		
 		$Years = 0;
 		$Months = 0;
 		$Days = 0;
@@ -361,31 +361,31 @@ class Timestamp_Test extends Test_Unit {
 		$Minutes = 0;
 		$Seconds = 0;
 		$x->add($Years, $Months, $Days, $Hours, $Minutes, $Seconds);
-
+		
 		$endTime = new Timestamp();
 		$unit = 'second';
 		$precision = 0;
 		$x->difference($endTime, $unit, $precision);
-
+		
 		$endTime = new Timestamp();
 		$unit = 'second';
 		$precision = 2;
 		$x->difference($endTime, $unit, $precision);
-
+		
 		$unit = 'second';
 		$n = 1;
 		$x->add_unit($n, $unit);
-
+		
 		$x->iso8601();
-
+		
 		$value = null;
 		$x->iso8601($value);
-
+		
 		date_default_timezone_set('UTC');
-
+		
 		// Test
 		$long_date = "Sat, 16-Aug-2064 04:11:10 GMT";
-
+		
 		$test_long_date = new Timestamp($long_date, null);
 		$this->assert_equal($test_long_date->time()->format($locale), "04:11:10");
 		$this->assert_equal($test_long_date->date()->format($locale), "2064-08-16");
@@ -426,7 +426,7 @@ class Timestamp_Test extends Test_Unit {
 			$this->assert_positive($now->difference($last_year, $unit), "$unit should be positive");
 			$this->assert_negative($last_year->difference($now, $unit), "$unit should be negative");
 		}
-
+		
 		$just_a_sec = Timestamp::factory($now)->add_unit(1, Timestamp::UNIT_SECOND);
 		foreach ($units as $unit => $seconds) {
 			$this->assert_equal($just_a_sec->difference($now, $unit), intval(round(1 / $seconds, 0)), $unit, false);

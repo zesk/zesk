@@ -19,7 +19,7 @@ class Exception extends \Exception {
 	 * @var string
 	 */
 	public $raw_message = '';
-
+	
 	/**
 	 * Arguments for message.
 	 * Uses map()
@@ -28,7 +28,7 @@ class Exception extends \Exception {
 	 * @var array
 	 */
 	public $arguments = array();
-
+	
 	/**
 	 * Construct a new exception
 	 *
@@ -58,7 +58,7 @@ class Exception extends \Exception {
 			parent::__construct($map_message, intval($code), $previous);
 		}
 	}
-
+	
 	/**
 	 * Retrieve variables for a Template
 	 *
@@ -79,7 +79,7 @@ class Exception extends \Exception {
 			'previous' => $this->getPrevious()
 		) + $this->arguments;
 	}
-
+	
 	/**
 	 * Used by zesk\Logger::log
 	 *
@@ -89,7 +89,7 @@ class Exception extends \Exception {
 	public function log_variables() {
 		return $this->variables();
 	}
-
+	
 	/**
 	 * Used by zesk\Logger::log
 	 *
@@ -99,7 +99,7 @@ class Exception extends \Exception {
 	public function log_message() {
 		return $this->getMessage();
 	}
-
+	
 	/**
 	 * @todo is this used?
 	 * @param \Exception $e

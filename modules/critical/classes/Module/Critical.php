@@ -17,25 +17,25 @@ class Module_Critical extends Module {
 	 * @var string
 	 */
 	const setting_critical_alerts = "critical_alerts";
-
+	
 	/**
 	 *
 	 * @var string
 	 */
 	const setting_email = "email";
-
+	
 	/**
 	 *
 	 * @var integer
 	 */
 	const lock_timeout = 10;
-
+	
 	/**
 	 *
 	 * @var array
 	 */
 	protected $emails = array();
-
+	
 	/**
 	 *
 	 * {@inheritdoc}
@@ -61,14 +61,14 @@ class Module_Critical extends Module {
 			$this->_alert("$global_name invalid email address: " . implode(",", $bad_emails));
 		}
 	}
-
+	
 	/**
 	 * Run every minute to check if alerts should be sent
 	 */
 	public function hook_cron_cluster() {
 		$this->send_critical_alerts();
 	}
-
+	
 	/**
 	 * Load the alerts from the database
 	 *
@@ -78,7 +78,7 @@ class Module_Critical extends Module {
 		$settings = Settings::singleton($this->application);
 		return to_array($settings->get(self::setting_critical_alerts, array()));
 	}
-
+	
 	/**
 	 * Store the alerts in the database
 	 *
@@ -88,7 +88,7 @@ class Module_Critical extends Module {
 		$settings = Settings::singleton($this->application);
 		$settings->set(self::setting_critical_alerts, $alerts)->flush();
 	}
-
+	
 	/**
 	 * Log a single alert
 	 *
@@ -120,7 +120,7 @@ class Module_Critical extends Module {
 			return null;
 		}
 		$alerts = $this->_fetch_alerts();
-
+		
 		$alert_id = md5($sms_message);
 		$alert = avalue($alerts, $alert_id, array());
 		$alert['frequency'] = min(avalue($alert, 'frequency', $frequency), $frequency);
@@ -129,17 +129,17 @@ class Module_Critical extends Module {
 		$alert['recent'] = time();
 		$alert['message'] = map($sms_message, $map);
 		$alerts[$alert_id] = $alert;
-
+		
 		$this->_store_alerts($alerts);
-
+		
 		$lock->release();
-
+		
 		if ($frequency === 0) {
 			$this->send_critical_alerts();
 		}
 		return $this;
 	}
-
+	
 	/**
 	 * Send out all alerts and update alert state after sending
 	 *
@@ -147,7 +147,7 @@ class Module_Critical extends Module {
 	 */
 	public function send_critical_alerts() {
 		$logger = $this->application->logger;
-
+		
 		$lock = Lock::instance($this->application, __METHOD__);
 		if ($lock->acquire(self::lock_timeout) === null) {
 			$logger->error("Unable to lock {method}: can not send alerts", array(

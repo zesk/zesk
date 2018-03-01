@@ -23,7 +23,7 @@ class Module_Chosen extends Module_JSLib {
 		"include_group_label_in_selected" => true
 	);
 	protected $jquery_ready = array();
-
+	
 	//"\$('.chosen-select').chosen(zesk.get_path('modules.chosen'));"
 	protected static $jquery_ready_pattern = array(
 		"{selector}.chosen(\$.extend(zesk.get_path('modules.chosen'),{json_options}));"

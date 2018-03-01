@@ -16,19 +16,19 @@ namespace zesk;
  */
 class Control_Checklist extends Control_Optionss {
 	const option_checklist_exclusive = "checklist_exclusive";
-
+	
 	/**
 	 *
 	 * @var array
 	 */
 	private $widgets_id = null;
-
+	
 	/**
 	 *
 	 * @var array
 	 */
 	private $checkbox_exclusives = array();
-
+	
 	/**
 	 * Convert value to/from a string (list)
 	 *
@@ -37,7 +37,7 @@ class Control_Checklist extends Control_Optionss {
 	public function value_is_list($set = null) {
 		return is_bool($set) ? $this->set_option('value_is_list', $set) : $this->option_bool('value_is_list');
 	}
-
+	
 	/**
 	 * Getter/setter for columns to display checkboxes in
 	 *
@@ -120,7 +120,7 @@ class Control_Checklist extends Control_Optionss {
 		}
 		return $this->widgets_id;
 	}
-
+	
 	/**
 	 * Hook intialized
 	 */
@@ -134,7 +134,7 @@ class Control_Checklist extends Control_Optionss {
 			}
 		}
 	}
-
+	
 	/**
 	 *
 	 * @return string
@@ -142,7 +142,7 @@ class Control_Checklist extends Control_Optionss {
 	private function option_separator() {
 		return $this->option('separator', ';');
 	}
-
+	
 	/**
 	 *
 	 * @return array Iterator
@@ -153,7 +153,7 @@ class Control_Checklist extends Control_Optionss {
 		}
 		return $this->value();
 	}
-
+	
 	/**
 	 * (non-PHPdoc)
 	 *
@@ -171,7 +171,7 @@ class Control_Checklist extends Control_Optionss {
 		$column = $this->column();
 		$this->object->set($column, $values);
 	}
-
+	
 	/**
 	 * (non-PHPdoc)
 	 *

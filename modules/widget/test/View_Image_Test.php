@@ -7,7 +7,7 @@ namespace zesk;
 
 class View_Image_Test extends TestWidget {
 	private $test_dir = null;
-
+	
 	/**
 	 *
 	 * @return string|NULL
@@ -15,7 +15,7 @@ class View_Image_Test extends TestWidget {
 	private function image_root() {
 		return $this->application->modules->path("widget", "test/test-data");
 	}
-
+	
 	/**
 	 *
 	 * @param string $img_tag
@@ -24,21 +24,21 @@ class View_Image_Test extends TestWidget {
 	 */
 	function validate_image_size_tag($img_tag, $width, $height) {
 		dump($img_tag);
-
+		
 		$tag = HTML::extract_tag_object("img", $img_tag);
 		dump($tag);
-
+		
 		$this->assert_equal(get_class($tag), "zesk\HTML_Tag");
-
+		
 		$w = $tag->option("width");
 		$h = $tag->option("height");
 		$src = $tag->option("src");
-
+		
 		$image_path = path($this->test_dir, $src);
-
+		
 		$exists = file_exists($image_path);
 		$this->assert_true($exists, "Image file should exist $image_path");
-
+		
 		list($w_img, $h_img) = getimagesize($image_path);
 		echo "$img_tag\n";
 		echo "$src is tag[$w x $h] image[$w_img x $h_img]\n";
@@ -61,18 +61,18 @@ class View_Image_Test extends TestWidget {
 	}
 	function test_scaled() {
 		$this->test_dir = $this->test_sandbox();
-
+		
 		$this->application->set_document_root($this->test_dir);
-
+		
 		$src = null;
 		$width = false;
 		$height = false;
 		$alt = "";
 		$extras = array();
 		View_Image::scaled($this->application, $src, $width, $height, $alt, $extras);
-
+		
 		newline("\n");
-
+		
 		$images = array(
 			'z100x100.gif' => array(
 				array(
@@ -153,18 +153,18 @@ class View_Image_Test extends TestWidget {
 				)
 			)
 		);
-
+		
 		$image_root = $this->image_root();
 		foreach ($images as $image_name => $tests) {
 			echo "############# test with image $image_name ...\n";
 			$test_image = path($image_root, $image_name);
 			$src_image = "$this->test_dir/$image_name";
 			$src = "/$image_name";
-
+			
 			copy($test_image, $src_image);
-
+			
 			View_Image::debug(true);
-
+			
 			$extras = array(
 				"is_relative" => false
 			);
@@ -177,18 +177,18 @@ class View_Image_Test extends TestWidget {
 	}
 	function test_scaled_path() {
 		$test_dir = $this->test_sandbox();
-
+		
 		$this->application->document_root($test_dir);
-
+		
 		$src = null;
 		$width = false;
 		$height = false;
 		$alt = "";
 		$extras = array();
 		View_Image::scaled_path($this->application, $src, $width, $height, $alt, $extras);
-
+		
 		newline("\n");
-
+		
 		$images = array(
 			'z100x100.gif' => array(
 				array(
@@ -269,16 +269,16 @@ class View_Image_Test extends TestWidget {
 				)
 			)
 		);
-
+		
 		foreach ($images as $image_name => $tests) {
 			$test_image = path($this->image_root(), $image_name);
 			$src_image = "$test_dir/$image_name";
 			$src = "/$image_name";
-
+			
 			$this->assertTrue(copy($test_image, $src_image));
-
+			
 			View_Image::debug();
-
+			
 			$extras = array(
 				"is_relative" => false
 			);

@@ -21,13 +21,13 @@ use zesk\Exception_Parse;
  *
  */
 class Module_TinyMCE extends zesk\Module_JSLib implements Interface_Module_Routes {
-
+	
 	/**
 	 *
 	 * @var array
 	 */
 	protected $javascript_paths = array();
-
+	
 	/**
 	 *
 	 * @var unknown
@@ -65,39 +65,39 @@ class Module_TinyMCE extends zesk\Module_JSLib implements Interface_Module_Route
 			"paste"
 		)
 	);
-
+	
 	/**
 	 * Insertion menu
 	 *
 	 * @var array
 	 */
 	private $insertion_menus = array();
-
+	
 	/**
 	 *
 	 * @var string
 	 */
 	protected $tinymce_toolbar = "insertfile undo redo | styleselect | bold italic | alignleft aligncenter alignright alignjustify | bullist numlist outdent indent | link image";
-
+	
 	/**
 	 *
 	 * @var array
 	 */
 	private $setup_js = array();
-
+	
 	/**
 	 * Spelling dictionaries
 	 *
 	 * @var array of resource
 	 */
 	private $spellers = array();
-
+	
 	/**
 	 *
 	 * @var string
 	 */
 	private $share_name = "tinymce";
-
+	
 	/**
 	 * So many things can go wrong determining the version. Really.
 	 *
@@ -151,7 +151,7 @@ class Module_TinyMCE extends zesk\Module_JSLib implements Interface_Module_Route
 	 */
 	public function initialize() {
 		parent::initialize();
-
+		
 		$app = $this->application;
 		$vendor_path = $app->path("vendor/tinymce/tinymce");
 		if (!is_dir($vendor_path)) {
@@ -163,19 +163,19 @@ class Module_TinyMCE extends zesk\Module_JSLib implements Interface_Module_Route
 		}
 		$this->vendor_path = $vendor_path;
 		$app = $this->application;
-
+		
 		$suffix = $this->determine_version();
 		if ($suffix !== null) {
 			$suffix = "-$suffix";
 		}
 		$this->share_name = "tinymce$suffix";
-
+		
 		$this->tinymce_options['script_url'] = $script_url = "/share/" . $this->share_name . "/tinymce.min.js";
 		$this->javascript_paths[$script_url] = array();
-
+		
 		$app->share_path($vendor_path, $this->share_name);
 	}
-
+	
 	/**
 	 * (non-PHPdoc)
 	 *
@@ -219,7 +219,7 @@ class Module_TinyMCE extends zesk\Module_JSLib implements Interface_Module_Route
 			));
 			return;
 		}
-
+		
 		if (!array_key_exists($lang, $this->spellers)) {
 			$this->spellers[$lang] = pspell_new($lang);
 		}
@@ -245,7 +245,7 @@ class Module_TinyMCE extends zesk\Module_JSLib implements Interface_Module_Route
 	protected function hook_configured() {
 		$this->tinymce_options = $this->options_include(array_keys($this->tinymce_options)) + $this->tinymce_options;
 	}
-
+	
 	/**
 	 */
 	public function hook_ready() {
@@ -294,7 +294,7 @@ class Module_TinyMCE extends zesk\Module_JSLib implements Interface_Module_Route
 			"no_extension" => true
 		));
 	}
-
+	
 	/**
 	 *
 	 * @param array $set
@@ -332,9 +332,9 @@ class Module_TinyMCE extends zesk\Module_JSLib implements Interface_Module_Route
 	}
 	private function update_options() {
 		$js = $this->setup_js;
-
+		
 		$js[] = "editor.on('change', function () { editor.save(); });";
-
+		
 		foreach ($this->insertion_menus as $code => $settings) {
 			$title = $settings['title'];
 			$menu = $settings['menu'];
@@ -358,7 +358,7 @@ class Module_TinyMCE extends zesk\Module_JSLib implements Interface_Module_Route
 		}
 		$this->tinymce_options['*setup'] = 'function (editor) {' . implode("\n", $js) . "}";
 		$this->tinymce_options['toolbar'] = $this->tinymce_toolbar;
-
+		
 		if ($this->has_option("language_url_path")) {
 			// Language file is specified relative to document root, currently.
 			$language_url_path = $this->option("language_url_path");

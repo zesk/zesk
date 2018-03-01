@@ -22,7 +22,7 @@ abstract class Database_Query_Select_Base extends Database_Query {
 	 * @var array
 	 */
 	protected $objects_prefixes = array();
-
+	
 	/**
 	 *
 	 * {@inheritdoc}
@@ -34,7 +34,7 @@ abstract class Database_Query_Select_Base extends Database_Query {
 			"objects_prefixes"
 		));
 	}
-
+	
 	/**
 	 *
 	 * {@inheritdoc}
@@ -58,7 +58,7 @@ abstract class Database_Query_Select_Base extends Database_Query {
 	function iterator($key = null, $value = null) {
 		return new Database_Result_Iterator($this, $key, $value);
 	}
-
+	
 	/**
 	 * Execute query and retrieve a single field or row
 	 *
@@ -69,7 +69,7 @@ abstract class Database_Query_Select_Base extends Database_Query {
 	function one($field = null, $default = null) {
 		return $this->database()->query_one($this->__toString(), $field, $default);
 	}
-
+	
 	/**
 	 * This method should be overriden in subclasses if it has class_object support
 	 *
@@ -79,7 +79,7 @@ abstract class Database_Query_Select_Base extends Database_Query {
 	public function class_alias($class) {
 		return "";
 	}
-
+	
 	/**
 	 * Append "what" fields for an entire object class, with $prefix before it, using alias $alias
 	 *
@@ -114,7 +114,7 @@ abstract class Database_Query_Select_Base extends Database_Query {
 		);
 		return $this->what($what, true);
 	}
-
+	
 	/**
 	 * Execute query and retrieve a single field, a Timestamp
 	 *
@@ -127,7 +127,7 @@ abstract class Database_Query_Select_Base extends Database_Query {
 	function one_integer($field = 0, $default = 0) {
 		return $this->integer($field, $default);
 	}
-
+	
 	/**
 	 * Execute query and retrieve a single field, an integer
 	 *
@@ -140,7 +140,7 @@ abstract class Database_Query_Select_Base extends Database_Query {
 	function one_timestamp($field = 0, $default = null) {
 		return $this->timestamp($field, $default);
 	}
-
+	
 	/**
 	 * Execute query and retrieve a single field, a double
 	 *
@@ -153,7 +153,7 @@ abstract class Database_Query_Select_Base extends Database_Query {
 	function double($field = 0, $default = null) {
 		return to_double($this->one($field), $default);
 	}
-
+	
 	/**
 	 * Execute query and retrieve a single field, an integer
 	 *
@@ -166,7 +166,7 @@ abstract class Database_Query_Select_Base extends Database_Query {
 	function integer($field = 0, $default = 0) {
 		return $this->database()->query_integer($this->__toString(), $field, $default);
 	}
-
+	
 	/**
 	 * Execute query and retrieve a single field, a Timestamp
 	 *
@@ -183,7 +183,7 @@ abstract class Database_Query_Select_Base extends Database_Query {
 		}
 		return new Timestamp($value, $timezone);
 	}
-
+	
 	/**
 	 *
 	 * @param string $key
@@ -194,11 +194,11 @@ abstract class Database_Query_Select_Base extends Database_Query {
 	function to_array($key = null, $value = null, $default = array()) {
 		return $this->database()->query_array($this->__toString(), $key, $value, $default);
 	}
-
+	
 	/**
 	 */
 	abstract function __toString();
-
+	
 	/**
 	 *
 	 * @param string $class Optional ORM class to use as target for iteration (overrides `$this->orm_class()`)
@@ -209,7 +209,7 @@ abstract class Database_Query_Select_Base extends Database_Query {
 		$this->orm_class($class);
 		return new ORMIterator($this->class, $this, $options);
 	}
-
+	
 	/**
 	 * Convert this query into an ORMs Iterator (returns multiple objects per row)
 	 *
@@ -222,7 +222,7 @@ abstract class Database_Query_Select_Base extends Database_Query {
 	function orms_iterator(array $options = array()) {
 		return new ORMIterators($this->class, $this, $this->objects_prefixes);
 	}
-
+	
 	/**
 	 * Execute query and convert to a Model
 	 *
@@ -239,7 +239,7 @@ abstract class Database_Query_Select_Base extends Database_Query {
 			'from_database' => true
 		) + $options);
 	}
-
+	
 	/**
 	 * Execute query and convert to an ORM. A bit of syntactic sugar.
 	 *
@@ -256,7 +256,7 @@ abstract class Database_Query_Select_Base extends Database_Query {
 			'from_database' => true
 		) + $options);
 	}
-
+	
 	/**
 	 * Convert this query into an ORM Iterator (returns single object per row)
 	 *
@@ -272,7 +272,7 @@ abstract class Database_Query_Select_Base extends Database_Query {
 		$this->application->deprecated();
 		return $this->orm_iterator($class, $options);
 	}
-
+	
 	/**
 	 * Convert this query into an ORMs Iterator
 	 *
@@ -288,7 +288,7 @@ abstract class Database_Query_Select_Base extends Database_Query {
 		$this->application->deprecated();
 		return $this->orms_iterator($options);
 	}
-
+	
 	/**
 	 * Execute query and return the first returned row as an object
 	 *
@@ -303,7 +303,7 @@ abstract class Database_Query_Select_Base extends Database_Query {
 		$this->application->deprecated();
 		return $this->orm($class, $options);
 	}
-
+	
 	/**
 	 * Execute query and convert to an object
 	 *

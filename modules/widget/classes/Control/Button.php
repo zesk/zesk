@@ -10,7 +10,7 @@
 namespace zesk;
 
 class Control_Button extends Control {
-
+	
 	/**
 	 * Setting this converts the button into an A tag
 	 * @param string $set

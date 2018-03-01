@@ -31,7 +31,7 @@ class Contact_Address extends Contact_Info {
 	 * @var unknown
 	 */
 	const earth_radius_semimajor = 6378137.0;
-
+	
 	/**
 	 *
 	 * {@inheritDoc}
@@ -59,7 +59,7 @@ class Contact_Address extends Contact_Info {
 		}
 		return parent::store();
 	}
-
+	
 	/**
 	 *
 	 * {@inheritDoc}
@@ -68,7 +68,7 @@ class Contact_Address extends Contact_Info {
 	function label_type() {
 		return Contact_Label::LabelType_Address;
 	}
-
+	
 	/**
 	 *
 	 * @return string[string]
@@ -76,7 +76,7 @@ class Contact_Address extends Contact_Info {
 	public static function lang_member_names(Locale $locale) {
 		return $locale->__(self::en_lang_member_names());
 	}
-
+	
 	/**
 	 *
 	 * @return string[string]
@@ -105,7 +105,7 @@ class Contact_Address extends Contact_Info {
 			'data' => 'Data'
 		);
 	}
-
+	
 	/**
 	 *
 	 * @return number
@@ -113,7 +113,7 @@ class Contact_Address extends Contact_Info {
 	private static function earth_flattening() {
 		return 1.0 / 298.257223563;
 	}
-
+	
 	/**
 	 *
 	 * @return number
@@ -121,7 +121,7 @@ class Contact_Address extends Contact_Info {
 	private static function earth_radius_semiminor() {
 		return self::earth_radius_semimajor * (1 - self::earth_flattening());
 	}
-
+	
 	/**
 	 *
 	 * @return boolean
@@ -132,7 +132,7 @@ class Contact_Address extends Contact_Info {
 			'longitude'
 		));
 	}
-
+	
 	/**
 	 *
 	 * @param Contact_Address $that
@@ -153,7 +153,7 @@ class Contact_Address extends Contact_Info {
 		$y = sin($lat) / self::earth_radius_semiminor();
 		return 1 / (sqrt($x * $x + $y * $y));
 	}
-
+	
 	/**
 	 *
 	 * @param double $A_lon
@@ -178,13 +178,13 @@ class Contact_Address extends Contact_Info {
 		$alat = deg2rad($A_lat);
 		$blon = deg2rad($B_lon);
 		$blat = deg2rad($B_lat);
-
+		
 		// Radius at average point of lat/long
 		$radius = self::earth_radius(($A_lat + $B_lat) / 2);
 		$cosangle = cos($alat) * cos($blat) * (cos($alon) * cos($blon) + sin($alon) * sin($blon)) + sin($alat) * sin($blat);
 		return acos($cosangle) * $radius;
 	}
-
+	
 	/**
 	 *
 	 * @param double $lon
@@ -196,19 +196,19 @@ class Contact_Address extends Contact_Info {
 	static function mysql_geographic_distance($lon, $lat, $alias = '', $null_value = 1e100) {
 		$x = deg2rad($lon);
 		$y = deg2rad($lat);
-
+		
 		$radius = self::earth_radius($lat);
-
+		
 		$alias = empty($alias) ? $alias : ($alias . '.');
-
+		
 		$cosx = cos($x);
 		$cosy = cos($y);
 		$sinx = sin($x);
 		$siny = sin($y);
-
+		
 		return "IFNULL(ACOS($cosy * COS(RADIANS({$alias}latitude)) * ($cosx * COS(RADIANS({$alias}longitude)) + $sinx * SIN(RADIANS({$alias}longitude))) + $siny * SIN(RADIANS({$alias}latitude))), $null_value) * $radius";
 	}
-
+	
 	/**
 	 *
 	 * @return Contact_Address_Parser
@@ -216,7 +216,7 @@ class Contact_Address extends Contact_Info {
 	private function parser() {
 		return $this->application->object_singleton("Contact_Address_Parser");
 	}
-
+	
 	/**
 	 *
 	 * @param unknown $raw

@@ -67,7 +67,7 @@ class Module extends \zesk\Module implements Interface_Module_Routes {
 			$application->development($development);
 		}
 	}
-
+	
 	/**
 	 * Does the remote IP address match one of the list of IPs including netmasks?
 	 *
@@ -82,7 +82,7 @@ class Module extends \zesk\Module implements Interface_Module_Routes {
 		}
 		return false;
 	}
-
+	
 	/**
 	 * Modify the Request to allow for mock headers
 	 *
@@ -111,7 +111,7 @@ class Module extends \zesk\Module implements Interface_Module_Routes {
 	}
 	public function initialize() {
 		$app = $this->application;
-
+		
 		$app->hooks->add("zesk\\Application::main", array(
 			$this,
 			'test_ip'
@@ -121,7 +121,7 @@ class Module extends \zesk\Module implements Interface_Module_Routes {
 			'router_prematch'
 		));
 	}
-
+	
 	/**
 	 *
 	 * {@inheritdoc}
@@ -229,7 +229,7 @@ class Module extends \zesk\Module implements Interface_Module_Routes {
 			)
 		) + $extras);
 	}
-
+	
 	/**
 	 *
 	 * @param Response $response
@@ -238,7 +238,7 @@ class Module extends \zesk\Module implements Interface_Module_Routes {
 		$session = $app->session();
 		$response->json($session->get());
 	}
-
+	
 	/**
 	 *
 	 * @param Request $request
@@ -252,7 +252,7 @@ class Module extends \zesk\Module implements Interface_Module_Routes {
 			));
 		}
 	}
-
+	
 	/**
 	 *
 	 * @param Application $app

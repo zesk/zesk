@@ -20,28 +20,28 @@ abstract class Version {
 	 * @var string
 	 */
 	const PATH_RELEASE = "etc/db/release";
-
+	
 	/**
 	 * Location of the Zesk current release date
 	 *
 	 * @var string
 	 */
 	const PATH_RELEASE_DATE = "etc/db/release-date";
-
+	
 	/**
 	 * Cached release version
 	 *
 	 * @var string
 	 */
 	private static $release = null;
-
+	
 	/**
 	 * Cached release date
 	 *
 	 * @var string
 	 */
 	private static $date = null;
-
+	
 	/**
 	 * Return the SVN version number of this library
 	 *
@@ -50,7 +50,7 @@ abstract class Version {
 	private static function _file($name, $default) {
 		return trim(File::contents(path(ZESK_ROOT, $name), $default));
 	}
-
+	
 	/**
 	 * Zesk version
 	 *
@@ -62,7 +62,7 @@ abstract class Version {
 		}
 		return self::$release;
 	}
-
+	
 	/**
 	 * Zesk release date
 	 *
@@ -75,14 +75,14 @@ abstract class Version {
 		}
 		return self::$date;
 	}
-
+	
 	/**
 	 * Zesk version
 	 */
 	public static function string() {
 		return __(__METHOD__ . ":={release} (on {date})", self::variables());
 	}
-
+	
 	/**
 	 *
 	 * @return array

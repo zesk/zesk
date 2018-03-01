@@ -151,7 +151,7 @@ class Module_Health extends Module {
 		$app = $process->application();
 		$app->modules->object("health")->run_daemon($process);
 	}
-
+	
 	/**
 	 * Do not log errors while processing events. Unserialized resources, etc. will cause additional errors which we are OK to ignore
 	 *
@@ -171,7 +171,7 @@ class Module_Health extends Module {
 	public function hook_cron_cluster_hour() {
 		$purge_events_fatal_hours = $this->option_integer("purge_events_fatal_hours", -1);
 		$purge_events_non_fatal_hours = $this->option_integer("purge_events_non_fatal_hours", 24 * 7);
-
+		
 		self::purge_old_events('Health_Event', 'when', $purge_events_fatal_hours, $purge_events_non_fatal_hours);
 		self::purge_old_events('Health_Events', 'first', $purge_events_fatal_hours, $purge_events_non_fatal_hours);
 	}

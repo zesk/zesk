@@ -20,7 +20,7 @@ abstract class Controller_Theme extends Controller {
 	 * @var string
 	 */
 	protected $default_content_type = Response::CONTENT_TYPE_HTML;
-
+	
 	/**
 	 *
 	 * @var string
@@ -36,14 +36,14 @@ abstract class Controller_Theme extends Controller {
 	 * @var boolean
 	 */
 	private $auto_render = true;
-
+	
 	/**
 	 * zesk\Template variables to pass
 	 *
 	 * @var array
 	 */
 	protected $variables = array();
-
+	
 	/**
 	 * Create a new Controller_Template
 	 *
@@ -62,7 +62,7 @@ abstract class Controller_Theme extends Controller {
 		}
 		$this->auto_render = $this->option_bool('auto_render', $this->auto_render);
 	}
-
+	
 	/**
 	 * Get/set auto render value
 	 *
@@ -79,7 +79,7 @@ abstract class Controller_Theme extends Controller {
 		}
 		return $this->auto_render;
 	}
-
+	
 	/**
 	 * (non-PHPdoc)
 	 * @see Controller::json()
@@ -88,7 +88,7 @@ abstract class Controller_Theme extends Controller {
 		$this->auto_render(false);
 		return parent::json($mixed);
 	}
-
+	
 	/**
 	 * (non-PHPdoc)
 	 * @see Controller::error()
@@ -97,7 +97,7 @@ abstract class Controller_Theme extends Controller {
 		$this->auto_render(false);
 		parent::error($code, $message);
 	}
-
+	
 	/**
 	 *
 	 * @param Exception $e
@@ -109,7 +109,7 @@ abstract class Controller_Theme extends Controller {
 			) + Exception::exception_variables($e));
 		}
 	}
-
+	
 	/**
 	 * (non-PHPdoc)
 	 * @see Controller::after()
@@ -131,7 +131,7 @@ abstract class Controller_Theme extends Controller {
 			}
 		}
 	}
-
+	
 	/**
 	 * (non-PHPdoc)
 	 * @see Controller::variables()
@@ -141,7 +141,7 @@ abstract class Controller_Theme extends Controller {
 			'theme' => $this->theme
 		) + parent::variables() + $this->variables;
 	}
-
+	
 	/**
 	 * TODO Clean this up
 	 *

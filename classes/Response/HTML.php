@@ -31,42 +31,42 @@ class HTML extends Type {
 	 * @var string
 	 */
 	protected $title = "";
-
+	
 	/**
 	 * head <link tags>
 	 *
 	 * @var array
 	 */
 	private $links = array();
-
+	
 	/**
 	 * head <link tags> as [rel] => array(path1,path2)
 	 *
 	 * @var array
 	 */
 	private $links_by_rel = array();
-
+	
 	/**
 	 * Links sorted?
 	 *
 	 * @var boolean
 	 */
 	private $links_sorted = null;
-
+	
 	/**
 	 * <script> tags
 	 *
 	 * @var array
 	 */
 	private $scripts = array();
-
+	
 	/**
 	 * Whether the scripts array has been sorted by weight
 	 *
 	 * @var boolean
 	 */
 	private $scripts_sorted = false;
-
+	
 	/**
 	 * State for inline script capturing.
 	 * When non-null, we're between begin/end script calls.
@@ -74,55 +74,55 @@ class HTML extends Type {
 	 * @var string
 	 */
 	private $script_begin = null;
-
+	
 	/**
 	 * Globals to set on the page
 	 *
 	 * @var array
 	 */
 	private $script_settings = array();
-
+	
 	/**
 	 * Head meta tags
 	 *
 	 * @var array
 	 */
 	private $meta = array();
-
+	
 	/**
 	 * Head stylesheets
 	 *
 	 * @var array
 	 */
 	private $styles = array();
-
+	
 	/**
 	 * <html> tag attributes
 	 *
 	 * @var array
 	 */
 	private $html_attributes = array();
-
+	
 	/**
 	 * <body> tag attributes
 	 *
 	 * @var array
 	 */
 	private $body_attributes = array();
-
+	
 	/**
 	 * jquery ready functions
 	 *
 	 * @var array
 	 */
 	private $jquery = null;
-
+	
 	/**
 	 *
 	 * @var string
 	 */
 	protected $page_theme = "page";
-
+	
 	/**
 	 *
 	 */
@@ -136,10 +136,10 @@ class HTML extends Type {
 		);
 		$this->html_attributes = $response->option_array("html_attributes");
 		$this->body_attributes = $response->option_array("body_attributes");
-
+		
 		$this->page_theme = $response->option("page_theme", $this->page_theme);
 	}
-
+	
 	/**
 	 * Set/get page title
 	 *
@@ -159,7 +159,7 @@ class HTML extends Type {
 		}
 		return $this->title;
 	}
-
+	
 	/**
 	 * Get/set body attributes
 	 *
@@ -177,7 +177,7 @@ class HTML extends Type {
 		}
 		return $this->body_attributes;
 	}
-
+	
 	/**
 	 *
 	 * @param unknown $add
@@ -187,7 +187,7 @@ class HTML extends Type {
 		$this->body_attributes = HTMLTools::add_class($this->body_attributes, $add);
 		return $this->parent;
 	}
-
+	
 	/**
 	 * Get/set HTML attributes
 	 *
@@ -205,7 +205,7 @@ class HTML extends Type {
 		}
 		return $this->html_attributes;
 	}
-
+	
 	/**
 	 * Get/set meta keywords
 	 *
@@ -215,7 +215,7 @@ class HTML extends Type {
 	function meta_keywords($content = null) {
 		return $this->meta("keywords", $content);
 	}
-
+	
 	/**
 	 * Get/set meta description text
 	 *
@@ -225,7 +225,7 @@ class HTML extends Type {
 	function meta_description($content = null) {
 		return $this->meta("description", $content);
 	}
-
+	
 	/**
 	 * Get/set meta tags
 	 *
@@ -250,7 +250,7 @@ class HTML extends Type {
 		);
 		return $this->parent;
 	}
-
+	
 	/**
 	 * Get/Set shortcut icon
 	 *
@@ -267,7 +267,7 @@ class HTML extends Type {
 		$this->link('icon', $path, $type, $attrs);
 		return $this->parent;
 	}
-
+	
 	/**
 	 * Get/set a link tag in the header
 	 *
@@ -303,7 +303,7 @@ class HTML extends Type {
 		$this->links_sorted = null;
 		return $this->parent;
 	}
-
+	
 	/**
 	 * Add a css to the page
 	 *
@@ -333,7 +333,7 @@ class HTML extends Type {
 		);
 		return $this->link('stylesheet', $path, $options['type'], $options);
 	}
-
+	
 	/**
 	 * Add a css to the page
 	 *
@@ -359,7 +359,7 @@ class HTML extends Type {
 		$this->styles[md5($styles)] = $options;
 		return $this->parent;
 	}
-
+	
 	/**
 	 * Set the page theme to use to render the final HTML output
 	 *
@@ -373,7 +373,7 @@ class HTML extends Type {
 		}
 		return $this->page_theme;
 	}
-
+	
 	/**
 	 *
 	 * @return \zesk\Response[]|string[]
@@ -385,7 +385,7 @@ class HTML extends Type {
 			'response' => $this->parent
 		);
 	}
-
+	
 	/**
 	 *
 	 */
@@ -432,7 +432,7 @@ class HTML extends Type {
 		), $this->links_sorted);
 		foreach ($this->links_sorted as $attrs) {
 			$tag = $this->browser_conditionals(avalue($attrs, 'browser'));
-
+			
 			$root_dir = avalue($attrs, 'root_dir');
 			$cdn = avalue($attrs, 'cdn');
 			$share = avalue($attrs, 'share');
@@ -489,7 +489,7 @@ class HTML extends Type {
 		}
 		return $result;
 	}
-
+	
 	/**
 	 *
 	 * @return array
@@ -499,7 +499,7 @@ class HTML extends Type {
 			"stylesheets_inline"
 		));
 	}
-
+	
 	/**
 	 * Render the HTML page
 	 *
@@ -511,7 +511,7 @@ class HTML extends Type {
 			'content' => $content
 		) + $this->theme_variables());
 	}
-
+	
 	/**
 	 *
 	 * {@inheritDoc}
@@ -568,7 +568,7 @@ class HTML extends Type {
 			'title' => $this->parent->title()
 		), null);
 	}
-
+	
 	/**
 	 *
 	 * @param string $resource_path
@@ -628,7 +628,7 @@ class HTML extends Type {
 			return null;
 		}
 	}
-
+	
 	/**
 	 * Utility function to determine the date of a file
 	 *
@@ -656,7 +656,7 @@ class HTML extends Type {
 			$file
 		);
 	}
-
+	
 	/**
 	 * Internal function to process CSS and cache it
 	 *
@@ -674,7 +674,7 @@ class HTML extends Type {
 			': ' => ':',
 			'; ' => ';'
 		));
-
+		
 		if (preg_match_all('|@import\s*([^;]+)\s*;|', $contents, $matches, PREG_SET_ORDER)) {
 			$map = array();
 			foreach ($matches as $match) {
@@ -731,7 +731,7 @@ class HTML extends Type {
 		}
 		return strtr($contents, $map);
 	}
-
+	
 	/**
 	 * Internal function to process cached datatypes (CSS/JavaScript)
 	 *
@@ -756,7 +756,7 @@ class HTML extends Type {
 		), $contents);
 		return $contents;
 	}
-
+	
 	/**
 	 * Cache files in the resource paths tend to grow, particularly
 	 * @todo does this depend on a certain structure which is enforced by this?
@@ -800,7 +800,7 @@ class HTML extends Type {
 		));
 		return $deleted;
 	}
-
+	
 	/**
 	 * Return the href for our resource cache
 	 *
@@ -818,7 +818,7 @@ class HTML extends Type {
 		}
 		return path($segments);
 	}
-
+	
 	/**
 	 * Return the absolute path of our resource cache
 	 *
@@ -831,7 +831,7 @@ class HTML extends Type {
 		$cache_path = path($this->application->document_root(), $href);
 		return $cache_path;
 	}
-
+	
 	/**
 	 * Run JavaScript/CSS concatenation
 	 *
@@ -878,7 +878,7 @@ class HTML extends Type {
 		$debug = implode("\n", $debug);
 		return $href;
 	}
-
+	
 	/**
 	 * Run CSS caching
 	 *
@@ -900,7 +900,7 @@ class HTML extends Type {
 			'suffix' => $this->application->development() ? "<!--\n$debug\n-->" : ""
 		);
 	}
-
+	
 	/**
 	 * Run Script caching
 	 *
@@ -920,7 +920,7 @@ class HTML extends Type {
 			'suffix' => $this->application->development() ? "<!--\n$debug\n-->" : ""
 		);
 	}
-
+	
 	/**
 	 * Output jQuery ready tags
 	 *
@@ -937,7 +937,7 @@ class HTML extends Type {
 		}
 		return $result;
 	}
-
+	
 	/**
 	 * Output generated script tags.
 	 * Returns array of arrays
@@ -1097,7 +1097,7 @@ class HTML extends Type {
 		$this->scripts_sorted = false;
 		return $this->parent;
 	}
-
+	
 	/**
 	 * Add to JavaScript script settings
 	 *
@@ -1110,14 +1110,14 @@ class HTML extends Type {
 		$this->script_settings = ArrayTools::merge($this->script_settings, $settings);
 		return $this->parent;
 	}
-
+	
 	/**
 	 * Return JavaScript code to load JavaScript settings
 	 */
 	public function _javascript_settings() {
 		return '$.extend(true, window.zesk.settings, ' . JSONTools::encode($this->script_settings) . ');';
 	}
-
+	
 	/**
 	 * Register a javascript to be put on the page
 	 *
@@ -1143,7 +1143,7 @@ class HTML extends Type {
 		$options['src'] = $path;
 		return $this->script_add($path, $options);
 	}
-
+	
 	/**
 	 * Include JavaScript to be included inline in the page
 	 *
@@ -1163,7 +1163,7 @@ class HTML extends Type {
 			'browser' => avalue($options, 'browser')
 		) + $options);
 	}
-
+	
 	/**
 	 * Add jQuery to page and ensure it's initialized
 	 */
@@ -1188,7 +1188,7 @@ class HTML extends Type {
 		));
 		$this->jquery = array();
 	}
-
+	
 	/**
 	 * Require jQuery on the page, and optionally add a ready script
 	 *
@@ -1210,7 +1210,7 @@ class HTML extends Type {
 		}
 		return $this->parent;
 	}
-
+	
 	/**
 	 * Internal function to conditionally wrap script tags with browser conditions.
 	 *

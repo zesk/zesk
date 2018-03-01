@@ -44,7 +44,7 @@ class DocComment_Test extends Test_Unit {
 		$doc = DocComment::instance([
 			"desc" => "Hello, world",
 			"see" => "\\zesk\\Kernel"
-
+		
 		], [
 			DocComment::OPTION_DESC_NO_TAG => true
 		]);
@@ -61,7 +61,7 @@ class DocComment_Test extends Test_Unit {
 	function test_clean($test, $expected) {
 		$this->assert_equal(DocComment::clean($test), $expected);
 	}
-
+	
 	/**
 	 *
 	 * @return array
@@ -195,7 +195,7 @@ class DocComment_Test extends Test_Unit {
 			)
 		);
 	}
-
+	
 	/**
 	 * @dataProvider data_provider_unparse
 	 * @param string $test

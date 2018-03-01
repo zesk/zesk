@@ -16,26 +16,26 @@ namespace zesk;
  *
  */
 class Database_Query_Update extends Database_Query_Edit {
-
+	
 	/**
 	 * Update where clause
 	 *
 	 * @var array
 	 */
 	protected $where = array();
-
+	
 	/**
 	 *
 	 * @var resource
 	 */
 	private $result = null;
-
+	
 	/**
 	 *
 	 * @var boolean
 	 */
 	protected $ignore_constraints = false;
-
+	
 	/**
 	 * Create a new UPDATE query
 	 *
@@ -44,7 +44,7 @@ class Database_Query_Update extends Database_Query_Edit {
 	function __construct(Database $db) {
 		parent::__construct("UPDATE", $db);
 	}
-
+	
 	/**
 	 * Getter/setter for ignore contstraints flag for update
 	 *
@@ -71,7 +71,7 @@ class Database_Query_Update extends Database_Query_Edit {
 			'low_priority' => $this->low_priority
 		));
 	}
-
+	
 	/**
 	 * Return the number of affected rows after query has run
 	 *
@@ -80,7 +80,7 @@ class Database_Query_Update extends Database_Query_Edit {
 	public final function affected_rows() {
 		return $this->database()->affected_rows($this->result);
 	}
-
+	
 	/**
 	 *
 	 * @return resource
@@ -88,7 +88,7 @@ class Database_Query_Update extends Database_Query_Edit {
 	function result() {
 		return $this->result;
 	}
-
+	
 	/**
 	 * @deprecated 2018-02 Use "execute()->result()" instead.
 	 *
@@ -111,7 +111,7 @@ class Database_Query_Update extends Database_Query_Edit {
 		));
 		return $this;
 	}
-
+	
 	/**
 	 * Add where clause.
 	 * Once traits are standard, make this a trait for SELECT/INSERT

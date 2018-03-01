@@ -16,7 +16,7 @@ class Command_Server_Install extends Command {
 	protected $load_modules = array(
 		'server'
 	);
-
+	
 	/**
 	 * Help string
 	 *
@@ -55,7 +55,7 @@ class Command_Server_Install extends Command {
 	);
 	protected function run() {
 		$this->configure('server-install');
-
+		
 		$this->verbose_log("Running {class}", array(
 			"class" => __CLASS__
 		));
@@ -68,7 +68,7 @@ class Command_Server_Install extends Command {
 		$this->verbose_log("Configuring {class}", array(
 			"class" => get_class($platform)
 		));
-
+		
 		$features = null;
 		if ($this->has_arg()) {
 			$features = array();

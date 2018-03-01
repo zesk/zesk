@@ -18,7 +18,7 @@ class Module_Image_Picker extends zesk\Module_JSLib {
 	protected $css_paths = array(
 		'/share/image_picker/css/image_picker.css'
 	);
-
+	
 	/**
 	 *
 	 * @var array
@@ -26,7 +26,7 @@ class Module_Image_Picker extends zesk\Module_JSLib {
 	protected $javascript_paths = array(
 		'/share/image_picker/js/image_picker.js'
 	);
-
+	
 	/**
 	 *
 	 * @param zesk\Router $router
@@ -43,7 +43,7 @@ class Module_Image_Picker extends zesk\Module_JSLib {
 			)
 		));
 	}
-
+	
 	/**
 	 *
 	 */

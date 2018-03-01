@@ -14,20 +14,20 @@ class Model_Settings extends Model {
 	protected $_accessor = array();
 	protected $_access_cache = array();
 	protected $ignore_variables = array();
-
+	
 	/**
 	 * Array of key => default
 	 *
 	 * @var array $variables
 	 */
 	protected $variables = array();
-
+	
 	/**
 	 *
 	 * @var Configuration
 	 */
 	protected $configuration = null;
-
+	
 	/**
 	 *
 	 * @var array
@@ -41,7 +41,7 @@ class Model_Settings extends Model {
 		$this->configuration = $this->application->configuration;
 		$this->inherit_global_options();
 	}
-
+	
 	/**
 	 *
 	 * @param mixed $mixed
@@ -123,7 +123,7 @@ class Model_Settings extends Model {
 		}
 		return $this;
 	}
-
+	
 	/**
 	 * Get a value from this model
 	 *

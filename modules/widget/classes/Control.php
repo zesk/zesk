@@ -14,7 +14,7 @@ namespace zesk;
  * @see Widget
  */
 class Control extends Widget {
-
+	
 	/**
 	 *
 	 * @var array
@@ -66,7 +66,7 @@ class Control extends Widget {
 		'tr',
 		'ul'
 	);
-
+	
 	/**
 	 * Retrieve the key used to assign this condition to allow overwriting by subclasses
 	 *
@@ -80,7 +80,7 @@ class Control extends Widget {
 		}
 		return implode(";", $columns);
 	}
-
+	
 	/**
 	 * Retrieve the key used to assign this condition to allow overwriting by subclasses
 	 *
@@ -151,7 +151,7 @@ class Control extends Widget {
 	public function query_column($set = null) {
 		return ($set !== null) ? $this->set_option('query_column', $set) : $this->option('query_column');
 	}
-
+	
 	/**
 	 * Enable sanitization of inputs to remove dangerous HTML
 	 *
@@ -168,35 +168,35 @@ class Control extends Widget {
 	protected function sanitize_html($set = null) {
 		return $set === null ? $this->option_bool('sanitize_html', true) : $this->set_option('sanitize_html', to_bool($set));
 	}
-
+	
 	/**
 	 * Just strip dangerous tags (script, link)
 	 */
 	protected function sanitize_strip_default_tags() {
 		return $this->sanitize_html(true)->sanitize_allow_tags(false)->sanitize_strip_tags(self::$default_strip_tags);
 	}
-
+	
 	/**
 	 * Just strip dangerous tags (script, link)
 	 */
 	protected function sanitize_strip_all_tags() {
 		return $this->sanitize_html(true)->sanitize_allow_tags(false)->sanitize_strip_tags(true);
 	}
-
+	
 	/**
 	 * Only allow default tags (markup, safe)
 	 */
 	protected function sanitize_allow_default_tags() {
 		return $this->sanitize_html(true)->sanitize_allow_tags(self::$default_allow_tags)->sanitize_strip_tags(false);
 	}
-
+	
 	/**
 	 * Allow all tags (whoo-hoo!)
 	 */
 	protected function sanitize_allow_all_tags() {
 		return $this->sanitize_html(false);
 	}
-
+	
 	/**
 	 * Get/set specific tags to strip
 	 *
@@ -211,7 +211,7 @@ class Control extends Widget {
 	protected function sanitize_strip_tags($set = null) {
 		return $set === null ? $this->option('sanitize_strip_tags', true) : $this->set_option('sanitize_strip_tags', $set);
 	}
-
+	
 	/**
 	 * Get/set specific tags to strip
 	 *
@@ -226,7 +226,7 @@ class Control extends Widget {
 	protected function sanitize_allow_tags($set = null) {
 		return $set === null ? $this->option('sanitize_allow_tags', self::$default_allow_tags) : $this->set_option('sanitize_allow_tags', $set);
 	}
-
+	
 	/**
 	 *
 	 * @param string $value
@@ -244,7 +244,7 @@ class Control extends Widget {
 		}
 		return $value;
 	}
-
+	
 	/**
 	 * Sanitize a non-iterable value
 	 *
@@ -262,7 +262,7 @@ class Control extends Widget {
 		if (is_string($strip) || is_array($strip)) {
 			$value = self::_sanitize_strip($value, to_list($strip));
 		}
-
+		
 		$allow = $this->sanitize_allow_tags();
 		if ($allow === true) {
 			return $value;
@@ -276,7 +276,7 @@ class Control extends Widget {
 		}
 		return $value;
 	}
-
+	
 	/**
 	 * Public function to sanitize HTML-related values before storing in an object.
 	 *

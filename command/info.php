@@ -21,7 +21,7 @@ class Command_Info extends Command {
 		'computer-labels' => 'boolean',
 		'format' => 'string'
 	);
-
+	
 	/**
 	 *
 	 * @var array
@@ -31,7 +31,7 @@ class Command_Info extends Command {
 		'computer-labels' => 'Show computer labels',
 		'format' => "output format: text (default), html, php, serialize, json"
 	);
-
+	
 	/**
 	 *
 	 * @todo FINISH DOING THIS FOR ALL CONSTANTS BELOW
@@ -39,13 +39,13 @@ class Command_Info extends Command {
 	 * @var string
 	 */
 	const zesk_version_release = "zesk\Version::release";
-
+	
 	/**
 	 *
 	 * @var string
 	 */
 	const configuration_files_loaded = "configuration_files_loaded";
-
+	
 	/**
 	 *
 	 * @var string
@@ -76,7 +76,7 @@ class Command_Info extends Command {
 	 * @var string
 	 */
 	const command_path = "command_path";
-
+	
 	/**
 	 *
 	 * @var string
@@ -102,7 +102,7 @@ class Command_Info extends Command {
 		self::zesk_application_class => 'Zesk Application Class',
 		self::configuration_files_loaded => 'Loaded Configuration Files'
 	);
-
+	
 	/**
 	 *
 	 * {@inheritdoc}
@@ -111,7 +111,7 @@ class Command_Info extends Command {
 	 */
 	function run() {
 		$app = $this->application;
-
+		
 		$info[self::zesk_version_release] = Version::release();
 		$info[self::zesk_version_string] = Version::string();
 		$info[self::zesk_root] = ZESK_ROOT;
@@ -126,13 +126,13 @@ class Command_Info extends Command {
 		$info['display_startup_errors'] = to_bool(ini_get('display_startup_errors')) ? 'true' : 'false';
 		$info['error_log'] = ini_get('error_log');
 		$info[self::configuration_files_loaded] = to_array(avalue($app->loader->variables(), 'processed', array()));
-
+		
 		$module_info = $app->modules->all_hook_arguments("info", array(), array());
 		$info = array_merge($info, ArrayTools::key_value($module_info, null, "value"));
 		foreach ($module_info as $code_name => $settings) {
 			$human_names[$code_name] = avalue($settings, "title", $code_name);
 		}
-
+		
 		if (!$this->option_bool('computer-labels')) {
 			$info = ArrayTools::map_keys($info, self::$human_names);
 		}

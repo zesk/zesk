@@ -17,27 +17,27 @@ class Database_Query_Delete extends Database_Query {
 	 * @var array
 	 */
 	protected $where = array();
-
+	
 	/**
 	 * Store affected rows after execute
 	 *
 	 * @var integer
 	 */
 	protected $affected_rows = null;
-
+	
 	/**
 	 * Store affected rows after execute
 	 *
 	 * @var integer
 	 */
 	protected $truncate = false;
-
+	
 	/**
 	 *
 	 * @var mixed
 	 */
 	protected $result = null;
-
+	
 	/**
 	 * Construct a delete query
 	 *
@@ -83,7 +83,7 @@ class Database_Query_Delete extends Database_Query {
 		}
 		return $this;
 	}
-
+	
 	/**
 	 *
 	 * @return string
@@ -99,7 +99,7 @@ class Database_Query_Delete extends Database_Query {
 	function affected_rows() {
 		return $this->affected_rows;
 	}
-
+	
 	/**
 	 * Execute syntax is now identical, stop using this method, use ->execute() with new semantics
 	 *
@@ -112,7 +112,7 @@ class Database_Query_Delete extends Database_Query {
 		zesk()->deprecated();
 		return $this->execute();
 	}
-
+	
 	/**
 	 *
 	 * @return mixed
@@ -120,7 +120,7 @@ class Database_Query_Delete extends Database_Query {
 	function result() {
 		return $this->result;
 	}
-
+	
 	/**
 	 * @return \zesk\Database_Query_Delete|NULL|mixed
 	 */
@@ -137,7 +137,7 @@ class Database_Query_Delete extends Database_Query {
 		}
 		return $result;
 	}
-
+	
 	/**
 	 * Prefer this function name, but need to change semantics so will remove and then rename ->exec
 	 * to ->execute later.

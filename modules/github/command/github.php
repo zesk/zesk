@@ -31,7 +31,7 @@ class Command_GitHub extends Command_Base {
 	 * @var integer
 	 */
 	const EXIT_CODE_NO_DESCRIPTION = 1;
-
+	
 	/**
 	 *
 	 * @var integer
@@ -42,7 +42,7 @@ class Command_GitHub extends Command_Base {
 	 * @var integer
 	 */
 	const EXIT_CODE_TAG_FAILED = 3;
-
+	
 	/**
 	 *
 	 * {@inheritDoc}
@@ -55,7 +55,7 @@ class Command_GitHub extends Command_Base {
 		$this->usage("Need to specify --tag");
 		return 0;
 	}
-
+	
 	/**
 	 *
 	 * @return string|number

@@ -26,27 +26,27 @@ class Database_Index {
 	 * @var Database_Table
 	 */
 	private $table;
-
+	
 	/**
 	 * Array of name => size
 	 * @var array
 	 */
 	private $columns;
-
+	
 	/**
 	 * index name
 	 *
 	 * @var string
 	 */
 	private $name;
-
+	
 	/**
 	 * index type
 	 *
 	 * @var string
 	 */
 	private $type;
-
+	
 	/**
 	 * Index structure (database-specific)
 	 *
@@ -57,7 +57,7 @@ class Database_Index {
 	const Index = "INDEX";
 	const Unique = "UNIQUE";
 	const Primary = "PRIMARY KEY";
-
+	
 	/**
 	 *
 	 * @param Database_Table $table
@@ -73,9 +73,9 @@ class Database_Index {
 		$this->columns = array();
 		$this->type = self::determineType($type);
 		$this->name = empty($name) && $this->type === self::Primary ? "primary" : $name;
-
+		
 		$this->structure = self::determineStructure($structure);
-
+		
 		if (is_array($columns)) {
 			foreach ($columns as $col => $size) {
 				if (is_numeric($size) || is_bool($size)) {
@@ -89,7 +89,7 @@ class Database_Index {
 		}
 		$table->index_add($this);
 	}
-
+	
 	/**
 	 *
 	 */
@@ -98,7 +98,7 @@ class Database_Index {
 		unset($this->database);
 		unset($this->columns);
 	}
-
+	
 	/**
 	 *
 	 * @todo Move into database implementation
@@ -119,7 +119,7 @@ class Database_Index {
 				return self::Index;
 		}
 	}
-
+	
 	/**
 	 *
 	 * @param unknown $structure
@@ -134,7 +134,7 @@ class Database_Index {
 		}
 		return strtoupper($this->database->default_index_structure($this->type));
 	}
-
+	
 	/**
 	 *
 	 * @param string $lower
@@ -143,7 +143,7 @@ class Database_Index {
 	function name() {
 		return $this->name;
 	}
-
+	
 	/**
 	 * @return Database_Table
 	 */
@@ -154,21 +154,21 @@ class Database_Index {
 		}
 		return $this->table;
 	}
-
+	
 	/**
 	 * @return array
 	 */
 	function columns() {
 		return array_keys($this->columns);
 	}
-
+	
 	/**
 	 *
 	 */
 	function column_sizes() {
 		return $this->columns;
 	}
-
+	
 	/**
 	 *
 	 * @return number
@@ -176,7 +176,7 @@ class Database_Index {
 	function column_count() {
 		return count($this->columns);
 	}
-
+	
 	/**
 	 *
 	 * @return string
@@ -188,7 +188,7 @@ class Database_Index {
 		}
 		return $this->type;
 	}
-
+	
 	/**
 	 *
 	 * @return string
@@ -196,7 +196,7 @@ class Database_Index {
 	function structure() {
 		return $this->structure;
 	}
-
+	
 	/**
 	 *
 	 * @param unknown $mixed
@@ -237,7 +237,7 @@ class Database_Index {
 		$this->columns[$col] = is_numeric($size) ? intval($size) : true;
 		return $this;
 	}
-
+	
 	/**
 	 *
 	 * @param Database_Index $that
@@ -288,14 +288,14 @@ class Database_Index {
 		}
 		return true;
 	}
-
+	
 	/**
 	 *
 	 */
 	function sql_index_type() {
 		return $this->database->sql()->index_type($this->table, $this->name, $this->type, $this->column_sizes());
 	}
-
+	
 	/**
 	 *
 	 * @return string
@@ -303,7 +303,7 @@ class Database_Index {
 	function sql_index_add() {
 		return $this->database->sql()->alter_table_index_add($this->table, $this);
 	}
-
+	
 	/**
 	 *
 	 * @return string
@@ -311,7 +311,7 @@ class Database_Index {
 	function sql_index_drop() {
 		return $this->database->sql()->alter_table_index_drop($this->table, $this);
 	}
-
+	
 	/**
 	 *
 	 * @return boolean
@@ -319,7 +319,7 @@ class Database_Index {
 	function is_primary() {
 		return $this->type === self::Primary;
 	}
-
+	
 	/**
 	 *
 	 * @return boolean
@@ -327,7 +327,7 @@ class Database_Index {
 	function is_index() {
 		return $this->type === self::Index;
 	}
-
+	
 	/**
 	 *
 	 * @return boolean
@@ -335,7 +335,7 @@ class Database_Index {
 	function is_unique() {
 		return $this->type === self::Unique;
 	}
-
+	
 	/**
 	 *
 	 * @return string

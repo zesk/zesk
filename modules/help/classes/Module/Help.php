@@ -23,7 +23,7 @@ class Module_Help extends Module_JSLib {
 	 * @var unknown
 	 */
 	private $authenticated = null;
-
+	
 	/**
 	 *
 	 * @var array
@@ -31,7 +31,7 @@ class Module_Help extends Module_JSLib {
 	protected $javascript_settings_inherit = array(
 		'show_count' => 3
 	);
-
+	
 	/**
 	 * Associated classes
 	 *
@@ -41,7 +41,7 @@ class Module_Help extends Module_JSLib {
 		'zesk\\Help',
 		'zesk\\Help_User'
 	);
-
+	
 	/**
 	 * We inject our JavaScript on pages; it loads
 	 *
@@ -69,7 +69,7 @@ class Module_Help extends Module_JSLib {
 		}
 		parent::hook_head($request, $response, $template);
 	}
-
+	
 	/**
 	 * Registers all help text in the system
 	 */
@@ -112,7 +112,7 @@ class Module_Help extends Module_JSLib {
 			}
 		}
 	}
-
+	
 	/**
 	 * Adds needed routes to our router
 	 *
@@ -160,7 +160,7 @@ class Module_Help extends Module_JSLib {
 			)
 		));
 	}
-
+	
 	/**
 	 * List user targets
 	 *
@@ -197,19 +197,19 @@ class Module_Help extends Module_JSLib {
 				$additional_map = array();
 			}
 			$help_map = $additional_map + $mappables;
-
+			
 			$help_entry = map($help->members('target;placement'), $help_map);
-
+			
 			$help_entry['title'] = $__($help->title, $help_map);
-
+			
 			$content_wraps = $help->content_wraps;
 			$content = $__($help->content, $help_map);
 			if (is_array($content_wraps)) {
 				$content = HTML::wrap($content, $content_wraps);
 			}
-
+			
 			$help_entry['content'] = $content;
-
+			
 			$result[$id] = $help_entry;
 		}
 		if ($application->development()) {
@@ -217,7 +217,7 @@ class Module_Help extends Module_JSLib {
 		}
 		$response->json($result);
 	}
-
+	
 	/**
 	 * Require user authentication
 	 *
@@ -236,7 +236,7 @@ class Module_Help extends Module_JSLib {
 		}
 		return $user;
 	}
-
+	
 	/**
 	 * Require user authentication, and require POST (e.g.
 	 * this is help call which "updates" things)
@@ -258,7 +258,7 @@ class Module_Help extends Module_JSLib {
 		}
 		return $user;
 	}
-
+	
 	/**
 	 * Show help to a user and mark Help record
 	 *
@@ -279,7 +279,7 @@ class Module_Help extends Module_JSLib {
 			'message' => 'Marked'
 		));
 	}
-
+	
 	/**
 	 *
 	 * @param Request $request
@@ -311,7 +311,7 @@ class Module_Help extends Module_JSLib {
 		}
 		$response->json($result);
 	}
-
+	
 	/**
 	 * Remote call to reset all help for a user
 	 *
@@ -332,7 +332,7 @@ class Module_Help extends Module_JSLib {
 			))
 		));
 	}
-
+	
 	/**
 	 * Internal function to reset a user's help
 	 *

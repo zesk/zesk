@@ -28,7 +28,7 @@ class Server_Data extends ORM {
 			'server_delete'
 		));
 	}
-
+	
 	/**
 	 * Clean up data of servers which have been deleted.
 	 * Could probably use a foreign key constraint to handle this as well.
@@ -44,7 +44,7 @@ class Server_Data extends ORM {
 				->execute();
 		}
 	}
-
+	
 	/**
 	 * Delete all data associated with server
 	 *

@@ -11,7 +11,7 @@ namespace zesk;
  * @author kent
  */
 class Command_Class_Properties extends Command_Base {
-
+	
 	/**
 	 *
 	 * @var array
@@ -19,7 +19,7 @@ class Command_Class_Properties extends Command_Base {
 	protected $option_types = array(
 		"*" => "string"
 	);
-
+	
 	/**
 	 *
 	 * @var array
@@ -43,7 +43,7 @@ class Command_Class_Properties extends Command_Base {
 	private function all_classes() {
 		return ArrayTools::key_value($this->application->orm_module()->all_classes(), null, "class");
 	}
-
+	
 	/**
 	 *
 	 * {@inheritDoc}

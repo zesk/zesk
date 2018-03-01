@@ -25,7 +25,7 @@ class ORM extends Model {
 	 * @var string
 	 */
 	const option_ignore_auto_column = "ignore_auto_column";
-
+	
 	/**
 	 * Previous call resulted in a new object retrieved from the database which exists
 	 *
@@ -34,7 +34,7 @@ class ORM extends Model {
 	 * @var string
 	 */
 	const object_status_exists = "exists";
-
+	
 	/**
 	 * Previous call resulted in the saving of the existing object in the database
 	 *
@@ -51,21 +51,21 @@ class ORM extends Model {
 	 * @var string
 	 */
 	const object_status_unknown = "failed";
-
+	
 	/**
 	 * ORM debugging
 	 *
 	 * @var boolean
 	 */
 	static $debug = false;
-
+	
 	/**
 	 * Global state
 	 *
 	 * @var Application
 	 */
 	public $application = null;
-
+	
 	/**
 	 * Initialize this value to an alternate object class name if you want more than one object to
 	 * be represented by the same table or class configuration.
@@ -80,14 +80,14 @@ class ORM extends Model {
 	 * @var Class_ORM
 	 */
 	protected $class = null;
-
+	
 	/**
 	 * The leaf polymorphic class goes here
 	 *
 	 * @var string
 	 */
 	protected $polymorphic_leaf = null;
-
+	
 	/**
 	 * Database name where this object resides.
 	 * If not specified, the default database.
@@ -98,7 +98,7 @@ class ORM extends Model {
 	 * @var string
 	 */
 	protected $database_name = null;
-
+	
 	/**
 	 * Database object
 	 * If not specified, the default database.
@@ -106,7 +106,7 @@ class ORM extends Model {
 	 * @var Database
 	 */
 	private $database = null;
-
+	
 	/**
 	 * Database table name
 	 * <code>
@@ -116,68 +116,68 @@ class ORM extends Model {
 	 * @var string
 	 */
 	protected $table = null;
-
+	
 	/**
 	 * When is_new requires a database query, cache it here
 	 *
 	 * @var boolean
 	 */
 	private $is_new_cached = null;
-
+	
 	/**
 	 * When storing, set to true to avoid loops
 	 *
 	 * @var boolean
 	 */
 	protected $storing = false;
-
+	
 	/**
 	 * Members of this object
 	 *
 	 * @var array
 	 */
 	protected $members = array();
-
+	
 	/**
 	 * List of things to do when storing
 	 *
 	 * @var array
 	 */
 	private $store_queue = array();
-
+	
 	/**
 	 * Does this object need to be loaded from the database?
 	 *
 	 * @var boolean
 	 */
 	private $need_load = true;
-
+	
 	/**
 	 * Array of columns which I can store
 	 */
 	private $store_columns;
-
+	
 	/**
 	 * Result of register call
 	 *
 	 * @var string
 	 */
 	private $status = null;
-
+	
 	/**
 	 * When members is loaded, this is a copy to determine if changes have occurred.
 	 *
 	 * @var array
 	 */
 	private $original;
-
+	
 	/**
 	 * Cache stack
 	 *
 	 * @var array
 	 */
 	private $cache_stack = null;
-
+	
 	/**
 	 * Retrieve user-configurable settings for this object
 	 *
@@ -186,7 +186,7 @@ class ORM extends Model {
 	public static function settings() {
 		return array(); //TODO
 	}
-
+	
 	/**
 	 * Syntactic sugar - returns ORM not a Model
 	 *
@@ -198,7 +198,7 @@ class ORM extends Model {
 	public function orm_factory($class, $mixed = null, array $options = array()) {
 		return $this->model_factory($class, $mixed, $options);
 	}
-
+	
 	/**
 	 * Create a new object
 	 *
@@ -215,7 +215,7 @@ class ORM extends Model {
 		$this->initialize($mixed, $this->option('initialize'));
 		$this->set_option('initialize', null);
 	}
-
+	
 	/**
 	 * Sleep functionality
 	 */
@@ -224,7 +224,7 @@ class ORM extends Model {
 			"members"
 		), parent::__sleep());
 	}
-
+	
 	/**
 	 * Wakeup functionality
 	 */
@@ -233,7 +233,7 @@ class ORM extends Model {
 		$this->initialize_specification();
 		$this->initialize($this->members, 'raw');
 	}
-
+	
 	/**
 	 * Retrieve an option from the class
 	 *
@@ -244,7 +244,7 @@ class ORM extends Model {
 	public function class_option($name, $default = null) {
 		return $this->class->option($name, $default);
 	}
-
+	
 	/**
 	 * Retrieve the Class_ORM associated with this object.
 	 * Often matches "Class_" . get_class($this), but not always.
@@ -254,7 +254,7 @@ class ORM extends Model {
 	public function class_orm() {
 		return $this->class;
 	}
-
+	
 	/**
 	 * All variables for this object (useful for translations, logging, and output)
 	 *
@@ -267,7 +267,7 @@ class ORM extends Model {
 			"ORM::class" => get_class($this)
 		);
 	}
-
+	
 	/**
 	 *
 	 * @param $mixed mixed
@@ -279,7 +279,7 @@ class ORM extends Model {
 	public function get($mixed = null, $default = null) {
 		return $this->has($mixed) ? $this->__get($mixed) : $default;
 	}
-
+	
 	/**
 	 *
 	 * @param $mixed mixed
@@ -298,7 +298,7 @@ class ORM extends Model {
 		}
 		return $this;
 	}
-
+	
 	/**
 	 * Retrieve a blank object.
 	 * Useful for retrieving class specification information
@@ -310,7 +310,7 @@ class ORM extends Model {
 	public static function cached($class) {
 		return self::cache_class($class, "object");
 	}
-
+	
 	/**
 	 * Retrieve a list of class dependencies for this object
 	 */
@@ -329,10 +329,10 @@ class ORM extends Model {
 				$result['requires'][] = $link_class;
 			}
 		}
-
+		
 		return $result;
 	}
-
+	
 	/**
 	 * Initialize per-object settings
 	 */
@@ -358,7 +358,7 @@ class ORM extends Model {
 		$this->store_queue = array();
 		$this->original = array();
 	}
-
+	
 	/**
 	 * Clean a code name to be without spaces or special characters
 	 *
@@ -373,7 +373,7 @@ class ORM extends Model {
 		}
 		return $codename;
 	}
-
+	
 	/**
 	 *
 	 * @param unknown $cache_id
@@ -389,7 +389,7 @@ class ORM extends Model {
 		$cache = $this->application->cache->getItem(implode("/", $name));
 		return new ORM_CacheItem($this->application, $cache);
 	}
-
+	
 	/**
 	 * Retrieve a cache attached to this object only
 	 *
@@ -409,7 +409,7 @@ class ORM extends Model {
 		$item->depends($this);
 		return $item;
 	}
-
+	
 	/**
 	 *
 	 * @return ORM_Schema
@@ -417,7 +417,7 @@ class ORM extends Model {
 	final public function database_schema() {
 		return $this->class->database_schema($this);
 	}
-
+	
 	/**
 	 *
 	 * @return ORM_Schema
@@ -425,7 +425,7 @@ class ORM extends Model {
 	function schema() {
 		return $this->class->schema($this);
 	}
-
+	
 	/**
 	 * Are the fields in this object determined dynamically?
 	 *
@@ -434,7 +434,7 @@ class ORM extends Model {
 	public function dynamic_columns() {
 		return $this->class->dynamic_columns;
 	}
-
+	
 	/**
 	 * Call when the schema of an object has changed and needs to be refreshed
 	 */
@@ -443,7 +443,7 @@ class ORM extends Model {
 			$this->class->init_columns();
 		}
 	}
-
+	
 	/**
 	 * Cache object data
 	 */
@@ -459,14 +459,14 @@ class ORM extends Model {
 			return $this;
 		}
 	}
-
+	
 	/**
 	 * Cache object data
 	 */
 	public function cache_dirty($key = null) {
 		$this->call_hook('cache_dirty', $key);
 	}
-
+	
 	/**
 	 * Cache output start, returns "false" if cache hit so do not generate output, e.g.
 	 *
@@ -491,7 +491,7 @@ class ORM extends Model {
 		$this->cache_stack[] = $key;
 		return true;
 	}
-
+	
 	/**
 	 * End caching, save output to cache
 	 *
@@ -506,7 +506,7 @@ class ORM extends Model {
 		$key = array_pop($this->cache_stack);
 		return $this->cache($key, $content);
 	}
-
+	
 	/**
 	 *
 	 * @return Database
@@ -522,7 +522,7 @@ class ORM extends Model {
 		}
 		return $this->database = $this->application->database_registry($this->database_name);
 	}
-
+	
 	/**
 	 *
 	 * @return Database_SQL
@@ -530,7 +530,7 @@ class ORM extends Model {
 	function sql() {
 		return $this->database()->sql();
 	}
-
+	
 	/**
 	 * Determine if a class table exists
 	 *
@@ -547,7 +547,7 @@ class ORM extends Model {
 	public function table_exists() {
 		return $this->database()->table_exists($this->table());
 	}
-
+	
 	/**
 	 * Default implementation of the object name
 	 */
@@ -558,7 +558,7 @@ class ORM extends Model {
 		}
 		return $this->__get($name_col);
 	}
-
+	
 	/**
 	 * Retrieve the name column for this object (if any)
 	 *
@@ -567,7 +567,7 @@ class ORM extends Model {
 	public final function name_column() {
 		return $this->class->name_column;
 	}
-
+	
 	/**
 	 * Retrieves the single find key for an object, if available.
 	 * (Multi-key finds always return null)
@@ -581,7 +581,7 @@ class ORM extends Model {
 		}
 		return false;
 	}
-
+	
 	/**
 	 * Retrieve list of member names used to find an object in the database
 	 *
@@ -590,7 +590,7 @@ class ORM extends Model {
 	public final function find_keys() {
 		return $this->class->find_keys;
 	}
-
+	
 	/**
 	 * Retrieve list of member names used to find a duplicate object in the database
 	 *
@@ -599,7 +599,7 @@ class ORM extends Model {
 	public final function duplicate_keys() {
 		return $this->class->duplicate_keys;
 	}
-
+	
 	/**
 	 * Returns valid member names for this database table
 	 *
@@ -610,7 +610,7 @@ class ORM extends Model {
 	function member_names() {
 		return $this->class->member_names();
 	}
-
+	
 	/**
 	 * Return just database columns for this object
 	 *
@@ -619,7 +619,7 @@ class ORM extends Model {
 	function columns() {
 		return array_keys($this->class->column_types);
 	}
-
+	
 	/**
 	 * Name of this object's class (where is this used?)
 	 *
@@ -628,7 +628,7 @@ class ORM extends Model {
 	function class_name() {
 		return $this->class->name;
 	}
-
+	
 	/**
 	 * If there's an ID column, return the name of the column
 	 *
@@ -637,7 +637,7 @@ class ORM extends Model {
 	function id_column() {
 		return $this->class->id_column;
 	}
-
+	
 	/**
 	 * Does this object have all primary keys set to a value?
 	 *
@@ -656,7 +656,7 @@ class ORM extends Model {
 		}
 		return true;
 	}
-
+	
 	/**
 	 * List of primary keys for this object
 	 *
@@ -665,7 +665,7 @@ class ORM extends Model {
 	function primary_keys() {
 		return $this->class->primary_keys;
 	}
-
+	
 	/**
 	 * Class code name
 	 *
@@ -674,7 +674,7 @@ class ORM extends Model {
 	function class_code_name() {
 		return $this->class->code_name;
 	}
-
+	
 	/**
 	 * Always use UTC timestamps when setting dates for this object
 	 *
@@ -683,7 +683,7 @@ class ORM extends Model {
 	function utc_timestamps() {
 		return $this->class->utc_timestamps;
 	}
-
+	
 	/**
 	 * Select the current database if needed
 	 */
@@ -694,7 +694,7 @@ class ORM extends Model {
 		}
 		return $db->select_database();
 	}
-
+	
 	/**
 	 * Ensure this object is loaded from database if needed
 	 */
@@ -704,7 +704,7 @@ class ORM extends Model {
 		}
 		$this->need_load = false;
 	}
-
+	
 	/**
 	 * ORM initialization; when creating an object this should be called using two methods: An
 	 * integer ID for this object, or an array of populated values, or from the database itself
@@ -748,7 +748,7 @@ class ORM extends Model {
 		}
 		return $this;
 	}
-
+	
 	/**
 	 * Is this a new object, or not?
 	 *
@@ -778,13 +778,13 @@ class ORM extends Model {
 				'tables' => $this->table(),
 				'where' => $where
 			));
-
+			
 			$this->is_new_cached = !to_bool($this->database()->query_integer($sql, "X"));
 			return $this->is_new_cached;
 		}
 		return true; // Always new
 	}
-
+	
 	/**
 	 * Empty out this object's members and set to defaults
 	 *
@@ -795,7 +795,7 @@ class ORM extends Model {
 		$this->store_queue = array();
 		return $this;
 	}
-
+	
 	/**
 	 * Ouptut the display name for this object.
 	 *
@@ -808,7 +808,7 @@ class ORM extends Model {
 		}
 		return $this->member($name_column);
 	}
-
+	
 	/**
 	 * Get/set the ID for this object
 	 *
@@ -857,7 +857,7 @@ class ORM extends Model {
 		if ($set === null) {
 			return $this->members($pk);
 		}
-
+		
 		/**
 		 * Passing a string or list of values to load
 		 */
@@ -897,14 +897,14 @@ class ORM extends Model {
 			$this->set($set);
 			return $this;
 		}
-
+		
 		throw new Exception_Semantics("{class}::id(\"{value}\" {type}) unknown parameter: ", array(
 			"class" => get_class($this),
 			"value" => _dump($set),
 			"type" => type($set)
 		));
 	}
-
+	
 	/**
 	 * Returns name of the database used by this object
 	 *
@@ -914,7 +914,7 @@ class ORM extends Model {
 	function database_name() {
 		return $this->database_name;
 	}
-
+	
 	/**
 	 * Retrieve a query for the current object
 	 *
@@ -929,7 +929,7 @@ class ORM extends Model {
 		}
 		return $query->from($this->table(), $alias)->what(null, $db->sql()->column_alias("*", $alias));
 	}
-
+	
 	/**
 	 * Create an insert query for this object
 	 *
@@ -940,7 +940,7 @@ class ORM extends Model {
 		$query->orm_class(get_class($this));
 		return $query->into($this->table())->valid_columns($this->columns());
 	}
-
+	
 	/**
 	 * Create an insert -> select query for this object
 	 *
@@ -952,7 +952,7 @@ class ORM extends Model {
 		$query->from($this->table(), $alias);
 		return $query->into($this->table());
 	}
-
+	
 	/**
 	 * Create an update query for this object
 	 *
@@ -962,7 +962,7 @@ class ORM extends Model {
 		$query = new Database_Query_Update($this->database());
 		return $query->orm_class(get_class($this))->table($this->table(), $alias)->valid_columns($this->columns(), $alias);
 	}
-
+	
 	/**
 	 * Create an delete query for this object
 	 *
@@ -974,7 +974,7 @@ class ORM extends Model {
 		$query->orm_class(get_class($this));
 		return $query;
 	}
-
+	
 	/**
 	 * Retrieve an iterator for the current object
 	 *
@@ -989,7 +989,7 @@ class ORM extends Model {
 		$iterator = $this->application->factory($class, get_class($this), $query, $this->inherit_options() + $options);
 		return $iterator;
 	}
-
+	
 	/**
 	 * Iterate on an object's member
 	 *
@@ -1023,7 +1023,7 @@ class ORM extends Model {
 		}
 		return $iterator;
 	}
-
+	
 	/**
 	 * Create a query for an object's member.
 	 * The alias for the target table is the name of the member.
@@ -1039,7 +1039,7 @@ class ORM extends Model {
 	public function member_query($member, &$object = null) {
 		return $this->class->member_query($this, $member, $object);
 	}
-
+	
 	/**
 	 * Create a query for an object's member
 	 *
@@ -1053,7 +1053,7 @@ class ORM extends Model {
 	public function member_query_update($member, &$object = null) {
 		return $this->class->member_query_update($this, $member, $object);
 	}
-
+	
 	/**
 	 *
 	 * @param unknown $member
@@ -1121,7 +1121,7 @@ class ORM extends Model {
 		// return $this->options_exclude("class_object");
 		return array();
 	}
-
+	
 	/**
 	 * Retrieve the original value of an object's member prior to modifying in memory and before
 	 * storing
@@ -1140,7 +1140,7 @@ class ORM extends Model {
 		$this->members = $save;
 		return $result;
 	}
-
+	
 	/**
 	 * Whenever an object attached to this object is requested, this method is called.
 	 *
@@ -1160,7 +1160,7 @@ class ORM extends Model {
 	protected function member_orm_factory($member, $class, $data, $options = false) {
 		return $this->orm_factory($class, $data, $options)->fetch();
 	}
-
+	
 	/**
 	 * Retrieve a member which is another ORM
 	 *
@@ -1215,7 +1215,7 @@ class ORM extends Model {
 		}
 		return null;
 	}
-
+	
 	/**
 	 * Does this object have a member value?
 	 *
@@ -1228,7 +1228,7 @@ class ORM extends Model {
 		// Prevents ->defaults() from nulling the value if it's in there
 		return $this->has_member($member) || array_key_exists($member, $this->members) || isset($this->class->has_many[$member]);
 	}
-
+	
 	/**
 	 *
 	 * {@inheritdoc}
@@ -1259,7 +1259,7 @@ class ORM extends Model {
 		}
 		return $this->member($member);
 	}
-
+	
 	/**
 	 *
 	 * {@inheritdoc}
@@ -1274,7 +1274,7 @@ class ORM extends Model {
 		}
 		$this->set_member($member, null);
 	}
-
+	
 	/**
 	 *
 	 * @param unknown $value
@@ -1298,7 +1298,7 @@ class ORM extends Model {
 		}
 		return false;
 	}
-
+	
 	/**
 	 *
 	 * {@inheritdoc}
@@ -1311,7 +1311,7 @@ class ORM extends Model {
 		}
 		return isset($this->members[$member]);
 	}
-
+	
 	/**
 	 *
 	 * {@inheritdoc}
@@ -1377,7 +1377,7 @@ class ORM extends Model {
 		$this->set_member($member, $value);
 		$this->_inited = true;
 	}
-
+	
 	/**
 	 *
 	 * @param unknown $member
@@ -1388,7 +1388,7 @@ class ORM extends Model {
 		}
 		return null;
 	}
-
+	
 	/**
 	 *
 	 * @param unknown $member
@@ -1400,7 +1400,7 @@ class ORM extends Model {
 		}
 		return false;
 	}
-
+	
 	/**
 	 * Retrieve a member as a boolean value
 	 *
@@ -1414,7 +1414,7 @@ class ORM extends Model {
 		$this->refresh();
 		return to_bool(avalue($this->members, $member), $def);
 	}
-
+	
 	/**
 	 * Retrieve a member as a timestamp value
 	 *
@@ -1432,7 +1432,7 @@ class ORM extends Model {
 		}
 		return Timestamp::factory($value);
 	}
-
+	
 	/**
 	 * Retrieve a member as an integer
 	 *
@@ -1453,7 +1453,7 @@ class ORM extends Model {
 		}
 		return $def;
 	}
-
+	
 	/**
 	 * Retrieve a member of this object
 	 *
@@ -1467,7 +1467,7 @@ class ORM extends Model {
 		$this->refresh();
 		return avalue($this->members, $member, $def);
 	}
-
+	
 	/**
 	 * Getter/setter for serialized array attached to an object
 	 *
@@ -1495,7 +1495,7 @@ class ORM extends Model {
 		}
 		return $this->member($member);
 	}
-
+	
 	/**
 	 * Have any of the members given changed in this object?
 	 *
@@ -1517,7 +1517,7 @@ class ORM extends Model {
 		}
 		return false;
 	}
-
+	
 	/**
 	 * Did anything change in this object? If no parameters are passed, determines if any
 	 * database member has changed.
@@ -1531,7 +1531,7 @@ class ORM extends Model {
 	function changed($members = null) {
 		return $this->members_changed($members === null ? $this->columns() : $members);
 	}
-
+	
 	/**
 	 * Retrieve the changes to this object as an array of member => array("old value", "new value")
 	 *
@@ -1564,7 +1564,7 @@ class ORM extends Model {
 		$temp_data = ArrayTools::filter($this->members, $mixed);
 		return $temp_data;
 	}
-
+	
 	/**
 	 * Returns true if the member is empty
 	 * For multiple members, returns true if ANY member is empty
@@ -1585,7 +1585,7 @@ class ORM extends Model {
 		$d = $this->member($member, null);
 		return empty($d);
 	}
-
+	
 	/**
 	 * Complex setter
 	 *
@@ -1633,7 +1633,7 @@ class ORM extends Model {
 		$this->__set($member, $data);
 		return $this;
 	}
-
+	
 	/**
 	 * Set a member to a value
 	 *
@@ -1665,7 +1665,7 @@ class ORM extends Model {
 			unset($this->members[$m]);
 		}
 	}
-
+	
 	/**
 	 * Change the status of the store column structure
 	 *
@@ -1730,7 +1730,7 @@ class ORM extends Model {
 		}
 		return $this;
 	}
-
+	
 	/**
 	 * Does this object member have a corresponding column in the database?
 	 *
@@ -1761,7 +1761,7 @@ class ORM extends Model {
 		}
 		return $patterns;
 	}
-
+	
 	/**
 	 * Rename a copy
 	 *
@@ -1838,7 +1838,7 @@ class ORM extends Model {
 		$generator = $this->sql();
 		return $this->utc_timestamps() ? $generator->now_utc() : $generator->now();
 	}
-
+	
 	/*
 	 * Insert SQL
 	 */
@@ -1846,7 +1846,7 @@ class ORM extends Model {
 		$member = $this->pre_insert();
 		return $this->database()->insert($this->table(), $member);
 	}
-
+	
 	/**
 	 * Prepare the internal data structure for output to the database
 	 *
@@ -2009,7 +2009,7 @@ class ORM extends Model {
 		if (!$duplicate_keys) {
 			return false;
 		}
-
+		
 		$members = $this->members($duplicate_keys);
 		$query = $this->query_select("X")->where($members)->what("*n", "COUNT(*)");
 		if (!$this->is_new()) {
@@ -2065,7 +2065,7 @@ class ORM extends Model {
 		}
 		return $this;
 	}
-
+	
 	/**
 	 * Is this deleted?
 	 *
@@ -2081,7 +2081,7 @@ class ORM extends Model {
 		}
 		return to_bool($data[$this->column_deleted]);
 	}
-
+	
 	/**
 	 * Is this object polymorphic (multiple classes handling a single table)
 	 *
@@ -2096,7 +2096,7 @@ class ORM extends Model {
 		$this->polymorphic_leaf = $set;
 		return $this;
 	}
-
+	
 	/**
 	 * Convert to true form.
 	 * Override in subclasses to get custom polymorphic behavior.
@@ -2177,7 +2177,7 @@ class ORM extends Model {
 	function store_errors() {
 		return $this->option_array("store_error", array());
 	}
-
+	
 	/**
 	 * Retrieve the error string for the error when a duplicate is found in the database when
 	 * storing
@@ -2203,7 +2203,7 @@ class ORM extends Model {
 		}
 		$this->store_queue = array();
 	}
-
+	
 	/**
 	 *
 	 * @see Model::store()
@@ -2215,7 +2215,7 @@ class ORM extends Model {
 		if ($this->storing) {
 			return $this;
 		}
-
+		
 		try {
 			$this->storing = true;
 			/*
@@ -2255,7 +2255,7 @@ class ORM extends Model {
 			throw $e;
 		}
 	}
-
+	
 	/**
 	 * Store any objects which are members, first
 	 */
@@ -2290,7 +2290,7 @@ class ORM extends Model {
 			}
 		}
 	}
-
+	
 	/**
 	 * Register an object based on its "find_keys"
 	 * Register means "create it if it doesn't exist, find it if it does"
@@ -2330,7 +2330,7 @@ class ORM extends Model {
 		}
 		return $result->object_status(self::object_status_exists);
 	}
-
+	
 	/**
 	 * Set/get result of object operation
 	 *
@@ -2344,7 +2344,7 @@ class ORM extends Model {
 		}
 		return $this->status;
 	}
-
+	
 	/**
 	 *
 	 * @return boolean
@@ -2365,7 +2365,7 @@ class ORM extends Model {
 		);
 		// TODO: Support dates
 	}
-
+	
 	/**
 	 * Delete rows for this object where
 	 *
@@ -2402,7 +2402,7 @@ class ORM extends Model {
 			->execute()
 			->affected_rows();
 	}
-
+	
 	/**
 	 * For each of the "has_one" - if the target object does not exist, then delete this object, too
 	 *
@@ -2418,7 +2418,7 @@ class ORM extends Model {
 		}
 		return $result;
 	}
-
+	
 	/**
 	 * Convert to string
 	 */
@@ -2433,7 +2433,7 @@ class ORM extends Model {
 		}
 		return PHP::dump($id);
 	}
-
+	
 	/**
 	 * Delete an object from the database
 	 */
@@ -2443,7 +2443,7 @@ class ORM extends Model {
 		}
 		// 		$cache = $this->object_cache();
 		// 		$cache->delete();
-
+		
 		if ($this->option_bool("disable_database")) {
 			return false;
 		}
@@ -2460,7 +2460,7 @@ class ORM extends Model {
 		$this->call_hook('delete');
 		return true;
 	}
-
+	
 	/**
 	 * Given a class $class, determine the default path to another class
 	 *
@@ -2470,7 +2470,7 @@ class ORM extends Model {
 	public function link_default_path_to($class) {
 		return $this->class->link_default_path_to($class);
 	}
-
+	
 	/**
 	 * Walk path to $class while updating the query
 	 *
@@ -2486,7 +2486,7 @@ class ORM extends Model {
 	public function link_walk(Database_Query_Select $query, $mixed = null) {
 		return $this->class->link_walk($this, $query, $mixed);
 	}
-
+	
 	/**
 	 * Convert an object into a notation transportable via JSON
 	 *
@@ -2527,7 +2527,7 @@ class ORM extends Model {
 		} else {
 			$members = array();
 			$options['depth'] = $depth - 1;
-
+			
 			/* Handle "resolve_objects" list and "allow_resolve_objects" checks */
 			$resolve_object_match = array();
 			if (is_array($resolve_objects)) {
@@ -2546,7 +2546,7 @@ class ORM extends Model {
 					}
 				}
 			}
-
+			
 			/* Copy things to JSON */
 			foreach ($this->members($include_members) as $member => $value) {
 				if (array_key_exists($member, $skip_members)) {
@@ -2579,7 +2579,7 @@ class ORM extends Model {
 			$result
 		), $result);
 	}
-
+	
 	/**
 	 * Load object
 	 *
@@ -2597,7 +2597,7 @@ class ORM extends Model {
 		}
 		return $this;
 	}
-
+	
 	/**
 	 * Hook to return a message when a control cancels editing
 	 *
@@ -2610,7 +2610,7 @@ class ORM extends Model {
 		$cancelNewMessage = $control->option("cancel_new_message", $locale->__("{class_name-context-subject-singular} was not created."));
 		return $this->is_new() ? $cancelNewMessage : $cancelMessage;
 	}
-
+	
 	/**
 	 * Hook to return message
 	 *
@@ -2627,7 +2627,7 @@ class ORM extends Model {
 		}
 		return $store_message;
 	}
-
+	
 	/**
 	 * Hook to return message related to store errors
 	 *
@@ -2641,7 +2641,7 @@ class ORM extends Model {
 		$message = $this->option("store_error", $message);
 		return $message;
 	}
-
+	
 	/**
 	 * Utility function for retrieving permissions.
 	 *
@@ -2705,7 +2705,7 @@ class ORM extends Model {
 			)
 		);
 	}
-
+	
 	/**
 	 *
 	 * @see Debug::_dump
@@ -2718,7 +2718,7 @@ class ORM extends Model {
 		$rows['members'] = $this->members;
 		return get_class($this) . " {\n" . Text::indent(Text::format_pairs($rows)) . "\n}\n";
 	}
-
+	
 	/**
 	 * Was deprecated 2012 - why? Where will this go?
 	 *
@@ -2739,17 +2739,17 @@ class ORM extends Model {
 		$spec['class_name-context-title'] = StringTools::capitalize($spec['class_name-context-object']);
 		$spec["class_name-context-subject-indefinite-article"] = $locale->indefinite_article($name, true);
 		$spec['class_name-plural'] = $locale->plural($name);
-
+		
 		$name = $this->display_name();
 		$spec['display_name'] = $name;
-
+		
 		if ($string === null) {
 			return $spec;
 		}
 		$result = $this->apply_map(map($string, $spec));
 		return $result;
 	}
-
+	
 	/**
 	 * How to retrieve this object when passed as an argument to a router
 	 *
@@ -2760,7 +2760,7 @@ class ORM extends Model {
 	protected function hook_router_argument(Route $route, $arg) {
 		return $this->id($arg)->fetch();
 	}
-
+	
 	/**
 	 * Name/value pairs used to generate the schema for this object
 	 *
@@ -2771,7 +2771,7 @@ class ORM extends Model {
 			'table' => $this->table()
 		);
 	}
-
+	
 	/*==================================================================================================================================*/
 	/*==================================================================================================================================*/
 	/*==================================================================================================================================*/
@@ -2795,7 +2795,7 @@ class ORM extends Model {
 		$this->application->deprecated();
 		return $this->orm_factory($class, $mixed, $options);
 	}
-
+	
 	/**
 	 * Retrieve the Class_ORM associated with this object.
 	 * Often matches "Class_" . get_class($this), but not always.

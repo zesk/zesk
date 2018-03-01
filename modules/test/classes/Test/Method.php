@@ -5,13 +5,13 @@ use zesk\Options;
 use zesk\Exception_Semantics;
 
 class Method extends Options {
-
+	
 	/**
 	 *
 	 * @var \zesk\Test
 	 */
 	public $test = null;
-
+	
 	/**
 	 *
 	 * @var string[]
@@ -22,7 +22,7 @@ class Method extends Options {
 	 * @var string
 	 */
 	private $name = "";
-
+	
 	/**
 	 *
 	 * @var string
@@ -88,7 +88,7 @@ class Method extends Options {
 		}
 		return true;
 	}
-
+	
 	/**
 	 *
 	 * @return array
@@ -118,7 +118,7 @@ class Method extends Options {
 		}
 		return true;
 	}
-
+	
 	/**
 	 *
 	 * @return string[string]
@@ -152,7 +152,7 @@ class Method extends Options {
 			$this->run_test_method_single(array());
 		}
 	}
-
+	
 	/**
 	 *
 	 * @param unknown $test
@@ -162,7 +162,7 @@ class Method extends Options {
 	private function run_test_method_single(array $arguments) {
 		$this->test->_run_test_method($this, $arguments);
 	}
-
+	
 	/**
 	 *
 	 * @param unknown $data_provider

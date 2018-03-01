@@ -17,14 +17,14 @@ class Image_Library_GD extends Image_Library {
 		'jpg' => 'jpeg',
 		'jpg' => 'jpeg'
 	);
-
+	
 	/**
 	 * Background color allocated upon image create
 	 *
 	 * @var resource
 	 */
 	private $bg_color = null;
-
+	
 	/**
 	 *
 	 * @return boolean
@@ -32,13 +32,13 @@ class Image_Library_GD extends Image_Library {
 	public static function installed() {
 		return function_exists("imagecreate");
 	}
-
+	
 	/*
 	 * TODO Remove this 2016-09
 	 *
 	 private function _image_transparency_setup($src, $dst) {
 	 imagealphablending($dst, false);
-
+	 
 	 // get and reallocate transparency-color
 	 $transparent_index = imagecolortransparent($src);
 	 if ($transparent_index >= 0) {
@@ -50,7 +50,7 @@ class Image_Library_GD extends Image_Library {
 	 }
 	 private function _image_transparency_finish($src, $dst, $state) {
 	 imagealphablending($dst, false);
-
+	 
 	 // get and reallocate transparency-color
 	 $transparent_index = imagecolortransparent($src);
 	 if ($transparent_index >= 0) {
@@ -61,7 +61,7 @@ class Image_Library_GD extends Image_Library {
 	 return $transparent_index;
 	 }
 	 */
-
+	
 	/**
 	 *
 	 * @param resource $src
@@ -72,7 +72,7 @@ class Image_Library_GD extends Image_Library {
 	private function _image_scale_resource($src, $dest, array $options) {
 		$actual_width = imagesx($src);
 		$actual_height = imagesy($src);
-
+		
 		// Extract settings
 		unset($options['src']);
 		unset($options['dest']);
@@ -83,12 +83,12 @@ class Image_Library_GD extends Image_Library {
 		$crop = false;
 		$skew = false;
 		extract($options, EXTR_IF_EXISTS);
-
+		
 		// Yeah, right. Avoid divide by zero below as well.
 		if (($actual_width === $width && $actual_height === $height) || $actual_width === 0 || $actual_height === 0) {
 			return $this->_imageoutput($src, $dest);
 		}
-
+		
 		// Basic save values, compute aspect ratio
 		$original_width = $width;
 		$original_height = $height;
@@ -100,7 +100,7 @@ class Image_Library_GD extends Image_Library {
 		$src_height = $actual_height;
 		$dst_width = $width;
 		$dst_height = $height;
-
+		
 		// If we're skewing, don't adjust width/height
 		if (!$skew) {
 			// Maintain aspect ratio
@@ -143,9 +143,9 @@ class Image_Library_GD extends Image_Library {
 				}
 			}
 		}
-
+		
 		$dst = self::_imagecreate($width, $height);
-
+		
 		$high_quals = true;
 		if (function_exists('imageantialias')) {
 			imageantialias($src, $high_quals);
@@ -160,7 +160,7 @@ class Image_Library_GD extends Image_Library {
 		}
 		return $this->_imageoutput($dst, $dest);
 	}
-
+	
 	/**
 	 * @todo Fix error
 	 *
@@ -175,7 +175,7 @@ class Image_Library_GD extends Image_Library {
 		$src = imagecreatefromstring($data);
 		return $this->_image_scale_resource($src, null, $options);
 	}
-
+	
 	/**
 	 *
 	 * {@inheritDoc}
@@ -185,7 +185,7 @@ class Image_Library_GD extends Image_Library {
 		$src = self::_imageload($source);
 		return $this->_image_scale_resource($src, $dest, $options);
 	}
-
+	
 	/**
 	 * Load an image from a source file on disk
 	 *
@@ -195,7 +195,7 @@ class Image_Library_GD extends Image_Library {
 	private function _imageload($source) {
 		return imagecreatefromstring(file_get_contents($source));
 	}
-
+	
 	/**
 	 * Create an image in memory
 	 * @param integer $width
@@ -211,7 +211,7 @@ class Image_Library_GD extends Image_Library {
 		imagefill($res, 0, 0, $bg_color);
 		return $res;
 	}
-
+	
 	/**
 	 * Output image
 	 *
@@ -242,7 +242,7 @@ class Image_Library_GD extends Image_Library {
 		}
 		return $dest ? $result : $data;
 	}
-
+	
 	/**
 	 * Parse color value
 	 *

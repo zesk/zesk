@@ -87,7 +87,7 @@ class Contact extends ORM {
 		// TODO: Clean Contact_Email table
 		return null;
 	}
-
+	
 	/**
 	 * Returns an array of contacts
 	 *
@@ -104,7 +104,7 @@ class Contact extends ORM {
 	// 			->where("UCT.User", $user_id)
 	// 			->where("Tag.ID", $tag);
 	// 	}
-
+	
 	/**
 	 * Create a contact with just an email
 	 *
@@ -122,17 +122,17 @@ class Contact extends ORM {
 		if (!$contact->store()) {
 			return null;
 		}
-
+		
 		$contact_email = new Contact_Email();
 		$contact_email->contact = $contact;
 		$contact_email->label = Contact_Label::find_global(Contact_Label::LabelType_Email, 'Home');
 		$contact_email->value = $email;
-
+		
 		if (!$contact_email->store()) {
 			$contact->delete();
 			return null;
 		}
-
+		
 		$contact_person = new Contact_Person();
 		$contact_person->contact = $contact;
 		$contact_person->nickname = StringTools::left($email, '@');
@@ -141,7 +141,7 @@ class Contact extends ORM {
 			$contact->delete();
 			return null;
 		}
-
+		
 		return $contact_email;
 	}
 	public function is_verified() {

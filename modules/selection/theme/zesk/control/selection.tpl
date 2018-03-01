@@ -66,7 +66,7 @@ $__ = array(
 		'role' => 'presentation',
 		'class' => 'dropdown-header'
 	), $locale('Control_Selection::selection_menu_header:=Modify selection ...', $__));
-
+	
 	$plural_noun = $locale->plural($this->label, 2);
 	foreach (array(
 		'none' => $locale('Control_Selection::clear_selection:=Clear selection', $__),

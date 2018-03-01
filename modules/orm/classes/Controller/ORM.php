@@ -14,20 +14,20 @@ namespace zesk;
  *
  */
 abstract class Controller_ORM extends Controller_Authenticated {
-
+	
 	/**
 	 *
 	 * @var boolean
 	 */
 	protected $is_ajax = null;
-
+	
 	/**
 	 * ORM class to control
 	 *
 	 * @var string
 	 */
 	protected $class = null;
-
+	
 	/**
 	 * Locale-specific object class name (e.g. "Link", "Page", etc.)
 	 *
@@ -37,41 +37,41 @@ abstract class Controller_ORM extends Controller_Authenticated {
 	 * @var string
 	 */
 	protected $class_name = null;
-
+	
 	/**
 	 * Locale of the class_name for translation
 	 *
 	 * @var string
 	 */
 	protected $class_name_locale = null;
-
+	
 	/**
 	 * URL to redirect to if Control_${this->class}_List
 	 *
 	 * @var string
 	 */
 	protected $not_found_url = null;
-
+	
 	/**
 	 * Message to pass to failed page
 	 *
 	 * @var string
 	 */
 	protected $not_found_message = "Page not found";
-
+	
 	/**
 	 *
 	 * @var string
 	 */
 	protected $not_found_content = "Page not found";
-
+	
 	/**
 	 * Action default (override in subclasses)
 	 *
 	 * @var string
 	 */
 	protected $action_default = '';
-
+	
 	/**
 	 *
 	 * @var array
@@ -98,41 +98,41 @@ abstract class Controller_ORM extends Controller_Authenticated {
 		)
 	);
 	protected $control_options = array();
-
+	
 	/**
 	 * Action which was found from ->actions above
 	 *
 	 * @var string
 	 */
 	protected $actual_action = null;
-
+	
 	/**
 	 * Permissions which are required for this object to continue
 	 *
 	 * @var string
 	 */
 	protected $permission_actions = null;
-
+	
 	/**
 	 * List of widgets tried when loading controller widget
 	 *
 	 * @var array of string
 	 */
 	protected $tried_widgets = array();
-
+	
 	/**
 	 *
 	 * @var Widget
 	 */
 	protected $widget = null;
-
+	
 	/**
 	 * Action related to above widget
 	 *
 	 * @var string
 	 */
 	protected $widget_action = null;
-
+	
 	/**
 	 *
 	 * @return multitype:
@@ -140,7 +140,7 @@ abstract class Controller_ORM extends Controller_Authenticated {
 	function hook_actions() {
 		return array_keys($this->actions);
 	}
-
+	
 	/**
 	 * Classes that are handled by this controller
 	 *
@@ -151,7 +151,7 @@ abstract class Controller_ORM extends Controller_Authenticated {
 			$this->class
 		);
 	}
-
+	
 	/**
 	 * Initialize a Controller_ORM
 	 *
@@ -179,7 +179,7 @@ abstract class Controller_ORM extends Controller_Authenticated {
 			$this->class_name = __($this->class_name, $this->class_name_locale);
 		}
 	}
-
+	
 	/**
 	 *
 	 * @param unknown $action
@@ -196,7 +196,7 @@ abstract class Controller_ORM extends Controller_Authenticated {
 		}
 		return $args;
 	}
-
+	
 	/**
 	 *
 	 * @param ORM $object
@@ -217,7 +217,7 @@ abstract class Controller_ORM extends Controller_Authenticated {
 		}
 		return $url;
 	}
-
+	
 	/**
 	 *
 	 * @param unknown $redirect_url
@@ -236,7 +236,7 @@ abstract class Controller_ORM extends Controller_Authenticated {
 		}
 		$this->response->redirect_default($redirect_url, $message);
 	}
-
+	
 	/**
 	 *
 	 * @param unknown $parameter
@@ -252,7 +252,7 @@ abstract class Controller_ORM extends Controller_Authenticated {
 			$this->controller_orm_factory($parameter)
 		);
 	}
-
+	
 	/**
 	 *
 	 * @param unknown $parameter
@@ -273,7 +273,7 @@ abstract class Controller_ORM extends Controller_Authenticated {
 	function arguments_duplicate($parameter) {
 		return $this->_arguments_load($parameter);
 	}
-
+	
 	/**
 	 *
 	 * @param ORM $object
@@ -311,7 +311,7 @@ abstract class Controller_ORM extends Controller_Authenticated {
 		}
 		$this->response->redirect_default($redirect_url, $message);
 	}
-
+	
 	/**
 	 *
 	 * @param ORM $object
@@ -340,7 +340,7 @@ abstract class Controller_ORM extends Controller_Authenticated {
 			"object" => $new_object->json(array())
 		));
 	}
-
+	
 	/**
 	 *
 	 * {@inheritDoc}
@@ -352,7 +352,7 @@ abstract class Controller_ORM extends Controller_Authenticated {
 		}
 		parent::before();
 	}
-
+	
 	/**
 	 *
 	 * {@inheritDoc}
@@ -373,7 +373,7 @@ abstract class Controller_ORM extends Controller_Authenticated {
 					'content' => $content,
 					'microtime' => microtime(true)
 				) + $this->response->to_json();
-
+				
 				$this->response->json($json);
 			}
 			$this->auto_render(false);
@@ -382,7 +382,7 @@ abstract class Controller_ORM extends Controller_Authenticated {
 		}
 		parent::after($result, $output);
 	}
-
+	
 	/**
 	 *
 	 * @param string $action
@@ -401,7 +401,7 @@ abstract class Controller_ORM extends Controller_Authenticated {
 		}
 		return $controls;
 	}
-
+	
 	/**
 	 *
 	 * @param unknown $action
@@ -427,7 +427,7 @@ abstract class Controller_ORM extends Controller_Authenticated {
 		}
 		return null;
 	}
-
+	
 	/**
 	 * Override in subclasses to get unique factory behavior (say, dependent on other objects in the route)
 	 *
@@ -438,7 +438,7 @@ abstract class Controller_ORM extends Controller_Authenticated {
 	protected function controller_orm_factory($mixed = null, $options = null) {
 		return $this->application->orm_factory($this->class, $mixed, to_array($options))->fetch();
 	}
-
+	
 	/**
 	 * Fetch an ORM from an user input ID
 	 *
@@ -472,7 +472,7 @@ abstract class Controller_ORM extends Controller_Authenticated {
 			));
 		}
 	}
-
+	
 	/**
 	 *
 	 * {@inheritDoc}
@@ -549,7 +549,7 @@ abstract class Controller_ORM extends Controller_Authenticated {
 				$object = null;
 			}
 			$action_prefix = __(ucfirst($action)) . " ";
-
+			
 			$title = $widget->option('title', $this->option('title', $this->route->option('title')));
 			if ($title) {
 				$title = map($title, array(

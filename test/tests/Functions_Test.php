@@ -12,7 +12,7 @@ namespace zesk;
 class Functions_Test extends Test_Unit {
 	function test_path() {
 		path();
-
+		
 		$this->assert(path("a", "b") === "a/b", path("a", "b") . " !== 'a/b'");
 		$this->assert(path("a/", "b") === "a/b", path("a/", "b") . " !== 'a/b'");
 		$this->assert(path("a", "/b") === "a/b", path("a", "/b") . " !== 'a/b'");
@@ -25,7 +25,7 @@ class Functions_Test extends Test_Unit {
 			"/././"
 		), "/b/");
 		$this->assert($result === "/a/b/", $result . " !== '/a/b/'");
-
+		
 		$result = path("/publish/nfs/monitor-services", array(
 			'control',
 			'ruler-reader'
@@ -61,7 +61,7 @@ class Functions_Test extends Test_Unit {
 		$k = "";
 		$default = null;
 		avalue($a, $k, $default);
-
+		
 		$a = array(
 			"" => "empty",
 			"0" => "zero",
@@ -79,7 +79,7 @@ class Functions_Test extends Test_Unit {
 		$phrase = null;
 		$language = "en";
 		__($phrase, $language);
-
+		
 		$phrase = null;
 		$locale = null;
 		__($phrase, $locale);
@@ -105,7 +105,7 @@ class Functions_Test extends Test_Unit {
 			42.552312,
 			0
 		)), "43%");
-
+		
 		echo $app->theme('control/button', array(
 			'label' => 'OK',
 			'object' => new Model($this->application)
@@ -138,14 +138,14 @@ class Functions_Test extends Test_Unit {
 			'October 15th, 2012'
 		);
 	}
-
+	
 	/**
 	 * @data_provider good_dates
 	 */
 	function test_is_date($good_date) {
 		$this->assert(is_date($good_date));
 	}
-
+	
 	/**
 	 * @data_provider bad_dates
 	 */
@@ -199,7 +199,7 @@ class Functions_Test extends Test_Unit {
 	function test_is_phone() {
 		$phone = null;
 		is_phone($phone);
-
+		
 		$this->assert(is_phone('215-555-1212') === true);
 		$this->assert(is_phone('+011 44 23 41 23 23') === true);
 		$this->assert(is_phone('+1 215-555-1212') === true);
@@ -234,7 +234,7 @@ class Functions_Test extends Test_Unit {
 		$s = null;
 		$def = null;
 		to_integer($s, $def);
-
+		
 		$this->assert(to_integer("124512", null) === 124512);
 		$this->assert(to_integer(124512, null) === 124512);
 		$this->assert(to_integer("124512.7", null) === 124512);
@@ -251,15 +251,15 @@ class Functions_Test extends Test_Unit {
 		$s = null;
 		$def = null;
 		to_double($s, $def);
-
+		
 		$this->assert(to_double(100, null) === 100.0);
 		$this->assert(to_double(1, null) === 1.0);
 		$this->assert(to_double("10000", null) === 10000.0);
 		$this->assert(to_double("-1", null) === -1.0);
-
+		
 		$this->assert(to_double("e10000", null) === null);
 		$this->assert(to_double(array(), null) === null);
-
+		
 		echo basename(__FILE__) . ": success\n";
 	}
 	function test_to_bool() {
@@ -277,7 +277,7 @@ class Functions_Test extends Test_Unit {
 		$this->assert(to_bool("enabled", null) === true);
 		$this->assert(to_bool("trUE", null) === true);
 		$this->assert(to_bool("true", null) === true);
-
+		
 		$this->assert(to_bool(0, null) === false);
 		$this->assert(to_bool("0", null) === false);
 		$this->assert(to_bool("f", null) === false);
@@ -293,7 +293,7 @@ class Functions_Test extends Test_Unit {
 		$this->assert(to_bool("false", null) === false);
 		$this->assert(to_bool("null", null) === false);
 		$this->assert(to_bool("", null) === false);
-
+		
 		$this->assert(to_bool("01", null) === null);
 		$this->assert(to_bool(array(), null) === null);
 		$this->assert(to_bool(new \stdClass(), null) === null);
@@ -367,7 +367,7 @@ class Functions_Test extends Test_Unit {
 		}
 		$strpos_timing = $t->elapsed();
 		echo "to_bool_strpos: " . $t->elapsed() . "\n";
-
+		
 		$t = new Timer();
 		for ($i = 0; $i < 100000; $i++) {
 			self::to_bool_in_array('true');
@@ -382,7 +382,7 @@ class Functions_Test extends Test_Unit {
 		$mixed = null;
 		$default = null;
 		to_array($mixed, $default);
-
+		
 		$this->assert(to_array("foo") === array(
 			"foo"
 		));
@@ -412,7 +412,7 @@ class Functions_Test extends Test_Unit {
 		$this->assert(to_array("1") === array(
 			"1"
 		));
-
+		
 		echo basename(__FILE__) . ": success\n";
 	}
 	function test_newline() {
@@ -472,14 +472,14 @@ function MM_findObj(n, d)
 	d=parent.frames[n.substring(p+1)].document; n=n.substring(0,p);
     }
 EOF;
-
+		
 		$foo = map($test, array());
-
+		
 		$sandbox = $this->test_sandbox();
 		// file_put_contents("$sandbox/function.map.0.txt", $foo);
 		// file_put_contents("$sandbox/function.map.1.txt", $test);
 		$this->assert($foo === $test, "Mismatch $foo");
-
+		
 		$prefix = "dude";
 		$a = array(
 			"a" => "b",
@@ -498,7 +498,7 @@ EOF;
 		$x = null;
 		$max = null;
 		integer_between($min, $x, $max);
-
+		
 		$this->assert(integer_between(10, 10, 200) === true);
 		$this->assert(integer_between(10, 9, 200) === false);
 		$this->assert(integer_between(10, array(), 200) === false);

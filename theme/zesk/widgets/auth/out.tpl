@@ -23,10 +23,10 @@ $web_key = $this->get("web_key", $application->option("web_key"));
 
 if ($this->has("URL")) {
 	$u = $this->URL;
-
+	
 	$host = URL::host($u);
 	$current_host = $request->host();
-
+	
 	$attr = $this->has("Attributes") ? HTML::parse_attributes($this->Attributes) : array();
 	if ($host === $current_host) {
 		$out_u = URL::query_format($u, array(

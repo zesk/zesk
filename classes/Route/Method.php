@@ -47,7 +47,7 @@ class Route_Method extends Route {
 			));
 		}
 	}
-
+	
 	/**
 	 * Do includes if specified
 	 *
@@ -66,7 +66,7 @@ class Route_Method extends Route {
 			$require
 		);
 	}
-
+	
 	/**
 	 *
 	 * {@inheritDoc}
@@ -75,10 +75,10 @@ class Route_Method extends Route {
 	protected function _execute(Response $response) {
 		$app = $this->router->application;
 		$this->_do_includues();
-
+		
 		$method = $this->options['method'];
 		$arguments = $this->args;
-
+		
 		$construct_arguments = $this->_map_variables($this->option_array("construct arguments"));
 		$method = $this->_map_variables($method);
 		ob_start();

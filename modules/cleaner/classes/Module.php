@@ -21,14 +21,14 @@ class Module extends \zesk\Module {
 	public function initialize() {
 		parent::initialize();
 	}
-
+	
 	/**
 	 * Support old class name
 	 */
 	public function hook_configured() {
 		$this->application->configuration->deprecated("zesk\\Module_Cleaner", self::class);
 	}
-
+	
 	/**
 	 * Run every hour and clean things up
 	 */
@@ -63,7 +63,7 @@ class Module extends \zesk\Module {
 			$this->clean_path($path, $extensions, $span->seconds());
 		}
 	}
-
+	
 	/**
 	 * Remove old files in a path
 	 *
@@ -83,7 +83,7 @@ class Module extends \zesk\Module {
 		} else {
 			$list_attributes['rules_file'] = true;
 		}
-
+		
 		$files = Directory::list_recursive($path, $list_attributes);
 		$now = time();
 		$modified_after = $now - $lifetime_seconds;

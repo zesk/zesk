@@ -17,7 +17,7 @@ class Command_Help extends Command_Base {
 	protected $option_help = array(
 		'no-core' => 'Skip all Zesk core commands'
 	);
-
+	
 	/**
 	 *
 	 * @var array
@@ -38,7 +38,7 @@ class Command_Help extends Command_Base {
 		$this->save_aliases($this->aliases);
 		return 0;
 	}
-
+	
 	/**
 	 */
 	function collect_command_files() {
@@ -151,17 +151,17 @@ class Command_Help extends Command_Base {
 	}
 	function collect_help() {
 		$command_files = $this->collect_command_files();
-
+		
 		$this->load_commands($command_files);
-
+		
 		$this->aliases = array();
 		$this->categories = array();
-
+		
 		$subclasses = $this->application->classes->subclasses("zesk\Command");
 		foreach ($subclasses as $subclass) {
 			$this->process_class($subclass);
 		}
-
+		
 		ksort($this->categories);
 	}
 	function save_aliases(array $aliases) {

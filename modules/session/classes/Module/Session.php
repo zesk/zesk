@@ -20,13 +20,13 @@ class Module_Session extends Module {
 		"db" => "ORM",
 		"database" => "ORM"
 	);
-
+	
 	/**
 	 *
 	 * @var Interface_Session[string]
 	 */
 	private $instances = array();
-
+	
 	/**
 	 *
 	 * {@inheritDoc}
@@ -44,7 +44,7 @@ class Module_Session extends Module {
 		$this->application->objects->map("zesk\\Session_" . "Database", Session_ORM::class);
 		$this->application->configuration->deprecated("zesk\\Application::session_class", __CLASS__ . "::session_class");
 	}
-
+	
 	/**
 	 *
 	 * @return string
@@ -53,7 +53,7 @@ class Module_Session extends Module {
 		$get = $this->option("implementation");
 		return avalue(self::$aliases, $get, $get);
 	}
-
+	
 	/**
 	 *
 	 * @param Application $application
@@ -72,7 +72,7 @@ class Module_Session extends Module {
 		$class = $this->option("session_class", $this->application->option("session_class", $default_class));
 		return $class;
 	}
-
+	
 	/**
 	 * Returns initialized session. You should call initialize_session on result (2018-01).
 	 *

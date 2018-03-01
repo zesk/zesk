@@ -15,26 +15,26 @@ namespace zesk;
  *
  */
 class Control_Login extends Control_Edit {
-
+	
 	/**
 	 *
 	 * @var string
 	 */
 	protected $class = "User";
-
+	
 	/**
 	 *
 	 * @var boolean
 	 */
 	protected $render_children = false;
-
+	
 	/**
 	 * User being authenticated
 	 *
 	 * @var User
 	 */
 	public $user = null;
-
+	
 	/**
 	 *
 	 * @var array
@@ -47,7 +47,7 @@ class Control_Login extends Control_Edit {
 		'column' => 'login_button',
 		'class' => ''
 	);
-
+	
 	/**
 	 * Default model
 	 *
@@ -56,7 +56,7 @@ class Control_Login extends Control_Edit {
 	public function model() {
 		return new Model_Login($this->application);
 	}
-
+	
 	/**
 	 * (non-PHPdoc)
 	 *
@@ -66,26 +66,26 @@ class Control_Login extends Control_Edit {
 		$locale = $this->locale();
 		$f = $this->widget_factory(Control_Text::class)->names("login", $this->option("label_login", $locale->__("Email")))
 			->required(true);
-
+		
 		$this->child($f);
-
+		
 		if (!$this->option("no_password")) {
 			$f = $this->widget_factory(Control_Password::class)->names("login_password", $this->option("label_password", $locale->__("Password")))
 				->required(true);
 			$f->set_option("encrypted_column", "login_password_hash");
-
+			
 			$this->child($f);
 		}
-
+		
 		$f = $this->widget_factory(Control_Button::class)
 			->names('login_button', false)
 			->set_option('button_label', $locale->__("Login"))
 			->add_class('btn-primary btn-block');
 		$this->child($f);
-
+		
 		parent::initialize();
 	}
-
+	
 	/**
 	 * (non-PHPdoc)
 	 *
@@ -94,7 +94,7 @@ class Control_Login extends Control_Edit {
 	public function submitted() {
 		return $this->request->get("login_button", "") !== "";
 	}
-
+	
 	/**
 	 * (non-PHPdoc)
 	 *
@@ -104,7 +104,7 @@ class Control_Login extends Control_Edit {
 		if (!parent::validate()) {
 			return false;
 		}
-
+		
 		$object = $this->object;
 		$login = $object->login;
 		$locale = $this->locale();
@@ -153,7 +153,7 @@ class Control_Login extends Control_Edit {
 		}
 		return false;
 	}
-
+	
 	/**
 	 * (non-PHPdoc)
 	 *

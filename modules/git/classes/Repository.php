@@ -12,25 +12,25 @@ namespace zesk\Git;
  * @author kent
  */
 class Repository extends \zesk\Repository_Command {
-
+	
 	/**
 	 * @var string
 	 */
 	protected $code = "git";
-
+	
 	/**
 	 *
 	 * @var string
 	 */
 	protected $executable = "git";
-
+	
 	/**
 	 * Used in validate function
 	 *
 	 * @var string
 	 */
 	protected $dot_directory = ".git";
-
+	
 	/**
 	 * Fetch a list of repository status for a target
 	 *
@@ -41,7 +41,7 @@ class Repository extends \zesk\Repository_Command {
 	 */
 	public function status($target = null, $updates = false) {
 	}
-
+	
 	/**
 	 * Synchronizes all files beneath $target with repository.
 	 *
@@ -50,7 +50,7 @@ class Repository extends \zesk\Repository_Command {
 	 */
 	public function commit($target = null, $message = null) {
 	}
-
+	
 	/**
 	 * Update repository target at target, and get changes from remote
 	 *
@@ -58,7 +58,7 @@ class Repository extends \zesk\Repository_Command {
 	 */
 	public function update($target = null) {
 	}
-
+	
 	/**
 	 * Check a target prior to updating it
 	 *
@@ -67,7 +67,7 @@ class Repository extends \zesk\Repository_Command {
 	 */
 	public function pre_update($target = null) {
 	}
-
+	
 	/**
 	 * Undo changes to a target and reset to current branch/tag
 	 *
@@ -76,7 +76,7 @@ class Repository extends \zesk\Repository_Command {
 	 */
 	public function rollback($target = null) {
 	}
-
+	
 	/**
 	 * Run before target is updated with new data
 	 *

@@ -49,7 +49,7 @@ class Process_Tools {
 		));
 		return true;
 	}
-
+	
 	/**
 	 * Test to see if any files have changed in this process. If so - quit and restart.
 	 *
@@ -58,7 +58,7 @@ class Process_Tools {
 	static function process_code_changed(Application $application) {
 		return $application->objects->singleton(__NAMESPACE__ . "\\" . "File_Monitor_Includes")->changed();
 	}
-
+	
 	/**
 	 *
 	 * @return unknown

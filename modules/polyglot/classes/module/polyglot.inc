@@ -16,7 +16,7 @@ use zesk\Locale\Reader;
  *
  */
 class Module_PolyGlot extends Module implements Interface_Module_Routes {
-
+	
 	/**
 	 *
 	 * @var array
@@ -55,7 +55,7 @@ class Module_PolyGlot extends Module implements Interface_Module_Routes {
 		}
 		return __($results);
 	}
-
+	
 	/**
 	 *
 	 * @see Module::hook_routes
@@ -89,7 +89,7 @@ class Module_PolyGlot extends Module implements Interface_Module_Routes {
 			)
 		));
 	}
-
+	
 	/**
 	 *
 	 * @param string $locale
@@ -124,7 +124,7 @@ class Module_PolyGlot extends Module implements Interface_Module_Routes {
 		$language = Locale::parse_language($locale);
 		$dialect = Locale::parse_dialect($locale);
 		$tokens = PolyGlot_Token::fetch_all($this->application, $language, $dialect);
-
+		
 		foreach ($table as $original => $translation) {
 			if (array_key_exists($original, $tokens)) {
 				$object = $tokens[$original];

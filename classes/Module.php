@@ -21,28 +21,28 @@ class Module extends Hookable {
 	 * @var Application
 	 */
 	protected $application_class = null;
-
+	
 	/**
 	 * Module code name
 	 *
 	 * @var string
 	 */
 	protected $codename = null;
-
+	
 	/**
 	 * Path to this module
 	 *
 	 * @var string
 	 */
 	protected $path = null;
-
+	
 	/**
 	 * List of associated model classes
 	 *
 	 * @var array
 	 */
 	protected $model_classes = array();
-
+	
 	/**
 	 * Array of old_class => new_class
 	 *
@@ -51,7 +51,7 @@ class Module extends Hookable {
 	 * @var array
 	 */
 	protected $class_aliases = array();
-
+	
 	/**
 	 *
 	 * @ignore
@@ -66,7 +66,7 @@ class Module extends Hookable {
 			"class_aliases"
 		);
 	}
-
+	
 	/**
 	 * The path to the module root
 	 *
@@ -75,7 +75,7 @@ class Module extends Hookable {
 	final public function path($suffix = null) {
 		return $suffix ? path($this->path, $suffix) : $this->path;
 	}
-
+	
 	/**
 	 *
 	 * {@inheritDoc}
@@ -85,7 +85,7 @@ class Module extends Hookable {
 		parent::__wakeup();
 		$this->initialize();
 	}
-
+	
 	/**
 	 * Create Module
 	 *
@@ -119,7 +119,7 @@ class Module extends Hookable {
 	public final function register_paths($path) {
 		return $this->application->modules->register_paths($path, $this->codename);
 	}
-
+	
 	/**
 	 *
 	 * {@inheritDoc}
@@ -135,7 +135,7 @@ class Module extends Hookable {
 	 */
 	public function initialize() {
 	}
-
+	
 	/**
 	 *
 	 * @return string
@@ -151,7 +151,7 @@ class Module extends Hookable {
 	public final function codename() {
 		return $this->codename;
 	}
-
+	
 	/**
 	 * Override in subclasses - called upon Application::classes
 	 * @return string[]
@@ -159,7 +159,7 @@ class Module extends Hookable {
 	public function model_classes() {
 		return $this->model_classes;
 	}
-
+	
 	/**
 	 *
 	 * @param string $class
@@ -170,7 +170,7 @@ class Module extends Hookable {
 	final public function model_factory($class, $mixed = null, array $options = array()) {
 		return $this->application->model_factory($class, $mixed, $options);
 	}
-
+	
 	/**
 	 *
 	 * @return mixed|string|array
@@ -187,7 +187,7 @@ class Module extends Hookable {
 		$this->application->deprecated();
 		return $this->model_classes();
 	}
-
+	
 	/**
 	 * @deprecated 2017-12 Blame PHP 7.2
 	 * @param string $class

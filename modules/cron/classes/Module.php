@@ -38,7 +38,7 @@ use zesk\File;
  *
  */
 class Module extends \zesk\Module {
-
+	
 	/**
 	 * List of associated classes
 	 *
@@ -49,14 +49,14 @@ class Module extends \zesk\Module {
 		Lock::class,
 		Settings::class
 	);
-
+	
 	/**
 	 * Database lock name
 	 *
 	 * @var string
 	 */
 	protected $lock_name = __CLASS__;
-
+	
 	/**
 	 * Debugging - place to accumulate called methods so we
 	 * can audit which methods are called by cron
@@ -64,14 +64,14 @@ class Module extends \zesk\Module {
 	 * @var array
 	 */
 	private $methods = null;
-
+	
 	/**
 	 * Cached value for scopes
 	 *
 	 * @var array
 	 */
 	private $scopes = null;
-
+	
 	/**
 	 *
 	 * @var double
@@ -98,7 +98,7 @@ class Module extends \zesk\Module {
 		"month",
 		"year"
 	);
-
+	
 	/**
 	 * Set up our module
 	 *
@@ -112,7 +112,7 @@ class Module extends \zesk\Module {
 			"command_crontab"
 		));
 	}
-
+	
 	/**
 	 * command crontab help
 	 * @param string $command_name
@@ -128,7 +128,7 @@ class Module extends \zesk\Module {
 			"description" => "Install crontab for current user"
 		);
 	}
-
+	
 	/**
 	 *
 	 * @param Command_Configure $command
@@ -206,7 +206,7 @@ class Module extends \zesk\Module {
 		$this->methods[] = $method_string;
 		$this->start = microtime(true);
 	}
-
+	
 	/**
 	 * Run this after each hook.
 	 * Handles timing and warnings. Passes to default Hookable::combine_hook_results.
@@ -292,7 +292,7 @@ class Module extends \zesk\Module {
 			"content type" => "text/javascript"
 		));
 	}
-
+	
 	/**
 	 * Hook Module::configured
 	 */
@@ -335,7 +335,7 @@ class Module extends \zesk\Module {
 		$classes = to_list($this->application->configuration->path_get(__CLASS__ . '::classes', 'zesk\Application;zesk\ORM'));
 		return ArrayTools::suffix($classes, "::$method");
 	}
-
+	
 	/**
 	 * Retrieve the objects which store our state
 	 *
@@ -349,7 +349,7 @@ class Module extends \zesk\Module {
 		$server = Server::singleton($application);
 		/* @var $settings Settings */
 		$settings = Settings::singleton($application);
-
+		
 		return $this->scopes = array(
 			"cron" => array(
 				"state" => $server,
@@ -379,7 +379,7 @@ class Module extends \zesk\Module {
 			$state = $settings['state'];
 			/* @var $state Interface_Data */
 			$last_run = self::_last_cron_run($state);
-
+			
 			$status = $now->difference($last_run, "second") > 0;
 			$cron_hooks = $this->_cron_hooks($method);
 			$all_hooks = $hooks->find_all($cron_hooks);
@@ -400,7 +400,7 @@ class Module extends \zesk\Module {
 		}
 		return $results;
 	}
-
+	
 	/**
 	 * Log an exception during a cron run
 	 *
@@ -423,7 +423,7 @@ class Module extends \zesk\Module {
 		$hooks = $this->application->hooks;
 		$now = Timestamp::now();
 		$results = array();
-
+		
 		try {
 			$scopes = $this->_cron_scopes($this->application);
 		} catch (Exception $e) {
@@ -490,7 +490,7 @@ class Module extends \zesk\Module {
 			$lock->release();
 		}
 	}
-
+	
 	/**
 	 * Run cron from a JavaScript request
 	 *
@@ -508,7 +508,7 @@ class Module extends \zesk\Module {
 		$js[] = "}(window.zesk.settings));";
 		return ArrayTools::join_suffix($js, "\n");
 	}
-
+	
 	/**
 	 * Run cron
 	 *
@@ -516,25 +516,25 @@ class Module extends \zesk\Module {
 	 */
 	public function run() {
 		$modules = $this->application->modules;
-
+		
 		$this->methods = array();
-
+		
 		$result = $modules->all_hook_arguments("cron_before", array(), true);
 		if ($result === false) {
 			$this->application->logger->error(__CLASS__ . "::cron_before return false");
 			return $this->methods;
 		}
-
+		
 		PHP::feature("time_limit", $this->option_integer("time_limit", 0));
 		self::_run();
-
+		
 		$modules->all_hook_arguments("cron_after", array(
 			$this->methods
 		));
-
+		
 		return $this->methods;
 	}
-
+	
 	/**
 	 * Update a page to enable it to run cron
 	 *
@@ -552,7 +552,7 @@ class Module extends \zesk\Module {
 			'nocache' => true
 		));
 	}
-
+	
 	/**
 	 * Function to manage running cron hourly at a certain minute past the hour
 	 *
@@ -584,11 +584,11 @@ class Module extends \zesk\Module {
 		 */
 		$last_run_setting = $prefix . 'hourly_last_run';
 		$last_check_setting = $prefix . 'hourly_last_check';
-
+		
 		$now = Timestamp::now();
 		$hour_minute = clone $now;
 		$hour_minute->minute($minute_to_hit)->second(0);
-
+		
 		$last_run = $settings->get($last_run_setting);
 		if ($last_run) {
 			$last_run = Timestamp::factory($last_run);
@@ -650,7 +650,7 @@ class Module extends \zesk\Module {
 		 */
 		$last_run_setting = $prefix . 'daily_last_run';
 		$last_check_setting = $prefix . 'daily_last_check';
-
+		
 		$now = Timestamp::factory('now');
 		$today_hour = clone $now;
 		$today_hour->hour($hour_to_hit)->minute(0)->second(0);
@@ -696,7 +696,7 @@ class Module extends \zesk\Module {
 			)
 		);
 	}
-
+	
 	/**
 	 *
 	 */

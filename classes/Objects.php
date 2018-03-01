@@ -21,19 +21,19 @@ class Objects {
 	 * @var Interface_Settings
 	 */
 	public $settings = null;
-
+	
 	/**
 	 *
 	 * @var Database[]
 	 */
 	public $databases = array();
-
+	
 	/**
 	 *
 	 * @var array
 	 */
 	private $singletons = array();
-
+	
 	/**
 	 *
 	 * @var array
@@ -49,7 +49,7 @@ class Objects {
 		"user" => true,
 		"session" => true
 	);
-
+	
 	/**
 	 * If value is true, allow only a single write
 	 *
@@ -61,19 +61,19 @@ class Objects {
 		"settings" => true,
 		"session" => true
 	);
-
+	
 	/**
 	 *
 	 * @var array
 	 */
 	private $debug = array();
-
+	
 	/**
 	 *
 	 * @var array
 	 */
 	private $mapping = array();
-
+	
 	/**
 	 *
 	 */
@@ -84,7 +84,7 @@ class Objects {
 		$this->debug = array();
 		$this->mapping = array();
 	}
-
+	
 	/**
 	 * Provide a mapping for when internal classes need to be overridden by applications.
 	 * <code>
@@ -116,7 +116,7 @@ class Objects {
 		$this->mapping[strtolower($requested_class)] = $target_class;
 		return $this;
 	}
-
+	
 	/**
 	 * Convert from a requested class to the target class
 	 *
@@ -132,7 +132,7 @@ class Objects {
 		}
 		return avalue($this->mapping, strtolower($requested_class), $requested_class);
 	}
-
+	
 	/**
 	 *
 	 * @param unknown $member
@@ -149,7 +149,7 @@ class Objects {
 		));
 		return null;
 	}
-
+	
 	/**
 	 *
 	 * @param string $member
@@ -178,7 +178,7 @@ class Objects {
 			$this->$member = $value;
 		}
 	}
-
+	
 	/**
 	 * Getter/setter for singletons in the system
 	 *
@@ -204,7 +204,7 @@ class Objects {
 			));
 		}
 	}
-
+	
 	/**
 	 * Set a singleton
 	 *
@@ -277,7 +277,7 @@ class Objects {
 			throw new Exception_Class_NotFound($resolve_class, null, null, $e);
 		}
 	}
-
+	
 	/**
 	 * Create a new class based on name
 	 *
@@ -290,7 +290,7 @@ class Objects {
 		array_shift($arguments);
 		return $this->factory_arguments($class, $arguments);
 	}
-
+	
 	/**
 	 * Create a new class based on name
 	 *

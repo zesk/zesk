@@ -80,23 +80,23 @@ class Database_SQL extends \zesk\Database_SQL {
 		// 				$increment = false;
 		// 			}
 		// 		}
-
+		
 		// OK to add primary key if no old primary key exists
 		$primary = $db_col_old->table()->primary() === null;
-
+		
 		// OK to add increment column if no old increment column exists
 		$increment = $db_col_old->is_increment() ? false : true;
-
+		
 		$newType = $this->database_column_native_type($db_col_new, $increment, $primary);
 		$previous_name = $db_col_old->name();
 		$newName = $db_col_new->name();
 		$suffix = $db_col_new->primary_key() ? " FIRST" : "";
-
+		
 		$new_sql = "ALTER TABLE " . $this->quote_table($table) . " CHANGE COLUMN " . $this->quote_column($previous_name) . " " . $this->quote_column($newName) . " $newType $suffix";
 		$old_table = $db_col_old->table();
 		return trim($new_sql);
 	}
-
+	
 	/**
 	 * (non-PHPdoc)
 	 *
@@ -105,7 +105,7 @@ class Database_SQL extends \zesk\Database_SQL {
 	public function alter_table_column_drop(Database_Table $table, $dbColName) {
 		return "ALTER TABLE " . $this->quote_table($table->name()) . " DROP COLUMN " . $this->quote_column($dbColName);
 	}
-
+	
 	/**
 	 * (non-PHPdoc)
 	 *
@@ -137,7 +137,7 @@ class Database_SQL extends \zesk\Database_SQL {
 				));
 		}
 	}
-
+	
 	/**
 	 * SQL command to alter a table type
 	 *
@@ -155,7 +155,7 @@ class Database_SQL extends \zesk\Database_SQL {
 		unquote($column, '``', $q);
 		return $q === '`';
 	}
-
+	
 	/*====================================================================================================================================*/
 	private function native_table_type(Database_Table $table) {
 		$engine = $table->option('engine', $this->database->default_engine());
@@ -164,7 +164,7 @@ class Database_SQL extends \zesk\Database_SQL {
 		}
 		return "";
 	}
-
+	
 	/**
 	 * MySQL update
 	 * @see Database_SQL::update()
@@ -207,7 +207,7 @@ class Database_SQL extends \zesk\Database_SQL {
 	function function_ip2long($value) {
 		return "INET_ATON($value)";
 	}
-
+	
 	/**
 	 * Convert an array of column => size to proper SQL syntax, adding quoting as needed.
 	 *
@@ -281,14 +281,14 @@ class Database_SQL extends \zesk\Database_SQL {
 		}
 		return " DEFAULT " . $this->sql_format_string($sql);
 	}
-
+	
 	/*
 	 * String Comparison
 	 */
 	function function_compare_binary($column_name, $cmp, $string) {
 		return "$column_name $cmp BINARY " . $this->sql_format_string($string);
 	}
-
+	
 	/*
 	 * Date functions
 	 */
@@ -318,7 +318,7 @@ class Database_SQL extends \zesk\Database_SQL {
 	public function function_hex($target) {
 		return "HEX($target)";
 	}
-
+	
 	/**
 	 * Internal function
 	 *
@@ -360,7 +360,7 @@ class Database_SQL extends \zesk\Database_SQL {
 	function sql_format_string($sql) {
 		return "'" . addslashes($sql) . "'";
 	}
-
+	
 	/*
 	 * Platform SQL Tools
 	 */
@@ -373,14 +373,14 @@ class Database_SQL extends \zesk\Database_SQL {
 	function sql_boolean($value) {
 		return to_bool(value) ? 1 : 0;
 	}
-
+	
 	/*
 	 * Password Type
 	 */
 	function sql_password($value) {
 		return "MD5(" . $this->sql_format_string($value) . ")";
 	}
-
+	
 	/*
 	 * Functions
 	 */
@@ -415,7 +415,7 @@ class Database_SQL extends \zesk\Database_SQL {
 				return false;
 		}
 	}
-
+	
 	/**
 	 * Convert a Database_Column to a sql type for this database
 	 *
@@ -464,7 +464,7 @@ class Database_SQL extends \zesk\Database_SQL {
 	}
 	function create_table(Database_Table $table) {
 		$columns = $table->columns();
-
+		
 		$types = array();
 		foreach ($columns as $dbCol) {
 			if (!$dbCol->has_sql_type() && !$this->type_set_sql_type($dbCol)) {
@@ -504,7 +504,7 @@ class Database_SQL extends \zesk\Database_SQL {
 		$types = implode(",\n\t", $types);
 		$result = array();
 		$result[] = "CREATE TABLE " . $this->quote_table($table->name()) . " (\n\t$types\n) " . $this->native_table_type($table);
-
+		
 		return array_merge($result, $alters);
 	}
 	/**
@@ -527,7 +527,7 @@ class Database_SQL extends \zesk\Database_SQL {
 			"`" => "``"
 		)) . '`';
 	}
-
+	
 	/**
 	 * (non-PHPdoc)
 	 *
@@ -553,7 +553,7 @@ class Database_SQL extends \zesk\Database_SQL {
 			"``" => "`"
 		));
 	}
-
+	
 	/**
 	 *
 	 * @param string $table

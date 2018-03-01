@@ -54,12 +54,12 @@ class Tag_Label extends ORM {
 		}
 		$object = $application->orm_factory(__CLASS__, $members)->register();
 		$object->seen();
-
+		
 		$cache->set($object);
 		$application->cache->saveDeferred($cache);
 		return $object;
 	}
-
+	
 	/**
 	 * Report this tag as being seen recently
 	 */

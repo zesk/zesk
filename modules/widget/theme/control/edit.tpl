@@ -31,11 +31,11 @@ $map = array();
 $theme_variables = array();
 
 foreach ($this->widgets as $widget) {
-
+	
 	$nolabel = $widget->option_bool("nolabel");
 	$name = $widget->name();
 	$prefix = "$name.";
-
+	
 	$map[$prefix . "label"] = $label = $nolabel ? "" : HTML::tag("label", to_array($this->label_attributes) + array(
 		"for" => $widget->first_option("id;column")
 	), $widget->label());
