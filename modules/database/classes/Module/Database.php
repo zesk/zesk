@@ -18,7 +18,7 @@ class Module_Database extends Module {
 	 * @var string
 	 */
 	private $default = null;
-	
+
 	/**
 	 * Global database name => url mapping
 	 *
@@ -31,14 +31,14 @@ class Module_Database extends Module {
 	 * @var Database[string]
 	 */
 	private $databases = array();
-	
+
 	/**
 	 * Mapping of scheme to class which handles it
 	 *
 	 * @var string[string]
 	 */
 	private $scheme_to_class = array();
-	
+
 	/**
 	 *
 	 * {@inheritDoc}
@@ -67,7 +67,7 @@ class Module_Database extends Module {
 			"reconnect_all"
 		));
 	}
-	
+
 	/**
 	 * Set or get the default internal database name
 	 *
@@ -81,7 +81,7 @@ class Module_Database extends Module {
 		$set = strtolower($set);
 		$this->default = $set;
 	}
-	
+
 	/**
 	 * Register a database name, or get a database url
 	 *
@@ -117,7 +117,7 @@ class Module_Database extends Module {
 		}
 		return $name;
 	}
-	
+
 	/**
 	 *
 	 * @param string $name
@@ -127,7 +127,7 @@ class Module_Database extends Module {
 		$this->names[$name] = null;
 		return $this;
 	}
-	
+
 	/**
 	 * @deprecated 2017-10
 	 * @param Application $application
@@ -158,16 +158,16 @@ class Module_Database extends Module {
 		$config->deprecated(Database::class . "::default", __CLASS__ . '::default');
 		$config->deprecated(Database::class . "::names", __CLASS__ . '::names');
 	}
-	
+
 	/**
 	 * Internal function to load database settings from globals
 	 */
 	public function _configured() {
 		$this->_legacy_configured();
-		
+
 		$application = $this->application;
 		$config = $application->configuration;
-		
+
 		$databases = to_array($config->path(array(
 			__CLASS__,
 			'names'
@@ -188,7 +188,7 @@ class Module_Database extends Module {
 			$this->database_default($config->path_get($database_default_config_path));
 		}
 	}
-	
+
 	/**
 	 * Return all connected databases in the system
 	 *
@@ -197,7 +197,7 @@ class Module_Database extends Module {
 	public function databases() {
 		return $this->databases;
 	}
-	
+
 	/**
 	 * Reconned databases on fork
 	 */
@@ -208,7 +208,7 @@ class Module_Database extends Module {
 			unset($this->databases[$url]);
 		}
 	}
-	
+
 	/**
 	 * Reconned databases on fork
 	 */
@@ -221,7 +221,7 @@ class Module_Database extends Module {
 			$database->reconnect();
 		}
 	}
-	
+
 	/**
 	 *
 	 * @return array
@@ -248,7 +248,7 @@ class Module_Database extends Module {
 		$this->scheme_to_class[$scheme] = $classname;
 		return $classname;
 	}
-	
+
 	/**
 	 * Create a disconnected Database of scheme
 	 *
@@ -267,7 +267,7 @@ class Module_Database extends Module {
 		}
 		return $this->application->factory($class, $this->application, null, $options);
 	}
-	
+
 	/**
 	 * Create a new database
 	 *
@@ -280,7 +280,7 @@ class Module_Database extends Module {
 	public function app_database_registry(Application $application, $mixed = null, $options = array()) {
 		return $this->database_registry($mixed, $options);
 	}
-	
+
 	/**
 	 *
 	 * Create or find a database
@@ -370,16 +370,38 @@ class Module_Database extends Module {
 		}
 		return $db;
 	}
-	
+
 	/**
 	 *
 	 * @param array $info
 	 * @return string
 	 */
 	function hook_info(array $info) {
-		$info[__CLASS__ . "::default"] = $default = $this->option("default");
-		$info[__CLASS__ . "::default_url"] = URL::remove_password($this->register("default"));
-		
+		$default = $this->option("default");
+		if (empty($default)) {
+			$default = "";
+		}
+		$url = $this->register($default);
+		if ($default) {
+			$info[__CLASS__ . "::default"] = array(
+				"value" => $default,
+				"title" => "Default database"
+			);
+		}
+		if ($url) {
+			$info[__CLASS__ . "::default_url"] = array(
+				"value" => URL::remove_password($url),
+				"title" => "Default URL (Safe)"
+			);
+		}
+		$info[__CLASS__ . '::databases'] = array(
+			"value" => array_reduce($this->databases, function ($accum, $item, $key) {
+				$accum[$key] = $item->safe_url();
+				return $accum;
+			}, []),
+			"title" => "Database names"
+		);
+
 		return $info;
 	}
 }

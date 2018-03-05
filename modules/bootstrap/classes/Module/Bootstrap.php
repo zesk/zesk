@@ -12,7 +12,7 @@ namespace zesk;
  *
  */
 class Module_Bootstrap extends Module implements Interface_Module_Foot, Interface_Module_Head {
-	
+
 	/**
 	 */
 	public function initialize() {
@@ -21,7 +21,7 @@ class Module_Bootstrap extends Module implements Interface_Module_Foot, Interfac
 			'_hook_list_row_widget'
 		));
 	}
-	
+
 	/**
 	 *
 	 * @param Control $self
@@ -52,7 +52,7 @@ class Module_Bootstrap extends Module implements Interface_Module_Foot, Interfac
 			}
 		}
 	}
-	
+
 	/**
 	 *
 	 * @param Request $request
@@ -63,7 +63,7 @@ class Module_Bootstrap extends Module implements Interface_Module_Foot, Interfac
 		// Lazy eval
 		if ($this->option_bool('enabled')) {
 			$html = $response->html();
-			if (!$this->source_location()) {
+			if ($this->option_bool('css_enabled') || !$this->source_locations()) {
 				$response->css("/share/bootstrap/css/bootstrap.css", array(
 					'share' => true
 				));
@@ -78,7 +78,7 @@ class Module_Bootstrap extends Module implements Interface_Module_Foot, Interfac
 			$html->meta(array(
 				'charset' => 'utf-8'
 			));
-			
+
 			$html->jquery();
 			$html->javascript(array(
 				$this->application->development() ? "/share/bootstrap/js/bootstrap.js" : "/share/bootstrap/js/bootstrap.min.js"
@@ -87,7 +87,7 @@ class Module_Bootstrap extends Module implements Interface_Module_Foot, Interfac
 			));
 		}
 	}
-	
+
 	/**
 	 *
 	 * {@inheritdoc}
@@ -110,10 +110,10 @@ class Module_Bootstrap extends Module implements Interface_Module_Foot, Interfac
 	 * @param string $set
 	 * @return string
 	 */
-	public function source_location($set = null) {
-		return $set !== null ? $this->set_option("source_location", $set) : $this->option("source_location");
+	public function source_locations(array $set = null) {
+		return $set !== null ? $this->set_option("source_locations", $set) : $this->option_list("source_locations");
 	}
-	
+
 	/**
 	 * map bootstrap file
 	 */
@@ -149,26 +149,53 @@ class Module_Bootstrap extends Module implements Interface_Module_Foot, Interfac
 		}
 		return false;
 	}
-	
+
 	/**
 	 * After this module is updated
 	 */
 	public function hook_updated() {
+		$this->handle_source_locations(__METHOD__);
+	}
+
+	/**
+	 *
+	 * @param string $reason
+	 * @return array|void[]
+	 */
+	private function handle_source_locations($reason = "") {
 		$source_location = $this->option('source_location');
-		if (!$source_location) {
-			$this->application->logger->notice("{method}: No {class}::source_location configuration option specified, using default bootstrap CSS/LESS files", array(
+		$source_locations = $this->option_list("source_locations");
+
+		if ($source_location) {
+			$source_locations[] = $source_location;
+		}
+
+		if (count($source_locations) === 0) {
+			$this->application->logger->notice("{method}: No {class}::source_locations configuration option specified, using default bootstrap CSS/LESS files", array(
 				"method" => __METHOD__,
 				"class" => __CLASS__
 			));
-			return;
+			return array();
 		}
-		if (!!Directory::is_absolute($source_location)) {
-			$source_location = $this->application->path($source_location);
+		$result = array();
+		foreach ($source_locations as $source_location) {
+			if (!!Directory::is_absolute($source_location)) {
+				$source_location = $this->application->path($source_location);
+			}
+			$this->application->logger->debug("{reason}: source_location={source_location}", array(
+				'reason' => $reason,
+				"source_location" => $source_location
+			));
+			$result[$source_location] = $this->handle_source_location($source_location);
 		}
-		$this->application->logger->debug("{class}::hook_updated: source_location={source_location}", array(
-			'class' => get_class($this),
-			"source_location" => $source_location
-		));
+		return $result;
+	}
+
+	/**
+	 *
+	 * @param string $source_location
+	 */
+	private function handle_source_location($source_location) {
 		if (is_dir($source_location) || is_dir(dirname($source_location))) {
 			$master = path($this->application->path(), dirname($this->option("share_path")), "less");
 			if (!is_dir($master)) {
