@@ -2,13 +2,18 @@
 /**
  *
  */
-namespace zesk;
+namespace zesk\Tag;
+
+use zesk\Application;
+use zesk\Class_ORM;
+use zesk\ORM;
+use zesk\Exception_Semantics;
 
 /**
  * @see Class_Tag
  * @see Module_Tag
  * @property id $id
- * @property Tag_Label $tag_label
+ * @property Label $tag_label
  * @property string $object_class
  * @property ORM $object_id
  * @property Timestamp $created
@@ -16,7 +21,7 @@ namespace zesk;
  * @property mixed $value
  */
 class Tag extends ORM {
-	
+
 	/**
 	 * Delete items matching the class and IDs passed
 	 *
@@ -37,7 +42,7 @@ class Tag extends ORM {
 			->execute()
 			->affected_rows();
 	}
-	
+
 	/**
 	 * Delete tags linked to deleted rows
 	 *
@@ -72,7 +77,7 @@ class Tag extends ORM {
 			}
 		}
 	}
-	
+
 	/**
 	 * Can I apply tags to this object?
 	 *
@@ -94,7 +99,7 @@ class Tag extends ORM {
 		}
 		if ($class->column_types[$id_column] !== Class_ORM::type_id) {
 			if ($throw) {
-				throw new Exception_Semantics("Unable to tag class {class} - id column is not an ID (set to {type}", array(
+				throw new Exception_Semantics("Unable to tag class {class} - id column is not an ID (set to {type})", array(
 					"class" => get_class($object),
 					"type" => $class->column_types[$id_column]
 				));
@@ -103,7 +108,7 @@ class Tag extends ORM {
 		}
 		return true;
 	}
-	
+
 	/**
 	 * Set a tag to an object
 	 *
@@ -113,7 +118,7 @@ class Tag extends ORM {
 	 * @param array $label_attributes
 	 * @return zesk\Tag
 	 */
-	public static function tag_set(ORM $object, Tag_Label $label, $value) {
+	public static function tag_set(ORM $object, Label $label, $value) {
 		self::can_tag_object($object, true);
 		$members = array(
 			'tag_label' => $label,
@@ -127,11 +132,11 @@ class Tag extends ORM {
 		}
 		return $object->store();
 	}
-	
+
 	/**
 	 * Retrieve a value
 	 * @param ORM $object
-	 * @param string|Tag_Label $name
+	 * @param string|Label $name
 	 * @param mixed $default
 	 * @return mixed
 	 */
@@ -139,20 +144,20 @@ class Tag extends ORM {
 		$tag = self::tag_get($object, $code);
 		return $tag ? $tag->value : $default;
 	}
-	
+
 	/**
 	 * Retrieve all tags for an object
 	 *
 	 * @param ORM $object
-	 * @param string|Tag_Label $name
+	 * @param string|Label $name
 	 * @return zesk\Tag
 	 */
 	public static function tag_get(ORM $object, $code) {
 		self::can_tag_object($object, true);
-		if ($code instanceof Tag_Label) {
+		if ($code instanceof Label) {
 			$label = $code;
 		} else {
-			$label = Tag_Label::tag_find($code);
+			$label = Label::tag_find($object->application, $code);
 		}
 		if (!$label) {
 			return null;
@@ -168,7 +173,7 @@ class Tag extends ORM {
 		}
 		return null;
 	}
-	
+
 	/**
 	 *
 	 * @param ORM $object
@@ -181,7 +186,7 @@ class Tag extends ORM {
 			"object_class" => get_class($object),
 			"object_id" => $object->id()
 		));
-		$query->link(Tag_Label::class, array(
+		$query->link(Label::class, array(
 			"alias" => "label"
 		));
 		if (count($where) > 0) {

@@ -1,9 +1,15 @@
 <?php
-
 /**
- *
+ * @package zesk-modules
+ * @subpackage tag
+ * @author kent
+ * @copyright &copy; 2018 Market Acumen, Inc.
  */
-namespace zesk;
+namespace zesk\Tag;
+
+use zesk\Timestamp;
+use zesk\Application;
+use zesk\ArrayTools;
 
 /**
  *
@@ -20,16 +26,16 @@ namespace zesk;
  * @property Timestamp $modified
  * @property timestamp $last_used
  */
-class Tag_Label extends ORM {
+class Label extends \zesk\ORM {
 	/**
 	 *
 	 * @param unknown $code
 	 * @return zesk\Tag_Label
 	 */
-	public static function label_find($code) {
+	public static function label_find(Application $application, $code) {
 		$members = array();
 		$members['code'] = self::clean_code_name($code);
-		return self::factory(__CLASS__, $members)->find();
+		return self::factory($application, __CLASS__, $members)->find();
 	}
 	/**
 	 *
@@ -47,19 +53,19 @@ class Tag_Label extends ORM {
 		$cache = $application->cache->getItem(__CLASS__ . "-" . $members['code']);
 		if ($cache->isHit()) {
 			$object = $cache->get();
-			if ($object instanceof Tag_Label) {
+			if ($object instanceof self) {
 				$object->seen();
 				return $object;
 			}
 		}
 		$object = $application->orm_factory(__CLASS__, $members)->register();
 		$object->seen();
-		
+
 		$cache->set($object);
 		$application->cache->saveDeferred($cache);
 		return $object;
 	}
-	
+
 	/**
 	 * Report this tag as being seen recently
 	 */

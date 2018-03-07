@@ -1,12 +1,20 @@
 <?php
-namespace zesk;
+/**
+ * @package zesk-modules
+ * @subpackage tag
+ * @author kent
+ * @copyright &copy; 2018 Market Acumen, Inc.
+ */
+namespace zesk\Tag;
+
+use zesk\Class_ORM;
 
 /**
  * @see zesk\Tag_Label
  * @author kent
  *
  */
-class Class_Tag_Label extends Class_ORM {
+class Class_Label extends Class_ORM {
 	public $id_column = "id";
 	public $has_one = array(
 		'owner' => 'User'

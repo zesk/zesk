@@ -1,5 +1,13 @@
 <?php
-namespace zesk;
+/**
+ * @package zesk-modules
+ * @subpackage tag
+ * @author kent
+ * @copyright &copy; 2018 Market Acumen, Inc.
+ */
+namespace zesk\Tag;
+
+use zesk\Class_ORM;
 
 /**
  * @see zesk\Tag
@@ -9,7 +17,7 @@ namespace zesk;
  */
 class Class_Tag extends Class_ORM {
 	/**
-	 * 
+	 *
 	 * @var string
 	 */
 	public $id_column = 'id';
@@ -19,7 +27,7 @@ class Class_Tag extends Class_ORM {
 		'object_id'
 	);
 	/**
-	 * 
+	 *
 	 * @var array
 	 */
 	public $column_types = array(
@@ -31,9 +39,9 @@ class Class_Tag extends Class_ORM {
 		'modified' => self::type_modified,
 		'value' => self::type_serialize
 	);
-	
+
 	/**
-	 * 
+	 *
 	 * @var array
 	 */
 	public $has_one = array(

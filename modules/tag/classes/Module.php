@@ -1,17 +1,23 @@
 <?php
-namespace zesk;
+/**
+ * @package zesk-modules
+ * @subpackage tag
+ * @author kent
+ * @copyright &copy; 2018 Market Acumen, Inc.
+ */
+namespace zesk\Tag;
 
 /**
- * 
+ *
  * @author kent
  *
  */
-class Module_Tag extends Module {
+class Module extends \zesk\Module {
 	protected $classes = array(
-		'zesk\\Tag',
-		'zesk\\Tag_Label'
+		Tag::class,
+		Label::class
 	);
-	
+
 	/**
 	 * Run once an hour on a single cluster machine
 	 */
