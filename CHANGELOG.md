@@ -19,6 +19,31 @@ Version 1.0 of Zesk will have:
 
 <!-- ## [Un released][] -->
 
+## [Unreleased][]
+
+### Fixed bugs
+
+- `zesk\Router` was decoding JSON sub-content to objects, not arrays.
+
+### Changed functionality
+
+#### ORM module
+
+- `zesk\ORM::members()` and related calls now transform each member via the equivalent of the `__get` call. In addition, a new protected internal method `zesk\ORM::_get` can be used to retrieve a member from an `ORM`. Note that previously, members were returned untransformed (e.g. "2018-07-03 16:35:50" instead of an object of `zesk\Timestamp` for example)
+- `zesk\ORM::json()` now supports option `resolve_methods` which is a list (string or array) of methods to attempt to convert objects to JSON syntax. Default is `["json"]`.
+
+
+#### Developer module
+
+The following URL paths have been renamed in the `Developer` module:
+
+- `debug` -> `developer/debug`
+- `development` -> `developer/development`
+- `session` -> `developer/session`
+- `schema` -> `developer/schema`
+
+Fixed some issues with the system/debug theme.
+
 ## [v0.17.0][]
 
 ### New features
