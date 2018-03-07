@@ -14,7 +14,7 @@ namespace zesk;
 $session = $this->session;
 if (!$session) {
 	try {
-		$session = $application->session();
+		$session = $application->session($this->request);
 	} catch (Exception $e) {
 	}
 }
@@ -73,7 +73,7 @@ echo HTML::tag('ul', HTML::tags('li', $application->share_path()));
 ?>
 <h1>Theme Paths</h1>
 <?php
-echo HTML::tag('ul', HTML::tags('li', $application->theme_path()));
+echo HTML::tag('pre', JSON::encode_pretty($application->theme_path()));
 ?>
 <h1>Databases</h1>
 <p>Default database is <?php

@@ -12,7 +12,7 @@ use zesk\Exception_Parse;
  *
  */
 class Parser {
-	
+
 	/**
 	 *
 	 * @var string
@@ -31,7 +31,7 @@ class Parser {
 		$this->contents = $contents;
 		$this->id = $id ? $id : md5($contents);
 	}
-	
+
 	/**
 	 *
 	 * @param Router $router
@@ -39,7 +39,7 @@ class Parser {
 	function execute(Router $router, array $add_options = null) {
 		$app = $router->application;
 		$logger = $app->logger;
-		
+
 		$lines = explode("\n", $this->contents);
 		$paths = array();
 		$options = array();
@@ -71,7 +71,7 @@ class Parser {
 							$value = to_bool($trimvalue);
 						} else if (StringTools::begins($trimvalue, str_split("\"'{[", 1))) {
 							try {
-								$decoded = JSON::decode($value, null);
+								$decoded = JSON::decode($value, true);
 								$value = $decoded;
 							} catch (Exception_Parse $e) {
 								$logger->error("Error parsing {id}:{lineno} decoding JSON failed", array(

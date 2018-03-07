@@ -14,35 +14,35 @@ namespace zesk;
  *
  */
 class Controller_Authenticated extends Controller_Theme {
-	
+
 	/**
 	 * Page to redirect to if not logged in
 	 *
 	 * @var string
 	 */
 	protected $login_redirect = null;
-	
+
 	/**
 	 * Message to display when user not logged in (after redirect)
 	 *
 	 * @var string
 	 */
 	protected $login_redirect_message = null;
-	
+
 	/**
 	 * Current logged in user
 	 *
 	 * @var User
 	 */
 	public $user = null;
-	
+
 	/**
 	 * Current session
 	 *
 	 * @var Interface_Session
 	 */
 	public $session = null;
-	
+
 	/**
 	 * Constructor
 	 *
@@ -51,7 +51,7 @@ class Controller_Authenticated extends Controller_Theme {
 	 */
 	protected function initialize() {
 		parent::initialize();
-		
+
 		if ($this->login_redirect_message === null) {
 			$this->login_redirect_message = $this->application->locale->__($this->option('login_redirect_message', 'Please log in first.'));
 		}
@@ -69,9 +69,10 @@ class Controller_Authenticated extends Controller_Theme {
 		}
 	}
 	function check_authenticated() {
+		if (!$this->option_bool('login_redirect', true)) {
+			return;
+		}
 		if (!$this->session || !$this->user) {
-			$this->login_redirect();
-		} else if ($this->option_bool('login_redirect', true)) {
 			$this->login_redirect();
 		}
 	}
@@ -79,7 +80,7 @@ class Controller_Authenticated extends Controller_Theme {
 		parent::before();
 		$this->check_authenticated();
 	}
-	
+
 	/**
 	 * If not logged in, redirect
 	 */
@@ -102,7 +103,7 @@ class Controller_Authenticated extends Controller_Theme {
 			}
 		}
 	}
-	
+
 	/**
 	 * Variables for a template
 	 *
