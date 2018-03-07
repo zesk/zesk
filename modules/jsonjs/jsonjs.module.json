@@ -1,0 +1,17 @@
+{
+    "name": "JSON JavaScript Library",
+    "url": "https://nodeload.github.com/douglascrockford/JSON-js/zip/master",
+    "strip_components": 1,
+    "version_data": {
+        "file": "vendor/components/jsonjs/README",
+        "pattern": "/(20[0-9]{2}-[0-9]{2}-[0-9]{2})/"
+    },
+    "url_license": "https://raw2.github.com/douglascrockford/JSON-js/master/json2.js",
+    "destination": "vendor/components/jsonjs/",
+    "share_path": "vendor/components/jsonjs/",
+    "autoload_options": {
+    	"class_prefix": "zesk\\JSONJS\\",
+    	"lower": false
+    },
+    "module_class": "zesk\\JSONJS\\Module"
+}
