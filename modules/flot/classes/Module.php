@@ -1,40 +1,50 @@
 <?php
 /**
- * 
+ *
  */
+namespace zesk\Flot;
+
+use zesk\Request;
+use zesk\Template;
+use zesk\Response;
 use zesk\ArrayTools;
 use zesk\Directory;
 use zesk\Exception_File_NotFound;
 
 /**
- * 
+ *
  * @author kent
  *
  */
-class Module_Flot extends zesk\Module implements \zesk\Interface_Module_Head {
-	
+class Module extends \zesk\Module implements \zesk\Interface_Module_Head {
+
 	/**
 	 *
 	 * @var unknown
 	 */
 	protected $plugins = null;
-	
+
 	/**
 	 *
 	 * {@inheritDoc}
 	 *
 	 * @see \zesk\Interface_Module_Head::hook_head()
 	 */
-	public function hook_head(zesk\Request $request, zesk\Response $response, zesk\Template $template) {
+	public function hook_head(Request $request, Response $response, Template $template) {
 		$this->_head($response);
 	}
-	private function _head(zesk\Response $response) {
-		$response->jquery();
-		$response->javascript("/share/flot/jquery.flot.js", array(
+
+	/**
+	 *
+	 * @param Response $response
+	 */
+	private function _head(Response $response) {
+		$response->html()->jquery();
+		$response->html()->javascript("/share/flot/jquery.flot.js", array(
 			"share" => true
 		));
 	}
-	
+
 	/**
 	 * Retrieve the JS path for this module
 	 *
@@ -43,7 +53,7 @@ class Module_Flot extends zesk\Module implements \zesk\Interface_Module_Head {
 	private function flot_js_path() {
 		return $this->application->path($this->option("share_path"));
 	}
-	
+
 	/**
 	 */
 	private function _plugins() {
@@ -53,7 +63,17 @@ class Module_Flot extends zesk\Module implements \zesk\Interface_Module_Head {
 		}
 		return $this->plugins;
 	}
-	public function plugin(zesk\Response $response, $plugins = null) {
+
+	/**
+	 * Pass in null for plugins to retrieve a list of all plugins
+	 * If plugin passed in, returns zesk\Response passed in with HTML correctly configured.
+	 *
+	 * @param Response $response
+	 * @param unknown $plugins
+	 * @throws Exception_File_NotFound
+	 * @return string[]|zesk\Response
+	 */
+	public function plugin(Response $response, $plugins = null) {
 		if ($plugins === null) {
 			return $this->_plugins();
 		}
@@ -65,11 +85,12 @@ class Module_Flot extends zesk\Module implements \zesk\Interface_Module_Head {
 			$js_name = "jquery.flot.$plugin.js";
 			$plugin_path = "/share/flot/$js_name";
 			if ((is_array($this->plugins) && array_key_exists($plugin, $this->plugins)) || file_exists($full_path = path($path, $js_name))) {
-				$response->javascript($plugin_path, array(
+				return $response->html()->javascript($plugin_path, array(
 					"share" => true
 				));
 			} else {
-				throw new Exception_File_NotFound($full_path, "Module_Flot plugin not found: {plugin}", array(
+				throw new Exception_File_NotFound($full_path, "{class} plugin not found: {plugin}", array(
+					"class" => __CLASS__,
 					"plugin" => $plugin_path
 				));
 			}

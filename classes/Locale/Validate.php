@@ -4,6 +4,7 @@
  */
 namespace zesk\Locale;
 
+use zesk\Hookable;
 use zesk\Options;
 use zesk\Application;
 use zesk\StringTools;
@@ -14,7 +15,7 @@ use zesk\JSON;
  * @author kent
  *
  */
-class Locale_Validate extends Hookable {
+class Validate extends Hookable {
 	/**
 	 *
 	 * @param array $options
@@ -23,7 +24,7 @@ class Locale_Validate extends Hookable {
 		parent::__construct($application, $options);
 		$this->inherit_global_options();
 	}
-	
+
 	/**
 	 * Verifies if the source variables exist in the translation
 	 *
@@ -66,7 +67,7 @@ class Locale_Validate extends Hookable {
 		}
 		return $errors;
 	}
-	
+
 	/**
 	 *
 	 * @param string $string
@@ -79,7 +80,7 @@ class Locale_Validate extends Hookable {
 		sort($matches);
 		return $matches;
 	}
-	
+
 	/**
 	 * Match braces in a stirng and return all matches
 	 *
@@ -92,7 +93,7 @@ class Locale_Validate extends Hookable {
 		$matches = $matches[0];
 		return $matches;
 	}
-	
+
 	/**
 	 * Check the token count in the source and translation are the same
 	 *
@@ -117,7 +118,7 @@ class Locale_Validate extends Hookable {
 		}
 		return $errors;
 	}
-	
+
 	/**
 	 * Check that the token names match between source and translation
 	 *
@@ -146,7 +147,7 @@ class Locale_Validate extends Hookable {
 		}
 		return $errors;
 	}
-	
+
 	/**
 	 * Check that the braces in the pattern ar balanced and match between source and translation
 	 *

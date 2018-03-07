@@ -1,22 +1,24 @@
 <?php
 /**
- * 
+ *
  * @package zesk
  * @subpackage system
  * @author Kent M. Davidson <kent@marketacumen.com>
  * @copyright Copyright &copy; 2008, Market Acumen, Inc.
  */
-namespace zesk;
+namespace zesk\Apache;
+
+use zesk\Directory;
 
 /**
  * Apache module integrates with Apache server and your web application, specifically - Generation
  * of a .htaccess to allow for pretty URLs in the $application->document_root() - Generation of an
  * Apache Include to set up aliases for the share directories within the system for faster serving
  * (avoids Controller_Share)
- * 
+ *
  * @author kent
  */
-class Module_Apache extends Module {
+class Module extends \zesk\Module {
 	/**
 	 * Implement hook cron_minute
 	 */
@@ -28,11 +30,11 @@ class Module_Apache extends Module {
 			$this->generate_alias_include();
 		}
 	}
-	
+
 	/**
 	 * Retrieve hash
-	 * 
-	 * @param string $file        	
+	 *
+	 * @param string $file
 	 * @return string
 	 */
 	private static function retrieve_hash($file) {
@@ -46,10 +48,10 @@ class Module_Apache extends Module {
 		}
 		return null;
 	}
-	
+
 	/**
 	 * Generate '.htaccess' file for site
-	 * 
+	 *
 	 * @return boolean
 	 */
 	private function generate_htaccess() {
@@ -71,10 +73,13 @@ class Module_Apache extends Module {
 		file_put_contents($file, $contents);
 		return true;
 	}
-	
+
 	/**
 	 * Create alias include file
-	 * 
+	 *
+	 * @todo 2018 - with the advent of Share and share_build, is this even used?
+	 * @deprecated 2018-03
+	 *
 	 * @return boolean
 	 */
 	private function generate_alias_include() {
@@ -83,7 +88,7 @@ class Module_Apache extends Module {
 		$alias_include_dir = $this->application->data_path("httpd");
 		$alias_include = path($alias_include_dir, "aliases.conf");
 		Directory::depend($alias_include_dir);
-		
+
 		$file_hash = self::retrieve_hash($alias_include);
 		if (strcasecmp($this_hash, $file_hash) === 0) {
 			return false;
@@ -100,7 +105,7 @@ class Module_Apache extends Module {
 
 /**
  * Parse an Apache log file time/date format: 19/Jul/2007:12:43:32 -0700
- * 
+ *
  * @param string $ts
  *        	Apache log file time to parse
  * @return timestamp (in UTC) of the time
