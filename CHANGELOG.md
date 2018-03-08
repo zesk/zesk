@@ -27,6 +27,11 @@ Version 1.0 of Zesk will have:
 
 ### Changed functionality
 
+#### Application
+
+- `zesk\Application::configured` hook was removed is its usage pattern did not make sense.
+- `zesk\Response::content()` was added as a getter/setter for `zesk\Response` content to enable chained calls to set up the `zesk\Response` (e.g. `return $response->content("dude")->status(301);`)
+
 #### ORM module
 
 - `zesk\ORM::members()` and related calls now transform each member via the equivalent of the `__get` call. In addition, a new protected internal method `zesk\ORM::_get` can be used to retrieve a member from an `ORM`. Note that previously, members were returned untransformed (e.g. "2018-07-03 16:35:50" instead of an object of `zesk\Timestamp` for example)

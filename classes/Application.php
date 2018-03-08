@@ -665,7 +665,6 @@ class Application extends Hookable implements Interface_Theme {
 		}, array(
 			"last" => true
 		));
-		$this->call_hook('configure');
 
 		$this->configure_cache_paths(); // Initial cache paths are set up
 
@@ -1070,9 +1069,12 @@ class Application extends Hookable implements Interface_Theme {
 	 * - Return response
 	 */
 	public function main(Request $request) {
+		$response = $this->call_hook("main", $request);
+		if ($response instanceof Response) {
+			return $response;
+		}
 		$this->request_stack[] = $request;
 		$starting_depth = count($this->request_stack);
-		$this->call_hook("main", $request);
 		try {
 			$router = $this->router();
 			$this->logger->debug("App bootstrap took {seconds} seconds", array(
@@ -1576,28 +1578,9 @@ class Application extends Hookable implements Interface_Theme {
 		}
 		$type = strtolower($type);
 		array_push($this->theme_stack, $type);
-		{
-			$object = avalue($args, "content");
-			if (is_object($object)) {
-				if (method_exists($object, "hook_theme")) {
-					$result = $object->call_hook_arguments("theme", array(
-						$args,
-						$content
-					), $content);
-					array_pop($this->theme_stack);
-					return $result;
-				}
-				if (method_exists($object, 'variables')) {
-					$args += $object->variables();
-				}
-			} else {
-				$object = null;
-			}
-			$template_name = $this->clean_template_path($type) . $extension;
-			$t = new Template($this, $template_name, $args);
-			if ($t->exists()) {
-				$content = $t->render();
-			}
+		$t = new Template($this, $this->clean_template_path($type) . $extension, $args);
+		if ($t->exists()) {
+			$content = $t->render();
 		}
 		array_pop($this->theme_stack);
 		return $content;
