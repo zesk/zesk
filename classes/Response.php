@@ -43,7 +43,7 @@ class Response extends Hookable {
 		self::CONTENT_TYPE_RAW => Raw::class,
 		self::HANDLER_REDIRECT => Redirect::class
 	);
-	
+
 	/**
 	 * @var string
 	 */
@@ -83,7 +83,7 @@ class Response extends Hookable {
 	 * @var integer
 	 */
 	const CACHE_PATH = 3;
-	
+
 	/**
 	 * Ordered from most specific to least specific
 	 *
@@ -94,14 +94,14 @@ class Response extends Hookable {
 		self::CACHE_QUERY => "any/{host}_{port}{path}/{query}",
 		self::CACHE_PATH => "any/{host}_{port}{path}"
 	);
-	
+
 	/**
 	 * Cache responses to the request
 	 *
 	 * @var unknown
 	 */
 	private $cache_settings = null;
-	
+
 	/**
 	 *
 	 * @var integer
@@ -113,62 +113,62 @@ class Response extends Hookable {
 	 * @var Request
 	 */
 	public $request = null;
-	
+
 	/**
 	 * Content to return (if small enough)
 	 *
 	 * @var string
 	 */
 	public $content = null;
-	
+
 	/**
 	 * File to return (for big stuff)
 	 *
 	 * @var string
 	 */
 	protected $content_file = null;
-	
+
 	/**
 	 * Status code
 	 *
 	 * @var integer
 	 */
 	public $status_code = Net_HTTP::Status_OK;
-	
+
 	/**
 	 * Status message
 	 *
 	 * @var string
 	 */
 	public $status_message = "OK";
-	
+
 	/**
 	 * Content-Type header
 	 *
 	 * @var string
 	 */
 	public $content_type = self::CONTENT_TYPE_HTML;
-	
+
 	/**
 	 * Optional Content-Type to determine output handler. If null, uses $this->content_type
 	 *
 	 * @var string
 	 */
 	public $output_handler = null;
-	
+
 	/**
 	 * Content-Type header
 	 *
 	 * @var string
 	 */
 	public $charset = null;
-	
+
 	/**
 	 *
 	 * @var zesk\Response\Type[]
 	 */
 	protected $types = array();
-	
+
 	/**
 	 * Headers.
 	 * Key is always properly cased header. Values may be multi-array or string.
@@ -176,14 +176,14 @@ class Response extends Hookable {
 	 * @var array
 	 */
 	protected $headers = array();
-	
+
 	/**
 	 * Name/value data passed back to client if response type supports it.
 	 *
 	 * @var array
 	 */
 	protected $response_data = array();
-	
+
 	/**
 	 * ID counter for rendering things on the page which should have unique IDs
 	 *
@@ -197,7 +197,7 @@ class Response extends Hookable {
 	 * @var boolean
 	 */
 	private $rendering = false;
-	
+
 	/**
 	 *
 	 * {@inheritDoc}
@@ -220,7 +220,7 @@ class Response extends Hookable {
 		parent::__wakeup();
 		$this->id = self::$response_index++;
 	}
-	
+
 	/**
 	 * Handle deprecated configuration
 	 *
@@ -239,7 +239,7 @@ class Response extends Hookable {
 	public static function factory(Application $application, Request $request, array $options = array()) {
 		return $application->objects->factory(__CLASS__, $application, $request, $options);
 	}
-	
+
 	/**
 	 *
 	 * @param Application $application
@@ -254,7 +254,7 @@ class Response extends Hookable {
 			$this->content_type($this->option("content_type", self::CONTENT_TYPE_HTML));
 		}
 	}
-	
+
 	/**
 	 * Return Response id
 	 *
@@ -263,7 +263,7 @@ class Response extends Hookable {
 	final function id() {
 		return $this->id;
 	}
-	
+
 	/**
 	 *
 	 * @param unknown $error_code
@@ -280,7 +280,7 @@ class Response extends Hookable {
 		$this->status_message = $error_string;
 		return $this;
 	}
-	
+
 	/**
 	 * These are not saved as part of cached headers, generally speaking
 	 *
@@ -324,7 +324,7 @@ class Response extends Hookable {
 		}
 		return $this;
 	}
-	
+
 	/**
 	 * Set up redirect debugging
 	 *
@@ -337,7 +337,7 @@ class Response extends Hookable {
 		}
 		return $this->set_option('debug_redirect', to_bool($set));
 	}
-	
+
 	/**
 	 * Output a header
 	 *
@@ -350,14 +350,14 @@ class Response extends Hookable {
 		}
 		header($string);
 	}
-	
+
 	/**
 	 *
 	 * @throws Exception_Semantics
 	 */
 	private function response_headers($skip_hooks = false) {
 		static $called = false;
-		
+
 		$do_hooks = !$skip_hooks;
 		if ($do_hooks) {
 			$this->call_hook('headers_before');
@@ -417,7 +417,7 @@ class Response extends Hookable {
 			}
 		}
 	}
-	
+
 	/**
 	 * Is this content type text/html?
 	 *
@@ -431,7 +431,7 @@ class Response extends Hookable {
 		}
 		return $this->content_type === self::CONTENT_TYPE_HTML;
 	}
-	
+
 	/**
 	 * Is this content type text/html?
 	 *
@@ -445,7 +445,7 @@ class Response extends Hookable {
 		}
 		return $this->content_type === self::CONTENT_TYPE_JSON;
 	}
-	
+
 	/**
 	 * Do not cache this page
 	 *
@@ -458,7 +458,7 @@ class Response extends Hookable {
 		$this->header("Expires", "-1");
 		return $this;
 	}
-	
+
 	/**
 	 * Getter/setter for content type of this response.
 	 *
@@ -505,7 +505,7 @@ class Response extends Hookable {
 		}
 		return $this->header($name, gmdate('D, d M Y H:i:s \G\M\T', $value));
 	}
-	
+
 	/**
 	 * Setter/Getter for headers
 	 *
@@ -541,7 +541,7 @@ class Response extends Hookable {
 		$this->headers[$name] = $value;
 		return $this;
 	}
-	
+
 	/**
 	 * Current output handler
 	 *
@@ -560,7 +560,7 @@ class Response extends Hookable {
 		}
 		return $this->_type($type);
 	}
-	
+
 	/**
 	 * Return response
 	 *
@@ -571,7 +571,7 @@ class Response extends Hookable {
 		$this->output($options);
 		return ob_get_clean();
 	}
-	
+
 	/**
 	 * Echo response
 	 *
@@ -583,21 +583,21 @@ class Response extends Hookable {
 		}
 		$this->rendering = true;
 		$skip_hooks = to_bool(avalue($options, "skip_hooks"));
+		if (!$skip_hooks) {
+			$this->application->call_hook("response_output_before", $this);
+			$this->call_hook("output_before");
+		}
 		if (!avalue($options, 'skip_headers')) {
 			$this->response_headers($skip_hooks);
 		}
-		if (!$skip_hooks) {
-			$this->application->call_hook("response_output", $this);
-			$this->call_hook("output");
-		}
 		$this->_output_handler()->output($this->content);
 		if (!$skip_hooks) {
-			$this->application->call_hook("response_outputted", $this);
-			$this->call_hook("outputted");
+			$this->application->call_hook("response_output_after", $this);
+			$this->call_hook("output_after");
 		}
 		$this->rendering = false;
 	}
-	
+
 	/**
 	 *
 	 * @return array
@@ -605,7 +605,7 @@ class Response extends Hookable {
 	public function to_json() {
 		return $this->response_data;
 	}
-	
+
 	/**
 	 * Cache settings for this request
 	 *
@@ -626,7 +626,7 @@ class Response extends Hookable {
 		$this->cache_settings = $append ? $options + $this->cache_settings : $options;
 		return $this;
 	}
-	
+
 	/**
 	 *
 	 * @return \zesk\Response
@@ -636,7 +636,7 @@ class Response extends Hookable {
 			"seconds" => 1576800000
 		));
 	}
-	
+
 	/**
 	 * Cache for n seconds
 	 *
@@ -652,7 +652,7 @@ class Response extends Hookable {
 			"level" => $level
 		));
 	}
-	
+
 	/**
 	 * Convert URL into standard parts with defaults
 	 *
@@ -672,7 +672,7 @@ class Response extends Hookable {
 		);
 		return $parts;
 	}
-	
+
 	/**
 	 * Is content type?
 	 *
@@ -688,7 +688,7 @@ class Response extends Hookable {
 		}
 		return false;
 	}
-	
+
 	/**
 	 * Retrieve a cached respose
 	 *
@@ -710,14 +710,14 @@ class Response extends Hookable {
 		if ($this->cache_settings === null) {
 			return false;
 		}
-		
+
 		$parts = self::_cache_parts($url);
 		$level = self::CACHE_SCHEME;
 		$seconds = $expires = null;
 		$headers = array();
 		extract($this->cache_settings, EXTR_IF_EXISTS);
 		$pattern = avalue(self::$cache_pattern, $level, self::$cache_pattern[self::CACHE_SCHEME]);
-		
+
 		$item = self::fetch_cache_id($pool, map($pattern, $parts));
 		$response = $this->application->response_factory($this->request);
 		$response->output_handler(Response::CONTENT_TYPE_RAW);
@@ -726,7 +726,7 @@ class Response extends Hookable {
 		$response->content = $this->render(array(
 			"skip_headers" => true
 		));
-		
+
 		if ($seconds !== null) {
 			$item->expiresAfter($seconds);
 		}
@@ -745,7 +745,7 @@ class Response extends Hookable {
 		$this->application->cache->save($item->set($response));
 		return true;
 	}
-	
+
 	/**
 	 * If content for URL is cached, invoke headers and return content.
 	 *
@@ -765,7 +765,7 @@ class Response extends Hookable {
 		}
 		return null;
 	}
-	
+
 	/**
 	 * Page ID counter - always returns a unique ID PER Response
 	 *
@@ -774,7 +774,7 @@ class Response extends Hookable {
 	public function id_counter() {
 		return $this->id_counter++;
 	}
-	
+
 	/**
 	 * Fetches the type to handle this content type
 	 *
@@ -791,7 +791,7 @@ class Response extends Hookable {
 		}
 		return $this->types[$type] = $this->application->factory(self::$type_classes[$type], $this);
 	}
-	
+
 	/*====================================================================================================*\
 	 * HTML-related
 	 */
@@ -803,7 +803,7 @@ class Response extends Hookable {
 	final public function html() {
 		return $this->_type(self::CONTENT_TYPE_HTML);
 	}
-	
+
 	/**
 	 * Set/get page title
 	 *
@@ -814,7 +814,7 @@ class Response extends Hookable {
 	function title($set = null, $overwrite = true) {
 		return $this->html()->title($set, $overwrite);
 	}
-	
+
 	/**
 	 * Get/set body attributes
 	 *
@@ -825,7 +825,7 @@ class Response extends Hookable {
 	final public function body_attributes($add = null, $value = null) {
 		return $this->html()->body_attributes($add, $value);
 	}
-	
+
 	/**
 	 * Add a class to the body tag
 	 *
@@ -845,7 +845,7 @@ class Response extends Hookable {
 	final public function html_attributes($add = null, $value = null) {
 		return $this->html()->attributes($add, $value);
 	}
-	
+
 	/**
 	 * Get/set meta keywords
 	 *
@@ -855,7 +855,7 @@ class Response extends Hookable {
 	final public function meta_keywords($content = null) {
 		return $this->html()->meta_keywords($content);
 	}
-	
+
 	/**
 	 * Get/set meta description text
 	 *
@@ -865,7 +865,7 @@ class Response extends Hookable {
 	final public function meta_description($content = null) {
 		return $this->html()->meta_description($content);
 	}
-	
+
 	/**
 	 * Add a css to the page
 	 *
@@ -880,7 +880,7 @@ class Response extends Hookable {
 	final public function css($path, $mixed = null, $options = null) {
 		return $this->html()->css($path, $mixed, $options);
 	}
-	
+
 	/**
 	 * Set the page theme to use to render the final HTML output
 	 *
@@ -890,7 +890,7 @@ class Response extends Hookable {
 	final public function page_theme($set = false) {
 		return $this->html()->page_theme($set);
 	}
-	
+
 	/**
 	 * Register a javascript to be put on the page
 	 *
@@ -905,7 +905,7 @@ class Response extends Hookable {
 	final function javascript($path, $options = null) {
 		return $this->html()->javascript($path, $options);
 	}
-	
+
 	/**
 	 * Include JavaScript to be included inline in the page
 	 *
@@ -916,7 +916,7 @@ class Response extends Hookable {
 	final function javascript_inline($script, $options = null) {
 		return $this->html()->javascript_inline($script, $options);
 	}
-	
+
 	/**
 	 * Add to JavaScript script settings
 	 *
@@ -925,7 +925,7 @@ class Response extends Hookable {
 	public final function javascript_settings(array $settings = null) {
 		return $this->html()->javascript_settings($settings);
 	}
-	
+
 	/**
 	 * Require jQuery on the page, and optionally add a ready script
 	 *
@@ -935,7 +935,7 @@ class Response extends Hookable {
 	final public function jquery($add_ready_script = null, $weight = null) {
 		return $this->html()->jquery($add_ready_script, $weight);
 	}
-	
+
 	/*====================================================================================================*\
 	 * JSON-related
 	 */
@@ -953,7 +953,7 @@ class Response extends Hookable {
 		}
 		return $this->_type(self::CONTENT_TYPE_JSON);
 	}
-	
+
 	/**
 	 * Return "extra" json data, only passed back to client on request types which support it.
 	 *
@@ -978,7 +978,7 @@ class Response extends Hookable {
 		$this->response_data = $add ? $data + $this->response_data : $data;
 		return $this;
 	}
-	
+
 	/*====================================================================================================*\
 	 * Raw-related
 	 */
@@ -991,7 +991,7 @@ class Response extends Hookable {
 	final public function raw() {
 		return $this->_type(self::CONTENT_TYPE_RAW);
 	}
-	
+
 	/**
 	 * Output a file
 	 *
@@ -1002,7 +1002,7 @@ class Response extends Hookable {
 	final function file($file = null) {
 		return $this->raw()->file($file);
 	}
-	
+
 	/**
 	 * Download a file
 	 *
@@ -1017,7 +1017,7 @@ class Response extends Hookable {
 	final public function download($file, $name = null, $type = null) {
 		return $this->raw()->download($file, $name, $type);
 	}
-	
+
 	/*====================================================================================================*\
 	 * Redirect-related
 	 */
@@ -1038,7 +1038,7 @@ class Response extends Hookable {
 		$this->output_handler(self::HANDLER_REDIRECT);
 		return $this->_type(self::HANDLER_REDIRECT);
 	}
-	
+
 	/**
 	 * If ref is passed in by request, redirect to that location, otherwise, redirect to passed in
 	 * URL
@@ -1054,7 +1054,7 @@ class Response extends Hookable {
 		}
 		$this->redirect()->url($url, $message);
 	}
-	
+
 	/**
 	 *
 	 * @return \zesk\Response
@@ -1063,7 +1063,7 @@ class Response extends Hookable {
 		$this->redirect()->message_clear();
 		return $this;
 	}
-	
+
 	/**
 	 *
 	 * @param string $message
@@ -1071,5 +1071,29 @@ class Response extends Hookable {
 	 */
 	public function redirect_message($message = null) {
 		return $this->redirect()->message($message);
+	}
+
+	/**
+	 * Getter/setter for skipping response headers (uses PHP header()) during output
+	 *
+	 * @param boolean $set
+	 * @return boolean|self
+	 */
+	public function skip_response_headers($set = null) {
+		return $set === null ? $this->option_bool("skip_response_headers") : $this->set_option("skip_response_headers", to_bool($set));
+	}
+
+	/**
+	 * Getter/setter for content
+	 *
+	 * @param string|NULL $content
+	 * @return \zesk\Response|string
+	 */
+	public function content($content = null) {
+		if ($content !== null) {
+			$this->content = $content;
+			return $this;
+		}
+		return $this->content;
 	}
 }
