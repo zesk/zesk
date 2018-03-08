@@ -3,20 +3,27 @@
 /**
  *
  */
-namespace zesk;
+namespace zesk\Daemon;
+
+use zesk\Directory;
+use zesk\Server;
+use zesk\Template;
+use zesk\JSON;
+use zesk\Timestamp;
+use zesk\Exception_File_Permission;
 
 /**
  *
  * @author kent
  *
  */
-class Module_Daemon extends Module {
+class Module extends \zesk\Module {
 	/**
 	 *
 	 * @var string
 	 */
 	public $rundir = null;
-	
+
 	/**
 	 *
 	 * {@inheritdoc}
@@ -29,16 +36,17 @@ class Module_Daemon extends Module {
 		$this->rundir = path($runpath, 'daemon');
 		Directory::depend($this->rundir, 0700);
 	}
-	
+
 	/**
 	 *
 	 * @param Template $template
 	 * @return string[][]
 	 */
 	protected function hook_system_panel(Template $template) {
+		$locale = $template->locale;
 		return array(
 			'system/panel/daemon' => array(
-				"title" => __("Daemons"),
+				"title" => $locale->__("Daemons"),
 				"module_class" => __CLASS__,
 				"server_data_key" => __CLASS__ . "::process_database",
 				"server_updated_key" => __CLASS__ . "::process_database_updated"
@@ -61,7 +69,7 @@ class Module_Daemon extends Module {
 		} catch (\Exception $e) {
 		}
 	}
-	
+
 	/**
 	 * Unlock database
 	 */
@@ -69,7 +77,7 @@ class Module_Daemon extends Module {
 		$path = $this->_database_path();
 		flock($path, LOCK_UN);
 	}
-	
+
 	/**
 	 * Retrieve database path
 	 *
@@ -81,7 +89,7 @@ class Module_Daemon extends Module {
 	public function unlink_database() {
 		unlink($this->_database_path());
 	}
-	
+
 	/**
 	 * Get/set daemon database
 	 *

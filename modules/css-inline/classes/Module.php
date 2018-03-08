@@ -5,8 +5,6 @@
  * @author kent
  * @copyright &copy; 2018 Market Acumen, Inc.
  */
-namespace zesk;
-
 /**
  * @author kent
  */
@@ -17,7 +15,6 @@ namespace zesk\CSSInline;
 
 use TijsVerkoyen\CssToInlineStyles\CssToInlineStyles;
 use zesk\HTML;
-use zesk\Module;
 use zesk\Exception_Class_NotFound;
 use zesk\Exception_Semantics;
 

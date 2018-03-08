@@ -2,6 +2,12 @@
 	"module_class": "zesk\\Module_Daemon",
 	"name": "Daemon",
 	"autoload_options": {
-		"class_prefix": "zesk\\"
-	}
+		"class_prefix": "zesk\\Daemon\\",
+		"lower": false
+	},
+	"module_class": "zesk\\Daemon\\Module",
+	"zesk_command_path_class_prefix": "zesk\\Daemon\\Command_",
+	"requires": [
+		"ORM"
+	]
 }
