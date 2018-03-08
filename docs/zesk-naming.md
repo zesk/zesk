@@ -99,12 +99,6 @@ The corresponding file names which contain these classes use the [PSR-4][] stand
 	classes/User.inc
 	classes/Control/Image/Toggle.inc
 	classes/Province.inc
-	
-Class names for purely static, utility classes are lower-case:
-
-    echo HTML::tag('div', '#customer-name', $content);
-    echo StringTools::unprefix("Company.Name", "Company.");
-    JavaScript::obfuscate_begin();
 
 ## Functions and Methods
 
@@ -117,6 +111,8 @@ Note that PHP itself uses two different naming methodologies for class methods a
 
 > PHP "magic" methods like `__toString`, `__callStatic`, obviously should be named using the PHP convention, as they will be 
 > inoperative using the Zesk method convention `__to_string`, '__call_static'
+
+And yes, we're aware that this naming convention breaks [PSR-1](https://www.php-fig.org/psr/psr-1/), however, this code has been evolving since 2003, so there.
 
 ## Hooks
 
@@ -163,8 +159,8 @@ The `Hookable` class invokes `hook_`*`message`* first, then calls the class hier
 When we call `$pizza->check_delivered()`, and our hook is called, the following happens:
 
 - `$this->hook_delivered(...)` is called first with the parameters
-- `$this->options["hooks"]["delivered"]` is called with the value of `$this` passed as the first parameter, followed by the other parameters passed
-- The following global `zesk()->hooks` are called, in order with the value of `$this` passed as the first parameter, followed by the other parameters passed
+- `$this->options["hooks"]["delivered"]` is called with the value of `$this` (our `Pizza` instance) passed as the first parameter, followed by the other parameters passed
+- The following global `$application->hooks` are called, in order with the value of `$this` passed as the first parameter, followed by the other parameters passed
  - `Pizza::delivered`
  - `FoodItem::delivered`
  - `MenuItem::delivered`
@@ -172,13 +168,24 @@ When we call `$pizza->check_delivered()`, and our hook is called, the following 
  - `zesk\Model::delivered`
  - `zesk\Hookable::delivered`
 
+So, if we wanted to intercept this via a hook, we could do this in our application configuration:
+	
+	$app = $this;
+	$this->hooks->add("Pizza::delivered", function (Pizza $pizza, Location $location) use ($app) {
+		$sms = $pizza->order->sms_notify;
+		if ($sms) {
+			$order_id = $pizza->order->code;
+			$app->orm_factory("SMS")->submit_message_to($sms, "Your pizza order #$order_id was delivered");
+		}
+	});
+
 Results from the hook are combined using `Hookable::hook_results`, which, in the simplest case:
 
 - concatenates strings, or
 - merges arrays, or
 - returns the last hook result
 
-TODO more explanation
+TODO more explanation and examples of how to use this, also how to run filters on objects, and how to use the hook callbacks to do crazy cool stuff if you're a nerd.
 
 [configuration files]: configuration-file-format.md "Configuration File Format"
 [router files]: router-file-format.md "Router File Format"

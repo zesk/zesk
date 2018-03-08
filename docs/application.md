@@ -8,7 +8,9 @@ To create an application, all your application need do is create a file with the
 
 The main application entry point should load the minimum configuration to run your application, typically loading configuration files and any external modules required at all times.
 
-As the location of the Zesk toolkit changes from development to live platforms, we recommend that your application dynamically locate the Zesk library using composer.
+We recommend that your application dynamically locate the Zesk library using composer:
+
+	composer require zesk/zesk
 
 ## Application configuration
 
@@ -21,25 +23,54 @@ Your application file solely handles setting up the context (configuration) for 
 	 */
 	namespace awesome;
 
-	use zesk\Application;
-	
+	use zesk\Kernel;
+
 	require_once __DIR__ . '/vendor/autoload.php';
+
 	/*
 	 * Load Zesk
 	 */
-	$zesk = Kernel::singleton();
+	$kernel = Kernel::singleton();
 
 	/*
 	 * Allow our application to be found
 	 */
-	$zesk->autoloader->path(__DIR__ . '/classes');
-	$zesk->application_class(__NAMESPACE__ . "\\" . "Application");
+	$kernel->autoloader->path(__DIR__ . '/classes', array("class_prefix" => "awesome\\"));
 	
-	$application = $zesk->create_application();
-	$application->set_application_root(__DIR__);
-	
-	return $application->configure();
+	return $kernel
+		->application_class(Application::class)
+		->create_application()
+		->set_application_root(__DIR__)
+		->configure();
 
+Let's walk through this section by section. First off, we define our namespace for our application. In our case we'll use the namespace `awesome` - all classes will use this as the root namespace:
+
+	namespace awesome;
+
+Next, we load composer dependencies:
+
+	require_once __DIR__ . '/vendor/autoload.php';
+
+Setting up `Zesk` does a few things, but largely sets up the basics of any web application:
+
+	$kernel = Kernel::singleton();
+	
+We then tell the kernel that any class which begins with "awesome\\" should be found in the `classes/` directory. The autoloader will use standard PSR-4 loading for our classes.
+
+The final lines do the following, in order:
+
+	return $kernel
+		->application_class(Application::class)
+		->create_application()
+		->set_application_root(__DIR__)
+		->configure();
+
+1. Tell Zesk kernel that our main application object is of the class `awesome\Application`
+2. Create our application
+3. Tell the application the current application root directory (where this file resides)
+4. Runs the configuration steps for the application (basically, loading configuration files and modules needed)
+
+As your application evolves, these steps may change depending on your needs.
 
 ### Determining which files will configure an application
 
@@ -84,14 +115,7 @@ For web applications, you should create an `index.php` file with the following c
 
 	<?php
 	$application = require_once dirname(dirname(__FILE__)) . '/awesome.application.php';
-	try {
-		$application->index();
-	} catch (\Exception $e) {
-		echo $application->theme("page", $application->theme($zesk->classes->hierarchy($e), array(
-			"exception" => $e
-		)));
-		exit(1);
-	}
+	$application->index();
 
 ## How applications are initialized; TODO Outdated 2017-11
 

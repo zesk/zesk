@@ -94,7 +94,7 @@ Which will quit after 10 minutes.
 
 It's recommended to run cron for your application every minute using `crontab`, using a line like:
 
-    * * * * * $HOME/zesk/bin/zesk.sh --cd $HOME/myapplication/ cron > $HOME/log/zesk-cron.log
+    * * * * * $HOME/myapplication/vendor/bin/zesk --cd $HOME/myapplication/ cron --quiet
 
 ## Cron via web page requests
 
@@ -115,6 +115,23 @@ Similarly, you can use
 	zesk cron --list 
 	
 To display the cron tasks which may possibly be run each occurance. 
+
+Sample output is:
+
+	# zesk cron --list
+	zesk\daemon\module::hook_cron                        : true
+	zesk\daemontools\module::hook_cron                   : true
+	module_picker::hook_cron                             : true
+	zesk\module_permission::hook_cron_minute             : true
+	zesk\apache\module::hook_cron_minute                 : true
+	zesk\Server::cron_minute                             : true
+	zesk\module_critical::hook_cron_cluster              : true
+	zesk\Server::cron_cluster_minute                     : true
+	zesk\Lock::cron_cluster_minute                       : true
+	zesk\Session_ORM::cron_cluster_minute                : true
+	zesk\Tag\Module::hook_cron_cluster_hour              : true
+	zesk\Lock::cron_cluster_hour                         : true
+	zesk\Server_Data::cron_cluster_hour                  : true
 
 You can run a database query such as:
 

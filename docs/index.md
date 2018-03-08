@@ -17,7 +17,6 @@ Zesk is an application development platform which solves many problems found in 
 - [Naming Conventions](zesk-naming.md)
 - [Application](application.md)
 - [Configuration File Format](configuration-file-format.md)
-- [Cron](cron.md)
 - [Globals](globals.md)
 - [Router File Format](router-file-format.md)
 - [Widgets](widget.md)
@@ -63,6 +62,8 @@ Zesk is an application development platform which solves many problems found in 
 - [About zesk.sh](zesk.sh.md)
 - [configure Command](command-configure.md)
 - [zesk-commands.md](zesk-commands.md)
+- [Cron](cron.md)
+- [Daemons](daemons.md)
 
 ## Appendix
 

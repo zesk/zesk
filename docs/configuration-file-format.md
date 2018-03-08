@@ -1,5 +1,7 @@
 # Zesk Configuration File format
 
+TODO Way out of date
+
 The Zesk configuration file format allows for diverse structures to be embedded in a plain text file and is used primarily for loading application default settings. 
 
 ## Main call

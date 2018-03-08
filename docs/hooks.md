@@ -12,7 +12,32 @@ of Drupal __function name space__ ease and Wordpress' __registration and invocat
 
 [List of standard Zesk hooks](hooks-list.md)
 
+## Autoloader and object self-registration
+
+Any class which is loaded by Zesk's autoloader is automatically registered in Zesk's system and will have a static method called `hooks` called if it exists in the class.
+
+So:
+
+	class MyClass {
+		public static function hooks(zesk\Application $application) {
+			$application->hooks->add("exit", array(__CLASS__, "onexit"));
+		}
+		
+		public static function onexit(zesk\Application $application) {
+			// Clean up some stuff
+		}
+	}
+
+This method should be used to register hooks for your class or object globally.	
+
+## Registering your hooks
+
+TODO 
+
 So, there are basically two places to register and call hooks, in zesk:
+
+## Hook naming
+
 
 ## Call a hook
 
@@ -63,7 +88,7 @@ You'll note that [`zesk\Hookable`](`hookable.md`) inherits from [`zesk\Options`]
 
 	$this->option_append("hooks", "delete", "project_deleted");
 	
-Then `project_deleted` will be called with our object upon deletion.
+Then the method `project_deleted` will be called with our object upon deletion.
 
 ## External access to internal hooks
 

@@ -2,17 +2,18 @@
 
 Zesk globals typically contain settings and custom configurations throughout the system. They also provide a means to customize per-object behavior in an application.
 
-The main accessor for global settings is the methods in the `zesk\Configuration` class which is accessible from the `$zesk` global.
+The main accessor for global settings is the methods in the `zesk\Configuration` class which is accessible from the `$application` context.
 
-	global $zesk;
-    $value = $zesk->configuration->get('named-value', $default_value); 
-	$zesk->configuration->set('named-value', $new_value);
+    $value = $application->configuration->get('named-value', $default_value); 
+	$application->configuration->set('named-value', $new_value);
+	
+The configuration object allows for a deep traversal tree of settings which can be organized 
 	
 # $_ZESK Global Storage
 
 The global variable `$_ZESK` is *named similarly* to the PHP superglobals `$_SERVER`, `$_REQUEST`, etc. but is **not** a superglobal.
 
-**It is solely used for initializing the zesk globals prior to loading of Zesk's `autoload.php`. Once the `$zesk` global is instantiated, the `$_ZESK` global is not longer used.**
+**It is solely used for initializing the application `Configuration` prior to loading of Zesk's `autoload.php`. Once the application Configuration is instantiated, the `$_ZESK` global is not longer used.**
 
 Global keys are normalized to support use in a variety of contexts, but the general rule is stray punctuation is converted to underscores, and keys are lowercase. So:
 

@@ -35,30 +35,29 @@ You should run your development systems to support *at a minimum* logging of dep
 
 You can do this by calling one of the following:
 
-	zesk()->set_deprecated(zesk\Kernel::deprecated_log);
-	zesk()->set_deprecated(zesk\Kernel::deprecated_exception);
-	zesk()->set_deprecated(zesk\Kernel::deprecated_backtrace);
+	$kernel->set_deprecated(zesk\Kernel::DEPRECATED_LOG);
+	$kernel->set_deprecated(zesk\Kernel::DEPRECATED_EXCEPTION);
+	$kernel->set_deprecated(zesk\Kernel::DEPRECATED_BACKTRACE);
 	
-### `zesk\Kernel::deprecated_log`
+Or, you can configure with a configuration option:
+
+	zesk\Kernel::deprecated=exception
+	
+The strings `exception`, `log`, or `backtrace` are all acceptable, and subsequently 
+### `zesk\Kernel::DEPRECATED_LOG`
 
 Deprecated functions are logged in the log file. If you want to separate out deprecated calls into their own log file, and are using the `Module_Logger_File` module, set up your configuration like so:
 
-	Module_Logger_File::files::main::name="log/{YYYY}-{MM}-{DD}-main.log"
-	Module_Logger_File::files::main::linkname="main.log"
-	Module_Logger_File::files::main::exclude_patterns=["/DEPRECATED/i"]
-	Module_Logger_File::files::error::name="log/{YYYY}-{MM}-{DD}-error.log"
-	Module_Logger_File::files::error::linkname="error.log"
-	Module_Logger_File::files::error::level=["error","warning","critical","emergency"]
-	Module_Logger_File::files::deprecated::name="log/deprecated.log"
-	Module_Logger_File::files::deprecated::include_patterns=["/DEPRECATED/i"]
+	zesk\Module_Logger_File::files::deprecated::name="log/deprecated.log"
+	zesk\Module_Logger_File::files::deprecated::include_patterns=["/DEPRECATED/i"]
 
-It will centrally log your deprecated calls in the `deprecated.log` so you can remove them from your code before they are removed from the zesk code.
+It will centrally log your deprecated calls in the `deprecated.log` so you can remove them from your code before they are removed from Zesk core.
 
-### `zesk\Kernel::deprecated_exception`
+### `zesk\Kernel::DEPRECATED_EXCEPTION`
 
-Throw a `zesk\Exception_Deprecated` whenever a deprecated function is called. **Use only during development.** You may miss some issues when exceptions are caught and/or ignored. Useful if you are calling 3rd-party libraries which may use deprecated functionality and you need to know.
+Throw a `zesk\Exception_Deprecated` whenever a deprecated function is called. **Use only during development.** You may miss some issues when exceptions are caught and/or ignored. Useful if you are calling 3rd-party libraries which may use deprecated functionality and you need to know. This can cause a lot of strange errors in your code so switch to an alternate method if you find enabling this causes [WSOD][]s.
 
-### `zesk\Kernel::deprecated_backtrace`
+### `zesk\Kernel::DEPRECATED_BACKTRACE`
 
 Halt execution and output a `backtrace()` call. The nuclear bomb approach to finding deprecated calls. **Use only during development.**
 
@@ -66,11 +65,11 @@ Halt execution and output a `backtrace()` call. The nuclear bomb approach to fin
 
 The configuration object supports option configuration for paths within an application's configuration. To use this within your own code:
 
-	app()->configuration->deprecated($old_path, $new_path);
+	$application->configuration->deprecated($old_path, $new_path);
 	
 e.g.
 
-	app()->configuration->deprecated("lang::auto", "zesk\Locale::auto");
+	$application->configuration->deprecated("lang::auto", "zesk\Locale::auto");
 	
 If the old path set in the configuration object, `zesk()->deprecated()` is called, and the code copies value from the old path to the new path, as long as the new path does not have a value as well. 
 
@@ -145,11 +144,12 @@ And yes, including the "old" class via the autoloader will invoke the deprecated
 
 ## Deprecated Tools
 
-Within the zesk repository we attempt to make migrating from version to version as easy as possible. So we wrote a tool using `zesk cannon` which allows you to modify your source code automatically.
+Within the Zesk repository we attempt to make migrating from version to version as easy as possible. So we wrote a tool using `zesk cannon` which allows you to modify your source code automatically.
 
 It should go without saying that you shouldn't run this tool on your source code **unless you do it on a copy which you can recover**. That is - make sure you are using source control, or at least back up your code base before you run `cannon` on it.
 
-The upgrade scripts are found in `bin/deprecated/*version*.sh` where the version is the version you wish to upgrade from. Some times the tool will output things you need to check manually, but they mostly will modify your code to support name changes.
+The upgrade scripts are found in `bin/deprecated/*version*.sh` where the version is the version you wish to upgrade from. Some times the tool will output things you need to check manually, but they mostly will modify your code to support name changes. It takes advantage of the shell tool `php-find.sh` which searches PHP files for a matching string pattern and is very useful for removing deprecated code.
 
 If you're currently on version 1.2, you can run all scripts up to and including version 1.2.
 
+Some changes are destructive and/or overly general in the deprecated scripts so, again, use caution and have a safety net before running these scripts on your source code.
