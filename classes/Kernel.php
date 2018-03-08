@@ -30,7 +30,7 @@ class Kernel {
 	 * @var string
 	 */
 	const DEPRECATED_EXCEPTION = "exception";
-	
+
 	/**
 	 * Log all deprecated function calls.
 	 * Useful for development or production environments.
@@ -38,7 +38,7 @@ class Kernel {
 	 * @var string
 	 */
 	const DEPRECATED_LOG = "log";
-	
+
 	/**
 	 * Terminate execution and output a backtrace when a deprecated function is called.
 	 * Useful during development only.
@@ -46,7 +46,7 @@ class Kernel {
 	 * @var string
 	 */
 	const DEPRECATED_BACKTRACE = "backtrace";
-	
+
 	/**
 	 * Do nothing when deprecated functions are called.
 	 * Production only. Default setting.
@@ -54,13 +54,13 @@ class Kernel {
 	 * @var null
 	 */
 	const DEPRECATED_IGNORE = null;
-	
+
 	/**
 	 *
 	 * @var \zesk\Kernel
 	 */
 	private static $singleton = null;
-	
+
 	/**
 	 *
 	 * @var string
@@ -71,7 +71,7 @@ class Kernel {
 	 * @var array
 	 */
 	private $initialize_configuration = null;
-	
+
 	/**
 	 * For storing profiling information
 	 *
@@ -80,7 +80,7 @@ class Kernel {
 	 * @var \stdClass
 	 */
 	private $profiler = null;
-	
+
 	/**
 	 *
 	 * @var array
@@ -95,7 +95,7 @@ class Kernel {
 	 * @var double
 	 */
 	public $initialization_time = null;
-	
+
 	/**
 	 *
 	 * @var CacheItemPoolInterface
@@ -106,90 +106,90 @@ class Kernel {
 	 * @var Autoloader
 	 */
 	public $autoloader = null;
-	
+
 	/**
 	 *
 	 * @var Process
 	 */
 	public $process = null;
-	
+
 	/**
 	 *
 	 * @var Hooks
 	 */
 	public $hooks = null;
-	
+
 	/**
 	 *
 	 * @var Paths
 	 */
 	public $paths = null;
-	
+
 	/**
 	 *
 	 * @var Configuration
 	 */
 	public $configuration = null;
-	
+
 	/**
 	 *
 	 * @var Classes
 	 */
 	public $classes = null;
-	
+
 	/**
 	 *
 	 * @var Objects
 	 */
 	public $objects = null;
-	
+
 	/**
 	 *
 	 * @var Logger
 	 */
 	public $logger = null;
-	
+
 	/**
 	 *
 	 * @var boolean
 	 */
 	public $maintenance = false;
-	
+
 	/**
 	 *
 	 * @see self::console()
 	 * @var boolean
 	 */
 	private $console = false;
-	
+
 	/**
 	 *
 	 * @var string
 	 */
 	public $newline = "\n";
-	
+
 	/**
 	 *
 	 * @var string
 	 */
 	protected $application_class = null;
-	
+
 	/**
 	 *
 	 * @var Application
 	 */
 	protected $application = null;
-	
+
 	/**
 	 * Include related classes
 	 */
 	public static function includes() {
 		$here = dirname(__FILE__);
-		
+
 		require_once $here . "/Exception.php";
 		require_once $here . "/Process.php";
 		require_once $here . "/Logger.php";
-		
+
 		require_once $here . "/Configuration.php";
 		require_once $here . "/Options.php";
 		require_once $here . "/Hookable.php";
@@ -199,14 +199,14 @@ class Kernel {
 		require_once $here . "/Autoloader.php";
 		require_once $here . "/Classes.php";
 		require_once $here . "/Objects.php";
-		
+
 		require_once $here . "/Compatibility.php";
 		require_once $here . "/PHP.php";
-		
+
 		require_once $here . "/CacheItem.php";
 		require_once $here . "/CacheItemPool/Array.php";
 	}
-	
+
 	/**
 	 * Create a Kernel (once)
 	 *
@@ -251,9 +251,9 @@ class Kernel {
 	 */
 	function __construct(array $configuration = array()) {
 		error_reporting(E_ALL | E_STRICT);
-		
+
 		$this->initialize_configuration = $configuration;
-		
+
 		/**
 		 * Set default console
 		 *
@@ -264,17 +264,17 @@ class Kernel {
 		 * Preferred newline character for line-based output
 		 */
 		$this->newline = $this->console ? "\n" : "<br />\n";
-		
+
 		/*
 		 * Zesk's start time in microseconds
 		 */
 		$this->initialization_time = isset($configuration['init']) ? $configuration['init'] : microtime(true);
-		
+
 		/*
 		 * Create our hooks registry
 		 */
 		$this->hooks = new Hooks($this);
-		
+
 		$this->construct($configuration);
 	}
 	/**
@@ -287,32 +287,32 @@ class Kernel {
 		} else {
 			$this->cache = new CacheItemPool_Array();
 		}
-		
+
 		/*
 		 * Set up logger interface for central logging
 		 */
 		$this->logger = new Logger($this);
-		
+
 		/*
 		 * Configuration of components in the system
 		 */
 		$this->configuration = Configuration::factory(self::$configuration_defaults)->merge(Configuration::factory($configuration));
-		
+
 		$this->application_class = $this->configuration->path_get(array(
 			__CLASS__,
 			"application_class"
 		), __NAMESPACE__ . "\\" . "Application");
-		
+
 		/*
 		 * Initialize system paths and set up default paths for interacting with the file system
 		 */
 		$this->paths = new Paths($this);
-		
+
 		/*
 		 * Manage object creation, singletons, and object sharing
 		 */
 		$this->objects = new Objects($this);
-		
+
 		$this->application_class = $this->configuration->path_get(array(
 			__CLASS__,
 			"application_class"
@@ -323,11 +323,11 @@ class Kernel {
 	public final function bootstrap() {
 		$this->autoloader = new Autoloader($this);
 		$this->classes = Classes::instance($this);
-		
+
 		$this->initialize();
-		
+
 		Compatibility::install();
-		
+
 		if (PHP_VERSION_ID < 50000) {
 			die("Zesk works in PHP 5 only.");
 		}
@@ -341,7 +341,7 @@ class Kernel {
 			"configured"
 		));
 	}
-	
+
 	/**
 	 *
 	 * @return number
@@ -349,7 +349,7 @@ class Kernel {
 	public function process_id() {
 		return $this->process->id();
 	}
-	
+
 	/**
 	 * To disable deprecated function, call with boolean value "false"
 	 *
@@ -360,6 +360,7 @@ class Kernel {
 	 */
 	public function set_deprecated($set) {
 		$this->deprecated = is_string($set) ? strtolower($set) : self::DEPRECATED_IGNORE;
+		return $this;
 	}
 	/**
 	 * Enables a method to be tagged as "deprecated"
@@ -391,7 +392,7 @@ class Kernel {
 			}
 		}
 	}
-	
+
 	/**
 	 * For cordoning off old, dead code
 	 */
@@ -403,7 +404,7 @@ class Kernel {
 			backtrace();
 		}
 	}
-	
+
 	/**
 	 * This loads an include without any variables defined, except super globals Handy when the file
 	 * is meant to return
@@ -418,7 +419,7 @@ class Kernel {
 	public function load($__file__) {
 		return include $__file__;
 	}
-	
+
 	/**
 	 * Load configuration
 	 */
@@ -458,7 +459,7 @@ class Kernel {
 			$this->logger->utc_time = to_bool($this->configuration->path_get("zesk\Logger::utc_time"));
 		}
 	}
-	
+
 	/**
 	 * Internal call to initialize profiler structure
 	 */
@@ -477,7 +478,7 @@ class Kernel {
 		}
 		return $this->profiler;
 	}
-	
+
 	/**
 	 * Time a function call
 	 *
@@ -494,7 +495,7 @@ class Kernel {
 			$profiler->times[$item] = $seconds;
 		}
 	}
-	
+
 	/**
 	 * Internal profiler to determine who is calling what function how often.
 	 * Debugging only
@@ -510,7 +511,7 @@ class Kernel {
 			$profiler->calls[$fkey] = 1;
 		}
 	}
-	
+
 	/**
 	 * Getter/setter for console
 	 *
@@ -524,7 +525,7 @@ class Kernel {
 		}
 		return $this->console;
 	}
-	
+
 	/**
 	 * Getter/setter for application class
 	 *
@@ -546,7 +547,7 @@ class Kernel {
 		}
 		return $this->application_class;
 	}
-	
+
 	/**
 	 *
 	 * @param array $options
@@ -562,7 +563,7 @@ class Kernel {
 		}
 		return $this->application = $this->objects->factory($this->application_class, $this, $options);
 	}
-	
+
 	/**
 	 *
 	 * @return Application
@@ -575,7 +576,7 @@ class Kernel {
 		}
 		return $this->application;
 	}
-	
+
 	/**
 	 * Return zesk home directory
 	 *
