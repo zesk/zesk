@@ -12,6 +12,7 @@ namespace zesk;
  */
 class Command_Classes extends Command_Base {
 	protected $option_types = array(
+		"format" => "string",
 		"database" => "boolean",
 		"table" => "boolean"
 	);
@@ -21,7 +22,7 @@ class Command_Classes extends Command_Base {
 	);
 	function run() {
 		$application = $this->application;
-		$classes = $application->all_classes();
+		$classes = $application->orm_module()->all_classes();
 		$objects_by_class = array();
 		$is_table = false;
 		$rows = array();
@@ -41,7 +42,12 @@ class Command_Classes extends Command_Base {
 			}
 			$rows[] = $result;
 		}
-		echo Text::format_table($rows);
+		$format = $this->option("format");
+		if ($format === "text" || empty($format)) {
+			echo Text::format_table($rows);
+		} else {
+			$this->render_format($rows);
+		}
 		return 0;
 	}
 }
