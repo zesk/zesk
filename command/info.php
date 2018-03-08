@@ -131,6 +131,7 @@ class Command_Info extends Command {
 			array()
 		), array());
 		$info = array_merge($info, ArrayTools::key_value($module_info, null, "value"));
+		$human_names = array();
 		foreach ($module_info as $code_name => $settings) {
 			$human_names[$code_name] = avalue($settings, "title", $code_name);
 		}
@@ -138,6 +139,7 @@ class Command_Info extends Command {
 		if (!$this->option_bool('computer-labels')) {
 			$info = ArrayTools::map_keys($info, $human_names + self::$human_names);
 		}
-		echo $this->render_format($info, $this->option("format"));
+		$this->render_format($info, $this->option("format"));
+		return 0;
 	}
 }

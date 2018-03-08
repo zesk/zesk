@@ -1,6 +1,14 @@
 <?php
-class Module_CodeKit extends zesk\Module_JSLib implements \zesk\Interface_Module_Head {
-	public function hook_head(zesk\Request $request, zesk\Response $response, zesk\Template $template) {
+namespace zesk\CodeKit;
+
+use zesk\Module_JSLib;
+use zesk\Template;
+use zesk\Request;
+use zesk\Response;
+use zesk\Interface_Module_Head;
+
+class Module extends Module_JSLib implements Interface_Module_Head {
+	public function hook_head(Request $request, Response $response, Template $template) {
 		if ($this->application->development()) {
 			$ip = "127.0.0.1";
 			$js_version = "3.0.3";
