@@ -21,22 +21,34 @@ Version 1.0 of Zesk will have:
 
 ## [Unreleased][]
 
+### New features
+
+- Improved docs
+- `zesk classes` now supports outputting alternate formats using `--format json`
+
 ### Fixed bugs
 
 - `zesk\Router` was decoding JSON sub-content to objects, not arrays.
+- `zesk\Response::process_cached_css` fixed issue with fixing import paths
 
 ### Changed functionality
 
 #### Application
 
 - `zesk\Application::configured` hook was removed is its usage pattern did not make sense.
+- `zesk\Application::theme` no longer invokes the `theme` hook on objects which are passed as the content to it. Use `$object->theme()` instead.
+- `zesk\Kernel::set_deprecated` returns `$this`
+- Hook renamed `zesk\Application::response_output` => `zesk\Response::response_output_before`
+- Hook renamed `zesk\Application::response_outputted` => `zesk\Response::response_output_after`
+- Hook renamed `zesk\Response::output` => `zesk\Response::output_before`
+- Hook renamed `zesk\Response::outputted` => `zesk\Response::output_after`
 - `zesk\Response::content()` was added as a getter/setter for `zesk\Response` content to enable chained calls to set up the `zesk\Response` (e.g. `return $response->content("dude")->status(301);`)
+- Hook `zesk\Router::new` renamed to `zesk\Router::construct`
 
 #### ORM module
 
 - `zesk\ORM::members()` and related calls now transform each member via the equivalent of the `__get` call. In addition, a new protected internal method `zesk\ORM::_get` can be used to retrieve a member from an `ORM`. Note that previously, members were returned untransformed (e.g. "2018-07-03 16:35:50" instead of an object of `zesk\Timestamp` for example)
 - `zesk\ORM::json()` now supports option `resolve_methods` which is a list (string or array) of methods to attempt to convert objects to JSON syntax. Default is `["json"]`.
-
 
 #### Developer module
 
