@@ -1,0 +1,15 @@
+{
+    "name": "Contact",
+    "requires": [
+        "world"
+    ],
+    "autoload_options": {
+        "class_prefix": "zesk\\",
+        "lower": true,
+        "extensions": [
+            "php",
+            "inc"
+        ]
+    },
+    "module_class": "zesk\\Module_Contact"
+}
