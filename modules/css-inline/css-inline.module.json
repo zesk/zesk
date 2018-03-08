@@ -6,5 +6,10 @@
 		"require": [
 			"tijsverkoyen/css-to-inline-styles"
 		]
-	}
+	},
+	"autoload_options": {
+		"class_prefix": "zesk\\CSSInline\\",
+		"lower": false
+	},
+	"module_class": "zesk\\CSSInline\\Module"
 }

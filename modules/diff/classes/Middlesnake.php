@@ -3,16 +3,16 @@
  * @package zesk
  * @subpackage system
  * @author kent
- * @copyright Copyright &copy; 2009, Market Acumen, Inc.
+ * @copyright Copyright &copy; 2018, Market Acumen, Inc.
  */
-namespace zesk;
+namespace zesk\Diff;
 
 /**
- * 
+ *
  * @author kent
  *
  */
-class Diff_MiddleSnake {
+class MiddleSnake {
 	public $x;
 	public $y;
 	public $u;

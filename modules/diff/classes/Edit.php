@@ -5,58 +5,60 @@
  * @author kent
  * @copyright Copyright &copy; 2009, Market Acumen, Inc.
  */
-namespace zesk;
+namespace zesk\Diff;
+
+use zesk\PHP;
 
 /**
- * 
+ *
  * @author kent
  *
  */
-class Diff_Edit {
+class Edit {
 	/**
-	 * 
+	 *
 	 * @var string
 	 */
 	const DIFF_INSERT = 'insert';
 	/**
-	 * 
+	 *
 	 * @var string
 	 */
 	const DIFF_DELETE = 'delete';
 	/**
-	 * 
+	 *
 	 * @var string
 	 */
 	const DIFF_MATCH = 'match';
-	
+
 	/**
 	 * Operation
-	 * 
-	 * @var string 
+	 *
+	 * @var string
 	 */
 	public $op;
-	
+
 	/**
-	 * Offset 
-	 * 
+	 * Offset
+	 *
 	 * @var integer
 	 */
 	public $off;
 	/**
 	 * Length
-	 * 
+	 *
 	 * @var integer
 	 */
 	public $len;
 	/**
 	 * Data which changed
-	 * 
+	 *
 	 * @var mixed
 	 */
 	public $data = null;
-	
+
 	/**
-	 * 
+	 *
 	 * @param string $op
 	 * @param integer $off
 	 * @param integer $len
@@ -68,10 +70,10 @@ class Diff_Edit {
 		$this->len = $len;
 		$this->data = $data;
 	}
-	
+
 	/**
 	 * Convert to string
-	 * 
+	 *
 	 * @return string
 	 */
 	function __toString() {

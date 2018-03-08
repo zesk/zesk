@@ -1,7 +1,20 @@
 <?php
 /**
+ * @package zesk-modules
+ * @subpackage css-inline
+ * @author kent
+ * @copyright &copy; 2018 Market Acumen, Inc.
+ */
+namespace zesk;
+
+/**
+ * @author kent
+ */
+/**
  *
  */
+namespace zesk\CSSInline;
+
 use TijsVerkoyen\CssToInlineStyles\CssToInlineStyles;
 use zesk\HTML;
 use zesk\Module;
@@ -13,16 +26,24 @@ use zesk\Exception_Semantics;
  * @author kent
  *
  */
-class Module_CSS_Inline extends zesk\Module {
+class Module extends \zesk\Module {
 	public function initialize() {
 		if ($this->application->autoloader->load("TijsVerkoyen\CssToInlineStyles\CssToInlineStyles", true)) {
 			throw new Exception_Class_NotFound("TijsVerkoyen\CssToInlineStyles\CssToInlineStyles");
 		}
 	}
+
+	/**
+	 *
+	 * @param unknown $content
+	 * @param unknown $css
+	 * @throws Exception_Semantics
+	 * @return unknown
+	 */
 	public function process_html($content, $css = null) {
 		// create instance
 		$cssToInlineStyles = new CssToInlineStyles();
-		
+
 		$html = $content;
 		if ($css === null) {
 			$css_tags = HTML::extract_tags("style", $content);
@@ -35,7 +56,7 @@ class Module_CSS_Inline extends zesk\Module {
 				$css .= $tag->inner_html() . "\n";
 			}
 		}
-		
+
 		// output
 		return $cssToInlineStyles->convert($html, $css);
 	}

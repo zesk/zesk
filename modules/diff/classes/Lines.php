@@ -5,16 +5,16 @@
  * @author kent
  * @copyright Copyright &copy; 2009, Market Acumen, Inc.
  */
-namespace zesk;
+namespace zesk\Diff;
 
 /**
  *
  * @author kent
  *
  */
-class Diff_Lines extends Diff {
+class Lines extends Base {
 	/**
-	 * 
+	 *
 	 * @var array
 	 */
 	private $alines;
@@ -33,9 +33,9 @@ class Diff_Lines extends Diff {
 	 * @var array
 	 */
 	private $seq;
-	
+
 	/**
-	 * 
+	 *
 	 * @param string $a
 	 * @param string $b
 	 * @param string $skip_whitespace
@@ -43,22 +43,22 @@ class Diff_Lines extends Diff {
 	function __construct($a, $b, $skip_whitespace = false) {
 		$this->alines = to_list($a, array(), "\n");
 		$this->blines = to_list($b, array(), "\n");
-		
+
 		$this->seq = 0;
 		$this->hashtable = array();
-		
+
 		$a = $this->hash_lines($this->alines, $skip_whitespace);
 		$b = $this->hash_lines($this->blines, $skip_whitespace);
-		
+
 		$this->hashtable = null;
-		
+
 		parent::__construct($a, $b, $this->seq);
-		
+
 		$this->process_results();
 	}
 	private function process_results() {
 		foreach ($this->diffs() as $edit) {
-			if ($edit->op === Diff_Edit::DIFF_INSERT) {
+			if ($edit->op === Edit::DIFF_INSERT) {
 				$edit->data = array_slice($this->blines, $edit->off, $edit->len);
 			}
 		}
@@ -85,17 +85,17 @@ class Diff_Lines extends Diff {
 		$diffs = $this->diffs();
 		foreach ($diffs as $edit) {
 			switch ($edit->op) {
-				case Diff_Edit::DIFF_INSERT:
+				case Edit::DIFF_INSERT:
 					$result[] = "> Line " . ($edit->off + 1) . " Insert $edit->len lines";
 					$result[] = implode("\n", array_slice($this->blines, $edit->off, $edit->len));
 					break;
-				case Diff_Edit::DIFF_DELETE:
+				case Edit::DIFF_DELETE:
 					$result[] = "< Line " . ($edit->off + 1) . " Delete $edit->len lines";
 					$result[] = implode("\n", array_slice($this->alines, $edit->off, $edit->len));
 					break;
 			}
 		}
-		
+
 		return implode("\n", $result);
 	}
 }
