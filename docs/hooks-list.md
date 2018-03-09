@@ -1,6 +1,14 @@
 # List of standard Zesk Hooks
 
+The **Specification** section describes each hook's details as follows:
 
+- **Type**: Either `zesk\Hookable` hook, or a **system hook**
+- **Arguments**: A list of types and names passed to the `zesk\Hookable` method
+- **Hookable method**: The name of the method called in the related `zesk\Hookable` class.
+- **System Arguments**: A list of types and names passed to the system hook
+- **System hook name**: The string you should pass to `$application->hooks->add()` to register this hook
+- **Filter**: Whether this hook passes one or more of its parameters back to be processed or accumulated in a result.
+- **Return value**: Each hook implementation may return a value 
 
 ##  `zesk\Application::configured_files`
 
@@ -14,13 +22,13 @@ You want custom behavior based on the configuration file, particularly related t
 
 ### Specification
 
-**Type**: Hookable hook
-**Arguments**: none
-**Hookable method**: `hook_configured_files`
-**System Arguments**: `zesk\Application`
-**System hook name**: `zesk\Application::configured_files`
-**Filter**: NO
-**Return value**: void
+- **Type**: Hookable hook
+- **Arguments**: none
+- **Hookable method**: `hook_configured_files`
+- **System Arguments**: `zesk\Application`
+- **System hook name**: `zesk\Application::configured_files`
+- **Filter**: no
+- **Return value**: void
 
 ### Implementations
 
@@ -57,13 +65,13 @@ You need to:
 
 ### Specification
 
-**Type**: Hookable hook
-**Arguments**: `zesk\Request $request`
-**Hookable method**: `hook_request`
-**System Arguments**: `zesk\Application $application, zesk\Request $request`
-**System hook name**: `zesk\Application::request`
-**Filter**: No
-**Return value**: void
+- **Type**: Hookable hook
+- **Arguments**: `zesk\Request $request`
+- **Hookable method**: `hook_request`
+- **System Arguments**: `zesk\Application $application, zesk\Request $request`
+- **System hook name**: `zesk\Application::request`
+- **Filter**: no
+- **Return value**: void
 
 ### Implementations
 
@@ -84,7 +92,7 @@ As an application hook:
 			if (strpos($request->path(), ".exe") !== false) {
 				$request->set_option("possible_hack", true);
 			}
-		}
+		});
 		...
 	}
 
@@ -103,13 +111,13 @@ You need to:
 
 ### Specification
 
-**Type**: Hookable hook
-**Arguments**: none
-**Hookable method**: `hook_main`
-**System Arguments**: `zesk\Application`
-**System hook name**: `zesk\Application::main`
-**Filter**: No
-**Return value**: `zesk\Response`
+- **Type**: Hookable hook
+- **Arguments**: none
+- **Hookable method**: `hook_main`
+- **System Arguments**: `zesk\Application`
+- **System hook name**: `zesk\Application::main`
+- **Filter**: No
+- **Return value**: `zesk\Response|void`
 
 ### Implementations
 
@@ -163,6 +171,47 @@ As an application hook:
 
 ## `zesk\Controller::classes`
 ## `zesk\Controller::json`
+
+### When is it called?
+
+Called whenever anyone calls `zesk\Controller::json`.
+
+### Why override it?
+
+You need to manipulate the output of another JSON call.
+
+### Specification
+
+- **Type**: Hookable hook
+- **Arguments**: array $json
+- **Hookable method**: `hook_configured_files`
+- **System Arguments**: `zesk\Application`
+- **System hook name**: `zesk\Application::configured_files`
+- **Filter**: yes
+- **Return value**: array
+
+### Implementations
+
+As a system hook:
+
+	$application->hooks->add("zesk\\Application::configured_files", function (zesk\Application $app) {
+		$custom = $app->configuration->custom;
+		$app->loader->load_one("etc/custom/$custom");
+	});
+
+As an application hook:
+
+	namespace awesome;
+	class Application extends \zesk\Application {
+		...
+		function hook_configured_files() {
+			$custom = $this->configuration->custom;
+			$this->loader->load_one("etc/custom/$custom");
+		}
+		...
+	}
+
+
 ## `zesk\Controller::initialize`
 
 ## `zesk\Controller_Theme::control_execute` (* can be renamed using an option)
