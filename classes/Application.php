@@ -688,12 +688,11 @@ class Application extends Hookable implements Interface_Theme {
 			$this->kernel->profile_timer("_configure_files", microtime(true) - $mtime);
 		}
 
+		// Apply settings from loaded configuration to make settings available to hook_configured_files
+		$this->inherit_global_options();
 		$this->call_hook('configured_files');
 
 		$this->modules->load($this->load_modules);
-
-		// Reload application options
-		$this->inherit_global_options();
 
 		// Load dynamic modules now
 		$modules = $this->option_list('modules');
