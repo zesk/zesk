@@ -1,10 +1,9 @@
 # Change Log
 <!-- @no-cannon -->
 
-All notable changes to this project will be documented in this file.
+All notable changes to Zesk will be documented in this file.
 
-The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
-and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
+The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/) and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
 ## Heading toward a 1.0
 
@@ -31,7 +30,14 @@ Version 1.0 of Zesk will have:
 - `zesk\Router` was decoding JSON sub-content to objects, not arrays.
 - `zesk\Response::process_cached_css` fixed issue with fixing import paths
 
+### Removed features
+
+- `zesk\Controller_AJAX` has been removed.
+
 ### Changed functionality
+
+- `zesk\Controller_Authenticated` has been moved into the `ORM` module
+- `zesk config` now displays just the loading details by default (e.g. `--loaded --not-loaded --skipped`). If you specify any individual flag, the others are then off by default. Previously it showed all sections which is useful less commonly.
 
 #### Application
 
