@@ -1189,6 +1189,13 @@ class ORM extends Model {
 		if ($data === null || $data === '') {
 			return null;
 		}
+		if ($this->option_bool("debug")) {
+			$this->application->logger->debug("Loading {class} member {member} with id {data}", array(
+				"class" => get_class($this),
+				"member" => $member,
+				"data" => $data
+			));
+		}
 		try {
 			$object = $this->member_orm_factory($member, $class, $data, $options + $this->inherit_options());
 		} catch (Exception_ORM_NotFound $e) {
@@ -1584,7 +1591,11 @@ class ORM extends Model {
 		}
 		$result = array();
 		foreach ($mixed as $member) {
-			$result[$member] = $this->_get($member);
+			try {
+				$result[$member] = $this->_get($member);
+			} catch (Exception_ORM_NotFound $e) {
+				$result[$member] = null; // TODO Maybe use a dummy, empty object? or a NULL ORM? 2018-03 KMD
+			}
 		}
 		return $result;
 	}
