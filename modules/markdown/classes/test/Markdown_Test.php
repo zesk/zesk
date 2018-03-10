@@ -1,13 +1,15 @@
 <?php
 /**
- * 
+ *
  */
 namespace zesk;
+
+use zesk\Diff\Lines;
 
 /**
  *
  * @author kent
- *        
+ *
  */
 class Markdown_Test extends Test_Unit {
 	protected $load_modules = array(
@@ -16,7 +18,7 @@ class Markdown_Test extends Test_Unit {
 	);
 	function test_md() {
 		$failed = false;
-		
+
 		$tests = Directory::ls(dirname(__FILE__), '/.markdown$/');
 		chdir(dirname(__FILE__));
 		$bar = "\n" . str_repeat("*", 80) . "\n";
@@ -28,7 +30,7 @@ class Markdown_Test extends Test_Unit {
 				continue;
 			}
 			$result_html = Markdown::filter($markdown);
-			$diff = new Diff_Lines($html, $result_html, true);
+			$diff = new Lines($html, $result_html, true);
 			if (!$diff->is_identical()) {
 				echo "FAILED\n";
 				echo $bar;
@@ -70,9 +72,9 @@ Email me: [Kent](mailto:kent@marketacumen.com)
 Or link to: http://zesk.com/
 
 EOF;
-		
+
 		Markdown::filter($text);
-		
+
 		if ($failed) {
 			exit(1);
 		}
