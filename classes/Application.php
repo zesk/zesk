@@ -342,7 +342,8 @@ class Application extends Hookable implements Interface_Theme {
 
 	/**
 	 *
-	 * @param unknown $options
+	 * @param Kernel $kernel Zesk kernel for core functionality
+	 * @param array $options Options passed in by zesk\Kernel::create_application($options)
 	 */
 	public function __construct(Kernel $kernel, array $options = array()) {
 		parent::__construct($this, $options);
