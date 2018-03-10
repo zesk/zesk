@@ -4,19 +4,19 @@ namespace zesk;
 use PHPUnit\Framework\TestCase;
 
 class PHPUnit_TestCase extends TestCase {
-	
+
 	/**
 	 *
 	 * @var Application
 	 */
 	protected $application = null;
-	
+
 	/**
 	 *
 	 * @var Configuration
 	 */
 	protected $configuration = null;
-	
+
 	/**
 	 * Ensures our zesk variables above are properly populated
 	 */
@@ -34,7 +34,7 @@ class PHPUnit_TestCase extends TestCase {
 		$this->assertInstanceOf(Configuration::class, $this->configuration);
 		$this->assertInstanceOf(Application::class, $this->application);
 	}
-	
+
 	/**
 	 *
 	 * @param string $string
@@ -43,5 +43,18 @@ class PHPUnit_TestCase extends TestCase {
 	 */
 	function assertStringIsURL($string, $message = null) {
 		return $this->assertTrue(URL::valid($string), $message ?: "$string is not a URL");
+	}
+
+	/**
+	 *
+	 * @param array $keys List of keys
+	 * @param \ArrayAccess $array
+	 * @param string $message Optional message
+	 */
+	function assertArrayHasKeys($keys, $array, $message = '') {
+		$keys = to_list($keys);
+		foreach ($keys as $key) {
+			$this->assertArrayHasKey($key, $array, $message);
+		}
 	}
 }
