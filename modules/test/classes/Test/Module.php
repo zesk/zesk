@@ -1,9 +1,20 @@
 <?php
-namespace zesk;
+/**
+ * @package zesk-modules
+ * @subpackage test
+ * @author kent
+ * @copyright &copy; 2018 Market Acumen, Inc.
+ */
+namespace zesk\Test;
 
-use zesk\Test\Controller;
+use zesk\Router;
 
-class Test_Module extends Module implements Interface_Module_Routes {
+/**
+ *
+ * @author kent
+ *
+ */
+class Module extends \zesk\Module implements \zesk\Interface_Module_Routes {
 	/**
 	 *
 	 * @var string
@@ -23,10 +34,10 @@ class Test_Module extends Module implements Interface_Module_Routes {
 	 * @see \zesk\Interface_Module_Routes::hook_routes()
 	 */
 	public function hook_routes(Router $router) {
-		$router->add_route("test", array(
+		$router->add_route("test(/{option action}(/{arg}))", array(
 			"controller" => Controller::class,
-			"action" => array(
-				1
+			"arguments" => array(
+				2
 			),
 			"default action" => "index"
 		));

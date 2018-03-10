@@ -6,7 +6,7 @@
 	},
 	"name": "Test Framework for Zesk",
 	"url_license": "https://zesk.com/license",
-	"module_class": "zesk\\Test_Module",
+	"module_class": "zesk\\Test\\Module",
 	"autoload_options": {
 		"class_prefix": "zesk\\",
 		"lower": false
