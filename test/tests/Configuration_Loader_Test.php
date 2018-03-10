@@ -8,6 +8,11 @@
  */
 namespace zesk;
 
+/**
+ *
+ * @author kent
+ *
+ */
 class Configuration_Loader_Test extends Test_Unit {
 	function test_implements() {
 		$config = new Configuration();
@@ -21,7 +26,7 @@ class Configuration_Loader_Test extends Test_Unit {
 		Directory::depend($one = path($path, "one"));
 		Directory::depend($two = path($path, "two"));
 		Directory::depend($three = path($path, "three"));
-		
+
 		$array = array(
 			"name" => "ralph",
 			"rank" => "admiral",
@@ -33,7 +38,7 @@ class Configuration_Loader_Test extends Test_Unit {
 		$conf_name = "a.conf";
 		$json_name = "b.json";
 		// Four files
-		
+
 		$one_json = array(
 			"Person" => array(
 				"name" => "\${name}-one-json",
@@ -72,12 +77,12 @@ class Configuration_Loader_Test extends Test_Unit {
 			"LAST=three-conf",
 			"FILE_LOADED::THREE_CONF=1"
 		);
-		
+
 		file_put_contents(path($one, $json_name), JSON::encode_pretty($one_json));
 		file_put_contents(path($two, $conf_name), implode("\n", $two_conf));
 		file_put_contents(path($three, $json_name), JSON::encode_pretty($three_json));
 		file_put_contents(path($three, $conf_name), implode("\n", $three_conf));
-		
+
 		$files = array();
 		foreach (array(
 			$one,
@@ -94,9 +99,9 @@ class Configuration_Loader_Test extends Test_Unit {
 			}
 		}
 		$loader = new Configuration_Loader($files, $settings);
-		
+
 		$loader->load();
-		
+
 		$variables = $loader->variables();
 		$this->assert_equal($variables['processed'], array(
 			"$path/one/$json_name",
@@ -104,7 +109,7 @@ class Configuration_Loader_Test extends Test_Unit {
 			"$path/three/$conf_name",
 			"$path/three/$json_name"
 		));
-		
+
 		$this->assert_arrays_equal(to_array($config), array(
 			"name" => "ralph",
 			"rank" => "admiral",
@@ -152,7 +157,7 @@ class Configuration_Loader_Test extends Test_Unit {
 			'FOOTEST12=true',
 			'FOOTEST13=false'
 		);
-		
+
 		$results = array(
 			'FOO' => '/foo/foo',
 			'BAR' => '/bar/bar',
@@ -182,14 +187,43 @@ class Configuration_Loader_Test extends Test_Unit {
 		$settings = new Adapter_Settings_Array($actual);
 		$parser = new Configuration_Parser_CONF(implode("\n", $lines), $settings, $options);
 		$parser->process();
-		
+
 		foreach ($actual as $k => $set) {
 			$this->assert_equal($set, $results[$k], "Key $k did not match");
 			unset($actual[$k]);
 		}
 		$this->assert(count($actual) === 0);
 	}
-	
+	function provider_test_no_dependencies() {
+		$dir = dirname(__DIR__) . '/test-data/';
+		return array(
+			array(
+				array(
+					$dir . 'Configuration_Loader_Test_dependencies0.conf'
+				)
+			),
+			array(
+				array(
+					$dir . 'Configuration_Loader_Test_dependencies0.conf',
+					$dir . 'Configuration_Loader_Test_dependencies1.conf'
+				)
+			)
+		);
+	}
+
+	/**
+	 * @dataProvider provider_test_no_dependencies
+	 * @param unknown $files
+	 */
+	function test_no_dependencies(array $files) {
+		$dir = dirname(__DIR__) . '/test-data/';
+		$result = array();
+		$settings = new Adapter_Settings_Array($result);
+		$loader = new Configuration_Loader($files, $settings);
+		$loader->load();
+		$this->assertEquals(array(), $loader->externals());
+	}
+
 	// 	function test_edit() {
 	// 		$path = $this->test_sandbox(__FUNCTION__ . ".conf");
 	// 		file_put_contents($path, "MONKEY=MAN\nDoG=\"CANINE\"");
@@ -211,7 +245,7 @@ class Configuration_Loader_Test extends Test_Unit {
 	// 		$options = array();
 	// 		conf::globals($paths, $options);
 	// 	}
-	
+
 	// 	/**
 	// 	 * @expectedException Exception_File_NotFound
 	// 	 */
