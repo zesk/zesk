@@ -34,7 +34,6 @@ class Binary extends Base {
 		parent::__construct(str_split($a), str_split($b), $dmax);
 		$this->astring = $a;
 		$this->bstring = $b;
-
 		$this->process_results();
 	}
 
@@ -68,7 +67,6 @@ class Binary extends Base {
 					break;
 			}
 		}
-
 		return implode("\n", $result);
 	}
 }

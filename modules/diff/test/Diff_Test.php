@@ -85,7 +85,7 @@ class Diff_Test extends Test_Unit {
 	function test_diff_lines() {
 		$a = "Line1\nLine2\nLine4";
 		$b = "Line1\nLine2\nLine3\nLine4";
-		$testx = new Diff_Lines($a, $b);
+		$testx = new Lines($a, $b);
 
 		$this->log("Sample 1: \n$a");
 		$this->log("Sample 2: \n$b");
@@ -96,7 +96,7 @@ class Diff_Test extends Test_Unit {
 				"Line3"
 			))
 		));
-		$testx = new Diff_Lines($b, $a);
+		$testx = new Lines($b, $a);
 		$this->assert_equal($testx->diffs(), array(
 			new Edit(Edit::DIFF_DELETE, 2, 1)
 		));

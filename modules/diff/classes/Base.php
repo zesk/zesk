@@ -303,7 +303,7 @@ class Base {
 	//	const void *b, int boff, int m,
 	//	Diff_Context ctx)
 	private function _ses($aoff, $n, $boff, $m) {
-		$ms = new Diff_MiddleSnake();
+		$ms = new MiddleSnake();
 
 		if ($n == 0) {
 			$this->_edit(Edit::DIFF_INSERT, $boff, $m);
