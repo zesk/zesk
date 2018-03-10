@@ -85,7 +85,7 @@ class Control_reCAPTCHA extends Control {
 			file_put_contents($app->path('recaptcha.log'), $debug);
 		}
 		$code_type = $http->response_code_type();
-		if ($code_type === Net_HTTP::response_type_success) {
+		if ($code_type === Net_HTTP::RESPONSE_TYPE_SUCCESS) {
 			try {
 				$data = JSON::decode($result);
 				$success = to_bool(avalue($data, 'success'));

@@ -134,7 +134,7 @@ class Redirect extends Type {
 		$this->parent->header("Location", $url);
 		$status_code = $exception->status_code();
 		if (!$status_code) {
-			$status_code = Net_HTTP::Status_Moved_Permanently;
+			$status_code = Net_HTTP::STATUS_MOVED_PERMANENTLY;
 			;
 		}
 		$this->parent->status_code = $status_code;

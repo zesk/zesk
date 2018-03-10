@@ -22,7 +22,7 @@ abstract class Net_HTTP_Server extends Net_Server {
 			$this->error_response($response, $e);
 		} catch (Exception $e) {
 			$this->application->hooks->call("exception", $e);
-			$this->error_response($response, new Net_HTTP_Server_Exception(Net_HTTP::Status_Internal_Server_Error, null, $e->getMessage()));
+			$this->error_response($response, new Net_HTTP_Server_Exception(Net_HTTP::STATUS_INTERNAL_SERVER_ERROR, null, $e->getMessage()));
 		}
 		$this->send_response($client_id, $response);
 		$this->close($client_id);

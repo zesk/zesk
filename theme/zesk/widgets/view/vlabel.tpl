@@ -24,7 +24,7 @@ $cache_file = md5(serialize($attributes)) . ".png";
 
 $path = Directory::create($cache_path, 0775);
 if (!$path) {
-	$response->status_code = Net_HTTP::Status_Internal_Server_Error;
+	$response->status_code = Net_HTTP::STATUS_INTERNAL_SERVER_ERROR;
 	$response->status_message = "Permission";
 	echo "Can not create vlabels cache directory";
 	return;

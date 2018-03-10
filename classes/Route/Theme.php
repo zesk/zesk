@@ -67,7 +67,7 @@ class Route_Theme extends Route {
 		if ($this->dynamic_theme) {
 			$mapped_theme = map($theme, $parameters);
 			if (!$application->theme_exists($mapped_theme, $args, $theme_options)) { //TODO
-				$response->status(Net_HTTP::Status_File_Not_Found);
+				$response->status(Net_HTTP::STATUS_FILE_NOT_FOUND);
 				$response->content = "Theme $mapped_theme not found";
 				return;
 			}

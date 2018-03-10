@@ -133,7 +133,7 @@ class Response extends Hookable {
 	 *
 	 * @var integer
 	 */
-	public $status_code = Net_HTTP::Status_OK;
+	public $status_code = Net_HTTP::STATUS_OK;
 
 	/**
 	 * Status message
@@ -401,7 +401,7 @@ class Response extends Hookable {
 			}
 		}
 		$code = $this->status_code;
-		if ($code !== Net_HTTP::Status_OK) {
+		if ($code !== Net_HTTP::STATUS_OK) {
 			$message = $this->status_message;
 			$message = $message ? $message : avalue(Net_HTTP::$status_text, $code, "No error message");
 			$this->_header("HTTP/1.0 " . $this->status_code . " " . $message);

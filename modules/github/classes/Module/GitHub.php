@@ -81,9 +81,9 @@ class Module_GitHub extends Module {
 		);
 		$url = map(self::API_ENDPOINT_RELEASE, $this->options);
 		$client = new Net_HTTP_Client($this->application, $url);
-		$client->method(Net_HTTP::Method_POST);
+		$client->method(Net_HTTP::METHOD_POST);
 		$client->data(JSON::encode($json_struct));
-		$client->request_header(Net_HTTP::request_Content_Type, MIME::TYPE_APPLICATION_JSON);
+		$client->request_header(Net_HTTP::REQUEST_CONTENT_TYPE, MIME::TYPE_APPLICATION_JSON);
 		$content = $client->go();
 		if ($client->response_code_type() === 2) {
 			$this->application->logger->info(JSON::encode_pretty(JSON::decode($content)));

@@ -158,7 +158,7 @@ class Module_Nominatim extends Module {
 		$this_url = URL::query_append($this->url, $query);
 		$http->url($this_url);
 		$raw = $http->go();
-		if ($http->response_code() === Net_HTTP::Status_OK) {
+		if ($http->response_code() === Net_HTTP::STATUS_OK) {
 			$this->application->logger->debug("Geocode results for {url} is {data}", array(
 				"url" => $this_url,
 				"data" => $raw

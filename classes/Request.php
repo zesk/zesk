@@ -187,7 +187,7 @@ class Request extends Hookable {
 		$this->ip = $this->_find_remote_key($_SERVER);
 		$this->server_ip = avalue($_SERVER, 'SERVER_ADDR');
 		
-		$this->set_method(avalue($_SERVER, 'REQUEST_METHOD', Net_HTTP::Method_GET));
+		$this->set_method(avalue($_SERVER, 'REQUEST_METHOD', Net_HTTP::METHOD_GET));
 		$this->uri = avalue($_SERVER, "REQUEST_URI", null);
 		$this->headers = self::http_headers_from_server($_SERVER);
 		$this->cookies = $_COOKIE;
@@ -318,7 +318,7 @@ class Request extends Hookable {
 	 * @return string
 	 */
 	public function content_type() {
-		$type = explode(";", $this->header(Net_HTTP::request_Content_Type));
+		$type = explode(";", $this->header(Net_HTTP::REQUEST_CONTENT_TYPE));
 		return strtolower(array_shift($type));
 	}
 	
@@ -328,7 +328,7 @@ class Request extends Hookable {
 	 * @return array
 	 */
 	public function parse_accept() {
-		$name = Net_HTTP::request_Accept;
+		$name = Net_HTTP::REQUEST_ACCEPT;
 		$result = $this->_parsed_header($name);
 		if ($result) {
 			return $result;
@@ -489,7 +489,7 @@ class Request extends Hookable {
 	 * @return boolean
 	 */
 	public function is_post() {
-		return $this->method === Net_HTTP::Method_POST;
+		return $this->method === Net_HTTP::METHOD_POST;
 	}
 	
 	/**
@@ -965,7 +965,7 @@ class Request extends Hookable {
 	 * @return boolean
 	 */
 	public function is_browser() {
-		return $this->header(Net_HTTP::request_User_Agent) !== null;
+		return $this->header(Net_HTTP::REQUEST_USER_AGENT) !== null;
 	}
 	/**
 	 * Return user agent object
@@ -974,7 +974,7 @@ class Request extends Hookable {
 	 */
 	public function user_agent() {
 		if (!$this->user_agent instanceof Net_HTTP_UserAgent) {
-			$this->user_agent = new Net_HTTP_UserAgent($this->header(Net_HTTP::request_User_Agent));
+			$this->user_agent = new Net_HTTP_UserAgent($this->header(Net_HTTP::REQUEST_USER_AGENT));
 		}
 		return $this->user_agent;
 	}
@@ -1002,7 +1002,7 @@ class Request extends Hookable {
 	 */
 	public function referrer() {
 		// $_SERVER["HTTP_REFERER"]
-		return $this->header(Net_HTTP::request_Referrer);
+		return $this->header(Net_HTTP::REQUEST_REFERRER);
 	}
 	
 	/**
@@ -1111,11 +1111,11 @@ class Request extends Hookable {
 	 * @return array
 	 */
 	private function default_request() {
-		if ($this->method === Net_HTTP::Method_PUT) {
+		if ($this->method === Net_HTTP::METHOD_PUT) {
 			// Support JSON
 			return $this->data() + $_GET;
 		}
-		if ($this->method === Net_HTTP::Method_POST) {
+		if ($this->method === Net_HTTP::METHOD_POST) {
 			// Support JSON
 			return $this->data() + $_GET;
 		}

@@ -24,13 +24,13 @@ class Net_HTTP_Client_Test extends Test_Unit {
 		
 		$this->assert($x->method_post() === false);
 		
-		$x->method(Net_HTTP::Method_POST);
+		$x->method(Net_HTTP::METHOD_POST);
 		
 		$this->assert($x->method_post() === true);
 		
 		$x->url();
 		
-		$x->request_header(Net_HTTP::request_Content_Type);
+		$x->request_header(Net_HTTP::REQUEST_CONTENT_TYPE);
 		
 		$x->response_code();
 		
@@ -40,7 +40,7 @@ class Net_HTTP_Client_Test extends Test_Unit {
 		
 		$x->response_protocol();
 		
-		$x->response_header(Net_HTTP::response_Content_Type);
+		$x->response_header(Net_HTTP::RESPONSE_CONTENT_TYPE);
 		
 		$name = null;
 		$default = false;

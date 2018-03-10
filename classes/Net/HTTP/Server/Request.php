@@ -21,7 +21,7 @@ class Net_HTTP_Server_Request {
 		$raw_request_line = array_shift($lines);
 		$regs = null;
 		if (!preg_match("'([^ ]+) ([^ ]+) (HTTP/[^ ]+)'", $raw_request_line, $regs)) {
-			throw new Net_HTTP_Server_Exception(Net_HTTP::Status_Bad_Request, null, $raw_request_line);
+			throw new Net_HTTP_Server_Exception(Net_HTTP::STATUS_BAD_REQUEST, null, $raw_request_line);
 		}
 		
 		list($this->method, $this->raw_uri, $this->protocol) = $regs;
@@ -51,7 +51,7 @@ class Net_HTTP_Server_Request {
 		}
 		list($name, $value) = pair($raw_header, ":", $raw_header, null);
 		if ($value === null) {
-			throw new Net_HTTP_Server_Exception(Net_HTTP::Status_Bad_Request, "Bad header", $raw_header);
+			throw new Net_HTTP_Server_Exception(Net_HTTP::STATUS_BAD_REQUEST, "Bad header", $raw_header);
 		}
 		$name = strtolower($name);
 		ArrayTools::append($this->headers, $name, ltrim($value));

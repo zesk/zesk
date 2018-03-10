@@ -90,7 +90,7 @@ class Controller_Preference extends Controller {
 		}
 		$user = $this->application->user($this->request);
 		if (!$user || !$user->authenticated($this->request)) {
-			$this->response->status(Net_HTTP::Status_Unauthorized, $message_en = "Not authenticated");
+			$this->response->status(Net_HTTP::STATUS_UNAUTHORIZED, $message_en = "Not authenticated");
 			return $this->json(array(
 				"status" => false,
 				"actions" => array(

@@ -94,7 +94,7 @@ class Controller_Authenticated extends Controller_Theme {
 					"route" => $this->login_redirect,
 					"referrer" => $this->request->uri()
 				));
-				$this->response->status(Net_HTTP::Status_Unauthorized, "Need to authenticate");
+				$this->response->status(Net_HTTP::STATUS_UNAUTHORIZED, "Need to authenticate");
 			} else {
 				$url = URL::query_format($this->login_redirect, array(
 					"ref" => $this->request->uri()

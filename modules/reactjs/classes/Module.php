@@ -146,7 +146,7 @@ class Module extends \zesk\Module implements \zesk\Interface_Module_Routes, \zes
 		return $http;
 	}
 	public function not_found_handler(Request $request, Response $response) {
-		$response->status(Net_HTTP::Status_File_Not_Found);
+		$response->status(Net_HTTP::STATUS_FILE_NOT_FOUND);
 	}
 	/**
 	 *
@@ -181,7 +181,7 @@ class Module extends \zesk\Module implements \zesk\Interface_Module_Routes, \zes
 			if ($app->development()) {
 				$debug = "\n" . $e->filename();
 			}
-			$response->status(Net_HTTP::Status_File_Not_Found, "Not found");
+			$response->status(Net_HTTP::STATUS_FILE_NOT_FOUND, "Not found");
 			$response->content_type(MIME::from_filename($request->path()));
 			return "/* ReactJS File not found" . $debug . " */";
 		}

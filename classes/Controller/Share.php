@@ -53,7 +53,7 @@ class Controller_Share extends Controller {
 		$mod = $this->request->header('If-Modified-Since');
 		$fmod = filemtime($file);
 		if ($mod && $fmod <= strtotime($mod)) {
-			$this->response->status(Net_HTTP::Status_Not_Modified);
+			$this->response->status(Net_HTTP::STATUS_NOT_MODIFIED);
 			$this->response->content_type(MIME::from_filename($file));
 			$this->response->content = "";
 			if ($this->option_bool('build')) {

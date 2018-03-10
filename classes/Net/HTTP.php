@@ -10,133 +10,153 @@ namespace zesk;
 
 class Net_HTTP {
 	// From http://www.w3.org/Protocols/rfc2616/rfc2616-sec10.html
-	const Status_Continue = 100;
-	const Status_Switching_Protocols = 101;
-	const Status_Processing = 102;
-	const Status_OK = 200;
-	const Status_Created = 201;
-	const Status_Accepted = 202;
-	const Status_Non_Authoriative_Information = 203;
-	const Status_No_Content = 204;
-	const Status_Reset_Content = 205;
-	const Status_Partial_Content = 206;
-	const Status_Multi_Status = 207;
-	const Status_Multiple_Choices = 300;
-	const Status_Moved_Permanently = 301;
-	const Status_Found = 302;
-	const Status_See_Other = 303;
-	const Status_Not_Modified = 304;
-	const Status_Use_Proxy = 305;
-	const Status_Temporary_Redirect = 307;
-	const Status_Bad_Request = 400;
-	const Status_Unauthorized = 401;
-	const Status_Payment_Granted = 402;
-	const Status_Forbidden = 403;
-	const Status_File_Not_Found = 404;
-	const Status_Method_Not_Allowed = 405;
-	const Status_Not_Acceptable = 406;
-	const Status_Proxy_Authentication_Required = 407;
-	const Status_Request_Time_out = 408;
-	const Status_Conflict = 409;
-	const Status_Gone = 410;
-	const Status_Length_Required = 411;
-	const Status_Precondition_Failed = 412;
-	const Status_Request_Entity_Too_Large = 413;
-	const Status_Request_URI_Too_Large = 414;
-	const Status_Unsupported_Media_Type = 415;
-	const Status_Requested_range_not_satisfiable = 416;
-	const Status_Expectation_Failed = 417;
-	const Status_Unprocessable_Entity = 422;
-	const Status_Locked = 423;
-	const Status_Failed_Dependency = 424;
-	const Status_Internal_Server_Error = 500;
-	const Status_Not_Implemented = 501;
-	const Status_Overloaded = 502;
-	const Status_Gateway_Timeout = 503;
-	const Status_HTTP_Version_not_supported = 505;
-	const Status_Insufficient_Storage = 507;
-	const response_type_info = 1;
-	const response_type_success = 2;
-	const response_type_redirect = 3;
-	const response_type_error_client = 4;
-	const response_type_error_server = 5;
-	const Method_GET = "GET";
-	const Method_POST = "POST";
-	const Method_PUT = "PUT";
-	const Method_DELETE = "DELETE";
-	const Method_HEAD = "HEAD";
-	const Method_OPTIONS = "OPTIONS";
-	const Method_TRACE = "TRACE";
-	const Method_CONNECT = "CONNECT";
-	const request_Referrer = "Referer";
-	const request_User_Agent = "User-Agent";
-	const request_Accept = "Accept";
-	const request_Content_Type = "Content-Type";
-	const response_Content_Disposition = "Content-Disposition";
-	const response_Content_Type = "Content-Type";
-	const response_Accept_Ranges = "Accept-Ranges";
-	const response_Content_Encoding = "Content-Encoding";
-	const response_Transfer_Encoding = "Transfer-Encoding";
+	/* 100 =====================================================================*/
+	const STATUS_CONTINUE = 100;
+	const STATUS_SWITCHING_PROTOCOLS = 101;
+	const STATUS_PROCESSING = 102;
+	/* 200 =====================================================================*/
+	const STATUS_OK = 200;
+	const STATUS_CREATED = 201;
+	const STATUS_ACCEPTED = 202;
+	const STATUS_NON_AUTHORIATIVE_INFORMATION = 203;
+	const STATUS_NO_CONTENT = 204;
+	const STATUS_RESET_CONTENT = 205;
+	const STATUS_PARTIAL_CONTENT = 206;
+	const STATUS_MULTI_STATUS = 207;
+
+	/* 300 =====================================================================*/
+	/**
+	 *
+	 * @var integer
+	 */
+	const STATUS_MULTIPLE_CHOICES = 300;
+	const STATUS_MOVED_PERMANENTLY = 301;
+	const STATUS_FOUND = 302;
+	const STATUS_SEE_OTHER = 303;
+	const STATUS_NOT_MODIFIED = 304;
+	const STATUS_USE_PROXY = 305;
+	const STATUS_TEMPORARY_REDIRECT = 307;
+
+	/* 400 =====================================================================*/
+	const STATUS_BAD_REQUEST = 400;
+	const STATUS_UNAUTHORIZED = 401;
+	const STATUS_PAYMENT_GRANTED = 402;
+	const STATUS_FORBIDDEN = 403;
+	const STATUS_FILE_NOT_FOUND = 404;
+	const STATUS_METHOD_NOT_ALLOWED = 405;
+	const STATUS_NOT_ACCEPTABLE = 406;
+	const STATUS_PROXY_AUTHENTICATION_REQUIRED = 407;
+	const STATUS_REQUEST_TIMEOUT = 408;
+	const STATUS_CONFLICT = 409;
+	const STATUS_GONE = 410;
+	const STATUS_LENGTH_REQUIRED = 411;
+	const STATUS_PRECONDITION_FAILED = 412;
+	const STATUS_REQUEST_ENTITY_TOO_LARGE = 413;
+	const STATUS_REQUEST_URI_TOO_LARGE = 414;
+	const STATUS_UNSUPPORTED_MEDIA_TYPE = 415;
+	const STATUS_REQUESTED_RANGE_NOT_SATISFIABLE = 416;
+	const STATUS_EXPECTATION_FAILED = 417;
+	const STATUS_UNPROCESSABLE_ENTITY = 422;
+	const STATUS_LOCKED = 423;
+	const STATUS_FAILED_DEPENDENCY = 424;
+
+	/* 500 =====================================================================*/
+	const STATUS_INTERNAL_SERVER_ERROR = 500;
+	const STATUS_NOT_IMPLEMENTED = 501;
+	const STATUS_OVERLOADED = 502;
+	const STATUS_GATEWAY_TIMEOUT = 503;
+	const STATUS_HTTP_VERSION_NOT_SUPPORTED = 505;
+	const STATUS_INSUFFICIENT_STORAGE = 507;
+
+	/* Response Type */
+	const RESPONSE_TYPE_INFO = 1;
+	const RESPONSE_TYPE_SUCCESS = 2;
+	const RESPONSE_TYPE_REDIRECT = 3;
+	const RESPONSE_TYPE_ERROR_CLIENT = 4;
+	const RESPONSE_TYPE_ERROR_SERVER = 5;
+
+	/* Method types */
+	const METHOD_GET = "GET";
+	const METHOD_POST = "POST";
+	const METHOD_PUT = "PUT";
+	const METHOD_DELETE = "DELETE";
+	const METHOD_HEAD = "HEAD";
+	const METHOD_OPTIONS = "OPTIONS";
+	const METHOD_TRACE = "TRACE";
+	const METHOD_CONNECT = "CONNECT";
+
+	/* Request headers */
+	const REQUEST_REFERRER = "Referer";
+	const REQUEST_USER_AGENT = "User-Agent";
+	const REQUEST_ACCEPT = "Accept";
+	const REQUEST_CONTENT_TYPE = "Content-Type";
+
+	/* Response headers */
+	const RESPONSE_CONTENT_DISPOSITION = "Content-Disposition";
+	const RESPONSE_CONTENT_TYPE = "Content-Type";
+	const RESPONSE_ACCEPT_RANGES = "Accept-Ranges";
+	const RESPONSE_CONTENT_ENCODING = "Content-Encoding";
+	const RESPONSE_TRANSFER_ENCODING = "Transfer-Encoding";
 	static $methods = array(
-		self::Method_OPTIONS => self::Method_OPTIONS,
-		self::Method_GET => self::Method_GET,
-		self::Method_POST => self::Method_POST,
-		self::Method_PUT => self::Method_PUT,
-		self::Method_DELETE => self::Method_DELETE,
-		self::Method_HEAD => self::Method_HEAD,
-		self::Method_TRACE => self::Method_TRACE,
-		self::Method_CONNECT => self::Method_CONNECT
+		self::METHOD_OPTIONS => self::METHOD_OPTIONS,
+		self::METHOD_GET => self::METHOD_GET,
+		self::METHOD_POST => self::METHOD_POST,
+		self::METHOD_PUT => self::METHOD_PUT,
+		self::METHOD_DELETE => self::METHOD_DELETE,
+		self::METHOD_HEAD => self::METHOD_HEAD,
+		self::METHOD_TRACE => self::METHOD_TRACE,
+		self::METHOD_CONNECT => self::METHOD_CONNECT
 	);
 	static $status_text = array(
-		self::Status_Continue => 'Continue',
-		self::Status_Switching_Protocols => 'Switching Protocols',
-		self::Status_Processing => 'Processing',
-		self::Status_OK => 'OK',
-		self::Status_Created => 'Created',
-		self::Status_Accepted => 'Accepted',
-		self::Status_Non_Authoriative_Information => 'Non Authoriative Information',
-		self::Status_No_Content => 'No Content',
-		self::Status_Reset_Content => 'Reset Content',
-		self::Status_Partial_Content => 'Partial Content',
-		self::Status_Multi_Status => 'Multi Status',
-		self::Status_Multiple_Choices => 'Multiple Choices',
-		self::Status_Moved_Permanently => 'Moved Permanently',
-		self::Status_Found => 'Found',
-		self::Status_See_Other => 'See Other',
-		self::Status_Not_Modified => 'Not Modified',
-		self::Status_Use_Proxy => 'Use Proxy',
-		self::Status_Temporary_Redirect => 'Temporary Redirect',
-		self::Status_Bad_Request => 'Bad Request',
-		self::Status_Unauthorized => 'Unauthorized',
-		self::Status_Payment_Granted => 'Payment Granted',
-		self::Status_Forbidden => 'Forbidden',
-		self::Status_File_Not_Found => 'File Not Found',
-		self::Status_Method_Not_Allowed => 'Method Not Allowed',
-		self::Status_Not_Acceptable => 'Not Acceptable',
-		self::Status_Proxy_Authentication_Required => 'Proxy Authentication Required',
-		self::Status_Request_Time_out => 'Request Time out',
-		self::Status_Conflict => 'Conflict',
-		self::Status_Gone => 'Gone',
-		self::Status_Length_Required => 'Length Required',
-		self::Status_Precondition_Failed => 'Precondition Failed',
-		self::Status_Request_Entity_Too_Large => 'Request Entity Too Large',
-		self::Status_Request_URI_Too_Large => 'Request-URI Too Large',
-		self::Status_Unsupported_Media_Type => 'Unsupported Media Type',
-		self::Status_Requested_range_not_satisfiable => 'Requested range not satisfiable',
-		self::Status_Expectation_Failed => 'Expectation Failed',
-		self::Status_Unprocessable_Entity => 'Unprocessable Entity',
-		self::Status_Locked => 'Locked',
-		self::Status_Failed_Dependency => 'Failed Dependency',
-		self::Status_Internal_Server_Error => 'Internal Server Error',
-		self::Status_Not_Implemented => 'Not Implemented',
-		self::Status_Overloaded => 'Overloaded',
-		self::Status_Gateway_Timeout => 'Gateway Timeout',
-		self::Status_HTTP_Version_not_supported => 'HTTP Version not supported',
-		self::Status_Insufficient_Storage => 'Insufficient Storage'
+		self::STATUS_CONTINUE => 'Continue',
+		self::STATUS_SWITCHING_PROTOCOLS => 'Switching Protocols',
+		self::STATUS_PROCESSING => 'Processing',
+		self::STATUS_OK => 'OK',
+		self::STATUS_CREATED => 'Created',
+		self::STATUS_ACCEPTED => 'Accepted',
+		self::STATUS_NON_AUTHORIATIVE_INFORMATION => 'Non Authoriative Information',
+		self::STATUS_NO_CONTENT => 'No Content',
+		self::STATUS_RESET_CONTENT => 'Reset Content',
+		self::STATUS_PARTIAL_CONTENT => 'Partial Content',
+		self::STATUS_MULTI_STATUS => 'Multi Status',
+		self::STATUS_MULTIPLE_CHOICES => 'Multiple Choices',
+		self::STATUS_MOVED_PERMANENTLY => 'Moved Permanently',
+		self::STATUS_FOUND => 'Found',
+		self::STATUS_SEE_OTHER => 'See Other',
+		self::STATUS_NOT_MODIFIED => 'Not Modified',
+		self::STATUS_USE_PROXY => 'Use Proxy',
+		self::STATUS_TEMPORARY_REDIRECT => 'Temporary Redirect',
+		self::STATUS_BAD_REQUEST => 'Bad Request',
+		self::STATUS_UNAUTHORIZED => 'Unauthorized',
+		self::STATUS_PAYMENT_GRANTED => 'Payment Granted',
+		self::STATUS_FORBIDDEN => 'Forbidden',
+		self::STATUS_FILE_NOT_FOUND => 'File Not Found',
+		self::STATUS_METHOD_NOT_ALLOWED => 'Method Not Allowed',
+		self::STATUS_NOT_ACCEPTABLE => 'Not Acceptable',
+		self::STATUS_PROXY_AUTHENTICATION_REQUIRED => 'Proxy Authentication Required',
+		self::STATUS_REQUEST_TIMEOUT => 'Request Time out',
+		self::STATUS_CONFLICT => 'Conflict',
+		self::STATUS_GONE => 'Gone',
+		self::STATUS_LENGTH_REQUIRED => 'Length Required',
+		self::STATUS_PRECONDITION_FAILED => 'Precondition Failed',
+		self::STATUS_REQUEST_ENTITY_TOO_LARGE => 'Request Entity Too Large',
+		self::STATUS_REQUEST_URI_TOO_LARGE => 'Request-URI Too Large',
+		self::STATUS_UNSUPPORTED_MEDIA_TYPE => 'Unsupported Media Type',
+		self::STATUS_REQUESTED_RANGE_NOT_SATISFIABLE => 'Requested range not satisfiable',
+		self::STATUS_EXPECTATION_FAILED => 'Expectation Failed',
+		self::STATUS_UNPROCESSABLE_ENTITY => 'Unprocessable Entity',
+		self::STATUS_LOCKED => 'Locked',
+		self::STATUS_FAILED_DEPENDENCY => 'Failed Dependency',
+		self::STATUS_INTERNAL_SERVER_ERROR => 'Internal Server Error',
+		self::STATUS_NOT_IMPLEMENTED => 'Not Implemented',
+		self::STATUS_OVERLOADED => 'Overloaded',
+		self::STATUS_GATEWAY_TIMEOUT => 'Gateway Timeout',
+		self::STATUS_HTTP_VERSION_NOT_SUPPORTED => 'HTTP Version not supported',
+		self::STATUS_INSUFFICIENT_STORAGE => 'Insufficient Storage'
 	);
 	const header_content_length = "Content-Length";
 	static $request_headers = array(
-		"accept" => self::request_Accept,
+		"accept" => self::REQUEST_ACCEPT,
 		"accept-charset" => "Accept-Charset",
 		"accept-encoding" => "Accept-Encoding",
 		"accept-language" => "Accept-Language",
@@ -147,7 +167,7 @@ class Net_HTTP {
 		"cookie" => "Cookie",
 		"content-length" => self::header_content_length,
 		"content-md5" => "Content-MD5",
-		"content-type" => self::request_Content_Type,
+		"content-type" => self::REQUEST_CONTENT_TYPE,
 		"date" => "Date",
 		"expect" => "Expect",
 		"from" => "From",
@@ -162,10 +182,10 @@ class Net_HTTP {
 		"pragma" => "Pragma",
 		"proxy-authorization" => "Proxy-Authorization",
 		"range" => "Range",
-		"referer" => self::request_Referrer,
-		"referrer" => self::request_Referrer,
+		"referer" => self::REQUEST_REFERRER,
+		"referrer" => self::REQUEST_REFERRER,
 		"te" => "TE",
-		"user-agent" => self::request_User_Agent,
+		"user-agent" => self::REQUEST_USER_AGENT,
 		"upgrade" => "Upgrade",
 		"via" => "Via",
 		"warning" => "Warning",
@@ -184,7 +204,7 @@ class Net_HTTP {
 		"x-uidh" => "X-UIDH",
 		"x-csrf-token" => "X-Csrf-Token"
 	);
-	
+
 	/**
 	 * https://en.wikipedia.org/wiki/List_of_HTTP_header_fields
 	 *
@@ -193,13 +213,13 @@ class Net_HTTP {
 	static $response_headers = array(
 		"access-control-allow-origin" => "Access-Control-Allow-Origin",
 		"accept-patch" => "Accept-Patch",
-		"accept-ranges" => self::response_Accept_Ranges,
+		"accept-ranges" => self::RESPONSE_ACCEPT_RANGES,
 		"age" => "Age",
 		"allow" => "Allow",
 		"cache-control" => "Cache-Control",
 		"connection" => "Connection",
-		"content-disposition" => self::response_Content_Disposition,
-		"content-encoding" => self::response_Content_Encoding,
+		"content-disposition" => self::RESPONSE_CONTENT_DISPOSITION,
+		"content-encoding" => self::RESPONSE_CONTENT_ENCODING,
 		"content-language" => "Content-Language",
 		"content-length" => "Content-Length",
 		"content-location" => "Content-Location",
@@ -225,7 +245,7 @@ class Net_HTTP {
 		"status-line" => "Status-Line",
 		"strict-transport-security" => "Strict-Transport-Security",
 		"trailer" => "Trailer",
-		"transfer-encoding" => self::response_Transfer_Encoding,
+		"transfer-encoding" => self::RESPONSE_TRANSFER_ENCODING,
 		"upgrade" => "Upgrade",
 		"vary" => "Vary",
 		"via" => "Via",

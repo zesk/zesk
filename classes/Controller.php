@@ -216,7 +216,7 @@ class Controller extends Hookable implements Interface_Theme {
 	 * @return self
 	 */
 	public function error_404($message = null) {
-		$this->error(Net_HTTP::Status_File_Not_Found, "Page not found $message");
+		$this->error(Net_HTTP::STATUS_FILE_NOT_FOUND, "Page not found $message");
 		return $this;
 	}
 	

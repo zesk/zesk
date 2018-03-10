@@ -31,7 +31,7 @@ class Module extends \zesk\Module implements Interface_Module_Routes {
 	 * @var array
 	 */
 	static $allowed_mock_headers = array(
-		"mock_accept" => Net_HTTP::request_Accept
+		"mock_accept" => Net_HTTP::REQUEST_ACCEPT
 	);
 	public function test_ip(Application $application, Request $request) {
 		$application = $this->application;

@@ -125,7 +125,7 @@ class Route_Controller extends Route {
 				"method" => $this->request->method()
 			));
 
-			if ($response->status_code === Net_HTTP::Status_OK) {
+			if ($response->status_code === Net_HTTP::STATUS_OK) {
 				ob_start();
 				if ($controller->has_method($method)) {
 					$args = $controller->optional_method($arguments_method, $this->args);

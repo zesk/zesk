@@ -1141,7 +1141,7 @@ class Application extends Hookable implements Interface_Theme {
 		$request = new Request($this);
 		$request->initialize_from_settings(array(
 			"url" => $url,
-			"method" => Net_HTTP::Method_GET,
+			"method" => Net_HTTP::METHOD_GET,
 			"data" => "",
 			"variables" => URL::query_parse_url($path)
 		));

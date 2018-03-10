@@ -127,7 +127,7 @@ class Net_HTTP_Client extends Hookable {
 	 * @var integer
 	 */
 	private $connect_timeout = 5000;
-	private $method = Net_HTTP::Method_GET;
+	private $method = Net_HTTP::METHOD_GET;
 	private $data = null;
 	private $data_file = null;
 	
@@ -226,7 +226,7 @@ class Net_HTTP_Client extends Hookable {
 	 * @return boolean
 	 */
 	public function method_post($set = null) {
-		return $this->_method(Net_HTTP::Method_POST, $set);
+		return $this->_method(Net_HTTP::METHOD_POST, $set);
 	}
 	
 	/**
@@ -235,7 +235,7 @@ class Net_HTTP_Client extends Hookable {
 	 * @return boolean
 	 */
 	public function method_put($set = null) {
-		return $this->_method(Net_HTTP::Method_POST, $set);
+		return $this->_method(Net_HTTP::METHOD_POST, $set);
 	}
 	
 	/**
@@ -244,7 +244,7 @@ class Net_HTTP_Client extends Hookable {
 	 * @return boolean
 	 */
 	public function method_head($set = null) {
-		return $this->_method(Net_HTTP::Method_HEAD, $set);
+		return $this->_method(Net_HTTP::METHOD_HEAD, $set);
 	}
 	
 	/**
@@ -460,18 +460,18 @@ class Net_HTTP_Client extends Hookable {
 		);
 		$data = $this->_encode_data();
 		switch ($this->method) {
-			case Net_HTTP::Method_GET:
+			case Net_HTTP::METHOD_GET:
 				break;
-			case Net_HTTP::Method_POST:
+			case Net_HTTP::METHOD_POST:
 				$this->curl_opts[CURLOPT_POST] = 1;
 				$this->curl_opts[CURLOPT_POSTFIELDS] = $data;
 				$httpHeaders[] = 'Content-Length: ' . strlen($data);
 				$this->skip_request_header('content-length');
 				break;
-			case Net_HTTP::Method_HEAD:
+			case Net_HTTP::METHOD_HEAD:
 				$this->curl_opts[CURLOPT_NOBODY] = 1;
 				break;
-			case Net_HTTP::Method_PUT:
+			case Net_HTTP::METHOD_PUT:
 				$this->data_file = tmpfile();
 				fwrite($this->data_file, $data);
 				fseek($this->data_file, 0);
@@ -537,8 +537,8 @@ class Net_HTTP_Client extends Hookable {
 	 * Set curl options related to User-Agent
 	 */
 	private function _curl_opts_useragent() {
-		$this->curl_opts[CURLOPT_USERAGENT] = $this->request_header(Net_HTTP::request_User_Agent);
-		$this->skip_request_header(Net_HTTP::request_User_Agent);
+		$this->curl_opts[CURLOPT_USERAGENT] = $this->request_header(Net_HTTP::REQUEST_USER_AGENT);
+		$this->skip_request_header(Net_HTTP::REQUEST_USER_AGENT);
 	}
 	
 	/**
@@ -986,10 +986,10 @@ class Net_HTTP_Client extends Hookable {
 	 */
 	public function user_agent($set = null) {
 		if ($set !== null) {
-			$this->request_header(Net_HTTP::request_User_Agent, $set);
+			$this->request_header(Net_HTTP::REQUEST_USER_AGENT, $set);
 			return $this;
 		}
-		return $this->request_header(Net_HTTP::request_User_Agent);
+		return $this->request_header(Net_HTTP::REQUEST_USER_AGENT);
 	}
 	
 	/**
@@ -999,7 +999,7 @@ class Net_HTTP_Client extends Hookable {
 	 */
 	public function filename() {
 		// Content-Disposition: attachment; filename=foo.tar.gz
-		$dispositions = ArrayTools::trim_clean(explode(";", $this->response_header(Net_HTTP::response_Content_Disposition)));
+		$dispositions = ArrayTools::trim_clean(explode(";", $this->response_header(Net_HTTP::RESPONSE_CONTENT_DISPOSITION)));
 		while (($disposition = array_shift($dispositions)) !== null) {
 			list($name, $value) = pair($disposition, "=", null, null);
 			if ($name === "filename") {
@@ -1043,8 +1043,8 @@ class Net_HTTP_Client extends Hookable {
 		return $this;
 	}
 	static $ignore_response_headers = array(
-		Net_HTTP::response_Content_Encoding => true,
-		Net_HTTP::response_Transfer_Encoding => true
+		Net_HTTP::RESPONSE_CONTENT_ENCODING => true,
+		Net_HTTP::RESPONSE_TRANSFER_ENCODING => true
 	);
 	public function proxy_response(Response $response) {
 		$response->status($this->response_code(), $this->response_message());

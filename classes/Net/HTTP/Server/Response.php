@@ -9,7 +9,7 @@
 namespace zesk;
 
 class Net_HTTP_Server_Response {
-	public $status = Net_HTTP::Status_OK;
+	public $status = Net_HTTP::STATUS_OK;
 	public $status_text = null;
 	public $headers = array();
 	public $content = "";
@@ -76,7 +76,7 @@ class Net_HTTP_Server_Response {
 		}
 		if ($this->filename) {
 			if (!file_exists($this->filename)) {
-				$this->status = Net_HTTP::Status_File_Not_Found;
+				$this->status = Net_HTTP::STATUS_FILE_NOT_FOUND;
 			}
 			$this->file = fopen($this->filename, "r");
 			return $this->file;
