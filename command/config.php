@@ -3,20 +3,20 @@ namespace zesk;
 
 /**
  * List configuration files which are examined and loaded for the application.
- * 
+ *
  * @category Debugging
  * @author kent
  *
  */
 class Command_Config extends Command_Base {
 	/**
-	 * 
+	 *
 	 * @var string
 	 */
 	private $sep = "\n\t";
-	
+
 	/**
-	 * 
+	 *
 	 * @var string
 	 */
 	private $suffix = "\n\n";
@@ -28,9 +28,9 @@ class Command_Config extends Command_Base {
 		'missing-classes' => 'boolean',
 		'top-level-scalar' => 'boolean'
 	);
-	
+
 	/**
-	 * 
+	 *
 	 * {@inheritDoc}
 	 * @see \zesk\Command::run()
 	 */
@@ -39,23 +39,23 @@ class Command_Config extends Command_Base {
 		$app = $this->application;
 		$result = 0;
 		$variables = $app->loader->variables();
-		
+
 		$loaded = $variables['processed'];
 		$not_loaded = $variables['missing'];
 		$externals = $variables['externals'];
 		$skipped = $variables['skipped'];
 		list($missing_vars, $warning_top_levels) = $this->collect_misnamed_class_configurations();
-		
+
 		$show_loaded = $show_not_loaded = $show_skipped = $show_externals = $show_missing_classes = $show_top_level_scalar = null;
 		extract($this->show_flags(), EXTR_IF_EXISTS);
-		
+
 		if ($show_loaded) {
 			echo $this->output_list("INFO: Loaded configuration files:", $loaded);
 		}
 		if ($show_not_loaded) {
 			echo $this->output_list("NOTICE: Not loaded configuration files (file not found):", $not_loaded);
 		}
-		
+
 		if ($show_skipped && count($skipped) > 0) {
 			echo $this->output_list("ERROR: Skipped due to syntax errors:", $skipped);
 		}
@@ -73,27 +73,25 @@ class Command_Config extends Command_Base {
 	}
 	private function show_flags() {
 		$flags = array(
-			'loaded',
-			'not_loaded',
-			'skipped',
-			'externals',
-			'missing_classes',
-			'top_level_scalar'
+			'loaded' => true,
+			'not_loaded' => true,
+			'skipped' => true,
+			'externals' => false,
+			'missing_classes' => false,
+			'top_level_scalar' => false
 		);
 		$result = array();
-		foreach ($flags as $flag) {
+		foreach ($flags as $flag => $default) {
 			if ($this->option_bool($flag)) {
-				$result = array();
-				foreach ($flags as $flag) {
-					$result["show_$flag"] = $this->option_bool($flag, false);
-				}
-				return $result;
+				// if any value is true, return the actual values
+				return ArrayTools::kprefix($this->option($flags), "show_");
 			}
 		}
-		return ArrayTools::kprefix(ArrayTools::flip_assign($flags, true), "show_");
+		// Show all
+		return ArrayTools::kprefix($flags, "show_");
 	}
 	/**
-	 * 
+	 *
 	 * @return unknown[][]|mixed[]
 	 */
 	public function collect_misnamed_class_configurations() {
@@ -117,9 +115,9 @@ class Command_Config extends Command_Base {
 			$warning
 		);
 	}
-	
+
 	/**
-	 * 
+	 *
 	 * @param string $title
 	 * @param array $list
 	 * @return string
