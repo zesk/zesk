@@ -3,33 +3,33 @@ namespace zesk;
 
 /**
  * A class dedicated to determining: In a series of configuration files, what external dependencies do we have?
- * 
+ *
  * @author kent
  */
 class Configuration_Dependency {
-	
+
 	/**
 	 * Stack of contexts we're loading
-	 * 
+	 *
 	 * @var array (Stack)
 	 */
 	protected $context = array();
-	
+
 	/**
 	 * Key of variable => dependencies
-	 * 
+	 *
 	 * @var array
 	 */
 	protected $definitions = array();
-	
+
 	/**
 	 * Current list of external variables which affect final state
 	 * @var array
 	 */
 	protected $externals = array();
-	
+
 	/**
-	 * 
+	 *
 	 * @param string $name
 	 */
 	public function push($name) {
@@ -37,7 +37,7 @@ class Configuration_Dependency {
 		return $this;
 	}
 	public function pop() {
-		if (count($this->content) === 0) {
+		if (count($this->context) === 0) {
 			throw new Exception_Semantics("Popped once to many times?");
 		}
 		array_pop($this->context);
@@ -60,9 +60,9 @@ class Configuration_Dependency {
 		);
 		return $this;
 	}
-	
+
 	/**
-	 * 
+	 *
 	 */
 	public function externals() {
 		return array_keys($this->externals);

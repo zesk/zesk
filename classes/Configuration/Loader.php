@@ -14,7 +14,7 @@ class Configuration_Loader {
 	 * @var \string[]
 	 */
 	private $files = array();
-	
+
 	/**
 	 * Files which could be loaded, but do not exist
 	 *
@@ -38,19 +38,19 @@ class Configuration_Loader {
 	 * @var File_Monitor_List
 	 */
 	private $file_monitor = null;
-	
+
 	/**
 	 *
 	 * @var Interface_Settings
 	 */
 	private $settings = null;
-	
+
 	/**
 	 *
 	 * @var Configuration_Dependency
 	 */
 	private $dependency = null;
-	
+
 	/**
 	 * Current file being processed
 	 *
@@ -77,7 +77,7 @@ class Configuration_Loader {
 		$this->file_monitor = new File_Monitor_List($this->files);
 		$this->dependency = new Configuration_Dependency();
 	}
-	
+
 	/**
 	 * Add additional files to load
 	 *
@@ -111,7 +111,7 @@ class Configuration_Loader {
 			$this->current = null;
 		}
 	}
-	
+
 	/**
 	 * Load a single file
 	 *
@@ -137,17 +137,25 @@ class Configuration_Loader {
 		$this->processed_files[] = $file;
 		return $this;
 	}
-	
+
+	/**
+	 * Return a list of dependency variables which are external to the loaded configuration files.
+	 *
+	 * @return string[]
+	 */
+	public function externals() {
+		return $this->dependency->externals();
+	}
 	/**
 	 *
-	 * @return array[]
+	 * @return string[string]
 	 */
 	public function variables() {
 		return array(
 			"processed" => $this->processed_files,
 			"missing" => $this->missing_files,
 			"skipped" => $this->skipped_files,
-			"externals" => $this->dependency->externals()
+			"externals" => $this->externals()
 		);
 	}
 }

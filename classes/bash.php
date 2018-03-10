@@ -8,13 +8,13 @@ namespace zesk;
  *
  */
 class bash {
-	public static function substitute($value, Interface_Settings $settings, array &$dependencies = null) {
+	public static function substitute($value, Interface_Settings $settings, array &$dependencies = null, $lower_dependencies = false) {
 		if (!is_array($dependencies)) {
 			$dependencies = array();
 		}
 		if (is_array($value)) {
 			foreach ($value as $k => $v) {
-				$value[$k] = self::substitute($v, $settings, $dependencies);
+				$value[$k] = self::substitute($v, $settings, $dependencies, $lower_dependencies);
 			}
 			return $value;
 		}
@@ -38,6 +38,9 @@ class bash {
 						break;
 					}
 				}
+				if ($lower_dependencies) {
+					$variable = strtolower($variable);
+				}
 				$value = str_replace($match[0], $settings->get($variable, $default_value), $value);
 				$dependencies[$variable] = true;
 			}
@@ -51,10 +54,11 @@ class bash {
 				if (preg_match_all($pattern, $value, $matches, PREG_SET_ORDER)) {
 					foreach ($matches as $match) {
 						$variable = $match[1];
-						$value = str_replace($match[0], $settings->get($variable, ""), $value);
-						if (!array_key_exists($variable, $dependencies)) {
-							$dependencies[$variable] = true;
+						if ($lower_dependencies) {
+							$variable = strtolower($variable);
 						}
+						$value = str_replace($match[0], $settings->get($variable, ""), $value);
+						$dependencies[$variable] = true;
 					}
 				}
 			}
