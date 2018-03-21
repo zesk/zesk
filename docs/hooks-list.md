@@ -3,9 +3,9 @@
 The **Specification** section describes each hook's details as follows:
 
 - **Type**: Either `zesk\Hookable` hook, or a **system hook**
-- **Arguments**: A list of types and names passed to the `zesk\Hookable` method
 - **Hookable method**: The name of the method called in the related `zesk\Hookable` class.
-- **System Arguments**: A list of types and names passed to the system hook
+- **Hookable arguments**: A list of types and names passed to the `zesk\Hookable` method
+- **System hook arguments**: A list of types and names passed to the system hook
 - **System hook name**: The string you should pass to `$application->hooks->add()` to register this hook
 - **Filter**: Whether this hook passes one or more of its parameters back to be processed or accumulated in a result.
 - **Return value**: Each hook implementation may return a value 
@@ -23,10 +23,10 @@ You want custom behavior based on the configuration file, particularly related t
 ### Specification
 
 - **Type**: Hookable hook
-- **Arguments**: none
 - **Hookable method**: `hook_configured_files`
-- **System Arguments**: `zesk\Application`
+- **Hookable arguments**: none
 - **System hook name**: `zesk\Application::configured_files`
+- **System hook arguments**: `zesk\Application`
 - **Filter**: no
 - **Return value**: void
 
@@ -45,8 +45,9 @@ As an application hook:
 	class Application extends \zesk\Application {
 		...
 		function hook_configured_files() {
-			$custom = $this->configuration->custom;
-			$this->loader->load_one("etc/custom/$custom");
+			if ($this->development()) {
+				$this->load_modules[] = "test";
+			}
 		}
 		...
 	}
@@ -66,10 +67,10 @@ You need to:
 ### Specification
 
 - **Type**: Hookable hook
-- **Arguments**: `zesk\Request $request`
 - **Hookable method**: `hook_request`
-- **System Arguments**: `zesk\Application $application, zesk\Request $request`
+- **Hookable arguments**: `zesk\Request $request`
 - **System hook name**: `zesk\Application::request`
+- **System hook arguments**: `zesk\Application $application, zesk\Request $request`
 - **Filter**: no
 - **Return value**: void
 
@@ -112,10 +113,10 @@ You need to:
 ### Specification
 
 - **Type**: Hookable hook
-- **Arguments**: none
 - **Hookable method**: `hook_main`
-- **System Arguments**: `zesk\Application`
+- **Hookable arguments**: none
 - **System hook name**: `zesk\Application::main`
+- **System hook arguments**: `zesk\Application`
 - **Filter**: No
 - **Return value**: `zesk\Response|void`
 
@@ -183,10 +184,10 @@ You need to manipulate the output of another JSON call.
 ### Specification
 
 - **Type**: Hookable hook
-- **Arguments**: array $json
 - **Hookable method**: `hook_configured_files`
-- **System Arguments**: `zesk\Application`
+- **Hookable arguments**: array $json
 - **System hook name**: `zesk\Application::configured_files`
+- **System hook arguments**: `zesk\Application`
 - **Filter**: yes
 - **Return value**: array
 
