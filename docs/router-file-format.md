@@ -132,11 +132,11 @@ But not:
 
 (You have to specify a `user(/{User user}(/{action}*))` for that.)
 
-However, the value of `user` will be an object of class `User` and loaded using an object's hook `route_argument` which has the following syntax:
+However, the value of `user` will be an object of class `User` and loaded using an object's hook `router_argument` which has the following syntax:
 
 	class User extends zesk\User {
 		...
-		public function route_argument(Route $route, $argument) {
+		public function hook_router_argument(Route $route, $argument) {
 			return $this->id($argument)->fetch();
 		}
 		...
