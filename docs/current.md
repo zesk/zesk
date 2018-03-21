@@ -2,90 +2,106 @@
 
 ### New features
 
-- Adding `Log_Mail` module to log mail to database and optionally prevent it from being sent on staging sites
-- `zesk\Command` - Adding file validation so symlinks or links work as well as options of type `file`
-- Improving email pattern matching (see `functions.php`)
- - `is_email` test improvements
-- Modernizing `zesk check` fix for PHP comments
-- `zesk daemon` now supports multiple `--watch` arguments which can be used to watch non-obvious files for changes to force the daemons to restart. For example, if you have a link to your active installation.
-- `zesk update` now calls `hook_update` or `hook_updated` for each module.
-- `zesk\HTML::wrap` renaming
-- `zesk\Route_Template` has been removed
-- adding constant OPTION_DESCRIPTION to `zesk\Command_GitHub`
+- Improved docs
+- `zesk classes` now supports outputting alternate formats using `--format json`
 
-### Bugs fixed
+### Fixed bugs
 
-- Fixing `zesk\Locale_EN` plural implementation to avoid PHP warnings for short words
-- Fixing `zesk\View_Errors` unintialized `zesk\Response` issue
-- Fixing inherited `zesk\Temporal` implementation in `zesk\TimeSpan`
-- Fixing issues with all language strings already translated in all languages (moving to `en.php`)
-- Ignore `\__PHP_Incomplete_Class` in `zesk\JSON::encode`
-- Removing warnings from `zesk help` template
+- `zesk\Router` was decoding JSON sub-content to objects, not arrays.
+- `zesk\Response::process_cached_css` fixed issue with fixing import paths
+- fix duplicate confirm
+- `zesk\Widget` removing double `validate` hook, and adding `validate_failed` hook
+- When zesk is autoloaded, adds an `exit` handler which requires the application to be created; handles exception if application is not created ever
+- Adding support for `$lower_dependencies` in `zesk\bash` command interpreter to support new `zesk\Configuration_Loader_Test` case to replicate incorrect dependencies calulation. Fixed issue with `zesk\Configuration_Dependency` and now push and pop configuration names using option `name` Added call `zesk\Configuration_Loader->externals()`
+
+### Removed features
+
+- `zesk\Controller_AJAX` has been removed.
 
 ### Changed functionality
 
-- Using `Widget::class` for `->widget_factory()` calls instead of strings.
-- Removing deprecated `$account` in `zesk\Controller_Authenticated`
-- Having `zesk\Route` with a `template` option will no longer create a route of type `zesk\Route_Theme` - please update your code accordingly and use `theme` option instead.
-- Fixing `zesk\Route_Redirect` to throw `zesk\Exception_Redirect`
-- `zesk\Class_ORM`: The `$column_types` values are automatically initialized to `self::type_object` by `$has_one` entries
-- Allow `zesk\Route::arguments_by_class()` before route execution
-- `zesk\Timestamp::add_unit` no longer supports `("second", 1)` argument syntax
-- `zesk\Route_Controller` option `controller prefix` and `controller prefixes` is no longer used. The `controller` option must be a fully-qualified class name of a `zesk\Controller` subclass.
-- `zesk\Objects->singleton_arguments()` and related calls no longer support the usage of the static `instance` method for class creation. You should have a static methods called `singleton` to take advantage of `zesk\Objects` global registration for singletons.
-- `zesk\Database::feature_` and `zesk\Database::option_` constants are now all uppercase
-- `zesk\File::put` no longer calls hook `File::put`
-- `zesk\Directory` has had the global option `zesk\Directory::debug` removed and no longer supports logging directory creation. (Reduce global usage)
-- `zesk\FIFO` no longer takes a path relative the the app data path as its first parameter, it now takes an absolute path to reduce global usage.
+- `zesk\Controller_Authenticated` has been moved into the `ORM` module
+- `zesk config` now displays just the loading details by default (e.g. `--loaded --not-loaded --skipped`). If you specify any individual flag, the others are then off by default. Previously it showed all sections which is useful less commonly.
+- improving comments `zesk\Response_Type_HTML` -> `zesk\Response` `Mail::HEADER_FOO` constants are now capitalized
+- `zesk\Session_ORM->initialize_session()` now saves the session instead of waiting until the process exits to ensure the session has an id.
+- `zesk\Kernel::set_deprecated` returns `$this`
+- `zesk\Controller_Authenticated` sets proper redirect HTTP status
+- `dirname(__FILE__)` can now be just `__DIR__` after PHP 5.3
+- `Net_HTTP` constants are now ALL CAPS
+- `zesk config` default output is less verbose
+- Updating usage of `zesk\Response` API
+- Removing $URL from svn
+- Removed global `zesk::command` set by `zesk\Command_Loader`
+- If the `zesk\Route_Controller` action is not a string, then throw an exception
+- If `zesk\ORM->members()` call hits an unknown object, returns NULL now instead of throwing an error.
+- Allow `zesk\Configuration` constructor with no arguments
+- Hook `zesk\Router::new` renamed to `zesk\Router::construct`
+- `zesk classes` now supports outputting alternate formats using `--format json`
 
-- `zesk\Command` has a method called `validate_file` which can be implemented by subclasses if desired to validate any arguments which are a `file` or `file[]`.
-- `zesk daemon` now has a `--watch` directive to set up a list of files to monitor and quit when they change
-- `zesk` commands which take `file` option now accept links as well
+### Widget changes
 
+- `zesk\Control_Login` has a new hook `submit` which can be used to short-circuit what response is returned by an authenticated login.
+- `zesk\Control_Select`: Supporting `key => array` for allowing attributes in `<option>`
+- Added call `zesk\Widget->prefer_json()` to determine if JSON should be returned, added to `zesk\Control_Login`
 
-### Removed functions
+### Test changes
 
-- `zesk\Autoloader::file_search` was removed
-- `zesk\Kernel::zesk` was removed
-- `zesk\Lock::get_lock` was removed
-- `zesk\Lock::require_lock` was removed
-- `zesk\Directory::temporary` was removed
-- `zesk\Database::register` was removed
-- `zesk\Database::database_default` was removed
-- `zesk\Database::unregister` was removed
-- `zesk\Database::valid_schemes` was removed
-- `zesk\Database::register_scheme` was removed
-- `zesk\Database::schema_factory` was removed
-- `zesk\Database::_factory` was removed
-- `zesk\Database::instance` was removed
-- `zesk\Database::databases` was removed
-- `zesk\Locale::translate` was removed
-- `zesk\Locale::locale_path` was removed
-- `zesk\Locale::current` was removed
-- `zesk\Class_ORM::cache` was removed
-- `zesk\Class_ORM::cache_dirty` was removed
-- `zesk\Class_ORM::classes_exit` was removed
-- `zesk\URL::current` was removed
-- `zesk\URL::current_query_remove` was removed
-- `zesk\URL::current_url` was removed
-- `zesk\URL::current_port` was removed
-- `zesk\URL::current_host` was removed
-- `zesk\URL::current_scheme` was removed
-- `zesk\URL::add_ref` was removed
-- `zesk\URL::has_ref` was removed
-- `zesk\URL::current_left` was removed
-- `zesk\URL::current_left_host` was removed
-- `zesk\URL::current_left_path` was removed
-- `zesk\URL::current_is_secure` was removed
-- `zesk\Configuration::pave_set` was removed
-- `zesk\Configuration::pave` was removed
-- `zesk\Controller::factory` was removed
-- `zesk.inc` was removed (used `autoload.php`)
+- `zesk\Test` reversed `$actual, $expected` to `$expected, $actual` to match with what PHPUnit does as we'll be migrating to that platform for testing.
+- `zesk\Test\Module` is module class now
+- `zesk\PHPUnit_TestCase` saves last test run in a hidden file
+- `zesk test --database-reset` is now `zesk test --reset` and runs no tests, but rather resets the database on disk. `zesk test --database-report` is now `zesk test --report`
+- New `zesk\Configuration_Loader_Test` test case to replicate incorrect dependencies calculation.
+- Adding `assertArrayHasKeys` which is oddly not in PHPUnit's assertions library
 
-### "Heading toward a 1.0" Progress
+#### Application
 
-- Elimination of most globals, moving from `zesk::` to `Application::` in places where it makes sense - **in progress**
- - <strike>Removal if `global $zesk`</strike>
- - <strike>Removal/reduction of `zesk()`</strike>
- - <strike>Removal/reduction of `app()`</strike> - None left
- - <strike>Removal/reduction of `Kernel::singleton()`</strike>
+- `zesk\Application::configured` hook was removed is its usage pattern did not make sense.
+- `zesk\Application::theme` no longer invokes the `theme` hook on objects which are passed as the content to it. Use `$object->theme()` instead.
+- `zesk\Kernel::set_deprecated` returns `$this`
+- Hook renamed `zesk\Application::response_output` => `zesk\Response::response_output_before`
+- Hook renamed `zesk\Application::response_outputted` => `zesk\Response::response_output_after`
+- Hook renamed `zesk\Response::output` => `zesk\Response::output_before`
+- Hook renamed `zesk\Response::outputted` => `zesk\Response::output_after`
+- `zesk\Response::content()` was added as a getter/setter for `zesk\Response` content to enable chained calls to set up the `zesk\Response` (e.g. `return $response->content("dude")->status(301);`)
+- Hook `zesk\Router::new` renamed to `zesk\Router::construct`
+- `zesk\Application` now inherits configuration files settings prior to `configured_files` hook is called
+- Fixing `zesk info`
+- Hook renamed `zesk\Response::output` => `zesk\Response::output_before` - Hook renamed `zesk\Response::outputted` => `zesk\Response::output_after` - `zesk\Response::content()` was added as a getter/setter for `zesk\Response` content to enable chained calls to set up the `zesk\Response` (e.g. `return $response->content("dude")->status(301);`)
+- `zesk\Application::configured` hook was removed is its usage pattern did not make sense. - `zesk\Response::content()` was added as a getter/setter for `zesk\Response` content to enable chained calls to set up the `zesk\Response` (e.g. `return $response->content("dude")->status(301);`)
+- `zesk\Application::theme` no longer invokes the `theme` hook on objects which are passed as the content to it. Use `$object->theme()` instead.
+- `zesk\Response::process_cached_css` fixed issue with fixing import paths
+
+#### ORM module
+
+- `zesk\ORM::members()` and related calls now transform each member via the equivalent of the `__get` call. In addition, a new protected internal method `zesk\ORM::_get` can be used to retrieve a member from an `ORM`. Note that previously, members were returned untransformed (e.g. "2018-07-03 16:35:50" instead of an object of `zesk\Timestamp` for example)
+- `zesk\ORM::json()` now supports option `resolve_methods` which is a list (string or array) of methods to attempt to convert objects to JSON syntax. Default is `["json"]`.
+
+#### Developer module
+
+The following URL paths have been renamed in the `Developer` module:
+
+- `debug` -> `developer/debug`
+- `development` -> `developer/development`
+- `session` -> `developer/session`
+- `schema` -> `developer/schema`
+
+Fixed some issues with the system/debug theme.
+
+#### Module updates
+
+- `zesk\Module_ThreeJS` is now `zesk\ThreeJS\Module` and PSR-4
+- Fixing refactored `Diff` module and tests to pass
+- `zesk\Diff_Lines` is now `zesk\Diff\Lines` etc.
+- Upgrading Flot, Apache modules
+- Tag module PSR4 + refactor
+- PSR4 for Contact module
+- PSR4 for Tag module
+- PSR4 for jQuery-Unveil module
+- PSR4 work on Contact module
+- JSONJS updated to PSR4, etc
+- Adding template `run` for DaemonTools module
+
+#### Cannon updates
+
+- adding StringTools::wrap cannon
+<!-- Generated automatically by release-zesk.sh, beware editing! -->
