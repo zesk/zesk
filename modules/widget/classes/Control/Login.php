@@ -114,13 +114,12 @@ class Control_Login extends Control_Edit {
 				->query_select()
 				->where($column_login, $object->login)
 				->orm();
-			if ($user) {
+			if ($user instanceof User) {
 				$this->user = $user;
 				return true;
-			} else {
-				$this->error($locale->__("User name not found, please try again, or sign up for a new account."));
-				return false;
 			}
+			$this->error($locale->__("User name not found, please try again, or sign up for a new account."));
+			return false;
 		}
 		/* @var $user User */
 		$failed = false;
@@ -135,6 +134,7 @@ class Control_Login extends Control_Edit {
 			}
 		}
 		if ($failed) {
+			$this->response()->status(Net_HTTP::STATUS_UNAUTHORIZED, "Unauthorized");
 			$this->application->logger->warning("User login failed for user {login}", array(
 				"login" => $login,
 				"password_hash" => $object->login_password_hash
@@ -142,6 +142,13 @@ class Control_Login extends Control_Edit {
 			$this->error($locale->__("Username or password is incorrect."));
 			$this->object->user = $this->user = null;
 			$user->call_hook("login_failed", $this);
+			if ($this->prefer_json()) {
+				$this->json(array(
+					"status" => false,
+					"errors" => $this->errors()
+				));
+				return false;
+			}
 			return false;
 		}
 		if ($user->call_hook_arguments("login", array(
@@ -164,6 +171,10 @@ class Control_Login extends Control_Edit {
 			"user" => $user,
 			"uid" => $user->id()
 		));
+		if ($this->prefer_json()) {
+			$this->json($this->user->json($this->option_array("user_json_options")));
+			return false;
+		}
 		throw new Exception_Redirect($uref, $this->application->locale->__("You have logged in successfully."));
 	}
 	/**
@@ -181,10 +192,20 @@ class Control_Login extends Control_Edit {
 					$this->json($result);
 				}
 				return false;
-			} else {
-				$this->default_submit();
 			}
+			return $this->default_submit();
+		}
+		// Is this reachable? I don't think so.
+		$result = $this->call_hook_arguments("submit_failed", array(), null);
+		if ($result !== null) {
+			if (is_array($result)) {
+				$this->json($result);
+			}
+			return false;
 		}
 		return true;
+	}
+	function render() {
+		return parent::render();
 	}
 }

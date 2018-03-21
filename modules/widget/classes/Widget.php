@@ -2495,6 +2495,18 @@ class Widget extends Hookable {
 	}
 
 	/**
+	 * Does the current request prefer a JSON response?
+	 *
+	 * @return boolean
+	 */
+	function prefer_json() {
+		return $this->request->accept_priority(array(
+			"application/json",
+			"text/html"
+		)) === "application/json";
+	}
+
+	/**
 	 * Retrieve the class object for this widget
 	 *
 	 * @deprecated 2018-01
