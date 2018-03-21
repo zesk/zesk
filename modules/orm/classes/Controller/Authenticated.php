@@ -99,7 +99,9 @@ class Controller_Authenticated extends Controller_Theme {
 				$url = URL::query_format($this->login_redirect, array(
 					"ref" => $this->request->uri()
 				));
-				throw new Exception_Redirect($url, $this->login_redirect_message);
+				throw new Exception_Redirect($url, $this->login_redirect_message, array(
+					Exception_Redirect::RESPONSE_STATUS_CODE => Net_HTTP::STATUS_TEMPORARY_REDIRECT
+				));
 			}
 		}
 	}
