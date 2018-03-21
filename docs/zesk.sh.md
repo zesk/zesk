@@ -43,7 +43,7 @@ The **Zesk Application File** configures the application and **Zesk**. The simpl
 
 	<?php
 	if (!defined('ZESK_APPLICATION_ROOT')) {
-		define('ZESK_APPLICATION_ROOT', dirname(__FILE__) . '/');
+		define('ZESK_APPLICATION_ROOT', __DIR__ . '/');
 	}
 	if (!defined('ZESK_ROOT')) {
 		define('ZESK_ROOT', dirname(ZESK_APPLICATION_ROOT) . "/zesk/");

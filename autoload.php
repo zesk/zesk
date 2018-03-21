@@ -29,7 +29,7 @@ class Loader {
 	 */
 	public static function kernel() {
 		self::$init = microtime(true);
-		require_once dirname(__FILE__) . "/classes/Kernel.php";
+		require_once __DIR__ . "/classes/Kernel.php";
 	}
 	public static function factory() {
 		global $_ZESK;

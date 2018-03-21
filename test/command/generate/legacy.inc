@@ -30,7 +30,7 @@ class Test_Command_Generate_Legacy extends Command_Base {
 		$file = substr($file, $n);
 		
 		$n = substr_count($dest_file, "/", $n);
-		$ndirnames = "dirname(__FILE__)";
+		$ndirnames = "__DIR__";
 		for ($i = 0; $i < $n; $i++) {
 			$ndirnames = "dirname(" . $ndirnames . ")";
 		}

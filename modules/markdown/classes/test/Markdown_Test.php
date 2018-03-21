@@ -19,8 +19,8 @@ class Markdown_Test extends Test_Unit {
 	function test_md() {
 		$failed = false;
 
-		$tests = Directory::ls(dirname(__FILE__), '/.markdown$/');
-		chdir(dirname(__FILE__));
+		$tests = Directory::ls(__DIR__, '/.markdown$/');
+		chdir(__DIR__);
 		$bar = "\n" . str_repeat("*", 80) . "\n";
 		foreach ($tests as $test) {
 			echo "Processing $test ... ";

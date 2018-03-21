@@ -2,7 +2,7 @@
 <?php
 namespace zesk;
 
-define("ZESK_ROOT", dirname(dirname(dirname(dirname(__FILE__)))) . "/");
+define("ZESK_ROOT", dirname(dirname(dirname(__DIR__))) . "/");
 
 if (file_exists(ZESK_ROOT . 'vendor/autoload.php')) {
 	require_once ZESK_ROOT . 'vendor/autoload.php';

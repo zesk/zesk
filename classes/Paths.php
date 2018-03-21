@@ -155,7 +155,7 @@ class Paths {
 	 * @param Configuration $config
 	 */
 	private function _init_zesk_root(Configuration $config) {
-		$zesk_root = dirname(dirname(__FILE__)) . "/";
+		$zesk_root = dirname(__DIR__) . "/";
 		if (!defined('ZESK_ROOT')) {
 			define('ZESK_ROOT', $zesk_root);
 		} else if (ZESK_ROOT !== $zesk_root) {

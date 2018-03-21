@@ -1,4 +1,4 @@
 <?php
-$application = require_once dirname(dirname(__FILE__)) . '/server.application.php';
+$application = require_once dirname(__DIR__) . '/server.application.php';
 
 $application->main();

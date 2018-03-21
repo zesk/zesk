@@ -114,7 +114,7 @@ Most applications will require modifications to the base `zesk\Application` clas
 For web applications, you should create an `index.php` file with the following content, typically inside the `public/` directory within your application:
 
 	<?php
-	$application = require_once dirname(dirname(__FILE__)) . '/awesome.application.php';
+	$application = require_once dirname(__DIR__) . '/awesome.application.php';
 	$application->index();
 
 ## How applications are initialized; TODO Outdated 2017-11

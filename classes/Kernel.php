@@ -14,7 +14,7 @@ use Psr\Cache\CacheItemPoolInterface;
 /**
  * Stuff that should probably just be part of PHP, but isn't.
  */
-require_once dirname(__FILE__) . "/functions.php";
+require_once __DIR__ . "/functions.php";
 
 /**
  *
@@ -184,7 +184,7 @@ class Kernel {
 	 * Include related classes
 	 */
 	public static function includes() {
-		$here = dirname(__FILE__);
+		$here = __DIR__;
 
 		require_once $here . "/Exception.php";
 		require_once $here . "/Process.php";

@@ -8,7 +8,7 @@
  * @author Kent Davidson <kent@marketacumen.com>
  * @copyright Copyright &copy; 2018, Market Acumen, Inc.
  */
-define('ZESK_ROOT', dirname(dirname(__FILE__)) . '/' . (strpos(__FILE__, 'vendor/bin') !== false ? 'zesk/zesk/' : ''));
+define('ZESK_ROOT', dirname(__DIR__) . '/' . (strpos(__FILE__, 'vendor/bin') !== false ? 'zesk/zesk/' : ''));
 
 /**
  * Load the bare minimum

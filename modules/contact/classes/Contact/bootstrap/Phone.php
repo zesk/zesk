@@ -119,7 +119,7 @@ class Contact_Phone_Bootstrap {
 		if ($drop)
 			$x->database()->query('TRUNCATE ' . $x->table());
 		
-		$csv = new CSV_Reader(dirname(__FILE__) . "/../bootstrap-data/PhoneCountryCode.csv");
+		$csv = new CSV_Reader(__DIR__ . "/../bootstrap-data/PhoneCountryCode.csv");
 		$i = new CSV_Reader_Iterator($csv);
 		$nRows = 0;
 		foreach ($i as $a) {
