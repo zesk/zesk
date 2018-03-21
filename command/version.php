@@ -33,34 +33,34 @@ class Command_Version extends Command_Base {
 		'zero' => 'Set version component to zero instead (cascades)',
 		'init' => 'Write default etc/version-schema.json for the application'
 	);
-	
+
 	/**
 	 * Unable to parse JSON etc/version-schema.json
 	 *
 	 * @var integer
 	 */
 	const EXIT_CODE_VERSION_SCHEMA_PARSE_FAILURE = 1;
-	
+
 	/**
 	 * No valid parser to determine version number
 	 *
 	 * @var integer
 	 */
 	const EXIT_CODE_INVALID_PARSER = 2;
-	
+
 	/**
 	 * Unable to load version
 	 *
 	 * @var integer
 	 */
 	const EXIT_CODE_READER_FAILED = 3;
-	
+
 	/**
 	 *
 	 * @var integer
 	 */
 	const EXIT_CODE_PARSER_FAILED = 4;
-	
+
 	/**
 	 * Unable to write/generate version number in code
 	 *
@@ -73,13 +73,13 @@ class Command_Version extends Command_Base {
 	 * @var integer
 	 */
 	const EXIT_CODE_VERSION_UPDATE_UNCHANGED = 6;
-	
+
 	/**
 	 *
 	 * @var integer
 	 */
 	const EXIT_CODE_INIT_EXISTS = 7;
-	
+
 	/**
 	 * Written using functional form as an experiment to see how it feels. Not bad.
 	 *
@@ -241,7 +241,7 @@ class Command_Version extends Command_Base {
 			$this->log("wrote {schema_file_path}", [
 				"schema_file_path" => $schema_file_path
 			]);
-			
+
 			$fullpath = $this->application->path($version_file_path);
 			if (file_exists($fullpath)) {
 				$this->log("{fullpath} exists already, not overwriting");
@@ -310,7 +310,10 @@ class Command_Version extends Command_Base {
 		extract($__reader, EXTR_IF_EXISTS);
 		$application_root = $this->application->path();
 		if ($json) {
-			return function ($schema) use ($json, $path, $application_root) {
+			if (is_string($json) || is_array($json)) {
+				$path = $json;
+			}
+			return function ($schema) use ($path, $application_root) {
 				$file = File::is_absolute($schema['file']) ? $schema['file'] : path($application_root, $schema['file']);
 				File::depends($file);
 				$json_structure = JSON::decode(File::contents($file), true);
