@@ -11,7 +11,7 @@ namespace zesk;
  */
 class Configuration implements \Iterator, \Countable, \ArrayAccess {
 	const key_separator = "::";
-	
+
 	/**
 	 * Path to get to this configuration location
 	 */
@@ -21,33 +21,33 @@ class Configuration implements \Iterator, \Countable, \ArrayAccess {
 	 * @var array
 	 */
 	protected $_data = null;
-	
+
 	/**
 	 *
 	 * @var boolean $locked
 	 */
 	protected $_locked = false;
-	
+
 	/**
 	 * Current iterator index
 	 *
 	 * @var integer
 	 */
 	protected $_index;
-	
+
 	/**
 	 * Number of configuration items
 	 *
 	 * @var integer
 	 */
 	protected $_count;
-	
+
 	/**
 	 *
 	 * @var boolean
 	 */
 	protected $_skip_next = false;
-	
+
 	/**
 	 *
 	 * @param Kernel $kernel
@@ -65,7 +65,7 @@ class Configuration implements \Iterator, \Countable, \ArrayAccess {
 		$this->_index = 0;
 		$this->_count = count($this->_data);
 	}
-	
+
 	/**
 	 *
 	 * @param array $array
@@ -73,7 +73,7 @@ class Configuration implements \Iterator, \Countable, \ArrayAccess {
 	 * @param array $path
 	 * @return self
 	 */
-	public static function factory(array $array, $locked = false, array $path = array()) {
+	public static function factory(array $array = array(), $locked = false, array $path = array()) {
 		return new self($array, $locked, $path);
 	}
 	/**
@@ -90,7 +90,7 @@ class Configuration implements \Iterator, \Countable, \ArrayAccess {
 		}
 		$this->_data = $array;
 	}
-	
+
 	/**
 	 * Merge two configurations.
 	 * Passed in configuration will, by default, override similar keys and paths in
@@ -117,7 +117,7 @@ class Configuration implements \Iterator, \Countable, \ArrayAccess {
 		$this->_count = count($this->_data);
 		return $this;
 	}
-	
+
 	/**
 	 * Does this configruation value exist?
 	 *
@@ -128,7 +128,7 @@ class Configuration implements \Iterator, \Countable, \ArrayAccess {
 		$key = strtolower($key);
 		return isset($this->_data[$key]);
 	}
-	
+
 	/**
 	 *
 	 * @param string $key
@@ -138,7 +138,7 @@ class Configuration implements \Iterator, \Countable, \ArrayAccess {
 		$key = strtolower($key);
 		return isset($this->_data[$key]);
 	}
-	
+
 	/**
 	 *
 	 * @param string $key
@@ -154,7 +154,7 @@ class Configuration implements \Iterator, \Countable, \ArrayAccess {
 			$this->_count = count($this->_data);
 		}
 	}
-	
+
 	/**
 	 *
 	 * @param string $key
@@ -169,7 +169,7 @@ class Configuration implements \Iterator, \Countable, \ArrayAccess {
 		}
 		return $this->__set($key, $value);
 	}
-	
+
 	/**
 	 * Set a value in a configuration object
 	 *
@@ -188,7 +188,7 @@ class Configuration implements \Iterator, \Countable, \ArrayAccess {
 		$this->_count = count($this->_data);
 		return $value;
 	}
-	
+
 	/**
 	 * Same as __get but allows a default value
 	 *
@@ -207,7 +207,7 @@ class Configuration implements \Iterator, \Countable, \ArrayAccess {
 		}
 		return isset($this->_data[$key]) ? $this->_data[$key] : $default;
 	}
-	
+
 	/**
 	 * Given a list of paths into the configuration tree, return the first one which has a value
 	 *
@@ -223,7 +223,7 @@ class Configuration implements \Iterator, \Countable, \ArrayAccess {
 		}
 		return $default;
 	}
-	
+
 	/**
 	 * Set multiple paths to multiple values
 	 *
@@ -270,7 +270,7 @@ class Configuration implements \Iterator, \Countable, \ArrayAccess {
 		$result = $current->get($key, $default);
 		return $result instanceof self ? $result->to_array() : $result;
 	}
-	
+
 	/**
 	 * Does a path exist?
 	 *
@@ -298,7 +298,7 @@ class Configuration implements \Iterator, \Countable, \ArrayAccess {
 		$key = strtolower($key);
 		return isset($this->_data[$key]) ? $this->_data[$key] : null;
 	}
-	
+
 	/**
 	 * Given a path into the configuration tree, set a value
 	 *
@@ -318,7 +318,7 @@ class Configuration implements \Iterator, \Countable, \ArrayAccess {
 			return $this;
 		}
 	}
-	
+
 	/**
 	 * Ensure configuration path is available
 	 * @param array $keys
@@ -337,7 +337,7 @@ class Configuration implements \Iterator, \Countable, \ArrayAccess {
 		}
 		return $current;
 	}
-	
+
 	/**
 	 * Walk configuration and return found value, or default if not found
 	 *
@@ -357,21 +357,21 @@ class Configuration implements \Iterator, \Countable, \ArrayAccess {
 		}
 		return $current;
 	}
-	
+
 	/**
 	 * Lock a Configuration so it can not be modified
 	 */
 	public function lock() {
 		$this->_locked = true;
 	}
-	
+
 	/**
 	 * Retrieve value
 	 */
 	public function value() {
 		return $this->_data;
 	}
-	
+
 	/**
 	 * Convert entire structure to an array, recursively
 	 *
@@ -390,7 +390,7 @@ class Configuration implements \Iterator, \Countable, \ArrayAccess {
 		}
 		return $result;
 	}
-	
+
 	/**
 	 * Convert entire structure to a list
 	 *
@@ -407,7 +407,7 @@ class Configuration implements \Iterator, \Countable, \ArrayAccess {
 		}
 		return $result;
 	}
-	
+
 	/**
 	 * Defined by Iterator interface
 	 *
@@ -417,7 +417,7 @@ class Configuration implements \Iterator, \Countable, \ArrayAccess {
 		$this->_skip_next = false;
 		return current($this->_data);
 	}
-	
+
 	/**
 	 *
 	 * @see Iterator
@@ -427,7 +427,7 @@ class Configuration implements \Iterator, \Countable, \ArrayAccess {
 	public function key() {
 		return key($this->_data);
 	}
-	
+
 	/**
 	 *
 	 * @see Iterator
@@ -440,7 +440,7 @@ class Configuration implements \Iterator, \Countable, \ArrayAccess {
 		next($this->_data);
 		$this->_index++;
 	}
-	
+
 	/**
 	 *
 	 * @see Iterator
@@ -450,7 +450,7 @@ class Configuration implements \Iterator, \Countable, \ArrayAccess {
 		reset($this->_data);
 		$this->_index = 0;
 	}
-	
+
 	/**
 	 *
 	 * @see Iterator
@@ -460,7 +460,7 @@ class Configuration implements \Iterator, \Countable, \ArrayAccess {
 	public function valid() {
 		return $this->_index < $this->_count;
 	}
-	
+
 	/**
 	 *
 	 * @return integer
@@ -468,7 +468,7 @@ class Configuration implements \Iterator, \Countable, \ArrayAccess {
 	public function count() {
 		return $this->_count;
 	}
-	
+
 	/**
 	 *
 	 * @see ArrayAccess
@@ -478,7 +478,7 @@ class Configuration implements \Iterator, \Countable, \ArrayAccess {
 	public function offsetExists($offset) {
 		return $this->__isset($offset);
 	}
-	
+
 	/**
 	 *
 	 * @see ArrayAccess
@@ -487,7 +487,7 @@ class Configuration implements \Iterator, \Countable, \ArrayAccess {
 	public function offsetGet($offset) {
 		return $this->__get($offset);
 	}
-	
+
 	/**
 	 *
 	 * @see ArrayAccess
@@ -497,7 +497,7 @@ class Configuration implements \Iterator, \Countable, \ArrayAccess {
 	public function offsetSet($offset, $value) {
 		$this->__set($offset, $value);
 	}
-	
+
 	/**
 	 *
 	 * @see ArrayAccess
@@ -506,7 +506,7 @@ class Configuration implements \Iterator, \Countable, \ArrayAccess {
 	public function offsetUnset($offset) {
 		$this->__unset($offset);
 	}
-	
+
 	/**
 	 * Add key to existing path and return a new path
 	 *
@@ -518,7 +518,7 @@ class Configuration implements \Iterator, \Countable, \ArrayAccess {
 			$key
 		));
 	}
-	
+
 	/**
 	 * Throw exception when locked
 	 *
@@ -534,7 +534,7 @@ class Configuration implements \Iterator, \Countable, \ArrayAccess {
 			"path" => $this->_path
 		));
 	}
-	
+
 	/**
 	 * Returns true if old configuration option is still being used
 	 *
