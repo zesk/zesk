@@ -21,7 +21,7 @@ class Module_Repository extends Module {
 	 * @var array
 	 */
 	private $repository_classes = array();
-	
+
 	/**
 	 *
 	 * @param string $class
@@ -35,7 +35,7 @@ class Module_Repository extends Module {
 		$this->application->classes->register($class);
 		return $this;
 	}
-	
+
 	/**
 	 *
 	 * @param string $class
@@ -48,7 +48,7 @@ class Module_Repository extends Module {
 		}
 		return null;
 	}
-	
+
 	/**
 	 * Return master module
 	 * @return self
@@ -65,7 +65,7 @@ class Module_Repository extends Module {
 	public function register_repository($class, array $aliases = array()) {
 		return $this->singleton()->_register_repository($class, $aliases);
 	}
-	
+
 	/**
 	 *
 	 * @param string $type
@@ -74,7 +74,7 @@ class Module_Repository extends Module {
 	public function find_repository($type) {
 		return $this->singleton()->_find_repository($type);
 	}
-	
+
 	/**
 	 * Singleton function
 	 * @param unknown $directory
@@ -98,9 +98,9 @@ class Module_Repository extends Module {
 	 * @return Repository[]
 	 */
 	public function determine_repository($directory) {
-		return $this->singleton()->_determine_repositories();
+		return $this->singleton()->_determine_repositories($directory);
 	}
-	
+
 	/**
 	 *
 	 * @param string $directory
