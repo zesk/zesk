@@ -1193,6 +1193,13 @@ class ORM extends Model {
 			$object = $this->member_orm_factory($member, $class, $data, $options + $this->inherit_options());
 		} catch (Exception_ORM_NotFound $e) {
 			if ($this->option_bool("fix_orm_members") || $this->option_bool("fix_member_objects")) {
+				// Prevent infinite recursion
+				$magic = "__" . __METHOD__;
+				if (avalue($this->members, $magic)) {
+					return null;
+				}
+				$this->original[$magic] = true;
+				$this->members[$magic] = true;
 				$application = $this->application;
 				$application->hooks->call("exception", $e);
 				$application->logger->error("Fixing not found {member} {member_class} (#{data}) in {class} (#{id})", array(
@@ -1204,6 +1211,8 @@ class ORM extends Model {
 				));
 				$this->members[$member] = null;
 				$this->store();
+				unset($this->original[$magic]);
+				unset($this->members[$magic]);
 				return null;
 			} else {
 				throw $e;
