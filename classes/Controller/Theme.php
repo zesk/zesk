@@ -19,7 +19,7 @@ abstract class Controller_Theme extends Controller {
 	 * @var string
 	 */
 	protected $default_content_type = Response::CONTENT_TYPE_HTML;
-	
+
 	/**
 	 *
 	 * @var string
@@ -35,14 +35,14 @@ abstract class Controller_Theme extends Controller {
 	 * @var boolean
 	 */
 	private $auto_render = true;
-	
+
 	/**
 	 * zesk\Template variables to pass
 	 *
 	 * @var array
 	 */
 	protected $variables = array();
-	
+
 	/**
 	 * Create a new Controller_Template
 	 *
@@ -61,7 +61,7 @@ abstract class Controller_Theme extends Controller {
 		}
 		$this->auto_render = $this->option_bool('auto_render', $this->auto_render);
 	}
-	
+
 	/**
 	 * Get/set auto render value
 	 *
@@ -78,7 +78,7 @@ abstract class Controller_Theme extends Controller {
 		}
 		return $this->auto_render;
 	}
-	
+
 	/**
 	 * (non-PHPdoc)
 	 * @see Controller::json()
@@ -87,7 +87,7 @@ abstract class Controller_Theme extends Controller {
 		$this->auto_render(false);
 		return parent::json($mixed);
 	}
-	
+
 	/**
 	 * (non-PHPdoc)
 	 * @see Controller::error()
@@ -96,7 +96,7 @@ abstract class Controller_Theme extends Controller {
 		$this->auto_render(false);
 		parent::error($code, $message);
 	}
-	
+
 	/**
 	 *
 	 * @param Exception $e
@@ -108,29 +108,34 @@ abstract class Controller_Theme extends Controller {
 			) + Exception::exception_variables($e));
 		}
 	}
-	
+
 	/**
 	 * (non-PHPdoc)
 	 * @see Controller::after()
 	 */
 	public function after($result = null, $output = null) {
-		if ($this->auto_render && $this->theme) {
+		if ($this->auto_render) {
 			if ($this->response->is_json()) {
-				$this->auto_render(false);
+				return;
+			}
+			$content = null;
+			if (is_string($result)) {
+				$content = $result;
+			} else if (is_string($output) && !empty($output)) {
+				$content = $output;
+			}
+			if ($this->request->prefer_json()) {
+				$this->json(array(
+					'content' => $content
+				) + $this->response->html()->to_json());
 			} else {
-				$content = null;
-				if (is_string($result)) {
-					$content = $result;
-				} else if (is_string($output) && !empty($output)) {
-					$content = $output;
-				}
-				$this->response->content = $this->theme($this->theme, array(
+				$this->response->content = $this->theme ? $this->theme($this->theme, array(
 					"content" => $content
-				) + $this->variables(), $this->option_array("theme_options"));
+				) + $this->variables(), $this->option_array("theme_options")) : $content;
 			}
 		}
 	}
-	
+
 	/**
 	 * (non-PHPdoc)
 	 * @see Controller::variables()
@@ -140,7 +145,7 @@ abstract class Controller_Theme extends Controller {
 			'theme' => $this->theme
 		) + parent::variables() + $this->variables;
 	}
-	
+
 	/**
 	 * TODO Clean this up
 	 *
@@ -153,24 +158,13 @@ abstract class Controller_Theme extends Controller {
 		$content = $control->execute($object);
 		$this->call_hook(avalue($options, "hook_execute", "control_execute"), $control, $object, $options);
 		$title = $control->option('title', avalue($options, 'title'));
-		$this->response->title($title, false); // Do not overwrite existing values
-		if ($this->response->is_json()) {
-			return null;
+		if ($title) {
+			$this->response->title($title, false); // Do not overwrite existing values
 		}
-		$ajax = $this->request->is_ajax();
-		if ($ajax) {
-			$this->json(array(
-				'title' => $title,
-				'status' => $status = $control->status(),
-				'content' => $content,
-				'message' => array_values($control->children_errors())
-			) + $this->response->html()->to_json());
-			return null;
-		} else if ($this->response->is_html()) {
-			return $content;
-		} else {
-			$this->auto_render(false);
-			return $content;
-		}
+		$this->response->response_data(array(
+			'status' => $status = $control->status(),
+			'message' => array_values($control->children_errors())
+		));
+		return $content;
 	}
 }

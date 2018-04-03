@@ -2243,7 +2243,7 @@ class Widget extends Hookable {
 	/**
 	 * Submit children and do final storage/action for form
 	 *
-	 * Return true to continue, false to stop processing
+	 * Return true to continue and render, false to stop processing now and render nothing
 	 *
 	 * @return boolean
 	 */
@@ -2349,7 +2349,7 @@ class Widget extends Hookable {
 		if (!$status) {
 			$message = array_values($this->errors());
 		}
-		if ($this->request->is_ajax()) {
+		if ($this->prefer_json()) {
 			$json = array(
 				"status" => $status,
 				"message" => $message,
@@ -2500,10 +2500,7 @@ class Widget extends Hookable {
 	 * @return boolean
 	 */
 	function prefer_json() {
-		return $this->request->accept_priority(array(
-			"application/json",
-			"text/html"
-		)) === "application/json";
+		return $this->request->prefer_json();
 	}
 
 	/**

@@ -32,7 +32,7 @@ class View_Section extends View {
 	}
 	public function controller() {
 		$content = $this->render();
-		if ($this->request->is_ajax()) {
+		if ($this->prefer_json()) {
 			$response = $this->response();
 			$response->json()->data(array(
 				'status' => true,

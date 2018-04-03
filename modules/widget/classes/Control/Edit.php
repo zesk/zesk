@@ -16,62 +16,62 @@ namespace zesk;
  * @see Widget::execute
  */
 class Control_Edit extends Control {
-	
+
 	/**
 	 *
 	 * @var string
 	 */
 	const option_duplicate_message = 'duplicate_message';
-	
+
 	/**
 	 * Force type here
 	 *
 	 * @var Object
 	 */
 	protected $object = null;
-	
+
 	/**
 	 * Class of the object we're listing.
 	 *
 	 * @var string
 	 */
 	protected $class = null;
-	
+
 	/**
 	 * Options to create the object we're listing, per row
 	 *
 	 * @var string
 	 */
 	protected $class_options = null;
-	
+
 	/**
 	 * Header theme
 	 *
 	 * @var string
 	 */
 	protected $theme_prefix = null;
-	
+
 	/**
 	 * Header theme
 	 *
 	 * @var string
 	 */
 	protected $theme_header = null;
-	
+
 	/**
 	 * Row theme
 	 *
 	 * @var string
 	 */
 	protected $theme_row = null;
-	
+
 	/**
 	 * Layout theme with replacement variables for widget renderings
 	 *
 	 * @var string
 	 */
 	protected $theme_widgets = null;
-	
+
 	/**
 	 * Footer theme
 	 *
@@ -84,7 +84,7 @@ class Control_Edit extends Control {
 	 * @var string
 	 */
 	protected $theme_suffix = null;
-	
+
 	/**
 	 * Row tag
 	 */
@@ -99,20 +99,20 @@ class Control_Edit extends Control {
 		"method" => "post",
 		"role" => "form"
 	);
-	
+
 	/**
 	 *
 	 * @var array
 	 */
 	protected $widgets = array();
-	
+
 	/**
 	 * Cell tag
 	 *
 	 * @var array
 	 */
 	protected $widget_tag = "div";
-	
+
 	/**
 	 * Cell attributes
 	 *
@@ -121,28 +121,28 @@ class Control_Edit extends Control {
 	protected $widget_attributes = array(
 		"class" => "form-group"
 	);
-	
+
 	/**
 	 * Label attributes
 	 *
 	 * @var unknown
 	 */
 	protected $label_attributes = array();
-	
+
 	/**
 	 * String
 	 *
 	 * @var string tag to wrap each widget output with
 	 */
 	protected $widget_wrap_tag = null;
-	
+
 	/**
 	 * Optional wrap attributes for each widget
 	 *
 	 * @var array
 	 */
 	protected $widget_wrap_attributes = array();
-	
+
 	/**
 	 * Fields to preserve in the form from the request
 	 *
@@ -152,7 +152,7 @@ class Control_Edit extends Control {
 		"ajax",
 		"ref"
 	);
-	
+
 	/**
 	 * Lazy evaluate the class based on this object's class name (if not set)
 	 *
@@ -166,7 +166,7 @@ class Control_Edit extends Control {
 		}
 		return $this->class;
 	}
-	
+
 	/**
 	 * (non-PHPdoc)
 	 *
@@ -175,7 +175,7 @@ class Control_Edit extends Control {
 	function model() {
 		return $this->model_factory($this->_class());
 	}
-	
+
 	/**
 	 *
 	 * @param array $ww
@@ -198,7 +198,7 @@ class Control_Edit extends Control {
 		}
 		return $ww;
 	}
-	
+
 	/**
 	 * (non-PHPdoc)
 	 *
@@ -214,11 +214,11 @@ class Control_Edit extends Control {
 			$this->children($ww);
 		}
 		parent::initialize();
-		
+
 		$this->initialize_theme_paths();
-		
+
 		$this->form_attributes['action'] = $this->request->path();
-		
+
 		$this->form_attributes = HTML::add_class($this->form_attributes, strtr(strtolower(get_class($this)), "_", '-'));
 		if ($this->parent && $this->traverse === null) {
 			$this->traverse = true;
@@ -227,7 +227,7 @@ class Control_Edit extends Control {
 			}
 		}
 	}
-	
+
 	/**
 	 * (non-PHPdoc)
 	 *
@@ -239,7 +239,7 @@ class Control_Edit extends Control {
 		}
 		return parent::validate();
 	}
-	
+
 	/**
 	 *
 	 * @return boolean
@@ -254,7 +254,7 @@ class Control_Edit extends Control {
 		}
 		$message = map($this->option('delete_redirect_message'), $vars);
 		$response = $this->response();
-		if ($this->request->is_ajax()) {
+		if ($this->prefer_json()) {
 			$response->json()->data(array(
 				"result" => true,
 				"message" => $message,
@@ -269,9 +269,7 @@ class Control_Edit extends Control {
 		if (!$redirect) {
 			return true;
 		}
-		$response->redirect()->url($url, $message);
-		// Stop processing submit
-		return false;
+		throw new Exception_Redirect($url, $message);
 	}
 	public function duplicate_message($set = null) {
 		return $set === null ? $this->option(self::option_duplicate_message) : $this->set_option(self::option_duplicate_message, $set);
@@ -318,17 +316,17 @@ class Control_Edit extends Control {
 	 */
 	public function submit() {
 		if (!$this->submit_handle_delete()) {
-			return true;
+			return false;
 		}
 		if (!$this->submit_children()) {
-			return true;
+			return false;
 		}
 		if (!$this->submit_store()) {
-			return true;
+			return false;
 		}
 		return $this->submit_redirect();
 	}
-	
+
 	/**
 	 * Set up theme paths
 	 *
@@ -360,7 +358,7 @@ class Control_Edit extends Control {
 			}
 		}
 	}
-	
+
 	/**
 	 * (non-PHPdoc)
 	 *

@@ -16,43 +16,43 @@ namespace zesk;
  * @see Net_HTTP_Server_Request
  */
 class Request extends Hookable {
-	
+
 	/**
 	 * Default name of file to read for POST ar PUT content
 	 *
 	 * @var string
 	 */
 	const default_data_file = "php://input";
-	
+
 	/**
 	 * Method of request GET, POST, PUT, POST, DELETE etc.
 	 *
 	 * @var string
 	 */
 	protected $method = "GET";
-	
+
 	/**
 	 * Requested URI
 	 *
 	 * @var string
 	 */
 	protected $uri = "/";
-	
+
 	/**
 	 * Request headers (reconstructed)
 	 */
 	protected $headers = array();
-	
+
 	/**
 	 * Request headers parse cache
 	 */
 	private $headers_parsed = array();
-	
+
 	/**
 	 * Cookies
 	 */
 	protected $cookies = array();
-	
+
 	/**
 	 * RAW data as POSTed or PUTted
 	 *
@@ -61,61 +61,61 @@ class Request extends Hookable {
 	 * @var mixed
 	 */
 	protected $data_raw = "";
-	
+
 	/**
 	 * Processed data converted to internal structure
 	 *
 	 * @var mixed
 	 */
 	protected $data = "";
-	
+
 	/**
 	 * Where to retrieve the data from
 	 *
 	 * @var string
 	 */
 	protected $data_file = self::default_data_file;
-	
+
 	/**
 	 * Inherit data from another object
 	 *
 	 * @var Request
 	 */
 	protected $data_inherit = null;
-	
+
 	/**
 	 * Parsed request variables (see $_REQUEST)
 	 *
 	 * @var array
 	 */
 	protected $variables = array();
-	
+
 	/**
 	 * Parsed file uploads (see $_FILES)
 	 *
 	 * @var array
 	 */
 	protected $files = array();
-	
+
 	/**
 	 * Complete URL
 	 *
 	 * @var string
 	 */
 	protected $url = null;
-	
+
 	/**
 	 *
 	 * @var array
 	 */
 	protected $url_parts = array();
-	
+
 	/**
 	 *
 	 * @var Net_HTTP_UserAgent
 	 */
 	protected $user_agent = null;
-	
+
 	/**
 	 * Way to mock IP addresses if needed.
 	 * Defaults to $_SERVER variables based on load balancers or reverse proxies.
@@ -123,7 +123,7 @@ class Request extends Hookable {
 	 * @var string
 	 */
 	protected $ip = null;
-	
+
 	/**
 	 * Server IP address
 	 *
@@ -132,13 +132,13 @@ class Request extends Hookable {
 	 * @var string
 	 */
 	protected $server_ip = null;
-	
+
 	/**
 	 *
 	 * @var string
 	 */
 	protected $init = null;
-	
+
 	/**
 	 *
 	 * @param Application $application
@@ -170,7 +170,7 @@ class Request extends Hookable {
 			));
 		}
 	}
-	
+
 	/**
 	 * Create a Request from PHP Superglobals $_SERVER, $_COOKIE, $_GET, $_REQUEST
 	 *
@@ -183,31 +183,31 @@ class Request extends Hookable {
 		$this->data = null;
 		$this->data_file = self::default_data_file;
 		$this->data_inherit = null;
-		
+
 		$this->ip = $this->_find_remote_key($_SERVER);
 		$this->server_ip = avalue($_SERVER, 'SERVER_ADDR');
-		
+
 		$this->set_method(avalue($_SERVER, 'REQUEST_METHOD', Net_HTTP::METHOD_GET));
 		$this->uri = avalue($_SERVER, "REQUEST_URI", null);
 		$this->headers = self::http_headers_from_server($_SERVER);
 		$this->cookies = $_COOKIE;
 		$this->url = $this->url_from_server($_SERVER);
 		$this->files = is_array($_FILES) ? $_FILES : array();
-		
+
 		$this->url_parts = null;
-		
+
 		$this->variables = self::clean_gpc($this->default_request());
-		
+
 		$this->init = "globals";
-		
+
 		$this->call_hook(array(
 			"initialize",
 			"initialize_from_globals"
 		));
-		
+
 		return $this;
 	}
-	
+
 	/**
 	 * Copy from another request
 	 *
@@ -228,17 +228,17 @@ class Request extends Hookable {
 		$this->data_inherit = $request;
 		$this->data_file = $request->data_file;
 		$this->ip = $request->ip;
-		
+
 		$this->init = "request";
-		
+
 		$this->call_hook(array(
 			"initialize",
 			"initialize_from_request"
 		));
-		
+
 		return $this;
 	}
-	
+
 	/**
 	 * Initialze the object from settings (for mock objects)
 	 *
@@ -292,16 +292,16 @@ class Request extends Hookable {
 		}
 		$this->data_inherit = null;
 		$this->ip = $ip;
-		
+
 		$this->init = "settings";
 		$this->call_hook(array(
 			"initialize",
 			"initialize_from_settings"
 		));
-		
+
 		return $this;
 	}
-	
+
 	/**
 	 * Is this request secure?
 	 *
@@ -311,7 +311,7 @@ class Request extends Hookable {
 		$this->_valid_url_parts();
 		return avalue($this->url_parts, 'scheme') === 'https';
 	}
-	
+
 	/**
 	 * Retrieve the content type of the request
 	 *
@@ -321,7 +321,7 @@ class Request extends Hookable {
 		$type = explode(";", $this->header(Net_HTTP::REQUEST_CONTENT_TYPE));
 		return strtolower(array_shift($type));
 	}
-	
+
 	/**
 	 * Parse the accept header and return in priority order
 	 *
@@ -348,7 +348,7 @@ class Request extends Hookable {
 			$attr = array(
 				"weight" => 1
 			);
-			
+
 			foreach ($item_parts as $item_part) {
 				$attr = array();
 				if (strpos($item_part, '/') !== false) {
@@ -384,7 +384,7 @@ class Request extends Hookable {
 		uasort($result, "zesk_sort_weight_array");
 		return $this->_parsed_header($name, $result);
 	}
-	
+
 	/**
 	 * Helper to determine best choice for response given the Accept header
 	 *
@@ -446,7 +446,7 @@ class Request extends Hookable {
 		}
 		return $this->data;
 	}
-	
+
 	/**
 	 * Retrieve a header
 	 *
@@ -465,7 +465,7 @@ class Request extends Hookable {
 		unset($this->headers_parsed[strtolower($key)]);
 		return $this;
 	}
-	
+
 	/**
 	 * Getter/setter for parsed header values
 	 *
@@ -482,7 +482,7 @@ class Request extends Hookable {
 		$this->headers_parsed[$key] = $value;
 		return $value;
 	}
-	
+
 	/**
 	 * Is this a POST?
 	 *
@@ -491,9 +491,11 @@ class Request extends Hookable {
 	public function is_post() {
 		return $this->method === Net_HTTP::METHOD_POST;
 	}
-	
+
 	/**
 	 * Is this an AJAX call?
+	 *
+	 * @deprecated 2018-03-29 Use prefer_json exclusively
 	 *
 	 * @return boolean
 	 */
@@ -503,7 +505,7 @@ class Request extends Hookable {
 		}
 		return $this->get("ajax_id", null) !== null;
 	}
-	
+
 	/**
 	 * Set or get the method for this request
 	 *
@@ -517,7 +519,7 @@ class Request extends Hookable {
 		}
 		return $this->method;
 	}
-	
+
 	/**
 	 * Set a variable associated with this request
 	 *
@@ -546,7 +548,7 @@ class Request extends Hookable {
 		}
 		return $this->variables[$name];
 	}
-	
+
 	/**
 	 * Clean slashes from input values
 	 *
@@ -564,7 +566,7 @@ class Request extends Hookable {
 		}
 		return $v;
 	}
-	
+
 	/**
 	 * Get first occurrance of a value from the request variables
 	 *
@@ -584,7 +586,7 @@ class Request extends Hookable {
 		}
 		return $default;
 	}
-	
+
 	/**
 	 * Retrieve a non-empty value from the request
 	 *
@@ -602,7 +604,7 @@ class Request extends Hookable {
 		}
 		return aevalue($this->variables, $name, $default);
 	}
-	
+
 	/**
 	 * Retrieve a variable value
 	 *
@@ -616,7 +618,7 @@ class Request extends Hookable {
 		}
 		return avalue($this->variables, $name, $default);
 	}
-	
+
 	/**
 	 * Does the request have this variable?
 	 *
@@ -634,7 +636,7 @@ class Request extends Hookable {
 		}
 		return !empty($this->variables[$name]);
 	}
-	
+
 	/**
 	 * Retrieve a variable as a boolean value
 	 *
@@ -645,7 +647,7 @@ class Request extends Hookable {
 	function getb($name, $default = false) {
 		return $this->get_bool($name, $default);
 	}
-	
+
 	/**
 	 * Retrieve a variable as a boolean value
 	 *
@@ -656,7 +658,7 @@ class Request extends Hookable {
 	function get_bool($name, $default = false) {
 		return to_bool($this->get($name), $default);
 	}
-	
+
 	/**
 	 * Retrieve a variable as a double value
 	 *
@@ -667,7 +669,7 @@ class Request extends Hookable {
 	function getf($name, $default = false) {
 		return to_double($this->get($name), $default);
 	}
-	
+
 	/**
 	 * Retrieve a variable as an integer value
 	 *
@@ -678,7 +680,7 @@ class Request extends Hookable {
 	function geti($name, $default = null) {
 		return to_integer($this->get($name), $default);
 	}
-	
+
 	/**
 	 * Retrieve a value as an array value
 	 *
@@ -707,7 +709,7 @@ class Request extends Hookable {
 		}
 		return array();
 	}
-	
+
 	/**
 	 * Returns an array for an uploaded file
 	 * Contains:
@@ -754,7 +756,7 @@ class Request extends Hookable {
 		}
 		return $files;
 	}
-	
+
 	/**
 	 * Retrieve all REQUEST variables for this request.
 	 * Does not include object attributes such as URL or others.
@@ -766,7 +768,7 @@ class Request extends Hookable {
 	public function variables() {
 		return $this->variables;
 	}
-	
+
 	/**
 	 * Get the URL, or set the URL and optionally the path
 	 *
@@ -784,7 +786,7 @@ class Request extends Hookable {
 		}
 		return $this->url;
 	}
-	
+
 	/**
 	 * Set the path on the server, updating the URL and parts
 	 *
@@ -801,7 +803,7 @@ class Request extends Hookable {
 		}
 		return $this->url_variables('path');
 	}
-	
+
 	/**
 	 * Return path + query string (if supplied)
 	 *
@@ -810,7 +812,7 @@ class Request extends Hookable {
 	function uri() {
 		return $this->uri;
 	}
-	
+
 	/**
 	 * Retrieve a segment of the request path
 	 *
@@ -821,7 +823,7 @@ class Request extends Hookable {
 	function path_index($index, $default = null) {
 		return avalue(explode("/", $this->path()), $index, $default);
 	}
-	
+
 	/**
 	 * Retrieve the current host
 	 *
@@ -858,7 +860,7 @@ class Request extends Hookable {
 		$this->_valid_url_parts();
 		return avalue($this->url_parts, "query", null);
 	}
-	
+
 	/**
 	 * Retrieve the URL component
 	 * @see Request::url_variables()
@@ -870,7 +872,7 @@ class Request extends Hookable {
 	function url_parts($component = null) {
 		return $this->url_variables($component);
 	}
-	
+
 	/**
 	 * Retrieve the URL component
 	 *
@@ -891,7 +893,7 @@ class Request extends Hookable {
 			"url" => $this->url()
 		));
 	}
-	
+
 	/**
 	 * Universal getter
 	 *
@@ -900,7 +902,7 @@ class Request extends Hookable {
 	function __get($key) {
 		return $this->get($key);
 	}
-	
+
 	/**
 	 * Universal setter
 	 *
@@ -910,7 +912,7 @@ class Request extends Hookable {
 	function __set($key, $value) {
 		$this->set($key, $value);
 	}
-	
+
 	/**
 	 * Parse the range value
 	 *
@@ -919,13 +921,13 @@ class Request extends Hookable {
 	 */
 	public function range_parse() {
 		$range = $this->header("Range");
-		
+
 		$matches = null;
 		preg_match_all('/(-?[0-9]++(?:-(?![0-9]++))?)(?:-?([0-9]++))?/', $range, $matches, PREG_SET_ORDER);
-		
+
 		return $matches[0];
 	}
-	
+
 	/**
 	 * Calculates the byte range to use with send_file.
 	 * If HTTP_RANGE doesn't
@@ -938,7 +940,7 @@ class Request extends Hookable {
 	protected function _calculate_byte_range($size) {
 		$start = 0;
 		$end = $size - 1;
-		
+
 		if (($range = $this->range_parse()) !== null) {
 			$start = $range[1];
 			if ($start[0] === '-') {
@@ -948,17 +950,17 @@ class Request extends Hookable {
 				$end = $range[2];
 			}
 		}
-		
+
 		$start = abs(intval($start));
 		$end = min(abs(intval($end)), $size - 1);
 		$start = ($end < $start) ? 0 : max($start, 0);
-		
+
 		return array(
 			$start,
 			$end
 		);
 	}
-	
+
 	/**
 	 * Is this likely a web browser?
 	 *
@@ -978,7 +980,7 @@ class Request extends Hookable {
 		}
 		return $this->user_agent;
 	}
-	
+
 	/**
 	 * Retrieve the IP address of the requestor
 	 *
@@ -1004,7 +1006,7 @@ class Request extends Hookable {
 		// $_SERVER["HTTP_REFERER"]
 		return $this->header(Net_HTTP::REQUEST_REFERRER);
 	}
-	
+
 	/**
 	 *
 	 * @param mixed $check
@@ -1014,7 +1016,7 @@ class Request extends Hookable {
 	public function user_agent_is($check = null) {
 		return $this->user_agent()->is($check);
 	}
-	
+
 	/**
 	 * Output string value which can be passed to new Request($request->__toString())
 	 *
@@ -1032,7 +1034,7 @@ class Request extends Hookable {
 			"variables" => $this->variables
 		));
 	}
-	
+
 	/**
 	 *
 	 * @see http://stackoverflow.com/questions/2840755/how-to-determine-the-max-file-upload-limit-in-php
@@ -1057,7 +1059,7 @@ class Request extends Hookable {
 		}
 		return min($upload_max_filesize, $post_max_size, $memory_limit);
 	}
-	
+
 	/**
 	 * Retrieve a cookie from the request
 	 *
@@ -1068,7 +1070,7 @@ class Request extends Hookable {
 	public function cookie($name = null, $default = null) {
 		return $name === null ? $this->cookies : avalue($this->cookies, $name, $default);
 	}
-	
+
 	/**
 	 * Set the method, warning if unknown
 	 *
@@ -1086,7 +1088,7 @@ class Request extends Hookable {
 		$this->method = $method;
 		return $this;
 	}
-	
+
 	/**
 	 * Ensure that ->url_parts is available to be read
 	 */
@@ -1104,7 +1106,7 @@ class Request extends Hookable {
 	private function clean_gpc(array $mixed) {
 		return get_magic_quotes_gpc() ? self::_cleanslashes($mixed) : $mixed;
 	}
-	
+
 	/**
 	 * Retrieve the default request
 	 *
@@ -1121,7 +1123,7 @@ class Request extends Hookable {
 		}
 		return is_array($_REQUEST) ? $_REQUEST : array();
 	}
-	
+
 	/**
 	 * Convert server variables into HTTP headers
 	 *
@@ -1177,7 +1179,22 @@ class Request extends Hookable {
 	private function current_uri(array $server) {
 		return avalue($server, 'REQUEST_URI');
 	}
-	
+
+	/**
+	 * Does the current request prefer a JSON response?
+	 *
+	 * @return boolean
+	 */
+	function prefer_json() {
+		if ($this->is_ajax()) {
+			return true;
+		}
+		return $this->accept_priority(array(
+			"application/json",
+			"text/html"
+		)) === "application/json";
+	}
+
 	/**
 	 * Helper function for self::remote.
 	 * Searches an array for a valid IP address.
