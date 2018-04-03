@@ -67,21 +67,21 @@ class Database_Query_Select extends Database_Query_Select_Base {
 	 * @var array
 	 */
 	protected $join_objects = array();
-	
+
 	/**
 	 * List of locale-specific conditions for outputting to the user
 	 *
 	 * @var array
 	 */
 	protected $conditions = array();
-	
+
 	/**
 	 * This is here solely for debugging purposes only.
 	 *
 	 * @var string
 	 */
 	protected $generated_sql = null;
-	
+
 	/**
 	 * Construct a new Select query
 	 *
@@ -90,7 +90,7 @@ class Database_Query_Select extends Database_Query_Select_Base {
 	function __construct(Database $db) {
 		parent::__construct("SELECT", $db);
 	}
-	
+
 	/**
 	 *
 	 * {@inheritDoc}
@@ -111,7 +111,7 @@ class Database_Query_Select extends Database_Query_Select_Base {
 			"conditions"
 		));
 	}
-	
+
 	/**
 	 *
 	 * {@inheritDoc}
@@ -119,7 +119,7 @@ class Database_Query_Select extends Database_Query_Select_Base {
 	 */
 	public function copy_from(Database_Query_Select $query) {
 		parent::_copy_from_base($query);
-		
+
 		$this->what = $query->what;
 		$this->tables = $query->tables;
 		$this->alias = $query->alias;
@@ -132,10 +132,10 @@ class Database_Query_Select extends Database_Query_Select_Base {
 		$this->distinct = $query->distinct;
 		$this->join_objects = $query->join_objects;
 		$this->conditions = $query->conditions;
-		
+
 		return $this;
 	}
-	
+
 	/**
 	 *
 	 * @param unknown $column
@@ -162,7 +162,7 @@ class Database_Query_Select extends Database_Query_Select_Base {
 	public static function factory(Database $db = null) {
 		return new Database_Query_Select($db);
 	}
-	
+
 	/**
 	 * Set as a distinct or non-distinct query
 	 *
@@ -204,6 +204,7 @@ class Database_Query_Select extends Database_Query_Select_Base {
 	 * ->what(return_column, table_column) adds "table_column as return_column" to what clause
 	 * ->what(array(...), true) appends to the current what clause
 	 * ->what(array(...)) replaces the current what clause
+	 * ->what(false) sets the what clause to empty
 	 * ->what(object of type Database_Query_Select) replaces the current what clause
 	 * ->what(object of type Database_Query_Select, true) appends the current what clause
 	 *
@@ -219,6 +220,10 @@ class Database_Query_Select extends Database_Query_Select_Base {
 		}
 		if ($mixed === null && is_string($value)) {
 			$this->what = $value;
+			return $this;
+		}
+		if ($mixed === false && $value === null) {
+			$this->what = array();
 			return $this;
 		}
 		if (is_string($this->what)) {
@@ -261,7 +266,7 @@ class Database_Query_Select extends Database_Query_Select_Base {
 		}
 		throw new Exception_Parameter("Unknown parameter passed to Database_Query_Select::what(" . gettype($mixed) . ")");
 	}
-	
+
 	/**
 	 * Select from what
 	 *
@@ -274,7 +279,7 @@ class Database_Query_Select extends Database_Query_Select_Base {
 		$this->alias = $alias;
 		return $this;
 	}
-	
+
 	/**
 	 * Join tables
 	 *
@@ -292,7 +297,7 @@ class Database_Query_Select extends Database_Query_Select_Base {
 		}
 		return $this;
 	}
-	
+
 	/**
 	 * Given a table alias, find the associated class
 	 *
@@ -305,7 +310,7 @@ class Database_Query_Select extends Database_Query_Select_Base {
 		}
 		return avalue($this->join_objects, $alias, null);
 	}
-	
+
 	/**
 	 * Join tables
 	 *
@@ -325,7 +330,7 @@ class Database_Query_Select extends Database_Query_Select_Base {
 			throw new Exception_Semantics(__CLASS__ . "::join_object: Same alias $alias added twice");
 		}
 		$this->join_objects[$alias] = $class;
-		
+
 		$sql = $this->sql();
 		if ($table === null) {
 			$table = $object->table();
@@ -364,7 +369,7 @@ class Database_Query_Select extends Database_Query_Select_Base {
 		}
 		return $this->join("$join_type JOIN $table_as ON " . $this->sql()->where_clause($on, null));
 	}
-	
+
 	/**
 	 * Link to another object
 	 *
@@ -402,10 +407,10 @@ class Database_Query_Select extends Database_Query_Select_Base {
 			$mixed['path'] = $path;
 		}
 		return $object->link_walk($this, $mixed);
-		
+
 		//		return ORM::cache_object($class)->link($this, $mixed);
 	}
-	
+
 	/**
 	 * Add where clause. Pass in false for $k to reset where to nothing.
 	 *
@@ -428,7 +433,7 @@ class Database_Query_Select extends Database_Query_Select_Base {
 		}
 		return $this;
 	}
-	
+
 	/**
 	 * Set order by clause
 	 *
@@ -442,7 +447,7 @@ class Database_Query_Select extends Database_Query_Select_Base {
 		$this->order_by = $order_by;
 		return $this;
 	}
-	
+
 	/**
 	 * Set group by clause
 	 *
@@ -453,7 +458,7 @@ class Database_Query_Select extends Database_Query_Select_Base {
 		$this->group_by = $group_by;
 		return $this;
 	}
-	
+
 	/**
 	 * Set limit
 	 *
@@ -471,7 +476,7 @@ class Database_Query_Select extends Database_Query_Select_Base {
 		}
 		return $this;
 	}
-	
+
 	/**
 	 * Compile SQL statement
 	 *
@@ -500,7 +505,7 @@ class Database_Query_Select extends Database_Query_Select_Base {
 		}
 		return $this->conditions;
 	}
-	
+
 	/**
 	 *
 	 * @return string

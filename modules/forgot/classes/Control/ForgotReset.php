@@ -13,46 +13,19 @@ namespace zesk;
  * @author kent
  *
  */
-class Control_Forgot extends Control_Edit {
+class Control_ForgotReset extends Control_Edit {
 	/**
 	 *
 	 * @var string
 	 */
-	protected $class = "zesk\\Forgot"; // TODO fix to __NAMESPACE__ when TODO-PHP7 only
-
-	/**
-	 * Header theme
-	 *
-	 * @var string
-	 */
-	protected $theme_prefix = null; //"zesk/control/forgot/prefix";
-
-	/**
-	 * Header theme
-	 *
-	 * @var string
-	 */
-	protected $theme_header = null; //"zesk/control/forgot/header";
-
-	/**
-	 * Footer theme
-	 *
-	 * @var string
-	 */
-	protected $theme_footer = null; //"zesk/control/forgot/footer";
-	/**
-	 * Suffix theme
-	 *
-	 * @var string
-	 */
-	protected $theme_suffix = null; //"zesk/control/forgot/suffix";
+	protected $class = Forgot::class;
 
 	/**
 	 *
 	 * @var array
 	 */
 	protected $options = array(
-		'title' => 'Forgotten password'
+		'title' => 'Reset password'
 	);
 	/**
 	 *
@@ -73,13 +46,12 @@ class Control_Forgot extends Control_Edit {
 	function hook_widgets() {
 		$locale = $this->locale();
 
-		$this->form_name("forgot_form");
+		$this->form_name("forgot_reset_form");
 
 		$ww = array();
 
-		$ww[] = $w = $this->widget_factory($this->option("widget_login", Control_Text::class))->names('login', $locale->__($this->option("label_login", "Login")));
+		$ww[] = $w = $this->widget_factory(Control_Hidden::class)->names('validate');
 		$w->required(true);
-		$w->default_value($this->request->get('login'));
 
 		$ww[] = $w = $this->widget_factory(Control_Password::class)->names('login_password', $this->option("label_password", $locale->__("New Password")));
 
@@ -88,22 +60,46 @@ class Control_Forgot extends Control_Edit {
 		$w->required(true);
 
 		$ww[] = $w = $this->widget_factory(Control_Button::class)
-			->names('forgot', $this->option("label_button", $locale->__("Send me an email")))
+			->names('submit_forgot_reset', $this->option("label_button", $locale->__("Change password")))
 			->add_class('btn-primary btn-block')
 			->nolabel(true);
 
 		return $ww;
 	}
-	public function submitted() {
-		return $this->request->get("forgot", "") !== "";
+	/**
+	 * Getter/setter for validate_token
+	 *
+	 * @param string $set
+	 * @return string
+	 */
+	public function validate_token($set = null) {
+		if ($set === null) {
+			return $this->validate_token;
+		}
+		$this->validate_token = $set;
+		return $this;
 	}
+	/**
+	 *
+	 * {@inheritDoc}
+	 * @see \zesk\Widget::submitted()
+	 */
+	public function submitted() {
+		return $this->request->get("submit_forgot_reset", "") !== "";
+	}
+
+	/**
+	 *
+	 * {@inheritDoc}
+	 * @see \zesk\Control_Edit::validate()
+	 */
 	function validate() {
 		if (!parent::validate()) {
 			return false;
 		}
 		$locale = $this->locale();
 		/* @var $user User */
-		$this->auth_user = $this->application->orm_factory(User::class)->login($this->object->login)->find();
+		$found = $this->object->fetch($this->validate_token())->find();
 		$this->auth_user = $this->call_hook_arguments("find_user", array(
 			$this->auth_user
 		), $this->auth_user);
