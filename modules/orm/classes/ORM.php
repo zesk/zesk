@@ -2603,10 +2603,18 @@ class ORM extends Model {
 					$members[$member] = $value;
 				} else if (is_object($value)) {
 					foreach ($resolve_methods as $resolve_method) {
-						if (method_exists($value, $resolve_method)) {
+						if (is_string($resolve_method) && method_exists($value, $resolve_method)) {
 							$members[$member] = $value->$resolve_method($child_options);
 							break;
 						}
+						if (is_callable($resolve_method)) {
+							$members[$member] = $resolve_method($this, $child_options);
+							break;
+						}
+						$this->application->logger->warning("Invalid resolve method passed into {class}->json: {type}", array(
+							"class" => get_class($this),
+							"type" => type($resolve_method)
+						));
 					}
 					if (!array_key_exists($member, $members)) {
 						$members[$member] = $value->__toString();

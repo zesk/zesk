@@ -387,14 +387,6 @@ class Module_ORM extends Module {
 		$rows = array();
 		while (count($classes) > 0) {
 			$class = array_shift($classes);
-			if (!is_subclass_of($class, ORM::class)) {
-				$this->application->logger->warning("{method} {class} is not a subclass of {parent}", array(
-					"method" => __METHOD__,
-					"class" => $class,
-					"parent" => ORM::class
-				));
-				continue;
-			}
 			$lowclass = strtolower($class);
 			if (array_key_exists($lowclass, $objects_by_class)) {
 				continue;
@@ -403,6 +395,14 @@ class Module_ORM extends Module {
 			$result['class'] = $class;
 			try {
 				$result['object'] = $object = $this->orm_factory($this->application, $class);
+				if (!$object instanceof ORM) {
+					$this->application->logger->warning("{method} {class} is not an instanceof {parent}", array(
+						"method" => __METHOD__,
+						"class" => $class,
+						"parent" => ORM::class
+					));
+					continue;
+				}
 				$result['database'] = $object->database_name();
 				$result['table'] = $object->table();
 			} catch (\Exception $e) {

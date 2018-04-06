@@ -29,13 +29,13 @@ namespace zesk;
  * @subpackage system
  */
 class Options implements \ArrayAccess {
-	
+
 	/**
 	 * Character used for space
 	 * @var string
 	 */
 	const option_space = "_";
-	
+
 	/**
 	 * An associative array of lower-case strings pointing to mixed values. $options should
 	 * always be serializable so it should only contain primitive scalar types.
@@ -45,7 +45,7 @@ class Options implements \ArrayAccess {
 	 * @var array
 	 */
 	protected $options = array();
-	
+
 	/**
 	 * Create a Options object.
 	 *
@@ -58,7 +58,7 @@ class Options implements \ArrayAccess {
 		}
 		$this->options = self::_option_key($options) + $this->options;
 	}
-	
+
 	/**
 	 * @ignore
 	 */
@@ -67,7 +67,7 @@ class Options implements \ArrayAccess {
 			"options"
 		);
 	}
-	
+
 	/**
 	 * options_exclude
 	 *
@@ -91,7 +91,7 @@ class Options implements \ArrayAccess {
 		}
 		return $arr;
 	}
-	
+
 	/**
 	 * options_include
 	 *
@@ -110,14 +110,14 @@ class Options implements \ArrayAccess {
 		}
 		return $result;
 	}
-	
+
 	/**x
 	 * @return array A list of all of the keys in this Options object.
 	 */
 	function option_keys() {
 		return array_keys($this->options);
 	}
-	
+
 	/**
 	 * Checks an option to see if it is set and optionally if it has a non-empty value.
 	 *
@@ -144,7 +144,7 @@ class Options implements \ArrayAccess {
 		}
 		return !empty($this->options[$name]);
 	}
-	
+
 	/**
 	 * Set an option for this object, or remove it.
 	 *
@@ -193,7 +193,7 @@ class Options implements \ArrayAccess {
 		}
 		return $this;
 	}
-	
+
 	/**
 	 * Converts a non-array option into an array, and appends a value to the end.
 	 *
@@ -214,7 +214,7 @@ class Options implements \ArrayAccess {
 		$this->options[$name][] = $value;
 		return $this;
 	}
-	
+
 	/**
 	 * Appends a variable to a option which is an array
 	 *
@@ -228,7 +228,7 @@ class Options implements \ArrayAccess {
 		$this->options[self::_option_key($name)][$key] = $value;
 		return $this;
 	}
-	
+
 	/**
 	 * Get an option, or multiple options for this object.
 	 *
@@ -315,7 +315,7 @@ class Options implements \ArrayAccess {
 		}
 		return $default;
 	}
-	
+
 	/**
 	 * Returns first option found
 	 *
@@ -334,7 +334,7 @@ class Options implements \ArrayAccess {
 		}
 		return $default;
 	}
-	
+
 	/**
 	 * Generate an option key from an option name
 	 * @param string $name
@@ -354,7 +354,7 @@ class Options implements \ArrayAccess {
 			" " => self::option_space
 		)));
 	}
-	
+
 	/**
 	 * Get an option as a boolean.
 	 *
@@ -363,7 +363,7 @@ class Options implements \ArrayAccess {
 	function option_bool($name, $default = false) {
 		return to_bool(avalue($this->options, self::_option_key($name), $default), $default);
 	}
-	
+
 	/**
 	 * Get an option as an integer value.
 	 *
@@ -375,7 +375,7 @@ class Options implements \ArrayAccess {
 	function option_integer($name, $default = null) {
 		return to_integer(avalue($this->options, self::_option_key($name)), $default);
 	}
-	
+
 	/**
 	 * Get an option as a numeric (floating-point or integer) value.
 	 *
@@ -391,7 +391,7 @@ class Options implements \ArrayAccess {
 		}
 		return $default;
 	}
-	
+
 	/**
 	 * Get an option as an array.
 	 *
@@ -407,7 +407,7 @@ class Options implements \ArrayAccess {
 		}
 		return $default;
 	}
-	
+
 	/**
 	 * Get an option as a tree-path
 	 * @param string $name Option to retrieve as an array value.
@@ -431,7 +431,7 @@ class Options implements \ArrayAccess {
 		}
 		return $node;
 	}
-	
+
 	/**
 	 * Set an option as a tree-path
 	 *
@@ -445,7 +445,7 @@ class Options implements \ArrayAccess {
 		apath_set($this->options, $path, $value, $separator);
 		return $this;
 	}
-	
+
 	/**
 	 * Get an option as a date formatted as "YYYY-MM-DD".
 	 *
@@ -461,7 +461,7 @@ class Options implements \ArrayAccess {
 		}
 		return $default;
 	}
-	
+
 	/**
 	 * Get an option as a zero-indexed array, or list array("Bob","Rajiv","Franz")
 	 *
@@ -478,7 +478,7 @@ class Options implements \ArrayAccess {
 		}
 		return to_list($this->options[$name], $default, $delimiter);
 	}
-	
+
 	/**
 	 * Getter/setter interface to make access easy from subclasses
 	 *
@@ -498,7 +498,7 @@ class Options implements \ArrayAccess {
 	function __get($key) {
 		return avalue($this->options, self::_option_key($key));
 	}
-	
+
 	/**
 	 * Handle options like members
 	 *
@@ -509,16 +509,16 @@ class Options implements \ArrayAccess {
 		$this->options[self::_option_key($key)] = $value;
 		return $this;
 	}
-	
+
 	/**
 	 * Convert to string
 	 *
 	 * @return string
 	 */
 	function __toString() {
-		return get_class($this);
+		return PHP::dump($this->options);
 	}
-	
+
 	/**
 	 * @see ArrayAccess::offsetExists
 	 * @param offset
@@ -526,7 +526,7 @@ class Options implements \ArrayAccess {
 	public function offsetExists($offset) {
 		return array_key_exists(self::_option_key($offset), $this->options);
 	}
-	
+
 	/**
 	 * @see ArrayAccess::offsetGet
 	 * @param offset
@@ -534,7 +534,7 @@ class Options implements \ArrayAccess {
 	public function offsetGet($offset) {
 		return avalue($this->options, self::_option_key($offset));
 	}
-	
+
 	/**
 	 * @see ArrayAccess::offsetSet
 	 * @param offset
@@ -543,7 +543,7 @@ class Options implements \ArrayAccess {
 	public function offsetSet($offset, $value) {
 		$this->options[self::_option_key($offset)] = $value;
 	}
-	
+
 	/**
 	 * @see ArrayAccess::offsetUnset
 	 * @param offset

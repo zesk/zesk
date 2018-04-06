@@ -465,8 +465,8 @@ class Router extends Hookable {
 		if (($route = avalue($options, 'current_route')) instanceof Route) {
 			$options += $route->arguments_named();
 		}
-		if (is_object($object) && $object instanceof \Hookable) {
-			$try_classes = $app->classes->hierarchy($object, "zesk\\Model");
+		if (is_object($object) && $object instanceof Hookable) {
+			$try_classes = $app->classes->hierarchy($object, Model::class);
 			$options += $object->call_hook_arguments("route_options", array(
 				$this,
 				$action

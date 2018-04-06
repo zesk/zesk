@@ -12,6 +12,11 @@ class PHPUnit_TestCase extends TestCase {
 
 	/**
 	 *
+	 * @var array
+	 */
+	protected $load_modules = [];
+	/**
+	 *
 	 * @var Configuration
 	 */
 	protected $configuration = null;
@@ -26,13 +31,24 @@ class PHPUnit_TestCase extends TestCase {
 	/**
 	 * Ensures our zesk variables above are properly populated
 	 */
-	function assertPreConditions() {
+	function setUp() {
+
 		/*
 		 * Set up our state
 		 */
 		if (!$this->application) {
 			/* singleton ok */
 			$this->application = Kernel::singleton()->application();
+		}
+		foreach ($this->load_modules as $module) {
+			$result = $this->application->modules->load($module);
+			$this->assertArrayHasKeys([
+				"loaded",
+				"name",
+				"class",
+				"object"
+			], $result);
+			$this->assertTrue($result['loaded'], "is not loaded");
 		}
 		if (!$this->configuration) {
 			$this->configuration = $this->application->configuration;
@@ -47,6 +63,8 @@ class PHPUnit_TestCase extends TestCase {
 				"option" => $this->option->to_array()
 			));
 		}
+	}
+	function assertPreConditions() {
 		$this->assertInstanceOf(Configuration::class, $this->configuration);
 		$this->assertInstanceOf(Application::class, $this->application);
 		file_put_contents($this->lastTestCaseFile(), JSON::encode_pretty(array(
