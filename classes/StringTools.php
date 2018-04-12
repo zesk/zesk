@@ -554,8 +554,9 @@ class StringTools {
 			$tab_width = 4;
 		}
 		//	$text =~ s{(.*?)\t}{$1.(' ' x ($g_tab_width - length($1) % $g_tab_width))}ge;
-		$func = create_function('$matches', "{ return \$matches[1] . str_repeat(' ', $tab_width - strlen(\$matches[1]) % $tab_width); }");
-		return preg_replace_callback('@^(.*?)\t@m', $func, $text);
+		return preg_replace_callback('@^(.*?)\t@m', function ($matches) use ($tab_width) {
+			return $matches[1] . str_repeat(' ', $tab_width - strlen($matches[1]) % $tab_width);
+		}, $text);
 	}
 
 	/**
