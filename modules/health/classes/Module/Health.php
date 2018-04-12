@@ -81,9 +81,22 @@ class Module_Health extends Module {
 		}
 		return $backtrace;
 	}
-	public function error_handler($errno, $errstr, $errfile, $errline, array $errcontext) {
+	/**
+	 * Error handler.
+	 *
+	 * 2017-04-12 Removed $errcontext due to removal in PHP 7.2:
+	 *
+	 * https://wiki.php.net/rfc/deprecations_php_7_2
+	 *
+	 * @param integer $errno
+	 * @param string $errstr
+	 * @param string $errfile
+	 * @param integer $errline
+	 * @return void|mixed|boolean
+	 */
+	public function error_handler($errno, $errstr, $errfile, $errline) {
 		if ($this->disabled) {
-			return;
+			return false;
 		}
 		$type = strtolower(StringTools::unprefix(avalue(self::$error_codes, $errno, $errno), "E_"));
 		$this->log(array(
@@ -93,7 +106,6 @@ class Module_Health extends Module {
 			"message" => $errstr,
 			"file" => $errfile,
 			"line" => $errline,
-			"error_context" => $errcontext,
 			"backtrace" => $this->clean_backtrace(debug_backtrace()),
 			"_SERVER" => $_SERVER,
 			"_REQUEST" => $_REQUEST
@@ -151,7 +163,7 @@ class Module_Health extends Module {
 		$app = $process->application();
 		$app->modules->object("health")->run_daemon($process);
 	}
-	
+
 	/**
 	 * Do not log errors while processing events. Unserialized resources, etc. will cause additional errors which we are OK to ignore
 	 *
@@ -171,7 +183,7 @@ class Module_Health extends Module {
 	public function hook_cron_cluster_hour() {
 		$purge_events_fatal_hours = $this->option_integer("purge_events_fatal_hours", -1);
 		$purge_events_non_fatal_hours = $this->option_integer("purge_events_non_fatal_hours", 24 * 7);
-		
+
 		self::purge_old_events('Health_Event', 'when', $purge_events_fatal_hours, $purge_events_non_fatal_hours);
 		self::purge_old_events('Health_Events', 'first', $purge_events_fatal_hours, $purge_events_non_fatal_hours);
 	}
