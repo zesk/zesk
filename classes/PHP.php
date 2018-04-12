@@ -1,13 +1,13 @@
 <?php
 /**
- * 
+ *
  */
 namespace zesk;
 
 use \ReflectionObject;
 
 /**
- * 
+ *
  * @author kent
  *
  */
@@ -18,77 +18,77 @@ class PHP {
 	 * @var string
 	 */
 	public $indent_char = " ";
-	
+
 	/**
 	 * When indenting, use $indent_multiple times $indent_char for each indent level
 	 *
 	 * @var integer
 	 */
 	public $indent_multiple = 4;
-	
+
 	/**
 	 * Value to separate array values
 	 *
 	 * @var string
 	 */
 	public $array_value_separator = "\n";
-	
+
 	/**
 	 * Put a trainling comma on array output
 	 *
 	 * @var boolean
 	 */
 	public $array_trailing_comma = false;
-	
+
 	/**
 	 * Characters to place before an array arrow =>
 	 *
 	 * @var string
 	 */
 	public $array_arrow_prefix = " ";
-	
+
 	/**
 	 * Characters to place after an array arrow =>
 	 *
 	 * @var string
 	 */
 	public $array_arrow_suffix = " ";
-	
+
 	/**
 	 * Characters to place before an array open parenthesis
 	 *
 	 * @var string
 	 */
 	public $array_open_parenthesis_prefix = "";
-	
+
 	/**
 	 * Characters to place after an array open parenthesis
 	 *
 	 * @var string
 	 */
 	public $array_open_parenthesis_suffix = "\n";
-	
+
 	/**
 	 * Characters to place before an array close parenthesis
 	 *
 	 * @var string
 	 */
 	public $array_close_parenthesis_prefix = "";
-	
+
 	/**
 	 * Characters to place after an array close parenthesis
 	 *
 	 * @var string
 	 */
 	public $array_close_parenthesis_suffix = "";
-	
+
 	/**
 	 * Global dump settings, used when called statically
 	 *
 	 * @var php
 	 */
 	private static $singleton = null;
-	
+
 	/**
 	 * Return global static dump object
 	 *
@@ -100,17 +100,17 @@ class PHP {
 		}
 		return self::$singleton;
 	}
-	
+
 	/**
 	 * Set or get the current settings
 	 *
-	 * @param array $set        	
+	 * @param array $set
 	 * @return Ambigous <php, array>
 	 */
 	public static function dump_settings(array $set = null) {
 		return self::singleton()->settings($set);
 	}
-	
+
 	/**
 	 * Set the settings in this object to support one-line output
 	 *
@@ -123,7 +123,7 @@ class PHP {
 		$this->array_close_parenthesis_suffix = "";
 		return $this;
 	}
-	
+
 	/**
 	 *
 	 * @return php
@@ -131,21 +131,21 @@ class PHP {
 	public static function dump_settings_one() {
 		return self::singleton()->settings_one()->settings();
 	}
-	
+
 	/**
 	 * Dump value as PHP
 	 *
-	 * @param mixed $x        	
+	 * @param mixed $x
 	 * @return string
 	 */
 	public static function dump($x) {
 		return self::singleton()->render($x);
 	}
-	
+
 	/**
 	 * Get or set the settings in this object
 	 *
-	 * @param array $set        	
+	 * @param array $set
 	 * @return php|array
 	 */
 	public function settings(array $set = null) {
@@ -161,11 +161,11 @@ class PHP {
 		$result = $x->getProperties();
 		return $result;
 	}
-	
+
 	/**
 	 * Output PHP structures formatted in PHP language
 	 *
-	 * @param mixed $x        	
+	 * @param mixed $x
 	 * @return string
 	 */
 	public function render($x) {
@@ -213,28 +213,28 @@ class PHP {
 			return strval($x);
 		}
 	}
-	
+
 	/**
 	 * Exception logged during unserialization
 	 *
 	 * @var Exception
 	 */
 	static $unserialize_exception = null;
-	
+
 	/**
 	 * Temporary error handler during unserialization
 	 *
-	 * @param integer $errno        	
-	 * @param string $errstr        	
+	 * @param integer $errno
+	 * @param string $errstr
 	 */
 	public static function _unserialize_handler($errno, $errstr) {
 		self::$unserialize_exception = new Exception_Syntax($errstr, array(), $errno);
 	}
-	
+
 	/**
 	 * Safe unserialize function
 	 *
-	 * @param string $serialized        	
+	 * @param string $serialized
 	 * @throws Exception
 	 * @return mixed
 	 */
@@ -253,11 +253,11 @@ class PHP {
 		}
 		return $original;
 	}
-	
+
 	/**
 	 * Test PHP for presence of various features
 	 *
-	 * @param mixed $features        	
+	 * @param mixed $features
 	 * @param boolean $die
 	 *        	Die if features aren't present
 	 * @return mixed
@@ -302,14 +302,14 @@ class PHP {
 		}
 		return $results;
 	}
-	
+
 	/**
 	 * Set a PHP feature. Useful when you're a moron and can't remember the ini file settings names.
 	 *
-	 * @param string $feature        	
+	 * @param string $feature
 	 * @param mixed $value
 	 *        	Value to set it to
-	 *        	
+	 *
 	 * @return boolean True if successful
 	 */
 	public static function feature($feature, $value) {
@@ -323,21 +323,21 @@ class PHP {
 		}
 		return null;
 	}
-	
+
 	/**
 	 * Is this a valid function name, syntactically?
 	 *
-	 * @param string $func        	
+	 * @param string $func
 	 * @return boolean
 	 */
 	public static function valid_function($func) {
 		return self::clean_function($func) === $func;
 	}
-	
+
 	/**
 	 * Is this a valid class name, syntactically?
 	 *
-	 * @param string $class        	
+	 * @param string $class
 	 * @return boolean
 	 */
 	public static function valid_class($class) {
@@ -355,7 +355,7 @@ class PHP {
 	public static function clean_function($func) {
 		return preg_replace("/[^a-zA-Z0-9_]/", '_', $func);
 	}
-	
+
 	/**
 	 * Convert a string into a valid PHP class name.
 	 *
@@ -366,7 +366,7 @@ class PHP {
 	public static function clean_class($func) {
 		return preg_replace("/[^a-zA-Z0-9_\\\\]/", '_', $func);
 	}
-	
+
 	/**
 	 * Convert a value automatically into a native PHP type
 	 *
@@ -401,7 +401,7 @@ class PHP {
 		}
 		return $value;
 	}
-	
+
 	/**
 	 * Given a class with a namespace, return just the class portion.
 	 *
@@ -415,12 +415,12 @@ class PHP {
 		list($ns, $cl) = self::parse_namespace_class($class);
 		return $cl;
 	}
-	
+
 	/**
 	 * Given a class with a namespace, return just the class portion.
-	 * 
+	 *
 	 * e.g. PHP::parse_class("zesk\Dude") === "Dude"
-	 * 
+	 *
 	 * @param unknown $class
 	 * @return A
 	 */
@@ -428,12 +428,12 @@ class PHP {
 		list($ns, $cl) = self::parse_namespace_class($class);
 		return $ns;
 	}
-	
+
 	/**
 	 * Given a class with a namespace, return a two-element list with the namespace first and the class second.
-	 * 
+	 *
 	 * Returns NULL for namespace if no namespace
-	 * 
+	 *
 	 * @param string $class
 	 * @return string[]
 	 */
