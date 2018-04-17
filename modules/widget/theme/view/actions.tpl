@@ -29,7 +29,7 @@ if (!is_array($actions)) {
 }
 $html = array();
 //echo HTML::tag("pre", _dump($actions));
-foreach ($actions as $action) {
+foreach ($actions as $index => $action) {
 	if (!is_array($action)) {
 		$application->logger->warning("{file} action {index} is not an array? ({type})", array(
 			"file" => __FILE__,

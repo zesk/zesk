@@ -11,6 +11,7 @@ namespace zesk;
 /* @var $current_user \zesk\User */
 /* @var $widget \zesk\Widget */
 /* @var $object \zesk\Model */
+/* @var $url string */
 $add_link = $this->getb("add_link");
 if ($this->theme) {
 	$content = $this->theme($this->theme);
@@ -38,7 +39,7 @@ if ($this->onclick) {
 }
 
 echo HTML::tag_open('li', $this->get('li_attributes', ".action"));
-echo HTML::a(URL::query_format($object->apply_map($this->url), array(
+echo HTML::a(URL::query_format($object->apply_map($url), array(
 	$referrer_query_string_name => $request->uri()
 )), $attr, $content);
 echo HTML::tag_close('li');
