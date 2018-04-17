@@ -168,8 +168,8 @@ class Control_Login extends Control_Edit {
 			$uref = $this->option('login_url', '/');
 		}
 		$this->application->logger->notice("User {user} ({uid}) logged in successfully", array(
-			"user" => $user,
-			"uid" => $user->id()
+			"user" => $this->user,
+			"uid" => $this->user->id()
 		));
 		if ($this->prefer_json()) {
 			$this->json($this->user->json($this->option_array("user_json_options")));
@@ -195,7 +195,7 @@ class Control_Login extends Control_Edit {
 			}
 			return $this->default_submit();
 		}
-		// Is this reachable? I don't think so.
+		// Is this reachable? I don't think so. KMD 2018
 		$result = $this->call_hook_arguments("submit_failed", array(), null);
 		if ($result !== null) {
 			if (is_array($result)) {
