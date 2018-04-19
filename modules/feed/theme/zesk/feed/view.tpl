@@ -39,7 +39,7 @@ if ($content && $updated instanceof Timestamp) {
 	$expires = $updated->add_unit($feed_update_frequency, Timestamp::UNIT_SECOND);
 	if ($expires->before($now)) {
 		$data->delete_data(array(
-			$prefix . 'raw_content'
+			$prefix . 'content'
 		));
 	} else {
 		echo $content;

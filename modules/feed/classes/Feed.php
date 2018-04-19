@@ -2,34 +2,34 @@
 namespace zesk;
 
 class Feed extends Model implements \Iterator {
-	
+
 	/**
-	 * 
+	 *
 	 * @var string
 	 */
 	protected $url = null;
-	
+
 	/**
-	 * 
+	 *
 	 * @var array
 	 */
 	protected $posts = array();
-	
+
 	/**
-	 * 
+	 *
 	 * @var array
 	 */
 	protected $errors = array();
-	
+
 	/**
-	 * 
+	 *
 	 * @param unknown $file_or_url
 	 */
 	function __construct(Application $application, $url, array $options = array()) {
-		parent::__construct($application, $options);
+		parent::__construct($application, null, $options);
 		$this->url($url);
 	}
-	
+
 	/**
 	 * Getter/setter for URL
 	 * @param unknown $set
@@ -64,17 +64,17 @@ class Feed extends Model implements \Iterator {
 				$return .= "Fatal Error $error->code: ";
 				break;
 		}
-		
+
 		$return .= trim($error->message) . "\n  Line: $error->line" . "\n  Column: $error->column";
 		if ($error->file) {
 			$return .= "\n  File: $error->file";
 		}
 		return "$return\n\n--------------------------------------------\n\n";
 	}
-	
+
 	/**
 	 * Convert errors into strings
-	 * 
+	 *
 	 * @param array $errors
 	 */
 	private static function process_errors(array $errors) {
@@ -83,9 +83,9 @@ class Feed extends Model implements \Iterator {
 		}
 		return $errors;
 	}
-	
+
 	/**
-	 * 
+	 *
 	 * @return string|Net_HTTP_Client_Exception
 	 */
 	function load_remote_url() {
@@ -93,6 +93,7 @@ class Feed extends Model implements \Iterator {
 		if ($this->has_option("user_agent")) {
 			$http->user_agent($this->option("user_agent"));
 		}
+		$http->request_header(Net_HTTP::REQUEST_ACCEPT, "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8");
 		try {
 			$content = $http->go();
 			return $content;
@@ -101,12 +102,12 @@ class Feed extends Model implements \Iterator {
 		}
 	}
 	/**
-	 * 
+	 *
 	 * @return NULL|\zesk\Feed
 	 */
 	function execute() {
 		$this->errors = array();
-		
+
 		$content = $this->load_remote_url();
 		if ($content instanceof Exception) {
 			$this->errors['http'] = $content->getMessage();
@@ -124,7 +125,7 @@ class Feed extends Model implements \Iterator {
 			$post->link = (string) $item->link;
 			$post->title = (string) $item->title;
 			$post->description = (string) $item->description;
-			
+
 			$this->posts[] = $post;
 		}
 		return $this;
@@ -133,35 +134,35 @@ class Feed extends Model implements \Iterator {
 		return $this->posts;
 	}
 	/**
-	 * 
+	 *
 	 */
 	public function current() {
 		return current($this->posts);
 	}
-	
+
 	/**
-	 * 
+	 *
 	 */
 	public function next() {
 		next($this->posts);
 	}
-	
+
 	/**
-	 * 
+	 *
 	 */
 	public function key() {
 		return key($this->posts);
 	}
-	
+
 	/**
-	 * 
+	 *
 	 */
 	public function valid() {
 		return $this->key() !== null;
 	}
-	
+
 	/**
-	 * 
+	 *
 	 */
 	public function rewind() {
 		reset($this->posts);
