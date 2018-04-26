@@ -109,6 +109,9 @@ class Lock extends ORM {
 		// Deleting unlinked locks
 		$n_rows = 0;
 		$server_ids = $application->orm_registry(Server::class)->query_select()->to_array(null, "id");
+		if (count($server_ids) === 0) {
+			return 0;
+		}
 		$iterator = $application->orm_registry(__CLASS__)
 			->query_select()
 			->where("X.server|!=|AND", $server_ids)
