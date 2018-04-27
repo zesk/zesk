@@ -188,14 +188,15 @@ class Command_Configure extends Command_Base {
 	 * @return string
 	 */
 	private function determine_environment_file() {
+		$locale = $this->application->locale;
 		$value = $this->environment_file;
 		$times = 0;
 		$this->completions = Directory::ls("/etc/", "/(.conf|.sh|.json)$/", true);
 		while (empty($value) || !is_file($value)) {
 			if ($times > 2) {
-				echo __("System settings file is a BASH and Zesk Configuration_Loader parsable file which contains a global which points to this host's configuration directory.\n\n");
+				echo $locale->__("System settings file is a BASH and Zesk Configuration_Loader parsable file which contains a global which points to this host's configuration directory.\n\n");
 			}
-			$value = trim($this->prompt(__("Path to system settings file: ")));
+			$value = trim($this->prompt($locale->__("Path to system settings file: ")));
 			++$times;
 			$this->need_save = true;
 		}
@@ -226,18 +227,19 @@ class Command_Configure extends Command_Base {
 	 * @return NULL|string
 	 */
 	private function determine_host_path_setting_name() {
+		$locale = $this->application->locale;
 		$value = $this->host_setting_name;
 		$times = 0;
 		$output = false;
 		while (is_array($dirs = $this->load_dirs($output)) && !array_key_exists($value, $dirs)) {
 			if (count($dirs) === 0) {
-				echo __("No possible directory settings in {environment_file}, please edit and add variable which points to a local directory with host information", $this->option());
+				echo $locale->__("No possible directory settings in {environment_file}, please edit and add variable which points to a local directory with host information", $this->option());
 			}
 			if ($times > 2) {
-				echo __("The system setting will point to a directory of host configurations to keep in sync.\n\n");
+				echo $locale->__("The system setting will point to a directory of host configurations to keep in sync.\n\n");
 			}
 			$this->completions = array_keys($dirs);
-			$value = trim($this->prompt(__("Name of system setting: ")));
+			$value = trim($this->prompt($locale->__("Name of system setting: ")));
 			++$times;
 			$this->need_save = true;
 			$output = true;
@@ -289,6 +291,8 @@ class Command_Configure extends Command_Base {
 	 * @return unknown[]
 	 */
 	private function load_dirs($output = false) {
+		$locale = $this->application->locale;
+
 		$this->verbose_log("Loading {environment_files}", array(
 			"environment_files" => $this->environment_files
 		));
@@ -306,10 +310,10 @@ class Command_Configure extends Command_Base {
 			}
 		}
 		if ($output) {
-			$this->log(__("Non-directory settings: {possibilities}", array(
+			$this->log($locale->__("Non-directory settings: {possibilities}", array(
 				"possibilities" => implode(" ", $possibilities)
 			)));
-			$this->log(__("Available settings: {dirs}", array(
+			$this->log($locale->__("Available settings: {dirs}", array(
 				"dirs" => implode(" ", array_keys($dirs))
 			)));
 		}
@@ -322,6 +326,8 @@ class Command_Configure extends Command_Base {
 	 * @return mixed|array
 	 */
 	private function determine_host_name() {
+		$locale = $this->application->locale;
+
 		$this->possible_host_configurations = ArrayTools::unsuffix(Directory::ls($this->host_path), "/", true);
 		$this->alias_file = path($this->host_path, "aliases.conf");
 		$__ = array(
@@ -336,7 +342,7 @@ class Command_Configure extends Command_Base {
 		$aliases = array();
 		while (!is_array($host_configs = avalue($aliases = $this->load_conf($this->alias_file), $this->low_uname)) || count(array_diff($host_configs, $this->possible_host_configurations)) !== 0) {
 			$configs = $this->determine_host_configurations();
-			if ($this->prompt_yes_no(__("Save changes to {alias_file} for {uname}? ", $__ + $this->variable_map))) {
+			if ($this->prompt_yes_no($locale->__("Save changes to {alias_file} for {uname}? ", $__ + $this->variable_map))) {
 
 				$this->save_conf($this->alias_file, array(
 					$uname => $configs
@@ -356,12 +362,14 @@ class Command_Configure extends Command_Base {
 	 * @return array
 	 */
 	private function determine_host_configurations() {
+		$locale = $this->application->locale;
+
 		$this->completions = $possible_host_configurations = $this->possible_host_configurations;
 		do {
-			$message = __("Host configurations: {configs}", array(
+			$message = $locale->__("Host configurations: {configs}", array(
 				"configs" => implode(" ", $possible_host_configurations)
 			)) . "\n\n";
-			$message .= __("Enter a list of configurations separated by space") . "\n";
+			$message .= $locale->__("Enter a list of configurations separated by space") . "\n";
 			$host_configurations = $this->prompt("$message\n> ");
 			$host_configurations = explode(" ", preg_replace("/\s+/", " ", trim($host_configurations)));
 		} while (count(array_diff($host_configurations, $possible_host_configurations)) !== 0);
@@ -380,7 +388,8 @@ class Command_Configure extends Command_Base {
 			$__ = array(
 				"config" => $this->config
 			);
-			if ($this->prompt_yes_no(__("Save changes to {config}? ", $__))) {
+			$locale = $this->application->locale;
+			if ($this->prompt_yes_no($locale->__("Save changes to {config}? ", $__))) {
 				$this->save_conf($this->config, ArrayTools::kprefix($this->options_include("environment_file;host_setting_name"), __CLASS__ . "::"));
 				$this->log("Wrote {config}", $__);
 			}
@@ -393,12 +402,14 @@ class Command_Configure extends Command_Base {
 	 * @return boolean
 	 */
 	private function configure_user() {
+		$locale = $this->application->locale;
+
 		$username = $this->username;
 		$paths = array();
 		foreach ($this->host_configurations as $host) {
 			$paths[] = path($this->host_path, $host);
 		}
-		$this->verbose_log(__("Configuration paths:\n\t{paths}", array(
+		$this->verbose_log($locale->__("Configuration paths:\n\t{paths}", array(
 			"paths" => implode("\n\t", $paths)
 		)));
 		$this->host_paths = $paths;
@@ -406,7 +417,7 @@ class Command_Configure extends Command_Base {
 		$pattern = $this->option("user_configuration_file", "users/{user}/configure");
 		$suffix = $this->map($pattern);
 		$files = File::find_all($paths, $suffix);
-		$this->log(__("Configuration files:\n\t{files}", array(
+		$this->log($locale->__("Configuration files:\n\t{files}", array(
 			"files" => implode("\n\t", $files)
 		)));
 		list($this->current_uid, $this->current_gid) = $this->current_uid_gid();
@@ -482,6 +493,7 @@ class Command_Configure extends Command_Base {
 		);
 	}
 	public function command_rmdir($target) {
+		$locale = $this->application->locale;
 		$target = $this->application->paths->expand($target);
 		$__ = array(
 			"target" => $target
@@ -493,7 +505,7 @@ class Command_Configure extends Command_Base {
 		if (!is_dir($target)) {
 			return null;
 		}
-		if (!$this->prompt_yes_no("Remove directory {target}?", $__)) {
+		if (!$this->prompt_yes_no($locale->__("Remove directory {target}?", $__))) {
 			return null;
 			if (!Directory::delete($target)) {
 				$this->error("Unable to remove directory {target}", $__);
@@ -513,13 +525,14 @@ class Command_Configure extends Command_Base {
 	 */
 	public function command_mkdir($target, $flags) {
 		$changed = null;
+		$locale = $this->application->locale;
 		$target = $this->application->paths->expand($target);
 		$flags = func_get_args();
 		array_shift($flags);
 		$flags = $this->parse_file_flags($flags);
 		$__['target'] = $target;
 		if (!is_dir($target)) {
-			if (!$this->prompt_yes_no(__("Create directory {target}?", $__))) {
+			if (!$this->prompt_yes_no($locale->__("Create directory {target}?", $__))) {
 				return false;
 			}
 			if (!mkdir($target, null, true)) {
@@ -621,6 +634,7 @@ class Command_Configure extends Command_Base {
 	public function command_symlink($symlink, $file) {
 		$symlink = $this->application->paths->expand($symlink);
 		$file = $this->application->paths->expand($file);
+		$locale = $this->application->locale;
 		$__ = compact("symlink", "file");
 		if (!is_dir($file) && !is_file($file)) {
 			$this->error("Symlink {symlink} => {file}: File does not exist", $__);
@@ -630,24 +644,24 @@ class Command_Configure extends Command_Base {
 		if (!is_link($symlink)) {
 			if (file_exists($symlink)) {
 				$bytes = filesize($symlink);
-				if (!$this->prompt_yes_no(__("Symlink to create \"{symlink}\" exists ({bytes} bytes), delete?", $__))) {
+				if (!$this->prompt_yes_no($locale->__("Symlink to create \"{symlink}\" exists ({bytes} bytes), delete?", $__))) {
 					return false;
 				}
 				File::unlink($symlink);
 			} else if (is_dir($symlink)) {
-				if (!$this->prompt_yes_no(__("Symlink to create \"{symlink}\" is already a directory, delete?", $__))) {
+				if (!$this->prompt_yes_no($locale->__("Symlink to create \"{symlink}\" is already a directory, delete?", $__))) {
 					return false;
 				}
 				Directory::delete($symlink);
 			}
-			if (!$this->prompt_yes_no(__("Create symbolic link \n\t{symlink} => {file}\n?", $__))) {
+			if (!$this->prompt_yes_no($locale->__("Create symbolic link \n\t{symlink} => {file}\n?", $__))) {
 				return false;
 			}
 		} else {
 			if (($oldlink = readlink($symlink)) === $file) {
 				return null;
 			}
-			if (!$this->prompt_yes_no(__("Symlink {symlink} points to {old_file}, update to point to correct {file}?", compact("old_file") + $__))) {
+			if (!$this->prompt_yes_no($locale->__("Symlink {symlink} points to {old_file}, update to point to correct {file}?", compact("old_file") + $__))) {
 				return false;
 			}
 			File::unlink($symlink);
@@ -767,6 +781,8 @@ class Command_Configure extends Command_Base {
 	public function command_file($source, $destination) {
 		$source = $this->application->paths->expand($source);
 		$destination = $this->application->paths->expand($destination);
+		$locale = $this->application->locale;
+
 		$args = func_get_args();
 		array_shift($args);
 		array_shift($args);
@@ -798,7 +814,7 @@ class Command_Configure extends Command_Base {
 			}
 		}
 		if (is_link($destination)) {
-			if (!$this->prompt_yes_no(__("Target {destination} is a link, replace with {source} as a file?", $__))) {
+			if (!$this->prompt_yes_no($locale->__("Target {destination} is a link, replace with {source} as a file?", $__))) {
 				return false;
 			}
 			File::unlink($destination);
@@ -852,6 +868,7 @@ class Command_Configure extends Command_Base {
 	public function command_file_catenate($source, $destination) {
 		$source = $this->application->paths->expand($source);
 		$destination = $this->application->paths->expand($destination);
+		$locale = $this->application->locale;
 
 		$flags = func_get_args();
 		array_shift($flags);
@@ -870,7 +887,7 @@ class Command_Configure extends Command_Base {
 				"source" => $source,
 				"completions" => implode(" ", $this->completions)
 			);
-			$conf = trim($this->prompt(__("Create {source}? ({completions})", $__)));
+			$conf = trim($this->prompt($locale->__("Create {source}? ({completions})", $__)));
 			if (in_array($conf, $this->completions)) {
 				$__['conf'] = $conf;
 				$this->changed = true;
@@ -1014,6 +1031,8 @@ class Command_Configure extends Command_Base {
 	 * @return boolean|null Returns true if changes made successfully, false if failed, or null if no changes required
 	 */
 	private function handle_owner_mode($target, $want_owner = null, $want_mode = null) {
+		$locale = $this->application->locale;
+
 		$original_want_mode = $want_mode;
 		if (is_string($want_mode)) {
 			if (preg_match('/^0[0-9]+$/', $want_mode)) {
@@ -1086,7 +1105,7 @@ class Command_Configure extends Command_Base {
 				$this->error("Unable to change mode of {target}, run command as root:", $__);
 				echo "# chown $want_owner $target\n";
 			} else {
-				if (!$this->prompt_yes_no(__("Change owner of {target} to {want_owner} (old {old_user}:{old_group}) ?", $__))) {
+				if (!$this->prompt_yes_no($locale->__("Change owner of {target} to {want_owner} (old {old_user}:{old_group}) ?", $__))) {
 					return false;
 				}
 				if ($new_user) {
@@ -1110,7 +1129,7 @@ class Command_Configure extends Command_Base {
 		if (!empty($want_mode)) {
 			$this->verbose_log("Want mode of {target} to be {want_mode_octal} ...", $__);
 			if ($old_mode !== $want_mode) {
-				if (!$this->prompt_yes_no(__("Change permissions of {target} to {want_mode_octal} (old mode {old_mode_octal})?", $__))) {
+				if (!$this->prompt_yes_no($locale->__("Change permissions of {target} to {want_mode_octal} (old mode {old_mode_octal})?", $__))) {
 					return false;
 				}
 				if (!chmod($target, $want_mode)) {
@@ -1171,11 +1190,13 @@ class Command_Configure extends Command_Base {
 	 * @return null|boolean null means files are the same, boolean means yes/no update it
 	 */
 	public function file_update_helper($source, $destination, $destination_name = null) {
+		$locale = $this->application->locale;
+
 		if ($this->files_are_identical($source, $destination)) {
 			return null;
 		}
 		list($source_name, $destination_name) = $this->_show_differences($source, $destination, null, $destination_name);
-		return $this->prompt_yes_no(__("Update destination {destination}?", array(
+		return $this->prompt_yes_no($locale->__("Update destination {destination}?", array(
 			"destination" => $destination_name
 		)));
 	}
