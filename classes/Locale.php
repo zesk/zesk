@@ -25,44 +25,44 @@ abstract class Locale extends Hookable {
 	 * @var boolean
 	 */
 	public $auto = false;
-	
+
 	/**
 	 * Used only when $this->auto is true
 	 *
 	 * @var array
 	 */
 	private $locale_phrases = array();
-	
+
 	/**
 	 * Used only when $this->auto is true
 	 *
 	 * @var array
 	 */
 	private $locale_phrase_context = null;
-	
+
 	/**
 	 * The locale string, e.g. "en_US", etc.
 	 * @var string
 	 */
 	private $locale_string = "";
-	
+
 	/**
 	 *
 	 * @var string
 	 */
 	private $language = null;
-	
+
 	/**
 	 *
 	 * @var string|null
 	 */
 	private $dialect = null;
-	
+
 	/**
 	 * @var array
 	 */
 	private $translation_table = array();
-	
+
 	/**
 	 *
 	 * @param Application $application
@@ -97,7 +97,7 @@ abstract class Locale extends Hookable {
 			"classes" => $classes
 		));
 	}
-	
+
 	/**
 	 * Constructor
 	 *
@@ -121,7 +121,7 @@ abstract class Locale extends Hookable {
 			));
 		}
 	}
-	
+
 	/**
 	 * Returns normalized locale string (e.g. en_US, en_CA, en_GB, fr_FR, etc.)
 	 *
@@ -130,7 +130,7 @@ abstract class Locale extends Hookable {
 	public function id() {
 		return $this->locale_string;
 	}
-	
+
 	/**
 	 *
 	 * @return string|NULL
@@ -138,7 +138,7 @@ abstract class Locale extends Hookable {
 	public function dialect() {
 		return $this->dialect;
 	}
-	
+
 	/**
 	 *
 	 * @return string
@@ -146,7 +146,7 @@ abstract class Locale extends Hookable {
 	public function language() {
 		return $this->language;
 	}
-	
+
 	/**
 	 *
 	 * @return array
@@ -158,7 +158,7 @@ abstract class Locale extends Hookable {
 		}
 		return $this->translation_table;
 	}
-	
+
 	/**
 	 * Allow invokation as a function for translation
 	 *
@@ -172,7 +172,7 @@ abstract class Locale extends Hookable {
 		}
 		return $this->__($phrase, $arguments);
 	}
-	
+
 	/**
 	 * Does this locale have a translation for $phrase?
 	 *
@@ -182,7 +182,7 @@ abstract class Locale extends Hookable {
 	public function has($phrase) {
 		return $this->find($phrase) !== null;
 	}
-	
+
 	/**
 	 * Find the key in the translation table for $phrase
 	 *
@@ -247,7 +247,7 @@ abstract class Locale extends Hookable {
 		}
 		return $translated;
 	}
-	
+
 	/**
 	 *
 	 * @param string $phrase
@@ -261,7 +261,7 @@ abstract class Locale extends Hookable {
 			}
 		}
 	}
-	
+
 	/**
 	 * When a word appears at the start of a sentence, properly format it.
 	 *
@@ -271,7 +271,7 @@ abstract class Locale extends Hookable {
 	public function sentence_first($word) {
 		return \ucfirst($word);
 	}
-	
+
 	/**
 	 * Load a file without extraneous variables
 	 *
@@ -292,7 +292,7 @@ abstract class Locale extends Hookable {
 		$locale = self::normalize($locale);
 		$paths = self::$paths;
 		array_unshift($paths, ZESK_ROOT . 'etc/language');
-		
+
 		list($language, $region) = pair($locale, '_', $locale, null);
 		$files = array(
 			"all",
@@ -317,7 +317,7 @@ abstract class Locale extends Hookable {
 		self::register($locale, $tt);
 		return self::loaded($locale);
 	}
-	
+
 	/**
 	 * Formatting string for a date in the locale
 	 *
@@ -325,7 +325,7 @@ abstract class Locale extends Hookable {
 	 * @return string
 	 */
 	abstract public function date_format();
-	
+
 	/**
 	 * Formatting string for a datetime in the locale
 	 *
@@ -333,7 +333,7 @@ abstract class Locale extends Hookable {
 	 * @return string
 	 */
 	abstract public function datetime_format();
-	
+
 	/**
 	 * Formatting string for a time in the locale
 	 *
@@ -341,7 +341,7 @@ abstract class Locale extends Hookable {
 	 * @return string
 	 */
 	abstract public function time_format($include_seconds = false);
-	
+
 	/**
 	 * Format a number as an oridinal number (1st, 2nd, 3rd, etc.)
 	 *
@@ -349,7 +349,7 @@ abstract class Locale extends Hookable {
 	 * @return string
 	 */
 	abstract public function ordinal($number);
-	
+
 	/**
 	 * Returns the indefinite article (A or An) for word
 	 *
@@ -360,7 +360,7 @@ abstract class Locale extends Hookable {
 	 * @return string Word with indefinite article in front of it (e.g. A dog, An eagle)
 	 */
 	abstract public function indefinite_article($word, $context = null);
-	
+
 	/**
 	 * Join a phrase together with a conjuction, e.g.
 	 *
@@ -383,7 +383,7 @@ abstract class Locale extends Hookable {
 		$oxford = (count($words) > 1) ? "," : "";
 		return implode(", ", $words) . $oxford . " $conj $ll";
 	}
-	
+
 	/**
 	 * Pluralize words including the number itself, prefixed by locale
 	 *
@@ -398,7 +398,7 @@ abstract class Locale extends Hookable {
 	public function plural_number($noun, $number) {
 		return $number . " " . $this->plural($noun, $number);
 	}
-	
+
 	/**
 	 * Convert a string to lowercase in a language
 	 *
@@ -408,7 +408,7 @@ abstract class Locale extends Hookable {
 	public function lower($word) {
 		return strtolower($word);
 	}
-	
+
 	/**
 	 * Given a noun, compute the plural given cues from the language. Returns null if not able to compute it.
 	 *
@@ -417,7 +417,7 @@ abstract class Locale extends Hookable {
 	 * @return string|null
 	 */
 	abstract protected function noun_semantic_plural($noun, $number = 2);
-	
+
 	/**
 	 * Output a word's plural based on the number given
 	 *
@@ -441,7 +441,7 @@ abstract class Locale extends Hookable {
 		}
 		return $result;
 	}
-	
+
 	/**
 	 * Returns the possessive form of a word
 	 *
@@ -455,7 +455,7 @@ abstract class Locale extends Hookable {
 	 * @return string
 	 */
 	abstract public function possessive($owner, $object);
-	
+
 	/**
 	 * English self::pluralize, prefixes with number or "no"
 	 *
@@ -483,7 +483,7 @@ abstract class Locale extends Hookable {
 			'singular_word' => $word
 		));
 	}
-	
+
 	/**
 	 * Retrieve an array of number of seconds and english units string,
 	 * used for duration_string only (Month is NOT accurate)
@@ -500,7 +500,7 @@ abstract class Locale extends Hookable {
 			1 => "second"
 		);
 	}
-	
+
 	/**
 	 * Output a string like "in 3 days", "5 hours ago"
 	 *
@@ -510,8 +510,6 @@ abstract class Locale extends Hookable {
 	 *        	Minimum unit to output
 	 * @param string $zero_string
 	 *        	Optional string if < 1 unit away
-	 * @param string $locale
-	 *        	Locale to use (e.g. "fr_FR" or "en_GB"
 	 * @return string
 	 */
 	public function now_string($ts, $min_unit = null, $zero_string = null) {
@@ -538,7 +536,7 @@ abstract class Locale extends Hookable {
 			'zero_string' => $zero_string
 		));
 	}
-	
+
 	/**
 	 * Output a duration of time as a string
 	 *
@@ -548,11 +546,9 @@ abstract class Locale extends Hookable {
 	 *        	Minimum unit to output, in English: "second", "minute", "hour", "day", "week"
 	 * @param integer $number
 	 *        	Returns the final unit number
-	 * @param string $locale
-	 *        	Locale to use (e.g. "en_US" or "fr_FR")
 	 * @return string
 	 */
-	public function duration_string($delta, $min_unit = null, &$number = null, $locale = null) {
+	public function duration_string($delta, $min_unit = null, &$number = null) {
 		if ($delta < 0) {
 			$delta = -$delta;
 		}
@@ -570,7 +566,7 @@ abstract class Locale extends Hookable {
 		$number = $delta;
 		return $this->plural_number($unit, $delta);
 	}
-	
+
 	/**
 	 * Return the negative of a word "Unstoppable" => "Stoppable"
 	 *
@@ -580,7 +576,7 @@ abstract class Locale extends Hookable {
 	 * @param string $preferred_prefix "Un"
 	 */
 	abstract public function negate_word($word, $preferred_prefix = null);
-	
+
 	/**
 	 * Format currency values
 	 *
@@ -610,7 +606,7 @@ abstract class Locale extends Hookable {
 			'value' => $value
 		));
 	}
-	
+
 	/**
 	 * Dump untranslated phrases
 	 */
@@ -635,7 +631,7 @@ abstract class Locale extends Hookable {
 		$writer = new Writer($this->application, path($path, $this->id() . "-auto.php"));
 		$writer->append($this->locale_phrases, $this->locale_phrase_context);
 	}
-	
+
 	/**
 	 * @return number
 	 */
@@ -646,7 +642,7 @@ abstract class Locale extends Hookable {
 		}
 		return 0;
 	}
-	
+
 	/**
 	 * Format number
 	 *
@@ -657,7 +653,7 @@ abstract class Locale extends Hookable {
 	public function number_format($number, $decimals = 0) {
 		return number_format($number, $decimals, $this->__('Number::decimal_point:=.'), $this->__('Number::thousands_separator:=,'));
 	}
-	
+
 	/**
 	 * Extract the language from a locale
 	 *
@@ -671,7 +667,7 @@ abstract class Locale extends Hookable {
 		list($lang) = pair($locale, "_", $locale);
 		return strtolower(substr($lang, 0, 2));
 	}
-	
+
 	/**
 	 * Extract the dialect from the locale
 	 *
@@ -685,7 +681,7 @@ abstract class Locale extends Hookable {
 		list($lang, $dialect) = \pair($locale, "_", $locale, null);
 		return is_string($dialect) ? strtoupper(substr($dialect, 0, 2)) : null;
 	}
-	
+
 	/**
 	 * Convert a locale string into an array of locale, dialog
 	 * @param string $locale
