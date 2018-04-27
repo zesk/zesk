@@ -232,10 +232,12 @@ class PHP {
 	}
 
 	/**
-	 * Safe unserialize function
+	 * Safe unserialize function.
+	 *
+	 * NOT THREAD SAFE!
 	 *
 	 * @param string $serialized
-	 * @throws Exception
+	 * @throws Exception_Syntax
 	 * @return mixed
 	 */
 	public static function unserialize($serialized) {
