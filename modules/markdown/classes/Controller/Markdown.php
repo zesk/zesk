@@ -27,9 +27,12 @@ class Controller_Markdown extends Controller_Theme {
 				return;
 			}
 		}
-		$content = $this->call_hook_arguments('content_process', array(
+		$new_content = $this->call_hook_arguments('content_process', array(
 			$content
-		), $content);
+		), null);
+		if (is_string($new_content)) {
+			$content = $new_content;
+		}
 		return $this->theme('markdown', array(
 			'content' => $content,
 			'process' => true
