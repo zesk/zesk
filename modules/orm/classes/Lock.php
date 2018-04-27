@@ -27,7 +27,7 @@ class Lock extends ORM {
 	 * @var array
 	 */
 	private static $locks = array();
-	
+
 	/**
 	 * Register all zesk hooks.
 	 */
@@ -41,7 +41,7 @@ class Lock extends ORM {
 			"release_all"
 		));
 	}
-	
+
 	/**
 	 * Retrieve the cached version of a lock or register one
 	 *
@@ -63,14 +63,14 @@ class Lock extends ORM {
 		}
 		return $lock;
 	}
-	
+
 	/**
 	 * Once per hour, cull locks which are old
 	 */
 	public static function cron_cluster_hour(Application $application) {
 		self::delete_unused_locks($application);
 	}
-	
+
 	/**
 	 * Once a minute, release locks associated with processes which are dead,
 	 * or are associated with a dead server (no longer exists)
@@ -79,7 +79,7 @@ class Lock extends ORM {
 		self::delete_dead_pids($application);
 		self::delete_unlinked_locks($application);
 	}
-	
+
 	/**
 	 * Delete Locks which have not been used in the past 24 hours
 	 */
@@ -101,7 +101,7 @@ class Lock extends ORM {
 		}
 		return $n_rows;
 	}
-	
+
 	/**
 	 * Delete locks whose server doesn't link to a valid row in the Server table
 	 */
@@ -109,6 +109,9 @@ class Lock extends ORM {
 		// Deleting unlinked locks
 		$n_rows = 0;
 		$server_ids = $application->orm_registry(Server::class)->query_select()->to_array(null, "id");
+		if (count($server_ids) === 0) {
+			return 0;
+		}
 		$iterator = $application->orm_registry(__CLASS__)
 			->query_select()
 			->where("X.server|!=|AND", $server_ids)
@@ -125,7 +128,7 @@ class Lock extends ORM {
 		}
 		return $n_rows;
 	}
-	
+
 	/**
 	 * Delete Locks associated with this server which do not have a valid PID
 	 */
@@ -148,7 +151,7 @@ class Lock extends ORM {
 			}
 		}
 	}
-	
+
 	/**
 	 * Acquire exclusive access to a lock, optionally waiting for availability.
 	 *
@@ -180,7 +183,7 @@ class Lock extends ORM {
 		}
 		return $this->_acquire(intval($timeout));
 	}
-	
+
 	/**
 	 * Acquire a lock or throw an Exception_Lock
 	 *
@@ -199,7 +202,7 @@ class Lock extends ORM {
 			"timeout" => $timeout
 		));
 	}
-	
+
 	/**
 	 * Release all locks from my server/process
 	 */
@@ -222,7 +225,7 @@ class Lock extends ORM {
 			// Ignore for now - likely database misconfigured
 		}
 	}
-	
+
 	/**
 	 * Hook called when server is deleted.
 	 * Deletes related locks.
@@ -240,7 +243,7 @@ class Lock extends ORM {
 			) + $server->members());
 		}
 	}
-	
+
 	/**
 	 * Break a lock.
 	 * PHP5 does not allow functions called "break", PHP7 does.
@@ -251,7 +254,7 @@ class Lock extends ORM {
 		$this->pid = $this->server = null;
 		return $this->store();
 	}
-	
+
 	/**
 	 * Locked by SOMEONE ELSE
 	 */
@@ -261,7 +264,7 @@ class Lock extends ORM {
 		}
 		return $this->_is_locked();
 	}
-	
+
 	/**
 	 * Release a lock I have
 	 *
@@ -283,7 +286,7 @@ class Lock extends ORM {
 		$this->server = null;
 		return $this;
 	}
-	
+
 	/**
 	 * Register or create a lock
 	 *
@@ -302,7 +305,7 @@ class Lock extends ORM {
 		}
 		return self::$locks[strtolower($code)] = $lock;
 	}
-	
+
 	/**
 	 * Is this Lock locked by SOMEONE BESIDES MY PROCESS?
 	 *
@@ -337,7 +340,7 @@ class Lock extends ORM {
 		$this->release();
 		return false;
 	}
-	
+
 	/**
 	 * Acquire a lock with an optional where clause
 	 *
@@ -362,7 +365,7 @@ class Lock extends ORM {
 		}
 		return null;
 	}
-	
+
 	/**
 	 * Acquire an inactive lock
 	 */
@@ -371,7 +374,7 @@ class Lock extends ORM {
 			'pid' => null
 		));
 	}
-	
+
 	/**
 	 * Acquire a dead lock, requires that the pid and server don't change between now and
 	 * acquisition
@@ -382,7 +385,7 @@ class Lock extends ORM {
 			"server" => $this->server
 		));
 	}
-	
+
 	/**
 	 * Loop and try to get lock
 	 *
@@ -424,7 +427,7 @@ class Lock extends ORM {
 		}
 		return null;
 	}
-	
+
 	/**
 	 * Checks if the PID in this Lock is alive
 	 *
@@ -449,7 +452,7 @@ class Lock extends ORM {
 	private function _is_my_pid() {
 		return $this->application->process->id() === $this->member_integer('pid');
 	}
-	
+
 	/**
 	 * Is this lock free?
 	 *
@@ -458,7 +461,7 @@ class Lock extends ORM {
 	private function _is_free() {
 		return $this->member_is_empty('pid') && $this->member_is_empty('server');
 	}
-	
+
 	/**
 	 * Implies PID and server match
 	 *
