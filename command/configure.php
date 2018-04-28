@@ -492,6 +492,12 @@ class Command_Configure extends Command_Base {
 			intval(implode("\n", $this->application->process->execute("id -g")))
 		);
 	}
+	/**
+	 * Delete a directory on the system completely
+	 *
+	 * @param string $target Directory to remove
+	 * @return boolean|null Returns true if changes made successfully, false if failed, or null if no changes required
+	 */
 	public function command_rmdir($target) {
 		$locale = $this->application->locale;
 		$target = $this->application->paths->expand($target);
@@ -507,13 +513,12 @@ class Command_Configure extends Command_Base {
 		}
 		if (!$this->prompt_yes_no($locale->__("Remove directory {target}?", $__))) {
 			return null;
-			if (!Directory::delete($target)) {
-				$this->error("Unable to remove directory {target}", $__);
-				return false;
-			}
-			return true;
 		}
-		return null;
+		if (!Directory::delete($target)) {
+			$this->error("Unable to remove directory {target}", $__);
+			return false;
+		}
+		return true;
 	}
 	/**
 	 * Create a directory on the system with a specified owner and mode
