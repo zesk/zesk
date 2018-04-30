@@ -232,18 +232,13 @@ class Kernel {
 	 * @param array $configuration parameter @deprecated 2017-10
 	 * @return \zesk\Kernel
 	 */
-	public static function singleton(array $configuration = array()) {
-		if (self::$singleton) {
-			return self::$singleton;
-		}
-		$result = self::factory($configuration);
-		if (count($configuration) > 0) {
-			self::$singleton->deprecated("{method} with configuration options is deprecated, use {class}::factory for creation", array(
-				"method" => __METHOD__,
+	public static function singleton() {
+		if (!self::$singleton) {
+			throw new Exception_Semantics("Need to create singleton with {class}::factory first", array(
 				"class" => __CLASS__
 			));
 		}
-		return $result;
+		return self::$singleton;
 	}
 	/**
 	 *
