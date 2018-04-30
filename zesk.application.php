@@ -9,30 +9,41 @@
 namespace zesk;
 
 if (!isset($GLOBALS['__composer_autoload_files'])) {
-	$zesk_root = __DIR__;
-	if (is_file($zesk_root . '/vendor/autoload.php')) {
-		require_once $zesk_root . '/vendor/autoload.php';
+	if (is_file(__DIR__ . '/vendor/autoload.php')) {
+		require_once __DIR__ . '/vendor/autoload.php';
 	}
-	$zesk = Kernel::singleton();
 } else {
-	$zesk = require_once __DIR__ . '/autoload.php';
+	require_once __DIR__ . '/autoload.php';
 }
-/* @var $zesk Kernel */
-$zesk->paths->set_application(__DIR__);
+class ApplicationConfigurator {
+	public static function configure() {
+		$zesk = Kernel::singleton();
+		$zesk->paths->set_application(__DIR__);
 
-$application = $zesk->create_application();
+		$application = $zesk->create_application();
 
-$application->configure_include(array(
-	"/etc/zesk.json",
-	$application->path("/etc/zesk.json"),
-	$application->path("etc/host/" . System::uname() . ".json"),
-	$application->paths->uid("zesk.json")
-));
-$application->set_option("modules", array(
-	"GitHub"
-));
-$application->configure();
+		$application->configure_include(array(
+			"/etc/zesk.json",
+			$application->path("/etc/zesk.json"),
+			$application->path("etc/host/" . System::uname() . ".json"),
+			$application->paths->uid("zesk.json")
+		));
+		$modules = array(
+			"GitHub"
+		);
+		if (defined("PHPUNIT")) {
+			$modules[] = "phpunit";
+		}
+		if (defined("ZESK_EXTRA_MODULES")) {
+			$modules = array_merge($modules, to_list(ZESK_EXTRA_MODULES));
+		}
+		$application->set_option("modules", $modules);
+		$application->configure();
 
-$application->set_option("version", Version::release());
+		$application->set_option("version", Version::release());
 
-return $application;
+		return $application;
+	}
+}
+
+return ApplicationConfigurator::configure();

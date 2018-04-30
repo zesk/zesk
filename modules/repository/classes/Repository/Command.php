@@ -16,40 +16,40 @@ namespace zesk;
  * @see \zesk\Subversion\Repository
  */
 abstract class Repository_Command extends Repository {
-	
+
 	/**
 	 *
 	 * @var Process
 	 */
 	protected $process = null;
-	
+
 	/**
 	 *
 	 * @var string
 	 */
 	private $command = null;
-	
+
 	/**
 	 * Which this
 	 *
 	 * @var string
 	 */
 	protected $executable = null;
-	
+
 	/**
 	 * Always right after the executable
 	 *
 	 * @var string
 	 */
 	protected $arguments = null;
-	
+
 	/**
 	 * Used in validate function
 	 *
 	 * @var string
 	 */
 	protected $dot_directory = null;
-	
+
 	/**
 	 *
 	 * @param string $path
@@ -61,24 +61,23 @@ abstract class Repository_Command extends Repository {
 				"method" => __METHOD__
 			));
 		}
-		$root = $this->find_root($path);
-		if (!$root) {
-			throw new Exception_Semantics("No {dot_directory} found in any parent of {path}", array(
-				"dot_directory" => $this->dot_directory,
-				"path" => $path
-			));
-		} else if ($root !== $path) {
-			$this->application->logger->debug("{method} {code} moved to {root} instead of {path}", array(
-				"method" => __METHOD__,
-				"code" => $this->code,
-				"root" => $root,
-				"path" => $path
-			));
+		if ($this->option_bool("find_root") && $root = $this->find_root($path)) {
+			if ($root !== $path) {
+				$this->application->logger->debug("{method} {code} moved to {root} instead of {path}", array(
+					"method" => __METHOD__,
+					"code" => $this->code,
+					"root" => $root,
+					"path" => $path
+				));
+			}
+			$this->path = $root;
+		} else {
+			$this->path = $path;
 		}
-		$this->path = $root;
+
 		return $this;
 	}
-	
+
 	/**
 	 *
 	 * {@inheritDoc}
@@ -97,7 +96,7 @@ abstract class Repository_Command extends Repository {
 			));
 		}
 	}
-	
+
 	/**
 	 *
 	 * @param array $arguments
@@ -116,22 +115,28 @@ abstract class Repository_Command extends Repository {
 			throw $e;
 		}
 	}
-	
+
 	/**
 	 *
 	 * {@inheritDoc}
 	 * @see \zesk\Repository::validate()
 	 */
 	public function validate() {
-		return $this->path !== null;
+		if (!is_dir($this->path)) {
+			return false;
+		}
+		if (!is_dir(path($this->path, $this->dot_directory))) {
+			return false;
+		}
+		return true;
 	}
-	
+
 	/**
 	 *
 	 * {@inheritDoc}
 	 * @see \zesk\Repository::validate()
 	 */
-	public function find_root($directory) {
+	protected function find_root($directory) {
 		if (!$this->dot_directory) {
 			throw new Exception_Unimplemented("{method} does not support dot_directory setting", array(
 				"method" => __METHOD__
@@ -146,19 +151,7 @@ abstract class Repository_Command extends Repository {
 		}
 		return null;
 	}
-	
-	/**
-	 * Given a target parameter, generate a full path
-	 * @param string $target
-	 * @return string
-	 */
-	public function resolve_target($target = null) {
-		if (begins($target, $this->path)) {
-			return $target;
-		}
-		return $this->path($target);
-	}
-	
+
 	/**
 	 * Sort a list of versions in reverse version order.
 	 *
@@ -180,7 +173,7 @@ abstract class Repository_Command extends Repository {
 		krsort($result, SORT_NUMERIC);
 		return array_values($result);
 	}
-	
+
 	/**
 	 * Retrieve the latest version
 	 *

@@ -102,4 +102,65 @@ class PHPUnit_TestCase extends TestCase {
 			$this->assertArrayHasKey($key, $array, "$key: $message");
 		}
 	}
+
+	/**
+	 * Generate a list of absolute paths
+	 *
+	 * @param string $path
+	 * @param string[] $suffixes
+	 * @return string[]
+	 */
+	function pathCatenator($path, array $suffixes) {
+		$result = [];
+		foreach ($suffixes as $suffix) {
+			$result[] = path($path, $suffix);
+		}
+		return $result;
+	}
+
+	/**
+	 * All of the passed in directories MUST exist to succeed
+	 *
+	 * @param array $paths
+	 * @param unknown $message
+	 */
+	function assertDirectoriesExist(array $paths, $message = null) {
+		if (!$message) {
+			$message = "Path does not exist";
+		}
+		foreach ($paths as $index => $path) {
+			$this->assertDirectoryExists($path, "$index: $path $message");
+		}
+	}
+
+	/**
+	 * All of the passed in directories MUST exist to succeed
+	 *
+	 * @param array $paths
+	 * @param unknown $message
+	 */
+	function assertDirectoriesNotExist(array $paths, $message = null) {
+		if (!$message) {
+			$message = "Path should not exist";
+		}
+		foreach ($paths as $index => $path) {
+			$this->assertDirectoryNotExists($path, "$index: $path $message");
+		}
+	}
+
+	/**
+	 * PHPUnit "echo" and "print" are captured, so we use fprintf(STDERR) to output test debugging stuff
+	 *
+	 * Generally, you should use these during development and remove them before commiting your changes.
+	 *
+	 * @param string $contents
+	 * @return void
+	 */
+	protected function debug($contents) {
+		if (!is_string($contents)) {
+			$contents = var_export($contents, true);
+		}
+		$contents = trim($contents, "\n");
+		fprintf(STDERR, "\n$contents\n");
+	}
 }

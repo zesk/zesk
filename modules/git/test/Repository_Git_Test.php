@@ -5,14 +5,14 @@
  */
 namespace zesk;
 
-use zesk\Subversion\Repository;
+use zesk\Git\Repository;
 
 /**
  *
  * @author kent
  *
  */
-class Repository_Subversion_Test extends Repository_TestCase {
+class Repository_Git_Test extends Repository_TestCase {
 	/**
 	 * Override in subclasses
 	 *
@@ -25,8 +25,7 @@ class Repository_Subversion_Test extends Repository_TestCase {
 	 * @var array
 	 */
 	protected $repository_types = array(
-		"svn",
-		"subversion"
+		"git"
 	);
 	/**
 	 *
@@ -35,8 +34,6 @@ class Repository_Subversion_Test extends Repository_TestCase {
 	 */
 	public function testConfiguration() {
 		$path = parent::testConfiguration();
-		// 		$svn_meta = path($path, ".svn");
-		// 		$this->assertTrue(is_dir($svn_meta), "is_dir($svn_meta)");
 		return $path;
 	}
 
@@ -85,7 +82,7 @@ class Repository_Subversion_Test extends Repository_TestCase {
 	public function testUpdate(Repository $repo, $url) {
 		parent::testConfiguration();
 		$path = $repo->path();
-		$this->assertStringMatchesFormat("%asvntest%A", $path);
+		$this->assertStringMatchesFormat("%agittest%A", $path);
 		$url = $this->url;
 		$this->assertTrue(URL::valid($url), "URL $url is not a valid URL");
 		$repo->url($url);
@@ -133,7 +130,7 @@ class Repository_Subversion_Test extends Repository_TestCase {
 	public function testNoURL(Repository $repo) {
 		$repo->url(false);
 		$path = $repo->path();
-		$this->assertStringMatchesFormat("%asvntest%A", $path);
+		$this->assertStringMatchesFormat("%agittest%A", $path);
 		Directory::delete_contents($path);
 		$repo->url();
 		return $repo;
@@ -143,7 +140,7 @@ class Repository_Subversion_Test extends Repository_TestCase {
 	 * @expectedException zesk\Exception_Syntax
 	 */
 	public function testBADURL(Repository $repo) {
-		$repo->url("http:/localhost/path/to/svn");
+		$repo->url("http:/localhost/path/to/git");
 		return $repo;
 	}
 }

@@ -6,6 +6,7 @@ namespace zesk\Subversion;
 
 use zesk\Command_Configure;
 use zesk\Directory;
+use zesk\Exception_System;
 
 /**
  *
@@ -13,15 +14,25 @@ use zesk\Directory;
  *
  */
 class Module extends \zesk\Module_Repository {
+	const TYPE = "svn";
+
 	/**
 	 *
 	 * {@inheritDoc}
 	 * @see \zesk\Module::initialize()
 	 */
 	function initialize() {
+		$required_class = "SimpleXMLElement";
+		if (!class_exists($required_class, false)) {
+			throw new Exception_System("{class} requires the {required_class}. See {help_url}", array(
+				"class" => get_class($this),
+				"required_class" => $required_class,
+				"help_url" => "http://php.net/manual/en/simplexml.installation.php"
+			));
+		}
 		parent::initialize();
 		$this->register_repository(Repository::class, array(
-			"svn",
+			self::TYPE,
 			"subversion"
 		));
 		$this->application->hooks->add(Command_Configure::class . '::command_subversion', array(
@@ -29,7 +40,7 @@ class Module extends \zesk\Module_Repository {
 			"command_subversion"
 		));
 	}
-	
+
 	/**
 	 * Support configuration command for subversion
 	 *
@@ -52,34 +63,14 @@ class Module extends \zesk\Module_Repository {
 				}
 				$command->verbose_log("Created {target}", $__);
 			}
-			$config_dir = $app->paths->home(".subversion");
-			$command->verbose_log("Subversion configuration path is {config_dir}", compact("config_dir"));
-			if (!is_dir(path($target, ".svn"))) {
-				if (!$command->prompt_yes_no(__("Checkout subversion {repo} to {target}", $__))) {
-					return false;
-				}
-				$app->process->execute_arguments("svn --non-interactive --config-dir {0} co {1} {2}", array(
-					$config_dir,
-					$repo,
-					$target
-				), true);
-				return true;
-			} else {
-				$results = $app->process->execute_arguments("svn --non-interactive --config-dir {0} status --show-updates {1}", array(
-					$config_dir,
-					$target
-				));
-				if (count($results) > 1) {
-					$command->log($results);
-					if (!$command->prompt_yes_no(__("Update subversion {target} from {repo}", $__))) {
-						return false;
-					}
-					$app->process->execute_arguments("svn --non-interactive --config-dir {0} up --force {1}", array(
-						$config_dir,
-						$target
-					), true);
-				}
+			$repo = Repository::factory($this->application, self::TYPE, $target);
+			if (!$repo->need_update()) {
+				return null;
 			}
+			if (!$command->prompt_yes_no(__("Update subversion {target} from {repo}", $__))) {
+				return false;
+			}
+			$repo->update();
 			return true;
 		} catch (\Exception $e) {
 			$command->error("Command failed: {e}", compact("e"));
