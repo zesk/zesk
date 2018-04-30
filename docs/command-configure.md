@@ -38,11 +38,11 @@ Note that the first time running `configure` on an application will attempt to d
 
 The `configure` file format is a simple `command parameter` line syntax, an example as follows:
 
-	subversion			https://my.repo.com/project/trunk					{application_root}
-	symlink				{configure_path}/php								{codehome}/host/webserver/php
-	file				{configure_path}/php/php.ini						/etc/php5/apache2/php.ini
-	file				{configure_path}/php/php-cli.ini					/etc/php5/cli/php.ini
-	file_catenate		etc/app.conf										/etc/app.conf				no-map
+	subversion      https://my.repo.com/project/trunk     {application_root}
+	symlink         {configure_path}/php                  {codehome}/host/webserver/php
+	file            {configure_path}/php/php.ini          /etc/php5/apache2/php.ini
+	file            {configure_path}/php/php-cli.ini      /etc/php5/cli/php.ini
+	file_catenate   etc/app.conf                          /etc/app.conf				no-map
 
 Variables as defined in the "environment file" above will be replaced (`map()`ped) into each command line. Use the `defined` command to ensure variables are defined.
 
