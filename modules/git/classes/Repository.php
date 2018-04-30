@@ -47,6 +47,28 @@ class Repository extends \zesk\Repository_Command {
 	}
 
 	/**
+	 * Does the target need to be updated?
+	 *
+	 * @param string $target
+	 * @return boolean
+	 */
+	public function need_update($target = null) {
+		if (!$this->validate()) {
+			return true;
+		}
+		$tag = "origin/master";
+		$target = $this->resolve_target($target);
+		$result = $this->run_command("diff --shortstat {tag} {target}", array(
+			"tag" => $tag,
+			"target" => $target
+		));
+		if (count($result) === 0) {
+			return false;
+		}
+		return true;
+	}
+
+	/**
 	 * Synchronizes all files beneath $target with repository.
 	 *
 	 * @param string $target
