@@ -13,69 +13,62 @@ namespace zesk;
  *
  */
 class Paths {
-	
+
 	/**
 	 * Debug various aspects of Paths
 	 *
 	 * @var boolean
 	 */
 	public $debug = false;
-	
+
 	/**
 	 * Root application directory
 	 *
 	 * @var string
 	 */
 	public $application = null;
-	
+
 	/**
 	 * Temporary files directory
 	 *
 	 * @var string
 	 */
 	public $temporary = null;
-	
+
 	/**
 	 * Data files directory
 	 *
 	 * @var string
 	 */
 	public $data = null;
-	
+
 	/**
 	 * Cache files directory
 	 *
 	 * @var string
 	 */
 	public $cache = null;
-	
+
 	/**
 	 * Current user home directory
 	 *
 	 * @var string
 	 */
 	public $home = null;
-	
+
 	/**
 	 * Current user home directory
 	 *
 	 * @var string
 	 */
 	public $uid = null;
-	
-	/**
-	 * System command path for shell
-	 *
-	 * @var array
-	 */
-	private $command_path = null;
-	
+
 	/**
 	 *
 	 * @var array
 	 */
 	private $which_cache = array();
-	
+
 	/**
 	 * Constuct a new Paths manager
 	 *
@@ -88,19 +81,19 @@ class Paths {
 	 */
 	public function __construct(Kernel $zesk) {
 		$config = $zesk->configuration;
-		
+
 		$this->_init_zesk_root($config);
-		
+
 		$this->_init_system_paths();
-		
+
 		$config->home = $this->home;
-		
+
 		$zesk->hooks->add(Hooks::hook_configured, array(
 			$this,
 			"configured"
 		));
 	}
-	
+
 	/**
 	 * Get/Set data storage path
 	 *
@@ -110,18 +103,15 @@ class Paths {
 	public function application($suffix = null) {
 		return path($this->application, $suffix);
 	}
-	
+
 	/**
 	 * configured hook
 	 */
 	public function configured(Application $application) {
 		$configuration = $application->configuration;
-		
+
 		$paths = $configuration->path(__CLASS__);
-		
-		if ($paths->has('command_path')) {
-			$this->command($paths->command_path);
-		}
+
 		if ($paths->has('zesk_command_paths')) {
 			$this->zesk_command($paths->zesk_command_paths);
 		}
@@ -149,7 +139,7 @@ class Paths {
 	public function zesk($suffix = null) {
 		return path(ZESK_ROOT, $suffix);
 	}
-	
+
 	/**
 	 *
 	 * @param Configuration $config
@@ -170,15 +160,15 @@ class Paths {
 		}
 		return $this;
 	}
-	
+
 	/**
 	 */
 	private function _init_system_paths() {
-		$this->_init_command();
+		$this->which_cache = array();
 		$this->home = avalue($_SERVER, 'HOME');
 		$this->uid = $this->home(".zesk");
 	}
-	
+
 	/**
 	 */
 	private function _init_app_paths() {
@@ -188,64 +178,18 @@ class Paths {
 			$this->cache = path($this->application, "cache");
 		}
 	}
-	
+
 	/**
-	 * Initialize the command path
-	 */
-	private function _init_command() {
-		/* @var $locale \zesk\Locale */
-		$paths = to_list(avalue($_SERVER, 'PATH'), array(), ':');
-		$this->command_path = array();
-		$this->which_cache = array();
-		foreach ($paths as $path) {
-			if (!is_dir($path) && $this->debug) {
-				$this->application->logger->debug(__CLASS__ . "::command_path: system path \"{path}\" was not found", array(
-					"path" => $path
-				));
-			} else {
-				$this->command_path[] = $path;
-			}
-		}
-	}
-	
-	/**
-	 * Get or set the system command path, usually defined by the system environment variable PATH
-	 * On *nix systems, the
-	 * path is set from $_SERVER['PATH'] and it is assumed that paths are separated with ':' token
-	 * Note that adding a
-	 * path does not affect the system environment at all.
-	 * This call always returns the complete path, even when adding.
+	 * Get the system command path, usually defined by the system environment variable PATH
+	 * On *nix systems, the path is set from $_SERVER['PATH'] and it is assumed that paths are separated with ':' token
 	 *
-	 * @param mixed $add
-	 *        	A path or array of paths to add. Multiple paths may be passed as a string
-	 *        	separated by ':'.
-	 * @global boolean debug.command_path Set to true to debug errors in this call
 	 * @return array
 	 * @see self::which
 	 */
-	public function command($add = null) {
-		if ($add !== null) {
-			/* @var $locale \zesk\Locale */
-			$add = to_list($add, array());
-			foreach ($add as $path) {
-				if (!in_array($path, $this->command_path)) {
-					if (!is_dir($path) && $this->debug) {
-						$this->application->logger->warning(__CLASS__ . "::command_path: adding path \"{path}\" was not found", array(
-							"path" => $path
-						));
-					}
-					$this->command_path[] = $add;
-					$this->which_cache = array();
-				} else if ($this->debug) {
-					$this->application->logger->debug(__CLASS__ . "::command_path: did not add \"{path}\" because it already exists", array(
-						"path" => $path
-					));
-				}
-			}
-		}
-		return $this->command_path;
+	public function command() {
+		return to_list(avalue($_SERVER, 'PATH'), array(), ':');
 	}
-	
+
 	/**
 	 * Get temporary path, optionally adding a suffix to the path
 	 *
@@ -255,7 +199,7 @@ class Paths {
 	public function temporary($suffix = null) {
 		return path($this->temporary, $suffix);
 	}
-	
+
 	/**
 	 * Get/Set data storage path
 	 *
@@ -265,7 +209,7 @@ class Paths {
 	public function data($suffix = null) {
 		return path($this->data, $suffix);
 	}
-	
+
 	/**
 	 * Directory for storing temporary cache files
 	 *
@@ -276,7 +220,7 @@ class Paths {
 	public function cache($suffix = null) {
 		return path($this->cache, $suffix);
 	}
-	
+
 	/**
 	 * Home directory of current process user, generally passed via the $_SERVER['HOME']
 	 * superglobal.
@@ -290,7 +234,7 @@ class Paths {
 	public function home($suffix = null) {
 		return $this->home ? path($this->home, $suffix) : null;
 	}
-	
+
 	/**
 	 * User configuration path - place to put configuration files, etc.
 	 * for this user
@@ -302,7 +246,7 @@ class Paths {
 	public function uid($suffix = null) {
 		return $this->uid ? path($this->uid, $suffix) : null;
 	}
-	
+
 	/**
 	 * Expand paths using magic tokens
 	 *
@@ -329,7 +273,7 @@ class Paths {
 		}
 		return $file;
 	}
-	
+
 	/**
 	 * Similar to which command-line command.
 	 * Returns executable path for command.
@@ -342,6 +286,9 @@ class Paths {
 			return $this->which_cache[$command];
 		}
 		foreach ($this->command() as $path) {
+			if (!is_dir($path)) {
+				continue;
+			}
 			$path = path($path, $command);
 			if (is_executable($path)) {
 				return $this->which_cache[$command] = $path;
@@ -349,7 +296,7 @@ class Paths {
 		}
 		return null;
 	}
-	
+
 	/**
 	 * Retrieve path settings as variables
 	 *
