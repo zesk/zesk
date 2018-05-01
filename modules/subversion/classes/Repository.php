@@ -334,15 +334,15 @@ class Repository extends \zesk\Repository_Command {
 			));
 		}
 		$target = $this->resolve_target($target);
-		$status = $this->status($target = null, true);
+		$status = $this->status($target);
 		if (count($status) > 0) {
 			$this->application->logger->error("SVN working copy at {target} is out of date with the repository: {files}", array(
 				"target" => $target,
 				"files" => array_keys($status)
 			));
-			return false;
+			return true;
 		}
-		return true;
+		return false;
 	}
 
 	/**

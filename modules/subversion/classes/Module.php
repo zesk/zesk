@@ -14,6 +14,11 @@ use zesk\Exception_System;
  *
  */
 class Module extends \zesk\Module_Repository {
+	/**
+	 * The type of `zesk\Repository`
+	 *
+	 * @var string
+	 */
 	const TYPE = "svn";
 
 	/**
@@ -67,7 +72,7 @@ class Module extends \zesk\Module_Repository {
 			$repo->url($url);
 			if (!$repo->need_update()) {
 				if ($repo->need_commit()) {
-					$command->log("Repository at {target} has uncommitted changes");
+					$command->log("Repository at {target} has uncommitted changes", $__);
 					$command->log(array_keys($repo->status()));
 				}
 				return null;
