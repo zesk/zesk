@@ -113,22 +113,17 @@ class Control_ForgotReset extends Control_Edit {
 		assert($this->auth_user instanceof Model);
 
 		$object = $this->object;
-		$object->user = $this->auth_user;
-		$object->session = $session = $this->session();
-		$object->code = md5(microtime() . mt_rand(0, mt_getrandmax()));
-		$object->store();
 
-		$object->notify($this->request);
+		$object->validated($object->new_password);
 
-		$session->forgot = $object->id();
-
+		$location = '/forgot/' . $this->validate_token() . "/complete";
 		if (!$this->prefer_json()) {
-			throw new Exception_Redirect('/forgot/sent');
+			throw new Exception_Redirect($location);
 		}
 		$this->json(array(
-			"redirect" => "/forgot/sent",
+			"redirect" => $location,
 			"status" => true,
-			"message" => $this->application->locale->__("An email has been sent with instructions to reset your password.")
+			"message" => $this->application->locale->__("Your password has been updated.")
 		));
 		return false;
 	}

@@ -33,6 +33,13 @@ class Controller_Forgot extends Controller_Theme {
 
 	/**
 	 *
+	 */
+	function action_complete($token) {
+		return $this->application->theme('forgot/complete');
+	}
+
+	/**
+	 *
 	 * @param unknown $token
 	 */
 	function action_validate($token) {

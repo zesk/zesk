@@ -47,11 +47,6 @@ class Schema_Forgot extends ORM_Schema {
 						'not null' => true,
 						'previous_name' => 'Code'
 					),
-					'new_password' => array(
-						'type' => self::type_binary, // varbinary
-						'size' => 16,
-						'not null' => true
-					),
 					'created' => array(
 						'type' => self::type_timestamp,
 						'not null' => true,

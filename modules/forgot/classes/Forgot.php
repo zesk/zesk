@@ -12,7 +12,6 @@ namespace zesk;
  * @property string $login
  * @property User $user
  * @property Session_ORM $session
- * @property string $new_password
  * @property hex $code
  * @property Timestamp $created
  * @property Timestamp $updated
@@ -27,7 +26,7 @@ class Forgot extends ORM {
 	private static $mappable_variables = array(
 		"subject"
 	);
-	
+
 	/**
 	 *
 	 * @param Request $request
@@ -43,25 +42,25 @@ class Forgot extends ORM {
 			"user" => $user,
 			"forgot" => $this
 		);
-		
+
 		$variables += ArrayTools::kprefix($this->members(), "forgot_");
 		$variables += ArrayTools::kprefix($user->members(), "user_");
 		$variables += ArrayTools::kprefix($request->variables(), "request_");
 		$variables += ArrayTools::kprefix($request->url_variables(), "url_");
-		
+
 		$variables = $this->call_hook_arguments("notify_variables", array(
 			$variables
 		), $variables);
-		
+
 		$variables = ArrayTools::kunprefix($this->options, "notify_", true) + $variables;
-		
+
 		/*
 		 * Map subject again
 		 */
 		foreach (self::$mappable_variables as $key) {
 			$variables[$key] = map($variables[$key], $variables);
 		}
-		
+
 		$mail = $this->call_hook("notify", $variables);
 		if ($mail instanceof Mail) {
 			return $mail;
@@ -69,7 +68,7 @@ class Forgot extends ORM {
 		$mail_options = Mail::load_theme($this->application, "object/zesk/forgot/notify", $variables);
 		return Mail::multipart_send($this->application, $mail_options);
 	}
-	
+
 	/**
 	 *
 	 * @return Forgot

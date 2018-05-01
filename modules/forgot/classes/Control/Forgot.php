@@ -81,12 +81,6 @@ class Control_Forgot extends Control_Edit {
 		$w->required(true);
 		$w->default_value($this->request->get('login'));
 
-		$ww[] = $w = $this->widget_factory(Control_Password::class)->names('login_password', $this->option("label_password", $locale->__("New Password")));
-
-		$w->set_option('encrypted_column', 'new_password');
-		$w->set_option('confirm', true);
-		$w->required(true);
-
 		$ww[] = $w = $this->widget_factory(Control_Button::class)
 			->names('forgot', $this->option("label_button", $locale->__("Send me an email")))
 			->add_class('btn-primary btn-block')
