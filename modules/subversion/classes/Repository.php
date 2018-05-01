@@ -319,7 +319,7 @@ class Repository extends \zesk\Repository_Command {
 			return true;
 		}
 		$target = $this->resolve_target($target);
-		$results = $this->status($target);
+		$results = $this->status($target, true);
 		if (count($results) > 0) {
 			return true;
 		}
