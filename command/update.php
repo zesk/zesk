@@ -844,7 +844,7 @@ class Command_Update extends Command_Base {
 		if (!$source || !$dest) {
 			return false;
 		}
-		if (!$this->pre_update($dest)) {
+		if (!$this->need_update($dest)) {
 			return false;
 		}
 		try {
@@ -1050,19 +1050,13 @@ class Command_Update extends Command_Base {
 		}
 		return true;
 	}
-	private function pre_update($destination) {
+	private function need_update($destination) {
 		if (!$this->repo) {
 			return true;
 		}
-		return $this->repo->pre_update($destination);
+		return $this->repo->need_update($destination);
 	}
 	private function rollback($destination) {
-		if (!$this->repo) {
-			return true;
-		}
-		return $this->repo->rollback($destination);
-	}
-	private function post_update($destination) {
 		if (!$this->repo) {
 			return true;
 		}

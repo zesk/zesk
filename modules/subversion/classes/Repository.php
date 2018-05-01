@@ -11,7 +11,6 @@ use zesk\StringTools;
 use zesk\ArrayTools;
 use zesk\Directory;
 use zesk\URL;
-use zesk\Exception_Syntax;
 use zesk\Exception_Semantics;
 
 /**
@@ -299,8 +298,9 @@ class Repository extends \zesk\Repository_Command {
 	}
 
 	/**
+	 * Are there remote changes which need to be updated?
 	 *
-	 * @param unknown $target
+	 * @param string $target
 	 * @return boolean
 	 */
 	public function need_update($target = null) {
@@ -321,28 +321,19 @@ class Repository extends \zesk\Repository_Command {
 	}
 
 	/**
-	 * Run before target is updated with new data
+	 * Are there local changes which could be committed?
 	 *
-	 * (non-PHPdoc)
-	 * @see Repository::pre_update()
+	 * @param string $target
+	 * @return boolean
+	 * @throws Exception_Semantics
 	 */
-	function pre_update($target = null) {
-		$status = $this->status($target);
-		$my_status = array();
-		if (array_key_exists($target, $status)) {
-			$my_status = $status[$target];
-			if ($my_status['changed'] === '?') {
-				// Directory never added. Will add.
-				return true;
-			}
-		}
-		if (count($status) > 0) {
-			$this->application->logger->error("SVN working copy at {target} has local modifications: {files}", array(
-				"target" => $target,
-				"files" => array_keys($status)
+	function need_commit($target = null) {
+		if (!$this->validate()) {
+			throw new Exception_Semantics("{method} can only be called on a valid repository", array(
+				"method" => __METHOD__
 			));
-			return false;
 		}
+		$target = $this->resolve_target($target);
 		$status = $this->status($target = null, true);
 		if (count($status) > 0) {
 			$this->application->logger->error("SVN working copy at {target} is out of date with the repository: {files}", array(
@@ -379,16 +370,6 @@ class Repository extends \zesk\Repository_Command {
 	}
 
 	/**
-	 * Run before target is updated with new data
-	 *
-	 * (non-PHPdoc)
-	 * @see Repository::pre_update()
-	 */
-	function post_update($target = null) {
-		$this->sync($target);
-	}
-
-	/**
 	 *
 	 * @param unknown $target
 	 * @return boolean
@@ -396,8 +377,8 @@ class Repository extends \zesk\Repository_Command {
 	protected function sync($target) {
 		$status = $this->status($target);
 		$errors = "";
-		foreach ($status as $f => $attributes) {
-			$changed = $attributes['changed'];
+		foreach ($status as $f => $entry) {
+			$changed = $entry['changed'];
 			$args = array(
 				"file" => $f
 			);

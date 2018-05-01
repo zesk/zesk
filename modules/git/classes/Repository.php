@@ -67,7 +67,8 @@ class Repository extends \zesk\Repository_Command {
 		}
 		return true;
 	}
-
+	public function need_commit($target = null) {
+	}
 	/**
 	 * Synchronizes all files beneath $target with repository.
 	 *
@@ -86,15 +87,6 @@ class Repository extends \zesk\Repository_Command {
 	}
 
 	/**
-	 * Check a target prior to updating it
-	 *
-	 * @param string $target
-	 * @return boolean True if update should continue
-	 */
-	public function pre_update($target = null) {
-	}
-
-	/**
 	 * Undo changes to a target and reset to current branch/tag
 	 *
 	 * @param string $target Directory of target directory
@@ -103,14 +95,6 @@ class Repository extends \zesk\Repository_Command {
 	public function rollback($target = null) {
 	}
 
-	/**
-	 * Run before target is updated with new data
-	 *
-	 * @param string $target
-	 * @return boolean
-	 */
-	public function post_update($target = null) {
-	}
 	/**
 	 *
 	 * @param unknown $git

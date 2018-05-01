@@ -57,17 +57,23 @@ abstract class Repository extends Hookable {
 	const ENTRY_DATE = "commit-date";
 
 	/**
-	 * Status strings for entry status field
+	 * A file has not been added to the repository yet
 	 *
 	 * @var string
 	 */
 	const STATUS_UNVERSIONED = "UNVERSIONED";
 	/**
-	 * Status strings for entry status field
+	 * File has been added but not committed
 	 *
 	 * @var string
 	 */
 	const STATUS_ADDED = "ADDED";
+	/**
+	 * A file has been removed
+	 *
+	 * @var string
+	 */
+	const STATUS_REMOVED = "REMOVED";
 	/**
 	 * Status strings for entry status field
 	 *
@@ -75,7 +81,7 @@ abstract class Repository extends Hookable {
 	 */
 	const STATUS_MODIFIED = "MODIFIED";
 	/**
-	 * Status strings for entry status field
+	 * Each entry has a custom status which should be referred to when the status is this
 	 *
 	 * @var string
 	 */
@@ -268,6 +274,14 @@ abstract class Repository extends Hookable {
 	abstract public function status($target = null, $updates = false);
 
 	/**
+	 * Does the target have changes which need to be sent to the remote?
+	 *
+	 * @param string $target
+	 * @return boolean
+	 */
+	abstract public function need_commit($target = null);
+
+	/**
 	 * Synchronizes all files beneath $target with repository.
 	 *
 	 * @param string $target
@@ -284,19 +298,11 @@ abstract class Repository extends Hookable {
 	abstract public function need_update($target = null);
 
 	/**
-	 * Update repository target at target, and get changes from remote
+	 * Update repository and get changes from remote
 	 *
 	 * @param string $target
 	 */
 	abstract public function update($target = null);
-
-	/**
-	 * Check a target prior to updating it
-	 *
-	 * @param string $target
-	 * @return boolean True if update should continue
-	 */
-	abstract public function pre_update($target = null);
 
 	/**
 	 * Undo changes to a target and reset to current branch/tag
@@ -305,14 +311,6 @@ abstract class Repository extends Hookable {
 	 * @return boolean
 	 */
 	abstract public function rollback($target = null);
-
-	/**
-	 * Run before target is updated with new data
-	 *
-	 * @param string $target
-	 * @return boolean
-	 */
-	abstract public function post_update($target = null);
 
 	/**
 	 * Return the latest version string for this repository. Should mimic `zesk version` formatting.

@@ -49,12 +49,12 @@ class Module extends \zesk\Module_Repository {
 	 */
 	public function command_subversion(Command_Configure $command, array $arguments = array(), $command_name) {
 		$app = $command->application;
-		$repo = array_shift($arguments);
+		$url = array_shift($arguments);
 		$target = $this->application->paths->expand(array_shift($arguments));
-		$__ = compact("repo", "target");
+		$__ = compact("url", "target");
 		try {
 			if (!is_dir($target)) {
-				if (!$command->prompt_yes_no(__("Create subversion directory {target} for {repo}", $__))) {
+				if (!$command->prompt_yes_no(__("Create subversion directory {target} for {url}", $__))) {
 					return false;
 				}
 				if (!Directory::create($target)) {
@@ -64,10 +64,15 @@ class Module extends \zesk\Module_Repository {
 				$command->verbose_log("Created {target}", $__);
 			}
 			$repo = Repository::factory($this->application, self::TYPE, $target);
+			$repo->url($url);
 			if (!$repo->need_update()) {
+				if ($repo->need_commit()) {
+					$command->log("Repository at {target} has uncommitted changes");
+					$command->log(array_keys($repo->status()));
+				}
 				return null;
 			}
-			if (!$command->prompt_yes_no(__("Update subversion {target} from {repo}", $__))) {
+			if (!$command->prompt_yes_no(__("Update subversion {target} from {url}", $__))) {
 				return false;
 			}
 			$repo->update();
