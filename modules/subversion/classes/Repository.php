@@ -277,9 +277,7 @@ class Repository extends \zesk\Repository_Command {
 				"target" => $this->path($target)
 			));
 		} else {
-			$repo_url = $this->normalize_url($this->info(null, self::INFO_URL));
-			$url = $this->normalize_url($this->url());
-			if ($repo_url !== $url) {
+			if (!$this->url_matches()) {
 				if (!empty($target)) {
 					throw new Exception_Semantics("Can not update repository from an internal target until root is switched from {url} to desired url {desired_url}", array(
 						"repo_url" => $repo_url,
@@ -298,6 +296,16 @@ class Repository extends \zesk\Repository_Command {
 	}
 
 	/**
+	 * Returns true if URLs match
+	 *
+	 * @return boolean
+	 */
+	private function url_matches() {
+		$repo_url = $this->normalize_url($this->info(null, self::INFO_URL));
+		$url = $this->normalize_url($this->url());
+		return ($repo_url === $url);
+	}
+	/**
 	 * Are there remote changes which need to be updated?
 	 *
 	 * @param string $target
@@ -307,9 +315,7 @@ class Repository extends \zesk\Repository_Command {
 		if (!$this->validate()) {
 			return true;
 		}
-		$repo_url = $this->info(null, self::INFO_URL);
-		$url = $this->url();
-		if ($repo_url !== $url) {
+		if (!$this->url_matches()) {
 			return true;
 		}
 		$target = $this->resolve_target($target);
