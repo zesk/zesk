@@ -260,7 +260,7 @@ class Repository extends \zesk\Repository_Command {
 	/**
 	 * Update for subversion will change its action based on the current filesystem state:
 	 *
-	 * - New, empty repository - never initialized: Checkout
+	 * - New, empty repository - never initialized: checkout
 	 * - Existing repository which matches current URL: update
 	 * - Existing repository which does NOT match current URL: switch
 	 *
@@ -277,8 +277,8 @@ class Repository extends \zesk\Repository_Command {
 				"target" => $this->path($target)
 			));
 		} else {
-			$repo_url = $this->info(null, self::INFO_URL);
-			$url = $this->url();
+			$repo_url = $this->normalize_url($this->info(null, self::INFO_URL));
+			$url = $this->normalize_url($this->url());
 			if ($repo_url !== $url) {
 				if (!empty($target)) {
 					throw new Exception_Semantics("Can not update repository from an internal target until root is switched from {url} to desired url {desired_url}", array(
@@ -512,5 +512,16 @@ class Repository extends \zesk\Repository_Command {
 			"tags" => $tags
 		));
 		return $this->compute_latest_version($versions);
+	}
+
+	/**
+	 * Normalize URL and strip trailing slash, if any.
+	 *
+	 * @param string $url
+	 * @return string
+	 */
+	private function normalize_url($url) {
+		$url = URL::normalize($url);
+		return rtrim($url, "/");
 	}
 }
