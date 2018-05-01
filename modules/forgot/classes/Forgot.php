@@ -73,9 +73,9 @@ class Forgot extends ORM {
 	 *
 	 * @return Forgot
 	 */
-	public function validated() {
+	public function validated($new_password) {
 		$user = $this->user;
-		$user->password($this->new_password)->store();
+		$user->password($new_password)->store();
 		$this->updated = "now";
 		$this->store();
 		$this->call_hook("validated");
