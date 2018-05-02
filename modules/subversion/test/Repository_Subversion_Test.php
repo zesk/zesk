@@ -45,7 +45,7 @@ class Repository_Subversion_Test extends Repository_TestCase {
 	 * @return string
 	 */
 	public function testURL() {
-		parent::testConfiguration();
+		$this->loadConfiguration();
 		$url = $this->url;
 		$this->assertTrue(URL::valid($url), "URL $url is not a valid URL");
 		return $this->url;
@@ -62,6 +62,7 @@ class Repository_Subversion_Test extends Repository_TestCase {
 	 * @depends testFactory
 	 */
 	public function testInfo(Repository $repo) {
+		$this->loadConfiguration();
 		$repo->url($this->url);
 		$repo->update();
 		$info = $repo->info();
@@ -83,7 +84,7 @@ class Repository_Subversion_Test extends Repository_TestCase {
 	 * @depends testURL
 	 */
 	public function testUpdate(Repository $repo, $url) {
-		parent::testConfiguration();
+		$this->loadConfiguration();
 		$path = $repo->path();
 		$this->assertStringMatchesFormat("%asvntest%A", $path);
 		$url = $this->url;
@@ -103,6 +104,14 @@ class Repository_Subversion_Test extends Repository_TestCase {
 			"tags",
 			"branches"
 		]));
+		$branches_dir = path($this->path, "branches");
+		Directory::delete($branches_dir);
+		$this->assertDirectoryNotExists($branches_dir, "Deleting of $branches_dir failed?");
+		$this->assertTrue($repo->need_update(), "Repo needs update after directory \"branches\" deleted");
+		$repo->update();
+		$this->assertDirectoryExists($branches_dir, "Deleting of $branches_dir failed?");
+		$this->assertFalse($repo->need_update(), "Repo does needs update after directory \"branches\" updated");
+
 		$tags = to_array($this->configuration->path_get([
 			__CLASS__,
 			"tags_tests"

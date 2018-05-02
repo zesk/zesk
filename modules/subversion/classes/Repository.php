@@ -54,6 +54,7 @@ class Repository extends \zesk\Repository_Command {
 	private static $svn_status_map = array(
 		"added" => self::STATUS_ADDED,
 		"modified" => self::STATUS_MODIFIED,
+		"missing" => self::STATUS_MISSING,
 		"unversioned" => self::STATUS_UNVERSIONED
 	);
 
@@ -223,23 +224,27 @@ class Repository extends \zesk\Repository_Command {
 		));
 		$xml = new \SimpleXMLElement(implode("\n", $result));
 		$results = array();
-		foreach ($xml->xpath("status/target/entry") as $entry) {
+		foreach ($xml->xpath("//entry") as $entry) {
 			/* @var $item \SimpleXMLElement */
 			$attributes = $entry->attributes();
-			$path = $attributes['path'];
-			$wc_status = $entry->xpath("wc-status");
-			$wc_status_attributes = $wc_status->attributes();
-			$svn_status = $wc_status_attributes['item'];
+			$path = strval($attributes['path']);
+			$wc_status = first($entry->xpath("wc-status"));
 			$entry_result = array();
-			if (array_key_exists($svn_status, self::$svn_status_map)) {
-				$entry_result[self::ENTRY_STATUS] = self::$svn_status_map[$svn_status];
+			if ($wc_status) {
+				$wc_status_attributes = $wc_status->attributes();
+				$svn_status = strval($wc_status_attributes['item']);
+				if (array_key_exists($svn_status, self::$svn_status_map)) {
+					$entry_result[self::ENTRY_STATUS] = self::$svn_status_map[$svn_status];
+				} else {
+					$entry_result[self::ENTRY_STATUS] = self::STATUS_CUSTOM;
+				}
+				$entry_result['svn_props'] = strval($wc_status_attributes['props']);
+				$entry_result['svn_status'] = $svn_status;
+				$entry_result[self::ENTRY_VERSION] = strval($wc_status_attributes['revision']);
 			} else {
-				$entry_result[self::ENTRY_STATUS] = self::STATUS_CUSTOM;
+				$entry_result[self::ENTRY_STATUS] = self::STATUS_UNKNOWN;
+				$entry_result[self::ENTRY_MESSAGE] = "No wc-status XML child of entry";
 			}
-			$entry_result['svn_props'] = $wc_status_attributes['props'];
-			$entry_result['svn_status'] = $svn_status;
-			$entry_result[self::ENTRY_VERSION] = $wc_status_attributes['revision'];
-
 			$results[$path] = $entry_result;
 		}
 		return $results;
@@ -279,13 +284,12 @@ class Repository extends \zesk\Repository_Command {
 		} else {
 			if (!$this->url_matches()) {
 				if (!empty($target)) {
-					throw new Exception_Semantics("Can not update repository from an internal target until root is switched from {url} to desired url {desired_url}", array(
-						"repo_url" => $repo_url,
-						"url" => $url
+					throw new Exception_Semantics("Can not update repository from an internal target until root is switched to desired url {desired_url}", array(
+						"desired_url" => $this->url
 					));
 				}
 				$this->run_command("switch --ignore-ancestry {url}", array(
-					"url" => $url
+					"url" => $this->url
 				));
 			} else {
 				$this->run_command("update --force {target}", array(
@@ -416,17 +420,17 @@ class Repository extends \zesk\Repository_Command {
 		)));
 		$parsed = new \SimpleXMLElement($xml);
 		foreach ([
-			"entry/url" => "url",
-			"entry/relative-url" => "relative-url",
-			"entry/repository/root" => "root",
-			"entry/repository/uuid" => "uuid",
-			"entry/wc-info/wcroot-abspath" => "working-copy-path",
-			"entry/wc-info/schedule" => "working-copy-schedule",
-			"entry/wc-info/depth" => "working-copy-depth",
-			"entry/commit/author" => "commit-author",
-			"entry/commit/date" => "commit-date"
+			"url" => "url",
+			"relative-url" => "relative-url",
+			"repository/root" => "root",
+			"repository/uuid" => "uuid",
+			"wc-info/wcroot-abspath" => "working-copy-path",
+			"wc-info/schedule" => "working-copy-schedule",
+			"wc-info/depth" => "working-copy-depth",
+			"commit/author" => "commit-author",
+			"commit/date" => "commit-date"
 		] as $xpath => $key) {
-			$result[$key] = strval($parsed->xpath($xpath)[0]);
+			$result[$key] = strval($parsed->xpath("//entry/" . $xpath)[0]);
 		}
 		return $result;
 	}
@@ -450,17 +454,17 @@ class Repository extends \zesk\Repository_Command {
 		}
 		$parsed = new \SimpleXMLElement($xml);
 		foreach ([
-			"entry/url" => "url",
-			"entry/relative-url" => "relative-url",
-			"entry/repository/root" => "root",
-			"entry/repository/uuid" => "uuid",
-			"entry/wc-info/wcroot-abspath" => "working-copy-path",
-			"entry/wc-info/schedule" => "working-copy-schedule",
-			"entry/wc-info/depth" => "working-copy-depth",
-			"entry/commit/author" => self::ENTRY_AUTHOR,
-			"entry/commit/date" => self::ENTRY_DATE
+			"url" => "url",
+			"relative-url" => "relative-url",
+			"repository/root" => "root",
+			"repository/uuid" => "uuid",
+			"wc-info/wcroot-abspath" => "working-copy-path",
+			"wc-info/schedule" => "working-copy-schedule",
+			"wc-info/depth" => "working-copy-depth",
+			"commit/author" => self::ENTRY_AUTHOR,
+			"commit/date" => self::ENTRY_DATE
 		] as $xpath => $key) {
-			$result[$key] = strval($parsed->xpath($xpath)[0]);
+			$result[$key] = strval($parsed->xpath("//entry/" . $xpath)[0]);
 		}
 		if ($component) {
 			return avalue($result, $component, null);

@@ -34,8 +34,9 @@ class Repository_TestCase extends PHPUnit_TestCase {
 
 	/**
 	 *
+	 * @return string
 	 */
-	public function testConfiguration() {
+	public function loadConfiguration() {
 		$this_class = get_class($this);
 		$config_path = [
 			$this_class,
@@ -53,6 +54,13 @@ class Repository_TestCase extends PHPUnit_TestCase {
 		$this->assertNotEmpty($this->url, map("Configuration {config_url} is not set up", array(
 			"config_url" => $config_url
 		)));
+		return $this->path;
+	}
+	/**
+	 *
+	 */
+	public function testConfiguration() {
+		$this->loadConfiguration();
 		// Do not assume repo is created here
 		$this->assertStringIsURL($this->url);
 		$this->assertTrue(class_exists($this->repository_class), "\$this->repository_class = \"$this->repository_class\" does not exist");

@@ -55,6 +55,14 @@ abstract class Repository extends Hookable {
 	 * @var string
 	 */
 	const ENTRY_DATE = "commit-date";
+	/**
+	 * Place for errors or messages about status
+	 *
+	 * Keys for structure returned by Repository::status
+	 *
+	 * @var string
+	 */
+	const ENTRY_MESSAGE = "message";
 
 	/**
 	 * A file has not been added to the repository yet
@@ -75,6 +83,18 @@ abstract class Repository extends Hookable {
 	 */
 	const STATUS_REMOVED = "REMOVED";
 	/**
+	 * Deleted in local, present in remote
+	 *
+	 * @var string
+	 */
+	const STATUS_DELETED = "DELETED";
+	/**
+	 * Not present in local, present in remote
+	 *
+	 * @var string
+	 */
+	const STATUS_MISSING = "MISSING";
+	/**
 	 * Status strings for entry status field
 	 *
 	 * @var string
@@ -86,6 +106,12 @@ abstract class Repository extends Hookable {
 	 * @var string
 	 */
 	const STATUS_CUSTOM = "CUSTOM";
+	/**
+	 * Each entry has an unknown status due to some error
+	 *
+	 * @var string
+	 */
+	const STATUS_UNKNOWN = "UNKNOWN";
 
 	/**
 	 * The current repository's URL
