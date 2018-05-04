@@ -2551,6 +2551,7 @@ class ORM extends Model {
 			$include_members = to_list($include_members);
 		}
 		$resolve_methods = to_list(avalue($options, "resolve_methods", "json"));
+		$members_handler = to_array(avalue($options, "members_handler"));
 		$resolve_objects = to_list(avalue($options, "resolve_objects"), null);
 		/* Convert to JSONable structure */
 		$object = $class_info ? array(
@@ -2586,6 +2587,11 @@ class ORM extends Model {
 			/* Copy things to JSON */
 			foreach ($this->members($include_members) as $member => $value) {
 				if (array_key_exists($member, $skip_members)) {
+					continue;
+				}
+				$handler = avalue($members_handler, $member);
+				if (is_callable($handler)) {
+					$members[$member] = $handler($value, $this, $options);
 					continue;
 				}
 				$child_options = array(
