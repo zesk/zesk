@@ -21,6 +21,16 @@ namespace zesk;
  * @category Management
  */
 class Command_Configure extends Command_Base {
+	/**
+	 * Append to a command to redirect stderr to stdout
+	 * @var string
+	 */
+	const STDERR_REDIRECT = " 2>&1";
+
+	/**
+	 *
+	 * @var array
+	 */
 	protected $option_types = array(
 		"non-interactive" => "boolean",
 		"environment-file" => "string",
@@ -1077,10 +1087,8 @@ class Command_Configure extends Command_Base {
 		$args[] = "--working-dir={path}";
 		$args[] = "--optimize-autoloader";
 
-		$command_suffix = "2>&1"; // Composer loves using STDERR for some reason
-
 		$command = $composer_bin . " " . implode(" ", $args);
-		$result = $this->exec($command . " --dry-run $command_suffix", $__);
+		$result = $this->exec($command . " --dry-run" . self::STDERR_REDIRECT, $__);
 		if ($this->_find_result_string($result, "nothing to install")) {
 			$this->verbose_log("Composer is up to date in {path}", $__);
 			return null;
@@ -1089,15 +1097,21 @@ class Command_Configure extends Command_Base {
 			return false;
 		}
 		try {
-			$this->exec($command . $command_suffix, $__);
+			$this->exec($command . self::STDERR_REDIRECT, $__);
 		} catch (\Exception $e) {
 			$this->error($e);
 			return false;
 		}
 		return true;
 	}
-	private function _yarn_generic_args() {
-		$args = array();
+
+	/**
+	 * Arguments for any yarn command. Appends argument list with base arguments.
+	 *
+	 * @param array $args
+	 * @return array
+	 */
+	private function _yarn_generic_args($args = array()) {
 		$args[] = "--non-interactive"; // No console here, pal.
 		$args[] = "--json"; // Output JSON structures, one per line
 		$args[] = "--check-files"; //
@@ -1106,16 +1120,42 @@ class Command_Configure extends Command_Base {
 		$args[] = "--flat"; // Only one version of each package should be installed
 		$args[] = "--prod"; // Production packages
 		$args[] = "--frozen-lockfile"; // Do not alter lock file
+		$args[] = "--cwd {path}"; // Use this as CWD
+
 		return $args;
 	}
+
+	/**
+	 * Arguments for yarn command to check if yarn install needs to be run
+	 *
+	 * @return array
+	 */
 	private function _yarn_check_args() {
 		$args = array();
 		$args[] = "check"; // Our command
-		$args = array_merge($args, $this->_yarn_generic_args());
+		$args = $this->_yarn_generic_args($args);
 		$args[] = "--integrity"; // Check the integrity of the packages
 		$args[] = "--verify-tree"; // Check the integrity of the tree as well
 		return $args;
 	}
+
+	/**
+	 * Arguments for yarn command to run yarn install
+	 *
+	 * @return array
+	 */
+	private function _yarn_install_args() {
+		$args = array();
+		$args[] = "install"; // Our command
+		$args = $this->_yarn_generic_args($args);
+		return $args;
+	}
+
+	/**
+	 * Yarn outputs JSON structures, one per line. Scan it for errors and return the error strings as an array
+	 * @param array $result Result lines
+	 * @return array
+	 */
 	private function _yarn_collect_errors(array $result) {
 		$errors = array();
 		foreach ($result as $json) {
@@ -1158,40 +1198,31 @@ class Command_Configure extends Command_Base {
 			return false;
 		}
 
-		$__['pwd'] = $pwd = $this->_chdir($path);
-		if (!$pwd) {
-			return false;
-		}
 		$failed = false;
-		$stderr_redirect = " 2>&1";
 		try {
 			$this->verbose_log("Changed directory to {path}", $__);
-			$command = $yarn_bin . " " . implode(" ", $this->_yarn_check_args() . $stderr_redirect);
+			$command = $yarn_bin . " " . implode(" ", $this->_yarn_check_args() . self::STDERR_REDIRECT);
 			$result = $this->exec($command);
 		} catch (Exception_Command $e) {
 			$result = $e->output;
 			$failed = true;
 		} catch (\Exception $e) {
 			$this->error($e);
-			$this->_chdir($pwd, true);
 			return false;
 		}
 		$this->verbose_log($result);
 		$errors = $this->_yarn_collect_errors($result);
 		if (count($errors) === 0 && !$failed) {
 			$this->verbose_log("Yarn is up to date in {path}", $__);
-			$this->_chdir($pwd, true);
 			return null;
 		}
 		try {
 			if (!$this->prompt_yes_no(__("Run yarn install in {path}", $__))) {
-				$this->_chdir($pwd, true);
 				return false;
 			}
-			$command = $yarn_bin . " " . implode(" ", $this->_yarn_install_args() . $stderr_redirect);
-			$result = $this->exec($command);
+			$command = $yarn_bin . " " . implode(" ", $this->_yarn_install_args() . self::STDERR_REDIRECT);
+			$result = $this->exec($command, $__);
 			$this->verbose_log($result);
-			$this->_chdir($pwd, true);
 			$errors = $this->_yarn_collect_errors($result);
 			if (count($errors) === 0) {
 				$this->verbose_log("Yarn failed to install in {path}:\n\t{errors}", $__ + array(
@@ -1203,7 +1234,6 @@ class Command_Configure extends Command_Base {
 			return true;
 		} catch (\Exception $e) {
 			$this->error($e);
-			$this->_chdir($pwd, true);
 			return false;
 		}
 	}
