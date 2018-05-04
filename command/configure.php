@@ -1202,7 +1202,7 @@ class Command_Configure extends Command_Base {
 		try {
 			$this->verbose_log("Changed directory to {path}", $__);
 			$command = $yarn_bin . " " . implode(" ", $this->_yarn_check_args() . self::STDERR_REDIRECT);
-			$result = $this->exec($command);
+			$result = $this->exec($command, $__);
 		} catch (Exception_Command $e) {
 			$result = $e->output;
 			$failed = true;
