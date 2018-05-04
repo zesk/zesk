@@ -598,6 +598,12 @@ class Command_Configure extends Command_Base {
 			return false;
 		}
 	}
+
+	/**
+	 * Require the named services to be installed
+	 *
+	 * @return boolean|NULL
+	 */
 	public function command_require_services() {
 		if ($this->command_require_binaries("service") === false) {
 			return false;
@@ -618,6 +624,12 @@ class Command_Configure extends Command_Base {
 		}
 		return null;
 	}
+
+	/**
+	 * Requires the named binaries to exist in the PATH
+	 *
+	 * @return boolean|NULL
+	 */
 	public function command_require_binaries() {
 		$args = func_get_args();
 		foreach ($args as $binary) {
@@ -1146,29 +1158,40 @@ class Command_Configure extends Command_Base {
 			return false;
 		}
 
-		$pwd = getcwd();
+		$__['pwd'] = $pwd = $this->_chdir($path);
+		if (!$pwd) {
+			return false;
+		}
+		$failed = false;
+		$stderr_redirect = " 2>&1";
 		try {
-			if (!chdir($path)) {
-				$this->error("Can not change directory to {path}", $__);
-				return false;
-			}
-			$command = $yarn_bin . " " . implode(" ", $this->_yarn_check_args());
+			$this->verbose_log("Changed directory to {path}", $__);
+			$command = $yarn_bin . " " . implode(" ", $this->_yarn_check_args() . $stderr_redirect);
 			$result = $this->exec($command);
-			$this->verbose_log($result);
-			$errors = $this->_yarn_collect_errors($result);
-			if (count($errors) === 0) {
-				$this->verbose_log("Yarn is up to date in {path}", $__);
-				chdir($pwd);
-				return null;
-			}
+		} catch (Exception_Command $e) {
+			$result = $e->output;
+			$failed = true;
+		} catch (\Exception $e) {
+			$this->error($e);
+			$this->_chdir($pwd, true);
+			return false;
+		}
+		$this->verbose_log($result);
+		$errors = $this->_yarn_collect_errors($result);
+		if (count($errors) === 0 && !$failed) {
+			$this->verbose_log("Yarn is up to date in {path}", $__);
+			$this->_chdir($pwd, true);
+			return null;
+		}
+		try {
 			if (!$this->prompt_yes_no(__("Run yarn install in {path}", $__))) {
-				chdir($pwd);
+				$this->_chdir($pwd, true);
 				return false;
 			}
-			$command = $yarn_bin . " " . implode(" ", $this->_yarn_install_args());
+			$command = $yarn_bin . " " . implode(" ", $this->_yarn_install_args() . $stderr_redirect);
 			$result = $this->exec($command);
-			chdir($pwd);
 			$this->verbose_log($result);
+			$this->_chdir($pwd, true);
 			$errors = $this->_yarn_collect_errors($result);
 			if (count($errors) === 0) {
 				$this->verbose_log("Yarn failed to install in {path}:\n\t{errors}", $__ + array(
@@ -1179,11 +1202,30 @@ class Command_Configure extends Command_Base {
 			$this->verbose_log("Yarn install successful in {path}", $__);
 			return true;
 		} catch (\Exception $e) {
-			chdir($pwd);
 			$this->error($e);
+			$this->_chdir($pwd, true);
 			return false;
 		}
 	}
+
+	/**
+	 * chdir with logging wrappers
+	 *
+	 * @param string $path
+	 * @param boolean $restoring Flag to change messages when restoring cwd
+	 * @return string|null
+	 */
+	private function _chdir($path, $restoring=false) {
+		$cwd = getcwd();
+		if (!chdir($path)) {
+			$this->error($restoring ? "Can not change directory back to {path}" : "Can not change directory to {path}", array("path" => $path));
+			return null;
+		}
+		$this->verbose_log($restoring ? "Changed directory back to {path}" : "Changed directory back to {path}", array("path" => $path));
+		return $cwd;
+	}
+
+	private function _restore
 
 	/**
 	 * Copy content to a destination file and inherit parent directory owner and group
@@ -1192,17 +1234,36 @@ class Command_Configure extends Command_Base {
 	 * @param string $content File contents (string)
 	 * @return boolean
 	 */
-	public static function file_put_contents_inherit($destination, $content) {
-		if (!file_put_contents($destination, $content)) {
-			return false;
-		}
-		try {
-			File::copy_uid_gid(dirname($destination), $destination);
-		} catch (Exception $e) {
-			throw $e;
-		}
-		return true;
+	public static
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+function file_put_contents_inherit($destination, $content) {
+	if (!file_put_contents($destination, $content)) {
+		return false;
 	}
+	try {
+		File::copy_uid_gid(dirname($destination), $destination);
+	} catch (Exception $e) {
+		throw $e;
+	}
+	return true;
+}
 
 	/**
 	 *
