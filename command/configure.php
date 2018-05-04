@@ -144,6 +144,9 @@ class Command_Configure extends Command_Base {
 
 		$this->configure("configure", true);
 
+		if ($this->option("debug")) {
+			$this->application->process->debug = true;
+		}
 		$this->uname = System::uname();
 		$this->low_uname = strtolower($this->uname);
 		$this->username = avalue($_SERVER, 'USER');
@@ -1010,6 +1013,17 @@ class Command_Configure extends Command_Base {
 	}
 
 	/**
+	 * Find a string in the command results.
+	 *
+	 * @param array $result
+	 * @param string $string
+	 * @param boolean $case_sensitive
+	 * @return boolean
+	 */
+	public function _find_result_string(array $result, $string, $case_sensitive = false) {
+		return $case_sensitive ? ArrayTools::strstr($result, $string) !== false : ArrayTools::stristr($result, $string) !== false;
+	}
+	/**
 	 * Run composer install in a directory
 	 *
 	 * @param string $path
@@ -1051,10 +1065,11 @@ class Command_Configure extends Command_Base {
 		$args[] = "--working-dir={path}";
 		$args[] = "--optimize-autoloader";
 
+		$command_suffix = "2>&1"; // Composer loves using STDERR for some reason
+
 		$command = $composer_bin . " " . implode(" ", $args);
-		$result = $this->exec($command . " --dry-run", $__);
-		$last = last($result);
-		if (stripos($last, "nothing to install") !== false) {
+		$result = $this->exec($command . " --dry-run $command_suffix", $__);
+		if ($this->_find_result_string($result, "nothing to install")) {
 			$this->verbose_log("Composer is up to date in {path}", $__);
 			return null;
 		}
@@ -1062,7 +1077,7 @@ class Command_Configure extends Command_Base {
 			return false;
 		}
 		try {
-			$this->exec($command, $__);
+			$this->exec($command . $command_suffix, $__);
 		} catch (\Exception $e) {
 			$this->error($e);
 			return false;
