@@ -1021,7 +1021,7 @@ class Command_Configure extends Command_Base {
 	 * @return boolean
 	 */
 	public function _find_result_string(array $result, $string, $case_sensitive = false) {
-		return $case_sensitive ? ArrayTools::strstr($result, $string) !== false : ArrayTools::stristr($result, $string) !== false;
+		return $case_sensitive ? ArrayTools::find($result, $string) !== false : ArrayTools::ifind($result, $string) !== false;
 	}
 	/**
 	 * Run composer install in a directory
