@@ -1215,17 +1215,19 @@ class Command_Configure extends Command_Base {
 	 * @param boolean $restoring Flag to change messages when restoring cwd
 	 * @return string|null
 	 */
-	private function _chdir($path, $restoring=false) {
+	private function _chdir($path, $restoring = false) {
 		$cwd = getcwd();
 		if (!chdir($path)) {
-			$this->error($restoring ? "Can not change directory back to {path}" : "Can not change directory to {path}", array("path" => $path));
+			$this->error($restoring ? "Can not change directory back to {path}" : "Can not change directory to {path}", array(
+				"path" => $path
+			));
 			return null;
 		}
-		$this->verbose_log($restoring ? "Changed directory back to {path}" : "Changed directory back to {path}", array("path" => $path));
+		$this->verbose_log($restoring ? "Changed directory back to {path}" : "Changed directory back to {path}", array(
+			"path" => $path
+		));
 		return $cwd;
 	}
-
-	private function _restore
 
 	/**
 	 * Copy content to a destination file and inherit parent directory owner and group
@@ -1234,36 +1236,17 @@ class Command_Configure extends Command_Base {
 	 * @param string $content File contents (string)
 	 * @return boolean
 	 */
-	public static
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-function file_put_contents_inherit($destination, $content) {
-	if (!file_put_contents($destination, $content)) {
-		return false;
+	public static function file_put_contents_inherit($destination, $content) {
+		if (!file_put_contents($destination, $content)) {
+			return false;
+		}
+		try {
+			File::copy_uid_gid(dirname($destination), $destination);
+		} catch (Exception $e) {
+			throw $e;
+		}
+		return true;
 	}
-	try {
-		File::copy_uid_gid(dirname($destination), $destination);
-	} catch (Exception $e) {
-		throw $e;
-	}
-	return true;
-}
 
 	/**
 	 *
