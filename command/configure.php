@@ -969,10 +969,10 @@ class Command_Configure extends Command_Base {
 		$changed = false;
 		foreach ($args as $arg) {
 			if (!is_file($arg)) {
-				$this->application->logger->warning("{arg} passed to {method} for target {target}, but {arg} not found", array(
+				$this->application->logger->warning("{arg} passed to {method} for destination {destination}, but {arg} not found", array(
 					"arg" => $arg,
 					"method" => __METHOD__,
-					"target" => $target
+					"destination" => $destination
 				));
 				continue;
 			}
@@ -1007,6 +1007,167 @@ class Command_Configure extends Command_Base {
 			}
 		}
 		return null;
+	}
+
+	/**
+	 * Run composer install in a directory
+	 *
+	 * @param string $path
+	 */
+	public function command_composer($path) {
+		$composer_bin = $this->application->paths->which("composer");
+		if (!$composer_bin) {
+			$composer_bin = $this->application->paths->which("composer.phar");
+			if (!$composer_bin) {
+				$this->error("Composer binary not found in PATH={path}, stopping", array(
+					"path" => $this->application->paths->command()
+				));
+				return false;
+			}
+		}
+		$__ = array(
+			"path" => $path
+		);
+		if (!is_dir($path)) {
+			$this->error("Composer must be passed a valid directory: {path}", $__);
+			return false;
+		}
+		$__['composer_json'] = $composer_json = path($path, "composer.json");
+		if (!is_readable($composer_json)) {
+			$this->error("Composer {path} must contain a composer.json file", $__);
+			return false;
+		}
+		try {
+			JSON::decode($composer_json);
+		} catch (\Exception $e) {
+			$this->error("Composer {composer_json} is not a valid JSON file", $__);
+			return false;
+		}
+		$args = [];
+		$args[] = "install";
+		$args[] = "--no-dev";
+		$args[] = "--no-ansi";
+		$args[] = "--no-interaction";
+		$args[] = "--working-dir={path}";
+		$args[] = "--optimize-autoloader";
+
+		$command = $composer_bin . " " . implode(" ", $args);
+		$result = $this->exec($command . " --dry-run", $__);
+		$last = last($result);
+		if (stripos($last, "nothing to install") !== false) {
+			$this->verbose_log("Composer is up to date in {path}", $__);
+			return null;
+		}
+		if (!$this->prompt_yes_no(__("Run composer install in {path}", $__))) {
+			return false;
+		}
+		try {
+			$this->exec($command, $__);
+		} catch (\Exception $e) {
+			$this->error($e);
+			return false;
+		}
+		return true;
+	}
+	private function _yarn_generic_args() {
+		$args = array();
+		$args[] = "--non-interactive"; // No console here, pal.
+		$args[] = "--json"; // Output JSON structures, one per line
+		$args[] = "--check-files"; //
+		$args[] = "--no-progress"; // No progress output
+		$args[] = "--silent"; // STFU
+		$args[] = "--flat"; // Only one version of each package should be installed
+		$args[] = "--prod"; // Production packages
+		$args[] = "--frozen-lockfile"; // Do not alter lock file
+		return $args;
+	}
+	private function _yarn_check_args() {
+		$args = array();
+		$args[] = "check"; // Our command
+		$args = array_merge($args, $this->_yarn_generic_args());
+		$args[] = "--integrity"; // Check the integrity of the packages
+		$args[] = "--verify-tree"; // Check the integrity of the tree as well
+		return $args;
+	}
+	private function _yarn_collect_errors(array $result) {
+		$errors = array();
+		foreach ($result as $json) {
+			$line = JSON::decode($json);
+			if ($line['type'] === "error") {
+				$errors[] = $line['data'];
+			}
+		}
+		return $errors;
+	}
+	/**
+	 * Run yarn build in a directory
+	 *
+	 * @param string $path
+	 */
+	public function command_yarn($path) {
+		$yarn_bin = $this->application->paths->which("yarn");
+		if (!$yarn_bin) {
+			$this->error("Yarn binary not found in PATH={path}, stopping", array(
+				"path" => $this->application->paths->command()
+			));
+			return false;
+		}
+		$__ = array(
+			"path" => $path
+		);
+		if (!is_dir($path)) {
+			$this->error("Yarn must be passed a valid directory: {path}", $__);
+			return false;
+		}
+		$__['package_json'] = $package_json = path($path, "package.json");
+		if (!is_readable($package_json)) {
+			$this->error("Yarn {path} must contain a package.json file", $__);
+			return false;
+		}
+		try {
+			JSON::decode($package_json);
+		} catch (\Exception $e) {
+			$this->error("Yarn {package_json} is not a valid JSON file", $__);
+			return false;
+		}
+
+		$pwd = getcwd();
+		try {
+			if (!chdir($path)) {
+				$this->error("Can not change directory to {path}", $__);
+				return false;
+			}
+			$command = $yarn_bin . " " . implode(" ", $this->_yarn_check_args());
+			$result = $this->exec($command);
+			$this->verbose_log($result);
+			$errors = $this->_yarn_collect_errors($result);
+			if (count($errors) === 0) {
+				$this->verbose_log("Yarn is up to date in {path}", $__);
+				chdir($pwd);
+				return null;
+			}
+			if (!$this->prompt_yes_no(__("Run yarn install in {path}", $__))) {
+				chdir($pwd);
+				return false;
+			}
+			$command = $yarn_bin . " " . implode(" ", $this->_yarn_install_args());
+			$result = $this->exec($command);
+			chdir($pwd);
+			$this->verbose_log($result);
+			$errors = $this->_yarn_collect_errors($result);
+			if (count($errors) === 0) {
+				$this->verbose_log("Yarn failed to install in {path}:\n\t{errors}", $__ + array(
+					"errors" => implode("\n\t", $errors)
+				));
+				return null;
+			}
+			$this->verbose_log("Yarn install successful in {path}", $__);
+			return true;
+		} catch (\Exception $e) {
+			chdir($pwd);
+			$this->error($e);
+			return false;
+		}
 	}
 
 	/**
