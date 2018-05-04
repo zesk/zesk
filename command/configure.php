@@ -1038,7 +1038,7 @@ class Command_Configure extends Command_Base {
 			return false;
 		}
 		try {
-			JSON::decode($composer_json);
+			JSON::decode(file_get_contents($composer_json));
 		} catch (\Exception $e) {
 			$this->error("Composer {composer_json} is not a valid JSON file", $__);
 			return false;
@@ -1125,7 +1125,7 @@ class Command_Configure extends Command_Base {
 			return false;
 		}
 		try {
-			JSON::decode($package_json);
+			JSON::decode(file_get_contents($package_json));
 		} catch (\Exception $e) {
 			$this->error("Yarn {package_json} is not a valid JSON file", $__);
 			return false;
