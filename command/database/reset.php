@@ -1,6 +1,6 @@
 <?php
 /**
- * 
+ *
  */
 namespace zesk;
 
@@ -41,7 +41,7 @@ class Command_Database_Reset extends Command {
 	}
 	function run() {
 		PHP::requires('pcntl', true);
-		
+
 		$dbname = $this->option('name');
 		$db = $this->application->database_registry($dbname);
 		if (!$db) {
@@ -51,7 +51,7 @@ class Command_Database_Reset extends Command {
 		$url = $db->url();
 		$dbname = $db->database_name();
 		$codename = $db->code_name();
-		
+
 		$live_db = $this->has_option('file') ? $this->option('file') : null;
 		$has_dd = $this->has_option('dump-directory');
 		if (!$live_db) {
@@ -64,7 +64,7 @@ class Command_Database_Reset extends Command {
 			sort($live_db, SORT_STRING);
 			$live_db = array_pop($live_db);
 		} else if ($has_dd) {
-			$this->application->logger->warning("Specifying --file and --dump-directory are incompatible. --dump-diretory is ignored.");
+			$this->application->logger->warning("Specifying --file and --dump-directory are incompatible. --dump-directory is ignored.");
 		}
 		if (!$this->option('yes')) {
 			echo "Overwrite\n\t" . URL::remove_password($url) . "\nwith\n\t" . $live_db . "? (y/N) ";
