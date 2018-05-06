@@ -1117,7 +1117,7 @@ class Command_Configure extends Command_Base {
 		$args[] = "--check-files"; //
 		$args[] = "--no-progress"; // No progress output
 		$args[] = "--silent"; // STFU
-		$args[] = "--flat"; // Only one version of each package should be installed
+		//		$args[] = "--flat"; // Only one version of each package should be installed
 		$args[] = "--prod"; // Production packages
 		$args[] = "--frozen-lockfile"; // Do not alter lock file
 		$args[] = "--cwd {path}"; // Use this as CWD
