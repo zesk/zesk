@@ -8,8 +8,6 @@
  */
 namespace zesk\Apache;
 
-use zesk\Directory;
-
 /**
  * Apache module integrates with Apache server and your web application, specifically - Generation
  * of a .htaccess to allow for pretty URLs in the $application->document_root() - Generation of an
@@ -26,35 +24,18 @@ class Module extends \zesk\Module {
 		if ($this->option_bool('generate_htaccess')) {
 			$this->generate_htaccess();
 		}
-		if ($this->option_bool('generate_alias_include')) {
-			$this->generate_alias_include();
-		}
-	}
-
-	/**
-	 * Retrieve hash
-	 *
-	 * @param string $file
-	 * @return string
-	 */
-	private static function retrieve_hash($file) {
-		if (!file_exists($file)) {
-			return null;
-		}
-		$contents = file_get_contents($file);
-		$matches = null;
-		if (preg_match('/Hash: ([a-z0-9A-Z]{32})/', $contents, $matches)) {
-			return $matches[1];
-		}
-		return null;
 	}
 
 	/**
 	 * Generate '.htaccess' file for site
 	 *
+	 * Try
+	 *
+	 * zesk eval '$app->apache_module()->generate_htaccess()'
+	 *
 	 * @return boolean
 	 */
-	private function generate_htaccess() {
+	public function generate_htaccess() {
 		$docroot = $this->application->document_root();
 		if (!is_dir($docroot)) {
 			return false;
@@ -71,35 +52,6 @@ class Module extends \zesk\Module {
 			'directory_index' => implode(" ", $index_file)
 		));
 		file_put_contents($file, $contents);
-		return true;
-	}
-
-	/**
-	 * Create alias include file
-	 *
-	 * @todo 2018 - with the advent of Share and share_build, is this even used?
-	 * @deprecated 2018-03
-	 *
-	 * @return boolean
-	 */
-	private function generate_alias_include() {
-		$share_paths = $this->application->share_path();
-		$this_hash = md5(serialize($share_paths));
-		$alias_include_dir = $this->application->data_path("httpd");
-		$alias_include = path($alias_include_dir, "aliases.conf");
-		Directory::depend($alias_include_dir);
-
-		$file_hash = self::retrieve_hash($alias_include);
-		if (strcasecmp($this_hash, $file_hash) === 0) {
-			return false;
-		}
-		$contents = $this->application->theme('alias-include', array(
-			'share_prefix' => rtrim($this->application->document_root_prefix(), '/') . '/share',
-			'share_paths' => $share_paths,
-			'hash' => $this_hash,
-			'path' => $alias_include
-		));
-		file_put_contents($alias_include, $contents);
 		return true;
 	}
 
