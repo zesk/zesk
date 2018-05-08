@@ -1117,7 +1117,7 @@ class Command_Configure extends Command_Base {
 		$args[] = "--check-files"; //
 		$args[] = "--no-progress"; // No progress output
 		$args[] = "--silent"; // STFU
-		$args[] = "--flat"; // Only one version of each package should be installed
+		//		$args[] = "--flat"; // Only one version of each package should be installed
 		$args[] = "--prod"; // Production packages
 		$args[] = "--frozen-lockfile"; // Do not alter lock file
 		$args[] = "--cwd {path}"; // Use this as CWD
@@ -1201,7 +1201,7 @@ class Command_Configure extends Command_Base {
 		$failed = false;
 		try {
 			$this->verbose_log("Changed directory to {path}", $__);
-			$command = $yarn_bin . " " . implode(" ", $this->_yarn_check_args() . self::STDERR_REDIRECT);
+			$command = $yarn_bin . " " . implode(" ", $this->_yarn_check_args()) . self::STDERR_REDIRECT;
 			$result = $this->exec($command, $__);
 		} catch (Exception_Command $e) {
 			$result = $e->output;
@@ -1220,7 +1220,7 @@ class Command_Configure extends Command_Base {
 			if (!$this->prompt_yes_no(__("Run yarn install in {path}", $__))) {
 				return false;
 			}
-			$command = $yarn_bin . " " . implode(" ", $this->_yarn_install_args() . self::STDERR_REDIRECT);
+			$command = $yarn_bin . " " . implode(" ", $this->_yarn_install_args()) . self::STDERR_REDIRECT;
 			$result = $this->exec($command, $__);
 			$this->verbose_log($result);
 			$errors = $this->_yarn_collect_errors($result);
