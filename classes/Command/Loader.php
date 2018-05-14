@@ -303,7 +303,7 @@ class Command_Loader {
 			}
 		}
 		$this->debug("Search path: \n\t{paths}", array(
-			"paths" => implode("\n\t", ArrayTools::suffix(array_keys($paths), "/$command.inc"))
+			"paths" => implode("\n\t", ArrayTools::suffix(array_keys($paths), "/$command.php"))
 		));
 		$this->error("Ignoring command $command - not found\n");
 		return array(
