@@ -10,93 +10,389 @@ namespace zesk;
 
 class Net_HTTP {
 	// From http://www.w3.org/Protocols/rfc2616/rfc2616-sec10.html
-	/* 100 =====================================================================*/
-	const STATUS_CONTINUE = 100;
-	const STATUS_SWITCHING_PROTOCOLS = 101;
-	const STATUS_PROCESSING = 102;
-	/* 200 =====================================================================*/
-	const STATUS_OK = 200;
-	const STATUS_CREATED = 201;
-	const STATUS_ACCEPTED = 202;
-	const STATUS_NON_AUTHORIATIVE_INFORMATION = 203;
-	const STATUS_NO_CONTENT = 204;
-	const STATUS_RESET_CONTENT = 205;
-	const STATUS_PARTIAL_CONTENT = 206;
-	const STATUS_MULTI_STATUS = 207;
+	/*
+	 * 100 - carry on
+	 */
 
-	/* 300 =====================================================================*/
 	/**
 	 *
 	 * @var integer
 	 */
+	const STATUS_CONTINUE = 100;
+	/**
+	 *
+	 * @var integer
+	 */
+	const STATUS_SWITCHING_PROTOCOLS = 101;
+	/**
+	 *
+	 * @var integer
+	 */
+	const STATUS_PROCESSING = 102;
+	/*
+	 * 200 - it's all good
+	 */
+	/**
+	 *
+	 * @var integer
+	 */
+	const STATUS_OK = 200;
+	/**
+	 *
+	 * @var integer
+	 */
+	const STATUS_CREATED = 201;
+	/**
+	 *
+	 * @var integer
+	 */
+	const STATUS_ACCEPTED = 202;
+	/**
+	 *
+	 * @var integer
+	 */
+	const STATUS_NON_AUTHORIATIVE_INFORMATION = 203;
+	/**
+	 *
+	 * @var integer
+	 */
+	const STATUS_NO_CONTENT = 204;
+	/**
+	 *
+	 * @var integer
+	 */
+	const STATUS_RESET_CONTENT = 205;
+	/**
+	 *
+	 * @var integer
+	 */
+	const STATUS_PARTIAL_CONTENT = 206;
+	/**
+	 *
+	 * @var integer
+	 */
+	const STATUS_MULTI_STATUS = 207;
+
+	/*
+	 * 300 - Maybe, Maybe not
+	 */
+	/**
+	 * @var integer
+	 */
 	const STATUS_MULTIPLE_CHOICES = 300;
+	/**
+	 *
+	 * @var integer
+	 */
 	const STATUS_MOVED_PERMANENTLY = 301;
+	/**
+	 *
+	 * @var integer
+	 */
 	const STATUS_FOUND = 302;
+	/**
+	 *
+	 * @var integer
+	 */
 	const STATUS_SEE_OTHER = 303;
+	/**
+	 *
+	 * @var integer
+	 */
 	const STATUS_NOT_MODIFIED = 304;
+	/**
+	 *
+	 * @var integer
+	 */
 	const STATUS_USE_PROXY = 305;
+	/**
+	 *
+	 * @var integer
+	 */
 	const STATUS_TEMPORARY_REDIRECT = 307;
 
-	/* 400 =====================================================================*/
+	/*
+	 * 400 - Bad client! No biscuit!
+	 */
+	/**
+	 *
+	 * @var integer
+	 */
 	const STATUS_BAD_REQUEST = 400;
+	/**
+	 *
+	 * @var integer
+	 */
 	const STATUS_UNAUTHORIZED = 401;
+	/**
+	 *
+	 * @var integer
+	 */
 	const STATUS_PAYMENT_GRANTED = 402;
+	/**
+	 *
+	 * @var integer
+	 */
 	const STATUS_FORBIDDEN = 403;
+	/**
+	 *
+	 * @var integer
+	 */
 	const STATUS_FILE_NOT_FOUND = 404;
+	/**
+	 *
+	 * @var integer
+	 */
 	const STATUS_METHOD_NOT_ALLOWED = 405;
+	/**
+	 *
+	 * @var integer
+	 */
 	const STATUS_NOT_ACCEPTABLE = 406;
+	/**
+	 *
+	 * @var integer
+	 */
 	const STATUS_PROXY_AUTHENTICATION_REQUIRED = 407;
+	/**
+	 *
+	 * @var integer
+	 */
 	const STATUS_REQUEST_TIMEOUT = 408;
+	/**
+	 *
+	 * @var integer
+	 */
 	const STATUS_CONFLICT = 409;
+	/**
+	 *
+	 * @var integer
+	 */
 	const STATUS_GONE = 410;
+	/**
+	 *
+	 * @var integer
+	 */
 	const STATUS_LENGTH_REQUIRED = 411;
+	/**
+	 *
+	 * @var integer
+	 */
 	const STATUS_PRECONDITION_FAILED = 412;
+	/**
+	 *
+	 * @var integer
+	 */
 	const STATUS_REQUEST_ENTITY_TOO_LARGE = 413;
+	/**
+	 *
+	 * @var integer
+	 */
 	const STATUS_REQUEST_URI_TOO_LARGE = 414;
+	/**
+	 *
+	 * @var integer
+	 */
 	const STATUS_UNSUPPORTED_MEDIA_TYPE = 415;
+	/**
+	 *
+	 * @var integer
+	 */
 	const STATUS_REQUESTED_RANGE_NOT_SATISFIABLE = 416;
+	/**
+	 *
+	 * @var integer
+	 */
 	const STATUS_EXPECTATION_FAILED = 417;
+	/**
+	 *
+	 * @var integer
+	 */
 	const STATUS_UNPROCESSABLE_ENTITY = 422;
+	/**
+	 *
+	 * @var integer
+	 */
 	const STATUS_LOCKED = 423;
+	/**
+	 *
+	 * @var integer
+	 */
 	const STATUS_FAILED_DEPENDENCY = 424;
 
-	/* 500 =====================================================================*/
+	/*
+	 * 500 - Bad programmer! No coffee!
+	 */
+	/**
+	 *
+	 * @var integer
+	 */
 	const STATUS_INTERNAL_SERVER_ERROR = 500;
+	/**
+	 *
+	 * @var integer
+	 */
 	const STATUS_NOT_IMPLEMENTED = 501;
+	/**
+	 *
+	 * @var integer
+	 */
 	const STATUS_OVERLOADED = 502;
+	/**
+	 *
+	 * @var integer
+	 */
 	const STATUS_GATEWAY_TIMEOUT = 503;
+	/**
+	 *
+	 * @var integer
+	 */
 	const STATUS_HTTP_VERSION_NOT_SUPPORTED = 505;
+	/**
+	 *
+	 * @var integer
+	 */
 	const STATUS_INSUFFICIENT_STORAGE = 507;
 
-	/* Response Type */
+	/*
+	 * Response Type - intval(STATUS_FOO / 100)
+	 */
+	/**
+	 *
+	 * @var integer
+	 */
 	const RESPONSE_TYPE_INFO = 1;
+	/**
+	 *
+	 * @var integer
+	 */
 	const RESPONSE_TYPE_SUCCESS = 2;
+	/**
+	 *
+	 * @var integer
+	 */
 	const RESPONSE_TYPE_REDIRECT = 3;
+	/**
+	 *
+	 * @var integer
+	 */
 	const RESPONSE_TYPE_ERROR_CLIENT = 4;
+	/**
+	 *
+	 * @var integer
+	 */
 	const RESPONSE_TYPE_ERROR_SERVER = 5;
 
 	/* Method types */
+	/**
+	 *
+	 * @var string
+	 */
 	const METHOD_GET = "GET";
+	/**
+	 *
+	 * @var string
+	 */
 	const METHOD_POST = "POST";
+	/**
+	 *
+	 * @var string
+	 */
 	const METHOD_PUT = "PUT";
+	/**
+	 * DELETE a resource
+	 *
+	 * @var string
+	 */
 	const METHOD_DELETE = "DELETE";
+	/**
+	 * Just the header, no content expected
+	 *
+	 * @var string
+	 */
 	const METHOD_HEAD = "HEAD";
+	/**
+	 *
+	 * @var string
+	 */
 	const METHOD_OPTIONS = "OPTIONS";
+	/**
+	 *
+	 * @var string
+	 */
 	const METHOD_TRACE = "TRACE";
+	/**
+	 *
+	 * @var string
+	 */
 	const METHOD_CONNECT = "CONNECT";
+	/**
+	 * PROPFIND — used to retrieve properties, stored as XML, from a web resource. It is also overloaded to allow one to retrieve the collection structure (a.k.a. directory hierarchy) of a remote system.
+	 *
+	 * @var string
+	 */
+	const METHOD_PROPFIND = "PROPFIND";
 
 	/* Request headers */
+	/**
+	 *
+	 * @var string
+	 */
 	const REQUEST_REFERRER = "Referer";
+	/**
+	 *
+	 * @var string
+	 */
 	const REQUEST_USER_AGENT = "User-Agent";
+	/**
+	 *
+	 * @var string
+	 */
 	const REQUEST_ACCEPT = "Accept";
+	/**
+	 *
+	 * @var string
+	 */
 	const REQUEST_CONTENT_TYPE = "Content-Type";
 
 	/* Response headers */
+	/**
+	 *
+	 * @var string
+	 */
 	const RESPONSE_CONTENT_DISPOSITION = "Content-Disposition";
+	/**
+	 *
+	 * @var string
+	 */
 	const RESPONSE_CONTENT_TYPE = "Content-Type";
+	/**
+	 *
+	 * @var string
+	 */
 	const RESPONSE_ACCEPT_RANGES = "Accept-Ranges";
+	/**
+	 *
+	 * @var string
+	 */
 	const RESPONSE_CONTENT_ENCODING = "Content-Encoding";
+	/**
+	 *
+	 * @var string
+	 */
 	const RESPONSE_TRANSFER_ENCODING = "Transfer-Encoding";
+
+	/**
+	 *
+	 * @var string
+	 */
+	const HEADER_CONTENT_LENGTH = "Content-Length";
+
+	/**
+	 * Valid methods. 2018-05 added PROPFIND
+	 *
+	 * @var array
+	 */
 	static $methods = array(
 		self::METHOD_OPTIONS => self::METHOD_OPTIONS,
 		self::METHOD_GET => self::METHOD_GET,
@@ -105,8 +401,15 @@ class Net_HTTP {
 		self::METHOD_DELETE => self::METHOD_DELETE,
 		self::METHOD_HEAD => self::METHOD_HEAD,
 		self::METHOD_TRACE => self::METHOD_TRACE,
-		self::METHOD_CONNECT => self::METHOD_CONNECT
+		self::METHOD_CONNECT => self::METHOD_CONNECT,
+		self::METHOD_PROPFIND => self::METHOD_PROPFIND
 	);
+
+	/**
+	 * Default status text when custom status is not given
+	 *
+	 * @var array
+	 */
 	static $status_text = array(
 		self::STATUS_CONTINUE => 'Continue',
 		self::STATUS_SWITCHING_PROTOCOLS => 'Switching Protocols',
@@ -154,7 +457,11 @@ class Net_HTTP {
 		self::STATUS_HTTP_VERSION_NOT_SUPPORTED => 'HTTP Version not supported',
 		self::STATUS_INSUFFICIENT_STORAGE => 'Insufficient Storage'
 	);
-	const header_content_length = "Content-Length";
+
+	/**
+	 *
+	 * @var array
+	 */
 	static $request_headers = array(
 		"accept" => self::REQUEST_ACCEPT,
 		"accept-charset" => "Accept-Charset",
@@ -165,7 +472,7 @@ class Net_HTTP {
 		"cache-control" => "Cache-Control",
 		"connection" => "Connection",
 		"cookie" => "Cookie",
-		"content-length" => self::header_content_length,
+		"content-length" => self::HEADER_CONTENT_LENGTH,
 		"content-md5" => "Content-MD5",
 		"content-type" => self::REQUEST_CONTENT_TYPE,
 		"date" => "Date",
@@ -221,7 +528,7 @@ class Net_HTTP {
 		"content-disposition" => self::RESPONSE_CONTENT_DISPOSITION,
 		"content-encoding" => self::RESPONSE_CONTENT_ENCODING,
 		"content-language" => "Content-Language",
-		"content-length" => "Content-Length",
+		"content-length" => self::HEADER_CONTENT_LENGTH,
 		"content-location" => "Content-Location",
 		"content-md5" => "Content-MD5",
 		"content-range" => "Content-Range",
