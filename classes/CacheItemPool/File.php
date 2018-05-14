@@ -18,13 +18,13 @@ class CacheItemPool_File implements CacheItemPoolInterface {
 	 * @var string
 	 */
 	private $path = null;
-	
+
 	/**
 	 *
 	 * @var CacheItem[]
 	 */
 	private $deferred = array();
-	
+
 	/**
 	 *
 	 * @param string $path
@@ -36,7 +36,7 @@ class CacheItemPool_File implements CacheItemPoolInterface {
 		}
 		$this->path($path);
 	}
-	
+
 	/**
 	 * Path setter/getter. Setting path will write deferred items to new path.
 	 *
@@ -78,9 +78,12 @@ class CacheItemPool_File implements CacheItemPoolInterface {
 			));
 		}
 		$cache_file = $this->cache_file($key);
-		if (is_file($cache_file)) {
+		// Previously did "is_file", then "file_get_contents", but a race condition would create warnings in our logs when files were deleted
+		// So, since file_get_contents is probably doing an is_file check internally anyway, just skip it since handling is identical
+		$contents = @file_get_contents($cache_file);
+		if (is_string($contents)) {
 			try {
-				$item = PHP::unserialize(file_get_contents($cache_file));
+				$item = PHP::unserialize(@$contents);
 				if ($item instanceof CacheItem && !$item->expired()) {
 					return $item;
 				}
@@ -89,7 +92,7 @@ class CacheItemPool_File implements CacheItemPoolInterface {
 		}
 		return new CacheItem($key, null, false);
 	}
-	
+
 	/**
 	 * Returns a traversable set of cache items.
 	 *
@@ -113,7 +116,7 @@ class CacheItemPool_File implements CacheItemPoolInterface {
 		}
 		return $result;
 	}
-	
+
 	/**
 	 * Confirms if the cache contains specified cache item.
 	 *
@@ -132,9 +135,9 @@ class CacheItemPool_File implements CacheItemPoolInterface {
 	 *   True if item exists in the cache, false otherwise.
 	 */
 	public function hasItem($key) {
-		return file_exists($this->cache_file($key));
+		return is_file($this->cache_file($key));
 	}
-	
+
 	/**
 	 * Deletes all items in the pool.
 	 *
@@ -145,7 +148,7 @@ class CacheItemPool_File implements CacheItemPoolInterface {
 		Directory::empty($this->path);
 		return true;
 	}
-	
+
 	/**
 	 * Removes the item from the pool.
 	 *
@@ -166,13 +169,13 @@ class CacheItemPool_File implements CacheItemPoolInterface {
 			return false;
 		}
 	}
-	
+
 	/**
 	 * Removes multiple items from the pool.
 	 *
 	 * @param string[] $keys
 	 *   An array of keys that should be removed from the pool.
-	 
+
 	 * @throws InvalidArgumentException
 	 *   If any of the keys in $keys are not a legal value a \Psr\Cache\InvalidArgumentException
 	 *   MUST be thrown.
@@ -185,7 +188,7 @@ class CacheItemPool_File implements CacheItemPoolInterface {
 			$this->deleteItem($key);
 		}
 	}
-	
+
 	/**
 	 * Persists a cache item immediately.
 	 *
@@ -202,7 +205,7 @@ class CacheItemPool_File implements CacheItemPoolInterface {
 		File::put($file, serialize($item));
 		return false;
 	}
-	
+
 	/**
 	 * Sets a cache item to be persisted later.
 	 *
@@ -216,7 +219,7 @@ class CacheItemPool_File implements CacheItemPoolInterface {
 		$this->deferred[$this->cache_name($item->getKey())] = $item;
 		return true;
 	}
-	
+
 	/**
 	 * Persists any deferred cache items.
 	 *
@@ -229,7 +232,7 @@ class CacheItemPool_File implements CacheItemPoolInterface {
 		}
 		$this->deferred = array();
 	}
-	
+
 	/**
 	 * Returns filename of cache file
 	 *
