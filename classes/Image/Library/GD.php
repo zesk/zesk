@@ -173,12 +173,25 @@ class Image_Library_GD extends Image_Library {
 	 * @see Image_Library::image_scale_data()
 	 */
 	function image_scale_data($data, array $options) {
-		$src = imagecreatefromstring($data);
+		if (empty($data)) {
+			throw new Exception_Semantics("{method} passed an empty string", array(
+				"method" => __METHOD__
+			));
+		}
+		$src = @imagecreatefromstring($data);
+		if (!is_resource($src)) {
+			throw new Exception_Semantics("{method} passed an invalid string of {n} bytes", array(
+				"n" => strlen($data),
+				"method" => __METHOD__
+			));
+		}
 		return $this->_image_scale_resource($src, null, $options);
 	}
 
 	/**
 	 *
+	 * @throws \zesk\Exception_File_NotFound
+	 * @throws \zesk\Exception_Semantics
 	 * {@inheritDoc}
 	 * @see Image_Library::image_scale()
 	 */
@@ -190,11 +203,24 @@ class Image_Library_GD extends Image_Library {
 	/**
 	 * Load an image from a source file on disk
 	 *
+	 * @throws \zesk\Exception_File_NotFound
+	 * @throws \zesk\Exception_Semantics
 	 * @param string $source image file path to load
 	 * @return resource
 	 */
 	private function _imageload($source) {
-		return imagecreatefromstring(file_get_contents($source));
+		$contents = @file_get_contents($source);
+		if (!is_string($contents)) {
+			throw new Exception_File_NotFound($source, __METHOD__);
+		}
+		$src = @imagecreatefromstring($contents);
+		if (!is_resource($src)) {
+			throw new Exception_Semantics("{method} passed an invalid string of {n} bytes", array(
+				"n" => strlen($contents),
+				"method" => __METHOD__
+			));
+		}
+		return $src;
 	}
 
 	/**
@@ -270,6 +296,13 @@ class Image_Library_GD extends Image_Library {
 			);
 		}
 	}
+
+	/**
+	 * @throws \zesk\Exception_File_NotFound
+	 * @throws \zesk\Exception_Semantics
+	 * {@inheritDoc}
+	 * @see \zesk\Image_Library::image_rotate()
+	 */
 	function image_rotate($source, $destination, $degrees, array $options = array()) {
 		$source_resource = $this->_imageload($source);
 		$bgcoloroption = avalue($options, 'background_color', 0);
