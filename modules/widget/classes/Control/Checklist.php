@@ -127,6 +127,7 @@ class Control_Checklist extends Control_Optionss {
 		$values = $this->call_hook_arguments("object_value", array(), array());
 		if (can_iterate($values)) {
 			foreach ($values as $value => $label) {
+				$value = strval($value);
 				if (array_key_exists($value, $this->widgets_id)) {
 					$this->widgets_id[$value]->set_option("checked", true);
 				}
