@@ -18,7 +18,7 @@ use zesk\Locale;
 use zesk\Application;
 use zesk\Hookable;
 use zesk\ArrayTools;
-use zesk\StringTools;
+use zesk\HTML;
 
 /**
  * A regular expression pattern for matching email addresses anywhere (should delimit both ends in
@@ -71,7 +71,9 @@ function zesk() {
 }
 
 /**
- * Does NOT assume array is a 0-based key list
+ * Returns the first value in array, or $default if array is zero-length.
+ *
+ * Does NOT assume array is a 0-based key list.
  *
  * @param array $a
  * @return NULL|mixed
@@ -81,6 +83,7 @@ function first(array $a, $default = null) {
 }
 
 /**
+ * Returns the last value in a PHP array, or $default if array is zero-length.
  * Does NOT assume array is a 0-based key list
  *
  * @param array $a
@@ -863,7 +866,7 @@ function map_tokens($mixed, $prefix_char = "{", $suffix_char = "}") {
  */
 function _W($phrase) {
 	return call_user_func_array(array(
-		StringTools::class,
+		HTML::class,
 		"wrap"
 	), func_get_args());
 }
@@ -876,20 +879,13 @@ function _W($phrase) {
  *
  * list($table, $field) = pair($thing, ".", $default_table, $thing);
  *
- * @param string $a
- *        	A string to parse into a pair
- * @param string $delim
- *        	The delimiter to break the string apart
- * @param string $left
- *        	The default left value if delimiter is not found
- * @param string $right
- *        	The default right value if delimiter is not found
+ * @param string $a A string to parse into a pair
+ * @param string $delim The delimiter to break the string apart
+ * @param string $left The default left value if delimiter is not found
+ * @param string $right The default right value if delimiter is not found
  * @return A size 2 array containing the left and right portions of the pair
  */
 function pair($a, $delim = '.', $left = false, $right = false, $include_delimiter = null) {
-	if (is_array($a)) {
-		backtrace();
-	}
 	$n = strpos($a, $delim);
 	$delim_len = strlen($delim);
 	return ($n === false) ? array(
@@ -988,13 +984,14 @@ function unquote($s, $quotes = "''\"\"", &$left_quote = null) {
 }
 
 /**
- * Generic function to create paths correctly
+ * Generic function to create paths correctly. Note that any double-separators are removed and converted to single-slashes so
+ * this is unsuitable for use with URLs. Use glue() instead.
  *
- * @param
- *        	string separator Token used to divide path
- * @param
- *        	array mixed List of path items, or array of path items to concatenate
+ * @param string separator Token used to divide path
+ * @param array mixed List of path items, or array of path items to concatenate
  * @return string with a properly formatted path
+ * @see glue
+ * @see domain
  */
 function path_from_array($separator = '/', array $mixed) {
 	$r = array_shift($mixed);
@@ -1016,11 +1013,13 @@ function path_from_array($separator = '/', array $mixed) {
 }
 
 /**
- * Create a file path and ensure only one slash appears between path entries
+ * Create a file path and ensure only one slash appears between path entries. Do not use this
+ * with URLs, use glue instead.
  *
- * @param
- *        	mixed path Variable list of path items, or array of path items to concatenate
+ * @param mixed path Variable list of path items, or array of path items to concatenate
  * @return string with a properly formatted path
+ * @see glue
+ * @see domain
  */
 function path(/* dir, dir, ... */) {
 	$args = func_get_args();
@@ -1032,9 +1031,10 @@ function path(/* dir, dir, ... */) {
 /**
  * Create a domain name ensure one and only one dot appears between entries
  *
- * @param
- *        	mixed path Variable list of path items, or array of path items to concatenate
+ * @param mixed path Variable list of path items, or array of path items to concatenate
  * @return string with a properly formatted domain path
+ * @see glue
+ * @see domain
  */
 function domain(/* name, name, ... */) {
 	$args = func_get_args();
@@ -1198,28 +1198,14 @@ function is_phone($phone) {
 /**
  * Gets a value from an array using a delimited separated path.
  * // Get the value of $array['foo']['bar']
- * $value = apath($array, 'foo.bar');
  *
- * @param
- *        	array array to search
- * @param
- *        	string key path, dot separated
- * @param
- *        	mixed default value if the path is not set
+ * $value = apath($array, 'foo.bar');
+ * @param array $array
+ * @param mixed $path string path or array
+ * @param mixed $default value to return if value is not found
+ * @param string $separator string separator for string paths
  * @return mixed
  * @see apath_set
- */
-
-/**
- *
- * @param array $array
- * @param mixed $path
- *        	string path or array
- * @param mixed $default
- *        	value to return if value is not found
- * @param string $separator
- *        	string separator for string paths
- * @return mixed
  */
 function &apath(array $array, $path, $default = null, $separator = ".") {
 	// Split the keys by $separator
@@ -1245,13 +1231,10 @@ function &apath(array $array, $path, $default = null, $separator = ".") {
  * Partner of apath - sets an array path to a specific value
  *
  * @param array $current
- * @param string $path
- *        	A path into the array separated by $separator (e.g. "document.title")
- * @param mixed $value
- *        	Value to set the path in the tree. Use null to delete the target item.
- * @param string $separator
- *        	Character used to separate levels in the array
- * @return array
+ * @param string $path A path into the array separated by $separator (e.g. "document.title")
+ * @param mixed $value Value to set the path in the tree. Use null to delete the target item.
+ * @param string $separator Character used to separate levels in the array
+ * @return array|mixed
  */
 function &apath_set(array &$array, $path, $value = null, $separator = ".") {
 	$current = & $array;
@@ -1280,6 +1263,7 @@ function &apath_set(array &$array, $path, $value = null, $separator = ".") {
 
 if (!function_exists('sgn')) {
 	/**
+	 * Returns the sign of an integer or floating-point number
 	 * Thought this was a part of the PHP core, but apparently not.
 	 *
 	 * @param number $value
@@ -1341,10 +1325,10 @@ function zesk_weight($weight = null) {
 function zesk_sort_weight_array(array $a, array $b) {
 	// Get weight a, convert to double
 	$aw = array_key_exists('weight', $a) ? zesk_weight($a['weight']) : 0;
-	
+
 	// Get weight b, convert to double
 	$bw = array_key_exists('weight', $b) ? zesk_weight($b['weight']) : 0;
-	
+
 	// a < b -> -1
 	// a > b -> 1
 	// a === b -> 0
