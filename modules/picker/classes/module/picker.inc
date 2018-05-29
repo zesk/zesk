@@ -7,6 +7,6 @@ class Module_Picker extends zesk\Module_JSLib {
 		'/share/picker/css/picker.css'
 	);
 	function hook_cron() {
-		__("No matches found for search &ldquo;{q}&rdquo;.");
+		$this->application->locale->__("No matches found for search &ldquo;{q}&rdquo;.");
 	}
 }

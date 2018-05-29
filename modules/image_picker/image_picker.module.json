@@ -1,2 +1,4 @@
-NAME="Image Picker"
-REQUIRES[] = "dropfile"
+{
+	"name": "Image Picker",
+	"requires": [ "dropfile", "picker" ]
+}

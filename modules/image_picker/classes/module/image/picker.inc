@@ -4,13 +4,14 @@
  */
 use zesk\JSON;
 use zesk\Lists;
+use zesk\Router;
 
 /**
  *
  * @author kent
  *
  */
-class Module_Image_Picker extends zesk\Module_JSLib {
+class Module_Image_Picker extends zesk\Module_JSLib implements zesk\Interface_Module_Routes {
 	/**
 	 *
 	 * @var array
@@ -41,6 +42,9 @@ class Module_Image_Picker extends zesk\Module_JSLib {
 			'arguments' => array(
 				2
 			)
+		));
+		$router->add_route('image_picker/{option action}', array(
+			'controller' => Controller_Image_Picker::class
 		));
 	}
 

@@ -1,15 +1,16 @@
 <?php
 
 /**
- * 
+ *
  */
 namespace zesk\jQueryUnveil;
 
+use zesk\Lists;
 use zesk\HTML;
 use zesk\Module_JSLib;
 
 /**
- * 
+ *
  * @author kent
  *
  */
@@ -17,7 +18,7 @@ class Module extends Module_JSLib {
 	protected $javascript_paths = array(
 		"/share/jquery-unveil/jquery.unveil.js"
 	);
-	
+
 	/**
 	 * jQuery ready code
 	 *
@@ -27,7 +28,7 @@ class Module extends Module_JSLib {
 		"\$(\"img\").unveil();",
 		"zesk.add_hook('document::ready', function (context) {\n\t\$(\"img\", context).unveil();\n});"
 	);
-	
+
 	/**
 	 * Register global hooks for this module
 	 */
@@ -38,7 +39,6 @@ class Module extends Module_JSLib {
 		));
 		parent::initialize();
 	}
-	
 	public function img_alter(array $attributes, $content) {
 		if (isset($this->options['disabled']) && $this->options['disabled']) {
 			return null;
