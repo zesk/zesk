@@ -1577,6 +1577,7 @@ class ORM extends Model {
 	}
 
 	/**
+	 * Passing in NULL for $mixed will fetch ALL members, including those which may be "extra" as returned by a custom query, for example.
 	 *
 	 * @param string $mixed
 	 * @return array
@@ -1588,8 +1589,10 @@ class ORM extends Model {
 		}
 		if (!is_array($mixed)) {
 			$mixed = array_keys($this->class->column_types);
+			$result = $this->members; // Start with all members, overwrite ones which have getters/setters here
+		} else {
+			$result = array();
 		}
-		$result = array();
 		foreach ($mixed as $member) {
 			try {
 				$result[$member] = $this->_get($member);
