@@ -247,6 +247,27 @@ abstract class Route extends Hookable {
 	}
 
 	/**
+	 * Replace components in the $options which are constant and will not change
+	 *
+	 * @param string $pattern
+	 * @param array $options
+	 * @return array
+	 */
+	public static function preprocess_options($pattern, array $options) {
+		// Replace parts which do not have variables set
+		$parts = explode("/", strval(strtr($pattern, array(
+			'(' => '',
+			')' => ''
+		))));
+		foreach ($parts as $index => $part) {
+			if (!count(map_tokens($part)) === 0) {
+				unset($parts[$index]);
+			}
+		}
+		$options = map($options, $parts);
+		return $options;
+	}
+	/**
 	 * Create a route from a set of options
 	 *
 	 * @param string $pattern
@@ -264,6 +285,7 @@ abstract class Route extends Hookable {
 			'theme' => Route_Theme::class,
 			'method' => Route_Method::class
 		);
+		$options = self::preprocess_options($pattern, $options);
 		foreach ($types as $k => $class) {
 			if (array_key_exists($k, $options)) {
 				return $router->application->factory($class, $router, $pattern, $options);
