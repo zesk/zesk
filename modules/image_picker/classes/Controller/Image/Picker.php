@@ -2,8 +2,7 @@
 /**
  *
  */
-use zesk\Content_Image;
-use zesk\Exception_Upload;
+namespace zesk;
 
 /**
  *
@@ -12,7 +11,7 @@ use zesk\Exception_Upload;
  */
 class Controller_Image_Picker extends \zesk\Controller_ORM {
 	protected $class = Content_Image::class;
-	
+
 	/**
 	 *
 	 * {@inheritDoc}
