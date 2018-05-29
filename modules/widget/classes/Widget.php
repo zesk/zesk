@@ -566,14 +566,20 @@ class Widget extends Hookable {
 	}
 
 	/**
+	 * Create a widget, tie it to the same response as this widget
 	 *
-	 * @param unknown $class
-	 * @param unknown $options
+	 * @param string $class
+	 * @param array $options
 	 * @throws Exception_Semantics
 	 * @return Widget
 	 */
-	public function widget_factory($class, $options = null) {
-		return self::factory($this->application, $class, $options);
+	public function widget_factory($class, array $options = null) {
+		$widget = self::factory($this->application, $class, $options);
+		$response = $this->response();
+		if ($response) {
+			$widget->response($response);
+		}
+		return $widget;
 	}
 
 	/**
@@ -1217,7 +1223,16 @@ class Widget extends Hookable {
 			}
 			$this->_update_child_state(self::submit);
 		}
-		return $result ? $this : null;
+		// Truth table. Return value here controls whether widget renders or not.
+		//
+		// $result  true  true false false
+		// $valid   false true false true
+		// Render?  yes   yes  yes   no
+		//
+		// Basically, only time we don't render is when SUBMIT fails, and valid is TRUE
+		// Probaby should check this for JSON responses as well, maybe turn into a "render" flag or something
+		//
+		return $result ? $this : ($valid ? null : $this);
 	}
 
 	/**
