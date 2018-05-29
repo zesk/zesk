@@ -21,7 +21,7 @@ class Module_Moment extends Module_JSLib implements Interface_Module_Head {
 	protected $class_aliases = array(
 		"Module_Moment" => __CLASS__
 	);
-	
+
 	/**
 	 *
 	 * {@inheritDoc}
@@ -35,7 +35,7 @@ class Module_Moment extends Module_JSLib implements Interface_Module_Head {
 		}
 		parent::initialize();
 	}
-	
+
 	/**
 	 *
 	 * {@inheritDoc}
@@ -46,7 +46,7 @@ class Module_Moment extends Module_JSLib implements Interface_Module_Head {
 		$this->jquery_ready[] = "try {\n\tmoment.locale(" . JavaScript::arguments(array(
 			$locale->id(),
 			$locale->language()
-		)) . ");\n} catch (e) {\n\twindow.zesk && window.zesk.log(\"Moment locale $locale failed to load\");\n}";
+		)) . ");\n} catch (e) {\n\twindow.zesk && window.zesk.log(\"Moment locale " . $locale->id() . " failed to load\");\n}";
 		parent::hook_head($request, $response, $template);
 	}
 }
