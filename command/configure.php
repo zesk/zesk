@@ -449,6 +449,9 @@ class Command_Configure extends Command_Base {
 				}
 			}
 		}
+		unset($this->variable_map['current_host_path']);
+		unset($this->variable_map['self_path']);
+		unset($this->variable_map['self']);
 		return true;
 	}
 
