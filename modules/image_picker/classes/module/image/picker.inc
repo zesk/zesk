@@ -18,7 +18,7 @@ class Module_Image_Picker extends zesk\Module_JSLib {
 	protected $css_paths = array(
 		'/share/image_picker/css/image_picker.css'
 	);
-	
+
 	/**
 	 *
 	 * @var array
@@ -26,24 +26,24 @@ class Module_Image_Picker extends zesk\Module_JSLib {
 	protected $javascript_paths = array(
 		'/share/image_picker/js/image_picker.js'
 	);
-	
+
 	/**
 	 *
 	 * @param zesk\Router $router
 	 */
 	public function hook_routes(zesk\Router $router) {
 		$router->add_route('imagepicker', array(
-			'controller' => 'Image_Picker'
+			'controller' => Controller_Image_Picker::class
 		));
 		$router->add_route('imagepicker/image/{zesk\Content_Image image}/delete', array(
-			'controller' => 'Image_Picker',
+			'controller' => Controller_Image_Picker::class,
 			'action' => 'image_delete',
 			'arguments' => array(
 				2
 			)
 		));
 	}
-	
+
 	/**
 	 *
 	 */
