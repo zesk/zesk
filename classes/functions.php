@@ -883,6 +883,10 @@ function _W($phrase) {
  * @param string $delim The delimiter to break the string apart
  * @param string $left The default left value if delimiter is not found
  * @param string $right The default right value if delimiter is not found
+ * @param string $include_delimiter
+ *        	If "left" includes the delimiter in the left value
+ *        	If "right" includes the delimiter in the right value
+ *          Any other value the delimiter is stripped from the results
  * @return A size 2 array containing the left and right portions of the pair
  */
 function pair($a, $delim = '.', $left = false, $right = false, $include_delimiter = null) {
@@ -1385,7 +1389,8 @@ function is_windows() {
 /**
  * Get our global application
  *
- * @deprecated 2017-08 Avoid usage
+ * @deprecated 2017-08 Avoid usage - use $this->application when available or pass $application along
+ *
  * @return Application
  */
 function app() {
