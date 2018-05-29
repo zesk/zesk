@@ -14,6 +14,9 @@ namespace zesk;
 /* @var $current_user \User */
 
 /* @var $exception Exception */
+if ($response->status_code === Net_HTTP::STATUS_OK) {
+	$response->status(Net_HTTP::STATUS_INTERNAL_SERVER_ERROR, "Exception");
+}
 $exception = $this->exception;
 $class = get_class($this->exception);
 
@@ -39,10 +42,10 @@ $dev = $this->application->development();
 ?>
 <div class="exception-error">
 	<h1><?php
-	
+
 	echo $dev ? $class : strtr($class, "_", " ")?>
 		<!--  <?php
-		
+
 		echo $class;
 		?> -->
 	</h1>
