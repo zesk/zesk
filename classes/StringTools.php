@@ -441,15 +441,18 @@ class StringTools {
 	 * rules are an array of pattern => boolean
 	 * - pattern is a Perl-Regular Expression, delimited correctly e.g. '/\.(inc|php)$/'
 	 * - pass just a boolean value (numeric index) to force a result
+	 * If pattern is a numeric value, then the boolean is returned instead.
 	 *
-	 * @param string $string
-	 *        	A string to match
-	 * @param string $in_pattern
-	 *        	A pattern to include, matches are included (true)
-	 * @param string $ex_pattern
-	 *        	A pattern to exclude, matches are excluded (false)
-	 * @param boolean $default
-	 *        	If in_pattern and $ex_pattern are not strings, then default value is returned
+	 * Usage:
+	 *
+	 * StringTools::filter($path, array("/.*\.php/" => true, "/.*\.zip/" => false)));
+	 *
+	 * Returns true for php files, false for ZIP files, and "funky" for everything else
+	 *
+	 * @param string $string  A string to match
+	 * @param array $rules A list of patterns and how to handle them
+	 * @param boolean $default The default value to return if all rules are parsed and nothing matches
+	 *
 	 * @return boolean
 	 */
 	public static function filter($string, array $rules, $default = null) {
