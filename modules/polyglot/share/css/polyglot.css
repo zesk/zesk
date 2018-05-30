@@ -1,66 +1,67 @@
 #translate-main #translate-form {
-	display: block;
+  display: block;
 }
-
+#translate-main #translate-form .original h1 {
+  line-height: 150%;
+}
 #translate-main #translate-form .actions {
-	margin-top: 10px;
+  margin-top: 10px;
 }
-
 #translate-main #translate-form .actions .btn-info {
-	color: inherit;
-	background-color: inherit;
+  color: inherit;
+  background-color: inherit;
 }
-
 #translate-main #translate-form .actions .btn-info:hover {
-	color: inherit;
-	background-color: inherit;
+  color: inherit;
+  background-color: inherit;
 }
-
+#translate-main #search-progress {
+  padding: 6px;
+}
+#translate-main #search-status {
+  padding: 6px;
+}
+#translate-main #search-status .total {
+  font-weight: bold;
+  padding-right: 1ex;
+}
 #translate-main .row.header {
-	padding-top: 10px;
-	clear: both;
-	font-weight: bold;
+  padding-top: 10px;
+  clear: both;
+  font-weight: bold;
 }
-
 #translate-main .row {
-	border: 1px solid rgba(0, 0, 0, 0);
-	border-radius: 4px;
-	padding-top: 5px;
-	padding-bottom: 5px;
+  border: 1px solid rgba(0, 0, 0, 0);
+  border-radius: 4px;
+  padding-top: 5px;
+  padding-bottom: 5px;
 }
-
 #translate-main .row.selected {
-	background-color: rgba(0, 0, 0, 0.2);
-	border: 1px solid rgba(0, 0, 0, 0.5);
+  background-color: rgba(0, 0, 0, 0.2);
+  border: 1px solid rgba(0, 0, 0, 0.5);
 }
-
 #translate-main .row .label.group {
-	margin-right: 5px;
+  margin-right: 5px;
 }
-
 #translate-main .shortcut {
-	display: none;
+  display: none;
 }
-
 #translate-main span.hilite {
-	display: inline;
-	padding: 0;
-	margin: 0;
-	color: black;
-	font-weight: bold;
-	background-color: #FFFF66;
+  display: inline;
+  padding: 0;
+  margin: 0;
+  color: black;
+  font-weight: bold;
+  background-color: #ffff66;
 }
-
 #translate-main #translation {
-	word-break: break-word;
+  word-break: break-word;
 }
-
 #translate-main label.shortcuts {
-	font-size: 95%;
-	font-weight: normal;
+  font-size: 95%;
+  font-weight: normal;
 }
-
 #translate-main label.shortcuts input {
-	margin-right: 0.25em;
+  margin-right: 0.25em;
 }
 /*# sourceMappingURL=polyglot.css.map */

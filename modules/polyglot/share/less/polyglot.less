@@ -1,5 +1,8 @@
 #translate-main {
 	#translate-form {
+		.original h1 {
+			line-height: 150%;
+		}
 		display: block;
 		.actions {
 			margin-top: 10px;
@@ -13,20 +16,29 @@
 			}
 		}
 	}
-	
+	#search-progress {
+		padding: 6px;
+	}
+	#search-status {
+		padding: 6px;
+		.total {
+			font-weight: bold;
+			padding-right: 1ex;
+		}
+	}
 	.row.header {
 		padding-top: 10px;
 		clear: both;
 		font-weight: bold;
 	}
 	.row {
-		border: 1px solid rgba(0,0,0,0);
+		border: 1px solid rgba(0, 0, 0, 0);
 		border-radius: 4px;
 		padding-top: 5px;
 		padding-bottom: 5px;
 		&.selected {
-			background-color: rgba(0,0,0,0.2);
-			border: 1px solid rgba(0,0,0,0.5);
+			background-color: rgba(0, 0, 0, 0.2);
+			border: 1px solid rgba(0, 0, 0, 0.5);
 		}
 		.label.group {
 			margin-right: 5px;
@@ -41,7 +53,7 @@
 		margin: 0;
 		color: black;
 		font-weight: bold;
-		background-color: #FFFF66;
+		background-color: #ffff66;
 	}
 	#translation {
 		word-break: break-word;
