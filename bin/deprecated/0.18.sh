@@ -88,3 +88,6 @@ zesk cannon response_Content_Type RESPONSE_CONTENT_TYPE
 zesk cannon response_Accept_Ranges RESPONSE_ACCEPT_RANGES 
 zesk cannon response_Content_Encoding RESPONSE_CONTENT_ENCODING 
 zesk cannon response_Transfer_Encoding RESPONSE_TRANSFER_ENCODING 
+
+heading "Module_Picker is now in zesk\\ namespace"
+php-find.sh 'Control_Picker'
