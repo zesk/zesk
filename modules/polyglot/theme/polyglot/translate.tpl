@@ -74,11 +74,12 @@ $widget->required(true);
 					</div>
 				</div>
 				<div class="form-group control-progress">
-					<img src="/share/zesk/images/spinner/spinner-32x32.gif" width="32"
+					<img src="/share/polyglot/images/loading.gif" width="32"
 						height="32" style="margin-left: 10px" />
 				</div>
 				<div class="form-group">
-					<div id="search-progress"></div>
+					<div id="search-progress" style="display: none"></div>
+					<div id="search-status" style="display: none"><span class="total"></span><?php echo __("total"); ?></div>
 				</div>
 				<?php
 				if ($can_update_live) {
