@@ -560,10 +560,9 @@ class Application extends Hookable implements Interface_Theme {
 
 	/**
 	 * Loads a bunch of configuration files, in the following order:
-	 * 1.
-	 * application.conf
-	 * 2. APPLICATION_NAME.conf
-	 * 3. uname.conf
+	 * 1. application.conf
+	 * 2. honst/*uname*.conf
+	 * 
 	 * Configuration files are simple bash-style NAME=VALUE files with a few features:
 	 * - You can use variables in values, like ${FOO} or $FOO; once loaded, the variable is replaced
 	 * and no longer part

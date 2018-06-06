@@ -5,7 +5,7 @@
 namespace zesk;
 
 class Controller_PolyGlot extends Controller_Authenticated {
-	
+
 	/**
 	 *
 	 * @var Module_PolyGlot
@@ -34,63 +34,65 @@ class Controller_PolyGlot extends Controller_Authenticated {
 			"locale_options" => $this->module->locale_options()
 		));
 	}
-	
+
 	/**
 	 * Load a locale for translation
 	 *
 	 * @param string $locale
 	 */
-	public function action_load($locale) {
+	public function action_load($locale_string) {
+		$app_locale = $this->application->locale;
 		$__ = array(
 			"lang_name" => Language::lang_name($this->application, $locale),
-			"locale" => $locale
+				"locale" => $locale_string
 		);
 		if ($this->user->can("zesk\\Module_PolyGlot::load", null, array(
 			"locale" => $locale
 		))) {
 			return $this->json(array(
 				"status" => true,
-				"message" => __("Loaded locale {lang_name}.", $__),
+				"message" => $app_locale->__("Loaded locale {lang_name}.", $__),
 				"items" => $this->module->load_locale($locale)
 			));
 		}
 		return $this->json(array(
 			"status" => false,
-			"message" => __("You do not have permission to do translations.")
+			"message" => $app_locale->__("You do not have permission to do translations.")
 		));
 	}
-	
+
 	/**
 	 * Update a locale on all servers with current translations
 	 *
-	 * @param string $locale
+	 * @param string $locale_string
 	 */
-	public function action_update($locale) {
-		$__ = array(
-			"lang_name" => Language::lang_name($this->application, $locale),
-			"locale" => $locale
-		);
+	public function action_update($locale_string) {
 		$locale = $this->application->locale;
+		$__ = array(
+			"lang_name" => Language::lang_name($this->application, $locale_string),
+			"locale" => $locale_string
+		);
+		$locale_string = $this->application->locale;
 		if (!$this->user->can("zesk\\Module_PolyGlot::update", null, array(
-			"locale" => $locale
+			"locale" => $locale_string
 		))) {
 			return $this->json(array(
 				"status" => false,
-				"message" => $locale("You do not have permission to update the {lang_name} locale.")
+					"message" => $locale->__("You do not have permission to update the {lang_name} locale.")
 			));
 		}
-		if (PolyGlot_Update::register_update($this->application, $locale, $this->user)) {
+		if (PolyGlot_Update::register_update($this->application, $locale_string, $this->user)) {
 			return $this->json(array(
 				"status" => true,
-				"message" => $locale("Locale {lang_name} will be updated in the new few minutes.", $__)
+					"message" => $locale->__("Locale {lang_name} will be updated in the new few minutes.", $__)
 			));
 		}
 		$this->json(array(
 			"status" => false,
-			"message" => $locale("Locale {lang_name} was not updated.", $__)
+				"message" => $locale->__("Locale {lang_name} was not updated.", $__)
 		));
 	}
-	
+
 	/**
 	 * Save a token
 	 *
@@ -142,6 +144,4 @@ class Controller_PolyGlot extends Controller_Authenticated {
 			"status" => $result,
 			"id" => $object->id(),
 			"message" => $result ? null : $object->store_errors()
-		));
-	}
-}
+		)

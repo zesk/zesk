@@ -91,7 +91,13 @@ class IPv4 {
 			4294967295
 		)
 	);
-	
+
+	/**
+	 * Number of bits
+	 * @var integer
+	 */
+	const BITS = 32;
+
 	/**
 	 * Returns integer value of subnet
 	 *
@@ -100,10 +106,10 @@ class IPv4 {
 	 * @return integer
 	 */
 	public static function subnet_mask($ipbits) {
-		$ipbits = clamp(0, $ipbits, 32);
-		return bindec(str_repeat("1", $ipbits) . str_repeat("0", 32 - $ipbits));
+		$ipbits = clamp(0, $ipbits, self::BITS);
+		return bindec(str_repeat("1", $ipbits) . str_repeat("0", self::BITS - $ipbits));
 	}
-	
+
 	/**
 	 * Returns integer value of subnet available bits
 	 *
@@ -112,26 +118,34 @@ class IPv4 {
 	 * @return integer
 	 */
 	public static function subnet_mask_not($ipbits) {
-		$ipbits = clamp(0, $ipbits, 32);
-		return bindec(str_repeat("1", 32 - $ipbits));
+		$ipbits = clamp(0, $ipbits, self::BITS);
+		return bindec(str_repeat("1", self::BITS - $ipbits));
 	}
+
+	/**
+	 * Given an IP integer address, convert to "low" IP integer in subnet
+	 *
+	 * @param integer $ipint
+	 * @param integer $ipbits
+	 * @return unknown|number
+	 */
 	public static function subnet_bits($ipint, $ipbits) {
-		if ($ipbits >= 32) {
+		if ($ipbits >= self::BITS) {
 			return $ipint;
 		}
 		$ipint = $ipint - ($ipint & self::subnet_mask_not($ipbits));
 		return $ipint;
 	}
-	
+
 	/**
-	 * Is given string a submet mask?
+	 * Is given string a subnet mask?
 	 *
 	 * @param string $string
 	 * @return boolean
 	 */
 	public static function is_mask($string) {
-		list($ip, $bits) = pair($string, "/", $string, 32);
-		if (integer_between(8, $bits, 32) && self::_valid($ip)) {
+		list($ip, $bits) = pair($string, "/", $string, self::BITS);
+		if (integer_between(8, $bits, self::BITS) && self::_valid($ip)) {
 			return true;
 		}
 		$x = explode(".", $string);
@@ -149,7 +163,7 @@ class IPv4 {
 		}
 		return true;
 	}
-	
+
 	/**
 	 * Convert a mask to an integer IP/subnet bits
 	 *
@@ -163,10 +177,10 @@ class IPv4 {
 				false
 			);
 		}
-		list($ip, $bits) = pair($string, "/", $string, 32);
-		
+		list($ip, $bits) = pair($string, "/", $string, self::BITS);
+
 		if (is_numeric($bits) && self::_valid($ip)) {
-			$bits = clamp(8, intval($bits), 32);
+			$bits = clamp(8, intval($bits), self::BITS);
 		} else {
 			$x = explode(".", $string);
 			$last = array_pop($x);
@@ -186,7 +200,7 @@ class IPv4 {
 			$bits
 		);
 	}
-	
+
 	/**
 	 * Convert an integer IP and number of bits to its equivalent string representation
 	 *
@@ -199,10 +213,10 @@ class IPv4 {
 	 *        	"192.168.*"
 	 * @return string An IP and subnet notation string
 	 */
-	public static function mask_to_string($ip, $ipbits = 32, $star_notation = true) {
-		$ipbits = to_integer($ipbits, 32);
+	public static function mask_to_string($ip, $ipbits = self::BITS, $star_notation = true) {
+		$ipbits = to_integer($ipbits, self::BITS);
 		$ip = doubleval($ip);
-		if ($ipbits === 32)
+		if ($ipbits === self::BITS)
 			return self::from_integer($ip);
 		if ($star_notation) {
 			if ($ipbits === 24 || $ipbits === 16 || $ipbits === 8)
@@ -210,7 +224,7 @@ class IPv4 {
 		}
 		return self::from_integer(self::subnet_bits($ip, $ipbits)) . "/$ipbits";
 	}
-	
+
 	/**
 	 * Returns the low and high IPs as integers for a given network
 	 *
@@ -232,7 +246,7 @@ class IPv4 {
 			$high_ip
 		);
 	}
-	
+
 	/**
 	 * Returns true if an IP address falls within an available network, or false if not
 	 *
@@ -253,7 +267,7 @@ class IPv4 {
 		list($low_ip, $high_ip) = self::network($network);
 		return ($ip >= $low_ip && $ip <= $high_ip);
 	}
-	
+
 	/**
 	 * Convert an IP address to a big-endian integer
 	 *
@@ -273,7 +287,7 @@ class IPv4 {
 		list($a, $b, $c, $d) = explode(".", $mixed, 4) + array_fill(0, 4, 0);
 		return ((((doubleval($a) * 256) + $b) * 256 + $c) * 256 + $d);
 	}
-	
+
 	/**
 	 * Convert a big-endian long integer into an IP address
 	 *
@@ -292,9 +306,24 @@ class IPv4 {
 		$a = $ipid & 0xFF;
 		return "$a.$b.$c.$d";
 	}
+
+	/**
+	 * Is this a valid IPv4 address?
+	 *
+	 * @param string $string
+	 * @return boolean
+	 */
 	public static function valid($string) {
 		return self::_valid($string, 1);
 	}
+
+	/**
+	 * Internal function to check IP address with optional check for final IP byte to be 0 or another number (usually 1)
+	 *
+	 * @param string $string
+	 * @param number $low_low
+	 * @return boolean
+	 */
 	private static function _valid($string, $low_low = 0) {
 		if (!is_string($string)) {
 			return false;

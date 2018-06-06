@@ -35,6 +35,7 @@ $object->status = $this->request->get("s", PolyGlot_Token::status_todo);
 $locale_options = to_array($this->locale_options);
 asort($locale_options, SORT_LOCALE_STRING);
 $widget = $this->widget_factory(Control_Select::class)
+	->response($response)
 	->names("locale", __("Locale"))
 	->control_options($locale_options)
 	->hide_single(false)
@@ -42,6 +43,7 @@ $widget = $this->widget_factory(Control_Select::class)
 $widget->required(true);
 
 $status = $this->widget_factory(Control_Select::class)
+	->response($response)
 	->names("status", __("Status"))
 	->control_options(PolyGlot_Token::lang_status_filters())
 	->noname(__("All"));
@@ -79,12 +81,16 @@ $widget->required(true);
 				</div>
 				<div class="form-group">
 					<div id="search-progress" style="display: none"></div>
-					<div id="search-status" style="display: none"><span class="total"></span><?php echo __("total"); ?></div>
+					<div id="search-status" style="display: none">
+						<span class="total"></span><?php
+
+echo __("total");
+						?></div>
 				</div>
 				<?php
 				if ($can_update_live) {
 					?><button id="translate-save" class="btn btn-warning pull-right"><?php
-					
+
 					echo __("Update Live");
 					?></button><?php
 				}
@@ -117,7 +123,7 @@ $widget->required(true);
 		<div class="collapse clearfix" id="translate-help">
 			<div class="well">
 				<?php
-				
+
 				echo $this->theme("polyglot/translate-help-header");
 				?>
 				<h3>Keyboard</h3>
@@ -168,7 +174,7 @@ $widget->required(true);
 							Deleting a phrase will remove it from all available translations.</strong></li>
 				</ul>
 				<?php
-				
+
 				echo $this->theme("polyglot/translate-help-footer");
 				?>
 
