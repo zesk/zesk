@@ -20,21 +20,21 @@ class Directory extends Hookable {
 	 * @var integer
 	 */
 	public static $default_mode = 0770;
-	
+
 	/**
 	 * Implement hooks
 	 */
 	public static function hooks(Application $application) {
 		$application->hooks->add('configured', __CLASS__ . '::configured');
 	}
-	
+
 	/**
 	 * configured hook
 	 */
 	public static function configured(Application $application) {
 		self::$default_mode = $application->configuration->path(__CLASS__)->get("default_mode", self::$default_mode);
 	}
-	
+
 	/**
 	 * If a directory does not exist, create it. If an error occurs
 	 * @param unknown $path
@@ -58,6 +58,27 @@ class Directory extends Hookable {
 		}
 		return $path;
 	}
+
+	/**
+	 * Require a directory to exist at $path and throw an Exception_Directory_NotFound if it does not.
+	 *
+	 * @param string $path
+	 * @throws Exception_Directory_NotFound
+	 * @return string
+	 */
+	public static function must($path) {
+		if (!is_dir($path)) {
+			throw new Exception_Directory_NotFound($path);
+		}
+		return $path;
+	}
+
+	/**
+	 * If debugging is enabled, log a debug message
+	 *
+	 * @param unknown $message
+	 * @param array $args
+	 */
 	public static function debug($message, array $args = array()) {
 		if (self::$debug) {
 			self::$application->logger->debug($message, $args);
@@ -71,7 +92,7 @@ class Directory extends Hookable {
 	public static function default_mode() {
 		return self::$default_mode;
 	}
-	
+
 	/**
 	 * Create a directory if it does not exist
 	 * @param string $path Path to create
@@ -91,7 +112,7 @@ class Directory extends Hookable {
 		}
 		return $path;
 	}
-	
+
 	/**
 	 *
 	 * @param string $source
@@ -135,7 +156,7 @@ class Directory extends Hookable {
 		unset($d);
 		return $destination;
 	}
-	
+
 	/**
 	 *
 	 * @param string $path
@@ -160,7 +181,7 @@ class Directory extends Hookable {
 		closedir($d);
 		return true;
 	}
-	
+
 	/**
 	 *
 	 */
@@ -168,7 +189,7 @@ class Directory extends Hookable {
 		self::delete_contents($path);
 		return rmdir($path);
 	}
-	
+
 	/**
 	 *
 	 */
@@ -196,7 +217,7 @@ class Directory extends Hookable {
 		}
 		return true;
 	}
-	
+
 	/**
 	 *
 	 */
@@ -216,7 +237,7 @@ class Directory extends Hookable {
 			return path($absolute_root, $mixed);
 		}
 	}
-	
+
 	/**
 	 * Synonym for File::is_absolute
 	 *
@@ -227,7 +248,7 @@ class Directory extends Hookable {
 	public static function is_absolute($f) {
 		return File::is_absolute($f);
 	}
-	
+
 	/**
 	 * Covert old-style options into new
 	 *
@@ -258,7 +279,7 @@ class Directory extends Hookable {
 		$result[] = to_bool($default);
 		return $result;
 	}
-	
+
 	/**
 	 *
 	 */
@@ -305,10 +326,10 @@ class Directory extends Hookable {
 		$rules_file = self::_list_recursive_rules($options, "file");
 		$rules_dir = self::_list_recursive_rules($options, "directory");
 		$rules_dir_walk = self::_list_recursive_rules($options, "directory_walk");
-		
+
 		$max_results = avalue($options, "maximum_results", -1);
 		$addpath = to_bool(avalue($options, "add_path", false));
-		
+
 		$path = rtrim($path, "/");
 		$d = @opendir($path);
 		if (!$d) {
@@ -352,7 +373,7 @@ class Directory extends Hookable {
 		closedir($d);
 		return $r;
 	}
-	
+
 	/**
 	 * Removes extraneous .
 	 * ./ and ./ from a path
@@ -363,7 +384,7 @@ class Directory extends Hookable {
 		$r = array();
 		$a = explode("/", $p);
 		$skip = 0;
-		
+
 		$n = count($a);
 		while ($n-- !== 0) {
 			if ($a[$n] == "..") {
@@ -381,7 +402,7 @@ class Directory extends Hookable {
 		}
 		return implode("/", $r);
 	}
-	
+
 	/**
 	 *
 	 */
@@ -391,14 +412,14 @@ class Directory extends Hookable {
 		}
 		return substr($p, -1) === "/" ? $p : "$p/";
 	}
-	
+
 	/**
 	 *
 	 */
 	public static function strip_slash($p) {
 		return rtrim($p, "/");
 	}
-	
+
 	/**
 	 *
 	 */
@@ -411,7 +432,7 @@ class Directory extends Hookable {
 			$list[] = $f;
 		}
 		$d->close();
-		
+
 		sort($list);
 		foreach ($list as $f) {
 			$fpath = path($source, $f);
@@ -428,7 +449,7 @@ class Directory extends Hookable {
 			}
 		}
 	}
-	
+
 	/**
 	 * Get a directory listing, always excluding "." and ".." entries. Adds a trailing slash ("/") on directories, and
 	 * can be used to filter list as well.
@@ -477,7 +498,7 @@ class Directory extends Hookable {
 		}
 		return $r;
 	}
-	
+
 	/**
 	 *
 	 */
@@ -510,7 +531,7 @@ class Directory extends Hookable {
 		}
 		return true;
 	}
-	
+
 	/**
 	 * Compute the size of the files in a path
 	 *
@@ -531,7 +552,7 @@ class Directory extends Hookable {
 		}
 		return $n;
 	}
-	
+
 	/**
 	 * Delete files in a directory when it exceeds a certain count, will delete first files based on sort order, so:
 	 *
@@ -576,7 +597,7 @@ class Directory extends Hookable {
 		}
 		return $deleted;
 	}
-	
+
 	/**
 	 * Given a list of paths and a directory name, find the first occurrance of the named directory.
 	 *
@@ -607,7 +628,7 @@ class Directory extends Hookable {
 		}
 		return null;
 	}
-	
+
 	/**
 	 * Given a list of paths and a directory name, find the first occurrance of the named directory.
 	 *
@@ -639,7 +660,7 @@ class Directory extends Hookable {
 		}
 		return $result;
 	}
-	
+
 	/**
 	 * Utility function to compare two octal values
 	 *
