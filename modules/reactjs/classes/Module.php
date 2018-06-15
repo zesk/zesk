@@ -17,6 +17,7 @@ use zesk\Exception_File_NotFound;
 use zesk\Net_HTTP_Client_Exception;
 use zesk\ArrayTools;
 use zesk\MIME;
+use zesk\Directory;
 
 /**
  *
@@ -24,13 +25,29 @@ use zesk\MIME;
  *
  */
 class Module extends \zesk\Module implements \zesk\Interface_Module_Routes, \zesk\Interface_Module_Head {
-	
+
 	/**
 	 *
 	 * @var Interface_Settings
 	 */
 	private $proxy_prefix = null;
-	
+
+	/**
+	 * Directory where .env file should be loaded
+	 *
+	 * @var string
+	 */
+	private $dot_env_path = null;
+
+	/**
+	 *
+	 * {@inheritDoc}
+	 * @see \zesk\Module::initialize()
+	 */
+	public function initialize() {
+		parent::initialize();
+		$this->dot_env_path($this->option("dot_env_path", $this->application->path()));
+	}
 	/**
 	 * List of associated classes
 	 *
@@ -66,7 +83,7 @@ class Module extends \zesk\Module implements \zesk\Interface_Module_Routes, \zes
 		}
 		return $script_names;
 	}
-	
+
 	/**
 	 *
 	 * {@inheritDoc}
@@ -96,7 +113,22 @@ class Module extends \zesk\Module implements \zesk\Interface_Module_Routes, \zes
 			)
 		));
 	}
-	
+
+	/**
+	 * Getter/setter for dot-env path
+	 *
+	 * @param string $set
+	 * @return this|$string
+	 */
+	public function dot_env_path($set = null) {
+		if ($set !== null) {
+			$set = $this->application->paths->expand($set);
+			Directory::must($set);
+			$this->dot_env_path = $set;
+			return $this;
+		}
+		return $this->dot_env_path;
+	}
 	/**
 	 *
 	 * @return string
@@ -107,7 +139,7 @@ class Module extends \zesk\Module implements \zesk\Interface_Module_Routes, \zes
 		}
 		$app = $this->application;
 		$config = $app->configuration->path_set(__CLASS__);
-		$dotenv = $app->path(".env");
+		$dotenv = path($this->dot_env_path, ".env");
 		if (!file_exists($dotenv)) {
 			$this->application->logger->error("{dotenv} needs to be created to support ReactJS proxy", array(
 				"dotenv" => $dotenv
@@ -158,7 +190,7 @@ class Module extends \zesk\Module implements \zesk\Interface_Module_Routes, \zes
 		$this->copy_to_response($this->_proxy_path($request), $response);
 		$response->cache_for(5);
 	}
-	
+
 	/**
 	 *
 	 * @param Request $request
