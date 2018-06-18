@@ -14,6 +14,7 @@ use zesk\File;
 use zesk\Net_HTTP_Client;
 use zesk\Net_HTTP;
 use zesk\Exception_File_NotFound;
+use zesk\Exception_System;
 use zesk\Net_HTTP_Client_Exception;
 use zesk\ArrayTools;
 use zesk\MIME;
@@ -64,7 +65,7 @@ class Module extends \zesk\Module implements \zesk\Interface_Module_Routes, \zes
 				));
 			}
 		} else {
-			if ($this->_proxy_prefix()) {
+			if ($this->_proxy_prefix($request->host())) {
 				$response->javascript("/static/js/bundle.js", array(
 					"is_route" => true
 				));
@@ -133,7 +134,7 @@ class Module extends \zesk\Module implements \zesk\Interface_Module_Routes, \zes
 	 *
 	 * @return string
 	 */
-	private function _proxy_prefix() {
+	private function _proxy_prefix($default_host, $default_port = 3000) {
 		if ($this->proxy_prefix) {
 			return $this->proxy_prefix;
 		}
@@ -148,8 +149,8 @@ class Module extends \zesk\Module implements \zesk\Interface_Module_Routes, \zes
 		}
 		$conf = Configuration_Parser::factory("conf", File::contents($dotenv));
 		$settings = $conf->process();
-		$host = aevalue($_SERVER, 'HOST', $settings->host);
-		$port = aevalue($_SERVER, 'PORT', $settings->port);
+		$host = aevalue($_SERVER, 'HOST', $settings->get("host", $default_host));
+		$port = aevalue($_SERVER, 'PORT', $settings->get("port", $default_port));
 		return $this->proxy_prefix = "http://$host:$port";
 	}
 	/**
@@ -159,7 +160,7 @@ class Module extends \zesk\Module implements \zesk\Interface_Module_Routes, \zes
 	 * @return Net_HTTP_Client
 	 */
 	private function _proxy_path(Request $request) {
-		$proxy_prefix = $this->_proxy_prefix();
+		$proxy_prefix = $this->_proxy_prefix($request->host());
 		if ($proxy_prefix === null) {
 			return null;
 		}
@@ -201,6 +202,9 @@ class Module extends \zesk\Module implements \zesk\Interface_Module_Routes, \zes
 		try {
 			if ($app->development()) {
 				$http = $this->_proxy_path($request);
+				if (!$http) {
+					throw new Exception_System("Unable to determine local hostname to connect to");
+				}
 				$http->proxy_response($response);
 				$response->cache_for(5);
 			} else {
