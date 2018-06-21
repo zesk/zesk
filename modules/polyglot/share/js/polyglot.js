@@ -227,6 +227,7 @@
 			if (timer) {
 				clearTimeout(timer);
 				zesk.log("filter_list clear timeout");
+				timer = null;
 			}
 			q = q.toLowerCase();
 			zesk.log("filter_list filter_iterate " + status + " " + q);
@@ -240,8 +241,7 @@
 		filter_iterate: function(status, q, start) {
 			var end,
 				current_status = $status.val(),
-				current_q = String($search.val()).toLowerCase(),
-				timer = null;
+				current_q = String($search.val()).toLowerCase();
 
 			if (start > strings.length) {
 				return;
