@@ -53,11 +53,11 @@ class PolyGlot_Token extends ORM {
 	const status_dev = "dev";
 	
 	/**
-	 * Question about translation
+	 * Need more information
 	 *
 	 * @var string
 	 */
-	const status_question = "question";
+	const status_info = "info";
 	
 	/**
 	 * Done
@@ -183,7 +183,7 @@ class PolyGlot_Token extends ORM {
 	public static function lang_status_filters() {
 		return __(array(
 			"todo" => "Need translation",
-			"question" => "Need more information",
+			"info" => "Need more information",
 			"dev" => "Need developer review",
 			"draft" => "Draft",
 			"delete" => "Deleted",
