@@ -352,7 +352,7 @@ class Module_ORM extends Module {
 			}
 		}
 		if (count($other_updates) > 0) {
-			$results[] = "-- Other database updates:\n" . ArrayTools::join_wrap(array_keys($other_updates), "-- zesk database-schema --name ", " --update;\n");
+			$results[] = "-- Other database updates:\n" . ArrayTools::join_wrap(array_keys($other_updates), "-- zesk schema --name ", " --update;\n");
 		}
 		return $results;
 	}
