@@ -25,34 +25,41 @@ class Database_Query {
 	 * @var string
 	 */
 	protected $type;
-	
+
 	/**
 	 * Database
 	 *
 	 * @var Database
 	 */
 	protected $db;
-	
+
 	/**
 	 * Database code
 	 *
 	 * @var string
 	 */
 	protected $dbname;
-	
+
 	/**
 	 * Object class used when iterating
 	 *
 	 * @var string
 	 */
 	protected $class;
-	
+
+	/**
+	 * Inherited class options when linking or iterating
+	 *
+	 * @var array
+	 */
+	protected $class_options = array();
+
 	/**
 	 *
 	 * @var array
 	 */
 	private $objects_cached = array();
-	
+
 	/**
 	 * Create a new query
 	 *
@@ -65,8 +72,9 @@ class Database_Query {
 		$this->type = strtoupper($type);
 		$this->dbname = $db->code_name();
 		$this->class = null;
+		$this->class_options = array();
 	}
-	
+
 	/**
 	 *
 	 * @return string[]
@@ -78,7 +86,7 @@ class Database_Query {
 			"class"
 		);
 	}
-	
+
 	/**
 	 */
 	function __wakeup() {
@@ -86,7 +94,7 @@ class Database_Query {
 		$this->application = __wakeup_application();
 		$this->db = $this->application->database_registry($this->dbname);
 	}
-	
+
 	/**
 	 *
 	 * @param Database_Query $from
@@ -97,6 +105,7 @@ class Database_Query {
 		$this->db = $from->db;
 		$this->dbname = $from->dbname;
 		$this->class = $from->class;
+		$this->class_options = $from->class_options;
 		return $this;
 	}
 	/**
@@ -106,7 +115,7 @@ class Database_Query {
 	public function duplicate() {
 		return clone $this;
 	}
-	
+
 	/**
 	 *
 	 * @return Database
@@ -114,7 +123,7 @@ class Database_Query {
 	function database() {
 		return $this->db;
 	}
-	
+
 	/**
 	 *
 	 * @return string
@@ -122,7 +131,7 @@ class Database_Query {
 	function database_name() {
 		return $this->db->code_name();
 	}
-	
+
 	/**
 	 *
 	 * @return Database_SQL
@@ -150,7 +159,21 @@ class Database_Query {
 		}
 		return $this->class;
 	}
-	
+
+	/**
+	 * Set or get the class options associated with this query
+	 *
+	 * @param array $options
+	 * @return \zesk\Database_Query|array
+	 */
+	function orm_class_options(array $options = null) {
+		if ($options) {
+			$this->class_options = $options;
+			return $this;
+		}
+		return $this->class_options;
+	}
+
 	/**
 	 *
 	 * @return \zesk\Class_ORM
@@ -158,7 +181,7 @@ class Database_Query {
 	function class_orm() {
 		return $this->application->class_orm_registry($this->class);
 	}
-	
+
 	/**
 	 * Create objects in the current application context
 	 *
@@ -170,7 +193,7 @@ class Database_Query {
 	function model_factory($class, $mixed = null, array $options = array()) {
 		return $this->application->model_factory($class, $mixed, $options);
 	}
-	
+
 	/**
 	 * Cache for Object definitions, do not modify these objects
 	 *
@@ -180,7 +203,7 @@ class Database_Query {
 	protected function orm_registry($class) {
 		return $this->application->orm_registry($class);
 	}
-	
+
 	/**
 	 * Cache for Object definitions, do not modify these objects
 	 *
@@ -192,7 +215,7 @@ class Database_Query {
 		zesk()->deprecated();
 		return $this->orm_registry($class);
 	}
-	
+
 	/**
 	 * Set or get a class associated with this query
 	 *
@@ -204,7 +227,7 @@ class Database_Query {
 		$this->application->deprecated();
 		return $this->orm_class($class);
 	}
-	
+
 	/**
 	 *
 	 * @deprecated 2018-01
@@ -214,7 +237,7 @@ class Database_Query {
 		$this->application->deprecated();
 		return $this->class_orm();
 	}
-	
+
 	/**
 	 * Create objects in the current application context
 	 *

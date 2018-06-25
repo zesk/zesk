@@ -924,6 +924,7 @@ class ORM extends Model {
 	function query_select($alias = null) {
 		$query = new Database_Query_Select($db = $this->database());
 		$query->orm_class(get_class($this));
+		$query->orm_class_options($this->inherit_options());
 		if (empty($alias)) {
 			$alias = "X";
 		}
@@ -938,6 +939,7 @@ class ORM extends Model {
 	function query_insert() {
 		$query = new Database_Query_Insert($this->database());
 		$query->orm_class(get_class($this));
+		$query->orm_class_options($this->inherit_options());
 		return $query->into($this->table())->valid_columns($this->columns());
 	}
 
@@ -949,6 +951,7 @@ class ORM extends Model {
 	function query_insert_select($alias = "") {
 		$query = new Database_Query_Insert_Select($this->database());
 		$query->orm_class(get_class($this));
+		$query->orm_class_options($this->inherit_options());
 		$query->from($this->table(), $alias);
 		return $query->into($this->table());
 	}
@@ -960,6 +963,7 @@ class ORM extends Model {
 	 */
 	function query_update($alias = null) {
 		$query = new Database_Query_Update($this->database());
+		$query->orm_class_options($this->inherit_options());
 		return $query->orm_class(get_class($this))->table($this->table(), $alias)->valid_columns($this->columns(), $alias);
 	}
 
@@ -972,6 +976,7 @@ class ORM extends Model {
 		$db = $this->database();
 		$query = new Database_Query_Delete($db);
 		$query->orm_class(get_class($this));
+		$query->orm_class_options($this->inherit_options());
 		return $query;
 	}
 
