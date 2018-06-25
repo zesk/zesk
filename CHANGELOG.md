@@ -18,6 +18,48 @@ Version 1.0 of Zesk will have:
 
 <!-- ## [Un released][] -->
 
+## [Unreleased][]
+
+### Core issues
+
+- Added `Directory::must` to require a directory to exist
+- Adding `$context` to `zesk\Exception_File_NotFound` to give ... context to exception
+- Adding lots of comments to `zesk\Net_HTTP`
+- Fixing no locks to delete
+- Fixing zesk app when composer not run
+- Removing map variables which are no longer valid after evaluation
+- Support preprocessing fixed variables and applying when generating routes
+- `zesk\Command_Loader` fixed output warning to used correct extension
+- Exceptions should return an error
+- **Cache**: Removed warnings from `zesk\CacheItemPool_File`
+
+### Misc Module fixes
+
+- **Markdown Module**: Adding `zesk markdown` to markdown module command path
+- **Markdown Module**: fixing double process output
+- **Moment Module**: Correctly output `$locale->id()` for debugging
+- **Polyglot module**: Enhancements and fixes for dup list count
+- **Widget Module**: Remove warnings to `zesk\Control_Checklist` when iterating over keys
+- **Widget module**: `zesk\Widget->widget_factory()` now inherits response from called `zesk\Widget`
+
+### ORM Module
+
+- Adding proper inherit options so options-based tables operate correctly in queries and iterators
+- Better error handling in `zesk\Image_Library_GD`, better exception throwing
+- Support `zesk\ORM::members()` returning "extra" members
+
+### Picker/Image Picker Module
+
+- **Image Picker Module**: Fixing controller paths, using ::class
+- **Picker Module**: `Module_Picker` psr4 updates
+- Fixing picker JSON for renaming
+
+## ReactJS Module
+
+- Default host/port for proxy
+- handling build via `asset_manifest.json`
+- Adding `dot_env_path` to `ReactJS` module
+
 ## [v0.18.1][]
 
 ### PHP 7 Changes
@@ -1649,8 +1691,8 @@ Settling of `zesk\Kernel` and `zesk\` namespace changes, added additional compon
  - `zesk::class_hierarchy` -> `zesk()->classes->hierarchy`
 - Removed growl module (no longer relevant on Mac OS X)
 
-[HEAD]: https://github.com/zesk/zesk/compare/HEAD...HEAD
-[v0.18.1]: https://github.com/zesk/zesk/compare/v0.18.1...HEAD
+[HEAD]: https://github.com/zesk/zesk/compare/v0.19.0...HEAD
+[v0.18.1]: https://github.com/zesk/zesk/compare/v0.18.1...v0.19.0
 [v0.18.0]: https://github.com/zesk/zesk/compare/v0.18.0...v0.18.1
 [v0.17.0]: https://github.com/zesk/zesk/compare/v0.17.0...v0.18.0
 [v0.16.5]: https://github.com/zesk/zesk/compare/v0.16.5...v0.17.0
