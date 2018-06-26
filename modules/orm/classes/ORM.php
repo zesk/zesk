@@ -1162,7 +1162,7 @@ class ORM extends Model {
 	 *        	Options to create when creating object
 	 * @return ORM|null
 	 */
-	protected function member_orm_factory($member, $class, $data, $options = false) {
+	protected function member_orm_factory($member, $class, $data, array $options = array()) {
 		return $this->orm_factory($class, $data, $options)->fetch();
 	}
 
@@ -2615,7 +2615,13 @@ class ORM extends Model {
 					"depth" => $options['depth']
 				);
 				if (array_key_exists($member, $resolve_object_match)) {
-					$value = $this->member_object($member);
+					try {
+						$value = $this->member_object($member);
+					} catch (Exception_ORM_Empty $e) {
+						$value = null;
+					} catch (Exception_ORM_NotFound $e) {
+						$value = null;
+					}
 					$child_options["resolve_objects"] = $resolve_object_match[$member];
 					// We null out "allow_resolve_objects" as those were checked once, above and are not necessary
 					$child_options["allow_resolve_objects"] = null;
