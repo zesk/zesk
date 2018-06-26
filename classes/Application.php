@@ -562,7 +562,7 @@ class Application extends Hookable implements Interface_Theme {
 	 * Loads a bunch of configuration files, in the following order:
 	 * 1. application.conf
 	 * 2. honst/*uname*.conf
-	 * 
+	 *
 	 * Configuration files are simple bash-style NAME=VALUE files with a few features:
 	 * - You can use variables in values, like ${FOO} or $FOO; once loaded, the variable is replaced
 	 * and no longer part
@@ -1068,13 +1068,13 @@ class Application extends Hookable implements Interface_Theme {
 	 * - Return response
 	 */
 	public function main(Request $request) {
-		$response = $this->call_hook("main", $request);
-		if ($response instanceof Response) {
-			return $response;
-		}
-		$this->request_stack[] = $request;
-		$starting_depth = count($this->request_stack);
 		try {
+			$response = $this->call_hook("main", $request);
+			if ($response instanceof Response) {
+				return $response;
+			}
+			$this->request_stack[] = $request;
+			$starting_depth = count($this->request_stack);
 			$router = $this->router();
 			$this->logger->debug("App bootstrap took {seconds} seconds", array(
 				"seconds" => sprintf("%.3f", microtime(true) - $this->kernel->initialization_time)
