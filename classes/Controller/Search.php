@@ -8,7 +8,7 @@
 namespace zesk;
 
 /**
- * 
+ *
  * @author kent
  *
  */
@@ -50,7 +50,7 @@ class Controller_Search extends Controller_Template {
 				continue;
 			}
 		}
-		$this->template->content = $this->application->theme($total === 0 ? 'search/no-results' : 'search/results', array(
+		return $this->application->theme($total === 0 ? 'search/no-results' : 'search/results', array(
 			'raw_query' => $query,
 			'query' => htmlspecialchars($query),
 			'theme_search_form' => 'block/search',
