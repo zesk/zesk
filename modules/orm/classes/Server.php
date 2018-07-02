@@ -32,58 +32,58 @@ class Server extends ORM implements Interface_Data {
 	 *
 	 * @var string
 	 */
-	const disk_units_bytes = 'b';
+	const DISK_UNITS_BYTES = 'b';
 	
 	/**
 	 * 1 = 1024^1
 	 *
 	 * @var string
 	 */
-	const disk_units_kilobytes = 'k';
+	const DISK_UNITS_KILOBYTES = 'k';
 	/**
 	 *
 	 * @var string
 	 */
-	const disk_units_megabytes = 'm';
+	const DISK_UNITS_MEGABYTES = 'm';
 	
 	/**
 	 * 1 = 1024^2
 	 *
 	 * @var string
 	 */
-	const disk_units_gigabytes = 'g';
+	const DISK_UNITS_GIGABYTES = 'g';
 	
 	/**
 	 * 1 = 1024^3
 	 *
 	 * @var string
 	 */
-	const disk_units_terabytes = 't';
+	const DISK_UNITS_TERABYTES = 't';
 	/**
 	 * 1 = 1024^4
 	 *
 	 * @var string
 	 */
-	const disk_units_petabytes = 'p';
+	const DISK_UNITS_PETABYTES = 'p';
 	/**
 	 * 1 = 1024^5
 	 *
 	 * @var string
 	 */
-	const disk_units_exabytes = 'e';
+	const DISK_UNITS_EXABYTES = 'e';
 	
 	/**
 	 *
 	 * @var array
 	 */
 	private static $disk_units_list = array(
-		self::disk_units_bytes,
-		self::disk_units_kilobytes,
-		self::disk_units_megabytes,
-		self::disk_units_gigabytes,
-		self::disk_units_terabytes,
-		self::disk_units_petabytes,
-		self::disk_units_exabytes
+		self::DISK_UNITS_BYTES,
+		self::DISK_UNITS_KILOBYTES,
+		self::DISK_UNITS_MEGABYTES,
+		self::DISK_UNITS_GIGABYTES,
+		self::DISK_UNITS_TERABYTES,
+		self::DISK_UNITS_PETABYTES,
+		self::DISK_UNITS_EXABYTES
 	);
 	
 	/**

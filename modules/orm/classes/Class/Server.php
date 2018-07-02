@@ -35,6 +35,6 @@ class Class_Server extends Class_ORM {
 		)
 	);
 	public $column_defaults = array(
-		'free_disk_units' => Server::disk_units_bytes
+		'free_disk_units' => Server::DISK_UNITS_BYTES
 	);
 }
