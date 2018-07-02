@@ -13,7 +13,7 @@ namespace zesk;
  *
  */
 class Controller_Search extends Controller_Theme {
-	
+
 	/**
 	 *
 	 * @throws Exception_Class_NotFound
