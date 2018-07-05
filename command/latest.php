@@ -39,8 +39,9 @@ class Command_Latest extends Command_Base {
 			$target = "$vendor_zesk/zesk.COMPOSER";
 			Directory::delete($target);
 			rename("$vendor_zesk/zesk", $target);
-			chdir($vendor_path);
-			$this->exec("git clone https://github.com/zesk/zesk");
+			$this->exec("git clone https://github.com/zesk/zesk {vendor_path}/zesk", array(
+				"vendor_path" => $vendor_path
+			));
 			$this->log("Zesk now linked to the latest");
 		} else {
 			foreach ($repos as $repo) {
