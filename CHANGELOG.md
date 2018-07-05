@@ -18,7 +18,14 @@ Version 1.0 of Zesk will have:
 
 <!-- ## [Un released][] -->
 
-## [Unreleased][]
+## [v0.19.1][]
+
+- `Server::DISK_UNITS_FOO` is now captialized
+- `zesk\Application::hook_main` can throw a `zesk\Exception_Redirect` now
+- For `zesk version` do not require a tag value (eliminated warning)
+- Fixing issue with `zesk\Controller_Search` not displaying content
+
+## [v0.19.0][]
 
 ### Core issues
 
@@ -1691,25 +1698,26 @@ Settling of `zesk\Kernel` and `zesk\` namespace changes, added additional compon
  - `zesk::class_hierarchy` -> `zesk()->classes->hierarchy`
 - Removed growl module (no longer relevant on Mac OS X)
 
-[HEAD]: https://github.com/zesk/zesk/compare/v0.19.0...HEAD
-[v0.18.1]: https://github.com/zesk/zesk/compare/v0.18.1...v0.19.0
-[v0.18.0]: https://github.com/zesk/zesk/compare/v0.18.0...v0.18.1
-[v0.17.0]: https://github.com/zesk/zesk/compare/v0.17.0...v0.18.0
-[v0.16.5]: https://github.com/zesk/zesk/compare/v0.16.5...v0.17.0
-[v0.16.4]: https://github.com/zesk/zesk/compare/v0.16.4...v0.16.5
-[v0.16.3]: https://github.com/zesk/zesk/compare/v0.16.3...v0.16.4
-[v0.16.2]: https://github.com/zesk/zesk/compare/v0.16.2...v0.16.3
-[v0.16.1]: https://github.com/zesk/zesk/compare/v0.16.1...v0.16.2
-[v0.16.0]: https://github.com/zesk/zesk/compare/v0.16.0...v0.16.1
-[v0.15.7]: https://github.com/zesk/zesk/compare/v0.15.7...v0.16.0
-[v0.15.6]: https://github.com/zesk/zesk/compare/v0.15.6...v0.15.7
-[v0.15.5]: https://github.com/zesk/zesk/compare/v0.15.5...v0.15.6
-[v0.15.4]: https://github.com/zesk/zesk/compare/v0.15.4...v0.15.5
-[v0.15.3]: https://github.com/zesk/zesk/compare/v0.15.3...v0.15.4
-[v0.15.2]: https://github.com/zesk/zesk/compare/v0.15.2...v0.15.3
-[v0.15.1]: https://github.com/zesk/zesk/compare/v0.15.1...v0.15.2
-[v0.15.0]: https://github.com/zesk/zesk/compare/v0.15.0...v0.15.1
-[v0.14.4]: https://github.com/zesk/zesk/compare/v0.14.3...v0.15.0
+[v0.19.1]: https://github.com/zesk/zesk/compare/v0.19.0...v0.19.1
+[v0.19.0]: https://github.com/zesk/zesk/compare/v0.18.1...v0.19.0
+[v0.18.1]: https://github.com/zesk/zesk/compare/v0.18.0...v0.18.1
+[v0.18.0]: https://github.com/zesk/zesk/compare/v0.17.0...v0.18.0
+[v0.17.0]: https://github.com/zesk/zesk/compare/v0.16.5...v0.17.0
+[v0.16.5]: https://github.com/zesk/zesk/compare/v0.16.4...v0.16.5
+[v0.16.4]: https://github.com/zesk/zesk/compare/v0.16.3...v0.16.4
+[v0.16.3]: https://github.com/zesk/zesk/compare/v0.16.2...v0.16.3
+[v0.16.2]: https://github.com/zesk/zesk/compare/v0.16.1...v0.16.2
+[v0.16.1]: https://github.com/zesk/zesk/compare/v0.16.0...v0.16.1
+[v0.16.0]: https://github.com/zesk/zesk/compare/v0.15.7...v0.16.0
+[v0.15.7]: https://github.com/zesk/zesk/compare/v0.15.6...v0.15.7
+[v0.15.6]: https://github.com/zesk/zesk/compare/v0.15.5...v0.15.6
+[v0.15.5]: https://github.com/zesk/zesk/compare/v0.15.4...v0.15.5
+[v0.15.4]: https://github.com/zesk/zesk/compare/v0.15.3...v0.15.4
+[v0.15.3]: https://github.com/zesk/zesk/compare/v0.15.2...v0.15.3
+[v0.15.2]: https://github.com/zesk/zesk/compare/v0.15.1...v0.15.2
+[v0.15.1]: https://github.com/zesk/zesk/compare/v0.15.0...v0.15.1
+[v0.15.0]: https://github.com/zesk/zesk/compare/v0.14.4...v0.15.0
+[v0.14.4]: https://github.com/zesk/zesk/compare/v0.14.3...v0.14.4
 [v0.14.3]: https://github.com/zesk/zesk/compare/v0.14.2...v0.14.3
 [v0.14.2]: https://github.com/zesk/zesk/compare/v0.14.1...v0.14.2
 [v0.14.1]: https://github.com/zesk/zesk/compare/v0.14.0...v0.14.1
