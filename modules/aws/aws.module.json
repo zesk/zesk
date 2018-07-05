@@ -6,6 +6,7 @@
 	"url_license": "http://aws.amazon.com/apache2.0/",
 	"zesk_command_path_class_prefix": "zesk\\AWS\\Command_",
 	"autoload_options": {
+		"lower": false,
 		"class_prefix": "zesk\\AWS\\"
 	},
 	"module_class": "zesk\\AWS\\Module"
