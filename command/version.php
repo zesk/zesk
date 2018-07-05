@@ -125,7 +125,7 @@ class Command_Version extends Command_Base {
 		}
 		$changed = false;
 		if ($this->has_option("tag", false)) {
-			if (strval($version_structure['tag']) !== strval($this->option('tag'))) {
+			if (strval(avalue($version_structure, 'tag')) !== strval($this->option('tag'))) {
 				$version_structure['tag'] = $this->option('tag');
 				$changed = true;
 			}
