@@ -598,7 +598,7 @@ class Response_Text_HTML extends Response_Text {
 				}
 				$tag = array(
 					'name' => 'link',
-					'attributes' => arr::filter($attrs, "rel;href;type;media;sizes"),
+					'attributes' => arr::filter($attrs, "rel;href;type;media;sizes;crossorigin;hrefland;rev"),
 					'content' => ''
 				);
 				$result[] = $tag;
