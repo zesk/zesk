@@ -476,7 +476,7 @@ class HTML extends Type {
 				}
 				$tag = array(
 					'name' => 'link',
-					'attributes' => ArrayTools::filter($attrs, "rel;href;type;media"),
+					'attributes' => ArrayTools::filter($attrs, "rel;href;type;media;sizes;crossorigin;hrefland;rev"),
 					'content' => ''
 				);
 				$result[] = $tag;
