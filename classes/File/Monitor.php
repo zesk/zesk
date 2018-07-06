@@ -8,32 +8,28 @@ abstract class File_Monitor {
 	 * @var array
 	 */
 	private $file_mtimes = array();
-	
+
 	/**
 	 * Create a new File_Monitor
 	 */
 	public function __construct() {
 		$this->file_mtimes = $this->current_mtimes();
 	}
-	
+
 	/**
 	 * Retrieve the current modification times of the current file list
 	 *
 	 * @return array
 	 */
 	private function current_mtimes() {
-		clearstatcache();
 		$current = array();
 		foreach ($this->files() as $f) {
-			if (file_exists($f)) {
-				$current[$f] = filemtime($f);
-			} else {
-				$current[$f] = "missing";
-			}
+			clearstatcache($f);
+			$current[$f] = @filemtime($f);
 		}
 		return $current;
 	}
-	
+
 	/**
 	 * List of filenames which have been modified since last successful check
 	 *
@@ -79,7 +75,7 @@ abstract class File_Monitor {
 		$this->file_mtimes += $current;
 		return false;
 	}
-	
+
 	/**
 	 * Returns an array of absolute file paths
 	 *
