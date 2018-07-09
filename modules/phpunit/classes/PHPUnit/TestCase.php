@@ -149,6 +149,15 @@ class PHPUnit_TestCase extends TestCase {
 	}
 
 	/**
+	 * Assert that the expected value is an integer
+	 *
+	 * @param mixed $expected
+	 * @param string|null $message
+	 */
+	function assertIsInteger($expected, $message = null) {
+		$this->assertTrue(is_integer($expected), $message ?? "Item expected to be an integer but is a " . type($item));
+	}
+	/**
 	 * PHPUnit "echo" and "print" are captured, so we use fprintf(STDERR) to output test debugging stuff
 	 *
 	 * Generally, you should use these during development and remove them before commiting your changes.
