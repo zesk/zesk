@@ -102,6 +102,14 @@ class PHP {
 	}
 
 	/**
+	 * Retrieve the php.ini path
+	 *
+	 * @return string
+	 */
+	public static function ini_path() {
+		return get_cfg_var('cfg_file_path');
+	}
+	/**
 	 * Set or get the current settings
 	 *
 	 * @param array $set
