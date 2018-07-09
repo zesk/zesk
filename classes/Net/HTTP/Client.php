@@ -13,26 +13,26 @@ namespace zesk;
  * @subpackage system
  */
 class Net_HTTP_Client extends Hookable {
-	
+
 	/*
 	 * Sample user agent for FireFox
 	 * @var string
 	 */
 	const user_agent_firefox = "Mozilla/5.0 (Macintosh; U; Intel Mac OS X 10.7; en-US; rv:1.9.0.4) Gecko/2009032609  Firefox/3.0.8";
-	
+
 	/*
 	 * Sample user agent for Microsoft Internet Explorer
 	 * @var string
 	 */
 	const user_agent_msie = "Mozilla/5.0 (compatible; MSIE 10.0; Windows NT 6.2; Trident/6.0; .NET4.0E; .NET4.0C; BRI/2)";
-	
+
 	/**
 	 * Sample user agent for Safari
 	 *
 	 * @var string
 	 */
 	const user_agent_safari = "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_8_5) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/34.0.1795.2 Safari/537.36";
-	
+
 	/**
 	 * Sample user agent for Chrome
 	 *
@@ -45,7 +45,7 @@ class Net_HTTP_Client extends Hookable {
 	 * @var string
 	 */
 	const user_agent_opera = "Opera/9.80 (Windows NT 6.1; MRA 8.0 (build 5784)) Presto/2.12.388 Version/12.16";
-	
+
 	/**
 	 * Sample user agents
 	 *
@@ -58,14 +58,14 @@ class Net_HTTP_Client extends Hookable {
 		self::user_agent_opera,
 		self::user_agent_safari
 	);
-	
+
 	/**
 	 * Cookies to send
 	 *
 	 * @var array:string
 	 */
 	private $request_cookie = array();
-	
+
 	/**
 	 *
 	 * @var array
@@ -76,51 +76,51 @@ class Net_HTTP_Client extends Hookable {
 	 * @var array
 	 */
 	private $skip_request_headers = array();
-	
+
 	/**
 	 * lowname => value
 	 *
 	 * @var arrau
 	 */
 	private $response_headers = array();
-	
+
 	/**
 	 *
 	 * @var string
 	 */
 	private $Content;
-	
+
 	/**
 	 * Redirected headers
 	 *
 	 * @var array
 	 */
 	protected $Redirects = array();
-	
+
 	/**
 	 *
 	 * @var string
 	 */
 	private $response_protocol;
-	
+
 	/**
 	 *
 	 * @var string
 	 */
 	private $response_code;
-	
+
 	/**
 	 *
 	 * @var string
 	 */
 	private $response_message;
-	
+
 	/**
 	 *
 	 * @var array
 	 */
 	private $response_cookies = array();
-	
+
 	/**
 	 * Connection timeout in milliseconds
 	 *
@@ -130,14 +130,14 @@ class Net_HTTP_Client extends Hookable {
 	private $method = Net_HTTP::METHOD_GET;
 	private $data = null;
 	private $data_file = null;
-	
+
 	/**
 	 * Curl retrieval timeout in milliseconds
 	 *
 	 * @var integer
 	 */
 	private $timeout = 5000;
-	
+
 	/**
 	 * Whether to recurse when redirected
 	 *
@@ -176,7 +176,7 @@ class Net_HTTP_Client extends Hookable {
 	 * Error connecting via SSL to remote site
 	 */
 	const Error_SSL_Connect = "Error_SSL_Connect";
-	
+
 	/**
 	 * Create a new Net_HTTP_Client
 	 *
@@ -228,7 +228,7 @@ class Net_HTTP_Client extends Hookable {
 	public function method_post($set = null) {
 		return $this->_method(Net_HTTP::METHOD_POST, $set);
 	}
-	
+
 	/**
 	 * Get/set PUT method
 	 *
@@ -237,7 +237,7 @@ class Net_HTTP_Client extends Hookable {
 	public function method_put($set = null) {
 		return $this->_method(Net_HTTP::METHOD_POST, $set);
 	}
-	
+
 	/**
 	 * Get/set POST method
 	 *
@@ -246,7 +246,7 @@ class Net_HTTP_Client extends Hookable {
 	public function method_head($set = null) {
 		return $this->_method(Net_HTTP::METHOD_HEAD, $set);
 	}
-	
+
 	/**
 	 * Get/set the data associated with this client
 	 *
@@ -260,7 +260,7 @@ class Net_HTTP_Client extends Hookable {
 		}
 		return $this->data;
 	}
-	
+
 	/**
 	 * Get/Set the URL associated with this HTTP client
 	 *
@@ -273,7 +273,7 @@ class Net_HTTP_Client extends Hookable {
 		}
 		return $this->option("url");
 	}
-	
+
 	/**
 	 * Set the filename path where to store the data
 	 *
@@ -317,7 +317,7 @@ class Net_HTTP_Client extends Hookable {
 	public function response_protocol() {
 		return $this->response_protocol;
 	}
-	
+
 	/**
 	 * Get or set request cookies
 	 *
@@ -332,7 +332,7 @@ class Net_HTTP_Client extends Hookable {
 		$this->request_cookie = $append ? $set + $this->request_cookie : $set;
 		return $this;
 	}
-	
+
 	/**
 	 * Format request cookies
 	 *
@@ -354,7 +354,7 @@ class Net_HTTP_Client extends Hookable {
 		}
 		return implode("; ", $result);
 	}
-	
+
 	/**
 	 * Retrieve a request header
 	 *
@@ -379,7 +379,7 @@ class Net_HTTP_Client extends Hookable {
 		$this->request_headers[$lowname] = $set;
 		return $this;
 	}
-	
+
 	/**
 	 * When an HTTP header is handled by a curl option, add it here so it's not sent twice.
 	 *
@@ -391,7 +391,7 @@ class Net_HTTP_Client extends Hookable {
 		$name = strtolower($name);
 		$this->skip_request_headers[$name] = $name;
 	}
-	
+
 	/**
 	 * Retrieve the response content type
 	 *
@@ -405,7 +405,7 @@ class Net_HTTP_Client extends Hookable {
 		$header = trim(StringTools::left($header, ';', $header));
 		return $header;
 	}
-	
+
 	/**
 	 * Get/set the request timeout in miiliseconds
 	 *
@@ -432,7 +432,7 @@ class Net_HTTP_Client extends Hookable {
 		}
 		return $this->connect_timeout;
 	}
-	
+
 	/**
 	 * Get/set the method
 	 *
@@ -447,7 +447,7 @@ class Net_HTTP_Client extends Hookable {
 		}
 		return $this->method;
 	}
-	
+
 	/**
 	 * Initialize our curl options before executing the curl object
 	 */
@@ -487,7 +487,7 @@ class Net_HTTP_Client extends Hookable {
 		}
 		return $httpHeaders;
 	}
-	
+
 	/**
 	 * Close our curl options after curl has completed
 	 */
@@ -500,7 +500,7 @@ class Net_HTTP_Client extends Hookable {
 			fclose($this->curl_opts[CURLOPT_WRITEHEADER]);
 		}
 	}
-	
+
 	/**
 	 * Set curl options related to timeouts and network activity
 	 */
@@ -521,7 +521,7 @@ class Net_HTTP_Client extends Hookable {
 			}
 		}
 	}
-	
+
 	/**
 	 * Set curl options related to If-Modified-Since
 	 */
@@ -532,7 +532,7 @@ class Net_HTTP_Client extends Hookable {
 			$this->skip_request_header("If-Modified-Since");
 		}
 	}
-	
+
 	/**
 	 * Set curl options related to User-Agent
 	 */
@@ -540,7 +540,7 @@ class Net_HTTP_Client extends Hookable {
 		$this->curl_opts[CURLOPT_USERAGENT] = $this->request_header(Net_HTTP::REQUEST_USER_AGENT);
 		$this->skip_request_header(Net_HTTP::REQUEST_USER_AGENT);
 	}
-	
+
 	/**
 	 * Set curl options related to the method
 	 */
@@ -614,7 +614,7 @@ class Net_HTTP_Client extends Hookable {
 			$dest_headers_name = $this->destination . "-headers";
 			$dest_headers_fp = fopen($dest_headers_name, "w");
 			$this->curl_opts[CURLOPT_WRITEHEADER] = $dest_headers_fp;
-			
+
 			return $dest_headers_name;
 		}
 		return null;
@@ -649,7 +649,7 @@ class Net_HTTP_Client extends Hookable {
 		if (empty($url)) {
 			throw new Exception_Parameter("Net_HTTP_Client::go called with no URL specified");
 		}
-		
+
 		$httpHeaders = $this->_method_open();
 		$this->_curl_opts_method();
 		$this->_curl_opts_timeouts();
@@ -660,7 +660,7 @@ class Net_HTTP_Client extends Hookable {
 		$this->_curl_opts_cookie();
 		$this->_curl_opts_headers();
 		$dest_headers_name = $this->_curl_opts_destination();
-		
+
 		if ($this->option("debug")) {
 			dump($url);
 			dump($httpHeaders);
@@ -674,9 +674,9 @@ class Net_HTTP_Client extends Hookable {
 		$this->_method_close($curl);
 		$errno = curl_errno($curl);
 		$error_code = curl_error($curl);
-		
+
 		$this->_parse_headers($dest_headers_name);
-		
+
 		if ($this->option_bool("debug") && $this->destination) {
 			if (file_exists($this->destination)) {
 				$command = Command::running();
@@ -685,7 +685,7 @@ class Net_HTTP_Client extends Hookable {
 				}
 			}
 		}
-		
+
 		curl_close($curl);
 		if ($errno !== 0) {
 			if ($errno === CURLE_COULDNT_RESOLVE_HOST) {
@@ -711,7 +711,10 @@ class Net_HTTP_Client extends Hookable {
 	public static function simpleGet($url) {
 		$parts = parse_url($url);
 		$protocol = avalue($parts, "scheme");
-		if ($protocol !== "http") {
+		if (!in_array($protocol, array(
+			"http",
+			"https"
+		))) {
 			return false;
 		}
 		$f = fopen($url, "rb");
@@ -911,7 +914,7 @@ class Net_HTTP_Client extends Hookable {
 		}
 		return true;
 	}
-	
+
 	/**
 	 * Getter/setter for recurse flag
 	 *
@@ -952,7 +955,7 @@ class Net_HTTP_Client extends Hookable {
 		}
 		return count($this->response_headers);
 	}
-	
+
 	/**
 	 * Getter only
 	 *
@@ -991,7 +994,7 @@ class Net_HTTP_Client extends Hookable {
 		}
 		return $this->request_header(Net_HTTP::REQUEST_USER_AGENT);
 	}
-	
+
 	/**
 	 * Retrieve the filename of the file per the Content-Disposition header
 	 *
@@ -1020,7 +1023,7 @@ class Net_HTTP_Client extends Hookable {
 		}
 		return $this->option_bool('ReturnHeaders', true);
 	}
-	
+
 	/**
 	 * Configure this object to mimic/passthrough the Request
 	 *
