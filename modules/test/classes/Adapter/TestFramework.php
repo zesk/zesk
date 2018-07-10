@@ -25,4 +25,7 @@ class Adapter_TestFramework extends Test implements Interface_Testable {
 	function assertFalse($condition, $message = null) {
 		$this->assert_false($condition, $message);
 	}
+	function assertIsString($actual, $message = null) {
+		$this->assertTrue(is_string($actual), "Expected string but received " . type($actual) . " $message");
+	}
 }
