@@ -181,13 +181,18 @@ class Paths {
 
 	/**
 	 * Get the system command path, usually defined by the system environment variable PATH
-	 * On *nix systems, the path is set from $_SERVER['PATH'] and it is assumed that paths are separated with ':' token
+	 * The path is set from $_SERVER['PATH'] and it is assumed that paths are separated with PATH_SEPARATOR token
 	 *
 	 * @return array
 	 * @see self::which
 	 */
-	public function command() {
-		return to_list(avalue($_SERVER, 'PATH'), array(), ':');
+	public function command($add = null) {
+		$command_paths = to_list(avalue($_SERVER, 'PATH'), array(), PATH_SEPARATOR);
+		if ($add !== null) {
+			$command_paths[] = $add;
+			$_SERVER['PATH'] = implode(PATH_SEPARATOR, $command_paths);
+		}
+		return $command_paths;
 	}
 
 	/**

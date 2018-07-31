@@ -826,7 +826,7 @@ class Command_Test extends Command_Base {
 		$php = $this->application->paths->which('php');
 		if (!$env) {
 			if (!$php) {
-				throw new Exception_Configuration("No env or php found in path, is PATH invalid?\n" . implode("\n\t", $this->application->paths->command()) . "\n");
+				throw new Exception_Configuration("PATH", "No env or php found in path, is PATH invalid?\n" . implode("\n\t", $this->application->paths->command()) . "\n");
 			}
 			$command = $php;
 		} else {
