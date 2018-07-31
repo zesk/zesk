@@ -405,6 +405,7 @@ class Module_ORM extends Module {
 				}
 				$result['database'] = $object->database_name();
 				$result['table'] = $object->table();
+				$result['class'] = get_class($object);
 			} catch (\Exception $e) {
 				$result['object'] = $object = null;
 			}

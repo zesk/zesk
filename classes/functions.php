@@ -951,7 +951,9 @@ function glue($left, $glue, $right) {
 }
 
 /**
- * Unquote a string and optionally return the quote removed.
+ * Unquote a string and optionally return the quote removed. 
+ * 
+ * Meant to work with unique pairs of quotes, so passing in "[A[B[C" will break it.
  *
  * @param string $s
  *        	A string to unquote
