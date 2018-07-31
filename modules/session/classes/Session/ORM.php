@@ -272,6 +272,7 @@ class Session_ORM extends ORM implements Interface_Session {
 		$cookie_name = $this->cookie_name();
 		$cookie_value = $request->cookie($cookie_name);
 		if ($cookie_value && $this->fetch_by_key($cookie_value, "cookie")) {
+			$this->seen();
 			return $this->found_session();
 		}
 		if (!$request->is_browser()) {
