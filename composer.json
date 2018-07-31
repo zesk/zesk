@@ -33,6 +33,7 @@
 	"bin": [
 		"bin/zesk",
 		"bin/zesk.sh",
+		"bin/link-vendor-to-dev-zesk.sh",
 		"bin/zesk-command.php",
 		"bin/php-find.sh"
 	],
