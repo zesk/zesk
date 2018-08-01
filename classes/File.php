@@ -54,7 +54,7 @@ class File {
 	 * @var integer
 	 */
 	const MASK_FTYPE = 0170000;
-	
+
 	/**
 	 *
 	 * @var string
@@ -135,7 +135,7 @@ class File {
 	 * @var string
 	 */
 	const CHAR_UNKNOWN = "u";
-	
+
 	/**
 	 * Return an absolute path given a filename and a working directory
 	 *
@@ -155,7 +155,7 @@ class File {
 		}
 		return path($cwd, $filename);
 	}
-	
+
 	/**
 	 * Require a file or files to exist
 	 *
@@ -193,7 +193,7 @@ class File {
 		$mixed = preg_replace("/$sep_char$sep_char+/", $sep_char, $mixed);
 		return $mixed;
 	}
-	
+
 	/**
 	 * Convert a string into a valid path suitable for all platforms.
 	 * Useful for cleaning user input for conversion to a
@@ -208,7 +208,7 @@ class File {
 	public static function clean_path($path) {
 		return preg_replace("%[^-_./a-zA-Z0-9]%", '_', str_replace("_", "/", $path));
 	}
-	
+
 	/**
 	 * Check a path name of attempted hacking attempts
 	 *
@@ -228,7 +228,7 @@ class File {
 		}
 		return true;
 	}
-	
+
 	/**
 	 * Generate an MD5 checksum for a file
 	 *
@@ -254,7 +254,7 @@ class File {
 		fclose($f);
 		return md5($data);
 	}
-	
+
 	/**
 	 * Convert a file path to another string using the map call
 	 *
@@ -269,7 +269,7 @@ class File {
 			'/' => DIRECTORY_SEPARATOR
 		));
 	}
-	
+
 	/**
 	 * Strip extension off of filename
 	 *
@@ -279,7 +279,7 @@ class File {
 	public static function strip_extension($filename) {
 		return self::map_pathinfo($filename, "{dirname}{/}{filename}");
 	}
-	
+
 	/**
 	 * Extract a file extension from a file path
 	 *
@@ -307,7 +307,7 @@ class File {
 		}
 		return strtolower($fname);
 	}
-	
+
 	/**
 	 * Use a file as a semaphore counter
 	 *
@@ -336,7 +336,7 @@ class File {
 		fclose($fp);
 		return $id;
 	}
-	
+
 	/**
 	 * Put a file atomically
 	 *
@@ -364,7 +364,7 @@ class File {
 		fclose($fp);
 		return true;
 	}
-	
+
 	/**
 	 * Put a file atomically
 	 *
@@ -387,7 +387,7 @@ class File {
 		}
 		return null;
 	}
-	
+
 	/**
 	 * Create a unique temporary file name
 	 *
@@ -398,7 +398,7 @@ class File {
 	public static function temporary($path, $ext = "tmp", $mode = null) {
 		return path(Directory::depend($path, $mode), md5(microtime()) . "." . ltrim($ext, "."));
 	}
-	
+
 	/**
 	 * Extract a file name excluding extension from a file path
 	 *
@@ -421,7 +421,7 @@ class File {
 			return $filename;
 		return strtolower($filename);
 	}
-	
+
 	/**
 	 * Change file mode (if file exists)
 	 *
@@ -435,7 +435,7 @@ class File {
 		}
 		return false;
 	}
-	
+
 	/**
 	 * Like file_get_contents but allows the return of a default string when file doesn't exist
 	 *
@@ -451,7 +451,7 @@ class File {
 		}
 		return $default;
 	}
-	
+
 	/**
 	 * Create or append a file with content provided
 	 *
@@ -473,7 +473,7 @@ class File {
 		fclose($f);
 		return true;
 	}
-	
+
 	/**
 	 * Like file_put_contents, but does some sanity checks and throws errors
 	 *
@@ -508,7 +508,7 @@ class File {
 		}
 		return true;
 	}
-	
+
 	/**
 	 * Like unlink, but does some sanity tets and throws errors
 	 *
@@ -543,7 +543,7 @@ class File {
 		}
 		return $default;
 	}
-	
+
 	/**
 	 * Wrapper around file() to throw a file not found execption
 	 *
@@ -557,7 +557,7 @@ class File {
 		}
 		return file($filename);
 	}
-	
+
 	/**
 	 *
 	 * @var array
@@ -572,7 +572,7 @@ class File {
 		self::MASK_FIFO => self::CHAR_FIFO,
 		0 => self::CHAR_UNKNOWN
 	);
-	
+
 	/**
 	 *
 	 * @var array
@@ -586,7 +586,7 @@ class File {
 		self::CHAR_CHAR => self::MASK_CHAR,
 		self::CHAR_FIFO => self::MASK_FIFO
 	);
-	
+
 	/**
 	 *
 	 * @return number[][]
@@ -638,7 +638,7 @@ class File {
 			)
 		);
 	}
-	
+
 	/**
 	 * Given a character type in the Unix "ls" command, convert it to our
 	 * internal string type names (e.g self::type_foo)
@@ -650,7 +650,7 @@ class File {
 		$char = substr($char, 0, 1);
 		return avalue(self::$fchars, avalue(self::$mtypes, $char, 0), self::TYPE_UNKNOWN);
 	}
-	
+
 	/**
 	 * Convert an octal or decimal file mode to a string
 	 *
@@ -674,7 +674,7 @@ class File {
 		}
 		return $result;
 	}
-	
+
 	/**
 	 * Convert a ls-style mode string (e.g.
 	 * -rw-rw-rw) to a bitwide file mode
@@ -699,7 +699,7 @@ class File {
 		}
 		return $mode;
 	}
-	
+
 	/**
 	 * Change a file extension from one extension to another (string manipulation)
 	 *
@@ -718,7 +718,7 @@ class File {
 		}
 		return $prefix . $base;
 	}
-	
+
 	/**
 	 * Octal with a zero prefix
 	 *
@@ -728,7 +728,7 @@ class File {
 	public static function mode_to_octal($mode) {
 		return sprintf("0%o", 0777 & $mode);
 	}
-	
+
 	/**
 	 *
 	 * @param string $id
@@ -745,7 +745,7 @@ class File {
 		}
 		return avalue($result, 'name');
 	}
-	
+
 	/**
 	 *
 	 * @param unknown $uid
@@ -754,7 +754,7 @@ class File {
 	private static function name_from_uid($uid) {
 		return self::_name_from_id($uid, 'posix_getpwuid');
 	}
-	
+
 	/**
 	 *
 	 * @param unknown $gid
@@ -763,7 +763,7 @@ class File {
 	private static function name_from_gid($gid) {
 		return self::_name_from_id($gid, 'posix_getgrgid');
 	}
-	
+
 	/**
 	 * Thanks webmaster at askapache dot com
 	 * Souped up fstat.
@@ -786,7 +786,7 @@ class File {
 		if (!$ss) {
 			throw new Exception_File_NotFound($is_res ? _dump($path) : $path);
 		}
-		
+
 		$p = $ss['mode'];
 		$mode_string = self::mode_to_string($p);
 		$type = self::$fchars[$p & self::MASK_FTYPE];
@@ -843,7 +843,7 @@ class File {
 				'created' => @date('Y M D H:i:s', $ss['ctime'])
 			)
 		);
-		
+
 		if (!$is_res) {
 			clearstatcache(null, $path);
 		}
@@ -852,7 +852,7 @@ class File {
 		}
 		return $s;
 	}
-	
+
 	/**
 	 * Max file size to trim files in memory
 	 *
@@ -871,10 +871,10 @@ class File {
 		if ($result) {
 			return $result;
 		}
-		$memory_limit = ini_get("memory_limit");
+		$memory_limit = to_bytes(ini_get("memory_limit"));
 		return intval($memory_limit / 2);
 	}
-	
+
 	/**
 	 * Max memory size to read while trimming files
 	 *
@@ -893,11 +893,11 @@ class File {
 		if ($result) {
 			return $result;
 		}
-		$memory_limit = ini_get("memory_limit");
+		$memory_limit = to_bytes(ini_get("memory_limit"));
 		$default_trim_read_buffer_size = clamp(10240, $memory_limit / 4, 1048576);
 		return intval($default_trim_read_buffer_size);
 	}
-	
+
 	/**
 	 * Trim a file similarly to how you would trim a string.
 	 *
@@ -978,7 +978,7 @@ class File {
 		}
 		return $result;
 	}
-	
+
 	/**
 	 * Retrieve the first part of a file
 	 *
@@ -1000,7 +1000,7 @@ class File {
 		fclose($f);
 		return $result;
 	}
-	
+
 	/**
 	 * Handle log rotation
 	 *
@@ -1026,7 +1026,7 @@ class File {
 		}
 		return false;
 	}
-	
+
 	/**
 	 * Is the path an absolute path?
 	 *
@@ -1054,7 +1054,7 @@ class File {
 			return $f[0] === '/';
 		}
 	}
-	
+
 	/**
 	 * Rename a file to another file atomically - and delete file.
 	 * Handles rollback, locking, etc.
@@ -1106,7 +1106,7 @@ class File {
 		}
 		return true;
 	}
-	
+
 	/**
 	 * Copy uid and gid
 	 *
@@ -1120,7 +1120,7 @@ class File {
 	public static function copy_uid_gid($source, $target) {
 		return self::copy_gid($source, self::copy_uid($source, $target));
 	}
-	
+
 	/**
 	 * Copy uid
 	 *
@@ -1169,7 +1169,7 @@ class File {
 		}
 		return $target;
 	}
-	
+
 	/**
 	 * Check that file is writable
 	 *
@@ -1197,7 +1197,7 @@ class File {
 			"dir" => $dir
 		));
 	}
-	
+
 	/**
 	 * Given a list of paths and a file name, find the first occurrance of the file.
 	 *
@@ -1228,7 +1228,7 @@ class File {
 		}
 		return null;
 	}
-	
+
 	/**
 	 * Given a list of paths and a file name, find all occurrance of the named file.
 	 *
