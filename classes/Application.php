@@ -1640,7 +1640,7 @@ class Application extends Hookable implements Interface_Theme {
 	}
 
 	/**
-	 * Set command path for the application.
+	 * Get or set the command path for the application.
 	 *
 	 * @param mixed $add
 	 * @param string $options
