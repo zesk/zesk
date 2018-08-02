@@ -1,11 +1,23 @@
 <?php
 /**
- * 
+ *
  */
 namespace zesk;
 
 /**
- * Run arbitrary PHP code in the application context.
+ * Run arbitrary PHP code in the application context. Use --interactive or -i to run in interactive mode.
+ *
+ * The following values are set, by default in your evaluation context:
+ *
+ *     $app, $application - The current application context
+ *     $command, $_, $this - The current `zesk\Command_Eval` object
+ *
+ * You can assign variables and state is maintained between command line calls. Note that references to variables
+ * will not work as variables are collected and `extract`ed on each command-line invocation.
+ *
+ * Passing multiple parameters to `eval` will maintain state between them. So:
+ *
+ *    zesk eval '$a=1;$b=1' '$a+$b'
  *
  * @category Management
  */
@@ -13,13 +25,42 @@ class Command_Eval extends Command_Base {
 	protected $option_types = array(
 		'json' => 'boolean',
 		'interactive' => 'boolean',
+		'debug-state' => 'boolean',
+		'*' => 'string'
+	);
+	protected $option_help = array(
+		'json' => 'Output results as JSON instead of PHP',
+		'interactive' => 'Run interactively',
+		'debug-state' => 'Run interactively. When running interactively the ',
 		'*' => 'string'
 	);
 	protected $option_chars = array(
 		'i' => 'interactive'
 	);
+
+	/**
+	 * Variables saved before eval is run
+	 *
+	 * @var array
+	 */
+	private $before_vars = null;
+
+	/**
+	 * Variables preserved between eval lines
+	 *
+	 * @var array
+	 */
+	private $saved_vars = null;
+
+	/**
+	 * Run our eval command
+	 *
+	 * {@inheritDoc}
+	 * @see \zesk\Command::run()
+	 */
 	function run() {
 		$this->handle_base_options();
+		$this->saved_vars = array();
 		while ($this->has_arg()) {
 			$arg = $this->get_arg("eval");
 			if ($arg === "--") {
@@ -32,10 +73,10 @@ class Command_Eval extends Command_Base {
 			return $this->interactive();
 		}
 	}
-	
+
 	/**
 	 * Interactive evaluation of commands
-	 * 
+	 *
 	 * @return number
 	 */
 	public function interactive() {
@@ -56,7 +97,7 @@ class Command_Eval extends Command_Base {
 			}
 			ob_start();
 			try {
-				$result = $this->_eval($command);
+				$__result = $this->_eval($command);
 				$last_exit_code = 0;
 			} catch (Exception $ex) {
 				$content = ob_get_clean();
@@ -71,21 +112,49 @@ class Command_Eval extends Command_Base {
 				continue;
 			}
 			$content = ob_get_clean();
-			
-			if ($result === null) {
+
+			if ($__result === null) {
 				if ($content !== "") {
 					echo $content . "\n";
 				} else {
 				}
 			} else {
-				echo "# return " . PHP::dump($result) . "\n";
+				echo "# return " . PHP::dump($__result) . "\n";
 				if ($content !== "") {
 					echo $content . "\n";
 				}
 			}
 		}
 	}
-	private function _eval($string) {
+	/**
+	 * Before evaluate, save global context variables
+	 */
+	private function _before_evaluate(array $vars) {
+		$this->before_vars = $vars;
+		return $this->saved_vars;
+	}
+
+	/**
+	 * After evaluate, determine if any new variables are present
+	 * @param array $vars
+	 */
+	private function _after_evaluate(array $vars) {
+		$diff = array_diff_assoc($vars, $this->before_vars);
+		$diff = array_filter($diff, function ($v, $k) {
+			return !begins($k, "__");
+		}, ARRAY_FILTER_USE_BOTH);
+		$this->saved_vars = $diff + $this->saved_vars;
+		$this->before_vars = $vars;
+
+		if ($this->option_bool("debug-state")) {
+			if (count($diff) > 0) {
+				echo "New variables defined in state: " . implode(", ", array_keys($diff)) . "\n";
+			} else {
+				echo "No new variables defined.\n";
+			}
+		}
+	}
+	private function _prefix_commmand($string) {
 		$string = trim($string, " \n\r\t;");
 		$string = preg_replace('/^return\s/', '', $string);
 		$prefix = "return";
@@ -95,11 +164,28 @@ class Command_Eval extends Command_Base {
 		)) || strpos($string, ";") !== false) {
 			$prefix = "";
 		}
+		return $prefix . " " . $string;
+	}
+
+	/**
+	 * Evaluate a PHP string and execute it in the application context
+	 *
+	 * Note that the state of $this->saved_vars may be updated based on newly defined variables.
+	 * Does NOT support $a &= $b, however.
+	 *
+	 * @param string $__string Arbitrary PHP code
+	 * @throws Exception
+	 * @return mixed
+	 */
+	private function _eval($__string) {
+		$__eval = $this->_prefix_commmand($__string);
 		try {
 			$command = $_ = $this;
 			$application = $app = $this->application;
-			$result = eval("?" . "><" . "?php\n$prefix " . $string . ";\n");
-			return $result;
+			extract($this->_before_evaluate(get_defined_vars()), EXTR_SKIP);
+			$__result = eval("?" . "><" . "?php\n$__eval;\n");
+			$this->_after_evaluate(get_defined_vars());
+			return $__result;
 		} catch (Exception $e) {
 			throw $e;
 		}
