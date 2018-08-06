@@ -140,9 +140,11 @@ class Command_Eval extends Command_Base {
 	 */
 	private function _after_evaluate(array $vars) {
 		$diff = array_diff_assoc($vars, $this->before_vars);
-		$diff = array_filter($diff, function ($v, $k) {
-			return !begins($k, "__");
-		}, ARRAY_FILTER_USE_BOTH);
+		foreach ($diff as $k => $v) {
+			if (begins($k, "__")) {
+				unset($diff[$k]);
+			}
+		}
 		$this->saved_vars = $diff + $this->saved_vars;
 		$this->before_vars = $vars;
 
