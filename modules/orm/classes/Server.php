@@ -33,7 +33,7 @@ class Server extends ORM implements Interface_Data {
 	 * @var string
 	 */
 	const DISK_UNITS_BYTES = 'b';
-	
+
 	/**
 	 * 1 = 1024^1
 	 *
@@ -45,14 +45,14 @@ class Server extends ORM implements Interface_Data {
 	 * @var string
 	 */
 	const DISK_UNITS_MEGABYTES = 'm';
-	
+
 	/**
 	 * 1 = 1024^2
 	 *
 	 * @var string
 	 */
 	const DISK_UNITS_GIGABYTES = 'g';
-	
+
 	/**
 	 * 1 = 1024^3
 	 *
@@ -71,7 +71,7 @@ class Server extends ORM implements Interface_Data {
 	 * @var string
 	 */
 	const DISK_UNITS_EXABYTES = 'e';
-	
+
 	/**
 	 *
 	 * @var array
@@ -85,48 +85,48 @@ class Server extends ORM implements Interface_Data {
 		self::DISK_UNITS_PETABYTES,
 		self::DISK_UNITS_EXABYTES
 	);
-	
+
 	/**
 	 *
 	 * @var string
 	 */
 	const option_alive_update_seconds = "alive_update_seconds";
-	
+
 	/**
 	 * Number of seconds after which the server status should be updated
 	 *
 	 * @var integer
 	 */
 	const default_alive_update_seconds = 30;
-	
+
 	/**
 	 *
 	 * @var string
 	 */
 	const option_timeout_seconds = "timeout_seconds";
-	
+
 	/**
 	 *
 	 * @var unknown
 	 */
 	const default_timeout_seconds = 180;
-	
+
 	/**
 	 *
 	 * @var Server
 	 */
 	private static $singleton = null;
-	
+
 	/**
 	 * Run once per minute per cluster.
 	 * Delete servers who are not alive after `option_timeout_seconds` old.
 	 */
 	public static function cron_cluster_minute(Application $application) {
-		$server = $application->orm_factory("zesk\\Server");
+		$server = $application->orm_factory(self::class);
 		/* @var $server Server */
 		$server->bury_dead_servers();
 	}
-	
+
 	/**
 	 *
 	 * @param Kernel $zesk
@@ -137,7 +137,7 @@ class Server extends ORM implements Interface_Data {
 			"configured"
 		));
 	}
-	
+
 	/**
 	 */
 	public static function configured(Application $application) {
@@ -156,7 +156,7 @@ class Server extends ORM implements Interface_Data {
 			$application->logger->error("Exception {class} {code} {file}:{line}\n{message}\n{backtrace}", Exception::exception_variables($e));
 		}
 	}
-	
+
 	/**
 	 * Run intermittently once per cluster to clean away dead Server records
 	 */
@@ -167,7 +167,7 @@ class Server extends ORM implements Interface_Data {
 		}
 		$query = $this->query_select();
 		$pushed = $this->push_utc();
-		
+
 		$timeout_seconds = -abs($this->option_integer('timeout_seconds', self::default_timeout_seconds));
 		$dead_to_me = Timestamp::now('UTC')->add_unit($timeout_seconds, Timestamp::UNIT_SECOND);
 		$iterator = $query->where(array(
@@ -182,7 +182,7 @@ class Server extends ORM implements Interface_Data {
 		$this->pop_utc($pushed);
 		$lock->release();
 	}
-	
+
 	/**
 	 * Retrieve the default host name
 	 *
@@ -195,7 +195,7 @@ class Server extends ORM implements Interface_Data {
 		}
 		return $host;
 	}
-	
+
 	/**
 	 * Create a singleton for this server.
 	 *
@@ -228,13 +228,13 @@ class Server extends ORM implements Interface_Data {
 		}
 		return $server;
 	}
-	
+
 	/**
 	 *
 	 */
 	protected function refresh_names() {
 	}
-	
+
 	/**
 	 * Register and load this
 	 *
@@ -290,7 +290,7 @@ class Server extends ORM implements Interface_Data {
 			$this->ip4_external = $this->ip4_internal;
 		}
 	}
-	
+
 	/**
 	 * Update server state
 	 *
@@ -323,7 +323,7 @@ class Server extends ORM implements Interface_Data {
 		$this->pop_utc($pushed);
 		return $this->fetch();
 	}
-	
+
 	/**
 	 * Handle issue with UTC not being recognized as a valid TZ in virgin MySQL databases.
 	 *
@@ -363,7 +363,7 @@ class Server extends ORM implements Interface_Data {
 			$old_php_tz
 		);
 	}
-	
+
 	/**
 	 * Restore the Database time zone state after the push_utc
 	 */
@@ -409,7 +409,7 @@ class Server extends ORM implements Interface_Data {
 		));
 		return $data->store();
 	}
-	
+
 	/**
 	 * Get server data object
 	 *
@@ -427,7 +427,7 @@ class Server extends ORM implements Interface_Data {
 		}
 		return null;
 	}
-	
+
 	/**
 	 * Retrieve or store per-server data
 	 *
@@ -457,7 +457,7 @@ class Server extends ORM implements Interface_Data {
 		}
 		return $result;
 	}
-	
+
 	/**
 	 * Retrieve or store per-server data
 	 *
@@ -476,7 +476,7 @@ class Server extends ORM implements Interface_Data {
 			->execute()
 			->affected_rows() > 0;
 	}
-	
+
 	/**
 	 * Query all servers to find servers which match name = value
 	 *
