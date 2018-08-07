@@ -10,6 +10,7 @@ use Psr\Cache\CacheItemInterface;
  * Generic cache item
  *
  * @author kent
+ * @see CacheItemPool_Array
  */
 class CacheItem implements CacheItemInterface {
 	/**

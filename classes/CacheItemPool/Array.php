@@ -9,14 +9,14 @@ use Psr\Cache\CacheItemPoolInterface;
 
 /**
  * The most basic of caching, storing everything in PHP memory as an array of keyed values.
- * 
- * @author kent
  *
+ * @author kent
+ * @see CacheItem
  */
 class CacheItemPool_Array implements CacheItemPoolInterface {
-	
+
 	/**
-	 * 
+	 *
 	 * @var array
 	 */
 	private $items = array();
@@ -37,9 +37,12 @@ class CacheItemPool_Array implements CacheItemPoolInterface {
 	 *   The corresponding Cache Item.
 	 */
 	public function getItem($key) {
+		if (array_key_exists($key, $this->items)) {
+			return $this->items[$key];
+		}
 		return new CacheItem($key, isset($this->items[$key]) ? $this->items[$key] : null, $this->hasItem($key));
 	}
-	
+
 	/**
 	 * Returns a traversable set of cache items.
 	 *
@@ -63,7 +66,7 @@ class CacheItemPool_Array implements CacheItemPoolInterface {
 		}
 		return $result;
 	}
-	
+
 	/**
 	 * Confirms if the cache contains specified cache item.
 	 *
@@ -84,7 +87,7 @@ class CacheItemPool_Array implements CacheItemPoolInterface {
 	public function hasItem($key) {
 		return array_key_exists($key, $this->items);
 	}
-	
+
 	/**
 	 * Deletes all items in the pool.
 	 *
@@ -95,7 +98,7 @@ class CacheItemPool_Array implements CacheItemPoolInterface {
 		$this->items = array();
 		return true;
 	}
-	
+
 	/**
 	 * Removes the item from the pool.
 	 *
@@ -113,13 +116,13 @@ class CacheItemPool_Array implements CacheItemPoolInterface {
 		unset($this->items[$key]);
 		return true;
 	}
-	
+
 	/**
 	 * Removes multiple items from the pool.
 	 *
 	 * @param string[] $keys
 	 *   An array of keys that should be removed from the pool.
-	 
+
 	 * @throws InvalidArgumentException
 	 *   If any of the keys in $keys are not a legal value a \Psr\Cache\InvalidArgumentException
 	 *   MUST be thrown.
@@ -133,7 +136,7 @@ class CacheItemPool_Array implements CacheItemPoolInterface {
 		}
 		return true;
 	}
-	
+
 	/**
 	 * Persists a cache item immediately.
 	 *
@@ -147,7 +150,7 @@ class CacheItemPool_Array implements CacheItemPoolInterface {
 		$this->items[$item->getKey()] = $item;
 		return false;
 	}
-	
+
 	/**
 	 * Sets a cache item to be persisted later.
 	 *
@@ -161,7 +164,7 @@ class CacheItemPool_Array implements CacheItemPoolInterface {
 		$this->items[$item->getKey()] = $item;
 		return false;
 	}
-	
+
 	/**
 	 * Persists any deferred cache items.
 	 *
