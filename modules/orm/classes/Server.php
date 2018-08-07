@@ -230,12 +230,6 @@ class Server extends ORM implements Interface_Data {
 	}
 
 	/**
-	 *
-	 */
-	protected function refresh_names() {
-	}
-
-	/**
 	 * Register and load this
 	 *
 	 * @param unknown $host
@@ -253,7 +247,17 @@ class Server extends ORM implements Interface_Data {
 		} catch (Database_Exception_Table_NotFound $e) {
 			return null;
 		}
+		return $this->refresh_names();
+	}
+
+	/**
+	 *
+	 * @return \zesk\Server
+	 */
+	public function refresh_names() {
+		// Set up our names using hooks (may do nothing)
 		$this->call_hook("initialize_names");
+		// Set all blank values to defaults
 		$this->_initialize_names_defaults();
 		try {
 			return $this->store();
@@ -262,32 +266,37 @@ class Server extends ORM implements Interface_Data {
 		}
 		return $this;
 	}
+
 	/**
 	 * Set up some reasonable defaults which define this server relative to other servers
 	 */
 	private function _initialize_names_defaults() {
 		$host = self::host_default();
-		if (!isset($this->name)) {
+		if (empty($this->name)) {
 			$this->name = $host;
 		}
-		if (!isset($this->name_internal)) {
+		if (empty($this->name_internal)) {
 			$this->name_internal = $host;
 		}
-		if (!isset($this->name_external)) {
-			$this->name_external = $host;
+		if (empty($this->name_external)) {
+			// 2018-08-06 No longer inherits $host value, null by default
+			$this->name_external = null;
 		}
-		if (!isset($this->ip4_internal)) {
+		if (empty($this->ip4_internal) || $this->ip4_internal === "0.0.0.0") {
+			$this->ip4_internal = null;
 			$ips = System::ip_addresses($this->application);
 			$ips = ArrayTools::remove_values($ips, "127.0.0.1");
 			if (count($ips) >= 1) {
 				$this->ip4_internal = first(array_values($ips));
 			}
 		}
-		if (!isset($this->ip4_internal)) {
+		if (empty($this->ip4_internal)) {
+			// Probably a single-server system.
 			$this->ip4_internal = "127.0.0.1";
 		}
-		if (!isset($this->ip4_external)) {
-			$this->ip4_external = $this->ip4_internal;
+		if (empty($this->ip4_external) || $this->ip4_external === "0.0.0.0") {
+			// 2018-08-06 No longer inherits $host value, null by default
+			$this->ip4_external = null;
 		}
 	}
 
