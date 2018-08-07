@@ -34,7 +34,7 @@ class System {
 	 * @var string
 	 */
 	private static $host_id = null;
-	
+
 	/**
 	 *
 	 * @return unknown
@@ -45,7 +45,7 @@ class System {
 		}
 		return self::$host_id;
 	}
-	
+
 	/**
 	 *
 	 * @return string
@@ -53,7 +53,7 @@ class System {
 	public static function uname() {
 		return php_uname('n');
 	}
-	
+
 	/**
 	 * Get current process ID
 	 *
@@ -62,7 +62,7 @@ class System {
 	public static function process_id() {
 		return getmypid();
 	}
-	
+
 	/**
 	 * Load IP addresses for this sytem
 	 *
@@ -81,7 +81,7 @@ class System {
 		}
 		return $ips;
 	}
-	
+
 	/**
 	 * Load MAC addresses for this sytem
 	 *
@@ -98,7 +98,7 @@ class System {
 		}
 		return $macs;
 	}
-	
+
 	/**
 	 * Run ifconfig configuration utility and parse results
 	 *
@@ -108,12 +108,13 @@ class System {
 	public static function ifconfig(Application $application, $filter = null) {
 		$result = array();
 		try {
-			$cache = $application->cache->getItem(__METHOD__)->expiresAfter(60);
+			$cache = $application->cache->getItem(__METHOD__);
 			if ($cache->isHit()) {
 				$command = $cache->get();
 			} else {
 				$command = $application->process->execute("ifconfig");
-				$application->cache->saveDeferred($cache->set($command));
+				$application->cache->saveDeferred($cache->expiresAfter($application->configuration->path_get(__METHOD__ . "::expires_after", 60))
+					->set($command));
 			}
 			$interface = null;
 			$flags = null;
@@ -161,7 +162,7 @@ class System {
 		}
 		return $result;
 	}
-	
+
 	/**
 	 * Determine system current load averages using /proc/loadavg or system call to uptime
 	 *
@@ -189,7 +190,7 @@ class System {
 		);
 		return $loads;
 	}
-	
+
 	/**
 	 * Retrieve volume information in a parsed manner from system call to "df"
 	 *
@@ -243,7 +244,7 @@ class System {
 		}
 		return $result;
 	}
-	
+
 	/**
 	 * Based on http://www.novell.com/coolsolutions/feature/11251.html
 	 *
@@ -313,7 +314,7 @@ class System {
 		}
 		return $result;
 	}
-	
+
 	/**
 	 *
 	 * @return number
