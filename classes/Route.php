@@ -277,13 +277,15 @@ abstract class Route extends Hookable {
 	public static function factory(Router $router, $pattern, array $options) {
 		/**
 		 * Ordering of this array is important. "method" is a parameter to "controller" and others, so it should go last.
+		 * Similarly, "file" may be an argument for other `Route`s so it goes last as well.
 		 * @var array $types
 		 */
 		$types = array(
 			'controller' => Route_Controller::class,
 			'command' => Route_Command::class,
 			'theme' => Route_Theme::class,
-			'method' => Route_Method::class
+			'method' => Route_Method::class,
+			'file' => Route_Content::class
 		);
 		$options = self::preprocess_options($pattern, $options);
 		foreach ($types as $k => $class) {
