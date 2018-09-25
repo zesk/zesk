@@ -109,7 +109,7 @@ class Command_Daemon extends Command_Base implements Interface_Process {
 	/**
 	 * Module daemon
 	 *
-	 * @var Module_Daemon
+	 * @var Module
 	 */
 	protected $module = null;
 
