@@ -15,8 +15,15 @@ Version 1.0 of Zesk will have:
 - Support for `Monolog` within Zesk core - **needs to be tested**
 - All modules use **namespaces** - **in progress**
 - Website `https://zesk.com` with basic documentation
+- Added ability to store user password hash in the database as well as handle changing it
 
 <!-- ## [Un released][] -->
+
+## [v0.21.0][]
+
+- Better linking between interated objects to allow child objects to inherit state from parent, specifically for polymorphic classes
+- Deprecated `zesk\Database_Query::object_cache`, `zesk\Database_Query::object_class`, `zesk\Database_Query::class_object`, `zesk\Database_Query::object_factory`
+- Added `zesk\Interface_Member_ORM_Factory` 
 
 ## [v0.20.1][]
 

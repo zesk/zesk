@@ -3,6 +3,7 @@ create table `{table}` (
 	`id` integer unsigned not null auto_increment,
 	`login_email` varchar(64) not null default '',
 	`login_password` varchar(32) default null,
+	`login_password_hash_method` varchar(8) default 'md5',
 	`name_first` varchar(64) default null,
 	`name_last` varchar(64) default null,
 	`company` integer default null,

@@ -23,20 +23,20 @@ class User extends ORM {
 	 * @var string
 	 */
 	const option_debug_permission = "debug_permission";
-	
+
 	/**
 	 *
 	 * @var string
 	 */
 	public static $debug_permission = false;
-	
+
 	/**
 	 * Syntactic sygar; types this member.
 	 *
 	 * @var Class_User
 	 */
 	protected $class = null;
-	
+
 	/**
 	 *
 	 * @param Kernel $application
@@ -45,7 +45,7 @@ class User extends ORM {
 		$application->configuration->path(__CLASS__);
 		$application->hooks->add(Hooks::hook_configured, __CLASS__ . "::configured");
 	}
-	
+
 	/**
 	 *
 	 * @param Application $application
@@ -62,7 +62,7 @@ class User extends ORM {
 			)
 		)));
 	}
-	
+
 	/**
 	 * Session user ID
 	 *
@@ -80,7 +80,7 @@ class User extends ORM {
 		}
 		return $session->user_id();
 	}
-	
+
 	/**
 	 * Retrieve the column used for logging in
 	 *
@@ -89,7 +89,7 @@ class User extends ORM {
 	function column_login() {
 		return $this->class->column_login;
 	}
-	
+
 	/**
 	 * Retrieve the password column name
 	 *
@@ -98,7 +98,7 @@ class User extends ORM {
 	function column_password() {
 		return $this->class->column_password;
 	}
-	
+
 	/**
 	 * Retrieve the email column name
 	 *
@@ -107,7 +107,7 @@ class User extends ORM {
 	function column_email() {
 		return $this->class->column_email;
 	}
-	
+
 	/**
 	 * Get or set the login column value
 	 *
@@ -122,7 +122,7 @@ class User extends ORM {
 		}
 		return $this->member($column);
 	}
-	
+
 	/**
 	 * Get or set the email column value
 	 *
@@ -142,7 +142,7 @@ class User extends ORM {
 		}
 		return $this->member($column);
 	}
-	
+
 	/**
 	 * Override in subclasses to perform a final check before loading a user from the Session
 	 *
@@ -151,7 +151,7 @@ class User extends ORM {
 	function check_user() {
 		return true;
 	}
-	
+
 	/**
 	 * Get/set the password field
 	 *
@@ -165,7 +165,32 @@ class User extends ORM {
 		}
 		return $this->member($column);
 	}
-	
+
+	/**
+	 *
+	 * @return string
+	 */
+	function password_method() {
+		return strtolower(trim($this->member($this->class->column_hash_method, $this->class->default_hash_method)));
+	}
+
+	/**
+	 * Using the
+	 * @param unknown $string
+	 * @param string $raw_output
+	 * @return string
+	 */
+	function generate_hash($string, $raw_output = false) {
+		$algo = $this->password_method();
+		if (in_array($algo, $this->class->allowed_hash_methods)) {
+			return hash($algo, $string, $raw_output);
+		}
+		$this->application->error("Invalid hash algorithm {algo} in User {id}, using default", array(
+			"algo" => $algo,
+			"id" => $this->id(),
+			"default" => $this->class->default_hash_method
+		));
+	}
 	/**
 	 * Check a username and password.
 	 * Will not authenticate user until ->authenticated($request, $response) is called.
@@ -185,7 +210,7 @@ class User extends ORM {
 		}
 		$this_password = $this->password();
 		if ($use_hash) {
-			$auth_test = strcasecmp(md5($password), $this_password) === 0;
+			$auth_test = strcasecmp($this->generate_hash($password), $this_password) === 0;
 		} else {
 			$auth_test = $case_sensitive ? ($password === $this_password) : strcasecmp($password, $this_password) === 0;
 		}
@@ -194,7 +219,7 @@ class User extends ORM {
 		}
 		return false;
 	}
-	
+
 	/**
 	 * Get/set authentication status
 	 *
@@ -223,7 +248,7 @@ class User extends ORM {
 		$this->application->modules->all_hook("user_authenticated", $this, $request, $response, $session);
 		return $this;
 	}
-	
+
 	/**
 	 * Similar to $user->can(...) but instead throws an Exception_Permission on failure
 	 *
@@ -249,7 +274,7 @@ class User extends ORM {
 			'__' => '::'
 		)));
 	}
-	
+
 	/**
 	 * The core of the permissions system
 	 *
@@ -297,7 +322,7 @@ class User extends ORM {
 			));
 			$context = null;
 		}
-		
+
 		$result = false; // By default, don't allow anything
 		// Allow multiple actions
 		$is_or = is_string($actions) && strpos($actions, '|');
@@ -321,18 +346,32 @@ class User extends ORM {
 			if ($is_or) {
 				// One must be allowed to continue
 				if ($result === true) {
-					return $result;
+					break;
 				}
 			} else {
 				// All must be allowed to continue
 				if ($result === false) {
-					return $result;
+					break;
 				}
 			}
 		}
+		if ($result) {
+			$default_hook = "permission_pass";
+		} else {
+			$default_hook = "permission_fail";
+		}
+		$hook_option_name = $default_hook . "_hook";
+		if (($hook = avalue($options, $hook_option_name, $this->option($hook_option_name))) !== null) {
+			$this->call_hook_arguments(is_string($hook) ? $hook : $default_hook, array(
+				$actions,
+				$context,
+				$options
+			));
+		}
+
 		return $result;
 	}
-	
+
 	/**
 	 * Check if a user can edit an object
 	 *
@@ -351,7 +390,7 @@ class User extends ORM {
 	function can_view($object) {
 		return $this->can("view", $object);
 	}
-	
+
 	/**
 	 *
 	 * {@inheritdoc}
@@ -361,7 +400,7 @@ class User extends ORM {
 	function display_name() {
 		return $this->member($this->column_login());
 	}
-	
+
 	/**
 	 * Check if a user can delete an object
 	 *
@@ -371,7 +410,7 @@ class User extends ORM {
 	function can_delete($object) {
 		return $this->can("delete", $object);
 	}
-	
+
 	/**
 	 * Implement ORM::permissions
 	 *
@@ -385,7 +424,7 @@ class User extends ORM {
 			)
 		);
 	}
-	
+
 	/**
 	 * Takes an array which can be formatted with $application->theme("actions") and filters based on permissions.
 	 * Use the key "permission" in value to specify a permission to check. It can be a string, or an
@@ -421,6 +460,14 @@ class User extends ORM {
 			}
 		}
 		return $actions_passed;
+	}
+
+	/**
+	 *
+	 * @param string $password
+	 */
+	public function setPlainPassword($password) {
+		return $this->set_member($this->class->column_password, $this->generate_hash($password, $this->class->column_password_is_binary));
 	}
 }
 
