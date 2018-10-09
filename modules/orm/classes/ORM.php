@@ -11,7 +11,7 @@ namespace zesk;
  * @see Module_ORM
  * @see Class_ORM
  */
-class ORM extends Model {
+class ORM extends Model implements Interface_Member_Model_Factory {
 	/**
 	 * Boolean value which affects ORM::is_new() and ORM::register() which will not depend
 	 * on the auto_column's presence to determine if an ORM is new or not.
@@ -924,6 +924,7 @@ class ORM extends Model {
 	function query_select($alias = null) {
 		$query = new Database_Query_Select($db = $this->database());
 		$query->orm_class(get_class($this));
+		$query->set_factory($this);
 		$query->orm_class_options($this->inherit_options());
 		if (empty($alias)) {
 			$alias = "X";
@@ -1162,7 +1163,7 @@ class ORM extends Model {
 	 *        	Options to create when creating object
 	 * @return ORM|null
 	 */
-	protected function member_orm_factory($member, $class, $data, array $options = array()) {
+	public function member_model_factory($member, $class, $data = null, array $options = array()) {
 		return $this->orm_factory($class, $data, $options)->fetch();
 	}
 
@@ -1202,7 +1203,7 @@ class ORM extends Model {
 			));
 		}
 		try {
-			$object = $this->member_orm_factory($member, $class, $data, $options + $this->inherit_options());
+			$object = $this->member_model_factory($member, $class, $data, $options + $this->inherit_options());
 		} catch (Exception_ORM_NotFound $e) {
 			if ($this->option_bool("fix_orm_members") || $this->option_bool("fix_member_objects")) {
 				// Prevent infinite recursion
@@ -2637,7 +2638,7 @@ class ORM extends Model {
 							break;
 						}
 						if (is_callable($resolve_method)) {
-							$members[$member] = $resolve_method($this, $child_options);
+							$members[$member] = $resolve_method($this, $member, $value, $child_options);
 							break;
 						}
 						$this->application->logger->warning("Invalid resolve method passed into {class}->json: {type}", array(

@@ -17,7 +17,7 @@ class ORMIterators extends ORMIterator {
 	 * @var string
 	 */
 	private $objects_prefixes = array();
-	
+
 	/**
 	 * Create an object iterator
 	 * @param string $class Class to iterate over
@@ -27,7 +27,7 @@ class ORMIterators extends ORMIterator {
 		parent::__construct($class, $query, $options);
 		$this->objects_prefixes = $objects_prefixes;
 	}
-	
+
 	/**
 	 * Next object in results
 	 * @see Database_Result_Iterator::next()
@@ -40,7 +40,7 @@ class ORMIterators extends ORMIterator {
 			foreach ($this->objects_prefixes as $prefix => $class_name) {
 				list($alias, $class) = $class_name;
 				$members = ArrayTools::kunprefix($this->_row, $prefix, true);
-				$object = $result[$alias] = $this->query->model_factory($class, $members, array(
+				$object = $result[$alias] = $this->query->member_model_factory($this->parent_member + "." + $prefix, $class, $members, array(
 					'initialize' => true
 				) + $this->class_options);
 				if (!$first) {

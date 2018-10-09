@@ -22,35 +22,35 @@ class ORMIterator extends Database_Result_Iterator {
 	 * @var array
 	 */
 	protected $class_options;
-	
+
 	/**
 	 * Current parent
 	 *
 	 * @var ORM
 	 */
-	private $parent = null;
-	
+	protected $parent = null;
+
 	/**
 	 * Current parent
 	 *
 	 * @var ORM
 	 */
-	private $parent_member = null;
-	
+	protected $parent_member = null;
+
 	/**
 	 * Current object
 	 *
 	 * @var ORM
 	 */
 	protected $object;
-	
+
 	/**
 	 * Current key
 	 *
 	 * @var mixed
 	 */
 	protected $id;
-	
+
 	/**
 	 * Create an object iterator
 	 *
@@ -65,7 +65,7 @@ class ORMIterator extends Database_Result_Iterator {
 		$options['initialize'] = true;
 		$this->class_options = $options;
 	}
-	
+
 	/**
 	 *
 	 * @param ORM $parent
@@ -81,7 +81,7 @@ class ORMIterator extends Database_Result_Iterator {
 		}
 		return $this;
 	}
-	
+
 	/**
 	 * Current object
 	 *
@@ -91,7 +91,7 @@ class ORMIterator extends Database_Result_Iterator {
 	public function current() {
 		return $this->object;
 	}
-	
+
 	/**
 	 * Current object ID
 	 *
@@ -101,7 +101,7 @@ class ORMIterator extends Database_Result_Iterator {
 	public function key() {
 		return is_array($this->id) ? JSON::encode($this->id) : $this->id;
 	}
-	
+
 	/**
 	 * Maintain parent object to avoid cyclical store(), and for memory saving
 	 *
@@ -135,7 +135,7 @@ class ORMIterator extends Database_Result_Iterator {
 		parent::next();
 		if ($this->_valid) {
 			// We do create, then fetch to support polymorphism - if ORM supports factory polymorphism, then shorten this to single factory call
-			$this->object = $this->query->model_factory($this->class, $this->_row, array(
+			$this->object = $this->query->member_model_factory($this->parent_member, $this->class, $this->_row, array(
 				'initialize' => true
 			) + $this->class_options);
 			$this->id = $this->object->id();
@@ -145,7 +145,7 @@ class ORMIterator extends Database_Result_Iterator {
 			$this->object = null;
 		}
 	}
-	
+
 	/**
 	 * Convert to an array
 	 *
@@ -169,7 +169,7 @@ class ORMIterator extends Database_Result_Iterator {
 		}
 		return $result;
 	}
-	
+
 	/**
 	 * Convert to a list
 	 *

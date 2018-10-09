@@ -1159,6 +1159,7 @@ class Class_ORM extends Hookable {
 	 */
 	final public function has_many_query_default(ORM $object, array $many_spec, $alias = "J", $reverse = false) {
 		$query = $many_spec['object']->query_select($alias);
+		$query->set_factory($object);
 		$this->_has_many_query($object, $query, $many_spec, $alias, null, true, $reverse);
 		return $query;
 	}
@@ -1185,6 +1186,7 @@ class Class_ORM extends Hookable {
 			));
 		}
 		$query = $many_spec['object']->query_select();
+		$query->set_factory($object);
 		$this->_has_many_query($object, $query, $many_spec, $member);
 		return $query;
 	}

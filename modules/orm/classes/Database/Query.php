@@ -61,6 +61,11 @@ class Database_Query {
 	private $objects_cached = array();
 
 	/**
+	 *
+	 * @var Interface_Member_ORM_Factory
+	 */
+	protected $factory = null;
+	/**
 	 * Create a new query
 	 *
 	 * @param string $type
@@ -73,8 +78,19 @@ class Database_Query {
 		$this->dbname = $db->code_name();
 		$this->class = null;
 		$this->class_options = array();
+		$this->factory = $this->application;
 	}
 
+	/**
+	 * Set the object which creates other objects
+	 *
+	 * @param Interface_Member_ORM_Factory $factory
+	 * @return \zesk\Database_Query
+	 */
+	function set_factory(Interface_Member_Model_Factory $factory) {
+		$this->factory = $factory;
+		return $this;
+	}
 	/**
 	 *
 	 * @return string[]
@@ -190,8 +206,8 @@ class Database_Query {
 	 * @param array $options
 	 * @return Object
 	 */
-	function model_factory($class, $mixed = null, array $options = array()) {
-		return $this->application->model_factory($class, $mixed, $options);
+	function member_model_factory($member, $class, $mixed = null, array $options = array()) {
+		return $this->factory->member_model_factory($member, $class, $mixed, $options);
 	}
 
 	/**
@@ -202,53 +218,5 @@ class Database_Query {
 	 */
 	protected function orm_registry($class) {
 		return $this->application->orm_registry($class);
-	}
-
-	/**
-	 * Cache for Object definitions, do not modify these objects
-	 *
-	 * @deprecated 2017-12 use orm_registry above
-	 * @param string $class
-	 * @return \zesk\ORM
-	 */
-	protected function object_cache($class) {
-		zesk()->deprecated();
-		return $this->orm_registry($class);
-	}
-
-	/**
-	 * Set or get a class associated with this query
-	 *
-	 * @deprecated 2018-01
-	 * @param string $class
-	 * @return Database_Query string
-	 */
-	function object_class($class = null) {
-		$this->application->deprecated();
-		return $this->orm_class($class);
-	}
-
-	/**
-	 *
-	 * @deprecated 2018-01
-	 * @return \zesk\Class_ORM
-	 */
-	function class_object() {
-		$this->application->deprecated();
-		return $this->class_orm();
-	}
-
-	/**
-	 * Create objects in the current application context
-	 *
-	 * @deprecated 2017-12
-	 * @param string $class
-	 * @param mixed $mixed
-	 * @param array $options
-	 * @return Object
-	 */
-	function object_factory($class, $mixed = null, array $options = array()) {
-		$this->application->deprecated();
-		return $this->model_factory($class, $mixed, $options);
 	}
 }

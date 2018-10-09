@@ -33,7 +33,7 @@ use zesk\Router\Parser;
  *
  * @method Interface_Session session_factory()
  */
-class Application extends Hookable implements Interface_Theme {
+class Application extends Hookable implements Interface_Theme, Interface_Member_Model_Factory, Interface_Factory {
 	/**
 	 * Zesk singleton. Do not use anywhere but here.
 	 *
@@ -1856,6 +1856,18 @@ class Application extends Hookable implements Interface_Theme {
 	 */
 	public function model_factory($class, $mixed = null, array $options = array()) {
 		return Model::factory($this, $class, $mixed, $options);
+	}
+	/**
+	 * Create a model
+	 *
+	 * @param string $class
+	 * @param array $options
+	 * @return Model
+	 */
+	public function member_model_factory($member, $class, $mixed = null, array $options = array()) {
+		return Model::factory($this, $class, $mixed, array(
+			"_member" => $member
+		) + $options);
 	}
 	/**
 	 * Create a generic object
