@@ -1,13 +1,11 @@
 ## Release {version}
 
-- `ARRAY_FILTER_USE_BOTH` not compatible with PHP5, removing references to it
-- Fixed an issue in default `zesk\CacheItemPool_Array` where cache items were not returned on second call.
-- Fixing `zesk\System::ifconfig` caching, allowing configuration setting `zesk\System::ifconfig::expires_after`, defaults to 60 (seconds)
-- Upgraded `$locale->__` usage in `Polyglot` module
-- `zesk\Daemon\Module` fixed a type hint
-- `zesk\Route::factory` now accepts options of `file` to force a route of `zesk\Route_Content` which serves the file directly.
-- `zesk\Route_Content` extended to support `file` option to serve files directly
-- `zesk\Server` no longer populates `ip4_external` and `name_external` if not set; they remain empty if not set by any other method. `ip4_internal` and `name_internal` are taken from the first `zesk\System::ip_addresses` which is not localhost, or `127.0.0.1`.
-- fixing server awareness callback and `zesk\Server::` config options
+- Added ability to store user password hash in the database as well as handle changing it
+- Adding `zesk\Interface_Member_Model_Factory` `zesk\Interface_Factory` support to `zesk\Application` and `zesk\ORM` and support throughout module `ORM`
+- Adding `zesk\Database_Query::set_factory(zesk\Interface_Member_Model_Factory $factory)`
+- Removed `zesk\Database_Query::module_factory`
+- Better linking between interated objects to allow child objects to inherit state from parent, specifically for polymorphic classes
+- Deprecated `zesk\Database_Query::object_cache`, `zesk\Database_Query::object_class`, `zesk\Database_Query::class_object`, `zesk\Database_Query::object_factory`
+- Added `zesk\Interface_Member_ORM_Factory` 
 
 <!-- Generated automatically by release-zesk.sh, beware editing! -->
