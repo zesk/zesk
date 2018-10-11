@@ -11,7 +11,7 @@ namespace zesk;
  * @author kent
  */
 class Module_Job extends Module implements Interface_Module_Routes {
-	
+
 	/**
 	 *
 	 * @var array
@@ -19,20 +19,19 @@ class Module_Job extends Module implements Interface_Module_Routes {
 	protected $model_classes = array(
 		'zesk\\Job'
 	);
-	
+
 	/**
 	 * For testing, call this statically from zesk eval, a web request, or a debugger
 	 */
 	public static function fake_daemon(Application $application) {
-		$zesk = $application->zesk;
-		$quit_after = $zesk->configuration->path_get(__CLASS__ . "::fake_daemon_quit_after", 5000);
+		$quit_after = $application->configuration->path_get(__CLASS__ . "::fake_daemon_quit_after", 5000);
 		ini_set('max_execution_time', $quit_after);
 		$process = new Process_Mock($application, array(
 			"quit_after" => $quit_after
 		));
 		Job::execute_jobs($process);
 	}
-	
+
 	/**
 	 * Run daemon
 	 *
@@ -69,7 +68,7 @@ class Module_Job extends Module implements Interface_Module_Routes {
 		$module = $application->modules->object("job");
 		$module->run_daemon($process);
 	}
-	
+
 	/**
 	 * Add routes to Router
 	 *
