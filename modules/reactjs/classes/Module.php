@@ -18,6 +18,7 @@ use zesk\Exception_System;
 use zesk\Net_HTTP_Client_Exception;
 use zesk\ArrayTools;
 use zesk\MIME;
+use zesk\JSON;
 use zesk\Directory;
 
 /**
@@ -56,12 +57,26 @@ class Module extends \zesk\Module implements \zesk\Interface_Module_Routes, \zes
 	 */
 	public function hook_head(Request $request, Response $response, Template $template) {
 		$app = $this->application;
-		$doc_root = $app->document_root();
-		if (ends($doc_root, "/build")) {
-			$script_names = $this->extract_script_names(path($doc_root, "index.html"));
-			foreach ($script_names as $script_name) {
-				$response->javascript($script_name, array(
-					"root_dir" => $doc_root
+		$docroot = $app->document_root();
+		if (ends($docroot, "/build")) {
+			$source = path($docroot, "index.html");
+			$asset_manifest = path($docroot, "asset-manifest.json");
+			try {
+				$assets = JSON::decode(File::contents($asset_manifest));
+				$src = "/" . $assets['main.js'];
+				$response->javascript($src, array(
+					"root_dir" => $docroot
+				));
+
+				if (isset($assets['main.css'])) {
+					$response->css($assets['main.css'], array(
+						"root_dir" => $docroot
+					));
+				}
+			} catch (\zesk\Exception_Syntax $e) {
+				$app->logger->emergency("Unable to parse asset file {asset_manifest} {e}", array(
+					"asset_manifest" => $asset_manifest,
+					"e" => $e
 				));
 			}
 		} else {
