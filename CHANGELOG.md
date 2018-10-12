@@ -18,6 +18,12 @@ Version 1.0 of Zesk will have:
 
 <!-- ## [Un released][] -->
 
+## [v0.21.2][]
+
+- Add comments to support `utf8` character sets for legacy database setups
+- Fixed an issue with `zesk schema` which would output the application hooks in a rather verbose manner
+- `ReactJS` module now correctly includes `css` in build installations
+
 ## [v0.21.1][]
 
 - removing deprecated reference to ``$application->zesk` in `zesk\Module_Job`
@@ -1741,6 +1747,7 @@ Settling of `zesk\Kernel` and `zesk\` namespace changes, added additional compon
  - `zesk::class_hierarchy` -> `zesk()->classes->hierarchy`
 - Removed growl module (no longer relevant on Mac OS X)
 
+[v0.21.2]: https://github.com/zesk/zesk/compare/v0.21.1...v0.21.2
 [v0.21.1]: https://github.com/zesk/zesk/compare/v0.21.0...v0.21.1
 [v0.21.0]: https://github.com/zesk/zesk/compare/v0.20.1...v0.21.0
 [v0.20.1]: https://github.com/zesk/zesk/compare/v0.20.0...v0.20.1
