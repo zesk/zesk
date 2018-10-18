@@ -1374,15 +1374,15 @@ class Application extends Hookable implements Interface_Theme, Interface_Member_
 	/**
 	 * Add or retrieve the locale path for this application - used to load locales
 	 *
-	 * By default, it's /share/
+	 * By default, it's ./etc/language/
 	 *
-	 * @param unknown $add
-	 * @param unknown $name
+	 * @param string $add Locale path to add
 	 * @return array
 	 */
 	final public function locale_path($add = null) {
 		$list = $this->locale_path;
 		if ($add) {
+			$add = $this->paths->expand($add);
 			if (!is_dir($add)) {
 				throw new Exception_Directory_NotFound($add);
 			}
