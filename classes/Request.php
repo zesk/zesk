@@ -433,7 +433,7 @@ class Request extends Hookable {
 			$content_type = StringTools::left($this->content_type(), ";");
 			switch ($content_type) {
 				case "application/json":
-					$this->data = JSON::decode($this->data_raw);
+					$this->data = strlen($this->data_raw) > 0 ? JSON::decode($this->data_raw) : array();
 					break;
 				case "application/x-www-form-urlencoded":
 					$this->data = array();
