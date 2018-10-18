@@ -25,7 +25,14 @@ class Controller_Login extends Controller_Theme {
 			$session->deauthenticate();
 		}
 		$logout_url = $this->option("logout_url", '/');
-		$this->response->redirect_default($logout_url, __("You have logged out."));
+		if ($this->request->prefer_json()) {
+			$this->json(array(
+				"status" => true,
+				"redirect" => $logout_url
+			));
+		} else {
+			$this->response->redirect_default($logout_url, __("You have logged out."));
+		}
 	}
 }
 
