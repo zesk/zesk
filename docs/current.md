@@ -1,7 +1,9 @@
 ## Release {version}
 
-- Add comments to support `utf8` character sets for legacy database setups
-- Fixed an issue with `zesk schema` which would output the application hooks in a rather verbose manner
-- `ReactJS` module now correctly includes `css` in build installations
+- Fix issue when `zesk\Request` is `POST`ed zero-length data with content type `application/json`.
+- Fixing documentation to `zesk\Application::locale_path`
+- Loosened definition of `zesk\Control_Login::submitted()` to be considered when the request is a `POST` and the variable `login` is present in the form.
+- `zesk\Controller_Login::action_logout` supports `JSON` response.
+
 
 <!-- Generated automatically by release-zesk.sh, beware editing! -->

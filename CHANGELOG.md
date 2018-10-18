@@ -18,6 +18,13 @@ Version 1.0 of Zesk will have:
 
 <!-- ## [Un released][] -->
 
+## [v0.21.3][]
+
+- Fix issue when `zesk\Request` is `POST`ed zero-length data with content type `application/json`.
+- Fixing documentation to `zesk\Application::locale_path`
+- Loosened definition of `zesk\Control_Login::submitted()` to be considered when the request is a `POST` and the variable `login` is present in the form. (Previously required the presence of the `login_button` request variable)
+- `zesk\Controller_Login::action_logout` supports `JSON` response.
+
 ## [v0.21.2][]
 
 - Add comments to support `utf8` character sets for legacy database setups
@@ -1747,6 +1754,7 @@ Settling of `zesk\Kernel` and `zesk\` namespace changes, added additional compon
  - `zesk::class_hierarchy` -> `zesk()->classes->hierarchy`
 - Removed growl module (no longer relevant on Mac OS X)
 
+[v0.21.3]: https://github.com/zesk/zesk/compare/v0.21.2...v0.21.3
 [v0.21.2]: https://github.com/zesk/zesk/compare/v0.21.1...v0.21.2
 [v0.21.1]: https://github.com/zesk/zesk/compare/v0.21.0...v0.21.1
 [v0.21.0]: https://github.com/zesk/zesk/compare/v0.20.1...v0.21.0
