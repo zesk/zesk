@@ -15,6 +15,7 @@ namespace zesk;
 class Command_Version extends Command_Base {
 	protected $option_types = array(
 		'tag' => 'string',
+		'zesk' => 'boolean',
 		'major' => 'boolean',
 		'minor' => 'boolean',
 		'maintenance' => 'boolean',
@@ -31,7 +32,8 @@ class Command_Version extends Command_Base {
 		'patch' => 'Bump patch version',
 		'decrement' => 'Decrement version instead of increasing version (cascades)',
 		'zero' => 'Set version component to zero instead (cascades)',
-		'init' => 'Write default etc/version-schema.json for the application'
+		'init' => 'Write default etc/version-schema.json for the application',
+		'zesk' => 'Ignore all other options and output the version of Zesk (not application version)'
 	);
 
 	/**
@@ -90,6 +92,10 @@ class Command_Version extends Command_Base {
 	public function run() {
 		if ($this->option_bool("init")) {
 			return $this->_command_init_schema();
+		}
+		if ($this->option_bool("zesk")) {
+			echo Version::release();
+			return 0;
 		}
 		$schema_path = $this->version_schema_path();
 		try {
