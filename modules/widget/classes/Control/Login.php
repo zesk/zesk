@@ -88,10 +88,10 @@ class Control_Login extends Control_Edit {
 	/**
 	 * (non-PHPdoc)
 	 *
-	 * @see Widget::submitted($object)
+	 * @see Widget::submitted()
 	 */
 	public function submitted() {
-		return $this->request->get("login_button", "") !== "";
+		return $this->request->is_post() && $this->request->has("login", true);
 	}
 
 	/**
