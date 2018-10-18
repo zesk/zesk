@@ -18,6 +18,11 @@ Version 1.0 of Zesk will have:
 
 <!-- ## [Un released][] -->
 
+## [v0.21.4][]
+
+- `zesk version --zesk` now returns the current Zesk version (not the application version)
+- `zesk\Version::string()` now requires a `zesk\Locale`
+
 ## [v0.21.3][]
 
 - Fix issue when `zesk\Request` is `POST`ed zero-length data with content type `application/json`.
@@ -1754,6 +1759,7 @@ Settling of `zesk\Kernel` and `zesk\` namespace changes, added additional compon
  - `zesk::class_hierarchy` -> `zesk()->classes->hierarchy`
 - Removed growl module (no longer relevant on Mac OS X)
 
+[v0.21.3]: https://github.com/zesk/zesk/compare/v0.21.3...v0.21.4
 [v0.21.3]: https://github.com/zesk/zesk/compare/v0.21.2...v0.21.3
 [v0.21.2]: https://github.com/zesk/zesk/compare/v0.21.1...v0.21.2
 [v0.21.1]: https://github.com/zesk/zesk/compare/v0.21.0...v0.21.1
