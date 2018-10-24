@@ -751,8 +751,14 @@ class Database extends \zesk\Database {
 		$path = substr($path, 1);
 		$args[] = $path;
 
+		$bin = "mysql";
+		if (to_bool(avalue($options, "sql-dump-command"))) {
+			$bin = "mysqldump";
+			$tables = to_list(avalue($options, "tables", array()));
+			$args = array_merge($args, $tables);
+		}
 		return array(
-			"mysql",
+			$bin,
 			$args
 		);
 	}
