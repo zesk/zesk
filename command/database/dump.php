@@ -24,6 +24,7 @@ class Command_Database_Dump extends Command_Base {
 		"dir" => "string",
 		"arg-prefix" => "string",
 		"arg-suffix" => "string",
+		"tables" => "list",
 		"*" => "string"
 	);
 	protected $option_help = array(
@@ -36,19 +37,10 @@ class Command_Database_Dump extends Command_Base {
 		"dir" => "Place the file in this directory",
 		"arg-prefix" => "Pass options to prefix command-line",
 		"arg-suffix" => "Pass options to suffix command-line",
+		"tables" => "List of tables to dump",
 		"*" => "string"
 	);
-	private function map_db_scheme($scheme) {
-		switch ($scheme) {
-			case "mysql":
-			case "mysqli":
-				return "mysqldump";
-			default :
-				throw new Exception_NotFound($scheme);
-		}
-		return null;
-	}
-	
+
 	/**
 	 *
 	 * {@inheritDoc}
@@ -61,49 +53,28 @@ class Command_Database_Dump extends Command_Base {
 			$this->error("No such database for \"$dbname\"\n");
 			return false;
 		}
-		$url = $db->url();
-		$parts = $db->url_parse($url);
-		$scheme = $host = $user = $pass = $path = $port = null;
-		extract($parts, EXTR_IF_EXISTS);
-		$args = array();
+		list($binary, $args) = $db->shell_command(array(
+			"sql-dump-command" => true,
+			"tables" => $this->option_list("tables")
+		));
 		if ($this->has_option("arg-prefix")) {
-			$args = array_merge($args, explode(" ", $this->option('arg-prefix')));
+			$args = array_merge($this->option_list('arg-prefix'), $args);
 		}
-		if ($host) {
-			$args[] = "-h";
-			$args[] = $host;
-		}
-		if ($user) {
-			$args[] = "-u";
-			$args[] = $user;
-		}
-		if ($pass) {
-			$args[] = "-p$pass";
-		}
-		$path = substr($path, 1);
-		$args[] = $path;
-		
-		try {
-			$command = self::map_db_scheme($scheme);
-		} catch (Exception $e) {
-			$url = URL::remove_password($url);
-			$this->usage("No command-line shell command found for database type $scheme (URL: $url)");
-		}
-		$full_command_path = $this->application->paths->which($command);
+		$full_command_path = $this->application->paths->which($binary);
 		if (!$full_command_path) {
-			$this->error("Unable to find shell $command in system path:" . implode(", ", $this->application->paths->command()) . "\n");
+			$this->error("Unable to find shell $binary in system path:" . implode(", ", $this->application->paths->command()) . "\n");
 			return false;
 		}
-		
+
 		$suffix = "";
 		$where = "";
 		if ($this->option_bool('file') || $this->has_option('dir') || $this->has_option('target')) {
 			$app_root = $this->application->path();
 			$map = array(
-				'database_name' => $path,
-				"database_host" => $host,
-				"database_port" => $port,
-				"database_user" => $user,
+				'database_name' => $db->url("name"),
+				"database_host" => $db->url("host"),
+				"database_port" => $db->url("port"),
+				"database_user" => $db->url("user"),
 				"zesk_application_root" => $app_root,
 				"application_root" => $app_root
 			);
@@ -136,11 +107,11 @@ class Command_Database_Dump extends Command_Base {
 			$where = Directory::make_absolute($app_root, $where);
 			$suffix .= " > $where";
 		}
-		
+
 		if ($this->has_option("arg-suffix")) {
 			$args = array_merge($args, explode(" ", $this->option('arg-suffix')));
 		}
-		
+
 		$command_line = $full_command_path . implode("", ArrayTools::prefix($args, " ")) . $suffix;
 		if ($this->option_bool('echo')) {
 			echo $command_line . "\n";
