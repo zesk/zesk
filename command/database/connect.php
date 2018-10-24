@@ -26,6 +26,7 @@ class Command_Database_Connect extends Command_Base {
 	 */
 	protected $option_types = array(
 		'name' => 'string',
+		'format' => 'string',
 		'echo' => 'boolean',
 		'debug-connect' => 'boolean',
 		'db-url' => 'boolean',
@@ -47,7 +48,7 @@ class Command_Database_Connect extends Command_Base {
 		'test' => 'Test to make sure all connections work',
 		'db-name' => 'Output the database name or names'
 	);
-	
+
 	/**
 	 *
 	 * @return integer
@@ -59,15 +60,15 @@ class Command_Database_Connect extends Command_Base {
 		if ($this->option_bool("test")) {
 			return $this->handle_test();
 		}
-		
+
 		if ($this->option_bool("grants")) {
 			return $this->handle_grants();
 		}
-		
+
 		$name = $this->option('name');
 		$db = $this->application->database_registry($name);
 		list($command, $args) = $db->shell_command($this->options);
-		
+
 		if ($this->option_bool('debug-connect')) {
 			echo "$command " . implode(" ", $args) . "\n";
 		}
@@ -84,7 +85,7 @@ class Command_Database_Connect extends Command_Base {
 		}
 		return 0;
 	}
-	
+
 	/**
 	 *
 	 * @return number
@@ -111,10 +112,10 @@ class Command_Database_Connect extends Command_Base {
 				return -1;
 			}
 		}
-		echo Text::format_pairs($db);
+		echo $this->render_format($db);
 		return 0;
 	}
-	
+
 	/**
 	 *
 	 * @return number
@@ -129,10 +130,10 @@ class Command_Database_Connect extends Command_Base {
 				$db[$name] = false;
 			}
 		}
-		echo Text::format_pairs($db);
+		echo $this->render_format($db);
 		return 0;
 	}
-	
+
 	/**
 	 * TODO
 	 */
@@ -140,7 +141,7 @@ class Command_Database_Connect extends Command_Base {
 		$db = $this->application->database_module()->register();
 		foreach ($db as $name => $url) {
 		}
-		echo Text::format_pairs($db);
+		echo $this->render_format($db);
 		return 0;
 	}
 }
