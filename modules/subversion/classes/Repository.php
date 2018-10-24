@@ -277,7 +277,7 @@ class Repository extends \zesk\Repository_Command {
 	 */
 	public function update($target = null) {
 		if (!$this->validate()) {
-			$this->run_command("checkout {url} {target}", array(
+			return $this->run_command("checkout {url} {target}", array(
 				"url" => $this->url(),
 				"target" => $this->path($target)
 			));
@@ -288,11 +288,11 @@ class Repository extends \zesk\Repository_Command {
 						"desired_url" => $this->url
 					));
 				}
-				$this->run_command("switch --ignore-ancestry {url}", array(
+				return $this->run_command("switch --ignore-ancestry {url}", array(
 					"url" => $this->url
 				));
 			} else {
-				$this->run_command("update --force {target}", array(
+				return $this->run_command("update --force {target}", array(
 					"target" => $this->resolve_target($target)
 				));
 			}

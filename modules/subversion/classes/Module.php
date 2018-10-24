@@ -70,17 +70,17 @@ class Module extends \zesk\Module_Repository {
 			}
 			$repo = Repository::factory($this->application, self::TYPE, $target);
 			$repo->url($url);
+			if ($repo->need_commit()) {
+				$command->log("Repository at {target} has uncommitted changes", $__);
+				$command->log(array_keys($repo->status()));
+			}
 			if (!$repo->need_update()) {
-				if ($repo->need_commit()) {
-					$command->log("Repository at {target} has uncommitted changes", $__);
-					$command->log(array_keys($repo->status()));
-				}
 				return null;
 			}
 			if (!$command->prompt_yes_no(__("Update subversion {target} from {url}", $__))) {
 				return false;
 			}
-			$repo->update();
+			$command->log($repo->update());
 			return true;
 		} catch (\Exception $e) {
 			$command->error("Command failed: {e}", compact("e"));
