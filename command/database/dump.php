@@ -4,7 +4,6 @@
  */
 namespace zesk;
 
-use zesk\Exception_NotFound;
 use zesk\ArrayTools;
 use zesk\PHP;
 use zesk\URL;
@@ -14,6 +13,9 @@ use zesk\URL;
  * @category Database
  */
 class Command_Database_Dump extends Command_Base {
+	protected $load_modules = array(
+		"database"
+	);
 	protected $option_types = array(
 		"name" => "string",
 		"echo" => "boolean",

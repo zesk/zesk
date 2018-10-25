@@ -1368,9 +1368,9 @@ class Class_ORM extends Hookable {
 			$table = avalue($has_many, 'table');
 		}
 		if ($this->inherit_options) {
-			$object = ORM::cached($class);
-		} else {
 			$object = $object->orm_factory($class, null, $object->inherit_options());
+		} else {
+			$object = $this->application->orm_registry($class);
 		}
 		if (!$object instanceof ORM) {
 			throw new Exception_Semantics("{class} is not an instance of ORM", compact("class"));

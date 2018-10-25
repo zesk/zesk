@@ -509,7 +509,7 @@ class ORM extends Model implements Interface_Member_Model_Factory {
 
 	/**
 	 *
-	 * @return Database
+	 * @return Database|self
 	 */
 	function database(Database $set = null) {
 		if ($set !== null) {
