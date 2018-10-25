@@ -112,7 +112,7 @@ class Command_Database_Connect extends Command_Base {
 				return -1;
 			}
 		}
-		echo $this->render_format($db);
+		$this->render_format($db);
 		return 0;
 	}
 
@@ -130,7 +130,7 @@ class Command_Database_Connect extends Command_Base {
 				$db[$name] = false;
 			}
 		}
-		echo $this->render_format($db);
+		$this->render_format($db);
 		return 0;
 	}
 
@@ -141,7 +141,7 @@ class Command_Database_Connect extends Command_Base {
 		$db = $this->application->database_module()->register();
 		foreach ($db as $name => $url) {
 		}
-		echo $this->render_format($db);
+		$this->render_format($db);
 		return 0;
 	}
 }
