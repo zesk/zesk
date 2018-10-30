@@ -3,13 +3,13 @@ namespace zesk;
 
 /**
  * Turn maintenance on or off
- * 
+ *
  * @author kent
  *
  */
 class Command_Maintenance extends Command_Base {
 	protected function initialize() {
-		$this->application->hooks->add("Application::maintenance_context", array(
+		$this->application->hooks->add(Application::class . "::maintenance_context", array(
 			$this,
 			"maintenance_context"
 		));
@@ -32,17 +32,17 @@ class Command_Maintenance extends Command_Base {
 			$this->log("Maintenance " . ($bool ? "enabled" : "disabled"));
 		}
 	}
-	
+
 	/**
 	 * Pass values to store as part of the system globals upon maintenance
-	 * 
+	 *
 	 * @param Application $app
 	 * @param array $values
 	 * @return array
 	 */
 	function maintenance_context(Application $app, array $values) {
 		if (is_string($this->message)) {
-			$values['Command_Maintenance::message'] = $this->message;
+			$values[__CLASS__ . '::message'] = $this->message;
 		}
 		return $values;
 	}
