@@ -14,7 +14,7 @@ namespace zesk;
  * @see Widget
  */
 class Control extends Widget {
-	
+
 	/**
 	 *
 	 * @var array
@@ -66,7 +66,7 @@ class Control extends Widget {
 		'tr',
 		'ul'
 	);
-	
+
 	/**
 	 * Retrieve the key used to assign this condition to allow overwriting by subclasses
 	 *
@@ -80,10 +80,29 @@ class Control extends Widget {
 		}
 		return implode(";", $columns);
 	}
-	
+
+	/**
+	 * Retrieves a mapping of value to "condition" used to describe when this filter has matched
+	 *
+	 * e.g. If the values are "on", "off", and "snooze" a valid query_condition_map is:
+	 *
+	 * [ "on" => $locale->__("is on"), "off" => $locale->__("is off"), "snooze" => $locale->__("is snoozed") ]
+	 *
+	 * Note for
+	 *
+	 * @param array $set
+	 * @return self|array
+	 */
+	protected function query_condition_map(array $set = null) {
+		if (is_array($set)) {
+			$this->set_option("query_condition_map", $set);
+			return $this;
+		}
+		return $this->option_array("query_condition_map");
+	}
 	/**
 	 * Retrieve the key used to assign this condition to allow overwriting by subclasses
-	 *  
+	 *
 	 * @param Database_Query_Select $query
 	 * @return NULL|string
 	 */
@@ -151,7 +170,7 @@ class Control extends Widget {
 	public function query_column($set = null) {
 		return ($set !== null) ? $this->set_option('query_column', $set) : $this->option('query_column');
 	}
-	
+
 	/**
 	 * Enable sanitization of inputs to remove dangerous HTML
 	 *
@@ -162,41 +181,41 @@ class Control extends Widget {
 	 *
 	 * Use boolean values to strip/allow all tags
 	 *
-	 * @param boolean $set        	
+	 * @param boolean $set
 	 * @return boolean|Widget
 	 */
 	protected function sanitize_html($set = null) {
 		return $set === null ? $this->option_bool('sanitize_html', true) : $this->set_option('sanitize_html', to_bool($set));
 	}
-	
+
 	/**
 	 * Just strip dangerous tags (script, link)
 	 */
 	protected function sanitize_strip_default_tags() {
 		return $this->sanitize_html(true)->sanitize_allow_tags(false)->sanitize_strip_tags(self::$default_strip_tags);
 	}
-	
+
 	/**
 	 * Just strip dangerous tags (script, link)
 	 */
 	protected function sanitize_strip_all_tags() {
 		return $this->sanitize_html(true)->sanitize_allow_tags(false)->sanitize_strip_tags(true);
 	}
-	
+
 	/**
 	 * Only allow default tags (markup, safe)
 	 */
 	protected function sanitize_allow_default_tags() {
 		return $this->sanitize_html(true)->sanitize_allow_tags(self::$default_allow_tags)->sanitize_strip_tags(false);
 	}
-	
+
 	/**
 	 * Allow all tags (whoo-hoo!)
 	 */
 	protected function sanitize_allow_all_tags() {
 		return $this->sanitize_html(false);
 	}
-	
+
 	/**
 	 * Get/set specific tags to strip
 	 *
@@ -205,13 +224,13 @@ class Control extends Widget {
 	 * string|array is list of HTML tags to strip
 	 *
 	 * @see strip_tags
-	 * @param mixed $set        	
+	 * @param mixed $set
 	 * @return Widget|mixed
 	 */
 	protected function sanitize_strip_tags($set = null) {
 		return $set === null ? $this->option('sanitize_strip_tags', true) : $this->set_option('sanitize_strip_tags', $set);
 	}
-	
+
 	/**
 	 * Get/set specific tags to strip
 	 *
@@ -220,15 +239,15 @@ class Control extends Widget {
 	 * string|array is list of HTML tags to strip
 	 *
 	 * @see strip_tags
-	 * @param mixed $set        	
+	 * @param mixed $set
 	 * @return Widget|mixed
 	 */
 	protected function sanitize_allow_tags($set = null) {
 		return $set === null ? $this->option('sanitize_allow_tags', self::$default_allow_tags) : $this->set_option('sanitize_allow_tags', $set);
 	}
-	
+
 	/**
-	 * 
+	 *
 	 * @param string $value
 	 * @param list $tags
 	 * @return string
@@ -244,11 +263,11 @@ class Control extends Widget {
 		}
 		return $value;
 	}
-	
+
 	/**
 	 * Sanitize a non-iterable value
 	 *
-	 * @param unknown $value        	
+	 * @param unknown $value
 	 */
 	private function _sanitize($value) {
 		if (is_object($value) || $value === null || is_bool($value) || is_numeric($value)) {
@@ -275,10 +294,10 @@ class Control extends Widget {
 		}
 		return $value;
 	}
-	
+
 	/**
 	 * Public function to sanitize HTML-related values before storing in an object.
-	 * 
+	 *
 	 * {@inheritDoc}
 	 *
 	 * @see Widget::sanitize($value)

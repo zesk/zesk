@@ -377,6 +377,7 @@ class Module_ORM extends Module {
 				$result['object'] = $object = $this->orm_factory($this->application, $class);
 				$result['database'] = $object->database_name();
 				$result['table'] = $object->table();
+				$result['class'] = get_class($object);
 			} catch (\Exception $e) {
 				$result['object'] = $object = null;
 			}
