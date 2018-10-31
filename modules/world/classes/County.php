@@ -7,6 +7,11 @@
  */
 namespace zesk;
 
+/**
+ * @see Class_County
+ * @author kent
+ *
+ */
 class County extends ORM {
 	public function reassign($new) {
 		$old_id = intval($this->id);

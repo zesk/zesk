@@ -116,8 +116,9 @@ class PolyGlot_Update extends ORM {
 		if ($success) {
 			$server->data($server_variable_name, time());
 		}
+		$application->call_hook("polyglot_update");
 	}
-	
+
 	/**
 	 *
 	 * @param resource $f
@@ -131,7 +132,7 @@ class PolyGlot_Update extends ORM {
 			throw new Exception_FileSystem($filename, "Unable to write to {filename}");
 		}
 	}
-	
+
 	/**
 	 *
 	 * @param string $path
@@ -142,9 +143,9 @@ class PolyGlot_Update extends ORM {
 	 */
 	public static function update_locale(Application $application, $path, $locale) {
 		$iterator = PolyGlot_Token::locale_query($application, $locale)->where("status", PolyGlot_Token::status_done)->order_by("updated DESC,original")->iterator("original", "translation");
-		
+
 		$target_file = path($path, "$locale.inc");
-		
+
 		$pid = $application->process->id();
 		$temp_file = path($path, "$locale.inc.$pid");
 		$f = fopen($temp_file, "w");

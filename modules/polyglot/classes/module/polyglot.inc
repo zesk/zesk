@@ -11,7 +11,7 @@ namespace zesk;
  *
  */
 class Module_PolyGlot extends Module implements Interface_Module_Routes {
-	
+
 	/**
 	 *
 	 * @var array
@@ -30,15 +30,28 @@ class Module_PolyGlot extends Module implements Interface_Module_Routes {
 	public function locale_options() {
 		$list = $this->call_hook_arguments("locale_options", array(), $this->option_array("locale_options"));
 		$options = array();
-		$locales = $this->application->orm_registry("zesk\\Language")
+		foreach ($list as $locale) {
+			$language = Locale::language($locale);
+			$dialect = Locale::dialect($locale);
+			$w = array(
+				'code' => $language
+			);
+			if ($dialect) {
+				$w['dialect'] = $dialect;
+			}
+			$where[] = $w;
+		}
+		$query = $this->application->orm_registry(Language::class)
 			->query_select()
 			->what(array(
 			"code" => "code",
 			"dialect" => "dialect",
 			"name" => "name"
 		))
-			->where("code", $list)
-			->to_array();
+			->where(array(
+			$where
+		));
+		$locales = $query->to_array();
 		$results = array();
 		foreach ($locales as $locale) {
 			$code = $dialect = $name = null;
@@ -48,9 +61,10 @@ class Module_PolyGlot extends Module implements Interface_Module_Routes {
 			}
 			$results[$code] = $name;
 		}
+		$this->application->logger->error($query->__toString());
 		return __($results);
 	}
-	
+
 	/**
 	 *
 	 * @see Module::hook_routes
@@ -61,31 +75,31 @@ class Module_PolyGlot extends Module implements Interface_Module_Routes {
 	 */
 	public function hook_routes(Router $router) {
 		$router->add_route("polyglot", array(
-			"controller" => "zesk\\Controller_PolyGlot"
+			"controller" => Controller_PolyGlot::class
 		));
 		$router->add_route("polyglot/update/{dialect}", array(
-			"controller" => "zesk\\Controller_PolyGlot",
+			"controller" => Controller_PolyGlot::class,
 			"action" => "update",
 			"arguments" => array(
 				2
 			)
 		));
 		$router->add_route("polyglot/load/{dialect}", array(
-			"controller" => "zesk\\Controller_PolyGlot",
+			"controller" => Controller_PolyGlot::class,
 			"action" => "load",
 			"arguments" => array(
 				2
 			)
 		));
 		$router->add_route("polyglot/token/{dialect}", array(
-			"controller" => "zesk\\Controller_PolyGlot",
+			"controller" => Controller_PolyGlot::class,
 			"action" => "token",
 			"arguments" => array(
 				2
 			)
 		));
 	}
-	
+
 	/**
 	 *
 	 * @param string $locale
@@ -121,7 +135,7 @@ class Module_PolyGlot extends Module implements Interface_Module_Routes {
 		$language = Locale::language($locale);
 		$dialect = Locale::dialect($locale);
 		$tokens = PolyGlot_Token::fetch_all($this->application, $language, $dialect);
-		
+
 		foreach ($table as $original => $translation) {
 			if (array_key_exists($original, $tokens)) {
 				$object = $tokens[$original];
