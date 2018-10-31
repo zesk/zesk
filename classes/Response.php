@@ -477,8 +477,8 @@ class Response extends Hookable {
 		return $this->content_type;
 	}
 	/**
-	 * Getter/setter for content type of this response. Generally affects which
-	 * Type handles output. If you want to force a handler, specify it as the 2nd parameter
+	 * Getter/setter for output handler for this response. Generally affects which
+	 * Type handles output. If you want to force a handler, specify it as a parameter
 	 * to force handler usage upon output. See \zesk\Response\Raw for pattern which uses this.
 	 *
 	 * @param string $set
