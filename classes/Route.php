@@ -13,6 +13,30 @@ namespace zesk;
 abstract class Route extends Hookable {
 	/**
 	 *
+	 * @var string
+	 */
+	const OPTION_CACHE = 'cache';
+
+	/**
+	 *
+	 * @var string
+	 */
+	const OPTION_STATUS_MESSAGE = 'status_message';
+
+	/**
+	 *
+	 * @var string
+	 */
+	const OPTION_STATUS_CODE = 'status_code';
+
+	/**
+	 *
+	 * @var string
+	 */
+	const OPTION_OUTPUT_HANDLER = "output_handler";
+
+	/**
+	 *
 	 * @var array
 	 */
 	private $map_variables = null;
@@ -667,13 +691,17 @@ abstract class Route extends Hookable {
 				));
 			}
 		}
-		$v = $this->option('status_code');
+		$v = $this->option(self::OPTION_STATUS_CODE);
 		if ($v) {
 			$response->status($v);
 		}
-		$v = $this->option('status_message');
+		$v = $this->option(self::OPTION_STATUS_MESSAGE);
 		if ($v) {
 			$response->status($response->status_code, $v);
+		}
+		$v = $this->option(self::OPTION_OUTPUT_HANDLER);
+		if ($v) {
+			$response->output_handler($v);
 		}
 		if ($this->option_bool("json")) {
 			$response->is_json(true);
