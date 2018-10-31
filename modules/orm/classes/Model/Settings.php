@@ -191,6 +191,7 @@ class Model_Settings extends Model {
 			}
 			$settings->set($key, $value);
 		}
+		$this->call_hook("stored");
 		$this->_changed = array();
 		return parent::store();
 	}

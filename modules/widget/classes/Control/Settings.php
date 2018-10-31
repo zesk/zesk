@@ -7,26 +7,26 @@ class Control_Settings extends Control {
 	 * @var integer
 	 */
 	protected $column_count_label = 4;
-	
+
 	/**
 	 *
 	 * @var integer
 	 */
 	protected $column_count_widget = 8;
-	
+
 	/**
 	 *
 	 * @var Model_Settings
 	 */
 	protected $object = null;
-	
+
 	/**
 	 * (non-PHPdoc)
 	 *
 	 * @see Widget::model()
 	 */
 	public function model() {
-		return $this->application->model_factory(__NAMESPACE__ . "\\Model_Settings");
+		return $this->application->model_factory(Model_Settings::class);
 	}
 	protected function initialize() {
 		if (!$this->submit_url()) {
