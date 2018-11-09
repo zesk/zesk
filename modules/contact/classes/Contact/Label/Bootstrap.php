@@ -8,7 +8,7 @@
 namespace zesk;
 
 class Contact_Label_Bootstrap {
-	public static function bootstrap() {
+	public static function bootstrap(Application $application) {
 		$labels = array(
 			array(
 				'Work',
@@ -111,14 +111,16 @@ class Contact_Label_Bootstrap {
 				Contact_Label::LabelType_Date
 			)
 		);
-		if (!ORM::class_table_exists('Contact_Label_Group') || !ORM::class_table_exists('Contact_Label')) {
+		$clg_exists = $application->orm_registry(Contact_Label_Group::class)->table_exists();
+		$cl_exists = $application->orm_registry(Contact_Label::class)->table_exists();
+		if (!$clg_exists || !$cl_exists) {
 			return "";
 		}
 		$result = array();
 		foreach ($labels as $arr) {
 			list($codename, $group_name, $type) = $arr;
-			$group_name = Contact_Label_Group::register_group($group_name);
-			$label = new Contact_Label(array(
+			$group_name = Contact_Label_Group::register_group($application, $group_name);
+			$label = $application->orm_factory(Contact_Label::class, array(
 				'CodeName' => $codename,
 				"Type" => $type,
 				"Name" => $codename,
