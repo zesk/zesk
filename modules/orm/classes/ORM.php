@@ -300,18 +300,6 @@ class ORM extends Model implements Interface_Member_Model_Factory {
 	}
 
 	/**
-	 * Retrieve a blank object.
-	 * Useful for retrieving class specification information
-	 *
-	 * @param $class string
-	 *        	Class name to cached
-	 * @return ORM
-	 */
-	public static function cached($class) {
-		return self::cache_class($class, "object");
-	}
-
-	/**
 	 * Retrieve a list of class dependencies for this object
 	 */
 	public function dependencies() {
@@ -532,18 +520,17 @@ class ORM extends Model implements Interface_Member_Model_Factory {
 	}
 
 	/**
-	 * Determine if a class table exists
 	 *
-	 * @param $class string
-	 * @return boolean
+	 * @return string
 	 */
-	public static function class_table_exists($class) {
-		$cache = self::cache_class($class);
-		return $cache['object']->database()->table_exists($cache['table']);
-	}
 	public final function table() {
 		return $this->table ? $this->table : $this->class->table;
 	}
+
+	/**
+	 *
+	 * @return boolean
+	 */
 	public function table_exists() {
 		return $this->database()->table_exists($this->table());
 	}
@@ -2883,7 +2870,7 @@ class ORM extends Model implements Interface_Member_Model_Factory {
 	 * @return Class_ORM
 	 */
 	public function class_object() {
-		zesk()->deprecated();
+		$this->application->deprecated();
 		return $this->class_orm();
 	}
 }
