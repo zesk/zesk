@@ -185,6 +185,7 @@ class Request extends Hookable {
 		$this->data_inherit = null;
 
 		$this->ip = $this->_find_remote_key($_SERVER);
+		$this->remote_ip = avalue($_SERVER, 'REMOTE_ADDR');
 		$this->server_ip = avalue($_SERVER, 'SERVER_ADDR');
 
 		$this->set_method(avalue($_SERVER, 'REQUEST_METHOD', Net_HTTP::METHOD_GET));
@@ -228,6 +229,8 @@ class Request extends Hookable {
 		$this->data_inherit = $request;
 		$this->data_file = $request->data_file;
 		$this->ip = $request->ip;
+		$this->remote_ip = $request->remote_ip;
+		$this->server_ip = $request->server_ip;
 
 		$this->init = "request";
 
@@ -262,7 +265,7 @@ class Request extends Hookable {
 				"settings" => $settings
 			));
 		}
-		$method = $uri = $url = $data = $data_file = $data_raw = $ip = null;
+		$method = $uri = $url = $data = $data_file = $data_raw = $ip = $remote_ip = $server_ip = null;
 		$headers = $cookies = $variables = $files = array();
 		extract($settings, EXTR_IF_EXISTS);
 		$this->set_method(firstarg($method, "GET"));
@@ -292,6 +295,8 @@ class Request extends Hookable {
 		}
 		$this->data_inherit = null;
 		$this->ip = $ip;
+		$this->remote_ip = $remote_ip ?? $ip;
+		$this->server_ip = server_ip;
 
 		$this->init = "settings";
 		$this->call_hook(array(
@@ -982,12 +987,20 @@ class Request extends Hookable {
 	}
 
 	/**
-	 * Retrieve the IP address of the requestor
+	 * Retrieve the IP address of the requestor, taking proxy server headers into consideration.
 	 *
 	 * @return mixed|NULL
 	 */
 	public function ip() {
 		return $this->ip;
+	}
+	/**
+	 * Retrieve the IP address of the requestor, ignoring any proxy servers
+	 *
+	 * @return mixed|NULL
+	 */
+	public function remote_ip() {
+		return $this->remote_ip;
 	}
 	/**
 	 * Retrieve the server IP address
