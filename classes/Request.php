@@ -134,6 +134,15 @@ class Request extends Hookable {
 	protected $server_ip = null;
 
 	/**
+	 * Remote IP address
+	 *
+	 * Defaults to $_SERVER['REMOTE_ADDR']
+	 *
+	 * @var string
+	 */
+	protected $remote_ip = null;
+
+	/**
 	 *
 	 * @var string
 	 */
@@ -296,7 +305,7 @@ class Request extends Hookable {
 		$this->data_inherit = null;
 		$this->ip = $ip;
 		$this->remote_ip = $remote_ip ?? $ip;
-		$this->server_ip = server_ip;
+		$this->server_ip = $server_ip;
 
 		$this->init = "settings";
 		$this->call_hook(array(
