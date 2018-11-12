@@ -768,9 +768,6 @@ class Class_ORM extends Hookable {
 		$this->configure($object);
 		// In case configure changes it
 		$this_class = $this->class;
-		if (count($this->column_types) === 0) {
-			$this->dynamic_columns = true;
-		}
 		if (empty($this->code_name)) {
 			$this->code_name = StringTools::rright($this_class, "\\");
 		}
@@ -846,8 +843,19 @@ class Class_ORM extends Hookable {
 					$this->has_one[$member] = $class = $app->objects->resolve($class);
 					ArrayTools::append($this->has_one_flip, $class, $member);
 				}
+				if (isset($this->column_types[$member]) && $this->column_types[$member] !== self::type_object) {
+					$this->application->logger->warning("Class {class} column {member} type is not {object} and will be overwritten: {type}", array(
+						"class" => get_class($this),
+						"member" => $member,
+						"object" => self::type_object,
+						"type" => $this->column_types[$member]
+					));
+				}
 				$this->column_types[$member] = self::type_object;
 			}
+		}
+		if (count($this->column_types) === 0) {
+			$this->dynamic_columns = true;
 		}
 		$this->initialize_database($object);
 		if (empty($this->utc_timestamps)) {
