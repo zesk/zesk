@@ -86,6 +86,8 @@ class Control_Forgot extends Control_Edit {
 			->add_class('btn-primary btn-block')
 			->nolabel(true);
 
+		$ww[] = $w = $this->widget_factory(Control_Hidden::class)->names("tzid");
+
 		return $ww;
 	}
 	public function submitted() {
@@ -115,6 +117,18 @@ class Control_Forgot extends Control_Edit {
 		$object->session = $session = $this->session();
 		$object->code = md5(microtime() . mt_rand(0, mt_getrandmax()));
 		$object->store();
+		$object->fetch();
+
+		$tzid = $object->member("tzid");
+		if (is_numeric($tzid)) {
+			$off = abs(intval($tzid / 60));
+			// INTENTIALLY REVERSED. Etc/GMT+5 is EST
+			// https://en.wikipedia.org/wiki/Tz_database#Area
+			$sign = $tzid < 0 ? "+" : "-";
+			date_default_timezone_set("Etc/GMT$sign$off");
+		} else if (is_string($tzid)) {
+			date_default_timezone_set($tzid);
+		}
 
 		$object->notify($this->request);
 

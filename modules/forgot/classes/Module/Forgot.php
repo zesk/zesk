@@ -13,10 +13,12 @@ namespace zesk;
 /**
  * Forgotten password support
  *
+ * @see Forgot
+ * @see Controller_Forgot
  * @author kent
  */
 class Module_Forgot extends Module implements Interface_Module_Routes {
-	
+
 	/**
 	 *
 	 * @var array
@@ -24,7 +26,7 @@ class Module_Forgot extends Module implements Interface_Module_Routes {
 	protected $model_classes = array(
 		"zesk\\Forgot"
 	);
-	
+
 	/**
 	 *
 	 * {@inheritDoc}
@@ -34,7 +36,7 @@ class Module_Forgot extends Module implements Interface_Module_Routes {
 		parent::initialize();
 		$this->application->configuration->path(Forgot::class)->theme_path_prefix = "object";
 	}
-	
+
 	/**
 	 * Implements Module::routes
 	 *
@@ -53,12 +55,45 @@ class Module_Forgot extends Module implements Interface_Module_Routes {
 			"id" => "forgot"
 		));
 	}
-	
+	/**
+	 * Default value for database_expire_seconds (1 day)
+	 *
+	 * @var integer
+	 */
+	const DEFAULT_DATABASE_EXPIRE_SECONDS = 86400;
+
+	/**
+	 * Default value for request_expire_seconds (# seconds after which requests are considered invalid by the browser) (1 hour)
+	 *
+	 *
+	 * @var integer
+	 */
+	const DEFAULT_REQUEST_EXPIRE_SECONDS = 3600;
+
+	/**
+	 * Represents the number of seconds after which database entries are considered invalid.
+	 *
+	 * @return integer
+	 */
+	public function request_expire_seconds() {
+		return $this->option("request_expire_seconds", self::DEFAULT_REQUEST_EXPIRE_SECONDS);
+	}
+
+	/**
+	 * Represents the number of seconds after which database entries are deleted. Must be greater than "request_expire_seconds" above, and
+	 * is enforced.
+	 *
+	 * @return integer
+	 */
+	public function database_expire_seconds() {
+		return max($this->option_integer("expire_seconds", self::DEFAULT_DATABASE_EXPIRE_SECONDS), $this->request_expire_seconds());
+	}
+
 	/**
 	 *
 	 * @param Application $application
 	 */
-	public function cron_cluster_minute() {
+	public function hook_cron_cluster_minute() {
 		$expire_seconds = -abs(to_integer($this->option("expire_seconds"), 3600));
 		$older = Timestamp::now()->add_unit($expire_seconds, Timestamp::UNIT_SECOND);
 		$affected_rows = $this->application->orm_registry(Forgot::class)->delete_older($older);

@@ -50,11 +50,10 @@ class Control_ForgotReset extends Control_Edit {
 
 		$ww = array();
 
-		$ww[] = $w = $this->widget_factory(Control_Hidden::class)->names('validate');
-		$w->required(true);
+		// 		$ww[] = $w = $this->widget_factory(Control_Hidden::class)->names('validate');
+		// 		$w->required(true);
 
-		$ww[] = $w = $this->widget_factory(Control_Password::class)->names('login_password', $this->option("label_password", $locale->__("New Password")));
-
+		$ww[] = $w = $this->widget_factory(Control_Password::class)->names('password', $this->option("label_password", $locale->__("New Password")));
 		$w->set_option('encrypted_column', 'new_password');
 		$w->set_option('confirm', true);
 		$w->required(true);
@@ -99,12 +98,19 @@ class Control_ForgotReset extends Control_Edit {
 		}
 		$locale = $this->locale();
 		/* @var $user User */
-		$found = $this->object->fetch($this->validate_token())->find();
+		/* @var $found Forgot */
+		$found = $this->application->orm_factory($this->class)->find(array(
+			"code" => $this->validate_token()
+		));
+		if ($found && $found->expired()) {
+			$this->error($locale->__("Control_ForgotReset:=Forgotten password request expired. Please try again."));
+			return false;
+		}
 		$this->auth_user = $this->call_hook_arguments("find_user", array(
 			$this->auth_user
 		), $this->auth_user);
 		if ($this->option_bool('not_found_error', true) && !$this->auth_user) {
-			$this->error($locale->__("Control_Forgot:=Not able to find that user."), 'login');
+			$this->error($locale->__("Control_ForgotReset:=Not able to find that user."), 'login');
 			return false;
 		}
 		return true;
@@ -116,7 +122,7 @@ class Control_ForgotReset extends Control_Edit {
 
 		$object->validated($object->new_password);
 
-		$location = '/forgot/' . $this->validate_token() . "/complete";
+		$location = '/forgot/complete/' . $this->validate_token();
 		if (!$this->prefer_json()) {
 			throw new Exception_Redirect($location);
 		}

@@ -89,6 +89,47 @@ class Forgot extends ORM {
 		$query->execute();
 		return $this;
 	}
+
+	/**
+	 * Validate the token string
+	 *
+	 * @param string $token
+	 * @return boolean
+	 */
+	public static function valid_token($token) {
+		return preg_match('/[0-9a-f]{32}/i', strval($token)) !== 0;
+	}
+
+	/**
+	 * Number of seconds after which this object is considered no longer valid.
+	 *
+	 * @return integer
+	 */
+	public function expire_seconds() {
+		return $this->application->forgot_module()->request_expire_seconds();
+	}
+
+	/**
+	 * Has this expired?
+	 *
+	 * @return boolean
+	 */
+	public function expired() {
+		return $this->expiration()->beforeNow(true);
+	}
+	/**
+	 * Fetch the expiration date
+	 *
+	 * @return \zesk\Timestamp
+	 */
+	public function expiration() {
+		return $this->created->duplicate()->add_unit($this->expire_seconds());
+	}
+	/**
+	 *
+	 * @param Timestamp $older
+	 * @return integer
+	 */
 	public function delete_older(Timestamp $older) {
 		return $this->query_delete()
 			->where("Created|<=", $older)
