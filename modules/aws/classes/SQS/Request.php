@@ -11,9 +11,13 @@ final class Request {
      * @var array $parameters
      */
     private $sqs;
+
     private $queue;
+
     private $verb;
+
     private $expires;
+
     private $parameters = array();
     
     /**

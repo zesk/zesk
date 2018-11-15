@@ -8,128 +8,129 @@
 namespace zesk;
 
 class Database_Query_Select_Test extends Test_Unit {
-	protected $load_modules = array(
-		"MySQL",
-		"ORM"
-	);
-	public function test_main() {
-		$table_name = "Database_Query_Select";
+    protected $load_modules = array(
+        "MySQL",
+        "ORM",
+    );
 
-		$this->test_table($table_name);
+    public function test_main() {
+        $table_name = "Database_Query_Select";
 
-		$db = $this->application->database_registry();
-		$testx = new Database_Query_Select($db);
+        $this->test_table($table_name);
 
-		$db = null;
-		$mixed = null;
-		$value = null;
-		$testx->what($mixed, $value);
+        $db = $this->application->database_registry();
+        $testx = new Database_Query_Select($db);
 
-		$alias = '';
-		$testx->from($table_name, $alias);
+        $db = null;
+        $mixed = null;
+        $value = null;
+        $testx->what($mixed, $value);
 
-		$sql = null;
-		$join_id = null;
-		$testx->join($sql, $join_id);
+        $alias = '';
+        $testx->from($table_name, $alias);
 
-		$k = null;
-		$v = null;
-		$testx->where($k, $v);
+        $sql = null;
+        $join_id = null;
+        $testx->join($sql, $join_id);
 
-		$order_by = null;
-		$testx->order_by($order_by);
+        $k = null;
+        $v = null;
+        $testx->where($k, $v);
 
-		$group_by = null;
-		$testx->group_by($group_by);
+        $order_by = null;
+        $testx->order_by($order_by);
 
-		$offset = 0;
-		$limit = null;
-		$testx->limit($offset, $limit);
+        $group_by = null;
+        $testx->group_by($group_by);
 
-		$testx->__toString();
+        $offset = 0;
+        $limit = null;
+        $testx->limit($offset, $limit);
 
-		$testx->iterator();
+        $testx->__toString();
 
-		$class = null;
-		$testx->orm_iterator($class);
+        $testx->iterator();
 
-		$field = false;
-		$default = false;
-		$testx->one($field, $default);
+        $class = null;
+        $testx->orm_iterator($class);
 
-		$testx->object("User");
+        $field = false;
+        $default = false;
+        $testx->one($field, $default);
 
-		$field = null;
-		$default = 0;
-		$testx->one_integer($field, $default);
+        $testx->object("User");
 
-		$field = null;
-		$default = 0;
-		$testx->integer($field, $default);
+        $field = null;
+        $default = 0;
+        $testx->one_integer($field, $default);
 
-		$key = false;
-		$value = false;
-		$default = false;
-		$testx->to_array($key, $value, $default);
+        $field = null;
+        $default = 0;
+        $testx->integer($field, $default);
 
-		$testx->database();
+        $key = false;
+        $value = false;
+        $default = false;
+        $testx->to_array($key, $value, $default);
 
-		$class = null;
-		$testx->orm_class($class);
+        $testx->database();
 
-		$db = $this->application->database_registry();
-		$x = new Database_Query_Select($db);
-		$x->from($table_name);
-		$x->what(null, "ID");
-		$x->where("ID", array(
-			1,
-			2,
-			3,
-			4
-		));
+        $class = null;
+        $testx->orm_class($class);
 
-		$result = strval($x);
-		$valid_result = "SELECT ID FROM `Database_Query_Select` WHERE (`ID` = 1 OR `ID` = 2 OR `ID` = 3 OR `ID` = 4)";
+        $db = $this->application->database_registry();
+        $x = new Database_Query_Select($db);
+        $x->from($table_name);
+        $x->what(null, "ID");
+        $x->where("ID", array(
+            1,
+            2,
+            3,
+            4,
+        ));
 
-		$result = preg_replace('/\s+/', ' ', trim($result));
-		$valid_result = preg_replace('/\s+/', ' ', trim($valid_result));
-		$this->assert_equal($result, $valid_result);
+        $result = strval($x);
+        $valid_result = "SELECT ID FROM `Database_Query_Select` WHERE (`ID` = 1 OR `ID` = 2 OR `ID` = 3 OR `ID` = 4)";
 
-		$x = new Database_Query_Select($db);
-		$x->from($table_name);
-		$x->what(null, "ID");
-		$x->where("ID|!=|AND", array(
-			1,
-			2,
-			3,
-			4
-		));
-		$result = strval($x);
+        $result = preg_replace('/\s+/', ' ', trim($result));
+        $valid_result = preg_replace('/\s+/', ' ', trim($valid_result));
+        $this->assert_equal($result, $valid_result);
 
-		$result = strval($x);
-		$valid_result = "SELECT ID FROM `Database_Query_Select` WHERE (`ID` != 1 AND `ID` != 2 AND `ID` != 3 AND `ID` != 4)";
+        $x = new Database_Query_Select($db);
+        $x->from($table_name);
+        $x->what(null, "ID");
+        $x->where("ID|!=|AND", array(
+            1,
+            2,
+            3,
+            4,
+        ));
+        $result = strval($x);
 
-		$result = preg_replace('/\s+/', ' ', trim($result));
-		$valid_result = preg_replace('/\s+/', ' ', trim($valid_result));
-		$this->assert($result === "$valid_result", "\"$result\" === \"$valid_result\"");
+        $result = strval($x);
+        $valid_result = "SELECT ID FROM `Database_Query_Select` WHERE (`ID` != 1 AND `ID` != 2 AND `ID` != 3 AND `ID` != 4)";
 
-		$x = new Database_Query_Select($db);
-		$x->from($table_name);
-		$x->what(null, "ID");
-		$x->where("*SUM(Total)|!=|AND", array(
-			1,
-			2,
-			3,
-			4
-		));
-		$result = strval($x);
+        $result = preg_replace('/\s+/', ' ', trim($result));
+        $valid_result = preg_replace('/\s+/', ' ', trim($valid_result));
+        $this->assert($result === "$valid_result", "\"$result\" === \"$valid_result\"");
 
-		$result = strval($x);
-		$valid_result = "SELECT ID FROM `Database_Query_Select` WHERE (SUM(Total)!=1 AND SUM(Total)!=2 AND SUM(Total)!=3 AND SUM(Total)!=4)";
+        $x = new Database_Query_Select($db);
+        $x->from($table_name);
+        $x->what(null, "ID");
+        $x->where("*SUM(Total)|!=|AND", array(
+            1,
+            2,
+            3,
+            4,
+        ));
+        $result = strval($x);
 
-		$result = preg_replace('/\s+/', ' ', trim($result));
-		$valid_result = preg_replace('/\s+/', ' ', trim($valid_result));
+        $result = strval($x);
+        $valid_result = "SELECT ID FROM `Database_Query_Select` WHERE (SUM(Total)!=1 AND SUM(Total)!=2 AND SUM(Total)!=3 AND SUM(Total)!=4)";
 
-		$this->assert($result === "$valid_result", "\"$result\" === \"$valid_result\"");
-	}
+        $result = preg_replace('/\s+/', ' ', trim($result));
+        $valid_result = preg_replace('/\s+/', ' ', trim($valid_result));
+
+        $this->assert($result === "$valid_result", "\"$result\" === \"$valid_result\"");
+    }
 }

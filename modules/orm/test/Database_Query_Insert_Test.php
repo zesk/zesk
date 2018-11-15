@@ -10,51 +10,52 @@ namespace zesk;
  *
  */
 class Database_Query_Insert_Test extends Test_Unit {
-	protected $load_modules = array(
-		"MySQL",
-		"ORM"
-	);
-	public function test_Database_Query_Insert() {
-		/**
-		 * $URL:
-		 * https://code.marketacumen.com/zesk/trunk/classes/database/query/test/database_query_insert_test.inc
-		 * $
-		 *
-		 * @package zesk
-		 * @subpackage test
-		 * @author Kent Davidson <kent@marketacumen.com>
-		 * @copyright Copyright &copy; 2010, Market Acumen, Inc.
-		 */
-		$db = $this->application->database_registry();
-		$testx = new Database_Query_Insert($db);
+    protected $load_modules = array(
+        "MySQL",
+        "ORM",
+    );
 
-		$table = null;
-		$testx->into($table);
+    public function test_Database_Query_Insert() {
+        /**
+         * $URL:
+         * https://code.marketacumen.com/zesk/trunk/classes/database/query/test/database_query_insert_test.inc
+         * $
+         *
+         * @package zesk
+         * @subpackage test
+         * @author Kent Davidson <kent@marketacumen.com>
+         * @copyright Copyright &copy; 2010, Market Acumen, Inc.
+         */
+        $db = $this->application->database_registry();
+        $testx = new Database_Query_Insert($db);
 
-		$name = null;
-		$value = null;
-		$testx->value($name, $value);
+        $table = null;
+        $testx->into($table);
 
-		$values = array(
-			"ID" => "23"
-		);
-		$testx->values($values);
+        $name = null;
+        $value = null;
+        $testx->value($name, $value);
 
-		$low_priority = null;
-		$testx->low_priority($low_priority);
+        $values = array(
+            "ID" => "23",
+        );
+        $testx->values($values);
 
-		$testx->replace();
+        $low_priority = null;
+        $testx->low_priority($low_priority);
 
-		$testx->__toString();
+        $testx->replace();
 
-		$columns = array(
-			"ID"
-		);
-		$testx->valid_columns($columns);
+        $testx->__toString();
 
-		$testx->database();
+        $columns = array(
+            "ID",
+        );
+        $testx->valid_columns($columns);
 
-		$class = null;
-		$testx->orm_class($class);
-	}
+        $testx->database();
+
+        $class = null;
+        $testx->orm_class($class);
+    }
 }

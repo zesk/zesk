@@ -8,77 +8,78 @@
 namespace zesk;
 
 class Database_Query_Union_Test extends Test_Unit {
-	protected $load_modules = array(
-		"MySQL",
-		"ORM"
-	);
-	public function test_main() {
-		$table_name = "Database_Query_Union";
+    protected $load_modules = array(
+        "MySQL",
+        "ORM",
+    );
 
-		$this->test_table($table_name);
+    public function test_main() {
+        $table_name = "Database_Query_Union";
 
-		$db = $this->application->database_registry();
-		$testx = new Database_Query_Union($db);
+        $this->test_table($table_name);
 
-		$select = new Database_Query_Select($db);
-		$testx->union($select);
+        $db = $this->application->database_registry();
+        $testx = new Database_Query_Union($db);
 
-		$what = null;
-		$testx->what($what);
+        $select = new Database_Query_Select($db);
+        $testx->union($select);
 
-		$table = $table_name;
-		$alias = '';
-		$testx->from($table, $alias);
+        $what = null;
+        $testx->what($what);
 
-		$sql = null;
-		$join_id = null;
-		$testx->join($sql, $join_id);
+        $table = $table_name;
+        $alias = '';
+        $testx->from($table, $alias);
 
-		$k = null;
-		$v = null;
-		$testx->where($k, $v);
+        $sql = null;
+        $join_id = null;
+        $testx->join($sql, $join_id);
 
-		$group_by = null;
-		$testx->group_by($group_by);
+        $k = null;
+        $v = null;
+        $testx->where($k, $v);
 
-		$order_by = null;
-		$testx->order_by($order_by);
+        $group_by = null;
+        $testx->group_by($group_by);
 
-		$offset = 0;
-		$limit = null;
-		$testx->limit($offset, $limit);
+        $order_by = null;
+        $testx->order_by($order_by);
 
-		$testx->__toString();
+        $offset = 0;
+        $limit = null;
+        $testx->limit($offset, $limit);
 
-		$testx->iterator();
+        $testx->__toString();
 
-		$class = "U";
-		$options = array();
-		$testx->orm_iterator($class, $options);
+        $testx->iterator();
 
-		$field = false;
-		$default = false;
-		$testx->one($field, $default);
+        $class = "U";
+        $options = array();
+        $testx->orm_iterator($class, $options);
 
-		$class = "User";
-		$testx->object($class);
+        $field = false;
+        $default = false;
+        $testx->one($field, $default);
 
-		$field = null;
-		$default = 0;
-		$testx->one_integer($field, $default);
+        $class = "User";
+        $testx->object($class);
 
-		$field = null;
-		$default = 0;
-		$testx->integer($field, $default);
+        $field = null;
+        $default = 0;
+        $testx->one_integer($field, $default);
 
-		$key = false;
-		$value = false;
-		$default = false;
-		$testx->to_array($key, $value, $default);
+        $field = null;
+        $default = 0;
+        $testx->integer($field, $default);
 
-		$testx->database();
+        $key = false;
+        $value = false;
+        $default = false;
+        $testx->to_array($key, $value, $default);
 
-		$class = null;
-		$testx->orm_class($class);
-	}
+        $testx->database();
+
+        $class = null;
+        $testx->orm_class($class);
+    }
 }
