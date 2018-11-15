@@ -7,4 +7,5 @@ zesk()->deprecated();
  * @author kent
  *
  */
-class Control_Hidden_Object extends Control_Hidden_Model {}
+class Control_Hidden_Object extends Control_Hidden_Model {
+}

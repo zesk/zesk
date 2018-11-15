@@ -9,11 +9,12 @@
 namespace zesk;
 
 class View_Static extends View_Text {
-	public function text($set = null) {
-		return $set !== null ? $this->set_option('text', $set) : $this->option('text');
-	}
-	function render() {
-		$this->value($this->option("text", ""));
-		return parent::render();
-	}
+    public function text($set = null) {
+        return $set !== null ? $this->set_option('text', $set) : $this->option('text');
+    }
+
+    public function render() {
+        $this->value($this->option("text", ""));
+        return parent::render();
+    }
 }

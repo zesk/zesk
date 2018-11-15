@@ -6,4 +6,5 @@
  * @author kent
  * @see \zesk\Module_Permission
  */
-class Permission extends zesk\Permission {}
+class Permission extends zesk\Permission {
+}

@@ -11,4 +11,5 @@ zesk()->deprecated();
  * @author kent
  * @no-cannon
  */
-class Exception_Object_Empty extends Exception_ORM_Empty {}
+class Exception_Object_Empty extends Exception_ORM_Empty {
+}

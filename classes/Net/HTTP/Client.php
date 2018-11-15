@@ -13,7 +13,6 @@ namespace zesk;
  * @subpackage system
  */
 class Net_HTTP_Client extends Hookable {
-
 	/*
 	 * Sample user agent for FireFox
 	 * @var string
@@ -39,6 +38,7 @@ class Net_HTTP_Client extends Hookable {
 	 * @var string
 	 */
 	const user_agent_chrome = "Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/34.0.1796.0 Safari/537.36";
+
 	/**
 	 * Sample user agent for Opera
 	 *
@@ -51,7 +51,7 @@ class Net_HTTP_Client extends Hookable {
 	 *
 	 * @var array
 	 */
-	static $sample_agents = array(
+	public static $sample_agents = array(
 		self::user_agent_chrome,
 		self::user_agent_firefox,
 		self::user_agent_msie,
@@ -71,6 +71,7 @@ class Net_HTTP_Client extends Hookable {
 	 * @var array
 	 */
 	private $request_headers = array();
+
 	/**
 	 *
 	 * @var array
@@ -144,34 +145,41 @@ class Net_HTTP_Client extends Hookable {
 	 * @var boolean
 	 */
 	private $recurse = false;
+
 	/**
 	 * The user agent used for the connection
 	 */
 	private $user_agent = null;
+
 	/**
 	 * Path of the destination file
 	 *
 	 * @var string
 	 */
 	private $destination = null;
+
 	/**
 	 * CURL options
 	 *
 	 * @var array
 	 */
 	private $curl_opts = array();
+
 	/**
 	 * Error with connecting to server
 	 */
 	const Error_Connection = "Error_Connection";
+
 	/**
 	 * Error resolving host name
 	 */
 	const Error_Resolve_Host = "Error_Resolve_Host";
+
 	/**
 	 * Error waiting for server to respond
 	 */
 	const Error_Timeout = "Error_Timeout";
+
 	/**
 	 * Error connecting via SSL to remote site
 	 */
@@ -205,6 +213,7 @@ class Net_HTTP_Client extends Hookable {
 			$this->user_agent($this->option("user_agent"));
 		}
 	}
+
 	/**
 	 * The default user agent
 	 *
@@ -220,6 +229,7 @@ class Net_HTTP_Client extends Hookable {
 		$this->method = $method;
 		return $this;
 	}
+
 	/**
 	 * Get/set POST method
 	 *
@@ -287,6 +297,7 @@ class Net_HTTP_Client extends Hookable {
 		$this->destination = File::validate_writable($set);
 		return $this;
 	}
+
 	/**
 	 * Return the full error code (404,200,etc.)
 	 *
@@ -295,6 +306,7 @@ class Net_HTTP_Client extends Hookable {
 	public function response_code() {
 		return $this->response_code ? intval($this->response_code) : null;
 	}
+
 	/**
 	 * Return the base error type 2,3,4,5
 	 *
@@ -310,6 +322,7 @@ class Net_HTTP_Client extends Hookable {
 	public function response_message() {
 		return $this->response_message;
 	}
+
 	/**
 	 *
 	 * @return $ResponseProtocol
@@ -419,6 +432,7 @@ class Net_HTTP_Client extends Hookable {
 		}
 		return $this->timeout;
 	}
+
 	/**
 	 * Get/set the request timeout in miiliseconds
 	 *
@@ -467,9 +481,11 @@ class Net_HTTP_Client extends Hookable {
 				$this->curl_opts[CURLOPT_POSTFIELDS] = $data;
 				$httpHeaders[] = 'Content-Length: ' . strlen($data);
 				$this->skip_request_header('content-length');
+
 				break;
 			case Net_HTTP::METHOD_HEAD:
 				$this->curl_opts[CURLOPT_NOBODY] = 1;
+
 				break;
 			case Net_HTTP::METHOD_PUT:
 				$this->data_file = tmpfile();
@@ -480,9 +496,11 @@ class Net_HTTP_Client extends Hookable {
 				$this->curl_opts[CURLOPT_INFILESIZE] = strlen($data);
 				$httpHeaders[] = 'Content-Length: ' . strlen($data);
 				$this->skip_request_header('content-length');
+
 				break;
 			default :
 				$this->curl_opts[CURLOPT_CUSTOMREQUEST] = $this->method;
+
 				break;
 		}
 		return $httpHeaders;
@@ -606,13 +624,13 @@ class Net_HTTP_Client extends Hookable {
 	}
 	private function _curl_opts_destination() {
 		if ($this->destination) {
-			$dest_fp = fopen($this->destination, "w");
+			$dest_fp = fopen($this->destination, "wb");
 			if (!$dest_fp) {
 				throw new Exception_File_Permission($dest_fp, "Not writable");
 			}
 			$this->curl_opts[CURLOPT_FILE] = $dest_fp;
 			$dest_headers_name = $this->destination . "-headers";
-			$dest_headers_fp = fopen($dest_headers_name, "w");
+			$dest_headers_fp = fopen($dest_headers_name, "wb");
 			$this->curl_opts[CURLOPT_WRITEHEADER] = $dest_headers_fp;
 
 			return $dest_headers_name;
@@ -637,7 +655,7 @@ class Net_HTTP_Client extends Hookable {
 			}
 			unlink($dest_headers_name);
 			File::trim($this->destination, strlen($all_headers));
-		} else if ($this->want_headers()) {
+		} elseif ($this->want_headers()) {
 			$this->parseHeaders();
 		}
 	}
@@ -690,6 +708,7 @@ class Net_HTTP_Client extends Hookable {
 		if ($errno !== 0) {
 			if ($errno === CURLE_COULDNT_RESOLVE_HOST) {
 				$host = URL::parse($this->url(), "host");
+
 				throw new Exception_DomainLookup($host, "Retrieving URL {url}", array(
 					"url" => $this->url()
 				), $errno);
@@ -702,6 +721,7 @@ class Net_HTTP_Client extends Hookable {
 				CURLE_SSL_CONNECT_ERROR => self::Error_SSL_Connect
 			);
 			$error_string = avalue($errno_map, $errno, "UnknownErrno-$errno");
+
 			throw new Net_HTTP_Client_Exception("Error {error_code} ({errno} = {error_string})", array(
 				"error_string" => $error_string
 			), $error_code, $errno);
@@ -731,11 +751,11 @@ class Net_HTTP_Client extends Hookable {
 		$url = $this->option("URL");
 		return URL::host($url);
 	}
-	static public function url_content_length(Application $application, $url) {
+	public static function url_content_length(Application $application, $url) {
 		$headers = self::url_headers($application, $url);
 		return to_integer(aevalue($headers, "Content-Length"));
 	}
-	static public function url_headers(Application $application, $url) {
+	public static function url_headers(Application $application, $url) {
 		$x = new Net_HTTP_Client($application, $url);
 		$x->method_head(true);
 		$x->go();
@@ -762,13 +782,14 @@ class Net_HTTP_Client extends Hookable {
 	public function response_cookies($set = null) {
 		if ($set instanceof Net_HTTP_Client_Cookie) {
 			$this->response_cookies[] = $set;
-		} else if (is_array($set)) {
+		} elseif (is_array($set)) {
 			foreach ($set as $item) {
 				$this->cookies($item);
 			}
 		}
 		return $this->response_cookies;
 	}
+
 	/*
 	 * Cookie Handling
 	 * @todo move this out of here, use a Cookie Jar or something
@@ -824,8 +845,9 @@ class Net_HTTP_Client extends Hookable {
 		return false;
 	}
 	private function findCookie($cookieName, $domain, $path) {
-		if (!isset($this->response_cookies[$cookieName]))
+		if (!isset($this->response_cookies[$cookieName])) {
 			return false;
+		}
 		$cookies = $this->response_cookies[$cookieName];
 		if (is_array($cookies)) {
 			foreach ($cookies as $cookie) {
@@ -857,10 +879,11 @@ class Net_HTTP_Client extends Hookable {
 			return false;
 		}
 		$cookies = $this->response_headers["set-cookie"];
-		if (!is_array($cookies))
+		if (!is_array($cookies)) {
 			$cookies = array(
 				$cookies
 			);
+		}
 		foreach ($cookies as $cookie) {
 			$parts = explode(";", $cookie);
 			$cookie_item = array_shift($parts);
@@ -880,15 +903,19 @@ class Net_HTTP_Client extends Hookable {
 				switch ($cname) {
 					case "path":
 						$path = $cvalue;
+
 						break;
 					case "secure":
 						$secure = true;
+
 						break;
 					case "domain":
 						$domain = $cvalue;
+
 						break;
 					case "expires":
 						$expireString = $cvalue;
+
 						break;
 				}
 			}
@@ -968,6 +995,7 @@ class Net_HTTP_Client extends Hookable {
 		}
 		return avalue($this->response_headers, strtolower($name), $default);
 	}
+
 	/**
 	 * Getter/setter for follow location
 	 *
@@ -981,6 +1009,7 @@ class Net_HTTP_Client extends Hookable {
 		}
 		return $this->option_bool('follow_location');
 	}
+
 	/**
 	 * Getter/setter for User-Agent for request
 	 *
@@ -1011,6 +1040,7 @@ class Net_HTTP_Client extends Hookable {
 		}
 		return basename(URL::path($this->url()));
 	}
+
 	/**
 	 * Get/Set that we want to retrieve the headers from the remote server
 	 *
@@ -1045,7 +1075,7 @@ class Net_HTTP_Client extends Hookable {
 		}
 		return $this;
 	}
-	static $ignore_response_headers = array(
+	public static $ignore_response_headers = array(
 		Net_HTTP::RESPONSE_CONTENT_ENCODING => true,
 		Net_HTTP::RESPONSE_TRANSFER_ENCODING => true
 	);
@@ -1084,5 +1114,3 @@ class Net_HTTP_Client extends Hookable {
 		return $this->request_variables() + $this->response_variables();
 	}
 }
-
-

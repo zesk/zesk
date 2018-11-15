@@ -15,69 +15,72 @@ use zesk\PHP;
  *
  */
 class Edit {
-	/**
-	 *
-	 * @var string
-	 */
-	const DIFF_INSERT = 'insert';
-	/**
-	 *
-	 * @var string
-	 */
-	const DIFF_DELETE = 'delete';
-	/**
-	 *
-	 * @var string
-	 */
-	const DIFF_MATCH = 'match';
+    /**
+     *
+     * @var string
+     */
+    const DIFF_INSERT = 'insert';
 
-	/**
-	 * Operation
-	 *
-	 * @var string
-	 */
-	public $op;
+    /**
+     *
+     * @var string
+     */
+    const DIFF_DELETE = 'delete';
 
-	/**
-	 * Offset
-	 *
-	 * @var integer
-	 */
-	public $off;
-	/**
-	 * Length
-	 *
-	 * @var integer
-	 */
-	public $len;
-	/**
-	 * Data which changed
-	 *
-	 * @var mixed
-	 */
-	public $data = null;
+    /**
+     *
+     * @var string
+     */
+    const DIFF_MATCH = 'match';
 
-	/**
-	 *
-	 * @param string $op
-	 * @param integer $off
-	 * @param integer $len
-	 * @param mixed $data
-	 */
-	function __construct($op, $off, $len, $data = null) {
-		$this->op = $op;
-		$this->off = $off;
-		$this->len = $len;
-		$this->data = $data;
-	}
+    /**
+     * Operation
+     *
+     * @var string
+     */
+    public $op;
 
-	/**
-	 * Convert to string
-	 *
-	 * @return string
-	 */
-	function __toString() {
-		return PHP::dump($this->op) . ", " . $this->off . ", " . $this->len . ', ' . PHP::dump($this->data);
-	}
+    /**
+     * Offset
+     *
+     * @var integer
+     */
+    public $off;
+
+    /**
+     * Length
+     *
+     * @var integer
+     */
+    public $len;
+
+    /**
+     * Data which changed
+     *
+     * @var mixed
+     */
+    public $data = null;
+
+    /**
+     *
+     * @param string $op
+     * @param integer $off
+     * @param integer $len
+     * @param mixed $data
+     */
+    public function __construct($op, $off, $len, $data = null) {
+        $this->op = $op;
+        $this->off = $off;
+        $this->len = $len;
+        $this->data = $data;
+    }
+
+    /**
+     * Convert to string
+     *
+     * @return string
+     */
+    public function __toString() {
+        return PHP::dump($this->op) . ", " . $this->off . ", " . $this->len . ', ' . PHP::dump($this->data);
+    }
 }
-

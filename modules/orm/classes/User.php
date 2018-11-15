@@ -17,457 +17,459 @@ namespace zesk;
  * @author kent
  */
 class User extends ORM {
-	/**
-	 * Boolean value to enable debugging of permissions
-	 *
-	 * @var string
-	 */
-	const option_debug_permission = "debug_permission";
+    /**
+     * Boolean value to enable debugging of permissions
+     *
+     * @var string
+     */
+    const option_debug_permission = "debug_permission";
 
-	/**
-	 *
-	 * @var string
-	 */
-	public static $debug_permission = false;
+    /**
+     *
+     * @var string
+     */
+    public static $debug_permission = false;
 
-	/**
-	 * Syntactic sygar; types this member.
-	 *
-	 * @var Class_User
-	 */
-	protected $class = null;
+    /**
+     * Syntactic sygar; types this member.
+     *
+     * @var Class_User
+     */
+    protected $class = null;
 
-	/**
-	 *
-	 * @param Kernel $application
-	 */
-	public static function hooks(Application $application) {
-		$application->configuration->path(__CLASS__);
-		$application->hooks->add(Hooks::hook_configured, __CLASS__ . "::configured");
-	}
+    /**
+     *
+     * @param Kernel $application
+     */
+    public static function hooks(Application $application) {
+        $application->configuration->path(__CLASS__);
+        $application->hooks->add(Hooks::hook_configured, __CLASS__ . "::configured");
+    }
 
-	/**
-	 *
-	 * @param Application $application
-	 */
-	public static function configured(Application $application) {
-		self::$debug_permission = to_bool($application->configuration->path_get_first(array(
-			array(
-				__CLASS__,
-				self::option_debug_permission
-			),
-			array(
-				'User',
-				self::option_debug_permission
-			)
-		)));
-	}
+    /**
+     *
+     * @param Application $application
+     */
+    public static function configured(Application $application) {
+        self::$debug_permission = to_bool($application->configuration->path_get_first(array(
+            array(
+                __CLASS__,
+                self::option_debug_permission,
+            ),
+            array(
+                'User',
+                self::option_debug_permission,
+            ),
+        )));
+    }
 
-	/**
-	 * Session user ID
-	 *
-	 * @return integer
-	 */
-	function session_user_id(Request $request) {
-		try {
-			$session = $this->application->session($request);
-		} catch (Exception $e) {
-			return null;
-		}
-		if (!$session instanceof Interface_Session) {
-			error_log(__METHOD__ . " \$this->application->session() returned non-session? " . type($session) . " " . strval($session));
-			return null;
-		}
-		return $session->user_id();
-	}
+    /**
+     * Session user ID
+     *
+     * @return integer
+     */
+    public function session_user_id(Request $request) {
+        try {
+            $session = $this->application->session($request);
+        } catch (Exception $e) {
+            return null;
+        }
+        if (!$session instanceof Interface_Session) {
+            error_log(__METHOD__ . " \$this->application->session() returned non-session? " . type($session) . " " . strval($session));
+            return null;
+        }
+        return $session->user_id();
+    }
 
-	/**
-	 * Retrieve the column used for logging in
-	 *
-	 * @return string
-	 */
-	function column_login() {
-		return $this->class->column_login;
-	}
+    /**
+     * Retrieve the column used for logging in
+     *
+     * @return string
+     */
+    public function column_login() {
+        return $this->class->column_login;
+    }
 
-	/**
-	 * Retrieve the password column name
-	 *
-	 * @return string
-	 */
-	function column_password() {
-		return $this->class->column_password;
-	}
+    /**
+     * Retrieve the password column name
+     *
+     * @return string
+     */
+    public function column_password() {
+        return $this->class->column_password;
+    }
 
-	/**
-	 * Retrieve the email column name
-	 *
-	 * @return string
-	 */
-	function column_email() {
-		return $this->class->column_email;
-	}
+    /**
+     * Retrieve the email column name
+     *
+     * @return string
+     */
+    public function column_email() {
+        return $this->class->column_email;
+    }
 
-	/**
-	 * Get or set the login column value
-	 *
-	 * @param string $set
-	 *
-	 * @return User
-	 */
-	function login($set = null) {
-		$column = $this->column_login();
-		if ($set !== null) {
-			return $this->set_member($column, $set);
-		}
-		return $this->member($column);
-	}
+    /**
+     * Get or set the login column value
+     *
+     * @param string $set
+     *
+     * @return User
+     */
+    public function login($set = null) {
+        $column = $this->column_login();
+        if ($set !== null) {
+            return $this->set_member($column, $set);
+        }
+        return $this->member($column);
+    }
 
-	/**
-	 * Get or set the email column value
-	 *
-	 * @param string $set
-	 *
-	 * @return User
-	 */
-	function email($set = null) {
-		$column = $this->column_email();
-		if (!$column) {
-			throw new Exception_Semantics("No email column in {class}", array(
-				"class" => get_class($this)
-			));
-		}
-		if ($set !== null) {
-			return $this->set_member($column, $set);
-		}
-		return $this->member($column);
-	}
+    /**
+     * Get or set the email column value
+     *
+     * @param string $set
+     *
+     * @return User
+     */
+    public function email($set = null) {
+        $column = $this->column_email();
+        if (!$column) {
+            throw new Exception_Semantics("No email column in {class}", array(
+                "class" => get_class($this),
+            ));
+        }
+        if ($set !== null) {
+            return $this->set_member($column, $set);
+        }
+        return $this->member($column);
+    }
 
-	/**
-	 * Override in subclasses to perform a final check before loading a user from the Session
-	 *
-	 * @return boolean
-	 */
-	function check_user() {
-		return true;
-	}
+    /**
+     * Override in subclasses to perform a final check before loading a user from the Session
+     *
+     * @return boolean
+     */
+    public function check_user() {
+        return true;
+    }
 
-	/**
-	 * Get/set the password field
-	 *
-	 * @param string $set
-	 * @return string|User
-	 */
-	function password($set = null) {
-		$column = $this->column_password();
-		if ($set !== null) {
-			return $this->set_member($column, $set);
-		}
-		return $this->member($column);
-	}
+    /**
+     * Get/set the password field
+     *
+     * @param string $set
+     * @return string|User
+     */
+    public function password($set = null) {
+        $column = $this->column_password();
+        if ($set !== null) {
+            return $this->set_member($column, $set);
+        }
+        return $this->member($column);
+    }
 
-	/**
-	 *
-	 * @return string
-	 */
-	function password_method() {
-		return strtolower(trim($this->member($this->class->column_hash_method, $this->class->default_hash_method)));
-	}
+    /**
+     *
+     * @return string
+     */
+    public function password_method() {
+        return strtolower(trim($this->member($this->class->column_hash_method, $this->class->default_hash_method)));
+    }
 
-	/**
-	 * Using the
-	 * @param unknown $string
-	 * @param string $raw_output
-	 * @return string
-	 */
-	function generate_hash($string, $raw_output = false) {
-		$algo = $this->password_method();
-		if (in_array($algo, $this->class->allowed_hash_methods)) {
-			return hash($algo, $string, $raw_output);
-		}
-		$this->application->error("Invalid hash algorithm {algo} in User {id}, using default", array(
-			"algo" => $algo,
-			"id" => $this->id(),
-			"default" => $this->class->default_hash_method
-		));
-	}
-	/**
-	 * Check a username and password.
-	 * Will not authenticate user until ->authenticated($request, $response) is called.
-	 *
-	 * @param string $username
-	 * @param string $password
-	 * @param string $use_hash
-	 * @param string $case_sensitive
-	 * @return boolean
-	 */
-	function authenticate($username, $password, $use_hash = true, $case_sensitive = true) {
-		// TODO: This will break if everyone else uses the class property. Update ->column_login, or don't use option
-		$column_login = $this->option("column_login", $this->column_login());
-		$this->set_member($column_login, $username);
-		if (!$this->fetch_by_key($username, $column_login)) {
-			return false;
-		}
-		$this_password = $this->password();
-		if ($use_hash) {
-			$auth_test = strcasecmp($this->generate_hash($password), $this_password) === 0;
-		} else {
-			$auth_test = $case_sensitive ? ($password === $this_password) : strcasecmp($password, $this_password) === 0;
-		}
-		if ($auth_test) {
-			return true;
-		}
-		return false;
-	}
+    /**
+     * Using the
+     * @param unknown $string
+     * @param string $raw_output
+     * @return string
+     */
+    public function generate_hash($string, $raw_output = false) {
+        $algo = $this->password_method();
+        if (in_array($algo, $this->class->allowed_hash_methods)) {
+            return hash($algo, $string, $raw_output);
+        }
+        $this->application->error("Invalid hash algorithm {algo} in User {id}, using default", array(
+            "algo" => $algo,
+            "id" => $this->id(),
+            "default" => $this->class->default_hash_method,
+        ));
+    }
 
-	/**
-	 * Get/set authentication status
-	 *
-	 * @param Request $request Required. Request to match this user against.
-	 * @param Response $response Optional. If supplied, authenticates this user in the associated response (generally, by setting a cookie.)
-	 * @return NULL|\zesk\User
-	 */
-	function authenticated(Request $request, Response $response = null) {
-		$matches = ($this->session_user_id($request) === $this->id());
-		if ($response === null) {
-			if ($this->is_new()) {
-				return null;
-			}
-			if ($matches) {
-				return $this;
-			}
-			return null;
-		}
-		if ($matches) {
-			return $this;
-		}
-		$session = $this->application->session($request);
-		$session->authenticate($this->id(), $request->ip());
-		$this->call_hook("authenticated", $request, $response, $session);
-		$this->application->call_hook("user_authenticated", $this, $request, $response, $session);
-		$this->application->modules->all_hook("user_authenticated", $this, $request, $response, $session);
-		return $this;
-	}
+    /**
+     * Check a username and password.
+     * Will not authenticate user until ->authenticated($request, $response) is called.
+     *
+     * @param string $username
+     * @param string $password
+     * @param string $use_hash
+     * @param string $case_sensitive
+     * @return boolean
+     */
+    public function authenticate($username, $password, $use_hash = true, $case_sensitive = true) {
+        // TODO: This will break if everyone else uses the class property. Update ->column_login, or don't use option
+        $column_login = $this->option("column_login", $this->column_login());
+        $this->set_member($column_login, $username);
+        if (!$this->fetch_by_key($username, $column_login)) {
+            return false;
+        }
+        $this_password = $this->password();
+        if ($use_hash) {
+            $auth_test = strcasecmp($this->generate_hash($password), $this_password) === 0;
+        } else {
+            $auth_test = $case_sensitive ? ($password === $this_password) : strcasecmp($password, $this_password) === 0;
+        }
+        if ($auth_test) {
+            return true;
+        }
+        return false;
+    }
 
-	/**
-	 * Similar to $user->can(...) but instead throws an Exception_Permission on failure
-	 *
-	 * Checks that user can perform action optionally on object
-	 *
-	 * @param string $action
-	 * @param Model $context
-	 * @param array $options
-	 * @throws Exception_Permission
-	 * @return User
-	 */
-	public function must($action, Model $context = null, array $options = array()) {
-		if (!$this->can($action, $context, $options)) {
-			throw new Exception_Permission($this, $action, $context, $options);
-		}
-		return $this;
-	}
-	public static final function clean_permission($string) {
-		return strtolower(strtr($string, array(
-			' ' => '_',
-			'.' => '_',
-			'-' => '_',
-			'__' => '::'
-		)));
-	}
+    /**
+     * Get/set authentication status
+     *
+     * @param Request $request Required. Request to match this user against.
+     * @param Response $response Optional. If supplied, authenticates this user in the associated response (generally, by setting a cookie.)
+     * @return NULL|\zesk\User
+     */
+    public function authenticated(Request $request, Response $response = null) {
+        $matches = ($this->session_user_id($request) === $this->id());
+        if ($response === null) {
+            if ($this->is_new()) {
+                return null;
+            }
+            if ($matches) {
+                return $this;
+            }
+            return null;
+        }
+        if ($matches) {
+            return $this;
+        }
+        $session = $this->application->session($request);
+        $session->authenticate($this->id(), $request->ip());
+        $this->call_hook("authenticated", $request, $response, $session);
+        $this->application->call_hook("user_authenticated", $this, $request, $response, $session);
+        $this->application->modules->all_hook("user_authenticated", $this, $request, $response, $session);
+        return $this;
+    }
 
-	/**
-	 * The core of the permissions system
-	 *
-	 * <code>
-	 * $yes = $user->can("write checks"); // Simple invokation
-	 * // Invoke with an object - the following two lines are identical
-	 * $yes = $yes && $user->can("edit", $account); // ORM invokation
-	 * // Invoke with additional arguments
-	 * $yes = $yes && $user->can("transfer", $checking, array("target" => $savings)));
-	 * </code>
-	 *
-	 * To test if ANY permission is allowed, use the | as separator for all permissions passed, like
-	 * so:
-	 *
-	 * <code>
-	 * if ($user->can("edit|view|delete", $other_user)) {
-	 * echo $menus; // User can edit, view, or delete
-	 * }
-	 * </code>
-	 *
-	 * Using the default list separator ";" means the meaning is ALL ACTIONS must be permitted to
-	 * continue.
-	 *
-	 * @param mixed $action
-	 *        	Can be an array of actions, all of which must pass, or a string of actions whose
-	 *        	separator determines if the meaning is "AND" or "OR" for each permission.
-	 * @param mixed $context
-	 *        	ORM on which to act
-	 * @param mixed $object
-	 *        	Extra optional settings, permission-specific
-	 * @return boolean
-	 */
-	public function can($actions, $context = null, array $options = array()) {
-		// Sanitize input
-		if ($actions instanceof Model) {
-			list($actions, $context) = array(
-				$context,
-				$actions
-			);
-		}
-		if ($context && !$context instanceof Model) {
-			$this->application->logger->warning("Non model passed as \$context to {method} ({type})", array(
-				"method" => __METHOD__,
-				"type" => type($context)
-			));
-			$context = null;
-		}
+    /**
+     * Similar to $user->can(...) but instead throws an Exception_Permission on failure
+     *
+     * Checks that user can perform action optionally on object
+     *
+     * @param string $action
+     * @param Model $context
+     * @param array $options
+     * @throws Exception_Permission
+     * @return User
+     */
+    public function must($action, Model $context = null, array $options = array()) {
+        if (!$this->can($action, $context, $options)) {
+            throw new Exception_Permission($this, $action, $context, $options);
+        }
+        return $this;
+    }
 
-		$result = false; // By default, don't allow anything
-		// Allow multiple actions
-		$is_or = is_string($actions) && strpos($actions, '|');
-		$actions = to_list($actions, array(), $is_or ? '|' : ';');
-		$default_result = $this->option("can", false);
-		foreach ($actions as $action) {
-			$action = self::clean_permission($action);
-			$result = $this->call_hook_arguments("can", array(
-				$action,
-				$context,
-				$options
-			), $default_result);
-			if (self::$debug_permission) {
-				$this->application->logger->debug("User::can({action},{context}) = {result} (Roles {roles})", array(
-					"action" => $action,
-					"context" => $context,
-					"result" => $result,
-					"roles" => $this->_roles
-				));
-			}
-			if ($is_or) {
-				// One must be allowed to continue
-				if ($result === true) {
-					break;
-				}
-			} else {
-				// All must be allowed to continue
-				if ($result === false) {
-					break;
-				}
-			}
-		}
-		if ($result) {
-			$default_hook = "permission_pass";
-		} else {
-			$default_hook = "permission_fail";
-		}
-		$hook_option_name = $default_hook . "_hook";
-		if (($hook = avalue($options, $hook_option_name, $this->option($hook_option_name))) !== null) {
-			$this->call_hook_arguments(is_string($hook) ? $hook : $default_hook, array(
-				$actions,
-				$context,
-				$options
-			));
-		}
+    final public static function clean_permission($string) {
+        return strtolower(strtr($string, array(
+            ' ' => '_',
+            '.' => '_',
+            '-' => '_',
+            '__' => '::',
+        )));
+    }
 
-		return $result;
-	}
+    /**
+     * The core of the permissions system
+     *
+     * <code>
+     * $yes = $user->can("write checks"); // Simple invokation
+     * // Invoke with an object - the following two lines are identical
+     * $yes = $yes && $user->can("edit", $account); // ORM invokation
+     * // Invoke with additional arguments
+     * $yes = $yes && $user->can("transfer", $checking, array("target" => $savings)));
+     * </code>
+     *
+     * To test if ANY permission is allowed, use the | as separator for all permissions passed, like
+     * so:
+     *
+     * <code>
+     * if ($user->can("edit|view|delete", $other_user)) {
+     * echo $menus; // User can edit, view, or delete
+     * }
+     * </code>
+     *
+     * Using the default list separator ";" means the meaning is ALL ACTIONS must be permitted to
+     * continue.
+     *
+     * @param mixed $action
+     *        	Can be an array of actions, all of which must pass, or a string of actions whose
+     *        	separator determines if the meaning is "AND" or "OR" for each permission.
+     * @param mixed $context
+     *        	ORM on which to act
+     * @param mixed $object
+     *        	Extra optional settings, permission-specific
+     * @return boolean
+     */
+    public function can($actions, $context = null, array $options = array()) {
+        // Sanitize input
+        if ($actions instanceof Model) {
+            list($actions, $context) = array(
+                $context,
+                $actions,
+            );
+        }
+        if ($context && !$context instanceof Model) {
+            $this->application->logger->warning("Non model passed as \$context to {method} ({type})", array(
+                "method" => __METHOD__,
+                "type" => type($context),
+            ));
+            $context = null;
+        }
 
-	/**
-	 * Check if a user can edit an object
-	 *
-	 * @param ORM $object
-	 * @return boolean
-	 */
-	function can_edit($object) {
-		return $this->can("edit", $object);
-	}
-	/**
-	 * Check if a user can view an object
-	 *
-	 * @param ORM $object
-	 * @return boolean
-	 */
-	function can_view($object) {
-		return $this->can("view", $object);
-	}
+        $result = false; // By default, don't allow anything
+        // Allow multiple actions
+        $is_or = is_string($actions) && strpos($actions, '|');
+        $actions = to_list($actions, array(), $is_or ? '|' : ';');
+        $default_result = $this->option("can", false);
+        foreach ($actions as $action) {
+            $action = self::clean_permission($action);
+            $result = $this->call_hook_arguments("can", array(
+                $action,
+                $context,
+                $options,
+            ), $default_result);
+            if (self::$debug_permission) {
+                $this->application->logger->debug("User::can({action},{context}) = {result} (Roles {roles})", array(
+                    "action" => $action,
+                    "context" => $context,
+                    "result" => $result,
+                    "roles" => $this->_roles,
+                ));
+            }
+            if ($is_or) {
+                // One must be allowed to continue
+                if ($result === true) {
+                    break;
+                }
+            } else {
+                // All must be allowed to continue
+                if ($result === false) {
+                    break;
+                }
+            }
+        }
+        if ($result) {
+            $default_hook = "permission_pass";
+        } else {
+            $default_hook = "permission_fail";
+        }
+        $hook_option_name = $default_hook . "_hook";
+        if (($hook = avalue($options, $hook_option_name, $this->option($hook_option_name))) !== null) {
+            $this->call_hook_arguments(is_string($hook) ? $hook : $default_hook, array(
+                $actions,
+                $context,
+                $options,
+            ));
+        }
 
-	/**
-	 *
-	 * {@inheritdoc}
-	 *
-	 * @see \zesk\ORM::display_name()
-	 */
-	function display_name() {
-		return $this->member($this->column_login());
-	}
+        return $result;
+    }
 
-	/**
-	 * Check if a user can delete an object
-	 *
-	 * @param ORM $object
-	 * @return boolean
-	 */
-	function can_delete($object) {
-		return $this->can("delete", $object);
-	}
+    /**
+     * Check if a user can edit an object
+     *
+     * @param ORM $object
+     * @return boolean
+     */
+    public function can_edit($object) {
+        return $this->can("edit", $object);
+    }
 
-	/**
-	 * Implement ORM::permissions
-	 *
-	 * @return array
-	 */
-	static function permissions(Application $application) {
-		return parent::default_permissions($application, __CLASS__) + array(
-			__CLASS__ . '::become' => array(
-				'title' => __("Become another user"),
-				"class" => "User"
-			)
-		);
-	}
+    /**
+     * Check if a user can view an object
+     *
+     * @param ORM $object
+     * @return boolean
+     */
+    public function can_view($object) {
+        return $this->can("view", $object);
+    }
 
-	/**
-	 * Takes an array which can be formatted with $application->theme("actions") and filters based on permissions.
-	 * Use the key "permission" in value to specify a permission to check. It can be a string, or an
-	 * array of ($action, $context, $options) to check.
-	 *
-	 * @param array $actions
-	 * @param Model $context
-	 *        	Default context to pass to "can" function
-	 * @param array $options
-	 *        	Default options to pass to "can" function
-	 * @return array
-	 */
-	public function filter_actions(array $actions, Model $context = null, array $options = array()) {
-		$actions_passed = array();
-		foreach ($actions as $href => $attributes) {
-			if (is_array($attributes) && array_key_exists("permission", $attributes)) {
-				$permission = $attributes['permission'];
-				unset($attributes['permission']);
-				if (is_array($permission)) {
-					list($a_permission, $a_context, $a_options) = $permission + (array(
-						null,
-						null,
-						array()
-					));
-					if ($this->can($a_permission, $a_context, $a_options)) {
-						$actions_passed[$href] = $attributes;
-					}
-				} else if ($this->can($permission, $context, $options)) {
-					$actions_passed[$href] = $attributes;
-				}
-			} else {
-				$actions_passed[$href] = $attributes;
-			}
-		}
-		return $actions_passed;
-	}
+    /**
+     *
+     * {@inheritdoc}
+     *
+     * @see \zesk\ORM::display_name()
+     */
+    public function display_name() {
+        return $this->member($this->column_login());
+    }
 
-	/**
-	 *
-	 * @param string $password
-	 */
-	public function setPlainPassword($password) {
-		return $this->set_member($this->class->column_password, $this->generate_hash($password, $this->class->column_password_is_binary));
-	}
+    /**
+     * Check if a user can delete an object
+     *
+     * @param ORM $object
+     * @return boolean
+     */
+    public function can_delete($object) {
+        return $this->can("delete", $object);
+    }
+
+    /**
+     * Implement ORM::permissions
+     *
+     * @return array
+     */
+    public static function permissions(Application $application) {
+        return parent::default_permissions($application, __CLASS__) + array(
+            __CLASS__ . '::become' => array(
+                'title' => __("Become another user"),
+                "class" => "User",
+            ),
+        );
+    }
+
+    /**
+     * Takes an array which can be formatted with $application->theme("actions") and filters based on permissions.
+     * Use the key "permission" in value to specify a permission to check. It can be a string, or an
+     * array of ($action, $context, $options) to check.
+     *
+     * @param array $actions
+     * @param Model $context
+     *        	Default context to pass to "can" function
+     * @param array $options
+     *        	Default options to pass to "can" function
+     * @return array
+     */
+    public function filter_actions(array $actions, Model $context = null, array $options = array()) {
+        $actions_passed = array();
+        foreach ($actions as $href => $attributes) {
+            if (is_array($attributes) && array_key_exists("permission", $attributes)) {
+                $permission = $attributes['permission'];
+                unset($attributes['permission']);
+                if (is_array($permission)) {
+                    list($a_permission, $a_context, $a_options) = $permission + (array(
+                        null,
+                        null,
+                        array(),
+                    ));
+                    if ($this->can($a_permission, $a_context, $a_options)) {
+                        $actions_passed[$href] = $attributes;
+                    }
+                } elseif ($this->can($permission, $context, $options)) {
+                    $actions_passed[$href] = $attributes;
+                }
+            } else {
+                $actions_passed[$href] = $attributes;
+            }
+        }
+        return $actions_passed;
+    }
+
+    /**
+     *
+     * @param string $password
+     */
+    public function setPlainPassword($password) {
+        return $this->set_member($this->class->column_password, $this->generate_hash($password, $this->class->column_password_is_binary));
+    }
 }
-

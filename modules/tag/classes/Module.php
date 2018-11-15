@@ -13,15 +13,15 @@ namespace zesk\Tag;
  *
  */
 class Module extends \zesk\Module {
-	protected $classes = array(
-		Tag::class,
-		Label::class
-	);
+    protected $classes = array(
+        Tag::class,
+        Label::class,
+    );
 
-	/**
-	 * Run once an hour on a single cluster machine
-	 */
-	public function hook_cron_cluster_hour() {
-		Tag::cull($this->application);
-	}
+    /**
+     * Run once an hour on a single cluster machine
+     */
+    public function hook_cron_cluster_hour() {
+        Tag::cull($this->application);
+    }
 }

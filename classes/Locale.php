@@ -19,726 +19,732 @@ use zesk\Locale\Writer;
  * @see Controller_Locale
  */
 abstract class Locale extends Hookable {
-	/**
-	 * Automatically save language to translation file (development)
-	 *
-	 * @var boolean
-	 */
-	public $auto = false;
+    /**
+     * Automatically save language to translation file (development)
+     *
+     * @var boolean
+     */
+    public $auto = false;
 
-	/**
-	 * Used only when $this->auto is true
-	 *
-	 * @var array
-	 */
-	private $locale_phrases = array();
+    /**
+     * Used only when $this->auto is true
+     *
+     * @var array
+     */
+    private $locale_phrases = array();
 
-	/**
-	 * Used only when $this->auto is true
-	 *
-	 * @var array
-	 */
-	private $locale_phrase_context = null;
+    /**
+     * Used only when $this->auto is true
+     *
+     * @var array
+     */
+    private $locale_phrase_context = null;
 
-	/**
-	 * The locale string, e.g. "en_US", etc.
-	 * @var string
-	 */
-	private $locale_string = "";
+    /**
+     * The locale string, e.g. "en_US", etc.
+     * @var string
+     */
+    private $locale_string = "";
 
-	/**
-	 *
-	 * @var string
-	 */
-	private $language = null;
+    /**
+     *
+     * @var string
+     */
+    private $language = null;
 
-	/**
-	 *
-	 * @var string|null
-	 */
-	private $dialect = null;
+    /**
+     *
+     * @var string|null
+     */
+    private $dialect = null;
 
-	/**
-	 * @var array
-	 */
-	private $translation_table = array();
+    /**
+     * @var array
+     */
+    private $translation_table = array();
 
-	/**
-	 *
-	 * @param Application $application
-	 * @param string $locale_string
-	 * @param array $options
-	 * @return self
-	 */
-	static public function factory(Application $application, $locale_string = null, array $options = array()) {
-		if (!$locale_string) {
-			$locale_string = $application->configuration->path_get(array(
-				__CLASS__,
-				"default"
-			), "en_US");
-		}
-		list($lang, $dialect) = self::parse($locale_string);
-		$lang = strtoupper($lang);
-		$classes = ArrayTools::prefix(array(
-			"${lang}_${dialect}",
-			"${lang}_Default",
-			$lang,
-			"Default"
-		), __CLASS__ . "_");
-		foreach ($classes as $class_name) {
-			try {
-				if (class_exists($class_name, true)) {
-					return $application->factory($class_name, $application, $locale_string, $options);
-				}
-			} catch (Exception_Class_NotFound $e) {
-			}
-		}
-		throw new Exception_Class_NotFound(first($classes), "No matching classes: {classes}", array(
-			"classes" => $classes
-		));
-	}
+    /**
+     *
+     * @param Application $application
+     * @param string $locale_string
+     * @param array $options
+     * @return self
+     */
+    public static function factory(Application $application, $locale_string = null, array $options = array()) {
+        if (!$locale_string) {
+            $locale_string = $application->configuration->path_get(array(
+                __CLASS__,
+                "default",
+            ), "en_US");
+        }
+        list($lang, $dialect) = self::parse($locale_string);
+        $lang = strtoupper($lang);
+        $classes = ArrayTools::prefix(array(
+            "${lang}_${dialect}",
+            "${lang}_Default",
+            $lang,
+            "Default",
+        ), __CLASS__ . "_");
+        foreach ($classes as $class_name) {
+            try {
+                if (class_exists($class_name, true)) {
+                    return $application->factory($class_name, $application, $locale_string, $options);
+                }
+            } catch (Exception_Class_NotFound $e) {
+            }
+        }
 
-	/**
-	 * Constructor
-	 *
-	 * @param Application $application
-	 * @param string $locale_string
-	 * @param array $options
-	 */
-	public function __construct(Application $application, $locale_string, array $options = array()) {
-		parent::__construct($application, $options);
-		$this->locale_string = $locale_string;
-		list($this->language, $this->dialect) = self::parse($locale_string);
-		$this->inherit_global_options();
-		$auto = $this->option("auto");
-		if ($auto === true || $auto === $this->language || $auto === $this->locale_string) {
-			$this->auto = true;
-		}
-		if ($this->auto) {
-			$application->hooks->add("exit", array(
-				$this,
-				"shutdown"
-			));
-		}
-	}
+        throw new Exception_Class_NotFound(first($classes), "No matching classes: {classes}", array(
+            "classes" => $classes,
+        ));
+    }
 
-	/**
-	 * Returns normalized locale string (e.g. en_US, en_CA, en_GB, fr_FR, etc.)
-	 *
-	 * @return string
-	 */
-	public function id() {
-		return $this->locale_string;
-	}
+    /**
+     * Constructor
+     *
+     * @param Application $application
+     * @param string $locale_string
+     * @param array $options
+     */
+    public function __construct(Application $application, $locale_string, array $options = array()) {
+        parent::__construct($application, $options);
+        $this->locale_string = $locale_string;
+        list($this->language, $this->dialect) = self::parse($locale_string);
+        $this->inherit_global_options();
+        $auto = $this->option("auto");
+        if ($auto === true || $auto === $this->language || $auto === $this->locale_string) {
+            $this->auto = true;
+        }
+        if ($this->auto) {
+            $application->hooks->add("exit", array(
+                $this,
+                "shutdown",
+            ));
+        }
+    }
 
-	/**
-	 *
-	 * @return string|NULL
-	 */
-	public function dialect() {
-		return $this->dialect;
-	}
+    /**
+     * Returns normalized locale string (e.g. en_US, en_CA, en_GB, fr_FR, etc.)
+     *
+     * @return string
+     */
+    public function id() {
+        return $this->locale_string;
+    }
 
-	/**
-	 *
-	 * @return string
-	 */
-	public function language() {
-		return $this->language;
-	}
+    /**
+     *
+     * @return string|NULL
+     */
+    public function dialect() {
+        return $this->dialect;
+    }
 
-	/**
-	 *
-	 * @return array
-	 */
-	public function translations(array $set = null) {
-		if ($set !== null) {
-			$this->translation_table = $set;
-			return $this;
-		}
-		return $this->translation_table;
-	}
+    /**
+     *
+     * @return string
+     */
+    public function language() {
+        return $this->language;
+    }
 
-	/**
-	 * Allow invokation as a function for translation
-	 *
-	 * @param string $phrase
-	 * @param array $arguments
-	 * @return string
-	 */
-	public function __invoke($phrase, $arguments = array()) {
-		if (!is_array($arguments)) {
-			$arguments = array();
-		}
-		return $this->__($phrase, $arguments);
-	}
+    /**
+     *
+     * @return array
+     */
+    public function translations(array $set = null) {
+        if ($set !== null) {
+            $this->translation_table = $set;
+            return $this;
+        }
+        return $this->translation_table;
+    }
 
-	/**
-	 * Does this locale have a translation for $phrase?
-	 *
-	 * @param string $phrase
-	 * @return boolean
-	 */
-	public function has($phrase) {
-		return $this->find($phrase) !== null;
-	}
+    /**
+     * Allow invokation as a function for translation
+     *
+     * @param string $phrase
+     * @param array $arguments
+     * @return string
+     */
+    public function __invoke($phrase, $arguments = array()) {
+        if (!is_array($arguments)) {
+            $arguments = array();
+        }
+        return $this->__($phrase, $arguments);
+    }
 
-	/**
-	 * Find the key in the translation table for $phrase
-	 *
-	 * @param string $phrase
-	 * @return string|null
-	 */
-	public function find($phrase) {
-		$phrase = strval($phrase);
-		list($group, $text) = explode(":=", $phrase, 2) + array(
-			null,
-			$phrase
-		);
-		$try_phrases = array(
-			$phrase,
-			strtolower($phrase),
-			$text,
-			strtolower($text)
-		);
-		$tt_lang = $this->translation_table;
-		foreach ($try_phrases as $try_phrase) {
-			if (array_key_exists($try_phrase, $tt_lang)) {
-				return $try_phrase;
-			}
-		}
-		return null;
-	}
-	/**
-	 * Translate a phrase
-	 *
-	 * @param string $phrase
-	 * @param array $arguments
-	 */
-	public function __($phrase, array $arguments = array()) {
-		if (is_array($phrase)) {
-			$result = array();
-			foreach ($phrase as $k => $v) {
-				$result[$k] = $this->__($v, $arguments);
-			}
-			return $result;
-		}
-		if (!is_string($phrase)) {
-			$this->application->logger->warning("Non-string phrase ({type}) passed to {method} {backtrace}", array(
-				"method" => __METHOD__,
-				"type" => type($phrase),
-				"backtrace" => _backtrace()
-			));
-			return "";
-		}
-		$key_phrase = $this->find($phrase);
-		if ($key_phrase === null) {
-			if ($this->auto) {
-				$this->auto_add_phrase($phrase);
-			}
-			$translated = StringTools::right($phrase, ":=");
-			$translated = map($translated, $arguments);
-		} else {
-			$translated = $this->translation_table[$key_phrase];
-			$translated = map($translated, $arguments);
-			if ($key_phrase !== $phrase) {
-				$translated = StringTools::case_match($translated, $phrase);
-			}
-		}
-		return $translated;
-	}
+    /**
+     * Does this locale have a translation for $phrase?
+     *
+     * @param string $phrase
+     * @return boolean
+     */
+    public function has($phrase) {
+        return $this->find($phrase) !== null;
+    }
 
-	/**
-	 *
-	 * @param string $phrase
-	 */
-	private function auto_add_phrase($phrase) {
-		$this->locale_phrases[$phrase] = time();
-		if (!$this->locale_phrase_context) {
-			$request = $this->application->request();
-			if ($request) {
-				$this->locale_phrase_context = $request->url();
-			}
-		}
-	}
+    /**
+     * Find the key in the translation table for $phrase
+     *
+     * @param string $phrase
+     * @return string|null
+     */
+    public function find($phrase) {
+        $phrase = strval($phrase);
+        list($group, $text) = explode(":=", $phrase, 2) + array(
+            null,
+            $phrase,
+        );
+        $try_phrases = array(
+            $phrase,
+            strtolower($phrase),
+            $text,
+            strtolower($text),
+        );
+        $tt_lang = $this->translation_table;
+        foreach ($try_phrases as $try_phrase) {
+            if (array_key_exists($try_phrase, $tt_lang)) {
+                return $try_phrase;
+            }
+        }
+        return null;
+    }
 
-	/**
-	 * When a word appears at the start of a sentence, properly format it.
-	 *
-	 * @param string $word
-	 * @return string
-	 */
-	public function sentence_first($word) {
-		return \ucfirst($word);
-	}
+    /**
+     * Translate a phrase
+     *
+     * @param string $phrase
+     * @param array $arguments
+     */
+    public function __($phrase, array $arguments = array()) {
+        if (is_array($phrase)) {
+            $result = array();
+            foreach ($phrase as $k => $v) {
+                $result[$k] = $this->__($v, $arguments);
+            }
+            return $result;
+        }
+        if (!is_string($phrase)) {
+            $this->application->logger->warning("Non-string phrase ({type}) passed to {method} {backtrace}", array(
+                "method" => __METHOD__,
+                "type" => type($phrase),
+                "backtrace" => _backtrace(),
+            ));
+            return "";
+        }
+        $key_phrase = $this->find($phrase);
+        if ($key_phrase === null) {
+            if ($this->auto) {
+                $this->auto_add_phrase($phrase);
+            }
+            $translated = StringTools::right($phrase, ":=");
+            $translated = map($translated, $arguments);
+        } else {
+            $translated = $this->translation_table[$key_phrase];
+            $translated = map($translated, $arguments);
+            if ($key_phrase !== $phrase) {
+                $translated = StringTools::case_match($translated, $phrase);
+            }
+        }
+        return $translated;
+    }
 
-	/**
-	 * Load a file without extraneous variables
-	 *
-	 * @param string $path
-	 * @return mixed
-	 */
-	private static function _require($path) {
-		return require $path;
-	}
-	/**
-	 * Load a locale file
-	 *
-	 * @param string $locale
-	 *        	Locale to load
-	 * @return array Translation table
-	 */
-	public static function load($locale) {
-		$locale = self::normalize($locale);
-		$paths = self::$paths;
-		array_unshift($paths, ZESK_ROOT . 'etc/language');
+    /**
+     *
+     * @param string $phrase
+     */
+    private function auto_add_phrase($phrase) {
+        $this->locale_phrases[$phrase] = time();
+        if (!$this->locale_phrase_context) {
+            $request = $this->application->request();
+            if ($request) {
+                $this->locale_phrase_context = $request->url();
+            }
+        }
+    }
 
-		list($language, $region) = pair($locale, '_', $locale, null);
-		$files = array(
-			"all",
-			$language
-		);
-		if ($region) {
-			$files[] = $locale;
-		}
-		$tt = array();
-		// Later entries override earlier ones
-		foreach ($paths as $path) {
-			foreach ($files as $file) {
-				$inc_path = path($path, $file . ".inc");
-				if (file_exists($inc_path)) {
-					$tt_add = self::_require($inc_path);
-					if (is_array($tt_add)) {
-						$tt = $tt_add + $tt;
-					}
-				}
-			}
-		}
-		self::register($locale, $tt);
-		return self::loaded($locale);
-	}
+    /**
+     * When a word appears at the start of a sentence, properly format it.
+     *
+     * @param string $word
+     * @return string
+     */
+    public function sentence_first($word) {
+        return \ucfirst($word);
+    }
 
-	/**
-	 * Formatting string for a date in the locale
-	 *
-	 * @param string $locale
-	 * @return string
-	 */
-	abstract public function date_format();
+    /**
+     * Load a file without extraneous variables
+     *
+     * @param string $path
+     * @return mixed
+     */
+    private static function _require($path) {
+        return require $path;
+    }
 
-	/**
-	 * Formatting string for a datetime in the locale
-	 *
-	 * @param string $locale
-	 * @return string
-	 */
-	abstract public function datetime_format();
+    /**
+     * Load a locale file
+     *
+     * @param string $locale
+     *        	Locale to load
+     * @return array Translation table
+     */
+    public static function load($locale) {
+        $locale = self::normalize($locale);
+        $paths = self::$paths;
+        array_unshift($paths, ZESK_ROOT . 'etc/language');
 
-	/**
-	 * Formatting string for a time in the locale
-	 *
-	 * @param string $locale
-	 * @return string
-	 */
-	abstract public function time_format($include_seconds = false);
+        list($language, $region) = pair($locale, '_', $locale, null);
+        $files = array(
+            "all",
+            $language,
+        );
+        if ($region) {
+            $files[] = $locale;
+        }
+        $tt = array();
+        // Later entries override earlier ones
+        foreach ($paths as $path) {
+            foreach ($files as $file) {
+                $inc_path = path($path, $file . ".inc");
+                if (file_exists($inc_path)) {
+                    $tt_add = self::_require($inc_path);
+                    if (is_array($tt_add)) {
+                        $tt = $tt_add + $tt;
+                    }
+                }
+            }
+        }
+        self::register($locale, $tt);
+        return self::loaded($locale);
+    }
 
-	/**
-	 * Format a number as an oridinal number (1st, 2nd, 3rd, etc.)
-	 *
-	 * @param string $locale
-	 * @return string
-	 */
-	abstract public function ordinal($number);
+    /**
+     * Formatting string for a date in the locale
+     *
+     * @param string $locale
+     * @return string
+     */
+    abstract public function date_format();
 
-	/**
-	 * Returns the indefinite article (A or An) for word
-	 *
-	 * @param string $word
-	 *        	The word to add an indefinite article to
-	 * @param string $context
-	 *        	For now, true signifies "beginning of sentence", otherwise ignored.
-	 * @return string Word with indefinite article in front of it (e.g. A dog, An eagle)
-	 */
-	abstract public function indefinite_article($word, $context = null);
+    /**
+     * Formatting string for a datetime in the locale
+     *
+     * @param string $locale
+     * @return string
+     */
+    abstract public function datetime_format();
 
-	/**
-	 * Join a phrase together with a conjuction, e.g.
-	 *
-	 * @assert_true $app->locale->conjunction(array("Apples","Pears","Frogs"), "and") === "Apples, Pears, and Frogs"
-	 *
-	 * @param array $words
-	 *        	Words to join together in a conjuction
-	 * @param string $conjunction
-	 *        	Conjunction to use. Defaults to translation of "or"
-	 * @return unknown
-	 */
-	public function conjunction(array $words, $conj = null) {
-		if ($conj === null) {
-			$conj = $this->__('or');
-		}
-		if (count($words) <= 1) {
-			return implode("", $words);
-		}
-		$ll = array_pop($words);
-		$oxford = (count($words) > 1) ? "," : "";
-		return implode(", ", $words) . $oxford . " $conj $ll";
-	}
+    /**
+     * Formatting string for a time in the locale
+     *
+     * @param string $locale
+     * @return string
+     */
+    abstract public function time_format($include_seconds = false);
 
-	/**
-	 * Pluralize words including the number itself, prefixed by locale
-	 *
-	 * @assert_true $locale->plural_number(3, "men") === "1 men"
-	 * @assert_true $locale->plural_number(1, "baby") === "1 baby"
-	 * @assert_true $applocale->plural_number(0, "woman") === "no women"
-	 *
-	 * @param string $noun
-	 * @param integer $number
-	 * @return string
-	 */
-	public function plural_number($noun, $number) {
-		return $number . " " . $this->plural($noun, $number);
-	}
+    /**
+     * Format a number as an oridinal number (1st, 2nd, 3rd, etc.)
+     *
+     * @param string $locale
+     * @return string
+     */
+    abstract public function ordinal($number);
 
-	/**
-	 * Convert a string to lowercase in a language
-	 *
-	 * @param string $word
-	 * @return string
-	 */
-	public function lower($word) {
-		return strtolower($word);
-	}
+    /**
+     * Returns the indefinite article (A or An) for word
+     *
+     * @param string $word
+     *        	The word to add an indefinite article to
+     * @param string $context
+     *        	For now, true signifies "beginning of sentence", otherwise ignored.
+     * @return string Word with indefinite article in front of it (e.g. A dog, An eagle)
+     */
+    abstract public function indefinite_article($word, $context = null);
 
-	/**
-	 * Given a noun, compute the plural given cues from the language. Returns null if not able to compute it.
-	 *
-	 * @param unknown $noun
-	 * @param number $number
-	 * @return string|null
-	 */
-	abstract protected function noun_semantic_plural($noun, $number = 2);
+    /**
+     * Join a phrase together with a conjuction, e.g.
+     *
+     * @assert_true $app->locale->conjunction(array("Apples","Pears","Frogs"), "and") === "Apples, Pears, and Frogs"
+     *
+     * @param array $words
+     *        	Words to join together in a conjuction
+     * @param string $conjunction
+     *        	Conjunction to use. Defaults to translation of "or"
+     * @return unknown
+     */
+    public function conjunction(array $words, $conj = null) {
+        if ($conj === null) {
+            $conj = $this->__('or');
+        }
+        if (count($words) <= 1) {
+            return implode("", $words);
+        }
+        $ll = array_pop($words);
+        $oxford = (count($words) > 1) ? "," : "";
+        return implode(", ", $words) . $oxford . " $conj $ll";
+    }
 
-	/**
-	 * Output a word's plural based on the number given
-	 *
-	 * @param string $noun
-	 * @param integer $number
-	 *        	Number of nouns
-	 * @param string $locale
-	 * @return string
-	 */
-	final function plural($noun, $number = 2) {
-		foreach (array(
-			"Locale::plural::" . $noun
-		) as $k) {
-			if ($this->has($k)) {
-				return $this->__($k);
-			}
-		}
-		$result = $this->noun_semantic_plural($noun, $number);
-		if ($this->auto) {
-			$this->auto_add_phrase($k);
-		}
-		return $result;
-	}
+    /**
+     * Pluralize words including the number itself, prefixed by locale
+     *
+     * @assert_true $locale->plural_number(3, "men") === "1 men"
+     * @assert_true $locale->plural_number(1, "baby") === "1 baby"
+     * @assert_true $applocale->plural_number(0, "woman") === "no women"
+     *
+     * @param string $noun
+     * @param integer $number
+     * @return string
+     */
+    public function plural_number($noun, $number) {
+        return $number . " " . $this->plural($noun, $number);
+    }
 
-	/**
-	 * Returns the possessive form of a word
-	 *
-	 * "John" => "John's"
-	 * "Cass" => "Cass'"
-	 *
-	 * @param string $owner
-	 *        	The thing that owns the object
-	 * @param string $context
-	 *        	The thing that's owned by the object
-	 * @return string
-	 */
-	abstract public function possessive($owner, $object);
+    /**
+     * Convert a string to lowercase in a language
+     *
+     * @param string $word
+     * @return string
+     */
+    public function lower($word) {
+        return strtolower($word);
+    }
 
-	/**
-	 * English self::pluralize, prefixes with number or "no"
-	 *
-	 * @param unknown $word
-	 * @param unknown $number
-	 * @param string $locale
-	 * @return mixed
-	 */
-	public function plural_word($word, $number) {
-		if (is_string($number)) {
-			$number = intval($number);
-		}
-		$phrase = null;
-		if ($number === 0) {
-			$phrase = 'Locale::plural_word:=no {word}';
-		} else if ($number === 1) {
-			$phrase = 'Locale::plural_word:=one {word}';
-		} else {
-			$phrase = 'Locale::plural_word:={number} {word}';
-		}
-		return map($this->__($phrase), array(
-			'number' => $number,
-			'word' => $this->plural($word, $number),
-			'plural_word' => $this->plural($word, 2),
-			'singular_word' => $word
-		));
-	}
+    /**
+     * Given a noun, compute the plural given cues from the language. Returns null if not able to compute it.
+     *
+     * @param unknown $noun
+     * @param number $number
+     * @return string|null
+     */
+    abstract protected function noun_semantic_plural($noun, $number = 2);
 
-	/**
-	 * Retrieve an array of number of seconds and english units string,
-	 * used for duration_string only (Month is NOT accurate)
-	 *
-	 * @return array
-	 */
-	private static function time_units() {
-		return array(
-			2635200 => "month",
-			604800 => "week",
-			86400 => "day",
-			3600 => "hour",
-			60 => "minute",
-			1 => "second"
-		);
-	}
+    /**
+     * Output a word's plural based on the number given
+     *
+     * @param string $noun
+     * @param integer $number
+     *        	Number of nouns
+     * @param string $locale
+     * @return string
+     */
+    final public function plural($noun, $number = 2) {
+        foreach (array(
+            "Locale::plural::" . $noun,
+        ) as $k) {
+            if ($this->has($k)) {
+                return $this->__($k);
+            }
+        }
+        $result = $this->noun_semantic_plural($noun, $number);
+        if ($this->auto) {
+            $this->auto_add_phrase($k);
+        }
+        return $result;
+    }
 
-	/**
-	 * Output a string like "in 3 days", "5 hours ago"
-	 *
-	 * @param integer $ts
-	 *        	Timestamp to generate string
-	 * @param string $min_unit
-	 *        	Minimum unit to output
-	 * @param string $zero_string
-	 *        	Optional string if < 1 unit away
-	 * @return string
-	 */
-	public function now_string($ts, $min_unit = null, $zero_string = null) {
-		if ($ts instanceof Timestamp) {
-			$ts = $ts->unix_timestamp();
-		} else if (is_date($ts)) {
-			$ts = parse_time($ts);
-		}
-		$now = time();
-		$delta = $now - $ts;
-		$number = false;
-		$duration = $this->duration_string($delta, $min_unit, $number);
-		$phrase = null;
-		if ($number === 0 && is_string($zero_string)) {
-			$phrase = $zero_string;
-		} else if ($delta < 0) {
-			$phrase = "Locale::now_string:=in {duration}";
-		} else {
-			$phrase = "Locale::now_string:={duration} ago";
-		}
-		return $this->__($phrase, array(
-			'duration' => $duration,
-			'min_unit' => $min_unit,
-			'zero_string' => $zero_string
-		));
-	}
+    /**
+     * Returns the possessive form of a word
+     *
+     * "John" => "John's"
+     * "Cass" => "Cass'"
+     *
+     * @param string $owner
+     *        	The thing that owns the object
+     * @param string $context
+     *        	The thing that's owned by the object
+     * @return string
+     */
+    abstract public function possessive($owner, $object);
 
-	/**
-	 * Output a duration of time as a string
-	 *
-	 * @param integer $delta
-	 *        	Number of seconds to output
-	 * @param string $min_unit
-	 *        	Minimum unit to output, in English: "second", "minute", "hour", "day", "week"
-	 * @param integer $number
-	 *        	Returns the final unit number
-	 * @return string
-	 */
-	public function duration_string($delta, $min_unit = null, &$number = null) {
-		if ($delta < 0) {
-			$delta = -$delta;
-		}
-		if (is_string($min_unit)) {
-			$units_time = array_flip($this->time_units());
-			$min_unit = avalue($units_time, $min_unit, 0);
-		}
-		$units = $this->time_units();
-		foreach ($units as $nsecs => $unit) {
-			if ($nsecs === $min_unit || $delta > ($nsecs * 2 - 1)) {
-				$number = intval($delta / $nsecs);
-				return $this->plural_number($this->__($unit), $number);
-			}
-		}
-		$number = $delta;
-		return $this->plural_number($unit, $delta);
-	}
+    /**
+     * English self::pluralize, prefixes with number or "no"
+     *
+     * @param unknown $word
+     * @param unknown $number
+     * @param string $locale
+     * @return mixed
+     */
+    public function plural_word($word, $number) {
+        if (is_string($number)) {
+            $number = intval($number);
+        }
+        $phrase = null;
+        if ($number === 0) {
+            $phrase = 'Locale::plural_word:=no {word}';
+        } elseif ($number === 1) {
+            $phrase = 'Locale::plural_word:=one {word}';
+        } else {
+            $phrase = 'Locale::plural_word:={number} {word}';
+        }
+        return map($this->__($phrase), array(
+            'number' => $number,
+            'word' => $this->plural($word, $number),
+            'plural_word' => $this->plural($word, 2),
+            'singular_word' => $word,
+        ));
+    }
 
-	/**
-	 * Return the negative of a word "Unstoppable" => "Stoppable"
-	 *
-	 * @deprecated 2018-01
-	 * @todo clarify the use of this grammatically
-	 * @param string $word "Stoppable"
-	 * @param string $preferred_prefix "Un"
-	 */
-	abstract public function negate_word($word, $preferred_prefix = null);
+    /**
+     * Retrieve an array of number of seconds and english units string,
+     * used for duration_string only (Month is NOT accurate)
+     *
+     * @return array
+     */
+    private static function time_units() {
+        return array(
+            2635200 => "month",
+            604800 => "week",
+            86400 => "day",
+            3600 => "hour",
+            60 => "minute",
+            1 => "second",
+        );
+    }
 
-	/**
-	 * Format currency values
-	 *
-	 * @param double $value
-	 * @return string
-	 */
-	public function format_currency($value) {
-		$save = setlocale(LC_MONETARY, 0);
-		$id = $this->id();
-		if ($save !== $id) {
-			setlocale(LC_MONETARY, $id);
-		}
-		$format = \money_format("%n", $value);
-		if ($save !== $id) {
-			setlocale(LC_MONETARY, $save);
-		}
-		return $format;
-	}
-	/**
-	 * Format percent values
-	 *
-	 * @param double $value
-	 * @return string
-	 */
-	public function format_percent($value) {
-		return $this->__('percent:={value}%', array(
-			'value' => $value
-		));
-	}
+    /**
+     * Output a string like "in 3 days", "5 hours ago"
+     *
+     * @param integer $ts
+     *        	Timestamp to generate string
+     * @param string $min_unit
+     *        	Minimum unit to output
+     * @param string $zero_string
+     *        	Optional string if < 1 unit away
+     * @return string
+     */
+    public function now_string($ts, $min_unit = null, $zero_string = null) {
+        if ($ts instanceof Timestamp) {
+            $ts = $ts->unix_timestamp();
+        } elseif (is_date($ts)) {
+            $ts = parse_time($ts);
+        }
+        $now = time();
+        $delta = $now - $ts;
+        $number = false;
+        $duration = $this->duration_string($delta, $min_unit, $number);
+        $phrase = null;
+        if ($number === 0 && is_string($zero_string)) {
+            $phrase = $zero_string;
+        } elseif ($delta < 0) {
+            $phrase = "Locale::now_string:=in {duration}";
+        } else {
+            $phrase = "Locale::now_string:={duration} ago";
+        }
+        return $this->__($phrase, array(
+            'duration' => $duration,
+            'min_unit' => $min_unit,
+            'zero_string' => $zero_string,
+        ));
+    }
 
-	/**
-	 * Dump untranslated phrases
-	 */
-	public function shutdown() {
-		if (count($this->locale_phrases) === 0) {
-			return;
-		}
-		$path = $this->option("auto_path");
-		if (!$path) {
-			return;
-		}
-		if (!Directory::is_absolute($path)) {
-			$path = $this->application->path($path);
-		}
-		if (!is_dir($path)) {
-			$this->application->logger->warning("{class}::auto_path {path} is not a directory", array(
-				"path" => $path,
-				"class" => get_class($this)
-			));
-			return;
-		}
-		$writer = new Writer($this->application, path($path, $this->id() . "-auto.php"));
-		$writer->append($this->locale_phrases, $this->locale_phrase_context);
-	}
+    /**
+     * Output a duration of time as a string
+     *
+     * @param integer $delta
+     *        	Number of seconds to output
+     * @param string $min_unit
+     *        	Minimum unit to output, in English: "second", "minute", "hour", "day", "week"
+     * @param integer $number
+     *        	Returns the final unit number
+     * @return string
+     */
+    public function duration_string($delta, $min_unit = null, &$number = null) {
+        if ($delta < 0) {
+            $delta = -$delta;
+        }
+        if (is_string($min_unit)) {
+            $units_time = array_flip($this->time_units());
+            $min_unit = avalue($units_time, $min_unit, 0);
+        }
+        $units = $this->time_units();
+        foreach ($units as $nsecs => $unit) {
+            if ($nsecs === $min_unit || $delta > ($nsecs * 2 - 1)) {
+                $number = intval($delta / $nsecs);
+                return $this->plural_number($this->__($unit), $number);
+            }
+        }
+        $number = $delta;
+        return $this->plural_number($unit, $delta);
+    }
 
-	/**
-	 * @return number
-	 */
-	public function first_day_of_week() {
-		if (function_exists("intlcal_get_first_day_of_week")) {
-			$cal = \IntlCalendar::createInstance(null, $this->id());
-			return $cal->getFirstDayOfWeek();
-		}
-		return 0;
-	}
+    /**
+     * Return the negative of a word "Unstoppable" => "Stoppable"
+     *
+     * @deprecated 2018-01
+     * @todo clarify the use of this grammatically
+     * @param string $word "Stoppable"
+     * @param string $preferred_prefix "Un"
+     */
+    abstract public function negate_word($word, $preferred_prefix = null);
 
-	/**
-	 * Format number
-	 *
-	 * @param double|integer $number
-	 * @param integer $decimals
-	 * @return string
-	 */
-	public function number_format($number, $decimals = 0) {
-		return number_format($number, $decimals, $this->__('Number::decimal_point:=.'), $this->__('Number::thousands_separator:=,'));
-	}
+    /**
+     * Format currency values
+     *
+     * @param double $value
+     * @return string
+     */
+    public function format_currency($value) {
+        $save = setlocale(LC_MONETARY, 0);
+        $id = $this->id();
+        if ($save !== $id) {
+            setlocale(LC_MONETARY, $id);
+        }
+        $format = \money_format("%n", $value);
+        if ($save !== $id) {
+            setlocale(LC_MONETARY, $save);
+        }
+        return $format;
+    }
 
-	/**
-	 * Extract the language from a locale
-	 *
-	 * @param string $locale
-	 * @return string|null
-	 */
-	public static function parse_language($locale = null) {
-		if (empty($locale)) {
-			return null;
-		}
-		list($lang) = pair($locale, "_", $locale);
-		return strtolower(substr($lang, 0, 2));
-	}
+    /**
+     * Format percent values
+     *
+     * @param double $value
+     * @return string
+     */
+    public function format_percent($value) {
+        return $this->__('percent:={value}%', array(
+            'value' => $value,
+        ));
+    }
 
-	/**
-	 * Extract the dialect from the locale
-	 *
-	 * @param string $locale
-	 * @return string|null
-	 */
-	public static function parse_dialect($locale = null) {
-		if (empty($locale)) {
-			return null;
-		}
-		list($lang, $dialect) = \pair($locale, "_", $locale, null);
-		return is_string($dialect) ? strtoupper(substr($dialect, 0, 2)) : null;
-	}
+    /**
+     * Dump untranslated phrases
+     */
+    public function shutdown() {
+        if (count($this->locale_phrases) === 0) {
+            return;
+        }
+        $path = $this->option("auto_path");
+        if (!$path) {
+            return;
+        }
+        if (!Directory::is_absolute($path)) {
+            $path = $this->application->path($path);
+        }
+        if (!is_dir($path)) {
+            $this->application->logger->warning("{class}::auto_path {path} is not a directory", array(
+                "path" => $path,
+                "class" => get_class($this),
+            ));
+            return;
+        }
+        $writer = new Writer($this->application, path($path, $this->id() . "-auto.php"));
+        $writer->append($this->locale_phrases, $this->locale_phrase_context);
+    }
 
-	/**
-	 * Convert a locale string into an array of locale, dialog
-	 * @param string $locale
-	 * @return string[]
-	 */
-	public static function parse($locale) {
-		list($lang, $region) = explode("_", $locale, 2) + array(
-			$locale,
-			null
-		);
-		$lang = strtolower(substr($lang, 0, 2));
-		if ($region === null) {
-			return array(
-				$lang,
-				null
-			);
-		}
-		return array(
-			$lang,
-			$region
-		);
-	}
-	/**
-	 * Normalize a locale so it is properly formatted
-	 *
-	 * @param string $locale
-	 * @return string
-	 */
-	public static function normalize($locale) {
-		list($lang, $region) = explode("_", $locale, 2) + array(
-			$locale,
-			null
-		);
-		$lang = strtolower(substr($lang, 0, 2));
-		if ($region === null) {
-			return $lang;
-		}
-		return $lang . "_" . strtoupper(substr($region, 0, 2));
-	}
+    /**
+     * @return number
+     */
+    public function first_day_of_week() {
+        if (function_exists("intlcal_get_first_day_of_week")) {
+            $cal = \IntlCalendar::createInstance(null, $this->id());
+            return $cal->getFirstDayOfWeek();
+        }
+        return 0;
+    }
+
+    /**
+     * Format number
+     *
+     * @param double|integer $number
+     * @param integer $decimals
+     * @return string
+     */
+    public function number_format($number, $decimals = 0) {
+        return number_format($number, $decimals, $this->__('Number::decimal_point:=.'), $this->__('Number::thousands_separator:=,'));
+    }
+
+    /**
+     * Extract the language from a locale
+     *
+     * @param string $locale
+     * @return string|null
+     */
+    public static function parse_language($locale = null) {
+        if (empty($locale)) {
+            return null;
+        }
+        list($lang) = pair($locale, "_", $locale);
+        return strtolower(substr($lang, 0, 2));
+    }
+
+    /**
+     * Extract the dialect from the locale
+     *
+     * @param string $locale
+     * @return string|null
+     */
+    public static function parse_dialect($locale = null) {
+        if (empty($locale)) {
+            return null;
+        }
+        list($lang, $dialect) = \pair($locale, "_", $locale, null);
+        return is_string($dialect) ? strtoupper(substr($dialect, 0, 2)) : null;
+    }
+
+    /**
+     * Convert a locale string into an array of locale, dialog
+     * @param string $locale
+     * @return string[]
+     */
+    public static function parse($locale) {
+        list($lang, $region) = explode("_", $locale, 2) + array(
+            $locale,
+            null,
+        );
+        $lang = strtolower(substr($lang, 0, 2));
+        if ($region === null) {
+            return array(
+                $lang,
+                null,
+            );
+        }
+        return array(
+            $lang,
+            $region,
+        );
+    }
+
+    /**
+     * Normalize a locale so it is properly formatted
+     *
+     * @param string $locale
+     * @return string
+     */
+    public static function normalize($locale) {
+        list($lang, $region) = explode("_", $locale, 2) + array(
+            $locale,
+            null,
+        );
+        $lang = strtolower(substr($lang, 0, 2));
+        if ($region === null) {
+            return $lang;
+        }
+        return $lang . "_" . strtoupper(substr($region, 0, 2));
+    }
 }
 
 if (false) {
-	class IntlCalendar {
-		/**
-		 *
-		 * @param string $timezone
-		 * @param string $locale
-		 * @return \zesk\IntlCalendar
-		 */
-		static function createInstance($timezone, $locale) {
-			return new self($timezone, $locale);
-		}
-		/**
-		 *
-		 * @return integer
-		 */
-		static function getFirstDayOfWeek() {
-		}
-	}
+    class IntlCalendar {
+        /**
+         *
+         * @param string $timezone
+         * @param string $locale
+         * @return \zesk\IntlCalendar
+         */
+        public static function createInstance($timezone, $locale) {
+            return new self($timezone, $locale);
+        }
+
+        /**
+         *
+         * @return integer
+         */
+        public static function getFirstDayOfWeek() {
+        }
+    }
 }

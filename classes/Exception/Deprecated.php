@@ -9,6 +9,7 @@
 namespace zesk;
 
 /**
- * 
+ *
  */
-class Exception_Deprecated extends Exception {}
+class Exception_Deprecated extends Exception {
+}

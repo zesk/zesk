@@ -11,4 +11,5 @@ namespace zesk;
  * @no-cannon
  * @deprecated 2017-12
  */
-class Objects_Iterator extends ORMIterators {}
+class Objects_Iterator extends ORMIterators {
+}

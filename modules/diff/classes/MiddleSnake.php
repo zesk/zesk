@@ -13,9 +13,11 @@ namespace zesk\Diff;
  *
  */
 class MiddleSnake {
-	public $x;
-	public $y;
-	public $u;
-	public $v;
-}
+    public $x;
 
+    public $y;
+
+    public $u;
+
+    public $v;
+}

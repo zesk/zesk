@@ -21,4 +21,5 @@ namespace zesk;
  * @deprecated 2017-12 Blame PHP 7.2
  * @see ORM
  */
-class Object extends ORM {}
+class Object extends ORM {
+}

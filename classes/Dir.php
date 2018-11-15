@@ -1,7 +1,7 @@
 <?php
 
 /**
- * 
+ *
  */
 namespace zesk;
 
@@ -12,4 +12,5 @@ zesk()->deprecated();
  *
  * @author kent
  */
-class dir extends Directory {}
+class dir extends Directory {
+}

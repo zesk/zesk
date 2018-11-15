@@ -16,4 +16,5 @@ zesk()->deprecated();
  * @see Response
  * @no-cannon
  */
-class Response_Text_HTML extends Response {}
+class Response_Text_HTML extends Response {
+}

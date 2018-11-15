@@ -13,7 +13,7 @@ namespace zesk\Diff;
  *
  */
 class Module extends \zesk\Module {
-	/*
-	 * This port is based on the etc/diff.c.txt file
-	 */
+    /*
+     * This port is based on the etc/diff.c.txt file
+     */
 }

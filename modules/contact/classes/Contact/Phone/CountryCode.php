@@ -7,4 +7,5 @@
  */
 namespace zesk;
 
-class Contact_Phone_CountryCode extends ORM {}
+class Contact_Phone_CountryCode extends ORM {
+}

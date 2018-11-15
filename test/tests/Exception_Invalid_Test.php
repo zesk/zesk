@@ -8,8 +8,8 @@
 namespace zesk;
 
 class Exception_Invalid_Test extends Exception_TestCase {
-	function test_basics() {
-		$testx = new Exception_Invalid();
-		$this->exception_test($testx);
-	}
+    public function test_basics() {
+        $testx = new Exception_Invalid();
+        $this->exception_test($testx);
+    }
 }

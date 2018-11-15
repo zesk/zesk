@@ -16,4 +16,5 @@ namespace zesk;
  * @no-cannon
  * @author kent
  */
-class arr extends ArrayTools {}
+class arr extends ArrayTools {
+}

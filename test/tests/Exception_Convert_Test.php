@@ -8,8 +8,8 @@
 namespace zesk;
 
 class Exception_Convert_Test extends Exception_TestCase {
-	function test_basics() {
-		$testx = new Exception_Convert();
-		$this->exception_test($testx);
-	}
+    public function test_basics() {
+        $testx = new Exception_Convert();
+        $this->exception_test($testx);
+    }
 }

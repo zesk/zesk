@@ -5,4 +5,5 @@
  */
 namespace zesk;
 
-class City extends ORM {}
+class City extends ORM {
+}

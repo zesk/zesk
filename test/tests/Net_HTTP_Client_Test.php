@@ -10,8 +10,8 @@ namespace zesk;
  *
  */
 class Net_HTTP_Client_Test extends Test_Unit {
-	const TEST_URL = "https://www.marketacumen.com/";
-	function test_all() {
+	const TEST_URL = "https://marketacumen.com/";
+	public function test_all() {
 		$url = self::TEST_URL;
 
 		$x = new Net_HTTP_Client($this->application, $url);
@@ -55,7 +55,7 @@ class Net_HTTP_Client_Test extends Test_Unit {
 
 		$x->domain();
 	}
-	function test_main() {
+	public function test_main() {
 		$url = self::TEST_URL;
 
 		$result = Net_HTTP_Client::simpleGet($url);
@@ -63,18 +63,18 @@ class Net_HTTP_Client_Test extends Test_Unit {
 		$this->log($result);
 		$this->assert(strpos($result, "Market Acumen") !== false, $result);
 	}
-	function test_url_content_length() {
+	public function test_url_content_length() {
 		$url = self::TEST_URL . "images/marketacumen-logo.png";
 		$n = Net_HTTP_Client::url_content_length($this->application, $url);
 		$this->assert($n > 0);
 	}
-	function test_url_headers() {
+	public function test_url_headers() {
 		$url = self::TEST_URL;
 		$headers = Net_HTTP_Client::url_headers($this->application, $url);
 		$this->log($headers);
 		$this->assert(begins($headers['Content-Type'], 'text/html'));
 	}
-	function test_default_user_agent() {
+	public function test_default_user_agent() {
 		$client = new Net_HTTP_Client($this->application);
 		$this->assert(strpos($client->default_user_agent(), "zesk") === 0);
 		echo basename(__FILE__) . ": success\n";

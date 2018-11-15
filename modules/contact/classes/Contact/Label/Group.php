@@ -8,14 +8,14 @@
 namespace zesk;
 
 class Contact_Label_Group extends ORM {
-	public static function register_group(Application $app, $name) {
-		if (empty($name)) {
-			return null;
-		}
-		$g = $app->orm_factory(__CLASS__, array(
-			"Name" => $name
-		));
-		$g->register();
-		return $g;
-	}
+    public static function register_group(Application $app, $name) {
+        if (empty($name)) {
+            return null;
+        }
+        $g = $app->orm_factory(__CLASS__, array(
+            "Name" => $name,
+        ));
+        $g->register();
+        return $g;
+    }
 }

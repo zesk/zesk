@@ -8,8 +8,8 @@
 namespace zesk;
 
 class View_IP extends View {
-	function render() {
-		$v = $this->value();
-		return empty($v) ? $this->empty_string() : IPv4::from_integer($v);
-	}
+    public function render() {
+        $v = $this->value();
+        return empty($v) ? $this->empty_string() : IPv4::from_integer($v);
+    }
 }

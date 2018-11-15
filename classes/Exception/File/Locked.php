@@ -8,6 +8,7 @@
 namespace zesk;
 
 /**
- * 
+ *
  */
-class Exception_File_Locked extends Exception_FileSystem {}
+class Exception_File_Locked extends Exception_FileSystem {
+}

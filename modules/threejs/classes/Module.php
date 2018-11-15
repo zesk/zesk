@@ -15,9 +15,9 @@ namespace zesk\ThreeJS;
 use zesk\Module_JSLib;
 
 class Module extends Module_JSLib {
-	protected $javascript_paths = array(
-		"/share/threejs/three.js" => array(
-			"share" => true
-		)
-	);
+    protected $javascript_paths = array(
+        "/share/threejs/three.js" => array(
+            "share" => true,
+        ),
+    );
 }

@@ -8,8 +8,8 @@
 namespace zesk;
 
 class Exception_File_NotFound_Test extends Exception_TestCase {
-	function test_basics() {
-		$testx = new Exception_File_NotFound();
-		$this->exception_test($testx);
-	}
+    public function test_basics() {
+        $testx = new Exception_File_NotFound();
+        $this->exception_test($testx);
+    }
 }

@@ -1,6 +1,6 @@
 <?php
 /**
- * 
+ *
  */
 namespace zesk;
 
@@ -8,5 +8,5 @@ namespace zesk;
  * Add this to modules to enforce correct hook syntax for hook_foot
  */
 interface Interface_Module_Foot {
-	public function hook_foot(Request $request, Response $response, Template $template);
+    public function hook_foot(Request $request, Response $response, Template $template);
 }

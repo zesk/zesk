@@ -8,6 +8,7 @@
 namespace zesk;
 
 /**
- * 
+ *
  */
-class Exception_Directory_Permission extends Exception_FileSystem {}
+class Exception_Directory_Permission extends Exception_FileSystem {
+}

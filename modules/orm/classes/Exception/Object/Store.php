@@ -12,4 +12,5 @@ zesk()->deprecated();
  * @author kent
  * @no-cannon
  */
-class Exception_Object_Store extends Exception_ORM_Store {}
+class Exception_Object_Store extends Exception_ORM_Store {
+}

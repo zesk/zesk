@@ -10,6 +10,6 @@
  * @author kent
  */
 abstract class Zesk_Deprecated {
-	public static function load() {
-	}
+    public static function load() {
+    }
 }

@@ -9,21 +9,24 @@
 namespace zesk;
 
 class View extends Widget {
-	function validate() {
-		return true;
-	}
-	function submitted() {
-		return false;
-	}
-	function hidden_input($set = null) {
-		if ($set !== null) {
-			return $this->set_option("hidden_input", to_bool($set));
-		}
-		return $this->option_bool('hidden_input');
-	}
-	function theme_variables() {
-		return array(
-			'hidden_input' => $this->hidden_input()
-		) + parent::theme_variables();
-	}
+    public function validate() {
+        return true;
+    }
+
+    public function submitted() {
+        return false;
+    }
+
+    public function hidden_input($set = null) {
+        if ($set !== null) {
+            return $this->set_option("hidden_input", to_bool($set));
+        }
+        return $this->option_bool('hidden_input');
+    }
+
+    public function theme_variables() {
+        return array(
+            'hidden_input' => $this->hidden_input(),
+        ) + parent::theme_variables();
+    }
 }

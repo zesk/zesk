@@ -8,8 +8,9 @@
 namespace zesk;
 
 /**
- * 
+ *
  * @author kent
  *
  */
-class Database_Exception_Duplicate extends Database_Exception_SQL {}
+class Database_Exception_Duplicate extends Database_Exception_SQL {
+}

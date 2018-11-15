@@ -9,7 +9,8 @@
 	},
 	"require-dev": {
 		"phpunit/phpunit": "*",
-		"phpunit/php-invoker": "*"
+		"phpunit/php-invoker": "*",
+		"friendsofphp/php-cs-fixer": "^2.13"
 	},
 	"authors": [
 		{

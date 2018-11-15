@@ -2,7 +2,9 @@
 namespace zesk;
 
 abstract class Stream {
-	abstract function read($length);
-	abstract function write($data, $length = null);
-	abstract function offset($set = null);
+    abstract public function read($length);
+
+    abstract public function write($data, $length = null);
+
+    abstract public function offset($set = null);
 }

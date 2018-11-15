@@ -27,33 +27,34 @@ abstract class Command_Iterator_File extends Command_Base {
 		"inc",
 		"tpl",
 		"php4",
-		"php5"
+		"php5",
+		"php7"
 	);
-	
+
 	/**
 	 *
 	 * @var boolean
 	 */
 	protected $include_hidden = false;
-	
+
 	/**
 	 *
 	 * @var boolean
 	 */
 	protected $show_skipped = false;
-	
+
 	/**
 	 *
 	 * @var boolean
 	 */
 	protected $dry_run = false;
-	
+
 	/**
 	 * (non-PHPdoc)
 	 *
 	 * @see Command_Base::initialize()
 	 */
-	function initialize() {
+	public function initialize() {
 		$this->option_types += array(
 			"no-recurse" => 'boolean',
 			"directory" => "dir",
@@ -63,13 +64,13 @@ abstract class Command_Iterator_File extends Command_Base {
 		);
 		parent::initialize();
 	}
-	
+
 	/**
 	 * (non-PHPdoc)
 	 *
 	 * @see Command::run()
 	 */
-	function run() {
+	public function run() {
 		if ($this->option_bool('help')) {
 			$this->usage();
 		}
@@ -87,7 +88,7 @@ abstract class Command_Iterator_File extends Command_Base {
 			foreach ($extras as $extra) {
 				if (is_file($extra)) {
 					$this->process_file(new \SplFileInfo($extra));
-				} else if (is_dir($extra)) {
+				} elseif (is_dir($extra)) {
 					$this->recurse_directory($extra);
 				} else {
 					$this->log("### Unknown file or directory $extra");
@@ -98,22 +99,22 @@ abstract class Command_Iterator_File extends Command_Base {
 		}
 		$this->finish();
 	}
-	
+
 	/**
 	 */
 	abstract protected function start();
-	
+
 	/**
 	 *
 	 * @param SplFileInfo $file
 	 * @return boolean Return false to stop processing
 	 */
 	abstract protected function process_file(\SplFileInfo $file);
-	
+
 	/**
 	 */
 	abstract protected function finish();
-	
+
 	/**
 	 *
 	 * @param string $dir

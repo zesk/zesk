@@ -14,4 +14,5 @@ zesk()->deprecated();
  * @author kent
  *
  */
-class View_Object extends View_ORM {}
+class View_Object extends View_ORM {
+}

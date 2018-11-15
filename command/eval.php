@@ -22,175 +22,181 @@ namespace zesk;
  * @category Management
  */
 class Command_Eval extends Command_Base {
-	protected $option_types = array(
-		'json' => 'boolean',
-		'interactive' => 'boolean',
-		'debug-state' => 'boolean',
-		'*' => 'string'
-	);
-	protected $option_help = array(
-		'json' => 'Output results as JSON instead of PHP',
-		'interactive' => 'Run interactively',
-		'debug-state' => 'Run interactively. When running interactively the ',
-		'*' => 'string'
-	);
-	protected $option_chars = array(
-		'i' => 'interactive'
-	);
+    protected $option_types = array(
+        'json' => 'boolean',
+        'interactive' => 'boolean',
+        'debug-state' => 'boolean',
+        '*' => 'string',
+    );
 
-	/**
-	 * Variables saved before eval is run
-	 *
-	 * @var array
-	 */
-	private $before_vars = null;
+    protected $option_help = array(
+        'json' => 'Output results as JSON instead of PHP',
+        'interactive' => 'Run interactively',
+        'debug-state' => 'Run interactively. When running interactively the ',
+        '*' => 'string',
+    );
 
-	/**
-	 * Variables preserved between eval lines
-	 *
-	 * @var array
-	 */
-	private $saved_vars = null;
+    protected $option_chars = array(
+        'i' => 'interactive',
+    );
 
-	/**
-	 * Run our eval command
-	 *
-	 * {@inheritDoc}
-	 * @see \zesk\Command::run()
-	 */
-	function run() {
-		$this->handle_base_options();
-		$this->saved_vars = array();
-		while ($this->has_arg()) {
-			$arg = $this->get_arg("eval");
-			if ($arg === "--") {
-				return 0;
-			}
-			$this->verbose_log("Evaluating: $arg\n");
-			$this->_eval($arg);
-		}
-		if ($this->option_bool('interactive')) {
-			return $this->interactive();
-		}
-	}
+    /**
+     * Variables saved before eval is run
+     *
+     * @var array
+     */
+    private $before_vars = null;
 
-	/**
-	 * Interactive evaluation of commands
-	 *
-	 * @return number
-	 */
-	public function interactive() {
-		$this->history_file_path = $this->application->paths->uid("eval-history.log");
-		$name = get_class($this->application);
-		$last_exit_code = 0;
-		while (true) {
-			$command = $this->prompt($name . '>');
-			if (feof(STDIN)) {
-				echo "\nExit\n";
-				return $last_exit_code;
-			}
-			if (empty($command)) {
-				return $last_exit_code;
-			}
-			if ($command === "quit" || $command === "exit") {
-				return 0;
-			}
-			ob_start();
-			try {
-				$__result = $this->_eval($command);
-				$last_exit_code = 0;
-			} catch (Exception $ex) {
-				$content = ob_get_clean();
-				echo "# exception " . get_class($ex) . "\n";
-				echo "# message " . $ex->getMessage() . "\n";
-				echo "# stack trace\n" . $ex->getTraceAsString() . "\n";
-				if ($content) {
-					echo "# Content\n$content\n";
-				}
-				$this->application->hooks->call("exception", $ex);
-				$last_exit_code = 99;
-				continue;
-			}
-			$content = ob_get_clean();
+    /**
+     * Variables preserved between eval lines
+     *
+     * @var array
+     */
+    private $saved_vars = null;
 
-			if ($__result === null) {
-				if ($content !== "") {
-					echo $content . "\n";
-				} else {
-				}
-			} else {
-				echo "# return " . PHP::dump($__result) . "\n";
-				if ($content !== "") {
-					echo $content . "\n";
-				}
-			}
-		}
-	}
-	/**
-	 * Before evaluate, save global context variables
-	 */
-	private function _before_evaluate(array $vars) {
-		$this->before_vars = $vars;
-		return $this->saved_vars;
-	}
+    /**
+     * Run our eval command
+     *
+     * {@inheritDoc}
+     * @see \zesk\Command::run()
+     */
+    public function run() {
+        $this->handle_base_options();
+        $this->saved_vars = array();
+        while ($this->has_arg()) {
+            $arg = $this->get_arg("eval");
+            if ($arg === "--") {
+                return 0;
+            }
+            $this->verbose_log("Evaluating: $arg\n");
+            $this->_eval($arg);
+        }
+        if ($this->option_bool('interactive')) {
+            return $this->interactive();
+        }
+    }
 
-	/**
-	 * After evaluate, determine if any new variables are present
-	 * @param array $vars
-	 */
-	private function _after_evaluate(array $vars) {
-		$diff = array_diff_assoc($vars, $this->before_vars);
-		foreach ($diff as $k => $v) {
-			if (begins($k, "__")) {
-				unset($diff[$k]);
-			}
-		}
-		$this->saved_vars = $diff + $this->saved_vars;
-		$this->before_vars = $vars;
+    /**
+     * Interactive evaluation of commands
+     *
+     * @return number
+     */
+    public function interactive() {
+        $this->history_file_path = $this->application->paths->uid("eval-history.log");
+        $name = get_class($this->application);
+        $last_exit_code = 0;
+        while (true) {
+            $command = $this->prompt($name . '>');
+            if (feof(STDIN)) {
+                echo "\nExit\n";
+                return $last_exit_code;
+            }
+            if (empty($command)) {
+                return $last_exit_code;
+            }
+            if ($command === "quit" || $command === "exit") {
+                return 0;
+            }
+            ob_start();
 
-		if ($this->option_bool("debug-state")) {
-			if (count($diff) > 0) {
-				echo "New variables defined in state: " . implode(", ", array_keys($diff)) . "\n";
-			} else {
-				echo "No new variables defined.\n";
-			}
-		}
-	}
-	private function _prefix_commmand($string) {
-		$string = trim($string, " \n\r\t;");
-		$string = preg_replace('/^return\s/', '', $string);
-		$prefix = "return";
-		if (StringTools::begins($string, array(
-			'echo ',
-			'print '
-		)) || strpos($string, ";") !== false) {
-			$prefix = "";
-		}
-		return $prefix . " " . $string;
-	}
+            try {
+                $__result = $this->_eval($command);
+                $last_exit_code = 0;
+            } catch (Exception $ex) {
+                $content = ob_get_clean();
+                echo "# exception " . get_class($ex) . "\n";
+                echo "# message " . $ex->getMessage() . "\n";
+                echo "# stack trace\n" . $ex->getTraceAsString() . "\n";
+                if ($content) {
+                    echo "# Content\n$content\n";
+                }
+                $this->application->hooks->call("exception", $ex);
+                $last_exit_code = 99;
 
-	/**
-	 * Evaluate a PHP string and execute it in the application context
-	 *
-	 * Note that the state of $this->saved_vars may be updated based on newly defined variables.
-	 * Does NOT support $a &= $b, however.
-	 *
-	 * @param string $__string Arbitrary PHP code
-	 * @throws Exception
-	 * @return mixed
-	 */
-	private function _eval($__string) {
-		$__eval = $this->_prefix_commmand($__string);
-		try {
-			$command = $_ = $this;
-			$application = $app = $this->application;
-			extract($this->_before_evaluate(get_defined_vars()), EXTR_SKIP);
-			$__result = eval("?" . "><" . "?php\n$__eval;\n");
-			$this->_after_evaluate(get_defined_vars());
-			return $__result;
-		} catch (Exception $e) {
-			throw $e;
-		}
-	}
+                continue;
+            }
+            $content = ob_get_clean();
+
+            if ($__result === null) {
+                if ($content !== "") {
+                    echo $content . "\n";
+                } else {
+                }
+            } else {
+                echo "# return " . PHP::dump($__result) . "\n";
+                if ($content !== "") {
+                    echo $content . "\n";
+                }
+            }
+        }
+    }
+
+    /**
+     * Before evaluate, save global context variables
+     */
+    private function _before_evaluate(array $vars) {
+        $this->before_vars = $vars;
+        return $this->saved_vars;
+    }
+
+    /**
+     * After evaluate, determine if any new variables are present
+     * @param array $vars
+     */
+    private function _after_evaluate(array $vars) {
+        $diff = array_diff_assoc($vars, $this->before_vars);
+        foreach ($diff as $k => $v) {
+            if (begins($k, "__")) {
+                unset($diff[$k]);
+            }
+        }
+        $this->saved_vars = $diff + $this->saved_vars;
+        $this->before_vars = $vars;
+
+        if ($this->option_bool("debug-state")) {
+            if (count($diff) > 0) {
+                echo "New variables defined in state: " . implode(", ", array_keys($diff)) . "\n";
+            } else {
+                echo "No new variables defined.\n";
+            }
+        }
+    }
+
+    private function _prefix_commmand($string) {
+        $string = trim($string, " \n\r\t;");
+        $string = preg_replace('/^return\s/', '', $string);
+        $prefix = "return";
+        if (StringTools::begins($string, array(
+            'echo ',
+            'print ',
+        )) || strpos($string, ";") !== false) {
+            $prefix = "";
+        }
+        return $prefix . " " . $string;
+    }
+
+    /**
+     * Evaluate a PHP string and execute it in the application context
+     *
+     * Note that the state of $this->saved_vars may be updated based on newly defined variables.
+     * Does NOT support $a &= $b, however.
+     *
+     * @param string $__string Arbitrary PHP code
+     * @throws Exception
+     * @return mixed
+     */
+    private function _eval($__string) {
+        $__eval = $this->_prefix_commmand($__string);
+
+        try {
+            $command = $_ = $this;
+            $application = $app = $this->application;
+            extract($this->_before_evaluate(get_defined_vars()), EXTR_SKIP);
+            $__result = eval("?" . "><" . "?php\n$__eval;\n");
+            $this->_after_evaluate(get_defined_vars());
+            return $__result;
+        } catch (Exception $e) {
+            throw $e;
+        }
+    }
 }
-

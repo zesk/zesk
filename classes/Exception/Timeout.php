@@ -1,11 +1,12 @@
 <?php
 
 /**
- * 
+ *
  */
 namespace zesk;
 
 /**
- * 
+ *
  */
-class Exception_Timeout extends Exception {}
+class Exception_Timeout extends Exception {
+}

@@ -7,4 +7,5 @@
  */
 namespace zesk;
 
-class Net_POP_Client_Exception extends Net_Exception {}
+class Net_POP_Client_Exception extends Net_Exception {
+}

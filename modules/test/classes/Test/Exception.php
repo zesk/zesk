@@ -1,11 +1,12 @@
 <?php
 
 /**
- * 
+ *
  */
 namespace zesk\Test;
 
 /**
- * 
+ *
  */
-class Exception extends \zesk\Exception {}
+class Exception extends \zesk\Exception {
+}

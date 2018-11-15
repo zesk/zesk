@@ -10,12 +10,12 @@ namespace zesk;
  * Output the current working directory
  *
  * @category Debugging
- * @param array $args        	
+ * @param array $args
  * @return array
  */
 class Command_PWD extends Command {
-	function run() {
-		echo getcwd() . "\n";
-		return 0;
-	}
+    public function run() {
+        echo getcwd() . "\n";
+        return 0;
+    }
 }

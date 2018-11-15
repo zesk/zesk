@@ -8,8 +8,8 @@
 namespace zesk;
 
 class Exception_Key_Test extends Exception_TestCase {
-	function test_basics() {
-		$testx = new Exception_Key();
-		$this->exception_test($testx);
-	}
+    public function test_basics() {
+        $testx = new Exception_Key();
+        $this->exception_test($testx);
+    }
 }

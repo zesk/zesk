@@ -1,7 +1,7 @@
 <?php
 
 /**
- * 
+ *
  */
 namespace zesk;
 
@@ -10,4 +10,5 @@ namespace zesk;
  *
  * @author kent
  */
-class Exception_Lock extends Exception {}
+class Exception_Lock extends Exception {
+}

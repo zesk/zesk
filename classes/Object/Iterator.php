@@ -13,4 +13,5 @@ namespace zesk;
  * @author kent
  * @no-cannon
  */
-class Object_Iterator extends ORMIterator {}
+class Object_Iterator extends ORMIterator {
+}

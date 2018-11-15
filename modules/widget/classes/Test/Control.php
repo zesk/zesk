@@ -15,4 +15,5 @@ namespace zesk;
  * @author kent
  *
  */
-class Test_Control extends Test_Widget {}
+class Test_Control extends Test_Widget {
+}

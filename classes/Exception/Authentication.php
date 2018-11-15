@@ -11,7 +11,8 @@ namespace zesk;
 
 /**
  * Throw when the user does not authenticate, authentication fails, or access issues
- * 
+ *
  * @author kent
  */
-class Exception_Authentication extends Exception {}
+class Exception_Authentication extends Exception {
+}

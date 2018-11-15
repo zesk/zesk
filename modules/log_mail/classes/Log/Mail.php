@@ -24,4 +24,5 @@ namespace zesk;
  * @property array $data
  * @author kent
  */
-class Log_Mail extends ORM {}
+class Log_Mail extends ORM {
+}

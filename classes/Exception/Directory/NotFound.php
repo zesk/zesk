@@ -9,8 +9,9 @@
 namespace zesk;
 
 /**
- * 
+ *
  * @author kent
  *
  */
-class Exception_Directory_NotFound extends Exception_FileSystem {}
+class Exception_Directory_NotFound extends Exception_FileSystem {
+}

@@ -2,23 +2,36 @@
 namespace zesk;
 
 interface Net_FileSystem {
-	const feature_mtime = 'mtime';
-	
-	/**
-	 * @return Application
-	 */
-	function application();
-	function url($component = null);
-	function ls($path = null);
-	function cd($path);
-	function pwd();
-	function stat($path);
-	function mkdir($path);
-	function rmdir($path);
-	function chmod($path, $mode = 0770);
-	function download($remote_path, $local_path);
-	function upload($local_path, $remote_path, $temporary = false);
-	function mtime($path, Timestamp $mtime);
-	function unlink($path);
-	function has_feature($feature);
+    const feature_mtime = 'mtime';
+    
+    /**
+     * @return Application
+     */
+    public function application();
+
+    public function url($component = null);
+
+    public function ls($path = null);
+
+    public function cd($path);
+
+    public function pwd();
+
+    public function stat($path);
+
+    public function mkdir($path);
+
+    public function rmdir($path);
+
+    public function chmod($path, $mode = 0770);
+
+    public function download($remote_path, $local_path);
+
+    public function upload($local_path, $remote_path, $temporary = false);
+
+    public function mtime($path, Timestamp $mtime);
+
+    public function unlink($path);
+
+    public function has_feature($feature);
 }

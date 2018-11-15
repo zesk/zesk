@@ -10,22 +10,24 @@
 namespace zesk;
 
 class Contact_Email extends Contact_Info {
-	/**
-	 *
-	 * @see Contact_Label::LabelType_Foo
-	 *
-	 * @return string
-	 */
-	function label_type() {
-		return Contact_Label::LabelType_Email;
-	}
-	function verified() {
-		$this->verified = "now";
-		$this->store();
-	}
-	public static function find_email(Application $app, $email) {
-		return $app->orm_factory(__CLASS__, array(
-			'value' => $email
-		))->find();
-	}
+    /**
+     *
+     * @see Contact_Label::LabelType_Foo
+     *
+     * @return string
+     */
+    public function label_type() {
+        return Contact_Label::LabelType_Email;
+    }
+
+    public function verified() {
+        $this->verified = "now";
+        $this->store();
+    }
+
+    public static function find_email(Application $app, $email) {
+        return $app->orm_factory(__CLASS__, array(
+            'value' => $email,
+        ))->find();
+    }
 }

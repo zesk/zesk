@@ -10,7 +10,7 @@ use zesk\Response;
  *
  */
 class Text extends Type {
-	function output($content) {
-		echo $content;
-	}
+    public function output($content) {
+        echo $content;
+    }
 }

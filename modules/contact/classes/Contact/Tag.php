@@ -14,37 +14,40 @@ namespace zesk;
  *
  */
 class Contact_Tag extends ORM {
-	public static function register_tag($name, $user) {
-		$x = new self(array(
-			"name" => $name,
-			"user" => $user
-		));
-		if (!$x->register()) {
-			return null;
-		}
-		return $x;
-	}
-	public static function to_array(User $user, $where = null) {
-		$query = $user->application->orm_registry(__CLASS__)->query_select();
-		return $query->where('user', $user)
-			->where($where)
-			->order_by('name')
-			->to_array('id');
-	}
-	function store() {
-		$result = parent::store();
-		if ($result) {
-			$this->grant_user($this->User);
-		}
-		return $result;
-	}
-	function grant_user(User $user) {
-		$this->query_insert()
-			->values(array(
-			"user" => $user,
-			"contact_tag" => $this->id()
-		))
-			->replace()
-			->execute();
-	}
+    public static function register_tag($name, $user) {
+        $x = new self(array(
+            "name" => $name,
+            "user" => $user,
+        ));
+        if (!$x->register()) {
+            return null;
+        }
+        return $x;
+    }
+
+    public static function to_array(User $user, $where = null) {
+        $query = $user->application->orm_registry(__CLASS__)->query_select();
+        return $query->where('user', $user)
+            ->where($where)
+            ->order_by('name')
+            ->to_array('id');
+    }
+
+    public function store() {
+        $result = parent::store();
+        if ($result) {
+            $this->grant_user($this->User);
+        }
+        return $result;
+    }
+
+    public function grant_user(User $user) {
+        $this->query_insert()
+            ->values(array(
+            "user" => $user,
+            "contact_tag" => $this->id(),
+        ))
+            ->replace()
+            ->execute();
+    }
 }

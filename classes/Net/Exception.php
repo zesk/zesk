@@ -7,4 +7,5 @@
  */
 namespace zesk;
 
-class Net_Exception extends Exception {}
+class Net_Exception extends Exception {
+}

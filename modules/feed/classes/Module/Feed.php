@@ -1,4 +1,5 @@
 <?php
 namespace zesk;
 
-class Module_Feed extends Module {}
+class Module_Feed extends Module {
+}

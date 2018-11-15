@@ -7,4 +7,5 @@ namespace zesk;
  * @property Content_Image $image
  * @author kent
  */
-class User_Content_Image extends ORM {}
+class User_Content_Image extends ORM {
+}

@@ -99,4 +99,3 @@ $tt['password'] = 'contrase&ntilde;a';
 $tt['sign up'] = 'alistarse';
 
 return $tt;
-

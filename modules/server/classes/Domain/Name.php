@@ -6,4 +6,5 @@ namespace zesk;
  * @author kent
  *
  */
-class Domain_Name extends ORM {}
+class Domain_Name extends ORM {
+}

@@ -9,7 +9,8 @@
 namespace zesk;
 
 /**
- * 
- * 
+ *
+ *
  */
-class Exception_Invalid extends Exception {}
+class Exception_Invalid extends Exception {
+}

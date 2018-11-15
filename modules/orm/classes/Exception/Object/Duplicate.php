@@ -10,4 +10,5 @@ zesk()->deprecated();
  * @author kent
  * @no-cannon
  */
-class Exception_Object_Duplicate extends Exception_ORM_Duplicate {}
+class Exception_Object_Duplicate extends Exception_ORM_Duplicate {
+}

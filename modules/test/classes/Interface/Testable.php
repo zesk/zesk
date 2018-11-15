@@ -1,4 +1,5 @@
 <?php
 namespace zesk;
 
-interface Interface_Testable {}
+interface Interface_Testable {
+}

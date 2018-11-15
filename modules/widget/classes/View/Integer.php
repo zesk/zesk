@@ -9,19 +9,19 @@
 namespace zesk;
 
 class View_Integer extends View {
-	function render() {
-		$showSize = $this->show_size();
-		$v = $this->value();
-		if ($v === null || $v === "") {
-			$v = $this->empty_string();
-			if ($this->option_bool("empty_string_no_wrap")) {
-				return $v;
-			}
-		} else {
-			$dec_sep = $this->option("decimal_point", __('Number::decimal_point:=.'));
-			$thou_sep = $this->option("thousands_separator", __('Number::thousands_separator:=,'));
-			$v = number_format($v, 0, $dec_sep, $thou_sep);
-		}
-		return $this->render_finish($v);
-	}
+    public function render() {
+        $showSize = $this->show_size();
+        $v = $this->value();
+        if ($v === null || $v === "") {
+            $v = $this->empty_string();
+            if ($this->option_bool("empty_string_no_wrap")) {
+                return $v;
+            }
+        } else {
+            $dec_sep = $this->option("decimal_point", __('Number::decimal_point:=.'));
+            $thou_sep = $this->option("thousands_separator", __('Number::thousands_separator:=,'));
+            $v = number_format($v, 0, $dec_sep, $thou_sep);
+        }
+        return $this->render_finish($v);
+    }
 }

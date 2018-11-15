@@ -6,4 +6,5 @@ namespace zesk;
  * @author kent
  *
  */
-class Time_Zone extends ORM {}
+class Time_Zone extends ORM {
+}

@@ -7,7 +7,6 @@ namespace zesk;
  * @author kent
  */
 class Configuration_Dependency {
-
 	/**
 	 * Stack of contexts we're loading
 	 *
@@ -56,7 +55,7 @@ class Configuration_Dependency {
 		}
 		$this->definitions[$variable] = array(
 			"context" => $context,
-			"depedencies" => $dependencies
+			"dependencies" => $dependencies
 		);
 		return $this;
 	}

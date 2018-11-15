@@ -9,5 +9,5 @@
  */
 namespace zesk;
 
-class Database_Exception_Schema extends Database_Exception_SQL {}
-
+class Database_Exception_Schema extends Database_Exception_SQL {
+}

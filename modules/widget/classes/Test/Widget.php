@@ -4,4 +4,5 @@ namespace zesk;
 /**
  * Todo
  */
-class Test_Widget extends Test_Unit {}
+class Test_Widget extends Test_Unit {
+}

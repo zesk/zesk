@@ -9,8 +9,9 @@
 namespace zesk;
 
 /**
- * 
+ *
  * @author kent
  *
  */
-class Exception_Key extends Exception {}
+class Exception_Key extends Exception {
+}

@@ -23,7 +23,7 @@ namespace zesk;
  *
  */
 class Example_Test extends PHPUnit_TestCase {
-	// Tests go here
+    // Tests go here
 }
 
 // This is a comment. I love comments.

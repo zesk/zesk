@@ -8,6 +8,5 @@
 namespace zesk;
 
 class Content_Group_Image extends Content_Group {
-	protected $name = "Images";
+    protected $name = "Images";
 }
-

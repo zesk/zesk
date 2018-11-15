@@ -18,4 +18,5 @@ namespace zesk;
  * @see ORM
  * @see Object
  */
-class Class_Object extends Class_ORM {}
+class Class_Object extends Class_ORM {
+}

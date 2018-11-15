@@ -9,5 +9,5 @@
  */
 namespace zesk;
 
-class Database_Exception_Unknown_Schema extends Database_Exception {}
-
+class Database_Exception_Unknown_Schema extends Database_Exception {
+}

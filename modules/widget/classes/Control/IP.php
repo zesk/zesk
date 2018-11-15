@@ -8,16 +8,16 @@
 namespace zesk;
 
 class Control_IP extends Control {
-	function validate() {
-		$value = $this->request->get($this->name());
-		if (IPv4::valid($value)) {
-			$this->value(ip2long($value));
-			return true;
-		}
-		if ($this->required()) {
-			$this->error_required();
-			return false;
-		}
-		return true;
-	}
+    public function validate() {
+        $value = $this->request->get($this->name());
+        if (IPv4::valid($value)) {
+            $this->value(ip2long($value));
+            return true;
+        }
+        if ($this->required()) {
+            $this->error_required();
+            return false;
+        }
+        return true;
+    }
 }

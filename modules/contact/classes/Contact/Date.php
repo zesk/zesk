@@ -11,7 +11,7 @@ namespace zesk;
  * @see Class_Contact_Date
  */
 class Contact_Date extends Contact_Info {
-	function label_type() {
-		return Contact_Label::LabelType_Date;
-	}
+    public function label_type() {
+        return Contact_Label::LabelType_Date;
+    }
 }

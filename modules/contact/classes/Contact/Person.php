@@ -13,55 +13,56 @@ namespace zesk;
  * @author kent
  */
 class Contact_Person extends Contact_Info {
-	/**
-	 * 
-	 * {@inheritDoc}
-	 * @see \zesk\Contact_Info::label_type()
-	 */
-	function label_type() {
-		return false;
-	}
-	/**
-	 * Informal greeting
-	 *
-	 * @return string
-	 */
-	function greeting_name() {
-		$names = array(
-			"Nickname",
-			'FirstName',
-			'LastName'
-		);
-		foreach ($names as $name) {
-			$name = $this->member($name);
-			if ($name) {
-				return $name;
-			}
-		}
-		return null;
-	}
-	
-	/**
-	 * 
-	 * @return string
-	 */
-	function full_name() {
-		$result = array();
-		$names = array(
-			"Prefix",
-			"FirstName",
-			"MiddleName",
-			"LastName",
-			"Suffix"
-		);
-		foreach ($names as $name) {
-			if (!$this->member_is_empty($name)) {
-				$result[] = $this->member($name);
-			}
-		}
-		if (count($result) == 0) {
-			$result[] = $this->member('Nickname');
-		}
-		return implode(" ", $result);
-	}
+    /**
+     *
+     * {@inheritDoc}
+     * @see \zesk\Contact_Info::label_type()
+     */
+    public function label_type() {
+        return false;
+    }
+
+    /**
+     * Informal greeting
+     *
+     * @return string
+     */
+    public function greeting_name() {
+        $names = array(
+            "Nickname",
+            'FirstName',
+            'LastName',
+        );
+        foreach ($names as $name) {
+            $name = $this->member($name);
+            if ($name) {
+                return $name;
+            }
+        }
+        return null;
+    }
+    
+    /**
+     *
+     * @return string
+     */
+    public function full_name() {
+        $result = array();
+        $names = array(
+            "Prefix",
+            "FirstName",
+            "MiddleName",
+            "LastName",
+            "Suffix",
+        );
+        foreach ($names as $name) {
+            if (!$this->member_is_empty($name)) {
+                $result[] = $this->member($name);
+            }
+        }
+        if (count($result) == 0) {
+            $result[] = $this->member('Nickname');
+        }
+        return implode(" ", $result);
+    }
 }
