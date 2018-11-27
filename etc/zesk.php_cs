@@ -14,20 +14,20 @@ return PhpCsFixer\Config::create()->setIndent("\t")->setRules([
 	'cast_spaces' => true,
 	'class_attributes_separation' => true,
 	'concat_space' => [
-		'spacing' => 'one'
+		'spacing' => 'one',
 	],
 	'dir_constant' => true,
 	'single_line_comment_style' => [
 		'comment_types' => [
-			'hash'
-		]
+			'hash',
+		],
 	],
 	'blank_line_before_statement' => [
 		'statements' => [
 			'declare',
 			'throw',
-			'try'
-		]
+			'try',
+		],
 	],
 	'standardize_not_equals' => true,
 	'ternary_operator_spaces' => true,
@@ -38,11 +38,11 @@ return PhpCsFixer\Config::create()->setIndent("\t")->setRules([
 	'braces' => [
 		'position_after_functions_and_oop_constructs' => 'same',
 		'position_after_anonymous_constructs' => 'same',
-		'position_after_control_structures' => 'same'
+		'position_after_control_structures' => 'same',
 	],
 	'no_trailing_whitespace' => true,
 	'no_trailing_whitespace_in_comment' => true,
 	'no_whitespace_in_blank_line' => true,
 	'object_operator_without_whitespace' => true,
-	'whitespace_after_comma_in_array' => true
+	'whitespace_after_comma_in_array' => true,
 ])->setFinder($finder);
