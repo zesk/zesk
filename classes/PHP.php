@@ -390,7 +390,15 @@ class PHP {
      * @param mixed $value
      * @return mixed
      */
-    public static function autotype($value) {
+
+    /**
+     * Convert a value automatically into a native PHP type
+     *
+     * @param mixed $value
+     * @param boolean $throw Throw an Exception_Parse error when value is invalid JSON. Defaults to true.
+     * @return mixed
+     */
+    public static function autotype($value, $throw = true) {
         if (is_array($value)) {
             foreach ($value as $k => $v) {
                 $value[$k] = self::autotype($v);
@@ -414,7 +422,14 @@ class PHP {
             return null;
         }
         if (unquote($value, '{}[]\'\'""') !== $value) {
-            return JSON::decode($value, true);
+            try {
+                return JSON::decode($value, true);
+            } catch (Exception_Parse $e) {
+                if ($throw) {
+                    throw $e;
+                }
+                return $value;
+            }
         }
         return $value;
     }
@@ -424,9 +439,10 @@ class PHP {
      *
      * e.g. PHP::parse_class("zesk\Dude") === "Dude"
      *
-     * @todo Does PHP have a native function which does this?
-     * @param unknown $class
-     * @return A
+     * As of November 2018, does not appera that PHP have a native function which does this.
+     *
+     * @param string $class
+     * @return string
      */
     public static function parse_class($class) {
         list($ns, $cl) = self::parse_namespace_class($class);
@@ -438,8 +454,8 @@ class PHP {
      *
      * e.g. PHP::parse_class("zesk\Dude") === "Dude"
      *
-     * @param unknown $class
-     * @return A
+     * @param string $class
+     * @return string
      */
     public static function parse_namespace($class) {
         list($ns, $cl) = self::parse_namespace_class($class);
