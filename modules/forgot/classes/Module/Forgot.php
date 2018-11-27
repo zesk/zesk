@@ -42,7 +42,7 @@ class Module_Forgot extends Module implements Interface_Module_Routes {
      * @param Router $router
      */
     public function hook_routes(Router $router) {
-        $router->add_route("forgot(/{option action}(/{hash}))", array(
+        $router->add_route("forgot(/{option action}(/{hash}))", $this->option_array("route_options") + array(
             "controller" => Controller_Forgot::class,
             "classes" => array(
                 Forgot::class,

@@ -102,13 +102,18 @@ class Control_ForgotReset extends Control_Edit {
         $locale = $this->locale();
         /* @var $user User */
         /* @var $found Forgot */
-        $found = $this->application->orm_factory($this->class)->find(array(
-            "code" => $this->validate_token(),
-        ));
-        if ($found && $found->expired()) {
+        $this->object->code = $this->validate_token();
+
+        $found = $this->object->find();
+        if (!$found) {
+            $this->error($locale->__("Control_ForgotReset:=Forgotten password request no longer valid. Please try again."));
+            return false;
+        }
+        if ($found->expired()) {
             $this->error($locale->__("Control_ForgotReset:=Forgotten password request expired. Please try again."));
             return false;
         }
+        $this->auth_user = $found->user;
         $this->auth_user = $this->call_hook_arguments("find_user", array(
             $this->auth_user,
         ), $this->auth_user);
@@ -124,7 +129,7 @@ class Control_ForgotReset extends Control_Edit {
 
         $object = $this->object;
 
-        $object->validated($object->new_password);
+        $object->validated($object->password);
 
         $location = '/forgot/complete/' . $this->validate_token();
         if (!$this->prefer_json()) {

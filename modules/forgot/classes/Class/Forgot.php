@@ -5,12 +5,24 @@ namespace zesk;
  * @see Forgot
  */
 class Class_Forgot extends Class_ORM {
+    /**
+     *
+     * @var string
+     */
     public $id_column = "id";
 
+    /**
+     *
+     * @var array
+     */
     public $find_keys = array(
         'code',
     );
 
+    /**
+     *
+     * @var array
+     */
     public $column_types = array(
         "id" => self::type_id,
         "login" => self::type_string,
@@ -21,10 +33,18 @@ class Class_Forgot extends Class_ORM {
         'updated' => self::type_timestamp,
     );
 
+    /**
+     *
+     * @var array
+     */
     public $has_one = array(
-        "user" => "zesk\\User",
-        "session" => "zesk\\Session_ORM",
+        "user" => User::class,
+        "session" => Session_ORM::class,
     );
 
-    public $database_group = "zesk\\User";
+    /**
+     *
+     * @var string
+     */
+    public $database_group = User::class;
 }

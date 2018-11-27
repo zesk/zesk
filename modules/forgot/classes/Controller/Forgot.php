@@ -11,6 +11,13 @@ namespace zesk;
  */
 class Controller_Forgot extends Controller_Theme {
     /**
+     * @return integer
+     */
+    private function request_expire_seconds() {
+        return $this->application->forgot_module()->request_expire_seconds();
+    }
+
+    /**
      *
      */
     public function action_index() {
@@ -39,8 +46,20 @@ class Controller_Forgot extends Controller_Theme {
     }
 
     /**
+     * Fetch the forgotten password expiration value (seconds)
      *
-     * @param unknown $token
+     * @return \zesk\Controller
+     */
+    public function action_expiration() {
+        return $this->json(array(
+            "expiration" => $this->request_expire_seconds(),
+        ));
+    }
+
+    /**
+     *
+     * @param string $token
+     * @return Response As JSON
      */
     public function action_status($token) {
         $json = array(
@@ -102,7 +121,7 @@ class Controller_Forgot extends Controller_Theme {
             "token" => $token,
             "expiration" => $expiration->unix_timestamp(),
             "expiration-string" => $expiration->__toString(),
-            "timeout" => $this->application->forgot_module()->request_expire_seconds(),
+            "timeout" => $this->request_expire_seconds(),
         ));
     }
 
@@ -148,9 +167,5 @@ class Controller_Forgot extends Controller_Theme {
         }
 
         return $this->control($this->widget_factory(Control_ForgotReset::class)->validate_token($token));
-
-        // 		$forgot->validated();
-
-        // 		return $forgot->theme("success");
     }
 }
