@@ -21,14 +21,14 @@ class Response_Test extends Test_Unit {
 
 		$response->html()->body_attributes("goo", "bar");
 		$response->html()->body_attributes(array(
-			"goo" => "actual"
+			"goo" => "actual",
 		));
 		$response->html()->body_attributes(array(
-			"poo" => "bar"
+			"poo" => "bar",
 		));
 		$response->html()->body_attributes("poo", "actual");
 		$response->html()->body_attributes(array(
-			"dee" => "foofla"
+			"dee" => "foofla",
 		));
 		$response->html()->body_attributes("dee", "actual");
 		$response->html()->body_attributes("loo", "actual");
@@ -39,7 +39,7 @@ class Response_Test extends Test_Unit {
 			"goo" => "actual",
 			"poo" => "actual",
 			"dee" => "actual",
-			"loo" => "actual"
+			"loo" => "actual",
 		);
 
 		dump($attrs, $compare_result);
@@ -56,7 +56,7 @@ class Response_Test extends Test_Unit {
 		$type = "text/javascript";
 		$script = "alert('Hello, world!');";
 		$response->html()->javascript_inline($script, array(
-			'browser' => 'ie'
+			'browser' => 'ie',
 		));
 
 		$scripts = $response->html()->scripts();
