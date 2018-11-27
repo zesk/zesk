@@ -30,7 +30,7 @@ class Control_Radio extends Control_Optionss {
         }
         return $this->validate_required();
     }
-    
+
     /**
      * Return the jQuery expression to determine the value of this widget
      */

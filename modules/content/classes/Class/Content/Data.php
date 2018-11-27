@@ -17,7 +17,7 @@ class Class_Content_Data extends Class_ORM {
      * @var string
      */
     public $id_column = "id";
-    
+
     /**
      *
      * @var array
@@ -31,7 +31,7 @@ class Class_Content_Data extends Class_ORM {
         "checked" => self::type_timestamp,
         "missing" => self::type_timestamp,
     );
-    
+
     /**
      *
      * @var array

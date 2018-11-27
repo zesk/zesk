@@ -168,10 +168,10 @@ class CSS {
             "yellow" => "ffff00",
             "yellowgreen" => "9acd32",
         );
-        
+
         return $colors;
     }
-    
+
     /**
      * Add a class to another CSS class for inclusion in HTML
      *
@@ -185,7 +185,7 @@ class CSS {
         }
         return $add ? Lists::append_unique($classes, $add, " ") : $classes;
     }
-    
+
     /**
      * Remove a class from a list of classes
      * @param string $classes
@@ -198,7 +198,7 @@ class CSS {
         }
         return Lists::remove($classes, $remove, " ");
     }
-    
+
     /**
      * Given a color name, determine the hex code for the color.
      *
@@ -212,7 +212,7 @@ class CSS {
         $colors = self::color_table();
         return avalue($colors, strtolower($text), $default);
     }
-    
+
     /**
      * Convert an RGB value to a hex value
      *
@@ -235,7 +235,7 @@ class CSS {
         }
         return $color;
     }
-    
+
     /**
      * Convert an RGB value to a hex code, including the # prefix
      *
@@ -246,7 +246,7 @@ class CSS {
     public static function color_format($rgb, $default = null) {
         return '#' . self::rgb_to_hex($rgb, $default);
     }
-    
+
     /**
      * Parse a color and convert it to hexadecimal color
      *
@@ -259,7 +259,7 @@ class CSS {
         $x = self::rgb_to_hex($x, $default);
         return $x;
     }
-    
+
     /**
      * Does this string represent a CSS color value?
      *
@@ -269,7 +269,7 @@ class CSS {
     public static function is_color($text) {
         return self::color_parse($text, null) !== null;
     }
-    
+
     /**
      * Parse a color value from a CSS file
      *

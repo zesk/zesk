@@ -18,13 +18,13 @@ abstract class Metafile extends Options {
      * @var Stream
      */
     protected $stream = null;
-    
+
     /**
      * Whether this is a big-endian or little-endian file format
      * @var boolean
      */
     protected $big_endian = false;
-    
+
     /**
      * Warnings
      * @var array

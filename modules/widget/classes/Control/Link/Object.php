@@ -14,13 +14,13 @@ class Control_Link_Object extends Control {
      * @var Widget
      */
     private $widget = null;
-    
+
     /**
      *
      * @var array of Model
      */
     private $models = array();
-    
+
     /**
      *
      * @var array of Widget
@@ -37,7 +37,7 @@ class Control_Link_Object extends Control {
         $widget->name($list_name . "[]");
         $widget->initialize();
         $this->object = $widget->model();
-        
+
         $values = $this->request->geta($list_name);
         $n = 0;
         $max_objects = $this->maximum_objects();
@@ -69,10 +69,10 @@ class Control_Link_Object extends Control {
         }
         return $this->option_integer("maximum_objects", 100);
     }
-    
+
     // 	function load() {
     // 		$list_name = $this->name() . '_list';
-    
+
     // 		$values = $this->request->geta($list_name, array());
     // 		foreach ($values as $index => $value) {
     // 			$this->widgets[$index]->load($this->models[$index]);

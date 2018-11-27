@@ -22,7 +22,7 @@ class Command_Permission extends Command_Base {
      * @var Module_Permission
      */
     protected $module = null;
-    
+
     /**
      *
      * {@inheritDoc}

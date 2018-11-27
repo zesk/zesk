@@ -18,7 +18,7 @@ class Contact_Builder_URL extends Contact_Builder_Base {
      * @var string
      */
     protected $contact_class = "zesk\\Contact_Phone";
-    
+
     /**
      *
      * {@inheritDoc}

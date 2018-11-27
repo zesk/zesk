@@ -45,7 +45,7 @@ class Overhead_Test extends Test_Unit {
         ob_end_clean();
         return $result;
     }
-    
+
     /**
      * @no_buffer true
      */
@@ -56,13 +56,13 @@ class Overhead_Test extends Test_Unit {
         $this->assert_is_numeric($result);
         $raw_usage = intval($result);
         $this->log("Raw PHP usage is $raw_usage");
-        
+
         file_put_contents($sandbox, "<?php\nrequire_once '" . $this->application->path("zesk.application.php") . "';\necho memory_get_usage();");
         $result = $this->run_php_sandbox($sandbox);
         $this->assert_is_numeric($result);
         $usage = intval($result);
         $this->log("Zesk PHP usage is $usage");
-        
+
         $delta = $usage - $raw_usage;
         $this->log("Zesk Overhead is " . $delta . " " . Number::format_bytes($this->application->locale, $delta));
     }

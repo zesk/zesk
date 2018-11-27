@@ -25,9 +25,9 @@ class CharSet_Test extends Test_Unit {
         for ($i = 32; $i <= 127; $i++) {
             $every_char .= chr($i);
         }
-        
+
         $all_charsets = charset::supported();
-        
+
         //echo Text::lalign("SAMPLE", 20) . $every_char . "\n";
         foreach ($all_charsets as $charset) {
             $result = charset::to_utf8($every_char, $charset);
@@ -50,7 +50,7 @@ class CharSet_Test extends Test_Unit {
                 $this->assert($result === $every_char, "Failed for charset $charset");
             }
         }
-        
+
         $tests = array(
             array(
                 chr(0xC1) . chr(0xC2) . chr(0xC3) . chr(0xC4),

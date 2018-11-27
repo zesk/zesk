@@ -27,7 +27,7 @@ class UTF16 {
     public static function to_utf8($str, &$be = null) {
         $c0 = ord($str[0]);
         $c1 = ord($str[1]);
-        
+
         $found_be = false;
         if ($c0 == 0xFE && $c1 == 0xFF) {
             $be = true;
@@ -59,7 +59,7 @@ class UTF16 {
         }
         return $dec;
     }
-    
+
     /**
      * Decode UTF-16 encoded strings.
      *
@@ -105,7 +105,7 @@ class UTF16 {
         }
         return $newstr;
     }
-    
+
     /**
      * This is probably too simplistic, but should work for most standard ASCII < 0x7F
      * Used currently in CSVReader to convert delimiters

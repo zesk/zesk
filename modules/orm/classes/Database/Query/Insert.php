@@ -21,20 +21,20 @@ class Database_Query_Insert extends Database_Query_Edit {
      * @var boolean
      */
     protected $replace = false;
-    
+
     /**
      *
      * @var Database_Query_Select
      */
     protected $select = null;
-    
+
     /**
      * Result
      *
      * @var mixed
      */
     protected $result = null;
-    
+
     /**
      * Construct a new insert query
      *
@@ -43,7 +43,7 @@ class Database_Query_Insert extends Database_Query_Edit {
     public function __construct(Database $db) {
         parent::__construct("INSERT", $db);
     }
-    
+
     /**
      * Getter/setter for "into" which table
      *
@@ -57,7 +57,7 @@ class Database_Query_Insert extends Database_Query_Edit {
         $this->table = $table;
         return $this;
     }
-    
+
     /**
      * Set to replace mode
      *
@@ -70,7 +70,7 @@ class Database_Query_Insert extends Database_Query_Edit {
         }
         return $this->replace;
     }
-    
+
     /**
      * Set to insert mode
      *
@@ -80,7 +80,7 @@ class Database_Query_Insert extends Database_Query_Edit {
         $this->replace = false;
         return $this;
     }
-    
+
     /**
      * Insert from a SELECT query
      *
@@ -90,7 +90,7 @@ class Database_Query_Insert extends Database_Query_Edit {
         $this->select = $query;
         return $this;
     }
-    
+
     /**
      * Convert this query to SQL
      *
@@ -128,7 +128,7 @@ class Database_Query_Insert extends Database_Query_Edit {
         $this->result = $this->db->insert($this->table, $this->values, $options);
         return $this->result;
     }
-    
+
     /**
      * Execute the insert and retrieve the ID created
      *
@@ -144,7 +144,7 @@ class Database_Query_Insert extends Database_Query_Edit {
         }
         return $this->_execute(true);
     }
-    
+
     /**
      *
      * @return mixed
@@ -161,7 +161,7 @@ class Database_Query_Insert extends Database_Query_Edit {
         $this->_execute(!$this->low_priority);
         return $this;
     }
-    
+
     /**
      *
      * @return mixed

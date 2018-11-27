@@ -14,7 +14,7 @@ class Class_Settings extends Class_ORM {
         'value' => self::type_serialize,
         'modified' => self::type_modified,
     );
-    
+
     /**
      * No auto column
      * @var boolean

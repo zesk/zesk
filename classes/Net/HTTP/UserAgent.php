@@ -16,21 +16,21 @@ class Net_HTTP_UserAgent {
      * @var string
      */
     protected $user_agent = null;
-    
+
     /**
      * Parsed results from user_agent_test
      *
      * @var array
      */
     protected $is = null;
-    
+
     /**
      * Parsed results from user_agent_test
      *
      * @var array
      */
     protected $classify = null;
-    
+
     /**
      * Language equivalents of the classification names
      *
@@ -42,7 +42,7 @@ class Net_HTTP_UserAgent {
         'mobile' => 'Mobile/Desktop',
         'user_agent' => 'User Agent',
     );
-    
+
     /**
      * Presence of these true values in ->is will display classification
      * Last array item in each is the default
@@ -71,7 +71,7 @@ class Net_HTTP_UserAgent {
             '' => 'desktop',
         ),
     );
-    
+
     /**
      *
      * @var array
@@ -93,7 +93,7 @@ class Net_HTTP_UserAgent {
         'platform' => 'Platform',
         'browser' => 'Web Browser',
     );
-    
+
     /**
      * Create a new user agent
      *
@@ -111,7 +111,7 @@ class Net_HTTP_UserAgent {
     public static function factory($user_agent = null) {
         return new self($user_agent);
     }
-    
+
     /**
      *
      */
@@ -119,7 +119,7 @@ class Net_HTTP_UserAgent {
         $this->is = null;
         $this->classify = null;
     }
-    
+
     /**
      *
      * @return string[]
@@ -129,7 +129,7 @@ class Net_HTTP_UserAgent {
             "user_agent",
         );
     }
-    
+
     /**
      * Convert to string
      *
@@ -138,7 +138,7 @@ class Net_HTTP_UserAgent {
     public function __toString() {
         return PHP::dump($this->user_agent);
     }
-    
+
     /**
      * Get/set user agent
      *
@@ -154,7 +154,7 @@ class Net_HTTP_UserAgent {
         }
         return $this->user_agent;
     }
-    
+
     /**
      * Passes criteria passed in?
      *
@@ -170,7 +170,7 @@ class Net_HTTP_UserAgent {
         }
         return avalue($this->is, $criteria, false);
     }
-    
+
     /**
      * Classify user agent and return classificiation
      *
@@ -182,7 +182,7 @@ class Net_HTTP_UserAgent {
         }
         return $translate ? ArrayTools::map_keys(ArrayTools::map_values($this->classify, self::$lang_classifications), self::$lang_classifications) : $this->classify;
     }
-    
+
     /**
      * Check what the current browser is.
      * Generally, this is discouraged, but it makes sense in a few cases - generally if you are
@@ -238,11 +238,11 @@ class Net_HTTP_UserAgent {
         // Opera on Mac OS X
         //     Opera/9.80 (Macintosh; Intel Mac OS X 10.7.5; U; en) Presto/2.10.289 Version/12.02
         $result['user_agent'] = $user_agent;
-        
+
         $result['string'] = $ua = strtolower($user_agent);
-        
+
         $result['opera'] = (strpos($ua, "opera") !== false);
-        
+
         $result['iphone'] = (strpos($ua, "iphone") !== false);
         $result['ipad'] = (strpos($ua, "ipad") !== false);
         $result['ios'] = $result['iphone'] || $result['ipad'] || (strpos($ua, "ios") !== false);
@@ -251,34 +251,34 @@ class Net_HTTP_UserAgent {
         }
         $result['webkit'] = strpos($ua, "applewebkit") !== false;
         $result['chrome'] = strpos($ua, "chrome/") !== false;
-        
+
         $result['ie10'] = !$result['opera'] && (strpos($ua, "msie 10") !== false);
         $result['ie9'] = !$result['opera'] && (strpos($ua, "msie 9") !== false);
         $result['ie8'] = !$result['opera'] && (strpos($ua, "msie 8") !== false);
         $result['ie7'] = !$result['opera'] && (strpos($ua, "msie 7") !== false) && !$result['ie8'];
         $result['ie6'] = !$result['opera'] && (strpos($ua, "msie 6") !== false) && !$result['ie7'] && !$result['ie8'];
         $result['ie'] = !$result['opera'] && (strpos($ua, "msie") !== false);
-        
+
         $result['kindle'] = (strpos($ua, "kindle") !== false);
         $result['surface'] = (strpos($ua, "surface") !== false);
-        
+
         $result['firefox'] = (strpos($ua, "firefox") !== false);
         $result['safari'] = (strpos($ua, "safari") !== false) && !$result['chrome'];
         $result['mac'] = (strpos($ua, "macintosh") !== false);
-        
+
         $result['linux'] = (strpos($ua, "linux") !== false);
         $result['windows'] = (strpos($ua, "windows") !== false);
         $result['mac_intel'] = $result['mac'] && (strpos($ua, "intel") !== false);
         $result['mac_ppc'] = $result['mac'] && (strpos($ua, "intel") === false);
-        
+
         $result['mobile'] = $result['ios'] || (strpos($ua, "mobile") !== false);
         $result['phone'] = $result['iphone'];
         $result['tablet'] = !$result['phone'] && ($result['ipad'] || $result['kindle'] || $result['surface']);
         $result['desktop'] = !$result['phone'] && !$result['tablet'];
-        
+
         return $result;
     }
-    
+
     /**
      * Classify user agent
      *

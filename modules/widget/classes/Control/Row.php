@@ -7,14 +7,14 @@ class Control_Row extends Control {
      * @var string
      */
     protected $row_tag = null;
-    
+
     /**
      * Row theme
      *
      * @var string
      */
     protected $row_attributes = array();
-    
+
     /**
      * Get/set the row tag
      * @param string $row_tag Set to false to have no row tag
@@ -27,7 +27,7 @@ class Control_Row extends Control {
         }
         return $this->row_tag;
     }
-    
+
     /**
      * Get/set the row attributes
      *
@@ -42,7 +42,7 @@ class Control_Row extends Control {
         }
         return $this->row_attributes;
     }
-    
+
     /**
      * {@inheritDoc}
      * @see Widget::theme_variables()
@@ -56,7 +56,7 @@ class Control_Row extends Control {
             "row_attributes" => $this->row_attributes,
         ) + parent::theme_variables();
     }
-    
+
     /**
      * Render row wrapper
      *

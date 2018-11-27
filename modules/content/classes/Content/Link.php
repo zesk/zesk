@@ -27,7 +27,7 @@ class Content_Link extends ORM {
         $options['image_field'] = "ImagePath";
         $options['is_relative'] = false;
         $options['root_directory'] = $this->application->document_root();
-        
+
         return $this->output('image/image-caption.tpl', $options);
     }
 

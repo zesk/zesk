@@ -16,7 +16,7 @@ class Controller_Content_Cache extends Controller_Cache {
      * @var string
      */
     const image_variation_default = "default";
-    
+
     /**
      *
      * @return mixed|mixed[]|\zesk\Configuration
@@ -24,7 +24,7 @@ class Controller_Content_Cache extends Controller_Cache {
     public static function cache_prefix(Configuration $configuration) {
         return $configuration->path_get(__CLASS__ . '::cache_prefix', '/cache/image/');
     }
-    
+
     /**
      *
      * @param Content_Image $image
@@ -36,7 +36,7 @@ class Controller_Content_Cache extends Controller_Cache {
             Directory::delete_contents($path);
         }
     }
-    
+
     /**
      *
      * @param unknown $image_file
@@ -50,7 +50,7 @@ class Controller_Content_Cache extends Controller_Cache {
         )));
         return;
     }
-    
+
     /**
      * Return the url for an image
      *
@@ -64,7 +64,7 @@ class Controller_Content_Cache extends Controller_Cache {
         }
         return path(self::cache_prefix($image->application->configuration), $image->id(), $style, basename($image->path));
     }
-    
+
     /**
      *
      * @param Content_Image $image
@@ -76,7 +76,7 @@ class Controller_Content_Cache extends Controller_Cache {
         $style = "c${width}x${height}";
         return self::url_content_image($image, $style);
     }
-    
+
     /**
      *
      * @param string $url
@@ -93,7 +93,7 @@ class Controller_Content_Cache extends Controller_Cache {
         }
         return null;
     }
-    
+
     /**
      *
      * @param integer $id
@@ -129,7 +129,7 @@ class Controller_Content_Cache extends Controller_Cache {
             return;
         }
     }
-    
+
     /**
      *
      * @param unknown $styles
@@ -160,7 +160,7 @@ class Controller_Content_Cache extends Controller_Cache {
         }
         return null;
     }
-    
+
     /**
      *
      * @param array $commands
@@ -185,7 +185,7 @@ class Controller_Content_Cache extends Controller_Cache {
         }
         return $data;
     }
-    
+
     /**
      *
      * @param array $command
@@ -200,7 +200,7 @@ class Controller_Content_Cache extends Controller_Cache {
             'height' => $height,
         ));
     }
-    
+
     /**
      *
      * {@inheritdoc}

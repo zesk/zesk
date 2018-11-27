@@ -20,7 +20,7 @@ class Control_Locale_Format extends Control_Select {
             'decimal-point' => '.',
             'thousands-separator' => ',',
         ),
-        
+
         // 		'fr' => array(
         // 			'date-3' => '{WWWW} {D} {MMMM} {YYYY}',
         // 			'date-2' => '{D} {MMMM} {YYYY}',

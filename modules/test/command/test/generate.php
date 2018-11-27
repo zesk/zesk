@@ -15,7 +15,7 @@ class Command_Test_Generate extends Command_Iterator_File {
         "php",
         "inc",
     );
-    
+
     /**
      *
      * @var boolean
@@ -27,7 +27,7 @@ class Command_Test_Generate extends Command_Iterator_File {
      * @var array
      */
     private $autoload_paths = null;
-    
+
     /**
      * (non-PHPdoc)
      *
@@ -42,7 +42,7 @@ class Command_Test_Generate extends Command_Iterator_File {
             "target" => "Path to create generated test files",
         );
     }
-    
+
     /**
      */
     protected function start() {
@@ -53,7 +53,7 @@ class Command_Test_Generate extends Command_Iterator_File {
         }
         Directory::depend($this->target);
     }
-    
+
     /**
      *
      * @param SplFileInfo $file
@@ -72,7 +72,7 @@ class Command_Test_Generate extends Command_Iterator_File {
         }
         $this->verbose_log("Processing {fullpath}", $__);
         $inspector = PHP_Inspector::factory($this->application, $fullpath);
-        
+
         foreach ($inspector->defined_classes() as $class) {
             list($ns, $cl) = PHP::parse_namespace_class($class);
             $target_file = path($this->target, $cl . "_Test.php");
@@ -81,15 +81,15 @@ class Command_Test_Generate extends Command_Iterator_File {
                 $this->log("Created {target_file}", compact("target_file"));
             }
         }
-        
+
         return false;
     }
-    
+
     /**
      */
     protected function finish() {
     }
-    
+
     /**
      *
      * @return null|string

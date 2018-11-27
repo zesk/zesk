@@ -14,7 +14,7 @@ abstract class Server_Configuration extends Hookable {
      * @var Server_Platform
      */
     protected $platform = null;
-    
+
     /**
      * Array of settings and types
      *
@@ -36,7 +36,7 @@ abstract class Server_Configuration extends Hookable {
      * @var array
      */
     protected $variable_types = array();
-    
+
     /**
      * Array of lowercase name => display case name
      *
@@ -156,7 +156,7 @@ abstract class Server_Configuration extends Hookable {
         }
         return $this->service_path;
     }
-    
+
     /**
      * Register global settings associated with a system configuration
      *
@@ -180,7 +180,7 @@ abstract class Server_Configuration extends Hookable {
         }
         return $this;
     }
-    
+
     /**
      * Validate a type before it has been installed/created/etc.
      *
@@ -195,7 +195,7 @@ abstract class Server_Configuration extends Hookable {
             return false;
         }
     }
-    
+
     /**
      * Validate a type after it has been installed/created/etc.
      *
@@ -211,7 +211,7 @@ abstract class Server_Configuration extends Hookable {
             return false;
         }
     }
-    
+
     /**
      * Retrieve settings
      *
@@ -220,14 +220,14 @@ abstract class Server_Configuration extends Hookable {
      * @return string $path Of retrieved file
      */
     abstract public function remote_package($url);
-    
+
     /**
      * Return an array of hostname => aliasname
      */
     public function host_aliases() {
         return array();
     }
-    
+
     /**
      *
      * @param unknown $type
@@ -236,13 +236,13 @@ abstract class Server_Configuration extends Hookable {
      * @param array $options
      */
     abstract public function configuration_files($type, $files, $dest, array $options = array());
-    
+
     /**
      *
      * @param Server_Feature $feature
      */
     abstract public function configure_feature(Server_Feature $feature);
-    
+
     /**
      * Retrieve directory to configure a feature
      *

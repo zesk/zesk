@@ -24,7 +24,7 @@ abstract class Content_Group extends ORM {
         }
         return parent::store();
     }
-    
+
     /**
      *
      * @param unknown $mixed
@@ -42,7 +42,7 @@ abstract class Content_Group extends ORM {
             "created" => "Order by creation date",
         );
     }
-    
+
     /**
      *
      * @param Database_Query_Select $query

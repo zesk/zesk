@@ -13,28 +13,28 @@ abstract class Module_JSLib extends Module implements Interface_Module_Head {
      * @var array
      */
     protected $css_paths = array();
-    
+
     /**
      * Array of options to pass to Response::css for each css_paths
      *
      * @var array
      */
     protected $css_options = array();
-    
+
     /**
      * Array of options to pass to Response::javascript for each javascript_paths
      *
      * @var array
      */
     protected $javascript_options = array();
-    
+
     /**
      * Array of strings of JS to load, or array of path (key) => $options to load
      *
      * @var array
      */
     protected $javascript_paths = array();
-    
+
     /**
      * Settings which will be exposed in the client browser using the key
      *
@@ -43,7 +43,7 @@ abstract class Module_JSLib extends Module implements Interface_Module_Head {
      * @var array
      */
     protected $javascript_settings = array();
-    
+
     /**
      * An array of key => value pairs which are set as globals for this module
      * and taken from zesk globals.
@@ -62,20 +62,20 @@ abstract class Module_JSLib extends Module implements Interface_Module_Head {
      * @var array
      */
     protected $javascript_settings_inherit = array();
-    
+
     /**
      * jQuery ready code
      *
      * @var array
      */
     protected $jquery_ready = array();
-    
+
     /**
      * Where the jQuery code should run (higher numbers are later)
      * @var integer
      */
     protected $jquery_ready_weight = -1000;
-    
+
     /**
      * Disabled setter/getter
      *
@@ -109,7 +109,7 @@ abstract class Module_JSLib extends Module implements Interface_Module_Head {
         }
         return $this;
     }
-    
+
     /**
      * HTML Page head
      *
@@ -155,7 +155,7 @@ abstract class Module_JSLib extends Module implements Interface_Module_Head {
             $this->ready($response);
         }
     }
-    
+
     /**
      * Able to call this from theme templates for AJAX calls
      *

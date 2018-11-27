@@ -33,21 +33,21 @@ class CSV_Reader_Iterator extends Options implements \Iterator {
      * @see CSVReader::readRowAssoc, CSVReader::readRow
      */
     private $assoc;
-    
+
     /**
      * Return the read map for this reader
      *
      * @var string
      */
     private $use_map = null;
-    
+
     /**
      * Current row
      *
      * @var array
      */
     private $row;
-    
+
     /**
      * At end of file?
      *
@@ -96,7 +96,7 @@ class CSV_Reader_Iterator extends Options implements \Iterator {
     public function valid() {
         return $this->is_valid;
     }
-    
+
     /**
      * Convert iterator to an array
      *

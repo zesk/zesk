@@ -16,7 +16,7 @@ class Exception_FileSystem_Test extends Exception_TestCase {
         );
         $code = 42;
         $testx = new Exception_FileSystem($filename, $message, $arguments, $code);
-        
+
         $this->exception_test($testx);
     }
 }

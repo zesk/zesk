@@ -12,7 +12,7 @@ class Controller_DNS extends Controller_Theme {
      * @var string
      */
     protected $template = "body/default";
-    
+
     /**
      *
      * @param unknown $old
@@ -59,7 +59,7 @@ class Controller_DNS extends Controller_Theme {
         }
         return $compare_result;
     }
-    
+
     /**
      *
      * @param unknown $old
@@ -87,7 +87,7 @@ class Controller_DNS extends Controller_Theme {
             "new" => $old_name,
         )));
     }
-    
+
     /**
      *
      * @param Model_DNS $model
@@ -95,7 +95,7 @@ class Controller_DNS extends Controller_Theme {
      */
     private function run_test(Model_DNS $model) {
         $this->application->modules->load("dns;diff");
-        
+
         $lookup = trim(preg_replace("/[\r\n,;]+/", "\n", $model->lookup));
         $lookup = preg_replace('/ +/', ' ', $lookup);
         $lookup = ArrayTools::trim_clean(explode("\n", $lookup));
@@ -119,7 +119,7 @@ class Controller_DNS extends Controller_Theme {
         $result[] = HTML::tag_close("ul");
         return implode("\n", $result);
     }
-    
+
     /**
      *
      * @param unknown $domain
@@ -132,7 +132,7 @@ class Controller_DNS extends Controller_Theme {
         // 		$w->set_option('rows', 20);
         // 		$w->set_option('cols', 80);
         // 		$w->suffix(HTML::tag('label', "One per line. Domain names, optionally prefixed by query type and a space."));
-        
+
         // 		$model = new Model_DNS();
         // 		$content = $control->execute($model);
         // 		if ($model->valid) {

@@ -33,7 +33,7 @@ class Control_Arrange extends Control_Select {
         $map = $this->arrange_map();
         return avalue($map, strval($val));
     }
-    
+
     /**
      * Array of key values which indicate the order-by clause, the key used to identify the arrange in the query string, and the "what" clause to include
      *
@@ -97,7 +97,7 @@ class Control_Arrange extends Control_Select {
             }
         }
     }
-    
+
     /**
      * Set a mapping of value => sort_column
      * @param array $set

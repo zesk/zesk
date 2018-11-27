@@ -10,7 +10,7 @@ namespace zesk;
 
 class Class_Preference extends Class_ORM {
     public $id_column = "id";
-    
+
     /**
      * Column type definition for Object
      *
@@ -22,7 +22,7 @@ class Class_Preference extends Class_ORM {
         "type" => self::type_object,
         "value" => self::type_serialize,
     );
-    
+
     /**
      * Which keys are used to find this in the database uniquely
      *
@@ -32,7 +32,7 @@ class Class_Preference extends Class_ORM {
         "user",
         "type",
     );
-    
+
     /**
      * Links to other objects
      *

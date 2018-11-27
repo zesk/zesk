@@ -15,24 +15,24 @@ namespace zesk;
 class Lang_en_test extends Test_Unit {
     public function test_everything() {
         $testx = $this->application->locale_factory("en");
-        
+
         $testx->date_format();
-        
+
         $testx->datetime_format();
-        
+
         $include_seconds = false;
         $testx->time_format($include_seconds);
-        
+
         $word = 'sheep';
         $count = 2;
         $this->assert($testx->plural($word, $count) === 'sheep');
-        
+
         $word = 'hour away';
         $caps = false;
         $this->assert_equal($testx->indefinite_article($word, false), 'an');
         $this->assert_equal($testx->indefinite_article($word, true), 'An');
         $this->assert_equal($testx->indefinite_article("HOUR AWAY", true), 'An');
-        
+
         $x = array(
             "lions",
             "tigers",
@@ -40,7 +40,7 @@ class Lang_en_test extends Test_Unit {
         );
         $conj = "and";
         $this->assert_equal($testx->conjunction($x, $conj), "lions, tigers, and bears");
-        
+
         $s = "word";
         $n = 3;
         $locale = null;
@@ -99,7 +99,7 @@ class Lang_en_test extends Test_Unit {
             ),
         );
     }
-    
+
     /**
      * @data_provider ordinal_tests
      */

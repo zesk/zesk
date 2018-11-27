@@ -101,7 +101,7 @@ class Directory_Test extends Test_Unit {
             ),
         );
     }
-    
+
     /**
      * @data_provider undot_examples
      */
@@ -114,7 +114,7 @@ class Directory_Test extends Test_Unit {
         $path = $this->application->path();
         $options = array();
         Directory::list_recursive($path, $options);
-        
+
         $options['rules_file'] = array(
             '/.*_test\.php$/i' => true,
             false,
@@ -126,10 +126,10 @@ class Directory_Test extends Test_Unit {
             '/\.svn/' => false,
             true,
         );
-        
+
         $results = Directory::list_recursive(ZESK_ROOT, $options);
         $this->log($results);
-        
+
         $this->assert_in_array($results, "test/tests/Directory_Test.php");
     }
 
@@ -159,7 +159,7 @@ class Directory_Test extends Test_Unit {
         $directory_function = null;
         $file_function = null;
         Directory::iterate($source, $directory_function, $file_function);
-        
+
         $source = ZESK_ROOT;
         $directory_function = null;
         $file_function = null;
@@ -172,14 +172,14 @@ class Directory_Test extends Test_Unit {
             "collect_files",
         ));
         $iterate_dump = ob_end_clean();
-        
+
         list($dirs, $files) = testdir::dump();
         //		Debug::dump($files);
-        
+
         $this->assert(in_array(ZESK_ROOT . "autoload.php", $files));
         $this->assert(in_array(ZESK_ROOT . "LICENSE.md", $files));
         $this->assert(!in_array(ZESK_ROOT . "LICENSE.md", $dirs));
-        
+
         $this->assert(in_array(ZESK_ROOT . "classes", $dirs));
         $this->assert(!in_array(ZESK_ROOT . ".", $dirs));
         $this->assert(!in_array(ZESK_ROOT . "..", $dirs));
@@ -204,16 +204,16 @@ class Directory_Test extends Test_Unit {
     public function test_duplicate() {
         $source = ZESK_ROOT . 'cache/test';
         $destination = ZESK_ROOT . 'cache/test1';
-        
+
         $this->assert(Directory::delete($source));
         $this->assert(mkdir($source, 0777));
-        
+
         $recursive = true;
         $file_copy_function = null;
         Directory::duplicate($source, $destination, $recursive, $file_copy_function);
-        
+
         $this->assert(Directory::is_empty($destination));
-        
+
         // TODO more tests here as necessary
     }
 

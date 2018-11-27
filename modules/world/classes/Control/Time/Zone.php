@@ -7,7 +7,7 @@ class Control_Time_Zone extends Control_Select {
      * @var array
      */
     protected $where = array();
-    
+
     /**
      *
      * @param array $where
@@ -20,7 +20,7 @@ class Control_Time_Zone extends Control_Select {
         $this->where = $where;
         return $this;
     }
-    
+
     /**
      *
      * @param unknown $set
@@ -29,7 +29,7 @@ class Control_Time_Zone extends Control_Select {
     public function prefixes_only($set = null) {
         return $set === null ? $this->option_bool('prefixes_only', false) : $this->set_option('prefixes_only', to_bool($set));
     }
-    
+
     /**
      *
      * {@inheritDoc}

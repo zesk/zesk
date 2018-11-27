@@ -22,10 +22,10 @@ class Control_RichText extends Control_Text {
     final public function dimensions() {
         $rows = $this->option_integer("rows", 5);
         $cols = $this->option_integer("cols", 80);
-        
+
         $maxRows = $this->option_integer("rows_max", 64);
         $maxCols = $this->option_integer("cols_max", 200);
-        
+
         if ($rows > $maxRows) {
             $rows = $maxRows;
         }
@@ -46,32 +46,32 @@ class Control_RichText extends Control_Text {
         // echo "<h1>---entities_clean-------</h1>\n";
         // dump($x);
         $x = HTML::clean_tags_attributes($x, "style;href;target", false);
-        
+
         $x = HTML::clean_style_attributes($x, "font-weight;font-style;margin-left;text-align", false);
-        
+
         // echo "<h1>---HTML::clean_tags_attributes-------</h1>\n";
         // dump($x);
-        
+
         $allowed_tags = $this->option_list("allowed_tags", "strong;em;ul;li;h1;h2;h3;h4;h5;pre;a;blockquote;p;br;span;div");
         $x = HTML::clean_tags($x, $allowed_tags);
         // echo "<h1>---HTML::clean_tags-------</h1>\n";
         // dump($x);
-        
+
         $convert_tags = array(
             "<br>" => "<br />",
         );
         $x = strtr($x, $convert_tags);
         // echo "<h1>---replace_map-------</h1>\n";
         // dump($x);
-        
+
         $x = HTML::trim_white_space($x);
-        
+
         return $x;
     }
 
     private function autoLink($html) {
         $x = HTML::remove_tags(explode(";", "a;img;link;style;pre"), $html, true);
-        
+
         $urls = false;
         if (preg_match_all('/[^"]([a-zA-Z]+[:\/\/]+[A-Za-z0-9\-_]+\\.+[A-Za-z0-9\.\/%&=\?\-_]+)/i', $x, $urls)) {
             foreach ($urls as $url) {
@@ -185,31 +185,31 @@ class Control_RichText extends Control_Text {
         $x = str_replace("(C)", "&copy;", $x);
         return $x;
     }
-    
+
     /*
      * RTESafe: From Cross-Browser Rich Text Editor http://www.kevinroth.com/rte/demo.htm
      */
     private static function RTESafe($strText) {
         // returns safe code for preloading in the RTE
         $tmpString = trim($strText);
-        
+
         // convert all types of single quotes
         $tmpString = str_replace(chr(145), chr(39), $tmpString);
         $tmpString = str_replace(chr(146), chr(39), $tmpString);
         $tmpString = str_replace("'", "&#39;", $tmpString);
-        
+
         // convert all types of double quotes
         $tmpString = str_replace(chr(147), chr(34), $tmpString);
         $tmpString = str_replace(chr(148), chr(34), $tmpString);
-        
+
         // replace carriage returns & line feeds
         $tmpString = str_replace(chr(10), " ", $tmpString);
         $tmpString = str_replace(chr(13), " ", $tmpString);
-        
+
         $tmpString = str_replace("<", "&lt;", $tmpString);
         $tmpString = str_replace(">", "&gt;", $tmpString);
         $tmpString = str_replace("\n", "\\n", $tmpString);
-        
+
         return $tmpString;
     }
 }

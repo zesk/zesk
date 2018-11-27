@@ -23,13 +23,13 @@ class Controller_Preference extends Controller {
      * @var string
      */
     protected $method_default_arguments = "arguments_getset";
-    
+
     /**
      *
      * @var array
      */
     protected $whitelist = null;
-    
+
     /**
      *
      * @return string
@@ -37,14 +37,14 @@ class Controller_Preference extends Controller {
     public function _whitelist() {
         return $this->application->path("etc/preference-whitelist.txt");
     }
-    
+
     /**
      *
      */
     public function save_preferences() {
         file_put_contents($this->_whitelist(), implode("\n", array_keys($this->whitelist)));
     }
-    
+
     /**
      *
      * @param string $action
@@ -76,7 +76,7 @@ class Controller_Preference extends Controller {
             $arg,
         );
     }
-    
+
     /**
      *
      * @param string $type

@@ -39,7 +39,7 @@ class Redirect extends Type {
             ));
         }
     }
-    
+
     /**
      *
      * @todo Move this elsewhere. Response addon?
@@ -70,7 +70,7 @@ class Redirect extends Type {
         $this->session()->redirect_message = $messages;
         return $this->parent;
     }
-    
+
     /**
      * Render HTML
      *
@@ -98,7 +98,7 @@ class Redirect extends Type {
     public function url($url, $message = null) {
         throw new Exception_Redirect($url, $message);
     }
-    
+
     /**
      *
      * @param unknown $url
@@ -116,7 +116,7 @@ class Redirect extends Type {
         }
         return $url;
     }
-    
+
     /**
      * Load up an Exception_Redirect for handling
      *
@@ -126,13 +126,13 @@ class Redirect extends Type {
     public function handle_exception(Exception_Redirect $exception) {
         $original_url = $exception->url();
         $message = $exception->getMessage();
-        
+
         if ($message) {
             $this->message($message);
         }
         $url = $this->process_url($original_url);
         $this->parent->output_handler(Response::HANDLER_REDIRECT);
-        
+
         $this->parent->header("Location", $url);
         $status_code = $exception->status_code();
         if (!$status_code) {

@@ -23,14 +23,14 @@ class Server_Files_Simulate extends Server_Files {
      * @var array
      */
     private $files = array();
-    
+
     /**
      * File pointer for root operations
      *
      * @var resource
      */
     private $simlog = null;
-    
+
     /**
      * Simulate path
      *
@@ -51,7 +51,7 @@ class Server_Files_Simulate extends Server_Files {
      * @var string
      */
     private $simulate_fs = null;
-    
+
     /**
      * Set up this object
      *
@@ -73,7 +73,7 @@ class Server_Files_Simulate extends Server_Files {
             throw new Exception_File_Permission($simlogpath);
         }
     }
-    
+
     /**
      * Log what I would have done if I could have done it.
      *
@@ -85,7 +85,7 @@ class Server_Files_Simulate extends Server_Files {
         fwrite($this->simlog, rtrim($line) . "\n");
         return $this;
     }
-    
+
     /**
      * Log what I would have done if I could have done it.
      *

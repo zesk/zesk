@@ -21,9 +21,9 @@ class Module extends \zesk\Module {
      */
     public function initialize() {
         $this->application->register_class(Database::class);
-        
+
         $module = $this->application->database_module();
-        
+
         $module->register_scheme("sqlite", Database::class);
         $module->register_scheme("sqlite3", Database::class);
     }

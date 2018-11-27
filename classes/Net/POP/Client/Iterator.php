@@ -12,17 +12,17 @@ class Net_POP_Client_Iterator implements \Iterator {
      * @var Net_POP_Client
      */
     private $client = null;
-    
+
     /**
      * @var boolean
      */
     private $valid = false;
-    
+
     /**
      * @var array
      */
     private $messages_list = null;
-    
+
     /**
      * Message top for current message
      * @var string

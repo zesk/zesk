@@ -18,13 +18,13 @@ class Net_SFTP_Client extends Net_Client implements Net_FileSystem {
      * @var Process
      */
     private $process = null;
-    
+
     /**
      * Welcome from the sftp server
      * @var string
      */
     public $welcome = null;
-    
+
     /**
      * Stat cache for stat
      * @var array

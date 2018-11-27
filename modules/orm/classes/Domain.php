@@ -14,7 +14,7 @@ class Domain extends ORM {
      * @var string
      */
     const url_public_suffix_list = "https://publicsuffix.org/list/public_suffix_list.dat";
-    
+
     /**
      * @see http://www.seobythesea.com/2006/01/googles-most-popular-and-least-popular-top-level-domains/
      * @var string
@@ -26,13 +26,13 @@ class Domain extends ORM {
      * @var string
      */
     const url_tlds_by_alpha = "http://data.iana.org/TLD/tlds-alpha-by-domain.txt";
-    
+
     /**
      *
      * @var string[string]
      */
     private static $public_tlds = null;
-    
+
     /**
      *
      * @param Application $application
@@ -53,7 +53,7 @@ class Domain extends ORM {
     public static function schema_updated(Application $application) {
         self::update_data_files($application);
     }
-    
+
     /**
      *
      * @param string $name
@@ -65,7 +65,7 @@ class Domain extends ORM {
         ));
         return $domain->name_changed();
     }
-    
+
     /**
      * Compute the TLD for a domain
      *
@@ -85,7 +85,7 @@ class Domain extends ORM {
         $this->tld = $this->compute_tld();
         return parent::store();
     }
-    
+
     /**
      *
      * @return string
@@ -110,7 +110,7 @@ class Domain extends ORM {
         } while (count($x) > 0);
         return $default;
     }
-    
+
     /**
      *
      * @return string
@@ -134,21 +134,21 @@ class Domain extends ORM {
         } while (count($x) > 0);
         return $default;
     }
-    
+
     /**
      * @return string
      */
     private static function public_suffix_list_file(Paths $paths) {
         return $paths->zesk("etc/db/public-tlds.txt");
     }
-    
+
     /**
      * @return string
      */
     private static function tlds_by_alpha_file(Paths $paths) {
         return $paths->zesk("etc/db/tlds.txt");
     }
-    
+
     /**
      * Update our data files from our remote URLs
      */
@@ -160,7 +160,7 @@ class Domain extends ORM {
             Net_Sync::url_to_file($application, $url, $path);
         }
     }
-    
+
     /**
      * @param $filename File to load
      * @return string[]

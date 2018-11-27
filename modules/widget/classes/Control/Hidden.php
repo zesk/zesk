@@ -16,7 +16,7 @@ class Control_Hidden extends Control {
     public function is_visible() {
         return false;
     }
-    
+
     /**
      *
      * {@inheritDoc}
@@ -25,7 +25,7 @@ class Control_Hidden extends Control {
     public function render() {
         $col = $this->column();
         $input_name = $this->name();
-        
+
         return HTML::hidden($this->name(), $this->value(), $this->input_attributes() + $this->data_attributes());
     }
 }

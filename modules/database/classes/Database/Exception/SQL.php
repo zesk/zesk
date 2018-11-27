@@ -20,13 +20,13 @@ class Database_Exception_SQL extends Database_Exception {
      * @var Database
      */
     public $db = null;
-    
+
     /**
      *
      * @var string
      */
     public $sql = "";
-    
+
     /**
      *
      * @param Database $db
@@ -39,11 +39,11 @@ class Database_Exception_SQL extends Database_Exception {
     public function __construct(Database $db, $sql = "", $message = null, array $arguments = array(), $errno = 0, $previous = null) {
         $this->sql = $sql;
         $this->db = $db;
-        
+
         $message = "Message: $message\nDatabase: " . $this->db->code_name() . "\nSQL: " . rtrim($this->sql) . "\n";
         parent::__construct($message, $arguments, $errno, $previous);
     }
-    
+
     /**
      *
      * @return Database
@@ -51,7 +51,7 @@ class Database_Exception_SQL extends Database_Exception {
     public function database() {
         return $this->db;
     }
-    
+
     /**
      *
      * @return string
@@ -59,7 +59,7 @@ class Database_Exception_SQL extends Database_Exception {
     public function sql() {
         return $this->sql;
     }
-    
+
     /**
      *
      * {@inheritDoc}
@@ -70,7 +70,7 @@ class Database_Exception_SQL extends Database_Exception {
         $result .= "Error Number: " . $this->getCode() . "\n\n";
         return $result;
     }
-    
+
     /**
      *
      * {@inheritDoc}

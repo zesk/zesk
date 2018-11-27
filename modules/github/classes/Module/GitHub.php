@@ -13,7 +13,7 @@ class Module_GitHub extends Module {
      * @var string
      */
     const API_ENDPOINT_RELEASE = "https://api.github.com/repos/{owner}/{repository}/releases?access_token={access_token}";
-    
+
     /**
      *
      * @param array $settings
@@ -50,7 +50,7 @@ class Module_GitHub extends Module {
         }
         return $settings;
     }
-    
+
     /**
      *
      * @return boolean
@@ -58,7 +58,7 @@ class Module_GitHub extends Module {
     public function has_credentials() {
         return $this->has_option("owner") && $this->has_option("repository") && $this->has_option("access_token");
     }
-    
+
     /**
      *
      * @param unknown $version

@@ -14,7 +14,7 @@ class Control_Select_Available extends Control_Select {
      * @var Control_List
      */
     private $list_parent = false;
-    
+
     /**
      *
      * @param string $column_id
@@ -36,7 +36,7 @@ class Control_Select_Available extends Control_Select {
         }
         return $this;
     }
-    
+
     /**
      * Find parent
      *
@@ -56,14 +56,14 @@ class Control_Select_Available extends Control_Select {
         $this->list_parent = $parent;
         return $this->list_parent;
     }
-    
+
     /**
      * @return array
      */
     protected function hook_options() {
         return array();
     }
-    
+
     /**
      * Populate options after initialized
      */

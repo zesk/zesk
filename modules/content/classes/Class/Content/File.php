@@ -18,7 +18,7 @@ class Class_Content_File extends Class_ORM {
      * @var string
      */
     public $id_column = "id";
-    
+
     /**
      *
      * @var array
@@ -34,7 +34,7 @@ class Class_Content_File extends Class_ORM {
         "created" => self::type_created,
         "modified" => self::type_modified,
     );
-    
+
     /**
      *
      * @var array

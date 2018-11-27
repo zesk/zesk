@@ -16,7 +16,7 @@ abstract class Server_Files {
      * @var Server_Platform
      */
     protected $platform = null;
-    
+
     /**
      * Create a new Server_Files
      *
@@ -33,7 +33,7 @@ abstract class Server_Files {
      * @return boolean
      */
     abstract public function is_dir($dir);
-    
+
     /**
      * Is this a directory?
      *
@@ -41,7 +41,7 @@ abstract class Server_Files {
      * @return boolean
      */
     abstract public function is_file($file);
-    
+
     /**
      * Create directory
      *
@@ -51,7 +51,7 @@ abstract class Server_Files {
      * @param boolean $recursive
      */
     abstract public function mkdir($pathname, $mode = null);
-    
+
     /**
      * Change mode of path
      *
@@ -59,7 +59,7 @@ abstract class Server_Files {
      * @param integer $mode
      */
     abstract public function chmod($path, $mode);
-    
+
     /**
      * Get file system stats
      *
@@ -69,7 +69,7 @@ abstract class Server_Files {
      *        	Section to retrieve
      */
     abstract public function stat($path, $section = null);
-    
+
     /**
      * Put a file
      *
@@ -78,7 +78,7 @@ abstract class Server_Files {
      * @return boolean
      */
     abstract public function file_put_contents($path, $contents);
-    
+
     /**
      * Get a file's contents
      *
@@ -86,7 +86,7 @@ abstract class Server_Files {
      * @return string
      */
     abstract public function file_get_contents($path);
-    
+
     /**
      * Copy a file
      *
@@ -95,7 +95,7 @@ abstract class Server_Files {
      * @return boolean
      */
     abstract public function copy($source, $dest);
-    
+
     /**
      * Does a file exist?
      *

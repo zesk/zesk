@@ -28,7 +28,7 @@ class Permission extends ORM {
      * @var boolean
      */
     public static $debug = false;
-    
+
     /**
      *
      * @return string
@@ -37,7 +37,7 @@ class Permission extends ORM {
         $name = $this->member('name');
         return StringTools::right($name, "::", $name);
     }
-    
+
     /**
      *
      * @return string
@@ -91,7 +91,7 @@ class Permission extends ORM {
     protected function hook_denied_if_any(User $user, $perms) {
         return $this->_hook_if_any($user, $perms, false, null);
     }
-    
+
     /**
      * Run alternate checking schemes for a permission: Mostly this handles
      * checking if other permissions are present and, if so, granting/denying the permission
@@ -131,7 +131,7 @@ class Permission extends ORM {
         }
         return null;
     }
-    
+
     /**
      * Given a user, action, context, and options and a found permission in our permission cache -
      * is access granted?
@@ -196,7 +196,7 @@ class Permission extends ORM {
         }
         return null;
     }
-    
+
     /**
      * Register a permission in the system
      *
@@ -211,7 +211,7 @@ class Permission extends ORM {
         }
         return $cache[$name] = $application->orm_factory(__CLASS__, $fields)->register();
     }
-    
+
     /**
      *
      * @return string

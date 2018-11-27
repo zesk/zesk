@@ -15,13 +15,13 @@ class Server_User extends Model {
      * @var string
      */
     public $name = null;
-    
+
     /**
      * User group
      * @var string
      */
     public $group = null;
-    
+
     /**
      * User home directory
      * @var path

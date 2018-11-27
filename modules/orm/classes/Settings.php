@@ -23,28 +23,28 @@ class Settings extends ORM implements Interface_Data, Interface_Settings {
      * @var integer
      */
     const SETTINGS_CACHE_EXPIRE_AFTER = 60;
-    
+
     /**
      * Is the database down?
      *
      * @var boolean
      */
     private $db_down = false;
-    
+
     /**
      * Reason why the database is down
      *
      * @var Exception
      */
     private $db_down_why = null;
-    
+
     /**
      * List of global changes to settings to be saved
      *
      * @var string
      */
     private $changes = array();
-    
+
     /**
      *
      * @param Application $application
@@ -68,7 +68,7 @@ class Settings extends ORM implements Interface_Data, Interface_Settings {
         ));
         return $application->objects->settings = $settings;
     }
-    
+
     /**
      * Hook ORM::hooks
      */
@@ -77,10 +77,10 @@ class Settings extends ORM implements Interface_Data, Interface_Settings {
         // Ensure Database gets a chance to register first
         $hooks->register_class(Database::class);
         $hooks->add('configured', __CLASS__ . '::configured', 'first');
-        
+
         $application->configuration->path(__CLASS__);
     }
-    
+
     /**
      * Cache for the settings
      *
@@ -100,7 +100,7 @@ class Settings extends ORM implements Interface_Data, Interface_Settings {
         }
         return $application->cache->getItem(self::CACHE_ITEM_KEY);
     }
-    
+
     /**
      *
      * @param Application $application
@@ -120,7 +120,7 @@ class Settings extends ORM implements Interface_Data, Interface_Settings {
             return null;
         }
     }
-    
+
     /**
      *
      * @param Application $application
@@ -133,7 +133,7 @@ class Settings extends ORM implements Interface_Data, Interface_Settings {
         $n_loaded = 0;
         $object = $application->orm_registry(__CLASS__);
         $fix_bad_globals = $object->option_bool("fix_bad_globals");
-        
+
         foreach ($object->query_select()->to_array("name", "value") as $name => $value) {
             ++$n_loaded;
             $size_loaded += strlen($value);
@@ -178,7 +178,7 @@ class Settings extends ORM implements Interface_Data, Interface_Settings {
         ), $globals);
         return $globals;
     }
-    
+
     /**
      * configured Hook
      */
@@ -315,7 +315,7 @@ class Settings extends ORM implements Interface_Data, Interface_Settings {
         $this->application->cache->deleteItem(self::CACHE_ITEM_KEY);
         $this->changes = array();
     }
-    
+
     /**
      * Override get to retrieve from global state
      *
@@ -326,7 +326,7 @@ class Settings extends ORM implements Interface_Data, Interface_Settings {
     public function __get($name) {
         return $this->application->configuration->path_get($name);
     }
-    
+
     /**
      * Same as __get with a default
      *
@@ -335,7 +335,7 @@ class Settings extends ORM implements Interface_Data, Interface_Settings {
     public function get($name = null, $default = null) {
         return $this->application->configuration->path_get($name, $default);
     }
-    
+
     /**
      *
      * {@inheritdoc}
@@ -345,7 +345,7 @@ class Settings extends ORM implements Interface_Data, Interface_Settings {
     public function __isset($member) {
         return $this->application->configuration->path_exists($member);
     }
-    
+
     /**
      * Global to save
      *
@@ -359,7 +359,7 @@ class Settings extends ORM implements Interface_Data, Interface_Settings {
         $this->changes[zesk_global_key_normalize($name)] = $value;
         $this->application->configuration->path_set($name, $value);
     }
-    
+
     /**
      * Global to save
      *
@@ -370,7 +370,7 @@ class Settings extends ORM implements Interface_Data, Interface_Settings {
         $this->__set($name, $value);
         return $this;
     }
-    
+
     /**
      *
      * @see Interface_Data::data()
@@ -391,7 +391,7 @@ class Settings extends ORM implements Interface_Data, Interface_Settings {
         $this->flush();
         return $this;
     }
-    
+
     /**
      * (non-PHPdoc)
      *
@@ -405,7 +405,7 @@ class Settings extends ORM implements Interface_Data, Interface_Settings {
         $this->flush();
         return $this;
     }
-    
+
     /**
      * Call this when you change your setting names
      *
@@ -425,7 +425,7 @@ class Settings extends ORM implements Interface_Data, Interface_Settings {
         $this->__set($old_setting, null);
         return $this;
     }
-    
+
     /**
      *
      * @param string $old_prefix

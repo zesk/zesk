@@ -24,7 +24,7 @@ class JSON_Test extends Test_Unit {
     public function test_encode() {
         $mixed = null;
         JSON::encode($mixed);
-        
+
         $mixed = array(
             array(
                 "Hello" => "Dude",
@@ -77,7 +77,7 @@ class JSON_Test extends Test_Unit {
             "5",
         );
         $obj->another = new \stdClass();
-        
+
         return array(
             array(
                 null,

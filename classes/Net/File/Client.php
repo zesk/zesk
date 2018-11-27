@@ -18,7 +18,7 @@ class Net_File_Client extends Net_Client implements Net_FileSystem {
      * @var boolean
      */
     private $connected = false;
-    
+
     /**
      * Connect to the remote host
      * @see Net_Client::connect()

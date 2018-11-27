@@ -23,11 +23,11 @@ class Test_Database_Exception extends Test_Unit {
             $x = new Database_Exception("hello {dude}", array(
                 "dude" => "world!",
             ), $code, new Exception("previous"));
-            
+
             $this->_test_exception($x, "hello world!", $code);
         }
     }
-    
+
     /**
      *
      * @param Database_Exception $x
@@ -43,9 +43,9 @@ class Test_Database_Exception extends Test_Unit {
         if ($expected_code !== null) {
             $this->assert_equal($code, $expected_code);
         }
-        
+
         $this->assert_is_string($x->__toString());
-        
+
         // I assume this is here to just make sure they do not explode/coverage, as these are all internal
         $this->assert_true(is_file($x->getFile()));
         $this->assert_is_integer($x->getLine());

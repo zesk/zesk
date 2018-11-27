@@ -19,13 +19,13 @@ class Process {
      * @var boolean
      */
     public $debug = false;
-    
+
     /**
      *
      * @var Application
      */
     private $application = null;
-    
+
     /**
      *
      * @throws Exception_System
@@ -46,7 +46,7 @@ class Process {
             "configured",
         ));
     }
-    
+
     /**
      * Current process id
      *
@@ -55,7 +55,7 @@ class Process {
     public function id() {
         return intval(getmypid());
     }
-    
+
     /**
      * Return current process owner user name
      *
@@ -77,7 +77,7 @@ class Process {
         $application->configuration->deprecated("zesk::debug_execute", $key);
         $this->debug = $application->configuration->path_get($key);
     }
-    
+
     /**
      *
      * @param integer $pid
@@ -90,7 +90,7 @@ class Process {
         }
         return posix_kill($pid, 0) ? true : false;
     }
-    
+
     /**
      * Execute a shell command.
      *
@@ -130,7 +130,7 @@ class Process {
         }
         return $this->execute_arguments($command, $args, $passthru);
     }
-    
+
     /**
      * Execute a shell command with arguments supplied as an array
      *

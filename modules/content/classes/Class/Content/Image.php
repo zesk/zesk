@@ -14,19 +14,19 @@ class Class_Content_Image extends Class_ORM {
      * @var string
      */
     public $id_column = "id";
-    
+
     /**
      *
      * @var string
      */
     public $name = "Image";
-    
+
     /**
      *
      * @var string
      */
     public $name_column = "title";
-    
+
     /**
      *
      * @var array
@@ -35,7 +35,7 @@ class Class_Content_Image extends Class_ORM {
         "data",
         "path",
     );
-    
+
     /**
      *
      * @var array
@@ -43,7 +43,7 @@ class Class_Content_Image extends Class_ORM {
     public $has_one = array(
         "data" => "zesk\Content_Data",
     );
-    
+
     /**
      *
      * @var array
@@ -56,7 +56,7 @@ class Class_Content_Image extends Class_ORM {
             "far_key" => "user",
         ),
     );
-    
+
     /**
      *
      * @var array
@@ -73,7 +73,7 @@ class Class_Content_Image extends Class_ORM {
         "created" => self::type_created,
         "modified" => self::type_modified,
     );
-    
+
     /**
      *
      * @var array

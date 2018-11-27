@@ -6,7 +6,7 @@ class CSS_Test extends Test_Unit {
         $text = null;
         $default = null;
         CSS::color_parse($text, $default);
-        
+
         $colors = array(
             'rgb(1,2,3)' => '1;2;3',
             'rgb(256,2,3)' => null,

@@ -17,7 +17,7 @@ interface Interface_Process {
      * @return Application
      */
     public function application(Application $set = null);
-    
+
     /**
      * Getter for done state
      *
@@ -25,7 +25,7 @@ interface Interface_Process {
      *        	boolean
      */
     public function done();
-    
+
     /**
      * Kill/interrupt this process.
      * Harsher than ->terminate();
@@ -33,19 +33,19 @@ interface Interface_Process {
      * @param string $interrupt
      */
     public function kill();
-    
+
     /**
      * Terminate this process.
      * Nice way to do it.
      */
     public function terminate();
-    
+
     /**
      * Take a nap.
      * I love naps.
      */
     public function sleep($seconds = 1.0);
-    
+
     /**
      * Logging tool for processes
      *

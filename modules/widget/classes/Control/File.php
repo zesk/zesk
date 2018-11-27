@@ -15,7 +15,7 @@ class Control_File extends Control {
      * @var array
      */
     private $file = null;
-    
+
     /**
      *
      * {@inheritDoc}
@@ -25,7 +25,7 @@ class Control_File extends Control {
         parent::initialize();
         $this->upload(true);
     }
-    
+
     /**
      *
      * @return mixed|string
@@ -33,7 +33,7 @@ class Control_File extends Control {
     public function file_name_column() {
         return $this->option("filecolumn", $this->column() . "_FileName");
     }
-    
+
     /**
      *
      * {@inheritDoc}
@@ -43,7 +43,7 @@ class Control_File extends Control {
         parent::defaults();
         $this->object->set($this->file_name_column(), $this->option('filecolumn_default', ''));
     }
-    
+
     /**
      *
      * {@inheritDoc}
@@ -60,7 +60,7 @@ class Control_File extends Control {
             $this->object->set($filecolumn, $this->request->get($filecolumn));
         }
     }
-    
+
     /**
      *
      * {@inheritDoc}
@@ -70,10 +70,10 @@ class Control_File extends Control {
         $col = $this->column();
         $name = $this->name();
         $filecolumn = $this->file_name_column();
-        
+
         $this->object->set($col, $this->request->get($name));
         $this->object->set($filecolumn, $this->request->get($filecolumn));
-        
+
         try {
             $file = $this->request->file($name . '_file');
         } catch (Exception_Upload $e) {
@@ -91,7 +91,7 @@ class Control_File extends Control {
         }
         return $this->validate_required();
     }
-    
+
     /**
      *
      * @param string $set
@@ -101,7 +101,7 @@ class Control_File extends Control {
         $name = $this->name() . "_path";
         return $set ? $this->object->set($name, $set) : $this->object->get($name);
     }
-    
+
     /**
      *
      * @param unknown $set
@@ -111,7 +111,7 @@ class Control_File extends Control {
         $name = $this->file_name_column();
         return $set ? $this->object->set($name, $set) : $this->object->get($name);
     }
-    
+
     /**
      *
      * @return \zesk\NULL
@@ -122,7 +122,7 @@ class Control_File extends Control {
         }
         return $this->file = $this->request->file($this->name() . "_file");
     }
-    
+
     /**
      *
      * @return mixed|array
@@ -130,7 +130,7 @@ class Control_File extends Control {
     public function original_name() {
         return avalue($this->_file(), 'name', null);
     }
-    
+
     /**
      *
      * {@inheritDoc}

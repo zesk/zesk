@@ -13,7 +13,7 @@ class Contact_Builder_Email extends Contact_Builder_Base {
      * @var string
      */
     protected $contact_class = "zesk\\Contact_Email";
-    
+
     /**
      *
      * {@inheritDoc}
@@ -34,9 +34,9 @@ class Contact_Builder_Email extends Contact_Builder_Base {
             "value" => $parts['email'],
         ) + $this->data;
         $data = map($data, $map);
-        
+
         $import->merge_item($this->contact_class, $data['value'], $data);
-        
+
         return true;
     }
 }

@@ -24,7 +24,7 @@ class Command_ELB extends Command {
             "instance_id" => $instance_id,
         );
         $this->log("Instance ID is {instance_id}", $__);
-        
+
         $elbc = $this->application->factory(ElasticLoadBalancingClient::class);
         $load_balancers = $elbc->describeLoadBalancers();
         var_dump($load_balancers);

@@ -18,7 +18,7 @@ class Control_Widgets_Filter extends Control_Widgets {
      * @var Control_Filter
      */
     protected $filter = null;
-    
+
     /**
      *
      * @return array
@@ -26,7 +26,7 @@ class Control_Widgets_Filter extends Control_Widgets {
     protected function hook_filters() {
         return array();
     }
-    
+
     /**
      *
      */
@@ -43,12 +43,12 @@ class Control_Widgets_Filter extends Control_Widgets {
                 $this->filter->children($filters);
                 $this->filter->wrap("div", ".filters");
                 $this->child($this->filter);
-                
+
                 $this->call_hook("initialize_filter");
             }
         }
     }
-    
+
     /**
      *
      * {@inheritDoc}
@@ -58,7 +58,7 @@ class Control_Widgets_Filter extends Control_Widgets {
         $this->initialize_filter();
         parent::initialize();
     }
-    
+
     /**
      *
      * @return \zesk\Control_Filter
@@ -66,7 +66,7 @@ class Control_Widgets_Filter extends Control_Widgets {
     public function filter() {
         return $this->filter;
     }
-    
+
     /**
      * Getter/setter for show_filter option
      *
@@ -76,7 +76,7 @@ class Control_Widgets_Filter extends Control_Widgets {
     public function show_filter($set = null) {
         return $set !== null ? $this->set_option('show_filter', to_bool($set)) : $this->option_bool('show_filter', true);
     }
-    
+
     /**
      *
      * {@inheritDoc}

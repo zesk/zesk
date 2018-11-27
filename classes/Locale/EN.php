@@ -22,7 +22,7 @@ class Locale_EN extends Locale {
     public function date_format() {
         return "{MMMM} {DDD}, {YYYY}";
     }
-    
+
     /**
      *
      * {@inheritDoc}
@@ -31,7 +31,7 @@ class Locale_EN extends Locale {
     public function datetime_format() {
         return "{MMMM} {DDD}, {YYYY} {12hh}:{mm} {AMPM}";
     }
-    
+
     /**
      *
      * {@inheritDoc}
@@ -40,7 +40,7 @@ class Locale_EN extends Locale {
     public function time_format($include_seconds = false) {
         return $include_seconds ? "{12h}:{mm}:{ss} {ampm}" : "{12h}:{mm} {AMPM}";
     }
-    
+
     /**
      *
      * {@inheritDoc}
@@ -53,7 +53,7 @@ class Locale_EN extends Locale {
             return "$owner's $object";
         }
     }
-    
+
     /**
      * English plural exceptions
      *
@@ -77,7 +77,7 @@ class Locale_EN extends Locale {
         }
         return null;
     }
-    
+
     /**
      * Given a noun, compute the plural given cues from the language
      *
@@ -108,7 +108,7 @@ class Locale_EN extends Locale {
         }
         return $word . 's';
     }
-    
+
     /**
      *
      * {@inheritDoc}
@@ -130,7 +130,7 @@ class Locale_EN extends Locale {
         }
         return ($context ? ucfirst($article) : $article);
     }
-    
+
     /**
      *
      * {@inheritDoc}
@@ -149,7 +149,7 @@ class Locale_EN extends Locale {
             3 => "rd",
         ), $mod_10, "th");
     }
-    
+
     /**
      * @todo Probably should remove this 2018-01
      *

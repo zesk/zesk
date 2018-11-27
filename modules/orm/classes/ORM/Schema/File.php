@@ -21,7 +21,7 @@ class ORM_Schema_File extends ORM_Schema {
      * @var string
      */
     protected $sql_file_path = null;
-    
+
     /**
      * Raw SQL in file
      *
@@ -35,21 +35,21 @@ class ORM_Schema_File extends ORM_Schema {
      * @var Database_Parser
      */
     protected $parser = null;
-    
+
     /**
      * SQL Aftrer map has been applied
      *
      * @var string
      */
     protected $mapped_sql = null;
-    
+
     /**
      * List of search paths when nothing found
      *
      * @var array
      */
     protected $searched = null;
-    
+
     /**
      * Create a schema file object for a given Class_ORM, optionally specifying a string SQL
      * schema.
@@ -82,7 +82,7 @@ class ORM_Schema_File extends ORM_Schema {
             }
         }
     }
-    
+
     /**
      * Set all variables dependent on the SQL parsed
      *
@@ -110,7 +110,7 @@ class ORM_Schema_File extends ORM_Schema {
     public function exists() {
         return $this->schema_path() !== null;
     }
-    
+
     /**
      * Does this schema have some SQL associated with it?
      *
@@ -119,7 +119,7 @@ class ORM_Schema_File extends ORM_Schema {
     public function has_sql() {
         return !empty($this->sql);
     }
-    
+
     /**
      * Handle finding the SQL file on disk using the autoload path.
      *
@@ -142,7 +142,7 @@ class ORM_Schema_File extends ORM_Schema {
         }
         return $result;
     }
-    
+
     /**
      * Search for the schema file
      *
@@ -173,7 +173,7 @@ class ORM_Schema_File extends ORM_Schema {
         $this->searched = $all_searches;
         return null;
     }
-    
+
     /**
      * Get file modification time of schema file
      *
@@ -186,7 +186,7 @@ class ORM_Schema_File extends ORM_Schema {
         }
         return null;
     }
-    
+
     /**
      * Convert this schema object into the array-based schema
      *
@@ -249,7 +249,7 @@ class ORM_Schema_File extends ORM_Schema {
                 $this->application->logger->error("Unknown SQL statement ({statement}) found in file {file}: {sql}", $__);
             }
         }
-        
+
         $schema = array();
         foreach ($tables as $table) {
             $table_spec = array();

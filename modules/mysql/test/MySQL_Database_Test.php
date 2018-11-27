@@ -13,14 +13,14 @@ class MySQL_Database_Test extends Test_Unit {
         /* @var $mysql Database_MySQL */
         $this->assert_true(true);
     }
-    
+
     /**
      *
      * @return \mysql\Database
      */
     public function database() {
         $db = $this->application->database_registry();
-        
+
         $this->assert_in_array(array(
             "mysql",
             "mysqli",
@@ -30,7 +30,7 @@ class MySQL_Database_Test extends Test_Unit {
 
     public function test_mysql_1() {
         $db = $this->database();
-        
+
         $sql = <<<EOF
 CREATE TABLE `tracking_1999` (
         `id` int(11) unsigned NOT NULL auto_increment,
@@ -69,26 +69,26 @@ CREATE TABLE `tracking_1999` (
         KEY `utc_ts` (`utc`)
 );
 EOF;
-        
+
         $table = $db->parse_create_table($sql, __METHOD__);
-        
+
         $this->assert_instanceof($table, "zesk\\Database_Table");
-        
+
         echo "Test created because preg_match dies on web2 with above input... due to pcre backtracking stack overflow ... or something like that\n";
     }
 
     public function test_mysql_funcs_1() {
         $db = $this->database();
-        
+
         $test_table = $this->test_table('test_table');
-        
+
         $db->database_name();
-        
+
         $filename = path($this->test_sandbox("dump.sql"));
         $options = array();
         $db->connect();
         $db->dump($filename, $options);
-        
+
         $db->disconnect();
         $this->assert_equal($db->connected(), false);
         $success = false;
@@ -106,23 +106,23 @@ EOF;
         }
         $this->assert_equal($db->connected(), false);
         $this->assert($success);
-        
+
         $db->connect();
-        
+
         if ($db->can("create database")) {
             $url = null;
             //$db->createDatabase('mysql://test_user:test_pass@localhost/zesk_create_test_db');
         }
-        
+
         $db->tables_case_sensitive();
-        
+
         $this->assert($db->can(Database::FEATURE_LIST_TABLES) === true);
         $this->assert($db->can(Database::FEATURE_CREATE_DATABASE) === true);
-        
+
         $tables = $db->list_tables();
-        
+
         $debug = false;
-        
+
         foreach ($tables as $table) {
             if ($debug) {
                 $this->log("Showing table {table}", array(
@@ -138,7 +138,7 @@ EOF;
             }
             $this->assert_string_begins($sql, "CREATE TABLE");
             $this->assert(strpos($sql, "$table") !== false);
-            
+
             $dbTableObject = $db->parse_create_table($sql, __METHOD__);
             $sql = $db->sql()->create_table($dbTableObject);
             if (!is_array($sql)) {
@@ -152,12 +152,12 @@ EOF;
                 $this->assert(StringTools::begins($sql, "CREATE TABLE"));
                 $this->assert(strpos($sql, "$table") !== false);
             }
-            
+
             $result = $db->table_information($table);
         }
-        
+
         $table = null;
-        
+
         $success = false;
 
         try {
@@ -167,11 +167,11 @@ EOF;
             $success = true;
         }
         $this->assert($success === true);
-        
+
         $table = null;
         $type = null;
         $db->sql()->alter_table_type($table, $type);
-        
+
         $success = false;
 
         try {
@@ -185,19 +185,19 @@ EOF;
             $success = true;
         }
         $this->assert($success);
-        
+
         $table = new Database_Table($db, "Foo");
         $index = new Database_Index($table, "dude");
         $sql = $db->sql()->alter_table_index_drop($table, $index);
         $this->assert_equal($sql, "ALTER TABLE `Foo` DROP INDEX `dude`");
-        
+
         $table = new Database_Table($db, "Foo");
         $index = new Database_Index($table, "dude");
         $index->type(Database_Index::Primary);
-        
+
         $sql = $db->sql()->alter_table_index_drop($table, $index);
         $this->assert_equal($sql, "ALTER TABLE `Foo` DROP PRIMARY KEY");
-        
+
         $table = null;
         $name = null;
         $indexes = array(
@@ -210,14 +210,14 @@ EOF;
         $table = null;
         $name = null;
         $db->sql()->index_type($table, $name, Database_Index::Primary, $indexes);
-        
+
         $table = null;
         $name = null;
         $indexType = null;
         $indexes = array(
             "Foo" => 32,
         );
-        
+
         $table = new Database_Table($db, "Foo");
         $table->column_add(new Database_Column($table, "ID", array(
             "sql_type" => "integer unsigned",
@@ -228,10 +228,10 @@ EOF;
         $index = new Database_Index($table, "dude");
         $index->column_add("ID");
         $index->type(Database_Index::Primary);
-        
+
         $sql = $db->sql()->alter_table_index_add($table, $index);
         $this->assert_equal($sql, "ALTER TABLE `Foo` ADD PRIMARY KEY (`ID`)");
-        
+
         $table = new Database_Table($db, $table_name = "TestLine_" . __LINE__);
         $dbColOld = new Database_Column($table, "Foo");
         $dbColOld->sql_type("varchar(32)");
@@ -239,57 +239,57 @@ EOF;
         $dbColNew->sql_type("varchar(33)");
         $sql = $db->sql()->alter_table_change_column($table, $dbColOld, $dbColNew);
         $this->assert_equal($sql, "ALTER TABLE `$table_name` CHANGE COLUMN `Foo` `Foo` varchar(33) NULL");
-        
+
         $query = null;
         $result = $db->query($query);
         $this->assert_null($result);
-        
+
         $db->query("SHOW TABLES");
-        
+
         $result = null;
         $db->affected_rows($result);
-        
+
         $result = null;
         $db->free($result);
-        
+
         $db->insert_id();
-        
+
         $sql = array();
         $db->mixed_query($sql);
-        
+
         $sql = "SHOW TABLES";
         $k = null;
         $v = null;
         $default = null;
         $db->query_array($sql, $k, $v, $default);
-        
+
         $db->now();
-        
+
         $db->now_utc();
-        
+
         $tables = $db->list_tables();
         $this->assert(count($tables) > 0, "Test database should contain at least one table");
-        
+
         foreach ($tables as $table) {
             $this->assert_true($db->table_exists($table), "$table returned by list_tables but does not exist?");
         }
-        
+
         $word = null;
         $db->is_reserved_word($word);
-        
+
         $sql = "CREATE TABLE Foo ( ID integer )";
         $db->parse_create_table($sql, __METHOD__);
-        
+
         $db = $this->application->database_registry();
-        
+
         $url = $db->url();
-        
+
         $this->assert(!empty($url));
-        
+
         $filler = "ANTIDISESTABLISHMENTARIANISM";
         $safe_url = $db->safe_url($filler);
         $this->assert(strpos($safe_url, $filler) !== false, "Safe URL $safe_url does not contain $filler");
-        
+
         $table = new Database_Table($db, $table_name = "TestTable" . __LINE__);
         $column = new Database_Column($table, "hello");
         $column->sql_type("varchar(2)");
@@ -297,28 +297,28 @@ EOF;
         $after_col = false;
         $sql = $db->sql()->alter_table_column_add($table, $column);
         $this->assert_equal($sql, "ALTER TABLE `$table_name` ADD COLUMN `hello` varchar(2) NULL");
-        
+
         $table = new Database_Table($db, $table_name = "TestTable" . __LINE__);
         $column = new Database_Column($table, "hello");
         $column->sql_type("varchar(2)");
-        
+
         $sql = $db->sql()->alter_table_column_drop($table, $column);
         $this->assert_equal($sql, "ALTER TABLE `$table_name` DROP COLUMN `hello`");
-        
+
         $col = "Hippy";
         $alias = 'Dippy';
         $sql = $db->sql()->column_alias($col, $alias);
         $this->assert_equal($sql, "`Dippy`.`Hippy`");
-        
+
         $db->transaction_start();
-        
+
         $success = true;
         $db->transaction_end($success);
-        
+
         $table = null;
         $type = false;
         $db->new_database_table($table, $type);
-        
+
         $this->assert_is_string($db->table_prefix());
     }
 

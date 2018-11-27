@@ -14,10 +14,10 @@ class CSV_Writer_Test extends Test_Unit {
 
     public function test_main() {
         $x = new CSV_Writer();
-        
+
         $f = $this->test_sandbox("csv_writer.csv");
         $x->file($f);
-        
+
         $success = false;
 
         try {
@@ -30,9 +30,9 @@ class CSV_Writer_Test extends Test_Unit {
             $success = true;
         }
         $this->assert($success);
-        
+
         $x->object_names();
-        
+
         $success = false;
 
         try {
@@ -45,7 +45,7 @@ class CSV_Writer_Test extends Test_Unit {
             $success = true;
         }
         $this->assert($success);
-        
+
         $success = false;
 
         try {
@@ -58,51 +58,51 @@ class CSV_Writer_Test extends Test_Unit {
             $success = true;
         }
         $this->assert($success);
-        
+
         $set_headers = array(
             "Title",
             "CodeName",
             "Something",
         );
         $this->assert_equal($x->set_headers($set_headers, false), $x);
-        
+
         $headers = $x->headers();
         $this->assert_equal($headers, $set_headers);
-        
+
         $name = "omap";
         $map = array(
             "B" => "Title",
         );
         $defaultMap = null;
         $x->add_object_map($name, $map, $defaultMap);
-        
+
         $name = "CodeName";
         $map = array(
             "Title" => "C",
         );
         $x->add_translation_map($name, $map);
-        
+
         $name = "omap";
         $map = array(
             "B" => "Title",
         );
         $x->set_object($name, $fields);
-        
+
         $row = array();
         $x->set_row($row);
-        
+
         $col = null;
         $data = null;
         $x->set_column($col, $data);
-        
+
         $x->write_row();
-        
+
         $x->close();
-        
+
         $x->headers();
-        
+
         $x->filename();
-        
+
         $x->row_index();
     }
 
@@ -142,7 +142,7 @@ class CSV_Writer_Test extends Test_Unit {
             "5",
             6,
         ), false);
-        
+
         $x->add_object_map("test", array(
             "ID" => $badkey,
         ));
@@ -161,7 +161,7 @@ class CSV_Writer_Test extends Test_Unit {
             "5",
             6,
         ), false);
-        
+
         $x->add_object_map("test", array(
             "ID" => $key,
         ));

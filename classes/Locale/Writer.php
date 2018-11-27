@@ -21,7 +21,7 @@ class Writer {
      * @var Application
      */
     private $application = null;
-    
+
     /**
      *
      * @param Application $application
@@ -32,7 +32,7 @@ class Writer {
         $this->application = $application;
         $this->file = $file;
     }
-    
+
     /**
      *
      * @param string $filename
@@ -53,7 +53,7 @@ class Writer {
             "file" => $this->file,
         ));
     }
-    
+
     /**
      *
      * @param array $phrases
@@ -89,7 +89,7 @@ class Writer {
         }
         return $result;
     }
-    
+
     /**
      * Dump untranslated phrases
      */

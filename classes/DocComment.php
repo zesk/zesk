@@ -28,7 +28,7 @@ class DocComment extends Options {
      * @var string
      */
     const OPTION_MULTI_KEYS = "multi_keys"; // List of keys which
-    
+
     /**
      * For patterns which are keyed by the second token in the DocComment
      *
@@ -61,7 +61,7 @@ class DocComment extends Options {
      * @var string
      */
     const OPTION_LIST_KEYS = "list_keys";
-    
+
     /**
      * For output, move @desc tags to the top of the DocComment and place a space between it and other content.
      *
@@ -88,13 +88,13 @@ class DocComment extends Options {
      * @var string
      */
     private $content = "";
-    
+
     /**
      *
      * @var array
      */
     private $variables = array();
-    
+
     /**
      * Retrieve all DocComment blocks in content as strings. Resulting strings are ready to be consumed.
      *
@@ -115,7 +115,7 @@ class DocComment extends Options {
         }
         return $result;
     }
-    
+
     /**
      *
      * @param unknown $content
@@ -125,7 +125,7 @@ class DocComment extends Options {
     public static function instance($content, array $options = array()) {
         return new self($content, $options);
     }
-    
+
     /**
      * String is parsed, array is unparsed
      *
@@ -139,7 +139,7 @@ class DocComment extends Options {
             $this->content(strval($content));
         }
     }
-    
+
     /**
      * Removes stars from beginning and end of doccomments
      *
@@ -155,10 +155,10 @@ class DocComment extends Options {
         $string = ArrayTools::unprefix($string, "*");
         $string = ArrayTools::trim($string);
         $string = implode("\n", $string);
-        
+
         return $string;
     }
-    
+
     /**
      *
      * @return array
@@ -184,7 +184,7 @@ class DocComment extends Options {
         }
         return $result;
     }
-    
+
     /**
      * Format is @foo
      * @return array
@@ -211,7 +211,7 @@ class DocComment extends Options {
         $values = ArrayTools::field($lines, null, " \t", 3);
         return ArrayTools::rekey($keys, $values);
     }
-    
+
     /**
      *
      * @param array $value
@@ -225,7 +225,7 @@ class DocComment extends Options {
         }
         return $result;
     }
-    
+
     /**
      * Handle items which may have more than one entry and is a simple list
      *
@@ -273,7 +273,7 @@ class DocComment extends Options {
     public function __toString() {
         return $this->content();
     }
-    
+
     /**
      *
      * @param string $string
@@ -322,7 +322,7 @@ class DocComment extends Options {
         }
         return ArrayTools::trim($result);
     }
-    
+
     /**
      * Add spaces after newlines to maintain indentation for multi-line
      *
@@ -345,7 +345,7 @@ class DocComment extends Options {
         $multi_keys = ArrayTools::flip_assign($this->multi_keys(), true);
         $param_keys = ArrayTools::flip_assign($this->param_keys(), true);
         $list_keys = ArrayTools::flip_assign($this->list_keys(), true);
-        
+
         $result = array();
         if ($this->option_bool(self::OPTION_DESC_NO_TAG) && isset($items['desc'])) {
             $value = to_list(trim($items['desc']), array(), "\n");

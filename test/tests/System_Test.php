@@ -49,7 +49,7 @@ class System_Test extends Test_Unit {
         assert(array_key_exists('used', $slash));
         assert(array_key_exists('free', $slash));
         assert(array_key_exists('path', $slash));
-        
+
         $info = System::volume_info('/');
         assert(array_key_exists('/', $info));
         $slash = $info['/'];
@@ -57,7 +57,7 @@ class System_Test extends Test_Unit {
         assert(array_key_exists('total', $slash));
         assert(array_key_exists('used', $slash));
         assert(array_key_exists('free', $slash));
-        
+
         $info = System::volume_info('/not-a-volume');
         assert(is_array($info));
         assert(count($info) === 0);

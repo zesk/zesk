@@ -7,19 +7,19 @@ class MIME {
      * @var string
      */
     const TYPE_APPLICATION_JSON = "application/json";
-    
+
     /**
      *
      * @var string
      */
     const TYPE_APPLICATION_JAVASCRIPT = "application/javascript";
-    
+
     /**
      *
      * @var unknown
      */
     private static $extension_to_mime = null;
-    
+
     /**
      *
      */

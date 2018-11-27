@@ -18,7 +18,7 @@ abstract class Command extends \zesk\Command_Base {
      * @var Awareness
      */
     protected $awareness = null;
-    
+
     /**
      * Set up awareness interface
      *

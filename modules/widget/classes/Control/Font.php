@@ -15,7 +15,7 @@ class Control_Font extends Control_Select {
         }
         parent::initialize();
     }
-    
+
     /**
      *
      * @param string $set
@@ -27,7 +27,7 @@ class Control_Font extends Control_Select {
         }
         return $this->option('sample_text');
     }
-    
+
     /**
      *
      * @param string $set
@@ -39,7 +39,7 @@ class Control_Font extends Control_Select {
         }
         return $this->option('css_target');
     }
-    
+
     /**
      *
      * @return string[string]

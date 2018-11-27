@@ -6,19 +6,19 @@ class Control_SortOrder extends Control {
         'name' => 'so',
         'column' => 'sort_order',
     );
-    
+
     /**
      *
      * @var boolean
      */
     private $ascending = null;
-    
+
     /**
      *
      * @var boolean
      */
     private $list_default_ascending = null;
-    
+
     /**
      *
      * {@inheritDoc}
@@ -34,7 +34,7 @@ class Control_SortOrder extends Control {
             $this->parent->preserve_hidden("so", $this->default_value());
         }
     }
-    
+
     /**
      *
      * @param Database_Query_Select $query
@@ -52,7 +52,7 @@ class Control_SortOrder extends Control {
         $order_by_reversed = $parser->reverse_order_by($order_by_original);
         $query->order_by($order_by_reversed);
     }
-    
+
     /**
      *
      * {@inheritDoc}

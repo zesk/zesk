@@ -36,7 +36,7 @@ class Lists {
         }
         return implode($sep, array_unique(explode($sep, $list)));
     }
-    
+
     /**
      * Remove a specific item from a list, maintaining existing order
      *
@@ -56,7 +56,7 @@ class Lists {
         }
         return !$is_arr ? implode($sep, $a) : $a;
     }
-    
+
     /**
      * Add an item to a list, maintaining existing order
      *
@@ -81,7 +81,7 @@ class Lists {
         }
         return $list . $sep . implode($sep, $items);
     }
-    
+
     /**
      * Add an item to a list only if it's not in it already
      *
@@ -103,7 +103,7 @@ class Lists {
             return implode($sep, array_unique(array_merge(explode($sep, $list), $items)));
         }
     }
-    
+
     /**
      * Does this list contain an item?
      *
@@ -118,7 +118,7 @@ class Lists {
         }
         return strpos($sep . $list . $sep, $sep . $item . $sep) !== false;
     }
-    
+
     /**
      * Prepend an item to a list, maintaining existing order
      *
@@ -138,7 +138,7 @@ class Lists {
         }
         return $item . $sep . $list;
     }
-    
+
     /**
      * Pop an item from a list (similar to a stack)
      *

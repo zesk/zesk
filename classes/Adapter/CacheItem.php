@@ -40,13 +40,13 @@ class Adapter_CacheItem implements CacheItemInterface {
      * @var boolean
      */
     public $is_hit = null;
-    
+
     /**
      *
      * @var Timestamp
      */
     public $expiration = null;
-    
+
     /**
      *
      * @param string $key
@@ -60,7 +60,7 @@ class Adapter_CacheItem implements CacheItemInterface {
             $this->_handle_expiration();
         }
     }
-    
+
     /**
      *
      */
@@ -85,7 +85,7 @@ class Adapter_CacheItem implements CacheItemInterface {
     public function getKey() {
         return $this->key;
     }
-    
+
     /**
      * Retrieves the value of the item from the cache associated with this object's key.
      *
@@ -101,7 +101,7 @@ class Adapter_CacheItem implements CacheItemInterface {
     public function get() {
         return $this->value;
     }
-    
+
     /**
      * Confirms if the cache item lookup resulted in a cache hit.
      *
@@ -114,7 +114,7 @@ class Adapter_CacheItem implements CacheItemInterface {
     public function isHit() {
         return $this->is_hit;
     }
-    
+
     /**
      * Sets the value represented by this cache item.
      *
@@ -132,7 +132,7 @@ class Adapter_CacheItem implements CacheItemInterface {
         $this->value = $value;
         return $this;
     }
-    
+
     /**
      * Sets the expiration time for this cache item.
      *
@@ -151,7 +151,7 @@ class Adapter_CacheItem implements CacheItemInterface {
         return $this->_handle_expiration();
         ;
     }
-    
+
     /**
      * Sets the expiration time for this cache item.
      *

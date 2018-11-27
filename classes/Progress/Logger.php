@@ -15,13 +15,13 @@ class Progress_Logger implements Interface_Progress {
      * @var Logger
      */
     private $logger = null;
-    
+
     /**
      *
      * @var string
      */
     private $level = null;
-    
+
     /**
      *
      * @param Logger $logger

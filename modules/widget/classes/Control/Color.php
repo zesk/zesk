@@ -15,7 +15,7 @@ class Control_Color extends Control_Text {
 
     public function validate() {
         $this->set_option("id", $this->name());
-        
+
         $name = $this->column();
         $color = $this->value();
         if (begins($color, "#")) {

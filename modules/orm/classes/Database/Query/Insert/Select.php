@@ -19,25 +19,25 @@ class Database_Query_Insert_Select extends Database_Query_Select {
      * @var boolean
      */
     protected $low_priority = false;
-    
+
     /**
      *
      * @var string
      */
     private $into = null;
-    
+
     /**
      *
      * @var array
      */
     protected $what = array();
-    
+
     /**
      *
      * @var string
      */
     protected $verb = "INSERT";
-    
+
     /**
      * Create an new query
      *
@@ -47,7 +47,7 @@ class Database_Query_Insert_Select extends Database_Query_Select {
     public static function factory(Database $db = null) {
         return new Database_Query_Insert_Select($db);
     }
-    
+
     /**
      *
      * @param Database_Query_Select $query
@@ -72,7 +72,7 @@ class Database_Query_Insert_Select extends Database_Query_Select {
         $this->low_priority = to_bool($low_priority);
         return $this;
     }
-    
+
     /**
      * Getter/setter for replace verb
      *
@@ -86,7 +86,7 @@ class Database_Query_Insert_Select extends Database_Query_Select {
         $this->verb = $replace ? "REPLACE" : "INSERT";
         return $this;
     }
-    
+
     /**
      *
      * @param string $table

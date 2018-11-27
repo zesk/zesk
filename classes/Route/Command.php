@@ -9,12 +9,12 @@ namespace zesk;
 class Route_Command extends Route {
     protected function _execute(Response $response) {
         $app = $response->application;
-        
+
         $debug = $this->option_bool('debug');
-        
+
         $command = avalue($this->original_options, "command");
         $args = $this->option_array("arguments", array());
-        
+
         $command = map($command, $this->named);
         $args = map($args, $this->args + $this->named);
         if ($debug) {

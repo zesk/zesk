@@ -22,7 +22,7 @@ class Server_Platform_FreeBSD extends Server_Platform_UNIX {
     private static $users = array();
 
     private static $groups = array();
-    
+
     /**
      * @return Server_Packager
      */

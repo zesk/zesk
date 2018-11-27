@@ -26,7 +26,7 @@ abstract class CSV extends Options {
      * @var string
      */
     protected $FileName;
-    
+
     /**
      * @var string
      */
@@ -41,12 +41,12 @@ abstract class CSV extends Options {
      * @var string
      */
     protected $Escape;
-    
+
     /**
      * @var string
      */
     protected $LineDelimiter;
-    
+
     /**
      * @var array
      */
@@ -56,36 +56,36 @@ abstract class CSV extends Options {
      * @var array
      */
     protected $HeadersToIndex = null;
-    
+
     /**
      * @var integer
      */
     protected $RowIndex;
-    
+
     /**
      * current row being read or written
      * @var array
      */
     protected $Row;
-    
+
     /**
      * File encoding
      * @var string
      */
     protected $Encoding = 'UTF-8';
-    
+
     /**
      *
      * @var string
      */
     protected $EncodingSuffix = '.UTF8';
-    
+
     /**
      *
      * @var string
      */
     protected $EncodingBigEndian = true;
-    
+
     /**
      * Create new CSV
      *
@@ -93,7 +93,7 @@ abstract class CSV extends Options {
      */
     public function __construct(array $options = array()) {
         parent::__construct($options);
-        
+
         $this->RowIndex = 0;
         $this->File = false;
         $this->Delimiter = ",";
@@ -101,7 +101,7 @@ abstract class CSV extends Options {
         $this->Escape = '\\';
         $this->LineDelimiter = "\n";
     }
-    
+
     /**
      * Set the file associated with this CSV object
      *
@@ -123,13 +123,13 @@ abstract class CSV extends Options {
         } else {
             throw new Exception_Parameter("CSV::setFile($filename)");
         }
-        
+
         $this->FileName = $filename;
         $this->Row = false;
         $this->RowIndex = 0;
         return $this;
     }
-    
+
     /**
      * Enter description here...
      *
@@ -143,7 +143,7 @@ abstract class CSV extends Options {
         }
         return false;
     }
-    
+
     /**
      * Add headers to the CSV file
      *
@@ -187,7 +187,7 @@ abstract class CSV extends Options {
         }
         return $this;
     }
-    
+
     /**
      * Enter description here...
      *
@@ -199,7 +199,7 @@ abstract class CSV extends Options {
         $this->HeadersToIndex = array();
         return $this->add_headers($headers, $is_map);
     }
-    
+
     /**
      * Enter description here...
      *
@@ -213,7 +213,7 @@ abstract class CSV extends Options {
         }
         return $this->Headers;
     }
-    
+
     /**
      * Return the file name associated with this CSV
      *
@@ -222,7 +222,7 @@ abstract class CSV extends Options {
     public function filename() {
         return $this->FileName;
     }
-    
+
     /**
      * Check if a column has a value (!empty($column))
      *
@@ -237,7 +237,7 @@ abstract class CSV extends Options {
         }
         return false;
     }
-    
+
     /**
      * Retrieve the current row's column value
      *
@@ -252,7 +252,7 @@ abstract class CSV extends Options {
         }
         return $default;
     }
-    
+
     /**
      * Return row index
      *
@@ -264,7 +264,7 @@ abstract class CSV extends Options {
         }
         return $this->RowIndex - 1;
     }
-    
+
     /**
      * Return raw row read from the CSV
      *
@@ -273,7 +273,7 @@ abstract class CSV extends Options {
     public function row() {
         return $this->Row;
     }
-    
+
     /**
      * Check to make sure we have a valid file open and ready for operations
      *
@@ -284,7 +284,7 @@ abstract class CSV extends Options {
             throw new Exception_Semantics("Must set a file first.");
         }
     }
-    
+
     /**
      * Quote a CSV field correctly. If it contains a quote (") a comma (,), or a newline(\n), then quote it.
      * Quotes are double-quoted, so:
@@ -302,7 +302,7 @@ abstract class CSV extends Options {
     public static function quote($x) {
         return StringTools::csv_quote($x);
     }
-    
+
     /**
      * Quote a single CSV row
      *
@@ -313,7 +313,7 @@ abstract class CSV extends Options {
     public static function quote_row($x) {
         return StringTools::csv_quote_row($x);
     }
-    
+
     /**
      * Quote multiple CSV rows
      *

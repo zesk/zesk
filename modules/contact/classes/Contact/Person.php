@@ -41,7 +41,7 @@ class Contact_Person extends Contact_Info {
         }
         return null;
     }
-    
+
     /**
      *
      * @return string

@@ -20,13 +20,13 @@ class World_Bootstrap_Country extends Hookable {
      * Country database (TXT file)
      */
     const url_geonames_country_file = "http://download.geonames.org/export/dump/countryInfo.txt";
-    
+
     /**
      *
      * @var array
      */
     private $include_country = null;
-    
+
     /**
      *
      * @param Application $application
@@ -59,7 +59,7 @@ class World_Bootstrap_Country extends Hookable {
         if ($this->option_bool("drop")) {
             $x->database()->query('TRUNCATE ' . $x->table());
         }
-        
+
         $map = self::load_countryinfo($application);
         foreach ($map as $fields) {
             $country = new Country($application, $fields);
@@ -75,7 +75,7 @@ class World_Bootstrap_Country extends Hookable {
         }
         return true;
     }
-    
+
     /**
      * Fetch and synchronize country source files
      *

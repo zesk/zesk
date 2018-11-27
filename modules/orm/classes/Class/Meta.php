@@ -12,7 +12,7 @@ class Class_Meta extends Class_ORM {
         "name" => self::type_string,
         "value" => self::type_serialize,
     );
-    
+
     /**
      * Overwrite this in subclasses to change stuff upon instantiation
      */

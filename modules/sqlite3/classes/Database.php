@@ -47,13 +47,13 @@ use zesk\Database_Column;
  */
 class Database extends \zesk\Database {
     private $call_prefix = null;
-    
+
     /**
      *
      * @var SQLite3
      */
     protected $conn = null;
-    
+
     /**
      * Support database features
      *
@@ -78,7 +78,7 @@ class Database extends \zesk\Database {
     public function default_index_structure($table_type) {
         return "";
     }
-    
+
     /**
      * Output a file which is a database dump of the database
      *
@@ -91,7 +91,7 @@ class Database extends \zesk\Database {
     public function dump($filename, array $options = array()) {
         throw new Exception_Unimplemented(__CLASS__ . "::" . __METHOD__);
     }
-    
+
     /**
      * Given a database file, restore the database
      *
@@ -104,7 +104,7 @@ class Database extends \zesk\Database {
     public function restore($filename, array $options = array()) {
         throw new Exception_Unimplemented(__CLASS__ . "::" . __METHOD__);
     }
-    
+
     /**
      * Connect to the database
      *
@@ -147,7 +147,7 @@ class Database extends \zesk\Database {
     public function select_database($name = null) {
         return true;
     }
-    
+
     /**
      * Return connection object
      *
@@ -170,7 +170,7 @@ class Database extends \zesk\Database {
     final public function fetch_array($result) {
         return $result->fetchArray(SQLITE3_NUM);
     }
-    
+
     /**
      *
      * @param $result SQLite3Result
@@ -220,7 +220,7 @@ class Database extends \zesk\Database {
         $shell_command = false;
         return false;
     }
-    
+
     /*
      * Database capabilities
      */
@@ -233,7 +233,7 @@ class Database extends \zesk\Database {
         }
         return false;
     }
-    
+
     /**
      * Create a database at URL
      *
@@ -249,7 +249,7 @@ class Database extends \zesk\Database {
         }
         return true;
     }
-    
+
     /**
      * List tables
      *
@@ -274,7 +274,7 @@ class Database extends \zesk\Database {
 
     public function sql_create_table(Database_Table $dbTableObject) {
         $columns = $dbTableObject->columns();
-        
+
         $types = array();
         foreach ($columns as $dbCol) {
             if (!$dbCol->has_sql_type() && !$this->type_set_sql_type($dbCol)) {
@@ -309,7 +309,7 @@ class Database extends \zesk\Database {
         $types = implode(",\n\t", $types);
         $result = array();
         $result[] = "CREATE TABLE " . $dbTableObject->name() . " (\n\t$types\n)";
-        
+
         return array_merge($result, $alters);
     }
 
@@ -333,7 +333,7 @@ class Database extends \zesk\Database {
         }
         return $default_value;
     }
-    
+
     /**
      *
      * @see zesk\Database::database_table()
@@ -421,7 +421,7 @@ class Database extends \zesk\Database {
         }
         return $this->query($sql);
     }
-    
+
     /*
      * Date functions
      */
@@ -609,7 +609,7 @@ class Database extends \zesk\Database {
                 throw new Exception_Semantics(__METHOD__ . "($number, $TIMEUNIT): Unknown time unit.");
         }
     }
-    
+
     /*
      * Platform SQL Tools
      */
@@ -843,14 +843,14 @@ class Database extends \zesk\Database {
         $word = strtoupper($word);
         return in_array($word, $reserved);
     }
-    
+
     /*
      * String Comparison
      */
     public function sql_function_compare_binary($column_name, $cmp, $string) {
         return "$column_name $cmp BINARY " . $this->sql_format_string($string);
     }
-    
+
     /*
      * String Manipulation
      */
@@ -935,7 +935,7 @@ class Database extends \zesk\Database {
         $s1 = false;
         $t0 = self::parseType($sql_type0, $s0);
         $t1 = self::parseType($sql_type1, $s1);
-        
+
         $bt0 = self::_basicType($t0);
         $bt1 = self::_basicType($t1);
         // echo "$sql_type0 -> $t0, $s0, $bt0\n"; echo "$sql_type1 -> $t1, $s1, $bt1\n"; echo "===\n";
@@ -951,7 +951,7 @@ class Database extends \zesk\Database {
         }
         return self::_types_compatible($t0, $t1);
     }
-    
+
     /*
      * Boolean Type
      */
@@ -962,14 +962,14 @@ class Database extends \zesk\Database {
     public function sql_format_boolean($sql) {
         return $sql == 'true' ? true : false;
     }
-    
+
     /*
      * Password Type
      */
     public function sql_format_password($value) {
         return "MD5(" . $this->sql_format_string($value) . ")";
     }
-    
+
     /*
      * Functions
      */
@@ -1084,7 +1084,7 @@ class Database extends \zesk\Database {
         fclose($f);
         return false;
     }
-    
+
     /**
      * SQLite3 Release lock
      *
@@ -1108,7 +1108,7 @@ class Database extends \zesk\Database {
     public function bytes_used($table = null) {
         return 0;
     }
-    
+
     /**
      * Begin a transaction in the database
      *
@@ -1118,7 +1118,7 @@ class Database extends \zesk\Database {
         // TODO: Ensure database is in auto-commit mode
         return $this->query("BEGIN TRANSACTION");
     }
-    
+
     /**
      * Finish transaction in the database
      *
@@ -1130,7 +1130,7 @@ class Database extends \zesk\Database {
         $sql = $success ? "COMMIT TRANSACTION" : "ROLLBACK TRANSACTION";
         return $this->query($sql);
     }
-    
+
     /**
      *
      * {@inheritdoc}
@@ -1140,7 +1140,7 @@ class Database extends \zesk\Database {
     public function column_differences(Database_Column $a, Database_Column $b, array $differences) {
         return $differences;
     }
-    
+
     /**
      * Returns an array of TABLE_INFO constants, or null if not found
      *

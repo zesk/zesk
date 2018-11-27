@@ -30,7 +30,7 @@ class Health_Event extends ORM {
      * @var string
      */
     const updated_file = ".updated";
-    
+
     /**
      *
      * {@inheritDoc}
@@ -42,7 +42,7 @@ class Health_Event extends ORM {
         }
         return parent::store();
     }
-    
+
     /**
      *
      * @param array $event
@@ -60,7 +60,7 @@ class Health_Event extends ORM {
             $event['server'] = null;
         }
         $event['application'] = get_class($application);
-        
+
         /* @var $class Class_Health_Event */
         $class = $application->class_orm_registry(__CLASS__);
         $data = array();
@@ -71,7 +71,7 @@ class Health_Event extends ORM {
             }
         }
         $event['data'] = $data;
-        
+
         $hash = md5($application->process->id() . "-" . mt_rand() . "-" . $microtime);
         $msec = Text::ralign("$msec", 3, "0");
         $filename = strtr("$when.$msec-$hash.event", array(
@@ -80,7 +80,7 @@ class Health_Event extends ORM {
         file_put_contents(path($path, $filename), serialize($event));
         file_put_contents(path($path, self::updated_file), strval($microtime));
     }
-    
+
     /**
      *
      * @param string $path Directory for all deferred events
@@ -93,7 +93,7 @@ class Health_Event extends ORM {
         rename($file, path($defer_event_path, basename($file)));
         Directory::cull_contents($defer_event_path, $application->configuration->path_get(__CLASS__ . '::defer_max_files', 100));
     }
-    
+
     /**
      *
      * @param string $path
@@ -148,7 +148,7 @@ class Health_Event extends ORM {
         }
         return true;
     }
-    
+
     /**
      * Generate Health_Events link
      *
@@ -159,7 +159,7 @@ class Health_Event extends ORM {
         $this->events = $events->register_from_event($this);
         return $this;
     }
-    
+
     /**
      * Delete all but n of a particular Health_Event (based on Health_Events pointer)
      *

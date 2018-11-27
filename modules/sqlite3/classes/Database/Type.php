@@ -51,7 +51,7 @@ class Database_Type extends \zesk\Database_Data_Type {
             "timestamp",
         ),
     );
-    
+
     /**
      * For parsing simple database types.
      * Extracts:
@@ -62,7 +62,7 @@ class Database_Type extends \zesk\Database_Data_Type {
      * @var string
      */
     protected $pattern_native_type = '/([a-z]+)\(([^)]*)\)( unsigned)?/';
-    
+
     /*
      * Type Manipulation Class_ORM::type_foo conversion to SQL Type
      */
@@ -103,7 +103,7 @@ class Database_Type extends \zesk\Database_Data_Type {
                 return parent::type_set_sql_type($type);
         }
     }
-    
+
     /**
      * (non-PHPdoc)
      *
@@ -114,7 +114,7 @@ class Database_Type extends \zesk\Database_Data_Type {
         $t = $this->parse_sql_type($sql_type, $s0);
         return $this->native_type_to_sql_type($t);
     }
-    
+
     /**
      * (non-PHPdoc)
      *

@@ -109,7 +109,7 @@ class Control_URL extends Control_Text {
             $this->value($urls);
             return true;
         }
-        
+
         $new_value = $this->_url_check($value);
         if (!$new_value) {
             if ($this->required()) {

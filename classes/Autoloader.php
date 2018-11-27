@@ -27,7 +27,7 @@ class Autoloader {
      * @var boolean
      */
     const autoload_option_lower_default = true;
-    
+
     /**
      *
      * @var boolean
@@ -39,14 +39,14 @@ class Autoloader {
      * @var boolean
      */
     public $debug = false;
-    
+
     /**
      * Set to true to NOT throw an Exception_Class_NotFound from autoloader
      *
      * @var boolean
      */
     public $no_exception = false;
-    
+
     /**
      *
      * @var array
@@ -55,7 +55,7 @@ class Autoloader {
         "php",
         "inc",
     );
-    
+
     /**
      *
      * @var Kernel
@@ -77,7 +77,7 @@ class Autoloader {
         ));
         $this->autoload_register();
     }
-    
+
     /**
      * Should be called once and only once.
      * Registers zesk's autoloader.
@@ -88,7 +88,7 @@ class Autoloader {
             "php_autoloader",
         ), false, false);
     }
-    
+
     /**
      * Retrieve the autoload cache structure, optionally creating the autoload cache directory if
      * needed.
@@ -119,7 +119,7 @@ class Autoloader {
         }
         return false;
     }
-    
+
     /**
      * Zesk's autoloader.
      * When a PHP class is encountered which can't be found, this function tries to find it and
@@ -181,7 +181,7 @@ class Autoloader {
         }
         return $include;
     }
-    
+
     /**
      * Search for a file in the given paths, converting filename to a directory path by converting _
      * to /, and look for
@@ -238,7 +238,7 @@ class Autoloader {
         }
         return $result;
     }
-    
+
     /**
      * Search for a file in the autoload path (::path), looking for files with
      * "extesion"
@@ -302,7 +302,7 @@ class Autoloader {
      * @var array[]
      */
     private $cached = null;
-    
+
     /**
      * Retrieve the list of autoload paths, or add one.
      *

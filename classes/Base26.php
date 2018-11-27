@@ -39,7 +39,7 @@ class Base26 {
         }
         return $s;
     }
-    
+
     /**
      * Convert an a base-26 alphabetic string to an integer (or double).
      *

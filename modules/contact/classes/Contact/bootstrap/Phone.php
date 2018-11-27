@@ -19,7 +19,7 @@ class Contact_Phone_Bootstrap {
      * @var string
      */
     private $bootAreaCode = false;
-    
+
     /**
      *
      * @param string $drop
@@ -37,7 +37,7 @@ class Contact_Phone_Bootstrap {
         if ($drop) {
             $x->database()->query_select('TRUNCATE ' . $x->table());
         }
-        
+
         $csv = new CSV_Reader();
         // TODO Fix this path
         $csv->filename(ZESK_CONTACT_ROOT . "classes/data/AreaCodeCities.txt");
@@ -78,12 +78,12 @@ class Contact_Phone_Bootstrap {
             $fields['Description'] = $desc;
             $fields['Province'] = $stateProvince;
             $fields['Country'] = $country;
-            
+
             $x = new Contact_Phone_AreaCode($fields);
             $x->register();
             ++$nRows;
         }
-        
+
         $csv = new CSV_Reader(ZESK_ROOT . "ext/contact/bootstrap-data/USAreaCodes.csv");
         $i = new CSV_Reader_Iterator($csv);
         foreach ($i as $a) {
@@ -92,7 +92,7 @@ class Contact_Phone_Bootstrap {
                 continue;
             }
             $region = $a['location'];
-            
+
             $fields['Code'] = $areaCode;
             $stateProvince = null;
             if (strlen($region) == 2) {
@@ -107,7 +107,7 @@ class Contact_Phone_Bootstrap {
             }
             $fields['Province'] = $stateProvince;
             $fields['Description'] = $region;
-            
+
             $x = new Contact_Phone_AreaCode($fields);
             $x->register();
         }
@@ -116,12 +116,12 @@ class Contact_Phone_Bootstrap {
 
     public static function bootstrap_country_codes($drop) {
         self::bootstrap_area_codes();
-        
+
         $x = new Contact_Phone_CountryCode();
         if ($drop) {
             $x->database()->query('TRUNCATE ' . $x->table());
         }
-        
+
         $csv = new CSV_Reader(__DIR__ . "/../bootstrap-data/PhoneCountryCode.csv");
         $i = new CSV_Reader_Iterator($csv);
         $nRows = 0;
@@ -130,7 +130,7 @@ class Contact_Phone_Bootstrap {
             $code = $a['countrycode'];
             $areaCode = $a['areacode'];
             $isNANP = to_bool($a['nanp'], false);
-            
+
             $country = new Country(array(
                 'CodeName' => $name,
             ));

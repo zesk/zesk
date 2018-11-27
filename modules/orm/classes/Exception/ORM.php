@@ -14,7 +14,7 @@ abstract class Exception_ORM extends Exception {
      * @var string
      */
     protected $class = null;
-    
+
     /**
      * Create a new error
      * @param string $class Class of this error

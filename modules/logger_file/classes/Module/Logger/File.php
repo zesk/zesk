@@ -25,7 +25,7 @@ class Module_Logger_File extends Module {
         LogLevel::INFO,
         LogLevel::DEBUG,
     );
-    
+
     /**
      *
      * {@inheritDoc}
@@ -40,7 +40,7 @@ class Module_Logger_File extends Module {
             "configured",
         ), "first");
     }
-    
+
     /**
      *
      * {@inheritDoc}
@@ -77,7 +77,7 @@ class Module_Logger_File extends Module {
             ));
         }
     }
-    
+
     /**
      *
      * @param string $filename

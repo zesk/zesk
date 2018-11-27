@@ -24,7 +24,7 @@ class Module_Log_Mail extends Module {
             "hook_mail_send",
         ));
     }
-    
+
     /**
      *
      * @param Application $application
@@ -53,7 +53,7 @@ class Module_Log_Mail extends Module {
             }
         }
     }
-    
+
     /**
      * Log upon mail send
      *
@@ -108,7 +108,7 @@ class Module_Log_Mail extends Module {
         }
         return true;
     }
-    
+
     /**
      *
      * {@inheritDoc}

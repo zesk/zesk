@@ -22,7 +22,7 @@ class Locale_Default extends Locale {
     public function date_format() {
         return "{YYYY}-{MM}-{DD}";
     }
-    
+
     /**
      *
      * {@inheritDoc}
@@ -31,7 +31,7 @@ class Locale_Default extends Locale {
     public function datetime_format() {
         return "{YYYY}-{MM}-{DD} {hh}:{mm}:{ss} {Z}";
     }
-    
+
     /**
      *
      * {@inheritDoc}
@@ -40,7 +40,7 @@ class Locale_Default extends Locale {
     public function time_format($include_seconds = false) {
         return $include_seconds ? "{h}:{mm}:{ss}" : "{h}:{mm}";
     }
-    
+
     /**
      *
      * {@inheritDoc}
@@ -65,7 +65,7 @@ class Locale_Default extends Locale {
         }
         return $word;
     }
-    
+
     /**
      *
      * {@inheritDoc}
@@ -78,7 +78,7 @@ class Locale_Default extends Locale {
         $word = JSON::encode($word);
         return $word;
     }
-    
+
     /**
      *
      * {@inheritDoc}
@@ -87,7 +87,7 @@ class Locale_Default extends Locale {
     public function ordinal($n) {
         return $n;
     }
-    
+
     /**
      * @todo Probably should remove this 2018-01
      *

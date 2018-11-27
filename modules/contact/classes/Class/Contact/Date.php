@@ -13,7 +13,7 @@ class Class_Contact_Date extends Class_Contact_Info {
      * @var string
      */
     public $id_column = "id";
-    
+
     /**
      *
      * @var array

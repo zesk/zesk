@@ -7,7 +7,7 @@ abstract class Database_Data_Type {
      * @var Database
      */
     public $database = null;
-    
+
     /**
      * ORM references?
      *
@@ -62,7 +62,7 @@ abstract class Database_Data_Type {
      * @var unknown
      */
     const sql_type_text = "text";
-    
+
     /**
      * Construct Database_Data_Type
      * @param Database $database
@@ -114,7 +114,7 @@ abstract class Database_Data_Type {
     );
 
     protected $pattern_native_type = '/([a-z]+)\(([^)]*)\)/';
-    
+
     /**
      *
      * @param string $type
@@ -131,7 +131,7 @@ abstract class Database_Data_Type {
             self::sql_type_text,
         ));
     }
-    
+
     /**
      * Override this method to convert the default value to the database canonical default.
      *
@@ -142,7 +142,7 @@ abstract class Database_Data_Type {
      * @return mixed Canonical default for this type
      */
     abstract public function sql_type_default($type, $default_value = null);
-    
+
     /**
      * Given a native type, convert default value to the correct type
      *
@@ -169,7 +169,7 @@ abstract class Database_Data_Type {
         }
         return avalue($this->sql_type_native_aliases, $sql_type, $sql_type);
     }
-    
+
     /**
      * Return the standard SQL type for a native type in our database
      *
@@ -186,7 +186,7 @@ abstract class Database_Data_Type {
         }
         return $default;
     }
-    
+
     /**
      * Determines if two database-specific data types are compatible and can be altered from one to
      * the other
@@ -201,7 +201,7 @@ abstract class Database_Data_Type {
         $s1 = false;
         $t0 = $this->parse_sql_type($sql_type0, $s0);
         $t1 = $this->parse_sql_type($sql_type1, $s1);
-        
+
         $bt0 = $this->native_type_to_sql_type($t0);
         $bt1 = $this->native_type_to_sql_type($t1);
         if ($bt0 !== $bt1) {
@@ -216,7 +216,7 @@ abstract class Database_Data_Type {
         }
         return $this->basic_types_compatible($bt0, $bt1);
     }
-    
+
     /**
      * Can I convert a basic SQL type into another in this database?
      *
@@ -227,7 +227,7 @@ abstract class Database_Data_Type {
     protected function basic_types_compatible($a, $b) {
         return ($a === $b);
     }
-    
+
     /**
      * Do we need to do an ALTER TABLE to make these column types look identical
      *
@@ -265,7 +265,7 @@ abstract class Database_Data_Type {
                 return $t0 === $t1 && $s0 === $s1;
         }
     }
-    
+
     /*
      * Type Manipulation
      */

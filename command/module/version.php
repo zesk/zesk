@@ -21,7 +21,7 @@ class Command_Module_Version extends Command_Base {
         if (count($modules) === 0) {
             $modules = array_keys($app->modules->load());
         }
-        
+
         foreach ($modules as $module) {
             $this->verbose_log("Checking module {module}", compact("module"));
             $version = $app->modules->version($module);

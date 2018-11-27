@@ -17,7 +17,7 @@ class Test extends \zesk\Test {
             $this->load_modules[] = "ORM";
         }
     }
-    
+
     /**
      * Synchronize the given classes with the database schema
      *

@@ -16,13 +16,13 @@ class Template_Test extends Test_Unit {
 
     public function test_begin() {
         $this->application->theme_path($this->test_sandbox());
-        
+
         file_put_contents($this->test_sandbox("good.tpl"), "<?php echo 3.14159;");
         $path = null;
         $options = false;
         $template = new Template($this->application);
         $template->begin("good.tpl");
-        
+
         $result = $template->end(array(
             "bad" => 1,
         ));
@@ -42,7 +42,7 @@ class Template_Test extends Test_Unit {
 
     public function test_output() {
         $this->application->theme_path($this->test_sandbox());
-        
+
         $files = array();
         for ($i = 0; $i < 5; $i++) {
             $files[$i] = $f = $this->test_sandbox($i . ".tpl");
@@ -62,21 +62,21 @@ echo "h (" . \$this->h. ")\\n";
 \$this->h = "hello$i";
 echo "} END zesk\Template $i";
 END;
-            
+
             $map = array(
                 'pushpop' => ($i !== 4) ? $pushpop : "echo \"LEAF\\n\";\n",
             );
-            
+
             file_put_contents($f, map($content, $map));
         }
-        
+
         $path = null;
         $options = array(
             "application" => $this->application,
         );
         $x = new Template($this->application, "0.tpl", $options);
         $result = $x->render();
-        
+
         $expect = <<<EOF
 BEGIN zesk\Template 0 {
 v (hello0,,,,)
@@ -130,7 +130,7 @@ h (hello1)
 EOF;
         echo $result;
         $this->assert_equal(trim($result), trim($expect));
-        
+
         echo basename(__FILE__) . ": success\n";
     }
 }

@@ -13,13 +13,13 @@ class World_Bootstrap_Language extends Hookable {
      * @var array
      */
     private $include_country = null;
-    
+
     /**
      *
      * @var array
      */
     private $include_language = null;
-    
+
     /**
      *
      * @param Application $application
@@ -29,7 +29,7 @@ class World_Bootstrap_Language extends Hookable {
     public static function factory(Application $application, array $options = array()) {
         return $application->factory(__CLASS__, $application, $options);
     }
-    
+
     /**
      * @global Module_World::include_language List of language codes to include
      *

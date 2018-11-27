@@ -18,14 +18,14 @@ class Database_Column extends Options {
      * @var Database_Table
      */
     protected $table;
-    
+
     /**
      * Column name
      *
      * @var string
      */
     protected $name = null;
-    
+
     /**
      *
      * @param Database_Table $table
@@ -40,7 +40,7 @@ class Database_Column extends Options {
             $this->sql_type($this->option("sql_type"));
         }
     }
-    
+
     /**
      * @return Database_Table
      */
@@ -74,7 +74,7 @@ class Database_Column extends Options {
         $this->set_option('previous_name', $name);
         return $this;
     }
-    
+
     /**
      * Get/set column name
      * @param string $set
@@ -87,7 +87,7 @@ class Database_Column extends Options {
         }
         return $this->name;
     }
-    
+
     /**
      * Detect differences between database columns
      *
@@ -147,7 +147,7 @@ class Database_Column extends Options {
         }
         return $diffs;
     }
-    
+
     /**
      *
      * @param Database $db

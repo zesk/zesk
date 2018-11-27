@@ -46,30 +46,30 @@ class Command_Cannon extends Command_Base {
     protected $options = array(
         'max_file_size' => 8388608,
     );
-    
+
     /**
      * Set to true in subclasses to skip Application configuration until ->go
      *
      * @var boolean
      */
     public $has_configuration = true;
-    
+
     /**
      * @var array
      */
     private $skip_when_matches = null;
-    
+
     /**
      *
      */
     private $also_match = null;
-    
+
     /**
      *
      */
     public function run() {
         $this->configure('cannon');
-        
+
         $dir = $this->first_option("dir;directory");
         if ($dir && !is_dir($dir)) {
             $this->usage("$dir is not a directory");
@@ -78,7 +78,7 @@ class Command_Cannon extends Command_Base {
         $backup = $this->option_bool('backup');
         $duplicate = $this->option_bool('duplicate');
         $show = $this->option_bool('show');
-        
+
         $this->verbose_log("Verbose enabled.");
         if ($this->option_bool('dry-run')) {
             $this->verbose_log("Dry run - nothing will change.");
@@ -119,7 +119,7 @@ class Command_Cannon extends Command_Base {
             $this->verbose_log("Replacement files MUST contain one of: \n\t\"" . implode("\"\n\t\"", $this->also_match) . "\"\n\n");
             $stats['skipped'] = 0;
         }
-        
+
         if ($this->has_arg()) {
             $search = $this->get_arg("search");
         } else {
@@ -165,7 +165,7 @@ class Command_Cannon extends Command_Base {
         }
         $this->log(Text::format_pairs($stats));
     }
-    
+
     /**
      * List files
      */
@@ -184,7 +184,7 @@ class Command_Cannon extends Command_Base {
             false,
         );
         $options['add_path'] = true;
-        
+
         return Directory::list_recursive($dir, $options);
     }
 
@@ -208,11 +208,11 @@ class Command_Cannon extends Command_Base {
         if (is_array($this->skip_when_matches) && StringTools::contains($contents, $this->skip_when_matches)) {
             return -1;
         }
-        
+
         if (is_array($this->also_match) && !StringTools::contains($contents, $this->also_match)) {
             return -1;
         }
-        
+
         $rabbit = "\x01";
         $search_tr = array(
             $search => $rabbit,
@@ -220,7 +220,7 @@ class Command_Cannon extends Command_Base {
         $replace_tr = array(
             $rabbit => $replace,
         );
-        
+
         $lines = explode("\n", strtr($contents, $search_tr));
         foreach ($lines as $lineno => $line) {
             if (strpos($line, $rabbit) === false) {

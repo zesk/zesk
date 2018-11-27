@@ -26,7 +26,7 @@ class Control_Optionss extends Control {
      * @var boolean
      */
     protected $force_value = false;
-    
+
     /**
      * Needs to default to null so will be initialized in _init_control_options - unless an alternate
      * method is used to
@@ -35,7 +35,7 @@ class Control_Optionss extends Control {
      * @var array
      */
     protected $control_options = null;
-    
+
     /**
      * If null, then no novalue.
      * If string, then there's a noname/novalue pair.
@@ -43,7 +43,7 @@ class Control_Optionss extends Control {
      * @var string
      */
     protected $novalue = null;
-    
+
     /**
      * Allow use of __construct and ->control_options function which matches this class name - old
      * style constructor
@@ -129,7 +129,7 @@ class Control_Optionss extends Control {
         }
         return false;
     }
-    
+
     /**
      *
      * @param unknown $key
@@ -175,7 +175,7 @@ class Control_Optionss extends Control {
             'control_options' => $this->ellipsis_options($this->control_options),
         ) + parent::theme_variables();
     }
-    
+
     /**
      * @todo This can cause constructor errors
      *

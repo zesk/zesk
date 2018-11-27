@@ -8,7 +8,7 @@ abstract class Configuration_Editor extends Options {
         parent::__construct($options);
         $this->content = $content;
     }
-    
+
     /**
      * Getter/setter for content
      *

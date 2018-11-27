@@ -30,9 +30,9 @@ class Net_HTTP_Server_Request {
         if (!preg_match("'([^ ]+) ([^ ]+) (HTTP/[^ ]+)'", $raw_request_line, $regs)) {
             throw new Net_HTTP_Server_Exception(Net_HTTP::STATUS_BAD_REQUEST, null, $raw_request_line);
         }
-        
+
         list($this->method, $this->raw_uri, $this->protocol) = $regs;
-        
+
         $cur_line = null;
         while (count($lines) > 0) {
             $line = array_shift($lines);
@@ -49,7 +49,7 @@ class Net_HTTP_Server_Request {
         }
         $this->add_header($cur_line);
         $this->content = implode("\r\n", $lines);
-        
+
         list($this->uri, $this->query_string) = pair($this->raw_uri, "?", $this->raw_uri, "");
     }
 
@@ -77,12 +77,12 @@ class Net_HTTP_Server_Request {
         if ($host) {
             list($_SERVER['HTTP_HOST'], $_SERVER['SERVER_PORT']) = pair($host, ':', $host, 80);
         }
-        
+
         $_SERVER['QUERY_STRING'] = $this->query_string;
         $_SERVER['SERVER_PROTOCOL'] = $this->protocol;
         $_SERVER['REQUEST_METHOD'] = $this->method;
         $_SERVER['REQUEST_URI'] = $this->uri;
-        
+
         $_GET = array();
         parse_str($this->query_string, $_GET);
         if (count($_GET) == 0) {

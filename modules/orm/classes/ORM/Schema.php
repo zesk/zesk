@@ -10,7 +10,7 @@ namespace zesk;
 
 abstract class ORM_Schema extends Hookable {
     const type_id = Class_ORM::type_id;
-    
+
     /**
      * Plain old text data in the database
      *
@@ -24,14 +24,14 @@ abstract class ORM_Schema extends Hookable {
      * @var string
      */
     const type_string = Class_ORM::type_string;
-    
+
     /**
      *
      * Binary data in the database
      * @var string
      */
     const type_binary = Class_ORM::type_binary;
-    
+
     /**
      * This column serves as text data for polymorphic objects
      *
@@ -41,28 +41,28 @@ abstract class ORM_Schema extends Hookable {
      * @var string
      */
     const type_polymorph = Class_ORM::type_polymorph;
-    
+
     /**
      * Refers to a system object (usually by ID)
      *
      * @var string
      */
     const type_object = Class_ORM::type_object;
-    
+
     /**
      * Upon initial save, set to current date
      *
      * @var string
      */
     const type_created = Class_ORM::type_created;
-    
+
     /**
      * Upon all saves, updates to current date
      *
      * @var string
      */
     const type_modified = Class_ORM::type_modified;
-    
+
     /**
      * String information called using serialize/unserialize
      *
@@ -95,7 +95,7 @@ abstract class ORM_Schema extends Hookable {
     const type_hex32 = Class_ORM::type_hex32;
 
     const type_hex = Class_ORM::type_hex;
-    
+
     /**
      * Debugging information.
      * Lots to find problems with implementation or your SQL code.
@@ -103,27 +103,27 @@ abstract class ORM_Schema extends Hookable {
      * @var boolean
      */
     public static $debug = false;
-    
+
     /**
      * Class object associated with this schema
      *
      * @var Class_ORM
      */
     protected $class_object = null;
-    
+
     /**
      * ORM associated with this schema
      *
      * @var ORM
      */
     protected $object = null;
-    
+
     /**
      *
      * @var Database
      */
     protected $db = null;
-    
+
     /**
      * Create a new database schema
      *
@@ -135,7 +135,7 @@ abstract class ORM_Schema extends Hookable {
         $this->class_object = $class_object;
         $this->object = $object;
     }
-    
+
     /**
      *
      * @param zesk\Kernel $application
@@ -144,7 +144,7 @@ abstract class ORM_Schema extends Hookable {
         $application->hooks->add("configured", __CLASS__ . "::configured");
         $application->configuration->path(__CLASS__);
     }
-    
+
     /**
      *
      * @param zesk\Application $application
@@ -171,7 +171,7 @@ abstract class ORM_Schema extends Hookable {
         }
         return $this->db = $this->class_object->database();
     }
-    
+
     /**
      * Default schema map - include variables in your schema definitions from configuration
      * settings.
@@ -183,7 +183,7 @@ abstract class ORM_Schema extends Hookable {
         $map += $this->class_object->schema_map();
         return $map;
     }
-    
+
     /**
      * Map using the schema map
      *
@@ -196,7 +196,7 @@ abstract class ORM_Schema extends Hookable {
         }
         return map($mixed, $this->schema_map());
     }
-    
+
     /**
      *
      * @return string
@@ -204,14 +204,14 @@ abstract class ORM_Schema extends Hookable {
     final public function primary_table() {
         return $this->class_object->table();
     }
-    
+
     /**
      * Generate the array-syntax schema
      *
      * @return array
      */
     abstract public function schema();
-    
+
     /**
      * Validate structure of array-syntax for index columns
      *
@@ -233,7 +233,7 @@ abstract class ORM_Schema extends Hookable {
         }
         return true;
     }
-    
+
     /**
      * Convert an array-based table schema to a Database_Table object
      *
@@ -246,7 +246,7 @@ abstract class ORM_Schema extends Hookable {
      */
     public static function schema_to_database_table(Database $db, $table_name, array $table_schema, $context = null) {
         $logger = $db->application->logger;
-        
+
         $table = new Database_Table($db, $table_name, avalue($table_schema, 'engine'));
         $table->source(avalue($table_schema, 'source'));
         if (!array_key_exists('columns', $table_schema)) {
@@ -314,7 +314,7 @@ abstract class ORM_Schema extends Hookable {
         }
         return $table;
     }
-    
+
     /**
      * Return an array of tables associated with this schema
      *
@@ -342,7 +342,7 @@ abstract class ORM_Schema extends Hookable {
 
                     throw $e;
                 }
-                
+
                 if (array_key_exists('on create', $table_schema)) {
                     $table->set_option_path('on.create', $table_schema['on create']);
                 }
@@ -350,7 +350,7 @@ abstract class ORM_Schema extends Hookable {
         }
         return $tables;
     }
-    
+
     /**
      * Conver the whole 'ting into a string.
      *
@@ -359,7 +359,7 @@ abstract class ORM_Schema extends Hookable {
      */
     public function __toString() {
         $tables = $this->tables();
-        
+
         $result = array();
         foreach ($tables as $table) {
             /* @var $table Database_Table */
@@ -386,7 +386,7 @@ abstract class ORM_Schema extends Hookable {
         }
         return self::$debug;
     }
-    
+
     /**
      * Return an array of SQL to update an object's schema to its database
      *
@@ -396,7 +396,7 @@ abstract class ORM_Schema extends Hookable {
      */
     public static function update_object(ORM $object) {
         $logger = $object->application->logger;
-        
+
         /* @var $db Database */
         $db = $object->database();
         if (!$db) {
@@ -413,7 +413,7 @@ abstract class ORM_Schema extends Hookable {
         }
         return $schema->_update_object();
     }
-    
+
     /**
      * Internal function helper for update_object
      *
@@ -443,7 +443,7 @@ abstract class ORM_Schema extends Hookable {
         }
         return $sql_results;
     }
-    
+
     /**
      * Given a database table definition, synchronize it with given definition
      *
@@ -456,7 +456,7 @@ abstract class ORM_Schema extends Hookable {
         $table = $db->parse_create_table($create_sql, __METHOD__);
         return self::synchronize($db, $table, $change_permanently);
     }
-    
+
     /**
      *
      * @param Database $db
@@ -482,7 +482,7 @@ abstract class ORM_Schema extends Hookable {
         $old_table = $db->database_table($name);
         return self::update($db, $old_table, $table, $change_permanently);
     }
-    
+
     /**
      * The money
      *
@@ -495,9 +495,9 @@ abstract class ORM_Schema extends Hookable {
      */
     public static function update(Database $db, Database_Table $db_table_old, Database_Table $db_table_new, $change_permanently = false) {
         $logger = $db->application->logger;
-        
+
         $generator = $db->sql();
-        
+
         if (self::$debug) {
             $logger->debug("ORM_Schema::debug is enabled");
         }
@@ -512,7 +512,7 @@ abstract class ORM_Schema extends Hookable {
             }
             return array();
         }
-        
+
         if (self::$debug) {
             $logger->debug("ORM_Schema::update: \"{table}\" tables differ:\nDatabase: \n{dbOld}\nCode:\n{dbNew}", array(
                 'table' => $table,
@@ -520,23 +520,23 @@ abstract class ORM_Schema extends Hookable {
                 'dbNew' => Text::indent($db_table_new->source()),
             ));
         }
-        
+
         $drops = array();
         $changes = $db_table_new->sql_alter($db_table_old);
         $adds = array();
         $indexes_old = array();
         $indexes_new = array();
-        
+
         $columnsOld = $db_table_old->columns();
         $columnsNew = $db_table_new->columns();
-        
+
         /* @var $dbColOld Database_Column */
         /* @var $dbColNew Database_Column */
-        
+
         $columns = array_unique(array_merge(array_keys($columnsNew), array_keys($columnsOld)));
         $ignoreColumns = array();
         $ignoreIndexes = array();
-        
+
         /*
          * First do changed names, then everything else
          */
@@ -567,7 +567,7 @@ abstract class ORM_Schema extends Hookable {
                 }
             }
         }
-        
+
         $last_column = false;
         foreach ($columns as $column) {
             if (isset($ignoreColumns[$column])) {
@@ -611,10 +611,10 @@ abstract class ORM_Schema extends Hookable {
             }
             $last_column = $column;
         }
-        
+
         $indexes_old = $db_table_old->indexes();
         $indexes_new = $db_table_new->indexes();
-        
+
         /* @var $indexOld Database_Index */
         /* @var $indexNew Database_Index */
         foreach ($indexes_old as $index_name => $index_old) {
@@ -643,7 +643,7 @@ abstract class ORM_Schema extends Hookable {
                 $adds["index_" . $index_name] = $index_new->sql_index_add();
             }
         }
-        
+
         /*
          * Now, do it!
          * Change tables we need. If any step fails, then do a drop/add below (this is added above, redundantly)
@@ -672,7 +672,7 @@ abstract class ORM_Schema extends Hookable {
                 unset($drops[$column]);
             }
         }
-        
+
         /*
          * Drop, then add to handle column names which may be identical, but types are different
          * Data loss will occur here!

@@ -27,7 +27,7 @@ class Adapter_TestFramework extends PHPUnit_TestCase implements Interface_Testab
     final public function assert_false($condition, $message = null) {
         return $this->assertFalse($condition, $message);
     }
-    
+
     /**
      * Assert a value is true
      *
@@ -37,7 +37,7 @@ class Adapter_TestFramework extends PHPUnit_TestCase implements Interface_Testab
     final public function assert_true($condition, $message = null) {
         $this->assertTrue($condition, $message);
     }
-    
+
     /**
      * Assert a value is a string
      *
@@ -47,7 +47,7 @@ class Adapter_TestFramework extends PHPUnit_TestCase implements Interface_Testab
     final public function assert_is_string($mixed, $message = null) {
         $this->assertTrue(is_string($mixed), "!is_string(" . type($mixed) . " $mixed) $message");
     }
-    
+
     /**
      * Assert a value is numeric
      *
@@ -57,7 +57,7 @@ class Adapter_TestFramework extends PHPUnit_TestCase implements Interface_Testab
     final public function assert_is_numeric($mixed, $message = null) {
         $this->assertTrue(is_numeric($mixed), "!is_numeric(" . type($mixed) . " $mixed) $message");
     }
-    
+
     /**
      * Assert a value is an integer
      *
@@ -67,7 +67,7 @@ class Adapter_TestFramework extends PHPUnit_TestCase implements Interface_Testab
     final public function assert_is_integer($mixed, $message = null) {
         $this->assertTrue(is_integer($mixed), "!is_integer(" . type($mixed) . " $mixed) $message");
     }
-    
+
     /**
      * Assert a value is an array
      *
@@ -77,7 +77,7 @@ class Adapter_TestFramework extends PHPUnit_TestCase implements Interface_Testab
     final public function assert_is_array($mixed, $message = null) {
         $this->assertTrue(is_array($mixed), "!is_array(" . type($mixed) . ") $message");
     }
-    
+
     /**
      * Assert a value is an instanceof a class
      *
@@ -109,7 +109,7 @@ class Adapter_TestFramework extends PHPUnit_TestCase implements Interface_Testab
         $interfaces = class_implements($mixed);
         $this->assert(in_array($instanceof, $interfaces), "!" . type($mixed) . " implements $instanceof (does implement " . implode(", ", $interfaces) . ") $message", false);
     }
-    
+
     /**
      * Assert a value is a positive number
      *
@@ -119,7 +119,7 @@ class Adapter_TestFramework extends PHPUnit_TestCase implements Interface_Testab
     final public function assert_positive($value, $message = null) {
         $this->assertTrue($value > 0, "$value > 0 : $message", false);
     }
-    
+
     /**
      * Assert a value is not NULL
      *
@@ -129,7 +129,7 @@ class Adapter_TestFramework extends PHPUnit_TestCase implements Interface_Testab
     final public function assert_not_null($value, $message = null) {
         $this->assertTrue($value !== null, "Asserted not NULL failed: $message", false);
     }
-    
+
     /**
      * Assert a value is a negative number
      *
@@ -139,7 +139,7 @@ class Adapter_TestFramework extends PHPUnit_TestCase implements Interface_Testab
     final public function assert_negative($value, $message = null) {
         $this->assertTrue($value < 0, "$value < 0 : $message", false);
     }
-    
+
     /**
      * Assert a value is null
      *
@@ -149,7 +149,7 @@ class Adapter_TestFramework extends PHPUnit_TestCase implements Interface_Testab
     final public function assert_null($value, $message = null) {
         $this->assertTrue($value === null, "$value === null : $message", false);
     }
-    
+
     /**
      * Assert two arrays are equal
      *

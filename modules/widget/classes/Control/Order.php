@@ -52,11 +52,11 @@ class Control_Order extends Control {
 
     public function render() {
         $ID = $this->object->id();
-        
+
         $u = URL::query_format(URL::query_remove($this->request->uri(), "move", false), array(
             "ID" => $ID,
         ));
-        
+
         $result = array();
         $result[] = HTML::tag("a", array(
             "href" => "$u&move=top",
@@ -70,9 +70,9 @@ class Control_Order extends Control {
         $result[] = HTML::tag("a", array(
             "href" => "$u&move=bottom",
         ), HTML::img($this->application, "/share/zesk/images/order/move-bottom.gif", "Move to bottom"));
-        
+
         $result = implode("&nbsp;", $result);
-        
+
         if ($this->option_bool('debug')) {
             $result .= ' (' . $this->value() . ')';
         }
@@ -114,17 +114,17 @@ class Control_Order extends Control {
             $icmp = "<=";
             $order_by = "$col ASC";
         }
-        
+
         $where = $this->_where();
         $where["ID"] = $ID;
-        
+
         $db = $this->object->database();
-        
+
         $sqlgen = $db->sql();
         $sql = "SELECT `$col` AS N FROM `$table` " . $sqlgen->where($where);
         $thisOrder = $db->query_one($sql, "N", false);
         $nextObject = null;
-        
+
         if (is_numeric($thisOrder)) {
             $where = $this->_where();
             $where["ID|!="] = $ID;
@@ -147,7 +147,7 @@ class Control_Order extends Control {
         $where['ID|!='] = $ID;
         $where["$col|$icmp"] = $thisOrder;
         $sql = "UPDATE `$table` SET `$col`=`$col`${sign}5 " . $sqlgen->where($where);
-        
+
         $db->query($sql);
     }
 }

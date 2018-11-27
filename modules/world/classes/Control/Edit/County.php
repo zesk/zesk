@@ -22,7 +22,7 @@ class Control_Edit_County extends Control_Edit {
             ->nolabel(true)
             ->add_class('btn btn-primary');
         $ww[] = $this->widget_factory('zesk\\Control_Button_Delete')->wrap('div', '.form-group')->nolabel(true);
-        
+
         return $ww;
     }
 }

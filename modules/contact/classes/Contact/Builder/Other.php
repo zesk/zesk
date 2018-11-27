@@ -18,7 +18,7 @@ class Contact_Builder_Other extends Contact_Builder_Base {
      * @var string
      */
     protected $contact_class = "zesk\\Contact_Other";
-    
+
     /**
      *
      * {@inheritDoc}

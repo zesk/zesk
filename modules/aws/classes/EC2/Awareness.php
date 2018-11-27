@@ -27,12 +27,12 @@ class Awareness extends Hookable {
      * @var Application
      */
     public $application = null;
-    
+
     /**
      * Root URL to retrieve the settings from the network
      */
     private static $url = "http://169.254.169.254/latest/";
-    
+
     /**
      *
      * @var string
@@ -86,26 +86,26 @@ class Awareness extends Hookable {
      * @var string
      */
     const setting_security_groups = "security_groups";
-    
+
     /**
      *
      * @var integer
      */
     const default_cache_expire_seconds = 600; // 10 Minutes
-    
+
     /**
      *
      * @var CacheItemInterface
      */
     protected $cache = null;
-    
+
     /**
      * Mock settings for development (fakes it as best it can)
      *
      * @var array
      */
     private $mock_settings = null;
-    
+
     /**
      *
      * @var array
@@ -121,7 +121,7 @@ class Awareness extends Hookable {
         self::setting_public_ipv4 => "public-ipv4",
         self::setting_security_groups => "security-groups",
     );
-    
+
     /**
      * Create a new AWS_EC2_Awareness
      *
@@ -132,7 +132,7 @@ class Awareness extends Hookable {
         $this->inherit_global_options();
         $this->cache = $this->application->cache->getItem(__CLASS__);
     }
-    
+
     /**
      *
      * @return string
@@ -140,7 +140,7 @@ class Awareness extends Hookable {
     public function instance_id() {
         return $this->get(self::setting_instance_id);
     }
-    
+
     /**
      *
      * @return string
@@ -148,7 +148,7 @@ class Awareness extends Hookable {
     public function local_ipv4() {
         return $this->get(self::setting_local_ipv4);
     }
-    
+
     /**
      *
      * @return string
@@ -205,7 +205,7 @@ class Awareness extends Hookable {
         }
         return $values[$suffix];
     }
-    
+
     /**
      * Enable mock settings for AWS when a configuration flag is set
      *
@@ -218,7 +218,7 @@ class Awareness extends Hookable {
         $host = php_uname('n');
         $ips = array_values(ArrayTools::clean(System::ip_addresses($this->application), "127.0.0.1"));
         $macs = array_values(System::mac_addresses($this->application));
-        
+
         $settings = array(
             self::setting_hostname => $host,
             self::setting_instance_id => "i-ffffffff",

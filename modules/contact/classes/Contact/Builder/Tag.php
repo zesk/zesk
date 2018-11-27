@@ -13,7 +13,7 @@ class Contact_Builder_Tag extends Contact_Builder_Base {
      * @var string
      */
     protected $contact_class = "zesk\\Contact_Tag";
-    
+
     /**
      *
      * {@inheritDoc}

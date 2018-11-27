@@ -22,17 +22,17 @@ class ORM_Schema_Test extends Test_Unit {
 
     public function test_debug() {
         $value = ORM_Schema::debug();
-        
+
         ORM_Schema::debug(true);
         $this->assert_equal(ORM_Schema::debug(), true);
         ORM_Schema::debug("Friday");
         $this->assert_equal(ORM_Schema::debug(), true);
-        
+
         ORM_Schema::debug(false);
         $this->assert_equal(ORM_Schema::debug(), false);
         ORM_Schema::debug("Friday");
         $this->assert_equal(ORM_Schema::debug(), false);
-        
+
         ORM_Schema::debug($value);
     }
 

@@ -21,14 +21,14 @@ class HTML_Tag extends Options {
      * @var string
      */
     public $name;
-    
+
     /**
      * Contents between tags.
      * If false, then singleton tag, e.g. <tag />
      * @var string
      */
     private $inner_html = null;
-    
+
     /**
      * Original, outer HTML including tag itself.
      * Useful for replacing a matched tag in a document.
@@ -36,13 +36,13 @@ class HTML_Tag extends Options {
      * @var string
      */
     private $outer_html = null;
-    
+
     /**
      * Offset to where the tag is in the found context
      * @var integer
      */
     public $offset = null;
-    
+
     /**
      *
      * @param string $name Tag name
@@ -53,7 +53,7 @@ class HTML_Tag extends Options {
      */
     public function __construct($name, array $attributes = array(), $inner_html = false, $outer_html = null, $offset = null) {
         parent::__construct($attributes);
-        
+
         $this->name = $name;
         $this->inner_html = $inner_html;
         $this->outer_html = $outer_html;
@@ -61,7 +61,7 @@ class HTML_Tag extends Options {
             $this->offset = $offset;
         }
     }
-    
+
     /**
      * Is this a single tag (no close tag, ends with '\>')
      *
@@ -70,7 +70,7 @@ class HTML_Tag extends Options {
     public function is_single() {
         return !is_string($this->inner_html);
     }
-    
+
     /**
      * Getter/setter for inner HTML
      *
@@ -85,7 +85,7 @@ class HTML_Tag extends Options {
         }
         return $this->inner_html;
     }
-    
+
     /**
      * Getter/setter for outer HTML
      *
@@ -99,7 +99,7 @@ class HTML_Tag extends Options {
         }
         return $this->outer_html;
     }
-    
+
     /**
      * Get/set content (inner HTML)
      *
@@ -109,7 +109,7 @@ class HTML_Tag extends Options {
     public function contents($set = null) {
         return $this->inner_html($set);
     }
-    
+
     /**
      * Convert to PHP
      *
@@ -124,7 +124,7 @@ class HTML_Tag extends Options {
             $this->offset,
         )) . ')';
     }
-    
+
     /**
      * Convert to string
      *

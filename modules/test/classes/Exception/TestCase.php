@@ -17,19 +17,19 @@ class Exception_TestCase extends Test_Unit {
      */
     public function exception_test(\Exception $e) {
         $this->assert_is_string($e->getMessage());
-        
+
         $this->assert_is_integer($e->getCode());
-        
+
         $this->assert_is_string($e->getFile());
-        
+
         $e->getLine();
-        
+
         $e->getTrace();
-        
+
         $e->getPrevious();
-        
+
         $e->getTraceAsString();
-        
+
         $e->__toString();
     }
 }

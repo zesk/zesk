@@ -55,25 +55,25 @@ class StringTools_Test extends Test_Unit {
     public function test_wrap() {
         $phrase = null;
         HTML::wrap($phrase);
-        
+
         $this->assert(HTML::wrap('This is a [simple] example', '<strong>[]</strong>') === 'This is a <strong>simple</strong> example', "'" . HTML::wrap('This is a [simple] example', '<strong>[]</strong>') . "' === 'This is a <strong>simple</strong> example'");
-        
+
         $this->assert(HTML::wrap('This is a [1:simple] example', '<strong>[]</strong>') === 'This is a simple example', HTML::wrap('This is a [1:simple] example', '<strong>[]</strong>') . " === 'This is a simple example'");
-        
+
         $this->assert(HTML::wrap('This is an example with [two] [items] example', '<strong>[]</strong>', '<em>[]</em>') === 'This is an example with <strong>two</strong> <em>items</em> example');
-        
+
         $this->assert(HTML::wrap('This is an example with [two] [0:items] example', '<strong>[]</strong>', '<em>[]</em>') === 'This is an example with <strong>two</strong> <strong>items</strong> example');
-        
+
         $this->assert(HTML::wrap('This is an example with [1:two] [items] example', '<strong>[]</strong>', '<em>[]</em>') === 'This is an example with <em>two</em> <em>items</em> example', HTML::wrap('This is an example with [1:two] [items] example', '<strong>[]</strong>', '<em>[]</em>') . ' === This is an example with <em>two</em> <em>items</em> example');
-        
+
         $this->assert(HTML::wrap('This is an example with [1:two] [1:items] example', '<strong>[]</strong>', '<em>[]</em>') === 'This is an example with <em>two</em> <em>items</em> example', HTML::wrap('This is an example with [1:two] [1:items] example', '<strong>[]</strong>', '<em>[]</em>') . ' === This is an example with <em>two</em> <em>items</em> example');
-        
+
         $this->assert(HTML::wrap('Nested example with [outernest [nest0] [nest1]] example', '<0>[]</0>', '<1>[]</1>', '<2>[]</2>') === 'Nested example with <2>outernest <0>nest0</0> <1>nest1</1></2> example', HTML::wrap('Nested example with [outernest [nest0] [nest1]] example', '<0>[]</0>', '<1>[]</1>', '<2>[]</2>') . ' === Nested example with <2>outernest <0>nest0</0> <1>nest1</1></2> example');
     }
 
     public function test_is_utf8() {
         $test_dir = $this->application->zesk_home('test/test-data');
-        
+
         $files = array(
             "utf16-le-no-bom.data" => false,
             "utf16-no-bom.data" => false,
@@ -163,7 +163,7 @@ class StringTools_Test extends Test_Unit {
         $this->assert(StringTools::to_bool("enabled", null) === true);
         $this->assert(StringTools::to_bool("trUE", null) === true);
         $this->assert(StringTools::to_bool("true", null) === true);
-        
+
         $this->assert(StringTools::to_bool("f", null) === false);
         $this->assert(StringTools::to_bool("F", null) === false);
         $this->assert(StringTools::to_bool("n", null) === false);
@@ -177,13 +177,13 @@ class StringTools_Test extends Test_Unit {
         $this->assert(StringTools::to_bool("false", null) === false);
         $this->assert(StringTools::to_bool("null", null) === false);
         $this->assert(StringTools::to_bool("", null) === false);
-        
+
         $this->assert(StringTools::to_bool(0, null) === null);
         $this->assert(StringTools::to_bool("0", null) === null);
-        
+
         $this->assert(StringTools::to_bool(1, null) === null);
         $this->assert(StringTools::to_bool("1", null) === null);
-        
+
         $this->assert(StringTools::to_bool("01", null) === null);
         $this->assert(StringTools::to_bool(array(), null) === null);
         $this->assert(StringTools::to_bool(new \stdClass(), null) === null);
@@ -206,7 +206,7 @@ class StringTools_Test extends Test_Unit {
         StringTools::zero_pad($s);
         $this->assert_equal(StringTools::zero_pad('0'), '00');
         $this->assert_equal(StringTools::zero_pad('00'), '00');
-        
+
         $this->assert_equal(StringTools::zero_pad('1'), '01');
         $this->assert_equal(StringTools::zero_pad('01'), '01');
         $this->assert_equal(StringTools::zero_pad('xx', 4), '00xx');

@@ -21,9 +21,9 @@ class Control_Arrow extends Control {
             self::$id_index++;
         }
         $url = $this->option("url");
-        
+
         $js = "javascript:Control_Arrow_toggle('$id','$url')";
-        
+
         $img_attrs = $this->option_array("img_attrs", array());
         $img_url = $this->option('img_url', $this->option('img_url', $this->application->url("/share/zesk/images/toggle/small-{state}.gif")));
         $img_attrs['src'] = map($img_url, array(
@@ -35,33 +35,33 @@ class Control_Arrow extends Control {
         $img_attrs['data-src-closed'] = map($img_url, array(
             'state' => "right",
         ));
-        
+
         if (!array_key_exists('alt', $img_attrs)) {
             $img_attrs['alt'] = '';
         }
         $img_attrs['id'] = $id . "_img";
-        
+
         $img = HTML::tag("img", $img_attrs, null);
-        
+
         $label_tag = $this->option("label_tag", "h2");
         $label_attrs = $this->option_array("label_attrs", array());
-        
+
         $label_a_attrs = $this->option_array("label_a_attrs", array());
         $label_a_attrs['href'] = $js;
-        
+
         $contents_attrs = $this->option_array("contents_attrs", array());
         $contents_attrs['id'] = $id;
         $contents_attrs['style'] = "display: " . ($is_open ? "block" : "none");
         if (!array_key_exists('class', $contents_attrs)) {
             $contents_attrs['class'] = 'toggle-arrow-content';
         }
-        
+
         $inner_link = HTML::tag("a", $label_a_attrs, $this->option('title'));
-        
+
         if ($label_tag) {
             $inner_link = HTML::tag($label_tag, $label_attrs, $inner_link);
         }
-        
+
         return HTML::tag("div", array(
             "class" => "toggle-arrow",
         ), HTML::tag("a", array(
@@ -83,11 +83,11 @@ class Control_Arrow extends Control {
 
     public function render() {
         self::html_init();
-        
+
         $value = $this->value();
-        
+
         $contents = $this->_open() . $value . $this->_close();
-        
+
         return $this->render_finish($contents);
     }
 

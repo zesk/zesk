@@ -33,7 +33,7 @@ class Control_Password extends Control_Text {
     public function label_confirm($set = null) {
         return $set === null ? $this->option('label_confirm') : $this->set_option('label_confirm', $set);
     }
-    
+
     /**
      * (non-PHPdoc)
      * @see Widget::initialize($object)

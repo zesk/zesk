@@ -6,26 +6,26 @@ abstract class Contact_Import extends Options {
      * @var Interface_Process
      */
     protected $process;
-    
+
     /**
      * File to import
      *
      * @var string
      */
     protected $filename;
-    
+
     /**
      *
      * @var string
      */
     protected $import_class = "zesk\\CSV_Reader";
-    
+
     /**
      *
      * @var array
      */
     private $objects = array();
-    
+
     /**
      *
      * @var array
@@ -37,7 +37,7 @@ abstract class Contact_Import extends Options {
      * @var array
      */
     private $errors = array();
-    
+
     /**
      *
      * @var unknown
@@ -53,18 +53,18 @@ abstract class Contact_Import extends Options {
             $this->tag = $tag;
         }
     }
-    
+
     /**
      * @return array Map of column headers to internal data structures
      *
      */
     abstract public function header_map();
-    
+
     /**
      *
      */
     abstract public function contact_hash_keys();
-    
+
     /**
      *
      * @param unknown $row
@@ -78,7 +78,7 @@ abstract class Contact_Import extends Options {
         }
         return md5(implode("|", $hash));
     }
-    
+
     /**
      *
      * @return array
@@ -86,13 +86,13 @@ abstract class Contact_Import extends Options {
     public function empty_date_values() {
         return array();
     }
-    
+
     /**
      *
      * @param unknown $filename
      */
     abstract public function can_import($filename);
-    
+
     /**
      *
      * @return boolean
@@ -111,7 +111,7 @@ abstract class Contact_Import extends Options {
         }
         return true;
     }
-    
+
     /**
      *
      * @param Interface_Process $proc
@@ -123,7 +123,7 @@ abstract class Contact_Import extends Options {
         $classes = array(
             "Contact_Import_Outlook",
         );
-        
+
         foreach ($classes as $class) {
             $class = new $class($proc, $filename, $options);
             /* @var $class Import_Contact */
@@ -133,14 +133,14 @@ abstract class Contact_Import extends Options {
         }
         return null;
     }
-    
+
     /**
      *
      */
     public function reset() {
         $this->objects = array();
     }
-    
+
     /**
      *
      * @param Contact_Info $object
@@ -155,7 +155,7 @@ abstract class Contact_Import extends Options {
         }
         return $label;
     }
-    
+
     /**
      *
      * @param integer $row_index
@@ -191,9 +191,9 @@ abstract class Contact_Import extends Options {
             'account' => $this->option_integer('account'),
             'user' => $this->option_integer('user'),
         ), $this->objects);
-        
+
         throw new Exception_Unimplemented("Need to update this code");
-        
+
         $account = $this->option_integer("account");
         $dup_contact = Contact::find_hash($contact_hash, array(
             'account' => $account,
@@ -204,7 +204,7 @@ abstract class Contact_Import extends Options {
         $contact->account = $account;
         $contact->user = $this->option_integer('User');
         // 		$contact->Duplicate = $dup_contact;
-        
+
         if ($this->tag) {
             $contact->tags = $this->tag;
         }
@@ -215,7 +215,7 @@ abstract class Contact_Import extends Options {
             );
             return false;
         }
-        
+
         foreach ($this->objects as $contact_class => $items) {
             if ($contact_class === 'Contact') {
                 continue;
@@ -231,7 +231,7 @@ abstract class Contact_Import extends Options {
                 $object->register();
             }
         }
-        
+
         $contact->imported();
         return true;
     }

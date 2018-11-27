@@ -15,13 +15,13 @@ class Server_Base extends Hookable {
      * @var Server_Platform
      */
     protected $platform = null;
-    
+
     /**
      *
      * @var Server_Configuration
      */
     protected $config = null;
-    
+
     /**
      * Create a new Server Base
      *
@@ -29,11 +29,11 @@ class Server_Base extends Hookable {
      */
     public function __construct(Server_Platform $platform) {
         parent::__construct($platform->application);
-        
+
         $this->platform = $platform;
         $this->config = $platform->config;
     }
-    
+
     /**
      * If not root, throw an error
      *
@@ -85,7 +85,7 @@ class Server_Base extends Hookable {
             "exec",
         ), $arguments);
     }
-    
+
     /**
      * Test if a shell command exists on the system, optionally testing it
      *
@@ -107,7 +107,7 @@ class Server_Base extends Hookable {
     public function update_catenate($filename, array $paths, $dest, $map = false) {
         return $this->platform->update_catenate($filename, $paths, $dest, $map);
     }
-    
+
     /**
      *
      * @return boolean

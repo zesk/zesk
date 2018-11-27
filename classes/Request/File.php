@@ -13,25 +13,25 @@ class File {
      * @var string
      */
     private $tmp_name = null;
-    
+
     /**
      *
      * @var string
      */
     private $name = null;
-    
+
     /**
      *
      * @var string
      */
     private $ext = null;
-    
+
     /**
      *
      * @var array
      */
     private $upload_array = array();
-    
+
     /**
      *
      * @param array $upload_array
@@ -52,7 +52,7 @@ class File {
         $this->name = avalue($upload_array, "name", basename($this->tmp_path));
         $this->ext = zeskFile::extension($this->name);
     }
-    
+
     /**
      * Create a new instance
      *
@@ -84,11 +84,11 @@ class File {
                 "dest_path" => $dest_path,
             ));
         }
-        
+
         $dest_dir = is_dir($dest_path) ? $dest_path : dirname($dest_path);
-        
+
         Directory::depend($dest_dir, avalue($options, "dir_mode"));
-        
+
         if (avalue($options, "hash")) {
             $x = md5_file($this->tmp_path);
             $dest_path = path($dest_dir, "$x." . $this->ext);

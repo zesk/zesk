@@ -24,19 +24,19 @@ class Server_Feature_FreeBSD extends Server_Feature {
             $this->update($source, "/boot/loader.conf");
         }
         $paths = $this->get_path_list("RC_CONF_PATH");
-        
+
         $sysctl_conf = "/etc/sysctl.conf";
-        
+
         if ($this->update_catenate(basename($sysctl_conf), $paths, $sysctl_conf)) {
             $this->sysctl_apply();
         }
         $this->owner($sysctl_conf, "root", 0644);
-        
+
         $rc_conf = "/etc/rc.conf";
-        
+
         $this->update_catenate(basename($rc_conf), $paths, $rc_conf);
         $this->owner($rc_conf, "root", 0644);
-        
+
         $rc_extras = array();
         foreach ($paths as $path) {
             $rc_files = Directory::ls($path, '/rc\.[-._a-zA-Z0-9]*\.conf/', true);

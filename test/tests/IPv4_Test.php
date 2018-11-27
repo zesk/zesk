@@ -37,11 +37,11 @@ class IPv4_Test extends Test_Unit {
 
     public function test_mask_to_integers() {
         $ips = file($this->application->zesk_home('test/test-data/ip.txt'));
-        
+
         $ip = "192.168.0.248";
         list($a, $b) = IPv4::mask_to_integers("$ip/29");
         $this->assert(IPv4::from_integer($a) . "/$b" === "$ip/29");
-        
+
         foreach ($ips as $ip) {
             if (empty($ip)) {
                 continue;
@@ -53,7 +53,7 @@ class IPv4_Test extends Test_Unit {
                 list($a1, $b1) = IPv4::mask_to_integers($check_string);
                 $check_string1 = IPv4::mask_to_string($a1, $b1);
                 list($a, $b) = IPv4::mask_to_integers($check_string1);
-                
+
                 $this->assert($check_string === $check_string1, "$string: $check_string === $check_string1 ($a, $a1 => $b, $b1)");
                 $this->assert($a === $a1 && $b === $b1, "$string: $a === $a1 && $b === $b1 " . sprintf("%032b === %032b", $a, $a1));
             }
@@ -67,11 +67,11 @@ class IPv4_Test extends Test_Unit {
         $this->assert(IPv4::mask_to_string($ip, 24) === "0.0.0.*");
         $this->assert(IPv4::mask_to_string($ip, 16) === "0.0.*");
         $this->assert(IPv4::mask_to_string($ip, 8) === "0.*");
-        
+
         $this->assert(IPv4::mask_to_string(3232235720, 29) === "192.168.0.200/29");
         $this->assert(IPv4::mask_to_string(3232235720, "29") === "192.168.0.200/29");
         $this->assert(IPv4::mask_to_string("3232235720", "29") === "192.168.0.200/29", "IPv4::mask_to_string(\"3232235720\", \"29\") === \"" . IPv4::mask_to_string("3232235720", "29") . "\" === \"192.168.0.200/29\"");
-        
+
         $all_ones = IPv4::to_integer("255.255.255.255");
         $n = 1;
         $m = 0;
@@ -79,13 +79,13 @@ class IPv4_Test extends Test_Unit {
             $c = 255 - $m;
             $d = ($m !== 0) ? 0 : 255 - $n;
             //	echo "$n, $m, 255.255.$c.$d\n";
-            
+
             if ($i === 24) {
                 continue;
             }
-            
+
             $this->assert(IPv4::mask_to_string($all_ones, $i) === "255.255.$c.$d/$i", IPv4::mask_to_string($all_ones, $i) . " === 255.255.$c.$d/$i");
-            
+
             $n = ($n * 2) + 1;
             if ($m) {
                 $m = ($m * 2) + 1;
@@ -94,7 +94,7 @@ class IPv4_Test extends Test_Unit {
                 $m = 1;
             }
         }
-        
+
         $this->assert(IPv4::mask_to_string(IPv4::to_integer("76.12.128.129"), 29) === "76.12.128.128/29", IPv4::mask_to_string(IPv4::to_integer("76.12.128.129"), 29) . " === 76.12.128.128/29");
         $this->assert(IPv4::mask_to_string(IPv4::to_integer("76.12.128.129"), 29) === "76.12.128.128/29", IPv4::mask_to_string(IPv4::to_integer("76.12.128.129"), 29) . " === 76.12.128.128/29");
     }
@@ -102,7 +102,7 @@ class IPv4_Test extends Test_Unit {
     public function test_network() {
         $network = null;
         IPv4::network($network);
-        
+
         $tests = array(
             "192.168.*" => array(
                 0xC0A80000,
@@ -129,11 +129,11 @@ class IPv4_Test extends Test_Unit {
                 1275887807,
             ),
         );
-        
+
         list($ip_low, $ip_high) = IPv4::network('1.0.0.0/16');
         $this->assert($ip_low === (double) 0x01000000);
         $this->assert($ip_high === (double) 0x0100FFFF);
-        
+
         foreach ($tests as $ipmask => $network) {
             list($ip_check_low, $ip_check_high) = $network;
             if (is_string($ip_check_low)) {
@@ -220,7 +220,7 @@ class IPv4_Test extends Test_Unit {
         $ip = null;
         $network = null;
         IPv4::within_network($ip, $network);
-        
+
         $tests = array(
             array(
                 '76.12.128.128',
@@ -273,7 +273,7 @@ class IPv4_Test extends Test_Unit {
                 false,
             ),
         );
-        
+
         foreach ($tests as $parms) {
             list($ip, $network, $result) = $parms;
             $this->assert(IPv4::within_network($ip, $network) === $result, "IPv4::within_network($ip, $network) === " . StringTools::from_bool($result));

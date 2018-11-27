@@ -12,14 +12,14 @@ class Adapter_Settings_Array implements Interface_Settings {
      *
      */
     protected $data = null;
-    
+
     /**
      *
      */
     public function __construct(array &$array) {
         $this->data = &$array;
     }
-    
+
     /**
      * Is a value set in this object?
      * @return boolean
@@ -35,7 +35,7 @@ class Adapter_Settings_Array implements Interface_Settings {
     public function has($name) {
         return $this->__isset($name);
     }
-    
+
     /**
      * Retrieve a value from the settings
      * @param mixed $name A string or key value (integer, float)
@@ -54,7 +54,7 @@ class Adapter_Settings_Array implements Interface_Settings {
     public function get($name = null, $default = null) {
         return apath($this->data, $name, $default, ZESK_GLOBAL_KEY_SEPARATOR);
     }
-    
+
     /**
      * Retrieve a value from the settings, returning a default value if empty or not set
      * @param mixed $name A string or key value (integer, float)
@@ -65,7 +65,7 @@ class Adapter_Settings_Array implements Interface_Settings {
         $value = $this->get($name);
         return empty($value) ? $default : $value;
     }
-    
+
     /**
      * Store a value to a settings
      *
@@ -75,7 +75,7 @@ class Adapter_Settings_Array implements Interface_Settings {
     public function __set($name, $value) {
         apath_set($this->data, $name, $value, ZESK_GLOBAL_KEY_SEPARATOR);
     }
-    
+
     /**
      * Store a value to a settings
      *
@@ -86,7 +86,7 @@ class Adapter_Settings_Array implements Interface_Settings {
     public function set($name, $value = null) {
         $this->__set($name, $value);
     }
-    
+
     /**
      * Retrieve a list of all settings variables as an array
      *

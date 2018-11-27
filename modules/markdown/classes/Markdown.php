@@ -34,11 +34,11 @@ class Markdown extends Options {
     private $g_empty_element_suffix = " />"; // Change to ">" for HTML output
 
     private $g_tab_width = self::default_tab_size;
-    
+
     //
     // Globals:
     //
-    
+
     // Regex to match balanced [brackets]. See Friedl's
     // "Mastering Regular Expressions", 2nd Ed., pp. 328-331.
     const g_nested_brackets = '
@@ -49,7 +49,7 @@ class Markdown extends Options {
 		 (?R)							# Recursive set of nested brackets
 	   \]
 	)*';
-    
+
     // Table of hash values for escaped characters:
     private static $g_escape_chars = '\\`*_{}[]()>#+-.!';
 
@@ -58,14 +58,14 @@ class Markdown extends Options {
     private static $g_unspecial = null;
 
     public $text = null;
-    
+
     // Global hashes, used by various utility routines
     private $g_urls = array();
 
     private $g_titles = array();
 
     private $g_html_blocks = array();
-    
+
     // Used to track when we're inside an ordered or unordered list
     // (see _ProcessListItems() for details):
     private $g_list_level = 0;
@@ -106,52 +106,52 @@ class Markdown extends Options {
         if ($text === null) {
             $text = $this->text;
         }
-        
+
         //
         // Main function. The order in which other subs are called here is
         // essential. Link and image substitutions need to happen before
         // _EscapeSpecialChars(), so that any *'s or _'s in the <a>
         // and <img> tags get encoded.
         //
-        
+
         // Clear the global hashes. If we don't clear these, you get conflicts
         // from other articles when generating a page which contains more than
         // one article (e.g. an index page that shows the N most recent
         // articles):
         $this->g_urls = array();
         $this->g_html_blocks = array();
-        
+
         // Standardize line endings:
         $text = Text::set_line_breaks($text, "\n");
-        
+
         // Make sure $text ends with a couple of newlines:
         $text .= "\n\n";
-        
+
         // Convert all tabs to spaces.
         $text = StringTools::detab($text, $this->g_tab_width);
-        
+
         // Strip any lines consisting only of spaces and tabs.
         // This makes subsequent regexen easier to write, because we can
         // match consecutive blank lines with /\n+/ instead of something
         // contorted like /[ \t]*\n+/ .
         $text = preg_replace('/^[ \t]+$/m', '', $text);
-        
+
         // Turn block-level HTML blocks into hash entries
         $text = $this->_HashHTMLBlocks($text);
-        
+
         // Strip link definitions, store in hashes.
         $text = $this->_StripLinkDefinitions($text);
-        
+
         $text = $this->_RunBlockGamut($text);
-        
+
         $text = $this->_UnescapeSpecialChars($text);
-        
+
         return $text . "\n";
     }
 
     private function _StripLinkDefinitions($text) {
         $less_than_tab = $this->g_tab_width - 1;
-        
+
         $pattern = '@^[ ]{0,' . $less_than_tab . '}\[(.+)\]:	# id = $1
 						  [ \t]*
 						  \n?				# maybe *one* newline
@@ -169,7 +169,7 @@ class Markdown extends Options {
 						)?	# title is optional
 						(?:\n+|\Z)
 					@mx';
-        
+
         foreach (preg::matches($pattern, $text) as $match) {
             list($match, $id, $url, $title) = $match + array(
                 null,
@@ -189,7 +189,7 @@ class Markdown extends Options {
 
     private function _HashHTMLBlocks($text) {
         $less_than_tab = $this->g_tab_width - 1;
-        
+
         // Hashify HTML blocks:
         // We only want to do this for block-level HTML tags, such as headers,
         // lists, and tables. That's because we still want to wrap <p>s around
@@ -198,7 +198,7 @@ class Markdown extends Options {
         // hard-coded:
         $block_tags_b = 'p|div|h[1-6]|blockquote|pre|table|dl|ol|ul|script|noscript|form|fieldset|iframe|math';
         $block_tags_a = $block_tags_b . '|ins|del';
-        
+
         // First, look for nested blocks, e.g.:
         // 	<div>
         // 		<div>
@@ -219,7 +219,7 @@ class Markdown extends Options {
 					[ \t]*				# trailing spaces/tabs
 					(?=\n+|\Z)			# followed by a newline or end of document
 				)';
-        
+
         //
         // Now match more liberally, simply from `\n<tag>` to `</tag>\n`
         //
@@ -232,7 +232,7 @@ class Markdown extends Options {
 					[ \t]*				# trailing spaces/tabs
 					(?=\n+|\Z)	# followed by a newline or end of document
 				)';
-        
+
         // Special case just for <hr />. It was easier to make a special case than
         // to make the other regex more complicated.
         $patterns[] = '(?:
@@ -249,7 +249,7 @@ class Markdown extends Options {
 					[ \t]*
 					(?=\n{2,}|\Z)		# followed by a blank line or end of document
 				)';
-        
+
         // Special case for standalone HTML comments:
         $patterns[] = '(?:
 					(?<=\n\n)		# Starting after a blank line
@@ -266,7 +266,7 @@ class Markdown extends Options {
 					[ \t]*
 					(?=\n{2,}|\Z)		# followed by a blank line or end of document
 				)';
-        
+
         foreach ($patterns as $index => $pattern) {
             foreach (preg::matches("@$pattern@mx", $text) as $match) {
                 list($html) = $match;
@@ -284,27 +284,27 @@ class Markdown extends Options {
         // tags like paragraphs, headers, and list items.
         //
         $text = $this->_DoHeaders($text);
-        
+
         // Do Horizontal Rules:
         $replace = "\n<hr" . $this->g_empty_element_suffix . "\n";
         $text = preg_replace('/^[ ]{0,2}([ ]?\*[ ]?){3,}[ \t]*$/xm', $replace, $text);
         $text = preg_replace('/^[ ]{0,2}([ ]? -[ ]?){3,}[ \t]*$/xm', $replace, $text);
         $text = preg_replace('/^[ ]{0,2}([ ]? _[ ]?){3,}[ \t]*$/xm', $replace, $text);
-        
+
         $text = $this->_DoLists($text);
-        
+
         $text = $this->_DoCodeBlocks($text);
-        
+
         $text = $this->_DoBlockQuotes($text);
-        
+
         // We already ran _HashHTMLBlocks() before, in Markdown(), but that
         // was to escape raw HTML in the original Markdown source. This time,
         // we're escaping the markup we've just created, so that we don't wrap
         // <p> tags around block-level tags.
         $text = $this->_HashHTMLBlocks($text);
-        
+
         $text = $this->_FormParagraphs($text);
-        
+
         return $text;
     }
 
@@ -314,37 +314,37 @@ class Markdown extends Options {
         // tags like paragraphs, headers, and list items.
         //
         $text = $this->_DoCodeSpans($text);
-        
+
         $text = $this->_EscapeSpecialChars($text);
-        
+
         // Process anchor and image tags. Images must come first,
         // because ![foo][f] looks like an anchor.
         $text = $this->_DoImages($text);
         $text = $this->_DoAnchors($text);
-        
+
         // Make links out of things like `<http://example.com/>`
         // Must come after _DoAnchors(), because you can use < and >
         // delimiters in inline links like [this](<url>).
         $text = $this->_DoAutoLinks($text);
-        
+
         $text = $this->_EncodeAmpsAndAngles($text);
-        
+
         $text = $this->_DoItalicsAndBold($text);
-        
+
         // Do hard breaks:
         $replace = " <br" . $this->g_empty_element_suffix . "\n";
         $text = preg_replace("/ {2,}\n/", $replace, $text);
-        
+
         return $text;
     }
 
     private function _EscapeSpecialChars($text) {
         $tokens = $this->_TokenizeHTML($text);
-        
+
         $text = ''; // rebuild $text from the tokens
         // 	$in_pre = 0;	 # Keep track of when we're inside <pre> or <code> tags.
         // 	$tags_to_skip = qr!<(/?)(?:pre|code|kbd|script|math)[\s>]!;
-        
+
         foreach ($tokens as $cur_token) {
             list($type, $content) = $cur_token;
             if ($type === "tag") {
@@ -369,7 +369,7 @@ class Markdown extends Options {
         // Turn Markdown link shortcuts into XHTML <a> tags.
         //
         $g_nested_brackets = self::g_nested_brackets;
-        
+
         //
         // First, handle reference-style links: [link text] [id]
         //
@@ -389,12 +389,12 @@ class Markdown extends Options {
 		@xsmi';
         foreach (preg::matches($pattern, $text) as $match) {
             list($whole_match, $IGNORED, $link_text, $link_id) = $match + array_fill(0, 4, null);
-            
+
             $link_id = strtolower($link_id);
             if (empty($link_id)) {
                 $link_id = strtolower($link_text); // for shortcut links like [this][].
             }
-            
+
             if (array_key_exists($link_id, $this->g_urls)) {
                 $url = $this->g_urls[$link_id];
                 $url = strtr($url, self::$g_unspecial);
@@ -408,7 +408,7 @@ class Markdown extends Options {
                 $text = str_replace($whole_match, $result, $text);
             }
         }
-        
+
         //
         // Next, inline-style links: [link text](url "optional title")
         //
@@ -429,13 +429,13 @@ class Markdown extends Options {
 		  \)
 		)
 		@xs';
-        
+
         foreach (preg::matches($pattern, $text) as $match) {
             $whole_match = $match[0];
             $link_text = $match[2];
             $url = $match[3];
             $title = avalue($match, 6);
-            
+
             $url = strtr($url, self::$g_unspecial);
             $result = "<a href=\"$url\"";
             if ($title) {
@@ -453,7 +453,7 @@ class Markdown extends Options {
         //
         // Turn Markdown image shortcuts into <img> tags.
         //
-        
+
         //
         // First, handle reference-style labeled images: ![alt text][id]
         //
@@ -472,20 +472,20 @@ class Markdown extends Options {
 
 		)
 		@xs';
-        
+
         foreach (preg::matches($pattern, $text) as $match) {
             list($whole_match, $IGNORED, $alt_text, $link_id) = $match;
             $link_id = strtolower($link_id);
-            
+
             if ($link_id === "") {
                 $link_id = strtolower($alt_text); // for shortcut links like ![this][].
             }
-            
+
             $alt_text = str_replace('"', '&quot;', $alt_text);
             if (array_key_exists($link_id, $this->g_urls)) {
                 $url = $this->g_urls[$link_id];
                 $url = strtr($url, self::$g_unspecial);
-                
+
                 $result = "<img src=\"$url\" alt=\"$alt_text\"";
                 if (array_key_exists($link_id, $this->g_titles)) {
                     $title = $this->g_titles[$link_id];
@@ -498,11 +498,11 @@ class Markdown extends Options {
                 // If there's no such link ID, leave intact:
             }
         }
-        
+
         //
         // Next, handle inline images:  ![alt text](url "optional title")
         // Don't forget: encode * and _
-        
+
         $pattern = '@
 		(				# wrap whole match in $1
 		  !\[
@@ -521,16 +521,16 @@ class Markdown extends Options {
 		  \)
 		)
 		@xs';
-        
+
         foreach (preg::matches($pattern, $text) as $match) {
             $whole_match = $match[0];
             $alt_text = $match[2];
             $url = $match[3];
             $title = avalue($match, 6, null);
-            
+
             $alt_text = strtr($alt_text, '"', '&quot;'); // KMD htmlspecialchars?
             $title = strtr($title, '"', '&quot;'); // KMD htmlspecialchars?
-            
+
             $url = strtr($url, self::$g_unspecial);
             $result = "<img src=\"$url\" alt=\"$alt_text\"";
             if ($title) {
@@ -538,10 +538,10 @@ class Markdown extends Options {
                 $result .= " title=\"$title\"";
             }
             $result .= $this->g_empty_element_suffix;
-            
+
             $text = str_replace($whole_match, $result, $text);
         }
-        
+
         return $text;
     }
 
@@ -567,7 +567,7 @@ class Markdown extends Options {
             $id = $this->id_from_title($title);
             $text = str_replace($match[0], "<h2 id=\"$id\">" . $title . "</h2>\n\n", $text);
         }
-        
+
         // atx-style headers:
         //	# Header 1
         //	## Header 2
@@ -589,7 +589,7 @@ class Markdown extends Options {
             $id = $this->id_from_title($title);
             $text = $preg->replace_current("<h$h_level id=\"$id\">" . $title . "</h$h_level>\n\n");
         }
-        
+
         return $text;
     }
 
@@ -598,12 +598,12 @@ class Markdown extends Options {
         // Form HTML ordered (numbered) and unordered (bulleted) lists.
         //
         $less_than_tab = $this->g_tab_width - 1;
-        
+
         // Re-usable patterns to match list item bullets and number markers:
         $marker_ul = '[*+-]';
         $marker_ol = '\d+[.]';
         $marker_any = "(?:$marker_ul|$marker_ol)";
-        
+
         // Re-usable pattern to match any entirel ul or ol list:
         $whole_list = '
 		(								# 1 = whole list
@@ -624,7 +624,7 @@ class Markdown extends Options {
 			  )
 		  )
 		)';
-        
+
         // We use a different prefix before nested lists than top-level lists.
         // See extended comment in _ProcessListItems().
         //
@@ -642,7 +642,7 @@ class Markdown extends Options {
         // pattern will never change, and when this optimization isn't on, we run
         // afoul of the reaper. Thus, the slightly redundant code to that uses two
         // static s/// patterns rather than one conditional pattern.
-        
+
         $whole_list = $this->g_list_level ? '@^' . $whole_list . '@mx' : '@(?:(?<=\n\n)|\A\n?)' . $whole_list . '@mx';
         foreach (preg::matches($whole_list, $text) as $match) {
             list($full_match, $list, $IGNORED, $list_type) = $match;
@@ -654,7 +654,7 @@ class Markdown extends Options {
             $result = "<$list_type>\n" . $result . "</$list_type>\n";
             $text = StringTools::replace_first($full_match, $result, $text);
         }
-        
+
         return $text;
     }
 
@@ -663,7 +663,7 @@ class Markdown extends Options {
         //	Process the contents of a single ordered or unordered list, splitting it
         //	into individual list items.
         //
-        
+
         // The $g_list_level global keeps track of when we're inside a list.
         // Each time we enter a list, we increment it; when we leave a list,
         // we decrement. If it's zero, we're not in a list anymore.
@@ -685,10 +685,10 @@ class Markdown extends Options {
         // change the syntax rules such that sub-lists must start with a
         // starting cardinal number; e.g. "1." or "a.".
         $this->g_list_level++;
-        
+
         // trim trailing blank lines:
         $list_str = preg_replace('/\n{2,}\z/', "\n", $list_str);
-        
+
         $pattern = '@
 			(\n)?							# leading line = $1
 			(^[ \t]*)						# leading whitespace = $2
@@ -697,10 +697,10 @@ class Markdown extends Options {
 			(\n{1,2}))
 			(?= \n* (\z | \2 (' . $marker_any . ') [ \t]+))
 		@mx';
-        
+
         foreach (preg::matches($pattern, $list_str) as $match) {
             list($whole_string, $leading_line, $leading_space, $IGNORED, $item) = $match;
-            
+
             if ($leading_line || preg_match('/\n{2,}/', $item) !== 0) {
                 $item = $this->_RunBlockGamut($this->_Outdent($item));
             } else {
@@ -709,12 +709,12 @@ class Markdown extends Options {
                 $item = rtrim($item);
                 $item = $this->_RunSpanGamut($item);
             }
-            
+
             $list_str = StringTools::replace_first($whole_string, "<li>" . $item . "</li>\n", $list_str);
         }
-        
+
         $this->g_list_level--;
-        
+
         return $list_str;
     }
 
@@ -733,20 +733,20 @@ class Markdown extends Options {
 			)
 			((?=^[ ]{0,' . $g_tab_width . '}\S)|\Z)	# Lookahead for non-space at line-start, or end of doc
 		@mx';
-        
+
         foreach (preg::matches($pattern, $text) as $match) {
             $codeblock = $match[1];
-            
+
             $codeblock = $this->_EncodeCode($this->_Outdent($codeblock));
             $codeblock = StringTools::detab($codeblock, $this->g_tab_width);
             $codeblock = preg_replace('/\A\n+/', '', $codeblock); // trim leading newlines
             $codeblock = preg_replace('/\s+\z/', '', $codeblock); // trim trailing whitespace
-            
+
             $result = "\n\n<pre><code>" . $codeblock . "\n</code></pre>\n\n";
-            
+
             $text = StringTools::replace_first($match[0], $result, $text);
         }
-        
+
         return $text;
     }
 
@@ -782,13 +782,13 @@ class Markdown extends Options {
 			\1			# Matching closer
 			(?!`)
 		@sx';
-        
+
         foreach (preg::matches($pattern, $text) as $match) {
             $c = trim($match[2]);
             $c = $this->_EncodeCode($c);
             $text = str_replace($match[0], "<code>$c</code>", $text);
         }
-        
+
         return $text;
     }
 
@@ -798,11 +798,11 @@ class Markdown extends Options {
         // The point is that in code, these characters are literals,
         // and lose their special Markdown meanings.
         //
-        
+
         // Encode all ampersands; HTML entities are not
         // entities within a Markdown code span.
         $text = strtr($text, '&', '&amp;');
-        
+
         // Encode $'s, but only if we're running under Blosxom.
         // (Blosxom interpolates Perl variables in article bodies.)
         //	{
@@ -811,29 +811,29 @@ class Markdown extends Options {
         //    		s/\$/&#036;/g;
         //    	}
         //    }
-        
+
         // Do the angle bracket song and dance:
         $text = strtr($text, array(
             '<' => "&lt;",
             '>' => '&gt;',
         ));
-        
+
         // Now, escape characters that are magic in Markdown:
         $magicals = array();
         foreach (str_split('*_{}[]\\') as $char) {
             $magicals[$char] = self::$g_escape_table[$char];
         }
         $text = strtr($text, $magicals);
-        
+
         return $text;
     }
 
     private function _DoItalicsAndBold($text) {
         // <strong> must go first:
         $text = preg_replace('/ (\*\*|__) (?=\S) (.+?[*_]*) (?<=\S) \1 /sx', '<strong>$2</strong>', $text);
-        
+
         $text = preg_replace('/ (\*|_) (?=\S) (.+?) (?<=\S) \1 /sx', '<em>$2</em>', $text);
-        
+
         return $text;
     }
 
@@ -848,13 +848,13 @@ class Markdown extends Options {
 			)+
 		  )
 		@mx';
-        
+
         foreach (preg::matches($pattern, $text) as $match) {
             list($bq) = $match;
             $bq = preg_replace('/^[ \t]*>[ \t]?/m', '', $bq); // trim one level of quoting
             $bq = preg_replace('/^[ \t]+$/m', '', $bq); // trim whitespace-only lines
             $bq = $this->_RunBlockGamut($bq); // recurse
-            
+
             $bq = preg_replace('/^/m', '  ', $bq);
             // These leading spaces screw with <pre> content, so we need to fix that:
             $pattern = '@(\s*<pre>.+?</pre>)@sx';
@@ -869,12 +869,12 @@ class Markdown extends Options {
     }
 
     private function _FormParagraphs($text) {
-        
+
         // Strip leading and trailing lines:
         $text = trim($text, "\n");
-        
+
         $grafs = preg_split('/\n{2,}/m', $text);
-        
+
         //
         // Wrap <p> tags, and Unhashify HTML blocks
         //
@@ -887,20 +887,20 @@ class Markdown extends Options {
                 $grafs[$index] = $graf;
             }
         }
-        
+
         return implode("\n\n", $grafs);
     }
 
     private function _EncodeAmpsAndAngles($text) {
         // Smart processing for ampersands and angle brackets that need to be encoded.
-        
+
         // Ampersand-encoding based entirely on Nat Irons's Amputator MT plugin:
         //   http://bumppo.net/projects/amputator/
         $text = preg_replace('/&(?!#?[xX]?(?:[0-9a-fA-F]+|\w+);)/i', '&amp;', $text);
-        
+
         // Encode naked <'s
         $text = preg_replace('@<(?![a-z/?\$!])@i', '&lt;', $text);
-        
+
         return $text;
     }
 
@@ -915,9 +915,9 @@ class Markdown extends Options {
 
     private function _DoAutoLinks($text) {
         $text = preg_replace('@<((https?|ftp):[^\'">\s]+)>@i', '<a href="$1">$1</a>', $text);
-        
+
         // Email addresses: <address@domain.foo>
-        
+
         $pattern = '/<
         (?:mailto:)?
 		(
@@ -926,12 +926,12 @@ class Markdown extends Options {
 			[-a-z0-9]+(\.[-a-z0-9]+)*\.[a-z]+
 		)
 		>/ix';
-        
+
         foreach (preg::matches($pattern, $text) as $match) {
             $replace = $this->_EncodeEmailAddress($this->_UnescapeSpecialChars($match[1]));
             $text = str_replace($match[0], $replace, $text);
         }
-        
+
         return $text;
     }
 
@@ -964,9 +964,9 @@ class Markdown extends Options {
             }
             $eaddr .= $c;
         }
-        
+
         $addr = "<a href=\"$eaddr\">" . StringTools::right($eaddr, ":") . "</a>";
-        
+
         return $addr;
     }
 
@@ -993,14 +993,14 @@ class Markdown extends Options {
         //
         $len = strlen($text);
         $tokens = array();
-        
+
         $depth = 6;
         $nested_tags = implode('|', array_fill(0, $depth, '(?:<[a-z/!$](?:[^<>]')) . str_repeat(')*>)', $depth);
-        
+
         $pattern = '(?s: <! ( -- .*? -- \s* )+ > ) |  # comment
 	               (?s: <\? .*? \?> ) |               # processing instruction
 	               ' . $nested_tags; // nested tags
-        
+
         $matches = null;
         $pos = 0;
         while (preg_match_all('@' . $pattern . '@ix', $text, $matches, PREG_OFFSET_CAPTURE, $pos) !== 0) {

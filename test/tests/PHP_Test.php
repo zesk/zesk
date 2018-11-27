@@ -36,7 +36,7 @@ class PHP_Test extends Test_Unit {
             $this->assert(!$false, gettype($false) . " is not FALSE " . var_export($false, true));
         }
     }
-    
+
     /**
      * PHP does not support Javascript-style assignment using ||, e.g.
      *
@@ -47,13 +47,13 @@ class PHP_Test extends Test_Unit {
         $a->val = "a";
         $b = new \stdClass();
         $b->val = "b";
-        
+
         $c = $a || $b;
         $this->assert_equal($c, true);
-        
+
         $c = $a || array();
         $this->assert_equal($c, true);
-        
+
         $c = false || array();
         $this->assert_equal($c, false);
     }
@@ -117,13 +117,13 @@ class PHP_Test extends Test_Unit {
                 "code" => ord('9'),
             ),
         );
-        
+
         $otherarray = array();
         $otherarray["test"] = &$bigthing['a'];
         // What happens to $bigthing?
         unset($otherarray["test"]);
         // Nothing, unset applies only to the key in the array
-        
+
         $this->assert_arrays_equal($bigthing, array(
             "a" => array(
                 "kind" => "letter",

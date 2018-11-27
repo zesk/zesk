@@ -19,7 +19,7 @@ class Control_Text_Dropdown extends Control_Text {
     const option_dropdown_alignment = "dropdown_alignment";
 
     protected $dropdown_menu = array();
-    
+
     /**
      * Array of attributes
      *
@@ -105,7 +105,7 @@ class Control_Text_Dropdown extends Control_Text {
         }
         return $this->option(self::option_button_label);
     }
-    
+
     /**
      * Make the menu act like a selection list
      *

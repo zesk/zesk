@@ -23,7 +23,7 @@ class Control_Duration extends Control_Select {
         }
         $this->control_options($options);
         parent::initialize();
-        
+
         if (!$this->has_option('id')) {
             $this->id('control-duration-' . $this->response()->id_counter());
         }

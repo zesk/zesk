@@ -105,7 +105,7 @@ class Control_Checkbox extends Control {
             'checked_value' => $this->object->apply_map($this->checked_value()),
         );
     }
-    
+
     /**
      * Return the jQuery expression to determine the value of this widget
      *

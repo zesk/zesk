@@ -15,14 +15,14 @@ class Control_Edit_Horizontal extends Control_Edit {
     );
 
     protected $widget_wrap_tag = "div";
-    
+
     /**
      * Optional wrap attributes for each widget
      *
      * @var array
      */
     protected $widget_wrap_attributes = array();
-    
+
     /**
      * Optional wrap attributes for each widget which have no label
      *

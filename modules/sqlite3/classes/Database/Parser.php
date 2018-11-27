@@ -122,7 +122,7 @@ class Database_Parser extends \zesk\Database_Parser {
      * @var Database
      */
     protected $database = null;
-    
+
     /**
      * Parse SQL to determine type of command
      *
@@ -163,7 +163,7 @@ class Database_Parser extends \zesk\Database_Parser {
             'autoincrement',
             'primary key',
         );
-        
+
         $col_opt_matches = null;
         $options = array();
         $preg_pattern = '/' . implode('|', $patterns) . '/i';
@@ -209,7 +209,7 @@ class Database_Parser extends \zesk\Database_Parser {
         }
         return $options;
     }
-    
+
     /**
      * Parse "int(11) unsigned AUTO_INCREMENT PRIMARY KEY NOT NULL," updating table.
      *
@@ -233,9 +233,9 @@ class Database_Parser extends \zesk\Database_Parser {
             $column_name = unquote($col_match[2], SQLITE_COLUMN_QUOTES);
             $col_opt_matches = false;
             $sql_type = $col_match[3];
-            
+
             $options = $this->parse_column_options_sql($table, $sql_type, $col_match[6]);
-            
+
             if (begins($sql_type, "varbinary")) {
                 $options['binary'] = true;
             }
@@ -251,12 +251,12 @@ class Database_Parser extends \zesk\Database_Parser {
             $options['after_column'] = $previous_column;
             $col = new Database_Column($table, $column_name, $options);
             $table->column_add($col);
-            
+
             $previous_column = $column_name;
         }
         return $sql;
     }
-    
+
     /**
      * Parse CREATE TABLE options
      *
@@ -315,7 +315,7 @@ class Database_Parser extends \zesk\Database_Parser {
         }
         return $indexes;
     }
-    
+
     /**
      * Parse Tips
      *
@@ -332,7 +332,7 @@ class Database_Parser extends \zesk\Database_Parser {
                 $renamed_columns[$match[2]] = $match[1];
             }
         }
-        
+
         $add_tips = array();
         $remove_tips = array();
         $tip_matches = null;
@@ -354,7 +354,7 @@ class Database_Parser extends \zesk\Database_Parser {
             "remove" => $remove_tips,
         );
     }
-    
+
     /**
      * Allow renaming of columns and of tables using comments.
      *
@@ -373,7 +373,7 @@ class Database_Parser extends \zesk\Database_Parser {
                 $this->application->logger->notice($table->name() . " contains rename tip for non-existent new column: $previous_name => $column");
             }
         }
-        
+
         $add_tips = avalue($tips, 'add', array());
         foreach ($add_tips as $column => $add_sql) {
             $col = $table->column($column);
@@ -388,7 +388,7 @@ class Database_Parser extends \zesk\Database_Parser {
             $table->set_option("remove_sql", $remove_tips);
         }
     }
-    
+
     /**
      * The money
      *
@@ -398,42 +398,42 @@ class Database_Parser extends \zesk\Database_Parser {
     public function create_table($sql) {
         $matches = false;
         $source_sql = $sql;
-        
+
         /*
          * Extract tips from SQL first, save them
          */
         $tips = self::tips($sql);
-        
+
         // Remove # lines
         $sql = Text::remove_line_comments($sql, '#'); // Technically not valid in SQL - but for legacy reasons leave it in
         $sql = Text::remove_line_comments($sql, '--');
-        
+
         /*
          * Parse table into name, columns, and options
          */
         if (!preg_match(SQLITE_PATTERN_CREATE_TABLE, $sql, $matches)) {
             throw new Exception_Parse(__("Unable to parse CREATE TABLE starting with: {0}", substr($sql, 0, 99)));
         }
-        
+
         $table = unquote($matches[1], SQLITE_TABLE_QUOTES);
         /*
          * Parse table options (end of table declaration)
          */
         $table_options = self::create_table_options($matches[3]);
-        
+
         $table = new Database_Table($this->database, $table);
         $table->source($source_sql);
         $sql_columns = trim($matches[2]) . ",";
-        
+
         self::parse_column_sql($table, $sql_columns);
-        
+
         self::parse_index_sql($table, $sql);
-        
+
         /*
          * Apply tips to entire table
          */
         self::apply_tips($table, $tips);
-        
+
         return $table;
     }
 }

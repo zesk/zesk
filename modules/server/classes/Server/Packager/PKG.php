@@ -13,7 +13,7 @@ class Server_Packager_PKG extends Server_Packager {
     protected function package_install($package) {
         return $this->exec('pkg_add -r {0}', $package);
     }
-    
+
     /**
      * @see Server_Packager::package_installed()
      */

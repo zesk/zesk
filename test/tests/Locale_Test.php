@@ -38,7 +38,7 @@ class Locale_Test extends Test_Unit {
             'z' => 'zs',
             'w' => 'ws',
         );
-        
+
         $n = 2;
         $locale = $this->en_locale();
         foreach ($tests as $test => $result) {
@@ -56,14 +56,14 @@ class Locale_Test extends Test_Unit {
         $result = $locale->conjunction($x, $c);
         echo "$result\n";
         $this->assert($result === 'one thing');
-        
+
         $x = array(
             'one',
             'two',
         );
         $result = $locale->conjunction($x, $c);
         $this->assertEquals("one or two", $result);
-        
+
         $x = array(
             'one',
             'two',
@@ -72,7 +72,7 @@ class Locale_Test extends Test_Unit {
         $result = $locale->conjunction($x, $c);
         echo "$result\n";
         $this->assertEquals('one, two, or three', $result);
-        
+
         $x = array(
             "lions",
             "tigers",
@@ -80,7 +80,7 @@ class Locale_Test extends Test_Unit {
         );
         $c = "or";
         $this->assert($locale->conjunction($x, $c) === "lions, tigers, or bears");
-        
+
         $x = array(
             "lions",
             "tigers",
@@ -90,7 +90,7 @@ class Locale_Test extends Test_Unit {
         );
         $c = "or";
         $this->assert($locale->conjunction($x, $c) === "lions, tigers, bears, campers, or zebras");
-        
+
         $x = array(
             "lions",
             "tigers",
@@ -98,14 +98,14 @@ class Locale_Test extends Test_Unit {
         );
         $c = "and";
         $this->assert($locale->conjunction($x, $c) === "lions, tigers, and bears");
-        
+
         $x = array(
             "lions",
             "tigers",
         );
         $c = "and";
         $this->assert($locale->conjunction($x, $c) === "lions and tigers");
-        
+
         $x = array(
             "lions",
         );
@@ -122,7 +122,7 @@ class Locale_Test extends Test_Unit {
         }
         return $args;
     }
-    
+
     /**
      * Data provider for generic tests across English locales
      *
@@ -131,7 +131,7 @@ class Locale_Test extends Test_Unit {
     public function en_locales() {
         return $this->to_locale_list("en;en_US;en_GB;en_CA");
     }
-    
+
     /**
      * Data provider for generic tests across locales
      *
@@ -172,7 +172,7 @@ class Locale_Test extends Test_Unit {
         $this->assert_equal(Locale::parse_dialect(0.0), null);
         $this->assert_equal(Locale::parse_dialect(null), null);
     }
-    
+
     /**
      * @dataProvider en_locales
      * @param Locale $locale
@@ -232,7 +232,7 @@ class Locale_Test extends Test_Unit {
         $result = $locale->now_string($ts, $min_unit, $zero_string);
         $this->assert_is_string($result);
     }
-    
+
     /**
      *
      */
@@ -254,7 +254,7 @@ class Locale_Test extends Test_Unit {
         $this->assert_equal($locale->ordinal(111), "111th");
         $this->assert_equal($locale->ordinal(112), "112th");
         $this->assert_equal($locale->ordinal(113), "113th");
-        
+
         $locale = $this->fr_locale();
         $this->assert_equal($locale->ordinal(1, "fr"), "1r");
         $this->assert_equal($locale->ordinal(2, "fr"), "2e");
@@ -285,16 +285,16 @@ class Locale_Test extends Test_Unit {
             'FOX' => 'FOXES',
             'box' => 'boxes',
         );
-        
+
         $n = 2;
         $locale = $this->en_locale();
         foreach ($tests as $test => $result) {
             $this->assert_equal($locale->plural($test, $n), $result);
         }
-        
+
         echo basename(__FILE__) . ": success\n";
     }
-    
+
     /**
      * @dataProvider en_locales
      * @param Locale $locale
@@ -324,7 +324,7 @@ class Locale_Test extends Test_Unit {
             'FOX' => 'FOXES',
             'box' => 'boxes',
         );
-        
+
         $n = null;
         foreach ($tests as $test => $plural) {
             for ($i = 0; $i < 100; $i++) {
@@ -370,7 +370,7 @@ class Locale_Test extends Test_Unit {
             'FOX' => 'FOXES',
             'box' => 'boxes',
         );
-        
+
         $n = null;
         foreach ($tests as $test => $plural) {
             for ($i = 0; $i < 100; $i++) {
@@ -412,7 +412,7 @@ class Locale_Test extends Test_Unit {
             ),
         );
     }
-    
+
     /**
      * @dataProvider translation_tests
      * @param Locale $locale
@@ -422,7 +422,7 @@ class Locale_Test extends Test_Unit {
     public function test_locale_translation(Locale $locale, $test, $expected) {
         $this->assertEquals($expected, $locale->__($test));
     }
-    
+
     /**
      * @dataProvider locales
      */
@@ -430,7 +430,7 @@ class Locale_Test extends Test_Unit {
         $include_seconds = false;
         $this->assert_is_string($locale->time_format($include_seconds));
     }
-    
+
     /**
      * @dataProvider locales
      * @param Locale $locale
@@ -443,7 +443,7 @@ class Locale_Test extends Test_Unit {
             $this->assert_equal($locale->__($phrase), $locale($phrase));
         }
     }
-    
+
     /**
      * Apparently, this was a problem at some point
      */

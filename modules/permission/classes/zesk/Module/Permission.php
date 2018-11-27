@@ -19,14 +19,14 @@ class Module_Permission extends Module {
      * @var array
      */
     private $_permissions = null;
-    
+
     /**
      * Role Permissions cache
      *
      * @var array of [rid][action] => boolean
      */
     private $_role_permissions = null;
-    
+
     /**
      *
      * @var array
@@ -36,7 +36,7 @@ class Module_Permission extends Module {
         "zesk\\Module::permissions",
         "zesk\\ORM::permissions",
     );
-    
+
     /**
      * Implement Module::classes
      *
@@ -75,7 +75,7 @@ class Module_Permission extends Module {
     public function user_can(User $user, $action, Model $context = null, $options) {
         $application = $this->application;
         $this->prepare_user($user);
-        
+
         if ($user->is_root) {
             return true;
         }
@@ -90,7 +90,7 @@ class Module_Permission extends Module {
         $default_class = $context ? $this->model_permission_class($context) : null;
         list($class, $permission) = pair($a, "::", $default_class, $a);
         $lowclass = strtolower($class);
-        
+
         $cache_key = "$lowclass::$permission";
         $user_cache = $user->object_cache("permission");
         $user_cached_permissions = $user_cache->isHit() ? $user_cache->get() : array();
@@ -98,7 +98,7 @@ class Module_Permission extends Module {
             return $user_cached_permissions[$cache_key];
         }
         $perms = $this->permissions();
-        
+
         $parent_classes = empty($class) ? array() : ArrayTools::change_value_case($application->classes->hierarchy($class, "Model"));
         $parent_classes[] = "*";
         foreach ($parent_classes as $parent_class) {
@@ -122,7 +122,7 @@ class Module_Permission extends Module {
                 }
             }
         }
-        
+
         $rids = $this->user_roles($user);
         foreach ($rids as $rid) {
             $result = apath($perms, array(
@@ -156,7 +156,7 @@ class Module_Permission extends Module {
         $application->cache->saveDeferred($user_cache->set($user_cached_permissions));
         return $result;
     }
-    
+
     /**
      *
      * @param User $user
@@ -205,7 +205,7 @@ class Module_Permission extends Module {
             ->to_array(null, "Role", array());
         return $user->_roles;
     }
-    
+
     /**
      * Refresh the permissions cache as often as needed
      */
@@ -228,7 +228,7 @@ class Module_Permission extends Module {
             $application->logger->debug("Cache matches computed");
         }
     }
-    
+
     /**
      *
      * @return CacheItemInterface
@@ -236,7 +236,7 @@ class Module_Permission extends Module {
     private function _cache() {
         return $this->application->cache->getItem(__CLASS__);
     }
-    
+
     /**
      * Optionally save cached item
      * @param CacheItemInterface $item
@@ -247,7 +247,7 @@ class Module_Permission extends Module {
         }
         $this->application->cache->saveDeferred($item);
     }
-    
+
     /**
      *
      * @return array|null
@@ -268,7 +268,7 @@ class Module_Permission extends Module {
         $perms = $cache->get();
         return is_array($perms) ? $perms : null;
     }
-    
+
     /**
      * Retrieve
      *
@@ -286,7 +286,7 @@ class Module_Permission extends Module {
         $this->_permissions_cached($this->_permissions);
         return $this->_permissions;
     }
-    
+
     /**
      *
      * @param mixed $mixed
@@ -310,7 +310,7 @@ class Module_Permission extends Module {
             "-" => "_",
         ));
     }
-    
+
     /**
      *
      * @return array|string
@@ -360,7 +360,7 @@ class Module_Permission extends Module {
         $lock->release();
         return $result;
     }
-    
+
     /**
      *
      * @param string $code
@@ -381,7 +381,7 @@ class Module_Permission extends Module {
         ));
         return $config;
     }
-    
+
     /**
      * Hook call to add up permissions and create the permissions structure from the hooks in the
      * system.
@@ -430,7 +430,7 @@ class Module_Permission extends Module {
         $state[strtolower($class)] = $class_perms; // + array("*class" => $class);
         return $state;
     }
-    
+
     /**
      */
     protected function hook_cache_clear() {
@@ -439,7 +439,7 @@ class Module_Permission extends Module {
             ->truncate(true)
             ->execute();
     }
-    
+
     /**
      *
      * @param Model $context

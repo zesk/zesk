@@ -7,13 +7,13 @@ class Service extends Hookable {
      * @var Application
      */
     public $application = null;
-    
+
     /**
      *
      * @var unknown
      */
     private static $valid_types = null;
-    
+
     /**
      *
      * @param Application $application
@@ -39,7 +39,7 @@ class Service extends Hookable {
         }
         return $type === null ? self::$valid_types : array_key_exists(strtolower($type), self::$valid_types);
     }
-    
+
     /**
      * Retrieve the classes which implement the selected service
      *
@@ -52,7 +52,7 @@ class Service extends Hookable {
         }
         return array();
     }
-    
+
     /**
      * Subclasses should create a factory_$type function to allow parameters to be passed
      *

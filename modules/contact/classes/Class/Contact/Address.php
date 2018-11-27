@@ -32,7 +32,7 @@ class Class_Contact_Address extends Class_Contact_Info {
         'country' => 'zesk\\Country',
         'county' => 'zesk\\County',
     );
-    
+
     /**
      *
      * @var array
@@ -59,7 +59,7 @@ class Class_Contact_Address extends Class_Contact_Info {
         'modified' => self::type_modified,
         'data' => self::type_serialize,
     );
-    
+
     /**
      *
      * @var array

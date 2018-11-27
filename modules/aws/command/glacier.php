@@ -21,7 +21,7 @@ class Command_Glacier extends \zesk\Command_Base {
      * @var string
      */
     protected $help = "Glacier command to store, retrieve, list, and manage glacier files. Specify no parameters to list all vaults.\n\nYou can specify archives and vaults together by using vault-name:archive-id for parameters and avoid specifying the --vault parameter.";
-    
+
     /**
      * Option types to be passed to this command
      *
@@ -35,7 +35,7 @@ class Command_Glacier extends \zesk\Command_Base {
         "wait" => "boolean",
         "*" => "string",
     );
-    
+
     /**
      * Help string associated with each option
      *
@@ -47,14 +47,14 @@ class Command_Glacier extends \zesk\Command_Base {
         "vault" => "Specify which vault to access",
         "list" => "List files within the specified vault",
     );
-    
+
     /**
      * Client reference
      *
      * @var AWS_Glacier
      */
     private $glacier = null;
-    
+
     /**
      * Require the --vault parameter
      *
@@ -67,7 +67,7 @@ class Command_Glacier extends \zesk\Command_Base {
         }
         return $vault;
     }
-    
+
     /**
      * Main entry point
      *
@@ -76,7 +76,7 @@ class Command_Glacier extends \zesk\Command_Base {
     public function run() {
         try {
             $this->glacier = new Glacier();
-            
+
             if ($this->has_option("store")) {
                 return $this->run_archive_store();
             }
@@ -91,7 +91,7 @@ class Command_Glacier extends \zesk\Command_Base {
             $this->error($e->getMessage());
         }
     }
-    
+
     /**
      * Save a file
      *
@@ -145,7 +145,7 @@ class Command_Glacier extends \zesk\Command_Base {
         } while ($status['StatusCode'] === "InProgress");
         return 0;
     }
-    
+
     /**
      */
     private function run_list() {

@@ -54,9 +54,9 @@ class Net_HTTP_Client_Cookie {
         $this->value = $value;
         $this->domain = strtolower($domain);
         $this->path = $path;
-        
+
         $this->setExpires($expires);
-        
+
         $this->secure = $secure ? true : false;
     }
 

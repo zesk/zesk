@@ -20,9 +20,9 @@ class Net_Server_Driver_Fork extends Net_Server_Driver {
 
     public function start() {
         $this->listen();
-        
+
         pcntl_signal(SIGCHLD, SIG_IGN);
-        
+
         // wait for incmoning connections
         while (true) {
             // Forks in _after_accept
@@ -30,7 +30,7 @@ class Net_Server_Driver_Fork extends Net_Server_Driver {
             if ($client_id === null) {
                 continue;
             }
-            
+
             /* Child */
             $this->is_parent = false;
             // store the new file descriptor

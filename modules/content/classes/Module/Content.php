@@ -24,7 +24,7 @@ class Module_Content extends Module implements Interface_Module_Head {
     );
 
     public $model_classes = array();
-    
+
     /**
      *
      * {@inheritDoc}
@@ -50,7 +50,7 @@ class Module_Content extends Module implements Interface_Module_Head {
             $this->model_classes = array_keys(self::$all_classes);
         }
     }
-    
+
     /**
      *
      * @param Request $request
@@ -61,7 +61,7 @@ class Module_Content extends Module implements Interface_Module_Head {
             "share" => true,
         ));
     }
-    
+
     /**
      * Register hooks
      */

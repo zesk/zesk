@@ -37,7 +37,7 @@ class Net_HTTP_Server_File extends Net_HTTP_Server {
 
     final protected function handle_request(Net_HTTP_Server_Request $request, Net_HTTP_Server_Response $response) {
         $uri = $request->uri;
-        
+
         if ($this->root_path === null) {
             throw new Net_HTTP_Server_Exception(Net_HTTP::STATUS_FILE_NOT_FOUND, null, "root_path is not set");
         }
@@ -67,7 +67,7 @@ class Net_HTTP_Server_File extends Net_HTTP_Server {
                 return;
             }
         }
-        
+
         if (!is_file($full_path)) {
             throw new Net_HTTP_Server_Exception(Net_HTTP::STATUS_FILE_NOT_FOUND, null, "$uri not found");
         }

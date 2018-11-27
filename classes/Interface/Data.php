@@ -14,7 +14,7 @@ interface Interface_Data {
      * @return mixed|Interface_Data
      */
     public function data($name, $value = null);
-    
+
     /**
      * Delete data
      *

@@ -18,7 +18,7 @@ class Module extends \zesk\Module_JSLib {
     protected $css_paths = array(
         '/share/openlayers/css/ol.css',
     );
-    
+
     /**
      *
      * @var array

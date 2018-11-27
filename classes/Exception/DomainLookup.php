@@ -16,7 +16,7 @@ class Exception_DomainLookup extends Exception {
      * @var string
      */
     public $host = null;
-    
+
     /**
      *
      * @param string $host

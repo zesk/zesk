@@ -16,7 +16,7 @@ class Exception_Class_NotFound extends Exception {
      * @var string
      */
     public $class = null;
-    
+
     /**
      * Construct a new exception
      *
@@ -35,7 +35,7 @@ class Exception_Class_NotFound extends Exception {
         ) + to_array($arguments), 0, $previous);
         $this->class = $class;
     }
-    
+
     /**
      * Retrieve variables for a Template
      *

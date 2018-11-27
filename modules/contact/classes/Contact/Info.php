@@ -18,7 +18,7 @@ abstract class Contact_Info extends ORM {
      * @return string
      */
     abstract public function label_type();
-    
+
     /**
      *
      *
@@ -35,7 +35,7 @@ abstract class Contact_Info extends ORM {
         // 			));
         // 		}
     }
-    
+
     /**
      * Effective no-op
      * @todo
@@ -51,7 +51,7 @@ abstract class Contact_Info extends ORM {
         }
         return $result;
     }
-    
+
     /**
      * Effective no-op
      *

@@ -19,13 +19,13 @@ class Options_Duplicate extends Options {
      * @var array
      */
     public $map = array();
-    
+
     /**
      *
      * @var array
      */
     public $members = array();
-    
+
     /**
      *
      * @param unknown $member
@@ -34,7 +34,7 @@ class Options_Duplicate extends Options {
     public function has_member($member) {
         return array_key_exists($member, $this->members);
     }
-    
+
     /**
      *
      * @param unknown $member
@@ -43,7 +43,7 @@ class Options_Duplicate extends Options {
     public function has_map($member) {
         return array_key_exists($member, $this->map);
     }
-    
+
     /**
      *
      * @param string $member
@@ -67,7 +67,7 @@ class Options_Duplicate extends Options {
         $this->members[$member] = $value;
         return $this;
     }
-    
+
     /**
      *  $old is now $new in new object, so map appropriate fields
      *
@@ -80,7 +80,7 @@ class Options_Duplicate extends Options {
         $this->map[$member][$old->id()] = $new->id();
         return $this;
     }
-    
+
     /**
      * Apply Options_Duplicate to
      *

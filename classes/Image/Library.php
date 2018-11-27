@@ -7,13 +7,13 @@ abstract class Image_Library {
      * @var string
      */
     const width = "width";
-    
+
     /**
      *
      * @var string
      */
     const height = "height";
-    
+
     /**
      *
      * @var Application
@@ -58,16 +58,16 @@ abstract class Image_Library {
                 $application->hooks->call("exception", $e);
             }
         }
-        
+
         return null;
     }
-    
+
     /**
      * Override in subclasses to hook into constructor
      */
     public function construct() {
     }
-    
+
     /**
      * Scale an image and save to disk
      *
@@ -77,7 +77,7 @@ abstract class Image_Library {
      * @return boolean
      */
     abstract public function image_scale($source, $dest, array $options);
-    
+
     /**
      * Scale an image in memory
      *
@@ -86,7 +86,7 @@ abstract class Image_Library {
      * @return string
      */
     abstract public function image_scale_data($data, array $options);
-    
+
     /**
      * Rotate
      * @param unknown $source
@@ -95,7 +95,7 @@ abstract class Image_Library {
      * @param array $options
      */
     abstract public function image_rotate($source, $destination, $degrees, array $options = array());
-    
+
     /**
      * Scale an image size to be within a rectangle specified
 

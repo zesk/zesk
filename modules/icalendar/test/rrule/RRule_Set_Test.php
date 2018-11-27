@@ -68,12 +68,12 @@ class RRule_Set_Test extends Test_Unit {
         foreach ($tests as $test_index => $test) {
             $description = $rrule = $result = null;
             extract($test, EXTR_IF_EXISTS);
-            
+
             if ($test_index === 36) {
                 // KMD TODO DEBUGGING
                 $forever = false;
             }
-            
+
             $parser = new RRule\Parser();
             $ruleset = $parser->parse($rrule);
             $results = $this->parse_results($result);

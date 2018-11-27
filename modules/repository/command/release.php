@@ -17,7 +17,7 @@ class Command_Release extends Command_Base {
         "GitHub",
         "Subversion",
     );
-    
+
     /**
      *
      * {@inheritdoc}

@@ -12,14 +12,14 @@ class Adapter_Settings_Configuration implements Interface_Settings {
      * @var \zesk\Configuration
      */
     protected $configuration = null;
-    
+
     /**
      *
      */
     public function __construct(Configuration $configuration) {
         $this->configuration = $configuration;
     }
-    
+
     /**
      * Is a value set in this object?
      * @return boolean
@@ -27,7 +27,7 @@ class Adapter_Settings_Configuration implements Interface_Settings {
     public function __isset($name) {
         return $this->configuration->path_exists($name);
     }
-    
+
     /**
      * Is a value set in this object?
      * @return boolean
@@ -35,7 +35,7 @@ class Adapter_Settings_Configuration implements Interface_Settings {
     public function has($name) {
         return $this->__isset($name);
     }
-    
+
     /**
      * Retrieve a value from the settings
      * @param mixed $name A string or key value (integer, float)
@@ -54,7 +54,7 @@ class Adapter_Settings_Configuration implements Interface_Settings {
     public function get($name = null, $default = null) {
         return $this->configuration->path_get($name, $default);
     }
-    
+
     /**
      * Store a value to a settings
      *
@@ -64,7 +64,7 @@ class Adapter_Settings_Configuration implements Interface_Settings {
     public function __set($name, $value) {
         $this->configuration->path_set($name, $value);
     }
-    
+
     /**
      * Store a value to a settings
      *
@@ -75,7 +75,7 @@ class Adapter_Settings_Configuration implements Interface_Settings {
     public function set($name, $value = null) {
         $this->configuration->path_set($name, $value);
     }
-    
+
     /**
      * Retrieve a list of all settings variables as an array
      *

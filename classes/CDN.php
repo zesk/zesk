@@ -78,7 +78,7 @@ class CDN {
     public static function compare($a, $b) {
         return strlen($b) - strlen($a);
     }
-    
+
     /**
      * Add a mapping from a path to a CDN path.
      * Optionally do variable substitution if needed.

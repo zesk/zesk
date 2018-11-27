@@ -15,18 +15,18 @@ class Timer_Test extends Test_Unit {
         $initTime = false;
         $offset = 0;
         $x = new Timer($initTime, $offset);
-        
+
         Timer::now();
-        
+
         $x->stop();
-        
+
         $x->mark();
-        
+
         $x->elapsed();
-        
+
         $comment = '';
         $x->output($comment);
-        
+
         $comment = '';
         $x->dump($comment);
     }

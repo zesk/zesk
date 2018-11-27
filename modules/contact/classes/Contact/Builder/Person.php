@@ -18,7 +18,7 @@ class Contact_Builder_Person extends Contact_Builder_Base {
      * @var string
      */
     protected $contact_class = "zesk\\Contact_Person";
-    
+
     /**
      *
      * {@inheritDoc}
@@ -31,7 +31,7 @@ class Contact_Builder_Person extends Contact_Builder_Base {
         );
         $data = map($data, $map);
         $import->merge_item($this->contact_class, 0, $data);
-        
+
         return true;
     }
 }

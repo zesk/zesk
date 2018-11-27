@@ -22,7 +22,7 @@ class JSON {
     public static function valid_member_name($name) {
         return preg_match('/^[$A-Za-z_][$A-Za-z_0-9]*$/', $name) !== 0;
     }
-    
+
     /**
      * Quote a member name if necessary
      *
@@ -35,7 +35,7 @@ class JSON {
         }
         return self::quote($name);
     }
-    
+
     /**
      * Quote a JSON token properly
      *
@@ -45,7 +45,7 @@ class JSON {
     public static function quote($name) {
         return '"' . addcslashes($name, "\t\n\r\"\\") . '"';
     }
-    
+
     /**
      * Pretty output of JSON
      *
@@ -124,7 +124,7 @@ class JSON {
             die("Unknown type: $mixed " . gettype($mixed));
         }
     }
-    
+
     /**
      * Like json_encode, except removes unnecessary quotes in keys
      *
@@ -172,7 +172,7 @@ class JSON {
             die("Unknown type: $mixed " . gettype($mixed));
         }
     }
-    
+
     /**
      * Like json_decode, except if the decoding fails throw an exception
      *
@@ -204,7 +204,7 @@ class JSON {
             return self::zesk_decode($string, $assoc);
         }
     }
-    
+
     /**
      *
      * @param unknown $code
@@ -241,14 +241,14 @@ class JSON {
         }
         return null;
     }
-    
+
     /**
      * Used to track state for Zesk's internal JSON decoder
      *
      * @var Exception
      */
     public static $last_error = null;
-    
+
     /**
      * Like json_decode except use Zesk's internal parser (slow)
      *
@@ -272,7 +272,7 @@ class JSON {
         }
         return null;
     }
-    
+
     /**
      * Decode JSON string starting with white space, then a value
      *
@@ -347,7 +347,7 @@ class JSON {
             "offset" => $offset,
         ));
     }
-    
+
     /**
      * JSON parse number
      *
@@ -377,7 +377,7 @@ class JSON {
             "offset" => $offset,
         ));
     }
-    
+
     /**
      * JSON decode array
      *
@@ -436,7 +436,7 @@ class JSON {
             "offset" => $offset,
         ));
     }
-    
+
     /**
      * JSON decode object
      *
@@ -519,7 +519,7 @@ class JSON {
             "offset" => $offset,
         ));
     }
-    
+
     /**
      * JSON decode string
      *
@@ -540,7 +540,7 @@ class JSON {
             'r' => "\r",
             't' => "\t",
         );
-        
+
         $len = strlen($string);
         $result = '';
         $i = 1;
@@ -558,7 +558,7 @@ class JSON {
 
                 continue;
             }
-            
+
             if ($i >= $len) {
                 throw new Exception_Parse("Unterminated string at offset {offset}", array(
                     "offset" => $offset + $i,

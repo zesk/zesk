@@ -17,7 +17,7 @@ namespace zesk;
  */
 class Preference extends ORM {
     const type_class = "zesk\\Preference_Type";
-    
+
     /**
      * Store - check requirements
      *
@@ -33,7 +33,7 @@ class Preference extends ORM {
         }
         return parent::store();
     }
-    
+
     /**
      * Does the user have a perference value?
      *
@@ -57,7 +57,7 @@ class Preference extends ORM {
             ->what('value', 'COUNT(X.value)')
             ->one_integer('value') !== 0;
     }
-    
+
     /**
      * Internal function to retrieve
      *

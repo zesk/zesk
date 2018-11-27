@@ -22,7 +22,7 @@ class Control_Filter extends Control {
      * @var string
      */
     protected $theme_header = "zesk/control/filter/header";
-    
+
     /**
      * Row tag
      */
@@ -38,7 +38,7 @@ class Control_Filter extends Control {
         "role" => "filter",
         "method" => "GET",
     );
-    
+
     /**
      * Footer theme
      *
@@ -52,20 +52,20 @@ class Control_Filter extends Control {
      * @var string
      */
     protected $theme_suffix = "zesk/control/filter/suffix";
-    
+
     /**
      *
      * @var array
      */
     protected $widgets = array();
-    
+
     /**
      * Cell tag
      *
      * @var array
      */
     protected $widget_tag = "div";
-    
+
     /**
      * Cell attributes
      *
@@ -80,20 +80,20 @@ class Control_Filter extends Control {
      * @var string
      */
     protected $render_children = false;
-    
+
     /**
      *
      * @var string
      */
     protected $traverse = true;
-    
+
     /**
      * Format theme as replacement strings
      *
      * @var string
      */
     protected $theme_widgets = null;
-    
+
     /**
      *
      * {@inheritDoc}
@@ -102,7 +102,7 @@ class Control_Filter extends Control {
     public function model() {
         return new Model($this->application);
     }
-    
+
     /**
      *
      */
@@ -121,7 +121,7 @@ class Control_Filter extends Control {
             }
         }
     }
-    
+
     /**
      *
      * {@inheritDoc}
@@ -134,7 +134,7 @@ class Control_Filter extends Control {
         parent::initialize();
         $this->init_defaults();
     }
-    
+
     /**
      *
      * {@inheritDoc}

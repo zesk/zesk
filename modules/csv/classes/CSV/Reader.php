@@ -23,7 +23,7 @@ class CSV_Reader extends CSV {
      * @var string
      */
     protected $FileBuffer;
-    
+
     /**
      *
      * @param unknown $filename
@@ -36,7 +36,7 @@ class CSV_Reader extends CSV {
             $this->filename($filename);
         }
     }
-    
+
     /**
      * Create a CSV_Reader
      *
@@ -47,7 +47,7 @@ class CSV_Reader extends CSV {
     public static function factory($filename, array $options = array()) {
         return new self($filename, $options);
     }
-    
+
     /**
      * Retrieve an iterator for this CSV_Reader
      *
@@ -57,7 +57,7 @@ class CSV_Reader extends CSV {
     public function iterator(array $options = array()) {
         return new CSV_Reader_Iterator($this, $options);
     }
-    
+
     /**
      * Get/set filename associated with this CSV_Reader
      *
@@ -74,7 +74,7 @@ class CSV_Reader extends CSV {
         }
         return $this->FileName;
     }
-    
+
     /**
      * Set the file name to read
      *
@@ -84,7 +84,7 @@ class CSV_Reader extends CSV {
     public function set_file($filename) {
         return parent::_set_file($filename, "r")->determine_encoding();
     }
-    
+
     /**
      * Retrieve a structure which saves the state of the CSV Reader file read position and row index
      *
@@ -101,7 +101,7 @@ class CSV_Reader extends CSV {
             'key' => $this->_magic_number(),
         );
     }
-    
+
     /**
      * Seek to a previous tell point. Do not try to construct this structure
      *
@@ -124,7 +124,7 @@ class CSV_Reader extends CSV {
         $this->FileBuffer = $tell['file_buffer'];
         fseek($this->File, $tell['file_pos']);
     }
-    
+
     /**
      * Are we at the end of the file?
      *
@@ -141,7 +141,7 @@ class CSV_Reader extends CSV {
         }
         return feof($this->File);
     }
-    
+
     /**
      * Read a single line from the file. Converts from UTF-8 and UTF-16 encodings if needed
      *
@@ -171,7 +171,7 @@ class CSV_Reader extends CSV {
                 return fgetcsv($this->File, 10240, $this->Delimiter, $this->Enclosure);
         }
     }
-    
+
     /**
      * Read the headers from the CSV file
      *
@@ -190,7 +190,7 @@ class CSV_Reader extends CSV {
         }
         return $this->headers();
     }
-    
+
     /**
      * Read a row from the CSV file, keys are column positions (0 = first, 1 = second, etc.)
      *
@@ -218,7 +218,7 @@ class CSV_Reader extends CSV {
         $this->RowIndex = $this->RowIndex + 1;
         return $this->Row;
     }
-    
+
     /**
      * Read a row and map column names using our headers
      *
@@ -243,7 +243,7 @@ class CSV_Reader extends CSV {
         $r = $this->postprocess_row($r);
         return $r;
     }
-    
+
     /**
      * Override in subclasses
      *
@@ -253,7 +253,7 @@ class CSV_Reader extends CSV {
     protected function postprocess_row(array $row) {
         return $row;
     }
-    
+
     /**
      * Skip one or more reows in the file.
      *
@@ -274,7 +274,7 @@ class CSV_Reader extends CSV {
             $this->RowIndex++;
         }
     }
-    
+
     /**
      * Determine the encoding of the file by peeking at the first 1K bytes
      *
@@ -312,7 +312,7 @@ class CSV_Reader extends CSV {
         }
         $this->_determine_delimiter($file_sample);
     }
-    
+
     /**
      * Retrieve a magic number to avoid bogus data in tell/seek
      *
@@ -321,7 +321,7 @@ class CSV_Reader extends CSV {
     private function _magic_number() {
         return md5($this->FileName . filesize($this->FileName));
     }
-    
+
     /**
      * Determine the delimiter used between CSV cells per line by sampling and counting each in the selected line
      *

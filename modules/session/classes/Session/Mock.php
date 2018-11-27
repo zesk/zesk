@@ -13,7 +13,7 @@ class Session_Mock extends Hookable implements Interface_Session {
      * @var Application
      */
     public $application = null;
-    
+
     /**
      *
      * @var string
@@ -25,7 +25,7 @@ class Session_Mock extends Hookable implements Interface_Session {
      * @var array
      */
     private $data = array();
-    
+
     /**
      *
      * @param Application $application
@@ -41,7 +41,7 @@ class Session_Mock extends Hookable implements Interface_Session {
             $this->data = $mixed;
         }
     }
-    
+
     /**
      * Singleton interface to retrieve current session
      *
@@ -50,7 +50,7 @@ class Session_Mock extends Hookable implements Interface_Session {
     public function initialize_session(Request $request) {
         return $this;
     }
-    
+
     /**
      *
      * {@inheritdoc}
@@ -68,7 +68,7 @@ class Session_Mock extends Hookable implements Interface_Session {
     public function __isset($name) {
         return isset($this->data[$name]);
     }
-    
+
     /**
      *
      * {@inheritdoc}
@@ -81,7 +81,7 @@ class Session_Mock extends Hookable implements Interface_Session {
         }
         return avalue($this->data, $name, $default);
     }
-    
+
     /**
      *
      * {@inheritdoc}
@@ -91,7 +91,7 @@ class Session_Mock extends Hookable implements Interface_Session {
     public function eget($name, $default = null) {
         return aevalue($this->data, $name, $default);
     }
-    
+
     /**
      *
      * {@inheritdoc}
@@ -102,7 +102,7 @@ class Session_Mock extends Hookable implements Interface_Session {
         $this->need();
         return avalue($this->data, $name);
     }
-    
+
     /**
      *
      * {@inheritdoc}
@@ -112,7 +112,7 @@ class Session_Mock extends Hookable implements Interface_Session {
     public function __set($name, $value) {
         $this->data[$name] = $value;
     }
-    
+
     /**
      *
      * {@inheritdoc}
@@ -122,7 +122,7 @@ class Session_Mock extends Hookable implements Interface_Session {
     public function set($name, $value = null) {
         $this->__set($name, $value);
     }
-    
+
     /**
      *
      * {@inheritdoc}
@@ -135,7 +135,7 @@ class Session_Mock extends Hookable implements Interface_Session {
         }
         return ArrayTools::filter($this->data, $list);
     }
-    
+
     /**
      *
      * @return mixed|mixed[]|\zesk\Configuration
@@ -143,7 +143,7 @@ class Session_Mock extends Hookable implements Interface_Session {
     private function global_session_user_id() {
         return $this->application->configuration->path(__CLASS__)->get("user_id_variable", "user");
     }
-    
+
     /**
      *
      * {@inheritdoc}
@@ -153,7 +153,7 @@ class Session_Mock extends Hookable implements Interface_Session {
     public function user_id() {
         return $this->__get(self::global_session_user_id());
     }
-    
+
     /**
      *
      * {@inheritdoc}
@@ -173,7 +173,7 @@ class Session_Mock extends Hookable implements Interface_Session {
             return null;
         }
     }
-    
+
     /**
      *
      * {@inheritdoc}
@@ -184,7 +184,7 @@ class Session_Mock extends Hookable implements Interface_Session {
         $this->__set(self::global_session_user_id(), ORM::mixed_to_id($id));
         $this->__set(self::global_session_user_id() . "_IP", $ip);
     }
-    
+
     /**
      *
      * {@inheritdoc}
@@ -195,7 +195,7 @@ class Session_Mock extends Hookable implements Interface_Session {
         $user = $this->__get(self::global_session_user_id());
         return !empty($user);
     }
-    
+
     /**
      *
      * {@inheritdoc}
@@ -205,7 +205,7 @@ class Session_Mock extends Hookable implements Interface_Session {
     public function deauthenticate() {
         $this->__set(self::global_session_user_id(), null);
     }
-    
+
     /**
      *
      * {@inheritdoc}
@@ -215,7 +215,7 @@ class Session_Mock extends Hookable implements Interface_Session {
     public function variables() {
         return $this->data;
     }
-    
+
     /**
      *
      * {@inheritdoc}

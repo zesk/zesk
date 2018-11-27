@@ -11,45 +11,45 @@ class PHP_Inspector {
      * @var Application
      */
     private $app = null;
-    
+
     /**
      * File path
      *
      * @var string
      */
     protected $file = null;
-    
+
     /**
      * PHP File contents
      *
      * @var string
      */
     protected $contents = null;
-    
+
     /**
      *
      * @var array
      */
     protected $tokens = null;
-    
+
     /**
      *
      * @var integer
      */
     protected $tokens_length = null;
-    
+
     /**
      *
      * @var string[]
      */
     protected $classes = null;
-    
+
     /**
      *
      * @var string[]
      */
     protected $functions = null;
-    
+
     /**
      *
      * @param Application $application
@@ -73,12 +73,12 @@ class PHP_Inspector {
         $this->contents = file_get_contents($file);
         $this->tokens = token_get_all($this->contents);
         $this->tokens_length = count($this->tokens);
-        
+
         $this->classes = null;
         $this->functions = null;
         $this->included = false;
     }
-    
+
     /**
      * Determine declared classes in this file
      */
@@ -88,7 +88,7 @@ class PHP_Inspector {
         }
         return $this->classes;
     }
-    
+
     /**
      *
      * @param string $class
@@ -126,7 +126,7 @@ class PHP_Inspector {
         }
         return $this->functions;
     }
-    
+
     /**
      *
      * @param integer $index
@@ -174,7 +174,7 @@ class PHP_Inspector {
         }
         return $classes;
     }
-    
+
     /**
      * Walk the token list and extract top-level function names
      *
@@ -211,7 +211,7 @@ class PHP_Inspector {
         }
         return $functions;
     }
-    
+
     /**
      *
      * @param index $index
@@ -294,7 +294,7 @@ class PHP_Inspector {
         ));
         return $capture;
     }
-    
+
     /**
      * Output all tokens
      */

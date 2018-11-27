@@ -3,7 +3,7 @@ namespace zesk;
 
 interface Net_FileSystem {
     const feature_mtime = 'mtime';
-    
+
     /**
      * @return Application
      */

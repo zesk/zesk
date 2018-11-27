@@ -14,7 +14,7 @@ class Controller_Control extends Controller {
      * @var string
      */
     protected $method_default_action = "action_control";
-    
+
     /**
      * Method to use as default action in this Controller. Must be a valid method name.
      *
@@ -41,7 +41,7 @@ class Controller_Control extends Controller {
             $this->error_404("Control prohibited.");
             return;
         }
-        
+
         $result = array(
             "content" => $this->widget_factory($control, $this->request, $this->response)
                 ->names($name, null, $input)

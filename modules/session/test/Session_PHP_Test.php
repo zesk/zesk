@@ -17,25 +17,25 @@ class Session_PHP_Test extends Test_Unit {
 
     public function test_main() {
         $class = __NAMESPACE__ . "\\" . "Session_PHP";
-        
+
         $this->application->set_option("session_class", $class);
-        
+
         $request = new Request($this->application);
         $request->initialize_from_settings(array(
             "url" => "http://localhost/path",
         ));
-        
+
         $session = $this->application->session($request);
-        
+
         $this->assert_instanceof($session, $class);
-        
+
         $this->session_tests($session);
     }
 
     public function session_tests(Interface_Session $session) {
         $id = $session->id();
         $this->assert_is_string($id, "Session ID is string");
-        
+
         $request = new Request($this->application);
         $request->initialize_from_settings(array(
             "url" => "http://localhost/",

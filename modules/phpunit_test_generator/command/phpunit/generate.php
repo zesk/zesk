@@ -19,7 +19,7 @@ class Command_PHPUnit_Generate extends Command_Iterator_File {
      * @var string
      */
     protected $destination = null;
-    
+
     /**
      * (non-PHPdoc)
      *
@@ -31,7 +31,7 @@ class Command_PHPUnit_Generate extends Command_Iterator_File {
         );
         parent::initialize();
     }
-    
+
     /**
      */
     protected function start() {
@@ -43,14 +43,14 @@ class Command_PHPUnit_Generate extends Command_Iterator_File {
         }
         Directory::depend($this->destination);
     }
-    
+
     /**
      *
      * @param SplFileInfo $file
      */
     protected function process_file(\SplFileInfo $file) {
     }
-    
+
     /**
      */
     protected function finish() {

@@ -31,18 +31,18 @@ class Control_Pager extends Control {
             "limit",
         ));
     }
-    
+
     /**
      *
      * @var boolean
      */
     protected $traverse = true;
-    
+
     /*
      * @var Control_Select
      */
     protected $limit_widget = null;
-    
+
     /**
      *
      * @var array
@@ -50,7 +50,7 @@ class Control_Pager extends Control {
     protected $options = array(
         'column' => 'pager',
     );
-    
+
     /**
      *
      * {@inheritDoc}
@@ -80,19 +80,19 @@ class Control_Pager extends Control {
 
     private function _limit_widget() {
         $pager_limit_list = $this->pager_limit_list();
-        
+
         $pager_limit_list = ArrayTools::flip_copy($pager_limit_list);
-        
+
         $ajax_id = $this->option('ajax_id');
         $onchange = $ajax_id ? "pager_limit_change.call(this,'$ajax_id')" : "this.form.submit()";
-        
+
         $options = array();
         $options['options'] = $pager_limit_list;
         $options['onchange'] = $onchange;
         $options['default'] = $this->request->geti('limit', $this->limit_default());
         $options['skip_query_condition'] = true;
         $options['query_column'] = array();
-        
+
         return $this->widget_factory(Control_Select::class)
             ->names('limit')
             ->required(true)
@@ -174,7 +174,7 @@ class Control_Pager extends Control {
         $this->_refresh();
         $object = $this->object;
         $pager_limit_list = $this->limit_widget->control_options();
-        
+
         $ss = array();
         $limit = intval($object->limit);
         $total = $object->total;

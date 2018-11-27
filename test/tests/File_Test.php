@@ -12,7 +12,7 @@ class File_Test extends Test_Unit {
 
     public function test_atomic_increment() {
         $path = $this->test_sandbox(__FUNCTION__);
-        
+
         $this->assert(!file_exists($path) || unlink($path), "Deleting $path");
         $exception = false;
 
@@ -22,7 +22,7 @@ class File_Test extends Test_Unit {
             $exception = true;
         }
         $this->assert($exception, "when file doesn't exist, an exception should occur");
-        
+
         $this->_test_atomic_increment($path, 0);
         $this->_test_atomic_increment($path, 48123192);
     }

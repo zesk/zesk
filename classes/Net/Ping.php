@@ -9,7 +9,7 @@ class Net_Ping {
             self::$icmp_proto = getprotobyname("icmp");
         }
     }
-    
+
     /**
      * Note: on most systems you must be root to create raw sockets and call this function.
      *

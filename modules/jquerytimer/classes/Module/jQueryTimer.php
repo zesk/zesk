@@ -17,7 +17,7 @@ class Module_jQueryTimer extends Module_JSLib {
             "view_date_formatting",
         ));
     }
-    
+
     /**
      *
      * @param Timestamp $timestamp

@@ -27,55 +27,55 @@ class Parser {
      * @var boolean
      */
     private $debug = false;
-    
+
     /**
      *
      * @var Locale
      */
     private $locale = null;
-    
+
     /**
      * String formatted
      * @var string
      */
     private $cron_codes = array();
-    
+
     /**
      *
      * @var string
      */
     private $phrase = null;
-    
+
     /**
      *
      * @var integer
      */
     const CRON_MINUTE = 0;
-    
+
     /**
      *
      * @var integer
      */
     const CRON_HOUR = 1;
-    
+
     /**
      *
      * @var integer
      */
     const CRON_MONTHDAY = 2;
-    
+
     /**
      *
      * @var integer
      */
     const CRON_MONTH = 3;
-    
+
     /**
      *
      * @var integer
      */
     const CRON_WEEKDAY = 4;
-    
+
     /**
      * Parse a string and convert it into a schedule
      *
@@ -88,7 +88,7 @@ class Parser {
         $this->cron_codes = array_fill(0, self::CRON_WEEKDAY + 1, null);
         $this->parse_language_en($phrase);
     }
-    
+
     /**
      *
      * @param integer $index
@@ -142,7 +142,7 @@ class Parser {
         $this->cron_codes[$index] = implode(",", $old);
         return $this;
     }
-    
+
     /**
      *
      * @param Timestamp $now
@@ -199,7 +199,7 @@ class Parser {
         );
         $match = $default_match;
         $loops = 0;
-        
+
         $debug = false;
         while (implode("", $match) !== "11111") {
             $loops++;
@@ -276,7 +276,7 @@ class Parser {
         }
         return $next;
     }
-    
+
     /**
      * Parse a string and convert it into a schedule
      *
@@ -325,7 +325,7 @@ class Parser {
             "short-dow" => '(' . implode("|", $short_dow) . ")",
             "years" => "([0-9]{4})",
         );
-        
+
         $debug = false;
         if ($debug) {
             echo HTML::tag("h1", false, "$text");
@@ -669,7 +669,7 @@ class Parser {
         }
         return $this->locale->conjunction($times, ($this->locale)("and"));
     }
-    
+
     /**
      *
      * @param unknown $data
@@ -748,7 +748,7 @@ class Parser {
             'weekday' => $dow_language,
         ));
     }
-    
+
     // Format similar to crontab scheduling
     //
     // minute hour day-of-month month day-of-week

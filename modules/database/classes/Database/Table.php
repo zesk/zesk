@@ -19,48 +19,48 @@ class Database_Table extends Hookable {
      * @var Database
      */
     private $database = null;
-    
+
     /**
      *
      * @var string
      */
     private $name = '';
-    
+
     /**
      *
      * @var string
      */
     private $type = null;
-    
+
     /**
      *
      * @var array
      */
     public $columns = array();
-    
+
     /**
      *
      * @var Database_Index
      */
     private $primary = null;
-    
+
     /**
      *
      * @var array
      */
     public $indexes = array();
-    
+
     /**
      *
      * @var array
      */
     public $on = array();
-    
+
     /**
      * @var string
      */
     protected $source = null;
-    
+
     /**
      * Create a table
      *
@@ -74,7 +74,7 @@ class Database_Table extends Hookable {
         $this->name = $table_name;
         $this->type = $type;
     }
-    
+
     /**
      *
      */
@@ -101,7 +101,7 @@ class Database_Table extends Hookable {
     public function primary() {
         return $this->primary;
     }
-    
+
     /**
      * Destroy table
      */
@@ -133,7 +133,7 @@ class Database_Table extends Hookable {
     public function database() {
         return $this->database;
     }
-    
+
     /**
      * Has column
      *
@@ -155,7 +155,7 @@ class Database_Table extends Hookable {
         }
         return $this->type;
     }
-    
+
     /**
      * Default index structure for table (e.g.
      * BTREE, etc.)
@@ -163,7 +163,7 @@ class Database_Table extends Hookable {
     public function default_index_structure() {
         return $this->database->default_index_structure($this->type);
     }
-    
+
     /**
      * Table name
      *
@@ -176,7 +176,7 @@ class Database_Table extends Hookable {
         $this->name = $set;
         return $this;
     }
-    
+
     /**
      * Array of Database_Column
      *
@@ -185,7 +185,7 @@ class Database_Table extends Hookable {
     public function columns() {
         return $this->columns;
     }
-    
+
     /**
      * Return array of column names
      *
@@ -199,7 +199,7 @@ class Database_Table extends Hookable {
         }
         return $result;
     }
-    
+
     /**
      * Retrieve the column from the table
      *
@@ -209,7 +209,7 @@ class Database_Table extends Hookable {
     public function column($name) {
         return avalue($this->columns, $name, null);
     }
-    
+
     /**
      * Retieve the previous column definition for a column
      *
@@ -228,7 +228,7 @@ class Database_Table extends Hookable {
         }
         return null;
     }
-    
+
     /**
      * Index exists in table?
      *
@@ -239,7 +239,7 @@ class Database_Table extends Hookable {
         $name = strtolower($name);
         return array_key_exists($name, $this->indexes);
     }
-    
+
     /**
      * Retrieve the index for the table
      *
@@ -253,7 +253,7 @@ class Database_Table extends Hookable {
         $name = strtolower($name);
         return avalue($this->indexes, $name);
     }
-    
+
     /**
      *
      */
@@ -277,7 +277,7 @@ class Database_Table extends Hookable {
         $this->indexes = $indexes;
         return $this->indexes;
     }
-    
+
     /**
      *
      * @param Database_Index $index
@@ -296,7 +296,7 @@ class Database_Table extends Hookable {
             }
         }
     }
-    
+
     /**
      *
      * @param array $indexes
@@ -306,7 +306,7 @@ class Database_Table extends Hookable {
             $this->index_add($v);
         }
     }
-    
+
     /**
      *
      * @param Database_Column $dbCol
@@ -325,7 +325,7 @@ class Database_Table extends Hookable {
             ));
         }
         $this->call_hook("column_add", $dbCol);
-        
+
         // 		if (!$dbCol->has_sql_type() && !$this->database->data_type()->type_set_sql_type($dbCol)) {
         // 			throw new Exception_Semantics("Database_Table::column_add($column): Can not set SQLType");
         // 		}
@@ -356,7 +356,7 @@ class Database_Table extends Hookable {
         }
         return $this;
     }
-    
+
     /**
      *
      * @param unknown $mixed
@@ -366,7 +366,7 @@ class Database_Table extends Hookable {
             return $this->column_remove($mixed->name());
         }
     }
-    
+
     /**
      * Return statements to alter a table to a new setup
      *
@@ -378,7 +378,7 @@ class Database_Table extends Hookable {
         $oldTableType = $old_table->type();
         $newTableType = $this->type();
         $tableName = $this->Name();
-        
+
         $this->application->logger->debug("Table sql_alter {old} {new}", array(
             "old" => $oldTableType,
             "new" => $newTableType,
@@ -431,7 +431,7 @@ class Database_Table extends Hookable {
             }
             return false;
         }
-        
+
         /*
          * Columns
          */
@@ -453,7 +453,7 @@ class Database_Table extends Hookable {
                 return false;
             }
         }
-        
+
         /*
          * Indexes
          */
@@ -473,7 +473,7 @@ class Database_Table extends Hookable {
                 return false;
             }
         }
-        
+
         $extras = $this->database->table_attributes();
         foreach ($extras as $extra => $default) {
             $this_value = $this->option($extra, $default);
@@ -485,10 +485,10 @@ class Database_Table extends Hookable {
                 return false;
             }
         }
-        
+
         return true;
     }
-    
+
     /**
      *
      */
@@ -499,7 +499,7 @@ class Database_Table extends Hookable {
         $result = array_merge($result, $this->on_action("create"));
         return $result;
     }
-    
+
     /**
      *
      * @param unknown $action
@@ -528,7 +528,7 @@ class Database_Table extends Hookable {
         }
         return $this->on[$action] = array_merge($this->on[$action], $sqls);
     }
-    
+
     /**
      *
      * {@inheritDoc}
@@ -537,7 +537,7 @@ class Database_Table extends Hookable {
     public function __toString() {
         return $this->name();
     }
-    
+
     /**
      *
      * @return string

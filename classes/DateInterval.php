@@ -15,7 +15,7 @@ class DateInterval extends \DateInterval {
      * @see \DateInterval
      */
     const INTERVAL_SPEC_FORMAT = "P%yY%mM%dDT%hH%iM%sS";
-    
+
     /**
      * Convert a \DateInterval to a zesk\DateInterval
      *
@@ -33,14 +33,14 @@ class DateInterval extends \DateInterval {
         $secs += $this->y * Temporal::SECONDS_PER_YEAR;
         $secs += $this->m * Temporal::SECONDS_PER_MONTH;
         $secs += $this->d * Temporal::SECONDS_PER_DAY;
-        
+
         $secs += $this->h * Temporal::SECONDS_PER_HOUR;
         $secs += $this->i * Temporal::SECONDS_PER_MINUTE;
         $secs += $this->s;
-        
+
         return $secs + $this->f;
     }
-    
+
     /**
      * Update this DateInterval from seconds given
      *
@@ -74,7 +74,7 @@ class DateInterval extends \DateInterval {
         }
         return $this;
     }
-    
+
     /**
      *
      * @return string

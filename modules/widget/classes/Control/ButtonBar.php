@@ -10,10 +10,10 @@ namespace zesk;
 class Control_ButtonBar extends Control {
     protected function initialize() {
         $spec = array();
-        
+
         $ok_label = $this->option('label_ok', __('Save'));
         $cancel_label = $this->option('label_cancel', __('Cancel'));
-        
+
         if ($ok_label) {
             $w = $this->widget_factory('Control_Button')->names('OK')->set_option('label_button', $ok_label);
             $w->class = "btn primary";

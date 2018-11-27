@@ -32,7 +32,7 @@ class CacheItemPool_NULL implements CacheItemPoolInterface {
     public function getItem($key) {
         return new CacheItem_NULL($key);
     }
-    
+
     /**
      * Returns a traversable set of cache items.
      *
@@ -56,7 +56,7 @@ class CacheItemPool_NULL implements CacheItemPoolInterface {
         }
         return $result;
     }
-    
+
     /**
      * Confirms if the cache contains specified cache item.
      *
@@ -77,7 +77,7 @@ class CacheItemPool_NULL implements CacheItemPoolInterface {
     public function hasItem($key) {
         return false;
     }
-    
+
     /**
      * Deletes all items in the pool.
      *
@@ -87,7 +87,7 @@ class CacheItemPool_NULL implements CacheItemPoolInterface {
     public function clear() {
         return true;
     }
-    
+
     /**
      * Removes the item from the pool.
      *
@@ -104,7 +104,7 @@ class CacheItemPool_NULL implements CacheItemPoolInterface {
     public function deleteItem($key) {
         return true;
     }
-    
+
     /**
      * Removes multiple items from the pool.
      *
@@ -121,7 +121,7 @@ class CacheItemPool_NULL implements CacheItemPoolInterface {
     public function deleteItems(array $keys) {
         return true;
     }
-    
+
     /**
      * Persists a cache item immediately.
      *
@@ -134,7 +134,7 @@ class CacheItemPool_NULL implements CacheItemPoolInterface {
     public function save(CacheItemInterface $item) {
         return false;
     }
-    
+
     /**
      * Sets a cache item to be persisted later.
      *
@@ -147,7 +147,7 @@ class CacheItemPool_NULL implements CacheItemPoolInterface {
     public function saveDeferred(CacheItemInterface $item) {
         return false;
     }
-    
+
     /**
      * Persists any deferred cache items.
      *

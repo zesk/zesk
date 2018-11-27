@@ -45,7 +45,7 @@ class Application_Server extends Application {
 
     public function hook_construct() {
         $this->platform = Server_Platform::factory();
-        
+
         $this->template->set("platform", $this->platform);
     }
 }

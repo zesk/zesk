@@ -96,31 +96,31 @@ abstract class Server_Packager {
      * @return array
      */
     abstract public function packages();
-    
+
     /**
      * @return array
      */
     abstract public function packages_update();
-    
+
     /**
      * @return array
      */
     abstract public function package_exists($package);
-    
+
     /**
      * Install a single package
      * @param string $package
      * @return string error message, or true if succeeded
      */
     abstract protected function package_install($package);
-    
+
     /**
      * Is a single package installed
      * @param string $package
      * @return boolean
      */
     abstract protected function package_installed($package);
-    
+
     /**
      * Remove a single package
      * @param string $package A package to remove

@@ -19,7 +19,7 @@ class Exception_FileSystem extends Exception {
      * @var string
      */
     protected $filename;
-    
+
     /**
      *
      * @param string $filename
@@ -36,7 +36,7 @@ class Exception_FileSystem extends Exception {
             "filename" => $filename,
         ) + $arguments, $code);
     }
-    
+
     /**
      *
      * @return string
@@ -44,7 +44,7 @@ class Exception_FileSystem extends Exception {
     public function filename() {
         return $this->filename;
     }
-    
+
     /**
      *
      * @return string

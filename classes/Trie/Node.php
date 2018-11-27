@@ -19,7 +19,7 @@ class Trie_Node {
      * @var array
      */
     public $next = array();
-    
+
     /**
      *
      * @param unknown $word
@@ -30,7 +30,7 @@ class Trie_Node {
             $this->add($word);
         }
     }
-    
+
     /**
      *
      * @return boolean
@@ -38,7 +38,7 @@ class Trie_Node {
     public function term() {
         return array_key_exists('$', $this->next);
     }
-    
+
     /**
      *
      * @param string $word
@@ -66,7 +66,7 @@ class Trie_Node {
             }
         }
     }
-    
+
     /**
      * Clean the trie
      */
@@ -81,7 +81,7 @@ class Trie_Node {
             ksort($this->next);
         }
     }
-    
+
     /**
      * If only one follow-up node, then we can optimize
      *
@@ -101,7 +101,7 @@ class Trie_Node {
         }
         return false;
     }
-    
+
     /**
      *
      * @param string $phrase
@@ -121,7 +121,7 @@ class Trie_Node {
         }
         return $nmerged;
     }
-    
+
     /**
      * Optimize the trie structure
      *
@@ -148,7 +148,7 @@ class Trie_Node {
         }
         return $merged;
     }
-    
+
     /**
      * Convert to JSON
      *
@@ -165,7 +165,7 @@ class Trie_Node {
         }
         return $json;
     }
-    
+
     /**
      * Walk trie nodes
      * @param callable $function

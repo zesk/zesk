@@ -92,7 +92,7 @@ class Control_Widgets extends Control {
         }
         return true;
     }
-    
+
     // 	function submit() {
     // 		foreach ($this->children as $w) {
     // 			/* @var $w Widget */

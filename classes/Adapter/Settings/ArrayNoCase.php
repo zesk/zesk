@@ -12,14 +12,14 @@ class Adapter_Settings_ArrayNoCase implements Interface_Settings {
      *
      */
     protected $data = null;
-    
+
     /**
      *
      */
     public function __construct(array &$array) {
         $this->data = &$array;
     }
-    
+
     /**
      * Is a value set in this object?
      * @return boolean
@@ -35,7 +35,7 @@ class Adapter_Settings_ArrayNoCase implements Interface_Settings {
     public function has($name) {
         return $this->__isset($name);
     }
-    
+
     /**
      * Retrieve a value from the settings
      * @param mixed $name A string or key value (integer, float)
@@ -56,7 +56,7 @@ class Adapter_Settings_ArrayNoCase implements Interface_Settings {
         $name = strtolower($name);
         return isset($this->data[$name]) ? $this->data[$name] : $default;
     }
-    
+
     /**
      * Retrieve a value from the settings, returning a default value if empty or not set
      * @param mixed $name A string or key value (integer, float)
@@ -67,7 +67,7 @@ class Adapter_Settings_ArrayNoCase implements Interface_Settings {
         $name = strtolower($name);
         return isset($this->data[$name]) && !empty($this->data[$name]) ? $this->data[$name] : $default;
     }
-    
+
     /**
      * Store a value to a settings
      *
@@ -77,7 +77,7 @@ class Adapter_Settings_ArrayNoCase implements Interface_Settings {
     public function __set($name, $value) {
         $this->data[strtolower($name)] = $value;
     }
-    
+
     /**
      * Store a value to a settings
      *
@@ -88,7 +88,7 @@ class Adapter_Settings_ArrayNoCase implements Interface_Settings {
     public function set($name, $value = null) {
         $this->data[strtolower($name)] = $value;
     }
-    
+
     /**
      * Retrieve a list of all settings variables as an array
      *

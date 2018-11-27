@@ -6,7 +6,7 @@ class Base26_Test extends Test_Unit {
         $i = null;
         $nChars = null;
         Base26::from_integer($i, $nChars);
-        
+
         $this->assert_equal(Base26::from_integer(0, 1), "A");
         $this->assert_equal(Base26::from_integer(0, 2), "AA");
         $this->assert_equal(Base26::from_integer(0, 5), "AAAAA");

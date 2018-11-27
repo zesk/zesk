@@ -12,19 +12,19 @@ class Raw extends Type {
      * @var string
      */
     private $file = null;
-    
+
     /**
      *
      * @var string
      */
     private $binary = null;
-    
+
     /**
      *
      */
     public function initialize() {
     }
-    
+
     /**
      *
      */
@@ -35,7 +35,7 @@ class Raw extends Type {
             $this->header("Content-Length", filesize($this->file));
         }
     }
-    
+
     /**
      *
      * {@inheritDoc}
@@ -66,7 +66,7 @@ class Raw extends Type {
         $this->file = $file;
         return $this->parent;
     }
-    
+
     /**
      * Download a file
      *

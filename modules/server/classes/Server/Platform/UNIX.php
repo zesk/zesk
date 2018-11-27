@@ -132,7 +132,7 @@ abstract class Server_Platform_UNIX extends Server_Platform {
             $heading = strtolower($heading);
             $heading[$index] = avalue($heading_aliases, $heading, $heading);
         }
-        
+
         foreach ($lines as $line) {
             $items = explode(" ", trim(preg_replace('/\s+/', ' ', $line)), count($headings)) + array_fill(0, count($headings));
             $row = array();

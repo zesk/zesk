@@ -10,7 +10,7 @@ class Model_Login extends Model {
     protected $login_password = null;
 
     protected $login_password_hash = null;
-    
+
     /**
      *
      * @var User

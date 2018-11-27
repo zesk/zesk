@@ -20,7 +20,7 @@ class Command_File_Rename extends Command_Iterator_File {
      * @var array
      */
     protected $extensions = array();
-    
+
     /**
      *
      * @var array
@@ -30,37 +30,37 @@ class Command_File_Rename extends Command_Iterator_File {
         'to' => 'string',
         'dry-run' => 'boolean',
     );
-    
+
     /**
      *
      * @var string
      */
     private $from = null;
-    
+
     /**
      *
      * @var string
      */
     private $to = null;
-    
+
     /**
      *
      * @var integer
      */
     private $failed = null;
-    
+
     /**
      *
      * @var integer
      */
     private $suceed = null;
-    
+
     /**
      *
      * @var integer
      */
     private $ignored = null;
-    
+
     /**
      */
     protected function start() {
@@ -76,7 +76,7 @@ class Command_File_Rename extends Command_Iterator_File {
         $this->succeed = 0;
         $this->ignored = 0;
     }
-    
+
     /**
      *
      * @param SplFileInfo $file
@@ -104,7 +104,7 @@ class Command_File_Rename extends Command_Iterator_File {
             $this->ignored++;
         }
     }
-    
+
     /**
      */
     protected function finish() {

@@ -19,7 +19,7 @@ class Session_PHP implements Interface_Session {
      * @var Application
      */
     private $application = null;
-    
+
     /**
      *
      * @param Application $application
@@ -30,7 +30,7 @@ class Session_PHP implements Interface_Session {
         $this->application = $application;
         $this->started = false;
     }
-    
+
     /**
      * Singleton interface to retrieve current session
      *
@@ -74,7 +74,7 @@ class Session_PHP implements Interface_Session {
         $this->need();
         return isset($_SESSION[$name]);
     }
-    
+
     /**
      *
      * {@inheritdoc}
@@ -88,7 +88,7 @@ class Session_PHP implements Interface_Session {
         }
         return avalue($_SESSION, $name, $default);
     }
-    
+
     /**
      *
      * {@inheritdoc}
@@ -98,7 +98,7 @@ class Session_PHP implements Interface_Session {
     public function eget($name, $default = null) {
         return aevalue($_SESSION, $name, $default);
     }
-    
+
     /**
      *
      * {@inheritdoc}
@@ -109,7 +109,7 @@ class Session_PHP implements Interface_Session {
         $this->need();
         return avalue($_SESSION, $name);
     }
-    
+
     /**
      *
      * {@inheritdoc}
@@ -120,7 +120,7 @@ class Session_PHP implements Interface_Session {
         $this->need();
         $_SESSION[$name] = $value;
     }
-    
+
     /**
      *
      * {@inheritdoc}
@@ -130,7 +130,7 @@ class Session_PHP implements Interface_Session {
     public function set($name, $value = null) {
         $this->__set($name, $value);
     }
-    
+
     /**
      *
      * {@inheritdoc}
@@ -143,7 +143,7 @@ class Session_PHP implements Interface_Session {
         }
         return ArrayTools::filter($_SESSION, $list);
     }
-    
+
     /**
      *
      * @return mixed|mixed[]|\zesk\Configuration
@@ -151,7 +151,7 @@ class Session_PHP implements Interface_Session {
     private function global_session_user_id() {
         return $this->application->configuration->path("session")->get("user_id_variable", "user");
     }
-    
+
     /**
      *
      * {@inheritdoc}
@@ -161,7 +161,7 @@ class Session_PHP implements Interface_Session {
     public function user_id() {
         return $this->__get(self::global_session_user_id());
     }
-    
+
     /**
      *
      * {@inheritdoc}
@@ -181,7 +181,7 @@ class Session_PHP implements Interface_Session {
             return null;
         }
     }
-    
+
     /**
      *
      * {@inheritdoc}
@@ -192,7 +192,7 @@ class Session_PHP implements Interface_Session {
         $this->__set(self::global_session_user_id(), ORM::mixed_to_id($id));
         $this->__set(self::global_session_user_id() . "_IP", $ip);
     }
-    
+
     /**
      *
      * {@inheritdoc}
@@ -203,7 +203,7 @@ class Session_PHP implements Interface_Session {
         $user = $this->__get(self::global_session_user_id());
         return !empty($user);
     }
-    
+
     /**
      *
      * {@inheritdoc}
@@ -213,7 +213,7 @@ class Session_PHP implements Interface_Session {
     public function deauthenticate() {
         $this->__set(self::global_session_user_id(), null);
     }
-    
+
     /**
      *
      * {@inheritdoc}
@@ -223,7 +223,7 @@ class Session_PHP implements Interface_Session {
     public function variables() {
         return $_SESSION;
     }
-    
+
     /**
      *
      * {@inheritdoc}

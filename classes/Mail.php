@@ -43,7 +43,7 @@ class Mail extends Hookable {
      * @var string
      */
     const HEADER_SUBJECT = "Subject";
-    
+
     /**
      * @deprecated 2018-02
      * @var string
@@ -76,19 +76,19 @@ class Mail extends Hookable {
      * @var string
      */
     const header_subject = "Subject";
-    
+
     /**
      *
      * @var array
      */
     public $headers = array();
-    
+
     /**
      *
      * @var string
      */
     public $body = "";
-    
+
     /**
      *
      * @var integer
@@ -100,31 +100,31 @@ class Mail extends Hookable {
      * @var string
      */
     public $method = null;
-    
+
     /**
      *
      * @var boolean
      */
     private static $debug = false;
-    
+
     /**
      *
      * @var string
      */
     private static $log = null;
-    
+
     /**
      *
      * @var resource
      */
     private static $fp = null;
-    
+
     /**
      *
      * @var boolean
      */
     private static $disabled = null;
-    
+
     /**
      * Create a Mail object
      *
@@ -139,7 +139,7 @@ class Mail extends Hookable {
         $this->body = $body;
         $this->sent = null;
     }
-    
+
     /**
      * Create a Mail object
      *
@@ -151,7 +151,7 @@ class Mail extends Hookable {
     public static function factory(Application $application, array $headers, $body, array $options = array()) {
         return new self($application, $headers, $body, $options);
     }
-    
+
     /**
      * Get/Set a header
      *
@@ -168,7 +168,7 @@ class Mail extends Hookable {
         $this->headers[$name] = $set;
         return $this;
     }
-    
+
     /**
      *
      * @param zesk\Application $application
@@ -176,14 +176,14 @@ class Mail extends Hookable {
     public static function hooks(Application $application) {
         $application->hooks->add(Hooks::HOOK_CONFIGURED, __CLASS__ . "::configured");
     }
-    
+
     /**
      *
      * @param zesk\Application $application
      */
     public static function configured(Application $application) {
         $config = $application->configuration;
-        
+
         /*
          * Load globals
          */
@@ -209,9 +209,9 @@ class Mail extends Hookable {
      */
     public function send() {
         $smtp_send = $this->option('SMTP_URL');
-        
+
         $this->_log($this->headers, $this->body);
-        
+
         if (!$this->call_hook_arguments("send", array(), true)) {
             return null;
         }
@@ -231,7 +231,7 @@ class Mail extends Hookable {
         }
         return $this->_send_mail();
     }
-    
+
     /**
      * Internal function to send by echo
      *
@@ -244,7 +244,7 @@ class Mail extends Hookable {
         $this->method = "echo";
         return true;
     }
-    
+
     /**
      * Send using SMTP_URL and SMTP_OPTIONS which is, oddly, formatted as HTML attributes optionally
      *
@@ -264,7 +264,7 @@ class Mail extends Hookable {
         }
         return null;
     }
-    
+
     /**
      *
      * @return Mail
@@ -298,7 +298,7 @@ class Mail extends Hookable {
     private static function mail_eol() {
         return \is_windows() ? "\r\n" : "\n";
     }
-    
+
     /**
      * Set/get Mail debugging
      *
@@ -358,7 +358,7 @@ class Mail extends Hookable {
         }
         return $result;
     }
-    
+
     /**
      * Identical to sendmail, but truncates the entire message to be 140 characters
      * Determined length based on iPhone/AT&T.
@@ -383,11 +383,11 @@ class Mail extends Hookable {
     public static function send_sms(Application $application, $to, $from, $subject, $body, $cc = false, $bcc = false, $headers = false) {
         $email_parts = self::parse_address($from);
         $from_part = avalue($email_parts, "name", avalue($email_parts, "email", ""));
-        
+
         // FRM:name\n
         // SUBJ:$subject\n
         // MSG:...
-        
+
         $len = 0;
         if ($from_part) {
             $len = strlen("FRM:$from_part\n");
@@ -396,15 +396,15 @@ class Mail extends Hookable {
             $len += strlen("SUBJ:$subject\n");
         }
         $len += strlen("MSG:");
-        
+
         $remain = to_integer($application->configuration->path_get(array(
             __CLASS__,
             "sms_max_characters",
         )), 140) - $len;
-        
+
         return self::sendmail($application, $to, $from, $subject, substr($body, 0, $remain), $cc, $bcc, $headers);
     }
-    
+
     /**
      * Send an email to someone.
      *
@@ -439,13 +439,13 @@ class Mail extends Hookable {
         if (is_email($bcc)) {
             $new_headers['Bcc'] = ltrim($bcc);
         }
-        
+
         $new_headers['To'] = $to;
         $new_headers['Subject'] = self::trim_mail_line($subject);
         $new_headers['Date'] = gmdate('D, d M Y H:i:s \G\M\T', time());
-        
+
         //	$headers[] = "Content-Type: text/plain";
-        
+
         foreach ($headers as $header) {
             list($name, $value) = pair($header, ":", null, null);
             if ($name) {
@@ -508,7 +508,7 @@ class Mail extends Hookable {
         $contents = str_replace("\r", "", $contents);
         return self::sendmail($to, $from, $subject, $contents, $cc, $bcc);
     }
-    
+
     /*
      * How to detect a bounce email
      *
@@ -525,7 +525,7 @@ class Mail extends Hookable {
      *
      * Note that the mail will be not be store after the mail server has http::redirect to your script.  If you want to store it, you need additional code in your script
      */
-    
+
     /**
      * Send a text or HTML email, with optional attachments
      *
@@ -542,10 +542,10 @@ class Mail extends Hookable {
     public static function multipart_send(Application $application, array $mail_options, $attachments = null) {
         $eol = mail::mail_eol();
         $mime_boundary = md5(microtime());
-        
+
         $charset = avalue($mail_options, 'charset', 'UTF-8');
         unset($mail_options['charset']);
-        
+
         // Common Headers
         $headers = ArrayTools::filter($mail_options, "From;To;Reply-To;Return-Path;Cc;Bcc;Return-Receipt-To;Subject");
         if (!array_key_exists("From", $headers)) {
@@ -576,20 +576,20 @@ class Mail extends Hookable {
                 $headers[$k] = $v;
             }
         }
-        
+
         $headers[self::HEADER_MESSAGE_ID] = "<" . $mime_boundary . " mailer@" . avalue($mail_options, "System-ID", avalue($_SERVER, 'SERVER_NAME', '')) . ">";
         $headers['X-Mailer'] = "zesk v" . Version::release() . "/PHP v" . phpversion();
         $headers['MIME-Version'] = "1.0";
         $headers[self::HEADER_CONTENT_TYPE] = "multipart/related; boundary=\"" . $mime_boundary . "\"";
-        
+
         $m = "";
-        
+
         // Setup for text OR html -
         $m .= "--" . $mime_boundary . $eol;
         // A different MIME boundary for this section for the alternative
         $htmlalt_mime_boundary = md5($mime_boundary . "_htmlalt");
         $m .= "Content-Type: multipart/alternative; boundary=\"" . $htmlalt_mime_boundary . "\"" . $eol . $eol;
-        
+
         if (array_key_exists('body_text', $mail_options)) {
             // Text Version
             $m .= "--" . $htmlalt_mime_boundary . $eol;
@@ -597,7 +597,7 @@ class Mail extends Hookable {
             $m .= "Content-Transfer-Encoding: quoted-printable" . $eol . $eol;
             $m .= quoted_printable_encode($mail_options['body_text']) . $eol . $eol;
         }
-        
+
         if (array_key_exists('body_html', $mail_options)) {
             // HTML Version
             $m .= "--" . $htmlalt_mime_boundary . $eol;
@@ -605,10 +605,10 @@ class Mail extends Hookable {
             $m .= "Content-Transfer-Encoding: quoted-printable" . $eol . $eol;
             $m .= quoted_printable_encode($mail_options['body_html']) . $eol . $eol;
         }
-        
+
         //close the html/plain text alternate portion
         $m .= "--" . $htmlalt_mime_boundary . "--" . $eol . $eol;
-        
+
         if (is_array($attachments)) {
             // Attachments
             foreach ($attachments as $attachment) {
@@ -621,7 +621,7 @@ class Mail extends Hookable {
                     if (!$content_type) {
                         $content_type = MIME::from_filename($file_name);
                     }
-                    
+
                     // Attachment
                     $m .= "--" . $mime_boundary . $eol;
                     $m .= "Content-Type: $content_type; name=\"" . $file_name . "\"" . $eol;
@@ -631,13 +631,13 @@ class Mail extends Hookable {
                 }
             }
         }
-        
+
         // Finished
         $m .= "--" . $mime_boundary . "--" . $eol . $eol;
-        
+
         // SEND THE EMAIL
         $result = self::mailer($application, $headers, $m);
-        
+
         return $result;
     }
 
@@ -648,7 +648,7 @@ class Mail extends Hookable {
         }
         return self::load($contents);
     }
-    
+
     /**
      * Render an email using a theme
      *
@@ -663,7 +663,7 @@ class Mail extends Hookable {
         $variables['application'] = $application;
         return self::load(map($application->theme($theme, $variables), $variables));
     }
-    
+
     /**
      * Load and parse mail from a string
      *
@@ -709,7 +709,7 @@ class Mail extends Hookable {
         }
         return $result;
     }
-    
+
     /**
      * If you change one of these, please check the other for fixes as well
      *
@@ -718,7 +718,7 @@ class Mail extends Hookable {
     const rfc2047header = '/=\?([^ ?]+)\?([BQbq])\?([^ ?]+)\?=/';
 
     const rfc2047header_spaces = '/(=\?[^ ?]+\?[BQbq]\?[^ ?]+\?=)\s+(=\?[^ ?]+\?[BQbq]\?[^ ?]+\?=)/';
-    
+
     /**
      * http://www.rfc-archive.org/getrfc.php?rfc=2047
      *
@@ -731,7 +731,7 @@ class Mail extends Hookable {
         // e.g. =?utf-8?q?Wordpress=20Plugin?=
         return preg_match(self::rfc2047header, $header) !== 0;
     }
-    
+
     /**
      *
      * @param string $header
@@ -747,10 +747,10 @@ class Mail extends Hookable {
 
     public static function decode_header($header) {
         $matches = null;
-        
+
         /* Repair instances where two encodings are together and separated by a space (strip the spaces) */
         $header = preg_replace(self::rfc2047header_spaces, "\$1\$2", $header);
-        
+
         /* Now see if any encodings exist and match them */
         if (!preg_match_all(self::rfc2047header, $header, $matches, PREG_SET_ORDER)) {
             return $header;
@@ -775,7 +775,7 @@ class Mail extends Hookable {
         }
         return $header;
     }
-    
+
     /**
      * Simple utility to skip mail headers
      *
@@ -787,7 +787,7 @@ class Mail extends Hookable {
         $newline = avalue($options, 'newline', "\r\n");
         return avalue(explode($newline . $newline, $content, 2), 1, avalue($options, 'default', null));
     }
-    
+
     /**
      * Given an email, parse out the headers from the top.
      * A blank line indicates end of headers.
@@ -836,14 +836,14 @@ class Mail extends Hookable {
         }
         return $headers;
     }
-    
+
     /**
      * Dump a Mail object
      */
     public function dump() {
         return Text::format_pairs($this->headers) . "\n\n" . $this->body;
     }
-    
+
     /**
      * Typo @no-cannon
      * @deprecated 2018-02

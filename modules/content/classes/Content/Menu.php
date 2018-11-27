@@ -55,7 +55,7 @@ class Content_Menu extends ORM {
      * @var array
      */
     private static $menus_content = null;
-    
+
     /**
      *
      * @return array
@@ -64,12 +64,12 @@ class Content_Menu extends ORM {
         if (is_array(self::$menus)) {
             return self::$menus;
         }
-        
+
         $first = true;
         $parent_to_code = array();
         $menus = $this->query_select()->what("ID,Name,CodeName,Parent,ContentObjects,ContentTemplate,ContentLayout,IsActive,IsHome");
         $menus->order_by("Parent,OrderIndex");
-        
+
         $result = array();
         $old_parent = -1;
         $menus_content = array();
@@ -106,7 +106,7 @@ class Content_Menu extends ORM {
         self::$menus_content = $menus_content;
         return $result;
     }
-    
+
     /**
      * @return array
      */
@@ -114,7 +114,7 @@ class Content_Menu extends ORM {
         $this->_menus();
         return self::$menus_content;
     }
-    
+
     /**
      * Return first menu
      *
@@ -124,7 +124,7 @@ class Content_Menu extends ORM {
         $menus = $this->_menus();
         return $menus[0];
     }
-    
+
     /**
      *
      * @param mixed $x
@@ -134,7 +134,7 @@ class Content_Menu extends ORM {
         $menus = $this->_menus();
         return avalue($menus, $x);
     }
-    
+
     /**
      *
      * @param Request $request
@@ -148,7 +148,7 @@ class Content_Menu extends ORM {
         }
         return StringTools::begins($uri, $x);
     }
-    
+
     /**
      *
      * @param Request $request
@@ -181,7 +181,7 @@ class Content_Menu extends ORM {
             }
         }
     }
-    
+
     /**
      *
      * @param unknown $uri
@@ -209,7 +209,7 @@ class Content_Menu extends ORM {
         }
         return $max_menu;
     }
-    
+
     /**
      *
      * @param unknown $uri
@@ -223,7 +223,7 @@ class Content_Menu extends ORM {
         }
         return $this->layout($menu);
     }
-    
+
     /**
      *
      * @param array $menu
@@ -234,23 +234,23 @@ class Content_Menu extends ORM {
         $objects_string = $menu['ContentObjects'];
         $template = aevalue($menu, 'ContentTemplate', 'default');
         $layout_string = avalue($menu, 'ContentLayout');
-        
+
         $layout = HTML::parse_attributes($layout_string);
-        
+
         $factory = $this->content_factory();
         $objects_ids = $factory->objects_parse($objects_string);
         $objects = $factory->content_instantiate($objects_ids);
-        
+
         $options['object_ids'] = $objects_ids;
         $options['objects'] = $objects;
         $options['layout'] = $layout;
         $options['menu'] = $menu;
-        
+
         $content = $factory->content_layout($options, $template);
-        
+
         return $content;
     }
-    
+
     /**
      *
      * @return boolean
@@ -261,7 +261,7 @@ class Content_Menu extends ORM {
             return true;
         }
         $this->ContentObjects = $this->content_factory()->content_register($this, $code);
-        
+
         return true;
     }
 }

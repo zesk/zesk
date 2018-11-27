@@ -19,7 +19,7 @@ class JavaScript {
      * @var boolean
      */
     private static $obfuscated = false;
-    
+
     /**
      * Convert passed arguments into a JavaScript argument list.
      *
@@ -34,7 +34,7 @@ class JavaScript {
         }
         return implode(", ", $json);
     }
-    
+
     /**
      * Begin JavaScript obfuscation output capture
      *
@@ -47,7 +47,7 @@ class JavaScript {
         self::$obfuscated = true;
         ob_start();
     }
-    
+
     /**
      * End JavaScript obfuscation output and return obfuscated JavaScript
      *
@@ -85,7 +85,7 @@ class JavaScript {
         $formatting = array_merge($formatting, $function_map);
         return str_replace(array_keys($formatting), array_values($formatting), $js);
     }
-    
+
     /**
      * Clean a JavaScript function name
      *
@@ -99,7 +99,7 @@ class JavaScript {
         $x = preg_replace('/[^A-Za-z0-9_]/', '', $x);
         return $x;
     }
-    
+
     /**
      * Return JavaScript null token for empty values
      *
@@ -112,7 +112,7 @@ class JavaScript {
         }
         return $x;
     }
-    
+
     /**
      * Clean an array of JavaScript code; ensure each line ends with a semicolon, remove
      * empty values, and trim each line
@@ -123,7 +123,7 @@ class JavaScript {
         }
         return $mixed;
     }
-    
+
     /**
      * Convert string to JavaScript string and return single-quoted string
      *

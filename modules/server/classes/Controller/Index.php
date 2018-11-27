@@ -15,7 +15,7 @@ class Controller_Index extends \zesk\Controller_Theme {
      * @var string
      */
     protected $theme = "page/manage";
-    
+
     /**
      *
      * @return string

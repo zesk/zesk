@@ -59,7 +59,7 @@ class Module_World extends Module_JSLib {
             World_Bootstrap_Currency::factory($this->application)->bootstrap();
         }
         $this->application->logger->debug("{method} ended", $__);
-        
+
         Language::clean_table($this->application);
     }
 }

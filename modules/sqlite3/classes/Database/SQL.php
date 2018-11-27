@@ -34,12 +34,12 @@ class Database_SQL extends \zesk\Database_SQL {
      * @var string
      */
     const sql_column_quotes = '``""';
-    
+
     /**
      * @var Database
      */
     protected $database = null;
-    
+
     /**
      *
      * {@inheritDoc}
@@ -48,10 +48,10 @@ class Database_SQL extends \zesk\Database_SQL {
     public function alter_table_column_add(Database_Table $table, Database_Column $db_col_new) {
         $newName = $db_col_new->name();
         $newType = $this->database_column_native_type($db_col_new);
-        
+
         return "ALTER TABLE " . $this->quote_table($table) . " ADD COLUMN " . $this->quote_column($newName) . " $newType";
     }
-    
+
     /**
      * (non-PHPdoc)
      *
@@ -61,52 +61,52 @@ class Database_SQL extends \zesk\Database_SQL {
         $sqls = array();
         /* @var $new_table Database_Table */
         $new_table = clone $table;
-        
+
         // If foreign key constraints are enabled, disable them using PRAGMA foreign_keys=OFF.
         $sqls[] = "PRAGMA foreign_keys=OFF";
         // 		 Start a transaction.
         $sqls[] = "BEGIN EXCLUSIVE TRANSACTION";
         // 		 Remember the format of all indexes and triggers associated with table X. This information will be needed in step 8 below. One way to do this is to run a query like the following: SELECT type, sql FROM sqlite_master WHERE tbl_name='X'.
-        
+
         $new_table->column_remove($dbColName->name());
-        
+
         $new_table->name($new_table_name = strval($table) . "_" . md5(microtime()));
-        
+
         $quoted_table_name = $this->quote_table($table->name());
         $quoted_new_table_name = $this->quote_table($new_table_name);
-        
+
         $quoted_column_list = implode(", ", $this->quote_column($new_table->column_names()));
-        
+
         $create_sql = $new_table->create_sql();
-        
+
         // 		 Use CREATE TABLE to construct a new table "new_X" that is in the desired revised format of table X. Make sure that the name "new_X" does not collide with any existing table name, of course.
         if (is_array($create_sql)) {
             $sqls = array_merge($sqls, $create_sql);
         } else {
             $sqls[] = $create_sql;
         }
-        
+
         // 		 Transfer content from X into new_X using a statement like: INSERT INTO new_X SELECT ... FROM X.
         $sqls[] = "INSERT INTO $new_table_name ($quoted_column_list) SELECT $quoted_column_list FROM $quoted_table_name";
-        
+
         // 		 Drop the old table X: DROP TABLE X.
         $sqls[] = "DROP TABLE $table";
-        
+
         // 		 Change the name of new_X to X using: ALTER TABLE new_X RENAME TO X.
         $sqls[] = "ALTER TABLE $quoted_new_table_name RENAME TO $quoted_table_name";
         // 		 Use CREATE INDEX and CREATE TRIGGER to reconstruct indexes and triggers associated with table X. Perhaps use the old format of the triggers and indexes saved from step 3 above as a guide, making changes as appropriate for the alteration.
-        
+
         // 		 If any views refer to table X in a way that is affected by the schema change, then drop those views using DROP VIEW and recreate them with whatever changes are necessary to accommodate the schema change using CREATE VIEW.
-        
+
         // 		 If foreign key constraints were originally enabled then run PRAGMA foreign_key_check to verify that the schema change did not break any foreign key constraints.
-        
+
         // 		 Commit the transaction started in step 2.
         $sqls[] = "COMMIT TRANSACTION";
-        
+
         $sqls[] = "PRAGMA foreign_keys=ON";
-        
+
         // 		 If foreign keys constraints were originally enabled, reenable them now.
-        
+
         return $sqls;
     }
 
@@ -148,7 +148,7 @@ class Database_SQL extends \zesk\Database_SQL {
         }
         return "CREATE$unique INDEX $quoted_name ON $table_name (" . implode(", ", $sqlIndexes) . ")";
     }
-    
+
     /**
      * (non-PHPdoc)
      *
@@ -176,7 +176,7 @@ class Database_SQL extends \zesk\Database_SQL {
         $previous_name = $db_col_old->name();
         $newName = $db_col_new->name();
         $suffix = $db_col_new->primary_key() ? " FIRST" : "";
-        
+
         $new_sql = "ALTER TABLE " . $this->quote_table($table) . " CHANGE COLUMN " . $this->quote_column($previous_name) . " " . $this->quote_column($newName) . " $newType $suffix";
         $old_table = $db_col_old->table();
         if ($db_col_new->primary_key() && $old_table->primary()) {
@@ -187,7 +187,7 @@ class Database_SQL extends \zesk\Database_SQL {
         }
         return $new_sql;
     }
-    
+
     /**
      * Convert to/from Hex
      *
@@ -202,7 +202,7 @@ class Database_SQL extends \zesk\Database_SQL {
         throw new Exception_Unimplemented();
         return $target;
     }
-    
+
     /**
      * No table types in SQLite
      */
@@ -219,7 +219,7 @@ class Database_SQL extends \zesk\Database_SQL {
         $sql = Text::remove_range_comments($sql);
         return $sql;
     }
-    
+
     /**
      * Convert an array of column => size to proper SQL syntax, adding quoting as needed.
      *
@@ -295,7 +295,7 @@ class Database_SQL extends \zesk\Database_SQL {
         }
         return " DEFAULT " . $this->sql_format_string($sql);
     }
-    
+
     /*
      * String Comparison
      */
@@ -310,7 +310,7 @@ class Database_SQL extends \zesk\Database_SQL {
     public function function_average($target) {
         return "AVG($target)";
     }
-    
+
     /*
      * Date functions
      */
@@ -333,7 +333,7 @@ class Database_SQL extends \zesk\Database_SQL {
         // 		$dbUnits = $this->_convert_units($number, $units);
         // 		return "DATE_SUB($target, INTERVAL $number $dbUnits)";
     }
-    
+
     /**
      * Enter description here...
      *
@@ -343,7 +343,7 @@ class Database_SQL extends \zesk\Database_SQL {
     public function sql_format_string($sql) {
         return $this->quote_text($sql);
     }
-    
+
     /*
      * Platform SQL Tools
      */
@@ -357,14 +357,14 @@ class Database_SQL extends \zesk\Database_SQL {
     public function sql_boolean($value) {
         return to_bool(value) ? 'true' : 'false';
     }
-    
+
     /*
      * Password Type
      */
     public function sql_password($value) {
         return "MD5(" . $this->sql_format_string($value) . ")";
     }
-    
+
     /*
      * Functions
      */
@@ -399,7 +399,7 @@ class Database_SQL extends \zesk\Database_SQL {
                 return false;
         }
     }
-    
+
     /**
      * Convert a Database_Column to a sql type for this database
      *
@@ -459,7 +459,7 @@ class Database_SQL extends \zesk\Database_SQL {
         $types = implode(",\n\t", $types);
         $result = array();
         $result[] = "CREATE TABLE " . $this->quote_table($table->name()) . " (\n\t$types\n) ";
-        
+
         return array_merge($result, $alters);
     }
 
@@ -488,7 +488,7 @@ class Database_SQL extends \zesk\Database_SQL {
             '"' => '\\"',
         )) . '"';
     }
-    
+
     /**
      * (non-PHPdoc)
      *
@@ -497,7 +497,7 @@ class Database_SQL extends \zesk\Database_SQL {
     final public function quote_text($text) {
         return $this->database->native_quote_text($text);
     }
-    
+
     /**
      * Reverses, exactly, quote_column
      *
@@ -516,7 +516,7 @@ class Database_SQL extends \zesk\Database_SQL {
             '``' => '`',
         ));
     }
-    
+
     /**
      *
      * @param string $table
@@ -539,7 +539,7 @@ class Database_SQL extends \zesk\Database_SQL {
         throw new Exception_Unimplemented();
         return "TIMESTAMPDIFF(SECOND,$date_b,$date_a)";
     }
-    
+
     /**
      * @return array
      */

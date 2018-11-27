@@ -22,7 +22,7 @@ class Control_Select extends Control_Optionss {
      * @var boolean
      */
     const default_escape_values = true;
-    
+
     /**
      *
      * {@inheritDoc}
@@ -56,7 +56,7 @@ class Control_Select extends Control_Optionss {
             }
         }
     }
-    
+
     /**
      *
      * @param array $arr
@@ -71,7 +71,7 @@ class Control_Select extends Control_Optionss {
         }
         return $n;
     }
-    
+
     /**
      *
      * @return integer
@@ -79,7 +79,7 @@ class Control_Select extends Control_Optionss {
     public function control_options_count() {
         return self::_control_options_count($this->control_options);
     }
-    
+
     // 	public function submitted() {
     // 		$name = $this->name();
     // 		if ($name && $this->request->has($name)) {
@@ -87,7 +87,7 @@ class Control_Select extends Control_Optionss {
     // 		}
     // 		return false;
     // 	}
-    
+
     /**
      *
      * {@inheritDoc}
@@ -108,7 +108,7 @@ class Control_Select extends Control_Optionss {
         }
         return true;
     }
-    
+
     /**
      * Getter/setter for multiple selection
      *
@@ -118,7 +118,7 @@ class Control_Select extends Control_Optionss {
     public function multiple($set = null) {
         return ($set !== null) ? $this->set_option('multiple', to_bool($set)) : $this->option_bool('multiple', false);
     }
-    
+
     /**
      * Set to TRUE to force single values to be hidden or displayed using an alternate output
      *
@@ -128,7 +128,7 @@ class Control_Select extends Control_Optionss {
     public function hide_single($set = null) {
         return ($set !== null) ? $this->set_option('hide_single', to_bool($set)) : $this->option_bool('hide_single', true);
     }
-    
+
     /**
      * Getter/setter. When set to true, outputs hidden input when single option exists.
      *
@@ -138,7 +138,7 @@ class Control_Select extends Control_Optionss {
     public function hide_single_text($set = null) {
         return ($set !== null) ? $this->set_option('hide_single_text', to_bool($set)) : $this->option_bool('hide_single_text');
     }
-    
+
     /**
      *
      * @return boolean

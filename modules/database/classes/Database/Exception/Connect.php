@@ -17,13 +17,13 @@ class Database_Exception_Connect extends Database_Exception {
      * @var string
      */
     protected $url = null;
-    
+
     /**
      *
      * @var array
      */
     protected $parts = array();
-    
+
     /**
      *
      * @param string $url
@@ -45,7 +45,7 @@ class Database_Exception_Connect extends Database_Exception {
         }
         parent::__construct($message, $arguments, $errno);
     }
-    
+
     /**
      *
      * {@inheritDoc}

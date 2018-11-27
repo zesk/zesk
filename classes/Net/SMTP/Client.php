@@ -19,7 +19,7 @@ class Net_SMTP_Client extends Net_Client_Socket {
      * @var integer
      */
     protected $default_port = 25;
-    
+
     /**
      * Send email
      *
@@ -68,7 +68,7 @@ class Net_SMTP_Client extends Net_Client_Socket {
             $this->authenticated = true;
         }
         $this->mail($from);
-        
+
         if (!is_array($headers)) {
             $headers = array(
                 $headers,
@@ -78,16 +78,16 @@ class Net_SMTP_Client extends Net_Client_Socket {
             $this->rcpt($recipient);
         }
         $this->data();
-        
+
         // Fix .s when first-on-line for email formatting
         $headers = str_replace($this->EOL . '.', $this->EOL . '..', trim(implode($this->EOL, $headers)));
         $body = $this->format_body($body);
-        
+
         $this->write($headers . $this->EOL . $this->EOL . $body . $this->EOL . '.');
-        
+
         $message = false;
         $result = $this->expect('250', $message);
-        
+
         $this->application->logger->debug("Sent email to {rcpts} {nbytes} bytes via {user}@{host}", array(
             "rcpts" => $rcpts,
             "nbytes" => strlen($body),
@@ -96,7 +96,7 @@ class Net_SMTP_Client extends Net_Client_Socket {
         ));
         return $result;
     }
-    
+
     /**
      * Clean up email body for sending with correct encoding
      *
@@ -111,7 +111,7 @@ class Net_SMTP_Client extends Net_Client_Socket {
         $body = substr($body, 0, 1) == '.' ? '.' . $body : $body;
         return $body;
     }
-    
+
     /**
      * Connect using rfc2821 method
      *
@@ -121,7 +121,7 @@ class Net_SMTP_Client extends Net_Client_Socket {
     private function helo() {
         return $this->command("HELO " . $this->url('host'), "250");
     }
-    
+
     /**
      * Connect using SMTP extension
      *
@@ -131,7 +131,7 @@ class Net_SMTP_Client extends Net_Client_Socket {
     private function ehlo() {
         return $this->command("EHLO " . $this->url('host'), "250");
     }
-    
+
     /**
      * Authenticate using username and password
      *
@@ -147,7 +147,7 @@ class Net_SMTP_Client extends Net_Client_Socket {
         $this->authenticated = true;
         return $result;
     }
-    
+
     /**
      * MAIL FROM command
      *
@@ -158,7 +158,7 @@ class Net_SMTP_Client extends Net_Client_Socket {
     private function mail($from) {
         return $this->command("MAIL FROM: <" . $from . ">", "250");
     }
-    
+
     /**
      * RCPT TO command
      *
@@ -169,7 +169,7 @@ class Net_SMTP_Client extends Net_Client_Socket {
     private function rcpt($to) {
         return $this->command("RCPT TO: <$to>", "25");
     }
-    
+
     /**
      * Send message data command (data should follow using RFC2821 method)
      *
@@ -178,7 +178,7 @@ class Net_SMTP_Client extends Net_Client_Socket {
     private function data() {
         return $this->command("DATA", "354");
     }
-    
+
     /**
      * Send RSET command
      *
@@ -187,7 +187,7 @@ class Net_SMTP_Client extends Net_Client_Socket {
     private function rset() {
         return $this->command("RSET", "250");
     }
-    
+
     /**
      * Terminate the connection
      *

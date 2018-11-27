@@ -12,13 +12,13 @@ namespace zesk;
  */
 abstract class Database_Parser extends Hookable {
     const pattern_database_hint = '/--\s*Database:\s*(\w+)/i';
-    
+
     /**
      *
      * @var Database
      */
     protected $database;
-    
+
     /**
      *
      * @return Database_SQL
@@ -26,7 +26,7 @@ abstract class Database_Parser extends Hookable {
     final public function sql() {
         return $this->database->sql();
     }
-    
+
     /**
      * Create a new database parser
      *
@@ -37,7 +37,7 @@ abstract class Database_Parser extends Hookable {
         $this->database = $database;
         parent::__construct($database->application, $options);
     }
-    
+
     /**
      * Parse SQL to determine type of command
      *
@@ -60,7 +60,7 @@ abstract class Database_Parser extends Hookable {
         }
         return ($field === null) ? $result : avalue($result, $field, $result);
     }
-    
+
     /**
      * Divide SQL commands into different distinct commands
      *
@@ -131,7 +131,7 @@ abstract class Database_Parser extends Hookable {
         }
         return $db->parser();
     }
-    
+
     /**
      * Convert from SQL to Database_Table
      *
@@ -141,7 +141,7 @@ abstract class Database_Parser extends Hookable {
     abstract public function create_table($sql);
 
     abstract public function create_index(Database_Table $table, $sql);
-    
+
     /**
      * Convert an order-by clause into an array, parsing out any functions or other elements
      *
@@ -175,7 +175,7 @@ abstract class Database_Parser extends Hookable {
         // Convert resulting array and replace removed tokens
         return tr($order_by, $map);
     }
-    
+
     /**
      * Reverses an order by clause as passed into a select query
      *

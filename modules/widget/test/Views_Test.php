@@ -35,12 +35,12 @@ class Views_Test extends TestWidget {
             View_Time_Zone::class,
             View_Email::class,
         );
-        
+
         $this->application->configuration->path_set(array(
             'zesk\\' . 'Session',
             'implementation',
         ), 'zesk\\' . 'Session_Mock');
-        
+
         $app = $this->application;
         $router = $app->router();
         $router->add_route("user/{action}", array(

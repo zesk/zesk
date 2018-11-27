@@ -16,7 +16,7 @@ class Class_Permission extends Class_ORM {
      * @var string
      */
     public $id_column = "id";
-    
+
     /**
      * How to find one of these without an id?
      *
@@ -25,7 +25,7 @@ class Class_Permission extends Class_ORM {
     public $find_keys = array(
         'name',
     );
-    
+
     /**
      * Special handling of columns
      *

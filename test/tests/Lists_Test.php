@@ -83,7 +83,7 @@ class Lists_Test extends Test_Unit {
                         foreach ($seps as $sep) {
                             $add_cleaned = count($add) === 0 ? array() : ($add_is_array ? ArrayTools::clean($add, null) : explode($sep, implode($sep, $add)));
                             $expected = $list_is_array ? array_merge($list, $add_cleaned) : implode($sep, array_merge($list, $add_cleaned));
-                            
+
                             $datum[] = array(
                                 $list_is_array ? $list : implode($sep, $list),
                                 $add_is_array ? $add : (count($add) === 0 ? null : implode($sep, $add)),
@@ -97,7 +97,7 @@ class Lists_Test extends Test_Unit {
         }
         return $datum;
     }
-    
+
     /**
      * @data_provider append_data_provider
      */
@@ -109,7 +109,7 @@ class Lists_Test extends Test_Unit {
             "add" => _dump($add),
         )), false);
     }
-    
+
     /**
      * @data_provider append_data_provider
      */
@@ -160,7 +160,7 @@ class Lists_Test extends Test_Unit {
         $llist = "X;a;A;b;b;c;c;D;F;a;X";
         $sep = ";";
         $this->assert(Lists::unique($llist, $sep) === "X;a;A;b;c;D;F");
-        
+
         echo basename(__FILE__) . ": success\n";
     }
 }

@@ -6,12 +6,12 @@ abstract class Configuration_Parser extends Options {
      * @var Display name
      */
     protected $name;
-    
+
     /**
      * @var string
      */
     protected $content = null;
-    
+
     /**
      * @var Interface_Settings
      */
@@ -28,7 +28,7 @@ abstract class Configuration_Parser extends Options {
      * @var Configuration_Loader
      */
     protected $loader = null;
-    
+
     /**
      *
      * @param unknown $type
@@ -41,7 +41,7 @@ abstract class Configuration_Parser extends Options {
         $class = __CLASS__ . "_" . PHP::clean_function(strtoupper($type));
         return new $class($content, $settings, $options);
     }
-    
+
     /**
      *
      * @param unknown $content
@@ -58,7 +58,7 @@ abstract class Configuration_Parser extends Options {
         $this->content($content);
         $this->initialize();
     }
-    
+
     /**
      * Getter/setter for settings
      *
@@ -113,22 +113,22 @@ abstract class Configuration_Parser extends Options {
         $this->content = $set;
         return $this;
     }
-    
+
     /**
      *
      */
     abstract public function initialize();
-    
+
     /**
      *
      */
     abstract public function validate();
-    
+
     /**
      * @return Interface_Settings
      */
     abstract public function process();
-    
+
     /**
      * @return Configuration_Editor
      */

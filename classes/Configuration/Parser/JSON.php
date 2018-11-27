@@ -15,13 +15,13 @@ class Configuration_Parser_JSON extends Configuration_Parser {
         "lower" => true,
         "interpolate" => true,
     );
-    
+
     /**
      *
      */
     public function initialize() {
     }
-    
+
     /**
      * @return boolean
      */
@@ -32,16 +32,16 @@ class Configuration_Parser_JSON extends Configuration_Parser {
             return false;
         }
     }
-    
+
     /**
      *
      */
     public function process() {
         $lower = $overwrite = $interpolate = null;
         extract($this->options, EXTR_IF_EXISTS);
-        
+
         $result = JSON::decode($this->content);
-        
+
         if (!is_array($result)) {
             error_log(map("{method} JSON::decode returned non-array {type}", array(
                 "method" => __METHOD__,
@@ -54,7 +54,7 @@ class Configuration_Parser_JSON extends Configuration_Parser {
         }
         $settings = $this->settings;
         $dependency = $this->dependency;
-        
+
         $include = null;
         if (array_key_exists("include", $result) && $this->loader) {
             $include = $result["include"];
@@ -66,7 +66,7 @@ class Configuration_Parser_JSON extends Configuration_Parser {
         }
         return $result;
     }
-    
+
     /**
      * Handle include files specially
      *
@@ -86,7 +86,7 @@ class Configuration_Parser_JSON extends Configuration_Parser {
         }
         $this->loader->append_files($files);
     }
-    
+
     /**
      *
      * @param array $results

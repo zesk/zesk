@@ -40,7 +40,7 @@ class Role extends ORM {
             ->where('is_default', true)
             ->integer('id', null);
     }
-    
+
     /**
      *
      * @return boolean

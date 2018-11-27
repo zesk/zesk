@@ -3,7 +3,7 @@ namespace zesk;
 
 class Net_IMAP_Client extends Net_Client {
     protected $imap_conn = null;
-    
+
     /**
      * Format IMAP server connection string
      *
@@ -14,7 +14,7 @@ class Net_IMAP_Client extends Net_Client {
         $path = ltrim(avalue($this->url_parts, 'path', 'INBOX'), '/');
         return '{' . imap_utf7_encode($this->url_parts['host']) . ":" . $port . "}" . $path;
     }
-    
+
     /**
      * Connect to the server
      * @see Net_Client::connect()
@@ -29,7 +29,7 @@ class Net_IMAP_Client extends Net_Client {
         $this->log("Connected.");
         return true;
     }
-    
+
     /**
      * Is this connected
      * @see Net_Client::is_connected()
@@ -37,7 +37,7 @@ class Net_IMAP_Client extends Net_Client {
     public function is_connected() {
         return $this->imap_conn !== null;
     }
-    
+
     /**
      * (non-PHPdoc)
      * @see Net_Client::disconnect()
@@ -75,7 +75,7 @@ if (false) {
      */
     function imap_open($mailbox, $username, $password, $options = 0, $n_retries = 0, array $params = null) {
     }
-    
+
     /**
      * Close an IMAP stream
      *

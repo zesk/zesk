@@ -27,13 +27,13 @@ class Control_Content_File extends Control_Widgets {
             'hash_file' => true,
         ) + $this->options);
         $w->column = $prefix . "upload";
-        
+
         $this->child($w);
-        
+
         $w = $this->widget_factory(Control_Text::class)->names($prefix . "desc", __("Description"))->textarea(true);
         $this->child($w);
         $this->upload(true);
-        
+
         parent::initialize();
     }
 

@@ -18,13 +18,13 @@ abstract class Contact_Builder_Base extends Options {
      * @var array
      */
     protected $data = array();
-    
+
     /**
      *
      * @var string
      */
     protected $contact_class = null;
-    
+
     /**
      *
      * @param array $data
@@ -34,7 +34,7 @@ abstract class Contact_Builder_Base extends Options {
         parent::__construct($options);
         $this->data = is_array($data) ? $data : array();
     }
-    
+
     /**
      *
      * @param Contact_Import $import

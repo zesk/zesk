@@ -25,7 +25,7 @@ class Net_Whois {
                 "extension" => $extension,
             ));
         }
-        
+
         $conn = fsockopen($server, 43);
         if (!$conn) {
             throw new Exception_Connect($server);

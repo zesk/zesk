@@ -18,13 +18,13 @@ class World_Bootstrap_Currency extends Hookable {
      * @var array
      */
     private $include_currency = null;
-    
+
     /**
      *
      * @var array
      */
     private $include_country = null;
-    
+
     /**
      *
      * @param Application $application
@@ -34,7 +34,7 @@ class World_Bootstrap_Currency extends Hookable {
     public static function factory(Application $application, array $options = array()) {
         return $application->factory(__CLASS__, $application, $options);
     }
-    
+
     /**
      * @global Module_World::include_currency List of currency codes to include
      * @global Module_World::include_country List of country codes to include
@@ -57,7 +57,7 @@ class World_Bootstrap_Currency extends Hookable {
     public function bootstrap() {
         $prefix = __NAMESPACE__ . "\\";
         $x = $this->application->orm_factory($prefix . StringTools::unprefix(__CLASS__, $prefix . "World_Bootstrap_"));
-        
+
         if ($this->option_bool("drop")) {
             $x->database()->query('TRUNCATE ' . $x->table());
         }
@@ -108,10 +108,10 @@ class World_Bootstrap_Currency extends Hookable {
 
     private function process_row(array $row) {
         list($country_name, $name, $codeName, $code_number, $symbol, $fractional_string) = $row;
-        
+
         $name = $row[0];
         $code = strtolower(substr($codeName, 0, 2));
-        
+
         $country = $this->determine_country($code, $name);
         if (!$country && !$this->option_bool("include_no_country")) {
             return null;
@@ -120,7 +120,7 @@ class World_Bootstrap_Currency extends Hookable {
         if (empty($symbol)) {
             $symbol = $codeName;
         }
-        
+
         $fields["id"] = $id = intval($row[3]);
         $fields["name"] = $row[1];
         $fields["code"] = $codeName;
@@ -129,12 +129,12 @@ class World_Bootstrap_Currency extends Hookable {
         $fields["fractional"] = intval($fractional);
         $fields["fractional_units"] = $units;
         $fields["format"] = "{symbol}{amount}";
-        
+
         if (empty($id)) {
             $this->application->logger->debug("Unknown id for currency {code} {name}", $fields);
             return null;
         }
-        
+
         $currency = $this->application->orm_factory(__NAMESPACE__ . "\\" . "Currency");
         if ($this->is_included($currency)) {
             if ($this->option_bool("delete_mismatched_ids")) {
@@ -176,7 +176,7 @@ class World_Bootstrap_Currency extends Hookable {
         }
         return $codes;
     }
-    
+
     /**
      * https://gist.githubusercontent.com/Fluidbyte/2973986/raw/b0d1722b04b0a737aade2ce6e055263625a0b435/Common-Currency.json
      */
@@ -199,7 +199,7 @@ class World_Bootstrap_Currency extends Hookable {
                 "symbol",
                 "unit_phrase",
             ));
-            
+
             $result[$item['code']] = $item;
         }
         return $result;
@@ -2289,7 +2289,7 @@ class World_Bootstrap_Currency extends Hookable {
             ),
         );
     }
-    
+
     /**
      * Taken from http://www.xe.com/currency/ HTML as of 2017-09-13
      */

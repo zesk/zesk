@@ -40,13 +40,13 @@ class CSV_Reader_Map extends CSV_Reader {
      * @var array[readmapname]
      */
     protected $ReadMapGroupTypes;
-    
+
     /**
      *
      * @var array
      */
     protected $translation_map = array();
-    
+
     /**
      *
      * @param unknown $filename
@@ -58,7 +58,7 @@ class CSV_Reader_Map extends CSV_Reader {
         $this->ReadMapGroupDefault = array();
         $this->ReadMapGroupTypes = array();
     }
-    
+
     /**
      * Create
      *
@@ -69,7 +69,7 @@ class CSV_Reader_Map extends CSV_Reader {
     public static function factory($filename, array $options = array()) {
         return new self($filename, $options);
     }
-    
+
     /**
      * Set or get a simple mapping for reading objects from a CSV, for example
      *
@@ -126,7 +126,7 @@ class CSV_Reader_Map extends CSV_Reader {
         }
         return true;
     }
-    
+
     /**
      * Given a source row $data, and a type map
      * @param array $row
@@ -163,7 +163,7 @@ class CSV_Reader_Map extends CSV_Reader {
         }
         return $row;
     }
-    
+
     /**
      * Retrieve the read map of name
      *
@@ -216,7 +216,7 @@ class CSV_Reader_Map extends CSV_Reader {
         }
         return $result;
     }
-    
+
     /**
      * Set columns to be converted to boolean upon reading
      *
@@ -226,7 +226,7 @@ class CSV_Reader_Map extends CSV_Reader {
     public function add_translation_map_boolean($columns) {
         return $this->_add_translation_map_type(to_list($columns), Class_ORM::type_boolean);
     }
-    
+
     /**
      * Add translation map for a specific type
      *
@@ -247,7 +247,7 @@ class CSV_Reader_Map extends CSV_Reader {
         }
         return $this;
     }
-    
+
     /**
      *
      * @param array $row
@@ -262,7 +262,7 @@ class CSV_Reader_Map extends CSV_Reader {
         }
         return $row;
     }
-    
+
     /**
      * Convert data to boolean
      */

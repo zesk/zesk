@@ -20,13 +20,13 @@ abstract class Net_Client extends Hookable {
      * @var array
      */
     protected $url_parts;
-    
+
     /**
      * Error log
      * @var array
      */
     protected $errors = array();
-    
+
     /**
      * Create a Net_Client
      * @param string $url
@@ -65,7 +65,7 @@ abstract class Net_Client extends Hookable {
     public function __toString() {
         return $this->url;
     }
-    
+
     /**
      *
      * @return Application
@@ -91,7 +91,7 @@ abstract class Net_Client extends Hookable {
      * @return false;
      */
     abstract public function is_connected();
-    
+
     /**
      * Force connection
      */
@@ -122,7 +122,7 @@ abstract class Net_Client extends Hookable {
             $this->application->logger->debug($message);
         }
     }
-    
+
     /**
      * Parse a UNIX-ish LS line
      * @param string $line
@@ -131,7 +131,7 @@ abstract class Net_Client extends Hookable {
      */
     protected function parse_ls_line($line) {
         $line = trim($line);
-        
+
         $fields = preg_split('/\s+/', $line, 9);
         if (strtolower($fields[0]) === "total") {
             return null;
@@ -158,7 +158,7 @@ abstract class Net_Client extends Hookable {
         $entry['type'] = File::ls_type($entry['mode']);
         return $this->_parse_date($entry);
     }
-    
+
     /**
      *
      * @param unknown_type $month

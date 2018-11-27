@@ -18,7 +18,7 @@ class TimeSpan extends Temporal {
      * @var integer
      */
     protected $duration = null;
-    
+
     /**
      *
      * @param mixed $seconds
@@ -26,7 +26,7 @@ class TimeSpan extends Temporal {
     public function __construct($seconds = null) {
         $this->duration = $this->parse($seconds);
     }
-    
+
     /**
      *
      * @return boolean
@@ -61,7 +61,7 @@ class TimeSpan extends Temporal {
         }
         return null;
     }
-    
+
     /**
      *
      * @param string|integer|null $set
@@ -74,7 +74,7 @@ class TimeSpan extends Temporal {
         $this->duration = $this->parse($set);
         return $this;
     }
-    
+
     /**
      * Convert to SQL format
      *
@@ -83,7 +83,7 @@ class TimeSpan extends Temporal {
     public function sql() {
         return $this->valid() ? strval($this->duration) : null;
     }
-    
+
     /**
      * Format time span
      *
@@ -97,7 +97,7 @@ class TimeSpan extends Temporal {
         }
         return map($format_string, $this->formatting($locale, $options));
     }
-    
+
     /**
      * Fetch formatting for this object
      *

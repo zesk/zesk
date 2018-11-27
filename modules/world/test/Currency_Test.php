@@ -25,7 +25,7 @@ class Currency_Test extends Test_ORM {
             ),
         );
     }
-    
+
     /**
      *
      * @param unknown $class

@@ -19,7 +19,7 @@ class CacheItem_NULL implements CacheItemInterface {
      * @var string
      */
     private $key = null;
-    
+
     /**
      *
      * @param string $key
@@ -40,7 +40,7 @@ class CacheItem_NULL implements CacheItemInterface {
     public function getKey() {
         return $this->key;
     }
-    
+
     /**
      * Retrieves the value of the item from the cache associated with this object's key.
      *
@@ -56,7 +56,7 @@ class CacheItem_NULL implements CacheItemInterface {
     public function get() {
         return null;
     }
-    
+
     /**
      * Confirms if the cache item lookup resulted in a cache hit.
      *
@@ -69,7 +69,7 @@ class CacheItem_NULL implements CacheItemInterface {
     public function isHit() {
         return false;
     }
-    
+
     /**
      * Sets the value represented by this cache item.
      *
@@ -86,7 +86,7 @@ class CacheItem_NULL implements CacheItemInterface {
     public function set($value) {
         return $this;
     }
-    
+
     /**
      * Sets the expiration time for this cache item.
      *
@@ -102,7 +102,7 @@ class CacheItem_NULL implements CacheItemInterface {
     public function expiresAt($expiration) {
         return $this;
     }
-    
+
     /**
      * Sets the expiration time for this cache item.
      *

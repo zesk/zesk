@@ -68,7 +68,7 @@ class Content_Image extends ORM {
         if ($get_data) {
             $query->what_object("Content_Data", null, "data_");
         }
-        
+
         $result = $query->one();
         if (!$result) {
             return array();
@@ -88,7 +88,7 @@ class Content_Image extends ORM {
     public function sync() {
         $this->_force_to_disk();
     }
-    
+
     /**
      * (non-PHPdoc)
      *
@@ -101,7 +101,7 @@ class Content_Image extends ORM {
         }
         return parent::store();
     }
-    
+
     /**
      * Does the file exist on the system? Useful if you are running in a cluster.
      *
@@ -113,14 +113,14 @@ class Content_Image extends ORM {
         }
         return file_exists($this->path());
     }
-    
+
     /**
      * Returns the path, minus the docroot
      */
     public function source() {
         return StringTools::unprefix($this->path(), $this->application->document_root());
     }
-    
+
     /**
      * Path to where image are stored
      *
@@ -129,7 +129,7 @@ class Content_Image extends ORM {
     public function content_image_path() {
         return $this->option("path", path($this->application->document_root(), "cache/images"));
     }
-    
+
     /**
      * Given an internal path and a raw data file, fix the internal path extension to make it a
      * servable name
@@ -159,7 +159,7 @@ class Content_Image extends ORM {
     public function path() {
         return path($this->content_image_path(), $this->member("path"));
     }
-    
+
     /**
      * Retrieve the file size in bytes of this image
      *
@@ -168,7 +168,7 @@ class Content_Image extends ORM {
     public function size() {
         return $this->data->size();
     }
-    
+
     /**
      * Simplistic test to see if a file is of a particular type.
      * Works great on validly formatted images.
@@ -190,7 +190,7 @@ class Content_Image extends ORM {
     public static function determine_extension_simple_data($data) {
         $head = substr($data, 0, 12);
         $head = trim(strtolower(preg_replace("/[^A-Za-z]/", "", $head)));
-        
+
         if (substr($head, 0, 3) == "gif") {
             return "gif";
         }
@@ -203,7 +203,7 @@ class Content_Image extends ORM {
         if (substr($head, 0, 3) == "cws") {
             return "swf";
         }
-        
+
         return false;
     }
 
@@ -219,7 +219,7 @@ class Content_Image extends ORM {
         }
         return self::determine_extension_simple_data(file_get_contents($filename, null, null, 0, 12));
     }
-    
+
     /**
      * Determine file extension for file using exif
      *
@@ -233,7 +233,7 @@ class Content_Image extends ORM {
         if (!function_exists("exif_imagetype")) {
             return self::determine_extension_simple($filename);
         }
-        
+
         $t = exif_imagetype($filename);
         if (!$t) {
             return false;
@@ -251,13 +251,13 @@ class Content_Image extends ORM {
         //			IMAGETYPE_JPC => "jpc",
         //			IMAGETYPE_JP2 => "jp2",
         //			IMAGETYPE_JPX => "jpx",
-        
+
         if (isset($t2ext[$t])) {
             return $t2ext[$t];
         }
         return false;
     }
-    
+
     /**
      * Copy file to disk where it should be
      *
@@ -283,7 +283,7 @@ class Content_Image extends ORM {
         }
         return true;
     }
-    
+
     /**
      * Update Width and Height
      *
@@ -307,7 +307,7 @@ class Content_Image extends ORM {
         $this->set_member("height", $result[1]);
         return true;
     }
-    
+
     /**
      * Rotate image $degrees degrees in one direction or the other
      *
@@ -325,7 +325,7 @@ class Content_Image extends ORM {
         $this->_update_sizes();
         return $this->store();
     }
-    
+
     /**
      * Returns an array of (width, height) with the new image constrained the the box size.
      *
@@ -339,7 +339,7 @@ class Content_Image extends ORM {
     public function constrain_dimensions($width, $height) {
         return Image_Library::constrain_dimensions($this->width, $this->height, $width, $height);
     }
-    
+
     /**
      * Given an image file, fix the orientation based on the EXIF Orientation data
      *
@@ -384,13 +384,13 @@ class Content_Image extends ORM {
         }
         return true;
     }
-    
+
     /**
      */
     public static function permissions(Application $application) {
         return parent::default_permissions($application, __CLASS__);
     }
-    
+
     /**
      *
      * @param User $user

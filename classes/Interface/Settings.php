@@ -36,7 +36,7 @@ interface Interface_Settings {
      * @return mixed The value of the session variable, or $default if nothing set
      */
     public function get($name = null, $default = null);
-    
+
     /**
      * Store a value to a settings
      *
@@ -44,7 +44,7 @@ interface Interface_Settings {
      * @param mixed $value Value to save. As a general rule, best to use scalar types
      */
     public function __set($name, $value);
-    
+
     /**
      * Store a value to a settings
      *
@@ -53,7 +53,7 @@ interface Interface_Settings {
      * @return self
      */
     public function set($name, $value = null);
-    
+
     /**
      * Retrieve a list of all settings variables as an array
      *

@@ -19,12 +19,12 @@ abstract class Net_Server {
      * Net_Server_Driver_Single
      */
     const type_single = "Single";
-    
+
     /**
      * Override in subclasses to set the default driver type
      */
     protected $default_driver = self::type_fork;
-    
+
     /**
      * @var Application
      */
@@ -38,7 +38,7 @@ abstract class Net_Server {
         self::type_fork,
         self::type_single,
     );
-    
+
     /**
      * Driver for this server
      *
@@ -66,7 +66,7 @@ abstract class Net_Server {
     public function start() {
         $this->driver->start();
     }
-    
+
     /*
      public function hook_start() {
      }

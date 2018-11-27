@@ -32,7 +32,7 @@ class Content_Article extends ORM {
             ),
         );
     }
-    
+
     /**
      *
      * {@inheritDoc}
@@ -47,7 +47,7 @@ class Content_Article extends ORM {
         }
         return parent::store();
     }
-    
+
     /**
      *
      * @param string $force
@@ -62,7 +62,7 @@ class Content_Article extends ORM {
 
         throw new Exception_Unimplemented(__METHOD__);
     }
-    
+
     /**
      *
      * @param unknown $contents
@@ -141,7 +141,7 @@ class Content_Article extends ORM {
     public function meta_keywords() {
         return $this->Keywords;
     }
-    
+
     /**
      *
      * @param string $where
@@ -157,10 +157,10 @@ class Content_Article extends ORM {
             "NOW()",
         );
         $where['IsActive'] = 'true';
-        
+
         return $where;
     }
-    
+
     /**
      *
      * @param string $where
@@ -168,10 +168,10 @@ class Content_Article extends ORM {
      */
     public static function where_publish_start_end_NOT($where = false) {
         $where['*PublishEnd|<'] = "NOW()";
-        
+
         return $where;
     }
-    
+
     /**
      *
      * @return string|void|mixed|string
@@ -188,7 +188,7 @@ class Content_Article extends ORM {
             'zero_string' => 'Today',
         ));
     }
-    
+
     /**
      *
      * @return string
@@ -196,14 +196,14 @@ class Content_Article extends ORM {
     public function homeTitle() {
         return $this->membere("Headline", $this->Title);
     }
-    
+
     /**
      *
      */
     public function body() {
         return $this->Body;
     }
-    
+
     /**
      *
      * @return unknown|string
@@ -216,7 +216,7 @@ class Content_Article extends ORM {
         $result = HTML::ellipsis($this->body(), $this->option_integer('summary_maximum_length_from_body', 200));
         return $result;
     }
-    
+
     /**
      *
      * @param number $image_index
@@ -226,7 +226,7 @@ class Content_Article extends ORM {
     public function articleImage($image_index = 0, $options = false) {
         return $this->image($image_index, $options);
     }
-    
+
     /**
      *
      * @param unknown $global_prefix
@@ -236,7 +236,7 @@ class Content_Article extends ORM {
     private function _compute_image_width($global_prefix, $default_value) {
         return $this->_compute_image_size("width", $global_prefix, $default_value);
     }
-    
+
     /**
      *
      * @param unknown $global_prefix
@@ -246,7 +246,7 @@ class Content_Article extends ORM {
     private function _compute_image_height($global_prefix, $default_value) {
         return $this->_compute_image_size("height", $global_prefix, $default_value);
     }
-    
+
     /**
      *
      * @param unknown $name
@@ -257,7 +257,7 @@ class Content_Article extends ORM {
     private function _compute_image_size($name, $global_prefix, $default_value) {
         return $this->option_integer("image_${global_prefix}${name}_default", $this->application->configuration->path_get("Image::image_${global_prefix}${name}_default", $default_value));
     }
-    
+
     /**
      *
      * @param number $image_index
@@ -266,11 +266,11 @@ class Content_Article extends ORM {
      */
     public function image($image_index = 0, $options = false) {
         $options['image_path'] = "/data/article";
-        
+
         $member_prefix = (avalue($options, 'is_thumb')) ? "Thumb" : "";
         $global_prefix = (avalue($options, 'is_thumb')) ? "thumb_" : "";
         $default_value = (avalue($options, 'is_thumb')) ? 150 : 300;
-        
+
         if (!array_key_exists('image_width', $options)) {
             $options['image_width'] = $this->member_integer("Photo${member_prefix}Width$image_index", $this->_compute_image_width($global_prefix, $default_value));
         }
@@ -284,7 +284,7 @@ class Content_Article extends ORM {
         $options['image_caption_field'] = "PhotoCaption$image_index";
         $options['is_relative'] = false;
         $options['root_directory'] = $this->application->document_root();
-        
+
         return $this->theme('image/image-caption', $options);
     }
 }

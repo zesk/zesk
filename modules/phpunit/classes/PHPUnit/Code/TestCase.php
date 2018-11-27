@@ -63,7 +63,7 @@ class PHPUnit_Code_TestCase extends PHPUnit_TestCase {
             $this->assertEquals("", $result, "Including $full_path");
         }
     }
-    
+
     /**
      *
      * @param unknown $path

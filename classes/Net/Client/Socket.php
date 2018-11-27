@@ -9,28 +9,28 @@ namespace zesk;
 
 class Net_Client_Socket extends Net_Client {
     protected $EOL = "\r\n";
-    
+
     /**
      * Connected socket
      *
      * @var resource
      */
     private $socket;
-    
+
     /**
      * The class name of the exception to throw when errors occur
      *
      * @var unknown_type
      */
     protected $default_port = -1;
-    
+
     /**
      * Buffered data
      *
      * @var string
      */
     protected $buffer = "";
-    
+
     /**
      * Connect to the socket
      *
@@ -43,14 +43,14 @@ class Net_Client_Socket extends Net_Client {
         if ($this->is_connected()) {
             return $this->greeting;
         }
-        
+
         $host = avalue($this->url_parts, 'host', 'localhost');
         $port = aevalue($this->url_parts, 'port', $this->default_port);
         $timeout = $this->option_integer('timeout', 30);
-        
+
         $errno = false;
         $errstr = false;
-        
+
         $this->log("Connecting to $host:$port");
         $this->socket = @fsockopen($host, $port, $errno, $errstr, $timeout);
         if (!is_resource($this->socket)) {
@@ -62,7 +62,7 @@ class Net_Client_Socket extends Net_Client {
         $this->greeting = $this->read();
         return true;
     }
-    
+
     /**
      * Disconnect
      *
@@ -93,7 +93,7 @@ class Net_Client_Socket extends Net_Client {
             throw new Exception_Semantics("Not connected to server");
         }
     }
-    
+
     /**
      * Execute a command
      *
@@ -106,7 +106,7 @@ class Net_Client_Socket extends Net_Client {
      */
     protected function command($command, $expect = null) {
         $this->write(trim($command));
-        
+
         if (!is_string($expect)) {
             return true;
         }
@@ -116,7 +116,7 @@ class Net_Client_Socket extends Net_Client {
         }
         return $result;
     }
-    
+
     /**
      * Expect some data back
      *
@@ -135,7 +135,7 @@ class Net_Client_Socket extends Net_Client {
         $result = implode("\n", $result);
         return begins(trim($result), $expect);
     }
-    
+
     /**
      * Write data to socket
      *
@@ -166,7 +166,7 @@ class Net_Client_Socket extends Net_Client {
 
         throw new Exception("read_wait timed out after $milliseconds milliseconds");
     }
-    
+
     /**
      * Read data from socket
      *

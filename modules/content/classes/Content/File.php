@@ -35,7 +35,7 @@ class Content_File extends ORM {
             ),
         );
     }
-    
+
     /**
      * (non-PHPdoc)
      *
@@ -47,7 +47,7 @@ class Content_File extends ORM {
         }
         return parent::store();
     }
-    
+
     /**
      * Retrieve path to file in file system.
      * Creates file if doesn't exist locally.
@@ -58,7 +58,7 @@ class Content_File extends ORM {
     public function fullpath() {
         return $this->data->filepath();
     }
-    
+
     /**
      * fopen the file
      *
@@ -68,7 +68,7 @@ class Content_File extends ORM {
     public function open_file($mode) {
         return $this->data->fopen($mode);
     }
-    
+
     /**
      * Copy the file to a destination
      *
@@ -79,7 +79,7 @@ class Content_File extends ORM {
     public function copy_file($destination) {
         return $this->data->copy_file($destination);
     }
-    
+
     /**
      * Does the destination file match our database version?
      *
@@ -99,7 +99,7 @@ class Content_File extends ORM {
     public function size() {
         return $this->data->size();
     }
-    
+
     /**
      * Retrieve the download link for this file
      *
@@ -112,7 +112,7 @@ class Content_File extends ORM {
             "object" => $this,
         ));
     }
-    
+
     /**
      * Add extension given the mime type of the file for the file name
      *
@@ -131,7 +131,7 @@ class Content_File extends ORM {
         }
         return $name . "." . $extension;
     }
-    
+
     /**
      * Download a file
      *
@@ -143,7 +143,7 @@ class Content_File extends ORM {
     public function download(Response $response, $type = null) {
         return $response->download($this->fullpath(), $this->add_extension($this->name), $type);
     }
-    
+
     /**
      * original name of file
      *
@@ -152,7 +152,7 @@ class Content_File extends ORM {
     public function original_name() {
         return $this->original;
     }
-    
+
     /**
      * Mime Type of file
      *
@@ -161,7 +161,7 @@ class Content_File extends ORM {
     public function mime_type() {
         return $this->member("mime", "application/unknown");
     }
-    
+
     /**
      * Given a file path, register a new file
      *
@@ -173,7 +173,7 @@ class Content_File extends ORM {
         $copy = $this->option_bool("scan_path_copy");
         $options = to_array($options);
         $data = Content_Data::copy_from_path($this->application, $path, $copy);
-        
+
         $file = $this->application->object_fatcory(__CLASS__);
         $file->original = avalue($options, 'original', $path);
         if ($file->find(array(
@@ -183,10 +183,10 @@ class Content_File extends ORM {
         }
         $file->data = $data;
         $file->name = basename($path);
-        
+
         return $file->store();
     }
-    
+
     /**
      * Load images from a particular directory and create Content_Files for them.
      */
@@ -214,7 +214,7 @@ class Content_File extends ORM {
             ));
         }
     }
-    
+
     /**
      *
      * @return string

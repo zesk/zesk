@@ -27,16 +27,16 @@ class Net_SMTP_Client_Test extends Test_Unit {
         if (!$to) {
             $this->markTestIncomplete("No to specified for " . __CLASS__);
         }
-        
+
         $options = array(
             "echo_log" => true,
         );
         $testx = new Net_SMTP_Client($this->application, $url, $options);
-        
+
         echo "Hello";
-        
+
         $testx->connect();
-        
+
         $headers = null;
         $body = null;
         $testx->send($from, $to, $headers, $body);

@@ -116,7 +116,7 @@ class PHP_Formatter extends Options {
         }
         $this->n_tokens = count($this->tokens);
         $this->index = 0;
-        
+
         // First pass - filter out unwanted tokens
         ob_start();
         $this->filter_tokens();

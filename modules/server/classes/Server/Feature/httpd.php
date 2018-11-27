@@ -56,28 +56,28 @@ class Server_Feature_HTTPD extends Server_Feature {
         $owner = $config->user("HTTPD_USER") . ":" . $config->group("HTTPD_GROUP");
         $this->require_directory(path($config->option('LOG_PATH'), 'httpd'), $owner, 0755);
         $this->require_directory($httpd_conf_path, $owner, 0755);
-        
+
         /*
          * $host_path = $this->configure_path('httpd'); if (!is_dir($host_path)) { throw new
          * Server_Exception("httpd host path $host_path not found"); } $this->verbose_log("httpd
          * host path is $host_path");
          */
-        
+
         $this->begin("Configuring httpd service ...");
-        
+
         $feature_dir = $config->feature_directory("httpd");
-        
+
         $this->verbose_log("Checking httpd configuration ...");
         $this->_check_configuration($config, $feature_dir);
-        
+
         $this->verbose_log("Updating HTTPD Configuration");
-        
+
         $changed = $this->update($feature_dir, $httpd_conf_path);
-        
+
         $this->verbose_log("Checking installed configuration ...");
-        
+
         $this->_check_configuration($config, $httpd_conf_path);
-        
+
         if ($changed && $this->confirm("Restart httpd")) {
             $this->restart_service("httpd");
         }

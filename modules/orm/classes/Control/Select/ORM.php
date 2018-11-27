@@ -18,13 +18,13 @@ class Control_Select_ORM extends Control_Select {
      *
      * @var string
      */
-    
+
     /**
      *
      * @var Class_ORM
      */
     protected $class_object = null;
-    
+
     /**
      * (non-PHPdoc)
      *
@@ -87,14 +87,14 @@ class Control_Select_ORM extends Control_Select {
         $db = $this->class_object->database();
         $query = $this->application->orm_registry($this->class)->query_select();
         $prefix = $query->alias() . ".";
-        
+
         $text_column = $this->text_columns();
         $what = ArrayTools::prefix(ArrayTools::flip_copy($text_column), $prefix);
         $query->what("id", $prefix . $this->class_object->id_column);
         $query->what($what, true);
         $query->order_by($this->option('order_by', $text_column));
         $query->where($this->_where());
-        
+
         if (!$this->has_option('format')) {
             $this->set_option('format', implode(" ", ArrayTools::wrap(array_keys($what), '{', '}')));
         }

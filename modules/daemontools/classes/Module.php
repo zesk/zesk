@@ -39,7 +39,7 @@ class Module extends \zesk\Module {
         $this->application->theme_path($this->path("theme/system"), "system");
         $this->application->theme_path($this->path("theme/service"), "zesk/daemontools/service");
     }
-    
+
     /**
      *
      * @param Template $template
@@ -53,7 +53,7 @@ class Module extends \zesk\Module {
             ),
         );
     }
-    
+
     /**
      * Hook for daemontools_service source_path [service_name]
      *
@@ -116,7 +116,7 @@ class Module extends \zesk\Module {
         }
         return null;
     }
-    
+
     /**
      * Help for daemontools_service
      *
@@ -133,7 +133,7 @@ class Module extends \zesk\Module {
             "description" => "Create (or update) a daemontools service",
         ));
     }
-    
+
     /**
      * Hook for daemontools_service_remove
      *
@@ -177,7 +177,7 @@ class Module extends \zesk\Module {
         }
         return $changed;
     }
-    
+
     /**
      * Help for daemontools_service_remove
      *
@@ -193,7 +193,7 @@ class Module extends \zesk\Module {
             "description" => "Remove a daemontools service permanently",
         ));
     }
-    
+
     /**
      * Services path for Daemontools
      *
@@ -202,7 +202,7 @@ class Module extends \zesk\Module {
     public function services_path($add = null) {
         return path($this->option("services_path", "/etc/service"), $add);
     }
-    
+
     /**
      *
      * @return \zesk\DaemonTools\Service[]
@@ -237,14 +237,14 @@ class Module extends \zesk\Module {
         }
         return $services;
     }
-    
+
     /**
      * Save data for dashboard
      */
     public function hook_cron() {
         $this->save_services_snapshot(Server::singleton($this->application), $this->services());
     }
-    
+
     /**
      * Save services snapshot to server data
      *
@@ -259,7 +259,7 @@ class Module extends \zesk\Module {
         $server->data(__CLASS__, $snapshot);
         $server->data(__CLASS__ . "::last_updated", Timestamp::now());
     }
-    
+
     /**
      * For testing, generate some data
      *
@@ -301,7 +301,7 @@ class Module extends \zesk\Module {
         }
         return $result;
     }
-    
+
     /**
      *
      * @param Server $object
@@ -311,7 +311,7 @@ class Module extends \zesk\Module {
         $result = $object->data(__CLASS__ . "::last_updated");
         return $result;
     }
-    
+
     /**
      *
      */

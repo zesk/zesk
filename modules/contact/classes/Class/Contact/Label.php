@@ -10,7 +10,7 @@ class Class_Contact_Label extends Class_ORM {
      * @var string
      */
     public $id_column = "id";
-    
+
     /**
      * @todo Group does not have a class
      *

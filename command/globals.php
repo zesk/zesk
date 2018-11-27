@@ -14,7 +14,7 @@ class Command_Globals extends Command_Base {
      * @var string
      */
     protected $help = "Output all globals.";
-    
+
     /**
      *
      * @var array
@@ -23,7 +23,7 @@ class Command_Globals extends Command_Base {
         'format' => 'string',
         '*' => 'string',
     );
-    
+
     /**
      *
      * @var array
@@ -32,7 +32,7 @@ class Command_Globals extends Command_Base {
         'format' => "Output format: html, php, json, text, serialize",
         "*" => "globals to output",
     );
-    
+
     /**
      *
      * {@inheritDoc}

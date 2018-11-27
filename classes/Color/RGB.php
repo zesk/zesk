@@ -31,7 +31,7 @@ class Color_RGB {
      * @var integer
      */
     public $blue = 0;
-    
+
     /**
      *
      * @param integer $r
@@ -58,7 +58,7 @@ class Color_RGB {
             }
         }
     }
-    
+
     /**
      * Convert to string
      *

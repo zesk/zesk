@@ -13,7 +13,7 @@ class Command_PHP_Schema extends Command {
 
     public function run() {
         $db = $this->application->database_registry();
-        
+
         $class = $this->option('class');
         if (!$class) {
             echo "/* No class specified */\n";

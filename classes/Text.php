@@ -37,7 +37,7 @@ class Text {
         }
         return implode($newline, $lines) . $newline;
     }
-    
+
     /**
      * Universally modify line break characters in a string to be a certain line break string.
      *
@@ -58,7 +58,7 @@ class Text {
         $string = str_replace("\n", $temp_char, $string);
         return str_replace($temp_char, $br, $string);
     }
-    
+
     /**
      * Format an array with labels and values
      *
@@ -140,7 +140,7 @@ class Text {
         $text = self::_align_helper($text, $n, $pad, $fill, $_trim);
         return $text . $fill;
     }
-    
+
     /**
      * Delete the line comments in a string
      *
@@ -170,7 +170,7 @@ class Text {
         }
         return implode("\n", $new_data);
     }
-    
+
     /**
      * Remove C/Java/PHP/etc-style range comments
      *
@@ -234,7 +234,7 @@ class Text {
     public static function words($string) {
         return count(preg_split('/(\s+)/', $string, -1, PREG_SPLIT_DELIM_CAPTURE));
     }
-    
+
     /**
      * Generates a table like this:
      *
@@ -300,7 +300,7 @@ class Text {
         }
         $divLine = "+-" . implode("-+-", $line) . "-+";
         $result[] = $divLine;
-        
+
         $line = array();
         foreach ($hs as $i => $h) {
             $line[] = str_pad($h, $ws[$i]);
@@ -317,7 +317,7 @@ class Text {
         $result[] = $divLine;
         return $prefix . implode("\n$prefix", $result) . "\n";
     }
-    
+
     /**
      * Split a line where multiple characters may serve as a delimiter.
      *
@@ -335,7 +335,7 @@ class Text {
     private static function split_line($line, $num_columns = 99, $delimiters = " \t") {
         return explode($delimiters[0], preg_replace("/[" . preg_quote($delimiters) . "]+/", $delimiters[0], $line), $num_columns);
     }
-    
+
     /**
      * Parse a table output by many common UNIX and DOS commands.
      *
@@ -390,7 +390,7 @@ class Text {
         }
         return $results;
     }
-    
+
     /**
      * Returns the number of words delimited by spaces found in string.
      *
@@ -403,7 +403,7 @@ class Text {
     public static function count_words($string, $limit = -1) {
         return count(preg_split('/\s+/', trim($string), $limit));
     }
-    
+
     /**
      * Similar to shell command "head" returns first $count lines from $string
      *
@@ -414,7 +414,7 @@ class Text {
     public static function head($string, $count = 20, $newline = "\n") {
         return implode($newline, array_slice(explode($newline, $string), 0, $count));
     }
-    
+
     /**
      * Similar to shell command "head" returns first $count lines from $string
      *
@@ -425,7 +425,7 @@ class Text {
     public static function tail($string, $count = 20, $newline = "\n") {
         return implode($newline, array_slice(explode($newline, $string), -$count));
     }
-    
+
     /**
      * Parse text output which may have spaces in file names.
      *
@@ -488,7 +488,7 @@ class Text {
                 $was_space = $space;
             }
         }
-        
+
         $first = true;
         $rows = array();
         foreach ($lines as $index => $line) {

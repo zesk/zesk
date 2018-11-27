@@ -19,7 +19,7 @@ class Control_Select_ORM_Dynamic extends Control_Select_ORM {
      * @var Control
      */
     private $control = null;
-    
+
     /**
      *
      * @param unknown $object
@@ -33,7 +33,7 @@ class Control_Select_ORM_Dynamic extends Control_Select_ORM {
             ->where($where)
             ->one_integer("X");
     }
-    
+
     /**
      *
      * @param unknown $object
@@ -59,7 +59,7 @@ class Control_Select_ORM_Dynamic extends Control_Select_ORM {
         }
         return json_encode($options);
     }
-    
+
     /**
      *
      * @return number
@@ -67,7 +67,7 @@ class Control_Select_ORM_Dynamic extends Control_Select_ORM {
     public function optionSelectObjectsLimit() {
         return $this->option_integer("select_objects_limit", 200);
     }
-    
+
     /**
      *
      * {@inheritDoc}
@@ -77,7 +77,7 @@ class Control_Select_ORM_Dynamic extends Control_Select_ORM {
         $this->control = new Control_Text($this->option());
         $this->child($this->control);
     }
-    
+
     /**
      *
      * {@inheritDoc}
@@ -96,7 +96,7 @@ class Control_Select_ORM_Dynamic extends Control_Select_ORM {
         }
         return parent::validate();
     }
-    
+
     /**
      *
      * {@inheritDoc}
@@ -108,7 +108,7 @@ class Control_Select_ORM_Dynamic extends Control_Select_ORM {
         }
         return parent::submit();
     }
-    
+
     /**
      *
      * {@inheritDoc}

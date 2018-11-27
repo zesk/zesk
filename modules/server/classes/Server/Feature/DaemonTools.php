@@ -15,14 +15,14 @@ class Server_Feature_Daemontools extends Server_Feature {
             $this->verbose_log("Daemontools appears to be installed and running correctly ...");
             return true;
         }
-        
+
         if (!$this->confirm("Install daemontools")) {
             return false;
         }
-        
+
         $qmail_ver = 'netqmail-1.05';
         $daemontools_ver = 'daemontools-0.76';
-        
+
         $this->begin("daemontools configure");
 
         try {

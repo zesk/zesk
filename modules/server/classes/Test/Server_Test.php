@@ -18,12 +18,12 @@ class Server_Test extends Test_Unit {
 
     public function test_Server() {
         $this->application->configuration->HOST = "localhost";
-        
+
         $testx = new Server($this->application);
         $this->assert_instanceof($testx, Server::class);
-        
+
         $testx = Server::singleton($this->application);
-        
+
         $this->assert_instanceof($testx, Server::class);
         $path = "/";
         $testx->id = 1;

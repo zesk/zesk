@@ -15,7 +15,7 @@ class Control_Header extends Control {
     public function list_order_variable($set = null) {
         return $set === null ? $this->option('list_order_variable', 'o') : $this->set_option('list_order_variable', $set);
     }
-    
+
     /**
      * Called within hook_header, usually
      * @param string $k

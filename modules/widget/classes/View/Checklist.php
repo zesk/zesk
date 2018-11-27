@@ -9,7 +9,7 @@
 namespace zesk;
 
 class View_Checklist extends View {
-    
+
     // 	function defaults(Model $object) {
     // 		if ($this->has_option("table")) {
     // 			$table = $this->option("table");
@@ -24,7 +24,7 @@ class View_Checklist extends View {
     // 			return $v;
     // 		}
     // 	}
-    
+
     // 	function load(Model $object) {
     // 		if ($this->has_option("Separator")) {
     // 			$sep = $this->option("Separator");
@@ -49,7 +49,7 @@ class View_Checklist extends View {
                 $v = array();
             }
         }
-        
+
         $r = array();
         foreach ($oopt as $k => $text) {
             if (in_array($k, $v)) {

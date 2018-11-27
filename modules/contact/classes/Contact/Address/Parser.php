@@ -70,7 +70,7 @@ class Contact_Address_Parser {
      * Pattern to match a Country Code or country name
      */
     const RE_ADDRESS_COUNTRY = '[A-Za-z]{2,} ?[A-Za-z]*';
-    
+
     /**
      * Pattern to match a Zip code in the US
      */
@@ -96,7 +96,7 @@ class Contact_Address_Parser {
          * Pattern to match a Zip code in all countries
          */
         $RE_ADDRESS_ZIP = self::RE_ADDRESS_ZIP_GB . '|' . self::RE_ADDRESS_ZIP_CA . '|' . self::RE_ADDRESS_ZIP_OTHER;
-        
+
         // Ordering:
         //		Country items are first, as they will be rejected if the country is not found in the database
         //		Then from most limiting to least limiting patterns
@@ -190,7 +190,7 @@ class Contact_Address_Parser {
                 1 => "postal_code",
             ),
         );
-        
+
         if (is_string($lines)) {
             $lines = explode("\n", $lines);
         }
@@ -205,7 +205,7 @@ class Contact_Address_Parser {
             }
             $line = str_replace(",", ", ", $line);
             $line = preg_replace('/\s+/', " ", $line);
-            
+
             $matched = false;
             foreach ($patterns as $pattern => $map) {
                 $matches = false;

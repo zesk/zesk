@@ -110,36 +110,36 @@ class Controls_Test extends TestWidget {
         $this->_test_session();
         $request = $this->application->request();
         $router = $this->application->router();
-        
+
         $router->add_route("*", array(
             "class" => "Test_COLT_Object",
             "action" => array(
                 0,
             ),
         ));
-        
+
         $object = new Test_COLT_Object($this->application);
         $table = $object->table();
-        
+
         $db = $this->application->database_registry();
         $db->query("DROP TABLE IF EXISTS $table");
         $db->query($object->schema());
-        
+
         // 		$options = false;
         // 		$x = new Control_Object_List_Tree($options);
         // 		$x->object($object);
-        
+
         // 		$this->test_basics($x);
     }
 
     public function test_Control_Edit() {
         $this->_test_session();
-        
+
         $options = array();
         $x = new Control_Edit($this->application, $options);
         $object = new User($this->application);
         $x->object($object);
-        
+
         $this->test_basics($x);
     }
 
@@ -148,13 +148,13 @@ class Controls_Test extends TestWidget {
             "path" => $this->sandbox(),
         );
         $x = new Control_Select_File($this->application, $options);
-        
+
         $this->test_basics($x);
     }
 
     public function test_Control_Select_ORM() {
         $this->test_table('Control_Select_Test_ORM');
-        
+
         $options = array(
             'table' => 'Control_Select_Test_ORM',
             'textcolumn' => "Foo",
@@ -169,7 +169,7 @@ class Controls_Test extends TestWidget {
         $table = "Test_LinkObject";
         $db->query("DROP TABLE IF EXISTS $table");
         $db->query("CREATE TABLE $table ( A int(11) unsigned NOT NULL, B int(11) unsigned NOT NULL, UNIQUE ab (A,B) )");
-        
+
         $options = array(
             'table' => $table,
         );
@@ -177,14 +177,14 @@ class Controls_Test extends TestWidget {
         $text = new Control_Text($this->application);
         $text->names('B');
         $testx->widget($text);
-        
+
         $this->test_basics($testx, array(
             "column" => "A",
             "test_object" => array(
                 'B' => 12,
             ),
         ));
-        
+
         $db->query("DROP TABLE IF EXISTS $table");
     }
 }

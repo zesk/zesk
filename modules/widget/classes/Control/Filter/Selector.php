@@ -18,7 +18,7 @@ class Control_Filter_Selector extends Control {
         'column' => 'filter-selector',
         'id' => 'filter-selector',
     );
-    
+
     /**
      * When toggle mode is enabled, filters are either all on or all off
      *

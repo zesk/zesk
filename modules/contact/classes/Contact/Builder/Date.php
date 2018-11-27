@@ -13,7 +13,7 @@ class Contact_Builder_Date extends Contact_Builder_Base {
      * @var string
      */
     protected $contact_class = "zesk\\Contact_Date";
-    
+
     /**
      *
      * {@inheritDoc}
@@ -27,7 +27,7 @@ class Contact_Builder_Date extends Contact_Builder_Base {
         if (in_array($value, $empty_values)) {
             return;
         }
-        
+
         $data = array(
             'value' => $value,
         ) + $this->data;
@@ -35,7 +35,7 @@ class Contact_Builder_Date extends Contact_Builder_Base {
             'key' => $key,
         );
         $data = map($data, $map);
-        
+
         $import->merge_item($this->contact_class, $data['value'], $data);
         return true;
     }

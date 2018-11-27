@@ -10,7 +10,7 @@ class Control_Roles extends Control_Checklist_Object {
 
     public function initialize() {
         parent::initialize();
-        
+
         if (!$this->user_can("zesk\\Role::view_all")) {
             $this->options['where'] = array(
                 "OR" => array(

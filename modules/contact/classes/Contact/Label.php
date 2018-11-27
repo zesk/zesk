@@ -43,7 +43,7 @@ class Contact_Label extends ORM {
             ->where($fields)
             ->one("ID", null);
     }
-    
+
     /**
      *
      * @param unknown $type
@@ -58,7 +58,7 @@ class Contact_Label extends ORM {
             'CodeName' => strtolower($name),
             "Type" => $type,
         );
-        
+
         $id = $app->orm_registry(__CLASS__)
             ->query_select()
             ->what("ID", "ID")
@@ -78,7 +78,7 @@ class Contact_Label extends ORM {
             ->values($fields)
             ->execute();
     }
-    
+
     /**
      *
      * @param unknown $type
@@ -105,7 +105,7 @@ class Contact_Label extends ORM {
         ))
             ->to_array("id", "name");
     }
-    
+
     /**
      *
      * @param unknown $locale
@@ -122,7 +122,7 @@ class Contact_Label extends ORM {
             self::LabelType_Other => "Other",
         ), $locale);
     }
-    
+
     /**
      *
      * @return string
@@ -130,7 +130,7 @@ class Contact_Label extends ORM {
     public function type_name() {
         return $this->Name . " " . avalue($this->type_names(), $this->Type, 'Unknown Type');
     }
-    
+
     /**
      *
      * @param unknown $types
@@ -161,7 +161,7 @@ class Contact_Label extends ORM {
         ))
             ->where($where)
             ->to_array("id");
-        
+
         $result = array();
         $type_names = self::type_names();
         foreach ($rows as $id => $row) {

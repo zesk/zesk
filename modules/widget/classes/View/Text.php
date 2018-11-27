@@ -57,7 +57,7 @@ class View_Text extends View {
                 $this->response()->html()->javascript("/share/zesk/js/zesk.js", array(
                     'weight' => 'first',
                 ));
-                
+
                 $my_id = HTML::id_counter();
                 $ellip = "<a onclick=\"ellipsis_toggle('$my_id')\">$ellip</a>";
                 $close_ellip = "<a onclick=\"ellipsis_toggle('$my_id')\">&lt;&lt;</a>";

@@ -23,7 +23,7 @@ class Class_Content_Group extends Class_ORM {
         "modified" => self::type_modified,
         "order_by" => self::type_string,
     );
-    
+
     /**
      *
      * @var string

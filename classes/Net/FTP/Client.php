@@ -18,25 +18,25 @@ class Net_FTP_Client extends Net_Client implements Net_FileSystem {
      * @var resource
      */
     protected $ftp = null;
-    
+
     /**
      * Passive mode on/off
      * @var boolean
      */
     protected $passive = true;
-    
+
     /**
      * Connection passive mode (null for unset)
      * @var boolean
      */
     protected $ftp_passive = null;
-    
+
     /**
      * Local stat cache for "stat" call
      * @var array
      */
     private $stat_cache = array();
-    
+
     /**
      * Connect to the remote host
      * @see Net_Client::connect()
@@ -92,7 +92,7 @@ class Net_FTP_Client extends Net_Client implements Net_FileSystem {
         }
         return false;
     }
-    
+
     /**
      * Get/set the passive mode for the FTP session
      * @param boolean $set

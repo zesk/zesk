@@ -20,14 +20,14 @@ class Net_HTTP_Client_Exception extends Exception {
      * @var integer
      */
     public $errno = 0;
-    
+
     /**
      * Mapped error code to error code string
      *
      * @var string
      */
     public $error_code = "";
-    
+
     /**
      * @todo Convert to arguments, if needed
      *

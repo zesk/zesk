@@ -54,7 +54,7 @@ class Control_Text extends Control {
         }
         return true;
     }
-    
+
     /*
      * Validate an integer
      */

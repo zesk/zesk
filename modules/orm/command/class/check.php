@@ -19,7 +19,7 @@ class Command_Class_Check extends Command_Base {
     protected $option_types = array(
         "*" => "string",
     );
-    
+
     /**
      *
      * @var array
@@ -32,7 +32,7 @@ class Command_Class_Check extends Command_Base {
         'created' => 'Timestamp',
         'modified' => 'Timestamp',
     );
-    
+
     /**
      *
      * @return \zesk\Ambigous[]
@@ -40,7 +40,7 @@ class Command_Class_Check extends Command_Base {
     private function all_classes() {
         return ArrayTools::key_value($this->application->orm_module()->all_classes(), null, "class");
     }
-    
+
     /**
      *
      * {@inheritDoc}
@@ -137,7 +137,7 @@ class Command_Class_Check extends Command_Base {
         }
         $this->log("Done");
     }
-    
+
     /**
      *
      * @var array
@@ -151,7 +151,7 @@ class Command_Class_Check extends Command_Base {
             'id' => 'id',
         ),
     );
-    
+
     /**
      *
      * @var array
@@ -160,7 +160,7 @@ class Command_Class_Check extends Command_Base {
         'timestamp' => 'timestamp',
         'blob' => 'serialize',
     );
-    
+
     /**
      *
      * @param Database $db

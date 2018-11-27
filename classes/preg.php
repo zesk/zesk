@@ -65,7 +65,7 @@ class preg implements \ArrayAccess, \Iterator {
      * @var array
      */
     private $offsets = array();
-    
+
     /**
      *
      */
@@ -92,14 +92,14 @@ class preg implements \ArrayAccess, \Iterator {
             }
         }
     }
-    
+
     /**
      *
      */
     public static function matches($pattern, $text, $flag = PREG_SET_ORDER, $offset = 0) {
         return new preg($pattern, $text, $flag, $offset);
     }
-    
+
     /**
      *
      */
@@ -109,13 +109,13 @@ class preg implements \ArrayAccess, \Iterator {
         $match = $this->matches[$key][0];
         $match_len = strlen($match);
         $this->text = substr($this->text, 0, $offset) . $replace . substr($this->text, $offset + $match_len);
-        
+
         // We've changed our text, adjust all later offsets - used above
         $delta = strlen($replace) - $match_len;
         while (++$key <= count($this->offsets) - 1) {
             $this->offsets[$key][0] += $delta;
         }
-        
+
         return $this->text;
     }
 
@@ -140,7 +140,7 @@ class preg implements \ArrayAccess, \Iterator {
     public function offsetSet($offset, $value) {
         $this->matches[$offset] = $value;
     }
-    
+
     /**
      * @param offset
      */

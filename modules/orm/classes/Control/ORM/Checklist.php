@@ -13,7 +13,7 @@ class Control_ORM_Checklist extends Control_Checklist {
     protected $class = null;
 
     protected $objects = array();
-    
+
     /**
      *
      * {@inheritDoc}
@@ -22,7 +22,7 @@ class Control_ORM_Checklist extends Control_Checklist {
     public function is_visible() {
         return count($this->objects) !== 0;
     }
-    
+
     /**
      *
      * @param array $where
@@ -30,7 +30,7 @@ class Control_ORM_Checklist extends Control_Checklist {
     public function where(array $where = null) {
         return is_array($where) ? $this->set_option("where", $where) : $this->option_array("where");
     }
-    
+
     /**
      *
      * @return mixed[]|array[]

@@ -28,12 +28,12 @@ class Mail_Test extends Test_Unit {
      * @var array
      */
     private $parts = array();
-    
+
     /**
      */
     protected function test_outgoing_requirements() {
         $this->url = $this->option('email_url');
-        
+
         if (empty($this->url)) {
             $this->markTestSkipped(__CLASS__ . "::email_url not set");
         }
@@ -81,7 +81,7 @@ class Mail_Test extends Test_Unit {
     public function test_header_charsets() {
         $header = "=?ISO-8859-1?q?Hello?= =?ISO-8859-2?q?This?= =?ISO-8859-3?q?is?= =?ISO-8859-4?q?a?= =?ISO-8859-5?q?test?= =?ISO-8859-4?X?but_ignore_this_part?= ";
         $result = Mail::header_charsets($header);
-        
+
         $this->assert_arrays_equal($result, array(
             "ISO-8859-1",
             "ISO-8859-2",
@@ -186,7 +186,7 @@ class Mail_Test extends Test_Unit {
                 ),
             ),
         );
-        
+
         foreach ($headers as $header) {
             list($test, $expect, $expected_charsets) = $header;
             $result = Mail::decode_header($test);
@@ -273,7 +273,7 @@ class Mail_Test extends Test_Unit {
                 true,
             ),
         );
-        
+
         foreach ($headers as $i => $header) {
             list($test, $expect) = $header;
             echo "Test $i: $test => " . ($expect ? 'true' : 'false') . "\n";
@@ -308,9 +308,9 @@ Thanks,
 <a href="http://www.example.com/unsubscribe?email={email}">Unsubscribe</a>
 EOF;
         file_put_contents($filename, $contents);
-        
+
         $result = Mail::load_file($filename);
-        
+
         $this->assert($result['File-Format'] === 'both');
         $this->assert($result['Subject'] === 'Test Email');
         $this->assert($result['From'] === 'support@zesk.com');
@@ -336,7 +336,7 @@ Thanks,
 
     public function test_mail_array() {
         Mail::debug(true);
-        
+
         $to = "kent@marketacumen.com";
         $from = "no-reply@" . System::uname();
         $subject = null;
@@ -378,7 +378,7 @@ Thanks,
 
     public function test_multipart_send() {
         Mail::debug(true);
-        
+
         $mail_options = array(
             "From" => "kent@zesk.com",
             "To" => "no-reply@zesk.com",
@@ -392,7 +392,7 @@ Thanks,
      */
     public function test_send_sms() {
         Mail::debug(true);
-        
+
         $to = "John@dude.com";
         $from = "kent@example.com";
         $subject = "You are the man!";
@@ -411,7 +411,7 @@ All work and no play makes Kent a dull boy.
         $headers = false;
         Mail::send_sms($this->application, $to, $from, $subject, $body, $cc, $bcc, $headers);
     }
-    
+
     /**
      * @depends test_outgoing_requirements
      */
@@ -428,10 +428,10 @@ All work and no play makes Kent a dull boy.
         $cc = false;
         $bcc = false;
         $headers[] = 'X-Bogus-Header: This is a bogus header';
-        
+
         $this->log("Sending mail to $to");
         $this->assert_instanceof(Mail::sendmail($this->application, $to, $from, $subject, $body, $cc, $bcc, $headers), __NAMESPACE__ . "\\" . "Mail");
-        
+
         $test_mailbox = $to;
         $n_seconds = 1;
         $success = false;
@@ -459,7 +459,7 @@ All work and no play makes Kent a dull boy.
             $n_seconds *= 2;
             $pop->disconnect();
         } while ($timer->elapsed() < 300);
-        
+
         $this->assert($success, "Unable to find message with subject $subject in destination folder");
     }
 }

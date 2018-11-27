@@ -9,7 +9,7 @@ abstract class Service_Translate extends Service {
      * @return Service_Translate
      */
     abstract public function translate($phrase);
-    
+
     /**
      *
      * @param Application $application

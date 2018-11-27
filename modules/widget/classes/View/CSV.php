@@ -18,10 +18,10 @@ class View_CSV extends View {
         if (!is_array($table)) {
             return $this->empty_string();
         }
-        
+
         $header_rows_top = $this->option_integer("header_rows_top", $this->option_integer('header_rows', 1));
         $header_rows_left = $this->option_integer("header_rows_left", 0);
-        
+
         foreach ($table as $row_index => $row) {
             list($tag, $attrs) = ($row_index < $header_rows_top) ? array(
                 "th",
@@ -36,7 +36,7 @@ class View_CSV extends View {
                 $html[] = self::smart_tags($tag, $attrs, $row);
             }
         }
-        
+
         if ($this->option_bool('rows_even_odd')) {
             $rows = "";
             foreach ($html as $i => $row) {

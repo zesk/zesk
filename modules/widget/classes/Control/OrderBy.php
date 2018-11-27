@@ -157,7 +157,7 @@ class Control_OrderBy extends Control {
             $order_var => $new_key,
         );
         $this->theme_variables['orderby_url'] = URL::query_format($this->option("URI", $this->request->uri()), $new_query);
-        
+
         $this->theme_variables['list_order_column'] = $k;
         $this->theme_variables['list_order_variable'] = $order_var;
         $this->theme_variables['ascending'] = $ascending;

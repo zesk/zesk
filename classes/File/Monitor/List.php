@@ -8,7 +8,7 @@ namespace zesk;
  */
 class File_Monitor_List extends File_Monitor {
     protected $files = array();
-    
+
     /**
      *
      * @param array $files
@@ -17,7 +17,7 @@ class File_Monitor_List extends File_Monitor {
         $this->files = $files;
         parent::__construct();
     }
-    
+
     /**
      *
      * {@inheritDoc}

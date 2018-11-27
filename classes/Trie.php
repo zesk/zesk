@@ -37,13 +37,13 @@ class Trie extends Options {
      * @var string
      */
     private $optimized = false;
-    
+
     /**
      *
      * @var integer
      */
     public $n_optimized = 0;
-    
+
     /**
      *
      * @param unknown $options
@@ -53,7 +53,7 @@ class Trie extends Options {
         $this->lower = $this->option_bool('lower');
         $this->root = new Trie_Node();
     }
-    
+
     /**
      * @param string $word
      */
@@ -65,7 +65,7 @@ class Trie extends Options {
         $this->cleaned = false;
         $this->optimized = false;
     }
-    
+
     /**
      * Clean a trie
      */
@@ -78,7 +78,7 @@ class Trie extends Options {
         $this->cleaned = true;
         return $this;
     }
-    
+
     /**
      * Optimize trie
      */
@@ -93,7 +93,7 @@ class Trie extends Options {
         $this->optimized = true;
         return $this;
     }
-    
+
     /**
      * Convert to JSON
      *
@@ -102,7 +102,7 @@ class Trie extends Options {
     public function to_json() {
         return JSON::encode($this->root->to_json());
     }
-    
+
     /**
      * Walk the entire trie and call "function" on each node
      */

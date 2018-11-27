@@ -16,7 +16,7 @@ class Model_List extends Model {
     public $total = -1;
 
     public $filter = null;
-    
+
     /**
      * @var Model_List
      */

@@ -20,7 +20,7 @@ class Command_Licenses extends Command_Base {
         $modules = $this->option_bool('all') ? $modules->available() : $modules->load();
         foreach ($modules as $name => $module_data) {
             $configuration = to_array(avalue($module_data, 'configuration'));
-            
+
             $url_license = $url_project = $project_url = $licenses = $description = null;
             extract($configuration, EXTR_IF_EXISTS);
             if ($project_url !== null) {

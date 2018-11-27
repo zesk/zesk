@@ -14,7 +14,7 @@ class Control_FieldSet extends Control_Widgets {
         ), "fieldset"));
         parent::initialize();
     }
-    
+
     // 	public function render() {
     // 		echo get_class($this) . '<br />' . HTML::tag('h2', $this->name()) . _backtrace();
     // 		return parent::render();

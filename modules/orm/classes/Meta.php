@@ -29,7 +29,7 @@ class Meta extends ORM {
             "name" => $name,
         ));
     }
-    
+
     /*
      * In child classes, use this for factory
      *
@@ -37,7 +37,7 @@ class Meta extends ORM {
      return parent::class_meta_factory(__CLASS__, $parent, $name);
      }
      */
-    
+
     /**
      *
      * @param mixed $value
@@ -46,7 +46,7 @@ class Meta extends ORM {
     public function meta_set($value) {
         return $this->set_member("value", $value)->store();
     }
-    
+
     /**
      *
      * @param unknown $default

@@ -61,7 +61,7 @@ abstract class Temporal {
      * @var string
      */
     const UNIT_MILLISECOND = "millisecond";
-    
+
     /**
      * Duh.
      *
@@ -88,7 +88,7 @@ abstract class Temporal {
      * @var integer
      */
     const DAYS_PER_YEAR = 365.25; // Leap
-    
+
     /**
      * @var integer
      */
@@ -98,7 +98,7 @@ abstract class Temporal {
      * @var integer
      */
     const DAYS_PER_WEEK = 7;
-    
+
     /**
      *
      * @var integer
@@ -151,7 +151,7 @@ abstract class Temporal {
      * @var double
      */
     const SECONDS_PER_HOUR = 3600; // self::SECONDS_PER_MINUTE * self::MINUTES_PER_HOUR;
-    
+
     /**
      * Translate units into seconds
      *
@@ -168,14 +168,14 @@ abstract class Temporal {
         self::UNIT_SECOND => 1, // 1:1
         self::UNIT_MILLISECOND => 0.001, // 1:1000
     );
-    
+
     /**
      * Convert to SQL format
      *
      * @return string
      */
     abstract public function sql();
-    
+
     /**
      * Format
      * @param string $format_string
@@ -183,7 +183,7 @@ abstract class Temporal {
      * @return string
      */
     abstract public function format(Locale $locale = null, $format_string = null, array $options = array());
-    
+
     /**
      * Fetch formatting for this object
      *
@@ -191,7 +191,7 @@ abstract class Temporal {
      * @return array
      */
     abstract public function formatting(Locale $locale = null, array $options = array());
-    
+
     /**
      * Return an array of unit => seconds (integer)
      *
@@ -204,7 +204,7 @@ abstract class Temporal {
         }
         return $result;
     }
-    
+
     /**
      * Convert from seconds to a greater unit
      *
@@ -223,7 +223,7 @@ abstract class Temporal {
         }
         return doubleval($seconds / $seconds_in_unit);
     }
-    
+
     /**
      * Convert seconds into a particular unit
      *

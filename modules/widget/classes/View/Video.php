@@ -42,14 +42,14 @@ class View_Video extends View {
 
     private function flash_player_html($path) {
         static $player_id = 1;
-        
+
         $width = $this->option_integer("width");
         $height = $this->option_integer("height");
         $this_id = $player_id++;
         $html = '<p id="player' . $this_id . '"><a href="http://www.macromedia.com/go/getflashplayer">Get the Flash Player</a> to see this player.</p>';
         $html .= "<script type=\"text/javascript\">\n";
         $html .= "var fp$this_id = new SWFObject(\"" . $this->href("/share/zesk/widgets/video/flvplayer.swf") . "\",\"single\",\"$width\",\"$height\",\"7\");\n";
-        
+
         $params = array(
             "allowfullscreen" => true,
             "wmode" => "opaque",
@@ -84,7 +84,7 @@ class View_Video extends View {
     public function media_player_html($path) {
         $width = $this->option_integer("width");
         $height = $this->option_integer("height");
-        
+
         $autostart = $this->option_bool("autostart", true);
         $standby_string = htmlspecialchars($this->option("standby_string", "Loading Microsoft Windows� Media Player components..."));
         ;
@@ -92,7 +92,7 @@ class View_Video extends View {
         $volume = $this->option_integer("volume", -20);
         $AutoSize = $this->option_bool("AutoSize", false);
         $ShowDisplay = $this->option_bool("ShowDisplay", false);
-        
+
         $win_embed = '<embed type="application/x-mplayer2" pluginspage="http://www.microsoft.com/Windows/MediaPlayer/"
 src="' . $this->href($path) . '"
 name="MediaPlayer1"
@@ -108,7 +108,7 @@ width="' . $width . '" height="' . $height . '" autostart="' . intval($autostart
 classid="CLSID:22d6f312-b0f6-11d0-94ab-0080c74c7e95"
 codebase="http://activex.microsoft.com/activex/controls/mplayer/en/nsmp2inf.cab#Version=5,1,52,701"
 standby="' . $standby_string . '" type="application/x-oleobject" width="' . $width . '" height="' . $height . '">' . self::html_param_tag("fileName", $path) . self::html_param_tag("animationatStart", 'true') . self::html_param_tag("transparentatStart", 'true') . self::html_param_tag("AutoSize", intval($AutoSize)) . self::html_param_tag("ShowDisplay", intval($ShowDisplay)) . self::html_param_tag("autoStart", StringTools::from_bool($autostart)) . self::html_param_tag("ShowControls", intval($showcontrols)) . self::html_param_tag("Volume", $volume) . $embed . '</object>';
-        
+
         return $result;
     }
 
@@ -116,12 +116,12 @@ standby="' . $standby_string . '" type="application/x-oleobject" width="' . $wid
         $width = $this->option_integer("width");
         $height = $this->option_integer("height");
         $attrs = $this->options_include("name;id;tabindex;hspace;vspace;border;align;class;title;accesskey;noexternaldata");
-        
+
         $attrs['classid'] = "clsid:02BF25D5-8C17-4B23-BC80-D3488ABDDC6B";
         $attrs['width'] = $width;
         $attrs['height'] = $height;
         $attrs['codebase'] = 'http://www.apple.com/qtactivex/qtplugin.cab#version=6,0,2,0';
-        
+
         $oparams['src'] = $this->option('preview_src');
         $oparams['href'] = $this->href($path, false);
         foreach (array(
@@ -138,11 +138,11 @@ standby="' . $standby_string . '" type="application/x-oleobject" width="' . $wid
         $embed_attrs['width'] = $width;
         $embed_attrs['height'] = $height;
         $embed_attrs['pluginspage'] = 'http://www.apple.com/quicktime/download/';
-        
+
         $content = $oparams_content . HTML::tag("embed", $embed_attrs, '');
-        
+
         $result = HTML::tag("object", $attrs, $content);
-        
+
         return $result;
     }
 
@@ -166,7 +166,7 @@ standby="' . $standby_string . '" type="application/x-oleobject" width="' . $wid
                 return $this->quicktime_player_html($path);
         }
     }
-    
+
     /**
      * Returns the representation of model as an <img /> tag.
      *
