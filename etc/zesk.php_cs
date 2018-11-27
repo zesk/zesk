@@ -38,6 +38,9 @@ return PhpCsFixer\Config::create()
 			'position_after_anonymous_constructs' => 'same',
 			'position_after_control_structures' => 'same',
 		],
+		'no_trailing_whitespace' => true,
+		'no_trailing_whitespace_in_comment' => true,
+		'no_whitespace_in_blank_line' => true,
     ])
     ->setFinder($finder)
 ;
