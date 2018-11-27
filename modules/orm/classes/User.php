@@ -156,12 +156,13 @@ class User extends ORM {
 	 * Get/set the password field
 	 *
 	 * @param string $set
+	 * @param boolean $plaintext When set is non-null, whether value is plain text or not.
 	 * @return string|User
 	 */
-	public function password($set = null) {
+	public function password($set = null, $plaintext = true) {
 		$column = $this->column_password();
 		if ($set !== null) {
-			return $this->set_member($column, $set);
+			return $this->set_member($column, $plaintext ? $this->_generate_hash($set) : $set);
 		}
 		return $this->member($column);
 	}
@@ -175,12 +176,21 @@ class User extends ORM {
 	}
 
 	/**
-	 * Using the
-	 * @param unknown $string
-	 * @param string $raw_output
+	 *
+	 * @param string $plaintext
 	 * @return string
 	 */
-	public function generate_hash($string, $raw_output = false) {
+	private function _generate_hash($string) {
+		return $this->generate_hash($string, $this->class->column_password_is_binary);
+	}
+
+	/**
+	 * Using the
+	 * @param unknown $string
+	 * @param boolean $raw_output
+	 * @return string
+	 */
+	public function generate_hash($string, $raw_output = true) {
 		$algo = $this->password_method();
 		if (in_array($algo, $this->class->allowed_hash_methods)) {
 			return hash($algo, $string, $raw_output);
@@ -211,7 +221,7 @@ class User extends ORM {
 		}
 		$this_password = $this->password();
 		if ($use_hash) {
-			$auth_test = strcasecmp($this->generate_hash($password), $this_password) === 0;
+			$auth_test = strcasecmp($this->generate_hash($password, false), $this_password) === 0;
 		} else {
 			$auth_test = $case_sensitive ? ($password === $this_password) : strcasecmp($password, $this_password) === 0;
 		}
@@ -463,13 +473,5 @@ class User extends ORM {
 			}
 		}
 		return $actions_passed;
-	}
-
-	/**
-	 *
-	 * @param string $password
-	 */
-	public function setPlainPassword($password) {
-		return $this->set_member($this->class->column_password, $this->generate_hash($password, $this->class->column_password_is_binary));
 	}
 }

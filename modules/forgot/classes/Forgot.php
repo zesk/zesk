@@ -73,14 +73,14 @@ class Forgot extends ORM {
 	 *
 	 * @return Forgot
 	 */
-	public function validated($new_password) {
-		if (empty($new_password)) {
+	public function validated($plaintext_password) {
+		if (empty($plaintext_password)) {
 			throw new Exception_Parameter("{method} requires a non-empty new password", array(
 				"method" => __METHOD__,
 			));
 		}
 		$user = $this->user;
-		$user->password($new_password)->store();
+		$user->password($plaintext_password, true)->store();
 		$this->updated = "now";
 		$this->store();
 		$this->call_hook("validated");

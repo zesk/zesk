@@ -12,13 +12,15 @@ class Command_Password extends Command_Base {
 	protected $option_types = array(
 		"user" => "string",
 		"password" => "string",
-		"list" => "boolean"
+		"list" => "boolean",
 	);
+
 	protected $option_help = array(
 		"user" => "The user to edit",
 		"password" => "The new password",
-		"list" => "List the active users in the database"
+		"list" => "List the active users in the database",
 	);
+
 	public function _option_list() {
 		/* @var $user User */
 		$user = $this->application->orm_factory('User');
@@ -35,6 +37,7 @@ class Command_Password extends Command_Base {
 		fprintf(STDERR, "# " . $this->application->locale->plural_word("user", $n) . "\n");
 		return true;
 	}
+
 	public function run() {
 		if ($this->option_bool('list')) {
 			return $this->_option_list();
