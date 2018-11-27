@@ -7,7 +7,6 @@
 # 1. Ensure subversion status is clean (nothing to add, commit, or update)
 # 2. Optionally clean vendor/node_modules
 #
-export APPLICATION_ROOT="$(cd $(dirname "$BASH_SOURCE")/..; pwd)"
 
 ME=$0
 OPTION_BUMP=0
@@ -21,6 +20,26 @@ error() {
 	exit $rs
 }
 
+find_app_root() {
+	local n
+	n=0
+	while [ -z "$(ls *.application.php 2> /dev/null)" ]; do
+		cd ..
+		n=$(($n + 1))
+		if [ "$(pwd)" = "/" ]; then
+			error 200 'Unable to find *.application.php file'
+		fi
+		if [ $n -gt 10 ]; then
+			error 201 'Unable to find *.application.php file after recursing ' $n ' times'
+		fi
+	done
+	echo -n $(pwd)
+	return 0
+}
+if [ -z "$APPLICATION_ROOT" ]; then
+	export APPLICATION_ROOT=$(find_app_root)
+	echo "Application root is $APPLICATION_ROOT"
+fi
 
 find_composer() {
 	local c 
@@ -149,9 +168,9 @@ fi
 $zesk cache clear >> $logfile
 
 cd $APPLICATION_ROOT
-BUILD_DIRECTORY_LIST=$(find . -type d -name build)
+BUILD_DIRECTORY_LIST=$(find . -type d -name build | grep -v node_modules)
 for builddir in $BUILD_DIRECTORY_LIST; do
-	cd $APPLICATION_ROOT/$builddir
+	cd $APPLICATION_ROOT/$builddir/..
 	find build -type f | xargs rm
 	echo "Build React app at $builddir ..."
 	echo "### yarn build" >> $logfile
