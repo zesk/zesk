@@ -151,39 +151,6 @@ class HTML_Test extends Test_Unit {
 		// 		$this->assert_arrays_equal($tags, $result_tags);
 	}
 
-	/**
-	 * Move to zesk\Response_Test
-	 * @todo
-	 */
-	public function TODO_test_body_attributes() {
-		$add = null;
-		HTML::body_attributes("goo", "bar");
-		HTML::body_attributes(array(
-			"goo" => "actual",
-		));
-		HTML::body_attributes(array(
-			"poo" => "bar",
-		));
-		HTML::body_attributes("poo", "actual");
-		HTML::body_attributes(array(
-			"dee" => "foofla",
-		));
-		HTML::body_attributes("dee", "actual");
-		HTML::body_attributes("loo", "actual");
-
-		$attrs = HTML::body_attributes();
-
-		$compare_result = array(
-			"goo" => "actual",
-			"poo" => "actual",
-			"dee" => "actual",
-			"loo" => "actual",
-		);
-
-		dump($attrs, $compare_result);
-		$this->assert_arrays_equal($attrs, $compare_result);
-	}
-
 	public function test_a() {
 		$href = null;
 		$mixed = null;
