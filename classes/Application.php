@@ -1070,6 +1070,43 @@ class Application extends Hookable implements Interface_Theme, Interface_Member_
     }
 
     /**
+     *
+     * @param Request $request
+     * @throws Exception_NotFound
+     * @return Route
+     */
+    private function determine_route(Request $request) {
+        $router = $this->router();
+        $this->logger->debug("App bootstrap took {seconds} seconds", array(
+            "seconds" => sprintf("%.3f", microtime(true) - $this->kernel->initialization_time),
+        ));
+        $this->call_hook("router_prematch", $router, $request);
+        $route = $router->match($request);
+        $this->_templates_initialize(array(
+            "router" => $router,
+            "route" => $route,
+            "request" => $request,
+        ));
+        if (!$route) {
+            $this->call_hook("router_no_match", $request, $router);
+
+            throw new Exception_NotFound("The resource does not exist on this server: {url}", $request->url_variables());
+        }
+        if ($this->option_bool("debug_route")) {
+            $this->logger->debug("Matched route {class} Pattern: \"{clean_pattern}\" {options}", $route->variables());
+        }
+        $new_route = $this->call_hook_arguments("router_matched", array(
+            $request,
+            $router,
+            $route,
+        ), null);
+        if ($new_route instanceof Route) {
+            $route = $new_route;
+        }
+        return $route;
+    }
+
+    /**
      * Application main execution:
      *
      * - Load the router
@@ -1085,33 +1122,7 @@ class Application extends Hookable implements Interface_Theme, Interface_Member_
             }
             $this->request_stack[] = $request;
             $starting_depth = count($this->request_stack);
-            $router = $this->router();
-            $this->logger->debug("App bootstrap took {seconds} seconds", array(
-                "seconds" => sprintf("%.3f", microtime(true) - $this->kernel->initialization_time),
-            ));
-            $this->call_hook("router_prematch", $router, $request);
-            $route = $router->match($request);
-            $this->_templates_initialize(array(
-                "router" => $router,
-                "route" => $route,
-                "request" => $request,
-            ));
-            if (!$route) {
-                $this->call_hook("router_no_match", $request, $router);
-
-                throw new Exception_NotFound("The resource does not exist on this server: {url}", $request->url_variables());
-            }
-            if ($this->option_bool("debug_route")) {
-                $this->logger->debug("Matched route {class} Pattern: \"{clean_pattern}\" {options}", $route->variables());
-            }
-            $new_route = $this->call_hook_arguments("router_matched", array(
-                $request,
-                $router,
-                $route,
-            ), null);
-            if ($new_route instanceof Route) {
-                $route = $new_route;
-            }
+            $route = $this->determine_route($request);
             $response = $route->execute($request);
         } catch (\Exception $exception) {
             $response = $this->main_exception($request, $exception);
