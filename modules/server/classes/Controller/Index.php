@@ -10,20 +10,20 @@ namespace server;
  *
  */
 class Controller_Index extends \zesk\Controller_Theme {
-    /**
-     *
-     * @var string
-     */
-    protected $theme = "page/manage";
+	/**
+	 *
+	 * @var string
+	 */
+	protected $theme = "page/manage";
 
-    /**
-     *
-     * @return string
-     */
-    public function action_index() {
-        $widgets = to_list("disk;services;load;apache;php;configuration");
-        return $this->theme("body/dashboard", array(
-            "widgets" => $widgets,
-        ));
-    }
+	/**
+	 *
+	 * @return string
+	 */
+	public function action_index() {
+		$widgets = to_list("disk;services;load;apache;php;configuration");
+		return $this->theme("body/dashboard", array(
+			"widgets" => $widgets,
+		));
+	}
 }

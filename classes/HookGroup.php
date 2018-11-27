@@ -14,31 +14,31 @@ namespace zesk;
  *
  */
 class HookGroup {
-    public $first = array();
+	public $first = array();
 
-    public $middle = array();
+	public $middle = array();
 
-    public $last = array();
+	public $last = array();
 
-    /**
-     * Merge two groups together
-     *
-     * @param HookGroup $merge
-     * @return \zesk\HookGroup
-     */
-    public function merge(HookGroup $merge) {
-        $this->first = array_merge($this->first, $merge->first);
-        $this->middle = array_merge($this->middle, $merge->middle);
-        $this->last = array_merge($this->last, $merge->last);
-        return $this;
-    }
+	/**
+	 * Merge two groups together
+	 *
+	 * @param HookGroup $merge
+	 * @return \zesk\HookGroup
+	 */
+	public function merge(HookGroup $merge) {
+		$this->first = array_merge($this->first, $merge->first);
+		$this->middle = array_merge($this->middle, $merge->middle);
+		$this->last = array_merge($this->last, $merge->last);
+		return $this;
+	}
 
-    /**
-     * Combine all three together
-     *
-     * @return array
-     */
-    public function definitions() {
-        return $this->first + $this->middle + $this->last;
-    }
+	/**
+	 * Combine all three together
+	 *
+	 * @return array
+	 */
+	public function definitions() {
+		return $this->first + $this->middle + $this->last;
+	}
 }

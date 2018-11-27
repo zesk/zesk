@@ -8,15 +8,15 @@
 namespace zesk;
 
 class Exception_FileSystem_Test extends Exception_TestCase {
-    public function test_basics() {
-        $filename = "/etc";
-        $message = 'Nothing';
-        $arguments = array(
-            "hello" => "world",
-        );
-        $code = 42;
-        $testx = new Exception_FileSystem($filename, $message, $arguments, $code);
+	public function test_basics() {
+		$filename = "/etc";
+		$message = 'Nothing';
+		$arguments = array(
+			"hello" => "world",
+		);
+		$code = 42;
+		$testx = new Exception_FileSystem($filename, $message, $arguments, $code);
 
-        $this->exception_test($testx);
-    }
+		$this->exception_test($testx);
+	}
 }

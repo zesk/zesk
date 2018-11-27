@@ -14,31 +14,31 @@ namespace zesk;
  *
  */
 class Net_SMTP_Client_Test extends Test_Unit {
-    public function test_main() {
-        $url = $this->option("url");
-        if (!$url) {
-            $this->markTestIncomplete("No URL specified for " . __CLASS__);
-        }
-        $from = $this->option("from");
-        if (!$from) {
-            $this->markTestIncomplete("No from specified for " . __CLASS__);
-        }
-        $to = $this->option("to");
-        if (!$to) {
-            $this->markTestIncomplete("No to specified for " . __CLASS__);
-        }
+	public function test_main() {
+		$url = $this->option("url");
+		if (!$url) {
+			$this->markTestIncomplete("No URL specified for " . __CLASS__);
+		}
+		$from = $this->option("from");
+		if (!$from) {
+			$this->markTestIncomplete("No from specified for " . __CLASS__);
+		}
+		$to = $this->option("to");
+		if (!$to) {
+			$this->markTestIncomplete("No to specified for " . __CLASS__);
+		}
 
-        $options = array(
-            "echo_log" => true,
-        );
-        $testx = new Net_SMTP_Client($this->application, $url, $options);
+		$options = array(
+			"echo_log" => true,
+		);
+		$testx = new Net_SMTP_Client($this->application, $url, $options);
 
-        echo "Hello";
+		echo "Hello";
 
-        $testx->connect();
+		$testx->connect();
 
-        $headers = null;
-        $body = null;
-        $testx->send($from, $to, $headers, $body);
-    }
+		$headers = null;
+		$body = null;
+		$testx->send($from, $to, $headers, $body);
+	}
 }

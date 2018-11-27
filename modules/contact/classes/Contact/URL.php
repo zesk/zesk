@@ -11,7 +11,7 @@ namespace zesk;
  *
  */
 class Contact_URL extends Contact_Info {
-    public function label_type() {
-        return Contact_Label::LabelType_URL;
-    }
+	public function label_type() {
+		return Contact_Label::LabelType_URL;
+	}
 }

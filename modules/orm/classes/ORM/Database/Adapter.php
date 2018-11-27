@@ -14,5 +14,5 @@ namespace zesk;
  *
  */
 abstract class ORM_Database_Adapter {
-    abstract public function database_column_set_type(Database_Column $column);
+	abstract public function database_column_set_type(Database_Column $column);
 }

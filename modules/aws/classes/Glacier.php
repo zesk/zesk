@@ -22,90 +22,90 @@ use Aws\Glacier\Exception\GlacierException;
  * @copyright &copy; 2013 Market Acumen, Inc.
  */
 class Glacier extends Hookable {
-    /**
-     *
-     * @var Aws\Glacier\GlacierClient
-     */
-    protected $glacier_client = null;
+	/**
+	 *
+	 * @var Aws\Glacier\GlacierClient
+	 */
+	protected $glacier_client = null;
 
-    /**
-     * Lazy create client
-     */
-    private function _init() {
-        if (is_object($this->glacier_client)) {
-            return;
-        }
-        $options = $this->options_include("key;secret;credentials;token;credentials;region");
-        $this->glacier_client = GlacierClient::factory($options);
-    }
+	/**
+	 * Lazy create client
+	 */
+	private function _init() {
+		if (is_object($this->glacier_client)) {
+			return;
+		}
+		$options = $this->options_include("key;secret;credentials;token;credentials;region");
+		$this->glacier_client = GlacierClient::factory($options);
+	}
 
-    /**
-     * List vaults
-     *
-     * @return array of array
-     */
-    public function vaults_list() {
-        $this->_init();
-        /* @var $response Guzzle\Service\Resource\Model */
-        $response = $this->glacier_client->listVaults();
-        $result = $response->get("VaultList");
-        return $result;
-    }
+	/**
+	 * List vaults
+	 *
+	 * @return array of array
+	 */
+	public function vaults_list() {
+		$this->_init();
+		/* @var $response Guzzle\Service\Resource\Model */
+		$response = $this->glacier_client->listVaults();
+		$result = $response->get("VaultList");
+		return $result;
+	}
 
-    /**
-     * Upload a file to a vault
-     *
-     * @param string $vault
-     * @param string $filename
-     * @return string Archive ID
-     */
-    public function vault_store_file($vault, $filename) {
-        $this->_init();
-        $result = $this->glacier_client->uploadArchive(array(
-            "vaultName" => $vault,
-            "sourceFile" => $filename,
-        ));
-        $archiveId = $result->get("archiveId");
-        return $archiveId;
-    }
+	/**
+	 * Upload a file to a vault
+	 *
+	 * @param string $vault
+	 * @param string $filename
+	 * @return string Archive ID
+	 */
+	public function vault_store_file($vault, $filename) {
+		$this->_init();
+		$result = $this->glacier_client->uploadArchive(array(
+			"vaultName" => $vault,
+			"sourceFile" => $filename,
+		));
+		$archiveId = $result->get("archiveId");
+		return $archiveId;
+	}
 
-    public function vault_list($vault) {
-        $this->_init();
+	public function vault_list($vault) {
+		$this->_init();
 
-        try {
-            $result = $this->glacier_client->initiateJob(array(
-                "vaultName" => $vault,
-                "Type" => "inventory-retrieval",
-                "Format" => "JSON",
-                "Description" => "Listing of $vault",
-            ));
-            return array(
-                "job_id" => $result->get("jobId"),
-                "uri" => $result->get("location"),
-            );
-        } catch (GlacierException $e) {
-            throw new Exception_NotFound($e->getMessage());
-        }
-    }
+		try {
+			$result = $this->glacier_client->initiateJob(array(
+				"vaultName" => $vault,
+				"Type" => "inventory-retrieval",
+				"Format" => "JSON",
+				"Description" => "Listing of $vault",
+			));
+			return array(
+				"job_id" => $result->get("jobId"),
+				"uri" => $result->get("location"),
+			);
+		} catch (GlacierException $e) {
+			throw new Exception_NotFound($e->getMessage());
+		}
+	}
 
-    public function jobs_list($vault) {
-    }
+	public function jobs_list($vault) {
+	}
 
-    public function job_status($vault, $job_id) {
-        $this->_init();
-        $response = $this->glacier_client->describeJob(array(
-            "vaultName" => $vault,
-            "jobId" => $job_id,
-        ));
-        return $response->getAll();
-    }
+	public function job_status($vault, $job_id) {
+		$this->_init();
+		$response = $this->glacier_client->describeJob(array(
+			"vaultName" => $vault,
+			"jobId" => $job_id,
+		));
+		return $response->getAll();
+	}
 
-    public function vault_delete_file($vault, $archive_id) {
-        $this->_init();
-        $result = $this->glacier_client->deleteArchive(array(
-            'vaultName' => $vault,
-            'archiveId' => $archive_id,
-        ));
-        return true;
-    }
+	public function vault_delete_file($vault, $archive_id) {
+		$this->_init();
+		$result = $this->glacier_client->deleteArchive(array(
+			'vaultName' => $vault,
+			'archiveId' => $archive_id,
+		));
+		return true;
+	}
 }

@@ -8,8 +8,8 @@
 namespace zesk;
 
 class Exception_Directory_NotFound_Test extends Exception_TestCase {
-    public function test_basics() {
-        $testx = new Exception_Directory_NotFound();
-        $this->exception_test($testx);
-    }
+	public function test_basics() {
+		$testx = new Exception_Directory_NotFound();
+		$this->exception_test($testx);
+	}
 }

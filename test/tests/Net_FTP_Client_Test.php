@@ -11,15 +11,15 @@ namespace zesk;
  *
  */
 class Net_FTP_Client_Test extends Test_Unit {
-    public function test_basics() {
-        $url = 'ftp://user:pass@localhost';
-        $directory = null;
-        $log_file = false;
-        $testx = new Net_FTP_Client($this->application, $url);
+	public function test_basics() {
+		$url = 'ftp://user:pass@localhost';
+		$directory = null;
+		$log_file = false;
+		$testx = new Net_FTP_Client($this->application, $url);
 
-        $isOn = true;
-        $testx->passive($isOn);
+		$isOn = true;
+		$testx->passive($isOn);
 
-        $this->assert(!$testx->is_connected());
-    }
+		$this->assert(!$testx->is_connected());
+	}
 }

@@ -8,13 +8,13 @@
 namespace zesk;
 
 class Database_Exception_Test extends Exception_TestCase {
-    public $load_modules = array(
-        "Database",
-    );
+	public $load_modules = array(
+		"Database",
+	);
 
-    public function test_basics() {
-        $testx = new Database_Exception();
+	public function test_basics() {
+		$testx = new Database_Exception();
 
-        $this->exception_test($testx);
-    }
+		$this->exception_test($testx);
+	}
 }

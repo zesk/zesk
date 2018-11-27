@@ -14,11 +14,11 @@ namespace zesk;
  *
  */
 class View_Time_Span extends View {
-    public function render() {
-        $v = $this->value();
-        if (empty($v)) {
-            return avalue($this->options, 'empty_string', "Immediately.");
-        }
-        return $this->locale->duration_string($v);
-    }
+	public function render() {
+		$v = $this->value();
+		if (empty($v)) {
+			return avalue($this->options, 'empty_string', "Immediately.");
+		}
+		return $this->locale->duration_string($v);
+	}
 }

@@ -23,23 +23,23 @@ namespace zesk;
  * @property integer $show_count
  */
 class Help extends ORM {
-    public function show() {
-        $query = $this->query_update();
-        $query->value('*show_first', $query->sql()
-            ->now())
-            ->where('show_first', null)
-            ->where(array(
-            'id' => $this->id(),
-        ))
-            ->execute();
-        $query = $this->query_update();
-        $query->value('*show_recent', $query->sql()
-            ->now())
-            ->value('*show_count', 'show_count+1')
-            ->where(array(
-            'id' => $this->id(),
-        ))
-            ->execute();
-        return $this;
-    }
+	public function show() {
+		$query = $this->query_update();
+		$query->value('*show_first', $query->sql()
+			->now())
+			->where('show_first', null)
+			->where(array(
+			'id' => $this->id(),
+		))
+			->execute();
+		$query = $this->query_update();
+		$query->value('*show_recent', $query->sql()
+			->now())
+			->value('*show_count', 'show_count+1')
+			->where(array(
+			'id' => $this->id(),
+		))
+			->execute();
+		return $this;
+	}
 }

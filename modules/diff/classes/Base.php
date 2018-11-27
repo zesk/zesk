@@ -55,335 +55,335 @@ use zesk\Exception;
  *
  */
 class Base {
-    /**
-     * Track state of matching
-     *
-     * @var array of integer
-     */
-    private $buf;
+	/**
+	 * Track state of matching
+	 *
+	 * @var array of integer
+	 */
+	private $buf;
 
-    /**
-     * Maximum
-     *
-     * @var unknown_type
-     */
-    private $dmax;
+	/**
+	 * Maximum
+	 *
+	 * @var unknown_type
+	 */
+	private $dmax;
 
-    /**
-     * List of edits to make A match B
-     *
-     * @var array of Edit
-     */
-    private $edits;
+	/**
+	 * List of edits to make A match B
+	 *
+	 * @var array of Edit
+	 */
+	private $edits;
 
-    /**
-     * List of edits to make A match B, excluding Edit::DIFF_MATCH
-     *
-     * @var array of Edit
-     */
-    private $diffs;
+	/**
+	 * List of edits to make A match B, excluding Edit::DIFF_MATCH
+	 *
+	 * @var array of Edit
+	 */
+	private $diffs;
 
-    /**
-     * Compare A
-     *
-     * @var array
-     */
-    private $a;
+	/**
+	 * Compare A
+	 *
+	 * @var array
+	 */
+	private $a;
 
-    /**
-     * Compare B
-     *
-     * @var array
-     */
-    private $b;
+	/**
+	 * Compare B
+	 *
+	 * @var array
+	 */
+	private $b;
 
-    /**
-     * Create a diff object and compute the shortest edit sequence to make $a like $b
-     *
-     * @param array $a
-     * @param array $b
-     * @param integer $dmax Maximum snake sequence? (Not sure what this is)
-     * @return Diff
-     */
-    public function __construct(array $a, array $b, $dmax = null) {
-        $this->buf = array();
-        $this->edits = array();
-        $this->diffs = null;
+	/**
+	 * Create a diff object and compute the shortest edit sequence to make $a like $b
+	 *
+	 * @param array $a
+	 * @param array $b
+	 * @param integer $dmax Maximum snake sequence? (Not sure what this is)
+	 * @return Diff
+	 */
+	public function __construct(array $a, array $b, $dmax = null) {
+		$this->buf = array();
+		$this->edits = array();
+		$this->diffs = null;
 
-        $this->a = $a;
-        $this->b = $b;
+		$this->a = $a;
+		$this->b = $b;
 
-        $n = count($a);
-        $m = count($b);
+		$n = count($a);
+		$m = count($b);
 
-        $this->dmax = $dmax ? $dmax : $n + $m + 2;
-        /*
-         * The _ses function assumes the SES will begin or end with a delete
-         * or insert. The following will insure this is true by eating any
-         * beginning matches. This is also a quick to process sequences
-         * that match entirely.
-         */
-        $x = 0;
-        while ($x < $n && $x < $m && $this->a[$x] === $this->b[$x]) {
-            $x++;
-        }
-        $y = $x;
+		$this->dmax = $dmax ? $dmax : $n + $m + 2;
+		/*
+		 * The _ses function assumes the SES will begin or end with a delete
+		 * or insert. The following will insure this is true by eating any
+		 * beginning matches. This is also a quick to process sequences
+		 * that match entirely.
+		 */
+		$x = 0;
+		while ($x < $n && $x < $m && $this->a[$x] === $this->b[$x]) {
+			$x++;
+		}
+		$y = $x;
 
-        $this->_edit(Edit::DIFF_MATCH, 0, $x);
+		$this->_edit(Edit::DIFF_MATCH, 0, $x);
 
-        $d = $this->_ses($x, $n - $x, $y, $m - $y);
+		$d = $this->_ses($x, $n - $x, $y, $m - $y);
 
-        $this->buf = null;
+		$this->buf = null;
 
-        return $d;
-    }
+		return $d;
+	}
 
-    /**
-     *
-     * @return Edit[]
-     */
-    public function edits() {
-        return $this->edits;
-    }
+	/**
+	 *
+	 * @return Edit[]
+	 */
+	public function edits() {
+		return $this->edits;
+	}
 
-    /**
-     *
-     * @return boolean
-     */
-    public function is_identical() {
-        return (count($this->diffs()) === 0);
-    }
+	/**
+	 *
+	 * @return boolean
+	 */
+	public function is_identical() {
+		return (count($this->diffs()) === 0);
+	}
 
-    /**
-     *
-     * @return Edit[]
-     */
-    public function diffs() {
-        if (is_array($this->diffs)) {
-            return $this->diffs;
-        }
-        $diffs = array();
-        foreach ($this->edits as $edit) {
-            if ($edit->op !== Edit::DIFF_MATCH) {
-                $diffs[] = $edit;
-            }
-        }
-        $this->diffs = $diffs;
-        return $diffs;
-    }
+	/**
+	 *
+	 * @return Edit[]
+	 */
+	public function diffs() {
+		if (is_array($this->diffs)) {
+			return $this->diffs;
+		}
+		$diffs = array();
+		foreach ($this->edits as $edit) {
+			if ($edit->op !== Edit::DIFF_MATCH) {
+				$diffs[] = $edit;
+			}
+		}
+		$this->diffs = $diffs;
+		return $diffs;
+	}
 
-    private static function index($k, $r) {
-        $j = ($k <= 0) ? (-$k * 4 + $r) : ($k * 4 + ($r - 2));
-        return $j;
-    }
+	private static function index($k, $r) {
+		$j = ($k <= 0) ? (-$k * 4 + $r) : ($k * 4 + ($r - 2));
+		return $j;
+	}
 
-    private function _setv($k, $r, $val) {
-        $j = self::index($k, $r);
-        $this->buf[$j] = $val;
-    }
+	private function _setv($k, $r, $val) {
+		$j = self::index($k, $r);
+		$this->buf[$j] = $val;
+	}
 
-    private function FV($k) {
-        return $this->_v($k, 0);
-    }
+	private function FV($k) {
+		return $this->_v($k, 0);
+	}
 
-    private function RV($k) {
-        return $this->_v($k, 1);
-    }
+	private function RV($k) {
+		return $this->_v($k, 1);
+	}
 
-    private function _v($k, $r) {
-        $j = self::index($k, $r);
-        if (!array_key_exists($j, $this->buf)) {
-            $this->buf[$j] = 0;
-        }
-        return $this->buf[$j];
-    }
+	private function _v($k, $r) {
+		$j = self::index($k, $r);
+		if (!array_key_exists($j, $this->buf)) {
+			$this->buf[$j] = 0;
+		}
+		return $this->buf[$j];
+	}
 
-    /**
-     *
-     * @param unknown $aoff
-     * @param unknown $n
-     * @param unknown $boff
-     * @param unknown $m
-     * @param MiddleSnake $ms
-     * @throws Exception
-     * @return \zesk\Diff\unknown_type|number
-     */
-    private function _find_middle_snake($aoff, $n, $boff, $m, MiddleSnake $ms) {
-        $delta = $n - $m;
-        $odd = $delta & 1;
-        $mid = ($n + $m) / 2;
-        $mid += $odd;
+	/**
+	 *
+	 * @param unknown $aoff
+	 * @param unknown $n
+	 * @param unknown $boff
+	 * @param unknown $m
+	 * @param MiddleSnake $ms
+	 * @throws Exception
+	 * @return \zesk\Diff\unknown_type|number
+	 */
+	private function _find_middle_snake($aoff, $n, $boff, $m, MiddleSnake $ms) {
+		$delta = $n - $m;
+		$odd = $delta & 1;
+		$mid = ($n + $m) / 2;
+		$mid += $odd;
 
-        $this->_setv(1, 0, 0);
-        $this->_setv($delta - 1, 1, $n);
+		$this->_setv(1, 0, 0);
+		$this->_setv($delta - 1, 1, $n);
 
-        for ($d = 0; $d <= $mid; $d++) {
-            if ((2 * $d - 1) >= $this->dmax) {
-                return $this->dmax;
-            }
+		for ($d = 0; $d <= $mid; $d++) {
+			if ((2 * $d - 1) >= $this->dmax) {
+				return $this->dmax;
+			}
 
-            for ($k = $d; $k >= -$d; $k -= 2) {
-                if ($k == -$d || ($k != $d && $this->FV($k - 1) < $this->FV($k + 1))) {
-                    $x = $this->FV($k + 1);
-                } else {
-                    $x = $this->FV($k - 1) + 1;
-                }
-                $y = $x - $k;
+			for ($k = $d; $k >= -$d; $k -= 2) {
+				if ($k == -$d || ($k != $d && $this->FV($k - 1) < $this->FV($k + 1))) {
+					$x = $this->FV($k + 1);
+				} else {
+					$x = $this->FV($k - 1) + 1;
+				}
+				$y = $x - $k;
 
-                $ms->x = $x;
-                $ms->y = $y;
+				$ms->x = $x;
+				$ms->y = $y;
 
-                while ($x < $n && $y < $m && $this->a[$aoff + $x] === $this->b[$boff + $y]) {
-                    $x++;
-                    $y++;
-                }
+				while ($x < $n && $y < $m && $this->a[$aoff + $x] === $this->b[$boff + $y]) {
+					$x++;
+					$y++;
+				}
 
-                $this->_setv($k, 0, $x);
+				$this->_setv($k, 0, $x);
 
-                if ($odd && $k >= ($delta - ($d - 1)) && $k <= ($delta + ($d - 1))) {
-                    if ($x >= $this->RV($k)) {
-                        $ms->u = $x;
-                        $ms->v = $y;
-                        return 2 * $d - 1;
-                    }
-                }
-            }
-            for ($k = $d; $k >= -$d; $k -= 2) {
-                $kr = ($n - $m) + $k;
+				if ($odd && $k >= ($delta - ($d - 1)) && $k <= ($delta + ($d - 1))) {
+					if ($x >= $this->RV($k)) {
+						$ms->u = $x;
+						$ms->v = $y;
+						return 2 * $d - 1;
+					}
+				}
+			}
+			for ($k = $d; $k >= -$d; $k -= 2) {
+				$kr = ($n - $m) + $k;
 
-                if ($k == $d || ($k != -$d && $this->RV($kr - 1) < $this->RV($kr + 1))) {
-                    $x = $this->RV($kr - 1);
-                } else {
-                    $x = $this->RV($kr + 1) - 1;
-                }
-                $y = $x - $kr;
+				if ($k == $d || ($k != -$d && $this->RV($kr - 1) < $this->RV($kr + 1))) {
+					$x = $this->RV($kr - 1);
+				} else {
+					$x = $this->RV($kr + 1) - 1;
+				}
+				$y = $x - $kr;
 
-                $ms->u = $x;
-                $ms->v = $y;
+				$ms->u = $x;
+				$ms->v = $y;
 
-                while ($x > 0 && $y > 0 && $this->a[$aoff + $x - 1] === $this->b[$boff + $y - 1]) {
-                    $x--;
-                    $y--;
-                }
+				while ($x > 0 && $y > 0 && $this->a[$aoff + $x - 1] === $this->b[$boff + $y - 1]) {
+					$x--;
+					$y--;
+				}
 
-                $this->_setv($kr, 1, $x);
+				$this->_setv($kr, 1, $x);
 
-                if (!$odd && $kr >= -$d && $kr <= $d) {
-                    if ($x <= $this->FV($kr)) {
-                        $ms->x = $x;
-                        $ms->y = $y;
-                        return 2 * $d;
-                    }
-                }
-            }
-        }
+				if (!$odd && $kr >= -$d && $kr <= $d) {
+					if ($x <= $this->FV($kr)) {
+						$ms->x = $x;
+						$ms->y = $y;
+						return 2 * $d;
+					}
+				}
+			}
+		}
 
-        throw new Exception("No middle snake found?");
+		throw new Exception("No middle snake found?");
 
-        return -1;
-    }
+		return -1;
+	}
 
-    private function _edit($op, $off, $len) {
-        if ($len == 0) {
-            return;
-        }
-        /*
-         * Add an edit to the SES (or
-         * coalesce if the op is the same)
-         */
-        $nedits = count($this->edits);
-        if ($nedits) {
-            $edit = $this->edits[$nedits - 1];
-            if ($edit->op === $op) {
-                $edit->len += $len;
-                return;
-            }
-        }
-        $edit = new Edit($op, $off, $len);
-        $this->edits[] = $edit;
-    }
+	private function _edit($op, $off, $len) {
+		if ($len == 0) {
+			return;
+		}
+		/*
+		 * Add an edit to the SES (or
+		 * coalesce if the op is the same)
+		 */
+		$nedits = count($this->edits);
+		if ($nedits) {
+			$edit = $this->edits[$nedits - 1];
+			if ($edit->op === $op) {
+				$edit->len += $len;
+				return;
+			}
+		}
+		$edit = new Edit($op, $off, $len);
+		$this->edits[] = $edit;
+	}
 
-    //	static int
-    //	_ses(const void *a, int aoff, int n,
-    //	const void *b, int boff, int m,
-    //	Diff_Context ctx)
-    private function _ses($aoff, $n, $boff, $m) {
-        $ms = new MiddleSnake();
+	//	static int
+	//	_ses(const void *a, int aoff, int n,
+	//	const void *b, int boff, int m,
+	//	Diff_Context ctx)
+	private function _ses($aoff, $n, $boff, $m) {
+		$ms = new MiddleSnake();
 
-        if ($n == 0) {
-            $this->_edit(Edit::DIFF_INSERT, $boff, $m);
-            $d = $m;
-            return $d;
-        }
+		if ($n == 0) {
+			$this->_edit(Edit::DIFF_INSERT, $boff, $m);
+			$d = $m;
+			return $d;
+		}
 
-        if ($m == 0) {
-            $this->_edit(Edit::DIFF_DELETE, $aoff, $n);
-            $d = $n;
-            return $d;
-        }
+		if ($m == 0) {
+			$this->_edit(Edit::DIFF_DELETE, $aoff, $n);
+			$d = $n;
+			return $d;
+		}
 
-        /*
-         * Find the middle "snake" around which we
-         * recursively solve the sub-problems.
-         */
-        $d = $this->_find_middle_snake($aoff, $n, $boff, $m, $ms);
-        if ($d == -1) {
-            return -1;
-        }
-        if ($d >= $this->dmax) {
-            return $this->dmax;
-        }
-        if ($d > 1) {
-            if ($this->_ses($aoff, $ms->x, $boff, $ms->y) == -1) {
-                return -1;
-            }
+		/*
+		 * Find the middle "snake" around which we
+		 * recursively solve the sub-problems.
+		 */
+		$d = $this->_find_middle_snake($aoff, $n, $boff, $m, $ms);
+		if ($d == -1) {
+			return -1;
+		}
+		if ($d >= $this->dmax) {
+			return $this->dmax;
+		}
+		if ($d > 1) {
+			if ($this->_ses($aoff, $ms->x, $boff, $ms->y) == -1) {
+				return -1;
+			}
 
-            $this->_edit(Edit::DIFF_MATCH, $aoff + $ms->x, $ms->u - $ms->x);
+			$this->_edit(Edit::DIFF_MATCH, $aoff + $ms->x, $ms->u - $ms->x);
 
-            $aoff += $ms->u;
-            $boff += $ms->v;
-            $n -= $ms->u;
-            $m -= $ms->v;
-            if ($this->_ses($aoff, $n, $boff, $m) == -1) {
-                return -1;
-            }
-            return $d;
-        }
+			$aoff += $ms->u;
+			$boff += $ms->v;
+			$n -= $ms->u;
+			$m -= $ms->v;
+			if ($this->_ses($aoff, $n, $boff, $m) == -1) {
+				return -1;
+			}
+			return $d;
+		}
 
-        $x = $ms->x;
-        $u = $ms->u;
+		$x = $ms->x;
+		$u = $ms->u;
 
-        /* There are only 4 base cases when the
-         * edit distance is 1.
-         *
-         * n > m   m > n
-         *
-         *   -       |
-         *    \       \    x != u
-         *     \       \
-         *
-         *   \       \
-         *    \       \    x == u
-         *     -       |
-         */
-        if ($m > $n) {
-            if ($x == $u) {
-                $this->_edit(Edit::DIFF_MATCH, $aoff, $n);
-                $this->_edit(Edit::DIFF_INSERT, $boff + ($m - 1), 1);
-            } else {
-                $this->_edit(Edit::DIFF_INSERT, $boff, 1);
-                $this->_edit(Edit::DIFF_MATCH, $aoff, $n);
-            }
-        } else {
-            if ($x == $u) {
-                $this->_edit(Edit::DIFF_MATCH, $aoff, $m);
-                $this->_edit(Edit::DIFF_DELETE, $aoff + ($n - 1), 1);
-            } else {
-                $this->_edit(Edit::DIFF_DELETE, $aoff, 1);
-                $this->_edit(Edit::DIFF_MATCH, $aoff + 1, $m);
-            }
-        }
+		/* There are only 4 base cases when the
+		 * edit distance is 1.
+		 *
+		 * n > m   m > n
+		 *
+		 *   -       |
+		 *    \       \    x != u
+		 *     \       \
+		 *
+		 *   \       \
+		 *    \       \    x == u
+		 *     -       |
+		 */
+		if ($m > $n) {
+			if ($x == $u) {
+				$this->_edit(Edit::DIFF_MATCH, $aoff, $n);
+				$this->_edit(Edit::DIFF_INSERT, $boff + ($m - 1), 1);
+			} else {
+				$this->_edit(Edit::DIFF_INSERT, $boff, 1);
+				$this->_edit(Edit::DIFF_MATCH, $aoff, $n);
+			}
+		} else {
+			if ($x == $u) {
+				$this->_edit(Edit::DIFF_MATCH, $aoff, $m);
+				$this->_edit(Edit::DIFF_DELETE, $aoff + ($n - 1), 1);
+			} else {
+				$this->_edit(Edit::DIFF_DELETE, $aoff, 1);
+				$this->_edit(Edit::DIFF_MATCH, $aoff + 1, $m);
+			}
+		}
 
-        return $d;
-    }
+		return $d;
+	}
 }

@@ -8,78 +8,78 @@
 namespace zesk;
 
 class Database_Query_Union_Test extends Test_Unit {
-    protected $load_modules = array(
-        "MySQL",
-        "ORM",
-    );
+	protected $load_modules = array(
+		"MySQL",
+		"ORM",
+	);
 
-    public function test_main() {
-        $table_name = "Database_Query_Union";
+	public function test_main() {
+		$table_name = "Database_Query_Union";
 
-        $this->test_table($table_name);
+		$this->test_table($table_name);
 
-        $db = $this->application->database_registry();
-        $testx = new Database_Query_Union($db);
+		$db = $this->application->database_registry();
+		$testx = new Database_Query_Union($db);
 
-        $select = new Database_Query_Select($db);
-        $testx->union($select);
+		$select = new Database_Query_Select($db);
+		$testx->union($select);
 
-        $what = null;
-        $testx->what($what);
+		$what = null;
+		$testx->what($what);
 
-        $table = $table_name;
-        $alias = '';
-        $testx->from($table, $alias);
+		$table = $table_name;
+		$alias = '';
+		$testx->from($table, $alias);
 
-        $sql = null;
-        $join_id = null;
-        $testx->join($sql, $join_id);
+		$sql = null;
+		$join_id = null;
+		$testx->join($sql, $join_id);
 
-        $k = null;
-        $v = null;
-        $testx->where($k, $v);
+		$k = null;
+		$v = null;
+		$testx->where($k, $v);
 
-        $group_by = null;
-        $testx->group_by($group_by);
+		$group_by = null;
+		$testx->group_by($group_by);
 
-        $order_by = null;
-        $testx->order_by($order_by);
+		$order_by = null;
+		$testx->order_by($order_by);
 
-        $offset = 0;
-        $limit = null;
-        $testx->limit($offset, $limit);
+		$offset = 0;
+		$limit = null;
+		$testx->limit($offset, $limit);
 
-        $testx->__toString();
+		$testx->__toString();
 
-        $testx->iterator();
+		$testx->iterator();
 
-        $class = "U";
-        $options = array();
-        $testx->orm_iterator($class, $options);
+		$class = "U";
+		$options = array();
+		$testx->orm_iterator($class, $options);
 
-        $field = false;
-        $default = false;
-        $testx->one($field, $default);
+		$field = false;
+		$default = false;
+		$testx->one($field, $default);
 
-        $class = "User";
-        $testx->object($class);
+		$class = "User";
+		$testx->object($class);
 
-        $field = null;
-        $default = 0;
-        $testx->one_integer($field, $default);
+		$field = null;
+		$default = 0;
+		$testx->one_integer($field, $default);
 
-        $field = null;
-        $default = 0;
-        $testx->integer($field, $default);
+		$field = null;
+		$default = 0;
+		$testx->integer($field, $default);
 
-        $key = false;
-        $value = false;
-        $default = false;
-        $testx->to_array($key, $value, $default);
+		$key = false;
+		$value = false;
+		$default = false;
+		$testx->to_array($key, $value, $default);
 
-        $testx->database();
+		$testx->database();
 
-        $class = null;
-        $testx->orm_class($class);
-    }
+		$class = null;
+		$testx->orm_class($class);
+	}
 }

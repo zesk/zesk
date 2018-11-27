@@ -17,29 +17,29 @@ namespace zesk\Kernel;
  * @author kent
  */
 class Loader {
-    /**
-     * Microtime of when this file was loaded
-     *
-     * @var double
-     */
-    private static $init;
+	/**
+	 * Microtime of when this file was loaded
+	 *
+	 * @var double
+	 */
+	private static $init;
 
-    /**
-     *
-     * @return \zesk\Kernel
-     */
-    public static function kernel() {
-        self::$init = microtime(true);
-        require_once __DIR__ . "/classes/Kernel.php";
-    }
+	/**
+	 *
+	 * @return \zesk\Kernel
+	 */
+	public static function kernel() {
+		self::$init = microtime(true);
+		require_once __DIR__ . "/classes/Kernel.php";
+	}
 
-    public static function factory() {
-        global $_ZESK;
+	public static function factory() {
+		global $_ZESK;
 
-        return \zesk\Kernel::factory((is_array($_ZESK) ? $_ZESK : array()) + array(
-            "init" => self::$init,
-        ));
-    }
+		return \zesk\Kernel::factory((is_array($_ZESK) ? $_ZESK : array()) + array(
+			"init" => self::$init,
+		));
+	}
 }
 
 Loader::kernel();

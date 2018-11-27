@@ -13,32 +13,32 @@ namespace zesk;
  *
  */
 class TheCommand_Test extends Test_Unit {
-    public function test_main() {
-        $dir = $this->test_sandbox();
-        $f = $this->test_sandbox("test-file.txt");
-        file_put_contents($f, "test");
+	public function test_main() {
+		$dir = $this->test_sandbox();
+		$f = $this->test_sandbox("test-file.txt");
+		file_put_contents($f, "test");
 
-        $_SERVER['argv'] = $argv = array(
-            __CLASS__,
-            "--file",
-            $f,
-        );
+		$_SERVER['argv'] = $argv = array(
+			__CLASS__,
+			"--file",
+			$f,
+		);
 
-        $testx = new Command_Base_Test($this->application);
+		$testx = new Command_Base_Test($this->application);
 
-        $this->assert($testx->has_errors() === false, "Has errors? " . implode(";", $testx->errors()));
+		$this->assert($testx->has_errors() === false, "Has errors? " . implode(";", $testx->errors()));
 
-        $file = $testx->option("FILE");
+		$file = $testx->option("FILE");
 
-        $this->assert_equal($file, $f, "File option mismatch ($file !== $f) found: " . $testx->__toString());
-        $testx->arguments_remaining();
+		$this->assert_equal($file, $f, "File option mismatch ($file !== $f) found: " . $testx->__toString());
+		$testx->arguments_remaining();
 
-        $testx->has_errors();
-        $testx->errors();
+		$testx->has_errors();
+		$testx->errors();
 
-        $message = null;
-        $testx->error($message);
-    }
+		$message = null;
+		$testx->error($message);
+	}
 }
 
 /**
@@ -47,14 +47,14 @@ class TheCommand_Test extends Test_Unit {
  *
  */
 class Command_Base_Test extends Command_Base {
-    public function initialize() {
-        parent::initialize();
-        $this->option_types += array(
-            "file" => "file",
-            "dir" => "dir",
-        );
-    }
+	public function initialize() {
+		parent::initialize();
+		$this->option_types += array(
+			"file" => "file",
+			"dir" => "dir",
+		);
+	}
 
-    public function run() {
-    }
+	public function run() {
+	}
 }

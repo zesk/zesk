@@ -13,10 +13,10 @@ namespace zesk\Git;
  * @author kent
  */
 class Module extends \zesk\Module_Repository {
-    public function initialize() {
-        parent::initialize();
-        $this->register_repository(Repository::class, array(
-            "git",
-        ));
-    }
+	public function initialize() {
+		parent::initialize();
+		$this->register_repository(Repository::class, array(
+			"git",
+		));
+	}
 }

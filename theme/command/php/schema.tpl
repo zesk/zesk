@@ -15,22 +15,14 @@ $configuration = $application->configuration;
 
 echo "<?php\n";
 
-$php = new php();
-$php->indent_char = $this->get("indent_char", $configuration->path_get("Text::indent_char", "\t"));
+$php = new PHP();
+$t = $php->indent_char = $this->get("indent_char", $configuration->path_get("Text::indent_char", "\t"));
 $php->indent_multiple = to_integer($this->geti("indent_multiple", $configuration->path_get("Text::indent_multiple")), 1);
 
 ob_start();
 
-// TODO Indent below to inherit settings above
-?>
-class <?php
-
-echo $this->class_name;
-?> extends ORM_Schema {
-	function schema() {
-		return <?php
-		
-		echo ltrim($php->render($this->schema, 2));
-		?>;
-	}
-}
+echo "class " . $this->class_name . " extends ORM_Schema {\n";
+echo $t . "function schema() {\n";
+echo $t . $t . "return " . ltrim($php->render($this->schema, 2)) . ";\n";
+echo $t . "}\n";
+echo "}\n";
