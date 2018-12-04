@@ -479,7 +479,7 @@ class HTML extends Type {
 
 					continue;
 				}
-				$tag = array(
+				$tag += array(
 					'name' => 'link',
 					'attributes' => ArrayTools::filter($attrs, "rel;href;type;media;sizes;crossorigin;hrefland;rev"),
 					'content' => '',
@@ -981,9 +981,9 @@ class HTML extends Type {
 			if (array_key_exists('callback', $attrs)) {
 				$attrs['content'] = call_user_func($attrs['callback']);
 			}
-			$attrs += $this->browser_conditionals(avalue($attrs, 'browser'));
+			$script = $this->browser_conditionals(avalue($attrs, 'browser'));
 			if (array_key_exists('content', $attrs)) {
-				$script = array(
+				$script += array(
 					'name' => 'script',
 					'attributes' => $script_attributes,
 					'content' => $attrs['content'],
@@ -1015,7 +1015,7 @@ class HTML extends Type {
 						}
 					}
 				}
-				$script = array(
+				$script += array(
 					'name' => 'script',
 					'attributes' => $script_attributes,
 					'content' => '',
