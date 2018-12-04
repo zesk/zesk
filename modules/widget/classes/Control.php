@@ -20,7 +20,7 @@ class Control extends Widget {
 	 */
 	public static $default_strip_tags = array(
 		'script',
-		'link',
+		'link'
 	);
 
 	/**
@@ -64,7 +64,7 @@ class Control extends Widget {
 		'td',
 		'thead',
 		'tr',
-		'ul',
+		'ul'
 	);
 
 	/**
@@ -82,6 +82,26 @@ class Control extends Widget {
 	}
 
 	/**
+	 * Retrieves a mapping of value to "condition" used to describe when this filter has matched
+	 *
+	 * e.g. If the values are "on", "off", and "snooze" a valid query_condition_map is:
+	 *
+	 * [ "on" => $locale->__("is on"), "off" => $locale->__("is off"), "snooze" => $locale->__("is snoozed") ]
+	 *
+	 * Note for
+	 *
+	 * @param array $set
+	 * @return self|array
+	 */
+	protected function query_condition_map(array $set = null) {
+		if (is_array($set)) {
+			$this->set_option("query_condition_map", $set);
+			return $this;
+		}
+		return $this->option_array("query_condition_map");
+	}
+
+	/**
 	 * Retrieve the key used to assign this condition to allow overwriting by subclasses
 	 *
 	 * @param Database_Query_Select $query
@@ -94,7 +114,6 @@ class Control extends Widget {
 		}
 		return $columns;
 	}
-
 	protected function hook_query(Database_Query_Select $query) {
 		$debug = false;
 		$columns = $this->query_columns();
@@ -106,7 +125,7 @@ class Control extends Widget {
 			$this->application->logger->debug("{class} hook_query {columns} {value}", array(
 				"class" => get_class($this),
 				"columns" => $columns,
-				"value" => $value,
+				"value" => $value
 			));
 		}
 		if ($value === null || $value === '') {
@@ -122,12 +141,12 @@ class Control extends Widget {
 		if (count($where) === 0) {
 			$this->application->logger->warning("{class}::hook_query had columns {columns} but none are valid", array(
 				"class" => get_class($this),
-				"columns" => $columns,
+				"columns" => $columns
 			));
 			return false;
 		}
 		$query->where(array(
-			$where,
+			$where
 		));
 		if ($this->option_bool('skip_query_condition')) {
 			return false;
@@ -143,15 +162,12 @@ class Control extends Widget {
 		}
 		return true;
 	}
-
 	final public function refresh($set = null) {
 		return ($set !== null) ? $this->set_option('refresh', to_bool($set)) : $this->option_bool('refresh');
 	}
-
 	public function placeholder($set = null) {
 		return ($set !== null) ? $this->set_option('placeholder', $set) : $this->option('placeholder');
 	}
-
 	public function query_column($set = null) {
 		return ($set !== null) ? $this->set_option('query_column', $set) : $this->option('query_column');
 	}

@@ -1257,7 +1257,7 @@ abstract class Command extends Hookable implements Logger\Handler {
 		try {
 			$result = $this->run();
 		} catch (Exception $e) {
-			$this->error("Exception thrown by command {class} : {exception_class} {message}\n{backtrace-4}", array(
+			$this->error("Exception thrown by command {class} : {exception_class} {message}\n{backtrace}", array(
 				"class" => get_class($this),
 				"exception_class" => get_class($e),
 				"message" => $e->getMessage(),
