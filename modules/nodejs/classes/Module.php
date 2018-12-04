@@ -10,6 +10,8 @@ use zesk\Command;
 use zesk\ArrayTools;
 use zesk\Logger\Handler;
 use zesk\Directory;
+use zesk\JSON;
+use zesk\File;
 
 /**
  *
@@ -17,6 +19,79 @@ use zesk\Directory;
  *
  */
 class Module extends \zesk\Module {
+	/**
+	 * Value of option is a boolean which means: Copy package.json's version into the application to make them sync.
+	 *
+	 * zesk\NodeJS\Module::application_version_inherit=true
+	 *
+	 * @var string
+	 */
+	const OPTION_APPLICATION_VERSION_INHERIT = "application_version_inherit";
+
+	/**
+	 *
+	 * @var string
+	 */
+	private $package_version = null;
+
+	/**
+	 *
+	 * @return string|null
+	 */
+	public function application_version_from_package() {
+		if ($this->package_version !== null) {
+			return $this->package_version;
+		}
+		$app = $this->application;
+		$package_file = $app->paths->expand($this->option("package_json_path", "./package.json"));
+		$__ = array(
+			"package_file" => $package_file,
+			"method" => __METHOD__,
+		);
+		if (!is_readable($package_file)) {
+			$app->logger->error("Package file {package_file} not found in {method}", $__);
+			return null;
+		}
+		$package_contents = file_get_contents($package_file);
+
+		try {
+			$json = JSON::decode($package_contents);
+		} catch (\Exception $e) {
+			$app->logger->error("Package file {package_file} is invalid JSON (in {method})", $__);
+			return null;
+		}
+		if (!is_array($json)) {
+			$app->logger->error("Package file {package_file} did not return a JSON structure - {type} returned (in {method})", $__ + array(
+				"type" => gettype($json),
+			));
+			return null;
+		}
+		if (!array_key_exists("version", $json)) {
+			$app->logger->error("Package file {package_file} did not return a JSON structure with a version key (in {method})", $__);
+			return null;
+		}
+		$version = $json['version'];
+		if (!is_string($version) && !is_numeric($version)) {
+			$app->logger->error("Package file {package_file} version key is not string or numeric - {type} returned (in {method})", $__ + array(
+				"type" => gettype($version),
+			));
+			return null;
+		}
+		return $this->package_version = $version;
+	}
+
+	/**
+	 * hook_configured
+	 */
+	public function hook_configured() {
+		if ($this->option_bool("application_version_inherit")) {
+			$version = $this->application_version_from_package();
+			if ($version !== null) {
+				$this->application->version($version);
+			}
+		}
+	}
+
 	public function hook_build(Command $command) {
 		$app = $this->application;
 		$node_modules_path = $this->option("node_modules_path", $app->path("node_modules"));
