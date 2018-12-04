@@ -431,6 +431,14 @@ class Module extends \zesk\Module {
 	}
 
 	/**
+	 *
+	 */
+	private function _critical_crons() {
+		// This may never run if our locks do not get cleaned
+		Lock::cron_cluster_minute($this->application);
+	}
+
+	/**
 	 * Internal function to run tasks
 	 */
 	private function _run() {
@@ -544,7 +552,8 @@ class Module extends \zesk\Module {
 		}
 
 		PHP::feature("time_limit", $this->option_integer("time_limit", 0));
-		self::_run();
+		$this->_critical_crons();
+		$this->_run();
 
 		$modules->all_hook_arguments("cron_after", array(
 			$this->methods,
