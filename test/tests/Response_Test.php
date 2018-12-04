@@ -42,7 +42,6 @@ class Response_Test extends Test_Unit {
 			"loo" => "actual",
 		);
 
-		dump($attrs, $compare_result);
 		$this->assert_arrays_equal($attrs, $compare_result);
 	}
 
@@ -59,13 +58,20 @@ class Response_Test extends Test_Unit {
 			'browser' => 'ie',
 		));
 
+		$content = $this->application->theme("response/html/scripts", array(
+			"response" => $response,
+			'jquery_ready' => array(),
+		));
 		$scripts = $response->html()->scripts();
 
-		$this->assert(strpos($scripts, $script) !== false);
-		$this->assert(strpos($scripts, "<!--") !== false);
-		$this->assert(strpos($scripts, "[if IE]") !== false);
-		$this->assert(strpos($scripts, "<![endif]-->") !== false);
+		$this->assertTrue(is_array($scripts), "Scripts is array");
 
-		$this->assert_equal($scripts, '<!--[if IE]><script type="text/javascript">alert(\'Hello, world!\');</script><![endif]-->');
+		$this->assertContains($script, $content);
+		$this->assertContains("<!--", $content);
+		$this->assertContains("[if IE]", $content);
+		$this->assertContains("<![endif]-->", $content);
+		$this->assertContains("<![endif]-->", $content);
+
+		$this->assertContains('<!--[if IE]><script type="text/javascript">alert(\'Hello, world!\');</script><![endif]-->', $content);
 	}
 }
