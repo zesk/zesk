@@ -20,7 +20,7 @@ class Control extends Widget {
 	 */
 	public static $default_strip_tags = array(
 		'script',
-		'link'
+		'link',
 	);
 
 	/**
@@ -64,7 +64,7 @@ class Control extends Widget {
 		'td',
 		'thead',
 		'tr',
-		'ul'
+		'ul',
 	);
 
 	/**
@@ -114,6 +114,7 @@ class Control extends Widget {
 		}
 		return $columns;
 	}
+
 	protected function hook_query(Database_Query_Select $query) {
 		$debug = false;
 		$columns = $this->query_columns();
@@ -125,7 +126,7 @@ class Control extends Widget {
 			$this->application->logger->debug("{class} hook_query {columns} {value}", array(
 				"class" => get_class($this),
 				"columns" => $columns,
-				"value" => $value
+				"value" => $value,
 			));
 		}
 		if ($value === null || $value === '') {
@@ -141,12 +142,12 @@ class Control extends Widget {
 		if (count($where) === 0) {
 			$this->application->logger->warning("{class}::hook_query had columns {columns} but none are valid", array(
 				"class" => get_class($this),
-				"columns" => $columns
+				"columns" => $columns,
 			));
 			return false;
 		}
 		$query->where(array(
-			$where
+			$where,
 		));
 		if ($this->option_bool('skip_query_condition')) {
 			return false;
@@ -162,12 +163,15 @@ class Control extends Widget {
 		}
 		return true;
 	}
+
 	final public function refresh($set = null) {
 		return ($set !== null) ? $this->set_option('refresh', to_bool($set)) : $this->option_bool('refresh');
 	}
+
 	public function placeholder($set = null) {
 		return ($set !== null) ? $this->set_option('placeholder', $set) : $this->option('placeholder');
 	}
+
 	public function query_column($set = null) {
 		return ($set !== null) ? $this->set_option('query_column', $set) : $this->option('query_column');
 	}

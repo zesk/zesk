@@ -12,9 +12,10 @@ class Command_Maintenance extends Command_Base {
 	protected function initialize() {
 		$this->application->hooks->add(Application::class . "::maintenance_context", array(
 			$this,
-			"maintenance_context"
+			"maintenance_context",
 		));
 	}
+
 	public function run() {
 		if (!$this->has_arg()) {
 			echo $this->application->maintenance();
@@ -26,7 +27,7 @@ class Command_Maintenance extends Command_Base {
 		if ($bool === null) {
 			$this->application->maintenance(true);
 			$this->log("Maintenance enabled with message \"$arg\"", array(
-				"arg" => $arg
+				"arg" => $arg,
 			));
 		} else {
 			$this->application->maintenance($bool);
