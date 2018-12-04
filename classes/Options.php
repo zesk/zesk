@@ -416,19 +416,11 @@ class Options implements \ArrayAccess {
 	 */
 	public function option_path($path, $default = null, $separator = ".") {
 		$path = to_list($path, array(), $separator);
-		$node = $this->options;
-		foreach ($path as $p) {
-			$p = self::_option_key($p);
-			if (!is_array($node)) {
-				return $default;
-			}
-			if (array_key_exists($p, $node)) {
-				$node = $node[$p];
-			} else {
-				return $default;
-			}
+		if (count($path) === 0) {
+			return $default;
 		}
-		return $node;
+		$path[0] = self::_option_key($path[0]);
+		return apath($this->options, $path, $default);
 	}
 
 	/**
