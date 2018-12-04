@@ -32,4 +32,8 @@ class Adapter_TestFramework extends Test implements Interface_Testable {
 	public function assertIsString($actual, $message = null) {
 		$this->assertTrue(is_string($actual), "Expected string but received " . type($actual) . " $message");
 	}
+
+	public function assertContains($needle, $haystack, $message = null) {
+		$this->assertTrue(strpos($haystack, $needle) !== false, "Unable to find needle \"$needle\" in haystack:\n$haystack\n");
+	}
 }
