@@ -747,7 +747,7 @@ function kmap(array $target, array $map, $insensitive = false, $prefix_char = "{
  * @param array $map
  *        	Array of name => value of search => replace
  * @param boolean $insensitive
- *        	Case sensitive search/replace (defaults to true)
+ *        	Case sensitive search/replace (defaults to false)
  * @param string $prefix_char
  *        	Prefix character for tokens (defaults to "{")
  * @param string $suffix_char
