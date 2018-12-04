@@ -17,6 +17,12 @@ class Hooks {
 	 *
 	 * @var string
 	 */
+	const HOOK_DATABASE_CONFIGURE = "database_configure";
+
+	/**
+	 *
+	 * @var string
+	 */
 	const hook_database_configure = "database_configure";
 
 	/**
