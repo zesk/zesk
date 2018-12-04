@@ -8,7 +8,7 @@
 # 2. Optionally clean vendor/node_modules
 #
 
-ME=$0
+ME=$(basename "$0")
 OPTION_BUMP=0
 OPTION_CLEAN=0
 
@@ -78,7 +78,7 @@ while [ $# -ge 1 ]; do
 		OPTION_BUMP=$((1-$OPTION_BUMP))
 		;;
 	*)
-		error "Unknown argument $arg"
+		error 14 "Unknown argument $arg"
 	esac
 done
 
@@ -168,7 +168,7 @@ fi
 $zesk cache clear >> $logfile
 
 cd $APPLICATION_ROOT
-BUILD_DIRECTORY_LIST=$(find . -type d -name build | grep -v node_modules)
+BUILD_DIRECTORY_LIST=$(find . -type d -name build | grep -v node_modules | grep -v vendor)
 for builddir in $BUILD_DIRECTORY_LIST; do
 	cd $APPLICATION_ROOT/$builddir/..
 	find build -type f | xargs rm
@@ -197,7 +197,7 @@ for builddir in $BUILD_DIRECTORY_LIST; do
 	echo "Synchronizing $builddir directory ..."
 	subversion_build_sync > $logfile
 	$svn add `find . -type f` > /dev/null 2>&1
-fi
+done
 
 cd $APPLICATION_ROOT
 $svn add .build > /dev/null 2>&1
