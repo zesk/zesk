@@ -160,7 +160,7 @@ class PHPUnit_TestCase extends TestCase {
 	 * @param string|null $message
 	 */
 	public function assertIsInteger($expected, $message = null) {
-		$this->assertTrue(is_integer($expected), $message ?? "Item expected to be an integer but is a " . type($item));
+		$this->assertTrue(is_integer($expected), $message ?? "Item expected to be an integer but is a " . type($expected));
 	}
 
 	/**
