@@ -35,6 +35,14 @@ use zesk\Router\Parser;
  */
 class Application extends Hookable implements Interface_Theme, Interface_Member_Model_Factory, Interface_Factory {
 	/**
+	 * Default option to store application version - may be stored differently in overridden classes, use
+	 *
+	 * @see version()
+	 * @var string
+	 */
+	const OPTION_VERSION = "version";
+
+	/**
 	 * Zesk singleton. Do not use anywhere but here.
 	 *
 	 * @var Kernel
@@ -516,10 +524,14 @@ class Application extends Hookable implements Interface_Theme, Interface_Member_
 	/**
 	 * Override in subclasses if it is stored in a different way.
 	 *
-	 * @return mixed|string|array
+	 * @return string|null|self
 	 */
-	public function version() {
-		return $this->option("version");
+	public function version($set = null) {
+		if ($set !== null) {
+			$this->set_option(self::OPTION_VERSION, $set);
+			return $this;
+		}
+		return $this->option(self::OPTION_VERSION);
 	}
 
 	/**
@@ -762,14 +774,14 @@ class Application extends Hookable implements Interface_Theme, Interface_Member_
 	 */
 	private function configured_hooks() {
 		$hook_callback = $result_callback = null;
-		$this->hooks->call_arguments(Hooks::hook_database_configure, array(
+		$this->hooks->call_arguments(Hooks::HOOK_DATABASE_CONFIGURE, array(
 			$this,
 		), null, $hook_callback, $result_callback);
-		$this->hooks->call_arguments(Hooks::hook_configured, array(
+		$this->hooks->call_arguments(Hooks::HOOK_CONFIGURED, array(
 			$this,
 		), null, $hook_callback, $result_callback); // System level
-		$this->modules->all_hook_arguments("configured", array(), null, $hook_callback, $result_callback); // Modules
-		$this->call_hook_arguments('configured', array(), null, $hook_callback, $result_callback); // Application level
+		$this->modules->all_hook_arguments(Hooks::HOOK_CONFIGURED, array(), null, $hook_callback, $result_callback); // Modules
+		$this->call_hook_arguments(Hooks::HOOK_CONFIGURED, array(), null, $hook_callback, $result_callback); // Application level
 	}
 
 	/**
