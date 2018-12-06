@@ -397,7 +397,6 @@ class Hooks {
 			return;
 		}
 		$options['callable'] = ($function === null ? $hook : $function);
-		$n = count($this->hooks[$hook]);
 		if (isset($options['first'])) {
 			$hook_group->first = array_merge(array(
 				$callable_string => $options,

@@ -341,7 +341,7 @@ class Template implements Interface_Theme {
 			"all" => $all,
 			"no_extension" => true,
 		));
-		if ($result === null || count($result) === 0) {
+		if ($result === null || (is_array($result) && count($result) === 0)) {
 			$theme_paths = $this->application->theme_path();
 			if (self::$debug) {
 				static $template_path = false;
@@ -359,6 +359,7 @@ class Template implements Interface_Theme {
 				return null;
 			}
 		}
+
 		return $result;
 	}
 
