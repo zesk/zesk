@@ -314,7 +314,7 @@ class Configuration implements \Iterator, \Countable, \ArrayAccess {
 	public function path_set($path, $value = null) {
 		$path = is_array($path) ? $path : explode(self::key_separator, $path);
 		$key = array_pop($path);
-		if (count($key) > 0) {
+		if (count($path) > 0) {
 			$current = $this->path($path);
 			$current->$key = $value;
 			return $current;
