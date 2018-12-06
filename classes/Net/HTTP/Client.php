@@ -754,7 +754,24 @@ class Net_HTTP_Client extends Hookable {
 		))) {
 			return false;
 		}
-		$f = fopen($url, "rb");
+		$ctx_options = array(
+			'http' => array(
+				'user_agent' => self::$sample_agents[0],
+			),
+		);
+		$cafile = Kernel::singleton()->path('etc/cacert.pem');
+		if (!is_file($cafile)) {
+			$ctx_options['ssl'] = array(
+				'verify_peer' => false,
+			);
+		} else {
+			$ctx_options['ssl'] = array(
+				'verify_peer' => true,
+				'cafile' => $cafile,
+			);
+		}
+		$context = stream_context_create($ctx_options);
+		$f = fopen($url, "rb", null, $context);
 		if (!$f) {
 			return false;
 		}
