@@ -129,7 +129,7 @@ abstract class Controller_Theme extends Controller {
 			if ($this->request->prefer_json()) {
 				$this->json(array(
 					'content' => $content,
-				) + $this->response->html()->to_json());
+				) + $this->response->to_json());
 			} else {
 				$this->response->content = $this->theme ? $this->theme($this->theme, array(
 					"content" => $content,
