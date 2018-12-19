@@ -15,14 +15,14 @@ class ORMIterator extends Database_Result_Iterator {
 	 *
 	 * @var string
 	 */
-	protected $class;
+	protected $class = null;
 
 	/**
 	 * Options to be passed to each object constructor
 	 *
 	 * @var array
 	 */
-	protected $class_options;
+	protected $class_options = array();
 
 	/**
 	 * Current parent
@@ -43,14 +43,14 @@ class ORMIterator extends Database_Result_Iterator {
 	 *
 	 * @var ORM
 	 */
-	protected $object;
+	protected $object = null;
 
 	/**
 	 * Current key
 	 *
 	 * @var mixed
 	 */
-	protected $id;
+	protected $id = null;
 
 	/**
 	 * Create an object iterator
@@ -130,14 +130,18 @@ class ORMIterator extends Database_Result_Iterator {
 	/**
 	 * Next object in results
 	 *
+	 * BEWARE: ORMIterators::next jumps over this!
+	 *
 	 * @see Database_Result_Iterator::next()
+	 * @see ORMIterators::next
 	 * @return ORM
 	 */
 	public function next() {
 		parent::next();
 		if ($this->_valid) {
+			$members = $this->_row;
 			// We do create, then fetch to support polymorphism - if ORM supports factory polymorphism, then shorten this to single factory call
-			$this->object = $this->query->member_model_factory($this->parent_member, $this->class, $this->_row, array(
+			$this->object = $this->query->member_model_factory($this->parent_member, $this->class, $members, array(
 				'initialize' => true,
 			) + $this->class_options);
 			$this->id = $this->object->id();
