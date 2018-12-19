@@ -2217,7 +2217,7 @@ class ORM extends Model implements Interface_Member_Model_Factory {
 		$hook_args = func_get_args();
 		$this->need_load = false;
 		if (!$this->can_fetch()) {
-			throw new Exception_ORM_Empty(get_class($this), "Missing primary key {primary_keys} values: {values}", array(
+			throw new Exception_ORM_Empty(get_class($this), "{class}: Missing primary key {primary_keys} values: {values}", array(
 				"primary_keys" => $this->class->primary_keys,
 				"values" => $this->members($this->class->primary_keys),
 			));
