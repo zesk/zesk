@@ -19,6 +19,14 @@ abstract class Database_SQL extends Hookable {
 	protected $database = null;
 
 	/**
+	 * Wildcard token used to grant all privileges
+	 *
+	 * @see grant
+	 * @var string
+	 */
+	const SQL_GRANT_ALL = "*";
+
+	/**
 	 *
 	 * @param Database $database
 	 */
@@ -819,5 +827,24 @@ abstract class Database_SQL extends Hookable {
 	 */
 	public function from_database(Model $object, array $data) {
 		return $data;
+	}
+
+	/**
+	 * Returns statement or statements to grant user access to this database. Returns null if not supported.
+	 *
+	 * $options contains keys:
+	 *
+	 * user - Username
+	 * password - Password
+	 * host - Allowed host to connect from. Defaults to "localhost". Override with `zesk\Command_SQL::grant::host` config setting.
+	 * tables - Tables to grant privileges on. Defaults to "*" (All)
+	 * privilege - Name of privilege to grant. Defaults to "*" (All)
+	 * name - Database name
+	 *
+	 * @param array $options
+	 * @return array|null
+	 */
+	public function grant(array $options) {
+		return null;
 	}
 }

@@ -10,13 +10,34 @@ use zesk\Exception_Semantics as Exception_Semantics;
 use zesk\Text as text;
 use zesk\ArrayTools;
 use zesk\StringTools;
+use zesk\Exception_Parameter;
 
 /**
- *
+ * @see Database_Parser
+ * @see Database_Type
  * @author kent
  *
  */
 class Database_SQL extends \zesk\Database_SQL {
+	/**
+	 * Flush privileges string
+	 *
+	 * @var string
+	 */
+	const SQL_FLUSH_PRIVILEGES = "FLUSH PRIVILEGES";
+
+	/**
+	 * Grant pattern
+	 *
+	 * @var string
+	 */
+	const SQL_GRANT = "GRANT {privilege} ON {name}.{table} TO {user}@{from_host} IDENTIFIED BY '{pass}'";
+
+	/**
+	 *
+	 * {@inheritDoc}
+	 * @see \zesk\Database_SQL::alter_table_column_add()
+	 */
 	public function alter_table_column_add(Database_Table $table, Database_Column $db_col_new) {
 		$newName = $db_col_new->name();
 		$newType = $this->database_column_native_type($db_col_new);
@@ -273,7 +294,7 @@ class Database_SQL extends \zesk\Database_SQL {
 				if ($default === null) {
 					return " DEFAULT NULL"; // KMD 2016-05-09 Was DEFAULT 0
 				}
-				// no break
+			// no break
 			default:
 				break;
 		}
@@ -621,5 +642,85 @@ class Database_SQL extends \zesk\Database_SQL {
 		}
 		$sql_list = ArrayTools::rtrim($sql_list, " \t\r\n;");
 		return $sql_list;
+	}
+
+	/**
+	 * Permute a list
+	 *
+	 * @param array $options_list
+	 * @param array $list
+	 * @param array $option_key
+	 * @return array
+	 */
+	private function _permute(array $options_list, array $list, $option_key) {
+		$new_list = array();
+		foreach ($list as $item) {
+			foreach ($options_list as $index => $options) {
+				$options_list[$index] += array(
+					$option_key => $item,
+				);
+			}
+			$new_list = array_merge($new_list, $options_list);
+		}
+		return $new_list;
+	}
+
+	/**
+	 * Returns statement or statements to grant user access to this database. Returns null if not supported.
+	 *
+	 * $options contains keys:
+	 *
+	 * user - Username
+	 * pass - Password
+	 * from_host - Allowed host to connect from. Defaults to "localhost". Override with `zesk\Command_SQL::grant::from_host` config setting.
+	 * tables - Tables to grant privileges on. Defaults to "*" (All)
+	 * privilege - Name of privilege to grant. Defaults to "*" (All)
+	 * name - Database name
+	 *
+	 * @param array $options
+	 * @return array|null
+	 */
+	public function grant(array $options) {
+		$members = array(
+			"user" => null,
+			"pass" => null,
+			"from_host" => "localhost",
+			"tables" => "*",
+			"privileges" => "ALL PRIVILEGES",
+			"name" => "%",
+		);
+		foreach ($members as $key => $default) {
+			if (isset($options[$key]) && $options[$key] === self::SQL_GRANT_ALL) {
+				$options[$key] = $default;
+			}
+			if (!isset($options[$key])) {
+				$options[$key] = $this->option_path("grant.$key", $default);
+			}
+			if (empty($options[$key])) {
+				unset($options[$key]);
+			}
+		}
+		if (!isset($options['user']) || !isset($options['pass'])) {
+			throw new Exception_Parameter("Need a user and pass option passed to {method}", array(
+				"method" => __METHOD__,
+			));
+		}
+		$permutations = array(
+			$options,
+		);
+		foreach (array(
+			'tables' => 'table',
+			'privileges' => 'privilege',
+		) as $listable => $permute_key) {
+			$permutations = $this->_permute($permutations, to_list($options[$listable]), $permute_key);
+		}
+		$result = array();
+		foreach ($permutations as $permute_options) {
+			$result[] = map(self::SQL_GRANT, $permute_options);
+		}
+		if (count($result) > 0) {
+			$result[] = self::SQL_FLUSH_PRIVILEGES;
+		}
+		return $result;
 	}
 }
