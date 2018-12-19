@@ -59,7 +59,7 @@ abstract class Database_Query_Edit extends Database_Query {
 		if ($table === null) {
 			return avalue($this->table, "$alias");
 		}
-		if (count($this->table) === 0) {
+		if ($this->table === null || count($this->table) === 0) {
 			$this->default_alias = $alias;
 		}
 		$this->table["$alias"] = $table;
