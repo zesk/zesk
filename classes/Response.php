@@ -613,11 +613,12 @@ class Response extends Hookable {
 	}
 
 	/**
+	 * May call zesk\Response\Type::to_json
 	 *
 	 * @return array
 	 */
 	public function to_json() {
-		return $this->response_data;
+		return $this->_output_handler()->to_json() + $this->response_data;
 	}
 
 	/**
