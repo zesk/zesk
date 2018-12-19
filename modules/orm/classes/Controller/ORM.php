@@ -343,19 +343,24 @@ abstract class Controller_ORM extends Controller_Authenticated {
 	 */
 	public function after($result = null, $output = null) {
 		if ($this->request->prefer_json()) {
-			if (!$this->response->is_json()) {
-				$content = $this->response->content;
+			/**
+			 * @var $response Response
+			 */
+			$response = $this->response;
+			if (!$response->is_json()) {
+				$content = $response->content;
 				if (!empty($result)) {
 					$content .= $result;
 				}
 				if ($output) {
 					$content .= $output;
 				}
+				$output_json = $response->is_html() ? $response->html()->to_json() : $response->to_json();
 				$json = array(
 					'status' => true,
 					'content' => $content,
 					'microtime' => microtime(true),
-				) + $this->response->to_json();
+				) + $output_json;
 
 				$this->json($json);
 			}
