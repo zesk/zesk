@@ -3,10 +3,12 @@ namespace zesk;
 
 class Class_ORMX_Field extends Class_ORM {
 	public $id_column = "id";
+
 	public $find_keys = array(
 		'class',
-		'column'
+		'column',
 	);
+
 	public $column_types = array(
 		"id" => self::type_id,
 		"class" => self::type_string,
@@ -16,6 +18,6 @@ class Class_ORMX_Field extends Class_ORM {
 		"help" => self::type_string,
 		"type" => self::type_string,
 		"order_index" => self::type_integer,
-		"data" => self::type_serialize
+		"data" => self::type_serialize,
 	);
 }

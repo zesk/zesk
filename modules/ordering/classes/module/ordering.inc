@@ -1,28 +1,28 @@
 <?php
 /**
- * 
+ *
  */
 use zesk\ORM;
 use zesk\Database_Query_Select;
 
 /**
- * 
+ *
  * @author kent
  *
  */
 class Module_Ordering extends zesk\Module {
-	
 	/**
-	 * 
+	 *
 	 * {@inheritDoc}
 	 * @see Module::initialize()
 	 */
 	public function initialize() {
 		$this->application->hooks->add(ORM::class . '::pre_insert', array(
 			$this,
-			'object_pre_insert'
+			'object_pre_insert',
 		));
 	}
+
 	/**
 	 * @param ORM $object
 	 * @return zesk\Database_Query_Select
@@ -30,6 +30,7 @@ class Module_Ordering extends zesk\Module {
 	private function query_ordering(ORM $object) {
 		return $object->call_hook("query_ordering", $object->query_select("X"));
 	}
+
 	/**
 	 * Name of the column used for ordering (must be an integer field)
 	 * @param ORM $object
@@ -38,6 +39,7 @@ class Module_Ordering extends zesk\Module {
 	private function order_column(ORM $object) {
 		return $object->class_option('order_column', $this->option('default_order_column', 'order_index'));
 	}
+
 	/**
 	 * Moves an object to a position in a list, relative to other objects (IDs given)
 	 *
@@ -53,7 +55,7 @@ class Module_Ordering extends zesk\Module {
 		$query = $this->query_ordering($object);
 		$order_column = $this->order_column($object);
 		$id_column = $object->id_column();
-		
+
 		// Minimize the number of changes to the database
 		if ($previous_id) {
 			$order_index = $object->query_select("X")
@@ -79,7 +81,7 @@ class Module_Ordering extends zesk\Module {
 		}
 		return $object;
 	}
-	
+
 	/**
 	 * Implements ORM::hook_pre_insert
 	 *
@@ -92,10 +94,10 @@ class Module_Ordering extends zesk\Module {
 		if ($object->has_member($order_column) && $object->member_is_empty($order_column)) {
 			list($func, $delta) = $object->option_bool("ordering_first") ? array(
 				"MIN",
-				-1
+				-1,
 			) : array(
 				"MAX",
-				1
+				1,
 			);
 			$members[$order_column] = $this->query_ordering($object)->what("*X", "$func(`$order_column`)")->one_integer("X") + $delta;
 			$object->store_member($order_column, true);

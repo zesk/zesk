@@ -1,4 +1,5 @@
 <?php
 namespace zesk;
 
-class ObjectX extends ORM {}
+class ObjectX extends ORM {
+}

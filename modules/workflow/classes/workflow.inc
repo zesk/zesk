@@ -21,51 +21,51 @@ class Workflow extends Model {
 	 * @var array
 	 */
 	protected $steps = array();
-	
+
 	/**
 	 *
 	 * @var array
 	 */
 	protected $variables = array();
-	
+
 	/**
 	 * Computed from steps
 	 *
 	 * @var array of Workflow_Step
 	 */
 	protected $sorted_steps = null;
-	
+
 	/**
 	 *
 	 * @var boolean
 	 */
 	public $completed = true;
-	
+
 	/**
 	 *
 	 * @var integer
 	 */
 	public $steps_completed = 0;
-	
+
 	/**
 	 *
 	 * @var integer
 	 */
 	public $steps_total = 0;
-	
+
 	/**
 	 * Whether the above are computed or not
 	 *
 	 * @var unknown
 	 */
 	private $dirty = true;
-	
+
 	/**
 	 *
 	 * @param array $variables
 	 * @param array $options
 	 */
-	function __construct(Application $application, array $variables = array(), array $options = array()) {
+	public function __construct(Application $application, array $variables = array(), array $options = array()) {
 		parent::__construct($application, $options);
 		$this->inherit_global_options();
 		$this->variable($variables);
@@ -73,11 +73,14 @@ class Workflow extends Model {
 		$this->_clean_completed();
 		$this->initialize();
 	}
-	public final function percent() {
+
+	final public function percent() {
 		return 100 * ($this->steps_total === 0 ? 1 : $this->steps_completed / $this->steps_total);
 	}
+
 	protected function initialize() {
 	}
+
 	public function hash() {
 		foreach ($this->sorted_steps as $id => $step) {
 			$keys[] = $id;
@@ -85,6 +88,7 @@ class Workflow extends Model {
 		}
 		return md5(implode(";", $keys));
 	}
+
 	/**
 	 *
 	 * @param boolean $force
@@ -97,7 +101,7 @@ class Workflow extends Model {
 		$this->_clean_completed();
 		return $this;
 	}
-	
+
 	/**
 	 * Clean the steps
 	 */
@@ -113,21 +117,22 @@ class Workflow extends Model {
 			if (is_string($spec)) {
 				$class = $spec;
 				$options = array();
-			} else if (is_array($spec)) {
+			} elseif (is_array($spec)) {
 				list($class, $options) = $spec;
 			} else {
 				$app->logger->error("Workflow::_init_steps Invalid value type {type} {dump}", array(
 					"type" => type($spec),
-					"dump" => _dump($spec)
+					"dump" => _dump($spec),
 				));
 				continue;
 			}
+
 			try {
 				/* @var $step Workflow_Step */
 				$steps[$id] = $step = $app->objects->factory($class, $this, $options);
 			} catch (Exception_Class_NotFound $e) {
 				$app->logger->error("Workflow::_init_steps Class not found {class}", array(
-					"class" => $step
+					"class" => $step,
 				));
 			}
 		}
@@ -156,12 +161,13 @@ class Workflow extends Model {
 			if (!$changed) {
 				$this->application->logger->error("Unable to resolve dependencies in {class}: {deps}", array(
 					"class" => get_class($this),
-					"deps" => array_keys($dependencies)
+					"deps" => array_keys($dependencies),
 				));
 				break;
 			}
 		}
 	}
+
 	private function _clean_completed() {
 		if (!$this->dirty) {
 			return;
@@ -179,7 +185,7 @@ class Workflow extends Model {
 		$this->dirty = false;
 		$this->call_hook($this->completed ? 'completed' : "incomplete");
 	}
-	
+
 	/**
 	 * Return variables
 	 *
@@ -188,6 +194,7 @@ class Workflow extends Model {
 	public function variables() {
 		return $this->variables;
 	}
+
 	/**
 	 * Get/set a variable for this workflow
 	 *
@@ -213,13 +220,15 @@ class Workflow extends Model {
 			$this->variables[$name] = $value;
 			return $this;
 		}
+
 		throw new Exception_Parameter("{class}::variable invalid name type {type} {dump}", array(
 			"class" => get_class($this),
 			"type" => type($name),
-			"dump" => _dump($name)
+			"dump" => _dump($name),
 		));
 	}
-	function render($theme_name = null, $variables = null, $default = "") {
+
+	public function render($theme_name = null, $variables = null, $default = "") {
 		if ($theme_name === null) {
 			$theme_name = "steps";
 		}
@@ -230,29 +239,33 @@ class Workflow extends Model {
 			'completed' => $this->completed,
 			'steps' => $this->sorted_steps,
 			'steps_completed' => $this->steps_completed,
-			'steps_total' => $this->steps_total
+			'steps_total' => $this->steps_total,
 		) + to_array($variables, array()), array(
 			'first' => true,
-			"default" => $default
+			"default" => $default,
 		));
 	}
+
 	public function __toString() {
 		return PHP::dump($this->variables);
 	}
-	
+
 	/*
 	 * Only place to access ->$name is here
 	 */
 	public function __get($name) {
 		return array_key_exists($name, $this->variables) ? $this->variables[$name] : null;
 	}
+
 	public function __set($name, $value) {
 		$this->variables[$name] = $value;
 		$this->_inited = true;
 	}
+
 	public function __unset($name) {
 		unset($this->variables[$name]);
 	}
+
 	public function __isset($name) {
 		return isset($this->variables[$name]);
 	}

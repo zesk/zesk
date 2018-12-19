@@ -10,6 +10,6 @@
  * Base class for all iCalendar objects
  */
 class iCalendar_Event extends iCalendar {
-	function __construct() {
+	public function __construct() {
 	}
 }

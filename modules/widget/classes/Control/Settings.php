@@ -31,7 +31,7 @@ class Control_Settings extends Control {
 
 	protected function initialize() {
 		$locale = $this->locale();
-		if (!$this->submit_url()) {
+		if (!$this->submit_url() && $this->request) {
 			$this->submit_url($this->request->uri());
 		}
 		if (!$this->submit_message()) {

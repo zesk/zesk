@@ -5,21 +5,21 @@
 namespace zesk;
 
 /**
- * 
+ *
  * @author kent
  *
  */
 class Controller_Selection_Item extends Controller_ORM {
 	protected $class = "zesk\\Selection_Item";
-	
+
 	/**
 	 *
 	 * @var Selection_Type
 	 */
 	private $type = null;
-	
+
 	/**
-	 * 
+	 *
 	 * {@inheritDoc}
 	 * @see \zesk\Controller_ORM::widget_control_classes()
 	 */
@@ -33,29 +33,30 @@ class Controller_Selection_Item extends Controller_ORM {
 		}
 		return parent::widget_control_classes($action);
 	}
-	
+
 	/**
-	 * 
+	 *
 	 * @param Selection_Type $type
 	 */
 	protected function action_list(Selection_Type $type) {
 		if (!$this->user->can("list_items", $type)) {
 			$this->json(array(
 				"status" => true,
-				"message" => __('No permission to edit selection type.')
+				"message" => __('No permission to edit selection type.'),
 			));
 			return;
 		}
 		$this->type = $type;
 		return $this->_action_default("list");
 	}
+
 	protected function action_delete_id(Selection_Type $type, $id) {
 		$this->type = $type;
 		$class = $type->class;
 		if (!$this->user->can("delete_items", $type)) {
 			$this->json(array(
 				"status" => true,
-				"message" => __('No permission to delete selection items.')
+				"message" => __('No permission to delete selection items.'),
 			));
 			return;
 		}
@@ -63,10 +64,10 @@ class Controller_Selection_Item extends Controller_ORM {
 			->value('add', 0)
 			->where(array(
 			"id" => $id,
-			'type' => $type
+			'type' => $type,
 		))
 			->execute();
-		
+
 		if ($this->request->has('target')) {
 			$target = $this->request->get('target');
 			$this->response->jquery("\$(" . JSON::encode($target) . ").slideUp('slow', function() { $(this).remove(); });");
@@ -74,12 +75,12 @@ class Controller_Selection_Item extends Controller_ORM {
 		$this->json(array(
 			"status" => true,
 			"message" => __('Deleted selection item.'),
-			"content" => ""
+			"content" => "",
 		) + $this->response->to_json());
 	}
-	
+
 	/**
-	 * 
+	 *
 	 * {@inheritDoc}
 	 * @see \zesk\Controller_Theme::control()
 	 */

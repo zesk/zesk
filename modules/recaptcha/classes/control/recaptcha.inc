@@ -1,6 +1,6 @@
 <?php
 /**
- * 
+ *
  */
 use zesk\JSON;
 use zesk\HTML;
@@ -8,29 +8,30 @@ use zesk\Net_HTTP;
 use zesk\Net_HTTP_Client;
 use zesk\Control;
 use zesk\Exception_Parse;
+
 /**
  *
  * @author kent
- *        
+ *
  */
 class Control_reCAPTCHA extends Control {
 	/**
 	 *
 	 * @var string
 	 */
-	static $url = "https://www.google.com/recaptcha/api/siteverify";
-	
+	public static $url = "https://www.google.com/recaptcha/api/siteverify";
+
 	/**
 	 *
 	 * @var array
 	 */
-	static $error_codes = array(
+	public static $error_codes = array(
 		"missing-input-secret" => "The secret parameter is missing.",
 		"invalid-input-secret" => "The secret parameter is invalid or malformed.",
 		"missing-input-response" => "The response parameter is missing.",
-		"invalid-input-response" => "The response parameter is invalid or malformed."
+		"invalid-input-response" => "The response parameter is invalid or malformed.",
 	);
-	
+
 	/**
 	 *
 	 * {@inheritdoc}
@@ -41,17 +42,17 @@ class Control_reCAPTCHA extends Control {
 		parent::initialize();
 		$this->set_option("verified_name", $this->name() . "-verified");
 	}
-	
+
 	/**
 	 *
 	 * {@inheritdoc}
 	 *
 	 * @see Widget::is_visible()
 	 */
-	function is_visible() {
+	public function is_visible() {
 		return !to_bool(avalue($this->theme_variables, 'verified'));
 	}
-	
+
 	/**
 	 *
 	 * {@inheritdoc}
@@ -74,7 +75,7 @@ class Control_reCAPTCHA extends Control {
 		$http->data(array(
 			"secret" => $this->option("secret_key"),
 			"response" => $this->request->get("g-recaptcha-response"),
-			"remoteip" => $ip
+			"remoteip" => $ip,
 		));
 		$result = $http->go();
 		if ($this->option_bool('debug')) {
@@ -98,7 +99,7 @@ class Control_reCAPTCHA extends Control {
 				}
 				if (count($errors) > 0) {
 					$this->error(implode("\n", $errors));
-				} else if ($success === true) {
+				} elseif ($success === true) {
 					$this->verified();
 					return true;
 				} else {
@@ -112,13 +113,13 @@ class Control_reCAPTCHA extends Control {
 			$message = "reCAPTCHA response type {code_type} from {ip}";
 			$message_args = array(
 				"code_type" => $code_type,
-				"ip" => $ip
+				"ip" => $ip,
 			);
 			$app->logger->critical($message, $message_args);
 		}
 		return false;
 	}
-	
+
 	/**
 	 */
 	private function verified() {
@@ -127,10 +128,11 @@ class Control_reCAPTCHA extends Control {
 		$verified_html = "";
 		$verified_html .= HTML::input_hidden("$name-verified-key", md5($now . "|" . $this->option("secret_key")));
 		$verified_html .= HTML::input_hidden("$name-verified-timestamp", $now);
-		
+
 		$this->theme_variables['verified_html'] = $verified_html;
 		$this->theme_variables['verified'] = true;
 	}
+
 	/**
 	 *
 	 * @return boolean|NULL

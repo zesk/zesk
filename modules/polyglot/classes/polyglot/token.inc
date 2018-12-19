@@ -27,54 +27,54 @@ use zesk\Locale\Validate;
  * @property timestamp $updated
  */
 class PolyGlot_Token extends ORM {
-	
 	/**
 	 *
 	 * @var Locale_Validate
 	 */
 	private $validator = null;
+
 	/**
 	 * Token to translate
 	 *
 	 * @var string
 	 */
 	const status_todo = "todo";
-	
+
 	/**
 	 * Draft version of a token translation
 	 *
 	 * @var string
 	 */
 	const status_draft = "draft";
-	
+
 	/**
 	 * Developer needs to review
 	 *
 	 * @var string
 	 */
 	const status_dev = "dev";
-	
+
 	/**
 	 * Need more information
 	 *
 	 * @var string
 	 */
 	const status_info = "info";
-	
+
 	/**
 	 * Done
 	 *
 	 * @var string
 	 */
 	const status_done = "done";
-	
+
 	/**
 	 * Delete
 	 *
 	 * @var string
 	 */
 	const status_delete = "delete";
-	
+
 	/**
 	 *
 	 * {@inheritdoc}
@@ -105,23 +105,24 @@ class PolyGlot_Token extends ORM {
 				"*md5" => "UNHEX('$this->md5')",
 				"language|!=" => array(
 					null,
-					""
-				)
+					"",
+				),
 			))->execute();
 		}
 		return $result;
 	}
+
 	public static function create(Application $app, $language, $dialect, $original, $translation, $status = null) {
 		$token = $app->orm_factory(__CLASS__, array(
 			"language" => $language,
 			"dialect" => $dialect,
 			"original" => $original,
-			"translation" => $translation
+			"translation" => $translation,
 		));
 		$token->status = ($status === null) ? self::status_todo : $status;
 		return $token;
 	}
-	
+
 	/**
 	 * Fetch all locale strings for the dialect/language
 	 *
@@ -132,16 +133,16 @@ class PolyGlot_Token extends ORM {
 	public static function fetch_all(Application $app, $language, $dialect = null) {
 		$where = array(
 			"language" => $language,
-			"dialect" => $dialect
+			"dialect" => $dialect,
 		);
 		$query = $app->orm_registry(__CLASS__)->query_select();
 		$where = array(
 			array(
 				$where,
 				array(
-					"status" => self::status_delete
-				)
-			)
+					"status" => self::status_delete,
+				),
+			),
 		);
 		$query->where($where);
 		$query->distinct(true);
@@ -153,6 +154,7 @@ class PolyGlot_Token extends ORM {
 		}
 		return $result + self::fetch_all($app, $language, null);
 	}
+
 	public function to_json() {
 		$members = $this->members(array(
 			"id",
@@ -160,12 +162,12 @@ class PolyGlot_Token extends ORM {
 			"dialect",
 			"original",
 			"translation",
-			"status"
+			"status",
 		));
 		$members['user'] = $this->member_integer("user");
 		return $members;
 	}
-	
+
 	/**
 	 *
 	 * @param string $locale
@@ -177,10 +179,10 @@ class PolyGlot_Token extends ORM {
 			->what_object()
 			->where(array(
 			"dialect" => Locale::prase_dialect($locale),
-			"language" => Locale::parse_language($locale)
+			"language" => Locale::parse_language($locale),
 		));
 	}
-	
+
 	/**
 	 *
 	 * @return string
@@ -192,10 +194,10 @@ class PolyGlot_Token extends ORM {
 			"dev" => "Need developer review",
 			"draft" => "Draft",
 			"delete" => "Deleted",
-			"done" => "Translated"
+			"done" => "Translated",
 		));
 	}
-	
+
 	/**
 	 *
 	 * @param Application $app
@@ -205,7 +207,7 @@ class PolyGlot_Token extends ORM {
 			->query_select()
 			->what(array(
 			"id" => "id",
-			"translation" => "translation"
+			"translation" => "translation",
 		))
 			->iterator("id", "translation");
 		foreach ($iterator as $id => $translation) {
@@ -220,7 +222,7 @@ class PolyGlot_Token extends ORM {
 			}
 		}
 	}
-	
+
 	/**
 	 *
 	 * @return Validate
@@ -231,7 +233,7 @@ class PolyGlot_Token extends ORM {
 		}
 		return $this->validator;
 	}
-	
+
 	/**
 	 *
 	 * @return array

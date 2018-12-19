@@ -1,11 +1,11 @@
 <?php
 /**
- * 
+ *
  */
 namespace zesk;
 
 /**
- * 
+ *
  * @author kent
  *
  */
@@ -15,29 +15,29 @@ class Module_DropFile extends Module_JSLib {
 	 * @var array
 	 */
 	protected $css_paths = array(
-		'/share/dropfile/css/dropfile.css'
+		'/share/dropfile/css/dropfile.css',
 	);
-	
+
 	/**
 	 *
 	 * @var array
 	 */
 	protected $javascript_paths = array(
-		'/share/dropfile/js/dropfile.js'
+		'/share/dropfile/js/dropfile.js',
 	);
-	
+
 	/**
 	 *
 	 * @var array
 	 */
 	protected $javascript_settings = array();
-	
+
 	/**
 	 *
 	 * @var array
 	 */
 	protected $jquery_ready = array();
-	
+
 	/**
 	 *
 	 * @var array
@@ -51,9 +51,9 @@ class Module_DropFile extends Module_JSLib {
 		"enabled_class",
 		"target_class",
 		"document_target_class",
-		"allowed_types"
+		"allowed_types",
 	);
-	
+
 	/**
 	 *
 	 * @see Module::initialize()

@@ -18,9 +18,11 @@ class Selenium_Browsers {
 	 * @var Application
 	 */
 	protected $application = null;
+
 	protected $os_index = array();
+
 	protected $available = array();
-	
+
 	/**
 	 *
 	 * @param Application $application
@@ -30,7 +32,7 @@ class Selenium_Browsers {
 		$this->available = $this->load_available_browsers();
 		$this->build_indexes();
 	}
-	
+
 	/**
 	 * Load browser master list from API source
 	 *
@@ -39,7 +41,7 @@ class Selenium_Browsers {
 	 */
 	private function load_available_browsers() {
 		$application = $this->application;
-		
+
 		$url = $application->option("url_available_browsers");
 		if ($url === "none") {
 			// bypass all filtering
@@ -48,16 +50,16 @@ class Selenium_Browsers {
 		if (!URL::valid($url)) {
 			throw new Exception_Configuration("zesk\Application::url_available_browsers", "Not a URL {url}", compact("url"));
 		}
-		
+
 		$path = $application->data_path("all_browsers.json");
 		$dir = dirname($path);
 		Directory::depend($dir);
-		
+
 		Net_Sync::url_to_file($application, $url, $path);
-		
+
 		return JSON::decode(file_get_contents($path));
 	}
-	
+
 	/**
 	 * Generate indexes and update structure to support searching
 	 */
@@ -81,7 +83,7 @@ class Selenium_Browsers {
 		$this->os_index = $indexes;
 		ksort($this->os_index);
 	}
-	
+
 	/**
 	 * Given a capabilities structure, generate a unique name to identify a browser case
 	 *
@@ -89,7 +91,7 @@ class Selenium_Browsers {
 	 */
 	private function configuration_name(array $capabilities) {
 		$name = array(
-			__CLASS__
+			__CLASS__,
 		);
 		foreach (to_list("os_api_name;browser_api_name") as $key) {
 			if (array_key_exists($key, $capabilities)) {
@@ -99,6 +101,7 @@ class Selenium_Browsers {
 		$name = implode(" ", $name);
 		return $name;
 	}
+
 	/**
 	 *
 	 * @param array $available_browsers
@@ -121,7 +124,7 @@ class Selenium_Browsers {
 		}
 		if (!array_key_exists($os_api_name, $this->os_index)) {
 			$logger->warning("No such operating system found: {os_api_name} Choices: {choices}", $capabilities + array(
-				"choices" => array_keys($this->os_index)
+				"choices" => array_keys($this->os_index),
 			));
 			return null;
 		}
@@ -138,7 +141,7 @@ class Selenium_Browsers {
 		$by_name = $system['browsers_by_name'];
 		if (!array_key_exists($browser_api_name, $by_name)) {
 			$logger->warning("No such browser configuration found in OS \"{os_api_name}\", browser \"{browser_api_name}\" Choices: {choices}", $capabilities + array(
-				"choices" => array_keys($by_name)
+				"choices" => array_keys($by_name),
 			));
 			return null;
 		}
@@ -151,11 +154,11 @@ class Selenium_Browsers {
 				}
 			}
 		}
-		
+
 		list($width, $height) = pair($screen_resolution, "x", null, null);
 		$width = intval($width);
 		$height = intval($height);
-		
+
 		$closest_distance = null;
 		$closest = null;
 		foreach ($system['resolutions'] as $resolution) {
@@ -169,12 +172,12 @@ class Selenium_Browsers {
 			}
 		}
 		$logger->warning("No such browser resolution {screen_resolution} found in OS {os_api_name}, browser {browser_api_name}, using found resolution {found_resolution}", $capabilities + array(
-			'found_resolution' => $closest['name']
+			'found_resolution' => $closest['name'],
 		));
 		$capabilities['screen_resolution'] = $closest['name'];
 		return $capabilities;
 	}
-	
+
 	/**
 	 *
 	 * @param array $desired_browsers
@@ -204,7 +207,7 @@ class Selenium_Browsers {
 				$record['name'] = $name;
 			}
 			$record['desiredCapabilities'] = $caps;
-			
+
 			$result[] = $record;
 		}
 		return $result;

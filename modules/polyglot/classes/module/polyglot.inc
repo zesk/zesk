@@ -16,18 +16,19 @@ use zesk\Locale\Reader;
  *
  */
 class Module_PolyGlot extends Module implements Interface_Module_Routes {
-
 	/**
 	 *
 	 * @var array
 	 */
 	protected $model_classes = array(
 		"zesk\\PolyGlot_Token",
-		"zesk\\PolyGlot_Update"
+		"zesk\\PolyGlot_Update",
 	);
+
 	public function hook_configured() {
 		$this->application->configuration->deprecated("Module_PolyGlot", __CLASS__);
 	}
+
 	/**
 	 *
 	 * @return array
@@ -35,12 +36,12 @@ class Module_PolyGlot extends Module implements Interface_Module_Routes {
 	public function locale_options() {
 		$list = $this->call_hook_arguments("locale_options", array(), $this->option_array("locale_options"));
 		$options = array();
-
+		$where = array();
 		foreach ($list as $locale) {
-			$language = Locale::language($locale);
-			$dialect = Locale::dialect($locale);
+			$language = Locale::parse_language($locale);
+			$dialect = Locale::parse_dialect($locale);
 			$w = array(
-				'code' => $language
+				'code' => $language,
 			);
 			if ($dialect) {
 				$w['dialect'] = $dialect;
@@ -52,11 +53,11 @@ class Module_PolyGlot extends Module implements Interface_Module_Routes {
 			->what(array(
 			"code" => "code",
 			"dialect" => "dialect",
-			"name" => "name"
+			"name" => "name",
 		))
-			->where(array(
-			$where
-		));
+			->where($where ? array(
+			$where,
+		) : array());
 		$locales = $query->to_array();
 		$results = array();
 		foreach ($locales as $locale) {
@@ -81,20 +82,20 @@ class Module_PolyGlot extends Module implements Interface_Module_Routes {
 	 */
 	public function hook_routes(Router $router) {
 		$base = array(
-			"controller" => Controller_PolyGlot::class
+			"controller" => Controller_PolyGlot::class,
 		);
 		$router->add_route("polyglot", $base);
 		$router->add_route("polyglot/load/{dialect}", $base + array(
 			"action" => "load",
 			"arguments" => array(
-				2
-			)
+				2,
+			),
 		));
 		$router->add_route("polyglot/token/{dialect}", $base + array(
 			"action" => "token",
 			"arguments" => array(
-				2
-			)
+				2,
+			),
 		));
 	}
 
@@ -115,7 +116,7 @@ class Module_PolyGlot extends Module implements Interface_Module_Routes {
 			$tt = $this->application->load($source_file);
 			if (!is_array($tt)) {
 				throw new Exception_File_Format($source_file, "Source file {basename} does not return the correct format", array(
-					"basename" => basename($source_file)
+					"basename" => basename($source_file),
 				));
 			}
 			$table += $tt;
@@ -144,4 +145,3 @@ class Module_PolyGlot extends Module implements Interface_Module_Routes {
 		return array_values($table);
 	}
 }
-

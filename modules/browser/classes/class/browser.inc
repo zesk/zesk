@@ -3,9 +3,11 @@ namespace zesk;
 
 class Class_Browser extends Class_ORM {
 	public $id_column = "id";
+
 	public $find_keys = array(
-		'md5'
+		'md5',
 	);
+
 	public $column_types = array(
 		'id' => self::type_id,
 		'md5' => self::type_hex32,
@@ -15,6 +17,6 @@ class Class_Browser extends Class_ORM {
 		'tags' => self::type_serialize,
 		'name' => self::type_string,
 		'created' => self::type_created,
-		'parsed' => self::type_timestamp
+		'parsed' => self::type_timestamp,
 	);
 }

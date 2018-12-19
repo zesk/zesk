@@ -1,6 +1,6 @@
 <?php
 /**
- * 
+ *
  */
 namespace zesk;
 
@@ -10,13 +10,16 @@ namespace zesk;
  */
 class Class_Selection_Query extends Class_ORM {
 	public $id_column = "id";
+
 	public $has_one = array(
-		'type' => 'zesk\\Selection_Type'
+		'type' => 'zesk\\Selection_Type',
 	);
+
 	public $find_keys = array(
 		'type',
-		'code'
+		'code',
 	);
+
 	public $column_types = array(
 		'id' => self::type_id,
 		'type' => self::type_object,
@@ -26,6 +29,6 @@ class Class_Selection_Query extends Class_ORM {
 		'query_total' => self::type_serialize,
 		'query_list' => self::type_serialize,
 		'created' => self::type_created,
-		'add' => self::type_boolean
+		'add' => self::type_boolean,
 	);
 }

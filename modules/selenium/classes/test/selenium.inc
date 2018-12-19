@@ -1,6 +1,6 @@
 <?php
 /**
- * @copyright &copy; 2017 Market Acumen, Inc. 
+ * @copyright &copy; 2017 Market Acumen, Inc.
  */
 namespace zesk;
 
@@ -10,40 +10,42 @@ namespace zesk;
  */
 class Test_Selenium extends Test_Unit {
 	protected $load_modules = array(
-		"selenium/php-webdriver-facebook"
+		"selenium/php-webdriver-facebook",
 	);
-	
+
 	/**
 	 * Debuggin
 	 *
 	 * @var boolean
 	 */
 	protected $debug = true;
+
 	/**
 	 *
 	 * @var RemoteWebDriver
 	 */
 	protected $driver = null;
-	
+
 	/**
 	 * Desired browser capabilities
 	 *
 	 * @var array
 	 */
 	protected $capabilities = array(
-		'browserName' => 'firefox'
+		'browserName' => 'firefox',
 	);
-	
+
 	/**
 	 * Connection timeout
 	 *
 	 * @var integer
 	 */
 	protected $timeout = 5000;
-	function cleanup() {
+
+	public function cleanup() {
 		$this->close();
 	}
-	
+
 	/**
 	 * Open a new session
 	 *
@@ -52,14 +54,14 @@ class Test_Selenium extends Test_Unit {
 	 * @throws Exception_Configuration
 	 * @return RemoteWebDriver
 	 */
-	final function open(array $capabilities = null, $timeout = null) {
+	final public function open(array $capabilities = null, $timeout = null) {
 		if (!$this->driver) {
 			$webdriver_url = $this->option('url');
 			if (!$webdriver_url) {
 				$host = $this->option('host');
 				if (!$host) {
 					throw new Exception_Configuration('{class}::host or ::url needs to be set to a Selenium server', array(
-						"class" => get_class($this)
+						"class" => get_class($this),
 					));
 				}
 				$webdriver_url = "http://$host:4444/wd/hub";
@@ -77,13 +79,13 @@ class Test_Selenium extends Test_Unit {
 		}
 		return $this->driver;
 	}
-	
+
 	/**
 	 * Close a shutdown session
 	 *
 	 * @return Test_Selenium
 	 */
-	final function close() {
+	final public function close() {
 		if ($this->driver) {
 			if ($this->driver->getCommandExecutor() !== null) {
 				$this->driver->quit();

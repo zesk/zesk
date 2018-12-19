@@ -14,13 +14,14 @@ class Selection_Item extends ORM {
 	 * @var integer
 	 */
 	const type_remove = 0;
+
 	/**
 	 * Value in "add" for items which should be added to the query
 	 *
 	 * @var integer
 	 */
 	const type_add = 1;
-	
+
 	/**
 	 *
 	 * @param unknown $class
@@ -32,7 +33,7 @@ class Selection_Item extends ORM {
 			return null;
 		}
 	}
-	
+
 	/**
 	 *
 	 * @param unknown $old_type
@@ -55,12 +56,12 @@ class Selection_Item extends ORM {
 				->value('query', $new_query_id)
 				->where(array(
 				'query' => $old_query_id,
-				'type' => $new_type
+				'type' => $new_type,
 			))
 				->execute();
 		}
 	}
-	
+
 	/**
 	 * Fix schema so UNIQUE keys work. MySQL does not silently ignore UNIQUE alters after version 5 at some point.
 	 *

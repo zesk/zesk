@@ -10,26 +10,26 @@
  * Based on python-dateutil, just like everyone else's version
  *
  * https://pypi.python.org/pypi/python-dateutil/2.5.3
- * 
+ *
  * see module's README.txt for license information.
  */
 namespace RRule;
 
 class Weekday {
 	/**
-	 * 
+	 *
 	 * @var integer
 	 */
 	public $weekday = null;
-	
+
 	/**
-	 * 
+	 *
 	 * @var integer
 	 */
 	public $n = null;
-	
+
 	/**
-	 * 
+	 *
 	 * @param integer $weekday
 	 * @param integer $n
 	 * @throws \zesk\Exception_Range
@@ -41,12 +41,15 @@ class Weekday {
 		$this->weekday = $weekday;
 		$this->n = $n;
 	}
+
 	public function __invoke($n) {
 		return $n === $this->n ? $this : new self($this->weekday, $n);
 	}
+
 	public function equals(Weekday $other) {
 		return $this->weekday === $other->weekday && $this->n === $other->n;
 	}
+
 	public function render() {
 		$dname = Rule::$dow[$this->weekday];
 		$n = $this->n;

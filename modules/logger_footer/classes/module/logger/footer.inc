@@ -1,24 +1,24 @@
 <?php
 /**
- * 
+ *
  */
 namespace zesk;
 
 /**
- * 
+ *
  * @author kent
  *
  */
 class Module_Logger_Footer extends Module implements Interface_Module_Head, Interface_Module_Foot, Logger\Handler {
 	/**
 	 * Log messages received
-	 * 
+	 *
 	 * @var array
 	 */
 	private $log = array();
-	
+
 	/**
-	 * 
+	 *
 	 * {@inheritDoc}
 	 * @see Module::initialize()
 	 */
@@ -28,14 +28,14 @@ class Module_Logger_Footer extends Module implements Interface_Module_Head, Inte
 			$this->application->logger->register_handler(__CLASS__, $this);
 		}
 	}
-	
+
 	/**
 	 * @param array $args
 	 */
 	public function log($message, array $args) {
 		$this->log[] = $args;
 	}
-	
+
 	/**
 	 * Is the Logger_Footer enabled?
 	 *
@@ -44,6 +44,7 @@ class Module_Logger_Footer extends Module implements Interface_Module_Head, Inte
 	public function enabled() {
 		return !$this->option_bool('disabled', !$this->application->development());
 	}
+
 	/**
 	 * Implements </html>
 	 *
@@ -56,14 +57,14 @@ class Module_Logger_Footer extends Module implements Interface_Module_Head, Inte
 			$result[] = HTML::tag_open("ul");
 			$this->log[] = array(
 				"_level_string" => "info",
-				"_formatted" => sprintf("%.3f", microtime(true) - $this->application->initialization_time()) . " seconds elapsed"
+				"_formatted" => sprintf("%.3f", microtime(true) - $this->application->initialization_time()) . " seconds elapsed",
 			);
 			foreach ($this->log as $entry) {
 				$level_class = strtolower($entry['_level_string']);
 				$label_class = avalue(array(
 					"debug" => "default",
 					"notice" => "success",
-					"error" => "danger"
+					"error" => "danger",
 				), $level_class, $level_class);
 				$result[] = HTML::tag('li', ".level-$level_class", HTML::tag("label", ".label .label-$label_class", $entry['_level_string']) . " " . nl2br($entry['_formatted']));
 			}
@@ -72,7 +73,7 @@ class Module_Logger_Footer extends Module implements Interface_Module_Head, Inte
 		}
 		echo implode("\n", $result);
 	}
-	
+
 	/**
 	 * Implement Module::head
 	 *
@@ -83,7 +84,7 @@ class Module_Logger_Footer extends Module implements Interface_Module_Head, Inte
 		if ($this->enabled() && count($this->log) > 0) {
 			$response->jquery();
 			$share = array(
-				'share' => true
+				'share' => true,
 			);
 			$response->javascript('/share/zesk/js/zesk.js', $share);
 			$response->javascript('/share/logger_footer/js/logger_footer.js', $share);
@@ -91,4 +92,3 @@ class Module_Logger_Footer extends Module implements Interface_Module_Head, Inte
 		}
 	}
 }
-	

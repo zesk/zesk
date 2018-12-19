@@ -1,22 +1,21 @@
 <?php
 /**
- * 
+ *
  */
 namespace zesk;
 
 /**
- * 
+ *
  * @author kent
  *
  */
 class Control_Selection extends Control {
-	
 	/**
 	 *
 	 * @var Selection_Type
 	 */
 	private $type = null;
-	
+
 	/**
 	 * Get/set class associated with this selection
 	 *
@@ -26,6 +25,7 @@ class Control_Selection extends Control {
 	public function selection_class($set = null) {
 		return ($set === null) ? $this->option('selection_class') : $this->set_option('selection_class', $set);
 	}
+
 	/**
 	 * Get/Set code used to find this selection
 	 *
@@ -35,7 +35,7 @@ class Control_Selection extends Control {
 	public function selection_code($set = null) {
 		return ($set === null) ? $this->option('selection_code', $this->selection_class()) : $this->set_option('selection_code', $set);
 	}
-	
+
 	/**
 	 *
 	 * @return Selection_Type
@@ -48,12 +48,12 @@ class Control_Selection extends Control {
 			"session" => $this->session(),
 			"user" => $this->user(),
 			"code" => $this->selection_code(),
-			"class" => $this->selection_class()
+			"class" => $this->selection_class(),
 		))->register();
 	}
-	
+
 	/**
-	 * 
+	 *
 	 * {@inheritDoc}
 	 * @see Widget::initialize()
 	 */
@@ -72,15 +72,15 @@ class Control_Selection extends Control {
 		if (empty($class)) {
 			throw new Exception_Semantics("{class} needs selection class set before usage", array(
 				"this" => $this,
-				"class" => get_class($this)
+				"class" => get_class($this),
 			));
 		}
 		parent::initialize();
 	}
-	
+
 	/**
 	 * Update selected class attribute in list rows
-	 * 
+	 *
 	 * @param Model $object
 	 * @param Control_Row $row
 	 * @param zesk\Template $t
@@ -95,10 +95,10 @@ class Control_Selection extends Control {
 			$row->row_attributes(HTML::remove_class($row->row_attributes(), "selected"));
 		}
 	}
-	
+
 	/**
 	 * Retrieve queries from the Control_List
-	 * 
+	 *
 	 * @retrun array
 	 */
 	public function retrieve_queries() {
@@ -106,21 +106,21 @@ class Control_Selection extends Control {
 		if ($top instanceof Control_List) {
 			return array(
 				$top->query_total(),
-				$top->query()
+				$top->query(),
 			);
 		}
 		$this->application->logger->error("{class}: Top widget is not a list: {instead}", array(
 			"class" => get_class($this),
-			"instead" => get_class($top)
+			"instead" => get_class($top),
 		));
 		return array(
 			null,
-			null
+			null,
 		);
 	}
-	
+
 	/**
-	 * 
+	 *
 	 * {@inheritDoc}
 	 * @see \zesk\Widget::controller()
 	 */
@@ -130,7 +130,7 @@ class Control_Selection extends Control {
 		if (!$this->application->development() && !$request->is_post()) {
 			$response->json(array(
 				"status" => false,
-				"message" => "Not a POST"
+				"message" => "Not a POST",
 			));
 			return;
 		}
@@ -166,14 +166,14 @@ class Control_Selection extends Control {
 					$message = __("Reduced current selection.");
 				}
 				break;
-			default :
+			default:
 				$message = null; //__("Updated selection");
 				$add = $request->geta("add");
 				$remove = $request->geta("remove");
 				$type->items_update($add, $remove);
 				$result += array(
 					"added" => count($add),
-					"removed" => count($remove)
+					"removed" => count($remove),
 				);
 				break;
 		}
@@ -185,12 +185,12 @@ class Control_Selection extends Control {
 		$response->json($result + array(
 			"status" => $status,
 			"message" => $message,
-			"count" => $count
+			"count" => $count,
 		));
 	}
-	
+
 	/**
-	 * 
+	 *
 	 * {@inheritDoc}
 	 * @see \zesk\Widget::theme_variables()
 	 */
@@ -201,12 +201,12 @@ class Control_Selection extends Control {
 			'container' => $this->option('container', '.list'),
 			'selection_type' => $type,
 			'count' => $type->count(),
-			'actions' => $this->option_array("actions", array())
+			'actions' => $this->option_array("actions", array()),
 		);
 	}
-	
+
 	/**
-	 * 
+	 *
 	 * @param Database_Query_Select $query
 	 */
 	protected function hook_query_list(Database_Query_Select $query) {
@@ -216,8 +216,8 @@ class Control_Selection extends Control {
 		}
 		$type_id = $this->selection_type()->id();
 		$alias = $query->alias();
-		$id_column = $this->application->object($query->object_class())->id_column();
-		$table = $this->application->object(__NAMESPACE__ . "\\Selection_Item")->table();
+		$id_column = $this->application->orm_registry($query->orm_class())->id_column();
+		$table = $this->application->orm_registry(__NAMESPACE__ . "\\Selection_Item")->table();
 		$query->join("LEFT OUTER JOIN $table sel_item ON sel_item.type=$type_id AND sel_item.id=$alias.$id_column");
 		$query->what("*selected", "sel_item.add");
 	}

@@ -9,10 +9,10 @@ class Module_InPlace extends Module_JSLib {
 	 */
 	protected $css_paths = array(
 		"/share/inplace/css/inplace.css" => array(
-			'share' => true
-		)
+			'share' => true,
+		),
 	);
-	
+
 	/**
 	 * Array of strings of JS to load, or array of path (key) => $options to load
 	 *
@@ -20,8 +20,7 @@ class Module_InPlace extends Module_JSLib {
 	 */
 	protected $javascript_paths = array(
 		"/share/inplace/js/jquery.inplace.js" => array(
-			'share' => true
-		)
+			'share' => true,
+		),
 	);
 }
-

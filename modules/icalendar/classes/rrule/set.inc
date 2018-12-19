@@ -10,7 +10,7 @@
  * Based on python-dateutil, just like everyone else's version
  *
  * https://pypi.python.org/pypi/python-dateutil/2.5.3
- * 
+ *
  * see module's README.txt for license information.
  */
 namespace RRule;
@@ -20,37 +20,36 @@ use zesk\Exception_System;
 
 /**
  * The rruleset type allows more complex recurrence setups, mixing
- * multiple rules, dates, exclusion rules, and exclusion dates. 
+ * multiple rules, dates, exclusion rules, and exclusion dates.
  */
 class Set {
-	
 	/**
 	 * @var boolean
 	 */
 	private $dirty = null;
-	
+
 	/**
 	 * @var Rule[]
 	 */
 	private $rrule = array();
-	
+
 	/**
 	 * @var Timestamp[]
 	 */
 	private $rdate = array();
-	
+
 	/**
 	 * @var Rule[]
 	 */
 	private $exrule = array();
-	
+
 	/**
 	 * @var Timestamp[]
 	 */
 	private $exdate = array();
-	
+
 	/**
-	 * 
+	 *
 	 * @param Rule $rrule
 	 * @return \RRule\Set
 	 */
@@ -59,9 +58,9 @@ class Set {
 		$this->dirty = true;
 		return $this;
 	}
-	
+
 	/**
-	 * 
+	 *
 	 * @param Timestamp $rdate
 	 * @return \RRule\Set
 	 */
@@ -70,9 +69,9 @@ class Set {
 		$this->dirty = true;
 		return $this;
 	}
-	
+
 	/**
-	 * 
+	 *
 	 * @param Rule $exrule
 	 * @return \RRule\Set
 	 */
@@ -81,9 +80,9 @@ class Set {
 		$this->dirty = true;
 		return $this;
 	}
-	
+
 	/**
-	 * 
+	 *
 	 * @param Timestamp $exdate
 	 * @return \RRule\Set
 	 */
@@ -92,9 +91,9 @@ class Set {
 		$this->dirty = true;
 		return $this;
 	}
-	
+
 	/**
-	 * 
+	 *
 	 * @return Generator
 	 */
 	public function iterator() {
@@ -103,10 +102,10 @@ class Set {
 			usort($this->rdate, "zesk\\Timestamp::compare_callback");
 			usort($this->exdate, "zesk\\Timestamp::compare_callback");
 		}
-		
+
 		$rules = new Rules($this->rrule, $this->rdate);
 		$exrules = new Rules($this->exrule, $this->exdate);
-		
+
 		$total = 0;
 		$exrules->rewind();
 		$extimestamp = null;
@@ -118,10 +117,10 @@ class Set {
 				if ($timestamp->equals($extimestamp)) {
 					continue;
 				}
-			} else if ($extimestamp !== null) {
+			} elseif ($extimestamp !== null) {
 				throw new Exception_System("ExTimestamp invalid value \"{value}\" type({type})", array(
 					"value" => $extimestamp,
-					"type" => type($extimestamp)
+					"type" => type($extimestamp),
 				));
 			}
 			yield $timestamp;

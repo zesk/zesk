@@ -12,7 +12,6 @@ namespace zesk;
  *
  */
 class Selection_Query extends ORM {
-	
 	/**
 	 * Fetch or create a query
 	 *
@@ -25,7 +24,7 @@ class Selection_Query extends ORM {
 		$code = md5(serialize(strval($list)));
 		$object = $type->application->orm_factory(__CLASS__, array(
 			"type" => $type,
-			"code" => $code
+			"code" => $code,
 		));
 		if (($found = $object->find()) !== null) {
 			return $found;
@@ -37,6 +36,7 @@ class Selection_Query extends ORM {
 		$object->query_list = $list;
 		return $object->store();
 	}
+
 	public function reorder() {
 		$this->order_index = $this->query_select("X")
 			->where("X.type", $this->type)
@@ -44,6 +44,7 @@ class Selection_Query extends ORM {
 			->one_integer("N", 0) + 1;
 		return $this->store();
 	}
+
 	public function count() {
 		$query = $this->query_total;
 		if ($query instanceof Database_Query_Select) {
@@ -51,7 +52,7 @@ class Selection_Query extends ORM {
 		}
 		return "unknown";
 	}
-	
+
 	/**
 	 *
 	 * @param Application $application

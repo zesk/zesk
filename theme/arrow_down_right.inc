@@ -41,18 +41,17 @@ $this->state_url = htmlspecialchars($this->state_url);
 		if (isset($this->class)) {
 			?>
 		class="<?php
-			echo $this->class;
-			?>" <?php
+			echo $this->class; ?>" <?php
 		}
 		?>
 		href="javascript:arrow_down_right<?php
-		
+
 		echo $suffix;
 		?>('<?php
-		
+
 		echo $this->id_class;
 		?>','<?php
-		
+
 		echo $this->state_url;
 		?>')"><?php
 		echo $this->title;
