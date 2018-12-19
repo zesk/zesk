@@ -89,4 +89,15 @@ class Raw extends Type {
 		$this->file($file);
 		return $this->parent->header("Content-Disposition", "$type; filename=\"$name\"")->nocache();
 	}
+
+	/**
+	 *
+	 * {@inheritDoc}
+	 * @see \zesk\Response\Type::to_json()
+	 */
+	public function to_json() {
+		return array(
+			"content" => $this->binary,
+		);
+	}
 }

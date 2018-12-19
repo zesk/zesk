@@ -61,4 +61,11 @@ abstract class Type {
 	 * @return void
 	 */
 	abstract public function output($content);
+
+	/**
+	 * Convert to JSON array
+	 *
+	 * @return array
+	 */
+	abstract public function to_json();
 }

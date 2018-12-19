@@ -81,6 +81,10 @@ class Redirect extends Type {
 		return $this->parent->html()->render($content);
 	}
 
+	public function to_json() {
+		return array();
+	}
+
 	/**
 	 *
 	 * {@inheritDoc}

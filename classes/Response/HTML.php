@@ -565,7 +565,7 @@ class HTML extends Type {
 				$head_tags[] = $tag;
 			}
 		}
-		return ArrayTools::clean($this->parent->to_json() + array(
+		return ArrayTools::clean(array(
 			'elapsed' => microtime(true) - $this->application->initialization_time(),
 			'scripts' => count($scripts) ? $scripts : null,
 			'stylesheets' => count($stylesheets) ? $stylesheets : null,

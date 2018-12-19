@@ -35,6 +35,14 @@ class JSON extends Type {
 
 	/**
 	 *
+	 * @return array
+	 */
+	public function to_json() {
+		return $this->json;
+	}
+
+	/**
+	 *
 	 * {@inheritDoc}
 	 * @see \zesk\Response\Type::render()
 	 */
