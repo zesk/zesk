@@ -45,39 +45,6 @@ class Mail extends Hookable {
 	const HEADER_SUBJECT = "Subject";
 
 	/**
-	 * @deprecated 2018-02
-	 * @var string
-	 */
-	const header_content_type = 'Content-Type';
-
-	/**
-	 * @deprecated 2018-02
-	 * @var string
-	 */
-	const header_message_id = "Message-ID";
-
-	/**
-	 *
-	 * @deprecated 2018-02
-	 * @var string
-	 */
-	const header_to = "To";
-
-	/**
-	 *
-	 * @deprecated 2018-02
-	 * @var string
-	 */
-	const header_from = "From";
-
-	/**
-	 *
-	 * @deprecated 2018-02
-	 * @var string
-	 */
-	const header_subject = "Subject";
-
-	/**
 	 *
 	 * @var array
 	 */
@@ -189,16 +156,16 @@ class Mail extends Hookable {
 		 */
 		self::$debug = to_bool($config->path_get(array(
 			__CLASS__,
-			"debug",
+			"debug"
 		)));
 		self::$log = $application->paths->expand($config->path_get(array(
 			__CLASS__,
-			"log",
+			"log"
 		)));
 		self::$fp = null;
 		self::$disabled = to_bool($config->path_get(array(
 			__CLASS__,
-			"disabled",
+			"disabled"
 		)));
 	}
 
@@ -294,7 +261,6 @@ class Mail extends Hookable {
 		}
 		return $this;
 	}
-
 	private static function mail_eol() {
 		return \is_windows() ? "\r\n" : "\n";
 	}
@@ -311,17 +277,15 @@ class Mail extends Hookable {
 		}
 		return self::$debug;
 	}
-
 	private static function trim_mail_line($line) {
 		return trim(str_replace(array(
 			"\r",
-			"\n",
+			"\n"
 		), array(
 			'',
-			'',
+			''
 		), $line));
 	}
-
 	public static function parse_address($email, $part = null) {
 		$matches = array();
 		$result = array();
@@ -399,7 +363,7 @@ class Mail extends Hookable {
 
 		$remain = to_integer($application->configuration->path_get(array(
 			__CLASS__,
-			"sms_max_characters",
+			"sms_max_characters"
 		)), 140) - $len;
 
 		return self::sendmail($application, $to, $from, $subject, substr($body, 0, $remain), $cc, $bcc, $headers);
@@ -454,7 +418,6 @@ class Mail extends Hookable {
 		}
 		return self::mailer($application, $new_headers, $body, $options);
 	}
-
 	private function _log($headers, $body) {
 		if (!self::$log) {
 			return;
@@ -463,7 +426,7 @@ class Mail extends Hookable {
 			self::$fp = fopen(self::$log, "ab");
 			if (!self::$fp) {
 				$this->application->logger->error("Unable to open mail log {log} - mail logging disabled", array(
-					"log" => self::$log,
+					"log" => self::$log
 				));
 				self::$log = null;
 				return;
@@ -471,7 +434,6 @@ class Mail extends Hookable {
 		}
 		fwrite(self::$fp, Text::format_pairs($headers) . "\n" . $body . "\n\n");
 	}
-
 	private static function render_headers(array $headers) {
 		$mail_eol = "\r\n";
 		$raw_headers = "";
@@ -480,17 +442,14 @@ class Mail extends Hookable {
 		}
 		return $raw_headers;
 	}
-
 	public static function mailer(Application $application, array $headers, $body, array $options = array()) {
 		$mail = new Mail($application, $headers, $body, $options);
 		return $mail->send();
 	}
-
 	public static function mail_array(Application $application, $to, $from, $subject, $array, $prefix = "", $suffix = "") {
 		$content = Text::format_pairs($array);
 		return self::sendmail($application, $to, $from, $subject, $prefix . $content . $suffix);
 	}
-
 	public static function map(Application $application, $to, $from, $subject, $filename, $fields, $cc = false, $bcc = false) {
 		if (!file_exists($filename)) {
 			return false;
@@ -551,13 +510,13 @@ class Mail extends Hookable {
 		if (!array_key_exists("From", $headers)) {
 			throw new Exception_Semantics("Need to have a From header: {keys} {debug}", array(
 				"keys" => array_keys($headers),
-				"debug" => _dump($mail_options),
+				"debug" => _dump($mail_options)
 			));
 		}
 		if (!array_key_exists("To", $headers)) {
 			throw new Exception_Semantics("Need to have a To header: {keys} <pre>{debug}</pre>", array(
 				"keys" => array_keys($headers),
-				"debug" => _dump($mail_options),
+				"debug" => _dump($mail_options)
 			));
 		}
 		// KMD: 2015-11-05 Removed
@@ -565,7 +524,7 @@ class Mail extends Hookable {
 		// From below as it should be handled enough by Return-Path for bounces
 		foreach (array(
 			"Reply-To",
-			"Return-Path",
+			"Return-Path"
 		) as $k) {
 			if (!array_key_exists($k, $headers)) {
 				$headers[$k] = $headers['From'];
@@ -640,7 +599,6 @@ class Mail extends Hookable {
 
 		return $result;
 	}
-
 	public static function load_file($filename) {
 		$contents = file_get_contents($filename);
 		if (empty($contents)) {
@@ -694,7 +652,7 @@ class Mail extends Hookable {
 						$result['body_html'] = trim($html);
 
 						break;
-					default:
+					default :
 						$result['body_text'] = $content;
 
 						break;
@@ -716,7 +674,6 @@ class Mail extends Hookable {
 	 * @const Pattern to match RFC 2047 charset encodings in mail headers
 	 */
 	const rfc2047header = '/=\?([^ ?]+)\?([BQbq])\?([^ ?]+)\?=/';
-
 	const rfc2047header_spaces = '/(=\?[^ ?]+\?[BQbq]\?[^ ?]+\?=)\s+(=\?[^ ?]+\?[BQbq]\?[^ ?]+\?=)/';
 
 	/**
@@ -744,7 +701,6 @@ class Mail extends Hookable {
 		}
 		return array_map('strtoupper', $matches[1]);
 	}
-
 	public static function decode_header($header) {
 		$matches = null;
 
@@ -767,7 +723,7 @@ class Mail extends Hookable {
 					$data = quoted_printable_decode(str_replace("_", " ", $data));
 
 					break;
-				default:
+				default :
 					throw new Exception_Semantics("preg_match_all is busted: didn't find B or Q in encoding $header");
 			}
 			$data = UTF8::from_charset($data, $charset);
@@ -842,17 +798,5 @@ class Mail extends Hookable {
 	 */
 	public function dump() {
 		return Text::format_pairs($this->headers) . "\n\n" . $this->body;
-	}
-
-	/**
-	 * Typo @no-cannon
-	 * @deprecated 2018-02
-	 * @param Application $application
-	 * @param array $mail_options
-	 * @param unknown $attachments
-	 * @return \zesk\Mail
-	 */
-	public static function mulitpart_send(Application $application, array $mail_options, $attachments = null) {
-		return self::multipart_send($application, $mail_options, $attachments);
 	}
 }
