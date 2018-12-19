@@ -34,6 +34,8 @@ class Command_Database_Connect extends Command_Base {
 		'force' => 'boolean',
 		'test' => 'boolean',
 		'db-name' => 'boolean',
+		'grant' => 'boolean',
+		'host' => 'string',
 	);
 
 	/**
@@ -48,6 +50,8 @@ class Command_Database_Connect extends Command_Base {
 		'force' => 'Force command execution even on failure',
 		'test' => 'Test to make sure all connections work',
 		'db-name' => 'Output the database name or names',
+		'grant' => 'Display grant statements for the database',
+		'host' => 'Host used in grant statement if not otherwise supplied',
 	);
 
 	/**
@@ -62,7 +66,7 @@ class Command_Database_Connect extends Command_Base {
 			return $this->handle_test();
 		}
 
-		if ($this->option_bool("grants")) {
+		if ($this->option_bool("grant")) {
 			return $this->handle_grants();
 		}
 
@@ -139,10 +143,30 @@ class Command_Database_Connect extends Command_Base {
 	 * TODO
 	 */
 	private function handle_grants() {
-		$db = $this->application->database_module()->register();
+		$dbmodule = $this->application->database_module();
+		$db = $dbmodule->register();
+		$result = array();
 		foreach ($db as $name => $url) {
+			$object = $dbmodule->database_registry($name, array(
+				"connect" => false,
+			));
+			/* @var $object \zesk\Database */
+			try {
+				$grant_statements = $object->sql()->grant(array(
+					"user" => $object->url('user'),
+					"pass" => $object->url('pass'),
+					"name" => $object->url('name'),
+					"from_host" => $this->option("host"),
+					"tables" => Database_SQL::SQL_GRANT_ALL,
+				));
+			} catch (Exception_Parameter $e) {
+				$grant_statements = null;
+			}
+			if (is_array($grant_statements)) {
+				$result = array_merge($grant_statements, $result);
+			}
 		}
-		$this->render_format($db);
+		echo ArrayTools::join_suffix($result, ";\n");
 		return 0;
 	}
 }
