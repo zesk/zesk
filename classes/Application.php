@@ -397,7 +397,7 @@ class Application extends Hookable implements Interface_Theme, Interface_Member_
 		$this->module_path = array();
 		// Find Zesk commands here
 		$this->zesk_command_path = array();
-		// Find theme files (
+		// Find theme files here
 		$this->theme_path = array();
 		// Find share files for Controller_Share (move to internal module)
 		$this->share_path = array();
@@ -1019,7 +1019,7 @@ class Application extends Hookable implements Interface_Theme, Interface_Member_
 			"response" => $response,
 			"exception" => $exception,
 			"content" => $exception,
-		), array(
+		) + Exception::exception_variables($exception), array(
 			"first" => true,
 		));
 		if (!$exception instanceof Exception_Redirect) {
