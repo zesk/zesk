@@ -33,6 +33,17 @@ use zesk\Database_Exception;
  */
 class Database extends \zesk\Database {
 	/**
+	 * List of options for shell command generation
+	 *
+	 * @var array
+	 */
+	private static $shell_command_options = array(
+		'sql-dump-command' => 'boolean. Generate a command-line SQL dump command instead of a connection command',
+		'tables' => 'string[]. Used in conjunction with sql-dump-command - an array of tables to dump',
+		'non-blocking' => 'boolean. Used in conjunction with sql-dump-command - dump database in a non-blocking manner.',
+	);
+
+	/**
 	 *
 	 * @var string
 	 */
@@ -745,6 +756,16 @@ class Database extends \zesk\Database {
 	 * @see zesk\Database::shell_command()
 	 */
 	public function shell_command(array $options = array()) {
+		foreach ($options as $option_key => $option_value) {
+			if (!array_key_exists($option_key, self::$shell_command_options)) {
+				$this->application->logger->warning("Unknown option passed to {method}: {option_key}={option_value}", array(
+					"method" => __METHOD__,
+					"option_key" => $option_key,
+					'option_value' => _dump($option_value),
+				));
+			}
+		}
+
 		$parts = $this->url_parts;
 		$scheme = $host = $user = $pass = $path = null;
 		extract($parts, EXTR_IF_EXISTS);
@@ -769,6 +790,11 @@ class Database extends \zesk\Database {
 		$bin = "mysql";
 		if (to_bool(avalue($options, "sql-dump-command"))) {
 			$bin = "mysqldump";
+			if (isset($options['non-blocking']) && to_bool($options['non-blocking'])) {
+				$args = array_merge(array(
+					"--single-transaction=TRUE",
+				), $args);
+			}
 			$tables = to_list(avalue($options, "tables", array()));
 			$args = array_merge($args, $tables);
 		}
