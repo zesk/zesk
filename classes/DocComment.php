@@ -71,7 +71,7 @@ class DocComment extends Options {
 	 *
 	 * Converts to:
 	 *
-	 *     /**
+	 *     /X**
 	 *      * Hello, world
 	 *      *
 	 *      * @see \zesk\Kernel
@@ -168,15 +168,13 @@ class DocComment extends Options {
 		$keys = array_unique($keys);
 		return $keys;
 	}
-
 	private function parse_multi_key($value, $key) {
 		return ArrayTools::kpair(ArrayTools::clean(explode("\n", $value)), " ");
 	}
-
 	private function unparse_multi_key($value, $key) {
 		if (!is_array($value)) {
 			return array(
-				"@$key $value",
+				"@$key $value"
 			);
 		}
 		foreach ($value as $name => $value) {
@@ -197,14 +195,12 @@ class DocComment extends Options {
 		$keys = array_unique($keys);
 		return $keys;
 	}
-
 	private function list_keys() {
 		$keys = $this->option_list(self::OPTION_LIST_KEYS);
 		$keys[] = "see";
 		$keys = array_unique($keys);
 		return $keys;
 	}
-
 	private function parse_param_key($value, $key) {
 		$lines = ArrayTools::clean(to_list($value, array(), "\n"));
 		$keys = ArrayTools::field($lines, 1, " \t");
@@ -237,7 +233,6 @@ class DocComment extends Options {
 		$value = ArrayTools::trim_clean(explode("\n", $value));
 		return $value;
 	}
-
 	private function unparse_list_key($value, $key) {
 		if (!is_array($value)) {
 			$value = ArrayTools::trim_clean(explode("\n", $value));
@@ -245,7 +240,6 @@ class DocComment extends Options {
 		$prefix = "@$key ";
 		return $prefix . implode("\n$prefix", $value);
 	}
-
 	public function variables(array $set = null) {
 		if ($set === null) {
 			if ($this->variables === null) {
@@ -257,7 +251,6 @@ class DocComment extends Options {
 		$this->content = null;
 		return $this;
 	}
-
 	public function content($set = null) {
 		if ($set === null) {
 			if ($this->content === null) {
@@ -269,7 +262,6 @@ class DocComment extends Options {
 		$this->variables = null;
 		return $this;
 	}
-
 	public function __toString() {
 		return $this->content();
 	}
