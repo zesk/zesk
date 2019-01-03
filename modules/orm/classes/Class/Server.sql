@@ -3,7 +3,7 @@ CREATE TABLE `{table}` (
 	`id` 				integer not null auto_increment,
 	`name`	 			varchar(32) not null,
 	`name_internal`		varchar(64) not null,
-	`name_external`		varchar(64) not null,
+	`name_external`		varchar(64) NULL,
 	`ip4_internal`		integer unsigned not null,
 	`ip4_external`		integer unsigned not null,
 	`free_disk`			integer unsigned null,

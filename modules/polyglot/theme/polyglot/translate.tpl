@@ -83,8 +83,7 @@ $widget->required(true);
 					<div id="search-progress" style="display: none"></div>
 					<div id="search-status" style="display: none">
 						<span class="total"></span><?php
-
-echo __("total");
+						echo __("total");
 						?></div>
 				</div>
 				<?php
@@ -121,12 +120,9 @@ echo __("total");
 			role="button" data-toggle="collapse" href="#translate-help"
 			aria-expanded="false" aria-controls="translate-help">Help</a>
 		<div class="collapse clearfix" id="translate-help">
-			<div class="well">
-				<?php
-
-				echo $this->theme("polyglot/translate-help-header");
-				?>
-				<h3>Keyboard</h3>
+			<div class="well"><?php
+			echo $this->theme("polyglot/translate-help-header");
+			?><h3>Keyboard</h3>
 				<p>Navigate with Ctrl-&rarr;, Ctrl-&larr;, &uarr;, &darr;. When the
 					translator editor is closed, use arrow keys to choose the first or
 					last item in the displayed list.</p>
@@ -172,15 +168,9 @@ echo __("total");
 					<li><strong>Delete</strong> - Phrases which should be deleted
 						(contains user content not applicable to all sites, etc.). <strong>CAUTION:
 							Deleting a phrase will remove it from all available translations.</strong></li>
-				</ul>
-				<?php
-
+				</ul><?php
 				echo $this->theme("polyglot/translate-help-footer");
-				?>
-
-
-
-			</div>
+				?></div>
 		</div>
 	</form>
 	<div class="row header">

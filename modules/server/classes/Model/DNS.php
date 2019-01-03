@@ -10,15 +10,15 @@ namespace zesk;
  *
  */
 class Model_DNS extends Model {
-    public $valid = false;
+	public $valid = false;
 
-    public $old = null;
+	public $old = null;
 
-    public $new = null;
+	public $new = null;
 
-    public $lookup = null;
+	public $lookup = null;
 
-    public function store() {
-        $this->valid = true;
-    }
+	public function store() {
+		$this->valid = true;
+	}
 }

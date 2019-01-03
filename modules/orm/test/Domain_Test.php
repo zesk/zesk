@@ -7,55 +7,55 @@ namespace zesk;
  *
  */
 class Domain_Test extends Test_Unit {
-    protected $load_modules = array(
-        "MySQL",
-        "ORM",
-    );
+	protected $load_modules = array(
+		"MySQL",
+		"ORM",
+	);
 
-    /**
-     *
-     */
-    public function cookie_domain_data() {
-        return array(
-            array(
-                "conversion.kent.glucose",
-                "kent.glucose",
-            ),
-            array(
-                "www.conversionruler.com",
-                "conversionruler.com",
-            ),
-            array(
-                "hello.www.conversionruler.com",
-                "conversionruler.com",
-            ),
-            array(
-                "test.conversionruler.com",
-                "conversionruler.com",
-            ),
-            array(
-                "another-fucking-thing.roi-tracking.com",
-                "roi-tracking.com",
-            ),
-            array(
-                "Hello",
-                "hello",
-            ),
-            array(
-                "joe.com",
-                "joe.com",
-            ),
-        );
-    }
+	/**
+	 *
+	 */
+	public function cookie_domain_data() {
+		return array(
+			array(
+				"conversion.kent.glucose",
+				"kent.glucose",
+			),
+			array(
+				"www.conversionruler.com",
+				"conversionruler.com",
+			),
+			array(
+				"hello.www.conversionruler.com",
+				"conversionruler.com",
+			),
+			array(
+				"test.conversionruler.com",
+				"conversionruler.com",
+			),
+			array(
+				"another-fucking-thing.roi-tracking.com",
+				"roi-tracking.com",
+			),
+			array(
+				"Hello",
+				"hello",
+			),
+			array(
+				"joe.com",
+				"joe.com",
+			),
+		);
+	}
 
-    /**
-     * @dataProvider cookie_domain_data
-     * @param unknown $domain
-     */
-    public function test_cookie_domains($domain, $expected) {
-        $cookie_domain = Domain::domain_factory($this->application, $domain)->compute_cookie_domain();
-        $this->assert_equal($cookie_domain, $expected, "$domain cookie domain => $cookie_domain !== $expected");
-    }
+	/**
+	 * @dataProvider cookie_domain_data
+	 * @param unknown $domain
+	 */
+	public function test_cookie_domains($domain, $expected) {
+		$cookie_domain = Domain::domain_factory($this->application, $domain)->compute_cookie_domain();
+		$this->assert_equal($cookie_domain, $expected, "$domain cookie domain => $cookie_domain !== $expected");
+	}
 }
 
 

@@ -1,16 +1,15 @@
 <?php
 /**
- * 
+ *
  */
 namespace zesk;
 
 /**
- * 
+ *
  * @author kent
  *
  */
 class Object_Cache_Database extends Object_Cache {
-	
 	/**
 	 * @param Object $object
 	 * @return Database
@@ -18,30 +17,33 @@ class Object_Cache_Database extends Object_Cache {
 	private function cache_database(ORM $object) {
 		return $object->database();
 	}
+
 	private function _object_database_table(Database $database, Object $object, $table) {
 		$table_schema = array(
 			'columns' => array(
 				'id' => array(
-					'type' => 'varbinary(16)'
+					'type' => 'varbinary(16)',
 				),
 				'key' => array(
-					'type' => 'varbinary(16)'
+					'type' => 'varbinary(16)',
 				),
 				'data' => array(
 					'type' => 'text',
-					'not null' => true
-				)
+					'not null' => true,
+				),
 			),
 			'primary keys' => array(
 				'id',
-				'key'
-			)
+				'key',
+			),
 		);
 		return ORM_Schema::schema_to_database_table($database, $table, $table_schema);
 	}
+
 	private function object_table_name(ORM $object) {
 		return "Cache_" . $object->table();
 	}
+
 	private function object_table(ORM $object, $create = false) {
 		$table_name = $this->object_table_name($object);
 		$database = $this->cache_database($object);
@@ -51,6 +53,7 @@ class Object_Cache_Database extends Object_Cache {
 		}
 		return $database->table_exists($table_name) ? $table_name : null;
 	}
+
 	public function load(ORM $object, $key) {
 		$table = $this->object_table($object);
 		if (!$table) {
@@ -65,6 +68,7 @@ class Object_Cache_Database extends Object_Cache {
 		$query->what("data");
 		return unserialize($query->one("data", null));
 	}
+
 	public function save(ORM $object, $key, $data) {
 		$database = $this->cache_database($object);
 		$table = $this->object_table($object, ($data !== null));
@@ -74,16 +78,17 @@ class Object_Cache_Database extends Object_Cache {
 		$hash = md5($key);
 		$update = array(
 			"*key" => "UNHEX(" . $database->quote_value($hash) . ")",
-			"id" => $object->id()
+			"id" => $object->id(),
 		);
 		$update['data'] = serialize($data);
 		$sql = $database->sql()->insert(array(
 			'table' => $table,
 			'values' => $update,
-			'verb' => "REPLACE"
+			'verb' => "REPLACE",
 		));
 		$database->query($sql);
 	}
+
 	public function invalidate(ORM $object, $key = null) {
 		$table = $this->object_table($object);
 		if (!$table) {
@@ -91,7 +96,7 @@ class Object_Cache_Database extends Object_Cache {
 		}
 		$database = $this->cache_database($object);
 		$where = array(
-			"id" => $object->id()
+			"id" => $object->id(),
 		);
 		if ($key !== null) {
 			$hash = md5($key);
@@ -99,9 +104,9 @@ class Object_Cache_Database extends Object_Cache {
 		}
 		$sql = $database->sql()->delete(array(
 			'table' => $table,
-			'where' => $where
+			'where' => $where,
 		));
-		
+
 		$database->query($sql);
 	}
 }

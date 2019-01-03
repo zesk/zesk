@@ -24,37 +24,37 @@ use zesk\Exception_Semantics;
  *
  */
 class Module extends \zesk\Module {
-    public function initialize() {
-        if ($this->application->autoloader->load("TijsVerkoyen\CssToInlineStyles\CssToInlineStyles", true)) {
-            throw new Exception_Class_NotFound("TijsVerkoyen\CssToInlineStyles\CssToInlineStyles");
-        }
-    }
+	public function initialize() {
+		if ($this->application->autoloader->load("TijsVerkoyen\CssToInlineStyles\CssToInlineStyles", true)) {
+			throw new Exception_Class_NotFound("TijsVerkoyen\CssToInlineStyles\CssToInlineStyles");
+		}
+	}
 
-    /**
-     *
-     * @param unknown $content
-     * @param unknown $css
-     * @throws Exception_Semantics
-     * @return unknown
-     */
-    public function process_html($content, $css = null) {
-        // create instance
-        $cssToInlineStyles = new CssToInlineStyles();
+	/**
+	 *
+	 * @param unknown $content
+	 * @param unknown $css
+	 * @throws Exception_Semantics
+	 * @return unknown
+	 */
+	public function process_html($content, $css = null) {
+		// create instance
+		$cssToInlineStyles = new CssToInlineStyles();
 
-        $html = $content;
-        if ($css === null) {
-            $css_tags = HTML::extract_tags("style", $content);
-            if (!$css_tags) {
-                throw new Exception_Semantics("No style tags found in HTML content to apply");
-            }
-            $html = HTML::remove_tags("style", $content);
-            $css = "";
-            foreach ($css_tags as $tag) {
-                $css .= $tag->inner_html() . "\n";
-            }
-        }
+		$html = $content;
+		if ($css === null) {
+			$css_tags = HTML::extract_tags("style", $content);
+			if (!$css_tags) {
+				throw new Exception_Semantics("No style tags found in HTML content to apply");
+			}
+			$html = HTML::remove_tags("style", $content);
+			$css = "";
+			foreach ($css_tags as $tag) {
+				$css .= $tag->inner_html() . "\n";
+			}
+		}
 
-        // output
-        return $cssToInlineStyles->convert($html, $css);
-    }
+		// output
+		return $cssToInlineStyles->convert($html, $css);
+	}
 }

@@ -8,8 +8,8 @@
 namespace zesk;
 
 class Exception_Semantics_Test extends Exception_TestCase {
-    public function test_basics() {
-        $testx = new Exception_Semantics();
-        $this->exception_test($testx);
-    }
+	public function test_basics() {
+		$testx = new Exception_Semantics();
+		$this->exception_test($testx);
+	}
 }

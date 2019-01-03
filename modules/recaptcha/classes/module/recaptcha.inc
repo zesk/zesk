@@ -2,14 +2,14 @@
 namespace zesk;
 
 class Module_reCAPTCHA extends Module {
-	function initialize() {
+	public function initialize() {
 		$result = true;
 		$configuration = $this->application->configuration;
 		foreach (to_list("site_key;secret_key") as $key) {
 			if ($this->has_option($key)) {
 				$target = array(
 					"Control_reCAPTCHA",
-					$key
+					$key,
 				);
 				if (!$configuration->path_get($target)) {
 					$configuration->path_set($target, $this->option($key));

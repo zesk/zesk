@@ -20,129 +20,153 @@ namespace zesk;
  * @global boolean db-connect Set this global to alternate database
  */
 class Command_Database_Connect extends Command_Base {
-    /**
-     *
-     * @var array
-     */
-    protected $option_types = array(
-        'name' => 'string',
-        'format' => 'string',
-        'echo' => 'boolean',
-        'debug-connect' => 'boolean',
-        'db-url' => 'boolean',
-        'show-passwords' => 'boolean',
-        'force' => 'boolean',
-        'test' => 'boolean',
-        'db-name' => 'boolean',
-    );
+	/**
+	 *
+	 * @var array
+	 */
+	protected $option_types = array(
+		'name' => 'string',
+		'format' => 'string',
+		'echo' => 'boolean',
+		'debug-connect' => 'boolean',
+		'db-url' => 'boolean',
+		'show-passwords' => 'boolean',
+		'force' => 'boolean',
+		'test' => 'boolean',
+		'db-name' => 'boolean',
+		'grant' => 'boolean',
+		'host' => 'string',
+	);
 
-    /**
-     *
-     * @var array
-     */
-    protected $option_help = array(
-        'name' => 'Database code name to connect to',
-        'echo' => 'Output the connection command instead of running it',
-        'debug-connect' => 'Show the connect command',
-        'db-url' => 'Output the database URL or URLs',
-        'force' => 'Force command execution even on failure',
-        'test' => 'Test to make sure all connections work',
-        'db-name' => 'Output the database name or names',
-    );
+	/**
+	 *
+	 * @var array
+	 */
+	protected $option_help = array(
+		'name' => 'Database code name to connect to',
+		'echo' => 'Output the connection command instead of running it',
+		'debug-connect' => 'Show the connect command',
+		'db-url' => 'Output the database URL or URLs',
+		'force' => 'Force command execution even on failure',
+		'test' => 'Test to make sure all connections work',
+		'db-name' => 'Output the database name or names',
+		'grant' => 'Display grant statements for the database',
+		'host' => 'Host used in grant statement if not otherwise supplied',
+	);
 
-    /**
-     *
-     * @return integer
-     */
-    public function run() {
-        if ($this->option_bool("db-name") || $this->option_bool('db-url')) {
-            return $this->handle_info();
-        }
-        if ($this->option_bool("test")) {
-            return $this->handle_test();
-        }
+	/**
+	 *
+	 * @return integer
+	 */
+	public function run() {
+		if ($this->option_bool("db-name") || $this->option_bool('db-url')) {
+			return $this->handle_info();
+		}
+		if ($this->option_bool("test")) {
+			return $this->handle_test();
+		}
 
-        if ($this->option_bool("grants")) {
-            return $this->handle_grants();
-        }
+		if ($this->option_bool("grant")) {
+			return $this->handle_grants();
+		}
 
-        $name = $this->option('name');
-        $db = $this->application->database_registry($name);
-        list($command, $args) = $db->shell_command($this->options);
+		$name = $this->option('name');
+		$db = $this->application->database_registry($name);
+		list($command, $args) = $db->shell_command($this->options);
 
-        if ($this->option_bool('debug-connect')) {
-            echo "$command " . implode(" ", $args) . "\n";
-        }
-        $full_command_path = is_file($command) ? $command : $this->application->paths->which($command);
-        if (!$full_command_path) {
-            die("Unable to find shell $command in system path:" . implode(", ", $this->application->paths->command()) . "\n");
-        }
-        if ($this->option_bool('echo')) {
-            echo $full_command_path . implode("", ArrayTools::prefix($args, " ")) . "\n";
-        } else {
-            PHP::requires('pcntl', true);
-            $method = 'pcntl_exec';
-            $method($full_command_path, $args);
-        }
-        return 0;
-    }
+		if ($this->option_bool('debug-connect')) {
+			echo "$command " . implode(" ", $args) . "\n";
+		}
+		$full_command_path = is_file($command) ? $command : $this->application->paths->which($command);
+		if (!$full_command_path) {
+			die("Unable to find shell $command in system path:" . implode(", ", $this->application->paths->command()) . "\n");
+		}
+		if ($this->option_bool('echo')) {
+			echo $full_command_path . implode("", ArrayTools::prefix($args, " ")) . "\n";
+		} else {
+			PHP::requires('pcntl', true);
+			$method = 'pcntl_exec';
+			$method($full_command_path, $args);
+		}
+		return 0;
+	}
 
-    /**
-     *
-     * @return number
-     */
-    private function handle_info() {
-        $name = $this->option('name');
-        $db = $this->application->database_module()->register();
-        if (!$this->option_bool("show-passwords")) {
-            foreach ($db as $key => $url) {
-                $db[$key] = URL::remove_password($url);
-            }
-        }
-        if ($this->option_bool("db-name")) {
-            foreach ($db as $key => $url) {
-                $db[$key] = Database::url_parse($url, "name");
-            }
-        }
-        if ($name) {
-            if (array_key_exists($name, $db)) {
-                echo $db[$name] . "\n";
-                return 0;
-            } else {
-                $this->error("{name} not found", compact("name"));
-                return -1;
-            }
-        }
-        $this->render_format($db);
-        return 0;
-    }
+	/**
+	 *
+	 * @return number
+	 */
+	private function handle_info() {
+		$name = $this->option('name');
+		$db = $this->application->database_module()->register();
+		if (!$this->option_bool("show-passwords")) {
+			foreach ($db as $key => $url) {
+				$db[$key] = URL::remove_password($url);
+			}
+		}
+		if ($this->option_bool("db-name")) {
+			foreach ($db as $key => $url) {
+				$db[$key] = Database::url_parse($url, "name");
+			}
+		}
+		if ($name) {
+			if (array_key_exists($name, $db)) {
+				echo $db[$name] . "\n";
+				return 0;
+			} else {
+				$this->error("{name} not found", compact("name"));
+				return -1;
+			}
+		}
+		$this->render_format($db);
+		return 0;
+	}
 
-    /**
-     *
-     * @return number
-     */
-    private function handle_test() {
-        $db = $this->application->database_module()->register();
-        foreach ($db as $name => $url) {
-            try {
-                $this->application->database_registry($name);
-                $db[$name] = true;
-            } catch (Exception $e) {
-                $db[$name] = false;
-            }
-        }
-        $this->render_format($db);
-        return 0;
-    }
+	/**
+	 *
+	 * @return number
+	 */
+	private function handle_test() {
+		$db = $this->application->database_module()->register();
+		foreach ($db as $name => $url) {
+			try {
+				$this->application->database_registry($name);
+				$db[$name] = true;
+			} catch (Exception $e) {
+				$db[$name] = false;
+			}
+		}
+		$this->render_format($db);
+		return 0;
+	}
 
-    /**
-     * TODO
-     */
-    private function handle_grants() {
-        $db = $this->application->database_module()->register();
-        foreach ($db as $name => $url) {
-        }
-        $this->render_format($db);
-        return 0;
-    }
+	/**
+	 * TODO
+	 */
+	private function handle_grants() {
+		$dbmodule = $this->application->database_module();
+		$db = $dbmodule->register();
+		$result = array();
+		foreach ($db as $name => $url) {
+			$object = $dbmodule->database_registry($name, array(
+				"connect" => false,
+			));
+			/* @var $object \zesk\Database */
+			try {
+				$grant_statements = $object->sql()->grant(array(
+					"user" => $object->url('user'),
+					"pass" => $object->url('pass'),
+					"name" => $object->url('name'),
+					"from_host" => $this->option("host"),
+					"tables" => Database_SQL::SQL_GRANT_ALL,
+				));
+			} catch (Exception_Parameter $e) {
+				$grant_statements = null;
+			}
+			if (is_array($grant_statements)) {
+				$result = array_merge($grant_statements, $result);
+			}
+		}
+		echo ArrayTools::join_suffix($result, ";\n");
+		return 0;
+	}
 }

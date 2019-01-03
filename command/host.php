@@ -8,8 +8,8 @@ namespace zesk;
  * @alias uname
  */
 class Command_Host extends Command_Base {
-    public function run() {
-        echo System::uname() . "\n";
-        return 0;
-    }
+	public function run() {
+		echo System::uname() . "\n";
+		return 0;
+	}
 }

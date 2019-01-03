@@ -8,8 +8,8 @@
 namespace zesk;
 
 class Exception_Range_Test extends Exception_TestCase {
-    public function test_basics() {
-        $testx = new Exception_Range();
-        $this->exception_test($testx);
-    }
+	public function test_basics() {
+		$testx = new Exception_Range();
+		$this->exception_test($testx);
+	}
 }

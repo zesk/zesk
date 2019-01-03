@@ -13,50 +13,50 @@ namespace zesk;
  * @author kent
  */
 class Net_SSL_Certificate {
-    /**
-     *
-     * @var string
-     */
-    const CACERT_FILENAME = "cacert.pem";
+	/**
+	 *
+	 * @var string
+	 */
+	const CACERT_FILENAME = "cacert.pem";
 
-    /**
-     *
-     * @var string
-     */
-    const CACERT_TRUSTED_URL = "http://curl.haxx.se/ca/" . self::CACERT_FILENAME;
+	/**
+	 *
+	 * @var string
+	 */
+	const CACERT_TRUSTED_URL = "http://curl.haxx.se/ca/" . self::CACERT_FILENAME;
 
-    /**
-     *
-     * @param array $try_paths
-     */
-    public static function locate_cafile(Application $application, array $try_paths = null) {
-        if ($try_paths === null) {
-            $try_paths = array(
-                $application->path('etc/db'),
-                $application->zesk_home('etc/db'),
-            );
-        }
-        $first_valid_dir = null;
-        foreach ($try_paths as $path) {
-            $file = path($path, self::CACERT_FILENAME);
-            if (is_file($file)) {
-                return $path;
-            }
-            if (is_dir($path) && !$first_valid_dir) {
-                $first_valid_dir = $path;
-            }
-        }
-        if (!$first_valid_dir) {
-            return null;
-        }
-        return path($first_valid_dir, self::CACERT_FILENAME);
-    }
+	/**
+	 *
+	 * @param array $try_paths
+	 */
+	public static function locate_cafile(Application $application, array $try_paths = null) {
+		if ($try_paths === null) {
+			$try_paths = array(
+				$application->path('etc/db'),
+				$application->zesk_home('etc/db'),
+			);
+		}
+		$first_valid_dir = null;
+		foreach ($try_paths as $path) {
+			$file = path($path, self::CACERT_FILENAME);
+			if (is_file($file)) {
+				return $path;
+			}
+			if (is_dir($path) && !$first_valid_dir) {
+				$first_valid_dir = $path;
+			}
+		}
+		if (!$first_valid_dir) {
+			return null;
+		}
+		return path($first_valid_dir, self::CACERT_FILENAME);
+	}
 
-    /**
-     *
-     * @param Application $application
-     */
-    public static function sync_cafile(Application $application, $local_path) {
-        Net_Sync::url_to_file($application, self::CACERT_LOCAL_PATH, $local_path);
-    }
+	/**
+	 *
+	 * @param Application $application
+	 */
+	public static function sync_cafile(Application $application, $local_path) {
+		Net_Sync::url_to_file($application, self::CACERT_LOCAL_PATH, $local_path);
+	}
 }

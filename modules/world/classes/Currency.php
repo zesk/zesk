@@ -35,89 +35,89 @@ namespace zesk;
  * @property integer $precision
  */
 class Currency extends ORM {
-    /**
-     * Format a currency for output
-     *
-     * @param number $value
-     * @return string
-     */
-    public function format($value = 0) {
-        $decimals = $this->option("decimal_point", __("Currency::decimal_point:=."));
-        $thousands = $this->option('thousands_separator', __("Currency::thousands_separator:=."));
-        return map($this->format, array(
-            'value_raw' => $value,
-            'value_decimal' => $intvalue = intval($value),
-            'value_fraction' => substr(strval(abs($value - $intvalue)), 2),
-            'minus' => $value < 0 ? "-" : "",
-            'plus' => $value > 0 ? "+" : "",
-            'decimal' => $decimals,
-            'thousands' => $thousands,
-            'amount' => number_format($value, $this->precision, $decimals, $thousands),
-        ) + $this->members());
-    }
+	/**
+	 * Format a currency for output
+	 *
+	 * @param number $value
+	 * @return string
+	 */
+	public function format($value = 0) {
+		$decimals = $this->option("decimal_point", __("Currency::decimal_point:=."));
+		$thousands = $this->option('thousands_separator', __("Currency::thousands_separator:=."));
+		return map($this->format, array(
+			'value_raw' => $value,
+			'value_decimal' => $intvalue = intval($value),
+			'value_fraction' => substr(strval(abs($value - $intvalue)), 2),
+			'minus' => $value < 0 ? "-" : "",
+			'plus' => $value > 0 ? "+" : "",
+			'decimal' => $decimals,
+			'thousands' => $thousands,
+			'amount' => number_format($value, $this->precision, $decimals, $thousands),
+		) + $this->members());
+	}
 
-    public function symbol_left() {
-        return begins($this->format, '{symbol}');
-    }
-    
-    /**
-     * Get Euros
-     *
-     * @return Currency
-     */
-    public static function euro(Application $application) {
-        static $cached = null;
-        if ($cached) {
-            return $cached;
-        }
-        return $cached = $application->orm_factory(__CLASS__, array(
-            'name' => 'Euro',
-            'code' => 'EUR',
-            'id' => 978,
-            'symbol' => '&euro;',
-            'format' => '{symbol}{amount}',
-            'precision' => 2,
-            'fractional' => 100,
-            'fractional_units' => 'cent',
-        ))->register();
-    }
+	public function symbol_left() {
+		return begins($this->format, '{symbol}');
+	}
 
-    /**
-     * Get US dollars
-     *
-     * @return Currency
-     */
-    public static function usd(Application $application) {
-        static $cached = null;
-        if ($cached) {
-            return $cached;
-        }
-        return $cached = $application->orm_factory(__CLASS__, array(
-            'name' => 'US Dollar',
-            'code' => 'USD',
-            'bank_country' => Country::find_country($application, 'us'),
-            'id' => 840,
-            'symbol' => '$',
-            'format' => '{symbol}{amount}',
-            'precision' => 2,
-            'fractional' => 100,
-            'fractional_units' => 'cent',
-        ))->register();
-    }
+	/**
+	 * Get Euros
+	 *
+	 * @return Currency
+	 */
+	public static function euro(Application $application) {
+		static $cached = null;
+		if ($cached) {
+			return $cached;
+		}
+		return $cached = $application->orm_factory(__CLASS__, array(
+			'name' => 'Euro',
+			'code' => 'EUR',
+			'id' => 978,
+			'symbol' => '&euro;',
+			'format' => '{symbol}{amount}',
+			'precision' => 2,
+			'fractional' => 100,
+			'fractional_units' => 'cent',
+		))->register();
+	}
 
-    public function precision() {
-        return $this->member_integer("precision", 2);
-    }
-    
-    /**
-     * Look up a Currency object based on its code
-     *
-     * @param string $code
-     * @return Currency|null
-     */
-    public static function from_code(Application $application, $code) {
-        return $application->orm_factory(__CLASS__)->find(array(
-            'code' => $code,
-        ));
-    }
+	/**
+	 * Get US dollars
+	 *
+	 * @return Currency
+	 */
+	public static function usd(Application $application) {
+		static $cached = null;
+		if ($cached) {
+			return $cached;
+		}
+		return $cached = $application->orm_factory(__CLASS__, array(
+			'name' => 'US Dollar',
+			'code' => 'USD',
+			'bank_country' => Country::find_country($application, 'us'),
+			'id' => 840,
+			'symbol' => '$',
+			'format' => '{symbol}{amount}',
+			'precision' => 2,
+			'fractional' => 100,
+			'fractional_units' => 'cent',
+		))->register();
+	}
+
+	public function precision() {
+		return $this->member_integer("precision", 2);
+	}
+
+	/**
+	 * Look up a Currency object based on its code
+	 *
+	 * @param string $code
+	 * @return Currency|null
+	 */
+	public static function from_code(Application $application, $code) {
+		return $application->orm_factory(__CLASS__)->find(array(
+			'code' => $code,
+		));
+	}
 }

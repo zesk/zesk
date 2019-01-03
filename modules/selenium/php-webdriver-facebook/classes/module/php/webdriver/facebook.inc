@@ -3,6 +3,7 @@ namespace zesk;
 
 class Module_PHP_WebDriver_Facebook extends Module {
 	private $lib_path = null;
+
 	public function initialize() {
 		$this->lib_path = $this->application->path("vendor/php-webdriver-facebook");
 		if (!is_dir($this->lib_path)) {
@@ -15,4 +16,3 @@ class Module_PHP_WebDriver_Facebook extends Module {
 		require_once $init;
 	}
 }
-

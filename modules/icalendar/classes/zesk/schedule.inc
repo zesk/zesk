@@ -1,6 +1,6 @@
 <?php
 /**
- * 
+ *
  */
 namespace zesk;
 
@@ -18,7 +18,7 @@ namespace zesk;
  */
 class Schedule extends ORM {
 	/**
-	 * 
+	 *
 	 * @param Timestamp $last
 	 * @param string $timezone
 	 * @return Timestamp
@@ -31,19 +31,21 @@ class Schedule extends ORM {
 			$last->time_zone($timezone);
 		}
 		return $this->call_hook_arguments("compute_next_$unit", array(
-			$last
+			$last,
 		), null);
 	}
+
 	private function _next_initialize(Timestamp $last) {
 		$next = clone $last;
 		$next->minute(0)->second(0)->millisecond(0);
 		$next->hour($this->hour);
 		return $next;
 	}
+
 	/**
 	 * last is NULL, returns next available time after NOW
 	 * last is
-	 * 
+	 *
 	 * @param Timestamp $last
 	 * @return Timestamp
 	 */
@@ -54,6 +56,7 @@ class Schedule extends ORM {
 		}
 		return $next;
 	}
+
 	protected function hook_compute_next_week(Timestamp $last) {
 		$next = $this->_next_initialize($last);
 		$next->weekday($this->weekday);
@@ -62,6 +65,7 @@ class Schedule extends ORM {
 		}
 		return $next;
 	}
+
 	protected function hook_compute_next_month(Timestamp $last) {
 		$next = $this->_next_initialize($last);
 		$next->day($this->monthday);

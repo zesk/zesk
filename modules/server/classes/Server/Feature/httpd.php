@@ -2,112 +2,112 @@
 namespace zesk;
 
 class Server_Feature_HTTPD extends Server_Feature {
-    public $name = 'httpd';
+	public $name = 'httpd';
 
-    protected $settings = array(
-        "packages" => "package list",
-        "conf_home" => "directory",
-        "bin" => "executable",
-        "control" => "executable",
-        "enable_module" => "executable",
-        "user" => "user",
-        "group" => "group",
-    );
+	protected $settings = array(
+		"packages" => "package list",
+		"conf_home" => "directory",
+		"bin" => "executable",
+		"control" => "executable",
+		"enable_module" => "executable",
+		"user" => "user",
+		"group" => "group",
+	);
 
-    protected $features = array(
-        "users",
-    );
+	protected $features = array(
+		"users",
+	);
 
-    protected $defaults = array();
+	protected $defaults = array();
 
-    private $exec_control = null;
+	private $exec_control = null;
 
-    public function initialize() {
-        $this->packages = $this->config->package_dependency_list("packages");
-    }
+	public function initialize() {
+		$this->packages = $this->config->package_dependency_list("packages");
+	}
 
-    public function install() {
-        parent::install();
-        /*
-         * Service install
-         */
-        // if ($this->shell_command_exists('update-rc.d')) {
-        // $this->root_exec('update-rc.d -f apache2 remove > /dev/null');
-        // }
-        // $this->install_service("httpd", path($this->configure_root, 'service'));
-        $modules = $this->config->feature_list("modules");
-        $command = $this->config->executable("enable_modules");
-        foreach ($modules as $module) {
-            $this->root_exec("$command $module");
-        }
-    }
+	public function install() {
+		parent::install();
+		/*
+		 * Service install
+		 */
+		// if ($this->shell_command_exists('update-rc.d')) {
+		// $this->root_exec('update-rc.d -f apache2 remove > /dev/null');
+		// }
+		// $this->install_service("httpd", path($this->configure_root, 'service'));
+		$modules = $this->config->feature_list("modules");
+		$command = $this->config->executable("enable_modules");
+		foreach ($modules as $module) {
+			$this->root_exec("$command $module");
+		}
+	}
 
-    public function preconfigure() {
-        /* @var $users Server_Feature_Users */
-        $users = $this->config->feature('users');
-        $users->require_user($this->config->variable('httpd::user'));
-        $users->require_group($this->config->variable('httpd::group'));
-        parent::preconfigure();
-    }
+	public function preconfigure() {
+		/* @var $users Server_Feature_Users */
+		$users = $this->config->feature('users');
+		$users->require_user($this->config->variable('httpd::user'));
+		$users->require_group($this->config->variable('httpd::group'));
+		parent::preconfigure();
+	}
 
-    public function configure() {
-        $config = $this->config;
-        $httpd_conf_path = $config->option('HTTPD_CONF_HOME');
-        $owner = $config->user("HTTPD_USER") . ":" . $config->group("HTTPD_GROUP");
-        $this->require_directory(path($config->option('LOG_PATH'), 'httpd'), $owner, 0755);
-        $this->require_directory($httpd_conf_path, $owner, 0755);
-        
-        /*
-         * $host_path = $this->configure_path('httpd'); if (!is_dir($host_path)) { throw new
-         * Server_Exception("httpd host path $host_path not found"); } $this->verbose_log("httpd
-         * host path is $host_path");
-         */
-        
-        $this->begin("Configuring httpd service ...");
-        
-        $feature_dir = $config->feature_directory("httpd");
-        
-        $this->verbose_log("Checking httpd configuration ...");
-        $this->_check_configuration($config, $feature_dir);
-        
-        $this->verbose_log("Updating HTTPD Configuration");
-        
-        $changed = $this->update($feature_dir, $httpd_conf_path);
-        
-        $this->verbose_log("Checking installed configuration ...");
-        
-        $this->_check_configuration($config, $httpd_conf_path);
-        
-        if ($changed && $this->confirm("Restart httpd")) {
-            $this->restart_service("httpd");
-        }
-    }
+	public function configure() {
+		$config = $this->config;
+		$httpd_conf_path = $config->option('HTTPD_CONF_HOME');
+		$owner = $config->user("HTTPD_USER") . ":" . $config->group("HTTPD_GROUP");
+		$this->require_directory(path($config->option('LOG_PATH'), 'httpd'), $owner, 0755);
+		$this->require_directory($httpd_conf_path, $owner, 0755);
 
-    private function apache_control($arguments) {
-        $args = func_get_args();
-        array_shift($args);
-        $command = $this->config->executable('HTTPD_CONTROL');
-        $command .= " $arguments";
-        $this->root_exec_array($command, $args);
-    }
+		/*
+		 * $host_path = $this->configure_path('httpd'); if (!is_dir($host_path)) { throw new
+		 * Server_Exception("httpd host path $host_path not found"); } $this->verbose_log("httpd
+		 * host path is $host_path");
+		 */
 
-    private function _check_configuration(Server_Configuration $config, $server_root, $httpd_conf_file = null) {
-        if ($httpd_conf_file === null) {
-            $httpd_conf_file = $config->get("HTTPD_CONF_RELATIVE_PATH");
-        }
-        $httpd_conf_file = path($server_root, $httpd_conf_file);
+		$this->begin("Configuring httpd service ...");
 
-        try {
-            $this->apache_control("-d {0} -f {1} -t", $server_root, $httpd_conf_file);
-        } catch (Server_Exception $e) {
-            $this->verbose_log("Errors in httpd.conf, fix $server_root/$httpd_conf_file and dependencies before restarting httpd");
+		$feature_dir = $config->feature_directory("httpd");
 
-            throw $e;
-        }
-    }
+		$this->verbose_log("Checking httpd configuration ...");
+		$this->_check_configuration($config, $feature_dir);
 
-    private function _auto_configure(Server_Configuration $config) {
-    }
+		$this->verbose_log("Updating HTTPD Configuration");
+
+		$changed = $this->update($feature_dir, $httpd_conf_path);
+
+		$this->verbose_log("Checking installed configuration ...");
+
+		$this->_check_configuration($config, $httpd_conf_path);
+
+		if ($changed && $this->confirm("Restart httpd")) {
+			$this->restart_service("httpd");
+		}
+	}
+
+	private function apache_control($arguments) {
+		$args = func_get_args();
+		array_shift($args);
+		$command = $this->config->executable('HTTPD_CONTROL');
+		$command .= " $arguments";
+		$this->root_exec_array($command, $args);
+	}
+
+	private function _check_configuration(Server_Configuration $config, $server_root, $httpd_conf_file = null) {
+		if ($httpd_conf_file === null) {
+			$httpd_conf_file = $config->get("HTTPD_CONF_RELATIVE_PATH");
+		}
+		$httpd_conf_file = path($server_root, $httpd_conf_file);
+
+		try {
+			$this->apache_control("-d {0} -f {1} -t", $server_root, $httpd_conf_file);
+		} catch (Server_Exception $e) {
+			$this->verbose_log("Errors in httpd.conf, fix $server_root/$httpd_conf_file and dependencies before restarting httpd");
+
+			throw $e;
+		}
+	}
+
+	private function _auto_configure(Server_Configuration $config) {
+	}
 }
 
 /*
@@ -119,7 +119,7 @@ Compiled using: APR 1.2.7, APR-Util 1.2.7
 Architecture:   64-bit
 Server MPM:     Worker
   threaded:     yes (fixed thread count)
-    forked:     yes (variable process count)
+	forked:     yes (variable process count)
 Server compiled with....
  -D APACHE_MPM_DIR="server/mpm/worker"
  -D APR_HAS_SENDFILE

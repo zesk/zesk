@@ -15,12 +15,12 @@ namespace zesk;
 /* @var $route \zesk\Route */
 /* @var $request \zesk\Request */
 /* @var $response \zesk\Response */
-$styles = $response->html()->styles();
+$styles = to_array($response->html()->styles());
 
 foreach ($styles as $attributes) {
 	$content = $attributes['content'];
 	echo HTML::tag("style", ArrayTools::filter($attributes, "type;id;media;dir;lang;title;xml:lang"), $content) . "\n";
 }
-if (count($this->styles) > 0) {
+if (count($styles) > 0) {
 	echo "\n";
 }

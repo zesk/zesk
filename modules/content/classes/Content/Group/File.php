@@ -8,5 +8,5 @@
 namespace zesk;
 
 class Content_Group_File extends Content_Group {
-    protected $name = "Files";
+	protected $name = "Files";
 }

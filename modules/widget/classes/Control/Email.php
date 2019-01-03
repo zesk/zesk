@@ -14,32 +14,32 @@ namespace zesk;
  *
  */
 class Control_Email extends Control_Text {
-    public function accept_list($set = null) {
-        return $set !== null ? $this->set_option('accept_list', to_bool($set)) : $this->option_bool('accept_list');
-    }
+	public function accept_list($set = null) {
+		return $set !== null ? $this->set_option('accept_list', to_bool($set)) : $this->option_bool('accept_list');
+	}
 
-    public function validate() {
-        $temp = parent::validate();
-        $v = $this->value();
-        if ($this->accept_list()) {
-            $emails = ArrayTools::trim_clean(to_list($v, array(), ','));
-            $bad_email = array();
-            foreach ($emails as $email) {
-                if (!is_email($email)) {
-                    $bad_email[] = $email;
-                }
-            }
-            if ($bad_email) {
-                $this->error(__("Control_Email::error_format:={label} contains some invalid emails: {bad_emails}", array(
-                    'bad_emails' => implode(", ", $bad_email),
-                )));
-                return false;
-            }
-            $this->value(implode(", ", $emails));
-        } elseif ($temp && strlen($v) > 0 && !is_email($v)) {
-            $this->error(__("Control_Email::error_format:={label} must be formatted like an email, e.g. user@example.com.", $this->options));
-            return false;
-        }
-        return $temp;
-    }
+	public function validate() {
+		$temp = parent::validate();
+		$v = $this->value();
+		if ($this->accept_list()) {
+			$emails = ArrayTools::trim_clean(to_list($v, array(), ','));
+			$bad_email = array();
+			foreach ($emails as $email) {
+				if (!is_email($email)) {
+					$bad_email[] = $email;
+				}
+			}
+			if ($bad_email) {
+				$this->error(__("Control_Email::error_format:={label} contains some invalid emails: {bad_emails}", array(
+					'bad_emails' => implode(", ", $bad_email),
+				)));
+				return false;
+			}
+			$this->value(implode(", ", $emails));
+		} elseif ($temp && strlen($v) > 0 && !is_email($v)) {
+			$this->error(__("Control_Email::error_format:={label} must be formatted like an email, e.g. user@example.com.", $this->options));
+			return false;
+		}
+		return $temp;
+	}
 }

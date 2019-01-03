@@ -14,127 +14,132 @@ namespace zesk;
  *
  */
 class Control_ForgotReset extends Control_Edit {
-    /**
-     *
-     * @var string
-     */
-    protected $class = Forgot::class;
+	/**
+	 *
+	 * @var string
+	 */
+	protected $class = Forgot::class;
 
-    /**
-     *
-     * @var array
-     */
-    protected $options = array(
-        'title' => 'Reset password',
-    );
+	/**
+	 *
+	 * @var array
+	 */
+	protected $options = array(
+		'title' => 'Reset password',
+	);
 
-    /**
-     *
-     * @var Forgot
-     */
-    protected $object = null;
+	/**
+	 *
+	 * @var Forgot
+	 */
+	protected $object = null;
 
-    /**
-     *
-     * @var User
-     */
-    private $auth_user = null;
+	/**
+	 *
+	 * @var User
+	 */
+	private $auth_user = null;
 
-    /**
-     *
-     * @return \zesk\Widget[]|boolean[]
-     */
-    public function hook_widgets() {
-        $locale = $this->locale();
+	/**
+	 *
+	 * @return \zesk\Widget[]|boolean[]
+	 */
+	public function hook_widgets() {
+		$locale = $this->locale();
 
-        $this->form_name("forgot_reset_form");
+		$this->form_name("forgot_reset_form");
 
-        $ww = array();
+		$ww = array();
 
-        // 		$ww[] = $w = $this->widget_factory(Control_Hidden::class)->names('validate');
-        // 		$w->required(true);
+		// 		$ww[] = $w = $this->widget_factory(Control_Hidden::class)->names('validate');
+		// 		$w->required(true);
 
-        $ww[] = $w = $this->widget_factory(Control_Password::class)->names('password', $this->option("label_password", $locale->__("New Password")));
-        $w->set_option('encrypted_column', 'new_password');
-        $w->set_option('confirm', true);
-        $w->required(true);
+		$ww[] = $w = $this->widget_factory(Control_Password::class)->names('password', $this->option("label_password", $locale->__("New Password")));
+		$w->set_option('encrypted_column', 'new_password');
+		$w->set_option('confirm', true);
+		$w->required(true);
 
-        $ww[] = $w = $this->widget_factory(Control_Button::class)
-            ->names('submit_forgot_reset', $this->option("label_button", $locale->__("Change password")))
-            ->add_class('btn-primary btn-block')
-            ->nolabel(true);
+		$ww[] = $w = $this->widget_factory(Control_Button::class)
+			->names('submit_forgot_reset', $this->option("label_button", $locale->__("Change password")))
+			->add_class('btn-primary btn-block')
+			->nolabel(true);
 
-        return $ww;
-    }
+		return $ww;
+	}
 
-    /**
-     * Getter/setter for validate_token
-     *
-     * @param string $set
-     * @return string
-     */
-    public function validate_token($set = null) {
-        if ($set === null) {
-            return $this->validate_token;
-        }
-        $this->validate_token = $set;
-        return $this;
-    }
+	/**
+	 * Getter/setter for validate_token
+	 *
+	 * @param string $set
+	 * @return string
+	 */
+	public function validate_token($set = null) {
+		if ($set === null) {
+			return $this->validate_token;
+		}
+		$this->validate_token = $set;
+		return $this;
+	}
 
-    /**
-     *
-     * {@inheritDoc}
-     * @see \zesk\Widget::submitted()
-     */
-    public function submitted() {
-        return $this->request->get("submit_forgot_reset", "") !== "";
-    }
+	/**
+	 *
+	 * {@inheritDoc}
+	 * @see \zesk\Widget::submitted()
+	 */
+	public function submitted() {
+		return $this->request->get("submit_forgot_reset", "") !== "";
+	}
 
-    /**
-     *
-     * {@inheritDoc}
-     * @see \zesk\Control_Edit::validate()
-     */
-    public function validate() {
-        if (!parent::validate()) {
-            return false;
-        }
-        $locale = $this->locale();
-        /* @var $user User */
-        /* @var $found Forgot */
-        $found = $this->application->orm_factory($this->class)->find(array(
-            "code" => $this->validate_token(),
-        ));
-        if ($found && $found->expired()) {
-            $this->error($locale->__("Control_ForgotReset:=Forgotten password request expired. Please try again."));
-            return false;
-        }
-        $this->auth_user = $this->call_hook_arguments("find_user", array(
-            $this->auth_user,
-        ), $this->auth_user);
-        if ($this->option_bool('not_found_error', true) && !$this->auth_user) {
-            $this->error($locale->__("Control_ForgotReset:=Not able to find that user."), 'login');
-            return false;
-        }
-        return true;
-    }
+	/**
+	 *
+	 * {@inheritDoc}
+	 * @see \zesk\Control_Edit::validate()
+	 */
+	public function validate() {
+		if (!parent::validate()) {
+			return false;
+		}
+		$locale = $this->locale();
+		/* @var $user User */
+		/* @var $found Forgot */
+		$this->object->code = $this->validate_token();
 
-    public function submit_store() {
-        assert($this->auth_user instanceof Model);
+		$found = $this->object->find();
+		if (!$found) {
+			$this->error($locale->__("Control_ForgotReset:=Forgotten password request no longer valid. Please try again."));
+			return false;
+		}
+		if ($found->expired()) {
+			$this->error($locale->__("Control_ForgotReset:=Forgotten password request expired. Please try again."));
+			return false;
+		}
+		$this->auth_user = $found->user;
+		$this->auth_user = $this->call_hook_arguments("find_user", array(
+			$this->auth_user,
+		), $this->auth_user);
+		if ($this->option_bool('not_found_error', true) && !$this->auth_user) {
+			$this->error($locale->__("Control_ForgotReset:=Not able to find that user."), 'login');
+			return false;
+		}
+		return true;
+	}
 
-        $object = $this->object;
+	public function submit_store() {
+		assert($this->auth_user instanceof Model);
 
-        $object->validated($object->new_password);
+		$object = $this->object;
 
-        $location = '/forgot/complete/' . $this->validate_token();
-        if (!$this->prefer_json()) {
-            throw new Exception_Redirect($location);
-        }
-        $this->json(array(
-            "redirect" => $location,
-            "status" => true,
-            "message" => $this->application->locale->__("Your password has been updated."),
-        ));
-        return false;
-    }
+		$object->validated($object->password);
+
+		$location = '/forgot/complete/' . $this->validate_token();
+		if (!$this->prefer_json()) {
+			throw new Exception_Redirect($location);
+		}
+		$this->json(array(
+			"redirect" => $location,
+			"status" => true,
+			"message" => $this->application->locale->__("Your password has been updated."),
+		));
+		return false;
+	}
 }

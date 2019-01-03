@@ -8,8 +8,8 @@
 namespace zesk;
 
 class Exception_File_Format_Test extends Exception_TestCase {
-    public function test_basics() {
-        $testx = new Exception_File_Format();
-        $this->exception_test($testx);
-    }
+	public function test_basics() {
+		$testx = new Exception_File_Format();
+		$this->exception_test($testx);
+	}
 }

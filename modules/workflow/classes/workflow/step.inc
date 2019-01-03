@@ -15,38 +15,38 @@ abstract class Workflow_Step extends Hookable {
 	 * @var Workflow
 	 */
 	public $workflow = null;
-	
+
 	/**
 	 *
 	 * @var string
 	 */
 	public $title = '';
-	
+
 	/**
 	 *
 	 * @var string
 	 */
 	public $href = '';
-	
+
 	/**
 	 *
 	 * @var string
 	 */
 	public $description = '';
-	
+
 	/**
 	 * Is this completed? If null, not checked yet - call "refresh()" to update
 	 *
 	 * @var boolean
 	 */
 	public $completed = null;
-	
+
 	/**
 	 *
 	 * @var mixed
 	 */
 	protected $dependencies = array();
-	
+
 	/**
 	 *
 	 * @param Workflow $workflow
@@ -57,9 +57,9 @@ abstract class Workflow_Step extends Hookable {
 		$this->workflow = $workflow;
 		$this->initialize();
 	}
-	
+
 	/**
-	 * 
+	 *
 	 * {@inheritDoc}
 	 * @see \zesk\Hookable::initialize()
 	 */
@@ -82,68 +82,68 @@ abstract class Workflow_Step extends Hookable {
 			$this->theme = $this->application->classes->hierarchy(get_class($this), __CLASS__);
 		}
 	}
-	
+
 	/**
-	 * 
+	 *
 	 * @return mixed|array
 	 */
 	public function dependencies() {
 		return $this->dependencies;
 	}
-	
+
 	/**
-	 * 
+	 *
 	 */
 	public function refresh() {
 		if ($this->completed === null) {
 			$this->completed = $this->is_completed();
 		}
 	}
-	
+
 	/**
-	 * 
+	 *
 	 * @return number
 	 */
 	public function substeps_total() {
 		return 1;
 	}
-	
+
 	/**
-	 * 
+	 *
 	 * @return number
 	 */
 	public function substeps_completed() {
 		return $this->completed ? 1 : 0;
 	}
-	
+
 	/**
-	 * 
+	 *
 	 * @return string
 	 */
 	public function hash() {
 		return __CLASS__;
 	}
-	
+
 	/**
 	 * Check if this step is completed
 	 *
 	 * @return boolean
 	 */
-	function is_completed() {
+	public function is_completed() {
 		return $this->substeps_total() === $this->substeps_completed();
 	}
-	
+
 	/**
 	 * Check if this step is completed
 	 *
 	 * @return string
 	 */
-	function render() {
+	public function render() {
 		return $this->application->theme($this->theme, array(
 			'step' => $this,
-			'workflow' => $this->workflow
+			'workflow' => $this->workflow,
 		) + $this->workflow->variables(), array(
-			'first' => true
+			'first' => true,
 		));
 	}
 }

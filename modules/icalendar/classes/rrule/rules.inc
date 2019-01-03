@@ -23,35 +23,35 @@ class Rules implements Iterator {
 	 * @var Rule[]
 	 */
 	private $rules = array();
-	
+
 	/**
 	 * @var Timestamp[]
 	 */
 	private $timestamps = array();
-	
+
 	/**
 	 * @var \Generator
 	 */
 	private $generator = array();
-	
+
 	/**
 	 * @var zesk\Timestamp
 	 */
 	private $current = array();
-	
+
 	/**
 	 * Construct a group of rules which includes multiple RRule\Rules and Timestamps
-	 * 
+	 *
 	 * @param array $rules
 	 * @param array $timestamps
 	 */
-	function __construct(array $rules, array $timestamps) {
+	public function __construct(array $rules, array $timestamps) {
 		$this->rules = array_values($rules);
 		$this->timestamps = array_values($timestamps);
 	}
-	
+
 	/**
-	 * Return the topmost item in 
+	 * Return the topmost item in
 	 * {@inheritDoc}
 	 * @see Iterator::current()
 	 */
@@ -61,12 +61,14 @@ class Rules implements Iterator {
 		}
 		return null;
 	}
+
 	public function key() {
 		foreach ($this->current as $index => $timestamp) {
 			return $timestamp->__toString();
 		}
 		return null;
 	}
+
 	public function next() {
 		foreach ($this->current as $index => $timestamp) {
 			if ($index < 0) {
@@ -82,6 +84,7 @@ class Rules implements Iterator {
 			return;
 		}
 	}
+
 	public function rewind() {
 		$this->current = array();
 		foreach ($this->rules as $index => $rule) {
@@ -97,12 +100,14 @@ class Rules implements Iterator {
 		}
 		$this->current_sort();
 	}
+
 	/**
 	 * @return boolean
 	 */
 	public function valid() {
 		return count($this->current) > 0;
 	}
+
 	private function current_sort() {
 		uasort($this->current, "zesk\\Timestamp::compare_callback");
 	}

@@ -10,7 +10,6 @@ namespace zesk;
  *
  */
 class Controller_PolyGlot extends Controller_Authenticated {
-
 	/**
 	 *
 	 * @var Module_PolyGlot
@@ -50,12 +49,13 @@ class Controller_PolyGlot extends Controller_Authenticated {
 	public function action_index() {
 		if (!$this->user->can("zesk\\Module_PolyGlot::translate")) {
 			$app_locale = $this->application->locale;
+
 			throw new Exception_Permission($this->user, "Module_PolyGlot::index", null, array(
-				"message" => $app_locale->__("Not allowed to do translations.")
+				"message" => $app_locale->__("Not allowed to do translations."),
 			));
 		}
 		return $this->application->theme('polyglot/translate', array(
-			"locale_options" => $this->module->locale_options()
+			"locale_options" => $this->module->locale_options(),
 		));
 	}
 
@@ -68,20 +68,20 @@ class Controller_PolyGlot extends Controller_Authenticated {
 		$app_locale = $this->application->locale;
 		$__ = array(
 			"lang_name" => Language::lang_name($this->application, $app_locale),
-			"locale" => $locale_string
+			"locale" => $locale_string,
 		);
 		if ($this->user->can("zesk\\Module_PolyGlot::load", null, array(
-			"locale" => $locale
+			"locale" => $locale,
 		))) {
 			return $this->json(array(
 				"status" => true,
 				"message" => $app_locale->__("Loaded locale {lang_name}.", $__),
-				"items" => $this->module->load_locale($locale)
+				"items" => $this->module->load_locale($locale),
 			));
 		}
 		return $this->json(array(
 			"status" => false,
-			"message" => $app_locale->__("You do not have permission to do translations.")
+			"message" => $app_locale->__("You do not have permission to do translations."),
 		));
 	}
 
@@ -94,26 +94,26 @@ class Controller_PolyGlot extends Controller_Authenticated {
 		$locale = $this->application->locale;
 		$__ = array(
 			"lang_name" => Language::lang_name($this->application, $locale_string),
-			"locale" => $locale_string
+			"locale" => $locale_string,
 		);
 		$locale_string = $this->application->locale;
 		if (!$this->user->can("zesk\\Module_PolyGlot::update", null, array(
-			"locale" => $locale_string
+			"locale" => $locale_string,
 		))) {
 			return $this->json(array(
 				"status" => false,
-				"message" => $locale->__("You do not have permission to update the {lang_name} locale.")
+				"message" => $locale->__("You do not have permission to update the {lang_name} locale."),
 			));
 		}
 		if (PolyGlot_Update::register_update($this->application, $locale_string, $this->user)) {
 			return $this->json(array(
 				"status" => true,
-				"message" => $locale->__("Locale {lang_name} will be updated in the new few minutes.", $__)
+				"message" => $locale->__("Locale {lang_name} will be updated in the new few minutes.", $__),
 			));
 		}
 		$this->json(array(
 			"status" => false,
-			"message" => $locale->__("Locale {lang_name} was not updated.", $__)
+			"message" => $locale->__("Locale {lang_name} was not updated.", $__),
 		));
 	}
 
@@ -126,14 +126,14 @@ class Controller_PolyGlot extends Controller_Authenticated {
 	public function action_token($locale) {
 		$__ = array(
 			"lang_name" => Language::lang_name($this->application, $locale),
-			"locale" => $locale
+			"locale" => $locale,
 		);
 		if (!$this->user->can("zesk\\Module_PolyGlot::translate", null, array(
-			"locale" => $locale
+			"locale" => $locale,
 		))) {
 			return $this->json(array(
 				"status" => false,
-				"message" => $this->application->locale->__("No permission to update {lang_name}.", $__)
+				"message" => $this->application->locale->__("No permission to update {lang_name}.", $__),
 			));
 		}
 		$id = $this->request->geti("id");
@@ -147,7 +147,7 @@ class Controller_PolyGlot extends Controller_Authenticated {
 		if (empty($language)) {
 			return $this->json(array(
 				"status" => false,
-				"message" => $this->application->locale->__("No language? {locale} ({language})", compact("locale", "language"))
+				"message" => $this->application->locale->__("No language? {locale} ({language})", compact("locale", "language")),
 			));
 		}
 		if ($id) {
@@ -160,14 +160,14 @@ class Controller_PolyGlot extends Controller_Authenticated {
 		if (count($errors)) {
 			return $this->json(array(
 				"status" => false,
-				"message" => $errors
+				"message" => $errors,
 			));
 		}
 		$result = $object->store();
 		return $this->json(array(
 			"status" => $result,
 			"id" => $object->id(),
-			"message" => $result ? null : $object->store_errors()
+			"message" => $result ? null : $object->store_errors(),
 		));
 	}
 }

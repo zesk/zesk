@@ -13,15 +13,15 @@ namespace zesk;
  *
  */
 class Module_Picker extends Module_JSLib {
-    protected $javascript_paths = array(
-        '/share/picker/js/picker.js',
-    );
+	protected $javascript_paths = array(
+		'/share/picker/js/picker.js',
+	);
 
-    protected $css_paths = array(
-        '/share/picker/css/picker.css',
-    );
+	protected $css_paths = array(
+		'/share/picker/css/picker.css',
+	);
 
-    public function hook_cron() {
-        $this->application->locale->__("No matches found for search &ldquo;{q}&rdquo;.");
-    }
+	public function hook_cron() {
+		$this->application->locale->__("No matches found for search &ldquo;{q}&rdquo;.");
+	}
 }

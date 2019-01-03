@@ -7,7 +7,7 @@
 namespace zesk;
 
 class Controller_Content extends Controller_Authenticated {
-    public function _action_default($action = null) {
-        $this->response->content = "$action - " . get_class($this);
-    }
+	public function _action_default($action = null) {
+		$this->response->content = "$action - " . get_class($this);
+	}
 }

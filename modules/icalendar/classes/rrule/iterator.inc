@@ -11,7 +11,7 @@
  * Based on python-dateutil, just like everyone else's version
  *
  * https://pypi.python.org/pypi/python-dateutil/2.5.3
- * 
+ *
  * see module's README.txt for license information.
  */
 namespace RRule;
@@ -21,97 +21,108 @@ use zesk\Date;
 use RRule\Rule;
 
 class Iterator {
-	
 	/**
 	 *
 	 * @var Rule
 	 */
 	private $rrule = null;
+
 	/**
 	 *
 	 * @var integer
 	 */
 	private $lastyear = null;
+
 	/**
 	 *
 	 * @var integer
 	 */
 	private $lastmonth = null;
+
 	/**
 	 *
 	 * @var integer
 	 */
 	public $yearlen = null;
+
 	/**
 	 *
 	 * @var integer
 	 */
 	private $nextyearlen = null;
+
 	/**
 	 *
 	 * @var integer
 	 */
 	public $yearordinal = null;
+
 	/**
 	 *
 	 * @var integer
 	 */
 	private $yearweekday = null;
+
 	/**
 	 *
 	 * @var array
 	 */
 	public $mmask = null;
+
 	/**
 	 *
 	 * @var array
 	 */
 	private $mrange = null;
+
 	/**
 	 *
 	 * @var array
 	 */
 	public $mdaymask = null;
-	
+
 	/**
 	 *
 	 * @var array
 	 */
 	public $nmdaymask = null;
+
 	/**
 	 *
 	 * @var array
 	 */
 	public $wdaymask = null;
+
 	/**
 	 *
 	 * @var array
 	 */
 	public $wnomask = null;
+
 	/**
 	 *
 	 * @var array
 	 */
 	public $nwdaymask = null;
-	
+
 	/**
 	 *
-	 * @param Rule $rrule        	
+	 * @param Rule $rrule
 	 */
 	public function __construct(Rule $rrule) {
 		$this->rrule = $rrule;
 	}
-	
+
 	/**
 	 *
-	 * @param integer $year        	
-	 * @param integer $month        	
+	 * @param integer $year
+	 * @param integer $month
 	 */
 	public function rebuild($year, $month) {
 		$date = Date::instance($year, $month, 1);
 		$leap_index = $date->is_leap_year() ? 1 : 0;
 		$next_leap_index = $date->is_leap_year($year + 1) ? 1 : 0;
-		# Every mask is 7 days longer to handle cross-year weekly periods.
+		// Every mask is 7 days longer to handle cross-year weekly periods.
 		$rrule = $this->rrule;
 		if ($year !== $this->lastyear) {
 			$this->yearlen = 365 + $leap_index;
@@ -119,13 +130,13 @@ class Iterator {
 			$firstyday = Date::instance($year, 1, 1);
 			$this->yearordinal = $firstyday->gregorian();
 			$wday = $this->yearweekday = $firstyday->weekday();
-			
+
 			$this->mmask = Rule::$MMASK[$leap_index];
 			$this->mdaymask = Rule::$MDAYMASK[$leap_index];
 			$this->nmdaymask = Rule::$NMDAYMASK[$leap_index];
 			$this->wdaymask = array_slice(Rule::$WDAYMASK, $wday);
 			$this->mrange = Rule::$MRANGE[$leap_index];
-			
+
 			if (!$rrule->byweekno) {
 				$this->wnomask = null;
 			} else {
@@ -133,12 +144,12 @@ class Iterator {
 				$no1wkst = $firstwkst = (7 - $this->yearweekday + $rrule->wkst) % 7;
 				if ($no1wkst >= 4) {
 					$no1wkst = 0;
-					# Number of days in the year, plus the days we got
-					# from last year.
+					// Number of days in the year, plus the days we got
+					// from last year.
 					$wyearlen = $this->yearlen + ($this->yearweekday - $rrule->wkst) % 7;
 				} else {
-					# Number of days in the year, minus the days we
-					# left in last year.
+					// Number of days in the year, minus the days we
+					// left in last year.
 					$wyearlen = $this->yearlen - $no1wkst;
 				}
 				list($div, $mod) = Rule::divmod($wyearlen, 7);
@@ -167,15 +178,15 @@ class Iterator {
 					}
 				}
 				if (isset($rrule->byweekno[1])) {
-					# Check week number 1 of next year as well
-					# TODO: Check -numweeks for next year.
+					// Check week number 1 of next year as well
+					// TODO: Check -numweeks for next year.
 					$i = $no1wkst + $numweeks * 7;
 					if ($no1wkst != $firstwkst) {
 						$i -= 7 - $firstwkst;
 					}
 					if ($i < $this->yearlen) {
-						# If week starts in next year, we
-						# don't care about it.
+						// If week starts in next year, we
+						// don't care about it.
 						for ($j = 0; $j < 7; $j++) {
 							$this->wnomask[i] = 1;
 							$i += 1;
@@ -214,7 +225,7 @@ class Iterator {
 				}
 			}
 		}
-		
+
 		if ($rrule->bynweekday && ($month != $this->lastmonth || $year != $this->lastyear)) {
 			$ranges = null;
 			if ($rrule->frequency === Rule::FREQUENCY_YEARLY) {
@@ -227,19 +238,19 @@ class Iterator {
 					$ranges = array(
 						array(
 							0,
-							$this->yearlen
-						)
+							$this->yearlen,
+						),
 					);
 				}
-			} else if ($rrule->frequency === Rule::FREQUENCY_MONTHLY) {
+			} elseif ($rrule->frequency === Rule::FREQUENCY_MONTHLY) {
 				$ranges = array(
-					array_slice($this->mrange, $month - 1, 2)
+					array_slice($this->mrange, $month - 1, 2),
 				);
 			}
-			
+
 			if (is_array($ranges)) {
-				# Weekly frequency won't get here, so we may not
-				# care about cross-year weekly periods.
+				// Weekly frequency won't get here, so we may not
+				// care about cross-year weekly periods.
 				$this->nwdaymask = array_fill(0, $this->yearlen, 0);
 				foreach ($ranges as $range) {
 					list($first, $last) = $range;
@@ -263,18 +274,19 @@ class Iterator {
 			$this->lastmonth = $month;
 		}
 	}
+
 	/**
 	 * Python -1 % 7 = 6, not -1 as it does in PHP
-	 * 
+	 *
 	 * @param integer $number
 	 * @param integer $modulo
 	 * @return integer
 	 */
-	static function posmod($number, $modulo) {
+	public static function posmod($number, $modulo) {
 		$result = $number % $modulo;
 		return ($result < 0) ? $result + $modulo : $result;
 	}
-	
+
 	/**
 	 * Retrieve
 	 * @param integer $year
@@ -285,9 +297,9 @@ class Iterator {
 		$method = "_getdayset_" . $this->rrule->frequency;
 		return $this->$method($year, $month, $day);
 	}
-	
+
 	/**
-	 * 
+	 *
 	 * @param integer $hour
 	 * @param integer $minute
 	 * @param integer $second
@@ -297,13 +309,15 @@ class Iterator {
 		$method = "_gettimeset_" . $this->rrule->frequency;
 		return $this->$method($hour, $minute, $second);
 	}
+
 	private function _getdayset_YEARLY($year, $month, $day) {
 		return array(
 			Rule::range($this->yearlen),
 			0,
-			$this->yearlen
+			$this->yearlen,
 		);
 	}
+
 	private function _getdayset_MONTHLY($year, $month, $day) {
 		$dset = array_fill(0, $this->yearlen, null);
 		list($start, $end) = array_slice($this->mrange, $month - 1, 2);
@@ -313,20 +327,21 @@ class Iterator {
 		return array(
 			$dset,
 			$start,
-			$end
+			$end,
 		);
 	}
+
 	private function _getdayset_WEEKLY($year, $month, $day) {
-		# We need to handle cross-year weeks here.
+		// We need to handle cross-year weeks here.
 		$dset = array_fill(0, $this->yearlen + 7, null);
 		$i = Date::instance($year, $month, $day)->gregorian() - $this->yearordinal;
 		$start = $i;
 		for ($j = 0; $j < 7; $j++) {
 			$dset[$i] = $i;
 			$i += 1;
-			# if (not (0 <= i < $this->yearlen) or
-			#    $this->wdaymask[i] == $this->rrule._wkst):
-			# This will cross the year boundary, if necessary.
+			// if (not (0 <= i < $this->yearlen) or
+			//    $this->wdaymask[i] == $this->rrule._wkst):
+			// This will cross the year boundary, if necessary.
 			if ($this->wdaymask[$i] == $this->rrule->wkst) {
 				break;
 			}
@@ -334,9 +349,10 @@ class Iterator {
 		return array(
 			$dset,
 			$start,
-			$i
+			$i,
 		);
 	}
+
 	private function _getdayset_DAILY($year, $month, $day) {
 		$dset = array_fill(0, $this->yearlen + 7, null);
 		$i = Date::instance($year, $month, $day)->gregorian() - $this->yearordinal;
@@ -344,18 +360,22 @@ class Iterator {
 		return array(
 			$dset,
 			$i,
-			$i + 1
+			$i + 1,
 		);
 	}
+
 	private function _getdayset_HOURLY($year, $month, $day) {
 		return $this->_getdayset_DAILY($year, $month, $day);
 	}
+
 	private function _getdayset_MINUTELY($year, $month, $day) {
 		return $this->_getdayset_DAILY($year, $month, $day);
 	}
+
 	private function _getdayset_SECONDLY($year, $month, $day) {
 		return $this->_getdayset_DAILY($year, $month, $day);
 	}
+
 	private function _gettimeset_HOURLY($hour, $minute, $second) {
 		$tset = array();
 		$rrule = $this->rrule;
@@ -367,6 +387,7 @@ class Iterator {
 		usort($tset, "zesk\\Time::sort_callback");
 		return $tset;
 	}
+
 	private function _gettimeset_MINUTELY($hour, $minute, $second) {
 		$tset = array();
 		$rrule = $this->rrule;
@@ -376,9 +397,10 @@ class Iterator {
 		usort($tset, "zesk\\Time::sort_callback");
 		return $tset;
 	}
+
 	private function _gettimeset_SECONDLY($hour, $minute, $second) {
 		return array(
-			Time::instance($hour, $minute, $second)
+			Time::instance($hour, $minute, $second),
 		);
 	}
 }

@@ -2,7 +2,7 @@
 namespace zesk;
 
 class Control_Real extends Control_Text {
-    protected $options = array(
-        'validate' => 'real',
-    );
+	protected $options = array(
+		'validate' => 'real',
+	);
 }

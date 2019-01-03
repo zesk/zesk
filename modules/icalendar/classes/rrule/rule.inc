@@ -30,44 +30,49 @@ class Rule {
 	 * @var string
 	 */
 	const FREQUENCY_YEARLY = "YEARLY";
+
 	/**
 	 *
 	 * @var string
 	 */
 	const FREQUENCY_MONTHLY = "MONTHLY";
+
 	/**
 	 *
 	 * @var string
 	 */
 	const FREQUENCY_WEEKLY = "WEEKLY";
-	
+
 	/**
 	 *
 	 * @var string
 	 */
 	const FREQUENCY_DAILY = "DAILY";
-	
+
 	/**
 	 *
 	 * @var string
 	 */
 	const FREQUENCY_HOURLY = "HOURLY";
+
 	/**
 	 *
 	 * @var string
 	 */
 	const FREQUENCY_MINUTELY = "MINUTELY";
+
 	/**
 	 *
 	 * @var string
 	 */
 	const FREQUENCY_SECONDLY = "SECONDLY";
-	
+
 	/**
 	 *
 	 * @var boolean
 	 */
 	private static $inited = false;
+
 	/**
 	 * Index 0 is normal year, Index 1 is leap year
 	 *
@@ -75,8 +80,9 @@ class Rule {
 	 */
 	public static $MMASK = array(
 		0 => null,
-		1 => null
+		1 => null,
 	);
+
 	/**
 	 * Index 0 is normal year, Index 1 is leap year
 	 *
@@ -84,8 +90,9 @@ class Rule {
 	 */
 	public static $MDAYMASK = array(
 		0 => null,
-		1 => null
+		1 => null,
 	);
+
 	/**
 	 * Index 0 is normal year, Index 1 is leap year
 	 *
@@ -93,9 +100,9 @@ class Rule {
 	 */
 	public static $NMDAYMASK = array(
 		0 => null,
-		1 => null
+		1 => null,
 	);
-	
+
 	/**
 	 * Index 0 is normal year, Index 1 is leap year
 	 *
@@ -115,7 +122,7 @@ class Rule {
 			273,
 			304,
 			334,
-			365
+			365,
 		),
 		1 => array(
 			0,
@@ -130,58 +137,65 @@ class Rule {
 			274,
 			305,
 			335,
-			366
-		)
+			366,
+		),
 	);
-	
+
 	/**
 	 * weekday mask - big array of 0..6 x 55
 	 *
 	 * @var array
 	 */
 	public static $WDAYMASK = array();
-	
+
 	/**
 	 *
 	 * @var Weekday[]
 	 */
 	public static $weekdays = array();
-	
+
 	/**
 	 *
 	 * @var integer
 	 */
 	const FREQUENCY_INDEX_YEARLY = 0;
+
 	/**
 	 *
 	 * @var integer
 	 */
 	const FREQUENCY_INDEX_MONTHLY = 1;
+
 	/**
 	 *
 	 * @var integer
 	 */
 	const FREQUENCY_INDEX_WEEKLY = 2;
+
 	/**
 	 *
 	 * @var integer
 	 */
 	const FREQUENCY_INDEX_DAILY = 3;
+
 	/**
 	 *
 	 * @var integer
 	 */
 	const FREQUENCY_INDEX_HOURLY = 4;
+
 	/**
 	 *
 	 * @var integer
 	 */
 	const FREQUENCY_INDEX_MINUTELY = 5;
+
 	/**
 	 *
 	 * @var integer
 	 */
 	const FREQUENCY_INDEX_SECONDLY = 6;
+
 	/**
 	 *
 	 * @var array
@@ -193,108 +207,118 @@ class Rule {
 		self::FREQUENCY_DAILY => self::FREQUENCY_INDEX_DAILY,
 		self::FREQUENCY_HOURLY => self::FREQUENCY_INDEX_HOURLY,
 		self::FREQUENCY_MINUTELY => self::FREQUENCY_INDEX_MINUTELY,
-		self::FREQUENCY_SECONDLY => self::FREQUENCY_INDEX_SECONDLY
+		self::FREQUENCY_SECONDLY => self::FREQUENCY_INDEX_SECONDLY,
 	);
-	
+
 	/**
 	 *
 	 * @var Timestamp
 	 */
 	private $dtstart = null;
-	
+
 	/**
 	 *
 	 * @var Timestamp
 	 */
 	private $until = null;
+
 	/**
 	 *
 	 * @var string
 	 */
 	public $frequency = null;
+
 	/**
 	 *
 	 * @var integer
 	 */
 	private $frequency_index = null;
+
 	/**
 	 *
 	 * @var integer
 	 */
 	private $interval = null;
-	
+
 	/**
 	 *
 	 * @var integer
 	 */
 	private $count = null;
-	
+
 	/**
 	 * @var integer|integer-list
 	 */
 	public $wkst = null;
+
 	/**
 	 * @var integer|integer-list
 	 */
 	public $bysetpos = null;
-	
+
 	/**
 	 * @var integer|integer-list
 	 */
 	public $bymonth = null;
-	
+
 	/**
 	 * @var integer|integer-list
 	 */
 	public $byyearday = null;
-	
+
 	/**
 	 * Month day list
 	 *
 	 * @var integer|integer-list
 	 */
 	public $bymonthday = null;
+
 	/**
 	 * @var integer|integer-list
 	 */
 	public $bynmonthday = null;
+
 	/**
 	 * @var integer|integer-list
 	 */
 	public $byweekno = null;
-	
+
 	/**
 	 * @var integer|integer-list
 	 */
 	public $byweekday = null;
+
 	/**
 	 * @var integer|integer-list
 	 */
 	public $bynweekday = null;
+
 	/**
 	 * @var integer|integer-list
 	 */
 	public $byhour = null;
+
 	/**
 	 * @var integer|integer-list
 	 */
 	public $byminute = null;
+
 	/**
 	 * @var integer|integer-list
 	 */
 	public $bysecond = null;
-	
+
 	/**
 	 * @var Time[]
 	 */
 	private $timeset = null;
-	
+
 	/**
 	 *
 	 * @var array
 	 */
 	private $original_rule = null;
-	
+
 	/**
 	 *
 	 *   That's the base of the rrule operation. It accepts all the keywords
@@ -405,20 +429,20 @@ class Rule {
 	 * @param string $frequency
 	 * @param array $options
 	 */
-	function __construct($frequency, array $options = array()) {
+	public function __construct($frequency, array $options = array()) {
 		self::_init();
-		
+
 		$locale = avalue($options, 'locale');
 		if (!$locale instanceof Locale) {
 			$locale = null;
 		}
-		
+
 		/* @var $dtstart Timestamp */
 		$interval = 1;
 		$dtstart = $wkst = $count = $until = $bysetpos = $bymonth = $bymonthday = $byyearday = $byweekno = $byday = $byhour = $byminute = $bysecond = null;
 		extract($options, EXTR_IF_EXISTS);
 		$byweekday = $byday;
-		
+
 		if (!$dtstart instanceof Timestamp) {
 			$dtstart = Timestamp::now();
 		} else {
@@ -430,41 +454,41 @@ class Rule {
 		if ($frequency_index === null) {
 			throw new Exception_Parameter("Invalid frequency {frequency}", compact("frequency"));
 		}
-		
+
 		$this->interval = $interval;
 		$this->count = $count;
-		
-		# Cache the original byxxx rules, if they are provided, as the _byxxx
-		# attributes do not necessarily map to the inputs, and this can be
-		# a problem in generating the strings. Only store things if they've
-		# been supplied (the string retrieval will just use .get())
+
+		// Cache the original byxxx rules, if they are provided, as the _byxxx
+		// attributes do not necessarily map to the inputs, and this can be
+		// a problem in generating the strings. Only store things if they've
+		// been supplied (the string retrieval will just use .get())
 		$this->original_rule = array();
-		
+
 		if ($until instanceof Timestamp) {
 			$this->until = $until;
 		}
-		
+
 		if ($this->count && $this->until) {
 			zesk()->deprecated("Using both 'count' and 'until' is inconsistent with RFC 2445 and has been deprecated in dateutil. Future versions will raise an error.");
 		}
-		
+
 		// wkst: Starting day of the week
 		if ($wkst === null) {
 			$this->wkst = avalue($options, "first_day_of_week", $locale ? $locale->first_day_of_week() : 1);
-		} else if (is_integer($wkst)) {
+		} elseif (is_integer($wkst)) {
 			$this->wkst = $wkst;
-		} else if ($wkst instanceof Weekday) {
+		} elseif ($wkst instanceof Weekday) {
 			$this->wkst = $wkst->weekday;
 		}
-		
+
 		// bysetpos
 		if ($bysetpos === null) {
 			$this->bysetpos = null;
-		} else if (self::_is_integer_list("bysetpos", $bysetpos, -366, 366, true)) {
+		} elseif (self::_is_integer_list("bysetpos", $bysetpos, -366, 366, true)) {
 			$this->bysetpos = $bysetpos;
 		}
 		$this->original_rule['bysetpos'] = $bysetpos;
-		
+
 		/*
 		 * Set up defaults based on frequency, and ensure our original rule doesn't include implicit values
 		 */
@@ -484,54 +508,54 @@ class Rule {
 				$this->original_rule['byweekday'] = null;
 			}
 		}
-		
+
 		// bymonth
 		if ($bymonth === null) {
 			$this->bymonth = null;
-		} else if (self::_is_integer_list("bymonth", $bymonth, 1, 12)) {
+		} elseif (self::_is_integer_list("bymonth", $bymonth, 1, 12)) {
 			$this->bymonth = $bymonth;
 			$this->original_rule += array(
-				'bymonth' => $bymonth
+				'bymonth' => $bymonth,
 			);
 		}
-		
+
 		// byyearday
 		if ($byyearday === null) {
 			$this->byyearday = null;
-		} else if (self::_is_integer_list("byyearday", $byyearday, 1, 366)) {
+		} elseif (self::_is_integer_list("byyearday", $byyearday, 1, 366)) {
 			$this->byyearday = $byyearday;
 			$this->original_rule['byyearday'] = $byyearday;
 		}
-		
+
 		// bymonthday
 		if ($bymonthday === null) {
 			$this->bymonthday = array();
 			$this->bynmonthday = array();
-		} else if (self::_is_integer_list("bymonthday", $bymonthday, -31, 31, false)) {
+		} elseif (self::_is_integer_list("bymonthday", $bymonthday, -31, 31, false)) {
 			$this->bymonthday = self::_integers_filter($bymonthday, true);
 			$this->bynmonthday = self::_integers_filter($bymonthday, false);
 			$this->original_rule += array(
-				'bymonthday' => array_merge($this->bymonthday, $this->bynmonthday)
+				'bymonthday' => array_merge($this->bymonthday, $this->bynmonthday),
 			);
 		}
-		
+
 		//byweekno
 		if ($byweekno === null) {
 			$this->byweekno = null;
-		} else if (self::_is_integer_list("byweekno", $byweekno)) {
+		} elseif (self::_is_integer_list("byweekno", $byweekno)) {
 			$this->byweekno = $byweekno;
 			$this->original_rule += array(
-				'byweekno' => $byweekno
+				'byweekno' => $byweekno,
 			);
 		}
-		
+
 		// byweekday
 		if ($byweekday === null) {
 			$this->byweekday = null;
 			$this->bynweekday = null;
-		} else if (is_integer($byweekday) || $byweekday instanceof Weekday) {
+		} elseif (is_integer($byweekday) || $byweekday instanceof Weekday) {
 			$byweekday = array(
-				$byweekday
+				$byweekday,
 			);
 		}
 		if (is_array($byweekday)) {
@@ -540,12 +564,12 @@ class Rule {
 			foreach ($byweekday as $wday) {
 				if (is_integer($wday)) {
 					$this->byweekday[] = $wday;
-				} else if (($wday instanceof Weekday && !$wday->n) || $frequency_index > self::FREQUENCY_INDEX_MONTHLY) {
+				} elseif (($wday instanceof Weekday && !$wday->n) || $frequency_index > self::FREQUENCY_INDEX_MONTHLY) {
 					$this->byweekday[] = $wday->weekday;
-				} else if ($wday instanceof Weekday) {
+				} elseif ($wday instanceof Weekday) {
 					$this->bynweekday[] = array(
 						$wday->weekday,
-						$wday->n
+						$wday->n,
 					);
 				}
 			}
@@ -572,12 +596,12 @@ class Rule {
 				$this->original_rule['byweekday'] = array_merge($orig_byweekday, $orig_bynweekday);
 			}
 		}
-		
+
 		// byhour
 		if ($byhour === null) {
 			if ($frequency_index < self::FREQUENCY_INDEX_HOURLY) {
 				$this->byhour = array(
-					$dtstart->hour()
+					$dtstart->hour(),
 				);
 			} else {
 				$this->byhour = null;
@@ -592,12 +616,12 @@ class Rule {
 				$this->original_rule['byhour'] = $this->byhour;
 			}
 		}
-		
+
 		// byminute
 		if ($byminute === null) {
 			if ($frequency_index < self::FREQUENCY_INDEX_MINUTELY) {
 				$this->byminute = array(
-					$dtstart->minute()
+					$dtstart->minute(),
 				);
 			} else {
 				$this->byminute = null;
@@ -612,12 +636,12 @@ class Rule {
 				$this->original_rule['byminute'] = $this->byminute;
 			}
 		}
-		
+
 		// bysecond
 		if ($bysecond === null) {
 			if ($frequency_index < self::FREQUENCY_INDEX_SECONDLY) {
 				$this->bysecond = array(
-					$dtstart->second()
+					$dtstart->second(),
 				);
 			} else {
 				$this->bysecond = null;
@@ -632,7 +656,7 @@ class Rule {
 				$this->original_rule['bysecond'] = $this->bysecond;
 			}
 		}
-		
+
 		if ($frequency_index >= self::FREQUENCY_INDEX_HOURLY) {
 			$this->timeset = null;
 		} else {
@@ -646,6 +670,7 @@ class Rule {
 			}
 		}
 	}
+
 	private function flip_copy(array $array = null) {
 		if ($array) {
 			$result = array();
@@ -656,12 +681,13 @@ class Rule {
 		}
 		return null;
 	}
+
 	/**
 	 *
 	 * @throws Exception_Semantics
 	 * @return void|Generator
 	 */
-	function generator() {
+	public function generator() {
 		$year = $this->dtstart->year();
 		$month = $this->dtstart->month();
 		$day = $this->dtstart->day();
@@ -670,7 +696,7 @@ class Rule {
 		$second = $this->dtstart->second();
 		$weekday = $this->dtstart->weekday();
 		$yearday = $this->dtstart->yearday();
-		
+
 		// Some local variables to speed things up a bit: PHP - does this improve anything?
 		$freq = $this->frequency;
 		$frequency_index = $this->frequency_index;
@@ -698,18 +724,18 @@ class Rule {
 		$byhour = self::flip_copy($this->byhour);
 		$byminute = self::flip_copy($this->byminute);
 		$bysecond = self::flip_copy($this->bysecond);
-		
+
 		$ii = new Iterator($this);
 		$ii->rebuild($year, $month);
-		
+
 		if ($frequency_index < self::FREQUENCY_INDEX_HOURLY) {
 			$timeset = $this->timeset;
 		} else {
 			if ($frequency_index >= self::FREQUENCY_INDEX_HOURLY && is_array($byhour) && !isset($byhour[$hour])) {
 				$timeset = array();
-			} else if ($frequency_index >= self::FREQUENCY_INDEX_MINUTELY && is_array($byminute) && !isset($byminute[$minute])) {
+			} elseif ($frequency_index >= self::FREQUENCY_INDEX_MINUTELY && is_array($byminute) && !isset($byminute[$minute])) {
 				$timeset = array();
-			} else if ($frequency_index >= self::FREQUENCY_INDEX_SECONDLY && is_array($bysecond) && !isset($bysecond[$second])) {
+			} elseif ($frequency_index >= self::FREQUENCY_INDEX_SECONDLY && is_array($bysecond) && !isset($bysecond[$second])) {
 				$timeset = array();
 			} else {
 				$timeset = $ii->gettimeset($hour, $minute, $second);
@@ -804,7 +830,7 @@ class Rule {
 					if ($until && $res->after($until)) {
 						$this->len = $total;
 						return;
-					} else if ($res->after($this->dtstart, true)) {
+					} elseif ($res->after($this->dtstart, true)) {
 						$total += 1;
 						yield $res;
 						if ($count) {
@@ -828,7 +854,7 @@ class Rule {
 						if ($until && $res->after($until)) {
 							$this->len = $total;
 							return;
-						} else if ($res->after($this->dtstart, true)) {
+						} elseif ($res->after($this->dtstart, true)) {
 							$total += 1;
 							yield $res;
 							if ($count) {
@@ -842,8 +868,8 @@ class Rule {
 					}
 				}
 			}
-			# Handle frequency and interval;
-			$fixday = False;
+			// Handle frequency and interval;
+			$fixday = false;
 			if ($freq === self::FREQUENCY_YEARLY) {
 				$year += $interval;
 				if ($year > Timestamp::maximum_year) {
@@ -851,7 +877,7 @@ class Rule {
 					return;
 				}
 				$ii->rebuild($year, $month);
-			} else if ($freq === self::FREQUENCY_MONTHLY) {
+			} elseif ($freq === self::FREQUENCY_MONTHLY) {
 				$month += $interval;
 				if ($month > 12) {
 					list($div, $mod) = self::divmod($month, 12);
@@ -867,7 +893,7 @@ class Rule {
 					}
 				}
 				$ii->rebuild($year, $month);
-			} else if ($freq === self::FREQUENCY_WEEKLY) {
+			} elseif ($freq === self::FREQUENCY_WEEKLY) {
 				if ($wkst > $weekday) {
 					$day += -($weekday + 1 + (6 - $wkst)) + $this->interval * 7;
 				} else {
@@ -875,12 +901,12 @@ class Rule {
 				}
 				$weekday = $wkst;
 				$fixday = true;
-			} else if ($freq == self::FREQUENCY_DAILY) {
+			} elseif ($freq == self::FREQUENCY_DAILY) {
 				$day += $interval;
-				$fixday = True;
-			} else if ($freq == self::FREQUENCY_HOURLY) {
+				$fixday = true;
+			} elseif ($freq == self::FREQUENCY_HOURLY) {
 				if ($filtered) {
-					# Jump to one iteration before next day;
+					// Jump to one iteration before next day;
 					$hour += (self::intdiv(23 - $hour, $interval)) * $interval;
 				}
 				if ($byhour) {
@@ -893,12 +919,12 @@ class Rule {
 					$fixday = true;
 				}
 				$timeset = $ii->gettimeset($hour, $minute, $second);
-			} else if ($freq === self::FREQUENCY_MINUTELY) {
+			} elseif ($freq === self::FREQUENCY_MINUTELY) {
 				if ($filtered) {
 					// Jump to one iteration before next day;
 					$minute += self::intdiv((1439 - (hour * 60 + minute)), interval) * interval;
 				}
-				$valid = False;
+				$valid = false;
 				$rep_rate = (24 * 60);
 				$lastj = self::intdiv($rep_rate, self::gcd($interval, $rep_rate));
 				for ($j = 0; $j < $lastj; $j++) {
@@ -922,7 +948,7 @@ class Rule {
 					throw new Exception_Semantics('Invalid combination of interval and byhour resulting in empty rule.');
 				}
 				$timeset = $ii->gettimeset($hour, $minute, $second);
-			} else if ($freq == self::FREQUENCY_SECONDLY) {
+			} elseif ($freq == self::FREQUENCY_SECONDLY) {
 				if ($filtered) {
 					// Jump to one iteration before next day;
 					$second += self::intdiv(86399 - ($hour * 3600 + $minute * 60 + $second), $interval) * $interval;
@@ -979,6 +1005,7 @@ class Rule {
 			}
 		}
 	}
+
 	/**
 	 * Output a string that would generate this RRULE if passed to rrulestr.
 	 * This is mostly compatible with RFC2445, except for the
@@ -986,7 +1013,7 @@ class Rule {
 	 *
 	 * @return string
 	 */
-	function __toString() {
+	public function __toString() {
 		$output = array();
 		$h = $m = $s = null;
 		if ($this->dtstart) {
@@ -996,7 +1023,7 @@ class Rule {
 			$s = $this->dtstart->second();
 		}
 		$parts = array(
-			'FREQ=' . $this->frequency
+			'FREQ=' . $this->frequency,
 		);
 		if ($this->interval !== 1) {
 			$parts[] = "INTERVAL=" . $this->interval;
@@ -1029,7 +1056,7 @@ class Rule {
 			'BYDAY' => 'byweekday',
 			'BYHOUR' => 'byhour',
 			'BYMINUTE' => 'byminute',
-			'BYSECOND' => 'bysecond'
+			'BYSECOND' => 'bysecond',
 		) as $name => $var) {
 			if (isset($original_rule[$var])) {
 				$parts[] = "$name=" . self::list_to_string($original_rule[$var]);
@@ -1038,9 +1065,11 @@ class Rule {
 		$output[] = implode(";", $parts);
 		return implode("\n", $output);
 	}
+
 	private static function list_to_string(array $list) {
 		return implode(",", $list);
 	}
+
 	/**
 	 * Check and convert an integer list. Only modifies $item if returns true
 	 *
@@ -1057,7 +1086,7 @@ class Rule {
 	private static function _is_integer_list($name, &$item, $min = null, $max = null, $allow_zero = true, array $map = null) {
 		if (!is_array($item)) {
 			$check_items = array(
-				$item
+				$item,
 			);
 		} else {
 			$check_items = array_values($item);
@@ -1073,7 +1102,7 @@ class Rule {
 						"name" => $name,
 						"item" => $num,
 						"index" => $index + 1,
-						"type" => type($item)
+						"type" => type($item),
 					));
 				}
 			}
@@ -1083,7 +1112,7 @@ class Rule {
 					"name" => $name,
 					"num" => $num,
 					"index" => $index + 1,
-					"min" => $min
+					"min" => $min,
 				));
 			}
 			if ($max !== null && $num > $max) {
@@ -1091,7 +1120,7 @@ class Rule {
 					"name" => $name,
 					"num" => $num,
 					"index" => $index + 1,
-					"max" => $max
+					"max" => $max,
 				));
 			}
 			if ($allow_zero !== true && $num === 0) {
@@ -1099,7 +1128,7 @@ class Rule {
 					"name" => $name,
 					"num" => $num,
 					"check_items" => $check_items,
-					"index" => $index + 1
+					"index" => $index + 1,
 				));
 			}
 			$check_items[$index] = $num;
@@ -1108,7 +1137,7 @@ class Rule {
 		$item = $check_items;
 		return true;
 	}
-	
+
 	/**
 	 * Filter integers and only return positive or negative ones
 	 *
@@ -1133,7 +1162,7 @@ class Rule {
 		}
 		return $result;
 	}
-	
+
 	/**
 	 * Calculates the next value in a sequence where the `FREQ` parameter is
 	 * specified along with a `BYXXX` parameter at the same "level"
@@ -1160,22 +1189,22 @@ class Rule {
 	private function __mod_distance($value, array $byxxx, $base) {
 		$accumulator = 0;
 		for ($ii = 1; $ii < $base + 1; $ii++) {
-			# Using divmod() over % to account for negative intervals
+			// Using divmod() over % to account for negative intervals
 			list($div, $value) = self::divmod($value + $this->interval, $base);
 			$accumulator += $div;
 			if (in_array($value, $byxxx)) {
 				return array(
 					$accumulator,
-					$value
+					$value,
 				);
 			}
 		}
 		return array(
 			null,
-			null
+			null,
 		);
 	}
-	
+
 	/**
 	 *  If a `BYXXX` sequence is passed to the constructor at the same level as
 	 *  `FREQ` (e.g. `FREQ=HOURLY,BYHOUR={2,4,7},INTERVAL=3`), there are some
@@ -1212,10 +1241,10 @@ class Rule {
 	 */
 	private static function _construct_byset($name, $start, array $byxxx, $base) {
 		$result = array();
-		
+
 		if (is_integer($byxxx)) {
 			$byxxx = array(
-				$byxxx
+				$byxxx,
 			);
 		}
 		foreach ($byxxx as $num) {
@@ -1227,13 +1256,13 @@ class Rule {
 		if (count($result) === 0) {
 			throw new Exception_Semantics("Invalid rrule {name} generates an empty set ({base})", array(
 				"name" => $name,
-				"base" => $base
+				"base" => $base,
 			));
 		}
 		ksort($result, SORT_NUMERIC);
 		return array_keys($result);
 	}
-	
+
 	/**
 	 * Greatest common divisor of two integers
 	 *
@@ -1244,7 +1273,7 @@ class Rule {
 	private static function gcd($a, $b) {
 		if ($a === $b) {
 			return $a;
-		} else if ($a > $b) {
+		} elseif ($a > $b) {
 			$r = $a % $b;
 			if ($r === 0) {
 				return $b;
@@ -1258,7 +1287,7 @@ class Rule {
 		}
 		return self::gcd($a, $r);
 	}
-	
+
 	/**
 	 * Wacky Python 2 integer division
 	 *
@@ -1269,9 +1298,11 @@ class Rule {
 	public static function intdiv($a, $b) {
 		return intval(floor($a / $b));
 	}
+
 	public static function range($mixed) {
 		return array_keys(array_fill(0, $mixed, null));
 	}
+
 	/**
 	 * Returns array($dividend / $divisor, $divident % divisor)
 	 *
@@ -1285,16 +1316,17 @@ class Rule {
 		if ($dividend === 0 || $divisor === 0) {
 			return array(
 				0,
-				0
+				0,
 			);
 		}
 		$intdiv = self::intdiv($dividend, $divisor);
 		$rem = $dividend - $divisor * $intdiv;
 		return array(
 			$intdiv,
-			$rem
+			$rem,
 		);
 	}
+
 	/**
 	 * Compute the leap-year version of an array
 	 *
@@ -1305,7 +1337,7 @@ class Rule {
 		unset($target[$remove]);
 		return array_values($target);
 	}
-	
+
 	/**
 	 * Set up static variables for computation
 	 */
@@ -1325,15 +1357,15 @@ class Rule {
 			9 => 30,
 			10 => 31,
 			11 => 30,
-			12 => 31
+			12 => 31,
 		);
-		
+
 		$M366MASK = array();
 		foreach ($monthdays as $month => $days) {
 			$M366MASK = array_merge($M366MASK, array_fill(0, $days, $month));
 		}
 		$M366MASK = array_merge($M366MASK, array_fill(0, 7, 1));
-		
+
 		$m31 = array();
 		for ($i = 1; $i <= 31; $i++) {
 			$m31[] = $i;
@@ -1347,7 +1379,7 @@ class Rule {
 			$MDAY366MASK = array_merge($MDAY366MASK, $mdays[$days]);
 		}
 		$MDAY366MASK = array_merge($MDAY366MASK, array_slice($mdays[31], 0, 7));
-		
+
 		$m31 = array();
 		for ($i = -31; $i < 0; $i++) {
 			$m31[] = $i;
@@ -1355,13 +1387,13 @@ class Rule {
 		for ($i = 29; $i <= 31; $i++) {
 			$mdays[$i] = array_slice($m31, -$i);
 		}
-		
+
 		$NMDAY366MASK = array();
 		foreach ($monthdays as $month => $days) {
 			$NMDAY366MASK = array_merge($NMDAY366MASK, $mdays[$days]);
 		}
 		$NMDAY366MASK = array_merge($NMDAY366MASK, array_slice($mdays[31], 0, 7));
-		
+
 		self::$WDAYMASK = array();
 		for ($i = 0; $i < 55; $i++) {
 			self::$WDAYMASK = array_merge(self::$WDAYMASK, array(
@@ -1371,21 +1403,21 @@ class Rule {
 				3,
 				4,
 				5,
-				6
+				6,
 			));
 		}
-		
+
 		self::$MMASK = array(
 			0 => self::_compute_365($M366MASK),
-			1 => $M366MASK
+			1 => $M366MASK,
 		);
 		self::$MDAYMASK = array(
 			0 => self::_compute_365($MDAY366MASK),
-			1 => $MDAY366MASK
+			1 => $MDAY366MASK,
 		);
 		self::$NMDAYMASK = array(
 			0 => self::_compute_365($NMDAY366MASK, 31),
-			1 => $NMDAY366MASK
+			1 => $NMDAY366MASK,
 		);
 		self::$weekdays = array();
 		for ($i = 0; $i < 7; $i++) {

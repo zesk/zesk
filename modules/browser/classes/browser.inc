@@ -1,6 +1,6 @@
 <?php
 /**
- * 
+ *
  */
 namespace zesk;
 
@@ -17,7 +17,6 @@ namespace zesk;
  * @property timestamp $parsed
  */
 class Browser extends ORM {
-	
 	/**
 	 * Register a browser based on a string user agent
 	 *
@@ -32,7 +31,7 @@ class Browser extends ORM {
 		/* @var $browser Browser */
 		$browser = $application->orm_factory(__CLASS__, array(
 			'md5' => $md5,
-			"name" => $name
+			"name" => $name,
 		));
 		if (!$browser->find()) {
 			$browser->md5 = md5($name);
@@ -46,7 +45,7 @@ class Browser extends ORM {
 		}
 		return $browser;
 	}
-	
+
 	/**
 	 * Register a browser based on the request user agent
 	 *

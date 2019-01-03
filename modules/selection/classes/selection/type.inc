@@ -16,7 +16,6 @@ namespace zesk;
  * @property Timestamp $created
  */
 class Selection_Type extends ORM {
-	
 	/**
 	 * Modify the current selection list using the queries
 	 *
@@ -35,7 +34,7 @@ class Selection_Type extends ORM {
 			$query->add = $add;
 		}
 		$query->reorder();
-		
+
 		/* @var $list Database_Query_Select */
 		$list = clone $list;
 		$alias = $list->alias();
@@ -44,7 +43,7 @@ class Selection_Type extends ORM {
 			"id" => "$alias.$id_column",
 			"*type" => $this->id(),
 			"*add" => intval(to_bool($add)),
-			"*query" => $query->id()
+			"*query" => $query->id(),
 		));
 		$list->limit(0, -1);
 		$this->application->query_insert("zesk\\Selection_Item")
@@ -52,7 +51,7 @@ class Selection_Type extends ORM {
 			->replace(true)
 			->execute();
 	}
-	
+
 	/**
 	 *
 	 * @return ORMIterator
@@ -64,7 +63,7 @@ class Selection_Type extends ORM {
 			->group_by("id")
 			->orm_iterator();
 	}
-	
+
 	/**
 	 * Is this selection a duplicate or not?
 	 *
@@ -73,7 +72,7 @@ class Selection_Type extends ORM {
 	public function is_original() {
 		return !begins($this->code, "*");
 	}
-	
+
 	/**
 	 * Delete this object and any related objects
 	 *
@@ -86,7 +85,7 @@ class Selection_Type extends ORM {
 		$this->application->query_delete('zesk\\Selection_Item')->where('type', $this->id)->execute();
 		return parent::delete();
 	}
-	
+
 	/**
 	 * Copy the selection
 	 *
@@ -102,7 +101,7 @@ class Selection_Type extends ORM {
 		Selection_Item::copy_duplicate($this->application, $this->id, $dup->id, $mapping);
 		return $dup;
 	}
-	
+
 	/**
 	 * Clear items
 	 */
@@ -111,7 +110,7 @@ class Selection_Type extends ORM {
 		$this->queries = array();
 		$this->store();
 	}
-	
+
 	/**
 	 * Add or remove items manually
 	 *
@@ -129,17 +128,17 @@ class Selection_Type extends ORM {
 				if ($op === false && !$query_id) {
 					$this->application->query_delete("zesk\\Selection_Item")->where(array(
 						"id" => $id,
-						"type" => $this
+						"type" => $this,
 					))->execute();
 				} else {
 					$this->application->query_update("zesk\\Selection_Item")
 						->value(array(
 						"add" => $op,
-						"query" => null
+						"query" => null,
 					))
 						->where(array(
 						"id" => $id,
-						"type" => $this
+						"type" => $this,
 					))
 						->execute();
 				}
@@ -152,13 +151,13 @@ class Selection_Type extends ORM {
 				"add" => intval($op),
 				"query" => null,
 				"id" => $id,
-				"type" => $this
+				"type" => $this,
 			))
 				->replace(true)
 				->execute();
 		}
 	}
-	
+
 	/**
 	 * How many items are in my selection?
 	 *
@@ -170,7 +169,7 @@ class Selection_Type extends ORM {
 			->where("items.add", 1)
 			->one_integer("n");
 	}
-	
+
 	/**
 	 * Retrive a description of the queries which make up this selection
 	 */
@@ -182,7 +181,7 @@ class Selection_Type extends ORM {
 				"title" => $query->title,
 				"count" => $query->count(),
 				"operation" => $query->add ? "+" : "-",
-				"action" => $query->add ? __('Selection_Type:=Added to selection') : __('Selection_Type:=Removed from selection')
+				"action" => $query->add ? __('Selection_Type:=Added to selection') : __('Selection_Type:=Removed from selection'),
 			)), HTML::span(".query-action " . ($query->add ? ".query-action-add" : ".query-action-remove"), "[]"));
 		}
 		$n_added = $this->application->orm_registry("zesk\\Selection_Item")
@@ -190,13 +189,13 @@ class Selection_Type extends ORM {
 			->where(array(
 			"type" => $this,
 			"query" => null,
-			"add" => 1
+			"add" => 1,
 		))
 			->what("*n", "COUNT(id)")
 			->one_integer("n");
 		if ($n_added) {
 			$line[] .= __("{n} specifically added", array(
-				"n" => $n_added
+				"n" => $n_added,
 			));
 		}
 		$n_excluded = $this->application->orm_registry("zesk\\Selection_Item")
@@ -204,17 +203,17 @@ class Selection_Type extends ORM {
 			->where(array(
 			"type" => $this,
 			"query" => null,
-			"add" => 0
+			"add" => 0,
 		))
 			->what("*n", "COUNT(id)")
 			->one_integer("n");
 		if ($n_excluded) {
 			$line[] .= __("{n} specifically removed", array(
-				"n" => $n_excluded
+				"n" => $n_excluded,
 			));
 		}
 		$line[] = __("{n} total", array(
-			"n" => $this->count()
+			"n" => $this->count(),
 		));
 		return $line;
 	}

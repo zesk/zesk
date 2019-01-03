@@ -13,7 +13,7 @@ namespace zesk;
  *
  */
 class Contact_Company extends Contact_Info {
-    public function label_type() {
-        return Contact_Label::LabelType_Company;
-    }
+	public function label_type() {
+		return Contact_Label::LabelType_Company;
+	}
 }

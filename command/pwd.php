@@ -14,8 +14,8 @@ namespace zesk;
  * @return array
  */
 class Command_PWD extends Command {
-    public function run() {
-        echo getcwd() . "\n";
-        return 0;
-    }
+	public function run() {
+		echo getcwd() . "\n";
+		return 0;
+	}
 }

@@ -7,9 +7,9 @@ class Control_Spectrum extends Control {
 	 *
 	 * @see Widget::validate()
 	 */
-	function validate() {
+	public function validate() {
 		$this->set_option("id", $this->name(), false);
-		
+
 		$color = $this->value();
 		if (begins($color, "#")) {
 			$color = substr($color, 1);
@@ -18,4 +18,3 @@ class Control_Spectrum extends Control {
 		return parent::validate();
 	}
 }
-

@@ -1,4 +1,5 @@
 <?php
 namespace zesk;
 
-class ObjectX_Field extends ORM {}
+class ObjectX_Field extends ORM {
+}

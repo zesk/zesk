@@ -13,126 +13,126 @@ namespace zesk;
  * @author kent
  */
 class JavaScript {
-    /**
-     * Current obfuscation capture state
-     *
-     * @var boolean
-     */
-    private static $obfuscated = false;
-    
-    /**
-     * Convert passed arguments into a JavaScript argument list.
-     *
-     * @param mixed $mixed Any valid PHP type which can be converted to JSON
-     * @return string commas-separated list of arguments
-     */
-    public static function arguments() {
-        $args = func_get_args();
-        $json = array();
-        foreach ($args as $arg) {
-            $json[] = JSON::encode($arg);
-        }
-        return implode(", ", $json);
-    }
-    
-    /**
-     * Begin JavaScript obfuscation output capture
-     *
-     * Depends on output buffering
-     */
-    public static function obfuscate_begin() {
-        if (self::$obfuscated) {
-            throw new Exception_Semantics("Already called obfuscate_begin");
-        }
-        self::$obfuscated = true;
-        ob_start();
-    }
-    
-    /**
-     * End JavaScript obfuscation output and return obfuscated JavaScript
-     *
-     * @return string
-     */
-    public static function obfuscate_end($function_map = array()) {
-        if (!self::$obfuscated) {
-            throw new Exception_Semantics("Need to call obfuscate_begin first");
-        }
-        self::$obfuscated = false;
-        if (!is_array($function_map)) {
-            $function_map = array();
-        }
-        $formatting = array(
-            "\t" => " ",
-            "\n" => "",
-            "  " => " ",
-            ", " => ",",
-            " {" => "{",
-            "{ " => "{",
-            " =" => "=",
-            "= " => "=",
-            "{ " => "{",
-            " {" => "{",
-            "; " => ";",
-            "+ " => "+",
-            " +" => "+",
-            "} " => "}",
-            "if (" => "if(",
-            ") {" => "){",
-            " if(" => "if(",
-            "elseif" => "else if",
-        );
-        $js = ob_get_clean();
-        $formatting = array_merge($formatting, $function_map);
-        return str_replace(array_keys($formatting), array_values($formatting), $js);
-    }
-    
-    /**
-     * Clean a JavaScript function name
-     *
-     * @param $x Function name to clean
-     * @return string
-     */
-    public static function clean_function_name($x) {
-        if (!is_string($x)) {
-            return null;
-        }
-        $x = preg_replace('/[^A-Za-z0-9_]/', '', $x);
-        return $x;
-    }
-    
-    /**
-     * Return JavaScript null token for empty values
-     *
-     * @param $x Value to output
-     * @return string
-     */
-    public static function null($x) {
-        if (empty($x)) {
-            return "null";
-        }
-        return $x;
-    }
-    
-    /**
-     * Clean an array of JavaScript code; ensure each line ends with a semicolon, remove
-     * empty values, and trim each line
-     */
-    public static function clean_code($mixed) {
-        if (is_array($mixed)) {
-            $mixed = implode(";\n", ArrayTools::unsuffix(ArrayTools::trim_clean($mixed, " ", ""), ";"));
-        }
-        return $mixed;
-    }
-    
-    /**
-     * Convert string to JavaScript string and return single-quoted string
-     *
-     * @param $x string to quote
-     * @return string Quoted and properly escaped JavaScript string
-     */
-    public static function string($x) {
-        $x = str_replace("'", "\\'", $x);
-        $x = str_replace("\n", "\\n' +\n'", $x);
-        return "'$x'";
-    }
+	/**
+	 * Current obfuscation capture state
+	 *
+	 * @var boolean
+	 */
+	private static $obfuscated = false;
+
+	/**
+	 * Convert passed arguments into a JavaScript argument list.
+	 *
+	 * @param mixed $mixed Any valid PHP type which can be converted to JSON
+	 * @return string commas-separated list of arguments
+	 */
+	public static function arguments() {
+		$args = func_get_args();
+		$json = array();
+		foreach ($args as $arg) {
+			$json[] = JSON::encode($arg);
+		}
+		return implode(", ", $json);
+	}
+
+	/**
+	 * Begin JavaScript obfuscation output capture
+	 *
+	 * Depends on output buffering
+	 */
+	public static function obfuscate_begin() {
+		if (self::$obfuscated) {
+			throw new Exception_Semantics("Already called obfuscate_begin");
+		}
+		self::$obfuscated = true;
+		ob_start();
+	}
+
+	/**
+	 * End JavaScript obfuscation output and return obfuscated JavaScript
+	 *
+	 * @return string
+	 */
+	public static function obfuscate_end($function_map = array()) {
+		if (!self::$obfuscated) {
+			throw new Exception_Semantics("Need to call obfuscate_begin first");
+		}
+		self::$obfuscated = false;
+		if (!is_array($function_map)) {
+			$function_map = array();
+		}
+		$formatting = array(
+			"\t" => " ",
+			"\n" => "",
+			"  " => " ",
+			", " => ",",
+			" {" => "{",
+			"{ " => "{",
+			" =" => "=",
+			"= " => "=",
+			"{ " => "{",
+			" {" => "{",
+			"; " => ";",
+			"+ " => "+",
+			" +" => "+",
+			"} " => "}",
+			"if (" => "if(",
+			") {" => "){",
+			" if(" => "if(",
+			"elseif" => "else if",
+		);
+		$js = ob_get_clean();
+		$formatting = array_merge($formatting, $function_map);
+		return str_replace(array_keys($formatting), array_values($formatting), $js);
+	}
+
+	/**
+	 * Clean a JavaScript function name
+	 *
+	 * @param $x Function name to clean
+	 * @return string
+	 */
+	public static function clean_function_name($x) {
+		if (!is_string($x)) {
+			return null;
+		}
+		$x = preg_replace('/[^A-Za-z0-9_]/', '', $x);
+		return $x;
+	}
+
+	/**
+	 * Return JavaScript null token for empty values
+	 *
+	 * @param $x Value to output
+	 * @return string
+	 */
+	public static function null($x) {
+		if (empty($x)) {
+			return "null";
+		}
+		return $x;
+	}
+
+	/**
+	 * Clean an array of JavaScript code; ensure each line ends with a semicolon, remove
+	 * empty values, and trim each line
+	 */
+	public static function clean_code($mixed) {
+		if (is_array($mixed)) {
+			$mixed = implode(";\n", ArrayTools::unsuffix(ArrayTools::trim_clean($mixed, " ", ""), ";"));
+		}
+		return $mixed;
+	}
+
+	/**
+	 * Convert string to JavaScript string and return single-quoted string
+	 *
+	 * @param $x string to quote
+	 * @return string Quoted and properly escaped JavaScript string
+	 */
+	public static function string($x) {
+		$x = str_replace("'", "\\'", $x);
+		$x = str_replace("\n", "\\n' +\n'", $x);
+		return "'$x'";
+	}
 }

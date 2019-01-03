@@ -8,9 +8,11 @@ namespace zesk;
  */
 class Class_PolyGlot_Token extends Class_ORM {
 	public $id_column = "id";
+
 	public $has_one = array(
-		"user" => "zesk\\User"
+		"user" => "zesk\\User",
 	);
+
 	public $column_types = array(
 		'id' => self::type_id,
 		'language' => self::type_string,
@@ -21,6 +23,6 @@ class Class_PolyGlot_Token extends Class_ORM {
 		'user' => self::type_object,
 		'context' => self::type_string,
 		'status' => self::type_string,
-		'updated' => self::type_modified
+		'updated' => self::type_modified,
 	);
 }

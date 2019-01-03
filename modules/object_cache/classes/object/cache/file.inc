@@ -1,20 +1,22 @@
 <?php
 /**
- * 
+ *
  */
 namespace zesk;
 
 /**
- * 
+ *
  * @author kent
  *
  */
 class Object_Cache_File extends Object_Cache {
 	public $path = null;
-	function __construct($path = null) {
+
+	public function __construct($path = null) {
 		$this->path = $path;
 		$this->configured();
 	}
+
 	private function cache_path($add = null, $create = false) {
 		$path = $this->path;
 		if (!$path) {
@@ -28,6 +30,7 @@ class Object_Cache_File extends Object_Cache {
 		}
 		return $path;
 	}
+
 	private function object_path(ORM $object, $create = false) {
 		$id = $object->id();
 		if (!$id) {
@@ -39,9 +42,11 @@ class Object_Cache_File extends Object_Cache {
 		}
 		return $this->cache_path(strtolower(get_class($object)) . "-$id", $create);
 	}
+
 	public function configured() {
 		$path = $this->cache_path(null, true);
 	}
+
 	public function load(ORM $object, $key) {
 		$path = $this->object_path($object);
 		if (!$path) {
@@ -54,6 +59,7 @@ class Object_Cache_File extends Object_Cache {
 		}
 		return null;
 	}
+
 	public function save(ORM $object, $key, $data) {
 		$path = $this->object_path($object, ($data !== null));
 		if (!$path) {
@@ -67,18 +73,19 @@ class Object_Cache_File extends Object_Cache {
 			file_put_contents($cache_file, serialize($data));
 		}
 	}
+
 	public function invalidate(ORM $object, $key = null) {
 		$path = $this->object_path($object);
 		if ($key !== null) {
 			File::unlink(path($path, self::hash_from_key($key) . ".cache"));
-		} else if (is_dir($path)) {
+		} elseif (is_dir($path)) {
 			Directory::delete($path);
 		}
 	}
-	
+
 	/**
 	 * Convert key to string
-	 * 
+	 *
 	 * @param mixed $key
 	 * @return string
 	 */
