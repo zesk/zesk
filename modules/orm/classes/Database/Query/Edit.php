@@ -2,7 +2,6 @@
 /**
  * Edit
  *
- * $URL: http://code.marketacumen.com/zesk/trunk/classes/database/query/insert.inc $
  * @package zesk
  * @subpackage database
  * @author kent
@@ -11,7 +10,7 @@
 namespace zesk;
 
 /**
- * 
+ *
  * @author kent
  *
  */
@@ -22,56 +21,58 @@ abstract class Database_Query_Edit extends Database_Query {
 	 * @var boolean
 	 */
 	protected $low_priority = false;
-	
+
 	/**
-	 * 
+	 *
 	 * @var string
 	 */
 	protected $default_alias = "";
+
 	/**
 	 * Table we're update/insert
 	 *
 	 * @var array
 	 */
 	protected $table = null;
+
 	/**
 	 * Name => Value of things we're updating/inserting
 	 *
 	 * @var array
 	 */
 	protected $values = array();
-	
+
 	/**
 	 * Array of columns valid for this table
 	 *
 	 * @var array
 	 */
 	protected $valid_columns = null;
-	
+
 	/**
 	 * Get/Set the table for this query
 	 *
-	 * @param string $table        	
+	 * @param string $table
 	 * @return Database_Query_Edit
 	 */
-	function table($table = null, $alias = null) {
+	public function table($table = null, $alias = null) {
 		if ($table === null) {
 			return avalue($this->table, "$alias");
 		}
-		if (count($this->table) === 0) {
+		if ($this->table === null || count($this->table) === 0) {
 			$this->default_alias = $alias;
 		}
 		$this->table["$alias"] = $table;
 		return $this;
 	}
-	
+
 	/**
 	 * Get/Set the table for this query
 	 *
-	 * @param string $table        	
+	 * @param string $table
 	 * @return Database_Query_Edit
 	 */
-	function class_table($class, $alias = null) {
+	public function class_table($class, $alias = null) {
 		$object_class = $this->application->class_orm_registry($class);
 		/* @var $object_class Class_ORM */
 		if (count($this->table) === 0) {
@@ -81,11 +82,11 @@ abstract class Database_Query_Edit extends Database_Query {
 		$this->valid_columns($object_class->column_names(), $alias);
 		return $this;
 	}
-	
+
 	/**
 	 * Internal function to check validity of a column
 	 *
-	 * @param string $name        	
+	 * @param string $name
 	 * @return boolean
 	 */
 	private function valid_column($name) {
@@ -97,16 +98,16 @@ abstract class Database_Query_Edit extends Database_Query {
 		}
 		return true;
 	}
-	
+
 	/**
 	 * Add a name/value pair to be updated in this query
 	 *
 	 * @param string $name
 	 *        	Alternately, pass an array as this value to update multiple values
-	 * @param mixed $value        	
-	 * @return Database_Query_Edit
+	 * @param mixed $value
+	 * @return self
 	 */
-	function value($name, $value = null) {
+	public function value($name, $value = null) {
 		if (is_array($name)) {
 			foreach ($name as $k => $v) {
 				$this->value($k, $v);
@@ -119,12 +120,12 @@ abstract class Database_Query_Edit extends Database_Query {
 		$this->values[$name] = $value;
 		return $this;
 	}
-	
+
 	/**
 	 * Internal function to check a column for vaidity.
 	 * If not, throw an exception.
 	 *
-	 * @param string $name        	
+	 * @param string $name
 	 * @throws Exception_Semantics
 	 */
 	private function check_column($name) {
@@ -133,45 +134,46 @@ abstract class Database_Query_Edit extends Database_Query {
 				"name" => $name,
 				"table" => $this->table,
 				"columns" => $this->valid_columns,
-				"Database_Query_Edit" => $this
+				"Database_Query_Edit" => $this,
 			));
 		}
 	}
-	
+
 	/**
 	 * Pass multiple values to be inserted/updated
 	 *
-	 * @param array $values        	
+	 * @param array $values
 	 * @return Database_Query_Edit
 	 */
-	function values(array $values = null) {
+	public function values(array $values = null) {
 		if ($values === null) {
 			return $this->values;
 		}
 		return $this->value($values);
 	}
+
 	/**
 	 * Getter/setter for low priority state of this query
 	 *
-	 * @param boolean $low_priority        	
+	 * @param boolean $low_priority
 	 * @return boolean Database_Query_Edit
 	 */
-	function low_priority($low_priority = null) {
+	public function low_priority($low_priority = null) {
 		if ($low_priority === null) {
 			return $this->low_priority;
 		}
 		$this->low_priority = to_bool($low_priority);
 		return $this;
 	}
-	
+
 	/**
 	 * Not sure if need this.
 	 * Right now just stores it.
 	 *
-	 * @param array $columns        	
+	 * @param array $columns
 	 * @return Database_Query_Insert
 	 */
-	function valid_columns(array $columns, $alias = null) {
+	public function valid_columns(array $columns, $alias = null) {
 		$this->valid_columns["$alias"] = $columns;
 		return $this;
 	}
