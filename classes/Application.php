@@ -1564,7 +1564,8 @@ class Application extends Hookable implements Interface_Theme, Interface_Member_
 		}
 		$first = avalue($options, 'first', false);
 		$concatenate = avalue($options, 'concatenate', false);
-		while (count($types) > 0) {
+		// 2019-01-15 PHP 7.2 $types converts to a string with value "array()" upon throwing a foreign Exception and rendering the theme
+		while (is_countable($types) && count($types) > 0) {
 			if ($first && !empty($content)) {
 				break;
 			}
