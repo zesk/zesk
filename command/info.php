@@ -119,7 +119,7 @@ class Command_Info extends Command {
 		$app = $this->application;
 
 		$info[self::zesk_version_release] = Version::release();
-		$info[self::zesk_version_string] = Version::string();
+		$info[self::zesk_version_string] = Version::string($this->application->locale);
 		$info[self::zesk_root] = ZESK_ROOT;
 		$info[self::zesk_application_root] = $app->path();
 		$info[self::zesk_application_class] = $app->application_class();
