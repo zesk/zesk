@@ -1087,7 +1087,7 @@ class Class_ORM extends Hookable {
 		}
 		$has_alias = $query->find_alias($segment);
 		if ($has_alias) {
-			$to_object = $this->application->object($has_alias);
+			$to_object = $this->application->orm_registry($has_alias);
 
 			$mixed['path_walked'][] = $segment;
 			$mixed['path'] = $path;

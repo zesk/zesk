@@ -93,10 +93,8 @@ function last(array $a, $default = null) {
 	if (($n = count($a)) === 0) {
 		return $default;
 	}
-	if (isset($a[$n - 1])) {
-		return $a[$n - 1];
-	}
-	return $a[last(array_keys($a))];
+	$kk = array_keys($a);
+	return $a[$kk[count($kk) - 1]];
 }
 
 /**
@@ -828,9 +826,10 @@ function can_map($string, $prefix_char = "{", $suffix_char = "}") {
  * @return array
  */
 function map_tokens($mixed, $prefix_char = "{", $suffix_char = "}") {
-	$suff = preg_quote($suffix_char);
+	$delimiter = "#";
+	$suff = preg_quote($suffix_char, $delimiter);
 	$matches = array();
-	if (!preg_match_all('#' . preg_quote($prefix_char, '#') . '[^' . $suff . ']*' . $suff . '#', $mixed, $matches)) {
+	if (!preg_match_all($delimiter . preg_quote($prefix_char, $delimiter) . '[^' . $suff . ']*' . $suff . $delimiter, $mixed, $matches)) {
 		return array();
 	}
 	return $matches[0];
@@ -1102,6 +1101,18 @@ function can_iterate($mixed) {
  */
 function is_zero($value, $epsilon = 1e-5) {
 	return abs($value) < $epsilon;
+}
+
+if (!function_exists("is_countable")) {
+	/**
+	 * Verify that the contents of a variable is a countable value
+	 *
+	 * @param mixed $object
+	 * @return boolean
+	 */
+	function is_countable($object) {
+		return is_array($object) || $object instanceof \Countable;
+	}
 }
 
 /**

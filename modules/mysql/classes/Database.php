@@ -25,6 +25,7 @@ use zesk\PHP;
 use zesk\Timestamp;
 use zesk\Exception_Parameter;
 use zesk\Database_Exception;
+use zesk\Directory;
 
 /**
  *
@@ -751,6 +752,25 @@ class Database extends \zesk\Database {
 	}
 
 	/**
+	 *
+	 * @param string $user
+	 * @param string $pass
+	 * @return string
+	 */
+	private function credentials_file($user, $pass) {
+		$directory = $this->option("credentials_path", $this->application->paths->uid("mysql"));
+		Directory::depend($directory, $this->option("credentials_path_mode", 0700));
+		$name = md5($user . ":" . $pass) . ".cnf";
+		$full = path($directory, $name);
+		if (is_readable($full)) {
+			return $full;
+		}
+		file_put_contents($full, "[client]\nuser=$user\npassword=$pass\n");
+		chmod($full, 0400);
+		return $full;
+	}
+
+	/**
 	 * (non-PHPdoc)
 	 *
 	 * @see zesk\Database::shell_command()
@@ -770,16 +790,12 @@ class Database extends \zesk\Database {
 		$scheme = $host = $user = $pass = $path = null;
 		extract($parts, EXTR_IF_EXISTS);
 		$args = array();
+		if ($user || $pass) {
+			$args[] = "--defaults-extra-file=" . $this->credentials_file($user, $pass);
+		}
 		if ($host) {
 			$args[] = "-h";
 			$args[] = $host;
-		}
-		if ($user) {
-			$args[] = "-u";
-			$args[] = $user;
-		}
-		if ($pass) {
-			$args[] = "-p" . $pass;
 		}
 		if (to_bool(avalue($options, 'force'))) {
 			$args[] = "-f";

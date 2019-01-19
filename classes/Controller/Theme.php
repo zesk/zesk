@@ -96,7 +96,7 @@ abstract class Controller_Theme extends Controller {
 	 */
 	public function error($code, $message = null) {
 		$this->auto_render(false);
-		parent::error($code, $message);
+		return parent::error($code, $message);
 	}
 
 	/**

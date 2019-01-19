@@ -72,7 +72,7 @@ class Command_Database_Connect extends Command_Base {
 
 		$name = $this->option('name');
 		$db = $this->application->database_registry($name);
-		list($command, $args) = $db->shell_command($this->options);
+		list($command, $args) = $db->shell_command();
 
 		if ($this->option_bool('debug-connect')) {
 			echo "$command " . implode(" ", $args) . "\n";
