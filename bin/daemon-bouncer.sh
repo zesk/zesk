@@ -51,11 +51,11 @@ for i in {0..59}; do
 	if [ ! -f "$CHANGED_FILE" ]; then
 		# Added pipe to null because this occasionally gets terminated by parent process for some reason
 		exec 2> /dev/null 	# Redirect stderr to /dev/null
-		sleep 1 			# avoid Terminated messages, we hope
+		sleep 1 2> dev/null	# avoid Terminated messages, we hope
 		exec 2>&3			# restore stderr to saved
 		continue
 	fi
-	echo $(date) Running $COMMAND $*
+	echo $(date) @$i Running $COMMAND $*
 	if $COMMAND $*; then
 		rm "$CHANGED_FILE"
 	else

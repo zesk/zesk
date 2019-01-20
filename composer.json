@@ -36,7 +36,7 @@
 		"bin/zesk.sh",
 		"bin/link-vendor-to-dev-zesk.sh",
 		"bin/zesk-command.php",
-		"bin/daemon-bouncer.php",
+		"bin/daemon-bouncer.sh",
 		"bin/php-find.sh"
 	],
 	"type": "library",
