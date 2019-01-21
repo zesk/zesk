@@ -88,8 +88,8 @@ class Kernel {
 	 */
 	public static $configuration_defaults = array(
 		__CLASS__ => array(
-			'application_class' => 'zesk\\Application'
-		)
+			'application_class' => 'zesk\\Application',
+		),
 	);
 
 	/**
@@ -221,7 +221,7 @@ class Kernel {
 		if (self::$singleton) {
 			throw new Exception("{method} should only be called once {backtrace}", array(
 				"method" => __METHOD__,
-				"backtrace" => _backtrace()
+				"backtrace" => _backtrace(),
 			));
 		}
 		global $zesk; // TODO @deprecated 2017-11
@@ -239,7 +239,7 @@ class Kernel {
 	public static function singleton() {
 		if (!self::$singleton) {
 			throw new Exception_Semantics("Need to create singleton with {class}::factory first", array(
-				"class" => __CLASS__
+				"class" => __CLASS__,
 			));
 		}
 		return self::$singleton;
@@ -301,7 +301,7 @@ class Kernel {
 
 		$this->application_class = $this->configuration->path_get(array(
 			__CLASS__,
-			"application_class"
+			"application_class",
 		), __NAMESPACE__ . "\\" . "Application");
 
 		/*
@@ -316,7 +316,7 @@ class Kernel {
 
 		$this->application_class = $this->configuration->path_get(array(
 			__CLASS__,
-			"application_class"
+			"application_class",
 		), $this->application_class);
 	}
 
@@ -341,7 +341,7 @@ class Kernel {
 	public function initialize() {
 		$this->hooks->add(Hooks::hook_configured, array(
 			$this,
-			"configured"
+			"configured",
 		));
 	}
 
@@ -380,18 +380,18 @@ class Kernel {
 					throw new Exception_Deprecated("${reason} Deprecated: {calling_function}\n{backtrace}", array(
 						"reason" => $reason,
 						"calling_function" => calling_function(),
-						"backtrace" => _backtrace(4 + $depth)
+						"backtrace" => _backtrace(4 + $depth),
 					) + $arguments);
 				case self::DEPRECATED_LOG:
 					$this->logger->error("${reason} Deprecated: {calling_function}\n{backtrace}", array(
 						"reason" => $reason ? $reason : "DEPRECATED",
 						"calling_function" => calling_function(),
-						"backtrace" => _backtrace(4 + $depth)
+						"backtrace" => _backtrace(4 + $depth),
 					) + $arguments);
 
 					break;
 				case self::DEPRECATED_BACKTRACE:
-				default :
+				default:
 					backtrace();
 					exit();
 			}
@@ -403,7 +403,7 @@ class Kernel {
 	 */
 	public function obsolete() {
 		$this->logger->alert("Obsolete function called {function}", array(
-			'function' => calling_function(2)
+			'function' => calling_function(2),
 		));
 		if ($this->application()->development()) {
 			backtrace();
@@ -440,7 +440,7 @@ class Kernel {
 				'active' => ASSERT_ACTIVE,
 				'warning' => ASSERT_WARNING,
 				'bail' => ASSERT_BAIL,
-				'quiet' => ASSERT_QUIET_EVAL
+				'quiet' => ASSERT_QUIET_EVAL,
 			);
 			foreach (array_values($ass_settings) as $what) {
 				assert_options($what, 0);
@@ -452,7 +452,7 @@ class Kernel {
 				} else {
 					$this->logger->warning("Invalid assert option: {code}, valid options: {settings}", array(
 						"code" => $code,
-						"settings" => array_keys($ass_settings)
+						"settings" => array_keys($ass_settings),
 					));
 				}
 			}
@@ -544,7 +544,7 @@ class Kernel {
 			}
 			if ($this->application !== null) {
 				throw new Exception_Semantics("Changing application class to {class} when application already instantiated", array(
-					"class" => $set
+					"class" => $set,
 				));
 			}
 			$this->application_class = $set;
@@ -552,6 +552,7 @@ class Kernel {
 		}
 		return $this->application_class;
 	}
+
 	const HOOK_CREATE_APPLICATION = __CLASS__ . '::create_application';
 
 	/**
@@ -564,7 +565,7 @@ class Kernel {
 		if ($this->application !== null) {
 			throw new Exception_Semantics("{method} application of type {class} was already created", array(
 				"method" => __METHOD__,
-				"class" => get_class($this->application)
+				"class" => get_class($this->application),
 			));
 		}
 		$this->application = $this->objects->factory($this->application_class, $this, $options);
@@ -583,10 +584,10 @@ class Kernel {
 				return null;
 			} else {
 				throw new Exception_Semantics("Application must be created with {class}::create_application", array(
-					"class" => get_class($this)
+					"class" => get_class($this),
 				));
 			}
-		} else if (is_callable($callback)) {
+		} elseif (is_callable($callback)) {
 			$callback($this->application);
 		}
 		return $this->application;
