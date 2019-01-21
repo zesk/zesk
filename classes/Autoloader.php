@@ -53,7 +53,7 @@ class Autoloader {
 	 */
 	public $autoload_extensions = array(
 		"php",
-		"inc"
+		"inc",
 	);
 
 	/**
@@ -71,9 +71,9 @@ class Autoloader {
 			'last' => true,
 			"lower" => false,
 			"extensions" => array(
-				"php"
+				"php",
 			),
-			"class_prefix" => "zesk\\"
+			"class_prefix" => "zesk\\",
 		));
 		$this->autoload_register();
 	}
@@ -85,7 +85,7 @@ class Autoloader {
 	private function autoload_register() {
 		spl_autoload_register(array(
 			$this,
-			"php_autoloader"
+			"php_autoloader",
 		), false, false);
 	}
 
@@ -98,6 +98,7 @@ class Autoloader {
 	private function _autoload_cache() {
 		return $this->kernel->cache->getItem("autoload_cache");
 	}
+
 	private function _autoload_cache_save(CacheItemInterface $item) {
 		$this->kernel->cache->saveDeferred($item);
 	}
@@ -159,7 +160,7 @@ class Autoloader {
 					"class" => $class,
 					"calling_function" => calling_function(2, true),
 					"tried_path" => Text::indent(implode("\n", $tried_path)),
-					"backtrace" => Text::indent(_backtrace(), 1)
+					"backtrace" => Text::indent(_backtrace(), 1),
 				));
 			}
 			$cache_items[$lowclass] = $include;
@@ -174,7 +175,7 @@ class Autoloader {
 			$content = ob_get_clean();
 			if ($content !== "") {
 				throw new Exception_Semantics("Include file {include} should not output text", array(
-					"include" => $include
+					"include" => $include,
 				));
 			}
 		}
@@ -335,11 +336,11 @@ class Autoloader {
 		if ($add) {
 			if (is_string($options)) {
 				$options = array(
-					$options => true
+					$options => true,
 				);
 			} elseif (!is_array($options)) {
 				$options = array(
-					'lower' => to_bool($options)
+					'lower' => to_bool($options),
 				);
 			}
 			if (isset($options['extensions'])) {
@@ -348,7 +349,7 @@ class Autoloader {
 			// Defaults (extension
 			$options += array(
 				'class_prefix' => self::autoload_option_class_prefix_default,
-				'lower' => self::autoload_option_lower_default
+				'lower' => self::autoload_option_lower_default,
 			);
 			if (isset($options['first']) && $options['first']) {
 				$this->first[$add] = $options;
