@@ -11,7 +11,7 @@ namespace zesk;
  * Abstraction for RGB color
  *
  * @author kent
- *
+ * @see CSS
  */
 class Color_RGB {
 	/**
@@ -68,7 +68,7 @@ class Color_RGB {
 		return CSS::rgb_to_hex(array(
 			$this->red,
 			$this->green,
-			$this->blue,
+			$this->blue
 		));
 	}
 }
