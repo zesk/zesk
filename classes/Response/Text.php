@@ -13,9 +13,10 @@ class Text extends Type {
 	public function output($content) {
 		echo $content;
 	}
+
 	public function to_json() {
 		return array(
-			"content" => $content
+			"content" => $content,
 		);
 	}
 }
