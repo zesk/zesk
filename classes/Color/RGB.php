@@ -68,7 +68,7 @@ class Color_RGB {
 		return CSS::rgb_to_hex(array(
 			$this->red,
 			$this->green,
-			$this->blue
+			$this->blue,
 		));
 	}
 }
