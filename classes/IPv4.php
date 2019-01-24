@@ -287,7 +287,7 @@ class IPv4 {
 			return null;
 		}
 		list($a, $b, $c, $d) = explode(".", $mixed, 4) + array_fill(0, 4, 0);
-		return ((((doubleval($a) * 256) + $b) * 256 + $c) * 256 + $d);
+		return ((((doubleval($a) * 256) + doubleval($b)) * 256 + doubleval($c)) * 256 + doubleval($d));
 	}
 
 	/**
