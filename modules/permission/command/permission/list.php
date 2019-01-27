@@ -10,8 +10,9 @@ namespace zesk;
  */
 class Command_Permission_List extends Command_Base {
 	public $option_types = array(
-		'format' => 'string'
+		'format' => 'string',
 	);
+
 	public function run() {
 		$perms = $this->application->modules->object("permission")->permissions();
 		foreach ($perms['class'] as $class => $actions) {
@@ -20,12 +21,12 @@ class Command_Permission_List extends Command_Base {
 				apath_set($perms, array(
 					"class",
 					$class,
-					$codename
+					$codename,
 				), $permission->members(array(
 					"id",
 					"title",
 					"class",
-					"options"
+					"options",
 				)));
 			}
 		}
