@@ -27,6 +27,8 @@ class IPv4_Test extends Test_Unit {
 		$this->assert(IPv4::is_mask("0.0.0.*") === true);
 		$this->assert(IPv4::is_mask("0.0.*") === true);
 		$this->assert(IPv4::is_mask("0.*") === true);
+		$this->assert(IPv4::is_mask("255.*") === true);
+		$this->assertFalse(IPv4::is_mask("256.*"));
 		$this->assert(IPv4::is_mask("-1.*") === false);
 		$this->assert(IPv4::is_mask("1.*/32") === false);
 		$this->assert(IPv4::is_mask("256.*") === false);
@@ -154,11 +156,12 @@ class IPv4_Test extends Test_Unit {
 	}
 
 	public function test_subnet_bits() {
-		$ips = file($this->application->zesk_root('test/test-data/ip.txt'));
+		$ips = file($this->application->zesk_home('test/test-data/ip.txt'));
 		foreach ($ips as $ip) {
 			if (empty($ip)) {
 				continue;
 			}
+			echo "$ip\n";
 			$ipi = IPv4::to_integer($ip);
 			$this->assert(IPv4::subnet_bits($ipi, 32) === $ipi, IPv4::subnet_bits($ipi, 32) . "=== IPv4::subnet_bits($ipi, 32) === $ipi");
 			$delta = ($ipi & 1) ? 1 : 0;

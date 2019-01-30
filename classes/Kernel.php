@@ -553,6 +553,8 @@ class Kernel {
 		return $this->application_class;
 	}
 
+	const HOOK_CREATE_APPLICATION = __CLASS__ . '::create_application';
+
 	/**
 	 *
 	 * @param array $options
@@ -566,18 +568,27 @@ class Kernel {
 				"class" => get_class($this->application),
 			));
 		}
-		return $this->application = $this->objects->factory($this->application_class, $this, $options);
+		$this->application = $this->objects->factory($this->application_class, $this, $options);
+		$this->application->hooks->call(self::HOOK_CREATE_APPLICATION, $this->application);
+		return $this->application;
 	}
 
 	/**
 	 *
 	 * @return Application
 	 */
-	public function application() {
+	public function application($callback = null) {
 		if (!$this->application) {
-			throw new Exception_Semantics("Application must be created with {class}::create_application", array(
-				"class" => get_class($this),
-			));
+			if ($callback) {
+				$this->hooks->add(self::HOOK_CREATE_APPLICATION, $callback);
+				return null;
+			} else {
+				throw new Exception_Semantics("Application must be created with {class}::create_application", array(
+					"class" => get_class($this),
+				));
+			}
+		} elseif (is_callable($callback)) {
+			$callback($this->application);
 		}
 		return $this->application;
 	}

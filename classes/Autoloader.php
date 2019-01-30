@@ -45,7 +45,7 @@ class Autoloader {
 	 *
 	 * @var boolean
 	 */
-	public $no_exception = false;
+	public $no_exception = true;
 
 	/**
 	 *
@@ -152,7 +152,7 @@ class Autoloader {
 			$t = microtime(true);
 			$include = $this->search($class, null, $tried_path);
 			if ($include === null) {
-				if ($no_exception || defined('ZESK_NO_CONFLICT') || $this->no_exception) {
+				if ($this->no_exception || $no_exception) {
 					return null;
 				}
 

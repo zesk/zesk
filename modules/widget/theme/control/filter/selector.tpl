@@ -43,7 +43,7 @@ foreach ($this->widgets as $child) {
 	if (!empty($id)) {
 		$ids[] = "#" . $id;
 	}
-	$active = $has_selector ? lists::contains($this->value, $id) : $request->has($child->name());
+	$active = $has_selector ? Lists::contains($this->value, $id) : $request->has($child->name());
 	if ($active) {
 		$any_active = true;
 	}

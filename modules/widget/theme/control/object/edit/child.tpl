@@ -32,8 +32,8 @@ if ($overlabel) {
 }
 
 $context_class = $child->context_class();
-$class_parent = lists::append("input-control", $widget->option('class_parent', $context_class), ' ');
-$class_row = lists::append("", $widget->option('class_row', "row-" . $context_class));
+$class_parent = Lists::append("input-control", $widget->option('class_parent', $context_class), ' ');
+$class_row = Lists::append("", $widget->option('class_row', "row-" . $context_class));
 
 $data = $child->content;
 $label = $child->label;

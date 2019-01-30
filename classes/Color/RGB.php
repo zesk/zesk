@@ -11,7 +11,7 @@ namespace zesk;
  * Abstraction for RGB color
  *
  * @author kent
- *
+ * @see CSS
  */
 class Color_RGB {
 	/**

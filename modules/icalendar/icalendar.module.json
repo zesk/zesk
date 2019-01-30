@@ -3,5 +3,8 @@
 	"name": "iCalendar",
 	"autoloader_options": {
 		"lower": false
-	}
+	},
+	"requires": [
+		"ORM"
+	]
 }

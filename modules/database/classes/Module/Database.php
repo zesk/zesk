@@ -400,11 +400,13 @@ class Module_Database extends Module {
 				"title" => "Default URL (Safe)",
 			);
 		}
+		$dbs = array();
+		foreach ($this->databases as $k => $item) {
+			$dbs[$k] = $item->safe_url();
+		}
+		;
 		$info[__CLASS__ . '::databases'] = array(
-			"value" => array_reduce($this->databases, function ($accum, $item, $key) {
-				$accum[$key] = $item->safe_url();
-				return $accum;
-			}, []),
+			"value" => $dbs,
 			"title" => "Database names",
 		);
 
