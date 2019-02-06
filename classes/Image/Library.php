@@ -19,11 +19,17 @@ abstract class Image_Library {
 	 * @var Application
 	 */
 	public $application = null;
-
 	final public function __construct(Application $application) {
 		$this->application = $application;
 		$this->construct();
 	}
+
+	/**
+	 * Is this image library installed?
+	 *
+	 * @return boolean
+	 */
+	abstract public function installed();
 
 	/**
 	 * Create one of the available image libraries to manipulate images
@@ -33,29 +39,21 @@ abstract class Image_Library {
 	public static function factory(Application $application) {
 		foreach (array(
 			"GD",
-			"imagick",
+			"imagick"
 		) as $type) {
 			try {
 				$class = __CLASS__ . '_' . $type;
-				if (!call_user_func("$class::installed")) {
+				$singleton = $application->factory($class, $application);
+				if (!$singleton->installed()) {
 					continue;
 				}
+				return $singleton;
 			} catch (\Exception $e) {
-				$application->logger->error("{class}::installed resulted in {e.class}: {e.message}", array(
-					"class" => $class,
+				$application->logger->error("{class} creation resulted in {e.class}: {e.message}", array(
+					"class" => $class
 				) + ArrayTools::kprefix(Exception::exception_variables($e), "e."));
 				$application->hooks->call("exception", $e);
-
 				continue;
-			}
-
-			try {
-				return $singleton = $application->factory($class, $application);
-			} catch (\Exception $e) {
-				$application->logger->error("Create instance of {class} resulted in {e.class}: {e.message}", array(
-					"class" => $class,
-				) + ArrayTools::kprefix(Exception::exception_variables($e), "e."));
-				$application->hooks->call("exception", $e);
 			}
 		}
 
@@ -109,7 +107,7 @@ abstract class Image_Library {
 		if ($image_width < $width && $image_height < $height) {
 			return array(
 				$image_width,
-				$image_height,
+				$image_height
 			);
 		}
 		$ratio = doubleval($image_height / $image_width);
@@ -117,13 +115,13 @@ abstract class Image_Library {
 			// Portrait
 			return array(
 				round($height / $ratio),
-				$height,
+				$height
 			);
 		} else {
 			// Landscape
 			return array(
 				$width,
-				round($width * $ratio),
+				round($width * $ratio)
 			);
 		}
 	}

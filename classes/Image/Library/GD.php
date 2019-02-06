@@ -15,7 +15,7 @@ class Image_Library_GD extends Image_Library {
 		'gif' => 'gif',
 		'jpeg' => 'jpeg',
 		'jpg' => 'jpeg',
-		'jpg' => 'jpeg',
+		'jpg' => 'jpeg'
 	);
 
 	/**
@@ -29,7 +29,7 @@ class Image_Library_GD extends Image_Library {
 	 *
 	 * @return boolean
 	 */
-	public static function installed() {
+	public function installed() {
 		return function_exists("imagecreate");
 	}
 
@@ -175,14 +175,14 @@ class Image_Library_GD extends Image_Library {
 	public function image_scale_data($data, array $options) {
 		if (empty($data)) {
 			throw new Exception_Semantics("{method} passed an empty string", array(
-				"method" => __METHOD__,
+				"method" => __METHOD__
 			));
 		}
 		$src = @imagecreatefromstring($data);
 		if (!is_resource($src)) {
 			throw new Exception_Semantics("{method} passed an invalid string of {n} bytes", array(
 				"n" => strlen($data),
-				"method" => __METHOD__,
+				"method" => __METHOD__
 			));
 		}
 		return $this->_image_scale_resource($src, null, $options);
@@ -217,7 +217,7 @@ class Image_Library_GD extends Image_Library {
 		if (!is_resource($src)) {
 			throw new Exception_Semantics("{method} passed an invalid string of {n} bytes", array(
 				"n" => strlen($contents),
-				"method" => __METHOD__,
+				"method" => __METHOD__
 			));
 		}
 		return $src;
@@ -258,7 +258,7 @@ class Image_Library_GD extends Image_Library {
 				$result = $method($dst, $dest, 100);
 
 				break;
-			default:
+			default :
 				$result = $method($dst, $dest);
 
 				break;
@@ -286,7 +286,7 @@ class Image_Library_GD extends Image_Library {
 			return array(
 				$value['r'],
 				$value['g'],
-				$value['b'],
+				$value['b']
 			);
 		} elseif (is_string($value)) {
 			return CSS::color_parse($value);
@@ -294,7 +294,7 @@ class Image_Library_GD extends Image_Library {
 			return array(
 				0,
 				0,
-				0,
+				0
 			);
 		}
 	}
