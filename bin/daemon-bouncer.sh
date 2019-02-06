@@ -24,6 +24,12 @@ usage() {
 	echo "12 - file directory does not exist" 1>&2
 	echo "13 - command binary is not executable" 1>&2
 	echo "\$? - command exit code is returned if it fails" 1>&2
+	echo "" 1>&2
+	echo "Example (add to the crontab of a privileged user):" 1>&2
+	echo "" 1>&2
+	echo "* * * * * $path_to_app/vendor/bin/daemon-bouncer.sh $path_to_app/.apache /usr/sbin/apache2ctl restart" 1>&2
+	echo "" 1>&2
+	echo "Permits your application to restart Apache by creating the above file" 1>&2
 	exit $e
 }
 
