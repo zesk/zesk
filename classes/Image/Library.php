@@ -19,6 +19,7 @@ abstract class Image_Library {
 	 * @var Application
 	 */
 	public $application = null;
+
 	final public function __construct(Application $application) {
 		$this->application = $application;
 		$this->construct();
@@ -39,7 +40,7 @@ abstract class Image_Library {
 	public static function factory(Application $application) {
 		foreach (array(
 			"GD",
-			"imagick"
+			"imagick",
 		) as $type) {
 			try {
 				$class = __CLASS__ . '_' . $type;
@@ -50,7 +51,7 @@ abstract class Image_Library {
 				return $singleton;
 			} catch (\Exception $e) {
 				$application->logger->error("{class} creation resulted in {e.class}: {e.message}", array(
-					"class" => $class
+					"class" => $class,
 				) + ArrayTools::kprefix(Exception::exception_variables($e), "e."));
 				$application->hooks->call("exception", $e);
 				continue;
@@ -107,7 +108,7 @@ abstract class Image_Library {
 		if ($image_width < $width && $image_height < $height) {
 			return array(
 				$image_width,
-				$image_height
+				$image_height,
 			);
 		}
 		$ratio = doubleval($image_height / $image_width);
@@ -115,13 +116,13 @@ abstract class Image_Library {
 			// Portrait
 			return array(
 				round($height / $ratio),
-				$height
+				$height,
 			);
 		} else {
 			// Landscape
 			return array(
 				$width,
-				round($width * $ratio)
+				round($width * $ratio),
 			);
 		}
 	}
