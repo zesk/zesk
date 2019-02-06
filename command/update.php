@@ -398,7 +398,7 @@ class Command_Update extends Command_Base {
 			}
 		}
 		$edits = $this->fetch($this->app_data + $state_data + $module_data + $data);
-		$did_updates = $composer_updates || count($edits) > 0 ? true : false;
+		$did_updates = $composer_updates || (is_array($edits) && count($edits) > 0) ? true : false;
 		$this->_run_module_hook($module, $did_updates ? "updated" : "update");
 		if ($did_updates) {
 			$this->log("{name} updated to latest version.", array(
