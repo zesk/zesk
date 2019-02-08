@@ -16,6 +16,11 @@ namespace zesk;
 /* @var $request \zesk\Request */
 /* @var $response \zesk\Response */
 /* @var $current_user \zesk\User */
+if (!$this->content) {
+	echo $locale->__('Never logged in');
+	return;
+}
+
 $content = $this->content instanceof Timestamp ? $this->content : new Timestamp($this->content);
 
 $now = Timestamp::now();
@@ -32,7 +37,7 @@ foreach ($strings as $unit => $format) {
 	if (($n = $now->difference($content, $unit)) > 0) {
 		$map['n'] = $n;
 		$map['units'] = $locale->plural($unit, $n);
-		$format = $locale($format, $map);
+		$format = $locale->__($format, $map);
 		echo $content->format($locale, $format);
 		return;
 	}
