@@ -356,7 +356,7 @@ abstract class Controller_ORM extends Controller_Authenticated {
 					$content .= $output;
 				}
 				$output_json = $response->is_html() ? $response->html()->to_json() : $response->to_json();
-				$json = array(
+				$json = $response->response_data() + array(
 					'status' => true,
 					'content' => $content,
 					'microtime' => microtime(true),
@@ -539,7 +539,7 @@ abstract class Controller_ORM extends Controller_Authenticated {
 			if (!$object instanceof Model) {
 				$object = null;
 			}
-			$action_prefix = __(ucfirst($action)) . " ";
+			$action_prefix = $this->application->locale->__(ucfirst($action)) . " ";
 
 			$title = $widget->option('title', $this->option('title', $this->route->option('title')));
 			if ($title) {
