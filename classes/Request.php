@@ -352,6 +352,7 @@ class Request extends Hookable {
 			return array(
 				"*/*" => array(
 					"q" => 1,
+					"pattern" => "#[^/]+/[^/]+#",
 				),
 			);
 		}
