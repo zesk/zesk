@@ -29,11 +29,11 @@ echo HTML::tag('ul', '.selection-type', implode("\n", $lines));
 
 if ($this->show_editor) {
 	$href = URL::query_format('/selection/' . $value->id . '/list', array(
-		"ref" => $request->uri()
+		"ref" => $request->uri(),
 	));
 	echo HTML::tag('a', array(
 		'class' => 'btn btn-default',
 		'data-modal-url' => $href,
-		'href' => $href
+		'href' => $href,
 	), $this->get('label_button', __('Show list')));
 }

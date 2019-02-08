@@ -25,18 +25,18 @@ foreach ($servers as $server) {
 		$updated = $this->theme(array(
 			"system/panel/daemon/updated",
 			"system/panel/updated",
-			"updated"
+			"updated",
 		), array(
-			"content" => $last_updated
+			"content" => $last_updated,
 		), array(
-			"first" => true
+			"first" => true,
 		));
 	} else {
 		$updated = $locale->__("never updated");
 	}
 	$items[] = HTML::tag("li", '.heading', $locale->__("{name} ({updated})", array(
 		"name" => $server->name,
-		"updated" => $updated
+		"updated" => $updated,
 	)));
 	if (!$data) {
 		$items[] = HTML::tag('li', '.error', "No process data");
@@ -45,7 +45,7 @@ foreach ($servers as $server) {
 		foreach ($data as $process => $settings) {
 			$items[] = $this->theme("system/panel/daemon/line", array(
 				"content" => $settings,
-				"process" => $process
+				"process" => $process,
 			));
 		}
 	}

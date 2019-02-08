@@ -21,7 +21,7 @@ if (!empty($value)) {
 	$col_object = null;
 	if ($value instanceof ORM) {
 		$col_object = $value;
-	} else if (is_numeric($value) && intval($value) !== 0) {
+	} elseif (is_numeric($value) && intval($value) !== 0) {
 		try {
 			$col_object = $this->application->orm_factory($this->object_class, $value)->fetch();
 		} catch (Exception $e) {
@@ -32,7 +32,7 @@ if (!empty($value)) {
 		if ($method) {
 			echo call_user_func_array(array(
 				$col_object,
-				$method
+				$method,
 			), $method_args);
 			return;
 		}

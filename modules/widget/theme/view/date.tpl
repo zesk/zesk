@@ -17,6 +17,7 @@ namespace zesk;
 /* @var $response \zesk\Response */
 /* @var $current_user \zesk\User */
 $is_empty = false;
+
 try {
 	$timestamp = new Timestamp($this->value);
 	$is_empty = $timestamp->is_empty();

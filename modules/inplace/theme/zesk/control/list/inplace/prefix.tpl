@@ -16,9 +16,9 @@ if (!$this->hide_new_button) {
 		$new_url_button = HTML::tag("button", array(
 			"class" => "btn btn-warning",
 			"data-modal-url" => $new_url,
-			'data-target' => "#" . $parent->id()
+			'data-target' => "#" . $parent->id(),
 		), $locale("Create {name}", array(
-			"name" => $name
+			"name" => $name,
 		)));
 	}
 }
@@ -26,6 +26,6 @@ echo HTML::tag('div', 'col-xs-12 col-md-5 pull-right', $new_url_button . HTML::t
 
 if (!$this->hide_title) {
 	echo HTML::tag('h2', $locale("Manage list of {names}", array(
-		"names" => $names
+		"names" => $names,
 	)));
 }

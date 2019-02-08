@@ -9,7 +9,7 @@ if (can_iterate($content)) {
 	$force_list = $this->getb("force_list");
 	if (!$force_assoc && !$force_list) {
 		$wrap_tag = ArrayTools::is_assoc($content) ? "dl" : "ul";
-	} else if ($force_list) {
+	} elseif ($force_list) {
 		$wrap_tag = "ul";
 	} else {
 		$wrap_tag = "dl";

@@ -1,6 +1,6 @@
 <?php
 /**
- * 
+ *
  */
 namespace zesk;
 
@@ -25,13 +25,13 @@ if (is_string($menu_remain)) {
 		$response->error_404($group_object->words(__("{class_name-context-subject} not found")));
 	}
 	$html_class = strtolower($group_object->class_code_name());
-	
+
 	echo HTML::div(array(
-		"class" => "back $html_class-back"
+		"class" => "back $html_class-back",
 	), HTML::a($menu['URI'], __("Back to {0}", $object->Name)));
-	
+
 	echo HTML::div(array(
-		"class" => $html_class
+		"class" => $html_class,
 	), $group_object->theme());
 	return;
 }
@@ -49,10 +49,10 @@ if ($current_user && $current_user->can("edit", $object)) {
 	echo HTML::tag_close("div");
 }
 echo HTML::etag("p", array(
-	"class" => "intro"
+	"class" => "intro",
 ), $object->Body);
 echo $object->theme(array(
 	"view-item",
-	"./content/group/view-item.tpl"
+	"./content/group/view-item.tpl",
 ));
 echo HTML::tag_close("div");

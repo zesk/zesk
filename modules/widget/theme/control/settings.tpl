@@ -9,4 +9,3 @@
 /* @var $response \zesk\Response */
 /* @var $current_user \User */
 echo $this->theme('zesk/nav/tabs');
-

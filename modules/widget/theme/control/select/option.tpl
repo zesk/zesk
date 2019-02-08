@@ -13,5 +13,5 @@ unset($data_attrs['data-attributes']);
 $label = $this->label;
 echo HTML::tag('option', array(
 	'value' => $value,
-	'selected' => $selected
+	'selected' => $selected,
 ) + $data_attrs, $escape_values ? htmlspecialchars($label) : $label);

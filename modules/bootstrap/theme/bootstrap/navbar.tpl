@@ -10,7 +10,7 @@ $request = $this->request;
 			<?php
 			echo HTML::tag('a', array(
 				'class' => 'brand',
-				'href' => $this->get('title_href', '/')
+				'href' => $this->get('title_href', '/'),
 			), $this->title);
 			?>
 			<ul class="nav">
@@ -18,9 +18,9 @@ $request = $this->request;
 				foreach ((array) $this->menu as $link => $item) {
 					$active = $request->path() == $link;
 					echo HTML::tag('li', array(
-						"class" => $active ? "active" : ""
+						"class" => $active ? "active" : "",
 					), HTML::tag('a', array(
-						"href" => $link
+						"href" => $link,
 					), $item));
 				}
 				?>

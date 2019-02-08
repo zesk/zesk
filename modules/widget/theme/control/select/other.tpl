@@ -12,7 +12,7 @@ namespace zesk;
 		foreach ($this->control_options as $value => $label) {
 			echo HTML::tag('li', HTML::tag('a', array(
 				'onclick' => "$('.form-control', \$(this).parents('.input-group')).val($(this).data('value'));",
-				'data-value' => $value
+				'data-value' => $value,
 			), $label));
 		}
 		?></ul>
@@ -20,9 +20,9 @@ namespace zesk;
 	<?php
 	$input_attributes = array(
 		'type' => 'text',
-		'class' => 'form-control'
+		'class' => 'form-control',
 	) + $this->widget->data_attributes() + $this->widget->input_attributes() + array(
-		'value' => $this->value
+		'value' => $this->value,
 	);
 	echo HTML::tag('input', $input_attributes, null);
 	?>

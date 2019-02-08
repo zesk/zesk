@@ -36,12 +36,12 @@ if (empty($value)) {
 if ($this->textarea) {
 	$ia["rows"] = $this->rows;
 	$ia["cols"] = $this->cols;
-	
+
 	echo HTML::tag_open("textarea", $ia) . htmlspecialchars(strval($value)) . HTML::tag_close("textarea");
 } else {
 	$ia["type"] = $this->password ? "password" : "text";
 	$ia = $object->apply_map($ia) + array(
-		'value' => $value
+		'value' => $value,
 	);
 	$input = HTML::tag("input", $ia);
 	if ($this->input_group_addon) {

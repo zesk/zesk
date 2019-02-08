@@ -17,7 +17,7 @@ $status = avalue($content, 'status');
 $classes = array(
 	"daemon-module processes",
 	$alive ? "ok" : "not-ok",
-	$status
+	$status,
 );
 
 $class = implode(" ", $classes);
@@ -30,12 +30,12 @@ if ($process === "me") {
 }
 //echo HTML::tag('li', HTML::tag('pre', _dump($content)));
 echo HTML::tag_open("li", array(
-	"class" => $class
+	"class" => $class,
 ));
 
 echo HTML::wrap($locale("[{process}] {status}", array(
 	"process" => $process,
-	"status" => $status
+	"status" => $status,
 )), HTML::tag("strong", ".name", "[]"));
 
 echo HTML::span(".status", $alive && $status === "up" ? "up" : "down");

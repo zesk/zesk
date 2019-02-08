@@ -4,4 +4,3 @@
 $n_dec = $this->geti('decimal_precision', 2);
 
 echo $this->prefix . sprintf("%01.${n_dec}f", $this->content) . $this->suffix;
-

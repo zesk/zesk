@@ -27,18 +27,18 @@ foreach ($servers as $server) {
 		$updated = $this->theme(array(
 			"system/panel/daemontools/updated",
 			"system/panel/updated",
-			"updated"
+			"updated",
 		), array(
-			"content" => $last_updated
+			"content" => $last_updated,
 		), array(
-			"first" => true
+			"first" => true,
 		));
 	} else {
 		$updated = $locale->__("never updated");
 	}
 	$items[] = HTML::tag("li", '.heading', $locale->__("{name} ({updated})", array(
 		"name" => $server->name,
-		"updated" => $updated
+		"updated" => $updated,
 	)));
 	$services = $module->server_services($server);
 	if ($services === null) {
@@ -54,4 +54,3 @@ foreach ($servers as $server) {
 	}
 }
 echo HTML::tag("ul", implode("\n", $items));
-

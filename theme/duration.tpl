@@ -23,5 +23,5 @@ foreach (Timestamp::$UNITS_TRANSLATION_TABLE as $unit => $seconds) {
 echo $locale->__("{prefix}{n} {units}", array(
 	"prefix" => $prefix,
 	"n" => $duration,
-	"units" => $locale->plural($locale->__($unit), $duration)
+	"units" => $locale->plural($locale->__($unit), $duration),
 ));

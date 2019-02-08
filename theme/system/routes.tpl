@@ -1,6 +1,6 @@
 <?php
 /**
- * 
+ *
  */
 namespace zesk;
 
@@ -22,5 +22,3 @@ foreach ($router->routes() as $route) {
 	echo HTML::tag('li', $route->original_pattern . "($weight)");
 }
 echo HTML::tag_close('ul');
-
-

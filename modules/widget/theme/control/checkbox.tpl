@@ -1,6 +1,6 @@
 <?php
 /**
- * 
+ *
  */
 namespace zesk;
 
@@ -51,7 +51,7 @@ if ($this->getb("refresh")) {
 
 if ($this->label_checkbox) {
 	$label_attr = ArrayTools::map_keys(ArrayTools::filter($attr, "id"), array(
-		"id" => "for"
+		"id" => "for",
 	));
 	$label_attr['class'] = $this->get('checkbox_label_class', null);
 	$result = HTML::tag('div', '.checkbox' . $disabled_class, HTML::tag("label", $label_attr, $result . $this->label_checkbox));

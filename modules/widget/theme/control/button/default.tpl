@@ -8,7 +8,7 @@ echo HTML::tag("button", array(
 	"type" => "button",
 	"id" => $this->id,
 	"title" => $this->title,
-	"class" => CSS::add_class("btn btn-default", $this->confirm ? "confirm" : "")
+	"class" => CSS::add_class("btn btn-default", $this->confirm ? "confirm" : ""),
 ) + $this->widget->data_attributes(), HTML::tag('span', '.glyphicon .glyphicon-repeat', '') . ' ' . $this->button_label);
 
 /* $var $response zesk\Response */
@@ -30,6 +30,5 @@ $('#{id}').off('click.default').on('click.default', function () {
 </script>
 <?php
 $response->jquery(map(HTML::extract_tag_contents('script', ob_get_clean()), array(
-	'id' => $this->id
+	'id' => $this->id,
 )));
-

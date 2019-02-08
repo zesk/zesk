@@ -21,7 +21,7 @@ foreach ($this->control_options as $code => $label) {
 		"class" => "btn btn-default pill-group-$name",
 		"id" => $button_id,
 		"role" => "button",
-		"data-value" => $code
+		"data-value" => $code,
 	), $label);
 }
 $input_id = $this->id;
@@ -30,7 +30,7 @@ if (!$input_id) {
 }
 ?></div><?php
 echo HTML::input("hidden", $name, $value, array(
-	"id" => $input_id
+	"id" => $input_id,
 ));
 $response->jquery("(function() {
 	var update = function () {

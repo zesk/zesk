@@ -15,16 +15,16 @@ namespace zesk;
 $add_link = $this->getb("add_link");
 if ($this->theme) {
 	$content = $this->theme($this->theme);
-} else if ($this->content) {
+} elseif ($this->content) {
 	$content = $this->content;
-} else if ($this->text) {
+} elseif ($this->text) {
 	$content = $this->content;
-} else if ($this->title) {
+} elseif ($this->title) {
 	$content = $this->title;
 } else {
 	$application->logger->warning("No title for action {url} - parent widget is {parent_class}", array(
 		"url" => $url,
-		$widget instanceof Widget ? get_class($widget->top()) : type($widget)
+		$widget instanceof Widget ? get_class($widget->top()) : type($widget),
 	));
 }
 if (!$add_link) {
@@ -40,7 +40,6 @@ if ($this->onclick) {
 
 echo HTML::tag_open('li', $this->get('li_attributes', ".action"));
 echo HTML::a(URL::query_format($object->apply_map($url), array(
-	$referrer_query_string_name => $request->uri()
+	$referrer_query_string_name => $request->uri(),
 )), $attr, $content);
 echo HTML::tag_close('li');
-

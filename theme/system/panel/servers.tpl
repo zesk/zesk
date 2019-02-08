@@ -20,12 +20,12 @@ $output_header = false;
 foreach ($servers as $server) {
 	if (!$output_header) {
 		echo HTML::tag("div", array(
-			"class" => "row header server-status server-status-header"
+			"class" => "row header server-status server-status-header",
 		), $server->theme("status-row-header"));
 		$output_header = true;
 	}
 	echo HTML::tag("div", array(
 		"class" => "row server-status server-status-row",
-		"id" => "server-status-" . $server->id()
+		"id" => "server-status-" . $server->id(),
 	), $server->theme("status-row"));
 }

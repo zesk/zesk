@@ -23,11 +23,11 @@ $add_ref = $this->getb('add_ref');
 foreach ($content as $href => $attrs) {
 	if ($add_ref && !URL::query_parse($href, $ref_name) !== null) {
 		$href = URL::query_format($href, array(
-			$ref_name => $this->ref
+			$ref_name => $this->ref,
 		));
 	}
 	$tag_attrs = array(
-		'href' => $href
+		'href' => $href,
 	);
 	$checkbox = false;
 	$type = 'a';
@@ -37,7 +37,7 @@ foreach ($content as $href => $attrs) {
 		$tag_attrs['title'] = $title;
 		$input_data_attrs = array();
 		$attrs = array(
-			'title' => $attrs
+			'title' => $attrs,
 		);
 	} else {
 		$type = avalue($attrs, 'type', $type);
@@ -58,7 +58,7 @@ foreach ($content as $href => $attrs) {
 		$input_data_attrs += array(
 			'type' => 'checkbox',
 			'value' => 1,
-			'checked' => avalue($attrs, 'checked') ? 'checked' : null
+			'checked' => avalue($attrs, 'checked') ? 'checked' : null,
 		);
 		unset($tag_attrs['href']);
 		$buttons[] = HTML::tag('label', $tag_attrs, HTML::tag('input', $input_data_attrs) . $title);

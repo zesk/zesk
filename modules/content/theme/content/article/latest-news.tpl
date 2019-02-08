@@ -27,9 +27,8 @@ foreach ($aa as $a) {
 	<dd><?php echo  $a->summary() ?></dd><?php
 	} else {
 		$href = URL::query_format($link, array(
-			"ID" => $a->id()
-		));
-		?><dt>
+			"ID" => $a->id(),
+		)); ?><dt>
 		<a href="<?php echo  $href ?>"><?php echo  $a->Name ?></a>
 	</dt>
 	<dd><?php echo  $a->summary() ?> ... <?php echo  HTML::a($href, $this->ReadMore) ?></dd><?php

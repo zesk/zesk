@@ -29,7 +29,7 @@ $id = 'control-picker-' . $this->column . '-q';
 	$query = $application->orm_registry('zesk\\User_Content_Image')
 		->query_select()
 		->link('zesk\\Content_Image', array(
-		'alias' => 'ucimage'
+		'alias' => 'ucimage',
 	))
 		->what_object('zesk\\Content_Image')
 		->where('X.user', $this->current_user);
@@ -37,15 +37,13 @@ $id = 'control-picker-' . $this->column . '-q';
 	$iterator = $query->orm_iterator('zesk\Content_Image');
 	foreach ($iterator as $image) {
 		echo $this->theme('control/picker/content/image/item', array(
-			'object' => $image
+			'object' => $image,
 		));
 	}
 	?></div>
 <?php
 $response->response_data(array(
-	'context_class' => 'modal-lg'
+	'context_class' => 'modal-lg',
 ), true);
 
 $response->jquery("\$('#$id').image_picker();");
-
-

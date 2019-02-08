@@ -18,10 +18,9 @@ if ($response->option_bool("debug_redirect")) {
 	echo $this->theme("zesk/exception/redirect-debug", array(
 		'content' => HTML::a($url, $url),
 		'url' => $url,
-		'original_url' => $original_url
+		'original_url' => $original_url,
 	));
 } else {
 	$url = $response->redirect()->handle_exception($exception);
 	echo HTML::a($url, $url);
 }
-

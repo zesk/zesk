@@ -25,7 +25,7 @@ foreach ($pairs as $name => $value) {
 	$class = ($index % 2 === 0) ? ".even" : ".odd";
 	$result .= HTML::tag('dt', $class, $name);
 	$result .= HTML::tag('dd', $class, is_array($value) ? $this->theme('dl', array(
-		'content' => $value
+		'content' => $value,
 	)) : strval($value instanceof \Closure ? $locale->hooks->callable_string($value) : $value));
 	$index = $index + 1;
 }

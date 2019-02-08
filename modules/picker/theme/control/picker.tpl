@@ -12,7 +12,7 @@ namespace zesk;
 $uri = URL::query_append($this->request->uri(), array(
 	"widget::target" => $this->column,
 	"ajax" => 1,
-	"action" => "selector"
+	"action" => "selector",
 ));
 
 $column = $this->column;
@@ -22,14 +22,14 @@ echo HTML::tag_open('div', '.control-picker');
 echo HTML::tag('div', '.btn-group', HTML::tag('a', array(
 	'class' => 'btn btn-default',
 	'data-modal-url' => $uri,
-	'data-target' => "#$list_id"
+	'data-target' => "#$list_id",
 ), $this->get('label_button', HTML::span('.glyphicon .glyphicon-plus', ''))));
 
 $results = array();
 foreach ($this->objects as $object) {
 	$results[] = $this->theme($this->theme_item, array(
 		"object" => $object,
-		"selected" => true
+		"selected" => true,
 	));
 }
 // $n = count($results);

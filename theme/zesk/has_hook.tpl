@@ -29,7 +29,7 @@ foreach ($this->content as $key => $arr) {
 		$key,
 		$arr[0],
 		$this->theme("microsecond", $arr[1] - $min, $range),
-		$this->theme("microsecond", $arr[2] - $min, $range)
+		$this->theme("microsecond", $arr[2] - $min, $range),
 	);
 }
 return $this->theme('table', array(
@@ -37,7 +37,7 @@ return $this->theme('table', array(
 		"Hook",
 		"First Time",
 		"Last Time",
-		"Number of times"
+		"Number of times",
 	)),
-	'rows' => $rows
+	'rows' => $rows,
 ));

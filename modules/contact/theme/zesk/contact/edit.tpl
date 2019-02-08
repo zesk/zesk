@@ -51,7 +51,7 @@ function contact_edit_post(Template $object, Contact $contact) {
 		"Suffix",
 		"Title",
 		"Company",
-		"Nickname"
+		"Nickname",
 	);
 	foreach ($person_fields as $person_field) {
 		$request_field = "Person_$person_field";
@@ -63,28 +63,28 @@ function contact_edit_post(Template $object, Contact $contact) {
 	$value_names = array(
 		"Email" => array(
 			"Emails",
-			Contact_Label::LabelType_Email
+			Contact_Label::LabelType_Email,
 		),
 		"Phone" => array(
 			"Phones",
-			Contact_Label::LabelType_Phone
+			Contact_Label::LabelType_Phone,
 		),
 		"Address" => array(
 			"Addresses",
-			Contact_Label::LabelType_Address
+			Contact_Label::LabelType_Address,
 		),
 		"URL" => array(
 			"URLs",
-			Contact_Label::LabelType_URL
+			Contact_Label::LabelType_URL,
 		),
 		"Date" => array(
 			"Dates",
-			Contact_Label::LabelType_Date
+			Contact_Label::LabelType_Date,
 		),
 		"Other" => array(
 			"Others",
-			Contact_Label::LabelType_Other
-		)
+			Contact_Label::LabelType_Other,
+		),
 	);
 	$delete_list = array();
 	foreach ($value_names as $value_name => $settings) {
@@ -145,13 +145,13 @@ if ($request->is_post()) {
 	if ($result === true) {
 		$response = array(
 			"success" => $result,
-			"message" => __("Saved successfully.")
+			"message" => __("Saved successfully."),
 		);
 	} else {
 		$response = array(
 			"success" => false,
 			"message" => __("There were some problems saving your contact."),
-			"errors" => $result
+			"errors" => $result,
 		);
 	}
 	$response['id'] = $contact->id();
@@ -168,7 +168,7 @@ function contact_edit_input($label, $class, $name, $id, $value, $default_visibil
 	$widget_attrs = array(
 		'name' => $name . ($multi ? '[]' : ""),
 		'class' => $name,
-		'id' => $id
+		'id' => $id,
 	);
 	$widget_attrs['class'] = $class;
 	if ($widget_textarea) {
@@ -178,17 +178,17 @@ function contact_edit_input($label, $class, $name, $id, $value, $default_visibil
 		$widget_attrs['value'] = $value;
 		$widget = HTML::tag("input", $widget_attrs);
 	}
-	
+
 	$attrs = array(
 		"class" => 'overlabel-pair edit-value',
-		"id" => "contact-field-$name"
+		"id" => "contact-field-$name",
 	);
 	if ($default_visibility === false && empty($value)) {
 		$attrs['style'] = 'display: none';
 	}
 	return HTML::div($attrs, HTML::tag('label', array(
 		'for' => $id,
-		"class" => "overlabel"
+		"class" => "overlabel",
 	), $label) . $widget);
 }
 function contact_edit_pair($label, $class, $name, $data, $labels, $section, $section_id, $widget_textarea = false) {
@@ -200,10 +200,10 @@ function contact_edit_pair($label, $class, $name, $data, $labels, $section, $sec
 	if ($is_custom) {
 		$label_html = HTML::div('.overlabel-pair', HTML::tag('label', array(
 			'class' => 'overlabel',
-			'for' => $id_label
+			'for' => $id_label,
 		), __('Label')) . HTML::input('text', $field_name, '', array(
 			'id' => $id_label,
-			'class' => 'label-custom'
+			'class' => 'label-custom',
 		)));
 	} else {
 		$labels['...'] = __('Custom ...');
@@ -216,7 +216,7 @@ function contact_edit_pair($label, $class, $name, $data, $labels, $section, $sec
 		$label_html = $w->output($data);
 	}
 	return HTML::div('.contact-pair', contact_edit_input($label, $class, $name, $id_label, $value, true, true, $widget_textarea) . HTML::div('.contact-label', $label_html) . "<a href=\"javascript:contact_remove_item('$section','$section_id')\" class=\"remove\">" . __('remove') . "</a>" . HTML::input_hidden($name . "_Custom[]", "$is_custom", array(
-		"class" => "custom"
+		"class" => "custom",
 	)));
 }
 
@@ -233,37 +233,37 @@ $sections = array(
 	'email' => array(
 		'label_type' => Contact_Label::LabelType_Email,
 		'head_label' => "Email",
-		'object_name' => "Contact_Email"
+		'object_name' => "Contact_Email",
 	),
 	'phone' => array(
 		'label_type' => Contact_Label::LabelType_Phone,
 		'head_label' => "Phone",
-		'object_name' => "Contact_Phone"
+		'object_name' => "Contact_Phone",
 	),
 	'address' => array(
 		'label_type' => Contact_Label::LabelType_Address,
 		'head_label' => "Address",
 		'object_name' => "Contact_Address",
-		'field_type' => 'textarea'
+		'field_type' => 'textarea',
 	),
 	'url' => array(
 		'label_type' => Contact_Label::LabelType_URL,
 		'head_label' => "Web sites",
 		'object_name' => "Contact_URL",
-		'widget_class' => 'long'
+		'widget_class' => 'long',
 	),
 	'dates' => array(
 		'label_type' => Contact_Label::LabelType_Date,
 		'head_label' => "Dates",
 		'object_name' => "Contact_Date",
-		'default_hide' => true
+		'default_hide' => true,
 	),
 	'other' => array(
 		'label_type' => Contact_Label::LabelType_Other,
 		'head_label' => "Other",
 		'object_name' => "Contact_Other",
-		'default_hide' => true
-	)
+		'default_hide' => true,
+	),
 );
 
 HTML::jquery("contact_edit_load()");
@@ -271,48 +271,48 @@ HTML::jquery("contact_edit_load()");
 $fields = array(
 	'Person_Prefix' => array(
 		'person',
-		'Prefix'
+		'Prefix',
 	),
 	'Person_MiddleName' => array(
 		'person',
-		'Middle Name'
+		'Middle Name',
 	),
 	'Person_Suffix' => array(
 		'person',
-		'Suffix'
+		'Suffix',
 	),
 	'Person_Title' => array(
 		'person',
-		'Title'
+		'Title',
 	),
 	'Person_Company' => array(
 		'person',
-		'Company'
+		'Company',
 	),
 	array(
 		'email',
-		'Email'
+		'Email',
 	),
 	array(
 		'phone',
-		'Phone'
+		'Phone',
 	),
 	array(
 		'address',
-		'Address'
+		'Address',
 	),
 	array(
 		'url',
-		'Website'
+		'Website',
 	),
 	array(
 		'dates',
-		'Date'
+		'Date',
 	),
 	array(
 		'other',
-		'Custom'
-	)
+		'Custom',
+	),
 )?>
 <form id="contact-form-<?php echo $id?>"
 	action="<?php echo $request->uri(); ?>" method="post"
@@ -332,12 +332,12 @@ $fields = array(
 						$onclick = "$('#contact-field-$codename').show();$('#$codename-add').hide(); \$(this).parent().parent().parent().hide()";
 						$link = HTML::tag("a", array(
 							"onclick" => $onclick,
-							"id" => $codename . "-add"
+							"id" => $codename . "-add",
 						), $name);
 					} else {
 						$onclick = "contact_add_item('$section'); \$(this).parent().parent().parent().hide()";
 						$link = HTML::tag("a", array(
-							"onclick" => $onclick
+							"onclick" => $onclick,
 						), $name);
 					}
 					echo HTML::tag('li', $link);
@@ -367,7 +367,7 @@ $fields = array(
 $append_templates = array();
 foreach ($sections as $section => $variables) {
 	$label_type = $head_label = $object_name = $field_type = $widget_class = $default_hide = null;
-	
+
 	extract($variables, EXTR_IF_EXISTS);
 	$values = array();
 	if ($id) {
@@ -375,7 +375,7 @@ foreach ($sections as $section => $variables) {
 			->query_select()
 			->what(array(
 			"Label" => "Label",
-			"Value" => "Value"
+			"Value" => "Value",
 		))
 			->where("contact", $id)
 			->to_array();
@@ -389,23 +389,22 @@ foreach ($sections as $section => $variables) {
 				$values[] = array(
 					'Label' => $required->id(),
 					'Value' => '',
-					'required' => true
+					'required' => true,
 				);
 			}
 		} else {
 			$values = array(
 				array(
 					'Label' => null,
-					'Value' => ''
-				)
+					'Value' => '',
+				),
 			);
 			if ($default_hide) {
 				$display = ' style="display: none"';
 			}
 		}
 	}
-	$labels = Contact_Label::label_options($label_type, $account->id());
-	?>
+	$labels = Contact_Label::label_options($label_type, $account->id()); ?>
 	<div class="contact-section" id="contact-section-<?php echo $section?>"
 			<?php echo $display?>>
 			<div class="section-head">
@@ -415,24 +414,20 @@ foreach ($sections as $section => $variables) {
 		<?php
 	foreach ($values as $i => $data) {
 		$section_id = "$object_name-$id-$i";
-		$required = avalue($data, 'required', false);
-		?><div
+		$required = avalue($data, 'required', false); ?><div
 				class="section-control section-control-<?php echo $section?><?php echo $required ? " section-label-required" : ""?>"
 				id="<?php echo $section_id?>">
 			<?php echo contact_edit_pair(__($head_label), $widget_class, $object_name, $data, $labels, $section, $section_id, $field_type === "textarea")?>
 		</div>
 		<?php
-	}
-	?>
+	} ?>
 		<?php
-	ob_start();
-	?>
+	ob_start(); ?>
 		<div id="section-template-<?php echo $section?>" style="display: none">
 			<?php echo contact_edit_pair(__($head_label), $widget_class, $object_name, array(), $labels, $section, '{id}', $field_type === "textarea")?>
 		</div>
 		<?php
-	$append_templates[] = ob_get_clean();
-	?>
+	$append_templates[] = ob_get_clean(); ?>
 	</div>
 <?php
 }
@@ -455,4 +450,3 @@ foreach ($sections as $section => $variables) {
 </div>
 <?php
 echo implode("\n", $append_templates);
-

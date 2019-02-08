@@ -19,8 +19,8 @@ if ($request->user_agent_is('iphone')) {
 	<li>Under <strong>Security</strong> make sure <strong>JavaScript</strong>
 		is turned <strong>On</strong></li>
 </ul><?php
-} else if ($request->user_agent_is('firefox')) {
-	?><ul>
+} elseif ($request->user_agent_is('firefox')) {
+		?><ul>
 	<li>Under the <strong><?php echo $is_mac ? "FireFox" : "Tools" ?> Menu</strong>,
 		choose <strong><?php echo $is_mac ? "Preferences ..." : "Options..." ?></strong></li>
 	<li>Click the <strong>Content</strong> icon
@@ -28,8 +28,8 @@ if ($request->user_agent_is('iphone')) {
 	<li>Ensure <strong>Enable JavaScript</strong> is checked
 	</li>
 </ul><?php
-} else if ($request->user_agent_is('ie')) {
-	?><ul>
+	} elseif ($request->user_agent_is('ie')) {
+		?><ul>
 	<li>Under the <strong>Tools Menu</strong>, choose <strong>Internet
 			Options...</strong></li>
 	<li>Click the <strong>Security</strong> tab
@@ -40,9 +40,9 @@ if ($request->user_agent_is('iphone')) {
 	<li>Scroll down until you find <strong>Scripting</strong> with <strong>Active
 			Scripting</strong> on the next line, and click <strong>Enable</strong></li>
 </ul><?php
-} else {
-	?><ul>
+	} else {
+		?><ul>
 	<li>Check your browser's settings to ensure JavaScript is enabled for
 		this site</li>
 </ul><?php
-}
+	}

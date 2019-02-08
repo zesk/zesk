@@ -31,7 +31,7 @@ $strings = array(
 	'week' => 'Last seen {n} {units} ago',
 	'day' => 'Last seen {n} {units} ago',
 	'hour' => 'Visited today, {n} {units} ago',
-	'minute' => 'Visited recently, {n} {units} ago'
+	'minute' => 'Visited recently, {n} {units} ago',
 );
 foreach ($strings as $unit => $format) {
 	if (($n = $now->difference($content, $unit)) > 0) {

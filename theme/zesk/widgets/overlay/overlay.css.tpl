@@ -6,7 +6,7 @@ $height = $this->geti('height', 300);
 $corner_image = 'http://static.marketruler.com/share/images/gradient/border-shadow-400x400-20.png';
 if ($width > 400) {
 	$corner_image = 'http://static.marketruler.com/share/images/gradient/border-shadow-1000x200-20.png';
-} else if ($height > 400) {
+} elseif ($height > 400) {
 	$corner_image = 'http://static.marketruler.com/share/images/gradient/border-shadow-200x1000-20.png';
 }
 $width_unit = $width . 'px';
@@ -28,7 +28,7 @@ if (!in_array($where, array(
 	'top-right',
 	'top-left',
 	'bottom-right',
-	'bottom-left'
+	'bottom-left',
 ))) {
 	$where = 'top-right';
 }
@@ -93,7 +93,7 @@ switch ($where) {
 		$x_close = $width - $close_height;
 		$bg = "url($corner_image) no-repeat right bottom";
 		break;
-	default :
+	default:
 	case 'top-right':
 		break;
 }

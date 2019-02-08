@@ -18,7 +18,6 @@ if ($distance !== null) {
 	?><span class="contact-address-distance"><?php
 	echo $this->theme('distance', array(
 		'content' => $distance,
-		'units' => 'miles'
-	));
-	?></span><?php
+		'units' => 'miles',
+	)); ?></span><?php
 }

@@ -26,7 +26,7 @@ $application->logger->error("Exception: {exception_class}\nMessage: {message}\nS
 	"exception_class" => $class,
 	"exception" => $exception,
 	"message" => $exception->getMessage(),
-	"backtrace" => $exception->getTraceAsString()
+	"backtrace" => $exception->getTraceAsString(),
 ));
 
 $this->begin('body/exception.tpl');
@@ -55,9 +55,8 @@ $dev = $this->application->development();
 	if ($dev) {
 		?><p>The call stack is:</p><?php
 		echo $this->theme('exception/trace', array(
-			"content" => $trace
-		));
-		?>
+			"content" => $trace,
+		)); ?>
 	<?php
 	}
 	if ($this->suffix) {

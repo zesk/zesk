@@ -34,7 +34,7 @@ foreach ($actions as $index => $action) {
 		$application->logger->warning("{file} action {index} is not an array? ({type})", array(
 			"file" => __FILE__,
 			"index" => $index,
-			"type" => type($action)
+			"type" => type($action),
 		));
 		continue;
 	}

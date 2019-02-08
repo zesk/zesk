@@ -17,10 +17,10 @@ $attributes = array(
 	"data-dropfile-target" => '#dropfile-image-' . $this->name,
 	"data-dropfile-column" => $this->column,
 	"data-dropfile-remove" => true,
-	"data-dropfile-url" => $this->url_upload
+	"data-dropfile-url" => $this->url_upload,
 );
 echo HTML::tag('div', $attributes, $this->theme('zesk/control/dropfile/image/contents', array(
-	"object" => $value
+	"object" => $value,
 )));
 
 $this->response->jquery('$.dropfile();');

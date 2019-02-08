@@ -6,5 +6,5 @@ All's well that runs well.
 echo $this->theme("block/dashboard-widget", array(
 	"title" => "Apache Status",
 	"class" => "error",
-	"content" => ob_get_clean()
+	"content" => ob_get_clean(),
 ));

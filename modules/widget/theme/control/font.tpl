@@ -10,7 +10,7 @@ echo $this->theme('zesk/control/select');
 
 echo HTML::div(array(
 	'id' => "$id-sample",
-	'class' => 'control-font-sample-text'
+	'class' => 'control-font-sample-text',
 ), $this->get('sample_text', __('The quick brown fox jumped over the lazy dog.')));
 
 /* @var $response zesk\Response */

@@ -26,4 +26,4 @@ foreach ($share_paths as $alias => $realpath) {
 	$realpath = rtrim($realpath, "/");
 	echo "Alias $prefix/$alias $realpath/\n";
 }
-echo "</IfModule>\n"; 
+echo "</IfModule>\n";

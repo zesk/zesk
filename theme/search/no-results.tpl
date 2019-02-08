@@ -17,6 +17,6 @@ namespace zesk;
 /* @var $response \zesk\Response */
 /* @var $current_user \zesk\User */
 echo HTML::tag('h1', $locale('No results found for &ldquo;{q}&rdquo;', array(
-	'q' => htmlspecialchars($this->request->get('q'))
+	'q' => htmlspecialchars($this->request->get('q')),
 )));
 echo $this->theme('search/form');

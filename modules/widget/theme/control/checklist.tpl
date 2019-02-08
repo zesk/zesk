@@ -54,8 +54,7 @@ if ($columns > 1) {
 if (count($exclusives) > 0) {
 	$map = array();
 	$map['exclusives'] = implode(",", $exclusives);
-	ob_start();
-	?><script>
+	ob_start(); ?><script>
 	(function ($) {
 		var update = function () {
 			var

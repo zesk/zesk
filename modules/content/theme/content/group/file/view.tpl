@@ -1,6 +1,6 @@
 <?php
 /**
- * 
+ *
  */
 namespace zesk;
 
@@ -18,7 +18,7 @@ echo HTML::div_open('.link-group');
 echo HTML::tag('h1', $object->Name);
 echo $this->theme('control/admin-edit');
 echo etag("p", array(
-	"class" => "intro"
+	"class" => "intro",
 ), $object->Body);
 echo $object->theme("file-list");
 echo HTML::div_close();

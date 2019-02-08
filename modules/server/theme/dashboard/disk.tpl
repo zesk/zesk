@@ -27,34 +27,28 @@ foreach ($df as $path => $data) {
 	$rowclass = "";
 	if ($used_percent > $disk_used_percent_error) {
 		$rowclass = "error";
-	} else if ($used_percent > $disk_used_percent_warning) {
+	} elseif ($used_percent > $disk_used_percent_warning) {
 		$rowclass = "warning";
-	} else if ($used_percent > $disk_used_percent_notice) {
+	} elseif ($used_percent > $disk_used_percent_notice) {
 		$rowclass = "notice";
-	}
-	?><div class="<?php
+	} ?><div class="<?php
 
-echo CSS::add_class("row", $rowclass);
-	?>">
+echo CSS::add_class("row", $rowclass); ?>">
 	<div class="span1 percent"><?php
 
-echo $this->theme("percent", $used_percent);
-	?></div>
+echo $this->theme("percent", $used_percent); ?></div>
 	<div class="span1"><?php
 
-echo $platform->volume_short_name($path);
-	?></div>
+echo $platform->volume_short_name($path); ?></div>
 	<div class="span4"><?php
 
-echo Number::format_bytes($data['used'], 0) . " of " . Number::format_bytes($data['total'], 0);
-	?> used, <?php
+echo Number::format_bytes($data['used'], 0) . " of " . Number::format_bytes($data['total'], 0); ?> used, <?php
 
-echo Number::format_bytes($data['free'], 0);
-	?> free</div>
+echo Number::format_bytes($data['free'], 0); ?> free</div>
 </div><?php
 }
 echo $this->theme("block/dashboard-widget", array(
 	"title" => "Disk Usage",
 	"class" => $status,
-	"content" => ob_get_clean()
+	"content" => ob_get_clean(),
 ));

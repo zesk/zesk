@@ -13,5 +13,5 @@ foreach ($this->children as $child) {
 	$child->wrap('div', "col-sm-" . $this->get("column_count_widget", 12));
 }
 echo $this->theme('zesk/control/widgets', array(
-	'widgets' => $this->children
+	'widgets' => $this->children,
 ));

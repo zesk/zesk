@@ -22,7 +22,7 @@ $class = CSS::add_class($class, "video");
 
 /* @var $object Video */
 echo HTML::div_open(array(
-	"class" => $class
+	"class" => $class,
 ));
 if ($current_user && $current_user->can($object, "edit")) {
 	// TODO This is all wrong

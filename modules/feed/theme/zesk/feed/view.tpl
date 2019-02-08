@@ -19,7 +19,7 @@ $limit = $this->geti("limit", null);
 if ($limit <= 0) {
 	$application->logger->warning("Limit passed to {file} is <= 0 ({limit}), assuming no limit", array(
 		"file" => __FILE__,
-		"limit" => $limit
+		"limit" => $limit,
 	));
 	$limit = null;
 }
@@ -39,7 +39,7 @@ if ($content && $updated instanceof Timestamp) {
 	$expires = $updated->add_unit($feed_update_frequency, Timestamp::UNIT_SECOND);
 	if ($expires->before($now)) {
 		$data->delete_data(array(
-			$prefix . 'content'
+			$prefix . 'content',
 		));
 	} else {
 		echo $content;
@@ -52,7 +52,7 @@ $attempted = $data->data($prefix . 'attempted');
 if ($attempted instanceof Timestamp && $attempted->add_unit(60, Timestamp::UNIT_SECOND)->after($now)) {
 	$application->logger->warning("Only attempt download once a minute - waiting {n_seconds} {seconds}", array(
 		"n_seconds" => $n_seconds = $attempted->difference($now),
-		"seconds" => $locale->plural($locale->__("second"), $n_seconds)
+		"seconds" => $locale->plural($locale->__("second"), $n_seconds),
 	));
 } else {
 	if ($object->execute()) {
@@ -67,7 +67,7 @@ if ($attempted instanceof Timestamp && $attempted->add_unit(60, Timestamp::UNIT_
 		}
 		echo HTML::ediv('.feed-view', implode("\n", $items));
 		echo HTML::div(".last-updated", __("Last updated {when}", array(
-			"when" => $updated->format($locale, "{delta}")
+			"when" => $updated->format($locale, "{delta}"),
 		)));
 		$content = ob_get_clean();
 		$data->data($prefix . "content", $content);

@@ -16,6 +16,6 @@ $options = array(
 	'type' => "image",
 	"alt" => __("Delete"),
 	"src" => $application->url("/share/images/actions/delete.gif"),
-	"onclick" => "this.form.$name.value=''; hide_id('${name}_widget'); hide_id('${name}_other'); hide_id('${name}_button'); return false"
+	"onclick" => "this.form.$name.value=''; hide_id('${name}_widget'); hide_id('${name}_other'); hide_id('${name}_button'); return false",
 );
 echo HTML::tag("input", $options);

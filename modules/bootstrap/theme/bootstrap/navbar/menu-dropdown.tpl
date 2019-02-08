@@ -11,7 +11,7 @@ echo HTML::tag("a", array(
 	"data-toggle" => "dropdown",
 	"role" => "button",
 	"aria-haspopup" => "true",
-	"aria-expanded" => "false"
+	"aria-expanded" => "false",
 ), $title . " " . HTML::span('.caret', ''));
 
 echo HTML::tag_open("ul", ".dropdown-menu");
@@ -22,32 +22,32 @@ foreach ($dropdown as $url => $cache_item) {
 	if ($cache_item === "-") {
 		echo HTML::tag('li', array(
 			'role' => 'separator',
-			'class' => 'divider'
+			'class' => 'divider',
 		), '');
-	} else if (begins($url, "*")) {
+	} elseif (begins($url, "*")) {
 		if (is_string($cache_item)) {
 			$cache_item = array(
-				'header-text' => $cache_item
+				'header-text' => $cache_item,
 			);
 		}
 		$li_attr = HTML::tag_attributes('li', $cache_item);
 		echo HTML::tag('li', $li_attr + array(
 			'role' => "presentation",
-			"class" => "dropdown-header"
+			"class" => "dropdown-header",
 		), $cache_item['header-text']);
 	} else {
 		$li_attr = array();
 		if (is_string($cache_item)) {
 			$cache_item = array(
-				'link-text' => $cache_item
+				'link-text' => $cache_item,
 			);
-		} else if (isset($cache_item['li_attributes'])) {
+		} elseif (isset($cache_item['li_attributes'])) {
 			$li_attr = to_array($cache_item['li_attributes']);
 		}
 		$li_attr = HTML::tag_attributes('li', $li_attr);
 		$attr = HTML::tag_attributes("a", $cache_item);
 		echo HTML::tag('li', $li_attr, HTML::tag('a', $attr + array(
-			'href' => $url
+			'href' => $url,
 		), $cache_item['link-text']));
 	}
 }

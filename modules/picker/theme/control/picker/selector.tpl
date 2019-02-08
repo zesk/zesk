@@ -32,7 +32,7 @@ $input_attributes = array(
 	'type' => "text",
 	'placeholder' => __($this->label_search),
 	'data-source' => $this->target,
-	'data-widget-target' => $this->name
+	'data-widget-target' => $this->name,
 );
 
 echo HTML::div_open('.control-picker-selector');
@@ -46,7 +46,7 @@ if (!$this->inline_picker) {
 }
 echo HTML::etag('div', array(
 	'class' => 'control-picker-none-selected',
-	'style' => 'display: none'
+	'style' => 'display: none',
 ), $this->item_selector_none_selected);
 echo HTML::etag('div', '.control-picker-empty', $this->item_selector_empty);
 
@@ -58,7 +58,7 @@ foreach ($this->objects as $object) {
 	$item_content = $this->theme($this->theme_item, array(
 		"object" => $object,
 		"selected" => true,
-		"column" => $this->column
+		"column" => $this->column,
 	));
 	echo $item_content;
 }

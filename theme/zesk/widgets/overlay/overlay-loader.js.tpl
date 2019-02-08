@@ -11,7 +11,7 @@ if (!in_array($where, array(
 	'top-right',
 	'top-left',
 	'bottom-right',
-	'bottom-left'
+	'bottom-left',
 ))) {
 	$where = 'bottom-left';
 }

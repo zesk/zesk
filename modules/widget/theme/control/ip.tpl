@@ -19,4 +19,3 @@ $attrs['value'] = $value;
 $attrs = $widget->input_attributes() + $attrs;
 
 echo HTML::tag('input', $attrs, null);
-

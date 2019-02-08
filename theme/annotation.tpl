@@ -20,7 +20,7 @@ if (!StringTools::ends($x, array(
 	"em",
 	"ex",
 	"px",
-	"%"
+	"%",
 ))) {
 	$x .= "px";
 }
@@ -28,7 +28,7 @@ if (!StringTools::ends($y, array(
 	"em",
 	"ex",
 	"px",
-	"%"
+	"%",
 ))) {
 	$y .= "px";
 }
@@ -39,10 +39,10 @@ $orientation = strtoupper($this->orientation || "L");
 $arrow = HTML::tag("td", array(
 	"class" => "annotation-$orientation",
 	'valign' => 'middle',
-	'align' => 'center'
+	'align' => 'center',
 ), HTML::tag("img", array(
 	"alt" => "",
-	"src" => $application->url("/share/zesk/widgets/annotate/arrow-$orientation.png")
+	"src" => $application->url("/share/zesk/widgets/annotate/arrow-$orientation.png"),
 ), null));
 switch ($orientation) {
 	case "B":
@@ -54,7 +54,7 @@ switch ($orientation) {
 	case "T":
 		$prefix = $arrow . '</tr><tr>';
 		break;
-	default :
+	default:
 	case "L":
 		$prefix = $arrow;
 		break;
@@ -63,10 +63,10 @@ $ajax_id = 'annotation-' . HTML::id_counter();
 echo HTML::tag('table', array(
 	'class' => 'annotation',
 	'style' => $position,
-	"id" => $ajax_id
+	"id" => $ajax_id,
 ), HTML::tag('tr', null, $prefix . HTML::tag('td', array(
 	'class' => 'annotation-text',
-	'style' => "width: $width"
+	'style' => "width: $width",
 ), $message) . $suffix));
 if ($animate_show && $visible) {
 	if ($animate_delay > 0) {
@@ -77,6 +77,5 @@ if ($animate_show && $visible) {
 }
 $response->css('/share/zesk/widgets/annotate/annotate.css');
 $response->css('/share/zesk/widgets/annotate/annotate-ie.css', array(
-	'browser' => "ie"
+	'browser' => "ie",
 ));
-

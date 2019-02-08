@@ -20,7 +20,7 @@ $form = array(
 	'class' => CSS::add_class('form-horizontal', $this->class),
 	'action' => $this->request->path(),
 	'method' => 'post',
-	'enctype' => $upload ? "multipart/form-data" : ""
+	'enctype' => $upload ? "multipart/form-data" : "",
 );
 
 echo HTML::tag_open('form', $form);
@@ -31,7 +31,7 @@ $suffix = array();
 foreach ($this->children as $widget) {
 	if ($widget->option_bool('nav')) {
 		$navs[] = $widget;
-	} else if (count($navs) === 0) {
+	} elseif (count($navs) === 0) {
 		echo $widget->render();
 	} else {
 		$suffix[] = $widget;
@@ -94,14 +94,14 @@ $title = $response->html()->title();
 		$item_class = $name === $selected_tab ? 'active' : '';
 		$item_class = CSS::add_class($item_class, $widget->context_class());
 		echo HTML::tag('li', array(
-			'class' => CSS::add_class($item_class, count($errors) > 0 ? 'error' : '')
+			'class' => CSS::add_class($item_class, count($errors) > 0 ? 'error' : ''),
 		), HTML::tag('a', array(
 			'href' => '#' . $name,
-			'data-toggle' => "tab"
+			'data-toggle' => "tab",
 		), $widget->label() . HTML::etag('span', '.badge error', count($errors))));
 		$content .= HTML::tag('div', array(
 			'id' => $name,
-			'class' => 'tab-pane' . ($name === $selected_tab ? ' active' : '')
+			'class' => 'tab-pane' . ($name === $selected_tab ? ' active' : ''),
 		), $widget_content);
 		$widget->content = "";
 		$widget->content_children = "";
@@ -109,7 +109,7 @@ $title = $response->html()->title();
 	?>
 	</ul>
 	<div class="tab-content"><?php
-	
+
 	echo $content;
 	?></div>
 </div>

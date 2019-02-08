@@ -46,7 +46,7 @@ echo HTML::div('.redirect', HTML::tag('label', $locale->__('Redirect:')) . ' ' .
 
 if ($response->option_bool('redirect_show_backtrace', $application->development())) {
 	echo HTML::div('.backtrace', $this->theme('exception/trace', array(
-		'content' => $exception->getTrace()
+		'content' => $exception->getTrace(),
 	)));
 }
 echo $this->end();

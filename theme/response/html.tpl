@@ -21,7 +21,7 @@ if (!$request) {
 $hook_parameters = array(
 	$request,
 	$response,
-	$this
+	$this,
 );
 $application->hooks->call_arguments('response_html_start', $hook_parameters);
 {
@@ -34,7 +34,7 @@ $application->hooks->call_arguments('response_html_start', $hook_parameters);
 	echo HTML::tag_open('html', $response->html_attributes());
 	{
 		echo $this->theme('response/html/head', array(
-			"hook_parameters" => $hook_parameters
+			"hook_parameters" => $hook_parameters,
 		));
 		echo HTML::tag_open("body", $response->body_attributes());
 		{
@@ -42,7 +42,7 @@ $application->hooks->call_arguments('response_html_start', $hook_parameters);
 			foreach (array(
 				'content',
 				'page_contents',
-				'page_content'
+				'page_content',
 			) as $k) {
 				if ($this->has($k)) {
 					echo $this->get($k);
@@ -60,4 +60,3 @@ $application->hooks->call_arguments('response_html_start', $hook_parameters);
 	echo "\n" . HTML::tag_close('html');
 }
 $application->hooks->call_arguments('response_html_end', $hook_parameters);
-

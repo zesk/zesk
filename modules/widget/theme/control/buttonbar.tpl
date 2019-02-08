@@ -10,4 +10,3 @@ foreach ($widget->children as $widget) {
 	echo $widget->content;
 }
 echo HTML::tag_close('div');
-

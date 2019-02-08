@@ -35,13 +35,13 @@ echo HTML::tag_open('div', array(
 	'data-noun' => $this->label,
 	'data-container' => $this->container,
 	'data-target' => $this->target,
-	'data-count' => $this->count
+	'data-count' => $this->count,
 ));
 $__ = array(
 	'noun' => $singular_noun,
 	'nouns' => $plural_noun,
 	'total' => $this->total,
-	'nouns_total' => $locale->plural($singular_noun, $this->total)
+	'nouns_total' => $locale->plural($singular_noun, $this->total),
 );
 ?>
 <div class="btn-group control-selection-menu">
@@ -49,10 +49,10 @@ $__ = array(
 		data-toggle="dropdown">
 		<?php
 		echo HTML::span(array(
-			'class' => 'title'
+			'class' => 'title',
 		), $locale($this->count === 0 ? $zero_format : $format, array(
 			'n' => $this->count,
-			'nouns' => $locale->plural($this->label, $this->count)
+			'nouns' => $locale->plural($this->label, $this->count),
 		)));
 		?>
 		<span class="caret"></span>
@@ -60,68 +60,66 @@ $__ = array(
 	<?php
 	echo HTML::tag_open('ul', array(
 		'class' => 'dropdown-menu',
-		'role' => 'menu'
+		'role' => 'menu',
 	));
 	echo HTML::tag('li', array(
 		'role' => 'presentation',
-		'class' => 'dropdown-header'
+		'class' => 'dropdown-header',
 	), $locale('Control_Selection::selection_menu_header:=Modify selection ...', $__));
-	
+
 	$plural_noun = $locale->plural($this->label, 2);
 	foreach (array(
 		'none' => $locale('Control_Selection::clear_selection:=Clear selection', $__),
 		'add-all' => $locale('Control_Selection::add_all:=Add {total} matching {nouns_total}', $__),
-		'remove-all' => $locale('Control_Selection::remove_all:=Remove {total} matching {nouns_total}', $__)
+		'remove-all' => $locale('Control_Selection::remove_all:=Remove {total} matching {nouns_total}', $__),
 	) as $k => $v) {
 		echo HTML::tag('li', HTML::tag('a', array(
-			'data-select-action' => $k
+			'data-select-action' => $k,
 		), $v));
 	}
 	echo HTML::tag('li', array(
 		'role' => 'presentation',
-		'class' => 'dropdown-header'
+		'class' => 'dropdown-header',
 	), $locale('... or select individual {nouns} below', array(
-		'nouns' => $plural_noun
+		'nouns' => $plural_noun,
 	)));
 	echo HTML::tag_close('ul');
 	?>
 </div>
 <?php
 if (is_array($this->actions) && count($this->actions) > 0) {
-	?>
+		?>
 <div class="btn-group control-selection-actions-menu">
 	<button type="button" class="btn btn-default dropdown-toggle"
 		data-toggle="dropdown">
 		<?php
 	echo HTML::span(array(
-		'class' => 'control-selection-actions'
-	), $locale('Control_Selection::action_menu_title:={noun} actions', $__));
-	?>
+		'class' => 'control-selection-actions',
+	), $locale('Control_Selection::action_menu_title:={noun} actions', $__)); ?>
 		<span class="caret"></span>
 	</button>
 		<?php
 	echo HTML::tag_open('ul', array(
 		'class' => 'dropdown-menu',
-		'role' => 'menu'
+		'role' => 'menu',
 	));
-	foreach ($this->actions as $href => $settings) {
-		if (is_string($settings)) {
-			$title = $settings;
-			$settings = array();
-		} else if (!is_array($settings)) {
-			continue;
-		} else {
-			$title = $settings['title'];
-		}
-		$settings['href'] = map($href, array(
-			"name" => $this->name
+		foreach ($this->actions as $href => $settings) {
+			if (is_string($settings)) {
+				$title = $settings;
+				$settings = array();
+			} elseif (!is_array($settings)) {
+				continue;
+			} else {
+				$title = $settings['title'];
+			}
+			$settings['href'] = map($href, array(
+			"name" => $this->name,
 		));
-		echo HTML::tag("li", HTML::tag("a", $settings, $title));
+			echo HTML::tag("li", HTML::tag("a", $settings, $title));
+		}
+		echo HTML::tag_close('ul');
 	}
-	echo HTML::tag_close('ul');
-}
 ?>
 	</div>
 <?php
 echo HTML::tag_close('div');
-

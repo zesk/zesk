@@ -17,7 +17,7 @@ if (!$this->hide_sort_icon) {
 	<?php
 	echo HTML::tag('a', array(
 		'href' => $this->orderby_url,
-		"alt" => $this->alt
+		"alt" => $this->alt,
 	), HTML::span("title", $english) . $suffix);
 	?>
 </div>

@@ -15,7 +15,7 @@ foreach ($this->steps as $step) {
 	$completed = $step->completed;
 	$classes = $completed ? "complete" : "incomplete";
 	$icon = HTML::tag('div', array(
-		"class" => CSS::add_class('pull-right glyphicon', $completed ? 'glyphicon-ok' : 'glyphicon-remove')
+		"class" => CSS::add_class('pull-right glyphicon', $completed ? 'glyphicon-ok' : 'glyphicon-remove'),
 	), "");
 	echo HTML::tag('li', CSS::add_class('step', $classes), HTML::div('.step-content', $icon . $step->render()));
 }

@@ -7,7 +7,7 @@ $loads = System::load_averages();
 $labels = array(
 	0 => __("Last minute"),
 	1 => __("Last 5 minutes"),
-	2 => __("Last 15 minutes")
+	2 => __("Last 15 minutes"),
 );
 foreach ($loads as $index => $load) {
 	?><div class="row">
@@ -19,5 +19,5 @@ echo $this->theme("block/dashboard-widget", array(
 	"title" => "Load",
 	"class" => "error",
 	"id" => "status-load",
-	"content" => ob_get_clean()
+	"content" => ob_get_clean(),
 ));

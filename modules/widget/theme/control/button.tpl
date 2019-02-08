@@ -17,7 +17,7 @@ $attrs = $this->input_attributes + $this->data_attributes;
 
 $attrs = ArrayTools::clean($attrs, array(
 	"",
-	null
+	null,
 ));
 
 $button_tag = $this->get('button_tag', "button");
@@ -35,4 +35,3 @@ if (!isset($attrs['value'])) {
 }
 
 echo HTML::tag($button_tag, $object->apply_map($attrs), $content);
-

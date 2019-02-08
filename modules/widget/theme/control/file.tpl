@@ -18,7 +18,7 @@ $filecolumn = $widget->option("filecolumn", $col . "_FileName");
 $actual_name = $value;
 echo HTML::div(array(
 	"id" => $name . "_widget",
-	"class" => CSS::add_class("control-file-filename", empty($actual_name) ? "empty" : "")
+	"class" => CSS::add_class("control-file-filename", empty($actual_name) ? "empty" : ""),
 ), empty($actual_name) ? "" : HTML::tag("span", "class=\"filename\"", $actual_name));
 
 $attrs = $widget->options_include(HTML::input_attribute_names());

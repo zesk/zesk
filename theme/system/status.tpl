@@ -28,7 +28,7 @@ $result['System::host_id'] = System::host_id();
 $result['System::volume_info'] = System::volume_info();
 
 $result = $application->hooks->call_arguments('system/status', array(
-	$result
+	$result,
 ), $result);
 
 $request = $this->request;

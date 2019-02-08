@@ -9,6 +9,7 @@
 use zesk\URL;
 use zesk\HTML;
 use zesk\Session_ORM;
+
 /* @var $this \zesk\Template */
 /* @var $locale \zesk\Locale */
 /* @var $application \zesk\Application */
@@ -22,14 +23,14 @@ $web_key = $this->get("web_key", $application->option("web_key"));
 
 if ($this->has("URL")) {
 	$u = $this->URL;
-	
+
 	$host = URL::host($u);
 	$current_host = $request->host();
-	
+
 	$attr = $this->has("Attributes") ? HTML::parse_attributes($this->Attributes) : array();
 	if ($host === $current_host) {
 		$out_u = URL::query_format($u, array(
-			"ref" => $this->request->url()
+			"ref" => $this->request->url(),
 		));
 	} else {
 		$session = Session_ORM::instance(true);
@@ -37,7 +38,7 @@ if ($this->has("URL")) {
 		$out_u = URL::query_format("/out/", array(
 			"u" => $u,
 			"uk" => $uk,
-			"ref" => $this->request->url()
+			"ref" => $this->request->url(),
 		));
 	}
 	$attr['href'] = $out_u;
@@ -65,7 +66,7 @@ $session = $session->one_time_create();
 $in_url = URL::query_format(URL::left_host($u) . "in/", array(
 	"u" => $u,
 	"uk" => $uk,
-	"s" => $session->member('Cookie')
+	"s" => $session->member('Cookie'),
 ));
 
 $response->redirect($in_url, $request->get("message"));

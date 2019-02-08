@@ -28,11 +28,11 @@ $new_link = path($request->path(), $object->CodeName);
 echo HTML::tag_open("div", '.article-entry');
 if ($object->member_boolean("ShowDisplayDate")) {
 	echo HTML::etag("div", array(
-		"class" => "article-date"
+		"class" => "article-date",
 	), $object->displayDate());
 }
 echo $object->articleImage(0, array(
-	"image_size" => 150
+	"image_size" => 150,
 ));
 
 echo HTML::tag('h2', HTML::a($new_link, $object->homeTitle()));

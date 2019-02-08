@@ -27,7 +27,7 @@ $inline = $this->getb("inline");
 
 echo $this->theme('zesk/control/text', array(
 	'onchange' => null,
-	'class' => $inline ? CSS::add_class($this->class, 'hidden') : $this->class
+	'class' => $inline ? CSS::add_class($this->class, 'hidden') : $this->class,
 ));
 
 $options = $this->get(array(
@@ -35,7 +35,7 @@ $options = $this->get(array(
 	"sideBySide" => true,
 	"format" => __("Module_Bootstrap_DateTimePicker::widget_layout_format:=YYYY-MM-DD hh:mm a"),
 	"toolbarPlacement" => "bottom",
-	"showTodayButton" => true
+	"showTodayButton" => true,
 ));
 $zformat = "{YYYY}-{MM}-{DD} {hh}:{mm}";
 
@@ -46,7 +46,7 @@ $ts_defaultdate = null;
 
 if ($this->data_future_only) {
 	$ts_mindate = $ts_now;
-} else if ($this->data_past_only) {
+} elseif ($this->data_past_only) {
 	$ts_maxdate = $ts_now;
 }
 
@@ -60,7 +60,7 @@ if ($inline) {
 foreach (array(
 	"minDate" => $ts_mindate,
 	"maxDate" => $ts_maxdate,
-	"defaultDate" => $ts_defaultdate
+	"defaultDate" => $ts_defaultdate,
 ) as $option_key => $ts) {
 	if ($ts) {
 		$options[$option_key] = $ts->format($locale, $zformat);
@@ -71,7 +71,7 @@ foreach (array(
 //	"format_date" => "formatDate",
 //	"allow_times" => "allowTimes",
 foreach (array(
-	"step" => "stepping"
+	"step" => "stepping",
 ) as $template_key => $js_option) {
 	if ($this->has($template_key)) {
 		$options[$js_option] = $this->get($template_key);

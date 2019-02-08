@@ -8,4 +8,3 @@ $id = 'control-picker-' . $this->column . '-q';
 </div>
 <div class="results"></div>
 <?php
-

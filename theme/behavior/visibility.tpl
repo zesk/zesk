@@ -50,7 +50,7 @@ $duration = strval($this->duration);
 $durations = array(
 	'default' => '',
 	'fast' => 'fast',
-	'slow' => 'slow'
+	'slow' => 'slow',
 );
 if (!is_numeric($duration)) {
 	$duration = avalue($durations, $duration, $durations['default']);
@@ -59,16 +59,16 @@ $map['duration'] = JSON::encode($duration);
 $effects = array(
 	'default' => array(
 		'effect-show' => 'show',
-		'effect-hide' => 'hide'
+		'effect-hide' => 'hide',
 	),
 	'fade' => array(
 		'effect-show' => 'fadeIn',
-		'effect-hide' => 'fadeOut'
+		'effect-hide' => 'fadeOut',
 	),
 	'slide' => array(
 		'effect-show' => 'slideDown',
-		'effect-hide' => 'slideUp'
-	)
+		'effect-hide' => 'slideUp',
+	),
 );
 
 $map += avalue($effects, "$this->effect", $effects['default']);
@@ -96,7 +96,7 @@ if ($hide_values === null && $show_values === null) {
 }(window.jQuery));
 <?php
 } else {
-	?>
+		?>
 (function ($) {
 	var update = function () {
 		var
@@ -109,11 +109,10 @@ if ($hide_values === null && $show_values === null) {
 	if ($this->not_target) {
 		?>		$("{not_target}")[!display ? "{effect-show}" : "{effect-hide}"]({duration});
 <?php
-	}
-	?>	};
+	} ?>	};
 	update();
 	{target-expression}.change(update);
 }(window.jQuery));
 <?php
-}
+	}
 $response->html()->jquery(map(ob_get_clean(), $map));

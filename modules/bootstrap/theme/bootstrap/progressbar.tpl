@@ -16,10 +16,10 @@ $label = $this->label;
 $text_arguments = $this->geta('text_arguments', array());
 $text_arguments += array(
 	"percent" => $percent,
-	"value" => $this->value
+	"value" => $this->value,
 );
 echo HTML::tag_open('div', array(
-	"class" => CSS::add_class("progress", $this->class)
+	"class" => CSS::add_class("progress", $this->class),
 ));
 
 if ($this->prefix) {
@@ -32,7 +32,7 @@ echo HTML::div(array(
 	"aria-valuenow" => $this->value,
 	"aria-valuemin" => $this->get("minimum", 0),
 	"aria-valuemax" => $maximum,
-	"style" => "width: $percent%"
+	"style" => "width: $percent%",
 ), ($label ? __($label, $text_arguments) : HTML::etag("span", ".sr-only", $this->accessible_label ? __($this->accessible_label, $text_arguments) : null)));
 
 echo map($this->suffix, $text_arguments);

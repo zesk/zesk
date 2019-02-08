@@ -48,7 +48,7 @@ foreach ($widget->children() as $name => $child) {
 	if ($child->label) {
 		$label = HTML::tag('label', array(
 			'for' => $child->id(),
-			'class' => $this->inline ? 'sr-only' : ''
+			'class' => $this->inline ? 'sr-only' : '',
 		), $child->label);
 	}
 	echo HTML::div('.form-group', $label . $child->content . HTML::etag('p', '.help-block', $this->help));

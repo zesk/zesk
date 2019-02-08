@@ -25,14 +25,14 @@ $inline = $this->getb("inline");
 echo $this->theme('zesk/control/text', array(
 	'value' => $value,
 	'onchange' => null,
-	'class' => $inline ? CSS::add_class($this->class, 'hidden') : $this->class
+	'class' => $inline ? CSS::add_class($this->class, 'hidden') : $this->class,
 ));
 
 $options = $this->get(array(
 	"inline" => $this->getb('inline'),
 	"format" => "YYYY-MM-DD",
 	"toolbarPlacement" => "bottom",
-	"showTodayButton" => true
+	"showTodayButton" => true,
 ));
 
 /* @var $defaultDate Timestamp */
@@ -41,7 +41,7 @@ $options = $this->get(array(
 $defaultDate = $minDate = $maxDate = null;
 if ($this->data_future_only) {
 	$minDate = Timestamp::now();
-} else if ($this->data_past_only) {
+} elseif ($this->data_past_only) {
 	$maxDate = Timestamp::now();
 }
 if ($inline) {
@@ -87,4 +87,3 @@ if ($inline) {
 $jquery .= ";";
 
 $this->response->jquery($jquery);
-

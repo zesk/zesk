@@ -6,29 +6,29 @@ namespace zesk;
 
 if (false) {
 	/* @var $this Template */
-	
+
 	$zesk = $this->zesk;
 	/* @var $locale \zesk\Locale */
-	
+
 	$application = $this->application;
 	/* @var $application \zesk\Application */
-	
+
 	$session = $this->session;
 	/* @var $session \zesk\Session */
-	
+
 	$router = $this->router;
 	/* @var $request \zesk\Router */
-	
+
 	$request = $this->request;
 	/* @var $request \zesk\Request */
-	
+
 	$response = $this->response;
 	/* @var $response \zesk\Response */
 }
 
 /**
  * Control_Text_Dropdown render template
- * 
+ *
  */
 /* @var $this Template */
 if (false) {
@@ -57,7 +57,7 @@ $ia['class'] = CSS::add_class($class, 'form-control');
 $ia['placeholder'] = $this->placeholder;
 
 $ia = $object->apply_map($ia) + array(
-	'value' => $value
+	'value' => $value,
 );
 
 $button_label = $this->button_label;
@@ -73,12 +73,12 @@ $html .= HTML::tag('button', array(
 	'class' => 'btn btn-default dropdown-toggle',
 	'data-toggle' => 'dropdown',
 	'data-content' => '{label} ' . HTML::span('.caret', ''),
-	'aria-expanded' => 'false'
+	'aria-expanded' => 'false',
 ), $button_label . ' ' . HTML::span('.caret', ''));
 
 $html .= HTML::tag_open('ul', array(
 	"class" => "dropdown-menu dropdown-menu-$side",
-	"role" => "menu"
+	"role" => "menu",
 ));
 
 $dropdown_value = $this->dropdown_value;
@@ -109,11 +109,11 @@ foreach ($this->dropdown_menu as $code => $attributes) {
 	}
 	if (is_string($attributes)) {
 		$attributes = array(
-			'link_html' => $attributes
+			'link_html' => $attributes,
 		);
 	}
 	$attributes += array(
-		'data-value' => $code
+		'data-value' => $code,
 	);
 	if (array_key_exists('list_item_attributes', $attributes)) {
 		$li_attributes = $attributes['list_item_attributes'];
@@ -146,12 +146,11 @@ if ($side !== "left") {
 echo HTML::div_close(); // input-group
 
 echo HTML::input('hidden', $this->dropdown_name, $dropdown_value, array(
-	'id' => $this->dropdown_id
+	'id' => $this->dropdown_id,
 ));
 
 if ($this->select_behavior_enabled) {
-	ob_start();
-	?><script>
+	ob_start(); ?><script>
 (function () {
 	var
 	support_plural = {support_plural},
@@ -189,23 +188,23 @@ if ($this->select_behavior_enabled) {
 	$response->jquery(map($content, array(
 		'id' => $id,
 		'dropdown_id' => $this->dropdown_id,
-		'support_plural' => JSON::encode($this->plural_behavior_enabled)
+		'support_plural' => JSON::encode($this->plural_behavior_enabled),
 	)));
 }
 
 /*
-    <div class="input-group">
-      <input type="text" class="form-control" aria-label="...">
-      <div class="input-group-btn">
-        <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-expanded="false">Action <span class="caret"></span></button>
-        <ul class="dropdown-menu dropdown-menu-right" role="menu">
-          <li><a href="#">Action</a></li>
-          <li><a href="#">Another action</a></li>
-          <li><a href="#">Something else here</a></li>
-          <li class="divider"></li>
-          <li><a href="#">Separated link</a></li>
-        </ul>
-      </div><!-- /btn-group -->
-    </div><!-- /input-group -->
+	<div class="input-group">
+	  <input type="text" class="form-control" aria-label="...">
+	  <div class="input-group-btn">
+		<button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-expanded="false">Action <span class="caret"></span></button>
+		<ul class="dropdown-menu dropdown-menu-right" role="menu">
+		  <li><a href="#">Action</a></li>
+		  <li><a href="#">Another action</a></li>
+		  <li><a href="#">Something else here</a></li>
+		  <li class="divider"></li>
+		  <li><a href="#">Separated link</a></li>
+		</ul>
+	  </div><!-- /btn-group -->
+	</div><!-- /input-group -->
 
  */

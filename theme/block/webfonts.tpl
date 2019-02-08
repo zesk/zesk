@@ -1,6 +1,6 @@
 <?php
 /**
- * 
+ *
  */
 namespace zesk;
 
@@ -14,10 +14,10 @@ namespace zesk;
 /* @var $response \zesk\Response */
 /* @var $current_user \User */
 /**
- * 
+ *
  */
 $response->css('/share/zesk/css/webfonts.css', array(
-	'share' => true
+	'share' => true,
 ));
 $fonts = array(
 	"Arial, Arial, Helvetica, sans-serif",
@@ -37,7 +37,7 @@ $fonts = array(
 	"Webdings, Webdings (Webdings2, Webdings2)",
 	"Wingdings, Zapf Dingbats (Wingdings2, Zapf Dingbats2)",
 	"MS Sans Serif4, Geneva, sans-serif",
-	"MS Serif4, New York6, serif"
+	"MS Serif4, New York6, serif",
 );
 foreach ($fonts as $font) {
 	$font = ArrayTools::trim(to_list($font, array(), ","));

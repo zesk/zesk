@@ -1,6 +1,6 @@
 <?php
 /**
- * 
+ *
  */
 namespace zesk;
 
@@ -24,7 +24,7 @@ if ($image instanceof Content_Image) {
 		}
 		// 	echo HTML::tag('img', )
 		$attributes = $this->geta('attributes') + array(
-			'src' => $src
+			'src' => $src,
 		) + $this->variables;
 		echo HTML::div('.content-image', HTML::tag('img', ArrayTools::filter($attributes, 'id;class;src;width;height;alt;title')));
 	} else {
@@ -34,13 +34,13 @@ if ($image instanceof Content_Image) {
 			'id' => $unique_id,
 			'src' => $image->path(),
 			'width' => $this->get('width', $image->width),
-			'height' => $this->get('height', $image->height)
+			'height' => $this->get('height', $image->height),
 		) + $this->variables));
 	}
-} else if ($this->image_missing) {
+} elseif ($this->image_missing) {
 	echo HTML::div('.content-image missing', $this->theme('image', array(
 		'src' => $this->image_missing,
 		'width' => $this->width,
-		'height' => $this->height
+		'height' => $this->height,
 	) + $this->variables));
 }

@@ -46,41 +46,41 @@ if ($fill_label) {
 	}
 	echo HTML::tag("td", array(
 		'colspan' => $n_cols,
-		'class' => $class_parent
+		'class' => $class_parent,
 	), $data);
-} else if ($nolabel) {
+} elseif ($nolabel) {
 	if (!$overlabel) {
 		echo HTML::tag("td", $show_required ? array(
-			"colspan" => 2
+			"colspan" => 2,
 		) : false, "&nbsp;");
-	} else if ($show_required) {
+	} elseif ($show_required) {
 		echo HTML::tag("td", false, "&nbsp;");
 	}
 	echo HTML::tag("td", array(
-		'class' => $class_parent
+		'class' => $class_parent,
 	), $data);
-} else if ($overlabel) {
+} elseif ($overlabel) {
 	if ($show_required) {
 		echo HTML::tag("td", ".input-required", $widget->required() ? "*" : "&nbsp;");
 	}
 	echo HTML::tag("td", array(
-		"class" => $class_parent
+		"class" => $class_parent,
 	), HTML::tag("div", array(
-		"class" => "overlabel-pair"
+		"class" => "overlabel-pair",
 	), HTML::tag("label", array(
 		"class" => "overlabel",
-		"for" => $id
+		"for" => $id,
 	), $label) . $data));
 } else {
 	if ($show_required) {
 		echo HTML::tag("td", ".input-required", $widget->required() ? "*" : "&nbsp;");
 	}
 	echo HTML::tag("td", ".input-label", HTML::tag("label", array(
-		"for" => $id
+		"for" => $id,
 	), $label));
 	echo HTML::tag("td", array(
 		'class' => $class_parent,
-		'id' => $id
+		'id' => $id,
 	), $data);
 }
 echo HTML::tag_close("tr");

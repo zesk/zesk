@@ -29,18 +29,18 @@ if (!begins($value, "#")) {
 $html_id = "jpicker-$id";
 
 $options = array(
-	"preferredFormat" => "hex6"
+	"preferredFormat" => "hex6",
 );
 
 $response->jquery("\$('#$html_id').spectrum(" . JSON::encodex($options) . ");");
 $response->javascript("/share/spectrum/spectrum.js", array(
-	"share" => true
+	"share" => true,
 ));
 $response->css("/share/spectrum/spectrum.css", array(
-	"share" => true
+	"share" => true,
 ));
 
 $attributes = array(
-	"id" => $html_id
+	"id" => $html_id,
 );
 echo HTML::input("hidden", $this->name, $value, $attributes);

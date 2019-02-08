@@ -1,6 +1,6 @@
 <?php
 /**
- * 
+ *
  */
 namespace zesk;
 
@@ -21,9 +21,9 @@ if (!$title) {
 $delete_url = $this->router->get_route('delete', $object);
 echo HTML::div('.item', HTML::div('.image-picker-item', $object->theme('view', array(
 	'width' => 175,
-	'height' => 175
+	'height' => 175,
 ))) . HTML::tag('label', $title) . HTML::tag('a', array(
 	'class' => 'glyphicon glyphicon-remove action-delete',
 	'href' => '/imagepicker/image/' . $object->id() . '/delete',
-	'data-ajax' => true
+	'data-ajax' => true,
 ), ''));

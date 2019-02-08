@@ -13,7 +13,7 @@ if (!$id) {
 }
 echo HTML::tag_open("div", array(
 	"class" => CSS::add_class("dashboard-widget", $this->class),
-	"id" => $id
+	"id" => $id,
 ));
 ?>
 <div class="header">

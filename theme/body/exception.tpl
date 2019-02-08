@@ -6,10 +6,10 @@ namespace zesk;
 if ($response) {
 	$response->jquery();
 	$response->css('/share/zesk/css/exception.css', array(
-		'share' => true
+		'share' => true,
 	));
 	$response->javascript('/share/zesk/js/exception.js', array(
-		'share' => true
+		'share' => true,
 	));
 }
 echo HTML::div(".exception", $this->content);

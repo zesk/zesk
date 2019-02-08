@@ -27,6 +27,6 @@ $href = $router->get_route("index", Controller_Forgot::class);
 if ($href) {
 	echo HTML::tag("p", HTML::tag("a", array(
 		"class" => "forgot-index-link",
-		"href" => $href
+		"href" => $href,
 	), $locale->__("Try again")));
 }

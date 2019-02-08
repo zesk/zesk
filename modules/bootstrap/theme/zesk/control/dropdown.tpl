@@ -37,7 +37,7 @@ if ($this->required) {
 $ia['class'] = CSS::add_class($class, 'form-control');
 
 $ia = $object->apply_map($ia) + array(
-	'value' => $value
+	'value' => $value,
 );
 
 $side = $this->get("dropdown_alignment", "right");
@@ -55,12 +55,12 @@ foreach ($control_options as $code => $attributes) {
 	}
 	if (!is_array($attributes)) {
 		$attributes = array(
-			'link_html' => $attributes
+			'link_html' => $attributes,
 		);
-	} else if (!array_key_exists('link_html', $attributes)) {
+	} elseif (!array_key_exists('link_html', $attributes)) {
 		$attributes['link_html'] = $code;
 	}
-	
+
 	$control_options[$code] = $attributes;
 	if ($value === null) {
 		$value = $code;
@@ -76,7 +76,7 @@ foreach ($control_options as $code => $attributes) {
 }
 $selected = apath($control_options, array(
 	$value,
-	'selected'
+	'selected',
 ));
 if (!$selected) {
 	$attributes[$code]['selected'] = true;
@@ -84,7 +84,7 @@ if (!$selected) {
 if (!$button_label) {
 	$button_label = apath($control_options, array(
 		$value,
-		"link_html"
+		"link_html",
 	));
 }
 
@@ -95,7 +95,7 @@ foreach ($control_options as $code => $attributes) {
 		continue;
 	}
 	$attributes += array(
-		'data-value' => $code
+		'data-value' => $code,
 	);
 	if (array_key_exists('list_item_attributes', $attributes)) {
 		$li_attributes = $attributes['list_item_attributes'];
@@ -119,7 +119,7 @@ $html = "";
 
 $html .= HTML::div_open(array(
 	'class' => $this->get("outer_class", 'dropdown'), //'input-group-btn'
-	'id' => $id
+	'id' => $id,
 ));
 
 $input_id = $this->id . "_input";
@@ -131,12 +131,12 @@ $html .= HTML::tag('button', array(
 	'id' => $button_id,
 	'data-input' => "#$input_id",
 	'data-content' => '{label} ',
-	'aria-expanded' => 'false'
+	'aria-expanded' => 'false',
 ), HTML::span(".button-label", $button_label) . ' ' . HTML::span('.caret', ''));
 
 $html .= HTML::tag_open('ul', array(
 	"class" => "dropdown-menu dropdown-menu-$side",
-	"role" => "menu"
+	"role" => "menu",
 ));
 
 $html .= implode("\n", $items);
@@ -145,7 +145,7 @@ $html .= HTML::tag_close('ul');
 $html .= HTML::div_close(); // input-group-btn
 
 $input = HTML::input('hidden', $this->name, $this->value, array(
-	'id' => $this->id . "_input"
+	'id' => $this->id . "_input",
 ));
 
 if (!$this->no_input_group) {
@@ -155,16 +155,16 @@ echo $html;
 if (!$this->no_input_group) {
 	echo HTML::div_close(); // input-group
 	echo $input;
-} else if ($parent) {
+} elseif ($parent) {
 	$parent->suffix($input, true);
 } else {
 	echo $input;
 }
 
 $response->javascript('/share/bootstrap-x/js/dropdown.js', array(
-	"share" => true
+	"share" => true,
 ));
 $response->jquery(map('$("#{id}").bootstrap_dropdown({ onupdate: {onupdate} });', array(
 	'id' => $id,
-	'onupdate' => $this->onupdate ? $this->onupdate : "null"
+	'onupdate' => $this->onupdate ? $this->onupdate : "null",
 )));

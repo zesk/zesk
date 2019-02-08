@@ -19,29 +19,29 @@ $person = $contact->Person;
 $sections = array(
 	'email' => array(
 		'head_label' => "Email",
-		'object_class' => "Contact_Email"
+		'object_class' => "Contact_Email",
 	),
 	'phone' => array(
 		'head_label' => "Phone",
-		'object_class' => "Contact_Phone"
+		'object_class' => "Contact_Phone",
 	),
 	'address' => array(
 		'head_label' => "Address",
-		'object_class' => "Contact_Address"
+		'object_class' => "Contact_Address",
 	),
 	'url' => array(
 		'head_label' => "Web sites",
-		'object_class' => "Contact_URL"
+		'object_class' => "Contact_URL",
 	),
 	'dates' => array(
 		'head_label' => "Dates",
-		'object_class' => "Contact_Date"
-	)
+		'object_class' => "Contact_Date",
+	),
 );
 if ($this->get('show_other', true)) {
 	$sections['other'] = array(
 		'head_label' => "Other",
-		'object_class' => "Contact_Other"
+		'object_class' => "Contact_Other",
 	);
 }
 
@@ -64,8 +64,7 @@ $show_links = $this->get('show_links', true);
 		onclick="alert('Will make this contact primary contact for account'); return false"
 		class="action-button">This is me</a>
 		<?php
-		}
-		?>
+		} ?>
 		<a href="/contact/edit/<?php echo $id?>" class="action-button">Edit</a>
 	<?php
 	}
@@ -93,7 +92,7 @@ foreach ($sections as $section => $variables) {
 	extract($variables, EXTR_IF_EXISTS);
 	$values = array();
 	$query = ORM::class_query($object_class)->link("Contact_Label", array(
-		"alias" => "L"
+		"alias" => "L",
 	))->what('label_name', 'L.name')->where('contact', $id);
 	$values = $query->to_array();
 	if (count($values) > 0) {
@@ -102,10 +101,9 @@ foreach ($sections as $section => $variables) {
 		foreach ($values as $i => $data) {
 			$object = new $object_class($data);
 			echo $object->output(null, array(
-				'show_links' => $show_links
+				'show_links' => $show_links,
 			));
-		}
-		?></div><?php
+		} ?></div><?php
 	}
 }
 if (!$contact->member_is_empty('Notes')) {

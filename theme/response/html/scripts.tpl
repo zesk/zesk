@@ -29,6 +29,6 @@ foreach ($response->html()->scripts() as $script_tag) {
 $jquery_ready = $response->html()->jquery_ready();
 if (count($jquery_ready)) {
 	echo HTML::tag('script', array(
-		'type' => 'text/javascript'
+		'type' => 'text/javascript',
 	), "\n\$(document).ready(function() {\n" . implode("\n", $jquery_ready) . "\n});\n") . "\n";
 }

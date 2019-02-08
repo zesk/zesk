@@ -17,7 +17,7 @@ $skip_frames = $request->geti("skip_frames", 10);
 $frames = $request->geti("frames", 10);
 foreach ($trace as $index => $trace_item) {
 	echo $this->theme('exception/trace-item', array(
-		"content" => $trace_item
+		"content" => $trace_item,
 	));
 	if ($frames > 0 && $index >= $frames - 1) {
 		break;

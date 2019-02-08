@@ -1,6 +1,6 @@
 <?php
 /**
- * 
+ *
  */
 use zesk\HTML;
 use zesk\ArrayTools;
@@ -25,22 +25,22 @@ foreach ($this->children as $child) {
 		$suffix = HTML::tags('div', '.help-block error', $child->errors());
 		$child->suffix($suffix, true);
 	}
-	
+
 	$child->object($this->object);
 	$content = $child->render();
 	$label = $results[$name . '.label'] = HTML::tag('label', array(
 		'class' => $this->get('label_class', 'label label-default'),
-		'for' => $child->id()
+		'for' => $child->id(),
 	), $child->label());
 	if ($child->option_bool('nolabel', $this->nolabel)) {
 		$label = "";
 	}
 	$widget_tag = $child->option('widget_tag', $this->get('widget_tag', 'div'));
 	$widget_attributes = HTML::add_class(to_array($this->widget_attributes), $child->context_class());
-	
+
 	$cell = $results[$name . '.cell'] = empty($content) ? $content : HTML::tag($widget_tag, $widget_attributes, $label . $content);
 	$results[$name] = $content;
-	
+
 	if ($child->is_visible()) {
 		if (!$this->theme_widgets) {
 			if ($this->debug) {

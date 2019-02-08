@@ -37,22 +37,22 @@ if ($direction < 0) {
 
 if ($disabled) {
 	$attrs = array(
-		'class' => 'disabled'
+		'class' => 'disabled',
 	);
 } else {
 	$href = URL::query_format($url, array(
-		"offset" => $offset
+		"offset" => $offset,
 	));
 	if ($this->has("ajax_id")) {
 		$ajax_id = $this->ajax_id;
 		$href = "$.get('" . $href . "',function(data){\$('#$ajax_id').html(data);})";
 		$attrs = array(
 			"href" => "javascript:noop()",
-			"onclick" => $href
+			"onclick" => $href,
 		);
 	} else {
 		$attrs = array(
-			"href" => $href
+			"href" => $href,
 		);
 	}
 }
@@ -60,5 +60,5 @@ $attrs['title'] = $title;
 $attrs = HTML::add_class($attrs, "btn btn-sm btn-pager");
 echo HTML::tag("a", $attrs, HTML::span(array(
 	"class" => "glyphicon glyphicon-$icon",
-	"disabled" => $disabled
+	"disabled" => $disabled,
 ), null));

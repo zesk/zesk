@@ -25,20 +25,20 @@ if (file_exists($asset_manifest)) {
 		$src = "/" . $assets['main.js'];
 		if (isset($assets['main.css'])) {
 			$response->css($assets['main.css'], array(
-				"root_dir" => $source
+				"root_dir" => $source,
 			));
 		}
 	} catch (\zesk\Exception_Syntax $e) {
 		$application->logger->emergency("Unable to parse asset file {asset_manifest} {e}", array(
 			"asset_manifest" => $asset_manifest,
-			"e" => $e
+			"e" => $e,
 		));
 	}
 }
 $scripts = HTML::tag("script", array(
-	"src" => $src
+	"src" => $src,
 ), "");
 echo strtr(file_get_contents($source), array(
 	"%PUBLIC_URL%" => "",
-	"</body>" => "$scripts</body>"
+	"</body>" => "$scripts</body>",
 ));

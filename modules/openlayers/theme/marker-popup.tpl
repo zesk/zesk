@@ -78,6 +78,5 @@ echo HTML::tag('div', array(
 	'id' => "$id-popup",
 	'class' => 'openlayers-map-marker-member',
 	'style' => "",
-	'data-title' => $this->title
+	'data-title' => $this->title,
 ), "");
-

@@ -22,10 +22,10 @@ $response = $this->response;
 
 $response->jquery();
 $response->javascript("/share/polyglot/js/polyglot.js", array(
-	"share" => true
+	"share" => true,
 ));
 $response->css("/share/polyglot/css/polyglot.css", array(
-	"share" => true
+	"share" => true,
 ));
 
 $object = new Model($application);
@@ -90,8 +90,7 @@ $widget->required(true);
 				if ($can_update_live) {
 					?><button id="translate-save" class="btn btn-warning pull-right"><?php
 
-					echo __("Update Live");
-					?></button><?php
+					echo __("Update Live"); ?></button><?php
 				}
 				?></form>
 		</div>

@@ -26,7 +26,7 @@ foreach ($opts as $k => $v) {
 	$attrs = $base_attrs;
 	if (!is_array($v)) {
 		$v = array(
-			"label" => $v
+			"label" => $v,
 		);
 	}
 	$label = avalue($v, "label", "");
@@ -45,6 +45,6 @@ foreach ($opts as $k => $v) {
 	$content .= HTML::tag("div", ".radio", HTML::tag("label", HTML::tag("input", $attrs, null) . $label . ($debug ? " " . _dump($k) : '')));
 }
 $result = HTML::tag("div", array(
-	"class" => "control-radio"
+	"class" => "control-radio",
 ), $content);
 echo $result . $suffix . ($debug ? " Selected K: " . _dump($sel_k) . ";" : "");

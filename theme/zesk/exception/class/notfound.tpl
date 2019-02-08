@@ -11,5 +11,5 @@
 namespace zesk;
 
 echo $this->theme("exception", array(
-	"suffix" => HTML::tag("pre", _dump($application->autoloader->path()))
+	"suffix" => HTML::tag("pre", _dump($application->autoloader->path())),
 ));

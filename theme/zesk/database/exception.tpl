@@ -25,7 +25,7 @@ $application->logger->error("Exception: {exception_class}\nMessage: {message}\nS
 	"exception_class" => $class,
 	"exception" => $exception,
 	"message" => $exception->getMessage(),
-	"backtrace" => $exception->getTraceAsString()
+	"backtrace" => $exception->getTraceAsString(),
 ));
 
 ?>
@@ -34,10 +34,9 @@ $application->logger->error("Exception: {exception_class}\nMessage: {message}\nS
 	<?php
 	if ($this->application->development()) {
 		?><p>The computer error given was:</p><?php
-		echo HTML::tag('code', $exception->getMessage());
-		?><p>The call stack is:</p><?php
+		echo HTML::tag('code', $exception->getMessage()); ?><p>The call stack is:</p><?php
 		echo $this->theme('exception/trace', array(
-			"content" => $exception->getTrace()
+			"content" => $exception->getTrace(),
 		));
 	}
 	?>

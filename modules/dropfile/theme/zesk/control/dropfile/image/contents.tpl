@@ -1,6 +1,6 @@
 <?php
 /**
- * 
+ *
  */
 namespace zesk;
 
@@ -21,13 +21,13 @@ if (!$this->object) {
 	echo $this->theme('content/image', array(
 		"object" => $this->object,
 		"width" => $this->width,
-		"height" => $this->height
+		"height" => $this->height,
 	));
 	$object_id = $this->object->id;
 }
 echo HTML::input('hidden', $this->name, $object_id, array(
 	"id" => $this->name,
-	"class" => 'dropfile-value'
+	"class" => 'dropfile-value',
 ));
 
 echo $this->theme('dropfile/overlay');

@@ -11,7 +11,7 @@ namespace zesk;
 $link = $object->link;
 
 $title = $link ? HTML::tag('a', array(
-	'href' => $link
+	'href' => $link,
 ), $object->title) : $object->title;
 echo HTML::div_open('.feed-item');
 echo HTML::tag("h2", $title);

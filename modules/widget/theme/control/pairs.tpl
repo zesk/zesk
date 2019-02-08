@@ -20,12 +20,12 @@ foreach (to_array($this->value) as $k => $v) {
 echo HTML::a("#", array(
 	"id" => $col . "_add",
 	"class" => "control-pairs-add",
-	"data-template" => $tpl
+	"data-template" => $tpl,
 ), "Add");
 echo HTML::tag_close("div");
 echo HTML::tag("script", array(
 	"id" => $tpl,
-	"type" => "text/x-template"
+	"type" => "text/x-template",
 ), HTML::div(".pair", HTML::input("text", $this->column . "[]", "") . HTML::input("text", $this->column . "_value[]", "")));
 
 $response->jquery('$("a.control-pairs-add").on("click", function () {

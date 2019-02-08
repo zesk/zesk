@@ -2,7 +2,7 @@
 namespace zesk;
 
 $this->response->css('/share/markdown/markdown.css', array(
-	'share' => true
+	'share' => true,
 ));
 
 if ($this->process) {

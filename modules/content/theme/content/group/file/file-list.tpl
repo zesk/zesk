@@ -1,6 +1,6 @@
 <?php
 /**
- * 
+ *
  */
 namespace zesk;
 
@@ -23,5 +23,5 @@ $object = $this->object;
 $group_object = new Content_File();
 
 echo $group_object->outputAllObjects("view", null, array(
-	"Parent" => $object->id()
+	"Parent" => $object->id(),
 ), $object->groupOrderBy(), 0, $object->member("DisplayCount", -1));

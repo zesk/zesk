@@ -24,13 +24,13 @@ echo HTML::etag("p", $this->message);
 echo HTML::tag_open("div", ".detailed-help");
 echo HTML::tag("p", HTML::wrap($locale->__("We received this: [{token}]; but were expecting something which looks more like this: [{example_token}].", array(
 	"token" => $token,
-	"example_token" => md5(date("Y-m-d"))
+	"example_token" => md5(date("Y-m-d")),
 )), HTML::tag("span", ".code", "[]"), HTML::tag("span", ".code", "[]")));
 echo HTML::tag_close("div");
 $href = $router->get_route("index", Controller_Forgot::class);
 if ($href) {
 	echo HTML::tag("p", HTML::tag("a", array(
 		"class" => "forgot-index-link",
-		"href" => $href
+		"href" => $href,
 	), $locale->__("Try again")));
 }

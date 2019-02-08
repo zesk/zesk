@@ -1,6 +1,6 @@
 <?php
 /**
- * 
+ *
  */
 namespace zesk;
 
@@ -30,13 +30,13 @@ echo HTML::etag('span', '.contact-address-postalcode', $postalcode);
 if ($object->county) {
 	echo HTML::etag('span', array(
 		'class' => 'contact-address-county',
-		'title' => __('County')
+		'title' => __('County'),
 	), $object->county->name);
 }
 if ($object->country) {
 	echo HTML::etag('span', array(
 		'class' => 'contact-address-country',
-		'title' => __('Country')
+		'title' => __('Country'),
 	), $object->country->name);
 }
 if ($this->distance_from instanceof Contact_Address) {
@@ -45,9 +45,8 @@ if ($this->distance_from instanceof Contact_Address) {
 		?><span class="contact-address-distance"><?php
 		echo $this->theme('distance', array(
 			'content' => $distance,
-			'units' => 'miles'
-		));
-		?></span><?php
+			'units' => 'miles',
+		)); ?></span><?php
 	}
 }
 ?>

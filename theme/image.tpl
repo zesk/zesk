@@ -17,9 +17,9 @@ $name = 'image-' . md5(microtime());
 $attributes = $this->geta('attributes', array()) + array(
 	'class' => $this->class,
 	'query' => $this->query,
-	'name' => $name
+	'name' => $name,
 ) + $this->variables + array(
-	'id' => $this->id
+	'id' => $this->id,
 );
 $widget = View_Image::scaled_widget($application, $width, $height, null, $attributes);
 $widget->response($response);

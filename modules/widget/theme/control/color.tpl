@@ -42,8 +42,7 @@ echo HTML::input("text", $name, $value, $attributes);
 
 if ($this->targets) {
 	$targets = JSON::encode($this->targets);
-	ob_start();
-	?><script>
+	ob_start(); ?><script>
 	(function () {
 		var last_color = $('#<?php echo $name ?>').val();
 		setInterval(function () {

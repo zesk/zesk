@@ -1,6 +1,6 @@
 <?php
 /**
- * 
+ *
  */
 namespace zesk;
 
@@ -26,7 +26,7 @@ $original_src = $src;
 if (!$src) {
 	$src = $router->get_route("image", $object, array(
 		'width' => $width,
-		'height' => $height
+		'height' => $height,
 	));
 	$options = array();
 	if ($object->width > 1000 || $object->height > 1000) {
@@ -42,7 +42,7 @@ $attr = array(
 	'data-class' => get_class($object),
 	'data-id' => $object->id,
 	'data-src' => $original_src,
-	'src' => $src
+	'src' => $src,
 );
 
 echo HTML::div_open('.content-image');
