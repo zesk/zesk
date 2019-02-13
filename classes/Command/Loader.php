@@ -135,8 +135,8 @@ class Command_Loader {
 		 *
 		 * Once ZESK_ROOT is defined, commands are allowed.
 		 *
-		 * We can preset globals using the $_ZESK global. Only possible issue between using
-		 * $_ZESK is that the structure should match here and in classes/zesk.inc
+		 * We can preset globals using the $_ZESK global which is used once at
+		 * startup and then discarded.
 		 *
 		 * Commands process and handle arguments after the command.
 		 *
@@ -161,10 +161,7 @@ class Command_Loader {
 			}
 			if (!class_exists('zesk\\Kernel', false)) {
 				$first_command = $this->find_application();
-				if (substr($first_command, -4) === ".inc") {
-					$new_first_command = substr($first_command, 0, -4) . ".php";
-					$this->error("Application files ending in .inc is deprecated in Zesk 0.9.0 as of 2017-03-01, do:\n\n\tmv $first_command $new_first_command\n\n");
-				}
+
 				require_once $first_command;
 				$this->application = $this->zesk_loaded($first_command);
 				$this->application->console(true);
@@ -420,7 +417,7 @@ class Command_Loader {
 			}
 		}
 		if (!$root_files) {
-			$root_files = "*.application.php *.application.inc";
+			$root_files = "*.application.php";
 		}
 		$root_files = explode(" ", $root_files);
 		foreach ($this->search as $dir) {
