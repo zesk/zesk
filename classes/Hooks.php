@@ -671,7 +671,6 @@ class Hooks {
 		$methods = $this->find_all($methods);
 		$result = $default;
 		foreach ($methods as $class_method) {
-			// Note: These two lines were reversed when this was zesk--all_hook_arguments
 			$result = $this->call_arguments($class_method, $arguments, $result, $hook_callback, $result_callback);
 			$result = Hookable::hook_results($result, $class_method, $arguments, $hook_callback, $result_callback);
 		}
