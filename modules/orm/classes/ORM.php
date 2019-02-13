@@ -685,12 +685,14 @@ class ORM extends Model implements Interface_Member_Model_Factory {
 
 	/**
 	 * Ensure this object is loaded from database if needed
+	 * @return self
 	 */
 	public function refresh() {
 		if ($this->need_load && $this->can_fetch()) {
 			$this->fetch();
 		}
 		$this->need_load = false;
+		return $this;
 	}
 
 	/**
@@ -1159,7 +1161,7 @@ class ORM extends Model implements Interface_Member_Model_Factory {
 	 * @return ORM|null
 	 */
 	public function member_model_factory($member, $class, $data = null, array $options = array()) {
-		return $this->orm_factory($class, $data, $options)->fetch();
+		return $this->orm_factory($class, $data, $options)->refresh();
 	}
 
 	/**
