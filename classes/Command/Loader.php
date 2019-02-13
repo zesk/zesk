@@ -235,26 +235,10 @@ class Command_Loader {
 		), $argv), array(
 			"debug" => $this->debug,
 		));
-
-		/* @var $command_object Command */
-		if (!$command_object->has_configuration) {
-			$this->debug("Command {class} does not have configuration, calling {app} configured", array(
-				"class" => $class,
-				"app" => get_class($application),
-			));
-			if (!$application->configured()) {
-				$this->debug("Command {class} {app} WAS ALREADY CONFIGURED!!!!", array(
-					"class" => $class,
-					"app" => get_class($application),
-				));
-			}
-		} else {
-			$this->debug("Command {class} has configuration, skipping configured call", array(
-				"class" => $class,
-			));
-		}
 		$application->command($command_object);
+
 		$result = $command_object->go();
+
 		$argv = $command_object->arguments_remaining();
 		$this->debug("Remaining class arguments: " . json_encode($argv));
 		if ($result !== 0 && $result !== null) {

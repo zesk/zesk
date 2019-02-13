@@ -249,6 +249,31 @@ abstract class Command extends Hookable implements Logger\Handler {
 	}
 
 	/**
+	 * Optionally configure the application upon run
+	 */
+	protected function application_configure() {
+		$application = $this->application;
+		$logger = $application->logger;
+		/* @var $command_object Command */
+		if (!$this->has_configuration) {
+			$logger->debug("Command {class} does not have configuration, calling {app} configured", array(
+				"class" => $class,
+				"app" => get_class($application),
+			));
+			if (!$application->configured()) {
+				$logger->debug("Command {class} {app} WAS ALREADY CONFIGURED!!!!", array(
+					"class" => $class,
+					"app" => get_class($application),
+				));
+			}
+		} else {
+			$logger->debug("Command {class} has configuration, skipping configured call", array(
+				"class" => $class,
+			));
+		}
+	}
+
+	/**
 	 *
 	 * @return string[]|NULL[]
 	 */
@@ -1249,7 +1274,11 @@ abstract class Command extends Hookable implements Logger\Handler {
 	final public function go() {
 		self::$commands[] = $this;
 		$this->application->modules->load($this->load_modules);
+		// Moved from Command_Loader
+		$this->application_configure();
+
 		$this->call_hook("run_before");
+
 		if ($this->has_errors()) {
 			$this->usage();
 		}
