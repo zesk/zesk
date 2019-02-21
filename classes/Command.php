@@ -256,8 +256,8 @@ abstract class Command extends Hookable implements Logger\Handler {
 		$logger = $application->logger;
 		/* @var $command_object Command */
 		if (!$this->has_configuration) {
-			$logger->debug("Command {class} does not have configuration, calling {app} configured", array(
-				"class" => $class,
+			$logger->debug("Command {class} does not have configuration, calling {app}->configured()", array(
+				"class" => get_class($this),
 				"app" => get_class($application),
 			));
 			if (!$application->configured()) {
