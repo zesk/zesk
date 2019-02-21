@@ -1500,6 +1500,17 @@ class ORM extends Model implements Interface_Member_Model_Factory {
 	 */
 	public function member($member, $def = null) {
 		$this->refresh();
+		return $this->raw_member($member, $def);
+	}
+
+	/**
+	 * Fetch the raw member
+	 *
+	 * @param string $member
+	 * @param mixed $def
+	 * @return mixed
+	 */
+	protected function raw_member($member, $def = null) {
 		return avalue($this->members, $member, $def);
 	}
 
@@ -1634,7 +1645,7 @@ class ORM extends Model implements Interface_Member_Model_Factory {
 			}
 			return false;
 		}
-		$d = $this->member($member, null);
+		$d = $this->raw_member($member, null);
 		return empty($d);
 	}
 
