@@ -17,6 +17,16 @@ Version 1.0 of Zesk will have:
 - Website `https://zesk.com` with basic documentation
 
 <!-- HERE -->
+## [v0.23.4][]
+
+**Wed Feb 20 20:39:44 EST 2019**
+
+- **DEPRECATED**: `zesk\Command_Loader` no longer supports applications which have their core class named `*.application.inc`
+- **ORM Module** added `zesk\ORM->raw_member()` to allow retrieval of a member avoiding `zesk\ORM->refresh()`
+- **ORM Module**: Removed a duplicate line in `zesk\Database_Query_Select` duplication
+- Moved application configuration into new protected method in `zesk\Command->application_configure()` to be called at start of `zesk\Command->go()` call, moved over from `zesk\Command_Loader.php` as it should be internal, not external.
+- `zesk\Command` fixed debug message when configuration missing
+- `zesk\ORM::member_model_factory` was performing an extra `->fetch()` of each object when a `->refresh()` was all that is needed (maybe not?). `zesk\ORM::refresh()` now returns self
 
 ## [v0.23.3][]
 
@@ -1885,6 +1895,7 @@ Settling of `zesk\Kernel` and `zesk\` namespace changes, added additional compon
  - `zesk::class_hierarchy` -> `zesk()->classes->hierarchy`
 - Removed growl module (no longer relevant on Mac OS X)
 
+[v0.23.4]: https://github.com/zesk/zesk/compare/v0.23.3...v0.23.4
 [v0.23.3]: https://github.com/zesk/zesk/compare/v0.23.2...v0.23.3
 [v0.23.2]: https://github.com/zesk/zesk/compare/v0.23.1...v0.23.2
 [v0.23.1]: https://github.com/zesk/zesk/compare/v0.23.0...v0.23.1
