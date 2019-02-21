@@ -137,7 +137,6 @@ class Database_Query_Select extends Database_Query_Select_Base {
 		$this->group_by = $query->group_by;
 		$this->offset = $query->offset;
 		$this->limit = $query->limit;
-		$this->limit = $query->limit;
 		$this->distinct = $query->distinct;
 		$this->join_objects = $query->join_objects;
 		$this->conditions = $query->conditions;
