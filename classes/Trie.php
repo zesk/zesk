@@ -8,15 +8,19 @@
  */
 namespace zesk;
 
+use zesk\Trie\Node;
+
 /**
+ * A trie is a tree which is keyed on letters in words, efficient for storing dictionaries which basically just need to know if X is a valid word or not.
  *
+ * This trie structure
  * @author kent
  *
  */
 class Trie extends Options {
 	/**
 	 *
-	 * @var Trie_Node
+	 * @var Node
 	 */
 	private $root = null;
 
@@ -51,7 +55,7 @@ class Trie extends Options {
 	public function __construct(array $options = array()) {
 		parent::__construct($options);
 		$this->lower = $this->option_bool('lower');
-		$this->root = new Trie_Node();
+		$this->root = new Node();
 	}
 
 	/**

@@ -6,15 +6,28 @@
  * @author $Author: kent $
  * @copyright Copyright &copy; 2011, Market Acumen, Inc.
  */
-namespace zesk;
+namespace zesk\Trie;
 
 /**
  *
  * @author kent
  *
  */
-class Trie_Node {
+class Node {
 	/**
+	 * The next array is keyed by single letters and strings. When the key is a single letter, it contains:
+	 *
+	 * - additional Nodes
+	 * - the number 1 - meaning it's a completion letter
+	 *
+	 * When the key is a string of more than 1 letter or is the character '$', it ALWAYS has the value 1
+	 *
+	 * - there is some duplication in that adding a string will add:
+	 *
+	 * ['a'] = 'pple';
+	 * ['apple'] = 1;
+	 * ['b'] = new Node
+	 * initialiy
 	 *
 	 * @var array
 	 */
@@ -22,21 +35,45 @@ class Trie_Node {
 
 	/**
 	 *
-	 * @param unknown $word
+	 * @var boolean
 	 */
-	public function __construct($word = null) {
+	private $end_of_word = false;
+
+	/**
+	 * Create a new node
+	 *
+	 * @param string $word
+	 * @param boolean $eow End of word flag
+	 */
+	public function __construct($word = null, $eow = false) {
 		$this->next = array();
 		if ($word !== null) {
 			$this->add($word);
 		}
+		$this->term($eow);
 	}
 
 	/**
+	 * Create a new node
 	 *
-	 * @return boolean
+	 * @param string $word
+	 * @param boolean $eow End of word flag
 	 */
-	public function term() {
-		return array_key_exists('$', $this->next);
+	public static function factory($word, $eow = false) {
+		return new self($word, $eow);
+	}
+
+	/**
+	 * Does this node represent the end of a word? (getter/setter)
+	 *
+	 * @return boolean|set
+	 */
+	public function term($set = null) {
+		if ($set !== null) {
+			$this->end_of_word = boolval($set);
+			return $this;
+		}
+		return $this->end_of_word;
 	}
 
 	/**
@@ -45,37 +82,40 @@ class Trie_Node {
 	 */
 	public function add($word) {
 		if (strlen($word) === 0) {
-			$this->next['$'] = 1;
-			return;
+			$this->next->term(true);
+			return $this;
 		}
 		$char = $word[0];
 		$next = avalue($this->next, $char);
 		if (is_string($next)) {
-			unset($this->next[$next]);
-			$next = $this->next[$char] = new trie_node(substr($next, 1));
-			$next->add(substr($word, 1));
-		} elseif (is_object($next)) {
+			// Ok, it was simply a completion, so let's convert it into a Node with two entries
+			unset($this->next[$word]);
+			$next = $this->next[$char] = self::factory($next)->add(substr($word, 1));
+		} elseif ($next instanceof Node) {
+			// It's a Node, traverse one letter deeper in our word
 			$next->add(substr($word, 1));
 		} elseif ($next === 1) {
-			$next = $this->next[$char] = new trie_node('$');
-			$next->add(substr($word, 1));
+			// This represents a completion for this word, convert it into another Node to package both
+			$next = $this->next[$char] = self::factory(substr($word, 1), true);
 		} else {
+			// Nothing found. So make this word a completion at this point, and add a single character node below
 			$this->next[$word] = 1;
 			if (strlen($word) > 1) {
-				$this->next[$char] = $word;
+				$this->next[$char] = substr($word, 1);
 			}
 		}
+		return $this;
 	}
 
 	/**
-	 * Clean the trie
+	 * Clean the trie after building to remove unnecessary keys
 	 */
 	public function clean() {
 		// Remove all single letter tags which map to strings
 		foreach ($this->next as $k => $v) {
 			if (strlen($k) === 1 && is_string($v)) {
 				unset($this->next[$k]);
-			} elseif (is_object($v)) {
+			} elseif ($v instanceof Node) {
 				$v->clean();
 			}
 			ksort($this->next);
@@ -83,7 +123,7 @@ class Trie_Node {
 	}
 
 	/**
-	 * If only one follow-up node, then we can optimize
+	 * If only one follow-up node, then we can optimize. If everything is strings we can optimize, too.
 	 *
 	 * @return boolean
 	 */
@@ -93,7 +133,7 @@ class Trie_Node {
 		}
 		if (count($this->next) === 2) {
 			foreach ($this->next as $v) {
-				if ($v instanceof Trie_Node) {
+				if ($v instanceof self) {
 					return false;
 				}
 			}
@@ -104,12 +144,14 @@ class Trie_Node {
 
 	/**
 	 *
-	 * @param string $phrase
+	 * @param string $phrase MUST be associated with a value in ->next which is a Node
 	 * @return number Number of nodes merged
 	 */
 	private function merge($phrase) {
+		// $phrase MUST
 		$node = $this->next[$phrase];
 		unset($this->next[$phrase]);
+		assert($node instanceof self);
 		$nmerged = 0;
 		foreach ($node->next as $k => $v) {
 			if ($k === '$') {
@@ -131,7 +173,7 @@ class Trie_Node {
 		$merged = 0;
 		if ($this->optimizable()) {
 			foreach ($this->next as $k => $v) {
-				if ($v instanceof Trie_Node) {
+				if ($v instanceof self) {
 					if ($v->optimizable()) {
 						$merged += $this->merge($k);
 					} else {
@@ -141,7 +183,7 @@ class Trie_Node {
 			}
 		} else {
 			foreach ($this->next as $k => $v) {
-				if ($v instanceof Trie_Node) {
+				if ($v instanceof self) {
 					$merged += $v->optimize();
 				}
 			}
@@ -157,7 +199,7 @@ class Trie_Node {
 	public function to_json() {
 		$json = array();
 		foreach ($this->next as $k => $v) {
-			if (is_object($v)) {
+			if ($v instanceof Node) {
 				$json[$k] = $v->to_json();
 			} else {
 				$json[$k] = $v;
@@ -178,7 +220,7 @@ class Trie_Node {
 					$k = '';
 				}
 				call_user_func($function, "$word$k");
-			} elseif (is_object($v)) {
+			} elseif ($v instanceof Node) {
 				$v->walk($function, "$word$k");
 			}
 		}
