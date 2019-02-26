@@ -5,31 +5,32 @@ usage() {
 	local e
 	e=$1
 	shift
+	exec 1>&2 # Copy fd 2 into slot fd 1 so writing to stdout will actually write to stderr
 	if [ ! -z "$*" ]; then
-		echo ERROR: $* 1>&2
-		echo 1>&2
+		echo ERROR: $*
+		echo
 	fi
-	echo "Usage: $ME file command ..." 1>&2
-	echo 1>&2
-	echo "Command runs and checks file every 1 second for 60 seconds, then exits. Intended to be run as a cron task every minute." 1>&2
-	echo 1>&2
-	echo "file    - When this file appears, run command, then delete the file." 1>&2
-	echo "          Directory of file must exist." 1>&2
-	echo "command - Command to run with optional arguments." 1>&2
-	echo 1>&2
-	echo "Exit codes:" 1>&2
-	echo 1>&2
-	echo "10 - file not supplied" 1>&2
-	echo "11 - command not supplied" 1>&2
-	echo "12 - file directory does not exist" 1>&2
-	echo "13 - command binary is not executable" 1>&2
-	echo "\$? - command exit code is returned if it fails" 1>&2
-	echo "" 1>&2
-	echo "Example (add to the crontab of a privileged user):" 1>&2
-	echo "" 1>&2
-	echo "* * * * * $path_to_app/vendor/bin/daemon-bouncer.sh $path_to_app/.apache /usr/sbin/apache2ctl restart" 1>&2
-	echo "" 1>&2
-	echo "Permits your application to restart Apache by creating the above file" 1>&2
+	echo "Usage: $ME file command ..."
+	echo
+	echo "Command runs and checks file every 1 second for 60 seconds, then exits. Intended to be run as a cron task every minute."
+	echo
+	echo "file    - When this file appears, run command, then delete the file."
+	echo "          Directory of file must exist."
+	echo "command - Command to run with optional arguments."
+	echo
+	echo "Exit codes:"
+	echo
+	echo "10 - file not supplied"
+	echo "11 - command not supplied"
+	echo "12 - file directory does not exist"
+	echo "13 - command binary is not executable"
+	echo "\$? - command exit code is returned if it fails"
+	echo ""
+	echo "Example (add to the crontab of a privileged user):"
+	echo ""
+	echo "* * * * * $path_to_app/vendor/bin/daemon-bouncer.sh $path_to_app/.apache /usr/sbin/apache2ctl restart"
+	echo ""
+	echo "Permits your application to restart Apache by creating the above file"
 	exit $e
 }
 
