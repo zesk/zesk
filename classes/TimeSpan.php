@@ -36,10 +36,12 @@ class TimeSpan extends Temporal {
 	}
 
 	/**
+	 * Either pass in a number of seconds, or a string representing the time span, like "3 seconds"
+	 * or "3 days" or "2019/02/20" and it will compute the relative time between now and that duration.
 	 *
 	 * @param string|mixed $mixed
-	 * @throws Exception_Syntax
-	 * @return unknown|number|NULL
+	 * @throws Exception_Syntax if it can't conver mixed into a time
+	 * @return number|NULL
 	 */
 	public function parse($mixed) {
 		if (is_numeric($mixed)) {
@@ -63,6 +65,7 @@ class TimeSpan extends Temporal {
 	}
 
 	/**
+	 * Getter/setter for the duration in seconds
 	 *
 	 * @param string|integer|null $set
 	 * @return number|\zesk\TimeSpan
@@ -76,7 +79,7 @@ class TimeSpan extends Temporal {
 	}
 
 	/**
-	 * Convert to SQL format
+	 * Convert to SQL format (an integer as string)
 	 *
 	 * @return string
 	 */

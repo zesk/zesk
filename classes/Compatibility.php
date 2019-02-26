@@ -1,5 +1,4 @@
 <?php
-
 /**
  * Place functions needed to maintain compatibility with previous versions of PHP
  *

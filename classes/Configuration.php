@@ -10,6 +10,12 @@ namespace zesk;
  *
  */
 class Configuration implements \Iterator, \Countable, \ArrayAccess {
+	/**
+	 * When we pass strings into as paths, this sequence of characters is equivalent to a
+	 * traversal from parent Configuration to child Configuation object.
+	 *
+	 * @var string
+	 */
 	const key_separator = "::";
 
 	/**
@@ -18,19 +24,26 @@ class Configuration implements \Iterator, \Countable, \ArrayAccess {
 	protected $_path = array();
 
 	/**
+	 * Our datum, datum, datum, datum, datum, datum, datum, datuuuuuuuuum.
 	 *
-	 * @var array
+	 * Key value pairs. Lots of Configuration objects, or non-Configuration values
+	 *
+	 * @var Configuration[]
 	 */
 	protected $_data = null;
 
 	/**
+	 * Is this tree locked? Meaning, I can't edit it at all?
 	 *
 	 * @var boolean $locked
 	 */
 	protected $_locked = false;
 
 	/**
-	 * Current iterator index
+	 * Current iterator index. For iterating, silly.
+	 *
+	 * Does this mean that PHP is not re-entrant? PHP will probably just add a keyword for 'per-thread'.
+	 * Yikes.
 	 *
 	 * @var integer
 	 */

@@ -90,7 +90,7 @@ function first(array $a, $default = null) {
  * @return NULL|mixed
  */
 function last(array $a, $default = null) {
-	if (($n = count($a)) === 0) {
+	if (count($a) === 0) {
 		return $default;
 	}
 	$kk = array_keys($a);
@@ -1404,7 +1404,7 @@ function is_windows() {
 /**
  * Get our global application
  *
- * @deprecated 2017-08 Avoid usage - use $this->application when available or pass $application along
+ * @deprecated 2017-08 Avoid usage - use $this->application when available or pass $application around
  *
  * @return Application
  */
