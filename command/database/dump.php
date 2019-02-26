@@ -98,7 +98,7 @@ class Command_Database_Dump extends Command_Base {
 				$compress = !$this->option_bool("no-compress", false);
 			}
 			$where = map($target, $map);
-			$where = Timestamp::now()->format($where);
+			$where = Timestamp::now()->format($this->application->locale, $where);
 			$suffix = "";
 			if ($compress || File::extension($where) === "gz") {
 				if (!$compress) {
