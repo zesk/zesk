@@ -11,7 +11,7 @@ namespace zesk;
  * @category Debugging
  * @param array $arguments
  */
-class Command_Info extends Command {
+class Command_Info extends Command_Base {
 	/**
 	 *
 	 * @var array
@@ -93,6 +93,7 @@ class Command_Info extends Command {
 	 * @var array
 	 */
 	public static $human_names = array(
+		self::APPLICATION_VERSION => 'Application Version',
 		self::zesk_version_release => 'Zesk Version',
 		self::zesk_version_string => 'Zesk Version String',
 		self::zesk_application_theme_path => 'Application Theme Path',
@@ -111,6 +112,12 @@ class Command_Info extends Command {
 
 	/**
 	 *
+	 * @var string
+	 */
+	const APPLICATION_VERSION = "zesk\Application::version";
+
+	/**
+	 *
 	 * {@inheritdoc}
 	 *
 	 * @see Command::run()
@@ -118,6 +125,7 @@ class Command_Info extends Command {
 	public function run() {
 		$app = $this->application;
 
+		$info[self::APPLICATION_VERSION] = $app->version();
 		$info[self::zesk_version_release] = Version::release();
 		$info[self::zesk_version_string] = Version::string($this->application->locale);
 		$info[self::zesk_root] = ZESK_ROOT;
