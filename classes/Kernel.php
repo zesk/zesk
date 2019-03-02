@@ -187,27 +187,25 @@ class Kernel {
 	 * Include related classes
 	 */
 	public static function includes() {
-		$here = __DIR__;
+		require_once __DIR__ . "/Exception.php";
+		require_once __DIR__ . "/Process.php";
+		require_once __DIR__ . "/Logger.php";
 
-		require_once $here . "/Exception.php";
-		require_once $here . "/Process.php";
-		require_once $here . "/Logger.php";
+		require_once __DIR__ . "/Configuration.php";
+		require_once __DIR__ . "/Options.php";
+		require_once __DIR__ . "/Hookable.php";
+		require_once __DIR__ . "/Hooks.php";
+		require_once __DIR__ . "/HookGroup.php";
+		require_once __DIR__ . "/Paths.php";
+		require_once __DIR__ . "/Autoloader.php";
+		require_once __DIR__ . "/Classes.php";
+		require_once __DIR__ . "/Objects.php";
 
-		require_once $here . "/Configuration.php";
-		require_once $here . "/Options.php";
-		require_once $here . "/Hookable.php";
-		require_once $here . "/Hooks.php";
-		require_once $here . "/HookGroup.php";
-		require_once $here . "/Paths.php";
-		require_once $here . "/Autoloader.php";
-		require_once $here . "/Classes.php";
-		require_once $here . "/Objects.php";
+		require_once __DIR__ . "/Compatibility.php";
+		require_once __DIR__ . "/PHP.php";
 
-		require_once $here . "/Compatibility.php";
-		require_once $here . "/PHP.php";
-
-		require_once $here . "/CacheItem.php";
-		require_once $here . "/CacheItemPool/Array.php";
+		require_once __DIR__ . "/CacheItem.php";
+		require_once __DIR__ . "/CacheItemPool/Array.php";
 	}
 
 	/**
