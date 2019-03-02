@@ -7,10 +7,7 @@
  */
 namespace zesk\WebApp;
 
-class Parser {
-	public function __construct($path) {
-		if (!is_file($path)) {
-			throw new \zesk\Exception_File_NotFound($path);
-		}
+class Controller extends \zesk\Controller_Authenticated {
+	function action_list() {
 	}
 }

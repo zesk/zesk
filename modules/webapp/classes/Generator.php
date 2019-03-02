@@ -7,10 +7,11 @@
  */
 namespace zesk\WebApp;
 
-class Parser {
-	public function __construct($path) {
-		if (!is_file($path)) {
-			throw new \zesk\Exception_File_NotFound($path);
-		}
-	}
+abstract class Generator {
+	/**
+	 *
+	 * @param Host $host
+	 * @return string
+	 */
+	abstract function render(Host $host);
 }

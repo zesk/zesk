@@ -1,21 +1,59 @@
 <?php
+/**
+ * @package zesk
+ * @subpackage webapp
+ * @author kent
+ * @copyright &copy; 2019 Market Acumen, Inc.
+ */
 namespace zesk\WebApp;
 
-use zesk\Hookable;
-use zesk\Exception_Parameter;
 use zesk\Application;
 
-class Host extends Hookable {
-	public function __construct(Application $application, array $structure) {
-		parent::__construct($application, $structure);
-		$errors = $this->validate_structure();
-		if (count($errors) !== 0) {
-			throw new Exception_Parameter("Errors in structure: {keys}", array(
-				'keys' => array_keys($errors),
-			));
-		}
+class Host extends ORM {
+	/**
+	 *
+	 * @var string
+	 */
+	const HOST_TYPE_DIRECTORY_INDEX = "directory-index";
+	/**
+	 *
+	 * @var string
+	 */
+	const HOST_TYPE_DEFAULT = "default";
+
+	/**
+	 *
+	 * @var array
+	 */
+	private static $types = array(
+		self::HOST_TYPE_DIRECTORY_INDEX => "Directory Index",
+		self::HOST_TYPE_DEFAULT => "default"
+	);
+
+	/**
+	 *
+	 * {@inheritDoc}
+	 * @see \zesk\ORM::pre_insert()
+	 */
+	public function hook_pre_insert(array $members) {
+		$members['priority'] = $this->last_priority() + 1;
+		return $members;
 	}
 
+	/**
+	 *
+	 * @return integer
+	 */
+	protected function last_priority() {
+		return $this->query_select()
+			->where("server", $this->server)
+			->what("max", "MAX(priority)")
+			->one_integer("max");
+	}
+
+	/**
+	 * Make sure it's a valid structure
+	 */
 	public function validate_structure() {
 		$errors = array();
 		$code = $this->code;
@@ -43,5 +81,9 @@ class Host extends Hookable {
 				$errors['type'] = "invalid type, must be one of: " . implode(",", array_keys(self::$types));
 			}
 		}
+		if (!$this->instance instanceof Instance) {
+			$errors['instance'] = "Should supply an instance source";
+		}
+		return $errors;
 	}
 }
