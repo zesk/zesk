@@ -158,14 +158,38 @@ class Configuration_Loader {
 
 	/**
 	 *
+	 * @var string
+	 */
+	const PROCESSED = "processed";
+
+	/**
+	 *
+	 * @var string
+	 */
+	const MISSING = "missing";
+
+	/**
+	 *
+	 * @var string
+	 */
+	const SKIPPED = "skipped";
+
+	/**
+	 *
+	 * @var string
+	 */
+	const EXTERNALS = "externals";
+
+	/**
+	 *
 	 * @return string[string]
 	 */
 	public function variables() {
 		return array(
-			"processed" => $this->processed_files,
-			"missing" => $this->missing_files,
-			"skipped" => $this->skipped_files,
-			"externals" => $this->externals(),
+			self::PROCESSED => $this->processed_files,
+			self::MISSING => $this->missing_files,
+			self::SKIPPED => $this->skipped_files,
+			self::EXTERNALS => $this->externals(),
 		);
 	}
 }
