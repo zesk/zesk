@@ -309,9 +309,9 @@ class Directory extends Hookable {
 	 * List a directory recursively
 	 *
 	 * Options work as follows:
-	 *		rules_file = list of rules => true/false - Whether to include a file in the results
-	 *		rules_directory = Whether to include a directory in the result
-	 *		rules_directory_walk = Whether to walk a directory
+	 *		rules_file = list of rules => true/false - Whether to include a file in the results (matched against FULL PATH)
+	 *		rules_directory = Whether to include a directory in the result (matched against FULL PATH)
+	 *		rules_directory_walk = Whether to walk a directory (matched against FULL PATH)
 	 *
 	 * Options take the form:
 	 *  (file|directory|directory_walk)_(include_pattern|exclude_pattern|default)
