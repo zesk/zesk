@@ -8,6 +8,6 @@
 namespace zesk\WebApp;
 
 class Controller extends \zesk\Controller_Authenticated {
-	function action_list() {
+	public function action_list() {
 	}
 }

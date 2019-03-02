@@ -7,4 +7,5 @@
  */
 namespace zesk\WebApp;
 
-class Domain extends ORM {}
+class Domain extends ORM {
+}

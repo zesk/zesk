@@ -20,26 +20,30 @@ class Class_Instance extends Class_ORM {
 	 * @var string
 	 */
 	public $codename = "WebApp_Instance";
+
 	/**
 	 *
 	 * @var string
 	 */
 	public $id_column = "id";
+
 	/**
 	 *
 	 * @var array
 	 */
 	public $has_one = array(
-		"server" => Server::class
+		"server" => Server::class,
 	);
+
 	/**
 	 *
 	 * @var array
 	 */
 	public $find_keys = array(
 		"server",
-		"path"
+		"path",
 	);
+
 	/**
 	 *
 	 * @var array
@@ -54,6 +58,6 @@ class Class_Instance extends Class_ORM {
 		"apptimestamp" => self::type_string,
 		"hash" => self::type_hex,
 		"updated" => self::type_timestamp,
-		"serving" => self::type_timestamp
+		"serving" => self::type_timestamp,
 	);
 }

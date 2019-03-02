@@ -7,4 +7,5 @@
  */
 namespace zesk\WebApp;
 
-abstract class Class_ORM extends \zesk\Class_ORM {}
+abstract class Class_ORM extends \zesk\Class_ORM {
+}

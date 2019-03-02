@@ -9,6 +9,7 @@ namespace zesk\WebApp;
 
 class Class_Host extends Class_ORM {
 	public $codename = "WebApp_Host";
+
 	public $column_types = array(
 		"id" => self::type_id,
 		"instance" => self::type_object,
@@ -18,9 +19,10 @@ class Class_Host extends Class_ORM {
 		"path" => self::type_string,
 		"data" => self::type_json,
 		"errors" => self::type_json,
-		"valid" => self::type_boolean
+		"valid" => self::type_boolean,
 	);
+
 	public $has_one = array(
-		"instance" => Instance::class
+		"instance" => Instance::class,
 	);
 }

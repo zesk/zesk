@@ -12,4 +12,5 @@ namespace zesk\WebApp;
  * @author kent
  *
  */
-class Cluster extends ORM {}
+class Cluster extends ORM {
+}

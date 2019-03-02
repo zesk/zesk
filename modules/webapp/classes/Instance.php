@@ -38,10 +38,10 @@ class Instance extends ORM {
 		$instance = $application->orm_factory(self::class, array(
 			"path" => $path,
 			"server" => $server,
-			"hash" => $hash = md5($contents)
+			"hash" => $hash = md5($contents),
 		) + ArrayTools::filter($json, array(
 			"name",
-			"code"
+			"code",
 		)))->register();
 		$instance->hash = $hash;
 		$instance->code = $json['code'];
@@ -56,7 +56,7 @@ class Instance extends ORM {
 				$valid_hosts[] = $host->id();
 			}
 			$where = array(
-				"server" => $server
+				"server" => $server,
 			);
 			if (count($valid_hosts) > 0) {
 				$where['id|!='] = $valid_hosts;
@@ -71,6 +71,7 @@ class Instance extends ORM {
 
 		return $instance;
 	}
+
 	/**
 	 *
 	 * @param array $host_members
@@ -80,7 +81,7 @@ class Instance extends ORM {
 		/* @var $host Host */
 		ksort($host_members);
 		$host = $this->application->orm_factory(Host::class, array(
-			"instance" => $this
+			"instance" => $this,
 		));
 		$host = $host->set_member(ArrayTools::filter($host_members, $host->member_names()))->register();
 		$data = ArrayTools::remove($host_members, $host->member_names());

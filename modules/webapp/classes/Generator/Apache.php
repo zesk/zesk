@@ -8,16 +8,17 @@
 namespace zesk\WebApp;
 
 class Generator_Apache extends Generator {
-	function render(Host $host) {
+	public function render(Host $host) {
 		$app = $host->application;
 		return $app->theme("webapp/generator/apache", array(
-			"webappbin" => $app->webapp_module()->binary()
+			"webappbin" => $app->webapp_module()->binary(),
 		) + $host->option() + $this->template_defaults());
 	}
-	function template_defaults() {
+
+	public function template_defaults() {
 		return array(
 			"no_webapp" => false,
-			"port" => 80
+			"port" => 80,
 		);
 	}
 }

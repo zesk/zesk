@@ -13,5 +13,5 @@ abstract class Generator {
 	 * @param Host $host
 	 * @return string
 	 */
-	abstract function render(Host $host);
+	abstract public function render(Host $host);
 }

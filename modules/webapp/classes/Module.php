@@ -13,12 +13,14 @@ class Module extends \zesk\Module {
 	 * @var string
 	 */
 	private $app_root = null;
+
 	protected $model_classes = array(
 		Instance::class,
 		Host::class,
 		Domain::class,
-		Cluster::class
+		Cluster::class,
 	);
+
 	/**
 	 *
 	 * {@inheritDoc}
@@ -68,6 +70,7 @@ class Module extends \zesk\Module {
 
 		return true;
 	}
+
 	/**
 	 *
 	 */
@@ -76,15 +79,15 @@ class Module extends \zesk\Module {
 		$rules = array(
 			"rules_file" => array(
 				"#/webapp.json$#" => true,
-				false
+				false,
 			),
 			"rules_directory_walk" => array(
 				"#/\.#" => false,
 				"#/vendor/#" => false,
 				"#/node_modules/#" => false,
-				true
+				true,
 			),
-			"rules_directory" => false
+			"rules_directory" => false,
 		);
 		$files = Directory::list_recursive($this->app_root, $rules);
 		foreach ($files as $webapp) {

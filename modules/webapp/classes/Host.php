@@ -15,6 +15,7 @@ class Host extends ORM {
 	 * @var string
 	 */
 	const HOST_TYPE_DIRECTORY_INDEX = "directory-index";
+
 	/**
 	 *
 	 * @var string
@@ -27,7 +28,7 @@ class Host extends ORM {
 	 */
 	private static $types = array(
 		self::HOST_TYPE_DIRECTORY_INDEX => "Directory Index",
-		self::HOST_TYPE_DEFAULT => "default"
+		self::HOST_TYPE_DEFAULT => "default",
 	);
 
 	/**
