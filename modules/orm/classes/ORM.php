@@ -2342,7 +2342,7 @@ class ORM extends Model implements Interface_Member_Model_Factory {
 			$this->original = $this->to_database($this->members);
 			$this->call_hook("stored");
 			return $this;
-		} catch (Exception $e) {
+		} catch (\Exception $e) {
 			$this->application->hooks->call("exception", $e);
 			$this->storing = false;
 
