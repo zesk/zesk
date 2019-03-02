@@ -383,7 +383,7 @@ class Command_Loader {
 	 *
 	 * @return string
 	 */
-	private function find_application() {
+	public function find_application() {
 		global $_ZESK;
 		if (count($this->search) === 0) {
 			$this->search[] = getcwd();
