@@ -1,0 +1,13 @@
+{
+	"name": "Web App Module",
+	"description": "Manages web application version deployment across clusters, reporting, and vhost configuration.",
+	"requires": [
+		"orm",
+		"apache"
+	],
+	"autoload_options": {
+		"class_prefix": "zesk\\WebApp\\",
+		"lower": false
+	},
+	"module_class": "zesk\\WebApp\\Module"
+}
