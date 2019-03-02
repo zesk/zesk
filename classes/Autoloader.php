@@ -20,13 +20,13 @@ class Autoloader {
 	 *
 	 * @var string
 	 */
-	const autoload_option_class_prefix_default = "";
+	const OPTION_CLASS_PREFIX_DEFAULT = "";
 
 	/**
 	 *
 	 * @var boolean
 	 */
-	const autoload_option_lower_default = true;
+	const OPTION_LOWER_DEFAULT = true;
 
 	/**
 	 *
@@ -200,14 +200,14 @@ class Autoloader {
 		$result = array();
 		$first_options = array();
 		if ($extensions) {
-			$first_options['extensions'] = $extensions;
+			$first_options[self::OPTION_EXTENSIONS] = $extensions;
 			$last_options = array();
 		} else {
 			$first_options = array();
-			$last_options['extensions'] = $extensions;
+			$last_options[self::OPTION_EXTENSIONS] = $extensions;
 		}
 		foreach ($this->path() as $path => $options) {
-			$class_prefix = rtrim($options['class_prefix'], '_');
+			$class_prefix = rtrim($options[self::OPTION_CLASS_PREFIX], '_');
 			if ($class_prefix !== "") {
 				if (substr($class_prefix, -1) !== "\\") {
 					$class_prefix .= "_";
@@ -223,11 +223,11 @@ class Autoloader {
 				$path_file_prefix = $file_prefix;
 			}
 			$path_file_prefix = strtr($path_file_prefix, '\\', '_');
-			$file_parts = implode("/", explode("_", $options['lower'] ? strtolower($path_file_prefix) : $path_file_prefix));
+			$file_parts = implode("/", explode("_", $options[self::OPTION_LOWER] ? strtolower($path_file_prefix) : $path_file_prefix));
 			if ($extensions) {
 				$iterate_extensions = $extensions;
-			} elseif (isset($options['extensions'])) {
-				$iterate_extensions = $options['extensions'];
+			} elseif (isset($options[self::OPTION_EXTENSIONS])) {
+				$iterate_extensions = $options[self::OPTION_EXTENSIONS];
 			} else {
 				$iterate_extensions = $this->extension();
 			}
@@ -304,6 +304,41 @@ class Autoloader {
 	private $cached = null;
 
 	/**
+	 * Used in ->path("path/to", [ Autoloader::CLASS_PREFIX => "foo\\", Autoloader::LOWER => false ]);
+	 *
+	 * @var string
+	 */
+	const OPTION_CLASS_PREFIX = "class_prefix";
+
+	/**
+	 * Used in ->path("path/to", [ Autoloader::CLASS_PREFIX => "foo\\", Autoloader::LOWER => false ]);
+	 *
+	 * @var string
+	 */
+	const OPTION_LOWER = "lower";
+
+	/**
+	 * Used in ->path(..., $options); Make this path first in the list. (Default is added to the middle)
+	 *
+	 * @var string
+	 */
+	const OPTION_FIRST = "first";
+
+	/**
+	 * Used in ->path(..., $options); Make this path last in the list. (Default is added to the end)
+	 *
+	 * @var string
+	 */
+	const OPTION_LAST = "last";
+
+	/**
+	 * Used in ->path(..., $options); Make this path first in the list. (Default is added to the end)
+	 *
+	 * @var string
+	 */
+	const OPTION_EXTENSIONS = "extensions";
+
+	/**
 	 * Retrieve the list of autoload paths, or add one.
 	 *
 	 * 2017-03 Autoload paths support PSR-4 by default, so lowercase is not ON anymore by default.
@@ -329,6 +364,7 @@ class Autoloader {
 	 *        	is ignored.
 	 *        	- last - Set as last autoload path.
 	 *        	- extensions - Array or ;-separated string containing extensions to look for
+	 *			- class_prefix - Only load classes which match this prefix from this path
 	 *
 	 * @return array The ordered list of paths to search for class names.
 	 */
@@ -340,21 +376,21 @@ class Autoloader {
 				);
 			} elseif (!is_array($options)) {
 				$options = array(
-					'lower' => to_bool($options),
+					self::OPTION_LOWER => to_bool($options),
 				);
 			}
-			if (isset($options['extensions'])) {
-				$options['extensions'] = to_list($options['extensions']);
+			if (isset($options[self::OPTION_EXTENSIONS])) {
+				$options[self::OPTION_EXTENSIONS] = to_list($options[self::OPTION_EXTENSIONS]);
 			}
 			// Defaults (extension
 			$options += array(
-				'class_prefix' => self::autoload_option_class_prefix_default,
-				'lower' => self::autoload_option_lower_default,
+				self::OPTION_CLASS_PREFIX => self::OPTION_CLASS_PREFIX_DEFAULT,
+				self::OPTION_LOWER => self::OPTION_LOWER_DEFAULT,
 			);
-			if (isset($options['first']) && $options['first']) {
+			if (isset($options[self::OPTION_FIRST]) && $options[self::OPTION_FIRST]) {
 				$this->first[$add] = $options;
 				$this->cached = null;
-			} elseif (isset($options['last']) && $options['last']) {
+			} elseif (isset($options[self::OPTION_LAST]) && $options[self::OPTION_LAST]) {
 				$this->last[$add] = $options;
 				$this->cached = null;
 			} else {
