@@ -9,9 +9,6 @@ namespace zesk;
 
 /**
  * 2017-10 All Hookables must pass an $application as the first parameter for __construct now.
- *
- * The reason this can't be called "Hook" as a class is because we want the method "hook" to work.
- * But PHP 4.x supports same-name constructors, so, we're stuck with Hookable for now. Much easier
  * to deprecate class names than method names, IMHO.
  *
  * @todo When we're in a PHP version which is trait compatible, make this a trait
