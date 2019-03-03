@@ -23,8 +23,10 @@ namespace zesk;
  *
  * Most objects in the system, specifically, View, Control, Model, and Template
  * are derived from Options to allow any object in the system to be tagged and have its
- * default behavior modified via configuration settings (globals) in the application.
+ * default behavior modified via configuration settings (globals) in the application, typically
+ * through the Hookable subclass.
  *
+ * @see Hookable
  * @package zesk
  * @subpackage system
  */
@@ -33,7 +35,7 @@ class Options implements \ArrayAccess {
 	 * Character used for space
 	 * @var string
 	 */
-	const option_space = "_";
+	const OPTION_SPACE = "_";
 
 	/**
 	 * An associative array of lower-case strings pointing to mixed values. $options should
@@ -348,9 +350,9 @@ class Options implements \ArrayAccess {
 			return $result;
 		}
 		return strtolower(strtr(trim($name), array(
-			"-" => self::option_space,
-			"_" => self::option_space,
-			" " => self::option_space,
+			"-" => self::OPTION_SPACE,
+			"_" => self::OPTION_SPACE,
+			" " => self::OPTION_SPACE,
 		)));
 	}
 
@@ -485,6 +487,16 @@ class Options implements \ArrayAccess {
 	 * Handle options like members
 	 *
 	 * @param string $key
+	 * @return boolean
+	 */
+	public function __isset($key) {
+		return isset($this->options[self::_option_key($key)]);
+	}
+
+	/**
+	 * Handle options like members
+	 *
+	 * @param string $key
 	 * @return mixed
 	 */
 	public function __get($key) {
@@ -495,7 +507,7 @@ class Options implements \ArrayAccess {
 	 * Handle options like members
 	 *
 	 * @param string $key
-	 * @return mixed
+	 * @return self
 	 */
 	public function __set($key, $value) {
 		$this->options[self::_option_key($key)] = $value;
