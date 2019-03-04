@@ -783,11 +783,9 @@ function map($mixed, array $map, $insensitive = false, $prefix_char = "{", $suff
 		$s[$prefix_char . $k . $suffix_char] = $v;
 	}
 	if ($insensitive) {
-		static $func = null;
-		if (!$func) {
-			$func = create_function('$matches', 'return strtolower($matches[0]);');
-		}
-		$mixed = preg_replace_callback_mixed('/' . $prefix_char . '([-:_ =,.\/\'"A-Za-z0-9]+)' . $suffix_char . '/i', $func, $mixed);
+		$mixed = preg_replace_callback_mixed('/' . $prefix_char . '([-:_ =,.\/\'"A-Za-z0-9]+)' . $suffix_char . '/i', function ($matches) {
+			return strtolower($matches[0]);
+		}, $mixed);
 	}
 	// tr("{a}", array("{a} => null)) = "null"
 	return tr($mixed, $s);

@@ -152,7 +152,7 @@ class PolyGlot_Update extends ORM {
 		if (!$f) {
 			throw new Exception_File_Permission($temp_file, "Unable to open {filename} for writing");
 		}
-		fwrite($f, "<?php\n\n// This file was automatically generated on " . date("Y-m-d H:i:s") . " by " . __METHOD__ . "\n\n");
+		fwrite($f, "<?php\n\n// This file was automatically generated on " . date("Y-m-d H:i:s") . " by " . __METHOD__ . "\n\n\$tt = array();\n");
 		$original_tt = array();
 		if (file_exists($target_file)) {
 			$original_tt = $application->load($target_file);
