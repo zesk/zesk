@@ -208,25 +208,25 @@ class Server extends ORM implements Interface_Data {
 	 * @return \zesk\Server
 	 */
 	public static function singleton(Application $application) {
-		$cache = $application->cache;
+		// 		$cache = $application->cache;
 		/* @var $cache \Psr\Cache\CacheItemPoolInterface */
 		$server = null;
-		if ($cache) {
-			$item = $cache->getItem(__METHOD__);
-			if ($item->isHit()) {
-				$server = $item->get();
-				if ($server instanceof Server) {
-					return $server;
-				}
-			}
-		}
+		// 		if ($cache) {
+		// 			$item = $cache->getItem(__METHOD__);
+		// 			if ($item->isHit()) {
+		// 				$server = $item->get();
+		// 				if ($server instanceof Server) {
+		// 					return $server;
+		// 				}
+		// 			}
+		// 		}
 		$server = $application->orm_factory(__CLASS__);
 		$server = $server->_retrieve_singleton();
-		if ($cache) {
-			$item->set($server);
-			$item->expiresAfter(60);
-			$cache->saveDeferred($item);
-		}
+		// 		if ($cache) {
+		// 			$item->set($server);
+		// 			$item->expiresAfter(60);
+		// 			$cache->saveDeferred($item);
+		// 		}
 		return $server;
 	}
 
