@@ -38,7 +38,7 @@ class Text {
 		}
 		return implode($newline, $lines) . $newline;
 	}
-	
+
 	/**
 	 * Universally modify line break characters in a string to be a certain line break string.
 	 *
@@ -59,7 +59,7 @@ class Text {
 		$string = str_replace("\n", $temp_char, $string);
 		return str_replace($temp_char, $br, $string);
 	}
-	
+
 	/**
 	 * Format an array with labels and values
 	 *
@@ -98,6 +98,7 @@ class Text {
 		}
 		return $result;
 	}
+
 	public static function lines_wrap($text, $prefix = "", $suffix = "", $first_prefix = null, $last_suffix = null) {
 		if ($first_prefix === null) {
 			$first_prefix = $prefix;
@@ -107,13 +108,16 @@ class Text {
 		}
 		return $first_prefix . implode("$suffix\n$prefix", explode("\n", $text)) . $last_suffix;
 	}
+
 	public static function fill($n, $pad = " ") {
 		return substr(str_repeat($pad, $n), 0, $n);
 	}
+
 	private static function _align_helper($text, $n, $pad, &$fill, $_trim = false) {
 		$fill = "";
-		if ($n <= 0)
+		if ($n <= 0) {
 			return $text;
+		}
 		$tlen = strlen($text);
 		if ($tlen > $n) {
 			if ($_trim) {
@@ -125,17 +129,19 @@ class Text {
 		$fill = self::fill($n - $tlen, $pad);
 		return $text;
 	}
+
 	public static function ralign($text, $n = -1, $pad = " ", $_trim = false) {
 		$fill = "";
 		$text = self::_align_helper($text, $n, $pad, $fill, $_trim);
 		return $fill . $text;
 	}
+
 	public static function lalign($text, $n = -1, $pad = " ", $_trim = false) {
 		$fill = "";
 		$text = self::_align_helper($text, $n, $pad, $fill, $_trim);
 		return $text . $fill;
 	}
-	
+
 	/**
 	 * Delete the line comments in a string
 	 *
@@ -165,7 +171,7 @@ class Text {
 		}
 		return implode("\n", $new_data);
 	}
-	
+
 	/**
 	 * Remove C/Java/PHP/etc-style range comments
 	 *
@@ -179,6 +185,7 @@ class Text {
 	public static function remove_range_comments($text, $begin_comment = "/*", $end_comment = "*/") {
 		return preg_replace('#' . preg_quote($begin_comment) . '.*?' . preg_quote($end_comment) . '#s', '', $text);
 	}
+
 	public static function fill_pattern($pattern, $char_length) {
 		$pattern_length = strlen($pattern);
 		if ($pattern_length < $char_length) {
@@ -186,7 +193,11 @@ class Text {
 		}
 		return substr($pattern, 0, $char_length);
 	}
+
 	public static function format_pairs($map, $prefix = "", $space = " ", $suffix = ": ", $br = "\n") {
+		if (!is_array($map)) {
+			return null;
+		}
 		$n = 0;
 		foreach (array_keys($map) as $k) {
 			$n = max(strlen($k), $n);
@@ -197,6 +208,7 @@ class Text {
 		}
 		return implode($br, $r) . $br;
 	}
+
 	public static function trim_words_length($string, $length, $delimiter = " ") {
 		$string = to_list($string, array(), $delimiter);
 		$delim_len = strlen($delimiter);
@@ -215,15 +227,17 @@ class Text {
 		}
 		return implode($delimiter, $result);
 	}
+
 	public static function trim_words($string, $wordCount) {
 		$words = preg_split('/(\s+)/', $string, -1, PREG_SPLIT_DELIM_CAPTURE);
 		$words = array_slice($words, 0, $wordCount * 2 - 1);
 		return implode("", $words);
 	}
+
 	public static function words($string) {
 		return count(preg_split('/(\s+)/', $string, -1, PREG_SPLIT_DELIM_CAPTURE));
 	}
-	
+
 	/**
 	 * Generates a table like this:
 	 *
@@ -264,7 +278,7 @@ class Text {
 	 *        	String to prefix every line with. Used for indenting
 	 * @return string The resulting text table, with \n on each line.
 	 */
-	static function format_table($table, $prefix = "") {
+	public static function format_table($table, $prefix = "") {
 		if (!is_array($table) || !isset($table[0]) || !is_array($table[0])) {
 			return "";
 		}
@@ -289,7 +303,7 @@ class Text {
 		}
 		$divLine = "+-" . implode("-+-", $line) . "-+";
 		$result[] = $divLine;
-		
+
 		$line = array();
 		foreach ($hs as $i => $h) {
 			$line[] = str_pad($h, $ws[$i]);
@@ -306,7 +320,7 @@ class Text {
 		$result[] = $divLine;
 		return $prefix . implode("\n$prefix", $result) . "\n";
 	}
-	
+
 	/**
 	 * Split a line where multiple characters may serve as a delimiter.
 	 *
@@ -324,7 +338,7 @@ class Text {
 	private static function split_line($line, $num_columns = 99, $delimiters = " \t") {
 		return explode($delimiters[0], preg_replace("/[" . preg_quote($delimiters) . "]+/", $delimiters[0], $line), $num_columns);
 	}
-	
+
 	/**
 	 * Parse a table output by many common UNIX and DOS commands.
 	 *
@@ -344,7 +358,7 @@ class Text {
 	 * @return array An array of associative arrays representing the table. Can be passed to
 	 *         outputTable directly.
 	 */
-	static function parse_table($content, $num_columns, $delimiters = " \t", $newline = "\n") {
+	public static function parse_table($content, $num_columns, $delimiters = " \t", $newline = "\n") {
 		$lines = explode($newline, $content);
 		$hh = false;
 		while (($line = array_shift($lines)) !== null) {
@@ -378,7 +392,7 @@ class Text {
 		}
 		return $results;
 	}
-	
+
 	/**
 	 * Returns the number of words delimited by spaces found in string.
 	 *
@@ -391,7 +405,7 @@ class Text {
 	public static function count_words($string, $limit = -1) {
 		return count(preg_split('/\s+/', trim($string), $limit));
 	}
-	
+
 	/**
 	 * Similar to shell command "head" returns first $count lines from $string
 	 *
@@ -402,7 +416,7 @@ class Text {
 	public static function head($string, $count = 20, $newline = "\n") {
 		return implode($newline, array_slice(explode($newline, $string), 0, $count));
 	}
-	
+
 	/**
 	 * Similar to shell command "head" returns first $count lines from $string
 	 *
@@ -413,17 +427,17 @@ class Text {
 	public static function tail($string, $count = 20, $newline = "\n") {
 		return implode($newline, array_slice(explode($newline, $string), -$count));
 	}
-	
+
 	/**
 	 * Parse text output which may have spaces in file names.
-	 * 
+	 *
 	 * This operates differently than parse_table, which breaks each line up by grouping delimiters and then
 	 * converting to postional parameters.
-	 * 
-	 * parse_columns scans all output text lines and determines columns which contain your delimiter in all columns, 
+	 *
+	 * parse_columns scans all output text lines and determines columns which contain your delimiter in all columns,
 	 * and then segments the columns based on that information. This best supports `df` output which
 	 * refers to volumes with spaces in their names, which breaks under `parse_table` above.
-	 * 
+	 *
 	 * <code>
 	 * Filesystem             1K-blocks       Used  Available Use% Mounted on
 	 * udev                      482380          0     482380   0% /dev
@@ -433,7 +447,7 @@ class Text {
 	 * tmpfs                       5120          4       5116   1% /run/lock
 	 * Google Drive           487712924  411037236   76675688  85% /media/psf/Google Drive
 	 * </code>
-	 * 
+	 *
 	 * @param array $lines
 	 */
 	public static function parse_columns(array $lines, $whitespace = " \t") {
@@ -470,13 +484,13 @@ class Text {
 					}
 					$headers[$name] = array(
 						$start,
-						$length
+						$length,
 					);
 				}
 				$was_space = $space;
 			}
 		}
-		
+
 		$first = true;
 		$rows = array();
 		foreach ($lines as $index => $line) {
