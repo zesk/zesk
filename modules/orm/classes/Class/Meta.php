@@ -1,6 +1,16 @@
 <?php
+/**
+ * @package zesk
+ * @subpackage orm
+ * @author kent
+ * @copyright &copy; 2019 Market Acumen, Inc.
+ */
 namespace zesk;
 
+/**
+ * @see Meta
+ * @author kent
+ */
 class Class_Meta extends Class_ORM {
 	public $primary_keys = array(
 		"parent",
