@@ -464,14 +464,27 @@ class Module extends \zesk\Module {
 			$this->application,
 		);
 		$this->timer = null;
+		/**
+		 * Collect locks and replace member 'lock' with Lock object once acquired.
+		 *
+		 * If can not acquire the lock, someone else is doing it, so don't bother running that scope.
+		 */
 		foreach ($scopes as $method => $settings) {
-			$state = $settings['state'];
-			/* @var $state Interface_Data */
 			$lock_name = $settings['lock'];
 			$lock = Lock::instance($this->application, $lock_name);
 			if ($lock->acquire() === null) {
-				continue;
+				unset($scopes[$method]);
+			} else {
+				$scopes[$method]['lock'] = $lock;
 			}
+		}
+
+		/**
+		 * Now only run scopes for which we acquired a lock. Exceptions are passed to a hook and logged.
+		 */
+		foreach ($scopes as $method => $settings) {
+			$state = $settings['state'];
+			/* @var $state Interface_Data */
 			$last_run = self::_last_cron_run($state);
 			$cron_hooks = $this->_cron_hooks($method);
 			if ($now->difference($last_run, "second")) {
@@ -513,6 +526,12 @@ class Module extends \zesk\Module {
 					}
 				}
 			}
+		}
+		/**
+		 * Release all of our locks at once
+		 */
+		foreach ($scopes as $method => $settings) {
+			$lock = $settings['lock'];
 			$lock->release();
 		}
 	}
