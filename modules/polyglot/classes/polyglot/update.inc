@@ -46,6 +46,10 @@ class PolyGlot_Update extends ORM {
 			));
 			return;
 		}
+		$lock = Lock::instance($application, __METHOD__ . ":" . $server->id());
+		if (!$lock->acquire()) {
+			return;
+		}
 		$server_variable_name = __CLASS__ . "::last_update";
 		$update_requested = $application->orm_registry(__CLASS__)
 			->query_select()
@@ -72,13 +76,14 @@ class PolyGlot_Update extends ORM {
 			$application->logger->debug("No locale updates needed on {server}", array(
 				"server" => $server->name,
 			));
+			$lock->release();
 			return;
 		}
 		$additional_locales = array();
 		foreach ($update_locales as $update_locale) {
-			$dialect = Locale::parse_dialect($update_locale);
+			$dialect = Locale::dialect($update_locale);
 			if (!$dialect) {
-				$expanded_locales = $application->orm_registry('zesk\\PolyGlot_Token')
+				$expanded_locales = $application->orm_registry(PolyGlot_Token::class)
 					->query_select()
 					->distinct(true)
 					->what("*locale", "CONCAT(language,'_',dialect)")
@@ -107,6 +112,11 @@ class PolyGlot_Update extends ORM {
 
 			try {
 				self::update_locale($application, $path, $update_locale);
+				$application->orm_registry(__CLASS__)
+					->query_update()
+					->value("updated", Timestamp::now())
+					->where("locale", $update_locale)
+					->execute();
 			} catch (Exception $e) {
 				$application->logger->error("Updating locale {locale} on {server} FAILED due to {message}", array(
 					"locales" => $update_locales,
@@ -119,6 +129,7 @@ class PolyGlot_Update extends ORM {
 		if ($success) {
 			$server->data($server_variable_name, time());
 		}
+		$lock->release();
 		$application->call_hook("polyglot_update");
 	}
 
@@ -155,7 +166,7 @@ class PolyGlot_Update extends ORM {
 		if (!$f) {
 			throw new Exception_File_Permission($temp_file, "Unable to open {filename} for writing");
 		}
-		fwrite($f, "<?php\n\n// This file was automatically generated on " . date("Y-m-d H:i:s") . " by " . __METHOD__ . "\n\n");
+		fwrite($f, "<?php\n\n// This file was automatically generated on " . date("Y-m-d H:i:s") . " by " . __METHOD__ . "\n\n\$tt = array();\n");
 		$original_tt = array();
 		if (file_exists($target_file)) {
 			$original_tt = $application->load($target_file);
