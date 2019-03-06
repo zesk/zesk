@@ -21,11 +21,13 @@ use zesk\Server;
  */
 class Command_Deploy extends \zesk\Command_Base {
 	protected $option_types = array(
-		'backup-path' => 'dir'
+		'backup-path' => 'dir',
 	);
+
 	public function usage($message = null, array $arguments = array()) {
 		parent::usage($message, $arguments);
 	}
+
 	public function run() {
 		/*
 		 * Ok, so what do we do when we deploy an app?
@@ -58,7 +60,7 @@ class Command_Deploy extends \zesk\Command_Base {
 		$instance = Instance::find_from_code($application, $server, $appcode);
 		if (!$instance) {
 			$this->error("Unable to find instance \"{code}\"", array(
-				"code" => $appcode
+				"code" => $appcode,
 			));
 			return 1;
 		}
@@ -69,7 +71,7 @@ class Command_Deploy extends \zesk\Command_Base {
 			if (!array_key_exists($appinstance, $appinstances)) {
 				$this->error("Unknown instance type \"{appinstance}\", must be one of {appinstances}", array(
 					"appinstance" => $appinstance,
-					"appinstances" => array_keys($appinstances)
+					"appinstances" => array_keys($appinstances),
 				));
 				return 2;
 			}
@@ -81,7 +83,7 @@ class Command_Deploy extends \zesk\Command_Base {
 
 		$this->log("Backing up the database ...");
 		$dump = new \zesk\Command_Database_Dump($this->application, array(
-			"file" => true
+			"file" => true,
 		));
 		$dump->run();
 
@@ -113,13 +115,16 @@ class Command_Deploy extends \zesk\Command_Base {
 			$this->log("Unable to exit maintenance mode.");
 		}
 	}
+
 	private function check_source_code() {
 	}
+
 	private function backup_source_code() {
 	}
+
 	private function save_source_code_versions() {
 	}
+
 	private function update_source_code() {
 	}
 }
-?>
