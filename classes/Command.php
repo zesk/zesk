@@ -12,7 +12,7 @@ namespace zesk;
  *
  * @author kent
  */
-abstract class Command extends Hookable implements Logger\Handler {
+abstract class Command extends Hookable implements Logger\Handler, Interface_Prompt {
 	/**
 	 *
 	 * @var integer
@@ -1165,8 +1165,11 @@ abstract class Command extends Hookable implements Logger\Handler {
 	 * @param string $default
 	 * @return string NULL
 	 */
-	public function prompt($message, $default = null) {
+	public function prompt($message, $default = null, array $completions = null) {
 		$this->_init_history();
+		if ($completions) {
+			$this->completions = $completions;
+		}
 		while (true) {
 			$prompt = rtrim($message) . " ";
 			if ($default) {
