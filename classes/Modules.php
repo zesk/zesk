@@ -277,7 +277,11 @@ class Modules {
 		$theme_path = avalue($configuration, "theme_path", "theme");
 		$theme_path_prefix = avalue($configuration, "theme_path_prefix", null);
 		$zesk_command_path = avalue($configuration, "zesk_command_path", "command");
-		$zesk_command_path_class_prefix = apath($configuration, "zesk_command_path_class_prefix");
+		$deprecated_class_prefix = apath($configuration, "zesk_command_path_class_prefix");
+		if ($deprecated_class_prefix) {
+			$this->application->deprecated("$module_path uses deprecated zesk_command_path_class_prefix. Use zesk_command_class_prefix instead.");
+		}
+		$zesk_command_path_class_prefix = apath($configuration, "zesk_command_class_prefix", $deprecated_class_prefix);
 		$locale_path = apath($configuration, "locale_path", "etc/language");
 		if (!$module_path) {
 			return $result;
