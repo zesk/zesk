@@ -5,14 +5,14 @@
 namespace zesk;
 
 /**
- * @see Class_ORM_Meta
+ * @see Class_Meta
  * @author kent
  *
  */
 class Meta extends ORM {
 	/**
 	 *
-	 * @var string
+	 * @var boolean
 	 */
 	protected $_meta_fetch = false;
 
@@ -44,6 +44,7 @@ class Meta extends ORM {
 	 * @return self
 	 */
 	public function meta_set($value) {
+		$this->_meta_fetch = true;
 		return $this->set_member("value", $value)->store();
 	}
 
