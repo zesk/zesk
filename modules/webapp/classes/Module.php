@@ -16,7 +16,6 @@ use zesk\Timestamp;
 use zesk\Application;
 use zesk\Request;
 use zesk\JSON;
-use zesk\Repository;
 
 class Module extends \zesk\Module implements \zesk\Interface_Module_Routes {
 	/**
@@ -80,6 +79,9 @@ class Module extends \zesk\Module implements \zesk\Interface_Module_Routes {
 		));
 	}
 
+	/**
+	 * Run deploy functionality
+	 */
 	public function hook_deploy() {
 		$generator = $this->generator();
 		$generator->deploy();
