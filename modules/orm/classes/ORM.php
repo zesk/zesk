@@ -2378,10 +2378,12 @@ class ORM extends Model implements Interface_Member_Model_Factory {
 			if ($class[0] === '*') {
 				$class = $this->member(substr($class, 1));
 			}
-			$object = $this->member($member);
-			/* @var $object ORM */
-			if ($object instanceof $class) {
-				$object->register();
+			if (!empty($class)) {
+				$object = $this->member($member);
+				/* @var $object ORM */
+				if ($object instanceof $class) {
+					$object->register();
+				}
 			}
 		}
 	}
