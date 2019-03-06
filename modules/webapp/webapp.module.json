@@ -9,5 +9,6 @@
 		"class_prefix": "zesk\\WebApp\\",
 		"lower": false
 	},
-	"module_class": "zesk\\WebApp\\Module"
+	"module_class": "zesk\\WebApp\\Module",
+	"zesk_command_class_prefix": "zesk\\WebApp\\Command_"
 }

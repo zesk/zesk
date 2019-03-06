@@ -33,6 +33,18 @@ class Class_Instance extends Class_ORM {
 	 */
 	public $has_one = array(
 		"server" => Server::class,
+		"repository" => Repository::class
+	);
+
+	/**
+	 *
+	 * @var array
+	 */
+	public $has_many = array(
+		"sites" => array(
+			"class" => Site::class,
+			"foreign_key" => "instance"
+		)
 	);
 
 	/**
@@ -41,7 +53,7 @@ class Class_Instance extends Class_ORM {
 	 */
 	public $find_keys = array(
 		"server",
-		"path",
+		"path"
 	);
 
 	/**
@@ -51,13 +63,14 @@ class Class_Instance extends Class_ORM {
 	public $column_types = array(
 		"id" => self::type_id,
 		"server" => self::type_object,
+		"repository" => self::type_object,
 		"path" => self::type_string,
 		"code" => self::type_string,
 		"name" => self::type_string,
 		"appversion" => self::type_string,
-		"apptimestamp" => self::type_string,
+		"apptype" => self::type_string,
 		"hash" => self::type_hex,
-		"updated" => self::type_timestamp,
-		"serving" => self::type_timestamp,
+		"updated" => self::type_modified,
+		"serving" => self::type_timestamp
 	);
 }

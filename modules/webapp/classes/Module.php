@@ -2,23 +2,63 @@
 namespace zesk\WebApp;
 
 use zesk\Exception_Configuration;
+use zesk\ArrayTools;
 use zesk\Directory;
 use zesk\Kernel\Loader;
 use zesk\Configuration_Loader;
 use zesk\File;
+use zesk\Router;
+use zesk\StringTools;
+use zesk\Server;
+use zesk\Exception_Parse;
+use zesk\Exception_Semantics;
+use zesk\Timestamp;
+use zesk\Application;
+use zesk\Request;
+use zesk\JSON;
+use zesk\Repository;
 
-class Module extends \zesk\Module {
+class Module extends \zesk\Module implements \zesk\Interface_Module_Routes {
+	/**
+	 *
+	 * @var string
+	 */
+	const CONTROL_FILE_RESTART_APACHE = "restart-apache";
+
+	/**
+	 *
+	 * @var string
+	 */
+	const OPTION_GENERATOR_CLASS = "generator_class";
+
+	/**
+	 *
+	 * @var unknown
+	 */
+	const OPTION_GENERATOR_CLASS_DEFAULT = Generator_Apache::class;
+
 	/**
 	 *
 	 * @var string
 	 */
 	private $app_root = null;
 
+	/**
+	 *
+	 * @var Generator
+	 */
+	private $generator = null;
+
+	/**
+	 *
+	 * @var array
+	 */
 	protected $model_classes = array(
 		Instance::class,
-		Host::class,
+		Site::class,
 		Domain::class,
 		Cluster::class,
+		Repository::class
 	);
 
 	/**
@@ -34,14 +74,64 @@ class Module extends \zesk\Module {
 		if (!is_dir($this->app_root)) {
 			throw new Exception_Configuration(__CLASS__ . "::path", "Requires the app root path to be a directory in order to work.");
 		}
+		$this->application->hooks->add(Application::class . "::request", array(
+			$this,
+			"register_domain"
+		));
+	}
+	public function hook_deploy() {
+		$generator = $this->generator();
+		$generator->deploy();
+	}
+	/**
+	 *
+	 * @param Application $application
+	 * @param Request $request
+	 */
+	public function register_domain(Application $application, Request $request) {
+		$domain_name = $request->host();
+		$item = $application->cache->getItem(__METHOD__);
+		if ($item->isHit()) {
+			$domains = $item->get();
+			if (isset($domains[$domain_name])) {
+				return;
+			}
+			$domains[$domain_name] = true;
+			$item->set($domains);
+			$application->cache->save($item);
+		}
+		$application->orm_factory(Domain::class, array(
+			"name" => $domain_name
+		))->register()->accessed();
 	}
 
 	/**
 	 *
+	 * {@inheritDoc}
+	 * @see \zesk\Interface_Module_Routes::hook_routes()
+	 */
+	public function hook_routes(Router $router) {
+		$router->add_route(trim($this->option("route_prefix", "webapp"), '/') . '(/{option action})', array(
+			"controller" => Controller::class
+		));
+	}
+
+	/**
+	 * Fetch a file or directory beneath the app_root path
+	 *
 	 * @return string
 	 */
-	public function app_root_path() {
-		return $this->app_root;
+	public function app_root_path($suffix = null) {
+		return $suffix === null ? $this->app_root : path($this->app_root, $suffix);
+	}
+
+	/**
+	 * Fetch a file or directory beneath the app_root path
+	 *
+	 * @return string
+	 */
+	public function webapp_data_path($suffix = null) {
+		return $this->app_root_path(".webapp/$suffix");
 	}
 
 	/**
@@ -51,6 +141,26 @@ class Module extends \zesk\Module {
 	 */
 	public function binary() {
 		return $this->application->paths->cache("webapp/public/index.php");
+	}
+
+	/**
+	 *
+	 * @return Generator
+	 */
+	private function _generator() {
+		$class = $this->option(self::OPTION_GENERATOR_CLASS, self::OPTION_GENERATOR_CLASS_DEFAULT);
+		return $this->application->factory($class, $this->application);
+	}
+
+	/**
+	 *
+	 * @return Generator
+	 */
+	public function generator() {
+		if ($this->generator) {
+			return $this->generator;
+		}
+		return $this->generator = $this->_generator();
 	}
 
 	/**
@@ -72,26 +182,176 @@ class Module extends \zesk\Module {
 	}
 
 	/**
+	 * Scans `zesk\WebApp\Module::path` directory to find all `webapp.json` files, each representing an application
+	 * instance. Applications may contain one or more sites served from document roots within each application.
 	 *
+	 * @return integer[string] Array of filename => modification time
 	 */
-	public function scan_for_apps() {
+	public function scan_webapp_json(array $walk_add = array()) {
 		// Include *.application.php, do not walk through . directories, or /vendor/, do not include directories in results
 		$rules = array(
 			"rules_file" => array(
-				"#/webapp.json$#" => true,
-				false,
+				"#/webapp.json\$#" => true,
+				false
 			),
-			"rules_directory_walk" => array(
+			"rules_directory_walk" => $walk_add + array(
 				"#/\.#" => false,
 				"#/vendor/#" => false,
 				"#/node_modules/#" => false,
-				true,
+				true
 			),
 			"rules_directory" => false,
+			"add_path" => true
 		);
 		$files = Directory::list_recursive($this->app_root, $rules);
-		foreach ($files as $webapp) {
+		$result = array();
+		foreach ($files as $f) {
+			$result[$f] = filemtime($f);
 		}
-		return $files;
+		ksort($result);
+		return $result;
+	}
+
+	/**
+	 *
+	 */
+	public function cached_webapp_json($rescan = false) {
+		$app = $this->application;
+		$cached = $app->cache->getItem(__METHOD__);
+		if (!$cached->isHit()) {
+			$files = $this->scan_webapp_json();
+			$cached->set($files);
+			$cached->expiresAfter(3600);
+			$this->application->cache->saveDeferred($cached);
+			return $files;
+		}
+		$files = $cached->get();
+		if (!$rescan) {
+			return $files;
+		}
+		$walk_add = array();
+		foreach ($files as $file => $mtime) {
+			if (is_file($file) && filemtime($file) === $mtime) {
+				$walk_add['#' . preg_quote(rtrim(dirname($file), "/") . "/", "#") . "\$#"] = false;
+			} else {
+				unset($files[$file]);
+			}
+		}
+		$result = $files + $this->scan_webapp_json($walk_add);
+		ksort($result);
+		return $result;
+	}
+
+	/**
+	 * Write and output our configuration files for our web server
+	 *
+	 * @return \zesk\WebApp\Generator
+	 */
+	public function generate_configuration() {
+		$instances = ArrayTools::collapse($this->instance_factory(false), "instance");
+		$generator = $this->generator();
+
+		$generator->start();
+		foreach ($instances as $instance) {
+			/* @var $instance Instance */
+			$generator->instance($instance);
+			foreach ($instance->sites as $site) {
+				/* @var $site Site */
+				$generator->site($site);
+			}
+		}
+		$generator->finish();
+		$changed = $generator->changed();
+		if (count($changed) > 0) {
+			$this->application->logger->info("{method} generator reported changed: {changed}", array(
+				"method" => __METHOD__,
+				"changed" => $changed
+			));
+			$this->control_file(self::CONTROL_FILE_RESTART_APACHE, time());
+		}
+		return $generator;
+	}
+	public function hook_cron_minute() {
+		$this->generate_configuration();
+	}
+	public function control_file_path($name) {
+		$name = File::clean_path($name);
+		$full = $this->webapp_data_path("control/$name");
+		return $full;
+	}
+
+	/**
+	 * Simple signal IPC using files
+	 *
+	 * @param string $name
+	 * @param mixed $value
+	 * @return \zesk\WebApp\Module|mixed
+	 */
+	public function control_file($name, $value = null) {
+		$full = $this->control_file_path($name);
+		$dir = dirname($full);
+		Directory::depend($dir, 0775);
+		if ($value !== null) {
+			File::put($full, JSON::encode($value));
+			return $this;
+		}
+		if ($value === false) {
+			File::unlink($full);
+			return $this;
+		}
+		if (file_exists($full)) {
+			try {
+				return JSON::decode(File::contents($full, "{}"));
+			} catch (\Exception $e) {
+				return true;
+			}
+		}
+		return null;
+	}
+	/**
+	 *
+	 * @param string $register
+	 * @return \zesk\WebApp\Instance[][]|string[][]
+	 */
+	public function instance_factory($register = false) {
+		$app = $this->application;
+		$webapps = $this->cached_webapp_json(false);
+
+		$server = $app->objects->singleton(Server::class, $app);
+		$generator = $this->generator();
+		$root = rtrim($this->app_root_path(), "/") . "/";
+
+		$results = array();
+		foreach ($webapps as $webapp_path => $modtime) {
+			$subpath = StringTools::unprefix($webapp_path, $root);
+			$instance_struct = array(
+				'path' => $subpath
+			);
+
+			try {
+				if ($register) {
+					$instance = Instance::register_from_path($app, $server, $generator, $webapp_path);
+					$instance->refresh_appversion();
+					$instance->refresh_repository();
+				} else {
+					$instance = Instance::find_from_path($app, $server, $webapp_path);
+				}
+				if (!$instance) {
+					$instance_struct['errors'][] = 'Instance not found.';
+				} else {
+					$instance_struct['instance'] = $instance;
+					$instance_struct['appversion'] = $instance->appversion;
+					$instance_struct['apptype'] = $instance->apptype;
+				}
+			} catch (Exception_Parse $e) {
+				$instance_struct['errors'][] = 'Invalid JSON: ' . $e->getMessage();
+			} catch (Exception_Semantics $e) {
+				$instance_struct['errors'][] = 'Semantic error in JSON: ' . $e->getMessage();
+			}
+			$instance_struct["modified"] = Timestamp::factory($modtime, 'UTC')->format(null, '{YYYY}-{MM}-{DD} {hh}:{mm}:{ss} {ZZZ}');
+
+			$results[$subpath] = $instance_struct;
+		}
+		return $results;
 	}
 }

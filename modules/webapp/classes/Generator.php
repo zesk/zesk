@@ -7,11 +7,66 @@
  */
 namespace zesk\WebApp;
 
-abstract class Generator {
+use zesk\Hookable;
+use zesk\File;
+
+abstract class Generator extends Hookable {
 	/**
 	 *
-	 * @param Host $host
-	 * @return string
+	 * @param array $data
+	 * @return boolean
 	 */
-	abstract public function render(Host $host);
+	abstract public function validate(array $data);
+	/**
+	 * @return self
+	 */
+	abstract public function start();
+
+	/**
+	 * @param Instance $instance
+	 * @return self
+	 */
+	abstract public function instance(Instance $instance);
+	/**
+	 * @param Site $site
+	 * @return self
+	 */
+	abstract public function site(Site $site);
+	/**
+	 * @return self
+	 */
+	abstract public function finish();
+
+	/**
+	 * @return array
+	 */
+	abstract public function changed();
+
+	/**
+	 *
+	 * @return self
+	 */
+	public function deploy(array $options = array()) {
+		return $this;
+	}
+	/**
+	 *
+	 * @param string $file
+	 * @param string $contents
+	 * @return array
+	 */
+	protected function replace_file($file, $contents) {
+		$disk_contents = File::contents($file, null);
+		$compare_disk_contents = $this->call_hook("file_compare_preprocess", $disk_contents);
+		$compare_contents = $this->call_hook("file_compare_preprocess", $contents);
+		if ($compare_disk_contents === $compare_contents) {
+			return array();
+		}
+		File::unlink("$file.previous");
+		rename($file, "$file.previous");
+		File::put($file, $contents);
+		return array(
+			$file => true
+		);
+	}
 }

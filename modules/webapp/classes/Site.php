@@ -7,9 +7,21 @@
  */
 namespace zesk\WebApp;
 
-use zesk\Application;
-
-class Host extends ORM {
+/**
+ * @see Class_Site
+ * @author kent
+ * @property integer $id
+ * @property Instance $instance
+ * @property string $name
+ * @property string $code
+ * @property string $type
+ * @property integer $priority
+ * @property string $path
+ * @property array $data
+ * @property array $errors
+ * @property boolean $valid
+ */
+class Site extends ORM {
 	/**
 	 *
 	 * @var string
@@ -28,7 +40,7 @@ class Host extends ORM {
 	 */
 	private static $types = array(
 		self::HOST_TYPE_DIRECTORY_INDEX => "Directory Index",
-		self::HOST_TYPE_DEFAULT => "default",
+		self::HOST_TYPE_DEFAULT => "default"
 	);
 
 	/**
@@ -47,11 +59,31 @@ class Host extends ORM {
 	 */
 	protected function last_priority() {
 		return $this->query_select()
-			->where("server", $this->server)
-			->what("max", "MAX(priority)")
-			->one_integer("max");
+			->where("instance", $this->instance)
+			->what("*max", "MAX(priority)")
+			->one_integer("max", -1);
 	}
+	public function domains() {
+		$cluster = Cluster::find_from_site($this);
+		$clusters = $cluster ? $this->application->orm_registry(Domain::class)
+			->query_select()
+			->where(array(
+			'type' => Cluster::class,
+			'target' => $cluster->id()
+		))
+			->orm_iterator()
+			->to_array() : array();
+		$sites = $this->application->orm_registry(Domain::class)
+			->query_select()
+			->where(array(
+			'type' => self::class,
+			'target' => $this->id()
+		))
+			->orm_iterator()
+			->to_array();
 
+		return array_merge($clusters, $sites);
+	}
 	/**
 	 * Make sure it's a valid structure
 	 */
@@ -60,7 +92,7 @@ class Host extends ORM {
 		$code = $this->code;
 		if (empty($code)) {
 			$errors['code'] = "code is required";
-		} elseif (preg_match("/[-_a-zA-z0-9 ]/", $code)) {
+		} elseif (preg_match("/[^-_a-zA-z0-9 ]/", $code)) {
 			$errors['code'] = "code has incorrect values";
 		}
 		$name = trim($this->name);
@@ -71,9 +103,9 @@ class Host extends ORM {
 		if (empty($path)) {
 			$errors['path'] = "path is required";
 		} else {
-			$path = $this->application->paths->expand($path);
+			$path = path($this->instance->path, $path);
 			if (!is_dir($path)) {
-				$errors['path'] = "path must be a directory";
+				$errors['path'] = "path must be a directory: $path";
 			}
 		}
 		$type = $this->type;
