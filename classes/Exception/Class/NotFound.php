@@ -30,7 +30,7 @@ class Exception_Class_NotFound extends Exception {
 	 *        	Previous exception which may have spawned this one
 	 */
 	public function __construct($class, $message = null, $arguments = array(), \Exception $previous = null) {
-		parent::__construct($message, array(
+		parent::__construct("$class not found. $message", array(
 			"class" => $class,
 		) + to_array($arguments), 0, $previous);
 		$this->class = $class;
