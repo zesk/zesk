@@ -30,6 +30,8 @@ use zesk\Server;
 use zesk\PHP;
 use zesk\Command_Configure;
 use zesk\File;
+use zesk\ORM;
+use zesk\Server_Data;
 
 /**
  *
@@ -97,6 +99,13 @@ class Module extends \zesk\Module {
 		"month",
 		"year",
 	);
+
+	/**
+	 * State variable which changes during _run to determine where we're executing
+	 *
+	 * @var string
+	 */
+	protected $hook_source = null;
 
 	/**
 	 * Set up our module
@@ -204,7 +213,9 @@ class Module extends \zesk\Module {
 			$message = "{method_string}(\$application)";
 			$message_args = compact("method_string");
 		}
-		$this->application->logger->notice("zesk eval '$message'", $message_args);
+		$this->application->logger->notice("zesk eval '$message' # {source}", array(
+			"source" => $this->hook_source,
+		) + $message_args);
 		$this->methods[] = $method_string;
 		$this->start = microtime(true);
 	}
@@ -342,8 +353,21 @@ class Module extends \zesk\Module {
 		return $object->data(self::_last_cron_variable($unit), $when->unix_timestamp());
 	}
 
+	private static function _cron_reset(Interface_Data $object, $unit = null) {
+		$name = self::_last_cron_variable($unit);
+		if ($object instanceof Server) {
+			/* @var $object Server */
+			$object->delete_all_data($name);
+		} else {
+			$object->delete_data($name, null);
+		}
+	}
+
 	private function _cron_hooks($method) {
-		$classes = to_list($this->application->configuration->path_get(__CLASS__ . '::classes', 'zesk\Application;zesk\ORM'));
+		$classes = to_list($this->application->configuration->path_get(__CLASS__ . '::classes', array(
+			Application::class,
+			ORM::class,
+		)));
 		return ArrayTools::suffix($classes, "::$method");
 	}
 
@@ -371,6 +395,19 @@ class Module extends \zesk\Module {
 				"lock" => "cron-cluster",
 			),
 		);
+	}
+
+	public function reset() {
+		$scopes = $this->_cron_scopes($this->application);
+		foreach ($scopes as $method => $settings) {
+			$state = $settings['state'];
+			/* @var $state Interface_Data */
+			self::_cron_reset($state, null);
+			foreach (self::$intervals as $unit) {
+				self::_cron_reset($state, $unit);
+			}
+		}
+		return true;
 	}
 
 	/**
@@ -483,6 +520,7 @@ class Module extends \zesk\Module {
 		 * Now only run scopes for which we acquired a lock. Exceptions are passed to a hook and logged.
 		 */
 		foreach ($scopes as $method => $settings) {
+			$this->hook_source = null;
 			$state = $settings['state'];
 			/* @var $state Interface_Data */
 			$last_run = self::_last_cron_run($state);
@@ -491,12 +529,14 @@ class Module extends \zesk\Module {
 				self::_cron_ran($state, null, $now);
 
 				try {
+					$this->hook_source = $method . " second global hooks->all_call";
 					$hooks->all_call_arguments($cron_hooks, $cron_arguments, null, $hook_callback, $result_callback);
 				} catch (Exception $e) {
 					$this->_exception($e, $cron_hooks);
 				}
 
 				try {
+					$this->hook_source = $method . " second module->all_hook";
 					$this->application->modules->all_hook_arguments($method, array(), null, $hook_callback, $result_callback);
 				} catch (Exception $e) {
 					$this->_exception($e, "Module::$method");
@@ -514,12 +554,14 @@ class Module extends \zesk\Module {
 
 					try {
 						$unit_hooks = ArrayTools::suffix($cron_hooks, "_$unit");
+						$this->hook_source = $method . " $unit hooks->all_call";
 						$hooks->all_call_arguments($unit_hooks, $cron_arguments, null, $hook_callback, $result_callback);
 					} catch (Exception $e) {
 						$this->_exception($e, $unit_hooks);
 					}
 
 					try {
+						$this->hook_source = $method . " $unit modules->all_hook";
 						$this->application->modules->all_hook_arguments($method . "_$unit", array(), null, $hook_callback, $result_callback);
 					} catch (Exception $e) {
 						$this->_exception($e, $unit_hooks);
