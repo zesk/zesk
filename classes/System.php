@@ -147,9 +147,25 @@ class System {
 		} catch (Exception $e) {
 			$result = array(
 				"localhost" => array(
-					"127.0.0.1" => array(
-						"inet" => "127.0.0.1",
-						"inet6" => "::1",
+					"inet" => array(
+						"127.0.0.1" => array(
+							"value" => "127.0.0.1",
+							"inet" => "127.0.0.1",
+							"netmask" => "0xff000000",
+						),
+					),
+					"inet6" => array(
+						"::1" => array(
+							"value" => "::1",
+							"inet6" => "::1",
+							"prefixlen" => "128",
+						),
+						"fe80::1%lo0" => array(
+							"value" => "fe80::1%lo0",
+							"inet6" => "fe80::1%lo0",
+							"prefixlen" => "64",
+							"scopeid" => "0x1",
+						),
 					),
 				),
 			);
