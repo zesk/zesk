@@ -46,7 +46,7 @@ EOF
 fi
 
 
-files=$(git diff --cached --name-status | awk '$1 != "D" { print $2 }' | grep .php)
+files=$(git diff --cached --name-status | awk '{ if ( $0 ~ /^[^DR]/) { print $2 } else if ( $0 ~ /^R/ ) { print $3 } }' | grep .php)
 if [ ! -z "$files" ]; then
 	echo "Fixing Coding Style ..."
 	bin/fix-zesk.sh $files
