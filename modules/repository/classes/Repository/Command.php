@@ -57,7 +57,7 @@ abstract class Repository_Command extends Repository {
 	public function set_path($path) {
 		if (empty($path)) {
 			throw new Exception_Parameter("{method} - no path passed", array(
-				"method" => __METHOD__,
+				"method" => __METHOD__
 			));
 		}
 		if ($this->option_bool("find_root") && $root = $this->find_root($path)) {
@@ -66,7 +66,7 @@ abstract class Repository_Command extends Repository {
 					"method" => __METHOD__,
 					"code" => $this->code,
 					"root" => $root,
-					"path" => $path,
+					"path" => $path
 				));
 			}
 			$this->path = $root;
@@ -91,7 +91,7 @@ abstract class Repository_Command extends Repository {
 		$this->command = $this->application->paths->which($this->executable);
 		if (!$this->command) {
 			throw new Exception_NotFound("Executable {executable} not found", array(
-				"executable" => $this->executable,
+				"executable" => $this->executable
 			));
 		}
 	}
@@ -103,16 +103,21 @@ abstract class Repository_Command extends Repository {
 	 * @return array
 	 */
 	protected function run_command($suffix, array $arguments = array(), $passthru = false) {
-		$cwd = getcwd();
-		chdir($this->path);
-
+		$had_path = !empty($this->path);
+		if ($had_path) {
+			$cwd = getcwd();
+			chdir($this->path);
+		}
 		try {
 			$result = $this->process->execute_arguments($this->command . $this->arguments . " $suffix", $arguments, $passthru);
-			chdir($cwd);
+			if ($had_path) {
+				chdir($cwd);
+			}
 			return $result;
 		} catch (\Exception $e) {
-			chdir($cwd);
-
+			if ($had_path) {
+				chdir($cwd);
+			}
 			throw $e;
 		}
 	}
@@ -140,7 +145,7 @@ abstract class Repository_Command extends Repository {
 	protected function find_root($directory) {
 		if (!$this->dot_directory) {
 			throw new Exception_Unimplemented("{method} does not support dot_directory setting", array(
-				"method" => __METHOD__,
+				"method" => __METHOD__
 			));
 		}
 		$directory = realpath($directory);
@@ -163,7 +168,7 @@ abstract class Repository_Command extends Repository {
 	 * @param string[] $versions
 	 * @return string[]
 	 */
-	private function rsort_versions(array $versions) {
+	protected function rsort_versions(array $versions) {
 		$factor = 100;
 		$result = array();
 		foreach ($versions as $version) {
