@@ -17,10 +17,12 @@ class Command_Cron extends \zesk\Command_Base {
 
 	protected $option_types = array(
 		'list' => 'boolean',
+		'reset' => 'boolean',
 	);
 
 	protected $option_help = array(
 		'list' => 'List cron functions which would be run',
+		'reset' => 'Reset all cron state information, forcing all cron tasks to run next time cron is run.',
 	);
 
 	public function run() {
@@ -30,6 +32,11 @@ class Command_Cron extends \zesk\Command_Base {
 		} catch (Exception_NotFound $e) {
 			$this->error("Cron module is not enabled");
 			return 1;
+		}
+		if ($this->option_bool('reset')) {
+			$result = $cron->reset();
+			$this->verbose_log($result ? "Cron reset" : "Cron reset failed");
+			return $result ? 0 : 1;
 		}
 		if ($this->option_bool('list')) {
 			$list_status = $cron->list_status();
