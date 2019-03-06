@@ -480,18 +480,33 @@ class Server extends ORM implements Interface_Data {
 	}
 
 	/**
-	 * Retrieve or store per-server data
+	 * Delete a data member of this server.
 	 *
 	 * @see Interface_Data::delete_data
 	 * @param mixed $name
-	 * @param mixed $value
-	 * @return boolean
+	 * @return boolean true if any values were deleted
 	 */
 	public function delete_data($name) {
 		return $this->application->orm_registry(Server_Data::class)
 			->query_delete()
 			->where(array(
 			"server" => $this,
+			"name" => $name,
+		))
+			->execute()
+			->affected_rows() > 0;
+	}
+
+	/**
+	 * Delete data members of all servers which match this name.
+	 *
+	 * @param mixed $name
+	 * @return boolean true if any values were deleted
+	 */
+	public function delete_all_data($name) {
+		return $this->application->orm_registry(Server_Data::class)
+			->query_delete()
+			->where(array(
 			"name" => $name,
 		))
 			->execute()
