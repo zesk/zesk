@@ -236,6 +236,8 @@ class Hookable extends Options {
 	/**
 	 * Combine hook results in a consistent manner when more than one hook applies to a call.
 	 *
+	 * The only mechanism which modifies hook results is `Arrays`: list-style arrays are catenated, key-value arrays are merged with later values overriding earlier values.
+	 *
 	 * @param mixed $previous_result
 	 *        	Previous hook result. Default to null for first call.
 	 * @param mixed $callable
@@ -249,7 +251,7 @@ class Hookable extends Options {
 	 *        	deprecated 2017-11
 	 * @return mixed
 	 */
-	final public static function hook_results($previous_result, $callable, array $arguments, $hook_callback = null, $result_callback = null, $return_hint = null) {
+	final public static function hook_results($previous_result, $callable, array $arguments, $hook_callback = null, $result_callback = null) {
 		if ($hook_callback) {
 			call_user_func_array($hook_callback, array(
 				$callable,
@@ -257,11 +259,6 @@ class Hookable extends Options {
 			));
 		}
 		$new_result = call_user_func_array($callable, $arguments);
-		if ($return_hint !== null) {
-			zesk()->deprecated("Return hint passed to {method} @deprecated 2017-10", array(
-				"method" => __METHOD__,
-			));
-		}
 		if ($result_callback !== null) {
 			return call_user_func($result_callback, $callable, $previous_result, $new_result, $arguments);
 		}
@@ -288,12 +285,6 @@ class Hookable extends Options {
 		//
 		if ($new_result === null && $previous_result !== null) {
 			return $previous_result;
-		}
-		// Catenate strings
-		if (is_string($new_result)) {
-			if (is_string($previous_result)) {
-				return $previous_result . $new_result;
-			}
 		}
 		if (is_array($previous_result) && is_array($new_result)) {
 			if (ArrayTools::is_list($previous_result)) {
