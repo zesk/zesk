@@ -193,7 +193,7 @@ class Text {
 		return substr($pattern, 0, $char_length);
 	}
 
-	public static function format_pairs($map, $prefix = "", $space = " ", $suffix = ": ", $br = "\n") {
+	public static function format_pairs(array $map, $prefix = "", $space = " ", $suffix = ": ", $br = "\n") {
 		$n = 0;
 		foreach (array_keys($map) as $k) {
 			$n = max(strlen($k), $n);
