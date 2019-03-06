@@ -2037,4 +2037,26 @@ class Class_ORM extends Hookable {
 			"class" => get_class($this),
 		);
 	}
+
+	/**
+	 * Retrieve a list of class dependencies for this object
+	 */
+	public function dependencies() {
+		$result = array();
+		foreach ($this->has_one as $class) {
+			if ($class[0] !== '*') {
+				$result['requires'][] = $class;
+			}
+		}
+		foreach (array_keys($this->has_many) as $member) {
+			$has_many = $this->has_many($this, $member);
+			$result['requires'][] = $has_many['class'];
+			$link_class = avalue($has_many, 'link_class');
+			if ($link_class) {
+				$result['requires'][] = $link_class;
+			}
+		}
+
+		return $result;
+	}
 }

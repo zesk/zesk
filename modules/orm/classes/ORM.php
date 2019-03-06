@@ -6,7 +6,9 @@
 namespace zesk;
 
 /**
+ * Object Relational Mapping base class. Extend this class and Class_ORM to create an ORM object.
  *
+ * @todo Remove dependencies on $this->class->has_many and $this->class->has_one access
  * @author kent
  * @see Module_ORM
  * @see Class_ORM
@@ -304,22 +306,7 @@ class ORM extends Model implements Interface_Member_Model_Factory {
 	 * Retrieve a list of class dependencies for this object
 	 */
 	public function dependencies() {
-		$result = array();
-		foreach ($this->class->has_one as $class) {
-			if ($class[0] !== '*') {
-				$result['requires'][] = $class;
-			}
-		}
-		foreach (array_keys($this->class->has_many) as $member) {
-			$has_many = $this->class->has_many($this, $member);
-			$result['requires'][] = $has_many['class'];
-			$link_class = avalue($has_many, 'link_class');
-			if ($link_class) {
-				$result['requires'][] = $link_class;
-			}
-		}
-
-		return $result;
+		return $this->class->dependencies();
 	}
 
 	/**
