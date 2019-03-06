@@ -266,6 +266,7 @@ abstract class Repository extends Hookable {
 				$this->url = null;
 				return $this;
 			}
+			$set = URL::normalize($set);
 			if (!$this->validate_url($set)) {
 				throw new Exception_Syntax("Not a valid URL {url}", array(
 					"url" => $set,
@@ -357,4 +358,11 @@ abstract class Repository extends Hookable {
 	 * @return string
 	 */
 	abstract public function latest_version();
+
+	/**
+	 * @return string[]
+	 */
+	public function versions() {
+		return array();
+	}
 }
