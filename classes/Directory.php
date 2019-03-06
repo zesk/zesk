@@ -348,6 +348,7 @@ class Directory extends Hookable {
 			}
 			$full_path = path($path, $x);
 			if (is_dir($full_path)) {
+				$full_path .= "/";
 				if (StringTools::filter($full_path, $rules_dir)) {
 					$r[] = ($addpath) ? "$prefix$x/" : "$x/";
 				}
