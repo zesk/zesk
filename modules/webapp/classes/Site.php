@@ -40,7 +40,7 @@ class Site extends ORM {
 	 */
 	private static $types = array(
 		self::HOST_TYPE_DIRECTORY_INDEX => "Directory Index",
-		self::HOST_TYPE_DEFAULT => "default"
+		self::HOST_TYPE_DEFAULT => "default",
 	);
 
 	/**
@@ -63,13 +63,14 @@ class Site extends ORM {
 			->what("*max", "MAX(priority)")
 			->one_integer("max", -1);
 	}
+
 	public function domains() {
 		$cluster = Cluster::find_from_site($this);
 		$clusters = $cluster ? $this->application->orm_registry(Domain::class)
 			->query_select()
 			->where(array(
 			'type' => Cluster::class,
-			'target' => $cluster->id()
+			'target' => $cluster->id(),
 		))
 			->orm_iterator()
 			->to_array() : array();
@@ -77,13 +78,14 @@ class Site extends ORM {
 			->query_select()
 			->where(array(
 			'type' => self::class,
-			'target' => $this->id()
+			'target' => $this->id(),
 		))
 			->orm_iterator()
 			->to_array();
 
 		return array_merge($clusters, $sites);
 	}
+
 	/**
 	 * Make sure it's a valid structure
 	 */

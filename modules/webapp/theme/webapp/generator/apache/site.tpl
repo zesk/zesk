@@ -64,7 +64,7 @@ $lines[] = $tab . $tab . "Options FollowSymLinks Indexes";
 $lines[] = $tab . $tab . "AllowOverride all";
 if ($type === "rewrite-index") {
 	$rewrite_content = $this->theme("webapp/generator/apache/rewrite-index", array(
-		"index_file" => $index_file
+		"index_file" => $index_file,
 	));
 	$rewrite_lines = explode("\n", $rewrite_content);
 	$lines = array_merge($lines, ArrayTools::prefix($rewrite_lines, $tab . $tab));
@@ -117,7 +117,7 @@ if (is_array($logging)) {
 $lines[] = "</VirtualHost>\n";
 $lines[] = "";
 $lines[] = "# Available keys: " . implode(", ", ArrayTools::remove_values(array_keys($variables), array(
-	""
+	"",
 )));
 
 $lines[] = "# Data: " . json_encode($data);

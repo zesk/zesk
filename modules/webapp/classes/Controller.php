@@ -61,7 +61,7 @@ class Controller extends \zesk\Controller {
 		$generator = $this->webapp->generate_configuration();
 		return $this->json(array(
 			"success" => true,
-			"changed" => $generator->changed()
+			"changed" => $generator->changed(),
 		));
 	}
 

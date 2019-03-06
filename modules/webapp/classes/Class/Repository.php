@@ -19,6 +19,7 @@ namespace zesk\WebApp;
  */
 class Class_Repository extends Class_ORM {
 	public $polymorphic = Repository::class;
+
 	/**
 	 *
 	 * @var string
@@ -36,7 +37,7 @@ class Class_Repository extends Class_ORM {
 	 * @var array
 	 */
 	public $find_keys = array(
-		"url"
+		"url",
 	);
 
 	/**
@@ -52,7 +53,7 @@ class Class_Repository extends Class_ORM {
 		"versions" => self::type_json,
 		"remote_hash" => self::type_string,
 		"updated" => self::type_modified,
-		"active" => self::type_boolean
+		"active" => self::type_boolean,
 	);
 
 	/**
@@ -60,6 +61,6 @@ class Class_Repository extends Class_ORM {
 	 * @var array
 	 */
 	public $column_defaults = array(
-		"remote_hash" => ""
+		"remote_hash" => "",
 	);
 }

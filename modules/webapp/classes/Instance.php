@@ -33,7 +33,6 @@ use zesk\StringTools;
  * @property Timestamp $serving
  */
 class Instance extends ORM {
-
 	/**
 	 *
 	 * @param Application $application
@@ -45,7 +44,7 @@ class Instance extends ORM {
 		$path = dirname($webapp_path);
 		$instance = $application->orm_factory(self::class, array(
 			"path" => $path,
-			"server" => $server
+			"server" => $server,
 		));
 		return $instance->find();
 	}
@@ -59,9 +58,11 @@ class Instance extends ORM {
 	public function json_path() {
 		return path($this->path, "webapp.json");
 	}
+
 	public function load_json() {
 		return JSON::decode(File::contents($this->json_path()));
 	}
+
 	/**
 	 *
 	 * @param Application $application
@@ -73,7 +74,7 @@ class Instance extends ORM {
 		$instance = $application->orm_factory(self::class);
 		return $instance->find(array(
 			"code" => $code,
-			"server" => $server
+			"server" => $server,
 		));
 	}
 
@@ -94,7 +95,7 @@ class Instance extends ORM {
 		if (!$code) {
 			throw new Exception_Semantics("{class} JSON at {webapp_path} has no code set", array(
 				"class" => __CLASS__,
-				"webapp_path" => $webapp_path
+				"webapp_path" => $webapp_path,
 			));
 		}
 		/**
@@ -103,10 +104,10 @@ class Instance extends ORM {
 		$instance = $application->orm_factory(self::class, array(
 			"path" => $path,
 			"server" => $server,
-			"hash" => $hash
+			"hash" => $hash,
 		) + ArrayTools::filter($json, array(
 			"name",
-			"code"
+			"code",
 		)))->register();
 		$instance->hash = $hash;
 		$instance->code = $code;
@@ -124,7 +125,7 @@ class Instance extends ORM {
 				$valid_sites[] = $site->id();
 			}
 			$where = array(
-				"instance" => $instance
+				"instance" => $instance,
 			);
 			if (count($valid_sites) > 0) {
 				$where['id|!=|AND'] = $valid_sites;
@@ -147,19 +148,19 @@ class Instance extends ORM {
 		/* @var $site Site */
 		ksort($members);
 		$site = $this->application->orm_factory(Site::class, array(
-			"instance" => $this
+			"instance" => $this,
 		));
 		$site_member_names = $site->member_names();
 		$data = ArrayTools::remove($members, $site_member_names);
 		$members = ArrayTools::filter($members, $site_member_names);
 		if (!isset($members['code'])) {
 			throw new Exception_Semantics("{class} Site {code} {name} missing code", array(
-				"class" => Site::class
+				"class" => Site::class,
 			) + $members);
 		}
 		if (!isset($members['path'])) {
 			throw new Exception_Semantics("{class} Site {code} {name} missing path", array(
-				"class" => Site::class
+				"class" => Site::class,
 			) + $members);
 		}
 		if (!isset($members['type'])) {
@@ -197,7 +198,7 @@ class Instance extends ORM {
 			if ($type->valid()) {
 				$priorities[] = array(
 					'type' => $type,
-					'weight' => $type->priority()
+					'weight' => $type->priority(),
 				);
 			}
 		}
@@ -225,7 +226,7 @@ class Instance extends ORM {
 		}
 		$members = $json['repository'] + ArrayTools::filter($json, array(
 			"name",
-			"code"
+			"code",
 		));
 		$this->repository = $this->application->orm_factory(Repository::class, $members)
 			->register()

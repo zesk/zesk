@@ -3,6 +3,7 @@ namespace zesk\WebApp;
 
 class Class_Cluster extends Class_ORM {
 	public $id_column = "id";
+
 	public $column_types = array(
 		"id" => self::type_id,
 		"name" => self::type_string,
@@ -10,9 +11,10 @@ class Class_Cluster extends Class_ORM {
 		"sitecode" => self::type_string,
 		"min_members" => self::type_integer,
 		"max_members" => self::type_integer,
-		"active" => self::type_timestamp
+		"active" => self::type_timestamp,
 	);
+
 	public $find_keys = array(
-		"code"
+		"code",
 	);
 }

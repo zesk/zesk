@@ -19,9 +19,9 @@ namespace zesk\WebApp;
  * @property \zesk\Timestamp $active
  */
 class Cluster extends ORM {
-	static public function find_from_site(Site $site) {
+	public static function find_from_site(Site $site) {
 		return $site->application->orm_factory(self::class)->find(array(
-			"sitecode" => $site->code
+			"sitecode" => $site->code,
 		));
 	}
 }

@@ -11,12 +11,14 @@ namespace zesk\WebApp;
 class Command_WebApp_Domains extends \zesk\Command_Base {
 	public $option_types = array(
 		"file" => "file",
-		"format" => "string"
+		"format" => "string",
 	);
+
 	public $option_help = array(
-		"file" => "Load domains from a file, one domain per line"
+		"file" => "Load domains from a file, one domain per line",
 	);
-	function run() {
+
+	public function run() {
 		if ($this->option("file")) {
 			$lines = file($this->option("file"));
 			foreach ($lines as $line) {
@@ -25,7 +27,7 @@ class Command_WebApp_Domains extends \zesk\Command_Base {
 					continue;
 				}
 				$this->application->orm_factory(Domain::class, array(
-					"name" => $line
+					"name" => $line,
 				))->register();
 			}
 		}
@@ -33,11 +35,11 @@ class Command_WebApp_Domains extends \zesk\Command_Base {
 			->query_select()
 			->what(array(
 			"name" => "name",
-			"active" => "active"
+			"active" => "active",
 		))
 			->order_by(array(
 			"name",
-			"active DESC"
+			"active DESC",
 		))
 			->to_array("name", "active");
 		return $this->render_format($result);

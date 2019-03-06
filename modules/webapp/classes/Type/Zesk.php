@@ -76,7 +76,7 @@ class Type_Zesk extends Type {
 		try {
 			$zesk = $this->bin_zesk();
 			$lines = $this->application->process->execute_arguments($zesk . " --cd {directory} version", array(
-				"directory" => $this->path
+				"directory" => $this->path,
 			));
 			if (count($lines) === 0) {
 				return null;
@@ -84,7 +84,7 @@ class Type_Zesk extends Type {
 			if (count($lines) !== 1) {
 				$this->application->logger->warning("{zesk} version output more than 1 line: {lines}", array(
 					"zesk" => $zesk,
-					"lines" => $lines
+					"lines" => $lines,
 				));
 			}
 			$this->version = last($lines);

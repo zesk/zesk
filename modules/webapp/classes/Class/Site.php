@@ -14,10 +14,12 @@ namespace zesk\WebApp;
  */
 class Class_Site extends Class_ORM {
 	public $codename = "WebApp_Site";
+
 	public $find_keys = array(
 		'instance',
-		'path'
+		'path',
 	);
+
 	public $column_types = array(
 		"id" => self::type_id,
 		"instance" => self::type_object,
@@ -28,9 +30,10 @@ class Class_Site extends Class_ORM {
 		"path" => self::type_string,
 		"data" => self::type_json,
 		"errors" => self::type_json,
-		"valid" => self::type_boolean
+		"valid" => self::type_boolean,
 	);
+
 	public $has_one = array(
-		"instance" => Instance::class
+		"instance" => Instance::class,
 	);
 }

@@ -58,7 +58,7 @@ class Module extends \zesk\Module implements \zesk\Interface_Module_Routes {
 		Site::class,
 		Domain::class,
 		Cluster::class,
-		Repository::class
+		Repository::class,
 	);
 
 	/**
@@ -76,13 +76,15 @@ class Module extends \zesk\Module implements \zesk\Interface_Module_Routes {
 		}
 		$this->application->hooks->add(Application::class . "::request", array(
 			$this,
-			"register_domain"
+			"register_domain",
 		));
 	}
+
 	public function hook_deploy() {
 		$generator = $this->generator();
 		$generator->deploy();
 	}
+
 	/**
 	 *
 	 * @param Application $application
@@ -101,7 +103,7 @@ class Module extends \zesk\Module implements \zesk\Interface_Module_Routes {
 			$application->cache->save($item);
 		}
 		$application->orm_factory(Domain::class, array(
-			"name" => $domain_name
+			"name" => $domain_name,
 		))->register()->accessed();
 	}
 
@@ -112,7 +114,7 @@ class Module extends \zesk\Module implements \zesk\Interface_Module_Routes {
 	 */
 	public function hook_routes(Router $router) {
 		$router->add_route(trim($this->option("route_prefix", "webapp"), '/') . '(/{option action})', array(
-			"controller" => Controller::class
+			"controller" => Controller::class,
 		));
 	}
 
@@ -192,16 +194,16 @@ class Module extends \zesk\Module implements \zesk\Interface_Module_Routes {
 		$rules = array(
 			"rules_file" => array(
 				"#/webapp.json\$#" => true,
-				false
+				false,
 			),
 			"rules_directory_walk" => $walk_add + array(
 				"#/\.#" => false,
 				"#/vendor/#" => false,
 				"#/node_modules/#" => false,
-				true
+				true,
 			),
 			"rules_directory" => false,
-			"add_path" => true
+			"add_path" => true,
 		);
 		$files = Directory::list_recursive($this->app_root, $rules);
 		$result = array();
@@ -265,15 +267,17 @@ class Module extends \zesk\Module implements \zesk\Interface_Module_Routes {
 		if (count($changed) > 0) {
 			$this->application->logger->info("{method} generator reported changed: {changed}", array(
 				"method" => __METHOD__,
-				"changed" => $changed
+				"changed" => $changed,
 			));
 			$this->control_file(self::CONTROL_FILE_RESTART_APACHE, time());
 		}
 		return $generator;
 	}
+
 	public function hook_cron_minute() {
 		$this->generate_configuration();
 	}
+
 	public function control_file_path($name) {
 		$name = File::clean_path($name);
 		$full = $this->webapp_data_path("control/$name");
@@ -308,6 +312,7 @@ class Module extends \zesk\Module implements \zesk\Interface_Module_Routes {
 		}
 		return null;
 	}
+
 	/**
 	 *
 	 * @param string $register
@@ -325,7 +330,7 @@ class Module extends \zesk\Module implements \zesk\Interface_Module_Routes {
 		foreach ($webapps as $webapp_path => $modtime) {
 			$subpath = StringTools::unprefix($webapp_path, $root);
 			$instance_struct = array(
-				'path' => $subpath
+				'path' => $subpath,
 			);
 
 			try {

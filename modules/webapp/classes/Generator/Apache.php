@@ -13,7 +13,6 @@ use zesk\ArrayTools;
 use zesk\Text;
 
 class Generator_Apache extends Generator {
-
 	/**
 	 *
 	 * @var Module
@@ -31,6 +30,7 @@ class Generator_Apache extends Generator {
 	 * @var array
 	 */
 	private $site_names = array();
+
 	/**
 	 *
 	 * @var string
@@ -77,6 +77,7 @@ class Generator_Apache extends Generator {
 	protected function hook_file_compare_preprocess($contents) {
 		return Text::remove_line_comments($contents, "#", false);
 	}
+
 	/**
 	 * Generate a web application instance
 	 *
@@ -116,7 +117,7 @@ class Generator_Apache extends Generator {
 			"hostnames" => array_merge($cluster_names, $site_names),
 			"instance" => $this->instance,
 			"source" => $this->instance->path,
-			"webappbin" => $app->webapp_module()->binary()
+			"webappbin" => $app->webapp_module()->binary(),
 		) + $site->members() + $this->template_defaults() + $this->option());
 		$filename = $this->instance->code . "-" . $site->code . ".conf";
 		$fullpath = path($this->vhost_path, $filename);
@@ -132,16 +133,18 @@ class Generator_Apache extends Generator {
 	public function log_path() {
 		return firstarg($this->application->configuration->LOG_PATH, $this->application->option("log_path"));
 	}
+
 	protected function replace_file($file, $contents) {
 		$map = array();
 		$map['${LOG_PATH}'] = $this->log_path();
 		$map = ArrayTools::clean($map, array(
 			"",
 			false,
-			null
+			null,
 		));
 		return parent::replace_file($file, strtr($contents, $map));
 	}
+
 	/**
 	 * @return self
 	 */
@@ -149,7 +152,7 @@ class Generator_Apache extends Generator {
 		$fullpath = path($this->vhost_path, "@webapp.conf");
 		$contents = $this->application->theme("webapp/generator/apache/all", array(
 			"generator" => $this,
-			"includes" => $this->site_names
+			"includes" => $this->site_names,
 		));
 		$this->changed += $this->replace_file($fullpath, $contents);
 		return $this;
@@ -164,6 +167,7 @@ class Generator_Apache extends Generator {
 	public function changed() {
 		return ArrayTools::kunprefix($this->changed, $this->vhost_path);
 	}
+
 	/**
 	 * Template default values
 	 * @return array
@@ -172,9 +176,10 @@ class Generator_Apache extends Generator {
 		return array(
 			"no_webapp" => false,
 			"hostnames" => array(),
-			"port" => 80
+			"port" => 80,
 		);
 	}
+
 	public function deploy(array $options = array()) {
 		$log_path = $this->log_path();
 		if (!empty($log_path)) {

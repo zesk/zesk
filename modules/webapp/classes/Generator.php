@@ -17,6 +17,7 @@ abstract class Generator extends Hookable {
 	 * @return boolean
 	 */
 	abstract public function validate(array $data);
+
 	/**
 	 * @return self
 	 */
@@ -27,11 +28,13 @@ abstract class Generator extends Hookable {
 	 * @return self
 	 */
 	abstract public function instance(Instance $instance);
+
 	/**
 	 * @param Site $site
 	 * @return self
 	 */
 	abstract public function site(Site $site);
+
 	/**
 	 * @return self
 	 */
@@ -49,6 +52,7 @@ abstract class Generator extends Hookable {
 	public function deploy(array $options = array()) {
 		return $this;
 	}
+
 	/**
 	 *
 	 * @param string $file
@@ -66,7 +70,7 @@ abstract class Generator extends Hookable {
 		rename($file, "$file.previous");
 		File::put($file, $contents);
 		return array(
-			$file => true
+			$file => true,
 		);
 	}
 }
