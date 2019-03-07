@@ -15,9 +15,13 @@ namespace zesk\WebApp;
 class Class_Site extends Class_ORM {
 	public $codename = "WebApp_Site";
 
+	/**
+	 *
+	 * @var array
+	 */
 	public $find_keys = array(
 		'instance',
-		'path',
+		'code',
 	);
 
 	public $column_types = array(

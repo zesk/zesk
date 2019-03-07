@@ -9,6 +9,7 @@ namespace zesk\WebApp;
 
 use zesk\Timer;
 use zesk\ArrayTools;
+use zesk\System;
 
 class Controller extends \zesk\Controller {
 	/**
@@ -18,6 +19,40 @@ class Controller extends \zesk\Controller {
 	private $webapp = null;
 
 	/**
+	 * Check authentication and return true or false.
+	 *
+	 * Modifies internal ->auth_reason
+	 *
+	 * @return boolean
+	 */
+	private function check_authentication() {
+		$request = $this->request;
+		$now = time();
+		$time = $request->geti("time");
+		if (!is_integer($time)) {
+			$this->auth_reason = "time not integer: " . type($time);
+			return false;
+		}
+		$clock_skew = $this->webapp->option("authentication_clock_skew", 10); // 10 seconds
+		$delta = abs($time - $now);
+		if ($delta > $clock_skew) {
+			$this->auth_reason = "clock skew: ($delta = abs($time - $now)) > $clock_skew";
+			return false;
+		}
+		$hash = $request->get("hash");
+		if (empty($hash)) {
+			$this->auth_reason = "missing hash";
+			return false;
+		}
+		$hash_check = md5($time . "|" . $this->webapp->key());
+		if ($hash !== $hash_check) {
+			$this->auth_reason = "hash check failed $hash !== $hash_check";
+			return false;
+		}
+		return true;
+	}
+
+	/**
 	 *
 	 * {@inheritDoc}
 	 * @see \zesk\Controller_Authenticated::initialize()
@@ -25,6 +60,7 @@ class Controller extends \zesk\Controller {
 	public function initialize() {
 		parent::initialize();
 		$this->webapp = $this->application->webapp_module();
+		$this->server = $this->webapp->server();
 	}
 
 	/**
@@ -71,7 +107,21 @@ class Controller extends \zesk\Controller {
 	 * @see \zesk\Controller::_action_default()
 	 */
 	public function _action_default($action = null) {
-		$this->response->html();
-		$this->response->content = "Hello";
+		$request = $this->request;
+		$server = $this->server;
+		$authenticated = $this->check_authentication(to_integer($request->get("time")), $request->get("hash")) === true;
+
+		$result = array(
+			"host" => System::uname(),
+		);
+		if ($authenticated) {
+			$result += array(
+				"server" => $server->id(),
+				"ip" => $server->ip4_internal,
+				"keygroup" => md5($this->webapp->key()),
+				"docroot" => $this->application->document_root(),
+			);
+		}
+		$this->json($result);
 	}
 }

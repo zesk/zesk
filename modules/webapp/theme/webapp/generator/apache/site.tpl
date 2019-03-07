@@ -24,6 +24,22 @@ $lines = array();
 echo "# Template " . __FILE__ . "\n";
 echo "# Generated from $source\n";
 
+$approot = $instance->path;
+
+$apache_directory = avalue($data, 'apache-directory', array());
+$directories = array();
+foreach ($apache_directory as $dirpath => $dirconfig) {
+	if (is_array($lines)) {
+		$directories[path($approot, $dirpath)] = $dirconfig;
+	} else {
+		$application->logger->error("Directory {path} is not set to an array in {source}: {type}", array(
+			"path" => $dirpath,
+			"type" => type($dirconfig),
+			"source" => $source,
+		));
+	}
+}
+
 $lines[] = "# Instance: " . $instance->code . " Site: " . $site->code . " Type: " . $site->type;
 $lines[] = '';
 if (count($errors) > 0) {
@@ -48,11 +64,14 @@ if (!$no_webapp) {
 	$lines[] = $tab . "Alias .webapp $webappbin";
 	$lines[] = '';
 }
-$approot = $instance->path;
 $docroot = path($approot, $path);
 $lines[] = $tab . "DocumentRoot " . $docroot;
 $lines[] = $tab . "<Directory $docroot>";
 $indexes = avalue($data, "indexes");
+
+$map['document_root'] = $docroot;
+$map['application_root'] = $approot;
+
 if (is_array($indexes)) {
 	$lines[] = $tab . $tab . "DirectoryIndex " . implode(" ", $indexes);
 	$options[] = "Indexes";
@@ -71,8 +90,21 @@ if ($type === "rewrite-index") {
 } else {
 	$lines[] = $tab . "# WebApp type is $type";
 }
+if (isset($directories[$docroot])) {
+	$docroot_extras = $directories[$docroot];
+	$docroot_extras = map($docroot_extras, $map);
+	$lines = array_merge($lines, ArrayTools::prefix($docroot_extras, $tab . $tab));
+	unset($directories[$docroot]);
+}
 $lines[] = $tab . "</Directory>";
 $lines[] = '';
+foreach ($directories as $dir => $dirconfig) {
+	$lines[] = $tab . "<Directory $dir>";
+	$dirconfig = map($dirconfig, $map);
+	$lines = array_merge($lines, ArrayTools::prefix($dirconfig, $tab . $tab));
+	$lines[] = $tab . "</Directory>";
+	$lines[] = '';
+}
 /* @var $aliases array */
 $aliases = avalue($data, "aliases");
 if (is_array($aliases) && count($aliases) > 0) {
@@ -106,12 +138,11 @@ if (is_array($logging)) {
 		} else {
 			$lines[] = $tab . "CustomLog $custom_log_command vhost_webapp";
 		}
+		$lines[] = '';
 	}
 	if (in_array("error", $levels)) {
-		if (in_array("access", $levels)) {
-			$lines[] = "";
-		}
 		$lines[] = $tab . 'ErrorLog ${LOG_PATH}/httpd/' . $prefix . '-error.log';
+		$lines[] = '';
 	}
 }
 $lines[] = "</VirtualHost>\n";

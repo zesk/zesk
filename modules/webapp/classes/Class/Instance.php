@@ -67,6 +67,7 @@ class Class_Instance extends Class_ORM {
 		"path" => self::type_string,
 		"code" => self::type_string,
 		"name" => self::type_string,
+		"json" => self::type_json,
 		"appversion" => self::type_string,
 		"apptype" => self::type_string,
 		"hash" => self::type_hex,

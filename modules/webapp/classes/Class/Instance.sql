@@ -8,6 +8,7 @@ CREATE TABLE `{table}` (
 	`appversion`	varchar(64) NULL,
 	`apptype`		varchar(16) NULL,
 	`hash`			varbinary(16) NOT NULL,
+	`json`			blob NOT NULL,
 	`updated`		timestamp NOT NULL DEFAULT 0,
 	`serving`		timestamp NOT NULL DEFAULT 0,
 	INDEX repo (`repository`),

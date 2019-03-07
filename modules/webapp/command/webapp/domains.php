@@ -1,6 +1,8 @@
 <?php
 namespace zesk\WebApp;
 
+use zesk\File;
+
 /**
  * List domains registered with Web Application module, or load them from a file.
  *
@@ -20,7 +22,7 @@ class Command_WebApp_Domains extends \zesk\Command_Base {
 
 	public function run() {
 		if ($this->option("file")) {
-			$lines = file($this->option("file"));
+			$lines = File::lines($this->option("file"));
 			foreach ($lines as $line) {
 				$line = trim($line);
 				if (substr($line, 0, 1) === "#") {

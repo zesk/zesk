@@ -80,6 +80,14 @@ class Module extends \zesk\Module implements \zesk\Interface_Module_Routes {
 	}
 
 	/**
+	 *
+	 * @return \zesk\Server
+	 */
+	public function server() {
+		return Server::singleton($this->application);
+	}
+
+	/**
 	 * Run deploy functionality
 	 */
 	public function hook_deploy() {
@@ -118,6 +126,9 @@ class Module extends \zesk\Module implements \zesk\Interface_Module_Routes {
 		$router->add_route(trim($this->option("route_prefix", "webapp"), '/') . '(/{option action})', array(
 			"controller" => Controller::class,
 		));
+		$router->add_route('.webapp(/{option action})', array(
+			"controller" => Controller::class,
+		));
 	}
 
 	/**
@@ -145,6 +156,14 @@ class Module extends \zesk\Module implements \zesk\Interface_Module_Routes {
 	 */
 	public function binary() {
 		return $this->application->paths->cache("webapp/public/index.php");
+	}
+
+	public function key() {
+		$key = $this->option("key");
+		if (!empty($key)) {
+			return $key;
+		}
+		return md5(__FILE__);
 	}
 
 	/**
@@ -192,7 +211,7 @@ class Module extends \zesk\Module implements \zesk\Interface_Module_Routes {
 	 * @return integer[string] Array of filename => modification time
 	 */
 	public function scan_webapp_json(array $walk_add = array()) {
-		// Include *.application.php, do not walk through . directories, or /vendor/, do not include directories in results
+		// Include /.webapp.json, do not walk through . directories, or /vendor/, do not include directories in results
 		$rules = array(
 			"rules_file" => array(
 				"#/webapp.json\$#" => true,
@@ -360,5 +379,48 @@ class Module extends \zesk\Module implements \zesk\Interface_Module_Routes {
 			$results[$subpath] = $instance_struct;
 		}
 		return $results;
+	}
+
+	/**
+	 * Returns pair of salt/key
+	 *
+	 * @return array[2]
+	 */
+	public function generate_authentication() {
+		$time = time();
+		$hash = md5($time . "|" . $this->key());
+		return array(
+			$now,
+			$hash,
+		);
+	}
+
+	/**
+	 * Returns true
+	 * @param integer $time
+	 * @param string $hash
+	 * @return string|boolean
+	 */
+	public function check_authentication($time, $hash) {
+		$now = time();
+		if (!is_integer($time)) {
+			return "time not integer: " . type($time);
+		}
+		if ($time === 0) {
+			return "time is zero";
+		}
+		if (empty($hash)) {
+			return "missing hash";
+		}
+		$clock_skew = $this->option("authentication_clock_skew", 10); // 10 seconds
+		$delta = abs($time - $now);
+		if ($delta > $clock_skew) {
+			return "clock skew: ($delta = abs($time - $now)) > $clock_skew";
+		}
+		$hash_check = md5($time . "|" . $this->key());
+		if ($hash !== $hash_check) {
+			return "hash check failed $hash !== $hash_check";
+		}
+		return true;
 	}
 }

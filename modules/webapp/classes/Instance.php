@@ -29,6 +29,7 @@ use zesk\StringTools;
  * @property string $name
  * @property string $appversion
  * @property string $hash
+ * @property string $json
  * @property Timestamp $updated
  * @property Timestamp $serving
  */
@@ -109,6 +110,7 @@ class Instance extends ORM {
 			"name",
 			"code",
 		)))->register();
+		$instance->json = $json;
 		$instance->hash = $hash;
 		$instance->code = $code;
 
