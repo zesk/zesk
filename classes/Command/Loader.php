@@ -342,7 +342,7 @@ class Command_Loader {
 	private function fix_zend_studio_arguments(array $argv) {
 		if (PHP_SAPI === 'cli') {
 			foreach ($argv as $index => $arg) {
-				$argv[$index] = urldecode($arg);
+				$argv[$index] = rawurldecode($arg);
 			}
 			return $argv;
 		}
