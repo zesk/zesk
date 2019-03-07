@@ -10,8 +10,21 @@ namespace zesk\WebApp;
 use zesk\Timer;
 use zesk\ArrayTools;
 use zesk\System;
+use zesk\Net_HTTP;
 
 class Controller extends \zesk\Controller {
+	/**
+	 *
+	 * @var string
+	 */
+	const QUERY_PARAM_TIME = "time";
+
+	/**
+	 *
+	 * @var string
+	 */
+	const QUERY_PARAM_HASH = "hash";
+
 	/**
 	 *
 	 * @var Module
@@ -27,29 +40,20 @@ class Controller extends \zesk\Controller {
 	 */
 	private function check_authentication() {
 		$request = $this->request;
-		$now = time();
-		$time = $request->geti("time");
-		if (!is_integer($time)) {
-			$this->auth_reason = "time not integer: " . type($time);
-			return false;
-		}
-		$clock_skew = $this->webapp->option("authentication_clock_skew", 10); // 10 seconds
-		$delta = abs($time - $now);
-		if ($delta > $clock_skew) {
-			$this->auth_reason = "clock skew: ($delta = abs($time - $now)) > $clock_skew";
-			return false;
-		}
-		$hash = $request->get("hash");
-		if (empty($hash)) {
-			$this->auth_reason = "missing hash";
-			return false;
-		}
-		$hash_check = md5($time . "|" . $this->webapp->key());
-		if ($hash !== $hash_check) {
-			$this->auth_reason = "hash check failed $hash !== $hash_check";
-			return false;
-		}
-		return true;
+		return $this->webapp->check_authentication($request->geti(self::QUERY_PARAM_TIME), $request->get(self::QUERY_PARAM_HASH));
+	}
+
+	/**
+	 *
+	 * @param string $message
+	 * @return self
+	 */
+	private function auth_error_json($message) {
+		$this->response->status(Net_HTTP::STATUS_UNAUTHORIZED);
+		return $this->json(array(
+			"status" => false,
+			"message" => "Authentication failed: $message",
+		));
 	}
 
 	/**
@@ -87,18 +91,36 @@ class Controller extends \zesk\Controller {
 	 *
 	 */
 	public function action_configure() {
-		return $this->json(ArrayTools::scalars($this->instance_factory(true)));
+		if (($authenticated = $this->check_authentication()) === true) {
+			return $this->json(array(
+				"status" => true,
+				"payload" => ArrayTools::scalars($this->instance_factory(true)),
+			));
+		} else {
+			return $this->auth_error_json($authenticated);
+		}
 	}
 
 	/**
 	 *
 	 */
 	public function action_generate() {
-		$generator = $this->webapp->generate_configuration();
-		return $this->json(array(
-			"success" => true,
-			"changed" => $generator->changed(),
-		));
+		if (($authenticated = $this->check_authentication()) === true) {
+			$generator = $this->webapp->generate_configuration();
+			return $this->json(array(
+				"success" => true,
+				"changed" => $generator->changed(),
+			));
+		} else {
+			return $this->auth_error_json($authenticated);
+		}
+	}
+
+	/**
+	 *
+	 */
+	public function action_index() {
+		return $this->_action_default();
 	}
 
 	/**
@@ -113,11 +135,12 @@ class Controller extends \zesk\Controller {
 
 		$result = array(
 			"host" => System::uname(),
+			"ip" => $server->ip4_internal,
+			"remote" => $request->ip(),
 		);
 		if ($authenticated) {
 			$result += array(
 				"server" => $server->id(),
-				"ip" => $server->ip4_internal,
 				"keygroup" => md5($this->webapp->key()),
 				"docroot" => $this->application->document_root(),
 			);

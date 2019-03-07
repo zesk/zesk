@@ -16,6 +16,10 @@ use zesk\Timestamp;
 use zesk\Application;
 use zesk\Request;
 use zesk\JSON;
+use zesk\Server_Data;
+use zesk\URL;
+use zesk\Net_HTTP_Client;
+use zesk\Exception_Syntax;
 
 class Module extends \zesk\Module implements \zesk\Interface_Module_Routes {
 	/**
@@ -344,6 +348,11 @@ class Module extends \zesk\Module implements \zesk\Interface_Module_Routes {
 		$webapps = $this->cached_webapp_json(false);
 
 		$server = $app->objects->singleton(Server::class, $app);
+		/* @var $server Server */
+		if ($server->data(__CLASS__) === null) {
+			$server->data(__CLASS__, 1);
+		}
+
 		$generator = $this->generator();
 		$root = rtrim($this->app_root_path(), "/") . "/";
 
@@ -390,7 +399,7 @@ class Module extends \zesk\Module implements \zesk\Interface_Module_Routes {
 		$time = time();
 		$hash = md5($time . "|" . $this->key());
 		return array(
-			$now,
+			$time,
 			$hash,
 		);
 	}
@@ -422,5 +431,54 @@ class Module extends \zesk\Module implements \zesk\Interface_Module_Routes {
 			return "hash check failed $hash !== $hash_check";
 		}
 		return true;
+	}
+
+	/**
+	 *
+	 * @param string $action
+	 */
+	public function server_actions($action) {
+		$app = $this->application;
+		$servers = $app->orm_registry(Server::class)
+			->query_select()
+			->what_object()
+			->link(Server_Data::class, array(
+			"alias" => "d",
+		))
+			->where("d.name", Module::class)
+			->where("d.value", serialize(1));
+		$iterator = $servers->orm_iterator();
+		$webapp = $this->application->webapp_module();
+		$client = new Net_HTTP_Client($this->application);
+		/* @var $webapp Module */
+		$results = array();
+		foreach ($iterator as $server) {
+			/* @var $server Server */
+			$result = array(
+				'ip' => $server->ip4_internal,
+			);
+
+			try {
+				list($time, $hash) = $webapp->generate_authentication();
+				$url = URL::query_append("http://" . $server->ip4_internal . "/webapp/$action", array(
+					Controller::QUERY_PARAM_TIME => $time,
+					Controller::QUERY_PARAM_HASH => $hash,
+				));
+				$client->url($url);
+				$result['time'] = $time;
+				$result['time_string'] = Timestamp::factory($time, "UTC")->format($app->locale, Timestamp::FORMAT_JSON);
+				$result['url'] = $url;
+				$result['raw'] = $client->go();
+				$result['status'] = true;
+				$result['json'] = JSON::decode($result['raw']);
+			} catch (Exception_Syntax $e) {
+				// Do nothing
+			} catch (\Exception $e) {
+				$result['status'] = false;
+				$result['message'] = $e->getMessage();
+			}
+			$results[$server->name] = $result;
+		}
+		return $results;
 	}
 }

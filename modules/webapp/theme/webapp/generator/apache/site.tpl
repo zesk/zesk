@@ -27,6 +27,8 @@ echo "# Generated from $source\n";
 $approot = $instance->path;
 
 $apache_directory = avalue($data, 'apache-directory', array());
+unset($data['apache-directory']);
+
 $directories = array();
 foreach ($apache_directory as $dirpath => $dirconfig) {
 	if (is_array($lines)) {
@@ -51,6 +53,14 @@ if (count($errors) > 0) {
 $tab = "\t";
 
 $lines[] = "<VirtualHost *:$port>";
+if (isset($data['hostnames']) && is_array($data['hostnames'])) {
+	if (!is_array($hostnames)) {
+		$hostnames = $data['hostnames'];
+	} else {
+		$hostnames = array_merge($data['hostnames'], $hostnames);
+	}
+	unset($data['hostnames']);
+}
 if (is_array($hostnames) && count($hostnames) > 0) {
 	$namename = "ServerName";
 	foreach ($hostnames as $name) {
@@ -68,6 +78,7 @@ $docroot = path($approot, $path);
 $lines[] = $tab . "DocumentRoot " . $docroot;
 $lines[] = $tab . "<Directory $docroot>";
 $indexes = avalue($data, "indexes");
+unset($data['indexes']);
 
 $map['document_root'] = $docroot;
 $map['application_root'] = $approot;
@@ -88,7 +99,7 @@ if ($type === "rewrite-index") {
 	$rewrite_lines = explode("\n", $rewrite_content);
 	$lines = array_merge($lines, ArrayTools::prefix($rewrite_lines, $tab . $tab));
 } else {
-	$lines[] = $tab . "# WebApp type is $type";
+	$lines[] = $tab . $tab . "# WebApp type is $type";
 }
 if (isset($directories[$docroot])) {
 	$docroot_extras = $directories[$docroot];
@@ -107,6 +118,7 @@ foreach ($directories as $dir => $dirconfig) {
 }
 /* @var $aliases array */
 $aliases = avalue($data, "aliases");
+unset($data['aliases']);
 if (is_array($aliases) && count($aliases) > 0) {
 	foreach ($aliases as $match => $path) {
 		$aliaspath = path($approot, $path);
@@ -122,6 +134,7 @@ if (is_array($aliases) && count($aliases) > 0) {
 $cronolog = $this->getb("cronolog");
 
 $logging = avalue($data, 'logging');
+unset($data['logging']);
 if (is_array($logging)) {
 	$levels = $logging['levels'] ?? array();
 	$prefix = $logging['prefix'] ?? $instance->code . "-" . $site->code;
@@ -147,10 +160,8 @@ if (is_array($logging)) {
 }
 $lines[] = "</VirtualHost>\n";
 $lines[] = "";
-$lines[] = "# Available keys: " . implode(", ", ArrayTools::remove_values(array_keys($variables), array(
-	"",
-)));
+//$lines[] = "# Available keys: " . implode(", ", ArrayTools::remove_values(array_keys($variables), array("")));
 
-$lines[] = "# Data: " . json_encode($data);
+$lines[] = "# Leftover Data: " . json_encode($data);
 
 echo "\n" . implode("\n", $lines) . "\n";
