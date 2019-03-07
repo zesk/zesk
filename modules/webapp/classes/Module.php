@@ -32,6 +32,12 @@ class Module extends \zesk\Module implements \zesk\Interface_Module_Routes {
 	 *
 	 * @var string
 	 */
+	const OPTION_AUTHENTICATION_KEY = "key";
+
+	/**
+	 *
+	 * @var string
+	 */
 	const OPTION_GENERATOR_CLASS = "generator_class";
 
 	/**
@@ -163,7 +169,7 @@ class Module extends \zesk\Module implements \zesk\Interface_Module_Routes {
 	}
 
 	public function key() {
-		$key = $this->option("key");
+		$key = $this->option(self::OPTION_AUTHENTICATION_KEY);
 		if (!empty($key)) {
 			return $key;
 		}
