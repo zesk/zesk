@@ -2041,7 +2041,7 @@ class Class_ORM extends Hookable {
 	/**
 	 * Retrieve a list of class dependencies for this object
 	 */
-	public function dependencies() {
+	public function dependencies(ORM $object) {
 		$result = array();
 		foreach ($this->has_one as $class) {
 			if ($class[0] !== '*') {
@@ -2049,7 +2049,7 @@ class Class_ORM extends Hookable {
 			}
 		}
 		foreach (array_keys($this->has_many) as $member) {
-			$has_many = $this->has_many($this, $member);
+			$has_many = $this->has_many($object, $member);
 			$result['requires'][] = $has_many['class'];
 			$link_class = avalue($has_many, 'link_class');
 			if ($link_class) {

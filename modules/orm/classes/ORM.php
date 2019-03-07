@@ -306,7 +306,7 @@ class ORM extends Model implements Interface_Member_Model_Factory {
 	 * Retrieve a list of class dependencies for this object
 	 */
 	public function dependencies() {
-		return $this->class->dependencies();
+		return $this->class->dependencies($this);
 	}
 
 	/**
