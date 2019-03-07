@@ -66,13 +66,33 @@ class Command_Eval extends Command_Base {
 		while ($this->has_arg()) {
 			$arg = $this->get_arg("eval");
 			if ($arg === "--") {
-				return 0;
+				break;
 			}
 			$this->verbose_log("Evaluating: $arg\n");
-			$this->_eval($arg);
+			ob_start();
+			$result = $this->_eval($arg);
+			$this->output_result($result, ob_get_clean());
 		}
 		if ($this->option_bool('interactive')) {
 			return $this->interactive();
+		}
+	}
+
+	/**
+	 * Optionally output the result of the last evaluated code
+	 *
+	 * @param mixed $result
+	 */
+	public function output_result($__result, $content = "") {
+		if ($__result === null) {
+			if ($content !== "") {
+				echo $content . "\n";
+			}
+		} else {
+			echo "# return " . PHP::dump($__result) . "\n";
+			if ($content !== "") {
+				echo $content . "\n";
+			}
 		}
 	}
 
@@ -102,7 +122,7 @@ class Command_Eval extends Command_Base {
 			try {
 				$__result = $this->_eval($command);
 				$last_exit_code = 0;
-			} catch (Exception $ex) {
+			} catch (\Exception $ex) {
 				$content = ob_get_clean();
 				echo "# exception " . get_class($ex) . "\n";
 				echo "# message " . $ex->getMessage() . "\n";
@@ -112,22 +132,10 @@ class Command_Eval extends Command_Base {
 				}
 				$this->application->hooks->call("exception", $ex);
 				$last_exit_code = 99;
-
 				continue;
 			}
 			$content = ob_get_clean();
-
-			if ($__result === null) {
-				if ($content !== "") {
-					echo $content . "\n";
-				} else {
-				}
-			} else {
-				echo "# return " . PHP::dump($__result) . "\n";
-				if ($content !== "") {
-					echo $content . "\n";
-				}
-			}
+			$this->output_result($__result, $content);
 		}
 	}
 
@@ -157,7 +165,7 @@ class Command_Eval extends Command_Base {
 			if (count($diff) > 0) {
 				echo "New variables defined in state: " . implode(", ", array_keys($diff)) . "\n";
 			} else {
-				echo "No new variables defined.\n";
+				echo "No new variables defined.\n" . _dump(array_keys($vars));
 			}
 		}
 	}
@@ -165,6 +173,10 @@ class Command_Eval extends Command_Base {
 	private function _prefix_commmand($string) {
 		$string = trim($string, " \n\r\t;");
 		$string = preg_replace('/^return\s/', '', $string);
+		// If contains multiple commands, then no prefix
+		if (strpos($string, ";") !== false) {
+			return $string;
+		}
 		$prefix = "return";
 		if (StringTools::begins($string, array(
 			'echo ',
@@ -192,10 +204,14 @@ class Command_Eval extends Command_Base {
 			$command = $_ = $this;
 			$application = $app = $this->application;
 			extract($this->_before_evaluate(get_defined_vars()), EXTR_SKIP);
-			$__result = eval("?" . "><" . "?php\n$__eval;\n");
+			$__eval = "?" . "><" . "?php\n$__eval;\n";
+			if ($this->option_bool("debug-state")) {
+				$this->verbose_log("RAW PHP EVAL: $__eval");
+			}
+			$__result = eval($__eval);
 			$this->_after_evaluate(get_defined_vars());
 			return $__result;
-		} catch (Exception $e) {
+		} catch (\Exception $e) {
 			throw $e;
 		}
 	}
