@@ -207,6 +207,7 @@ abstract class Command extends Hookable implements Logger\Handler, Interface_Pro
 		if ($argv === null) {
 			$argv = avalue($_SERVER, 'argv', null);
 		}
+
 		$this->option_types = $this->optFormat();
 		$this->option_defaults = $this->optDefaults();
 		$this->option_help = $this->optHelp();
@@ -228,6 +229,7 @@ abstract class Command extends Hookable implements Logger\Handler, Interface_Pro
 		}
 
 		$this->initialize();
+		$this->determine_ansi();
 
 		$this->application->register_class($this->register_classes);
 
@@ -241,11 +243,9 @@ abstract class Command extends Hookable implements Logger\Handler, Interface_Pro
 		}
 
 		if ($this->has_errors()) {
-			$this->usage(implode("\n", $this->errors()));
+			//$this->usage();
 			exit(1);
 		}
-
-		$this->determine_ansi();
 	}
 
 	/**
@@ -611,7 +611,7 @@ abstract class Command extends Hookable implements Logger\Handler, Interface_Pro
 			$result[] = wordwrap($message, $this->wordwrap, "\n");
 			$result[] = "";
 		}
-		$result[] = $this->program;
+		$result[] = "Usage: " . $this->program;
 		$result[] = "";
 		if (!$this->help) {
 			$this->help = $this->doccomment_help();
@@ -637,7 +637,7 @@ abstract class Command extends Hookable implements Logger\Handler, Interface_Pro
 					break;
 			}
 		}
-		$this->error(implode("\n", $result) . "\n");
+		$this->error($result);
 		exit(($message === null) ? 0 : 1);
 	}
 
@@ -707,11 +707,10 @@ abstract class Command extends Hookable implements Logger\Handler, Interface_Pro
 		if ($this->application->theme_current() !== null) {
 			return;
 		}
-		$newline = to_bool(avalue($arguments, "newline", true));
 		if (is_array($message)) {
 			if (ArrayTools::is_list($message)) {
 				foreach ($message as $m) {
-					$this->log($m, $arguments);
+					$this->logline($m, $arguments);
 				}
 				return;
 			}
@@ -719,14 +718,27 @@ abstract class Command extends Hookable implements Logger\Handler, Interface_Pro
 		} else {
 			$message = strval($message);
 		}
+		$this->logline($message, $arguments);
+	}
+
+	/**
+	 * Log a single line to stderr or stdout
+	 *
+	 * @param string $message
+	 * @param array $arguments
+	 */
+	private function logline($message, array $arguments = array()) {
+		$newline = to_bool(avalue($arguments, "newline", true));
 		$message = rtrim(map($message, $arguments));
 		$suffix = "";
-		if ($newline && $message && $message[strlen($message) - 1] !== "\n") {
-			$suffix = "\n";
+		if ($newline) {
+			if (strlen($message) == 0 || $message[strlen($message) - 1] !== "\n") {
+				$suffix = "\n";
+			}
 		}
 		$prefix = "";
-		$severity = avalue($arguments, '_severity', avalue($arguments, 'severity'));
-		if ($severity) {
+		$severity = strtolower(avalue($arguments, '_severity', avalue($arguments, 'severity')));
+		if ($severity && !$this->ansi) {
 			$prefix = strtoupper($severity) . ": ";
 		}
 		if ($this->has_option("prefix")) {
@@ -759,6 +771,15 @@ abstract class Command extends Hookable implements Logger\Handler, Interface_Pro
 		}
 	}
 
+	/**
+	 * Annotate a prefix/suffix using ansi colors based on the message severity
+	 *
+	 * @param string $prefix
+	 * @param string $suffix
+	 * @param string $severity
+	 *
+	 * @return array[2] of [$new_prefix, $new_suffix]
+	 */
 	private function ansi_annotate($prefix, $suffix, $severity = "info") {
 		if (!$this->ansi || !array_key_exists($severity, self::$ansi_styles)) {
 			return array(
@@ -948,7 +969,6 @@ abstract class Command extends Hookable implements Logger\Handler, Interface_Pro
 							$this->set_option($arg, $param);
 							$this->debug_log("Set $arg to \"$param\"");
 						}
-
 						break;
 					case "string[]":
 					case "string*":
@@ -956,15 +976,14 @@ abstract class Command extends Hookable implements Logger\Handler, Interface_Pro
 						if ($param !== null) {
 							$option_values[$arg] = true;
 							$this->option_append_list($arg, $param);
-							$this->debug_log("Added $arg to \"$param\"");
+							$this->debug_log("Added \"$arg\" to \"$param\"");
 						}
-
 						break;
 					case "integer":
 						$param = $this->get_arg($arg);
 						if ($param !== null) {
 							if (!is_numeric($param)) {
-								$this->error("Integer argument $saveArg not followed by number");
+								$this->error("Integer argument \"$saveArg\" not followed by number");
 							} else {
 								$param = intval($param);
 								$option_values[$arg] = true;
@@ -972,7 +991,6 @@ abstract class Command extends Hookable implements Logger\Handler, Interface_Pro
 								$this->debug_log("Set $arg to $param");
 							}
 						}
-
 						break;
 					case "list":
 						$param = $this->get_arg($arg);
@@ -981,40 +999,37 @@ abstract class Command extends Hookable implements Logger\Handler, Interface_Pro
 							$this->set_option($arg, to_list($param, array()));
 							$this->debug_log("Set $arg to list: $param");
 						}
-
 						break;
 					case "dir":
 						$param = $this->get_arg($arg);
 						if ($param !== null) {
 							if (!is_dir($param)) {
-								$this->error("Argument $arg $param is not a directory.");
+								$this->error("Argument \"--$arg $param\" is not a directory.");
 							} else {
 								$option_values[$arg] = true;
 								$this->set_option($arg, $param);
 								$this->debug_log("Set directory $arg to $param");
 							}
 						}
-
 						break;
 					case "dir+":
 					case "dir[]":
 						$param = $this->get_arg($arg);
 						if ($param !== null) {
 							if (!is_dir($param)) {
-								$this->error("Argument $arg $param is not a directory.");
+								$this->error("Argument \"--$arg $param\" is not a directory.");
 							} else {
 								$option_values[$arg] = true;
 								$this->option_append_list($arg, $param);
 								$this->debug_log("Added direcory $arg to list: $param");
 							}
 						}
-
 						break;
 					case "file":
 						$param = $this->get_arg($arg);
 						if ($param !== null) {
 							if (!$this->validate_file($param)) {
-								$this->error("Argument $arg $param is not a file or link.");
+								$this->error("Argument \"--$arg $param\" is not a file or link.");
 							} else {
 								$option_values[$arg] = true;
 								$this->set_option($arg, $param);
@@ -1028,7 +1043,7 @@ abstract class Command extends Hookable implements Logger\Handler, Interface_Pro
 						$param = $this->get_arg($arg);
 						if ($param !== null) {
 							if (!$this->validate_file($param)) {
-								$this->error("Argument $arg $param is not a file.");
+								$this->error("Argument \"--$arg $param\" is not a file.");
 							} else {
 								$option_values[$arg] = true;
 								$this->option_append_list($arg, $param);
@@ -1097,10 +1112,20 @@ abstract class Command extends Hookable implements Logger\Handler, Interface_Pro
 		return '"' . str_replace('"', '\"', $var) . '"';
 	}
 
+	/**
+	 * Does the current PHP installation have the readline utility installed?
+	 *
+	 * @return boolean
+	 */
 	private static function has_readline() {
 		return function_exists('readline');
 	}
 
+	/**
+	 * Handle managing history and history file, initialization of history file
+	 *
+	 * @return void
+	 */
 	private function _init_history() {
 		if ($this->history_file !== null) {
 			// Have history file and is open for writing
@@ -1118,10 +1143,20 @@ abstract class Command extends Hookable implements Logger\Handler, Interface_Pro
 		$this->history_file = fopen($this->history_file_path, "ab");
 	}
 
+	/**
+	 * Function which may be overridden by subclasses to return a list of possible completions for the current readline request
+	 *
+	 * @return string[]
+	 */
 	public function default_completion_function() {
 		return $this->completions;
 	}
 
+	/**
+	 * Set the readline completion function
+	 *
+	 * @param callable $function
+	 */
 	protected function completion_function($function = null) {
 		if ($this->has_readline()) {
 			if ($function === null) {
@@ -1131,12 +1166,19 @@ abstract class Command extends Hookable implements Logger\Handler, Interface_Pro
 		}
 	}
 
+	/**
+	 * Read a line from standard in
+	 *
+	 * @param unknown $prompt
+	 * @param unknown $default
+	 * @return NULL|string
+	 */
 	public function readline($prompt, $default = null) {
 		if ($this->has_readline()) {
 			$result = readline($prompt);
 			if ($result === false) {
 				echo "\rexit " . str_repeat(" ", 80) . "\n";
-				return null;
+				return "exit";
 			}
 			if (!empty($result)) {
 				readline_add_history($result);
@@ -1288,7 +1330,9 @@ abstract class Command extends Hookable implements Logger\Handler, Interface_Pro
 
 		try {
 			$result = $this->run();
-		} catch (Exception $e) {
+		} catch (Exception_File_NotFound $e) {
+			$this->error("File not found {filename}", $e->variables());
+		} catch (\Exception $e) {
 			$this->error("Exception thrown by command {class} : {exception_class} {message}\n{backtrace}", array(
 				"class" => get_class($this),
 				"exception_class" => get_class($e),
@@ -1317,7 +1361,7 @@ abstract class Command extends Hookable implements Logger\Handler, Interface_Pro
 	}
 
 	/**
-	 * Is a command running?
+	 * Is a command running? (Any command, not just this one)
 	 *
 	 * @return Command
 	 */
