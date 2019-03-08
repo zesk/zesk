@@ -188,8 +188,14 @@ class Directory extends Hookable {
 	 *
 	 */
 	public static function delete($path) {
+		if (!is_dir($path)) {
+			return true;
+		}
 		self::delete_contents($path);
-		return rmdir($path);
+		if (!rmdir($path)) {
+			throw new Exception_Directory_Permission($path, __METHOD__ . " rmdir returned false");
+		}
+		return true;
 	}
 
 	/**
@@ -265,12 +271,12 @@ class Directory extends Hookable {
 		extract($options, EXTR_IF_EXISTS);
 		if ($include_pattern === false) {
 			return array(
-				false,
+				false
 			);
 		}
 		if ($exclude_pattern === true) {
 			return array(
-				false,
+				false
 			);
 		}
 		if ($exclude_pattern !== null) {
@@ -291,13 +297,13 @@ class Directory extends Hookable {
 		if (array_key_exists($k, $options)) {
 			if (is_bool($options[$k])) {
 				return array(
-					$options[$k],
+					$options[$k]
 				);
 			}
 			if (!is_array($options[$k])) {
 				throw new Exception_Parameter("Recursive rules {key} must be boolean or an array, {type} passed", array(
 					"key" => $k,
-					"type" => type($options[$k]),
+					"type" => type($options[$k])
 				));
 			}
 			return $options[$k];
@@ -357,7 +363,7 @@ class Directory extends Hookable {
 				}
 				if ($progress && $progress instanceof Psr\Log\LoggerInterface) {
 					$progress->notice("Listing {full_path}", array(
-						"full_path" => $full_path,
+						"full_path" => $full_path
 					));
 				}
 				$result = self::list_recursive($full_path, $options);
@@ -480,14 +486,14 @@ class Directory extends Hookable {
 		if (!is_dir($path)) {
 			throw new Exception_Directory_NotFound($path, "{method}: {path} is not a directory", array(
 				"method" => __METHOD__,
-				"path" => $path,
+				"path" => $path
 			));
 		}
 		$d = opendir($path);
 		if (!is_resource($d)) {
 			throw new Exception_Directory_NotFound($path, "{method}: {path} is not readable", array(
 				"method" => __METHOD__,
-				"path" => $path,
+				"path" => $path
 			));
 		}
 		$path = rtrim($path, '/');
@@ -511,7 +517,7 @@ class Directory extends Hookable {
 	public static function copy($source, $dest, $create = false) {
 		if (!is_dir($source)) {
 			throw new Exception_Directory_NotFound($source, "Copying to {dest}", array(
-				"dest" => $dest,
+				"dest" => $dest
 			));
 		}
 		if ($create) {
@@ -519,7 +525,7 @@ class Directory extends Hookable {
 		}
 		if (!is_dir($dest)) {
 			throw new Exception_Directory_NotFound($dest, "Copying from {source}", array(
-				"source" => $source,
+				"source" => $source
 			));
 		}
 		self::delete_contents($dest);
