@@ -1339,7 +1339,7 @@ class Engine extends Hookable {
 			"destination",
 			"skip",
 		);
-		switch (trim($this->prompt("Which is right?\n< source, > destination, or skip? (<,source,>,destination,skip) Default: source", "source"), $completions)) {
+		switch (trim($this->prompt("Which is right?\n< source, > destination, or skip? (<,source,>,destination,skip) Default: source", "source", $completions))) {
 			case ">":
 			case "destination":
 				$this->log("Copying {destination_name} to {source_name}", compact("source_name", "destination_name"));
