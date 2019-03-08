@@ -97,6 +97,7 @@ class Text {
 		}
 		return $result;
 	}
+
 	public static function lines_wrap($text, $prefix = "", $suffix = "", $first_prefix = null, $last_suffix = null) {
 		if ($first_prefix === null) {
 			$first_prefix = $prefix;
@@ -106,6 +107,7 @@ class Text {
 		}
 		return $first_prefix . implode("$suffix\n$prefix", explode("\n", $text)) . $last_suffix;
 	}
+
 	public static function fill($n, $pad = " ") {
 		return substr(str_repeat($pad, $n), 0, $n);
 	}
@@ -213,6 +215,7 @@ class Text {
 	public static function remove_range_comments($text, $begin_comment = "/*", $end_comment = "*/") {
 		return preg_replace('#' . preg_quote($begin_comment) . '.*?' . preg_quote($end_comment) . '#s', '', $text);
 	}
+
 	public static function fill_pattern($pattern, $char_length) {
 		$pattern_length = strlen($pattern);
 		if ($pattern_length < $char_length) {
@@ -242,6 +245,7 @@ class Text {
 		}
 		return implode($br, $r) . $br;
 	}
+
 	public static function trim_words_length($string, $length, $delimiter = " ") {
 		$string = to_list($string, array(), $delimiter);
 		$delim_len = strlen($delimiter);
@@ -261,11 +265,13 @@ class Text {
 		}
 		return implode($delimiter, $result);
 	}
+
 	public static function trim_words($string, $wordCount) {
 		$words = preg_split('/(\s+)/', $string, -1, PREG_SPLIT_DELIM_CAPTURE);
 		$words = array_slice($words, 0, $wordCount * 2 - 1);
 		return implode("", $words);
 	}
+
 	public static function words($string) {
 		return count(preg_split('/(\s+)/', $string, -1, PREG_SPLIT_DELIM_CAPTURE));
 	}
@@ -517,7 +523,7 @@ class Text {
 					}
 					$headers[$name] = array(
 						$start,
-						$length
+						$length,
 					);
 				}
 				$was_space = $space;
