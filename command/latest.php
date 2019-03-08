@@ -14,8 +14,9 @@ use zesk\Git\Repository;
  */
 class Command_Latest extends Command_Base {
 	protected $load_modules = array(
-		"Git"
+		"Git",
 	);
+
 	public function run() {
 		/* @var $git \zesk\Git\Module */
 		$git = $this->application->git_module();
@@ -43,11 +44,11 @@ class Command_Latest extends Command_Base {
 
 			Directory::delete($old);
 			$this->exec("git clone https://github.com/zesk/zesk {new}", array(
-				"new" => $new
+				"new" => $new,
 			));
 			if (!is_dir($new)) {
 				$this->error("Unable to git clone into {new}", array(
-					"new" => $new
+					"new" => $new,
 				));
 				return 2;
 			}
@@ -68,7 +69,7 @@ class Command_Latest extends Command_Base {
 			} else {
 				$this->error("Found repo above {home} at {path}, ignoring", array(
 					"home" => $zesk_home,
-					"path" => $repo->path()
+					"path" => $repo->path(),
 				));
 			}
 		}
