@@ -97,7 +97,6 @@ class Text {
 		}
 		return $result;
 	}
-
 	public static function lines_wrap($text, $prefix = "", $suffix = "", $first_prefix = null, $last_suffix = null) {
 		if ($first_prefix === null) {
 			$first_prefix = $prefix;
@@ -107,11 +106,23 @@ class Text {
 		}
 		return $first_prefix . implode("$suffix\n$prefix", explode("\n", $text)) . $last_suffix;
 	}
-
 	public static function fill($n, $pad = " ") {
 		return substr(str_repeat($pad, $n), 0, $n);
 	}
 
+	/**
+	 * Generate a fill string to support ralign and lalign, and modify text
+	 *
+	 * @see self::ralign
+	 * @see self::lalign
+	 * @see self::fill
+	 * @param string $text Text to right-align
+	 * @param integer $n Number of characters to return
+	 * @param string $pad Character used to fill string
+	 * @param string $fill The fill cahracters to be filled in.
+	 * @param boolean $_trim If $text is greter than $n, return the trimmed version; guarantees max character length returned is $n.
+	 * @return string The text with padding to fill $n characters (aligned right), or the original string (optionally trimmed) if length is greater than $n
+	 */
 	private static function _align_helper($text, $n, $pad, &$fill, $_trim = false) {
 		$fill = "";
 		if ($n <= 0) {
@@ -129,12 +140,30 @@ class Text {
 		return $text;
 	}
 
+	/**
+	 * Right align a string in a block of characters returned.
+	 *
+	 * @param string $text Text to right-align
+	 * @param integer $n Number of characters to return
+	 * @param string $pad Character used to fill string
+	 * @param boolean $_trim If $text is greter than $n, return the trimmed version; guarantees max character length returned is $n.
+	 * @return string The text with padding to fill $n characters (aligned right), or the original string (optionally trimmed) if length is greater than $n
+	 */
 	public static function ralign($text, $n = -1, $pad = " ", $_trim = false) {
 		$fill = "";
 		$text = self::_align_helper($text, $n, $pad, $fill, $_trim);
 		return $fill . $text;
 	}
 
+	/**
+	 * Left align a string in a block of characters returned.
+	 *
+	 * @param string $text Text to left-align
+	 * @param integer $n Number of characters to return
+	 * @param string $pad Character used to fill string
+	 * @param boolean $_trim If $text is greter than $n, return the trimmed version; guarantees max character length returned is $n.
+	 * @return string The text with padding to fill $n characters (aligned left), or the original string (optionally trimmed) if length is greater than $n
+	 */
 	public static function lalign($text, $n = -1, $pad = " ", $_trim = false) {
 		$fill = "";
 		$text = self::_align_helper($text, $n, $pad, $fill, $_trim);
@@ -184,7 +213,6 @@ class Text {
 	public static function remove_range_comments($text, $begin_comment = "/*", $end_comment = "*/") {
 		return preg_replace('#' . preg_quote($begin_comment) . '.*?' . preg_quote($end_comment) . '#s', '', $text);
 	}
-
 	public static function fill_pattern($pattern, $char_length) {
 		$pattern_length = strlen($pattern);
 		if ($pattern_length < $char_length) {
@@ -193,6 +221,16 @@ class Text {
 		return substr($pattern, 0, $char_length);
 	}
 
+	/**
+	 * Output an array as name/value pairs
+	 *
+	 * @param array $map
+	 * @param string $prefix Characters to place before the name
+	 * @param string $space Characters to fill between name and suffix
+	 * @param string $suffix Characters after spaces and before name
+	 * @param string $br End of line character
+	 * @return string
+	 */
 	public static function format_pairs(array $map, $prefix = "", $space = " ", $suffix = ": ", $br = "\n") {
 		$n = 0;
 		foreach (array_keys($map) as $k) {
@@ -204,7 +242,6 @@ class Text {
 		}
 		return implode($br, $r) . $br;
 	}
-
 	public static function trim_words_length($string, $length, $delimiter = " ") {
 		$string = to_list($string, array(), $delimiter);
 		$delim_len = strlen($delimiter);
@@ -224,13 +261,11 @@ class Text {
 		}
 		return implode($delimiter, $result);
 	}
-
 	public static function trim_words($string, $wordCount) {
 		$words = preg_split('/(\s+)/', $string, -1, PREG_SPLIT_DELIM_CAPTURE);
 		$words = array_slice($words, 0, $wordCount * 2 - 1);
 		return implode("", $words);
 	}
-
 	public static function words($string) {
 		return count(preg_split('/(\s+)/', $string, -1, PREG_SPLIT_DELIM_CAPTURE));
 	}
@@ -240,14 +275,14 @@ class Text {
 	 *
 	 * <code>
 	 * +--------+-----+----+--------+
-	 * | Token1 | Boo | A | Poop |
+	 * | Token1 | Boo | A  | Poop   |
 	 * +--------+-----+----+--------+
-	 * | a | Yo | 1 | soft |
-	 * | b | Yo | 12 | soft |
-	 * | c | Yo | 14 | soft |
-	 * | d | Yo | 33 | soft |
-	 * | e | Yo | 89 | soft |
-	 * | f | Yo | 34 | softly |
+	 * | a      | Yo  | 1  | soft   |
+	 * | b      | Yo  | 12 | soft   |
+	 * | c      | Yo  | 14 | soft   |
+	 * | d      | Yo  | 33 | soft   |
+	 * | e      | Yo  | 89 | soft   |
+	 * | f      | Yo  | 34 | softly |
 	 * +--------+-----+----+--------+
 	 * </code>
 	 *
@@ -482,7 +517,7 @@ class Text {
 					}
 					$headers[$name] = array(
 						$start,
-						$length,
+						$length
 					);
 				}
 				$was_space = $space;
