@@ -234,7 +234,7 @@ class Engine extends Hookable {
 	 * @param string $message
 	 * @return mixed
 	 */
-	protected function prompt_yes_no($message, $default = "Y") {
+	public function prompt_yes_no($message, $default = "Y") {
 		return to_bool($this->prompt("$message? (yes/no)", $default, array(
 			"y",
 			"yes",
@@ -248,7 +248,7 @@ class Engine extends Hookable {
 	 * @param string $message
 	 * @return mixed
 	 */
-	protected function prompt($message, $default = null, array $completions = null) {
+	public function prompt($message, $default = null, array $completions = null) {
 		if (!$this->prompt) {
 			return $this->option("prompt", true);
 		}

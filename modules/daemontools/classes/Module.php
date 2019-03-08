@@ -11,7 +11,7 @@ namespace zesk\DaemonTools;
  *
  */
 use zesk\ArrayTools;
-use zesk\Command_Configure;
+use zesk\Configure\Engine;
 use zesk\File;
 use zesk\Directory;
 use zesk\Server;
@@ -28,11 +28,11 @@ class Module extends \zesk\Module {
 	 */
 	public function initialize() {
 		parent::initialize();
-		$this->application->hooks->add(Command_Configure::class . '::command_daemontools_service', array(
+		$this->application->hooks->add(Engine::class . '::command_daemontools_service', array(
 			$this,
 			"command_daemontools_service",
 		));
-		$this->application->hooks->add(Command_Configure::class . '::command_daemontools_service_remove', array(
+		$this->application->hooks->add(Engine::class . '::command_daemontools_service_remove', array(
 			$this,
 			"command_daemontools_service_remove",
 		));
@@ -57,9 +57,9 @@ class Module extends \zesk\Module {
 	/**
 	 * Hook for daemontools_service source_path [service_name]
 	 *
-	 * @param Command_Configure $command
+	 * @param Engine $command
 	 */
-	public function command_daemontools_service(Command_Configure $command, array $arguments = array(), $command_name) {
+	public function command_daemontools_service(Engine $command, array $arguments = array(), $command_name) {
 		$source = avalue($arguments, 0);
 		if ($source === "--help") {
 			return $this->command_daemontools_service_help($command_name);
@@ -137,9 +137,9 @@ class Module extends \zesk\Module {
 	/**
 	 * Hook for daemontools_service_remove
 	 *
-	 * @param Command_Configure $command
+	 * @param Engine $command
 	 */
-	public function command_daemontools_service_remove(Command_Configure $command, array $arguments = array(), $command_name) {
+	public function command_daemontools_service_remove(Engine $command, array $arguments = array(), $command_name) {
 		$service_name = avalue($arguments, 0);
 		if ($service_name === "--help") {
 			return $this->command_daemontools_service_remove_help($command_name);

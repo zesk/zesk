@@ -28,10 +28,9 @@ use zesk\Exception_Parameter;
 use zesk\Settings;
 use zesk\Server;
 use zesk\PHP;
-use zesk\Command_Configure;
 use zesk\File;
 use zesk\ORM;
-use zesk\Server_Data;
+use zesk\Configure\Engine;
 
 /**
  *
@@ -115,7 +114,7 @@ class Module extends \zesk\Module {
 	 */
 	public function initialize() {
 		parent::initialize();
-		$this->application->hooks->add(Command_Configure::class . "::command_crontab", array(
+		$this->application->hooks->add(Engine::class . "::command_crontab", array(
 			$this,
 			"command_crontab",
 		));
@@ -139,12 +138,12 @@ class Module extends \zesk\Module {
 
 	/**
 	 *
-	 * @param Command_Configure $command
+	 * @param Engine $command
 	 * @param array $arguments
-	 * @param unknown $command_name
+	 * @param string $command_name
 	 * @return \zesk\Cron\string[]|boolean
 	 */
-	public function command_crontab(Command_Configure $command, array $arguments, $command_name) {
+	public function command_crontab(Engine $command, array $arguments, $command_name) {
 		$file = array_shift($arguments);
 		if ($file === "--help") {
 			return $this->command_crontab_help($command_name);
