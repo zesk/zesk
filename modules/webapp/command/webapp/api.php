@@ -3,6 +3,13 @@ namespace zesk\WebApp;
 
 use zesk\Command_Base;
 
+/**
+ * Manage web apps using a command-line API
+ *
+ * @author kent
+ * @category Web Application Manager
+ * @author kent
+ */
 class Command_WebApp_API extends Command_Base {
 	protected $load_modules = array(
 		"WebApp",
