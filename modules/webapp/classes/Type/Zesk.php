@@ -56,7 +56,7 @@ class Type_Zesk extends Type {
 	 * @return string
 	 */
 	public function bin_zesk() {
-		$ff = path($this->path, "vendor/bin/zesk-command.php");
+		$ff = path($this->path, "vendor/bin/zesk.sh");
 		if (!is_executable($ff)) {
 			throw new Exception_File_Permission($ff, "Not executable");
 		}

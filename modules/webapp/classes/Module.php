@@ -67,7 +67,7 @@ class Module extends \zesk\Module implements \zesk\Interface_Module_Routes {
 		Site::class,
 		Domain::class,
 		Cluster::class,
-		Repository::class
+		Repository::class,
 	);
 
 	/**
@@ -85,7 +85,7 @@ class Module extends \zesk\Module implements \zesk\Interface_Module_Routes {
 		}
 		$this->application->hooks->add(Application::class . "::request", array(
 			$this,
-			"register_domain"
+			"register_domain",
 		));
 	}
 
@@ -123,7 +123,7 @@ class Module extends \zesk\Module implements \zesk\Interface_Module_Routes {
 			$application->cache->save($item);
 		}
 		$application->orm_factory(Domain::class, array(
-			"name" => $domain_name
+			"name" => $domain_name,
 		))->register()->accessed();
 	}
 
@@ -134,10 +134,10 @@ class Module extends \zesk\Module implements \zesk\Interface_Module_Routes {
 	 */
 	public function hook_routes(Router $router) {
 		$router->add_route(trim($this->option("route_prefix", "webapp"), '/') . '(/{option action})', array(
-			"controller" => Controller::class
+			"controller" => Controller::class,
 		));
 		$router->add_route('.webapp(/{option action})', array(
-			"controller" => Controller::class
+			"controller" => Controller::class,
 		));
 	}
 
@@ -167,6 +167,7 @@ class Module extends \zesk\Module implements \zesk\Interface_Module_Routes {
 	public function binary() {
 		return $this->application->paths->cache("webapp/public/index.php");
 	}
+
 	public function key() {
 		$key = $this->option(self::OPTION_AUTHENTICATION_KEY);
 		if (!empty($key)) {
@@ -224,16 +225,16 @@ class Module extends \zesk\Module implements \zesk\Interface_Module_Routes {
 		$rules = array(
 			"rules_file" => array(
 				"#/webapp.json\$#" => true,
-				false
+				false,
 			),
 			"rules_directory_walk" => $walk_add + array(
 				"#/\.#" => false,
 				"#/vendor/#" => false,
 				"#/node_modules/#" => false,
-				true
+				true,
 			),
 			"rules_directory" => false,
-			"add_path" => true
+			"add_path" => true,
 		);
 		if ($this->option_bool("debug")) {
 			$rules['progress'] = $this->application->logger;
@@ -300,15 +301,17 @@ class Module extends \zesk\Module implements \zesk\Interface_Module_Routes {
 		if (count($changed) > 0) {
 			$this->application->logger->info("{method} generator reported changed: {changed}", array(
 				"method" => __METHOD__,
-				"changed" => $changed
+				"changed" => $changed,
 			));
 			$this->control_file(self::CONTROL_FILE_RESTART_APACHE, time());
 		}
 		return $generator;
 	}
+
 	public function hook_cron_minute() {
 		$this->generate_configuration();
 	}
+
 	public function control_file_path($name) {
 		$name = File::clean_path($name);
 		$full = $this->webapp_data_path("control/$name");
@@ -367,7 +370,7 @@ class Module extends \zesk\Module implements \zesk\Interface_Module_Routes {
 		foreach ($webapps as $webapp_path => $modtime) {
 			$subpath = StringTools::unprefix($webapp_path, $root);
 			$instance_struct = array(
-				'path' => $subpath
+				'path' => $subpath,
 			);
 
 			try {
@@ -415,7 +418,7 @@ class Module extends \zesk\Module implements \zesk\Interface_Module_Routes {
 		$hash = md5($time . "|" . $this->key());
 		return array(
 			$time,
-			$hash
+			$hash,
 		);
 	}
 
@@ -458,7 +461,7 @@ class Module extends \zesk\Module implements \zesk\Interface_Module_Routes {
 			->query_select()
 			->what_object()
 			->link(Server_Data::class, array(
-			"alias" => "d"
+			"alias" => "d",
 		))
 			->where("d.name", Module::class)
 			->where("d.value", serialize(1));
@@ -470,14 +473,14 @@ class Module extends \zesk\Module implements \zesk\Interface_Module_Routes {
 		foreach ($iterator as $server) {
 			/* @var $server Server */
 			$result = array(
-				'ip' => $server->ip4_internal
+				'ip' => $server->ip4_internal,
 			);
 
 			try {
 				list($time, $hash) = $webapp->generate_authentication();
 				$url = URL::query_append("http://" . $server->ip4_internal . "/webapp/$action", array(
 					Controller::QUERY_PARAM_TIME => $time,
-					Controller::QUERY_PARAM_HASH => $hash
+					Controller::QUERY_PARAM_HASH => $hash,
 				));
 				$client->url($url);
 				$result['time'] = $time;
