@@ -11,6 +11,7 @@ use zesk\Timer;
 use zesk\ArrayTools;
 use zesk\System;
 use zesk\Net_HTTP;
+use zesk\Server;
 
 class Controller extends \zesk\Controller {
 	/**
@@ -30,6 +31,12 @@ class Controller extends \zesk\Controller {
 	 * @var Module
 	 */
 	private $webapp = null;
+
+	/**
+	 *
+	 * @var Server
+	 */
+	private $server = null;
 
 	/**
 	 * Check authentication and return true or false.
@@ -121,6 +128,35 @@ class Controller extends \zesk\Controller {
 	 */
 	public function action_index() {
 		return $this->_action_default();
+	}
+
+	/**
+	 *
+	 * @param string $appname
+	 */
+	public function action_health() {
+		$request = $this->request;
+		$appname = $request->get("app");
+		if ($appname) {
+			$data = $this->server->data(Module::SERVER_DATA_APP_HEALTH);
+			if (!is_array($data)) {
+				$data = array();
+			}
+			if (!isset($data[$appname])) {
+				$data[$appname] = time();
+			} elseif ($data[$appname] === false) {
+				$this->response->status(Net_HTTP::STATUS_FORBIDDEN, "Disabled");
+				return $this->json(array(
+					"status" => false,
+					"message" => "Disabled",
+				));
+			}
+			$this->server->data(Module::SERVER_DATA_APP_HEALTH, $data);
+		}
+		return $this->json(array(
+			"status" => true,
+			"message" => "working",
+		));
 	}
 
 	/**

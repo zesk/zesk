@@ -23,6 +23,13 @@ use zesk\Exception_Syntax;
 
 class Module extends \zesk\Module implements \zesk\Interface_Module_Routes {
 	/**
+	 * Attached to Server to track and modify load balancer health responses
+	 *
+	 * @var string
+	 */
+	const SERVER_DATA_APP_HEALTH = __CLASS__ . "::app_health";
+
+	/**
 	 *
 	 * @var string
 	 */
