@@ -1645,7 +1645,7 @@ class Class_ORM extends Hookable {
 	 * @return string
 	 */
 	protected function polymorphic_class_generate($value) {
-		return strtolower($this->polymorphic . "_" . $value);
+		return $this->polymorphic . "_" . ucfirst($value);
 	}
 
 	/**
