@@ -66,9 +66,13 @@ abstract class Generator extends Hookable {
 		if ($compare_disk_contents === $compare_contents) {
 			return array();
 		}
-		File::unlink("$file.previous");
-		rename($file, "$file.previous");
-		File::put($file, $contents);
+		if ($this->option_bool("save_previous")) {
+			File::unlink("$file.previous");
+			if (is_file($file)) {
+				rename($file, "$file.previous");
+			}
+			File::put($file, $contents);
+		}
 		return array(
 			$file => true,
 		);
