@@ -18,6 +18,10 @@ namespace zesk\WebApp;
  *
  */
 class Class_Repository extends Class_ORM {
+	/**
+	 *
+	 * @var string
+	 */
 	public $polymorphic = Repository::class;
 
 	/**
