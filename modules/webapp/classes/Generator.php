@@ -71,6 +71,8 @@ abstract class Generator extends Hookable {
 			if (is_file($file)) {
 				rename($file, "$file.previous");
 			}
+		}
+		if (!$this->option_bool("dry_run")) {
 			File::put($file, $contents);
 		}
 		return array(
