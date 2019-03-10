@@ -132,26 +132,37 @@ class Controller extends \zesk\Controller {
 
 	/**
 	 *
+	 * @return \zesk\WebApp\Controller
+	 */
+	private function _health_down() {
+		$this->response->status(Net_HTTP::STATUS_FORBIDDEN, "Disabled");
+		return $this->json(array(
+			"status" => false,
+			"message" => "Disabled",
+		));
+	}
+
+	/**
+	 *
 	 * @param string $appname
 	 */
 	public function action_health() {
 		$request = $this->request;
 		$appname = $request->get("app");
+		$data = $this->server->data(Module::SERVER_DATA_APP_HEALTH);
+		if (!is_array($data)) {
+			$data = array();
+		}
 		if ($appname) {
-			$data = $this->server->data(Module::SERVER_DATA_APP_HEALTH);
-			if (!is_array($data)) {
-				$data = array();
-			}
 			if (!isset($data[$appname])) {
 				$data[$appname] = time();
 			} elseif ($data[$appname] === false) {
-				$this->response->status(Net_HTTP::STATUS_FORBIDDEN, "Disabled");
-				return $this->json(array(
-					"status" => false,
-					"message" => "Disabled",
-				));
+				return $this->_health_down();
 			}
 			$this->server->data(Module::SERVER_DATA_APP_HEALTH, $data);
+		}
+		if ($data['*'] === false) {
+			return $this->_health_down();
 		}
 		return $this->json(array(
 			"status" => true,
