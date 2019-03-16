@@ -5,11 +5,6 @@
  * @author kent
  * @copyright &copy; 2019 Market Acumen, Inc.
  */
-namespace zesk;
-
-/**
- * @author kent
- */
 namespace zesk\WebApp;
 
 use zesk\Application;
@@ -20,10 +15,20 @@ use zesk\Application;
  *
  */
 class Repository extends ORM {
+	/**
+	 * Every hour, update all versions, but only if they are blank
+	 *
+	 * @param Application $application
+	 */
 	public static function cron_hour(Application $application) {
 		self::update_all_versions($application, false);
 	}
 
+	/**
+	 * Every minute check blank repositories to see if their versions should be updated
+	 *
+	 * @param Application $application
+	 */
 	public static function cron(Application $application) {
 		self::update_all_versions($application, true);
 	}
@@ -45,6 +50,11 @@ class Repository extends ORM {
 		}
 	}
 
+	/**
+	 * Override function in subclasses
+	 *
+	 * @return NULL
+	 */
 	public function update_versions() {
 		return null;
 	}

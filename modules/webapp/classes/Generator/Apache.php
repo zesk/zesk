@@ -111,6 +111,7 @@ class Generator_Apache extends Generator {
 			}
 		}
 		$app = $site->application;
+		$data = to_array($site->data);
 		$contents = $app->theme("webapp/generator/apache/site", array(
 			"generator" => $this,
 			"site" => $site,
@@ -118,11 +119,13 @@ class Generator_Apache extends Generator {
 			"instance" => $this->instance,
 			"source" => $this->instance->path,
 			"webappbin" => $app->webapp_module()->binary(),
-		) + $site->members() + $this->template_defaults() + $this->option());
+		) + $site->members() + $data + $this->template_defaults() + $this->option());
 		$filename = $this->instance->code . "-" . $site->code . ".conf";
 		$fullpath = path($this->vhost_path, $filename);
 		$this->changed += $this->replace_file($fullpath, $contents);
-		$this->site_names[] = $fullpath;
+		if (!empty($contents)) {
+			$this->site_names[] = $fullpath;
+		}
 		return $this;
 	}
 
@@ -174,8 +177,13 @@ class Generator_Apache extends Generator {
 	 */
 	public function template_defaults() {
 		return array(
+			"node_application" => false,
 			"no_webapp" => false,
 			"hostnames" => array(),
+			"indexes" => array(
+				"index.php",
+				"index.html",
+			),
 			"port" => 80,
 		);
 	}

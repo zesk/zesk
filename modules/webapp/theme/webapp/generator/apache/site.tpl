@@ -2,6 +2,8 @@
 namespace zesk\WebApp;
 
 use zesk\ArrayTools;
+use zesk\Directory;
+use zesk\StringTools;
 
 /* @var $this \zesk\Template */
 /* @var $application \zesk\Application */
@@ -19,6 +21,24 @@ use zesk\ArrayTools;
 /* @var $indexes array */
 /* @var $errors array */
 /* @var $hostnames array */
+/* @var $node_application boolean */
+if (isset($data['hostnames']) && is_array($data['hostnames'])) {
+	if (!is_array($hostnames)) {
+		$hostnames = $data['hostnames'];
+	} else {
+		$hostnames = array_merge($data['hostnames'], $hostnames);
+	}
+	unset($data['hostnames']);
+}
+if (!is_array($hostnames) || count($hostnames) === 0) {
+	return;
+}
+
+$path = Directory::add_slash($path);
+if ($node_application && $application->development() && ends($path, "/build/")) {
+	$path = StringTools::unsuffix($path, "/build/") . "/public/";
+}
+
 $lines = array();
 
 echo "# Template " . __FILE__ . "\n";
@@ -53,22 +73,12 @@ if (count($errors) > 0) {
 $tab = "\t";
 
 $lines[] = "<VirtualHost *:$port>";
-if (isset($data['hostnames']) && is_array($data['hostnames'])) {
-	if (!is_array($hostnames)) {
-		$hostnames = $data['hostnames'];
-	} else {
-		$hostnames = array_merge($data['hostnames'], $hostnames);
-	}
-	unset($data['hostnames']);
+$namename = "ServerName";
+foreach ($hostnames as $name) {
+	$lines[] = "\t$namename $name";
+	$namename = "ServerAlias";
 }
-if (is_array($hostnames) && count($hostnames) > 0) {
-	$namename = "ServerName";
-	foreach ($hostnames as $name) {
-		$lines[] = "\t$namename $name";
-		$namename = "ServerAlias";
-	}
-}
-
+$lines[] = '';
 if (!$no_webapp) {
 	$lines[] = $tab . '# Make webapp universally accessible';
 	$lines[] = $tab . "Alias .webapp $webappbin";
@@ -163,5 +173,7 @@ $lines[] = "";
 //$lines[] = "# Available keys: " . implode(", ", ArrayTools::remove_values(array_keys($variables), array("")));
 
 $lines[] = "# Leftover Data: " . json_encode($data);
+
+echo "# " . ($node_application ? "node" : "not-node") . " " . ($application->development() ? "dev" : "prod") . "\n";
 
 echo "\n" . implode("\n", $lines) . "\n";

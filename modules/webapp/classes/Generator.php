@@ -61,10 +61,17 @@ abstract class Generator extends Hookable {
 	 */
 	protected function replace_file($file, $contents) {
 		$disk_contents = File::contents($file, null);
+		$file_exists = ($disk_contents === null) ? false : true;
+
 		$compare_disk_contents = $this->call_hook("file_compare_preprocess", $disk_contents);
 		$compare_contents = $this->call_hook("file_compare_preprocess", $contents);
 		if ($compare_disk_contents === $compare_contents) {
-			return array();
+			// If our file exists and the replacement is empty, make sure we drop through to delete the file
+			if ($file_exists && $contents === "") {
+				// Fall through and delete the file
+			} else {
+				return array();
+			}
 		}
 		if ($this->option_bool("save_previous")) {
 			File::unlink("$file.previous");
@@ -73,7 +80,11 @@ abstract class Generator extends Hookable {
 			}
 		}
 		if (!$this->option_bool("dry_run")) {
-			File::put($file, $contents);
+			if (!empty($contents)) {
+				File::put($file, $contents);
+			} else {
+				File::unlink($file);
+			}
 		}
 		return array(
 			$file => true,
