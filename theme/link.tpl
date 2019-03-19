@@ -16,5 +16,5 @@ if (!is_array($parts)) {
 }
 echo HTML::a($this->content, array(
 	'class' => $this->class,
-	'id' => $this->id
+	'id' => $this->id,
 ), map($this->get('text', $this->content), $parts));
