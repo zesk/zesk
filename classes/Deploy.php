@@ -260,7 +260,7 @@ class Deploy extends Hookable {
 			$this->application->logger->notice("Including PHP file {path}", compact("path"));
 			$app = $application = $this->application;
 			$result = @include $path;
-		} catch (Exception $e) {
+		} catch (\Exception $e) {
 			$this->application->hooks->call("exception", $e);
 			$status = false;
 			$result = null;
@@ -288,7 +288,7 @@ class Deploy extends Hookable {
 		try {
 			$this->application->logger->notice("Loading template {path}", compact("path"));
 			$content = new Template($this->application, $path);
-		} catch (Exception $e) {
+		} catch (\Exception $e) {
 			$this->application->hooks->call("exception", $e);
 			$status = false;
 		}
