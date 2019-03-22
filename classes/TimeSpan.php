@@ -65,6 +65,18 @@ class TimeSpan extends Temporal {
 	}
 
 	/**
+	 * Add seconds to time span
+	 *
+	 * @param string $seconds
+	 *
+	 * @return \zesk\TimeSpan
+	 */
+	public function add($seconds) {
+		$this->duration = $this->duration + $seconds;
+		return $this;
+	}
+
+	/**
 	 * Getter/setter for the duration in seconds
 	 *
 	 * @param string|integer|null $set
@@ -110,18 +122,33 @@ class TimeSpan extends Temporal {
 	public function formatting(Locale $locale = null, array $options = array()) {
 		$seconds = $this->seconds();
 		if ($seconds !== null) {
+			$ss = intval($seconds) % 60;
+			$minutes = floor($seconds / 60);
+			$mm = $minutes % 60;
+			$hours = floor($seconds / 3600);
+			$hh = $hours % 24;
+			$dd = $days = floor($seconds / 86400);
+
 			return array(
 				"seconds" => $seconds,
-				"minutes" => round($seconds / 60),
-				"hours" => round($seconds / 3600),
-				"days" => round($seconds / 86400),
+				"ss" => StringTools::zero_pad($ss, 2),
+				"minutes" => $minutes,
+				"mm" => StringTools::zero_pad($mm, 2),
+				"hours" => $hours,
+				"hh" => StringTools::zero_pad($hh, 2),
+				"days" => $days,
+				"ddd" => StringTools::zero_pad($days % 365, 3),
 			);
 		}
 		return array(
 			"seconds" => '-',
+			"ss" => "-",
 			"minutes" => '-',
+			"mm" => '-',
 			"hours" => '-',
+			"hh" => '-',
 			"days" => '-',
+			"ddd" => '-',
 		);
 	}
 }
