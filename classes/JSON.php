@@ -56,6 +56,40 @@ class JSON {
 		return json_encode($mixed, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES);
 	}
 
+	private static $default_methods = array(
+		"json",
+		"toJSON",
+		"__toJSON",
+	);
+
+	/**
+	 * Prepare internal objects to simple JSON-capable structures
+	 *
+	 * @param mixed $mixed
+	 * @param array $methods
+	 * @return mixed
+	 */
+	public static function prepare($mixed, array $methods = null) {
+		if ($methods === null) {
+			$methods = self::$default_methods;
+		}
+		if (is_object($mixed)) {
+			foreach ($methods as $method) {
+				if (method_exists($mixed, $method)) {
+					return $mixed->$method();
+				}
+			}
+			return strval($mixed);
+		}
+		if (is_array($mixed)) {
+			foreach ($mixed as $k => $v) {
+				$mixed[$k] = self::prepare($v);
+			}
+			return $mixed;
+		}
+		return flatten($mixed);
+	}
+
 	/**
 	 * Like json_encode, except handles special variable name cases to NOT encode JavaScript
 	 *
