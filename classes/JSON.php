@@ -56,8 +56,13 @@ class JSON {
 		return json_encode($mixed, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES);
 	}
 
+	/**
+	 * Default methods to use in prepare
+	 * @var array
+	 */
 	private static $default_methods = array(
 		"json",
+		"to_json",
 		"toJSON",
 		"__toJSON",
 	);
@@ -83,7 +88,7 @@ class JSON {
 		}
 		if (is_array($mixed)) {
 			foreach ($mixed as $k => $v) {
-				$mixed[$k] = self::prepare($v);
+				$mixed[$k] = self::prepare($v, $methods);
 			}
 			return $mixed;
 		}
