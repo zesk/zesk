@@ -807,9 +807,9 @@ class Database extends \zesk\Database {
 		if (to_bool(avalue($options, "sql-dump-command"))) {
 			$bin = "mysqldump";
 			if (isset($options['non-blocking']) && to_bool($options['non-blocking'])) {
-				$args = array_merge(array(
+				$args = array_merge($args, array(
 					"--single-transaction=TRUE",
-				), $args);
+				));
 			}
 			$tables = to_list(avalue($options, "tables", array()));
 			$args = array_merge($args, $tables);

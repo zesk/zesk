@@ -221,7 +221,7 @@ class Server extends ORM implements Interface_Data {
 				$server = $item->get();
 				if ($server instanceof Server) {
 					$one_minute_ago = Timestamp::now()->add_unit(-60);
-					if ($server->alive && $server->alive->after($one_minute_ago)) {
+					if ($server->alive instanceof Timestamp && $server->alive->after($one_minute_ago)) {
 						return $server;
 					}
 				}

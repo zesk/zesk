@@ -262,13 +262,13 @@ abstract class Command extends Hookable implements Logger\Handler, Interface_Pro
 			));
 			if (!$application->configured()) {
 				$logger->debug("Command {class} {app} WAS ALREADY CONFIGURED!!!!", array(
-					"class" => $class,
+					"class" => get_class($this),
 					"app" => get_class($application),
 				));
 			}
 		} else {
 			$logger->debug("Command {class} has configuration, skipping configured call", array(
-				"class" => $class,
+				"class" => get_class($this),
 			));
 		}
 	}
