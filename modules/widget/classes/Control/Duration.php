@@ -16,10 +16,10 @@ class Control_Duration extends Control_Select {
 		$max_duration = $this->option_integer("max_duration_minutes", 12 * 60);
 		$duration_interval = $this->option_integer("duration_interval_minutes", 15);
 		$options = array();
-		$ts = new Timestamp('2000-01-01 00:00:00');
-		for ($i = $duration_interval; $i < $max_duration; $i += $duration_interval) {
-			$ts->midnight()->add_unit($i, Timestamp::UNIT_MINUTE);
-			$options[$i] = $ts->format($locale, $locale->__('Control_Duration::duration_format:={h}:{mm}'));
+		$ts = new TimeSpan();
+		for ($i = $duration_interval; $i <= $max_duration; $i += $duration_interval) {
+			$ts->seconds(0)->add($i * 60);
+			$options[$i] = $ts->format($locale, $locale->__('Control_Duration::duration_format:={hours}:{mm}'));
 		}
 		$this->control_options($options);
 		parent::initialize();
@@ -41,7 +41,7 @@ class Control_Duration extends Control_Select {
 	}
 
 	public function render() {
-		$response = $this->html_response();
+		$response = $this->response();
 		$response->javascript('/share/zesk/js/duration.js');
 		$response->javascript('/share/zesk/js/zesk-date.js');
 		return parent::render();
