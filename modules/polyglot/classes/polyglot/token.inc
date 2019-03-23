@@ -155,7 +155,7 @@ class PolyGlot_Token extends ORM {
 		return $result + self::fetch_all($app, $language, null);
 	}
 
-	public function to_json() {
+	public function json(array $options = array()) {
 		$members = $this->members(array(
 			"id",
 			"language",

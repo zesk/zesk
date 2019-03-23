@@ -71,12 +71,12 @@ class Controller_PolyGlot extends Controller_Authenticated {
 			"locale" => $locale_string,
 		);
 		if ($this->user->can("zesk\\Module_PolyGlot::load", null, array(
-			"locale" => $locale,
+			"locale" => $app_locale,
 		))) {
 			return $this->json(array(
 				"status" => true,
 				"message" => $app_locale->__("Loaded locale {lang_name}.", $__),
-				"items" => $this->module->load_locale($locale),
+				"items" => $this->module->load_locale($app_locale),
 			));
 		}
 		return $this->json(array(
