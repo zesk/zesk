@@ -17,6 +17,15 @@ Version 1.0 of Zesk will have:
 - Website `https://zesk.com` with basic documentation
 
 <!-- HERE -->
+## [v0.25.1][]
+
+**Mon Mar 25 23:54:49 EDT 2019**
+
+- **Cron Module**: Fixing upgraded `zesk\Locale` API calls.
+- **Help Module**: Fixing `zesk\Locale` API calls.
+- **ORM Module**: `zesk\ORM->member_model_factory()` calling `->refresh` creates infinite loops. Removing `->refresh()` call.
+- **Server Module**: Fixing `zesk\Controller_DNS` to correctly link to `zesk\Diff\Lines`
+- **Zesk Kernel**: `zesk\Route\Theme` supports HTML to JSON output better.
 
 ## [v0.25.0][]
 
@@ -2012,7 +2021,8 @@ Settling of `zesk\Kernel` and `zesk\` namespace changes, added additional compon
  - `zesk::class_hierarchy` -> `zesk()->classes->hierarchy`
 - Removed growl module (no longer relevant on Mac OS X)
 
-[v0.24.0]: https://github.com/zesk/zesk/compare/v0.24.0...v0.25.0
+[v0.25.1]: https://github.com/zesk/zesk/compare/v0.25.0...v0.25.1
+[v0.25.0]: https://github.com/zesk/zesk/compare/v0.24.0...v0.25.0
 [v0.24.0]: https://github.com/zesk/zesk/compare/v0.23.5...v0.24.0
 [v0.23.5]: https://github.com/zesk/zesk/compare/v0.23.4...v0.23.5
 [v0.23.4]: https://github.com/zesk/zesk/compare/v0.23.3...v0.23.4
