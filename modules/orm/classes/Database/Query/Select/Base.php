@@ -137,8 +137,8 @@ abstract class Database_Query_Select_Base extends Database_Query {
 	 *        	Default value to retrieve
 	 * @return Timestamp
 	 */
-	public function one_timestamp($field = 0, $default = null) {
-		return $this->timestamp($field, $default);
+	public function one_timestamp($field = 0, $default = null, DateTimeZone $timezone = null) {
+		return $this->timestamp($field, $default, $timezone);
 	}
 
 	/**
