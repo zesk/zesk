@@ -455,6 +455,9 @@ class Request extends Hookable {
 					$this->data = array();
 					parse_str($this->data_raw, $this->data);
 					break;
+				case "multipart/form-data":
+					$this->data = $_REQUEST;
+					break;
 				default:
 					$this->data = array();
 					break;
