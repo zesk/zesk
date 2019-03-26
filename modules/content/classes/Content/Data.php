@@ -106,7 +106,7 @@ class Content_Data extends ORM {
 			$object = $app->orm_factory(__CLASS__, $fields);
 			$row = $object->exists();
 			if ($row) {
-				$object->object_status(self::status_exists);
+				$object->object_status(self::object_status_exists);
 				return $object->initialize($row, true);
 			}
 		}
@@ -245,6 +245,11 @@ class Content_Data extends ORM {
 	 */
 	public function copy_file($destination) {
 		if ($this->type === 'path') {
+			if (!file_exists($this->_filepath())) {
+				// Note that this can happen on load-balanced applications
+				// where files are not synced between systems.
+				throw new Exception_File_NotFound($this->_filepath());
+			}
 			return copy($this->_filepath(), $destination);
 		} else {
 			return file_put_contents($destination, $this->data()) !== false;
@@ -394,10 +399,10 @@ class Content_Data extends ORM {
 	 */
 	public static function database_size_threshold(Application $application) {
 		/* @var $data Content_Data */
-		$data = $application->object(__CLASS__);
+		$data = $application->orm_registry(__CLASS__);
 		$result = $data->option_integer('database_size_threshold', 8 * 1024 * 1024); // Handles most images, which is what we want.
 		if (!self::$checked_db) {
-			$size = $application->object_database(__CLASS__)->feature(Database::FEATURE_MAX_BLOB_SIZE);
+			$size = $data->database()->feature(Database::FEATURE_MAX_BLOB_SIZE);
 			if ($size < $result) {
 				$data->set_option("database_size_threshold", $result);
 				$application->configuration->path_set(array(
