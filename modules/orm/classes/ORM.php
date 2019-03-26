@@ -1148,7 +1148,7 @@ class ORM extends Model implements Interface_Member_Model_Factory {
 	 * @return ORM|null
 	 */
 	public function member_model_factory($member, $class, $data = null, array $options = array()) {
-		return $this->orm_factory($class, $data, $options)->refresh();
+		return $this->orm_factory($class, $data, $options); //->refresh();
 	}
 
 	/**
