@@ -479,6 +479,7 @@ class Module extends \zesk\Module {
 	 */
 	private function _run() {
 		$hooks = $this->application->hooks;
+		$locale = $this->application->locale;
 		$now = Timestamp::now();
 		$results = array();
 
@@ -545,7 +546,7 @@ class Module extends \zesk\Module {
 				$last_unit_run = self::_last_cron_run($state, $unit);
 				$this->application->logger->debug("Last ran {unit} {when}", array(
 					"unit" => $unit,
-					"when" => $last_unit_run->format(),
+					"when" => $last_unit_run->format($locale),
 				));
 				if ($now->difference($last_unit_run, $unit) > 0) {
 					self::_cron_ran($state, $unit, $now);
@@ -665,6 +666,7 @@ class Module extends \zesk\Module {
 		if (empty($prefix)) {
 			throw new Exception_Parameter("Prefix mus be non-empty to hourly");
 		}
+		$locale = $settings->application->locale;
 		/*
 		 * last_check - last time this script checked if it should run
 		 * last_run - last time this cron task was actually ran
@@ -685,21 +687,21 @@ class Module extends \zesk\Module {
 			$last_check = Timestamp::factory($last_check);
 		}
 		$now_minute = $now->minute();
-		$settings->set($last_check_setting, $now->format());
+		$settings->set($last_check_setting, $now->format($locale));
 		$format = '{YYYY}-{MM}-{DD}-{hh}';
 		if ($last_run !== null) {
-			if ($last_run->format($format) === $now->format($format)) {
+			if ($last_run->format($locale, $format) === $now->format($locale, $format)) {
 				return false;
 			}
 		}
 		if ($last_check === null) {
 			if ($now_minute === $minute_to_hit) {
-				$settings->set($last_run_setting, $now->format());
+				$settings->set($last_run_setting, $now->format($locale));
 				return true;
 			}
 		} else {
 			if ($hour_minute->before($now) && $hour_minute->after($last_check)) {
-				$settings->set($last_run_setting, $now->format());
+				$settings->set($last_run_setting, $now->format($locale));
 				return true;
 			}
 		}
@@ -739,6 +741,7 @@ class Module extends \zesk\Module {
 		$last_run_setting = $prefix . 'daily_last_run';
 		$last_check_setting = $prefix . 'daily_last_check';
 
+		$locale = $settings->application->locale;
 		$now = Timestamp::factory('now');
 		$today_hour = clone $now;
 		$today_hour->hour($hour_to_hit)->minute(0)->second(0);
@@ -751,21 +754,21 @@ class Module extends \zesk\Module {
 			$last_check = Timestamp::factory($last_check);
 		}
 		$now_hour = $now->hour();
-		$settings->set($last_check_setting, $now->format());
+		$settings->set($last_check_setting, $now->format($locale));
 		$format = '{YYYY}-{MM}-{DD}';
 		if ($last_run !== null) {
-			if ($last_run->format($format) === $now->format($format)) {
+			if ($last_run->format($locale, $format) === $now->format($locale, $format)) {
 				return false;
 			}
 		}
 		if ($last_check === null) {
 			if ($now_hour === $hour_to_hit) {
-				$settings->set($last_run_setting, $now->format());
+				$settings->set($last_run_setting, $now->format($locale));
 				return true;
 			}
 		} else {
 			if ($today_hour->before($now) && $today_hour->after($last_check)) {
-				$settings->set($last_run_setting, $now->format());
+				$settings->set($last_run_setting, $now->format($locale));
 				return true;
 			}
 		}
