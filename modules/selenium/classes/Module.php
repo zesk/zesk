@@ -1,9 +1,26 @@
 <?php
-namespace zesk;
+/**
+ *
+ */
+namespace zesk\Selenium;
 
-class Module_PHP_WebDriver_Facebook extends Module {
+/**
+ *
+ * @author kent
+ *
+ */
+class Module extends \zesk\Module {
+	/**
+	 *
+	 * @var string
+	 */
 	private $lib_path = null;
 
+	/**
+	 *
+	 * {@inheritDoc}
+	 * @see \zesk\Module::initialize()
+	 */
 	public function initialize() {
 		$this->lib_path = $this->application->path("vendor/php-webdriver-facebook");
 		if (!is_dir($this->lib_path)) {
@@ -13,6 +30,5 @@ class Module_PHP_WebDriver_Facebook extends Module {
 		if (!is_file($init)) {
 			throw new Exception_File_NotFound($init, "Initializing selenium/php-webdriver-facebook");
 		}
-		require_once $init;
 	}
 }
