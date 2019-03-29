@@ -128,6 +128,35 @@ class Hooks {
 			$this,
 			"_app_call",
 		), 'shutdown');
+
+		register_shutdown_function(array(
+			$this,
+			"_app_check_error",
+		));
+	}
+
+	private static $fatals = array(
+		E_USER_ERROR => 'Fatal Error',
+		E_ERROR => 'Fatal Error',
+		E_PARSE => 'Parse Error',
+		E_CORE_ERROR => 'Core Error',
+		E_CORE_WARNING => 'Core Warning',
+		E_COMPILE_ERROR => 'Compile Error',
+		E_COMPILE_WARNING => 'Compile Warning',
+	);
+
+	/**
+	 * Shutdown functino to log errors
+	 */
+	public function _app_check_error() {
+		if (!$err = error_get_last()) {
+			return;
+		}
+		if (isset(self::$fatals[$err['type']])) {
+			$msg = __METHOD__ . ': ' . self::$fatals[$err['type']] . ': ' . $err['message'] . ' in ';
+			$msg .= $err['file'] . ' on line ' . $err['line'];
+			error_log($msg);
+		}
 	}
 
 	/**
