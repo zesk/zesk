@@ -405,14 +405,18 @@ class Module extends \zesk\Module implements \zesk\Interface_Module_Routes {
 
 		if ($register && count($results) > 0) {
 			foreach ($results as $result) {
-				$instance = $result['instance'];
-				$app->logger->debug("Refreshing instance #{id} {name} version", $instance->members());
-				$instance->refresh_appversion();
+				$instance = $result['instance'] ?? null;
+				if ($instance) {
+					$app->logger->debug("Refreshing instance #{id} {name} version", $instance->members());
+					$instance->refresh_appversion();
+				}
 			}
 			foreach ($results as $result) {
-				$instance = $result['instance'];
-				$app->logger->debug("Refreshing instance #{id} {name} repo", $instance->members());
-				$instance->refresh_repository();
+				$instance = $result['instance'] ?? null;
+				if ($instance) {
+					$app->logger->debug("Refreshing instance #{id} {name} repo", $instance->members());
+					$instance->refresh_repository();
+				}
 			}
 		}
 		return $results;
