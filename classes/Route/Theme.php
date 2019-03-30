@@ -74,16 +74,12 @@ class Route_Theme extends Route {
 			$application->logger->debug("Executing theme={theme} mapped_theme={mapped_theme} args={args}", compact("theme", "mapped_theme", "args"));
 		}
 		$content = $application->theme($mapped_theme, $args, $theme_options); //TODO
-		if ($response->is_json()) {
-			return;
-		}
-		if ($this->option_bool('json')) {
-			return $response->json()->data($response->to_json() + array(
-				"content" => $content,
+		$response->content = $content;
+
+		if ($response->is_json() || $this->option_bool('json')) {
+			$response->json()->data($response->html()->to_json() + array(
 				"status" => true,
 			));
-		} else {
-			$response->content = $content;
 		}
 	}
 }

@@ -494,8 +494,14 @@ abstract class Locale extends Hookable {
 	 * @return array
 	 */
 	private static function time_units() {
+		$year = (365 * 24 * 3600 * 4 + 1) / 4;
+		$month = $year / 12;
 		return array(
-			2635200 => "month",
+			$year * 1000 => "millenium",
+			$year * 100 => "century",
+			$year * 10 => "decade",
+			$year => "year",
+			$month => "month",
 			604800 => "week",
 			86400 => "day",
 			3600 => "hour",

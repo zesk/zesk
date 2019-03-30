@@ -5,11 +5,7 @@
     ],
     "autoload_options": {
         "class_prefix": "zesk\\",
-        "lower": true,
-        "extensions": [
-            "php",
-            "inc"
-        ]
+        "lower": false
     },
     "module_class": "zesk\\Module_Contact"
 }

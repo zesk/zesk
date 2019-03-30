@@ -28,12 +28,18 @@ class Process {
 
 	/**
 	 *
-	 * @throws Exception_System
 	 */
 	public function __sleep() {
-		throw new Exception_System("Should not serialize {class}", array(
-			"class" => __CLASS__,
-		));
+		return array(
+			"debug",
+		);
+	}
+
+	/**
+	 *
+	 */
+	public function __wakeup() {
+		$this->application = __wakeup_application();
 	}
 
 	/**

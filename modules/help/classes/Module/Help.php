@@ -99,7 +99,7 @@ class Module_Help extends Module_JSLib {
 			foreach (to_list("title", "content") as $translation_key) {
 				if (array_key_exists($translation_key, $settings)) {
 					// Will register with localization. Is there a more explicit way to do this?
-					$locale->__($settings[$translation_key], $locale);
+					$locale->__($settings[$translation_key]);
 				}
 			}
 			$settings['target'] = $target;

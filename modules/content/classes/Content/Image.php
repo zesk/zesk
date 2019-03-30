@@ -46,14 +46,27 @@ class Content_Image extends ORM {
 		return $register ? $image->register() : $image->store();
 	}
 
+	/**
+	 *
+	 * @return boolean
+	 */
 	public function is_portrait() {
 		return $this->height > $this->width;
 	}
 
+	/**
+	 *
+	 * @return boolean
+	 */
 	public function is_landscape() {
 		return $this->width > $this->height;
 	}
 
+	/**
+	 *
+	 * {@inheritDoc}
+	 * @see \zesk\ORM::fetch_object()
+	 */
 	protected function fetch_object() {
 		$query = $this->query_select("X");
 		$get_data = false;
@@ -147,6 +160,10 @@ class Content_Image extends ORM {
 		return $extension ? File::extension_change($path, $extension) : $path;
 	}
 
+	/**
+	 *
+	 * @return string
+	 */
 	public function basename() {
 		return basename($this->path);
 	}
@@ -268,7 +285,12 @@ class Content_Image extends ORM {
 			$path = $this->path();
 			$dir = dirname($path);
 			Directory::depend($dir);
-			$result = $this->data->copy_file($path);
+
+			try {
+				$result = $this->data->copy_file($path);
+			} catch (Exception_File_NotFound $e) {
+				return false;
+			}
 			$fixed_path = $this->fix_extension($this->path, $path);
 			if ($fixed_path !== $this->path) {
 				$this->path = $fixed_path;
@@ -403,5 +425,179 @@ class Content_Image extends ORM {
 			->what("*n", "COUNT(users.id)")
 			->one_integer('n'));
 		return $is_mine;
+	}
+
+	/**
+	 * For all images in the database, convert them all so they are all reduced per options passed in.
+	 *
+	 * This is destructive and can be very damaging to your content if you wish to retain full-sized images.
+	 *
+	 * Options are:
+	 *
+	 * "size" - Max file size
+	 * "width" - Scale to this maximum width
+	 * "height" - Scale to this maximum height
+	 * "delete" - boolean value. Whether to delete old Content_Data.
+	 *
+	 * @see self::reduce_image_dimensions
+	 * @param Application $application
+	 * @param integer $theshold
+	 */
+	public static function downscale_images(Application $application, array $options) {
+		$query = $application->orm_registry(__CLASS__)->query_select("X");
+		$query->what_object(__CLASS__, "X", "image_");
+		$query->link(Content_Data::class, array(
+			"alias" => "D",
+		));
+		$query->what_object(Content_Data::class, "D", "data_");
+		$query->where("D.type", "path");
+		$size = avalue($options, 'size');
+		if ($size) {
+			$query->where("D.size|>=", $size);
+		}
+
+		$iterator = $query->orms_iterator();
+		foreach ($iterator as $row) {
+			/* @var $image Content_Image */
+			/* @var $data Content_Data */
+			$image = $row['X'];
+			$data = $row['D'];
+
+			try {
+				$image->reduce_image_dimensions($options);
+			} catch (Exception_File_Format $e) {
+				$application->logger->warning("{class} #{id} - {path} - {data_md5hash} Invalid image format", array(
+					"class" => get_class($image),
+					"id" => $image->id(),
+					"path" => $image->path,
+					'data_md5hash' => $data->md5hash,
+				));
+			}
+		}
+	}
+
+	/**
+	 * Options are:
+	 *
+	 * "size" - Max file size
+	 * "width" - Scale to this maximum width
+	 * "height" - Scale to this maximum height
+	 * "delete" - boolean value. Whether to delete old Content_Data.
+	 *
+	 * If all three
+	 * @param array $options
+	 * @return NULL
+	 */
+	public function reduce_image_dimensions(array $options) {
+		$path = $this->path();
+		$__ = array(
+			'id' => $this->id(),
+			'class' => get_class($this),
+			'data_id' => $this->member_integer('data'),
+			'path' => basename($path),
+			"data_name" => $this->data->md5hash,
+		);
+		if (!$this->file_exists(true)) {
+			$this->application->logger->info("{class} #{id}: {path}: No file found {data_name}", $__);
+			return $this;
+			return null;
+		}
+		$scaled = $path . '.scaled';
+		$size = filesize($path);
+
+		$this->_update_sizes();
+
+		$__ += array(
+			'width' => $width,
+			'height' => $height,
+			'max_size' => $maximum_file_size,
+			'size' => $size,
+		);
+		$maximum_file_size = isset($options['size']) ? $options['size'] : null;
+		$maximum_width = isset($options['width']) ? $options['width'] : null;
+		$maximum_height = isset($options['height']) ? $options['height'] : null;
+
+		if ($maximum_file_size === null && $maximum_width === null && $maximum_height === null) {
+			throw new Exception_Parameter("{method}: Parameter \$options must contain one of keys: size, width, height", array(
+				'method' => __METHOD__,
+			));
+		}
+		$new_width = $width = $this->width;
+		$new_height = $height = $this->height;
+
+		$__ = array(
+			'id' => $this->id(),
+			'class' => get_class($this),
+			'data_id' => $this->member_integer('data'),
+			'width' => $width,
+			'height' => $height,
+			'max_size' => $maximum_file_size,
+			'size' => $size,
+			'path' => basename($path),
+		);
+
+		if (is_numeric($maximum_file_size)) {
+			$ratio = $maximum_file_size / $size;
+
+			$new_width = round($width * $ratio);
+			$new_height = round($height * $ratio);
+		}
+
+		if ($maximum_width !== null) {
+			if ($new_width > $maximum_width) {
+				$new_height = $new_height * ($maximum_width / $new_width);
+				$new_width = $maximum_width;
+			}
+		}
+		if ($maximum_height !== null) {
+			if ($new_height > $maximum_height) {
+				$new_width = $new_width * ($maximum_height / $new_height);
+				$new_height = $maximum_height;
+			}
+		}
+		if ($new_width === $width && $new_height === $height) {
+			$this->application->logger->info("{class} #{id}: {path}: Size unchanged", $__);
+			return $this;
+		}
+		$__ += array(
+			'new_width' => $new_width,
+			'new_height' => $new_height,
+		);
+		$imageTool = Image_Library::factory($this->application);
+
+		try {
+			if (!$imageTool->image_scale($path, $scaled, array(
+				"width" => $new_width,
+				"height" => $new_height,
+			))) {
+				$this->application->logger->error("{class} #{id} Unable to scale {path} (data {data_id}) to {new_width}x{new_height}", $__);
+
+				throw new Exception_Convert("{class} #{id} Unable to scale {path} (data {data_id}) to {new_width}x{new_height}", $__);
+			}
+		} catch (Exception_Semantics $e) {
+			throw new Exception_File_Format($path, "Invalid image format");
+			// zesk\Image_Library_GD::_imageload passed an invalid string of 14103036 bytes
+		}
+		$__['new_size'] = $new_size = filesize($scaled);
+		$__['percent'] = sprintf("%0.2f%%", ($new_size / $size) * 100);
+		$__['status'] = ($new_size < $maximum_file_size) ? "OK" : "FAILED";
+
+		$this->application->logger->info("{class} #{id}: {path}: {percent} new size {status} {size} bytes ({width}x{height}) => {new_size} bytes ({new_width}x{new_height}) (MAX: {max_size})", $__);
+
+		$old_data = $this->data;
+		$new_data = Content_Data::from_path($this->application, $scaled, false, true);
+		$this->data = $new_data;
+		$result = $this->store();
+		if ($result) {
+			if (avalue($options, 'delete')) {
+				$this->application->logger->notice("{class} #{id}: {path}: {percent} REPLACED Data: {new_data_id}, Deleting old image data: {data_id}", $__);
+				$old_data->delete();
+			} else {
+				$this->application->logger->info("{class} #{id}: {path}: {percent} REPLACED Data: {new_data_id}, Previous: {data_id}", $__ + array(
+					"new_data_id" => $new_data->id(),
+				));
+			}
+		}
+		return $result;
 	}
 }

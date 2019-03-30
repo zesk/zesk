@@ -215,8 +215,9 @@ class Image_Library_GD extends Image_Library {
 		}
 		$src = @imagecreatefromstring($contents);
 		if (!is_resource($src)) {
-			throw new Exception_Semantics("{method} passed an invalid string of {n} bytes", array(
+			throw new Exception_Semantics("{method} passed an invalid string from {source} of {n} bytes", array(
 				"n" => strlen($contents),
+				"source" => $source,
 				"method" => __METHOD__,
 			));
 		}

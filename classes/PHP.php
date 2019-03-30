@@ -331,14 +331,43 @@ class PHP {
 	public static function feature($feature, $value) {
 		$feature = strtolower($feature);
 		switch ($feature) {
-			case "time_limit":
+			case self::FEATURE_TIME_LIMIT:
+				$old_value = ini_get('max_execution_time');
 				set_time_limit(intval($value));
-				return true;
+				return $old_value;
+			case self::FEATURE_MEMORY_LIMIT:
+				$old_value = to_bytes(ini_get('memory_limit'));
+				ini_set('memory_limit', to_bytes($value));
+				return $old_value;
 			default:
 				throw new Exception_Unimplemented("No such feature {feature}", compact("feature"));
 		}
 		return null;
 	}
+
+	/**
+	 * Constant to set the current script time limit (applies to web server only)
+	 *
+	 * @see PHP::feature
+	 * @var string
+	 */
+	const FEATURE_TIME_LIMIT = 'time_limit';
+
+	/**
+	 * Constant to set the current script memory limit. Takes an integer, or a string compatible with to_bytes
+	 *
+	 * @see to_bytes
+	 * @see PHP::feature
+	 * @var string
+	 */
+	const FEATURE_MEMORY_LIMIT = 'memory_limit';
+
+	/**
+	 * Used with FEATURE_MEMORY_LIMIT to set limit to unlimited. Use with caution.
+	 *
+	 * @var integer`
+	 */
+	const MEMORY_LIMIT_UNLIMITED = -1;
 
 	/**
 	 * Is this a valid function name, syntactically?

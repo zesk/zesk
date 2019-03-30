@@ -1,6 +1,8 @@
 <?php
 namespace zesk;
 
+use zesk\Diff\Lines;
+
 /**
  *
  * @author kent
@@ -47,7 +49,7 @@ class Controller_DNS extends Controller_Theme {
 				$old_records = array_values($old_records);
 				sort($new_records);
 				$new_records = array_values($new_records);
-				$diff = new Diff_Lines($old_records, $new_records, true);
+				$diff = new Lines($old_records, $new_records, true);
 				if ($diff->is_identical()) {
 					continue;
 				}

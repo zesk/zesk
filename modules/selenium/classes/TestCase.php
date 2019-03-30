@@ -2,13 +2,15 @@
 /**
  * @copyright &copy; 2017 Market Acumen, Inc.
  */
-namespace zesk;
+namespace zesk\Selenium;
+
+use zesk\Exception_Configuration;
 
 /**
  * @author kent
  *
  */
-class Test_Selenium extends Test_Unit {
+class TestCase extends \zesk\PHPUnit_TestCase {
 	protected $load_modules = array(
 		"selenium/php-webdriver-facebook",
 	);
@@ -42,6 +44,9 @@ class Test_Selenium extends Test_Unit {
 	 */
 	protected $timeout = 5000;
 
+	/**
+	 *
+	 */
 	public function cleanup() {
 		$this->close();
 	}
