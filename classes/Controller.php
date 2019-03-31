@@ -396,15 +396,4 @@ class Controller extends Hookable implements Interface_Theme {
 	public function _to_php() {
 		return '$application, ' . PHP::dump($this->options);
 	}
-
-	/**
-	 * Render response
-	 *
-	 * @deprecated 2018-01
-	 * @return string
-	 */
-	public function render() {
-		zesk()->deprecated();
-		return $this->response->render();
-	}
 }
