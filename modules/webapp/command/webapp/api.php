@@ -6,6 +6,8 @@ use zesk\Command_Base;
 /**
  * Manage web apps using a command-line API
  *
+ * Current commands are: generate, index, configure
+ *
  * @author kent
  * @category Web Application Manager
  * @author kent
@@ -35,6 +37,8 @@ class Command_WebApp_API extends Command_Base {
 	 * @see \zesk\Command::run()
 	 */
 	protected function run() {
+		$this->configure("webapp-api");
+
 		$this->webapp = $this->application->webapp_module();
 
 		$result = array();

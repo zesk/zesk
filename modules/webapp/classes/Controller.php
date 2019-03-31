@@ -26,53 +26,7 @@ class Controller extends \zesk\Controller {
 	 */
 	const QUERY_PARAM_HASH = "hash";
 
-	/**
-	 *
-	 * @var Module
-	 */
-	private $webapp = null;
-
-	/**
-	 *
-	 * @var Server
-	 */
-	private $server = null;
-
-	/**
-	 * Check authentication and return true or false.
-	 *
-	 * Modifies internal ->auth_reason
-	 *
-	 * @return boolean
-	 */
-	private function check_authentication() {
-		$request = $this->request;
-		return $this->webapp->check_authentication($request->geti(self::QUERY_PARAM_TIME), $request->get(self::QUERY_PARAM_HASH));
-	}
-
-	/**
-	 *
-	 * @param string $message
-	 * @return self
-	 */
-	private function auth_error_json($message) {
-		$this->response->status(Net_HTTP::STATUS_UNAUTHORIZED);
-		return $this->json(array(
-			"status" => false,
-			"message" => "Authentication failed: $message",
-		));
-	}
-
-	/**
-	 *
-	 * {@inheritDoc}
-	 * @see \zesk\Controller_Authenticated::initialize()
-	 */
-	public function initialize() {
-		parent::initialize();
-		$this->webapp = $this->application->webapp_module();
-		$this->server = $this->webapp->server();
-	}
+	use ControllerTrait;
 
 	/**
 	 *
@@ -98,13 +52,11 @@ class Controller extends \zesk\Controller {
 	 *
 	 */
 	public function action_configure() {
-		if (($authenticated = $this->check_authentication()) === true) {
+		if ($this->authenticated()) {
 			return $this->json(array(
 				"status" => true,
 				"payload" => ArrayTools::scalars($this->instance_factory(true)),
 			));
-		} else {
-			return $this->auth_error_json($authenticated);
 		}
 	}
 
@@ -112,14 +64,12 @@ class Controller extends \zesk\Controller {
 	 *
 	 */
 	public function action_generate() {
-		if (($authenticated = $this->check_authentication()) === true) {
+		if ($this->authenticated()) {
 			$generator = $this->webapp->generate_configuration();
 			return $this->json(array(
 				"success" => true,
 				"changed" => $generator->changed(),
 			));
-		} else {
-			return $this->auth_error_json($authenticated);
 		}
 	}
 
@@ -178,14 +128,14 @@ class Controller extends \zesk\Controller {
 	public function _action_default($action = null) {
 		$request = $this->request;
 		$server = $this->server;
-		$authenticated = $this->check_authentication(to_integer($request->get("time")), $request->get("hash")) === true;
+		$authenticated = $this->check_authentication();
 
 		$result = array(
 			"host" => System::uname(),
 			"ip" => $server->ip4_internal,
 			"remote" => $request->ip(),
 		);
-		if ($authenticated) {
+		if ($authenticated === true) {
 			$result += array(
 				"server" => $server->id(),
 				"keygroup" => md5($this->webapp->key()),

@@ -20,6 +20,9 @@ use zesk\Server_Data;
 use zesk\URL;
 use zesk\Net_HTTP_Client;
 use zesk\Exception_Syntax;
+use zesk\Controller as zeskController;
+use zesk\Response;
+use zesk\Net_HTTP;
 
 class Module extends \zesk\Module implements \zesk\Interface_Module_Routes {
 	/**
@@ -140,10 +143,10 @@ class Module extends \zesk\Module implements \zesk\Interface_Module_Routes {
 	 * @see \zesk\Interface_Module_Routes::hook_routes()
 	 */
 	public function hook_routes(Router $router) {
-		$router->add_route(trim($this->option("route_prefix", "webapp"), '/') . '(/{option action})', array(
+		$router->add_route(trim($this->option("route_prefix", "webapp"), '/') . '(/{option action})*', array(
 			"controller" => Controller::class,
 		));
-		$router->add_route('.webapp(/{option action})', array(
+		$router->add_route('.webapp(/{option action})*', array(
 			"controller" => Controller::class,
 		));
 	}
@@ -224,6 +227,8 @@ class Module extends \zesk\Module implements \zesk\Interface_Module_Routes {
 	/**
 	 * Scans `zesk\WebApp\Module::path` directory to find all `webapp.json` files, each representing an application
 	 * instance. Applications may contain one or more sites served from document roots within each application.
+	 *
+	 * This can be extremely slow so do not do it often. (Add max_depth to Directory::list_recursive to speed up?)
 	 *
 	 * @return integer[string] Array of filename => modification time
 	 */
@@ -489,6 +494,29 @@ class Module extends \zesk\Module implements \zesk\Interface_Module_Routes {
 	}
 
 	/**
+	 * Check the authentication as a webapp request for any request
+	 *
+	 * @param Request $request
+	 * @return string|true
+	 */
+	public function check_request_authentication(Request $request) {
+		return $this->check_authentication($request->geti(Controller::QUERY_PARAM_TIME), $request->get(Controller::QUERY_PARAM_HASH));
+	}
+
+	/**
+	 *
+	 * @param string $message
+	 * @return self
+	 */
+	public function response_authentication_failed(Response $response, $message) {
+		$response->status(Net_HTTP::STATUS_UNAUTHORIZED);
+		return $response->json(array(
+			"status" => false,
+			"message" => "Authentication failed: $message",
+		));
+	}
+
+	/**
 	 *
 	 * @param string $action
 	 */
@@ -517,7 +545,7 @@ class Module extends \zesk\Module implements \zesk\Interface_Module_Routes {
 	 * @param string $action
 	 * @return array
 	 */
-	public function server_action(Server $server, $action) {
+	public function server_action(Server $server, $action, array $query = []) {
 		$app = $this->application;
 		$webapp = $app->webapp_module();
 		$client = new Net_HTTP_Client($app);
@@ -531,7 +559,7 @@ class Module extends \zesk\Module implements \zesk\Interface_Module_Routes {
 			$url = URL::query_append("http://" . $server->ip4_internal . "/webapp/$action", array(
 				Controller::QUERY_PARAM_TIME => $time,
 				Controller::QUERY_PARAM_HASH => $hash,
-			));
+			) + $query);
 			$client->url($url);
 			$result['time'] = $time;
 			$result['time_string'] = Timestamp::factory($time, "UTC")->format($app->locale, Timestamp::FORMAT_JSON);
@@ -546,5 +574,24 @@ class Module extends \zesk\Module implements \zesk\Interface_Module_Routes {
 			$result['message'] = $e->getMessage();
 		}
 		return $result;
+	}
+
+	/**
+	 * Add a custom message handler to the current Router
+	 *
+	 * @param string $message
+	 * @param array $options
+	 * @return \zesk\Route
+	 */
+	public function add_message_route(Router $router, $message, array $options) {
+		$module = $this;
+		$options['before_hook'] = function (zeskController $controller) use ($module) {
+			if (($message = $module->check_request_authentication($controller->request())) !== true) {
+				$module->response_authentication_failed($controller->response(), $message);
+			}
+		};
+		$router->add_route("/webapp/$message", $options);
+		$router->add_route(".webapp/$message", $options);
+		return $this;
 	}
 }
