@@ -23,6 +23,7 @@ namespace zesk;
  */
 class Command_Eval extends Command_Base {
 	protected $option_types = array(
+		'skip-configure' => 'boolean',
 		'json' => 'boolean',
 		'interactive' => 'boolean',
 		'debug-state' => 'boolean',
@@ -30,6 +31,7 @@ class Command_Eval extends Command_Base {
 	);
 
 	protected $option_help = array(
+		'skip-configure' => 'Skip application configuration',
 		'json' => 'Output results as JSON instead of PHP',
 		'interactive' => 'Run interactively',
 		'debug-state' => 'Run interactively. When running interactively the ',
@@ -38,6 +40,7 @@ class Command_Eval extends Command_Base {
 
 	protected $option_chars = array(
 		'i' => 'interactive',
+		's' => 'skip-configure',
 	);
 
 	/**
@@ -61,6 +64,9 @@ class Command_Eval extends Command_Base {
 	 * @see \zesk\Command::run()
 	 */
 	public function run() {
+		if (!$this->option_bool("skip-configure")) {
+			$this->configure("eval");
+		}
 		$this->handle_base_options();
 		$this->saved_vars = array();
 		while ($this->has_arg()) {
