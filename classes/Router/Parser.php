@@ -114,7 +114,7 @@ class Parser {
 			$logger->error("Router {path} has no valid options {options_string}", array(
 				"path" => $path,
 				"options" => $options,
-				"options_string" => json_encode($options),
+				"options_string" => JSON::encode($options),
 			));
 		} else {
 			foreach ($paths as $path) {

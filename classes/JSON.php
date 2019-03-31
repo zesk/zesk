@@ -96,6 +96,20 @@ class JSON {
 	}
 
 	/**
+	 * Prefer default JSON options, so use this for compatibility (this will probably go away)
+	 *
+	 * @param mixed $mixed
+	 *        	Item to encode using JSON
+	 * @return string JSON string of encoded item
+	 */
+	public static function encode($mixed) {
+		if (function_exists("json_encode")) {
+			return json_encode($mixed, JSON_UNESCAPED_SLASHES);
+		}
+		return self::zencode($mixed);
+	}
+
+	/**
 	 * Like json_encode, except handles special variable name cases to NOT encode JavaScript
 	 *
 	 * JSON::encode(array('*method' => 'open_window', 'count' => 5)) =
@@ -107,7 +121,7 @@ class JSON {
 	 *        	Item to encode using JSON
 	 * @return string JSON string of encoded item
 	 */
-	public static function encode($mixed) {
+	public static function zencode($mixed) {
 		static $recursion = 0;
 		if (is_array($mixed) || is_object($mixed)) {
 			if ($recursion > 10) {
@@ -117,7 +131,7 @@ class JSON {
 			if (!is_object($mixed) && !ArrayTools::is_assoc($mixed)) {
 				foreach ($mixed as $v) {
 					$recursion++;
-					$result[] = self::encode($v);
+					$result[] = self::zencode($v);
 					$recursion--;
 				}
 				return '[' . implode(',', $result) . ']';
@@ -134,14 +148,14 @@ class JSON {
 				} else {
 					$mixed = get_class($mixed) . ":no-json-method";
 				}
-				return self::encode($mixed);
+				return self::zencode($mixed);
 			} else {
 				foreach ($mixed as $k => $v) {
 					if (substr($k, 0, 1) === '*') {
 						$result[] = self::quote(substr($k, 1)) . ":" . $v;
 					} else {
 						$recursion++;
-						$result[] = self::quote($k) . ":" . self::encode($v);
+						$result[] = self::quote($k) . ":" . self::zencode($v);
 						$recursion--;
 					}
 				}

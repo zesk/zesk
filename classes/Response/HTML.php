@@ -619,7 +619,7 @@ class HTML extends Type {
 		extract($attributes, EXTR_IF_EXISTS);
 		if ($root_dir) {
 			if ($debug) {
-				$this->application->logger->debug("rootdir (" . json_encode($root_dir) . ") check $_path");
+				$this->application->logger->debug("rootdir (" . JSONTools::encode($root_dir) . ") check $_path");
 			}
 			return HTMLTools::href($this->application, path($root_dir, $_path));
 		} elseif ($share) {
@@ -1006,7 +1006,7 @@ class HTML extends Type {
 								$cached[] = $attrs['javascript_before'];
 							}
 							$cached[$resource_path] = $file_path;
-							$cached_append[] = "zesk.scripts_cached(" . json_encode($resource_path) . ");";
+							$cached_append[] = "zesk.scripts_cached(" . JSONTools::encode($resource_path) . ");";
 							if (array_key_exists('javascript_after', $attrs)) {
 								$cached[] = $attrs['javascript_after'];
 							}

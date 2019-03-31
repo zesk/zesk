@@ -3,7 +3,6 @@ namespace zesk\Response;
 
 use zesk\JSON as zeskJSON;
 use zesk\Response;
-use zesk\ArrayTools;
 
 class JSON extends Type {
 	/**
@@ -54,7 +53,7 @@ class JSON extends Type {
 			$this->json['content'] = $content;
 		}
 		$content = zeskJSON::prepare($this->json);
-		return $this->application->development() ? zeskJSON::encode_pretty($content) : json_encode($content);
+		return $this->application->development() ? zeskJSON::encode_pretty($content) : zeskJSON::encode($content);
 	}
 
 	/**

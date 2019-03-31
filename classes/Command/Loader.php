@@ -240,7 +240,7 @@ class Command_Loader {
 		$result = $command_object->go();
 
 		$argv = $command_object->arguments_remaining();
-		$this->debug("Remaining class arguments: " . json_encode($argv));
+		$this->debug("Remaining class arguments: " . JSON::encode($argv));
 		if ($result !== 0 && $result !== null) {
 			$this->debug("Command $class returned $result");
 		} else {

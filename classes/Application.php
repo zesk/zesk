@@ -876,7 +876,7 @@ class Application extends Hookable implements Interface_Theme, Interface_Member_
 					"value" => $set,
 				),
 			), array());
-			file_put_contents($this->maintenance_file(), json_encode($context));
+			file_put_contents($this->maintenance_file(), JSON::encode($context));
 		} elseif (file_exists($maintenance_file)) {
 			unlink($maintenance_file);
 			clearstatcache(true, $maintenance_file);
