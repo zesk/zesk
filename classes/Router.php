@@ -355,7 +355,7 @@ class Router extends Hookable {
 	public function add_route($path, array $options) {
 		if ($path === "<default>") {
 			$this->set_option($options);
-			return;
+			return $this;
 		}
 		if ($path === "index" || $path === ".") {
 			$this->default_route = $path;
