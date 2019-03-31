@@ -121,6 +121,7 @@ class Route_Controller extends Route {
 				'before_' . $action_method,
 				"before",
 			), array());
+			$controller->call_hook("before");
 
 			$arguments_method = $this->option('arguments method', $this->option('arguments method prefix', 'arguments_') . $action_method);
 			$method = $this->option('method', $this->action_method_prefix() . $action_method);
@@ -152,6 +153,7 @@ class Route_Controller extends Route {
 					$result,
 					$contents,
 				));
+				$controller->call_hook("after");
 			}
 		} catch (Exception_Redirect $e) {
 			throw $e;
