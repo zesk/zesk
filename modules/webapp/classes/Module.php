@@ -236,6 +236,7 @@ class Module extends \zesk\Module implements \zesk\Interface_Module_Routes {
 			),
 			"rules_directory_walk" => $walk_add + array(
 				"#/\.#" => false,
+				"#/cache/#" => false,
 				"#/vendor/#" => false,
 				"#/node_modules/#" => false,
 				true,
@@ -291,11 +292,14 @@ class Module extends \zesk\Module implements \zesk\Interface_Module_Routes {
 	 * @return \zesk\WebApp\Generator
 	 */
 	public function generate_configuration() {
-		$instances = ArrayTools::collapse($this->instance_factory(false), "instance");
+		$instances = ArrayTools::clean(ArrayTools::collapse($this->instance_factory(false), "instance"), null);
 		$generator = $this->generator();
 
 		$generator->start();
 		foreach ($instances as $instance) {
+			if (!$instance) {
+				var_dump($instance);
+			}
 			/* @var $instance Instance */
 			$generator->instance($instance);
 			foreach ($instance->sites as $site) {
@@ -315,10 +319,29 @@ class Module extends \zesk\Module implements \zesk\Interface_Module_Routes {
 		return $generator;
 	}
 
+	/**
+	 * Delete unreferenced objects in our database, lazily.
+	 *
+	 */
+	public function hook_cron_cluster_minute() {
+		$this->application->orm_registry(Instance::class)->remove_dead_instances();
+		$this->application->orm_registry(Site::class)->remove_dead_instances();
+	}
+
+	/**
+	 * Generate our vhost configuration from the database and trigger a web server restart if changes
+	 * are required.
+	 */
 	public function hook_cron_minute() {
 		$this->generate_configuration();
 	}
 
+	/**
+	 * Alternate mechanism to trigger restart
+	 *
+	 * @param string $name
+	 * @return string
+	 */
 	public function control_file_path($name) {
 		$name = File::clean_path($name);
 		$full = $this->webapp_data_path("control/$name");
@@ -480,37 +503,48 @@ class Module extends \zesk\Module implements \zesk\Interface_Module_Routes {
 			->where("d.name", Module::class)
 			->where("d.value", serialize(1));
 		$iterator = $servers->orm_iterator();
-		$webapp = $this->application->webapp_module();
-		$client = new Net_HTTP_Client($this->application);
-		/* @var $webapp Module */
 		$results = array();
 		foreach ($iterator as $server) {
 			/* @var $server Server */
-			$result = array(
-				'ip' => $server->ip4_internal,
-			);
-
-			try {
-				list($time, $hash) = $webapp->generate_authentication();
-				$url = URL::query_append("http://" . $server->ip4_internal . "/webapp/$action", array(
-					Controller::QUERY_PARAM_TIME => $time,
-					Controller::QUERY_PARAM_HASH => $hash,
-				));
-				$client->url($url);
-				$result['time'] = $time;
-				$result['time_string'] = Timestamp::factory($time, "UTC")->format($app->locale, Timestamp::FORMAT_JSON);
-				$result['url'] = $url;
-				$result['raw'] = $client->go();
-				$result['status'] = true;
-				$result['json'] = JSON::decode($result['raw']);
-			} catch (Exception_Syntax $e) {
-				// Do nothing
-			} catch (\Exception $e) {
-				$result['status'] = false;
-				$result['message'] = $e->getMessage();
-			}
-			$results[$server->name] = $result;
+			$results[$server->name] = $this->server_action($server, $action);
 		}
 		return $results;
+	}
+
+	/**
+	 *
+	 * @param Server $server
+	 * @param string $action
+	 * @return array
+	 */
+	public function server_action(Server $server, $action) {
+		$app = $this->application;
+		$webapp = $app->webapp_module();
+		$client = new Net_HTTP_Client($app);
+		/* @var $webapp Module */
+		$result = array(
+			'ip' => $server->ip4_internal,
+		);
+
+		try {
+			list($time, $hash) = $webapp->generate_authentication();
+			$url = URL::query_append("http://" . $server->ip4_internal . "/webapp/$action", array(
+				Controller::QUERY_PARAM_TIME => $time,
+				Controller::QUERY_PARAM_HASH => $hash,
+			));
+			$client->url($url);
+			$result['time'] = $time;
+			$result['time_string'] = Timestamp::factory($time, "UTC")->format($app->locale, Timestamp::FORMAT_JSON);
+			$result['url'] = $url;
+			$result['raw'] = $client->go();
+			$result['status'] = true;
+			$result['json'] = JSON::decode($result['raw']);
+		} catch (Exception_Syntax $e) {
+			// Do nothing
+		} catch (\Exception $e) {
+			$result['status'] = false;
+			$result['message'] = $e->getMessage();
+		}
+		return $result;
 	}
 }

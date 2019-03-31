@@ -237,4 +237,26 @@ class Instance extends ORM {
 		;
 		$this->store();
 	}
+
+	/**
+	 *
+	 */
+	public function remove_dead_instances() {
+		$query = $this->query_select("X")->link(Server::class, array(
+			'alias' => 'S',
+			'require' => false,
+		))->where('s.id', null);
+		$iterator = $query->orm_iterator();
+		foreach ($iterator as $instance) {
+			/* @var $instance self */
+			$sid = $instance->member_integer("server");
+			$this->application->logger->notice("Deleting instance #{id} {path} associated with dead server #{sid}", $instance->members(array(
+				"id",
+				"path",
+			)) + array(
+				"sid" => $sid,
+			));
+			$instance->delete();
+		}
+	}
 }

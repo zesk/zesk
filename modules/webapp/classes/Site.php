@@ -121,4 +121,26 @@ class Site extends ORM {
 		}
 		return $errors;
 	}
+
+	/**
+	 *
+	 */
+	public function remove_dead_instances() {
+		$query = $this->query_select("X")->link(Instance::class, array(
+			'alias' => 'L',
+			'require' => false,
+		))->where('L.id', null);
+		$iterator = $query->orm_iterator();
+		foreach ($iterator as $instance) {
+			/* @var $instance self */
+			$oldid = $instance->member_integer("instance");
+			$this->application->logger->notice("Deleting site #{id} {name} associated with dead instance #{oldid}", $instance->members(array(
+				"id",
+				"name",
+			)) + array(
+				"oldid" => $oldid,
+			));
+			$instance->delete();
+		}
+	}
 }
