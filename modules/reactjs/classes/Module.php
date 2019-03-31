@@ -22,7 +22,7 @@ use zesk\ArrayTools;
 use zesk\MIME;
 use zesk\JSON;
 use zesk\Directory;
-use zesk\Route_Content;
+use zesk\Route_Method;
 
 /**
  *
@@ -59,7 +59,11 @@ class Module extends \zesk\Module implements \zesk\Interface_Module_Routes, \zes
 		}
 	}
 
-	private function react_content() {
+	private function react_content(Request $request, Response $response) {
+		$request = new Request($this->application, $request);
+		$request->path("/");
+		return $this->static_handler($request, $response);
+
 		$content = file_get_contents($this->application->document_root("index.html"));
 		$scripts = HTML::extract_tags("script", $content);
 		foreach ($scripts as $script) {
@@ -78,23 +82,30 @@ class Module extends \zesk\Module implements \zesk\Interface_Module_Routes, \zes
 	 * @return Route
 	 */
 	protected function react_page_route(Router $router) {
-		$index = $this->application->document_root("index.html");
-		$cached = $this->application->cache->getItem(__METHOD__);
-		if ($cached->isHit()) {
-			$content = $cached->get();
-		} else {
-			$content = $this->react_content();
-			$content = strtr($content, array(
-				"%PUBLIC_URL%" => "",
-			));
-			$cached->set($content)->expiresAfter(60);
-		}
-		return new Route_Content($router, null, array(
-			"content" => $content,
+		$module = $this;
+		return new Route_Method($router, null, array(
+			"method" => function (Request $request, Response $response) use ($module) {
+				return "Hello" . $module->react_content($request, $response);
+			},
+			"arguments" => [
+				"{request}",
+				"{response}",
+			],
 			Route::OPTION_OUTPUT_HANDLER => Response::CONTENT_TYPE_RAW,
 		));
 	}
 
+	/**
+	 * If a route is marked as react, then intercept it and replace the Route with a metho which returns the index page.
+	 *
+	 * This will only run on development systems, usually.
+	 *
+	 * @param Application $app
+	 * @param Request $request
+	 * @param Router $router
+	 * @param Route $route
+	 * @return \zesk\Route|\zesk\Request|NULL
+	 */
 	public function router_matched(Application $app, Request $request, Router $router, Route $route) {
 		if ($route->option_bool("react") && $request->method() === Net_HTTP::METHOD_GET && !$request->prefer_json()) {
 			return $this->react_page_route($router)->request($request);
