@@ -197,6 +197,15 @@ class Hooks {
 	}
 
 	/**
+	 * Clean and normalize a hook name
+	 * @param string $name
+	 * @return string
+	 */
+	public static function clean_name($name) {
+		return trim(strtolower($name));
+	}
+
+	/**
 	 * Given a passed-in hook name, normalize it and return the internal name
 	 *
 	 * @param string $name
@@ -212,7 +221,7 @@ class Hooks {
 			));
 		}
 		// For now, we just make it lower case
-		$name = strtolower($name);
+		$name = self::clean_name($name);
 		return !$alias ? $name : (isset($this->hook_aliases[$name]) ? $this->hook_aliases[$name] : $name);
 	}
 

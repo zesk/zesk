@@ -23,6 +23,13 @@ class Hookable extends Options {
 	public $application = null;
 
 	/**
+	 * Per-object hooks. Removed from options.
+	 *
+	 * @var array
+	 */
+	private $_hooks = [];
+
+	/**
 	 *
 	 * @param Application $application
 	 * @param array $options
@@ -33,6 +40,16 @@ class Hookable extends Options {
 		// Decided to NOT place a ->initialize() call here, largely because subclasses who override
 		// the constructor of this class need to control the ordering of their initialization such that any method
 		// called is operating on initialized object state
+	}
+
+	/**
+	 * Save nothing herein.
+	 *
+	 * {@inheritDoc}
+	 * @see \zesk\Options::__sleep()
+	 */
+	public function __sleep() {
+		return parent::__sleep();
 	}
 
 	/**
@@ -153,7 +170,7 @@ class Hookable extends Options {
 		$app = $this->application;
 		$hooks = array();
 		foreach ($types as $type) {
-			$method = PHP::clean_function($type);
+			$method = Hooks::clean_name($type);
 			if ($method !== $type) {
 				$this->application->deprecated("Hook \"{type}\" cleaned to \"{method}\" - please fix", compact("method", "type"));
 			}
@@ -166,17 +183,31 @@ class Hookable extends Options {
 					$args,
 				);
 			}
-			$func = apath($this->options, "hooks.$method");
-			if ($func) {
-				$hooks[] = array(
-					$func,
-					$args,
-				);
+			$methods = $this->_hooks[$type] ?? null;
+			if (is_array($methods)) {
+				foreach ($methods as $method) {
+					$hooks[] = array(
+						$method,
+						$args,
+					);
+				}
 			}
 			$hook_names = ArrayTools::suffix($app->classes->hierarchy($this, __CLASS__), "::$type");
 			$hooks = array_merge($hooks, $app->hooks->collect_hooks($hook_names, $zesk_hook_args));
 		}
 		return $hooks;
+	}
+
+	/**
+	 *
+	 * @param string $type
+	 * @param callabel $callable
+	 * @return \zesk\Hookable
+	 */
+	final public function add_hook($type, $callable) {
+		$type = Hooks::clean_name($type);
+		$this->_hooks[$type][] = $callable;
+		return $this;
 	}
 
 	/**
@@ -206,7 +237,7 @@ class Hookable extends Options {
 		$types = to_list($types);
 		$result = array();
 		foreach ($types as $type) {
-			$method = PHP::clean_function($type);
+			$method = Hooks::clean_name($type);
 			$hook_method = "hook_$method";
 			//echo get_class($this) . " checking for $hook_method\n";
 			if (method_exists($this, $hook_method)) {
