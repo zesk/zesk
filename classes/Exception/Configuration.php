@@ -17,7 +17,7 @@ class Exception_Configuration extends Exception {
 	 */
 	public function __construct($name, $message, array $arguments = array(), Exception $previous = null) {
 		$this->name = $name;
-		parent::__construct($message, array(
+		parent::__construct("Configuration error: {name}: $message", array(
 			"name" => $name,
 		) + $arguments, 0, $previous);
 	}
