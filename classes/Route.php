@@ -107,7 +107,7 @@ abstract class Route extends Hookable {
 	 *
 	 * @var array
 	 */
-	protected $args = array();
+	protected $args = null;
 
 	/**
 	 * Named arguments (name => value pairs)
