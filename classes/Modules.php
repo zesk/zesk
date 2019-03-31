@@ -83,7 +83,7 @@ class Modules {
 		$this->debug = $application->configuration->path_get(array(
 			__CLASS__,
 			"debug",
-		), $this->module_class_prefix);
+		), $this->debug);
 	}
 
 	/**
@@ -503,6 +503,7 @@ class Modules {
 		extract($module_data, EXTR_IF_EXISTS);
 		$module_variables = array(
 			'module_path' => $path,
+			'name' => $name,
 			'module' => $name,
 		);
 		$module_config = self::module_configuration_options($module_variables);
@@ -555,16 +556,12 @@ class Modules {
 			$result = array(
 				'class' => $class,
 			);
-			// @deprecated 2017-11-30 `module`
 			return $result + array(
 				'path' => $module_object->path(),
-				'module' => $module_object,
 				'object' => $module_object,
 			);
 		} catch (Exception_Class_NotFound $e) {
-			// @deprecated 2017-11-30 `module`
 			return array(
-				'module' => null,
 				'object' => null,
 				'class' => null,
 				'missing_class' => $e->class,
@@ -592,7 +589,6 @@ class Modules {
 			));
 			$this->application->hooks->call("exception", $e);
 			return array(
-				"module" => null,
 				"object" => null,
 				"status" => "failed",
 				"initialize_exception" => $e,
@@ -751,10 +747,10 @@ class Modules {
 	final public function all_modules() {
 		$result = array();
 		foreach ($this->modules as $name => $data) {
-			if (!array_key_exists('module', $data)) {
+			if (!array_key_exists('object', $data)) {
 				continue;
 			}
-			$module = $data['module'];
+			$module = $data['object'];
 			/* @var $module Module */
 			if ($module) {
 				$result[$name] = $module;
@@ -816,7 +812,7 @@ class Modules {
 	 * @throws Exception_NotFound
 	 */
 	final public function object($module, $default = null) {
-		$result = $this->data($module, "module");
+		$result = $this->data($module, "object");
 		if ($result instanceof Module) {
 			return $result;
 		}
@@ -868,11 +864,11 @@ class Modules {
 		if (!is_array($module_names)) {
 			$module_names = array();
 			foreach ($this->modules as $name => $data) {
-				if (!array_key_exists('module', $data)) {
+				if (!array_key_exists('object', $data)) {
 					continue;
 				}
 				/* @var $module Module */
-				if (($module = $data['module']) !== null && $module->has_hook($hook)) {
+				if (($module = $data['object']) !== null && $module->has_hook($hook)) {
 					$module_names[] = $name;
 				}
 			}
@@ -880,7 +876,7 @@ class Modules {
 		}
 		$hooks = array();
 		foreach ($module_names as $module_name) {
-			$module = $this->modules[$module_name]['module'];
+			$module = $this->modules[$module_name]['object'];
 			if ($module instanceof Module) {
 				$hooks = array_merge($hooks, $module->collect_hooks($hook, $arguments));
 			} else {
@@ -911,7 +907,7 @@ class Modules {
 			$this->application->deprecated("Static cache clear hook is deprecated: " . _dump($result));
 		}
 		foreach ($this->modules as $name => $data) {
-			$module = avalue($data, 'module');
+			$module = avalue($data, 'object');
 			/* @var $module Module */
 			if ($module) {
 				$result = array_merge($result, $module->hook_list($hook, true));
