@@ -75,7 +75,8 @@ class Module_Permission extends Module {
 	public function user_can(User $user, $action, Model $context = null, $options) {
 		$application = $this->application;
 		$this->prepare_user($user);
-
+		$options = to_array($options);
+		$warning = to_bool(avalue($options, 'warning', true));
 		if ($user->is_root) {
 			return true;
 		}
@@ -110,8 +111,8 @@ class Module_Permission extends Module {
 			if ($perm instanceof Permission) {
 				$result = $perm->check($user, $parent_class . "::" . $permission, $context, $options);
 				if (is_bool($result)) {
-					if ($result === false) {
-						$application->logger->info("{user} denied {permission} (parent of {class})", array(
+					if ($warning && $result === false) {
+						$application->logger->warning("{user} denied {permission} (parent of {class})", array(
 							"user" => $user->login(),
 							"permission" => $parent_class . "::" . $permission,
 							"class" => $class,
@@ -144,11 +145,11 @@ class Module_Permission extends Module {
 			}
 		}
 		$result = boolval($user->option("can"));
-		if ($result === false) {
-			$application->logger->info("{user} denied {permission} (not granted) called from {calling_function} (Roles: {roles})", array(
+		if ($warning && $result === false) {
+			$application->logger->warning("{user} denied {permission} (not granted) called from {calling_function} (Roles: {roles})", array(
 				"user" => $user->login(),
 				"permission" => $class . "::" . $permission,
-				"calling_function" => calling_function(5),
+				"calling_function" => calling_function(6),
 				"roles" => $user->_roles,
 			));
 		}
@@ -387,9 +388,13 @@ class Module_Permission extends Module {
 		$config = array();
 		$loader = new Configuration_Loader($files, new Adapter_Settings_Array($config));
 		$loader->load();
+		$vars = $loader->variables();
+		$processed = $vars[Configuration_Loader::PROCESSED];
+		$missing = $vars[Configuration_Loader::MISSING];
 		$config = self::normalize_permission($config);
-		$application->logger->debug("Loading {filename} resulted in {n_config} permissions", array(
-			"filename" => $filename,
+		$application->logger->debug("Loading {processed} files resulted in {n_config} permissions (skipped missing {missing})", array(
+			"processed" => $processed,
+			"missing" => $missing,
 			"n_config" => count($config),
 		));
 		return $config;
