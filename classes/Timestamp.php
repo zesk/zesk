@@ -392,7 +392,7 @@ class Timestamp extends Temporal {
 	 *
 	 * @return string
 	 */
-	public function json(array $options = array()) {
+	public function json() {
 		return $this->format(null, self::FORMAT_JSON);
 	}
 
@@ -1204,7 +1204,7 @@ class Timestamp extends Temporal {
 				} else {
 					return $this->milliseconds();
 				}
-				// no break
+			// no break
 			case self::UNIT_SECOND:
 			case self::UNIT_MINUTE:
 			case self::UNIT_HOUR:
