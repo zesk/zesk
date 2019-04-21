@@ -125,12 +125,12 @@ class Configuration_Loader {
 	 *
 	 * @param unknown $file
 	 * @throws Exception_File_Format
-	 * @return void
+	 * @return self|null
 	 */
 	public function load_one($file) {
 		if (!file_exists($file)) {
 			$this->skipped_files[] = $file;
-			return $this;
+			return null;
 		}
 		$extension = strtoupper(File::extension($file));
 		$content = file_get_contents($file);

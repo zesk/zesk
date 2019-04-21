@@ -42,6 +42,12 @@ class Module extends \zesk\Module implements \zesk\Interface_Module_Routes {
 	 *
 	 * @var string
 	 */
+	const OPTION_APP_ROOT_PATH = "path";
+
+	/**
+	 *
+	 * @var string
+	 */
 	const OPTION_AUTHENTICATION_KEY = "key";
 
 	/**
@@ -86,12 +92,12 @@ class Module extends \zesk\Module implements \zesk\Interface_Module_Routes {
 	 * @see \zesk\Module::initialize()
 	 */
 	public function initialize() {
-		$this->app_root = $this->application->paths->expand($this->option("path"));
-		if (empty($this->app_root)) {
-			throw new Exception_Configuration(__CLASS__ . "::path", "Requires the app root path to be set in order to work.");
+		$this->_app_root = $this->application->paths->expand($this->option(self::OPTION_APP_ROOT_PATH));
+		if (empty($this->_app_root)) {
+			throw new Exception_Configuration(__CLASS__ . "::" . self::OPTION_APP_ROOT_PATH, "Requires the app root path to be set in order to work.");
 		}
-		if (!is_dir($this->app_root)) {
-			throw new Exception_Configuration(__CLASS__ . "::path", "Requires the app root path to be a directory in order to work.");
+		if (!is_dir($this->_app_root)) {
+			throw new Exception_Configuration(__CLASS__ . "::" . self::OPTION_APP_ROOT_PATH, "Requires the app root path to be a directory in order to work.");
 		}
 		$this->application->hooks->add(Application::class . "::request", array(
 			$this,
@@ -157,7 +163,12 @@ class Module extends \zesk\Module implements \zesk\Interface_Module_Routes {
 	 * @return string
 	 */
 	public function app_root_path($suffix = null) {
-		return $suffix === null ? $this->app_root : path($this->app_root, $suffix);
+		if (!$this->_app_root) {
+			throw new Exception_Configuration(__CLASS__ . "::path", "Valid path to directory required ({path})", array(
+				"path" => $this->option(self::OPTION_APP_ROOT_PATH),
+			));
+		}
+		return $suffix === null ? $this->_app_root : path($this->_app_root, $suffix);
 	}
 
 	/**
@@ -178,6 +189,10 @@ class Module extends \zesk\Module implements \zesk\Interface_Module_Routes {
 		return $this->application->paths->cache("webapp/public/index.php");
 	}
 
+	/**
+	 *
+	 * @return string
+	 */
 	public function key() {
 		$key = $this->option(self::OPTION_AUTHENTICATION_KEY);
 		if (!empty($key)) {
@@ -252,7 +267,7 @@ class Module extends \zesk\Module implements \zesk\Interface_Module_Routes {
 		if ($this->option_bool("debug")) {
 			$rules['progress'] = $this->application->logger;
 		}
-		$files = Directory::list_recursive($this->app_root, $rules);
+		$files = Directory::list_recursive($this->_app_root, $rules);
 		$result = array();
 		foreach ($files as $f) {
 			$result[$f] = filemtime($f);

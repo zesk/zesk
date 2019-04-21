@@ -706,8 +706,11 @@ class Application extends Hookable implements Interface_Theme, Interface_Member_
 
 		// Apply settings from loaded configuration to make settings available to hook_configured_files
 		$this->inherit_global_options();
-		$this->call_hook('configured_files');
-
+		if ($this->has_hook("configured_files")) {
+			$this->call_hook('configured_files');
+			// Repopulate Application options after final configurations are loaded
+			$this->inherit_global_options();
+		}
 		$this->modules->load($this->load_modules);
 
 		// Load dynamic modules now
