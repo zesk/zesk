@@ -76,7 +76,7 @@ class Module_Permission extends Module {
 		$application = $this->application;
 		$this->prepare_user($user);
 		$options = to_array($options);
-		$warning = to_bool(avalue($options, 'warning', true));
+		$warning = to_bool(avalue($options, 'warning', $this->option('warning')));
 		if ($user->is_root) {
 			return true;
 		}
