@@ -34,6 +34,11 @@ class Module extends \zesk\Module implements Interface_Module_Routes {
 		"mock_accept" => Net_HTTP::REQUEST_ACCEPT,
 	);
 
+	/**
+	 *
+	 * @param Application $application
+	 * @param Request $request
+	 */
 	public function test_ip(Application $application, Request $request) {
 		$application = $this->application;
 		$ips = $this->option_list('ip_allow');
@@ -99,6 +104,13 @@ class Module extends \zesk\Module implements Interface_Module_Routes {
 		}
 	}
 
+	/**
+	 * Before matching, modify path in case request is prohibited
+	 *
+	 * @param Application $application
+	 * @param Router $router
+	 * @param Request $request
+	 */
 	public function router_prematch(Application $application, Router $router, Request $request) {
 		$app = $this->application;
 		$this->handle_mock_headers($request);
@@ -106,7 +118,7 @@ class Module extends \zesk\Module implements Interface_Module_Routes {
 		if (count($restricted_ips) === 0) {
 			return;
 		}
-		if (!$this->ip_matches($restricted_ips)) {
+		if (!$this->ip_matches($request->ip(), $restricted_ips)) {
 			if (begins($request->path(), "/share")) {
 				return;
 			}
