@@ -130,7 +130,7 @@ class Database_Query {
 
 	/**
 	 *
-	 * @return Database_Query_Select_Base
+	 * @return self
 	 */
 	public function duplicate() {
 		return clone $this;

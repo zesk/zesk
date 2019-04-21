@@ -102,6 +102,14 @@ class Database_Query_Select extends Database_Query_Select_Base {
 
 	/**
 	 *
+	 * @return self
+	 */
+	public function duplicate() {
+		return clone $this;
+	}
+
+	/**
+	 *
 	 * {@inheritDoc}
 	 * @see \zesk\Database_Query_Select_Base::__sleep()
 	 */
