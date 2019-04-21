@@ -5,6 +5,9 @@
  */
 namespace zesk;
 
+use zesk\ORM\Walker;
+use zesk\ORM\JSONWalker;
+
 /**
  * Object Relational Mapping base class. Extend this class and Class_ORM to create an ORM object.
  *
@@ -2575,125 +2578,23 @@ class ORM extends Model implements Interface_Member_Model_Factory {
 	}
 
 	/**
-	 * Convert an object into a notation transportable via JSON
+	 * Traverse an ORM using various settings.
 	 *
-	 * Supports deep return of objects by passing option "resolve_objects" which is an array of
-	 * strings, each string a dotted-path list of
-	 * object members to retrieve. e.g. "user.account.currency" which will retrieve the object
-	 * representation of the member "user" then the member "account" from the user,
-	 * and the member "currency" from the account and returned recursively.
-	 *
-	 * Optionally pass an additional option "allow_resolve_objects" which is a list of allowed paths
-	 * in an identical format.
-	 *
-	 * Option "skip_members" is a list of members to NOT pass back, takes precedence over
-	 * "resolve_objects"
-	 *
-	 * @param array $options
+	 * @param Walker $options
 	 * @return array
 	 */
-	public function json(array $options = array()) {
-		$options += $this->class->json_options;
-		$depth = avalue($options, 'depth', 1);
-		$members_only = avalue($options, 'members_only', false);
-		$class_info = to_bool(avalue($options, "class_info", false));
-		$include_members = avalue($options, 'members', null);
-		$skip_members = array_flip(avalue($options, "skip_members", array()));
-		if (is_string($include_members) || is_array($include_members)) {
-			$include_members = to_list($include_members);
-		}
-		$resolve_methods = to_list(avalue($options, "resolve_methods", "json"));
-		$members_handler = to_array(avalue($options, "members_handler"));
-		$resolve_objects = to_list(avalue($options, "resolve_objects"), null);
-		/* Convert to JSONable structure */
-		$object = $class_info ? array(
-			"_class" => get_class($this),
-			"_parent_class" => get_parent_class($this),
-			"_primary_keys" => $this->members($this->primary_keys()),
-		) : array();
-		if ($depth === 0) {
-			$result = $members_only ? $object['primary_keys'] : $object;
-		} else {
-			$members = array();
-			$options['depth'] = $depth - 1;
+	public function walk(Walker $options) {
+		return $options->walk($this);
+	}
 
-			/* Handle "resolve_objects" list and "allow_resolve_objects" checks */
-			$resolve_object_match = array();
-			if (is_array($resolve_objects)) {
-				$allow_resolve_objects = to_list(avalue($options, "allow_resolve_objects", null), null);
-				foreach ($resolve_objects as $member_path) {
-					if (is_array($allow_resolve_objects) && !StringTools::begins($allow_resolve_objects, $member_path)) {
-						$this->application->logger->warning("Not allowed to traverse {member_path} as it is not included in {allow_resolve_objects}", compact("allow_resolve_objects", "member_path"));
-
-						continue;
-					}
-					list($member, $remaining_path) = pair($member_path, ".", $member_path, null);
-					if (!array_key_exists($member, $resolve_object_match)) {
-						$resolve_object_match[$member] = array();
-					}
-					if ($remaining_path !== null) {
-						$resolve_object_match[$member][] = $remaining_path;
-					}
-				}
-			}
-
-			/* Copy things to JSON */
-			foreach ($this->members($include_members) as $member => $value) {
-				if (array_key_exists($member, $skip_members)) {
-					continue;
-				}
-				$handler = avalue($members_handler, $member);
-				if (is_callable($handler)) {
-					$members[$member] = $handler($value, $this, $options);
-
-					continue;
-				}
-				$child_options = array(
-					"depth" => $options['depth'],
-				);
-				if (array_key_exists($member, $resolve_object_match)) {
-					try {
-						$value = $this->member_object($member);
-					} catch (Exception_ORM_Empty $e) {
-						$value = null;
-					} catch (Exception_ORM_NotFound $e) {
-						$value = null;
-					}
-					$child_options["resolve_objects"] = $resolve_object_match[$member];
-					// We null out "allow_resolve_objects" as those were checked once, above and are not necessary
-					$child_options["allow_resolve_objects"] = null;
-					// Reset the depth to override depth restrictions above
-					$child_options["depth"] = 1;
-				}
-				if (is_scalar($value)) {
-					$members[$member] = $value;
-				} elseif (is_object($value)) {
-					foreach ($resolve_methods as $resolve_method) {
-						if (is_string($resolve_method) && method_exists($value, $resolve_method)) {
-							$members[$member] = $value->$resolve_method($child_options);
-
-							break;
-						}
-						if (is_callable($resolve_method)) {
-							$members[$member] = $resolve_method($this, $member, $value, $child_options);
-
-							break;
-						}
-						$this->application->logger->warning("Invalid resolve method passed into {class}->json: {type}", array(
-							"class" => get_class($this),
-							"type" => type($resolve_method),
-						));
-					}
-					if (!array_key_exists($member, $members)) {
-						$members[$member] = $value->__toString();
-					}
-				}
-			}
-			$result = ($members_only) ? $members : $object + $members;
-		}
-		return $this->call_hook_arguments("json", array(
-			$result,
-		), $result);
+	/**
+	 * Traverse an ORM using various settings for generation of JSON.
+	 *
+	 * @param JSONWalker $options
+	 * @return array
+	 */
+	public function json(JSONWalker $options) {
+		return $options->walk($this);
 	}
 
 	/**
