@@ -277,7 +277,7 @@ class Hookable extends Options {
 	 * @param callable $hook_callback
 	 *        	A function to call for each hook called.
 	 * @param string $result_callback
-	 *        	A function to process hook results
+	 *        	A function to process hook results. If false, returns last result unmodified.
 	 * @param mixed $return_hint
 	 *        	deprecated 2017-11
 	 * @return mixed
@@ -291,6 +291,9 @@ class Hookable extends Options {
 		}
 		$new_result = call_user_func_array($callable, $arguments);
 		if ($result_callback !== null) {
+			if ($result_callback === false) {
+				return $new_result;
+			}
 			return call_user_func($result_callback, $callable, $previous_result, $new_result, $arguments);
 		}
 		return self::combine_hook_results($previous_result, $new_result, $arguments);
