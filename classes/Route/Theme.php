@@ -76,7 +76,8 @@ class Route_Theme extends Route {
 		$content = $application->theme($mapped_theme, $args, $theme_options); //TODO
 		$response->content = $content;
 
-		if ($response->is_json() || $this->option_bool('json')) {
+		$json_html = $this->option("json_html", false);
+		if ($json_html && $response->is_json() || $this->option_bool('json')) {
 			$response->json()->data($response->html()->to_json() + array(
 				"status" => true,
 			));
