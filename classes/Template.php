@@ -195,12 +195,14 @@ class Template implements Interface_Theme {
 	 * @return Template
 	 */
 	public function begin($path, $variables = false) {
-		if (!ends($path, ".tpl")) {
-			$this->application->logger->warning("{method} {path} does not end with .tpl, called from {calling_function}", array(
+		if (ends($path, ".tpl")) {
+			$this->application->logger->warning("{method} {path} ends with .tpl - now deprecated, use theme names only, called from {calling_function}", array(
 				"method" => __METHOD__,
 				"path" => $path,
 				"calling_function" => calling_function(0),
 			));
+		} else {
+			$path .= ".tpl";
 		}
 		$this->wrappers[] = $t = new Template($this->application, $path, $variables);
 		$t->push();
