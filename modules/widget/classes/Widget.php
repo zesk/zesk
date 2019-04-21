@@ -723,12 +723,12 @@ class Widget extends Hookable {
 	 * @param $object mixed
 	 *        	Optional target
 	 */
-	public function user_can($action, Model $object = null) {
+	public function user_can($action, Model $object = null, array $options = array()) {
 		$user = $this->user();
 		if (!$user instanceof User) {
 			return false;
 		}
-		return $user->can($action, $object);
+		return $user->can($action, $object, $options);
 	}
 
 	/**
