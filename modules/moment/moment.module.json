@@ -3,9 +3,11 @@
 	"urls": [
 		"http://momentjs.com/downloads/moment.js",
 		"http://momentjs.com/downloads/moment-with-locales.js",
+
 		"http://momentjs.com/downloads/moment-timezone.js",
-		"http://momentjs.com/downloads/moment-timezone-with-data-2012-2022.js",
-		"http://momentjs.com/downloads/moment-timezone-with-data.js"
+		"http://momentjs.com/downloads/moment-timezone-with-data.js",
+		"http://momentjs.com/downloads/moment-timezone-with-data-1970-2030.js",
+		"http://momentjs.com/downloads/moment-timezone-with-data-10-year-range.js"
 	],
 	"destination": "vendor/components/moment",
 	"share_path": "vendor/components/moment",
