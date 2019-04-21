@@ -75,6 +75,9 @@ class JSON {
 	 * @return mixed
 	 */
 	public static function prepare($mixed, array $methods = null) {
+		if ($mixed === null) {
+			return $mixed;
+		}
 		if ($methods === null) {
 			$methods = self::$default_methods;
 		}
