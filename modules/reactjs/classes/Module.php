@@ -85,7 +85,7 @@ class Module extends \zesk\Module implements \zesk\Interface_Module_Routes, \zes
 		$module = $this;
 		return new Route_Method($router, null, array(
 			"method" => function (Request $request, Response $response) use ($module) {
-				return "Hello" . $module->react_content($request, $response);
+				return $module->react_content($request, $response);
 			},
 			"arguments" => [
 				"{request}",
@@ -310,6 +310,11 @@ class Module extends \zesk\Module implements \zesk\Interface_Module_Routes, \zes
 		}
 	}
 
+	/**
+	 *
+	 * @param Net_HTTP_Client $client
+	 * @param Response $response
+	 */
 	private function copy_to_response(Net_HTTP_Client $client, Response $response) {
 		$response->status($client->response_code(), $client->response_message());
 		$response->content_type($client->content_type());
