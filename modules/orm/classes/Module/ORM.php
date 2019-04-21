@@ -312,6 +312,11 @@ class Module_ORM extends Module {
 				$object = $this->application->orm_registry($class);
 				$object_db_name = $object->database()->code_name();
 				$updates = ORM_Schema::update_object($object);
+			} catch (Exception_Class_NotFound $e) {
+				$logger->error("Unable to synchronize {class} because it can not be found", array(
+					"class" => $class,
+				));
+				continue;
 			} catch (Exception $e) {
 				$logger->error("Unable to synchronize {class} because of {exception_class} {message}\nTRACE: {trace}", array(
 					"class" => $class,
@@ -359,6 +364,7 @@ class Module_ORM extends Module {
 				}
 			}
 		}
+
 		if (count($other_updates) > 0) {
 			$results[] = "-- Other database updates:\n" . ArrayTools::join_wrap(array_keys($other_updates), "-- zesk schema --name ", " --update;\n");
 		}
