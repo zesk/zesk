@@ -10,6 +10,7 @@
 namespace zesk;
 
 use zesk\Locale\Validate;
+use zesk\ORM\JSONWalker;
 
 /**
  *
@@ -155,7 +156,7 @@ class PolyGlot_Token extends ORM {
 		return $result + self::fetch_all($app, $language, null);
 	}
 
-	public function json(array $options = array()) {
+	public function json(JSONWalker $walker) {
 		$members = $this->members(array(
 			"id",
 			"language",
