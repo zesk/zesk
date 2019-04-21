@@ -368,11 +368,24 @@ class Module_Permission extends Module {
 	 */
 	private function _role_permissions($code) {
 		$application = $this->application;
-		$filename = $application->path('etc/role/' . $code . ".role.conf");
+		$paths = $this->option_list('role_paths', array(
+			'./etc/role',
+		));
+		if (count($paths) === 0) {
+			return array();
+		}
+		$files = array();
+		foreach ($paths as $path) {
+			foreach ([
+				'conf',
+				'json',
+			] as $ext) {
+				$basename = $code . ".role.$ext";
+				$files[] = $application->paths->expand(path($path, $basename));
+			}
+		}
 		$config = array();
-		$loader = new Configuration_Loader(array(
-			$filename,
-		), new Adapter_Settings_Array($config));
+		$loader = new Configuration_Loader($files, new Adapter_Settings_Array($config));
 		$loader->load();
 		$config = self::normalize_permission($config);
 		$application->logger->debug("Loading {filename} resulted in {n_config} permissions", array(
