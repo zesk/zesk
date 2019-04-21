@@ -628,9 +628,7 @@ abstract class Locale extends Hookable {
 		if (!$path) {
 			return;
 		}
-		if (!Directory::is_absolute($path)) {
-			$path = $this->application->path($path);
-		}
+		$path = $this->application->paths->expand($path);
 		if (!is_dir($path)) {
 			$this->application->logger->warning("{class}::auto_path {path} is not a directory", array(
 				"path" => $path,
