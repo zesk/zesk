@@ -23,7 +23,7 @@ class JSONWalker extends Walker {
 	 * @var array
 	 */
 	private $resolve_methods = array(
-		"json"
+		"json",
 	);
 
 	/**

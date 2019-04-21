@@ -100,6 +100,7 @@ class Walker {
 	 * @var string
 	 */
 	protected $postprocess_hook = "walked";
+
 	public function variables() {
 		return [
 			'include_members' => $this->include_members(),
@@ -107,9 +108,10 @@ class Walker {
 			'resolve_methods' => $this->resolve_methods(),
 			'members_handler' => array_keys($this->members_handler),
 			'resolve_objects' => $this->resolve_objects(),
-			'resolve_methods' => $this->resolve_methods()
+			'resolve_methods' => $this->resolve_methods(),
 		];
 	}
+
 	/**
 	 *
 	 * @return self
@@ -138,17 +140,20 @@ class Walker {
 			->skip_null($from->skip_null())
 			->resolve_methods($from->resolve_methods());
 	}
+
 	/**
 	 * Getter/setter for depth
 	 * @param integer $set
 	 * @return integer|self
 	 */
 	public function depth($set = null) {
-		if ($set === null)
+		if ($set === null) {
 			return $this->depth;
+		}
 		$this->depth = intval($set);
 		return $this;
 	}
+
 	/**
 	 * Getter/setter for class info
 	 * @param boolean $set
@@ -161,6 +166,7 @@ class Walker {
 		$this->class_info = to_bool($set);
 		return $this;
 	}
+
 	/**
 	 * Getter/setter for skip null
 	 * @param boolean $set
@@ -222,6 +228,7 @@ class Walker {
 	public function members_handler(array $handlers = null, $append = false) {
 		return $this->_get_set_object($this->members_handler, $handlers, $append);
 	}
+
 	/**
 	 * List of member dotted paths to resolve in JSON
 	 *
@@ -232,6 +239,7 @@ class Walker {
 	public function resolve_objects(array $resolve_objects = null, $append = false) {
 		return $this->_get_set_unique($this->resolve_objects, $resolve_objects, $append);
 	}
+
 	/**
 	 * A list of permitted path traversals based on the current object. Of the form:
 	 *
@@ -260,10 +268,10 @@ class Walker {
 	public function walk(ORM $orm) {
 		if ($this->preprocess_hook) {
 			$orm->class_orm()->call_hook_arguments($this->preprocess_hook, array(
-				$this
+				$this,
 			), null, null, false);
 			$orm->call_hook_arguments($this->preprocess_hook, array(
-				$this
+				$this,
 			), null, null, false);
 		}
 		$result = $this->_walk($orm);
@@ -271,11 +279,11 @@ class Walker {
 		if ($this->postprocess_hook) {
 			$result = $orm->call_hook_arguments($this->postprocess_hook, array(
 				$result,
-				$this
+				$this,
 			), $result, null, false);
 			$result = $orm->class_orm()->call_hook_arguments($this->postprocess_hook, array(
 				$result,
-				$this
+				$this,
 			), $result, null, false);
 		}
 		return $result;
@@ -313,6 +321,7 @@ class Walker {
 		}
 		return $this;
 	}
+
 	/**
 	 * Handle ordered list of non-unique items
 	 *
@@ -328,13 +337,14 @@ class Walker {
 		}
 		if ($append === true) {
 			$member = array_merge($member, $list);
-		} else if ($prepend === true) {
+		} elseif ($prepend === true) {
 			$member = array_merge($list, $member);
 		} else {
 			$member = $list;
 		}
 		return $this;
 	}
+
 	/**
 	 * Handle ordered list of unique items (name/value pairs)
 	 *
@@ -382,6 +392,7 @@ class Walker {
 
 		return $resolve_object_match;
 	}
+
 	/**
 	 * Convert an ORM into an array suitable to serialize into JSON. Has recursion and
 	 * specific resolution options for complex structures in the database.
@@ -393,13 +404,13 @@ class Walker {
 		$class_data = $this->class_info ? array(
 			"_class" => get_class($this),
 			"_parent_class" => get_parent_class($this),
-			"_primary_keys" => $orm->include_members($orm->primary_keys())
+			"_primary_keys" => $orm->include_members($orm->primary_keys()),
 		) : array();
 		if ($this->depth === 0) {
 			$id = $orm->id();
 			if (is_scalar($id) && $this->class_info) {
 				return array(
-					$orm->id_column() => $id
+					$orm->id_column() => $id,
 				) + $class_data;
 			}
 			return $id;
@@ -465,9 +476,9 @@ class Walker {
 		}
 		if ($value === null) {
 			return $value;
-		} else if (is_scalar($value)) {
+		} elseif (is_scalar($value)) {
 			return $value;
-		} else if (is_object($value)) {
+		} elseif (is_object($value)) {
 			return $this->resolve_object($orm, $member, $value, $child_options, $logger);
 		} else {
 			return null;
@@ -493,7 +504,7 @@ class Walker {
 			}
 			$logger->warning("Invalid resolve method passed into {class} walker: {type}", array(
 				"class" => get_class($object),
-				"type" => type($resolve_method)
+				"type" => type($resolve_method),
 			));
 		}
 		return $value->__toString();
