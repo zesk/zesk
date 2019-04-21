@@ -340,16 +340,6 @@ class Model extends Hookable implements \ArrayAccess, Interface_Factory {
 	}
 
 	/**
-	 * Convert to JSON string
-	 *
-	 * @param array $options
-	 * @return string
-	 */
-	public function json(array $options = array()) {
-		return JSON::encode($this->variables());
-	}
-
-	/**
 	 * Convert a theme name (or names) into clean paths for finding theme templates
 	 *
 	 * @param list|string $name
