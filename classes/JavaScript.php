@@ -23,14 +23,15 @@ class JavaScript {
 	/**
 	 * Convert passed arguments into a JavaScript argument list.
 	 *
-	 * @param mixed $mixed Any valid PHP type which can be converted to JSON
+	 * @param mixed $mixed Any valid PHP type which can be converted to JSON, using JSON::encodex to support *-prefix key values which are passed through unmodified.
+	 *
 	 * @return string commas-separated list of arguments
 	 */
 	public static function arguments() {
 		$args = func_get_args();
 		$json = array();
 		foreach ($args as $arg) {
-			$json[] = JSON::encode($arg);
+			$json[] = JSON::encodex($arg);
 		}
 		return implode(", ", $json);
 	}
