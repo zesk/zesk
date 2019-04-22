@@ -2396,7 +2396,6 @@ class Widget extends Hookable {
 				"status" => $status,
 				"message" => $message,
 				"redirect" => $url,
-				"object" => $this->object->json(),
 			);
 			if ($this->has_option('submit_theme', true)) {
 				$json['content'] = $this->application->theme($this->option('submit_theme'), $this->theme_variables(), array(
