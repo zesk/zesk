@@ -89,7 +89,7 @@ if ($inline) {
 	$id = "$id-dtp";
 	echo HTML::div("#$id", "");
 }
-$jquery = "\$(\"#$id\").datetimepicker(" . JSON::encode($options) . ")";
+$jquery = "\$(\"#$id\").datetimepicker(" . JSON::encodex($options) . ")";
 
 if ($onchange) {
 	$onchange = JavaScript::clean_code($onchange);
