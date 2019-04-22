@@ -354,7 +354,7 @@ class Module_TinyMCE extends zesk\Module_JSLib implements Interface_Module_Route
 			foreach ($menu as $substitution => $name) {
 				$mce_menu[] = array(
 					'text' => $name,
-					'*onclick' => 'function() { editor.insertContent(' . JSON::encode('{' . $substitution . '}') . '); }',
+					'*onclick' => 'function() { editor.insertContent(' . JSON::encodex('{' . $substitution . '}') . '); }',
 				);
 			}
 			$attrs = array(

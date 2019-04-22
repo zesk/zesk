@@ -58,7 +58,7 @@ class Module_Image_Picker extends Module_JSLib implements Interface_Module_Route
 				'image' => '/share/image_picker/image/image-upload.png',
 				'*onclick' => 'function() { $.image_picker(editor); }',
 			);
-			$module->add_setup('editor.addButton("image_picker",' . JSON::encode($image_picker_button) . ");\n");
+			$module->add_setup('editor.addButton("image_picker",' . JSON::encodex($image_picker_button) . ");\n");
 			$toolbar = $module->tinymce_toolbar();
 			$toolbar = Lists::remove($toolbar, 'image', ' ');
 			$module->tinymce_toolbar("$toolbar image_picker image");
