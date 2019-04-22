@@ -217,7 +217,7 @@ class Module_Help extends Module_JSLib {
 		if ($application->development()) {
 			$result[] = strval($query);
 		}
-		$response->json($result);
+		$response->json()->data($result);
 	}
 
 	/**
