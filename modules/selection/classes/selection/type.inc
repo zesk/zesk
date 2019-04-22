@@ -38,7 +38,7 @@ class Selection_Type extends ORM {
 		/* @var $list Database_Query_Select */
 		$list = clone $list;
 		$alias = $list->alias();
-		$id_column = $this->application->object($list->object_class())->id_column();
+		$id_column = $this->application->orm_registry($list->orm_class())->id_column();
 		$list->what(array(
 			"id" => "$alias.$id_column",
 			"*type" => $this->id(),
@@ -46,7 +46,8 @@ class Selection_Type extends ORM {
 			"*query" => $query->id(),
 		));
 		$list->limit(0, -1);
-		$this->application->query_insert("zesk\\Selection_Item")
+		$this->application->orm_registry(Selection_Item::class)
+			->query_insert()
 			->select($list)
 			->replace(true)
 			->execute();
@@ -81,8 +82,14 @@ class Selection_Type extends ORM {
 	 * @see ORM::delete()
 	 */
 	public function delete() {
-		$this->application->query_delete('zesk\\Selection_Query')->where('type', $this->id)->execute();
-		$this->application->query_delete('zesk\\Selection_Item')->where('type', $this->id)->execute();
+		$this->application->orm_registry(Selection_Query::class)
+			->query_delete()
+			->where('type', $this->id)
+			->execute();
+		$this->application->orm_registry(Selection_Item::class)
+			->query_delete()
+			->where('type', $this->id)
+			->execute();
 		return parent::delete();
 	}
 
