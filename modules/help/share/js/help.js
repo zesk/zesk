@@ -53,7 +53,7 @@
 				$(".popover-content", $popover).after(
 					'<a type="button" class="close" data-dismiss="modal" aria-hidden="true">' + __("Dismiss") + "</a>"
 				);
-				$('<a class="">' + +"</a>").appendTo($(".popover-content", $popover));
+				//$('<a class="">' + +"</a>").appendTo($(".popover-content", $popover));
 				$(".close", $popover).on("click", function() {
 					shown = shown - 1;
 					$.ajax("/help/dismiss", {
