@@ -36,6 +36,7 @@
 					title: this.title,
 					html: true,
 					container: "body",
+					sanitize: false, // Added to prevent stripping <kbd></kbd> tags
 					content: '<div class="help-popover-content">' + this.content + "</div>",
 				});
 				$target.popover("show");
