@@ -25,14 +25,14 @@ $inline = $this->getb("inline");
 echo $this->theme('zesk/control/text', array(
 	'value' => $value,
 	'onchange' => null,
-	'class' => $inline ? CSS::add_class($this->class, 'hidden') : $this->class,
+	'class' => $inline ? CSS::add_class($this->class, 'hidden') : $this->class
 ));
 
 $options = $this->get(array(
 	"inline" => $this->getb('inline'),
 	"format" => "YYYY-MM-DD",
 	"toolbarPlacement" => "bottom",
-	"showTodayButton" => true,
+	"showTodayButton" => true
 ));
 
 /* @var $defaultDate Timestamp */
@@ -79,7 +79,7 @@ if ($inline) {
 	$id = "$id-dtp";
 	echo HTML::div("#$id", "");
 }
-$jquery = "\$(\"#$id\").datetimepicker(" . JSON::encode($options) . ")";
+$jquery = "\$(\"#$id\").datetimepicker(" . JSON::encodex($options) . ")";
 
 if ($inline) {
 	$jquery .= ".on(\"dp.change\", function (e) {\n\t\$(\"#$original_id\").val(e.date.format('YYYY-MM-DD'));\n})";
