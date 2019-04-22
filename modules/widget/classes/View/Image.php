@@ -33,7 +33,8 @@ class View_Image extends View {
 	}
 
 	protected function cache_directory() {
-		return $this->option('cache_directory', path($this->application->document_root(), "/cache/images/"));
+		$directory = $this->option('cache_directory', path($this->application->document_root(), "/cache/images/"));
+		return $this->application->paths->expand($directory);
 	}
 
 	protected function cache_url_prefix() {
