@@ -14,7 +14,7 @@ class Route_Content extends Route {
 		}
 		$content = $this->option("content", $this->option('default content'));
 		if ($this->option("json")) {
-			return $response->json($content);
+			return $response->json()->data($content);
 		} else {
 			$response->content = $content;
 		}

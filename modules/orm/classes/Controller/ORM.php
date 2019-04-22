@@ -222,7 +222,7 @@ abstract class Controller_ORM extends Controller_Authenticated {
 		$format = $this->request->get("format");
 		if ($format === "json") {
 			$this->auto_render = false;
-			$this->response->json(array(
+			$this->response->json()->data(array(
 				"message" => $message,
 				"redirect_url" => $redirect_url,
 			) + $options);
@@ -297,7 +297,7 @@ abstract class Controller_ORM extends Controller_Authenticated {
 		$format = $this->request->get("format");
 		if ($format === "json" || $this->request->prefer_json()) {
 			$this->auto_render = false;
-			$this->response->json(array(
+			$this->response->json()->data(array(
 				"message" => $message,
 				"status" => $result,
 				"redirect_url" => $redirect_url,

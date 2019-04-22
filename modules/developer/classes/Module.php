@@ -250,7 +250,7 @@ class Module extends \zesk\Module implements Interface_Module_Routes {
 	 */
 	public function dump_session(Application $app, Response $response) {
 		$session = $app->session();
-		$response->json($session->get());
+		$response->json()->data($session->get());
 	}
 
 	/**

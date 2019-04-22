@@ -525,7 +525,7 @@ class Module extends \zesk\Module implements \zesk\Interface_Module_Routes {
 	 */
 	public function response_authentication_failed(Response $response, $message) {
 		$response->status(Net_HTTP::STATUS_UNAUTHORIZED);
-		return $response->json(array(
+		return $response->json()->data(array(
 			"status" => false,
 			"message" => "Authentication failed: $message",
 		));

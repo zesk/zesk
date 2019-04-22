@@ -276,7 +276,7 @@ class Module_Help extends Module_JSLib {
 		foreach ($ids as $id) {
 			$application->orm_factory('zesk\\Help', $id)->show();
 		}
-		$response->json(array(
+		$response->json()->data(array(
 			'status' => true,
 			'message' => 'Marked',
 		));
@@ -311,7 +311,7 @@ class Module_Help extends Module_JSLib {
 				$result[$id] = false;
 			}
 		}
-		$response->json($result);
+		$response->json()->data($result);
 	}
 
 	/**
@@ -326,7 +326,7 @@ class Module_Help extends Module_JSLib {
 		}
 		$n = $this->reset_user($user);
 		$locale = $this->application->locale;
-		$response->json(array(
+		$response->json()->data(array(
 			'status' => true,
 			'message' => $locale->__('Removed {n} {entries}', array(
 				'n' => $n,

@@ -40,4 +40,4 @@ if ($query_string) {
 	$result = ArrayTools::filter($result, $query_string);
 }
 $result['elpased'] = microtime(true) - $application->initialization_time();
-$response->json($result);
+$response->json()->data($result);
