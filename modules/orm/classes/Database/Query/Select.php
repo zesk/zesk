@@ -538,7 +538,7 @@ class Database_Query_Select extends Database_Query_Select_Base {
 		/* @var $class Class_ORM */
 		$class_name = $this->class;
 		$locale = $this->application->locale;
-		$class = $this->application->orm_registry($class_name);
+		$class = $this->application->class_orm_registry($class_name);
 		$map = array(
 			"noun" => $class->name,
 			"nouns" => $locale->plural($class->name),
