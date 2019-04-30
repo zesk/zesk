@@ -126,6 +126,10 @@ class Controller_Content_Cache extends Controller_Cache {
 		} catch (Exception_ORM_NotFound $e) {
 			$this->response->status(404, "Not Found 2");
 			$this->response->cache_for(60, Response::CACHE_PATH);
+			$this->response->json()->data(array(
+				"message" => $e->getMessage(),
+				"backtrace" => $e->getTraceAsString()
+			));
 			return;
 		}
 	}
