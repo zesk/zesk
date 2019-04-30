@@ -44,9 +44,9 @@ class Controller_Content_Cache extends Controller_Cache {
 	 */
 	private function _correct_url_redirect($image_file, $styles) {
 		$this->response->cache_for(60);
-		$this->response->redirect($this->router->url_replace(array(
+		$this->response->redirect($this->router->prefix() . $this->route->url_replace(array(
 			"file" => $image_file,
-			"styles" => $styles,
+			"styles" => $styles
 		)));
 		return;
 	}
@@ -154,8 +154,8 @@ class Controller_Content_Cache extends Controller_Cache {
 				array(
 					"hook" => "scale",
 					"width" => intval($width),
-					"height" => intval($height),
-				),
+					"height" => intval($height)
+				)
 			);
 		}
 		return null;
@@ -177,7 +177,7 @@ class Controller_Content_Cache extends Controller_Cache {
 			$command['original'] = $original;
 			$command['data'] = $data;
 			$new_data = $this->call_hook_arguments("image_" . $hook, array(
-				$command,
+				$command
 			), null);
 			if ($new_data) {
 				$data = $new_data;
@@ -197,7 +197,7 @@ class Controller_Content_Cache extends Controller_Cache {
 		return Image_Library::factory($this->application)->image_scale_data($command['data'], array(
 			'zoom' => true,
 			'width' => $width,
-			'height' => $height,
+			'height' => $height
 		));
 	}
 
@@ -220,7 +220,7 @@ class Controller_Content_Cache extends Controller_Cache {
 			}
 			return array(
 				'styles' => "$styles",
-				'file' => basename($object->path()),
+				'file' => basename($object->path())
 			);
 		}
 		return array();
