@@ -46,7 +46,7 @@ class Controller_Content_Cache extends Controller_Cache {
 		$this->response->cache_for(60);
 		$this->response->redirect($this->router->prefix() . $this->route->url_replace(array(
 			"file" => $image_file,
-			"styles" => $styles,
+			"styles" => $styles
 		)));
 		return;
 	}
@@ -114,8 +114,8 @@ class Controller_Content_Cache extends Controller_Cache {
 			}
 			$image_data = $image->data;
 			if (!$image_data instanceof Content_Data) {
-				$this->response->status(404, "Not Found");
-				$this->response->cache_for(60, Response::cache_path);
+				$this->response->status(404, "Not Found 1");
+				$this->response->cache_for(60, Response::CACHE_PATH);
 				return;
 			}
 			$data = $image_data->data();
@@ -124,8 +124,8 @@ class Controller_Content_Cache extends Controller_Cache {
 			}
 			$this->request_to_file($data);
 		} catch (Exception_ORM_NotFound $e) {
-			$this->response->status(404, "Not Found");
-			$this->response->cache_for(60, Response::cache_path);
+			$this->response->status(404, "Not Found 2");
+			$this->response->cache_for(60, Response::CACHE_PATH);
 			return;
 		}
 	}
@@ -154,8 +154,8 @@ class Controller_Content_Cache extends Controller_Cache {
 				array(
 					"hook" => "scale",
 					"width" => intval($width),
-					"height" => intval($height),
-				),
+					"height" => intval($height)
+				)
 			);
 		}
 		return null;
@@ -177,7 +177,7 @@ class Controller_Content_Cache extends Controller_Cache {
 			$command['original'] = $original;
 			$command['data'] = $data;
 			$new_data = $this->call_hook_arguments("image_" . $hook, array(
-				$command,
+				$command
 			), null);
 			if ($new_data) {
 				$data = $new_data;
@@ -197,7 +197,7 @@ class Controller_Content_Cache extends Controller_Cache {
 		return Image_Library::factory($this->application)->image_scale_data($command['data'], array(
 			'zoom' => true,
 			'width' => $width,
-			'height' => $height,
+			'height' => $height
 		));
 	}
 
@@ -220,7 +220,7 @@ class Controller_Content_Cache extends Controller_Cache {
 			}
 			return array(
 				'styles' => "$styles",
-				'file' => basename($object->path()),
+				'file' => basename($object->path())
 			);
 		}
 		return array();
