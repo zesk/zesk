@@ -143,7 +143,7 @@ class Router extends Hookable {
 			'routes',
 			'prefix',
 			'default_route',
-			"aliases"
+			"aliases",
 		), parent::__sleep());
 		return $result;
 	}
@@ -190,7 +190,7 @@ class Router extends Hookable {
 	public static function hooks(Application $kernel) {
 		$kernel->hooks->add(Hooks::hook_configured, array(
 			__CLASS__,
-			"configured"
+			"configured",
 		));
 	}
 
@@ -294,9 +294,11 @@ class Router extends Hookable {
 		}
 		return $this->prefix;
 	}
+
 	public function add_alias($from, $to) {
 		$this->alias[$from] = $to;
 	}
+
 	public function log($level, $message, array $arguments = array()) {
 		if ($this->debug) {
 			$this->application->logger->log($level, $message, $arguments);
@@ -390,6 +392,7 @@ class Router extends Hookable {
 		$parser = new Parser($contents);
 		$parser->execute($this, $add_options);
 	}
+
 	private function _register_route(Route $route) {
 		$class_actions = $route->class_actions();
 		if (!$class_actions) {
@@ -403,6 +406,7 @@ class Router extends Hookable {
 		}
 		return $route;
 	}
+
 	private function _find_route(array $routes, $action = null, $object = null, $options = null) {
 		$options = to_array($options, array());
 		foreach ($routes as $route) {
@@ -432,10 +436,11 @@ class Router extends Hookable {
 		}
 		return $by_class;
 	}
+
 	private function derived_classes(Model $object) {
 		$by_class = array();
 		$by_class = $object->call_hook_arguments("router_derived_classes", array(
-			$by_class
+			$by_class,
 		), $by_class);
 		return $by_class;
 	}
@@ -458,7 +463,7 @@ class Router extends Hookable {
 		$app = $this->application;
 		if (is_string($options) && begins($options, "?")) {
 			$options = array(
-				'query' => URL::query_parse($options)
+				'query' => URL::query_parse($options),
 			);
 		}
 		$options = to_array($options);
@@ -469,30 +474,30 @@ class Router extends Hookable {
 			$try_classes = $app->classes->hierarchy($object, Model::class);
 			$options += $object->call_hook_arguments("route_options", array(
 				$this,
-				$action
+				$action,
 			), array()) + array(
-				"derived_classes" => array()
+				"derived_classes" => array(),
 			);
 			if ($object instanceof Model) {
 				$options['derived_classes'] += $this->derived_classes($object);
 			}
 		} elseif (is_string($object)) {
 			$try_classes = array(
-				$object
+				$object,
 			);
 		} elseif (is_array($object)) {
 			$try_classes = $object;
 		} else {
 			throw new Exception_Unsupported("Object of type {class} not supported in {method}", array(
 				"class" => type($object),
-				"method" => __METHOD__
+				"method" => __METHOD__,
 			));
 		}
 		$try_classes[] = "*";
 		foreach ($try_classes as $try_class) {
 			foreach (array(
 				$action,
-				"*"
+				"*",
 			) as $try_action) {
 				if ($try_class !== "*") {
 					$try_class = strtolower($app->objects->resolve($try_class));
@@ -511,7 +516,7 @@ class Router extends Hookable {
 					$url = $app->hooks->call_arguments(__CLASS__ . "::get_route_alter", array(
 						$action,
 						$object,
-						$options
+						$options,
 					), $url);
 					return $this->prefix . $url;
 				}
@@ -520,13 +525,13 @@ class Router extends Hookable {
 		$url = $this->call_hook_arguments("get_route", array(
 			$action,
 			$object,
-			$options
+			$options,
 		), null);
 		if (empty($url)) {
 			$app->logger->warning("No reverse route for {classes}->{action} {backtrace}", array(
 				"classes" => $try_classes,
 				"action" => $original_action,
-				"backtrace" => _backtrace()
+				"backtrace" => _backtrace(),
 			));
 			return null;
 		}
