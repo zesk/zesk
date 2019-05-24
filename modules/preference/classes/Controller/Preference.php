@@ -84,10 +84,19 @@ class Controller_Preference extends Controller {
 	 */
 	public function action_getset($type) {
 		if ($type === null) {
+			$extras = [];
+			if ($this->option_bool('debug')) {
+				$extras += [
+					'type' => $type,
+					'route' => $this->route->variables(),
+					'path' => $this->request->path(),
+					'whitelist' => array_keys($this->whitelist),
+				];
+			}
 			return $this->json(array(
 				"status" => false,
 				"message" => __("Invalid preference"),
-			));
+			) + $extras);
 		}
 		$user = $this->application->user($this->request);
 		if (!$user || !$user->authenticated($this->request)) {
