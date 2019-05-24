@@ -369,6 +369,8 @@ abstract class Route extends Hookable {
 		$parts = explode("/", str_replace(array(
 			chr(0x01),
 			chr(0x02),
+			chr(0x03),
+			chr(0x04),
 		), "", $re_pattern));
 
 		foreach ($parts as $index => $part) {
