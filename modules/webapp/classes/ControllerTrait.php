@@ -51,7 +51,7 @@ trait ControllerTrait {
 	 * @return self
 	 */
 	public function authentication_failed($message) {
-		$this->webapp->response_authentication_failed($this->response(), $message);
+		$this->webapp->response_authentication_failed($this->response, $message);
 	}
 
 	/**
