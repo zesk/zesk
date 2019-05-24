@@ -289,8 +289,8 @@ class Module extends \zesk\Module implements \zesk\Interface_Module_Routes {
 			$this->application->cache->saveDeferred($cached);
 			return $files;
 		}
-		$files = $cached->get();
 		if (!$rescan) {
+			$files = $cached->get();
 			return $files;
 		}
 		$walk_add = array();
@@ -311,8 +311,8 @@ class Module extends \zesk\Module implements \zesk\Interface_Module_Routes {
 	 *
 	 * @return \zesk\WebApp\Generator
 	 */
-	public function generate_configuration() {
-		$instances = ArrayTools::clean(ArrayTools::collapse($this->instance_factory(false), "instance"), null);
+	public function generate_configuration($rescan = false) {
+		$instances = ArrayTools::clean(ArrayTools::collapse($this->instance_factory($rescan), "instance"), null);
 		$generator = $this->generator();
 
 		$generator->start();
@@ -353,7 +353,7 @@ class Module extends \zesk\Module implements \zesk\Interface_Module_Routes {
 	 * are required.
 	 */
 	public function hook_cron_minute() {
-		$this->generate_configuration();
+		$this->generate_configuration(true);
 	}
 
 	/**
@@ -401,7 +401,7 @@ class Module extends \zesk\Module implements \zesk\Interface_Module_Routes {
 	/**
 	 *
 	 * @param string $register
-	 * @return \zesk\WebApp\Instance[][]|string[][]
+	 * @return Instance[]
 	 */
 	public function instance_factory($register = false) {
 		$app = $this->application;
