@@ -1078,6 +1078,9 @@ class Widget extends Hookable {
 	public function clear() {
 		$this->errors = array();
 		$this->messages = array();
+		foreach ($this->children as $child) {
+			$child->clear();
+		}
 		return $this;
 	}
 
