@@ -1,10 +1,61 @@
 ## Release {version}
 
-- **Cron Module**: Fixing upgraded `zesk\Locale` API calls.
-- **Help Module**: Fixing `zesk\Locale` API calls.
-- **ORM Module**: `zesk\ORM->member_model_factory()` calling `->refresh` creates infinite loops. Removing `->refresh()` call.
-- **Server Module**: Fixing `zesk\Controller_DNS` to correctly link to `zesk\Diff\Lines`
-- **Zesk Kernel**: `zesk\Route\Theme` supports HTML to JSON output better.
-
+- **Bootstrap DateTimePicker**: Fixed issue with changing semantics of `JSON::encode`
+- **Content Module**: fixing constants for `zesk\Controller_Content_Cache`
+- **Developer Module**: Fixing IP check on `ip_restrict` option in `zesk\Developer\Module::ip_restrict` options
+- **Help Module**: Fixed `$response->json()` error
+- **Help Module**: Fixed issue with HTML being stripped in tips
+- **Help Module**: Fixed issue with user-reset, and `<kbd>` not showing up in tips
+- **Image Picker Module** - Fixed issues relating to semantic differences between `JSON::encode` and `JSON::encodex` **TinyMCE Module** - Fixed issues relating to semantic differences between `JSON::encode` and `JSON::encodex`
+- **Moment Module**: Updated download URLs to latest paths 2019-04-21.
+- **ORM Module**: Added implementations of `->duplicate()` to `zesk\Database_Query` and `zesk\Database_Query_Select`
+- **ORM Module**: Enhancing object serialization structure by adding `zesk\ORM\Walker`, and `zesk\ORM\JSONWalker` to enable shared options while generating output.
+- **ORM Module**: Fixed title generation for `zesk\Database_Query_Select`
+- **ORM Module**: Moved the majority of the `zesk\ORM->json()` functionality into `zesk\ORM\Walker`
+- **ORM Module**: `zesk\Module_ORM->schema_synchronize()` now outputs shorter error for class not found (but continues)
+- **Permission Module**: Now support configuration option `zesk\Module_Permission::warning` to set global warning for **denied** permissions. (Can be overridden on a per-check basis)
+- **Permission Module**: Support configuration option `zesk\Module_Permission::role_paths` for paths to role permission files; also support `json` extension as well.
+- **Preference Module**: Adding debug mode to controller to determine when strings do not match and why.
+- **Preference Module**: Reducing debug info
+- **ReactJS Module**: React modified the `.js` files served, so now serve main `index.html` file via development proxy instead of attempting to map  files directly (closer to real-world testing.)
+- **ReactJS Module**: React now serves up more than just the `bundle.js` file so fetch index file from proxy as well isntead of modifying i`ndex.html`.
+- **Selection Module**: Removed many deprecated function calls.
+- **Selenium Module**: Moved to namespace `zesk\Selenium\Module` etc.
+- **Various Modules**: Fixed issue where `$response->json(array(...))` called instead of `$response->json()->data(array(...))`
+- **WebApp Module**: During cron, every minute, it will remove dead instances and sites when servers go away or change.
+- **WebApp Module**: Fixed `zesk\WebApp\ControllerTrait` to support correct invokation of `->response`
+- **WebApp Module**: Local variable is now called `_app_root` to highlight its privacy as well as to avoid having autocomplete mistake it for `->application`.
+- **WebApp Module**: Moved authentication around to allow extending web app handlers, added `zesk\WebApp\ControllerTrait` to allow adding webapp functionality to any `zesk\Controller`, `zesk\WebApp\Module->add_message_route()` added.
+- **WebApp Module**: Regenerate configuration and scan for apps each cron run
+- **WebApp Module**: Remove warnings when instances have errors in `zesk\WebApp\Module->instance_factory()`
+- **Widget Module**: Adding logging to login/logout controllers (`zesk\Controller_Login`)
+- **Widget Module**: Support `$options` as third parameter in `$user->can()` call
+- **Widget Module**: `zesk\Widget->clear()` now recursively clears all children widgets's errors as well.
+- **Widget Module**: `zesk\Widget->submit_redirect()` no longer passes back the `object` key with JSON version of the object.
+- **Zesk Core**: `zesk\Hookable::hook_results` now supports the value of `true` for `$hook_callback` to skip `zesk\Hookable::combine_hook_results` - consider removing `::combine_hook_results` completely and use a hook to combine arrays, etc.?
+- **Zesk Core**: `zesk\JSON::prepare` now properly handles `null` values
+- **Zesk Core**: `zesk\Locale::auto_path` now passes through `zesk\Application->paths->expand`
+- **Zesk Core**: `zesk\Model::json` removed
+- **Zesk Core**: `zesk\Route_Theme` no longer automatically adds `HTML` contents to `JSON` ones. Either set global `zesk\Route_Theme::json_html` to `true` or set it on a per-Route basis.
+- **Zesk Core**: `zesk\Router->url_replace` no longer valid, use `zesk\Route->url_replace` instead.
+- **Zesk Core**: `zesk\Template->push()` now takes a theme path instead of a template path (adds a `.tpl` to the end)
+- **Zesk Core**: `zesk\Timestamp->json()` no longer takes unused `$options` parameter.
+- **Zesk Kernel**: Adding controller hooks: `before` and `after` running around controller method.
+- **Zesk Kernel**: Support serialization of `zesk\Process` - possibly for testing
+- **Zesk Kernel**: `zesk eval` now supports option `--skip-configure` to skip configuration of the application; previously it was not called, and it now is prior to running any code.
+- **Zesk Kernel**: `zesk\Application` now runs `->inherit_global_options` if hook `configured_files` is run.
+- **Zesk Kernel**: `zesk\Configuration_Loader` now returns null from `->load_one` if file is not found.
+- **Zesk Kernel**: `zesk\Controller->render()` was removed, deprecated.
+- **Zesk Kernel**: `zesk\Exception_Configuration` now includes configuration name in message.
+- **Zesk Kernel**: `zesk\Hookable` no longer allows hooks to be stored as options, instead, they are stored as private members of `zesk\Hookable`. Also added new method ->add_hook to add object-specific hooks. As well, hook names were cleaned previously using `zesk\PHP::clean_function` but now are cleaned using `zesk\Hooks::clean_name`
+- **Zesk Kernel**: `zesk\Hooks` now adds final shutdown function to log to PHP error log if exists with a failure.
+- **Zesk Kernel**: `zesk\JSON::encode` was modified so it can be used as a general purpose call, and uses commonly-desired options (largely do not escape slashes ... what's up with that?). Also added `zesk\JSON::zencode` which is the **Zesk** JSON encoding written in PHP and supports object conversion as well as special keys prefixed with a star.
+- **Zesk Kernel**: `zesk\JavaScript` - Fixed issues relating to semantic differences between `JSON::encode` and `JSON::encodex` - latter supports *-prefix keys to pass values through unmodified, useful for generating JS for client consumption.
+- **Zesk Kernel**: `zesk\Modules` no longer stores value `module` which contained `zesk\Module` subclass - stored in key `object` now. All references too `module` have been removed. Also fixed configuration defaults.
+- **Zesk Kernel**: `zesk\Route` arguments was not initialized to `null` unless it was `->match()`ed first. So now args defaults to null.
+- **Zesk Kernel**: `zesk\Router->add_route(...)` now returns an object always.
+- **Zesk Kernel**: Fixing `Route` parsing of arguments, replacing all special chars in pattern
+- **Permission Module**: `zesk\Module\Permission` now supports an `warning` option which, when false, displays denied permissions for users. Useful for cleaning up logs for permission tests which are unimportant. Also see configuration option `zesk\Permission\Module::warning` which defaults to `false`
+- **PolyGlot Module**: `zesk\PolyGlot_Token` updated `->json(JSONWalker $walker)` call
 
 <!-- Generated automatically by release-zesk.sh, beware editing! -->
