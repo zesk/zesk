@@ -88,7 +88,10 @@ class Controller_Preference extends Controller {
 			if ($this->option_bool('debug')) {
 				$extras += [
 					'type' => $type,
-					'route' => $this->route->variables(),
+					'route' => [
+						'indexed' => $this->route->arguments_indexed(),
+						'named' => $this->route->arguments_named(),
+					],
 					'path' => $this->request->path(),
 					'whitelist' => array_keys($this->whitelist),
 				];
