@@ -20,7 +20,7 @@ class PolyGlot_Update extends ORM {
 	 */
 	public static function register_update(Application $application, $locale, User $user = null) {
 		$object = $application->orm_factory(__CLASS__, array(
-			"locale" => Locale::normalize($locale),
+			"locale" => Locale::normalize($locale)
 		));
 
 		try {
@@ -42,7 +42,7 @@ class PolyGlot_Update extends ORM {
 		if (!is_dir($path)) {
 			$application->logger->warning("zesk\\Module_PolyGlot::update_path is not a directory ({path}) on {server}", array(
 				"path" => $path,
-				"server" => $server->name,
+				"server" => $server->name
 			));
 			return;
 		}
@@ -74,14 +74,14 @@ class PolyGlot_Update extends ORM {
 		}
 		if (count($update_locales) === 0) {
 			$application->logger->debug("No locale updates needed on {server}", array(
-				"server" => $server->name,
+				"server" => $server->name
 			));
 			$lock->release();
 			return;
 		}
 		$additional_locales = array();
 		foreach ($update_locales as $update_locale) {
-			$dialect = Locale::dialect($update_locale);
+			$dialect = Locale::parse_dialect($update_locale);
 			if (!$dialect) {
 				$expanded_locales = $application->orm_registry(PolyGlot_Token::class)
 					->query_select()
@@ -92,9 +92,9 @@ class PolyGlot_Update extends ORM {
 					array(
 						"dialect|!=" => array(
 							null,
-							"",
-						),
-					),
+							""
+						)
+					)
 				))
 					->to_array(null, "locale");
 				$additional_locales = array_merge($additional_locales, $expanded_locales);
@@ -104,7 +104,7 @@ class PolyGlot_Update extends ORM {
 		$update_locales = array_unique($update_locales);
 		$application->logger->warning("Updating locales {locales} on {server}", array(
 			"locales" => $update_locales,
-			"server" => $server->name,
+			"server" => $server->name
 		));
 		$success = true;
 		foreach ($update_locales as $update_locale) {
@@ -121,7 +121,7 @@ class PolyGlot_Update extends ORM {
 				$application->logger->error("Updating locale {locale} on {server} FAILED due to {message}", array(
 					"locales" => $update_locales,
 					"server" => $server->name,
-					"message" => $e->getMessage(),
+					"message" => $e->getMessage()
 				));
 				$success = false;
 			}
