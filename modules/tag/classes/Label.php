@@ -13,7 +13,8 @@ use zesk\ArrayTools;
 
 /**
  *
- * @see Class_Tag_Label
+ * @see zesk\Tag\Class_Label
+ *
  * @see Tag
  * @author kent
  * @property id $id
