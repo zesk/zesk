@@ -111,7 +111,10 @@ class Preference extends ORM {
 				"debug" => PHP::dump($row),
 				"vlen" => $vlen,
 			));
-			$user->application->query_delete("zesk\\Preference")->where("id", $row['id'])->execute();
+			$user->application->orm_registry(Preference::class)
+				->query_delete()
+				->where("id", $row['id'])
+				->execute();
 		}
 		return $default;
 	}
@@ -172,7 +175,8 @@ class Preference extends ORM {
 			if ($result['value'] === $dbvalue) {
 				return $result['id'];
 			}
-			$app->query_update(__CLASS__)
+			$app->orm_registry(__CLASS__)
+				->query_update()
 				->value("value", $dbvalue)
 				->where('id', $result['id'])
 				->execute();
