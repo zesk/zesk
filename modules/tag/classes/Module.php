@@ -13,7 +13,7 @@ namespace zesk\Tag;
  *
  */
 class Module extends \zesk\Module {
-	protected $classes = array(
+	protected $model_classes = array(
 		Tag::class,
 		Label::class,
 	);

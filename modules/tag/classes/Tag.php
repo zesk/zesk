@@ -8,6 +8,7 @@ use zesk\Application;
 use zesk\Class_ORM;
 use zesk\ORM;
 use zesk\Exception_Semantics;
+use zesk\Database_Query_Select;
 
 /**
  * @see Class_Tag
@@ -40,6 +41,70 @@ class Tag extends ORM {
 		))
 			->execute()
 			->affected_rows();
+	}
+
+	/**
+	 * Utility function for query_has/no_tag
+	 *
+	 * @param Database_Query_Select $query
+	 * @param array $options
+	 * @return array(string, string)
+	 */
+	private function extract_options(Database_Query_Select $query, array $options) {
+		$class_orm = $query->class_orm();
+		$tag_label_id = $this->id();
+		$tag_alias = avalue($options, 'alias', null);
+		if (!$tag_alias) {
+			$tag_alias = "Tag$tag_label_id";
+		}
+		$source_column = avalue($options, 'column', null);
+		if (!$source_column) {
+			$id = $class_orm->id_column;
+			$alias = $query->alias();
+			$source_column = "$alias.$id";
+		}
+		return array(
+			$tag_alias,
+			$source_column,
+		);
+	}
+
+	/**
+	 * Add a query to the current query to ensure the object has the current tag
+	 *
+	 * @param Database_Query_Select $query
+	 * @param array $options "alias" for link table alias, and "column" to override default link
+	 *
+	 * @return Database_Query_Select
+	 */
+	public function query_has_tag(Database_Query_Select $query, array $options = array()) {
+		list($tag_alias, $source_column) = $this->extract_options($query, $options);
+		$query->join_object("INNER", $this, $tag_alias, array(
+			$source_column => "$tag_alias.object_id",
+			"$tag_alias.tag_label" => $this,
+			"$tag_alias.object_class" => $query->class_orm()->class,
+		));
+		return $query;
+	}
+
+	/**
+	 * Add a query to the current query to ensure the object does NOT have the current tag
+	 *
+	 * @param Database_Query_Select $query
+	 * @param array $options "alias" for link table alias, and "column" to override default link
+	 *
+	 * @return Database_Query_Select
+	 */
+	public function query_no_tag(Database_Query_Select $query, array $options = array()) {
+		$class_orm = $query->class_orm();
+		list($tag_alias, $source_column) = $this->extract_options($query, $options);
+		$query->join_object("LEFT", $this, $tag_alias, array(
+			$source_column => "$tag_alias.object_id",
+			"$tag_alias.tag_label" => $this,
+			"$tag_alias.object_class" => $query->class_orm()->class,
+		));
+		$query->where("$tag_alias.object_id", null);
+		return $query;
 	}
 
 	/**

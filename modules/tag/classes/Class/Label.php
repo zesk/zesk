@@ -17,6 +17,8 @@ use zesk\Class_ORM;
 class Class_Label extends Class_ORM {
 	public $id_column = "id";
 
+	public $code_name = "Tag_Label";
+
 	public $has_one = array(
 		'owner' => 'User',
 	);
