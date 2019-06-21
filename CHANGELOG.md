@@ -17,6 +17,16 @@ Version 1.0 of Zesk will have:
 - Website `https://zesk.com` with basic documentation
 
 <!-- HERE -->
+## [v0.26.0][]
+
+**Fri Jun 21 10:19:44 EDT 2019**
+
+- Sorting filters in dropdown list for `Control_Filter_Selector`
+- **PolyGlot Module**: Fixed incorrect `::parse_dialect` call
+- **Preferences Module**: Upgrading ORM calls, removing deprecated calls.
+- **Tag Module**: Added feasibility for tag queries
+- **World Module**: Updated country info
+
 ## [v0.25.2][]
 
 **Fri May 24 20:34:53 EDT 2019**
@@ -2083,6 +2093,8 @@ Settling of `zesk\Kernel` and `zesk\` namespace changes, added additional compon
  - `zesk::class_hierarchy` -> `zesk()->classes->hierarchy`
 - Removed growl module (no longer relevant on Mac OS X)
 
+[v0.26.0]: https://github.com/zesk/zesk/compare/v0.25.2...v0.26.0
+[v0.25.2]: https://github.com/zesk/zesk/compare/v0.25.1...v0.25.2
 [v0.25.1]: https://github.com/zesk/zesk/compare/v0.25.0...v0.25.1
 [v0.25.0]: https://github.com/zesk/zesk/compare/v0.24.0...v0.25.0
 [v0.24.0]: https://github.com/zesk/zesk/compare/v0.23.5...v0.24.0
