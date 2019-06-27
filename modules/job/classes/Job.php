@@ -417,24 +417,24 @@ class Job extends ORM implements Interface_Process, Interface_Progress {
 		if ($this->process && $this->process->done()) {
 			throw new Exception_Interrupt();
 		}
-		// Every 0.1sec
-		$now = microtime(true);
-		if ($this->last_progress === null || $now - $this->last_progress > 0.1) {
-			$this->last_progress = $now;
-			$query = $this->query_update()->values(array(
-				"*updated" => $this->database()
-					->sql()
-					->now_utc(),
-			))
-				->where('id', $this->id());
-			if (is_numeric($percent)) {
-				$query->value('progress', $percent);
-			}
-			if (!empty($status)) {
-				$query->value("status", $status);
-			}
-			$query->execute();
+		// 		// Every 0.1sec
+		// 		$now = microtime(true);
+		// 		if ($this->last_progress === null || $now - $this->last_progress > 0.1) {
+		// 			$this->last_progress = $now;
+		$query = $this->query_update()->values(array(
+			"*updated" => $this->database()
+				->sql()
+				->now_utc(),
+		))
+			->where('id', $this->id());
+		if (is_numeric($percent)) {
+			$query->value('progress', $percent);
 		}
+		if (!empty($status)) {
+			$query->value("status", $status);
+		}
+		$query->execute();
+		// 		}
 		return $this;
 	}
 

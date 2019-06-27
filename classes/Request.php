@@ -151,7 +151,7 @@ class Request extends Hookable {
 	 *
 	 * @param Application $application
 	 * @param array|Request|null $settings If NULL, uses PHP globals to initialize
-	 * @return object|\zesk\stdClass
+	 * @return self
 	 */
 	public static function factory(Application $application, $settings = null) {
 		return $application->factory(__CLASS__, $application, $settings);

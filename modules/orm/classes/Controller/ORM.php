@@ -72,24 +72,25 @@ abstract class Controller_ORM extends Controller_Authenticated {
 	protected $actions = array(
 		"index" => array(
 			"List",
-			"Index"
+			"Index",
 		),
 		"list" => array(
 			"List",
-			"Index"
+			"Index",
 		),
 		"new" => array(
 			"New",
-			"Edit"
+			"Edit",
 		),
 		"edit" => "Edit",
 		"delete" => array(
-			"Delete"
+			"Delete",
 		),
 		"duplicate" => array(
-			"Edit"
-		)
+			"Edit",
+		),
 	);
+
 	protected $control_options = array();
 
 	/**
@@ -141,7 +142,7 @@ abstract class Controller_ORM extends Controller_Authenticated {
 	 */
 	public function hook_classes() {
 		return array(
-			$this->class
+			$this->class,
 		);
 	}
 
@@ -160,7 +161,7 @@ abstract class Controller_ORM extends Controller_Authenticated {
 			$this->class = $ns . StringTools::unprefix($cl, "Controller_");
 			$this->application->logger->debug("Automatically computed ORM class name {class} from {controller_class}", array(
 				"controller_class" => $controller_class,
-				"class" => $this->class
+				"class" => $this->class,
 			));
 		}
 		if (!$this->class_name) {
@@ -223,7 +224,7 @@ abstract class Controller_ORM extends Controller_Authenticated {
 			$this->auto_render = false;
 			$this->response->json()->data(array(
 				"message" => $message,
-				"redirect_url" => $redirect_url
+				"redirect_url" => $redirect_url,
 			) + $options);
 			return;
 		}
@@ -238,11 +239,11 @@ abstract class Controller_ORM extends Controller_Authenticated {
 	private function _arguments_load($parameter) {
 		if ($parameter instanceof ORM) {
 			return array(
-				$parameter
+				$parameter,
 			);
 		}
 		return array(
-			$this->controller_orm_factory($parameter)
+			$this->controller_orm_factory($parameter),
 		);
 	}
 
@@ -299,7 +300,7 @@ abstract class Controller_ORM extends Controller_Authenticated {
 			$this->response->json()->data(array(
 				"message" => $message,
 				"status" => $result,
-				"redirect_url" => $redirect_url
+				"redirect_url" => $redirect_url,
 			));
 			return;
 		}
@@ -331,7 +332,7 @@ abstract class Controller_ORM extends Controller_Authenticated {
 		return $this->_redirect_response($redirect_url, $message, array(
 			"status" => $result,
 			"original_object" => $object->json(array()),
-			"object" => $new_object->json(array())
+			"object" => $new_object->json(array()),
 		));
 	}
 
@@ -358,7 +359,7 @@ abstract class Controller_ORM extends Controller_Authenticated {
 				$json = $response->response_data() + array(
 					'status' => true,
 					'content' => $content,
-					'microtime' => microtime(true)
+					'microtime' => microtime(true),
 				) + $output_json;
 
 				$this->json($json);
@@ -439,7 +440,7 @@ abstract class Controller_ORM extends Controller_Authenticated {
 		$object = $this->application->orm_factory($class, $id);
 		$name = $object->class_orm()->name;
 		$__ = array(
-			"name" => $name
+			"name" => $name,
 		);
 		if (empty($id)) {
 			throw new Exception_Parameter("Invalid {name} ID", $__);
@@ -456,7 +457,7 @@ abstract class Controller_ORM extends Controller_Authenticated {
 			throw new Exception_Parameter("{name} is empty", $__);
 		} catch (\Exception $e) {
 			throw new Exception_Parameter("{name} unknown error {message}", $__ + array(
-				"message" => $e->getMessage()
+				"message" => $e->getMessage(),
 			));
 		}
 	}
@@ -486,7 +487,7 @@ abstract class Controller_ORM extends Controller_Authenticated {
 				}
 				$this->application->logger->debug("Action {action} not found in {actions}", array(
 					"action" => $action,
-					"actions" => $this->actions
+					"actions" => $this->actions,
 				));
 				$this->response->redirect($url);
 				return;
@@ -500,7 +501,7 @@ abstract class Controller_ORM extends Controller_Authenticated {
 			if ($widget === null) {
 				throw new Exception_NotFound(__("No control found for action {action}: {tried}", array(
 					"action" => $action,
-					"tried" => $this->tried_widgets
+					"tried" => $this->tried_widgets,
 				)));
 			}
 
@@ -508,7 +509,7 @@ abstract class Controller_ORM extends Controller_Authenticated {
 				$perm_action = firstarg($this->option('action'), $this->actual_action);
 				if (!$this->user) {
 					throw new Exception_Authentication("Attempting to perform {action}", array(
-						"action" => $perm_action
+						"action" => $perm_action,
 					));
 				}
 				if ($object instanceof Model) {
@@ -522,7 +523,7 @@ abstract class Controller_ORM extends Controller_Authenticated {
 				if ($ajax) {
 					$this->json(array(
 						"status" => false,
-						"message" => $e->getMessage()
+						"message" => $e->getMessage(),
 					));
 				} else {
 					throw $e;
@@ -548,7 +549,7 @@ abstract class Controller_ORM extends Controller_Authenticated {
 			$title = $widget->option('title', $this->option('title', $this->route->option('title')));
 			if ($title) {
 				$title = map($title, array(
-					"class_name" => $this->class_name
+					"class_name" => $this->class_name,
 				));
 			} elseif ($object) {
 				$title = $action_prefix . $this->class_name;
@@ -557,7 +558,7 @@ abstract class Controller_ORM extends Controller_Authenticated {
 			return $this->control($widget, $object, array(
 				'title' => $title,
 				"action" => $action,
-				"route_action" => $action
+				"route_action" => $action,
 			));
 		} catch (Exception_Class_NotFound $e) {
 			$this->application->hooks->call("exception", $e);
