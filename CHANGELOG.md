@@ -17,6 +17,14 @@ Version 1.0 of Zesk will have:
 - Website `https://zesk.com` with basic documentation
 
 <!-- HERE -->
+
+## [v0.26.1][]
+
+**Thu Jun 27 00:06:53 EDT 2019**
+
+- **Zesk Kernel**: `zesk\Application` now loads `etc/maintenance.json` (or `$app->maintenance_file()`) upon creation, and places values in `$app->option('maintenance')` which is an array.
+- Revising `zesk maintenance` to set simpler key in maintenance structure
+
 ## [v0.26.0][]
 
 **Fri Jun 21 10:19:44 EDT 2019**
@@ -2093,6 +2101,7 @@ Settling of `zesk\Kernel` and `zesk\` namespace changes, added additional compon
  - `zesk::class_hierarchy` -> `zesk()->classes->hierarchy`
 - Removed growl module (no longer relevant on Mac OS X)
 
+[v0.26.1]: https://github.com/zesk/zesk/compare/v0.26.0...v0.26.1
 [v0.26.0]: https://github.com/zesk/zesk/compare/v0.25.2...v0.26.0
 [v0.25.2]: https://github.com/zesk/zesk/compare/v0.25.1...v0.25.2
 [v0.25.1]: https://github.com/zesk/zesk/compare/v0.25.0...v0.25.1
