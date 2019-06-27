@@ -360,6 +360,7 @@ class Application extends Hookable implements Interface_Theme, Interface_Member_
 	public function __construct(Kernel $kernel, array $options = array()) {
 		parent::__construct($this, $options);
 		$this->_initialize($kernel, $options);
+		$this->set_option('maintenance', $this->_load_maintenance());
 	}
 
 	/**
@@ -859,7 +860,7 @@ class Application extends Hookable implements Interface_Theme, Interface_Member_
 	final public function maintenance($set = null) {
 		$maintenance_file = $this->maintenance_file();
 		if ($set === null) {
-			return file_exists($maintenance_file);
+			return $this->option_path('maintenance.enabled', false);
 		}
 		$result = $this->call_hook_arguments("maintenance", array(
 			$set,
@@ -888,7 +889,35 @@ class Application extends Hookable implements Interface_Theme, Interface_Member_
 	}
 
 	/**
-	 * Return file, which when exists, puts the site into maintenance mode
+	 * Load the maintenance JSON file
+	 *
+	 * @return array
+	 */
+	private function _load_maintenance() {
+		$file = $this->maintenance_file();
+		if (!file_exists($file)) {
+			$result = array(
+				'enabled' => false,
+			);
+		} else {
+			try {
+				$result = JSON::decode(file_get_contents($file));
+			} catch (Exception_Parse $e) {
+				$result = array(
+					'error' => 'Unabe to parse maintenance file',
+				);
+			}
+			$result = array(
+				'enabled' => true,
+			) + $result;
+		}
+		return $result;
+	}
+
+	/**
+	 * Return file, which when exists, puts the site into maintenance mode.
+	 *
+	 * Always a JSON file
 	 *
 	 * @return string
 	 */
