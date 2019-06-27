@@ -51,12 +51,12 @@ class Database_Snapshot extends ORM {
 			$snap = $app->orm_factory(__CLASS__, array(
 				'name' => __('{db_name} snapshot saved on {date}', array(
 					'db_name' => $dbname,
-					'date' => $date
+					'date' => $date,
 				)),
 				'dbname' => $dbname,
 				'elapsed' => $elapsed,
 				'created' => $now,
-				'data' => file_get_contents($temp)
+				'data' => file_get_contents($temp),
 			))->store();
 			File::unlink($temp);
 			return $snap;
@@ -67,6 +67,7 @@ class Database_Snapshot extends ORM {
 		}
 		return null;
 	}
+
 	public static function restore_latest(Database $db) {
 		$dbname = $db->database_name();
 
@@ -75,7 +76,7 @@ class Database_Snapshot extends ORM {
 			->query_select()
 			->what_object()
 			->where(array(
-			"dbname" => $dbname
+			"dbname" => $dbname,
 		))
 			->order_by('created DESC')
 			->limit(0, 1)
@@ -85,6 +86,7 @@ class Database_Snapshot extends ORM {
 		}
 		return $snapshot->restore($db);
 	}
+
 	public function restore(Database $db = null) {
 		if ($db === null) {
 			$db = $this->application->database_registry();
@@ -92,7 +94,7 @@ class Database_Snapshot extends ORM {
 		if ($db->database_name() !== $this->dbname) {
 			throw new Exception_Semantics("Restoring incorrect snapshot name {dbname} onto existing database name {db_database_name} - stopping", array(
 				'db_database_name' => $db->database_name(),
-				'dbname' => $this->dbname
+				'dbname' => $this->dbname,
 			));
 		}
 		$now = Timestamp::now();

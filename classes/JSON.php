@@ -238,6 +238,13 @@ class JSON {
 	 * @throws Exception_Parse
 	 */
 	public static function decode($string, $assoc = true) {
+		if (!is_string($string)) {
+			throw new Exception_Parameter("{method}: String required {type} passed from {calling_function}", array(
+				'method' => __METHOD__,
+				'type' => type($string),
+				'calling_function' => calling_function(),
+			));
+		}
 		$string = trim($string);
 		if ($string === 'null') {
 			return null;
