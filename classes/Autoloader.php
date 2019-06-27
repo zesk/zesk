@@ -17,6 +17,41 @@ use Psr\Cache\CacheItemInterface;
  */
 class Autoloader {
 	/**
+	 * Used in ->path("path/to", [ Autoloader::CLASS_PREFIX => "foo\\", Autoloader::LOWER => false ]);
+	 *
+	 * @var string
+	 */
+	const OPTION_CLASS_PREFIX = "class_prefix";
+
+	/**
+	 * Used in ->path("path/to", [ Autoloader::CLASS_PREFIX => "foo\\", Autoloader::LOWER => false ]);
+	 *
+	 * @var string
+	 */
+	const OPTION_LOWER = "lower";
+
+	/**
+	 * Used in ->path(..., $options); Make this path first in the list. (Default is added to the middle)
+	 *
+	 * @var string
+	 */
+	const OPTION_FIRST = "first";
+
+	/**
+	 * Used in ->path(..., $options); Make this path last in the list. (Default is added to the end)
+	 *
+	 * @var string
+	 */
+	const OPTION_LAST = "last";
+
+	/**
+	 * Used in ->path(..., $options); Make this path first in the list. (Default is added to the end)
+	 *
+	 * @var string
+	 */
+	const OPTION_EXTENSIONS = "extensions";
+
+	/**
 	 *
 	 * @var string
 	 */
@@ -27,6 +62,30 @@ class Autoloader {
 	 * @var boolean
 	 */
 	const OPTION_LOWER_DEFAULT = true;
+
+	/**
+	 *
+	 * @var array[]
+	 */
+	private $first = array();
+
+	/**
+	 *
+	 * @var array[]
+	 */
+	private $paths = array();
+
+	/**
+	 *
+	 * @var array[]
+	 */
+	private $last = array();
+
+	/**
+	 *
+	 * @var array[]
+	 */
+	private $cached = null;
 
 	/**
 	 *
@@ -278,65 +337,6 @@ class Autoloader {
 		}
 		return $this->autoload_extensions;
 	}
-
-	/**
-	 *
-	 * @var array[]
-	 */
-	private $first = array();
-
-	/**
-	 *
-	 * @var array[]
-	 */
-	private $paths = array();
-
-	/**
-	 *
-	 * @var array[]
-	 */
-	private $last = array();
-
-	/**
-	 *
-	 * @var array[]
-	 */
-	private $cached = null;
-
-	/**
-	 * Used in ->path("path/to", [ Autoloader::CLASS_PREFIX => "foo\\", Autoloader::LOWER => false ]);
-	 *
-	 * @var string
-	 */
-	const OPTION_CLASS_PREFIX = "class_prefix";
-
-	/**
-	 * Used in ->path("path/to", [ Autoloader::CLASS_PREFIX => "foo\\", Autoloader::LOWER => false ]);
-	 *
-	 * @var string
-	 */
-	const OPTION_LOWER = "lower";
-
-	/**
-	 * Used in ->path(..., $options); Make this path first in the list. (Default is added to the middle)
-	 *
-	 * @var string
-	 */
-	const OPTION_FIRST = "first";
-
-	/**
-	 * Used in ->path(..., $options); Make this path last in the list. (Default is added to the end)
-	 *
-	 * @var string
-	 */
-	const OPTION_LAST = "last";
-
-	/**
-	 * Used in ->path(..., $options); Make this path first in the list. (Default is added to the end)
-	 *
-	 * @var string
-	 */
-	const OPTION_EXTENSIONS = "extensions";
 
 	/**
 	 * Retrieve the list of autoload paths, or add one.
