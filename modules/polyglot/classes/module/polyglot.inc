@@ -21,8 +21,8 @@ class Module_PolyGlot extends Module implements Interface_Module_Routes {
 	 * @var array
 	 */
 	protected $model_classes = array(
-		"zesk\\PolyGlot_Token",
-		"zesk\\PolyGlot_Update",
+		PolyGlot_Token::class,
+		PolyGlot_Update::class,
 	);
 
 	public function hook_configured() {
@@ -68,8 +68,7 @@ class Module_PolyGlot extends Module implements Interface_Module_Routes {
 			}
 			$results[$code] = $name;
 		}
-		$this->application->logger->error($query->__toString());
-		return __($results);
+		return $this->application->locale->__($results);
 	}
 
 	/**
@@ -110,6 +109,7 @@ class Module_PolyGlot extends Module implements Interface_Module_Routes {
 		$source_files = $this->option_list("source_files");
 		$table = array();
 		foreach ($source_files as $source_file) {
+			$source_file = $this->application->paths->expand($source_file);
 			if (!is_file($source_file)) {
 				continue;
 			}

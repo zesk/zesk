@@ -29,17 +29,27 @@ $response->css("/share/polyglot/css/polyglot.css", array(
 ));
 
 $object = new Model($application);
-$object->locale = $locale;
+$object->locale = $locale->id();
+$defaults = [
+	$locale->id(),
+	$locale->language(),
+];
 $object->status = $this->request->get("s", PolyGlot_Token::status_todo);
 
-$locale_options = to_array($this->locale_options);
+$locale_options = array_change_key_case(to_array($this->locale_options));
 asort($locale_options, SORT_LOCALE_STRING);
 $widget = $this->widget_factory(Control_Select::class)
 	->response($response)
 	->names("locale", __("Locale"))
 	->control_options($locale_options)
-	->hide_single(false)
-	->default_value($object->locale);
+	->hide_single(false);
+
+foreach ($defaults as $default) {
+	if (array_key_exists($default, $locale_options)) {
+		$widget->default_value($default);
+		$object->locale = $default;
+	}
+}
 $widget->required(true);
 
 $status = $this->widget_factory(Control_Select::class)
@@ -49,7 +59,6 @@ $status = $this->widget_factory(Control_Select::class)
 	->noname(__("All"));
 $status->default_value($object->status);
 $widget->required(true);
-
 ?>
 <div id="translate-main" class="filters">
 	<nav class="navbar navbar-default" role="filter">

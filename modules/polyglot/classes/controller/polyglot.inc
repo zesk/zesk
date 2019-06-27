@@ -76,7 +76,7 @@ class Controller_PolyGlot extends Controller_Authenticated {
 			return $this->json(array(
 				"status" => true,
 				"message" => $app_locale->__("Loaded locale {lang_name}.", $__),
-				"items" => $this->module->load_locale($app_locale),
+				"items" => $this->module->load_locale($locale_string),
 			));
 		}
 		return $this->json(array(
