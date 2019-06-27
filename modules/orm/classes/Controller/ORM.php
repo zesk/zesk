@@ -293,7 +293,7 @@ abstract class Controller_ORM extends Controller_Authenticated {
 			$result = false;
 		}
 		$message = $object->words(__($message));
-		$redirect_url = $this->_compute_url($object, $result ? "delete_next" : "delete_failed", "/", $this->request->get("ref"));
+		$redirect_url = $this->_compute_url($object, $result ? "delete_next" : "delete_failed", "/", $this->request->get("ref") ?? "/");
 		$format = $this->request->get("format");
 		if ($format === "json" || $this->request->prefer_json()) {
 			$this->auto_render = false;
