@@ -10,6 +10,7 @@ namespace zesk;
  */
 class Command_Maintenance extends Command_Base {
 	protected function initialize() {
+		parent::initialize();
 		$this->application->hooks->add(Application::class . "::maintenance_context", array(
 			$this,
 			"maintenance_context",
@@ -44,7 +45,7 @@ class Command_Maintenance extends Command_Base {
 	 */
 	public function maintenance_context(Application $app, array $values) {
 		if (is_string($this->message)) {
-			$values[__CLASS__ . '::message'] = $this->message;
+			$values['message'] = $this->message;
 		}
 		return $values;
 	}
