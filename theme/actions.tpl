@@ -21,7 +21,8 @@ $buttons = array();
 $ref_name = $this->get('referrer_query_string_name', 'ref');
 $add_ref = $this->getb('add_ref');
 foreach ($content as $href => $attrs) {
-	if ($add_ref && !URL::query_parse($href, $ref_name) !== null) {
+	$qs = URL::query_parse_url($href);
+	if ($add_ref && !array_key_exists($ref_name, $qs)) {
 		$href = URL::query_format($href, array(
 			$ref_name => $this->ref,
 		));
