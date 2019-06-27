@@ -3,6 +3,7 @@ namespace zesk\Response;
 
 use zesk\JSON as zeskJSON;
 use zesk\Response;
+use zesk\ORM\JSONWalker;
 
 class JSON extends Type {
 	/**
@@ -13,10 +14,26 @@ class JSON extends Type {
 
 	/**
 	 *
+	 * @var array
+	 */
+	private $json_serializer_arguments = null;
+
+	/**
+	 *
+	 * @var array
+	 */
+	private $json_serializer_methods = null;
+
+	/**
+	 *
 	 * @param \zesk\Response $response
 	 */
 	public function initialize() {
 		$this->json = array();
+		$this->json_serializer_arguments = array(
+			JSONWalker::factory(),
+		);
+		$this->json_serializer_methods = null;
 	}
 
 	/**
@@ -52,7 +69,7 @@ class JSON extends Type {
 		} elseif (is_string($content)) {
 			$this->json['content'] = $content;
 		}
-		$content = zeskJSON::prepare($this->json);
+		$content = zeskJSON::prepare($this->json, $this->json_serializer_methods, $this->json_serializer_arguments);
 		return $this->application->development() ? zeskJSON::encode_pretty($content) : zeskJSON::encode($content);
 	}
 
