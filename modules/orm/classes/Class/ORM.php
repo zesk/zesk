@@ -753,16 +753,37 @@ class Class_ORM extends Hookable {
 		}
 	}
 
-	protected function _add_many($member, array $many_spec) {
-		if (!array_key_exists('class', $many_spec)) {
-			throw new Exception_Semantics("many_spec for class {class} must contain key 'class' for member {member}", compact("class", "member"));
-		}
-		$class = $this->application->objects->resolve($many_spec['class']);
-		if (avalue($many_spec, 'default')) {
+	/**
+	 * Add a class to our has_many_objects lookup
+	 *
+	 * @param string $class
+	 * @param string $member
+	 * @param boolean $first
+	 * @return \zesk\Class_ORM
+	 */
+	private function add_has_many_object($class, $member, $first = false) {
+		$class = $this->application->objects->resolve($class);
+		if ($first) {
 			ArrayTools::prepend($this->has_many_objects, $class, $member);
 		} else {
 			ArrayTools::append($this->has_many_objects, $class, $member);
 		}
+		return $this;
+	}
+
+	/**
+	 * Add a many member
+	 *
+	 * @param unknown $member
+	 * @param array $many_spec
+	 * @throws Exception_Semantics
+	 * @return \zesk\Class_ORM
+	 */
+	protected function _add_many($member, array $many_spec) {
+		if (!array_key_exists('class', $many_spec)) {
+			throw new Exception_Semantics("many_spec for class {class} must contain key 'class' for member {member}", compact("class", "member"));
+		}
+		$this->add_has_many_object($many_spec['class'], $member, avalue($many_spec, 'default'));
 		$this->has_many[$member] = map($many_spec, array(
 			'table' => $this->table,
 		));
@@ -842,12 +863,7 @@ class Class_ORM extends Hookable {
 						"member" => $member,
 					));
 				}
-				$class = $many_spec['class'];
-				if (avalue($many_spec, 'default')) {
-					ArrayTools::prepend($this->has_many_objects, $class, $member);
-				} else {
-					ArrayTools::append($this->has_many_objects, $class, $member);
-				}
+				$this->add_has_many_object($many_spec['class'], $member, avalue($many_spec, 'default'));
 			}
 			$this->has_many = map($this->has_many, array(
 				'table' => $this->table,
@@ -1224,6 +1240,7 @@ class Class_ORM extends Hookable {
 	}
 
 	final public function has_many_object($class) {
+		$class = $this->application->objects->resolve($class);
 		$member = avalue($this->has_many_objects, $class, null);
 		if (!$member) {
 			return null;
