@@ -1635,6 +1635,7 @@ class ORM extends Model implements Interface_Member_Model_Factory {
 			}
 			return false;
 		}
+		$this->refresh();
 		$d = $this->raw_member($member, null);
 		return empty($d);
 	}
