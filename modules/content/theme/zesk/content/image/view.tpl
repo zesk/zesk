@@ -41,7 +41,7 @@ $attr = array(
 	'title' => $title,
 	'data-class' => get_class($object),
 	'data-id' => $object->id,
-	'data-src' => $original_src,
+	'data-original' => $original_src,
 	'src' => $src,
 );
 
