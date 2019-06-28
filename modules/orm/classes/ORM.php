@@ -339,14 +339,14 @@ class ORM extends Model implements Interface_Member_Model_Factory {
 	}
 
 	/**
-	 * Clean a code name to be without spaces or special characters
+	 * Clean a code name to be without spaces or special characters. Numbers, digits, and - and _ are ok.
 	 *
 	 * @see self::clean_code_name
 	 * @param string $name
 	 */
 	public static function clean_code_name($name, $blank = "-") {
 		$codename = preg_replace('|[\s/]+|', "-", strtolower(trim($name, " \t\n$blank")));
-		$codename = preg_replace("/[^-A-Za-z0-9]/", "", $codename);
+		$codename = preg_replace("/[^-_A-Za-z0-9]/", "", $codename);
 		if ($blank !== "-") {
 			$codename = strtr($codename, "-", $blank);
 		}
