@@ -2,8 +2,8 @@
 * $URL$
 * @package zesk
 * @subpackage image_picker
-* @author Kent M. Davidson http://www.razzed.com/
-* @copyright Copyright &copy; 2014, Market Acumen, Inc.
+* @author Kent M. Davidson https://razzed.com/
+* @copyright Copyright &copy; 2019, Market Acumen, Inc.
 *
 * Permission is hereby granted, free of charge, to any person obtaining
 * a copy of this software and associated documentation files (the
@@ -27,6 +27,7 @@
 (function (exports, $) {
 	"use strict";
 	var
+	zesk = exports.zesk,
 	plugin_name = 'image_picker',
 	plugin_suffix = '.' + plugin_name,
 	defaults = {
@@ -72,9 +73,12 @@
 						this.progress_success(data);
 						self.$results.prepend(data.content);
 						self.loaded();
+						zesk.hook("document::ready", self.$results);
 					},
 				});
 				this.loaded();
+			},
+			newContent: function ($context) {
 			},
 			loaded: function () {
 				var self = this;
@@ -82,13 +86,15 @@
 					self.click.call(this, e);
 				});
 				$('.item .action-delete', this.$form).off('click' + plugin_suffix).on('click' + plugin_suffix, function (e) {
-					self.action_delete.call(this, e);
+					e.stopPropagation();
+					e.preventDefault();
+					return self.action_delete.call(null, this);
 				});
 			},
 			click: function (e) {
 				var 
 				$img = $("img", this),
-				source = $img.data('src');
+				source = $img.data('original') || $img.data('src');
 				e.stopPropagation();
 				e.preventDefault();
 				if (exports.tinymce) {
@@ -98,18 +104,16 @@
 					}
 				}
 			},
-			action_delete: function (e) {
-				var $this = $(this);
-				$.ajax($this.attr('href'), {
+			action_delete: function (item) {
+				var $item = $(item);
+				$.ajax($item.attr('href'), {
 					type: "POST",
 					dataType: 'json',
 					success: function (data) {
-						$this.parents('.item').remove();
-						exports.zesk.handle_json(data);
+						zesk.handle_json(data);
+						$item.parents('.item').remove();
 					}
 				});
-				e.stopPropagation();
-				e.preventDefault();
 				return false;
 			}
 		}

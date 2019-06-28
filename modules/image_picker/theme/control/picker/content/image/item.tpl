@@ -25,5 +25,4 @@ echo HTML::div('.item', HTML::div('.image-picker-item', $object->theme('view', a
 ))) . HTML::tag('label', $title) . HTML::tag('a', array(
 	'class' => 'glyphicon glyphicon-remove action-delete',
 	'href' => '/imagepicker/image/' . $object->id() . '/delete',
-	'data-ajax' => true,
 ), ''));
