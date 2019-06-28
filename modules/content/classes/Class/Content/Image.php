@@ -41,7 +41,7 @@ class Class_Content_Image extends Class_ORM {
 	 * @var array
 	 */
 	public $has_one = array(
-		"data" => "zesk\Content_Data",
+		"data" => Content_Data::class,
 	);
 
 	/**
@@ -50,8 +50,8 @@ class Class_Content_Image extends Class_ORM {
 	 */
 	public $has_many = array(
 		"users" => array(
-			"class" => "zesk\User",
-			"link_class" => "zesk\User_Content_Image",
+			"class" => User::class,
+			"link_class" => User_Content_Image::class,
 			"foreign_key" => "image",
 			"far_key" => "user",
 		),
