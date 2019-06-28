@@ -4,6 +4,9 @@
  */
 namespace zesk\Selenium;
 
+use zesk\Exception_Directory_NotFound;
+use zesk\Exception_File_NotFound;
+
 /**
  *
  * @author kent
