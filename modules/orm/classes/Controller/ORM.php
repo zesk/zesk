@@ -170,7 +170,8 @@ abstract class Controller_ORM extends Controller_Authenticated {
 			$this->class_name = $class->name;
 		}
 		if ($this->class_name !== null) {
-			$this->class_name = __($this->class_name, $this->class_name_locale);
+			$locale = $this->application->locale_registry($this->class_name_locale ?? $this->application->locale->id());
+			$this->class_name = $locale->__($this->class_name);
 		}
 	}
 
