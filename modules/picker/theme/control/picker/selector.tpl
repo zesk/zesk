@@ -30,7 +30,7 @@ $input_attributes = array(
 	"id" => $id,
 	'name' => "q",
 	'type' => "text",
-	'placeholder' => __($this->label_search),
+	'placeholder' => $locale->__($this->label_search),
 	'data-source' => $this->target,
 	'data-widget-target' => $this->name,
 );
@@ -40,7 +40,8 @@ echo HTML::div('.form-group control-text', HTML::tag('input', $input_attributes,
 if (!$this->inline_picker) {
 	?>
 <div class="form-group control-button full-width">
-	<button class="btn btn-primary submit" name="ok"><?php echo __($this->label_save); ?></button>
+	<button class="btn btn-primary submit" name="ok"><?php
+	echo $locale->__($this->label_save); ?></button>
 </div>
 <?php
 }
@@ -52,16 +53,19 @@ echo HTML::etag('div', '.control-picker-empty', $this->item_selector_empty);
 
 ?>
 <div
-	class="control-picker-results class-<?php echo $this->object_class_css_class; ?>">
+	class="control-picker-results class-<?php
+
+	echo $this->object_class_css_class;
+	?>">
 <?php
 foreach ($this->objects as $object) {
-	$item_content = $this->theme($this->theme_item, array(
+		$item_content = $this->theme($this->theme_item, array(
 		"object" => $object,
 		"selected" => true,
 		"column" => $this->column,
 	));
-	echo $item_content;
-}
+		echo $item_content;
+	}
 ?>
 </div>
 <?php
