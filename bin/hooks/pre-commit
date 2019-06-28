@@ -49,7 +49,7 @@ fi
 files=$(git diff --cached --name-status | awk '{ if ( $0 ~ /^[^DR]/) { print $2 } else if ( $0 ~ /^R/ ) { print $3 } }' | grep .php)
 if [ ! -z "$files" ]; then
 	echo "Fixing Coding Style ..."
-	bin/fix-zesk.sh $files
+	bin/cs-zesk.sh $files
 	echo "Linting PHP ..."
 	for f in $files; do
 		if ! php -l $f > /dev/null 2>&1; then
