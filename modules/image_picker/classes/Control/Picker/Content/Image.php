@@ -14,7 +14,7 @@ class Control_Picker_Content_Image extends Control_Picker {
 	 *
 	 * @var string
 	 */
-	protected $class = "zesk\Content_Image";
+	protected $class = Content_Image::class;
 
 	/**
 	 *
@@ -33,10 +33,13 @@ class Control_Picker_Content_Image extends Control_Picker {
 	 */
 	public function hook_query(Database_Query_Select $query) {
 		parent::hook_query($query);
-
-		$query->link("User", array(
+		$extras = array();
+		if ($this->has_option('user_link_path')) {
+			$extras['path'] = $this->option('user_link_path');
+		}
+		$query->link(User::class, array(
 			"alias" => "user_image",
-		))->where("user_image.id", $this->user());
+		) + $extras)->where("user_image.id", $this->user());
 	}
 
 	/**
