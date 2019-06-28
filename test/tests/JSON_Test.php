@@ -11,10 +11,17 @@ namespace zesk;
  */
 class JSON_Test extends Test_Unit {
 	/**
-	 * @expectedException zesk\Exception_Parse
+	 * @expectedException zesk\Exception_Parameter
 	 */
 	public function test_decode() {
 		JSON::decode(null);
+	}
+
+	/**
+	 * @expectedException zesk\Exception_Parse
+	 */
+	public function test_decode_parse() {
+		JSON::decode("{");
 	}
 
 	public function test_decode_null() {
@@ -23,7 +30,7 @@ class JSON_Test extends Test_Unit {
 
 	public function test_encode() {
 		$mixed = null;
-		JSON::encode($mixed);
+		$this->assert_equal(JSON::encode($mixed), "null");
 
 		$mixed = array(
 			array(
@@ -41,7 +48,8 @@ class JSON_Test extends Test_Unit {
 			null,
 			"dog" => null,
 		);
-		$this->assert_equal(JSON::encode($mixed), '{"0":{"Hello":"Dude","1241`2":"odd","__2341":2,"a459123":{}},"1":false,"2":true,"3":12312312,"4":"A string","5":"A string","don\'t encode result":document.referrer,"6":null,"dog":null}');
+		$expected = '{"0":{"Hello":"Dude","1241`2":"odd","__2341":2,"a459123":{}},"1":false,"2":true,"3":12312312,"4":"A string","5":"A string","*don\'t encode result":"document.referrer","6":null,"dog":null}';
+		$this->assert_equal(JSON::encode($mixed), $expected);
 	}
 
 	public function test_encodex() {
