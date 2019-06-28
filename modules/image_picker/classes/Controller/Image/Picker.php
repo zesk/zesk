@@ -77,7 +77,7 @@ class Controller_Image_Picker extends \zesk\Controller_ORM {
 			$image->store();
 		}
 		$theme_key = $this->request->get('theme', '');
-		$theme = avalue($this->upload_theme_map(), $theme_key, 'control/picker/content/image/item');
+		$theme = avalue($this->upload_theme_map(), $theme_key, 'zesk/control/picker/content/image/item');
 		$this->json(array(
 			"status" => true,
 			"content" => $this->application->theme($theme, array(
