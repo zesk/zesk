@@ -37,6 +37,12 @@ class Workflow extends Model {
 
 	/**
 	 *
+	 * @var boolean[string]
+	 */
+	protected $step_status = null;
+
+	/**
+	 *
 	 * @var boolean
 	 */
 	public $completed = true;
@@ -178,6 +184,7 @@ class Workflow extends Model {
 		/* @var $step Workflow_Step */
 		foreach ($this->sorted_steps as $step) {
 			$step->refresh($this);
+			$this->step_status[get_class($step)] = $step->is_completed();
 			$this->steps_total += $step->substeps_total();
 			$this->steps_completed += $step->substeps_completed();
 		}

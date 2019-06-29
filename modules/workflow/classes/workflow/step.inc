@@ -113,7 +113,15 @@ abstract class Workflow_Step extends Hookable {
 	 * @return number
 	 */
 	public function substeps_completed() {
-		return $this->completed ? 1 : 0;
+		return $this->is_completed() ? 1 : 0;
+	}
+
+	/**
+	 *
+	 * @return boolean
+	 */
+	public function substeps_completed_equals_total() {
+		return $this->substeps_total() === $this->substeps_completed();
 	}
 
 	/**
@@ -129,9 +137,7 @@ abstract class Workflow_Step extends Hookable {
 	 *
 	 * @return boolean
 	 */
-	public function is_completed() {
-		return $this->substeps_total() === $this->substeps_completed();
-	}
+	abstract public function is_completed();
 
 	/**
 	 * Check if this step is completed
