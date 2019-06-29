@@ -117,7 +117,7 @@ abstract class Controller_Theme extends Controller {
 	 */
 	public function after($result = null, $output = null) {
 		if ($this->auto_render) {
-			if ($this->response->is_json()) {
+			if (!$this->response->is_html()) {
 				return;
 			}
 			$content = null;
