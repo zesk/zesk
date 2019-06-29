@@ -154,7 +154,7 @@ abstract class CSV extends Options {
 	public function add_headers(array $headers, $is_map = true) {
 		if ($is_map) {
 			foreach ($headers as $column => $header_name) {
-				$index = count($this->Headers);
+				$index = is_array($this->Headers) ? count($this->Headers) : 0;
 				$this->Headers[$index] = $header_name;
 				$this->HeadersToIndex[strtolower($column)] = $index;
 			}
