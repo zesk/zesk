@@ -499,6 +499,11 @@ class Response extends Hookable {
 	 */
 	final public function output_handler($set = null) {
 		if ($set !== null) {
+			$this->application->logger->debug("{method} set to {set} from {calling}", array(
+				"method" => __METHOD__,
+				"set" => $set,
+				"calling" => calling_function(2),
+			));
 			$this->output_handler = $set;
 			return $this;
 		}
