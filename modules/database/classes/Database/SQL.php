@@ -408,11 +408,34 @@ abstract class Database_SQL extends Hookable {
 	 * @return string
 	 */
 	protected function where_prefix($sql) {
+		return $this->_sql_prefix($sql, "WHERE");
+	}
+
+	/**
+	 * Prefix a where clause with the WHERE keyword, if there is one.
+	 * If not, return the blank string.
+	 *
+	 * @param string $sql
+	 *        	where clause
+	 * @return string
+	 */
+	protected function having_prefix($sql) {
+		return $this->_sql_prefix($sql, "HAVING");
+	}
+
+	/**
+	 * Prefix a where clause with a keyword, if there is one.
+	 * If not, return the blank string.
+	 *
+	 * @param string $sql
+	 * @return string
+	 */
+	private function _sql_prefix($sql, $prefix) {
 		$sql = trim($sql);
 		if (empty($sql)) {
 			return "";
 		}
-		return " WHERE $sql ";
+		return " $prefix $sql ";
 	}
 
 	/**
@@ -488,6 +511,19 @@ abstract class Database_SQL extends Hookable {
 	 */
 	public function where($where, $conj = null, $prefix = "") {
 		return $this->where_prefix($this->where_clause($where, $conj, $prefix));
+	}
+
+	/**
+	 * Having clause generation
+	 *
+	 * @param array $where
+	 *        	Having clause
+	 * @param string $conj
+	 * @param string $prefix
+	 * @return string
+	 */
+	public function having(array $having, $conj = null, $prefix = "") {
+		return $this->having_prefix($this->where_clause($having, $conj, $prefix));
 	}
 
 	/**
@@ -584,6 +620,7 @@ abstract class Database_SQL extends Hookable {
 	public function select(array $options) {
 		$what = $distinct = $tables = $where = $group_by = $order_by = null;
 		$offset = $limit = 0;
+		$having = array();
 		extract($options, EXTR_IF_EXISTS);
 		$alias = null;
 		$where = $this->where($where, null, $alias);
@@ -597,7 +634,7 @@ abstract class Database_SQL extends Hookable {
 		} else {
 			$sql_tables = (string) $tables;
 		}
-		$sql = "SELECT " . $this->what($what, $distinct) . " FROM " . $sql_tables . $where . $this->group_by($group_by) . self::order_by($order_by) . $this->limit($offset, $limit);
+		$sql = "SELECT " . $this->what($what, $distinct) . " FROM " . $sql_tables . $where . $this->group_by($group_by) . $this->having($having) . self::order_by($order_by) . $this->limit($offset, $limit);
 		return trim($sql);
 	}
 

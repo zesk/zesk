@@ -42,6 +42,13 @@ class Database_Query_Select extends Database_Query_Select_Base {
 	protected $where = array();
 
 	/**
+	 * Having - like where for postprocessing in database based on functions
+	 *
+	 * @var array
+	 */
+	protected $having = array();
+
+	/**
 	 * Order by clause
 	 * @var array
 	 */
@@ -119,6 +126,7 @@ class Database_Query_Select extends Database_Query_Select_Base {
 			"tables",
 			"alias",
 			"where",
+			"having",
 			"order_by",
 			"group_by",
 			"offset",
@@ -141,6 +149,7 @@ class Database_Query_Select extends Database_Query_Select_Base {
 		$this->tables = $query->tables;
 		$this->alias = $query->alias;
 		$this->where = $query->where;
+		$this->having = $query->having;
 		$this->order_by = $query->order_by;
 		$this->group_by = $query->group_by;
 		$this->offset = $query->offset;
@@ -435,6 +444,21 @@ class Database_Query_Select extends Database_Query_Select_Base {
 	}
 
 	/**
+	 * Get/set/append having clause. Does no validation.
+	 *
+	 * @param array $add
+	 * @param boolean $replace
+	 * @return self|array
+	 */
+	public function having(array $add = null, $replace = false) {
+		if ($add !== null) {
+			$this->having = $replace ? $add : $add + $this->having;
+			return $this;
+		}
+		return $this->having;
+	}
+
+	/**
 	 * Add where clause. Pass in false for $k to reset where to nothing.
 	 *
 	 * @param mixed $k
@@ -511,6 +535,7 @@ class Database_Query_Select extends Database_Query_Select_Base {
 			'distinct' => $this->distinct,
 			'tables' => $this->tables,
 			'where' => $this->where,
+			'having' => $this->having,
 			'group_by' => $this->group_by,
 			'order_by' => $this->order_by,
 			'offset' => $this->offset,
