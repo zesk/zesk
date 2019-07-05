@@ -303,15 +303,21 @@ class Session_ORM extends ORM implements Interface_Session {
 
 	/**
 	 *
-	 * @param unknown $user
-	 * @param unknown $expire_seconds
+	 * @param User $user
+	 * @param integer $expire_seconds Expiration time in seconds, inherits from
+	 * 	'zesk\Session_ORM::one_time_expire_seconds' if not set. Defaults to 1 day (86400 seconds).
+	 *
 	 * @return Session_ORM
 	 */
 	public static function one_time_create(User $user, $expire_seconds = null) {
 		$app = $user->application;
 		if ($expire_seconds === null) {
-			$expire_seconds = to_integer($app->configuration->path_get(__CLASS__ . "::one_time_expire_seconds", 86400));
+			$expire_seconds = to_integer($app->configuration->path_get(array(
+				__CLASS__,
+				"one_time_expire_seconds",
+			), 86400));
 		}
+		// Only one allowed at any time, I guess.
 		$app->orm_registry(__CLASS__)
 			->query_delete()
 			->where('is_one_time', true)
@@ -319,7 +325,7 @@ class Session_ORM extends ORM implements Interface_Session {
 			->execute();
 		$session = $app->orm_factory(__CLASS__);
 		$request = $user->application->request();
-		$ip = $request ? $request()->ip() : null;
+		$ip = $request ? $request->ip() : null;
 		$session->set_member(array(
 			'cookie' => self::_generate_cookie(),
 			'is_one_time' => true,
@@ -331,6 +337,13 @@ class Session_ORM extends ORM implements Interface_Session {
 		return $session;
 	}
 
+	/**
+	 * Given a hash, find the one-time Session
+	 *
+	 * @param Application $application
+	 * @param unknown $hash
+	 * @return \zesk\ORM|boolean
+	 */
 	public static function one_time_find(Application $application, $hash) {
 		$hash = trim($hash);
 		$onetime = $application->orm_factory(__CLASS__);
