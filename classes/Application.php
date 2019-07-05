@@ -1159,7 +1159,7 @@ class Application extends Hookable implements Interface_Theme, Interface_Member_
 	 * - Return response
 	 */
 	public function main(Request $request) {
-		$starting_depth = null;
+		$starting_depth = count($this->request_stack);
 
 		try {
 			$response = $this->call_hook("main", $request);
