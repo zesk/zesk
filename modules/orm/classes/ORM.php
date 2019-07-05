@@ -2342,6 +2342,15 @@ class ORM extends Model implements Interface_Member_Model_Factory {
 	}
 
 	/**
+	 *
+	 * @param ORM $orm
+	 * @return boolean
+	 */
+	public function is_equal(ORM $that) {
+		return get_class($this) === get_class($that) && $this->id() === $that->id();
+	}
+
+	/**
 	 * Store any objects which are members, first
 	 */
 	private function store_object_members() {
@@ -2357,7 +2366,7 @@ class ORM extends Model implements Interface_Member_Model_Factory {
 			}
 			$result = $this->member($member);
 			if ($result instanceof $class) {
-				if (!$result->storing && ($result->is_new() || $result->changed())) {
+				if (!$result->storing && ($result->is_new() || $result->changed()) && !$result->is_equal($this)) {
 					$result->store();
 				}
 			}
