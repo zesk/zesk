@@ -107,7 +107,11 @@ class Request extends Hookable {
 	 *
 	 * @var array
 	 */
-	protected $url_parts = array();
+	protected $url_parts = array(
+		'host' => null,
+		'scheme' => null,
+		'path' => null,
+	);
 
 	/**
 	 *
@@ -902,7 +906,7 @@ class Request extends Hookable {
 	 * @return string
 	 * @throws Exception_Key
 	 */
-	public function url_variables($component = null) {
+	public function url_variables($component = null, $default = null) {
 		$this->_valid_url_parts();
 		if ($component === null) {
 			return $this->url_parts;
@@ -910,11 +914,7 @@ class Request extends Hookable {
 		if (array_key_exists($component, $this->url_parts)) {
 			return $this->url_parts[$component];
 		}
-
-		throw new Exception_Key("Missing {component} from request URL {url}", array(
-			"component" => $component,
-			"url" => $this->url(),
-		));
+		return $default;
 	}
 
 	/**
@@ -1128,17 +1128,28 @@ class Request extends Hookable {
 	 * Ensure that ->url_parts is available to be read
 	 */
 	private function _valid_url_parts() {
-		if (!is_array($this->url_parts)) {
-			$parts = URL::parse($this->url);
-			if (!is_array($parts)) {
-				$parts = array();
-			}
-			$this->url_parts = $parts + array(
-				"url" => $this->url,
-			);
+		if (is_array($this->url_parts)) {
+			return;
 		}
+		$parts = URL::parse($this->url);
+		if (!is_array($parts)) {
+			$parts = array();
+		}
+		$this->url_parts = $parts + array(
+			"url" => $this->url,
+			'scheme' => 'http',
+			'host' => 'localhost',
+			'port' => 80,
+			'path' => '',
+		);
 	}
 
+	/**
+	 * Clean array of slashes if PHP is set up with magic_quotes_gpc
+	 *
+	 * @param array $mixed
+	 * @return array
+	 */
 	private function clean_gpc(array $mixed) {
 		return get_magic_quotes_gpc() ? self::_cleanslashes($mixed) : $mixed;
 	}
