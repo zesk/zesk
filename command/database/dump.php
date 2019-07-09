@@ -24,6 +24,7 @@ class Command_Database_Dump extends Command_Base {
 		"target" => "string",
 		"compress" => "boolean",
 		"no-compress" => "boolean",
+		'non-blocking' => 'boolean',
 		"dir" => "string",
 		"arg-prefix" => "string",
 		"arg-suffix" => "string",
@@ -39,6 +40,7 @@ class Command_Database_Dump extends Command_Base {
 		"compress" => "Explicitly compress the dump using gzip (new option)",
 		"no-compress" => "(deprecated) Prevent compression of the archive",
 		"dir" => "Place the file in this directory",
+		'non-blocking' => 'Pass the non-blocking option to the database dump command',
 		"arg-prefix" => "Pass options to prefix command-line",
 		"arg-suffix" => "Pass options to suffix command-line",
 		"tables" => "List of tables to dump",
@@ -60,6 +62,7 @@ class Command_Database_Dump extends Command_Base {
 		list($binary, $args) = $db->shell_command(array(
 			"sql-dump-command" => true,
 			"tables" => $this->option_list("tables"),
+			'non-blocking' => $this->option_bool('non-blocking'),
 		));
 		if ($this->has_option("arg-prefix")) {
 			$args = array_merge($this->option_list('arg-prefix'), $args);
