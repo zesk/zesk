@@ -179,7 +179,7 @@ class PolyGlot_Token extends ORM {
 			->query_select()
 			->what_object()
 			->where(array(
-			"dialect" => Locale::prase_dialect($locale),
+			"dialect" => Locale::parse_dialect($locale),
 			"language" => Locale::parse_language($locale),
 		));
 	}
