@@ -36,6 +36,9 @@ class Lock extends ORM {
 			__CLASS__,
 			'server_delete',
 		));
+		$application->hooks->add(Hooks::hook_reset, function () use ($application) {
+			self::release_all($application);
+		});
 		$application->hooks->add(Hooks::hook_exit, array(
 			__CLASS__,
 			"release_all",

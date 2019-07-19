@@ -146,7 +146,7 @@ class CacheItemPool_File implements CacheItemPoolInterface {
 	 *   True if the pool was successfully cleared. False if there was an error.
 	 */
 	public function clear() {
-		Directory::empty($this->path);
+		Directory::delete_contents($this->path);
 		return true;
 	}
 

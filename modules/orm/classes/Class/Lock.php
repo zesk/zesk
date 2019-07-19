@@ -5,7 +5,7 @@
 namespace zesk;
 
 /**
- *
+ * @see Lock
  * @author kent
  *
  */

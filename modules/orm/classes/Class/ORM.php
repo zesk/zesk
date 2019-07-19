@@ -619,6 +619,21 @@ class Class_ORM extends Hookable {
 	public static $defer_class_links = array();
 
 	/**
+	 * Register all zesk hooks.
+	 */
+	public static function hooks(Application $application) {
+		$application->hooks->add(Hooks::hook_reset, function () use ($application) {
+			self::_hook_reset($application);
+		});
+	}
+
+	public static function _hook_reset(Application $application) {
+		self::$classes = array();
+		self::$classes_dirty = false;
+		self::$defer_class_links = array();
+	}
+
+	/**
 	 * Handle namespace objects intelligently and preserve namespace (\ group), prefixing class name
 	 * (_ group)
 	 *
