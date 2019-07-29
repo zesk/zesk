@@ -520,7 +520,7 @@ class Mail extends Hookable {
 	 * @return Mail
 	 */
 	public static function multipart_send(Application $application, array $mail_options, $attachments = null) {
-		$eol = Mail::mail_eol();
+		$eol = self::mail_eol();
 		$mime_boundary = md5(microtime());
 
 		$charset = avalue($mail_options, 'charset', 'UTF-8');
