@@ -397,6 +397,7 @@ class URL {
 		foreach ($result as $k => $v) {
 			$result[$k] = urldecode($v);
 		}
+		$result['url'] = URL::unparse($result);
 		if (avalue($result, 'scheme') === 'mailto' && array_key_exists('path', $result)) {
 			$path = $result['path'];
 			unset($result['path']);
