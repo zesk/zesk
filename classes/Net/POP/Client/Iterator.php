@@ -33,23 +33,40 @@ class Net_POP_Client_Iterator implements \Iterator {
 		$this->client = $client;
 	}
 
+	/**
+	 *
+	 * @return array
+	 */
 	public function current() {
 		if ($this->message_headers) {
 			return $this->message_headers;
 		}
 		$top = $this->client->message_top($this->key());
-		$this->message_headers = array_change_key_case(mail::parse_headers($top));
+		$this->message_headers = array_change_key_case(Mail::parse_headers($top));
 		return $this->message_headers;
 	}
 
+	/**
+	 *
+	 * @return number
+	 */
 	public function current_size() {
 		return intval(current($this->messages_list));
 	}
 
+	/**
+	 * If filename supplied, number of bytes written. If not, string of data read.
+	 *
+	 * @param string $filename Optional filename
+	 * @return number|string
+	 */
 	public function current_retrieve($filename = null) {
 		return $this->client->message_retrieve($this->key(), $filename);
 	}
 
+	/**
+	 * Delete item at current iterator point
+	 */
 	public function current_delete() {
 		$this->client->message_delete($this->key());
 	}
