@@ -23,31 +23,19 @@ class Hooks {
 	 *
 	 * @var string
 	 */
-	const hook_database_configure = "database_configure";
-
-	/**
-	 *
-	 * @var string
-	 */
 	const HOOK_CONFIGURED = "configured";
 
 	/**
 	 *
 	 * @var string
 	 */
-	const hook_configured = "configured";
+	const HOOK_RESET = "reset";
 
 	/**
 	 *
 	 * @var string
 	 */
-	const hook_reset = "reset";
-
-	/**
-	 *
-	 * @var string
-	 */
-	const hook_exit = "exit";
+	const HOOK_EXIT = "exit";
 
 	/**
 	 * Output a debug log when a class is called with ::hooks but does not implement it
@@ -745,4 +733,31 @@ class Hooks {
 		}
 		return $result;
 	}
+
+	/**
+	 *
+	 * @deprecated 2019-07
+	 * @var string
+	 */
+	const hook_database_configure = self::HOOK_DATABASE_CONFIGURE;
+
+	/**
+	 * @deprecated 2019-07
+	 * @var string
+	 */
+	const hook_reset = self::HOOK_RESET;
+
+	/**
+	 *
+	 * @deprecated 2019-07
+	 * @var string
+	 */
+	const hook_exit = self::HOOK_EXIT;
+
+	/**
+	 *
+	 * @deprecated 2019-07
+	 * @var string
+	 */
+	const hook_configured = "configured";
 }
