@@ -62,7 +62,7 @@ class Settings extends ORM implements Interface_Data, Interface_Settings {
 				"class" => $class,
 			));
 		}
-		$application->hooks->add(Hooks::hook_exit, array(
+		$application->hooks->add(Hooks::HOOK_EXIT, array(
 			$settings,
 			"flush_instance",
 		));
@@ -77,6 +77,9 @@ class Settings extends ORM implements Interface_Data, Interface_Settings {
 		// Ensure Database gets a chance to register first
 		$hooks->register_class(Database::class);
 		$hooks->add('configured', __CLASS__ . '::configured', 'first');
+		$hooks->add(Hooks::HOOK_RESET, function () use ($application) {
+			$application->objects->settings = null;
+		});
 
 		$application->configuration->path(__CLASS__);
 	}
