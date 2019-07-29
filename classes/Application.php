@@ -794,8 +794,9 @@ class Application extends Hookable implements Interface_Theme, Interface_Member_
 	 * @see Application::configure
 	 */
 	public function reconfigure() {
-		$this->hooks->call(Hooks::hook_reset);
+		$this->hooks->call(Hooks::HOOK_RESET);
 		//$this->_initialize($this->kernel);
+		$this->objects->reset();
 		$result = $this->_configure(to_array($this->configuration_options));
 		$this->_configured();
 		return $result;
