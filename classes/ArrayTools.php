@@ -579,11 +579,11 @@ class ArrayTools {
 	 * Take a list of arrays and create a new array using values found in it.
 	 *
 	 * @param array $arrays
-	 * @param unknown_type $key_key
-	 * @param unknown_type $value_key
-	 * @return multitype:Ambigous <mixed, array>
+	 * @param string|null $key_key
+	 * @param string|null $value_key
+	 * @return array
 	 */
-	public static function key_value(array $arrays, $key_key = null, $value_key = null, $default_value = null) {
+	public static function extract(array $arrays, $key_key = null, $value_key = null, $default_value = null) {
 		$result = array();
 		if ($key_key === null) {
 			foreach ($arrays as $key => $array) {
@@ -595,6 +595,20 @@ class ArrayTools {
 			}
 		}
 		return $result;
+	}
+
+	/**
+	 * Take a list of arrays and create a new array using values found in it.
+	 *
+	 * @see ArrayTools::extract
+	 * @param array $arrays
+	 * @param string|null $key_key
+	 * @param string|null $value_key
+	 * @return array
+	 * @deprecated 2019-07
+	 */
+	public static function key_value(array $arrays, $key_key = null, $value_key = null, $default_value = null) {
+		return self::extract($arrays, $key_key, $value_key, $default_value);
 	}
 
 	/**
