@@ -544,4 +544,18 @@ class Server extends ORM implements Interface_Data {
 		}
 		return $query;
 	}
+
+	public function alive_ips($within_seconds = 300) {
+		$ips = $this->query_select()
+			->what([
+			'ip4_internal' => 'ip4_internal',
+			'ip4_external' => 'ip4_extermal',
+		])
+			->distinct(true)
+			->where([
+			'alive|>=' => Timestamp::now('UTC')->add_unit(-abs($within_seconds), Timestamp::UNIT_SECOND),
+		])
+			->to_array();
+		return array_unique(array_merge(ArrayTools::extract($ips, 'ip4_internal'), ArrayTools::extract($ips, 'ip4_external')));
+	}
 }
