@@ -46,7 +46,6 @@ class Control_Checklist extends Control_Optionss {
 	public function columns($set = null) {
 		return $set === null ? $this->option_integer('columns') : $this->set_option('columns', intval($set));
 	}
-
 	public function checkbox_exclusive($value = null, $set = null) {
 		if ($value === null) {
 			$result = array();
@@ -65,10 +64,9 @@ class Control_Checklist extends Control_Optionss {
 		throw new Exception_Parameter("{method} {name} {id} Widget not support for value {type} {value}", array(
 			"method" => __METHOD__,
 			"type" => gettype($value),
-			"value" => $value,
+			"value" => $value
 		) + $this->options);
 	}
-
 	protected function hook_control_options_changed() {
 		$this->widgets_id = null;
 		$this->_init_children(to_array($this->control_options));
@@ -89,17 +87,15 @@ class Control_Checklist extends Control_Optionss {
 		}
 		parent::initialize();
 	}
-
 	private function control_checkbox_factory($name, $col, $label, $value) {
 		return $this->widget_factory(Control_Checkbox::class, array(
 			'name' => $name . "[]",
 			'column' => $col,
 			'id' => $col,
 			'label_checkbox' => $label,
-			'checked_value' => $value,
+			'checked_value' => $value
 		));
 	}
-
 	private function _child_name($value) {
 		return "checklist-" . $this->name() . "-$value";
 	}
@@ -156,7 +152,8 @@ class Control_Checklist extends Control_Optionss {
 	 */
 	protected function hook_object_value() {
 		if ($this->value_is_list()) {
-			return ArrayTools::flip_copy(to_list($this->value(), to_list($this->default_value(), array()), $this->option_separator()));
+			$flip_copy = to_list($this->value(), to_list($this->default_value(), array()), $this->option_separator());
+			return ArrayTools::flip_copy($flip_copy);
 		}
 		return $this->value();
 	}

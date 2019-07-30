@@ -321,7 +321,7 @@ class Hookable extends Options {
 			return $previous_result;
 		}
 		if (is_array($previous_result) && is_array($new_result)) {
-			if (ArrayTools::is_list($previous_result)) {
+			if (count($previous_result) > 0 && ArrayTools::is_list($previous_result)) {
 				return array_merge($previous_result, $new_result);
 			} else {
 				return $new_result + $previous_result;
