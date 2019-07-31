@@ -360,6 +360,7 @@ class Application extends Hookable implements Interface_Theme, Interface_Member_
 	public function __construct(Kernel $kernel, array $options = array()) {
 		parent::__construct($this, $options);
 		$this->_initialize($kernel, $options);
+		$this->_initialize_fixme();
 		$this->set_option('maintenance', $this->_load_maintenance());
 	}
 
@@ -413,8 +414,6 @@ class Application extends Hookable implements Interface_Theme, Interface_Member_
 
 		$this->configured_was_run = false;
 
-		$this->factories = array();
-
 		$this->command = null;
 		$this->router = null;
 
@@ -443,8 +442,6 @@ class Application extends Hookable implements Interface_Theme, Interface_Member_
 
 		$this->module_path($this->path_module_default());
 
-		$this->modules = new Modules($this);
-
 		// Variable state
 		$this->template_stack = new Template_Stack();
 		// Root template
@@ -456,6 +453,17 @@ class Application extends Hookable implements Interface_Theme, Interface_Member_
 		$this->theme_path($this->path_theme_default());
 		$this->share_path($this->path_share_default(), 'zesk');
 		$this->locale_path($this->path_locale_default());
+	}
+
+	/**
+	 * Initialize part 2
+	 */
+	protected function _initialize_fixme() {
+		// These two calls mess up reconfigure and do not reset state correctly.
+		// Need a robust globals monitor to ensure reconfigure resets state back to default
+		// Diffiult issue is class loader modifies state
+		$this->factories = array();
+		$this->modules = new Modules($this);
 	}
 
 	/**
@@ -794,10 +802,11 @@ class Application extends Hookable implements Interface_Theme, Interface_Member_
 	 * @see Application::configure
 	 */
 	public function reconfigure() {
-		$this->hooks->call(Hooks::HOOK_EXIT, $this);
 		$this->hooks->call(Hooks::HOOK_RESET, $this);
+		$modules = array_keys(array_filter($this->modules->loaded()));
 		$this->_initialize($this->kernel);
 		$result = $this->_configure(to_array($this->configuration_options));
+		$this->modules->load($modules);
 		$this->_configured();
 		return $result;
 	}
