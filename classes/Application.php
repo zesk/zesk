@@ -1625,9 +1625,9 @@ class Application extends Hookable implements Interface_Theme, Interface_Member_
 			$arguments['content'] = $content;
 		}
 		if (!$has_output) {
-			$this->logger->warning("Theme {types} had no output ({caller})", array(
+			$this->logger->warning("Theme {types} had no output ({details})", array(
 				"types" => $types,
-				"caller" => calling_function(1),
+				"details" => _backtrace(),
 			));
 		}
 		return $content;
