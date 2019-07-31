@@ -18,6 +18,7 @@ use zesk\Process_Tools;
 use zesk\File_Monitor_List;
 use zesk\ArrayTools;
 use zesk\StringTools;
+use zesk\Exception_Configuration;
 
 /**
  * Run daemons associated with an application.
@@ -178,6 +179,11 @@ class Command_Daemon extends Command_Base implements Interface_Process {
 		PHP::requires('pcntl', true);
 
 		$this->configure("daemon", true);
+
+		if (!$this->application->is_configured()) {
+			throw new Exception_Configuration("Application is not configured", "Application is not configured");
+		}
+
 		if ($this->option_bool('debug-log')) {
 			echo Text::format_pairs(ArrayTools::filter_prefix($this->application->configuration->to_array(), "log"));
 		}

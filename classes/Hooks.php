@@ -109,7 +109,7 @@ class Hooks {
 		register_shutdown_function(array(
 			$this,
 			"_app_call",
-		), self::hook_exit);
+		), self::HOOK_EXIT);
 
 		/* @deprecated Shutdown TODO PHP7 use closure */
 		register_shutdown_function(array(
@@ -153,7 +153,7 @@ class Hooks {
 	 */
 	public function _app_call($hook) {
 		try {
-			$this->call(self::hook_exit, $this->kernel->application());
+			$this->call($hook, $this->kernel->application());
 		} catch (Exception_Semantics $e) {
 			// Be the river.
 		}
