@@ -14,6 +14,7 @@ use zesk\Router;
 use zesk\Request;
 use zesk\Template;
 use zesk\Response;
+use zesk\Application;
 
 /**
  *
@@ -46,10 +47,10 @@ class Module extends \zesk\Module implements \zesk\Interface_Module_Head, \zesk\
 		parent::initialize();
 		$this->application->configuration->deprecated("zesk\\Controller_Locale", Controller::class);
 		$this->application->configuration->deprecated("zesk\\Locale_Validate", Validate::class);
-		$this->application->hooks->add("zesk\Application::router_loaded", array(
-			$this,
-			"router_loaded",
-		));
+		// 		$this->application->hooks->add(Application::class . "::router_loaded", array(
+		// 			$this,
+		// 			"router_loaded"
+		// 		));
 	}
 
 	/**

@@ -55,7 +55,7 @@ class Module_Database extends Module {
 			"app_database_registry",
 		));
 		$hooks = $this->application->hooks;
-		$hooks->add(Hooks::hook_database_configure, array(
+		$hooks->add(Hooks::HOOK_DATABASE_CONFIGURE, array(
 			$this,
 			"_configured",
 		), "first");
