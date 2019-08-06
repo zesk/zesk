@@ -60,6 +60,10 @@ class Module_DropFile extends Module_JSLib {
 	 */
 	public function initialize() {
 		$this->javascript_settings = $this->options_include($this->javascript_include_settings);
-		$this->application->configuration->path_set('Controller_Image_Picker::upload_theme_map::dropfile', 'zesk/control/dropfile/image/contents');
+		$this->application->configuration->path_set(array(
+			Controller_Image_Picker::class,
+			'upload_theme_map',
+			'dropfile',
+		), 'zesk/control/dropfile/image/contents');
 	}
 }
