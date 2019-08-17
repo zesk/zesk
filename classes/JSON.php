@@ -64,7 +64,7 @@ class JSON {
 		"json",
 		"to_json",
 		"toJSON",
-		"__toJSON",
+		"__toJSON"
 	);
 
 	/**
@@ -88,12 +88,18 @@ class JSON {
 			}
 			return $mixed;
 		}
+		if (is_array($mixed) || $mixed instanceof \stdClass) {
+			foreach ((array) $mixed as $k => $v) {
+				$mixed[$k] = self::prepare($v, $methods, $arguments);
+			}
+			return $mixed;
+		}
 		if (is_object($mixed)) {
 			foreach ($methods as $method) {
 				if (method_exists($mixed, $method)) {
 					return call_user_func_array(array(
 						$mixed,
-						$method,
+						$method
 					), $arguments);
 				}
 			}
@@ -246,7 +252,7 @@ class JSON {
 			throw new Exception_Parameter("{method}: String required {type} passed from {calling_function}", array(
 				'method' => __METHOD__,
 				'type' => type($string),
-				'calling_function' => calling_function(),
+				'calling_function' => calling_function()
 			));
 		}
 		$string = trim($string);
@@ -261,7 +267,7 @@ class JSON {
 			$e = self::last_error();
 			if (!$e) {
 				$e = new Exception_Parse("Unable to parse JSON: {string}", array(
-					"string" => $string,
+					"string" => $string
 				));
 			}
 
@@ -287,14 +293,13 @@ class JSON {
 			JSON_ERROR_STATE_MISMATCH => "Malformed JSON",
 			JSON_ERROR_CTRL_CHAR => "Control character error, malformed JSON",
 			JSON_ERROR_SYNTAX => "Syntax error, malformed JSON",
-			JSON_ERROR_UTF8 => "Malformed UTF-8 characters",
+			JSON_ERROR_UTF8 => "Malformed UTF-8 characters"
 		);
 		//			JSON_ERROR_RECURSION => "One or more recursive references in the value to be encoded",
 		//			JSON_ERROR_INF_OR_NAN => "One or more NAN or INF in value",
 		//			JSON_ERROR_UNSUPPORTED_TYPE => "A value of a type that cannot be encoded was given"
 		return avalue($errors, $code, "Unknown code $code");
 	}
-
 	private static function last_error() {
 		if (function_exists('json_last_error')) {
 			$code = json_last_error();
@@ -303,7 +308,7 @@ class JSON {
 				return null;
 			}
 			return new Exception_Parse($message, array(
-				"json_last_error" => $code,
+				"json_last_error" => $code
 			), $code);
 		}
 		return null;
@@ -361,7 +366,7 @@ class JSON {
 		list($length, $result) = self::_decode_value(substr($string, $white), $offset + $white, $assoc);
 		return array(
 			$length + $white,
-			$result,
+			$result
 		);
 	}
 
@@ -381,18 +386,18 @@ class JSON {
 		static $begins = array(
 			'null' => null,
 			'true' => true,
-			'false' => false,
+			'false' => false
 		);
 		if ($string === '') {
 			throw new Exception_Parse("Invalid empty JSON string at offset {offset}", array(
-				"offset" => $offset,
+				"offset" => $offset
 			));
 		}
 		foreach ($begins as $match => $value) {
 			if (begins($string, $match)) {
 				return array(
 					strlen($match),
-					$value,
+					$value
 				);
 			}
 		}
@@ -411,7 +416,7 @@ class JSON {
 
 		throw new Exception_Parse("Invalid JSON token \"{char}\" at position {offset}", array(
 			"char" => $c,
-			"offset" => $offset,
+			"offset" => $offset
 		));
 	}
 
@@ -430,18 +435,18 @@ class JSON {
 			if (preg_match('/^-?[0-9]+$/', $match[0])) {
 				return array(
 					strlen($match[0]),
-					intval($match[0]),
+					intval($match[0])
 				);
 			}
 			return array(
 				strlen($match[0]),
-				doubleval($match[0]),
+				doubleval($match[0])
 			);
 		}
 
 		throw new Exception_Parse("Invalid JSON numeric token \"{string}...\" at position {offset}", array(
 			"string" => substr($string, 16),
-			"offset" => $offset,
+			"offset" => $offset
 		));
 	}
 
@@ -468,7 +473,7 @@ class JSON {
 			if ($c === ']') {
 				return array(
 					$i + 1,
-					$result,
+					$result
 				);
 			}
 			list($item_len, $item) = self::_decode_value(substr($string, $i), $offset + $i, $assoc);
@@ -484,7 +489,7 @@ class JSON {
 				if ($c === ']') {
 					return array(
 						$i + 1,
-						$result,
+						$result
 					);
 				}
 				if ($c === ',') {
@@ -494,13 +499,13 @@ class JSON {
 				}
 
 				throw new Exception_Parse("Invalid JSON array at offset {offset} expecting comma or end bracket", array(
-					"offset" => $offset + $i,
+					"offset" => $offset + $i
 				));
 			}
 		}
 
 		throw new Exception_Parse("Unterminated array structure at offset {offset}", array(
-			"offset" => $offset,
+			"offset" => $offset
 		));
 	}
 
@@ -527,12 +532,12 @@ class JSON {
 			if ($c === '}') {
 				return array(
 					$i + 1,
-					$assoc ? $result : (object) $result,
+					$assoc ? $result : (object) $result
 				);
 			}
 			if ($c !== '"') {
 				throw new Exception_Parse("Invalid object key at offset {offset}", array(
-					"offset" => $offset + $i,
+					"offset" => $offset + $i
 				));
 			}
 			list($key_len, $key) = self::_decode_string(substr($string, $i), $offset);
@@ -541,14 +546,14 @@ class JSON {
 				++$i;
 				if ($i > $len) {
 					throw new Exception_Parse("Unterminated object value looking for : at offset {offset}", array(
-						"offset" => $offset + $i,
+						"offset" => $offset + $i
 					));
 				}
 				$c = $string[$i];
 			} while (strpos(" \r\n\t", $c) !== false);
 			if ($c !== ":") {
 				throw new Exception_Parse("Missing : value at offset {offset}", array(
-					"offset" => $offset + $i,
+					"offset" => $offset + $i
 				));
 			}
 			++$i;
@@ -566,7 +571,7 @@ class JSON {
 				if ($c === '}') {
 					return array(
 						$i + 1,
-						$result,
+						$result
 					);
 				}
 				if ($c === ',') {
@@ -577,13 +582,13 @@ class JSON {
 
 				throw new Exception_Parse("Invalid JSON object at offset {offset} expecting comma or end bracket, found \"{char}\"", array(
 					"char" => $c,
-					"offset" => $offset + $i,
+					"offset" => $offset + $i
 				));
 			}
 		}
 
 		throw new Exception_Parse("Unterminated array structure at offset {offset}", array(
-			"offset" => $offset,
+			"offset" => $offset
 		));
 	}
 
@@ -605,7 +610,7 @@ class JSON {
 			'f' => "\f",
 			'n' => "\n",
 			'r' => "\r",
-			't' => "\t",
+			't' => "\t"
 		);
 
 		$len = strlen($string);
@@ -616,7 +621,7 @@ class JSON {
 			if ($c === '"') {
 				return array(
 					$i + 1,
-					$result,
+					$result
 				);
 			}
 			$i++;
@@ -628,7 +633,7 @@ class JSON {
 
 			if ($i >= $len) {
 				throw new Exception_Parse("Unterminated string at offset {offset}", array(
-					"offset" => $offset + $i,
+					"offset" => $offset + $i
 				));
 			}
 			$c = $string[$i];
@@ -638,7 +643,7 @@ class JSON {
 				++$i;
 				if ($i + 4 >= $len) {
 					throw new Exception_Parse("Invalid unterminated hex code at string {offset}", array(
-						"offset" => $offset + $i,
+						"offset" => $offset + $i
 					));
 				}
 				$result .= Hexadecimal::decode(substr($string, $i, $i + 3));
@@ -646,13 +651,13 @@ class JSON {
 			} else {
 				throw new Exception_Parse("Invalid escape sequence {char} at offset {offset}", array(
 					'char' => $c,
-					"offset" => $offset + $i,
+					"offset" => $offset + $i
 				));
 			}
 		}
 
 		throw new Exception_Parse("Invalid unterminated string at end of JSON string {offset}", array(
-			"offset" => $offset + $i,
+			"offset" => $offset + $i
 		));
 	}
 }
