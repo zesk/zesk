@@ -82,12 +82,11 @@ class JSON {
 		if ($methods === null) {
 			$methods = self::$default_methods;
 		}
-		if (is_array($mixed) || $mixed instanceof \stdClass) {
-			$result = array();
-			foreach ((array) $mixed as $k => $v) {
-				$result[$k] = self::prepare($v, $methods, $arguments);
+		if (is_array($mixed)) {
+			foreach ($mixed as $k => $v) {
+				$mixed[$k] = self::prepare($v, $methods, $arguments);
 			}
-			return $result;
+			return $mixed;
 		}
 		if (is_object($mixed)) {
 			foreach ($methods as $method) {
@@ -98,7 +97,14 @@ class JSON {
 					), $arguments);
 				}
 			}
-			return strval($mixed);
+			if (method_exists($mixed, '__toString')) {
+				return strval($mixed);
+			}
+			$result = array();
+			foreach (get_object_vars($mixed) as $k => $v) {
+				$result[$k] = self::prepare($v, $methods, $arguments);
+			}
+			return $result;
 		}
 		return flatten($mixed);
 	}
