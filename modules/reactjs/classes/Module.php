@@ -23,6 +23,7 @@ use zesk\MIME;
 use zesk\JSON;
 use zesk\Directory;
 use zesk\Route_Method;
+use zesk\Exception_NotFound;
 
 /**
  *
@@ -114,6 +115,26 @@ class Module extends \zesk\Module implements \zesk\Interface_Module_Routes, \zes
 	}
 
 	/**
+	 *
+	 * @throws Exception_File_NotFound
+	 * @return string
+	 */
+	private function asset_manifest() {
+		$docroot = $this->application->document_root();
+		foreach (array(
+			'asset-manifest.json',
+			'manifest.json',
+		) as $name) {
+			$asset_manifest = path($docroot, $name);
+			if (file_exists($asset_manifest)) {
+				return $asset_manifest;
+			}
+		}
+
+		throw new Exception_File_NotFound($asset_manifest);
+	}
+
+	/**
 	 * List of associated classes
 	 *
 	 * @var array
@@ -123,9 +144,9 @@ class Module extends \zesk\Module implements \zesk\Interface_Module_Routes, \zes
 		$docroot = $app->document_root();
 		if (ends($docroot, "/build")) {
 			$source = path($docroot, "index.html");
-			$asset_manifest = path($docroot, "asset-manifest.json");
 
 			try {
+				$asset_manifest = $this->asset_manifest();
 				$assets = JSON::decode(File::contents($asset_manifest));
 				$src = "/" . $assets['main.js'];
 				$response->javascript($src, array(
@@ -137,6 +158,11 @@ class Module extends \zesk\Module implements \zesk\Interface_Module_Routes, \zes
 						"root_dir" => $docroot,
 					));
 				}
+			} catch (\zesk\Exception_NotFound $e) {
+				$app->logger->emergency("Asset manifest not found {asset_manifest} {e}", array(
+					"asset_manifest" => $asset_manifest,
+					"e" => $e,
+				));
 			} catch (\zesk\Exception_Syntax $e) {
 				$app->logger->emergency("Unable to parse asset file {asset_manifest} {e}", array(
 					"asset_manifest" => $asset_manifest,
