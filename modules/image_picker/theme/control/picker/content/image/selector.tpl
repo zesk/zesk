@@ -11,6 +11,9 @@ use zesk\Content_Image;
 /* @var $request \zesk\Request */
 /* @var $response \zesk\Response */
 /* @var $current_user \User */
+
+$application->image_picker_module()->call_hook("image_selector_before", $this);
+
 $id = 'control-picker-' . $this->column . '-q';
 ?>
 <div class="form-group control-text">
@@ -56,3 +59,5 @@ $response->response_data(array(
 ), true);
 
 $response->jquery("\$('#$id').image_picker();");
+
+$application->image_picker_module()->call_hook("image_selector_after", $this);

@@ -63,8 +63,7 @@ class Hookable extends Options {
 	 * Arguments should be passed after the type.
 	 *
 	 * Using this invokation method, you can not pass a hook callback or a result callback to
-	 * process results, so this is
-	 * best used for triggers which do not require a result.
+	 * process results, so this is best used for triggers which do not require a result.
 	 *
 	 * @see Hookable::hook_array
 	 * @param string $type
