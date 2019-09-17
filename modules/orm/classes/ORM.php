@@ -1155,6 +1155,43 @@ class ORM extends Model implements Interface_Member_Model_Factory {
 	}
 
 	/**
+	 *
+	 * @param Exception_ORM_NotFound $e
+	 * @param unknown $member
+	 * @throws \zesk\Exception_ORM_NotFound
+	 * @return NULL
+	 */
+	private function orm_not_found_exception(Exception_ORM_NotFound $e, $member = null) {
+		if ($this->option_bool("fix_orm_members") || $this->option_bool("fix_member_objects")) {
+			// Prevent infinite recursion
+			$magic = "__" . __METHOD__;
+			if (avalue($this->members, $magic)) {
+				return null;
+			}
+			$this->original[$magic] = true;
+			$this->members[$magic] = true;
+			$application = $this->application;
+			$application->hooks->call("exception", $e);
+			$application->logger->error("Fixing not found {member} {member_class} (#{data}) in {class} (#{id})", array(
+				"member" => $member,
+				"member_class" => $class,
+				"data" => $data,
+				"class" => get_class($this),
+				"id" => $this->id(),
+			));
+			if ($member) {
+				$this->members[$member] = null;
+			}
+			$this->store();
+			unset($this->original[$magic]);
+			unset($this->members[$magic]);
+			return null;
+		} else {
+			throw $e;
+		}
+	}
+
+	/**
 	 * Retrieve a member which is another ORM
 	 *
 	 * @param string $member
@@ -1193,31 +1230,7 @@ class ORM extends Model implements Interface_Member_Model_Factory {
 		try {
 			$object = $this->member_model_factory($member, $class, $data, $options + $this->inherit_options());
 		} catch (Exception_ORM_NotFound $e) {
-			if ($this->option_bool("fix_orm_members") || $this->option_bool("fix_member_objects")) {
-				// Prevent infinite recursion
-				$magic = "__" . __METHOD__;
-				if (avalue($this->members, $magic)) {
-					return null;
-				}
-				$this->original[$magic] = true;
-				$this->members[$magic] = true;
-				$application = $this->application;
-				$application->hooks->call("exception", $e);
-				$application->logger->error("Fixing not found {member} {member_class} (#{data}) in {class} (#{id})", array(
-					"member" => $member,
-					"member_class" => $class,
-					"data" => $data,
-					"class" => get_class($this),
-					"id" => $this->id(),
-				));
-				$this->members[$member] = null;
-				$this->store();
-				unset($this->original[$magic]);
-				unset($this->members[$magic]);
-				return null;
-			} else {
-				throw $e;
-			}
+			$this->orm_not_found_exception($e, $member);
 		}
 		if ($object) {
 			$this->members[$member] = $object;
@@ -2233,14 +2246,14 @@ class ORM extends Model implements Interface_Member_Model_Factory {
 				return $result;
 			}
 
-			throw new Exception_ORM_NotFound(get_class($this));
+			$this->orm_not_found_exception(new Exception_ORM_NotFound(get_class($this)));
 		}
 		if ($this->_deleted($obj)) {
 			if (($result = $this->call_hook_arguments('fetch_deleted', $hook_args, null)) !== null) {
 				return $result;
 			}
 
-			throw new Exception_ORM_NotFound(get_class($this));
+			$this->orm_not_found_exception(new Exception_ORM_NotFound(get_class($this)));
 		}
 		$result = $this->initialize($obj, true)->polymorphic_child();
 		return $result->call_hook_arguments("fetch", $hook_args, $result);
