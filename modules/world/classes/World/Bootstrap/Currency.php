@@ -170,7 +170,7 @@ class World_Bootstrap_Currency extends Hookable {
 			unset($missing_ones[$code]);
 		}
 		if (count($missing_ones) > 0) {
-			$this->application->logger->error("Currency codes {missing_ones} need to be added", array(
+			$this->application->logger->debug("Currency codes {missing_ones} need to be added", array(
 				"missing_ones" => $missing_ones,
 			));
 		}
