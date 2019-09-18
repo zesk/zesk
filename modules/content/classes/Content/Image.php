@@ -281,26 +281,39 @@ class Content_Image extends ORM {
 	 * @return boolean
 	 */
 	private function _force_to_disk() {
-		if (!$this->file_exists() || !$this->data->matches_file($this->path())) {
-			$path = $this->path();
-			$dir = dirname($path);
-			Directory::depend($dir);
+		if ($this->file_exists()) {
+			return true;
+		}
+		$data = $this->data;
+		if (!$data) {
+			$this->application->logger->warning("{class} {id} has empty or missing data \"{data}\"", array(
+				"class" => get_class($this),
+				"id" => $this->id(),
+				"data" => $this->member_integer("data"),
+			));
+			return false;
+		}
+		if ($data->matches_file($this->path())) {
+			return true;
+		}
+		$path = $this->path();
+		$dir = dirname($path);
+		Directory::depend($dir);
 
-			try {
-				$result = $this->data->copy_file($path);
-			} catch (Exception_File_NotFound $e) {
+		try {
+			$result = $data->copy_file($path);
+		} catch (Exception_File_NotFound $e) {
+			return false;
+		}
+		$fixed_path = $this->fix_extension($this->path, $path);
+		if ($fixed_path !== $this->path) {
+			$this->path = $fixed_path;
+			$fixed_path = $this->path();
+			if (!rename($path, $fixed_path)) {
 				return false;
 			}
-			$fixed_path = $this->fix_extension($this->path, $path);
-			if ($fixed_path !== $this->path) {
-				$this->path = $fixed_path;
-				$fixed_path = $this->path();
-				if (!rename($path, $fixed_path)) {
-					return false;
-				}
-				if (!$this->store()) {
-					return false;
-				}
+			if (!$this->store()) {
+				return false;
 			}
 		}
 		return true;
