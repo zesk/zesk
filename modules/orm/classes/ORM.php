@@ -271,6 +271,7 @@ class ORM extends Model implements Interface_Member_Model_Factory {
 	public function variables() {
 		return $this->members() + ArrayTools::kprefix($this->class->variables(), "_class_") + array(
 			"ORM::class" => get_class($this),
+			__CLASS__ . "::class" => get_class($this),
 		);
 	}
 
@@ -1161,7 +1162,7 @@ class ORM extends Model implements Interface_Member_Model_Factory {
 	 * @throws \zesk\Exception_ORM_NotFound
 	 * @return NULL
 	 */
-	private function orm_not_found_exception(Exception_ORM_NotFound $e, $member = null) {
+	private function orm_not_found_exception(Exception_ORM_NotFound $e, $member = null, $data = null) {
 		if ($this->option_bool("fix_orm_members") || $this->option_bool("fix_member_objects")) {
 			// Prevent infinite recursion
 			$magic = "__" . __METHOD__;
@@ -1172,12 +1173,13 @@ class ORM extends Model implements Interface_Member_Model_Factory {
 			$this->members[$magic] = true;
 			$application = $this->application;
 			$application->hooks->call("exception", $e);
-			$application->logger->error("Fixing not found {member} {member_class} (#{data}) in {class} (#{id})", array(
+			$application->logger->error("Fixing not found {member} {member_class} (#{data}) in {class} (#{id})\n{bt}", array(
 				"member" => $member,
 				"member_class" => $class,
 				"data" => $data,
 				"class" => get_class($this),
 				"id" => $this->id(),
+				'bt' => _backtrace(),
 			));
 			if ($member) {
 				$this->members[$member] = null;
@@ -1230,7 +1232,7 @@ class ORM extends Model implements Interface_Member_Model_Factory {
 		try {
 			$object = $this->member_model_factory($member, $class, $data, $options + $this->inherit_options());
 		} catch (Exception_ORM_NotFound $e) {
-			$this->orm_not_found_exception($e, $member);
+			$this->orm_not_found_exception($e, $member, $data);
 		}
 		if ($object) {
 			$this->members[$member] = $object;
@@ -2246,14 +2248,14 @@ class ORM extends Model implements Interface_Member_Model_Factory {
 				return $result;
 			}
 
-			$this->orm_not_found_exception(new Exception_ORM_NotFound(get_class($this)));
+			throw new Exception_ORM_NotFound(get_class($this), "Fetching {id}", $this->variables());
 		}
 		if ($this->_deleted($obj)) {
 			if (($result = $this->call_hook_arguments('fetch_deleted', $hook_args, null)) !== null) {
 				return $result;
 			}
 
-			$this->orm_not_found_exception(new Exception_ORM_NotFound(get_class($this)));
+			$this->orm_not_found_exception(new Exception_ORM_NotFound(get_class($this)), "-this-", $this->id());
 		}
 		$result = $this->initialize($obj, true)->polymorphic_child();
 		return $result->call_hook_arguments("fetch", $hook_args, $result);
