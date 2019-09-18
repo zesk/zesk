@@ -47,7 +47,7 @@ class Class_Tag extends Class_ORM {
 	 * @var array
 	 */
 	public $has_one = array(
-		'tag_label' => 'zesk\\Tag_Label',
+		'tag_label' => Label::class,
 		'object_id' => '*object_class',
 	);
 }

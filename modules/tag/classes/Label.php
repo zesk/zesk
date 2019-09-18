@@ -31,7 +31,7 @@ class Label extends \zesk\ORM {
 	/**
 	 *
 	 * @param unknown $code
-	 * @return zesk\Tag_Label
+	 * @return self
 	 */
 	public static function label_find(Application $application, $code) {
 		$members = array();
@@ -43,7 +43,7 @@ class Label extends \zesk\ORM {
 	 *
 	 * @param string $name
 	 * @param array $attributes
-	 * @return zesk\Tag_Label
+	 * @return self
 	 */
 	public static function label_register(Application $application, $name = null, array $attributes = array()) {
 		$tag_label = $application->orm_factory(__CLASS__);
