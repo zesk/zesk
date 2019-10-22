@@ -45,10 +45,11 @@ foreach ($this->widgets as $widget) {
 	$widget_attributes = $this->widget_attributes;
 	if ($has_errors) {
 		$widget_attributes = HTML::add_class($widget_attributes, 'has-error');
-		$map[$prefix . 'has-error'] = " has-error";
 		$map[$prefix . 'has_error'] = " has-error"; // Class name is "has-error"
-		$errors .= HTML::tags('span', '.help-block error', $widget->errors());
-		$widget->suffix($errors, true);
+		if ($widget->option_bool("append_error", true)) {
+			$errors .= HTML::tags('span', '.help-block error', $widget->errors());
+			$widget->suffix($errors, true);
+		}
 	}
 	$map[$prefix . "errors"] = $errors;
 	if ($widget->has_option('help')) {
