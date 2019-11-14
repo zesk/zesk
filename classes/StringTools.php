@@ -707,6 +707,7 @@ class StringTools {
 	 * @see HTML::wrap
 	 * @param string $phrase
 	 * @return string
+	 * @deprecated 2019-01
 	 */
 	public static function wrap($phrase) {
 		return call_user_func_array(array(
