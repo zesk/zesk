@@ -362,6 +362,32 @@ class Engine extends Hookable {
 	}
 
 	/**
+	 * Delete a file on the system completely
+	 *
+	 * @param string $target File to remove
+	 * @return boolean|null Returns true if changes made successfully, false if failed, or null if no changes required
+	 */
+	public function command_rm($target) {
+		$locale = $this->application->locale;
+		$target = $this->application->paths->expand($target);
+		$__ = array(
+			"target" => $target,
+		);
+		if (!is_file($target)) {
+			$this->error("{target} is not a a file (rm)", $__);
+			return false;
+		}
+		if (!$this->prompt_yes_no($locale->__("Remove file {target}?", $__))) {
+			return null;
+		}
+		if (!File::unlink($target)) {
+			$this->error("Unable to remove file {target}", $__);
+			return false;
+		}
+		return true;
+	}
+
+	/**
 	 * Create a directory on the system with a specified owner and mode
 	 *
 	 * @param string $target Directory to create
