@@ -163,7 +163,7 @@ class Session_ORM extends ORM implements Interface_Session {
 	 */
 	public function authenticate($user_id, $ip = null) {
 		$cookieExpire = $this->cookie_expire();
-		$this->set_member("user", $user_id);
+		$this->set_member("user", ORM::mixed_to_id($user_id));
 		if ($ip === null) {
 			// This is not necessary, probably should remove TODO KMD 2018-01
 			$request = $this->application->request();

@@ -2379,10 +2379,14 @@ class ORM extends Model implements Interface_Member_Model_Factory {
 					continue;
 				}
 			}
-			$result = $this->member($member);
+			$result = $this->raw_member($member);
 			if ($result instanceof $class) {
-				if (!$result->storing && ($result->is_new() || $result->changed()) && !$result->is_equal($this)) {
-					$result->store();
+				try {
+					if (!$result->storing && ($result->is_new() || $result->changed()) && !$result->is_equal($this)) {
+						$result->store();
+					}
+				} catch (Exception_ORM_NotFound $e) {
+					$this->orm_not_found_exception($e, $member, $result);
 				}
 			}
 		}
