@@ -28,6 +28,7 @@ find . -type f \
 	-or -name '*.php5' \
 	-or -name '*.phpt' \
 	-or -name '*.router' \
+	-or -name '*.yml' \
 	-or -name '*.sql' \
 	-or -name '*.tpl' \
 	\) -and -type f -and -not -name '*.min.js' -and -not -name '*.min.css' -print0 \
