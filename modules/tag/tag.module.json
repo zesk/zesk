@@ -1,6 +1,7 @@
 {
 	"name": "Tag Module",
 	"description": "Add a tag to any database object",
+	"theme_path_prefix": "zesk/tag/",
 	"autoload_options": {
 		"class_prefix": "zesk\\Tag\\",
 		"lower": false

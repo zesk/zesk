@@ -8,6 +8,8 @@
 namespace zesk\Tag;
 
 use zesk\Class_ORM;
+use zesk\Exception_Semantics;
+use zesk\PHP;
 
 /**
  * @see zesk\Tag
@@ -15,39 +17,52 @@ use zesk\Class_ORM;
  * @author kent
  *
  */
-class Class_Tag extends Class_ORM {
+abstract class Class_Tag extends Class_ORM {
 	/**
 	 *
 	 * @var string
 	 */
-	public $id_column = 'id';
+	public $tag_column = "tag_label";
 
-	public $find_keys = array(
-		'tag_label',
-		'object_class',
-		'object_id',
-	);
+	/**
+	 * Linked column in OUR class which connects to foreign primary key
+	 *
+	 * @var string
+	 */
+	public $foreign_column = null;
+
+	/**
+	 * PHP Class name of ORM subclass
+	 *
+	 * @var string
+	 */
+	public $foreign_orm = null;
 
 	/**
 	 *
-	 * @var array
+	 * {@inheritDoc}
+	 * @see \zesk\Class_ORM::initialize()
 	 */
-	public $column_types = array(
-		'id' => self::type_id,
-		'tag_label' => self::type_object,
-		'object_class' => self::type_string,
-		'object_id' => self::type_object,
-		'created' => self::type_created,
-		'modified' => self::type_modified,
-		'value' => self::type_serialize,
-	);
+	public function initialize() {
+		if (!$this->foreign_column) {
+			throw new Exception_Semantics("{class} is misconfigured and needs foreign_column set", [
+				'class' => get_class($this),
+			]);
+		}
+		if (!$this->table) {
+			$this->table = $this->option("tag_table_prefix", "Tag_") . PHP::parse_class($this->foreign_orm);
+		}
+		$this->find_keys = [
+			$this->tag_column,
+			$this->foreign_column,
+		];
+		$this->column_types[$this->tag_column] = self::type_object;
+		$this->column_types[$this->foreign_column] = self::type_object;
 
-	/**
-	 *
-	 * @var array
-	 */
-	public $has_one = array(
-		'tag_label' => Label::class,
-		'object_id' => '*object_class',
-	);
+		$this->has_one[$this->tag_column] = Label::class;
+
+		if ($this->foreign_orm) {
+			$this->has_one[$this->foreign_column] = $this->foreign_orm;
+		}
+	}
 }

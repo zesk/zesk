@@ -1,0 +1,33 @@
+/* .tags-control .col-state {
+	background-color: #F00:
+}
+.tags-control .col-state .tag-label {
+	border: 1px solid black;
+	border-radius: 10px;
+	padding: 10px;
+	margin-bottom: 5px;
+	margin-right: 5px;
+}
+.tags-control .col-state .tag-label .badge {
+	float: right;
+}
+.tags-control .col-state .tag-label a:first {
+	clear: left;
+	display: block;
+}
+.tags-control .col-state .tag-label a {
+	font-weight: bold;
+	float: left;
+	display: block;
+	border: 1px solid black;
+	padding: 2px 5px;
+	border-radius: 5px;
+	margin-right: 5px;
+}
+.tags-control .col-state .tag-label a:hover {
+	background-color: black;
+	color: white;
+}
+.tags-control .col-state .tag-label a.disabled {
+	display: none;
+} */

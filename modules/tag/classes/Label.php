@@ -10,6 +10,8 @@ namespace zesk\Tag;
 use zesk\Timestamp;
 use zesk\Application;
 use zesk\ArrayTools;
+use zesk\ORM;
+use zesk\PHP;
 
 /**
  *
@@ -74,5 +76,36 @@ class Label extends \zesk\ORM {
 	public function seen() {
 		$this->last_seen = Timestamp::now();
 		return $this->store();
+	}
+
+	/**
+	 *
+	 * @param Application $application
+	 */
+	public static function permissions(Application $application) {
+		return ORM::default_permissions($application, __CLASS__);
+	}
+
+	/**
+	 *
+	 * @return string
+	 */
+	public function generate_code() {
+		return implode("-", array_filter([
+			PHP::clean_function($this->name),
+			substr(md5(microtime(false)), 0, 8),
+		]));
+	}
+
+	/**
+	 *
+	 * {@inheritDoc}
+	 * @see \zesk\ORM::store()
+	 */
+	public function store() {
+		if (empty($this->code)) {
+			$this->code = $this->generate_code();
+		}
+		return parent::store();
 	}
 }

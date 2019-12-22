@@ -15,18 +15,38 @@ use zesk\Class_ORM;
  *
  */
 class Class_Label extends Class_ORM {
+	/**
+	 *
+	 * @var string
+	 */
 	public $id_column = "id";
 
+	/**
+	 *
+	 * @var string
+	 */
 	public $code_name = "Tag_Label";
 
+	/**
+	 *
+	 * @var array
+	 */
 	public $has_one = array(
 		'owner' => 'User',
 	);
 
+	/**
+	 *
+	 * @var array
+	 */
 	public $find_keys = array(
 		"code",
 	);
 
+	/**
+	 *
+	 * @var array
+	 */
 	public $column_types = array(
 		'id' => self::type_id,
 		'code' => self::type_string,
