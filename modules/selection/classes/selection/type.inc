@@ -133,12 +133,16 @@ class Selection_Type extends ORM {
 			$query_id = $row['query'];
 			if ($add !== $op) {
 				if ($op === false && !$query_id) {
-					$this->application->query_delete("zesk\\Selection_Item")->where(array(
+					$this->application->orm_registry(Selection_Item::class)
+						->query_delete()
+						->where(array(
 						"id" => $id,
 						"type" => $this,
-					))->execute();
+					))
+						->execute();
 				} else {
-					$this->application->query_update("zesk\\Selection_Item")
+					$this->application->orm_registry(Selection_Item::class)
+						->query_update()
 						->value(array(
 						"add" => $op,
 						"query" => null,
@@ -153,7 +157,8 @@ class Selection_Type extends ORM {
 			unset($items[$id]);
 		}
 		foreach ($items as $id => $op) {
-			$this->application->query_insert("zesk\\Selection_Item")
+			$this->application->orm_registry(Selection_Item::class)
+				->query_insert()
 				->values(array(
 				"add" => intval($op),
 				"query" => null,
