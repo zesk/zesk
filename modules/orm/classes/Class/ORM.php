@@ -414,7 +414,9 @@ class Class_ORM extends Hookable {
 	public $auto_column = null;
 
 	/**
-	 * List of columns used by default to look up an object for a match
+	 * List of columns used by default to look up an object for a match. Used in `exists()`
+	 *
+	 * If empty, set to $this->primary_keys
 	 *
 	 * @var array
 	 */
@@ -436,6 +438,15 @@ class Class_ORM extends Hookable {
 
 	/**
 	 * List of columns which are used to determine if a duplicate exists in the database.
+	 *
+	 * If empty, no checking occurs prior to doing `store()` so errors will be thrown from
+	 * the database, possibly.
+	 *
+	 * If this value is set, a SELECT occurs within `store()` to determine if a collission will
+	 * occur prior to INSERT.
+	 *
+	 * Be aware of the costs of setting this value prior to doing so, as it is incurred on a
+	 * per-store basis for this object thereafter.
 	 *
 	 * @var array
 	 */
@@ -627,6 +638,11 @@ class Class_ORM extends Hookable {
 		});
 	}
 
+	/**
+	 * Reset our internal caches
+	 *
+	 * @param Application $application
+	 */
 	public static function _hook_reset(Application $application) {
 		self::$classes = array();
 		self::$classes_dirty = false;
@@ -825,7 +841,7 @@ class Class_ORM extends Hookable {
 			$this->code_name = StringTools::rright($this_class, "\\");
 		}
 		if (empty($this->name)) {
-			$this->name = $this_class;
+			$this->name = $this->option("name", $this_class);
 		}
 		if (empty($this->table)) {
 			$this->table = $this->option("table", $object->option("table"));
