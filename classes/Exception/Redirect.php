@@ -10,6 +10,7 @@ namespace zesk;
 /**
  * @see theme/zesk/exception/redirect
  * @author kent
+ * @see Exception_RedirectTemporary
  */
 class Exception_Redirect extends Exception {
 	/**

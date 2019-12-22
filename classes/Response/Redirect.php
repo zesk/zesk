@@ -10,6 +10,7 @@ namespace zesk\Response;
 use zesk\Response;
 use zesk\HTML;
 use zesk\Exception_Redirect;
+use zesk\Exception_RedirectTemporary;
 use zesk\Net_HTTP;
 
 /**
@@ -95,12 +96,21 @@ class Redirect extends Type {
 	}
 
 	/**
-	 *
+	 * @throws Exception_Redirect
 	 * @param string $url
 	 * @param string $message
 	 */
 	public function url($url, $message = null) {
 		throw new Exception_Redirect($url, $message);
+	}
+
+	/**
+	 * @throws Exception_RedirectTemporary
+	 * @param string $url
+	 * @param string $message
+	 */
+	public function url_temporary($url, $message = null) {
+		throw new Exception_RedirectTemporary($url, $message);
 	}
 
 	/**
@@ -141,7 +151,6 @@ class Redirect extends Type {
 		$status_code = $exception->status_code();
 		if (!$status_code) {
 			$status_code = Net_HTTP::STATUS_MOVED_PERMANENTLY;
-			;
 		}
 		$this->parent->status_code = $status_code;
 		$status_message = $exception->status_message();
