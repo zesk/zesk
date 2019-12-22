@@ -18,6 +18,49 @@ Version 1.0 of Zesk will have:
 
 <!-- HERE -->
 
+## [v0.27.0][]
+
+- **Contact Module**: Fixing call to `Mail` class
+- **Image Picker Module**: Added `zesk\Image_Picker_Module::image_selector_before` and `_after` hooks
+- **Net Module**: Adding comments to POP iterator
+- **ORM Module**: Added `zesk\Server->alive_ips()` to fetch known valid IPs of alive servers
+- **ORM Module**: Adding better handling of ORM Not found exceptions
+- **ORM Module**: Refactored `zesk\Exception_ORM_NotFound` handling to support common mechanism for interception.
+- **ORM Module**: Reset global settings upon reset hook
+- **ORM Module**: `zesk\Class_Foo::name` now works to set the name in an ORM `Class_ORM` object - ONLY when not explicitly set by the code in `$this->name`
+- **ORM Module**: `zesk\Controller_ORM->widget_control_classes()` properly generates class names using the correct parsing of namespace/class
+- **PolyGlot Module**: Typo bug in `locale_query` call
+- **ReactJS Module**: fixing asset manifest locating in ReactJS
+- **Selection Module**: Updated strings to `::class` constants
+- **Tag Module**: Removing references to `zesk\Tag_Label` -> `zesk\Tag\Label`
+- **Tag Module**: Updated version
+- **Widget Module**: Deprecating `zesk\Widget->orm_class` for `zesk\Widget->orm_class_name` as it's a string. **Widget Module**: Added `zesk\Widget->find_parent_class_orm` to find any valid parent class which contains an `orm_class_name()` which is non-empty and returns the `->class_orm()` of type `zesk\Class_ORM` **Widget Module**: `zesk\Control_Filter` will not override user-set names in `->initialize()` **Widget Module**: `zesk\Control_Order` uses `zesk\Exception_RedirectTemporary` now **Widget Module**: `nav/tabs` theme now adds an `id` to the `li` used in the main tabs to allow tooltips. **World Module**: Updated country info, download URL
+- **World Module**: Logging missing currency codes as `debug` not `error`
+- **Zesk Kernel**: Added a new redirect called `zesk\Exception_RedirectTemporary`
+- **Zesk Kernel**: Adding `zesk\ArrayTools::extract` as a better name than `zesk\ArrayTools::key_value` for extracting key values from an array. Deprecating `zesk\ArrayTools::key_value`.
+- **Zesk Kernel**: Adding more stack frames to output exceptions
+- **Zesk Kernel**: Better support for `reset` hooks to clear out global data based on configuration context.
+- **Zesk Kernel**: Capturing image exceptions
+- **Zesk Kernel**: Directory::size does not throw zesk\Exception_Directory_Not_Found
+- **Zesk Kernel**: Fixing `Mail` call to self
+- **Zesk Kernel**: Fixing issue with image data missing
+- **Zesk Kernel**: Fixing issue with input not being returned by upload file
+- **Zesk Kernel**: Hook constants are now CAPITALIZED
+- **Zesk Kernel**: Hook constants are now by default capitalized
+- **Zesk Kernel**: JSON handles stdClass better
+- **Zesk Kernel**: Locale removing unused hook
+- **Zesk Kernel**: More details on empty theme rendering.
+- **Zesk Kernel**: Reconfigure improvements
+- **Zesk Kernel**: `php-find.sh` adding yml files
+- **Zesk Kernel**: `zesk configure` now supports `rm` for files.
+- **Zesk Kernel**: `zesk\Application->reconfigure()` now calls `zesk\Objects->reset()` explicitly
+- **Zesk Kernel**: `zesk\Application->theme_find` now returns a array of the found themes and the paths attempted to find them. **Zesk Kernel**: `zesk\Application->request_factory()` is now a public function
+- **Zesk Kernel**: `zesk\Locale` updates from deprecated usage, whitespace updates
+- **Zesk Kernel**: `zesk\URL::parse` now always sets the `url` key upon return
+- **Zesk Kernel**: adding optional append_error setting
+- **Zesk Kernel**: fixing merge array func for hook default behavior
+- **Zesk ORM**: Improved exception handling for missing or unlinked objects.
+
 ## [v0.26.2][]
 
 - **CSV Module**: Remove warning in PHP 7.2 to avoid `count(null)`
@@ -2136,6 +2179,7 @@ Settling of `zesk\Kernel` and `zesk\` namespace changes, added additional compon
  - `zesk::class_hierarchy` -> `zesk()->classes->hierarchy`
 - Removed growl module (no longer relevant on Mac OS X)
 
+[v0.27.0]: https://github.com/zesk/zesk/compare/v0.26.2...v0.27.0
 [v0.26.2]: https://github.com/zesk/zesk/compare/v0.26.1...v0.26.2
 [v0.26.1]: https://github.com/zesk/zesk/compare/v0.26.0...v0.26.1
 [v0.26.0]: https://github.com/zesk/zesk/compare/v0.25.2...v0.26.0
