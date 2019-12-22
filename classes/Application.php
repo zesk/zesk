@@ -993,7 +993,7 @@ class Application extends Hookable implements Interface_Theme, Interface_Member_
 	 *
 	 * @return Request
 	 */
-	protected function request_factory(Request $inherit = null) {
+	public function request_factory(Request $inherit = null) {
 		$request = new Request($this);
 		if ($inherit) {
 			$request->initialize_from_request($inherit);
@@ -1387,7 +1387,10 @@ class Application extends Hookable implements Interface_Theme, Interface_Member_
 		if (!$all && count($result) === 0) {
 			return null;
 		}
-		return $result;
+		return array(
+			$result,
+			$tried_path,
+		);
 	}
 
 	/**
