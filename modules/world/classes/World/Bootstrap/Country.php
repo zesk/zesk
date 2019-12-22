@@ -19,7 +19,7 @@ class World_Bootstrap_Country extends Hookable {
 	 *
 	 * Country database (TXT file)
 	 */
-	const url_geonames_country_file = "http://download.geonames.org/export/dump/countryInfo.txt";
+	const url_geonames_country_file = "https://download.geonames.org/export/dump/countryInfo.txt";
 
 	/**
 	 *

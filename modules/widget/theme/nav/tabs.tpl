@@ -94,6 +94,7 @@ $title = $response->html()->title();
 		$item_class = $name === $selected_tab ? 'active' : '';
 		$item_class = CSS::add_class($item_class, $widget->context_class());
 		echo HTML::tag('li', array(
+			'id' => 'nav-link-' . $widget->id(),
 			'class' => CSS::add_class($item_class, count($errors) > 0 ? 'error' : ''),
 		), HTML::tag('a', array(
 			'href' => '#' . $name,

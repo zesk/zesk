@@ -200,7 +200,7 @@ MN	MNG	496	MG	Mongolia	Ulaanbaatar	1565000	3086918	AS	.mn	MNT	Tugrik	976	######	
 MO	MAC	446	MC	Macao	Macao	254	449198	AS	.mo	MOP	Pataca	853			zh,zh-MO,pt	1821275
 MP	MNP	580	CQ	Northern Mariana Islands	Saipan	477	53883	OC	.mp	USD	Dollar	+1-670	#####	^9695\d{1}$	fil,tl,zh,ch-MP,en-MP	4041468
 MQ	MTQ	474	MB	Martinique	Fort-de-France	1100	432900	NA	.mq	EUR	Euro	596	#####	^(\d{5})$	fr-MQ	3570311
-MR	MRT	478	MR	Mauritania	Nouakchott	1030700	3205060	AF	.mr	MRO	Ouguiya	222			ar-MR,fuc,snk,fr,mey,wo	2378080	SN,DZ,EH,ML
+MR	MRT	478	MR	Mauritania	Nouakchott	1030700	3205060	AF	.mr	MRU	Ouguiya	222			ar-MR,fuc,snk,fr,mey,wo	2378080	SN,DZ,EH,ML
 MS	MSR	500	MH	Montserrat	Plymouth	102	9341	NA	.ms	XCD	Dollar	+1-664			en-MS	3578097
 MT	MLT	470	MT	Malta	Valletta	316	403000	EU	.mt	EUR	Euro	356	@@@ ####	^[A-Z]{3}\s?\d{4}$	mt,en-MT	2562770
 MU	MUS	480	MP	Mauritius	Port Louis	2040	1294104	AF	.mu	MUR	Rupee	230			en-MU,bho,fr	934292

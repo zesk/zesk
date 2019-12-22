@@ -47,7 +47,7 @@ class Control_Order extends Control {
 		$uri = $this->request->uri();
 		$newURL = URL::query_remove($uri, "move;message", false);
 
-		throw new Exception_Redirect($newURL);
+		throw new Exception_RedirectTemporary($newURL);
 	}
 
 	public function render() {

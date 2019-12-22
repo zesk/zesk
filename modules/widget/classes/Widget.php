@@ -254,10 +254,7 @@ class Widget extends Hookable {
 		}
 		$this->hierarchy = $application->classes->hierarchy($this, __CLASS__);
 		if ($this->theme === null) {
-			$this->theme = ArrayTools::change_value_case(tr($this->hierarchy, array(
-				"\\" => "/",
-				"_" => "/",
-			)));
+			$this->theme = $this->default_theme();
 		}
 		if ($this->context_class() === null) {
 			$cl = get_class($this);
@@ -269,9 +266,12 @@ class Widget extends Hookable {
 
 	/**
 	 * Retrieve the default theme for this widget (includes reverse hierarchy of parents)
+	 *
+	 * @return array
 	 */
-	protected function default_theme() {
+	public function default_theme() {
 		return ArrayTools::change_value_case(tr($this->hierarchy, array(
+			"\\" => "/",
 			"_" => "/",
 		)));
 	}
@@ -323,9 +323,23 @@ class Widget extends Hookable {
 	/**
 	 * Getter/setter for the ORM subclass associated with this widget
 	 *
-	 * @param unknown $set
+	 * @param string $set
+	 * @return string|self
+	 * @deprecated 2019-12
+	 * @see $this->orm_class_name
 	 */
-	public function orm_class($set = null) {
+	final public function orm_class($set = null) {
+		zesk()->deprecated();
+		return $this->orm_class_name($set);
+	}
+
+	/**
+	 * Getter/setter for orm class naem
+	 *
+	 * @param string $set
+	 * @return \zesk\Widget|string
+	 */
+	final public function orm_class_name($set = null) {
 		if ($set !== null) {
 			$this->class = $set;
 			return $this;
@@ -334,17 +348,31 @@ class Widget extends Hookable {
 	}
 
 	/**
+	 * @return Class_ORM
+	 */
+	final public function find_parent_class_orm() {
+		$parent = $this->parent();
+		while ($parent) {
+			if ($parent->orm_class_name()) {
+				return $parent->class_orm();
+			}
+			$parent = $parent->parent();
+		}
+		return null;
+	}
+
+	/**
 	 *
 	 * @param unknown $class
 	 * @return Widget
 	 */
-	public function add_class($class) {
+	final public function add_class($class) {
 		// Some widgets have protected variable called class - always update the options here
 		$this->options = HTML::add_class($this->options, $class);
 		return $this;
 	}
 
-	public function remove_class($class) {
+	final public function remove_class($class) {
 		// Some widgets have protected variable called class - always update the options here
 		$this->options = HTML::remove_class($this->options, $class);
 		return $this;
@@ -2567,6 +2595,6 @@ class Widget extends Hookable {
 	 */
 	public function object_class($set = null) {
 		zesk()->deprecated();
-		return $this->orm_class($set);
+		return $this->orm_class_name($set);
 	}
 }

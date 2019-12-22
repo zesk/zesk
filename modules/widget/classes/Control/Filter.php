@@ -128,7 +128,9 @@ class Control_Filter extends Control {
 	 * @see Widget::initialize()
 	 */
 	protected function initialize() {
-		$this->names('filter', 'filter');
+		if (!$this->name()) {
+			$this->names('filter', 'filter');
+		}
 		$this->set_option('query_column', false);
 		$this->children($this->call_hook('filters'));
 		parent::initialize();
