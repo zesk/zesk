@@ -383,7 +383,7 @@ abstract class Controller_ORM extends Controller_Authenticated {
 		/* @var $widget Widget */
 		$this->tried_widgets = array();
 		$controls = array();
-		list($namespace, $class) = pair($this->class, "\\", "", $this->class);
+		list($namespace, $class) = pairr($this->class, "\\", "", $this->class);
 		foreach ($actual_actions as $actual_action) {
 			//			$controls[$namespace "\\Control_" . $class . "_" . $actual_action] = $actual_action;
 			$controls[$namespace . "\\Control_" . $actual_action . "_" . $class] = $actual_action;
