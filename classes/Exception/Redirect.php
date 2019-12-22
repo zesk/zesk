@@ -3,7 +3,7 @@
  * @package zesk
  * @subpackage exception
  * @author kent
- * @copyright &copy; 2018 Market Acumen, Inc.
+ * @copyright &copy; 2019 Market Acumen, Inc.
  */
 namespace zesk;
 
