@@ -4,258 +4,125 @@
  */
 namespace zesk\Tag;
 
-use zesk\Application;
-use zesk\Class_ORM;
 use zesk\ORM;
-use zesk\Exception_Semantics;
-use zesk\Database_Query_Select;
+use zesk\Application;
+use zesk\Selection_Type;
+use zesk\Database_Query_Insert_Select;
+use zesk\Database_Query_Delete;
 
 /**
  * @see Class_Tag
  * @see Module_Tag
- * @property id $id
  * @property Label $tag_label
- * @property string $object_class
- * @property ORM $object_id
- * @property Timestamp $created
- * @property Timestamp $modified
- * @property mixed $value
  */
 abstract class Tag extends ORM {
 	/**
-	 * Delete items matching the class and IDs passed
-	 *
-	 * @param unknown $class
-	 * @param array $ids
-	 * @return integer
+	 * @var $class Class_Tag
 	 */
-	private static function delete_class_ids(Application $application, $class, array $ids) {
-		if (count($ids) === 0) {
-			return 0;
-		}
-		return $application->orm_registry(__CLASS__)
-			->query_delete()
-			->where(array(
-			"object_class" => $class,
-			"object_id" => $ids,
-		))
-			->execute()
-			->affected_rows();
+	public $class = null;
+
+	/**
+	 * @return string
+	 */
+	public function foreign_orm_class_name() {
+		return $this->class->foreign_orm_class_name;
 	}
 
 	/**
-	 * Utility function for query_has/no_tag
+	 * Name of column in this object which represents the foreign key to our tagged object table
 	 *
-	 * @param Database_Query_Select $query
-	 * @param array $options
-	 * @return array(string, string)
+	 * @return string
 	 */
-	private function extract_options(Database_Query_Select $query, array $options) {
-		$class_orm = $query->class_orm();
-		$tag_label_id = $this->id();
-		$tag_alias = avalue($options, 'alias', null);
-		if (!$tag_alias) {
-			$tag_alias = "Tag$tag_label_id";
-		}
-		$source_column = avalue($options, 'column', null);
-		if (!$source_column) {
-			$id = $class_orm->id_column;
-			$alias = $query->alias();
-			$source_column = "$alias.$id";
-		}
-		return array(
-			$tag_alias,
-			$source_column,
-		);
+	public function foreign_column() {
+		return $this->class->foreign_column;
 	}
 
 	/**
-	 * Add a query to the current query to ensure the object has the current tag
-	 *
-	 * @param Database_Query_Select $query
-	 * @param array $options "alias" for link table alias, and "column" to override default link
-	 *
-	 * @return Database_Query_Select
-	 */
-	// 	public function query_has_tag(Database_Query_Select $query, array $options = array()) {
-	// 		list($tag_alias, $source_column) = $this->extract_options($query, $options);
-	// 		$query->join_object("INNER", $this, $tag_alias, array(
-	// 			$source_column => "$tag_alias.object_id",
-	// 			"$tag_alias.tag_label" => $this,
-	// 			"$tag_alias.object_class" => $query->class_orm()->class
-	// 		));
-	// 		return $query;
-	//  }
-
-	/**
-	 * Add a query to the current query to ensure the object does NOT have the current tag
-	 *
-	 * @param Database_Query_Select $query
-	 * @param array $options "alias" for link table alias, and "column" to override default link
-	 *
-	 * @return Database_Query_Select
-	 */
-	// 	public function query_no_tag(Database_Query_Select $query, array $options = array()) {
-	// 		$class_orm = $query->class_orm();
-	// 		list($tag_alias, $source_column) = $this->extract_options($query, $options);
-	// 		$query->join_object("LEFT", $this, $tag_alias, array(
-	// 			$source_column => "$tag_alias.object_id",
-	// 			"$tag_alias.tag_label" => $this,
-	// 			"$tag_alias.object_class" => $query->class_orm()->class
-	// 		));
-	// 		$query->where("$tag_alias.object_id", null);
-	// 		return $query;
-	// 	}
-
-	/**
-	 * Delete tags linked to deleted rows
 	 *
 	 * @param Application $application
+	 * @return \zesk\string[]
 	 */
-	public static function cull(Application $application) {
-		$classes = $application->orm_registry(__CLASS__)
-			->query_select()
-			->what("object_class", "object_class")
-			->distinct(true)
-			->to_array(null, "object_class");
-		foreach ($classes as $class) {
-			/* @var $class_object Class_ORM */
-			$class_object = $application->class_orm_registry($class);
-			$id_column = $class_object->id_column;
-			$id_iterator = $application->orm_registry(__CLASS__)
-				->query_select("X")
-				->what("X.object_id")
-				->distinct(true)
-				->join("LEFT OUTER JOIN {table} linked ON X.object_id=linked.$id_column")
-				->where("X.object_class", $class)
-				->where("linked.$id_column", null)
-				->iterator(null, "object_id");
-			$id_batch = array();
-			foreach ($id_iterator as $id) {
-				$id_batch[] = $id;
-				if (count($id_batch) >= 100) {
-					self::delete_class_ids($application, $class, $id_batch);
-					$id_batch = array();
-				}
-				self::delete_class_ids($application, $class, $id_batch);
+	public static function taggables(Application $application) {
+		$subclasses = $application->classes->subclasses(self::class);
+		$result = array();
+		foreach ($subclasses as $subclass) {
+			try {
+				$instance = $application->orm_registry($subclass);
+			} catch (\Exception $e) {
+				continue;
 			}
+			$result[$application->objects->resolve($instance->foreign_orm_class_name())] = $subclass;
 		}
-	}
-
-	/**
-	 * Can I apply tags to this object?
-	 *
-	 * @param ORM $object
-	 * @param boolean $throw Throw exception in case of error
-	 * @throws \Exception_Semantics
-	 * @return boolean
-	 */
-	public static function can_tag_object(ORM $object, $throw = false) {
-		$class = $object->class;
-		$id_column = $class->id_column;
-		if (!$id_column) {
-			if ($throw) {
-				throw new Exception_Semantics("Unable to tag class {class} - no id column", array(
-					"class" => get_class($object),
-				));
-			}
-			return false;
-		}
-		if ($class->column_types[$id_column] !== Class_ORM::type_id) {
-			if ($throw) {
-				throw new Exception_Semantics("Unable to tag class {class} - id column is not an ID (set to {type})", array(
-					"class" => get_class($object),
-					"type" => $class->column_types[$id_column],
-				));
-			}
-			return false;
-		}
-		return true;
-	}
-
-	/**
-	 * Set a tag to an object
-	 *
-	 * @param ORM $object
-	 * @param string $name
-	 * @param mixed $value
-	 * @param array $label_attributes
-	 * @return zesk\Tag
-	 */
-	public static function tag_set(ORM $object, Label $label, $value) {
-		self::can_tag_object($object, true);
-		$members = array(
-			'tag_label' => $label,
-			'object_class' => get_class($object),
-			'object_id' => $object->id(),
-			'data' => $value,
-		);
-		$object = self::factory(__CLASS__, $members);
-		if ($object->find()) {
-			return $object->set_member($members)->store();
-		}
-		return $object->store();
-	}
-
-	/**
-	 * Retrieve a value
-	 * @param ORM $object
-	 * @param string|Label $name
-	 * @param mixed $default
-	 * @return mixed
-	 */
-	public static function tag_get_value(ORM $object, $code, $default = null) {
-		$tag = self::tag_get($object, $code);
-		return $tag ? $tag->value : $default;
-	}
-
-	/**
-	 * Retrieve all tags for an object
-	 *
-	 * @param ORM $object
-	 * @param string|Label $name
-	 * @return zesk\Tag
-	 */
-	public static function tag_get(ORM $object, $code) {
-		self::can_tag_object($object, true);
-		if ($code instanceof Label) {
-			$label = $code;
-		} else {
-			$label = Label::tag_find($object->application, $code);
-		}
-		if (!$label) {
-			return null;
-		}
-		$members = array(
-			'tag_label' => $label,
-			'object_class' => get_class($object),
-			'object_id' => $object->id(),
-		);
-		$object = self::factory(__CLASS__, $members);
-		if ($object->find()) {
-			return $object;
-		}
-		return null;
+		return $result;
 	}
 
 	/**
 	 *
-	 * @param ORM $object
-	 * @param array $where
-	 * @return ORMIterator
+	 * @param ORM $orm
 	 */
-	public static function tags(ORM $object, array $where = array()) {
-		self::can_tag_object($object, true);
-		$query = $object->application->orm_registry(__CLASS__)->query_select("X")->where(array(
-			"object_class" => get_class($object),
-			"object_id" => $object->id(),
-		));
-		$query->link(Label::class, array(
-			"alias" => "label",
-		));
-		if (count($where) > 0) {
-			$query->where($where);
-		}
-		return $query->orm_iterator(); // TODO used to take parameter "link.code" - where is this used and are results OK as is?
+	public static function taggable(ORM $orm) {
+		$app = $orm->application;
+		$class_name = $app->objects->resolve(get_class($orm));
+		return self::taggables($app)[$class_name] ?? null;
+	}
+
+	/**
+	 *
+	 * @param Selection_Type $type
+	 */
+	public function apply_label_selection(Label $label, Selection_Type $type) {
+		$selected = $type->items_selected();
+
+		$selected_query = $selected->query();
+
+		$selected_query->what([
+			"*tag_label" => $label->id(),
+			$this->foreign_column() => "id",
+		]);
+		$query = Database_Query_Insert_Select::from_database_query_select($selected_query);
+		$query->into($this->table());
+		$query->replace(true);
+
+		return $query;
+	}
+
+	/**
+	 *
+	 * @param Selection_Type $type
+	 */
+	public function remove_label_selection(Label $label, Selection_Type $type) {
+		$selected = $type->items_selected();
+
+		$selected_query = $selected->query();
+
+		$selected_query->what([
+			$this->foreign_column() => "id",
+		]);
+		// @todo log issue against this and fix
+		$query = $this->query_delete()->where([
+			"tag_label" => $label,
+			"*" . $this->foreign_column() . "| IN " => "(" . strval($selected_query) . ")",
+		]);
+		return $query;
+	}
+
+	/**
+	 * Add internal or extra fields to a query
+	 *
+	 * @param Database_Query_Insert_Select $query
+	 * @return
+	 */
+	public function control_add(Control_Tags $control, Database_Query_Insert_Select $query) {
+		return;
+	}
+
+	/**
+	 * Add internal or extra fields to a query
+	 *
+	 * @param Database_Query_Insert_Select $query
+	 * @return
+	 */
+	public function control_remove(Control_Tags $control, Database_Query_Delete $query) {
+		return;
 	}
 }

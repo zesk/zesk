@@ -45,9 +45,9 @@ echo HTML::tag("div", [
 $options['name'] = $this->name;
 $options['value'] = $this->value;
 $options['labels'] = $json_labels;
-$options['badge_separator'] = " " . HTML::tag("span", ".glyphicon .glyphicon-arrow-right", null) . " ";
-$options['button_add_label'] = HTML::tag("span", ".glyphicon .glyphicon-plus", null);
-$options['button_remove_label'] = HTML::tag("span", ".glyphicon .glyphicon-minus", null);
+$options['badge']['separator'] = " " . HTML::tag("span", ".glyphicon .glyphicon-arrow-right", null) . " ";
+$options['columns']['add']['button'] = HTML::tag("span", ".glyphicon .glyphicon-plus", null);
+$options['columns']['remove']['button'] = HTML::tag("span", ".glyphicon .glyphicon-minus", null);
 $options['total'] = $selection_type->count();
 
 $response->html()->jquery("\$(\"#$divid\").tagsWidget(" . JSON::encode($options) . ")");

@@ -24,6 +24,18 @@ class Control_Tags extends Control {
 	protected $selection_type = null;
 
 	/**
+	 * Valid action to prefix a label ID submitted to this widget, as a list separated by commas.
+	 *
+	 * So "-23,+43,-12" is a valid value assuming 23, 43, 12 are Labels which are valid
+	 *
+	 * @var array
+	 */
+	private static $actions = [
+		"+" => "_action_add",
+		"-" => "_action_remove",
+	];
+
+	/**
 	 * Getter/setter for selection type
 	 *
 	 * @param Selection_Type $set
@@ -39,11 +51,60 @@ class Control_Tags extends Control {
 
 	/**
 	 *
+	 * @return array
+	 */
+	private function _parse_value() {
+		$locale = $this->application->locale;
+		$actions = explode(",", $this->value());
+		$labels = $this->_labels();
+		$result = array();
+		foreach ($actions as $action) {
+			if (empty($action)) {
+				continue;
+			}
+			if (strlen($action) < 2) {
+				$this->error($locale->__("Invalid value: {action}", array(
+					"action" => $action,
+				)), $this->name());
+				return null;
+			}
+			$action_prefix = $action[0];
+			if (!array_key_exists($action_prefix, self::$actions)) {
+				$this->error($locale->__("Invalid value not a valid prefix: {action}", array(
+					"action" => $action,
+				)), $this->name());
+				return null;
+			}
+			$label_id = intval(substr($action, 1));
+			if (!array_key_exists($label_id, $labels)) {
+				$this->error($locale->__("Invalid value not a valid label: {action}", array(
+					"action" => $action,
+				)), $this->name());
+				return null;
+			}
+			$result[$action_prefix][] = $labels[$label_id];
+		}
+		return $result;
+	}
+
+	/**
+	 *
+	 * {@inheritDoc}
+	 * @see \zesk\Widget::validate()
+	 */
+	public function validate() {
+		if (!parent::validate()) {
+			return false;
+		}
+		return is_array($this->_parse_value());
+	}
+
+	/**
+	 *
 	 * {@inheritDoc}
 	 * @see \zesk\Widget::render()
 	 */
 	public function render() {
-		//	$debug[] = __CLASS__;
 		$debug = [];
 		return HTML::etag("pre", implode("<br />", $debug)) . parent::render();
 	}
@@ -57,8 +118,8 @@ class Control_Tags extends Control {
 		if (!$this->selection_type) {
 			throw new Exception_Semantics("Need selection_type set");
 		}
-		if (!$this->orm_class()) {
-			throw new Exception_Semantics("Need orm_class() set");
+		if (!$this->orm_class_name()) {
+			throw new Exception_Semantics("Need orm_class_name() set");
 		}
 		$class_orm = $this->class_orm();
 		assert($class_orm instanceof Class_Tag);
@@ -67,7 +128,7 @@ class Control_Tags extends Control {
 
 		$application = $this->application;
 		$selection_item_table = $application->orm_registry(Selection_Item::class)->table();
-		$tags_query = $application->orm_registry($this->orm_class())
+		$tags_query = $application->orm_registry($this->orm_class_name())
 			->query_select("main")
 			->link(Label::class, [
 			'alias' => 'label',
@@ -107,18 +168,27 @@ class Control_Tags extends Control {
 		return $by_id;
 	}
 
+	private $_labels_generated = null;
+
+	/**
+	 *
+	 */
+	protected function _labels() {
+		if ($this->_labels_generated) {
+			return $this->_labels_generated;
+		}
+		return $this->_labels_generated = $this->filter_labels($this->application->tag_module()->list_labels());
+	}
+
 	/**
 	 *
 	 * {@inheritDoc}
 	 * @see \zesk\Widget::theme_variables()
 	 */
 	public function theme_variables() {
-		$application = $this->application;
-
 		$tags_query = $this->query_tags_used();
 
-		$labels = $application->tag_module()->list_labels();
-		$labels = $this->filter_labels($labels);
+		$labels = $this->_labels();
 
 		return parent::theme_variables() + [
 			'selection_type' => $this->selection_type,
@@ -132,7 +202,57 @@ class Control_Tags extends Control {
 		if (!parent::submit()) {
 			return false;
 		}
-		$this->selection_type();
+		$actions = $this->_parse_value();
+		foreach ($actions as $action => $labels) {
+			$method = self::$actions[$action];
+			foreach ($labels as $label) {
+				if (!$this->$method($label)) {
+					return false;
+				}
+			}
+		}
+		return true;
+	}
+
+	/**
+	 *
+	 * @param array $labels
+	 * @return boolean
+	 */
+	public function _action_add(Label $label) {
+		$orm = $this->application->orm_registry($this->orm_class_name());
+		/* @var $orm Tag */
+		$type = $this->selection_type();
+
+		$query = $orm->apply_label_selection($label, $type);
+		$orm->control_add($this, $query);
+
+		if (!$query->execute()) {
+			$error_id = $this->name() . "-" . $label->id();
+			$this->error($this->application->locale->__(__CLASS__ . ":=Unable to add label {name}", $label->variables()), $error_id);
+			return false;
+		}
+		return true;
+	}
+
+	/**
+	 *
+	 * @param Label $label
+	 * @return boolean
+	 */
+	public function _action_remove(Label $label) {
+		$orm = $this->application->orm_registry($this->orm_class_name());
+		/* @var $orm Tag */
+		$type = $this->selection_type();
+
+		$query = $orm->remove_label_selection($label, $type);
+		$orm->control_remove($this, $query);
+
+		if (!$query->execute()) {
+			$error_id = $this->name() . "-" . $label->id();
+			$this->error($this->application->locale->__(__CLASS__ . ":=Unable to remove label {name}", $label->variables()), $error_id);
+			return false;
+		}
 		return true;
 	}
 }

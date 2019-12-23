@@ -11,19 +11,23 @@
 				title: "Available tags " + html.tag("span", ".badge .badge-info", "# Tags"),
 				button: "Undo",
 				empty: "All available tags are applied or removed",
+				badge_class: "tag-action-noop",
 			},
 			add: {
 				title: "Add tags",
 				button: "+",
 				empty: "No tags will be added",
+				badge_class: "tag-action-add",
 			},
 			remove: {
 				title: "Remove tags",
 				button: "-",
 				empty: "No tags will be removed",
+				badge_class: "tag-action-remove",
 			},
 		},
 		badge: {
+			class: "badge-default",
 			separator: " > ",
 		},
 	};
@@ -43,13 +47,13 @@
 		delete this.options.name;
 		delete this.options.labels;
 
-		this.badge_separator = options.badge_separator || " > ";
 		this.button_add_label = options.button_add_label || "+";
 		this.button_remove_label = options.button_remove_label || "-";
 		this.button_noop_label = options.button_noop_label || "Undo";
 
-		this.labels.forEach(function(label, index) {
-			self.by_id[label.id] = self.labels[index];
+		this.labels.forEach(function(label) {
+			label.total = parseInt(label.total, 10) || 0;
+			self.by_id[label.id] = label;
 		});
 
 		this.valueToState(options.value || "");
@@ -156,7 +160,7 @@
 		},
 		renderLabel: function(label, disableLink) {
 			var badge = label.total || 0,
-				badge_sep = this.badge_separator,
+				badge_sep = this.options.badge.separator,
 				badge_suffix = { add: badge_sep + this.total, remove: badge_sep + "0" };
 			badge_suffix = badge_suffix[label.action] || "";
 
@@ -168,20 +172,24 @@
 					"data-index": label.index,
 				},
 				html.tag("span", ".name", label.name) +
+					this.renderButton("noop", this.options.columns.noop.button, "noop" === disableLink) +
 					this.renderButton(
 						"add",
-						this.button_add_label,
+						this.options.columns.add.button,
 						"add" === disableLink || label.total === this.total
 					) +
 					this.renderButton(
 						"remove",
-						this.button_remove_label,
+						this.options.columns.remove.button,
 						"remove" === disableLink || label.total === 0
 					) +
-					this.renderButton("noop", this.button_noop_label, "noop" === disableLink) +
 					html.tag(
 						"span",
-						".badge .badge-default" + (badge_suffix ? " .separator" : ""),
+						".badge " +
+							this.options.badge.class +
+							" " +
+							(this.options.columns[label.action].badge_class || "") +
+							(badge_suffix ? " .separator" : ""),
 						badge + badge_suffix
 					)
 			);

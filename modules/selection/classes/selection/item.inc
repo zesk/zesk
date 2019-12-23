@@ -5,7 +5,10 @@ namespace zesk;
  *
  * @see Class_Selection_Item
  * @author kent
- *
+ * @property Selection_Type $type
+ * @property ORM $id
+ * @property boolean $add
+ * @property Selection_Query $query
  */
 class Selection_Item extends ORM {
 	/**

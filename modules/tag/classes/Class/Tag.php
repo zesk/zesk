@@ -36,7 +36,7 @@ abstract class Class_Tag extends Class_ORM {
 	 *
 	 * @var string
 	 */
-	public $foreign_orm = null;
+	public $foreign_orm_class_name = null;
 
 	/**
 	 *
@@ -61,8 +61,8 @@ abstract class Class_Tag extends Class_ORM {
 
 		$this->has_one[$this->tag_column] = Label::class;
 
-		if ($this->foreign_orm) {
-			$this->has_one[$this->foreign_column] = $this->foreign_orm;
+		if ($this->foreign_orm_class_name) {
+			$this->has_one[$this->foreign_column] = $this->foreign_orm_class_name;
 		}
 	}
 }
