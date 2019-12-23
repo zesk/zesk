@@ -502,4 +502,13 @@ class PHP {
 	public static function parse_namespace_class($class) {
 		return pairr($class, "\\", null, $class);
 	}
+
+	/**
+	 *
+	 * @param string $message
+	 * @param array $arguments
+	 */
+	public static function log($message, array $arguments = array()) {
+		error_log(map($message, $arguments));
+	}
 }
