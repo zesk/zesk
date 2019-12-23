@@ -58,4 +58,12 @@ class Class_Label extends Class_ORM {
 		'modified' => self::type_modified,
 		'last_used' => self::type_timestamp,
 	);
+
+	/**
+	 *
+	 * @var array
+	 */
+	public $column_defaults = [
+		'last_used' => 'now',
+	];
 }

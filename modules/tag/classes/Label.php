@@ -15,7 +15,7 @@ use zesk\PHP;
 
 /**
  *
- * @see zesk\Tag\Class_Label
+ * @see Class_Label
  *
  * @see Tag
  * @author kent
@@ -27,7 +27,7 @@ use zesk\PHP;
  * @property User $owner
  * @property Timestamp $created
  * @property Timestamp $modified
- * @property timestamp $last_used
+ * @property Timestamp $last_used
  */
 class Label extends \zesk\ORM {
 	/**
