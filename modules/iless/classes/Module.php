@@ -1,5 +1,16 @@
 <?php
 /**
+ * @package zesk
+ * @subpackage iless
+ * @author kent
+ * @copyright &copy; 2019 Market Acumen, Inc.
+ */
+namespace zesk\ILess;
+
+/**
+ * @author kent
+ */
+/**
  *
  */
 use zesk\File;
@@ -11,13 +22,13 @@ use zesk\CSS;
  * @author kent
  *
  */
-class Module_iLess extends zesk\Module {
+class Module extends \zesk\Module {
 	/**
 	 *
-	 * @return Compiler_Less
+	 * @return Compiler
 	 */
 	public function compiler() {
-		return new Compiler_Less($this->application);
+		return new Compiler($this->application);
 	}
 
 	/**
@@ -68,6 +79,10 @@ class Module_iLess extends zesk\Module {
 		File::unlink(path($this->application->document_root(), $this->_css_path()));
 	}
 
+	/**
+	 *
+	 * @param array $variables
+	 */
 	public function css_theme_changed(array $variables = array()) {
 		$this->_compile_css_theme($variables);
 	}

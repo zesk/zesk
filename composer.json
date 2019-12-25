@@ -5,7 +5,8 @@
 		"php": ">=5.5.0",
 		"psr/log": "^1.0",
 		"components/jquery": "^3.2",
-		"psr/cache": "^1.0"
+		"psr/cache": "^1.0",
+		"mishal/iless": "^2."
 	},
 	"require-dev": {
 		"phpunit/phpunit": "*",
