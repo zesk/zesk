@@ -125,14 +125,19 @@
 									"div",
 									{ class: "modal-footer" },
 									html.tag(
-										"button",
-										{
-											type: "button",
-											class: this.options.cancel.class,
-											"data-dismiss": "modal",
-										},
-										this.options.cancel.label
+										"div",
+										{ class: "form-control-static result-text pull-left" },
+										this.text_label
 									) +
+										html.tag(
+											"button",
+											{
+												type: "button",
+												class: this.options.cancel.class,
+												"data-dismiss": "modal",
+											},
+											this.options.cancel.label
+										) +
 										html.tag(
 											"button",
 											{ type: "button", class: "btn btn-primary" },
@@ -163,6 +168,7 @@
 						.data("DateTimePicker")
 						.minDate(e.date);
 					self.start = e.date;
+					self.updateResultText();
 				});
 			$(this.endId)
 				.datetimepicker(
@@ -178,6 +184,7 @@
 						.data("DateTimePicker")
 						.maxDate(e.date);
 					self.end = e.date;
+					self.updateResultText();
 				});
 
 			if (this.end) {
@@ -205,6 +212,7 @@
 			this.$modal.off("hide.bs.modal").on("hide.bs.modal", function() {
 				self.hiding();
 			});
+			this.updateResultText();
 		},
 		hiding: function() {
 			if (this.rendering) {
@@ -221,27 +229,40 @@
 			}
 			this.rendering = false;
 		},
+		updateResultText: function(message) {
+			if (!this.$modal) {
+				return;
+			}
+			$(".result-text", this.$modal).html(message || this.renderText(this.start, this.end));
+		},
+		renderValue: function(start, end) {
+			var moment = w.moment;
+			return (
+				DATE_PREFIX + DATE_SEP + moment(start).format(DATE_FORMAT) + DATE_SEP + moment(end).format(DATE_FORMAT)
+			);
+		},
+		renderText: function(start, end) {
+			var moment = w.moment;
+			return (
+				this.options.custom.prefix +
+				" " +
+				moment(start).format(this.options.custom.format) +
+				this.options.custom.separator +
+				moment(end).format(this.options.custom.format)
+			);
+		},
 		renderSelect: function(start, end) {
 			var moment = w.moment,
 				mstart = moment(start),
 				mend = moment(end),
-				new_value = DATE_PREFIX + DATE_SEP + mstart.format(DATE_FORMAT) + DATE_SEP + mend.format(DATE_FORMAT),
-				new_name =
-					this.options.custom.prefix +
-					" " +
-					mstart.format(this.options.custom.format) +
-					this.options.custom.separator +
-					mend.format(this.options.custom.format);
-
-			// $.each(this.savedState, function(name, value) {
-			// 	options.push(html.tag("option", { value: value }, name));
-			// });
-
-			var newOption = html.tag("option", { value: new_value, selected: "selected" }, new_name);
+				new_value = this.renderValue(mstart, mend),
+				new_name = this.renderText(mstart, mend),
+				newOption = html.tag("option", { value: new_value, selected: "selected" }, new_name);
 			this.$select.html(this.savedHTML + newOption);
 			this.$select = $(this.select);
 			this.start = mstart;
 			this.end = mend;
+			this.updateResultText();
 		},
 		initialize: function() {},
 	});

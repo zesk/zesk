@@ -9,7 +9,7 @@
   margin: 0;
   border: 1px solid red;
   max-height: 50%;
-  overflow: scroll;
+  overflow-y: scroll !important;
   font-size: 13px;
   color: black;
   overflow: hidden;

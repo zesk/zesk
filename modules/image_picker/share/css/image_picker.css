@@ -1,75 +1,60 @@
 .control-picker-selector .image-picker-dropfile {
-	border: 3px dashed #666;
-	padding: 15px;
-	text-align: center;
-	font-size: 2em;
+  border: 3px dashed #666;
+  padding: 15px;
+  text-align: center;
+  font-size: 2em;
 }
-
 .control-picker-selector .image-picker-dropfile:hover {
-	border: 3px dashed #ff0000;
+  border: 3px dashed red;
 }
-
-.control-picker-selector .control-picker-results.class-zesk-content-image .item
-	{
-	position: relative;
-	padding: 0;
-	border-radius: 4px;
-	margin: 10px;
+.control-picker-selector .control-picker-results.class-zesk-content-image .item {
+  position: relative;
+  padding: 0;
+  border-radius: 4px;
+  margin: 10px;
 }
-
-.control-picker-selector .control-picker-results.class-zesk-content-image .item .image-picker-item
-	{
-	float: left;
-	border-radius: 4px;
-	padding: 5px;
-	margin: 0;
-	height: 195px;
-	width: 195px;
-	background-color: white;
-	border: 5px solid #ffffff !important;
+.control-picker-selector .control-picker-results.class-zesk-content-image .item .image-picker-item {
+  float: left;
+  border-radius: 4px;
+  padding: 5px;
+  margin: 0;
+  height: 195px;
+  width: 195px;
+  background-color: white;
+  border: 5px solid white !important;
 }
-
-.control-picker-selector .control-picker-results.class-zesk-content-image .item .image-picker-item .content-image
-	{
-	margin: 0 auto;
-	text-align: center;
+.control-picker-selector .control-picker-results.class-zesk-content-image .item .image-picker-item .content-image {
+  margin: 0 auto;
+  text-align: center;
 }
-
-.control-picker-selector .control-picker-results.class-zesk-content-image .item .image-picker-item:hover
-	{
-	border: 5px solid #ff0000 !important;
+.control-picker-selector .control-picker-results.class-zesk-content-image .item .image-picker-item:hover {
+  border: 5px solid red !important;
 }
-
-.control-picker-selector .control-picker-results.class-zesk-content-image .item label
-	{
-	display: block;
-	border: none;
-	padding: 0 5px 0;
-	text-align: left;
-	width: 195px;
+.control-picker-selector .control-picker-results.class-zesk-content-image .item label {
+  display: block;
+  border: none;
+  padding: 0 5px 0;
+  text-align: left;
+  width: 195px;
 }
-
-.control-picker-selector .control-picker-results.class-zesk-content-image .item .action-delete
-	{
-	position: absolute;
-	right: 5px;
-	top: 5px;
-	height: 28px;
-	width: 28px;
-	margin: 0;
-	padding: 5px;
-	font-size: 16px;
-	display: block;
-	color: black;
-	border-radius: 50%;
-	border: 2px solid black;
-	background-color: white;
+.control-picker-selector .control-picker-results.class-zesk-content-image .item .action-delete {
+  position: absolute;
+  right: 5px;
+  top: 5px;
+  height: 28px;
+  width: 28px;
+  margin: 0;
+  padding: 5px;
+  font-size: 16px;
+  display: block;
+  color: black;
+  border-radius: 50%;
+  border: 2px solid black;
+  background-color: white;
 }
-
-.control-picker-selector .control-picker-results.class-zesk-content-image .item .action-delete:hover
-	{
-	text-decoration: none;
-	border: 2px solid red;
-	background-color: black;
-	color: white;
+.control-picker-selector .control-picker-results.class-zesk-content-image .item .action-delete:hover {
+  text-decoration: none;
+  border: 2px solid red;
+  background-color: black;
+  color: white;
 }
