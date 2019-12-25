@@ -212,6 +212,8 @@ abstract class Command extends Hookable implements Logger\Handler, Interface_Pro
 		$this->option_defaults = $this->optDefaults();
 		$this->option_help = $this->optHelp();
 
+		$this->initialize();
+
 		$defaults = $this->parse_option_defaults($this->option_defaults);
 
 		$this->set_option($defaults, null, false);
@@ -228,7 +230,6 @@ abstract class Command extends Hookable implements Logger\Handler, Interface_Pro
 			}
 		}
 
-		$this->initialize();
 		$this->determine_ansi();
 
 		$this->application->register_class($this->register_classes);
