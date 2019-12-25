@@ -17,4 +17,14 @@ class Module extends \zesk\Module_JSLib implements \zesk\Interface_Module_Head {
 	protected $javascript_paths = array(
 		'/share/bootstrap-datetimepicker/js/bootstrap-datetimepicker.min.js',
 	);
+
+	/**
+	 *
+	 * {@inheritDoc}
+	 * @see \zesk\Module::initialize()
+	 */
+	public function initialize() {
+		parent::initialize();
+		$this->application->share_path(path($this->path, "share"), "bootstrap-datetimepicker-widget");
+	}
 }

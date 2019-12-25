@@ -1,0 +1,4 @@
+.bootstrap-datetimepicker-widget table td.disabled,
+.bootstrap-datetimepicker-widget table td.disabled:hover {
+	background-color: #ddd !important;
+}
