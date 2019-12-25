@@ -29,6 +29,12 @@ class Class_Label extends Class_ORM {
 
 	/**
 	 *
+	 * @var string
+	 */
+	public $name_column = "name";
+
+	/**
+	 *
 	 * @var array
 	 */
 	public $has_one = array(

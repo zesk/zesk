@@ -198,10 +198,16 @@ class Control_Tags extends Control {
 		];
 	}
 
+	/**
+	 *
+	 * {@inheritDoc}
+	 * @see \zesk\Widget::submit()
+	 */
 	public function submit() {
 		if (!parent::submit()) {
 			return false;
 		}
+		$this->debug_sqls = [];
 		$actions = $this->_parse_value();
 		foreach ($actions as $action => $labels) {
 			$method = self::$actions[$action];
@@ -210,6 +216,11 @@ class Control_Tags extends Control {
 					return false;
 				}
 			}
+		}
+		if ($this->application->development()) {
+			$this->response()->response_data([
+				'debug_sql' => $this->debug_sqls,
+			], true);
 		}
 		return true;
 	}
@@ -232,6 +243,7 @@ class Control_Tags extends Control {
 			$this->error($this->application->locale->__(__CLASS__ . ":=Unable to add label {name}", $label->variables()), $error_id);
 			return false;
 		}
+		$this->debug_sqls[] = strval($query);
 		return true;
 	}
 
@@ -253,6 +265,7 @@ class Control_Tags extends Control {
 			$this->error($this->application->locale->__(__CLASS__ . ":=Unable to remove label {name}", $label->variables()), $error_id);
 			return false;
 		}
+		$this->debug_sqls[] = strval($query);
 		return true;
 	}
 }
