@@ -52,10 +52,13 @@ abstract class Command_File_Convert extends Command_Base {
 			'extension' => 'string',
 			'dry-run' => 'boolean',
 			'force' => 'boolean',
+			'target-path' => 'string',
+			'mkdir-target' => 'boolean',
 			'*' => 'files',
 		);
 		$this->option_defaults += array(
 			'extension' => $this->destination_extension,
+			'target-path' => './',
 		);
 		$this->option_help += array(
 			'nomtime' => 'Ignore destination file modification time when determining whether to generate',
@@ -63,9 +66,19 @@ abstract class Command_File_Convert extends Command_Base {
 			'extension' => 'Use this extenstion for the generated files instead of the default',
 			'dry-run' => 'Don\'t make any changes, just show what would happen.',
 			'force' => 'Always write files',
+			'target-path' => 'When converting files, create targets here (e.g. `../compiled-js/`)',
+			'mkdir-target' => 'Create target directory if does not exist, then convert`)',
 			'*' => 'A list of files to process',
 		);
 		parent::initialize();
+	}
+
+	private function target_filename($file) {
+		$extension = trim($this->option("extension", $this->destination_extension), ".");
+		$target_prefix = $this->option("target-path");
+		$new_file = $this->overwrite ? $file : File::extension_change($file, ".$extension");
+		$new_file = path(dirname($new_file), $target_prefix, basename($new_file));
+		return Directory::undot($new_file);
 	}
 
 	/**
@@ -77,7 +90,8 @@ abstract class Command_File_Convert extends Command_Base {
 		$this->verbose_log("Configuring using config file: " . $this->configuration_file);
 		$this->configure($this->configuration_file);
 		$app = $this->application;
-		$request = Request::factory($app);
+		$app->console(true);
+		$request = $app->request_factory();
 		$app->template->set(array(
 			"request" => $request,
 			'response' => $app->response_factory($request),
@@ -92,6 +106,7 @@ abstract class Command_File_Convert extends Command_Base {
 		}
 		stream_set_blocking(STDIN, 0);
 		$content = fread(STDIN, 1024);
+		fseek(STDIN, 0);
 		if ($content === false || $content === "") {
 			$args = $this->arguments_remaining(true);
 			if (count($args)) {
@@ -111,12 +126,14 @@ abstract class Command_File_Convert extends Command_Base {
 			$force = $this->option_bool("force") || $overwrite;
 			$noclobber = $this->option_bool("noclobber");
 			$nomtime = $this->option_bool("nomtime");
-			$extension = trim($this->option("extension", $this->destination_extension), ".");
+			$target_prefix = $this->option("target-path");
+			$mkdir_target = $this->option_bool("mkdir-target");
 			foreach ($files as $file) {
 				if (!file_exists($file)) {
 					continue;
 				}
-				$new_file = $overwrite ? $file : File::extension_change($file, ".$extension");
+				$new_file = $this->target_filename($file);
+				$new_path = dirname($new_file);
 				if (!$force && is_file($new_file) && filesize($new_file) > 0) {
 					if ($noclobber) {
 						$this->application->logger->debug("noclobber: Will not overwrite: $new_file");
@@ -137,6 +154,11 @@ abstract class Command_File_Convert extends Command_Base {
 					$this->application->logger->notice("Would write $new_file");
 
 					continue;
+				}
+				if (!is_dir($new_path) && $mkdir_target) {
+					Directory::depend($new_path);
+				} else {
+					$this->application->logger->debug("Skipping convert {file} because {new_path} does not exist", compact("file", "new_path"));
 				}
 				if (!$this->convert_file($file, $new_file)) {
 					$this->application->logger->error("unable to convert from {file} to {new_file}", compact("file", "newfile"));
