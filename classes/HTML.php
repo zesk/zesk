@@ -1613,9 +1613,6 @@ class HTML {
 		$attributes = is_array($attributes) ? $attributes : array();
 		$type = strtolower($type);
 		$attributes['name'] = $name;
-		if (!array_key_exists('id', $attributes)) {
-			$attributes['id'] = $name;
-		}
 		if ($type === "textarea") {
 			return self::tag($type, $attributes, htmlspecialchars($value));
 		} else {
