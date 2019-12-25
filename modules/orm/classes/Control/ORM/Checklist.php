@@ -36,7 +36,7 @@ class Control_ORM_Checklist extends Control_Checklist {
 	 * @return mixed[]|array[]
 	 */
 	protected function hook_options() {
-		$object = $this->application->object($this->class);
+		$object = $this->application->orm_registry($this->class);
 		$name_col = $object->name_column();
 		$this->objects = array();
 		$control_options = array();

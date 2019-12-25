@@ -15,5 +15,6 @@ $object = $this->object;
 if (($name = $object->class_orm()->name_column) !== null) {
 	echo $object->__get($name);
 } else {
-	echo $object->id();
+	$id = $object->id();
+	echo json_encode($id);
 }
