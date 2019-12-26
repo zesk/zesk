@@ -47,7 +47,6 @@ for d in \
 	./modules/modal_url/ \
 	./modules/picker/ \
 	./modules/polyglot/share/ \
-	./modules/server/ \
 	./modules/workflow/share/ \
 	./share/less; do
 	echo "Building $d"
