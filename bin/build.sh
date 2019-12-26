@@ -20,10 +20,23 @@ if [ "$(git status -s)" != "" ]; then
 fi
 
 backup_composer=composer.json.$$.BACK
+backup_vendor=vendor.$$.BACK
 
 cp composer.json "$backup_composer"
+mv vendor "$backup_vendor"
+
+composer install --dev --no-interaction --quiet
 zesk module iless update
 composer install --dev --no-interaction --quiet
+
+finish() {
+	rm -rf vendor
+	mv "$backup_vendor"	vendor
+	mv -f "$backup_composer" composer.json
+	if [ ! -z "$1" ]; then
+		exit $1
+	fi
+}
 
 for d in \
 	./modules/content/ \
@@ -40,7 +53,7 @@ for d in \
 	./share/less; do
 	echo "Building $d"
 	if ! zesk module iless lessc --cd "$d" --mkdir-target; then
-		exit $ERR_BUILD
+		finish $ERR_BUILD
 	fi
 done
 
@@ -49,14 +62,11 @@ for d in \
 	; do
 	echo "Building $d"
 	if ! zesk module iless lessc --cd "$d" --target-path=./; then
-		exit $ERR_BUILD
+		finish $ERR_BUILD
 	fi
 done
 
-mv -f $backup_composer composer.json
-rm -rf vendor
-
-composer install --dev --no-interaction --quiet
+finish
 
 if [ "$(git status -s)" != "" ]; then
 	echo "FAILED: Git status FAILED second round" 1>&2
