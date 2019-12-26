@@ -8,7 +8,7 @@ export ZESK_ROOT="$(cd $(dirname "$BASH_SOURCE")/..; pwd)"
 ERR_ENV=1
 ERR_ARG=2
 
-GIT=`which git`
+GIT=$(which git)
 ZESK=$ZESK_ROOT/bin/zesk.sh
 
 #
@@ -67,11 +67,11 @@ echo "Synchronizing with remote ..."
 $GIT pull --tags > /dev/null 2>&1
 $GIT push --tags > /dev/null 2>&1
 
-if ! bin/build.sh > /dev/null; then
+if ! bin/build.sh > /dev/null < /dev/null; then
 	echo "Build failed" 1>& 2
 	exit $ERR_ENV
 fi
-if ! bin/cs-zesk.sh > /dev/null; then
+if ! bin/cs-zesk.sh > /dev/null < /dev/null; then
 	echo "Clean failed" 1>& 2
 	exit $ERR_ENV
 fi
@@ -143,7 +143,7 @@ mv $temp $permanent_log
 while true; do
 	if [ ! -z "$EDITOR" ]; then
 		echo "Opening editor for $permanent_log"
-		$EDITOR $permanent_log
+		$EDITOR $permanent_log < /dev/null
 	fi
 	if yes_continue "Commit $permanent_log?"; then
 		break
