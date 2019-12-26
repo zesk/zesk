@@ -1,6 +1,7 @@
 #!/bin/bash
 export APPLICATION_ROOT="$(cd $(dirname "$BASH_SOURCE")/..; pwd)"
 ERR_ENV=1
+ERR_CHANGED=200
 ERR_BUILD=93
 ERR_TAR=15
 start=$(date +%s)
@@ -76,7 +77,8 @@ done
 finish
 
 if [ "$(git status -s)" != "" ]; then
-	echo "FAILED: Git status FAILED second round" 1>&2
+	echo "BUILD: Files changed" 1>&2
 	git status -s 1>&2
-	exit $ERR_ENV
+	exit $ERR_CHANGED
 fi
+exit 0
