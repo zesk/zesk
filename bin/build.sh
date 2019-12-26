@@ -5,20 +5,20 @@ ERR_CHANGED=200
 ERR_BUILD=93
 ERR_TAR=15
 start=$(date +%s)
-COMPOSER=$(which composer)
+composer=$(which composer)
 
-if [ -z "$COMPOSER" ]; then
+if [ -z "$composer" ]; then
 	echo "No composer in PATH=$PATH" 1>&2
 	exit $ERR_ENV
 fi
 
 cd $APPLICATION_ROOT
 
-if [ "$(git status -s)" != "" ]; then
-	echo "FAILED: Git status is not empty" 1>&2
-	git status -s 1>&2
-	exit $ERR_ENV
-fi
+# if [ "$(git status -s)" != "" ]; then
+# 	echo "FAILED: Git status is not empty" 1>&2
+# 	git status -s 1>&2
+# 	exit $ERR_ENV
+# fi
 
 backup_composer=composer.json.$$.BACK
 backup_vendor=vendor.$$.BACK
@@ -26,9 +26,17 @@ backup_vendor=vendor.$$.BACK
 cp composer.json "$backup_composer"
 mv vendor "$backup_vendor"
 
-composer install --dev --no-interaction --quiet
-zesk module iless update > /dev/null 2>&1
-composer install --dev --no-interaction --quiet
+$composer install --dev --no-interaction --quiet
+
+zesk="$APPLICATION_ROOT/bin/zesk.sh"
+if [ ! -x "$zesk" ]; then
+	echo "Not executable: $zesk" 1>&2
+	exit $ERR_ENV
+fi
+
+
+$zesk module iless update > /dev/null 2>&1
+$composer install --dev --no-interaction --quiet
 
 finish() {
 	rm -rf vendor
@@ -51,7 +59,7 @@ for d in \
 	./modules/workflow/share/ \
 	; do
 	echo "Building $d"
-	if ! zesk module iless lessc --cd "$d" --mkdir-target; then
+	if ! $zesk module iless lessc --cd "$d" --mkdir-target; then
 		finish $ERR_BUILD
 	fi
 done
@@ -69,16 +77,9 @@ for d in \
 	./modules/markdown/ \
 	; do
 	echo "Building $d"
-	if ! zesk module iless lessc --cd "$d" --target-path ./; then
+	if ! $zesk module iless lessc --cd "$d" --target-path ./; then
 		finish $ERR_BUILD
 	fi
 done
 
-finish
-
-if [ "$(git status -s)" != "" ]; then
-	echo "BUILD: Files changed" 1>&2
-	git status -s 1>&2
-	exit $ERR_CHANGED
-fi
-exit 0
+finish 0
