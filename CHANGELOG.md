@@ -18,6 +18,18 @@ Version 1.0 of Zesk will have:
 
 <!-- HERE -->
 
+## [v0.27.1][]
+
+- **Bootstrap DateTimePicker**: Adding support for range selection
+- **ORM Module**: Deprecated call removal, support for primary keys in default output
+- **Tag Module**: Added `zesk\Tag\Control_Tags` debugging, an label `name_column` set in `zesk\Tag\Class_Label`
+- **Zesk Kernel**: Fixed issue with `zesk\Command` where defaults set up in `initialize` were not honored.
+- **Zesk Kernel**: Supporting compiling of `.less` to `.css` as part of Zesk build.
+- **Zesk Kernel**: `zesk\Command_File_Convert` now supports `target-prefix` and `mkdir-target` to support mapping files from `foo.less` to `../css/foo.css` if you want.
+- **Zesk Kernel**: `zesk\HTML` no longer adds `id` attribute to inputs
+- **Zesk Kernel**: `zesk\PHP::log` added as interface to PHP system logger
+- **iLess Module**: Adding `lessc` command-line option, use `zesk lessc` to compile `.less` files to `../css/foo.css` automatically.
+
 ## [v0.27.0][]
 
 - **Contact Module**: Fixing call to `Mail` class
@@ -2179,6 +2191,7 @@ Settling of `zesk\Kernel` and `zesk\` namespace changes, added additional compon
  - `zesk::class_hierarchy` -> `zesk()->classes->hierarchy`
 - Removed growl module (no longer relevant on Mac OS X)
 
+[v0.27.1]: https://github.com/zesk/zesk/compare/v0.27.0...v0.27.1
 [v0.27.0]: https://github.com/zesk/zesk/compare/v0.26.2...v0.27.0
 [v0.26.2]: https://github.com/zesk/zesk/compare/v0.26.1...v0.26.2
 [v0.26.1]: https://github.com/zesk/zesk/compare/v0.26.0...v0.26.1

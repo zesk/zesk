@@ -10,14 +10,6 @@
 - **Zesk Kernel**: `zesk\HTML` no longer adds `id` attribute to inputs
 - **Zesk Kernel**: `zesk\PHP::log` added as interface to PHP system logger
 - **iLess Module**: Adding `lessc` command-line option, use `zesk lessc` to compile `.less` files to `../css/foo.css` automatically.
-- Release v0.27.0
-- build
-- build clean
-- build updates
-- build work
-- fixing label last used
-- new version
-- release work
 
 
 <!-- Generated automatically by release-zesk.sh, beware editing! -->
