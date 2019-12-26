@@ -55,14 +55,14 @@ for d in \
 	fi
 done
 
-for f in \
-	./modules/server/site/less/server.less \
-	; do
-	echo "Building $f"
-	if ! zesk module iless lessc --mkdir-target "$f"; then
-		finish $ERR_BUILD
-	fi
-done
+# for f in \
+# 	./modules/server/site/less/server.less \
+# 	; do
+# 	echo "Building $f"
+# 	if ! zesk module iless lessc --mkdir-target "$f"; then
+# 		finish $ERR_BUILD
+# 	fi
+# done
 
 for d in \
 	./modules/markdown/ \
