@@ -4,10 +4,14 @@
 # Assumptions
 #
 export ZESK_ROOT="$(cd $(dirname "$BASH_SOURCE")/..; pwd)"
+
+ERR_ENV=1
+ERR_ARG=2
+
 GIT=`which git`
 ZESK=$ZESK_ROOT/bin/zesk.sh
 
-# 
+#
 # Functions
 #
 ltrim()
@@ -23,12 +27,12 @@ trim()
 	ltrim `rtrim $*`
 }
 pause() {
-	echo -n "$* (Ctrl-C to stop, Enter to continue) "; 
+	echo -n "$* (Ctrl-C to stop, Enter to continue) ";
 	read
 }
 
 yes_continue() {
-	echo -n "$* (Y/n) "; 
+	echo -n "$* (Y/n) ";
 	read yes
 	case $yes in
 	y|Y|yes|Yes|YES)
@@ -44,16 +48,16 @@ yes_continue() {
 #
 if [ ! -d ./.git ]; then
 	echo "No .git directory at $ZESK_ROOT, stopping" 1>&2
-	exit 1
+	exit $ERR_ENV
 fi
 if [ ! -x "$GIT" ]; then
 	echo "git is not installed in $PATH" 1>& 2
-	exit 2
+	exit $ERR_ENV
 fi
 
 if [ ! -x "$ZESK" ]; then
 	echo "zesk.sh is not executable?" 1>& 2
-	exit 2
+	exit $ERR_ENV
 fi
 
 #
@@ -63,12 +67,21 @@ echo "Synchronizing with remote ..."
 $GIT pull --tags > /dev/null 2>&1
 $GIT push --tags > /dev/null 2>&1
 
+if ! bin/build.sh > /dev/null; then
+	echo "Build failed" 1>& 2
+	exit $ERR_ENV
+fi
+if ! bin/cs-zesk.sh > /dev/null; then
+	echo "Clean failed" 1>& 2
+	exit $ERR_ENV
+fi
+
 #
 # Make sure repository state seems sane
 #
 nlines=$(trim $(git status --short | wc -l | awk '{ print $1 }'))
 if [ $nlines -gt 0 ]; then
-	git status --short 
+	git status --short
 	pause "Current git status, ok?"
 fi
 
@@ -76,7 +89,7 @@ fi
 # Determine last and next versions
 #
 cd $ZESK_ROOT
-ZESK_LAST_VERSION=`git tag | sort -t. -k 1.2,1n -k 2,2n -k 3,3n -k 4,4n | tail -1`	
+ZESK_LAST_VERSION=`git tag | sort -t. -k 1.2,1n -k 2,2n -k 3,3n -k 4,4n | tail -1`
 ZESK_CURRENT_VERSION=$(trim $($ZESK version))
 ZESK_CURRENT_VERSION="v$ZESK_CURRENT_VERSION"
 VERSION_EXISTS=`git tag | grep "$ZESK_CURRENT_VERSION"`
@@ -106,7 +119,7 @@ echo '<!-- Generated automatically by release-zesk.sh, beware editing! -->' >> $
 
 #
 # Release notes
-# 
+#
 while true; do
 	if [ ! -z "$EDITOR" ]; then
 		echo "Opening editor for $current_log"
@@ -143,7 +156,7 @@ $GIT commit -m "Release $ZESK_CURRENT_VERSION" $current_log $permanent_log $rele
 
 #
 # Push to remote
-# 
+#
 $GIT push --tags
 
 #
