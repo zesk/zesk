@@ -44,6 +44,15 @@ for d in \
 	fi
 done
 
+for d in \
+	./modules/markdown/ \
+	; do
+	echo "Building $d"
+	if ! zesk module iless lessc --cd "$d" --target-path=./; then
+		exit $ERR_BUILD
+	fi
+done
+
 mv -f $backup_composer composer.json
 rm -rf vendor
 
