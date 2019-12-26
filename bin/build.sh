@@ -68,7 +68,7 @@ for d in \
 	./modules/markdown/ \
 	; do
 	echo "Building $d"
-	if ! zesk module iless lessc --cd "$d" --target-path=./; then
+	if ! zesk module iless lessc --cd "$d" --target-path ./; then
 		finish $ERR_BUILD
 	fi
 done
