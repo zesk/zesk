@@ -44,7 +44,6 @@ for d in \
 	./modules/image_picker/ \
 	./modules/inplace/share/ \
 	./modules/logger_footer/ \
-	./modules/markdown/ \
 	./modules/modal_url/ \
 	./modules/picker/ \
 	./modules/polyglot/share/ \
