@@ -26,7 +26,7 @@ cp composer.json "$backup_composer"
 mv vendor "$backup_vendor"
 
 composer install --dev --no-interaction --quiet
-zesk module iless update > /dev/null
+zesk module iless update > /dev/null 2>&1
 composer install --dev --no-interaction --quiet
 
 finish() {
