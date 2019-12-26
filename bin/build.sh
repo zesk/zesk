@@ -48,7 +48,7 @@ for d in \
 	./modules/picker/ \
 	./modules/polyglot/share/ \
 	./modules/workflow/share/ \
-	./share/less; do
+	; do
 	echo "Building $d"
 	if ! zesk module iless lessc --cd "$d" --mkdir-target; then
 		finish $ERR_BUILD
@@ -58,7 +58,7 @@ done
 for f in \
 	./modules/server/site/less/server.less \
 	; do
-	echo "Building $d"
+	echo "Building $f"
 	if ! zesk module iless lessc --mkdir-target "$f"; then
 		finish $ERR_BUILD
 	fi
