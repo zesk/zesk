@@ -42,7 +42,7 @@ echo HTML::tag("div", [
 	'id' => $divid,
 	'class' => 'row tags-control',
 ], "<pre>$(\"#$divid\")</pre>");
-$options['name'] = $this->name;
+$options['name'] = $this->action_form_element_name;
 $options['value'] = $this->value;
 $options['labels'] = $json_labels;
 $options['badge']['separator'] = " " . HTML::tag("span", ".glyphicon .glyphicon-arrow-right", null) . " ";

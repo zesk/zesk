@@ -24,6 +24,26 @@ class Control_Tags extends Control {
 	protected $selection_type = null;
 
 	/**
+	 * When submitting, the value of what to change
+	 *
+	 * @var string
+	 */
+	protected $action_value = null;
+
+	/**
+	 *
+	 * @var unknown
+	 */
+	private $_labels_generated = null;
+
+	/**
+	 * Debugging for SQL generated
+	 *
+	 * @var array
+	 */
+	private $debug_sqls = [];
+
+	/**
 	 * Valid action to prefix a label ID submitted to this widget, as a list separated by commas.
 	 *
 	 * So "-23,+43,-12" is a valid value assuming 23, 43, 12 are Labels which are valid
@@ -53,9 +73,9 @@ class Control_Tags extends Control {
 	 *
 	 * @return array
 	 */
-	private function _parse_value() {
+	private function _parse_value($value) {
 		$locale = $this->application->locale;
-		$actions = explode(",", $this->value());
+		$actions = explode(",", $value);
 		$labels = $this->_labels();
 		$result = array();
 		foreach ($actions as $action) {
@@ -90,13 +110,23 @@ class Control_Tags extends Control {
 	/**
 	 *
 	 * {@inheritDoc}
+	 * @see \zesk\Widget::load()
+	 */
+	public function load() {
+		$this->action_value = $this->request->get($this->action_form_element_name());
+		return parent::load();
+	}
+
+	/**
+	 *
+	 * {@inheritDoc}
 	 * @see \zesk\Widget::validate()
 	 */
 	public function validate() {
 		if (!parent::validate()) {
 			return false;
 		}
-		return is_array($this->_parse_value());
+		return is_array($this->_parse_value($this->action_value));
 	}
 
 	/**
@@ -168,7 +198,13 @@ class Control_Tags extends Control {
 		return $by_id;
 	}
 
-	private $_labels_generated = null;
+	/**
+	 *
+	 * @return string
+	 */
+	private function action_form_element_name() {
+		return $this->name() . "_action";
+	}
 
 	/**
 	 *
@@ -191,6 +227,7 @@ class Control_Tags extends Control {
 		$labels = $this->_labels();
 
 		return parent::theme_variables() + [
+			'action_form_element_name' => $this->action_form_element_name(),
 			'selection_type' => $this->selection_type,
 			'tags_query' => strval($tags_query),
 			'labels_used' => $tags_query->to_array("id", "total"),
@@ -208,7 +245,7 @@ class Control_Tags extends Control {
 			return false;
 		}
 		$this->debug_sqls = [];
-		$actions = $this->_parse_value();
+		$actions = $this->_parse_value($this->action_value);
 		foreach ($actions as $action => $labels) {
 			$method = self::$actions[$action];
 			foreach ($labels as $label) {

@@ -1156,7 +1156,7 @@ class Widget extends Hookable {
 	 * Does this widget have any errors?
 	 */
 	public function has_errors() {
-		if (count($this->errors) + count($this->messages) !== 0) {
+		if (count($this->errors) !== 0) {
 			return true;
 		}
 		$children_errors = $this->children_errors();
@@ -1244,8 +1244,13 @@ class Widget extends Hookable {
 		}
 	}
 
+	/**
+	 * Return a widget to call render on, or null
+	 *
+	 * @return \zesk\Widget|NULL
+	 */
 	final protected function _exec_submit() {
-		$result = true;
+		$do_render = true;
 		$valid = true;
 		if ($this->exec_state === self::ready) {
 			$this->exec_state = self::submit;
@@ -1261,10 +1266,10 @@ class Widget extends Hookable {
 					$this->load();
 					if (($valid = $this->validate()) === true) {
 						if (($valid = $this->call_hook_arguments('validate', array(), true)) === true) {
-							$result = $this->submit();
+							$do_render = $this->submit();
 						}
 					} else {
-						$result = $this->call_hook_arguments("validate_failed", array(), null);
+						$do_render = $this->call_hook_arguments("validate_failed", array(), null);
 					}
 				}
 			}
@@ -1279,7 +1284,10 @@ class Widget extends Hookable {
 		// Basically, only time we don't render is when SUBMIT fails, and valid is TRUE
 		// Probaby should check this for JSON responses as well, maybe turn into a "render" flag or something
 		//
-		return $result ? $this : ($valid ? null : $this);
+		if (!$valid) {
+			$do_render = true;
+		}
+		return $do_render ? $this : null;
 	}
 
 	/**
@@ -2318,7 +2326,7 @@ class Widget extends Hookable {
 	 *
 	 * Return true to continue and render, false to stop processing now and render nothing
 	 *
-	 * @return boolean
+	 * @return boolean Do render
 	 */
 	public function submit() {
 		if (!$this->submit_children()) {

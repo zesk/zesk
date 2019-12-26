@@ -165,7 +165,8 @@ abstract class Controller_Theme extends Controller {
 		}
 		$this->response->response_data(array(
 			'status' => $status = $control->status(),
-			'message' => array_values($control->children_errors()),
+			'message' => array_values($control->messages()),
+			'error' => array_values($control->children_errors()),
 		));
 		return $content;
 	}
