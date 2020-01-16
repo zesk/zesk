@@ -15,9 +15,7 @@ namespace zesk;
  */
 class HookGroup {
 	public $first = array();
-
 	public $middle = array();
-
 	public $last = array();
 
 	/**
@@ -40,5 +38,14 @@ class HookGroup {
 	 */
 	public function definitions() {
 		return $this->first + $this->middle + $this->last;
+	}
+
+	/**
+	 *
+	 * @param string $callable_string
+	 * @return boolean
+	 */
+	public function has($callable_string) {
+		return isset($this->first[$callable_string]) || isset($this->middle[$callable_string]) || isset($this->last[$callable_string]);
 	}
 }
