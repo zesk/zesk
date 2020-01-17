@@ -103,12 +103,12 @@ class Job extends ORM implements Interface_Process, Interface_Progress {
 	public static function instance(Application $application, $name, $code, $hook, array $arguments = array(), $priority = self::priority_normal) {
 		if (!is_string($hook)) {
 			throw new Exception_Parameter("Hook must be a string: {hook}", array(
-				"hook" => _dump($hook)
+				"hook" => _dump($hook),
 			));
 		}
 		if (!is_callable($hook)) {
 			throw new Exception_Semantics("{hook} is not callable", array(
-				"hook" => _dump($hook)
+				"hook" => _dump($hook),
 			));
 		}
 		$members = array(
@@ -116,7 +116,7 @@ class Job extends ORM implements Interface_Process, Interface_Progress {
 			"code" => $code,
 			"hook" => $hook,
 			"priority" => $priority,
-			"hook_args" => $arguments
+			"hook_args" => $arguments,
 		);
 		$job = $application->orm_factory(__CLASS__, $members);
 		$job->find();
@@ -212,7 +212,7 @@ class Job extends ORM implements Interface_Process, Interface_Progress {
 				$when = new Timestamp($when);
 			} elseif (!$when instanceof Timestamp) {
 				throw new Exception_Parameter("When needs to be a timestamp or string {when}", array(
-					"when" => _dump($when)
+					"when" => _dump($when),
 				));
 			}
 		} else {
@@ -242,7 +242,7 @@ class Job extends ORM implements Interface_Process, Interface_Progress {
 		}
 		$server_pid = array(
 			"pid" => $pid,
-			"server" => $server
+			"server" => $server,
 		);
 
 		$jobs = 0;
@@ -255,7 +255,7 @@ class Job extends ORM implements Interface_Process, Interface_Progress {
 			->query_update()
 			->values(array(
 			"pid" => null,
-			"server" => null
+			"server" => null,
 		))
 			->where($server_pid)
 			->execute();
@@ -275,7 +275,7 @@ class Job extends ORM implements Interface_Process, Interface_Progress {
 				"start|<=" => Timestamp::now('UTC'),
 				"pid" => null,
 				"completed" => null,
-				'died|<=' => self::retry_attempts($application)
+				'died|<=' => self::retry_attempts($application),
 			))
 				->order_by("priority DESC,died,start");
 			$logger->debug($query->__toString());
@@ -289,7 +289,7 @@ class Job extends ORM implements Interface_Process, Interface_Progress {
 					->values($server_pid)
 					->where(array(
 					"pid" => null,
-					"id" => $job->id()
+					"id" => $job->id(),
 				))
 					->execute();
 				// Race condition if we crash before this executes
@@ -309,7 +309,7 @@ class Job extends ORM implements Interface_Process, Interface_Progress {
 					$logger->info("Server ID # {id}: Running Job # {job_id} - {job_name}", array(
 						"id" => $server,
 						"job_id" => $job->id,
-						"job_name" => $job->name
+						"job_name" => $job->name,
 					));
 
 					try {
@@ -333,7 +333,7 @@ class Job extends ORM implements Interface_Process, Interface_Progress {
 
 		if ($jobs === 0) {
 			$logger->debug("Server ID # {id}: No jobs", array(
-				"id" => $server
+				"id" => $server,
 			));
 		}
 	}
@@ -351,7 +351,7 @@ class Job extends ORM implements Interface_Process, Interface_Progress {
 			->what('id', 'id')
 			->where(array(
 			"pid|!=" => null,
-			"server" => $server
+			"server" => $server,
 		))
 			->to_array("id", "pid") as $id => $pid) {
 			if (!$application->process->alive($pid)) {
@@ -366,6 +366,7 @@ class Job extends ORM implements Interface_Process, Interface_Progress {
 			}
 		}
 	}
+
 	public function execute(Interface_Process $process) {
 		$this->process = $process;
 
@@ -378,7 +379,7 @@ class Job extends ORM implements Interface_Process, Interface_Progress {
 			}
 			$this->call_hook("execute_before");
 			$result = call_user_func_array($this->hook, array_merge(array(
-				$this
+				$this,
 			), to_array($this->hook_args)));
 			$this->call_hook("execute_after;execute_success");
 		} catch (Exception_Interrupt $e) {
@@ -393,7 +394,7 @@ class Job extends ORM implements Interface_Process, Interface_Progress {
 		$elapsed = $timer->elapsed();
 		$values = array(
 			"*updated" => $this->sql()->now_utc(),
-			"*duration" => "duration+$elapsed"
+			"*duration" => "duration+$elapsed",
 		);
 
 		$this->process = null;
@@ -403,12 +404,15 @@ class Job extends ORM implements Interface_Process, Interface_Progress {
 			->where("id", $this->id())
 			->execute();
 	}
+
 	public function progress_push($name) {
 		// TODO
 	}
+
 	public function progress_pop() {
 		// TODO
 	}
+
 	public function progress($status = null, $percent = null) {
 		if ($this->process && $this->process->done()) {
 			throw new Exception_Interrupt();
@@ -420,7 +424,7 @@ class Job extends ORM implements Interface_Process, Interface_Progress {
 		$query = $this->query_update()->values(array(
 			"*updated" => $this->database()
 				->sql()
-				->now_utc()
+				->now_utc(),
 		))
 			->where('id', $this->id());
 		if (is_numeric($percent)) {
@@ -514,7 +518,7 @@ class Job extends ORM implements Interface_Process, Interface_Progress {
 		$this->query_update()
 			->value(array(
 			"server" => null,
-			"pid" => null
+			"pid" => null,
 		))
 			->where("id", $this->id())
 			->execute();

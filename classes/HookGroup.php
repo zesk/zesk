@@ -15,7 +15,9 @@ namespace zesk;
  */
 class HookGroup {
 	public $first = array();
+
 	public $middle = array();
+
 	public $last = array();
 
 	/**

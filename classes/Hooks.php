@@ -108,20 +108,21 @@ class Hooks {
 		/*  TODO PHP7 use closure */
 		register_shutdown_function(array(
 			$this,
-			"_app_call"
+			"_app_call",
 		), self::HOOK_EXIT);
 
 		/* @deprecated Shutdown TODO PHP7 use closure */
 		register_shutdown_function(array(
 			$this,
-			"_app_call"
+			"_app_call",
 		), 'shutdown');
 
 		register_shutdown_function(array(
 			$this,
-			"_app_check_error"
+			"_app_check_error",
 		));
 	}
+
 	private static $fatals = array(
 		E_USER_ERROR => 'Fatal Error',
 		E_ERROR => 'Fatal Error',
@@ -129,7 +130,7 @@ class Hooks {
 		E_CORE_ERROR => 'Core Error',
 		E_CORE_WARNING => 'Core Warning',
 		E_COMPILE_ERROR => 'Compile Error',
-		E_COMPILE_WARNING => 'Compile Warning'
+		E_COMPILE_WARNING => 'Compile Warning',
 	);
 
 	/**
@@ -204,7 +205,7 @@ class Hooks {
 			throw new Exception_Parameter("{method}({name},...) {type} is not string", array(
 				"method" => __METHOD__,
 				"name" => _dump($name),
-				"type" => type($name)
+				"type" => type($name),
 			));
 		}
 		// For now, we just make it lower case
@@ -307,7 +308,7 @@ class Hooks {
 			try {
 				call_user_func(array(
 					$class,
-					"hooks"
+					"hooks",
 				), $this->kernel->application());
 				$this->hooks_called[$lowclass] = $result[$class] = microtime(true);
 				return true;
@@ -320,7 +321,7 @@ class Hooks {
 			$this->kernel->logger->debug("{__CLASS__}::{__FUNCTION__} Class {class} does not have method hooks", array(
 				"__CLASS__" => __CLASS__,
 				"__FUNCTION__" => __FUNCTION__,
-				"class" => $class
+				"class" => $class,
 			));
 			$this->hooks_called[$lowclass] = false;
 			return true;
@@ -352,7 +353,7 @@ class Hooks {
 					$this->hook_cache[$hook] = array(
 						1,
 						$ding,
-						$ding
+						$ding,
 					);
 				} else {
 					$this->hook_cache[$hook][0]++;
@@ -399,7 +400,7 @@ class Hooks {
 		}
 		if (is_string($options)) {
 			$options = array(
-				$options => true
+				$options => true,
 			);
 		} elseif (!is_array($options)) {
 			$options = array();
@@ -417,14 +418,14 @@ class Hooks {
 		$callable_string = $this->callable_string($function);
 		if ($hook_group->has($callable_string)) {
 			$this->kernel->logger->debug("Duplicate registration of hook {callable}", array(
-				"callable" => $callable_string
+				"callable" => $callable_string,
 			));
 			return;
 		}
 		$options['callable'] = ($function === null ? $hook : $function);
 		if (isset($options['first'])) {
 			$hook_group->first = array_merge(array(
-				$callable_string => $options
+				$callable_string => $options,
 			), $hook_group->first);
 		} elseif (isset($options['last'])) {
 			$hook_group->last[$callable_string] = $options;
@@ -465,7 +466,7 @@ class Hooks {
 					$this->kernel->logger->warning("{class} not found {eclass}: {emessage}", array(
 						"class" => $class,
 						"eclass" => get_class($e),
-						"emessage" => $e->getMessage()
+						"emessage" => $e->getMessage(),
 					));
 
 					continue;
@@ -589,7 +590,7 @@ class Hooks {
 		$method = 'register_all_hooks';
 		if ($refl->hasMethod($method)) {
 			$refl->getMethod($method)->invokeArgs(null, array(
-				$application
+				$application,
 			));
 		}
 		$this->call("$class::register_all_hooks", $application);
@@ -624,7 +625,7 @@ class Hooks {
 	public function call_arguments($hooks, $arguments = array(), $default = null, $hook_callback = null, $result_callback = null, $return_hint = null) {
 		if ($return_hint !== null) {
 			$this->kernel->deprecated("\$return_hint passed to {method}", array(
-				"method" => __METHOD__
+				"method" => __METHOD__,
 			));
 		}
 		$hooks = $this->collect_hooks($hooks, $arguments);
@@ -659,7 +660,7 @@ class Hooks {
 			$options_arguments = to_array(avalue($options, 'arguments'));
 			$hooks[] = array(
 				$options['callable'],
-				count($options_arguments) > 0 ? array_merge($options_arguments, $arguments) : $arguments
+				count($options_arguments) > 0 ? array_merge($options_arguments, $arguments) : $arguments,
 			);
 		}
 		return $hooks;

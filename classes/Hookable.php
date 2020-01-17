@@ -187,7 +187,7 @@ class Hookable extends Options {
 				foreach ($methods as $method) {
 					$hooks[] = array(
 						$method,
-						$args,
+						$zesk_hook_args,
 					);
 				}
 			}
@@ -245,9 +245,11 @@ class Hookable extends Options {
 					$hook_method,
 				);
 			}
-			$func = apath($this->options, "hooks.$method");
-			if ($func) {
-				$result[] = $func;
+			$methods = $this->_hooks[$type] ?? null;
+			if (is_array($methods)) {
+				foreach ($methods as $method) {
+					$result[] = Hooks::callable_string($method);
+				}
 			}
 			if (!$object_only) {
 				$hook_names = ArrayTools::suffix($this->application->classes->hierarchy($this, __CLASS__), "::$type");

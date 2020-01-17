@@ -38,6 +38,22 @@ abstract class Tag extends ORM {
 	}
 
 	/**
+	 * Reassign to another tag
+	 *
+	 * @param Tag $old
+	 * @param Tag $new
+	 * @return integer
+	 */
+	public function reassign($old, $new) {
+		return $this->query_update("X")
+			->value("X.tag_label", $new)
+			->where("X.tag_label", $old)
+			->execute()
+			->affected_rows();
+		;
+	}
+
+	/**
 	 *
 	 * @param Application $application
 	 * @return \zesk\string[]

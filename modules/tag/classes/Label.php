@@ -49,7 +49,12 @@ class Label extends \zesk\ORM {
 	 */
 	public static function label_register(Application $application, $name = null, array $attributes = array()) {
 		$tag_label = $application->orm_factory(__CLASS__);
-		$members = ArrayTools::filter($attributes, "code;is_internal;is_translated;owner") + array(
+		$members = ArrayTools::filter($attributes, array(
+			"code",
+			"is_internal",
+			"is_translated",
+			"owner",
+		)) + array(
 			"code" => $name,
 			"name" => $name,
 		);
@@ -107,5 +112,27 @@ class Label extends \zesk\ORM {
 			$this->code = $this->generate_code();
 		}
 		return parent::store();
+	}
+
+	/**
+	 *
+	 * @param mixed $other
+	 */
+	public function reassign($other) {
+		$app = $this->application;
+		$subclasses = $app->classes->subclasses(Tag::class);
+		$result = array();
+		foreach ($subclasses as $subclass) {
+			try {
+				$orm = $app->orm_registry($subclass);
+				/* @var $orm Tag */
+			} catch (\Exception $e) {
+				$orm = null;
+			}
+			if ($orm) {
+				$result[$subclass] = $orm->reassign($this, $other);
+			}
+		}
+		return $result;
 	}
 }

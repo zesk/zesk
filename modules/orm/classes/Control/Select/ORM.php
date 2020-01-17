@@ -109,7 +109,7 @@ class Control_Select_ORM extends Control_Select {
 			$rows[$key] = map($format, $row);
 		}
 		if ($this->option_bool("translate_after")) {
-			$rows = __($rows);
+			$rows = $this->application->locale->__($rows);
 		}
 		return $rows;
 	}
