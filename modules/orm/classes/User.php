@@ -342,13 +342,26 @@ class User extends ORM {
 		$default_result = $this->option("can", false);
 		foreach ($actions as $action) {
 			$action = self::clean_permission($action);
-			$result = $this->call_hook_arguments("can", array(
-				$action,
-				$context,
-				$options,
-			), $default_result);
-			if (self::$debug_permission) {
-				$this->application->logger->debug("User::can({action},{context}) = {result} (Roles {roles})", array(
+			$skiplog = false;
+
+			try {
+				$result = $this->call_hook_arguments("can", array(
+					$action,
+					$context,
+					$options,
+				), $default_result);
+			} catch (\Exception $e) {
+				$result = false;
+				$skiplog = true;
+				$this->application->logger->error("User::can({action},{context}) = {result} (Roles {roles}): Exception {exception_class} {message}\n{backtrace}", array(
+					"action" => $action,
+					"context" => $context,
+					"result" => $result,
+					"roles" => $this->_roles,
+				) + Exception::exception_variables($e));
+			}
+			if (self::$debug_permission && !$skiplog) {
+				$this->application->logger->debug("User::can({action},{context}) = {result} (Roles {roles}) ({extra})", array(
 					"action" => $action,
 					"context" => $context,
 					"result" => $result,
