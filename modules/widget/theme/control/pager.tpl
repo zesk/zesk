@@ -92,7 +92,7 @@ echo HTML::tag_open("div", array(
 
 	echo HTML::tag("div", array(
 		"class" => "pager-state btn-group",
-	), HTML::tag('a', 'btn disabled pager-text btn-pager-stage btn-sm', $showing));
+	), HTML::tag('a', 'btn disabled pager-text btn-pager-stage btn-sm', 'data-value' $showing));
 
 	$attrs = $this->geta("preserve_hidden", array());
 	$attrs += $request->get();
