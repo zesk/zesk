@@ -18,6 +18,12 @@ Version 1.0 of Zesk will have:
 
 <!-- HERE -->
 
+## [v0.28.0][]
+
+- **Permission Module**: Add exception handling during permission checks, automatic fail
+- **Permission Module**: Added `@property` labels for `zesk\Role` class. Fixed bug when user local role cache is not cleared. Removed deprecated calls.
+- **Zesk Kernel**: Removing option hooks
+
 ## [v0.27.1][]
 
 - **Bootstrap DateTimePicker**: Adding support for range selection
@@ -2191,6 +2197,7 @@ Settling of `zesk\Kernel` and `zesk\` namespace changes, added additional compon
  - `zesk::class_hierarchy` -> `zesk()->classes->hierarchy`
 - Removed growl module (no longer relevant on Mac OS X)
 
+[v0.28.0]: https://github.com/zesk/zesk/compare/v0.27.1...v0.28.0
 [v0.27.1]: https://github.com/zesk/zesk/compare/v0.27.0...v0.27.1
 [v0.27.0]: https://github.com/zesk/zesk/compare/v0.26.2...v0.27.0
 [v0.26.2]: https://github.com/zesk/zesk/compare/v0.26.1...v0.26.2
