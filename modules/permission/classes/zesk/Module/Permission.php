@@ -53,6 +53,10 @@ class Module_Permission extends Module {
 			$this,
 			"user_can",
 		));
+		$this->application->hooks->add(User::class . "::store", array(
+			$this,
+			"user_store",
+		));
 		Class_ORM::link_many(User::class, 'roles', array(
 			'link_class' => 'zesk\\User_Role',
 			'far_key' => 'role',
@@ -60,6 +64,15 @@ class Module_Permission extends Module {
 			'class' => 'zesk\\Role',
 		));
 		parent::initialize();
+	}
+
+	/**
+	 * Hook when storing a user
+	 *
+	 * @param User $user
+	 */
+	public function user_store(User $user) {
+		$user->_roles = null;
 	}
 
 	/**

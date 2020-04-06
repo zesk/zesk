@@ -10,9 +10,15 @@
 namespace zesk;
 
 /**
- *
  * @see Class_Role
- * @author kent
+ * @property integer $id
+ * @property string $code
+ * @property string $name
+ * @property boolean $is_root
+ * @property boolean $is_default
+ * @property boolean $is_coordinator
+ * @property boolean $root_only
+ * @property string $description
  */
 class Role extends ORM {
 	/**
