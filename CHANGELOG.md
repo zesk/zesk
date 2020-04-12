@@ -18,6 +18,13 @@ Version 1.0 of Zesk will have:
 
 <!-- HERE -->
 
+## [v0.28.1][]
+
+Version added to support modern MySQL docker containers enforcement of `Timestamp` defaults:
+
+- **MySQL Module**: `blob` and `text` data types no longer forced to have a default of blank string `""` - instead you must specify this in your SQL if the version of MySQL allows it.
+- **Session Module**: Remove invalid `timestamp` default 0 values for MySQL
+
 ## [v0.28.0][]
 
 - **Permission Module**: Add exception handling during permission checks, automatic fail
@@ -2197,6 +2204,7 @@ Settling of `zesk\Kernel` and `zesk\` namespace changes, added additional compon
  - `zesk::class_hierarchy` -> `zesk()->classes->hierarchy`
 - Removed growl module (no longer relevant on Mac OS X)
 
+[v0.28.1]: https://github.com/zesk/zesk/compare/v0.28.0...v0.28.1
 [v0.28.0]: https://github.com/zesk/zesk/compare/v0.27.1...v0.28.0
 [v0.27.1]: https://github.com/zesk/zesk/compare/v0.27.0...v0.27.1
 [v0.27.0]: https://github.com/zesk/zesk/compare/v0.26.2...v0.27.0
