@@ -230,7 +230,7 @@ class Database extends \zesk\Database {
 		$sql_type = $column->sql_type();
 		if (ends($sql_type, "blob") || ends($sql_type, "text")) {
 			if ($column->not_null()) {
-				$attributes['default'] = '';
+				// $attributes['default'] = '';
 			} else {
 				$attributes['default'] = null;
 			}
