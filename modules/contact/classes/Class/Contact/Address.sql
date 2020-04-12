@@ -18,8 +18,8 @@ CREATE TABLE `{table}` (
 	`longitude` decimal(10,6) null,
 	`geocoded` timestamp NULL,
 	`geocode_data` blob,
-	`created` timestamp not null default 0,
-	`modified` timestamp not null default 0,
+	`created` timestamp not null default CURRENT_TIMESTAMP,
+	`modified` timestamp not null,
 	`data` blob,
 	PRIMARY KEY ({primary_keys})
 );

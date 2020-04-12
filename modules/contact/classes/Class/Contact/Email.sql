@@ -5,8 +5,8 @@ create table `{table}` (
 	`label` integer unsigned null,
 	`value` varchar(128) not null default '',
 	`created` timestamp not null default 0,
-	`modified` timestamp not null default 0,
-	`verified` timestamp null default null,
+	`created` timestamp not null default CURRENT_TIMESTAMP,
+	`modified` timestamp not null,
 	`optout` enum('false','true') default 'false',
 	primary key  (`id`),
 	key contact (`contact`)

@@ -5,7 +5,7 @@ CREATE TABLE `{table}` (
 	`sitecode`		varchar(64) NOT NULL,
 	`min_members`	tinyint NOT NULL default 1,
 	`max_members`	tinyint NULL,
-	`active`		timestamp NOT NULL DEFAULT 0,
+	`active`		timestamp NOT NULL,
 	UNIQUE code (`code`),
 	INDEX active (`active`),
 );

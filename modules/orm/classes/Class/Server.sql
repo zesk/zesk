@@ -9,7 +9,7 @@ CREATE TABLE `{table}` (
 	`free_disk`			integer unsigned null,
 	`free_disk_units`	char(1) not null default 'b',
 	`load`	 			decimal(6,3) default '0',
-	`alive`				timestamp not null default 0,
+	`alive`				timestamp not null default CURRENT_TIMESTAMP,
 	primary key  (`id`),
 	unique `name` (`name`),
 	index `load` (`load`),

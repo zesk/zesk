@@ -6,6 +6,6 @@
 CREATE TABLE {table} (
 	`name` varchar(128) not null primary key,
 	`value` blob,
-	`modified` timestamp not null default 0
+	`modified` timestamp not null
 );
 

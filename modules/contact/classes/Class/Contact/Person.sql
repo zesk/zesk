@@ -32,8 +32,8 @@ CREATE TABLE `{table}` (
 	`gender` tinyint not null default 0,
 	`spouse` varchar(64) not null default '',
 	`children` text not null default '',
-	`created` timestamp not null default 0,
-	`modified` timestamp not null default 0,
+	`created` timestamp not null default CURRENT_TIMESTAMP,
+	`modified` timestamp not null,
 	primary key  (`id`),
 	key contact (`contact`)
 );
