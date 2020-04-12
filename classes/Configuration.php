@@ -11,7 +11,7 @@ namespace zesk;
  */
 class Configuration implements \Iterator, \Countable, \ArrayAccess {
 	/**
-	 * When we pass strings into as paths, this sequence of characters is equivalent to a
+	 * When we pass strings into methods as paths, this sequence of characters is equivalent to a
 	 * traversal from parent Configuration to child Configuation object.
 	 *
 	 * @var string
