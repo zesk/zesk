@@ -173,6 +173,7 @@ class Command_Schema extends Command_Base {
 
 		$database = $application->database_registry($url);
 		$this->results = $results = $application->orm_module()->schema_synchronize($database, $classes, array(
+			"skip_others" => true,
 			"check" => $this->option_bool('check'),
 		));
 		$suffix = ";\n";
@@ -194,11 +195,13 @@ class Command_Schema extends Command_Base {
 				}
 			}
 			$this->synchronize_after();
+			return count($results) ? 1 : 0;
 		} else {
 			if (count($results) === 0) {
-				return;
+				return 0;
 			}
 			echo implode($suffix, ArrayTools::rtrim($results, $suffix)) . $suffix;
+			return 1;
 		}
 	}
 }

@@ -365,7 +365,8 @@ class Module_ORM extends Module {
 			}
 		}
 
-		if (count($other_updates) > 0) {
+		$skip_others = isset($options['skip_others']) && boolval($options['skip_others']);
+		if (count($other_updates) > 0 && !$skip_others) {
 			$results[] = "-- Other database updates:\n" . ArrayTools::join_wrap(array_keys($other_updates), "-- zesk schema --name ", " --update;\n");
 		}
 		return $results;
