@@ -481,7 +481,7 @@ class Net_HTTP {
 		self::METHOD_HEAD => self::METHOD_HEAD,
 		self::METHOD_TRACE => self::METHOD_TRACE,
 		self::METHOD_CONNECT => self::METHOD_CONNECT,
-		self::METHOD_PROPFIND => self::METHOD_PROPFIND
+		self::METHOD_PROPFIND => self::METHOD_PROPFIND,
 	);
 
 	/**
@@ -534,7 +534,7 @@ class Net_HTTP {
 		self::STATUS_OVERLOADED => 'Overloaded',
 		self::STATUS_GATEWAY_TIMEOUT => 'Gateway Timeout',
 		self::STATUS_HTTP_VERSION_NOT_SUPPORTED => 'HTTP Version not supported',
-		self::STATUS_INSUFFICIENT_STORAGE => 'Insufficient Storage'
+		self::STATUS_INSUFFICIENT_STORAGE => 'Insufficient Storage',
 	);
 
 	/**
@@ -588,7 +588,7 @@ class Net_HTTP {
 		"x-wap-profile" => "X-Wap-Profile",
 		"proxy-connection" => "Proxy-Connection",
 		"x-uidh" => "X-UIDH",
-		"x-csrf-token" => "X-Csrf-Token"
+		"x-csrf-token" => "X-Csrf-Token",
 	);
 
 	/**
@@ -647,6 +647,6 @@ class Net_HTTP {
 		"x-content-type-options" => "X-Content-Type-Options",
 		"x-powered-by" => "X-Powered-By",
 		"x-ua-compatible" => "X-UA-Compatible",
-		"x-content-duration" => "X-Content-Duration"
+		"x-content-duration" => "X-Content-Duration",
 	);
 }
