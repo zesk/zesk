@@ -1,8 +1,8 @@
 ## Release {version}
 
-Version added to support modern MySQL docker containers enforcement of `Timestamp` defaults:
+- **ORM Module**: `zesk schema` now exits 0 only when the schema sync completes successfully with zero changes.
+- **ORM Module**: fixing `text` default value, no default 0 for timestamp
+- **Zesk Kernel**: fixing issue with URL unparsing and `mailto:` addresses
 
-- **MySQL Module**: `blob` and `text` data types no longer forced to have a default of blank string `""` - instead you must specify this in your SQL if the version of MySQL allows it.
-- **Session Module**: Remove invalid `timestamp` default 0 values for MySQL
 
 <!-- Generated automatically by release-zesk.sh, beware editing! -->
