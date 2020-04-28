@@ -12,12 +12,14 @@ class URL_Test extends Test_Unit {
 				"path" => "/path",
 				"query" => "query",
 				"fragment" => "fragment",
+				"url" => "scheme://user:pass@host/path?query#fragment",
 			),
 			"http:///list/flush%20mount%20fuel%20cap.htm" => false,
 			"mailto:someone@example.com" => array(
 				'scheme' => 'mailto',
 				'user' => 'someone',
 				'host' => 'example.com',
+				'url' => "mailto:someone@example.com",
 			),
 		);
 
@@ -26,10 +28,10 @@ class URL_Test extends Test_Unit {
 			if (is_array($result)) {
 				$this->assert_arrays_equal($x, $result, $url . " ... " . _dump($x));
 				foreach ($result as $k => $v) {
-					$this->assert(URL::parse($url, $k) === $v, "URL::parse(\"$url\", \"$k\") !== $v");
+					$this->assertEquals($v, URL::parse($url, $k), "URL::parse(\"$url\", \"$k\") !== $v");
 				}
 			} else {
-				$this->assert($result === $x);
+				$this->assertEquals($result, $x);
 			}
 		}
 	}
@@ -227,9 +229,40 @@ class URL_Test extends Test_Unit {
 		}
 	}
 
-	public function test_left_path() {
-		$u = null;
-		URL::left_path($u);
+	public function left_paths() {
+		return [
+			[
+				'https://pwned.org:443/random/url?query=string#fragment=more-query&not=query',
+				'https://pwned.org/random/url',
+			],
+			[
+				'https://pwned.org:80/random/url?query=string#fragment=more-query&not=query',
+				'https://pwned.org:80/random/url',
+			],
+			[
+				'http://pwned.org:80/random/url?query=string#fragment=more-query&not=query',
+				'http://pwned.org/random/url',
+			],
+			[
+				'https://pwned.org:4123/random/url?query=string#fragment=more-query&not=query',
+				'https://pwned.org:4123/random/url',
+			],
+			[
+				'https://pwned.org:4123/random/url?query=string#fragment=more-query&not=query',
+				'https://pwned.org:4123/random/url',
+			],
+			[
+				'https://pwned.org/random/url/?query=string#fragment=more-query&not=query',
+				'https://pwned.org/random/url/',
+			],
+		];
+	}
+
+	/**
+	 * @dataProvider left_paths
+	 */
+	public function test_left_path($source, $expected) {
+		$this->assertEquals($expected, URL::left_path($source));
 	}
 
 	public function test_normalize() {

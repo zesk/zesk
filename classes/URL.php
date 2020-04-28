@@ -397,11 +397,10 @@ class URL {
 		foreach ($result as $k => $v) {
 			$result[$k] = urldecode($v);
 		}
-		$result['url'] = URL::unparse($result);
 		if (avalue($result, 'scheme') === 'mailto' && array_key_exists('path', $result)) {
 			$path = $result['path'];
 			unset($result['path']);
-			list($user, $host) = pair($path, '@', null, $path);
+			list($user, $host) = pairr($path, '@', null, $path);
 			if ($user) {
 				$result['user'] = $user;
 			}
@@ -409,6 +408,7 @@ class URL {
 				$result['host'] = $host;
 			}
 		}
+		$result['url'] = URL::unparse($result);
 		if ($component === null) {
 			return $result;
 		}
@@ -448,7 +448,8 @@ class URL {
 			return null;
 		}
 		$scheme = strtolower($parts["scheme"]);
-		$url = $scheme . (($scheme === "mailto") ? ":" : "://");
+		$mailto = ($scheme === "mailto");
+		$url = $scheme . ($mailto ? ":" : "://");
 
 		$temp = avalue($parts, "user");
 		if ($temp !== null) {
@@ -463,31 +464,30 @@ class URL {
 		}
 
 		$url .= strtolower(avalue($parts, "host"));
-
 		$temp = intval(avalue($parts, "port"));
 		if ($temp && ($temp !== self::protocol_default_port($scheme))) {
 			$url .= ":" . $parts["port"];
 		}
-
-		$temp = avalue($parts, "path");
-		if (!empty($temp)) {
-			if ($temp[0] !== '/') {
-				$temp = "/$temp";
+		if (!$mailto) {
+			$temp = avalue($parts, "path");
+			if (!empty($temp)) {
+				if ($temp[0] !== '/') {
+					$temp = "/$temp";
+				}
+				$url .= $temp;
+			} else {
+				$url .= "/";
 			}
-			$url .= $temp;
-		} else {
-			$url .= "/";
-		}
-		$temp = avalue($parts, "query");
-		if ($temp) {
-			$url .= "?" . $temp;
-		}
+			$temp = avalue($parts, "query");
+			if ($temp) {
+				$url .= "?" . $temp;
+			}
 
-		$temp = avalue($parts, "fragment");
-		if ($temp) {
-			$url .= "#" . urlencode($temp);
+			$temp = avalue($parts, "fragment");
+			if ($temp) {
+				$url .= "#" . urlencode($temp);
+			}
 		}
-
 		return $url;
 	}
 

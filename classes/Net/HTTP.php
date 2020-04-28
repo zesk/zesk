@@ -454,6 +454,17 @@ class Net_HTTP {
 	 *
 	 * @var string
 	 */
+	const RESPONSE_ACCESS_CONTROL_ALLOW_ORIGIN = "Access-Control-Allow-Origin";
+
+	/**
+	 * @var string
+	 */
+	const RESPONSE_ACCESS_CONTROL_ALLOW_ORIGIN_CREDENTIALS = "Access-Control-Allow-Credentials";
+
+	/**
+	 *
+	 * @var string
+	 */
 	const HEADER_CONTENT_LENGTH = "Content-Length";
 
 	/**
@@ -470,7 +481,7 @@ class Net_HTTP {
 		self::METHOD_HEAD => self::METHOD_HEAD,
 		self::METHOD_TRACE => self::METHOD_TRACE,
 		self::METHOD_CONNECT => self::METHOD_CONNECT,
-		self::METHOD_PROPFIND => self::METHOD_PROPFIND,
+		self::METHOD_PROPFIND => self::METHOD_PROPFIND
 	);
 
 	/**
@@ -523,7 +534,7 @@ class Net_HTTP {
 		self::STATUS_OVERLOADED => 'Overloaded',
 		self::STATUS_GATEWAY_TIMEOUT => 'Gateway Timeout',
 		self::STATUS_HTTP_VERSION_NOT_SUPPORTED => 'HTTP Version not supported',
-		self::STATUS_INSUFFICIENT_STORAGE => 'Insufficient Storage',
+		self::STATUS_INSUFFICIENT_STORAGE => 'Insufficient Storage'
 	);
 
 	/**
@@ -577,7 +588,7 @@ class Net_HTTP {
 		"x-wap-profile" => "X-Wap-Profile",
 		"proxy-connection" => "Proxy-Connection",
 		"x-uidh" => "X-UIDH",
-		"x-csrf-token" => "X-Csrf-Token",
+		"x-csrf-token" => "X-Csrf-Token"
 	);
 
 	/**
@@ -586,7 +597,8 @@ class Net_HTTP {
 	 * @var array
 	 */
 	public static $response_headers = array(
-		"access-control-allow-origin" => "Access-Control-Allow-Origin",
+		"access-control-allow-origin" => self::RESPONSE_ACCESS_CONTROL_ALLOW_ORIGIN,
+		"access-control-allow-origin-credentials" => self::RESPONSE_ACCESS_CONTROL_ALLOW_ORIGIN_CREDENTIALS,
 		"accept-patch" => "Accept-Patch",
 		"accept-ranges" => self::RESPONSE_ACCEPT_RANGES,
 		"age" => "Age",
@@ -635,6 +647,6 @@ class Net_HTTP {
 		"x-content-type-options" => "X-Content-Type-Options",
 		"x-powered-by" => "X-Powered-By",
 		"x-ua-compatible" => "X-UA-Compatible",
-		"x-content-duration" => "X-Content-Duration",
+		"x-content-duration" => "X-Content-Duration"
 	);
 }
