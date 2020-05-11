@@ -123,18 +123,18 @@ class Configuration_Loader {
 	/**
 	 * Load a single file
 	 *
-	 * @param unknown $file
+	 * @param string $file Path to file to load
+	 * @param string $handler Extension to use to load class (CONF, SH, JSON)
 	 * @throws Exception_File_Format
-	 * @return self|null
+	 * @return self|null Return null if file not found
 	 */
-	public function load_one($file) {
+	public function load_one($file, $handler = null) {
 		if (!file_exists($file)) {
 			$this->skipped_files[] = $file;
 			return null;
 		}
-		$extension = strtoupper(File::extension($file));
 		$content = file_get_contents($file);
-		$parser = Configuration_Parser::factory($extension, $content, $this->settings);
+		$parser = Configuration_Parser::factory($handler ? $handler : File::extension($file), $content, $this->settings);
 		if (!$parser) {
 			$this->skipped_files[] = $file;
 

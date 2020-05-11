@@ -1,6 +1,9 @@
 <?php
 /**
- *
+ * @package zesk
+ * @subpackage Configuration
+ * @author kent
+ * @copyright &copy; 2020 Market Acumen, Inc.
  */
 namespace zesk;
 
