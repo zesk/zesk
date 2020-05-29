@@ -15,7 +15,7 @@ CREATE TABLE `{table}` (
 	last_exit tinyint unsigned NOT NULL DEFAULT 0,
 	progress double NULL,
 	hook varchar(128),
-	hook_args blob NOT NULL DEFAULT '',
+	hook_args blob NOT NULL,
 	data blob NULL,
 	status text NOT NULL DEFAULT '',
 	UNIQUE code (code),
