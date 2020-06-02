@@ -18,6 +18,13 @@ Version 1.0 of Zesk will have:
 
 <!-- HERE -->
 
+## [v0.28.5][]
+
+Maybe we're avoiding even-dotted releases. Next up is dot 7.
+
+- **Zesk Kernel**: Support for loading simple `.sh` files as configuration files
+- **Zesk Kernel**: Application handles redirects in main exception handler allowing exceptions to throw redirect exceptions.
+
 ## [v0.28.3][]
 
 Who likes .2 releases? Not this dude.
@@ -2212,6 +2219,7 @@ Settling of `zesk\Kernel` and `zesk\` namespace changes, added additional compon
  - `zesk::class_hierarchy` -> `zesk()->classes->hierarchy`
 - Removed growl module (no longer relevant on Mac OS X)
 
+[v0.28.5]: https://github.com/zesk/zesk/compare/v0.28.3...v0.28.5
 [v0.28.3]: https://github.com/zesk/zesk/compare/v0.28.1...v0.28.3
 [v0.28.1]: https://github.com/zesk/zesk/compare/v0.28.0...v0.28.1
 [v0.28.0]: https://github.com/zesk/zesk/compare/v0.27.1...v0.28.0
