@@ -96,6 +96,12 @@ class Module_PolyGlot extends Module implements Interface_Module_Routes {
 				2,
 			),
 		));
+		$router->add_route("polyglot/update/{dialect}", $base + array(
+			"action" => "update",
+			"arguments" => array(
+				2,
+			),
+		));
 	}
 
 	/**

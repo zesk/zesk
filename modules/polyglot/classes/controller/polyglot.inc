@@ -108,10 +108,10 @@ class Controller_PolyGlot extends Controller_Authenticated {
 		if (PolyGlot_Update::register_update($this->application, $locale_string, $this->user)) {
 			return $this->json(array(
 				"status" => true,
-				"message" => $locale->__("Locale {lang_name} will be updated in the new few minutes.", $__),
+				"message" => $locale->__("Locale {lang_name} will be updated in the next few minutes.", $__),
 			));
 		}
-		$this->json(array(
+		return $this->json(array(
 			"status" => false,
 			"message" => $locale->__("Locale {lang_name} was not updated.", $__),
 		));
