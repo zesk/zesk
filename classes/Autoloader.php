@@ -45,19 +45,22 @@ class Autoloader {
 	const OPTION_LAST = "last";
 
 	/**
-	 * Used in ->path(..., $options); Make this path first in the list. (Default is added to the end)
+	 * Used in ->path(..., $options); List of array of valid extensions, characters only, in order of seach priority. e.g. ["php", "php7", "inc"]
 	 *
 	 * @var string
 	 */
 	const OPTION_EXTENSIONS = "extensions";
 
 	/**
+	 * Default OPTION_CLASS_PREFIX
 	 *
 	 * @var string
 	 */
 	const OPTION_CLASS_PREFIX_DEFAULT = "";
 
 	/**
+	 *
+	 * DEFAULT OPTION_LOWER
 	 *
 	 * @var boolean
 	 */
@@ -107,6 +110,7 @@ class Autoloader {
 	public $no_exception = true;
 
 	/**
+	 * Default OPTION_EXTENSIONS
 	 *
 	 * @var array
 	 */
@@ -116,6 +120,7 @@ class Autoloader {
 	);
 
 	/**
+	 * Link back to zesk Kernel
 	 *
 	 * @var Kernel
 	 */
