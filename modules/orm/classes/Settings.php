@@ -247,6 +247,8 @@ class Settings extends ORM implements Interface_Data, Interface_Settings {
 			$exception = $e;
 		} catch (Exception_Configuration $e) {
 			// App is not configured
+		} catch (Exception_NotFound $e) {
+			// Database is misconfigured/misnamed
 			$exception = $e;
 		}
 		if ($exception) {
