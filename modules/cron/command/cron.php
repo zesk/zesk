@@ -52,7 +52,7 @@ class Command_Cron extends \zesk\Command_Base {
 			$now = Timestamp::now();
 			foreach ($result as $key => $ts) {
 				if ($ts instanceof Timestamp) {
-					$result[$key] = map("{format} {n} {seconds} ago", [
+					$result[$key] = $ts->is_empty() ? null : map("{format} {n} {seconds} ago", [
 						"format" => $ts->iso8601(),
 						"n" => $n = $now->difference($ts, Timestamp::UNIT_SECOND),
 						"seconds" => $locale->plural("second", $n),

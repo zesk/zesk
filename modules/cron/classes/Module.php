@@ -335,8 +335,8 @@ class Module extends \zesk\Module {
 	 *
 	 * @return string
 	 */
-	private static function _last_cron_variable($unit) {
-		return __CLASS__ . "::last" . ($unit ? "_$unit" : "");
+	private static function _last_cron_variable($prefix, $unit) {
+		return __CLASS__ . "::last" . $prefix . ($unit ? "_$unit" : "");
 	}
 
 	/**
@@ -344,16 +344,16 @@ class Module extends \zesk\Module {
 	 *
 	 * @return Timestamp
 	 */
-	private static function _last_cron_run(Interface_Data $object, $unit = null) {
-		return Timestamp::factory($object->data(self::_last_cron_variable($unit)));
+	private static function _last_cron_run(Interface_Data $object, $prefix = "", $unit = null) {
+		return Timestamp::factory($object->data(self::_last_cron_variable($prefix, $unit)));
 	}
 
-	private static function _cron_ran(Interface_Data $object, $unit = null, Timestamp $when) {
-		return $object->data(self::_last_cron_variable($unit), $when->unix_timestamp());
+	private static function _cron_ran(Interface_Data $object, $prefix = "", $unit = null, Timestamp $when) {
+		return $object->data(self::_last_cron_variable($prefix, $unit), $when->unix_timestamp());
 	}
 
-	private static function _cron_reset(Interface_Data $object, $unit = null) {
-		$name = self::_last_cron_variable($unit);
+	private static function _cron_reset(Interface_Data $object, $prefix = "", $unit = null) {
+		$name = self::_last_cron_variable($prefix, $unit);
 		if ($object instanceof Server) {
 			/* @var $object Server */
 			$object->delete_all_data($name);
@@ -387,14 +387,17 @@ class Module extends \zesk\Module {
 		return $this->scopes = array(
 			"cron_server" => array(
 				"state" => $server,
+				"prefix" => "",
 				"lock" => "cron-server-" . $server->id,
 			),
 			"cron" => array(
 				"state" => $settings,
+				"prefix" => "",
 				"lock" => "cron-application-" . $application->id(),
 			),
 			"cron_cluster" => array(
 				"state" => $settings,
+				"prefix" => "cluster_",
 				"lock" => "cron-cluster",
 			),
 		);
@@ -405,9 +408,9 @@ class Module extends \zesk\Module {
 		foreach ($scopes as $method => $settings) {
 			$state = $settings['state'];
 			/* @var $state Interface_Data */
-			self::_cron_reset($state, null);
+			self::_cron_reset($state);
 			foreach (self::$intervals as $unit) {
-				self::_cron_reset($state, $unit);
+				self::_cron_reset($state, $settings['prefix'], $unit);
 			}
 		}
 		return true;
@@ -441,7 +444,7 @@ class Module extends \zesk\Module {
 				$results[$hooks->callable_string($hook)] = $status;
 			}
 			foreach (self::$intervals as $unit) {
-				$last_unit_run = self::_last_cron_run($state, $unit);
+				$last_unit_run = self::_last_cron_run($state, $settings['prefix'], $unit);
 				$status = $now->difference($last_unit_run, $unit) > 0;
 				$unit_hooks = ArrayTools::suffix($cron_hooks, "_$unit");
 				$all_hooks = $this->application->modules->all_hook_list($method . "_${unit}");
@@ -471,7 +474,7 @@ class Module extends \zesk\Module {
 			$last_run = self::_last_cron_run($state);
 			$results[$method] = $last_run;
 			foreach (self::$intervals as $unit) {
-				$last_unit_run = self::_last_cron_run($state, $unit);
+				$last_unit_run = self::_last_cron_run($state, $settings['prefix'], $unit);
 				$results["${method}_${unit}"] = $last_unit_run;
 			}
 		}
@@ -539,6 +542,11 @@ class Module extends \zesk\Module {
 			$lock = Lock::instance($this->application, $lock_name);
 			if ($lock->acquire() === null) {
 				unset($scopes[$method]);
+				$this->application->logger->warning("{method}: Unable to acquire lock {lock_name}, skipping scope {scope_method}", array(
+					"method" => __METHOD__,
+					"scope_method" => $method,
+					"lock_name" => $lock_name,
+				));
 			} else {
 				$scopes[$method]['lock'] = $lock;
 			}
@@ -554,7 +562,7 @@ class Module extends \zesk\Module {
 			$last_run = self::_last_cron_run($state);
 			$cron_hooks = $this->_cron_hooks($method);
 			if ($now->difference($last_run, "second")) {
-				self::_cron_ran($state, null, $now);
+				self::_cron_ran($state, null, null, $now);
 
 				try {
 					$this->hook_source = $method . " second global hooks->all_call";
@@ -571,13 +579,13 @@ class Module extends \zesk\Module {
 				}
 			}
 			foreach (self::$intervals as $unit) {
-				$last_unit_run = self::_last_cron_run($state, $unit);
+				$last_unit_run = self::_last_cron_run($state, $settings['prefix'], $unit);
 				$this->application->logger->debug("Last ran {unit} {when}", array(
 					"unit" => $unit,
 					"when" => $last_unit_run->format($locale),
 				));
 				if ($now->difference($last_unit_run, $unit) > 0) {
-					self::_cron_ran($state, $unit, $now);
+					self::_cron_ran($state, $settings['prefix'], $unit, $now);
 					$unit_hooks = $method . "_$unit";
 
 					try {
