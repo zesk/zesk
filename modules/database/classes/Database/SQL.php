@@ -469,7 +469,7 @@ abstract class Database_SQL extends Hookable {
 			}
 			$newk = $k;
 			if (strpos($newk, ".") === false) {
-				if ($newk[0] === '*') {
+				if (substr($newk, 0, 1) === '*') {
 					$newk = '*' . $prefix . substr($newk, 1);
 				} else {
 					$newk = $prefix . $newk;
