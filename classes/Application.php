@@ -365,6 +365,15 @@ class Application extends Hookable implements Interface_Theme, Interface_Member_
 	}
 
 	/**
+	 * The unique ID name for this application, used for cron or identifying multiple instances of a single application on a site.
+	 *
+	 * @return string
+	 */
+	public function id() {
+		return get_class($this);
+	}
+
+	/**
 	 *
 	 * @param array $options
 	 * @throws Exception_Unimplemented
