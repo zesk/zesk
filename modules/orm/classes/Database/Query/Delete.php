@@ -67,7 +67,7 @@ class Database_Query_Delete extends Database_Query {
 	 *
 	 * @param mixed $k
 	 * @param string $v
-	 * @return Database_Query_Select
+	 * @return Database_Query_Delete
 	 */
 	public function where($k, $v = null) {
 		if (is_array($k)) {
