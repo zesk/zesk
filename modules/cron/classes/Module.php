@@ -385,9 +385,13 @@ class Module extends \zesk\Module {
 		$settings = Settings::singleton($application);
 
 		return $this->scopes = array(
-			"cron" => array(
+			"cron_server" => array(
 				"state" => $server,
 				"lock" => "cron-server-" . $server->id,
+			),
+			"cron" => array(
+				"state" => $settings,
+				"lock" => "cron-application-" . $application->id(),
 			),
 			"cron_cluster" => array(
 				"state" => $settings,
