@@ -451,6 +451,30 @@ class Module extends \zesk\Module {
 	}
 
 	/**
+	 *
+	 * @return Timestamp[string]
+	 */
+	public function last_run() {
+		try {
+			$scopes = $this->_cron_scopes($this->application);
+		} catch (Exception $e) {
+			$this->_exception($e, __CLASS__ . '::list_status');
+			return array();
+		}
+		foreach ($scopes as $method => $settings) {
+			$state = $settings['state'];
+			/* @var $state Interface_Data */
+			$last_run = self::_last_cron_run($state);
+			$results[$method] = $last_run;
+			foreach (self::$intervals as $unit) {
+				$last_unit_run = self::_last_cron_run($state, $unit);
+				$results["${method}_${unit}"] = $last_unit_run;
+			}
+		}
+		return $results;
+	}
+
+	/**
 	 * Log an exception during a cron run
 	 *
 	 * @param Exception $e

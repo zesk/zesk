@@ -5,6 +5,7 @@
 namespace zesk\Cron;
 
 use zesk\Exception_NotFound;
+use zesk\Timestamp;
 
 /**
  * Run zesk cron hooks
@@ -17,11 +18,13 @@ class Command_Cron extends \zesk\Command_Base {
 
 	protected $option_types = array(
 		'list' => 'boolean',
+		'last' => 'boolean',
 		'reset' => 'boolean',
 	);
 
 	protected $option_help = array(
 		'list' => 'List cron functions which would be run',
+		'last' => 'Show last run times',
 		'reset' => 'Reset all cron state information, forcing all cron tasks to run next time cron is run.',
 	);
 
@@ -41,6 +44,22 @@ class Command_Cron extends \zesk\Command_Base {
 		if ($this->option_bool('list')) {
 			$list_status = $cron->list_status();
 			$this->render_format($list_status);
+			return 0;
+		}
+		if ($this->option_bool('last')) {
+			$result = $cron->last_run();
+			$locale = $this->application->locale;
+			$now = Timestamp::now();
+			foreach ($result as $key => $ts) {
+				if ($ts instanceof Timestamp) {
+					$result[$key] = map("{format} {n} {seconds} ago", [
+						"format" => $ts->iso8601(),
+						"n" => $n = $now->difference($ts, Timestamp::UNIT_SECOND),
+						"seconds" => $locale->plural("second", $n),
+					]);
+				}
+			}
+			$this->render_format($result);
 			return 0;
 		}
 		$result = $cron->run();
