@@ -397,7 +397,7 @@ class Module extends \zesk\Module {
 			),
 			"cron_cluster" => array(
 				"state" => $settings,
-				"prefix" => "cluster_",
+				"prefix" => "_cluster",
 				"lock" => "cron-cluster",
 			),
 		);
