@@ -6,6 +6,7 @@ namespace zesk\Cron;
 
 use zesk\Exception_NotFound;
 use zesk\Timestamp;
+use zesk\Text;
 
 /**
  * Run zesk cron hooks
@@ -50,16 +51,17 @@ class Command_Cron extends \zesk\Command_Base {
 			$result = $cron->last_run();
 			$locale = $this->application->locale;
 			$now = Timestamp::now();
+			$rows = [];
 			foreach ($result as $key => $ts) {
 				if ($ts instanceof Timestamp) {
-					$result[$key] = $ts->is_empty() ? null : map("{format} {n} {seconds} ago", [
-						"format" => $ts->iso8601(),
-						"n" => $n = $now->difference($ts, Timestamp::UNIT_SECOND),
-						"seconds" => $locale->plural("second", $n),
-					]);
+					$rows[] = [
+						'key' => $key,
+						'value' => $ts->is_empty() ? null : $ts->iso8601(),
+						'seconds ago' => $ts->is_empty() ? $this->application->locale->__('Never') : $now->difference($ts, Timestamp::UNIT_SECOND),
+					];
 				}
 			}
-			$this->render_format($result);
+			echo Text::format_table($rows);
 			return 0;
 		}
 		$result = $cron->run();
