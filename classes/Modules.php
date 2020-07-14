@@ -234,6 +234,21 @@ class Modules {
 	}
 
 	/**
+	 *
+	 * @param array $options
+	 * @return \zesk\Modules
+	 */
+	final public function reload(array $options = array()) {
+		$this->application->logger->info(__METHOD__);
+		$modules = [];
+		foreach ($this->modules as $codename => $module_data) {
+			$modules[$codename] = $this->_reload_one($module_data);
+		}
+		$this->modules = $modules;
+		return $this;
+	}
+
+	/**
 	 * During module registration, register system paths automatically.
 	 * Either a specified path
 	 * or uses the current module's path, looks for the following directories and registers:
@@ -410,7 +425,9 @@ class Modules {
 	 * Load a single module by name
 	 *
 	 * @param string $name
-	 * @param array $options
+	 * @param array $options Flags
+	 *  "check exists" => true to test for existence of module class (just class_exists)
+	 *  "load" => defaults to true => Load the module and create the Module object and return the initialized structure
 	 * @throws Exception_Directory_NotFound
 	 * @return array
 	 */
@@ -443,13 +460,9 @@ class Modules {
 		if (to_bool(avalue($options, 'load', true))) {
 			$module_data = $this->_load_module_configuration($module_data);
 			$module_data = $this->_apply_module_configuration($module_data);
+
 			$this->modules[$name] = $module_data;
-
-			$requires = to_list(apath($module_data, 'configuration.requires'));
-			if ($requires) {
-				$result += $this->_handle_requires($requires, $options);
-			}
-
+			$result += $this->_handle_configuration_requires($module_data, $options);
 			$this->modules[$name] = $module_data = $this->_load_module_object($module_data) + $module_data;
 
 			$module_data = $this->_initialize_module_object($module_data);
@@ -459,8 +472,33 @@ class Modules {
 		return $result;
 	}
 
+	/**
+	 *
+	 * @param array $module_data
+	 * @param array $options
+	 * @return array
+	 */
+	private function _handle_configuration_requires(array $module_data, array $options) {
+		$result = [];
+		$requires = to_list(apath($module_data, 'configuration.requires'));
+		if ($requires) {
+			$result += $this->_handle_requires($requires, $options);
+		}
+		return $result;
+	}
+
+	/**
+	 * Return an array to build the modules structure, specifically for class-based module names
+	 *
+	 * @param string $name Module name
+	 * @param array $options Flags
+	 *  "check exists" => true to test for existence of module class (just class_exists)
+	 *  "load" => defaults to true => Load the module and create the Module object and return the initialized structure
+	 *
+	 * @throws Exception_Class_NotFound
+	 * @return array
+	 */
 	private function _autoload_one($name, array $options) {
-		$configure = avalue($options, "configure", false);
 		$module_data = array(
 			'loaded' => false,
 			'name' => $name,
@@ -473,6 +511,7 @@ class Modules {
 
 			throw new Exception_Class_NotFound($name, "Loading module");
 		}
+		$result = [];
 		if (to_bool(avalue($options, 'load', true))) {
 			$this->modules[$name] = $module_data = $this->_load_module_object($module_data) + $module_data;
 			/* @var $object Module */
@@ -481,14 +520,26 @@ class Modules {
 				$module_data['path'] = $object->path();
 				$module_data += self::_find_module_include($module_data);
 				$module_data = $this->_load_module_configuration($module_data);
+				$result += $this->_handle_configuration_requires($module_data, $options);
 				$module_data = $this->_apply_module_configuration($module_data);
 
 				$module_data = $this->_initialize_module_object($module_data);
 			}
 		}
-		return array(
+		return $result + array(
 			$name => $module_data,
 		);
+	}
+
+	public function _reload_one($module_data) {
+		$object = $module_data['object'];
+		if ($object) {
+			$module_data = $this->_load_module_configuration($module_data);
+			$module_data = $this->_apply_module_configuration($module_data);
+
+			$module_data = $this->_initialize_module_object($module_data);
+		}
+		return $module_data;
 	}
 
 	/**
