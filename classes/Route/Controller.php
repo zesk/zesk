@@ -179,7 +179,7 @@ class Route_Controller extends Route {
 	 */
 	private function _determine_class_action() {
 		$class_name = $this->option("controller");
-		$options = $this->named + $this->options;
+		$options = ($this->named ?? []) + $this->options;
 
 		$this->class = $reflectionClass = null;
 
@@ -242,7 +242,10 @@ class Route_Controller extends Route {
 		$map = parent::get_route_map($action, $object, $options);
 		$url = map($this->clean_pattern, $map);
 		if (!$this->match($url)) {
-			die("pattern didn't match");
+			throw new Exception_Invalid("{method} {pattern} does not match {url} - route {original_pattern} is corrupt", [
+				"method" => $method,
+				"url" => $url,
+			] + $this->variables());
 		}
 		$this->_map_options();
 		list($controller) = $this->_init_controller($this->response);
