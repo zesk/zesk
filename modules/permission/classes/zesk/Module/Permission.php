@@ -57,12 +57,17 @@ class Module_Permission extends Module {
 			$this,
 			"user_store",
 		));
-		Class_ORM::link_many(User::class, 'roles', array(
-			'link_class' => 'zesk\\User_Role',
-			'far_key' => 'role',
-			'foreign_key' => 'user',
-			'class' => 'zesk\\Role',
-		));
+
+		try {
+			// Add link if not added already
+			Class_ORM::link_many(User::class, 'roles', array(
+				'link_class' => User_Role::class,
+				'far_key' => 'role',
+				'foreign_key' => 'user',
+				'class' => Role::class,
+			));
+		} catch (Exception_Key $e) {
+		}
 		parent::initialize();
 	}
 

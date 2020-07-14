@@ -757,7 +757,7 @@ class Class_ORM extends Hookable {
 			$class->_add_many($member, $many_spec);
 		} else {
 			if (isset(self::$defer_class_links[$lowclass][$member])) {
-				throw new Exception_Semantics("Double link_many added for {class} {member}", compact("class", "member"));
+				throw new Exception_Key("Double link_many added for {class} {member}", compact("class", "member"));
 			}
 			self::$defer_class_links[$lowclass][$member] = $many_spec;
 		}
