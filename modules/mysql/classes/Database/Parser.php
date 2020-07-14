@@ -259,13 +259,13 @@ class Database_Parser extends \zesk\Database_Parser {
 			$options['sql_type'] = trim($sql_type);
 
 			if ($sql_type === "timestamp" && !isset($options['default'])) {
-				if (avalue($options, 'not null')) {
-					$options['default'] = "CURRENT_TIMESTAMP";
-				} else {
+				if (!avalue($options, 'not null')) {
 					$options['default'] = null;
+				} else {
+					$options['default'] = 0;
+					// KMD Was 2020-07-13 "CURRENT_TIMESTAMP";
 				}
 			}
-
 			$col = new Database_Column($table, $column_name, $options);
 			$options = $this->database->column_attributes($col);
 			$col->set_option($options, null, false);
