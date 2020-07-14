@@ -815,7 +815,7 @@ class Application extends Hookable implements Interface_Theme, Interface_Member_
 		$modules = array_keys(array_filter($this->modules->loaded()));
 		$this->_initialize($this->kernel);
 		$result = $this->_configure(to_array($this->configuration_options));
-		$this->modules->load($modules);
+		$this->modules->reload();
 		$this->_configured();
 		return $result;
 	}
