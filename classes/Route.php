@@ -86,7 +86,7 @@ abstract class Route extends Hookable {
 	 *
 	 * @var string
 	 */
-	protected $pattern = null;
+	public $pattern = null;
 
 	/**
 	 * Array of types indexed on URL part
@@ -192,6 +192,7 @@ abstract class Route extends Hookable {
 		parent::__construct($router->application, $options);
 		$this->router = $router;
 		$this->original_pattern = $pattern;
+
 		$this->compile_route_pattern($pattern);
 		$this->clean_pattern = $this->clean_pattern($pattern);
 		$this->inherit_global_options();
@@ -339,24 +340,29 @@ abstract class Route extends Hookable {
 	 * @param string $pattern
 	 * @return void
 	 */
-	private function compile_route_pattern($pattern) {
+	public function compile_route_pattern($pattern) {
+		$C_PAREN_OPEN = chr(0x01);
+		$C_PAREN_CLOSE = chr(0x02);
+		$C_WILDCARD = chr(0x03);
+		$C_QUOTED_WILDCARD = 0x04;
+
 		list($methods, $pattern) = pair($pattern, ":", "GET|POST", $pattern);
 		$this->methods = ArrayTools::flip_assign(to_list($methods, array(), "|"), true);
 		$replace = array();
 		$parameters = array();
 		$parameter_names = array();
 		$re_pattern = $pattern;
-		$re_pattern = str_replace('\\*', chr(0x04), $re_pattern);
-		$re_pattern = str_replace('(', chr(0x01), $re_pattern);
-		$re_pattern = str_replace(')', chr(0x02), $re_pattern);
-		$re_pattern = str_replace('*', chr(0x03), $re_pattern);
+		$re_pattern = str_replace('\\*', $C_QUOTED_WILDCARD, $re_pattern);
+		$re_pattern = str_replace('(', $C_PAREN_OPEN, $re_pattern);
+		$re_pattern = str_replace(')', $C_PAREN_CLOSE, $re_pattern);
+		$re_pattern = str_replace('*', $C_WILDCARD, $re_pattern);
 
 		$matches = false;
 		$types = array();
 		if (preg_match_all('/{([^ }]+ )?([^ }]+)}/', $re_pattern, $matches, PREG_SET_ORDER)) {
 			$index = 1;
 			foreach ($matches as $match) {
-				$key = "#@$index@#";
+				$key = "___$index@@@";
 				$re_pattern = implode($key, explode($match[0], $re_pattern, 2));
 				$types[$key] = array(
 					self::clean_type(trim($match[1])),
@@ -367,24 +373,26 @@ abstract class Route extends Hookable {
 			}
 		}
 		$parts = explode("/", str_replace(array(
-			chr(0x01),
-			chr(0x02),
-			chr(0x03),
-			chr(0x04),
+			$C_PAREN_OPEN,
+			$C_PAREN_CLOSE,
+			$C_WILDCARD,
+			$C_QUOTED_WILDCARD,
 		), "", $re_pattern));
 
 		foreach ($parts as $index => $part) {
 			$this->types[$index] = array_key_exists($part, $types) ? $types[$part] : true;
 		}
 
-		$re_pattern = preg_quote($re_pattern);
+		$re_pattern = preg_quote($re_pattern, '%');
 		$re_pattern = strtr($re_pattern, $replace);
-		$re_pattern = str_replace(chr(0x01), '(?:', $re_pattern);
-		$re_pattern = str_replace(chr(0x02), ')?', $re_pattern);
-		$re_pattern = str_replace(chr(0x03), '.*', $re_pattern);
-		$re_pattern = str_replace(chr(0x04), '\\*', $re_pattern);
+		$re_pattern = str_replace($C_PAREN_OPEN, '(?:', $re_pattern);
+		$re_pattern = str_replace($C_PAREN_CLOSE, ')?', $re_pattern);
+		$re_pattern = str_replace($C_WILDCARD, '.*', $re_pattern);
+		$re_pattern = str_replace($C_QUOTED_WILDCARD, '\\*', $re_pattern);
 
 		$this->pattern = '%^' . $re_pattern . '$%';
+
+		return $this->pattern;
 	}
 
 	/**
@@ -782,7 +790,7 @@ abstract class Route extends Hookable {
 	 */
 	final protected function _map_options() {
 		$this->original_options = $this->options;
-		$this->options = map($this->options, $this->url_args + $this->named);
+		$this->options = map($this->options, $this->url_args + ($this->named ?? []));
 		return $this;
 	}
 

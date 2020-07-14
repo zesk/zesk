@@ -11,6 +11,7 @@ namespace zesk;
 use zesk\Router\Parser;
 
 /**
+ * @see Route
  * Router
  * Handles converting a URL Path to a method invokation, with a special case for Controller objects.
  * Support for permissions, automatic variable conversion as well.
