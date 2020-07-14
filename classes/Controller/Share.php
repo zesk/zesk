@@ -12,6 +12,55 @@ namespace zesk;
  * @see docs/share.md
  */
 class Controller_Share extends Controller {
+	const SHARE_PREFIX_DEFAULT = "share";
+
+	/**
+	 * Option to override default
+	 *
+	 * @var string
+	 */
+	const OPTION_SHARE_PREFIX = "share_prefix";
+
+	/**
+	 *
+	 * @return string
+	 */
+	public function option_share_prefix() {
+		return $this->option(self::OPTION_SHARE_PREFIX, self::SHARE_PREFIX_DEFAULT);
+	}
+
+	/**
+	 * For all share directories, copy files into document root share path to be served directly.
+	 *
+	 * This could be used in say, a build step for an application.
+	 *
+	 * @throws Exception_File_Permission
+	 */
+	public function build_directory() {
+		$app = $this->application;
+		$share_paths = $this->application->share_path();
+		$document_root = $app->document_root();
+		foreach ($share_paths as $name => $path) {
+			$app->logger->info("Reviewing {name} => {path}", [
+				"name" => $name,
+				"path" => $path,
+			]);
+			$files = Directory::ls($path);
+			foreach ($files as $file) {
+				$base = basename($file);
+				$source = path($path, $file);
+				if (substr($base, 0, 1) !== "." && is_file($source)) {
+					$target_file = path($document_root, $this->option_share_prefix(), $name, $file);
+					Directory::depend(dirname($target_file), 0777);
+					if (!copy($source, $target_file)) {
+						throw new Exception_File_Permission($target_file);
+					}
+					$app->logger->info("Copied $source to $target_file");
+				}
+			}
+		}
+	}
+
 	/**
 	 *
 	 * @param unknown $path
@@ -127,7 +176,7 @@ class Controller_Share extends Controller {
 		/* @var $locale \zesk\Locale */
 		$logger->debug(__METHOD__);
 		if ($this->option_bool('build')) {
-			$share_dir = path($this->application->document_root(), 'share');
+			$share_dir = path($this->application->document_root(), $this->option_share_prefix());
 			if (is_dir($share_dir)) {
 				$logger->notice('{class}::hook_cache_clear - deleting {share_dir}', array(
 					'class' => __CLASS__,
