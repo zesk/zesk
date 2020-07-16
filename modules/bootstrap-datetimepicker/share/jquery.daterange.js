@@ -257,9 +257,11 @@
 				mend = moment(end),
 				new_value = this.renderValue(mstart, mend),
 				new_name = this.renderText(mstart, mend),
-				newOption = html.tag("option", { value: new_value, selected: "selected" }, new_name);
+				newOption = html.tag("option", { value: new_value }, new_name);
 			this.$select.html(this.savedHTML + newOption);
 			this.$select = $(this.select);
+			$('option:selected', this.$select).prop("selected", false);
+			$('option[name=' + new_name + ']', this.$select).prop("selected", true);
 			this.start = mstart;
 			this.end = mend;
 			this.updateResultText();
