@@ -1,6 +1,6 @@
-(function(w) {
+(function (w) {
 	var $ = w.$ || w.jQuery;
-	var html = w.html;
+	var html = w.html, tag = html.tag;
 	var code = "dateRangeWidget";
 	var scratchId = "DateRangeWidget-Dialog";
 	var scratch = "#" + scratchId;
@@ -24,7 +24,7 @@
 		},
 	};
 
-	var DateRangeWidget = function(select, options) {
+	var DateRangeWidget = function (select, options) {
 		var self = this;
 
 		if ($(scratch).length === 0) {
@@ -49,14 +49,17 @@
 		this.savedState = [];
 		this.values = {};
 
-		$("option", this.$select).each(function() {
+		$("option", this.$select).each(function () {
 			var $this = $(this),
 				value = $this.val(),
 				text = $this.html();
-			self.savedState.push({ value: value, text: text });
+			self.savedState.push({
+				value: value,
+				text: text
+			});
 			self.values[value] = text;
 		});
-		this.$select.off("change." + code).on("change." + code, function() {
+		this.$select.off("change." + code).on("change." + code, function () {
 			self.changed();
 		});
 		this.startId = "#" + this.name + "-start";
@@ -64,7 +67,7 @@
 
 		if (this.value && !this.values[this.value]) {
 			var dates = this.value.split(DATE_SEP),
-				repl = function(x) {
+				repl = function (x) {
 					return String(x)
 						.split("_")
 						.join("-");
@@ -77,7 +80,7 @@
 		this.lastValidValue = this.$select.val();
 	};
 	$.extend(DateRangeWidget.prototype, {
-		changed: function() {
+		changed: function () {
 			var val = this.$select.val();
 			if (val === "custom") {
 				this.showDialog();
@@ -88,62 +91,84 @@
 				}
 			}
 		},
-		showDialog: function() {
+		showDialog: function () {
 			var self = this,
-				modalId = "#" + this.name + "-id";
-			this.$scratch.html(
-				html.tag(
-					"div",
-					{ class: "modal fade", id: modalId.substr(1), tabindex: "-1", role: "dialog" },
-
-					html.tag(
+				modalId = "#" + this.name + "-id",
+				modal_header = tag(
+					"div", {
+						class: "modal-header"
+					},
+					tag(
+						"button", {
+							type: "button",
+							class: "close",
+							"data-dismiss": "modal"
+						},
+						"&times;"
+					) + tag("h4", {
+						class: "modal-title"
+					}, this.options.title || "")
+				),
+				modal_body = tag(
+					"div", {
+						class: "modal-body"
+					},
+					tag(
 						"div",
-						{ class: "modal-dialog" },
-						html.tag(
-							"div",
-							{ class: "modal-content" },
-							html.tag(
-								"div",
-								{ class: "modal-header" },
-								html.tag(
-									"button",
-									{ type: "button", class: "close", "data-dismiss": "modal" },
-									"&times;"
-								) + html.tag("h4", { class: "modal-title" }, this.options.title)
-							) +
-								html.tag(
-									"div",
-									{ class: "modal-body" },
-									html.tag(
-										"div",
-										".row",
-										html.tag("div", ".col-md-6", html.tag("div", { id: this.startId.substr(1) })) +
-											html.tag("div", ".col-md-6", html.tag("div", { id: this.endId.substr(1) }))
-									)
-								) +
-								html.tag(
-									"div",
-									{ class: "modal-footer" },
-									html.tag(
-										"div",
-										{ class: "form-control-static result-text pull-left" },
-										this.text_label
-									) +
-										html.tag(
-											"button",
-											{
-												type: "button",
-												class: this.options.cancel.class,
-												"data-dismiss": "modal",
-											},
-											this.options.cancel.label
-										) +
-										html.tag(
-											"button",
-											{ type: "button", class: "btn btn-primary" },
-											this.options.submit.label
-										)
-								)
+						".row",
+						tag("div", ".col-md-6", tag("div", {
+							id: this.startId.substr(1)
+						}, "")) +
+						tag("div", ".col-md-6", tag("div", {
+							id: this.endId.substr(1)
+						}, ""))
+					)
+				),
+				modal_footer = tag(
+					"div", {
+						class: "modal-footer"
+					},
+					tag(
+						"div", {
+							class: "form-control-static result-text pull-left"
+						},
+						this.text_label + "FUCK"
+					) +
+					tag(
+						"button", {
+							type: "button",
+							class: this.options.cancel.class,
+							"data-dismiss": "modal",
+						},
+						this.options.cancel.label || "CANCEL"
+					) +
+					tag(
+						"button", {
+							type: "button",
+							class: "btn btn-primary"
+						},
+						this.options.submit.label || "SUBMIT"
+					)
+				);
+			this.$scratch.html(
+				tag(
+					"div", {
+						class: "modal fade",
+						id: modalId.substr(1),
+						tabindex: "-1",
+						role: "dialog"
+					},
+					tag(
+						"div", {
+							class: "modal-dialog"
+						},
+						tag(
+							"div", {
+								class: "modal-content"
+							},
+							modal_header +
+							modal_body +
+							modal_footer
 						)
 					)
 				)
@@ -156,14 +181,13 @@
 			};
 			$(this.startId)
 				.datetimepicker(
-					$.extend(
-						{
+					$.extend({
 							defaultDate: this.start || null,
 						},
 						dt_options
 					)
 				)
-				.on("dp.change", function(e) {
+				.on("dp.change", function (e) {
 					$(self.endId)
 						.data("DateTimePicker")
 						.minDate(e.date);
@@ -172,14 +196,13 @@
 				});
 			$(this.endId)
 				.datetimepicker(
-					$.extend(
-						{
+					$.extend({
 							useCurrent: false, //Important! See issue #1075
 						},
 						dt_options
 					)
 				)
-				.on("dp.change", function(e) {
+				.on("dp.change", function (e) {
 					$(self.startId)
 						.data("DateTimePicker")
 						.maxDate(e.date);
@@ -205,22 +228,22 @@
 			}
 
 			this.$modal = $(modalId);
-			$(".btn-primary", this.$modal).click(function() {
+			$(".btn-primary", this.$modal).click(function () {
 				self.finished();
 			});
 			this.$modal.modal("show");
-			this.$modal.off("hide.bs.modal").on("hide.bs.modal", function() {
+			this.$modal.off("hide.bs.modal").on("hide.bs.modal", function () {
 				self.hiding();
 			});
 			this.updateResultText();
 		},
-		hiding: function() {
+		hiding: function () {
 			if (this.rendering) {
 				return;
 			}
 			this.$select.val(this.lastValidValue);
 		},
-		finished: function() {
+		finished: function () {
 			this.rendering = true;
 			this.$modal.modal("hide");
 			this.renderSelect(this.start, this.end);
@@ -229,19 +252,19 @@
 			}
 			this.rendering = false;
 		},
-		updateResultText: function(message) {
+		updateResultText: function (message) {
 			if (!this.$modal) {
 				return;
 			}
 			$(".result-text", this.$modal).html(message || this.renderText(this.start, this.end));
 		},
-		renderValue: function(start, end) {
+		renderValue: function (start, end) {
 			var moment = w.moment;
 			return (
 				DATE_PREFIX + DATE_SEP + moment(start).format(DATE_FORMAT) + DATE_SEP + moment(end).format(DATE_FORMAT)
 			);
 		},
-		renderText: function(start, end) {
+		renderText: function (start, end) {
 			var moment = w.moment;
 			return (
 				this.options.custom.prefix +
@@ -251,26 +274,28 @@
 				moment(end).format(this.options.custom.format)
 			);
 		},
-		renderSelect: function(start, end) {
+		renderSelect: function (start, end) {
 			var moment = w.moment,
 				mstart = moment(start),
 				mend = moment(end),
 				new_value = this.renderValue(mstart, mend),
 				new_name = this.renderText(mstart, mend),
-				newOption = html.tag("option", { value: new_value }, new_name);
+				newOption = tag("option", {
+					value: new_value
+				}, new_name);
 			this.$select.html(this.savedHTML + newOption);
 			this.$select = $(this.select);
 			$('option:selected', this.$select).prop("selected", false);
-			$('option[name=' + new_name + ']', this.$select).prop("selected", true);
+			$('option[value^=' + DATE_PREFIX + ']', this.$select).prop("selected", true);
 			this.start = mstart;
 			this.end = mend;
 			this.updateResultText();
 		},
-		initialize: function() {},
+		initialize: function () {},
 	});
 
-	$.fn[code] = function(options) {
-		$(this).each(function() {
+	$.fn[code] = function (options) {
+		$(this).each(function () {
 			var $this = $(this);
 			var widget = $this.data(code);
 			if (!widget) {
