@@ -462,8 +462,8 @@ class Database extends \zesk\Database {
 		$version = $this->version;
 		if (preg_match('/([0-9]+)\.([0-9]+)\.([0-9]+)/', $version, $matches)) {
 			list($v, $major, $minor, $patch) = $matches;
-			if ($major !== "5") {
-				$this->application->logger->warning("Unknown major version of MySQL (We know MySQL 5 only): {version}", array(
+			if ($major !== "5" && $major !== "8") {
+				$this->application->logger->warning("Unknown major version of MySQL (We know MySQL 5 and 8 only): {version}", array(
 					"version" => $version,
 				));
 			}
