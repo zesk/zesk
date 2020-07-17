@@ -50,15 +50,6 @@ class Application extends Hookable implements Interface_Theme, Interface_Member_
 	private $kernel = null;
 
 	/**
-	 * Probably should discourage use of this.
-	 * Zesk singleton.
-	 * @deprecated 2018-01 Trying out deprecation
-	 *
-	 * @var Kernel
-	 */
-	public $zesk = null;
-
-	/**
 	 * Inherited directly from zesk\Kernel.
 	 * Do not edit the value here.
 	 *
@@ -276,7 +267,7 @@ class Application extends Hookable implements Interface_Theme, Interface_Member_
 	/**
 	 * Paths to search for themes
 	 *
-	 * @var string $theme_path
+	 * @var array $theme_path
 	 */
 	protected $theme_path = array();
 
@@ -645,9 +636,6 @@ class Application extends Hookable implements Interface_Theme, Interface_Member_
 		if (count($this->includes) === 0 || array_key_exists('file', $options)) {
 			$this->configure_include(avalue($options, 'includes', avalue($options, 'file', $this->default_includes())));
 		}
-		if (count($this->include_paths) === 0 || array_key_exists('path', $options)) {
-			$this->configure_include_path(avalue($options, 'path', $this->default_include_path()));
-		}
 		$includes = $this->includes;
 		$files = array();
 		foreach ($includes as $index => $file) {
@@ -657,17 +645,6 @@ class Application extends Hookable implements Interface_Theme, Interface_Member_
 					$files[] = $file;
 				}
 				unset($includes[$index]);
-			}
-		}
-		if (count($includes) > 0 && count($this->include_paths)) {
-			$this->deprecated("Include files {files} and include paths deprecated in {class}", array(
-				"files" => $includes,
-				"class" => get_class($this),
-			));
-			foreach ($this->include_paths as $path) {
-				foreach ($includes as $file) {
-					$files[] = path($path, $file);
-				}
 			}
 		}
 
@@ -693,7 +670,7 @@ class Application extends Hookable implements Interface_Theme, Interface_Member_
 		$this->hooks->register_class($this->register_hooks);
 
 		$application = $this;
-		$this->hooks->add(Hooks::hook_exit, function () use ($application) {
+		$this->hooks->add(Hooks::HOOK_EXIT, function () use ($application) {
 			if ($application->cache) {
 				$application->cache->commit();
 			}
@@ -1248,27 +1225,6 @@ class Application extends Hookable implements Interface_Theme, Interface_Member_
 	}
 
 	/**
-	 * Hook for taking old `.php` URLs and converting to router-based URLs
-	 *
-	 * @param Model_URL $state
-	 * @return true
-	 */
-	public static function hook_url_php(Model_URL $state) {
-		if (URL::valid($state->url)) {
-			return true;
-		}
-		list($u, $qs) = pair($state->url, '?', $state->url, '');
-		if (!StringTools::ends($u, "/")) {
-			$u .= ".php";
-		}
-		if ($u[0] !== '/') {
-			$u = "/$u";
-		}
-		$state->url = URL::query_append($u, $qs);
-		return true;
-	}
-
-	/**
 	 * Get a list of repositories for this application (dependencies)
 	 *
 	 * @return array
@@ -1518,7 +1474,7 @@ class Application extends Hookable implements Interface_Theme, Interface_Member_
 	 *        	The class prefix to add to found files in this directory (defaults to
 	 *        	"zesk\Command_")
 	 * @global boolean debug.zesk_command_path Whether to log errors occurring during this call
-	 * @return string[string]
+	 * @return array
 	 * @throws Exception_Directory_NotFound
 	 */
 	final public function zesk_command_path($add = null, $prefix = null) {
@@ -2368,7 +2324,7 @@ class Application extends Hookable implements Interface_Theme, Interface_Member_
 	 */
 	public function clear_class_cache($class = null) {
 		$this->deprecated();
-		return $this->orm_registry()->clear_cache($class);
+		return $this->orm_module()->clear_cache($class);
 	}
 
 	/**
@@ -2379,7 +2335,7 @@ class Application extends Hookable implements Interface_Theme, Interface_Member_
 	 */
 	final public function orm_classes($add = null) {
 		$this->deprecated();
-		return $this->modules->object("orm")->orm_classes($add);
+		return $this->orm_module()->orm_classes($add);
 	}
 
 	/**
@@ -2393,7 +2349,7 @@ class Application extends Hookable implements Interface_Theme, Interface_Member_
 	 */
 	final public function all_classes() {
 		$this->deprecated();
-		return $this->modules->object("orm")->all_classes();
+		return $this->orm_module()->all_classes();
 	}
 
 	/**
@@ -2406,39 +2362,7 @@ class Application extends Hookable implements Interface_Theme, Interface_Member_
 	 */
 	public function schema_synchronize(Database $db = null, array $classes = null, array $options = array()) {
 		$this->deprecated();
-		return $this->modules->object("orm")->schema_synchronize($db, $classes, $options);
-	}
-
-	/**
-	 * @deprecated 2018-01 Better to use list of files
-	 * @var array
-	 */
-	protected $include_paths = array();
-
-	/**
-	 * Add a path to load configuration files from, or return currentl path list
-	 *
-	 * @deprecated 2018-01 Use configure_include with absolute paths instead
-	 * @param string $path
-	 * @return Application|array
-	 */
-	final public function configure_include_path($path = null) {
-		if ($path === null) {
-			return $this->include_paths;
-		}
-		foreach (to_list($path) as $path) {
-			if (!is_dir($path)) {
-				$this->logger->error("{class}::{method}: {path} is not a valid directory, ignoring", array(
-					"path" => $path,
-					"class" => get_class($this),
-					"method" => __METHOD__,
-				));
-
-				continue;
-			}
-			$this->include_paths[$path] = $path;
-		}
-		return $this;
+		return $this->orm_module()->schema_synchronize($db, $classes, $options);
 	}
 
 	/**
