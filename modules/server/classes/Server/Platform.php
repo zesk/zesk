@@ -198,9 +198,9 @@ abstract class Server_Platform extends Hookable {
 	 *
 	 * @return Server_Platform
 	 */
-	final public static function factory($options = null) {
+	final public static function factory(Application $application, $options = null) {
 		$platform = php_uname('s');
-		return $this->application->objects->factory(__CLASS__ . "_$platform", $options);
+		return $application->objects->factory(__CLASS__ . "_$platform", $options);
 	}
 
 	/**

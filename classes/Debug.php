@@ -63,7 +63,7 @@ class Debug {
 			'zesk\\Debug',
 			"dump",
 		), $args);
-		echo $result . newline();
+		echo $result . "\n";
 	}
 
 	/**

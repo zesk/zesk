@@ -43,7 +43,7 @@ class User extends ORM {
 	 */
 	public static function hooks(Application $application) {
 		$application->configuration->path(__CLASS__);
-		$application->hooks->add(Hooks::hook_configured, __CLASS__ . "::configured");
+		$application->hooks->add(Hooks::HOOK_CONFIGURED, __CLASS__ . "::configured");
 	}
 
 	/**

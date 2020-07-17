@@ -285,43 +285,6 @@ abstract class Locale extends Hookable {
 	}
 
 	/**
-	 * Load a locale file
-	 *
-	 * @param string $locale
-	 *        	Locale to load
-	 * @return array Translation table
-	 */
-	public static function load($locale) {
-		$locale = self::normalize($locale);
-		$paths = self::$paths;
-		array_unshift($paths, ZESK_ROOT . 'etc/language');
-
-		list($language, $region) = pair($locale, '_', $locale, null);
-		$files = array(
-			"all",
-			$language,
-		);
-		if ($region) {
-			$files[] = $locale;
-		}
-		$tt = array();
-		// Later entries override earlier ones
-		foreach ($paths as $path) {
-			foreach ($files as $file) {
-				$inc_path = path($path, $file . ".inc");
-				if (file_exists($inc_path)) {
-					$tt_add = self::_require($inc_path);
-					if (is_array($tt_add)) {
-						$tt = $tt_add + $tt;
-					}
-				}
-			}
-		}
-		self::register($locale, $tt);
-		return self::loaded($locale);
-	}
-
-	/**
 	 * Formatting string for a date in the locale
 	 *
 	 * @param string $locale

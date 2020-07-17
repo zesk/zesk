@@ -2228,6 +2228,9 @@ class ORM extends Model implements Interface_Member_Model_Factory {
 		return true;
 	}
 
+	/**
+	 * @return self
+	 */
 	public function fetch($mixed = null) {
 		$mixed = $this->call_hook("fetch_enter", $mixed);
 		if ($mixed !== null) {

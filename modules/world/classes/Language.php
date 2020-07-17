@@ -57,7 +57,7 @@ class Language extends ORM {
 		$query->value("dialect", null)->where("dialect", "");
 		$query->execute();
 		if ($query->affected_rows() > 0) {
-			$this->application->logger->warning("{method} updated {n} non-NULL rows", array(
+			$application->logger->warning("{method} updated {n} non-NULL rows", array(
 				"method" => __METHOD__,
 				"n" => $query->affected_rows(),
 			));

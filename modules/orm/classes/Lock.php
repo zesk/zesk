@@ -105,6 +105,15 @@ class Lock extends ORM {
 		return $n_rows;
 	}
 
+	private static function release_lock(Lock $lock, $context="") {
+		$server_id = $lock->member_integer("server");
+		$lock->release();
+		$lock->application->logger->notice("Releasing lock #{id} {code} associated with defunct server # {server_id} (current server ids: {context})", $lock->variables() + array(
+			"server_id" => $server_id,
+			"context" => $context,
+		));
+	}
+
 	/**
 	 * Delete locks whose server doesn't link to a valid row in the Server table
 	 */
@@ -120,13 +129,7 @@ class Lock extends ORM {
 			->where("X.server|!=|AND", $server_ids)
 			->orm_iterator();
 		foreach ($iterator as $lock) {
-			/* @var $lock Lock */
-			$server_id = $lock->member_integer("server");
-			$lock->release();
-			$application->logger->notice("Releasing lock #{id} {code} associated with defunct server # {server_id} (current server ids: {server_ids})", $lock->variables() + array(
-				"server_id" => $server_id,
-				"server_ids" => implode(",", $server_ids),
-			));
+			self::release_lock($lock, implode(",", $server_ids));
 			++$n_rows;
 		}
 		return $n_rows;
@@ -147,11 +150,13 @@ class Lock extends ORM {
 			->orm_iterator();
 		/* @var $lock Lock */
 		foreach ($iterator as $lock) {
-			if (!$lock->is_process_alive()) {
-				// Delete this way so hooks get called per dead server
-				$application->logger->warning("Releasing lock {code} (#{id}), associated with dead process, locked on {locked}", $lock->members());
-				$lock->release();
-			}
+			(function (Lock $lock) {
+				if (!$lock->is_process_alive()) {
+					// Delete this way so hooks get called per dead server
+					$lock->application->logger->warning("Releasing lock {code} (#{id}), associated with dead process, locked on {locked}", $lock->members());
+					$lock->release();
+				}
+			})($lock);
 		}
 	}
 
@@ -215,14 +220,12 @@ class Lock extends ORM {
 		self::$locks = array();
 
 		try {
-			$application->orm_registry(__CLASS__)
-				->query_update()
-				->values(array(
+			$query = $application->orm_registry(__CLASS__)->query_update();
+			$query->values(array(
 				'pid' => null,
 				'server' => null,
 				'locked' => null,
-			))
-				->where(array(
+			))->where(array(
 				'pid' => $application->process->id(),
 				'server' => Server::singleton($application),
 			));
@@ -244,7 +247,7 @@ class Lock extends ORM {
 		if (($n_rows = $query->affected_rows()) > 0) {
 			$application->logger->warning("Deleted {n} {locks} associated with server {name} (#{id})", array(
 				"n" => $n_rows,
-				"locks" => $this->application->locale->plural(__CLASS__, $n_rows),
+				"locks" => $application->locale->plural(__CLASS__, $n_rows),
 			) + $server->members());
 		}
 	}

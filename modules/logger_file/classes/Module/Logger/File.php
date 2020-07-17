@@ -35,7 +35,7 @@ class Module_Logger_File extends Module {
 		/**
 		 * We want to load first so we get logging as soon as possible, use system configured hook, not module or application
 		 */
-		$this->application->hooks->add(Hooks::hook_configured, array(
+		$this->application->hooks->add(Hooks::HOOK_CONFIGURED, array(
 			$this,
 			"configured",
 		), "first");

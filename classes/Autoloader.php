@@ -255,9 +255,7 @@ class Autoloader {
 	 *        	The file name to search for, without the extension
 	 * @param array $extensions
 	 *        	A list of extensions to search for in each target path. If supplied, is forced.
-	 * @param array $tried_path
-	 *        	A list of paths which were tried to find the file
-	 * @return string The found path, or null if not found
+	 * @return array[string]
 	 */
 	public function possibilities($file_prefix, array $extensions = null) {
 		$debug = $this->debug_search;
@@ -305,12 +303,12 @@ class Autoloader {
 
 	/**
 	 * Search for a file in the autoload path (::path), looking for files with
-	 * "extesion"
+	 * "extensions"
 	 *
-	 * @param unknown_type $class
+	 * @param string $class
 	 * @param array $extensions
-	 * @param unknown_type $tried_path
-	 * @return unknown
+	 * @param array $tried_path Return tried paths
+	 * @return string
 	 */
 	public function search($class, array $extensions = null, &$tried_path = null) {
 		$debug = $this->debug_search;

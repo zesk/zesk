@@ -47,7 +47,7 @@ class Process {
 	 */
 	public function __construct(Application $application) {
 		$this->application = $application;
-		$application->hooks->add(Hooks::hook_configured, array(
+		$application->hooks->add(Hooks::HOOK_CONFIGURED, array(
 			$this,
 			"configured",
 		));

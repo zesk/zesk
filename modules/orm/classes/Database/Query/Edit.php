@@ -105,7 +105,7 @@ abstract class Database_Query_Edit extends Database_Query {
 	 * @param string $name
 	 *        	Alternately, pass an array as this value to update multiple values
 	 * @param mixed $value
-	 * @return self
+	 * @return Database_Query_Edit|Database_Query_Update
 	 */
 	public function value($name, $value = null) {
 		if (is_array($name)) {
@@ -143,7 +143,7 @@ abstract class Database_Query_Edit extends Database_Query {
 	 * Pass multiple values to be inserted/updated
 	 *
 	 * @param array $values
-	 * @return Database_Query_Edit
+	 * @return self
 	 */
 	public function values(array $values = null) {
 		if ($values === null) {
@@ -156,7 +156,7 @@ abstract class Database_Query_Edit extends Database_Query {
 	 * Getter/setter for low priority state of this query
 	 *
 	 * @param boolean $low_priority
-	 * @return boolean Database_Query_Edit
+	 * @return boolean|Database_Query_Edit
 	 */
 	public function low_priority($low_priority = null) {
 		if ($low_priority === null) {
@@ -171,7 +171,7 @@ abstract class Database_Query_Edit extends Database_Query {
 	 * Right now just stores it.
 	 *
 	 * @param array $columns
-	 * @return Database_Query_Insert
+	 * @return self
 	 */
 	public function valid_columns(array $columns, $alias = null) {
 		$this->valid_columns["$alias"] = $columns;

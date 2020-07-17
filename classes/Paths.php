@@ -87,7 +87,7 @@ class Paths {
 
 		$config->home = $this->home;
 
-		$zesk->hooks->add(Hooks::hook_configured, array(
+		$zesk->hooks->add(Hooks::HOOK_CONFIGURED, array(
 			$this,
 			"configured",
 		));
@@ -112,7 +112,7 @@ class Paths {
 		$paths = $configuration->path(__CLASS__);
 
 		if ($paths->has('zesk_command_paths')) {
-			$this->zesk_command($paths->zesk_command_paths);
+			$this->command($paths->zesk_command_paths);
 		}
 		// cache
 		if ($paths->cache) {

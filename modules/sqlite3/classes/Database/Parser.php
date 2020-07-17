@@ -284,7 +284,7 @@ class Database_Parser extends \zesk\Database_Parser {
 	 * @param mixed $indexes_state
 	 * @return string
 	 */
-	private static function parse_index_sql(Database_Table $table, $sql) {
+	private function parse_index_sql(Database_Table $table, $sql) {
 		/*
 		 * Extract indexes from definition
 		 */
@@ -362,7 +362,7 @@ class Database_Parser extends \zesk\Database_Parser {
 	 * @param Database_Table $table
 	 * @param array $tips
 	 */
-	private static function apply_tips(Database_Table $table, array $tips) {
+	private function apply_tips(Database_Table $table, array $tips) {
 		$rename_tips = avalue($tips, 'rename', array());
 		foreach ($rename_tips as $column => $previous_name) {
 			/* @var $col Database_Column */
@@ -370,7 +370,7 @@ class Database_Parser extends \zesk\Database_Parser {
 			if ($col) {
 				$col->previous_name($previous_name);
 			} else {
-				$this->application->logger->notice($table->name() . " contains rename tip for non-existent new column: $previous_name => $column");
+				$table->application->logger->notice($table->name() . " contains rename tip for non-existent new column: $previous_name => $column");
 			}
 		}
 
@@ -380,7 +380,7 @@ class Database_Parser extends \zesk\Database_Parser {
 			if ($col) {
 				$col->set_option("add_sql", $add_sql);
 			} else {
-				$this->application->logger->notice($table->name() . " contains add tip for non-existent new column: $column => $add_sql");
+				$table->application->logger->notice($table->name() . " contains add tip for non-existent new column: $column => $add_sql");
 			}
 		}
 		$remove_tips = avalue($tips, 'add', array());
@@ -425,14 +425,14 @@ class Database_Parser extends \zesk\Database_Parser {
 		$table->source($source_sql);
 		$sql_columns = trim($matches[2]) . ",";
 
-		self::parse_column_sql($table, $sql_columns);
+		$this->parse_column_sql($table, $sql_columns);
 
-		self::parse_index_sql($table, $sql);
+		$this->parse_index_sql($table, $sql);
 
 		/*
 		 * Apply tips to entire table
 		 */
-		self::apply_tips($table, $tips);
+		$this->apply_tips($table, $tips);
 
 		return $table;
 	}

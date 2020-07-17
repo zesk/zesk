@@ -357,7 +357,7 @@ abstract class Route extends Hookable {
 		$re_pattern = str_replace(')', $C_PAREN_CLOSE, $re_pattern);
 		$re_pattern = str_replace('*', $C_WILDCARD, $re_pattern);
 
-		$matches = false;
+		$matches = array();
 		$types = array();
 		if (preg_match_all('/{([^ }]+ )?([^ }]+)}/', $re_pattern, $matches, PREG_SET_ORDER)) {
 			$index = 1;

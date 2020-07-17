@@ -170,10 +170,10 @@ class HTML {
 
 	/**
 	 *
-	 * @param unknown $src
-	 * @param unknown $text
-	 * @param unknown $attrs
-	 * @param unknown $full_path
+	 * @param string $src
+	 * @param string $text
+	 * @param array $attrs
+	 * @param string $full_path
 	 * @return string
 	 */
 	private static function _img($src, $text, $attrs, $full_path) {
@@ -737,7 +737,7 @@ class HTML {
 		 */
 		$patterns = self::_html_tag_patterns();
 		foreach ($patterns as $pattern) {
-			$matches = false;
+			$matches = array();
 			while (preg_match_all($pattern, $contents, $matches, PREG_SET_ORDER | PREG_OFFSET_CAPTURE)) {
 				$search = array();
 				$replace = array();
@@ -961,7 +961,7 @@ class HTML {
 		if (empty($mixed)) {
 			return array();
 		}
-		$matches = false;
+		$matches = array();
 		$mixed .= " ";
 		if (preg_match_all('/([a-zA-Z_:][-a-zA-Z0-9_:.]*)\s*=\s*(\'[^\']*\'|\"[^\"]*\"|[^\'\"]+)\s/', $mixed, $matches, PREG_SET_ORDER)) {
 			foreach ($matches as $match) {
@@ -1087,7 +1087,7 @@ class HTML {
 	}
 
 	public static function match_tags($string) {
-		$matches = false;
+		$matches = array();
 		if (!preg_match_all('#<([A-Za-z][A-Za-z0-9]*)([^>]*)\/?>#i', $string, $matches, PREG_SET_ORDER)) {
 			return false;
 		}
@@ -1348,7 +1348,7 @@ class HTML {
 		 */
 		$patterns = self::_html_tag_patterns();
 		foreach ($patterns as $pattern) {
-			$matches = false;
+			$matches = array();
 			while (preg_match_all($pattern, $contents, $matches, PREG_SET_ORDER)) {
 				$search = array();
 				$replace = array();
@@ -1363,7 +1363,7 @@ class HTML {
 	}
 
 	public static function style_units($item, $default_unit = "px") {
-		$matches = null;
+		$matches = array();
 		if (preg_match('/([0-9.]+)(em|ex|pt|%|in|cm|mm|pc)?/', $item, $matches)) {
 			$num = $matches[1];
 			$units = aevalue($matches, 2, $default_unit);
@@ -1377,7 +1377,7 @@ class HTML {
 		if (empty($style_string)) {
 			return false;
 		}
-		$matches = false;
+		$matches = array();
 		if (!preg_match_all('/([-a-zA-Z]+)\s*:\s*([^;]*);/', "$style_string;", $matches, PREG_SET_ORDER)) {
 			return false;
 		}

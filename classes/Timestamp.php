@@ -132,7 +132,7 @@ class Timestamp extends Temporal {
 	 * @param Kernel $kernel
 	 */
 	public static function hooks(Application $kernel) {
-		$kernel->hooks->add(Hooks::hook_configured, array(
+		$kernel->hooks->add(Hooks::HOOK_CONFIGURED, array(
 			__CLASS__,
 			"configured",
 		));
@@ -525,7 +525,7 @@ class Timestamp extends Temporal {
 		}
 		$parsed = strtotime($value, time());
 		if ($parsed === false) {
-			throw new Exception_Convert(__("Timestamp::parse({0})", $value));
+			throw new Exception_Convert(map("Timestamp::parse({0})", [$value]));
 		}
 		$datetime = new DateTime($value, $this->tz);
 		$this->datetime = $datetime;
@@ -555,7 +555,7 @@ class Timestamp extends Temporal {
 	public function quarter($set = null) {
 		if ($set !== null) {
 			if ($set < 1 || $set > 4) {
-				throw new Exception_Range(__("Timestamp::quarter({0})", _dump($set)));
+				throw new Exception_Range(map("Timestamp::quarter({0})", [_dump($set)]));
 			}
 			$set = abs($set - 1) % 4;
 			$quarter = $this->quarter() - 1;
@@ -628,7 +628,7 @@ class Timestamp extends Temporal {
 	 * Weekday, when set, is always the NEXT possible weekday, including today.
 	 *
 	 * @param string $set
-	 * @return number Timestamp
+	 * @return Timestamp|integer
 	 */
 	public function weekday($set = null) {
 		if ($set === null) {
@@ -862,7 +862,7 @@ class Timestamp extends Temporal {
 	 *        	'nohook' => boolean. Do not invoke the formatting hook
 	 * @todo Evaluation global usage
 	 * @see Locale::now_string
-	 * @return string
+	 * @return array
 	 * @global string Timestamp::formatting::unit_minumum
 	 * @global string Timestamp::formatting::zero_string
 	 *         @hook Timestamp::formatting
@@ -923,7 +923,7 @@ class Timestamp extends Temporal {
 		$options = array(
 			"nohook" => true,
 		);
-		return $this->format(self::DEFAULT_FORMAT_STRING, $options) === $timestamp->format(self::DEFAULT_FORMAT_STRING, $options);
+		return $this->format(null, self::DEFAULT_FORMAT_STRING, $options) === $timestamp->format(null, self::DEFAULT_FORMAT_STRING, $options);
 	}
 
 	/**
@@ -1160,8 +1160,8 @@ class Timestamp extends Temporal {
 			$total = Date::days_in_month($mstart, $ystart);
 
 			$temp = clone $timestamp;
-			$temp->setMonth($mstart);
-			$temp->setYear($ystart);
+			$temp->month($mstart);
+			$temp->year($ystart);
 
 			$fract = $temp->subtract($this);
 			$fract = $fract / doubleval($total * 86400);
@@ -1202,7 +1202,7 @@ class Timestamp extends Temporal {
 				if ($value !== null) {
 					return $this->second(round($value / 1000));
 				} else {
-					return $this->milliseconds();
+					return $this->millisecond();
 				}
 			// no break
 			case self::UNIT_SECOND:
@@ -1313,7 +1313,7 @@ class Timestamp extends Temporal {
 				return $this;
 			}
 			if ($dd === false || $tt === false) {
-				throw new Exception_Syntax(__("Timestamp::iso8601({0}) - invalid date format", $set));
+				throw new Exception_Syntax(map("Timestamp::iso8601({0}) - invalid date format", array($set)));
 			}
 			list($hh, $mm, $ss) = explode(":", $tt, 3);
 			$this->ymdhms(substr($dd, 0, 4), substr($dd, 4, 2), substr($dd, 6, 2), $hh, $mm, $ss);

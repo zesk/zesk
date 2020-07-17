@@ -167,14 +167,14 @@ class Module_Health extends Module {
 		$event = $this->call_hook_arguments("log", array(
 			$event,
 		), $event);
-		$event_object = Health_Event::event_log($event, $this->path);
+		$event_object = Health_Event::event_log($this->application, $event, $this->path);
 		$this->application->logger->error($event['message'], $event);
 		return $event_object;
 	}
 
 	public static function daemon(Interface_Process $process) {
 		$app = $process->application();
-		$app->modules->object("health")->run_daemon($process);
+		$app->health_module()->run_daemon($process);
 	}
 
 	/**
@@ -199,25 +199,25 @@ class Module_Health extends Module {
 		$purge_events_fatal_hours = $this->option_integer("purge_events_fatal_hours", -1);
 		$purge_events_non_fatal_hours = $this->option_integer("purge_events_non_fatal_hours", 24 * 7);
 
-		self::purge_old_events('Health_Event', 'when', $purge_events_fatal_hours, $purge_events_non_fatal_hours);
-		self::purge_old_events('Health_Events', 'first', $purge_events_fatal_hours, $purge_events_non_fatal_hours);
+		$this->purge_old_events('Health_Event', 'when', $purge_events_fatal_hours, $purge_events_non_fatal_hours);
+		$this->purge_old_events('Health_Events', 'first', $purge_events_fatal_hours, $purge_events_non_fatal_hours);
 	}
 
-	private static function purge_old_events($class, $date_column, $fatal_hours, $non_fatal_hours) {
+	private function purge_old_events($class, $date_column, $fatal_hours, $non_fatal_hours) {
 		if ($fatal_hours > 0) {
-			self::purge_event_types($class, $date_column, array(
+			$this->purge_event_types($class, $date_column, array(
 				"fatal" => true,
 			), Timestamp::now()->add_unit(-abs($fatal_hours), Timestamp::UNIT_HOUR), "fatal");
 		}
 		if ($non_fatal_hours > 0) {
-			self::purge_event_types($class, $date_column, array(
+			$this->purge_event_types($class, $date_column, array(
 				"fatal" => false,
 			), Timestamp::now()->add_unit(-abs($non_fatal_hours), Timestamp::UNIT_HOUR), "non-fatal");
 		}
 	}
 
-	private static function purge_event_types($class, $date_column, array $where, Timestamp $when, $description) {
-		$delete = ORM::class_query_delete($class)->where($where + array(
+	private function purge_event_types($class, $date_column, array $where, Timestamp $when, $description) {
+		$delete = $this->application->orm_registry($class)->query_delete()->where($where + array(
 			"$date_column|<=" => $when,
 		));
 		$delete->execute();

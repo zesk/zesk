@@ -337,7 +337,7 @@ class Kernel {
 	 * Add configurated hook
 	 */
 	public function initialize() {
-		$this->hooks->add(Hooks::hook_configured, array(
+		$this->hooks->add(Hooks::HOOK_CONFIGURED, array(
 			$this,
 			"configured",
 		));
@@ -492,7 +492,7 @@ class Kernel {
 	 */
 	public function profile_timer($item, $seconds) {
 		$profiler = $this->_profiler();
-		if (array_key_exists($item, $this->profiler)) {
+		if (array_key_exists($item, $profiler->times)) {
 			$profiler->times[$item] = $profiler->times[$item] + $seconds;
 		} else {
 			$profiler->times[$item] = $seconds;

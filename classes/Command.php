@@ -876,11 +876,11 @@ abstract class Command extends Hookable implements Logger\Handler, Interface_Pro
 	 * @return array
 	 */
 	public function arguments_remaining($clean = false) {
-		$argv = $this->argv;
+		$result = $this->argv;
 		if ($clean) {
 			$this->argv = array();
 		}
-		return $argv;
+		return $result;
 	}
 
 	/**
@@ -1372,7 +1372,7 @@ abstract class Command extends Hookable implements Logger\Handler, Interface_Pro
 
 	/**
 	 *
-	 * @param string $content
+	 * @param string|array $content
 	 * @param string $format
 	 * @param string $default_format
 	 * @return boolean

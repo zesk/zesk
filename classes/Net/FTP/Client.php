@@ -59,7 +59,7 @@ class Net_FTP_Client extends Net_Client implements Net_FileSystem {
 		}
 		// Special case to enable relative paths
 		if ($path !== null) {
-			if ($path{0} === '/') {
+			if (substr($path, 0, 1) === '/') {
 				$path = substr($path, 1);
 			}
 			$this->url_parts['path'] = $path;

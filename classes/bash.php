@@ -18,7 +18,7 @@ class bash {
 			}
 			return $value;
 		}
-		$matches = false;
+		$matches = array();
 		// Handle ${FOO:-default} correctly
 		$depends = array();
 		if (preg_match_all('/\$\{([^}]+)\}/', $value, $matches, PREG_SET_ORDER)) {

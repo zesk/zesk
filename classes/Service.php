@@ -10,7 +10,7 @@ class Service extends Hookable {
 
 	/**
 	 *
-	 * @var unknown
+	 * @var array
 	 */
 	private static $valid_types = null;
 

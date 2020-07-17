@@ -95,7 +95,7 @@ class Response extends Hookable {
 	/**
 	 * Ordered from most specific to least specific
 	 *
-	 * @var string
+	 * @var array
 	 */
 	private static $cache_pattern = array(
 		self::CACHE_SCHEME => "{scheme}/{host}_{port}{path}/{query}",
@@ -106,7 +106,7 @@ class Response extends Hookable {
 	/**
 	 * Cache responses to the request
 	 *
-	 * @var unknown
+	 * @var array
 	 */
 	private $cache_settings = null;
 

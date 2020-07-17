@@ -47,7 +47,7 @@ class Logger implements LoggerInterface {
 
 	/**
 	 *
-	 * @var \zesk\Logger\Processor[name]
+	 * @var array
 	 */
 	private $processors = array();
 
@@ -208,7 +208,7 @@ class Logger implements LoggerInterface {
 		}
 		if (is_array($message)) {
 			foreach ($message as $y) {
-				self::log($level, $y, $context);
+				$this->log($level, $y, $context);
 			}
 			return;
 		}

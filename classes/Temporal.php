@@ -97,6 +97,11 @@ abstract class Temporal {
 	/**
 	 * @var integer
 	 */
+	const MONTHS_PER_QUARTER = 3;
+
+	/**
+	 * @var integer
+	 */
 	const DAYS_PER_WEEK = 7;
 
 	/**

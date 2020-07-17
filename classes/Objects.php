@@ -288,7 +288,7 @@ class Objects {
 	 * Create a new class based on name
 	 *
 	 * @param string $class
-	 * @return stdClass
+	 * @return object
 	 * @throws Exception
 	 */
 	public function factory($class) {

@@ -16,6 +16,11 @@ use Psr;
  */
 class Directory extends Hookable {
 	/**
+	 * @var boolean
+	 */
+	public static $debug = false;
+
+	/**
 	 *
 	 * @var integer
 	 */
@@ -53,7 +58,7 @@ class Directory extends Hookable {
 		$perms = File::stat($path, 'perms');
 		if (!self::octal_equal($perms['octal'], File::mode_to_octal($mode))) {
 			if (!chmod($path, $mode)) {
-				throw new Exception_Directory_Permission($path, __("Setting {filename} to mode {0}", sprintf("%04o", $mode)));
+				throw new Exception_Directory_Permission($path, map("Setting {filename} to mode {0}", array(sprintf("%04o", $mode))));
 			}
 		}
 		return $path;

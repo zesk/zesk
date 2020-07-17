@@ -21,7 +21,7 @@ class System {
 	 * @param Application $application
 	 */
 	public static function hooks(Application $app) {
-		$app->hooks->add(Hooks::hook_configured, array(
+		$app->hooks->add(Hooks::HOOK_CONFIGURED, array(
 			__CLASS__,
 			"configured",
 		));

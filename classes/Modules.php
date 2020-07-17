@@ -224,7 +224,7 @@ class Modules {
 
 				continue;
 			}
-			$result += self::_load_one($name, $options);
+			$result += $this->_load_one($name, $options);
 		}
 		$result = ArrayTools::filter($result, $passed_modules);
 		if (count($passed_modules) === 1) {
@@ -357,7 +357,7 @@ class Modules {
 	 *
 	 * @param array $module_data
 	 *
-	 * @return number
+	 * @return array
 	 */
 	private function _load_module_configuration(array $module_data) {
 		$name = $path = null;
@@ -410,7 +410,7 @@ class Modules {
 				$required_module,
 				"loaded",
 			))) {
-				$result += self::_load_one($required_module, $options);
+				$result += $this->_load_one($required_module, $options);
 			}
 		}
 		return $result;
@@ -970,8 +970,8 @@ class Modules {
 	/**
 	 * Clean a module name
 	 *
-	 * @param string $module
-	 * @return string
+	 * @param string|array $module
+	 * @return string|array
 	 */
 	public static function clean_name($module) {
 		if (is_array($module)) {

@@ -189,7 +189,7 @@ class Router extends Hookable {
 	 * @param Kernel $kernel
 	 */
 	public static function hooks(Application $kernel) {
-		$kernel->hooks->add(Hooks::hook_configured, array(
+		$kernel->hooks->add(Hooks::HOOK_CONFIGURED, array(
 			__CLASS__,
 			"configured",
 		));

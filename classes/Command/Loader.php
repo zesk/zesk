@@ -113,11 +113,11 @@ class Command_Loader {
 			die('No argv key in $_SERVER\n');
 		}
 
-		$argv = $_SERVER['argv'];
+		$args = $_SERVER['argv'];
 		assert('is_array($argv)');
-		$argv = $this->fix_zend_studio_arguments($argv);
-		$argv = $this->argument_sugar($argv);
-		$this->command = array_shift($argv);
+		$args = $this->fix_zend_studio_arguments($args);
+		$args = $this->argument_sugar($args);
+		$this->command = array_shift($args);
 
 		/*
 		 * Main comand loop. Handle parameters
@@ -145,17 +145,17 @@ class Command_Loader {
 		$first_command = null;
 		$wait_set = array();
 		$wait_configs = array();
-		while (count($argv) > 0) {
+		while (count($args) > 0) {
 			$arg = array_shift($argv);
 			if (substr($arg, 0, 2) === '--') {
 				$func = "handle_" . substr($arg, 2);
 				if (method_exists($this, $func)) {
-					$argv = $this->$func($argv);
+					$args = $this->$func($args);
 
 					continue;
 				}
 				array_unshift($argv, substr($arg, 2));
-				$argv = $this->handle_set($argv);
+				$args = $this->handle_set($args);
 
 				continue;
 			}
@@ -427,15 +427,15 @@ class Command_Loader {
 	/**
 	 *
 	 * @param string $arg
-	 * @return boolean
+	 * @return Application
 	 */
 	private function zesk_loaded($arg = null) {
 		if ($this->is_loaded) {
-			return true;
+			return $this->application;
 		}
 		if (!$this->zesk_is_loaded()) {
 			if ($arg === null) {
-				return false;
+				return null;
 			}
 			$this->usage("Zesk not initialized correctly.\n\n    $arg\n\nmust contain reference to:\n\n    require_once '" . ZESK_ROOT . "autoload.php';\n\n");
 		}

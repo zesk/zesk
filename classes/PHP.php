@@ -283,21 +283,21 @@ class PHP {
 				case "pcntl":
 					$results[$feature] = $result = function_exists('pcntl_exec');
 					if (!$result) {
-						$errors[] = __("Need pcntl extensions for PHP\nphp.ini at {0}\n", get_cfg_var('cfg_file_path'));
+						$errors[] = map("Need pcntl extensions for PHP\nphp.ini at {0}\n", array(get_cfg_var('cfg_file_path')));
 					}
 
 					break;
 				case "time_limits":
 					$results[$feature] = $result = !to_bool(ini_get('safe_mode'));
 					if (!$result) {
-						$errors[] = __("PHP safe mode prevents removing time limits on pages\nphp.ini at {0}\n", get_cfg_var('safe_mode'));
+						$errors[] = map("PHP safe mode prevents removing time limits on pages\nphp.ini at {0}\n", array(get_cfg_var('safe_mode')));
 					}
 
 					break;
 				case "posix":
 					$results[$feature] = $result = function_exists('posix_getpid');
 					if (!$result) {
-						$errors[] = __("Need POSIX extensions to PHP (posix_getpid)");
+						$errors[] = "Need POSIX extensions to PHP (posix_getpid)";
 					}
 
 					break;

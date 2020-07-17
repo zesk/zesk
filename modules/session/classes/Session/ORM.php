@@ -90,7 +90,7 @@ class Session_ORM extends ORM implements Interface_Session {
 	 * @param Application $application
 	 */
 	public static function hooks(Application $application) {
-		$application->hooks->add(Hooks::hook_configured, __CLASS__ . '::configured');
+		$application->hooks->add(Hooks::HOOK_CONFIGURED, __CLASS__ . '::configured');
 		$application->hooks->add('exit', __CLASS__ . '::save');
 	}
 

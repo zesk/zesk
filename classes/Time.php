@@ -110,7 +110,7 @@ class Time extends Temporal {
 	 * @param Kernel $kernel
 	 */
 	public static function hooks(Application $kernel) {
-		$kernel->hooks->add(Hooks::hook_configured, array(
+		$kernel->hooks->add(Hooks::HOOK_CONFIGURED, array(
 			__CLASS__,
 			"configured",
 		));
@@ -189,7 +189,7 @@ class Time extends Temporal {
 	 */
 	public function set($value) {
 		if (is_integer($value)) {
-			$this->timestamp($value);
+			$this->unix_timestamp($value);
 			return $this;
 		} elseif (empty($value)) {
 			$this->set_empty();
@@ -202,11 +202,11 @@ class Time extends Temporal {
 			return $this;
 		} elseif ($value instanceof Timestamp) {
 			$this->seconds = $value->day_seconds();
-			$this->milliseconds = $value->milliseconds();
+			$this->milliseconds = $value->millisecond();
 			return $this;
 		}
 
-		throw new Exception_Parameter(__("Time::set({0})", _dump($value)));
+		throw new Exception_Parameter(map("Time::set({0})", array(_dump($value))));
 	}
 
 	/**
@@ -269,7 +269,7 @@ class Time extends Temporal {
 	public function unix_timestamp($set = null) {
 		if ($set !== null) {
 			if (!is_numeric($set)) {
-				throw new Exception_Parameter(__("Time::unix_timestamp({0})", _dump($set)));
+				throw new Exception_Parameter(map("Time::unix_timestamp({0})", array(_dump($set))));
 			}
 			list($hours, $minutes, $seconds) = explode(" ", gmdate("G n s", $set)); // getdate doesn't support UTC
 			$this->hms(intval($hours), intval($minutes), intval($seconds));
@@ -304,7 +304,7 @@ class Time extends Temporal {
 		if ($this->is_empty()) {
 			return "";
 		}
-		$result = self::format("{hh}:{mm}:{ss}");
+		$result = $this->format(null, "{hh}:{mm}:{ss}");
 		return $result;
 	}
 
@@ -344,7 +344,7 @@ class Time extends Temporal {
 		$ts = strtotime($value, $this->unix_timestamp());
 		date_default_timezone_set($tz);
 		if ($ts === false || $ts < 0) {
-			throw new Exception_Parameter(__("Time::parse({0}): Can't parse", $value));
+			throw new Exception_Parameter(map("Time::parse({0}): Can't parse", array($value)));
 		}
 		return $this->unix_timestamp($ts);
 	}

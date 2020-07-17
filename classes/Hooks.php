@@ -61,7 +61,7 @@ class Hooks {
 	/**
 	 * System hooks for adding custom functionality throughout the system
 	 *
-	 * @var HookGroup[string]
+	 * @var array
 	 */
 	private $hooks = array();
 
@@ -178,7 +178,7 @@ class Hooks {
 	 *
 	 */
 	public function reset() {
-		$this->call(Hooks::hook_reset);
+		$this->call(Hooks::HOOK_RESET);
 		foreach ($this->initialize() as $class) {
 			$this->register_class($class);
 		}
@@ -550,7 +550,7 @@ class Hooks {
 		if (is_array($oldname)) {
 			$result = array();
 			foreach ($oldname as $old => $new) {
-				$result[$old] = $this->hook_alias($old, $new);
+				$result[$old] = $this->alias($old, $new);
 			}
 			return $result;
 		}
@@ -648,7 +648,7 @@ class Hooks {
 	 * @param unknown $result_callback
 	 * @param unknown $return_hint
 	 *        	deprecated 2017-11
-	 * @return string|NULL
+	 * @return array[array]
 	 */
 	public function collect_hooks($hooks, $arguments = array()) {
 		$definitions = $this->hook_load_definitions($hooks);

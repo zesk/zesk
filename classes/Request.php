@@ -269,7 +269,7 @@ class Request extends Hookable {
 				"url" => $settings,
 			);
 		} elseif ($settings instanceof Request) {
-			$this->_copy_from($settings);
+			$this->initialize_from_request($settings);
 			return;
 		}
 		if (!is_array($settings)) {
@@ -281,7 +281,7 @@ class Request extends Hookable {
 		$method = $uri = $url = $data = $data_file = $data_raw = $ip = $remote_ip = $server_ip = null;
 		$headers = $cookies = $variables = $files = array();
 		extract($settings, EXTR_IF_EXISTS);
-		$this->set_method(firstarg($method, "GET"));
+		$this->set_method($method ? $method : "GET");
 		$this->uri = $uri;
 		if (is_array($headers)) {
 			foreach ($headers as $k => $v) {
@@ -719,7 +719,7 @@ class Request extends Hookable {
 	 * @return array|mixed
 	 */
 	public function geta($name, $default = array(), $sep = ";") {
-		$x = self::get($name, $default);
+		$x = $this->get($name, $default);
 		if (is_array($x)) {
 			return $x;
 		}
@@ -791,7 +791,7 @@ class Request extends Hookable {
 	 *
 	 * @see self::url_variables()
 	 *
-	 * @return number
+	 * @return array
 	 */
 	public function variables() {
 		return $this->variables;
@@ -897,7 +897,7 @@ class Request extends Hookable {
 	 * @see Request::url_variables()
 	 * @deprecated 2017-12
 	 * @param string $component
-	 * @return string
+	 * @return array|string
 	 * @throws Exception_Key
 	 */
 	public function url_parts($component = null) {
@@ -908,7 +908,7 @@ class Request extends Hookable {
 	 * Retrieve the URL component
 	 *
 	 * @param string $component
-	 * @return string
+	 * @return array|string
 	 * @throws Exception_Key
 	 */
 	public function url_variables($component = null, $default = null) {
@@ -1155,8 +1155,8 @@ class Request extends Hookable {
 	 * @param array $mixed
 	 * @return array
 	 */
-	private function clean_gpc(array $mixed) {
-		return get_magic_quotes_gpc() ? self::_cleanslashes($mixed) : $mixed;
+	private static function clean_gpc(array $mixed) {
+		return false ? self::_cleanslashes($mixed) : $mixed;
 	}
 
 	/**

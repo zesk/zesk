@@ -135,7 +135,7 @@ class Server extends ORM implements Interface_Data {
 	 * @param Kernel $zesk
 	 */
 	public static function hooks(Application $zesk) {
-		$zesk->hooks->add(Hooks::hook_configured, array(
+		$zesk->hooks->add(Hooks::HOOK_CONFIGURED, array(
 			__CLASS__,
 			"configured",
 		));

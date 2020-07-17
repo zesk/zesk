@@ -76,7 +76,7 @@ class Date extends Temporal {
 	 * @param Kernel $kernel
 	 */
 	public static function hooks(Application $kernel) {
-		$kernel->hooks->add(Hooks::hook_configured, array(
+		$kernel->hooks->add(Hooks::HOOK_CONFIGURED, array(
 			__CLASS__,
 			"configured",
 		));
@@ -231,7 +231,7 @@ class Date extends Temporal {
 	public function parse($value) {
 		$ts = @strtotime($value, $this->unix_timestamp());
 		if ($ts < 0 || $ts === false) {
-			throw new Exception_Parse(__("Date::fromString({0})", _dump($value)));
+			throw new Exception_Parse(map("Date::fromString({value})", array("value" => _dump($value))));
 		}
 		return $this->unix_timestamp($ts);
 	}
@@ -248,12 +248,12 @@ class Date extends Temporal {
 		if ($set === null) {
 			$ts = gmmktime(0, 0, 0, $this->month, $this->day, $this->year);
 			if ($ts === false) {
-				throw new Exception_Convert(__("Date::unix_timestamp({0}): Year is out of range of integer", $set));
+				throw new Exception_Convert("Date::unix_timestamp({0}): Year is out of range of integer", $set);
 			}
 			return $ts;
 		}
 		if (!is_numeric($set)) {
-			throw new Exception_Parameter(__("Date::unix_timestamp({0}): Invalid unix timestamp (numeric)", $set));
+			throw new Exception_Parameter("Date::unix_timestamp({0}): Invalid unix timestamp (numeric)", $set);
 		}
 		return $this->_set_date(getdate(intval($set)));
 	}
@@ -277,7 +277,7 @@ class Date extends Temporal {
 			return intval($this->month);
 		}
 		if ($set < 1 || $set > 12) {
-			throw new Exception_Range(__("Date::setMonth({0})", _dump($set)));
+			throw new Exception_Range(map("Date::setMonth({0})", array(_dump($set))));
 		}
 		if ($this->month !== $set) {
 			$this->_yearday = $this->_weekday = null;
@@ -298,7 +298,7 @@ class Date extends Temporal {
 			return intval(($this->month - 1) / 3) + 1;
 		}
 		if ($set < 1 || $set > 4) {
-			throw new Exception_Range(__("Date::quarter({0})", _dump($set)));
+			throw new Exception_Range(map("Date::quarter({0})", array(_dump($set))));
 		}
 		// Convert to zero-based quarter
 		$set = abs($set - 1) % 4;
@@ -332,7 +332,7 @@ class Date extends Temporal {
 		}
 		$set = intval($set);
 		if ($set < 1 || $set > 31) {
-			throw new Exception_Range(__("Date::day({0})", _dump($set)));
+			throw new Exception_Range(map("Date::day({0})", array(_dump($set))));
 		}
 		if ($this->day !== $set) {
 			$this->_weekday = $this->_yearday = null;
@@ -353,7 +353,7 @@ class Date extends Temporal {
 			return $this->year;
 		}
 		if ($set < 0) {
-			throw new Exception_Range(__("Date::year({0})", _dump($set)));
+			throw new Exception_Range(map("Date::year({0})", array(_dump($set))));
 		}
 		if ($this->year !== $set) {
 			$this->_weekday = $this->_yearday = null;
