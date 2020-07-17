@@ -2,14 +2,16 @@
 /**
  *
  */
-namespace zesk;
+namespace zesk\ObjectCache;
+
+use zesk\ORM;
 
 /**
  *
  * @author kent
  *
  */
-abstract class Object_Cache {
+abstract class Base {
 	abstract public function load(ORM $object, $key);
 
 	abstract public function save(ORM $object, $key, $data);

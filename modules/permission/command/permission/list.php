@@ -14,7 +14,7 @@ class Command_Permission_List extends Command_Base {
 	);
 
 	public function run() {
-		$perms = $this->application->modules->object("permission")->permissions();
+		$perms = $this->application->permissions_module()->permissions();
 		foreach ($perms['class'] as $class => $actions) {
 			foreach ($actions as $codename => $permission) {
 				assert($permission instanceof Permission);

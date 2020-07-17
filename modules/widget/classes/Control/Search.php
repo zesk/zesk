@@ -44,7 +44,7 @@ class Control_Search extends Control_Text {
 			$where[] = $value_where;
 		}
 		$query->where($where);
-		$query->condition(__("match the string \"{q}\"", array(
+		$query->condition($this->application->locale->__("match the string \"{q}\"", array(
 			"q" => $value,
 		)));
 	}

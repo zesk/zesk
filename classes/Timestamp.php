@@ -665,7 +665,7 @@ class Timestamp extends Temporal {
 	 * Get/set hour of day
 	 *
 	 * @param string $set
-	 * @return number Timestamp
+	 * @return number|Timestamp
 	 */
 	public function hour($set = null) {
 		if ($set === null) {
@@ -679,7 +679,7 @@ class Timestamp extends Temporal {
 	 * Get/set minute of the day
 	 *
 	 * @param integer $set
-	 * @return number Timestamp
+	 * @return number|Timestamp
 	 */
 	public function minute($set = null) {
 		if ($set === null) {
@@ -693,7 +693,7 @@ class Timestamp extends Temporal {
 	 * Get/set second of the day
 	 *
 	 * @param integer $set
-	 * @return number Timestamp
+	 * @return number|Timestamp
 	 */
 	public function second($set = null) {
 		if ($set === null) {

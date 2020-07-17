@@ -31,7 +31,7 @@ class Locale_ES extends Locale {
 	}
 
 	public function indefinite_article($word, $caps = false, $gender = "n") {
-		$gender = __("$word.gender");
+		$gender = $this->__("$word.gender");
 		if (!$gender) {
 			$gender = "m";
 		}

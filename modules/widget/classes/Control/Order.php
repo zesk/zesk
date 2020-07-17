@@ -15,8 +15,8 @@ namespace zesk;
  *
  */
 class Control_Order extends Control {
-	public function __construct($options = false) {
-		parent::__construct($options);
+	public function initialize() {
+		parent::initialize();
 		$this->set_option("nowrap", "nowrap");
 		$this->set_option("ObjectListCheck", true);
 	}

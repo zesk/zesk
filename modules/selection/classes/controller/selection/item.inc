@@ -42,7 +42,7 @@ class Controller_Selection_Item extends Controller_ORM {
 		if (!$this->user->can("list_items", $type)) {
 			$this->json(array(
 				"status" => true,
-				"message" => __('No permission to edit selection type.'),
+				"message" => $this->application->locale->__('No permission to edit selection type.'),
 			));
 			return;
 		}
@@ -56,7 +56,7 @@ class Controller_Selection_Item extends Controller_ORM {
 		if (!$this->user->can("delete_items", $type)) {
 			$this->json(array(
 				"status" => true,
-				"message" => __('No permission to delete selection items.'),
+				"message" => $this->application->locale->__('No permission to delete selection items.'),
 			));
 			return;
 		}
@@ -75,7 +75,7 @@ class Controller_Selection_Item extends Controller_ORM {
 		}
 		$this->json(array(
 			"status" => true,
-			"message" => __('Deleted selection item.'),
+			"message" => $this->application->locale->__('Deleted selection item.'),
 			"content" => "",
 		) + $this->response->to_json());
 	}

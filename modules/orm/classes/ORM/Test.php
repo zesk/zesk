@@ -31,7 +31,7 @@ class Test extends \zesk\Test {
 		foreach (to_list($classes) as $class) {
 			$class_object = $this->application->class_orm_registry($class);
 			$db = $class_object->database();
-			$results[$class] = $db->query($this->application->orm_registry()->schema_synchronize($db, array(
+			$results[$class] = $db->query($app->orm_module()->schema_synchronize($db, array(
 				$class,
 			), $options + array(
 				"follow" => true,

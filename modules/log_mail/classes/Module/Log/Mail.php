@@ -75,7 +75,7 @@ class Module_Log_Mail extends Module {
 		if ($code === null) {
 			$code = "";
 		}
-		$log_mail = $app->model_factory(Log_Mail::class, array(
+		$log_mail = $app->orm_factory(Log_Mail::class, array(
 			'code' => $code,
 			'user' => $user,
 			'session' => $session,

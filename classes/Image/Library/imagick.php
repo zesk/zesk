@@ -89,20 +89,13 @@ class Image_Library_imagick extends Image_Library {
 		return $res;
 	}
 
-	private function _imageoutput($dst, $dest) {
-		$type = MIME::from_filename($dest);
-		$output = avalue(self::$output_map, $type, 'png');
-		$method = "image$output";
-		return $method($dst, $dest);
-	}
-
 	public function image_scale_data($data, array $options) {
 		$extension = Content_Image::determine_extension_simple_data($data);
 		$source = File::temporary($this->application->paths->temporary(), $extension);
 		$dest = File::temporary($this->application->paths->temporary(), $extension);
 		file_put_contents($source, $data);
 		$result = null;
-		if (self::image_scale($source, $dest, $options)) {
+		if ($this->image_scale($source, $dest, $options)) {
 			$result = file_get_contents($dest);
 		}
 		unlink($source);

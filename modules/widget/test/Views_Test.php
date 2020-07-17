@@ -53,7 +53,7 @@ class Views_Test extends TestWidget {
 				$class = $options;
 				$options = array();
 			}
-			$this->log(__(__CLASS__ . "::test_views({0}, {1})", $class, PHP::dump($options)));
+			$this->log($app->locale->__(__CLASS__ . "::test_views({0}, {1})", array($class, PHP::dump($options))));
 			$this->test_basics($this->application->widget_factory($class, $options));
 		}
 		return true;

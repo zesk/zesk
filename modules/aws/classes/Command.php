@@ -28,6 +28,6 @@ abstract class Command extends \zesk\Command_Base {
 	 */
 	public function initialize() {
 		parent::initialize();
-		$this->awareness = $this->factory(Awareness::class, $this->application);
+		$this->awareness = $this->application->factory(Awareness::class, $this->application);
 	}
 }

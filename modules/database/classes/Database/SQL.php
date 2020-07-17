@@ -46,7 +46,7 @@ abstract class Database_SQL extends Hookable {
 	 */
 	public function alter_table_column_add(Database_Table $table, Database_Column $c) {
 		$column = $c->name();
-		$sqlType = $c->sqlType();
+		$sqlType = $c->sql_type();
 		return "ALTER TABLE $table ADD COLUMN $column $sqlType";
 	}
 
@@ -634,7 +634,7 @@ abstract class Database_SQL extends Hookable {
 		} else {
 			$sql_tables = (string) $tables;
 		}
-		$sql = "SELECT " . $this->what($what, $distinct) . " FROM " . $sql_tables . $where . $this->group_by($group_by) . $this->having($having) . self::order_by($order_by) . $this->limit($offset, $limit);
+		$sql = "SELECT " . $this->what($what, $distinct) . " FROM " . $sql_tables . $where . $this->group_by($group_by) . $this->having($having) . $this->order_by($order_by) . $this->limit($offset, $limit);
 		return trim($sql);
 	}
 
@@ -653,7 +653,7 @@ abstract class Database_SQL extends Hookable {
 		$verb = "INSERT";
 		$table = $values = $low_priority = null;
 		extract($options, EXTR_IF_EXISTS);
-		list($iname, $ivalue) = self::_insert_to_name_values($values);
+		list($iname, $ivalue) = $this->_insert_to_name_values($values);
 		$low_priority = $low_priority ? " LOW_PRIORITY" : "";
 		$sql = "$verb $low_priority INTO " . $this->quote_table($table) . " (\n\t`" . implode("`,\n\t`", $iname) . "`\n) VALUES (\n\t" . implode(",\n\t", $ivalue) . "\n)";
 		return $sql;
@@ -671,7 +671,7 @@ abstract class Database_SQL extends Hookable {
 		$verb = "INSERT";
 		$table = $values = $low_priority = $select = null;
 		extract($options, EXTR_IF_EXISTS);
-		list($iname, $ivalue) = self::_insert_to_name_values($values);
+		list($iname, $ivalue) = $this->_insert_to_name_values($values);
 		$low_priority = $low_priority ? " LOW_PRIORITY" : "";
 		$sql = "$verb $low_priority INTO " . $this->quote_table($table) . " (\n\t`" . implode("`,\n\t`", $iname) . "`\n) $select";
 		return $sql;

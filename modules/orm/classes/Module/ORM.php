@@ -25,7 +25,7 @@ class Module_ORM extends Module {
 
 	/**
 	 *
-	 * @var ORM[string]
+	 * @var ORM[]
 	 */
 	private $class_cache = array();
 
@@ -264,7 +264,7 @@ class Module_ORM extends Module {
 	/**
 	 * Synchronzie the schema.
 	 *
-	 * @return multitype:
+	 * @return string[]
 	 */
 	public function schema_synchronize(Database $db = null, array $classes = null, array $options = array()) {
 		if (!$db) {

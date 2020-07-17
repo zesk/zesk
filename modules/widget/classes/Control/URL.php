@@ -37,7 +37,7 @@ class Control_URL extends Control_Text {
 
 	private function _error_default() {
 		$protocols = ArrayTools::suffix($this->protocol_list(), "://");
-		return __('{label} must begin with {protocol_phrase}', array(
+		return $this->application->locale->__('{label} must begin with {protocol_phrase}', array(
 			"protocol_phrase" => $this->application->locale->conjunction($protocols),
 		));
 	}

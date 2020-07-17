@@ -12,7 +12,7 @@ namespace zesk;
 class Template_Stack {
 	/**
 	 *
-	 * @var array:Template
+	 * @var Template[]
 	 */
 	protected $stack = array();
 

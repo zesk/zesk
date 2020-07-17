@@ -2,23 +2,28 @@
 /**
  *
  */
-namespace zesk;
+namespace zesk\ObjectCache;
+
+use zesk\ORM;
+use zesk\PHP;
+use zesk\ORM_Schema;
+use zesk\Database_Query_Select;
 
 /**
  *
  * @author kent
  *
  */
-class Object_Cache_Database extends Object_Cache {
+class Database extends Base {
 	/**
-	 * @param Object $object
-	 * @return Database
+	 * @param ORM $object
+	 * @return \zesk\Database
 	 */
 	private function cache_database(ORM $object) {
 		return $object->database();
 	}
 
-	private function _object_database_table(Database $database, Object $object, $table) {
+	private function _object_database_table(\zesk\Database $database, ORM $object, $table) {
 		$table_schema = array(
 			'columns' => array(
 				'id' => array(
@@ -64,9 +69,9 @@ class Object_Cache_Database extends Object_Cache {
 		$query->from($table);
 		$query->where("", $object->id());
 		$hash = md5($key);
-		$query->where("*key", "UNHEX(" . $db->quote_value($hash) . ")");
+		$query->where("*key", "UNHEX(" . $db->quote_text($hash) . ")");
 		$query->what("data");
-		return unserialize($query->one("data", null));
+		return PHP::unserialize($query->one("data", null));
 	}
 
 	public function save(ORM $object, $key, $data) {
@@ -77,7 +82,7 @@ class Object_Cache_Database extends Object_Cache {
 		}
 		$hash = md5($key);
 		$update = array(
-			"*key" => "UNHEX(" . $database->quote_value($hash) . ")",
+			"*key" => "UNHEX(" . $database->quote_text($hash) . ")",
 			"id" => $object->id(),
 		);
 		$update['data'] = serialize($data);
@@ -100,7 +105,7 @@ class Object_Cache_Database extends Object_Cache {
 		);
 		if ($key !== null) {
 			$hash = md5($key);
-			$where['*key'] = "UNHEX(" . $database->quote_value($hash) . ")";
+			$where['*key'] = "UNHEX(" . $database->quote_text($hash) . ")";
 		}
 		$sql = $database->sql()->delete(array(
 			'table' => $table,

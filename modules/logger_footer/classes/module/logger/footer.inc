@@ -32,8 +32,8 @@ class Module_Logger_Footer extends Module implements Interface_Module_Head, Inte
 	/**
 	 * @param array $args
 	 */
-	public function log($message, array $args) {
-		$this->log[] = $args;
+	public function log($message, array $args = null) {
+		$this->log[] = $args ?? [];
 	}
 
 	/**

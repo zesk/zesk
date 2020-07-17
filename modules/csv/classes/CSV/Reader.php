@@ -82,7 +82,8 @@ class CSV_Reader extends CSV {
 	 * @return CSV_Reader
 	 */
 	public function set_file($filename) {
-		return parent::_set_file($filename, "r")->determine_encoding();
+		parent::_set_file($filename, "r");
+		return $this->determine_encoding();
 	}
 
 	/**

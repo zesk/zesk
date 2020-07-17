@@ -212,9 +212,9 @@ class Parser {
 					} elseif (($interval = $this->is_time_repeat($cron_value)) !== false) {
 						assert($unit !== 'weekday');
 						if ($divisor < 0) {
-							$next_value = $next->getMonth() + ($next->getYear() * 12);
+							$next_value = $next->month() + ($next->year() * 12);
 						} else {
-							$next_value = intval($next->toTimestamp() / $divisor);
+							$next_value = intval($next->unix_timestamp() / $divisor);
 						}
 						$mod = $next_value % $interval;
 						if ($debug) {
@@ -223,7 +223,7 @@ class Parser {
 						if ($mod === 0) {
 							$match[$cindex] = "1";
 						} else {
-							$next->addUnit($unit, $interval - $mod);
+							$next->add_unit($$interval - $mod, $unit);
 							$match = $default_match;
 							$match[$cindex] = "1";
 
@@ -233,7 +233,7 @@ class Parser {
 						if ($debug) {
 							echo "$unit: " . $next->__toString() . "<br />";
 						}
-						$next_value = $next->getUnit($unit);
+						$next_value = $next->unit($unit);
 						$cron_values = explode(",", $cron_value);
 						foreach ($cron_values as $cron_value) {
 							if ($cron_value == $next_value) {
@@ -257,7 +257,7 @@ class Parser {
 						if ($match[$cindex] !== "1") {
 							$next->unit($unit, ($unit == "day" || $unit == "month") ? 1 : 0);
 							if ($next_unit) {
-								$next->addUnit($next_unit, 1);
+								$next->add_unit(1, $next_unit);
 							}
 							$match = $default_match;
 
@@ -284,6 +284,7 @@ class Parser {
 	 * @param string $locale The locale. If null, uses the current global locale.
 	 */
 	private function parse_language_en($text) {
+		$locale = $this->locale;
 		// Examples:
 		// 	Every [night|day|morning|afternoon|evening] at [midnight|noon|time-value]
 		//  Every Monday
@@ -299,8 +300,8 @@ class Parser {
 		//  September 2010
 		//  Every 10 minutes
 		//  Every 3 days
-		$short_months = Date::month_names("en", true);
-		$short_dow = Date::weekday_names("en", true);
+		$short_months = Date::month_names($locale, "en", true);
+		$short_dow = Date::weekday_names($locale, "en", true);
 		$short_months = ArrayTools::change_value_case($short_months);
 		$short_dow = ArrayTools::change_value_case($short_dow);
 		//		$original_text = $text;
@@ -319,9 +320,9 @@ class Parser {
 			"units-opt" => " every ([0-9]+ |other )?(min|minute|sec|second|hr|hour|day|week|month)s?",
 			"month-days" => "([1-3]?[0-9])(?:nd|st|th|rd)",
 			"time" => "(?:at )?([0-9]{1,2})(?::([0-9]{2}))?( ?[ap]m?)?",
-			"months" => '(' . strtolower(implode("|", Date::month_names("en"))) . ")",
+			"months" => '(' . strtolower(implode("|", Date::month_names($locale, "en"))) . ")",
 			"short-months" => '(' . strtolower(implode("|", $short_months)) . ")",
-			"dow" => '(' . strtolower(implode("|", Date::weekday_names("en"))) . ")",
+			"dow" => '(' . strtolower(implode("|", Date::weekday_names($locale, "en"))) . ")",
 			"short-dow" => '(' . implode("|", $short_dow) . ")",
 			"years" => "([0-9]{4})",
 		);
@@ -332,7 +333,7 @@ class Parser {
 		}
 		$result = array();
 		foreach ($time_patterns as $item => $pattern) {
-			$matches = false;
+			$matches = array();
 			if (preg_match_all("/$pattern/i", $text, $matches, PREG_SET_ORDER)) {
 				if ($debug) {
 					echo "<h2>$item</h2>";
@@ -612,7 +613,7 @@ class Parser {
 		}
 		$items = explode(",", $code);
 		$result = array();
-		$daysOfWeek = Date::daysOfTheWeek($locale);
+		$daysOfWeek = Date::weekday_names($locale);
 		foreach ($items as $item) {
 			if (is_numeric($item)) {
 				if ($plural) {
@@ -663,11 +664,11 @@ class Parser {
 						$t->minute($m);
 						$t->hour($h);
 					}
-					$times[] = $t->format($this->locale->time_format());
+					$times[] = $t->format($this->locale, $this->locale->time_format());
 				}
 			}
 		}
-		return $this->locale->conjunction($times, ($this->locale)("and"));
+		return $this->locale->conjunction($times, $this->locale->__("and"));
 	}
 
 	/**
@@ -683,12 +684,12 @@ class Parser {
 		$time_every = false;
 		$day_every = false;
 		$plural_dow = false;
-		if (($time_language = $this->time_repeat_to_language($min, "minute")) !== false) {
+		if (($time_language = $this->time_repeat_to_language($min, "minute", $locale)) !== false) {
 			$time_every = true;
-		} elseif (($time_language = $this->time_repeat_to_language($hour, "hour")) !== false) {
+		} elseif (($time_language = $this->time_repeat_to_language($hour, "hour", $locale)) !== false) {
 			$time_every = true;
 		}
-		if (($day_language = $this->time_repeat_to_language($day, "day")) !== false) {
+		if (($day_language = $this->time_repeat_to_language($day, "day", $locale)) !== false) {
 			$day_every = true;
 		}
 		switch (($day === "*" ? "*" : " ") . ($month === "*" ? "*" : " ") . ($dow === "*" ? "*" : " ")) {
@@ -754,6 +755,6 @@ class Parser {
 	// minute hour day-of-month month day-of-week
 	//
 	public function format() {
-		return $this->code_to_language_cron();
+		return $this->code_to_language_cron($this->locale);
 	}
 }

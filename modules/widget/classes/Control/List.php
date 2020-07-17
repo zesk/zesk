@@ -375,7 +375,7 @@ class Control_List extends Control_Widgets_Filter {
 			'row_widgets' => $this->row_widgets,
 			'widgets' => $this->row_widgets,
 			'hide_new_button' => $this->option_bool('hide_new_button'),
-			'list_object_name' => __($class_object->name),
+			'list_object_name' => $locale->__($class_object->name),
 			'list_object_names' => $locale->plural($locale($class_object->name)),
 			'list_class' => $this->class,
 			'list_class_object' => $this->class_object,

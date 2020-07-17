@@ -569,9 +569,9 @@ class Database_Query_Select extends Database_Query_Select_Base {
 			"nouns" => $locale->plural($class->name),
 		);
 		if (count($this->conditions) === 0) {
-			return __("Database_Query_Select-$class_name-title-all:=All {nouns}", $map);
+			return $locale->__("Database_Query_Select-$class_name-title-all:=All {nouns}", $map);
 		}
-		$map['conditions'] = map($locale->conjunction($this->conditions, __("and")), $map);
+		$map['conditions'] = map($locale->conjunction($this->conditions, $locale->__("and")), $map);
 		return $locale->__("Database_Query_Select-$class_name-title:={nouns} which {conditions}", $map);
 	}
 }

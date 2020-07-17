@@ -58,7 +58,7 @@ class Module_Critical extends Module {
 			throw new Exception_Configuration($global_name, "No emails configured in $global_name");
 		}
 		if (count($bad_emails) > 0) {
-			$this->_alert("$global_name invalid email address: " . implode(",", $bad_emails));
+			$this->alert("$global_name invalid email address: " . implode(",", $bad_emails));
 		}
 	}
 

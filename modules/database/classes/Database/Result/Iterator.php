@@ -190,11 +190,11 @@ class Database_Result_Iterator implements \Iterator {
 	}
 
 	/**
-	 * Move to next row
+	 * Load the next row, called from subclasses during next
 	 *
-	 * @see Iterator::next()
+	 * @return void
 	 */
-	public function next() {
+	protected function dbnext() {
 		$row = $this->db->fetch_assoc($this->resource);
 		if (is_array($row)) {
 			$this->_row_index = $this->_row_index + 1;
@@ -204,6 +204,15 @@ class Database_Result_Iterator implements \Iterator {
 			$this->_valid = false;
 			$this->_row = null;
 		}
+	}
+
+	/**
+	 * Move to next row
+	 *
+	 * @see Iterator::next()
+	 */
+	public function next() {
+		return $this->dbnext();
 	}
 
 	/**

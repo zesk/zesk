@@ -22,14 +22,14 @@ class CSV_Reader_Map extends CSV_Reader {
 	 * A read map group allows you to read a subset of a row and map the column names into new names. This is useful when
 	 * mapping a CSV row into one or more zesk\ORM subclasses.
 	 *
-	 * @var array[readmapname]
+	 * @var array
 	 */
 	protected $ReadMapGroup;
 
 	/**
 	 * The read map group defaults provides default values, per read map, used to populate the result when the value does not exist.
 	 *
-	 * @var array[readmapname]
+	 * @var array
 	 */
 	protected $ReadMapGroupDefault;
 
@@ -37,7 +37,7 @@ class CSV_Reader_Map extends CSV_Reader {
 	 * The read map group types provides column types, per read map, used to
 	 * @todo Move ReadMap functionality to another class, doesn't belong with RAW self functionality
 	 *
-	 * @var array[readmapname]
+	 * @var array
 	 */
 	protected $ReadMapGroupTypes;
 

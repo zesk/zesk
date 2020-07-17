@@ -302,7 +302,7 @@ class Command_Daemon extends Command_Base implements Interface_Process {
 	/**
 	 * Fetch list of daemons
 	 *
-	 * @return Closure[string]
+	 * @return Closure[]
 	 */
 	private function daemons() {
 		$daemon_hooks = array(
@@ -360,8 +360,9 @@ class Command_Daemon extends Command_Base implements Interface_Process {
 	 * @return number
 	 */
 	final public function command_list() {
+		$nl = $this->application->kernel->newline;
 		$daemons = $this->daemons();
-		echo implode(newline(), $daemons) . newline();
+		echo implode($nl, $daemons) . $nl;
 		return 0;
 	}
 

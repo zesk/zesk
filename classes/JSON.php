@@ -245,7 +245,7 @@ class JSON {
 	 *
 	 * @param string $string
 	 *        	A JSON string to decode
-	 * @return the decoded JSON string, or the default value if it fails
+	 * @return mixed the decoded JSON string, or the default value if it fails
 	 * @throws Exception_Parse
 	 */
 	public static function decode($string, $assoc = true) {

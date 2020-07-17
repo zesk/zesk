@@ -33,6 +33,7 @@ class Control_Text extends Control {
 	}
 
 	private function _validate_numeric(&$v) {
+		$locale = $this->application->locale;
 		$clamp = to_bool($this->option_bool('value_clamp'));
 		$min = $this->option_integer("value_minimum", null);
 		$max = $this->option_integer("value_maximum", null);
@@ -40,7 +41,7 @@ class Control_Text extends Control {
 			if ($clamp) {
 				$v = $min;
 			} else {
-				$this->error($this->option("value_minimum_error", __("{label} must be at least {value_minimum}.")));
+				$this->error($this->option("value_minimum_error", $locale->__("{label} must be at least {value_minimum}.")));
 				return false;
 			}
 		}
@@ -48,7 +49,7 @@ class Control_Text extends Control {
 			if ($clamp) {
 				$v = $max;
 			} else {
-				$this->error($this->option("value_maximum_error", __("{label} must be at most {value_maximum}")));
+				$this->error($this->option("value_maximum_error", $locale->__("{label} must be at most {value_maximum}")));
 				return false;
 			}
 		}
@@ -64,7 +65,7 @@ class Control_Text extends Control {
 			return !$this->required();
 		}
 		if (!is_numeric($v)) {
-			$this->error(__("You must enter a numeric value for {label}."));
+			$this->error($this->application->locale->__("You must enter a numeric value for {label}."));
 			return false;
 		}
 		if (!$this->_validate_numeric($v)) {
@@ -80,7 +81,7 @@ class Control_Text extends Control {
 			return !$this->required();
 		}
 		if (!empty($v) && !is_numeric($v)) {
-			$this->error(__("You must enter a numeric value for {label}."));
+			$this->error($this->application->locale->__("You must enter a numeric value for {label}."));
 			return false;
 		}
 		$v = doubleval($v);

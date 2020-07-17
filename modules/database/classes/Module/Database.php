@@ -29,14 +29,14 @@ class Module_Database extends Module {
 	/**
 	 * Global databases
 	 *
-	 * @var Database[string]
+	 * @var Database[]
 	 */
 	private $databases = array();
 
 	/**
 	 * Mapping of scheme to class which handles it
 	 *
-	 * @var string[string]
+	 * @var string[]
 	 */
 	private $scheme_to_class = array();
 

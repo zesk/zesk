@@ -261,10 +261,10 @@ class Content_Article extends ORM {
 	/**
 	 *
 	 * @param number $image_index
-	 * @param string $options
+	 * @param array $options
 	 * @return string
 	 */
-	public function image($image_index = 0, $options = false) {
+	public function image($image_index = 0, $options = array()) {
 		$options['image_path'] = "/data/article";
 
 		$member_prefix = (avalue($options, 'is_thumb')) ? "Thumb" : "";

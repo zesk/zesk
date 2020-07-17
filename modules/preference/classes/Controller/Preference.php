@@ -83,6 +83,7 @@ class Controller_Preference extends Controller {
 	 * @return \zesk\Response|boolean
 	 */
 	public function action_getset($type) {
+		$locale = $this->application->locale;
 		if ($type === null) {
 			$extras = [];
 			if ($this->option_bool('debug')) {
@@ -98,7 +99,7 @@ class Controller_Preference extends Controller {
 			}
 			return $this->json(array(
 				"status" => false,
-				"message" => __("Invalid preference"),
+				"message" => $locale->__("Invalid preference"),
 			) + $extras);
 		}
 		$user = $this->application->user($this->request);
@@ -109,7 +110,7 @@ class Controller_Preference extends Controller {
 				"actions" => array(
 					"user-not-authenticated",
 				),
-				"message" => __($message_en),
+				"message" => $locale->__($message_en),
 			));
 		}
 		if ($this->request->is_post()) {
@@ -121,7 +122,7 @@ class Controller_Preference extends Controller {
 			}
 			return $this->json(array(
 				"status" => false,
-				"message" => __("Can not set preference {type}", array(
+				"message" => $locale->__("Can not set preference {type}", array(
 					"type" => $type,
 				)),
 			));

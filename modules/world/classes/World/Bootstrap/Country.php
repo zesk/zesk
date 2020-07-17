@@ -60,7 +60,7 @@ class World_Bootstrap_Country extends Hookable {
 			$x->database()->query('TRUNCATE ' . $x->table());
 		}
 
-		$map = self::load_countryinfo($application);
+		$map = $this->load_countryinfo($application);
 		foreach ($map as $fields) {
 			$country = new Country($application, $fields);
 			if ($this->is_included($country)) {

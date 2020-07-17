@@ -193,7 +193,7 @@ class HTML extends Type {
 	 *
 	 * @param string $add
 	 * @param string $value
-	 * @return Response|string[string]
+	 * @return Response|string[]
 	 */
 	public function attributes($add = null, $value = null) {
 		if (is_array($add)) {

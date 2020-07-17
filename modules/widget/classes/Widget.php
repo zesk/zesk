@@ -679,7 +679,7 @@ class Widget extends Hookable {
 	 *
 	 * @param $set \zesk\Request
 	 *        	to set
-	 * @return \zesk\Request
+	 * @return \zesk\Request|self
 	 */
 	public function request(Request $set = null) {
 		if ($set !== null) {

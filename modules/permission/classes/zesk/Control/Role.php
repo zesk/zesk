@@ -10,7 +10,7 @@ class Control_Role extends Control_Select_ORM {
 	);
 
 	protected function initialize() {
-		$this->options['noname'] = __("All roles");
+		$this->options['noname'] = $this->application->locale->__("All roles");
 		$this->options['where'] = array(
 			'X.is_default' => false,
 		);

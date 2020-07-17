@@ -66,7 +66,7 @@ class Module_Job extends Module implements Interface_Module_Routes {
 	 */
 	public static function daemon(Interface_Process $process) {
 		$application = $process->application();
-		$module = $application->modules->object("job");
+		$module = $application->job_module();
 		$module->run_daemon($process);
 	}
 

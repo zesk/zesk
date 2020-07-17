@@ -142,23 +142,25 @@ class Content_Data extends ORM {
 
 		Directory::depend(dirname($dest));
 
+		$locale = $app->locale;
+
 		if ($data !== null) {
 			if (!file_put_contents($dest, $data)) {
-				throw new Exception_File_Create(__("Can not copy {size} data to {dest}", array(
+				throw new Exception_File_Create($locale->__("Can not copy {size} data to {dest}", array(
 					"size" => strlen($data),
 					"dest" => $dest,
 				)));
 			}
 		} elseif ($copy) {
 			if (!copy($source_path, $dest)) {
-				throw new Exception_File_Create(__("Can not copy {path} to {dest}", array(
+				throw new Exception_File_Create($locale->__("Can not copy {path} to {dest}", array(
 					"path" => $source_path,
 					"dest" => $dest,
 				)));
 			}
 		} else {
 			if (!rename($source_path, $dest)) {
-				throw new Exception_File_Create(__("Can not rename {path} to {dest}", array(
+				throw new Exception_File_Create($locale->__("Can not rename {path} to {dest}", array(
 					"path" => $source_path,
 					"dest" => $dest,
 				)));
@@ -219,7 +221,7 @@ class Content_Data extends ORM {
 			$this->temp_path = null;
 		}
 		if (!$this->temp_path) {
-			$this->temp_path = File::temporary();
+			$this->temp_path = File::temporary($this->temp_path);
 			file_put_contents($this->temp_path, $this->data);
 		}
 		return $this->temp_path;
@@ -336,7 +338,7 @@ class Content_Data extends ORM {
 				$data_path = $this->data['data_path'];
 				$old_path = path($data_path, $path);
 				if (file_exists($old_path)) {
-					if (File::fsmove($old_path, $this_path)) {
+					if (File::copy_uid_gid($old_path, $this_path)) {
 						$this->application->logger->notice("Content_data({ID}) Moved {old_path} to {new_path}", array(
 							'old_path' => $old_path,
 							"new_path" => $this_path,

@@ -187,13 +187,14 @@ class Selection_Type extends ORM {
 	 */
 	public function description() {
 		$line = array();
+		$locale = $this->application->locale;
 		/* @var $query Selection_Query */
 		foreach ($this->queries as $query) {
-			$line[] = HTML::wrap(__("[{action}] {title} ({operation}{count})", array(
+			$line[] = HTML::wrap($locale->__("[{action}] {title} ({operation}{count})", array(
 				"title" => $query->title,
 				"count" => $query->count(),
 				"operation" => $query->add ? "+" : "-",
-				"action" => $query->add ? __('Selection_Type:=Added to selection') : __('Selection_Type:=Removed from selection'),
+				"action" => $query->add ? $locale->__('Selection_Type:=Added to selection') : $locale->__('Selection_Type:=Removed from selection'),
 			)), HTML::span(".query-action " . ($query->add ? ".query-action-add" : ".query-action-remove"), "[]"));
 		}
 		$n_added = $this->application->orm_registry("zesk\\Selection_Item")
@@ -206,7 +207,7 @@ class Selection_Type extends ORM {
 			->what("*n", "COUNT(id)")
 			->one_integer("n");
 		if ($n_added) {
-			$line[] .= __("{n} specifically added", array(
+			$line[] .= $locale->__("{n} specifically added", array(
 				"n" => $n_added,
 			));
 		}
@@ -220,11 +221,11 @@ class Selection_Type extends ORM {
 			->what("*n", "COUNT(id)")
 			->one_integer("n");
 		if ($n_excluded) {
-			$line[] .= __("{n} specifically removed", array(
+			$line[] .= $locale->__("{n} specifically removed", array(
 				"n" => $n_excluded,
 			));
 		}
-		$line[] = __("{n} total", array(
+		$line[] = $locale->__("{n} total", array(
 			"n" => $this->count(),
 		));
 		return $line;

@@ -819,17 +819,13 @@ class Module extends \zesk\Module {
 	protected function hook_system_panel() {
 		return array(
 			"system/panel/cron" => array(
-				"title" => __("Cron Tasks"),
+				"title" => "Cron Tasks",
 				"module_class" => __CLASS__,
 			),
 		);
 	}
 
-	/**
-	 *
-	 */
-	protected function hook_schema_updated() {
-		$settings = $this->application->orm_registry(Settings::class);
+	protected function _fix_settings(Settings $settings) {
 		// Changed class structure on 2016-11-23
 		$settings->prefix_updated("Module_Cron::", __CLASS__ . "::");
 		$settings->prefix_updated("zesk\\Module_Cron::", __CLASS__ . "::");
@@ -846,5 +842,13 @@ class Module extends \zesk\Module {
 				"class" => __CLASS__,
 			));
 		}
+	}
+
+	/**
+	 *
+	 */
+	protected function hook_schema_updated() {
+		$settings = $this->application->orm_registry(Settings::class);
+		$this->_fix_settings($settings);
 	}
 }

@@ -1188,7 +1188,7 @@ class ArrayTools {
 	 *        	Array to modify
 	 * @param boolean $lower
 	 *        	Convert the keys to lowercase. Defaults to "true"
-	 * @return An array the keys and values identical (or lowercase eqivalent)
+	 * @return array An array where the keys and values identical (or lowercase eqivalent)
 	 */
 	public static function flip_copy($x, $lower = true) {
 		$result = array();
@@ -1218,7 +1218,7 @@ class ArrayTools {
 	 * </code>
 	 *
 	 * @param array $arr
-	 * @return Ambigous <multitype:multitype:unknown , unknown>
+	 * @return array
 	 */
 	public static function flip_multiple(array $arr) {
 		$result = array();

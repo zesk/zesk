@@ -10,7 +10,7 @@ class Control_Province extends Control_Select_ORM {
 	);
 
 	protected function initialize() {
-		$this->options['noname'] = __('zesk\\Control_Province:=All states');
+		$this->options['noname'] = $this->application->locale->__('zesk\\Control_Province:=All states');
 		parent::initialize();
 	}
 }

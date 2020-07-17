@@ -14,7 +14,7 @@ namespace zesk;
  */
 class Content_Menu extends ORM {
 	public function store() {
-		$this->cleanCodeName();
+		$this->CodeName = $this->clean_code_name($this->CodeName);
 		if ($this->Parent === 0 || $this->Parent === "0" || $this->Parent === "") {
 			$this->Parent = null;
 		}
@@ -79,7 +79,7 @@ class Content_Menu extends ORM {
 			$menu['IsHome'] = $is_home = to_bool($menu['IsHome']);
 			$parent = intval($menu['Parent']);
 			$name = $menu['Name'];
-			$menu_key = empty($menu['CodeName']) ? self::cleanName($name) : $menu['CodeName'];
+			$menu_key = empty($menu['CodeName']) ? self::clean_code_name($name) : $menu['CodeName'];
 			if ($old_parent !== $parent) {
 				$first = true;
 			}

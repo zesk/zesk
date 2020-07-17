@@ -146,7 +146,7 @@ class Database extends \zesk\Database {
 
 	/**
 	 *
-	 * @var string
+	 * @var array
 	 */
 	private static $mysql_variables = array(
 		self::attribute_engine => "@@default_storage_engine",
@@ -155,6 +155,10 @@ class Database extends \zesk\Database {
 		self::attribute_version => "@@version",
 	);
 
+	/**
+	 *
+	 * @var array
+	 */
 	private static $mysql_default_attributes = array(
 		self::attribute_engine => self::default_engine,
 		self::attribute_character_set => self::default_character_set,
@@ -258,20 +262,6 @@ class Database extends \zesk\Database {
 			));
 		}
 		return array();
-	}
-
-	/**
-	 *
-	 * @param array $attributes
-	 * @return unknown[]
-	 */
-	public function normalize_attributes(array $attributes) {
-		$newattrs = array();
-		foreach ($attributes as $k => $v) {
-			$k = strtolower(preg_replace("/[-_]/", " ", strtolower($k)));
-			$newattrs[$k] = $v;
-		}
-		return $newattrs;
 	}
 
 	/**
@@ -482,17 +472,18 @@ class Database extends \zesk\Database {
 	 */
 	protected function _connection_error(array $words) {
 		if (!array_key_exists('error', $words)) {
-			$words['error'] = mysqli_error();
+			$words['error'] = mysqli_error($this->connection);
 		}
 		if (!array_key_exists('errno', $words)) {
-			$words['errno'] = mysqli_errno();
+			$words['errno'] = mysqli_errno($this->connection);
 		}
 		$errno = intval($words['errno']);
+		$locale = $this->application->locale;
 		if ($errno === 1049) {
-			throw new Database_Exception_Database_NotFound($this->URL, __("mysql\Database:=Can not connect to {database} at {server}:{port} as {user} (MySQL Error: #{errno} {error})"), $words, $words['errno']);
+			throw new Database_Exception_Database_NotFound($this->URL, $locale->__("mysql\Database:=Can not connect to {database} at {server}:{port} as {user} (MySQL Error: #{errno} {error})"), $words, $words['errno']);
 		}
 
-		throw new Database_Exception_Connect($this->URL, __("mysql\Database:=Can not connect to {database} at {server}:{port} as {user} (MySQL Error: #{errno} {error})"), $words, $words['errno']);
+		throw new Database_Exception_Connect($this->URL, $locale->__("mysql\Database:=Can not connect to {database} at {server}:{port} as {user} (MySQL Error: #{errno} {error})"), $words, $words['errno']);
 	}
 
 	/**
@@ -1117,10 +1108,10 @@ class Database extends \zesk\Database {
 			if (!$this->table_exists($table)) {
 				throw new Database_Exception_Table_NotFound($this, $table);
 			}
-			return self::query_one("SHOW TABLE STATUS LIKE '$table'", 'Data_length', 0);
+			return $this->query_one("SHOW TABLE STATUS LIKE '$table'", 'Data_length', 0);
 		} else {
 			$total = 0;
-			foreach (self::query_array("SHOW TABLE STATUS", null, "Data_length") as $data_length) {
+			foreach ($this->query_array("SHOW TABLE STATUS", null, "Data_length") as $data_length) {
 				$total += $data_length;
 			}
 			return $total;

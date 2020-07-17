@@ -75,7 +75,7 @@ class Command_Glacier extends \zesk\Command_Base {
 	 */
 	public function run() {
 		try {
-			$this->glacier = new Glacier();
+			$this->glacier = new Glacier($this->application);
 
 			if ($this->has_option("store")) {
 				return $this->run_archive_store();

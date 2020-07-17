@@ -485,7 +485,8 @@ abstract class Net_Server_Driver extends Hookable {
 		if ($wrote !== $to_write) {
 			$this->message("Wanted to write $to_write bytes, but only wrote $wrote");
 		}
-		$this->message("Wrote " . Number::format_bytes($wrote) . "\n" . trim(substr($data, 0, 1024)) . "\n");
+		$ll = $this->application->locale;
+		$this->message("Wrote " . Number::format_bytes($ll, $wrote) . "\n" . trim(substr($data, 0, 1024)) . "\n");
 	}
 
 	/**

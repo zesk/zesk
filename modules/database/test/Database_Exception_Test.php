@@ -13,7 +13,7 @@ class Database_Exception_Test extends Exception_TestCase {
 	);
 
 	public function test_basics() {
-		$testx = new Database_Exception();
+		$testx = new Database_Exception($this->test_database());
 
 		$this->exception_test($testx);
 	}

@@ -155,6 +155,7 @@ class Module extends \zesk\Module {
 			$command->verbose_log("{command_name} {target} - target does not exist, done", $__);
 			return $changed;
 		}
+		$locale = $this->application->locale;
 		$command->verbose_log("{command_name} {target} exists", $__);
 		foreach (array(
 			$target,
@@ -163,16 +164,16 @@ class Module extends \zesk\Module {
 			if (is_dir($service)) {
 				$command->log($command->exec("svstat {target}", $__));
 				$__['service'] = $service;
-				if ($command->prompt_yes_no(__("Terminate service {service} and supervise process? ", $__), true)) {
+				if ($command->prompt_yes_no($locale->__("Terminate service {service} and supervise process? ", $__), true)) {
 					$this->application->process->debug = true;
 					$command->exec("svc -dx {service}", $__);
 					$changed = true;
 				}
 			} else {
-				$this->verbose_log("Terminating service {target}", $__);
+				$command->verbose_log("Terminating service {target}", $__);
 			}
 		}
-		if ($command->prompt_yes_no(__("Delete {target}? ", $__), true)) {
+		if ($command->prompt_yes_no($locale->__("Delete {target}? ", $__), true)) {
 			return Directory::delete($target);
 		}
 		return $changed;

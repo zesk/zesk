@@ -8,6 +8,9 @@
  */
 namespace zesk;
 
+use zesk\ORM\JSONWalker;
+use zesk\ORM\Walker;
+
 /**
  *
  * @author kent
@@ -75,10 +78,10 @@ class Control_Login extends Control_Edit {
 			$this->child($f);
 		}
 
-		$f = $this->widget_factory(Control_Button::class)
-			->names('login_button', false)
-			->set_option('button_label', $locale->__("Login"))
-			->add_class('btn-primary btn-block');
+		$f = $this->widget_factory(Control_Button::class);
+		$f->names('login_button', false)
+			->add_class('btn-primary btn-block')
+			->set_option('button_label', $locale->__("Login"));
 		$this->child($f);
 
 		parent::initialize();
@@ -106,7 +109,7 @@ class Control_Login extends Control_Edit {
 		$object = $this->object;
 		$login = $object->login;
 		$locale = $this->locale();
-		$user = $this->application->orm_factory("zesk\\User");
+		$user = $this->application->orm_factory(User::class);
 		$column_login = $this->option('column_login', $user->column_login());
 		if ($this->option("no_password")) {
 			$user = $this->application->orm_registry(User::class)
@@ -172,7 +175,12 @@ class Control_Login extends Control_Edit {
 			"uid" => $this->user->id(),
 		));
 		if ($this->prefer_json()) {
-			$this->json($this->user->json($this->option_array("user_json_options")));
+			$walker = JSONWalker::factory();
+			if ($this->option_array("user_json_options")) {
+				// Development here
+				$this->application->logger->warning("user_json_options ignored");
+			}
+			$this->json($this->user->json($walker));
 			return false;
 		}
 

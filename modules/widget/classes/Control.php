@@ -16,6 +16,12 @@ namespace zesk;
 class Control extends Widget {
 	/**
 	 *
+	 * @var Control
+	 */
+	public $parent = null;
+
+	/**
+	 *
 	 * @var array
 	 */
 	public static $default_strip_tags = array(

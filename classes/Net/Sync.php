@@ -144,7 +144,7 @@ class Net_Sync extends Options {
 		if ($pattern === null) {
 			return $default;
 		}
-		$srcVar = to_bool($pattern, $srcVar);
+		$srcVar = to_bool($pattern, null);
 		if (is_bool($pattern)) {
 			return $pattern;
 		}
@@ -155,14 +155,14 @@ class Net_Sync extends Options {
 	}
 
 	public function file_filter($include = null, $exclude = null) {
-		$this->option('file_include', self::_set_filter($include, true));
-		$this->option('file_exclude', self::_set_filter($exclude, false));
+		$this->option('file_include', $this->_set_filter($include, true));
+		$this->option('file_exclude', $this->_set_filter($exclude, false));
 		return $this;
 	}
 
 	public function directory_filter($include = null, $exclude = null) {
-		$this->option('dir_include', self::_set_filter($include, true));
-		$this->option('dir_exclude', self::_set_filter($exclude, false));
+		$this->option('dir_include', $this->_set_filter($include, true));
+		$this->option('dir_exclude', $this->_set_filter($exclude, false));
 		return $this;
 	}
 
@@ -200,7 +200,7 @@ class Net_Sync extends Options {
 	 * @return boolean
 	 */
 	private function _file_allow($filename) {
-		return self::_allow($filename, $this->file_include, $this->file_exclude);
+		return $this->_allow($filename, $this->file_include, $this->file_exclude);
 	}
 
 	/**
@@ -210,7 +210,7 @@ class Net_Sync extends Options {
 	 * @return boolean
 	 */
 	private function _dir_allow($filename) {
-		return self::_allow($filename, $this->dir_include, $this->dir_exclude);
+		return $this->_allow($filename, $this->dir_include, $this->dir_exclude);
 	}
 
 	/**
@@ -323,7 +323,7 @@ class Net_Sync extends Options {
 				} elseif ($type === 'file') {
 					$stats['files']++;
 					if ($this->_should_sync($src_entry, $dst_entry, $check_mtime)) {
-						$temp = File::temporary();
+						$temp = File::temporary(dirname($dst_entry));
 						$logger->debug("Temporary file: $temp");
 
 						try {

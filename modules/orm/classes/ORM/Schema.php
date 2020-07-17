@@ -176,7 +176,7 @@ abstract class ORM_Schema extends Hookable {
 	 * Default schema map - include variables in your schema definitions from configuration
 	 * settings.
 	 *
-	 * @return multitype:string
+	 * @return array
 	 */
 	protected function schema_map() {
 		$map = $this->object ? $this->object->schema_map() : array();

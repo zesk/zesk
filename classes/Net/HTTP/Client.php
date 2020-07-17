@@ -607,7 +607,7 @@ class Net_HTTP_Client extends Hookable {
 
 	private function _curl_opts_cookie() {
 		if (count($this->request_cookie)) {
-			$this->request_header("Cookie", self::format_cookie());
+			$this->request_header("Cookie", $this->format_cookie());
 		}
 	}
 
@@ -823,7 +823,7 @@ class Net_HTTP_Client extends Hookable {
 			$this->response_cookies[] = $set;
 		} elseif (is_array($set)) {
 			foreach ($set as $item) {
-				$this->cookies($item);
+				$this->response_cookies($item);
 			}
 		}
 		return $this->response_cookies;

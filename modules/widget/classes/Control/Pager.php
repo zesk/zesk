@@ -182,7 +182,7 @@ class Control_Pager extends Control {
 			$limit = $total;
 		}
 		$show_all = $this->option_bool('pager_show_all');
-		$show_all_string = $this->option("pager_all_string", __("All"));
+		$show_all_string = $this->option("pager_all_string", $this->application->locale->__("All"));
 		if ($show_all) {
 			$ss[-1] = $show_all_string;
 		}

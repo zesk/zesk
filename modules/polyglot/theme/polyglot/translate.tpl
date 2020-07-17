@@ -55,7 +55,7 @@ $widget->required(true);
 $status = $this->widget_factory(Control_Select::class)
 	->response($response)
 	->names("status", __("Status"))
-	->control_options(PolyGlot_Token::lang_status_filters())
+	->control_options(PolyGlot_Token::lang_status_filters($locale))
 	->noname(__("All"));
 $status->default_value($object->status);
 $widget->required(true);

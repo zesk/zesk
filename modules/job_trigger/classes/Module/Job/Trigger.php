@@ -139,7 +139,7 @@ class Module_Job_Trigger extends Module implements Interface_Module_Routes {
 	 * @param Application $application
 	 */
 	public static function web_job_trigger(Application $application, Request $request) {
-		$module = $application->modules->object("job_trigger");
+		$module = $application->job_trigger_module();
 		$result = $module->check_security($request->get("hash"), $request->get("timestamp"));
 		if (!is_array($result)) {
 			/* @var $module Module_Job_Trigger */

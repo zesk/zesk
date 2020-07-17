@@ -129,7 +129,7 @@ class PolyGlot_Token extends ORM {
 	 *
 	 * @param string $language
 	 * @param string|null $dialect
-	 * @return rray
+	 * @return array
 	 */
 	public static function fetch_all(Application $app, $language, $dialect = null) {
 		$where = array(
@@ -188,8 +188,8 @@ class PolyGlot_Token extends ORM {
 	 *
 	 * @return string
 	 */
-	public static function lang_status_filters() {
-		return __(array(
+	public static function lang_status_filters(Locale $locale) {
+		return $locale->__(array(
 			"todo" => "Need translation",
 			"info" => "Need more information",
 			"dev" => "Need developer review",

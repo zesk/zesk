@@ -210,9 +210,10 @@ class Module_TinyMCE extends zesk\Module_JSLib implements Interface_Module_Route
 
 	public function action_spellchecker(Request $request, Response $response) {
 		$params = $request->geta('params');
+		$ll = $this->application->locale;
 		if (!is_array($params)) {
 			$response->json()->data(array(
-				'error' => __('Invalid server request. Please contact an administrator.'),
+				'error' => $ll->__('Invalid server request. Please contact an administrator.'),
 			));
 			return;
 		}
@@ -220,7 +221,7 @@ class Module_TinyMCE extends zesk\Module_JSLib implements Interface_Module_Route
 		$words = to_list(avalue($params, 'words'));
 		if (!function_exists('pspell_new')) {
 			$response->json()->data(array(
-				'error' => __('PSpell is not installed on the server. Please contact an administrator.'),
+				'error' => $ll->__('PSpell is not installed on the server. Please contact an administrator.'),
 			));
 			return;
 		}
@@ -230,9 +231,10 @@ class Module_TinyMCE extends zesk\Module_JSLib implements Interface_Module_Route
 		}
 		$pspell = $this->spellers[$lang];
 		$result_words = array();
+		$dictlink = pspell_new($this->application->locale->id());
 		foreach ($words as $word) {
-			if (!pspell_check($word)) {
-				$result_words[$word] = pspell_suggest($word);
+			if (!pspell_check($dictlink, $word)) {
+				$result_words[$word] = pspell_suggest($dictlink, $word);
 			}
 		}
 		$response->json()->data(array(

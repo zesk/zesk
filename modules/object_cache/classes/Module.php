@@ -1,17 +1,17 @@
 <?php
-namespace zesk;
+namespace zesk\ObjectCache;
 
-class Module_Object_Cache extends Module {
+use zesk\ORM;
+use zesk\Application;
+
+class Module extends \zesk\Module {
 	/*
-	 * @var Object_Cache
+	 * @var Base
 	 */
 	public $cache = null;
 
-	public function initialize() {
-	}
-
 	public function hook_configured() {
-		if ($this->cache instanceof Object_Cache) {
+		if ($this->cache instanceof Base) {
 			return;
 		}
 		$type = $this->option('type', 'file');
@@ -24,14 +24,14 @@ class Module_Object_Cache extends Module {
 	}
 
 	public static function _factory_file(Application $application) {
-		return new Object_Cache_File($application->cache_path('object_cache'));
+		return new File($application->cache_path('object_cache'));
 	}
 
 	public static function _factory_database(Application $application) {
-		return new Object_Cache_Database();
+		return new Database();
 	}
 
-	private static function configure_object_cache(Object_Cache $cache) {
+	private function configure_object_cache(Base $cache) {
 		$hooks = $this->application->hooks;
 		$invalidate = array(
 			$cache,

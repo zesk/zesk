@@ -107,7 +107,7 @@ class Control_Optionss extends Control {
 		foreach ($options as $k => $v) {
 			if (is_array($v)) {
 				$k = StringTools::ellipsis_word($k, $show_size, $ellipsis);
-				$new_options[$k] = self::ellipsis_options($v);
+				$new_options[$k] = $this->ellipsis_options($v);
 			} else {
 				$new_options[$k] = StringTools::ellipsis_word($v, $show_size, $ellipsis);
 			}

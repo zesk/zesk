@@ -38,7 +38,7 @@ class Label extends \zesk\ORM {
 	public static function label_find(Application $application, $code) {
 		$members = array();
 		$members['code'] = self::clean_code_name($code);
-		return self::factory($application, __CLASS__, $members)->find();
+		return $application->orm_factory(__CLASS__, $members)->find();
 	}
 
 	/**

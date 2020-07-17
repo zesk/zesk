@@ -57,6 +57,6 @@ class Net_SSL_Certificate {
 	 * @param Application $application
 	 */
 	public static function sync_cafile(Application $application, $local_path) {
-		Net_Sync::url_to_file($application, self::CACERT_LOCAL_PATH, $local_path);
+		Net_Sync::url_to_file($application, self::CACERT_TRUSTED_URL, $local_path);
 	}
 }

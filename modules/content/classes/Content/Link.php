@@ -28,7 +28,7 @@ class Content_Link extends ORM {
 		$options['is_relative'] = false;
 		$options['root_directory'] = $this->application->document_root();
 
-		return $this->output('image/image-caption.tpl', $options);
+		return $this->theme('image/image-caption', $options);
 	}
 
 	public function clicked() {

@@ -109,7 +109,7 @@ abstract class CSV extends Options {
 	 * @param string $mode File mode (fopen)
 	 * @param boolean $create Create the file if it doesn't exist
 	 * @see fopen
-	 * @return CSV
+	 * @return self
 	 */
 	protected function _set_file($filename, $mode, $create = false) {
 		if (is_string($filename)) {
@@ -207,7 +207,7 @@ abstract class CSV extends Options {
 	 */
 	public function headers() {
 		if (method_exists($this, "_cleanHeaders")) {
-			if (!$this->_cleanHeaders()) {
+			if ($this->_cleanHeaders()) {
 				return false;
 			}
 		}

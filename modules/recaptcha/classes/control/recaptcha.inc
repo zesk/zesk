@@ -61,6 +61,7 @@ class Control_reCAPTCHA extends Control {
 	 */
 	public function validate() {
 		$app = $this->application;
+		$locale = $app->locale;
 		$this->theme_variables['reverify'] = false;
 		if (($verified = $this->is_verified()) === true) {
 			return true;
@@ -79,6 +80,7 @@ class Control_reCAPTCHA extends Control {
 		));
 		$result = $http->go();
 		if ($this->option_bool('debug')) {
+			$debug = "";
 			$debug .= serialize($http);
 			$debug .= "Result: $result\n";
 			$debug .= "Response: " . $http->response_code_type() . "\n";
@@ -94,7 +96,7 @@ class Control_reCAPTCHA extends Control {
 				$error_codes = avalue($data, 'error-codes', array());
 				foreach ($error_codes as $error_code) {
 					if (array_key_exists($error_code, self::$error_codes)) {
-						$errors[] = __(self::$error_codes[$error_code]);
+						$errors[] = $locale->__(self::$error_codes[$error_code]);
 					}
 				}
 				if (count($errors) > 0) {
@@ -103,13 +105,13 @@ class Control_reCAPTCHA extends Control {
 					$this->verified();
 					return true;
 				} else {
-					$this->error(__("Please verify that you are not a robot."));
+					$this->error($locale->__("Please verify that you are not a robot."));
 				}
 			} catch (Exception_Parse $e) {
-				$this->error(__("Unable to verify that you are not a robot, problem decoding. Please try again later."));
+				$this->error($locale->__("Unable to verify that you are not a robot, problem decoding. Please try again later."));
 			}
 		} else {
-			$this->error(__("Unable to verify that you are not a robot. Please try again later."));
+			$this->error($locale->__("Unable to verify that you are not a robot. Please try again later."));
 			$message = "reCAPTCHA response type {code_type} from {ip}";
 			$message_args = array(
 				"code_type" => $code_type,
@@ -138,6 +140,7 @@ class Control_reCAPTCHA extends Control {
 	 * @return boolean|NULL
 	 */
 	private function is_verified() {
+		$locale = $this->application->locale;
 		$name = $this->name();
 		$now = time();
 		$key = $this->request->get("$name-verified-key");
@@ -155,11 +158,11 @@ class Control_reCAPTCHA extends Control {
 			return null;
 		}
 		if ($delta < $this->option_integer("verification_minimum_age", 3)) {
-			$this->error(__("You submitted the form too quickly, please verify you are a not a robot again."));
+			$this->error($locale->__("You submitted the form too quickly, please verify you are a not a robot again."));
 			return null;
 		}
 		if ($delta > $this->option_integer("verification_seconds_to_live", 600)) {
-			$this->error(__("Your verification has expired, please verify you are not a robot again."));
+			$this->error($locale->__("Your verification has expired, please verify you are not a robot again."));
 			return null;
 		}
 		$check = md5($time . "|" . $this->option("secret_key"));
@@ -167,7 +170,7 @@ class Control_reCAPTCHA extends Control {
 			$this->verified();
 			return true;
 		}
-		$this->error(__("The checksum did not match. Please verify that you are not a robot one more time."));
+		$this->error($locale->__("The checksum did not match. Please verify that you are not a robot one more time."));
 		return null;
 	}
 }

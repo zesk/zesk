@@ -656,7 +656,7 @@ class Date extends Temporal {
 	 *        	Locale to translate to
 	 * @param string $short
 	 *        	Short dates
-	 * @return string
+	 * @return array
 	 */
 	public static function month_names(Locale $locale, $short = false) {
 		$id = $locale->id();

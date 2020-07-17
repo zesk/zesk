@@ -31,8 +31,8 @@ class Raw extends Type {
 	public function headers() {
 		if ($this->file) {
 			$this->parent->content_type(MIME::from_filename($this->file));
-			$this->header("Last-Modified", gmdate('D, d M Y H:i:s \G\M\T', filemtime($this->file)));
-			$this->header("Content-Length", filesize($this->file));
+			$this->parent->header("Last-Modified", gmdate('D, d M Y H:i:s \G\M\T', filemtime($this->file)));
+			$this->parent->header("Content-Length", filesize($this->file));
 		}
 	}
 

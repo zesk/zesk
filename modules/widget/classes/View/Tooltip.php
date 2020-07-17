@@ -36,32 +36,4 @@ class View_Tooltip extends View {
 			"style" => "display: none",
 		), $this->value());
 	}
-
-	/**
-	 * @deprecated 2018-01
-	 * @param unknown $target_id
-	 * @param unknown $content
-	 * @param array $opts
-	 * @return mixed|\zesk\NULL|string
-	 */
-	public static function tooltip($target_id, $content, array $opts = array()) {
-		$opts['target_id'] = $target_id;
-		$opts['column'] = 'data';
-		$w = new View_Tooltip($opts);
-		$x['data'] = $content;
-		return $w->execute($x);
-	}
-}
-
-/**
- * @todo Move this elsewhere to get autoloaded
- *
- * @deprecated 2018-01
- * @param unknown_type $target_id
- * @param unknown_type $content
- * @param unknown_type $opts
- * @return unknown
- */
-function tooltip($target_id, $content, $opts = false) {
-	return View_Tooltip::tooltip($target_id, $content, $opts);
 }

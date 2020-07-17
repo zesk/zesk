@@ -8,6 +8,8 @@
  */
 namespace zesk;
 
+use zesk\ORM\JSONWalker;
+
 /**
  *
  * @author kent
@@ -256,7 +258,7 @@ abstract class Controller_ORM extends Controller_Authenticated {
 	public function arguments_delete($parameter) {
 		$result = $this->_arguments_load($parameter);
 		if ($result[0] === null) {
-			$this->response->redirect("/", __("No such object to delete"));
+			$this->response->redirect("/", $this->application->locale->__("No such object to delete"));
 		}
 		return $result;
 	}
@@ -293,7 +295,7 @@ abstract class Controller_ORM extends Controller_Authenticated {
 			$message = get_class($object) . ":=You do not have permission to delete {class_name-context-object-singular} \"{display_name}\".";
 			$result = false;
 		}
-		$message = $object->words(__($message));
+		$message = $object->words($this->application->locale->__($message));
 		$redirect_url = $this->_compute_url($object, $result ? "delete_next" : "delete_failed", "/", $this->request->get("ref") ?? "/");
 		$format = $this->request->get("format");
 		if ($format === "json" || $this->request->prefer_json()) {
@@ -328,12 +330,14 @@ abstract class Controller_ORM extends Controller_Authenticated {
 			$message = "$class:=You do not have permission to duplicate {class_name-context-object-singular} \"{display_name}\".";
 			$result = false;
 		}
-		$message = $object->words(__($message));
+		$locale = $this->application->locale;
+		$message = $object->words($locale->__($message));
 		$redirect_url = $this->_compute_url($object, $result ? "duplicate_next" : "duplicate_fail", "list", $this->request->get("ref"));
+		$walker = JSONWalker::factory();
 		return $this->_redirect_response($redirect_url, $message, array(
 			"status" => $result,
-			"original_object" => $object->json(array()),
-			"object" => $new_object->json(array()),
+			"original_object" => $object->json($walker),
+			"object" => $new_object->json($walker),
 		));
 	}
 
@@ -500,14 +504,17 @@ abstract class Controller_ORM extends Controller_Authenticated {
 			}
 			$widget = $this->_action_find_widget($action);
 			if ($widget === null) {
-				throw new Exception_NotFound(__("No control found for action {action}: {tried}", array(
+				throw new Exception_NotFound($this->application->locale->__("No control found for action {action}: {tried}", array(
 					"action" => $action,
 					"tried" => $this->tried_widgets,
 				)));
 			}
 
 			try {
-				$perm_action = firstarg($this->option('action'), $this->actual_action);
+				$perm_action = $this->option('action');
+				if (!$perm_action) {
+					$perm_action = $this->actual_action;
+				}
 				if (!$this->user) {
 					throw new Exception_Authentication("Attempting to perform {action}", array(
 						"action" => $perm_action,
@@ -538,7 +545,7 @@ abstract class Controller_ORM extends Controller_Authenticated {
 					// Backwards compatibility: TODO is this needed anymore - corrupts truth of Request object
 					$this->request->set($object->id_column(), $object);
 					if (!$this->user->can($this->actual_action, $object)) {
-						throw new Exception_Permission($this->actual_action, $object);
+						throw new Exception_Permission($this->user, $this->actual_action, $object);
 					}
 				}
 			}

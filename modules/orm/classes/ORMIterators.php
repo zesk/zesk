@@ -14,7 +14,7 @@ namespace zesk;
 class ORMIterators extends ORMIterator {
 	/**
 	 * Class we're iterating over
-	 * @var string
+	 * @var array
 	 */
 	private $objects_prefixes = array();
 
@@ -36,7 +36,7 @@ class ORMIterators extends ORMIterator {
 	 */
 	public function next() {
 		// Skip ORMIterator::next
-		Database_Result_Iterator::next();
+		$this->dbnext();
 		if ($this->_valid) {
 			$result = array();
 			$first = null;

@@ -78,7 +78,7 @@ class Control_Checkbox extends Control {
 	public function validate() {
 		$cont_name = $this->name() . "_sv";
 		if ($this->request->getb($cont_name)) {
-			$this->message($this->option("continue_message", __("Form was updated.")));
+			$this->message($this->option("continue_message", $this->application->locale->__("Form was updated.")));
 			return false;
 		}
 		return true;

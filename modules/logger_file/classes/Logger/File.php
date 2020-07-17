@@ -280,7 +280,7 @@ class File implements Handler {
 	 * {@inheritDoc}
 	 * @see \zesk\Logger\Handler::log()
 	 */
-	public function log($message, array $context) {
+	public function log($message, array $context = null) {
 		if ($this->include_patterns && !$this->should_include($message)) {
 			return;
 		}

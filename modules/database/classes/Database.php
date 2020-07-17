@@ -248,6 +248,21 @@ abstract class Database extends Hookable {
 	}
 
 	/**
+	 * Convert attribute keys into standard form and fix values as well.
+	 *
+	 * @param array $attributes
+	 * @return array[]
+	 */
+	public function normalize_attributes(array $attributes) {
+		$newattrs = array();
+		foreach ($attributes as $k => $v) {
+			$k = strtolower(preg_replace("/[-_]/", " ", strtolower($k)));
+			$newattrs[$k] = $v;
+		}
+		return $newattrs;
+	}
+
+	/**
 	 * Generator utilities - native NOW string for database
 	 *
 	 * @return string
@@ -591,7 +606,7 @@ abstract class Database extends Hookable {
 	 * @return Database
 	 * @param string $name
 	 */
-	abstract public function select_database($name);
+	abstract public function select_database($name = null);
 
 	/**
 	 * Create a Database_Table object from the database's schema

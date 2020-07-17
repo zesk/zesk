@@ -192,9 +192,10 @@ abstract class Repository extends Hookable {
 		$final_path = Directory::is_absolute($target) ? $target : $this->path($target);
 		$final_path = realpath($final_path);
 		if (!begins($this->path, $final_path)) {
-			throw new Exception_Semantics("Passed absolute path {target} must be a subdirectory of {path}", array(
+			throw new Exception_Semantics("Passed absolute path {target} (-> {final_path}) must be a subdirectory of {path}", array(
 				"target" => $target,
-				"path" => $path,
+				"final_path" => $final_path,
+				"path" => $final_path,
 			));
 		}
 		return $final_path;
@@ -232,8 +233,8 @@ abstract class Repository extends Hookable {
 	 */
 	public static function factory(Application $application, $type, $root = null, array $options = array()) {
 		try {
-			$repo = $application->modules->object("Repository");
 			/* @var $repo Module_Repository */
+			$repo = $application->repository_module();
 			$class = $repo->find_repository($type);
 			if (!$class) {
 				return null;

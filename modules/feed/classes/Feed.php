@@ -52,28 +52,29 @@ class Feed extends Model implements \Iterator {
 	}
 
 	private static function process_error(\LibXMLError $error) {
+		$result = "";
 		// 		$return = $xml[$error->line - 1] . "\n";
 		// 		$return .= str_repeat('-', $error->column) . "^\n";
 		switch ($error->level) {
 			case LIBXML_ERR_WARNING:
-				$return .= "Warning $error->code: ";
+				$result .= "Warning $error->code: ";
 
 				break;
 			case LIBXML_ERR_ERROR:
-				$return .= "Error $error->code: ";
+				$result .= "Error $error->code: ";
 
 				break;
 			case LIBXML_ERR_FATAL:
-				$return .= "Fatal Error $error->code: ";
+				$result .= "Fatal Error $error->code: ";
 
 				break;
 		}
 
-		$return .= trim($error->message) . "\n  Line: $error->line" . "\n  Column: $error->column";
+		$result .= trim($error->message) . "\n  Line: $error->line" . "\n  Column: $error->column";
 		if ($error->file) {
-			$return .= "\n  File: $error->file";
+			$result .= "\n  File: $error->file";
 		}
-		return "$return\n\n--------------------------------------------\n\n";
+		return "$result\n\n--------------------------------------------\n\n";
 	}
 
 	/**

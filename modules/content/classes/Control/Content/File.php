@@ -17,7 +17,7 @@ class Control_Content_File extends Control_Widgets {
 	private $_file_widget = null;
 
 	public function model() {
-		return new Content_File();
+		return $this->application->orm_factory(Content_File::class);
 	}
 
 	public function initialize() {
@@ -30,7 +30,8 @@ class Control_Content_File extends Control_Widgets {
 
 		$this->child($w);
 
-		$w = $this->widget_factory(Control_Text::class)->names($prefix . "desc", __("Description"))->textarea(true);
+		$locale = $this->application->locale;
+		$w = $this->widget_factory(Control_Text::class)->names($prefix . "desc", $locale->__("Description"))->textarea(true);
 		$this->child($w);
 		$this->upload(true);
 

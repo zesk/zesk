@@ -188,7 +188,7 @@ class Selenium_Browsers {
 		/* @var $locale \zesk\Locale */
 		foreach ($desired_browsers as $index => $record) {
 			$caps = avalue($record, "desiredCapabilities", array());
-			$name = self::configuration_name($caps);
+			$name = $this->configuration_name($caps);
 			if (!array_key_exists('name', $caps)) {
 				$caps['name'] = $name;
 			}

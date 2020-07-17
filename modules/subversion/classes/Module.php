@@ -54,17 +54,18 @@ class Module extends \zesk\Module_Repository {
 	 */
 	public function command_subversion(Engine $engine, array $arguments = array(), $command_name) {
 		$app = $engine->application;
+		$locale = $app->locale;
 		$url = array_shift($arguments);
 		$target = $this->application->paths->expand(array_shift($arguments));
 		$__ = compact("url", "target");
 
 		try {
 			if (!is_dir($target)) {
-				if (!$engine->prompt_yes_no(__("Create subversion directory {target} for {url}", $__))) {
+				if (!$engine->prompt_yes_no($locale->__("Create subversion directory {target} for {url}", $__))) {
 					return false;
 				}
 				if (!Directory::create($target)) {
-					$engine->error(__("Unable to create {target}", $__));
+					$engine->error($locale->__("Unable to create {target}", $__));
 					return false;
 				}
 				$engine->verbose_log("Created {target}", $__);
@@ -78,7 +79,7 @@ class Module extends \zesk\Module_Repository {
 			if (!$repo->need_update()) {
 				return null;
 			}
-			if (!$engine->prompt_yes_no(__("Update subversion {target} from {url}", $__))) {
+			if (!$engine->prompt_yes_no($locale->__("Update subversion {target} from {url}", $__))) {
 				return false;
 			}
 			$engine->log($repo->update());

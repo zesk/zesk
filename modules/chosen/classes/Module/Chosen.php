@@ -41,7 +41,8 @@ class Module_Chosen extends Module_JSLib {
 		$chosen = $this;
 		$ready_pattern = self::$jquery_ready_pattern;
 		foreach ($classes as $class) {
-			$hooks->add("$class::render", function (Widget $widget) use ($chosen, $ready_pattern) {
+			$hooks->add("$class::render", function ($widget) use ($chosen, $ready_pattern) {
+				/* @var $widget Control_Select $widget  */
 				if ($widget->option_bool("skip-chosen") || $widget->is_single()) {
 					return;
 				}

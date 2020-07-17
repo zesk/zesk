@@ -44,7 +44,7 @@ class Service extends Hookable {
 	 * Retrieve the classes which implement the selected service
 	 *
 	 * @param string $type
-	 * @return array:string
+	 * @return string[]
 	 */
 	public static function service_classes(Application $application, $type) {
 		if (self::valid_type($application, $type)) {

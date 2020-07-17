@@ -42,8 +42,9 @@ class Currency extends ORM {
 	 * @return string
 	 */
 	public function format($value = 0) {
-		$decimals = $this->option("decimal_point", __("Currency::decimal_point:=."));
-		$thousands = $this->option('thousands_separator', __("Currency::thousands_separator:=."));
+		$locale = $this->application->locale;
+		$decimals = $this->option("decimal_point", $locale->__("Currency::decimal_point:=."));
+		$thousands = $this->option('thousands_separator', $locale->__("Currency::thousands_separator:=."));
 		return map($this->format, array(
 			'value_raw' => $value,
 			'value_decimal' => $intvalue = intval($value),

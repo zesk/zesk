@@ -21,6 +21,7 @@ class Control_Email extends Control_Text {
 	public function validate() {
 		$temp = parent::validate();
 		$v = $this->value();
+		$locale = $this->application->locale;
 		if ($this->accept_list()) {
 			$emails = ArrayTools::trim_clean(to_list($v, array(), ','));
 			$bad_email = array();
@@ -30,14 +31,14 @@ class Control_Email extends Control_Text {
 				}
 			}
 			if ($bad_email) {
-				$this->error(__("Control_Email::error_format:={label} contains some invalid emails: {bad_emails}", array(
+				$this->error($locale->__("Control_Email::error_format:={label} contains some invalid emails: {bad_emails}", array(
 					'bad_emails' => implode(", ", $bad_email),
 				)));
 				return false;
 			}
 			$this->value(implode(", ", $emails));
 		} elseif ($temp && strlen($v) > 0 && !is_email($v)) {
-			$this->error(__("Control_Email::error_format:={label} must be formatted like an email, e.g. user@example.com.", $this->options));
+			$this->error($locale->__("Control_Email::error_format:={label} must be formatted like an email, e.g. user@example.com.", $this->options));
 			return false;
 		}
 		return $temp;

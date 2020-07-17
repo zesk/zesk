@@ -16,10 +16,11 @@ class View_Currency extends View {
 				return $result;
 			}
 		} else {
+			$ll = $this->application->locale;
 			$ndig = $this->option('currency_fraction_digits', 2);
 			$symbol = $this->first_option("currency_symbol;currency", '$');
-			$dec_point = $this->option("decimal_point", __('Currency::decimal_point:=.'));
-			$thou_sep = $this->option("thousands_separator", __('Currency::thousands_separator:=.'));
+			$dec_point = $this->option("decimal_point", $ll->__('Currency::decimal_point:=.'));
+			$thou_sep = $this->option("thousands_separator", $ll->__('Currency::thousands_separator:=.'));
 			$result = $symbol . number_format($v, $ndig, $dec_point, $thou_sep);
 		}
 		return $result;

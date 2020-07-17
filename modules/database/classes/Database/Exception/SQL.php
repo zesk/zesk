@@ -16,7 +16,9 @@ namespace zesk;
  */
 class Database_Exception_SQL extends Database_Exception {
 	/**
+	 * KMD - Yes this is duplicated for now in parent class until we deprecate this.
 	 *
+	 * @deprecated 2020-07
 	 * @var Database
 	 */
 	public $db = null;
@@ -41,15 +43,7 @@ class Database_Exception_SQL extends Database_Exception {
 		$this->db = $db;
 
 		$message = "Message: $message\nDatabase: " . $this->db->code_name() . "\nSQL: " . rtrim($this->sql) . "\n";
-		parent::__construct($message, $arguments, $errno, $previous);
-	}
-
-	/**
-	 *
-	 * @return Database
-	 */
-	public function database() {
-		return $this->db;
+		parent::__construct($db, $message, $arguments, $errno, $previous);
 	}
 
 	/**

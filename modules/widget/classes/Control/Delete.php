@@ -1,4 +1,5 @@
 <?php
+
 namespace zesk;
 
 class Control_Delete extends Control_Edit {
@@ -8,8 +9,9 @@ class Control_Delete extends Control_Edit {
 	 */
 	protected function initialize() {
 		parent::initialize();
-		$this->options['submit_redirect_message'] = __('{class.name} "{object.name}" was deleted.');
-		$title = __('Delete {class_name} &ldquo;{name}&rdquo;', array(
+		$locale = $this->application->locale;
+		$this->options['submit_redirect_message'] = $locale->__('{class.name} "{object.name}" was deleted.');
+		$title = $locale->__('Delete {class_name} &ldquo;{name}&rdquo;', array(
 			"class_name" => $this->object->class_name(),
 			"name" => $this->object->name(),
 		));

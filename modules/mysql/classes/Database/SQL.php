@@ -11,6 +11,7 @@ use zesk\Text as text;
 use zesk\ArrayTools;
 use zesk\StringTools;
 use zesk\Exception_Parameter;
+use zesk\Exception_Unimplemented;
 
 /**
  * @see Database_Parser
@@ -42,7 +43,11 @@ class Database_SQL extends \zesk\Database_SQL {
 		$newName = $db_col_new->name();
 		$newType = $this->database_column_native_type($db_col_new);
 		$after_column = $db_col_new->option('after_column', false);
-		return "ALTER TABLE " . $this->quote_table($table) . " ADD COLUMN " . $this->quote_column($newName) . " $newType" . ($after_column ? " AFTER " . self::quote_column($after_column) : "");
+		return "ALTER TABLE " . $this->quote_table($table) . " ADD COLUMN " . $this->quote_column($newName) . " $newType" . ($after_column ? " AFTER " . $this->quote_column($after_column) : "");
+	}
+
+	public function create_table(Database_Table $dbTableObject) {
+		throw new Exception_Unimplemented("Yup");
 	}
 
 	public function alter_table_index_add(Database_Table $t, Database_Index $index) {
@@ -415,7 +420,7 @@ class Database_SQL extends \zesk\Database_SQL {
 	}
 
 	public function sql_boolean($value) {
-		return to_bool(value) ? 1 : 0;
+		return to_bool($value) ? 1 : 0;
 	}
 
 	/*
@@ -508,52 +513,6 @@ class Database_SQL extends \zesk\Database_SQL {
 		);
 	}
 
-	public function create_table(Database_Table $table) {
-		$columns = $table->columns();
-
-		$types = array();
-		foreach ($columns as $dbCol) {
-			if (!$dbCol->has_sql_type() && !$this->type_set_sql_type($dbCol)) {
-				die(__METHOD__ . ": no SQL Type for column $dbCol");
-			} else {
-				$types[] = $this->quote_column($dbCol->name()) . " " . $this->database_column_native_type($dbCol, true);
-			}
-		}
-		$indexes = $table->indexes();
-		$alters = array();
-		if ($indexes) {
-			foreach ($indexes as $index) {
-				/* @var $index Database_Index */
-				$typeSQL = $index->sql_index_type();
-				if ($typeSQL) {
-					if ($index->type() === Database_Index::Primary) {
-						$columns = $index->columns();
-						if (count($columns) === 1) {
-							$col = $table->column($columns[0]);
-							if (!$col) {
-								throw new Database_Exception_Schema($this, null, "{col} does not exist as primary key in {table}", array(
-									"col" => $col,
-									"table" => $table->name(),
-								));
-							}
-							if ($col->primary_key()) {
-								continue;
-							}
-						}
-					}
-					$types[] = $typeSQL;
-				} else {
-					$alters[] = $index->createSQL();
-				}
-			}
-		}
-		$types = implode(",\n\t", $types);
-		$result = array();
-		$result[] = "CREATE TABLE " . $this->quote_table($table->name()) . " (\n\t$types\n) " . $this->native_table_type($table);
-
-		return array_merge($result, $alters);
-	}
-
 	/**
 	 *
 	 * @return string
@@ -608,7 +567,7 @@ class Database_SQL extends \zesk\Database_SQL {
 	 * @return string
 	 */
 	final public function quote_table($table) {
-		return self::quote_column($table);
+		return $this->quote_column($table);
 	}
 
 	/**
@@ -617,7 +576,7 @@ class Database_SQL extends \zesk\Database_SQL {
 	 * @return string
 	 */
 	final public function unquote_table($table) {
-		return self::unquote_column($table);
+		return $this->unquote_column($table);
 	}
 
 	public function function_date_diff($date_a, $date_b) {

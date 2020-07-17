@@ -48,14 +48,14 @@ class Command_Schema extends Command_Base {
 	/**
 	 */
 	protected function synchronize_before() {
-		self::_synchronize_suffix("update");
+		$this->_synchronize_suffix("update");
 	}
 
 	/**
 	 */
 	protected function synchronize_after() {
 		if ($this->option_bool("update")) {
-			self::_synchronize_suffix("updated");
+			$this->_synchronize_suffix("updated");
 		}
 	}
 

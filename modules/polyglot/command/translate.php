@@ -3,6 +3,7 @@
 /**
  *
  */
+
 namespace zesk;
 
 /**
@@ -79,7 +80,7 @@ class Command_Translate extends Command_Base {
 		if (!is_dir($destination)) {
 			$this->usage("Need a directory \"{destination}\" is not a directory", compact("destination"));
 		}
-		$classes = Service::service_classes("translate");
+		$classes = Service::service_classes($app, "translate");
 		if ($this->option_bool("list")) {
 			echo ArrayTools::ksuffix($classes, "\n");
 			return 0;
@@ -98,7 +99,7 @@ class Command_Translate extends Command_Base {
 		$classes = ArrayTools::flip_copy($classes, true);
 		/* @var $service_object Service_Translate */
 		try {
-			$service_object = $this->service_object = Service_Translate::factory_translate($target_language, $source_language);
+			$service_object = $this->service_object = Service_Translate::factory_translate($app, $target_language, $source_language);
 		} catch (Exception $e) {
 			$this->error($e->getMessage(), $e->arguments);
 			return 2;
@@ -109,7 +110,7 @@ class Command_Translate extends Command_Base {
 		$target_file = path($destination, "$target_language.inc");
 
 		if (!is_file($target_file)) {
-			$target_file = file_put_contents($target_file, map('<' . "?php\n// Generated file by {class}, editing OK\n\$tt = array();\n\nreturn \$tt;\n"));
+			$target_file = file_put_contents($target_file, map('<' . "?php\n// Generated file by {class}, editing OK\n\$tt = array();\n\nreturn \$tt;\n", array("class" => $default_class)));
 		}
 		$target_translations = $app->load($target_file);
 		if (!is_array($target_translations)) {

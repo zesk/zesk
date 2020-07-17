@@ -23,7 +23,7 @@ class Module_Session extends Module {
 
 	/**
 	 *
-	 * @var Interface_Session[string]
+	 * @var Interface_Session[]
 	 */
 	private $instances = array();
 

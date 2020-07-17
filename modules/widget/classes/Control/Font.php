@@ -42,7 +42,7 @@ class Control_Font extends Control_Select {
 
 	/**
 	 *
-	 * @return string[string]
+	 * @return string[]
 	 */
 	public static function web_font_options() {
 		return array(

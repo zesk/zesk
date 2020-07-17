@@ -180,7 +180,7 @@ class Database_Table extends Hookable {
 	/**
 	 * Array of Database_Column
 	 *
-	 * @return array:Database_Column
+	 * @return Database_Column[]
 	 */
 	public function columns() {
 		return $this->columns;
@@ -189,7 +189,7 @@ class Database_Table extends Hookable {
 	/**
 	 * Return array of column names
 	 *
-	 * @return array:string
+	 * @return string[]
 	 */
 	public function column_names() {
 		$result = array();

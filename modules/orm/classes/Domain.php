@@ -39,8 +39,8 @@ class Domain extends ORM {
 	 */
 	public static function cron_hour(Application $application) {
 		foreach (array(
-			self::url_public_suffix_list => self::public_suffix_list_file(),
-			self::url_tlds_by_alpha => self::tlds_by_alpha_file(),
+			self::url_public_suffix_list => self::public_suffix_list_file($application->paths),
+			self::url_tlds_by_alpha => self::tlds_by_alpha_file($application->paths),
 		) as $url => $path) {
 			Net_Sync::url_to_file($application, $url, $path);
 		}

@@ -28,14 +28,14 @@ class Control_Contact_Address extends Control_Edit {
 	 */
 	protected function hook_widgets() {
 		$ww = array();
-
-		$ww[] = $w = $this->widget_factory('zesk\\Control_Text')->names('street', __('Contact_Address:=Street Line 1'));
-		$ww[] = $w = $this->widget_factory('zesk\\Control_Text')->names('additional', __('Contact_Address:=Street Line 2'));
-		$ww[] = $w = $this->widget_factory('zesk\\Control_Text')->names('city', __('Contact_Address:=City'));
-		$ww[] = $w = $this->widget_factory('zesk\\Control_Text')->names('province', __('Contact_Address:=State'));
-		$ww[] = $w = $this->widget_factory('zesk\\Control_Text')->names('postal_code', __('Contact_Address:=Zip Code'));
-		$ww[] = $w = $this->widget_factory('zesk\\Control_County')->names('county', __('Contact_Address:=County'));
-		$ww[] = $w = $this->widget_factory('zesk\\Control_Country')->names('country', __('Contact_Address:=Country'));
+		$ll = $this->application->locale;
+		$ww[] = $w = $this->widget_factory('zesk\\Control_Text')->names('street', $ll->__('Contact_Address:=Street Line 1'));
+		$ww[] = $w = $this->widget_factory('zesk\\Control_Text')->names('additional', $ll->__('Contact_Address:=Street Line 2'));
+		$ww[] = $w = $this->widget_factory('zesk\\Control_Text')->names('city', $ll->__('Contact_Address:=City'));
+		$ww[] = $w = $this->widget_factory('zesk\\Control_Text')->names('province', $ll->__('Contact_Address:=State'));
+		$ww[] = $w = $this->widget_factory('zesk\\Control_Text')->names('postal_code', $ll->__('Contact_Address:=Zip Code'));
+		$ww[] = $w = $this->widget_factory('zesk\\Control_County')->names('county', $ll->__('Contact_Address:=County'));
+		$ww[] = $w = $this->widget_factory('zesk\\Control_Country')->names('country', $ll->__('Contact_Address:=Country'));
 
 		return $ww;
 	}

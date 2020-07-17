@@ -172,8 +172,8 @@ class CSV_Writer extends CSV {
 	public function add_translation_map_boolean($column_names, $no = null, $yes = null, $null = null) {
 		$this->add_translation_map($column_names, array(
 			'' => $null === null ? '' : $null,
-			'0' => $no === null ? __('no') : $no,
-			'1' => $yes === null ? __('yes') : $no,
+			'0' => $no === null ? 'no' : $no,
+			'1' => $yes === null ? 'yes' : $no,
 		));
 		return $this;
 	}

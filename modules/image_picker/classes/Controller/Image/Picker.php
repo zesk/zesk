@@ -34,6 +34,7 @@ class Controller_Image_Picker extends \zesk\Controller_ORM {
 	public function action_upload() {
 		$request = $this->request;
 		$file = null;
+		$locale = $this->application->locale;
 
 		try {
 			$file = $request->file($this->request->get('name', 'file'));
@@ -44,7 +45,7 @@ class Controller_Image_Picker extends \zesk\Controller_ORM {
 				$real_size = to_bytes($max_size);
 				$this->json(array(
 					'status' => true,
-					'message' => __('That file is too large. You can only upload files which are less than {bytes}.', array(
+					'message' => $locale->__('That file is too large. You can only upload files which are less than {bytes}.', array(
 						'bytes' => $this->application->theme('bytes', array(
 							"content" => $real_size,
 						)),
@@ -56,7 +57,7 @@ class Controller_Image_Picker extends \zesk\Controller_ORM {
 		if (!$file) {
 			$this->json(array(
 				"status" => false,
-				"message" => __("No file uploaded."),
+				"message" => $locale->__("No file uploaded."),
 			));
 			return;
 		}
@@ -67,7 +68,7 @@ class Controller_Image_Picker extends \zesk\Controller_ORM {
 		if (!$image) {
 			$this->json(array(
 				"status" => false,
-				"message" => __("Failed to save new image."),
+				"message" => $locale->__("Failed to save new image."),
 			));
 			return;
 		}
@@ -91,20 +92,21 @@ class Controller_Image_Picker extends \zesk\Controller_ORM {
 				"height" => $this->request->geti("height"),
 				"name" => $this->request->get("name"),
 			)),
-			"message" => __("Upload successful."),
+			"message" => $locale->__("Upload successful."),
 		));
 	}
 
 	public function action_image_delete(Content_Image $image) {
+		$locale = $this->application->locale;
 		if ($this->user->can('delete', $image)) {
 			$image->delete();
 			return $this->json(array(
-				'message' => __('Image was deleted.'),
+				'message' => $locale->__('Image was deleted.'),
 				'status' => true,
 			));
 		}
 		return $this->json(array(
-			'message' => __('You do not have permission to delete that image.'),
+			'message' => $locale->__('You do not have permission to delete that image.'),
 			'status' => false,
 		));
 	}

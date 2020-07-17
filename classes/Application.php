@@ -30,6 +30,10 @@ use zesk\Router\Parser;
  *
  * @method Database database_registry($name)
  * @method Module_Database database_module()
+ * @method Module_Permission permission_module()
+ * @method Module_Job job_module()
+ * @method Module_Repository repository_module()
+ * @method Cron\Module cron_module()
  *
  * @method Interface_Session session_factory()
  */

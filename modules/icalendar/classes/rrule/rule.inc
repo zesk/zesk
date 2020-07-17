@@ -609,7 +609,7 @@ class Rule {
 		} else {
 			if (self::_is_integer_list("byhour", $byhour, 0, 23)) {
 				if ($frequency === self::FREQUENCY_HOURLY) {
-					$this->byhour = self::_construct_byset("byhour", $dtstart, $byhour, 24);
+					$this->byhour = $this->_construct_byset("byhour", $dtstart, $byhour, 24);
 				} else {
 					$this->byhour = $byhour;
 				}
@@ -629,7 +629,7 @@ class Rule {
 		} else {
 			if (self::_is_integer_list("byminute", $byminute, 0, 59)) {
 				if ($frequency === self::FREQUENCY_MINUTELY) {
-					$this->byminute = self::_construct_byset("byminute", $dtstart->minute(), $byminute, 60);
+					$this->byminute = $this->_construct_byset("byminute", $dtstart->minute(), $byminute, 60);
 				} else {
 					$this->byminute = $byminute;
 				}
@@ -649,7 +649,7 @@ class Rule {
 		} else {
 			if (self::_is_integer_list("bysecond", $bysecond, 0, 59)) {
 				if ($frequency === self::FREQUENCY_SECONDLY) {
-					$this->bysecond = self::_construct_byset("bysecond", $dtstart->second(), $bysecond, 60);
+					$this->bysecond = $this->_construct_byset("bysecond", $dtstart->second(), $bysecond, 60);
 				} else {
 					$this->bysecond = $bysecond;
 				}
@@ -671,6 +671,12 @@ class Rule {
 		}
 	}
 
+	/**
+	 * Copy array and make it key=key array
+	 *
+	 * @param array|null $array
+	 * @return array|null
+	 */
 	private function flip_copy(array $array = null) {
 		if ($array) {
 			$result = array();
@@ -1239,7 +1245,7 @@ class Rule {
 	 * @param integer|list $byxxx
 	 * @param integer $base
 	 */
-	private static function _construct_byset($name, $start, array $byxxx, $base) {
+	private function _construct_byset($name, $start, array $byxxx, $base) {
 		$result = array();
 
 		if (is_integer($byxxx)) {

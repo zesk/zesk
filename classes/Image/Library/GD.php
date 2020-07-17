@@ -145,7 +145,7 @@ class Image_Library_GD extends Image_Library {
 			}
 		}
 
-		$dst = self::_imagecreate($width, $height);
+		$dst = $this->_imagecreate($width, $height);
 
 		$high_quals = true;
 		if (function_exists('imageantialias')) {
@@ -196,7 +196,7 @@ class Image_Library_GD extends Image_Library {
 	 * @see Image_Library::image_scale()
 	 */
 	public function image_scale($source, $dest, array $options) {
-		$src = self::_imageload($source);
+		$src = $this->_imageload($source);
 		return $this->_image_scale_resource($src, $dest, $options);
 	}
 

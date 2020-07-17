@@ -225,7 +225,7 @@ class View_Image_Text extends View {
 		$x->text = $text;
 		$attributes['angle'] = 90;
 		$attributes['column'] = 'text';
-		$w = new View_Image_Text($application, $attributes);
+		$w = $application->widget_factory(View_Image_Text::class, $attributes);
 		$request = $application->request() ?? Request::factory($application, "http://test/");
 		$w->request($request);
 		$w->response($application->response_factory($request));
@@ -236,16 +236,16 @@ class View_Image_Text extends View {
 		$x = new Model($application);
 		$x->text = $text;
 		$attributes['column'] = 'text';
-		$w = new View_Image_Text($application, $attributes);
+		$w = $application->widget_factory(View_Image_Text::class, $attributes);
 		$request = $application->request() ?? Request::factory($application, "http://test/");
 		$w->request($request);
 		$w->response($application->response_factory($request));
 		return $w->execute($x);
 	}
 }
-function image_text_vertical($text, $attributes = false) {
-	return View_Image_Text::vertical($text, $attributes);
+function image_text_vertical(Application $application, $text, $attributes = false) {
+	return View_Image_Text::vertical($application, $text, $attributes);
 }
-function image_text($text, $attributes = false) {
-	return View_Image_Text::horizontal($text, $attributes);
+function image_text(Application $application, $text, $attributes = false) {
+	return View_Image_Text::horizontal($application, $text, $attributes);
 }

@@ -13,7 +13,7 @@ class View_Bytes extends View {
 		if (empty($v)) {
 			$result = $this->empty_string();
 		} else {
-			$result = Number::format_bytes($v);
+			$result = Number::format_bytes($this->application->locale, $v);
 		}
 		return $result;
 	}

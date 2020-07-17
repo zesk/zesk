@@ -52,9 +52,6 @@ class Configuration_Parser_JSON extends Configuration_Parser {
 		if ($lower && is_array($result)) {
 			$result = array_change_key_case($result);
 		}
-		$settings = $this->settings;
-		$dependency = $this->dependency;
-
 		$include = null;
 		if (array_key_exists("include", $result) && $this->loader) {
 			$include = $result["include"];
@@ -62,7 +59,7 @@ class Configuration_Parser_JSON extends Configuration_Parser {
 		}
 		$result = $this->merge_results($result, array(), $interpolate);
 		if ($include) {
-			$this->handle_include($include);
+			$this->handle_include($include, $this->option("context"));
 		}
 		return $result;
 	}
@@ -72,19 +69,23 @@ class Configuration_Parser_JSON extends Configuration_Parser {
 	 *
 	 * @param string $file Name of additional include file
 	 */
-	private function handle_include($file) {
+	private function handle_include($file, $context = null) {
 		if (File::is_absolute($file)) {
 			$this->loader->append_files(array(
 				$file,
 			));
-			return;
 		}
-		$files = array();
-		$paths = $this->loader->paths();
-		foreach ($paths as $path) {
-			$files[] = path($path, $file);
+		else if ($context && is_dir($context) && File::path_check($file)) {
+			$full = path($context, $file);
+			$this->loader->append_files([$full]);
+		} else {
+			error_log(map("{method} {file} context {context} was a no-op", array(
+				"method" => __METHOD__,
+				"file" => $file,
+				"context" => $context,
+			)));
+
 		}
-		$this->loader->append_files($files);
 	}
 
 	/**

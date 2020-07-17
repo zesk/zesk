@@ -291,7 +291,7 @@ class Module_Permission extends Module {
 	/**
 	 * Retrieve
 	 *
-	 * @return multitype:
+	 * @return array
 	 */
 	public function permissions() {
 		if ($this->_permissions !== null) {

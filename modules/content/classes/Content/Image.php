@@ -513,22 +513,21 @@ class Content_Image extends ORM {
 		if (!$this->file_exists(true)) {
 			$this->application->logger->info("{class} #{id}: {path}: No file found {data_name}", $__);
 			return $this;
-			return null;
 		}
 		$scaled = $path . '.scaled';
 		$size = filesize($path);
 
 		$this->_update_sizes();
 
-		$__ += array(
-			'width' => $width,
-			'height' => $height,
-			'max_size' => $maximum_file_size,
-			'size' => $size,
-		);
 		$maximum_file_size = isset($options['size']) ? $options['size'] : null;
 		$maximum_width = isset($options['width']) ? $options['width'] : null;
 		$maximum_height = isset($options['height']) ? $options['height'] : null;
+		$__ += array(
+			'width' => $maximum_width,
+			'height' => $maximum_height,
+			'max_size' => $maximum_file_size,
+			'size' => $size,
+		);
 
 		if ($maximum_file_size === null && $maximum_width === null && $maximum_height === null) {
 			throw new Exception_Parameter("{method}: Parameter \$options must contain one of keys: size, width, height", array(

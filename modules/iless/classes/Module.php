@@ -159,7 +159,7 @@ class Module extends \zesk\Module {
 	 */
 	public function css_theme(array $variables = array(), array $options = array()) {
 		$this->set_option($options);
-		$default_css = $this->default_css_path();
+		$default_css = $this->_default_css_path();
 		if (!$this->okay || $this->option_bool('ignore_theme')) {
 			return $default_css;
 		}

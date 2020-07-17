@@ -73,8 +73,6 @@ class View_Image_Test extends TestWidget {
 		$extras = array();
 		View_Image::scaled($this->application, $src, $width, $height, $alt, $extras);
 
-		newline("\n");
-
 		$images = array(
 			'z100x100.gif' => array(
 				array(
@@ -189,8 +187,6 @@ class View_Image_Test extends TestWidget {
 		$alt = "";
 		$extras = array();
 		View_Image::scaled_path($this->application, $src, $width, $height, $alt, $extras);
-
-		newline("\n");
 
 		$images = array(
 			'z100x100.gif' => array(

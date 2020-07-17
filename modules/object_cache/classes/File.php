@@ -2,14 +2,20 @@
 /**
  *
  */
-namespace zesk;
+namespace zesk\ObjectCache;
+
+use zesk\File as zeskFile;
+use zesk\JSON;
+use zesk\Directory;
+use zesk\ORM;
+use zesk\Exception_Directory_Create;
 
 /**
  *
  * @author kent
  *
  */
-class Object_Cache_File extends Object_Cache {
+class File extends Base {
 	public $path = null;
 
 	public function __construct($path = null) {
@@ -38,7 +44,7 @@ class Object_Cache_File extends Object_Cache {
 		}
 		if (is_array($id)) {
 			ksort($id);
-			$id = File::name_clean(JSON::encode($id));
+			$id = zeskFile::name_clean(JSON::encode($id));
 		}
 		return $this->cache_path(strtolower(get_class($object)) . "-$id", $create);
 	}
@@ -77,7 +83,7 @@ class Object_Cache_File extends Object_Cache {
 	public function invalidate(ORM $object, $key = null) {
 		$path = $this->object_path($object);
 		if ($key !== null) {
-			File::unlink(path($path, self::hash_from_key($key) . ".cache"));
+			zeskFile::unlink(path($path, self::hash_from_key($key) . ".cache"));
 		} elseif (is_dir($path)) {
 			Directory::delete($path);
 		}

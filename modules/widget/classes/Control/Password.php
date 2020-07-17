@@ -41,9 +41,10 @@ class Control_Password extends Control_Text {
 	protected function initialize() {
 		// Set up widgets
 		if ($this->confirm) {
+			$locale = $this->application->locale;
 			$w = $this->widget_factory(self::class, array(
 				'confirm' => false,
-			))->names($this->column() . "_confirm", $this->option('label_confirm', __('Control_Password:={label} (Again)', array(
+			))->names($this->column() . "_confirm", $this->option('label_confirm', $locale->__('Control_Password:={label} (Again)', array(
 				"label" => $this->label(),
 			))));
 			$this->child($w);
@@ -69,7 +70,7 @@ class Control_Password extends Control_Text {
 		if ($this->confirm) {
 			$pw_confirm = $this->object->get($this->column . '_confirm');
 			if ($pw_confirm !== $pw) {
-				$this->error(__("Your passwords do not match, please enter the same password twice."));
+				$this->error($locale->__("Your passwords do not match, please enter the same password twice."));
 				$result = false;
 			}
 		}
@@ -89,22 +90,23 @@ class Control_Password extends Control_Text {
 		if (empty($pw)) {
 			return false;
 		}
+		$locale = $this->application->locale;
 		$requirements = array();
 		$reqs = array(
 			array(
 				"password_require_alpha",
 				"/[A-Za-z]/",
-				__("at least 1 letter"),
+				$locale->__("at least 1 letter"),
 			),
 			array(
 				"password_require_numeric",
 				"/[0-9]/",
-				__("at least 1 digit"),
+				$locale->__("at least 1 digit"),
 			),
 			array(
 				"password_require_non_alphanumeric",
 				"/[^0-9A-Za-z]/",
-				__("at least 1 symbol"),
+				$locale->__("at least 1 symbol"),
 			),
 		);
 		foreach ($reqs as $rr) {
@@ -114,7 +116,7 @@ class Control_Password extends Control_Text {
 			}
 		}
 		if (count($requirements) > 0) {
-			$this->error(__("Your password is required to have {0}", $this->application->locale->conjunction($requirements, __("and"))));
+			$this->error($locale->__("Your password is required to have {0}", array($locale->conjunction($requirements, __("and")))));
 			return false;
 		}
 		return true;

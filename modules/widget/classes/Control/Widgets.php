@@ -60,7 +60,7 @@ class Control_Widgets extends Control {
 					);
 					$message = "Widget {name} failed validation: {error}";
 					$this->application->logger->debug($message, $__);
-					$w->error(__($message, $__), $w->column() . "_raw");
+					$w->error($this->application->locale->__($message, $__), $w->column() . "_raw");
 				}
 				$valid = false;
 				$this->error($w);

@@ -207,23 +207,26 @@ class Controller_Content_Cache extends Controller_Cache {
 	/**
 	 *
 	 * {@inheritdoc}
-	 *
+	 * @param array $options
+	 * @param object $object
 	 * @see Controller::get_route_map()
 	 */
 	public function get_route_map($action = null, $object = null, $options = null) {
 		if ($action === "image") {
 			$width = $height = $styles = null;
-			extract($options, EXTR_IF_EXISTS);
-			if ($styles === null) {
-				if ($width || $height) {
-					$styles = "c${width}x${height}";
-				} else {
-					$styles = "default";
+			if (is_array($options)) {
+				extract($options, EXTR_IF_EXISTS);
+				if ($styles === null) {
+					if ($width || $height) {
+						$styles = "c${width}x${height}";
+					} else {
+						$styles = "default";
+					}
 				}
 			}
 			return array(
 				'styles' => "$styles",
-				'file' => basename($object->path()),
+				'file' => $object ? basename($object->path()) : "-no-object-",
 			);
 		}
 		return array();

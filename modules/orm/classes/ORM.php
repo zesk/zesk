@@ -1882,6 +1882,10 @@ class ORM extends Model implements Interface_Member_Model_Factory {
 		return null;
 	}
 
+	/**
+	 * @param Options_Duplicate $options Returns duplicate state if desired
+	 * @return ORM
+	 */
 	protected function duplicate(Options_Duplicate &$options = null) {
 		/* @var $locale \zesk\Locale */
 		if ($options === null) {
@@ -2043,6 +2047,12 @@ class ORM extends Model implements Interface_Member_Model_Factory {
 		return $result;
 	}
 
+	/**
+	 * Returns a new object which contains the found ORM, or null if not found
+	 *
+	 * @param array $where How to find this object (uses default ->exists where clause)
+	 * @return self
+	 */
 	public function find($where = false) {
 		$data = $this->exists($where);
 		if (is_array($data)) {
@@ -2309,6 +2319,7 @@ class ORM extends Model implements Interface_Member_Model_Factory {
 	/**
 	 *
 	 * @see Model::store()
+	 * @return self
 	 */
 	public function store() {
 		/*
@@ -2414,7 +2425,7 @@ class ORM extends Model implements Interface_Member_Model_Factory {
 	 * Register an object based on its "find_keys"
 	 * Register means "create it if it doesn't exist, find it if it does"
 	 *
-	 * @return integer The ID of the registered object. Also the status is set to what happened, see
+	 * @return self The ID of the registered object. Also the status is set to what happened, see
 	 *         self::status_foo definitions either "insert", or "exists".
 	 * @see ORM::status_exists
 	 * @see ORM::status_insert

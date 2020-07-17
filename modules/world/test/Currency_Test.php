@@ -9,7 +9,7 @@ class Currency_Test extends Test_ORM {
 	);
 
 	public function initialize() {
-		$this->application->orm_registry()->schema_synchronize(null, array(
+		$this->application->orm_module()->schema_synchronize(null, array(
 			Currency::class,
 		), array(
 			"follow" => true,

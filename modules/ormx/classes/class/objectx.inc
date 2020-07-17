@@ -15,7 +15,7 @@ class Class_ORMX extends Class_ORM {
 	protected function configure(ORM $object) {
 		$this->target_class = $object->option('objectx_class');
 
-		$fields = self::_load_fields();
+		$fields = $this->_load_fields();
 
 		$this->has_one['id'] = $this->target_class;
 

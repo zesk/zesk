@@ -124,7 +124,7 @@ class Health_Event extends ORM {
 			try {
 				$settings = unserialize($contents);
 			} catch (Exception $e) {
-				self::event_defer($path, $file, "exception");
+				self::event_defer($application, $path, $file, "exception");
 				$application->logger->error("Exception {e} when unserializing file contents: {contents}", array(
 					"e" => $e,
 					"contents" => $contents,
@@ -155,7 +155,7 @@ class Health_Event extends ORM {
 	 * @return Health_Event
 	 */
 	public function collate() {
-		$events = new Health_Events();
+		$events = $this->application->orm_factory(Health_Events::class);
 		$this->events = $events->register_from_event($this);
 		return $this;
 	}

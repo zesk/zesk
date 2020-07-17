@@ -62,9 +62,9 @@ abstract class Database_Query_Select_Base extends Database_Query {
 	/**
 	 * Execute query and retrieve a single field or row
 	 *
-	 * @param unknown_type $field
-	 * @param unknown_type $default
-	 * @return unknown
+	 * @param string $field
+	 * @param mixed $default
+	 * @return mixed
 	 */
 	public function one($field = null, $default = null) {
 		return $this->database()->query_one($this->__toString(), $field, $default);
@@ -76,7 +76,7 @@ abstract class Database_Query_Select_Base extends Database_Query {
 	 * @param string $class
 	 * @return string
 	 */
-	public function class_alias($class) {
+	public function class_alias($class = null) {
 		return "";
 	}
 
@@ -188,8 +188,8 @@ abstract class Database_Query_Select_Base extends Database_Query {
 	 *
 	 * @param string $key
 	 * @param string $value
-	 * @param unknown $default
-	 * @return Ambigous <multitype:, mixed, multitype:mixed unknown >
+	 * @param array $default
+	 * @return array
 	 */
 	public function to_array($key = null, $value = null, $default = array()) {
 		return $this->database()->query_array($this->__toString(), $key, $value, $default);

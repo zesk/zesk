@@ -90,7 +90,7 @@ class Controller_Share extends Controller {
 	public function _action_default($action = null) {
 		$uri = StringTools::unprefix($original_uri = $this->request->path(), "/");
 		if ($this->application->development() && $uri === "share/debug") {
-			$this->response->content = self::share_debug();
+			$this->response->content = $this->share_debug();
 			return;
 		}
 		$file = $this->path_to_file($this->request->path());

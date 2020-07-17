@@ -610,7 +610,7 @@ class Class_ORM extends Hookable {
 	/**
 	 * Class cache
 	 *
-	 * @var array:ORM_Class
+	 * @var ORM_Class[]
 	 */
 	public static $classes = array();
 
@@ -633,7 +633,7 @@ class Class_ORM extends Hookable {
 	 * Register all zesk hooks.
 	 */
 	public static function hooks(Application $application) {
-		$application->hooks->add(Hooks::hook_reset, function () use ($application) {
+		$application->hooks->add(Hooks::HOOK_RESET, function () use ($application) {
 			self::_hook_reset($application);
 		});
 	}
@@ -925,12 +925,6 @@ class Class_ORM extends Hookable {
 		if (empty($this->utc_timestamps)) {
 			$this->utc_timestamps = $this->option_bool("utc_timestamps");
 		}
-		if (count($this->columns) > 0) {
-			$app->logger->warning("{class} public \$columns is deprecated, use \$column_types", array(
-				"class" => get_class($this),
-			));
-			$app->deprecated();
-		}
 		$this->init_columns(null);
 		$this->_column_defaults();
 		$this->initialize();
@@ -980,15 +974,10 @@ class Class_ORM extends Hookable {
 			if (!is_array($this->primary_keys)) {
 				backtrace();
 			}
-			$this->columns = array_merge(array_keys($this->column_types + $this->has_one), $this->primary_keys);
 			return true;
 		}
 		if (!$this->load_columns()) {
-			$this->columns = array();
 			return false;
-		}
-		if (!is_array($this->columns)) {
-			throw new Exception(get_class($this) . " specification does not have array fields: " . strval($this->columns));
 		}
 		return true;
 	}
@@ -1008,7 +997,6 @@ class Class_ORM extends Hookable {
 		$cache = $pool->getItem(__CLASS__ . "::column_cache::$table");
 		if ($cache->isHit()) {
 			$this->table_columns = $cache->get();
-			$this->columns = array_keys($this->table_columns);
 			return true;
 		}
 		$return = true;
@@ -1032,7 +1020,6 @@ class Class_ORM extends Hookable {
 			$this->table_columns = array();
 			$return = false;
 		}
-		$this->columns = array_keys($this->table_columns);
 		return $return;
 	}
 
@@ -1257,7 +1244,7 @@ class Class_ORM extends Hookable {
 	}
 
 	private function has_many_query(ORM $object, $member) {
-		$many_spec = $this->has_many($this, $member);
+		$many_spec = $this->has_many($object, $member);
 		if ($many_spec === null) {
 			throw new Exception_Semantics("{method} on non-many column: {member}", array(
 				"method" => __METHOD__,
@@ -1270,13 +1257,13 @@ class Class_ORM extends Hookable {
 		return $query;
 	}
 
-	final public function has_many_object($class) {
+	final public function has_many_object(ORM $object, $class) {
 		$class = $this->application->objects->resolve($class);
 		$member = avalue($this->has_many_objects, $class, null);
 		if (!$member) {
 			return null;
 		}
-		return $this->has_many($this, $member);
+		return $this->has_many($object, $member);
 	}
 
 	/**
@@ -1353,7 +1340,7 @@ class Class_ORM extends Hookable {
 			throw new Exception_Semantics(__CLASS__ . "::member_foreign_list($member) called on non-many member");
 		}
 		$many_spec = $this->has_many($object, $member);
-		$query = $this->has_many_query_default($this, $many_spec, $member, true);
+		$query = $this->has_many_query_default($object, $many_spec, $member, true);
 		$far_key = $many_spec['far_key'];
 		return $query->what("X", $far_key)->to_array(null, "X");
 	}
@@ -1463,7 +1450,7 @@ class Class_ORM extends Hookable {
 		}
 		if ($table === true) {
 			// Clean up reference
-			$table = avalue($object->class_orm()->has_many_object($class), 'table');
+			$table = avalue($object->class_orm()->has_many_object($object, $class), 'table');
 			if (!is_string($table)) {
 				throw new Exception_Semantics("{my_class} references table in {class}, but no table found for have_many", compact("my_class", "class"));
 			}
@@ -1478,18 +1465,6 @@ class Class_ORM extends Hookable {
 		$has_many['object'] = $object;
 		$has_many['_inited'] = true;
 		return $has_many;
-	}
-
-	private function has_many_object_join($class, $join_column) {
-		$spec = $this->has_many_object($class);
-		if (!$spec) {
-			return null;
-		}
-		$foreign_key = null;
-		extract($spec, EXTR_IF_EXISTS);
-		return array(
-			$join_column => $foreign_key,
-		);
 	}
 
 	/**
@@ -1561,7 +1536,7 @@ class Class_ORM extends Hookable {
 	 * @return ORM_Schema
 	 */
 	final public function database_schema(ORM $object = null) {
-		$result = $object ? $object->schema() : $this->schema();
+		$result = $object ? $object->schema() : null;
 		if ($result instanceof ORM_Schema) {
 			return $result;
 		} elseif (is_array($result)) {
@@ -2077,7 +2052,7 @@ class Class_ORM extends Hookable {
 	 */
 	public function variables() {
 		return array(
-			"name" => $class_name = __($this->name),
+			"name" => $class_name = $this->application->locale->__($this->name),
 			"names" => $this->application->locale->plural($class_name),
 			"name_column" => $this->name_column,
 			"id_column" => $this->id_column,

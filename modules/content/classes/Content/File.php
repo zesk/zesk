@@ -198,7 +198,7 @@ class Content_File extends ORM {
 				continue;
 			}
 			if (!is_dir($path)) {
-				$application->logger->error(__(__METHOD__ . ":=A configured path ({path}) was not found, <a href=\"{url}\">please update the setting.</a>"), array(
+				$application->logger->error(__METHOD__ . ":=A configured path ({path}) was not found, <a href=\"{url}\">please update the setting.</a>", array(
 					"path" => $path,
 					"url" => "admin/settings/Content_File::scan_path", /* TODO */
 				));

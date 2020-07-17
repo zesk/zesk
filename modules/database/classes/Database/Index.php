@@ -77,14 +77,14 @@ class Database_Index {
 		$this->type = self::determineType($type);
 		$this->name = empty($name) && $this->type === self::Primary ? "primary" : $name;
 
-		$this->structure = self::determineStructure($structure);
+		$this->structure = $this->determineStructure($structure);
 
 		if (is_array($columns)) {
 			foreach ($columns as $col => $size) {
 				if (is_numeric($size) || is_bool($size)) {
 					$this->column_add($col, $size);
 				} elseif (!is_string($size)) {
-					throw new Exception_Semantics(__("Columns must be name => size, or => name ({0} => {1} passed for table {2}", $col, $size, $table->name()));
+					throw new Exception_Semantics(map("Columns must be name => size, or => name ({0} => {1} passed for table {2}", array($col, $size, $table->name())));
 				} else {
 					$this->column_add($size);
 				}

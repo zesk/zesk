@@ -149,8 +149,8 @@ class Database_Parser extends \zesk\Database_Parser {
 	 * Parse DEFAULT and other options on a column
 	 *
 	 * @param Database_Table $table
-	 * @param unknown $column_options
-	 * @return multitype:
+	 * @param string $column_options
+	 * @return array
 	 */
 	private function parse_column_options_sql(Database_Table $table, $sql_type, $column_options) {
 		static $patterns = array(

@@ -28,7 +28,9 @@ class Control_DropFile_Image extends Control_Content_Image {
 				$this->option_integer('height'),
 			);
 		}
-		return $this->set_option('height', $height === null ? null : intval($height))->set_option('width', $width === null ? null : intval($width));
+		$this->set_option('height', $height === null ? null : intval($height));
+		$this->set_option('width', $width === null ? null : intval($width));
+		return $this;
 	}
 
 	public function theme_variables() {

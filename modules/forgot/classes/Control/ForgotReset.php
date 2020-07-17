@@ -92,6 +92,20 @@ class Control_ForgotReset extends Control_Edit {
 
 	/**
 	 *
+	 * @param mixed $token
+	 * @return Forgot
+	 * @throws Exception_Parameter
+	 * @throws Exception_Semantics
+	 */
+	protected function find_code($token) {
+		$this->object->code = $this->validate_token();
+
+		$found = $this->object->find();
+		return $found;
+	}
+
+	/**
+	 *
 	 * {@inheritDoc}
 	 * @see \zesk\Control_Edit::validate()
 	 */
@@ -102,9 +116,7 @@ class Control_ForgotReset extends Control_Edit {
 		$locale = $this->locale();
 		/* @var $user User */
 		/* @var $found Forgot */
-		$this->object->code = $this->validate_token();
-
-		$found = $this->object->find();
+		$found = $this->find_code($this->validate_token());
 		if (!$found) {
 			$this->error($locale->__("Control_ForgotReset:=Forgotten password request no longer valid. Please try again."));
 			return false;

@@ -82,7 +82,7 @@ class Node {
 	 */
 	public function add($word) {
 		if (strlen($word) === 0) {
-			$this->next->term(true);
+			$this->end_of_word = true;
 			return $this;
 		}
 		$char = $word[0];

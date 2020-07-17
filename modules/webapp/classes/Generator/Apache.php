@@ -134,7 +134,11 @@ class Generator_Apache extends Generator {
 	 * @return mixed|NULL
 	 */
 	public function log_path() {
-		return firstarg($this->application->configuration->LOG_PATH, $this->application->option("log_path"));
+		$path = $this->application->configuration->LOG_PATH;
+		if (!$path) {
+			$path = $this->application->option("log_path");
+		}
+		return $path;
 	}
 
 	protected function replace_file($file, $contents) {

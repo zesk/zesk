@@ -59,6 +59,19 @@ class Controller_Forgot extends Controller_Theme {
 	/**
 	 *
 	 * @param string $token
+	 * @return Forgot
+	 * @throws Exception_Parameter
+	 * @throws Exception_Semantics
+	 */
+	protected function find_forgot($token) {
+		return $this->application->orm_factory(Forgot::class, array(
+			"code" => $token,
+		))->find();
+	}
+
+	/**
+	 *
+	 * @param string $token
 	 * @return Response As JSON
 	 */
 	public function action_status($token) {
@@ -75,9 +88,7 @@ class Controller_Forgot extends Controller_Theme {
 			));
 		}
 		/* @var $forgot Forgot */
-		$forgot = $this->application->orm_factory(Forgot::class, array(
-			"code" => $token,
-		))->find();
+		$forgot = $this->find_forgot($token);
 		if (!$forgot) {
 			$this->response->status(Net_HTTP::STATUS_FILE_NOT_FOUND, "Token not found");
 			return $this->json($json + array(
@@ -130,12 +141,13 @@ class Controller_Forgot extends Controller_Theme {
 	 * @param unknown $token
 	 */
 	public function action_validate($token) {
+		$locale = $this->application->locale;
 		$prefer_json = $this->request->prefer_json();
 		if (!preg_match('/[0-9a-f]{32}/i', $token)) {
 			$args = array(
 				"token" => $token,
 				"message_type" => "invalid-token",
-				"message" => __("The validation token passed in the URL is an incorrect format."),
+				"message" => $locale->__("The validation token passed in the URL is an incorrect format."),
 			);
 			return $this->application->theme('forgot/not-valid', $args);
 		}
@@ -147,7 +159,7 @@ class Controller_Forgot extends Controller_Theme {
 			return $this->application->theme('forgot/not-found', array(
 				"token" => $token,
 				"message_type" => "not-found",
-				"message" => __("Unable to find the validation token."),
+				"message" => $locale->__("Unable to find the validation token."),
 			));
 		}
 		/* @var $user User */
@@ -155,7 +167,7 @@ class Controller_Forgot extends Controller_Theme {
 		if (!$user instanceof User) {
 			return $forgot->theme('forgot/not-found', array(
 				"message_type" => "user-not-found",
-				"message" => "User not found.",
+				"message" => $locale->__("User not found."),
 			));
 		}
 		$session = $this->application->session($this->request);

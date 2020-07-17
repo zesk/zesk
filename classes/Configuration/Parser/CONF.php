@@ -66,7 +66,7 @@ class Configuration_Parser_CONF extends Configuration_Parser {
 		}
 		$lower = $this->option("lower");
 		foreach ($lines as $line) {
-			$parse_result = self::parse_line($line);
+			$parse_result = $this->parse_line($line);
 			if ($parse_result === null) {
 				continue;
 			}

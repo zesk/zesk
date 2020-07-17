@@ -176,16 +176,4 @@ standby="' . $standby_string . '" type="application/x-oleobject" width="' . $wid
 		$path = $this->object->apply_map($this->option("src", "{" . $this->column() . "}"));
 		return $this->video_html($path);
 	}
-
-	public static function format($path, $width, $height, $attributes = false) {
-		$data['src'] = $path;
-		$attributes['width'] = $width;
-		$attributes['height'] = $height;
-		$attributes['column'] = 'src';
-		$v = new View_Video($attributes);
-		return $v->output($data);
-	}
-}
-function html_video($path, $width, $height, $attributes = false) {
-	return View_Video::format($path, $width, $height, $attributes);
 }

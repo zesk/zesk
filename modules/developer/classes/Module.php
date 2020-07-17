@@ -249,7 +249,7 @@ class Module extends \zesk\Module implements Interface_Module_Routes {
 	 * @param Response $response
 	 */
 	public function dump_session(Application $app, Response $response) {
-		$session = $app->session();
+		$session = $app->session($app->request());
 		$response->json()->data($session->get());
 	}
 
@@ -301,7 +301,7 @@ class Module extends \zesk\Module implements Interface_Module_Routes {
 				$results[$index] = HTML::tag('span', '.alert alert-danger', $results[$index]);
 			}
 		}
-		$result = $exception ? $this->theme('exception', array(
+		$result = $exception ? $app->theme('exception', array(
 			'content' => $exception,
 		)) : "";
 		$result .= HTML::tag('ul', ".sql", HTML::tags('li', array_merge(array(

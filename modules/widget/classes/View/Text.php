@@ -58,7 +58,7 @@ class View_Text extends View {
 					'weight' => 'first',
 				));
 
-				$my_id = HTML::id_counter();
+				$my_id = substr(md5(microtime()), 0, 8);
 				$ellip = "<a onclick=\"ellipsis_toggle('$my_id')\">$ellip</a>";
 				$close_ellip = "<a onclick=\"ellipsis_toggle('$my_id')\">&lt;&lt;</a>";
 				$old_v = $v;

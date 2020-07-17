@@ -72,7 +72,7 @@ class Control_RichText extends Control_Text {
 	private function autoLink($html) {
 		$x = HTML::remove_tags(explode(";", "a;img;link;style;pre"), $html, true);
 
-		$urls = false;
+		$urls = array();
 		if (preg_match_all('/[^"]([a-zA-Z]+[:\/\/]+[A-Za-z0-9\-_]+\\.+[A-Za-z0-9\.\/%&=\?\-_]+)/i', $x, $urls)) {
 			foreach ($urls as $url) {
 				$html = str_replace($url[1], HTML::a($url[1], $url[1]), $html);

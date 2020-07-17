@@ -69,7 +69,7 @@ class Control_IP_List extends Control {
 		}
 		$this->value(implode("\n", $iplist));
 		if (count($this->ErrorIPs) > 0) {
-			$this->setError($col, "Some IP addresses were incorrectly formatted, please check your work below.");
+			$this->error("Some IP addresses were incorrectly formatted, please check your work below.", $col);
 			return false;
 		}
 		return true;

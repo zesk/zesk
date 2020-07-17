@@ -842,7 +842,7 @@ class Response extends Hookable {
 	 *
 	 * @param string|array $add
 	 * @param string $value
-	 * @return Response|string
+	 * @return Response|array
 	 */
 	final public function body_attributes($add = null, $value = null) {
 		return $this->html()->body_attributes($add, $value);
@@ -863,7 +863,7 @@ class Response extends Hookable {
 	 *
 	 * @param string $add
 	 * @param string $value
-	 * @return Response|string
+	 * @return Response|string[]
 	 */
 	final public function html_attributes($add = null, $value = null) {
 		return $this->html()->attributes($add, $value);

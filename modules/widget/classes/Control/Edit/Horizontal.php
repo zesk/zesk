@@ -8,6 +8,10 @@ class Control_Edit_Horizontal extends Control_Edit {
 		"role" => "form",
 	);
 
+	/**
+	 *
+	 * @var array
+	 */
 	protected $label_attributes = array();
 
 	protected $widget_attributes = array(

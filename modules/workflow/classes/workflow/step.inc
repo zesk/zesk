@@ -68,14 +68,15 @@ abstract class Workflow_Step extends Hookable {
 		if (empty($this->title)) {
 			$this->title = $this->option('title');
 		}
+		$locale = $this->application->locale;
 		if (!empty($this->title) && !$this->option_bool('no_translate', false)) {
-			$this->title = __($this->title);
+			$this->title = $locale->__($this->title);
 		}
 		if (empty($this->description)) {
 			$this->description = $this->option('description');
 		}
 		if (!empty($this->description) && !$this->option_bool('no_translate', false)) {
-			$this->description = __($this->description);
+			$this->description = $locale->__($this->description);
 		}
 		$this->dependencies = array_merge($this->dependencies, $this->option_list('dependencies'));
 		if ($this->theme === null) {

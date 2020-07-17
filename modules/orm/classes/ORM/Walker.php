@@ -404,7 +404,7 @@ class Walker {
 		$class_data = $this->class_info ? array(
 			"_class" => get_class($this),
 			"_parent_class" => get_parent_class($this),
-			"_primary_keys" => $orm->include_members($orm->primary_keys()),
+			"_primary_keys" => $orm->members($orm->primary_keys()),
 		) : array();
 		if ($this->depth === 0) {
 			$id = $orm->id();

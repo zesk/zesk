@@ -184,7 +184,7 @@ class Method extends Options {
 					$arguments,
 				);
 			}
-			$this->test->log(__("- $name iteration {0}: {1}", $loop + 1, substr(json_encode($arguments), 0, 80)));
+			$this->test->log(map("- $name iteration {0}: {1}", array($loop + 1, substr(json_encode($arguments), 0, 80))));
 			$this->test->_run_test_method($this, $arguments);
 			$test_output .= $this->test->last_test_output();
 			$loop++;

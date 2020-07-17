@@ -3,13 +3,6 @@ namespace zesk;
 
 class Configuration_Loader {
 	/**
-	 * Paths to search for configuration files to process
-	 *
-	 * @var \string[]
-	 */
-	private $paths = array();
-
-	/**
 	 * Files to process
 	 *
 	 * @var \string[]
