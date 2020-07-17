@@ -958,7 +958,7 @@ class ArrayTools {
 	 * @param bool $lower
 	 *        	Whether the array values are case-sensistive or not. 2015-06-23 Lower is by
 	 *        	default false (no changes to input).
-	 * @return Filtered array
+	 * @return array Filtered by include/exclude criteria
 	 */
 	public static function include_exclude(array $a, $include = null, $exclude = null, $lower = false) {
 		if (!is_array($a)) {
@@ -1483,7 +1483,7 @@ class ArrayTools {
 			return $result;
 		}
 		foreach ($haystack as $h => $v) {
-			if (stripos($v, $needle) !== false) {
+			if (stripos($v, $needles) !== false) {
 				$result[$h] = $v;
 			}
 		}
