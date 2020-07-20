@@ -18,6 +18,17 @@ Version 1.0 of Zesk will have:
 
 <!-- HERE -->
 
+## [v0.30.0][]
+
+- **Bootstrap Datetimepicker**: Fixed range selection issues where multiple selections would cause browsers to fail upon submit
+- **MySQL Module**: Support for MySQL 8 (MySQL Enterprise, compatible with MySQL 5)
+- **Zesk Kernel**: Code cleanup and linting
+- **Zesk Kernel**: Fixed bug in `zesk\ArrayTools::imatch` and added type hint to `zesk\ArrayTools::include_exclude`
+- **Zesk Kernel**: Improved code quality with code linter
+- **Zesk Kernel**: Removing `zesk\Model_URL` as it is unused
+- **zesk\Kernel**: Removed deprecated `zesk\Application::configure_include_path`
+- **Bootstrap Datetimepicker**: Modify selected option using jQuery
+
 ## [v0.29.0][]
 
 - **Cron Module**: Adding `--last` to options to better debug production issues
@@ -2241,6 +2252,7 @@ Settling of `zesk\Kernel` and `zesk\` namespace changes, added additional compon
  - `zesk::class_hierarchy` -> `zesk()->classes->hierarchy`
 - Removed growl module (no longer relevant on Mac OS X)
 
+[v0.30.0]: https://github.com/zesk/zesk/compare/v0.29.0...v0.30.0
 [v0.29.0]: https://github.com/zesk/zesk/compare/v0.28.5...v0.29.0
 [v0.28.5]: https://github.com/zesk/zesk/compare/v0.28.3...v0.28.5
 [v0.28.3]: https://github.com/zesk/zesk/compare/v0.28.1...v0.28.3
