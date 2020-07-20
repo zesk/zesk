@@ -958,7 +958,7 @@ class HTML extends Type {
 	 * 'attributes' => array('type' => 'text/javascript', 'src' => '),
 	 * </code>
 	 *
-	 * @return string
+	 * @return array
 	 */
 	private function script_tags($cache_scripts = null) {
 		// Sort them by weight if they're not sorted

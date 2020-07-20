@@ -108,12 +108,13 @@ class Validate extends Hookable {
 		$translation_matches = $this->extract_tokens($translation);
 		$errors = array();
 		$n = count($source_matches) - count($translation_matches);
+		$locale = $this->application->locale;
 		if ($n > 0) {
-			$errors[] = __("Missing {n_tokens} in translation", array(
+			$errors[] = $locale->__("Missing {n_tokens} in translation", array(
 				"n_tokens" => $this->locale->plural_word("token", $n),
 			));
 		} elseif ($n < 0) {
-			$errors[] = __("You have an additional {n_tokens} in your translation", array(
+			$errors[] = $locale->__("You have an additional {n_tokens} in your translation", array(
 				"n_tokens" => $this->locale->plural_word("token", -$n),
 			));
 		}
@@ -133,15 +134,16 @@ class Validate extends Hookable {
 		$translation_matches = $this->extract_tokens($translation);
 		$errors = array();
 		if ($translation_matches !== $source_matches) {
+			$locale = $this->application->locale;
 			$missing = array_diff($source_matches, $translation_matches);
 			if (count($missing) > 0) {
-				$errors[] = __("Target phrase is missing the following variables: {missing}", array(
+				$errors[] = $locale->__("Target phrase is missing the following variables: {missing}", array(
 					"missing" => implode(", ", $missing),
 				));
 			}
 			$extras = array_diff($translation_matches, $source_matches);
 			if (count($extras) > 0) {
-				$errors[] = __("Target phrase has extra variables it shouldn't have: {extras}", array(
+				$errors[] = $locale->__("Target phrase has extra variables it shouldn't have: {extras}", array(
 					"extras" => implode(", ", $extras),
 				));
 			}
@@ -162,19 +164,20 @@ class Validate extends Hookable {
 		$translation_matches = $this->extract_braces($translation);
 		$stack = 0;
 		$errors = array();
+		$locale = $this->application->locale;
 		foreach ($source_matches as $index => $bracket) {
 			if ($bracket === ']' && $stack === 0) {
-				$errors[] = __("Unexpected close brace &quot;]&quot; found before open brace; are the braces balanced?");
+				$errors[] = $locale->__("Unexpected close brace &quot;]&quot; found before open brace; are the braces balanced?");
 				return $errors;
 			}
 			$stack += ($bracket === ']') ? 1 : -1;
 			if (!array_key_exists($index, $translation_matches)) {
-				$errors[] = __("Translation is missing a pair of braces.");
+				$errors[] = $locale->__("Translation is missing a pair of braces.");
 				return $errors;
 			}
 			$translation_bracket = $translation_matches[$index];
 			if ($translation_bracket !== $bracket) {
-				$errors[] = __("The {nth} brace in the translation ({translation_bracket}) does not match the source string bracket ({bracket})", array(
+				$errors[] = $locale->__("The {nth} brace in the translation ({translation_bracket}) does not match the source string bracket ({bracket})", array(
 					"nth" => $this->locale->ordinal($index + 1),
 					"debug" => JSON::encode($source_matches) . " " . JSON::encode($translation_matches),
 				) + compact("translation_bracket", "bracket"));
@@ -182,7 +185,7 @@ class Validate extends Hookable {
 			}
 		}
 		if (count($translation_matches) > count($source_matches)) {
-			$errors[] = __("The translation has an extra {num_braces} than the source phrase.", array(
+			$errors[] = $locale->__("The translation has an extra {num_braces} than the source phrase.", array(
 				"n" => $n = count($translation_matches) - count($source_matches),
 				"num_braces" => $this->locale->plural_word("brace", $n),
 			));

@@ -44,9 +44,9 @@ class Controller_Control extends Controller {
 
 		$result = array(
 			"content" => $this->widget_factory($control)
-				->request($this->request)->response($this->response)
 				->names($name, null, $input)
-				->json(true)
+				->request($this->request)->response($this->response)
+				->json()
 				->execute(),
 		);
 		$result += $this->response->to_json();

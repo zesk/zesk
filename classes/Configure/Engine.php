@@ -579,8 +579,8 @@ class Engine extends Hookable {
 	/**
 	 * Map a string using the current variable map
 	 *
-	 * @param string $string
-	 * @return string
+	 * @param string|array $string
+	 * @return string|array
 	 */
 	public function map($string) {
 		return map($string, $this->variable_map, true);

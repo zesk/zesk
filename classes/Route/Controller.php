@@ -193,7 +193,7 @@ class Route_Controller extends Route {
 		} catch (Exception_Class_NotFound $e) {
 		}
 		if (!$reflectionClass) {
-			throw new Exception_Class_NotFound($class_name, __("Controller {controller} not found", array(
+			throw new Exception_Class_NotFound($class_name, map("Controller {controller} not found", array(
 				'controller' => $class_name,
 			)));
 		}
@@ -243,7 +243,7 @@ class Route_Controller extends Route {
 		$url = map($this->clean_pattern, $map);
 		if (!$this->match($url)) {
 			throw new Exception_Invalid("{method} {pattern} does not match {url} - route {original_pattern} is corrupt", [
-				"method" => $method,
+				"method" => __METHOD__,
 				"url" => $url,
 			] + $this->variables());
 		}
