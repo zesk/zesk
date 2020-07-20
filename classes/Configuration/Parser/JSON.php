@@ -74,8 +74,7 @@ class Configuration_Parser_JSON extends Configuration_Parser {
 			$this->loader->append_files(array(
 				$file,
 			));
-		}
-		else if ($context && is_dir($context) && File::path_check($file)) {
+		} elseif ($context && is_dir($context) && File::path_check($file)) {
 			$full = path($context, $file);
 			$this->loader->append_files([$full]);
 		} else {
@@ -84,7 +83,6 @@ class Configuration_Parser_JSON extends Configuration_Parser {
 				"file" => $file,
 				"context" => $context,
 			)));
-
 		}
 	}
 

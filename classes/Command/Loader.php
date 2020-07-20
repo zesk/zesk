@@ -114,7 +114,7 @@ class Command_Loader {
 		}
 
 		$args = $_SERVER['argv'];
-		assert('is_array($argv)');
+		assert('is_array($args)');
 		$args = $this->fix_zend_studio_arguments($args);
 		$args = $this->argument_sugar($args);
 		$this->command = array_shift($args);
@@ -146,7 +146,7 @@ class Command_Loader {
 		$wait_set = array();
 		$wait_configs = array();
 		while (count($args) > 0) {
-			$arg = array_shift($argv);
+			$arg = array_shift($args);
 			if (substr($arg, 0, 2) === '--') {
 				$func = "handle_" . substr($arg, 2);
 				if (method_exists($this, $func)) {
@@ -154,7 +154,7 @@ class Command_Loader {
 
 					continue;
 				}
-				array_unshift($argv, substr($arg, 2));
+				array_unshift($args, substr($arg, 2));
 				$args = $this->handle_set($args);
 
 				continue;
@@ -176,7 +176,7 @@ class Command_Loader {
 
 				continue;
 			}
-			$argv = $this->run_command($arg, $argv);
+			$args = $this->run_command($arg, $args);
 		}
 		return 0;
 	}
@@ -211,10 +211,10 @@ class Command_Loader {
 	 * Run a command
 	 *
 	 * @param string $arg
-	 * @param array $argv
+	 * @param array $args
 	 * @return array
 	 */
-	public function run_command($arg, array $argv) {
+	public function run_command($arg, array $args) {
 		$application = $this->application;
 		$command = avalue($this->aliases, $arg, $arg);
 		$command = strtr($command, array(
@@ -223,33 +223,33 @@ class Command_Loader {
 		));
 		list($class, $path) = $this->find_command_class($command);
 		if (!$class) {
-			return $argv;
+			return $args;
 		}
 		if (!class_exists($class, false)) {
 			$this->error("Command class $class does not exist in $path ... skipping\n");
-			return $argv;
+			return $args;
 		}
 		/* @var $command_object Command */
 		$command_object = $application->objects->factory($class, $application, array_merge(array(
 			$arg,
-		), $argv), array(
+		), $args), array(
 			"debug" => $this->debug,
 		));
 		$application->command($command_object);
 
 		$result = $command_object->go();
 
-		$argv = $command_object->arguments_remaining();
-		$this->debug("Remaining class arguments: " . JSON::encode($argv));
+		$args = $command_object->arguments_remaining();
+		$this->debug("Remaining class arguments: " . JSON::encode($args));
 		if ($result !== 0 && $result !== null) {
 			$this->debug("Command $class returned $result");
 		} else {
 			$result = 0;
 		}
-		if ($result !== 0 || count($argv) === 0) {
+		if ($result !== 0 || count($args) === 0) {
 			exit($result);
 		}
-		return $argv;
+		return $args;
 	}
 
 	/**
@@ -332,50 +332,50 @@ class Command_Loader {
 	 *
 	 * We scan for entries without a "=" (which will easily break many applications,
 	 * unfortunately)
-	 * and then fake out a real $argv.
+	 * and then fake out a real $args.
 	 *
 	 * For debugging only.
 	 *
-	 * @param array $argv
+	 * @param array $args
 	 * @return array New argv
 	 */
-	private function fix_zend_studio_arguments(array $argv) {
+	private function fix_zend_studio_arguments(array $args) {
 		if (PHP_SAPI === 'cli') {
-			foreach ($argv as $index => $arg) {
-				$argv[$index] = rawurldecode($arg);
+			foreach ($args as $index => $arg) {
+				$args[$index] = rawurldecode($arg);
 			}
-			return $argv;
+			return $args;
 		}
-		if (count($argv) === 1 && array_key_exists(0, $argv)) {
-			$qs_argv = $argv[0];
+		if (count($args) === 1 && array_key_exists(0, $args)) {
+			$qs_argv = $args[0];
 		}
 		$qs_argv = explode("&", $qs_argv);
-		$argv = array(
+		$args = array(
 			__FILE__,
 		);
 		$found = false;
 		foreach ($qs_argv as $arg) {
 			if ($found || (substr($arg, 0, 1) === "-") || (strpos($arg, "=")) === false) {
-				$argv[] = $arg;
+				$args[] = $arg;
 				$found = true;
 			}
 		}
-		return $argv;
+		return $args;
 	}
 
 	/**
 	 * Provide some syntactic sugar for input arguments, converting ___ to \
 	 *
-	 * @param array $argv
+	 * @param array $args
 	 * @return string
 	 */
-	private function argument_sugar(array $argv) {
-		foreach ($argv as $index => $arg) {
-			$argv[$index] = strtr($arg, array(
+	private function argument_sugar(array $args) {
+		foreach ($args as $index => $arg) {
+			$args[$index] = strtr($arg, array(
 				"___" => "\\",
 			));
 		}
-		return $argv;
+		return $args;
 	}
 
 	/**
@@ -475,11 +475,11 @@ class Command_Loader {
 	 *
 	 * Consumes one additional argument of form name=value
 	 *
-	 * @param array $argv
+	 * @param array $args
 	 * @return array
 	 */
-	private function handle_set(array $argv) {
-		$pair = array_shift($argv);
+	private function handle_set(array $args) {
+		$pair = array_shift($args);
 		if ($pair === null) {
 			$this->usage("--set missing argument");
 		}
@@ -501,7 +501,7 @@ class Command_Loader {
 			\apath_set($_ZESK, $key, $value, ZESK_GLOBAL_KEY_SEPARATOR);
 			$this->debug("Set global " . implode(ZESK_GLOBAL_KEY_SEPARATOR, $key) . " to $value");
 		}
-		return $argv;
+		return $args;
 	}
 
 	/**
@@ -509,11 +509,11 @@ class Command_Loader {
 	 *
 	 * Consumes one additional argument of form name=value
 	 *
-	 * @param array $argv
+	 * @param array $args
 	 * @return array
 	 */
-	private function handle_unset(array $argv) {
-		$key = array_shift($argv);
+	private function handle_unset(array $args) {
+		$key = array_shift($args);
 		if ($key === null) {
 			$this->usage("--unset missing argument");
 		}
@@ -525,17 +525,17 @@ class Command_Loader {
 			$this->global_context[implode(ZESK_GLOBAL_KEY_SEPARATOR, $key)] = null;
 			\apath_set($_ZESK, $key, null, ZESK_GLOBAL_KEY_SEPARATOR);
 		}
-		return $argv;
+		return $args;
 	}
 
 	/**
 	 * Handle --cd
 	 *
-	 * @param array $argv
+	 * @param array $args
 	 * @return aray
 	 */
-	private function handle_cd(array $argv) {
-		$arg = array_shift($argv);
+	private function handle_cd(array $args) {
+		$arg = array_shift($args);
 		if ($arg === null) {
 			$this->usage("--cd missing argument");
 		}
@@ -543,17 +543,17 @@ class Command_Loader {
 			$this->usage("$arg is not a directory to --cd to");
 		}
 		chdir($arg);
-		return $argv;
+		return $args;
 	}
 
 	/**
 	 * Handle --define
 	 *
-	 * @param array $argv
+	 * @param array $args
 	 * @return aray
 	 */
-	private function handle_define(array $argv) {
-		$arg = array_shift($argv);
+	private function handle_define(array $args) {
+		$arg = array_shift($args);
 		if ($arg === null) {
 			$this->usage("--cd missing argument");
 		}
@@ -566,17 +566,17 @@ class Command_Loader {
 		} else {
 			$this->error("$name command line definition is already defined");
 		}
-		return $argv;
+		return $args;
 	}
 
 	/**
 	 * Handle --search
 	 *
-	 * @param array $argv
+	 * @param array $args
 	 * @return array
 	 */
-	private function handle_search(array $argv) {
-		$arg = array_shift($argv);
+	private function handle_search(array $args) {
+		$arg = array_shift($args);
 		if ($arg === null) {
 			$this->usage("--search missing argument");
 		}
@@ -587,17 +587,17 @@ class Command_Loader {
 		if ($this->application) {
 			$this->application->logger->warning("--search is ignored - zesk application is already loeded");
 		}
-		return $argv;
+		return $args;
 	}
 
 	/**
 	 * Handle --config
 	 *
-	 * @param array $argv
+	 * @param array $args
 	 * @return array
 	 */
-	private function handle_config(array $argv) {
-		$arg = array_shift($argv);
+	private function handle_config(array $args) {
+		$arg = array_shift($args);
 		if ($arg === null) {
 			$this->usage("--config missing argument");
 		}
@@ -616,7 +616,7 @@ class Command_Loader {
 				"file" => $arg,
 			));
 		}
-		return $argv;
+		return $args;
 	}
 
 	/**

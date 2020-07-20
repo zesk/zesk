@@ -948,7 +948,7 @@ class Command_Test extends Command_Base {
 
 		$command = new self($application, array(
 			__FILE__,
-		), $application->command->option());
+		));
 		$options = self::load_test_options(File::contents($file));
 		$options['no_sandbox'] = true;
 		if ($command->run_test_php($file, $options) === true) {

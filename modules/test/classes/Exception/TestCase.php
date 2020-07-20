@@ -32,4 +32,8 @@ class Exception_TestCase extends Test_Unit {
 
 		$e->__toString();
 	}
+
+	public function test_database() {
+		return $this->application->database_registry();
+	}
 }

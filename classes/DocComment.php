@@ -103,7 +103,7 @@ class DocComment extends Options {
 	 */
 	public static function extract($content, array $options = array()) {
 		$matches = null;
-		if (!preg_match_all('#[\t ]*/\*\*[^*]*\*+([^/*][^*]*\*+)*/#se', $content, $matches, PREG_PATTERN_ORDER | PREG_OFFSET_CAPTURE)) {
+		if (!preg_match_all('#[\t ]*/\*\*[^*]*\*+([^/*][^*]*\*+)*/#s', $content, $matches, PREG_PATTERN_ORDER | PREG_OFFSET_CAPTURE)) {
 			return array();
 		}
 		$result = array();
