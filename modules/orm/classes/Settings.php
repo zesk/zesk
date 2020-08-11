@@ -242,6 +242,8 @@ class Settings extends ORM implements Interface_Data, Interface_Settings {
 			$exception = $e;
 		} catch (Database_Exception_Unknown_Schema $e) {
 			$exception = $e;
+		} catch (Database_Exception_Database_NotFound $e) {
+			$exception = $e;
 		} catch (Exception_Semantics $e) {
 			// Columns may have changed
 			$exception = $e;
