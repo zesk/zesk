@@ -11,7 +11,7 @@ namespace zesk;
  * @author kent
  *
  */
-class Database_Exception_Connect extends Database_Exception {
+class Database_Exception_Connect extends Exception {
 	/**
 	 *
 	 * @var string
