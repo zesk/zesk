@@ -109,7 +109,6 @@ class Database_SQL extends \zesk\Database_SQL {
 
 		return $sqls;
 	}
-
 	public function alter_table_index_add(Database_Table $table, Database_Index $index) {
 		$indexType = $index->type();
 		$unique = "";
@@ -130,10 +129,10 @@ class Database_SQL extends \zesk\Database_SQL {
 					$column_sql = $column->sql_type();
 					return "ALTER TABLE $table_name CHANGE $column_name $column_sql PRIMARY KEY";
 				}
-				// no break
+			// no break
 			case Database_Index::Index:
 				break;
-			default:
+			default :
 				throw new Exception_Invalid(__METHOD__ . "($table, $indexType, ...): Invalid index type $indexType");
 
 				break;
@@ -162,15 +161,13 @@ class Database_SQL extends \zesk\Database_SQL {
 			case Database_Index::Index:
 			case Database_Index::Primary:
 				return "DROP INDEX IF EXISTS $name";
-			default:
+			default :
 				throw new Exception_Invalid(__METHOD__ . "($table, $indexType, ...): Invalid index type $indexType");
 		}
 	}
-
 	public function alter_table_attributes(Database_Table $table, array $attributes) {
 		return array();
 	}
-
 	public function alter_table_change_column(Database_Table $table, Database_Column $db_col_old, Database_Column $db_col_new) {
 		$newType = $this->database_column_native_type($db_col_new);
 		$previous_name = $db_col_old->name();
@@ -182,7 +179,7 @@ class Database_SQL extends \zesk\Database_SQL {
 		if ($db_col_new->primary_key() && $old_table->primary()) {
 			return array(
 				$this->alter_table_index_drop($old_table, $old_table->primary()),
-				$new_sql,
+				$new_sql
 			);
 		}
 		return $new_sql;
@@ -197,7 +194,6 @@ class Database_SQL extends \zesk\Database_SQL {
 		throw new Exception_Unimplemented();
 		return $target;
 	}
-
 	public function function_unhex($target) {
 		throw new Exception_Unimplemented();
 		return $target;
@@ -209,11 +205,9 @@ class Database_SQL extends \zesk\Database_SQL {
 	public function alter_table_type($table, $newType) {
 		return array();
 	}
-
 	public function function_ip2long($value) {
 		return "INET_ATON($value)";
 	}
-
 	public function remove_comments($sql) {
 		$sql = Text::remove_line_comments($sql, "--");
 		$sql = Text::remove_range_comments($sql);
@@ -256,7 +250,7 @@ class Database_SQL extends \zesk\Database_SQL {
 				$name = "";
 
 				break;
-			default:
+			default :
 				throw new Exception_Invalid(__METHOD__ . "($table, $name, $type, ...): Invalid index type {name}", compact("name"));
 		}
 		if ($name) {
@@ -264,7 +258,6 @@ class Database_SQL extends \zesk\Database_SQL {
 		}
 		return "$type $name(\n" . implode(",\n\t", $this->_sql_column_sizes_to_quoted_list($column_sizes)) . "\n)";
 	}
-
 	private function _sql_column_default($type, $default, $required = false) {
 		$data_type = $this->database->data_type();
 		switch (strtolower($type)) {
@@ -275,8 +268,8 @@ class Database_SQL extends \zesk\Database_SQL {
 				if ($default === null) {
 					return " DEFAULT 0";
 				}
-				// no break
-			default:
+			// no break
+			default :
 				break;
 		}
 		if ($default === null && !$required) {
@@ -288,7 +281,7 @@ class Database_SQL extends \zesk\Database_SQL {
 				$sql = StringTools::from_bool($default);
 
 				break;
-			default:
+			default :
 				$sql = $default;
 
 				break;
@@ -302,11 +295,9 @@ class Database_SQL extends \zesk\Database_SQL {
 	public function function_compare_binary($column_name, $cmp, $string) {
 		return "$column_name $cmp BINARY " . $this->sql_format_string($string);
 	}
-
 	public function function_abs($target) {
 		return "ABS($target)";
 	}
-
 	public function function_average($target) {
 		return "AVG($target)";
 	}
@@ -317,17 +308,14 @@ class Database_SQL extends \zesk\Database_SQL {
 	public function now() {
 		return $this->database->sql_now();
 	}
-
 	public function now_utc() {
 		return $this->database->sql_now_utc();
 	}
-
 	public function function_date_add($target, $number, $units = "second") {
 		throw new Exception_Unimplemented(__CLASS__ . "::" . __METHOD__);
 		// 		$dbUnits = $this->_convert_units($number, $units);
 		// 		return "DATE_ADD($target, INTERVAL $number $dbUnits)";
 	}
-
 	public function function_date_subtract($target, $number, $units = "second") {
 		throw new Exception_Unimplemented(__CLASS__ . "::" . __METHOD__);
 		// 		$dbUnits = $this->_convert_units($number, $units);
@@ -353,7 +341,6 @@ class Database_SQL extends \zesk\Database_SQL {
 		}
 		return "$table AS $name";
 	}
-
 	public function sql_boolean($value) {
 		return to_bool(value) ? 'true' : 'false';
 	}
@@ -395,7 +382,7 @@ class Database_SQL extends \zesk\Database_SQL {
 				return $this->sql_table_as("HOUR($memberName)", $alias);
 			case "minute":
 				return $this->sql_table_as("MINUTE($memberName)", $alias);
-			default:
+			default :
 				return false;
 		}
 	}
@@ -426,43 +413,18 @@ class Database_SQL extends \zesk\Database_SQL {
 		}
 		return $sql;
 	}
-
 	public function drop_table($table) {
 		if ($table instanceof Database_Table) {
 			$table = $table->name();
 		}
 		$table = $this->quote_table($table);
 		return array(
-			"DROP TABLE IF EXISTS $table",
+			"DROP TABLE IF EXISTS $table"
 		);
 	}
-
-	public function create_table(Database_Table $table) {
-		$columns = $table->columns();
-		$types = array();
-		foreach ($columns as $dbCol) {
-			if (!$dbCol->has_sql_type() && !$this->type_set_sql_type($dbCol)) {
-				die(__METHOD__ . ": no SQL Type for column $dbCol");
-			} else {
-				$types[] = $this->quote_column($dbCol->name()) . " " . $this->database_column_native_type($dbCol, true);
-			}
-		}
-		$indexes = $table->indexes();
-		$alters = array();
-		if ($indexes) {
-			foreach ($indexes as $index) {
-				/* @var $index Database_Index */
-				$typeSQL = $index->sql_index_type();
-				$alters[] = $index->sql_index_add();
-			}
-		}
-		$types = implode(",\n\t", $types);
-		$result = array();
-		$result[] = "CREATE TABLE " . $this->quote_table($table->name()) . " (\n\t$types\n) ";
-
-		return array_merge($result, $alters);
+	public function create_table(Database_Table $dbTableObject) {
+		throw new Exception_Unimplemented("Yup");
 	}
-
 	final public function column_is_quoted($column) {
 		unquote($column, '""', $q);
 		return $q === '"';
@@ -485,7 +447,7 @@ class Database_SQL extends \zesk\Database_SQL {
 			return $this->quote_column($alias) . "." . $this->quote_column($col);
 		}
 		return '"' . strtr($column, array(
-			'"' => '\\"',
+			'"' => '\\"'
 		)) . '"';
 	}
 
@@ -513,7 +475,7 @@ class Database_SQL extends \zesk\Database_SQL {
 		}
 		return strtr(unquote($column, self::sql_column_quotes), array(
 			'""' => '"',
-			'``' => '`',
+			'``' => '`'
 		));
 	}
 
@@ -534,7 +496,6 @@ class Database_SQL extends \zesk\Database_SQL {
 	final public function unquote_table($table) {
 		return self::unquote_column($table);
 	}
-
 	public function function_date_diff($date_a, $date_b) {
 		throw new Exception_Unimplemented();
 		return "TIMESTAMPDIFF(SECOND,$date_b,$date_a)";
