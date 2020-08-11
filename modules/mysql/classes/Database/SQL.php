@@ -46,6 +46,10 @@ class Database_SQL extends \zesk\Database_SQL {
 		return "ALTER TABLE " . $this->quote_table($table) . " ADD COLUMN " . $this->quote_column($newName) . " $newType" . ($after_column ? " AFTER " . $this->quote_column($after_column) : "");
 	}
 
+	public function create_table(Database_Table $dbTableObject) {
+		throw new Exception_Unimplemented("Yup");
+	}
+
 	public function alter_table_index_add(Database_Table $t, Database_Index $index) {
 		$name = $index->name();
 		$indexType = $index->type();
