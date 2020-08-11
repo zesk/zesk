@@ -207,7 +207,16 @@ class Control_Select extends Control_Optionss {
 			}
 			return implode(", ", $text_values);
 		}
-		$text_value = avalue($this->control_options, strval($value));
+		$key = strval($value);
+		if ($this->option_bool("optgroup")) {
+			foreach ($this->control_options as $k => $options) {
+				if (array_key_exists($key, $options)) {
+					return $options[$key];
+				}
+			}
+			return null;
+		}
+		$text_value = avalue($this->control_options, $key);
 		return $text_value;
 	}
 
