@@ -11,7 +11,7 @@ class Control_County extends Control_Select_ORM {
 
 	protected function initialize() {
 		if (!$this->has_option('noname')) {
-			$this->noname($this->application->locale__('Control_County:=No county'));
+			$this->noname($this->application->locale->__('Control_County:=No county'));
 		}
 		parent::initialize();
 	}
