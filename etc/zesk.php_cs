@@ -4,7 +4,7 @@ $top = getcwd();
 
 $top = $_SERVER['PHP_CS_FIXER_TOP'] ?? $top;
 echo "$me default path $top\n";
-$finder = PhpCsFixer\Finder::create()->name("*.inc")->name("*.tpl")->exclude('vendor')->in($top);
+$finder = PhpCsFixer\Finder::create()->name("*.inc")->name("*.tpl")->name("*.phpt")->exclude('vendor')->in($top);
 
 return PhpCsFixer\Config::create()->setIndent("\t")->setRules([
 	'@PSR1' => true,

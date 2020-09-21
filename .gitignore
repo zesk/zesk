@@ -18,3 +18,4 @@ composer.lock
 CHANGELOG.md.backup
 .phpunit-testcase-last
 .php_cs.cache
+/.idea/

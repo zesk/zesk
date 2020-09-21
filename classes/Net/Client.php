@@ -7,7 +7,7 @@
  */
 namespace zesk;
 
-abstract class Net_Client extends Hookable implements Net_FileSystem {
+abstract class Net_Client extends Hookable {
 	/**
 	 * Connection string
 	 * @var string

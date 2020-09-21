@@ -92,11 +92,11 @@ class Controller_PolyGlot extends Controller_Authenticated {
 	 */
 	public function action_update($locale_string) {
 		$locale = $this->application->locale;
+		$locale_string = Locale::normalize($locale_string);
 		$__ = array(
 			"lang_name" => Language::lang_name($this->application, $locale_string),
 			"locale" => $locale_string,
 		);
-		$locale_string = $this->application->locale;
 		if (!$this->user->can("zesk\\Module_PolyGlot::update", null, array(
 			"locale" => $locale_string,
 		))) {

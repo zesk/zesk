@@ -315,7 +315,10 @@ class Database_SQL extends \zesk\Database_SQL {
 		$data_type = $this->database->data_type();
 		switch (strtolower($type)) {
 			case "timestamp":
-				if (is_numeric($default) || (strcasecmp($default, "CURRENT_TIMESTAMP") === 0)) {
+				if (is_numeric($default)) { // Default 0 or Default "0" is no longer supported 2020-09-01
+					return "";
+				}
+				if (strcasecmp($default, "null") === 0 || (strcasecmp($default, "CURRENT_TIMESTAMP") === 0)) {
 					return " DEFAULT $default";
 				}
 				if ($default === null) {
