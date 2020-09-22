@@ -275,16 +275,6 @@ abstract class Locale extends Hookable {
 	}
 
 	/**
-	 * Load a file without extraneous variables
-	 *
-	 * @param string $path
-	 * @return mixed
-	 */
-	private static function _require($path) {
-		return require $path;
-	}
-
-	/**
 	 * Formatting string for a date in the locale
 	 *
 	 * @param string $locale
