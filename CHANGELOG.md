@@ -18,6 +18,13 @@ Version 1.0 of Zesk will have:
 
 <!-- HERE -->
 
+## [v0.30.1][]
+
+- **MySQL Module**: Fixed CREATE issue. Timestamp default null issues.
+- **Widget Module**: Adding better optgroup support for `value_to_text`
+- **World Module**: Updating locale calls
+- **Zesk Kernel**: Removing unused private `zesk\Locale` call`. New assert style.
+
 ## [v0.30.0][]
 
 - **Bootstrap Datetimepicker**: Fixed range selection issues where multiple selections would cause browsers to fail upon submit
