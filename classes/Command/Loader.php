@@ -114,7 +114,7 @@ class Command_Loader {
 		}
 
 		$args = $_SERVER['argv'];
-		assert('is_array($args)');
+		assert(is_array($args));
 		$args = $this->fix_zend_studio_arguments($args);
 		$args = $this->argument_sugar($args);
 		$this->command = array_shift($args);
