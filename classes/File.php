@@ -224,8 +224,7 @@ class File {
 	 *
 	 * @todo deprecate this, where used?
 	 *
-	 * @param string $func
-	 *        	String to clean
+	 * @param string $path String to clean
 	 * @return string
 	 */
 	public static function clean_path($path) {
@@ -286,6 +285,7 @@ class File {
 	 * @param string $pattern
 	 *        	A destination pattern containing {dirname}, {basename}, {extension}, {filename},
 	 *        	and {/} for directory separator
+	 * @return string
 	 */
 	public static function map_pathinfo($filename, $pattern) {
 		return map($pattern, pathinfo($filename) + array(
@@ -306,15 +306,12 @@ class File {
 	/**
 	 * Extract a file extension from a file path
 	 *
-	 * @param string $filename
-	 *        	File path to extract the extension from
-	 * @param string $default
-	 *        	The default extension to use if none found
-	 * @param boolean $lower
-	 *        	Convert the result to lowercase
+	 * @param string $filename File path to extract the extension from
+	 * @param string $default The default extension to use if none found
+	 * @param boolean $lower Convert the result to lowercase
 	 * @return string The file extension found, or $default (false) if none found
 	 */
-	public static function extension($filename, $default = false, $lower = true) {
+	public static function extension($filename, $default = null, $lower = true) {
 		$fname = basename($filename);
 		$dot = strrpos($fname, ".");
 		if ($dot === false) {
@@ -337,6 +334,7 @@ class File {
 	 * @param string $path
 	 *        	Path to file to use as a counter
 	 * @return integer The number in the file, plus one
+	 * @throws Exception_File_NotFound
 	 */
 	public static function atomic_increment($path) {
 		$fp = @fopen($path, "r+b");
@@ -368,6 +366,7 @@ class File {
 	 * @param string $data
 	 *        	file data
 	 * @return boolean true if successful, false if 100ms passes and can't
+	 * @throws Exception_File_NotFound
 	 */
 	public static function atomic_put($path, $data) {
 		$fp = fopen($path, "w+b");
@@ -396,6 +395,7 @@ class File {
 	 * @param string $data
 	 *        	file data
 	 * @return boolean true if successful, false if 100ms passes and can't
+	 * @throws Exception_File_NotFound
 	 */
 	public static function atomic($path, $data = null) {
 		if ($data !== null) {
@@ -416,7 +416,10 @@ class File {
 	 *
 	 * @param string $path Directory for temporary file
 	 * @param string $ext Extension to place on temporary file
-	 * @return Ambigous <string, mixed>
+	 * @param integer $mode Directory creation mode (e.g. 0700)
+	 * @return string
+	 * @throws Exception_Directory_Create
+	 * @throws Exception_Directory_Permission
 	 */
 	public static function temporary($path, $ext = "tmp", $mode = null) {
 		return path(Directory::depend($path, $mode), md5(microtime()) . "." . ltrim($ext, "."));
@@ -450,7 +453,7 @@ class File {
 	 * Change file mode (if file exists)
 	 *
 	 * @param string $file_name
-	 * @param number $mode
+	 * @param integer $mode
 	 * @return boolean
 	 */
 	public static function chmod($file_name, $mode = 0770) {
@@ -501,15 +504,13 @@ class File {
 	/**
 	 * Like file_put_contents, but does some sanity checks and throws errors
 	 *
-	 * @param string $path
-	 *        	File to write
-	 * @param mixed $contents
-	 *        	Contents of file
+	 * @param string $path File to write
+	 * @param mixed $contents Contents of file
+	 * @see file_put_contents
+	 * @return boolean
 	 * @throws Exception_Directory_NotFound
 	 * @throws Exception_File_Permission
-	 * @see file_put_contents
-	 *
-	 * @return boolean
+	 * @throws Exception_Parameter
 	 */
 	public static function put($path, $contents) {
 		if (!is_scalar($contents)) {
@@ -570,7 +571,7 @@ class File {
 	}
 
 	/**
-	 * Wrapper around file() to throw a file not found execption
+	 * Wrapper around file() to throw a file not found exception
 	 *
 	 * @param string $filename
 	 * @throws Exception_File_NotFound
@@ -690,7 +691,7 @@ class File {
 				$result .= avalue(self::$fchars, $mode & self::MASK_FTYPE, self::CHAR_UNKNOWN);
 			} else {
 				foreach ($items as $char => $bits) {
-					if ($mode & $bits === $bits) {
+					if (($mode & $bits) === $bits) {
 						$result .= $char;
 
 						break;
@@ -703,7 +704,7 @@ class File {
 
 	/**
 	 * Convert a ls-style mode string (e.g.
-	 * -rw-rw-rw) to a bitwide file mode
+	 * -rw-rw-rw) to a bitwise file mode
 	 *
 	 * @param string $mode_string
 	 * @throws Exception_Unimplemented
@@ -738,7 +739,7 @@ class File {
 		if ($prefix) {
 			$prefix .= "/";
 		}
-		list($base, $extension) = pairr($file, ".", $file, null);
+		list($base) = pairr($file, ".", $file, null);
 		if ($new_extension) {
 			$base .= '.' . ltrim($new_extension, '.');
 		}
@@ -774,8 +775,8 @@ class File {
 
 	/**
 	 *
-	 * @param unknown $uid
-	 * @return NULL|mixed|array
+	 * @param integer $uid
+	 * @return string
 	 */
 	private static function name_from_uid($uid) {
 		return self::_name_from_id($uid, 'posix_getpwuid');
@@ -783,8 +784,8 @@ class File {
 
 	/**
 	 *
-	 * @param unknown $gid
-	 * @return NULL|mixed|array
+	 * @param integer $gid
+	 * @return string
 	 */
 	private static function name_from_gid($gid) {
 		return self::_name_from_id($gid, 'posix_getgrgid');
@@ -802,6 +803,7 @@ class File {
 	 * @param string $section
 	 *        	Section to retrieve, or null for all sections
 	 * @throws Exception_File_NotFound
+	 * @return array
 	 */
 	public static function stat($path, $section = null) {
 		$is_res = is_resource($path);
@@ -886,6 +888,8 @@ class File {
 	 *
 	 * @global integer File::trim::maximum_file_size Size of file to use alternate method for
 	 * @return integer
+	 * @throws Exception_Lock
+	 * @throws Exception_Semantics
 	 */
 	public static function trim_maximum_file_size() {
 		$app = Kernel::singleton()->application();
@@ -908,6 +912,8 @@ class File {
 	 *
 	 * @global integer File::trim::read_buffer_size Size of file to use alternate method for
 	 * @return integer
+	 * @throws Exception_Lock
+	 * @throws Exception_Semantics
 	 */
 	public static function trim_read_buffer_size() {
 		$app = Kernel::singleton()->application();
@@ -933,11 +939,13 @@ class File {
 	 *        	Offset within the file to start
 	 * @param integer $length
 	 *        	Length within the file to remove
-	 * @throws Exception_File_NotFound
+	 * @throws Exception_FileSystem
 	 * @throws Exception_File_Create
+	 * @throws Exception_File_NotFound
 	 * @throws Exception_File_Permission
+	 * @throws Exception_Lock
+	 * @throws Exception_Semantics
 	 * @global integer File::trim::maximum_file_size Size of file to use alternate method for
-	 * @global integer File::trim::read_buffer_size Size of file to use alternate method for
 	 * @return boolean
 	 */
 	public static function trim($path, $offset = 0, $length = null) {
@@ -1012,7 +1020,7 @@ class File {
 	 * Retrieve the first part of a file
 	 *
 	 * @param string $filename
-	 * @param number $length
+	 * @param integer $length
 	 * @throws Exception_File_NotFound
 	 * @throws Exception_File_Permission
 	 * @return string
@@ -1033,9 +1041,9 @@ class File {
 	/**
 	 * Handle log rotation
 	 *
-	 * @param unknown $path
-	 * @param number $size_limit
-	 * @param number $keep_count
+	 * @param string $path
+	 * @param int $size_limit
+	 * @param int $keep_count
 	 * @param string $suffix
 	 * @return boolean
 	 */
@@ -1062,6 +1070,7 @@ class File {
 	 * @param string $f
 	 *        	Path to check
 	 * @return boolean
+	 * @throws Exception_Parameter
 	 */
 	public static function is_absolute($f) {
 		if (!is_string($f)) {
@@ -1074,7 +1083,7 @@ class File {
 		if ($f === "") {
 			return false;
 		}
-		if (\is_windows()) {
+		if (is_windows()) {
 			if (strlen($f) < 1) {
 				return false;
 			}
@@ -1090,6 +1099,10 @@ class File {
 	 *
 	 * @param string $source
 	 * @param string $target
+	 * @return bool
+	 * @throws Exception_File_Locked
+	 * @throws Exception_File_NotFound
+	 * @throws Exception_File_Permission
 	 */
 	public static function move_atomic($source, $target, $new_target = null) {
 		if (!is_file($target)) {
@@ -1131,7 +1144,7 @@ class File {
 		if (!$new_target) {
 			unlink($target_temp);
 		} else {
-			File::unlink($new_target);
+			self::unlink($new_target);
 			@rename($target_temp, $new_target);
 		}
 		return true;
@@ -1140,12 +1153,11 @@ class File {
 	/**
 	 * Copy uid and gid
 	 *
-	 * @param string $source
-	 *        	Source file or folder to copy uid/gid from
-	 * @param string $target
-	 *        	Target file or fiolder to copy uid/gid to
-	 * @throws Exception_File_Permission
+	 * @param string $source Source file or folder to copy uid/gid from
+	 * @param string $target Target file or fiolder to copy uid/gid to
 	 * @return string $target returned upon success
+	 * @throws Exception_File_Permission
+	 * @throws Exception_File_NotFound
 	 */
 	public static function copy_uid_gid($source, $target) {
 		return self::copy_gid($source, self::copy_uid($source, $target));
@@ -1158,8 +1170,9 @@ class File {
 	 *        	Source file or folder to copy uid from
 	 * @param string $target
 	 *        	Target file or fiolder to copy uid to
-	 * @throws Exception_File_Permission
 	 * @return string $target returned upon success
+	 * @throws Exception_File_NotFound
+	 * @throws Exception_File_Permission
 	 */
 	public static function copy_uid($source, $target) {
 		$target_owner = File::stat($target, 'owner');
@@ -1183,8 +1196,9 @@ class File {
 	 *        	Source file or folder to copy gid from
 	 * @param string $target
 	 *        	Target file or fiolder to copy gid to
-	 * @throws Exception_File_Permission
 	 * @return string $target returned upon success
+	 * @throws Exception_File_NotFound
+	 * @throws Exception_File_Permission
 	 */
 	public static function copy_gid($source, $target) {
 		$target_owner = File::stat($target, 'owner');
@@ -1232,7 +1246,7 @@ class File {
 	}
 
 	/**
-	 * Given a list of paths and a file name, find the first occurrance of the file.
+	 * Given a list of paths and a file name, find the first occurrence of the file.
 	 *
 	 * @param array $paths
 	 *        	List of strings representing file system paths
@@ -1263,7 +1277,7 @@ class File {
 	}
 
 	/**
-	 * Given a list of paths and a file name, find all occurrance of the named file.
+	 * Given a list of paths and a file name, find all occurrence of the named file.
 	 *
 	 * @param array $paths
 	 *        	List of strings representing file system paths

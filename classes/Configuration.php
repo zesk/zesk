@@ -66,12 +66,12 @@ class Configuration implements Iterator, Countable, ArrayAccess {
 	 */
 	protected $_skip_next = false;
 
-    /**
-     * Configuration constructor.
-     * @param array $array
-     * @param boolean $locked
-     * @param array $path
-     */
+	/**
+	 * Configuration constructor.
+	 * @param array $array
+	 * @param boolean $locked
+	 * @param array $path
+	 */
 	public function __construct(array $array = array(), $locked = false, array $path = array()) {
 		$this->_path = $path;
 		$this->_locked = $locked;
@@ -159,10 +159,10 @@ class Configuration implements Iterator, Countable, ArrayAccess {
 		return isset($this->_data[$key]);
 	}
 
-    /**
-     * @param $key
-     * @throws Exception_Lock
-     */
+	/**
+	 * @param $key
+	 * @throws Exception_Lock
+	 */
 	public function __unset($key) {
 		$key = strtolower($key);
 		if ($this->_locked) {
@@ -178,8 +178,8 @@ class Configuration implements Iterator, Countable, ArrayAccess {
 	 *
 	 * @param string $key
 	 * @param mixed $value
-     * @return self|mixed
-     * @throws Exception_Lock
+	 * @return self|mixed
+	 * @throws Exception_Lock
 	 */
 	public function set($key, $value = null) {
 		if (is_array($key)) {
@@ -196,8 +196,8 @@ class Configuration implements Iterator, Countable, ArrayAccess {
 	 *
 	 * @param string $key
 	 * @param mixed $value
-     * @return mixed
-     * @throws Exception_Lock
+	 * @return mixed
+	 * @throws Exception_Lock
 	 */
 	public function __set($key, $value) {
 		if ($this->_locked) {
@@ -237,7 +237,7 @@ class Configuration implements Iterator, Countable, ArrayAccess {
 	 * @param array $paths
 	 * @param mixed $default
 	 * @return mixed
-     * @throws Exception_Lock
+	 * @throws Exception_Lock
 	 */
 	public function path_get_first(array $paths, $default = null) {
 		foreach ($paths as $path) {
@@ -253,7 +253,7 @@ class Configuration implements Iterator, Countable, ArrayAccess {
 	 *
 	 * @param array $paths
 	 * @return Configuration[]
-     * @throws Exception_Lock
+	 * @throws Exception_Lock
 	 */
 	public function paths_set(array $paths) {
 		$result = array();
@@ -268,7 +268,7 @@ class Configuration implements Iterator, Countable, ArrayAccess {
 	 *
 	 * @param array $paths
 	 * @return array
-     * @throws Exception_Lock
+	 * @throws Exception_Lock
 	 */
 	public function paths_get(array $paths) {
 		$result = array();
@@ -284,7 +284,7 @@ class Configuration implements Iterator, Countable, ArrayAccess {
 	 * @param string|array $path
 	 * @param mixed $default
 	 * @return mixed
-     * @throws Exception_Lock
+	 * @throws Exception_Lock
 	 */
 	public function path_get($path, $default = null) {
 		$path = is_array($path) ? $path : explode(self::key_separator, $path);
@@ -335,7 +335,7 @@ class Configuration implements Iterator, Countable, ArrayAccess {
 	 * @param string|array $path
 	 * @param mixed $value
 	 * @return Configuration parent node of final value set
-     * @throws Exception_Lock
+	 * @throws Exception_Lock
 	 */
 	public function path_set($path, $value = null) {
 		$path = is_array($path) ? $path : explode(self::key_separator, $path);
@@ -354,7 +354,7 @@ class Configuration implements Iterator, Countable, ArrayAccess {
 	 * Ensure configuration path is available
 	 * @param array|string $keys
 	 * @return self
-     * @throws Exception_Lock
+	 * @throws Exception_Lock
 	 */
 	public function path($keys) {
 		$keys = is_array($keys) ? $keys : explode(self::key_separator, $keys);
@@ -407,9 +407,9 @@ class Configuration implements Iterator, Countable, ArrayAccess {
 	/**
 	 * Convert entire structure to an array, recursively
 	 *
-     * @param integer $depth How deep to traverse (null for infinite)
+	 * @param integer $depth How deep to traverse (null for infinite)
 	 * @return array
-     * @throws Exception_Lock
+	 * @throws Exception_Lock
 	 */
 	public function to_array($depth = null) {
 		$result = array();
@@ -517,7 +517,7 @@ class Configuration implements Iterator, Countable, ArrayAccess {
 	 *
 	 * @see ArrayAccess
 	 * @param mixed $offset
-     * @return mixed
+	 * @return mixed
 	 */
 	public function offsetGet($offset) {
 		return $this->__get($offset);
@@ -528,7 +528,7 @@ class Configuration implements Iterator, Countable, ArrayAccess {
 	 * @see ArrayAccess
 	 * @param mixed $offset
 	 * @param mixed $value
-     * @throws Exception_Lock
+	 * @throws Exception_Lock
 	 */
 	public function offsetSet($offset, $value) {
 		$this->__set($offset, $value);
@@ -538,7 +538,7 @@ class Configuration implements Iterator, Countable, ArrayAccess {
 	 *
 	 * @see ArrayAccess
 	 * @param mixed $offset
-     * @throws Exception_Lock
+	 * @throws Exception_Lock
 	 */
 	public function offsetUnset($offset) {
 		$this->__unset($offset);
@@ -578,8 +578,8 @@ class Configuration implements Iterator, Countable, ArrayAccess {
 	 * @param array|string $old_path
 	 * @param array|string $new_path
 	 * @return boolean Returns true if OLD value still found and (optionally) mapped to new
-     * @throws Exception_Lock|Exception_Semantics|Exception_Deprecated
-     */
+	 * @throws Exception_Lock|Exception_Semantics|Exception_Deprecated
+	 */
 	final public function deprecated($old_path, $new_path = null) {
 		$old_value = $this->walk($old_path);
 		if ($old_value === null) {

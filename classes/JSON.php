@@ -7,6 +7,9 @@
  */
 namespace zesk;
 
+use __PHP_Incomplete_Class;
+use stdClass;
+
 /**
  *
  * @author kent
@@ -154,7 +157,7 @@ class JSON {
 					$mixed = $mixed->to_json();
 				} elseif (method_exists($mixed, "__toString")) {
 					$mixed = strval($mixed);
-				} elseif ($mixed instanceof \stdClass) {
+				} elseif ($mixed instanceof stdClass) {
 					$mixed = get_object_vars($mixed);
 					if (count($mixed) === 0) {
 						return '{}';
@@ -185,7 +188,7 @@ class JSON {
 			return '"' . strval($mixed) . '"';
 		} elseif ($mixed === null) {
 			return 'null';
-		} elseif ($mixed instanceof \__PHP_Incomplete_Class) {
+		} elseif ($mixed instanceof __PHP_Incomplete_Class) {
 			return null;
 		} else {
 			die("Unknown type: $mixed " . gettype($mixed));
@@ -281,8 +284,8 @@ class JSON {
 
 	/**
 	 *
-	 * @param unknown $code
-	 * @return string|mixed|array
+	 * @param integer $code
+	 * @return string
 	 */
 	private static function error_to_string($code) {
 		if (!defined('JSON_ERROR_NONE')) {
@@ -360,7 +363,6 @@ class JSON {
 	 * @throws Exception_Parse
 	 */
 	private static function _decode_white_value($string, $offset, $assoc = false) {
-		$white = 0;
 		if (!preg_match("/^\s+/", $string, $match)) {
 			return self::_decode_value($string, $offset);
 		}

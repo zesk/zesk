@@ -487,7 +487,7 @@ function to_iterator($mixed) {
 /**
  * Converts 20G to integer value
  *
- * @param unknown $mixed
+ * @param string $mixed
  * @param string $default
  * @return Ambigous <mixed, number>|number
  */

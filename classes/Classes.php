@@ -1,6 +1,8 @@
 <?php
 namespace zesk;
 
+use Psr\Cache\InvalidArgumentException;
+
 class Classes {
 	/**
 	 *
@@ -45,7 +47,9 @@ class Classes {
 	protected $dirty = false;
 
 	/**
-	 *
+	 * Classes constructor.
+	 * @param Kernel $zesk
+	 * @throws Exception_Semantics
 	 */
 	public function __construct(Kernel $zesk) {
 		$this->initialize($zesk);
@@ -53,8 +57,8 @@ class Classes {
 
 	/**
 	 * Register hooks
-	 *
 	 * @param Kernel $kernel
+	 * @throws Exception_Semantics
 	 */
 	public function initialize(Kernel $kernel) {
 		$kernel->hooks->add("exit", array(
@@ -69,7 +73,9 @@ class Classes {
 
 	/**
 	 * @param Kernel $zesk
-	 * @return \zesk\Classes
+	 * @return mixed|Classes
+	 * @throws Exception_Semantics
+	 * @throws InvalidArgumentException
 	 */
 	public static function instance(Kernel $zesk) {
 		$cache_item = $zesk->cache->getItem(__CLASS__);
@@ -87,7 +93,8 @@ class Classes {
 	}
 
 	/**
-	 *
+	 * @param Kernel $kernel
+	 * @throws InvalidArgumentException
 	 */
 	public function on_exit(Kernel $kernel) {
 		if ($this->dirty) {
@@ -117,7 +124,7 @@ class Classes {
 	/**
 	 * Register a global hook by class
 	 *
-	 * @return
+	 * @return array
 	 */
 	public function register($class = null) {
 		if (is_array($class)) {

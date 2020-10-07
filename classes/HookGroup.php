@@ -24,7 +24,7 @@ class HookGroup {
 	 * Merge two groups together
 	 *
 	 * @param HookGroup $merge
-	 * @return \zesk\HookGroup
+	 * @return HookGroup
 	 */
 	public function merge(HookGroup $merge) {
 		$this->first = array_merge($this->first, $merge->first);

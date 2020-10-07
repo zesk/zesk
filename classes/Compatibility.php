@@ -16,6 +16,9 @@ namespace zesk;
 class Compatibility {
 	const PHP_VERSION_MINIMUM = 50500;
 
+	/**
+	 * @throws Exception
+	 */
 	public static function install() {
 		$v = self::PHP_VERSION_MINIMUM;
 		if (!defined('PHP_VERSION_ID') || PHP_VERSION_ID < $v) {

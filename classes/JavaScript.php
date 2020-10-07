@@ -23,7 +23,7 @@ class JavaScript {
 	/**
 	 * Convert passed arguments into a JavaScript argument list.
 	 *
-	 * @param mixed $mixed Any valid PHP type which can be converted to JSON, using JSON::encodex to support *-prefix key values which are passed through unmodified.
+	 * Arguments are any valid PHP type which can be converted to JSON, using JSON::encodex to support *-prefix key values which are passed through unmodified.
 	 *
 	 * @return string commas-separated list of arguments
 	 */
@@ -40,6 +40,7 @@ class JavaScript {
 	 * Begin JavaScript obfuscation output capture
 	 *
 	 * Depends on output buffering
+	 * @throws Exception_Semantics
 	 */
 	public static function obfuscate_begin() {
 		if (self::$obfuscated) {
@@ -52,7 +53,9 @@ class JavaScript {
 	/**
 	 * End JavaScript obfuscation output and return obfuscated JavaScript
 	 *
+	 * @param array $function_map Apply string mapping at end
 	 * @return string
+	 * @throws Exception_Semantics
 	 */
 	public static function obfuscate_end($function_map = array()) {
 		if (!self::$obfuscated) {
@@ -71,8 +74,6 @@ class JavaScript {
 			"{ " => "{",
 			" =" => "=",
 			"= " => "=",
-			"{ " => "{",
-			" {" => "{",
 			"; " => ";",
 			"+ " => "+",
 			" +" => "+",
@@ -90,7 +91,7 @@ class JavaScript {
 	/**
 	 * Clean a JavaScript function name
 	 *
-	 * @param $x Function name to clean
+	 * @param string $x function name to clean
 	 * @return string
 	 */
 	public static function clean_function_name($x) {
@@ -104,7 +105,7 @@ class JavaScript {
 	/**
 	 * Return JavaScript null token for empty values
 	 *
-	 * @param $x Value to output
+	 * @param mixed $x value to display
 	 * @return string
 	 */
 	public static function null($x) {
@@ -117,6 +118,8 @@ class JavaScript {
 	/**
 	 * Clean an array of JavaScript code; ensure each line ends with a semicolon, remove
 	 * empty values, and trim each line
+	 * @param string $mixed Clean code
+	 * @return string
 	 */
 	public static function clean_code($mixed) {
 		if (is_array($mixed)) {

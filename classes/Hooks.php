@@ -225,7 +225,7 @@ class Hooks {
 
 	/**
 	 *
-	 * @param unknown $hooks
+	 * @param string|array $hooks
 	 * @return mixed
 	 */
 	private function hook_load_definitions($hooks) {
@@ -296,7 +296,7 @@ class Hooks {
 
 	/**
 	 *
-	 * @param unknown $class
+	 * @param string $class
 	 * @return boolean|Exception
 	 */
 	private function _register_class_hooks($class) {
@@ -639,15 +639,10 @@ class Hooks {
 
 	/**
 	 *
-	 * @param string|list $hooks
+	 * @param string|array $hooks
 	 *        	Hooks to call
 	 * @param array $arguments
 	 *        	Arguments to pass to the first hook
-	 * @param unknown $default
-	 * @param unknown $hook_callback
-	 * @param unknown $result_callback
-	 * @param unknown $return_hint
-	 *        	deprecated 2017-11
 	 * @return array[array]
 	 */
 	public function collect_hooks($hooks, $arguments = array()) {

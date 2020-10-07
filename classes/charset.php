@@ -19,7 +19,12 @@ class charset {
 
 	/**
 	 * Convert an array of strings or a string from the given charset to UTF-8.
-	 *
+	 * @param array|string $data
+	 * @param string $charset
+	 * @param array $missing
+	 * @return array|string
+	 * @throws Exception_Convert
+	 * @throws Exception_File_Format
 	 */
 	public static function to_utf8($data, $charset, &$missing = array()) {
 		if (is_array($data)) {
@@ -64,6 +69,7 @@ class charset {
 	 * @throws Exception_File_Format if file has bad data in it
 	 * @throws Exception_Convert if unknown charset
 	 * @param string $charset
+	 * @return array
 	 */
 	private static function load_table($charset) {
 		if (!array_key_exists($charset, self::$tables)) {
@@ -72,11 +78,12 @@ class charset {
 				throw new Exception_Convert("Unknown charset $charset");
 			}
 			$lines = file($path, FILE_SKIP_EMPTY_LINES);
-			foreach ($lines as $line_number => $oline) {
-				if (strpos($oline, '#UNDEFINED') !== false) {
+			$table = array();
+			foreach ($lines as $line_number => $original_line) {
+				if (strpos($original_line, '#UNDEFINED') !== false) {
 					continue;
 				}
-				$line = preg_replace('/\s+/', ' ', trim(StringTools::left($oline, "#")));
+				$line = preg_replace('/\s+/', ' ', trim(StringTools::left($original_line, "#")));
 				if (empty($line)) {
 					continue;
 				}
@@ -124,7 +131,6 @@ class charset {
 		$iter = new DirectoryIterator(self::charset_path());
 		$result = array();
 		foreach ($iter as $file) {
-			/* @var $file SplFileInfo */
 			if ($file->isDir()) {
 				continue;
 			}

@@ -111,7 +111,7 @@ class ArrayTools {
 	 * @param mixed $a
 	 *        	Array to trim
 	 * @return array
-     * @see trim()
+	 * @see trim()
 	 */
 	public static function trim(array $a, $character_list = self::TRIM_WHITESPACE) {
 		foreach ($a as $i => $v) {
@@ -179,16 +179,16 @@ class ArrayTools {
 		return self::clean(self::trim($arr, $character_list), $value);
 	}
 
-    /**
-     * Calls PHP rtrim() on each element of an array.
-     * If $a is not an array, returns rtrim($a)
-     *
-     * @param mixed $a
-     *            Array to trim
-     * @param string $character_list String containing characters to remove
-     * @return array|string
-     * @see trim()
-     */
+	/**
+	 * Calls PHP rtrim() on each element of an array.
+	 * If $a is not an array, returns rtrim($a)
+	 *
+	 * @param mixed $a
+	 *            Array to trim
+	 * @param string $character_list String containing characters to remove
+	 * @return array|string
+	 * @see trim()
+	 */
 	public static function rtrim($a, $character_list = self::TRIM_WHITESPACE) {
 		if (!is_array($a)) {
 			return rtrim($a, $character_list);
@@ -204,7 +204,7 @@ class ArrayTools {
 	 * If $a is not an array, returns ltrim($a)
 	 *
 	 * @return array|string
-     * @param string $character_list String containing characters to remove
+	 * @param string $character_list String containing characters to remove
 	 * @param mixed $a
 	 *        	Array to trim
 	 * @see trim()
@@ -224,7 +224,7 @@ class ArrayTools {
 	 * If $a is not an array, returns ltrim($a)
 	 *
 	 * @return array|string
-     * @param string $character_list String containing characters to remove
+	 * @param string $character_list String containing characters to remove
 	 * @param mixed $a
 	 *        	Array to rtrim
 	 * @see ltrim()
@@ -245,7 +245,7 @@ class ArrayTools {
 	 * If $a is not an array, returns trim($a)
 	 *
 	 * @return array|string
-     * @param string $character_list String containing characters to remove
+	 * @param string $character_list String containing characters to remove
 	 * @param array|string $a
 	 *        	Array to ktrim
 	 * @see ltrim()
@@ -518,7 +518,7 @@ class ArrayTools {
 	 * @param
 	 *        	array ...
 	 * @return array
-     * @todo Is this used
+	 * @todo Is this used
 	 */
 	public static function merge() {
 		$result = array();
@@ -568,7 +568,7 @@ class ArrayTools {
 	 * @param array $array to search
 	 * @param string $path key path, dot separated
 	 * @param mixed $default default value if the path is not set
-     * @param string $separator string separator for string paths
+	 * @param string $separator string separator for string paths
 	 * @return mixed
 	 * @see ArrayTools::path_set
 	 * @deprecated Use apath
@@ -582,8 +582,8 @@ class ArrayTools {
 	 *
 	 * @param array $arrays
 	 * @param string|null $key_key
-     * @param string|null $value_key
-     * @param mixed $default_value
+	 * @param string|null $value_key
+	 * @param mixed $default_value
 	 * @return array
 	 */
 	public static function extract(array $arrays, $key_key = null, $value_key = null, $default_value = null) {
@@ -607,7 +607,7 @@ class ArrayTools {
 	 * @param array $arrays
 	 * @param string|null $key_key
 	 * @param string|null $value_key
-     * @param mixed $default_value
+	 * @param mixed $default_value
 	 * @return array
 	 * @deprecated 2019-07
 	 */
@@ -684,17 +684,17 @@ class ArrayTools {
 		return $array;
 	}
 
-    /**
-     * Kind of like UNIX "awk '{ print $index }'"
-     * Null for index means return the whole list as an array
-     *
-     * @param array $array
-     * @param integer $index
-     * @param string $delim
-     *            List of delimiter characters
-     * @param integer $max_fields
-     * @return array
-     */
+	/**
+	 * Kind of like UNIX "awk '{ print $index }'"
+	 * Null for index means return the whole list as an array
+	 *
+	 * @param array $array
+	 * @param integer $index
+	 * @param string $delim
+	 *            List of delimiter characters
+	 * @param integer $max_fields
+	 * @return array
+	 */
 	public static function field(array $array, $index = null, $delim = " \t", $max_fields = null) {
 		foreach ($array as $k => $v) {
 			if (is_string($v)) {
@@ -715,7 +715,7 @@ class ArrayTools {
 	 *        	Array of strings
 	 * @param string $delim
 	 *        	Delimiter to split on
-     * @return array
+	 * @return array
 	 */
 	public static function kpair(array $array, $delim = " ") {
 		$result = array();
@@ -764,7 +764,7 @@ class ArrayTools {
 	 *        	A key, or an array of keys to check for. If a string, converted to a list via
 	 *        	to_list
 	 * @see to_list
-     * @return boolean
+	 * @return boolean
 	 */
 	public static function has(array $array, $keys) {
 		$keys = to_list($keys);
@@ -784,7 +784,7 @@ class ArrayTools {
 	 *        	A key, or an array of keys to check for. If a string, converted to a list via
 	 *        	to_list
 	 * @see to_list
-     * @return boolean
+	 * @return boolean
 	 */
 	public static function has_value(array $array, $values) {
 		$values = to_list($values);
@@ -804,8 +804,8 @@ class ArrayTools {
 	 *        	A key, or an array of keys to check for. If a string, converted to a list via
 	 *        	to_list
 	 * @see to_list
-     * @return boolean
-     */
+	 * @return boolean
+	 */
 	public static function has_any(array $array, $keys) {
 		$keys = to_list($keys);
 		foreach ($keys as $key) {
@@ -823,8 +823,8 @@ class ArrayTools {
 	 * @param array|string $values
 	 *        	A value, or an array of values to check for. If a string, converted to a list via
 	 *        	to_list
-     * @return boolean
-     * @see to_list
+	 * @return boolean
+	 * @see to_list
 	 */
 	public static function has_any_value(array $array, $values) {
 		$values = to_list($values);
@@ -932,17 +932,17 @@ class ArrayTools {
 		return $r;
 	}
 
-    /**
-     * Extract certain key values which have a certain prefix from one array into a new array
-     *
-     * @param array $a
-     *            An array to retrieve key values from
-     * @param mixed $prefixes
-     *            A ;-separated list, or an array of keys of strings which contain prefixes which
-     *            should match
-     * @param boolean $lower Case-insensitive search when true
-     * @return array
-     */
+	/**
+	 * Extract certain key values which have a certain prefix from one array into a new array
+	 *
+	 * @param array $a
+	 *            An array to retrieve key values from
+	 * @param mixed $prefixes
+	 *            A ;-separated list, or an array of keys of strings which contain prefixes which
+	 *            should match
+	 * @param boolean $lower Case-insensitive search when true
+	 * @return array
+	 */
 	public static function filter_prefix($a, $prefixes, $lower = false) {
 		if (is_string($prefixes)) {
 			$prefixes = explode(";", $prefixes);
@@ -1244,27 +1244,27 @@ class ArrayTools {
 		return $result;
 	}
 
-    /**
-     * Given an array with just values, converts it to an associative array using values as keys,
-     * and
-     * assigns a single value.
-     *
-     * e.g.
-     * dump(self::flip_copy(array("Red", "Blue", "Orange", "Frog"), true));
-     * is:
-     * <pre>Array
-     * (
-     * [Red] => true
-     * [Blue] => true
-     * [Orange] => true
-     * [Frog] => true
-     * )</pre>
-     *
-     * @param array $x
-     *            Array to modify
-     * @param mixed $value
-     * @return array
-     */
+	/**
+	 * Given an array with just values, converts it to an associative array using values as keys,
+	 * and
+	 * assigns a single value.
+	 *
+	 * e.g.
+	 * dump(self::flip_copy(array("Red", "Blue", "Orange", "Frog"), true));
+	 * is:
+	 * <pre>Array
+	 * (
+	 * [Red] => true
+	 * [Blue] => true
+	 * [Orange] => true
+	 * [Frog] => true
+	 * )</pre>
+	 *
+	 * @param array $x
+	 *            Array to modify
+	 * @param mixed $value
+	 * @return array
+	 */
 	public static function flip_assign($x, $value = null) {
 		$result = array();
 		foreach ($x as $k) {
@@ -1541,7 +1541,7 @@ class ArrayTools {
 	 *
 	 * @param array $array
 	 * @param mixed $default
-     * @return mixed
+	 * @return mixed
 	 */
 	public static function top(array $array, $default = null) {
 		if (count($array) === 0) {
@@ -1550,31 +1550,31 @@ class ArrayTools {
 		return $array[count($array) - 1];
 	}
 
-    /**
-     * Collapse a keyed array containing arrays
-     * e.g.
-     * $array =
-     * array(
-     * array(
-     * 'min' => 1,
-     * 'max' => 2,
-     * ),
-     * array(
-     * 'min' => 4,
-     * 'max' => 5,
-     * )
-     * );
-     * ArrayTools::collapse($array, 'min') === array(1,4)
-     * ArrayTools::collapse($array, 'max') === array(2,5)
-     * ArrayTools::collapse($array, 'dude') === array(null,null)
-     * Not sure if this is the best name for this.
-     *
-     * @param array $array
-     * @param string $key
-     *            Key to pull from the values of the array
-     * @param mixed $default
-     * @return array
-     */
+	/**
+	 * Collapse a keyed array containing arrays
+	 * e.g.
+	 * $array =
+	 * array(
+	 * array(
+	 * 'min' => 1,
+	 * 'max' => 2,
+	 * ),
+	 * array(
+	 * 'min' => 4,
+	 * 'max' => 5,
+	 * )
+	 * );
+	 * ArrayTools::collapse($array, 'min') === array(1,4)
+	 * ArrayTools::collapse($array, 'max') === array(2,5)
+	 * ArrayTools::collapse($array, 'dude') === array(null,null)
+	 * Not sure if this is the best name for this.
+	 *
+	 * @param array $array
+	 * @param string $key
+	 *            Key to pull from the values of the array
+	 * @param mixed $default
+	 * @return array
+	 */
 	public static function collapse(array $array, $key, $default = null) {
 		foreach ($array as $k => $subarray) {
 			$array[$k] = avalue($subarray, $key, $default);

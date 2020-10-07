@@ -101,40 +101,40 @@ class IPv4 {
 	/**
 	 * Returns integer value of subnet
 	 *
-	 * @param integer $ipbits
+	 * @param integer $ip_bits
 	 *        	Number of bits between 0 and 32
 	 * @return integer
 	 */
-	public static function subnet_mask($ipbits) {
-		$ipbits = clamp(0, $ipbits, self::BITS);
-		return bindec(str_repeat("1", $ipbits) . str_repeat("0", self::BITS - $ipbits));
+	public static function subnet_mask($ip_bits) {
+		$ip_bits = clamp(0, $ip_bits, self::BITS);
+		return bindec(str_repeat("1", $ip_bits) . str_repeat("0", self::BITS - $ip_bits));
 	}
 
 	/**
 	 * Returns integer value of subnet available bits
 	 *
-	 * @param integer $ipbits
+	 * @param integer $ip_bits
 	 *        	Number of bits between 0 and 32
 	 * @return integer
 	 */
-	public static function subnet_mask_not($ipbits) {
-		$ipbits = clamp(0, $ipbits, self::BITS);
-		return bindec(str_repeat("1", self::BITS - $ipbits));
+	public static function subnet_mask_not($ip_bits) {
+		$ip_bits = clamp(0, $ip_bits, self::BITS);
+		return bindec(str_repeat("1", self::BITS - $ip_bits));
 	}
 
 	/**
 	 * Given an IP integer address, convert to "low" IP integer in subnet
 	 *
-	 * @param integer $ipint
-	 * @param integer $ipbits
-	 * @return unknown|number
+	 * @param integer $ip_integer
+	 * @param integer $ip_bits
+	 * @return integer
 	 */
-	public static function subnet_bits($ipint, $ipbits) {
-		if ($ipbits >= self::BITS) {
-			return $ipint;
+	public static function subnet_bits($ip_integer, $ip_bits) {
+		if ($ip_bits >= self::BITS) {
+			return $ip_integer;
 		}
-		$ipint = $ipint - ($ipint & self::subnet_mask_not($ipbits));
-		return $ipint;
+		$ip_integer = $ip_integer - ($ip_integer & self::subnet_mask_not($ip_bits));
+		return $ip_integer;
 	}
 
 	/**
@@ -206,25 +206,25 @@ class IPv4 {
 	 *
 	 * @param integer $ip
 	 *        	An IP integer
-	 * @param integer $ipbits
+	 * @param integer $ip_bits
 	 *        	An IP number of bits in the mask (from 0 to 32)
 	 * @param boolean $star_notation
 	 *        	When true, returns masks of 8, 16 and 24 bits using stars instead of slashes, e.g.
 	 *        	"192.168.*"
 	 * @return string An IP and subnet notation string
 	 */
-	public static function mask_to_string($ip, $ipbits = self::BITS, $star_notation = true) {
-		$ipbits = to_integer($ipbits, self::BITS);
+	public static function mask_to_string($ip, $ip_bits = self::BITS, $star_notation = true) {
+		$ip_bits = to_integer($ip_bits, self::BITS);
 		$ip = doubleval($ip);
-		if ($ipbits === self::BITS) {
+		if ($ip_bits === self::BITS) {
 			return self::from_integer($ip);
 		}
 		if ($star_notation) {
-			if ($ipbits === 24 || $ipbits === 16 || $ipbits === 8) {
-				return implode(".", array_slice(explode(".", self::from_integer($ip)), 0, ($ipbits / 8))) . ".*";
+			if ($ip_bits === 24 || $ip_bits === 16 || $ip_bits === 8) {
+				return implode(".", array_slice(explode(".", self::from_integer($ip)), 0, ($ip_bits / 8))) . ".*";
 			}
 		}
-		return self::from_integer(self::subnet_bits($ip, $ipbits)) . "/$ipbits";
+		return self::from_integer(self::subnet_bits($ip, $ip_bits)) . "/$ip_bits";
 	}
 
 	/**
@@ -239,10 +239,10 @@ class IPv4 {
 	 * @see self::mask_to_integers
 	 */
 	public static function network($network) {
-		list($low_ip, $nbits) = self::mask_to_integers($network);
-		//	echo long2ip($low_ip) . ":" . $nbits . "\n";
-		//	echo long2ip(self::subnet_mask_not($nbits)) . "\n";
-		$high_ip = $low_ip + self::subnet_mask_not($nbits);
+		list($low_ip, $n_bits) = self::mask_to_integers($network);
+		//	echo long2ip($low_ip) . ":" . $n_bits . "\n";
+		//	echo long2ip(self::subnet_mask_not($n_bits)) . "\n";
+		$high_ip = $low_ip + self::subnet_mask_not($n_bits);
 		return array(
 			$low_ip,
 			$high_ip,
@@ -255,14 +255,13 @@ class IPv4 {
 	 * Usage:
 	 * <code>
 	 * if (IPv4::within_network($ip, "192.168.0.0/24")) {
-	 * echo "LANward bound!\n";
+	 * echo "LAN-ward bound!\n";
 	 * }
 	 * </code>
 	 *
-	 * @param string $network
-	 *        	An IP network string (see self::mask_to_integers)
-	 * @return boolean
-	 * @see self::network
+	 * @param string $network An IP network string (see self::mask_to_integers)
+	 * @param string $ip IP Address
+	 * @return bool
 	 */
 	public static function within_network($ip, $network) {
 		$ip = self::to_integer($ip);
@@ -274,7 +273,7 @@ class IPv4 {
 	 * Convert an IP address to a big-endian integer
 	 *
 	 * @param mixed $mixed
-	 * @return unknown
+	 * @return double
 	 */
 	public static function to_integer($mixed) {
 		if (is_integer($mixed)) {
@@ -293,19 +292,19 @@ class IPv4 {
 	/**
 	 * Convert a big-endian long integer into an IP address
 	 *
-	 * @param double $ipid
+	 * @param double $ip_integer
 	 *        	A long integer
 	 * @return string An ip address
 	 */
-	public static function from_integer($ipid) {
-		$ipid = doubleval($ipid);
-		$d = fmod($ipid, 256);
-		$ipid = intval($ipid / 256);
-		$c = $ipid & 0xFF;
-		$ipid >>= 8;
-		$b = $ipid & 0xFF;
-		$ipid >>= 8;
-		$a = $ipid & 0xFF;
+	public static function from_integer($ip_integer) {
+		$ip_integer = doubleval($ip_integer);
+		$d = fmod($ip_integer, 256);
+		$ip_integer = intval($ip_integer / 256);
+		$c = $ip_integer & 0xFF;
+		$ip_integer >>= 8;
+		$b = $ip_integer & 0xFF;
+		$ip_integer >>= 8;
+		$a = $ip_integer & 0xFF;
 		return "$a.$b.$c.$d";
 	}
 
@@ -323,7 +322,7 @@ class IPv4 {
 	 * Internal function to check IP address with optional check for final IP byte to be 0 or another number (usually 1)
 	 *
 	 * @param string $string
-	 * @param number $low_low
+	 * @param integer $low_low
 	 * @return boolean
 	 */
 	private static function _valid($string, $low_low = 0) {

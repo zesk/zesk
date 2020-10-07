@@ -198,21 +198,17 @@ class HTML {
 
 	/**
 	 *
-	 * @param unknown $src
+	 * @param string $src
 	 * @param string $w
 	 * @param string $h
 	 * @param string $text
 	 * @param string $attrs
 	 * @return string
 	 */
-	public static function img_compat(Application $app, $src, $w = false, $h = false, $text = "", $attrs = false) {
+	public static function img_compat(Application $app, $src, $w = null, $h = null, $text = "", $attrs = false) {
 		$attrs = to_array($attrs, array());
-		if ($w === false) {
-			$attrs['width'] = avalue($attrs, 'width', null);
-		}
-		if ($h === false) {
-			$attrs['height'] = avalue($attrs, 'height', null);
-		}
+		$attrs['width'] = $w ?? avalue($attrs, 'width', null);
+		$attrs['height'] = $h ?? avalue($attrs, 'height', null);
 		return self::img($app, $src, $text, $attrs);
 	}
 
@@ -328,8 +324,8 @@ class HTML {
 
 	/**
 	 *
-	 * @param unknown $href
-	 * @param unknown $mixed
+	 * @param string $href
+	 * @param string $mixed
 	 * @return string
 	 */
 	public static function a_prefix(Request $request, $href, $mixed) {
@@ -341,7 +337,7 @@ class HTML {
 	 *
 	 * @param Request $request
 	 * @param string $href
-	 * @param unknown $mixed
+	 * @param string $mixed
 	 * @return string
 	 */
 	public static function a_path(Request $request, $href, $mixed) {
@@ -351,8 +347,8 @@ class HTML {
 
 	/**
 	 *
-	 * @param unknown $href
-	 * @param unknown $mixed
+	 * @param string $href
+	 * @param string $mixed
 	 * @return string
 	 */
 	public static function a_match(Request $request, $href, $mixed) {
@@ -471,8 +467,8 @@ class HTML {
 	 * self::tags('li', array('class' => 'highlight'), array('first item', 'second item'))
 	 *
 	 * @param string $name
-	 * @param unknown_type $mixed
-	 * @return unknown
+	 * @param mixed $mixed
+	 * @return string
 	 */
 	public static function tags($name, $mixed) {
 		if (func_num_args() > 2) {

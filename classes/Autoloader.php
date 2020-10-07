@@ -9,9 +9,10 @@
 namespace zesk;
 
 use Psr\Cache\CacheItemInterface;
+use Psr\Cache\InvalidArgumentException;
 
 /**
- * Handles autoloading for Zesk
+ * Handles autoloader for Zesk
  *
  * @author kent
  */
@@ -45,7 +46,7 @@ class Autoloader {
 	const OPTION_LAST = "last";
 
 	/**
-	 * Used in ->path(..., $options); List of array of valid extensions, characters only, in order of seach priority. e.g. ["php", "php7", "inc"]
+	 * Used in ->path(..., $options); List of array of valid extensions, characters only, in order of search priority. e.g. ["php", "php7", "inc"]
 	 *
 	 * @var string
 	 */
@@ -124,10 +125,11 @@ class Autoloader {
 	 *
 	 * @var Kernel
 	 */
-	private $kernel = null;
+	private $kernel;
 
 	/**
 	 * Create default autoloader for most of Zesk
+	 * @param Kernel $kernel
 	 */
 	public function __construct(Kernel $kernel) {
 		$this->kernel = $kernel;
@@ -144,7 +146,7 @@ class Autoloader {
 
 	/**
 	 * Should be called once and only once.
-	 * Registers zesk's autoloader.
+	 * Registers Autoloader for Zesk.
 	 */
 	private function autoload_register() {
 		spl_autoload_register(array(
@@ -160,7 +162,11 @@ class Autoloader {
 	 * @return CacheItemInterface
 	 */
 	private function _autoload_cache() {
-		return $this->kernel->cache->getItem("autoload_cache");
+		try {
+			return $this->kernel->cache->getItem("autoload_cache");
+		} catch (InvalidArgumentException $e) {
+			return null;
+		}
 	}
 
 	private function _autoload_cache_save(CacheItemInterface $item) {
@@ -174,6 +180,7 @@ class Autoloader {
 	 *
 	 * @param string $class
 	 * @return boolean
+	 * @throws Exception_Class_NotFound|Exception_Semantics
 	 */
 	public function php_autoloader($class) {
 		if ($this->load($class)) {
@@ -185,7 +192,8 @@ class Autoloader {
 	}
 
 	/**
-	 * Zesk's autoloader.
+	 * Autoloader for Zesk
+	 *
 	 * When a PHP class is encountered which can't be found, this function tries to find it and
 	 * include the file.
 	 *
@@ -193,27 +201,28 @@ class Autoloader {
 	 * @param boolean $no_exception
 	 *        	Do not throw an exception if class is not found
 	 * @return string|null
-	 * @global $this->no_exception
-	 * @global define:ZESK_NO_CONFLICT
+	 * @see $this->no_exception
+	 * @see ZESK_NO_CONFLICT
+	 * @throws Exception_Semantics|Exception_Class_NotFound
 	 */
 	public function load($class, $no_exception = false) {
-		$lowclass = strtolower($class);
+		$lowercase_class = strtolower($class);
 		$cache = $this->_autoload_cache();
 		$include = null;
-		$cache_items = $cache->get();
+		$cache_items = $cache ? $cache->get() : null;
+
 		if (!is_array($cache_items)) {
 			$cache_items = array();
 		}
-		if (array_key_exists($lowclass, $cache_items)) {
-			$include = $cache_items[$lowclass];
+		if (array_key_exists($lowercase_class, $cache_items)) {
+			$include = $cache_items[$lowercase_class];
 			if (!is_file($include)) {
-				unset($cache_items[$lowclass]);
+				unset($cache_items[$lowercase_class]);
 				$include = null;
 			}
 		}
 		if (!$include) {
 			$tried_path = null;
-			$t = microtime(true);
 			$include = $this->search($class, null, $tried_path);
 			if ($include === null) {
 				if ($this->no_exception || $no_exception) {
@@ -227,14 +236,14 @@ class Autoloader {
 					"backtrace" => Text::indent(_backtrace(), 1),
 				));
 			}
-			$cache_items[$lowclass] = $include;
+			$cache_items[$lowercase_class] = $include;
 			$cache->set($cache_items);
 			$this->_autoload_cache_save($cache);
 		}
 		if ($this->debug) {
 			ob_start();
 		}
-		require_once $include;
+		require_once($include);
 		if ($this->debug) {
 			$content = ob_get_clean();
 			if ($content !== "") {
@@ -258,16 +267,7 @@ class Autoloader {
 	 * @return array[string]
 	 */
 	public function possibilities($file_prefix, array $extensions = null) {
-		$debug = $this->debug_search;
 		$result = array();
-		$first_options = array();
-		if ($extensions) {
-			$first_options[self::OPTION_EXTENSIONS] = $extensions;
-			$last_options = array();
-		} else {
-			$first_options = array();
-			$last_options[self::OPTION_EXTENSIONS] = $extensions;
-		}
 		foreach ($this->path() as $path => $options) {
 			$class_prefix = rtrim($options[self::OPTION_CLASS_PREFIX], '_');
 			if ($class_prefix !== "") {
@@ -311,10 +311,8 @@ class Autoloader {
 	 * @return string
 	 */
 	public function search($class, array $extensions = null, &$tried_path = null) {
-		$debug = $this->debug_search;
 		$possibilities = $this->possibilities($class, $extensions);
 		$tried_path = array();
-		$default_extensions = $this->extension();
 		foreach ($possibilities as $path) {
 			$tried_path[] = $path;
 			if (file_exists($path)) {
@@ -327,7 +325,7 @@ class Autoloader {
 	/**
 	 * Add/remove an extension
 	 *
-	 * @param unknown $add
+	 * @param string $add
 	 * @return string[]
 	 */
 	public function extension($add = null) {

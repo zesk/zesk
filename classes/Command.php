@@ -300,7 +300,7 @@ abstract class Command extends Hookable implements Logger\Handler, Interface_Pro
 	 *        	basename of configuration file
 	 * @param boolean $create
 	 *        	Create a blank file if it doesn't exist
-	 * @return string Path of configuration file
+	 * @return array List of files and a default file
 	 */
 	private function _configuration_config($name) {
 		$file = File::name_clean(strtolower($name));

@@ -42,7 +42,7 @@ class Directory extends Hookable {
 
 	/**
 	 * If a directory does not exist, create it. If an error occurs
-	 * @param unknown $path
+	 * @param string $path
 	 * @param string $mode
 	 * @throws Exception_Directory_Create
 	 * @throws Exception_Directory_Permission

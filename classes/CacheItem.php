@@ -4,6 +4,7 @@
  */
 namespace zesk;
 
+use DateTimeInterface;
 use Psr\Cache\CacheItemInterface;
 
 /**
@@ -17,19 +18,19 @@ class CacheItem implements CacheItemInterface {
 	 *
 	 * @var string
 	 */
-	private $key = null;
+	private $key;
 
 	/**
 	 *
 	 * @var mixed
 	 */
-	private $value = null;
+	private $value;
 
 	/**
 	 *
 	 * @var mixed
 	 */
-	private $is_hit = null;
+	private $is_hit;
 
 	/**
 	 *
@@ -38,8 +39,10 @@ class CacheItem implements CacheItemInterface {
 	private $expiration = null;
 
 	/**
-	 *
-	 * @param string $key
+	 * CacheItem constructor.
+	 * @param $key
+	 * @param mixed $value
+	 * @param bool $isHit
 	 */
 	public function __construct($key, $value = null, $isHit = true) {
 		$this->key = strval($key);
@@ -111,7 +114,7 @@ class CacheItem implements CacheItemInterface {
 	/**
 	 * Sets the expiration time for this cache item.
 	 *
-	 * @param \DateTimeInterface|null $expiration
+	 * @param DateTimeInterface|null $expiration
 	 *   The point in time after which the item MUST be considered expired.
 	 *   If null is passed explicitly, a default value MAY be used. If none is set,
 	 *   the value should be stored permanently or for as long as the
@@ -137,6 +140,7 @@ class CacheItem implements CacheItemInterface {
 	 *
 	 * @return static
 	 *   The called object.
+	 * @throws Exception_Parameter
 	 */
 	public function expiresAfter($time) {
 		$this->expiration = $time ? Timestamp::now()->add_unit($time) : null;

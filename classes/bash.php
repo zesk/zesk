@@ -20,8 +20,7 @@ class bash {
 		}
 		$matches = array();
 		// Handle ${FOO:-default} correctly
-		$depends = array();
-		if (preg_match_all('/\$\{([^}]+)\}/', $value, $matches, PREG_SET_ORDER)) {
+		if (preg_match_all('/\${([^}]+)}/', $value, $matches, PREG_SET_ORDER)) {
 			foreach ($matches as $match) {
 				$variable = $match[1];
 				$default_value = "";
@@ -34,8 +33,6 @@ class bash {
 					if (strpos($variable, $sep) !== false) {
 						list($variable, $default_value) = explode($sep, $variable, 2);
 						$default_value = unquote($default_value, '\'\'""', $found_quote);
-						$found_sep = $sep;
-
 						break;
 					}
 				}

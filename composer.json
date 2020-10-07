@@ -2,12 +2,14 @@
 	"name": "zesk/zesk",
 	"description": "The Zesk Application Framework",
 	"require": {
-		"php": ">=5.5.0",
+		"php": ">=7.0",
 		"psr/log": "^1.0",
 		"components/jquery": "^3.2",
 		"psr/cache": "^1.0",
-		"mishal/iless": "^2."
-	},
+		"mishal/iless": "^2.",
+      "ext-calendar": "*",
+      "ext-json": "*"
+    },
 	"require-dev": {
 		"phpunit/phpunit": "*",
 		"phpunit/php-invoker": "*",
