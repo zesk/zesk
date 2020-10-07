@@ -4,15 +4,19 @@
  */
 namespace zesk;
 
+use ArrayAccess;
+use Countable;
+use Iterator;
+
 /**
  *
  * @author kent
  *
  */
-class Configuration implements \Iterator, \Countable, \ArrayAccess {
+class Configuration implements Iterator, Countable, ArrayAccess {
 	/**
 	 * When we pass strings into methods as paths, this sequence of characters is equivalent to a
-	 * traversal from parent Configuration to child Configuation object.
+	 * traversal from parent Configuration to child Configuration object.
 	 *
 	 * @var string
 	 */
@@ -24,7 +28,7 @@ class Configuration implements \Iterator, \Countable, \ArrayAccess {
 	protected $_path = array();
 
 	/**
-	 * Our datum, datum, datum, datum, datum, datum, datum, datuuuuuuuuum.
+	 * Our datum, datum, datum, datum, datum, datum, datum, dat-u-u-u-um.
 	 *
 	 * Key value pairs. Lots of Configuration objects, or non-Configuration values
 	 *
@@ -62,11 +66,12 @@ class Configuration implements \Iterator, \Countable, \ArrayAccess {
 	 */
 	protected $_skip_next = false;
 
-	/**
-	 *
-	 * @param Kernel $kernel
-	 * @param array $value
-	 */
+    /**
+     * Configuration constructor.
+     * @param array $array
+     * @param boolean $locked
+     * @param array $path
+     */
 	public function __construct(array $array = array(), $locked = false, array $path = array()) {
 		$this->_path = $path;
 		$this->_locked = $locked;
@@ -83,7 +88,7 @@ class Configuration implements \Iterator, \Countable, \ArrayAccess {
 	/**
 	 *
 	 * @param array $array
-	 * @param string $locked
+	 * @param boolean $locked
 	 * @param array $path
 	 * @return self
 	 */
@@ -134,7 +139,7 @@ class Configuration implements \Iterator, \Countable, \ArrayAccess {
 	}
 
 	/**
-	 * Does this configruation value exist?
+	 * Does this configuration value exist?
 	 *
 	 * @param string $key
 	 * @return boolean
@@ -154,11 +159,10 @@ class Configuration implements \Iterator, \Countable, \ArrayAccess {
 		return isset($this->_data[$key]);
 	}
 
-	/**
-	 *
-	 * @param string $key
-	 * @return void
-	 */
+    /**
+     * @param $key
+     * @throws Exception_Lock
+     */
 	public function __unset($key) {
 		$key = strtolower($key);
 		if ($this->_locked) {
@@ -173,7 +177,9 @@ class Configuration implements \Iterator, \Countable, \ArrayAccess {
 	/**
 	 *
 	 * @param string $key
-	 * @param string $value
+	 * @param mixed $value
+     * @return self|mixed
+     * @throws Exception_Lock
 	 */
 	public function set($key, $value = null) {
 		if (is_array($key)) {
@@ -189,7 +195,9 @@ class Configuration implements \Iterator, \Countable, \ArrayAccess {
 	 * Set a value in a configuration object
 	 *
 	 * @param string $key
-	 * @param unknown $value
+	 * @param mixed $value
+     * @return mixed
+     * @throws Exception_Lock
 	 */
 	public function __set($key, $value) {
 		if ($this->_locked) {
@@ -229,6 +237,7 @@ class Configuration implements \Iterator, \Countable, \ArrayAccess {
 	 * @param array $paths
 	 * @param mixed $default
 	 * @return mixed
+     * @throws Exception_Lock
 	 */
 	public function path_get_first(array $paths, $default = null) {
 		foreach ($paths as $path) {
@@ -243,7 +252,8 @@ class Configuration implements \Iterator, \Countable, \ArrayAccess {
 	 * Set multiple paths to multiple values
 	 *
 	 * @param array $paths
-	 * @return \zesk\Configuration[]
+	 * @return Configuration[]
+     * @throws Exception_Lock
 	 */
 	public function paths_set(array $paths) {
 		$result = array();
@@ -258,6 +268,7 @@ class Configuration implements \Iterator, \Countable, \ArrayAccess {
 	 *
 	 * @param array $paths
 	 * @return array
+     * @throws Exception_Lock
 	 */
 	public function paths_get(array $paths) {
 		$result = array();
@@ -270,9 +281,10 @@ class Configuration implements \Iterator, \Countable, \ArrayAccess {
 	/**
 	 * Retrieve a path using self::key_separator
 	 *
-	 * @param string $path
+	 * @param string|array $path
 	 * @param mixed $default
 	 * @return mixed
+     * @throws Exception_Lock
 	 */
 	public function path_get($path, $default = null) {
 		$path = is_array($path) ? $path : explode(self::key_separator, $path);
@@ -322,7 +334,8 @@ class Configuration implements \Iterator, \Countable, \ArrayAccess {
 	 *
 	 * @param string|array $path
 	 * @param mixed $value
-	 * @return \zesk\Configuration parent node of final value set
+	 * @return Configuration parent node of final value set
+     * @throws Exception_Lock
 	 */
 	public function path_set($path, $value = null) {
 		$path = is_array($path) ? $path : explode(self::key_separator, $path);
@@ -339,8 +352,9 @@ class Configuration implements \Iterator, \Countable, \ArrayAccess {
 
 	/**
 	 * Ensure configuration path is available
-	 * @param array $keys
+	 * @param array|string $keys
 	 * @return self
+     * @throws Exception_Lock
 	 */
 	public function path($keys) {
 		$keys = is_array($keys) ? $keys : explode(self::key_separator, $keys);
@@ -359,7 +373,7 @@ class Configuration implements \Iterator, \Countable, \ArrayAccess {
 	/**
 	 * Walk configuration and return found value, or default if not found
 	 *
-	 * @param string|list $keys
+	 * @param string|array $keys
 	 * @param mixed $default
 	 * @return mixed
 	 */
@@ -393,7 +407,9 @@ class Configuration implements \Iterator, \Countable, \ArrayAccess {
 	/**
 	 * Convert entire structure to an array, recursively
 	 *
+     * @param integer $depth How deep to traverse (null for infinite)
 	 * @return array
+     * @throws Exception_Lock
 	 */
 	public function to_array($depth = null) {
 		$result = array();
@@ -501,6 +517,7 @@ class Configuration implements \Iterator, \Countable, \ArrayAccess {
 	 *
 	 * @see ArrayAccess
 	 * @param mixed $offset
+     * @return mixed
 	 */
 	public function offsetGet($offset) {
 		return $this->__get($offset);
@@ -510,7 +527,8 @@ class Configuration implements \Iterator, \Countable, \ArrayAccess {
 	 *
 	 * @see ArrayAccess
 	 * @param mixed $offset
-	 * @param mixed $offset
+	 * @param mixed $value
+     * @throws Exception_Lock
 	 */
 	public function offsetSet($offset, $value) {
 		$this->__set($offset, $value);
@@ -520,6 +538,7 @@ class Configuration implements \Iterator, \Countable, \ArrayAccess {
 	 *
 	 * @see ArrayAccess
 	 * @param mixed $offset
+     * @throws Exception_Lock
 	 */
 	public function offsetUnset($offset) {
 		$this->__unset($offset);
@@ -544,7 +563,7 @@ class Configuration implements \Iterator, \Countable, \ArrayAccess {
 	 *        	Key attempting to modify
 	 * @param string $verb
 	 *        	Action attempting to do (debug)
-	 * @throws \Exception_Lock
+	 * @throws Exception_Lock
 	 */
 	private function _locked($key, $verb) {
 		throw new Exception_Lock("Unable to $verb key {key} at {path}", array(
@@ -556,10 +575,11 @@ class Configuration implements \Iterator, \Countable, \ArrayAccess {
 	/**
 	 * Returns true if old configuration option is still being used
 	 *
-	 * @param list|string $old_path
-	 * @param list|string $new_path
+	 * @param array|string $old_path
+	 * @param array|string $new_path
 	 * @return boolean Returns true if OLD value still found and (optionally) mapped to new
-	 */
+     * @throws Exception_Lock|Exception_Semantics|Exception_Deprecated
+     */
 	final public function deprecated($old_path, $new_path = null) {
 		$old_value = $this->walk($old_path);
 		if ($old_value === null) {

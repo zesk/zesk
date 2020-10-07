@@ -290,7 +290,7 @@ class Kernel {
 		/*
 		 * Set up logger interface for central logging
 		 */
-		$this->logger = new Logger($this);
+		$this->logger = new Logger();
 
 		/*
 		 * Configuration of components in the system

@@ -229,7 +229,7 @@ class Application extends Hookable implements Interface_Theme, Interface_Member_
 	/**
 	 * Array of calls to create stuff
 	 *
-	 * @var Closure[string]
+	 * @var \Closure[string]
 	 */
 	private $factories = array();
 
@@ -354,7 +354,7 @@ class Application extends Hookable implements Interface_Theme, Interface_Member_
 	 */
 	public function __construct(Kernel $kernel, array $options = array()) {
 		parent::__construct($this, $options);
-		$this->_initialize($kernel, $options);
+		$this->_initialize($kernel);
 		$this->_initialize_fixme();
 		$this->set_option('maintenance', $this->_load_maintenance());
 	}
@@ -370,10 +370,9 @@ class Application extends Hookable implements Interface_Theme, Interface_Member_
 
 	/**
 	 *
-	 * @param array $options
 	 * @throws Exception_Unimplemented
 	 */
-	protected function _initialize(Kernel $kernel, array $options = array()) {
+	protected function _initialize(Kernel $kernel) {
 		// Pretty much just copy object references over
 		$this->zesk = $kernel;
 		$this->kernel = $kernel;
@@ -573,7 +572,7 @@ class Application extends Hookable implements Interface_Theme, Interface_Member_
 	 *
 	 * @param mixed $includes An iterator which generates a list of include files to load.
 	 * @param boolean $reset When false, adds to the existing include list
-	 * @return Application
+	 * @return Application|array
 	 */
 	final public function configure_include($includes = null, $reset = false) {
 		if ($includes === null) {
