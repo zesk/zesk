@@ -8,7 +8,8 @@
 		"psr/cache": "^1.0",
 		"mishal/iless": "^2.",
       "ext-calendar": "*",
-      "ext-json": "*"
+      "ext-json": "*",
+      "ext-posix": "*"
     },
 	"require-dev": {
 		"phpunit/phpunit": "*",

@@ -9,6 +9,7 @@
  * @author Kent Davidson <kent@marketacumen.com>
  * @copyright Copyright &copy; 2014, Market Acumen, Inc.
  */
+
 use zesk\Kernel;
 use zesk\Text;
 use zesk\PHP;
@@ -67,7 +68,11 @@ define("ZESK_GLOBAL_KEY_SEPARATOR", "::");
  * @return Kernel
  */
 function zesk() {
-	return Kernel::singleton();
+	try {
+		return Kernel::singleton();
+	} catch (Exception $e) {
+		return null;
+	}
 }
 
 /**
@@ -148,7 +153,7 @@ function begins($haystack, $needle) {
 	if ($n === 0) {
 		return true;
 	}
-	return substr($haystack, 0, $n) === $needle ? true : false;
+	return substr($haystack, 0, $n) === $needle;
 }
 
 /**
@@ -164,7 +169,7 @@ function beginsi($haystack, $needle) {
 	if ($n === 0) {
 		return true;
 	}
-	return strcasecmp(substr($haystack, 0, $n), $needle) === 0 ? true : false;
+	return strcasecmp(substr($haystack, 0, $n), $needle) === 0;
 }
 
 /**
@@ -180,7 +185,7 @@ function ends($haystack, $needle) {
 	if ($n === 0) {
 		return true;
 	}
-	return (substr($haystack, -$n) === $needle) ? true : false;
+	return (substr($haystack, -$n) === $needle);
 }
 
 /**
@@ -196,7 +201,7 @@ function endsi($haystack, $needle) {
 	if ($n === 0) {
 		return true;
 	}
-	return strcasecmp(substr($haystack, -$n), $needle) === 0 ? true : false;
+	return strcasecmp(substr($haystack, -$n), $needle) === 0;
 }
 
 /**
@@ -281,7 +286,7 @@ function backtrace($exit = true, $n = -1) {
  * which don't have the autoloader set yet.
  *
  * @return string
- * @param unknown $depth
+ * @param integer $depth
  * @see debug_backtrace()
  * @see Debug::calling_function
  */
@@ -310,7 +315,7 @@ function calling_function($depth = 1, $include_line = true) {
  *        	Variable to dump
  * @param boolean $html
  *        	Whether to dump as HTML or not (surround by pre tags)
- * @return echos to page
+ * @return void echos to page
  * @see print_r
  */
 if (!function_exists("dump")) {
@@ -324,7 +329,7 @@ if (!function_exists("dump")) {
  *
  * @param mixed $x
  *        	Variable to dump
- * @return A string representation of the value
+ * @return string string representation of the value
  * @see print_r, dump
  */
 function _dump($x) {
@@ -489,7 +494,7 @@ function to_iterator($mixed) {
  *
  * @param string $mixed
  * @param string $default
- * @return Ambigous <mixed, number>|number
+ * @return integer
  */
 function to_bytes($mixed, $default = null) {
 	$mixed = strtolower(trim($mixed));
@@ -559,8 +564,8 @@ function avalue($a, $k, $default = null) {
 	if (!is_array($a)) {
 		$message = "Array (" . strval($a) . ") is of type " . type($a) . " " . _backtrace();
 		error_log($message, E_USER_WARNING);
-		die(__FILE__ . ':' . __LINE__ . "<br />" . $message);
 		debugger_start_debug();
+		die(__FILE__ . ':' . __LINE__ . "<br />" . $message);
 	}
 	$k = strval($k);
 	return array_key_exists($k, $a) ? $a[$k] : $default;
@@ -888,7 +893,7 @@ function _W($phrase) {
  *        	If "left" includes the delimiter in the left value
  *        	If "right" includes the delimiter in the right value
  *          Any other value the delimiter is stripped from the results
- * @return A size 2 array containing the left and right portions of the pair
+ * @return array A size 2 array containing the left and right portions of the pair
  */
 function pair($a, $delim = '.', $left = false, $right = false, $include_delimiter = null) {
 	$n = strpos($a, $delim);
@@ -917,7 +922,7 @@ function pair($a, $delim = '.', $left = false, $right = false, $include_delimite
  *        	If "left" includes the delimiter in the left value
  *        	If "right" includes the delimiter in the right value
  *          Any other value the delimiter is stripped from the results
- * @return A size 2 array containing the left and right portions of the pair
+ * @return array A size 2 array containing the left and right portions of the pair
  * @see pair
  */
 function pairr($a, $delim = '.', $left = false, $right = false, $include_delimiter = null) {
@@ -956,13 +961,13 @@ function glue($left, $glue, $right) {
  *
  * Meant to work with unique pairs of quotes, so passing in "[A[B[C" will break it.
  *
- * @param string $s
+ * @param string|array $s
  *        	A string to unquote
  * @param string $quotes
  *        	A list of quote pairs to unquote
  * @param string $left_quote
  *        	Returns the quotes removed
- * @return string Unquoted string, or same string if quotes not found
+ * @return string|array Unquoted string, or same string if quotes not found
  */
 function unquote($s, $quotes = "''\"\"", &$left_quote = null) {
 	if (is_array($s)) {
@@ -1000,7 +1005,7 @@ function unquote($s, $quotes = "''\"\"", &$left_quote = null) {
  * @see glue
  * @see domain
  */
-function path_from_array($separator = '/', array $mixed) {
+function path_from_array($separator, array $mixed) {
 	$r = array_shift($mixed);
 	if (is_array($r)) {
 		$r = path_from_array($separator, $r);
@@ -1074,9 +1079,9 @@ function clamp($minValue, $value, $maxValue) {
  * Utility for comparing floating point numbers where inaccuracies and rounding in math
  * produces close numbers which are not actually equal.
  *
- * @param real $a
- * @param real $b
- * @param real $epsilon
+ * @param float $a
+ * @param float $b
+ * @param float $epsilon
  * @return boolean
  */
 function real_equal($a, $b, $epsilon = 1e-5) {
@@ -1096,7 +1101,7 @@ function can_iterate($mixed) {
  * Is this value close (enough) to zero? Handles rounding errors with double-precision values.
  *
  * @param double $value
- * @param real $epsilon
+ * @param float $epsilon
  * @return boolean
  */
 function is_zero($value, $epsilon = 1e-5) {
@@ -1111,7 +1116,7 @@ if (!function_exists("is_countable")) {
 	 * @return boolean
 	 */
 	function is_countable($object) {
-		return is_array($object) || $object instanceof \Countable;
+		return is_array($object) || $object instanceof Countable;
 	}
 }
 
@@ -1211,7 +1216,7 @@ function is_email($email) {
  * @return boolean
  */
 function is_phone($phone) {
-	return (preg_match('/^\s*\+?[- \t0-9.\)\(x]{7,}\s*$/', $phone) !== 0) ? true : false;
+	return (preg_match('/^\s*\+?[- \t0-9.)(x]{7,}\s*$/', $phone) !== 0) ? true : false;
 }
 
 /**
@@ -1306,7 +1311,7 @@ if (!function_exists('sgn')) {
  * Convert our special weights into a number
  *
  * @param mixed $weight
- * @return number
+ * @return float
  */
 function zesk_weight($weight = null) {
 	static $weight_specials = array(

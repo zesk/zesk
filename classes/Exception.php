@@ -38,11 +38,11 @@ class Exception extends \Exception {
 	 *        	Arguments to assist in examining this exception
 	 * @param integer $code
 	 *        	An integer error code value, if applicable
-	 * @param Exception $previous
+	 * @param \Exception $previous
 	 *        	Previous exception which may have spawned this one
 	 */
 	public function __construct($message = null, $arguments = array(), $code = null, \Exception $previous = null) {
-		/* Support previous invokation style ($message, $code, $previous) */
+		/* Support previous invocation style ($message, $code, $previous) */
 		if (is_array($arguments)) {
 			$this->arguments = $arguments;
 		} else {
@@ -81,9 +81,9 @@ class Exception extends \Exception {
 	}
 
 	/**
-	 * Used by zesk\Logger::log
+	 * Used by Logger::log
 	 *
-	 * @see zesk\Logger::log
+	 * @see Logger::log
 	 * @return array
 	 */
 	public function log_variables() {
@@ -93,8 +93,8 @@ class Exception extends \Exception {
 	/**
 	 * Used by zesk\Logger::log
 	 *
-	 * @see zesk\Logger::log
-	 * @return array
+	 * @see Logger::log
+	 * @return string
 	 */
 	public function log_message() {
 		return $this->getMessage();

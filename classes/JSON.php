@@ -80,7 +80,7 @@ class JSON {
 	 */
 	public static function prepare($mixed, array $methods = null, array $arguments = array()) {
 		if ($mixed === null) {
-			return $mixed;
+			return null;
 		}
 		if ($methods === null) {
 			$methods = self::$default_methods;
@@ -248,8 +248,10 @@ class JSON {
 	 *
 	 * @param string $string
 	 *        	A JSON string to decode
+	 * @param bool $assoc
 	 * @return mixed the decoded JSON string, or the default value if it fails
 	 * @throws Exception_Parse
+	 * @throws Exception_Parameter
 	 */
 	public static function decode($string, $assoc = true) {
 		if (!is_string($string)) {
@@ -320,17 +322,17 @@ class JSON {
 	}
 
 	/**
-	 * Used to track state for Zesk's internal JSON decoder
+	 * Used to track state for internal JSON decoder
 	 *
 	 * @var Exception
 	 */
 	public static $last_error = null;
 
 	/**
-	 * Like json_decode except use Zesk's internal parser (slow)
+	 * Like json_decode except use internal parser (slow)
 	 *
 	 * @param string $string
-	 * @param string $assoc
+	 * @param boolean $assoc
 	 * @return mixed
 	 */
 	public static function zesk_decode($string, $assoc = false) {
@@ -458,8 +460,8 @@ class JSON {
 	 * JSON decode array
 	 *
 	 * @param string $string
-	 * @param integer $offset
-	 *        	Current offset in the total string - for debugging only
+	 * @param integer $offset Current offset in the total string - for debugging only
+	 * @param bool $assoc
 	 * @throws Exception_Parse
 	 * @return array
 	 */
@@ -516,6 +518,7 @@ class JSON {
 	/**
 	 * JSON decode object
 	 *
+	 * @param bool $assoc
 	 * @param string $string
 	 * @param integer $offset
 	 *        	Current offset in the total string - for debugging only
@@ -606,7 +609,7 @@ class JSON {
 	 * @return array
 	 */
 	private static function _decode_string($string, $offset) {
-		static $strc = array(
+		static $string_characters = array(
 			'"' => '"',
 			'\\' => '\\',
 			'/' => '/',
@@ -641,8 +644,8 @@ class JSON {
 				));
 			}
 			$c = $string[$i];
-			if (array_key_exists($c, $strc)) {
-				$result .= $strc[$c];
+			if (array_key_exists($c, $string_characters)) {
+				$result .= $string_characters[$c];
 			} elseif ($c === 'u') {
 				++$i;
 				if ($i + 4 >= $len) {

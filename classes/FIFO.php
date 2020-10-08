@@ -36,7 +36,7 @@ class FIFO {
 	 *
 	 * @var string
 	 */
-	private $path = null;
+	private $path;
 
 	/**
 	 * Whether this object created the FIFO (and therefore should destroy it!)
@@ -48,12 +48,9 @@ class FIFO {
 	/**
 	 * Create the FIFO
 	 *
-	 * @param string $name
-	 *        	Full path name
-	 * @param string $create
-	 *        	Create the FIFO if it doesn't exist (assumes READER)
-	 * @param number $mode
-	 *        	File mode to create the FIFO (uses umask)
+	 * @param string $path Full path name
+	 * @param bool $create Create the FIFO if it doesn't exist (assumes READER)
+	 * @param integer $mode File mode to create the FIFO (uses umask)
 	 * @throws Exception_Directory_NotFound
 	 * @throws Exception_File_Permission
 	 */
@@ -72,7 +69,7 @@ class FIFO {
 				}
 			}
 			if (!posix_mkfifo($this->path, $mode)) {
-				throw new Exception_File_Permission($this->path, "mkfifo {filename}");
+				throw new Exception_File_Permission($this->path, "posix_mkfifo {filename}");
 			}
 			$this->created = true;
 			$this->_before_read();
@@ -104,6 +101,8 @@ class FIFO {
 	 * Send a message to parent process
 	 *
 	 * @param mixed $message
+	 * @return bool
+	 * @throws Exception_File_Permission
 	 */
 	public function write($message = null) {
 		if (!$this->_before_write()) {
@@ -126,7 +125,7 @@ class FIFO {
 	 *
 	 * @param integer $timeout
 	 *        	in seconds
-	 * @return NULL multitype: mixed
+	 * @return mixed
 	 */
 	public function read($timeout) {
 		$readers = array(

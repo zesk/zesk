@@ -312,20 +312,20 @@ class File {
 	 * @return string The file extension found, or $default (false) if none found
 	 */
 	public static function extension($filename, $default = null, $lower = true) {
-		$fname = basename($filename);
-		$dot = strrpos($fname, ".");
+		$name = basename($filename);
+		$dot = strrpos($name, ".");
 		if ($dot === false) {
 			return $default;
 		}
-		$fname = substr($fname, $dot + 1);
-		if (empty($fname)) {
+		$name = substr($name, $dot + 1);
+		if (empty($name)) {
 			return $default;
 		}
-		$fname = trim($fname);
+		$name = trim($name);
 		if (!$lower) {
-			return $fname;
+			return $name;
 		}
-		return strtolower($fname);
+		return strtolower($name);
 	}
 
 	/**
@@ -535,7 +535,7 @@ class File {
 	}
 
 	/**
-	 * Like unlink, but does some sanity tets and throws errors
+	 * Like unlink, but does some sanity test and throws errors
 	 *
 	 * @param string $path
 	 * @throws Exception_File_Permission
@@ -1234,9 +1234,9 @@ class File {
 
 			throw new Exception_File_Permission($file, "Unable to write (!is_writable)");
 		}
-		$lockname = "$file.pid=" . getmypid() . ".writable.temp";
-		if (file_put_contents($lockname, strval(microtime(true))) !== false) {
-			unlink($lockname);
+		$lock_name = "$file.pid=" . getmypid() . ".writable.temp";
+		if (file_put_contents($lock_name, strval(microtime(true))) !== false) {
+			unlink($lock_name);
 			return $file;
 		}
 
