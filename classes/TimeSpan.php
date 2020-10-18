@@ -67,9 +67,9 @@ class TimeSpan extends Temporal {
 	/**
 	 * Add seconds to time span
 	 *
-	 * @param string $seconds
+	 * @param integer $seconds
 	 *
-	 * @return \zesk\TimeSpan
+	 * @return $this
 	 */
 	public function add($seconds) {
 		$this->duration = $this->duration + $seconds;
@@ -80,7 +80,7 @@ class TimeSpan extends Temporal {
 	 * Getter/setter for the duration in seconds
 	 *
 	 * @param string|integer|null $set
-	 * @return number|\zesk\TimeSpan
+	 * @return integer|$this
 	 */
 	public function seconds($set = null) {
 		if ($set === null) {

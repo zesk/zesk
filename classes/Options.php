@@ -413,7 +413,7 @@ class Options implements \ArrayAccess {
 	 * Get an option as a tree-path
 	 * @param string $name Option to retrieve as an array value.
 	 * @param mixed $default Value to return if this option is not set or is not an array.
-	 * @return array The real value of the option, or $default. The default value is passed back without modification.
+	 * @return mixed The real value of the option, or $default. The default value is passed back without modification.
 	 * @see is_array()
 	 */
 	public function option_path($path, $default = null, $separator = ".") {

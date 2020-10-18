@@ -5,8 +5,10 @@
  */
 namespace zesk;
 
+use Psr\Cache\InvalidArgumentException;
 use \ReflectionClass;
 use \ReflectionException;
+use stdClass;
 
 /**
  *
@@ -57,7 +59,7 @@ class Controller extends Hookable implements Interface_Theme {
 	public $response = null;
 
 	/**
-	 * Router associatd with this controller
+	 * Router associated with this controller
 	 *
 	 * @var Router
 	 */
@@ -71,10 +73,13 @@ class Controller extends Hookable implements Interface_Theme {
 	public $route = null;
 
 	/**
+	 * Controller constructor.
 	 *
-	 * @param Route $route
-	 * @param Response $response
+	 * @param Application $app
+	 * @param Route|null $route
+	 * @param Response|null $response
 	 * @param array $options
+	 * @throws Exception_Lock
 	 */
 	final public function __construct(Application $app, Route $route = null, Response $response = null, array $options = array()) {
 		parent::__construct($app, $options);
@@ -100,13 +105,10 @@ class Controller extends Hookable implements Interface_Theme {
 	/**
 	 * Shortcut for subclass methods
 	 *
-	 * @param mixed $types
-	 *        	String, list, or array of theme names
+	 * @param array|string $types
 	 * @param array $arguments
-	 *        	Arguments to pass to the themes
 	 * @param array $options
-	 *        	Rendering options and behaviors
-	 * @return string
+	 * @return string|null
 	 */
 	public function theme($types, $arguments = array(), array $options = array()) {
 		return $this->application->theme($types, $arguments, $options);
@@ -171,10 +173,10 @@ class Controller extends Hookable implements Interface_Theme {
 	}
 
 	/**
-	 *
+	 * @param string $action
 	 */
 	public function _action_default($action = null) {
-		$this->error_404();
+		$this->error_404($action ? "Action $action" : "default action");
 	}
 
 	/**
@@ -225,10 +227,8 @@ class Controller extends Hookable implements Interface_Theme {
 	/**
 	 * Generic page error
 	 *
-	 * @param integer $code
-	 *        	Net_HTTP::Status_XXX
-	 * @param string $message
-	 *        	Message
+	 * @param integer $code Net_HTTP::Status_XXX
+	 * @param string $message Message
 	 * @return self
 	 */
 	public function error($code, $message = null) {
@@ -244,6 +244,12 @@ class Controller extends Hookable implements Interface_Theme {
 	 * @param string $name
 	 * @param array $arguments
 	 * @return mixed
+	 */
+
+	/**
+	 * @param $name
+	 * @param array $arguments
+	 * @return array|mixed
 	 */
 	final public function optional_method($name, array $arguments) {
 		$names = to_list($name);
@@ -268,7 +274,6 @@ class Controller extends Hookable implements Interface_Theme {
 	 *
 	 * @param string $name
 	 * @param array $arguments
-	 * @throws Exception_NotFound
 	 * @return mixed
 	 */
 	final public function invoke_method($name, array $arguments) {
@@ -302,7 +307,7 @@ class Controller extends Hookable implements Interface_Theme {
 	 * @param string $action
 	 * @param string $object
 	 * @param string $options
-	 * @return multitype:
+	 * @return array:
 	 */
 	public function get_route_map($action = null, $object = null, $options = null) {
 		return array();
@@ -311,6 +316,8 @@ class Controller extends Hookable implements Interface_Theme {
 	/**
 	 * Create a widget, and inherit this Controller's response
 	 *
+	 * @param string $class Widget class to create
+	 * @param array $options
 	 * @return Widget
 	 */
 	public function widget_factory($class, array $options = array()) {
@@ -326,14 +333,27 @@ class Controller extends Hookable implements Interface_Theme {
 	 *
 	 * @return Model
 	 */
+
+	/**
+	 * @param string $class Model to create
+	 * @param mixed $mixed Model initialization parameter (id, array, etc.)
+	 * @param array $options Creation options and initial options for model
+	 * @return Model
+	 */
 	public function model_factory($class, $mixed = null, array $options = array()) {
 		return $this->application->model_factory($class, $mixed, $options);
 	}
 
 	/**
-	 * Possibly very slow
+	 * Collect a list of all controllers found in this application. This loads all PHP
+	 * within the autoloader paths of the application at time of first invocation.
 	 *
+	 * Possibly very slow.
+	 *
+	 * @param Application $application
 	 * @return array
+	 *
+	 * @throws InvalidArgumentException
 	 */
 	final public static function all(Application $application) {
 		$paths = $application->autoloader->path();
@@ -364,11 +384,11 @@ class Controller extends Hookable implements Interface_Theme {
 						$controller_inc = File::extension_change($controller_inc, null);
 						$class_name = $class_prefix . 'Controller_' . strtr($controller_inc, '/', '_');
 						$application->logger->debug("class name is {class_name}", compact("class_name"));
-						$refl = new ReflectionClass($class_name);
-						if (!$refl->isAbstract()) {
+						$reflectionClass = new ReflectionClass($class_name);
+						if (!$reflectionClass->isAbstract()) {
 							/* @var $controller Controller */
-							$controller = $refl->newInstance($application);
-							$found[$refl->getName()] = array(
+							$controller = $reflectionClass->newInstance($application);
+							$found[$reflectionClass->getName()] = array(
 								'path' => path($controller_path, $controller_inc),
 								'classes' => $controller->call_hook('classes', array(), array()),
 							);
@@ -381,7 +401,7 @@ class Controller extends Hookable implements Interface_Theme {
 			}
 		}
 		ksort($found);
-		$value = new \stdClass();
+		$value = new stdClass();
 		$value->all = $found;
 		$value->n_paths = count($paths);
 		$application->cache->saveDeferred($item->set($value));

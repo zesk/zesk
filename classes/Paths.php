@@ -69,14 +69,15 @@ class Paths {
 	private $which_cache = array();
 
 	/**
-	 * Constuct a new Paths manager
+	 * Paths constructor.
 	 *
 	 * Modifies and initializes global HOME
 	 *
 	 * Adds a configured hook
 	 *
-	 * @global HOME
-	 * @param Configuration $config
+	 * @see $_SERVER['HOME']
+	 * @param Kernel $zesk
+	 * @throws Exception_Semantics
 	 */
 	public function __construct(Kernel $zesk) {
 		$config = $zesk->configuration;
@@ -105,6 +106,9 @@ class Paths {
 
 	/**
 	 * configured hook
+	 *
+	 * @param Application $application
+	 * @throws Exception_Lock
 	 */
 	public function configured(Application $application) {
 		$configuration = $application->configuration;
@@ -143,6 +147,7 @@ class Paths {
 	/**
 	 *
 	 * @param Configuration $config
+	 * @throws Exception_Lock
 	 */
 	private function _init_zesk_root(Configuration $config) {
 		$zesk_root = dirname(__DIR__) . "/";
@@ -184,8 +189,9 @@ class Paths {
 	 * Get the system command path, usually defined by the system environment variable PATH
 	 * The path is set from $_SERVER['PATH'] and it is assumed that paths are separated with PATH_SEPARATOR token
 	 *
-	 * @return array
 	 * @see self::which
+	 * @param string|null $add Add path to search path (does no checking)
+	 * @return array
 	 */
 	public function command($add = null) {
 		$command_paths = to_list(avalue($_SERVER, 'PATH'), array(), PATH_SEPARATOR);
@@ -247,6 +253,8 @@ class Paths {
 	 *
 	 * Defaults to $HOME/.zesk/
 	 *
+	 * @return string|null
+	 * @param string|null $suffix Append to uid path
 	 * @return string|null
 	 */
 	public function uid($suffix = null) {
@@ -317,7 +325,7 @@ class Paths {
 			'cache' => $this->cache,
 			'home' => $this->home,
 			'uid' => $this->uid,
-			'command' => $this->command_path,
+			'command' => $this->command(),
 		);
 	}
 }

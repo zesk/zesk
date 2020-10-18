@@ -104,7 +104,8 @@ class Autoloader {
 	public $debug = false;
 
 	/**
-	 * Set to true to NOT throw an Exception_Class_NotFound from autoloader
+	 * Set to false to throw an Exception_Class_NotFound from autoloader.
+	 * Useful when only using Zesk autoloader or is guaranteed to run last.
 	 *
 	 * @var boolean
 	 */
@@ -134,12 +135,12 @@ class Autoloader {
 	public function __construct(Kernel $kernel) {
 		$this->kernel = $kernel;
 		$this->path(ZESK_ROOT . 'classes', array(
-			'last' => true,
-			"lower" => false,
-			"extensions" => array(
+			self::OPTION_LAST => true,
+			self::OPTION_LOWER => false,
+			self::OPTION_EXTENSIONS => array(
 				"php",
 			),
-			"class_prefix" => "zesk\\",
+			self::OPTION_CLASS_PREFIX => __NAMESPACE__ . '\\',
 		));
 		$this->autoload_register();
 	}

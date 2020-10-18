@@ -18,7 +18,7 @@ class Hexadecimal {
 	/**
 	 * Decode a hexadecimal string
 	 * @todo Doesn't PHP offer this natively?
-	 * @param $hexadecimal string
+	 * @param string $hexadecimal
 	 * @return string
 	 */
 	public static function decode($hexadecimal) {
@@ -35,7 +35,7 @@ class Hexadecimal {
 	 * Encode a hexadecimal string
 	 *
 	 * @todo Doesn't PHP offer this natively?
-	 * @param $plaintext String
+	 * @param string $plaintext
 	 * @return string Hexadecimal-encoded string
 	 */
 	public static function encode($plaintext) {

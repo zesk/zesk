@@ -637,7 +637,7 @@ class Application extends Hookable implements Interface_Theme, Interface_Member_
 		$configuration = $this->configuration;
 
 		if (count($this->includes) === 0 || array_key_exists('file', $options)) {
-			$this->configure_include(avalue($options, 'includes', avalue($options, 'file', $this->default_includes())));
+			$this->configure_include($options['includes'] ?? $options['file'] ?? $this->default_includes());
 		}
 		$includes = $this->includes;
 		$files = array();
@@ -664,10 +664,9 @@ class Application extends Hookable implements Interface_Theme, Interface_Member_
 	 * Complete configuration process
 	 *
 	 * @param array $options
-	 * @return number
 	 */
 	private function _configure(array $options) {
-		$skip_configured_hook = avalue($options, 'skip_configured', false);
+		$skip_configured_hook = $options['skip_configured'] ?? false;
 
 		// Load hooks
 		$this->hooks->register_class($this->register_hooks);
@@ -757,12 +756,6 @@ class Application extends Hookable implements Interface_Theme, Interface_Member_
 
 	/**
 	 */
-	private function configured_compatibility() {
-		$this->configuration->deprecated("Router::cache", __CLASS__ . "::cache_router");
-	}
-
-	/**
-	 */
 	private function configure_cache_paths() {
 		$cache_path = $this->option("cache_path", $this->paths->cache());
 		$this->cache_path = Directory::is_absolute($cache_path) ? $cache_path : $this->path($cache_path);
@@ -792,7 +785,6 @@ class Application extends Hookable implements Interface_Theme, Interface_Member_
 	 */
 	public function reconfigure() {
 		$this->hooks->call(Hooks::HOOK_RESET, $this);
-		$modules = array_keys(array_filter($this->modules->loaded()));
 		$this->_initialize($this->kernel);
 		$result = $this->_configure(to_array($this->configuration_options));
 		$this->modules->reload();
@@ -855,7 +847,7 @@ class Application extends Hookable implements Interface_Theme, Interface_Member_
 	 * Get/set maintenance flag
 	 *
 	 * @param string $set
-	 * @return boolean Ambigous array, string, number>
+	 * @return boolean
 	 */
 	final public function maintenance($set = null) {
 		$maintenance_file = $this->maintenance_file();
@@ -928,8 +920,8 @@ class Application extends Hookable implements Interface_Theme, Interface_Member_
 	/**
 	 *
 	 * @deprecated 2017-12 use model_singleton
-	 * @param unknown $class
-	 * @return unknown|object|\zesk\NULL|mixed
+	 * @param string $class
+	 * @return object
 	 */
 	final public function object_singleton($class) {
 		$this->deprecated();
@@ -1332,8 +1324,8 @@ class Application extends Hookable implements Interface_Theme, Interface_Member_
 	 * @return string|string[]
 	 */
 	final public function theme_find($theme, array $options = array()) {
-		$extension = to_bool(avalue($options, "no_extension")) ? "" : $this->option("theme_extension", ".tpl");
-		$all = to_bool(avalue($options, "all"));
+		$extension = to_bool($options["no_extension"] ?? false) ? "" : $this->option("theme_extension", ".tpl");
+		$all = to_bool($options['all'] ?? false);
 		$theme = $this->clean_template_path($theme) . $extension;
 		$theme_path = $this->theme_path();
 		$prefixes = array_keys($theme_path);
@@ -1555,7 +1547,7 @@ class Application extends Hookable implements Interface_Theme, Interface_Member_
 		$arguments['locale'] = $this->locale;
 
 		$types = to_list($types);
-		$extension = avalue($options, "no_extension") ? null : ".tpl";
+		$extension = ($options[ "no_extension"] ?? false) ? null : ".tpl";
 		if (count($types) === 1) {
 			$result = $this->_theme_arguments($types[0], $arguments, null, $extension);
 			if ($result === null) {
@@ -1565,11 +1557,8 @@ class Application extends Hookable implements Interface_Theme, Interface_Member_
 			}
 			return $result;
 		}
-		if (!is_array($types)) {
-			throw new Exception_Parameter("Application::theme: \$types is " . gettype($types));
-		}
 		if (count($types) === 0) {
-			return avalue($options, 'default', null);
+			return $option['default'] ?? null;
 		}
 		$type = array_shift($types);
 		$arguments['content_previous'] = null;
@@ -1583,8 +1572,8 @@ class Application extends Hookable implements Interface_Theme, Interface_Member_
 			$arguments['content'] = $content;
 			$has_output = true;
 		}
-		$first = avalue($options, 'first', false);
-		$concatenate = avalue($options, 'concatenate', false);
+		$first = $options['first'] ?? false;
+		$concatenate = $options['concatenate'] ?? false;
 		// 2019-01-15 PHP 7.2 $types converts to a string with value "array()" upon throwing a foreign Exception and rendering the theme
 		while (is_countable($types) && count($types) > 0) {
 			if ($first && !empty($content)) {
@@ -1670,11 +1659,13 @@ class Application extends Hookable implements Interface_Theme, Interface_Member_
 	 * possibly generate content
 	 *
 	 * @param mixed $type
-	 * @return boolean
+	 * @param array $args
+	 * @param array $options
+	 * @return bool
 	 */
 	private function _theme_exists($type, array $args, array $options) {
 		$type = strtolower($type);
-		$object = avalue($args, "content");
+		$object = $args["content"] ?? null;
 		if (is_object($object) && method_exists($object, "hook_theme")) {
 			return true;
 		}
@@ -1790,7 +1781,7 @@ class Application extends Hookable implements Interface_Theme, Interface_Member_
 	 * @param string $document_root_prefix
 	 */
 	private function _init_document_root() {
-		$http_document_root = rtrim(avalue($_SERVER, 'DOCUMENT_ROOT'), '/');
+		$http_document_root = rtrim($_SERVER['DOCUMENT_ROOT'] ?? '', '/');
 		if ($http_document_root) {
 			$this->set_document_root($http_document_root);
 		}
@@ -2021,7 +2012,7 @@ class Application extends Hookable implements Interface_Theme, Interface_Member_
 	 * @return void
 	 */
 	public function deprecated($message = null, array $arguments = array()) {
-		$arguments['depth'] = to_integer(avalue($arguments, 'depth', 0)) + 1;
+		$arguments['depth'] = to_integer($arguments['depth'] ?? 0) + 1;
 		$this->kernel->deprecated($message, $arguments);
 	}
 

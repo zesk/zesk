@@ -212,7 +212,7 @@ class Deploy extends Hookable {
 					$result = $this->call_hook_arguments("extension_$extension", array(
 						$tag,
 					), array());
-					if (!is_array($result) || !avalue($result, 'status')) {
+					if (!is_array($result) || !$result['status']) {
 						$logger->error("Tag failed: {tag} {message}", $result + array(
 							"tag" => $tag,
 						));

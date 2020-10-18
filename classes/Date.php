@@ -64,11 +64,11 @@ class Date extends Temporal {
 	private $_weekday;
 
 	/**
-	 * Yearday 0-365
+	 * Day of year 0-366
 	 *
 	 * @var integer
 	 */
-	private $_yearday;
+	private $_year_day;
 
 	/**
 	 * @param Application $kernel
@@ -130,7 +130,7 @@ class Date extends Temporal {
 	 */
 	public function __construct($value = null) {
 		$this->_weekday = null;
-		$this->_yearday = null;
+		$this->_year_day = null;
 
 		$this->set($value);
 	}
@@ -347,7 +347,7 @@ class Date extends Temporal {
 			throw new Exception_Range(map("Date::setMonth({0})", array(_dump($set))));
 		}
 		if ($this->month !== $set) {
-			$this->_yearday = $this->_weekday = null;
+			$this->_year_day = $this->_weekday = null;
 		}
 		$this->month = $set;
 		return $this;
@@ -407,7 +407,7 @@ class Date extends Temporal {
 			throw new Exception_Range(map("Date::day({0})", array(_dump($set))));
 		}
 		if ($this->day !== $set) {
-			$this->_weekday = $this->_yearday = null;
+			$this->_weekday = $this->_year_day = null;
 		}
 		$this->day = intval($set);
 
@@ -435,7 +435,7 @@ class Date extends Temporal {
 			throw new Exception_Range(map("Date::year({0})", array(_dump($set))));
 		}
 		if ($this->year !== $set) {
-			$this->_weekday = $this->_yearday = null;
+			$this->_weekday = $this->_year_day = null;
 		}
 		$this->year = intval($set);
 		return $this;
@@ -472,32 +472,36 @@ class Date extends Temporal {
 		return $this->add(0, 0, $dd);
 	}
 
-	/**
-	 * @param integer $set
-	 * @return self|integer
-	 */
-	public function yearday($set = null) {
-		if ($set === null) {
-			if (($this->_yearday === null) && (!$this->_refresh())) {
-				return false;
-			}
-			return $this->_yearday;
-		}
-		$yearday = $this->yearday();
-		return $this->add(0, 0, $set - $yearday);
-	}
+    /**
+     * Get the 0-based index of the day of the year
+     *
+     * @inline_test zesk\Date::factory('2020-01-01')->year_day() === 0
+     * @inline_test zesk\Date::factory('2020-01-02')->year_day() === 1
+     * @param integer $set
+     * @return self|integer
+     */
+    public function year_day($set = null) {
+        if ($set === null) {
+            if (($this->_year_day === null) && (!$this->_refresh())) {
+                return false;
+            }
+            return $this->_year_day;
+        }
+        $yearday = $this->yearday();
+        return $this->add(0, 0, $set - $yearday);
+    }
 
-	/**
-	 * Returns the last day of the month (or number of days in the month)
-	 *
-	 * @see self::days_in_month
-	 * @return integer
-	 */
-	public function lastday() {
-		return self::days_in_month($this->month, $this->year);
-	}
+    /**
+     * Returns the last day of the month (or number of days in the month)
+     *
+     * @see self::days_in_month
+     * @return integer
+     */
+    public function last_day_of_month() {
+        return self::days_in_month($this->month, $this->year);
+    }
 
-	/**
+    /**
 	 *
 	 * @param integer $month
 	 * @param integer $year
@@ -847,14 +851,14 @@ class Date extends Temporal {
 		$x['YY'] = substr($this->year, -2);
 
 		if ($locale) {
-			$x['MMMM'] = avalue($this->month_names($locale), $m, "?");
-			$x['MMM'] = avalue($this->month_names($locale, true), $m, "?");
+			$x['MMMM'] = $this->month_names($locale)[$m] ?? "?";
+			$x['MMM'] = $this->month_names($locale, true)[$m] ?? "?";
 
 			$x['DDD'] = $locale->ordinal($d);
 
 			if ($w !== null) {
-				$x['WWWW'] = avalue($this->weekday_names($locale), $w, "?");
-				$x['WWW'] = avalue($this->weekday_names($locale, true), $w, "?");
+				$x['WWWW'] = $this->weekday_names($locale)[$w] ?? "?";
+				$x['WWW'] = $this->weekday_names($locale, true)[$w] ?? "?";
 			}
 		}
 		return $x;
@@ -922,13 +926,19 @@ class Date extends Temporal {
 		return ($this->day === $this->days_in_month($this->month, $this->year));
 	}
 
+    /**
+     * Check if empty, return false. Otherwise compute _weekday and _yearday and return true
+     *
+     * @todo gmmktime? UTC
+     * @return bool
+     */
 	private function _refresh() {
 		if ($this->is_empty()) {
 			return false;
 		}
 		$date = getdate(mktime(0, 0, 0, $this->month, $this->day, $this->year));
 		$this->_weekday = $date["wday"];
-		$this->_yearday = $date["yday"];
+		$this->_year_day = $date["yday"];
 		return true;
 	}
 
@@ -967,4 +977,27 @@ class Date extends Temporal {
 		}
 		return gregoriantojd($this->month, $this->day, $this->year) - self::$gregorian_offset;
 	}
+
+
+    /**
+     * Returns the last day of the month (or number of days in the month).
+     *
+     * @return integer
+     * @deprecated 2020-10
+     * @see Date::last_day_of_month()
+     * @see Date::days_in_month
+     */
+    public function lastday() {
+        return self::last_day_of_month();
+    }
+
+    /**
+     * @deprecated 2020-10
+     * @see Date::year_day()
+     * @param integer $set
+     * @return self|integer
+     */
+    public function yearday($set = null) {
+        return $this->year_day($set);
+    }
 }

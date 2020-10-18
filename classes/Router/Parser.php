@@ -26,7 +26,15 @@ class Parser {
 
 	/**
 	 *
-	 * @param unknown $contents
+	 * @param string $contents
+	 *
+	 */
+
+	/**
+	 * Parser constructor.
+	 *
+	 * @param string $contents
+	 * @param string  $id
 	 */
 	public function __construct($contents, $id = null) {
 		$this->contents = $contents;
@@ -36,6 +44,7 @@ class Parser {
 	/**
 	 *
 	 * @param Router $router
+	 * @return Route[]
 	 */
 	public function execute(Router $router, array $add_options = null) {
 		$app = $router->application;

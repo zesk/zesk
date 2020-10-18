@@ -204,9 +204,7 @@ abstract class Command extends Hookable implements Logger\Handler, Interface_Pro
 	public function __construct(Application $application, $argv = null, array $options = array()) {
 		parent::__construct($application, $options);
 
-		if ($argv === null) {
-			$argv = avalue($_SERVER, 'argv', null);
-		}
+		$argv = $argv ?? $_SERVER['argv'] ?? null;
 
 		$this->option_types = $this->optFormat();
 		$this->option_defaults = $this->optDefaults();
@@ -223,7 +221,7 @@ abstract class Command extends Hookable implements Logger\Handler, Interface_Pro
 			$this->arguments = $argv;
 			$this->argv = $argv;
 		} else {
-			$this->program = avalue($_SERVER, 'PHP_SELF');
+			$this->program = $_SERVER['PHP_SELF'] ?? null;
 			$this->arguments = $_REQUEST;
 			foreach ($this->arguments as $k => $v) {
 				$this->argv[] = "--$k=$v";
@@ -556,7 +554,7 @@ abstract class Command extends Hookable implements Logger\Handler, Interface_Pro
 		$commands = array();
 		$aliases = ArrayTools::flip_multiple(ArrayTools::kprefix($this->option_chars, "-"));
 		foreach ($this->option_types as $k => $type) {
-			$cmd = "--$k" . ArrayTools::join_prefix(avalue($aliases, $k, array()), "|");
+			$cmd = "--$k" . ArrayTools::join_prefix($aliases[$k] ?? array(), "|");
 			switch ($type) {
 				case "dir":
 				case "dir+":
@@ -625,7 +623,7 @@ abstract class Command extends Hookable implements Logger\Handler, Interface_Pro
 		$maxlen += 4;
 		$wrap_len = $this->wordwrap - $maxlen - 1;
 		foreach ($commands as $k => $cmd) {
-			$help = explode("\n", wordwrap(avalue($this->option_help, $k, $this->default_help($this->option_types[$k])), $wrap_len, "\n"));
+			$help = explode("\n", wordwrap($this->option_help[$k] ?? $this->default_help($this->option_types[$k]), $wrap_len, "\n"));
 			$help = implode("\n" . str_repeat(" ", $maxlen + 1), $help);
 			$result[] = $cmd . str_repeat(" ", $maxlen - strlen($cmd) + 1) . $help;
 		}
@@ -671,11 +669,11 @@ abstract class Command extends Hookable implements Logger\Handler, Interface_Pro
 			$newk = self::_option_key($k);
 			switch (strtolower($t)) {
 				case "boolean":
-					$options[$newk] = to_bool(avalue($options, $k, false));
+					$options[$newk] = to_bool($options[$k] ?? false);
 
 					break;
 				default:
-					$v = avalue($options, $k);
+					$v = $options[$k] ?? null;
 					if ($v !== null) {
 						$options[$newk] = $v;
 					}
@@ -729,7 +727,7 @@ abstract class Command extends Hookable implements Logger\Handler, Interface_Pro
 	 * @param array $arguments
 	 */
 	private function logline($message, array $arguments = array()) {
-		$newline = to_bool(avalue($arguments, "newline", true));
+		$newline = to_bool($arguments["newline"] ?? true);
 		$message = rtrim(map($message, $arguments));
 		$suffix = "";
 		if ($newline) {
@@ -738,7 +736,7 @@ abstract class Command extends Hookable implements Logger\Handler, Interface_Pro
 			}
 		}
 		$prefix = "";
-		$severity = strtolower(avalue($arguments, '_severity', avalue($arguments, 'severity')));
+		$severity = strtolower($arguments[ '_severity'] ??  $arguments['severity'] ?? 'none');
 		if ($severity && !$this->ansi) {
 			$prefix = strtoupper($severity) . ": ";
 		}
@@ -857,7 +855,7 @@ abstract class Command extends Hookable implements Logger\Handler, Interface_Pro
 	 * @return string null
 	 */
 	protected function peek_arg() {
-		return avalue($this->argv, 0);
+		return $this->argv[0] ?? null;
 	}
 
 	/**
@@ -944,7 +942,7 @@ abstract class Command extends Hookable implements Logger\Handler, Interface_Pro
 						continue;
 					} else {
 						// Convert to a named argument
-						$arg = avalue($this->option_chars, $arg);
+						$arg = $this->option_chars[$arg] ?? null;
 					}
 				}
 				if (!array_key_exists($arg, $this->option_types)) {

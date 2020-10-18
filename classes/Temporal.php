@@ -183,6 +183,7 @@ abstract class Temporal {
 
 	/**
 	 * Format
+	 * @param Locale|null $locale
 	 * @param string $format_string
 	 * @param array $options
 	 * @return string
@@ -193,6 +194,7 @@ abstract class Temporal {
 	 * Fetch formatting for this object
 	 *
 	 * @param array $options
+	 * @param Locale|null $locale
 	 * @return array
 	 */
 	abstract public function formatting(Locale $locale = null, array $options = array());
@@ -219,7 +221,7 @@ abstract class Temporal {
 	 * @return double
 	 */
 	public static function convert_units($seconds, $unit = "second") {
-		$seconds_in_unit = self::units_translation_table($unit);
+		$seconds_in_unit = self::$UNITS_TRANSLATION_TABLE[$unit] ?? null;
 		if ($seconds_in_unit === null) {
 			throw new Exception_Parameter("Invalid unit name passed to {method}: {unit}", array(
 				"method" => __METHOD__,
@@ -245,7 +247,7 @@ abstract class Temporal {
 	 */
 	public static function seconds_to_unit($seconds, $stop_unit = "second", &$fraction = null) {
 		$seconds = intval($seconds);
-		$translation = self::units_translation_table();
+		$translation = self::$UNITS_TRANSLATION_TABLE;
 		foreach ($translation as $unit => $unit_seconds) {
 			if (($seconds > $unit_seconds) || ($stop_unit === $unit)) {
 				$fraction = intval($seconds / $unit_seconds);

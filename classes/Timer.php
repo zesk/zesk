@@ -16,23 +16,26 @@ namespace zesk;
  */
 class Timer {
 	/**
-	 * microtime of the time this timer was started
+	 * Seconds offset of the time this timer was started
+	 *
 	 * @see microtime
-	 * @var string
+	 * @var double
 	 */
 	private $start;
 
 	/**
-	 * microtime of the time the function mark() was called
+	 * Seconds offset of the time the function mark() was called
+	 *
 	 * @see microtime
-	 * @var string
+	 * @var double
 	 */
 	private $last;
 
 	/**
-	 * microtime of the time this timer was stopped
+	 * Seconds offset of the time this timer was stopped
+	 *
 	 * @see microtime
-	 * @var string
+	 * @var double
 	 */
 	private $stop;
 
@@ -55,21 +58,21 @@ class Timer {
 	}
 
 	/**
-	 * Convert legacy string microtime to double
+	 * Convert legacy string result from microtime call to double
 	 *
 	 * "9876 0.1234" => (double) 9876.1234
 	 *
-	 * @param string $value Result of microtime
+	 * @param string $value Result of
 	 * @see microtime
 	 * @return double
 	 */
 	private static function microtime_to_seconds($value) {
-		list($usec, $sec) = explode(" ", $value);
-		return ((double) $usec + (double) $sec);
+		list($integer_seconds, $fractional_seconds) = explode(" ", $value, 2);
+		return ((double) $integer_seconds + (double) $fractional_seconds);
 	}
 
 	/**
-	 * Current time from microtime
+	 * Current time
 	 *
 	 * @return double
 	 */
@@ -113,7 +116,7 @@ class Timer {
 	 * Reset timer to zero
 	 */
 	public function reset() {
-		$this->last = $this->start = microtime(true);
+		$this->last = $this->start = self::now();
 	}
 
 	/**

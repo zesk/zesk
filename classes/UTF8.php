@@ -13,6 +13,13 @@ namespace zesk;
  * @author kent
  */
 class UTF8 {
+	/**
+	 * @param string $mixed Data to convert
+	 * @param string $charset Charset string to use (see ... for examples)
+	 * @return array|string
+	 * @throws Exception_Convert
+	 * @throws Exception_File_Format
+	 */
 	public static function from_charset($mixed, $charset) {
 		return charset::to_utf8($mixed, $charset);
 	}

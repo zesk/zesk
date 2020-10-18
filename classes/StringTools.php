@@ -29,7 +29,7 @@ class StringTools {
 	 * @param string $delim
 	 * @param string $left
 	 * @param string $right
-	 * @return string
+	 * @return array
 	 * @see pair
 	 */
 	public static function pair($string, $delim = ".", $left = null, $right = null) {
@@ -44,7 +44,7 @@ class StringTools {
 	 * @param string $delim
 	 * @param string $left
 	 * @param string $right
-	 * @return string
+	 * @return array|string
 	 * @see pairr
 	 */
 	public static function pairr($string, $delim = ".", $left = null, $right = null) {
@@ -190,6 +190,7 @@ class StringTools {
 	 *        	field, or array when $index is null
 	 * @param integer $max_fields
 	 *        	Maximum fields to create
+	 * @return string
 	 */
 	public static function field($string, $index = null, $delim = " \t", $max_fields = null) {
 		$d = $delim[0];

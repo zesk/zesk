@@ -278,9 +278,9 @@ class Response extends Hookable {
 
 	/**
 	 *
-	 * @param unknown $error_code
-	 * @param unknown $error_string
-	 * @return \zesk\Response
+	 * @param integer $error_code
+	 * @param string $error_string
+	 * @return $this
 	 */
 	public function status($error_code, $error_string = null) {
 		$codes = Net_HTTP::$status_text;

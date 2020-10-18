@@ -5,6 +5,7 @@
 namespace zesk;
 
 use \ReflectionObject;
+use \ReflectionProperty;
 
 /**
  *
@@ -114,7 +115,7 @@ class PHP {
 	 * Set or get the current settings
 	 *
 	 * @param array $set
-	 * @return Ambigous <php, array>
+	 * @return
 	 */
 	public static function dump_settings(array $set = null) {
 		return self::singleton()->settings($set);
@@ -155,7 +156,7 @@ class PHP {
 	 * Get or set the settings in this object
 	 *
 	 * @param array $set
-	 * @return php|array
+	 * @return ReflectionProperty[]|$this
 	 */
 	public function settings(array $set = null) {
 		$x = new ReflectionObject($this);
@@ -342,7 +343,6 @@ class PHP {
 			default:
 				throw new Exception_Unimplemented("No such feature {feature}", compact("feature"));
 		}
-		return null;
 	}
 
 	/**
@@ -474,7 +474,7 @@ class PHP {
 	 * @return string
 	 */
 	public static function parse_class($class) {
-		list($ns, $cl) = self::parse_namespace_class($class);
+		list($ignore, $cl) = self::parse_namespace_class($class);
 		return $cl;
 	}
 
@@ -487,7 +487,7 @@ class PHP {
 	 * @return string
 	 */
 	public static function parse_namespace($class) {
-		list($ns, $cl) = self::parse_namespace_class($class);
+		list($ns) = self::parse_namespace_class($class);
 		return $ns;
 	}
 

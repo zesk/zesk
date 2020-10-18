@@ -590,11 +590,17 @@ class ArrayTools {
 		$result = array();
 		if ($key_key === null) {
 			foreach ($arrays as $key => $array) {
-				$result[$key] = avalue($array, $value_key, $default_value);
+				$result[$key] = $array[$value_key] ?? $default_value;
 			}
 		} else {
 			foreach ($arrays as $array) {
-				$result[avalue($array, $key_key)] = avalue($array, $value_key, $default_value);
+				$value = $array[$value_key] ?? $default_value;
+				;
+				if (isset($array[$key_key])) {
+					$result[$array[$key_key]] = $value;
+				} else {
+					$result[] = $value;
+				}
 			}
 		}
 		return $result;
@@ -654,13 +660,13 @@ class ArrayTools {
 		}
 		$new_array = $skip = array();
 		foreach ($array as $k => $v) {
-			$newk = avalue($key_map, $k, $k);
-			if ($newk !== $k) {
-				$skip[$newk] = true;
+			$new_key = $key_map[$k] ?? $k;
+			if ($new_key !== $k) {
+				$skip[$new_key] = true;
 			} elseif (array_key_exists($k, $skip)) {
 				continue;
 			}
-			$new_array[$newk] = $v;
+			$new_array[$new_key] = $v;
 		}
 		return $new_array;
 	}
@@ -1334,16 +1340,16 @@ class ArrayTools {
 	/**
 	 * Tests for a key in an array, if not available, sets to 1, otherwise increments
 	 *
-	 * @return integer
-	 * @param array $arr An array to create a counter in
+	 * @param array $array An array to create a counter in
 	 * @param string $k Key to increment
 	 * @param integer|float $amount Amount to increment
+	 *@return integer
 	 */
-	public static function increment(&$arr, $k, $amount = 1) {
-		if (array_key_exists($k, $arr)) {
-			return $arr[$k] += $amount;
+	public static function increment(&$array, $k, $amount = 1) {
+		if (array_key_exists($k, $array)) {
+			return $array[$k] += $amount;
 		}
-		return $arr[$k] = $amount;
+		return $array[$k] = $amount;
 	}
 
 	/**
@@ -1577,7 +1583,7 @@ class ArrayTools {
 	 */
 	public static function collapse(array $array, $key, $default = null) {
 		foreach ($array as $k => $subarray) {
-			$array[$k] = avalue($subarray, $key, $default);
+			$array[$k] = $subarray[$key] ?? $default;
 		}
 		return $array;
 	}
@@ -1624,7 +1630,7 @@ class ArrayTools {
 	 */
 	public static function sum(array $term, array $add) {
 		foreach ($term as $k => $v) {
-			$term[$k] += intval(avalue($add, $k, 0));
+			$term[$k] += intval($add[$k] ?? 0);
 		}
 		$term += $add;
 		return $term;

@@ -302,7 +302,7 @@ function calling_function($depth = 1, $include_line = true) {
 	if (!$top) {
 		return '-no calling function $depth deep-';
 	}
-	return avalue($top, "file") . " " . avalue($top, "class") . avalue($top, "type") . $top["function"] . ($include_line ? ':' . avalue($top, 'line') : '');
+	return ($top["file"] ?? '') . " " . ($top["class"] ?? '') . ($top["type"] ?? '') . $top["function"] . ($include_line ? ':' . ($top['line'] ?? '-') : '');
 }
 
 /**
@@ -505,19 +505,8 @@ function to_bytes($mixed, $default = null) {
 		return to_integer($mixed, $default);
 	}
 	$b = intval($mixed);
-	switch ($matches[1]) {
-		case 'g':
-			$b *= 1024;
-		// Fall through
-		// no break
-		case 'm':
-			$b *= 1024;
-		// Fall through
-		// no break
-		case 'k':
-			$b *= 1024;
-	}
-	return $b;
+	$pow = ['g' => 3, 'm' => 2, 'k' => 1][$matches[1]] ?? 0;
+	return $b * (1024 ** $pow);
 }
 
 /**
@@ -1323,7 +1312,7 @@ function zesk_weight($weight = null) {
 	if ($weight === null) {
 		return $weight_specials;
 	}
-	return doubleval(avalue($weight_specials, strval($weight), $weight));
+	return doubleval($weight_specials[strval($weight)] ?? $weight);
 }
 
 /**

@@ -27,7 +27,7 @@ class Node {
 	 * ['a'] = 'pple';
 	 * ['apple'] = 1;
 	 * ['b'] = new Node
-	 * initialiy
+	 * initially
 	 *
 	 * @var array
 	 */
@@ -58,6 +58,7 @@ class Node {
 	 *
 	 * @param string $word
 	 * @param boolean $eow End of word flag
+	 * @return self
 	 */
 	public static function factory($word, $eow = false) {
 		return new self($word, $eow);
@@ -66,7 +67,8 @@ class Node {
 	/**
 	 * Does this node represent the end of a word? (getter/setter)
 	 *
-	 * @return boolean|set
+	 * @param bool $set Whether this is the end of a word or not (boolean)
+	 * @return boolean|$this
 	 */
 	public function term($set = null) {
 		if ($set !== null) {
@@ -86,17 +88,17 @@ class Node {
 			return $this;
 		}
 		$char = $word[0];
-		$next = avalue($this->next, $char);
+		$next = $this->next[$char] ?? null;
 		if (is_string($next)) {
 			// Ok, it was simply a completion, so let's convert it into a Node with two entries
 			unset($this->next[$word]);
-			$next = $this->next[$char] = self::factory($next)->add(substr($word, 1));
+			$this->next[$char] = self::factory($next)->add(substr($word, 1));
 		} elseif ($next instanceof Node) {
 			// It's a Node, traverse one letter deeper in our word
 			$next->add(substr($word, 1));
 		} elseif ($next === 1) {
 			// This represents a completion for this word, convert it into another Node to package both
-			$next = $this->next[$char] = self::factory(substr($word, 1), true);
+			$this->next[$char] = self::factory(substr($word, 1), true);
 		} else {
 			// Nothing found. So make this word a completion at this point, and add a single character node below
 			$this->next[$word] = 1;

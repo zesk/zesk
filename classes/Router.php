@@ -8,6 +8,7 @@
  */
 namespace zesk;
 
+use stdClass;
 use zesk\Router\Parser;
 
 /**
@@ -138,7 +139,7 @@ class Router extends Hookable {
 	 * @see Options::__sleep()
 	 */
 	public function __sleep() {
-		$result = array_merge(array(
+		return array_merge(array(
 			'application_class',
 			'reverse_routes',
 			'routes',
@@ -146,7 +147,6 @@ class Router extends Hookable {
 			'default_route',
 			"aliases",
 		), parent::__sleep());
-		return $result;
 	}
 
 	/**
@@ -175,7 +175,8 @@ class Router extends Hookable {
 	}
 
 	/**
-	 *
+	 * Router constructor.
+	 * @param Application $application
 	 * @param array $options
 	 */
 	public function __construct(Application $application, array $options = array()) {
@@ -186,7 +187,8 @@ class Router extends Hookable {
 
 	/**
 	 *
-	 * @param Kernel $kernel
+	 * @param Application $kernel
+	 * @throws Exception_Semantics
 	 */
 	public static function hooks(Application $kernel) {
 		$kernel->hooks->add(Hooks::HOOK_CONFIGURED, array(
@@ -208,7 +210,7 @@ class Router extends Hookable {
 	 */
 	public function cache($id) {
 		$item = $this->application->cache->getItem(__CLASS__);
-		$value = new \stdClass();
+		$value = new stdClass();
 		$value->id = $id;
 		$value->router = $this;
 		$this->application->cache->saveDeferred($item->set($value));
@@ -219,6 +221,8 @@ class Router extends Hookable {
 	 * Whether this router is cached; performance optimization
 	 *
 	 * @return Router or null if not cached
+	 * @param null $id
+	 * @throws \Psr\Cache\InvalidArgumentException
 	 */
 	public function cached($id = null) {
 		$item = $this->application->cache->getItem(__CLASS__);
@@ -286,7 +290,7 @@ class Router extends Hookable {
 
 	/**
 	 *
-	 * @param unknown $set
+	 * @param string $set
 	 * @return string
 	 */
 	public function prefix($set = null) {
@@ -310,8 +314,9 @@ class Router extends Hookable {
 	 * Match a request to this router. Return a Route. Returned route will have ->request() set to this object.
 	 *
 	 * @param Request $request
-	 * @return \zesk\Route|NULL
+	 * @return Route|null
 	 * @todo make this not O(n)
+	 * @throws Exception_NotFound
 	 */
 	public function match(Request $request) {
 		$this->request = $request;
@@ -321,8 +326,7 @@ class Router extends Hookable {
 			$path = StringTools::unprefix($path, $this->prefix);
 		}
 		$path = avalue($this->aliases, $path, $path);
-		$routes = $this->routes(); /* @var $route Route */
-		foreach ($this->routes as $route) {
+		foreach ($this->routes() as $route) {
 			if ($route->match($path, $method)) {
 				$route->request($request);
 				$this->log("debug", "Matched {path} to {route}", compact("path", "route"));
@@ -347,9 +351,9 @@ class Router extends Hookable {
 	/**
 	 * Add a route
 	 *
-	 * @param unknown $path
+	 * @param string $path
 	 * @param array $options
-	 * @return void|\zesk\Route
+	 * @return Route|Router
 	 */
 	public function add_route($path, array $options) {
 		if ($path === "<default>") {
@@ -468,7 +472,8 @@ class Router extends Hookable {
 			);
 		}
 		$options = to_array($options);
-		if (($route = avalue($options, 'current_route')) instanceof Route) {
+		$route = $options['current_route'] ?? null;
+		if ($route instanceof Route) {
 			$options += $route->arguments_named();
 		}
 		if (is_object($object) && $object instanceof Hookable) {

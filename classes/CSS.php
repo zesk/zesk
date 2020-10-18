@@ -19,7 +19,7 @@ class CSS {
 	 * @return array
 	 */
 	public static function color_table() {
-		static $colors = array(
+		return array(
 			"aliceblue" => "f0f8ff",
 			"antiquewhite" => "faebd7",
 			"aqua" => "00ffff",
@@ -168,8 +168,6 @@ class CSS {
 			"yellow" => "ffff00",
 			"yellowgreen" => "9acd32",
 		);
-
-		return $colors;
 	}
 
 	/**
@@ -210,7 +208,7 @@ class CSS {
 	 */
 	public static function color_lookup($text, $default = null) {
 		$colors = self::color_table();
-		return avalue($colors, strtolower($text), $default);
+		return $colors[strtolower($text)] ?? $default;
 	}
 
 	/**
@@ -276,7 +274,7 @@ class CSS {
 	 * @todo Does not support rgba
 	 * @param string $text
 	 * @param string $default
-	 * @return string
+	 * @return array ($r, $g, $b) returned as a list
 	 */
 	public static function color_parse($text, $default = null) {
 		$text = trim($text);
@@ -311,11 +309,8 @@ class CSS {
 		}
 		$text_len = intval($text_len / 3);
 		$result = array();
-		//	echo "$text\n";
-		//	echo "$text_len\n";
 		for ($i = 0; $i < 3; $i += 1) {
 			$v = substr($text, $i * $text_len, $text_len);
-			//		echo "$v\n";
 			if ($text_len == 1) {
 				$v = $v . $v;
 			}

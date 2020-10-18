@@ -337,13 +337,13 @@ class Directory extends Hookable {
 	public static function list_recursive($path, array $options = array()) {
 		$options = !is_array($options) ? array() : $options;
 		$options = array_change_key_case($options);
-		$progress = to_bool(avalue($options, 'progress'));
+		$progress = to_bool($options['progress'] ?? false);
 		$rules_file = self::_list_recursive_rules($options, "file");
 		$rules_dir = self::_list_recursive_rules($options, "directory");
 		$rules_dir_walk = self::_list_recursive_rules($options, "directory_walk");
 
-		$max_results = avalue($options, "maximum_results", -1);
-		$addpath = to_bool(avalue($options, "add_path", false));
+		$max_results = $options["maximum_results"]?? -1;
+		$addpath = to_bool($options["add_path"] ?? false);
 
 		$path = rtrim($path, "/");
 		$d = @opendir($path);

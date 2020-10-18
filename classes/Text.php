@@ -494,7 +494,7 @@ class Text {
 		$whitespace_in_array = str_split($whitespace);
 		foreach ($lines as $line) {
 			foreach (str_split($line) as $index => $c) {
-				$spaces[$index] = avalue($spaces, $index, true) && in_array($c, $whitespace_in_array);
+				$spaces[$index] = ($spaces[$index] ?? true) && in_array($c, $whitespace_in_array);
 			}
 		}
 		$headers = array();

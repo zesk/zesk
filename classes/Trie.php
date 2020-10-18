@@ -50,7 +50,7 @@ class Trie extends Options {
 
 	/**
 	 *
-	 * @param unknown $options
+	 * @param array $options
 	 */
 	public function __construct(array $options = array()) {
 		parent::__construct($options);

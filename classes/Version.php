@@ -9,7 +9,7 @@
 namespace zesk;
 
 /**
- * Zesk's current version information
+ * Zesk current version information
  *
  * @author kent
  */
@@ -43,9 +43,11 @@ abstract class Version {
 	private static $date = null;
 
 	/**
-	 * Return the SVN version number of this library
+	 * Fetch a file within the ZESK ROOT and return the trimmed contents
 	 *
-	 * @return integer version of this library
+	 * @return string
+	 * @param string $name
+	 * @param mixed $default
 	 */
 	private static function _file($name, $default) {
 		return trim(File::contents(path(ZESK_ROOT, $name), $default));
