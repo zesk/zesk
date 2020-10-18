@@ -472,36 +472,36 @@ class Date extends Temporal {
 		return $this->add(0, 0, $dd);
 	}
 
-    /**
-     * Get the 0-based index of the day of the year
-     *
-     * @inline_test zesk\Date::factory('2020-01-01')->year_day() === 0
-     * @inline_test zesk\Date::factory('2020-01-02')->year_day() === 1
-     * @param integer $set
-     * @return self|integer
-     */
-    public function year_day($set = null) {
-        if ($set === null) {
-            if (($this->_year_day === null) && (!$this->_refresh())) {
-                return false;
-            }
-            return $this->_year_day;
-        }
-        $yearday = $this->yearday();
-        return $this->add(0, 0, $set - $yearday);
-    }
+	/**
+	 * Get the 0-based index of the day of the year
+	 *
+	 * @inline_test zesk\Date::factory('2020-01-01')->year_day() === 0
+	 * @inline_test zesk\Date::factory('2020-01-02')->year_day() === 1
+	 * @param integer $set
+	 * @return self|integer
+	 */
+	public function year_day($set = null) {
+		if ($set === null) {
+			if (($this->_year_day === null) && (!$this->_refresh())) {
+				return false;
+			}
+			return $this->_year_day;
+		}
+		$yearday = $this->yearday();
+		return $this->add(0, 0, $set - $yearday);
+	}
 
-    /**
-     * Returns the last day of the month (or number of days in the month)
-     *
-     * @see self::days_in_month
-     * @return integer
-     */
-    public function last_day_of_month() {
-        return self::days_in_month($this->month, $this->year);
-    }
+	/**
+	 * Returns the last day of the month (or number of days in the month)
+	 *
+	 * @see self::days_in_month
+	 * @return integer
+	 */
+	public function last_day_of_month() {
+		return self::days_in_month($this->month, $this->year);
+	}
 
-    /**
+	/**
 	 *
 	 * @param integer $month
 	 * @param integer $year
@@ -926,12 +926,12 @@ class Date extends Temporal {
 		return ($this->day === $this->days_in_month($this->month, $this->year));
 	}
 
-    /**
-     * Check if empty, return false. Otherwise compute _weekday and _yearday and return true
-     *
-     * @todo gmmktime? UTC
-     * @return bool
-     */
+	/**
+	 * Check if empty, return false. Otherwise compute _weekday and _yearday and return true
+	 *
+	 * @todo gmmktime? UTC
+	 * @return bool
+	 */
 	private function _refresh() {
 		if ($this->is_empty()) {
 			return false;
@@ -978,26 +978,25 @@ class Date extends Temporal {
 		return gregoriantojd($this->month, $this->day, $this->year) - self::$gregorian_offset;
 	}
 
+	/**
+	 * Returns the last day of the month (or number of days in the month).
+	 *
+	 * @return integer
+	 * @deprecated 2020-10
+	 * @see Date::last_day_of_month()
+	 * @see Date::days_in_month
+	 */
+	public function lastday() {
+		return self::last_day_of_month();
+	}
 
-    /**
-     * Returns the last day of the month (or number of days in the month).
-     *
-     * @return integer
-     * @deprecated 2020-10
-     * @see Date::last_day_of_month()
-     * @see Date::days_in_month
-     */
-    public function lastday() {
-        return self::last_day_of_month();
-    }
-
-    /**
-     * @deprecated 2020-10
-     * @see Date::year_day()
-     * @param integer $set
-     * @return self|integer
-     */
-    public function yearday($set = null) {
-        return $this->year_day($set);
-    }
+	/**
+	 * @deprecated 2020-10
+	 * @see Date::year_day()
+	 * @param integer $set
+	 * @return self|integer
+	 */
+	public function yearday($set = null) {
+		return $this->year_day($set);
+	}
 }
