@@ -12,6 +12,8 @@ namespace zesk;
  * Class definition for Server
  */
 class Class_Server extends Class_ORM {
+    const LOCALHOST = 2130706433;       // IPv4::to_integer('127.0.0.1')
+
 	public $id_column = "id";
 
 	public $find_keys = array(
@@ -39,6 +41,8 @@ class Class_Server extends Class_ORM {
 	);
 
 	public $column_defaults = array(
+        'ip4_internal' => self::LOCALHOST,
+        'ip4_external' => self::LOCALHOST,
 		'free_disk_units' => Server::DISK_UNITS_BYTES,
 	);
 }
