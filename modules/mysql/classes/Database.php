@@ -1303,7 +1303,7 @@ class Database extends \zesk\Database {
 	}
 
 	final public function native_quote_text($value) {
-		if (!is_string($value) or is_integer($value)) {
+		if (!is_string($value) && !is_integer($value)) {
 			throw new Exception_Parameter("Incorrect type {type} passed, string or int required", array(
 				"type" => type($value),
 			));
