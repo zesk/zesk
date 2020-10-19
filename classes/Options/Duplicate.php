@@ -87,9 +87,9 @@ class Options_Duplicate extends Options {
 	 * Sets all inherited members, and maps all object IDs from one copy to another
 	 *
 	 * @param  $object
-     * @return $this
-     * @throws Exception_Semantics
-     */
+	 * @return $this
+	 * @throws Exception_Semantics
+	 */
 	public function process_duplicate($object) {
 		$members = array();
 		foreach ($this->members as $member => $new_value) {

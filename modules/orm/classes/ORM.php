@@ -797,11 +797,12 @@ class ORM extends Model implements Interface_Member_Model_Factory {
 	 * @param mixed $set
 	 * @return ORM|mixed
 	 */
-    /**
-     * @param null $set
-     * @return $this|array|mixed|Model|null
-     * @throws Exception_Parameter
-     */
+
+	/**
+	 * @param null $set
+	 * @return $this|array|mixed|Model|null
+	 * @throws Exception_Parameter
+	 */
 	public function id($set = null) {
 		if (!$this->class) {
 			$this->application->logger->critical("Calling {method} on uninitialized ORM {class} {backtrace}", array(
