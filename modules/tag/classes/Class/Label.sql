@@ -7,7 +7,7 @@ CREATE TABLE `{table}` (
 	`is_translated`	tinyint NOT NULL DEFAULT 0,
 	`owner`			integer unsigned NULL,
 	`created`		timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
-	`modified`		timestamp NOT NULL DEFAULT 0,
+	`modified`		timestamp NOT NULL,
 	`last_used`		timestamp NULL,
 	UNIQUE `code` (`code`)
 	INDEX `owner` (`owner`)

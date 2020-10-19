@@ -325,7 +325,6 @@ class Database_SQL extends \zesk\Database_SQL {
 					return " DEFAULT NULL"; // KMD 2016-05-09 Was DEFAULT 0
 				}
 				return "";
-			// no break
 			default:
 				break;
 		}
