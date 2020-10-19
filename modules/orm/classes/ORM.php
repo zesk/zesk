@@ -5,6 +5,7 @@
  */
 namespace zesk;
 
+use Psr\Cache\CacheItemInterface;
 use zesk\ORM\Walker;
 use zesk\ORM\JSONWalker;
 
@@ -187,7 +188,7 @@ class ORM extends Model implements Interface_Member_Model_Factory {
 	/**
 	 * Retrieve user-configurable settings for this object
 	 *
-	 * @return multitype:multitype:string
+	 * @return array
 	 */
 	public static function settings() {
 		return array(); //TODO
@@ -199,7 +200,7 @@ class ORM extends Model implements Interface_Member_Model_Factory {
 	 * @param string $class
 	 * @param mixed $mxied
 	 * @param array $options
-	 * @return \zesk\ORM
+	 * @return ORM
 	 */
 	public function orm_factory($class, $mixed = null, array $options = array()) {
 		return $this->model_factory($class, $mixed, $options);
@@ -356,7 +357,7 @@ class ORM extends Model implements Interface_Member_Model_Factory {
 
 	/**
 	 *
-	 * @param unknown $cache_id
+	 * @param string $cache_id
 	 * @return ORM_CacheItem
 	 */
 	public function cache_item($cache_id = null) {
@@ -375,7 +376,7 @@ class ORM extends Model implements Interface_Member_Model_Factory {
 	 *
 	 * @param $cache_id string
 	 *        	A specific cache for this object, or NULL for the global cache fo this object
-	 * @return ORM_CacheItem|CacheItemIterface
+	 * @return ORM_CacheItem|CacheItemInterface
 	 */
 	public function object_cache($cache_id = null) {
 		$name[] = get_class($this);
@@ -796,6 +797,11 @@ class ORM extends Model implements Interface_Member_Model_Factory {
 	 * @param mixed $set
 	 * @return ORM|mixed
 	 */
+    /**
+     * @param null $set
+     * @return $this|array|mixed|Model|null
+     * @throws Exception_Parameter
+     */
 	public function id($set = null) {
 		if (!$this->class) {
 			$this->application->logger->critical("Calling {method} on uninitialized ORM {class} {backtrace}", array(
@@ -816,13 +822,7 @@ class ORM extends Model implements Interface_Member_Model_Factory {
 			if ($id instanceof ORM) {
 				return $id->id();
 			}
-			if (!array_key_exists($idcol, $this->class->column_types)) {
-				throw new Exception_Semantics("Class {class} does not define {idcol} in column types {column_types}", array(
-					'class' => get_class($this),
-					'idcol' => $idcol,
-					'column_types' => $this->class->column_types,
-				));
-			}
+			assert(array_key_exists($idcol, $this->class->column_types));
 			$type = $this->class->column_types[$idcol];
 			return $type === Class_ORM::type_id || $type === Class_ORM::type_integer ? intval($id) : strval($id);
 		}
@@ -879,7 +879,7 @@ class ORM extends Model implements Interface_Member_Model_Factory {
 			return $this;
 		}
 
-		throw new Exception_Semantics("{class}::id(\"{value}\" {type}) unknown parameter: ", array(
+		throw new Exception_Parameter("{class}::id(\"{value}\" {type}) unknown parameter: ", array(
 			"class" => get_class($this),
 			"value" => _dump($set),
 			"type" => type($set),
@@ -1175,7 +1175,7 @@ class ORM extends Model implements Interface_Member_Model_Factory {
 			$application->hooks->call("exception", $e);
 			$application->logger->error("Fixing not found {member} {member_class} (#{data}) in {class} (#{id})\n{bt}", array(
 				"member" => $member,
-				"member_class" => $class,
+				"member_class" => get_class($member),
 				"data" => $data,
 				"class" => get_class($this),
 				"id" => $this->id(),

@@ -28,7 +28,7 @@ class Options_Duplicate extends Options {
 
 	/**
 	 *
-	 * @param unknown $member
+	 * @param string $member
 	 * @return boolean
 	 */
 	public function has_member($member) {
@@ -37,7 +37,7 @@ class Options_Duplicate extends Options {
 
 	/**
 	 *
-	 * @param unknown $member
+	 * @param string $member
 	 * @return boolean
 	 */
 	public function has_map($member) {
@@ -48,7 +48,7 @@ class Options_Duplicate extends Options {
 	 *
 	 * @param string $member
 	 * @param mixed $value
-	 * @return self
+	 * @return self|array
 	 */
 	public function member($member = null, $value = null) {
 		if ($member === null) {
@@ -56,7 +56,7 @@ class Options_Duplicate extends Options {
 		}
 		if (is_array($member)) {
 			foreach ($member as $k => $v) {
-				$this->set_member($k, $v);
+				$this->member($k, $v);
 			}
 			return $this;
 		}
@@ -72,8 +72,8 @@ class Options_Duplicate extends Options {
 	 *  $old is now $new in new object, so map appropriate fields
 	 *
 	 * @param string $member
-	 * @param  $old
-	 * @param  $new
+	 * @param ORM $old
+	 * @param  ORM $new
 	 * @return self
 	 */
 	public function map($member, $old, $new) {
@@ -87,8 +87,9 @@ class Options_Duplicate extends Options {
 	 * Sets all inherited members, and maps all object IDs from one copy to another
 	 *
 	 * @param  $object
-	 * @return self
-	 */
+     * @return $this
+     * @throws Exception_Semantics
+     */
 	public function process_duplicate($object) {
 		$members = array();
 		foreach ($this->members as $member => $new_value) {
