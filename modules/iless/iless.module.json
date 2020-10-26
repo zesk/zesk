@@ -11,6 +11,6 @@
 		"class_prefix": "zesk\\ILess\\"
 	},
 	"zesk_command_path": "classes/Command",
-	"zesk_command_path_class_prefix": "zesk\\ILess\\Command_",
+	"zesk_command_class_prefix": "zesk\\ILess\\Command_",
 	"module_class": "zesk\\ILess\\Module"
 }

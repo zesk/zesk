@@ -5,7 +5,7 @@
 		"class_prefix": "zesk\\Cron\\",
 		"lower": false
 	},
-	"zesk_command_path_class_prefix": "zesk\\Cron\\Command_",
+	"zesk_command_class_prefix": "zesk\\Cron\\Command_",
 	"requires": [
 		"ORM"
 	]

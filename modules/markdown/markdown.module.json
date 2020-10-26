@@ -10,6 +10,6 @@
 		"class_prefix": "zesk\\"
 	},
 	"zesk_command_path": "classes/Command",
-	"zesk_command_path_class_prefix": "zesk\\Command_",
+	"zesk_command_class_prefix": "zesk\\Command_",
 	"module_class": "zesk\\Module_Markdown"
 }

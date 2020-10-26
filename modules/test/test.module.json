@@ -11,5 +11,5 @@
 		"class_prefix": "zesk\\",
 		"lower": false
 	},
-	"zesk_command_path_class_prefix": "zesk\\Command_"
+	"zesk_command_class_prefix": "zesk\\Command_"
 }

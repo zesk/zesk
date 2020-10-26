@@ -5,7 +5,7 @@
 		"lower": false
 	},
 	"module_class": "zesk\\Daemon\\Module",
-	"zesk_command_path_class_prefix": "zesk\\Daemon\\Command_",
+	"zesk_command_class_prefix": "zesk\\Daemon\\Command_",
 	"requires": [
 		"ORM"
 	]

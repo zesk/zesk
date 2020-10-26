@@ -929,7 +929,7 @@ class Command_Update extends Command_Base {
 				$strip_components = implode("/", $parts);
 			}
 		}
-		assert("$n_components >= 0");
+		assert($n_components >= 0);
 
 		if ($n_components > 0) {
 			foreach (Directory::ls($temp_directory_name) as $d) {
